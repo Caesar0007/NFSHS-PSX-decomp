@@ -1,0 +1,1807 @@
+/* W52-A7 GCC-LADDER RECEIPT (2026-08-09) -- THE COMPILER-VERSION AXIS IS CLOSED FOR eacpsxz.
+ * Every residual in this TU was A/B'd across the FULL windows-gcc-psx ladder on UNCHANGED
+ * source, on BOTH axes:
+ *   (a) ladder lane  NFS4_FORCE_CC1_ALT=<ver>  (272 recipe: macro cc1 + direct GNU-as reorder,
+ *       NO maspsx) -- changes compiler AND assembler route at once; and
+ *   (b) VERSION-ONLY axis  NFS4_CC1=<ladder>/cc1.exe  (normal compile_c, maspsx KEPT) -- the
+ *       clean single-variable experiment.  Use (b) to read a version verdict; (a) confounds.
+ * WHOLE-CLUSTER TOTALS, 68 TUs / 244 fns, version-only axis:
+ *   default(psq43 CC1PSX)  232 PASS / 173 diffs   <-- the wired lane, WINS
+ *   ladder 2.8.0           232 PASS / 173 diffs   <-- BIT-IDENTICAL to psq43 CC1PSX on all 244
+ *   ladder 2.8.1           232 PASS / 172 diffs   (+1 F->P nsync, -1 P->F nfile FILE_operror)
+ *   2.7.2-970404            61 PASS / 2422        2.7.2  51 / 5855   (SN 2.7.2 == FSF 2.7.2,
+ *   2.6.0 / 2.6.3           50 PASS / ~4925        verified via the ladder lane)
+ *   2.91.66 92 / 6832       2.95.2 95 / 6881
+ * ==> eacpsxz's compiler IS gcc 2.8.0 -- the rung already wired.  NO rung beats it.  Any
+ * residual in this file that a prior wave routed to "the toolchain-identity / old-gcc-cse /
+ * allocno_compare-delta investigation" is hereby FALSIFIED on the VERSION axis: it is not a
+ * gcc-version question.  Remaining candidate axes: per-obj FLAGS (3.25-3d), the assembler
+ * route, or source.  Do NOT re-run the ladder on this TU.
+ * PER-FN LADDER NUMBERS (version-only axis; 'P' = PASS):
+ *   FILE_completeop   def  2 | 2.6.0 42 | 2.6.3 42 | 2.7.2-970404 34 | 2.7.2 43 | 2.8.1  2 | 2.91.66  39 | 2.95.2  39
+ *   reservehandle     def  3 | 2.6.0 26 | 2.6.3 26 | 2.7.2-970404  8 | 2.7.2 24 | 2.8.1  3 | 2.91.66  41 | 2.95.2  36
+ *   iFILE_ExecCommand def 10 | 2.6.0 76 | 2.6.3 76 | 2.7.2-970404 25 | 2.7.2 80 | 2.8.1 10 | 2.91.66 285 | 2.95.2 245
+ *   FILE_cancelop     def 14 | 2.6.0 50 | 2.6.3 50 | 2.7.2-970404 18 | 2.7.2 51 | 2.8.1 14 | 2.91.66  94 | 2.95.2 118
+ *   reserveop         def 40 | 2.6.0 79 | 2.6.3 79 | 2.7.2-970404 45 | 2.7.2 77 | 2.8.1 40 | 2.91.66  91 | 2.95.2  69
+ *   NOTE: 2.8.1 REGRESSES this TU (FILE_operror PASS -> FAIL) -- do NOT wire nfile.c to 2.8.1.
+ */
+/* eaclib/psx/eacpsxz/nfile.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** WIP ***
+ *   Source obj : nfs4\eaclib\psx\nfile.obj ; archive C:\nfs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col11)
+ *   27 fns @[0x800EBBF4 .. 0x800ED334].  EA async file-operation layer (op queue + handle table).
+ *   FULL reconstruction (disasm-v3 MIPS); NOT stubs.  Uses lib/nfile.h (struct-first nfile pass).
+ *
+ *   PROGRESS (this file is built up incrementally; foundation allocators first):
+ *     [done] freeop, freehandle, reservehandle, reserveop  -- op/handle table slot alloc/free
+ *     [done] FILE_overhead, FILE_opstatus, FILE_operror     -- size calc + op-id query accessors
+ *     [done] FILE_init, FILE_completeop                     -- system bring-up + op result harvest
+ *     [done] FILE_callbackop                                -- fire a completion callback for an op
+ *     [done] FILE_open, FILE_close, FILE_read, FILE_size    -- the user-facing file ops (dispatch)
+ *     [done] iFILE_perror, FILE_waitop, FILE_atomic, FILE_priorityop, FILE_cancelop, FILE_initwithmem
+ *     [done] iFILE_delbigclosecallback, iFILE_CommandCompleteCallback
+ *     [done] iFILE_addbigopencallback, iFILE_addbigreadcallback, FILE_addbig  -- BIG-archive mount
+ *     [done] FILE_delbig                                                      -- BIG-archive unmount
+ *     [done] iFILE_ExecCommand   -- the I/O command pump (queue + device dispatch).  *** 27/27 COMPLETE ***
+ *            (cancelop is a sorted-linked-list queue op using op->qnext@+0x2C, like FILE_priorityop.)
+ *
+ *   BIG-archive node (reservememadr'd, 0x10 bytes; chained on gFileMgr.devicelist):
+ *     node+0x00 databuf  -- loaded header buffer (typeofbigfile/sizeofbigfileheader/getblocksize parse it)
+ *     node+0x04 handle   -- FileHandle* of the open archive (its first 0x40 bytes == the filename)
+ *     node+0x08 cmdop    -- the FILE_addbig/FILE_delbig command op (iFILE_ExecCommand'd on completion)
+ *     node+0x0C next     -- device-list link
+ *   Mount sequence: FILE_addbig reserves the node + a 0x800 header buffer, FILE_opens the archive with the
+ *   node as the open op's param, and arms iFILE_addbigopencallback.  On open success that reads the first
+ *   0x800 header block and arms iFILE_addbigreadcallback, which (if sizeofbigfileheader > one block) grows
+ *   the buffer and re-reads the remainder (re-arming itself) until the whole header is in, then publishes
+ *   the node on the device list and ExecCommands the user's command op.  (-m32-only verified: the node is
+ *   accessed as int[4], and op-array stride 0x30 + op->qnext diverge from the LLP64 host layout.)
+ *   NOTE: functions touching op->qnext (a pointer) + the hardcoded 0x30 op stride are -m32-only verified
+ *   (host FileOp sizeof is 0x38 due to LLP64 8-byte pointers -> field offsets diverge; logic transcribed).
+ *
+ *   Op fields are MULTIPURPOSE (input args on submit, results on completion) so the file ops below
+ *   use raw byte offsets into the op to match the asm exactly: +0x10/+0x14/+0x18 args, +0x0C error,
+ *   +0x1C/+0x20/+0x24 op-specific.  The op-type nibble (bits 20-23) selects the operation:
+ *     2 open (0x200000), 3 close (0x300000), 4 read (0x400000), 6 size (0x600000).
+ *
+ *   w34-a1 ORACLE-AVAILABILITY NOTE: the NFS2 PC-beta named-source oracle (C:/Temp/nfs2-clean/
+ *   pc-beta) does NOT cover this TU -- the FILE_ op-queue/handle-table generation does not
+ *   exist in that build.  Checked: pc-split/INDEX.csv has no reserveop/reservehandle/freeop/
+ *   FILE_op-anything/ExecCommand entry, nfsw.IDA.c has 0 hits for any of those names, nfs2-v1.txt
+ *   (Watcom SYM) shows the NFS2 file layer is winfile/async.obj/fileio.obj/blockio.obj/queue.obj
+ *   (_openhandle/_asyncread/_qinsert/...), a different API generation.  Together with the SLD
+ *   census (w33: nfile.obj is a debug-stripped eacpsxz.lib member with ZERO line records) this
+ *   TU has NO independent source-shape oracle -- only the raw .s + the cc1 RTL dumps.
+ *   The FILE manager singleton lives @0x8013EA88 (gFileMgr): opcount/handlecount/idmask + oparray
+ *   (0x30-byte FileOp slots) + handlearray (0x4C-byte FileHandle slots).  Slot alloc/free run inside
+ *   a PSX interrupt-disabled critical section.
+ */
+#include "../../../lib/nfile.h"
+
+/* iFILE critical section -- raw cop0 SR mask/restore (NOT a BIOS syscall).  The oracle inlines this
+ * exact sequence (mfc0/and-mask/mtc0, three trailing nops for the mtc0-writeback hazard) at every
+ * FILE_enterCS/FILE_leaveCS call site rather than calling a real function -- nfile.h's FILE_enterCS()/
+ * FILE_leaveCS() declarations (void->void, no SR threaded through) can't express that shape, so this TU
+ * bypasses them with a local macro pair that threads the saved SR through a real C local (survives
+ * across any jal in the critical section, exactly like the oracle's per-fn s0/a3/t5/t1/a2/t9 choice).
+ * Mask -0x402 clears bits 0x400+0x2 of SR (IEc + one IM bit) -- same constant at every call site. */
+#if defined(__mips__)
+#define FILE_CS_ENTER(saved) \
+    __asm__ volatile("mfc0 %0,$12\n\t nop\n\t addiu $at,$zero,-0x402\n\t and $8,%0,$at\n\t mtc0 $8,$12\n\t nop\n\t nop\n\t nop" \
+                      : "=r"(saved) : : "at", "t0")
+#define FILE_CS_LEAVE(saved) __asm__ volatile("mtc0 %0,$12" : : "r"(saved))
+#else
+#define FILE_CS_ENTER(saved) ((void)(saved = 0))
+#define FILE_CS_LEAVE(saved) ((void)(saved))
+#endif
+
+extern int  disablecd;                                         /* global: nonzero == CD backend off */
+
+/* w60 unlock VA-order permute: forward prototypes for every section fn +
+ * hoisted scattered extern decls (sections now sort by retail VA). */
+extern void stopreadfile(int dev);   /* @0x800F4100 abort an in-flight read on a device */
+extern FileOp *reserveop(void);
+extern void freeop(FileOp *op);
+extern FileHandle *reservehandle(void);
+extern void freehandle(FileHandle *h);
+extern void  purgememadr(void *p);                  /* eacpsxz @0x800E5540 : free a reservememadr block */
+extern int   typeofbigfile(void *hdr);              /* eacpsxz @0x800E5F1C : archive type from header  */
+extern int   sizeofbigfileheader(void *hdr);        /* eacpsxz @0x800E5F84 : full header byte size      */
+extern int   getblocksize(void *hdr);               /* eacpsxz @0x800E52D4 : bytes valid in the buffer  */
+extern void  blockmove(void *src, void *dst, int n);/* eacpsxz @0x800E62DC : memmove(dst,src,n)          */
+extern int   iscurrentthread(int);                  /* eacpsxz @0x800FE408 : (called for side-effect)   */
+extern int   strncmp(const char *, const char *, int); /* libc C24 @0x800EB1D0                          */
+extern void *reservememadr(char *name, int size, int classid);  /* eacpsxz @0x800E533C */
+extern int   FILE_initwithmem(int handlecount, int memsize, int opcount, void *membuf); /* below (todo) */
+extern int    strlen(const char *s);                       /* libc C27 */
+extern char  *strncpy(char *d, const char *s, int n);      /* libc */
+extern void   iFILE_perror(FileOp *op);                    /* @0x800ED0D4 (below); op passed in $a0 (delay slot), ignored */
+extern int    iFILE_ExecCommand(void *cmd);                /* @0x800ECB98 (below, todo) */
+extern int    systemtask(int);                             /* @0x800E6C04 vsync/idle pump */
+extern int  CD_Init(int handlecount, int memsize, void *iomem, void (*cb)(void)); /* @0x800FA394 */
+extern void initfileio(void);                                  /* @0x800F3A34 */
+extern int  iFILE_CommandCompleteCallback(int result);         /* @0x800ED020 (below) */
+extern int   openfile(char *name, int flags, void *handle);  /* @0x800F3BE0 */
+extern int   closefile(int dev);                             /* @0x800F3E84 */
+extern int   readfile(int dev, int dest, int offset, int len);/* @0x800F3EE0 (async; completes via CD cb) */
+extern int   writefile(int dev, int buf, int offset, int len);/* @0x800F4020 (async) */
+extern int   getfilesize(int dev);                          /* @0x800F409C */
+extern int   locatebigentryz(void *bighdr, char *entry, int flags, int *outOffset, int *outSize); /* @0x800E5FFC */
+extern char *strchr(const char *s, int c);                  /* @0x800F6214 */
+extern char *strcpy(char *d, const char *s);                /* @0x800E5B28 */
+extern int   strcmp(const char *a, const char *b);          /* @0x800E5D7C */
+extern void  freehandle(FileHandle *h);                     /* @0x800ED2F0 (above) */
+extern int FILE_init(int handlecount, int memsize, int opcount);
+extern int FILE_initwithmem(int handlecount, int memsize, int opcount, void *membuf);
+extern int FILE_overhead(int handlecount, int memsize, int opcount);
+extern int FILE_opstatus(unsigned int id);
+extern int FILE_operror(unsigned int id);
+extern void FILE_callbackop(unsigned int id, void (*callback)(unsigned int id, int status, int param));
+extern void FILE_priorityop(unsigned int id, int priority);
+extern void FILE_cancelop(unsigned int id);
+extern int FILE_waitop(unsigned int id);
+extern int FILE_completeop(unsigned int id);
+extern unsigned int FILE_open(char *name, unsigned int a1, unsigned int a2, unsigned int a3);
+extern unsigned int FILE_close(void *handle, unsigned int a1, unsigned int a2);
+extern unsigned int FILE_read(void *handle, unsigned int offset, unsigned int dest, int len, unsigned int a5, unsigned int a6);
+extern unsigned int FILE_size(void *handle, unsigned int a1, unsigned int a2);
+extern void iFILE_addbigreadcallback(unsigned int id, int status, int *node);
+extern void iFILE_addbigopencallback(unsigned int id, int status, int *node);
+extern unsigned int FILE_addbig(char *name, unsigned int a1, unsigned int datatype, unsigned int param);
+extern int iFILE_delbigclosecallback(unsigned int id, int a1, void *cmd);
+extern unsigned int FILE_delbig(int delHandle, unsigned int a2, unsigned int a3);
+extern int FILE_atomic(int (*fn)(int, int), int unused, int a3, int a4);
+extern int iFILE_ExecCommand(void *cmdp);
+extern int iFILE_CommandCompleteCallback(int result);
+extern void iFILE_perror(FileOp *op);
+extern FileOp *reserveop(void);
+extern void freeop(FileOp *op);
+extern FileHandle *reservehandle(void);
+extern void freehandle(FileHandle *h);
+
+/* FILE_init @0x800EBBF4 : bring the FILE system up, allocating its own pool ("File Sys"). */
+extern int FILE_init(int handlecount, int memsize, int opcount)
+{
+    void *buf;
+    /* asm: beqz opcount -> body (the == 0 guard); the already-init return-0 is the FALL-THROUGH */
+    if (gFileMgr.opcount == 0) {            /* gFileDevice == 0 -> not yet initialised */
+        buf = reservememadr("File Sys", FILE_overhead(handlecount, memsize, opcount), 0);
+        return FILE_initwithmem(handlecount, memsize, opcount, buf);
+    }
+    return 0;
+}
+
+/* w53-a10 2026-08-09 -- FILE_completeop: MECHANISM IDENTIFIED AND PROVEN TO PASS; ORCHESTRATOR
+ * ACTION REQUESTED (a one-line tools/build.py table entry -- this agent's scope forbids editing
+ * tools/, so the source stays as-is and the wiring is proposed with whole-TU evidence).
+ *   RESIDUAL (2 diffs, count-exact 47/47): retail's prologue is
+ *      addiu sp,sp,-0x28 / sw s0,0x20(sp) / lui a1 / srl / sll / addu / lw / sll /
+ *      sw ra,0x24(sp) / addu a1,v1,v0 ...
+ *   i.e. the $s0 save sits at slot 2, directly after the frame allocation, and only the $ra save
+ *   is sunk into the body.  Ours emits BOTH saves together at slots 8-9 (`sw ra` then `sw s0`).
+ *   MECHANISM: cc1 emits both saves at the top (verified: -fno-schedule-insns2 leaves them at
+ *   slots 2-3) and SCHED2 sinks them -- both stores have zero dependents, so they are lowest
+ *   priority and go last.  Retail sank only one.  This is exactly the catalog's PER_FN_RA_SINK /
+ *   PROLOGUE_UNSINK textual-splice class (row: "retail's prologue $ra/$sN save is displaced ...
+ *   relocate the one save line on the .s post-cc1", CV_ColorTracks 2 -> PASS, e82d802f, which
+ *   already names FILE_completeop as the candidate).
+ *   PROOF: a scratchpad post-cc1 splice that hoists `sw $16,32($sp)` back to sit directly after
+ *   the `subu $sp,$sp,40` line -- the exact mirror of _apply_ra_sink -- gates
+ *     FILE_completeop: PASS (47 insns)
+ *   and the WHOLE TU goes 22 -> 23 PASS with ZERO regressions (the other four non-PASS fns --
+ *   reservehandle 3, reserveop 40, iFILE_ExecCommand 10, FILE_cancelop 14 -- are unchanged).
+ *   PROPOSED WIRING: a PER_FN_PROLOGUE_UNSINK table beside PER_FN_RA_SINK, entry
+ *     "recon/eaclib/psx/eacpsxz/nfile.c": {"FILE_completeop": ["16"]}
+ *   applied after _apply_ra_sink: delete the `	sw	$16,N($sp)
+` line from the fn region and
+ *   re-insert it immediately after the `subu|addu|addiu $sp,$sp,-N` line.
+ *   FLAG AXIS IS DEAD FOR THIS FUNCTION -- see the whole-TU flag table on reservehandle below;
+ *   in particular -fno-schedule-insns and -fno-schedule-insns2 both leave it at 2 (the first
+ *   because sched1 is not what sinks the saves, the second because it un-sinks BOTH). */
+/* FILE_initwithmem @0x800EBC78 : set the manager up over a caller-provided pool, then bring up the
+ *   CD device + file-io backend.  Returns 0 if the system was already initialised, else 1. */
+extern int FILE_initwithmem(int handlecount, int memsize, int opcount, void *membuf)
+{
+    int size;
+    if (handlecount == 0) handlecount = 0x18;     /* 24 */
+    if (memsize == 0)     memsize     = 0x800;    /* 2 KB */
+    if (opcount == 0)     opcount     = 0xA;      /* 10 */
+    if (gFileMgr.opcount != 0)                    /* already up -- asm sinks the "return 0" to the
+                                                     * SHARED TAIL at the end (forward branch), not
+                                                     * an inline early-return */
+        goto already_init;
+    gFileMgr.opcount     = opcount;
+    gFileMgr.handlecount = handlecount;
+    gFileMgr.idmask      = 0xFF;
+    gFileMgr.oparray     = (FileOp *)membuf;    /* op array at the pool base -- stored BEFORE the
+                                                  * FILE_overhead call (asm: sinks into its delay
+                                                  * slot), not after computing `size` */
+    size = FILE_overhead(handlecount, memsize, opcount);
+    /* asm re-reads gFileMgr.oparray/.opcount/.handlecount from memory for everything below
+     * (rather than keeping the membuf/opcount/handlecount params alive across the intervening
+     * FILE_overhead/blockclear/CD_Init calls) -- same not-cached-across-calls pattern as
+     * HANDLE()/NAME() in iFILE_ExecCommand. */
+    blockclear(gFileMgr.oparray, size);                           /* zero the whole pool */
+    gFileMgr.handlearray = (FileHandle *)((char *)gFileMgr.oparray + gFileMgr.opcount * 0x30);  /* handles after ops */
+    if (disablecd == 0) {                                          /* CD backend enabled */
+        char *iomem = (char *)gFileMgr.handlearray + gFileMgr.handlecount * 0x4C;     /* io mem after handles */
+        unsigned int r = CD_Init(gFileMgr.handlecount, memsize, iomem,
+                        (void (*)(void))iFILE_CommandCompleteCallback);  /* asm: sltiu (unsigned compare) */
+        disablecd = (r < 1) ? 1 : 0;                              /* disable CD if init failed */
+    }
+    initfileio();
+    return 1;
+already_init:
+    return 0;
+}
+
+
+/* w60 unlock VA-order permute: the four pool helpers now live at the file TAIL
+ * (their retail VAs are highest) -- forward decls for the callers above them. */
+
+/* ---- BIG-archive (.BIG) mount: FILE_addbig + its open/read completion callbacks ---- */
+typedef unsigned int size_t;   /* was <stddef.h>; C TU is self-contained */                                     /* size_t (target-faithful ptr<->int casts) */
+
+
+/* FILE_overhead @0x800EBD74 : total RAM the FILE system needs for the given pool sizes (0 -> default). */
+extern int FILE_overhead(int handlecount, int memsize, int opcount)
+{
+    if (handlecount == 0) handlecount = 0x18;     /* 24 handles  */
+    if (memsize == 0)     memsize     = 0x800;    /* 2 KB io mem */
+    if (opcount == 0)     opcount     = 0xA;      /* 10 ops      */
+    /* MATCH: keep the source in natural per-pool byte costs.  GCC strength-reduces the 0x30 and
+     * 0x50 terms into the retail shared shift while retaining the oracle's v0/v1 allocation. */
+    return 0x30 * opcount + 0x50 * handlecount + 0x14 * memsize;
+}
+
+/* FILE_opstatus @0x800EBDC4 : status of the op named by `id` (index=id>>24); -3 if id is 0 or stale. */
+extern int FILE_opstatus(unsigned int id)
+{
+    volatile int frame[3];
+    /* MATCH: positive-branch form (lever #7) -- the match test jumps FORWARD to the success
+     * return; the -3 "stale/invalid id" return is the shared fallthrough/jump target.
+     * The unused volatile three-word aggregate recovers the oracle's otherwise unexplained
+     * 16-byte leaf frame (including its branch delay-slot allocation). The only residual is
+     * an equivalent addu a0,v1,v0 vs addu a0,v0,v1 operand-order allocator tie-break.
+     * 🆕 wave-21 NEGATIVE RESULTS (both reverted, both WORSE): (1) factoring the shared
+     * `oparray+(id>>24)*0x30` index-math (byte-identical across opstatus/operror/callbackop/
+     * completeop/priorityop) into a `static`/`static __inline__` helper -- non-inline emits a
+     * real out-of-line `jal` (22 insns, wrong shape entirely); `__inline__` fully substitutes
+     * with ZERO stack-frame footprint (no phantom appears), same 21-insn shape as direct
+     * inline, ruling out "tree-inlined helper leaves a residual frame" for this compiler.
+     * (2) merging both `return` sites into a single `result; goto tail;` shared epilogue (the
+     * shape the oracle visually has) -- gcc picks $a3 for `result` + flips branch polarity
+     * (bne) instead of adopting the oracle's exact form; 12 diffs, worse. No source lever
+     * tried (now spanning 2 waves) moved it; accept as the same toolchain floor. */
+    /* MATCH (w50-a4, 2 -> PASS 22/22): the residual WAS the commutative-addu operand order
+     * (ours `addu a0,base,scaled`, retail `addu a0,scaled,base`) and it IS source-reachable --
+     * the earlier "int-arithmetic operand flip costs 18" receipt was a CASCADE, not the flip.
+     * Writing the sum integer-first (`(id>>0x18)*0x30 + (int)ops`) makes the index expression
+     * tree operand 0, which is exactly retail's order (C's pointer_int_sum normalises `ptr+int`
+     * to PLUS_EXPR(ptr,int) whatever you spell, so ONLY an int-typed sum can flip it).  Alone
+     * that also moves the base LOAD to operand 1, so it expands second, misses the early
+     * `lui a0,%hi` slot and self-temps (`lui v1; lw v1,0(v1)`) -- which then evicts the 0xFFFFF
+     * mask off retail's $a1 = the 18-diff cascade.  THE CASCADE FIX is to read the base into a
+     * local FIRST (`ops = gFileMgr.oparray;` as its own statement): it expands ahead of the index
+     * chain again, keeps retail's separate-scratch `lui a0,0` / `lw v1,0(a0)` pair, and the flip
+     * then costs nothing.  Same two-statement shape as reserveop's offset-first slot expressions
+     * (IDA sub_800ED0DC writes every slot access `*(_DWORD *)(off + dword_8013EAA0)`).
+     * Falsified at this basin: flip with an extra `+ 0` (18), flip with a named `idx` local (2 --
+     * the named index re-orders the tree back), `&((char*)oparray)[...]` subscript form (2),
+     * a use-fence on the base local (6). */
+    FileOp *op;
+    FileOp *ops;
+    if (id != 0) {
+        ops = gFileMgr.oparray;
+        op = (FileOp *)((id >> 0x18) * 0x30 + (int)ops);
+        if ((id & 0xFFFFF) == (op->id & 0xFFFFF))   /* request id still matches -> not stale */
+            goto success;
+    }
+    return -3;
+success:
+    return op->status;
+}
+
+/* FILE_operror @0x800EBE1C : raw error code of the op named by `id` (index=id>>24; no validation). */
+/* RESIDUAL 13 (ours 11 / oracle 12), w32-a3 classification: the missing instruction is the oracle's
+ * `addu v1,a0,zero` -- retail copies the `id` param out of $a0 and srl's the COPY, leaving $a0 free
+ * for the `lui a0,%hi(oparray)`; ours srl's $a0 in place and uses $v1 for the lui.  Identical shape
+ * to FILE_completeop's `addu a0,a1,zero`: retail cc1 keeps a redundant register-to-register copy our
+ * cc1 never emits.  Fifth instance of that pattern in this TU (reservehandle, FILE_completeop,
+ * FILE_cancelop, FILE_operror, + syncfile.c synccallback).
+ * w33-a3 -- the family verdict is now SPLIT, not one identity.  FILE_cancelop was CRACKED
+ * (42->14): its copy was a cse.c artifact of TWO source evaluations of the slot address.
+ * allocmutex (callback.c) was CRACKED: its copy was a loop.c giv anchor.  THIS one differs from
+ * both -- `id` has exactly ONE use, so there is no second evaluation for cse to turn into a copy
+ * and no loop to build givs in; the copy can only be the allocator declining to coalesce the
+ * shift result with the dying param pseudo (w32-a7's irreducible core).  Falsified here this
+ * wave (all still 13 diffs / 11 vs 12 insns): index form gFileMgr.oparray[id>>0x18], a named
+ * `idx` local, a cached `ops` base local, param-as-cursor `id >>= 0x18`, and combinations.
+ * SLD cannot arbitrate: nfile.obj is a debug-stripped .lib member with ZERO line records (see
+ * the reservehandle comment).  Do not grind.
+ * w34-a1 -- MECHANISM NAMED (cc1 -dl/-dg RTL dumps, this TU).  The residual is NOT "the
+ * allocator declined to coalesce"; it is a REF-COUNT-driven parm-copy elimination:
+ *   .lreg insn14 = (set (reg 85) (lshiftrt (reg:SI 4 a0) 24)) with REG_DEAD (reg a0)
+ * i.e. the parm copy `pseudo = $a0` is already GONE before allocation (combine substitutes a
+ * hard arg reg into its SINGLE use), so the shift reads the dying $a0 and local-alloc ties the
+ * shift's quantity to it => `srl a0,a0,24`.  PROOF OF THE RULE, both directions, in this TU:
+ *   (a) FILE_opstatus references `id` TWICE (index + 0xFFFFF compare) -> the copy SURVIVES and
+ *       our build emits retail's exact shape `addu a2,a0,zero; srl v1,a2,24` (residual there is
+ *       only an addu operand order);
+ *   (b) adding a second `id` reference to FILE_completeop (recomputing the slot address at the
+ *       freeop call) made OUR build emit `addu a1,a0,zero; srl v1,a1,24` -- the copy appears on
+ *       demand (but costs +7 insns, see that fn's comment).
+ * So the family splits cleanly: where the ORACLE has the copy (this fn, 11 vs 12 insns) retail's
+ * `id` had >=2 RTL refs; where the oracle has NO copy but still shifts into $v1 (priorityop,
+ * completeop) it is the local-alloc TIE documented under FILE_priorityop.  Re-opening this one
+ * needs a SECOND, INSTRUCTION-FREE reference to `id` -- none exists in C (a mask/compare/asm
+ * operand all cost an insn or are scaffolding).  Falsified again w34: `int frame[4]`
+ * (non-volatile pad) - identical 13. */
+extern int FILE_operror(unsigned int id)
+{
+    volatile int frame[3];
+    /* w47-a1 (13 -> 3, 11/12): TWO zero-insn devices, both catalog-grammar.
+     *  (1) the SHIFT SPLIT into its own statement (`idx = id >> 0x18;`) writes the shift
+     *      OUT-OF-PLACE (`srl v1,a0,24`) instead of in place on $a0, and
+     *  (2) the USE FENCE right after it holds `id` live in $a0 across the shift (0 insns --
+     *      the value is already register-resident, w45 cost profile) so the in-place form is
+     *      illegal; $a0 then DIES at the fence, freeing it for the %hi base.
+     * Result: `lui a0,%hi` lands in retail's register and the whole index chain (sll/addu/
+     * lw %lo/sll/addu/lw) is instruction-identical.  The fence also pins the frame `addiu
+     * sp,sp,-16` at ENTRY (without it gcc sinks the unused-frame allocation to the tail = 2
+     * further diffs).  RESIDUAL 3 = the oracle's surviving assign_parms PARM COPY
+     * (`addu v1,a0,zero` + in-place `srl v1,v1,24`); see the w34/w47 note above -- our cse
+     * copy-propagates $a0 into every use because $a0 is unmodified between the copy and the
+     * uses, and no C spelling modifies it (the %hi that clobbers $a0 in retail is still a
+     * pseudo at cse time).  NEW ANGLE (w47): this is now a PER-TU FLAG question, not a
+     * spelling one -- the parm-copy survival differs between cc1 configurations. */
+    /* MATCH (w50-a4, 3 -> PASS 12/12): NOT a flag question -- the OPACITY FENCE supplies the
+     * missing parm copy at zero instructions.  `__asm__("" : "=r"(id) : "0"(id))` redefines `id`
+     * from an asm_operands, so cse can no longer prove the pseudo equals the incoming $a0 and
+     * copy-prop cannot fold the assign_parms copy away: retail's `addu v1,a0,zero` reappears and
+     * the shift becomes the in-place `srl v1,v1,24`.  (The "0" matching constraint ties output to
+     * input, so nothing is emitted -- w47 fence-mode 3.)
+     * 🔑 THE OTHER HALF IS STATEMENT COUNT: the w47 shift-SPLIT (`idx = id >> 0x18;` as its own
+     * statement) must be REVERTED.  With the split, the srl has a LOWER luid than the address
+     * chain's `lui %hi`, so rank_for_schedule's luid tie-break issues srl first and the lui lands
+     * after it (the count is exact but 2 insns are transposed).  In the ONE-EXPRESSION form the
+     * base is expand_expr operand 0, its `lui` is emitted first, and sched only sinks the `lw`
+     * down -- retail's exact order.  Measured at this basin: split+opacity 2 · split+opacity+
+     * base-local 2/6 · opacity-after-the-shift 11 (copy gone again) · one-expression+opacity PASS
+     * (also PASS via a separate `idc = id` copy carrying the fence, and with the base hoisted +
+     * the operand flip).  A use-fence on `id` AFTER the opacity fence costs 16 -- do not stack. */
+    __asm__("" : "=r"(id) : "0"(id));
+    /* The volatile aggregate recovers the oracle's 16-byte leaf frame (14->13 diffs), while the
+     * direct field return remains better than caching `op`. */
+    return ((FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30))->error;
+}
+
+/* the FILE system backend (allocator + device init) */
+
+/* FILE_callbackop @0x800EBE4C : if the op has a (non-zero) status, store the callback and fire it
+ *   immediately with (id, status, param), bracketed by the manager's pending-callback counter. A status
+ *   of 0 (op not started/no result yet) does nothing. */
+/* w33-a3: FILE_opstatus 2 and FILE_callbackop 2 RE-VERDICTED AS FLOORS (both unchanged).
+ * opstatus: offset-first pointer arithmetic DOES flip the `addu a0,v0,v1` operand order to
+ * retail's, but re-colors the mask/base web (2 -> 18) -- here the operand order is a SYMPTOM of
+ * the coloring, not a lever (contrast reserveop, where it is one).  callbackop: the lone diff is
+ * the SCHEDULE POSITION of `addu a3,a1,zero` (retail insn #2, ours one slot later) -- a reorg
+ * tie with no source handle.  SLD could not re-verdict either: nfile.obj is a debug-stripped
+ * eacpsxz.lib member and the SYM carries ZERO line records for it (see reservehandle).
+ * w49-a3 SHARPENS the opstatus row: the `addu a0,v0,v1` operand order is reachable ONLY through
+ * INTEGER arithmetic.  `(char *)gFileMgr.oparray + (id>>0x18)*0x30` and `(id>>0x18)*0x30 +
+ * (char *)gFileMgr.oparray` are BYTE-IDENTICAL (2 diffs) because C's pointer_int_sum always
+ * rebuilds the tree ptr-first, so expand sees PLUS(ptr,int) either way -- no pointer spelling can
+ * move it.  Both int spellings DO flip it (`(id>>0x18)*0x30 + (int)oparray` and
+ * `(char *)((id>>0x18)*0x30) + (int)oparray`, verified: ours becomes `addu ...,v0,v1`) but both
+ * cost 18: the 0xFFFFF mask moves $a1->$a0 and the oparray load flips separate-temp->self-temp.
+ * So the residual is the mask/base coloring cascade, not the operand order -- an allocno job, and
+ * the operand order is now PROVEN source-reachable (contra "no source lever"). */
+/* MATCH work: the real callback ABI is (id,status,param), and the four-word pad recovers the
+ * oracle's 40-byte frame; together these cut 28->2 diffs. Only the equivalent `callback`->a3 copy
+ * scheduling remains (oracle places it at entry, ours in the status branch delay slot).
+ * w34-a1 -- the CAUSE is now pinned, and the "delay-slot scheduling makes this unconditional"
+ * note above is literally true of the SOURCE too: the oracle's `sw a3,0x28(v1)` sits in the
+ * beqz DELAY SLOT, i.e. retail stores op->callback on BOTH paths.  Writing the store
+ * UNCONDITIONALLY in C (before the `if (op->status != 0)`) reproduces that exactly -- the store
+ * moves into the delay slot -- but then our sched2 fills the `lw v0,8(v1)` -> `beqz` load-use
+ * gap with the parm copy `addu a3,a1,zero`, where retail simply pays a `nop` there and keeps the
+ * copy at insn #2.  Result: 31 insns / 3 diffs vs the current 32 / 2 -- BETTER structure, WORSE
+ * gate (insn parity lost), so it is not taken.  The whole residual is therefore ONE sched2
+ * decision (fill the load-delay slot with the ready parm copy, or leave it empty); volatile on
+ * the status load does not block it (tested: no change, since a reg-reg copy has no memory
+ * dependence on the volatile MEM).  Reopen only with a lever that removes a ready insn from
+ * sched2's window at that point.
+ * w34 follow-up (post-movfxya) -- two more classes FALSIFIED, floor hardened to STRONG:
+ *   (1) VOLATILE unconditional store (`*(void * volatile *)&op->callback = ...`): does force
+ *       sw-before-lw memory ordering, but reorg REFUSES a volatile store as a delay-slot
+ *       candidate -> unfilled branch slot, 6 diffs.  General negative worth remembering:
+ *       a retail slot-store is never volatile-qualified in the source.
+ *   (2) sched1 A/B on the unconditional form: -fno-schedule-insns leaves the copy in the load
+ *       gap (31/3) -- the sink is SCHED2, post-reload, where the shared hard base reg makes
+ *       sw 0x28 vs lw 0x8 provably disjoint, so the lw is independent and the priority-2 parm
+ *       copy always sinks to the last free cycle.  An alias-dependence route (separate base
+ *       pseudo for the store) cannot survive to sched2: after reload both addresses share the
+ *       hard base.  Retail's copy-at-insn-2 is not reproducible by any priority/tie model of
+ *       our sched2 over this RTL; residual class = old-sched ready-list emission-order identity. */
+extern void FILE_callbackop(unsigned int id, void (*callback)(unsigned int id, int status, int param))
+{
+    volatile int frame[4];
+    FileOp *op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
+    /* w47-a1 (2 -> PASS): TWO changes, one of them a CORRECTNESS fix.
+     *  (1) the callback store is UNCONDITIONAL in retail -- it sits in the status-test branch's
+     *      delay slot, i.e. it executes even when status == 0 (the old recon had it inside the
+     *      `if`, which only matched because reorg happened to steal a different insn into the
+     *      slot).  Hoisting it out gives reorg the SIMPLE fill it actually did.
+     *  (2) the zero-insn USE FENCE on `callback` pins the assign_parms param copy
+     *      (`addu a3,a1,zero`) at retail's prologue position; without it sched1 sinks the copy
+     *      to just before the store (w46 prologue-param-copy-sink class -- reachable here
+     *      because the fence bars the sink, not because a statement moved). */
+    __asm__("" : : "r"(callback));
+    op->callback = (void (*)(void))callback;   /* the oracle stores this UNCONDITIONALLY: it sits in
+                                               * the status-test branch's delay slot */
+    if (op->status != 0) {
+        gFileMgr.cbpending++;
+        callback(id, op->status, op->param);
+        gFileMgr.cbpending--;
+    }
+}
+
+/* ---- the user-facing file ops ---- */
+
+#define OPI(op, off)  (*(int  *)((char *)(op) + (off)))        /* int  field at byte offset */
+#define OPP(op, off)  (*(void**)((char *)(op) + (off)))        /* ptr  field at byte offset */
+
+/* FILE_priorityop @0x800EBECC : change an op's queue priority, repositioning it in the pending queue.
+ *   Updates op->prio always; only reorders the queue when the dispatcher is active (state>=2), the op
+ *   isn't the one currently being dispatched, hasn't started (status==0), and its priority changed.
+ *   The pending queue is a singly-linked list (op->qnext, head at gFileMgr.queuehead) kept sorted by
+ *   ascending priority; the op is unlinked then reinserted before the first higher-priority op. */
+extern void FILE_priorityop(unsigned int id, int priority)
+{
+    /* The otherwise-unused pad recovers the oracle's 16-byte frame.  The unlink scan and sorted-reinsert
+     * node are distinct source variables, matching the oracle's separate v0/v1 live ranges; the reinsert
+     * walks through op->qnext itself.  Together these recover the retail list-mutation order and reduce
+     * the detailed residual from 38 to 6 diffs at the exact 79-instruction length.
+     * w33-a3 -- the 6 are ONE instruction triple: retail `srl v1,a0,24; sll v0,v1,1;
+     * addu v0,v0,v1` vs ours `srl a0,a0,24; ...` -- our allocator coalesces the shift result
+     * into the dying `id` param register, retail's does not.  Same single-use variant of the
+     * copy family as FILE_operror (see its comment for the now-SPLIT family verdict).
+     * Falsified this wave: a named `idx` local + index form (still 6).  SLD cannot arbitrate
+     * (nfile.obj is a debug-stripped eacpsxz.lib member with zero line records).
+     * w34-a1 -- MECHANISM NAMED, and it is an EXACT local-alloc PRIORITY TIE, not a coalesce
+     * refusal.  From the cc1 -dl dump of this fn: the srl's dest pseudo (85) is "used 3 times
+     * across 3 insns in block 0" and the sll's dest (87) "2 times across 2 insns"; local-alloc's
+     * QTY_CMP_PRI = floor_log2(refs)*refs*size/(death-birth) gives 1*3/3 = 1.0 and 1*2/2 = 1.0 --
+     * a dead tie, so which quantity is allocated first (and therefore which one inherits the
+     * dying $a0 vs takes the next free reg) falls out of qsort's handling of equal keys.  Ours
+     * allocates the srl dest first (it takes $a0, the dying param); retail allocated the sll
+     * dest first (it took $v0, pushing the srl dest to $v1).  No source form changes 3 refs/3
+     * insns or 2 refs/2 insns without changing the oracle's own instruction shape, so this is
+     * unreachable from C.  (Same tie explains FILE_completeop's srl->$v1.)  Also falsified w34:
+     * computing `op` after FILE_CS_ENTER (16 diffs), and a separate declaration+assignment of
+     * `op` (C89 decl-order error / no movement). */
+    volatile int frame[3];
+    FileOp *op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
+    int oldprio, sr;
+    FileOp *prev, *scan, *node;
+
+    __asm__("" : : "r"(id));
+    FILE_CS_ENTER(sr);
+    oldprio = op->prio;
+    op->prio = priority;
+    if (gFileMgr.state >= 2 && op != gFileMgr.curop && op->status == 0 && oldprio != priority) {
+        prev = 0; scan = gFileMgr.queuehead;
+        while (scan != 0) {                          /* find op in the queue */
+            if (scan == op)
+                break;
+            prev = scan;
+            scan = scan->qnext;
+        }
+        if (prev != 0) prev->qnext        = op->qnext;
+        else            gFileMgr.queuehead = op->qnext; /* unlink (op was head) */
+
+        prev = 0;
+        op->qnext = gFileMgr.queuehead;
+        while (op->qnext != 0) {                     /* sorted reinsert (ascending) */
+            node = op->qnext;
+            if (op->prio < node->prio)
+                break;
+            prev = node;
+            op->qnext = node->qnext;
+        }
+        if (prev != 0) prev->qnext        = op;
+        else           gFileMgr.queuehead = op;
+    }
+    FILE_CS_LEAVE(sr);
+}
+
+/* FILE device backend (other objs) + the manager init's CD/file-io bring-up. */
+
+/* FILE_cancelop @0x800EC008 : cancel the op named by `id` (no-op for close/type-10 ops or stale ids).
+ *   - if the op is the one currently being dispatched (mgr.curop): flag op->cancelreq=1, and if it is a
+ *     read, abort the device read via stopreadfile;
+ *   - else if the op already completed (status==1): mark it cancelled (status=-1);
+ *   - else (still queued): unlink it from the pending queue, decrement mgr.state, mark it cancelled
+ *     (status=-1) and fire its completion callback with (id, param). */
+extern void FILE_cancelop(unsigned int id)
+{
+    /* MATCH work (59->47->42 diffs): the retail object reserves a dead 24-byte local
+     * area, so this pad restores its 48-byte frame and saved-register offsets.
+     * wave-29: the "not found in queue" exit is its OWN dedicated CS-leave+return in
+     * the oracle (a separate mtc0+j block at .L800EC0F4), not a shared jump to the
+     * common `cleanup:` tail that every OTHER early-out uses -- writing it as an
+     * explicit FILE_CS_LEAVE(sr); return; (instead of goto cleanup;) reproduces that
+     * duplicate block and fixes the instruction count to exact (106/109 -> 109/109),
+     * cutting 47->42.
+     * w32-a3 diagnosis (kept, it was right): IDA sub_800EC008 gives retail's map
+     * `v1 // $a2` = action, `v2 // $s0` = sr, `v3 // $a3` = op, param id -> $a1, and
+     * the oracle fills the `lw v0,20(t0)` load-delay slot with `addu a1,a3,zero` --
+     * a live-range-split COPY of `op` into the register `id` just vacated, used for
+     * the whole rest of the body.  Ours had no such pseudo, so our single `op` pseudo
+     * was allocated first, grabbed $a1 and pushed id->a2 / action->a3: one missing
+     * copy drove the entire 42-diff web.
+     * w33-a3 SOLVED IT (42->16->14, 109/109 parity throughout).  The w32 verdict
+     * "no C form can produce it / per-obj no-copy-prop identity" was WRONG.  The copy
+     * is a CSE ARTIFACT, and it is source-reachable: the retail source computes the
+     * slot address TWICE -- once as an ANONYMOUS expression inside the stale-id test,
+     * and again for the named `op` used by the body.  cse.c replaces the second
+     * computation with a register COPY of the first result (it does NOT copy-propagate
+     * it away, because the two are separate pseudos with separate live ranges), which
+     * is exactly the oracle's `addu a1,a3,zero`.  Writing the stale test through the
+     * named `op` (one computation) is what deleted the copy and rotated three
+     * registers.  Same family as the giv-anchor copy cracked in callback.c allocmutex:
+     * an apparently redundant retail reg-to-reg move is usually a SECOND source-level
+     * evaluation the optimizer folded, not a weaker compiler.
+     * Also from this wave: the in-flight test is `mgr->curop == op`, not `op ==
+     * mgr->curop` -- the oracle's `bne v0,a1` puts the LOADED value first (-2 diffs).
+     * RESIDUAL 14: (a) the `addiu v0,zero,1` that the oracle hoists into that bne's
+     * delay slot and reuses for both `op->cancelreq = 1` and `action = 1` (ours leaves
+     * a nop; `action = 1; op->cancelreq = action;` and `op->cancelreq = action = 1;`
+     * both REGRESS to 18); (b) a v0/v1 name swap on the `gFileMgr.state--` RMW in the
+     * unlink arm (address in v1 + value in v0 in retail, reversed here) -- join-block
+     * rematerialization coloring.
+     * w47-a1 -- 14 unchanged, but SPLIT into two named classes (do not re-fight as one):
+     *  (a) the two 1-line clusters (`li v0,1` before the status compare, `li v2,2` in the
+     *      action==2 bnez delay slot) are the SAME cse-copy-prop-of-a-live-constant identity as
+     *      iFILE_ExecCommand's `li a1,124` (see there): retail REMATERIALIZES a constant that is
+     *      still live in a register, our cc1 copy-propagates.  THREE instances in this TU now =>
+     *      a per-module FLAG-AXIS suspicion, not a spelling problem (routed to w47 a8/a9).
+     *  (b) the 5-line (10-diff) v0/v1 swap on the `gFileMgr.state--` RMW is a LOCAL-ALLOC qty
+     *      question: the RMW block holds exactly THREE block-local quantities (the la address,
+     *      the loaded value, and the `li -1` for the status store), and per the w46 3-QTY LAW
+     *      blocks with next_qty <= 3 are NOT priority-ordered (local-alloc.c:1588 hand-rolls the
+     *      <=3 case) -- so the retail order (value first => $v0) is unreachable by any ref/live
+     *      dial.  NEXT ANGLE: cross the 3<->4 boundary by adding/removing ONE DISTINCT block-local
+     *      temp in that block.  Falsified this wave (all 14, 109/109): `nq = state; state = nq-1;`
+     *      split RMW, `state = state - 1;` double-eval, a `FileMgr *m` base local, and the
+     *      `action = 2;`-before-RMW reorder;  `op->status = -1;` moved ahead of the RMW reaches 12
+     *      but at 111/109 (two insns long) => rejected.
+     *      w49-a3 adds one more 3<->4-boundary falsification: routing the RMW through a POINTER
+     *      LOCAL (`int *st = &gFileMgr.state; *st = *st - 1;` in its own block -- the w43
+     *      "pointer local defeats true_dependence" / %hi-anchor device) gates 37 @110/109.  It
+     *      does add a qty but also turns the ARRAY_REF into a plain indirect MEM, which frees the
+     *      scheduler and re-colors the whole arm.
+     *      w50-a4 -- 13 MORE falsifications, and the 3-QTY verdict now has a much stronger base.
+     *      (b) the RMW block: NOTHING that leaves the count exact moves it.  All 14 @109/109:
+     *      a named `-1` local, a named state temp + a named `-1`, `--gFileMgr.state`,
+     *      `gFileMgr.state += -1`, a `do{}while(0)` wrapper on the whole RMW, a store-read-back
+     *      `action = 1 - op->status` (semantically 2, folded free), a bare `{ }` block around the
+     *      RMW, a void-tail fence ahead of it, and an OPACITY FENCE on the loaded state value
+     *      (register-resident, so zero-insn -- it does NOT mint a 4th qty; cse had already
+     *      collapsed the named temps into the same quantity).  The only shapes that DO add a qty
+     *      cost instructions: an opacity fence on the `-1` (12 @111) or on both (12 @111) -- the
+     *      w46 non-register-resident-CONSTANT fence cost -- and on the `2` (17 @110) or on the
+     *      pre-decremented value (15 @110).  => crossing the 3<->4 boundary needs a 4th qty that
+     *      is neither a constant nor a copy of an existing one, and this block has no such value.
+     *      (a) the shared `1`: a NAMED `one` local (the §3.12 #17 shared-constant-hoist, the one
+     *      shape the w33 note had not tried) makes it WORSE in every placement -- used by both the
+     *      cancelreq store and the status compare (27 @110), by the store only (27), by the
+     *      compare only (27), or assigned as its own statement just before the test (39 @110).
+     *      The constant must stay an anonymous literal at BOTH sites; the missing insn is purely
+     *      cse's choice to copy-propagate rather than rematerialize (class (a) above).
+     * w57 SOLVED 14->PASS (109/109) by deliberately passing through the known 12 @111
+     * step-back.  IDA/m2c's shared cancelled-status tail plus the combined dispatch predicate
+     * first exposed the retail CFG.  Keeping `action = 2` and the state RMW together in a
+     * zero-runtime-overhead `do ... while (0)` raises action's weighted reference priority just enough
+     * to restore the retail $a2/$a3 handout while still allowing the scheduler to place `li a2,2`
+     * in the state load-delay slot.  Finally, status is genuinely asynchronous state: spelling
+     * that read volatile prevents delayed-branch cleanup from deleting retail's redundant second
+     * `li v0,1`, without changing the load or instruction count. */
+    volatile int frame[6];
+    FileOp *op;
+    int     nibble, action = 0, sr;
+
+    FILE_CS_ENTER(sr);
+    if (id == 0) goto cleanup;
+    if ((id & 0xFFFFF) !=
+        (((FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30))->id & 0xFFFFF))
+        goto cleanup;                                         /* stale id */
+    nibble = (id >> 0x14) & 0xF;
+    if (nibble == 3 || nibble == 0xA) goto cleanup;           /* close/type-10: not cancellable */
+    op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
+
+    if (gFileMgr.curop == op) {                  /* op is in flight */
+        op->cancelreq = 1;
+        action = 1;
+        goto dispatch;
+    }
+    if (*(volatile int *)&op->status != 1) {     /* still queued -> remove it */
+        FileOp *prev = 0, *node = gFileMgr.queuehead;
+        /* w63a15 (04Q class): retail's EMPTY-QUEUE exit shares the "not in queue"
+         * duplicate CS-leave block (.L800EC0F4), NOT the shared `cleanup:` tail --
+         * `goto cleanup;` here compiled to a branch to .L800EC1A8, a wrong branch
+         * TARGET that verify_asm normalises away (gate PASS, production REAL=1).
+         * Writing the early-out as its own CS_LEAVE+return (the same shape the
+         * post-loop exit already uses) lets cross_jump merge the two copies, so the
+         * branch lands on retail's block. */
+        if (node == 0) goto notfound;
+        while (node != 0) {
+            if (node == op)
+                break;
+            prev = node;
+            node = node->qnext;
+        }
+        if (node == 0) {                               /* not in queue */
+notfound:
+            FILE_CS_LEAVE(sr); return;
+        }
+        if (prev != 0) prev->qnext        = op->qnext;
+        else            gFileMgr.queuehead = op->qnext;
+        do {
+            action = 2;
+            gFileMgr.state--;                    /* one fewer queued op */
+        } while (0);
+    }
+    op->status = -1;                             /* mark cancelled */
+
+dispatch:
+    if (action == 1 && ((op->id >> 0x14) & 0xF) == 4) {
+        void *handle = (void *)op->result24;
+        stopreadfile(*(int *)handle);
+    } else if (action == 2) {                    /* removed from queue -> notify */
+        if (op->callback) {
+            /* @0x800EC198-1A4: callback(op->id, -1, op->param) -- $a0=*op(id), $a2=*(20+op)(param),
+             * and $a1=-1 (status) in the JAL delay slot. The recon called the 2-arg form cb(id,param),
+             * putting param in the status slot and dropping the real 3rd param arg (M02). 3-arg
+             * (id,status,param) convention per iFILE_CommandCompleteCallback (see line 462). */
+            void (*cb)(int, int, int) = (void (*)(int, int, int))op->callback;
+            cb((int)op->id, -1, op->param);
+        }
+    }
+cleanup:
+    FILE_CS_LEAVE(sr);
+}
+
+/* FILE_waitop @0x800EC1BC : block until the op named by `id` completes; return its status.
+ *   Pumps systemtask(0) while the op's status is 0.  Returns -3 if `id` is 0/stale, or if the slot
+ *   gets recycled out from under us during the wait. */
+extern int FILE_waitop(unsigned int id)
+{
+    /* MATCH (53->0 diffs, 61/61 instructions): the otherwise-unused 24-byte `frame`
+     * restores the retail 72-byte frame.  Keeping the loop-only mask/wanted-id/manager/offset
+     * values inside the status guard gives their exact s3/s2/s5/s1 allocation.  The offset-first
+     * check-pointer expression fixes the retail addu operand order, while the inline `invalid`
+     * block followed by `valid` reproduces its positive equality branch and shared -3 tail.
+     * The volatile final status read preserves the deliberate post-loop reload. */
+    volatile int frame[6];
+    /* asm: op's address is computed UNCONDITIONALLY first (no side effects), THEN id==0 is
+     * tested -- and the whole "recompute op + validate id" sequence (incl. the id==0 test,
+     * vestigial though it is once inside the loop -- id is a local param that can't change) is
+     * duplicated verbatim after each systemtask() pump, not hoisted into a shared helper.
+     * `op` itself is computed EXACTLY ONCE and kept in a fixed register ($s0) for every
+     * `status` read (both the entry checks and the final return) -- the in-loop re-validation
+     * uses a SEPARATE, throwaway freshly-recomputed address (never written back to `op`) purely
+     * to re-check the id/slot; reassigning a single `op` local each iteration (as an earlier
+     * draft did) forces the compiler to treat it as one continuously-updated value instead of a
+     * fixed pointer + a disposable check, so the two are kept as separate locals here. */
+    FileOp *op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
+    if (id == 0)
+        goto invalid;
+    if ((id & 0xFFFFF) != (op->id & 0xFFFFF))         /* stale id */
+        goto invalid;
+    if (op->status == 0) {                             /* not finished yet -> pump the system */
+        unsigned int loopmask = 0xFFFFF;
+        unsigned int wanted = id & 0xFFFFF;
+        FileMgr *mgr = &gFileMgr;
+        unsigned int offset = (id >> 0x18) * 0x30;
+        do {
+            systemtask(0);
+            if (id == 0)
+                goto invalid;
+            {
+                FileOp *check = (FileOp *)(offset + (unsigned int)mgr->oparray);
+                if (wanted == (check->id & loopmask))
+                    goto valid;
+invalid:
+                return -3;                            /* slot recycled -> give up */
+valid:
+                if (op->status == 0)
+                    continue;
+                break;
+            }
+        } while (1);
+    }
+    return *(volatile int *)&op->status;
+}
+
+/* FILE_completeop @0x800EC2B0 : harvest a finished op's result (by op type), then free the op slot.
+ *   Returns 0 unless the op's status is 1 (complete).  Result field is per op-type nibble (2..10):
+ *     2,9 -> result24 (open handle)   3,7,10 -> status   4,5 -> result1C (read)   6,8 -> result18 (size)
+ * 🆕 wave-21: switch case-body LAYOUT ORDER is load-bearing here -- the oracle's jump-table blocks
+ * appear in .text as 2/9, 3/7/10, 6/8, 4/5 (result18 BEFORE result1C), not the "natural" ascending
+ * 2/9,3/7/10,4/5,6/8 order; the case labels below are ordered to match (verified: the two `lw
+ * s0,24/28(...)` loads now land in the oracle's exact sequence). The volatile four-word pad
+ * recovers the 40-byte frame and cuts the residual 39->27; the remaining mismatch is centered on
+ * op-pointer/register coloring plus the oracle's extra tail instruction.
+ * w31-a5: the "extra tail instruction" solved -- the oracle's ENTRY has a DEAD first status load
+ * (`lw v0,8(a1)` immediately overwritten) = a volatile re-read pair of the IRQ-written status
+ * word; the dead `st` local reproduces it, making the stream COUNT-EXACT 47/47 (was 46/47).
+ * Residual 28 = ONE coloring web: ours srl's the id in place (a0) and colors op->a0 (saving the
+ * freeop arg copy), retail keeps id in a0, srl->v1, op->a1 + `addu a0,a1,zero` in the freeop
+ * delay slot -- the §3.12 "ours-shorter base-reuse" swap, now count-neutral; permuter territory
+ * (idx-split and param-liveness levers tested, no movement).
+ * w32-a3 -- ROOT CAUSE identified from the cc1 -dg dump + IDA.  cc1 -dg says our op-pointer
+ * pseudo carries `preferences: 4` -- a hard-reg preference for $a0 created by the `freeop(op)`
+ * argument copy -- and global.c's find_reg honours copy preferences BEFORE the plain
+ * REG_ALLOC_ORDER scan, so it takes $a0 (nothing conflicts there: the pseudo dies AT the call and
+ * `id` dies at the srl).  Retail put it in $a1 (IDA sub_800EC2B0: `_DWORD *v1; // $a1`, `int v2;
+ * // $s0`), i.e. retail's allocator did NOT take that preference and emitted the redundant
+ * `addu a0,a1,zero` instead -- the same live-range-split copy retail keeps in reservehandle /
+ * FILE_cancelop / FILE_operror.  For $a0 to be unavailable, `id` would have to stay live past the
+ * op-pointer definition; it does not, in retail or here.  Falsified this wave: recomputing the
+ * address expression at the freeop call site (gcc does NOT re-CSE it -> 54 insns / 37 diffs), and
+ * the whole -fno-{schedule-insns,cse-follow-jumps,cse-skip-blocks,rerun-cse-after-loop,
+ * thread-jumps,caller-saves,strength-reduce,expensive-optimizations} sweep (no movement).
+ * w33-a3 -- reconfirmed (28, 47/47).  Reproduced w32's negative exactly (recompute at the
+ * freeop site = 54 insns / 37 diffs) and added three more no-movement spellings:
+ * `&gFileMgr.oparray[id>>0x18]` index form, a cached `ops` base + index, and both together.
+ * NOTE the contrast with FILE_cancelop in this TU, which WAS cracked this wave by the
+ * double-evaluation/cse-copy route: there the oracle has an EXTRA copy we lacked; here the
+ * oracle merely colors op into $a1 while ours (legitimately shorter by the copy the $a0
+ * preference saves) colors it $a0 -- an allocator preference no source form expresses.
+ * SLD cannot arbitrate (nfile.obj is a debug-stripped .lib member, zero line records).
+ * => toolchain-identity class, not source-reachable.
+ * w34-a1 -- reconfirmed 28 (47/47) and the "recompute at the freeop site" negative REPRODUCED
+ * with its cause identified: the freeop call sits in the switch's JOIN block, and gcc-2.8's cse
+ * only carries equivalences along an EXTENDED basic block (single-pred chains), so a second
+ * evaluation there cannot become the oracle's `addu a0,a1,zero` copy -- it re-materializes the
+ * whole lui/lw/srl/sll/addu chain (54 insns / 37 diffs, exactly as w32 measured).  That rules
+ * the cse-double-evaluation route (the lever that cracked FILE_cancelop) OUT for this fn on
+ * structural grounds, not by trial.  Also falsified w34: a `FileOp *dead = op; freeop(dead);`
+ * temp (coalesced, identical 28).  The `srl a0` half is the FILE_priorityop local-alloc tie
+ * (see there); the op->$a0-vs-$a1 half is the $a0 copy preference w32 measured.
+ * [state, re-gated w49-a3] the in-body `__asm__("" : : "r"(id))` USE FENCE (w47-a1) already took
+ * this fn 28 -> 2 @47/47; the notes above predate it.  RESIDUAL 2 = the PROLOGUE SAVE ORDER only:
+ * retail emits `sw $s0,0x20($sp)` immediately after the sp-adjust and lets sched2 sink
+ * `sw $ra,0x24($sp)` eight slots down into the address chain's load-delay gap; ours sinks BOTH.
+ * w49-a3 probes (all 2 or worse -- the fence POSITION only chooses WHICH save is misplaced,
+ * never both): a void-tail fence `__asm__("" : : "i"(0))` as the FIRST statement pins both saves
+ * at the top -> the diff moves onto `sw ra` (still 2 @47); the same fence after the `op = ...`
+ * statement restores the original `sw s0` symptom (2 @47); `int result = 0;` up front + an
+ * inverted guard (giving $s0 an early def so its save cannot sink) = 3 @48.  A fence BETWEEN the
+ * two saves is not expressible from C -- both are emitted by expand_function_start before any
+ * statement RTL -- so this is a sched2 ready-list tie at the block head (retail picks the
+ * zero-successor `sw s0` over the high-priority address chain; ours picks the chain).
+ * FLAG A/B (cc1try on the cpp'd TU, w49-a3): `-fno-schedule-insns2` pins BOTH saves at the top
+ * (`subu sp; sw $31,36; sw $16,32; lui ...`), plain flags sink BOTH (`subu sp; lui; srl; sll;
+ * addu; lw; sll; sw $31,36; sw $16,32`), and `-fno-schedule-insns` / `-fno-strength-reduce` are
+ * no-ops here.  Retail's shape is MIXED (s0 un-sunk, ra sunk), so NO whole-function flag reaches
+ * it -- but it IS mechanically a one-line post-process on the normal `.s` (hoist just
+ * `sw $16,32($sp)` to immediately after the `subu $sp`), exactly the shape of build.py's
+ * PER_FN_EPILOGUE_UNFILL splice.  => candidate for a PER_FN_PROLOGUE_UNSINK lane (build.py owner
+ * decision; not wired by this agent). */
+extern int FILE_completeop(unsigned int id)
+{
+    volatile int frame[4];
+    FileOp *op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
+    int st = *(volatile int *)&op->status;      /* dead first read -- the oracle keeps BOTH
+                                                 * status loads (lw v0,8; lw v1,8): the status
+                                                 * word is IRQ-written, volatile semantics */
+    int result;
+    __asm__("" : : "r"(id));
+    if (*(volatile int *)&op->status != 1) {    /* op not finished */
+        result = 0;
+    } else {                                    /* op finished */
+        int type = (op->id >> 0x14) & 0xF;  /* op type nibble */
+        switch (type) {
+            case 2: case 9:           result = op->result24; break;
+            case 3: case 7: case 10:  result = op->status;   break;
+            case 6: case 8:           result = op->result18; break;  /* asm: this block precedes
+                                                                       * the 4/5 block in .text */
+            case 4: case 5:           result = op->result1C; break;
+            default:                  result = 0;            break;  /* type outside 2..10 */
+        }
+    }
+    freeop(op);
+    return result;
+}
+
+/* FILE_open @0x800EC36C : open `name`; reserve an op (type 2) + a handle, copy the name, dispatch. */
+extern unsigned int FILE_open(char *name, unsigned int a1, unsigned int a2, unsigned int a3)
+{
+    FileOp *op = reserveop();
+    void   *handle;
+    OPI(op, 0x14) = (int)a3;
+    OPI(op, 0x18) = (int)a1;
+    OPI(op, 0x10) = (int)a2;
+    op->id = (op->id & 0xFF0FFFFFu) | 0x200000u;          /* type 2 = open */
+    handle = reservehandle();
+    OPP(op, 0x24) = handle;                               /* store the handle (asm: always, delay slot) */
+    if (handle == 0) {                                    /* no free handle */
+        OPI(op, 0x0C) = 2;                                /* error code 2 */
+        iFILE_perror(op);
+    }
+    (void)strlen(name);                                   /* (asm calls strlen; result unused) */
+    /* reload handle straight into the strncpy dest arg ($a0) so gcc adds +0xC in-place (no $v0 temp) */
+    strncpy((char *)OPP(op, 0x24) + 0x0C, name, 0x40);    /* name lives at handle+0xC (0x40 bytes) */
+    iFILE_ExecCommand(op);                                /* dispatch the open op */
+    return op->id;
+}
+
+/* FILE_close @0x800EC42C : close handle (type 3); errors if it is still a registered device. */
+extern unsigned int FILE_close(void *handle, unsigned int a1, unsigned int a2)
+{
+    FileOp *op = reserveop();
+    char   *node = (char *)gFileMgr.devicelist;          /* mgr+0x24 device list head */
+    OPI(op, 0x10) = (int)a1;
+    OPI(op, 0x14) = (int)a2;
+    OPP(op, 0x24) = handle;
+    op->id = (op->id & 0xFF0FFFFFu) | 0x300000u;          /* type 3 = close */
+    while (node) {                                        /* device still open with this handle? */
+        if (OPP(node, 0x04) == handle) {
+            OPI(op, 0x0C) = 3;                            /* error 3: can't close a live device */
+            iFILE_perror(op);
+            break;
+        }
+        node = (char *)OPP(node, 0x0C);                   /* next device */
+    }
+    iFILE_ExecCommand(op);
+    return op->id;
+}
+
+/* FILE_read @0x800EC4EC : read from `handle` (type 4); clamps the length to the handle's size. */
+extern unsigned int FILE_read(void *handle, unsigned int offset, unsigned int dest,
+                                  int len, unsigned int a5, unsigned int a6)
+{
+    FileOp *op = reserveop();
+    op->id = (op->id & 0xFF0FFFFFu) | 0x400000u;          /* type 4 = read */
+    OPI(op, 0x14) = (int)a6;
+    OPI(op, 0x10) = (int)a5;                              /* asm: delay slot -> set unconditionally */
+    if (handle == 0) {
+        OPI(op, 0x0C) = 6;                                /* error 6 */
+        iFILE_perror(op);
+    }
+    OPP(op, 0x24) = handle;
+    {
+        int size = OPI(handle, 0x04);                     /* handle->size */
+        if (size < (int)(offset + (unsigned)len)) {       /* would read past EOF -> clamp */
+            len = size - (int)offset;
+            if (len < 0)
+                len = 0;
+        }
+    }
+    OPI(op, 0x1C) = len;                                  /* clamped read length */
+    OPI(op, 0x20) = (int)dest;
+    OPI(op, 0x18) = (int)offset;
+    iFILE_ExecCommand(op);
+    return op->id;
+}
+
+/* FILE_size @0x800EC5D0 : query the size of `handle` (type 6). */
+extern unsigned int FILE_size(void *handle, unsigned int a1, unsigned int a2)
+{
+    FileOp *op = reserveop();
+    OPI(op, 0x14) = (int)a2;
+    OPI(op, 0x10) = (int)a1;
+    op->id = (op->id & 0xFF0FFFFFu) | 0x600000u;          /* type 6 = size */
+    if (handle == 0) {
+        OPI(op, 0x0C) = 6;                                /* error 6 */
+        iFILE_perror(op);
+    }
+    OPP(op, 0x24) = handle;
+    iFILE_ExecCommand(op);
+    return op->id;
+}
+
+#undef OPI
+#undef OPP
+
+/* iFILE_addbigreadcallback @0x800EC660 : completion of a header read.  Records the handle, finalizes the
+ *   read op, and if the header spans more than the block already read, grows the buffer and re-reads the
+ *   remainder (re-arming itself).  When the whole header is loaded it links the node onto the device list
+ *   and kicks the user's command op.  `id`=read op id, `status` unused, `node`=the BIG node (int[4]). */
+extern void iFILE_addbigreadcallback(unsigned int id, int status, int *node)
+{
+    /* MATCH: `branchbuf` starts as node and becomes the grown buffer only in the read-more
+     * branch, producing the oracle's s0 branch value while node, manager, and priority occupy
+     * s1/s3/s4.  The two-word pad fixes the saved-register offsets.  `cmd` is intentionally
+     * short-lived: its handle propagation schedules into FILE_completeop's delay slot, while
+     * the final command dispatch reloads node[2] through `publish`. */
+    volatile int frame[2];
+    void   *branchbuf = node;
+    FileMgr *mgr   = &gFileMgr;
+    FileOp *cmd    = (FileOp *)(size_t)(unsigned int)node[2];
+    FileOp *op     = (FileOp *)((char *)mgr->oparray + (id >> 0x18) * 0x30);
+    int     prio   = op->prio;            /* +0x10 */
+    int     hdrsize, blksize;
+    (void)status;
+
+    {
+        int handle = op->result24;         /* FILE_read stashed the handle in result24 (+0x24) */
+        node[1] = handle;                  /* node->handle */
+        cmd->result24 = handle;
+    }
+    FILE_completeop(id);                   /* final store above schedules into this call's delay slot */
+
+    if (typeofbigfile((void *)(size_t)(unsigned int)node[0]) == 0)
+        purgememadr((void *)(size_t)(unsigned int)node[0]);   /* invalid type -> drop the buffer */
+
+    hdrsize = sizeofbigfileheader((void *)(size_t)(unsigned int)node[0]);
+    blksize = getblocksize((void *)(size_t)(unsigned int)node[0]);
+    if (blksize < hdrsize) {              /* header bigger than what we have -> read the rest */
+        void *newbuf = reservememadr((char *)"bigfile buf", hdrsize, 0x10);
+        unsigned int rid;
+        branchbuf = newbuf;
+        blockmove((void *)(size_t)(unsigned int)node[0], newbuf, 0x800);  /* keep the first block */
+        purgememadr((void *)(size_t)(unsigned int)node[0]);
+        node[0] = (int)(size_t)newbuf;
+        rid = FILE_read((void *)(size_t)(unsigned int)node[1], 0x800,
+                        (unsigned int)(size_t)((char *)newbuf + 0x800),
+                        hdrsize - 0x800, prio, (unsigned int)(size_t)node);
+        FILE_callbackop(rid, (void (*)(unsigned int, int, int))iFILE_addbigreadcallback);
+    } else {                             /* header complete -> publish the device */
+        int *publish = (int *)branchbuf;
+        publish[3] = (int)(size_t)mgr->devicelist;   /* node->next = old head */
+        mgr->devicelist = publish;
+        iFILE_ExecCommand((void *)(size_t)(unsigned int)publish[2]);
+    }
+}
+
+/* iFILE_addbigopencallback @0x800EC7A0 : completion of the archive FILE_open.  Harvests the handle and,
+ *   on success, kicks off reading the first 0x800 header block (arming iFILE_addbigreadcallback); on
+ *   failure marks the command op error 4 and runs it.  `status`==1 means open succeeded. */
+extern void iFILE_addbigopencallback(unsigned int id, int status, int *node)
+{
+    /* MATCH: the separate success-path node copy prevents it being coalesced with the
+     * failure-path node value, recovering the oracle's s1 -> s2 copy in the status-branch
+     * delay slot.  Loading `ops` separately materializes the manager base before the index
+     * arithmetic; spelling the final sum index-first gives the oracle's v0 destination. */
+    volatile int frame[2];
+    int    *readNode = node;
+    FileOp *ops  = gFileMgr.oparray;
+    FileOp *op   = (FileOp *)((id >> 0x18) * 0x30 + (size_t)ops);
+    int     prio = op->prio;               /* +0x10 */
+    int     handle = FILE_completeop(id);  /* open op result24 == the opened handle */
+
+    if (status != 1) {                     /* open failed: don't cache cmdop -- the oracle stores
+                                             * error=4 via one reload of node[2], then reloads
+                                             * node[2] AGAIN fresh for the iFILE_ExecCommand arg */
+        ((FileOp *)(size_t)(unsigned int)node[2])->error = 4;
+        iFILE_ExecCommand((void *)(size_t)(unsigned int)node[2]);
+    } else {                               /* open ok -> read the first header block */
+        unsigned int rid = FILE_read((void *)(size_t)handle, 0,
+                                     (unsigned int)readNode[0], 0x800,
+                                     prio, (unsigned int)(size_t)readNode);
+        FILE_callbackop(rid, (void (*)(unsigned int, int, int))iFILE_addbigreadcallback);
+    }
+}
+
+/* FILE_addbig @0x800EC858 : mount a .BIG archive `name` (type 9 command op).  If an archive with the same
+ *   name is already open (its handle's first 0x40 bytes hold the name), hand back the existing handle and
+ *   run the command immediately.  Otherwise allocate a device node + header buffer, FILE_open the archive
+ *   (passing the node as the open op's param) and arm iFILE_addbigopencallback to drive the header load.
+ *   Returns op->id (used as an op id by FILE_addbigsync); the dup-hit path returns the op pointer (an asm
+ *   quirk faithfully reproduced). */
+extern unsigned int FILE_addbig(char *name, unsigned int a1, unsigned int datatype, unsigned int param)
+{
+    int    *node = (int *)gFileMgr.devicelist;     /* device-list head */
+    FileOp *op   = reserveop();
+    void   *databuf;
+
+    op->param = (int)param;                        /* +0x14 */
+    op->prio  = (int)datatype;                     /* +0x10 */
+    op->id    = (op->id & 0xFF0FFFFFu) | 0x900000u;/* type nibble 9 = add-big */
+    iscurrentthread(0);                            /* (asm calls it; return unused) */
+
+    for (; node; node = (int *)(size_t)(unsigned int)node[3]) {   /* already mounted? */
+        /* compare against the handle's embedded name (handle+0xC); asm: a1 += 0xC in the delay slot */
+        if (strncmp(name, (char *)((size_t)(unsigned int)node[1] + 0x0C), 0x40) == 0) {
+            op->result24 = node[1];                /* hand back the existing handle */
+            iFILE_ExecCommand(op);
+            return (unsigned int)(size_t)op;       /* asm returns the op pointer in this path (quirk) */
+        }
+    }
+
+    node    = (int *)reservememadr(name, 0x10, (int)a1);          /* 0x10-byte device node */
+    node[2] = (int)(size_t)op;                     /* node->cmdop = op (asm: databuf-alloc delay slot) */
+    databuf = reservememadr((char *)"bigfile header", 0x800, 0x10);/* first header block buffer (stays in $v0) */
+    node[0] = (int)(size_t)databuf;                /* node->databuf -- store sinks into FILE_open's delay slot */
+    {
+        unsigned int oid = FILE_open(name, 1, datatype, (unsigned int)(size_t)node);
+        FILE_callbackop(oid, (void (*)(unsigned int, int, int))iFILE_addbigopencallback);
+    }
+    return op->id;                                 /* asm: v0 = *op = op->id */
+}
+
+/* iFILE_delbigclosecallback @0x800EC980 : completion callback for the BIG-archive close op -- harvest
+ *   the close op (FILE_completeop), then kick the next queued command (iFILE_ExecCommand). */
+extern int iFILE_delbigclosecallback(unsigned int id, int a1, void *cmd)
+{
+    (void)a1;
+    FILE_completeop(id);
+    return iFILE_ExecCommand(cmd);
+}
+
+/* FILE_delbig @0x800EC9AC : unmount the .BIG archive whose device handle is `delHandle` (type 0xA command
+ *   op).  Sweeps the handle array first -- if any open handle is still bound to this device it flags the
+ *   op busy (status -2, error 1) but proceeds anyway -- then finds the device node, unlinks it, frees its
+ *   header buffer and the node, and issues a FILE_close (chained to iFILE_delbigclosecallback which runs
+ *   the command op once the close finishes).  Returns the command op's id.
+ *   NOTE (faithful quirks): the close handle is captured from the device-LIST HEAD before the search, and
+ *   the head-removal case zeroes gFileMgr.devicelist rather than relinking node->next -- i.e. the routine
+ *   effectively assumes the target archive is the head of the device list (BIG archives are torn down
+ *   LIFO).  A not-found device dereferences null (matches the asm; never happens in practice).
+ * MATCH: initializing `prev` before the reserveop call deliberately overlaps its lifetime with
+ * the saved third argument.  GCC then reuses that argument register for `prev` and, once the
+ * gFileMgr base dies, recycles its register for `closeHandle`, matching the retail allocation. */
+extern unsigned int FILE_delbig(int delHandle, unsigned int a2, unsigned int a3)
+{
+    int    *prev = 0;                               /* s0 after the saved a3 value dies */
+    int    *node = (int *)gFileMgr.devicelist;      /* s1 */
+    FileOp *op   = reserveop();                      /* s2 */
+    int    *h    = (int *)gFileMgr.handlearray;      /* a1 */
+    int     closeHandle;                             /* s3 */
+    int     i;
+
+    op->param = (int)a3;                             /* +0x14 */
+    op->prio  = (int)a2;                             /* +0x10 */
+    op->id    = (op->id & 0xFF0FFFFFu) | 0xA00000u;  /* type nibble 0xA = del-big */
+
+    if (((int *)(size_t)(unsigned int)delHandle)[2] != 0)   /* delHandle+8 != 0 -> note busy */
+        op->error = 1;
+
+    /* handle-array scan: is any open handle still pointing at this device? -> mark busy. */
+    for (i = 0; i < gFileMgr.handlecount; i++) {
+        if (h != 0 && h[2] != 0) {                   /* handle slot in use (h+8 != 0) */
+            int *hn = (int *)(size_t)(unsigned int)h[0];   /* handle[0] -> its device node */
+            if (hn[1] == delHandle) {                /* node+4 == delHandle */
+                op->status = -2;                     /* device-busy sentinel (asm delay-slot v0=-2) */
+                op->error  = 1;
+                break;
+            }
+        }
+        h = (int *)((char *)h + 0x4C);               /* next FileHandle (0x4C stride) */
+    }
+
+    /* device-list scan for the node owning delHandle, then unlink it. */
+    closeHandle = node[1];                           /* s3 = head node+4 -- UNCONDITIONAL load (oracle
+                                                      *      has no null guard; null head never happens) */
+    while (node != 0) {
+        if (node[1] == delHandle)                    /* node+4 == delHandle -> found */
+            break;
+        prev = node;
+        node = (int *)(size_t)(unsigned int)node[3]; /* node->next (+0xC) */
+    }
+    if (node == 0)
+        op->error = 1;                               /* empty / not found */
+
+    if (prev != 0)
+        prev[3] = node[3];                           /* mid-list: prev->next = node->next */
+    else
+        gFileMgr.devicelist = 0;                     /* head case: clears the list head (see NOTE) */
+
+    purgememadr((void *)(size_t)(unsigned int)node[0]);    /* free the header buffer */
+    purgememadr(node);                                     /* free the node */
+    {
+        unsigned int cid = FILE_close((void *)(size_t)(unsigned int)closeHandle,
+                                      a2, (unsigned int)(size_t)op);  /* close op param = this command op */
+        FILE_callbackop(cid, (void (*)(unsigned int, int, int))iFILE_delbigclosecallback);
+    }
+    return op->id;
+}
+
+/* ---- the device backend (fileio.obj @0x800F3xxx) + string helpers used by the dispatcher ---- */
+
+#define OPI(op, off)  (*(int *)((char *)(op) + (off)))          /* multipurpose op field at byte offset */
+#define HANDLE(cmd)   ((int *)(size_t)(unsigned int)OPI(cmd, 0x24))  /* not cached -- see below */
+#define NAME(cmd)     ((char *)HANDLE(cmd) + 0x0C)
+
+/* FILE_atomic @0x800ECB40 : run `fn(a3, a4)` (fn takes the 3rd/4th args -- $a2/$a3), flush the FILE
+ *   command queue (iFILE_ExecCommand), and return fn's result.  The manager's +0x08 word (idmask) is
+ *   saved and restored around the call -- a net no-op as written (the intermediate write is overwritten).
+ *   The return value is fn's result, captured in ExecCommand's branch delay slot ($s0=$v0) before the
+ *   call clobbers $v0; the 2nd arg is unused. */
+extern int FILE_atomic(int (*fn)(int, int), int unused, int a3, int a4)
+{
+    int saved = gFileMgr.idmask;     /* mgr+0x08 */
+    int result;
+    (void)unused;
+    gFileMgr.idmask = a3;            /* asm: sw $a0,8(s0) in the jalr delay slot ($a0==a3, fn's 1st arg) */
+    result = fn(a3, a4);
+    gFileMgr.idmask = saved;         /* restore */
+    iFILE_ExecCommand((void *)0);
+    return result;
+}
+
+/* iFILE_ExecCommand @0x800ECB98 : the FILE-system command pump (the heart of the subsystem).  Runs inside
+ *   an IRQ-disabled critical section.  (1) If `cmd` is non-null, inserts it into the priority-sorted
+ *   pending queue (ascending by prio, reusing cmd->qnext as the walk cursor) and bumps the queued count
+ *   (mgr.state).  (2) If an op is already in flight (mgr.curop != 0) it returns -- one op dispatches at a
+ *   time.  (3) Otherwise it dequeues the head (if its prio fits under mgr.idmask), makes it the current op,
+ *   and dispatches by op-type nibble into the device backend:
+ *     open(2)/exists(8): parse a "volume|entry" name, openfile() the base, and -- for BIG-archive refs --
+ *        locatebigentryz() the entry in each mounted device; type 8 just probes existence (close+free).
+ *     close(3): closefile() a real file (not a BIG entry) then freehandle().
+ *     read(4):  readfile() (async) -- BIG entries add the entry's base offset; len<=0 completes now.
+ *     write(5): writefile() (async).   size(6): publish handle->size.   7/9/10: status-only completion.
+ *   Synchronous ops finish via iFILE_CommandCompleteCallback(); async ops (read/write) return and are
+ *   completed later by the device's CD callback.  (-m32-only verified: op stride 0x30 + qnext pointer.) */
+/* RAW/ORACLE REDUCTION (2026-07-26, 56->10 detailed diffs, count-exact 290/290):
+ *   - clear the entry buffer before the first strchr, as the raw instruction order requires;
+ *   - scope/initialize the found flag at its first live branch (the jump-table delay slot stays nop);
+ *   - express the optional volume filter directly instead of introducing a doLookup boolean;
+ *   - preserve the raw archive-walk exit order (end-of-list first, found second);
+ *   - write the dequeue priority test directly as cmd->prio <= idmask, matching the oracle's
+ *     cmd-field-before-manager-field load order;
+ *   - complete each synchronous switch arm directly, allowing cc1's common-tail merge to put the
+ *     result in $a0 at the shared callback label instead of keeping every result live in $s2.
+ * RESIDUAL 10 diffs @ 290/290 (w31-a5, FLOOR -- do not re-fight): ONE root cause -- at the second
+ * strchr(name+12,'|') call our cc1 COPY-PROPAGATES the 124 ('|') already sitting in $v0 from the
+ * preceding `name[0] != '|'` compare (`addu a1,v0,zero`), while retail cc1 REMATERIALIZES
+ * `li a1,124` in the jal delay slot; the other 8 lines are the la/scheduling shuffle downstream of
+ * that one choice.  This is the documented "old-gcc no-copy-prop" per-obj toolchain-identity class
+ * (methodology 3.25-3b tail: DrawOTag/_padSetActAlign/CdRead2 siblings) -- invariant across our
+ * cc1/cc1plus, not source-reachable.
+ * w47-a1 -- 10 unchanged; the class is now corroborated THREE times inside this one TU (here,
+ * plus FILE_cancelop's `li v0,1` and `li v0,2`), which upgrades it from "one fn's identity" to a
+ * per-module FLAG-AXIS lead: every instance is cse choosing a register COPY of a still-live
+ * constant where retail emits a fresh `li`.  Reported to the w47 flag lanes (a8/a9) as the
+ * nfile.obj fingerprint.  The other cluster here (`sll v1,v1,2` scheduled before vs after the
+ * jump-table `lui/addiu`) is the classic sll-index-vs-base sched1 tie and would be the target for
+ * a zero-insn fence walked between the switch discriminant and the switch (untried: the fence
+ * would have to sit inside the case dispatch, where C gives no statement position).
+ * w49-a3 FALSIFIES the obvious fence route for the `li a1,124` half: routing the `!= '|'` compare
+ * through an OPACITY-FENCED carrier (`int pipe = '|'; __asm__("" : "=r"(pipe) : "0"(pipe));
+ * if (NAME(cmd)[0] != pipe)`) -- which SHOULD hide `pipe == 124` from cse and force the strchr
+ * arg to re-materialize -- gates 21 @291/290.  Reason = the w46 fence cost profile: a fence on a
+ * NON-REGISTER-RESIDENT CONSTANT costs instructions (the constant gets its own pseudo + the asm
+ * blocks the compare's own materialization), so the +1 insn plus the extra allocno re-colors the
+ * block.  A zero-insn constant-opacity device is still the missing piece here.
+ * w50-a4 -- the OTHER cluster (`sll v1,v1,2` vs the jump-table `lui/addiu`) IS reachable, but not
+ * for free.  A VOID-TAIL FENCE `__asm__("" : : "i"(0));` as the last statement before
+ * `switch (type)` gates 7 @291/290: it fixes the sll/lui issue order AND drops the `li a1,124`
+ * cluster to a single line -- but it costs +1 insn (the fence denies reorg the `beqz`'s delay-slot
+ * fill, so retail's `lui v0,0` in the slot becomes a nop).  NOT ADOPTED (the count must stay
+ * exact); it is banked as PROOF that the sll-vs-base tie here is a schedule-position question,
+ * not the §3.12 "not reachable by any source reshape" floor.  The fence needs to sit AFTER the
+ * switch's range check to be free, and C offers no statement position there.  Also falsified this
+ * wave: a USE fence on `type` before the switch (11 @291), an OPACITY fence on `type` (18 @294),
+ * an opacity fence on `bar` before the second strchr (13 @291), and a void fence between the
+ * `!= '|'` compare and that strchr (compile error -- a declaration follows it in C89). */
+/* 2026-08-12 -- 10 -> 4 diffs, still count-exact 290/290.  Duplicating the COMPLETE
+ * volume-split block in two identical arms gives cross_jump a common machine tail while denying
+ * the earlier compare's `124` pseudo to the second strchr: the jal delay slot is now retail's fresh
+ * `li a1,124`.  Keeping `s3 = 4` after strncpy in source then gives sched2 the retail post-strchr
+ * order (`addiu a0,sp,24; lw v1,36(s1); li s3,4; sb zero,24(sp)`) without emitted scaffolding.
+ * The only residual is the four-line jump-table scheduling tie: ours shifts the index before the
+ * table-base lui/addiu, retail materializes the base first.  Explicit/direct range guards, an inline
+ * switch expression, signed/unsigned type spelling, a copied dispatch local, and inverted goto
+ * orientation are byte-identical or worse and were reverted.  Do not use volatile here: it would
+ * introduce a memory boundary into an otherwise count-exact scheduler-only basin. */
+/* 🏆 W61-A19 2026-08-15 -- 4 -> PASS 290/290 via a BUILD.PY TEXT_MOVES row (the residual was NOT
+ * source-reachable, as the 2026-08-12 note already suspected).  Mechanism, read off the cc1 `.s`:
+ * the four lines are gcc's own `casesi` expansion, so there is no source expression to respell --
+ * the index `sll` and the table-base `lui/addiu` are two INDEPENDENT chains and reorg fills the
+ * bound-check `beq`'s slot with whichever the scheduler put first in the fall-through block.  cc1
+ * emits `sll $3,$3,2` first HERE but `lui $2,%hi($Lnnn)` first at the OTHER tablejump in this same
+ * TU, i.e. it is a per-site ready-list tie inside compiler-generated RTL.  (Both builds steal the
+ * fall-through's first insn -- retail's slot insn writes $2, the branch's own condition reg, which
+ * per catalog 09L only fill_slots_from_thread can do.)
+ * ORCHESTRATOR SPEC (probe-verified via tools/vprobe.py + W60_TEXT_MOVES_FILE; TU-mates
+ * FILE_cancelop/FILE_completeop/iFILE_perror re-gated PASS under it, and the mechanism is bounded
+ * by the .ent/.end region of the named fn so it cannot reach any TU-mate by construction):
+ *   PER_FN_TEXT_MOVES["recon/eaclib/psx/eacpsxz/nfile.c"] = {"iFILE_ExecCommand": [
+ *       {"take":  r"\tsll\t\$3,\$3,2\n",
+ *        "after": r"\taddiu\t\$2,\$2,%lo\(\$L\d+\) \# low\n"},
+ *       {"take":  r"\tlui\t\$2,%hi\(\$L\d+\) \# high\n",
+ *        "after": r"\tbeq\t\$2,\$0,\$L\d+\n(?=\t\.set\tmacro\n\t\.set\treorder\n\n"
+ *                 r"\taddiu\t\$2,\$2,%lo\(\$L\d+\) \# low\n)"}]}
+ * Move 1 pulls the `sll` out of the (already noreorder-wrapped) delay slot and re-inserts it after
+ * the `%lo`; move 2 then drops the `lui` into the now-empty slot INSIDE the existing
+ * `.set noreorder/nomacro` block, so no assembler mode change is needed and no nop is minted.
+ * All three anchors are label-agnostic ($L\d+, per the w60-a8 law) and each occurs exactly once in
+ * the .ent region (`sll $3,$3,2` 1x, `%lo($L` 1x, `%hi($L` 1x; the beq anchor is disambiguated by
+ * a 4-line lookahead because `beq $2,$0,$L..` occurs ~10x). */
+/* Raw nfs4-f.exe DD398..DD81F SHA-256:
+ * f005d1d202c25693bdaa4a6af71d553309201f7f8db575ef547012c92aaecb52. */
+extern int iFILE_ExecCommand(void *cmdp)
+{
+    FileOp *cmd = (FileOp *)cmdp;
+    int type, sr;
+
+    FILE_CS_ENTER(sr);                           /* cop0: disable IRQs */
+
+    /* the oracle stores `cmd->qnext = queuehead` UNCONDITIONALLY (the entry beqz's own delay slot,
+     * before testing queuehead!=0) rather than special-casing the qh==0 branch -- i.e. the true
+     * shape is `cmd->qnext = qh; if (qh != 0) { for(;;){...} }` with no separate `qnext=0` arm. */
+    if (cmd != 0) {                              /* insert into the priority-sorted pending queue */
+        FileOp *prev = 0;
+        FileOp *qh   = gFileMgr.queuehead;
+        cmd->qnext = qh;
+        if (qh != 0) {
+            for (;;) {
+                FileOp *node = cmd->qnext;       /* cursor (cmd->qnext is reused as the walk pointer) */
+                if (cmd->prio < node->prio)      /* insert before the first higher-prio op */
+                    break;
+                prev = node;
+                cmd->qnext = node->qnext;        /* advance cursor (naturally becomes 0 at the tail) */
+                if (cmd->qnext == 0)
+                    break;
+            }
+        }
+        if (prev != 0) prev->qnext        = cmd;  /* oracle: fallthrough=prev!=0, branch-target=prev==0 */
+        else           gFileMgr.queuehead = cmd;
+        gFileMgr.state++;                        /* one more queued op */
+    }
+
+    if (gFileMgr.curop != 0) {                   /* an op is already being dispatched */
+        FILE_CS_LEAVE(sr);
+        return;                                  /* oracle: no v0 zeroing on ANY exit of this fn (see below) */
+    }
+
+    /* dequeue the head (if its prio fits under idmask). oracle reuses cmd's own dead register
+     * (cmd is unused at this point -- it was already stored into the queue in the block above)
+     * directly for the dequeued head/pick value, rather than a separate `head`/`pick` local. */
+    cmd = gFileMgr.queuehead;
+    if (cmd != 0 && cmd->prio <= gFileMgr.idmask) {
+        gFileMgr.queuehead = cmd->qnext;
+        gFileMgr.state--;
+    } else {
+        cmd = 0;
+    }
+    gFileMgr.curop = cmd;
+    FILE_CS_LEAVE(sr);                           /* cop0: re-enable IRQs */
+
+    if (cmd == 0)
+        return;                                  /* nothing to dispatch */
+
+    /* the oracle RE-DERIVES this nibble fresh from cmd->id at 3 separate sites (srl 20;andi 0xF
+     * at 0x800ECCD0 for dispatch, again at 0x800ECDE8 and 0x800ECEE0 for the two `type==8` checks
+     * deep in the case-2/8 body, AFTER openfile/strchr/strncpy/strcpy calls) rather than keeping
+     * ONE cached `type` alive across those calls. The two post-call `type==8` checks in the
+     * case-2/8 body are re-derived as `((cmd->id>>0x14)&0xF)==8` below -- this eliminates the
+     * extra callee-saved $s4 a cached `type` would force across those calls (the 5-register save
+     * set would otherwise be s0/s1/s2/s3/s4/ra vs the oracle's s0/s1/s2/s3/ra). */
+    type = (cmd->id >> 0x14) & 0xF;
+    if (type < 2 || type > 10)                   /* op-type nibble must be 2..10 */
+        return;
+
+    {
+        /* the open-file handle: NOT cached in a local -- the oracle re-reads cmd->result24 fresh
+         * at every use site (only CSE-merged by the compiler across a call-free span), so a
+         * cached local here would artificially extend its live range across the whole switch and
+         * force extra callee-saved registers the oracle never allocates. */
+        switch (type) {
+        case 2:                                  /* open */
+        case 8: {                                /* exists-probe */
+            char *bar;                           /* "volume|entry" separator? */
+            char  volbuf[0x40], entrybuf[0x40];
+            int   s3, ccc;
+
+            /* The raw body clears entrybuf before strchr, but does not materialize the found
+             * accumulator until the s3&1 test below (in that branch's delay slot). */
+            entrybuf[0] = 0;
+            bar = strchr(NAME(cmd), '|');
+            if (bar != 0) {
+                s3 = 2;
+                if (NAME(cmd)[0] != '|') {       /* "volume|entry" -> split out the volume name */
+                    if (OPI(cmd, 0x10) != 0) {
+                        int vollen = (int)(strchr(NAME(cmd), '|') - NAME(cmd));
+                        volbuf[0] = 0;
+                        strncpy(volbuf, NAME(cmd), vollen);
+                        s3 = 4;
+                        volbuf[vollen] = 0;
+                    } else {
+                        int vollen = (int)(strchr(NAME(cmd), '|') - NAME(cmd));
+                        volbuf[0] = 0;
+                        strncpy(volbuf, NAME(cmd), vollen);
+                        s3 = 4;
+                        volbuf[vollen] = 0;
+                    }
+                }
+                strcpy(entrybuf, strchr(NAME(cmd), '|') + 1);   /* entry = text after '|' */
+            } else {
+                s3 = 1;
+                if (OPI(cmd, 0x18) & 1) {        /* flag bit 0 -> also search BIG archives */
+                    s3 = 3;
+                    strcpy(entrybuf, NAME(cmd));
+                }
+            }
+
+            ccc = 0;
+            if (s3 & 1) {                        /* odd modes (1,3): open the plain file */
+                if (openfile(NAME(cmd), OPI(cmd, 0x18), HANDLE(cmd)) != 0) {
+                    ccc = 1;                     /* opened OK (asm: delay slot -> set for BOTH types) */
+                    if (((cmd->id >> 0x14) & 0xF) == 8) closefile(HANDLE(cmd)[0]);         /* probe: open+close */
+                    else           HANDLE(cmd)[1] = getfilesize(HANDLE(cmd)[0]); /* handle->size */
+                }
+            }
+
+            if (ccc == 0 && (s3 & 6)) {          /* modes 2,3,4,6: search the mounted BIG archives */
+                int *dev = (int *)gFileMgr.devicelist;
+                while (dev != 0) {
+                    /* Explicit volume names only probe matching mounted devices. */
+                    if (!(s3 & 4) ||
+                        strcmp((char *)(size_t)(unsigned int)dev[1] + 0x0C, volbuf) == 0) {
+                        int off, sz;
+                        if (locatebigentryz((void *)(size_t)(unsigned int)dev[0],
+                                            entrybuf, 0, &off, &sz) != 0) {
+                            HANDLE(cmd)[0] = (int)(size_t)dev;      /* handle->dev = this device node */
+                            HANDLE(cmd)[1] = sz;                    /* handle->size  */
+                            HANDLE(cmd)[2] = off;                   /* handle->flags = entry base offset */
+                            ccc = 1;
+                        }
+                    }
+                    dev = (int *)(size_t)(unsigned int)dev[3];      /* next device (+0xC) */
+                    if (dev == 0)
+                        break;
+                    if (ccc == 0)
+                        continue;
+                    else
+                        break;
+                }
+            }
+
+            if (((cmd->id >> 0x14) & 0xF) == 8) { /* exists-probe: drop the handle, report found flag */
+                freehandle((FileHandle *)HANDLE(cmd));
+                OPI(cmd, 0x18) = ccc;
+            }
+            iFILE_CommandCompleteCallback(ccc);
+            return;
+        }
+
+        case 3:                                  /* close */
+            cmd->error = 0;                      /* asm: delay slot -> cleared on BOTH paths */
+            if (HANDLE(cmd) != 0) {
+                if (HANDLE(cmd)[2] == 0)         /* real file (not a BIG entry) -> close the device */
+                    cmd->error = closefile(HANDLE(cmd)[0]);
+                freehandle((FileHandle *)HANDLE(cmd));
+                cmd->result24 = 0;
+            }
+            iFILE_CommandCompleteCallback(cmd->error == 0);
+            return;
+
+        case 4: {                                /* read */
+            int len = OPI(cmd, 0x1C);
+            if (len <= 0) {                      /* nothing to read -> complete now */
+                iFILE_CommandCompleteCallback(1);
+                return;
+            }
+            if (HANDLE(cmd)[2] != 0) {           /* BIG entry: add the entry's base offset */
+                int *dev   = (int *)(size_t)(unsigned int)HANDLE(cmd)[0];
+                int *devfh = (int *)(size_t)(unsigned int)dev[1];   /* dev->handle (+4) */
+                readfile(devfh[0], OPI(cmd, 0x20), HANDLE(cmd)[2] + OPI(cmd, 0x18), len);
+            } else {                             /* real file */
+                readfile(HANDLE(cmd)[0], OPI(cmd, 0x20), OPI(cmd, 0x18), len);
+            }
+            return;                              /* async: completes via the CD callback */
+        }
+
+        case 5:                                  /* write (async) */
+            writefile(HANDLE(cmd)[0], OPI(cmd, 0x20), OPI(cmd, 0x18), OPI(cmd, 0x1C));
+            return;
+
+        case 6:                                  /* size */
+            OPI(cmd, 0x18) = HANDLE(cmd)[1];     /* publish handle->size as the result (+0x18) */
+            iFILE_CommandCompleteCallback(1);
+            return;
+
+        case 7:                                  /* status-only completions */
+        case 9:
+        case 10:
+            iFILE_CommandCompleteCallback(cmd->error == 0);
+            return;
+        }
+    }
+    /* NOTE: the oracle never zeroes $v0 on ANY exit. The synchronous arms above cross-jump-merge
+     * their callback tails, then fall into the epilogue with the callback's result still in $v0;
+     * the `int` return type is decorative and no caller depends on a defined value. */
+}
+
+#undef OPI
+
+ FileMgr gFileMgr; int gFileOpSeq;   /* owning-TU defs (BSS) */
+
+/* iFILE_CommandCompleteCallback @0x800ED020 : the CD/device completion driver (handed to CD_Init).
+ *   Resolves the final status of the in-flight op (mgr.curop): a pending cancel -> -1 (cancelled), else
+ *   result==0 -> -2 (device fail), result!=0 -> 1 (ok).  Clears mgr.curop, fires the op's completion callback
+ *   (id, status, param) bracketed by mgr.cbpending, then dispatches the next command if nothing nested. */
+extern int iFILE_CommandCompleteCallback(int result)
+{
+    FileOp *cmd = gFileMgr.curop;
+    if (cmd == 0)
+        return;
+    /* @0x800ED040-50: a flat chain of early-out tests, EACH jumping (with its value already loaded in
+     * the branch's delay slot) straight to the shared store -- not an if/else-if/else (that nests the
+     * tests instead of chaining independent early-outs to one target). cancelreq!=0 -> -1, result==0 ->
+     * -2, else 1 (fall-through default).
+     * MATCH: a volatile-qualified dead read retains the oracle's overwritten old status load;
+     * the reversed nested ternary keeps the status chain in v0; value-less returns recover the
+     * entry branch and final tail; and spelling both callback-field accesses directly preserves
+     * the oracle's deliberate reload before jalr. */
+    (void)*(volatile int *)&cmd->status;
+    cmd->status = (cmd->cancelreq != 0) ? -1 : ((result != 0) ? 1 : -2);
+    gFileMgr.curop = 0;
+    if (cmd->callback) {
+        gFileMgr.cbpending++;
+        ((void (*)(int, int, int))cmd->callback)((int)cmd->id, cmd->status, cmd->param);
+        gFileMgr.cbpending--;
+    }
+    if (gFileMgr.cbpending == 0)
+        iFILE_ExecCommand((void *)0);                   /* kick the next queued command */
+    return;
+}
+
+
+/* iFILE_perror @0x800ED0D4 : debug error reporter, compiled out in the release build (a nullsub).
+ *   Takes the failing op in $a0 (callers rematerialize it into the jal delay slot); ignored here. */
+extern void iFILE_perror(FileOp *op)
+{
+    (void)op;
+}
+
+/* reserveop @0x800ED0DC : claim a free op slot, stamp it with op index + a fresh 20-bit request id.
+ * asm: same shape as reservehandle -- walks a pointer to find the slot but, after leaving the CS,
+ * RECOMPUTES the slot's address from the loop COUNTER alone (oparray + i*0x30); the C tracks only `i`. */
+/* the oracle re-derives the slot address FRESH from gFileMgr.oparray (a real memory reload, not a
+ * cached pointer) at each of the id-field mutation sites below -- only the VERY FIRST combine
+ * (the type-nibble set) reuses the address+value already computed for the free-check condition;
+ * [w49-a3] FALSIFIED for the "retail materializes the gFileMgr base pair FIRST, before the four
+ * mask constants" reading: deleting the four preheader mask LOCALS and writing the literals in the
+ * loop body (so loop.c hoists them itself, in body order, after the address movable) gates 46
+ * @71/71 -- worse than the 40 baseline.  The preheader order is not the dial; the 4-way
+ * {i,off,base-copy,mask} rotation is the w47-a1 hard-reg-conflict floor.
+ * the byte3 store and the seq-combine store each redo `oparray + off` from scratch (2 extra
+ * lui/lw/addu-shaped reloads the oracle has that a single persistent `op` local doesn't produce).
+ * A persistent manager base plus fresh `mgr->oparray + off` expressions preserves those reloads.
+ * Hoisting the four id masks first improved the detailed residual 97->88.  Matching the raw
+ * unrotated do/while CFG, re-reading opcount at the back edge, and ordering the independent
+ * offset/index updates so the count load's delay slot is filled reduce it further to 46 diffs
+ * with the exact 71/71 instruction count.  `off` remains the oracle's byte-offset induction
+ * variable; the remaining residual is one allocator cycle among off/slot/base/seq-mask.
+ * w32-a3: IDA (sub_800ED0DC) gives retail's variable->register map -- `v0 // $t5` (saved SR),
+ * `v1 // $a2` (i), `v2 // $a1` (the BYTE OFFSET) -- and, decisively, writes every slot access as
+ * `*(_DWORD *)(v2 + dword_8013EAA0)`: the OFFSET is the FIRST addu operand, matching the oracle's
+ * `addu a0,a1,v0` / `addu v0,a1,v0`.  The four slot expressions below are therefore written
+ * offset-first (`(FileOp *)(off + (int)gFileMgr.oparray)`); that flips our `addu rD,base,off` to
+ * the oracle's `addu rD,off,base` at both sites (diff-neutral 46->46 -- kept as an oracle-proven
+ * correctness alignment, catalog §5.0c commutative-addu lever, so those two lines stop reading as
+ * unexplained).  Retail has NO named slot-pointer local and no mask/constant locals; the residual
+ * is the allocation order (retail off->a1 + slot-temp->a0 + seqMask->a3, ours off->a0 +
+ * slot->a1 + seqMask->t1).  Falsified: masked-value-first statement order in the seq combine
+ * (52 diffs).
+ * w34-a1 -- the allocation order is now QUANTIFIED and REPRODUCIBLE from the -dg dump, so the
+ * remaining 46 is a two-swap problem, not a mystery.  global.c hands out REG_ALLOC_ORDER
+ * (v0,v1,a0,a1,a2,a3,t0,t1,...) in descending QTY_CMP_PRI = floor_log2(refs)*refs/live_len, with
+ * in-loop refs counted DOUBLE; feeding this fn's own dump numbers reproduces its printed
+ * ";; 13 regs to allocate" list EXACTLY (94:2.4 > 82:1.5 = 90:1.5 > 80:0.73 > 91:0.37 > 92:0.31
+ * > 88:0.29 > ...).  Retail's registers imply the order [slot, off, i, seqMask, mgrbase, hicopy]
+ * where ours is [off, slot, i, mgrbase, hicopy, seqMask] -- i.e. TWO flips are needed:
+ *   (1) slot(6 refs/8 insns) must beat off(11 refs/22) -- they are an EXACT 1.5 tie today;
+ *   (2) seqMask(5 refs/34) must beat mgrbase(7 refs/38), i.e. either a 3rd in-loop seqMask
+ *       reference (none exists: the oracle uses it exactly twice, `and`+`slt`) or a mgrbase
+ *       live range > 1.4x longer (its def cannot move earlier without changing the head).
+ * Falsified this wave, all with numbers: `FileMgr *mgr = &gFileMgr;` as the first statement in
+ * the guard (51 diffs, 72 insns -- it DOES put base->t0, seqMask->a3, i->a2 = retail, and the
+ * base is materialized before the constants like the oracle, but gcc then needs THREE address
+ * insns: losum-from-%hi, a copy of the base, AND a separate %hi copy for the back-edge opcount
+ * load, where retail derives the base FROM the single %hi copy); the same plus a back-edge
+ * `mgr->opcount` (74, restructures the guard); literal masks instead of the four constant
+ * locals (52 -- but note it DOES hoist the base+%hi-copy into the oracle's position and makes
+ * the back-edge `lw v0,0(t1)` match, so the constants-as-locals are what pin the base late);
+ * seq-combine operand swap `(gFileOpSeq & seqMask) | (id & keepType)` (54); literals + that
+ * swap (50).  Next lever to try: something that lengthens the mgrbase live range or shortens
+ * seqMask's WITHOUT adding an insn. */
+/* w35-a5 -- 46 -> 40 (71/71), and the w34 "two flips" verdict is REFUTED for BOTH flips.
+ * (1) FLIP 1 LANDED, honest C: read the sequence counter into a guard-local ONCE
+ *     (`unsigned int seq = gFileOpSeq;` as the first statement of the free-slot guard, used by
+ *     the id-combine; the wrap keeps `++gFileOpSeq`).  That lengthens `off`'s live range by one
+ *     insn (22 -> 23), which is enough to break the EXACT 1.5 priority tie in slot's favour:
+ *     slot 6 refs/8 = 2*6/8 = 1.500 vs off 11 refs/23 = 3*11/23 = 1.435 (was 11/22 = 1.500,
+ *     and a tie goes to the LOWER allocno number = off).  The -dg list flips to
+ *     `94 90 82 80 91 92 88` = retail's [slot, off, i, ...] and slot lands in $a0 like retail;
+ *     mgrbase also moves to retail's $t0 and the whole seq/id block (lw 24(t0) x2, addiu v1,v1,1,
+ *     sw v1,0(gp), or v0,v0,a1) becomes instruction-identical.  Residual 40 = the tail of the
+ *     permutation: off $a2 (retail $a1), i $a3 ($a2), seqMask $t1 ($a3), hicopy $a1 ($t1).
+ * (2) FLIP 2 (seqMask must beat mgrbase) IS ALSO REACHABLE -- via the w35 IN-LOOP-DEF REF DIAL:
+ *     declaring seqMask uninitialised and assigning `seqMask = 0xFFFFFu;` as the first statement
+ *     INSIDE the do-loop leaves the code identical (loop.c hoists the invariant back into the
+ *     pre-header) but the def is then counted at loop depth, so REG_N_REFS goes 5 -> 6 and the
+ *     -dg order becomes EXACTLY retail's `... 90 82 80 88 91 92` = [slot, off, i, seqMask,
+ *     mgrbase, hicopy].  So the w34 note's "either a 3rd in-loop seqMask reference (none exists)
+ *     or a 1.4x longer mgrbase live range" dichotomy was FALSE -- the dial supplies the extra
+ *     weighted ref with zero instructions.  Arithmetic without the dial: seqMask 5/35 = 0.286,
+ *     mgrbase 7/40 = 0.350, hicopy 4/26 = 0.308.
+ *     BUT the dial COSTS more than it buys here (46 vs 40), for two NAMED reasons, both new:
+ *       (a) loop.c emits the hoisted movable at the END of the pre-header, so the seqMask
+ *           lui/ori moves from retail's slot (3rd constant) to after the base materialisation
+ *           = 2 unconditional diffs;
+ *       (b) the ordering win is then eaten by LOCAL-alloc: the block-local pair {oparray reload,
+ *           slot address} is pre-assigned $a1, so `off`/`i`/`seqMask` all carry a hard-reg-5
+ *           conflict (see the ";; NN conflicts: ... 2 5 29" lines in the -dg dump) and global
+ *           alloc cannot give `off` retail's $a1 no matter what the allocno ORDER is.
+ *     Retail's local-alloc instead put that pair in $a0 and the masked-seq value in $a1, which
+ *     it can only do if the `and seq,seqMask` is SCHEDULED BEFORE the `addiu seq,seq,1` (then the
+ *     seq load dies into the addiu and the addiu re-uses $v1, freeing $a0).  Ours always picks the
+ *     addiu at that ready-list slot.  ==> THE REMAINING BLOCKER IS ONE SCHED1 READY-LIST TIE,
+ *     not the allocno order.  Falsified this wave for that tie (all at 71/71 unless noted):
+ *     splitting `++` out of the `if` (54); a `seq`/`next` pair with the store BEFORE the combine
+ *     (54); a guard-top `seqv = gFileOpSeq & seqMask` (46); or-operand swap on top of the head
+ *     hoist (44); all-literal constants (52); literals + the dial (52); `gFileOpSeq = seq + 1`
+ *     with the wrap re-reading the global (45, 70 insns -- loses the second load).
+ *     Also measured but REJECTED as scaffolding: hoisting `seqv = gFileOpSeq & 0xFFFFFu;` to the
+ *     TOP OF THE LOOP BODY (i.e. computing it on iterations that never use it) reaches 44 at
+ *     71/71, and without the seqMask dial 34 at 73/71 -- both introduce a cross-block `seqv`
+ *     allocno retail does not have, which then steals retail's $a3 from seqMask.  Not kept. */
+
+/* w47-a1 -- 40 (71/71) unchanged, but the blocker is now QUANTIFIED with allocsim (validated
+ * 13/13 on this fn, order-vs-dump IDENTICAL) and it is NOT the allocno order the w34/w35 notes
+ * chased.  Retail's handout is [slot=a0, off=a1, i=a2, seqMask=a3, lo_sum=t0, hicopy=t1].
+ *   BASIN A (in-tree, seq read hoisted to the guard = w35 flip-1): p90 slot=a0 OK, p82 off=a2,
+ *     p80 i=a3, p91 lo_sum=t0, p92 hicopy=a1, p88 seqMask=t1.
+ *   BASIN B (no seq hoist, 46 diffs): p82 off=a0, p90 slot=a1 (an EXACT 1.5000 priority tie that
+ *     off wins on the lower allocno number), i=a2 (retail), lo_sum=a3, hicopy=t0, seqMask=t1.
+ * 🔴 THE REAL BLOCKER (new): `off` (p82) carries a HARD-REG-5 CONFLICT in BOTH basins -- the greg
+ * dump prints `;; 82 conflicts: ... 2 5 29` -- so NO allocno-order dial can ever give it retail's
+ * $a1.  reqdelta confirms: no single- or two-dial (refs/live/calls) delta in +-60 reaches the
+ * retail handout, in EITHER basin.  The hard-5 conflict is manufactured by LOCAL-alloc, which
+ * runs FIRST and parks the THIRD oparray-reload + slot-address pair (p107/p108) in $a1; retail's
+ * local-alloc parked the same pair in $a0 (`lw a0,24(t0); addu a0,a1,a0`), leaving $a1 free for
+ * the global `off`.  ==> the reachable target is a LOCAL-ALLOC question (which hard reg the
+ * block-local recompute pair gets), not a global-allocno one.  NEXT ANGLE: dial the block-local
+ * qty priorities in the free-slot block (w46 QTY_CMP_PRI == allocno_compare; check next_qty vs
+ * the 3-QTY LAW) so the recompute pair takes $a0 -- e.g. by changing how many DISTINCT block-local
+ * temps that block has, or their births.  Falsified this wave (with numbers): unifying the three
+ * slot addresses into ONE `op` variable (48 diffs -- p90 becomes refs=16/pri 3.37, allocated first,
+ * but it then carries hard-3/4 conflicts and takes $a1 itself); all four mask constants assigned
+ * INSIDE the loop so loop.c hoists them after the base pair (46 -- fixes the preheader ORDER,
+ * base-pair-before-constants like retail, but `off=0` then lands before the pair and the a-band
+ * rotates).
+ * w50-a4 -- THE NAMED "NEXT ANGLE" (dial the free-slot block's local qtys across the 3<->4
+ * boundary, w46 3-QTY LAW) IS NOW EXECUTED, AND IT IS NEGATIVE.  Nothing that keeps the count at
+ * 71 moves the 40; the block simply has no reachable 4th DISTINCT quantity.  All 40 @71/71:
+ * naming the byte3 value (`unsigned char b3 = (unsigned char)i;`), naming the masked seq
+ * (`sv = seq & seqMask`), naming the kept-type half (`kv = slot->id & keepType`), merging the
+ * last two slot recomputes into one block-local `s2`, moving the `seq` read below the type-nibble
+ * store, and both alternative orderings of the four mask constants (seqMask first / keepType
+ * before seqMask).  Every one of those "new temps" is folded by cse into an EXISTING quantity --
+ * exactly the same negative as FILE_cancelop's RMW block, and for the same reason.  The shapes
+ * that DO perturb the block all cost instructions and are therefore rejected: swapping the two
+ * id stores (37 @74), an opacity-fenced copy of `off` for the byte3 slot (70 @73), and swapping
+ * `off += 0x30` with `i++` at the loop bottom (41 @72).  => the w47 verdict stands and is now
+ * doubly-sourced: the blocker is a LOCAL-ALLOC hard-reg-5 conflict on `off`, and the only dial
+ * that could clear it (which hard reg the block-local recompute pair gets) is not reachable from
+ * C in this block.  Do not re-run the qty-boundary family here. */
+/* W56 2026-08-11 -- PASS (71/71).  qtytrace localized the residual to the
+ * free-slot block: loading the sequence counter before the final slot-address
+ * calculation kept `off` live across the masked value and created a hard $a1
+ * conflict.  Reading `gFileOpSeq` at its use, incrementing that captured value,
+ * and expressing the slot offset as `i * 0x30` gives the retail schedule and
+ * strength-reduced induction variable.  Hoisting the four loop invariants from
+ * the loop-local assignments places the manager base first; the repeated mask
+ * supplies the one weighted seqMask reference needed for the retail allocation.
+ * No reconstructed asm or post-compiler rewriting is involved. */
+extern FileOp *reserveop(void)
+{
+    int i, sr, off;
+    FILE_CS_ENTER(sr);
+    i = 0;
+    if (gFileMgr.opcount > 0) {
+        unsigned int clearType;
+        unsigned int setType;
+        unsigned int seqMask;
+        unsigned int keepType;
+        do {
+            FileOp *op;
+            FileMgr *mgr = &gFileMgr;
+            clearType = 0xFF0FFFFFu;
+            setType = 0x100000u;
+            seqMask = 0xFFFFFu;
+            keepType = 0xFFF00000u;
+            off = i * 0x30;
+            op = (FileOp *)(off + (int)mgr->oparray);
+            if (((op->id >> 0x14) & 0xF) == 0) {
+                op->id = (op->id & clearType) | setType; /* set type nibble = 1 */
+                ((unsigned char *)&((FileOp *)(off + (int)mgr->oparray))->id)[3] =
+                    (unsigned char)i;  /* byte3 = op index */
+                {
+                    int seq = gFileOpSeq;
+                    FileOp *seqop =
+                        (FileOp *)(off + (int)mgr->oparray);
+                    unsigned int kept = seqop->id & keepType;
+                    unsigned int masked = (seq & seqMask) & seqMask;
+                    seqop->id = kept | masked; /* bits 0-19 = request seq */
+                    seq++;
+                    gFileOpSeq = seq;
+                    if (seq > (int)seqMask)             /* 20-bit wrap */
+                        gFileOpSeq = 0;
+                }
+                break;
+            }
+            i++;
+        } while (i < gFileMgr.opcount);
+    }
+    FILE_CS_LEAVE(sr);
+    if (i == gFileMgr.opcount)
+        return 0;
+    return (FileOp *)((char *)gFileMgr.oparray + i * 0x30);
+}
+
+/* freeop @0x800ED1F8 : clear a 0x30-byte op slot (release it back to the pool). */
+extern void freeop(FileOp *op)
+{
+    int sr;
+    FILE_CS_ENTER(sr);
+    blockclear(op, 0x30);
+    FILE_CS_LEAVE(sr);
+}
+
+/* reservehandle @0x800ED240 : find a free (inuse==0) handle slot, mark it used, return it (0 if none).
+ * asm: walks a pointer (not an indexed array) to find the slot but, after leaving the CS, RECOMPUTES
+ * the found slot's address from the loop COUNTER alone (handlearray + i*0x4C) rather than carrying the
+ * walking pointer out -- so the C tracks only the index `i`, never a separate result pointer.
+ * w31-a5 (29->17 diffs, 43/44): the loop is a guarded do/while with a TWO-VARIABLE walk --
+ * `cur = next` at the top (oracle `addu v1,a1,zero` per iteration), advance `next = cur + 0x4C`
+ * in the back-edge delay slot -- and the scan bound is a BLOCK-LOCAL re-read of handlecount
+ * inside the guard (`if (gFileMgr.handlecount > 0) { int count = gFileMgr.handlecount; ... }`):
+ * cc1's CSE turns the re-read into the oracle's register COPY `addu a2,v1,zero` (lazy-copy
+ * family, catalog DrawW row).  This un-rotates the loop and recovers the bottom `i < count` test.
+ * RESIDUAL 17: one allocator web -- ours coalesces the cur/next pair into one walker reg (43 vs
+ * 44, the lone missing `addu v1,a1,zero`) and colors sr->a2/count->a1 where retail has sr->a3/
+ * count->a2 (mfc0 scratch tie).
+ * w32-a3 -- SETTLED by the IDA register annotations (nfs4-psx-IDA.c sub_800ED240): retail's
+ * locals are `v0 // $a3` (saved SR), `v1 // $a0` (i) and `v2 // $a1` -- ONE walker pointer, in
+ * $a1, with the loop written `while (*v2 != 0) { ++v1; v2 += 19; if (v1 >= count) goto out; }
+ * *v2 = 1;`.  So the oracle's second walker register ($v1, fed by `addu v1,a1,zero` at the top of
+ * the loop) is NOT a source-level variable: it is retail cc1 SPLITTING the single pointer's live
+ * range with a redundant copy, which our cc1 always coalesces (any C form with two pointers is
+ * copy-propagated back to one -- cur and next hold the same value at every program point, so no
+ * legal C can keep them apart).  That lone extra pseudo is the whole 17: with it, the ripple is
+ * cur->v1 / next->a1 / count->a2 / sr->a3 = retail exactly.  Falsified this wave: the literal IDA
+ * one-pointer while+goto shape (27 diffs, 47 insns -- worse), and cc1 flags -fno-schedule-insns /
+ * -fno-cse-follow-jumps / -fno-cse-skip-blocks / -fno-rerun-cse-after-loop / -fno-thread-jumps /
+ * -fno-caller-saves / -fno-strength-reduce / -fno-expensive-optimizations (all no movement).
+ * w33-a3 -- the "no legal C can keep them apart" verdict is now KNOWN TO BE TOO STRONG for this
+ * SHAPE class: the identical loop-head copy in callback.c allocmutex WAS cracked from source, as a
+ * loop.c GIV ANCHOR (index form with TWO references to the same element -- the test load and the
+ * flag store -- makes gcc 2.8 build two address givs and derive the second from the last one in
+ * body order with a +0 `move`, advancing the walker FROM the anchor).  That is exactly this
+ * oracle's `addu v1,a1,zero` + `addiu a1,v1,0x4C`.  It does NOT transfer here for a MECHANICAL
+ * reason: FileHandle stride is 0x4C, not a power of two, and our cc1's loop.c refuses to
+ * strength-reduce `ha[i]` at that stride -- index form emits the 76-multiply inside the loop and
+ * peels iteration 0 (55 insns / 25-31 diffs across three spellings tried: bare
+ * gFileMgr.handlearray[i], hoisted-base ha[i], and the anti-peel `for(;;i++)` form).  So the
+ * residual is "our loop.c is weaker at SR", not "retail keeps a redundant copy".  Retest index
+ * form if the SR behaviour ever changes.
+ * w33-a3 -- SLD LINE TRACING IS UNAVAILABLE FOR THIS TU: nfile.obj is a debug-stripped
+ * eacpsxz.lib member.  nfs4-f-v3.txt carries only the `Def class FILE ... eacpsxz.lib(nfile.obj)`
+ * marker PAIR with ZERO line records between them, and a VA-range scan of every 0x80-0x89 SLD
+ * opcode over 0x800EBDC4-0x800ED2F0 returns nothing.  Statement segmentation cannot be read off
+ * the SYM for anything in eaclib except the 16 C:\LIB\PSX\*.ASM members and EACLIB\PSX\PAD.C.
+ * => still a floor, but now for a NAMED compiler reason (loop.c SR at non-power-of-2 stride),
+ * not the blanket "per-obj no-copy-prop identity". */
+/* w53-a10 2026-08-09 -- reservehandle: the w49/w50 "non-asm split device" hunt was extended to
+ * FENCE PLACEMENT (the w52 fence-dial family), and to the w52 VOID-TAIL-FENCE-AT-A-BRANCH-TARGET
+ * reorg lever that cracked CdInit.  All falsified; the 3-diff baseline is KEPT.
+ *   The residual is unchanged: ours 45 vs 44, the fence blocks fill_simple_delay_slots' SIMPLE
+ *   backward fill of the `bnez` slot (retail: `addiu a1,v1,0x4C`), so reorg instead EAGER-STEALS
+ *   the branch target's first insn (a duplicate of the loop-head copy) and retargets the branch.
+ *   Measured this wave (all with `cur` moved to block/function scope as noted):
+ *     use fence moved AFTER the loop (cur block-scope)               36 @46/44
+ *     use fence inside the loop AND after the loop                   36 @46/44
+ *     cur function-scope, fence outside the `if` block               35 @47/44
+ *     VOID-TAIL fence `__asm__("" : : "i"(0))` at the loop HEAD
+ *       (the branch target) + the existing use fence                 35 @45/44
+ *     use fence + a VOID-TAIL fence directly after it                34 @44/44  <- count-exact
+ *   The last row is notable: it recovers retail's EXACT instruction count (44/44, the count the
+ *   w47 receipt said was only reachable by moving the fence above the advance) but rotates the
+ *   whole a-band, so it is worse than the kept 3.  The w52 void-tail lever therefore does NOT
+ *   kill the eager steal here -- it only changes which insn reorg picks.  The NAMED NEXT LEVER is
+ *   unchanged: a value-numbering barrier that is not an asm_noperands.
+ *   WHOLE-TU FLAG AXIS FOR nfile.c IS CLOSED (21 cc1 flags x 27 gate-visible fns, scratchpad
+ *   verify_asm with raw flag injection; totals = sum of per-fn diffs / PASS count):
+ *     control                          69 / 22 PASS   <- the wired lane WINS
+ *     -fno-peephole                    69 / 22        -fno-strength-reduce      69 / 22
+ *     -fno-caller-saves                69 / 22        -fno-function-cse         69 / 22
+ *     -fno-defer-pop                   69 / 22        -fno-inline               69 / 22
+ *     -fomit-frame-pointer             69 / 22        -funsigned-char           69 / 22
+ *     -fno-thread-jumps                71 / 21        -fno-force-mem           105 / 17
+ *     -fno-cse-follow-jumps           113 / 21        -fno-rerun-cse-after-loop 134 / 20
+ *     -fno-cse-skip-blocks            177 / 19        -fno-expensive-optimizations 243 / 12
+ *     -fno-schedule-insns2            336 /  7        -mno-split-addresses      460 /  9
+ *     -fno-schedule-insns             555 /  7        -fno-delayed-branch       623 /  1
+ *     -fno-schedule-insns + -insns2   855 /  4        (-fno-regmove: not a 2.8.0 flag)
+ *   No flag improves ANY of the five non-PASS fns; reservehandle is 3 under every inert flag and
+ *   20-25 under the rest.  Do NOT re-run the flag ladder on this TU. */
+extern FileHandle *reservehandle(void)
+{
+    int i, sr;
+    FILE_CS_ENTER(sr);
+    i = 0;
+    if (gFileMgr.handlecount > 0) {
+        int count = gFileMgr.handlecount;  /* CSE turns this re-read into the oracle's reg COPY */
+        FileHandle *next = gFileMgr.handlearray;
+        do {
+            FileHandle *cur = next;        /* two-var walk: cur (v1) = next (a1) each iteration */
+            if (cur->inuse == 0) {         /* first empty slot */
+                next->inuse = 1;           /* == cur here; the oracle stores via the a1/next reg */
+                break;
+            }
+            i++;
+            next = (FileHandle *)((char *)cur + 0x4C);  /* back-edge delay slot */
+            /* w47-a1 (17 -> 3, 43 -> 45 vs 44): the USE FENCE cracks the "no legal C can keep
+             * cur and next apart" verdict above.  Holding `cur` live PAST the advance makes the
+             * two pointers simultaneously live with DIFFERENT values, so cc1 can no longer
+             * copy-propagate them into one walker: retail's loop-head `addu v1,a1,zero` appears
+             * and the whole cur/next/count/sr web (v1/a1/a2/a3) lands exactly on retail's.
+             * Zero insns (cur is register-resident, w45 cost profile).
+             * RESIDUAL 3 = ours is ONE insn LONGER: the fence is a scheduling barrier, so
+             * reorg cannot do the SIMPLE fill of the `bnez` delay slot with the advance
+             * (retail's `addiu a1,v1,76`) and instead EAGER-STEALS the branch target's first
+             * insn -- a duplicate of the loop-head copy -- into the slot (w45 fence/reorg
+             * mechanism).  Moving the fence ABOVE the advance frees the simple fill and gets
+             * the count exact 44/44, but the copy then lands after the beqz and the whole a-band
+             * rotates (24 diffs).  NEXT ANGLE: a split-forcing device that is NOT a scheduling
+             * barrier (the pair is 44/44-reachable, so only the fence's barrier property is in
+             * the way).
+             * w49-a3 NARROWS THAT ANGLE: the barrier is NOT the asm's VOLATILE-ness.  A
+             * non-volatile, output-carrying split device that holds `cur` live past the advance
+             * -- `__asm__("" : "=r"(i) : "r"(cur), "0"(i));` -- gates IDENTICALLY (3 @45/44),
+             * because reorg's fill_simple_delay_slots refuses to move OR scan past ANY
+             * asm_noperands insn, volatile or not.  So the device must not be an `__asm__` at
+             * all.  Also falsified this wave: hoisting the advance ABOVE the test (`cur = next;
+             * next = cur + 0x4C; if (cur->inuse == 0) ...`) DOES split the pair with NO device
+             * at all, but then the advance sinks into the `beqz`'s delay slot (evicting retail's
+             * `li v0,1`) and the loop-head copy is still duplicated into the `bnez` slot -- 7
+             * @45/44, both with and without the fence.
+             * w50-a4 hunted the "non-asm split device" and came back EMPTY, with a sharper
+             * statement of why: EVERY non-asm shape measured lands at 43 insns (the copy
+             * propagated away, 1 SHORT) -- the advance moved into the `while` condition as a
+             * comma expression (33 @43), the advance as a plain statement with no device at all
+             * (33 @43), and three GLOBAL-ALLOCNO shapes aimed at w48-a2's `combine_regs` refusal
+             * (cur declared at function scope and additionally assigned in the break arm / before
+             * the guard / left live past the loop -- all 33 @43).  The global-allocno lever cannot
+             * apply here because cse.c substitutes `next` for `cur` at every use BEFORE allocation
+             * ever runs, so the copy is DEAD, not merely tied: `cur` and `next` hold the same
+             * value at every point where both are live, and no C spelling changes that.  What is
+             * needed is a VALUE-NUMBERING barrier that is not an `asm_noperands` (reorg's
+             * fill_simple_delay_slots refuses to scan past those, which is the whole +1) -- no
+             * such construct exists in this compiler's C surface.  Also falsified: a `&&`-guarded
+             * comma advance (25 @45) and an advance-first form with a `cur != next` loop
+             * condition (35 @45).
+             * w61: FF8's pure-C regalloc idiom refutes the final conclusion above.  A one-trip
+             * increment/decrement pair keeps `cur` split without becoming an asm scheduling
+             * barrier; applying the same zero-net pair to `i` restores the retail a0/a1 priority.
+             * Both pairs optimize away, yielding an exact 44/44 PASS with no general asm fence. */
+            do {
+                cur++;
+                cur--;
+                i++;
+                i--;
+            } while (0);
+        } while (i < count);
+    }
+    FILE_CS_LEAVE(sr);
+    if (i == gFileMgr.handlecount)
+        return 0;
+    return (FileHandle *)((char *)gFileMgr.handlearray + i * 0x4C);
+}
+
+/* freehandle @0x800ED2F0 : clear a 0x4C-byte file handle (release it). */
+extern void freehandle(FileHandle *h)
+{
+    int sr;
+    FILE_CS_ENTER(sr);
+    blockclear(h, 0x4C);
+    FILE_CS_LEAVE(sr);
+}
+

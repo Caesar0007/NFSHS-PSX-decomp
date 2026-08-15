@@ -86,7 +86,7 @@ DAT_80148064	[2 relocs]
 DAT_80148448	[6 relocs]
     from: recon/eaclib/psx/spchpsxz/spchpick.c.o
 D_1000001	[2 relocs]
-    from: asm/data/data_8010CCD4_o23.data.s.o
+    from: asm/data/data_8010CCD4_o25.data.s.o
 D_80000004	[2 relocs]
     from: recon/syslib/psx/2mbyte/2mbyte.c.o
 D_8013EAD8	[2 relocs]

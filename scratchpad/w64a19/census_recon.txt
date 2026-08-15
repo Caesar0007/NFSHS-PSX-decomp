@@ -1,5 +1,5 @@
-lane=recon  objects=621  excluded={}
-defined global symbols : 7201
+lane=recon  objects=645  excluded={}
+defined global symbols : 7205
 COMMON (.comm) symbols : 37
 undefined names (raw)  : 88
   reloc-referenced (REAL link errors): 88  (1098 reloc sites)
@@ -15,7 +15,7 @@ DAT_801479f0	4	recon/eaclib/psx/sndpsxz/sdplapat.c.o;recon/eaclib/psx/sndpsxz/sd
 DAT_80147e28	2	recon/eaclib/psx/sndpsxz/spatkey.c.o
 DAT_80148064	2	recon/eaclib/psx/spchpsxz/spchpick.c.o
 DAT_80148448	6	recon/eaclib/psx/spchpsxz/spchpick.c.o
-D_1000001	2	asm/data/data_8010CCD4_o23.data.s.o
+D_1000001	2	asm/data/data_8010CCD4_o25.data.s.o
 D_80000004	2	recon/syslib/psx/2mbyte/2mbyte.c.o
 D_8013EAD8	2	recon/syslib/psx/libgpu/SYS.c.o
 D_80147871	2	recon/eaclib/psx/sndpsxz/sdpacket.c.o

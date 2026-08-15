@@ -1,0 +1,7 @@
+#ifndef _DECOMP_CMATH_
+#define _DECOMP_CMATH_
+extern "C" {
+double sqrt(double); double sin(double); double cos(double);
+double fabs(double); double pow(double,double); double atan2(double,double);
+}
+#endif

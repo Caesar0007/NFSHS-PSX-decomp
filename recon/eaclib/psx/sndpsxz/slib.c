@@ -42,9 +42,12 @@ extern unsigned char  D_80147A0C[];         /* same table's +0x1c state field; e
 #define DAT_80147919 (sndpd[1])              /* pre-load guard == sndpd+1 */
 #define snd_old_chan_mode (sndpd[2])         /* last applied channel-mode byte */
 #define DAT_8014791c (*(int *)(sndpd + 4))   /* current fx mode == sndpd+4 */
-extern unsigned char  sndpdsafeloop;        /* DMA scratch RAM (zeroed) @0x80136DF0, per configs/symbol_addrs.txt
+extern unsigned char  sndpdsafeloop[16];    /* DMA scratch RAM @0x80136DF0, per configs/symbol_addrs.txt
                                               * (oracle references this real symbol name directly, not a bare VA) */
-unsigned char sndpdsafeloop;                /* def (owning TU; @0x80136df0 image-verified zero; head byte of the 0x10-byte DMA-clear source region) */
+/* w64-a18 E5 fix: retail = a 16-byte INITIALISED .data object (word 0 =
+ * 0x00000700, rest zero) -- was a 1-byte .sbss tentative def (W62-A19 3.2's
+ * wrong-section class; a genuine wrong runtime value). */
+unsigned char sndpdsafeloop[16] = {0x00, 0x07, 0x00, 0x00};
 extern void          *snd_user_serve_hook;  /* @0x80148038              */
 
 /* voice-table fields (0x2c stride) -- all live INSIDE the sndpd block (same struct as sdpacket.c) */

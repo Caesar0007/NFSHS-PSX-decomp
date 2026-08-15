@@ -1,31 +1,36 @@
 #!/usr/bin/env python3
-"""W63-A19  BLOB-vs-TU DATA OWNERSHIP MAP for one splat data blob region.
+"""W64-A18  OWNMAP v2 -- the W63-A19 E1-E5 ownership model with TWO corrections
+that were costing real, byte-provable ownership:
 
-Model (W62-A18 sec.1.1 + W62-A19 sec.6.3 step 6): ld places WHOLE object
-sections, so a recon TU can only take ownership of a retail data run if its
-own section places as ONE contiguous window at a consistent implied base.
+ (A) E5 IS NOW RELOCATION-AWARE.  An `R_MIPS_32` word in our data section holds
+     only its ADDEND until link, so its raw bytes can NEVER equal retail's
+     linked value.  v1 compared raw bytes and therefore mis-classified every
+     pointer-bearing data section as a DATA DEFECT (libcd/cddebug's whole
+     160-byte string table; aicop's copGame[] pointers).  v2 resolves each
+     R_MIPS_32 against the global name->VA map and compares the RESOLVED word.
+     A reloc whose target VA is unknown makes the window UNDECIDABLE (reported
+     as E5? -- never silently "owned").  This is a strengthening, not a
+     loosening: v1 could also PASS a window whose reloc happened to match.
 
-For every (recon object, section) that defines >=1 label of the blob:
-    implied_base = retail_VA(label) - our_section_offset(label)
-The window is [base, base + our_section_size).  It is OWNABLE iff
+ (B) E4 ACCEPTS A RECORD-INTERIOR CUT.  The splat blob's label granularity is
+     coarser than the object boundary: the retail run's last datum is often
+     followed by inter-object ALIGNMENT PAD or an inert SN-LNK linker blob
+     (methodology sec.3.9b) that carries no label of its own, so our section's
+     end lands strictly inside the last blob RECORD.  v1 called that E4-fail.
+     v2 allows the cut when it is 4-ALIGNED and the record it lands in is ours
+     or a splat D_ interior label, and REPORTS the split point -- the blob is
+     .word-per-line, so the cut is a clean LINE split (splitblob2.py).
 
-  E1 every blob label in the window that is defined by a recon TU is defined
-     by THIS one (no foreign owner inside),
-  E2 every blob label this (obj,sec) defines lies INSIDE the window,
-  E3 all its labels agree on ONE implied base (no intra-TU data drift),
-  E4 base and end are both blob-label BOUNDARIES (the cut is clean),
-  E5 the window's RETAIL BYTES equal our section's bytes (zero for .bss/.sbss).
+Everything else is verbatim W63-A19: implied_base = retail_VA(label) -
+our_section_offset(label); window = [base, base+size); E1 no foreign/unmigrated
+label inside, E2 no own label outside, E3 one implied base, E5 bytes == retail.
 
-Blob labels named D_<VA> that are interior to the window are SPLAT SYNTHETIC
-names for an offset inside the TU's own object (methodology sec.3.12) -- they
-are absorbed, not treated as foreign data.
-
-E5 is the anti-vacuity gate: without it "ownership" would be a name-level
-claim only, and a wrong-bytes TU would silently corrupt the region.
+  python scratchpad/w64a18/ownmap2.py --blob <pre-split blob> --end 0xVA
 """
 import argparse
 import json
 import re
+import struct
 import subprocess
 import sys
 from collections import defaultdict
@@ -33,76 +38,86 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import blobparse  # noqa: E402
+import ownmap  # noqa: E402
+import vamap  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 OBJDUMP = r"C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-objdump.exe"
 FBASE = 0x8000F800
 DRX = re.compile(r"^D_[0-9A-Fa-f]{8}$")
 DATA_SECS = (".sdata", ".sbss", ".data", ".bss", ".rodata")
-
-# objdump prints "%08lx %c%c%c%c%c%c%c %s\t%08lx %s" -- the 7 flag chars are
-# COLUMN-EXACT and the first is a SPACE for undefined syms, so a greedy \s+
-# would silently misalign the line.
-SYMLINE = re.compile(r"^([0-9a-f]{8}) (.{7}) (\S+)\s+([0-9a-f]{8}) (.*)$")
+RELHDR = re.compile(r"^RELOCATION RECORDS FOR \[(\S+)\]:")
+RELROW = re.compile(r"^([0-9a-f]{8}) (\S+)\s+(.*)$")
 
 
-def dump_objects(objs):
+def dump_relocs(objs):
+    """obj -> section -> [(offset, type, symbol)]"""
     out = {}
     B = 40
     for i in range(0, len(objs), B):
         batch = objs[i:i + B]
         rel = [str(o.relative_to(ROOT)).replace("\\", "/") for o in batch]
-        r = subprocess.run([OBJDUMP, "-t", "-h", "-s", *rel],
-                           capture_output=True, text=True, cwd=ROOT)
-        cur = mode = None
-        secname = None
+        r = subprocess.run([OBJDUMP, "-r", *rel], capture_output=True,
+                           text=True, cwd=ROOT)
+        cur = sec = None
         for ln in r.stdout.splitlines():
             m = re.match(r"^(\S.*?):\s+file format", ln)
             if m:
                 cur = m.group(1).replace("\\", "/")
-                out[cur] = {"secs": {}, "syms": [], "bytes": {}}
-                mode = None
+                out[cur] = defaultdict(list)
+                sec = None
                 continue
-            if cur is None:
+            h = RELHDR.match(ln)
+            if h:
+                sec = h.group(1)
                 continue
-            if ln.startswith("Sections:"):
-                mode = "sec"
-                continue
-            if ln.startswith("SYMBOL TABLE:"):
-                mode = "sym"
-                continue
-            if ln.startswith("Contents of section "):
-                mode = "hex"
-                secname = ln.split("Contents of section ", 1)[1].rstrip(":")
-                out[cur]["bytes"].setdefault(secname, bytearray())
-                continue
-            if mode == "sec":
-                m = re.match(r"^\s*\d+\s+(\S+)\s+([0-9a-f]+)\s", ln)
-                if m:
-                    out[cur]["secs"][m.group(1)] = int(m.group(2), 16)
-            elif mode == "sym":
-                m = SYMLINE.match(ln)
-                if m:
-                    out[cur]["syms"].append(
-                        (m.group(5).strip(), m.group(3), int(m.group(1), 16),
-                         m.group(2)[0] == "g"))
-            elif mode == "hex":
-                m = re.match(r"^\s([0-9a-f]{4,8}) ((?:[0-9a-f]{2,8} ?){1,4})", ln)
-                if m:
-                    hx = m.group(2).replace(" ", "")
-                    out[cur]["bytes"][secname] += bytes.fromhex(hx)
+            if sec and cur:
+                g = RELROW.match(ln)
+                if g:
+                    out[cur][sec].append(
+                        (int(g.group(1), 16), g.group(2), g.group(3).strip()))
         for o in batch:
             key = str(o.relative_to(ROOT)).replace("\\", "/")
-            assert key in out, f"objdump produced no record for {key}"
+            assert key in out, f"objdump -r produced no record for {key}"
     return out
+
+
+def resolve_e5(rb, ob, sec, relocs, names):
+    """Return (ok, undecidable, ndiff, notes).  rb=retail, ob=our raw bytes."""
+    if len(ob) != len(rb):
+        return False, False, abs(len(ob) - len(rb)), ["size mismatch"]
+    ob = bytearray(ob)
+    notes = []
+    undec = False
+    for off, typ, sym in relocs:
+        if off + 4 > len(ob):
+            continue
+        if typ != "R_MIPS_32":
+            notes.append(f"non-32 reloc {typ}@{off:#x} {sym}")
+            undec = True
+            continue
+        base = names.get(sym)
+        if base is None:
+            notes.append(f"unresolved reloc target {sym}@{off:#x}")
+            undec = True
+            continue
+        addend = struct.unpack_from("<I", ob, off)[0]
+        struct.pack_into("<I", ob, off, (base + addend) & 0xFFFFFFFF)
+    nd = sum(1 for x, y in zip(rb, ob) if x != y)
+    return (nd == 0 and not undec), undec, nd, notes
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--blob", default="asm/data/sdata_8013C54C.sdata.s")
-    ap.add_argument("--end", default="0x8013DD7C")
-    ap.add_argument("--out", default="scratchpad/w63a19/ownmap_sdata.txt")
-    ap.add_argument("--json", default="scratchpad/w63a19/ownmap_sdata.json")
+    ap.add_argument("--blob", required=True)
+    ap.add_argument("--end", required=True)
+    ap.add_argument("--out", required=True)
+    ap.add_argument("--json", required=True)
+    ap.add_argument("--exclude", action="append", default=[],
+                    help="substring of an object path to EXCLUDE from ownership "
+                         "(user-live TUs: their section size can move under us)")
+    ap.add_argument("--no-split", action="store_true",
+                    help="disable correction (B) -- v1 E4 semantics")
     a = ap.parse_args()
 
     rom = (ROOT / "rom" / "nfs4-f.exe").read_bytes()
@@ -110,137 +125,214 @@ def main():
     by_name = {r["name"]: r for r in recs}
     blob_lo, blob_hi = recs[0]["va"], recs[-1]["end"]
     bounds = {r["va"] for r in recs} | {blob_hi}
-    print(f"blob {a.blob}: {len(recs)} labels {blob_lo:#x}..{blob_hi:#x}")
 
+    names, _ = vamap.build()
     objs = sorted((ROOT / "build" / "recon").rglob("*.o"))
-    data = dump_objects(objs)
-    print(f"recon objects dumped: {len(data)}")
+    data = ownmap.dump_objects(objs)
+    rels = dump_relocs(objs)
 
-    # (obj, sec) -> [(label, offset)] for labels this section defines
     wins = defaultdict(list)
     tu_defined = set()
+    excluded = set()
     for obj, d in data.items():
         for name, sec, off, glob in d["syms"]:
             if name in by_name and sec in DATA_SECS:
                 wins[(obj, sec)].append((name, off))
                 tu_defined.add(name)
-    print(f"blob labels also defined by a recon TU: {len(tu_defined)}")
+    for k in list(wins):
+        if any(x in k[0] for x in a.exclude):
+            excluded.add(k)
+    if excluded:
+        print(f"excluded from ownership (user-live): "
+              f"{sorted({k[0] for k in excluded})}")
 
-    # label -> owning (obj,sec) list
-    owners = defaultdict(list)
+    # (D) AMBIGUOUS-ANCHOR GUARD.  maspsx re-emits every .bss/.sbss entry with an
+    # unconditional `.globl`, so the FIVE file-static copies of a name like
+    # gSwapFileName (W62-A18 sec.1.2, T5) become global and are indistinguishable
+    # from the one real global.  A blob label defined by more than one (obj,sec)
+    # therefore anchors NOTHING -- using it produced four TUs all "owning" the
+    # same 0x80052064 window in front_data.  Such names are excluded from base
+    # derivation, and a window left with no unambiguous anchor is NOT ownable.
+    defcount = defaultdict(set)
     for k, members in wins.items():
         for name, _ in members:
-            owners[name].append(k)
+            defcount[name].add(k)
+    ambiguous = {n for n, ks in defcount.items() if len(ks) > 1}
+    if ambiguous:
+        print(f"ambiguous (multiply-defined) blob labels: {len(ambiguous)} "
+              f"{sorted(ambiguous)[:6]}")
 
     rows = []
     for (obj, sec), members in wins.items():
+        anchors = [(n, o) for n, o in members if n not in ambiguous]
         bases = defaultdict(list)
-        for name, off in members:
+        for name, off in anchors:
             bases[by_name[name]["va"] - off].append(name)
+        if not bases:
+            rows.append(dict(obj=obj, sec=sec, base=0, end=0, size=0,
+                             n=len(members), nbases=0, foreign=[], unmig=[],
+                             outside=[], e3=False, e4=False, e5=False,
+                             undec=False, ndiff=0,
+                             notes=["E0 no unambiguous anchor"], ok=False,
+                             split_at=None, pad_to=None, nrel=0,
+                             ambig=sorted({n for n, _ in members}),
+                             labels=sorted({n for n, _ in members}), inwin=[]))
+            continue
         base = max(bases.items(), key=lambda kv: len(kv[1]))[0]
         size = data[obj]["secs"].get(sec, 0)
         end = base + size
         inwin = [r for r in recs if base <= r["va"] < end]
         mine = {n for n, _ in members}
-        foreign_owned, unmigrated = [], []
+        foreign, unmig = [], []
         for r in inwin:
             if r["name"] in mine:
                 continue
             if r["name"] in tu_defined:
-                foreign_owned.append(r["name"])
-            elif DRX.match(r["name"]) and r["va"] > base:
-                pass                      # splat synthetic interior label
+                foreign.append(r["name"])
+            elif DRX.match(r["name"]):
+                # (C) A splat `D_<VA>` label is a SYNTHETIC name for an offset
+                # inside the object -- absorbed wherever it sits, INCLUDING at
+                # the window base (v1 required va > base, which blocked every
+                # TU whose section starts with un-named data, e.g.
+                # genericpmx.cpp's 208 leading bytes = 26 8-byte D_ records).
+                # Safe because a D_ name is never TU-defined (the `foreign`
+                # test runs first) and because ownership still requires E5:
+                # the window's bytes must equal retail's over its WHOLE extent.
+                pass
             else:
-                unmigrated.append(r["name"])
+                unmig.append(r["name"])
         outside = [n for n in mine if not (base <= by_name[n]["va"] < end)]
         e3 = len(bases) == 1
+
+        # ---- E4 with the record-interior cut (correction B) ----
+        split_at = None
+        pad_to = None
         e4 = base in bounds and end in bounds and size > 0
-        # E5: retail bytes vs our section bytes
+        if not e4 and size > 0 and base in bounds and not a.no_split:
+            host = next((r for r in recs if r["va"] < end < r["end"]), None)
+            if host is not None:
+                hostok = (host["name"] in mine
+                          or (DRX.match(host["name"]) and host["va"] > base))
+                nb = min((b for b in bounds if b >= end), default=None)
+                if hostok and end % 4 == 0:
+                    # B1 RECORD SPLIT: 4-aligned cut inside a record we own /
+                    # a splat D_ interior label -- the residual tail stays in
+                    # the blob as its own piece.
+                    e4 = True
+                    split_at = end
+                elif (hostok and nb is not None and nb - end < 4
+                      and nb % 4 == 0 and nb <= host["end"]
+                      and set(rom[end - FBASE:nb - FBASE]) <= {0}):
+                    # B2 ALIGNMENT SLACK: our section ends <4 bytes short of the
+                    # next boundary and retail's bytes there are ZERO -- that is
+                    # inter-object alignment pad, supplied by the .ld's FILL(0).
+                    e4 = True
+                    pad_to = nb
+        # ---- E5, reloc-aware (correction A) ----
         rb = rom[base - FBASE:end - FBASE]
         ob = bytes(data[obj]["bytes"].get(sec, b""))
         if sec in (".bss", ".sbss"):
             ob = b"\x00" * size
-        e5 = (len(ob) == size and rb == ob)
-        ok = (not foreign_owned and not unmigrated and not outside
-              and e3 and e4 and e5 and inwin)
+            secrel = []
+        else:
+            secrel = [r for r in rels.get(obj, {}).get(sec, [])
+                      if r[0] < size]
+        e5, undec, ndiff, notes = resolve_e5(rb, ob, sec, secrel, names)
+
+        ok = (not foreign and not unmig and not outside
+              and e3 and e4 and e5 and bool(inwin)
+              and (obj, sec) not in excluded)
         rows.append(dict(obj=obj, sec=sec, base=base, end=end, size=size,
-                         n=len(members), nbases=len(bases),
-                         foreign=foreign_owned, unmig=unmigrated,
-                         outside=outside, e3=e3, e4=e4, e5=e5, ok=ok,
-                         labels=sorted(mine),
-                         inwin=[r["name"] for r in inwin],
-                         bytes_ok=e5, bytediff=sum(
-                             1 for x, y in zip(rb, ob) if x != y)))
+                         n=len(members), nbases=len(bases), foreign=foreign,
+                         unmig=unmig, outside=outside, e3=e3, e4=e4, e5=e5,
+                         undec=undec, ndiff=ndiff, notes=notes, ok=ok,
+                         split_at=split_at, pad_to=pad_to, nrel=len(secrel),
+                         ambig=sorted(mine & ambiguous), labels=sorted(mine),
+                         inwin=[r["name"] for r in inwin]))
 
     rows.sort(key=lambda r: (r["base"], r["end"]))
-    good = [r for r in rows if r["ok"]]
-    # windows must not overlap each other
-    good.sort(key=lambda r: r["base"])
-    kept, dropped_ov = [], []
+    good = sorted([r for r in rows if r["ok"]], key=lambda r: r["base"])
+    kept, dropped = [], []
     cur = -1
     for r in good:
         if r["base"] < cur:
-            dropped_ov.append(r)
+            dropped.append(r)
             continue
         kept.append(r)
-        cur = r["end"]
+        cur = r["pad_to"] or r["end"]
 
-    L = []
-    L.append(f"# W63-A19 blob-vs-TU ownership map   blob={a.blob}")
-    L.append(f"# blob labels={len(recs)}  TU-defined={len(tu_defined)}  "
-             f"windows={len(rows)}")
-    L.append("")
-    L.append(f"{'base':>10} {'end':>10} {'size':>6} {'lbl':>4} {'ok':>4}  "
-             f"{'sec':<7} object")
+    L = [f"# W64-A18 ownmap2 (reloc-aware E5 + record-interior E4)  blob={a.blob}",
+         f"# blob labels={len(recs)}  TU-defined={len(tu_defined)}  windows={len(rows)}",
+         "",
+         f"{'base':>10} {'end':>10} {'size':>6} {'lbl':>4} {'rel':>4} {'ok':>4}  {'sec':<7} object"]
     for r in rows:
+        tag = "OWN" if r["ok"] else "-"
+        if r["ok"] and r["split_at"]:
+            tag = "OWN*"
+        if r["ok"] and r["pad_to"]:
+            tag = "OWN+"
         L.append(f"{r['base']:#010x} {r['end']:#010x} {r['size']:6d} "
-                 f"{r['n']:4d} {'OWN' if r['ok'] else '-':>4}  "
-                 f"{r['sec']:<7} {r['obj']}")
+                 f"{r['n']:4d} {r['nrel']:4d} {tag:>4}  {r['sec']:<7} {r['obj']}")
+        if r["ok"] and r["split_at"]:
+            host = next(x for x in recs if x["va"] < r["split_at"] < x["end"])
+            L.append(f"      * cut splits record {host['name']} at "
+                     f"{r['split_at']:#010x}; residual "
+                     f"{r['split_at']:#x}..{host['end']:#x} "
+                     f"({host['end']-r['split_at']} B) stays in the blob")
+        if r["ok"] and r["pad_to"]:
+            L.append(f"      + window padded {r['end']:#010x}..{r['pad_to']:#010x} "
+                     f"({r['pad_to']-r['end']} B of retail ZERO alignment pad, "
+                     f"supplied by the .ld FILL(0))")
         if not r["ok"]:
             if not r["e3"]:
-                L.append(f"      E3 {r['nbases']} implied bases (intra-TU data"
-                         f" ORDER/SIZE drift)")
+                L.append(f"      E3 {r['nbases']} implied bases")
             if r["foreign"]:
-                L.append(f"      E1 {len(r['foreign'])} labels owned by another"
-                         f" TU inside: {r['foreign'][:6]}")
+                L.append(f"      E1 {len(r['foreign'])} foreign: {r['foreign'][:6]}")
             if r["unmig"]:
-                L.append(f"      E1 {len(r['unmig'])} UN-MIGRATED blob labels "
-                         f"inside: {r['unmig'][:6]}")
+                L.append(f"      E1 {len(r['unmig'])} un-migrated: {r['unmig'][:6]}")
             if r["outside"]:
-                L.append(f"      E2 {len(r['outside'])} own labels OUTSIDE: "
-                         f"{r['outside'][:6]}")
-            if not r["e4"]:
-                L.append(f"      E4 window edge is not a blob label boundary")
+                L.append(f"      E2 {len(r['outside'])} outside: {r['outside'][:6]}")
+            if r["notes"] and r["notes"][0].startswith("E0"):
+                L.append(f"      E0 every blob label this section defines is "
+                         f"MULTIPLY DEFINED across recon TUs: {r['labels'][:6]}")
+            elif not r["e4"]:
+                L.append("      E4 edge not a boundary / not splittable")
             if not r["e5"]:
-                L.append(f"      E5 BYTES DIFFER from retail ({r['bydiff'] if 'bydiff' in r else r['bytediff']} of {r['size']})")
-    L.append("")
-    L.append(f"OWNABLE windows            : {len(good)}")
-    L.append(f"  ... after overlap pruning: {len(kept)}  "
-             f"(dropped {len(dropped_ov)})")
-    L.append(f"bytes owned                : {sum(r['size'] for r in kept)} "
-             f"of {blob_hi - blob_lo}")
+                if r["undec"]:
+                    L.append(f"      E5? UNDECIDABLE ({r['ndiff']} raw diffs): "
+                             f"{r['notes'][:3]}")
+                else:
+                    L.append(f"      E5 BYTES DIFFER ({r['ndiff']} of {r['size']})")
+    for r in kept:
+        if r["pad_to"]:
+            r["cut_end"] = r["pad_to"]
+        else:
+            r["cut_end"] = r["end"]
+    L += ["",
+          f"OWNABLE windows            : {len(good)}",
+          f"  ... after overlap pruning: {len(kept)}  (dropped {len(dropped)})",
+          f"  of which need a record split: {sum(1 for r in kept if r['split_at'])}",
+          f"  of which end in alignment pad: {sum(1 for r in kept if r['pad_to'])}",
+          f"bytes owned                : {sum(r['cut_end']-r['base'] for r in kept)} of {blob_hi-blob_lo}"]
     covered = {n for r in kept for n in r["inwin"]}
-    L.append(f"blob labels inside owned windows: {len(covered)}")
-    L.append(f"  of which TU-defined      : {len(covered & tu_defined)}")
-    L.append(f"  of which splat D_ interior: {len(covered - tu_defined)}")
-    L.append(f"TU-defined labels NOT owned: {len(tu_defined - covered)}")
-    L.append("")
-    L.append("## FAILURE-MODE HISTOGRAM (windows, non-exclusive)")
-    for k, lbl in (("e3", "E3 intra-TU drift"), ("e4", "E4 edge not a boundary"),
-                   ("e5", "E5 bytes differ")):
-        L.append(f"  {lbl:<26} {sum(1 for r in rows if not r[k])}")
-    L.append(f"  {'E1 foreign owner inside':<26} "
-             f"{sum(1 for r in rows if r['foreign'])}")
-    L.append(f"  {'E1 un-migrated inside':<26} "
-             f"{sum(1 for r in rows if r['unmig'])}")
-    L.append(f"  {'E2 own label outside':<26} "
-             f"{sum(1 for r in rows if r['outside'])}")
-
+    L += [f"blob labels inside owned windows: {len(covered)}",
+          f"  of which TU-defined      : {len(covered & tu_defined)}",
+          f"  of which splat D_ interior: {len(covered - tu_defined)}",
+          f"TU-defined labels NOT owned: {len(tu_defined - covered)}",
+          "",
+          "## FAILURE-MODE HISTOGRAM (windows, non-exclusive)"]
+    L += [f"  E3 intra-TU drift          {sum(1 for r in rows if not r['e3'])}",
+          f"  E4 edge not a boundary     {sum(1 for r in rows if not r['e4'])}",
+          f"  E5 bytes differ            {sum(1 for r in rows if not r['e5'] and not r['undec'])}",
+          f"  E5? undecidable reloc      {sum(1 for r in rows if r['undec'])}",
+          f"  E1 foreign owner inside    {sum(1 for r in rows if r['foreign'])}",
+          f"  E1 un-migrated inside      {sum(1 for r in rows if r['unmig'])}",
+          f"  E2 own label outside       {sum(1 for r in rows if r['outside'])}",
+          f"  E0 ambiguous anchor only   {sum(1 for r in rows if r['nbases'] == 0)}"]
     (ROOT / a.out).write_text("\n".join(L) + "\n")
-    json.dump([{k: v for k, v in r.items()} for r in kept],
-              open(ROOT / a.json, "w"), indent=1)
-    print("\n".join(L[-22:]))
-    print(f"-> {a.out}  /  {a.json}")
+    json.dump(kept, open(ROOT / a.json, "w"), indent=1)
+    print("\n".join(L[-24:]))
+    print(f"-> {a.out} / {a.json}")
 
 
 if __name__ == "__main__":

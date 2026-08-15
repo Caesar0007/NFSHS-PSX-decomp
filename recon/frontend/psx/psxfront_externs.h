@@ -7,7 +7,15 @@
 
 typedef void EAC_timerproc(void);   /* fn type; EAC_timerproc* = void(*)(void) */
 
-extern "C" {
+/* W62-A17 LINKAGE FIX.  This whole block used to sit inside `extern "C" { }`, which made
+   psxfront.cpp emit 33 UNMANGLED references to functions that are defined in C++ TUs --
+   AudioCmn_LoadFESamples vs AudioCmn_LoadFESamples__Fv, Draw_SetView vs
+   Draw_SetView__Fiiiiiiiii, R3DCar_Instantiate3DCar vs R3DCar_Instantiate3DCar__FP8Car_tObji,
+   ... 33 symbols that exist NOWHERE (nm ALIAS class, the single largest concentration of
+   link debt in the tree).  verify_asm's reloc-name leniency hides all of it.
+   Only `elapsedticks` in this block is genuinely C-lane (eaclib), so it keeps C linkage. */
+extern "C" int elapsedticks(void);
+
 void AudioCmn_LoadFESamples(void);
 void Audio_DeInitDriver(void);
 void Audio_InitDriver(int buffersize, int spusize);
@@ -40,7 +48,6 @@ void Texture_CleanupMenuTexture(void);
 void Texture_InitMenuClut(void);
 void Texture_InitMenuTexture(void);
 void Texture_KillMenuTexture(void);
-int elapsedticks(void);
 int play_movie(char movie);
 void trap(int code);
    /* eaclib timer proc (from pad.c) */
@@ -74,5 +81,4 @@ extern int gMenuRotate[2];
 extern int inFrontEnd[];
 extern int screenbpp[];
 extern int screenwidth[];
-}
 #endif

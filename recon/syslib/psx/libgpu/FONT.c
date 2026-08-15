@@ -341,6 +341,15 @@ extern int FntPrint(const char *id, ...)
     ch = *f;
     if (ch == 0)
         goto fnt_done;
+    /* MATCH (W63-A3, 3 -> 2 and the count became EXACT 240/240): retail leaves the
+     * `beqz $a0` zero-check delay slot EMPTY; reorg steals `percent`'s `li $s4,37`
+     * from the fall-through thread into it (fill_slots_from_thread), so ours ran one
+     * instruction short.  A void-tail fence at the HEAD of that thread is the one
+     * instrument that reaches reorg (stop_search_p returns 1 at any asm) and it is
+     * zero-insn.  Placement variants all measure identically (2/240): fence before
+     * this block, fence inside it, and a read-only fence on `ch`; the void-tail form
+     * is kept because it neither adds a ref nor names a value. */
+    __asm__("" : : "i"(0));
     {
         percent = ch ^ (ch ^ '%');
     }
@@ -427,8 +436,42 @@ extern int FntPrint(const char *id, ...)
             WriteChar(' ');
             width--;
         }
-        while (len--, len != -1) {
-            WriteChar(*bufPtr++);
+        /* MATCH (W63-A3): retail materializes the loop sentinel FRESH
+         * (`addiu $a2,$zero,-1`) where every natural spelling of this countdown
+         * gives us a COPY of the peel's -1 (`addu $a2,$v0,$zero`) -- cse's
+         * constant-sharing: at the sentinel's DEF a register already holds -1, and
+         * cse substitutes it (the launder protects USES, so a sentinel declared
+         * INSIDE the guard is still copied).  Cure = give the sentinel its own
+         * pseudo BEFORE the peel test, then identity-launder it so cse can neither
+         * fold it back nor feed it to the peel's own compare -- both -1s are then
+         * materialized independently, exactly retail's instruction set.
+         * FALSIFIED first (all gate-measured, this basin): the plain comma-peel
+         * (2), explicit peel with two literal -1 (2), laundered sentinel declared
+         * inside the guard (2), void-tail fence between peel and loop (2),
+         * read-only fence on len (2), peel spelled `len >= 0` (3, loses retail's
+         * own `li $v0,-1`), un-laundered sentinel before the peel (5), laundered
+         * sentinel used in BOTH tests (7), double launder (64).
+         * The residual after this edit is a PURE ONE-LINE RELOCATION (`li $6,-1`
+         * belongs after the peel branch, not before it) -- probe-verified TWICE as
+         * PASS 240/240 with the PER_FN_TEXT_MOVES row below (scratchpad/w63a3):
+         *     "recon/syslib/psx/libgpu/FONT.c": {
+         *         "FntPrint": [
+         *             {"take":  r"\tli\t\$6,-1[^\n]*\n",
+         *              "after": r"\tbeq\t\$5,\$2,\$L\d+\n"},
+         *         ],
+         *     }
+         * (the FONT.c entry already exists for FntFlush -- ADD this key to it;
+         * a duplicate rel key would silently shadow the earlier entry, 12F). */
+        {
+            int neg1 = -1;
+            __asm__("" : "=r"(neg1) : "0"(neg1));   /* cse constant-sharing breaker */
+            len--;
+            if (len != -1) {
+                do {
+                    WriteChar(*bufPtr++);
+                    len--;
+                } while (len != neg1);
+            }
         }
     }
 fnt_done:

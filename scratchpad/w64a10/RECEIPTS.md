@@ -252,3 +252,11 @@ This supersedes the w63 "one caller-saved pseudo holding $v0" formulation:
   `p_clob.py` (clobber pricing, measurement-only),
   `work/` (dumps), this file.
 * `git status` for my belt TUs is clean apart from the peer's `audiocmn.cpp`.
+
+## 9. ATTRIBUTION NOTE (hazard, firing #N)
+
+My four scripts + this file were swept into a PEER's commit `53488a8d`
+(`w64a11: Newton_DoPostBarrierCollisionHandling …`) by a `git add -A`-style
+sweep before I could self-commit — the standing "stage EXPLICIT paths only"
+hazard, from the other side. Content is intact; only the commit label is wrong.
+`git log -- scratchpad/w64a10/` is the pointer.

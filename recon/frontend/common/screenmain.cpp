@@ -378,7 +378,8 @@ void tScreenMain::DrawVideoLines()
    unsigned-short VIDEO y cast removes one of its two sign-extension ops.
    Remaining large islands are the SLD-confirmed dot-grid/TV-order loop CFGs
    and warning-fade/animation local-allocation order. */
-/* W61-A17 (base 115, unchanged) -- census + falsifications.  FRAME CENSUS:
+/* W61-A17/root resume (115 -> 111) -- census + verified SLD:530 repair.
+   FRAME CENSUS:
    our sp-offset multiset is IDENTICAL to retail's, so this is NOT the W61-A1
    declaration-order spill class.  SLD attribution (tools/sldall.py) puts the
    residual in two places: (a) an a1<->a2 rotation through the tvConfigs[i]
@@ -392,8 +393,11 @@ void tScreenMain::DrawVideoLines()
    i, j, drawFlags, deltaTicks, animFade, x, y, buffer, shapeX, shapeY plus a
    block-scope BOOL bAllTVsOn -- our bVar1/sVar3/fade/str/iVar5/uVar6/iVar7 are
    inventions but are not what costs the rotation.
-   NEXT: an SLD:530-driven rewrite of the warning-fade tint as ONE value stored
-   to both fields.  */
+   VERIFIED: keeping the packed warning tint in a distinct `fade` result makes
+   retail's ONE computed word feed BOTH tvConfigs[6] and tvConfigs[5], removing
+   four detailed diffs.  A per-iteration config pointer worsened 111 -> 122; a
+   `fadeMid` block temp was exactly neutral; passing short `j` directly to
+   VIDEO_updateframexy worsened 111 -> 112.  All three probes were reverted. */
 void tScreenMain::DrawBackground()
 
 {
@@ -478,9 +482,9 @@ void tScreenMain::DrawBackground()
       this->tvConfigs[i].tint = uVar9 * 0x10000 | uVar9 * 0x100 | uVar9;
     }
     uVar9 = 0x80 - ((int)this->fWarningFade << 6) / 0x60;
-    uVar9 = uVar9 * 0x10000 | uVar9 * 0x100 | uVar9;
-    this->tvConfigs[6].tint = uVar9;
-    this->tvConfigs[5].tint = uVar9;
+    fade = uVar9 * 0x10000 | uVar9 * 0x100 | uVar9;
+    this->tvConfigs[6].tint = fade;
+    this->tvConfigs[5].tint = fade;
     drawFlags.tint[0] = 0xbebe;
     DrawShapeExtended((gettick() / 0xf) % 10 + 0x101,0x411,0xa3,-0xf,0x60 - this->fWarningFade
                ,1,&drawFlags);

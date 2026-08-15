@@ -1,0 +1,4 @@
+C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: build/asm/data/front_data_r05.data.s.o: in function `D_800520E8':
+(.data+0x28): undefined reference to `D_80012064'
+C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: (.data+0x2c): undefined reference to `D_80012064'
+C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: (.data+0x30): undefined reference to `D_80012064'

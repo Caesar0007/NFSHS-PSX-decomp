@@ -1,0 +1,60 @@
+record splits performed: 2
+segments: 56  residual=22  owned=34
+  data_8010CCD4_r00.data.s                 0x8010ccd4..0x8010cd5c    136
+  data_8010CCD4_o00.data.s                 0x8010cd5c..0x8010cd98     60  <- build/recon/game/common/aih_basicperp.cpp.o
+  data_8010CCD4_o01.data.s                 0x8010cd98..0x8010ce7c    228  <- build/recon/game/common/aih_btccop.cpp.o
+  data_8010CCD4_o02.data.s                 0x8010ce7c..0x8010ce98     28  <- build/recon/game/common/aih_btcperp.cpp.o
+  data_8010CCD4_r01.data.s                 0x8010ce98..0x8010cea4     12
+  data_8010CCD4_o03.data.s                 0x8010cea4..0x8010cfd4    304  <- build/recon/game/common/aih_cop.cpp.o
+  data_8010CCD4_o04.data.s                 0x8010cfd4..0x8010d560   1420  <- build/recon/game/common/aicop.cpp.o
+  data_8010CCD4_o05.data.s                 0x8010d560..0x8010d5cc    108  <- build/recon/game/common/aiinit.cpp.o
+  data_8010CCD4_o06.data.s                 0x8010d5cc..0x8010dc54   1672  <- build/recon/game/common/func_va_data.cpp.o
+  data_8010CCD4_r02.data.s                 0x8010dc54..0x8010dc74     32
+  data_8010CCD4_o07.data.s                 0x8010dc74..0x8010dce0    108  <- build/recon/game/common/aiphysic.cpp.o
+  data_8010CCD4_r03.data.s                 0x8010dce0..0x8010de14    308
+  data_8010CCD4_o08.data.s                 0x8010de14..0x8010e00c    504  <- build/recon/game/common/aitune.cpp.o
+  data_8010CCD4_o09.data.s                 0x8010e00c..0x8010e14c    320  <- build/recon/game/common/AIWORLD.cpp.o
+  data_8010CCD4_o10.data.s                 0x8010e14c..0x8010e274    296  <- build/recon/game/common/anim.cpp.o
+  data_8010CCD4_o11.data.s                 0x8010e274..0x8010e4d0    604  <- build/recon/game/common/audioclc.cpp.o
+  data_8010CCD4_r04.data.s                 0x8010e4d0..0x8010ee40   2416
+  data_8010CCD4_o12.data.s                 0x8010ee40..0x8010f07c    572  <- build/recon/game/common/bworld.cpp.o
+  data_8010CCD4_r05.data.s                 0x8010f07c..0x8010f0ac     48
+  data_8010CCD4_o13.data.s                 0x8010f0ac..0x8010f2ac    512  <- build/recon/game/common/bworldSm.cpp.o
+  data_8010CCD4_r06.data.s                 0x8010f2ac..0x8010f828   1404
+  data_8010CCD4_o14.data.s                 0x8010f828..0x80110c24   5116  <- build/recon/game/common/cars.cpp.o
+  data_8010CCD4_o15.data.s                 0x80110c24..0x80110c30     12  <- build/recon/game/common/clock.cpp.o
+  data_8010CCD4_r07.data.s                 0x80110c30..0x80110c70     64
+  data_8010CCD4_o16.data.s                 0x80110c70..0x80111a44   3540  <- build/recon/game/common/hudpmx.cpp.o
+  data_8010CCD4_r08.data.s                 0x80111a44..0x80111ea4   1120
+  data_8010CCD4_o17.data.s                 0x80111ea4..0x80112730   2188  <- build/recon/game/common/copspeak.cpp.o
+  data_8010CCD4_o18.data.s                 0x80112730..0x8011279c    108  <- build/recon/game/common/dashhud.cpp.o
+  data_8010CCD4_o19.data.s                 0x8011279c..0x80112b2c    912  <- build/recon/game/common/fei.cpp.o
+  data_8010CCD4_r09.data.s                 0x80112b2c..0x801131ec   1728
+  data_8010CCD4_o20.data.s                 0x801131ec..0x80113c14   2600  <- build/recon/game/common/gmesetup.cpp.o
+  data_8010CCD4_o21.data.s                 0x80113c14..0x8011401c   1032  <- build/recon/game/common/input.cpp.o
+  data_8010CCD4_r10.data.s                 0x8011401c..0x8011423c    544
+  data_8010CCD4_o22.data.s                 0x8011423c..0x80115c48   6668  <- build/recon/game/common/nfs3.cpp.o
+  data_8010CCD4_r11.data.s                 0x80115c48..0x80115d60    280
+  data_8010CCD4_o23.data.s                 0x80115d60..0x80116468   1800  <- build/recon/game/common/object.cpp.o
+  data_8010CCD4_o24.data.s                 0x80116468..0x80116530    200  <- build/recon/game/common/paths.cpp.o
+  data_8010CCD4_r12.data.s                 0x80116530..0x801165e0    176
+  data_8010CCD4_o25.data.s                 0x801165e0..0x80116f7c   2460  <- build/recon/game/common/r3dcar.cpp.o
+  data_8010CCD4_r13.data.s                 0x80116f7c..0x8011fc60  36068
+  data_8010CCD4_o26.data.s                 0x8011fc60..0x8011fd70    272  <- build/recon/game/psx/force.cpp.o
+  data_8010CCD4_r14.data.s                 0x8011fd70..0x8011fde0    112
+  data_8010CCD4_o27.data.s                 0x8011fde0..0x801202f8   1304  <- build/recon/game/psx/flare.cpp.o
+  data_8010CCD4_r15.data.s                 0x801202f8..0x80120fd0   3288
+  data_8010CCD4_o28.data.s                 0x80120fd0..0x80121070    160  <- build/recon/game/psx/texture.cpp.o
+  data_8010CCD4_r16.data.s                 0x80121070..0x801237ec  10108
+  data_8010CCD4_o29.data.s                 0x801237ec..0x80123820     52  <- build/recon/eaclib/psx/eacpsxz/matrix.c.o
+  data_8010CCD4_r17.data.s                 0x80123820..0x80136df0  79312
+  data_8010CCD4_o30.data.s                 0x80136df0..0x80136e00     16  <- build/recon/eaclib/psx/sndpsxz/slib.c.o
+  data_8010CCD4_r18.data.s                 0x80136e00..0x8013be10  20496
+  data_8010CCD4_o31.data.s                 0x8013be10..0x8013bf10    256  <- build/recon/eaclib/psx/eacpsxz/isqrt.c.o
+  data_8010CCD4_r19.data.s                 0x8013bf10..0x8013bf18      8
+  data_8010CCD4_o32.data.s                 0x8013bf18..0x8013bf20      8  <- build/recon/syslib/psx/libmath/FERR.c.o
+  data_8010CCD4_r20.data.s                 0x8013bf20..0x8013c2f0    976
+  data_8010CCD4_o33.data.s                 0x8013c2f0..0x8013c308     24  <- build/recon/eaclib/psx/sndpsxz/snddata.c.o
+  data_8010CCD4_r21.data.s                 0x8013c308..0x8013c54c    580
+removed 56 previous pieces
+wrote 56 pieces to asm/data

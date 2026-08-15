@@ -1,0 +1,91 @@
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/src/eaclib/psx/spchpsxz/spchrule.c.o: in function `VoxSentence_GetNumPhrases':
+(.text+0x44c): multiple definition of `VoxSentence_GetNumPhrases'; build/src/eaclib/psx/spchpsxz/spchdata.c.o:(.text+0x20): first defined here
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/src/eaclib/psx/spchpsxz/spchrule.c.o: in function `iSPCH_GetOffset8':
+(.text+0x458): multiple definition of `iSPCH_GetOffset8'; build/src/eaclib/psx/spchpsxz/spchdata.c.o:(.text+0x38): first defined here
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/src/eaclib/psx/spchpsxz/spchrule.c.o: in function `iSPCH_GetOffset16':
+(.text+0x470): multiple definition of `iSPCH_GetOffset16'; build/src/eaclib/psx/spchpsxz/spchdata.c.o:(.text+0x50): first defined here
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/src/game/common/aihigh.c.o: in function `___15AIHigh_BTC_Perp':
+(.text+0x6a4): multiple definition of `___15AIHigh_BTC_Perp'; build/src/game/common/aih_btcperp.c.o:(.text+0x1c94): first defined here
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/src/syslib/psx/libetc/INTR_DMA.c.o: in function `_bzero_w':
+(.text+0x278): multiple definition of `_bzero_w'; build/src/syslib/psx/libetc/INTR.c.o:(.text+0x624): first defined here
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: can not read symbols: file truncated
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: .eh_frame/.stab edit: file truncated
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: C:\Temp\nfs4-decomp\scratchpad\w65a8\w65a8_sub4.elf: warning: allocated section `.header' not in segment
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: C:\Temp\nfs4-decomp\scratchpad\w65a8\w65a8_sub4.elf: warning: allocated section `.nfs4' not in segment
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: C:\Temp\nfs4-decomp\scratchpad\w65a8\w65a8_sub4.elf: warning: allocated section `.text' not in segment
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/asm/data/rdata_80054548_r05.rodata.s.o: in function `D_80055410':
+(.rodata+0x244): undefined reference to `___26AIDataRecord_CarTracking_t'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x24c): undefined reference to `Setup__14AIDataRecord_t'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x254): undefined reference to `Get__26AIDataRecord_CarTracking_ti'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/asm/data/rdata_80054548_r05.rodata.s.o: in function `D_8005544C':
+(.rodata+0x264): undefined reference to `___30AIDataRecord_CurveSpeedTable_t'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x26c): undefined reference to `Setup__14AIDataRecord_t'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/asm/data/rdata_80054548_r05.rodata.s.o: in function `D_80055464':
+(.rodata+0x27c): undefined reference to `___25AIDataRecord_TrackCurve_t'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x284): undefined reference to `Setup__14AIDataRecord_t'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/asm/data/rdata_80054548_r05.rodata.s.o: in function `D_8005547C':
+(.rodata+0x294): undefined reference to `___23AIDataRecord_BestLine_t'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x29c): undefined reference to `Setup__14AIDataRecord_t'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/asm/data/rdata_80054548_r05.rodata.s.o: in function `_vt_23AIDataRecord_AccTable_t':
+(.rodata+0x2ac): undefined reference to `___23AIDataRecord_AccTable_t'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x2b4): undefined reference to `Setup__23AIDataRecord_AccTable_t'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/asm/data/rdata_80054548_r05.rodata.s.o: in function `_vt_14AIDataRecord_t':
+(.rodata+0x2c4): undefined reference to `___14AIDataRecord_t'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x2cc): undefined reference to `Setup__14AIDataRecord_t'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/asm/data/rdata_80054548_j24.rodata.s.o: in function `jtbl_80056C6C':
+(.rodata+0x0): undefined reference to `.L800EC328'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x4): undefined reference to `.L800EC334'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x8): undefined reference to `.L800EC34C'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0xc): undefined reference to `.L800EC34C'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x10): undefined reference to `.L800EC340'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x14): undefined reference to `.L800EC334'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x18): undefined reference to `.L800EC340'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x1c): undefined reference to `.L800EC328'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x20): undefined reference to `.L800EC334'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/asm/data/rdata_80054548_j25.rodata.s.o: in function `jtbl_80056C94':
+(.rodata+0x0): undefined reference to `.L800ECD04'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x4): undefined reference to `.L800ECF08'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x8): undefined reference to `.L800ECF4C'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0xc): undefined reference to `.L800ECFB4'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x10): undefined reference to `.L800ECFD8'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x14): undefined reference to `.L800ECFF0'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x18): undefined reference to `.L800ECD04'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x1c): undefined reference to `.L800ECFF0'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x20): undefined reference to `.L800ECFF0'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/asm/data/rdata_80054548_j26.rodata.s.o: in function `jtbl_80056CB8':
+(.rodata+0x0): undefined reference to `.L800ED658'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x4): undefined reference to `.L800ED610'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x8): undefined reference to `.L800ED61C'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0xc): undefined reference to `.L800ED628'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x10): undefined reference to `.L800ED630'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x14): undefined reference to `.L800ED638'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x18): undefined reference to `.L800ED640'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x1c): undefined reference to `.L800ED64C'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/asm/data/rdata_80054548_j28.rodata.s.o: in function `jtbl_80056FBC':
+(.rodata+0x0): undefined reference to `.L800F3D94'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x4): undefined reference to `.L800F3DAC'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x8): undefined reference to `.L800F3DC4'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0xc): undefined reference to `.L800F3E38'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x10): undefined reference to `.L800F3DF0'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x14): undefined reference to `.L800F3E38'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x18): undefined reference to `.L800F3E24'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/asm/data/rdata_80054548_j32.rodata.s.o: in function `jtbl_800574F0':
+(.rodata+0x0): undefined reference to `.L800FC280'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x4): undefined reference to `.L800FC280'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x8): undefined reference to `.L800FC28C'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0xc): undefined reference to `.L800FC288'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x10): undefined reference to `.L800FC28C'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x14): undefined reference to `.L800FC28C'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x18): undefined reference to `.L800FC28C'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x1c): undefined reference to `.L800FC28C'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x20): undefined reference to `.L800FC28C'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x24): undefined reference to `.L800FC288'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x28): undefined reference to `.L800FC28C'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x2c): undefined reference to `.L800FC28C'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x30): undefined reference to `.L800FC28C'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x34): undefined reference to `.L800FC28C'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.rodata+0x38): undefined reference to `.L800FC28C'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/asm/data/rdata_80054548_j32.rodata.s.o:(.rodata+0x3c): more undefined references to `.L800FC28C' follow
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/asm/data/rdata_80054548_j32.rodata.s.o: in function `jtbl_800574F0':
+(.rodata+0x44): undefined reference to `.L800FC288'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: final link failed: file truncated

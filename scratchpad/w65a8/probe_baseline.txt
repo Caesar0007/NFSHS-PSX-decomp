@@ -1,0 +1,36 @@
+objects placed: 442   dropped (overlapping): 18
+    DROPPED 0x800161b0 build/recon/frontend/common/fecars.cpp.o
+    DROPPED 0x80021fdc build/recon/frontend/common/fetv.cpp.o
+    DROPPED 0x80025ab8 build/recon/frontend/common/fescreen.cpp.o
+    DROPPED 0x80050244 build/recon/frontend/common/mcrd.cpp.o
+    DROPPED 0x8005ad54 build/recon/game/common/aihigh.cpp.o
+    DROPPED 0x8006ce24 build/recon/game/common/aidatarecord.cpp.o
+    DROPPED 0x800a86c8 build/recon/game/common/physics.cpp.o
+    DROPPED 0x800bd3c0 build/recon/game/psx/device.cpp.o
+    DROPPED 0x800c5028 build/recon/game/psx/draww.cpp.o
+    DROPPED 0x800d9968 build/recon/game/psx/overlays.cpp.o
+    DROPPED 0x800dc2b8 build/recon/game/psx/platform.cpp.o
+    DROPPED 0x800dcec4 build/recon/game/psx/rpause.cpp.o
+    DROPPED 0x800eab48 build/recon/eaclib/psx/eacpsxz/xform.c.o
+    DROPPED 0x800f2e94 build/recon/eaclib/psx/eacpsxz/setfont.c.o
+    DROPPED 0x800f8968 build/recon/syslib/psx/libcd/stream.c.o
+    DROPPED 0x800f8f48 build/recon/syslib/psx/libcd/cdread2.c.o
+    DROPPED 0x800f9060 build/recon/syslib/psx/libcd/iso9660.c.o
+    DROPPED 0x80106688 build/recon/syslib/psx/libetc/INTR_DMA.c.o
+[ld] rc=0
+[ld] 17 stderr lines; first 10:
+    build/recon/game/psx/fe3dmenu.cpp.o: in function `Draw_MenuRenderingView__FP8Car_tObjP13DRender_tViewiiiUliffii':
+    (.text+0x3c0): relocation truncated to fit: R_MIPS_26 against `fixedxformy'
+    (.text+0x434): relocation truncated to fit: R_MIPS_26 against `fixedxformy'
+    build/recon/frontend/common/feapp.cpp.o: in function `__14tFEApplication':
+    (.text+0x30): relocation truncated to fit: R_MIPS_26 against `__7tScreen'
+    (.text+0xa4): relocation truncated to fit: R_MIPS_26 against `__7tScreen'
+    (.text+0x100): relocation truncated to fit: R_MIPS_26 against `__7tScreen'
+    (.text+0x16c): relocation truncated to fit: R_MIPS_26 against `__7tScreen'
+    build/recon/frontend/common/feapp.cpp.o: in function `Redraw__14tFEApplication':
+    (.text+0xb20): relocation truncated to fit: R_MIPS_26 against `UpdateTransition__7tScreen'
+linked .text image: 1024996 bytes (0x800128f0..0x8010ccd4)
+bytes compared (placed objects): 920108
+bytes identical to retail      : 764314  (83.07%)
+objects byte-IDENTICAL to retail: 202/442
+-> link_probe.txt, probe.ld, probe.map

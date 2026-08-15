@@ -1,0 +1,31 @@
+bases sec       size lbls zero retailspan  verdict / object
+----------------------------------------------------------------------------------------------------
+    5 .sdata      28    7    7         28  P PERMUTATION-ONLY     build/recon/game/psx/textureprocess.cpp.o
+    3 .sdata      12    3    3         12  P PERMUTATION-ONLY     build/recon/game/common/aiphysic.cpp.o
+    3 .sdata      24    6    6         24  P PERMUTATION-ONLY     build/recon/game/common/object.cpp.o
+    2 .sdata      20    5    5         20  P PERMUTATION-ONLY     build/recon/game/common/replay.cpp.o
+   10 .sdata     188   41   28        248  H run-gap size-gap     build/recon/game/common/audiocmn.cpp.o
+   10 .sdata      88   17   17         68  H  size-gap            build/recon/game/common/track.cpp.o
+    7 .sdata      36    7    7         40  H run-gap size-gap     build/recon/game/psx/drawc.cpp.o
+    6 .sdata      52    8    8         32  H  size-gap            build/recon/game/psx/draw.cpp.o
+    5 .sbss       60    5    4         20  H  size-gap            build/recon/eaclib/psx/eacpsxz/primate.c.o
+    5 .sdata     104   19   19        112  H run-gap size-gap     build/recon/game/psx/weather.cpp.o
+    4 .sdata      28    5    3         44  H run-gap size-gap     build/recon/game/common/mpause.cpp.o
+    4 .sdata     320   28   25        240  H run-gap size-gap     build/recon/game/psx/hud.cpp.o
+    4 .sdata     192   34   33        188  H run-gap size-gap     build/recon/game/psx/night.cpp.o
+    3 .sdata      16    3    0         12  H  size-gap            build/recon/game/common/simqueue.cpp.o
+    3 .sdata      60    6    6         56  H run-gap size-gap     build/recon/game/psx/cario.cpp.o
+    3 .sdata      32    6    6         32  H run-gap              build/recon/game/psx/device.cpp.o
+    3 .sdata      24    5    5         36  H run-gap size-gap     build/recon/game/psx/platform.cpp.o
+    2 .sbss        8    2    0         16  H run-gap size-gap     build/recon/eaclib/psx/eacpsxz/fileroot.c.o
+    2 .data     2592    5    5         72  H run-gap size-gap     build/recon/game/common/audiocmn.cpp.o
+    2 .sdata      56   12   12        100  H run-gap size-gap     build/recon/game/common/bworld.cpp.o
+    2 .sdata     126   16   16        128  H run-gap size-gap     build/recon/game/common/copspeak.cpp.o
+    2 .sdata      86   16    8         88  H run-gap size-gap     build/recon/game/common/nfs3.cpp.o
+    2 .sdata     156   15   15        156  H run-gap              build/recon/game/common/r3dcar.cpp.o
+    2 .sdata      16    4    4         40  H run-gap size-gap     build/recon/game/common/sim.cpp.o
+    2 .sdata      92    5    5         36  H run-gap size-gap     build/recon/game/psx/draww.cpp.o
+    2 .sdata       8    2    2         16  H run-gap size-gap     build/recon/game/psx/loading.cpp.o
+    2 .sdata      20    3    3         12  H run-gap size-gap     build/recon/game/psx/overlays.cpp.o
+
+E3 windows: 27   PERMUTATION-ONLY (cheap `=0` candidates): 4   needing a heavier lever: 23

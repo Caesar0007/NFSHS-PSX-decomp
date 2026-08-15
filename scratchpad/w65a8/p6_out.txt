@@ -1,0 +1,13 @@
+[objs] src=461 asm=233 pieces=133 rest=100
+[ctl.ld] data_8010CCD4: 56 piece entries -> 1 control entry
+[ctl.ld] sdata_8013C54C: 58 piece entries -> 1 control entry
+[ctl.ld] front_data: 19 piece entries -> 1 control entry
+[ld] cut   rc=0 stderr_lines=1969
+[ld] ctl   rc=0 stderr_lines=1975
+[P6a] output sections: ['.header', '.nfs4', '.text']
+  .header  ABSENT in both (skipped)
+  .nfs4    cut=309776B ctl=308944B 153338 BYTES DIFFER
+  .text    cut=24B ctl=24B IDENTICAL
+[P6b] cut=1969 ctl=1975 normalized DIFF LINES=8
+
+P6 FAIL

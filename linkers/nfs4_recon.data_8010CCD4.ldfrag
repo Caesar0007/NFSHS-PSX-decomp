@@ -54,13 +54,17 @@
     build/asm/data/data_8010CCD4_r13.data.s.o(.data);
     build/recon/game/psx/force.cpp.o(.data);   /* 0x8011fc60..0x8011fd70  was data_8010CCD4_o26.data.s */
     build/asm/data/data_8010CCD4_r14.data.s.o(.data);
-    build/recon/game/psx/texture.cpp.o(.data);   /* 0x80120fd0..0x80121070  was data_8010CCD4_o27.data.s */
+    build/recon/game/psx/flare.cpp.o(.data);   /* 0x8011fde0..0x801202f8  was data_8010CCD4_o27.data.s */
     build/asm/data/data_8010CCD4_r15.data.s.o(.data);
-    build/recon/eaclib/psx/eacpsxz/matrix.c.o(.rodata);   /* 0x801237ec..0x80123820  was data_8010CCD4_o28.data.s */
+    build/recon/game/psx/texture.cpp.o(.data);   /* 0x80120fd0..0x80121070  was data_8010CCD4_o28.data.s */
     build/asm/data/data_8010CCD4_r16.data.s.o(.data);
-    build/recon/eaclib/psx/eacpsxz/isqrt.c.o(.data);   /* 0x8013be10..0x8013bf10  was data_8010CCD4_o29.data.s */
+    build/recon/eaclib/psx/eacpsxz/matrix.c.o(.rodata);   /* 0x801237ec..0x80123820  was data_8010CCD4_o29.data.s */
     build/asm/data/data_8010CCD4_r17.data.s.o(.data);
-    build/recon/syslib/psx/libmath/FERR.c.o(.data);   /* 0x8013bf18..0x8013bf20  was data_8010CCD4_o30.data.s */
+    build/recon/eaclib/psx/sndpsxz/slib.c.o(.data);   /* 0x80136df0..0x80136e00  was data_8010CCD4_o30.data.s */
     build/asm/data/data_8010CCD4_r18.data.s.o(.data);
-    build/recon/eaclib/psx/sndpsxz/snddata.c.o(.data);   /* 0x8013c2f0..0x8013c308  was data_8010CCD4_o31.data.s */
+    build/recon/eaclib/psx/eacpsxz/isqrt.c.o(.data);   /* 0x8013be10..0x8013bf10  was data_8010CCD4_o31.data.s */
     build/asm/data/data_8010CCD4_r19.data.s.o(.data);
+    build/recon/syslib/psx/libmath/FERR.c.o(.data);   /* 0x8013bf18..0x8013bf20  was data_8010CCD4_o32.data.s */
+    build/asm/data/data_8010CCD4_r20.data.s.o(.data);
+    build/recon/eaclib/psx/sndpsxz/snddata.c.o(.data);   /* 0x8013c2f0..0x8013c308  was data_8010CCD4_o33.data.s */
+    build/asm/data/data_8010CCD4_r21.data.s.o(.data);

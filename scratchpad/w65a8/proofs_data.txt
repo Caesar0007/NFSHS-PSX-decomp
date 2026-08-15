@@ -1,0 +1,7 @@
+P1 parser round-trip BYTE-IDENTICAL  (856 records, 0x8010ccd4..0x8013c54c = 194680 B)
+P2 data lines identical and in order  (49518 lines)
+P3 concatenated 56 piece objects == control object: 194680 == 194680, IDENTICAL
+P4 relocations identical: 454 records, same offsets/types/targets
+P5 piece bytes vs ROM: 1808 differing bytes, 0 of them outside a relocation word -> ALL are reloc sites
+
+ALL PROOFS PASS

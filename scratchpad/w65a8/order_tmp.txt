@@ -1,0 +1,11 @@
+== build/recon/game/common/replay.cpp.o [.sdata] size 20 (5 blob labels)
+   majority implied base 0x8013d3f4  (2 distinct)
+    ouroff    implied   retailVA  rsize zero  name
+         0 0x8013d3f4 0x8013d3f4      4  yes  Replay_ReplayMode
+         4 0x8013d3f4 0x8013d3f8      4  yes  Replay_ReplayStorePtr
+         8 0x8013d3f4 0x8013d3fc      4  yes  Replay_ReplayGetPtr
+        12 0x8013d3e0 0x8013d3ec      4  yes  Replay_Size   <-- DRIFT
+        16 0x8013d3e0 0x8013d3f0      4  yes  numValidCams   <-- DRIFT
+   retail VA order: Replay_Size numValidCams Replay_ReplayMode Replay_ReplayStorePtr Replay_ReplayGetPtr
+   our  offset order: Replay_ReplayMode Replay_ReplayStorePtr Replay_ReplayGetPtr Replay_Size numValidCams
+

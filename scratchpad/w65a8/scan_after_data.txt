@@ -1,0 +1,2 @@
+objects found: 508
+wrote C:\Temp\nfs4-decomp\scratchpad\w65a8\objdata.json  objects=508  syms=13381  relocs=43013

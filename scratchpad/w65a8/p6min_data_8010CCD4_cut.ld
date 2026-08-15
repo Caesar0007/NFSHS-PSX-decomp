@@ -1,0 +1,63 @@
+SECTIONS
+{
+    .out 0x8010ccd4 :
+    {
+        build/asm/data/data_8010CCD4_r00.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o00.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o01.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o02.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r01.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o03.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o04.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o05.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o06.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r02.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o07.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r03.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o08.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o09.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o10.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o11.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r04.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o12.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r05.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o13.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r06.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o14.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o15.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r07.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o16.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r08.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o17.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o18.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o19.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r09.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o20.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o21.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r10.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o22.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r11.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o23.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o24.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r12.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o25.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r13.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o26.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r14.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o27.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r15.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o28.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r16.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o29.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r17.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o30.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r18.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o31.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r19.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o32.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r20.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o33.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r21.data.s.o(.data);
+    }
+    /DISCARD/ : { *(*) }
+}

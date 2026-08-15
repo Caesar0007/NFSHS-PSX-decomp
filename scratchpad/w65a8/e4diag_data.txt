@@ -1,0 +1,278 @@
+# W64-A18 E4 diagnostic  blob=scratchpad/w63a19/ctl_blob/data_8010CCD4.data.s
+# records=856  TU-defined=277  windows=56
+
+0x8013be10..0x8013bf10    256 .data   build/recon/eaclib/psx/eacpsxz/isqrt.c.o
+      E4: base_on_boundary=True  end_on_boundary=False
+      end falls INSIDE record isqrttbl (0x8013be10..0x8013bf18, 264 B)
+      next boundary 0x8013bf18  (+8 bytes)
+      prev boundary 0x8013be10  (-256 bytes)
+        *TU 0x8013be10..0x8013bf18    264  isqrttbl
+         TU 0x8013bf18..0x8013bf1c      4  math_errno
+         TU 0x8013bf1c..0x8013bf20      4  math_err_point
+         -- 0x8013bf20..0x8013bf48     40  H_cor_tbl
+         -- 0x8013bf48..0x8013bf4c      4  CD_cbsync
+         -- 0x8013bf4c..0x8013bf50      4  CD_cbready
+      other blockers: NONE (E4-ONLY)
+
+0x801237ec..0x80123820     52 .rodata build/recon/eaclib/psx/eacpsxz/matrix.c.o
+      E4: base_on_boundary=True  end_on_boundary=False
+      end falls INSIDE record D_80123810 (0x80123810..0x80123838, 40 B)
+      next boundary 0x80123838  (+24 bytes)
+      prev boundary 0x80123810  (-16 bytes)
+         D_ 0x80123810..0x80123838     40  D_80123810
+         -- 0x80123838..0x80123c38   1024  DCL_DVLC
+         -- 0x80123c38..0x80124038   1024  DCC_DVLC
+         -- 0x80124038..0x80134038  65536  CF_DVLC
+         -- 0x80134038..0x80134838   2048  CF2_DVLC
+         D_ 0x80134838..0x8013485c     36  D_80134838
+      other blockers: NONE (E4-ONLY)
+
+0x801370c4..0x801372c4    512 .data   build/recon/eaclib/psx/sndpsxz/sclcptch.c.o
+      E4: base_on_boundary=True  end_on_boundary=False
+      end falls INSIDE record asintbl (0x80137260..0x8013745f, 511 B)
+      next boundary 0x8013745f  (+411 bytes)
+      prev boundary 0x80137260  (-100 bytes)
+         -- 0x80137260..0x8013745f    511  asintbl
+         D_ 0x8013745f..0x80137464      5  D_8013745F
+         -- 0x80137464..0x80137868   1028  sintbl
+         -- 0x80137868..0x80137c78   1040  fatantbl
+         TU 0x80137c78..0x80137c7c      4  _padFuncNextPort
+         TU 0x80137c7c..0x80137c80      4  _padFuncClrInfo
+      other blockers: E1f x1, E1u x2
+
+0x801234d4..0x801234f4     32 .sdata  build/recon/eaclib/psx/sndpsxz/snddata.c.o
+      E4: base_on_boundary=True  end_on_boundary=False
+      end falls INSIDE record D_801234E8 (0x801234e8..0x8012356c, 132 B)
+      next boundary 0x8012356c  (+120 bytes)
+      prev boundary 0x801234e8  (-12 bytes)
+         D_ 0x801234e8..0x8012356c    132  D_801234E8
+         D_ 0x8012356c..0x801235f4    136  D_8012356C
+         -- 0x801235f4..0x8012360c     24  seedX
+         -- 0x8012360c..0x8012362c     32  tmrsub
+         -- 0x8012362c..0x80123654     40  vbltmrsub
+         D_ 0x80123654..0x80123694     64  D_80123654
+      other blockers: E5 6/32
+
+0x8010ce98..0x8010cea9     17 .data   build/recon/game/common/aih_play.cpp.o
+      E4: base_on_boundary=True  end_on_boundary=False
+      end falls INSIDE record AIHigh_Cop_AggressionData (0x8010cea4..0x8010cee0, 60 B)
+      next boundary 0x8010cee0  (+55 bytes)
+      prev boundary 0x8010cea4  (-5 bytes)
+         TU 0x8010cea4..0x8010cee0     60  AIHigh_Cop_AggressionData
+         TU 0x8010cee0..0x8010ceec     12  AICop_skillDelay
+         TU 0x8010ceec..0x8010cfc4    216  AIH_Cop_chasePositions
+         TU 0x8010cfc4..0x8010cfd4     16  NitroDistanceMeters
+         TU 0x8010cfd4..0x8010d0a4    208  twoLapCopGame
+         TU 0x8010d0a4..0x8010d1a8    260  fourLapCopGame
+      other blockers: E1f x1, E5 4/17
+
+0x8010cd00..0x8010cd5c     92 .data   build/recon/game/common/aihigh.cpp.o
+      E4: base_on_boundary=False  end_on_boundary=True
+      end falls INSIDE record AIHigh_BasicPerp_PlayerCaughtSpeed (0x8010cd5c..0x8010cd68, 12 B)
+      next boundary 0x8010cd5c  (+0 bytes)
+         TU 0x8010cd5c..0x8010cd68     12  AIHigh_BasicPerp_PlayerCaughtSpeed
+         TU 0x8010cd68..0x8010cd74     12  AIHigh_BasicPerp_PlayerCaughtDeltaY
+         TU 0x8010cd74..0x8010cd80     12  AIHigh_BasicPerp_MinDeltaSpeed
+         TU 0x8010cd80..0x8010cd8c     12  AIHigh_BasicPerp_CopCaughtSpeed
+         TU 0x8010cd8c..0x8010cd98     12  AIHigh_BasicPerp_CaughtDistance
+         TU 0x8010cd98..0x8010cda4     12  AIH_BTC_Cop_1HC1HP_StageTimes
+      other blockers: E5 1/92
+
+0x8010dd10..0x8010de44    308 .data   build/recon/game/common/aispeeds.cpp.o
+      E4: base_on_boundary=True  end_on_boundary=False
+      end falls INSIDE record AITune_BTC (0x8010de14..0x8010de68, 84 B)
+      next boundary 0x8010de68  (+36 bytes)
+      prev boundary 0x8010de14  (-48 bytes)
+         TU 0x8010de14..0x8010de68     84  AITune_BTC
+         TU 0x8010de68..0x8010de74     12  AITune_BTCPerpAccMults
+         TU 0x8010de74..0x8010df04    144  AITune_trackInfo
+         TU 0x8010df04..0x8010df5c     88  AITune_accelerationScale
+         TU 0x8010df5c..0x8010dfbc     96  copTuningInfo
+         TU 0x8010dfbc..0x8010dfdc     32  AITune_MaxTraffic
+      other blockers: E3x3, E1f x1, E2 x3, E5 62/308
+
+0x8010e450..0x8010ee70   2592 .data   build/recon/game/common/audiocmn.cpp.o
+      E4: base_on_boundary=False  end_on_boundary=False
+      end falls INSIDE record gNightMat (0x8010ee64..0x8010ee88, 36 B)
+      next boundary 0x8010ee88  (+24 bytes)
+      prev boundary 0x8010ee64  (-12 bytes)
+         TU 0x8010ee64..0x8010ee88     36  gNightMat
+         TU 0x8010ee88..0x8010eeac     36  gCopMat
+         TU 0x8010eeac..0x8010eeb4      8  gContextMan
+         D_ 0x8010eeb4..0x8010efec    312  D_8010EEB4
+         TU 0x8010efec..0x8010f07c    144  BWorld_gChunkBuildList
+         D_ 0x8010f07c..0x8010f0ac     48  D_8010F07C
+      other blockers: E3x7, E1f x3, E5 460/2592
+
+0x8010f4cc..0x8010fa60   1428 .data   build/recon/game/common/camera.cpp.o
+      E4: base_on_boundary=True  end_on_boundary=False
+      end falls INSIDE record D_8010FA4C (0x8010fa4c..0x8010fa6c, 32 B)
+      next boundary 0x8010fa6c  (+12 bytes)
+      prev boundary 0x8010fa4c  (-20 bytes)
+         D_ 0x8010fa4c..0x8010fa6c     32  D_8010FA4C
+         TU 0x8010fa6c..0x8010fa90     36  Cars_gAIRaceCarList
+         TU 0x8010fa90..0x8010fab4     36  Cars_gTrafficCarList
+         TU 0x8010fab4..0x8010fad8     36  Cars_gCopCarList
+         TU 0x8010fad8..0x8010fafc     36  Cars_gLifeBasisCarList
+         TU 0x8010fafc..0x8010fb20     36  Cars_gSortedList
+      other blockers: E3x3, E1f x6, E1u x1, E2 x1, E5 210/1428
+
+0x80110c30..0x80110cf4    196 .data   build/recon/game/common/collide.cpp.o
+      E4: base_on_boundary=True  end_on_boundary=False
+      end falls INSIDE record HudPmx_gShapes (0x80110c98..0x80110e00, 360 B)
+      next boundary 0x80110e00  (+268 bytes)
+      prev boundary 0x80110c98  (-92 bytes)
+         TU 0x80110c98..0x80110e00    360  HudPmx_gShapes
+         D_ 0x80110e00..0x80111008    520  D_80110E00
+         D_ 0x80111008..0x8011115c    340  D_80111008
+         D_ 0x8011115c..0x801114a4    840  D_8011115C
+         D_ 0x801114a4..0x80111530    140  D_801114A4
+         D_ 0x80111530..0x80111558     40  D_80111530
+      other blockers: E1f x2
+
+0x80112ae0..0x80112ff8   1304 .data   build/recon/game/common/genericpmx.cpp.o
+      E4: base_on_boundary=False  end_on_boundary=False
+      end falls INSIDE record gPixmaps (0x80112bd4..0x80113044, 1136 B)
+      next boundary 0x80113044  (+76 bytes)
+      prev boundary 0x80112bd4  (-1060 bytes)
+        *TU 0x80112bd4..0x80113044   1136  gPixmaps
+         -- 0x80113044..0x80113144    256  GameSetup_gCarNames
+         -- 0x80113144..0x80113174     48  GameSetup_gTrackNames
+         -- 0x80113174..0x801131ec    120  GameSetup_gPersonalityNames
+         TU 0x801131ec..0x801131f0      4  GameSetup_gData
+         D_ 0x801131f0..0x801131f4      4  D_801131F0
+      other blockers: E3x3, E5 52/1304
+
+0x8011401c..0x80114254    568 .bss    build/recon/game/common/newton.cpp.o
+      E4: base_on_boundary=True  end_on_boundary=False
+      end falls INSIDE record befuddleExtensions (0x8011423c..0x80114274, 56 B)
+      next boundary 0x80114274  (+32 bytes)
+      prev boundary 0x8011423c  (-24 bytes)
+         TU 0x8011423c..0x80114274     56  befuddleExtensions
+         TU 0x80114274..0x80114600    908  carManager
+         TU 0x80114600..0x80114603      3  frontEnd
+         D_ 0x80114603..0x80114604      1  D_80114603
+         D_ 0x80114604..0x80114606      2  D_80114604
+         D_ 0x80114606..0x80114623     29  D_80114606
+      other blockers: E1f x1, E5 205/568
+
+0x8011423c..0x80115c46   6666 .data   build/recon/game/common/nfs3.cpp.o
+      E4: base_on_boundary=True  end_on_boundary=False
+      end falls INSIDE record befuddleTemp (0x80115c3c..0x80115c48, 12 B)
+      next boundary 0x80115c48  (+2 bytes)
+      prev boundary 0x80115c3c  (-10 bytes)
+        *TU 0x80115c3c..0x80115c48     12  befuddleTemp
+         -- 0x80115c48..0x80115d60    280  gAnimDefs
+         TU 0x80115d60..0x80116468   1800  gSimObjAnims
+         TU 0x80116468..0x80116470      8  Paths_Paths
+         D_ 0x80116470..0x80116474      4  D_80116470
+         D_ 0x80116474..0x80116478      4  D_80116474
+      other blockers: NONE (E4-ONLY)
+
+0x80111a44..0x8011219c   1880 .data   build/recon/game/common/speech.cpp.o
+      E4: base_on_boundary=True  end_on_boundary=False
+      end falls INSIDE record CopSpeak_gQueue (0x80111f24..0x80112724, 2048 B)
+      next boundary 0x80112724  (+1416 bytes)
+      prev boundary 0x80111f24  (-632 bytes)
+         TU 0x80111f24..0x80112724   2048  CopSpeak_gQueue
+         TU 0x80112724..0x80112730     12  CopSpeak_gMusicStat
+         TU 0x80112730..0x80112748     24  DashHUD_gInfo
+         D_ 0x80112748..0x8011274c      4  D_80112748
+         D_ 0x8011274c..0x80112770     36  D_8011274C
+         D_ 0x80112770..0x80112778      8  D_80112770
+      other blockers: E1f x4, E5 688/1880
+
+0x8011f554..0x8011fc60   1804 .data   build/recon/game/psx/draww.cpp.o
+      E4: base_on_boundary=False  end_on_boundary=True
+      end falls INSIDE record Force_rand_256 (0x8011fc60..0x8011fd60, 256 B)
+      next boundary 0x8011fc60  (+0 bytes)
+         TU 0x8011fc60..0x8011fd60    256  Force_rand_256
+         TU 0x8011fd60..0x8011fd70     16  Force_g
+         -- 0x8011fd70..0x8011fdb0     64  colourRGB
+         -- 0x8011fdb0..0x8011fde0     48  shpfontclut
+         TU 0x8011fde0..0x8011fdf0     16  gfSpikePt0
+         TU 0x8011fdf0..0x8011fe00     16  gfSpikePt1
+      other blockers: E3x2, E5 81/1804
+
+0x801202f8..0x80120934   1596 .data   build/recon/game/psx/hrzsku.cpp.o
+      E4: base_on_boundary=True  end_on_boundary=False
+      end falls INSIDE record Hud_gElementPositions (0x80120924..0x801209bc, 152 B)
+      next boundary 0x801209bc  (+136 bytes)
+      prev boundary 0x80120924  (-16 bytes)
+         TU 0x80120924..0x801209bc    152  Hud_gElementPositions
+         D_ 0x801209bc..0x80120a34    120  D_801209BC
+         D_ 0x80120a34..0x80120aac    120  D_80120A34
+         TU 0x80120aac..0x80120ac0     20  Hud_Character
+         TU 0x80120ac0..0x80120aec     44  fMapScaleX
+         TU 0x80120aec..0x80120b18     44  fMapScaleY
+      other blockers: E1f x1, E5 8/1596
+
+0x80120924..0x8012108a   1894 .data   build/recon/game/psx/hud.cpp.o
+      E4: base_on_boundary=True  end_on_boundary=False
+      end falls INSIDE record gClutDepth (0x8012107c..0x8012307c, 8192 B)
+      next boundary 0x8012307c  (+8178 bytes)
+      prev boundary 0x8012107c  (-14 bytes)
+         -- 0x8012107c..0x8012307c   8192  gClutDepth
+         -- 0x8012307c..0x801231fc    384  Fog_gBuf
+         -- 0x801231fc..0x8012327c    128  openkeys
+         -- 0x8012327c..0x80123280      4  TrackSpec_gSpec
+         D_ 0x80123280..0x80123294     20  D_80123280
+         D_ 0x80123294..0x8012329c      8  D_80123294
+      other blockers: E1f x5, E1u x4, E5 167/1894
+
+0x801371d0..0x801372d1    257 .rodata build/recon/syslib/psx/libc/CTYPE0.c.o
+      E4: base_on_boundary=True  end_on_boundary=False
+      end falls INSIDE record asintbl (0x80137260..0x8013745f, 511 B)
+      next boundary 0x8013745f  (+398 bytes)
+      prev boundary 0x80137260  (-113 bytes)
+         -- 0x80137260..0x8013745f    511  asintbl
+         D_ 0x8013745f..0x80137464      5  D_8013745F
+         -- 0x80137464..0x80137868   1028  sintbl
+         -- 0x80137868..0x80137c78   1040  fatantbl
+         TU 0x80137c78..0x80137c7c      4  _padFuncNextPort
+         TU 0x80137c7c..0x80137c80      4  _padFuncClrInfo
+      other blockers: E1u x1
+
+0x8012379c..0x801250b0   6420 .bss    build/recon/syslib/psx/libgpu/SYS.c.o
+      E4: base_on_boundary=False  end_on_boundary=False
+      end falls INSIDE record CF_DVLC (0x80124038..0x80134038, 65536 B)
+      next boundary 0x80134038  (+61320 bytes)
+      prev boundary 0x80124038  (-4216 bytes)
+         -- 0x80124038..0x80134038  65536  CF_DVLC
+         -- 0x80134038..0x80134838   2048  CF2_DVLC
+         D_ 0x80134838..0x8013485c     36  D_80134838
+         D_ 0x8013485c..0x801349e8    396  D_8013485C
+         D_ 0x801349e8..0x80134a68    128  D_801349E8
+         D_ 0x80134a68..0x80134a6c      4  D_80134A68
+      other blockers: E3x3, E1f x1, E1u x3, E2 x2, E5 2756/6420
+
+0x80137cd0..0x80137cec     28 .data   build/recon/syslib/psx/libpad/PAD.c.o
+      E4: base_on_boundary=True  end_on_boundary=False
+      end falls INSIDE record D_80137CE0 (0x80137ce0..0x80137cf0, 16 B)
+      next boundary 0x80137cf0  (+4 bytes)
+      prev boundary 0x80137ce0  (-12 bytes)
+         D_ 0x80137ce0..0x80137cf0     16  D_80137CE0
+         D_ 0x80137cf0..0x80137d10     32  D_80137CF0
+         -- 0x80137d10..0x80137d14      4  Vcount
+         D_ 0x80137d14..0x80137d20     12  D_80137D14
+         -- 0x80137d20..0x8013bd20  16384  rcossin_tbl
+         D_ 0x8013bd20..0x8013bd24      4  D_8013BD20
+      other blockers: E3x2, E2 x1, E5 8/28
+
+0x80137c78..0x80137ce4    108 .sdata  build/recon/syslib/psx/libpad/PAD.c.o
+      E4: base_on_boundary=True  end_on_boundary=False
+      end falls INSIDE record D_80137CE0 (0x80137ce0..0x80137cf0, 16 B)
+      next boundary 0x80137cf0  (+12 bytes)
+      prev boundary 0x80137ce0  (-4 bytes)
+         D_ 0x80137ce0..0x80137cf0     16  D_80137CE0
+         D_ 0x80137cf0..0x80137d10     32  D_80137CF0
+         -- 0x80137d10..0x80137d14      4  Vcount
+         D_ 0x80137d14..0x80137d20     12  D_80137D14
+         -- 0x80137d20..0x8013bd20  16384  rcossin_tbl
+         D_ 0x8013bd20..0x8013bd24      4  D_8013BD20
+      other blockers: E1f x1, E5 17/108
+
+windows failing E4: 21   of which E4-ONLY: 3
+   E4-ONLY  0x8011423c..0x80115c46   6666 .data   build/recon/game/common/nfs3.cpp.o
+   E4-ONLY  0x8013be10..0x8013bf10    256 .data   build/recon/eaclib/psx/eacpsxz/isqrt.c.o
+   E4-ONLY  0x801237ec..0x80123820     52 .rodata build/recon/eaclib/psx/eacpsxz/matrix.c.o

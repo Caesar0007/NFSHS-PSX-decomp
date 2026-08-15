@@ -1,0 +1,8 @@
+C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: build/asm/data/data_8010CCD4.BLOB.o: in function `Device_gDeviceList':
+(SEC+OFF): undefined reference to `HookEntryInt'
+(SEC+OFF): undefined reference to `HookEntryInt'
+(SEC+OFF): undefined reference to `ResetEntryInt'
+C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: build/asm/data/data_8010CCD4.data.s.o: in function `Device_gDeviceList':
+C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: build/src/syslib/psx/libetc/INTR.c.o: in function `RestartCallback':
+C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: build/src/syslib/psx/libetc/INTR.c.o: in function `StopCallback':
+C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: build/src/syslib/psx/libetc/INTR.c.o: in function `_initIntr':

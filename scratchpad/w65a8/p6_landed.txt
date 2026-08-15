@@ -1,0 +1,9 @@
+[objs] src=461 asm=233 total=694
+[ld] rc=0  stderr lines=14
+    other                  7
+    multiple-definition    5
+    undefined              2
+    distinct undefined names   2
+    distinct GPREL16 symbols   0
+    undefined: PAD_convert, ReadInitPadFlag
+-> w65a8_landed.err / w65a8_landed.summary.txt / w65a8_landed.map

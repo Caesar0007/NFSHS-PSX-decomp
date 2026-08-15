@@ -1,0 +1,12 @@
+bases sec       size lbls zero retailspan  verdict / object
+----------------------------------------------------------------------------------------------------
+    7 .data     2592   19   10       2416  H run-gap size-gap     build/recon/game/common/audiocmn.cpp.o
+    3 .data      308   11    5        308  H run-gap              build/recon/game/common/aispeeds.cpp.o
+    3 .data     1428    5    2       1404  H run-gap size-gap     build/recon/game/common/camera.cpp.o
+    3 .data     1304    7    7       1304  H run-gap              build/recon/game/common/genericpmx.cpp.o
+    3 .bss      6420    4    3        308  H run-gap size-gap     build/recon/syslib/psx/libgpu/SYS.c.o
+    2 .data     1804    7    4       1776  H  size-gap            build/recon/game/psx/draww.cpp.o
+    2 .data      228    3    2        228  H run-gap              build/recon/game/psx/night.cpp.o
+    2 .data       28    2    0      18024  H run-gap size-gap     build/recon/syslib/psx/libpad/PAD.c.o
+
+E3 windows: 8   PERMUTATION-ONLY (cheap `=0` candidates): 0   needing a heavier lever: 8

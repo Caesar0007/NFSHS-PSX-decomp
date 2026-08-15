@@ -1,0 +1,58 @@
+== build/recon/game/common/audiocmn.cpp.o [.data] size 2592 (5 blob labels)
+   majority implied base 0x8013bcd0  (2 distinct)
+    ouroff    implied   retailVA  rsize zero  name
+      2544 0x8013bcd0 0x8013c6c0      8  yes  bestLapTime
+      2552 0x8013bcd0 0x8013c6c8      8  yes  gtotallaptimes
+      2560 0x8013bcd0 0x8013c6d0      8  yes  AudioCmn_gPlayerArrested
+      2568 0x8013bcf0 0x8013c6f8      8  yes  currentWindVal   <-- DRIFT
+      2576 0x8013bcf0 0x8013c700      8  yes  nextWindVal   <-- DRIFT
+   retail VA order: bestLapTime gtotallaptimes AudioCmn_gPlayerArrested currentWindVal nextWindVal
+   our  offset order: bestLapTime gtotallaptimes AudioCmn_gPlayerArrested currentWindVal nextWindVal
+
+== build/recon/game/common/audiocmn.cpp.o [.sdata] size 188 (41 blob labels)
+   majority implied base 0x8013c624  (10 distinct)
+    ouroff    implied   retailVA  rsize zero  name
+        28 0x8013c60c 0x8013c628      4   no  trackMusicState   <-- DRIFT
+        32 0x8013c624 0x8013c644      4   no  AudioCmn_kAudioOn
+        36 0x8013c624 0x8013c648      4   no  AudioCmn_kAudioStreamingOn
+        40 0x8013c624 0x8013c64c      4   no  SgameSFXvol
+        44 0x8013c624 0x8013c650      4   no  gMasterMusicLevel
+        48 0x8013c624 0x8013c654      4   no  gMasterSFXLevel
+        52 0x8013c624 0x8013c658      4   no  gMasterEngineLevel
+        56 0x8013c624 0x8013c65c      4   no  gMasterFENarrationLevel
+        60 0x8013c624 0x8013c660      4   no  gMasterAmbientLevel
+        64 0x8013c624 0x8013c664      4   no  previousSFXLevel
+        68 0x8013c624 0x8013c668      4   no  AudioCmn_musicInteractive
+        72 0x8013c624 0x8013c66c      4   no  gFEmusicON
+        76 0x8013c628 0x8013c674      4   no  gStereoMode   <-- DRIFT
+        80 0x8013c629 0x8013c679      3  yes  fReverbLevel   <-- DRIFT
+        88 0x8013c5d4 0x8013c62c      4  yes  audioBackwardsDirection   <-- DRIFT
+        92 0x8013c5d4 0x8013c630      4  yes  intensityFalseLapCounter   <-- DRIFT
+        96 0x8013c5d4 0x8013c634      4  yes  falseLapCounter   <-- DRIFT
+       100 0x8013c5d4 0x8013c638      4  yes  gMusicStyle   <-- DRIFT
+       104 0x8013c5d4 0x8013c63c      1  yes  countdown   <-- DRIFT
+       105 0x8013c5d4 0x8013c63d      1  yes  FadingMusic   <-- DRIFT
+       106 0x8013c5d4 0x8013c63e      2  yes  StartedNewMusic   <-- DRIFT
+       108 0x8013c5d4 0x8013c640      4  yes  recordLapTime   <-- DRIFT
+       112 0x8013c600 0x8013c670      4  yes  NumSFXOn   <-- DRIFT
+       116 0x8013c604 0x8013c678      1  yes  fReverbOn   <-- DRIFT
+       120 0x8013c63c 0x8013c6b4      4  yes  falseLapTrigCur   <-- DRIFT
+       124 0x8013c63c 0x8013c6b8      4  yes  flaseLapTrigTrack   <-- DRIFT
+       128 0x8013c63c 0x8013c6bc      4  yes  currentLap   <-- DRIFT
+       132 0x8013c654 0x8013c6d8      4  yes  AudioCmn_gCursorSndHandle   <-- DRIFT
+       136 0x8013c654 0x8013c6dc      4  yes  AudioCmn_gLastFade   <-- DRIFT
+       140 0x8013c654 0x8013c6e0      4  yes  AudioCmn_gLoadTables   <-- DRIFT
+       144 0x8013c654 0x8013c6e4      4  yes  AudioCmn_gCruiseTables   <-- DRIFT
+       148 0x8013c654 0x8013c6e8      4  yes  AudioCmn_gResume   <-- DRIFT
+       152 0x8013c654 0x8013c6ec      4  yes  AudioCmn_gStreamRestartTimer   <-- DRIFT
+       156 0x8013c654 0x8013c6f0      4  yes  fMysticWindON   <-- DRIFT
+       160 0x8013c654 0x8013c6f4      4  yes  fAmbientRangeON   <-- DRIFT
+       164 0x8013c664 0x8013c708      4  yes  currentWindPan   <-- DRIFT
+       168 0x8013c664 0x8013c70c      4  yes  nextWindPan   <-- DRIFT
+       172 0x8013c664 0x8013c710      4  yes  gQuickSirenCount   <-- DRIFT
+       176 0x8013c664 0x8013c714      4  yes  AudioCmn_ThunderAmp   <-- DRIFT
+       180 0x8013c664 0x8013c718      4  yes  AudioCmn_ThunderAzi   <-- DRIFT
+       184 0x8013c664 0x8013c71c      4  yes  AudioCmn_ThunderDel   <-- DRIFT
+   retail VA order: trackMusicState audioBackwardsDirection intensityFalseLapCounter falseLapCounter gMusicStyle countdown FadingMusic StartedNewMusic recordLapTime AudioCmn_kAudioOn AudioCmn_kAudioStreamingOn SgameSFXvol gMasterMusicLevel gMasterSFXLevel gMasterEngineLevel gMasterFENarrationLevel gMasterAmbientLevel previousSFXLevel AudioCmn_musicInteractive gFEmusicON NumSFXOn gStereoMode fReverbOn fReverbLevel falseLapTrigCur flaseLapTrigTrack currentLap AudioCmn_gCursorSndHandle AudioCmn_gLastFade AudioCmn_gLoadTables AudioCmn_gCruiseTables AudioCmn_gResume AudioCmn_gStreamRestartTimer fMysticWindON fAmbientRangeON currentWindPan nextWindPan gQuickSirenCount AudioCmn_ThunderAmp AudioCmn_ThunderAzi AudioCmn_ThunderDel
+   our  offset order: trackMusicState AudioCmn_kAudioOn AudioCmn_kAudioStreamingOn SgameSFXvol gMasterMusicLevel gMasterSFXLevel gMasterEngineLevel gMasterFENarrationLevel gMasterAmbientLevel previousSFXLevel AudioCmn_musicInteractive gFEmusicON gStereoMode fReverbLevel audioBackwardsDirection intensityFalseLapCounter falseLapCounter gMusicStyle countdown FadingMusic StartedNewMusic recordLapTime NumSFXOn fReverbOn falseLapTrigCur flaseLapTrigTrack currentLap AudioCmn_gCursorSndHandle AudioCmn_gLastFade AudioCmn_gLoadTables AudioCmn_gCruiseTables AudioCmn_gResume AudioCmn_gStreamRestartTimer fMysticWindON fAmbientRangeON currentWindPan nextWindPan gQuickSirenCount AudioCmn_ThunderAmp AudioCmn_ThunderAzi AudioCmn_ThunderDel
+

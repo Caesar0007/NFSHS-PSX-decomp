@@ -1,0 +1,57 @@
+w65a8: region 1+2 re-cut (79 -> 83 owned windows) + THE FIRST-DECLARATION ORDER LAW + P6 strengthened to IMAGE equality
+
+REGION 2 (data_8010CCD4): 32 -> 34 windows, 34144 -> 35464 B.  The two
+byte-decoded defects W64-A18 handed off (sec.10) had landed in peer TUs since,
+so re-running ownmap cut them for free: game/psx/flare.cpp Flare_SunFlarePieces
+1304 B and eaclib/psx/sndpsxz/slib.c sndpdsafeloop 16 B.  52 -> 56 pieces.
+This also REPAIRS an inconsistency at HEAD: linkers/nfs4.ld already listed 56
+data_8010CCD4 pieces while asm/data held only 52 (4 entries pointed at files
+that did not exist); the re-cut makes the two agree and the regenerated
+nfs4.ld came out BYTE-IDENTICAL to HEAD's.
+
+REGION 1 (sdata_8013C54C): 35 -> 39 windows, 776 -> 860 B, E3 27 -> 23,
+58 -> 64 pieces.  Four E3 windows flipped to OWN with ZERO codegen change:
+aiphysic.cpp 12 B, object.cpp 24 B, replay.cpp 20 B, textureprocess.cpp 28 B.
+
+THE LAW (a refinement of 16E's "declaration order IS emission order", and the
+reason W64-A18's genericpmx recipe did not transfer): for a TU-OWNED TENTATIVE
+DEFINITION the emission order is the order the identifier is FIRST DECLARED --
+which is the *_externs.h `extern` line, NOT the definition in the .cpp.
+Proven by control: reordering replay.cpp's five tentative defs changed the
+emitted .sdata order NOT AT ALL (gate 16/16 both ways); reordering the same
+five `extern` lines in replay_externs.h put all five at their exact retail
+offsets.  Reproduced on all four TUs.  The dial is codegen-inert -- every gate
+count is identical before and after.
+
+P6 (the splat-lane control) STRENGTHENED and, in its old form, found wanting.
+W64-A18's P6 compared ld's *stderr*; that is blind to layout.  p6min.py links
+each region's pieces and the un-split control blob with a private script and
+compares the emitted image:
+  * with the input sections' own alignment: cut == control, BYTE-IDENTICAL,
+    all three regions (194680 / 6192 / 6360 B).  The cut is layout-neutral.
+  * with linkers/nfs4.ld's actual `.nfs4 ... SUBALIGN(16)`: the cut inflates
+    all three regions (+248 / +432 / +128 B of *fill*) and shifts every
+    pointer word after each boundary.  SUBALIGN(16) -- not the cut -- is what
+    breaks the "keeps producing a byte-identical image" claim in every piece
+    banner, and it is already costing A5's rdata lane 2468 B of fill.
+    ORCHESTRATOR: `.nfs4 ... SUBALIGN(4)` is the one-token fix and agrees with
+    W62-A18's finding that retail bases are 4-aligned.  Not landed here --
+    nfs4.ld is being rewritten by a peer belt this hour.
+
+PROOFS: P1-P5 re-run per region and all green (region 2: 856 records / 49518
+lines / 194680==194680 / 454 relocs / 1808 ROM-differing bytes, 0 outside a
+reloc word; region 1: 1099 / 1186 / 6192==6192 / 3 relocs / 12 bytes, 0
+outside).  P6-MIN PASS on all three regions.
+
+GATES: build 508 objects 0 failures; tu_order_audit 508 / 0 inversions;
+tugate x2 on every edited TU and every consumer of a touched header --
+textureprocess 16/16, aiphysic 41/42, object 37/37, replay 16/16,
+aih_basiccop 9/9, overlays 3/5 -- each identical to its own re-measured
+baseline (aiphysic's 5-diff OutOfControlPhysics and overlays' two far-misses
+are pre-existing and untouched).  ZERO PASS->FAIL.  probe_link re-measured
+83.07% / 202 of 442 byte-exact = my baseline, HELD (this lane cannot move it:
+probe_link's input set is build/recon/**.o and it compares .text only -- no
+asm/data object is an input).
+
+linkers/nfs4.ld staged by OWN HUNKS ONLY (scratchpad/w65a8/stage_own_hunks.py):
+3 of the 4 hunks are a peer's uncommitted rdata_* work and were left alone.

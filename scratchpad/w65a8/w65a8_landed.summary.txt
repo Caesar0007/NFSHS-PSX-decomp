@@ -1,0 +1,9 @@
+script=C:\Temp\nfs4-decomp\linkers\nfs4.ld
+rc=0
+stderr_lines=14
+other	7
+multiple-definition	5
+undefined	2
+distinct_undefined	2
+UNDEF	PAD_convert
+UNDEF	ReadInitPadFlag

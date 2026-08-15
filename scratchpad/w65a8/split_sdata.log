@@ -1,0 +1,68 @@
+record splits performed: 0
+segments: 64  residual=25  owned=39
+  sdata_8013C54C_r00.sdata.s               0x8013c54c..0x8013c550      4
+  sdata_8013C54C_o00.sdata.s               0x8013c550..0x8013c55c     12  <- build/recon/game/common/ai.cpp.o
+  sdata_8013C54C_o01.sdata.s               0x8013c55c..0x8013c560      4  <- build/recon/game/common/aihigh.cpp.o
+  sdata_8013C54C_o02.sdata.s               0x8013c560..0x8013c568      8  <- build/recon/game/common/aih_btccop.cpp.o
+  sdata_8013C54C_r01.sdata.s               0x8013c568..0x8013c570      8
+  sdata_8013C54C_o03.sdata.s               0x8013c570..0x8013c57c     12  <- build/recon/game/common/aicop.cpp.o
+  sdata_8013C54C_o04.sdata.s               0x8013c57c..0x8013c588     12  <- build/recon/game/common/aiinit.cpp.o
+  sdata_8013C54C_r02.sdata.s               0x8013c588..0x8013c594     12
+  sdata_8013C54C_o05.sdata.s               0x8013c594..0x8013c5a0     12  <- build/recon/game/common/aiphysic.cpp.o
+  sdata_8013C54C_o06.sdata.s               0x8013c5a0..0x8013c5b0     16  <- build/recon/game/common/aidatarecord.cpp.o
+  sdata_8013C54C_r03.sdata.s               0x8013c5b0..0x8013c5e8     56
+  sdata_8013C54C_o07.sdata.s               0x8013c5e8..0x8013c5f0      8  <- build/recon/game/common/aitriger.cpp.o
+  sdata_8013C54C_o08.sdata.s               0x8013c5f0..0x8013c5fc     12  <- build/recon/game/common/aitune.cpp.o
+  sdata_8013C54C_r04.sdata.s               0x8013c5fc..0x8013c608     12
+  sdata_8013C54C_o09.sdata.s               0x8013c608..0x8013c628     32  <- build/recon/game/common/audioclc.cpp.o
+  sdata_8013C54C_r05.sdata.s               0x8013c628..0x8013c720    248
+  sdata_8013C54C_o10.sdata.s               0x8013c720..0x8013c724      4  <- build/recon/game/common/audiomus.cpp.o
+  sdata_8013C54C_r06.sdata.s               0x8013c724..0x8013c72c      8
+  sdata_8013C54C_o11.sdata.s               0x8013c72c..0x8013c734      8  <- build/recon/game/common/audedit.cpp.o
+  sdata_8013C54C_r07.sdata.s               0x8013c734..0x8013c754     32
+  sdata_8013C54C_o12.sdata.s               0x8013c754..0x8013c758      4  <- build/recon/game/common/audiotrk.cpp.o
+  sdata_8013C54C_r08.sdata.s               0x8013c758..0x8013c7bc    100
+  sdata_8013C54C_o13.sdata.s               0x8013c7bc..0x8013c7dc     32  <- build/recon/game/common/bworldSm.cpp.o
+  sdata_8013C54C_o14.sdata.s               0x8013c7dc..0x8013c7e0      4  <- build/recon/game/common/camera.cpp.o
+  sdata_8013C54C_o15.sdata.s               0x8013c7e0..0x8013c818     56  <- build/recon/game/common/cars.cpp.o
+  sdata_8013C54C_o16.sdata.s               0x8013c818..0x8013c820      8  <- build/recon/game/common/chunk.cpp.o
+  sdata_8013C54C_o17.sdata.s               0x8013c820..0x8013c82c     12  <- build/recon/game/common/clock.cpp.o
+  sdata_8013C54C_r09.sdata.s               0x8013c82c..0x8013d0fc   2256
+  sdata_8013C54C_o18.sdata.s               0x8013d0fc..0x8013d10c     16  <- build/recon/game/common/fastrand.cpp.o
+  sdata_8013C54C_o19.sdata.s               0x8013d10c..0x8013d220    276  <- build/recon/game/common/genericpmx.cpp.o
+  sdata_8013C54C_o20.sdata.s               0x8013d220..0x8013d240     32  <- build/recon/game/common/input.cpp.o
+  sdata_8013C54C_r10.sdata.s               0x8013d240..0x8013d2c8    136
+  sdata_8013C54C_o21.sdata.s               0x8013d2c8..0x8013d2e0     24  <- build/recon/game/common/object.cpp.o
+  sdata_8013C54C_r11.sdata.s               0x8013d2e0..0x8013d2e8      8
+  sdata_8013C54C_o22.sdata.s               0x8013d2e8..0x8013d2ec      4  <- build/recon/game/common/paths.cpp.o
+  sdata_8013C54C_r12.sdata.s               0x8013d2ec..0x8013d2f0      4
+  sdata_8013C54C_o23.sdata.s               0x8013d2f0..0x8013d324     52  <- build/recon/game/common/physics.cpp.o
+  sdata_8013C54C_r13.sdata.s               0x8013d324..0x8013d3ec    200
+  sdata_8013C54C_o24.sdata.s               0x8013d3ec..0x8013d400     20  <- build/recon/game/common/replay.cpp.o
+  sdata_8013C54C_r14.sdata.s               0x8013d400..0x8013d408      8
+  sdata_8013C54C_o25.sdata.s               0x8013d408..0x8013d40c      4  <- build/recon/game/common/scene.cpp.o
+  sdata_8013C54C_r15.sdata.s               0x8013d40c..0x8013d448     60
+  sdata_8013C54C_o26.sdata.s               0x8013d448..0x8013d458     16  <- build/recon/game/common/souffle.cpp.o
+  sdata_8013C54C_r16.sdata.s               0x8013d458..0x8013d4f0    152
+  sdata_8013C54C_o27.sdata.s               0x8013d4f0..0x8013d4f8      8  <- build/recon/game/common/trgsfx.cpp.o
+  sdata_8013C54C_o28.sdata.s               0x8013d4f8..0x8013d4fc      4  <- build/recon/game/common/aidebug.cpp.o
+  sdata_8013C54C_o29.sdata.s               0x8013d4fc..0x8013d504      8  <- build/recon/game/psx/audio.cpp.o
+  sdata_8013C54C_r17.sdata.s               0x8013d504..0x8013d818    788
+  sdata_8013C54C_o30.sdata.s               0x8013d818..0x8013d81c      4  <- build/recon/game/psx/drawdbg.cpp.o
+  sdata_8013C54C_r18.sdata.s               0x8013d81c..0x8013d840     36
+  sdata_8013C54C_o31.sdata.s               0x8013d840..0x8013d854     20  <- build/recon/game/psx/force.cpp.o
+  sdata_8013C54C_r19.sdata.s               0x8013d854..0x8013d86c     24
+  sdata_8013C54C_o32.sdata.s               0x8013d86c..0x8013d878     12  <- build/recon/game/psx/flare.cpp.o
+  sdata_8013C54C_r20.sdata.s               0x8013d878..0x8013db08    656
+  sdata_8013C54C_o33.sdata.s               0x8013db08..0x8013db3c     52  <- build/recon/game/psx/texture.cpp.o
+  sdata_8013C54C_r21.sdata.s               0x8013db3c..0x8013db74     56
+  sdata_8013C54C_o34.sdata.s               0x8013db74..0x8013db90     28  <- build/recon/game/psx/textureprocess.cpp.o
+  sdata_8013C54C_o35.sdata.s               0x8013db90..0x8013db9c     12  <- build/recon/game/psx/trackspec.cpp.o
+  sdata_8013C54C_o36.sdata.s               0x8013db9c..0x8013dba0      4  <- build/recon/game/psx/trsproj.cpp.o
+  sdata_8013C54C_r22.sdata.s               0x8013dba0..0x8013dd28    392
+  sdata_8013C54C_o37.sdata.s               0x8013dd28..0x8013dd2c      4  <- build/recon/eaclib/psx/eacpsxz/joystkn.c.o
+  sdata_8013C54C_r23.sdata.s               0x8013dd2c..0x8013dd5c     48
+  sdata_8013C54C_o38.sdata.s               0x8013dd5c..0x8013dd60      4  <- build/recon/eaclib/psx/eacpsxz/threads.c.o
+  sdata_8013C54C_r24.sdata.s               0x8013dd60..0x8013dd7c     28
+removed 58 previous pieces
+wrote 64 pieces to asm/data

@@ -1,0 +1,4 @@
+C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: scratchpad/w65a8/ctl_obj/front_data.data.s.o: in function `D_800520E8':
+(.data+0xe98): undefined reference to `D_80012064'
+C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: (.data+0xe9c): undefined reference to `D_80012064'
+C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: (.data+0xea0): undefined reference to `D_80012064'

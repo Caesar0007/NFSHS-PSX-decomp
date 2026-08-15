@@ -19,8 +19,11 @@ extern Group              *Object_customSimObjs;     /* 0x8013d2cc */
 extern Group              *Object_customSFXInst;     /* 0x8013d2d0 */
 extern int                 Object_customSliceNum;    /* 0x8013d2d4 */
 extern ObjectAnim         *gSimObjAnims[450];        /* 0x.. status table [0..0x1c1] */
-extern int                 gNumIMassObjects;
-extern Object_tIMassObjInfo *Object_IMassObjInst;
+/* W65-A8 ORDER IS LOAD-BEARING (first-declaration order == emission order):
+ * retail's .sdata run is 0x8013d2c8..0x8013d2dc, IMassObjInst BEFORE the
+ * count.  Do NOT re-sort. */
+extern Object_tIMassObjInfo *Object_IMassObjInst;   /* 0x8013d2d8 */
+extern int                 gNumIMassObjects;        /* 0x8013d2dc */
 
 /* ---- cross-TU globals ---- */
 extern Group              *gPersistObjInst;          /* track.obj */

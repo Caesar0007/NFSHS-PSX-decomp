@@ -718,15 +718,41 @@ extern int CD_cw(unsigned char com, unsigned char *param, unsigned char *result,
      * `tbl` 44 @261 (the UNLAUNDERED control is the winner -- 13B); read-only fence on
      * `tbl` 42 @261; `tbl` assigned before `ip` 40 (inert, same basin); dropping the
      * `ip` identity fence 47; ip read-only instead of identity 47.
-     * RESIDUAL (40) is now a 3-WAY LOCAL-ALLOC QTY ROTATION in this one region, no
-     * structure left: ours {ip=$v1, tbl=$a1, maskedCom/idx=$a0 mutated in place},
-     * retail {ip=$a1, tbl=$v1 (REUSING the register the masked `com` just vacated),
-     * maskedCom=$v1 with a FRESH-DEST `sll a0,v1,2`}.  Two named sub-angles: (a) the
-     * fresh-dest shift (w43 qty birth-order/fresh-dest pair -- our `sll a0,a0,2` is the
-     * in-place form because cse merges the `== 0xe` mask and the index mask into one
-     * dying pseudo that combine_regs then ties to the shift's dest); (b) the ip/tbl
-     * $v1<->$a1 swap, which is their local-alloc PRIORITY order and did not move under
-     * any fence permutation above -- price it with the -dl qty table before dialing. */
+     * W64-A5 (40 -> 18, count still EXACT 259/259, ZERO instructions added): the w63-a5
+     * verdict above was WRONG ON THE LAYER -- none of {ip, tbl, maskedCom, idx} is a
+     * local-alloc qty.  All four are GLOBAL allocnos (each spans the `beqz` at the
+     * ready-clear, so REG_BASIC_BLOCK == -1 and local-alloc.c:470-77 never even considers
+     * them), so global.c's priority order + find_free_reg's ascending numeric scan decide
+     * the whole rotation -- and that IS priced.  Read off the .greg conflict lists:
+     *     ip(p77) conflicts with tbl(p82), maskedCom(p111) and idx(p115);
+     *     maskedCom does NOT conflict with tbl or idx;  tbl <-> idx DO conflict;
+     *     all four conflict with hard $v0, so the scan starts at $v1.
+     * Solving the scan for retail's handout {maskedCom=$v1, tbl=$v1, idx=$a0, ip=$a1}
+     * gives exactly two ordering constraints: tbl BEFORE idx, and ip LAST.  (The other
+     * 22 orders are provably unreachable -- with tbl after idx, idx takes $v1 and tbl is
+     * pushed to $a0; with ip anywhere but last it takes $v1 or $a0.)
+     * Both constraints were bought with zero-insn read-only fences, each priced with
+     * tools/reqdelta272.py first:
+     *   - ip LAST: `__asm__("" : : "r"(ip));` immediately before the `CD_com` store (the
+     *     last point before the next call, so ip stays caller-saved).  refs 5 -> 6 AND
+     *     live 8 -> 26: priority 1.2500 -> 0.4615, which drops it below tbl.  40 -> 34.
+     *   - tbl BEFORE idx: a TWO-operand fence on `tbl` (reqdelta272 --flip 82 115 prints
+     *     "refs 2->4 (+2, CROSSES a floor_log2 step)").  POSITION IS THE DIAL and it is
+     *     the difference between free and +2 insns: at the `tbl = _cd_result_flag;`
+     *     statement the fence forces a second materialisation (44 @261); placed at the
+     *     CONSUMER, immediately before `cnt = tbl + 0x40;`, it is zero-insn.  34 -> 18.
+     *     (1 operand is an under-dial: INERT at 34.  3 operands = same 18.)
+     * FALSIFIED for the remaining 18: shortening tbl's live range instead of raising its
+     * refs -- moving `tbl = _cd_result_flag;` down to the guard / after the guard / to the
+     * `cnt` statement all cost the la-split-into-the-beqz-slot (+1 insn, 35 @260).
+     * RESIDUAL 18 = two clusters, neither in this region: (a) 2 diffs, the parameter
+     * loop's saved count-address pointer in $a2 where retail has $a1; (b) ~14 diffs of
+     * pure EMISSION ORDER in the ALARM block (retail materialises the `la &Intr` for the
+     * while-entry test BEFORE the deadline store and puts the `bnez` ahead of the
+     * cmdNames `la`).  All 6 source orderings of the four ALARM statements are INERT at
+     * 18, so (b) is a scheduler decision, not a statement-order one -- next instrument is
+     * a mechanical void-barrier position sweep (fencesweep) over that block. */
+    __asm__("" : : "r"(tbl), "r"(tbl));     /* MATCH (W64-A5): +2 refs on `tbl`, see above */
     cnt = tbl + 0x40;
     i = 0;
     if (cnt[com] > 0)
@@ -734,6 +760,7 @@ extern int CD_cw(unsigned char com, unsigned char *param, unsigned char *result,
             CDREG2 = param[i];
             i++;
         } while (i < cnt[com]);
+    __asm__("" : : "r"(ip));                /* MATCH (W64-A5): demotes `ip`, see above */
     CD_com = (unsigned char)com;
     CDREG1 = CD_com;
     if (arg3 != 0)

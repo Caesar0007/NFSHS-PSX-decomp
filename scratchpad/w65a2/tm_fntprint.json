@@ -1,0 +1,4 @@
+{"recon/syslib/psx/libgpu/FONT.c": {"FntPrint": [
+ {"take": "\\t#nop\\n(?=\\tbeq\\t\\$4,\\$0,\\$L\\d+\\n)",
+  "after": "\\tlb\\t\\$4,0\\(\\$19\\)\\n(?=\\$L\\d+:\\n\\taddu\\t\\$2,\\$4,-48\\n)"}
+]}}

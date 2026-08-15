@@ -1,0 +1,6 @@
+{"text_moves": {"recon/game/common/camera.cpp": {
+  "Camera_UpdateHeliCam__Fii": [
+    {"take": "\\$L\\d+:\\n(?=\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tbeq\\t\\$2,\\$0,\\$L\\d+\\n\\tsra\\t\\$2,\\$3,2\\n)",
+     "after": "\\tsubu\\t\\$3,\\$0,\\$3\\n(?=\\tslt\\t\\$2,\\$3,\\$4\\n)"}
+  ]
+}}}

@@ -1,0 +1,6 @@
+{"text_moves": {"recon/frontend/common/screencongrats.cpp": {
+  "CalculatePrizes__23tScreenTournamentTrophy": [
+    {"take": "\\$L\\d+:\\n(?=\\tsw\\t\\$0,108\\(\\$18\\)\\n \\#APP\\n)",
+     "after": "\\tsw\\t\\$0,108\\(\\$18\\)\\n(?= \\#APP\\n)"}
+  ]
+}}}

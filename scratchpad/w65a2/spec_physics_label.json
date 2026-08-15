@@ -1,0 +1,6 @@
+{"text_moves": {"recon/game/common/physics.cpp": {
+  "Physics_CalculateCarAcceleration__FP8Car_tObj": [
+    {"take": "(?<=\\tsw\\t\\$2,1128\\(\\$17\\)\\n)\\$L\\d+:\\n(?=\\tlw\\t\\$2,1128\\(\\$17\\)\\n\\t#nop\\n\\tbgez\\t\\$2,\\$L\\d+\\n)",
+     "after": "(?<=\\tsw\\t\\$2,1128\\(\\$17\\)\\n)\\tlw\\t\\$2,1128\\(\\$17\\)\\n(?=\\t#nop\\n\\tbgez\\t\\$2,\\$L\\d+\\n)"}
+  ]
+}}}

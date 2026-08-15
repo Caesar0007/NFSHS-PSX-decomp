@@ -1,0 +1,4 @@
+{"recon/syslib/psx/libcd/streamhelp.c": {"StGetNext": [
+ {"take": "\\$L\\d+:\\n(?=\\tli\\t\\$2,0x00000002)",
+  "after": "\\taddu\\t\\$6,\\$3,\\$2\\n(?=\\tlhu\\t\\$3,0\\(\\$6\\)\\n\\tli\\t\\$2,0x00000002)"}
+]}}

@@ -1,0 +1,6 @@
+{"text_moves": {"recon/game/psx/weather.cpp": {
+  "Weather_ChangeDensityBasedOnTime__Fv": [
+    {"take": "\\$L\\d+:\\n(?=\\tlui\\t\\$4,%hi\\(Weather_gSys\\) \\# high\\n\\$L\\d+:\\n\\tlw\\t\\$2,%lo\\(Weather_gSys\\)\\(\\$4\\)\\n)",
+     "after": "\\tlui\\t\\$4,%hi\\(Weather_gSys\\) \\# high\\n(?=\\$L\\d+:\\n\\tlw\\t\\$2,%lo\\(Weather_gSys\\)\\(\\$4\\)\\n)"}
+  ]
+}}}

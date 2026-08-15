@@ -1,0 +1,113 @@
+{
+ "text_moves_replace": {
+  "recon/syslib/psx/libpad/MCXMAIN.c": {
+   "_padIntRecvData": [
+    {
+     "take": "\\taddu\\t\\$4,\\$17,\\$0\\n(?=\\t\\.set\\tmacro\\n\\t\\.set\\treorder\\n\\n\\tj\\t\\$L\\d+\\n\\$L\\d+:\\n\\tli\\t\\$2,0x00000004)",
+     "after": "\\tbeq\\t\\$2,\\$0,\\$L\\d+\\n(?=\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tbltz\\t\\$3,)",
+     "slot": true,
+     "drop_after": "\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n"
+    },
+    {
+     "take": "\\$L\\d+:\\n(?=\\taddu\\t\\$4,\\$17,\\$0\\n\\$L\\d+:\\n\\tlw\\t\\$2,_padFuncGetTxd\\n)",
+     "after": "\\taddu\\t\\$4,\\$17,\\$0\\n(?=\\$L\\d+:\\n\\tlw\\t\\$2,_padFuncGetTxd\\n)"
+    }
+   ]
+  },
+  "recon/syslib/psx/libcd/streamhelp.c": {
+   "StGetNext": [
+    {
+     "take": "\\$L\\d+:\\n(?=\\tli\\t\\$2,0x00000002)",
+     "after": "\\taddu\\t\\$6,\\$3,\\$2\\n(?=\\tlhu\\t\\$3,0\\(\\$6\\)\\n\\tli\\t\\$2,0x00000002)"
+    }
+   ]
+  },
+  "recon/frontend/common/screencarselect.cpp": {
+   "DrawVideoWall__20tScreenCarSelectDuels": [
+    {
+     "take": "\\$L\\d+:\\n(?=\\taddu\\t\\$16,\\$18,772\\n\\$L\\d+:\\n)",
+     "after": "\\taddu\\t\\$16,\\$18,772\\n(?=\\$L\\d+:\\n)"
+    }
+   ],
+   "DrawOpponentVideoWall__20tScreenCarSelectDuels": [
+    {
+     "take": "\\$L\\d+:\\n(?=\\taddu\\t\\$16,\\$17,828\\n\\$L\\d+:\\n)",
+     "after": "\\taddu\\t\\$16,\\$17,828\\n(?=\\$L\\d+:\\n)"
+    }
+   ]
+  },
+  "recon/frontend/common/screencongrats.cpp": {
+   "CalculatePrizes__23tScreenTournamentTrophy": [
+    {
+     "take": "\\$L\\d+:\\n(?=\\tsw\\t\\$0,108\\(\\$18\\)\\n \\#APP\\n)",
+     "after": "\\tsw\\t\\$0,108\\(\\$18\\)\\n(?= \\#APP\\n)"
+    }
+   ]
+  },
+  "recon/game/common/aiphysic.cpp": {
+   "AIPhysic_CalcAcceleration__FP8Car_tObji": [
+    {
+     "take": "\\tmove\\t\\$2,\\$16\\n(?=\\$L\\d+:\\n\\$L\\d+:\\n\\tlw\\t\\$31,)",
+     "after": "\\tbeq\\t\\$5,\\$2,\\$L\\d+\\n",
+     "copy": true,
+     "slot": true
+    },
+    {
+     "take": "\\$L\\d+:\\n(?=\\tmove\\t\\$2,\\$16\\n\\$L\\d+:\\n\\$L\\d+:\\n\\tlw\\t\\$31,)",
+     "after": "\\tmove\\t\\$2,\\$16\\n(?=\\$L\\d+:\\n\\$L\\d+:\\n\\tlw\\t\\$31,)"
+    }
+   ]
+  },
+  "recon/game/common/audiotrk.cpp": {
+   "AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji": [
+    {
+     "take": "\\$L\\d+:\\n(?=\\taddu\\t\\$2,\\$3,-4\\n\\tsltu\\t\\$2,\\$2,32\\n)",
+     "after": "\\$L\\d+:\\n(?=\\tlbu\\t\\$3,20\\(\\$20\\)\\n\\taddu\\t\\$2,\\$3,-4\\n)"
+    }
+   ]
+  },
+  "recon/game/common/physics.cpp": {
+   "Physics_CalculateCarAcceleration__FP8Car_tObj": [
+    {
+     "take": "(?<=\\tsw\\t\\$2,1128\\(\\$17\\)\\n)\\$L\\d+:\\n(?=\\tlw\\t\\$2,1128\\(\\$17\\)\\n\\t#nop\\n\\tbgez\\t\\$2,\\$L\\d+\\n)",
+     "after": "(?<=\\tsw\\t\\$2,1128\\(\\$17\\)\\n)\\tlw\\t\\$2,1128\\(\\$17\\)\\n(?=\\t#nop\\n\\tbgez\\t\\$2,\\$L\\d+\\n)"
+    }
+   ]
+  },
+  "recon/game/psx/weather.cpp": {
+   "Weather_ChangeDensityBasedOnTime__Fv": [
+    {
+     "take": "\\$L\\d+:\\n(?=\\tlui\\t\\$4,%hi\\(Weather_gSys\\) \\# high\\n\\$L\\d+:\\n\\tlw\\t\\$2,%lo\\(Weather_gSys\\)\\(\\$4\\)\\n)",
+     "after": "\\tlui\\t\\$4,%hi\\(Weather_gSys\\) \\# high\\n(?=\\$L\\d+:\\n\\tlw\\t\\$2,%lo\\(Weather_gSys\\)\\(\\$4\\)\\n)"
+    }
+   ]
+  },
+  "recon/game/common/camera.cpp": {
+   "Camera_UpdateHeliCam__Fii": [
+    {
+     "take": "\\tlui\\t\\$3,%hi\\(Input_gLookBehind\\) \\# high\\n(?=\\$L\\d+:\\n\\tlw\\t\\$2,20\\(\\$sp\\)\\n)",
+     "after": "\\tlw\\t\\$2,20\\(\\$sp\\)\\n(?=\\taddiu\\t\\$3,\\$3,%lo\\(Input_gLookBehind\\))"
+    },
+    {
+     "take": "\\tli\\t\\$2,196608[^\\n]*\\n(?=\\tslt\\t\\$5,\\$2,\\$4\\n)",
+     "after": "\\tbeq\\t\\$20,\\$2,\\$L\\d+\\n(?=\\tlui\\t\\$3,%hi\\(Input_gLookBehind\\) \\# high\\n)",
+     "drop_after": "\\tlui\\t\\$3,%hi\\(Input_gLookBehind\\) \\# high\\n"
+    },
+    {
+     "take": "\\tbeq\\t\\$20,\\$0,\\$L\\d+\\n(?=\\tlui\\t\\$3,%hi\\(Input_gLookBehind\\) \\# high\\n)",
+     "after": "\\t\\.set\\treorder\\n\\n(?=\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tlui\\t\\$3,%hi\\(Input_gLookBehind\\) \\# high\\n)",
+     "drop_after": "\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tlui\\t\\$3,%hi\\(Input_gLookBehind\\) \\# high\\n\\t\\.set\\tmacro\\n\\t\\.set\\treorder\\n"
+    },
+    {
+     "take": "\\tbgez\\t\\$3,\\$L\\d+\\n(?=\\tslt\\t\\$2,\\$3,\\$4\\n)",
+     "after": "1:\\n\\t\\.set\\treorder\\n(?=\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tslt\\t\\$2,\\$3,\\$4\\n)",
+     "drop_after": "\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tslt\\t\\$2,\\$3,\\$4\\n\\t\\.set\\tmacro\\n\\t\\.set\\treorder\\n"
+    },
+    {
+     "take": "\\$L\\d+:\\n(?=\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tbeq\\t\\$2,\\$0,\\$L\\d+\\n\\tsra\\t\\$2,\\$3,2\\n)",
+     "after": "\\tsubu\\t\\$3,\\$0,\\$3\\n(?=\\tslt\\t\\$2,\\$3,\\$4\\n)"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,4 @@
+{"recon/syslib/psx/libpad/MCXMAIN.c": {"_padIntRecvData": [
+ {"take": "\\$L\\d+:\\n(?=\\taddu\\t\\$4,\\$17,\\$0\\n\\$L\\d+:\\n\\tlw\\t\\$2,_padFuncGetTxd\\n)",
+  "after": "\\taddu\\t\\$4,\\$17,\\$0\\n(?=\\$L\\d+:\\n\\tlw\\t\\$2,_padFuncGetTxd\\n)"}
+]}}

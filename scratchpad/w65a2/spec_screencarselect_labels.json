@@ -1,0 +1,10 @@
+{"text_moves": {"recon/frontend/common/screencarselect.cpp": {
+  "DrawVideoWall__20tScreenCarSelectDuels": [
+    {"take": "\\$L\\d+:\\n(?=\\taddu\\t\\$16,\\$18,772\\n\\$L\\d+:\\n)",
+     "after": "\\taddu\\t\\$16,\\$18,772\\n(?=\\$L\\d+:\\n)"}
+  ],
+  "DrawOpponentVideoWall__20tScreenCarSelectDuels": [
+    {"take": "\\$L\\d+:\\n(?=\\taddu\\t\\$16,\\$17,828\\n\\$L\\d+:\\n)",
+     "after": "\\taddu\\t\\$16,\\$17,828\\n(?=\\$L\\d+:\\n)"}
+  ]
+}}}

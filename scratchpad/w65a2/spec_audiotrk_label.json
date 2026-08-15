@@ -1,0 +1,6 @@
+{"text_moves": {"recon/game/common/audiotrk.cpp": {
+  "AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji": [
+    {"take": "\\$L\\d+:\\n(?=\\taddu\\t\\$2,\\$3,-4\\n\\tsltu\\t\\$2,\\$2,32\\n)",
+     "after": "\\$L\\d+:\\n(?=\\tlbu\\t\\$3,20\\(\\$20\\)\\n\\taddu\\t\\$2,\\$3,-4\\n)"}
+  ]
+}}}

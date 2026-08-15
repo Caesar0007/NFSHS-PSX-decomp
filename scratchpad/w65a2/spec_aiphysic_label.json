@@ -1,0 +1,6 @@
+{"text_moves": {"recon/game/common/aiphysic.cpp": {
+  "AIPhysic_CalcAcceleration__FP8Car_tObji": [
+    {"take": "\\$L\\d+:\\n(?=\\tmove\\t\\$2,\\$16\\n\\$L\\d+:\\n\\$L\\d+:\\n\\tlw\\t\\$31,)",
+     "after": "\\tmove\\t\\$2,\\$16\\n(?=\\$L\\d+:\\n\\$L\\d+:\\n\\tlw\\t\\$31,)"}
+  ]
+}}}

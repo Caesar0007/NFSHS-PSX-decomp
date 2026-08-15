@@ -586,13 +586,27 @@ void Camera_UpdateHeliCam(int player,int behavior)
       if ((rev ^ 1) == 0) {
         lookahead = -3;
       }
-      __asm__("" : : "i"(0));
     }
     else {
       lookahead = 3;
       if (rev == 0) {
         lookahead = -3;
       }
+      /* MATCH (w63-a11): the un-merge fence belongs in the ELSE arm, NOT the
+         wrongway arm.  Both arms end in the identical `lookahead = -3;` tail, so
+         cross_jump merges them and the fn loses 3 insns (drop it entirely: 8
+         diffs @441).  But an asm at the WRONGWAY arm's inner-if JOIN is also the
+         head of that arm's exit label, and reorg/jump.c's thread_jumps then
+         refuses to thread `bnez -> $Lexit -> j $Lmerge` (retail threads it and
+         puts `li $17,-3` in the surviving j's slot).  Fencing the OTHER arm's
+         tail un-merges exactly the same and leaves the wrongway arm's exit label
+         asm-free => the thread fires.  12 -> 9 alone; PASS 443/443 together with
+         the four PER_FN_TEXT_MOVES rows (scratchpad/w63a11/tm_helicam_spec.json).
+         Priced: fence at wrongway-arm tail 12(shipped)/3(with moves) - dropped
+         8@441 - before the inner if 8@441 - inside the inner if 3 - both arms 3 -
+         arms swapped 7.  __volatile__ flavour and a goto-out-of-arm1 variant are
+         both equivalent (9 alone / PASS with moves). */
+      __asm__("" : : "i"(0));
     }
   }
   if ((simVar.quickPauseSim != 0) && (Replay_ReplayInterface.changeCamera == 0)) {

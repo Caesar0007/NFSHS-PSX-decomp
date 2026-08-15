@@ -78,6 +78,6 @@ extern Draw_tPixMap *gShadowPixmap[2];
  * here (out of scope); the alias gives this TU the retail shape without touching it. */
 extern Draw_tPixMap *gShadowPixmap0 asm("gShadowPixmap");
 extern int gShowroomLights;  /* TODO type-refine */
-extern u_long hilight_colors[5];
+extern u_long hilight_colors[5] __asm__("D_8011F4B4");
 
 #endif

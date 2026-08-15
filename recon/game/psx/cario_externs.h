@@ -20,7 +20,7 @@ extern void Texture_LoadPmx(char *, char *, int, int, int, int, int, Draw_tPixMa
 extern void Texture_ResetPaletteSharing(void);
 
 /* ---- CarIO.obj own globals (SYM dims known; element widths from cpp reads/casts) ---- */
-extern CarIO_textureInfo CarIO_textureName[51];  /* dims 1 51; pCVar->pal/palShare/tex */
+extern CarIO_textureInfo CarIO_textureName[51] __asm__("D_8011E804");  /* dims 1 51; pCVar->pal/palShare/tex */
 extern short     CarIO_carVRamSlots[18][2];    /* [c][0/1] -> short sVar / (int) cast */
 extern short     CarIO_carVRamSlotsMenu[6][2]; /* short */
 extern short     CarIO_carVRamAdd[6];          /* SYM: ARY SHORT dims 1 6, size 12 (data

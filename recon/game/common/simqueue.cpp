@@ -10,6 +10,18 @@
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
 int gSimQueue_BlockOther;
 int gSimQueue_BlockSelf;
+
+/* W65-A6 DATA-MAT: `inputQueue` (15 reloc sites) was extern-only tree-wide, and simqueue.obj is
+ * both its only referencer and its retail owner -- the SYM records it as
+ * `$8013e0f4 6 inputQueue`, record type 6 = STATIC, a file-static of this object.
+ * Genuine BSS (0x8013E0F4 > t_addr+t_size 0x8013E000 => no file bytes, pure zero-init), size
+ * 524 = the SYM VA delta to the next symbol (`strspc.42` @0x8013E300).
+ * DEVICE = file-scope asm `.section .bss` with NO `.globl`, so retail's STATIC binding is
+ * reproduced exactly while the assembler still resolves this TU's references; the C view stays
+ * the `extern sim_queue inputQueue;` in simqueue_externs.h, so codegen is untouched
+ * (7/8 PASS unchanged, the residual pre-existing).
+ * Receipts: scratchpad/w65a6/RECEIPTS.md */
+__asm__("\t.section\t.bss\n\t.align\t2\ninputQueue:\n\t.space\t524\n\t.text");
 int gSimQueue_Ticker;
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */

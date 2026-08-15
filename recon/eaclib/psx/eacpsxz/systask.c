@@ -12,6 +12,18 @@ extern volatile int libticks; /* free-running tick counter -- volatile: IRQ-upda
                                * at each use inside systemtask() rather than caching one value */
 extern int gSysTaskCount;     /* live task count */
 extern int gSysTaskLastTick;  /* last tick the task list ran */
+/* W65-A6 DATA-MAT: `systemtasksubs` (8 reloc sites) was extern-only tree-wide.  systask.obj is
+ * its only referencer AND its retail owner: the SYM records it as `$8013e980 6 systemtasksubs`
+ * -- record type 6 = STATIC, i.e. a file-static of this object, which is exactly why no other
+ * TU can define it.  Genuine BSS (0x8013E980 > t_addr+t_size 0x8013E000: no file bytes,
+ * zero-init), size 256 = the SYM VA delta to the next symbol (sndss @0x8013EA80 is the next
+ * EXT; 0x8013E980 + 0x100 = 0x8013EA80), matching the int[16*4] shape documented here.
+ * DEVICE = file-scope asm `.section .bss` with NO `.globl` -- retail's STATIC binding is
+ * reproduced exactly, the assembler still resolves this TU's references, and the C view stays
+ * the UNSIZED `extern int systemtasksubs[]` that the MATCH note further down records as
+ * load-bearing ("its TRUE shape").  3/3 PASS unchanged.
+ * Receipts: scratchpad/w65a6/RECEIPTS.md */
+__asm__("\t.section\t.bss\n\t.align\t2\nsystemtasksubs:\n\t.space\t256\n\t.text");
 extern int systemtasksubs[];    /* int[16*4] : 16 slots of {fn, period, deadline, busy} */
 
 extern void         addsystemtask(int taskFn, int period, int delay);        /* @0x800E6AF4 */

@@ -7,6 +7,15 @@
  *   own object's data blob by symbol and pokes BIOS table entries, it is reproduced verbatim as a
  *   file-scope __asm__ (genuine hand-assembly; RULE 7 BIOS-stub form).  Numeric regs only (aspsx). */
 
+/* W65-A6 DATA-MAT: `D_80148AD4` (4 reloc sites) was extern-only tree-wide -- the fixed scratch
+ * word _ExitCard saves $ra into (see the header note above).  Genuine BSS (0x80148AD4 >
+ * t_addr+t_size 0x8013E000: no file bytes, zero-init); END.obj is its only referencer, so it is
+ * defined here, 4 bytes at its retail VA.  The 48 bytes up to `endofcode`/__last_org
+ * @0x80148B04 are unattributed and are NOT invented here.
+ * Receipts: scratchpad/w65a6/RECEIPTS.md */
+__asm__("\t.globl\tD_80148AD4\n\t.section\t.bss\n\t.align\t2\n"
+        "D_80148AD4:\n\t.space\t4\n\t.text");
+
 #if defined(__mips__)
 __asm__(
     "\t.set noat\n"

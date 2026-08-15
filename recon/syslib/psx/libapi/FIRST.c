@@ -45,6 +45,21 @@ typedef struct DCB {
 
 typedef int (*FirstFn)(int *state, int arg, int arg2);
 
+/* W65-A6 DATA-MAT: `_first_save` (6 reloc sites) and `_first_devname` (8) were extern-only
+ * tree-wide -- FIRST.obj is their only referencer and their only possible owner.  Both are
+ * genuine BSS: their VAs are > t_addr+t_size (0x8013E000), so no file bytes, pure zero-init.
+ * Contiguous run, sizes from the SYM/symbol_addrs VA deltas:
+ *      _first_save    @0x80148A7C  8   (= _first_devname - _first_save)
+ *      _first_devname @0x80148A84 40   (= _waitTime @0x80148AAC - 0x80148A84; libpad PAD.c
+ *                                       owns _waitTime, so this run ends there)
+ * DEVICE = file-scope asm `.section .bss` block with the C view left `extern` -- byte-neutral
+ * by construction, and required because `_first_devname` is declared as an UNSIZED array (a
+ * documented codegen lever, methodology 3.12 #5) that a sized C definition would disturb.
+ * Receipts: scratchpad/w65a6/RECEIPTS.md */
+__asm__("\t.globl\t_first_save\n\t.globl\t_first_devname\n"
+        "\t.section\t.bss\n\t.align\t2\n"
+        "_first_save:\n\t.space\t8\n"
+        "_first_devname:\n\t.space\t40\n\t.text");
 extern FirstFn _first_save;          /* @0x80148A7C : saved original device handler */
 /* MATCH (w48-a7): UNSIZED.  The oracle materializes this address INSIDE the DCB search loop, at
  * the strcmp call site (`lui $a1,%hi; addiu $a1,$a1,%lo` = one `la` macro).  With the size known,

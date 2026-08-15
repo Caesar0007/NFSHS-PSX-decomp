@@ -16,6 +16,15 @@
  *   scratch-ra words D_80148AC4/D_80148AD4 and the patch destinations resolve as %hi/%lo relocations
  *   (the verifier is reloc-lenient; the run-tree links them to their real addresses).  */
 
+/* W65-A6 DATA-MAT: `D_80148AC4` (8 reloc sites) was extern-only tree-wide -- the fixed scratch
+ * word this object's hand-asm saves $ra into (`lui $at,%hi(D_80148AC4); sw $ra,%lo(...)`).  It
+ * is genuine BSS (0x80148AC4 > t_addr+t_size 0x8013E000: no file bytes, zero-init) and PATCH.obj
+ * is its only referencer, so it is defined here, 4 bytes at its retail VA.  The 12 bytes to
+ * END.obj's D_80148AD4 @0x80148AD4 are unattributed and are NOT invented here.
+ * Receipts: scratchpad/w65a6/RECEIPTS.md */
+__asm__("\t.globl\tD_80148AC4\n\t.section\t.bss\n\t.align\t2\n"
+        "D_80148AC4:\n\t.space\t4\n\t.text");
+
 #if defined(__mips__)
 
 /* @0x8010CA40 : func_8010CA40 -- the TWO 5-word patch TEMPLATES themselves (code-as-data class 2,

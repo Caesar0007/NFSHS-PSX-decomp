@@ -35,13 +35,16 @@ void SubtractiveBox(int x, int y, int w, int h, int col1, int col2, int col3, in
 void PSXDrawSquare(int col, int x, int y, int w, int h);
 int CalcFadeVal(int col1, int col2, int amount);
 void FETextRender_FullTextRGB(char * sMenuText, short x, short y, int col, char size, short justify);
-void MCRD_loadfile(int card, MCRDFILE_def * pFILE, int bNameHasProductCode);
+/* W62-A17: memcard.c is a C-lane TU -> plain link symbol; without extern "C" this
+   emitted MCRD_loadfile__FiP12MCRDFILE_defi, which exists nowhere. */
+extern "C" void MCRD_loadfile(int card, MCRDFILE_def * pFILE, int bNameHasProductCode);
 int FETextRender_WordWrapTextRGBJustify(char * str, RECT & r, int col, int justify, int size, bool JustGrabHeight);
 char * TextSys_Word(int wordnum);
 void DrawShapeExtended(int index, int flags, int x, int y, int fade, int abr, tDrawShapeExtended * extra);
 void Texture_GetClutId(int bpp, int * xclut, int * yclut);
 void * FECheat_IsTheUserACryBabyCheater(void);
-int MCRD_fileexists(int card, char * name);
+/* W62-A17: same C-lane rule -- was emitting MCRD_fileexists__FiPc (nonexistent). */
+extern "C" int MCRD_fileexists(int card, char * name);
 extern "C" int MCRD_handlecardevents(int card);
 extern "C" CARDINFO_def *MCRD_getcard(int card);
 int AudioMus_Threshold(void);

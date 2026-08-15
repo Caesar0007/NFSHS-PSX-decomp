@@ -57,14 +57,23 @@ void Redraw(tFEApplication*);
 void UpdateMusic(tFEApplication*);
 
 /* ===== memcard (PSX::memcard) ===== */
-extern "C" int MCRD_handlecardevents(int);
+/* W62-A17: the whole MCRD_* family is defined in frontend/psx/memcard.c -- a C-lane TU,
+   so the link symbols are the PLAIN names.  Six of these decls were missing `extern "C"`,
+   so this C++ TU emitted MCRD_init__Fi / MCRD_restore__Fv / MCRD_savefile__FiP12MCRDFILE_def
+   / MCRD_loadfile__FiP12MCRDFILE_defi / MCRD_getopts__FP12MCRDOPTS_def /
+   MCRD_setopts__FP12MCRDOPTS_def -- manglings that exist nowhere (nm ALIAS class).
+   (MCRD_savefile really returns int in memcard.c; return type is not mangled, so the
+   `void` spelling is link-safe -- left alone, the caller ignores $v0.) */
+extern "C" {
+int   MCRD_handlecardevents(int);
 void  MCRD_savefile(int, MCRDFILE_def*);
 void  MCRD_loadfile(int, MCRDFILE_def*, int);
-extern "C" CARDINFO_def *MCRD_getcard(int);
+CARDINFO_def *MCRD_getcard(int);
 void  MCRD_init(int);
 void  MCRD_restore();
 void  MCRD_getopts(MCRDOPTS_def*);
 void  MCRD_setopts(MCRDOPTS_def*);
+}
 
 /* ===== eaclib / syslib / game ===== */
 void  Clock_MasterInterruptHandler();

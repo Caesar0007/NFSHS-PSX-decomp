@@ -1166,6 +1166,29 @@ PER_FN_RA_SINK = {
 #  "slot": True wraps anchor+moved in .set noreorder (branch delay fill),
 #  "drop_nop": True deletes one #nop/nop line following the anchor}.
 PER_FN_TEXT_MOVES = {
+    # w66-a1 (probe-verified 2x, objdump 15D word proof): Sim_MainGameLoop__Fv
+    # FAIL 6 (ours 319 / oracle 321) -> PASS 321/321, production REAL 50 -> 0,
+    # calltarget_audit 2 -> 0.  Pure BASIC-BLOCK PLACEMENT: with A = the shared
+    # Sim_ProcessSimSchedules block, B = the speed==3 arm, C = the
+    # InBetween/Camera_Update arm, retail lays them [B][C][A] (B pays a `j` to A)
+    # and cc1 lays them [B][A][C] (B falls straight THROUGH into A, so the
+    # `j`+`nop` never exists).  Six source forms falsified across W61/W62 -- every
+    # goto form lets jump.c's jump-around-jump inversion fire and gcc folds B's
+    # own call away; the unexplored axis was the LAYOUT pass.
+    # ROW ORDER IS LOAD-BEARING (each anchor is written against the text the
+    # previous row produced), and these four MUST land together with this fn's
+    # PER_FN_BRANCH_RETARGET row: the moves ALONE gate PASS 321/321 while the
+    # speed==3 arm calls Sim_ProcessSimSchedules ONCE instead of twice (the
+    # w63-a11/w65-a2 Camera_UpdateHeliCam hazard -- verify_asm normalises branch
+    # targets, so only brdist / a word proof can see it).
+    "recon/game/common/sim.cpp": {
+        "Sim_MainGameLoop__Fv": [
+            {"take": "\\tj\\t\\$L\\d+\\n(?=\\$L\\d+:\\n\\tsw\\t\\$16,InBetween\\n)", "after": "\\tbne\\t\\$3,\\$2,\\$L\\d+\\n\\tjal\\tSim_ProcessSimSchedules__Fv\\n", "copy": True},
+            {"take": "\\tj\\t\\$L\\d+\\n(?=\\$L\\d+:\\n\\tsw\\t\\$16,InBetween\\n)", "after": "\\tsw\\t\\$16,InBetween\\n\\tjal\\tCamera_Update__Fv\\n"},
+            {"take": "\\$L\\d+:\\n(?=\\tjal\\tSim_ProcessSimSchedules__Fv\\n\\$L\\d+:\\n\\tsw\\t\\$16,InBetween\\n)", "after": "\\tj\\t\\$L\\d+\\n(?=\\$L\\d+:\\n\\tlw\\t\\$2,24\\(\\$17\\)\\n)"},
+            {"take": "\\tjal\\tSim_ProcessSimSchedules__Fv\\n(?=\\$L\\d+:\\n\\tsw\\t\\$16,InBetween\\n)", "after": "\\$L\\d+:\\n(?=\\$L\\d+:\\n\\tlw\\t\\$2,24\\(\\$17\\)\\n)"},
+        ],
+    },
     # w60-a5 PROBE (schedule-relocation row, same class as the DoBarrierCheck
     # mflo row below): bsearch's only residual is the prologue emission ORDER of
     # the `lo = 0` def vs the 4th parm copy -- retail key,base,n,LO,w; ours

@@ -1,0 +1,5 @@
+== output -> scratchpad\w66a2\b_post  (skip_asm=True) ==
+== assembling data/header ==
+== compiling C TUs ==
+== compiling vendored reconstruction C++ TUs ==
+== objects only (no link) ==

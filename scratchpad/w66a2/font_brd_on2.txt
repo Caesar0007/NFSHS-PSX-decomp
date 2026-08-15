@@ -1,0 +1,2 @@
+# pr.py: maspsx += --nop-before-label
+# 2 fns checked, 0 with branch-offset/count divergence

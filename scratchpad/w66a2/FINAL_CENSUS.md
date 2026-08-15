@@ -272,6 +272,29 @@ rows are that in-flight state, re-measure before acting.
   re-proved on the 4 affected TUs with fixed sources instead of being hand-waved.
 * `build/**` churns under peers: every gate here was re-measured at the point of use.
 
+## 6b. CONCURRENCY ADDENDUM (HEAD moved under this belt)
+
+* **w66-a1 landed the `PER_FN_BRANCH_RETARGET` mechanism** (as a `git apply`-clean
+  patch for the orchestrator, `scratchpad/w66a1/branch_retarget.patch`; `tools/build.py`
+  itself still unwritten) and closes **all 6** of my §4.1 class-d rows plus the 2
+  calltarget rows with it. My §4/§5 tables are therefore the state **before that patch
+  is wired**; re-run `brdist`/`calltarget_audit` after the orchestrator applies it.
+* **`FntPrint` now has TWO independent routes**: w66-a1's retarget row (no toolchain
+  change) and this belt's `nop_before_label` (no per-fn row). w66-a1's note that maspsx
+  "hoists exactly ONE label above its inserted nop, so a SECOND label lands after it"
+  refutes only w65-a2's *"a maspsx option is REQUIRED"* framing — the option itself is
+  implemented, measured, and byte-inert by default. **Orchestrator choice**: prefer the
+  retarget row if you want one mechanism for the whole class; prefer the flag if you
+  want the label where retail's assembler put it without a per-fn anchor to maintain.
+  They must not both be applied to `FntPrint` (double-fix → a new divergence).
+* **Attribution**: a peer's `git add`-a-directory commit (`de791715`) swept every file
+  I had staged (the 10 recon TUs, both `tools/maspsx` files and the `scratchpad/w66a2`
+  receipts) into *their* commit. Content is intact and verified in HEAD
+  (`git show de791715:tools/maspsx/maspsx/__init__.py | grep -c nop_before_label` = 3);
+  only the attribution moved. Standing hazard, receiving end (w65-a4 §7 saw the same).
+* **Re-baselined after the peer landings** (HEAD `f3cab3d2`): `vtables_tdialog` 0/0,
+  `vtables_tlist` 0/0, `aihigh.cpp` **14/14 PASS** — zero PASS→FAIL still holds.
+
 ## 7. FILES (all under `scratchpad/w66a2/`)
 
 `patch_maspsx.py` (the maspsx applier) · `pr.py` (in-memory maspsx-flag probe harness:

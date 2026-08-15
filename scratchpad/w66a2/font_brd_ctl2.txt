@@ -1,0 +1,2 @@
+FntPrint                                                     1 offset diffs [(10, 8, 9)]
+# 2 fns checked, 1 with branch-offset/count divergence

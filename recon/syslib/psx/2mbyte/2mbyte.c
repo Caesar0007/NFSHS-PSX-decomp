@@ -132,7 +132,26 @@ __asm__(
     "\tjal        main\n"
     "\tnop\n"
     "\tbreak      1\n"
+    /* w64-a21 BOARD FIX (symbol-SIZE only; zero code bytes change).  The interior
+     * `D_800E40D8` label is the next symbol after `stup0`, so tools/fix_symsizes.py
+     * sized stup0 at 0x0C -- but retail's symbol is 0x1C (the oracle's own
+     * `nonmatching stup0, 0x1C`, and the 4 inline `.word`s ARE inside it).  objdiff
+     * reads every function row's extent from st_size, so the board scored stup0
+     * 3/7 = 42.86% while verify_asm (which slices by the ORACLE's span and walks
+     * through interior labels) reported PASS 7/7.  An explicit .size wins over
+     * fix_symsizes (it only fills size==0 symbols).  Same idiom as
+     * recon/syslib/psx/libcard/PATCH.c's func_8010CA40. */
+    "\t.type      stup0, @function\n"
+    "\t.size      stup0, 0x1c\n"
+    /* ...and give the inline table the SAME symbol shape splat's `alabel` gives the
+     * expected object (global, STT_FUNC, 0x10) so objdiff keeps scoring it as its own
+     * row: with stup0 now covering these bytes, a size-0 local would have been read as
+     * an empty symbol (100.00 -> 0.00).  Only this TU defines/uses the name (stup1's
+     * %hi/%lo pair above), so the global binding cannot collide at link. */
+    "\t.globl     D_800E40D8\n"
     "D_800E40D8:\n"
+    "\t.type      D_800E40D8, @function\n"
+    "\t.size      D_800E40D8, 0x10\n"
     "\t.word      2097152\n"
     "\t.word      2097152\n"
     "\t.word      2097152\n"

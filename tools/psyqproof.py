@@ -34,8 +34,26 @@ scratchpad/w62a20/PRODUCTION_LEDGER.md):
      (it always uses psq43 cc1) -- say so instead of printing a fake REAL.
 Note: do NOT add -g1; ASPSX then emits debug op 0x52, which parse_obj cannot
 read.  -g1/-mgpOPT/-fgnu-linker are code-byte inert (measured, 14 TUs/26 fns).
+
+w64-a20 PROBE HOOKS (closes the w63-a20 gap: a production cure could not be
+priced without first wiring tools/build.py, which is orchestrator-owned).  All
+default OFF, so shipped behaviour is unchanged; when any is live the run prints
+`probe hooks: ...` so a receipt can never silently be a no-op:
+  W64_PQ_TU_FLAGS         JSON {"<tu>": {"g_value": 8, ...}} over per_tu_flags()
+  W64_PQ_TEXT_MOVES_FILE  JSON {"<tu>": {"<fn>": [moves]}}, applied to the
+                          production .s with build.py's OWN _apply_text_moves
+  --with-text-moves       same, using only build.py's existing rows
+  W64_PQ_CC1              override the cc1/cc1plus binary (compiler-rung probe)
+  W64_PQ_NO_DIALECT=1     same as --no-dialect
+Validated against known positives, and DISCRIMINATING (the anti-vacuity leg):
+AudioCmn_Init RELOP 8 -> 0 under g_value=8 (the ledger's own -G8 row), all 33
+TEXT_MOVES-shimmed rows -> REAL=0 RELOP=0 under --with-text-moves, while the 6
+rows shimmed by a DIFFERENT mechanism (FORCE_ADDR / RA_SINK / EPILOGUE_UNFILL /
+NO_THREAD_JUMPS / PROLOGUE_UNSINK) stay at their exact ledger values.
 """
 import importlib.util
+import json
+import os
 import re
 import subprocess
 import sys
@@ -185,16 +203,76 @@ def to_aspsx_dialect(text):
     return eol.join(out)
 
 
-def tu_settings(rel):
-    """-> (g_value, extra_cc1_flags, inapplicable_lane_or_None) from build.py."""
-    try:
+_BUILD = None
+
+
+def build_module():
+    """tools/build.py, loaded once.  Cached because the probe hooks below need
+    the SAME module object the flag lookup used (patching a second copy's
+    tables would read as inert -- the w47 dup-key/'inert probe' class)."""
+    global _BUILD
+    if _BUILD is None:
         spec = importlib.util.spec_from_file_location("nfs4build", ROOT / "tools" / "build.py")
         bp = importlib.util.module_from_spec(spec)
         sys.modules["nfs4build"] = bp
         spec.loader.exec_module(bp)
+        _BUILD = bp
+    return _BUILD
+
+
+# --- w64-a20 PROBE HOOKS ----------------------------------------------------
+# The w63-a20 gap: a PRODUCTION-lane cure could not be priced without first
+# wiring tools/build.py, which is orchestrator-owned -- so every candidate cost
+# a round trip.  These mirror tools/vprobe.py's in-memory table hooks:
+#
+#   W64_PQ_TU_FLAGS         JSON   {"<tu rel>": {"g_value": 8, "no_split_addresses": 1}}
+#                                  merged over build.py's per_tu_flags() result
+#   W64_PQ_TEXT_MOVES_FILE  path   JSON {"<tu rel>": {"<fn>": [ {take,after,...} ]}}
+#                                  applied to the PRODUCTION .s with build.py's OWN
+#                                  _apply_text_moves (12H anti-drift: reused, not
+#                                  re-implemented).  The production .s carries the
+#                                  same `.ent`/`.end` markers the applier keys on
+#                                  (measured: 27 in nfile.c, same as the gate .s).
+#   W64_PQ_CC1              path   override the cc1/cc1plus binary (rung probe)
+#   W64_PQ_NO_DIALECT       "1"    same as --no-dialect
+#
+# All are OFF unless set, so the shipped behaviour is unchanged; `--probe-hooks`
+# prints which ones are live so a receipt can never silently be a no-op run.
+def _probe_env():
+    return {k: os.environ.get(k) for k in
+            ("W64_PQ_TU_FLAGS", "W64_PQ_TEXT_MOVES_FILE", "W64_PQ_CC1",
+             "W64_PQ_NO_DIALECT") if os.environ.get(k)}
+
+
+def _apply_probe_moves(rel_posix, s_file):
+    """apply W64_PQ_TEXT_MOVES_FILE via build.py's own applier.  Returns the
+    number of (fn, move) rows the table offered for this TU -- 0 means the hook
+    was a NO-OP, which the caller reports rather than swallowing."""
+    path = os.environ.get("W64_PQ_TEXT_MOVES_FILE")
+    if not path and "--with-text-moves" not in sys.argv:
+        return None
+    bp = build_module()
+    table = json.loads(Path(path).read_text()) if path else {}
+    for tu, fns in table.items():
+        bp.PER_FN_TEXT_MOVES.setdefault(tu, {}).update(fns)
+    bp._apply_text_moves(rel_posix, s_file)
+    # count the EFFECTIVE table (build.py's own rows + the override), not just
+    # the JSON's -- an override file that adds nothing still applies build.py's
+    # existing rows, and reporting 0 there read as "hook inert" when it was not.
+    eff = bp.PER_FN_TEXT_MOVES.get(rel_posix, {})
+    return sum(len(v) for v in eff.values())
+
+
+def tu_settings(rel):
+    """-> (g_value, extra_cc1_flags, inapplicable_lane_or_None) from build.py."""
+    try:
+        bp = build_module()
     except Exception:
         return None, [], None
-    flags = bp.per_tu_flags(ROOT / rel)
+    flags = dict(bp.per_tu_flags(ROOT / rel))
+    ov = os.environ.get("W64_PQ_TU_FLAGS")
+    if ov:
+        flags.update(json.loads(ov).get(rel, {}))
     lane = next((k for k in ("cc1_272", "cc1_alt", "cc1_ver") if flags.get(k)), None)
     return (str(flags.get("g_value", bp.G_VALUE)),
             [v for k, v in _FLAGMAP.items() if flags.get(k)],
@@ -277,11 +355,17 @@ def strip_redundant_externs(text):
 
 def main():
     args = [a for a in sys.argv[1:]
-            if not a.startswith("-G") and a not in ("--dialect", "--no-dialect")]
+            if not a.startswith("-G") and a not in ("--dialect", "--no-dialect",
+                                                    "--with-text-moves",
+                                                    "--probe-hooks")]
     # w63-a20: the dialect shim is ON BY DEFAULT (it is a no-op on a .s that
     # carries no GNU-only spelling).  `--dialect` is kept as an accepted no-op
     # for the w62 call sites; `--no-dialect` turns it off for A/B probes.
-    dialect = "--no-dialect" not in sys.argv
+    dialect = "--no-dialect" not in sys.argv and \
+        os.environ.get("W64_PQ_NO_DIALECT") != "1"
+    live = _probe_env()
+    if live or "--probe-hooks" in sys.argv:
+        print("probe hooks: " + (", ".join(sorted(live)) if live else "(none)"))
     rel, fn = args[0], args[1]
     rel = rel.replace("\\", "/")
     src_rel = rel[:-2] if rel.endswith(".i") else rel
@@ -294,6 +378,8 @@ def main():
     if not i_file.exists():
         sys.exit(f"no preprocessed input {i_file} (build the TU once first)")
     cc1 = CC1PL if src_rel.endswith(".cpp") else CC1
+    if os.environ.get("W64_PQ_CC1"):
+        cc1 = Path(os.environ["W64_PQ_CC1"])
     with tempfile.TemporaryDirectory() as td:
         s_out = Path(td) / "ps.s"
         r = subprocess.run([str(cc1), "-quiet", "-O2", f"-G{gval}", *tu_extra,
@@ -305,6 +391,13 @@ def main():
             b = s_out.read_bytes()
             if b.count(b"_._"):
                 s_out.write_bytes(b.replace(b"_._", b"___"))
+        # probe moves go where the gate applies them: on the compiler's .s,
+        # before the dialect rewrite (gate anchors are written against cc1's
+        # own NUMERIC register spelling).
+        nmoves = _apply_probe_moves(src_rel, s_out)
+        if nmoves is not None:
+            print(f"  W64_PQ_TEXT_MOVES_FILE: {nmoves} move row(s) for this TU"
+                  + ("  <-- NO-OP, check the tu key" if not nmoves else ""))
         if dialect:
             s_out.write_text(to_aspsx_dialect(s_out.read_text(errors="replace")))
         obj_out = Path(td) / "ps.obj"

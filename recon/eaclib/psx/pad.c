@@ -370,7 +370,38 @@ fs4\EACLIB\PSX\PAD.C is the ONLY
        spellings in this body ARE the faithful shape.  Item 2's only remaining
        angle is the loop.c giv-creation decision itself (retail's btnOff is a
        preheader giv init emitted AFTER cse, ours is a source variable cse
-       rewrites into a copy of i's zero) -- i.e. the instrumented-cc1 lane, not C. */
+       rewrites into a copy of i's zero) -- i.e. the instrumented-cc1 lane, not C.
+
+   W63-A7 2026-08-15 re-gate 2 (66/66) after the TEXT_MOVES row: item 1 IS
+   landed, and the ONE surviving item is now read off the oracle exactly.
+   Retail's preheader group is  t0=0 | lui a0 | addiu a0 | addiu a2,a0,-1 |
+   a3=0  -- i.e. btnOff's init is emitted LAST, AFTER the two state walkers,
+   and as a FRESH zero.  Ours emits it SECOND (right after i's) and as a COPY
+   `addu a3,t0,zero`.  Both halves have ONE cause: retail's btnOff is a loop.c
+   GIV (givs' preheader inits are appended after everything already there, in
+   reverse creation order -- the same law that explains item 1's $s2/$s1/$s0
+   order in loop 1), so it is created AFTER cse has run and there is no live 0
+   to copy; ours is a source BIV whose init is a plain statement with the
+   lowest luid, which cse then rewrites into a copy of i's just-materialised 0.
+   ⇒ position and content are not two dials, they are one: "make btnOff a giv".
+   RE-MEASURED IN THIS BASIN (04Z -- the w50/w59 index-form numbers were taken
+   from the pre-TEXT_MOVES 6-diff base and are stale; all of these are worse):
+     ((byte *)gPadinfo.buf)[i * 8]  / [i << 3]  / gPadinfo.buf[i].nopad, and
+     `btnOff = i * 8;` (resp. `i << 3`) assigned INSIDE the loop body so it is
+     a giv CANDIDATE rather than a biv .......... all five 13 @65 (1 SHORT)
+     explicit source walkers for the two state pointers, btnOff init after them
+       (`u_char *pt = &gPadinfo.state[0].time; u_char *pa = pt - 1;`) . 12 @66
+       (t0<->a3 swap: the walkers stop being givs and i takes a3)
+     the same walkers with both inits back in the comma header ........ 4 @66
+       (only i's init moves; the copy stays)
+     identity launder on `i` between `i = 0;` and `btnOff = 0;` ....... 21 @71
+     the same launder with btnOff's init back in the for header ....... 21 @71
+       (both: the asm barrier costs 5 real insns in the preheader)
+   The 13 @65 cluster is the same single collapse for every index spelling, so
+   the giv route is closed from C in this basin.  NOT expressible as TEXT_MOVES
+   either: moving our a3 line after the a2 line leaves the same 2 diffs (the
+   line's CONTENT is wrong, and TEXT_MOVES re-inserts the text it took).
+   Route: instrumented-cc1 (why loop.c declines the i*8 giv here), or accept. */
 void PAD_update(void)
 {
   int i;

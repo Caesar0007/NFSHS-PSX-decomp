@@ -178,7 +178,24 @@ extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
  *   exactly where our register copy already sat); `DR_MODE * volatile dr` (volatile POINTER,
  *   i.e. a real stack home for dr) = 21 / 202 insns (spills at every use); and one more
  *   colour-init order (r,g then maxx then b) on the (a) half = 6.  Both halves remain what
- *   the W52/W53 receipts say they are. */
+ *   the W52/W53 receipts say they are.
+ *
+ *   W64-A3 -- FntPrint RE-VERIFIED PASS 240/240 (the W63 TEXT_MOVES row is wired and
+ *   holding).  FntFlush's PLACEMENT axis re-probed in THIS 2-diff basin, all reverted:
+ *   a void-tail fence immediately after `dr = &fs->draw_mode;` 2 (inert) * `dr` assigned
+ *   just before the call instead of at the top 2 (inert) * `TermPrim(dr)` hoisted above
+ *   the whole field-load block 27 (200 insns) * an identity launder on `dr` right before
+ *   the call 45 (200 insns) * a void-tail fence right before the call 9 (198 insns).
+ *   MECHANISM (so the next belt starts from the right place, not from spellings): the
+ *   `dr` pseudo is SPILLED, so its def emits an output reload into $a2 plus the store,
+ *   and reload1.c's choose_reload_regs then satisfies the call-argument input reload by
+ *   INHERITING $a2 (it still validly contains the pseudo).  Retail did not inherit, i.e.
+ *   in retail $a2 was no longer valid at that point.  Nothing in this block writes $a2
+ *   (all eight following field loads are long-lived and take callee-saved registers), so
+ *   the named angle is unchanged and precise: manufacture a SHORT-LIVED value between the
+ *   spill and the call that the allocator must put in $a2 -- the 14C intruder-eviction
+ *   device -- and the inheritance is invalidated for free.  There is no such value in the
+ *   source today, and a hard-register clobber fence is pin-adjacent (user sign-off). */
 extern u_long *FntFlush(int id)
 {
     DR_MODE  *dr;

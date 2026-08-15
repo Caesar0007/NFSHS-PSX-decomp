@@ -35,7 +35,8 @@ typedef struct {
     long  jmpbuf[(0x1018 - 0x38) / 4];     /* +0x38  @0x80134B30 : setjmp buf + filler */
     int   evcb[(0x1068 - 0x1018) / 4];     /* +0x1018 @0x80135B10 : BIOS EvCB table */
 } IntrState;
-extern IntrState g_intr;               /* @0x80134AF8 */
+extern IntrState g_intr __asm__("D_80134AF8");  /* @0x80134AF8 -- storage owned by the splat
+                                                 * data blob; see the W65-A6 note at EOF */
 extern IntrState *_initIntr(void);
 
 /* MATCH (structural): the libetc callback API dispatches through a HOOK TABLE --
@@ -572,4 +573,16 @@ static void _bzero_w(int *p, int n)        /* @0x800F2E70 */
     if (n != 0) { do { *p = 0; i = i - 1; p = p + 1; } while (i != -1); }
 }
 
- IntrState g_intr;   /* owning-TU def (BSS) -- at EOF for type visibility */
+/* W65-A6: the `IntrState g_intr;` tentative definition that stood here was WRONG twice over.
+ * (1) This TU is on the cc1_272 lane (no maspsx), so it stayed a genuine `.comm g_intr,4200`
+ *     = a COMMON symbol, and ld -- not the object -- places COMMONs, so it could never reach
+ *     0x80134AF8 (W62-A18 T6: the largest of the 37 tree-wide COMMONs).
+ * (2) 0x80134AF8 is INSIDE the initialised image (< t_addr+t_size 0x8013E000), i.e. it is NOT
+ *     bss at all -- it is real, in-file data that the splat blob already owns and emits
+ *     (asm/data/data_8010CCD4_r17.data.s, `dlabel D_80134AF8` and the run after it).  A 4200-byte
+ *     zero-filled COMMON would have shadowed 4200 bytes of the retail image with zeros.
+ * FIX = the project's asm-label alias device (W64-A19 sec.2.1) on the DECLARATION: the readable
+ * name and every `&g_intr` / `g_intr.field` access are untouched, only the emitted relocation
+ * NAME changes, so it is byte-neutral by construction and creates no blob-vs-TU duplicate.
+ * The declaration at the top of this file carries the alias; nothing is defined here.
+ * Receipts: scratchpad/w65a6/RECEIPTS.md */

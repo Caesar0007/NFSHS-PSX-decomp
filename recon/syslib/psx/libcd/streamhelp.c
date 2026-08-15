@@ -35,9 +35,29 @@ extern int  DS_active;                  /* @0x8013BF68 : libds stream active */
  * -G4 small-data window) -- pin to .bss so they are not placed in .sdata/.sbss (= gp-relative). */
 #define ST_BSS __attribute__((section(".bss")))
 
-int _ds_word0   ST_BSS;   /* @0x801489D0 : last sector sub-header (slot+28) */
-int _ds_word1   ST_BSS;   /* @0x801489D4 : last sector word (slot+8)        */
-int _ds_ready_cb ST_BSS;  /* @0x801489E4 : DsReadyCallback slot             */
+/* 🔴 W65-A6: the `ST_BSS` (`section(".bss")`) attribute above is INERT on this lane -- gcc-2.7.2
+ * emits an uninitialised file-scope object as `.comm NAME,4` regardless, and this TU is on the
+ * cc1_272 lane (no maspsx to rewrite it).  `nm` reported all three as COMMON (`C`): 3 of the 37
+ * tree-wide COMMONs, which ld -- not the object -- places, so none could reach the VA its own
+ * breadcrumb names (W62-A18 T6 / W64-A19 sec.3.4).  All three ARE genuine BSS
+ * (> t_addr+t_size 0x8013E000), so they get real, object-owned definitions here, with the C
+ * view demoted to `extern` so cc1's absolute addressing is untouched (5/6 PASS unchanged,
+ * residual pre-existing).
+ * LAYOUT: _ds_word0/_ds_word1 are adjacent at 0x801489D0/D4 (they are already read as ONE
+ * struct below, `struct _ds_loc *dst = &_ds_word0`), then 8 unattributed bytes, then
+ * GlobalCallback @0x801489E0 -- so _ds_ready_cb @0x801489E4 is INSIDE GlobalCallback's span
+ * (= GlobalCallback+4, its slot 1), i.e. a THIRD retail run this object does not own alone.
+ * Emitted here in VA order with the 8-byte gap explicit; the split is a placement question for
+ * the .ld lane.  Receipts: scratchpad/w65a6/RECEIPTS.md */
+__asm__("\t.globl\t_ds_word0\n\t.globl\t_ds_word1\n\t.globl\t_ds_ready_cb\n"
+        "\t.section\t.bss\n\t.align\t2\n"
+        "_ds_word0:\n\t.space\t4\n"
+        "_ds_word1:\n\t.space\t4\n"
+        "\t.space\t8\n"          /* 0x801489D8..0x801489E0 unattributed; GlobalCallback @0x801489E0 */
+        "_ds_ready_cb:\n\t.space\t4\n\t.text");
+extern int _ds_word0;     /* @0x801489D0 : last sector sub-header (slot+28) */
+extern int _ds_word1;     /* @0x801489D4 : last sector word (slot+8)        */
+extern int _ds_ready_cb;  /* @0x801489E4 : DsReadyCallback slot (== GlobalCallback+4) */
 
 
 /* cached CD register pointers used only by StUnSetRing.  In the original these live in regular

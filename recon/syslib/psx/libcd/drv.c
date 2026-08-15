@@ -155,9 +155,33 @@ extern volatile CD_intr D_8013C224;   /* = Intr (in asm/data .bss-ish region).
 extern unsigned char D_8014899C[8];   /* sync   result */
 extern unsigned char D_801489A4[8];   /* ready  result */
 extern unsigned char D_801489AC[8];   /* data-end (c) result */
-unsigned char D_8014899C[8];
-unsigned char D_801489A4[8];
-unsigned char D_801489AC[8];
+/* ======================== W65-A6 DATA-MAT: drv.obj's BSS run @0x8014899C ==================
+ * BEFORE: D_8014899C/A4/AC were C tentative definitions.  This TU compiles on the cc1_272 lane
+ * (macro cc1 + direct GNU as, NO maspsx), so a tentative def stays a genuine `.comm` = a
+ * COMMON symbol -- and ld places COMMONs wherever it likes, so NONE of them could ever reach
+ * its retail VA (W62-A18 T6 / W64-A19 sec.3.4).  D_801489B4 was worse: extern-only with 56
+ * reloc sites, the single biggest undefined in syslib, "defined" only by a hard-coded
+ * `D_801489B4 = 0x801489B4;` row in linkers/undefined_syms_auto.txt -- an address with no
+ * storage behind it.
+ * AFTER: one file-scope asm `.section .bss` block owns the whole 36-byte run at its exact
+ * retail offsets (all VAs > t_addr+t_size 0x8013E000 => pure zero-init BSS, no file bytes):
+ *      D_8014899C  8  sync result   | D_801489A4 8 ready result | D_801489AC 8 data-end result
+ *      D_801489B4  4  alarm deadline| D_801489B8 4 spin counter | D_801489BC 4 op-name ptr
+ *      (the last three are the ONE 12-byte CD_alarm object modelled below)
+ * The C view of all six stays `extern`, so cc1 sees exactly what it saw before this change and
+ * the storage is byte-neutral BY CONSTRUCTION -- drv.c re-gates 11/13 with both residuals
+ * (CD_init_80108140 @10, CD_cw @18) at their pre-existing counts.
+ * Labels, never `sym = base+N`: ASPSX 2.77 has no symbol-assignment form (catalog 15E).
+ * Receipts: scratchpad/w65a6/RECEIPTS.md */
+__asm__("\t.globl\tD_8014899C\n\t.globl\tD_801489A4\n\t.globl\tD_801489AC\n"
+        "\t.globl\tD_801489B4\n\t.globl\tD_801489B8\n\t.globl\tD_801489BC\n"
+        "\t.section\t.bss\n\t.align\t2\n"
+        "D_8014899C:\n\t.space\t8\n"
+        "D_801489A4:\n\t.space\t8\n"
+        "D_801489AC:\n\t.space\t8\n"
+        "D_801489B4:\n\t.space\t4\n"
+        "D_801489B8:\n\t.space\t4\n"
+        "D_801489BC:\n\t.space\t4\n\t.text");
 
 /* alarm/timeout state is part of the driver's fixed data block.  These need
  * external linkage so each inlined polling helper uses absolute references,

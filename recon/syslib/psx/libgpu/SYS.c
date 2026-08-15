@@ -94,8 +94,24 @@ static volatile u_long *DMA_DPCR __attribute__((section(".bss")));  /* @0x801237
 /* @0x8013EAF8 : last value written per GP1 command (top byte = index).
  * Non-static + .bss to force gcc to use the split %hi/%lo reloc displacement
  * form (lui; addu idx; lbu/sb %lo(arr)) instead of fused lui+addiu form. */
+/* 🔴 W65-A6: the `section(".bss")` attribute here was INERT -- gcc-2.7.2 emits an
+ * uninitialised file-scope object as `.comm _gp1_shadow,256` regardless, and SYS.c is on the
+ * cc1_alt/272-style lane (no maspsx), so `nm` reported it COMMON (`C`): the last-but-one of the
+ * 37 tree-wide COMMONs.  ld -- not the object -- places COMMONs, so it could never land at
+ * 0x8013EAF8 (W62-A18 T6).  `D_8013EAD8` (2 reloc sites) was undefined outright.
+ * Both are genuine BSS (> t_addr+t_size 0x8013E000 => no file bytes) and CONTIGUOUS, so one
+ * object-owned `.section .bss` block covers the run exactly:
+ *      D_8013EAD8   @0x8013EAD8  32  (= 0x8013EAF8 - 0x8013EAD8; the _blit_buf+10 restore
+ *                                     sub-packet this TU already names at line ~192)
+ *      _gp1_shadow  @0x8013EAF8 256  (ends 0x8013EBF8; _que @0x8013EC00 follows after 8 B)
+ * The C view stays `extern`, which is ALSO what the comment above asks for (split %hi/%lo
+ * displacement form rather than a fused lui+addiu) -- byte-neutral by construction, 39/44 PASS
+ * unchanged.  Receipts: scratchpad/w65a6/RECEIPTS.md */
+__asm__("\t.globl\tD_8013EAD8\n\t.globl\t_gp1_shadow\n"
+        "\t.section\t.bss\n\t.align\t2\n"
+        "D_8013EAD8:\n\t.space\t32\n"
+        "_gp1_shadow:\n\t.space\t256\n\t.text");
 extern u_char _gp1_shadow[256];
-u_char _gp1_shadow[256] __attribute__((section(".bss")));
 
 /* ============================ SUB-GROUP 1 ============================ */
 

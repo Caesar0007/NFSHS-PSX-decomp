@@ -30,8 +30,22 @@ extern int CD_cbready;   /* @0x8013BF4C */
  * An initialised `= 0` definition lands them in .sdata under -G4 and maspsx emits the
  * 1-insn gp-relative store instead.  section(".bss") forces them out (each is written
  * exactly ONCE in CdInit -> the single-access precondition holds).  CdInit 42 -> 36. */
-int CD_cbread __attribute__((section(".bss")));        /* @0x8013C2D0 : user CdReadCallback */
-int CD_read_dma_mode __attribute__((section(".bss"))); /* @0x8013C2D4 : bit0 = DMA copy */
+/* 🔴 W65-A6 CORRECTION: the two definitions here were COMMONs AND duplicates.
+ * (a) The `section(".bss")` attribute is INERT on the cc1_272 lane -- gcc-2.7.2 emits an
+ *     uninitialised file-scope object as `.comm NAME,4` whatever the attribute says, and no
+ *     maspsx runs on this TU to rewrite it.  `nm` reported both as COMMON (`C`), i.e. 2 of the
+ *     37 tree-wide COMMONs; ld places COMMONs, so neither could reach its own breadcrumb VA.
+ * (b) Worse, they are not bss at all: 0x8013C2D0/0x8013C2D4 are inside the initialised image
+ *     (< t_addr+t_size 0x8013E000) and the splat blob ALREADY defines them, under these exact
+ *     names -- `dlabel CD_cbread` / `dlabel CD_read_dma_mode` in
+ *     asm/data/data_8010CCD4_r20.data.s.  So the tentative defs were also a blob-vs-TU double
+ *     definition (W62-A18 class M1).
+ * FIX = demote to plain `extern`, letting the blob own the storage.  The MATCH note above still
+ * holds and is now satisfied for free: an `extern` (not a tentative def) is exactly what keeps
+ * cc1 emitting the absolute `lui $at,%hi; sw ...%lo($at)` store the oracle has.  5/5 PASS
+ * unchanged.  Receipts: scratchpad/w65a6/RECEIPTS.md */
+extern int CD_cbread;             /* @0x8013C2D0 : user CdReadCallback  (blob-owned) */
+extern int CD_read_dma_mode;      /* @0x8013C2D4 : bit0 = DMA copy      (blob-owned) */
 
 
 /* ---- W60-A4: definitions below follow RETAIL VA ORDER (tu_order_audit):

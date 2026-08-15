@@ -49,6 +49,17 @@ print(f"\n  STILL OPEN ({len(set(dnow)&set(dwas))}):")
 for u, f in sorted(set(dnow) & set(dwas)):
     print(f"      {u:34} {f[:56]:58} board={board.get((u,f))}")
 
+print("\n== BRDIST HITS ON BOARD-100 ROWS (instrument disagreement) ==")
+# The board charges 0.05 per surviving argument mismatch, and a branch's target
+# IS an argument -- so a row at 100.00 whose branch distances diverge is a
+# CONTRADICTION between the two instruments.  W63 recorded two brdist vacuity
+# defects; per its own rule (a brdist row whose target is a nop is a
+# maspsx-vs-ASPSX label artifact) psyqproof arbitrates these, not brdist alone.
+anom = [(u, f) for (u, f) in brd if board.get((u, f), 0) >= 100]
+print(f"  {len(anom)} row(s)")
+for u, f in sorted(anom):
+    print(f"    {u:32} {f[:52]:54} {brd[(u,f)][-58:]}")
+
 print("\n== CLASS c -- ARTIFACTS REMAINING ==")
 for r in sorted(cls["c"]):
     u, f = r[0].split("|", 1)

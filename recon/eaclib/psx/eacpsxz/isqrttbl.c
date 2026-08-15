@@ -3,7 +3,13 @@
  *   decode (the obj name is a misnomer -- it holds the SJIS remap, not an isqrt table).
  *   Ghidra nfs4-f.exe.c + IDA sigs.
  */
-extern unsigned short DAT_8013bd50[];   /* @0x8013BD50 : ASCII(0x20..0x7f)->SJIS remap table [0x60] (rodata) */
+/* W65-A6: the old spelling `DAT_` + lowercase hex was a reloc-referenced UNDEFINED symbol (2 sites) AND a
+ * seal-criterion #3 violation (Ghidra-ism in code).  Not missing data: 0x8013BD50 is inside
+ * the initialised image (< t_addr+t_size 0x8013E000) and the splat blob already defines it as
+ * `D_8013BD50` (asm/data/data_8010CCD4_r18.data.s).  Only the SPELLING differed -- the
+ * lowercase-hex casing-phantom class (methodology gotcha #17).  Renaming to the blob's exact
+ * name is byte-neutral (relocation NAME only; TU re-gates 2/2 PASS). */
+extern unsigned short D_8013BD50[];     /* @0x8013BD50 : ASCII(0x20..0x7f)->SJIS remap table [0x60] (rodata) */
 
 extern unsigned int remapshiftjiscode(unsigned int c);      /* @0x801069C4 */
 extern int          decodeshiftjis(unsigned char **cursor); /* @0x801069EC */
@@ -18,7 +24,7 @@ extern unsigned int remapshiftjiscode(unsigned int c)
      * sll-index-vs-base scheduling tie-break, not source-reachable (methodology floor). */
     unsigned int i = c - 0x20;
     if (i < 0x60)
-        c = (unsigned int)DAT_8013bd50[i];
+        c = (unsigned int)D_8013BD50[i];
     return c;
 }
 

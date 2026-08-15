@@ -1,0 +1,752 @@
+{
+"eaclib/psx/eacpsxz/asinfunc|intarcsin": {
+"class": "a_GATE_FAIL",
+"board": 99.791664,
+"gate": 2
+},
+"eaclib/psx/eacpsxz/cdfs|CdReadyHandler": {
+"class": "d_BRANCH_REAL",
+"board": 99.98333,
+"gate": 0
+},
+"eaclib/psx/eacpsxz/stream|STREAM_cancelrequest": {
+"class": "e_STALE",
+"board": 100.0,
+"gate": 0
+},
+"eaclib/psx/pad|PAD_update": {
+"class": "a_GATE_FAIL",
+"board": 96.969696,
+"gate": 2
+},
+"eaclib/psx/sndpsxz/sdmemman|iSNDpsxmalloc": {
+"class": "a_GATE_FAIL",
+"board": 97.755905,
+"gate": 26
+},
+"eaclib/psx/sndpsxz/sdpacket|iSNDfillspuwithpackets": {
+"class": "e_STALE",
+"board": 100.0,
+"gate": 0
+},
+"frontend/common/feapp|Redraw__14tFEApplication": {
+"class": "a_GATE_FAIL",
+"board": 99.28244,
+"gate": 10
+},
+"frontend/common/feaudio|FeAudio_InitViv__FPc": {
+"class": "a_GATE_FAIL",
+"board": 85.81651,
+"gate": 7
+},
+"frontend/common/fememcard|LoadGame__FsbT1": {
+"class": "d_BRANCH_REAL",
+"board": 99.95989,
+"gate": 0
+},
+"frontend/common/fememcard|SavePinkSlipsCars__Fss": {
+"class": "d_BRANCH_REAL",
+"board": 99.977875,
+"gate": 0
+},
+"frontend/common/femenu|DrawSlider__FsssssssssbT9ss": {
+"class": "a_GATE_FAIL",
+"board": 80.73497,
+"gate": 168
+},
+"frontend/common/femenudefs|__15tGlobalMenuDefs": {
+"class": "a_GATE_FAIL",
+"board": 86.190834,
+"gate": 3365
+},
+"frontend/common/femenuextended|Draw__29tMenuItemOptionsTwoItemChoiceiib": {
+"class": "d_BRANCH_REAL",
+"board": 99.96894,
+"gate": 0
+},
+"frontend/common/femenuoptions|Draw__17tUserNameMenuItemb": {
+"class": "a_GATE_FAIL",
+"board": 98.385826,
+"gate": 8
+},
+"frontend/common/femenuoptions|ProcessInput__17tUserNameMenuItem7tPlayerR13tInputKeyTypeR12tMenuCommand": {
+"class": "d_BRANCH_REAL",
+"board": 99.979164,
+"gate": 0
+},
+"frontend/common/femenuoptions|UpdateTransition__12tOptionsMenu": {
+"class": "d_BRANCH_REAL",
+"board": 99.97093,
+"gate": 0
+},
+"frontend/common/fescreen|InitializeShapes__7tScreenR17tShapeInformationUi": {
+"class": "d_BRANCH_REAL",
+"board": 99.88095,
+"gate": 0
+},
+"frontend/common/fetv|DrawTV__FR9tTVConfig": {
+"class": "a_GATE_FAIL",
+"board": 96.592636,
+"gate": 77
+},
+"frontend/common/front|Front_InitOpponentCars__FR9tFEStream": {
+"class": "e_STALE",
+"board": 100.0,
+"gate": 0
+},
+"frontend/common/front|GetPSXPadValue__Fii": {
+"class": "a_GATE_FAIL",
+"board": 99.86487,
+"gate": 18
+},
+"frontend/common/screencarselect|DrawBackground__25tScreenCarSelectTwoPlayer": {
+"class": "d_BRANCH_REAL",
+"board": 99.9269,
+"gate": 0
+},
+"frontend/common/screencarselect|DrawOpponentVideoWall__20tScreenCarSelectDuels": {
+"class": "d_BRANCH_REAL",
+"board": 99.9315,
+"gate": 0
+},
+"frontend/common/screencarselect|DrawVideoWall__20tScreenCarSelectDuels": {
+"class": "d_BRANCH_REAL",
+"board": 99.941864,
+"gate": 0
+},
+"frontend/common/screencongrats|CalculatePrizes__23tScreenTournamentTrophy": {
+"class": "d_BRANCH_REAL",
+"board": 99.96528,
+"gate": 0
+},
+"frontend/common/screenmain|DrawBackground__11tScreenMain": {
+"class": "d_BRANCH_REAL",
+"board": 99.98783,
+"gate": 0
+},
+"frontend/common/screenmemcard|DrawMemCardStuff__14tScreenMemcards": {
+"class": "d_BRANCH_REAL",
+"board": 99.98542,
+"gate": 0
+},
+"frontend/common/screenpost|DrawBackground__26tScreenTournamentStandings": {
+"class": "a_GATE_FAIL",
+"board": 97.495544,
+"gate": 56
+},
+"frontend/common/screenusername|DrawBackground__15tScreenUserName": {
+"class": "a_GATE_FAIL",
+"board": 93.5736,
+"gate": 89
+},
+"frontend/common/statchk|StatChk_IsTopTime__FP10Car_tStatss": {
+"class": "d_BRANCH_REAL",
+"board": 99.98328,
+"gate": 0
+},
+"frontend/common/statchk|StatChk_SaveTopTime__FP10Car_tStatss": {
+"class": "a_GATE_FAIL",
+"board": 95.84375,
+"gate": 33
+},
+"frontend/psx/memcard|MCRD_handlecardevents": {
+"class": "d_BRANCH_REAL",
+"board": 99.9763,
+"gate": 0
+},
+"frontend/psx/psxfront|DrawGouraudShape__FP18tTexture_ShapeInfoiiiPii": {
+"class": "a_GATE_FAIL",
+"board": 97.11837,
+"gate": 11
+},
+"frontend/psx/psxfront|FontUpsideDownBlit__FiiPviiP12charactertbli": {
+"class": "a_GATE_FAIL",
+"board": 89.597565,
+"gate": 20
+},
+"game/common/aih_basicperp|CheckChaserPosition__16AIHigh_BasicPerpii": {
+"class": "a_GATE_FAIL",
+"board": 97.70115,
+"gate": 2
+},
+"game/common/aih_btccop|HighExecute__18AIHigh_BTC_Wingman": {
+"class": "a_GATE_FAIL",
+"board": 99.82222,
+"gate": 4
+},
+"game/common/aih_cop|HighExecute__10AIHigh_Cop": {
+"class": "a_GATE_FAIL",
+"board": 99.35206,
+"gate": 69
+},
+"game/common/aih_opp|CheckForWipeOut__15AIHigh_Opponent": {
+"class": "a_GATE_FAIL",
+"board": 85.791664,
+"gate": 50
+},
+"game/common/aih_opp|DoRearEnder__15AIHigh_Opponent": {
+"class": "e_STALE",
+"board": 100.0,
+"gate": 0
+},
+"game/common/aiphysic|AIPhysic_CalcAcceleration__FP8Car_tObji": {
+"class": "d_BRANCH_REAL",
+"board": 99.972824,
+"gate": 0
+},
+"game/common/aiphysic|AIPhysic_CheckDesiredDirection__FP8Car_tObj": {
+"class": "e_STALE",
+"board": 100.0,
+"gate": 0
+},
+"game/common/aiphysic|AIPhysic_OutOfControlPhysics__FP8Car_tObj": {
+"class": "a_GATE_FAIL",
+"board": 99.46602,
+"gate": 5
+},
+"game/common/aispeeds|AISpeeds_CalcOpponentTopSpeed__FP8Car_tObjPi": {
+"class": "b_LANE_GAP",
+"board": 99.95614,
+"gate": 0
+},
+"game/common/aistate|CheckIfCarIsNearbyAndStop__21AIState_RovingTrafficP8Car_tObjRi": {
+"class": "d_BRANCH_REAL",
+"board": 99.95413,
+"gate": 0
+},
+"game/common/audiocmn|AudioCmn_CheckState__FP8Car_tObj": {
+"class": "a_GATE_FAIL",
+"board": 99.50603,
+"gate": 4
+},
+"game/common/audiotrk|AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji": {
+"class": "d_BRANCH_REAL",
+"board": 99.98789,
+"gate": 0
+},
+"game/common/bworld|SetupChunkBuildList__FP13DRender_tView": {
+"class": "a_GATE_FAIL",
+"board": 99.08867,
+"gate": 7
+},
+"game/common/camera|Camera_UpdateHeliCam__Fii": {
+"class": "d_BRANCH_REAL",
+"board": 99.988716,
+"gate": 0
+},
+"game/common/camera|Camera_UpdateSplineCam__Fi": {
+"class": "a_GATE_FAIL",
+"board": 98.49573,
+"gate": 13
+},
+"game/common/cars|Cars_DoExtraCarCollisionProcessing__FP8Car_tObj": {
+"class": "e_STALE",
+"board": 100.0,
+"gate": 0
+},
+"game/common/cars|Cars_ResetCollidedCars__FP8Car_tObjii": {
+"class": "e_STALE",
+"board": 100.0,
+"gate": 0
+},
+"game/common/collide|Collide_DoActualObjectCollisionCheck__FP13BO_tNewtonObjT0P8coorddefT2": {
+"class": "a_GATE_FAIL",
+"board": 98.53595,
+"gate": 14
+},
+"game/common/collide|Collide_TestObjectVertices__FP13BO_tNewtonObjT0P8coorddefT2": {
+"class": "a_GATE_FAIL",
+"board": 99.72079,
+"gate": 8
+},
+"game/common/newton|Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef": {
+"class": "a_GATE_FAIL",
+"board": 76.471695,
+"gate": 71
+},
+"game/common/newton|Newton_TestForUndrivableSurfaces__FP13BO_tNewtonObj": {
+"class": "a_GATE_FAIL",
+"board": 97.53404,
+"gate": 70
+},
+"game/common/nfs3|NFS3_CheckForFileOperations__Fv": {
+"class": "a_GATE_FAIL",
+"board": 96.190475,
+"gate": 8
+},
+"game/common/pausemenu|Draw__25tPMenuItemLeftRightSliderb": {
+"class": "a_GATE_FAIL",
+"board": 98.04734,
+"gate": 8
+},
+"game/common/physics|Physics_CalculateCarAcceleration__FP8Car_tObj": {
+"class": "d_BRANCH_REAL",
+"board": 99.978874,
+"gate": 0
+},
+"game/common/physics|Physics_CalculateTireForces__FP8Car_tObjP23Physics_tWheelAccStruct": {
+"class": "e_STALE",
+"board": 100.0,
+"gate": 0
+},
+"game/common/physics|Physics_Real__FP8Car_tObj": {
+"class": "a_GATE_FAIL",
+"board": 99.971695,
+"gate": 6
+},
+"game/common/r3dcar|R3DCar_CalcCarDimensions__FP8Car_tObjP18Transformer_zScenei": {
+"class": "b_LANE_GAP",
+"board": 99.954544,
+"gate": 0
+},
+"game/common/r3dcar|R3DCar_InsertCarFacetMenu__FP8Car_tObjP13DRender_tView": {
+"class": "a_GATE_FAIL",
+"board": 99.55882,
+"gate": 12
+},
+"game/common/sim|Sim_MainGameLoop__Fv": {
+"class": "a_GATE_FAIL",
+"board": 98.67601,
+"gate": 6
+},
+"game/common/simqueue|SimQueue_SetCurrentInput__Fi": {
+"class": "a_GATE_FAIL",
+"board": 99.791664,
+"gate": 4
+},
+"game/common/speech|Report__Q26Speech15DispatchSpeakerP8Car_tObj": {
+"class": "a_GATE_FAIL",
+"board": 96.73077,
+"gate": 11
+},
+"game/common/speech|StatusReply__Q26Speech15DispatchSpeaker": {
+"class": "a_GATE_FAIL",
+"board": 99.59108,
+"gate": 5
+},
+"game/common/stats|Stats_TrackEndGame__Fv": {
+"class": "a_GATE_FAIL",
+"board": 97.11207,
+"gate": 44
+},
+"game/psx/cario|CarIO_CreateLicense__FPcii": {
+"class": "a_GATE_FAIL",
+"board": 96.812225,
+"gate": 30
+},
+"game/psx/cario|CarIO_ReadInCarTextureData__FPcP8Car_tObjii": {
+"class": "a_GATE_FAIL",
+"board": 99.69247,
+"gate": 19
+},
+"game/psx/drawc|DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache": {
+"class": "a_GATE_FAIL",
+"board": 97.52957,
+"gate": 428
+},
+"game/psx/drawc|DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache": {
+"class": "a_GATE_FAIL",
+"board": 97.44467,
+"gate": 52
+},
+"game/psx/drawc|DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache": {
+"class": "a_GATE_FAIL",
+"board": 97.66163,
+"gate": 174
+},
+"game/psx/draww|DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo": {
+"class": "a_GATE_FAIL",
+"board": 98.900925,
+"gate": 8
+},
+"game/psx/draww|DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi": {
+"class": "a_GATE_FAIL",
+"board": 81.76,
+"gate": 105
+},
+"game/psx/draww|DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo": {
+"class": "a_GATE_FAIL",
+"board": 98.862434,
+"gate": 6
+},
+"game/psx/draww|DrawW_BuildSpikeBelt__FP13DRender_tViewiP11Draw_DCache": {
+"class": "a_GATE_FAIL",
+"board": 95.12687,
+"gate": 66
+},
+"game/psx/draww|DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry": {
+"class": "a_GATE_FAIL",
+"board": 92.78829,
+"gate": 30
+},
+"game/psx/draww|DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry": {
+"class": "a_GATE_FAIL",
+"board": 92.139275,
+"gate": 86
+},
+"game/psx/draww|DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad": {
+"class": "e_STALE",
+"board": 100.0,
+"gate": 0
+},
+"game/psx/draww|DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache": {
+"class": "a_GATE_FAIL",
+"board": 98.36095,
+"gate": 101
+},
+"game/psx/draww|DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss": {
+"class": "a_GATE_FAIL",
+"board": 98.96939,
+"gate": 8
+},
+"game/psx/draww|Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark": {
+"class": "a_GATE_FAIL",
+"board": 91.07082,
+"gate": 303
+},
+"game/psx/hrzsku|HrzSetPsxMatrix__FP10matrixtdef": {
+"class": "a_GATE_FAIL",
+"board": 68.80357,
+"gate": 62
+},
+"game/psx/hrzsku|Hrz_BuildHorizon__FP13DRender_tView": {
+"class": "a_GATE_FAIL",
+"board": 95.56026,
+"gate": 118
+},
+"game/psx/hrzsku|Hrz_BuildSky__Fv": {
+"class": "a_GATE_FAIL",
+"board": 93.534935,
+"gate": 370
+},
+"game/psx/hud|Hud_BuildCdPlayer__Fii": {
+"class": "a_GATE_FAIL",
+"board": 96.36211,
+"gate": 58
+},
+"game/psx/hud|Hud_BuildMapMarkers__Fi": {
+"class": "a_GATE_FAIL",
+"board": 91.30844,
+"gate": 54
+},
+"game/psx/hud|Hud_BuildNumbers__Fi": {
+"class": "a_GATE_FAIL",
+"board": 93.5343,
+"gate": 200
+},
+"game/psx/hud|Hud_BuildString__FPciiiib": {
+"class": "d_BRANCH_REAL",
+"board": 99.976746,
+"gate": 0
+},
+"game/psx/hud|Hud_BuildTach__Fi": {
+"class": "a_GATE_FAIL",
+"board": 95.171005,
+"gate": 20
+},
+"game/psx/hud|Hud_BuildTimeSprites__FP4SPRTPcii": {
+"class": "a_GATE_FAIL",
+"board": 95.233765,
+"gate": 21
+},
+"game/psx/hud|Hud_Init__Fv": {
+"class": "a_GATE_FAIL",
+"board": 99.30609,
+"gate": 8
+},
+"game/psx/hud|Hud_RenderHudView__Fv": {
+"class": "e_STALE",
+"board": 100.0,
+"gate": 0
+},
+"game/psx/hud|Hud_RenderTacView__Fv": {
+"class": "a_GATE_FAIL",
+"board": 92.521126,
+"gate": 13
+},
+"game/psx/night|Night_AdditiveNightCalc__FP6VECTORP7CVECTOR": {
+"class": "a_GATE_FAIL",
+"board": 83.875,
+"gate": 59
+},
+"game/psx/night|Night_CreateNightTableElement__FiliPUc": {
+"class": "a_GATE_FAIL",
+"board": 95.28319,
+"gate": 26
+},
+"game/psx/night|Night_SetEnviroment__FP13DRender_tView": {
+"class": "X_BOARD100_GATEFAIL",
+"board": 100.0,
+"gate": 2
+},
+"game/psx/overlays|Hud_BTCStats__Fsb": {
+"class": "a_GATE_FAIL",
+"board": 99.02537,
+"gate": 24
+},
+"game/psx/overlays|RaceStatistics__Fv": {
+"class": "a_GATE_FAIL",
+"board": 93.65053,
+"gate": 94
+},
+"game/psx/psxcontroller|InGame_GetPSXPadValue__Fii": {
+"class": "a_GATE_FAIL",
+"board": 84.39056,
+"gate": 168
+},
+"game/psx/psxcontroller|InGame_SetRamp__Fv": {
+"class": "e_STALE",
+"board": 100.0,
+"gate": 0
+},
+"game/psx/sfx|Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle": {
+"class": "a_GATE_FAIL",
+"board": 98.09168,
+"gate": 116
+},
+"game/psx/weather|Weather_ChangeDensityBasedOnTime__Fv": {
+"class": "d_BRANCH_REAL",
+"board": 99.90741,
+"gate": 0
+},
+"game/psx/weather|Weather_DoWeather__FP13DRender_tView": {
+"class": "a_GATE_FAIL",
+"board": 97.766495,
+"gate": 6
+},
+"syslib/psx/2mbyte/2mbyte|stup0": {
+"class": "b_LANE_GAP",
+"board": 42.857143,
+"gate": 0
+},
+"syslib/psx/libapi/FIRST|firstfile": {
+"class": "a_GATE_FAIL",
+"board": 96.50485,
+"gate": 5
+},
+"syslib/psx/libc/SPRINTF|sprintf": {
+"class": "a_GATE_FAIL",
+"board": 98.97982,
+"gate": 44
+},
+"syslib/psx/libcard/PATCH|func_8010CA40": {
+"class": "b_LANE_GAP",
+"board": 97.77778,
+"gate": 0
+},
+"syslib/psx/libcd/cdread|CdRead": {
+"class": "a_GATE_FAIL",
+"board": 98.398056,
+"gate": 5
+},
+"syslib/psx/libcd/cdread|_read_int": {
+"class": "a_GATE_FAIL",
+"board": 97.19745,
+"gate": 15
+},
+"syslib/psx/libcd/cdread|_read_issue": {
+"class": "a_GATE_FAIL",
+"board": 96.14754,
+"gate": 8
+},
+"syslib/psx/libcd/drv|CD_cw": {
+"class": "a_GATE_FAIL",
+"board": 96.71815,
+"gate": 18
+},
+"syslib/psx/libcd/drv|CD_init_80108140": {
+"class": "a_GATE_FAIL",
+"board": 94.291664,
+"gate": 10
+},
+"syslib/psx/libcd/iso9660|CD_newmedia": {
+"class": "a_GATE_FAIL",
+"board": 98.18079,
+"gate": 11
+},
+"syslib/psx/libcd/iso9660|CdSearchFile": {
+"class": "a_GATE_FAIL",
+"board": 92.74176,
+"gate": 19
+},
+"syslib/psx/libcd/stcdint|StCdInterrupt": {
+"class": "a_GATE_FAIL",
+"board": 97.38422,
+"gate": 27
+},
+"syslib/psx/libcd/stcdint|_st_dma": {
+"class": "a_GATE_FAIL",
+"board": 92.73585,
+"gate": 25
+},
+"syslib/psx/libcd/streamhelp|StGetNext": {
+"class": "d_BRANCH_REAL",
+"board": 99.891304,
+"gate": 0
+},
+"syslib/psx/libcd/streamhelp|data_ready_callback": {
+"class": "a_GATE_FAIL",
+"board": 89.42857,
+"gate": 9
+},
+"syslib/psx/libcd/toc|CdGetToc2": {
+"class": "e_STALE",
+"board": 100.0,
+"gate": 0
+},
+"syslib/psx/libetc/INTR|_initIntr": {
+"class": "a_GATE_FAIL",
+"board": 99.62963,
+"gate": 6
+},
+"syslib/psx/libetc/INTR|_intrhand": {
+"class": "a_GATE_FAIL",
+"board": 91.37069,
+"gate": 30
+},
+"syslib/psx/libetc/INTR|_set_intr_callback": {
+"class": "a_GATE_FAIL",
+"board": 97.17073,
+"gate": 25
+},
+"syslib/psx/libetc/INTR_DMA|func_80106878": {
+"class": "a_GATE_FAIL",
+"board": 78.60465,
+"gate": 36
+},
+"syslib/psx/libgpu/FONT|FntFlush": {
+"class": "a_GATE_FAIL",
+"board": 98.99497,
+"gate": 2
+},
+"syslib/psx/libgpu/FONT|FntPrint": {
+"class": "d_BRANCH_REAL",
+"board": 99.979164,
+"gate": 0
+},
+"syslib/psx/libgpu/SYS|MoveImage": {
+"class": "e_STALE",
+"board": 100.0,
+"gate": 0
+},
+"syslib/psx/libgpu/SYS|PutDispEnv": {
+"class": "a_GATE_FAIL",
+"board": 98.99371,
+"gate": 38
+},
+"syslib/psx/libgpu/SYS|_drs": {
+"class": "a_GATE_FAIL",
+"board": 98.675,
+"gate": 10
+},
+"syslib/psx/libgpu/SYS|_dws": {
+"class": "a_GATE_FAIL",
+"board": 98.937065,
+"gate": 8
+},
+"syslib/psx/libgpu/SYS|_gpu_que_drain": {
+"class": "a_GATE_FAIL",
+"board": 92.99342,
+"gate": 14
+},
+"syslib/psx/libgpu/SYS|_set_draw_mode": {
+"class": "a_GATE_FAIL",
+"board": 98.75,
+"gate": 2
+},
+"syslib/psx/libmath/ADDDF3|__adddf3": {
+"class": "a_GATE_FAIL",
+"board": 97.502266,
+"gate": 8
+},
+"syslib/psx/libmath/DIVDF3|__divdf3": {
+"class": "a_GATE_FAIL",
+"board": 94.79891,
+"gate": 16
+},
+"syslib/psx/libmath/DIVSF3|__divsf3": {
+"class": "b_LANE_GAP",
+"board": 99.87654,
+"gate": 0
+},
+"syslib/psx/libmath/FIXDFSI|__fixdfsi": {
+"class": "a_GATE_FAIL",
+"board": 94.12698,
+"gate": 5
+},
+"syslib/psx/libmath/MULDF3|__muldf3": {
+"class": "e_STALE",
+"board": 100.0,
+"gate": 0
+},
+"syslib/psx/libmath/MULDF3|_mul_mant_d": {
+"class": "a_GATE_FAIL",
+"board": 95.15254,
+"gate": 8
+},
+"syslib/psx/libmcrd/LIBMCRD|MemCardCreateFile": {
+"class": "a_GATE_FAIL",
+"board": 93.88461,
+"gate": 12
+},
+"syslib/psx/libmcrd/LIBMCRD|MemCardDeleteFile": {
+"class": "a_GATE_FAIL",
+"board": 97.24324,
+"gate": 5
+},
+"syslib/psx/libmcrd/LIBMCRD|MemCardGetDirentry": {
+"class": "a_GATE_FAIL",
+"board": 93.86842,
+"gate": 36
+},
+"syslib/psx/libmcrd/LIBMCRD|MemCardWriteData_cb": {
+"class": "d_BRANCH_REAL",
+"board": 99.93671,
+"gate": 0
+},
+"syslib/psx/libpad/MCXMAIN|_padIntRecvData": {
+"class": "d_BRANCH_REAL",
+"board": 99.97758,
+"gate": 0
+},
+"syslib/psx/libpad/MCXMAIN|_padIntRecvHdr": {
+"class": "d_BRANCH_REAL",
+"board": 99.71429,
+"gate": 0
+},
+"syslib/psx/libpad/PADCMD|_padLoadActInfo_rcv": {
+"class": "a_GATE_FAIL",
+"board": 95.605095,
+"gate": 14
+},
+"syslib/psx/libpad/PADMAIN|_padInitSioMode": {
+"class": "a_GATE_FAIL",
+"board": 96.78049,
+"gate": 24
+},
+"syslib/psx/libpad/PADPORTD|_pad_failall": {
+"class": "a_GATE_FAIL",
+"board": 93.57377,
+"gate": 17
+},
+"syslib/psx/libpad/PADPORTD|_pad_filter": {
+"class": "e_STALE",
+"board": 100.0,
+"gate": 0
+},
+"syslib/psx/libpad/PADPORTD|_pad_getbyte": {
+"class": "a_GATE_FAIL",
+"board": 92.12766,
+"gate": 5
+},
+"syslib/psx/libpad/PADSEQD|_dirSendAuto": {
+"class": "d_BRANCH_REAL",
+"board": 99.921875,
+"gate": 0
+},
+"syslib/psx/libpad/PADSEQD|_padInitDirSeq": {
+"class": "a_GATE_FAIL",
+"board": 87.69231,
+"gate": 3
+}
+}

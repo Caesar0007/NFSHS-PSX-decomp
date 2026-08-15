@@ -41,8 +41,24 @@ static volatile int    *_d3_chcr     ST_DATA = (volatile int   *)0x1F8010B8;  /*
  * every use, so it is a global, not a register-cached local. */
 #define ST_BSS __attribute__((section(".bss")))
 
-u_short *_st_slot ST_BSS;   /* @0x80144864 : cached current ring slot                 */
-int      debug_cause ST_BSS;   /* @0x80136AE0 : last interrupt stage/abort code (debug) */
+/* 🔴 W65-A6: the `ST_BSS` (`section(".bss")`) attribute above is INERT on this lane -- gcc-2.7.2
+ * emits an uninitialised file-scope object as `.comm NAME,size` regardless, and this TU is on
+ * the cc1_272 lane (no maspsx to rewrite it).  `nm` reported BOTH as COMMON (`C`): 2 of the 37
+ * tree-wide COMMONs, placed by ld rather than by the object, so neither can reach the VA its
+ * own breadcrumb names (W62-A18 T6).
+ * `_st_slot` is real BSS (0x80144864 > t_addr+t_size 0x8013E000) and is given a real,
+ * object-owned definition below.  Its slot runs to StFunc1 @0x80144874 (16 B); only the 4-byte
+ * pointer is attributable, the trailing 12 B are recorded as unattributed, not invented.
+ * `debug_cause` is NOT bss: 0x80136AE0 is inside the initialised image and the splat blob
+ * already emits that word -- but inside a larger `dlabel` run, so there is no name to alias to
+ * yet.  It therefore STAYS a COMMON here, deliberately: demoting it to `extern` would only turn
+ * a COMMON into an undefined symbol.  ACTION FOR THE BLOB/.ld LANE: cut a `dlabel D_80136AE0`
+ * at 0x80136AE0 in asm/data/data_8010CCD4_r17.data.s, then this line becomes
+ * `extern int debug_cause __asm__("D_80136AE0");` (byte-neutral, same device as INTR.c's
+ * g_intr).  Receipts: scratchpad/w65a6/RECEIPTS.md */
+__asm__("\t.globl\t_st_slot\n\t.section\t.bss\n\t.align\t2\n_st_slot:\n\t.space\t4\n\t.text");
+extern u_short *_st_slot;   /* @0x80144864 : cached current ring slot                 */
+int      debug_cause ST_BSS;   /* @0x80136AE0 : last interrupt stage/abort code (debug); see above */
 
 
 /* ---- streaming state (stream.cpp) ------------------------------------------------------------- */

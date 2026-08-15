@@ -56,14 +56,45 @@ extern int      CD_debug;   /* @0x8013BF50 (DRV) */
 extern int      CD_nopen;   /* @0x8013BF5C : media-change counter (CDROM.OBJ) */
 
 /* ---- ISO9660.OBJ .bss -------------------------------------------------------------------------- */
-CdlFILE   _cd_dir[64];          /* @0x8014487C */
-CdPathEnt _cd_pathtbl[128];     /* @0x80144E7C */
-char      _cd_secbuf[0x800];    /* @0x8014647C */
+/* ======================== W65-A6 DATA-MAT: iso9660.obj's BSS run @0x8014487C ==============
+ * BEFORE: three C tentative definitions.  This TU compiles on the cc1_272 lane (macro cc1 +
+ * direct GNU as, NO maspsx), so each stayed a real `.comm` = a COMMON symbol -- and ld places
+ * COMMONs, not the object, so none of them could reach the retail VA in its own breadcrumb
+ * (W62-A18 T6 / W64-A19 sec.3.4).  These three are 3 of the 37 tree-wide COMMONs.
+ * AFTER: one file-scope asm `.section .bss` block owns the run at exact retail offsets.
+ * The run is EXACTLY accounted and independently confirmed: 0x8014487C is StFunc2+4 (libcd
+ * stream.c's run A) and 1536 + 5632 + 2048 = 9216 lands precisely on StEmu_Addr @0x80146C7C
+ * (stream.c's run B) -- i.e. these buffers are the whole gap between the two St* runs, which is
+ * also why the SYM has no record for them (PSYLINK gave COMMONs no symbol entries).
+ *      _cd_dir     @0x8014487C 1536 = sizeof(CdlFILE)*64
+ *      _cd_pathtbl @0x80144E7C 5632 = sizeof(CdPathEnt)*128
+ *      _cd_secbuf  @0x8014647C 2048 = one CD sector buffer
+ * ORDER: declaration order is preserved from the previous tentative-definition list; the run's
+ * total is pinned by both endpoints, the internal order is the one already recorded here.
+ * The C view is demoted to `extern` so cc1's addressing is unchanged -- byte-neutral by
+ * construction (TU re-gates 4/6, both residuals pre-existing).
+ * Receipts: scratchpad/w65a6/RECEIPTS.md */
+__asm__("\t.globl\t_cd_dir\n\t.globl\t_cd_pathtbl\n\t.globl\t_cd_secbuf\n"
+        "\t.section\t.bss\n\t.align\t2\n"
+        "_cd_dir:\n\t.space\t1536\n"
+        "_cd_pathtbl:\n\t.space\t5632\n"
+        "_cd_secbuf:\n\t.space\t2048\n\t.text");
+extern CdlFILE   _cd_dir[64];          /* @0x8014487C */
+extern CdPathEnt _cd_pathtbl[128];     /* @0x80144E7C */
+extern char      _cd_secbuf[0x800];    /* @0x8014647C */
 /* _cd_search_nopen / _cd_cached_dir live in regular .bss (absolute addressing in the oracle,
  * NOT %gp_rel under -G4) -- declared extern so cc1plus emits `lui/%hi` not a gp-relative load.
  * Their definitions are part of the linked image's .bss (see asm/data D_80136C6C / D_80136C68). */
-extern int _cd_search_nopen;    /* @0x80136C6C : CD_nopen the path table was built for */
-extern int _cd_cached_dir;      /* @0x80136C68 : index of the directory currently in _cd_dir */
+/* W65-A6: these two were reloc-referenced UNDEFINED symbols (4 + 6 sites) -- but NOT missing
+ * data.  Both VAs are inside the initialised image (< t_addr+t_size 0x8013E000) and the splat
+ * blob already defines them, as `D_80136C6C` / `D_80136C68`
+ * (asm/data/data_8010CCD4_r17.data.s, both `.word 0x00000000`).  `_cd_search_nopen` /
+ * `_cd_cached_dir` are PsyQ-sourced names for the same storage, so the fix is the project's
+ * established asm-label alias device (W64-A19 sec.2.1) rather than a second definition: the
+ * readable name is kept in the C, only the emitted relocation NAME changes, so it is
+ * byte-neutral by construction AND creates no blob-vs-TU duplicate (W62-A18 class M1). */
+extern int _cd_search_nopen __asm__("D_80136C6C"); /* @0x80136C6C : CD_nopen the path table was built for */
+extern int _cd_cached_dir   __asm__("D_80136C68"); /* @0x80136C68 : index of the dir currently in _cd_dir */
 
 /* little-endian unaligned 32-bit load (matches the lwl/lwr pairs in the binary). */
 static int rd32le(const u_char *p)

@@ -524,6 +524,16 @@ static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,
   }
 }
 
+/* ---- w63-a13 (2026-08-15): 116 STAYS @938/938, and a per-opcode census against the
+ * oracle (scratchpad/w63a13/opcen.py, using verify_asm's own normalizers) now CERTIFIES
+ * the class: the two instruction streams have an IDENTICAL OPCODE MULTISET -- not one
+ * opcode differs in count, at an identical total of 938.  So there is no missing call, no
+ * missing arm, no width/signedness defect, no mis-selected GTE or OT-link macro anywhere
+ * in this 938-instruction function; the entire 116 is register assignment and issue
+ * order.  That closes the whole structural-defect family for it (the w62-a13 alias-dial
+ * and cursor-re-read probes were already negative) and routes the residual to the
+ * allocator/scheduler lane only.  This census is a cheap opening move on any count-exact
+ * far-miss and should be run before any further spelling work here. */
 /* ---- Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle  [SFX.CPP:367-525] ----
  * REWRITTEN 2026-07-31 (w38-a5) against the raw oracle CFG.  The prior in-file claim of
  * "74 diffs (864/938)" was STALE -- the gate measured 1346 at wave start.  Structure taken

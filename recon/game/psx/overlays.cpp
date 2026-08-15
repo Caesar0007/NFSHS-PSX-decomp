@@ -392,6 +392,32 @@ void RaceStatistics(void)
      short), CAB/ACB = 94 (identical to the current ABC).  Statement order is therefore
      NOT the lever for the synth-mult-vs-mult split; the shift chain for 0x4b is shared
      into 0x96 regardless of which statement expands first. */
+  /* ---- w63-a13 (2026-08-15): 94 STAYS @471/475.  NEW READING OF THE PROLOGUE -- retail
+     does not name ONE constant, it names THREE, and every earlier wave probed only the
+     first: `addiu $a1,$zero,0x96` (insn 4), `addiu $s7,$zero,0xA0` (insn 6) and
+     `addiu $s2,$zero,1` (insn 8).  $s7 is the POS_X centre (`subu s4,s7,v1` = 0xA0 - n*75)
+     and $s2 is the compare operand for BOTH `== 1` tests (`bne a2,s2` numLaps,
+     `bne v0,s2` raceType).  So the retail source held pitch/centre/one in locals, which is
+     what makes 0x96 a non-CONST_INT operand at expand time = the real `mult`.
+     A per-opcode census against the oracle (scratchpad/w63a13/opcen.py) prices the whole
+     4-insn shortfall exactly: `mult 0v1  mflo 0v1  addiu 68v70  addu 54v55  sll 53v52`.
+     MEASURED (13F/04Z: land the SET, not one member -- all re-gated):
+        pitch alone                    139 @472    (re-confirms the w49 measurement)
+        pitch + centre                 142 @473
+        pitch + centre + one           152 @473    <- the mult appears; 2 short, not 4
+        centre + one (no pitch)        129 @470
+        pitch + one                    144 @473
+     ⇒ the named-constant SET moves the INSN COUNT the right way (471 -> 473 of 475) and
+     produces retail's `mult`/`mflo`, but the LCS gate rises because the head register
+     band rotates.  This is exactly the hard-floor-basin case the AGENT_GUIDE rule 9
+     describes, and it is the SAME pairing the w41-a4 note already flagged for the
+     `rows` local ("land it TOGETHER with the head register rotation (ours s1/s4/s7/s2 vs
+     oracle s4/s7/s2/s3)").  UNWOUND here for lack of budget to complete the paired step.
+     NEXT TAKER: start from `all_three` (473/475) and treat the head band as the ONLY
+     remaining problem -- retail's s7/s2 are the two named constants themselves, so the
+     rotation is very likely a consequence of WHERE the three initialisers sit, not an
+     independent tie.  Sweep their statement positions (the w45 stmtclimb family) before
+     touching anything else. */
   HUD_STATS_SIZE_W = Cars_gNumHumanRaceCars * 0x96;
   HUD_STATS_POS_X = 0xa0 - Cars_gNumHumanRaceCars * 0x4b;
   /* the numLaps==1 arm RE-COMPUTES `(numLaps+1)*0xc + 0x1c` (oracle @0x800DA044
@@ -653,6 +679,21 @@ void RaceStatistics(void)
  *      tie, and the two SIBLING sites in the same fn already match with `t0`.
  *  (e) 387-389, a one-slot nop/lhu/lui rotation around a beqz delay slot (ours fills the
  *      slot with the `lui`, retail nops it and issues the `lhu` first). */
+/* ---- w63-a13 (2026-08-15): 24 STAYS @473/473.  A per-opcode census against the oracle
+ * (scratchpad/w63a13/opcen.py) reduces the whole residual to TWO opcodes:
+ *     subu 12 v 11      nop 24 v 25
+ * i.e. ours spends ONE EXTRA `subu` in the col-loop's postgame arm and retail spends one
+ * extra `nop` elsewhere -- exactly the cluster (b) the w44/w45/w46/w50/w60 stack has been
+ * grinding, and NOTHING else.  That is worth recording because it bounds the problem
+ * hard: there is no second structural defect hiding under the 24, and any lever that
+ * removes our extra `subu` without disturbing the rest is a seal.
+ * The arm is `SIZE_H - ((startY+0xf + (postgame?8:0)) - POS_Y)`; fold rewrites it to
+ * `s0 - (POS_Y - 8)` (3 insns) while retail has `yoff + 8` then `SIZE_H - that` (2).
+ * Both natural spellings fold in OPPOSITE directions and retail folded NEITHER (w60-a7),
+ * so the remaining route is a fold ESCAPE, not a choice between the two folds -- the
+ * catalog's FOLD-REWRITE ESCAPE row (split_tree's varsign=-1 branch: fold never re-folds
+ * its own rewrite output) is the one device this receipt stack has never tried, and it is
+ * the named next angle. */
 /* HIDDEN-PHANTOM FIX (w14-a2): oracle mangles __Fsb (short,bool) -- 2nd param was `int`, mangling
  * __Fsi, a NAME MISMATCH invisible to the gate (same class as the AudioCmn_GetAsyncSfx precedent).
  * SYM confirms `class ARG type BOOL name postgame`. */

@@ -93,27 +93,49 @@ extern int CdGetToc(CdlLOC *loc)
  *       and the whole swap resolves: 40 -> 10.  The two rivals do not conflict, so
  *       track_first then shares $s0 with the (dead-by-then) result-buffer pointer and the
  *       cursor is pushed to $s1 -- retail's handout, register for register.
- * RESIDUAL 4 (the ONLY diff left, ours 139 / oracle 137): the hoisted $s5 magic is still
- *   NOT SHARED with the division's own expansion -- we emit `lui v0,26214; ori v0,v0,26215;
- *   mult s0,v0` inside the loop where retail has the bare `mult s0,s5`.  MECHANISM (this
- *   is now a precise claim, not a guess): the fenced `magic` pseudo is set in the PREHEADER
- *   block and the division's constant is loaded in the LOOP-BODY block; gcc-2.7.2's cse
- *   works per extended basic block and the loop body is a multi-predecessor block, so cse
- *   never learns that the live $s5 already holds 0x66666667, and loop.c does not hoist the
- *   division's own const load (removing the magic local entirely proves this: 18 diffs at
- *   135 insns -- no hoist at all, and the frame loses a callee-saved register).
- *   FALSIFIED for the sharing (all measured in THIS basin, all still 4 diffs / 139 insns,
- *   i.e. INERT): the fence moved AFTER the division statement; `track_first / 10` spelled
- *   twice so the constant has two uses; a split `tens = track_first / 10;` statement.
- *   FALSIFIED and WORSE: the explicit multiply-high `(int)(((long long)track_first * magic)
- *   >> 32)` driven off `magic` -- 73 diffs at 140, because 2.7.2 expands the DImode form as
- *   a FULL 64-bit multiply (`mfhi` AND `mflo` + an extra shift pair), not the `smulsi3
- *   highpart` retail uses; dropping the magic local and fencing only track_first, 18 @135.
- *   NEXT ANGLE (named): the only remaining route is to make loop.c hoist the DIVISION's own
- *   const load (retail's actual mechanism) instead of carrying a second value -- i.e. a
- *   loop.c-level instrument (`-dL` loop dump on the lane binary, which W60-A1 proved
- *   CC1PSX accepts) to find why the invariant `(set (reg) (const_int 1717986919))` is not
- *   in `move_movables`' list here. */
+ * *** W64-A5 -- SEALED, PASS 137/137, pin-free. ***  The residual above (the division's own
+ *   reciprocal materialised INSIDE the loop) is gone, and the mechanism is now fully read
+ *   off the compiler + priced with tools/qty272.py before a single spelling was tried.
+ *
+ *   (1) THE HOIST.  loop.c enters `(set (reg) (const_int 1717986919))` as a movable and
+ *       declines it at loop.c:1640 on `(threshold * savings * m->lifetime) >= insn_count`
+ *       -- savings = n_times_SET-in-loop = 1 (loop.c:600 copies n_times_set into
+ *       n_times_used, so `savings` is NOT the use count and is not source-reachable), and
+ *       `lifetime` (loop.c:793) is the luid distance from the const's set to its last use,
+ *       which is 1 because expand_divmod emits the const IMMEDIATELY before the mult.
+ *       threshold = 1 * (1 + n_non_fixed_regs) (loop.c:535; this loop has a call so the x2
+ *       is lost) and measures < 31 = insn_count on this lane.  ==> the ONLY reachable input
+ *       is LIFETIME, and ONE extra luid flips it.
+ *       CURE: `magic = 0x66666667;` as the FIRST statement of the loop body (cse merges it
+ *       with the division's own constant -- same block, so the extended-basic-block limit
+ *       that blocked the old PREHEADER spelling does not apply) plus ONE zero-insn insn
+ *       between that set and the division: the read-only fence.  `-dL` then prints
+ *           Insn 149: regno 79 (life 2), move-insn savings 1  moved to 371
+ *       i.e. the hoist LANDS, in retail's preheader ORDER (const first, giv init second --
+ *       move_movables runs before strength_reduce and both emit before loop_start).
+ *   (2) THE REGISTER BAND, priced from the .greg table (gcc-2.7.2 allocno priority =
+ *       floor_log2(refs)*refs/live, NO size term -- W60 12A).  With the hoist landed the
+ *       handout was still rotated; the two required deltas were computed, not guessed:
+ *         - `track_first` (p74) 11724 vs the loop cursor (p169) 11785 -- a razor.  refs
+ *           17 -> 18 gives floor_log2(18)*18/59 = 12203 > 11785, so track_first takes $s0
+ *           and the cursor is pushed to $s1 (retail).
+ *         - `magic` (p79) at refs 5 / live 30 = 3333 outranked `loc` (p73, 1445) and stole
+ *           $s3.  Moving its fence operand OUT of the loop costs it one loop-weighted ref
+ *           (5 -> 4) AND stretches its live range past the loop (30 -> 77): 1038 < 1428,
+ *           so it drops below `loc` and lands on retail's $s5.
+ *       BOTH deltas are bought by ONE post-loop 2-operand read-only fence.  Measured table
+ *       (all count-EXACT 137 unless noted): in-loop fence(magic,track_first) 54 / 22 with
+ *       the fence written BEFORE the set / 2 with an extra preheader fence(loc) / 18 @135
+ *       with no magic operand at all (no hoist) / 32 with a post-loop fence(magic) alone /
+ *       30 with the post-loop fence moved INSIDE the guard / PASS with the post-loop
+ *       fence(magic,track_first); fence(track_first,track_first) in-loop + post-loop
+ *       fence(magic) also PASSes.  Falsified as dials here: promoting `loc` with extra
+ *       fence operands (24), a 3rd/4th track_first operand (22), two separate in-loop
+ *       fences (22), a preheader copy of the magic assignment (54).
+ *   NOTE on the post-loop fence: it names `magic`, which is indeterminate on the path where
+ *   the guarded loop never runs.  The template is empty, so nothing is emitted or read; the
+ *   two placements that avoid it (inside the guard, or a preheader initialiser) were both
+ *   measured WORSE (30 and 54) -- this is the position the allocator needs. */
 extern int CdGetToc2(int n, CdlLOC *loc)
 {
     int track_first;
@@ -191,9 +213,12 @@ extern int CdGetToc2(int n, CdlLOC *loc)
 
     i = 1;
     if (track_first <= track_last) {
-        magic = 0x66666667;
         do {
-            __asm__("" : : "r"(magic), "r"(track_first));   /* MATCH (W60-A4): see the receipt above */
+            magic = 0x66666667;                             /* MATCH (W64-A5): the DIVISION's own
+                                                             * reciprocal -- cse merges the two, and
+                                                             * the fence below buys it lifetime 2 so
+                                                             * loop.c's move_movables hoists it. */
+            __asm__("" : : "r"(track_first));               /* MATCH (W60-A4/W64-A5): see above */
             param[0] = (u_char)(((track_first / 10) << 4) + track_first % 10);   /* track # -> BCD */
             if (CdControlB(0x14, param, result) == 0)
                 goto err;
@@ -204,6 +229,7 @@ extern int CdGetToc2(int n, CdlLOC *loc)
             track_first++;
         } while (track_first <= track_last);
     }
+    __asm__("" : : "r"(magic), "r"(track_first));           /* MATCH (W64-A5): see above */
     nTrack = i - 1;
 
     if (CD_debug >= 2) {

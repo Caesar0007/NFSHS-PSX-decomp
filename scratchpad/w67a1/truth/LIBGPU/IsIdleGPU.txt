@@ -1,0 +1,30 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / BREAK / IsIdleGPU
+linkage=export  section-size=96 bytes (24 words)  vendor-relocs=3
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c060000  --------     lui	a2,0x0                          <HI16 (0x10 + .data(base))>
+0004  8cc60280  --------     lw	a2,640(a2)                       <LO16 (0x10 + .data(base))>
+0008  00002821  --------     move	a1,zero                      
+000c  8cc20000  --------     lw	v0,0(a2)                       
+0010  3c030400  --------     lui	v1,0x400                      
+0014  00431024  --------     and	v0,v0,v1                      
+0018  1440000f  --------     bnez	v0,0x58                      
+001c  00001021  --------     move	v0,zero                      
+0020  00c01821  --------     move	v1,a2                        
+0024  3c060400  --------     lui	a2,0x400                      
+0028  00a01021  --------     move	v0,a1                        
+002c  0082102a  --------     slt	v0,a0,v0                      
+0030  10400003  --------     beqz	v0,0x40                      
+0034  24a50001  --------     addiu	a1,a1,1                     
+0038  0800003b  --------     j	0xec                              <REL26 (0xEC + .text(base))>
+003c  2402ffff  --------     li	v0,-1                          
+0040  8c620000  --------     lw	v0,0(v1)                       
+0044  00000000  --------     nop                               
+0048  00461024  --------     and	v0,v0,a2                      
+004c  1040fff7  --------     beqz	v0,0x2c                      
+0050  00a01021  --------     move	v0,a1                        
+0054  00001021  --------     move	v0,zero                      
+0058  03e00008  --------     jr	ra                             
+005c  00000000  --------     nop                               

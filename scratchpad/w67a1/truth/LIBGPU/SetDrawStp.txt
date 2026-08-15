@@ -1,0 +1,17 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / SYS / SetDrawStp
+linkage=export  section-size=40 bytes (10 words)  vendor-relocs=1
+retail VA=0x800EE394  VERDICT=reloc-only
+member $Id: $Id: sys.c,v 1.140 1998/01/12 07:52:27 noda Exp yos $
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  24020002  24020002  =  li	v0,2                           
+0004  10a00004  10a00004  =  beqz	a1,0x18                      
+0008  a0820003  a0820003  =  sb	v0,3(a0)                       
+000c  3c02e600  3c02e600  =  lui	v0,0xe600                     
+0010  08000491  0803b8ec  R  j	0x1244                            <REL26 (0x1244 + .text(base))>
+0014  34420001  34420001  =  ori	v0,v0,0x1                     
+0018  3c02e600  3c02e600  =  lui	v0,0xe600                     
+001c  ac820004  ac820004  =  sw	v0,4(a0)                       
+0020  03e00008  03e00008  =  jr	ra                             
+0024  ac800008  ac800008  =  sw	zero,8(a0)                     

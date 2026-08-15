@@ -1,0 +1,22 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / FONT / SetDumpFnt
+linkage=export  section-size=64 bytes (16 words)  vendor-relocs=8
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  0480000d  --------     bltz	a0,0x38                      
+0004  00000000  --------     nop                               
+0008  3c020000  --------     lui	v0,0x0                          <HI16 (0x180 + .data(base))>
+000c  8c420ca0  --------     lw	v0,3232(v0)                      <LO16 (0x180 + .data(base))>
+0010  00000000  --------     nop                               
+0014  0044102a  --------     slt	v0,v0,a0                      
+0018  14400007  --------     bnez	v0,0x38                      
+001c  00000000  --------     nop                               
+0020  3c020000  --------     lui	v0,0x0                          <HI16 (0x6B4 + .text(base))>
+0024  244206b4  --------     addiu	v0,v0,1716                    <LO16 (0x6B4 + .text(base))>
+0028  3c010000  --------     lui	at,0x0                          <HI16 (0x184 + .data(base))>
+002c  ac240ca4  --------     sw	a0,3236(at)                      <LO16 (0x184 + .data(base))>
+0030  3c010000  --------     lui	at,0x0                          <HI16 GPU_printf>
+0034  ac220000  --------     sw	v0,0(at)                         <LO16 GPU_printf>
+0038  03e00008  --------     jr	ra                             
+003c  00000000  --------     nop                               

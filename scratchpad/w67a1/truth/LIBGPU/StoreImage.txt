@@ -1,0 +1,31 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / SYS / StoreImage
+linkage=export  section-size=96 bytes (24 words)  vendor-relocs=5
+retail VA=0x800EDAF0  VERDICT=reloc-only
+member $Id: $Id: sys.c,v 1.140 1998/01/12 07:52:27 noda Exp yos $
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe0  27bdffe0  =  addiu	sp,sp,-32                   
+0004  afb00010  afb00010  =  sw	s0,16(sp)                      
+0008  00808021  00808021  =  move	s0,a0                        
+000c  afb10014  afb10014  =  sw	s1,20(sp)                      
+0010  00a08821  00a08821  =  move	s1,a1                        
+0014  3c040000  3c048005  R  lui	a0,0x0                          <HI16 (0x138 + .rdata(base))>
+0018  24843148  24846e10  R  addiu	a0,a0,12616                   <LO16 (0x138 + .rdata(base))>
+001c  afbf0018  afbf0018  =  sw	ra,24(sp)                      
+0020  0c0000f9  0c03b639  R  jal	0x3e4                           <REL26 (0x3E4 + .text(base))>
+0024  02002821  02002821  =  move	a1,s0                        
+0028  02002821  02002821  =  move	a1,s0                        
+002c  3c020000  3c028012  R  lui	v0,0x0                          <HI16 (0x48 + .data(base))>
+0030  8c423278  8c423694  R  lw	v0,12920(v0)                     <LO16 (0x48 + .data(base))>
+0034  24060008  24060008  =  li	a2,8                           
+0038  8c44001c  8c44001c  =  lw	a0,28(v0)                      
+003c  8c420008  8c420008  =  lw	v0,8(v0)                       
+0040  00000000  00000000  =  nop                               
+0044  0040f809  0040f809  =  jalr	v0                           
+0048  02203821  02203821  =  move	a3,s1                        
+004c  8fbf0018  8fbf0018  =  lw	ra,24(sp)                      
+0050  8fb10014  8fb10014  =  lw	s1,20(sp)                      
+0054  8fb00010  8fb00010  =  lw	s0,16(sp)                      
+0058  03e00008  03e00008  =  jr	ra                             
+005c  27bd0020  27bd0020  =  addiu	sp,sp,32                    

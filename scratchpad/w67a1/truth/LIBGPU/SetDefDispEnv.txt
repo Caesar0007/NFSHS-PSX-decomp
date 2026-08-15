@@ -1,0 +1,21 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / EXT / SetDefDispEnv
+linkage=export  section-size=60 bytes (15 words)  vendor-relocs=0
+retail VA=0x800F22E0  VERDICT=identical
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  8fa30010  8fa30010  =  lw	v1,16(sp)                      
+0004  00801021  00801021  =  move	v0,a0                        
+0008  a4450000  a4450000  =  sh	a1,0(v0)                       
+000c  a4460002  a4460002  =  sh	a2,2(v0)                       
+0010  a4470004  a4470004  =  sh	a3,4(v0)                       
+0014  a4400008  a4400008  =  sh	zero,8(v0)                     
+0018  a440000a  a440000a  =  sh	zero,10(v0)                    
+001c  a440000c  a440000c  =  sh	zero,12(v0)                    
+0020  a440000e  a440000e  =  sh	zero,14(v0)                    
+0024  a0400011  a0400011  =  sb	zero,17(v0)                    
+0028  a0400010  a0400010  =  sb	zero,16(v0)                    
+002c  a0400013  a0400013  =  sb	zero,19(v0)                    
+0030  a0400012  a0400012  =  sb	zero,18(v0)                    
+0034  03e00008  03e00008  =  jr	ra                             
+0038  a4430006  a4430006  =  sh	v1,6(v0)                       

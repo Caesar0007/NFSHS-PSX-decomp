@@ -1,0 +1,18 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / P32 / SetLineG4
+linkage=export  section-size=48 bytes (12 words)  vendor-relocs=0
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c035555  --------     lui	v1,0x5555                     
+0004  34635555  --------     ori	v1,v1,0x5555                  
+0008  24020009  --------     li	v0,9                           
+000c  a0820003  --------     sb	v0,3(a0)                       
+0010  2402005c  --------     li	v0,92                          
+0014  a0820007  --------     sb	v0,7(a0)                       
+0018  ac830024  --------     sw	v1,36(a0)                      
+001c  a0800017  --------     sb	zero,23(a0)                    
+0020  03e00008  --------     jr	ra                             
+0024  a080001f  --------     sb	zero,31(a0)                    
+0028  00000000  --------     nop                               
+002c  00000000  --------     nop                               

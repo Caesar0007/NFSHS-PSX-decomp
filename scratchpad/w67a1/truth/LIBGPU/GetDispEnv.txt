@@ -1,0 +1,20 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / SYS / GetDispEnv
+linkage=export  section-size=52 bytes (13 words)  vendor-relocs=3
+retail VA=NONE  VERDICT=absent
+member $Id: $Id: sys.c,v 1.140 1998/01/12 07:52:27 noda Exp yos $
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  --------     addiu	sp,sp,-24                   
+0004  afb00010  --------     sw	s0,16(sp)                      
+0008  00808021  --------     move	s0,a0                        
+000c  3c050000  --------     lui	a1,0x0                          <HI16 (0xBC + .data(base))>
+0010  24a532ec  --------     addiu	a1,a1,13036                   <LO16 (0xBC + .data(base))>
+0014  afbf0014  --------     sw	ra,20(sp)                      
+0018  0c000000  --------     jal	0x0                             <REL26 memcpy>
+001c  24060014  --------     li	a2,20                          
+0020  02001021  --------     move	v0,s0                        
+0024  8fbf0014  --------     lw	ra,20(sp)                      
+0028  8fb00010  --------     lw	s0,16(sp)                      
+002c  03e00008  --------     jr	ra                             
+0030  27bd0018  --------     addiu	sp,sp,24                    

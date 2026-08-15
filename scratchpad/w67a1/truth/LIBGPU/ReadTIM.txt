@@ -1,0 +1,31 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / TMD / ReadTIM
+linkage=export  section-size=100 bytes (25 words)  vendor-relocs=8
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  --------     addiu	sp,sp,-24                   
+0004  afb00010  --------     sw	s0,16(sp)                      
+0008  00808021  --------     move	s0,a0                        
+000c  3c040000  --------     lui	a0,0x0                          <HI16 .bss(base)>
+0010  8c8419c0  --------     lw	a0,6592(a0)                      <LO16 .bss(base)>
+0014  afbf0014  --------     sw	ra,20(sp)                      
+0018  0c0000d7  --------     jal	0x35c                           <REL26 (0x35C + .text(base))>
+001c  02002821  --------     move	a1,s0                        
+0020  00402021  --------     move	a0,v0                        
+0024  2402ffff  --------     li	v0,-1                          
+0028  10820009  --------     beq	a0,v0,0x50                    
+002c  00042080  --------     sll	a0,a0,0x2                     
+0030  3c030000  --------     lui	v1,0x0                          <HI16 .bss(base)>
+0034  8c6319c0  --------     lw	v1,6592(v1)                      <LO16 .bss(base)>
+0038  00000000  --------     nop                               
+003c  00641821  --------     addu	v1,v1,a0                     
+0040  3c010000  --------     lui	at,0x0                          <HI16 .bss(base)>
+0044  ac2319c0  --------     sw	v1,6592(at)                      <LO16 .bss(base)>
+0048  08000019  --------     j	0x64                              <REL26 (0x64 + .text(base))>
+004c  02001021  --------     move	v0,s0                        
+0050  00001021  --------     move	v0,zero                      
+0054  8fbf0014  --------     lw	ra,20(sp)                      
+0058  8fb00010  --------     lw	s0,16(sp)                      
+005c  03e00008  --------     jr	ra                             
+0060  27bd0018  --------     addiu	sp,sp,24                    

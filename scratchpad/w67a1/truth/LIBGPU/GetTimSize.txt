@@ -1,0 +1,49 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / KROM2TIM / GetTimSize
+linkage=export  section-size=172 bytes (43 words)  vendor-relocs=2
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  90830000  --------     lbu	v1,0(a0)                      
+0004  00000000  --------     nop                               
+0008  1060001b  --------     beqz	v1,0x78                      
+000c  00002821  --------     move	a1,zero                      
+0010  2406000a  --------     li	a2,10                          
+0014  28a20100  --------     slti	v0,a1,256                    
+0018  10400017  --------     beqz	v0,0x78                      
+001c  00000000  --------     nop                               
+0020  14660009  --------     bne	v1,a2,0x48                    
+0024  2462007f  --------     addiu	v0,v1,127                   
+0028  04a10002  --------     bgez	a1,0x34                      
+002c  00a01021  --------     move	v0,a1                        
+0030  24a2000f  --------     addiu	v0,a1,15                    
+0034  00021103  --------     sra	v0,v0,0x4                     
+0038  24420001  --------     addiu	v0,v0,1                     
+003c  00022900  --------     sll	a1,v0,0x4                     
+0040  0800001a  --------     j	0x68                              <REL26 (0x68 + .text(base))>
+0044  24840001  --------     addiu	a0,a0,1                     
+0048  304200ff  --------     andi	v0,v0,0xff                   
+004c  2c420018  --------     sltiu	v0,v0,24                    
+0050  10400003  --------     beqz	v0,0x60                      
+0054  00000000  --------     nop                               
+0058  08000019  --------     j	0x64                              <REL26 (0x64 + .text(base))>
+005c  24840002  --------     addiu	a0,a0,2                     
+0060  24840001  --------     addiu	a0,a0,1                     
+0064  24a50001  --------     addiu	a1,a1,1                     
+0068  90830000  --------     lbu	v1,0(a0)                      
+006c  00000000  --------     nop                               
+0070  1460ffe9  --------     bnez	v1,0x18                      
+0074  28a20100  --------     slti	v0,a1,256                    
+0078  28a20010  --------     slti	v0,a1,16                     
+007c  14400008  --------     bnez	v0,0xa0                      
+0080  00051140  --------     sll	v0,a1,0x5                     
+0084  24a2ffff  --------     addiu	v0,a1,-1                    
+0088  04410002  --------     bgez	v0,0x94                      
+008c  00000000  --------     nop                               
+0090  24a2000e  --------     addiu	v0,a1,14                    
+0094  00021103  --------     sra	v0,v0,0x4                     
+0098  24420001  --------     addiu	v0,v0,1                     
+009c  00021240  --------     sll	v0,v0,0x9                     
+00a0  24420010  --------     addiu	v0,v0,16                    
+00a4  03e00008  --------     jr	ra                             
+00a8  00021080  --------     sll	v0,v0,0x2                     

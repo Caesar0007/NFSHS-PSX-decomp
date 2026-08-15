@@ -1,0 +1,13 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / KPRINTF / KanjiFntClose
+linkage=export  section-size=28 bytes (7 words)  vendor-relocs=6
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c010000  --------     lui	at,0x0                          <HI16 (0x8 + .data(base))>
+0004  ac200fd8  --------     sw	zero,4056(at)                    <LO16 (0x8 + .data(base))>
+0008  3c010000  --------     lui	at,0x0                          <HI16 (0x4 + .data(base))>
+000c  ac200fd4  --------     sw	zero,4052(at)                    <LO16 (0x4 + .data(base))>
+0010  3c010000  --------     lui	at,0x0                          <HI16 .data(base)>
+0014  03e00008  --------     jr	ra                             
+0018  ac200fd0  --------     sw	zero,4048(at)                    <LO16 .data(base)>

@@ -1,0 +1,22 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / P00 / GetTPage
+linkage=export  section-size=64 bytes (16 words)  vendor-relocs=0
+retail VA=0x800F1BFC  VERDICT=identical
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  30820003  30820003  =  andi	v0,a0,0x3                    
+0004  000211c0  000211c0  =  sll	v0,v0,0x7                     
+0008  30a50003  30a50003  =  andi	a1,a1,0x3                    
+000c  00052940  00052940  =  sll	a1,a1,0x5                     
+0010  00451025  00451025  =  or	v0,v0,a1                       
+0014  30e30100  30e30100  =  andi	v1,a3,0x100                  
+0018  00031903  00031903  =  sra	v1,v1,0x4                     
+001c  00431025  00431025  =  or	v0,v0,v1                       
+0020  30c603ff  30c603ff  =  andi	a2,a2,0x3ff                  
+0024  00063183  00063183  =  sra	a2,a2,0x6                     
+0028  00461025  00461025  =  or	v0,v0,a2                       
+002c  30e70200  30e70200  =  andi	a3,a3,0x200                  
+0030  00073880  00073880  =  sll	a3,a3,0x2                     
+0034  03e00008  03e00008  =  jr	ra                             
+0038  00471025  00471025  =  or	v0,v0,a3                       
+003c  00000000  00000000  =  nop                               

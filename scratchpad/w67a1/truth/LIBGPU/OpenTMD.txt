@@ -1,0 +1,22 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / TMD / OpenTMD
+linkage=export  section-size=64 bytes (16 words)  vendor-relocs=9
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe0  --------     addiu	sp,sp,-32                   
+0004  3c020000  --------     lui	v0,0x0                          <HI16 (0x8 + .bss(base))>
+0008  244219c8  --------     addiu	v0,v0,6600                    <LO16 (0x8 + .bss(base))>
+000c  3c060000  --------     lui	a2,0x0                          <HI16 (0xC + .bss(base))>
+0010  24c619cc  --------     addiu	a2,a2,6604                    <LO16 (0xC + .bss(base))>
+0014  3c070000  --------     lui	a3,0x0                          <HI16 (0x4 + .bss(base))>
+0018  24e719c4  --------     addiu	a3,a3,6596                    <LO16 (0x4 + .bss(base))>
+001c  afbf0018  --------     sw	ra,24(sp)                      
+0020  0c00011d  --------     jal	0x474                           <REL26 (0x474 + .text(base))>
+0024  afa20010  --------     sw	v0,16(sp)                      
+0028  3c010000  --------     lui	at,0x0                          <HI16 (0x10 + .bss(base))>
+002c  ac2219d0  --------     sw	v0,6608(at)                      <LO16 (0x10 + .bss(base))>
+0030  8fbf0018  --------     lw	ra,24(sp)                      
+0034  27bd0020  --------     addiu	sp,sp,32                    
+0038  03e00008  --------     jr	ra                             
+003c  00000000  --------     nop                               

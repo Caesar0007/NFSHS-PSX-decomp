@@ -1,0 +1,14 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / P17 / SetPolyFT4
+linkage=export  section-size=32 bytes (8 words)  vendor-relocs=0
+retail VA=0x800F3650  VERDICT=identical
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  24020009  24020009  =  li	v0,9                           
+0004  a0820003  a0820003  =  sb	v0,3(a0)                       
+0008  2402002c  2402002c  =  li	v0,44                          
+000c  03e00008  03e00008  =  jr	ra                             
+0010  a0820007  a0820007  =  sb	v0,7(a0)                       
+0014  00000000  00000000  =  nop                               
+0018  00000000  00000000  =  nop                               
+001c  00000000  00000000  =  nop                               

@@ -1,0 +1,14 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / P04 / NextPrim
+linkage=export  section-size=32 bytes (8 words)  vendor-relocs=0
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c0300ff  --------     lui	v1,0xff                       
+0004  8c820000  --------     lw	v0,0(a0)                       
+0008  3463ffff  --------     ori	v1,v1,0xffff                  
+000c  00431024  --------     and	v0,v0,v1                      
+0010  3c038000  --------     lui	v1,0x8000                     
+0014  03e00008  --------     jr	ra                             
+0018  00431025  --------     or	v0,v0,v1                       
+001c  00000000  --------     nop                               

@@ -1,0 +1,21 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / SYS / SetTexWindow
+linkage=export  section-size=56 bytes (14 words)  vendor-relocs=1
+retail VA=0x800EE2DC  VERDICT=reloc-only
+member $Id: $Id: sys.c,v 1.140 1998/01/12 07:52:27 noda Exp yos $
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0004  afb00010  afb00010  =  sw	s0,16(sp)                      
+0008  00808021  00808021  =  move	s0,a0                        
+000c  24020002  24020002  =  li	v0,2                           
+0010  00a02021  00a02021  =  move	a0,a1                        
+0014  afbf0014  afbf0014  =  sw	ra,20(sp)                      
+0018  0c00061e  0c03ba79  R  jal	0x1878                          <REL26 (0x1878 + .text(base))>
+001c  a2020003  a2020003  =  sb	v0,3(s0)                       
+0020  ae020004  ae020004  =  sw	v0,4(s0)                       
+0024  ae000008  ae000008  =  sw	zero,8(s0)                     
+0028  8fbf0014  8fbf0014  =  lw	ra,20(sp)                      
+002c  8fb00010  8fb00010  =  lw	s0,16(sp)                      
+0030  03e00008  03e00008  =  jr	ra                             
+0034  27bd0018  27bd0018  =  addiu	sp,sp,24                    

@@ -1,0 +1,35 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / SYS / DrawOTag
+linkage=export  section-size=112 bytes (28 words)  vendor-relocs=8
+retail VA=0x800EDCB4  VERDICT=reloc-only
+member $Id: $Id: sys.c,v 1.140 1998/01/12 07:52:27 noda Exp yos $
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c020000  3c028012  R  lui	v0,0x0                          <HI16 (0x52 + .data(base))>
+0004  90423282  9042369e  R  lbu	v0,12930(v0)                    <LO16 (0x52 + .data(base))>
+0008  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+000c  afb00010  afb00010  =  sw	s0,16(sp)                      
+0010  00808021  00808021  =  move	s0,a0                        
+0014  2c420002  2c420002  =  sltiu	v0,v0,2                     
+0018  14400008  14400008  =  bnez	v0,0x3c                      
+001c  afbf0014  afbf0014  =  sw	ra,20(sp)                      
+0020  3c040000  3c048005  R  lui	a0,0x0                          <HI16 (0x180 + .rdata(base))>
+0024  24843190  24846e58  R  addiu	a0,a0,12688                   <LO16 (0x180 + .rdata(base))>
+0028  3c020000  3c028012  R  lui	v0,0x0                          <HI16 (0x4C + .data(base))>
+002c  8c42327c  8c423698  R  lw	v0,12924(v0)                     <LO16 (0x4C + .data(base))>
+0030  00000000  00000000  =  nop                               
+0034  0040f809  0040f809  =  jalr	v0                           
+0038  02002821  02002821  =  move	a1,s0                        
+003c  02002821  02002821  =  move	a1,s0                        
+0040  3c020000  3c028012  R  lui	v0,0x0                          <HI16 (0x48 + .data(base))>
+0044  8c423278  8c423694  R  lw	v0,12920(v0)                     <LO16 (0x48 + .data(base))>
+0048  00003021  00003021  =  move	a2,zero                      
+004c  8c440018  8c440018  =  lw	a0,24(v0)                      
+0050  8c420008  8c420008  =  lw	v0,8(v0)                       
+0054  00000000  00000000  =  nop                               
+0058  0040f809  0040f809  =  jalr	v0                           
+005c  00003821  00003821  =  move	a3,zero                      
+0060  8fbf0014  8fbf0014  =  lw	ra,20(sp)                      
+0064  8fb00010  8fb00010  =  lw	s0,16(sp)                      
+0068  03e00008  03e00008  =  jr	ra                             
+006c  27bd0018  27bd0018  =  addiu	sp,sp,24                    

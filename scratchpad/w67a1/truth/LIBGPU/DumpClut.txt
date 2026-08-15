@@ -1,0 +1,22 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / P03 / DumpClut
+linkage=export  section-size=64 bytes (16 words)  vendor-relocs=4
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  --------     addiu	sp,sp,-24                   
+0004  00803021  --------     move	a2,a0                        
+0008  30c5003f  --------     andi	a1,a2,0x3f                   
+000c  30c6ffff  --------     andi	a2,a2,0xffff                 
+0010  3c040000  --------     lui	a0,0x0                          <HI16 .rdata(base)>
+0014  24840040  --------     addiu	a0,a0,64                      <LO16 .rdata(base)>
+0018  00052900  --------     sll	a1,a1,0x4                     
+001c  3c020000  --------     lui	v0,0x0                          <HI16 GPU_printf>
+0020  8c420000  --------     lw	v0,0(v0)                         <LO16 GPU_printf>
+0024  afbf0010  --------     sw	ra,16(sp)                      
+0028  0040f809  --------     jalr	v0                           
+002c  00063182  --------     srl	a2,a2,0x6                     
+0030  8fbf0010  --------     lw	ra,16(sp)                      
+0034  27bd0018  --------     addiu	sp,sp,24                    
+0038  03e00008  --------     jr	ra                             
+003c  00000000  --------     nop                               

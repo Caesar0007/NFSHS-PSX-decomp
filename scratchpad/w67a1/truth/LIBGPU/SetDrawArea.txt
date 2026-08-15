@@ -1,0 +1,39 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / SYS / SetDrawArea
+linkage=export  section-size=128 bytes (32 words)  vendor-relocs=2
+retail VA=0x800EE314  VERDICT=reloc-only
+member $Id: $Id: sys.c,v 1.140 1998/01/12 07:52:27 noda Exp yos $
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe0  27bdffe0  =  addiu	sp,sp,-32                   
+0004  afb10014  afb10014  =  sw	s1,20(sp)                      
+0008  00808821  00808821  =  move	s1,a0                        
+000c  afb00010  afb00010  =  sw	s0,16(sp)                      
+0010  00a08021  00a08021  =  move	s0,a1                        
+0014  24020002  24020002  =  li	v0,2                           
+0018  afbf0018  afbf0018  =  sw	ra,24(sp)                      
+001c  a2220003  a2220003  =  sb	v0,3(s1)                       
+0020  86040000  86040000  =  lh	a0,0(s0)                       
+0024  86050002  86050002  =  lh	a1,2(s0)                       
+0028  0c0005cb  0c03ba26  R  jal	0x172c                          <REL26 (0x172C + .text(base))>
+002c  00000000  00000000  =  nop                               
+0030  ae220004  ae220004  =  sw	v0,4(s1)                       
+0034  96040000  96040000  =  lhu	a0,0(s0)                      
+0038  96020004  96020004  =  lhu	v0,4(s0)                      
+003c  96050002  96050002  =  lhu	a1,2(s0)                      
+0040  00822021  00822021  =  addu	a0,a0,v0                     
+0044  2484ffff  2484ffff  =  addiu	a0,a0,-1                    
+0048  00042400  00042400  =  sll	a0,a0,0x10                    
+004c  96020006  96020006  =  lhu	v0,6(s0)                      
+0050  00042403  00042403  =  sra	a0,a0,0x10                    
+0054  00a22821  00a22821  =  addu	a1,a1,v0                     
+0058  24a5ffff  24a5ffff  =  addiu	a1,a1,-1                    
+005c  00052c00  00052c00  =  sll	a1,a1,0x10                    
+0060  0c0005f1  0c03ba4c  R  jal	0x17c4                          <REL26 (0x17C4 + .text(base))>
+0064  00052c03  00052c03  =  sra	a1,a1,0x10                    
+0068  ae220008  ae220008  =  sw	v0,8(s1)                       
+006c  8fbf0018  8fbf0018  =  lw	ra,24(sp)                      
+0070  8fb10014  8fb10014  =  lw	s1,20(sp)                      
+0074  8fb00010  8fb00010  =  lw	s0,16(sp)                      
+0078  03e00008  03e00008  =  jr	ra                             
+007c  27bd0020  27bd0020  =  addiu	sp,sp,32                    

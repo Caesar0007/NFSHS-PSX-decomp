@@ -1,0 +1,84 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / KTRANS / hankanjitrans
+linkage=export  section-size=312 bytes (78 words)  vendor-relocs=17
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  --------     addiu	sp,sp,-24                   
+0004  afbf0010  --------     sw	ra,16(sp)                      
+0008  00001821  --------     move	v1,zero                      
+000c  2482ffe0  --------     addiu	v0,a0,-32                   
+0010  304200ff  --------     andi	v0,v0,0xff                   
+0014  2c420010  --------     sltiu	v0,v0,16                    
+0018  10400003  --------     beqz	v0,0x28                      
+001c  00802821  --------     move	a1,a0                        
+0020  080001a9  --------     j	0x6a4                             <REL26 (0x6A4 + .text(base))>
+0024  24030001  --------     li	v1,1                           
+0028  2482ffd0  --------     addiu	v0,a0,-48                   
+002c  304200ff  --------     andi	v0,v0,0xff                   
+0030  2c42000a  --------     sltiu	v0,v0,10                    
+0034  10400003  --------     beqz	v0,0x44                      
+0038  2482ffc6  --------     addiu	v0,a0,-58                   
+003c  080001a9  --------     j	0x6a4                             <REL26 (0x6A4 + .text(base))>
+0040  00003021  --------     move	a2,zero                      
+0044  304200ff  --------     andi	v0,v0,0xff                   
+0048  2c420007  --------     sltiu	v0,v0,7                     
+004c  10400003  --------     beqz	v0,0x5c                      
+0050  2482ffbf  --------     addiu	v0,a0,-65                   
+0054  080001a9  --------     j	0x6a4                             <REL26 (0x6A4 + .text(base))>
+0058  2403000b  --------     li	v1,11                          
+005c  304200ff  --------     andi	v0,v0,0xff                   
+0060  2c42001a  --------     sltiu	v0,v0,26                    
+0064  10400003  --------     beqz	v0,0x74                      
+0068  2482ffa5  --------     addiu	v0,a0,-91                   
+006c  080001a9  --------     j	0x6a4                             <REL26 (0x6A4 + .text(base))>
+0070  24060001  --------     li	a2,1                           
+0074  304200ff  --------     andi	v0,v0,0xff                   
+0078  2c420006  --------     sltiu	v0,v0,6                     
+007c  10400003  --------     beqz	v0,0x8c                      
+0080  2482ff9f  --------     addiu	v0,a0,-97                   
+0084  080001a9  --------     j	0x6a4                             <REL26 (0x6A4 + .text(base))>
+0088  24030025  --------     li	v1,37                          
+008c  304200ff  --------     andi	v0,v0,0xff                   
+0090  2c42001a  --------     sltiu	v0,v0,26                    
+0094  10400003  --------     beqz	v0,0xa4                      
+0098  2482ff85  --------     addiu	v0,a0,-123                  
+009c  080001a9  --------     j	0x6a4                             <REL26 (0x6A4 + .text(base))>
+00a0  24060002  --------     li	a2,2                           
+00a4  304200ff  --------     andi	v0,v0,0xff                   
+00a8  2c420004  --------     sltiu	v0,v0,4                     
+00ac  14400007  --------     bnez	v0,0xcc                      
+00b0  2403003f  --------     li	v1,63                          
+00b4  3c040000  --------     lui	a0,0x0                          <HI16 (0x1C + .rdata(base))>
+00b8  2484072c  --------     addiu	a0,a0,1836                    <LO16 (0x1C + .rdata(base))>
+00bc  0c000000  --------     jal	0x0                             <REL26 printf>
+00c0  30a500ff  --------     andi	a1,a1,0xff                   
+00c4  080001bf  --------     j	0x6fc                             <REL26 (0x6FC + .text(base))>
+00c8  00001021  --------     move	v0,zero                      
+00cc  306300ff  --------     andi	v1,v1,0xff                   
+00d0  10600009  --------     beqz	v1,0xf8                      
+00d4  30a200ff  --------     andi	v0,a1,0xff                   
+00d8  2463001f  --------     addiu	v1,v1,31                    
+00dc  00431023  --------     subu	v0,v0,v1                     
+00e0  00021040  --------     sll	v0,v0,0x1                     
+00e4  3c010000  --------     lui	at,0x0                          <HI16 (0x124 + .data(base))>
+00e8  00220821  --------     addu	at,at,v0                     
+00ec  94220874  --------     lhu	v0,2164(at)                     <LO16 (0x124 + .data(base))>
+00f0  080001bf  --------     j	0x6fc                             <REL26 (0x6FC + .text(base))>
+00f4  00000000  --------     nop                               
+00f8  30c300ff  --------     andi	v1,a2,0xff                   
+00fc  00031880  --------     sll	v1,v1,0x2                     
+0100  30a400ff  --------     andi	a0,a1,0xff                   
+0104  3c020000  --------     lui	v0,0x0                          <HI16 (0x118 + .data(base))>
+0108  00431021  --------     addu	v0,v0,v1                     
+010c  94420868  --------     lhu	v0,2152(v0)                     <LO16 (0x118 + .data(base))>
+0110  3c010000  --------     lui	at,0x0                          <HI16 (0x11A + .data(base))>
+0114  00230821  --------     addu	at,at,v1                     
+0118  9423086a  --------     lhu	v1,2154(at)                     <LO16 (0x11A + .data(base))>
+011c  00441021  --------     addu	v0,v0,a0                     
+0120  00431023  --------     subu	v0,v0,v1                     
+0124  8fbf0010  --------     lw	ra,16(sp)                      
+0128  27bd0018  --------     addiu	sp,sp,24                    
+012c  03e00008  --------     jr	ra                             
+0130  00000000  --------     nop                               
+0134  00000000  --------     nop                               

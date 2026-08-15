@@ -1,0 +1,101 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / BREAK / ContinueDraw
+linkage=export  section-size=380 bytes (95 words)  vendor-relocs=19
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  00804021  --------     move	t0,a0                        
+0004  00a04821  --------     move	t1,a1                        
+0008  01003821  --------     move	a3,t0                        
+000c  01003021  --------     move	a2,t0                        
+0010  3c040000  --------     lui	a0,0x0                          <HI16 _CntDrEnv>
+0014  24840000  --------     addiu	a0,a0,0                       <LO16 _CntDrEnv>
+0018  24020002  --------     li	v0,2                           
+001c  3c0500ff  --------     lui	a1,0xff                       
+0020  3c030000  --------     lui	v1,0x0                          <HI16 (0x10 + .data(base))>
+0024  8c630280  --------     lw	v1,640(v1)                       <LO16 (0x10 + .data(base))>
+0028  34a5ffff  --------     ori	a1,a1,0xffff                  
+002c  a0820003  --------     sb	v0,3(a0)                       
+0030  8c620000  --------     lw	v0,0(v1)                       
+0034  3c03e100  --------     lui	v1,0xe100                     
+0038  ac800008  --------     sw	zero,8(a0)                     
+003c  304207ff  --------     andi	v0,v0,0x7ff                  
+0040  00431025  --------     or	v0,v0,v1                       
+0044  ac820004  --------     sw	v0,4(a0)                       
+0048  8d020000  --------     lw	v0,0(t0)                       
+004c  3c038000  --------     lui	v1,0x8000                     
+0050  00451024  --------     and	v0,v0,a1                      
+0054  00431025  --------     or	v0,v0,v1                       
+0058  8c420000  --------     lw	v0,0(v0)                       
+005c  00000000  --------     nop                               
+0060  00451024  --------     and	v0,v0,a1                      
+0064  10450012  --------     beq	v0,a1,0xb0                    
+0068  01002021  --------     move	a0,t0                        
+006c  3c0300ff  --------     lui	v1,0xff                       
+0070  3463ffff  --------     ori	v1,v1,0xffff                  
+0074  3c058000  --------     lui	a1,0x8000                     
+0078  00c03821  --------     move	a3,a2                        
+007c  8c820000  --------     lw	v0,0(a0)                       
+0080  00803021  --------     move	a2,a0                        
+0084  00431024  --------     and	v0,v0,v1                      
+0088  00452025  --------     or	a0,v0,a1                       
+008c  8c820000  --------     lw	v0,0(a0)                       
+0090  00000000  --------     nop                               
+0094  00431024  --------     and	v0,v0,v1                      
+0098  00451025  --------     or	v0,v0,a1                       
+009c  8c420000  --------     lw	v0,0(v0)                       
+00a0  00000000  --------     nop                               
+00a4  00431024  --------     and	v0,v0,v1                      
+00a8  1443fff3  --------     bne	v0,v1,0x78                    
+00ac  00000000  --------     nop                               
+00b0  1120000b  --------     beqz	t1,0xe0                      
+00b4  3c0400ff  --------     lui	a0,0xff                       
+00b8  3484ffff  --------     ori	a0,a0,0xffff                  
+00bc  3c050000  --------     lui	a1,0x0                          <HI16 _CntDrEnv>
+00c0  24a50000  --------     addiu	a1,a1,0                       <LO16 _CntDrEnv>
+00c4  3c03ff00  --------     lui	v1,0xff00                     
+00c8  8ca20000  --------     lw	v0,0(a1)                       
+00cc  01242024  --------     and	a0,t1,a0                      
+00d0  00431024  --------     and	v0,v0,v1                      
+00d4  00441025  --------     or	v0,v0,a0                       
+00d8  08000080  --------     j	0x200                             <REL26 (0x200 + .text(base))>
+00dc  aca20000  --------     sw	v0,0(a1)                       
+00e0  3c0500ff  --------     lui	a1,0xff                       
+00e4  34a5ffff  --------     ori	a1,a1,0xffff                  
+00e8  3c060000  --------     lui	a2,0x0                          <HI16 _CntDrEnv>
+00ec  24c60000  --------     addiu	a2,a2,0                       <LO16 _CntDrEnv>
+00f0  3c04ff00  --------     lui	a0,0xff00                     
+00f4  8cc30000  --------     lw	v1,0(a2)                       
+00f8  8ce20000  --------     lw	v0,0(a3)                       
+00fc  00641824  --------     and	v1,v1,a0                      
+0100  00451024  --------     and	v0,v0,a1                      
+0104  00621825  --------     or	v1,v1,v0                       
+0108  acc30000  --------     sw	v1,0(a2)                       
+010c  3c0400ff  --------     lui	a0,0xff                       
+0110  3484ffff  --------     ori	a0,a0,0xffff                  
+0114  3c050400  --------     lui	a1,0x400                      
+0118  34a50002  --------     ori	a1,a1,0x2                     
+011c  8ce30000  --------     lw	v1,0(a3)                       
+0120  3c02ff00  --------     lui	v0,0xff00                     
+0124  00621824  --------     and	v1,v1,v0                      
+0128  3c020000  --------     lui	v0,0x0                          <HI16 _CntDrEnv>
+012c  24420000  --------     addiu	v0,v0,0                       <LO16 _CntDrEnv>
+0130  00441024  --------     and	v0,v0,a0                      
+0134  3c040000  --------     lui	a0,0x0                          <HI16 (0x10 + .data(base))>
+0138  8c840280  --------     lw	a0,640(a0)                       <LO16 (0x10 + .data(base))>
+013c  00621825  --------     or	v1,v1,v0                       
+0140  ace30000  --------     sw	v1,0(a3)                       
+0144  ac850000  --------     sw	a1,0(a0)                       
+0148  3c020000  --------     lui	v0,0x0                          <HI16 .data(base)>
+014c  8c420270  --------     lw	v0,624(v0)                       <LO16 .data(base)>
+0150  00000000  --------     nop                               
+0154  ac480000  --------     sw	t0,0(v0)                       
+0158  3c020000  --------     lui	v0,0x0                          <HI16 (0x4 + .data(base))>
+015c  8c420274  --------     lw	v0,628(v0)                       <LO16 (0x4 + .data(base))>
+0160  3c030100  --------     lui	v1,0x100                      
+0164  ac400000  --------     sw	zero,0(v0)                     
+0168  3c020000  --------     lui	v0,0x0                          <HI16 (0x8 + .data(base))>
+016c  8c420278  --------     lw	v0,632(v0)                       <LO16 (0x8 + .data(base))>
+0170  34630401  --------     ori	v1,v1,0x401                   
+0174  03e00008  --------     jr	ra                             
+0178  ac430000  --------     sw	v1,0(v0)                       

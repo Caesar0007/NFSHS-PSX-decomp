@@ -1,0 +1,22 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / P06 / AddPrim
+linkage=export  section-size=64 bytes (16 words)  vendor-relocs=0
+retail VA=0x80107040  VERDICT=identical
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c0600ff  3c0600ff  =  lui	a2,0xff                       
+0004  34c6ffff  34c6ffff  =  ori	a2,a2,0xffff                  
+0008  3c07ff00  3c07ff00  =  lui	a3,0xff00                     
+000c  8ca30000  8ca30000  =  lw	v1,0(a1)                       
+0010  8c820000  8c820000  =  lw	v0,0(a0)                       
+0014  00671824  00671824  =  and	v1,v1,a3                      
+0018  00461024  00461024  =  and	v0,v0,a2                      
+001c  00621825  00621825  =  or	v1,v1,v0                       
+0020  aca30000  aca30000  =  sw	v1,0(a1)                       
+0024  8c820000  8c820000  =  lw	v0,0(a0)                       
+0028  00a62824  00a62824  =  and	a1,a1,a2                      
+002c  00471024  00471024  =  and	v0,v0,a3                      
+0030  00451025  00451025  =  or	v0,v0,a1                       
+0034  03e00008  03e00008  =  jr	ra                             
+0038  ac820000  ac820000  =  sw	v0,0(a0)                       
+003c  00000000  00000000  =  nop                               

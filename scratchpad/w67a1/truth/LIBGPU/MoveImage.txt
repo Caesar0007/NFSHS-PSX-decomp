@@ -1,0 +1,53 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / SYS / MoveImage
+linkage=export  section-size=184 bytes (46 words)  vendor-relocs=8
+retail VA=0x800EDB50  VERDICT=reloc-only
+member $Id: $Id: sys.c,v 1.140 1998/01/12 07:52:27 noda Exp yos $
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe0  27bdffe0  =  addiu	sp,sp,-32                   
+0004  afb00010  afb00010  =  sw	s0,16(sp)                      
+0008  00808021  00808021  =  move	s0,a0                        
+000c  afb20018  afb20018  =  sw	s2,24(sp)                      
+0010  00a09021  00a09021  =  move	s2,a1                        
+0014  afb10014  afb10014  =  sw	s1,20(sp)                      
+0018  00c08821  00c08821  =  move	s1,a2                        
+001c  3c040000  3c048005  R  lui	a0,0x0                          <HI16 (0x144 + .rdata(base))>
+0020  24843154  24846e1c  R  addiu	a0,a0,12628                   <LO16 (0x144 + .rdata(base))>
+0024  afbf001c  afbf001c  =  sw	ra,28(sp)                      
+0028  0c0000f9  0c03b639  R  jal	0x3e4                           <REL26 (0x3E4 + .text(base))>
+002c  02002821  02002821  =  move	a1,s0                        
+0030  86020004  86020004  =  lh	v0,4(s0)                       
+0034  00000000  00000000  =  nop                               
+0038  10400019  10400019  =  beqz	v0,0xa0                      
+003c  2402ffff  2402ffff  =  li	v0,-1                          
+0040  86020006  86020006  =  lh	v0,6(s0)                       
+0044  00000000  00000000  =  nop                               
+0048  14400003  14400003  =  bnez	v0,0x58                      
+004c  00111400  00111400  =  sll	v0,s1,0x10                    
+0050  080001e2  0803b6fc  R  j	0x788                             <REL26 (0x788 + .text(base))>
+0054  2402ffff  2402ffff  =  li	v0,-1                          
+0058  3c030000  3c038012  R  lui	v1,0x0                          <HI16 (0xF0 + .data(base))>
+005c  24633320  2463373c  R  addiu	v1,v1,13088                   <LO16 (0xF0 + .data(base))>
+0060  3244ffff  3244ffff  =  andi	a0,s2,0xffff                 
+0064  00441025  00441025  =  or	v0,v0,a0                       
+0068  8e050000  8e050000  =  lw	a1,0(s0)                       
+006c  3c070000  3c078012  R  lui	a3,0x0                          <HI16 (0x48 + .data(base))>
+0070  8ce73278  8ce73694  R  lw	a3,12920(a3)                     <LO16 (0x48 + .data(base))>
+0074  24060014  24060014  =  li	a2,20                          
+0078  ac620004  ac620004  =  sw	v0,4(v1)                       
+007c  ac650000  ac650000  =  sw	a1,0(v1)                       
+0080  8e020004  8e020004  =  lw	v0,4(s0)                       
+0084  2465fff8  2465fff8  =  addiu	a1,v1,-8                    
+0088  ac620008  ac620008  =  sw	v0,8(v1)                       
+008c  8ce40018  8ce40018  =  lw	a0,24(a3)                      
+0090  8ce20008  8ce20008  =  lw	v0,8(a3)                       
+0094  00000000  00000000  =  nop                               
+0098  0040f809  0040f809  =  jalr	v0                           
+009c  00003821  00003821  =  move	a3,zero                      
+00a0  8fbf001c  8fbf001c  =  lw	ra,28(sp)                      
+00a4  8fb20018  8fb20018  =  lw	s2,24(sp)                      
+00a8  8fb10014  8fb10014  =  lw	s1,20(sp)                      
+00ac  8fb00010  8fb00010  =  lw	s0,16(sp)                      
+00b0  03e00008  03e00008  =  jr	ra                             
+00b4  27bd0020  27bd0020  =  addiu	sp,sp,32                    

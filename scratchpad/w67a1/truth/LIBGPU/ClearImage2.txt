@@ -1,0 +1,45 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / SYS / ClearImage2
+linkage=export  section-size=152 bytes (38 words)  vendor-relocs=5
+retail VA=NONE  VERDICT=absent
+member $Id: $Id: sys.c,v 1.140 1998/01/12 07:52:27 noda Exp yos $
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffd8  --------     addiu	sp,sp,-40                   
+0004  afb3001c  --------     sw	s3,28(sp)                      
+0008  00809821  --------     move	s3,a0                        
+000c  3c040000  --------     lui	a0,0x0                          <HI16 (0x120 + .rdata(base))>
+0010  24843130  --------     addiu	a0,a0,12592                   <LO16 (0x120 + .rdata(base))>
+0014  afb20018  --------     sw	s2,24(sp)                      
+0018  00a09021  --------     move	s2,a1                        
+001c  02602821  --------     move	a1,s3                        
+0020  afb00010  --------     sw	s0,16(sp)                      
+0024  00c08021  --------     move	s0,a2                        
+0028  afb10014  --------     sw	s1,20(sp)                      
+002c  afbf0020  --------     sw	ra,32(sp)                      
+0030  0c0000f9  --------     jal	0x3e4                           <REL26 (0x3E4 + .text(base))>
+0034  00e08821  --------     move	s1,a3                        
+0038  02602821  --------     move	a1,s3                        
+003c  323100ff  --------     andi	s1,s1,0xff                   
+0040  00118c00  --------     sll	s1,s1,0x10                    
+0044  321000ff  --------     andi	s0,s0,0xff                   
+0048  00108200  --------     sll	s0,s0,0x8                     
+004c  3c028000  --------     lui	v0,0x8000                     
+0050  02028025  --------     or	s0,s0,v0                       
+0054  02308825  --------     or	s1,s1,s0                       
+0058  325200ff  --------     andi	s2,s2,0xff                   
+005c  3c030000  --------     lui	v1,0x0                          <HI16 (0x48 + .data(base))>
+0060  8c633278  --------     lw	v1,12920(v1)                     <LO16 (0x48 + .data(base))>
+0064  24060008  --------     li	a2,8                           
+0068  8c64000c  --------     lw	a0,12(v1)                      
+006c  8c620008  --------     lw	v0,8(v1)                       
+0070  00000000  --------     nop                               
+0074  0040f809  --------     jalr	v0                           
+0078  02323825  --------     or	a3,s1,s2                       
+007c  8fbf0020  --------     lw	ra,32(sp)                      
+0080  8fb3001c  --------     lw	s3,28(sp)                      
+0084  8fb20018  --------     lw	s2,24(sp)                      
+0088  8fb10014  --------     lw	s1,20(sp)                      
+008c  8fb00010  --------     lw	s0,16(sp)                      
+0090  03e00008  --------     jr	ra                             
+0094  27bd0028  --------     addiu	sp,sp,40                    

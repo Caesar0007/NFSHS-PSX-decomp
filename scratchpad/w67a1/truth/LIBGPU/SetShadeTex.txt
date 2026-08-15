@@ -1,0 +1,18 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / P11 / SetShadeTex
+linkage=export  section-size=48 bytes (12 words)  vendor-relocs=1
+retail VA=0x800F611C  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  10a00004  10a00004  =  beqz	a1,0x14                      
+0004  00000000  00000000  =  nop                               
+0008  90820007  90820007  =  lbu	v0,7(a0)                      
+000c  08000008  0803d84f  R  j	0x20                              <REL26 (0x20 + .text(base))>
+0010  34420001  34420001  =  ori	v0,v0,0x1                     
+0014  90820007  90820007  =  lbu	v0,7(a0)                      
+0018  00000000  00000000  =  nop                               
+001c  304200fe  304200fe  =  andi	v0,v0,0xfe                   
+0020  03e00008  03e00008  =  jr	ra                             
+0024  a0820007  a0820007  =  sb	v0,7(a0)                       
+0028  00000000  00000000  =  nop                               
+002c  00000000  00000000  =  nop                               

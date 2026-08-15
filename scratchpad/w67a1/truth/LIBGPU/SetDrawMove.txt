@@ -1,0 +1,30 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / P34 / SetDrawMove
+linkage=export  section-size=96 bytes (24 words)  vendor-relocs=0
+retail VA=0x8010C698  VERDICT=identical
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  00804021  00804021  =  move	t0,a0                        
+0004  84a20004  84a20004  =  lh	v0,4(a1)                       
+0008  00000000  00000000  =  nop                               
+000c  10400005  10400005  =  beqz	v0,0x24                      
+0010  24040005  24040005  =  li	a0,5                           
+0014  84a20006  84a20006  =  lh	v0,6(a1)                       
+0018  00000000  00000000  =  nop                               
+001c  14400003  14400003  =  bnez	v0,0x2c                      
+0020  3c020100  3c020100  =  lui	v0,0x100                      
+0024  00002021  00002021  =  move	a0,zero                      
+0028  3c020100  3c020100  =  lui	v0,0x100                      
+002c  ad020004  ad020004  =  sw	v0,4(t0)                       
+0030  3c028000  3c028000  =  lui	v0,0x8000                     
+0034  ad020008  ad020008  =  sw	v0,8(t0)                       
+0038  00071400  00071400  =  sll	v0,a3,0x10                    
+003c  30c3ffff  30c3ffff  =  andi	v1,a2,0xffff                 
+0040  a1040003  a1040003  =  sb	a0,3(t0)                       
+0044  8ca40000  8ca40000  =  lw	a0,0(a1)                       
+0048  00431025  00431025  =  or	v0,v0,v1                       
+004c  ad020010  ad020010  =  sw	v0,16(t0)                      
+0050  ad04000c  ad04000c  =  sw	a0,12(t0)                      
+0054  8ca20004  8ca20004  =  lw	v0,4(a1)                       
+0058  03e00008  03e00008  =  jr	ra                             
+005c  ad020014  ad020014  =  sw	v0,20(t0)                      

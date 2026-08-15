@@ -1,0 +1,30 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / P02 / DumpTPage
+linkage=export  section-size=96 bytes (24 words)  vendor-relocs=4
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe0  --------     addiu	sp,sp,-32                   
+0004  3087ffff  --------     andi	a3,a0,0xffff                 
+0008  00071900  --------     sll	v1,a3,0x4                     
+000c  30630100  --------     andi	v1,v1,0x100                  
+0010  00071082  --------     srl	v0,a3,0x2                     
+0014  30420200  --------     andi	v0,v0,0x200                  
+0018  00621825  --------     or	v1,v1,v0                       
+001c  000729c2  --------     srl	a1,a3,0x7                     
+0020  00073142  --------     srl	a2,a3,0x5                     
+0024  00073980  --------     sll	a3,a3,0x6                     
+0028  3c040000  --------     lui	a0,0x0                          <HI16 .rdata(base)>
+002c  24840060  --------     addiu	a0,a0,96                      <LO16 .rdata(base)>
+0030  30a50003  --------     andi	a1,a1,0x3                    
+0034  30c60003  --------     andi	a2,a2,0x3                    
+0038  3c020000  --------     lui	v0,0x0                          <HI16 GPU_printf>
+003c  8c420000  --------     lw	v0,0(v0)                         <LO16 GPU_printf>
+0040  30e707c0  --------     andi	a3,a3,0x7c0                  
+0044  afbf0018  --------     sw	ra,24(sp)                      
+0048  0040f809  --------     jalr	v0                           
+004c  afa30010  --------     sw	v1,16(sp)                      
+0050  8fbf0018  --------     lw	ra,24(sp)                      
+0054  27bd0020  --------     addiu	sp,sp,32                    
+0058  03e00008  --------     jr	ra                             
+005c  00000000  --------     nop                               

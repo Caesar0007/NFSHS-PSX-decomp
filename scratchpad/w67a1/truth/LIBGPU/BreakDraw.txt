@@ -1,0 +1,43 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / BREAK / BreakDraw
+linkage=export  section-size=148 bytes (37 words)  vendor-relocs=6
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c040000  --------     lui	a0,0x0                          <HI16 (0x8 + .data(base))>
+0004  8c840278  --------     lw	a0,632(a0)                       <LO16 (0x8 + .data(base))>
+0008  27bdfff8  --------     addiu	sp,sp,-8                    
+000c  8c820000  --------     lw	v0,0(a0)                       
+0010  3c030100  --------     lui	v1,0x100                      
+0014  00431024  --------     and	v0,v0,v1                      
+0018  1040001c  --------     beqz	v0,0x8c                      
+001c  00001021  --------     move	v0,zero                      
+0020  8c820000  --------     lw	v0,0(a0)                       
+0024  24030004  --------     li	v1,4                           
+0028  30420700  --------     andi	v0,v0,0x700                  
+002c  00021202  --------     srl	v0,v0,0x8                     
+0030  14430016  --------     bne	v0,v1,0x8c                    
+0034  2402ffff  --------     li	v0,-1                          
+0038  3c03feff  --------     lui	v1,0xfeff                     
+003c  8c820000  --------     lw	v0,0(a0)                       
+0040  3463ffff  --------     ori	v1,v1,0xffff                  
+0044  00431024  --------     and	v0,v0,v1                      
+0048  ac820000  --------     sw	v0,0(a0)                       
+004c  3c020000  --------     lui	v0,0x0                          <HI16 (0x8 + .data(base))>
+0050  8c420278  --------     lw	v0,632(v0)                       <LO16 (0x8 + .data(base))>
+0054  3c030000  --------     lui	v1,0x0                          <HI16 .data(base)>
+0058  8c630270  --------     lw	v1,624(v1)                       <LO16 .data(base)>
+005c  8c420000  --------     lw	v0,0(v0)                       
+0060  00000000  --------     nop                               
+0064  afa20000  --------     sw	v0,0(sp)                       
+0068  8c620000  --------     lw	v0,0(v1)                       
+006c  3c0300ff  --------     lui	v1,0xff                       
+0070  afa20000  --------     sw	v0,0(sp)                       
+0074  8fa20000  --------     lw	v0,0(sp)                       
+0078  3463ffff  --------     ori	v1,v1,0xffff                  
+007c  00431024  --------     and	v0,v0,v1                      
+0080  10430002  --------     beq	v0,v1,0x8c                    
+0084  00001021  --------     move	v0,zero                      
+0088  8fa20000  --------     lw	v0,0(sp)                       
+008c  03e00008  --------     jr	ra                             
+0090  27bd0008  --------     addiu	sp,sp,8                     

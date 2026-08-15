@@ -1,0 +1,48 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / P37 / DumpDispEnv
+linkage=export  section-size=168 bytes (42 words)  vendor-relocs=16
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe0  --------     addiu	sp,sp,-32                   
+0004  afb00018  --------     sw	s0,24(sp)                      
+0008  00808021  --------     move	s0,a0                        
+000c  afbf001c  --------     sw	ra,28(sp)                      
+0010  86050000  --------     lh	a1,0(s0)                       
+0014  86060002  --------     lh	a2,2(s0)                       
+0018  86070004  --------     lh	a3,4(s0)                       
+001c  86030006  --------     lh	v1,6(s0)                       
+0020  3c020000  --------     lui	v0,0x0                          <HI16 GPU_printf>
+0024  8c420000  --------     lw	v0,0(v0)                         <LO16 GPU_printf>
+0028  3c040000  --------     lui	a0,0x0                          <HI16 (0x70 + .rdata(base))>
+002c  24840220  --------     addiu	a0,a0,544                     <LO16 (0x70 + .rdata(base))>
+0030  0040f809  --------     jalr	v0                           
+0034  afa30010  --------     sw	v1,16(sp)                      
+0038  86050008  --------     lh	a1,8(s0)                       
+003c  8606000a  --------     lh	a2,10(s0)                      
+0040  8607000c  --------     lh	a3,12(s0)                      
+0044  8603000e  --------     lh	v1,14(s0)                      
+0048  3c020000  --------     lui	v0,0x0                          <HI16 GPU_printf>
+004c  8c420000  --------     lw	v0,0(v0)                         <LO16 GPU_printf>
+0050  3c040000  --------     lui	a0,0x0                          <HI16 (0x8C + .rdata(base))>
+0054  2484023c  --------     addiu	a0,a0,572                     <LO16 (0x8C + .rdata(base))>
+0058  0040f809  --------     jalr	v0                           
+005c  afa30010  --------     sw	v1,16(sp)                      
+0060  92050010  --------     lbu	a1,16(s0)                     
+0064  3c020000  --------     lui	v0,0x0                          <HI16 GPU_printf>
+0068  8c420000  --------     lw	v0,0(v0)                         <LO16 GPU_printf>
+006c  3c040000  --------     lui	a0,0x0                          <HI16 (0xA8 + .rdata(base))>
+0070  0040f809  --------     jalr	v0                           
+0074  24840258  --------     addiu	a0,a0,600                     <LO16 (0xA8 + .rdata(base))>
+0078  92050011  --------     lbu	a1,17(s0)                     
+007c  3c020000  --------     lui	v0,0x0                          <HI16 GPU_printf>
+0080  8c420000  --------     lw	v0,0(v0)                         <LO16 GPU_printf>
+0084  3c040000  --------     lui	a0,0x0                          <HI16 (0xB4 + .rdata(base))>
+0088  0040f809  --------     jalr	v0                           
+008c  24840264  --------     addiu	a0,a0,612                     <LO16 (0xB4 + .rdata(base))>
+0090  8fbf001c  --------     lw	ra,28(sp)                      
+0094  8fb00018  --------     lw	s0,24(sp)                      
+0098  03e00008  --------     jr	ra                             
+009c  27bd0020  --------     addiu	sp,sp,32                    
+00a0  00000000  --------     nop                               
+00a4  00000000  --------     nop                               

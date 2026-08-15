@@ -1,0 +1,88 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / SYS / MoveImage2
+linkage=export  section-size=324 bytes (81 words)  vendor-relocs=24
+retail VA=NONE  VERDICT=absent
+member $Id: $Id: sys.c,v 1.140 1998/01/12 07:52:27 noda Exp yos $
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe0  --------     addiu	sp,sp,-32                   
+0004  afb00010  --------     sw	s0,16(sp)                      
+0008  00808021  --------     move	s0,a0                        
+000c  afb20018  --------     sw	s2,24(sp)                      
+0010  00a09021  --------     move	s2,a1                        
+0014  afb10014  --------     sw	s1,20(sp)                      
+0018  00c08821  --------     move	s1,a2                        
+001c  3c040000  --------     lui	a0,0x0                          <HI16 (0x144 + .rdata(base))>
+0020  24843154  --------     addiu	a0,a0,12628                   <LO16 (0x144 + .rdata(base))>
+0024  afbf001c  --------     sw	ra,28(sp)                      
+0028  0c0000f9  --------     jal	0x3e4                           <REL26 (0x3E4 + .text(base))>
+002c  02002821  --------     move	a1,s0                        
+0030  0c000000  --------     jal	0x0                             <REL26 VSync>
+0034  2404ffff  --------     li	a0,-1                          
+0038  3c030000  --------     lui	v1,0x0                          <HI16 (0x164 + .data(base))>
+003c  8c633394  --------     lw	v1,13204(v1)                     <LO16 (0x164 + .data(base))>
+0040  244200f0  --------     addiu	v0,v0,240                   
+0044  3c010000  --------     lui	at,0x0                          <HI16 (0x18C + .data(base))>
+0048  ac2233bc  --------     sw	v0,13244(at)                     <LO16 (0x18C + .data(base))>
+004c  3c010000  --------     lui	at,0x0                          <HI16 (0x190 + .data(base))>
+0050  ac2033c0  --------     sw	zero,13248(at)                   <LO16 (0x190 + .data(base))>
+0054  8c620000  --------     lw	v0,0(v1)                       
+0058  08000b80  --------     j	0x2e00                            <REL26 (0x2E00 + .text(base))>
+005c  3c030100  --------     lui	v1,0x100                      
+0060  0c000a70  --------     jal	0x29c0                          <REL26 (0x29C0 + .text(base))>
+0064  00000000  --------     nop                               
+0068  14400030  --------     bnez	v0,0x12c                     
+006c  2402ffff  --------     li	v0,-1                          
+0070  3c020000  --------     lui	v0,0x0                          <HI16 (0x164 + .data(base))>
+0074  8c423394  --------     lw	v0,13204(v0)                     <LO16 (0x164 + .data(base))>
+0078  00000000  --------     nop                               
+007c  8c420000  --------     lw	v0,0(v0)                       
+0080  3c030100  --------     lui	v1,0x100                      
+0084  00431024  --------     and	v0,v0,v1                      
+0088  1440fff5  --------     bnez	v0,0x60                      
+008c  00000000  --------     nop                               
+0090  3c020000  --------     lui	v0,0x0                          <HI16 (0x158 + .data(base))>
+0094  8c423388  --------     lw	v0,13192(v0)                     <LO16 (0x158 + .data(base))>
+0098  00000000  --------     nop                               
+009c  8c420000  --------     lw	v0,0(v0)                       
+00a0  3c030400  --------     lui	v1,0x400                      
+00a4  00431024  --------     and	v0,v0,v1                      
+00a8  1040ffed  --------     beqz	v0,0x60                      
+00ac  00000000  --------     nop                               
+00b0  3c050000  --------     lui	a1,0x0                          <HI16 (0x2FBC + .text(base))>
+00b4  24a52fbc  --------     addiu	a1,a1,12220                   <LO16 (0x2FBC + .text(base))>
+00b8  0c000000  --------     jal	0x0                             <REL26 DMACallback>
+00bc  24040002  --------     li	a0,2                           
+00c0  86020004  --------     lh	v0,4(s0)                       
+00c4  00000000  --------     nop                               
+00c8  10400018  --------     beqz	v0,0x12c                     
+00cc  2402ffff  --------     li	v0,-1                          
+00d0  86020006  --------     lh	v0,6(s0)                       
+00d4  00000000  --------     nop                               
+00d8  14400003  --------     bnez	v0,0xe8                      
+00dc  00111400  --------     sll	v0,s1,0x10                    
+00e0  08000baa  --------     j	0x2ea8                            <REL26 (0x2EA8 + .text(base))>
+00e4  2402ffff  --------     li	v0,-1                          
+00e8  3243ffff  --------     andi	v1,s2,0xffff                 
+00ec  00431025  --------     or	v0,v0,v1                       
+00f0  8e050000  --------     lw	a1,0(s0)                       
+00f4  3c030000  --------     lui	v1,0x0                          <HI16 (0x48 + .data(base))>
+00f8  8c633278  --------     lw	v1,12920(v1)                     <LO16 (0x48 + .data(base))>
+00fc  3c040000  --------     lui	a0,0x0                          <HI16 (0xF0 + .data(base))>
+0100  24843320  --------     addiu	a0,a0,13088                   <LO16 (0xF0 + .data(base))>
+0104  ac820004  --------     sw	v0,4(a0)                       
+0108  ac850000  --------     sw	a1,0(a0)                       
+010c  8e020004  --------     lw	v0,4(s0)                       
+0110  00000000  --------     nop                               
+0114  ac820008  --------     sw	v0,8(a0)                       
+0118  8c620018  --------     lw	v0,24(v1)                      
+011c  00000000  --------     nop                               
+0120  0040f809  --------     jalr	v0                           
+0124  2484fff8  --------     addiu	a0,a0,-8                    
+0128  00001021  --------     move	v0,zero                      
+012c  8fbf001c  --------     lw	ra,28(sp)                      
+0130  8fb20018  --------     lw	s2,24(sp)                      
+0134  8fb10014  --------     lw	s1,20(sp)                      
+0138  8fb00010  --------     lw	s0,16(sp)                      
+013c  03e00008  --------     jr	ra                             
+0140  27bd0020  --------     addiu	sp,sp,32                    

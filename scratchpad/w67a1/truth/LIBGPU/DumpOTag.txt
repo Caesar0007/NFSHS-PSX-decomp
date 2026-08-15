@@ -1,0 +1,130 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / OTAG / DumpOTag
+linkage=export  section-size=496 bytes (124 words)  vendor-relocs=39
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffd8  --------     addiu	sp,sp,-40                   
+0004  afb00010  --------     sw	s0,16(sp)                      
+0008  00808021  --------     move	s0,a0                        
+000c  afb20018  --------     sw	s2,24(sp)                      
+0010  24120001  --------     li	s2,1                           
+0014  3c040000  --------     lui	a0,0x0                          <HI16 (0x50 + .rdata(base))>
+0018  24840410  --------     addiu	a0,a0,1040                    <LO16 (0x50 + .rdata(base))>
+001c  3c020000  --------     lui	v0,0x0                          <HI16 GPU_printf>
+0020  8c420000  --------     lw	v0,0(v0)                         <LO16 GPU_printf>
+0024  00002821  --------     move	a1,zero                      
+0028  afbf0024  --------     sw	ra,36(sp)                      
+002c  afb40020  --------     sw	s4,32(sp)                      
+0030  afb3001c  --------     sw	s3,28(sp)                      
+0034  0040f809  --------     jalr	v0                           
+0038  afb10014  --------     sw	s1,20(sp)                      
+003c  3c0300ff  --------     lui	v1,0xff                       
+0040  8e040000  --------     lw	a0,0(s0)                       
+0044  3463ffff  --------     ori	v1,v1,0xffff                  
+0048  00831024  --------     and	v0,a0,v1                      
+004c  10430040  --------     beq	v0,v1,0x150                   
+0050  00000000  --------     nop                               
+0054  3c1100ff  --------     lui	s1,0xff                       
+0058  3631ffff  --------     ori	s1,s1,0xffff                  
+005c  3c138000  --------     lui	s3,0x8000                     
+0060  3c140000  --------     lui	s4,0x0                          <HI16 .data(base)>
+0064  26940470  --------     addiu	s4,s4,1136                    <LO16 .data(base)>
+0068  92020003  --------     lbu	v0,3(s0)                      
+006c  00000000  --------     nop                               
+0070  1440000f  --------     bnez	v0,0xb0                      
+0074  00911024  --------     and	v0,a0,s1                      
+0078  00531025  --------     or	v0,v0,s3                       
+007c  90420003  --------     lbu	v0,3(v0)                      
+0080  00000000  --------     nop                               
+0084  10400008  --------     beqz	v0,0xa8                      
+0088  00000000  --------     nop                               
+008c  3c040000  --------     lui	a0,0x0                          <HI16 (0x60 + .rdata(base))>
+0090  24840420  --------     addiu	a0,a0,1056                    <LO16 (0x60 + .rdata(base))>
+0094  3c020000  --------     lui	v0,0x0                          <HI16 GPU_printf>
+0098  8c420000  --------     lw	v0,0(v0)                         <LO16 GPU_printf>
+009c  00000000  --------     nop                               
+00a0  0040f809  --------     jalr	v0                           
+00a4  02402821  --------     move	a1,s2                        
+00a8  08000075  --------     j	0x1d4                             <REL26 (0x1D4 + .text(base))>
+00ac  26520001  --------     addiu	s2,s2,1                     
+00b0  3c040000  --------     lui	a0,0x0                          <HI16 (0x68 + .rdata(base))>
+00b4  24840428  --------     addiu	a0,a0,1064                    <LO16 (0x68 + .rdata(base))>
+00b8  0c0000a6  --------     jal	0x298                           <REL26 (0x298 + .text(base))>
+00bc  02002821  --------     move	a1,s0                        
+00c0  92040007  --------     lbu	a0,7(s0)                      
+00c4  24020002  --------     li	v0,2                           
+00c8  308300ff  --------     andi	v1,a0,0xff                   
+00cc  14620004  --------     bne	v1,v0,0xe0                    
+00d0  2482ffe0  --------     addiu	v0,a0,-32                   
+00d4  3c050000  --------     lui	a1,0x0                          <HI16 (0x48 + .rdata(base))>
+00d8  08000070  --------     j	0x1c0                             <REL26 (0x1C0 + .text(base))>
+00dc  24a50408  --------     addiu	a1,a1,1032                    <LO16 (0x48 + .rdata(base))>
+00e0  2c420060  --------     sltiu	v0,v0,96                    
+00e4  1040000a  --------     beqz	v0,0x110                     
+00e8  2462ffe0  --------     addiu	v0,v1,-32                   
+00ec  04410003  --------     bgez	v0,0xfc                      
+00f0  00021083  --------     sra	v0,v0,0x2                     
+00f4  2462ffe3  --------     addiu	v0,v1,-29                   
+00f8  00021083  --------     sra	v0,v0,0x2                     
+00fc  00021080  --------     sll	v0,v0,0x2                     
+0100  00541021  --------     addu	v0,v0,s4                     
+0104  8c450000  --------     lw	a1,0(v0)                       
+0108  08000070  --------     j	0x1c0                             <REL26 (0x1C0 + .text(base))>
+010c  00000000  --------     nop                               
+0110  3c050000  --------     lui	a1,0x0                          <HI16 (0x4C + .rdata(base))>
+0114  24a5040c  --------     addiu	a1,a1,1036                    <LO16 (0x4C + .rdata(base))>
+0118  3c020000  --------     lui	v0,0x0                          <HI16 GPU_printf>
+011c  8c420000  --------     lw	v0,0(v0)                         <LO16 GPU_printf>
+0120  3c040000  --------     lui	a0,0x0                          <HI16 (0x74 + .rdata(base))>
+0124  0040f809  --------     jalr	v0                           
+0128  24840434  --------     addiu	a0,a0,1076                    <LO16 (0x74 + .rdata(base))>
+012c  8e020000  --------     lw	v0,0(s0)                       
+0130  00000000  --------     nop                               
+0134  00511024  --------     and	v0,v0,s1                      
+0138  00538025  --------     or	s0,v0,s3                       
+013c  8e040000  --------     lw	a0,0(s0)                       
+0140  00000000  --------     nop                               
+0144  00911024  --------     and	v0,a0,s1                      
+0148  1451ffc7  --------     bne	v0,s1,0x68                    
+014c  00000000  --------     nop                               
+0150  3c040000  --------     lui	a0,0x0                          <HI16 (0x68 + .rdata(base))>
+0154  24840428  --------     addiu	a0,a0,1064                    <LO16 (0x68 + .rdata(base))>
+0158  0c0000a6  --------     jal	0x298                           <REL26 (0x298 + .text(base))>
+015c  02002821  --------     move	a1,s0                        
+0160  92040007  --------     lbu	a0,7(s0)                      
+0164  24020002  --------     li	v0,2                           
+0168  308300ff  --------     andi	v1,a0,0xff                   
+016c  14620004  --------     bne	v1,v0,0x180                   
+0170  2482ffe0  --------     addiu	v0,a0,-32                   
+0174  3c050000  --------     lui	a1,0x0                          <HI16 (0x48 + .rdata(base))>
+0178  08000099  --------     j	0x264                             <REL26 (0x264 + .text(base))>
+017c  24a50408  --------     addiu	a1,a1,1032                    <LO16 (0x48 + .rdata(base))>
+0180  2c420060  --------     sltiu	v0,v0,96                    
+0184  1040000b  --------     beqz	v0,0x1b4                     
+0188  2462ffe0  --------     addiu	v0,v1,-32                   
+018c  04410003  --------     bgez	v0,0x19c                     
+0190  00021083  --------     sra	v0,v0,0x2                     
+0194  2462ffe3  --------     addiu	v0,v1,-29                   
+0198  00021083  --------     sra	v0,v0,0x2                     
+019c  00021080  --------     sll	v0,v0,0x2                     
+01a0  3c050000  --------     lui	a1,0x0                          <HI16 .data(base)>
+01a4  00a22821  --------     addu	a1,a1,v0                     
+01a8  8ca50470  --------     lw	a1,1136(a1)                      <LO16 .data(base)>
+01ac  08000099  --------     j	0x264                             <REL26 (0x264 + .text(base))>
+01b0  00000000  --------     nop                               
+01b4  3c050000  --------     lui	a1,0x0                          <HI16 (0x4C + .rdata(base))>
+01b8  24a5040c  --------     addiu	a1,a1,1036                    <LO16 (0x4C + .rdata(base))>
+01bc  3c020000  --------     lui	v0,0x0                          <HI16 GPU_printf>
+01c0  8c420000  --------     lw	v0,0(v0)                         <LO16 GPU_printf>
+01c4  3c040000  --------     lui	a0,0x0                          <HI16 (0x78 + .rdata(base))>
+01c8  0040f809  --------     jalr	v0                           
+01cc  24840438  --------     addiu	a0,a0,1080                    <LO16 (0x78 + .rdata(base))>
+01d0  8fbf0024  --------     lw	ra,36(sp)                      
+01d4  8fb40020  --------     lw	s4,32(sp)                      
+01d8  8fb3001c  --------     lw	s3,28(sp)                      
+01dc  8fb20018  --------     lw	s2,24(sp)                      
+01e0  8fb10014  --------     lw	s1,20(sp)                      
+01e4  8fb00010  --------     lw	s0,16(sp)                      
+01e8  03e00008  --------     jr	ra                             
+01ec  27bd0028  --------     addiu	sp,sp,40                    

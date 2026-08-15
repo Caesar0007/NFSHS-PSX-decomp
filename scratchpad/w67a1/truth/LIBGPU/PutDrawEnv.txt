@@ -1,0 +1,55 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / SYS / PutDrawEnv
+linkage=export  section-size=192 bytes (48 words)  vendor-relocs=10
+retail VA=0x800EDD24  VERDICT=reloc-only
+member $Id: $Id: sys.c,v 1.140 1998/01/12 07:52:27 noda Exp yos $
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe0  27bdffe0  =  addiu	sp,sp,-32                   
+0004  afb20018  afb20018  =  sw	s2,24(sp)                      
+0008  3c120000  3c128012  R  lui	s2,0x0                          <HI16 (0x52 + .data(base))>
+000c  26523282  2652369e  R  addiu	s2,s2,12930                   <LO16 (0x52 + .data(base))>
+0010  afbf001c  afbf001c  =  sw	ra,28(sp)                      
+0014  afb10014  afb10014  =  sw	s1,20(sp)                      
+0018  afb00010  afb00010  =  sw	s0,16(sp)                      
+001c  92420000  92420000  =  lbu	v0,0(s2)                      
+0020  00000000  00000000  =  nop                               
+0024  2c420002  2c420002  =  sltiu	v0,v0,2                     
+0028  14400008  14400008  =  bnez	v0,0x4c                      
+002c  00808821  00808821  =  move	s1,a0                        
+0030  3c040000  3c048005  R  lui	a0,0x0                          <HI16 (0x194 + .rdata(base))>
+0034  248431a4  24846e6c  R  addiu	a0,a0,12708                   <LO16 (0x194 + .rdata(base))>
+0038  3c020000  3c028012  R  lui	v0,0x0                          <HI16 (0x4C + .data(base))>
+003c  8c42327c  8c423698  R  lw	v0,12924(v0)                     <LO16 (0x4C + .data(base))>
+0040  00000000  00000000  =  nop                               
+0044  0040f809  0040f809  =  jalr	v0                           
+0048  02202821  02202821  =  move	a1,s1                        
+004c  2630001c  2630001c  =  addiu	s0,s1,28                    
+0050  02002021  02002021  =  move	a0,s0                        
+0054  0c000527  0c03b982  R  jal	0x149c                          <REL26 (0x149C + .text(base))>
+0058  02202821  02202821  =  move	a1,s1                        
+005c  3c0400ff  3c0400ff  =  lui	a0,0xff                       
+0060  3484ffff  3484ffff  =  ori	a0,a0,0xffff                  
+0064  02002821  02002821  =  move	a1,s0                        
+0068  24060040  24060040  =  li	a2,64                          
+006c  8e22001c  8e22001c  =  lw	v0,28(s1)                      
+0070  3c030000  3c038012  R  lui	v1,0x0                          <HI16 (0x48 + .data(base))>
+0074  8c633278  8c633694  R  lw	v1,12920(v1)                     <LO16 (0x48 + .data(base))>
+0078  00441025  00441025  =  or	v0,v0,a0                       
+007c  ae22001c  ae22001c  =  sw	v0,28(s1)                      
+0080  8c640018  8c640018  =  lw	a0,24(v1)                      
+0084  8c620008  8c620008  =  lw	v0,8(v1)                       
+0088  00000000  00000000  =  nop                               
+008c  0040f809  0040f809  =  jalr	v0                           
+0090  00003821  00003821  =  move	a3,zero                      
+0094  2644000e  2644000e  =  addiu	a0,s2,14                    
+0098  02202821  02202821  =  move	a1,s1                        
+009c  0c000000  0c03aab1  R  jal	0x0                             <REL26 memcpy>
+00a0  2406005c  2406005c  =  li	a2,92                          
+00a4  02201021  02201021  =  move	v0,s1                        
+00a8  8fbf001c  8fbf001c  =  lw	ra,28(sp)                      
+00ac  8fb20018  8fb20018  =  lw	s2,24(sp)                      
+00b0  8fb10014  8fb10014  =  lw	s1,20(sp)                      
+00b4  8fb00010  8fb00010  =  lw	s0,16(sp)                      
+00b8  03e00008  03e00008  =  jr	ra                             
+00bc  27bd0020  27bd0020  =  addiu	sp,sp,32                    

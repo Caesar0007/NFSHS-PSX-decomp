@@ -1,0 +1,17 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / SYS / SetPriority
+linkage=export  section-size=40 bytes (10 words)  vendor-relocs=0
+retail VA=NONE  VERDICT=absent
+member $Id: $Id: sys.c,v 1.140 1998/01/12 07:52:27 noda Exp yos $
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  24020002  --------     li	v0,2                           
+0004  a0820003  --------     sb	v0,3(a0)                       
+0008  10a00002  --------     beqz	a1,0x14                      
+000c  3c03e600  --------     lui	v1,0xe600                     
+0010  34630002  --------     ori	v1,v1,0x2                     
+0014  0006102b  --------     sltu	v0,zero,a2                   
+0018  00621025  --------     or	v0,v1,v0                       
+001c  ac820004  --------     sw	v0,4(a0)                       
+0020  03e00008  --------     jr	ra                             
+0024  ac800008  --------     sw	zero,8(a0)                     

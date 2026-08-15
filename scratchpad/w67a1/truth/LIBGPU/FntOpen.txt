@@ -1,0 +1,180 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / FONT / FntOpen
+linkage=export  section-size=696 bytes (174 words)  vendor-relocs=57
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c030000  --------     lui	v1,0x0                          <HI16 (0x180 + .data(base))>
+0004  8c630ca0  --------     lw	v1,3232(v1)                      <LO16 (0x180 + .data(base))>
+0008  27bdffb8  --------     addiu	sp,sp,-72                   
+000c  afb20028  --------     sw	s2,40(sp)                      
+0010  8fb2005c  --------     lw	s2,92(sp)                      
+0014  afb50034  --------     sw	s5,52(sp)                      
+0018  8fb50058  --------     lw	s5,88(sp)                      
+001c  afb40030  --------     sw	s4,48(sp)                      
+0020  0080a021  --------     move	s4,a0                        
+0024  afb60038  --------     sw	s6,56(sp)                      
+0028  00a0b021  --------     move	s6,a1                        
+002c  afb3002c  --------     sw	s3,44(sp)                      
+0030  00c09821  --------     move	s3,a2                        
+0034  afb7003c  --------     sw	s7,60(sp)                      
+0038  00e0b821  --------     move	s7,a3                        
+003c  afbf0040  --------     sw	ra,64(sp)                      
+0040  afb10024  --------     sw	s1,36(sp)                      
+0044  28620008  --------     slti	v0,v1,8                      
+0048  14400003  --------     bnez	v0,0x58                      
+004c  afb00020  --------     sw	s0,32(sp)                      
+0050  080000db  --------     j	0x36c                             <REL26 (0x36C + .text(base))>
+0054  2402ffff  --------     li	v0,-1                          
+0058  14600003  --------     bnez	v1,0x68                      
+005c  00031040  --------     sll	v0,v1,0x1                     
+0060  3c010000  --------     lui	at,0x0                          <HI16 (0xB88 + .data(base))>
+0064  ac2016a8  --------     sw	zero,5800(at)                    <LO16 (0xB88 + .data(base))>
+0068  00431021  --------     addu	v0,v0,v1                     
+006c  00022100  --------     sll	a0,v0,0x4                     
+0070  3c030000  --------     lui	v1,0x0                          <HI16 (0xB88 + .data(base))>
+0074  8c6316a8  --------     lw	v1,5800(v1)                      <LO16 (0xB88 + .data(base))>
+0078  2e620001  --------     sltiu	v0,s3,1                     
+007c  3c010000  --------     lui	at,0x0                          <HI16 (0x2C + .data(base))>
+0080  00240821  --------     addu	at,at,a0                     
+0084  ac220b4c  --------     sw	v0,2892(at)                      <LO16 (0x2C + .data(base))>
+0088  00721021  --------     addu	v0,v1,s2                     
+008c  28420401  --------     slti	v0,v0,1025                   
+0090  14400002  --------     bnez	v0,0x9c                      
+0094  24020400  --------     li	v0,1024                        
+0098  00439023  --------     subu	s2,v0,v1                     
+009c  3c110000  --------     lui	s1,0x0                          <HI16 (0x10 + .data(base))>
+00a0  26310b30  --------     addiu	s1,s1,2864                    <LO16 (0x10 + .data(base))>
+00a4  00912021  --------     addu	a0,a0,s1                     
+00a8  00002821  --------     move	a1,zero                      
+00ac  24020100  --------     li	v0,256                         
+00b0  a7a2001c  --------     sh	v0,28(sp)                      
+00b4  a7a2001e  --------     sh	v0,30(sp)                      
+00b8  27a20018  --------     addiu	v0,sp,24                    
+00bc  3c070000  --------     lui	a3,0x0                          <HI16 (0x4400 + .bss(base))>
+00c0  94e75ab0  --------     lhu	a3,23216(a3)                    <LO16 (0x4400 + .bss(base))>
+00c4  00003021  --------     move	a2,zero                      
+00c8  a7a00018  --------     sh	zero,24(sp)                    
+00cc  a7a0001a  --------     sh	zero,26(sp)                    
+00d0  0c000000  --------     jal	0x0                             <REL26 SetDrawMode>
+00d4  afa20010  --------     sw	v0,16(sp)                      
+00d8  12a00029  --------     beqz	s5,0x180                     
+00dc  2630fff0  --------     addiu	s0,s1,-16                   
+00e0  3c020000  --------     lui	v0,0x0                          <HI16 (0x180 + .data(base))>
+00e4  8c420ca0  --------     lw	v0,3232(v0)                      <LO16 (0x180 + .data(base))>
+00e8  00000000  --------     nop                               
+00ec  00022040  --------     sll	a0,v0,0x1                     
+00f0  00822021  --------     addu	a0,a0,v0                     
+00f4  00042100  --------     sll	a0,a0,0x4                     
+00f8  0c000000  --------     jal	0x0                             <REL26 SetTile>
+00fc  00902021  --------     addu	a0,a0,s0                     
+0100  3c030000  --------     lui	v1,0x0                          <HI16 (0x180 + .data(base))>
+0104  8c630ca0  --------     lw	v1,3232(v1)                      <LO16 (0x180 + .data(base))>
+0108  00000000  --------     nop                               
+010c  00031040  --------     sll	v0,v1,0x1                     
+0110  00431021  --------     addu	v0,v0,v1                     
+0114  00021100  --------     sll	v0,v0,0x4                     
+0118  00501021  --------     addu	v0,v0,s0                     
+011c  a0400004  --------     sb	zero,4(v0)                     
+0120  3c030000  --------     lui	v1,0x0                          <HI16 (0x180 + .data(base))>
+0124  8c630ca0  --------     lw	v1,3232(v1)                      <LO16 (0x180 + .data(base))>
+0128  00000000  --------     nop                               
+012c  00031040  --------     sll	v0,v1,0x1                     
+0130  00431021  --------     addu	v0,v0,v1                     
+0134  00021100  --------     sll	v0,v0,0x4                     
+0138  00501021  --------     addu	v0,v0,s0                     
+013c  a0400005  --------     sb	zero,5(v0)                     
+0140  3c030000  --------     lui	v1,0x0                          <HI16 (0x180 + .data(base))>
+0144  8c630ca0  --------     lw	v1,3232(v1)                      <LO16 (0x180 + .data(base))>
+0148  3aa50002  --------     xori	a1,s5,0x2                    
+014c  00031040  --------     sll	v0,v1,0x1                     
+0150  00431021  --------     addu	v0,v0,v1                     
+0154  00021100  --------     sll	v0,v0,0x4                     
+0158  00501021  --------     addu	v0,v0,s0                     
+015c  a0400006  --------     sb	zero,6(v0)                     
+0160  3c020000  --------     lui	v0,0x0                          <HI16 (0x180 + .data(base))>
+0164  8c420ca0  --------     lw	v0,3232(v0)                      <LO16 (0x180 + .data(base))>
+0168  2ca50001  --------     sltiu	a1,a1,1                     
+016c  00022040  --------     sll	a0,v0,0x1                     
+0170  00822021  --------     addu	a0,a0,v0                     
+0174  00042100  --------     sll	a0,a0,0x4                     
+0178  0c000000  --------     jal	0x0                             <REL26 SetSemiTrans>
+017c  00902021  --------     addu	a0,a0,s0                     
+0180  3c040000  --------     lui	a0,0x0                          <HI16 (0x180 + .data(base))>
+0184  8c840ca0  --------     lw	a0,3232(a0)                      <LO16 (0x180 + .data(base))>
+0188  2622fff0  --------     addiu	v0,s1,-16                   
+018c  00041840  --------     sll	v1,a0,0x1                     
+0190  00641821  --------     addu	v1,v1,a0                     
+0194  00031900  --------     sll	v1,v1,0x4                     
+0198  3c040000  --------     lui	a0,0x0                          <HI16 (0xB88 + .data(base))>
+019c  8c8416a8  --------     lw	a0,5800(a0)                      <LO16 (0xB88 + .data(base))>
+01a0  00621021  --------     addu	v0,v1,v0                     
+01a4  a4540008  --------     sh	s4,8(v0)                       
+01a8  a456000a  --------     sh	s6,10(v0)                      
+01ac  a453000c  --------     sh	s3,12(v0)                      
+01b0  a457000e  --------     sh	s7,14(v0)                      
+01b4  3c020000  --------     lui	v0,0x0                          <HI16 .bss(base)>
+01b8  244216b0  --------     addiu	v0,v0,5808                    <LO16 .bss(base)>
+01bc  3c010000  --------     lui	at,0x0                          <HI16 (0x1C + .data(base))>
+01c0  00230821  --------     addu	at,at,v1                     
+01c4  ac320b3c  --------     sw	s2,2876(at)                      <LO16 (0x1C + .data(base))>
+01c8  3c010000  --------     lui	at,0x0                          <HI16 (0x28 + .data(base))>
+01cc  00230821  --------     addu	at,at,v1                     
+01d0  ac200b48  --------     sw	zero,2888(at)                    <LO16 (0x28 + .data(base))>
+01d4  00821021  --------     addu	v0,a0,v0                     
+01d8  00042100  --------     sll	a0,a0,0x4                     
+01dc  3c010000  --------     lui	at,0x0                          <HI16 (0x24 + .data(base))>
+01e0  00230821  --------     addu	at,at,v1                     
+01e4  ac220b44  --------     sw	v0,2884(at)                      <LO16 (0x24 + .data(base))>
+01e8  3c020000  --------     lui	v0,0x0                          <HI16 (0x400 + .bss(base))>
+01ec  24421ab0  --------     addiu	v0,v0,6832                    <LO16 (0x400 + .bss(base))>
+01f0  3c050000  --------     lui	a1,0x0                          <HI16 (0x24 + .data(base))>
+01f4  00a32821  --------     addu	a1,a1,v1                     
+01f8  8ca50b44  --------     lw	a1,2884(a1)                      <LO16 (0x24 + .data(base))>
+01fc  00822021  --------     addu	a0,a0,v0                     
+0200  3c010000  --------     lui	at,0x0                          <HI16 (0x20 + .data(base))>
+0204  00230821  --------     addu	at,at,v1                     
+0208  ac240b40  --------     sw	a0,2880(at)                      <LO16 (0x20 + .data(base))>
+020c  a0a00000  --------     sb	zero,0(a1)                     
+0210  3c030000  --------     lui	v1,0x0                          <HI16 (0x180 + .data(base))>
+0214  8c630ca0  --------     lw	v1,3232(v1)                      <LO16 (0x180 + .data(base))>
+0218  00000000  --------     nop                               
+021c  00031040  --------     sll	v0,v1,0x1                     
+0220  00431021  --------     addu	v0,v0,v1                     
+0224  00021100  --------     sll	v0,v0,0x4                     
+0228  3c100000  --------     lui	s0,0x0                          <HI16 (0x20 + .data(base))>
+022c  02028021  --------     addu	s0,s0,v0                     
+0230  8e100b40  --------     lw	s0,2880(s0)                      <LO16 (0x20 + .data(base))>
+0234  1a40000a  --------     blez	s2,0x260                     
+0238  00008821  --------     move	s1,zero                      
+023c  0c000000  --------     jal	0x0                             <REL26 SetSprt8>
+0240  02002021  --------     move	a0,s0                        
+0244  3c020000  --------     lui	v0,0x0                          <HI16 (0x4402 + .bss(base))>
+0248  94425ab2  --------     lhu	v0,23218(v0)                    <LO16 (0x4402 + .bss(base))>
+024c  26310001  --------     addiu	s1,s1,1                     
+0250  a602000e  --------     sh	v0,14(s0)                      
+0254  0232102a  --------     slt	v0,s1,s2                      
+0258  1440fff8  --------     bnez	v0,0x23c                     
+025c  26100010  --------     addiu	s0,s0,16                    
+0260  3c050000  --------     lui	a1,0x0                          <HI16 (0x180 + .data(base))>
+0264  24a50ca0  --------     addiu	a1,a1,3232                    <LO16 (0x180 + .data(base))>
+0268  8ca40000  --------     lw	a0,0(a1)                       
+026c  3c030000  --------     lui	v1,0x0                          <HI16 (0xB88 + .data(base))>
+0270  8c6316a8  --------     lw	v1,5800(v1)                      <LO16 (0xB88 + .data(base))>
+0274  00801021  --------     move	v0,a0                        
+0278  24840001  --------     addiu	a0,a0,1                     
+027c  00721821  --------     addu	v1,v1,s2                     
+0280  3c010000  --------     lui	at,0x0                          <HI16 (0xB88 + .data(base))>
+0284  ac2316a8  --------     sw	v1,5800(at)                      <LO16 (0xB88 + .data(base))>
+0288  aca40000  --------     sw	a0,0(a1)                       
+028c  8fbf0040  --------     lw	ra,64(sp)                      
+0290  8fb7003c  --------     lw	s7,60(sp)                      
+0294  8fb60038  --------     lw	s6,56(sp)                      
+0298  8fb50034  --------     lw	s5,52(sp)                      
+029c  8fb40030  --------     lw	s4,48(sp)                      
+02a0  8fb3002c  --------     lw	s3,44(sp)                      
+02a4  8fb20028  --------     lw	s2,40(sp)                      
+02a8  8fb10024  --------     lw	s1,36(sp)                      
+02ac  8fb00020  --------     lw	s0,32(sp)                      
+02b0  03e00008  --------     jr	ra                             
+02b4  27bd0048  --------     addiu	sp,sp,72                    

@@ -1,0 +1,72 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / P37 / DumpDrawEnv
+linkage=export  section-size=264 bytes (66 words)  vendor-relocs=24
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe0  --------     addiu	sp,sp,-32                   
+0004  afb00018  --------     sw	s0,24(sp)                      
+0008  00808021  --------     move	s0,a0                        
+000c  afbf001c  --------     sw	ra,28(sp)                      
+0010  86050000  --------     lh	a1,0(s0)                       
+0014  86060002  --------     lh	a2,2(s0)                       
+0018  86070004  --------     lh	a3,4(s0)                       
+001c  86030006  --------     lh	v1,6(s0)                       
+0020  3c020000  --------     lui	v0,0x0                          <HI16 GPU_printf>
+0024  8c420000  --------     lw	v0,0(v0)                         <LO16 GPU_printf>
+0028  3c040000  --------     lui	a0,0x0                          <HI16 .rdata(base)>
+002c  248401b0  --------     addiu	a0,a0,432                     <LO16 .rdata(base)>
+0030  0040f809  --------     jalr	v0                           
+0034  afa30010  --------     sw	v1,16(sp)                      
+0038  86050008  --------     lh	a1,8(s0)                       
+003c  8606000a  --------     lh	a2,10(s0)                      
+0040  3c020000  --------     lui	v0,0x0                          <HI16 GPU_printf>
+0044  8c420000  --------     lw	v0,0(v0)                         <LO16 GPU_printf>
+0048  3c040000  --------     lui	a0,0x0                          <HI16 (0x18 + .rdata(base))>
+004c  0040f809  --------     jalr	v0                           
+0050  248401c8  --------     addiu	a0,a0,456                     <LO16 (0x18 + .rdata(base))>
+0054  8605000c  --------     lh	a1,12(s0)                      
+0058  8606000e  --------     lh	a2,14(s0)                      
+005c  86070010  --------     lh	a3,16(s0)                      
+0060  86030012  --------     lh	v1,18(s0)                      
+0064  3c020000  --------     lui	v0,0x0                          <HI16 GPU_printf>
+0068  8c420000  --------     lw	v0,0(v0)                         <LO16 GPU_printf>
+006c  3c040000  --------     lui	a0,0x0                          <HI16 (0x28 + .rdata(base))>
+0070  248401d8  --------     addiu	a0,a0,472                     <LO16 (0x28 + .rdata(base))>
+0074  0040f809  --------     jalr	v0                           
+0078  afa30010  --------     sw	v1,16(sp)                      
+007c  92050016  --------     lbu	a1,22(s0)                     
+0080  3c020000  --------     lui	v0,0x0                          <HI16 GPU_printf>
+0084  8c420000  --------     lw	v0,0(v0)                         <LO16 GPU_printf>
+0088  3c040000  --------     lui	a0,0x0                          <HI16 (0x40 + .rdata(base))>
+008c  0040f809  --------     jalr	v0                           
+0090  248401f0  --------     addiu	a0,a0,496                     <LO16 (0x40 + .rdata(base))>
+0094  92050017  --------     lbu	a1,23(s0)                     
+0098  3c020000  --------     lui	v0,0x0                          <HI16 GPU_printf>
+009c  8c420000  --------     lw	v0,0(v0)                         <LO16 GPU_printf>
+00a0  3c040000  --------     lui	a0,0x0                          <HI16 (0x4C + .rdata(base))>
+00a4  0040f809  --------     jalr	v0                           
+00a8  248401fc  --------     addiu	a0,a0,508                     <LO16 (0x4C + .rdata(base))>
+00ac  3c040000  --------     lui	a0,0x0                          <HI16 (0x58 + .rdata(base))>
+00b0  24840208  --------     addiu	a0,a0,520                     <LO16 (0x58 + .rdata(base))>
+00b4  96060014  --------     lhu	a2,20(s0)                     
+00b8  96030014  --------     lhu	v1,20(s0)                     
+00bc  3c020000  --------     lui	v0,0x0                          <HI16 GPU_printf>
+00c0  8c420000  --------     lw	v0,0(v0)                         <LO16 GPU_printf>
+00c4  000629c2  --------     srl	a1,a2,0x7                     
+00c8  30a50003  --------     andi	a1,a1,0x3                    
+00cc  00063142  --------     srl	a2,a2,0x5                     
+00d0  30c60003  --------     andi	a2,a2,0x3                    
+00d4  00033980  --------     sll	a3,v1,0x6                     
+00d8  30e707c0  --------     andi	a3,a3,0x7c0                  
+00dc  00034100  --------     sll	t0,v1,0x4                     
+00e0  31080100  --------     andi	t0,t0,0x100                  
+00e4  00031882  --------     srl	v1,v1,0x2                     
+00e8  30630200  --------     andi	v1,v1,0x200                  
+00ec  01034025  --------     or	t0,t0,v1                       
+00f0  0040f809  --------     jalr	v0                           
+00f4  afa80010  --------     sw	t0,16(sp)                      
+00f8  8fbf001c  --------     lw	ra,28(sp)                      
+00fc  8fb00018  --------     lw	s0,24(sp)                      
+0100  03e00008  --------     jr	ra                             
+0104  27bd0020  --------     addiu	sp,sp,32                    

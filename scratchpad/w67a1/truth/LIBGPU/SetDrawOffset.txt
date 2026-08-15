@@ -1,0 +1,23 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / SYS / SetDrawOffset
+linkage=export  section-size=64 bytes (16 words)  vendor-relocs=1
+retail VA=NONE  VERDICT=absent
+member $Id: $Id: sys.c,v 1.140 1998/01/12 07:52:27 noda Exp yos $
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  --------     addiu	sp,sp,-24                   
+0004  afb00010  --------     sw	s0,16(sp)                      
+0008  00808021  --------     move	s0,a0                        
+000c  24020002  --------     li	v0,2                           
+0010  afbf0014  --------     sw	ra,20(sp)                      
+0014  a2020003  --------     sb	v0,3(s0)                       
+0018  84a40000  --------     lh	a0,0(a1)                       
+001c  84a50002  --------     lh	a1,2(a1)                       
+0020  0c000617  --------     jal	0x185c                          <REL26 (0x185C + .text(base))>
+0024  00000000  --------     nop                               
+0028  ae020004  --------     sw	v0,4(s0)                       
+002c  ae000008  --------     sw	zero,8(s0)                     
+0030  8fbf0014  --------     lw	ra,20(sp)                      
+0034  8fb00010  --------     lw	s0,16(sp)                      
+0038  03e00008  --------     jr	ra                             
+003c  27bd0018  --------     addiu	sp,sp,24                    

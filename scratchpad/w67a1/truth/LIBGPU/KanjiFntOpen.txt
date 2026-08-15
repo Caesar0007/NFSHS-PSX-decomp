@@ -1,0 +1,202 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / KPRINTF / KanjiFntOpen
+linkage=export  section-size=784 bytes (196 words)  vendor-relocs=63
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffc8  --------     addiu	sp,sp,-56                   
+0004  afb00010  --------     sw	s0,16(sp)                      
+0008  8fb00050  --------     lw	s0,80(sp)                      
+000c  afb10014  --------     sw	s1,20(sp)                      
+0010  8fb10054  --------     lw	s1,84(sp)                      
+0014  afb50024  --------     sw	s5,36(sp)                      
+0018  0080a821  --------     move	s5,a0                        
+001c  afb60028  --------     sw	s6,40(sp)                      
+0020  00a0b021  --------     move	s6,a1                        
+0024  afb7002c  --------     sw	s7,44(sp)                      
+0028  00c0b821  --------     move	s7,a2                        
+002c  afbe0030  --------     sw	s8,48(sp)                      
+0030  00e0f021  --------     move	s8,a3                        
+0034  afb40020  --------     sw	s4,32(sp)                      
+0038  8fb40058  --------     lw	s4,88(sp)                      
+003c  3c040001  --------     lui	a0,0x1                          <HI16 (0xA810 + .bss(base))>
+0040  2484b820  --------     addiu	a0,a0,-18400                  <LO16 (0xA810 + .bss(base))>
+0044  afb3001c  --------     sw	s3,28(sp)                      
+0048  8fb3005c  --------     lw	s3,92(sp)                      
+004c  24052000  --------     li	a1,8192                        
+0050  afbf0034  --------     sw	ra,52(sp)                      
+0054  0c000000  --------     jal	0x0                             <REL26 bzero>
+0058  afb20018  --------     sw	s2,24(sp)                      
+005c  00002821  --------     move	a1,zero                      
+0060  24060034  --------     li	a2,52                          
+0064  3c020000  --------     lui	v0,0x0                          <HI16 .data(base)>
+0068  8c420fd0  --------     lw	v0,4048(v0)                      <LO16 .data(base)>
+006c  3c120000  --------     lui	s2,0x0                          <HI16 KanjiFont>
+0070  26520000  --------     addiu	s2,s2,0                       <LO16 KanjiFont>
+0074  00022040  --------     sll	a0,v0,0x1                     
+0078  00822021  --------     addu	a0,a0,v0                     
+007c  00042080  --------     sll	a0,a0,0x2                     
+0080  00822021  --------     addu	a0,a0,v0                     
+0084  00042080  --------     sll	a0,a0,0x2                     
+0088  0c000000  --------     jal	0x0                             <REL26 memset>
+008c  00922021  --------     addu	a0,a0,s2                     
+0090  0c000000  --------     jal	0x0                             <REL26 DrawSync>
+0094  00002021  --------     move	a0,zero                      
+0098  3c040000  --------     lui	a0,0x0                          <HI16 (0xC + .data(base))>
+009c  24840fdc  --------     addiu	a0,a0,4060                    <LO16 (0xC + .data(base))>
+00a0  02002821  --------     move	a1,s0                        
+00a4  0c000000  --------     jal	0x0                             <REL26 LoadClut2>
+00a8  02203021  --------     move	a2,s1                        
+00ac  3c030000  --------     lui	v1,0x0                          <HI16 .data(base)>
+00b0  8c630fd0  --------     lw	v1,4048(v1)                      <LO16 .data(base)>
+00b4  3c010001  --------     lui	at,0x1                          <HI16 (0xA80A + .bss(base))>
+00b8  a422b81a  --------     sh	v0,-18406(at)                    <LO16 (0xA80A + .bss(base))>
+00bc  28620004  --------     slti	v0,v1,4                      
+00c0  10400087  --------     beqz	v0,0x2e0                     
+00c4  2402ffff  --------     li	v0,-1                          
+00c8  14600003  --------     bnez	v1,0xd8                      
+00cc  00000000  --------     nop                               
+00d0  3c010000  --------     lui	at,0x0                          <HI16 (0x2C + .data(base))>
+00d4  ac200ffc  --------     sw	zero,4092(at)                    <LO16 (0x2C + .data(base))>
+00d8  3c020000  --------     lui	v0,0x0                          <HI16 (0x2C + .data(base))>
+00dc  8c420ffc  --------     lw	v0,4092(v0)                      <LO16 (0x2C + .data(base))>
+00e0  00000000  --------     nop                               
+00e4  00531021  --------     addu	v0,v0,s3                     
+00e8  28420401  --------     slti	v0,v0,1025                   
+00ec  1040007c  --------     beqz	v0,0x2e0                     
+00f0  2402ffff  --------     li	v0,-1                          
+00f4  12800025  --------     beqz	s4,0x18c                     
+00f8  00032040  --------     sll	a0,v1,0x1                     
+00fc  00832021  --------     addu	a0,a0,v1                     
+0100  00042080  --------     sll	a0,a0,0x2                     
+0104  00832021  --------     addu	a0,a0,v1                     
+0108  00042080  --------     sll	a0,a0,0x2                     
+010c  0c000000  --------     jal	0x0                             <REL26 SetTile>
+0110  00922021  --------     addu	a0,a0,s2                     
+0114  3c030000  --------     lui	v1,0x0                          <HI16 .data(base)>
+0118  8c630fd0  --------     lw	v1,4048(v1)                      <LO16 .data(base)>
+011c  00000000  --------     nop                               
+0120  00031040  --------     sll	v0,v1,0x1                     
+0124  00431021  --------     addu	v0,v0,v1                     
+0128  00021080  --------     sll	v0,v0,0x2                     
+012c  00431021  --------     addu	v0,v0,v1                     
+0130  00021080  --------     sll	v0,v0,0x2                     
+0134  00521021  --------     addu	v0,v0,s2                     
+0138  a0400004  --------     sb	zero,4(v0)                     
+013c  3c030000  --------     lui	v1,0x0                          <HI16 .data(base)>
+0140  8c630fd0  --------     lw	v1,4048(v1)                      <LO16 .data(base)>
+0144  00000000  --------     nop                               
+0148  00031040  --------     sll	v0,v1,0x1                     
+014c  00431021  --------     addu	v0,v0,v1                     
+0150  00021080  --------     sll	v0,v0,0x2                     
+0154  00431021  --------     addu	v0,v0,v1                     
+0158  00021080  --------     sll	v0,v0,0x2                     
+015c  00521021  --------     addu	v0,v0,s2                     
+0160  a0400005  --------     sb	zero,5(v0)                     
+0164  3c030000  --------     lui	v1,0x0                          <HI16 .data(base)>
+0168  8c630fd0  --------     lw	v1,4048(v1)                      <LO16 .data(base)>
+016c  00000000  --------     nop                               
+0170  00031040  --------     sll	v0,v1,0x1                     
+0174  00431021  --------     addu	v0,v0,v1                     
+0178  00021080  --------     sll	v0,v0,0x2                     
+017c  00431021  --------     addu	v0,v0,v1                     
+0180  00021080  --------     sll	v0,v0,0x2                     
+0184  00521021  --------     addu	v0,v0,s2                     
+0188  a0400006  --------     sb	zero,6(v0)                     
+018c  3c030000  --------     lui	v1,0x0                          <HI16 .data(base)>
+0190  8c630fd0  --------     lw	v1,4048(v1)                      <LO16 .data(base)>
+0194  3c050000  --------     lui	a1,0x0                          <HI16 (0x2C + .data(base))>
+0198  8ca50ffc  --------     lw	a1,4092(a1)                      <LO16 (0x2C + .data(base))>
+019c  00032040  --------     sll	a0,v1,0x1                     
+01a0  00832021  --------     addu	a0,a0,v1                     
+01a4  00042080  --------     sll	a0,a0,0x2                     
+01a8  00832021  --------     addu	a0,a0,v1                     
+01ac  00042080  --------     sll	a0,a0,0x2                     
+01b0  00921021  --------     addu	v0,a0,s2                     
+01b4  a4550008  --------     sh	s5,8(v0)                       
+01b8  a456000a  --------     sh	s6,10(v0)                      
+01bc  a457000c  --------     sh	s7,12(v0)                      
+01c0  a45e000e  --------     sh	s8,14(v0)                      
+01c4  00051040  --------     sll	v0,a1,0x1                     
+01c8  00431021  --------     addu	v0,v0,v1                     
+01cc  3c030000  --------     lui	v1,0x0                          <HI16 .bss(base)>
+01d0  24631010  --------     addiu	v1,v1,4112                    <LO16 .bss(base)>
+01d4  00431021  --------     addu	v0,v0,v1                     
+01d8  3c010000  --------     lui	at,0x0                          <HI16 (0x24 + KanjiFont)>
+01dc  00240821  --------     addu	at,at,a0                     
+01e0  ac220024  --------     sw	v0,36(at)                        <LO16 (0x24 + KanjiFont)>
+01e4  00051080  --------     sll	v0,a1,0x2                     
+01e8  00451021  --------     addu	v0,v0,a1                     
+01ec  000210c0  --------     sll	v0,v0,0x3                     
+01f0  3c030000  --------     lui	v1,0x0                          <HI16 (0x808 + .bss(base))>
+01f4  24631818  --------     addiu	v1,v1,6168                    <LO16 (0x808 + .bss(base))>
+01f8  3c050000  --------     lui	a1,0x0                          <HI16 (0x24 + KanjiFont)>
+01fc  00a42821  --------     addu	a1,a1,a0                     
+0200  8ca50024  --------     lw	a1,36(a1)                        <LO16 (0x24 + KanjiFont)>
+0204  00431021  --------     addu	v0,v0,v1                     
+0208  3c010000  --------     lui	at,0x0                          <HI16 (0x1C + KanjiFont)>
+020c  00240821  --------     addu	at,at,a0                     
+0210  ac33001c  --------     sw	s3,28(at)                        <LO16 (0x1C + KanjiFont)>
+0214  3c010000  --------     lui	at,0x0                          <HI16 (0x20 + KanjiFont)>
+0218  00240821  --------     addu	at,at,a0                     
+021c  ac220020  --------     sw	v0,32(at)                        <LO16 (0x20 + KanjiFont)>
+0220  3c010000  --------     lui	at,0x0                          <HI16 (0x28 + KanjiFont)>
+0224  00240821  --------     addu	at,at,a0                     
+0228  ac200028  --------     sw	zero,40(at)                      <LO16 (0x28 + KanjiFont)>
+022c  a0a00000  --------     sb	zero,0(a1)                     
+0230  3c030000  --------     lui	v1,0x0                          <HI16 .data(base)>
+0234  8c630fd0  --------     lw	v1,4048(v1)                      <LO16 .data(base)>
+0238  00000000  --------     nop                               
+023c  00031040  --------     sll	v0,v1,0x1                     
+0240  00431021  --------     addu	v0,v0,v1                     
+0244  00021080  --------     sll	v0,v0,0x2                     
+0248  00431021  --------     addu	v0,v0,v1                     
+024c  00021080  --------     sll	v0,v0,0x2                     
+0250  3c100000  --------     lui	s0,0x0                          <HI16 (0x20 + KanjiFont)>
+0254  02028021  --------     addu	s0,s0,v0                     
+0258  8e100020  --------     lw	s0,32(s0)                        <LO16 (0x20 + KanjiFont)>
+025c  8fa30048  --------     lw	v1,72(sp)                      
+0260  3c010000  --------     lui	at,0x0                          <HI16 (0x2C + KanjiFont)>
+0264  00220821  --------     addu	at,at,v0                     
+0268  ac23002c  --------     sw	v1,44(at)                        <LO16 (0x2C + KanjiFont)>
+026c  8fa3004c  --------     lw	v1,76(sp)                      
+0270  3c010000  --------     lui	at,0x0                          <HI16 (0x30 + KanjiFont)>
+0274  00220821  --------     addu	at,at,v0                     
+0278  ac230030  --------     sw	v1,48(at)                        <LO16 (0x30 + KanjiFont)>
+027c  1a60000d  --------     blez	s3,0x2b4                     
+0280  00008821  --------     move	s1,zero                      
+0284  0c000000  --------     jal	0x0                             <REL26 SetPolyFT4>
+0288  02002021  --------     move	a0,s0                        
+028c  02002021  --------     move	a0,s0                        
+0290  0c000000  --------     jal	0x0                             <REL26 SetShadeTex>
+0294  24050001  --------     li	a1,1                           
+0298  3c020001  --------     lui	v0,0x1                          <HI16 (0xA80A + .bss(base))>
+029c  9442b81a  --------     lhu	v0,-18406(v0)                   <LO16 (0xA80A + .bss(base))>
+02a0  26310001  --------     addiu	s1,s1,1                     
+02a4  a602000e  --------     sh	v0,14(s0)                      
+02a8  0233102a  --------     slt	v0,s1,s3                      
+02ac  1440fff5  --------     bnez	v0,0x284                     
+02b0  26100028  --------     addiu	s0,s0,40                    
+02b4  3c050000  --------     lui	a1,0x0                          <HI16 .data(base)>
+02b8  24a50fd0  --------     addiu	a1,a1,4048                    <LO16 .data(base)>
+02bc  8ca40000  --------     lw	a0,0(a1)                       
+02c0  3c030000  --------     lui	v1,0x0                          <HI16 (0x2C + .data(base))>
+02c4  8c630ffc  --------     lw	v1,4092(v1)                      <LO16 (0x2C + .data(base))>
+02c8  00801021  --------     move	v0,a0                        
+02cc  24840001  --------     addiu	a0,a0,1                     
+02d0  00731821  --------     addu	v1,v1,s3                     
+02d4  3c010000  --------     lui	at,0x0                          <HI16 (0x2C + .data(base))>
+02d8  ac230ffc  --------     sw	v1,4092(at)                      <LO16 (0x2C + .data(base))>
+02dc  aca40000  --------     sw	a0,0(a1)                       
+02e0  8fbf0034  --------     lw	ra,52(sp)                      
+02e4  8fbe0030  --------     lw	s8,48(sp)                      
+02e8  8fb7002c  --------     lw	s7,44(sp)                      
+02ec  8fb60028  --------     lw	s6,40(sp)                      
+02f0  8fb50024  --------     lw	s5,36(sp)                      
+02f4  8fb40020  --------     lw	s4,32(sp)                      
+02f8  8fb3001c  --------     lw	s3,28(sp)                      
+02fc  8fb20018  --------     lw	s2,24(sp)                      
+0300  8fb10014  --------     lw	s1,20(sp)                      
+0304  8fb00010  --------     lw	s0,16(sp)                      
+0308  03e00008  --------     jr	ra                             
+030c  27bd0038  --------     addiu	sp,sp,56                    

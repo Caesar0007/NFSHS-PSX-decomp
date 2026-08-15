@@ -1,0 +1,51 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / EXT / SetDefDrawEnv
+linkage=export  section-size=180 bytes (45 words)  vendor-relocs=2
+retail VA=0x800F222C  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffd8  27bdffd8  =  addiu	sp,sp,-40                   
+0004  afb20018  afb20018  =  sw	s2,24(sp)                      
+0008  8fb20038  8fb20038  =  lw	s2,56(sp)                      
+000c  afb10014  afb10014  =  sw	s1,20(sp)                      
+0010  00808821  00808821  =  move	s1,a0                        
+0014  afb3001c  afb3001c  =  sw	s3,28(sp)                      
+0018  00a09821  00a09821  =  move	s3,a1                        
+001c  afb40020  afb40020  =  sw	s4,32(sp)                      
+0020  00c0a021  00c0a021  =  move	s4,a2                        
+0024  afb00010  afb00010  =  sw	s0,16(sp)                      
+0028  afbf0024  afbf0024  =  sw	ra,36(sp)                      
+002c  0c000000  0c03c5e1  R  jal	0x0                             <REL26 GetVideoMode>
+0030  00e08021  00e08021  =  move	s0,a3                        
+0034  24030001  24030001  =  li	v1,1                           
+0038  a6330000  a6330000  =  sh	s3,0(s1)                       
+003c  a6340002  a6340002  =  sh	s4,2(s1)                       
+0040  a6300004  a6300004  =  sh	s0,4(s1)                       
+0044  a620000c  a620000c  =  sh	zero,12(s1)                    
+0048  a620000e  a620000e  =  sh	zero,14(s1)                    
+004c  a6200010  a6200010  =  sh	zero,16(s1)                    
+0050  a6200012  a6200012  =  sh	zero,18(s1)                    
+0054  a2200019  a2200019  =  sb	zero,25(s1)                    
+0058  a220001a  a220001a  =  sb	zero,26(s1)                    
+005c  a220001b  a220001b  =  sb	zero,27(s1)                    
+0060  a2230016  a2230016  =  sb	v1,22(s1)                      
+0064  10400003  10400003  =  beqz	v0,0x74                      
+0068  a6320006  a6320006  =  sh	s2,6(s1)                       
+006c  0800008a  0803c8a9  R  j	0x228                             <REL26 (0x228 + .text(base))>
+0070  2a420121  2a420121  =  slti	v0,s2,289                    
+0074  2a420101  2a420101  =  slti	v0,s2,257                    
+0078  a2220017  a2220017  =  sb	v0,23(s1)                      
+007c  02201021  02201021  =  move	v0,s1                        
+0080  2403000a  2403000a  =  li	v1,10                          
+0084  a4530008  a4530008  =  sh	s3,8(v0)                       
+0088  a454000a  a454000a  =  sh	s4,10(v0)                      
+008c  a4430014  a4430014  =  sh	v1,20(v0)                      
+0090  a0400018  a0400018  =  sb	zero,24(v0)                    
+0094  8fbf0024  8fbf0024  =  lw	ra,36(sp)                      
+0098  8fb40020  8fb40020  =  lw	s4,32(sp)                      
+009c  8fb3001c  8fb3001c  =  lw	s3,28(sp)                      
+00a0  8fb20018  8fb20018  =  lw	s2,24(sp)                      
+00a4  8fb10014  8fb10014  =  lw	s1,20(sp)                      
+00a8  8fb00010  8fb00010  =  lw	s0,16(sp)                      
+00ac  03e00008  03e00008  =  jr	ra                             
+00b0  27bd0028  27bd0028  =  addiu	sp,sp,40                    

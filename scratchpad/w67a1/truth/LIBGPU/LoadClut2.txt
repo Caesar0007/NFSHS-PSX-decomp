@@ -1,0 +1,31 @@
+W67-A1 VENDOR GROUND TRUTH  LIBGPU / EXT / LoadClut2
+linkage=export  section-size=100 bytes (25 words)  vendor-relocs=2
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffd8  --------     addiu	sp,sp,-40                   
+0004  00801021  --------     move	v0,a0                        
+0008  afb00018  --------     sw	s0,24(sp)                      
+000c  00a08021  --------     move	s0,a1                        
+0010  afb1001c  --------     sw	s1,28(sp)                      
+0014  00c08821  --------     move	s1,a2                        
+0018  27a40010  --------     addiu	a0,sp,16                    
+001c  00402821  --------     move	a1,v0                        
+0020  24020010  --------     li	v0,16                          
+0024  a7a20014  --------     sh	v0,20(sp)                      
+0028  24020001  --------     li	v0,1                           
+002c  afbf0020  --------     sw	ra,32(sp)                      
+0030  a7b00010  --------     sh	s0,16(sp)                      
+0034  a7b10012  --------     sh	s1,18(sp)                      
+0038  0c000000  --------     jal	0x0                             <REL26 LoadImage>
+003c  a7a20016  --------     sh	v0,22(sp)                      
+0040  02002021  --------     move	a0,s0                        
+0044  0c000000  --------     jal	0x0                             <REL26 GetClut>
+0048  02202821  --------     move	a1,s1                        
+004c  3042ffff  --------     andi	v0,v0,0xffff                 
+0050  8fbf0020  --------     lw	ra,32(sp)                      
+0054  8fb1001c  --------     lw	s1,28(sp)                      
+0058  8fb00018  --------     lw	s0,24(sp)                      
+005c  03e00008  --------     jr	ra                             
+0060  27bd0028  --------     addiu	sp,sp,40                    

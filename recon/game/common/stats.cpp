@@ -539,7 +539,44 @@ void Stats_ExtrapolateOpponentTimes(int type)
    register and stores once.
    ROUTE: not a fence dial -- the cell is closed.  Either a structural change that
    moves DesiredSpeed's live range by 3 WITHOUT adding an insn, or the 06E
-   local-alloc/qtytrace instrument.  Do not spend more fence positions. */
+   local-alloc/qtytrace instrument.  Do not spend more fence positions.
+
+   🔴 W64-A15 (2026-08-15) -- THE W62 CERTIFICATE IS CORRECT BUT AIMED AT THE WRONG
+   PSEUDO.  W62 proved only that *DesiredSpeed's* cell is empty; it never enumerated
+   the OTHER band members.  A complete two-pseudo sweep over the band
+   (scratchpad/w64a15/statscells.py -- allocsim/reqdelta directly; multidial's
+   --search is greedy AND refs-only, so it cannot see a live-only pair) finds
+   **180 solution cells**, and every cheap one is on PlayerPosition + DesiredSlice,
+   not DesiredSpeed.  Current numbering (re-dumped, drifted BACK to the W59 set):
+     p285=s3 (19,78)  p101=PlayerPosition=s4 (9,28)  p103=DesiredSlice=s5 (13,41)
+     p104=DesiredSpeed=s6 (13,41)  p130=jj=s7 (5,11)   want p104=s4 p101=s5 p130=s6 p103=s7
+   SOLO cells: NONE (confirmed by exhaustive single-pseudo sweep, refs +-4 x live -6..+8).
+   CHEAPEST PAIRS (cost = 2*|dRefs| + |dLive|):
+     cost 3   p101 live +1  AND  p103 refs -1
+     cost 3   p101 live +1  AND  p103 live +2
+     cost 4   p101 live +1  AND  p103 refs -1 live +-1
+     cost 8   p103 refs -1  AND  p104 live -4          (the only pair NOT touching p101)
+   `p101 live +1` appears in every cell under cost 8 -- it is effectively mandatory,
+   and it is a razor (live 30 already breaks the band: p101 falls under p130).
+   MEASURED (each a real gate run + a fresh -dl/-dg dump, all restored):
+     (1) FOREIGN-OPERAND FENCE, zero-insn, aimed at p101's live range --
+         `__asm__("" : : "r"(trackSlices));` immediately after PlayerPosition's def
+         (operand chosen OUTSIDE the band so no band ref moves):
+           gate 52 @232/232 (COUNT STAYS EXACT), and the handout becomes
+           p103=s3(13,40) p104=s4(13,40) p285=s5(19,79) p130=s6(5,11) p101=s7(9,31)
+         => **p104=s4 and p130=s6 are now RETAIL-CORRECT (2 of 4, was 0 of 4).**
+         🔴 AND THE 15A "+1 live for everything live across it" MODEL IS WRONG HERE:
+         measured deltas are p101 +3, p103 -1, p104 -1, p285 +1 -- the fence RE-TIMES
+         several ranges, it does not uniformly lengthen them.  Any future live dial on
+         this fn must be re-measured from the dump, never predicted from the +1 rule.
+     (2) second-min through a fenced `sliceTot` temp (to buy p103 refs -1):
+         153 @233 -- the identity fence MATERIALIZES here (+1 insn), so it is not a
+         zero-cost ref dial at this site.  Paired with (1): 157 @233.
+   NOT LANDED (52/153/157 all > 44).  ROUTE, sharpened: from the (1) basin the
+   remaining question is only `p101 live 31 -> 29` and `p103 below p130`, with p285
+   restored above p104 -- i.e. re-run statscells.py ON THE (1) DUMP (the cell table is
+   basin-relative, 04Z) and look for a fence POSITION whose measured re-timing lands
+   that cell.  Do NOT go back to DesiredSpeed: its cell really is closed. */
 void Stats_TrackEndGame(void)
 
 {

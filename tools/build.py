@@ -1492,6 +1492,13 @@ PER_FN_TEXT_MOVES = {
             {"take": r"\tlw\t\$21,96\(\$sp\)\n", "after": r"\tlbu\t\$2,3\(\$20\)\n",
              "drop_nop": True},
         ],
+        # w61-a2 (vprobe-verified): DrawQuad 2 -> PASS 592/592 on top of the
+        # inverted-default landing (the hoisted prologue lw belongs at retail's
+        # else-arm head; source-unreachable by construction).
+        "DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad": [
+            {"take": r"\tlw\t\$17,4\(\$16\)\n",
+             "after": r"\$L\d+:\n(?= \#APP\n\tlw\t\$t4,0\(\$2\)\n)"},
+        ],
     },
     # tScreenTrophyInfo::GetShapeInfo is count/register exact.  These two
     # source-scheduler relocations reduce its isolated load-order residual

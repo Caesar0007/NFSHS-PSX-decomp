@@ -588,7 +588,34 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
        remaining dial really is the BIRTH ORDER inside the hand-rolled next_qty<=3
        comparator -- qtytrace.py from the 588/588 basin, as w49 said.  Cluster (b)
        is independent and is the same prim-in-a-callee-saved-reg question as
-       DrawW_DrawQuad's p141; crack it there first, it is a smaller function. */
+       DrawW_DrawQuad's p141; crack it there first, it is a smaller function.
+       ---- w61-a2 (2026-08-15): CLUSTER (b)'s SHAPE IS NOW SOURCE-REACHABLE, and
+       the DrawQuad cross-reference above is RESOLVED (DrawQuad sealed this wave by
+       an inverted default -- a different mechanism, it does NOT transfer here).
+       THE DEVICE: a READ-ONLY FENCE ON `prim` AFTER the AddSubdividPrimGT4 call
+       (`__asm__("" : : "r"(prim));` between the call and the `return`).  It makes
+       prim cross the call, so it stops being a single-block local qty and takes a
+       CALLEE-SAVED home, and the arg copy retail has appears:
+           ours before : lw a0,4(s2) ... sll t4,a0,8 ; sw t6,0(a0)   [no copy]
+           ours after  : lw s0,4(s2) ... sll t4,s0,8 ; sw t6,0(s0) ; addu a0,s0,zero
+           retail      : lw s3,4(s2) ... sll t4,s3,8 ; sw t6,0(s3) ; addu a0,s3,zero
+       i.e. the whole shape matches and ONLY the callee-saved INDEX is wrong
+       ($s0 vs $s3).  Gate: 35 @587 (ONE SHORT) -> 36 @588 COUNT-EXACT.  NOT LANDED
+       (hard-floor-basin rule: +1 authoritative diff and I could not close the
+       register in the same pass), but the basin is the right one to resume from.
+       NAMED ANGLE (next pass): prim now takes the LOWEST FREE callee-saved, i.e.
+       nothing live in the GT4 tail block conflicts with $s0/$s1/$s2; retail's $s3
+       means its prim allocno DOES conflict with those three.  So the dial is a
+       CONFLICT, not a priority: run allocsim on the 588/588 basin and look for the
+       $s0 owner (the `r_div->v` base used by the recursion arm, dead in the tail)
+       -- lengthening THAT value's range through the tail, or giving prim a def
+       that dominates the backface block WITHOUT moving the load, is the target.
+       FALSIFIED this wave from the 587 basin: hoisting `prim = ...cprim.PrimPtr;`
+       above the `if (subDivide != 0)` block 42 @586, the same + an opacity fence
+       at the def 41 @587, hoist + tail read-fence 475 @601 (catastrophic -- the
+       hoisted load re-schedules the whole backface block).  From the 588 basin:
+       two and three stacked tail read-fences 36 (no further move), a tail OPACITY
+       fence 36 (identical) -- so the fence COUNT/flavour is not the dial either. */
     v4 = &r_div->v[n];
     n = n + 1;
     v5 = &r_div->v[n];
@@ -1424,7 +1451,13 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
    is a DIRECTION, not yet the whole delta.  ⚠️ RR pins registers
    (`register s32 clutReg asm("$16")`, `register u8 *stackPointer asm("$29")`)
    -- DROPPED, this project is pin-free. */
-  prim = &sd->GT4Prim;
+  /* MATCH (w61-a2, 7 -> 2, count-exact 592/592) -- THE INVERTED DEFAULT.
+   * See the "w61-a2 SOLUTION" receipt at the doSubdivision if/else below: the
+   * default that keeps `prim`'s live range long enough to lose $s0 to `sd` must
+   * be the OT-arm value (the packet cursor), NOT &sd->GT4Prim -- only then does
+   * the `prim = &sd->GT4Prim` arm survive cse as a REAL then-arm and produce
+   * retail's `j ; [ds] addiu $s1,$s0,0x110` pair. */
+  prim = (POLY_GT4 *)(sd->head).cprim.PrimPtr;
   {
     int t1;
     int t2;
@@ -1740,9 +1773,42 @@ gte_swc2(0x8,&depthcue);
        * every use -- that would make prim a MEMORY object with no allocno at all,
        * which removes it from the tie but also from $s1, so it is NOT the shape
        * here.  No corpus lever for this residual. */
+      /* ===== w61-a2 SOLUTION (2026-08-15): 7 -> 2 diffs, count-exact 592/592,
+       * and PASS 592/592 with ONE PER_FN_TEXT_MOVES row.  The whole multi-wave
+       * "allocno razor" framing above is now MOOT -- no ref dial is needed.
+       * WHAT WAS TRUE: (a) retail's shape is a real if/else (the `j` only exists
+       * when the then-arm is a separate block); (b) with the arm form the top
+       * `prim = &sd->GT4Prim` default is cse-DEAD, prim's live collapses 358 ->
+       * 114 and allocno_compare ranks it above sd (measured this wave: 194 diffs,
+       * p141 24refs/114live = .8421 vs p80 62/848 = .3656).
+       * WHAT NOBODY TRIED: make the TOP DEFAULT THE OTHER VALUE.
+       *     prim = (POLY_GT4 *)(sd->head).cprim.PrimPtr;   <- at the top
+       *     if (doSubdivision != 0) prim = &sd->GT4Prim;   <- real then-arm
+       *     else { OT-link }                               <- no assignment
+       * The default is now LIVE on the else path, so cse cannot delete it
+       * (live 359, p141 pri .268 < sd .3656 -> sd keeps $s0, prim $s1 = the SYM)
+       * AND the then-arm still emits `addiu $s1,$s0,0x110` in the `j` delay slot.
+       * Residual = the hoisted `lw $s1,4($s0)` sitting in OUR prologue (idx 11)
+       * where retail has it as the FIRST insn of the else arm (idx 323) -- a pure
+       * line relocation, unreachable from source (the def must dominate the branch
+       * to be live, and retail emits it only inside the arm).  ORCHESTRATOR ROW:
+       *   take  \tlw\t\$17,4\(\$16\)\n
+       *   after \$L\d+:\n(?= \#APP\n\tlw\t\$t4,0\(\$2\)\n)
+       * (label-agnostic, lookahead-pinned on the OT-link template's first line;
+       * both anchors verified unique in the .ent region; vprobe-measured PASS.)
+       * FALSIFIED this wave from the 194-basin: sd tail read-fence sweep +1/+2/+3/
+       * +4/+6/+10/+18/+34/+58 all 194 (refs 63..120) and +70 (refs 132) PASS --
+       * i.e. the w53 "+66 refs = 2^7 razor" number is CONFIRMED but is scaffolding;
+       * the inverted default reaches the same registers for free.  Also measured:
+       * void fence at the then-arm head is INERT once the default is inverted
+       * (2 with and without), and placing the inverted default LATE (just above
+       * `depth_avg = sd->otz`) gives live 169 -- still below the ~262 the razor
+       * needs -> 194.  Do not re-derive any of this. */
 
-      if (doSubdivision == 0) {
-        prim = (POLY_GT4 *)(sd->head).cprim.PrimPtr;
+      if (doSubdivision != 0) {
+        prim = &sd->GT4Prim;
+      }
+      else {
         /* OT-link, EA DMPSX-analog FIXED-REG TEMPLATE (same shape as
          * DrawW_SubdividFacet's sealed instance; fastmovf.c family; $t4/$t5/$t6
          * scratches): slot = sd->head.cprim.LastPrim + sd->otz*4; sd->head.cprim.
@@ -2919,6 +2985,17 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      not touch this qty pair either).  Confirms the w50 addendum: the block qty COUNT
      and every ref/live dial are exhausted; what is left is the find_free_reg WINDOW
      (why regs 2..7 are blocked for the address qty in the 6-diff shape).
+     ---- w61-a2 (2026-08-15): the 12D/A6 INDEX-TERM-FIRST spelling is FALSIFIED
+     here too.  All four address spellings of the goffsets lookup --
+     `*(signed char *)((int)objInstance->zoffset + (int)goffsets)` (index-term
+     first), the same with a `(u_int)` index, the base-term-first
+     `*(signed char *)((int)goffsets + (int)objInstance->zoffset)`, and the plain
+     pointer form `*(objInstance->zoffset + goffsets)` -- gate IDENTICALLY at
+     11 @188 (ONE SHORT), i.e. every one of them collapses to the already-recorded
+     `int zo` split-temp basin, not to a new schedule.  Confirms the w50/w51
+     reading: this is not an address-expression question at all; the lui-vs-lbu
+     ready-list tie is decided inside sched1/find_free_reg and needs the
+     instrumented-cc1 [find_free_reg] window trace, not another source spelling.
      ============================================================================ */
   totalCount = 0;
   objInstance = (Trk_AnimateInst *)(gObjInfo->objInstanceBuf + 1);
@@ -5643,7 +5720,34 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
      givs a2<->a3 swapped in BOTH the 72/80 and 144/152 loops (init ORDER is
      already src-then-dst on both sides, so it is the qty handout, not the
      source order); (c) the tail t4/t3 pair 408/456(sp) swapped.  All three are
-     the SAME 2-way handout question -- crack one, transcribe. */
+     the SAME 2-way handout question -- crack one, transcribe.
+     ---- w61-a2 (2026-08-15) SIX MORE FALSIFICATIONS on cluster (b), including
+     BOTH forms of the w60 BIV/GIV-preheader law and the w61 declaration-order
+     law.  Re-gated base 66 @268/268.  Exact residual re-read: the two byte-offset
+     counters are emitted in the SAME source order on both sides (72 = the `k`
+     source cursor, then 80 = loop.c's dest giv) but retail gives the DEST the
+     LOWER register (a2) and puts `li 72` THIRD in the preheader (after `li a1,1`
+     and `addiu t0,sp,16`), while ours emits `li a2,72` FIRST of all and gives the
+     SOURCE a2.  Measured, all reverted:
+       + a named dest pointer `CCOORD16 *q = &vertex3d[i+N];` declared BEFORE `p`
+         (stores written through q)                              66  (INERT)
+       + the same declared AFTER `p`                             66  (INERT)
+         => gcc folds both named cursors into the same two givs, so the
+            declaration-order dial does NOT reach compiler-created givs.
+       + FULL INDEX FORM (drop `k` entirely, `vertex3d[i+9] = vertex3d[i+8]`,
+         i.e. the w60 BIV-ELIMINATION shape that sealed DrawC_PrimMenu)
+                                                                105 @259
+         => NINE INSNS SHORT: loop.c eliminates BOTH bivs and retail does not,
+            so retail really does carry an explicit byte cursor here.  The
+            current form is the count-correct one -- do not re-try the index form.
+       + the same with a dead `k = 0;` kept                      105 @259
+       + `i = 1;` emitted BEFORE `k = ...;` (birth-order swap)    90 @268
+       + roles swapped: explicit cursor on the DEST, indexed SOURCE
+                                                                149 @263
+     => neither birth order, nor named cursors, nor which side is the explicit
+     biv moves the 2-way handout.  The remaining instrument is the local-alloc
+     [find_free_reg] trace on the 268/268 basin (why a2 goes to the source qty),
+     exactly as clusters (a) and (c) already say. */
   { int t;
     t = (signed char)BWorldSm_slices[slice].forward[0]; t++; t--; fx = (u_short)(t >> 1);
     t = (signed char)BWorldSm_slices[slice].forward[1]; t++; t--; fy = (u_short)(t >> 1);

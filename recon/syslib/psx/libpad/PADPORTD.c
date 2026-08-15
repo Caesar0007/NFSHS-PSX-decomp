@@ -539,6 +539,29 @@ extern int _pad_getbyte(unsigned char *info, int align)
  *   (b) FALSIFIED: `(int)` / `(unsigned int)` / `x - 7 == 0` on the second use are all INERT (4);
  *       `int e8` kills the andi but cse then SHARES the load with the `info[0xe8]==3` arm below
  *       (5 @158, ours 1 short); volatile views to un-share it measure 6/6/10/11/14.
+ * MATCH (w63-a7, 4 -> 3 @158/159 -- CLASS (b) IS CLOSED):  `int e8 = info[0xe8];` at the top
+ *   of the outer `else` block kills the `andi $v1,$v1,255` remask (PROMOTE_MODE, 11D) exactly as
+ *   w61 measured, and the reason it could not be landed then -- cse SHARES that load with the
+ *   `info[0xe8] == 3` arm below, leaving us 1 insn short -- is cured by a zero-instruction
+ *   OPACITY FENCE on `info` at the head of that arm: laundering the base makes the arm's MEM a
+ *   different rtx, so its load is real again.  Measured in this basin: `int e8` alone 5 @158
+ *   (w61's number, reproduced), + the fence 3 @158, fence WITHOUT `int e8` 4 @159 (inert), and a
+ *   laundered ALIAS pointer `i2` instead of laundering `info` itself 7 @158 (it also costs the
+ *   `addu $a0,$s0,$zero` copy).  Note the count: 158 is the HONEST count here -- the old 159 was
+ *   the WRONG andi standing in for the missing `slt` of class (a); every instruction we now emit
+ *   is an oracle instruction.
+ * RESIDUAL 3 @158/159 = class (a) ALONE (the first search loop's back-edge: ours `bne $v1,$t1`,
+ *   retail `slt $v0,$v1,$t1; bnez`).  The oracle shape is now read off exactly and it IS the
+ *   guarded do-while -- `beqz $t1,<past the loop>` entry guard at 0x800FE144 plus `addiu $v1,1;
+ *   slt $v0,$v1,$t1; bnez` at 0x800FE174, i.e. character-for-character the SECOND search loop's
+ *   shape, which our source already spells that way and which already matches.  RE-FALSIFIED in
+ *   the post-(b) basin (04Z): the same guarded do-while on loop 1 = 43 @162 (with braces, without
+ *   braces, and with `*map++` fused -- all three byte-identical), `while (i < nmask)` = 3 @160.
+ *   So loop 1 rejects the shape loop 2 accepts; the discriminating difference between them is the
+ *   `break` (loop 1 has an early exit, loop 2 does not) -- that is the next named angle: the
+ *   guarded-do-while + break combination adds 4 insns and rotates the $a2/$a3 band, so the
+ *   question is which pass (jump.c's loop-exit duplication, or the biv's exit-value) reacts to
+ *   the break.  Instrumented-cc1 job, not a spelling one.
  * => the rung is the TU's home; see the wiring note in the report. */
 extern void _pad_filter(unsigned char *info)
 {
@@ -591,7 +614,8 @@ extern void _pad_filter(unsigned char *info)
             } while (mode < info[0xe9]);
         }
     } else {
-        if (((unsigned char)(info[0xe8] - 4) < 2 || info[0xe8] == 7) &&
+        int e8 = info[0xe8];
+        if (((unsigned char)(e8 - 4) < 2 || e8 == 7) &&
             (*(unsigned short *)(info + 0xe6) == 0 && info[0x34] > 1)) {
             if ((**(unsigned char **)(info + 0x28) & 0xc0) == 0x40 &&
                 ((*(unsigned char **)(info + 0x28))[1] & 1) != 0 &&
@@ -601,6 +625,12 @@ extern void _pad_filter(unsigned char *info)
                 _padTotalCurr = _padTotalCurr + 10;
             }
         } else {
+            /* MATCH (w63-a7): opacity fence on `info` -- with the `int e8`
+               local above (which kills the andi remask) cse otherwise SHARES
+               that load with this arm's test and we land 1 short; laundering
+               the base makes this MEM a different rtx so the load is real.
+               Zero instructions.  4 -> 3, and class (b) is gone. */
+            __asm__("" : "=r"(info) : "0"(info));
             if (info[0xe8] == 3) {
                 info[0x57] = 1;
             } else if (*(unsigned short *)(info + 0xe6) == 0) {

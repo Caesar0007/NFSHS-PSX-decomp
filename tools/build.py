@@ -246,6 +246,11 @@ PER_TU_FLAGS = {
     # absolute 8-byte refs, so no single -G value fits).  INERT (no gate delta, left
     # at default): aih_play, dashhud, mpause, render, hrzsku, overlays,
     # psxcontroller, textureprocess.  Receipts: scratch/w47_a7_census.md S7.
+    # w63-a19: -G IDENTITY TELLS from the data-ownership sweep (E5): 8-byte
+    # sdata objects only reachable at -G8 ("aiwther" literal; mpause short[4]
+    # pair = 2 of the W62 sec-3.2 wrong-section symbols). Gated 2x post-wire.
+    "recon/game/common/aispeeds.cpp":       {"g_value": "8"},
+    "recon/game/common/mpause.cpp":         {"g_value": "8"},
     "recon/game/common/audioeng.cpp":       {"g_value": "8"},
     "recon/game/common/copspeak.cpp":       {"g_value": "8"},
     "recon/game/common/input.cpp":          {"g_value": "8"},

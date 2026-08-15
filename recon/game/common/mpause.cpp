@@ -12,8 +12,8 @@
 tPauseMenuDefs *gPauseMenuDefs;              /* EXT 0x8013d268 [$gp+0xd1c] */
 int   gMPauseUpdate;                         /* EXT 0x8013d264 [$gp+0xd18] */
 int   gMPauseUpdateNextTime;                 /* EXT 0x8013d240 [$gp+0xcf4] */
-short InGameSelectListAudioMode[4];          /* EXT 0x8013d244 */
-short SelectListConfig[4];                   /* EXT 0x8013d24c */
+short InGameSelectListAudioMode[4] = {0x12, 0x11, 0x13, 0};  /* EXT 0x8013d244 -- retail init (w63-a19 E5) */
+short SelectListConfig[4] = {0x17, 0x18, 0x19, 0};           /* EXT 0x8013d24c -- retail init (w63-a19 E5) */
 static tPMenu *gPauseCurrentMenu;            /* STAT 0x8013ddc0 [$gp+0x1874] */
 static short  kMovingHighlight;              /* STAT 0x8013ddb8 [$gp+0x186c] */
 static short  kMovingHighlightDir;           /* STAT 0x8013ddba [$gp+0x186e] */

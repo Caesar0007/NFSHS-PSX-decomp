@@ -5,9 +5,9 @@
 #include "fastrand_externs.h"
 
 /* ---- fastrand.obj OWNED globals (PRNG state; EXT; SYM Globals.jsonl, $gp+0xbb0..0xbbc) ---- */
-u_int fastRandom;     /* 0x8013d0fc [$gp+0xbb0] */
+u_int fastRandom = 0xF874AF01;  /* 0x8013d0fc [$gp+0xbb0] -- retail .sdata init (w63-a19 E5) */
 u_int randtemp;       /* 0x8013d100 [$gp+0xbb4] */
-u_int randSeed;       /* 0x8013d104 [$gp+0xbb8] */
+u_int randSeed = 1;   /* 0x8013d104 [$gp+0xbb8] -- retail .sdata init (w63-a19 E5) */
 u_int numRandCalls;   /* 0x8013d108 [$gp+0xbbc] */
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */

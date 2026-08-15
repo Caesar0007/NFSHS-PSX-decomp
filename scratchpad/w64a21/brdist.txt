@@ -1,0 +1,84 @@
+### recon/eaclib/psx/eacpsxz/cdfs.c
+CdReadyHandler                                               1 offset diffs [(12, 104, 99)]
+# 14 fns checked, 1 with branch-offset/count divergence
+### recon/frontend/common/fememcard.cpp
+LoadGame__FsbT1                                              3 offset diffs [(17, -4, 45), (21, -41, 8), (23, -46, 3)]
+SavePinkSlipsCars__Fss                                       1 offset diffs [(5, 103, 88)]
+# 18 fns checked, 2 with branch-offset/count divergence
+### recon/frontend/common/femenuextended.cpp
+Draw__29tMenuItemOptionsTwoItemChoiceiib                     1 offset diffs [(2, 6, 4)]
+# 57 fns checked, 1 with branch-offset/count divergence
+### recon/frontend/common/femenuoptions.cpp
+ProcessInput__17tUserNameMenuItem7tPlayerR13tInputKeyTypeR12tMenuCommand 1 offset diffs [(17, 113, 140)]
+UpdateTransition__12tOptionsMenu                             1 offset diffs [(5, 23, 135)]
+# 92 fns checked, 2 with branch-offset/count divergence
+### recon/frontend/common/fescreen.cpp
+InitializeShapes__7tScreenR17tShapeInformationUi             1 offset diffs [(1, 8, 20)]
+# 27 fns checked, 1 with branch-offset/count divergence
+### recon/frontend/common/screencarselect.cpp
+DrawBackground__25tScreenCarSelectTwoPlayer                  5 offset diffs [(3, 21, 9), (5, 21, 22), (6, 19, 20), (7, 12, 13), (8, 3, 4)]
+DrawOpponentVideoWall__20tScreenCarSelectDuels               1 offset diffs [(3, 13, 14)]
+DrawVideoWall__20tScreenCarSelectDuels                       1 offset diffs [(3, 14, 15)]
+# 59 fns checked, 3 with branch-offset/count divergence
+### recon/frontend/common/screencongrats.cpp
+CalculatePrizes__23tScreenTournamentTrophy                   1 offset diffs [(9, 17, 18)]
+# 28 fns checked, 1 with branch-offset/count divergence
+### recon/frontend/common/screenmain.cpp
+DrawBackground__11tScreenMain                                1 offset diffs [(9, 11, 12)]
+# 13 fns checked, 1 with branch-offset/count divergence
+### recon/frontend/common/screenmemcard.cpp
+DrawMemCardStuff__14tScreenMemcards                          1 offset diffs [(20, 19, 166)]
+# 15 fns checked, 1 with branch-offset/count divergence
+### recon/frontend/common/statchk.cpp
+StatChk_SaveTopTime__FP10Car_tStatss                         1 offset diffs [(23, -20, -21)]
+# 5 fns checked, 1 with branch-offset/count divergence
+### recon/frontend/psx/memcard.c
+MCRD_handlecardevents                                        1 offset diffs [(13, 148, 94)]
+# 20 fns checked, 1 with branch-offset/count divergence
+### recon/game/common/aiphysic.cpp
+AIPhysic_CalcAcceleration__FP8Car_tObji                      1 offset diffs [(27, 5, 6)]
+# 42 fns checked, 1 with branch-offset/count divergence
+### recon/game/common/aistate.cpp
+CheckIfCarIsNearbyAndStop__21AIState_RovingTrafficP8Car_tObjRi 1 offset diffs [(9, 15, 16)]
+# 52 fns checked, 1 with branch-offset/count divergence
+### recon/game/common/audiotrk.cpp
+AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji 1 offset diffs [(48, 14, 13)]
+# 6 fns checked, 1 with branch-offset/count divergence
+### recon/game/common/camera.cpp
+Camera_UpdateHeliCam__Fii                                    1 offset diffs [(26, 4, 3)]
+Camera_UpdateSplineCam__Fi                                   4 offset diffs [(1, 314, 317), (2, 309, 312), (13, 98, 100), (14, 92, 94)]
+# 38 fns checked, 2 with branch-offset/count divergence
+### recon/game/common/physics.cpp
+Physics_CalculateCarAcceleration__FP8Car_tObj                1 offset diffs [(25, 71, 72)]
+# 22 fns checked, 1 with branch-offset/count divergence
+### recon/game/psx/hud.cpp
+Hud_BuildCdPlayer__Fii                                       BRANCH COUNT 63 vs 62
+Hud_BuildMapMarkers__Fi                                      11 offset diffs [(0, 121, 122), (1, 112, 113), (14, 12, 13), (15, 7, 8), (16, 5, 6), (17, -123, -124)]
+Hud_BuildNumbers__Fi                                         1 offset diffs [(42, 46, 38)]
+Hud_BuildString__FPciiiib                                    1 offset diffs [(2, 154, 155)]
+Hud_BuildTach__Fi                                            1 offset diffs [(10, 4, 3)]
+Hud_Init__Fv                                                 1 offset diffs [(11, 11, 12)]
+Hud_RenderTacView__Fv                                        3 offset diffs [(0, 53, 52), (1, 35, 34), (3, -42, -41)]
+# 62 fns checked, 7 with branch-offset/count divergence
+### recon/game/psx/weather.cpp
+Weather_ChangeDensityBasedOnTime__Fv                         1 offset diffs [(5, 10, 11)]
+# 25 fns checked, 1 with branch-offset/count divergence
+### recon/syslib/psx/libcd/streamhelp.c
+StGetNext                                                    1 offset diffs [(0, 15, 14)]
+# 6 fns checked, 1 with branch-offset/count divergence
+### recon/syslib/psx/libgpu/FONT.c
+FntPrint                                                     1 offset diffs [(10, 8, 9)]
+# 2 fns checked, 1 with branch-offset/count divergence
+### recon/syslib/psx/libmcrd/LIBMCRD.c
+MemCardCreateFile                                            1 offset diffs [(9, 17, 19)]
+MemCardDeleteFile                                            5 offset diffs [(1, 86, 87), (2, 64, 66), (6, 17, 19), (9, -52, -54), (11, -58, -60)]
+MemCardGetDirentry                                           12 offset diffs [(1, 114, 116), (2, 87, 91), (3, 50, 51), (4, 47, 48), (5, 39, 40), (8, 10, 11)]
+MemCardWriteData_cb                                          1 offset diffs [(6, 53, 52)]
+# 26 fns checked, 4 with branch-offset/count divergence
+### recon/syslib/psx/libpad/MCXMAIN.c
+_padIntRecvData                                              1 offset diffs [(13, 34, 35)]
+_padIntRecvHdr                                               2 offset diffs [(1, 6, 7), (2, 4, 5)]
+# 5 fns checked, 2 with branch-offset/count divergence
+### recon/syslib/psx/libpad/PADSEQD.c
+_dirSendAuto                                                 1 offset diffs [(1, 32, 33)]
+# 5 fns checked, 1 with branch-offset/count divergence

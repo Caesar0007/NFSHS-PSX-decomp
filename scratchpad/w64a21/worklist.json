@@ -1,0 +1,1502 @@
+[
+ {
+  "unit": "eaclib/psx/eacpsxz/asinfunc",
+  "fn": "intarcsin",
+  "va": "0x800EACD8",
+  "board": 99.79,
+  "fresh": 99.791664,
+  "src": "recon/eaclib/psx/eacpsxz/asinfunc.c",
+  "base": "build/recon/eaclib/psx/eacpsxz/asinfunc.c.o",
+  "after": 99.791664
+ },
+ {
+  "unit": "eaclib/psx/eacpsxz/cdfs",
+  "fn": "CdReadyHandler",
+  "va": "0x800F9CA4",
+  "board": 99.98,
+  "fresh": 99.98333,
+  "src": "recon/eaclib/psx/eacpsxz/cdfs.c",
+  "base": "build/recon/eaclib/psx/eacpsxz/cdfs.c.o",
+  "after": 99.98333
+ },
+ {
+  "unit": "eaclib/psx/eacpsxz/stream",
+  "fn": "STREAM_cancelrequest",
+  "va": "0x800FD554",
+  "board": 99.97,
+  "fresh": 100.0,
+  "src": "recon/eaclib/psx/eacpsxz/stream.c",
+  "base": "build/recon/eaclib/psx/eacpsxz/stream.c.o",
+  "after": 100.0
+ },
+ {
+  "unit": "eaclib/psx/pad",
+  "fn": "PAD_update",
+  "va": "0x800E4210",
+  "board": 96.97,
+  "fresh": 96.969696,
+  "src": "recon/eaclib/psx/pad.c",
+  "base": "build/recon/eaclib/psx/pad.c.o",
+  "after": 96.969696
+ },
+ {
+  "unit": "eaclib/psx/sndpsxz/sdmemman",
+  "fn": "iSNDpsxmalloc",
+  "va": "0x8010A5CC",
+  "board": 97.76,
+  "fresh": 97.755905,
+  "src": "recon/eaclib/psx/sndpsxz/sdmemman.c",
+  "base": "build/recon/eaclib/psx/sndpsxz/sdmemman.c.o",
+  "after": 97.755905
+ },
+ {
+  "unit": "eaclib/psx/sndpsxz/sdpacket",
+  "fn": "iSNDfillspuwithpackets",
+  "va": "0x80103B54",
+  "board": 99.98,
+  "fresh": 100.0,
+  "src": "recon/eaclib/psx/sndpsxz/sdpacket.c",
+  "base": "build/recon/eaclib/psx/sndpsxz/sdpacket.c.o",
+  "after": 100.0
+ },
+ {
+  "unit": "frontend/common/feapp",
+  "fn": "Redraw__14tFEApplication",
+  "va": "0x8001373C",
+  "board": 99.28,
+  "fresh": 99.28244,
+  "src": "recon/frontend/common/feapp.cpp",
+  "base": "build/recon/frontend/common/feapp.cpp.o",
+  "after": 99.28244
+ },
+ {
+  "unit": "frontend/common/feaudio",
+  "fn": "FeAudio_InitViv__FPc",
+  "va": "0x80015F24",
+  "board": 96.6,
+  "fresh": 96.59633,
+  "src": "recon/frontend/common/feaudio.cpp",
+  "base": "build/recon/frontend/common/feaudio.cpp.o",
+  "after": 85.81651
+ },
+ {
+  "unit": "frontend/common/fememcard",
+  "fn": "LoadGame__FsbT1",
+  "va": "0x80034E18",
+  "board": 99.96,
+  "fresh": 99.95989,
+  "src": "recon/frontend/common/fememcard.cpp",
+  "base": "build/recon/frontend/common/fememcard.cpp.o",
+  "after": 99.95989
+ },
+ {
+  "unit": "frontend/common/fememcard",
+  "fn": "SavePinkSlipsCars__Fss",
+  "va": "0x800353F0",
+  "board": 99.98,
+  "fresh": 99.977875,
+  "src": "recon/frontend/common/fememcard.cpp",
+  "base": "build/recon/frontend/common/fememcard.cpp.o",
+  "after": 99.977875
+ },
+ {
+  "unit": "frontend/common/femenu",
+  "fn": "DrawSlider__FsssssssssbT9ss",
+  "va": "0x80024C2C",
+  "board": 80.73,
+  "fresh": 80.73497,
+  "src": "recon/frontend/common/femenu.cpp",
+  "base": "build/recon/frontend/common/femenu.cpp.o",
+  "after": 80.73497
+ },
+ {
+  "unit": "frontend/common/femenudefs",
+  "fn": "__15tGlobalMenuDefs",
+  "va": "0x8002E3B8",
+  "board": 86.19,
+  "fresh": 86.190834,
+  "src": "recon/frontend/common/femenudefs.cpp",
+  "base": "build/recon/frontend/common/femenudefs.cpp.o",
+  "after": 86.190834
+ },
+ {
+  "unit": "frontend/common/femenuextended",
+  "fn": "Draw__29tMenuItemOptionsTwoItemChoiceiib",
+  "va": "0x8001AE14",
+  "board": 99.97,
+  "fresh": 99.96894,
+  "src": "recon/frontend/common/femenuextended.cpp",
+  "base": "build/recon/frontend/common/femenuextended.cpp.o",
+  "after": 99.96894
+ },
+ {
+  "unit": "frontend/common/femenuoptions",
+  "fn": "Draw__17tUserNameMenuItemb",
+  "va": "0x8002017C",
+  "board": 98.39,
+  "fresh": 98.385826,
+  "src": "recon/frontend/common/femenuoptions.cpp",
+  "base": "build/recon/frontend/common/femenuoptions.cpp.o",
+  "after": 98.385826
+ },
+ {
+  "unit": "frontend/common/femenuoptions",
+  "fn": "ProcessInput__17tUserNameMenuItem7tPlayerR13tInputKeyTypeR12tMenuCommand",
+  "va": "0x8001FD2C",
+  "board": 99.98,
+  "fresh": 99.979164,
+  "src": "recon/frontend/common/femenuoptions.cpp",
+  "base": "build/recon/frontend/common/femenuoptions.cpp.o",
+  "after": 99.979164
+ },
+ {
+  "unit": "frontend/common/femenuoptions",
+  "fn": "UpdateTransition__12tOptionsMenu",
+  "va": "0x8001C854",
+  "board": 99.97,
+  "fresh": 99.97093,
+  "src": "recon/frontend/common/femenuoptions.cpp",
+  "base": "build/recon/frontend/common/femenuoptions.cpp.o",
+  "after": 99.97093
+ },
+ {
+  "unit": "frontend/common/fescreen",
+  "fn": "InitializeShapes__7tScreenR17tShapeInformationUi",
+  "va": "0x800263EC",
+  "board": 99.88,
+  "fresh": 99.88095,
+  "src": "recon/frontend/common/fescreen.cpp",
+  "base": "build/recon/frontend/common/fescreen.cpp.o",
+  "after": 99.88095
+ },
+ {
+  "unit": "frontend/common/fetv",
+  "fn": "DrawTV__FR9tTVConfig",
+  "va": "0x8002234C",
+  "board": 96.59,
+  "fresh": 96.592636,
+  "src": "recon/frontend/common/fetv.cpp",
+  "base": "build/recon/frontend/common/fetv.cpp.o",
+  "after": 96.592636
+ },
+ {
+  "unit": "frontend/common/front",
+  "fn": "Front_InitOpponentCars__FR9tFEStream",
+  "va": "0x800285D0",
+  "board": 93.13,
+  "fresh": 100.0,
+  "src": "recon/frontend/common/front.cpp",
+  "base": "build/recon/frontend/common/front.cpp.o",
+  "after": 100.0
+ },
+ {
+  "unit": "frontend/common/front",
+  "fn": "GetPSXPadValue__Fii",
+  "va": "0x80027194",
+  "board": 99.86,
+  "fresh": 99.86487,
+  "src": "recon/frontend/common/front.cpp",
+  "base": "build/recon/frontend/common/front.cpp.o",
+  "after": 99.86487
+ },
+ {
+  "unit": "frontend/common/screencarselect",
+  "fn": "DrawBackground__25tScreenCarSelectTwoPlayer",
+  "va": "0x8003E4BC",
+  "board": 99.93,
+  "fresh": 99.9269,
+  "src": "recon/frontend/common/screencarselect.cpp",
+  "base": "build/recon/frontend/common/screencarselect.cpp.o",
+  "after": 99.9269
+ },
+ {
+  "unit": "frontend/common/screencarselect",
+  "fn": "DrawOpponentVideoWall__20tScreenCarSelectDuels",
+  "va": "0x8003D4BC",
+  "board": 99.93,
+  "fresh": 99.9315,
+  "src": "recon/frontend/common/screencarselect.cpp",
+  "base": "build/recon/frontend/common/screencarselect.cpp.o",
+  "after": 99.9315
+ },
+ {
+  "unit": "frontend/common/screencarselect",
+  "fn": "DrawVideoWall__20tScreenCarSelectDuels",
+  "va": "0x8003D364",
+  "board": 99.94,
+  "fresh": 99.941864,
+  "src": "recon/frontend/common/screencarselect.cpp",
+  "base": "build/recon/frontend/common/screencarselect.cpp.o",
+  "after": 99.941864
+ },
+ {
+  "unit": "frontend/common/screencongrats",
+  "fn": "CalculatePrizes__23tScreenTournamentTrophy",
+  "va": "0x8004923C",
+  "board": 99.97,
+  "fresh": 99.96528,
+  "src": "recon/frontend/common/screencongrats.cpp",
+  "base": "build/recon/frontend/common/screencongrats.cpp.o",
+  "after": 99.96528
+ },
+ {
+  "unit": "frontend/common/screenmain",
+  "fn": "DrawBackground__11tScreenMain",
+  "va": "0x800379C0",
+  "board": 99.4,
+  "fresh": 99.8601,
+  "src": "recon/frontend/common/screenmain.cpp",
+  "base": "build/recon/frontend/common/screenmain.cpp.o",
+  "after": 99.98783
+ },
+ {
+  "unit": "frontend/common/screenmemcard",
+  "fn": "DrawMemCardStuff__14tScreenMemcards",
+  "va": "0x80046D60",
+  "board": 99.99,
+  "fresh": 99.98542,
+  "src": "recon/frontend/common/screenmemcard.cpp",
+  "base": "build/recon/frontend/common/screenmemcard.cpp.o",
+  "after": 99.98542
+ },
+ {
+  "unit": "frontend/common/screenpost",
+  "fn": "DrawBackground__26tScreenTournamentStandings",
+  "va": "0x80039B84",
+  "board": 97.5,
+  "fresh": 97.495544,
+  "src": "recon/frontend/common/screenpost.cpp",
+  "base": "build/recon/frontend/common/screenpost.cpp.o",
+  "after": 97.495544
+ },
+ {
+  "unit": "frontend/common/screenusername",
+  "fn": "DrawBackground__15tScreenUserName",
+  "va": "0x8004B1AC",
+  "board": 93.57,
+  "fresh": 93.5736,
+  "src": "recon/frontend/common/screenusername.cpp",
+  "base": "build/recon/frontend/common/screenusername.cpp.o",
+  "after": 93.5736
+ },
+ {
+  "unit": "frontend/common/statchk",
+  "fn": "StatChk_IsTopTime__FP10Car_tStatss",
+  "va": "0x80049D0C",
+  "board": 99.98,
+  "fresh": 99.98328,
+  "src": "recon/frontend/common/statchk.cpp",
+  "base": "build/recon/frontend/common/statchk.cpp.o",
+  "after": 99.98328
+ },
+ {
+  "unit": "frontend/common/statchk",
+  "fn": "StatChk_SaveTopTime__FP10Car_tStatss",
+  "va": "0x8004A1B8",
+  "board": 95.84,
+  "fresh": 95.84375,
+  "src": "recon/frontend/common/statchk.cpp",
+  "base": "build/recon/frontend/common/statchk.cpp.o",
+  "after": 95.84375
+ },
+ {
+  "unit": "frontend/psx/memcard",
+  "fn": "MCRD_handlecardevents",
+  "va": "0x8004FE80",
+  "board": 99.98,
+  "fresh": 99.9763,
+  "src": "recon/frontend/psx/memcard.c",
+  "base": "build/recon/frontend/psx/memcard.c.o",
+  "after": 99.9763
+ },
+ {
+  "unit": "frontend/psx/psxfront",
+  "fn": "DrawGouraudShape__FP18tTexture_ShapeInfoiiiPii",
+  "va": "0x8004E264",
+  "board": 98.68,
+  "fresh": 98.68163,
+  "src": "recon/frontend/psx/psxfront.cpp",
+  "base": "build/recon/frontend/psx/psxfront.cpp.o",
+  "after": 97.11837
+ },
+ {
+  "unit": "frontend/psx/psxfront",
+  "fn": "FontUpsideDownBlit__FiiPviiP12charactertbli",
+  "va": "0x8004EFB4",
+  "board": 89.6,
+  "fresh": 89.597565,
+  "src": "recon/frontend/psx/psxfront.cpp",
+  "base": "build/recon/frontend/psx/psxfront.cpp.o",
+  "after": 89.597565
+ },
+ {
+  "unit": "game/common/aih_basicperp",
+  "fn": "CheckChaserPosition__16AIHigh_BasicPerpii",
+  "va": "0x8005BF5C",
+  "board": 97.7,
+  "fresh": 97.70115,
+  "src": "recon/game/common/aih_basicperp.cpp",
+  "base": "build/recon/game/common/aih_basicperp.cpp.o",
+  "after": 97.70115
+ },
+ {
+  "unit": "game/common/aih_btccop",
+  "fn": "HighExecute__18AIHigh_BTC_Wingman",
+  "va": "0x8005E33C",
+  "board": 99.82,
+  "fresh": 95.14074,
+  "src": "recon/game/common/aih_btccop.cpp",
+  "base": "build/recon/game/common/aih_btccop.cpp.o",
+  "after": 99.82222
+ },
+ {
+  "unit": "game/common/aih_cop",
+  "fn": "HighExecute__10AIHigh_Cop",
+  "va": "0x80063CC4",
+  "board": 99.35,
+  "fresh": 99.35206,
+  "src": "recon/game/common/aih_cop.cpp",
+  "base": "build/recon/game/common/aih_cop.cpp.o",
+  "after": 99.35206
+ },
+ {
+  "unit": "game/common/aih_opp",
+  "fn": "CheckForWipeOut__15AIHigh_Opponent",
+  "va": "0x80063308",
+  "board": 85.79,
+  "fresh": 85.791664,
+  "src": "recon/game/common/aih_opp.cpp",
+  "base": "build/recon/game/common/aih_opp.cpp.o",
+  "after": 85.791664
+ },
+ {
+  "unit": "game/common/aih_opp",
+  "fn": "DoRearEnder__15AIHigh_Opponent",
+  "va": "0x800634E8",
+  "board": 92.07,
+  "fresh": 100.0,
+  "src": "recon/game/common/aih_opp.cpp",
+  "base": "build/recon/game/common/aih_opp.cpp.o",
+  "after": 100.0
+ },
+ {
+  "unit": "game/common/aiphysic",
+  "fn": "AIPhysic_CalcAcceleration__FP8Car_tObji",
+  "va": "0x800696B0",
+  "board": 99.97,
+  "fresh": 99.972824,
+  "src": "recon/game/common/aiphysic.cpp",
+  "base": "build/recon/game/common/aiphysic.cpp.o",
+  "after": 99.972824
+ },
+ {
+  "unit": "game/common/aiphysic",
+  "fn": "AIPhysic_CheckDesiredDirection__FP8Car_tObj",
+  "va": "0x80069A34",
+  "board": 98.61,
+  "fresh": 100.0,
+  "src": "recon/game/common/aiphysic.cpp",
+  "base": "build/recon/game/common/aiphysic.cpp.o",
+  "after": 100.0
+ },
+ {
+  "unit": "game/common/aiphysic",
+  "fn": "AIPhysic_OutOfControlPhysics__FP8Car_tObj",
+  "va": "0x8006B400",
+  "board": 99.47,
+  "fresh": 99.46602,
+  "src": "recon/game/common/aiphysic.cpp",
+  "base": "build/recon/game/common/aiphysic.cpp.o",
+  "after": 99.46602
+ },
+ {
+  "unit": "game/common/aispeeds",
+  "fn": "AISpeeds_CalcOpponentTopSpeed__FP8Car_tObjPi",
+  "va": "0x8006D938",
+  "board": 99.96,
+  "fresh": 99.95614,
+  "src": "recon/game/common/aispeeds.cpp",
+  "base": "build/recon/game/common/aispeeds.cpp.o",
+  "after": 99.95614
+ },
+ {
+  "unit": "game/common/aistate",
+  "fn": "CheckIfCarIsNearbyAndStop__21AIState_RovingTrafficP8Car_tObjRi",
+  "va": "0x800718B4",
+  "board": 99.95,
+  "fresh": 99.95413,
+  "src": "recon/game/common/aistate.cpp",
+  "base": "build/recon/game/common/aistate.cpp.o",
+  "after": 99.95413
+ },
+ {
+  "unit": "game/common/audiocmn",
+  "fn": "AudioCmn_CheckState__FP8Car_tObj",
+  "va": "0x800770BC",
+  "board": 99.51,
+  "fresh": 99.50603,
+  "src": "recon/game/common/audiocmn.cpp",
+  "base": "build/recon/game/common/audiocmn.cpp.o",
+  "after": 99.50603
+ },
+ {
+  "unit": "game/common/audiotrk",
+  "fn": "AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji",
+  "va": "0x8007C750",
+  "board": 99.99,
+  "fresh": 99.98789,
+  "src": "recon/game/common/audiotrk.cpp",
+  "base": "build/recon/game/common/audiotrk.cpp.o",
+  "after": 99.98789
+ },
+ {
+  "unit": "game/common/bworld",
+  "fn": "SetupChunkBuildList__FP13DRender_tView",
+  "va": "0x8007DD74",
+  "board": 99.09,
+  "fresh": 99.08867,
+  "src": "recon/game/common/bworld.cpp",
+  "base": "build/recon/game/common/bworld.cpp.o",
+  "after": 99.08867
+ },
+ {
+  "unit": "game/common/camera",
+  "fn": "Camera_UpdateHeliCam__Fii",
+  "va": "0x800813CC",
+  "board": 99.99,
+  "fresh": 99.988716,
+  "src": "recon/game/common/camera.cpp",
+  "base": "build/recon/game/common/camera.cpp.o",
+  "after": 99.988716
+ },
+ {
+  "unit": "game/common/camera",
+  "fn": "Camera_UpdateSplineCam__Fi",
+  "va": "0x800826C0",
+  "board": 97.01,
+  "fresh": 98.49573,
+  "src": "recon/game/common/camera.cpp",
+  "base": "build/recon/game/common/camera.cpp.o",
+  "after": 98.49573
+ },
+ {
+  "unit": "game/common/cars",
+  "fn": "Cars_DoExtraCarCollisionProcessing__FP8Car_tObj",
+  "va": "0x80086B38",
+  "board": 99.99,
+  "fresh": 100.0,
+  "src": "recon/game/common/cars.cpp",
+  "base": "build/recon/game/common/cars.cpp.o",
+  "after": 100.0
+ },
+ {
+  "unit": "game/common/cars",
+  "fn": "Cars_ResetCollidedCars__FP8Car_tObjii",
+  "va": "0x80086664",
+  "board": 99.98,
+  "fresh": 100.0,
+  "src": "recon/game/common/cars.cpp",
+  "base": "build/recon/game/common/cars.cpp.o",
+  "after": 100.0
+ },
+ {
+  "unit": "game/common/collide",
+  "fn": "Collide_DoActualObjectCollisionCheck__FP13BO_tNewtonObjT0P8coorddefT2",
+  "va": "0x8008F550",
+  "board": 98.54,
+  "fresh": 98.53595,
+  "src": "recon/game/common/collide.cpp",
+  "base": "build/recon/game/common/collide.cpp.o",
+  "after": 98.53595
+ },
+ {
+  "unit": "game/common/collide",
+  "fn": "Collide_TestObjectVertices__FP13BO_tNewtonObjT0P8coorddefT2",
+  "va": "0x80090144",
+  "board": 99.72,
+  "fresh": 99.72079,
+  "src": "recon/game/common/collide.cpp",
+  "base": "build/recon/game/common/collide.cpp.o",
+  "after": 99.72079
+ },
+ {
+  "unit": "game/common/newton",
+  "fn": "Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef",
+  "va": "0x800A2AF0",
+  "board": 74.54,
+  "fresh": 74.537735,
+  "src": "recon/game/common/newton.cpp",
+  "base": "build/recon/game/common/newton.cpp.o",
+  "after": 76.471695
+ },
+ {
+  "unit": "game/common/newton",
+  "fn": "Newton_TestForUndrivableSurfaces__FP13BO_tNewtonObj",
+  "va": "0x800A2E84",
+  "board": 97.53,
+  "fresh": 97.53404,
+  "src": "recon/game/common/newton.cpp",
+  "base": "build/recon/game/common/newton.cpp.o",
+  "after": 97.53404
+ },
+ {
+  "unit": "game/common/nfs3",
+  "fn": "NFS3_CheckForFileOperations__Fv",
+  "va": "0x800A46DC",
+  "board": 96.19,
+  "fresh": 96.190475,
+  "src": "recon/game/common/nfs3.cpp",
+  "base": "build/recon/game/common/nfs3.cpp.o",
+  "after": 96.190475
+ },
+ {
+  "unit": "game/common/pausemenu",
+  "fn": "Draw__25tPMenuItemLeftRightSliderb",
+  "va": "0x800A79C8",
+  "board": 98.05,
+  "fresh": 98.04734,
+  "src": "recon/game/common/pausemenu.cpp",
+  "base": "build/recon/game/common/pausemenu.cpp.o",
+  "after": 98.04734
+ },
+ {
+  "unit": "game/common/physics",
+  "fn": "Physics_CalculateCarAcceleration__FP8Car_tObj",
+  "va": "0x800AA984",
+  "board": 99.98,
+  "fresh": 99.978874,
+  "src": "recon/game/common/physics.cpp",
+  "base": "build/recon/game/common/physics.cpp.o",
+  "after": 99.978874
+ },
+ {
+  "unit": "game/common/physics",
+  "fn": "Physics_CalculateTireForces__FP8Car_tObjP23Physics_tWheelAccStruct",
+  "va": "0x800ABA3C",
+  "board": 98.47,
+  "fresh": 100.0,
+  "src": "recon/game/common/physics.cpp",
+  "base": "build/recon/game/common/physics.cpp.o",
+  "after": 100.0
+ },
+ {
+  "unit": "game/common/physics",
+  "fn": "Physics_Real__FP8Car_tObj",
+  "va": "0x800AC164",
+  "board": 99.97,
+  "fresh": 99.971695,
+  "src": "recon/game/common/physics.cpp",
+  "base": "build/recon/game/common/physics.cpp.o",
+  "after": 99.971695
+ },
+ {
+  "unit": "game/common/r3dcar",
+  "fn": "R3DCar_CalcCarDimensions__FP8Car_tObjP18Transformer_zScenei",
+  "va": "0x800AE750",
+  "board": 99.95,
+  "fresh": 99.954544,
+  "src": "recon/game/common/r3dcar.cpp",
+  "base": "build/recon/game/common/r3dcar.cpp.o",
+  "after": 99.954544
+ },
+ {
+  "unit": "game/common/r3dcar",
+  "fn": "R3DCar_InsertCarFacetMenu__FP8Car_tObjP13DRender_tView",
+  "va": "0x800B10FC",
+  "board": 99.56,
+  "fresh": 99.55882,
+  "src": "recon/game/common/r3dcar.cpp",
+  "base": "build/recon/game/common/r3dcar.cpp.o",
+  "after": 99.55882
+ },
+ {
+  "unit": "game/common/sim",
+  "fn": "Sim_MainGameLoop__Fv",
+  "va": "0x800B6D4C",
+  "board": 98.68,
+  "fresh": 98.67601,
+  "src": "recon/game/common/sim.cpp",
+  "base": "build/recon/game/common/sim.cpp.o",
+  "after": 98.67601
+ },
+ {
+  "unit": "game/common/simqueue",
+  "fn": "SimQueue_SetCurrentInput__Fi",
+  "va": "0x800B74E4",
+  "board": 99.79,
+  "fresh": 99.791664,
+  "src": "recon/game/common/simqueue.cpp",
+  "base": "build/recon/game/common/simqueue.cpp.o",
+  "after": 99.791664
+ },
+ {
+  "unit": "game/common/speech",
+  "fn": "Report__Q26Speech15DispatchSpeakerP8Car_tObj",
+  "va": "0x800971B0",
+  "board": 96.73,
+  "fresh": 96.73077,
+  "src": "recon/game/common/speech.cpp",
+  "base": "build/recon/game/common/speech.cpp.o",
+  "after": 96.73077
+ },
+ {
+  "unit": "game/common/speech",
+  "fn": "StatusReply__Q26Speech15DispatchSpeaker",
+  "va": "0x8009619C",
+  "board": 99.59,
+  "fresh": 97.434944,
+  "src": "recon/game/common/speech.cpp",
+  "base": "build/recon/game/common/speech.cpp.o",
+  "after": 99.59108
+ },
+ {
+  "unit": "game/common/stats",
+  "fn": "Stats_TrackEndGame__Fv",
+  "va": "0x800B8DB8",
+  "board": 97.11,
+  "fresh": 97.11207,
+  "src": "recon/game/common/stats.cpp",
+  "base": "build/recon/game/common/stats.cpp.o",
+  "after": 97.11207
+ },
+ {
+  "unit": "game/psx/cario",
+  "fn": "CarIO_CreateLicense__FPcii",
+  "va": "0x800BC25C",
+  "board": 96.81,
+  "fresh": 96.812225,
+  "src": "recon/game/psx/cario.cpp",
+  "base": "build/recon/game/psx/cario.cpp.o",
+  "after": 96.812225
+ },
+ {
+  "unit": "game/psx/cario",
+  "fn": "CarIO_ReadInCarTextureData__FPcP8Car_tObjii",
+  "va": "0x800BC704",
+  "board": 99.69,
+  "fresh": 99.69247,
+  "src": "recon/game/psx/cario.cpp",
+  "base": "build/recon/game/psx/cario.cpp.o",
+  "after": 99.69247
+ },
+ {
+  "unit": "game/psx/drawc",
+  "fn": "DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+  "va": "0x800C155C",
+  "board": 95.5,
+  "fresh": 97.5285,
+  "src": "recon/game/psx/drawc.cpp",
+  "base": "build/recon/game/psx/drawc.cpp.o",
+  "after": 97.52957
+ },
+ {
+  "unit": "game/psx/drawc",
+  "fn": "DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache",
+  "va": "0x800BED44",
+  "board": 97.44,
+  "fresh": 97.44467,
+  "src": "recon/game/psx/drawc.cpp",
+  "base": "build/recon/game/psx/drawc.cpp.o",
+  "after": 97.44467
+ },
+ {
+  "unit": "game/psx/drawc",
+  "fn": "DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+  "va": "0x800BFD44",
+  "board": 96.85,
+  "fresh": 97.68683,
+  "src": "recon/game/psx/drawc.cpp",
+  "base": "build/recon/game/psx/drawc.cpp.o",
+  "after": 97.66163
+ },
+ {
+  "unit": "game/psx/draww",
+  "fn": "DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo",
+  "va": "0x800C8508",
+  "board": 98.9,
+  "fresh": 98.900925,
+  "src": "recon/game/psx/draww.cpp",
+  "base": "build/recon/game/psx/draww.cpp.o",
+  "after": 98.900925
+ },
+ {
+  "unit": "game/psx/draww",
+  "fn": "DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi",
+  "va": "0x800C7B9C",
+  "board": 81.76,
+  "fresh": 81.76,
+  "src": "recon/game/psx/draww.cpp",
+  "base": "build/recon/game/psx/draww.cpp.o",
+  "after": 81.76
+ },
+ {
+  "unit": "game/psx/draww",
+  "fn": "DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo",
+  "va": "0x800C78A8",
+  "board": 98.86,
+  "fresh": 98.862434,
+  "src": "recon/game/psx/draww.cpp",
+  "base": "build/recon/game/psx/draww.cpp.o",
+  "after": 98.862434
+ },
+ {
+  "unit": "game/psx/draww",
+  "fn": "DrawW_BuildSpikeBelt__FP13DRender_tViewiP11Draw_DCache",
+  "va": "0x800CA520",
+  "board": 95.13,
+  "fresh": 95.12687,
+  "src": "recon/game/psx/draww.cpp",
+  "base": "build/recon/game/psx/draww.cpp.o",
+  "after": 95.12687
+ },
+ {
+  "unit": "game/psx/draww",
+  "fn": "DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry",
+  "va": "0x800C8CC4",
+  "board": 92.79,
+  "fresh": 92.78829,
+  "src": "recon/game/psx/draww.cpp",
+  "base": "build/recon/game/psx/draww.cpp.o",
+  "after": 92.78829
+ },
+ {
+  "unit": "game/psx/draww",
+  "fn": "DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry",
+  "va": "0x800C6FA0",
+  "board": 92.15,
+  "fresh": 92.139275,
+  "src": "recon/game/psx/draww.cpp",
+  "base": "build/recon/game/psx/draww.cpp.o",
+  "after": 92.139275
+ },
+ {
+  "unit": "game/psx/draww",
+  "fn": "DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad",
+  "va": "0x800C64F8",
+  "board": 100.0,
+  "fresh": 99.626686,
+  "src": "recon/game/psx/draww.cpp",
+  "base": "build/recon/game/psx/draww.cpp.o",
+  "after": 100.0
+ },
+ {
+  "unit": "game/psx/draww",
+  "fn": "DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache",
+  "va": "0x800C98B8",
+  "board": 98.36,
+  "fresh": 98.36095,
+  "src": "recon/game/psx/draww.cpp",
+  "base": "build/recon/game/psx/draww.cpp.o",
+  "after": 98.36095
+ },
+ {
+  "unit": "game/psx/draww",
+  "fn": "DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss",
+  "va": "0x800C5284",
+  "board": 98.94,
+  "fresh": 98.96939,
+  "src": "recon/game/psx/draww.cpp",
+  "base": "build/recon/game/psx/draww.cpp.o",
+  "after": 98.96939
+ },
+ {
+  "unit": "game/psx/draww",
+  "fn": "Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark",
+  "va": "0x800C909C",
+  "board": 91.07,
+  "fresh": 91.07082,
+  "src": "recon/game/psx/draww.cpp",
+  "base": "build/recon/game/psx/draww.cpp.o",
+  "after": 91.07082
+ },
+ {
+  "unit": "game/psx/hrzsku",
+  "fn": "HrzSetPsxMatrix__FP10matrixtdef",
+  "va": "0x800D083C",
+  "board": 68.8,
+  "fresh": 68.80357,
+  "src": "recon/game/psx/hrzsku.cpp",
+  "base": "build/recon/game/psx/hrzsku.cpp.o",
+  "after": 68.80357
+ },
+ {
+  "unit": "game/psx/hrzsku",
+  "fn": "Hrz_BuildHorizon__FP13DRender_tView",
+  "va": "0x800D131C",
+  "board": 95.71,
+  "fresh": 95.71036,
+  "src": "recon/game/psx/hrzsku.cpp",
+  "base": "build/recon/game/psx/hrzsku.cpp.o",
+  "after": 95.56026
+ },
+ {
+  "unit": "game/psx/hrzsku",
+  "fn": "Hrz_BuildSky__Fv",
+  "va": "0x800D0A38",
+  "board": 93.53,
+  "fresh": 93.534935,
+  "src": "recon/game/psx/hrzsku.cpp",
+  "base": "build/recon/game/psx/hrzsku.cpp.o",
+  "after": 93.534935
+ },
+ {
+  "unit": "game/psx/hud",
+  "fn": "Hud_BuildCdPlayer__Fii",
+  "va": "0x800D63DC",
+  "board": 96.36,
+  "fresh": 96.36211,
+  "src": "recon/game/psx/hud.cpp",
+  "base": "build/recon/game/psx/hud.cpp.o",
+  "after": 96.36211
+ },
+ {
+  "unit": "game/psx/hud",
+  "fn": "Hud_BuildMapMarkers__Fi",
+  "va": "0x800D5AE8",
+  "board": 89.98,
+  "fresh": 91.30844,
+  "src": "recon/game/psx/hud.cpp",
+  "base": "build/recon/game/psx/hud.cpp.o",
+  "after": 91.30844
+ },
+ {
+  "unit": "game/psx/hud",
+  "fn": "Hud_BuildNumbers__Fi",
+  "va": "0x800D4E70",
+  "board": 93.52,
+  "fresh": 93.5343,
+  "src": "recon/game/psx/hud.cpp",
+  "base": "build/recon/game/psx/hud.cpp.o",
+  "after": 93.5343
+ },
+ {
+  "unit": "game/psx/hud",
+  "fn": "Hud_BuildString__FPciiiib",
+  "va": "0x800D42C8",
+  "board": 99.98,
+  "fresh": 99.976746,
+  "src": "recon/game/psx/hud.cpp",
+  "base": "build/recon/game/psx/hud.cpp.o",
+  "after": 99.976746
+ },
+ {
+  "unit": "game/psx/hud",
+  "fn": "Hud_BuildTach__Fi",
+  "va": "0x800D3E94",
+  "board": 95.17,
+  "fresh": 95.171005,
+  "src": "recon/game/psx/hud.cpp",
+  "base": "build/recon/game/psx/hud.cpp.o",
+  "after": 95.171005
+ },
+ {
+  "unit": "game/psx/hud",
+  "fn": "Hud_BuildTimeSprites__FP4SPRTPcii",
+  "va": "0x800D2EF8",
+  "board": 95.23,
+  "fresh": 95.233765,
+  "src": "recon/game/psx/hud.cpp",
+  "base": "build/recon/game/psx/hud.cpp.o",
+  "after": 95.233765
+ },
+ {
+  "unit": "game/psx/hud",
+  "fn": "Hud_Init__Fv",
+  "va": "0x800D302C",
+  "board": 98.67,
+  "fresh": 99.30609,
+  "src": "recon/game/psx/hud.cpp",
+  "base": "build/recon/game/psx/hud.cpp.o",
+  "after": 99.30609
+ },
+ {
+  "unit": "game/psx/hud",
+  "fn": "Hud_RenderHudView__Fv",
+  "va": "0x800D82D0",
+  "board": 99.98,
+  "fresh": 100.0,
+  "src": "recon/game/psx/hud.cpp",
+  "base": "build/recon/game/psx/hud.cpp.o",
+  "after": 100.0
+ },
+ {
+  "unit": "game/psx/hud",
+  "fn": "Hud_RenderTacView__Fv",
+  "va": "0x800D8C48",
+  "board": 92.52,
+  "fresh": 92.521126,
+  "src": "recon/game/psx/hud.cpp",
+  "base": "build/recon/game/psx/hud.cpp.o",
+  "after": 92.521126
+ },
+ {
+  "unit": "game/psx/night",
+  "fn": "Night_AdditiveNightCalc__FP6VECTORP7CVECTOR",
+  "va": "0x800DC1B8",
+  "board": 83.88,
+  "fresh": 83.875,
+  "src": "recon/game/psx/night.cpp",
+  "base": "build/recon/game/psx/night.cpp.o",
+  "after": 83.875
+ },
+ {
+  "unit": "game/psx/night",
+  "fn": "Night_CreateNightTableElement__FiliPUc",
+  "va": "0x800DB3E0",
+  "board": 95.28,
+  "fresh": 95.28319,
+  "src": "recon/game/psx/night.cpp",
+  "base": "build/recon/game/psx/night.cpp.o",
+  "after": 95.28319
+ },
+ {
+  "unit": "game/psx/night",
+  "fn": "Night_SetEnviroment__FP13DRender_tView",
+  "va": "0x800DC0A8",
+  "board": 97.06,
+  "fresh": 97.05882,
+  "src": "recon/game/psx/night.cpp",
+  "base": "build/recon/game/psx/night.cpp.o",
+  "after": 100.0
+ },
+ {
+  "unit": "game/psx/overlays",
+  "fn": "Hud_BTCStats__Fsb",
+  "va": "0x800DA728",
+  "board": 99.03,
+  "fresh": 99.02537,
+  "src": "recon/game/psx/overlays.cpp",
+  "base": "build/recon/game/psx/overlays.cpp.o",
+  "after": 99.02537
+ },
+ {
+  "unit": "game/psx/overlays",
+  "fn": "RaceStatistics__Fv",
+  "va": "0x800D9FBC",
+  "board": 93.65,
+  "fresh": 93.65053,
+  "src": "recon/game/psx/overlays.cpp",
+  "base": "build/recon/game/psx/overlays.cpp.o",
+  "after": 93.65053
+ },
+ {
+  "unit": "game/psx/psxcontroller",
+  "fn": "InGame_GetPSXPadValue__Fii",
+  "va": "0x800DC990",
+  "board": 84.39,
+  "fresh": 84.39056,
+  "src": "recon/game/psx/psxcontroller.cpp",
+  "base": "build/recon/game/psx/psxcontroller.cpp.o",
+  "after": 84.39056
+ },
+ {
+  "unit": "game/psx/psxcontroller",
+  "fn": "InGame_SetRamp__Fv",
+  "va": "0x800DCD3C",
+  "board": 91.56,
+  "fresh": 100.0,
+  "src": "recon/game/psx/psxcontroller.cpp",
+  "base": "build/recon/game/psx/psxcontroller.cpp.o",
+  "after": 100.0
+ },
+ {
+  "unit": "game/psx/sfx",
+  "fn": "Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle",
+  "va": "0x800DD790",
+  "board": 98.09,
+  "fresh": 98.09168,
+  "src": "recon/game/psx/sfx.cpp",
+  "base": "build/recon/game/psx/sfx.cpp.o",
+  "after": 98.09168
+ },
+ {
+  "unit": "game/psx/weather",
+  "fn": "Weather_ChangeDensityBasedOnTime__Fv",
+  "va": "0x800E2218",
+  "board": 99.91,
+  "fresh": 99.90741,
+  "src": "recon/game/psx/weather.cpp",
+  "base": "build/recon/game/psx/weather.cpp.o",
+  "after": 99.90741
+ },
+ {
+  "unit": "game/psx/weather",
+  "fn": "Weather_DoWeather__FP13DRender_tView",
+  "va": "0x800E3A1C",
+  "board": 97.77,
+  "fresh": 97.766495,
+  "src": "recon/game/psx/weather.cpp",
+  "base": "build/recon/game/psx/weather.cpp.o",
+  "after": 97.766495
+ },
+ {
+  "unit": "syslib/psx/2mbyte/2mbyte",
+  "fn": "stup0",
+  "va": "0x800E40CC",
+  "board": 42.86,
+  "fresh": 42.857143,
+  "src": "recon/syslib/psx/2mbyte/2mbyte.c",
+  "base": "build/recon/syslib/psx/2mbyte/2mbyte.c.o",
+  "after": 42.857143
+ },
+ {
+  "unit": "syslib/psx/libapi/FIRST",
+  "fn": "firstfile",
+  "va": "0x80109DC0",
+  "board": 96.5,
+  "fresh": 96.50485,
+  "src": "recon/syslib/psx/libapi/FIRST.c",
+  "base": "build/recon/syslib/psx/libapi/FIRST.c.o",
+  "after": 96.50485
+ },
+ {
+  "unit": "syslib/psx/libc/SPRINTF",
+  "fn": "sprintf",
+  "va": "0x800E44BC",
+  "board": 98.98,
+  "fresh": 98.97982,
+  "src": "recon/syslib/psx/libc/SPRINTF.c",
+  "base": "build/recon/syslib/psx/libc/SPRINTF.c.o",
+  "after": 98.97982
+ },
+ {
+  "unit": "syslib/psx/libcard/PATCH",
+  "fn": "func_8010CA40",
+  "va": "-",
+  "board": 97.78,
+  "fresh": 97.77778,
+  "src": "recon/syslib/psx/libcard/PATCH.c",
+  "base": "build/recon/syslib/psx/libcard/PATCH.c.o",
+  "after": 97.77778
+ },
+ {
+  "unit": "syslib/psx/libcd/cdread",
+  "fn": "CdRead",
+  "va": "0x80108DDC",
+  "board": 83.24,
+  "fresh": 98.398056,
+  "src": "recon/syslib/psx/libcd/cdread.c",
+  "base": "build/recon/syslib/psx/libcd/cdread.c.o",
+  "after": 98.398056
+ },
+ {
+  "unit": "syslib/psx/libcd/cdread",
+  "fn": "_read_int",
+  "va": "0x801088B0",
+  "board": 97.2,
+  "fresh": 97.19745,
+  "src": "recon/syslib/psx/libcd/cdread.c",
+  "base": "build/recon/syslib/psx/libcd/cdread.c.o",
+  "after": 97.19745
+ },
+ {
+  "unit": "syslib/psx/libcd/cdread",
+  "fn": "_read_issue",
+  "va": "0x80108BF4",
+  "board": 96.15,
+  "fresh": 96.14754,
+  "src": "recon/syslib/psx/libcd/cdread.c",
+  "base": "build/recon/syslib/psx/libcd/cdread.c.o",
+  "after": 96.14754
+ },
+ {
+  "unit": "syslib/psx/libcd/drv",
+  "fn": "CD_cw",
+  "va": "0x80107B24",
+  "board": 96.27,
+  "fresh": 96.71815,
+  "src": "recon/syslib/psx/libcd/drv.c",
+  "base": "build/recon/syslib/psx/libcd/drv.c.o",
+  "after": 96.71815
+ },
+ {
+  "unit": "syslib/psx/libcd/drv",
+  "fn": "CD_init_80108140",
+  "va": "0x80108140",
+  "board": 94.29,
+  "fresh": 94.291664,
+  "src": "recon/syslib/psx/libcd/drv.c",
+  "base": "build/recon/syslib/psx/libcd/drv.c.o",
+  "after": 94.291664
+ },
+ {
+  "unit": "syslib/psx/libcd/iso9660",
+  "fn": "CD_newmedia",
+  "va": "0x800F9380",
+  "board": 98.18,
+  "fresh": 98.18079,
+  "src": "recon/syslib/psx/libcd/iso9660.c",
+  "base": "build/recon/syslib/psx/libcd/iso9660.c.o",
+  "after": 98.18079
+ },
+ {
+  "unit": "syslib/psx/libcd/iso9660",
+  "fn": "CdSearchFile",
+  "va": "0x800F9088",
+  "board": 92.74,
+  "fresh": 92.74176,
+  "src": "recon/syslib/psx/libcd/iso9660.c",
+  "base": "build/recon/syslib/psx/libcd/iso9660.c.o",
+  "after": 92.74176
+ },
+ {
+  "unit": "syslib/psx/libcd/stcdint",
+  "fn": "StCdInterrupt",
+  "va": "0x800F7E78",
+  "board": 97.38,
+  "fresh": 97.38422,
+  "src": "recon/syslib/psx/libcd/stcdint.c",
+  "base": "build/recon/syslib/psx/libcd/stcdint.c.o",
+  "after": 97.38422
+ },
+ {
+  "unit": "syslib/psx/libcd/stcdint",
+  "fn": "_st_dma",
+  "va": "0x800F87C0",
+  "board": 92.74,
+  "fresh": 92.73585,
+  "src": "recon/syslib/psx/libcd/stcdint.c",
+  "base": "build/recon/syslib/psx/libcd/stcdint.c.o",
+  "after": 92.73585
+ },
+ {
+  "unit": "syslib/psx/libcd/streamhelp",
+  "fn": "StGetNext",
+  "va": "0x800F9A28",
+  "board": 99.89,
+  "fresh": 99.891304,
+  "src": "recon/syslib/psx/libcd/streamhelp.c",
+  "base": "build/recon/syslib/psx/libcd/streamhelp.c.o",
+  "after": 99.891304
+ },
+ {
+  "unit": "syslib/psx/libcd/streamhelp",
+  "fn": "data_ready_callback",
+  "va": "0x80108798",
+  "board": 89.43,
+  "fresh": 89.42857,
+  "src": "recon/syslib/psx/libcd/streamhelp.c",
+  "base": "build/recon/syslib/psx/libcd/streamhelp.c.o",
+  "after": 89.42857
+ },
+ {
+  "unit": "syslib/psx/libcd/toc",
+  "fn": "CdGetToc2",
+  "va": "0x801092C0",
+  "board": 98.47,
+  "fresh": 100.0,
+  "src": "recon/syslib/psx/libcd/toc.c",
+  "base": "build/recon/syslib/psx/libcd/toc.c.o",
+  "after": 100.0
+ },
+ {
+  "unit": "syslib/psx/libetc/INTR",
+  "fn": "_initIntr",
+  "va": "0x800F2968",
+  "board": 99.63,
+  "fresh": 99.62963,
+  "src": "recon/syslib/psx/libetc/INTR.c",
+  "base": "build/recon/syslib/psx/libetc/INTR.c.o",
+  "after": 99.62963
+ },
+ {
+  "unit": "syslib/psx/libetc/INTR",
+  "fn": "_intrhand",
+  "va": "0x800F2A40",
+  "board": 91.37,
+  "fresh": 91.37069,
+  "src": "recon/syslib/psx/libetc/INTR.c",
+  "base": "build/recon/syslib/psx/libetc/INTR.c.o",
+  "after": 91.37069
+ },
+ {
+  "unit": "syslib/psx/libetc/INTR",
+  "fn": "_set_intr_callback",
+  "va": "0x800F2C10",
+  "board": 97.17,
+  "fresh": 97.17073,
+  "src": "recon/syslib/psx/libetc/INTR.c",
+  "base": "build/recon/syslib/psx/libetc/INTR.c.o",
+  "after": 97.17073
+ },
+ {
+  "unit": "syslib/psx/libetc/INTR_DMA",
+  "fn": "func_80106878",
+  "va": "-",
+  "board": 78.6,
+  "fresh": 78.60465,
+  "src": "recon/syslib/psx/libetc/INTR_DMA.c",
+  "base": "build/recon/syslib/psx/libetc/INTR_DMA.c.o",
+  "after": 78.60465
+ },
+ {
+  "unit": "syslib/psx/libgpu/FONT",
+  "fn": "FntFlush",
+  "va": "0x800F6D18",
+  "board": 98.99,
+  "fresh": 98.99497,
+  "src": "recon/syslib/psx/libgpu/FONT.c",
+  "base": "build/recon/syslib/psx/libgpu/FONT.c.o",
+  "after": 98.99497
+ },
+ {
+  "unit": "syslib/psx/libgpu/FONT",
+  "fn": "FntPrint",
+  "va": "0x800F7034",
+  "board": 99.98,
+  "fresh": 99.979164,
+  "src": "recon/syslib/psx/libgpu/FONT.c",
+  "base": "build/recon/syslib/psx/libgpu/FONT.c.o",
+  "after": 99.979164
+ },
+ {
+  "unit": "syslib/psx/libgpu/SYS",
+  "fn": "MoveImage",
+  "va": "0x800EDB50",
+  "board": 74.78,
+  "fresh": 100.0,
+  "src": "recon/syslib/psx/libgpu/SYS.c",
+  "base": "build/recon/syslib/psx/libgpu/SYS.c.o",
+  "after": 100.0
+ },
+ {
+  "unit": "syslib/psx/libgpu/SYS",
+  "fn": "PutDispEnv",
+  "va": "0x800EDDE4",
+  "board": 98.99,
+  "fresh": 98.99371,
+  "src": "recon/syslib/psx/libgpu/SYS.c",
+  "base": "build/recon/syslib/psx/libgpu/SYS.c.o",
+  "after": 98.99371
+ },
+ {
+  "unit": "syslib/psx/libgpu/SYS",
+  "fn": "_drs",
+  "va": "0x800EEFC8",
+  "board": 98.67,
+  "fresh": 98.675,
+  "src": "recon/syslib/psx/libgpu/SYS.c",
+  "base": "build/recon/syslib/psx/libgpu/SYS.c.o",
+  "after": 98.675
+ },
+ {
+  "unit": "syslib/psx/libgpu/SYS",
+  "fn": "_dws",
+  "va": "0x800EED8C",
+  "board": 98.94,
+  "fresh": 98.937065,
+  "src": "recon/syslib/psx/libgpu/SYS.c",
+  "base": "build/recon/syslib/psx/libgpu/SYS.c.o",
+  "after": 98.937065
+ },
+ {
+  "unit": "syslib/psx/libgpu/SYS",
+  "fn": "_gpu_que_drain",
+  "va": "0x800EF60C",
+  "board": 92.99,
+  "fresh": 92.99342,
+  "src": "recon/syslib/psx/libgpu/SYS.c",
+  "base": "build/recon/syslib/psx/libgpu/SYS.c.o",
+  "after": 92.99342
+ },
+ {
+  "unit": "syslib/psx/libgpu/SYS",
+  "fn": "_set_draw_mode",
+  "va": "0x800EE878",
+  "board": 98.75,
+  "fresh": 98.75,
+  "src": "recon/syslib/psx/libgpu/SYS.c",
+  "base": "build/recon/syslib/psx/libgpu/SYS.c.o",
+  "after": 98.75
+ },
+ {
+  "unit": "syslib/psx/libmath/ADDDF3",
+  "fn": "__adddf3",
+  "va": "0x800F5A54",
+  "board": 96.57,
+  "fresh": 97.502266,
+  "src": "recon/syslib/psx/libmath/ADDDF3.c",
+  "base": "build/recon/syslib/psx/libmath/ADDDF3.c.o",
+  "after": 97.502266
+ },
+ {
+  "unit": "syslib/psx/libmath/DIVDF3",
+  "fn": "__divdf3",
+  "va": "0x800F5DD4",
+  "board": 94.7,
+  "fresh": 94.79891,
+  "src": "recon/syslib/psx/libmath/DIVDF3.c",
+  "base": "build/recon/syslib/psx/libmath/DIVDF3.c.o",
+  "after": 94.79891
+ },
+ {
+  "unit": "syslib/psx/libmath/DIVSF3",
+  "fn": "__divsf3",
+  "va": "0x800F66E4",
+  "board": 99.88,
+  "fresh": 99.87654,
+  "src": "recon/syslib/psx/libmath/DIVSF3.c",
+  "base": "build/recon/syslib/psx/libmath/DIVSF3.c.o",
+  "after": 99.87654
+ },
+ {
+  "unit": "syslib/psx/libmath/FIXDFSI",
+  "fn": "__fixdfsi",
+  "va": "0x800F6834",
+  "board": 94.13,
+  "fresh": 94.12698,
+  "src": "recon/syslib/psx/libmath/FIXDFSI.c",
+  "base": "build/recon/syslib/psx/libmath/FIXDFSI.c.o",
+  "after": 94.12698
+ },
+ {
+  "unit": "syslib/psx/libmath/MULDF3",
+  "fn": "__muldf3",
+  "va": "0x800F62E4",
+  "board": 98.89,
+  "fresh": 100.0,
+  "src": "recon/syslib/psx/libmath/MULDF3.c",
+  "base": "build/recon/syslib/psx/libmath/MULDF3.c.o",
+  "after": 100.0
+ },
+ {
+  "unit": "syslib/psx/libmath/MULDF3",
+  "fn": "_mul_mant_d",
+  "va": "0x800F65F8",
+  "board": 91.76,
+  "fresh": 95.15254,
+  "src": "recon/syslib/psx/libmath/MULDF3.c",
+  "base": "build/recon/syslib/psx/libmath/MULDF3.c.o",
+  "after": 95.15254
+ },
+ {
+  "unit": "syslib/psx/libmcrd/LIBMCRD",
+  "fn": "MemCardCreateFile",
+  "va": "0x800FBC18",
+  "board": 87.4,
+  "fresh": 93.88461,
+  "src": "recon/syslib/psx/libmcrd/LIBMCRD.c",
+  "base": "build/recon/syslib/psx/libmcrd/LIBMCRD.c.o",
+  "after": 93.88461
+ },
+ {
+  "unit": "syslib/psx/libmcrd/LIBMCRD",
+  "fn": "MemCardDeleteFile",
+  "va": "0x800FBE20",
+  "board": 89.61,
+  "fresh": 97.24324,
+  "src": "recon/syslib/psx/libmcrd/LIBMCRD.c",
+  "base": "build/recon/syslib/psx/libmcrd/LIBMCRD.c.o",
+  "after": 97.24324
+ },
+ {
+  "unit": "syslib/psx/libmcrd/LIBMCRD",
+  "fn": "MemCardGetDirentry",
+  "va": "0x800FB888",
+  "board": 93.87,
+  "fresh": 93.86842,
+  "src": "recon/syslib/psx/libmcrd/LIBMCRD.c",
+  "base": "build/recon/syslib/psx/libmcrd/LIBMCRD.c.o",
+  "after": 93.86842
+ },
+ {
+  "unit": "syslib/psx/libmcrd/LIBMCRD",
+  "fn": "MemCardWriteData_cb",
+  "va": "0x800FB30C",
+  "board": 99.94,
+  "fresh": 99.93671,
+  "src": "recon/syslib/psx/libmcrd/LIBMCRD.c",
+  "base": "build/recon/syslib/psx/libmcrd/LIBMCRD.c.o",
+  "after": 99.93671
+ },
+ {
+  "unit": "syslib/psx/libpad/MCXMAIN",
+  "fn": "_padIntRecvData",
+  "va": "0x8010C314",
+  "board": 99.98,
+  "fresh": 99.97758,
+  "src": "recon/syslib/psx/libpad/MCXMAIN.c",
+  "base": "build/recon/syslib/psx/libpad/MCXMAIN.c.o",
+  "after": 99.97758
+ },
+ {
+  "unit": "syslib/psx/libpad/MCXMAIN",
+  "fn": "_padIntRecvHdr",
+  "va": "0x8010C288",
+  "board": 99.71,
+  "fresh": 99.71429,
+  "src": "recon/syslib/psx/libpad/MCXMAIN.c",
+  "base": "build/recon/syslib/psx/libpad/MCXMAIN.c.o",
+  "after": 99.71429
+ },
+ {
+  "unit": "syslib/psx/libpad/PADCMD",
+  "fn": "_padLoadActInfo_rcv",
+  "va": "0x80105980",
+  "board": 95.61,
+  "fresh": 95.605095,
+  "src": "recon/syslib/psx/libpad/PADCMD.c",
+  "base": "build/recon/syslib/psx/libpad/PADCMD.c.o",
+  "after": 95.605095
+ },
+ {
+  "unit": "syslib/psx/libpad/PADMAIN",
+  "fn": "_padInitSioMode",
+  "va": "0x80104D2C",
+  "board": 98.67,
+  "fresh": 97.70731,
+  "src": "recon/syslib/psx/libpad/PADMAIN.c",
+  "base": "build/recon/syslib/psx/libpad/PADMAIN.c.o",
+  "after": 96.78049
+ },
+ {
+  "unit": "syslib/psx/libpad/PADPORTD",
+  "fn": "_pad_failall",
+  "va": "0x800FDEF0",
+  "board": 93.57,
+  "fresh": 93.57377,
+  "src": "recon/syslib/psx/libpad/PADPORTD.c",
+  "base": "build/recon/syslib/psx/libpad/PADPORTD.c.o",
+  "after": 93.57377
+ },
+ {
+  "unit": "syslib/psx/libpad/PADPORTD",
+  "fn": "_pad_filter",
+  "va": "0x800FE0B0",
+  "board": 98.99,
+  "fresh": 100.0,
+  "src": "recon/syslib/psx/libpad/PADPORTD.c",
+  "base": "build/recon/syslib/psx/libpad/PADPORTD.c.o",
+  "after": 100.0
+ },
+ {
+  "unit": "syslib/psx/libpad/PADPORTD",
+  "fn": "_pad_getbyte",
+  "va": "0x800FDFF4",
+  "board": 92.13,
+  "fresh": 92.12766,
+  "src": "recon/syslib/psx/libpad/PADPORTD.c",
+  "base": "build/recon/syslib/psx/libpad/PADPORTD.c.o",
+  "after": 92.12766
+ },
+ {
+  "unit": "syslib/psx/libpad/PADSEQD",
+  "fn": "_dirSendAuto",
+  "va": "0x8010A0E4",
+  "board": 99.92,
+  "fresh": 99.921875,
+  "src": "recon/syslib/psx/libpad/PADSEQD.c",
+  "base": "build/recon/syslib/psx/libpad/PADSEQD.c.o",
+  "after": 99.921875
+ },
+ {
+  "unit": "syslib/psx/libpad/PADSEQD",
+  "fn": "_padInitDirSeq",
+  "va": "0x8010A0B0",
+  "board": 87.69,
+  "fresh": 87.69231,
+  "src": "recon/syslib/psx/libpad/PADSEQD.c",
+  "base": "build/recon/syslib/psx/libpad/PADSEQD.c.o",
+  "after": 87.69231
+ }
+]

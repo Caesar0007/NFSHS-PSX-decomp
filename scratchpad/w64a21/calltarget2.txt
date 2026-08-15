@@ -1,0 +1,442 @@
+147 PROVEN wrong-call-target sites (both names known, different VAs)
+  frontend/common/feapp  ___14tFEApplication
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___21tDialogNoInputMessage @0x80019f44
+  frontend/common/feapp  ___14tFEApplication
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___31tDialogMessageStringWithTimeout @0x80015760
+  frontend/common/feapp  ___14tFEApplication
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___11tDialogHelp @0x80019fa4
+  frontend/common/feapp  ___14tFEApplication
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___20tDialogMessageString @0x80019f84
+  frontend/common/fedialog  Draw__20tDialogMessageString
+      retail calls Draw__11tDialogBase @0x800189b8
+      ours   calls Draw__20tDialogMessageString @0x8001962c
+  frontend/common/fedialog  ProcessInput__15tDialogYesNoMem7tPlayerR13tInputKeyTypeR12tMenuCommand
+      retail calls ProcessInput__12tDialogYesNo7tPlayerR13tInputKeyTypeR12tMenuCommand @0x80019ccc
+      ours   calls ProcessInput__15tDialogYesNoMem7tPlayerR13tInputKeyTypeR12tMenuCommand @0x80019d98
+  frontend/common/fedialog  ProcessInput__15tDialogYesNoTri7tPlayerR13tInputKeyTypeR12tMenuCommand
+      retail calls ProcessInput__12tDialogYesNo7tPlayerR13tInputKeyTypeR12tMenuCommand @0x80019ccc
+      ours   calls ProcessInput__15tDialogYesNoTri7tPlayerR13tInputKeyTypeR12tMenuCommand @0x80019e7c
+  frontend/common/fedialog  ___15tDialogYesNoTri
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___12tDialogYesNo @0x80019f04
+  frontend/common/fedialog  ___15tDialogYesNoMem
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___12tDialogYesNo @0x80019f04
+  frontend/common/fedialog  ___12tDialogYesNo
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___20tDialogMessageString @0x80019f84
+  frontend/common/fedialog  ___21tDialogNoInputMessage
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___20tDialogMessageString @0x80019f84
+  frontend/common/fedialog  ___17tDialogBackUpOnly
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___20tDialogMessageString @0x80019f84
+  frontend/common/fedialog  ___20tDialogMessageString
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___11tDialogBase @0x80019fc4
+  frontend/common/fedialog  ___11tDialogHelp
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___11tDialogBase @0x80019fc4
+  frontend/common/fememcard  Confirm__Fii
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___15tDialogYesNoMem @0x80019ee4
+  frontend/common/fememcard  SaveGame__Fs
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___21tDialogNoInputMessage @0x80019f44
+  frontend/common/fememcard  LoadGame__FsbT1
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___21tDialogNoInputMessage @0x80019f44
+  frontend/common/fememcard  SavePinkSlipsCarsWithErrorDialogs__Fsss
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___21tDialogNoInputMessage @0x80019f44
+  frontend/common/fememcard  SavePinkSlipsCarsWithErrorDialogs__Fsss
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___21tDialogNoInputMessage @0x80019f44
+  frontend/common/fememcard  SavePinkSlipsCarsWithErrorDialogs__Fsss
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___12tDialogYesNo @0x80019f04
+  frontend/common/femenudefs  MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___15tDialogYesNoTri @0x80019ec4
+  frontend/common/femenudefs  AskTheUserToSaveTheGame__Fv
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___12tDialogYesNo @0x80019f04
+  frontend/common/femenudefs  PinkSlipsPreSave__Fv
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___15tDialogYesNoTri @0x80019ec4
+  frontend/common/femenudefs  PinkSlipsPreSave__Fv
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___15tDialogYesNoTri @0x80019ec4
+  frontend/common/femenudefs  MenuExtended_GoToTournTrackInfo__FR12tMenuCommand
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___12tDialogYesNo @0x80019f04
+  frontend/common/femenudefs  MenuExtended_GoToTournTrackInfo__FR12tMenuCommand
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___12tDialogYesNo @0x80019f04
+  frontend/common/femenudefs  MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___12tDialogYesNo @0x80019f04
+  frontend/common/femenudefs  MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___12tDialogYesNo @0x80019f04
+  frontend/common/femenudefs  MenuExtended_SellCar__FR12tMenuCommand
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___12tDialogYesNo @0x80019f04
+  frontend/common/femenudefs  MenuExtended_BuyCar__FR12tMenuCommand
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___12tDialogYesNo @0x80019f04
+  frontend/common/femenudefs  MenuExtended_PurchaseUpgrade__Fi
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___12tDialogYesNo @0x80019f04
+  frontend/common/femenudefs  MenuExtended_LoadGame__FR12tMenuCommand
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___12tDialogYesNo @0x80019f04
+  frontend/common/femenudefs  MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___12tDialogYesNo @0x80019f04
+  frontend/common/femenudefs  MenuExtended_ExitTourney__FR12tMenuCommand
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___12tDialogYesNo @0x80019f04
+  frontend/common/femenudefs  MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___12tDialogYesNo @0x80019f04
+  frontend/common/femenudefs  ___15tGlobalMenuDefs
+      retail calls ___27tMenuItemGoToMenuNFS4Button @0x8001a514
+      ours   calls ___32tBlankMenuItemGoToMenuNFS4Button @0x800321d8
+  frontend/common/femenudefs  ___15tGlobalMenuDefs
+      retail calls ___28tMenuItemNFS4LeftRightChoice @0x8001a8a0
+      ours   calls ___33tBlankMenuItemNFS4LeftRightChoice @0x80032208
+  frontend/common/femenudefs  ___15tGlobalMenuDefs
+      retail calls ___24tMenuItemLeftRightChoice @0x80024954
+      ours   calls ___31tMenuItemOptionsLeftRightChoice @0x8001bf20
+  frontend/common/femenudefs  ___15tGlobalMenuDefs
+      retail calls ___24tMenuItemLeftRightChoice @0x80024954
+      ours   calls ___31tMenuItemOptionsLeftRightChoice @0x8001bf20
+  frontend/common/femenudefs  ___15tGlobalMenuDefs
+      retail calls ___24tMenuItemLeftRightChoice @0x80024954
+      ours   calls ___31tMenuItemOptionsLeftRightChoice @0x8001bf20
+  frontend/common/femenudefs  ___15tGlobalMenuDefs
+      retail calls ___24tMenuItemLeftRightChoice @0x80024954
+      ours   calls ___31tMenuItemOptionsLeftRightChoice @0x8001bf20
+  frontend/common/femenudefs  ___15tGlobalMenuDefs
+      retail calls ___24tMenuItemLeftRightChoice @0x80024954
+      ours   calls ___31tMenuItemOptionsLeftRightChoice @0x8001bf20
+  frontend/common/femenudefs  ___15tGlobalMenuDefs
+      retail calls ___24tMenuItemLeftRightChoice @0x80024954
+      ours   calls ___31tMenuItemOptionsLeftRightChoice @0x8001bf20
+  frontend/common/femenudefs  ___15tGlobalMenuDefs
+      retail calls ___24tMenuItemLeftRightChoice @0x80024954
+      ours   calls ___31tMenuItemOptionsLeftRightChoice @0x8001bf20
+  frontend/common/femenudefs  ___15tGlobalMenuDefs
+      retail calls ___27tMenuItemGoToMenuNFS4Button @0x8001a514
+      ours   calls ___32tBlankMenuItemGoToMenuNFS4Button @0x800321d8
+  frontend/common/femenudefs  ___15tGlobalMenuDefs
+      retail calls ___24tMenuItemLeftRightChoice @0x80024954
+      ours   calls ___29tMenuItemOptionsTwoItemChoice @0x8001bf00
+  frontend/common/femenudefs  ___15tGlobalMenuDefs
+      retail calls ___24tMenuItemLeftRightChoice @0x80024954
+      ours   calls ___29tMenuItemOptionsTwoItemChoice @0x8001bf00
+  frontend/common/femenudefs  ___15tGlobalMenuDefs
+      retail calls ___24tMenuItemLeftRightChoice @0x80024954
+      ours   calls ___29tMenuItemOptionsTwoItemChoice @0x8001bf00
+  frontend/common/femenudefs  ___15tGlobalMenuDefs
+      retail calls ___24tMenuItemLeftRightChoice @0x80024954
+      ours   calls ___29tMenuItemOptionsTwoItemChoice @0x8001bf00
+  frontend/common/femenudefs  ___15tGlobalMenuDefs
+      retail calls ___24tMenuItemLeftRightChoice @0x80024954
+      ours   calls ___29tMenuItemOptionsTwoItemChoice @0x8001bf00
+  frontend/common/femenudefs  ___15tGlobalMenuDefs
+      retail calls ___24tMenuItemLeftRightChoice @0x80024954
+      ours   calls ___31tMenuItemOptionsLeftRightChoice @0x8001bf20
+  frontend/common/femenudefs  ___15tGlobalMenuDefs
+      retail calls ___24tMenuItemLeftRightChoice @0x80024954
+      ours   calls ___31tMenuItemOptionsLeftRightChoice @0x8001bf20
+  frontend/common/femenuextended  Draw__9tMenuNFS4
+      retail calls Initialize__5tMenu @0x800254e4
+      ours   calls Initialize__9tMenuNFS4 @0x8001b180
+  frontend/common/femenuoptions  UpdateTransition__20tMenuItemSlidingMenub
+      retail calls UpdateTransition__9tMenuItemb @0x800247a8
+      ours   calls UpdateTransition__20tMenuItemSlidingMenub @0x8001d31c
+  frontend/common/femenuoptions  ProcessInput__20tMenuItemSlidingMenu7tPlayerR13tInputKeyTypeR12tMenuCommand
+      retail calls ProcessInput__9tMenuItem7tPlayerR13tInputKeyTypeR12tMenuCommand @0x800247a0
+      ours   calls ProcessInput__20tMenuItemSlidingMenu7tPlayerR13tInputKeyTypeR12tMenuCommand @0x8001dc80
+  frontend/common/femenuoptions  TransitionOn__29tMenuItemOnOffLeftRightChoice
+      retail calls TransitionOn__22tMenuItemLeftRightFade @0x8001c3ac
+      ours   calls TransitionOn__29tMenuItemOnOffLeftRightChoice @0x8001e320
+  frontend/common/femenuoptions  UpdateTransition__17tUserNameMenuItemb
+      retail calls UpdateTransition__9tMenuItemb @0x800247a8
+      ours   calls UpdateTransition__17tUserNameMenuItemb @0x80020820
+  frontend/common/front  ___11tAllScreens
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___25tScreenTournamentCongrats @0x800497a0
+  frontend/common/front  ___11tAllScreens
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___23tScreenBeTheCopCongrats @0x800497c0
+  frontend/common/front  ___11tAllScreens
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___16tScreenPinkSlips @0x800397cc
+  frontend/common/front  ___11tAllScreens
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___31tScreenTournamentStandings3item @0x8003a8ac
+  frontend/common/front  ___11tAllScreens
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___24tScreenPinkSlipStandings @0x8003a88c
+  frontend/common/front  ___11tAllScreens
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___23tScreenPinkSlipCongrats @0x800497e0
+  frontend/common/front  ___11tAllScreens
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___15tScreenUserName @0x8004b7d4
+  frontend/common/front  ___11tAllScreens
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___14tScreenMemcard @0x80047e3c
+  frontend/common/front  ___11tAllScreens
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___12tScreenAudio @0x800462fc
+  frontend/common/front  ___11tAllScreens
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___14tScreenDisplay @0x80045a04
+  frontend/common/front  ___11tAllScreens
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___12tDialogYesNo @0x80019f04
+  frontend/common/front  ___11tAllScreens
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___17tScreenTrophyInfo @0x800415e0
+  frontend/common/front  ___11tAllScreens
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___23tScreenTournamentTrophy @0x80049800
+  frontend/common/front  ___11tAllScreens
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___26tScreenTournamentStandings @0x8003a8cc
+  frontend/common/front  ___11tAllScreens
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___18tScreenTrackSelect @0x800421d4
+  frontend/common/front  ___11tAllScreens
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___16tScreenTrackInfo @0x80042628
+  frontend/common/front  ___11tAllScreens
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___19tScreenTrackRecords @0x800430f8
+  frontend/common/front  ___11tAllScreens
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___17tDialogBackUpOnly @0x80019f64
+  frontend/common/front  ___11tAllScreens
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___17tDialogBackUpOnly @0x80019f64
+  frontend/common/front  ___11tAllScreens
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___17tDialogBackUpOnly @0x80019f64
+  frontend/common/front  ___11tAllScreens
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___17tDialogBackUpOnly @0x80019f64
+  frontend/common/front  ___11tAllScreens
+      retail calls ___16tScreenCarSelect @0x8003ac90
+      ours   calls ___20tScreenCarSelectDuel @0x8003f758
+  frontend/common/front  ___11tAllScreens
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___11tScreenMain @0x80038b44
+  frontend/common/screenaudio  Initialize__12tScreenAudio
+      retail calls Initialize__7tScreen @0x800260ac
+      ours   calls Initialize__12tScreenAudio @0x800461a4
+  frontend/common/screenaudio  Cleanup__12tScreenAudio
+      retail calls Cleanup__7tScreen @0x800261a0
+      ours   calls Cleanup__12tScreenAudio @0x80046204
+  frontend/common/screencarselect  Cleanup__16tScreenCarSelect
+      retail calls Cleanup__7tScreen @0x800261a0
+      ours   calls Cleanup__16tScreenCarSelect @0x8003acb8
+  frontend/common/screencarselect  Initialize__16tScreenCarSelect
+      retail calls Initialize__7tScreen @0x800260ac
+      ours   calls Initialize__16tScreenCarSelect @0x8003bd88
+  frontend/common/screencarselect  Initialize__20tScreenCarSelectDuel
+      retail calls Initialize__16tScreenCarSelect @0x8003bd88
+      ours   calls Initialize__20tScreenCarSelectDuel @0x8003d304
+  frontend/common/screencarselect  Cleanup__20tScreenCarSelectDuel
+      retail calls Cleanup__16tScreenCarSelect @0x8003acb8
+      ours   calls Cleanup__20tScreenCarSelectDuel @0x8003d334
+  frontend/common/screencarselect  Initialize__25tScreenCarSelectTwoPlayer
+      retail calls Initialize__16tScreenCarSelect @0x8003bd88
+      ours   calls Initialize__25tScreenCarSelectTwoPlayer @0x8003edc0
+  frontend/common/screencarselect  Cleanup__25tScreenCarSelectTwoPlayer
+      retail calls Cleanup__16tScreenCarSelect @0x8003acb8
+      ours   calls Cleanup__25tScreenCarSelectTwoPlayer @0x8003ee10
+  frontend/common/screencarselect  DrawBackground__25tScreenPinkSlipsCarSelect
+      retail calls DrawBackground__25tScreenCarSelectTwoPlayer @0x8003e4bc
+      ours   calls DrawBackground__25tScreenPinkSlipsCarSelect @0x8003eed0
+  frontend/common/screencarselect  DrawForeground__25tScreenPinkSlipsCarSelect
+      retail calls DrawForeground__25tScreenCarSelectTwoPlayer @0x8003ea14
+      ours   calls DrawForeground__25tScreenPinkSlipsCarSelect @0x8003f22c
+  frontend/common/screencarselect  Initialize__25tScreenPinkSlipsCarSelect
+      retail calls Initialize__25tScreenCarSelectTwoPlayer @0x8003edc0
+      ours   calls Initialize__25tScreenPinkSlipsCarSelect @0x8003f24c
+  frontend/common/screencarselect  Cleanup__25tScreenPinkSlipsCarSelect
+      retail calls Cleanup__25tScreenCarSelectTwoPlayer @0x8003ee10
+      ours   calls Cleanup__25tScreenPinkSlipsCarSelect @0x8003f2ac
+  frontend/common/screencongrats  Cleanup__15tScreenCongrats
+      retail calls Cleanup__7tScreen @0x800261a0
+      ours   calls Cleanup__15tScreenCongrats @0x80047e60
+  frontend/common/screencongrats  Initialize__15tScreenCongrats
+      retail calls Initialize__7tScreen @0x800260ac
+      ours   calls Initialize__15tScreenCongrats @0x80048a2c
+  frontend/common/screencongrats  Initialize__23tScreenPinkSlipCongrats
+      retail calls Initialize__15tScreenCongrats @0x80048a2c
+      ours   calls Initialize__23tScreenPinkSlipCongrats @0x80048dec
+  frontend/common/screencongrats  Cleanup__23tScreenPinkSlipCongrats
+      retail calls Cleanup__7tScreen @0x800261a0
+      ours   calls Cleanup__23tScreenPinkSlipCongrats @0x80048e44
+  frontend/common/screencongrats  ProcessInput__23tScreenTournamentTrophy7tPlayerR13tInputKeyTypeR12tMenuCommand
+      retail calls ProcessInput__15tScreenCongrats7tPlayerR13tInputKeyTypeR12tMenuCommand @0x80048af0
+      ours   calls ProcessInput__23tScreenTournamentTrophy7tPlayerR13tInputKeyTypeR12tMenuCommand @0x80048e70
+  frontend/common/screencongrats  CalculatePrizes__23tScreenBeTheCopCongrats
+      retail calls CalculatePrizes__15tScreenCongrats @0x800489b8
+      ours   calls CalculatePrizes__23tScreenBeTheCopCongrats @0x800494dc
+  frontend/common/screencongrats  CalculatePrizes__25tScreenTournamentCongrats
+      retail calls CalculatePrizes__15tScreenCongrats @0x800489b8
+      ours   calls CalculatePrizes__25tScreenTournamentCongrats @0x8004963c
+  frontend/common/screencongrats  ___25tScreenTournamentCongrats
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___15tScreenCongrats @0x80049820
+  frontend/common/screencongrats  ___23tScreenBeTheCopCongrats
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___15tScreenCongrats @0x80049820
+  frontend/common/screencongrats  ___23tScreenPinkSlipCongrats
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___15tScreenCongrats @0x80049820
+  frontend/common/screencongrats  ___23tScreenTournamentTrophy
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___15tScreenCongrats @0x80049820
+  frontend/common/screencontroller  Initialize__23tScreenControllerConfig
+      retail calls Initialize__7tScreen @0x800260ac
+      ours   calls Initialize__23tScreenControllerConfig @0x800456fc
+  frontend/common/screencontroller  Cleanup__23tScreenControllerConfig
+      retail calls Cleanup__7tScreen @0x800261a0
+      ours   calls Cleanup__23tScreenControllerConfig @0x80045820
+  frontend/common/screenmain  PreLoad__11tScreenMain
+      retail calls PreLoad__7tScreen @0x80026780
+      ours   calls PreLoad__11tScreenMain @0x800386c8
+  frontend/common/screenmain  Initialize__11tScreenMain
+      retail calls Initialize__7tScreen @0x800260ac
+      ours   calls Initialize__11tScreenMain @0x800388d4
+  frontend/common/screenmain  Cleanup__11tScreenMain
+      retail calls Cleanup__7tScreen @0x800261a0
+      ours   calls Cleanup__11tScreenMain @0x80038ad8
+  frontend/common/screenmemcard  Initialize__14tScreenMemcard
+      retail calls Initialize__7tScreen @0x800260ac
+      ours   calls Initialize__14tScreenMemcard @0x80047c30
+  frontend/common/screenmemcard  Cleanup__14tScreenMemcard
+      retail calls Cleanup__7tScreen @0x800261a0
+      ours   calls Cleanup__14tScreenMemcard @0x80047dd8
+  frontend/common/screenpinkslips  Initialize__16tScreenPinkSlips
+      retail calls Initialize__7tScreen @0x800260ac
+      ours   calls Initialize__16tScreenPinkSlips @0x800391d8
+  frontend/common/screenpinkslips  Cleanup__16tScreenPinkSlips
+      retail calls Cleanup__7tScreen @0x800261a0
+      ours   calls Cleanup__16tScreenPinkSlips @0x80039320
+  frontend/common/screenpost  Initialize__26tScreenTournamentStandings
+      retail calls Initialize__7tScreen @0x800260ac
+      ours   calls Initialize__26tScreenTournamentStandings @0x80039960
+  frontend/common/screenpost  Cleanup__26tScreenTournamentStandings
+      retail calls Cleanup__7tScreen @0x800261a0
+      ours   calls Cleanup__26tScreenTournamentStandings @0x80039aec
+  frontend/common/screenpost  ___24tScreenPinkSlipStandings
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___31tScreenTournamentStandings3item @0x8003a8ac
+  frontend/common/screenpost  ___31tScreenTournamentStandings3item
+      retail calls ___7tScreen @0x80026078
+      ours   calls ___26tScreenTournamentStandings @0x8003a8cc
+  frontend/common/screentournselect  Initialize__18tScreenTournSelect
+      retail calls Initialize__7tScreen @0x800260ac
+      ours   calls Initialize__18tScreenTournSelect @0x8003f8a0
+  frontend/common/screentournselect  Cleanup__18tScreenTournSelect
+      retail calls Cleanup__7tScreen @0x800261a0
+      ours   calls Cleanup__18tScreenTournSelect @0x8003fae8
+  frontend/common/screentrackinfo  Initialize__16tScreenTrackInfo
+      retail calls Initialize__7tScreen @0x800260ac
+      ours   calls Initialize__16tScreenTrackInfo @0x80042520
+  frontend/common/screentrackrecords  Initialize__19tScreenTrackRecords
+      retail calls Initialize__7tScreen @0x800260ac
+      ours   calls Initialize__19tScreenTrackRecords @0x8004266c
+  frontend/common/screentrackrecords  Cleanup__19tScreenTrackRecords
+      retail calls Cleanup__7tScreen @0x800261a0
+      ours   calls Cleanup__19tScreenTrackRecords @0x800426c4
+  frontend/common/screentracks  Initialize__18tScreenTrackSelect
+      retail calls Initialize__7tScreen @0x800260ac
+      ours   calls Initialize__18tScreenTrackSelect @0x80041b6c
+  frontend/common/screentracks  Cleanup__18tScreenTrackSelect
+      retail calls Cleanup__7tScreen @0x800261a0
+      ours   calls Cleanup__18tScreenTrackSelect @0x80041d28
+  frontend/common/screentrophyroom  Initialize__17tScreenTrophyRoom
+      retail calls Initialize__7tScreen @0x800260ac
+      ours   calls Initialize__17tScreenTrophyRoom @0x80040910
+  frontend/common/screentrophyroom  Cleanup__17tScreenTrophyRoom
+      retail calls Cleanup__7tScreen @0x800261a0
+      ours   calls Cleanup__17tScreenTrophyRoom @0x80040ae8
+  frontend/common/screenusername  Initialize__15tScreenUserName
+      retail calls Initialize__7tScreen @0x800260ac
+      ours   calls Initialize__15tScreenUserName @0x8004af88
+  game/common/ai  AI_AddCollidableObjects__FP8Car_tObjP5Group
+      retail calls AIWorld_ApxSplineDistance__FiP8Car_tObj @0x80073194
+      ours   calls AIWorld_ApxSplineDistance__FP8Car_tObjT0 @0x800730b8
+  game/common/ai  AI_AvoidSpikeBelt__FP8Car_tObj
+      retail calls AIWorld_ApxSplineDistance__FiP8Car_tObj @0x80073194
+      ours   calls AIWorld_ApxSplineDistance__FP8Car_tObjT0 @0x800730b8
+  game/common/ai  AI_PushFinishedCarsToSide__FP8Car_tObj
+      retail calls AIWorld_ApxSplineDistance__FP8Car_tObji @0x80073128
+      ours   calls AIWorld_ApxSplineDistance__FP8Car_tObjT0 @0x800730b8
+  game/common/aicop  AICop_NoCopsInArea__Fii
+      retail calls AIWorld_ApxSplineDistance__FP8Car_tObji @0x80073128
+      ours   calls AIWorld_ApxSplineDistance__FP8Car_tObjT0 @0x800730b8
+  game/common/aih_btccop  ___18AIHigh_BTC_Wingman
+      retail calls ___11AIHigh_Base @0x8005b3c4
+      ours   calls ___14AIHigh_BTC_Cop @0x8005f604
+  game/common/aih_btccop  ___19AIHigh_BTC_HumanCop
+      retail calls ___11AIHigh_Base @0x8005b3c4
+      ours   calls ___14AIHigh_BTC_Cop @0x8005f604
+  game/common/aih_btccop  ___14AIHigh_BTC_Cop
+      retail calls ___11AIHigh_Base @0x8005b3c4
+      ours   calls ___15AIHigh_BasicCop @0x8005cb4c
+  game/common/aih_btcperp  ___17AIHigh_BTC_AIPerp
+      retail calls ___11AIHigh_Base @0x8005b3c4
+      ours   calls ___15AIHigh_BTC_Perp @0x8005b438
+  game/common/aih_btcperp  ___20AIHigh_BTC_HumanPerp
+      retail calls ___11AIHigh_Base @0x8005b3c4
+      ours   calls ___15AIHigh_BTC_Perp @0x8005b438
+  game/common/aispeeds  AISpeeds_CalcOpponentTopSpeed__FP8Car_tObjPi
+      retail calls AIWorld_ApxSplineDistance__FP8Car_tObji @0x80073128
+      ours   calls AIWorld_ApxSplineDistance__FP8Car_tObjT0 @0x800730b8
+  game/common/camera  Camera_Update__Fv
+      retail calls Camera_UpdateCircleCam__Fi @0x80081ab8
+      ours   calls Camera_UpdateSimpleCam__Fi @0x80080ac8
+  game/common/camera  Camera_Update__Fv
+      retail calls Camera_UpdateSplineCam__Fi @0x800826c0
+      ours   calls Camera_UpdateCircleCam__Fi @0x80081ab8
+  game/common/camera  Camera_Update__Fv
+      retail calls Camera_UpdateTVCam__Fi @0x80081e48
+      ours   calls Camera_UpdateSplineCam__Fi @0x800826c0
+  game/common/camera  Camera_Update__Fv
+      retail calls Camera_UpdateBlimpCam__Fi @0x8008237c
+      ours   calls Camera_UpdateTVCam__Fi @0x80081e48
+  game/common/camera  Camera_Update__Fv
+      retail calls Camera_UpdateAnimCam__Fi @0x80081f94
+      ours   calls Camera_UpdateBlimpCam__Fi @0x8008237c
+  game/common/camera  Camera_Update__Fv
+      retail calls Camera_UpdateSimpleCam__Fi @0x80080ac8
+      ours   calls Camera_UpdateAnimCam__Fi @0x80081f94
+  game/common/pausemenu  ProcessInput__32tPMenuItemLeftRightSliderIndexedR13tInputKeyTypeR13tPMenuCommand
+      retail calls ProcessInput__25tPMenuItemLeftRightSliderR13tInputKeyTypeR13tPMenuCommand @0x800a78ac
+      ours   calls ProcessInput__32tPMenuItemLeftRightSliderIndexedR13tInputKeyTypeR13tPMenuCommand @0x800a7cdc
+  game/common/pausemenu  Draw__32tPMenuItemLeftRightSliderIndexedb
+      retail calls Draw__25tPMenuItemLeftRightSliderb @0x800a79c8
+      ours   calls Draw__32tPMenuItemLeftRightSliderIndexedb @0x800a7d28
+  game/common/sim  Sim_MainGameLoop__Fv
+      retail calls Camera_Update__Fv @0x800833d8
+      ours   calls Sim_ProcessSimSchedules__Fv @0x800b6878
+  game/common/sim  Sim_MainGameLoop__Fv
+      retail calls Sim_ProcessSimSchedules__Fv @0x800b6878
+      ours   calls Camera_Update__Fv @0x800833d8
+  syslib/psx/libcd/drv  CD_get_intr
+      retail calls printf @0x801028ac
+      ours   calls puts @0x800e80cc

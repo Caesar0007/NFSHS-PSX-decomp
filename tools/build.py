@@ -1743,7 +1743,7 @@ PER_FN_TEXT_MOVES = {
         # else-arm head; source-unreachable by construction).
         "DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad": [
             {"take": r"\tlw\t\$17,4\(\$16\)\n",
-             "after": r"\$L\d+:\n(?= \#APP\n\tlw\t\$t4,0\(\$2\)\n)"},
+             "after": r"\$L\d+:\n(?= \#APP\n\tlw\t\$12,0\(\$2\)\n)"},
         ],
     },
     # tScreenTrophyInfo::GetShapeInfo is count/register exact.  These two

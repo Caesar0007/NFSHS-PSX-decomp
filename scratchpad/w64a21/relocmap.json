@@ -1,0 +1,349 @@
+{
+ "consistent": {
+  "kArcsinTable": 2148758112,
+  "CD_ctx": 2148822212,
+  "LM5": 2148517092,
+  "D_80147E34": 2148826676,
+  "sndpd": 2148825368,
+  "tDialogBase_vtable": 2147550640,
+  "tDialogMessageString_vtable": 2147550448,
+  "tDialogNoInputMessage_vtable": 2147550256,
+  "Paths_Paths": 2148623464,
+  "screenMain": 2147819096,
+  "screenPinkSlips": 2147819108,
+  "screenTrackSelect": 2147819700,
+  "MenuExtended_GoToCarSelect__FR12tMenuCommand": 2147665148,
+  "tMenuItemOptionsLeftRightChoice_vtable": 2147551320,
+  "tMenuItemOptionsTwoItemChoice_vtable": 2147551232,
+  "carManager": 2148614772,
+  "screenCarSelect": 2147819580,
+  "screenCarSelectDuel": 2147819584,
+  "screenPinkSlipsCarSelectTwoPlayer": 2147819596,
+  "screenPinkSlipsCarSelectPlayerTwo": 2147819600,
+  "tMenuItemSlidingActivated_vtable": 2147552744,
+  "tMenuItemDisplayLeftRightChoice_vtable": 2147552656,
+  "tMenuItemOnOffLeftRightChoice_vtable": 2147552568,
+  "tMenuItemControllerLeftRightChoice_vtable": 2147552288,
+  "screenTrophyRoom": 2147819616,
+  "tBlankMenuItemNFS4LeftRightChoice_vtable": 2147554608,
+  "screenUserName": 2147822004,
+  "showRoomFlag": 2147816032,
+  "tintColors": 2147818168,
+  "CreditManager": 2148617564,
+  "animLocations": 2147818344,
+  "numberValues": 2147822480,
+  "tvOrder": 2147818152,
+  "TextValue__FPv7tPlayer": 2147696168,
+  "ticks": 2148785324,
+  "textDefinitions": 2147816888,
+  "DrawBackgroundImage__FP7tScreeniiP18tTexture_ShapeInfoi": 2147638472,
+  "gMemCardInfo": 2147822952,
+  "AIState_Idle_vtable": 2147833344,
+  "simGlobal": 2148655276,
+  "fixeddiv": 2148418564,
+  "AICop_spikeBelt": 2148586828,
+  "AIPhysicConfig": 2148588660,
+  "AISpeeds_trackAndNightMult": 2148779444,
+  "bestLapTime": 2148779712,
+  "BWorld_gChunkBuildList": 2148593644,
+  "Replay_ReplayInterface": 2148626476,
+  "Cars_kSFXWallSurfaceInterface": 2148596096,
+  "Cars_kAudioCollisoinTypeInterface": 2148596160,
+  "Cars_kAudioWallSurfaceInterface": 2148596128,
+  "Cars_kAudioRoadSurfaceInterface": 2148596032,
+  "xRange": 2148785560,
+  "yRange": 2148785564,
+  "zRange": 2148785568,
+  "basisDots": 2148786184,
+  "scaledBasisDots": 2148786232,
+  "scaledBasisDotsOther": 2148786280,
+  "basisDotRelative": 2148786328,
+  "testSimRoadInfo": 2148614452,
+  "gFileMgr": 2148788872,
+  "gPause_CurrentY": 2148785604,
+  "HudPmx_gShapes": 2148600984,
+  "clock_realTime": 2148600868,
+  "inputQueue": 2148786420,
+  "output": 2148785608,
+  "Speech_fgSpeech": 2148781444,
+  "CarIO_carPixMapCount": 2148783932,
+  "CarIO_textureName": 2148657156,
+  "DrawC_gOverlay": 2148660488,
+  "R3DCar_eMapColour": 2148783008,
+  "goffsets": 2148784160,
+  "offsets": 2148784168,
+  "gSkidMarkPixmap": 2148782572,
+  "gRngCoordTop": 2148784272,
+  "TrackSpec_gSpec": 2148676220,
+  "gHrzRingColor": 2148665332,
+  "Draw_gViewOtSize": 2148784048,
+  "moonPosInSky_vx": 2148785656,
+  "sunPosInSky_vx": 2148785648,
+  "gSkyColor": 2148664864,
+  "gSkyPixmapIndex": 2148665204,
+  "g1Player": 2148785668,
+  "keepup.288": 2148784384,
+  "Hud_gShowedCDPlayer": 2148785736,
+  "gSprite1": 2148785676,
+  "gHudF4": 2148787280,
+  "gSprite0": 2148785672,
+  "gHudG4": 2148788016,
+  "DashHUD_gInfo": 2148607792,
+  "night_needle": 2148665908,
+  "day_needle": 2148665788,
+  "gTPage0": 2148787088,
+  "gTPage1": 2148787184,
+  "currentSpriteColor": 2148785684,
+  "HudSplitTimeDiff1": 2148785688,
+  "HudSplitTimeDiff2": 2148785696,
+  "currentSpriteTransparent": 2148785680,
+  "PerpOverlayMessage": 2148785728,
+  "PerpOverlayOn": 2148785720,
+  "BTC_BonusTime": 2148785704,
+  "BTC_UserHasControl": 2148785712,
+  "StatsTimer": 2148784536,
+  "hoff": 2148784832,
+  "fastintcos": 2148473060,
+  "fastintsin": 2148473064,
+  "timechange": 2148785740,
+  "prevLookBehind": 2148785076,
+  "prevCameraMode": 2148785084,
+  "Weather_gLastProcessTime": 2148785748,
+  "_first_devname": 2148829828,
+  "_first_save": 2148829820,
+  "D_8012348C": 2148676748,
+  "_cdr": 2148778640,
+  "_cd_param_count": 2148778380,
+  "_cd_result_flag": 2148778124,
+  "_cd_pathtbl": 2148814460,
+  "_cd_cached_dir": 2148756584,
+  "_cd_search_nopen": 2148756588,
+  "_cd_dir": 2148812924,
+  "_d1_chcr": 2148756152,
+  "_st_slot": 2148812900,
+  "_cd_idx": 2148756120,
+  "_cd_reg3": 2148756132,
+  "_cdrom_delay": 2148756136,
+  "_com_delay": 2148756140,
+  "_cd_reg2": 2148756128,
+  "_d3_chcr": 2148756168,
+  "_dicr": 2148756148,
+  "_dpcr": 2148756144,
+  "_ds_word1": 2148829652,
+  "g_intr": 2148748024,
+  "g_dpcr_ptr": 2148752268,
+  "g_hooks_ptr": 2148752256,
+  "g_intr_timeout": 2148752272,
+  "dma_cb": 2148777252,
+  "g_dicr_ptr": 2148777248,
+  "_fnt_count": 2148753368,
+  "_fnt_active": 2148753372,
+  "_fnt": 2148752984,
+  "_move_prim": 2148677428,
+  "GEnv_drv": 2148677268,
+  "GEnv": 2148677276,
+  "_disp_mult": 2148677528,
+  "GPU_GP1": 2148677540,
+  "GPU_GP0": 2148677536,
+  "D2_MADR": 2148677544,
+  "D2_BCR": 2148677548,
+  "D2_CHCR": 2148677552,
+  "_drain_saved_mask": 2148677584,
+  "mc": 2148824344,
+  "_mc_present": 2148824340,
+  "_mc_sync": 2148824416,
+  "_mc_save_cb": 2148824428,
+  "_mc_wr_retry": 2148756668,
+  "_padMtapCount": 2148778760,
+  "_actcur": 2148828572,
+  "_padIntRegs": 2148760792
+ },
+ "inconsistent": {
+  "gPadinfo": [
+   "0x8013e89c",
+   "0x8013e8a0"
+  ],
+  "[.rodata]": [
+   "0x800100fc",
+   "0x800113f8",
+   "0x800116d8",
+   "0x800116dc",
+   "0x80011880",
+   "0x8001198c",
+   "0x800121b8",
+   "0x800124bc",
+   "0x8001256c",
+   "0x80012570",
+   "0x80012858",
+   "0x80054f64",
+   "0x8005516c",
+   "0x80056370",
+   "0x800563b8",
+   "0x8005676c",
+   "0x80056770",
+   "0x800568dc",
+   "0x8005699c",
+   "0x80056b38",
+   "0x80056f80",
+   "0x80057078",
+   "0x80057110",
+   "0x80057180",
+   "0x80057370",
+   "0x80057398",
+   "0x80057898",
+   "0x80057908"
+  ],
+  "frontEnd": [
+   "0x800109b2",
+   "0x80051462",
+   "0x8011433f",
+   "0x80114406",
+   "0x80114600",
+   "0x80114604",
+   "0x801146fd",
+   "0x80114700"
+  ],
+  "tournamentManager": [
+   "0x80114720",
+   "0x80114ad8"
+  ],
+  "tBlankMenuItemGoToMenuNFS4Button_vtable": [
+   "0x800114d8",
+   "0x800520d0"
+  ],
+  "FEApp": [
+   "0x800514c0",
+   "0x8011465c",
+   "0x8011465e",
+   "0x80114920"
+  ],
+  "tMemoryCardMenuItem_vtable": [
+   "0x80010a68",
+   "0x800528f0"
+  ],
+  "GameSetup_gData": [
+   "0x801131ec",
+   "0x801131f0",
+   "0x801131f8",
+   "0x8011321c",
+   "0x8013d7bc",
+   "0x8013dbc4"
+  ],
+  "simVar": [
+   "0x8011e0c4",
+   "0x8011e0c8"
+  ],
+  "Camera_gInfo": [
+   "0x8010f2ac",
+   "0x8010f2f4"
+  ],
+  "Cars_gHumanRaceCarList": [
+   "0x8010fa48",
+   "0x8010fa4c"
+  ],
+  "gravity_ch": [
+   "0x801165d4",
+   "0x801165dc"
+  ],
+  "[.sdata]": [
+   "0x8013d328",
+   "0x8013d720",
+   "0x8013d98c"
+  ],
+  "gInitialArt": [
+   "0x8011e158",
+   "0x8013c7a8"
+  ],
+  "Hud_gDebugInfo": [
+   "0x8011327c",
+   "0x8013d84c",
+   "0x8013d8c0",
+   "0x8013d8c4"
+  ],
+  "_cd_status_ok": [
+   "0x80057698",
+   "0x800576f4",
+   "0x8005772c"
+  ],
+  "D_801489B4": [
+   "0x8013c224",
+   "0x801489b0",
+   "0x801489b4"
+  ],
+  "g_istat_ptr": [
+   "0x80134b28",
+   "0x80135b84"
+  ],
+  "g_imask_ptr": [
+   "0x80135b84",
+   "0x80135b88"
+  ],
+  "_otc_term": [
+   "0x80056d74",
+   "0x80056da8"
+  ],
+  "_disp_overscan": [
+   "0x8012376e",
+   "0x80123772"
+  ],
+  "_que": [
+   "0x801237c0",
+   "0x8013ec00"
+  ],
+  "_padSioRegs": [
+   "0x80137cb8",
+   "0x80137cdc",
+   "0x8013c30c"
+  ],
+  "_padSioChan": [
+   "0x80136cd8",
+   "0x80137cdc"
+  ]
+ },
+ "contradict": {
+  "___21tDialogNoInputMessage": [
+   "0x80026078",
+   "0x80019f44"
+  ],
+  "trackManager": [
+   "0x80114646",
+   "0x80114a50"
+  ],
+  "AIWorld_ApxSplineDistance__FP8Car_tObjT0": [
+   "0x80073128",
+   "0x800730b8"
+  ],
+  "Sim_ProcessSimSchedules__Fv": [
+   "0x800833d8",
+   "0x800b6878"
+  ],
+  "Camera_Update__Fv": [
+   "0x800b6878",
+   "0x800833d8"
+  ],
+  "CarIO_Plate1": [
+   "0x8013d750",
+   "0x8013d748"
+  ],
+  "CarIO_Plate2": [
+   "0x8013d748",
+   "0x8013d750"
+  ],
+  "gHorizonPixmap": [
+   "0x801232d8",
+   "0x801202f8"
+  ],
+  "Hud_gCopMarkerColor": [
+   "0x8013d7b4",
+   "0x80120b90"
+  ],
+  "CD_comstr": [
+   "0x80057828",
+   "0x8013bf6c"
+  ],
+  "_qout": [
+   "0x8013ec04",
+   "0x801237c8"
+  ]
+ }
+}

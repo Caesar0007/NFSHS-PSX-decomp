@@ -1,0 +1,14 @@
+recon/eaclib/psx/eacpsxz/asinfunc.c
+recon/eaclib/psx/eacpsxz/cdfs.c
+recon/syslib/psx/2mbyte/2mbyte.c
+recon/syslib/psx/libapi/FIRST.c
+recon/syslib/psx/libc/SPRINTF.c
+recon/syslib/psx/libcd/cdread.c
+recon/syslib/psx/libcd/iso9660.c
+recon/syslib/psx/libcd/toc.c
+recon/syslib/psx/libetc/INTR.c
+recon/syslib/psx/libetc/INTR_DMA.c
+recon/syslib/psx/libgpu/FONT.c
+recon/syslib/psx/libmcrd/LIBMCRD.c
+recon/syslib/psx/libpad/PADCMD.c
+recon/syslib/psx/libpad/PADMAIN.c

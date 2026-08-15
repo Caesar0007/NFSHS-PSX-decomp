@@ -1,0 +1,644 @@
+[
+ {
+  "unit": "eaclib/psx/eacpsxz/cdfs",
+  "fn": "CdReadyHandler",
+  "va": "0x800F9CA4",
+  "board": 99.98,
+  "fresh": 99.98333,
+  "src": "recon/eaclib/psx/eacpsxz/cdfs.c",
+  "base": "build/recon/eaclib/psx/eacpsxz/cdfs.c.o",
+  "after": 99.98333,
+  "gate": 0,
+  "gate_ours": 300,
+  "gate_oracle": 300,
+  "mech": {
+   "RELOC_UNK": 34,
+   "BRANCH_DEST": 1
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "frontend/common/fememcard",
+  "fn": "LoadGame__FsbT1",
+  "va": "0x80034E18",
+  "board": 99.96,
+  "fresh": 99.95989,
+  "src": "recon/frontend/common/fememcard.cpp",
+  "base": "build/recon/frontend/common/fememcard.cpp.o",
+  "after": 99.95989,
+  "gate": 0,
+  "gate_ours": 374,
+  "gate_oracle": 374,
+  "mech": {
+   "RELOC_UNK": 8,
+   "RELOC_ALIAS": 2,
+   "BRANCH_DEST": 3,
+   "RELOC_DIFF": 1
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "frontend/common/fememcard",
+  "fn": "SavePinkSlipsCars__Fss",
+  "va": "0x800353F0",
+  "board": 99.98,
+  "fresh": 99.977875,
+  "src": "recon/frontend/common/fememcard.cpp",
+  "base": "build/recon/frontend/common/fememcard.cpp.o",
+  "after": 99.977875,
+  "gate": 0,
+  "gate_ours": 226,
+  "gate_oracle": 226,
+  "mech": {
+   "RELOC_UNK": 6,
+   "RELOC_ALIAS": 2,
+   "BRANCH_DEST": 1
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "frontend/common/femenuextended",
+  "fn": "Draw__29tMenuItemOptionsTwoItemChoiceiib",
+  "va": "0x8001AE14",
+  "board": 99.97,
+  "fresh": 99.96894,
+  "src": "recon/frontend/common/femenuextended.cpp",
+  "base": "build/recon/frontend/common/femenuextended.cpp.o",
+  "after": 99.96894,
+  "gate": 0,
+  "gate_ours": 161,
+  "gate_oracle": 161,
+  "mech": {
+   "BRANCH_DEST": 1
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "frontend/common/femenuoptions",
+  "fn": "ProcessInput__17tUserNameMenuItem7tPlayerR13tInputKeyTypeR12tMenuCommand",
+  "va": "0x8001FD2C",
+  "board": 99.98,
+  "fresh": 99.979164,
+  "src": "recon/frontend/common/femenuoptions.cpp",
+  "base": "build/recon/frontend/common/femenuoptions.cpp.o",
+  "after": 99.979164,
+  "gate": 0,
+  "gate_ours": 240,
+  "gate_oracle": 240,
+  "mech": {
+   "BRANCH_DEST": 1
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "frontend/common/femenuoptions",
+  "fn": "UpdateTransition__12tOptionsMenu",
+  "va": "0x8001C854",
+  "board": 99.97,
+  "fresh": 99.97093,
+  "src": "recon/frontend/common/femenuoptions.cpp",
+  "base": "build/recon/frontend/common/femenuoptions.cpp.o",
+  "after": 99.97093,
+  "gate": 0,
+  "gate_ours": 172,
+  "gate_oracle": 172,
+  "mech": {
+   "BRANCH_DEST": 1
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "frontend/common/fescreen",
+  "fn": "InitializeShapes__7tScreenR17tShapeInformationUi",
+  "va": "0x800263EC",
+  "board": 99.88,
+  "fresh": 99.88095,
+  "src": "recon/frontend/common/fescreen.cpp",
+  "base": "build/recon/frontend/common/fescreen.cpp.o",
+  "after": 99.88095,
+  "gate": 0,
+  "gate_ours": 42,
+  "gate_oracle": 42,
+  "mech": {
+   "BRANCH_DEST": 1,
+   "RELOC_UNK": 2
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "frontend/common/screencarselect",
+  "fn": "DrawBackground__25tScreenCarSelectTwoPlayer",
+  "va": "0x8003E4BC",
+  "board": 99.93,
+  "fresh": 99.9269,
+  "src": "recon/frontend/common/screencarselect.cpp",
+  "base": "build/recon/frontend/common/screencarselect.cpp.o",
+  "after": 99.9269,
+  "gate": 0,
+  "gate_ours": 342,
+  "gate_oracle": 342,
+  "mech": {
+   "BRANCH_DEST": 5,
+   "RELOC_UNK": 4
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "frontend/common/screencarselect",
+  "fn": "DrawOpponentVideoWall__20tScreenCarSelectDuels",
+  "va": "0x8003D4BC",
+  "board": 99.93,
+  "fresh": 99.9315,
+  "src": "recon/frontend/common/screencarselect.cpp",
+  "base": "build/recon/frontend/common/screencarselect.cpp.o",
+  "after": 99.9315,
+  "gate": 0,
+  "gate_ours": 73,
+  "gate_oracle": 73,
+  "mech": {
+   "BRANCH_DEST": 1
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "frontend/common/screencarselect",
+  "fn": "DrawVideoWall__20tScreenCarSelectDuels",
+  "va": "0x8003D364",
+  "board": 99.94,
+  "fresh": 99.941864,
+  "src": "recon/frontend/common/screencarselect.cpp",
+  "base": "build/recon/frontend/common/screencarselect.cpp.o",
+  "after": 99.941864,
+  "gate": 0,
+  "gate_ours": 86,
+  "gate_oracle": 86,
+  "mech": {
+   "BRANCH_DEST": 1
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "frontend/common/screencongrats",
+  "fn": "CalculatePrizes__23tScreenTournamentTrophy",
+  "va": "0x8004923C",
+  "board": 99.97,
+  "fresh": 99.96528,
+  "src": "recon/frontend/common/screencongrats.cpp",
+  "base": "build/recon/frontend/common/screencongrats.cpp.o",
+  "after": 99.96528,
+  "gate": 0,
+  "gate_ours": 144,
+  "gate_oracle": 144,
+  "mech": {
+   "BRANCH_DEST": 1,
+   "RELOC_ALIAS": 2
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "frontend/common/screenmain",
+  "fn": "DrawBackground__11tScreenMain",
+  "va": "0x800379C0",
+  "board": 99.4,
+  "fresh": 99.8601,
+  "src": "recon/frontend/common/screenmain.cpp",
+  "base": "build/recon/frontend/common/screenmain.cpp.o",
+  "after": 99.98783,
+  "gate": 0,
+  "gate_ours": 822,
+  "gate_oracle": 822,
+  "mech": {
+   "BRANCH_DEST": 2,
+   "RELOC_ALIAS": 7,
+   "RELOC_UNK": 12
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "frontend/common/screenmemcard",
+  "fn": "DrawMemCardStuff__14tScreenMemcards",
+  "va": "0x80046D60",
+  "board": 99.99,
+  "fresh": 99.98542,
+  "src": "recon/frontend/common/screenmemcard.cpp",
+  "base": "build/recon/frontend/common/screenmemcard.cpp.o",
+  "after": 99.98542,
+  "gate": 0,
+  "gate_ours": 343,
+  "gate_oracle": 343,
+  "mech": {
+   "BRANCH_DEST": 1,
+   "RELOC_UNK": 2
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "frontend/common/statchk",
+  "fn": "StatChk_IsTopTime__FP10Car_tStatss",
+  "va": "0x80049D0C",
+  "board": 99.98,
+  "fresh": 99.98328,
+  "src": "recon/frontend/common/statchk.cpp",
+  "base": "build/recon/frontend/common/statchk.cpp.o",
+  "after": 99.98328,
+  "gate": 0,
+  "gate_ours": 299,
+  "gate_oracle": 299,
+  "mech": {
+   "RELOC_UNK": 6,
+   "RELOC_ALIAS": 2,
+   "BRANCH_DEST": 1
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "frontend/psx/memcard",
+  "fn": "MCRD_handlecardevents",
+  "va": "0x8004FE80",
+  "board": 99.98,
+  "fresh": 99.9763,
+  "src": "recon/frontend/psx/memcard.c",
+  "base": "build/recon/frontend/psx/memcard.c.o",
+  "after": 99.9763,
+  "gate": 0,
+  "gate_ours": 211,
+  "gate_oracle": 211,
+  "mech": {
+   "BRANCH_DEST": 1,
+   "RELOC_ALIAS": 6,
+   "RELOC_UNK": 4
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "game/common/aiphysic",
+  "fn": "AIPhysic_CalcAcceleration__FP8Car_tObji",
+  "va": "0x800696B0",
+  "board": 99.97,
+  "fresh": 99.972824,
+  "src": "recon/game/common/aiphysic.cpp",
+  "base": "build/recon/game/common/aiphysic.cpp.o",
+  "after": 99.972824,
+  "gate": 0,
+  "gate_ours": 184,
+  "gate_oracle": 184,
+  "mech": {
+   "RELOC_ALIAS": 2,
+   "BRANCH_DEST": 1
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "game/common/aispeeds",
+  "fn": "AISpeeds_CalcOpponentTopSpeed__FP8Car_tObjPi",
+  "va": "0x8006D938",
+  "board": 99.96,
+  "fresh": 99.95614,
+  "src": "recon/game/common/aispeeds.cpp",
+  "base": "build/recon/game/common/aispeeds.cpp.o",
+  "after": 99.95614,
+  "gate": 0,
+  "gate_ours": 342,
+  "gate_oracle": 342,
+  "mech": {
+   "OTHER": 3,
+   "RELOC_UNK": 1,
+   "RELOC_DIFF": 1
+  },
+  "mech_err": null,
+  "class": "b_LANE_GAP"
+ },
+ {
+  "unit": "game/common/aistate",
+  "fn": "CheckIfCarIsNearbyAndStop__21AIState_RovingTrafficP8Car_tObjRi",
+  "va": "0x800718B4",
+  "board": 99.95,
+  "fresh": 99.95413,
+  "src": "recon/game/common/aistate.cpp",
+  "base": "build/recon/game/common/aistate.cpp.o",
+  "after": 99.95413,
+  "gate": 0,
+  "gate_ours": 109,
+  "gate_oracle": 109,
+  "mech": {
+   "BRANCH_DEST": 1
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "game/common/audiotrk",
+  "fn": "AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji",
+  "va": "0x8007C750",
+  "board": 99.99,
+  "fresh": 99.98789,
+  "src": "recon/game/common/audiotrk.cpp",
+  "base": "build/recon/game/common/audiotrk.cpp.o",
+  "after": 99.98789,
+  "gate": 0,
+  "gate_ours": 413,
+  "gate_oracle": 413,
+  "mech": {
+   "BRANCH_DEST": 1
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "game/common/camera",
+  "fn": "Camera_UpdateHeliCam__Fii",
+  "va": "0x800813CC",
+  "board": 99.99,
+  "fresh": 99.988716,
+  "src": "recon/game/common/camera.cpp",
+  "base": "build/recon/game/common/camera.cpp.o",
+  "after": 99.988716,
+  "gate": 0,
+  "gate_ours": 443,
+  "gate_oracle": 443,
+  "mech": {
+   "RELOC_ALIAS": 6,
+   "BRANCH_DEST": 1,
+   "RELOC_UNK": 1
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "game/common/physics",
+  "fn": "Physics_CalculateCarAcceleration__FP8Car_tObj",
+  "va": "0x800AA984",
+  "board": 99.98,
+  "fresh": 99.978874,
+  "src": "recon/game/common/physics.cpp",
+  "base": "build/recon/game/common/physics.cpp.o",
+  "after": 99.978874,
+  "gate": 0,
+  "gate_ours": 710,
+  "gate_oracle": 710,
+  "mech": {
+   "RELOC_UNK": 4,
+   "BRANCH_DEST": 1,
+   "RELOC_DIFF": 1,
+   "RELOC_ALIAS": 6,
+   "OTHER": 2
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "game/common/r3dcar",
+  "fn": "R3DCar_CalcCarDimensions__FP8Car_tObjP18Transformer_zScenei",
+  "va": "0x800AE750",
+  "board": 99.95,
+  "fresh": 99.954544,
+  "src": "recon/game/common/r3dcar.cpp",
+  "base": "build/recon/game/common/r3dcar.cpp.o",
+  "after": 99.954544,
+  "gate": 0,
+  "gate_ours": 330,
+  "gate_oracle": 330,
+  "mech": {
+   "OTHER": 3
+  },
+  "mech_err": null,
+  "class": "b_LANE_GAP"
+ },
+ {
+  "unit": "game/psx/hud",
+  "fn": "Hud_BuildString__FPciiiib",
+  "va": "0x800D42C8",
+  "board": 99.98,
+  "fresh": 99.976746,
+  "src": "recon/game/psx/hud.cpp",
+  "base": "build/recon/game/psx/hud.cpp.o",
+  "after": 99.976746,
+  "gate": 0,
+  "gate_ours": 215,
+  "gate_oracle": 215,
+  "mech": {
+   "BRANCH_DEST": 1,
+   "RELOC_ALIAS": 2
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "game/psx/night",
+  "fn": "Night_SetEnviroment__FP13DRender_tView",
+  "va": "0x800DC0A8",
+  "board": 97.06,
+  "fresh": 97.05882,
+  "src": "recon/game/psx/night.cpp",
+  "base": "build/recon/game/psx/night.cpp.o",
+  "after": 100.0,
+  "gate": 2,
+  "gate_ours": 68,
+  "gate_oracle": 68,
+  "mech": {
+   "STRUCT": 2
+  },
+  "mech_err": null,
+  "class": "X_BOARD100_GATEFAIL"
+ },
+ {
+  "unit": "game/psx/weather",
+  "fn": "Weather_ChangeDensityBasedOnTime__Fv",
+  "va": "0x800E2218",
+  "board": 99.91,
+  "fresh": 99.90741,
+  "src": "recon/game/psx/weather.cpp",
+  "base": "build/recon/game/psx/weather.cpp.o",
+  "after": 99.90741,
+  "gate": 0,
+  "gate_ours": 54,
+  "gate_oracle": 54,
+  "mech": {
+   "RELOC_ALIAS": 2,
+   "BRANCH_DEST": 1
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "syslib/psx/2mbyte/2mbyte",
+  "fn": "stup0",
+  "va": "0x800E40CC",
+  "board": 42.86,
+  "fresh": 42.857143,
+  "src": "recon/syslib/psx/2mbyte/2mbyte.c",
+  "base": "build/recon/syslib/psx/2mbyte/2mbyte.c.o",
+  "after": 42.857143,
+  "gate": 0,
+  "gate_ours": 7,
+  "gate_oracle": 7,
+  "mech": {
+   "STRUCT": 4
+  },
+  "mech_err": null,
+  "class": "b_LANE_GAP"
+ },
+ {
+  "unit": "syslib/psx/libcard/PATCH",
+  "fn": "func_8010CA40",
+  "va": "-",
+  "board": 97.78,
+  "fresh": 97.77778,
+  "src": "recon/syslib/psx/libcard/PATCH.c",
+  "base": "build/recon/syslib/psx/libcard/PATCH.c.o",
+  "after": 97.77778,
+  "gate": 0,
+  "gate_ours": 9,
+  "gate_oracle": 9,
+  "mech": {
+   "OTHER": 4
+  },
+  "mech_err": null,
+  "class": "b_LANE_GAP"
+ },
+ {
+  "unit": "syslib/psx/libcd/streamhelp",
+  "fn": "StGetNext",
+  "va": "0x800F9A28",
+  "board": 99.89,
+  "fresh": 99.891304,
+  "src": "recon/syslib/psx/libcd/streamhelp.c",
+  "base": "build/recon/syslib/psx/libcd/streamhelp.c.o",
+  "after": 99.891304,
+  "gate": 0,
+  "gate_ours": 46,
+  "gate_oracle": 46,
+  "mech": {
+   "BRANCH_DEST": 1
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "syslib/psx/libgpu/FONT",
+  "fn": "FntPrint",
+  "va": "0x800F7034",
+  "board": 99.98,
+  "fresh": 99.979164,
+  "src": "recon/syslib/psx/libgpu/FONT.c",
+  "base": "build/recon/syslib/psx/libgpu/FONT.c.o",
+  "after": 99.979164,
+  "gate": 0,
+  "gate_ours": 240,
+  "gate_oracle": 240,
+  "mech": {
+   "RELOC_UNK": 10,
+   "BRANCH_DEST": 1
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "syslib/psx/libmath/DIVSF3",
+  "fn": "__divsf3",
+  "va": "0x800F66E4",
+  "board": 99.88,
+  "fresh": 99.87654,
+  "src": "recon/syslib/psx/libmath/DIVSF3.c",
+  "base": "build/recon/syslib/psx/libmath/DIVSF3.c.o",
+  "after": 99.87654,
+  "gate": 0,
+  "gate_ours": 81,
+  "gate_oracle": 81,
+  "mech": {
+   "OTHER": 2
+  },
+  "mech_err": null,
+  "class": "b_LANE_GAP"
+ },
+ {
+  "unit": "syslib/psx/libmcrd/LIBMCRD",
+  "fn": "MemCardWriteData_cb",
+  "va": "0x800FB30C",
+  "board": 99.94,
+  "fresh": 99.93671,
+  "src": "recon/syslib/psx/libmcrd/LIBMCRD.c",
+  "base": "build/recon/syslib/psx/libmcrd/LIBMCRD.c.o",
+  "after": 99.93671,
+  "gate": 0,
+  "gate_ours": 79,
+  "gate_oracle": 79,
+  "mech": {
+   "RELOC_UNK": 12,
+   "BRANCH_DEST": 1
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "syslib/psx/libpad/MCXMAIN",
+  "fn": "_padIntRecvData",
+  "va": "0x8010C314",
+  "board": 99.98,
+  "fresh": 99.97758,
+  "src": "recon/syslib/psx/libpad/MCXMAIN.c",
+  "base": "build/recon/syslib/psx/libpad/MCXMAIN.c.o",
+  "after": 99.97758,
+  "gate": 0,
+  "gate_ours": 223,
+  "gate_oracle": 223,
+  "mech": {
+   "RELOC_UNK": 16,
+   "BRANCH_DEST": 1
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "syslib/psx/libpad/MCXMAIN",
+  "fn": "_padIntRecvHdr",
+  "va": "0x8010C288",
+  "board": 99.71,
+  "fresh": 99.71429,
+  "src": "recon/syslib/psx/libpad/MCXMAIN.c",
+  "base": "build/recon/syslib/psx/libpad/MCXMAIN.c.o",
+  "after": 99.71429,
+  "gate": 0,
+  "gate_ours": 35,
+  "gate_oracle": 35,
+  "mech": {
+   "BRANCH_DEST": 2
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ },
+ {
+  "unit": "syslib/psx/libpad/PADSEQD",
+  "fn": "_dirSendAuto",
+  "va": "0x8010A0E4",
+  "board": 99.92,
+  "fresh": 99.921875,
+  "src": "recon/syslib/psx/libpad/PADSEQD.c",
+  "base": "build/recon/syslib/psx/libpad/PADSEQD.c.o",
+  "after": 99.921875,
+  "gate": 0,
+  "gate_ours": 64,
+  "gate_oracle": 64,
+  "mech": {
+   "BRANCH_DEST": 1
+  },
+  "mech_err": null,
+  "class": "d_BRANCH_REAL"
+ }
+]

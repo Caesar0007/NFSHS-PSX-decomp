@@ -1,0 +1,51 @@
+{
+ "rel": "recon/syslib/psx/libmath/MULDF3.c",
+ "fns": ["_mul_mant_d"],
+ "variants": [
+  {"name": "v0_control", "edits": [["    int lo, hi;\n", "    int lo, hi;\n"]]},
+
+  {"name": "v1_plain_arg4",
+   "edits": [
+    ["    _add_mant_d(sh, sh[0], sh[1], *(volatile int *)&add[0], add[1]);\n    y >>= 16;\n",
+     "    _add_mant_d(sh, sh[0], sh[1], add[0], add[1]);\n    y >>= 16;\n"],
+    ["    _add_mant_d(sh, sh[0], sh[1], *(volatile int *)&add[0], add[1]);\n    sh[1] += x * y;\n",
+     "    _add_mant_d(sh, sh[0], sh[1], add[0], add[1]);\n    sh[1] += x * y;\n"]]},
+
+  {"name": "v2_vol_all_three",
+   "edits": [
+    ["    _add_mant_d(sh, sh[0], sh[1], *(volatile int *)&add[0], add[1]);\n    y >>= 16;\n",
+     "    _add_mant_d(sh, *(volatile int *)&sh[0], *(volatile int *)&sh[1], *(volatile int *)&add[0], add[1]);\n    y >>= 16;\n"],
+    ["    _add_mant_d(sh, sh[0], sh[1], *(volatile int *)&add[0], add[1]);\n    sh[1] += x * y;\n",
+     "    _add_mant_d(sh, *(volatile int *)&sh[0], *(volatile int *)&sh[1], *(volatile int *)&add[0], add[1]);\n    sh[1] += x * y;\n"]]},
+
+  {"name": "v3_vol_sh_only",
+   "edits": [
+    ["    _add_mant_d(sh, sh[0], sh[1], *(volatile int *)&add[0], add[1]);\n    y >>= 16;\n",
+     "    _add_mant_d(sh, *(volatile int *)&sh[0], *(volatile int *)&sh[1], add[0], add[1]);\n    y >>= 16;\n"],
+    ["    _add_mant_d(sh, sh[0], sh[1], *(volatile int *)&add[0], add[1]);\n    sh[1] += x * y;\n",
+     "    _add_mant_d(sh, *(volatile int *)&sh[0], *(volatile int *)&sh[1], add[0], add[1]);\n    sh[1] += x * y;\n"]]},
+
+  {"name": "v4_named_arg4",
+   "edits": [
+    ["    int lo, hi;\n", "    int lo, hi;\n    int t4;\n"],
+    ["    _add_mant_d(sh, sh[0], sh[1], *(volatile int *)&add[0], add[1]);\n    y >>= 16;\n",
+     "    t4 = *(volatile int *)&add[0];\n    _add_mant_d(sh, sh[0], sh[1], t4, add[1]);\n    y >>= 16;\n"],
+    ["    _add_mant_d(sh, sh[0], sh[1], *(volatile int *)&add[0], add[1]);\n    sh[1] += x * y;\n",
+     "    t4 = *(volatile int *)&add[0];\n    _add_mant_d(sh, sh[0], sh[1], t4, add[1]);\n    sh[1] += x * y;\n"]]},
+
+  {"name": "v5_named_arg23",
+   "edits": [
+    ["    int lo, hi;\n", "    int lo, hi;\n    int t2, t3;\n"],
+    ["    _add_mant_d(sh, sh[0], sh[1], *(volatile int *)&add[0], add[1]);\n    y >>= 16;\n",
+     "    t2 = sh[0];\n    t3 = sh[1];\n    _add_mant_d(sh, t2, t3, *(volatile int *)&add[0], add[1]);\n    y >>= 16;\n"],
+    ["    _add_mant_d(sh, sh[0], sh[1], *(volatile int *)&add[0], add[1]);\n    sh[1] += x * y;\n",
+     "    t2 = sh[0];\n    t3 = sh[1];\n    _add_mant_d(sh, t2, t3, *(volatile int *)&add[0], add[1]);\n    sh[1] += x * y;\n"]]},
+
+  {"name": "v6_vol_arg5_too",
+   "edits": [
+    ["    _add_mant_d(sh, sh[0], sh[1], *(volatile int *)&add[0], add[1]);\n    y >>= 16;\n",
+     "    _add_mant_d(sh, sh[0], sh[1], *(volatile int *)&add[0], *(volatile int *)&add[1]);\n    y >>= 16;\n"],
+    ["    _add_mant_d(sh, sh[0], sh[1], *(volatile int *)&add[0], add[1]);\n    sh[1] += x * y;\n",
+     "    _add_mant_d(sh, sh[0], sh[1], *(volatile int *)&add[0], *(volatile int *)&add[1]);\n    sh[1] += x * y;\n"]]}
+ ]
+}

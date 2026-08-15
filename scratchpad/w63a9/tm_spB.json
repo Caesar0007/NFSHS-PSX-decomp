@@ -1,0 +1,11 @@
+{
+ "recon/syslib/psx/libc/SPRINTF.c": {
+  "sprintf": [
+   {
+    "take": "\\tla\\t\\$7,\\$LC0\\n",
+    "after": "\\tj\\t\\$L\\d+\\n(?=\\$L\\d+:\\n\\tla\\t\\$7,\\$LC1\\n)",
+    "slot": true
+   }
+  ]
+ }
+}

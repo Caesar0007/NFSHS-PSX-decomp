@@ -1,0 +1,6 @@
+{
+ "recon/syslib/psx/libc/SPRINTF.c": {
+  "jtbl_at_fusion": true,
+  "no_split_addresses": true
+ }
+}

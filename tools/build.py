@@ -402,7 +402,10 @@ PER_TU_FLAGS = {
     # (`lui %hi(jtbl); addiu %lo(jtbl); sll idx,2; addu; lw 0(idx)`), not the
     # fused `$at` macro. The entry was a mis-attribution; removing it takes
     # Sfx_Add 7 -> 0 (PASS) and drops 3 diffs off Sfx_BuildSouffleFacet.
-    "recon/syslib/psx/libc/SPRINTF.c":      {"jtbl_at_fusion": True},  # sprintf
+    "recon/syslib/psx/libc/SPRINTF.c":      {"jtbl_at_fusion": True,  # sprintf
+        # w63-a9: nosplit hold RETIRED -- count-parity objection satisfied
+        # by the slot-fill row below (44 @545/545, was 56).
+                                             "no_split_addresses": True},
     # w33-a10: EA's own eaclib PAD.OBJ was built WITHOUT split addresses --
     # proven by the oracle's `lui $at; addu $at,$at,$idx; lbu %lo(sym)($at)`
     # indexed loads (two independent sites in PAD_update, no jump table in
@@ -1302,6 +1305,42 @@ PER_FN_TEXT_MOVES = {
     "recon/frontend/common/screentracks.cpp": {
         "DrawBackground__18tScreenTrackSelect": [
             {"take": r"\tsw\t\$10,160\(\$sp\)\n", "after": r"\tmove\t\$7,\$21\n"},
+        ],
+    },
+    # w63-a9 (probe-verified 2x; calls.c:1900 emission-order law):
+    # 11B rows: muldf3 12->4, _mul_mant_d 14->10
+    "recon/syslib/psx/libmath/MULDF3.c": {
+        "__muldf3": [
+            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
+            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
+            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
+            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
+        ],
+        "_mul_mant_d": [
+            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
+            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
+        ],
+    },
+    # w63-a9 (probe-verified 2x; calls.c:1900 emission-order law):
+    # 11B rows: divdf3 22->18
+    "recon/syslib/psx/libmath/DIVDF3.c": {
+        "__divdf3": [
+            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
+            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
+        ],
+    },
+    # w63-a9 (probe-verified 2x; calls.c:1900 emission-order law):
+    # 11B row: adddf3 12->10
+    "recon/syslib/psx/libmath/ADDDF3.c": {
+        "__adddf3": [
+            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
+        ],
+    },
+    # w63-a9 (probe-verified 2x; calls.c:1900 emission-order law):
+    # slot-fill on the printHex digit-table j: 56->44 @545/545 (kills the nosplit +1 nop)
+    "recon/syslib/psx/libc/SPRINTF.c": {
+        "sprintf": [
+            {"take": "\\tla\\t\\$7,\\$LC0\\n(?=\\tj\\t\\$L\\d+\\n\\$L\\d+:\\n\\tla\\t\\$7,\\$LC1\\n)", "after": "\\tj\\t\\$L\\d+\\n(?=\\$L\\d+:\\n\\tla\\t\\$7,\\$LC1\\n)", "slot": True},
         ],
     },
     # w60-a3 (orchestrator-wired, probe-verified REAL=0 in scratchpad/w60a3):

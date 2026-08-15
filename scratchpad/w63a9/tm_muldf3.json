@@ -1,0 +1,20 @@
+{
+ "recon/syslib/psx/libmath/MULDF3.c": {
+  "__muldf3": [
+   {"take": "(?<=\\tlw\\t\\$6,28\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?",
+    "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,24\\(\\$sp\\)\\n)"},
+   {"take": "(?<=\\tlw\\t\\$6,28\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?",
+    "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,24\\(\\$sp\\)\\n)"},
+   {"take": "(?<=\\tlw\\t\\$6,28\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?",
+    "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,24\\(\\$sp\\)\\n)"},
+   {"take": "(?<=\\tlw\\t\\$6,28\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?",
+    "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,24\\(\\$sp\\)\\n)"}
+  ],
+  "_mul_mant_d": [
+   {"take": "(?<=\\tlw\\t\\$6,28\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?",
+    "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,24\\(\\$sp\\)\\n)"},
+   {"take": "(?<=\\tlw\\t\\$6,28\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?",
+    "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,24\\(\\$sp\\)\\n)"}
+  ]
+ }
+}

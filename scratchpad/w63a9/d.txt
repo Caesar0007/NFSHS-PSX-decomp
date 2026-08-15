@@ -1,0 +1,36 @@
+105a106
+> 	lw	$7,56($sp)
+121a123
+> 	lw	$7,56($sp)
+158a161,163
+> 	#.set	volatile
+> 	lw	$7,32($sp)
+> 	#.set	novolatile
+170a176,178
+> 	#.set	volatile
+> 	lw	$7,32($sp)
+> 	#.set	novolatile
+173d180
+< 	lw	$7,56($sp)
+206d212
+< 	lw	$7,56($sp)
+229,231d234
+< 	#.set	volatile
+< 	lw	$7,32($sp)
+< 	#.set	novolatile
+260,262d262
+< 	#.set	volatile
+< 	lw	$7,32($sp)
+< 	#.set	novolatile
+406,407d405
+< 	lw	$5,24($sp)
+< 	lw	$6,28($sp)
+410a409,410
+> 	lw	$5,24($sp)
+> 	lw	$6,28($sp)
+429,430d428
+< 	lw	$5,24($sp)
+< 	lw	$6,28($sp)
+433a432,433
+> 	lw	$5,24($sp)
+> 	lw	$6,28($sp)

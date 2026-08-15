@@ -1992,7 +1992,24 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
      identical retail shape (`(carType*4 + countryFlag*200) + base`, index terms first)
      and the identical verdict -- `&R3DCar_LoadedScenePointer[countryFlag][carType]` 24,
      the byte-math index-first cast 22, both worse than the split-statement 12.  Do not
-     re-sweep either spelling axis; it is exhausted. */
+     re-sweep either spelling axis; it is exhausted.
+     w64-a14 CLOSED THE NAMED ANGLE ITSELF ("keep the gFlip read as its own earlier
+     statement WITHOUT letting it absorb the base").  The 13B IDENTITY LAUNDER is the
+     device that expresses exactly that -- and it is FALSIFIED here in all three
+     placements, re-gated from the 12 basin (the jtbl_at_fusion wiring that sealed the
+     InsertCarFacet twin is already in, so this IS the current basin):
+       launder the flip OFFSET (`int flipOff = gFlip*8;` + `"=r"/"0"`, then the
+         index-first byte sum)                                     39 @1055
+       launder the ROW pointer (keep `subOtRow = subOtStart[gFlip];`)  39 @1055
+       launder the BASE (`subOtStart` opaque before the row read)   34 @1054
+       plain `flipOff` temp + index-first byte sum (control)        22 @1054
+     ⇒ the base absorption is not a value-numbering fact that an opacity barrier can
+     break; it is expand's own pointer_int_sum canonicalisation (14D: only an
+     INT-TYPED sum flips addu operand 0, and that spelling costs the load position).
+     The two halves stay anti-correlated.  NEXT (untried, instrument-level): read the
+     -dl/-dg dump for this block and check whether the gFlip load and the row address
+     are one combined {high,lo_sum} qty (local-alloc.c:1973 SUMS their refs) -- if so
+     the axis is a qty-structure question, not a spelling one. */
   u_long **subOtRow = subOtStart[gFlip];
   iVar11 = ((carObj->N).objID & 0xfU) * 0x200;
   (carObj->render).sub_ot =

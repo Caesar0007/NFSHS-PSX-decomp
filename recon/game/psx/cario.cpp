@@ -573,6 +573,17 @@ void CarIO_CreateLicense(char *text,int carType,int player)
      * basin: reads12/stores12 82, reads21/stores12 82, reads12/stores21 78 (kept).
      * The two `->width = 0x18` stores below deliberately KEEP their re-reads of
      * CarIO_PlateN[player] -- retail re-loads both there too (`lw t0,0(t0)`/`lw v1,0(t1)`). */
+    /* w64-a14: the residual-30 diff is now precisely located -- retail materializes
+     * ONE of the two `&CarIO_PlateN[player]` addresses FOUR SLOTS EARLIER than we do
+     * (oracle `sll t0,s6,2; lui t1; addiu t1; addu t1,t0,t1` then a bare `lw t3,0(t1)`
+     * at the RMW; ours emits the whole lui/addiu/addu at the RMW).  The count is
+     * already EXACT (229/229) and the rest is a $t3/$t4 + $v0/$v1 shift that follows
+     * it.  STATEMENT-POSITION AXIS FALSIFIED from the 30 basin: this q1/q2 pair moved
+     * above the clut copy loop 51 @236, above the header copy loop 38 @229, and the
+     * pair's own order swapped 36 @229.  Consistent with the w53-a4 verdict that this
+     * fn's identity is expand_call's precompute/luid choice (catalog w42
+     * "early-constant-at-block-head", -dS shows every insn in the block at priority 1
+     * so NO statement order can produce retail's early materialization). */
     q1 = CarIO_Plate1[player];
     q2 = CarIO_Plate2[player];
     *(u_int *)q2 = *(u_char *)q2 | 0x11800;

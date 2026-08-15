@@ -484,7 +484,30 @@ int InGame_GetPSXPadValue(int value,int player)
      dispatch delay slots carry `sll aN,s1,2` (the int-array index player*4) and
      `li a0,0x80` SPECULATIVELY where ours carry `sll aN,s1,30`/`lui`, and the
      prologue parm-copy order is mirrored (retail `sw s1,20(sp); addu s1,a1`
-     first, `addu s0,a0` in the jal slot).  Both are emission-order, not shape. */
+     first, `addu s0,a0` in the jal slot).  Both are emission-order, not shape.
+     ===== w64-a14: THE +10 COUNT GAP IS SOLVED AND PRICED (not landed) =====
+     The gap is ONE fact repeated at ~10 arm sites: retail's per-arm address is
+     `<index reg> = player*4` MUTATED IN PLACE by the base
+     (`addu aN,aN,v0; lw v1,136(aN)`) -- each arm returns, so the index pseudo is
+     dead after its own use and gcc may clobber it -- while ours preserves the
+     index and mutates the BASE (`sll a0,s1,2; addu a0,a0,v0`), one insn more per
+     site.  Rewriting the arms as `po = po + (int)&GameSetup_gData;` +
+     `((GameSetup_tData *)po)->controllerData.F[0]` with `po = player * 4;` before
+     the switch reaches retail's COUNT EXACTLY -- 233/233 -- and the whole
+     per-arm stream becomes count- and offset-exact.  It gates 210, i.e. WORSE on
+     the authoritative metric than the current 168, because a fn-scope `po` is ONE
+     global allocno that takes ONE register ($a2) at every site, whereas retail's
+     nine `sll <reg>,$s1,2` (census:
+     `grep -cE 'sll +\$[av][0-9], \$s1, 2$' asm/nonmatchings/main/InGame_GetPSXPadValue__Fii.s`
+     = 9) each land in a DIFFERENT register ($a0/$a1/$v1/$a2) -- i.e. retail
+     REMATERIALIZES the scaled index per arm into a fresh BLOCK-LOCAL qty.  So the
+     next angle is NOT a hoist: it is per-arm block-local index pseudos that gcc is
+     allowed to clobber (the 3.12 #14 in-place-dead-pointer-store shape applied to
+     an INDEX, not a base).  Measured this wave, all from the 168 basin:
+     `po` hoisted before the switch 225 @230 (3 SHORT) . `po` at the top after
+     PAD_update 225 @230 . the in-place mutation form 210 @233 COUNT-EXACT .
+     OR-tree operand order: `player << 0x1e` moved LAST 306 @259, moved SECOND
+     198 @243 (the twin's tag-second rule does NOT extend to the player term). */
   if (gPadinfo.buf[player * 4].nopad != '\0') {
     goto InGame_GetPSXPadValue_noPad;
   }

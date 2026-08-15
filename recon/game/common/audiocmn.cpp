@@ -804,7 +804,35 @@ int AudioCmn_GetTimePhrase(int time)
  * The cc1 .s shows sched1 hoisting `lui $3,%hi(bestLapTime)` ABOVE the
  * `lw $2,596($18)` carIndex load, which is what splits the {high, lo_sum} pair; the
  * remaining route is a scheduling barrier that does not also break the `&&` shape,
- * or the 06E local-alloc instrument. */
+ * or the 06E local-alloc instrument.
+ * W62-A12 (2026-08-15) -- BASELINE IS NOW 4 (site 1's TEXT_MOVES row is wired and
+ * live).  Site (2) re-probed in the NEW basin (04Z) and the mechanism is now read
+ * off the cc1 .s, not inferred:  gcc emits the else arm as
+ *     beq $2,$0,$L693 ; [delay] lui $3,%hi(bestLapTime)
+ *   $L693: lw $2,596($18) ; addiu $5,$3,%lo(bestLapTime)
+ * i.e. the HIGH is hoisted into the PREDECESSOR block's delay slot, so at
+ * local-alloc time the {high, lo_sum} pair is NOT single-block and combine_regs
+ * cannot tie it (11A / local-alloc.c:471-477).  The sibling site $L732 in the SAME
+ * function ties fine because its lo_sum dest is arm-local; this arm's dest is live
+ * across the guard branch (used again by the store at oracle:261) = a global allocno.
+ * 🔑 A DEVICE THAT BUYS THE REGISTER EXISTS -- and costs exactly the count:
+ *   arm-local `int *bl = bestLapTime;` + 13B identity launder
+ *   `__asm__ ("" : "=r" (bl) : "0" (bl));` forces the SELF-TEMP `la` form
+ *   (`lui a1 ; addiu a1,a1` adjacent, retail's shape) -> 3 diffs, but 416/415:
+ *   the asm is a sched barrier, so the carIndex `lw` can no longer be issued
+ *   BEFORE the la and its load-delay slot takes a `nop` where retail puts the
+ *   `lui`.  12E's law in the flesh (register XOR count, never both).
+ * ALSO FALSIFIED W62-A12 (all real gate runs): plain unlaundered `int *bl` 4
+ * (inert, the FE folds it back); `int ci = car->carIndex;` hoisted above the
+ * launder 28 (the shared ci pseudo kills the store's reload); ci + read-only
+ * fence 28; ci laundered 29-30; ci above + store re-reads carIndex 3 @416 (same
+ * cell as the plain launder); void barrier at the arm head 4; void barrier
+ * BETWEEN the two bestLapTime uses 5 @416; named guard value `int cur` 4;
+ * read-only fence on that value 4; arm-local laundered ptr used only by the
+ * STORE 27 @416.
+ * ROUTE: not a spelling.  Either (a) stop reorg/sched from hoisting the HIGH into
+ * the predecessor's delay slot WITHOUT planting a barrier between the lw and the
+ * la (no zero-insn device does both), or (b) the 06E local-alloc instrument. */
 void AudioCmn_CheckState(Car_tObj *car)
 {
   char carnum;

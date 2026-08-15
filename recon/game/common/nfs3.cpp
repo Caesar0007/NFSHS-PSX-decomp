@@ -402,7 +402,32 @@ void NFS3_CheckForFileOperations(void)
    *     W59 verdicts): named bound `int *end = mgr->handlearray;` = 8 (inert here
    *     too); read-only fence on `end` = 10; `while` form = 16 @19; three "r"(0)
    *     operands = 9 @22; "memory" clobber = 18 @21; two named zero locals = 15 @18.
-   *     Next instrument: -dl/-dg on this TU to read which allocno wins $a0. */
+   *     Next instrument: -dl/-dg on this TU to read which allocno wins $a0.
+   *
+   * W62-A12 (2026-08-15) -- THAT INSTRUMENT WAS RUN.  The residual is NOT a
+   * local-alloc or a global-alloc question at all: it is a RELOAD SPILL-REGISTER
+   * choice.  Real CC1PLPSX -dl/-dg on this TU says, verbatim:
+   *     ;; 3 regs to allocate: 82 86 83
+   *     ;; Need 2 regs of class GR_REGS (for insn 38).
+   *     Spilling reg 5.  Spilling reg 6.
+   *     ;; Register dispositions: 82 in 3   83 in 4   86 in 4
+   * insn 38 is the `break 0x666` asm.  Its two "r"(0) operands are satisfied by
+   * RELOAD spill regs, and reload picks the lowest hard regs that are not live --
+   * $5,$6 for us because $4 is occupied for the whole loop by the bound (allocnos
+   * 83 AND 86 both land in reg 4; they do not conflict, so nothing forces them
+   * apart).  Retail's bound lives in $5 (freed $4 by the copy `addu a1,a0,zero` in
+   * the guard's beqz slot), so ITS reload spilled {6,4} -- which is exactly the
+   * {$a2,$a0} operand pair.  ⇒ the whole residual reduces to ONE question: make
+   * allocnos 83/86 conflict so the loop-carried one is forced off $a0.
+   * FALSIFIED W62-A12 (real gate runs, all 21/21): 13B identity launder on a named
+   * bound `int *end` 10; the same with decl-with-init split 10; two locals
+   * `lim`/`end` with the second laundered 10; identity launder on the WALKER 8
+   * (inert); laundered bound with the walker initialised first 8 (inert).
+   * The launder makes the bound die twice -> it becomes a global allocno, but it
+   * still does not CONFLICT with the load's pseudo, so both keep reg 4.
+   * ROUTE: a source shape whose pre-loop test and loop test use SIMULTANEOUSLY-LIVE
+   * pseudos (retail's `addu a1,a0,zero` is that overlap made visible), or the
+   * reload-side instrument.  The $4-clobber policy item stays refuted. */
   FileMgr *mgr = &gFileMgr;
   int *piVar1;
 

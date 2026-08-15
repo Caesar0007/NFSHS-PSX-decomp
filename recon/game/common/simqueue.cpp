@@ -145,7 +145,17 @@ int SimQueue_Put(int pIndex,Input_tResults *val)
  * NEXT ANGLE: read the local-alloc handout (-dl) for this TU and find which
  * pseudo blocks combine_regs on the HIGH (11A: "not local to this block OR DIES
  * MORE THAN ONCE").  Do not spend more spellings.
- */
+ * W62-A12 (2026-08-15) -- re-gated 4 @48/48.  This is the SAME class as
+ * audiocmn CheckState site (2), and the device that buys the self-temp `la` there
+ * was re-tested here: an arm-local pointer carrying a 13B identity launder.  It
+ * costs the count here too (12E: register XOR count).  Measured, all real gate runs:
+ *   explicit walking dest `Input_tResults *dst = output; *dst = ...; dst++` .. 4 (inert)
+ *   the same laundered `__asm__ ("" : "=r" (dst) : "0" (dst))` ............... 9 @49
+ *   array form through a laundered base local ............................... 18 @50
+ *   array form through a PLAIN base local ................................... 48 @48
+ * The last row is the interesting one: it is count-EXACT but rotates the whole
+ * function, i.e. a genuinely different basin exists at 48/48 -- worth a permuter
+ * re-seed rather than more hand spellings. */
 void SimQueue_SetCurrentInput(int time)
 
 {

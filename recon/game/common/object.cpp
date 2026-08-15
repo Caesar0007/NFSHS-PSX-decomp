@@ -815,9 +815,19 @@ traffic_object:
          or retail's COUNT, never both.  Instrument-only from here (local-alloc
          copy preference); do not spend more spellings. */
       i = 0;
+      /* MATCH (W62-A12, 11 -> PASS 213/213, DEVICE-FREE): retail's missing insn
+         was `addu a0,a1,zero` in the `bnez` delay slot -- 12D DEAD-PSEUDO STAGING:
+         the zero is carried through carObj's OWN register (SYM 8c @800a5c80:
+         carObj = REG $4 = $a0, i = REG $5 = $a1), so the guard must read the
+         STAGED value, not `i`.  The second half of the pair (and the reason five
+         earlier waves' staging attempts all failed) is that the `for`'s redundant
+         re-init `i = 0` must GO: it is exactly the one reference reqdelta prices
+         (p188 refs 9 -> 8) that swaps i off $a0 and lets carObj take it.  Land the
+         pair or neither -- staging alone is 19-20, dropping the init alone is 11. */
+      carObj = (Car_tObj *)i;
       if (((objectData->subType == 0) && (Cars_gNumTrafficCars != 0)) &&
-          (i < Cars_gNumTrafficCars)) {
-        for (i = 0; i < Cars_gNumTrafficCars; i++) {
+          ((int)carObj < Cars_gNumTrafficCars)) {
+        for (; i < Cars_gNumTrafficCars; i++) {
           if (((Cars_gTrafficCarList[i]->carFlags & 0x400U) == 0) &&
               ((int)Cars_gTrafficCarList[i]->render.currentCarType ==
                objectData->scalar3)) {

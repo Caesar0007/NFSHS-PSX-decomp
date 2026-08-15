@@ -469,7 +469,21 @@ SimMainLoop_inputDone:
              (`beq a0,v0,.Lshared`), losing B's own call.
              NEXT ANGLE: this is a jump.c/cross_jump block-ordering question, not a
              spelling one -- dump the RTL after jump2 and find which pass puts A
-             adjacent to B.  Do not spend more source permutations. */
+             adjacent to B.  Do not spend more source permutations.
+             W62-A12 (2026-08-15): re-gated 6 @319/321.  THE 12C EXIT-BLOCK
+             PLACEMENT DEVICE IS FALSIFIED HERE, and it is falsified as being
+             EQUIVALENT to the plain skip-goto, which is the useful part:
+               `if (0) { pss: PSS(); }` after C, cond+B goto pss ......... 38 @317
+               same with the if/else skeleton kept intact ................ 38 @317
+               explicit `goto done; pss: PSS(); done:;` (the W61 control) . 38 @317
+             All three produce the IDENTICAL score, i.e. gcc expands `if (0) {L: X;}`
+             to exactly the same `j Lend / L: X / Lend:` as the hand-written skip --
+             the device does not add a distinct basin on this shape.  Also measured:
+               13D on-demand cross_jump UN-MERGER, void fence heading arm A .. 12 @323
+               same fence between B's two calls ......................... 6 @319 (inert)
+             The 317 forms remain 2 SHORT of ours, confirming the receipt above:
+             once B ends in a goto, gcc folds B's own call away entirely.
+             The unexplored axis is therefore the LAYOUT pass, not the source. */
           if ((Replay_ReplayMode != 2) ||
               (Replay_ReplayInterface.speed == 2) ||
               ((Replay_ReplayInterface.speed == one) &&

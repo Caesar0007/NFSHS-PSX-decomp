@@ -497,7 +497,49 @@ void Stats_ExtrapolateOpponentTimes(int type)
    i.e. two ZERO-INSN dials at once; every fence that buys refs also buys the wrong priority
    step here (p130 refs 5->6 jumps pri to 1.09 and steals $s3). Next lever = a live-range-only
    dial (def moved one insn earlier / last use one insn later) on PlayerPosition + one weighted
-   ref removed from DesiredSlice. Dumps: scratch/rtl/stats.i.{greg,lreg}. */
+   ref removed from DesiredSlice. Dumps: scratch/rtl/stats.i.{greg,lreg}.
+
+   W62-A12 (2026-08-15) -- QUANTIFIED HARDNESS CERTIFICATE (12A form).  Re-gated 44.
+   Pseudo numbering has drifted +6 since W59-A14: PlayerPosition=p107(refs 9,live 29),
+   DesiredSlice=p109(13,42), DesiredSpeed=p110(13,42), jj=p136(5,11), and the s3 holder
+   p305(19,80).  allocsim MATCH 30/30 (model valid).  RETAIL'S HANDOUT IS EXACTLY
+   REACHED at p110=(refs 14,live 45) or (15,48) with p109 demoted below p136 --
+   verified by allocsim --what-if, which prints the full retail band
+   p305=s3 p110=s4 p107=s5 p136=s6 p109=s7.  So the target is a SINGLE CELL, and:
+     * p110 CANNOT stay at refs 13.  Its window is (pri p107, pri p305) =
+       (0.9310, 0.9500); 39/41=0.9512 and 39/42=0.9286 straddle it, no integer live
+       exists.  A refs change is mandatory.
+     * every ref this function can buy is worth TWO (loop depth), measured not
+       assumed: one read-only fence OPERAND on DesiredSpeed moves refs 13 -> 15.
+       refs 14 is therefore UNREACHABLE from inside the i-loop.
+     * so the only cell left is refs 15 / live 48, and EVERY statement boundary in
+       the guard block was measured: fence before the guard 43, then-arm head 43,
+       after the divide 44, then-arm tail 46, else-arm head 43, else-arm tail 47,
+       loop tail 50-51.  48 is not on the list.
+     * and each fence is an RTL insn: it lengthens p305 (80->81->82), dropping the
+       s3 holder's priority to 0.9382 then 0.9268 and closing the window further.
+   MEASURED THIS WAVE (all real gate runs, all restored):
+     DesiredSlice fence at the loop tail alone (p109 -> s7, correct!) ....... 58 @232
+     + DesiredSpeed operand, 5 positions ................................. 58-62 @232-234
+     2-operand single fence at the tail ................................... 58 @232
+     second-min as a two-store override + named temp (the retail SHAPE, 11D
+       joint-pair re-test of two individually-falsified axes) ............ 115 @229
+     same without braces 115 @229; opposite polarity 44; named temp + ternary 44;
+     named temp + if/else both-arms 45 @233
+     SCALED identity launder `jj = j << 2` with the abs read as
+       `*(Car_tObj **)(jj + (int)Cars_gRaceCarList)` -- NOTE this now holds the
+       count EXACT (232/232, the W59 "frame grows to 80" note is stale) but 150;
+       base-term-first 150; raw byte-offset field 156; joint with the override 91 @229.
+   ORACLE FACTS worth keeping (read off the sbs, they constrain any future attempt):
+   retail's s6 holds `j << 2` (`sll s6,s1,2` in the loop-guard's delay slot) and
+   rematerializes the Cars_gRaceCarList base per use (`lui t5` in the `beq` slot,
+   then `addiu t5,t5 ; addu v0,s6,t5`); retail's second min loads sliceTotal into a
+   TEMP ($v1) and stores the result TWICE (`addu s7,a1,zero` in the `bnez` slot,
+   `addu s7,v1,zero` on the fall-through), where ours loads straight into the result
+   register and stores once.
+   ROUTE: not a fence dial -- the cell is closed.  Either a structural change that
+   moves DesiredSpeed's live range by 3 WITHOUT adding an insn, or the 06E
+   local-alloc/qtytrace instrument.  Do not spend more fence positions. */
 void Stats_TrackEndGame(void)
 
 {

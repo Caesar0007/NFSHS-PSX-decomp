@@ -271,6 +271,12 @@ DrawOvl_transitionPos:
       if ((carInfo.fUpgrades & upgradeIcons[i]) == 0) {
         yOffset = 0x60;
       }
+      /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
+       * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
+       * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
+       * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
+       * Gate-lane object is byte-identical (proven by hash); see
+       * scratchpad/w64a20/RECEIPTS.md. */
       __asm__("" : : "r"(yOffset));
       drawFlags.tint[0] = 0xbebe;
       flags = (carInfo.fUpgrades & upgradeIcons[i]) == 0;
@@ -2833,56 +2839,54 @@ void tScreenPinkSlipsCarSelect::GetShapeInfo(short &numPermShapes,short &numSwap
  * `&this->CarDialog` / delay-slot comments below stayed with their original blob positions. */
 #if defined(__mips__)
 __asm__(
-    "\t.set push\n"
     "\t.set noat\n"
     "\t.set\tnoreorder\n"
     "\t.set noreorder\n"
     "\t.globl ___25tScreenPinkSlipsCarSelect\n"
     "___25tScreenPinkSlipsCarSelect:\n"
-    "\taddiu $sp, $sp, -32\n"
-    "\tsw    $s0, 16($sp)\n"
-    "\taddu  $s0, $a0, $zero\n"
-    "\tsw    $s1, 20($sp)\n"
-    "\taddu  $s1, $a1, $zero\n"
-    "\taddiu $a0, $s0, 928\n"      /* &this->CarDialog (+0x3A0) */
-    "\tsw    $ra, 24($sp)\n"
+    "\taddiu $29, $29, -32\n"
+    "\tsw    $16, 16($29)\n"
+    "\taddu  $16, $4, $0\n"
+    "\tsw    $17, 20($29)\n"
+    "\taddu  $17, $5, $0\n"
+    "\taddiu $4, $16, 928\n"      /* &this->CarDialog (+0x3A0) */
+    "\tsw    $31, 24($29)\n"
     "\tjal   ___7tScreen\n"
-    "\t addiu $a1, $zero, 2\n"      /* delay slot: member sub-object, not in charge */
-    "\taddu  $a0, $s0, $zero\n"
+    "\t addiu $5, $0, 2\n"      /* delay slot: member sub-object, not in charge */
+    "\taddu  $4, $16, $0\n"
     "\tjal   ___16tScreenCarSelect\n"   /* base (past tScreenCarSelect) */
-    "\t addu  $a1, $s1, $zero\n"    /* delay slot: forward the original in_chrg */
-    "\tlw    $ra, 24($sp)\n"
-    "\tlw    $s1, 20($sp)\n"
-    "\tlw    $s0, 16($sp)\n"
-    "\tjr    $ra\n"
-    "\t addiu $sp, $sp, 32\n"
-    "\t.set pop\n"
+    "\t addu  $5, $17, $0\n"    /* delay slot: forward the original in_chrg */
+    "\tlw    $31, 24($29)\n"
+    "\tlw    $17, 20($29)\n"
+    "\tlw    $16, 16($29)\n"
+    "\tjr    $31\n"
+    "\t addiu $29, $29, 32\n"
+    "\t.set at\n\t.set reorder\n"
     "\t.set\treorder\n"  /* maspsx tracks .set linearly (no push/pop): restore nop-insertion for the rest of the file (gcc2.8 HOISTS toplevel asm above all fns) */
 
-    "\t.set push\n"
     "\t.set noat\n"
     "\t.set\tnoreorder\n"
     "\t.set noreorder\n"
     "\t.globl ___25tScreenCarSelectTwoPlayer\n"
     "___25tScreenCarSelectTwoPlayer:\n"
-    "\taddiu $sp, $sp, -32\n"
-    "\tsw    $s0, 16($sp)\n"
-    "\taddu  $s0, $a0, $zero\n"
-    "\tsw    $s1, 20($sp)\n"
-    "\taddu  $s1, $a1, $zero\n"
-    "\taddiu $a0, $s0, 928\n"      /* &this->CarDialog (inherited, +0x3A0) */
-    "\tsw    $ra, 24($sp)\n"
+    "\taddiu $29, $29, -32\n"
+    "\tsw    $16, 16($29)\n"
+    "\taddu  $16, $4, $0\n"
+    "\tsw    $17, 20($29)\n"
+    "\taddu  $17, $5, $0\n"
+    "\taddiu $4, $16, 928\n"      /* &this->CarDialog (inherited, +0x3A0) */
+    "\tsw    $31, 24($29)\n"
     "\tjal   ___7tScreen\n"
-    "\t addiu $a1, $zero, 2\n"      /* delay slot */
-    "\taddu  $a0, $s0, $zero\n"
+    "\t addiu $5, $0, 2\n"      /* delay slot */
+    "\taddu  $4, $16, $0\n"
     "\tjal   ___16tScreenCarSelect\n"
-    "\t addu  $a1, $s1, $zero\n"    /* delay slot: forward the original in_chrg */
-    "\tlw    $ra, 24($sp)\n"
-    "\tlw    $s1, 20($sp)\n"
-    "\tlw    $s0, 16($sp)\n"
-    "\tjr    $ra\n"
-    "\t addiu $sp, $sp, 32\n"
-    "\t.set pop\n"
+    "\t addu  $5, $17, $0\n"    /* delay slot: forward the original in_chrg */
+    "\tlw    $31, 24($29)\n"
+    "\tlw    $17, 20($29)\n"
+    "\tlw    $16, 16($29)\n"
+    "\tjr    $31\n"
+    "\t addiu $29, $29, 32\n"
+    "\t.set at\n\t.set reorder\n"
     "\t.set\treorder\n"  /* maspsx tracks .set linearly (no push/pop): restore nop-insertion for the rest of the file (gcc2.8 HOISTS toplevel asm above all fns) */);
 #endif
 

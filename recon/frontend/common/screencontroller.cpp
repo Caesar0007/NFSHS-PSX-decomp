@@ -123,6 +123,12 @@ void Controller_SetRamp(void)
        `li $v0,1` schedule.  Retail still hoists the comparison constant 1 into
        $s3 across the three calls.  A plain void scheduling barrier and literal
        type changes were neutral and reverted. */
+    /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
+     * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
+     * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
+     * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
+     * Gate-lane object is byte-identical (proven by hash); see
+     * scratchpad/w64a20/RECEIPTS.md. */
     __asm__("" : : "r"(config));
     one = 1;
     __asm__("" : "=r"(one) : "0"(one));
@@ -1419,30 +1425,29 @@ int tScreenControllerConfig::GetHelpText()
  * ___7tScreen) then forwards to the tScreen base (in_chrg propagated via $s1). */
 #if defined(__mips__)
 __asm__(
-    "\t.set push\n"
     "\t.set noat\n"
     "\t.set\tnoreorder\n"   /* tab form: turns maspsx's is_reorder OFF (no auto delay nop) */
     "\t.set noreorder\n"    /* space form: passes through to gnu-as */
     "\t.globl ___23tScreenControllerConfig\n"
     "___23tScreenControllerConfig:\n"
-    "\taddiu $sp, $sp, -32\n"
-    "\tsw    $s0, 16($sp)\n"
-    "\taddu  $s0, $a0, $zero\n"
-    "\tsw    $s1, 20($sp)\n"
-    "\taddu  $s1, $a1, $zero\n"
-    "\taddiu $a0, $s0, 184\n"     /* &this->negconPopUp (+0xB8) */
-    "\tsw    $ra, 24($sp)\n"
+    "\taddiu $29, $29, -32\n"
+    "\tsw    $16, 16($29)\n"
+    "\taddu  $16, $4, $0\n"
+    "\tsw    $17, 20($29)\n"
+    "\taddu  $17, $5, $0\n"
+    "\taddiu $4, $16, 184\n"     /* &this->negconPopUp (+0xB8) */
+    "\tsw    $31, 24($29)\n"
     "\tjal   ___7tScreen\n"
-    "\t addiu $a1, $zero, 2\n"     /* delay slot: member sub-object, not in charge */
-    "\taddu  $a0, $s0, $zero\n"
+    "\t addiu $5, $0, 2\n"     /* delay slot: member sub-object, not in charge */
+    "\taddu  $4, $16, $0\n"
     "\tjal   ___7tScreen\n"        /* base tScreen part */
-    "\t addu  $a1, $s1, $zero\n"   /* delay slot: forward the original in_chrg */
-    "\tlw    $ra, 24($sp)\n"
-    "\tlw    $s1, 20($sp)\n"
-    "\tlw    $s0, 16($sp)\n"
-    "\tjr    $ra\n"
-    "\t addiu $sp, $sp, 32\n"
-    "\t.set pop\n"
+    "\t addu  $5, $17, $0\n"   /* delay slot: forward the original in_chrg */
+    "\tlw    $31, 24($29)\n"
+    "\tlw    $17, 20($29)\n"
+    "\tlw    $16, 16($29)\n"
+    "\tjr    $31\n"
+    "\t addiu $29, $29, 32\n"
+    "\t.set at\n\t.set reorder\n"
     "\t.set\treorder\n"  /* maspsx tracks .set linearly (no push/pop): restore nop-insertion for the rest of the file (gcc2.8 HOISTS toplevel asm above all fns) */);
 #endif
 

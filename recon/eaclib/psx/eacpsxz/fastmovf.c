@@ -73,11 +73,17 @@ extern int fastmovfxya(int shape, int x, int y)
          * FIXED-REG TEMPLATE (EA DMPSX-analog .obj post-processor -- 2026-07-09 discovery):
          * every retail site hardcodes $t6/$t7 scratches; the extra "r" input forces the DEAD
          * 2nd reload of nextprim (placeholder-call setup artifact the patcher left behind). */
+        /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
+         * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
+         * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
+         * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
+         * Gate-lane object is byte-identical (proven by hash); see
+         * scratchpad/w64a20/RECEIPTS.md. */
         __asm__ volatile(
-            "lwl	$t6,2(%0)
-	sll	$t7,%1,8
-	swl	$t6,2(%1)
-	swl	$t7,2(%0)"
+            "lwl	$14,2(%0)
+	sll	$15,%1,8
+	swl	$14,2(%1)
+	swl	$15,2(%0)"
             : : "r"(np), "r"(p), "r"(nextprim)
             /* clobber window = the expander's reserved temps $t3-$t7 (dead reload lands in $t5
              * like retail; $t6/$t7 are the template's own scratches) */

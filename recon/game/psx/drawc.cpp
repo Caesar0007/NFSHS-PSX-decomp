@@ -41,7 +41,7 @@ typedef struct {
  *   packet, word0 already carries the len byte); FUSED 24-bit link (extract/insert
  *   shifts cancel).  Fully fixed regs incl. $s0 (forces the s0 save). */
 #define DRAWC_OTLINK_FT3(sd_, primout_) __asm__ volatile( \
-    "lw\t%0,4(%1)\n\tlw\t$t4,60(%1)\n\tlw\t$t5,56(%1)\n\taddiu\t$t6,%0,32\n\tsll\t$t4,$t4,2\n\taddu\t$t5,$t5,$t4\n\tsw\t$t6,4(%1)\n\tlwl\t$t6,2($t5)\n\tlui\t$t4,0x0700\n\tsrl\t$t6,$t6,8\n\tor\t$t6,$t6,$t4\n\tsll\t$t4,%0,8\n\tsw\t$t6,0(%0)\n\tswl\t$t4,2($t5)" \
+    "lw\t%0,4(%1)\n\tlw\t$12,60(%1)\n\tlw\t$13,56(%1)\n\taddiu\t$14,%0,32\n\tsll\t$12,$12,2\n\taddu\t$13,$13,$12\n\tsw\t$14,4(%1)\n\tlwl\t$14,2($13)\n\tlui\t$12,0x0700\n\tsrl\t$14,$14,8\n\tor\t$14,$14,$12\n\tsll\t$12,%0,8\n\tsw\t$14,0(%0)\n\tswl\t$12,2($13)" \
     : "=&r"(primout_) : "r"(sd_) : "$12", "$13", "$14", "memory")
 /* split form: prim pre-loaded by COMPILER code (retail interleaves that lw with
  * neighbouring reg math, e.g. the overlay pTVar23 compute -- an atomic 14-insn
@@ -85,22 +85,22 @@ typedef struct {
  * Do NOT re-run the clobber-list / "=&r"-output / do{}while(0) experiments
  * those receipts enumerate: they were aimed at a compiler that never ran. */
 #define DRAWC_UVTINT_ID(sd_, prim_, i0_, i1_, i2_) __asm__ volatile( \
-    "lbu\t$t6,100(%0)\n\tlbu\t$t7,101(%0)\n\taddiu\t$t6,$t6,64\n\tlbu\t$t4,214(%2)\n\tlbu\t$t5,215(%2)\n\taddu\t$t4,$t4,$t6\n\tsb\t$t4,12(%1)\n\taddu\t$t5,$t5,$t7\n\tsb\t$t5,13(%1)\n\tlbu\t$t4,214(%3)\n\tlbu\t$t5,215(%3)\n\taddu\t$t4,$t4,$t6\n\tsb\t$t4,20(%1)\n\taddu\t$t5,$t5,$t7\n\tsb\t$t5,21(%1)\n\tlbu\t$t4,214(%4)\n\tlbu\t$t5,215(%4)\n\taddu\t$t4,$t4,$t6\n\tsb\t$t4,28(%1)\n\taddu\t$t5,$t5,$t7\n\tsb\t$t5,29(%1)" \
+    "lbu\t$14,100(%0)\n\tlbu\t$15,101(%0)\n\taddiu\t$14,$14,64\n\tlbu\t$12,214(%2)\n\tlbu\t$13,215(%2)\n\taddu\t$12,$12,$14\n\tsb\t$12,12(%1)\n\taddu\t$13,$13,$15\n\tsb\t$13,13(%1)\n\tlbu\t$12,214(%3)\n\tlbu\t$13,215(%3)\n\taddu\t$12,$12,$14\n\tsb\t$12,20(%1)\n\taddu\t$13,$13,$15\n\tsb\t$13,21(%1)\n\tlbu\t$12,214(%4)\n\tlbu\t$13,215(%4)\n\taddu\t$12,$12,$14\n\tsb\t$12,28(%1)\n\taddu\t$13,$13,$15\n\tsb\t$13,29(%1)" \
     : : "r"(sd_), "r"(prim_), "r"(i0_), "r"(i1_), "r"(i2_) : "$12", "$13", "$14", "$15", "memory")
 /* EA expander template, VT variant (bias ePmx1.u0+0x40 / ePmx1.v0+eAddZ,
  * vertex uv read sd-relative).  4 oracle sites: Prim @800C0710/@800C0FBC,
  * PrimClip @800C23F0/@800C2F64 -- see the DRAWC_UVTINT_ID receipt. */
 #define DRAWC_UVTINT_VT(sd_, prim_) __asm__ volatile( \
-    "lbu\t$t6,116(%0)\n\tlbu\t$t7,117(%0)\n\tlbu\t$t5,132(%0)\n\taddiu\t$t6,$t6,64\n\taddu\t$t7,$t7,$t5\n\tlbu\t$t4,174(%0)\n\tlbu\t$t5,176(%0)\n\taddu\t$t4,$t4,$t6\n\tsb\t$t4,12(%1)\n\taddu\t$t5,$t5,$t7\n\tsb\t$t5,13(%1)\n\tlbu\t$t4,182(%0)\n\tlbu\t$t5,184(%0)\n\taddu\t$t4,$t4,$t6\n\tsb\t$t4,20(%1)\n\taddu\t$t5,$t5,$t7\n\tsb\t$t5,21(%1)\n\tlbu\t$t4,190(%0)\n\tlbu\t$t5,192(%0)\n\taddu\t$t4,$t4,$t6\n\tsb\t$t4,28(%1)\n\taddu\t$t5,$t5,$t7\n\tsb\t$t5,29(%1)" \
+    "lbu\t$14,116(%0)\n\tlbu\t$15,117(%0)\n\tlbu\t$13,132(%0)\n\taddiu\t$14,$14,64\n\taddu\t$15,$15,$13\n\tlbu\t$12,174(%0)\n\tlbu\t$13,176(%0)\n\taddu\t$12,$12,$14\n\tsb\t$12,12(%1)\n\taddu\t$13,$13,$15\n\tsb\t$13,13(%1)\n\tlbu\t$12,182(%0)\n\tlbu\t$13,184(%0)\n\taddu\t$12,$12,$14\n\tsb\t$12,20(%1)\n\taddu\t$13,$13,$15\n\tsb\t$13,21(%1)\n\tlbu\t$12,190(%0)\n\tlbu\t$13,192(%0)\n\taddu\t$12,$12,$14\n\tsb\t$12,28(%1)\n\taddu\t$13,$13,$15\n\tsb\t$13,29(%1)" \
     : : "r"(sd_), "r"(prim_) : "$12", "$13", "$14", "$15", "memory")
 #define DRAWC_OTLINK_FT3B(sd_, prim_) __asm__ volatile( \
-    "lw\t$t4,60(%1)\n\tlw\t$t5,56(%1)\n\taddiu\t$t6,%0,32\n\tsll\t$t4,$t4,2\n\taddu\t$t5,$t5,$t4\n\tsw\t$t6,4(%1)\n\tlwl\t$t6,2($t5)\n\tlui\t$t4,0x0700\n\tsrl\t$t6,$t6,8\n\tor\t$t6,$t6,$t4\n\tsll\t$t4,%0,8\n\tsw\t$t6,0(%0)\n\tswl\t$t4,2($t5)" \
+    "lw\t$12,60(%1)\n\tlw\t$13,56(%1)\n\taddiu\t$14,%0,32\n\tsll\t$12,$12,2\n\taddu\t$13,$13,$12\n\tsw\t$14,4(%1)\n\tlwl\t$14,2($13)\n\tlui\t$12,0x0700\n\tsrl\t$14,$14,8\n\tor\t$14,$14,$12\n\tsll\t$12,%0,8\n\tsw\t$14,0(%0)\n\tswl\t$12,2($13)" \
     : : "r"(prim_), "r"(sd_) : "$12", "$13", "$14", "memory")
 /* srcoff passed as THREE pre-folded string offsets ("84","88","92") -- a
  * "OFF+4(%0)" sum displacement makes the assembler expand the lui-$at
  * address macro (3 insns) instead of a direct load (CONT 2026-07-09b). */
 #define DRAWC_OTLINK_MODE(sd_, off0_, off1_, off2_) __asm__ volatile( \
-    "lw\t$t4,4(%0)\n\tlw\t$t5,60(%0)\n\tlw\t$t6,56(%0)\n\taddiu\t$t7,$t4,12\n\tsll\t$t5,$t5,2\n\taddu\t$t6,$t6,$t5\n\tsw\t$t7,4(%0)\n\tlw\t$t5," off0_ "(%0)\n\tlw\t$t7," off1_ "(%0)\n\tlw\t$s0," off2_ "(%0)\n\tsw\t$t5,0($t4)\n\tsw\t$t7,4($t4)\n\tsw\t$s0,8($t4)\n\tlwl\t$t5,2($t6)\n\tsll\t$t7,$t4,8\n\tswl\t$t5,2($t4)\n\tswl\t$t7,2($t6)" \
+    "lw\t$12,4(%0)\n\tlw\t$13,60(%0)\n\tlw\t$14,56(%0)\n\taddiu\t$15,$12,12\n\tsll\t$13,$13,2\n\taddu\t$14,$14,$13\n\tsw\t$15,4(%0)\n\tlw\t$13," off0_ "(%0)\n\tlw\t$15," off1_ "(%0)\n\tlw\t$16," off2_ "(%0)\n\tsw\t$13,0($12)\n\tsw\t$15,4($12)\n\tsw\t$16,8($12)\n\tlwl\t$13,2($14)\n\tsll\t$15,$12,8\n\tswl\t$13,2($12)\n\tswl\t$15,2($14)" \
     : : "r"(sd_) : "$12", "$13", "$14", "$15", "$16", "memory")
 
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
@@ -475,6 +475,12 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
        anchors are label-agnostic and unique in the region, and TEXT_MOVES runs BEFORE
        maspsx so the load-delay nops are re-derived correctly.
        Probe harnesses: scratchpad/w61a15/textmove_probe2.py + tugate_probe.py. */
+    /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
+     * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
+     * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
+     * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
+     * Gate-lane object is byte-identical (proven by hash); see
+     * scratchpad/w64a20/RECEIPTS.md. */
     __asm__("" : : "r"(wc));
     newR = (short)((int)lp[0] + (int)wc[0]);
     newG = (short)((int)lp[1] + (int)wc[1]);
@@ -703,10 +709,10 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
      (`lw $s0,0x40($s3)`) -- with the old `"=r"` form cc1plus kept the value in a
      pseudo and CSE'd the reload away, which was the whole ~17-diff "our compiler
      folds a round-trip retail kept" note. */
-  __asm__ volatile ("mfc2	$t4,$19
+  __asm__ volatile ("mfc2	$12,$19
 	nop
-	sra	$t4,$t4,2
-	sw	$t4,0(%0)"
+	sra	$12,$12,2
+	sw	$12,0(%0)"
                     : : "r"(&sd->sub_otz) : "$12", "memory");
 #else
   sd->sub_otz = 0;
@@ -2460,19 +2466,19 @@ gte_ldv3(vt0,vt1,vt2);
            * $t4/$t5/$t6 hardcoded (the expander's temps); prim is the asm OUTPUT. */
           __asm__ volatile(
               "lw	%0,4(%1)
-	lw	$t4,60(%1)
-	lw	$t5,56(%1)
-	addiu	$t6,%0,32
-	sll	$t4,$t4,2
-	addu	$t5,$t5,$t4
-	sw	$t6,4(%1)
-	lwl	$t6,2($t5)
-	lui	$t4,0x0700
-	srl	$t6,$t6,8
-	or	$t6,$t6,$t4
-	sll	$t4,%0,8
-	sw	$t6,0(%0)
-	swl	$t4,2($t5)"
+	lw	$12,60(%1)
+	lw	$13,56(%1)
+	addiu	$14,%0,32
+	sll	$12,$12,2
+	addu	$13,$13,$12
+	sw	$14,4(%1)
+	lwl	$14,2($13)
+	lui	$12,0x0700
+	srl	$14,$14,8
+	or	$14,$14,$12
+	sll	$12,%0,8
+	sw	$14,0(%0)
+	swl	$12,2($13)"
               : "=&r"(puVar7) : "r"(sd)
               : "$12", "$13", "$14", "memory");
           uVar8 = *(u_int *)&sd->dvx1;

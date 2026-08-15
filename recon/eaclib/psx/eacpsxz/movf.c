@@ -273,13 +273,19 @@ extern int movfxya(unsigned char *shape, int x, int y)
                          * pressure; in movfxya $t1/$t2 are free at this point, gcc parks the dead
                          * pseudo in $t1, and widening the clobber window to force it out regresses
                          * 48 -> 62 because the in-loop `lw 84/88(sp)` arg reloads NEED $t1/$t2.) */
+                        /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
+                         * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
+                         * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
+                         * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
+                         * Gate-lane object is byte-identical (proven by hash); see
+                         * scratchpad/w64a20/RECEIPTS.md. */
                         __asm__ volatile(
-                            "lui	$t5,%%hi(nextprim)
-	lw	$t5,%%lo(nextprim)($t5)
-	lwl	$t6,2(%0)
-	sll	$t7,%1,8
-	swl	$t6,2(%1)
-	swl	$t7,2(%0)"
+                            "lui	$13,%%hi(nextprim)
+	lw	$13,%%lo(nextprim)($13)
+	lwl	$14,2(%0)
+	sll	$15,%1,8
+	swl	$14,2(%1)
+	swl	$15,2(%0)"
                             : : "r"(np), "r"(prim)
                             /* clobber window = expander's reserved temps $t3-$t7 */
                             : "$11", "$12", "$13", "$14", "$15", "memory");

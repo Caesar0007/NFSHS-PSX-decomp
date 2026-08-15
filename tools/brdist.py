@@ -79,6 +79,13 @@ def oracle_branches(fn):
         if s.endswith(':') and s.startswith('.L'):
             labels[s[:-1]] = idx
             continue
+        # w65-a1 (4th vacuity fix): splat writes jump-table entry points as
+        # `jlabel .L<VA>` (no colon) -- skipping them dropped every branch
+        # into a jump-table target (6 hidden branches in LoadGame alone).
+        _m = re.match(r'^(?:jlabel|alabel|dlabel)\s+(\.L\w+)', s)
+        if _m:
+            labels.setdefault(_m.group(1), idx)
+            continue
         if s.startswith('.word'):
             # w63-a20: spimdisasm emits every unrecognised instruction
             # (i.e. EVERY GTE/COP2 op) as `.word 0x4A480012`.  It is a

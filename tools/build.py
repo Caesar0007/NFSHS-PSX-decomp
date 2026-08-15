@@ -1415,6 +1415,12 @@ PER_FN_TEXT_MOVES = {
     },
     # w65-a2 label-move rows (probed 2x, objdump 15D).
     "recon/frontend/common/screencarselect.cpp": {
+        # w65-a1 label-move (probed 2x, REAL->0).
+        "DrawBackground__25tScreenCarSelectTwoPlayer": [
+            {"take": "\\$L\\d+:\\n(?=\\tlh\\t\\$3,884\\(\\$16\\)\\n)", "after": "\\tsw\\t\\$2,892\\(\\$16\\)\\n"},
+            {"take": "\\$L\\d+:\\n(?= \\#APP\\n \\#NO_APP\\n\\tmove\\t\\$4,\\$16\\n)", "after": " \\#APP\\n \\#NO_APP\\n\\tmove\\t\\$4,\\$16\\n"},
+            {"take": "\\$L\\d+:\\n(?=\\tmove\\t\\$4,\\$16\\n\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tjal\\tSetBrightness__16tScreenCarSelectss\\n\\tmove\\t\\$6,\\$0\\n\\t\\.set\\tmacro\\n\\t\\.set\\treorder\\n\\n\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tjal\\tTurnOn__10tVideoWall\\n)", "after": "\\tmove\\t\\$4,\\$16\\n(?=\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tjal\\tSetBrightness__16tScreenCarSelectss\\n\\tmove\\t\\$6,\\$0\\n\\t\\.set\\tmacro\\n\\t\\.set\\treorder\\n\\n\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tjal\\tTurnOn__10tVideoWall\\n)"},
+        ],
         # w65-a2 label-move (probed 2x, objdump 15D).
         "DrawOpponentVideoWall__20tScreenCarSelectDuels": [
             {"_note": "brdist (3,13,14) -> 0. Same shape, sibling fn ($L918/$L921, base $17, offset 828). TU 59/59 PASS 2x.", "take": "\\$L\\d+:\\n(?=\\taddu\\t\\$16,\\$17,828\\n\\$L\\d+:\\n)", "after": "\\taddu\\t\\$16,\\$17,828\\n(?=\\$L\\d+:\\n)"},
@@ -1427,6 +1433,12 @@ PER_FN_TEXT_MOVES = {
     "recon/game/common/audiotrk.cpp": {
         "AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji": [
             {"_note": "brdist (48,14,13) -> 0. MIRROR direction (like StGetNext): retail's .L8007CBF0 IS the shared `lbu $3,20($20)`; cc1 emitted $L670 one line later, so our `j` skipped the reload. $L670 has exactly one user (checked), so moving it in front of the lbu -- where $L651 already sits -- is safe. TU 6/6 PASS 2x.", "take": "\\$L\\d+:\\n(?=\\taddu\\t\\$2,\\$3,-4\\n\\tsltu\\t\\$2,\\$2,32\\n)", "after": "\\$L\\d+:\\n(?=\\tlbu\\t\\$3,20\\(\\$20\\)\\n\\taddu\\t\\$2,\\$3,-4\\n)"},
+        ],
+    },
+    # w65-a1 label-move rows (probed 2x, REAL->0).
+    "recon/frontend/common/fememcard.cpp": {
+        "LoadGame__FsbT1": [
+            {"take": "\\$L\\d+:\\n(?=\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tj\\t\\$L\\d+\\n\\tli\\t\\$17,1)", "after": " \\#NO_APP\\n"},
         ],
     },
     # w60-a3 (orchestrator-wired, probe-verified REAL=0 in scratchpad/w60a3):
@@ -1705,6 +1717,10 @@ PER_FN_TEXT_MOVES = {
     # late identity gives retail's a1/a2 allocation. Restore the three
     # independent prologue placements. Probe: 6 (52/52) -> PASS.
     "recon/frontend/common/fescreen.cpp": {
+        # w65-a1 label-move (probed 2x, REAL->0).
+        "InitializeShapes__7tScreenR17tShapeInformationUi": [
+            {"take": "\\$L\\d+:\\n(?=\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tbeq\\t\\$17,\\$0,\\$L\\d+\\n\\tmove\\t\\$4,\\$0\\n)", "after": "\\tbne\\t\\$2,\\$0,\\$L\\d+\\n\\tandi\\t\\$2,\\$4,0xffff\\n\\t\\.set\\tmacro\\n\\t\\.set\\treorder\\n\\n"},
+        ],
         "GoNonInterlaced__7tScreen": [
             {"take": r"\tsubu\t\$sp,\$sp,24\n", "after": r"\t\.fmask\t[^\n]*\n"},
             {"take": r"\tlhu\t\$5,%lo\(screenheight\)\(\$8\)\n",

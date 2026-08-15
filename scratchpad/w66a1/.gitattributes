@@ -1,6 +1,10 @@
-# tools/build.py is CRLF-mixed, so branch_retarget.patch's CONTEXT/ADDED lines
+# tools/build.py is CRLF-mixed, so these patches' CONTEXT/ADDED lines
 # legitimately end with a literal CR before the patch's own newline.  Under the
 # repo's core.autocrlf=true those `\r\n` sequences are normalised away on `git
-# add`, and the committed blob NO LONGER APPLIES (measured: 6062 -> 5948 bytes,
-# `git apply` -> "patch does not apply").  Store it verbatim.
+# add`, and the committed blob NO LONGER APPLIES (measured on branch_retarget:
+# 6062 -> 5948 bytes, `git apply` -> "patch does not apply").  Store verbatim.
 branch_retarget.patch -text
+sim_text_moves.patch  -text
+# byte snapshot of tools/build.py taken before the sim_text_moves hunk, kept so
+# the fix can be reverted byte-exactly; must not be line-ending-normalised.
+bak_build.py.prefix   -text

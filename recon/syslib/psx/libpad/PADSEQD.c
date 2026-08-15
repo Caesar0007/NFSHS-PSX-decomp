@@ -397,7 +397,12 @@ extern int _dirFailAuto(unsigned char *info)
  *       ours    $L56: [noreorder/nomacro] j $31 ; li $2,1 [macro/reorder]   $L59: j $31
  *       retail  $L56: li $2,1                                              $L59: j $31 ; nop
  *   It is a pure post-cc1 text edit (delete the duplicated `j $31`, leave the `li` in place)
- *   => PER_FN_TEXT_MOVES; spec + probe proof in scratchpad/w63a7/.  NOT source-reachable:
+ *   => PER_FN_TEXT_MOVES.  ** SPEC WRITTEN AND PROVEN: scratchpad/w63a7/
+ *   SPEC_text_moves_dirCheck.json -- with the row this fn is PASS 11/11, the TU goes 3/5 -> 4/5
+ *   with ZERO PASS->FAIL, run twice; and the spliced OBJECT was objdump-verified to be retail's
+ *   exact 11 words with both branch targets landing on the oracle's labels (the _padInitDirSeq
+ *   lesson: a count-exact splice can be a dead-code bug the gate cannot see). **  NOT
+ *   source-reachable:
  *   every single-exit / goto-shared-exit / exit-block-device spelling of this shape rotates
  *   the whole function instead (B1 goto-shared-exit 14 @13, B2 else-arm single exit 14 @13,
  *   C3 `if (0) { out: }` exit-block device 14 @13, C1 early-out chain 5 @14, C5 nested

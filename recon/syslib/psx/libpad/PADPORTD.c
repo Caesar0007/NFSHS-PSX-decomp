@@ -297,7 +297,20 @@ extern void _pad_reset_state(unsigned char *info)
  *   chan,state,JOY = 17 @60 (landed) | chan,JOY,state = 17 | state,chan,JOY = 17 |
  *   state,JOY,chan = 19 | JOY,state,chan = 22 @61 | JOY,chan,state = 22 @61 | JOY-first + void
  *   fence = 22 @61.  The JOY-first forms DO reach count-parity but pay 5 more diffs (an extra nop
- *   plus the state-store block moving); the tie itself never flips.  Sched1 ready-list, confirmed. */
+ *   plus the state-store block moving); the tie itself never flips.  Sched1 ready-list, confirmed.
+ * w63-a7 2026-08-15 CERTIFICATE RE-VERIFIED: re-gated 17 @60/61, the shape is unchanged (retail's
+ *   entry parm copy `addu $a1,$a0,$zero` + `li $a1,65535` x2 vs ours keeping the parm in $a0, plus
+ *   the `lui $v0; lw $v0` pair sitting one block earlier in retail).  Both closed routes hold as
+ *   written.  ONE ROUTE THE CERTIFICATE DOES NOT COVER, recorded as a NAMED ANGLE (un-measured,
+ *   this belt ran out of budget before pricing it): prune_preferences bars a lower-priority rival
+ *   from PRUNING a register the allocno itself prefers -- it does NOT stop a HIGHER-priority
+ *   conflicting allocno from simply TAKING $a0 first (find_reg then skips it as occupied, no
+ *   preference question arises).  So the open family is not "give a rival the $a0 preference"
+ *   (closed) but "manufacture a higher-priority allocno that CONFLICTS with `flag`'s insn-1..20
+ *   window and lands $a0".  Everything live in that window today is homed callee-saved (s0-s3),
+ *   which is why the w62 `nextp` probe did not conflict; the pricing question for allocsim/
+ *   reqdelta is whether any value in that window can be given both a caller-saved home and a
+ *   priority above `flag`'s rank 4. */
 extern unsigned char *_pad_failall(int flag)
 {
     unsigned char *ret;

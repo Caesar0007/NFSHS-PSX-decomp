@@ -121,6 +121,16 @@ extern void _st_dma(int ch, int madr, int blocks, int blocksize, volatile int ch
  * inert -- see the w52-a2 report table.) */
 extern void StCdInterrupt(void)
 {
+    /* W64-A6 re-gate: 27 @576/583 (w63's landed void barrier holds).  TWO axes re-run
+     * in the NEW basin per 04Z and both CLOSED:
+     *  (a) A SECOND void barrier: tools/fencesweep.py over all 116 statement positions
+     *      in this body finds NOTHING under 27 -- the best non-baseline results are 28
+     *      (5 positions) and 29 (7 positions), everything else 27 or worse.  (The same
+     *      sweep is what found the 36 -> 27 barrier, so its emptiness is a real negative.)
+     *  (b) COMPILER LADDER: 2.6.0 66 / 2.6.3 66 / 2.7.2 27 (wired) / 2.7.2-970404 756 /
+     *      2.8.0 756 / 2.8.1 756.  The wired 272 lane is decisively optimal.
+     * The residual is still the w52-a2 cluster list; the ring-mechanics twins the W64
+     * corpus sweep looked for do not exist (see the file header note). */
     volatile short hdr[4];   /* status/sub-header scratch (sp+0x20); stages result[0..1] at [1]/[2] */
     int     loc[2];          /* CdlLOC sub-header staging (sp+0x28) -> copied into the ring slot     */
     u_char  result[8];       /* CdReady result buffer (sp+0x30)                                      */
@@ -435,6 +445,28 @@ extern void _st_dma(int ch, int madr, int blocks, int blocksize, volatile int ch
      * 25 (INERT -- cse hoists the expression there anyway), `bcr` at the block top 39,
      * the mode test straight off the u_char parameter (no `mode` copy) 37, both 37, the
      * channel address as a mutated pointer (`p = 0x1F801080; p += ch << 2;`) 33, and that
+     *
+     * W64-A6 -- THREE MORE AXES CLOSED, all measured in the CURRENT basin (04Z):
+     * (i) COMPILER LADDER re-run after w63's StCdInterrupt landing (rungs driven with
+     *     NFS4_FORCE_CC1_ALT through the 272 recipe): 2.6.0 25 / 2.6.3 25 / 2.7.2 25
+     *     (the wired lane) / 2.7.2-970404 81 / 2.8.0 74 / 2.8.1 77.  The wired 2.7.2 is
+     *     optimal and the sub-2.8 rungs are merely equal -- no version lever here.
+     * (ii) EVERY LANDED FENCE IN THIS FUNCTION IS LOAD-BEARING (the w64 CdRead lesson --
+     *     an inherited fence can itself be the blocker -- was tested here and does NOT
+     *     apply): drop the `bv` read-only fence 43 / drop the two `bit` identity fences
+     *     39 / keep only ONE `bit` fence 31 / add a THIRD 25 (saturated) / drop the `dp`
+     *     identity fence 39 / drop the FIRST __volatile__ barrier 37 @105 / drop BOTH
+     *     barriers 41 @105.  Only the SECOND __volatile__ barrier is inert (25) -- it is
+     *     kept as documentation of the Rage-Racer CD_dmastart shape.
+     * (iii) The cluster-(b) address/BCR EMISSION ORDER is a STRONG structural floor:
+     *     SIX distinct source spellings compile BYTE-IDENTICALLY (25 @107) --
+     *     `int base` + index-first sum, `int base` + base-first sum, literal index-first
+     *     sum, `p` computed before `dp`, a named `bcr` hoisted above the DPCR RMW, and
+     *     base+bcr together.  cse/RTL canonicalisation absorbs the whole family, so the
+     *     `addu a1,v0,a1` vs `addu a1,a1,a2` operand/dest tie (12D qty_combine) is not
+     *     reachable from C here.  Fencing the `bcr` temp instead COSTS 2 insns (53 @109).
+     *     Also re-confirmed inert: naming the 0x10000 busy-wait limit (27, slightly
+     *     worse -- it does NOT move retail's `lui a2,1` into the guard's delay slot).
      * with `bcr` 33. */
     __asm__("" : : "r"(bv));   /* MATCH: DEMOTE bv (read-only fence) so dptr wins $v1 */
     dummy = *(volatile int *)_dicr;

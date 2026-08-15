@@ -514,6 +514,8 @@ void CarIO_CreateLicense(char *text,int carType,int player)
   short *thePlate;
   shapetbl *q1;
   shapetbl *q2;
+  shapetbl *r1;
+  shapetbl *r2;
   int i;
 
   /* oracle: `slti a1,carType,22; bnez a1,<big arm>` -- the carType>=0x16
@@ -575,8 +577,20 @@ void CarIO_CreateLicense(char *text,int carType,int player)
     q2 = CarIO_Plate2[player];
     *(u_int *)q2 = *(u_char *)q2 | 0x11800;
     *(u_int *)q1 = *(u_char *)q1 | 0x11800;
-    CarIO_Plate2[player]->width = 0x18;
-    CarIO_Plate1[player]->width = 0x18;
+    /* MATCH (w62-a14, 44 -> 30, count stays EXACT 229/229): the SAME may-alias
+     * serialization a THIRD time, on the two `->width` stores.  The w50-a6 note
+     * below said retail "re-loads both there too" and left the re-reads inline --
+     * but retail issues BOTH re-loads before EITHER `sh` (`lw t0,0(t0); lw v1,0(t1);
+     * li v0,24; sh v0,4(v1); sh v0,4(t0)`), which the inline form cannot do because
+     * the first `sh` may alias the CarIO_PlateN[] slot the second read comes from.
+     * Fresh locals are required: REUSING q1/q2 for the re-read measures 40 in all
+     * four read/store orders, FRESH r1/r2 gives 34/38/34/30 -- the pair must be its
+     * own pseudos.  2x2 from the 44 basin: reads12/stores12 34, reads12/stores21 38,
+     * reads21/stores12 34, reads21/stores21 30 (kept). */
+    r2 = CarIO_Plate2[player];
+    r1 = CarIO_Plate1[player];
+    r2->width = 0x18;
+    r1->width = 0x18;
     CarIO_CopyFromShape((short *)((int)shape + 0x10),thePlate,0x30,0x16,0,0);
     {
       int length;
@@ -614,6 +628,21 @@ void CarIO_CreateLicense(char *text,int carType,int player)
           case 0xdc:
             ascii = 'u';
           }
+          /* MATCH (w62-a14, 78 -> 44, count stays EXACT 229/229): THE IDENTITY
+           * LAUNDER on `ascii` at the switch's join (catalog 13B -- a pseudo that
+           * dies twice makes combine_regs refuse, so the value becomes a GLOBAL
+           * allocno assigned by conflict instead of by the local numeric scan).
+           * Retail keeps `ascii` in the SYM's $v1 (REG $03) with the switch's
+           * masked index in $a0; ours had ascii in $a2 and the index in $v1 -- a
+           * ~20-diff rotation across the whole switch, the letter[] build and the
+           * six `li` case bodies.  POSITION is the dial: launder BEFORE the switch
+           * 51 @230, after `letter[0]` 46, doubled 44 (inert), a read-only fence in
+           * the same slot 78 (inert) / before the switch 79 @230, an int-typed
+           * round-trip 79 @230.  Composition-neutral with the block-shape spellings
+           * (ascii+letter in one block 44, decl-with-init 44), which is why the
+           * w41/w42 "SYM block shape is reachable but does not move the coloring"
+           * receipt was right AND the coloring was still source-reachable. */
+          __asm__("" : "=r"(ascii) : "0"(ascii));
           letter[0] = ascii;
           letter[1] = '\0';
           strcat(letter,"   ");
@@ -824,6 +853,24 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
   else {
     carPixMapCount = (carObj->render).textureStartIndex;
   }
+  /* MATCH (w62-a14, 184 -> 35): THE RELOAD SPILL-POOL IDENTITY IS SOURCE-REACHABLE.
+   * The w41/w42/w53 receipts below priced the residual as "164 of 184 are which of
+   * two interchangeable reload scratch registers gcc picked ... a whole-function
+   * property, no source lever reaches it".  A single READ-ONLY FENCE OPERAND on the
+   * memory-homed `carPixMapCount` (SYM AUTO 68(sp)) at the head-block join flips the
+   * whole $t0/$t1 alternation: the extra reference makes the pool order match
+   * retail's for the rest of the function.  MEASURED from the 184 basin -- fence on
+   * carPixMapCount here 35 (kept), identity launder here 37, the same read-only
+   * fence on the other memory-homed local `carType` 35 (same flip -- the dial is the
+   * spilled-local REFERENCE, not the value), on `vx`/`vy`/`reload` (all register
+   * locals) exactly 184 = inert, on `recolor_flag` 198, on `i` 230.  POSITION is a
+   * hard dial: at `i = 0` 57, at `Texture_ResetPaletteSharing()` 74, at the
+   * `Texture_palCopy` store 179.  NOT a scheduling barrier: a void fence
+   * (`""`, `"i"(0)`, volatile, or a "memory" clobber) in the same slot is exactly
+   * 184.  COST: +1 insn (492 vs retail's 491 -- the fence's operand is a `lw` of the
+   * spilled slot), the only known price for -149 diffs; a second operand costs +2
+   * more insns and undoes the flip (187 @494). */
+  __asm__("" : : "r"(carPixMapCount));
   if ((reload & 8U) != 0) {
     if (((carObj->render).inside & 1U) != 0) {
       int index;
@@ -849,7 +896,12 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
   }
   Texture_palCopy = (Texture_pal8bit *)(carObj->render).palCopy;
   Texture_ResetPaletteSharing();
-  for (; i < 0x33; i = i + 1, carPixMapCount = carPixMapCount + 1) {
+  /* MATCH (w62-a14, 35 -> 19): the loop-tail COMMA ORDER.  Both builds emit the
+   * same two spilled-giv increments (68(sp) += 1 = carPixMapCount, 88(sp) += 2);
+   * retail issues carPixMapCount's load/add/store FIRST, so the comma operands go
+   * in that order.  Measured: swapped 19 (kept), original 35, moving the increment
+   * into the body 47 @486 (drops 5 insns). */
+  for (; i < 0x33; carPixMapCount = carPixMapCount + 1, i = i + 1) {
     shapetbl *shape;
     int palShare;
     int palette;

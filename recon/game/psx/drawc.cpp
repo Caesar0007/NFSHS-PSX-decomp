@@ -1115,6 +1115,16 @@ DrawCPrimStart_camRotMatrix:
     /* SYM: dedicated REG locals eColor / eColor2 (NOT the fn-scope iVar3
      * scratch, whose earlier cross-call web forces a callee-saved home;
      * oracle keeps this chain in caller-saved $a2) */
+    /* w62-a14 (base 54, count EXACT 976/976): the InMenu ARM-ORDER lead, executed
+     * and DEAD as a spelling.  side_by_side shows ours emitting the else-arm's
+     * `sra a2,fp,1` BEFORE the InMenu==0 arm while retail keeps it in the else
+     * arm's `j` delay slot (retail: `sra a2,fp,2; lui v0; lbu v0; nop; mult a2,v0`
+     * ... `j T; sra a2,fp,1`).  Inverting the guard so the small arm becomes the
+     * if-body (`if (R3DCar_InMenu != 0) eColor = lightAvg >> 1; else {...}`) is
+     * EXACTLY neutral -- 54 @976, bit-identical: gcc-2.8 jump-opt canonicalises the
+     * polarity.  The 13C inverted-default form (`eColor = lightAvg >> 1;` at the
+     * block head + a bare `if (InMenu == 0)` override) is 86 @976.  => this cluster
+     * is a sched1 hoist of the arm's shift, not an arm-order defect. */
     int eColor;
     if (R3DCar_InMenu == 0) {
       eColor = (int)((lightAvg >> 2) * (u_int)R3DCar_eMapColour.r) >> 7;
@@ -1459,7 +1469,26 @@ gte_SetTransMatrix(((char *)sd + 0x14));
          * 36 load x morph statement permutations, and with the FUSED form the morph
          * order is a strict no-op (all 6 permutations gate 338) while the load order
          * is already optimal at L(0,1,2) (L210 350, L102 368, ...).  Prim's id block
-         * is at its own optimum; do not port the PrimClip lever here. */
+         * is at its own optimum; do not port the PrimClip lever here.
+         * w62-a14 RE-SWEPT FROM THE 336 BASIN (04Z; the w55-a9 numbers were taken
+         * at 338) -- the verdict holds and is now sharper.  Applied to ALL FIVE
+         * fused sites at once: `(int)sd + idN * 8` 336, `((int)sd) + (idN << 3)`
+         * 336, `(idN << 3) + (int)sd` 336 (every operand order and every
+         * shift/multiply spelling is BIT-IDENTICAL -- fold canonicalises them),
+         * `idN *= 8; idN += (int)sd;` 448, `idN = idN*8; idN = idN + (int)sd;` 448.
+         * ALPHA-RENAME DIAGNOSIS (scratchpad/w62a14/alphacmp.py): alpha LCS
+         * 1085/1389, so the residual is NOT a pure handout rotation -- the streams
+         * genuinely differ.  This block's own difference is that retail's morph is
+         * IN-PLACE (`sll a2,a2,3; addu a2,a2,s1`) while ours uses a scratch
+         * (`sll v0,a0,3; addu a0,v0,s1`): same count, different qty structure.
+         * local-alloc's combine_regs can only tie the shift temp to idN when idN is
+         * a BLOCK-LOCAL qty; ours is a global allocno (13A block-local anchor law),
+         * which is why no spelling of the expression reaches it.  The named angle
+         * is therefore the DECLARATION SCOPE of id0/id1/id2 (declared once in the
+         * `case 0:` block that spans every arm), not the expression.  Also read off
+         * the same dump: retail materialises `li t3,36` and `li s4,38` in the loop
+         * head where we have neither, and ours is 6 insns LONGER overall -- a
+         * second, independent constant-naming axis (13C literal-vs-named). */
         id0 = id0 * 8 + (int)sd;
         id1 = id1 * 8 + (int)sd;
         id2 = id2 * 8 + (int)sd;

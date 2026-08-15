@@ -436,6 +436,25 @@ int InGame_GetPSXPadValue(int value,int player)
      basin: goto+fence 264 -> 257 (@212 insns), goto WITHOUT the fence 271
      (@210).  This is the device the w53-a4 "guard-polarity lead is dead"
      receipt never tried -- it swept plain if/else spellings only. */
+  /* w62-a14 (still 257 @212 vs 233): THE DE-MERGE FENCE CONFIGURATION WAS
+     RE-SWEPT FROM THE 257 BASIN (the w46-a8 sweep below was measured at 264;
+     04Z basin-relativity).  All 12 `return newControl | 1;` arms enumerated,
+     harness scratchpad/w62a14/fence.py (rebuilds the body with a fence before an
+     arbitrary SET of arms, control reproduces 257 exactly).  {8,9} SURVIVES as the
+     unique optimum: none 265 @214 . every singleton {0}..{7} 266-270 @221 . {8}
+     261 @212 . {9} 259 @214 . {10} / {11} 269 @218 . {8,9}+one of {0,1,2,3} 260-264
+     @219 . {8,9}+{4,5,6,7} 269-273 @226-228 . {8,9}+{10} / +{11} / +{10,11} 261 @216
+     . all 45 {8,9}+two-arm pairs 264-285 @223-242.  => the over-merge is NOT a
+     fence-placement question any more; the count shortfall and the structural
+     residual are the same two facts w53-a4 separated (the merged 212-insn body is
+     structurally closer than any 233-insn de-merged one).  What the sweep DOES
+     newly show: 14 of the 66 configurations reach retail's exact 233 count and
+     every one of them scores 272-285, i.e. the count is now REACHABLE and
+     PROVABLY not the defect.  The live route is unchanged: retail's dispatch
+     delay slots carry `sll aN,s1,2` (player*4) + `li a0,0x80` speculatively while
+     ours carry `sll aN,s1,30` (player<<30), and retail's prologue copies PLAYER
+     before VALUE (`sw s1,20(sp); addu s1,a1` with `addu s0,a0` in the jal slot;
+     ours mirrored) -- an assign_parms/sched1 emission-order question. */
   if (gPadinfo.buf[player * 4].nopad != '\0') {
     goto InGame_GetPSXPadValue_noPad;
   }

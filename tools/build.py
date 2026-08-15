@@ -1197,6 +1197,12 @@ PER_FN_TEXT_MOVES = {
     # W52/W53/W55-fought (a) half was a pure relocation: retail emits the
     # li 0x80 + both sw stores BEFORE the ten callee-save stores.
     "recon/syslib/psx/libgpu/FONT.c": {
+        # w63-a3 (probe-verified 2x): FntPrint 3 -> PASS 240/240. cse
+        # constant-sharing breaker: the fresh li lands at the DEF position
+        # (one-line relocation); anchors region-unique, label-agnostic.
+        "FntPrint": [
+            {"take": r"\tli\t\$6,-1[^\n]*\n", "after": r"\tbeq\t\$5,\$2,\$L\d+\n"},
+        ],
         "FntFlush": [
             {"take": r"\tsw\t\$6,28\(\$sp\)\n", "after": r"\tli\t\$6,128[^\n]*\n"},
             {"take": r"\tsw\t\$6,32\(\$sp\)\n", "after": r"\tsw\t\$6,28\(\$sp\)\n"},

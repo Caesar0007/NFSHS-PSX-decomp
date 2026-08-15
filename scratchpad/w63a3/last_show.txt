@@ -1,0 +1,30 @@
+B7 neg1 born BEFORE peel + launder
+  FntPrint: FAIL 2 diffs (ours 240 / oracle 240)
+      -li a2,-1
+      +li a2,-1
+190 addu v1,v1,v0                            | addu $v1, $v1, $v0                        
+191 sb a0,0(v1)                              | sb $a0, 0x0($v1)                          
+192 lw v1,28(s1)                             | lw $v1, 0x1C($s1)                         
+193 addiu v0,v0,1                            | addiu $v0, $v0, 0x1                       
+194 slt v1,v1,v0                             | slt $v1, $v1, $v0                         
+195 bnez v1,3a4 <FntPrint+0x88>              | bnez $v1, .L800F70BC                      
+196 sw v0,40(s1)                             | sw $v0, 0x28($s1)                         
+197 addiu s2,s2,-1                           | addiu $s2, $s2, -0x1                      
+198 slt v0,a1,s2                             | slt $v0, $a1, $s2                         
+199 bnez v0,608 <FntPrint+0x2ec>             | bnez $v0, .L800F7320                      
+200 nop                                      | nop                                       
+201 li a2,-1                                 | addiu $a1, $a1, -0x1                         <<<
+202 addiu a1,a1,-1                           | addiu $v0, $zero, -0x1                    
+203 li v0,-1                                 | beq $a1, $v0, .L800F73A4                     <<<
+204 beq a1,v0,68c <FntPrint+0x370>           | nop                                          <<<
+205 nop                                      | addiu $a2, $zero, -0x1                       <<<
+206 lw v1,40(s1)                             | lw $v1, 0x28($s1)                         
+207 lw v0,36(s1)                             | lw $v0, 0x24($s1)                         
+208 lbu a0,0(s0)                             | lbu $a0, 0x0($s0)                         
+209 addiu s0,s0,1                            | addiu $s0, $s0, 0x1                       
+210 addu v0,v0,v1                            | addu $v0, $v0, $v1                        
+211 sb a0,0(v0)                              | sb $a0, 0x0($v0)                          
+212 lw v0,28(s1)                             | lw $v0, 0x1C($s1)                         
+213 addiu v1,v1,1                            | addiu $v1, $v1, 0x1                       
+214 slt v0,v0,v1                             | slt $v0, $v0, $v1                         
+ours=240 oracle=243

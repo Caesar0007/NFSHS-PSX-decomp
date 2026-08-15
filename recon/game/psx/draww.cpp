@@ -508,6 +508,12 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
 
 {
   Draw_SubdivStruct *r_div;   /* SYM: REG $s0, fn scope */
+  /* w64-a2 12D DEAD-PSEUDO STAGING: the SYM gives BOTH `v4` (subdivide arm) and
+     the leaf `prim` (else arm) as REG $s3.  They live in mutually exclusive arms,
+     so retail carried them in ONE pseudo -- v4 IS the carrier the leaf prim is
+     staged through.  Declared fn-scope here and cast at the leaf uses; see the
+     receipt block below.  35 @587 (one SHORT) -> 26 @588 COUNT-EXACT. */
+  Draw_SVertex *v4;   /* SYM: REG $s3 -- shared with the leaf POLY_GT4 *prim */
 
   if ((((v0->dvx > (sd->head).clipW) && ((sd->head).clipW < v1->dvx)) && ((sd->head).clipW < v2->dvx)) &&
       ((sd->head).clipW < v3->dvx)) {
@@ -529,7 +535,7 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
   r_div = &gDiv;
   if (l < DrawW_CalcSubdivision(sd,v0,v1,v2,v3)) {
     Draw_SVertex *v8;   /* SYM: AUTO sp+0x48 */
-    Draw_SVertex *v4;   /* SYM: REG $s3 */
+    /* v4 (SYM REG $s3) is declared at FUNCTION scope -- see the 12D staging note */
     Draw_SVertex *v5;   /* SYM: REG $s5 */
     Draw_SVertex *v6;   /* SYM: REG $s7 */
     Draw_SVertex *v7;   /* SYM: REG $s6 */
@@ -788,7 +794,7 @@ DrawWSubdiv_edgedone:
     return;
   }
   {
-    POLY_GT4 *prim;   /* SYM: REG $s3 */
+    /* the leaf prim is staged through `v4` (SYM: both are REG $s3) -- 12D */
 
     if (subDivide != 0) {
       long bfct;   /* SYM: AUTO sp+0x34 */
@@ -810,7 +816,7 @@ DrawWSubdiv_edgedone:
         }
       }
     }
-    prim = (POLY_GT4 *)(sd->head).cprim.PrimPtr;
+    v4 = (Draw_SVertex *)(sd->head).cprim.PrimPtr;
     /* OT-link, EA DMPSX-analog FIXED-REG TEMPLATE (fastmovf.c family; $t4/$t5/$t6
      * scratches): slot = sd->head.cprim.LastPrim + sd->otz; sd->PrimPtr = prim+1 (0x34);
      * prim->tag = slot->addr24 | (0x0C<<24); slot->addr24 = prim.  Operand %2 = &sd->otz
@@ -830,9 +836,22 @@ DrawWSubdiv_edgedone:
 	sll	$t4,%0,8
 	sw	$t6,0(%0)
 	swl	$t4,2($t5)"
-        : : "r"(prim), "r"(sd), "r"(&sd->otz)
+        : : "r"(v4), "r"(sd), "r"(&sd->otz)
         : "$12", "$13", "$14", "memory");
-    DrawW_AddSubdividPrimGT4(prim,v0,v1,v2,v3,sd);
+    /* w64-a2 PRICED REF DIAL (predicted N=5, measured N=5 -- allocsim-by-hand on
+       the real CC1PLPSX -dl/-dg dump).  After the 12D staging the ONLY residual
+       was a pure $s2<->$s3 SWAP: merged v4+prim = p91 (refs 14 / live 265 /
+       pri .1585) sorted ABOVE sd = p80 (refs 25 / live 752 / pri .1330) and took
+       $s2 first; retail hands sd $s2 and the merged pseudo $s3.  A multi-operand
+       read-only fence buys +1 REG_N_REFS per operand at ONE barrier and ZERO
+       bytes (06B/05C): N operands make sd (100+4N)/(752+N) and p91 42/(265+N);
+       the crossing is at N=5 (N=4: .1534 vs .1561 = still wrong; N=5: .1585 vs
+       .1556 = flip).  MEASURED, all count-exact 588/588: N=1..4 -> 120 diffs,
+       N=5..8 -> 26.  Landed the modelled MINIMUM.  The natural-source alternative
+       (retail simply re-reads `sd` 5 more times than our CSE'd body does) is the
+       open angle that would retire this device. */
+    __asm__("" : : "r"(sd), "r"(sd), "r"(sd), "r"(sd), "r"(sd));
+    DrawW_AddSubdividPrimGT4((POLY_GT4 *)v4,v0,v1,v2,v3,sd);
     return;
   }
 }

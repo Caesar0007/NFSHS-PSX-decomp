@@ -293,3 +293,16 @@ kept as evidence · `pq_sim_moves.json` — the production-lane moves file ·
 came out with `\t` instead of `\\t` — Write tool only, as the standing rule
 says), and a non-raw Python string in a scripted JSON edit doing the same thing
 one step later. Both caught by a `json.load` + a re-probe, never by a number.
+
+🔴 **CRLF hazard on a NEW route — a PATCH FILE whose content lines end with CR.**
+Because `tools/build.py` is CRLF-mixed, the patch's context/added lines
+legitimately carry a literal `\r` before the patch's own newline. Under the
+repo's `core.autocrlf=true` those `\r\n` pairs are normalised away on `git add`:
+the committed blob shrank **6062 → 5948 bytes** and `git apply` rejected it with
+*"patch does not apply"* — while the working file still applied perfectly.
+Caught by diffing `git show HEAD:<patch>` against the working file and
+re-applying the BLOB in a scratch repo (do this for any committed patch).
+Fixed with `scratchpad/w66a1/.gitattributes` → `branch_retarget.patch -text`;
+committed blob is now byte-identical and applies to a byte-identical result.
+Belt and braces: `mkpatch.py` regenerates the patch deterministically from
+`mech.py`, so the patch can always be rebuilt if a future checkout mangles it.

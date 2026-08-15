@@ -1,0 +1,12 @@
+/* ---- tDialogBase::dtor  [FEDIALOG.CPP:132 decl] SLD-FLAG:NO_SLD ----
+ * W65-A3 (calltarget): the class no longer DECLARES a dtor (see nfs4_types.h),
+ * so gcc synthesises + inlines it at every call site -- which is what makes
+ * ~tDialogHelp / ~tDialogMessageString etc. `jal ___7tScreen` like retail.
+ * gcc emits NO out-of-line copy for a synthesised dtor (probed: globals,
+ * delete, virtual, explicit ~C() call sites -- none emit one), so the
+ * standalone symbol is supplied here as a free function with C linkage, the
+ * device already in use two blocks up for ___18tDialogInteractive.  Body is
+ * byte-identical to the oracle's 8 insns: the arg passes through in $a0 and
+ * the ignored `__in_chrg` in $a1 costs nothing. */
+
+extern "C" void ___11tDialogBase(void *thisp) { ___7tScreen(thisp); }

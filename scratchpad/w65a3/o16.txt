@@ -1,0 +1,5 @@
+AIHigh_BTC_Perp::~AIHigh_BTC_Perp()
+{
+  this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_BasicPerp_vtable;
+  return;
+}

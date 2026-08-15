@@ -1,0 +1,2 @@
+extern "C" { void ___7tScreen(void *); }
+extern "C" void ___12tDialogYesNo(void *thisp) { ___7tScreen(thisp); }

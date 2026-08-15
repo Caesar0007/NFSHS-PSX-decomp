@@ -1,0 +1,6 @@
+    void CalculateDimensions();
+    void Draw();
+    /* W65-A3 (calltarget): NO declared dtor -- see the tDialogBase note above.
+     * Standalone ___20tDialogMessageString lives in fedialog.cpp. */
+
+};

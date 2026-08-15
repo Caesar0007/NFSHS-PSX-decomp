@@ -1,0 +1,6 @@
+    void Draw();
+    void ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command);
+    /* W65-A3 (calltarget): NO declared dtor -- see the tDialogBase note above.
+     * Standalone ___12tDialogYesNo lives in fedialog.cpp. */
+
+};

@@ -1,0 +1,5 @@
+tDialogYesNo::~tDialogYesNo()
+
+{
+  return;
+}

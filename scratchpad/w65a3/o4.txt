@@ -1,0 +1,5 @@
+    void Draw();
+    void ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command);
+    ~tDialogYesNo();
+
+};

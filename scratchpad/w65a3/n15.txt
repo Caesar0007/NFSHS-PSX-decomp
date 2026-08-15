@@ -1,0 +1,12 @@
+            if (Replay_ReplayInterface.speed == 3) {
+              Sim_ProcessSimSchedules();
+              goto sim_sched_second;
+            }
+            InBetween = one;
+            Camera_Update();
+            goto sim_sched_done;
+          sim_sched_second:
+            __asm__("" : : "i"(0));
+            Sim_ProcessSimSchedules();
+          sim_sched_done:
+            ;

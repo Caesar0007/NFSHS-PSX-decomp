@@ -1,0 +1,19 @@
+            /* MATCH (W65-A3, calltarget): the oracle's block order is
+             * [PSS; j L716C] [InBetween; Camera_Update; j L7174] [L716C: PSS],
+             * i.e. the SECOND PSS is laid out AFTER the else arm and the if arm
+             * jumps over it -- exactly what a `goto` out of the ELSE arm produces
+             * (the if arm then falls into the trailing statement via its own
+             * jump-over).  Written as two statements inside the if arm, gcc
+             * emitted [PSS][PSS][Camera] and BOTH jals landed on the wrong
+             * function after link (2 calltarget rows). */
+            if (Replay_ReplayInterface.speed == 3) {
+              Sim_ProcessSimSchedules();
+            }
+            else {
+              InBetween = one;
+              Camera_Update();
+              goto sim_sched_done;
+            }
+            Sim_ProcessSimSchedules();
+          sim_sched_done:
+            ;

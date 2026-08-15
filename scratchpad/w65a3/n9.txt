@@ -1,0 +1,6 @@
+  else {
+    /* W65-A3 (calltarget): as tDialogYesNoMem -- was infinite recursion. */
+    this->tDialogYesNo::ProcessInput(fromPlayer,keyVal,command);
+  }
+  return;
+}

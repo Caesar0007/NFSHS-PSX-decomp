@@ -1,0 +1,4 @@
+    void ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command);
+    ~tDialogBase();
+
+};

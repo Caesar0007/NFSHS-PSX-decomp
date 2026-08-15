@@ -1,0 +1,5 @@
+    void CalculateDimensions();
+    void Draw();
+    ~tDialogMessageString();
+
+};

@@ -1,0 +1,5 @@
+tDialogMessageString::~tDialogMessageString()
+
+{
+  return;
+}

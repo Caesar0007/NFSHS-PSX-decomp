@@ -1,0 +1,43 @@
+14 PROVEN wrong-call-target sites (both names known, different VAs)
+  frontend/common/screenpost  DrawBackground__26tScreenTournamentStandings
+      retail calls TextValue__23tListIteratorTournament7tPlayer @0x80033e28
+      ours   calls TextValue__13tListIterator7tPlayer @0x80023e3c
+  game/common/aih_btccop  ___18AIHigh_BTC_Wingman
+      retail calls ___11AIHigh_Base @0x8005b3c4
+      ours   calls ___14AIHigh_BTC_Cop @0x8005f604
+  game/common/aih_btccop  ___19AIHigh_BTC_HumanCop
+      retail calls ___11AIHigh_Base @0x8005b3c4
+      ours   calls ___14AIHigh_BTC_Cop @0x8005f604
+  game/common/aih_btccop  ___14AIHigh_BTC_Cop
+      retail calls ___11AIHigh_Base @0x8005b3c4
+      ours   calls ___15AIHigh_BasicCop @0x8005cb4c
+  game/common/aih_btcperp  ___17AIHigh_BTC_AIPerp
+      retail calls ___11AIHigh_Base @0x8005b3c4
+      ours   calls ___15AIHigh_BTC_Perp @0x8005b438
+  game/common/aih_btcperp  ___20AIHigh_BTC_HumanPerp
+      retail calls ___11AIHigh_Base @0x8005b3c4
+      ours   calls ___15AIHigh_BTC_Perp @0x8005b438
+  game/common/camera  Camera_Update__Fv
+      retail calls Camera_UpdateCircleCam__Fi @0x80081ab8
+      ours   calls Camera_UpdateSimpleCam__Fi @0x80080ac8
+  game/common/camera  Camera_Update__Fv
+      retail calls Camera_UpdateSplineCam__Fi @0x800826c0
+      ours   calls Camera_UpdateCircleCam__Fi @0x80081ab8
+  game/common/camera  Camera_Update__Fv
+      retail calls Camera_UpdateTVCam__Fi @0x80081e48
+      ours   calls Camera_UpdateSplineCam__Fi @0x800826c0
+  game/common/camera  Camera_Update__Fv
+      retail calls Camera_UpdateBlimpCam__Fi @0x8008237c
+      ours   calls Camera_UpdateTVCam__Fi @0x80081e48
+  game/common/camera  Camera_Update__Fv
+      retail calls Camera_UpdateAnimCam__Fi @0x80081f94
+      ours   calls Camera_UpdateBlimpCam__Fi @0x8008237c
+  game/common/camera  Camera_Update__Fv
+      retail calls Camera_UpdateSimpleCam__Fi @0x80080ac8
+      ours   calls Camera_UpdateAnimCam__Fi @0x80081f94
+  game/common/sim  Sim_MainGameLoop__Fv
+      retail calls Camera_Update__Fv @0x800833d8
+      ours   calls Sim_ProcessSimSchedules__Fv @0x800b6878
+  game/common/sim  Sim_MainGameLoop__Fv
+      retail calls Sim_ProcessSimSchedules__Fv @0x800b6878
+      ours   calls Camera_Update__Fv @0x800833d8

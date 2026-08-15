@@ -1,0 +1,10 @@
+    FETextRender_SetABR(0,false);
+  }
+  /* W65-A3 (calltarget): `this->Draw()` bound to tDialogMessageString::Draw
+   * itself -- INFINITE RECURSION.  Retail calls Draw__11tDialogBase; the
+   * unqualified name resolves to the derived override that shadows the base's
+   * (§3.23c SILENT-SHADOW, here in its same-name-override form).  Explicit
+   * base scope binds the call retail makes.  REAL RUNTIME BUG. */
+  this->tDialogBase::Draw();
+  return;
+}

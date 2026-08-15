@@ -1,0 +1,4 @@
+      case 0xe:
+        Camera_UpdateAnimCam(player);
+        break;
+      case 0x10:

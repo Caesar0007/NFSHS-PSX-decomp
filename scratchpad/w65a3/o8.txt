@@ -1,0 +1,11 @@
+    this->ReturnValue = -1;
+  }
+  else {
+    this->ProcessInput(fromPlayer,keyVal,command);
+  }
+  return;
+}
+
+
+
+/* ---- tDialogYesNoTri::ProcessInput

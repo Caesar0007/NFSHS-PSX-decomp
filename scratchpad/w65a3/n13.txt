@@ -1,0 +1,14 @@
+            /* W65-A3 (calltarget): explicit goto chain in the ORACLE'S BLOCK
+             * ORDER -- [PSS; j second] [InBetween; Camera_Update; j after]
+             * [second: PSS] [after:]. */
+            if (Replay_ReplayInterface.speed == 3) {
+              Sim_ProcessSimSchedules();
+              goto sim_sched_second;
+            }
+            InBetween = one;
+            Camera_Update();
+            goto sim_sched_done;
+          sim_sched_second:
+            Sim_ProcessSimSchedules();
+          sim_sched_done:
+            ;

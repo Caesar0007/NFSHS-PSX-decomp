@@ -1,0 +1,6 @@
+      case 8:
+      case 9:
+      case 0xf:
+        Camera_UpdateSimpleCam(player);
+        break;
+      case 10:

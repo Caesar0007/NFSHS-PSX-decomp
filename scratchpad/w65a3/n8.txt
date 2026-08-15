@@ -1,0 +1,14 @@
+    this->ReturnValue = -1;
+  }
+  else {
+    /* W65-A3 (calltarget): unqualified `this->ProcessInput(...)` bound to THIS
+     * override -- INFINITE RECURSION.  Retail calls
+     * ProcessInput__12tDialogYesNo...; explicit base scope binds it. REAL BUG. */
+    this->tDialogYesNo::ProcessInput(fromPlayer,keyVal,command);
+  }
+  return;
+}
+
+
+
+/* ---- tDialogYesNoTri::ProcessInput

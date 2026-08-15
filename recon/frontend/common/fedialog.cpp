@@ -973,21 +973,23 @@ void tDialogNoInputMessage::ProcessInput(tPlayer atPlayer,tInputKeyType &keyVal,
 
 /* ---- tDialogYesNoTri::dtor  [FEDIALOG.CPP:294 decl] SLD-FLAG:NO_SLD ---- */
 
-tDialogYesNoTri::~tDialogYesNoTri()
-
-{
-  return;
-}
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___7tScreen the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___7tScreen(void *);
+extern "C" void ___15tDialogYesNoTri(void *thisp) { ___7tScreen(thisp); }
 
 
 
 /* ---- tDialogYesNoMem::dtor  [FEDIALOG.CPP:284 decl] SLD-FLAG:NO_SLD ---- */
 
-tDialogYesNoMem::~tDialogYesNoMem()
-
-{
-  return;
-}
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___7tScreen the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___7tScreen(void *);
+extern "C" void ___15tDialogYesNoMem(void *thisp) { ___7tScreen(thisp); }
 
 
 
@@ -1005,21 +1007,23 @@ void ___18tDialogInteractive(void *thisp) { ___7tScreen(thisp); }
 }
 /* ---- tDialogNoInputMessage::dtor  [FEDIALOG.CPP:233 decl] SLD-FLAG:NO_SLD ---- */
 
-tDialogNoInputMessage::~tDialogNoInputMessage()
-
-{
-  return;
-}
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___7tScreen the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___7tScreen(void *);
+extern "C" void ___21tDialogNoInputMessage(void *thisp) { ___7tScreen(thisp); }
 
 
 
 /* ---- tDialogBackUpOnly::dtor  [FEDIALOG.CPP:223 decl] SLD-FLAG:NO_SLD ---- */
 
-tDialogBackUpOnly::~tDialogBackUpOnly()
-
-{
-  return;
-}
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___7tScreen the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___7tScreen(void *);
+extern "C" void ___17tDialogBackUpOnly(void *thisp) { ___7tScreen(thisp); }
 
 
 
@@ -1031,11 +1035,12 @@ extern "C" void ___20tDialogMessageString(void *thisp) { ___7tScreen(thisp); }
 
 /* ---- tDialogHelp::dtor  [FEDIALOG.CPP:174 decl] SLD-FLAG:NO_SLD ---- */
 
-tDialogHelp::~tDialogHelp()
-
-{
-  return;
-}
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___7tScreen the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___7tScreen(void *);
+extern "C" void ___11tDialogHelp(void *thisp) { ___7tScreen(thisp); }
 
 
 

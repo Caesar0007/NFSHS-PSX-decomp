@@ -1314,21 +1314,23 @@ void tMenuBlank::UpdateTransition()
 
 /* ---- tMenuItemOptionsTwoItemChoice::dtor  [FEMENUEXTENDED.CPP:?] SLD-FLAG:NO_SLD ---- */
 
-tMenuItemOptionsTwoItemChoice::~tMenuItemOptionsTwoItemChoice()
-
-{
-  return;
-}
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___24tMenuItemLeftRightChoice the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___24tMenuItemLeftRightChoice(void *);
+extern "C" void ___29tMenuItemOptionsTwoItemChoice(void *thisp) { ___24tMenuItemLeftRightChoice(thisp); }
 
 
 
 /* ---- tMenuItemOptionsLeftRightChoice::dtor  [FEMENUEXTENDED.CPP:?] SLD-FLAG:NO_SLD ---- */
 
-tMenuItemOptionsLeftRightChoice::~tMenuItemOptionsLeftRightChoice()
-
-{
-  return;
-}
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___24tMenuItemLeftRightChoice the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___24tMenuItemLeftRightChoice(void *);
+extern "C" void ___31tMenuItemOptionsLeftRightChoice(void *thisp) { ___24tMenuItemLeftRightChoice(thisp); }
 
 
 

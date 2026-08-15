@@ -4484,7 +4484,6 @@ struct tDialogHelp : public tDialogBase {   /* 212 bytes */
     void AddItem(short textID,short controllerID);
     void CalculateDimensions();
     void Draw();
-    ~tDialogHelp();
 
 };
 
@@ -4492,7 +4491,6 @@ struct tDialogMessageStringWithTimeout : public tDialogMessageString {   /* 152 
 #ifdef FEAPP_DEFINE_DIALOG_CTORS
     tDialogMessageStringWithTimeout();
 #endif
-    ~tDialogMessageStringWithTimeout();   /* @0x80015760 -- vtable slot 4 (M10) */
 };
 
 struct tDialogNoInputMessage : public tDialogMessageString {   /* 152 bytes */
@@ -4501,7 +4499,6 @@ struct tDialogNoInputMessage : public tDialogMessageString {   /* 152 bytes */
 #endif
     /* FEDialog methods */
     void ProcessInput(tPlayer atPlayer,tInputKeyType &keyval, tMenuCommand &command);
-    ~tDialogNoInputMessage();
 
 };
 
@@ -4577,7 +4574,6 @@ struct tBlankMenuItemNFS4LeftRightChoice : public tMenuItemNFS4LeftRightChoice {
     tBlankMenuItemNFS4LeftRightChoice(unsigned int t, tListIterator *d, int ff, int nf) : tMenuItemNFS4LeftRightChoice(t, d, ff, nf) { *(void **)&_vf = (void *)&tBlankMenuItemNFS4LeftRightChoice_vtable; }   /* inline fwd ctor */
     void *TransitionIsFinished();
     void Draw(int, int, bool);   /* w64 unlock (A19 2.4): char form was undefined */
-    ~tBlankMenuItemNFS4LeftRightChoice();
 };
 
 struct tMenuItemOptionsLeftRightChoice : public tMenuItemLeftRightChoice {   /* 32 bytes */
@@ -4585,7 +4581,6 @@ struct tMenuItemOptionsLeftRightChoice : public tMenuItemLeftRightChoice {   /* 
     tMenuItemOptionsLeftRightChoice(unsigned int t, tListIterator *d) : tMenuItemLeftRightChoice(t, d) { *(void **)&_vf = (void *)&tMenuItemOptionsLeftRightChoice_vtable; }   /* inline fwd ctor (tGlobalMenuDefs init-list) */
     /* FEMenuExtended methods */
     void Draw(int x,int y,bool selected);
-    ~tMenuItemOptionsLeftRightChoice();
 
 };
 
@@ -4596,7 +4591,6 @@ struct tMenuItemOptionsTwoItemChoice : public tMenuItemLeftRightChoice {   /* 36
     /* FEMenuExtended methods */
     void TransitionOn();
     void Draw(int x,int y,bool selected);
-    ~tMenuItemOptionsTwoItemChoice();
 
 };
 
@@ -4896,7 +4890,6 @@ struct tBlankMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuNFS4Button {  
      * defines -- vtable slots relocated against phantoms (runtime NULL dispatch). */
     void Draw(int, int, bool);
     void Draw(bool);
-    ~tBlankMenuItemGoToMenuNFS4Button();
 };
 
 struct tInsideBoxControllerLeftRightSlider {   /* 40 bytes */
@@ -5040,7 +5033,6 @@ struct tScreenUserName : public tScreen {   /* 204 bytes */
     void DrawVerticalLine(short x, short y, short gridpos);
     void DrawHorizontalLine(short x, short y, short gridpos);
     void DrawBackground();
-    ~tScreenUserName();
 };
 
 struct tScreenTournamentStandings : public tScreen {   /* 148 bytes */
@@ -5055,13 +5047,11 @@ struct tScreenTournamentStandings : public tScreen {   /* 148 bytes */
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
     void ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);
     void DrawBackground();
-    ~tScreenTournamentStandings();
 };
 
 struct tScreenTournamentStandings3item : public tScreenTournamentStandings {   /* 148 bytes */
     tScreenTournamentStandings3item();
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
-    ~tScreenTournamentStandings3item();
 };
 
 struct LUMPYHEAD {   /* 16 bytes */
@@ -5086,21 +5076,18 @@ struct tDialogBackUpOnly : public tDialogMessageString {   /* 152 bytes */
     /* FEDialog methods */
     /* SYM: `94 Def class EXT type FCN VOID` -- returns nothing */
     void ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval, tMenuCommand &command);
-    ~tDialogBackUpOnly();
 
 };
 
 struct tDialogYesNoMem : public tDialogYesNo {   /* 168 bytes */
     /* FEDialog methods */
     void ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command );
-    ~tDialogYesNoMem();
 
 };
 
 struct tDialogYesNoTri : public tDialogYesNo {   /* 168 bytes */
     /* FEDialog methods */
     void ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command );
-    ~tDialogYesNoTri();
 
 };
 
@@ -5272,7 +5259,6 @@ struct tScreenMain : public tScreen {   /* 1464 bytes */
     void PreLoad();
     void Initialize();
     void Cleanup();
-    ~tScreenMain();
 };
 
 struct MCRDFILE_def {   /* 44 bytes */
@@ -5356,7 +5342,6 @@ struct tScreenCarSelectDuel : public tScreenCarSelect {   /* 976 bytes */
     tShapeInformation  fOpponentShapes;   /* +0x3A8 */
     tScreenCarSelectDuel();
     /* --- reconstructed member fns (Duel) --- */
-    ~tScreenCarSelectDuel();
     void PreLoad();
     void AllocateAsyncBuffer();
     void FreeAsyncBuffer();
@@ -5442,7 +5427,6 @@ struct tScreenPinkSlipStandings : public tScreenTournamentStandings3item {   /* 
     tScreenPinkSlipStandings();
     void DrawBackground();
     int ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);  /* returns menu-cmd value */
-    ~tScreenPinkSlipStandings();
 };
 
 struct tScreenTrophyRoom : public tScreen {   /* 344 bytes */
@@ -5478,7 +5462,6 @@ struct tScreenTrophyInfo : public tScreen {   /* 104 bytes */
     /* --- reconstructed member fns (ScreenTrophyInfo.obj; non-virtual, ABI-neutral) --- */
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
     void DrawBackground();
-    ~tScreenTrophyInfo();
 };
 
 struct tScreenDisplay : public tScreen {   /* 100 bytes */
@@ -5486,7 +5469,6 @@ struct tScreenDisplay : public tScreen {   /* 100 bytes */
     /* --- reconstructed member fns (ScreenDisplay.obj; non-virtual, ABI-neutral) --- */
     void DrawBackground();
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
-    ~tScreenDisplay();
 };
 
 struct tScreenAudio : public tScreen {   /* 124 bytes */
@@ -5506,7 +5488,6 @@ struct tScreenAudio : public tScreen {   /* 124 bytes */
     tScreenAudio();
     void Initialize();
     void Cleanup();
-    ~tScreenAudio();
 };
 
 struct tScreenMemcard : public tScreen {   /* 1444 bytes */
@@ -5542,7 +5523,6 @@ struct tScreenMemcard : public tScreen {   /* 1444 bytes */
     void ReleaseIcons();
     void Initialize();
     void Cleanup();
-    ~tScreenMemcard();
 };
 
 struct tScreenCongrats : public tScreen {   /* 388 bytes */
@@ -5567,7 +5547,6 @@ struct tScreenCongrats : public tScreen {   /* 388 bytes */
     void CalculatePrizes();
     void Initialize();
     void ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);
-    ~tScreenCongrats();
 };
 
 struct tScreenTournamentTrophy : public tScreenCongrats {   /* 392 bytes */
@@ -5578,7 +5557,6 @@ struct tScreenTournamentTrophy : public tScreenCongrats {   /* 392 bytes */
     int GetCar(tCarInfo &car);
     void DrawCongratsMessage();
     void CalculatePrizes();
-    ~tScreenTournamentTrophy();
 };
 
 struct tScreenPinkSlipCongrats : public tScreenCongrats {   /* 392 bytes */
@@ -5589,7 +5567,6 @@ struct tScreenPinkSlipCongrats : public tScreenCongrats {   /* 392 bytes */
     void CalculatePrizes();
     void Initialize();
     void Cleanup();
-    ~tScreenPinkSlipCongrats();
 };
 
 struct tScreenBeTheCopCongrats : public tScreenCongrats {   /* 388 bytes */
@@ -5597,7 +5574,6 @@ struct tScreenBeTheCopCongrats : public tScreenCongrats {   /* 388 bytes */
     int GetCar(tCarInfo &car);
     void CalculatePrizes();
     void DrawCongratsMessage();
-    ~tScreenBeTheCopCongrats();
 };
 
 struct tScreenTournamentCongrats : public tScreenCongrats {   /* 388 bytes */
@@ -5605,7 +5581,6 @@ struct tScreenTournamentCongrats : public tScreenCongrats {   /* 388 bytes */
     int GetCar(tCarInfo &car);
     void CalculatePrizes();
     void DrawCongratsMessage();
-    ~tScreenTournamentCongrats();
 };
 
 struct tScreenTrackRecords : public tScreen {   /* 116 bytes */
@@ -5620,7 +5595,6 @@ struct tScreenTrackRecords : public tScreen {   /* 116 bytes */
     void DrawOneRecord(int index, bool newrecord, int y);
     void DrawRecords(short maxitem);
     void DrawBackground();
-    ~tScreenTrackRecords();
 };
 
 struct tScreenTrackSelect : public tScreen {   /* 672 bytes */
@@ -5643,7 +5617,6 @@ struct tScreenTrackSelect : public tScreen {   /* 672 bytes */
     void UpdateVideoWall(tTrackInformation &trackInfo);
     void DrawVideoWall();
     void ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);  /* SYM: FCN VOID */
-    ~tScreenTrackSelect();
 };
 
 struct tScreenTrackInfo : public tScreen {   /* 676 bytes */
@@ -5656,7 +5629,6 @@ struct tScreenTrackInfo : public tScreen {   /* 676 bytes */
     void DrawBackground();
     void Initialize();
     void ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);
-    ~tScreenTrackInfo();
 };
 
 struct tScreenPinkSlips : public tScreen {   /* 712 bytes */
@@ -5677,7 +5649,6 @@ struct tScreenPinkSlips : public tScreen {   /* 712 bytes */
     void UpdateVideoWall(tTrackInformation &trackInfo);
     void DrawVideoWall();
     void ProcessInput(tPlayer fromPlayer, tInputKeyType &keyval, tMenuCommand &command);
-    ~tScreenPinkSlips();
 };
 
 struct tAllScreens {   /* 15320 bytes */

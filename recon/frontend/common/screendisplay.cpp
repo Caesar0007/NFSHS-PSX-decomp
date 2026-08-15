@@ -38,10 +38,11 @@ void tScreenDisplay::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char
 }
 
 /* ---- tScreenDisplay::~tScreenDisplay  (screendisplay.cpp:41) ---- */
-tScreenDisplay::~tScreenDisplay()
-
-{
-  return;
-}
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___7tScreen the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___7tScreen(void *);
+extern "C" void ___14tScreenDisplay(void *thisp) { ___7tScreen(thisp); }
 
 /* end of screendisplay.cpp */

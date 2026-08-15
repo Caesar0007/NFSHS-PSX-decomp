@@ -2893,12 +2893,12 @@ __asm__(
 
 
 /* ---- tScreenCarSelectDuel::dtor  [SCREENCARSELECT.CPP:285-2230] ---- */
-tScreenCarSelectDuel::~tScreenCarSelectDuel()
-
-{
-  /* retail dtor is empty -- only the implicit base ~tScreenCarSelect runs */
-  return;
-}
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___16tScreenCarSelect the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___16tScreenCarSelect(void *);
+extern "C" void ___20tScreenCarSelectDuel(void *thisp) { ___16tScreenCarSelect(thisp); }
 
 
 

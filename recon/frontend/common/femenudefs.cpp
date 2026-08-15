@@ -3041,11 +3041,12 @@ void tBlankMenuItemGoToMenuNFS4Button::Draw(bool) {}  /* @0x800321D0 */
 
 /* ---- tBlankMenuItemGoToMenuNFS4Button::dtor  [FEMENUDEFS.CPP:?] ---- */
 
-tBlankMenuItemGoToMenuNFS4Button::~tBlankMenuItemGoToMenuNFS4Button()
-
-{
-  return;
-}
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___27tMenuItemGoToMenuNFS4Button the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___27tMenuItemGoToMenuNFS4Button(void *);
+extern "C" void ___32tBlankMenuItemGoToMenuNFS4Button(void *thisp) { ___27tMenuItemGoToMenuNFS4Button(thisp); }
 
 
 
@@ -3060,11 +3061,12 @@ void tBlankMenuItemNFS4LeftRightChoice::Draw(int, int, bool) {}  /* @0x80032200 
 
 /* ---- tBlankMenuItemNFS4LeftRightChoice::dtor  [FEMENUDEFS.CPP:?] ---- */
 
-tBlankMenuItemNFS4LeftRightChoice::~tBlankMenuItemNFS4LeftRightChoice()
-
-{
-  return;
-}
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___28tMenuItemNFS4LeftRightChoice the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___28tMenuItemNFS4LeftRightChoice(void *);
+extern "C" void ___33tBlankMenuItemNFS4LeftRightChoice(void *thisp) { ___28tMenuItemNFS4LeftRightChoice(thisp); }
 
 
 

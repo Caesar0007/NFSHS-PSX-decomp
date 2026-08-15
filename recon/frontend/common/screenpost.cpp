@@ -453,33 +453,32 @@ int tScreenPinkSlipStandings::ProcessInput(tPlayer fromPlayer,tInputKeyType &key
 
 
 /* ---- tScreenPinkSlipStandings::dtor  [SCREENPOST.CPP:82-406] ---- */
-tScreenPinkSlipStandings::~tScreenPinkSlipStandings()
-
-{
-  /* MATCH: empty body — the declared base dtor auto-fires (jal ___7tScreen). */
-  return;
-}
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___7tScreen the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___7tScreen(void *);
+extern "C" void ___24tScreenPinkSlipStandings(void *thisp) { ___7tScreen(thisp); }
 
 
 
 /* ---- tScreenTournamentStandings3item::dtor  [SCREENPOST.CPP:72-406] ---- */
-tScreenTournamentStandings3item::~tScreenTournamentStandings3item()
-
-{
-  /* MATCH: empty body — the declared base dtor auto-fires (jal ___7tScreen). */
-  return;
-}
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___7tScreen the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___7tScreen(void *);
+extern "C" void ___31tScreenTournamentStandings3item(void *thisp) { ___7tScreen(thisp); }
 
 
 
 /* ---- tScreenTournamentStandings::dtor  [SCREENPOST.CPP:64-406] ---- */
-tScreenTournamentStandings::~tScreenTournamentStandings()
-
-{
-  /* MATCH: empty body — Ghidra's dead locals (tt/wwwww/colb/colf/i/sBuildOutput/
-     trackInfo/string) inflated the frame; the declared base dtor auto-fires. */
-  return;
-}
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___7tScreen the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___7tScreen(void *);
+extern "C" void ___26tScreenTournamentStandings(void *thisp) { ___7tScreen(thisp); }
 
 
 

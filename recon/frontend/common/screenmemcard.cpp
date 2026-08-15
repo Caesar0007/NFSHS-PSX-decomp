@@ -1026,10 +1026,11 @@ void tScreenMemcard::Cleanup()
    non-polymorphic inheritance (struct tScreenMemcard : public tScreen), a SHARED-HEADER
    change in nfs4_types.h (forbidden here; would also rebuild every tScreenMemcard
    accessor per gotcha #0). Left as a documented near-miss. */
-tScreenMemcard::~tScreenMemcard()
-
-{
-  return;
-}
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___7tScreen the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___7tScreen(void *);
+extern "C" void ___14tScreenMemcard(void *thisp) { ___7tScreen(thisp); }
 
 /* end of screenmemcard.cpp */

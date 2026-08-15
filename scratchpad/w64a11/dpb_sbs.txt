@@ -1,0 +1,136 @@
+  Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef: FAIL 73 diffs (ours 105 / oracle 106)
+      -sra v0,a3,8
+      -addiu a3,a3,255
+      -sra v0,a3,8
+      +addu v0,a3,zero
+      +addiu v0,a3,255
+      +sra v0,v0,8
+      -addu v0,a1,zero
+      -bgez a1,T
+      +addu a3,a1,zero
+      +bgez a3,T
+      +addu v0,a3,zero
+      +addiu v0,a3,255
+ours=105 oracle=106
+   0 addiu sp,sp,-112                     |    0 addiu sp,sp,-112
+   1 sw s1,100(sp)                        |    1 sw s1,100(sp)
+   2 addu s1,a0,zero                      |    2 addu s1,a0,zero
+   3 lui v0,1                             |    3 lui v0,1
+   4 sw ra,104(sp)                        |    4 sw ra,104(sp)
+   5 sw s0,96(sp)                         |    5 sw s0,96(sp)
+   6 sw a1,116(sp)                        |    6 sw a1,116(sp)
+   7 sw a2,120(sp)                        |    7 sw a2,120(sp)
+   8 sw a3,124(sp)                        |    8 sw a3,124(sp)
+   9 sw zero,40(sp)                       |    9 sw zero,40(sp)
+  10 sw v0,44(sp)                         |   10 sw v0,44(sp)
+  11 sw zero,48(sp)                       |   11 sw zero,48(sp)
+  12 bgez a3,T                            |   12 bgez a3,T
+  13 sra v0,a3,8                        X |   13 addu v0,a3,zero
+  14 addiu a3,a3,255                    X |   14 addiu v0,a3,255
+  15 sra v0,a3,8                        X |   15 sra v0,v0,8
+  16 sll v0,v0,8                          |   16 sll v0,v0,8
+  17 negu v0,v0                           |   17 negu v0,v0
+  18 sw v0,24(sp)                         |   18 sw v0,24(sp)
+  19 addu v0,a1,zero                    X |   19 addu a3,a1,zero
+  20 bgez a1,T                          X |   20 bgez a3,T
+                                        X |   21 addu v0,a3,zero
+                                        X |   22 addiu v0,a3,255
+  21 sw zero,28(sp)                       |   23 sw zero,28(sp)
+  22 addiu v0,a1,255                    X |      
+  23 sra v1,v0,8                          |   24 sra v1,v0,8
+                                        X |   25 addu v0,a2,zero
+                                        X |   26 bgez a2,T
+  24 sll t3,v1,8                          |   27 sll t3,v1,8
+                                        X |   28 addiu v0,a2,255
+  25 sw t3,32(sp)                         |   29 sw t3,32(sp)
+                                        X |   30 sra a1,v0,8
+  26 lw v0,172(s1)                        |   31 lw v0,172(s1)
+  27 nop                                  |   32 nop
+  28 bgez v0,T                            |   33 bgez v0,T
+  29 nop                                  |   34 nop
+  30 addiu v0,v0,255                      |   35 addiu v0,v0,255
+  31 sra v0,v0,8                          |   36 sra v0,v0,8
+  32 mult v1,v0                           |   37 mult v1,v0
+  33 mflo a0                              |   38 mflo a0
+  34 bgez a2,T                          X |      
+  35 nop                                X |      
+  36 addiu a2,a2,255                    X |      
+  37 lw v0,176(s1)                        |   39 lw v0,176(s1)
+  38 nop                                  |   40 nop
+  39 bgez v0,T                            |   41 bgez v0,T
+  40 sra a2,a2,8                        X |   42 nop
+  41 addiu v0,v0,255                      |   43 addiu v0,v0,255
+  42 sra v0,v0,8                          |   44 sra v0,v0,8
+  43 mult a2,v0                         X |   45 mult a1,v0
+  44 lw v1,124(sp)                      X |   46 lw t2,124(sp)
+                                        X |   47 nop
+                                        X |   48 addu v1,t2,zero
+  45 mflo t4                              |   49 mflo t4
+  46 bgez v1,T                          X |   50 bgez t2,T
+  47 addu a1,a0,t4                      X |   51 addu a0,a0,t4
+  48 addiu v1,v1,255                    X |   52 addiu v1,t2,255
+  49 lw v0,180(s1)                        |   53 lw v0,180(s1)
+  50 nop                                  |   54 nop
+  51 bgez v0,T                            |   55 bgez v0,T
+  52 sra v1,v1,8                          |   56 sra v1,v1,8
+  53 addiu v0,v0,255                      |   57 addiu v0,v0,255
+  54 sra v0,v0,8                          |   58 sra v0,v0,8
+  55 mult v1,v0                           |   59 mult v1,v0
+  56 mflo t4                              |   60 mflo t4
+  57 addu a1,a1,t4                      X |   61 addu v0,a0,t4
+  58 bgez a1,T                          X |      
+  59 negu v0,a1                         X |      
+  60 negu a1,a1                         X |      
+  61 negu v0,a1                         X |      
+  62 bgez v0,T                            |   62 bgez v0,T
+  63 sra a1,v0,4                        X |   63 nop
+                                        X |   64 negu v0,v0
+                                        X |   65 negu v0,v0
+                                        X |   66 bgez v0,T
+                                        X |   67 sra v1,v0,4
+  64 addiu v0,v0,15                       |   68 addiu v0,v0,15
+  65 sra a1,v0,4                        X |   69 sra v1,v0,4
+  66 slti v0,a1,-1965                   X |   70 slti v0,v1,-1965
+  67 bnez v0,T                          X |   71 beqz v0,T
+  68 nop                                X |      
+  69 li a1,-1966                          |   72 li a1,-1966
+  70 lw v0,116(sp)                      X |   73 addu a1,v1,zero
+                                        X |   74 addu a0,s1,zero
+                                        X |   75 sw a3,56(sp)
+                                        X |   76 lw v0,120(sp)
+  71 lw v1,44(sp)                         |   77 lw v1,44(sp)
+  72 lw a3,48(sp)                         |   78 lw a3,48(sp)
+  73 lw t0,24(sp)                         |   79 lw t0,24(sp)
+  74 lw t1,28(sp)                         |   80 lw t1,28(sp)
+  75 sw v0,56(sp)                       X |   81 addiu a2,sp,56
+  76 lw v0,120(sp)                      X |   82 sw t2,64(sp)
+  77 addu a0,s1,zero                    X |   83 sw zero,68(sp)
+                                        X |   84 sw t3,88(sp)
+  78 sw v0,60(sp)                         |   85 sw v0,60(sp)
+  79 lw t2,124(sp)                      X |      
+  80 lw v0,40(sp)                       X |      
+  81 addiu a2,sp,56                     X |      
+  82 sw v1,72(sp)                         |   86 sw v1,72(sp)
+  83 sw a3,76(sp)                         |   87 sw a3,76(sp)
+  84 sw t0,80(sp)                         |   88 sw t0,80(sp)
+                                        X |   89 jal T
+  85 sw t1,84(sp)                         |   90 sw t1,84(sp)
+  86 sw t3,88(sp)                       X |      
+  87 sw v0,68(sp)                       X |      
+  88 jal T                              X |      
+  89 sw t2,64(sp)                       X |      
+  90 li a0,4                              |   91 li a0,4
+  91 jal T                                |   92 jal T
+  92 addu s0,v0,zero                      |   93 addu s0,v0,zero
+  93 lw v0,124(sp)                        |   94 lw v0,124(sp)
+  94 addu a0,s1,zero                      |   95 addu a0,s1,zero
+  95 sw v0,16(sp)                         |   96 sw v0,16(sp)
+  96 lw a2,116(sp)                        |   97 lw a2,116(sp)
+  97 lw a3,120(sp)                        |   98 lw a3,120(sp)
+  98 jal T                                |   99 jal T
+  99 addu a1,s0,zero                      |  100 addu a1,s0,zero
+ 100 lw ra,104(sp)                        |  101 lw ra,104(sp)
+ 101 lw s1,100(sp)                        |  102 lw s1,100(sp)
+ 102 lw s0,96(sp)                         |  103 lw s0,96(sp)
+ 103 jr ra                                |  104 jr ra
+ 104 addiu sp,sp,112                      |  105 addiu sp,sp,112

@@ -1,0 +1,134 @@
+Newton_TestForUndrivableSurfaces__FP13BO_tNewtonObj: 66 diff insns across 22 blocks (ours 468 / oracle 470; -g twin EXACT)
+
+-- block 1 [replace]  ours[3:5]  oracle[3:7] --
+  ours     3  sw s3,148(sp)                      <- :2148  {
+  ours     4  addu s3,zero,zero                  <- :2161  collision_type = 0;
+  oracle   3  sw s6,160(sp)                      [800a2e90 SLD:2161]
+  oracle   4  addu s6,zero,zero                  [800a2e94 SLD:2163]
+  oracle   5  addiu a0,sp,64                     [800a2e98 SLD:2171]
+  oracle   6  addu a1,s6,zero                    [800a2e9c SLD:2171]
+
+-- block 2 [delete]  ours[8:9]  oracle[10:10] --
+  ours     8  sw s6,160(sp)                      <- :2148  {
+
+-- block 3 [insert]  ours[11:11]  oracle[12:13] --
+  oracle  12  sw s3,148(sp)                      [800a2eb4 SLD:2161]
+
+-- block 4 [delete]  ours[13:15]  oracle[15:15] --
+  ours    13  addiu a0,sp,64                     <- :2166  memset((u_char *)&speedVec,'\0',0xc);
+  ours    14  addu a1,s3,zero                    <- :2166  memset((u_char *)&speedVec,'\0',0xc);
+
+-- block 5 [delete]  ours[75:77]  oracle[75:75] --
+  ours    75  sw zero,132(sp)                    <- :2174  local_2c = 0;
+  ours    76  addu s5,s1,zero                    <- :2175  pBVar13 = newtonObj;
+
+-- block 6 [replace]  ours[78:80]  oracle[76:78] --
+  ours    78  addiu s6,s7,0                      <- :2176  do {
+  ours    79  addiu s4,s5,8                      <- :2176  do {
+  oracle  76  addiu s3,s7,0                      [800a2fb4 SLD:2179]
+  oracle  77  addiu s4,s1,8                      [800a2fb8 SLD:2179]
+
+-- block 7 [insert]  ours[82:82]  oracle[80:82] --
+  oracle  80  addu s5,s1,zero                    [800a2fc4 SLD:2179]
+  oracle  81  sw zero,132(sp)                    [800a2fc8 SLD:2179]
+
+-- block 8 [replace]  ours[85:86]  oracle[85:86] --
+  ours    85  addu a1,s6,zero                    <- :2187  ;
+  oracle  85  addu a1,s3,zero                    [800a2fd8 SLD:2185]
+
+-- block 9 [replace]  ours[106:107]  oracle[106:107] --
+  ours   106  lb a0,90(s6)                       <- :2188  if ((signed char)testSimRoadInfo.offEdge != 0) {
+  oracle 106  lb a0,90(s3)                       [800a302c SLD:2188]
+
+-- block 10 [replace]  ours[116:117]  oracle[116:117] --
+  ours   116  li s3,1                            <- :2193  collision_type = 1;
+  oracle 116  li s6,1                            [800a3054 SLD:2194]
+
+-- block 11 [replace]  ours[118:119]  oracle[118:119] --
+  ours   118  addu a1,s6,zero                    <- :2196  iVar12 = Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi(newtonObj,&testSimRoadI
+  oracle 118  addu a1,s3,zero                    [800a305c SLD:2197]
+
+-- block 12 [replace]  ours[124:125]  oracle[124:125] --
+  ours   124  addu v0,s6,zero                    <- :2201  newtestSimRoadInfo = testSimRoadInfo;
+  oracle 124  addu v0,s3,zero                    [800a3074 SLD:2199]
+
+-- block 13 [replace]  ours[157:159]  oracle[157:159] --
+  ours   157  li s3,2                            <- :2206  if (check == 1) {
+  ours   158  bne s0,s3,T                        <- :2210  else if (check == 2) {
+  oracle 157  li s6,2                            [800a30f8 SLD:2205]
+  oracle 158  bne s0,s6,T                        [800a30fc SLD:2210]
+
+-- block 14 [replace]  ours[265:267]  oracle[265:267] --
+  ours   265  lui v0,0                           <- :2261  quadPt = testSimRoadInfo.quadPts;
+  ours   266  addiu a2,v0,0                      <- :2261  quadPt = testSimRoadInfo.quadPts;
+  oracle 265  lui a2,0                           [800a32a8 SLD:2275]
+  oracle 266  addiu a2,a2,0                      [800a32ac SLD:2275]
+
+-- block 15 [replace]  ours[273:274]  oracle[273:274] --
+  ours   273  lw v0,120(s6)                      <- :2264  if (testSimRoadInfo.simQuad != (Trk_NewSimQuad *)0x0) {
+  oracle 273  lw v0,120(s3)                      [800a32c8 SLD:2278]
+
+-- block 16 [replace]  ours[337:339]  oracle[337:339] --
+  ours   337  lui v0,0                           <- :2299  quadPt = testSimRoadInfo.quadPts;
+  ours   338  addiu a2,v0,0                      <- :2299  quadPt = testSimRoadInfo.quadPts;
+  oracle 337  lui a2,0                           [800a33c8 SLD:2298]
+  oracle 338  addiu a2,a2,0                      [800a33cc SLD:2298]
+
+-- block 17 [replace]  ours[345:346]  oracle[345:346] --
+  ours   345  lw v0,120(s6)                      <- :2302  if (testSimRoadInfo.simQuad != (Trk_NewSimQuad *)0x0) {
+  oracle 345  lw v0,120(s3)                      [800a33e8 SLD:2301]
+
+-- block 18 [replace]  ours[411:412]  oracle[411:414] --
+  ours   411  beqz s3,T                          <- :2328  if (collision_type != 0) {
+  oracle 411  beqz s6,T                          [800a34f0 SLD:2321]
+  oracle 412  addu t3,zero,zero                  [800a34f4 SLD:2321]
+  oracle 413  bnez t3,T                          [800a34f8 SLD:2327]
+
+-- block 19 [replace]  ours[418:424]  oracle[420:426] --
+  ours   418  lw t3,652(s5)                      <- :2333  *(coorddef *)((char *)pBVar13 + 0x28c);
+  ours   419  lw t4,656(s5)                      <- :2333  *(coorddef *)((char *)pBVar13 + 0x28c);
+  ours   420  lw t5,660(s5)                      <- :2333  *(coorddef *)((char *)pBVar13 + 0x28c);
+  ours   421  sw t3,416(s1)                      <- :2333  *(coorddef *)((char *)pBVar13 + 0x28c);
+  ours   422  sw t4,420(s1)                      <- :2333  *(coorddef *)((char *)pBVar13 + 0x28c);
+  ours   423  sw t5,424(s1)                      <- :2333  *(coorddef *)((char *)pBVar13 + 0x28c);
+  oracle 420  lw t4,652(s5)                      [800a3514 SLD:2330]
+  oracle 421  lw t5,656(s5)                      [800a3518 SLD:2330]
+  oracle 422  lw t1,660(s5)                      [800a351c SLD:2330]
+  oracle 423  sw t4,416(s1)                      [800a3520 SLD:2330]
+  oracle 424  sw t5,420(s1)                      [800a3524 SLD:2330]
+  oracle 425  sw t1,424(s1)                      [800a3528 SLD:2330]
+
+-- block 20 [replace]  ours[451:452]  oracle[453:454] --
+  ours   451  lw t2,132(sp)                      <- :2354  local_2c = local_2c + 2;
+  oracle 453  lw t3,132(sp)                      [800a3598 SLD:2361]
+
+-- block 21 [replace]  ours[453:454]  oracle[455:456] --
+  ours   453  addiu t2,t2,2                      <- :2354  local_2c = local_2c + 2;
+  oracle 455  addiu t3,t3,2                      [800a35a0 SLD:2361]
+
+-- block 22 [replace]  ours[455:456]  oracle[457:458] --
+  ours   455  sw t2,132(sp)                      <- :2355  } while( true );
+  oracle 457  sw t3,132(sp)                      [800a35a8 SLD:2361]
+
+SOURCE-STATEMENT HOTSPOTS (our diff insns per line):
+    6  :2333   *(coorddef *)((char *)pBVar13 + 0x28c);
+    2  :2148   {
+    2  :2166   memset((u_char *)&speedVec,'\0',0xc);
+    2  :2176   do {
+    2  :2261   quadPt = testSimRoadInfo.quadPts;
+    2  :2299   quadPt = testSimRoadInfo.quadPts;
+    2  :2354   local_2c = local_2c + 2;
+    1  :2161   collision_type = 0;
+    1  :2174   local_2c = 0;
+    1  :2175   pBVar13 = newtonObj;
+    1  :2187   ;
+    1  :2188   if ((signed char)testSimRoadInfo.offEdge != 0) {
+    1  :2193   collision_type = 1;
+    1  :2196   iVar12 = Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi(newtonObj,&testSimRoadI
+    1  :2201   newtestSimRoadInfo = testSimRoadInfo;
+    1  :2206   if (check == 1) {
+    1  :2210   else if (check == 2) {
+    1  :2264   if (testSimRoadInfo.simQuad != (Trk_NewSimQuad *)0x0) {
+    1  :2302   if (testSimRoadInfo.simQuad != (Trk_NewSimQuad *)0x0) {
+    1  :2328   if (collision_type != 0) {
+    1  :2355   } while( true );

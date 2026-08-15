@@ -1888,15 +1888,6 @@ extern "C" void Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coordd
   if (distRetreat < 0) {
     distRetreat = -distRetreat;
   }
-  /* MATCH (w64-a11): 73 -> 71.  reorg was EAGER-STEALING the unary minus of the
-     next statement into the abs-guard's `bgez` delay slot, so ours emitted THREE
-     negus (`negu $v0,$a1` in the slot + `negu $a1,$a1; negu $v0,$a1`) where
-     retail has an empty slot and TWO in-place ones (`bgez $v0; nop; negu $v0,$v0;
-     negu $v0,$v0`).  A void-tail fence AFTER the abs block is the barrier.
-     POSITION SWEEP: after the abs 71 | before the `if (distRetreat < 0)` 73
-     (inert -- the steal is from the fall-through THREAD, so the fence must sit
-     between the two statements, not ahead of the guard). */
-  __asm__("" : : "i"(0));
   /* MATCH (w55-a11): plain `/0x10` replaces a hand-written `if(x<0)x+=0xf; x>>=4`
      guard -- that guard IS gcc's own signed power-of-2 divide (83->81, and a
      semantic correction: the hand form was a transcription of the codegen). */
@@ -2007,27 +1998,7 @@ extern "C" void Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coordd
      read-only fence on normal.x 76 / .y 76 / .z 75 | m[1] or m[2] read through a
      volatile view 73 (neutral) | a 3rd void fence before/after the dot or before
      the abs 73 (neutral).  13B identity-launder is FALSIFIED here in every
-     placement; the remaining lever class is the qty STRUCTURE of the two divides.
-     W64-A11 LANDED 73 -> 71 via a void-tail fence after the abs (receipt at the
-     site).  THE RESIDUAL IS NOW FULLY MAPPED -- retail's parameter usage read
-     straight off the oracle .s:
-       normal.x ($a1 in): COPIED once (`addu $a3,$a1,$zero`) BEFORE its divide,
-         and that ONE copy also feeds islandMatrix.m[0] (`sw $a3,56($sp)`);
-       normal.y ($a2 in): parm reg for the divide, RE-READ from the spill slot
-         (`lw $v0,120($sp)`) for m[1];
-       normal.z ($a3 in): parm reg for the FIRST divide, then RE-READ from the
-         spill (`lw $t2,124($sp)`) and copied (`addu $v1,$t2,$zero`) for BOTH the
-         dot term AND m[2] -- one re-read serving two uses.
-     MEASURED THIS WAVE ON THIS BASIN (all worse, do not retry):
-       `int nz2 = *(volatile int*)&normal.z;` feeding the dot AND m[2] (the
-         t2-serves-two-uses model) 81 @105;
-       + `int nx = normal.x;` feeding barrierVec.z, the dot x-term and m[0] (the
-         a3-copy model) 89 @101 -- gcc coalesces the copy and CSEs 4 insns of real
-         work away, the same direction w59-a2's `int normalX` failed in.
-     So named locals reproduce retail's DATAFLOW but not its codegen: every
-     spelling that makes the copy explicit gets it copy-propagated.  The copy must
-     be bought by the DESTINATION (14D split-the-divide-onto-the-same-variable),
-     not by naming the source. */
+     placement; the remaining lever class is the qty STRUCTURE of the two divides. */
   islandMatrix.m[0] = normal.x;
   islandMatrix.m[1] = normal.y;
   islandMatrix.m[2] = normal.z;
@@ -2171,30 +2142,7 @@ Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi(int newtonObj,int test
    `addu $tN,$zero,$zero` + `bnez` and gates COUNT-EXACT 470/470 (72 diffs -- LCS is
    non-monotone, 09K).  NOT LANDED: that is scaffolding nobody would write, and the
    residual after it is the pure $s3<->$s6 + $t3/$t4/$t5/$t1 seat rotation.  Naming
-   the real lvalue is the one remaining question on this fn.
-   W64-A11 -- THE PLAIN-LOCAL FAMILY IS DECISIVELY FALSIFIED, and that SHARPENS
-   the angle to one property.  Four natural spellings of a zero flag, each gated:
-     V1 `int hit = 0;` as the first stmt of the collision_type block, with
-        `if (hit != 0) return;` after it -> 70 @468 (folded, count unchanged)
-     V2 same but decl and assignment split                      -> 70 @468
-     V3 fn-scope `int hit;` assigned 0 inside the block         -> 70 @468
-     V4 fn-scope `int hit;` assigned 0 BEFORE the collision_type test and tested
-        inside it (so the guard's own branch sits between def and use) -> 70 @468
-   ALL FOUR fold: cse records the constant and jump.c deletes the compare, even
-   across the intervening conditional branch.  => the tested lvalue is not merely
-   SYM-invisible, it must be OPAQUE TO cse AT THE GUARD while still living in a
-   REGISTER (a memory local costs lw+nop -- measured 74 @472 on newHeight; a
-   global costs the same lw).  The only device in the kit with that exact profile
-   is the identity launder, which is why the laundered zero reproduces the shape
-   COUNT-EXACT (470/470) and nothing natural does.  The open question is therefore
-   narrower than "name the lvalue": what 1998 source produces a register-resident
-   value that gcc-2.8 cannot prove constant at this point?
-   ALSO FALSIFIED HERE this wave (the A3 mid-wave fence-CFG law, checked as
-   asked): the 4-operand read-only fence is NOT what suppresses the missing pair
-   -- removing it leaves the count at 468 and costs 10 diffs (70 -> 80).  And the
-   fence-operand sweep RE-PRICED on this basin: n=3 74 | n=4 70 | n=5 70 |
-   n=6 70 | n=7 70 | n=8 90 -- the 4..7 plateau still holds and no operand count
-   reaches the $s3<->$s6 seat. */
+   the real lvalue is the one remaining question on this fn. */
 void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
 
 {

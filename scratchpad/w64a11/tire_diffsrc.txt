@@ -1,0 +1,42 @@
+Physics_CalculateTireForces__FP8Car_tObjP23Physics_tWheelAccStruct: 21 diff insns across 6 blocks (ours 347 / oracle 346; -g twin EXACT)
+
+-- block 1 [replace]  ours[51:52]  oracle[51:52] --
+  ours    51  slt v0,a0,v1                       <- :1896  ((gGasRatio < 0x4001) || ((u_char)(carObj->control).gear < 2))) {
+  oracle  51  slt v0,v1,a0                       [800abb08 SLD:1847]
+
+-- block 2 [replace]  ours[56:58]  oracle[56:58] --
+  ours    56  slt v0,a0,v1                       <- :1896  ((gGasRatio < 0x4001) || ((u_char)(carObj->control).gear < 2))) {
+  ours    57  beqz v0,T                          <- :1897  wheel->acc = (wheel->acc < wheel->velCap.z) ? wheel->acc : wheel->velCap.z;
+  oracle  56  slt v0,v1,a0                       [800abb1c SLD:1847]
+  oracle  57  bnez v0,T                          [800abb20 SLD:1849]
+
+-- block 3 [replace]  ours[261:262]  oracle[261:262] --
+  ours   261  sw a2,28(s1)                       <- :1984  wheel->finalAcc.x = wheel->velCap.x;
+  oracle 261  addu v1,a2,zero                    [800abe50 SLD:1944]
+
+-- block 4 [replace]  ours[274:278]  oracle[274:279] --
+  ours   274  addu v1,s0,zero                    <- :2002  roadGrip) / 2;
+  ours   275  negu v1,v1                         <- :2002  roadGrip) / 2;
+  ours   276  slt v0,v1,a1                       <- :2002  roadGrip) / 2;
+  ours   277  bnez v0,T                          <- :2002  roadGrip) / 2;
+  oracle 274  addu a0,s0,zero                    [800abe84 SLD:1949]
+  oracle 275  negu a0,a0                         [800abe88 SLD:1949]
+  oracle 276  slt v0,a0,a1                       [800abe8c SLD:1949]
+  oracle 277  beqz v0,T                          [800abe90 SLD:1949]
+  oracle 278  nop                                [800abe94 SLD:1949]
+
+-- block 5 [delete]  ours[279:280]  oracle[280:280] --
+  ours   279  addu a0,v1,zero                    <- :2002  roadGrip) / 2;
+
+-- block 6 [replace]  ours[307:309]  oracle[307:308] --
+  ours   307  negu v0,v0                         <- :2027  if (-__builtin_abs(latAcc) < wheel->velCap.x) {
+  ours   308  addu v1,v0,zero                    <- :2031  xAcc = -__builtin_abs(latAcc);
+  oracle 307  negu v1,v0                         [800abf08 SLD:1959]
+
+SOURCE-STATEMENT HOTSPOTS (our diff insns per line):
+    5  :2002   roadGrip) / 2;
+    2  :1896   ((gGasRatio < 0x4001) || ((u_char)(carObj->control).gear < 2))) {
+    1  :1897   wheel->acc = (wheel->acc < wheel->velCap.z) ? wheel->acc : wheel->velCap.z;
+    1  :1984   wheel->finalAcc.x = wheel->velCap.x;
+    1  :2027   if (-__builtin_abs(latAcc) < wheel->velCap.x) {
+    1  :2031   xAcc = -__builtin_abs(latAcc);

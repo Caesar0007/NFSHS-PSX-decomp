@@ -1,0 +1,1282 @@
+  Physics_Real__FP8Car_tObj: FAIL 6 diffs (ours 1272 / oracle 1272)
+      +lw a2,52(sp)
+      +lw a0,100(sp)
+      -lw v0,52(sp)
+      -lw a0,100(sp)
+      -addu a0,v0,a0
+      +addu a0,a2,a0
+ours=1272 oracle=1272
+   0 addiu sp,sp,-280                     |    0 addiu sp,sp,-280
+   1 sw s5,268(sp)                        |    1 sw s5,268(sp)
+   2 addu s5,a0,zero                      |    2 addu s5,a0,zero
+   3 lui v0,0                             |    3 lui v0,0
+   4 sw ra,276(sp)                        |    4 sw ra,276(sp)
+   5 sw s6,272(sp)                        |    5 sw s6,272(sp)
+   6 sw s4,264(sp)                        |    6 sw s4,264(sp)
+   7 sw s3,260(sp)                        |    7 sw s3,260(sp)
+   8 sw s2,256(sp)                        |    8 sw s2,256(sp)
+   9 sw s1,252(sp)                        |    9 sw s1,252(sp)
+  10 sw s0,248(sp)                        |   10 sw s0,248(sp)
+  11 sw zero,1036(s5)                     |   11 sw zero,1036(s5)
+  12 sw zero,1040(s5)                     |   12 sw zero,1040(s5)
+  13 sw zero,1044(s5)                     |   13 sw zero,1044(s5)
+  14 lw v0,0(v0)                          |   14 lw v0,0(v0)
+  15 lw s6,1124(s5)                       |   15 lw s6,1124(s5)
+  16 li s0,1                              |   16 li s0,1
+  17 sw s0,0(gp)                          |   17 sw s0,0(gp)
+  18 sw s0,0(gp)                          |   18 sw s0,0(gp)
+  19 beqz v0,T                            |   19 beqz v0,T
+  20 nop                                  |   20 nop
+  21 jal T                                |   21 jal T
+  22 addiu a0,s5,8                        |   22 addiu a0,s5,8
+  23 xor v0,v0,s0                         |   23 xor v0,v0,s0
+  24 beqz v0,T                            |   24 beqz v0,T
+  25 nop                                  |   25 nop
+  26 sw s0,0(gp)                          |   26 sw s0,0(gp)
+  27 j T                                  |   27 j T
+  28 nop                                  |   28 nop
+  29 sw zero,0(gp)                        |   29 sw zero,0(gp)
+  30 lw v0,684(s5)                        |   30 lw v0,684(s5)
+  31 nop                                  |   31 nop
+  32 beqz v0,T                            |   32 beqz v0,T
+  33 nop                                  |   33 nop
+  34 lw v0,732(s5)                        |   34 lw v0,732(s5)
+  35 nop                                  |   35 nop
+  36 beqz v0,T                            |   36 beqz v0,T
+  37 nop                                  |   37 nop
+  38 lw v0,392(s5)                        |   38 lw v0,392(s5)
+  39 nop                                  |   39 nop
+  40 slti v0,v0,3277                      |   40 slti v0,v0,3277
+  41 bnez v0,T                            |   41 bnez v0,T
+  42 nop                                  |   42 nop
+  43 sw zero,0(gp)                        |   43 sw zero,0(gp)
+  44 lw v0,780(s5)                        |   44 lw v0,780(s5)
+  45 nop                                  |   45 nop
+  46 beqz v0,T                            |   46 beqz v0,T
+  47 nop                                  |   47 nop
+  48 lw v0,828(s5)                        |   48 lw v0,828(s5)
+  49 nop                                  |   49 nop
+  50 beqz v0,T                            |   50 beqz v0,T
+  51 nop                                  |   51 nop
+  52 lw v0,392(s5)                        |   52 lw v0,392(s5)
+  53 nop                                  |   53 nop
+  54 slti v0,v0,3277                      |   54 slti v0,v0,3277
+  55 bnez v0,T                            |   55 bnez v0,T
+  56 nop                                  |   56 nop
+  57 sw zero,0(gp)                        |   57 sw zero,0(gp)
+  58 lw a0,172(s5)                        |   58 lw a0,172(s5)
+  59 lw a1,452(s5)                        |   59 lw a1,452(s5)
+  60 jal T                                |   60 jal T
+  61 nop                                  |   61 nop
+  62 lw a0,176(s5)                        |   62 lw a0,176(s5)
+  63 lw a1,456(s5)                        |   63 lw a1,456(s5)
+  64 jal T                                |   64 jal T
+  65 addu s0,v0,zero                      |   65 addu s0,v0,zero
+  66 lw a0,180(s5)                        |   66 lw a0,180(s5)
+  67 lw a1,460(s5)                        |   67 lw a1,460(s5)
+  68 jal T                                |   68 jal T
+  69 addu s1,v0,zero                      |   69 addu s1,v0,zero
+  70 addu s0,s0,s1                        |   70 addu s0,s0,s1
+  71 lw a0,172(s5)                        |   71 lw a0,172(s5)
+  72 lw a1,464(s5)                        |   72 lw a1,464(s5)
+  73 addu s0,s0,v0                        |   73 addu s0,s0,v0
+  74 jal T                                |   74 jal T
+  75 sw s0,1048(s5)                       |   75 sw s0,1048(s5)
+  76 lw a0,176(s5)                        |   76 lw a0,176(s5)
+  77 lw a1,468(s5)                        |   77 lw a1,468(s5)
+  78 jal T                                |   78 jal T
+  79 addu s0,v0,zero                      |   79 addu s0,v0,zero
+  80 lw a0,180(s5)                        |   80 lw a0,180(s5)
+  81 lw a1,472(s5)                        |   81 lw a1,472(s5)
+  82 jal T                                |   82 jal T
+  83 addu s1,v0,zero                      |   83 addu s1,v0,zero
+  84 addu s0,s0,s1                        |   84 addu s0,s0,s1
+  85 lw a0,172(s5)                        |   85 lw a0,172(s5)
+  86 lw a1,476(s5)                        |   86 lw a1,476(s5)
+  87 addu s0,s0,v0                        |   87 addu s0,s0,v0
+  88 jal T                                |   88 jal T
+  89 sw s0,1052(s5)                       |   89 sw s0,1052(s5)
+  90 lw a0,176(s5)                        |   90 lw a0,176(s5)
+  91 lw a1,480(s5)                        |   91 lw a1,480(s5)
+  92 jal T                                |   92 jal T
+  93 addu s0,v0,zero                      |   93 addu s0,v0,zero
+  94 lw a0,180(s5)                        |   94 lw a0,180(s5)
+  95 lw a1,484(s5)                        |   95 lw a1,484(s5)
+  96 jal T                                |   96 jal T
+  97 addu s1,v0,zero                      |   97 addu s1,v0,zero
+  98 addu s0,s0,s1                        |   98 addu s0,s0,s1
+  99 lw a0,276(s5)                        |   99 lw a0,276(s5)
+ 100 lw a1,452(s5)                        |  100 lw a1,452(s5)
+ 101 addu s0,s0,v0                        |  101 addu s0,s0,v0
+ 102 jal T                                |  102 jal T
+ 103 sw s0,1056(s5)                       |  103 sw s0,1056(s5)
+ 104 lw a0,280(s5)                        |  104 lw a0,280(s5)
+ 105 lw a1,456(s5)                        |  105 lw a1,456(s5)
+ 106 jal T                                |  106 jal T
+ 107 addu s0,v0,zero                      |  107 addu s0,v0,zero
+ 108 lw a0,284(s5)                        |  108 lw a0,284(s5)
+ 109 lw a1,460(s5)                        |  109 lw a1,460(s5)
+ 110 jal T                                |  110 jal T
+ 111 addu s1,v0,zero                      |  111 addu s1,v0,zero
+ 112 addu s0,s0,s1                        |  112 addu s0,s0,s1
+ 113 lw a0,276(s5)                        |  113 lw a0,276(s5)
+ 114 lw a1,464(s5)                        |  114 lw a1,464(s5)
+ 115 addu s0,s0,v0                        |  115 addu s0,s0,v0
+ 116 jal T                                |  116 jal T
+ 117 sw s0,1060(s5)                       |  117 sw s0,1060(s5)
+ 118 lw a0,280(s5)                        |  118 lw a0,280(s5)
+ 119 lw a1,468(s5)                        |  119 lw a1,468(s5)
+ 120 jal T                                |  120 jal T
+ 121 addu s0,v0,zero                      |  121 addu s0,v0,zero
+ 122 lw a0,284(s5)                        |  122 lw a0,284(s5)
+ 123 lw a1,472(s5)                        |  123 lw a1,472(s5)
+ 124 jal T                                |  124 jal T
+ 125 addu s1,v0,zero                      |  125 addu s1,v0,zero
+ 126 addu s0,s0,s1                        |  126 addu s0,s0,s1
+ 127 lw a0,276(s5)                        |  127 lw a0,276(s5)
+ 128 lw a1,476(s5)                        |  128 lw a1,476(s5)
+ 129 addu s0,s0,v0                        |  129 addu s0,s0,v0
+ 130 jal T                                |  130 jal T
+ 131 sw s0,1064(s5)                       |  131 sw s0,1064(s5)
+ 132 lw a0,280(s5)                        |  132 lw a0,280(s5)
+ 133 lw a1,480(s5)                        |  133 lw a1,480(s5)
+ 134 jal T                                |  134 jal T
+ 135 addu s0,v0,zero                      |  135 addu s0,v0,zero
+ 136 lw a0,284(s5)                        |  136 lw a0,284(s5)
+ 137 lw a1,484(s5)                        |  137 lw a1,484(s5)
+ 138 jal T                                |  138 jal T
+ 139 addu s1,v0,zero                      |  139 addu s1,v0,zero
+ 140 addu s0,s0,s1                        |  140 addu s0,s0,s1
+ 141 addu s0,s0,v0                        |  141 addu s0,s0,v0
+ 142 lw a1,1056(s5)                       |  142 lw a1,1056(s5)
+ 143 lui v0,5                             |  143 lui v0,5
+ 144 slt v0,v0,a1                         |  144 slt v0,v0,a1
+ 145 beqz v0,T                            |  145 beqz v0,T
+ 146 sw s0,1068(s5)                       |  146 sw s0,1068(s5)
+ 147 lw a0,1048(s5)                       |  147 lw a0,1048(s5)
+ 148 jal T                                |  148 jal T
+ 149 nop                                  |  149 nop
+ 150 j T                                  |  150 j T
+ 151 sw v0,1144(s5)                       |  151 sw v0,1144(s5)
+ 152 sw zero,1144(s5)                     |  152 sw zero,1144(s5)
+ 153 lw v0,1048(s5)                       |  153 lw v0,1048(s5)
+ 154 nop                                  |  154 nop
+ 155 sll v0,v0,5                          |  155 sll v0,v0,5
+ 156 negu v0,v0                           |  156 negu v0,v0
+ 157 srl v1,v0,31                         |  157 srl v1,v0,31
+ 158 addu v0,v0,v1                        |  158 addu v0,v0,v1
+ 159 sra v0,v0,1                          |  159 sra v0,v0,1
+ 160 sw v0,144(sp)                        |  160 sw v0,144(sp)
+ 161 lw v0,1052(s5)                       |  161 lw v0,1052(s5)
+ 162 nop                                  |  162 nop
+ 163 sll v0,v0,5                          |  163 sll v0,v0,5
+ 164 negu v0,v0                           |  164 negu v0,v0
+ 165 srl v1,v0,31                         |  165 srl v1,v0,31
+ 166 addu v0,v0,v1                        |  166 addu v0,v0,v1
+ 167 sra v0,v0,1                          |  167 sra v0,v0,1
+ 168 sw v0,148(sp)                        |  168 sw v0,148(sp)
+ 169 lw v0,1056(s5)                       |  169 lw v0,1056(s5)
+ 170 nop                                  |  170 nop
+ 171 sll v0,v0,5                          |  171 sll v0,v0,5
+ 172 negu v0,v0                           |  172 negu v0,v0
+ 173 srl v1,v0,31                         |  173 srl v1,v0,31
+ 174 addu v0,v0,v1                        |  174 addu v0,v0,v1
+ 175 sra v0,v0,1                          |  175 sra v0,v0,1
+ 176 sw v0,152(sp)                        |  176 sw v0,152(sp)
+ 177 lw a0,280(s5)                        |  177 lw a0,280(s5)
+ 178 lw a1,452(s6)                        |  178 lw a1,452(s6)
+ 179 jal T                                |  179 jal T
+ 180 sll a0,a0,5                          |  180 sll a0,a0,5
+ 181 addu a0,zero,zero                    |  181 addu a0,zero,zero
+ 182 lui v1,65526                         |  182 lui v1,65526
+ 183 negu s2,v0                           |  183 negu s2,v0
+ 184 srl v0,s2,31                         |  184 srl v0,s2,31
+ 185 addu s2,s2,v0                        |  185 addu s2,s2,v0
+ 186 sw zero,112(sp)                      |  186 sw zero,112(sp)
+ 187 sw v1,116(sp)                        |  187 sw v1,116(sp)
+ 188 sw zero,120(sp)                      |  188 sw zero,120(sp)
+ 189 lw a1,452(s5)                        |  189 lw a1,452(s5)
+ 190 jal T                                |  190 jal T
+ 191 sra s2,s2,1                          |  191 sra s2,s2,1
+ 192 lw a0,116(sp)                        |  192 lw a0,116(sp)
+ 193 lw a1,456(s5)                        |  193 lw a1,456(s5)
+ 194 jal T                                |  194 jal T
+ 195 addu s0,v0,zero                      |  195 addu s0,v0,zero
+ 196 lw a0,120(sp)                        |  196 lw a0,120(sp)
+ 197 lw a1,460(s5)                        |  197 lw a1,460(s5)
+ 198 jal T                                |  198 jal T
+ 199 addu s1,v0,zero                      |  199 addu s1,v0,zero
+ 200 lui s3,0                             |  200 lui s3,0
+ 201 addu s0,s0,s1                        |  201 addu s0,s0,s1
+ 202 lw a0,112(sp)                        |  202 lw a0,112(sp)
+ 203 addu s0,s0,v0                        |  203 addu s0,s0,v0
+ 204 sw s0,0(s3)                          |  204 sw s0,0(s3)
+ 205 lw a1,464(s5)                        |  205 lw a1,464(s5)
+ 206 jal T                                |  206 jal T
+ 207 addiu s4,s3,0                        |  207 addiu s4,s3,0
+ 208 lw a0,116(sp)                        |  208 lw a0,116(sp)
+ 209 lw a1,468(s5)                        |  209 lw a1,468(s5)
+ 210 jal T                                |  210 jal T
+ 211 addu s0,v0,zero                      |  211 addu s0,v0,zero
+ 212 lw a0,120(sp)                        |  212 lw a0,120(sp)
+ 213 lw a1,472(s5)                        |  213 lw a1,472(s5)
+ 214 jal T                                |  214 jal T
+ 215 addu s1,v0,zero                      |  215 addu s1,v0,zero
+ 216 addu s0,s0,s1                        |  216 addu s0,s0,s1
+ 217 lw a0,112(sp)                        |  217 lw a0,112(sp)
+ 218 addu s0,s0,v0                        |  218 addu s0,s0,v0
+ 219 sw s0,4(s4)                          |  219 sw s0,4(s4)
+ 220 lw a1,476(s5)                        |  220 lw a1,476(s5)
+ 221 jal T                                |  221 jal T
+ 222 nop                                  |  222 nop
+ 223 lw a0,116(sp)                        |  223 lw a0,116(sp)
+ 224 lw a1,480(s5)                        |  224 lw a1,480(s5)
+ 225 jal T                                |  225 jal T
+ 226 addu s0,v0,zero                      |  226 addu s0,v0,zero
+ 227 lw a0,120(sp)                        |  227 lw a0,120(sp)
+ 228 lw a1,484(s5)                        |  228 lw a1,484(s5)
+ 229 jal T                                |  229 jal T
+ 230 addu s1,v0,zero                      |  230 addu s1,v0,zero
+ 231 addu a0,s5,zero                      |  231 addu a0,s5,zero
+ 232 addu s0,s0,s1                        |  232 addu s0,s0,s1
+ 233 addu s0,s0,v0                        |  233 addu s0,s0,v0
+ 234 sw s0,8(s4)                          |  234 sw s0,8(s4)
+ 235 lw v1,144(sp)                        |  235 lw v1,144(sp)
+ 236 lw a1,148(sp)                        |  236 lw a1,148(sp)
+ 237 lw a2,152(sp)                        |  237 lw a2,152(sp)
+ 238 addu v0,v1,s2                        |  238 addu v0,v1,s2
+ 239 subu v1,v1,s2                        |  239 subu v1,v1,s2
+ 240 sw v0,32(sp)                         |  240 sw v0,32(sp)
+ 241 sw a1,36(sp)                         |  241 sw a1,36(sp)
+ 242 sw a2,40(sp)                         |  242 sw a2,40(sp)
+ 243 sw v1,80(sp)                         |  243 sw v1,80(sp)
+ 244 sw a1,84(sp)                         |  244 sw a1,84(sp)
+ 245 jal T                                |  245 jal T
+ 246 sw a2,88(sp)                         |  246 sw a2,88(sp)
+ 247 lw v1,0(s3)                          |  247 lw v1,0(s3)
+ 248 nop                                  |  248 nop
+ 249 bgez v1,T                            |  249 bgez v1,T
+ 250 nop                                  |  250 nop
+ 251 addiu v1,v1,255                      |  251 addiu v1,v1,255
+ 252 sra v1,v1,8                          |  252 sra v1,v1,8
+ 253 sll v0,v1,1                          |  253 sll v0,v1,1
+ 254 addu v0,v0,v1                        |  254 addu v0,v0,v1
+ 255 sll v1,v0,8                          |  255 sll v1,v0,8
+ 256 bgez v1,T                            |  256 bgez v1,T
+ 257 li v0,65535                          |  257 li v0,65535
+ 258 addu v1,v1,v0                        |  258 addu v1,v1,v0
+ 259 lw v0,1104(s5)                       |  259 lw v0,1104(s5)
+ 260 sra s0,v1,16                         |  260 sra s0,v1,16
+ 261 addu v1,v0,s0                        |  261 addu v1,v0,s0
+ 262 slti v0,v1,128                       |  262 slti v0,v1,128
+ 263 bnez v0,T                            |  263 bnez v0,T
+ 264 slti v0,v1,-127                      |  264 slti v0,v1,-127
+ 265 j T                                  |  265 j T
+ 266 li v1,127                            |  266 li v1,127
+ 267 beqz v0,T                            |  267 beqz v0,T
+ 268 nop                                  |  268 nop
+ 269 li v1,-127                           |  269 li v1,-127
+ 270 lw v0,268(s6)                        |  270 lw v0,268(s6)
+ 271 nop                                  |  271 nop
+ 272 mult v1,v0                           |  272 mult v1,v0
+ 273 mflo v0                              |  273 mflo v0
+ 274 bgez v0,T                            |  274 bgez v0,T
+ 275 sra a1,v0,7                          |  275 sra a1,v0,7
+ 276 addiu v0,v0,127                      |  276 addiu v0,v0,127
+ 277 sra a1,v0,7                          |  277 sra a1,v0,7
+ 278 sw a1,28(sp)                         |  278 sw a1,28(sp)
+ 279 lw v0,536(s5)                        |  279 lw v0,536(s5)
+ 280 lw v1,540(s5)                        |  280 lw v1,540(s5)
+ 281 nop                                  |  281 nop
+ 282 addu v0,v0,v1                        |  282 addu v0,v0,v1
+ 283 lw v1,544(s5)                        |  283 lw v1,544(s5)
+ 284 lw a0,572(s5)                        |  284 lw a0,572(s5)
+ 285 addu v0,v0,v1                        |  285 addu v0,v0,v1
+ 286 addu v1,v0,a0                        |  286 addu v1,v0,a0
+ 287 bgez v1,T                            |  287 bgez v1,T
+ 288 addu v0,v1,zero                      |  288 addu v0,v1,zero
+ 289 addiu v0,v1,511                      |  289 addiu v0,v1,511
+ 290 sra v1,v0,9                          |  290 sra v1,v0,9
+ 291 addu a0,a1,zero                      |  291 addu a0,a1,zero
+ 292 lui v0,1                             |  292 lui v0,1
+ 293 bgez a0,T                            |  293 bgez a0,T
+ 294 subu v0,v0,v1                        |  294 subu v0,v0,v1
+ 295 addiu a0,a0,255                      |  295 addiu a0,a0,255
+ 296 bgez v0,T                            |  296 bgez v0,T
+ 297 sra v1,a0,8                          |  297 sra v1,a0,8
+ 298 addiu v0,v0,255                      |  298 addiu v0,v0,255
+ 299 sra v0,v0,8                          |  299 sra v0,v0,8
+ 300 mult v1,v0                           |  300 mult v1,v0
+ 301 mflo t0                              |  301 mflo t0
+ 302 sw t0,28(sp)                         |  302 sw t0,28(sp)
+ 303 lw a0,1056(s5)                       |  303 lw a0,1056(s5)
+ 304 lui v0,60                            |  304 lui v0,60
+ 305 slt v0,v0,a0                         |  305 slt v0,v0,a0
+ 306 beqz v0,T                            |  306 beqz v0,T
+ 307 lui v0,26                            |  307 lui v0,26
+ 308 jal T                                |  308 jal T
+ 309 li a1,1092                           |  309 li a1,1092
+ 310 lw a0,28(sp)                         |  310 lw a0,28(sp)
+ 311 jal T                                |  311 jal T
+ 312 addu a1,v0,zero                      |  312 addu a1,v0,zero
+ 313 sw v0,28(sp)                         |  313 sw v0,28(sp)
+ 314 lui v0,26                            |  314 lui v0,26
+ 315 lw v1,1056(s5)                       |  315 lw v1,1056(s5)
+ 316 ori v0,v0,45875                      |  316 ori v0,v0,45875
+ 317 slt v0,v0,v1                         |  317 slt v0,v0,v1
+ 318 beqz v0,T                            |  318 beqz v0,T
+ 319 lui v0,13                            |  319 lui v0,13
+ 320 lw v1,1144(s5)                       |  320 lw v1,1144(s5)
+ 321 nop                                  |  321 nop
+ 322 slti v0,v1,3277                      |  322 slti v0,v1,3277
+ 323 bnez v0,T                            |  323 bnez v0,T
+ 324 slti v0,v1,-3276                     |  324 slti v0,v1,-3276
+ 325 lw v0,28(sp)                         |  325 lw v0,28(sp)
+ 326 nop                                  |  326 nop
+ 327 bgtz v0,T                            |  327 bgtz v0,T
+ 328 slti v0,v1,-3276                     |  328 slti v0,v1,-3276
+ 329 j T                                  |  329 j T
+ 330 nop                                  |  330 nop
+ 331 ori v0,v0,26214                      |  331 ori v0,v0,26214
+ 332 slt v0,v0,v1                         |  332 slt v0,v0,v1
+ 333 beqz v0,T                            |  333 beqz v0,T
+ 334 addu a0,s5,zero                      |  334 addu a0,s5,zero
+ 335 lw v1,1144(s5)                       |  335 lw v1,1144(s5)
+ 336 nop                                  |  336 nop
+ 337 slti v0,v1,9831                      |  337 slti v0,v1,9831
+ 338 bnez v0,T                            |  338 bnez v0,T
+ 339 slti v0,v1,-9830                     |  339 slti v0,v1,-9830
+ 340 lw v0,28(sp)                         |  340 lw v0,28(sp)
+ 341 nop                                  |  341 nop
+ 342 bgtz v0,T                            |  342 bgtz v0,T
+ 343 slti v0,v1,-9830                     |  343 slti v0,v1,-9830
+ 344 beqz v0,T                            |  344 beqz v0,T
+ 345 addu a0,s5,zero                      |  345 addu a0,s5,zero
+ 346 lw v0,28(sp)                         |  346 lw v0,28(sp)
+ 347 nop                                  |  347 nop
+ 348 bgez v0,T                            |  348 bgez v0,T
+ 349 li v0,1                              |  349 li v0,1
+ 350 lw v0,1144(s5)                       |  350 lw v0,1144(s5)
+ 351 lui a1,1                             |  351 lui a1,1
+ 352 bgez v0,T                            |  352 bgez v0,T
+ 353 nop                                  |  353 nop
+ 354 negu v0,v0                           |  354 negu v0,v0
+ 355 sll v1,v0,1                          |  355 sll v1,v0,1
+ 356 addu v0,a1,zero                      |  356 addu v0,a1,zero
+ 357 slt v0,v0,v1                         |  357 slt v0,v0,v1
+ 358 bnez v0,T                            |  358 bnez v0,T
+ 359 nop                                  |  359 nop
+ 360 addu a1,v1,zero                      |  360 addu a1,v1,zero
+ 361 lw a0,28(sp)                         |  361 lw a0,28(sp)
+ 362 jal T                                |  362 jal T
+ 363 nop                                  |  363 nop
+ 364 sw v0,28(sp)                         |  364 sw v0,28(sp)
+ 365 addu a0,s5,zero                      |  365 addu a0,s5,zero
+ 366 li v0,1                              |  366 li v0,1
+ 367 sw zero,76(sp)                       |  367 sw zero,76(sp)
+ 368 sw v0,56(sp)                         |  368 sw v0,56(sp)
+ 369 jal T                                |  369 jal T
+ 370 sw zero,104(sp)                      |  370 sw zero,104(sp)
+ 371 addu a0,v0,zero                      |  371 addu a0,v0,zero
+ 372 bgez a0,T                            |  372 bgez a0,T
+ 373 addu v1,a0,zero                      |  373 addu v1,a0,zero
+ 374 addiu v1,a0,255                      |  374 addiu v1,a0,255
+ 375 lw v0,248(s6)                        |  375 lw v0,248(s6)
+ 376 nop                                  |  376 nop
+ 377 bgez v0,T                            |  377 bgez v0,T
+ 378 sra v1,v1,8                          |  378 sra v1,v1,8
+ 379 addiu v0,v0,255                      |  379 addiu v0,v0,255
+ 380 sra v0,v0,8                          |  380 sra v0,v0,8
+ 381 mult v1,v0                           |  381 mult v1,v0
+ 382 lw v1,0(gp)                          |  382 lw v1,0(gp)
+ 383 mflo v0                              |  383 mflo v0
+ 384 sw v0,16(sp)                         |  384 sw v0,16(sp)
+ 385 subu v0,a0,v0                        |  385 subu v0,a0,v0
+ 386 bnez v1,T                            |  386 bnez v1,T
+ 387 sw v0,64(sp)                         |  387 sw v0,64(sp)
+ 388 lw v0,0(gp)                          |  388 lw v0,0(gp)
+ 389 nop                                  |  389 nop
+ 390 bnez v0,T                            |  390 bnez v0,T
+ 391 nop                                  |  391 nop
+ 392 sw zero,1156(s5)                     |  392 sw zero,1156(s5)
+ 393 j T                                  |  393 j T
+ 394 sw zero,1160(s5)                     |  394 sw zero,1160(s5)
+ 395 lw v1,0(gp)                          |  395 lw v1,0(gp)
+ 396 nop                                  |  396 nop
+ 397 bgez v1,T                            |  397 bgez v1,T
+ 398 sw zero,1004(s5)                     |  398 sw zero,1004(s5)
+ 399 addiu v1,v1,255                      |  399 addiu v1,v1,255
+ 400 lw v0,252(s6)                        |  400 lw v0,252(s6)
+ 401 nop                                  |  401 nop
+ 402 bgez v0,T                            |  402 bgez v0,T
+ 403 sra a0,v1,8                          |  403 sra a0,v1,8
+ 404 addiu v0,v0,255                      |  404 addiu v0,v0,255
+ 405 sra v0,v0,8                          |  405 sra v0,v0,8
+ 406 mult a0,v0                           |  406 mult a0,v0
+ 407 lw v0,1056(s5)                       |  407 lw v0,1056(s5)
+ 408 nop                                  |  408 nop
+ 409 bgez v0,T                            |  409 bgez v0,T
+ 410 nop                                  |  410 nop
+ 411 negu v0,v0                           |  411 negu v0,v0
+ 412 sll v0,v0,5                          |  412 sll v0,v0,5
+ 413 addu a0,v0,zero                      |  413 addu a0,v0,zero
+ 414 mflo s0                              |  414 mflo s0
+ 415 slt v0,a0,s0                         |  415 slt v0,a0,s0
+ 416 bnez v0,T                            |  416 bnez v0,T
+ 417 nop                                  |  417 nop
+ 418 addu a0,s0,zero                      |  418 addu a0,s0,zero
+ 419 lw v1,572(s5)                        |  419 lw v1,572(s5)
+ 420 nop                                  |  420 nop
+ 421 beqz v1,T                            |  421 beqz v1,T
+ 422 addu s0,a0,zero                      |  422 addu s0,a0,zero
+ 423 bgez v1,T                            |  423 bgez v1,T
+ 424 addu a0,s0,zero                      |  424 addu a0,s0,zero
+ 425 addiu v1,v1,127                      |  425 addiu v1,v1,127
+ 426 sra v1,v1,7                          |  426 sra v1,v1,7
+ 427 lui v0,1                             |  427 lui v0,1
+ 428 bgez s0,T                            |  428 bgez s0,T
+ 429 subu v0,v0,v1                        |  429 subu v0,v0,v1
+ 430 addiu a0,s0,255                      |  430 addiu a0,s0,255
+ 431 bgez v0,T                            |  431 bgez v0,T
+ 432 sra a0,a0,8                          |  432 sra a0,a0,8
+ 433 addiu v0,v0,255                      |  433 addiu v0,v0,255
+ 434 sra v0,v0,8                          |  434 sra v0,v0,8
+ 435 mult a0,v0                           |  435 mult a0,v0
+ 436 mflo s0                              |  436 mflo s0
+ 437 lw v0,1056(s5)                       |  437 lw v0,1056(s5)
+ 438 nop                                  |  438 nop
+ 439 blez v0,T                            |  439 blez v0,T
+ 440 nop                                  |  440 nop
+ 441 negu s0,s0                           |  441 negu s0,s0
+ 442 lw a1,256(s6)                        |  442 lw a1,256(s6)
+ 443 jal T                                |  443 jal T
+ 444 addu a0,s0,zero                      |  444 addu a0,s0,zero
+ 445 lw v1,16(sp)                         |  445 lw v1,16(sp)
+ 446 nop                                  |  446 nop
+ 447 addu v1,v1,v0                        |  447 addu v1,v1,v0
+ 448 sw v1,16(sp)                         |  448 sw v1,16(sp)
+ 449 lw v1,64(sp)                         |  449 lw v1,64(sp)
+ 450 subu v0,s0,v0                        |  450 subu v0,s0,v0
+ 451 addu v1,v1,v0                        |  451 addu v1,v1,v0
+ 452 lui v0,0                             |  452 lui v0,0
+ 453 lw a0,0(v0)                          |  453 lw a0,0(v0)
+ 454 sw v1,64(sp)                         |  454 sw v1,64(sp)
+ 455 lw a1,276(s6)                        |  455 lw a1,276(s6)
+ 456 jal T                                |  456 jal T
+ 457 negu a0,a0                           |  457 negu a0,a0
+ 458 addu s1,v0,zero                      |  458 addu s1,v0,zero
+ 459 jal T                                |  459 jal T
+ 460 addu a0,s5,zero                      |  460 addu a0,s5,zero
+ 461 bgez s1,T                            |  461 bgez s1,T
+ 462 addu v1,s1,zero                      |  462 addu v1,s1,zero
+ 463 addiu v1,s1,255                      |  463 addiu v1,s1,255
+ 464 lw v0,0(gp)                          |  464 lw v0,0(gp)
+ 465 nop                                  |  465 nop
+ 466 bgez v0,T                            |  466 bgez v0,T
+ 467 sra a0,v1,8                          |  467 sra a0,v1,8
+ 468 addiu v0,v0,255                      |  468 addiu v0,v0,255
+ 469 sra v0,v0,8                          |  469 sra v0,v0,8
+ 470 mult a0,v0                           |  470 mult a0,v0
+ 471 mflo s1                              |  471 mflo s1
+ 472 bltz s1,T                            |  472 bltz s1,T
+ 473 nop                                  |  473 nop
+ 474 lw v0,0(gp)                          |  474 lw v0,0(gp)
+ 475 nop                                  |  475 nop
+ 476 beqz v0,T                            |  476 beqz v0,T
+ 477 addu a0,s1,zero                      |  477 addu a0,s1,zero
+ 478 lw a1,264(s6)                        |  478 lw a1,264(s6)
+ 479 j T                                  |  479 j T
+ 480 addiu a1,a1,655                      |  480 addiu a1,a1,655
+ 481 lw a1,264(s6)                        |  481 lw a1,264(s6)
+ 482 jal T                                |  482 jal T
+ 483 nop                                  |  483 nop
+ 484 addu s2,v0,zero                      |  484 addu s2,v0,zero
+ 485 lw v0,552(s5)                        |  485 lw v0,552(s5)
+ 486 lw v1,556(s5)                        |  486 lw v1,556(s5)
+ 487 nop                                  |  487 nop
+ 488 addu v0,v0,v1                        |  488 addu v0,v0,v1
+ 489 lw v1,560(s5)                        |  489 lw v1,560(s5)
+ 490 lw a0,572(s5)                        |  490 lw a0,572(s5)
+ 491 addu v0,v0,v1                        |  491 addu v0,v0,v1
+ 492 addu v0,v0,a0                        |  492 addu v0,v0,a0
+ 493 bgez v0,T                            |  493 bgez v0,T
+ 494 sra v1,v0,9                          |  494 sra v1,v0,9
+ 495 addiu v0,v0,511                      |  495 addiu v0,v0,511
+ 496 sra v1,v0,9                          |  496 sra v1,v0,9
+ 497 li v0,49152                          |  497 li v0,49152
+ 498 addu s0,v1,v0                        |  498 addu s0,v1,v0
+ 499 lw a0,1148(s5)                       |  499 lw a0,1148(s5)
+ 500 jal T                                |  500 jal T
+ 501 addu a1,s0,zero                      |  501 addu a1,s0,zero
+ 502 addu a0,v0,zero                      |  502 addu a0,v0,zero
+ 503 bgez a0,T                            |  503 bgez a0,T
+ 504 sw a0,1148(s5)                       |  504 sw a0,1148(s5)
+ 505 addu a1,s0,zero                      |  505 addu a1,s0,zero
+ 506 addiu v0,a0,255                      |  506 addiu v0,a0,255
+ 507 bgez a1,T                            |  507 bgez a1,T
+ 508 sra v1,v0,8                          |  508 sra v1,v0,8
+ 509 addiu a1,a1,255                      |  509 addiu a1,a1,255
+ 510 sra v0,a1,8                          |  510 sra v0,a1,8
+ 511 mult v1,v0                           |  511 mult v1,v0
+ 512 mflo t0                              |  512 mflo t0
+ 513 j T                                  |  513 j T
+ 514 sw t0,1148(s5)                       |  514 sw t0,1148(s5)
+ 515 blez a0,T                            |  515 blez a0,T
+ 516 sll v0,a0,1                          |  516 sll v0,a0,1
+ 517 addu v0,v0,a0                        |  517 addu v0,v0,a0
+ 518 bgez v0,T                            |  518 bgez v0,T
+ 519 nop                                  |  519 nop
+ 520 addiu v0,v0,3                        |  520 addiu v0,v0,3
+ 521 sra v0,v0,2                          |  521 sra v0,v0,2
+ 522 sw v0,1148(s5)                       |  522 sw v0,1148(s5)
+ 523 lw v0,1148(s5)                       |  523 lw v0,1148(s5)
+ 524 lw v1,0(gp)                          |  524 lw v1,0(gp)
+ 525 subu v0,s2,v0                        |  525 subu v0,s2,v0
+ 526 bgez v1,T                            |  526 bgez v1,T
+ 527 sw v0,20(sp)                         |  527 sw v0,20(sp)
+ 528 addiu v1,v1,255                      |  528 addiu v1,v1,255
+ 529 bgez v0,T                            |  529 bgez v0,T
+ 530 sra v1,v1,8                          |  530 sra v1,v1,8
+ 531 addiu v0,v0,255                      |  531 addiu v0,v0,255
+ 532 sra v0,v0,8                          |  532 sra v0,v0,8
+ 533 mult v1,v0                           |  533 mult v1,v0
+ 534 subu v0,s1,s2                        |  534 subu v0,s1,s2
+ 535 mflo t0                              |  535 mflo t0
+ 536 sw t0,20(sp)                         |  536 sw t0,20(sp)
+ 537 lw v1,1148(s5)                       |  537 lw v1,1148(s5)
+ 538 lw a0,0(gp)                          |  538 lw a0,0(gp)
+ 539 addu v0,v0,v1                        |  539 addu v0,v0,v1
+ 540 bgez a0,T                            |  540 bgez a0,T
+ 541 sw v0,68(sp)                         |  541 sw v0,68(sp)
+ 542 addiu a0,a0,255                      |  542 addiu a0,a0,255
+ 543 bgez v0,T                            |  543 bgez v0,T
+ 544 sra v1,a0,8                          |  544 sra v1,a0,8
+ 545 addiu v0,v0,255                      |  545 addiu v0,v0,255
+ 546 sra v0,v0,8                          |  546 sra v0,v0,8
+ 547 mult v1,v0                           |  547 mult v1,v0
+ 548 lw v0,0(gp)                          |  548 lw v0,0(gp)
+ 549 mflo t0                              |  549 mflo t0
+ 550 sw t0,68(sp)                         |  550 sw t0,68(sp)
+ 551 sw zero,1140(s5)                     |  551 sw zero,1140(s5)
+ 552 sw zero,44(sp)                       |  552 sw zero,44(sp)
+ 553 sw zero,52(sp)                       |  553 sw zero,52(sp)
+ 554 sw zero,92(sp)                       |  554 sw zero,92(sp)
+ 555 beqz v0,T                            |  555 beqz v0,T
+ 556 sw zero,100(sp)                      |  556 sw zero,100(sp)
+ 557 addu a0,s5,zero                      |  557 addu a0,s5,zero
+ 558 jal T                                |  558 jal T
+ 559 addiu a1,sp,16                       |  559 addiu a1,sp,16
+ 560 lw v0,0(gp)                          |  560 lw v0,0(gp)
+ 561 nop                                  |  561 nop
+ 562 beqz v0,T                            |  562 beqz v0,T
+ 563 addu a0,s5,zero                      |  563 addu a0,s5,zero
+ 564 jal T                                |  564 jal T
+ 565 addiu a1,sp,64                       |  565 addiu a1,sp,64
+ 566 lw v0,52(sp)                         |  566 lw v0,52(sp)
+ 567 lw v1,100(sp)                        |  567 lw v1,100(sp)
+ 568 nop                                  |  568 nop
+ 569 addu v0,v0,v1                        |  569 addu v0,v0,v1
+ 570 sw v0,1044(s5)                       |  570 sw v0,1044(s5)
+ 571 lw v0,44(sp)                         |  571 lw v0,44(sp)
+ 572 lw v1,92(sp)                         |  572 lw v1,92(sp)
+ 573 lw a0,1044(s5)                       |  573 lw a0,1044(s5)
+ 574 addu v0,v0,v1                        |  574 addu v0,v0,v1
+ 575 sw v0,1036(s5)                       |  575 sw v0,1036(s5)
+ 576 lw a1,460(s6)                        |  576 lw a1,460(s6)
+ 577 jal T                                |  577 jal T
+ 578 nop                                  |  578 nop
+ 579 addu a0,v0,zero                      |  579 addu a0,v0,zero
+ 580 lui v0,0                             |  580 lui v0,0
+ 581 sw a0,1044(s5)                       |  581 sw a0,1044(s5)
+ 582 lw v1,0(v0)                          |  582 lw v1,0(v0)
+ 583 li v0,128                            |  583 li v0,128
+ 584 bne v1,v0,T                          |  584 bne v1,v0,T
+ 585 nop                                  |  585 nop
+ 586 blez a0,T                            |  586 blez a0,T
+ 587 nop                                  |  587 nop
+ 588 lbu v0,1094(s5)                      |  588 lbu v0,1094(s5)
+ 589 nop                                  |  589 nop
+ 590 beqz v0,T                            |  590 beqz v0,T
+ 591 sll v0,a0,2                          |  591 sll v0,a0,2
+ 592 sw v0,1044(s5)                       |  592 sw v0,1044(s5)
+ 593 lw v0,0(gp)                          |  593 lw v0,0(gp)
+ 594 nop                                  |  594 nop
+ 595 bnez v0,T                            |  595 bnez v0,T
+ 596 lui v0,0                             |  596 lui v0,0
+ 597 lw v0,648(s5)                        |  597 lw v0,648(s5)
+ 598 nop                                  |  598 nop
+ 599 lw v1,56(v0)                         |  599 lw v1,56(v0)
+ 600 li v0,2                              |  600 li v0,2
+ 601 bne v1,v0,T                          |  601 bne v1,v0,T
+ 602 lui a1,1                             |  602 lui a1,1
+ 603 lbu v0,1090(s5)                      |  603 lbu v0,1090(s5)
+ 604 nop                                  |  604 nop
+ 605 sltiu v0,v0,4                        |  605 sltiu v0,v0,4
+ 606 beqz v0,T                            |  606 beqz v0,T
+ 607 nop                                  |  607 nop
+ 608 lw a0,1044(s5)                       |  608 lw a0,1044(s5)
+ 609 j T                                  |  609 j T
+ 610 ori a1,a1,9830                       |  610 ori a1,a1,9830
+ 611 lw a0,1044(s5)                       |  611 lw a0,1044(s5)
+ 612 ori a1,a1,6553                       |  612 ori a1,a1,6553
+ 613 jal T                                |  613 jal T
+ 614 nop                                  |  614 nop
+ 615 sw v0,1044(s5)                       |  615 sw v0,1044(s5)
+ 616 lui v0,0                             |  616 lui v0,0
+ 617 sw zero,1040(s5)                     |  617 sw zero,1040(s5)
+ 618 lw a0,0(v0)                          |  618 lw a0,0(v0)
+ 619 jal T                                |  619 jal T
+ 620 li a1,6553                           |  620 li a1,6553
+ 621 lw a0,1036(s5)                       |  621 lw a0,1036(s5)
+ 622 nop                                  |  622 nop
+ 623 bgez a0,T                            |  623 bgez a0,T
+ 624 negu s0,v0                           |  624 negu s0,v0
+ 625 addiu a0,a0,7                        |  625 addiu a0,a0,7
+ 626 lw a1,292(s6)                        |  626 lw a1,292(s6)
+ 627 jal T                                |  627 jal T
+ 628 sra a0,a0,3                          |  628 sra a0,a0,3
+ 629 lw a0,1044(s5)                       |  629 lw a0,1044(s5)
+ 630 negu v0,v0                           |  630 negu v0,v0
+ 631 sw v0,1152(s5)                       |  631 sw v0,1152(s5)
+ 632 lw a1,292(s6)                        |  632 lw a1,292(s6)
+ 633 jal T                                |  633 jal T
+ 634 nop                                  |  634 nop
+ 635 addu v0,v0,s0                        |  635 addu v0,v0,s0
+ 636 sw v0,1148(s5)                       |  636 sw v0,1148(s5)
+ 637 lw v0,44(sp)                         |  637 lw v0,44(sp)
+ 638 lw a0,92(sp)                         |  638 lw a0,92(sp)
+ 639 lw a1,456(s6)                        |  639 lw a1,456(s6)
+ 640 jal T                                |  640 jal T
+ 641 subu a0,v0,a0                        |  641 subu a0,v0,a0
+ 642 addu s0,v0,zero                      |  642 addu s0,v0,zero
+                                        X |  643 lw a2,52(sp)
+                                        X |  644 lw a0,100(sp)
+ 643 lw v1,0(gp)                          |  645 lw v1,0(gp)
+ 644 lw v0,52(sp)                       X |      
+ 645 lw a0,100(sp)                      X |      
+ 646 lw a1,0(gp)                          |  646 lw a1,0(gp)
+ 647 addu a0,v0,a0                      X |  647 addu a0,a2,a0
+ 648 jal T                                |  648 jal T
+ 649 subu a1,v1,a1                        |  649 subu a1,v1,a1
+ 650 lw a1,456(s6)                        |  650 lw a1,456(s6)
+ 651 jal T                                |  651 jal T
+ 652 addu a0,v0,zero                      |  652 addu a0,v0,zero
+ 653 sll v0,v0,1                          |  653 sll v0,v0,1
+ 654 addu s0,s0,v0                        |  654 addu s0,s0,v0
+ 655 sw s0,132(sp)                        |  655 sw s0,132(sp)
+ 656 lw v0,280(s5)                        |  656 lw v0,280(s5)
+ 657 nop                                  |  657 nop
+ 658 blez v0,T                            |  658 blez v0,T
+ 659 nop                                  |  659 nop
+ 660 bgtz s0,T                            |  660 bgtz s0,T
+ 661 nop                                  |  661 nop
+ 662 bgez v0,T                            |  662 bgez v0,T
+ 663 nop                                  |  663 nop
+ 664 bgez s0,T                            |  664 bgez s0,T
+ 665 nop                                  |  665 nop
+ 666 lbu v0,1093(s5)                      |  666 lbu v0,1093(s5)
+ 667 nop                                  |  667 nop
+ 668 beqz v0,T                            |  668 beqz v0,T
+ 669 lui v0,0                             |  669 lui v0,0
+ 670 lw v0,0(v0)                          |  670 lw v0,0(v0)
+ 671 nop                                  |  671 nop
+ 672 andi v0,v0,8                         |  672 andi v0,v0,8
+ 673 bnez v0,T                            |  673 bnez v0,T
+ 674 nop                                  |  674 nop
+ 675 lw v0,132(sp)                        |  675 lw v0,132(sp)
+ 676 nop                                  |  676 nop
+ 677 srl v1,v0,31                         |  677 srl v1,v0,31
+ 678 addu v0,v0,v1                        |  678 addu v0,v0,v1
+ 679 j T                                  |  679 j T
+ 680 sra v0,v0,1                          |  680 sra v0,v0,1
+ 681 lw v1,1100(s5)                       |  681 lw v1,1100(s5)
+ 682 nop                                  |  682 nop
+ 683 bgez v1,T                            |  683 bgez v1,T
+ 684 nop                                  |  684 nop
+ 685 lw v0,280(s5)                        |  685 lw v0,280(s5)
+ 686 nop                                  |  686 nop
+ 687 slti v0,v0,13108                     |  687 slti v0,v0,13108
+ 688 beqz v0,T                            |  688 beqz v0,T
+ 689 nop                                  |  689 nop
+ 690 blez v1,T                            |  690 blez v1,T
+ 691 nop                                  |  691 nop
+ 692 lw v0,280(s5)                        |  692 lw v0,280(s5)
+ 693 nop                                  |  693 nop
+ 694 slti v0,v0,-13107                    |  694 slti v0,v0,-13107
+ 695 beqz v0,T                            |  695 beqz v0,T
+ 696 nop                                  |  696 nop
+ 697 lw v1,1132(s5)                       |  697 lw v1,1132(s5)
+ 698 li v0,1                              |  698 li v0,1
+ 699 bne v1,v0,T                          |  699 bne v1,v0,T
+ 700 nop                                  |  700 nop
+ 701 lw v0,280(s5)                        |  701 lw v0,280(s5)
+ 702 j T                                  |  702 j T
+ 703 negu v0,v0                           |  703 negu v0,v0
+ 704 lw v0,1124(s5)                       |  704 lw v0,1124(s5)
+ 705 lw a0,132(sp)                        |  705 lw a0,132(sp)
+ 706 lw a1,300(v0)                        |  706 lw a1,300(v0)
+ 707 jal T                                |  707 jal T
+ 708 nop                                  |  708 nop
+ 709 sw v0,132(sp)                        |  709 sw v0,132(sp)
+ 710 addiu a0,s5,452                      |  710 addiu a0,s5,452
+ 711 addiu a1,sp,160                      |  711 addiu a1,sp,160
+ 712 sw zero,128(sp)                      |  712 sw zero,128(sp)
+ 713 jal T                                |  713 jal T
+ 714 sw zero,136(sp)                      |  714 sw zero,136(sp)
+ 715 addu a0,s5,zero                      |  715 addu a0,s5,zero
+ 716 jal T                                |  716 jal T
+ 717 addu a1,zero,zero                    |  717 addu a1,zero,zero
+ 718 lw a0,1036(s5)                       |  718 lw a0,1036(s5)
+ 719 lw a1,160(sp)                        |  719 lw a1,160(sp)
+ 720 jal T                                |  720 jal T
+ 721 nop                                  |  721 nop
+ 722 lw a0,1040(s5)                       |  722 lw a0,1040(s5)
+ 723 lw a1,164(sp)                        |  723 lw a1,164(sp)
+ 724 jal T                                |  724 jal T
+ 725 addu s0,v0,zero                      |  725 addu s0,v0,zero
+ 726 lw a0,1044(s5)                       |  726 lw a0,1044(s5)
+ 727 lw a1,168(sp)                        |  727 lw a1,168(sp)
+ 728 jal T                                |  728 jal T
+ 729 addu s1,v0,zero                      |  729 addu s1,v0,zero
+ 730 addu s0,s0,s1                        |  730 addu s0,s0,s1
+ 731 lw a0,1036(s5)                       |  731 lw a0,1036(s5)
+ 732 addu s0,s0,v0                        |  732 addu s0,s0,v0
+ 733 sw s0,1024(s5)                       |  733 sw s0,1024(s5)
+ 734 lw a1,172(sp)                        |  734 lw a1,172(sp)
+ 735 jal T                                |  735 jal T
+ 736 nop                                  |  736 nop
+ 737 lw a0,1040(s5)                       |  737 lw a0,1040(s5)
+ 738 lw a1,176(sp)                        |  738 lw a1,176(sp)
+ 739 jal T                                |  739 jal T
+ 740 addu s0,v0,zero                      |  740 addu s0,v0,zero
+ 741 lw a0,1044(s5)                       |  741 lw a0,1044(s5)
+ 742 lw a1,180(sp)                        |  742 lw a1,180(sp)
+ 743 jal T                                |  743 jal T
+ 744 addu s1,v0,zero                      |  744 addu s1,v0,zero
+ 745 addu s0,s0,s1                        |  745 addu s0,s0,s1
+ 746 lw a0,1036(s5)                       |  746 lw a0,1036(s5)
+ 747 addu s0,s0,v0                        |  747 addu s0,s0,v0
+ 748 sw s0,1028(s5)                       |  748 sw s0,1028(s5)
+ 749 lw a1,184(sp)                        |  749 lw a1,184(sp)
+ 750 jal T                                |  750 jal T
+ 751 nop                                  |  751 nop
+ 752 lw a0,1040(s5)                       |  752 lw a0,1040(s5)
+ 753 lw a1,188(sp)                        |  753 lw a1,188(sp)
+ 754 jal T                                |  754 jal T
+ 755 addu s0,v0,zero                      |  755 addu s0,v0,zero
+ 756 lw a0,1044(s5)                       |  756 lw a0,1044(s5)
+ 757 lw a1,192(sp)                        |  757 lw a1,192(sp)
+ 758 jal T                                |  758 jal T
+ 759 addu s1,v0,zero                      |  759 addu s1,v0,zero
+ 760 addu s0,s0,s1                        |  760 addu s0,s0,s1
+ 761 addu s0,s0,v0                        |  761 addu s0,s0,v0
+ 762 sw s0,1032(s5)                       |  762 sw s0,1032(s5)
+ 763 lw a0,128(sp)                        |  763 lw a0,128(sp)
+ 764 lw a1,160(sp)                        |  764 lw a1,160(sp)
+ 765 jal T                                |  765 jal T
+ 766 nop                                  |  766 nop
+ 767 lw a0,132(sp)                        |  767 lw a0,132(sp)
+ 768 lw a1,164(sp)                        |  768 lw a1,164(sp)
+ 769 jal T                                |  769 jal T
+ 770 addu s0,v0,zero                      |  770 addu s0,v0,zero
+ 771 lw a0,136(sp)                        |  771 lw a0,136(sp)
+ 772 lw a1,168(sp)                        |  772 lw a1,168(sp)
+ 773 jal T                                |  773 jal T
+ 774 addu s1,v0,zero                      |  774 addu s1,v0,zero
+ 775 addu s0,s0,s1                        |  775 addu s0,s0,s1
+ 776 addu s0,s0,v0                        |  776 addu s0,s0,v0
+ 777 sw s0,1012(s5)                       |  777 sw s0,1012(s5)
+ 778 lw a0,128(sp)                        |  778 lw a0,128(sp)
+ 779 lw a1,172(sp)                        |  779 lw a1,172(sp)
+ 780 jal T                                |  780 jal T
+ 781 nop                                  |  781 nop
+ 782 lw a0,132(sp)                        |  782 lw a0,132(sp)
+ 783 lw a1,176(sp)                        |  783 lw a1,176(sp)
+ 784 jal T                                |  784 jal T
+ 785 addu s0,v0,zero                      |  785 addu s0,v0,zero
+ 786 lw a0,136(sp)                        |  786 lw a0,136(sp)
+ 787 lw a1,180(sp)                        |  787 lw a1,180(sp)
+ 788 jal T                                |  788 jal T
+ 789 addu s1,v0,zero                      |  789 addu s1,v0,zero
+ 790 addu s0,s0,s1                        |  790 addu s0,s0,s1
+ 791 addu s0,s0,v0                        |  791 addu s0,s0,v0
+ 792 sw s0,1016(s5)                       |  792 sw s0,1016(s5)
+ 793 lw a0,128(sp)                        |  793 lw a0,128(sp)
+ 794 lw a1,184(sp)                        |  794 lw a1,184(sp)
+ 795 jal T                                |  795 jal T
+ 796 nop                                  |  796 nop
+ 797 lw a0,132(sp)                        |  797 lw a0,132(sp)
+ 798 lw a1,188(sp)                        |  798 lw a1,188(sp)
+ 799 jal T                                |  799 jal T
+ 800 addu s0,v0,zero                      |  800 addu s0,v0,zero
+ 801 lw a0,136(sp)                        |  801 lw a0,136(sp)
+ 802 lw a1,192(sp)                        |  802 lw a1,192(sp)
+ 803 jal T                                |  803 jal T
+ 804 addu s1,v0,zero                      |  804 addu s1,v0,zero
+ 805 addu s0,s0,s1                        |  805 addu s0,s0,s1
+ 806 lw v1,1024(s5)                       |  806 lw v1,1024(s5)
+ 807 addu s0,s0,v0                        |  807 addu s0,s0,v0
+ 808 bgez v1,T                            |  808 bgez v1,T
+ 809 sw s0,1020(s5)                       |  809 sw s0,1020(s5)
+ 810 addiu v1,v1,31                       |  810 addiu v1,v1,31
+ 811 sra v1,v1,5                          |  811 sra v1,v1,5
+ 812 lw v0,172(s5)                        |  812 lw v0,172(s5)
+ 813 lw a0,1028(s5)                       |  813 lw a0,1028(s5)
+ 814 addu v0,v0,v1                        |  814 addu v0,v0,v1
+ 815 bgez a0,T                            |  815 bgez a0,T
+ 816 sw v0,172(s5)                        |  816 sw v0,172(s5)
+ 817 addiu a0,a0,31                       |  817 addiu a0,a0,31
+ 818 sra v1,a0,5                          |  818 sra v1,a0,5
+ 819 lw v0,176(s5)                        |  819 lw v0,176(s5)
+ 820 lw a1,1032(s5)                       |  820 lw a1,1032(s5)
+ 821 addu v0,v0,v1                        |  821 addu v0,v0,v1
+ 822 bgez a1,T                            |  822 bgez a1,T
+ 823 sw v0,176(s5)                        |  823 sw v0,176(s5)
+ 824 addiu a1,a1,31                       |  824 addiu a1,a1,31
+ 825 sra v1,a1,5                          |  825 sra v1,a1,5
+ 826 lw v0,180(s5)                        |  826 lw v0,180(s5)
+ 827 lw a0,1012(s5)                       |  827 lw a0,1012(s5)
+ 828 addu v0,v0,v1                        |  828 addu v0,v0,v1
+ 829 bgez a0,T                            |  829 bgez a0,T
+ 830 sw v0,180(s5)                        |  830 sw v0,180(s5)
+ 831 addiu a0,a0,31                       |  831 addiu a0,a0,31
+ 832 sra v1,a0,5                          |  832 sra v1,a0,5
+ 833 lw v0,276(s5)                        |  833 lw v0,276(s5)
+ 834 lw a1,1016(s5)                       |  834 lw a1,1016(s5)
+ 835 addu v0,v0,v1                        |  835 addu v0,v0,v1
+ 836 bgez a1,T                            |  836 bgez a1,T
+ 837 sw v0,276(s5)                        |  837 sw v0,276(s5)
+ 838 addiu a1,a1,63                       |  838 addiu a1,a1,63
+ 839 sra v1,a1,6                          |  839 sra v1,a1,6
+ 840 lw v0,280(s5)                        |  840 lw v0,280(s5)
+ 841 lw a0,1020(s5)                       |  841 lw a0,1020(s5)
+ 842 addu v0,v0,v1                        |  842 addu v0,v0,v1
+ 843 bgez a0,T                            |  843 bgez a0,T
+ 844 sw v0,280(s5)                        |  844 sw v0,280(s5)
+ 845 addiu a0,a0,31                       |  845 addiu a0,a0,31
+ 846 sra v0,a0,5                          |  846 sra v0,a0,5
+ 847 lw v1,284(s5)                        |  847 lw v1,284(s5)
+ 848 lw a0,1120(s5)                       |  848 lw a0,1120(s5)
+ 849 addu v1,v1,v0                        |  849 addu v1,v1,v0
+ 850 beqz a0,T                            |  850 beqz a0,T
+ 851 sw v1,284(s5)                        |  851 sw v1,284(s5)
+ 852 lui v0,4                             |  852 lui v0,4
+ 853 lw v1,1372(s5)                       |  853 lw v1,1372(s5)
+ 854 ori v0,v0,29126                      |  854 ori v0,v0,29126
+ 855 slt v0,v0,v1                         |  855 slt v0,v0,v1
+ 856 bnez v0,T                            |  856 bnez v0,T
+ 857 nop                                  |  857 nop
+ 858 lbu v0,1090(s5)                      |  858 lbu v0,1090(s5)
+ 859 nop                                  |  859 nop
+ 860 sltiu v0,v0,2                        |  860 sltiu v0,v0,2
+ 861 bnez v0,T                            |  861 bnez v0,T
+ 862 nop                                  |  862 nop
+ 863 lbu v0,1090(s5)                      |  863 lbu v0,1090(s5)
+ 864 j T                                  |  864 j T
+ 865 sll v0,v0,2                          |  865 sll v0,v0,2
+ 866 li v0,8                              |  866 li v0,8
+ 867 lui a0,24                            |  867 lui a0,24
+ 868 addu v0,s6,v0                        |  868 addu v0,s6,v0
+ 869 lw a1,12(v0)                         |  869 lw a1,12(v0)
+ 870 j T                                  |  870 j T
+ 871 ori a0,a0,32768                      |  871 ori a0,a0,32768
+ 872 lbu v0,1090(s5)                      |  872 lbu v0,1090(s5)
+ 873 nop                                  |  873 nop
+ 874 sltiu v0,v0,2                        |  874 sltiu v0,v0,2
+ 875 bnez v0,T                            |  875 bnez v0,T
+ 876 nop                                  |  876 nop
+ 877 lbu v0,1090(s5)                      |  877 lbu v0,1090(s5)
+ 878 j T                                  |  878 j T
+ 879 sll v0,v0,2                          |  879 sll v0,v0,2
+ 880 li v0,8                              |  880 li v0,8
+ 881 addu v0,s6,v0                        |  881 addu v0,s6,v0
+ 882 lw a0,1372(s5)                       |  882 lw a0,1372(s5)
+ 883 lw a1,12(v0)                         |  883 lw a1,12(v0)
+ 884 jal T                                |  884 jal T
+ 885 nop                                  |  885 nop
+ 886 addu v1,v0,zero                      |  886 addu v1,v0,zero
+ 887 bgez v1,T                            |  887 bgez v1,T
+ 888 li v0,65535                          |  888 li v0,65535
+ 889 addu v1,v1,v0                        |  889 addu v1,v1,v0
+ 890 lbu v0,1090(s5)                      |  890 lbu v0,1090(s5)
+ 891 nop                                  |  891 nop
+ 892 sltiu v0,v0,2                        |  892 sltiu v0,v0,2
+ 893 bnez v0,T                            |  893 bnez v0,T
+ 894 sra s0,v1,16                         |  894 sra s0,v1,16
+ 895 lbu v0,1090(s5)                      |  895 lbu v0,1090(s5)
+ 896 j T                                  |  896 j T
+ 897 sll v0,v0,2                          |  897 sll v0,v0,2
+ 898 li v0,8                              |  898 li v0,8
+ 899 addu v0,s6,v0                        |  899 addu v0,s6,v0
+ 900 lw a0,1056(s5)                       |  900 lw a0,1056(s5)
+ 901 lw a1,12(v0)                         |  901 lw a1,12(v0)
+ 902 jal T                                |  902 jal T
+ 903 nop                                  |  903 nop
+ 904 addu a1,v0,zero                      |  904 addu a1,v0,zero
+ 905 bgez a1,T                            |  905 bgez a1,T
+ 906 li v0,65535                          |  906 li v0,65535
+ 907 addu a1,a1,v0                        |  907 addu a1,a1,v0
+ 908 lw v1,240(s6)                        |  908 lw v1,240(s6)
+ 909 sll v0,s0,8                          |  909 sll v0,s0,8
+ 910 div zero,v0,v1                       |  910 div zero,v0,v1
+ 911 bnez v1,T                            |  911 bnez v1,T
+ 912 nop                                  |  912 nop
+ 913 break 7                              |  913 break 7
+ 914 li at,-1                             |  914 li at,-1
+ 915 bne v1,at,T                          |  915 bne v1,at,T
+ 916 lui at,32768                         |  916 lui at,32768
+ 917 bne v0,at,T                          |  917 bne v0,at,T
+ 918 nop                                  |  918 nop
+ 919 break 6                              |  919 break 6
+ 920 mflo a0                              |  920 mflo a0
+ 921 sra v0,a1,16                         |  921 sra v0,a1,16
+ 922 subu a1,s0,v0                        |  922 subu a1,s0,v0
+ 923 slti v0,a1,201                       |  923 slti v0,a1,201
+ 924 bnez v0,T                            |  924 bnez v0,T
+ 925 slti v0,a1,200                       |  925 slti v0,a1,200
+ 926 sll v0,a1,7                          |  926 sll v0,a1,7
+ 927 div zero,v0,s0                       |  927 div zero,v0,s0
+ 928 bnez s0,T                            |  928 bnez s0,T
+ 929 nop                                  |  929 nop
+ 930 break 7                              |  930 break 7
+ 931 li at,-1                             |  931 li at,-1
+ 932 bne s0,at,T                          |  932 bne s0,at,T
+ 933 lui at,32768                         |  933 lui at,32768
+ 934 bne v0,at,T                          |  934 bne v0,at,T
+ 935 nop                                  |  935 nop
+ 936 break 6                              |  936 break 6
+ 937 mflo v0                              |  937 mflo v0
+ 938 nop                                  |  938 nop
+ 939 addu a0,a0,v0                        |  939 addu a0,a0,v0
+ 940 addu v1,a0,zero                      |  940 addu v1,a0,zero
+ 941 slti v0,v1,225                       |  941 slti v0,v1,225
+ 942 bnez v0,T                            |  942 bnez v0,T
+ 943 nop                                  |  943 nop
+ 944 li v1,224                            |  944 li v1,224
+ 945 j T                                  |  945 j T
+ 946 sb v1,1112(s5)                       |  946 sb v1,1112(s5)
+ 947 beqz v0,T                            |  947 beqz v0,T
+ 948 sll v0,a1,7                          |  948 sll v0,a1,7
+ 949 div zero,v0,s0                       |  949 div zero,v0,s0
+ 950 bnez s0,T                            |  950 bnez s0,T
+ 951 nop                                  |  951 nop
+ 952 break 7                              |  952 break 7
+ 953 li at,-1                             |  953 li at,-1
+ 954 bne s0,at,T                          |  954 bne s0,at,T
+ 955 lui at,32768                         |  955 lui at,32768
+ 956 bne v0,at,T                          |  956 bne v0,at,T
+ 957 nop                                  |  957 nop
+ 958 break 6                              |  958 break 6
+ 959 mflo v0                              |  959 mflo v0
+ 960 nop                                  |  960 nop
+ 961 addu a0,a0,v0                        |  961 addu a0,a0,v0
+ 962 bltz a0,T                            |  962 bltz a0,T
+ 963 nop                                  |  963 nop
+ 964 j T                                  |  964 j T
+ 965 sb a0,1112(s5)                       |  965 sb a0,1112(s5)
+ 966 sb zero,1112(s5)                     |  966 sb zero,1112(s5)
+ 967 bgez a1,T                            |  967 bgez a1,T
+ 968 lui v1,10922                         |  968 lui v1,10922
+ 969 sll v0,a1,9                          |  969 sll v0,a1,9
+ 970 lw v1,240(s6)                        |  970 lw v1,240(s6)
+ 971 bgez v0,T                            |  971 bgez v0,T
+ 972 nop                                  |  972 nop
+ 973 negu v0,v0                           |  973 negu v0,v0
+ 974 div zero,v0,v1                       |  974 div zero,v0,v1
+ 975 bnez v1,T                            |  975 bnez v1,T
+ 976 nop                                  |  976 nop
+ 977 break 7                              |  977 break 7
+ 978 li at,-1                             |  978 li at,-1
+ 979 bne v1,at,T                          |  979 bne v1,at,T
+ 980 lui at,32768                         |  980 lui at,32768
+ 981 bne v0,at,T                          |  981 bne v0,at,T
+ 982 nop                                  |  982 nop
+ 983 break 6                              |  983 break 6
+ 984 mflo v1                              |  984 mflo v1
+ 985 nop                                  |  985 nop
+ 986 slti v0,v1,256                       |  986 slti v0,v1,256
+ 987 bnez v0,T                            |  987 bnez v0,T
+ 988 andi v0,v1,255                       |  988 andi v0,v1,255
+ 989 li v1,255                            |  989 li v1,255
+ 990 andi v0,v1,255                       |  990 andi v0,v1,255
+ 991 sltiu v0,v0,129                      |  991 sltiu v0,v0,129
+ 992 bnez v0,T                            |  992 bnez v0,T
+ 993 sb v1,1113(s5)                       |  993 sb v1,1113(s5)
+ 994 sb zero,1112(s5)                     |  994 sb zero,1112(s5)
+ 995 lui v1,10922                         |  995 lui v1,10922
+ 996 lw v0,1380(s5)                       |  996 lw v0,1380(s5)
+ 997 ori v1,v1,43691                      |  997 ori v1,v1,43691
+ 998 bgez v0,T                            |  998 bgez v0,T
+ 999 nop                                  |  999 nop
+1000 negu v0,v0                           | 1000 negu v0,v0
+1001 mult v0,v1                           | 1001 mult v0,v1
+1002 sra v0,v0,31                         | 1002 sra v0,v0,31
+1003 mfhi t0                              | 1003 mfhi t0
+1004 sra v1,t0,16                         | 1004 sra v1,t0,16
+1005 subu a2,v1,v0                        | 1005 subu a2,v1,v0
+1006 slti v0,a2,3                         | 1006 slti v0,a2,3
+1007 lw v1,1120(s5)                       | 1007 lw v1,1120(s5)
+1008 bnez v0,T                            | 1008 bnez v0,T
+1009 sll v0,v1,1                          | 1009 sll v0,v1,1
+1010 mult v1,a2                           | 1010 mult v1,a2
+1011 mflo v1                              | 1011 mflo v1
+1012 j T                                  | 1012 j T
+1013 nop                                  | 1013 nop
+1014 addu v1,v0,v1                        | 1014 addu v1,v0,v1
+1015 bltz v1,T                            | 1015 bltz v1,T
+1016 nop                                  | 1016 nop
+1017 lh v0,8(s5)                          | 1017 lh v0,8(s5)
+1018 lui a0,0                             | 1018 lui a0,0
+1019 lw a0,0(a0)                          | 1019 lw a0,0(a0)
+1020 addu a1,v0,v1                        | 1020 addu a1,v0,v1
+1021 slt v0,a1,a0                         | 1021 slt v0,a1,a0
+1022 bnez v0,T                            | 1022 bnez v0,T
+1023 nop                                  | 1023 nop
+1024 j T                                  | 1024 j T
+1025 subu a1,a1,a0                        | 1025 subu a1,a1,a0
+1026 lh v0,8(s5)                          | 1026 lh v0,8(s5)
+1027 nop                                  | 1027 nop
+1028 addu a1,v0,v1                        | 1028 addu a1,v0,v1
+1029 bgez a1,T                            | 1029 bgez a1,T
+1030 nop                                  | 1030 nop
+1031 lui v0,0                             | 1031 lui v0,0
+1032 lw v0,0(v0)                          | 1032 lw v0,0(v0)
+1033 nop                                  | 1033 nop
+1034 addu a1,a1,v0                        | 1034 addu a1,a1,v0
+1035 sll s0,a1,5                          | 1035 sll s0,a1,5
+1036 sll a2,v1,1                          | 1036 sll a2,v1,1
+1037 addu a2,a2,v1                        | 1037 addu a2,a2,v1
+1038 lui v0,0                             | 1038 lui v0,0
+1039 lw v0,0(v0)                          | 1039 lw v0,0(v0)
+1040 bgez a2,T                            | 1040 bgez a2,T
+1041 nop                                  | 1041 nop
+1042 negu a2,a2                           | 1042 negu a2,a2
+1043 lw t0,160(s5)                        | 1043 lw t0,160(s5)
+1044 lw t1,164(s5)                        | 1044 lw t1,164(s5)
+1045 lw t2,168(s5)                        | 1045 lw t2,168(s5)
+1046 sw t0,200(sp)                        | 1046 sw t0,200(sp)
+1047 sw t1,204(sp)                        | 1047 sw t1,204(sp)
+1048 sw t2,208(sp)                        | 1048 sw t2,208(sp)
+1049 addu v0,s0,v0                        | 1049 addu v0,s0,v0
+1050 lw t0,0(v0)                          | 1050 lw t0,0(v0)
+1051 lw t1,4(v0)                          | 1051 lw t1,4(v0)
+1052 lw t2,8(v0)                          | 1052 lw t2,8(v0)
+1053 sw t0,216(sp)                        | 1053 sw t0,216(sp)
+1054 sw t1,220(sp)                        | 1054 sw t1,220(sp)
+1055 sw t2,224(sp)                        | 1055 sw t2,224(sp)
+1056 jal T                                | 1056 jal T
+1057 addu a0,s5,zero                      | 1057 addu a0,s5,zero
+1058 lui v1,0                             | 1058 lui v1,0
+1059 lw v1,0(v1)                          | 1059 lw v1,0(v1)
+1060 addu s1,v0,zero                      | 1060 addu s1,v0,zero
+1061 addu v1,s0,v1                        | 1061 addu v1,s0,v1
+1062 lb a0,18(v1)                         | 1062 lb a0,18(v1)
+1063 addu a1,s1,zero                      | 1063 addu a1,s1,zero
+1064 jal T                                | 1064 jal T
+1065 sll a0,a0,9                          | 1065 sll a0,a0,9
+1066 lui v1,0                             | 1066 lui v1,0
+1067 lw v1,0(v1)                          | 1067 lw v1,0(v1)
+1068 sw v0,232(sp)                        | 1068 sw v0,232(sp)
+1069 addu v1,s0,v1                        | 1069 addu v1,s0,v1
+1070 lb a0,19(v1)                         | 1070 lb a0,19(v1)
+1071 addu a1,s1,zero                      | 1071 addu a1,s1,zero
+1072 jal T                                | 1072 jal T
+1073 sll a0,a0,9                          | 1073 sll a0,a0,9
+1074 lui v1,0                             | 1074 lui v1,0
+1075 lw v1,0(v1)                          | 1075 lw v1,0(v1)
+1076 sw v0,236(sp)                        | 1076 sw v0,236(sp)
+1077 addu s0,s0,v1                        | 1077 addu s0,s0,v1
+1078 lb a0,20(s0)                         | 1078 lb a0,20(s0)
+1079 addu a1,s1,zero                      | 1079 addu a1,s1,zero
+1080 jal T                                | 1080 jal T
+1081 sll a0,a0,9                          | 1081 sll a0,a0,9
+1082 lw a1,216(sp)                        | 1082 lw a1,216(sp)
+1083 lw v1,232(sp)                        | 1083 lw v1,232(sp)
+1084 lw a2,220(sp)                        | 1084 lw a2,220(sp)
+1085 lw a3,236(sp)                        | 1085 lw a3,236(sp)
+1086 addu a1,a1,v1                        | 1086 addu a1,a1,v1
+1087 addu a2,a2,a3                        | 1087 addu a2,a2,a3
+1088 lw v1,224(sp)                        | 1088 lw v1,224(sp)
+1089 lw a3,200(sp)                        | 1089 lw a3,200(sp)
+1090 sw v0,240(sp)                        | 1090 sw v0,240(sp)
+1091 sw a1,216(sp)                        | 1091 sw a1,216(sp)
+1092 addu v1,v1,v0                        | 1092 addu v1,v1,v0
+1093 lw v0,204(sp)                        | 1093 lw v0,204(sp)
+1094 subu a1,a1,a3                        | 1094 subu a1,a1,a3
+1095 sw a1,216(sp)                        | 1095 sw a1,216(sp)
+1096 lw a1,208(sp)                        | 1096 lw a1,208(sp)
+1097 addiu a0,sp,216                      | 1097 addiu a0,sp,216
+1098 sw a2,220(sp)                        | 1098 sw a2,220(sp)
+1099 sw v1,224(sp)                        | 1099 sw v1,224(sp)
+1100 subu a2,a2,v0                        | 1100 subu a2,a2,v0
+1101 subu v1,v1,a1                        | 1101 subu v1,v1,a1
+1102 sw a2,220(sp)                        | 1102 sw a2,220(sp)
+1103 jal T                                | 1103 jal T
+1104 sw v1,224(sp)                        | 1104 sw v1,224(sp)
+1105 lw a0,216(sp)                        | 1105 lw a0,216(sp)
+1106 lw a1,240(s5)                        | 1106 lw a1,240(s5)
+1107 jal T                                | 1107 jal T
+1108 nop                                  | 1108 nop
+1109 lw a0,220(sp)                        | 1109 lw a0,220(sp)
+1110 lw a1,244(s5)                        | 1110 lw a1,244(s5)
+1111 jal T                                | 1111 jal T
+1112 addu s0,v0,zero                      | 1112 addu s0,v0,zero
+1113 lw a0,224(sp)                        | 1113 lw a0,224(sp)
+1114 lw a1,248(s5)                        | 1114 lw a1,248(s5)
+1115 jal T                                | 1115 jal T
+1116 addu s1,v0,zero                      | 1116 addu s1,v0,zero
+1117 addu s0,s0,s1                        | 1117 addu s0,s0,s1
+1118 addu v0,s0,v0                        | 1118 addu v0,s0,v0
+1119 bgez v0,T                            | 1119 bgez v0,T
+1120 sra s0,v0,8                          | 1120 sra s0,v0,8
+1121 addiu v0,v0,255                      | 1121 addiu v0,v0,255
+1122 sra s0,v0,8                          | 1122 sra s0,v0,8
+1123 slti v0,s0,128                       | 1123 slti v0,s0,128
+1124 bnez v0,T                            | 1124 bnez v0,T
+1125 sw s0,1116(s5)                       | 1125 sw s0,1116(s5)
+1126 j T                                  | 1126 j T
+1127 li v0,127                            | 1127 li v0,127
+1128 slti v0,s0,-127                      | 1128 slti v0,s0,-127
+1129 beqz v0,T                            | 1129 beqz v0,T
+1130 li v0,-127                           | 1130 li v0,-127
+1131 sw v0,1116(s5)                       | 1131 sw v0,1116(s5)
+1132 lui v0,0                             | 1132 lui v0,0
+1133 lw v0,0(v0)                          | 1133 lw v0,0(v0)
+1134 nop                                  | 1134 nop
+1135 andi v0,v0,8                         | 1135 andi v0,v0,8
+1136 bnez v0,T                            | 1136 bnez v0,T
+1137 nop                                  | 1137 nop
+1138 lbu v0,1087(s5)                      | 1138 lbu v0,1087(s5)
+1139 nop                                  | 1139 nop
+1140 beqz v0,T                            | 1140 beqz v0,T
+1141 nop                                  | 1141 nop
+1142 lw v0,1144(s5)                       | 1142 lw v0,1144(s5)
+1143 nop                                  | 1143 nop
+1144 bgez v0,T                            | 1144 bgez v0,T
+1145 nop                                  | 1145 nop
+1146 negu v0,v0                           | 1146 negu v0,v0
+1147 slti v0,v0,6554                      | 1147 slti v0,v0,6554
+1148 bnez v0,T                            | 1148 bnez v0,T
+1149 nop                                  | 1149 nop
+1150 lw v0,1124(s5)                       | 1150 lw v0,1124(s5)
+1151 lw a1,172(s5)                        | 1151 lw a1,172(s5)
+1152 lw a0,344(v0)                        | 1152 lw a0,344(v0)
+1153 jal T                                | 1153 jal T
+1154 nop                                  | 1154 nop
+1155 lw a1,176(s5)                        | 1155 lw a1,176(s5)
+1156 lw v1,1124(s5)                       | 1156 lw v1,1124(s5)
+1157 sw v0,172(s5)                        | 1157 sw v0,172(s5)
+1158 lw a0,344(v1)                        | 1158 lw a0,344(v1)
+1159 jal T                                | 1159 jal T
+1160 nop                                  | 1160 nop
+1161 lw a1,180(s5)                        | 1161 lw a1,180(s5)
+1162 lw v1,1124(s5)                       | 1162 lw v1,1124(s5)
+1163 sw v0,176(s5)                        | 1163 sw v0,176(s5)
+1164 lw a0,344(v1)                        | 1164 lw a0,344(v1)
+1165 jal T                                | 1165 jal T
+1166 nop                                  | 1166 nop
+1167 sw v0,180(s5)                        | 1167 sw v0,180(s5)
+1168 lw v1,448(s5)                        | 1168 lw v1,448(s5)
+1169 li v0,3                              | 1169 li v0,3
+1170 bne v1,v0,T                          | 1170 bne v1,v0,T
+1171 lui v0,44                            | 1171 lui v0,44
+1172 lw v1,192(s5)                        | 1172 lw v1,192(s5)
+1173 ori v0,v0,41943                      | 1173 ori v0,v0,41943
+1174 slt v0,v0,v1                         | 1174 slt v0,v0,v1
+1175 beqz v0,T                            | 1175 beqz v0,T
+1176 nop                                  | 1176 nop
+1177 lw a1,172(s5)                        | 1177 lw a1,172(s5)
+1178 jal T                                | 1178 jal T
+1179 li a0,65208                          | 1179 li a0,65208
+1180 lw a1,176(s5)                        | 1180 lw a1,176(s5)
+1181 li a0,65208                          | 1181 li a0,65208
+1182 jal T                                | 1182 jal T
+1183 sw v0,172(s5)                        | 1183 sw v0,172(s5)
+1184 lw a1,180(s5)                        | 1184 lw a1,180(s5)
+1185 j T                                  | 1185 j T
+1186 li a0,65208                          | 1186 li a0,65208
+1187 lbu v1,1090(s5)                      | 1187 lbu v1,1090(s5)
+1188 li v0,1                              | 1188 li v0,1
+1189 bne v1,v0,T                          | 1189 bne v1,v0,T
+1190 lui v0,0                             | 1190 lui v0,0
+1191 lw v1,0(v0)                          | 1191 lw v1,0(v0)
+1192 li v0,32767                          | 1192 li v0,32767
+1193 bgez v1,T                            | 1193 bgez v1,T
+1194 nop                                  | 1194 nop
+1195 negu v1,v1                           | 1195 negu v1,v1
+1196 slt v0,v0,v1                         | 1196 slt v0,v0,v1
+1197 bnez v0,T                            | 1197 bnez v0,T
+1198 lui v1,19                            | 1198 lui v1,19
+1199 lw v0,1056(s5)                       | 1199 lw v0,1056(s5)
+1200 ori v1,v1,65535                      | 1200 ori v1,v1,65535
+1201 bgez v0,T                            | 1201 bgez v0,T
+1202 nop                                  | 1202 nop
+1203 negu v0,v0                           | 1203 negu v0,v0
+1204 slt v1,v1,v0                         | 1204 slt v1,v1,v0
+1205 beqz v1,T                            | 1205 beqz v1,T
+1206 li s0,64880                          | 1206 li s0,64880
+1207 lw v0,1104(s5)                       | 1207 lw v0,1104(s5)
+1208 nop                                  | 1208 nop
+1209 bgez v0,T                            | 1209 bgez v0,T
+1210 nop                                  | 1210 nop
+1211 negu v0,v0                           | 1211 negu v0,v0
+1212 slti v0,v0,33                        | 1212 slti v0,v0,33
+1213 bnez v0,T                            | 1213 bnez v0,T
+1214 li s0,65404                          | 1214 li s0,65404
+1215 li s0,64880                          | 1215 li s0,64880
+1216 lw a1,172(s5)                        | 1216 lw a1,172(s5)
+1217 jal T                                | 1217 jal T
+1218 addu a0,s0,zero                      | 1218 addu a0,s0,zero
+1219 lw a1,176(s5)                        | 1219 lw a1,176(s5)
+1220 addu a0,s0,zero                      | 1220 addu a0,s0,zero
+1221 jal T                                | 1221 jal T
+1222 sw v0,172(s5)                        | 1222 sw v0,172(s5)
+1223 lw a1,180(s5)                        | 1223 lw a1,180(s5)
+1224 addu a0,s0,zero                      | 1224 addu a0,s0,zero
+1225 jal T                                | 1225 jal T
+1226 sw v0,176(s5)                        | 1226 sw v0,176(s5)
+1227 lw a1,276(s5)                        | 1227 lw a1,276(s5)
+1228 addu a0,s0,zero                      | 1228 addu a0,s0,zero
+1229 jal T                                | 1229 jal T
+1230 sw v0,180(s5)                        | 1230 sw v0,180(s5)
+1231 lw a1,280(s5)                        | 1231 lw a1,280(s5)
+1232 addu a0,s0,zero                      | 1232 addu a0,s0,zero
+1233 jal T                                | 1233 jal T
+1234 sw v0,276(s5)                        | 1234 sw v0,276(s5)
+1235 lw a1,284(s5)                        | 1235 lw a1,284(s5)
+1236 addu a0,s0,zero                      | 1236 addu a0,s0,zero
+1237 jal T                                | 1237 jal T
+1238 sw v0,280(s5)                        | 1238 sw v0,280(s5)
+1239 j T                                  | 1239 j T
+1240 sw v0,284(s5)                        | 1240 sw v0,284(s5)
+1241 lbu v0,1093(s5)                      | 1241 lbu v0,1093(s5)
+1242 nop                                  | 1242 nop
+1243 beqz v0,T                            | 1243 beqz v0,T
+1244 li v0,65535                          | 1244 li v0,65535
+1245 lw v1,192(s5)                        | 1245 lw v1,192(s5)
+1246 nop                                  | 1246 nop
+1247 slt v0,v0,v1                         | 1247 slt v0,v0,v1
+1248 bnez v0,T                            | 1248 bnez v0,T
+1249 nop                                  | 1249 nop
+1250 lw a1,172(s5)                        | 1250 lw a1,172(s5)
+1251 jal T                                | 1251 jal T
+1252 li a0,32768                          | 1252 li a0,32768
+1253 lw a1,176(s5)                        | 1253 lw a1,176(s5)
+1254 li a0,32768                          | 1254 li a0,32768
+1255 jal T                                | 1255 jal T
+1256 sw v0,172(s5)                        | 1256 sw v0,172(s5)
+1257 lw a1,180(s5)                        | 1257 lw a1,180(s5)
+1258 li a0,32768                          | 1258 li a0,32768
+1259 jal T                                | 1259 jal T
+1260 sw v0,176(s5)                        | 1260 sw v0,176(s5)
+1261 sw v0,180(s5)                        | 1261 sw v0,180(s5)
+1262 lw ra,276(sp)                        | 1262 lw ra,276(sp)
+1263 lw s6,272(sp)                        | 1263 lw s6,272(sp)
+1264 lw s5,268(sp)                        | 1264 lw s5,268(sp)
+1265 lw s4,264(sp)                        | 1265 lw s4,264(sp)
+1266 lw s3,260(sp)                        | 1266 lw s3,260(sp)
+1267 lw s2,256(sp)                        | 1267 lw s2,256(sp)
+1268 lw s1,252(sp)                        | 1268 lw s1,252(sp)
+1269 lw s0,248(sp)                        | 1269 lw s0,248(sp)
+1270 jr ra                                | 1270 jr ra
+1271 addiu sp,sp,280                      | 1271 addiu sp,sp,280

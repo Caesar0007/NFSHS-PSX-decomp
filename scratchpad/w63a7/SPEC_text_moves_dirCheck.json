@@ -1,0 +1,48 @@
+{
+  "_comment": [
+    "w63-a7 PER_FN_TEXT_MOVES spec -- ORCHESTRATOR ACTION.  Merge this row into",
+    "tools/build.py's PER_FN_TEXT_MOVES table (the rel key does NOT exist there yet;",
+    "grep before adding -- duplicate rel keys are silently shadowed, 12F).",
+    "",
+    "WHAT IT DOES: _dirCheck's source (landed w63-a7) reproduces every oracle",
+    "instruction, but our reorg converts the `return 1` fall-through into its OWN",
+    "return insn (make_return_insns, reorg.c:4289) and steals `li $2,1` into that",
+    "return's delay slot, where retail lets the block FALL THROUGH into the shared",
+    "`jr $ra`.  cc1 emits, verbatim:",
+    "    $L56:  .set noreorder / .set nomacro / j $31 / li $2,1 / .set macro / .set reorder",
+    "    $L59:  j $31",
+    "The row takes the `li` line out of that block, deletes the duplicated `j $31`",
+    "with drop_after, and re-inserts the `li` in its place, giving retail's",
+    "    $L56: li $2,1     $L59: j $31 ; nop",
+    "",
+    "ANCHORS are label-agnostic; the `after` anchor is LOOKAHEAD-PINNED on the",
+    "`j $31` that follows it, so it cannot grab either of the two earlier",
+    "`.set nomacro` lines (both are followed by a `beq`).  The `li` take carries",
+    "[^\\n]* for cc1's trailing hex comment (12F).",
+    "",
+    "PROOF (dev box, tools/vprobe.py + W60_TEXT_MOVES_FILE, run TWICE, identical):",
+    "  WITH the row   : _dirCheck PASS 11/11 | _dirSendAuto PASS | _dirRecvAuto PASS",
+    "                   | _dirFailAuto PASS | _padInitDirSeq FAIL 3 (the certified",
+    "                   vendor at-macro-split class)  => 4/5 PASS",
+    "  WITHOUT (tugate): _dirCheck FAIL 1 (12/11) | _padInitDirSeq FAIL 3  => 3/5 PASS",
+    "  ZERO PASS->FAIL.  Net +1 PASS on the TU.",
+    "",
+    "SEMANTICS VERIFIED (the _padInitDirSeq lesson -- a count-exact splice can be a",
+    "dead-code bug the gate cannot see).  objdump of the spliced object:",
+    "  lhu v0,230(a0); nop; beqz v0,+0x20 [ds li v0,255]; lbu v1,70(a0); nop;",
+    "  beq v1,v0,+0x24 [ds move v0,zero]; li v0,1; jr ra; nop",
+    "= retail's 11 words, both branch targets landing exactly where the oracle's",
+    ".L8010A530 / .L8010A534 do."
+  ],
+  "PER_FN_TEXT_MOVES": {
+    "recon/syslib/psx/libpad/PADSEQD.c": {
+      "_dirCheck": [
+        {
+          "take": "\\tli\\t\\$2,1[^\\n]*\\n",
+          "after": "\\t\\.set\\tnomacro\\n(?=\\tj\\t\\$31\\n)",
+          "drop_after": "\\tj\\t\\$31\\n"
+        }
+      ]
+    }
+  }
+}

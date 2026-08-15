@@ -1,0 +1,11 @@
+{
+  "recon/syslib/psx/libpad/PADSEQD.c": {
+    "_dirCheck": [
+      {
+        "take": "\\tli\\t\\$2,1[^\\n]*\\n",
+        "after": "\\t\\.set\\tnomacro\\n(?=\\tj\\t\\$31\\n)",
+        "drop_after": "\\tj\\t\\$31\\n"
+      }
+    ]
+  }
+}

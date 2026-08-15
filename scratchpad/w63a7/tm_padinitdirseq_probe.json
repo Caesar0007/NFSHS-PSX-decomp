@@ -1,0 +1,11 @@
+{
+  "recon/syslib/psx/libpad/PADSEQD.c": {
+    "_padInitDirSeq": [
+      {
+        "take": "\\tsw\\t\\$2,_padFuncRecvAuto\\n",
+        "after": "\\tj\\t\\$31\\n",
+        "slot": true
+      }
+    ]
+  }
+}

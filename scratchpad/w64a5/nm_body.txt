@@ -1,0 +1,18 @@
+    idx = 0;
+    rec = buf;
+    end = buf + 0x800;
+    while (rec < end) {
+        if (rec[0] == 0)
+            break;
+        ((LBA *)&_cd_pathtbl[idx].lba)->i = ((LBA *)&rec[2])->i;  /* extent LBA (misaligned) */
+        _cd_pathtbl[idx].parent = rec[6];               /* parent directory number */
+        _cd_pathtbl[idx].index  = idx + 1;
+        memcpy(_cd_pathtbl[idx].name, &rec[8], rec[0]);
+        _cd_pathtbl[idx].name[rec[0]] = '\0';
+        rec += 8 + rec[0] + rec[0] % 2;                 /* ISO path-table record stride */
+        if (CD_debug > 1)
+            printf("\t%08x,%04x,%04x,%s\n", _cd_pathtbl[idx].lba, _cd_pathtbl[idx].index,
+                   _cd_pathtbl[idx].parent, _cd_pathtbl[idx].name);
+        if (++idx >= 0x80)
+            break;
+    }

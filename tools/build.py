@@ -399,8 +399,10 @@ PER_TU_FLAGS = {
     "recon/syslib/psx/libmcrd/LIBMCRD.c": {"cc1_272": True},
     "recon/syslib/psx/libpad/PADENTRY.c":   {"jtbl_at_fusion": True,   # PadInfoAct
                                              "no_split_addresses": True},  # w48-a4 3x: PadInfoAct->PASS
-    "recon/game/common/r3dcar.cpp":         {"jtbl_at_fusion": True,   # R3DCar_InsertCarFacet
-                                             "g_value": "8"},          # 2026-08-04G -G8 queue
+    # w63-a14: jtbl_at_fusion DROPPED (w38-a5 sfx.cpp mis-attribution class --
+    # neither InsertCarFacet nor InsertCarFacetMenu has an $at jtbl macro in
+    # its oracle); with the A14 source landing => InsertCarFacet PASS 1144/1144.
+    "recon/game/common/r3dcar.cpp":         {"g_value": "8"},          # 2026-08-04G -G8 queue
     # NOTE (w38-a5): sfx.cpp does NOT want jtbl_at_fusion -- BOTH of its switch
     # dispatches (Sfx_BuildSouffleFacet@jtbl_8005699C, Sfx_Add@jtbl_800569D4)
     # use the SPLIT-address form in the oracle

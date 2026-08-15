@@ -73,14 +73,47 @@ extern int CdGetToc(CdlLOC *loc)
  *   rematerializes its own); fence in the loop = 56 at 139 (+2); fence at BOTH places
  *   = 56; the magic local with NO fence = 64 (inert, identical to the pre-W60 form);
  *   a 2-operand read-only fence = 69.
- * RESIDUAL 56, NAMED: the hoisted $s5 magic is NOT SHARED with the division's own
- *   expansion -- gcc still emits `lui v0,26214; ori v0,v0,26215; mult s2,v0` inside
- *   the loop where retail has the bare `mult s0,s5`.  That duplicate pair IS the +2
- *   instruction excess.  NEXT ANGLE (named, unmeasured): force cse to substitute the
- *   live $s5 into the `mult` operand -- either an identity fence on `magic` (making
- *   it the only rtx for that value) combined with the in-loop read-only fence, or the
- *   explicit multiply-high spelling driven off `magic` (the bare `(long long)` form
- *   was measured +7 insns in the w53 basin and must be re-measured in THIS one). */
+ * W61-A7 (56 -> 4, count EXACT 137/137): three cooperating dials, each measured.
+ *   (1) THE MAGIC LOCAL'S *ASSIGNMENT* POSITION IS A DIAL IN ITS OWN RIGHT (w60-a4 swept
+ *       only the FENCE position).  `magic = 0x66666667;` as the FIRST statement of the
+ *       function puts its `lui/ori` in the block that ENDS with the loop-entry test, so
+ *       sched1 feeds the two halves into that block's load-delay nops and the pair
+ *       straddles the branch.  Moving the assignment down to the loop PREHEADER puts it
+ *       where retail has it: 56 -> 40 and the count becomes EXACT.
+ *   (2) THE GUARDED do-while (Rage Racer's shape, `if (first <= last) { magic = ...;
+ *       do {...} while (first <= last); }`) is what makes the preheader a real block, so
+ *       `li s2,1` (i = 1) lands in retail's branch DELAY SLOT and the magic halves stay
+ *       together after the branch: 10 -> 4.
+ *   (3) THE +2-REF DIAL ON track_first, priced with tools/reqdelta272.py (NOT guessed):
+ *       global.c allocated the loop CURSOR (11 refs / live 30 / pri 1.10) before
+ *       track_first (15 / 60 / 0.75), so ours took $s1 for track_first where retail has
+ *       $s0 -- a 14-diff two-register swap.  reqdelta272 `--flip` printed the exact
+ *       requirement "refs 15->17 (+2, CROSSES a floor_log2 step)"; adding track_first as
+ *       a SECOND OPERAND of the in-loop read-only fence buys exactly +2 (in-loop = x2)
+ *       and the whole swap resolves: 40 -> 10.  The two rivals do not conflict, so
+ *       track_first then shares $s0 with the (dead-by-then) result-buffer pointer and the
+ *       cursor is pushed to $s1 -- retail's handout, register for register.
+ * RESIDUAL 4 (the ONLY diff left, ours 139 / oracle 137): the hoisted $s5 magic is still
+ *   NOT SHARED with the division's own expansion -- we emit `lui v0,26214; ori v0,v0,26215;
+ *   mult s0,v0` inside the loop where retail has the bare `mult s0,s5`.  MECHANISM (this
+ *   is now a precise claim, not a guess): the fenced `magic` pseudo is set in the PREHEADER
+ *   block and the division's constant is loaded in the LOOP-BODY block; gcc-2.7.2's cse
+ *   works per extended basic block and the loop body is a multi-predecessor block, so cse
+ *   never learns that the live $s5 already holds 0x66666667, and loop.c does not hoist the
+ *   division's own const load (removing the magic local entirely proves this: 18 diffs at
+ *   135 insns -- no hoist at all, and the frame loses a callee-saved register).
+ *   FALSIFIED for the sharing (all measured in THIS basin, all still 4 diffs / 139 insns,
+ *   i.e. INERT): the fence moved AFTER the division statement; `track_first / 10` spelled
+ *   twice so the constant has two uses; a split `tens = track_first / 10;` statement.
+ *   FALSIFIED and WORSE: the explicit multiply-high `(int)(((long long)track_first * magic)
+ *   >> 32)` driven off `magic` -- 73 diffs at 140, because 2.7.2 expands the DImode form as
+ *   a FULL 64-bit multiply (`mfhi` AND `mflo` + an extra shift pair), not the `smulsi3
+ *   highpart` retail uses; dropping the magic local and fencing only track_first, 18 @135.
+ *   NEXT ANGLE (named): the only remaining route is to make loop.c hoist the DIVISION's own
+ *   const load (retail's actual mechanism) instead of carrying a second value -- i.e. a
+ *   loop.c-level instrument (`-dL` loop dump on the lane binary, which W60-A1 proved
+ *   CC1PSX accepts) to find why the invariant `(set (reg) (const_int 1717986919))` is not
+ *   in `move_movables`' list here. */
 extern int CdGetToc2(int n, CdlLOC *loc)
 {
     int track_first;
@@ -93,7 +126,6 @@ extern int CdGetToc2(int n, CdlLOC *loc)
     int nTrack;
     int magic;               /* MATCH (W60-A4): magic-reciprocal hoist, see above */
 
-    magic = 0x66666667;
     param[0] = 1;
     save = CdSyncCallback(0);
     if (CdControlB(0x13, 0, result) == 0)               /* CdlGetTN */
@@ -111,16 +143,19 @@ extern int CdGetToc2(int n, CdlLOC *loc)
     loc->sector = 0;
 
     i = 1;
-    while (track_first <= track_last) {
-        __asm__("" : : "r"(magic));   /* MATCH (W60-A4): see the receipt above */
-        param[0] = (u_char)(((track_first / 10) << 4) + track_first % 10);   /* track # -> BCD */
-        if (CdControlB(0x14, param, result) == 0)
-            goto err;
-        loc[i].minute = result[1];
-        loc[i].second = result[2];
-        loc[i].sector = 0;
-        i++;
-        track_first++;
+    if (track_first <= track_last) {
+        magic = 0x66666667;
+        do {
+            __asm__("" : : "r"(magic), "r"(track_first));   /* MATCH (W60-A4): see the receipt above */
+            param[0] = (u_char)(((track_first / 10) << 4) + track_first % 10);   /* track # -> BCD */
+            if (CdControlB(0x14, param, result) == 0)
+                goto err;
+            loc[i].minute = result[1];
+            loc[i].second = result[2];
+            loc[i].sector = 0;
+            i++;
+            track_first++;
+        } while (track_first <= track_last);
     }
     nTrack = i - 1;
 

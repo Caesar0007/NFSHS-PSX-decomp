@@ -142,9 +142,8 @@ typedef struct CD_intr CD_intr;
 extern volatile CD_intr D_8013C224;   /* = Intr (in asm/data .bss-ish region).
  * MATCH (w51-a4): `volatile` is CORRECT and is the retail shape -- the byte-exact Rage Racer
  * libcd decomp declares the same struct `extern volatile CdIntr g_CdSyncStatus;`
- * (C:\Temp
-age-racer-decomp\include\psyq\cd_internal.h:54); it is mutated by the CD IRQ
- * behind the compiler's back (methodology �3.12 #13).  The earlier "DO NOT mark volatile"
+ * (C:\Temp\rage-racer-decomp\include\psyq\cd_internal.h:54); it is mutated by the CD IRQ
+ * behind the compiler's back (methodology §3.12 #13).  The earlier "DO NOT mark volatile"
  * receipt (w24-a1) measured it on the gcc-2.8/cc1plpsx lane, where it IS a mild net loss.
  * On the gcc-2.7.2 lane (`cc1_272`, the proven Sony-library toolchain) it is a large NET WIN:
  *   CD_sync 95->91, CD_ready 126->102, CD_cw 225->199, CD_datasync 60->42,

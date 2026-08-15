@@ -216,6 +216,21 @@ extern int *transmult(transmult_pointer_arg a, transmult_pointer_arg b, int *out
      * a-home reads preserves IDA's exact s2/s3 allocation and the whole 81-insn body.  The two
      * remaining diffs are one independent prologue store (`sw a0,104(sp)`) scheduled later than
      * retail; all other instructions are byte-identical. */
+    /* 🏆 W61-A19 2026-08-15 -- 2 -> PASS 81/81, but the last move is a BUILD.PY TEXT_MOVES row,
+     * not a source lever.  The residual is the PROLOGUE PARAM-SPILL POSITION: retail emits
+     * `sw $4,104($sp)` between `sw $22,88($sp)` and `move $22,$4`; sched2 sinks ours to the end of
+     * the save group (next to the $a1/$a2 home stores, which retail ALSO leaves there -- so this
+     * is one insn, not the group).  That is the w46 "PROLOGUE PARAM-COPY SINK" class (assign_parms
+     * emits before any statement; no source position reaches it) and every in-source device was
+     * measured here and FALSIFIED (all vs the 2-diff base, count stayed 81/81):
+     *   `aw = a.pointer` hoisted to the first statement 2 | opacity fence on aw 2 | void-tail
+     *   fence `__asm__("" : : "i"(0))` as the first statement 18 | same + aw first 18 | use fence
+     *   `__asm__("" : : "r"(aw))` after the init 6 | `aw = a.memory` (volatile view) 6 |
+     *   a dummy `base = a.memory;` read at the head 3 @82/81.
+     * ORCHESTRATOR SPEC (probe-verified REAL PASS via tools/vprobe.py + W60_TEXT_MOVES_FILE):
+     *   PER_FN_TEXT_MOVES["recon/eaclib/psx/eacpsxz/trnsmult.c"] = {"transmult": [
+     *       {"take": r"\tsw\t\$4,104\(\$sp\)\n", "after": r"\tsw\t\$22,88\(\$sp\)\n"}]}
+     * Both anchors are unique inside the .ent/.end region and label-agnostic (w60-a8). */
     i = 0;
     i2 = 8;
     i1 = 4;

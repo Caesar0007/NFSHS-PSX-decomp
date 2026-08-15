@@ -1532,6 +1532,67 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
  *      204/71/139 vs the oracle's 292/159/227).
  *  (3) block 6/7: the oracle's `nop; sw v0,60(sp)` pair sits 8 insns earlier than ours --
  *      a sched1 position tie on the temp2d[1] word copy. */
+/* ---- w61-a14 (2026-08-15): 166 -> 132 diffs @471/473.  FIVE stacked source-shape
+ * levers, each re-gated; the w50-a5 named angle (1) ('kill the address hoist FIRST,
+ * THEN re-probe the named mask') is EXECUTED -- the address hoist is dead, but the
+ * mask half is REFUTED (see (F) below).  Ledger (all `verify_asm`, ours/oracle insns):
+ *   baseline                                166 @471   (s5=hsd, s3=hsd+0x58 giv, fp=0x1F800004)
+ *   (A) loop18                              --         index-term-first on the two iVar18 addresses
+ *   (B) iv16 + drop iVar16                  160 @471
+ *   (A)+(B)                                 156 @471
+ *   +(C) pin                                152 @471
+ *   +(D) earlybump                          140 @471
+ *   +(E) elseq + IDENTITY FENCE             132 @471   <-- shipped
+ *
+ * (A) INDEX-TERM-FIRST for the scratchpad addresses (methodology 5.0c commutative-addu,
+ *     used for its ASSOCIATION side).  `((int)hsd + 0x124) + iVar18` builds the rtx
+ *     (plus hsd 0x124) and hands loop.c a giv BASE of hsd+CONST; writing it
+ *     `(int)hsd + iVar18 + 0x124` builds (plus hsd iVar18) instead and leaves the
+ *     constant in the load displacement -- retail's `addu v0,s6,s5; lw v0,292(v0)`.
+ * (B) THE +0x58 GIV ANCHOR WAS THE w42-a6 ROOT CAUSE.  Every `iVar16 + 0xNN` use was
+ *     respelt `(int)hsd + iVar15 + 0xNN`, which makes iVar16 dead (deleted).  The giv
+ *     base becomes hsd (retail `lw v0,292(s3)`, ours was `lw v0,204(s3)` off hsd+0x58),
+ *     and the pre-loop `Horizon_InterpolateLineSCoords` arg stops being a CSE partner:
+ *     ours `addiu s3,s5,88; addu a1,s3,zero` (2 insns + a callee-saved reg) collapses to
+ *     retail's single `ori a1,s6,88`.  !! THE INVERSE (express the iVar15 addresses off
+ *     the iVar16 biv) is FALSIFIED: 218 @477.
+ * (C) the packet-cursor read `p = Render_gPacketPtr;` belongs INSIDE the ringPMX guard --
+ *     retail's `lw s0,0(a2)` sits after the `beq`, ours was hoisted above it.
+ * (D) EARLYBUMP = the cursor write `Render_gPacketPtr = p + 0x34;` moved to immediately
+ *     after the read.  ** THIS IS WHAT KILLS THE ADDRESS HOIST: with the two uses of the
+ *     0x1F800004 literal adjacent, loop.c no longer finds it worth hoisting, so it is
+ *     materialized in-loop exactly like retail (`lui a2,8064; ori a2,a2,4`) and the
+ *     callee-saved slot it was squatting is freed.  -12 diffs on its own.
+ * (E) THE ELSE-ARM IDENTITY FENCE (catalog 06B / 4.4 fence toolkit) -- the lever that
+ *     flipped the s2<->s3 band.  Retail's `8 > ringPMX` arm computes a FRESH
+ *     `addu v1,s2,s6` (= hsd + iVar15) and reads 156/88/92 off it, instead of reusing the
+ *     giv the way its sibling arm does.  A plain named `int q = (int)hsd + iVar15;` is
+ *     NEUTRAL (140, gcc folds q straight back into the giv); the CSE-OPAQUE LAUNDER
+ *     `__asm__("" : "=r"(q) : "0"(q));` on it is zero-insn and defeats the fold.
+ *     Effect: the giv sheds 3 refs and iVar15 gains 3, which reverses the global_alloc
+ *     order of the two -- ours now hands hsd-giv $s3 and iVar15 $s2 exactly like retail
+ *     (~20 diff lines), and the else arm's `lw ...(v1)` group lines up too.  132 @471.
+ *
+ * (F) FALSIFIED THIS PASS (all re-gated from the basin named):
+ *   - named `u_int m24 = 0xffffff;` (the w50-a5 angle-1 second half): 154 in the 140
+ *     basin, 184/267 in the earlier ones -- the mask hoist is NOT source-reachable by
+ *     naming.  MECHANISM (new): after (D) our build hoists `lui fp,65280` (0xFF000000,
+ *     a ONE-insn constant) where retail hoists the TWO-insn 0xFFFFFF; both have exactly
+ *     2 uses and identical spans, so loop.c is picking the cheaper movable.  The open
+ *     dial is therefore 'make the 24-bit mask outrank the 8-bit one as a movable', not
+ *     'name the mask'.
+ *   - full index-term-first sweep incl. the iVar15 addresses (loop15): 172-228 @469-473.
+ *   - Yoda operands on the two OT RMW ORs: 184 in the 152 basin, exactly neutral in the
+ *     140 basin (canonicalized).
+ *   - clipW/clipH as fixed-address literals `*(short *)0x1f800010/12` (aimed at retail's
+ *     `lui v0,8064; lhu v0,16(v0)`, which is the whole 471-vs-473 shortfall): 207 @470 --
+ *     the literal CSEs against hsd's own lui and comes out SHORTER, not longer.
+ *   - re-association of the two `farI * 4` delta reads (pre): byte-identical, 166/160.
+ * STILL OPEN, in priority order: (1) the {hsd,iVar18} $s5<->$s6 swap (retail hsd=$s6,
+ * iVar18=$s5; ours reversed -- a whole-function allocno vs a loop-local one, so the loop
+ * dials do not reach it); (2) the movable-rank swap of the two masks in (F); (3) the
+ * 2-insn clip shortfall.  Harness: scratchpad/w61a14/bhprobe.py (composable variant
+ * sets, always restores the base). */
 void Hrz_BuildHorizon(DRender_tView *Vi)
 
 {
@@ -1674,10 +1735,9 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
       Draw_tPixMap *pmx;
       u_int *puVar1, *puVar14, *pal;
       u_char *p;
-      int iVar18, iVar16, iVar15, iVar6;
+      int iVar18, iVar15, iVar6;
       (void)pmx;
 
-      iVar16 = (int)hsd;
       iVar15 = 0;
       iVar18 = 4;
       /* MATCH: exit-in-the-middle (top test + unconditional `j` back edge with the
@@ -1685,11 +1745,11 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
          do-while (slti/bnez), which the oracle does not have. */
       while (true) {
         if (!(iVar17 < 0x10)) break;
-        if ((15999 < *(int *)(iVar16 + 0x124)) || (15999 < *(int *)(((int)hsd + 0x124) + iVar18))) {
-          mpts[0] = *(DVECTOR *)(iVar16 + 0x9c);          /* posB[k] */
-          mpts[1] = *(DVECTOR *)(iVar16 + 0xe0);          /* posC[k] */
-          mpts[2] = *(DVECTOR *)(((int)hsd + 0x58) + iVar18);    /* posA[k+1] */
-          mpts[3] = *(DVECTOR *)(iVar16 + 0x58);          /* posA[k] */
+        if ((15999 < *(int *)((int)hsd + iVar15 + 0x124)) || (15999 < *(int *)((int)hsd + iVar18 + 0x124))) {
+          mpts[0] = *(DVECTOR *)((int)hsd + iVar15 + 0x9c);          /* posB[k] */
+          mpts[1] = *(DVECTOR *)((int)hsd + iVar15 + 0xe0);          /* posC[k] */
+          mpts[2] = *(DVECTOR *)((int)hsd + iVar18 + 0x58);    /* posA[k+1] */
+          mpts[3] = *(DVECTOR *)((int)hsd + iVar15 + 0x58);          /* posA[k] */
           {
             /* MATCH: De Morgan direct form -- m2c shows this as an AND-of-4-ORs (each OR is
                the negation of "all 4 <0"/"all 4 lo<vx" etc), NOT the mathematically-equivalent
@@ -1707,10 +1767,11 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
               Horizon_InterpolateLineSCoords(&right,(DVECTOR *)(((int)hsd + 0x9c) + iVar15),
                          (DVECTOR *)(((int)hsd + 0xe0) + iVar15),&fxOverlapPercentage,1,0);
               iVar6 = Draw_gViewOtSize;
-              p = (u_char *)Render_gPacketPtr;
-              prim = (POLY_GT4 *)p;
               puVar14 = *(u_int **)((int)gpPmx + iVar15);
               if (Hrz_gTrackSpec->ringPMX[iVar17] != '\x10') {
+                p = (u_char *)Render_gPacketPtr;
+                Render_gPacketPtr = p + 0x34;
+                prim = (POLY_GT4 *)p;
                 /* MATCH (w50-a5): the OT-link RMW pair runs off the ALREADY-LOADED
                    cursor `p` and ONE shared palette-slot pointer `pal`, never a fresh
                    scratchpad re-read (catalog w40 packet-emission (a) + the shared-base
@@ -1724,7 +1785,6 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                 *(u_int *)p = *(u_int *)p & 0xff000000 | *pal & 0xffffff;
                 *pal = *pal & 0xff000000 | (u_int)p & 0xffffff;
                 puVar1 = (u_int *)(p + 4);
-                Render_gPacketPtr = p + 0x34;
                 *puVar1 = *(u_int *)(&gHrzRingColor[1][0].r + iVar15);
                 *(u_int *)(p + 0x10) = *(u_int *)(&gHrzRingColor[1][1].r + iVar15);
                 *(u_int *)(p + 0x1c) = *(u_int *)(&gHrzRingColor[0][0].r + iVar15);
@@ -1741,21 +1801,22 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                   /* MATCH: WORD copy -- a DVECTOR struct assignment emits the align-1
                      lwl/lwr+swl/swr quad; the oracle does one lw/sw pair. */
                   *(u_int *)(p + 8) = *(u_int *)&right;
-                  *(u_int *)(p + 0x14) = *(u_int *)(iVar16 + 0x9c);
-                  *(u_int *)(p + 0x20) = *(u_int *)(iVar16 + 0x5c);
-                  *(u_int *)(p + 0x2c) = *(u_int *)(iVar16 + 0x58);
+                  *(u_int *)(p + 0x14) = *(u_int *)((int)hsd + iVar15 + 0x9c);
+                  *(u_int *)(p + 0x20) = *(u_int *)((int)hsd + iVar15 + 0x5c);
+                  *(u_int *)(p + 0x2c) = *(u_int *)((int)hsd + iVar15 + 0x58);
                 }
                 else {
-                  *(u_int *)(p + 8) = *(u_int *)(((int)hsd + 0x9c) + iVar15);
+                  int q = (int)hsd + iVar15;
+                  __asm__("" : "=r"(q) : "0"(q));
+                  *(u_int *)(p + 8) = *(u_int *)(q + 0x9c);
                   *(u_int *)(p + 0x14) = *(u_int *)&right;   /* MATCH: word copy, see above */
-                  *(u_int *)(p + 0x20) = *(u_int *)(((int)hsd + 0x58) + iVar15);
-                  *(u_int *)(p + 0x2c) = *(u_int *)(((int)hsd + 0x5c) + iVar15);
+                  *(u_int *)(p + 0x20) = *(u_int *)(q + 0x58);
+                  *(u_int *)(p + 0x2c) = *(u_int *)(q + 0x5c);
                 }
               }
             }
           }
         }
-        iVar16 = iVar16 + 4;
         iVar15 = iVar15 + 4;
         iVar18 = iVar18 + 4;
         iVar17 = iVar17 + 1;

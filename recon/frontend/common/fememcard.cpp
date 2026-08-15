@@ -862,7 +862,14 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
           case 0x17:
             Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
             {
-              CARDINFO_def *pCVar7 = MCRD_getcard(player * 4 + 1);
+              /* MATCH W61-A18: `cardNum` (== player*4+1, set once at entry) NOT the
+                 recompute.  Retail recomputes here (`sll a0,s4,2; addiu a0,a0,1`), but a
+                 THIRD in-loop `player*4` tips gcc-2.8 loop.c combine_movables/move_movables
+                 over its threshold and the whole `sext(player)<<2` is hoisted to the
+                 preheader + SPILLED (frame 5744 vs retail 5736).  With two occurrences the
+                 hoist does not fire: 102 -> 25 diffs, frame + prologue + fp/s7 roles all
+                 snap to retail.  Cost = this one site is 1 insn short (225 vs 226). */
+              CARDINFO_def *pCVar7 = MCRD_getcard(cardNum);
               result = PinkSlipsError_CardFull;
               if (pCVar7->status != -3) {
                 result = PinkSlipsError_SaveFailed;

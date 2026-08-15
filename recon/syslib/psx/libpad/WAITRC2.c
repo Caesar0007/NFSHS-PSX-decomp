@@ -87,7 +87,36 @@ extern void setRC2wait(int ticks)
  *   a third source-level read is NOT free -- it emits a real `lhu`), which closes the "second
  *   source-level use" angle named above: there is no zero-cost way to give it a 4th ref.
  *   => STRUCTURALLY BOUNDED: reqdelta's required delta is unreachable from C at this basin.
- *   Remaining routes: the permuter (length-perturbing class), or an allocator-side instrument. */
+ *   Remaining routes: the permuter (length-perturbing class), or an allocator-side instrument.
+ * 🏆 w61-a6 -- **SOLVED, 32 -> PASS 40/40.**  Every verdict above (the "2-way register rotation",
+ *   the "STRUCTURALLY BOUNDED" reqdelta certificate, the whole zero-insn-dial falsification
+ *   ledger, and w48-a3 correction (b)) was reasoning about the WRONG BODY.  The rotation was a
+ *   SYMPTOM of one structural miss, and (b) had it exactly backwards.  THREE edits, each
+ *   gate-measured from the previous:
+ *   (1) 🔑 **THE TAIL IS PER-ARM, NOT SHARED (32 -> 11).**  Read the oracle: BOTH mode arms carry
+ *       their OWN `lui/lw %hi/%lo(_startTime)` AND `lui/lw %hi/%lo(_waitTime)` pair plus their own
+ *       `subu $v0,$a0,$v0` (0x8010C06C..0x8010C07C and 0x8010C088..0x8010C098); the SHARED block
+ *       is only `sltu $v0,$v0,$v1 / jr $ra / xori $v0,$v0,1`.  So retail's source computes the
+ *       WHOLE comparison in each arm -- two full `return (...) < _waitTime ? 0 : 1;` statements --
+ *       and cross_jump merges exactly three insns because scanning the tails backwards hits the
+ *       prescale arm's `srl` against the other arm's `subu` and STOPS there.  Our shared-`elapsed`
+ *       form hoisted the `_waitTime` load into the common tail, which cost two load-delay `nop`s
+ *       and rotated the whole compare web -- that rotation is what every earlier receipt was
+ *       measuring and trying to dial away.  (w48-a3 note (b) is hereby FALSIFIED: the per-arm
+ *       duplication is retail's shape, it just has to be the FULL comparison, not the old
+ *       partial per-arm tail that duplicated `sltu/jr/xori` too.)
+ *   (2) **MODE-ARM ORDER (11 -> 5).**  The oracle's `bnez $v0,.L8010C088` makes the PRESCALED
+ *       (`>>3`) arm the FALL-THROUGH, so the `!= 0` case must be written FIRST.  (w48-a3 note (a)
+ *       said the opposite; it was reading the old shared-tail body.)
+ *   (3) **WRAP-ARM ORDER (5 -> PASS).**  `if (T2_TARGET != 0) cur += T2_TARGET; else cur += 0x10000;`
+ *       -- with the `!= 0` arm first the two `addu` stay UNMERGED (retail's 0x8010C048 delay-slot
+ *       copy + 0x8010C04C copy) and both come out `addu $a0,$a0,$v0` (cur-first, the 12D
+ *       qty_combine order); the `== 0`-first spelling cross-jumped them into one shared
+ *       `addu $a0,$v0,$a0` plus a `nop` (one insn SHORT).  Note this exact arm swap is in the
+ *       w53-a8 falsification list above as "33 but @41, one insn OVER" -- it was FALSE THERE and
+ *       TRUE HERE: 04Z basin-relativity in its purest form, on a fn whose receipts explicitly
+ *       declared the space exhausted.  Re-probe parked spellings after EVERY structural landing.
+ *   The `elapsed` local stays: it is still the w59-a17 wrap-test carrier that seats `cur` in $a0. */
 extern int chkRC2wait(void)
 {
     unsigned cur = T2_VALUE & 0xffff;
@@ -96,14 +125,12 @@ extern int chkRC2wait(void)
     elapsed = cur < (unsigned)_startTime;           /* w59-a17: wrap test through the dead-here
                                                        elapsed local -- flips cur onto $a0 (34->32) */
     if (elapsed) {                                    /* counter wrapped past _startTime */
-        if (T2_TARGET == 0)
-            cur += 0x10000;
-        else
+        if (T2_TARGET != 0)
             cur += T2_TARGET;
+        else
+            cur += 0x10000;
     }
-    if ((T2_MODE & 0x200) == 0)
-        elapsed = (cur - (unsigned)_startTime) >> 3;  /* /8 prescale */
-    else
-        elapsed = cur - (unsigned)_startTime;
-    return elapsed < (unsigned)_waitTime ? 0 : 1;
+    if ((T2_MODE & 0x200) != 0)
+        return (cur - (unsigned)_startTime) < (unsigned)_waitTime ? 0 : 1;
+    return ((cur - (unsigned)_startTime) >> 3) < (unsigned)_waitTime ? 0 : 1;
 }

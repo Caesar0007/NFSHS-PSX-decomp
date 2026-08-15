@@ -486,7 +486,22 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
   short    i;
   int      w;
   short    w1;
-  u_char   vraw;    /* MATCH (2026-08-03, angle #C' LANDED, 21->20 count-EXACT 245/245):
+  int      vraw;    /* MATCH (W61-A18, 20 -> 16 count-EXACT 245/245): vraw is INT,
+                     * not u_char.  A u_char vraw makes `v = vraw` a MASKED copy
+                     * (`andi t4,v0,255`) and chains the arm off the mask
+                     * (`addiu t4,t4,-1`); retail emits a PLAIN copy `addu t4,v0,zero`
+                     * plus `addiu t4,v0,-1` -- both off the raw $v0 -- which only an
+                     * int-typed vraw produces.  Deleting the mask insn costs `v` one
+                     * REF (7 -> 6), and (2*refs-SIZE)/live then puts v .0613 BELOW the
+                     * colour pointer p84 .0665, so the two swap t4/t5 (+12 diffs).  The
+                     * cure is the priced ref-step below: ONE extra out-of-loop operand
+                     * on the existing vraw fence restores v to refs 7 (.0736 > .0665)
+                     * at zero instructions -- exactly the predicted single step.
+                     * Falsified from this basin (all re-gated): fence operand count 0
+                     * (32) and 2 (46); `prim[0x19] = v` direct instead of the read-back
+                     * at every fence count (46/46/66); vraw as u_int (32) / short (48)
+                     * / u_short (48) / signed char (46 @247).  ORIGINAL NOTE FOLLOWS. */
+  /* MATCH (2026-08-03, angle #C' LANDED, 21->20 count-EXACT 245/245):
                      * retail's separate raw-shapey pseudo (`addu t4,v0,zero` +
                      * `addiu t4,v0,-1` both off $v0).  vraw alone measures 0 (cse
                      * copy-props `v = vraw`); the OUTLIVING SECOND CONSUMER is the
@@ -716,7 +731,10 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
   else {
     vb = v;
   }
-  __asm__ volatile("" : : "r"(vraw));   /* vraw's outliving consumer (see decl note) */
+  /* vraw's outliving consumer (see decl note) + the W61-A18 v ref-step: the "r"(v)
+     operand is a ZERO-INSN out-of-loop +1 ref that keeps v above the colour pointer
+     in allocno_compare so v holds $t4 and colour holds $t5, as retail does. */
+  __asm__ volatile("" : : "r"(vraw), "r"(v));
   /* PROBE FALSIFIED (2026-08-02): an identical `vh = shp->height;` 2nd def in the
    * flags&2 arm is CSE-DELETED before local-alloc (160 unchanged) -- breaking the
    * single-set REG_EQUIV needs a def cse cannot merge (volatile view / different

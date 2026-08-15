@@ -293,6 +293,13 @@ void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char 
      grb 58 -- the w50-a5 ranking is unchanged, so both halves below still hold.
      Residual 26 = the newColor byte-store/pack block only (see the diffsrc SLD map:
      retail stores .r at 16(sp) FIRST, SLD 206, and .b at 18(sp) SLD 208). */
+  /* w61-a14: the w60-a6 'reframed target -- a dial for the b15/sourceG order that does NOT
+     need the reverse store order' was attacked with the zero-insn identity launder (the
+     device that cracked Weather_DoSplats and Weather_DoWeather this same wave) and is
+     FALSIFIED: from the SLD-natural r,g,b pack basin (56) a launder on `b15` = 65 @114,
+     on `sourceG` = 90, both = 84; from the SHIPPED basin a launder on `b15` = 55 @114 and
+     on `sourceG` = 84.  The shipped 26 stands; the reverse-store-order price is still the
+     cheapest way to buy that allocno order. */
   __asm__("" : : "r"(sourceB), "r"(sourceB));
   if (0xff < newB) newB = 0xff;
   /* `& ~7` (a register-held -8, oracle `addiu $v1,$zero,-0x8` + three `and`), NOT
@@ -944,10 +951,38 @@ void Night_RestartNightDriving(void)
  * sched barrier.  Also falsified this wave, all byte-identical 8@68: all SIX permutations
  * of the three-store group (XZN 8 - XNZ 10 - ZXN 16 - ZNX 16 - NXZ 16 - NZX 14, so the
  * shipped XZN order is already optimal), and a named `p_ = Vi->player;` index local. */
+/* ---- w61-a14 (2026-08-15): 8 -> 6 diffs, count still EXACT 68/68.  THE 5-WAVE
+ * "STRONG FLOOR" IS BROKEN, and by the dial the w49/w50/w51 receipts named but never
+ * found a device for.  The w49 -dl reading is confirmed correct: this is a LOCAL-ALLOC
+ * QTY tie between reg105 (the `.target` pointer) and reg96 (the 0x80 constant), both
+ * "used 2 times across 4 insns", both QTY_CMP_PRI -0.5, resolved by qty NUMBER.  The
+ * three named escapes were (a) a zero-insn third ref on the pointer, (b) shortening the
+ * constant's live range, (c) "a device that changes the two qtys' ORDER without being a
+ * sched barrier".  (c) EXISTS: give the constant its own local and LAUNDER it --
+ *     int zn;  ...  zn = 0x80;
+ *     __asm__("" : "=r"(zn) : "0"(zn));
+ *     Night_gZNear = zn;
+ * Per catalog 12E the identity fence makes the pseudo die TWICE, so combine_regs refuses
+ * and the constant leaves local-alloc's qty pool for a GLOBAL allocno -- the tie it was
+ * losing simply stops existing.  Zero-insn (68/68 preserved, unlike every do{}while(0)
+ * wrapper), and the `.target` pointer now takes retail's self-temp $v0.
+ * ⚠️ NOTE the w51 receipt below reports an opacity fence on a `tgt` POINTER local as
+ * neutral (8) -- that is the SAME device applied to the WRONG side of the tie.  The
+ * reachable side was the CONSTANT all along, exactly as the w46 "the reachable side is
+ * the CONSTANT, not the pointer" note guessed.
+ * Falsified this pass, from the new basin: launder placed AFTER the store (11 @69);
+ * `int zn = 0x80;` as a decl-with-init (12); the same launder on a `tgt` pointer local
+ * (5 diffs but 69 insns -- +1, rejected); both launders together (7 @69).
+ * RESIDUAL 6 = a pure sched1 position pair: retail materializes `li v1,128` LATE, one
+ * slot before its `sw`, while our global allocno is born at the source assignment and
+ * lives ~10 slots; retail's `sw v0,0(gp)` for gZDistShift=12 likewise sits 2 slots later.
+ * Next dial = whatever keeps the constant's birth adjacent to its store WITHOUT putting
+ * it back in the qty pool. */
 void Night_SetEnviroment(DRender_tView *Vi)
 
 {
   int mode;
+  int zn;
   
   if (GameSetup_gData.Time != 0) {
     Night_gDrawLightning = '\0';
@@ -958,7 +993,9 @@ void Night_SetEnviroment(DRender_tView *Vi)
     }
     Night_gXDistShift = 10;
     Night_gZDistShift = 0xc;
-    Night_gZNear = 0x80;
+    zn = 0x80;
+    __asm__("" : "=r"(zn) : "0"(zn));
+    Night_gZNear = zn;
     if ((*((u_char *)Camera_gInfo[Vi->player].target + 0x447) & 4) != 0) {
       Night_gZDistShift = 0xd;
       Night_gXDistShift = 0xb;
@@ -1039,6 +1076,27 @@ void Night_SetEnviroment(DRender_tView *Vi)
  * one of its 4 refs -- (1*3-4)/10 = -0.10 falls below z's 0.25 in one step, because 3 refs
  * put x's numerator NEGATIVE.  Needs a zero-insn ref DELETER for x (the w45 store-read-back
  * class; it is what took Night_CreateNightTableElement 56 -> 38 this same wave). */
+/* ---- w61-a14 (2026-08-15): 71 -> 59 diffs @65/64.  The standing verdict above says the
+ * ONLY route left is 'a zero-insn ref DELETER for x'.  That route is now FALSIFIED in
+ * three shapes (all re-gated): guard reads `v->vx` directly with x born as the sum (75);
+ * a separate `xb` for the biased value (75); one unsigned range check
+ * `(u_int)(x+xdist) < (u_int)(xdist+xdist)` replacing the two compares (73 @63 -- it does
+ * shed the ref, and the fn gets SHORTER than the oracle, so the ref model was right about
+ * the mechanism and wrong about the payoff).  A read-only fence on `z` after the z-guard
+ * = 76 @66.
+ * WHAT WORKED instead is the OTHER end of the same tie -- a zero-insn CSE-OPAQUE IDENTITY
+ * LAUNDER ON THE `color` PARAMETER, placed as the FIRST statement of the function:
+ *     __asm__("" : "=r"(color) : "0"(color));
+ * 71 -> 59, count unchanged at 65.  Per catalog 12E an identity fence makes the pseudo
+ * die TWICE, so combine_regs refuses to merge it into the parameter copy and `color`
+ * becomes a GLOBAL allocno assigned by CONFLICT rather than by the priority scan that was
+ * dropping it to second-to-last.  The whole head/index chain now colours like retail
+ * (a3/v1/a2 -> the oracle's a3/v1/a2); the residual is the surviving `addu a3,a1,zero`
+ * copy (still our one extra insn) plus a scheduling spread in the shift/sum block.
+ * POSITION IS THE DIAL, again: before `z = v->vz;` = 59, AFTER it = 63, inside the
+ * innermost block = 62 @66, doubled = 61, plus a 1-operand read-only fence = 61.
+ * Also falsified this pass: identity launders on `x` (72 @66), `z` (75), `xdist` (75),
+ * and a block-local `CVECTOR *c = color;` copy used for all six field accesses (71). */
 void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
 
 {
@@ -1047,6 +1105,7 @@ void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
   int znear;
   int zfar;
 
+  __asm__("" : "=r"(color) : "0"(color));
   z = v->vz;
   znear = Night_gZNear;
   zfar = znear + (1 << (Night_gZDistShift + 6));

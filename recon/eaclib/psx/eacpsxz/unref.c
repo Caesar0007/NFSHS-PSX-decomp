@@ -184,6 +184,30 @@ extern void chase(unsigned int code);                                           
  * handout without changing the instruction inventory.  The remaining six differences are only
  * the placement of the same `addu a0,s3,zero` in the three command arms: ours follows each arm's
  * first arithmetic chain, while retail schedules it immediately after the pointer advances. */
+/* 🏆 W61-A19 2026-08-15 -- 6 -> PASS 158/158 via a BUILD.PY TEXT_MOVES row (3 moves).  The
+ * residual was the CALL-ARG EMISSION ORDER at the three refcpy sites: retail emits
+ * `addu $a0,$s3,$zero` immediately after the two pointer advances, ours emits it after that arm's
+ * first arithmetic chain (the $a1 value, which cc1 expands straight into the hard reg).  Catalog
+ * 11B ARG-EMISSION-ORDER; the register assignment and the whole instruction inventory are already
+ * retail-exact, so this is a pure emission-position tie inside expand_call/sched.
+ * FALSIFIED here first (all much worse -- the `advanced` copy device is what materialises the
+ * oracle's separate `addu s3,s3,s0`, and moving it collapses the add again):
+ *   `advanced = out;` hoisted to just after `src += reverse;` in the 2-byte arm 77@157 | same in
+ *   the 4-byte arm 77@157 | both arms 76@156 | both arms with the if/else kept but moved 78@158.
+ * ORCHESTRATOR SPEC (probe-verified PASS via tools/vprobe.py + W60_TEXT_MOVES_FILE; the TU-mate
+ * `chase` re-gated PASS under it).  Each entry consumes ONE match, so all three sites are
+ * disambiguated by lookahead on the instruction that follows the move / the anchor (w60-a8:
+ * label-agnostic, and none of these anchors carries a $L label at all):
+ *   "recon/eaclib/psx/eacpsxz/unref.c": {"unrefpack": [
+ *     {"take":  r"\tmove\t\$4,\$19\n(?=\tsrl\t\$2,\$17,8\n\tandi\t\$2,\$2,0x00ff\n)",
+ *      "after": r"\taddu\t\$18,\$18,\$16\n(?=\tsll\t\$5,\$17,3\n)"},
+ *     {"take":  r"\tmove\t\$4,\$19\n(?=\tsrl\t\$5,\$17,16\n)",
+ *      "after": r"\taddu\t\$18,\$18,\$16\n(?=\tsrl\t\$2,\$17,8\n \#APP\n)"},
+ *     {"take":  r"\tmove\t\$4,\$19\n(?=\tandi\t\$2,\$17,0xff00\n)",
+ *      "after": r"\taddu\t\$18,\$18,\$16\n(?=\tsll\t\$3,\$17,12\n)"}]}
+ * ($19 = out/$s3, $18 = src/$s2, $16 = reverse/$s0, $17 = op/$s1.  The 2nd entry's anchor
+ * lookahead includes the ` #APP` line of the in-source opacity fence, which is what makes it
+ * unique among the four `addu $18,$18,$16` sites.) */
 extern int unrefpack(unsigned char *comp, unsigned char *out_arg, int reverse_arg)
 {
     int            reverse = reverse_arg;

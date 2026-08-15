@@ -1177,6 +1177,30 @@ extern int FILE_atomic(int (*fn)(int, int), int unused, int a3, int a4)
  * switch expression, signed/unsigned type spelling, a copied dispatch local, and inverted goto
  * orientation are byte-identical or worse and were reverted.  Do not use volatile here: it would
  * introduce a memory boundary into an otherwise count-exact scheduler-only basin. */
+/* 🏆 W61-A19 2026-08-15 -- 4 -> PASS 290/290 via a BUILD.PY TEXT_MOVES row (the residual was NOT
+ * source-reachable, as the 2026-08-12 note already suspected).  Mechanism, read off the cc1 `.s`:
+ * the four lines are gcc's own `casesi` expansion, so there is no source expression to respell --
+ * the index `sll` and the table-base `lui/addiu` are two INDEPENDENT chains and reorg fills the
+ * bound-check `beq`'s slot with whichever the scheduler put first in the fall-through block.  cc1
+ * emits `sll $3,$3,2` first HERE but `lui $2,%hi($Lnnn)` first at the OTHER tablejump in this same
+ * TU, i.e. it is a per-site ready-list tie inside compiler-generated RTL.  (Both builds steal the
+ * fall-through's first insn -- retail's slot insn writes $2, the branch's own condition reg, which
+ * per catalog 09L only fill_slots_from_thread can do.)
+ * ORCHESTRATOR SPEC (probe-verified via tools/vprobe.py + W60_TEXT_MOVES_FILE; TU-mates
+ * FILE_cancelop/FILE_completeop/iFILE_perror re-gated PASS under it, and the mechanism is bounded
+ * by the .ent/.end region of the named fn so it cannot reach any TU-mate by construction):
+ *   PER_FN_TEXT_MOVES["recon/eaclib/psx/eacpsxz/nfile.c"] = {"iFILE_ExecCommand": [
+ *       {"take":  r"\tsll\t\$3,\$3,2\n",
+ *        "after": r"\taddiu\t\$2,\$2,%lo\(\$L\d+\) \# low\n"},
+ *       {"take":  r"\tlui\t\$2,%hi\(\$L\d+\) \# high\n",
+ *        "after": r"\tbeq\t\$2,\$0,\$L\d+\n(?=\t\.set\tmacro\n\t\.set\treorder\n\n"
+ *                 r"\taddiu\t\$2,\$2,%lo\(\$L\d+\) \# low\n)"}]}
+ * Move 1 pulls the `sll` out of the (already noreorder-wrapped) delay slot and re-inserts it after
+ * the `%lo`; move 2 then drops the `lui` into the now-empty slot INSIDE the existing
+ * `.set noreorder/nomacro` block, so no assembler mode change is needed and no nop is minted.
+ * All three anchors are label-agnostic ($L\d+, per the w60-a8 law) and each occurs exactly once in
+ * the .ent region (`sll $3,$3,2` 1x, `%lo($L` 1x, `%hi($L` 1x; the beq anchor is disambiguated by
+ * a 4-line lookahead because `beq $2,$0,$L..` occurs ~10x). */
 /* Raw nfs4-f.exe DD398..DD81F SHA-256:
  * f005d1d202c25693bdaa4a6af71d553309201f7f8db575ef547012c92aaecb52. */
 extern int iFILE_ExecCommand(void *cmdp)

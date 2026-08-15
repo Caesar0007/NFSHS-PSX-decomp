@@ -98,7 +98,20 @@ extern void _padSendAtLoadInfo(unsigned char *info)
  *   lw $4,236($16); lbu $2,71($16); lw $3,60($16);
  *   addu $2,$2,1; lbu $3,4($3); addu $4,$4,8.
  * Source-order/type/volatile/flag probes are byte-identical at 6; -fno-schedule-insns is 25,
- * -fno-schedule-insns2 38, and -fno-delayed-branch 32. */
+ * -fno-schedule-insns2 38, and -fno-delayed-branch 32.
+ * >>> w61-a6: THAT TEXT_MOVES PROOF IS NOW A MEASURED, GATE-VERIFIED SPEC -- 6 -> PASS 83/83.
+ * The case-4 window our cc1 emits is
+ *   lw $4,236($16) / lw $3,60($16) / lbu $2,71($16) / addu $4,$4,8 / lbu $3,4($3) / addu $2,$2,1
+ * and retail's is  A C B F E D of that same six.  `lw $3,60($16)` occurs FOUR times in the fn
+ * (case 2 re-reads the volatile rx cell), so no move may anchor on it; the other five lines are
+ * unique.  Three moves with unique anchors, applied in order, reach A C B F E D:
+ *   PER_FN_TEXT_MOVES["recon/syslib/psx/libpad/PADCMD.c"]["_padRecvAtLoadInfo"] = [
+ *     {"take": r"\taddu\t\$4,\$4,8\n",          "after": r"\taddu\t\$2,\$2,1\n"},
+ *     {"take": r"\tlbu\t\$2,71\(\$16\)\n",      "after": r"\tlw\t\$4,236\(\$16\)\n"},
+ *     {"take": r"\tlbu\t\$3,4\(\$3\)\n",        "after": r"\taddu\t\$2,\$2,1\n"},
+ *   ]
+ * WHOLE-TU A/B (19 fns, tools/verify_asm.py, probe harness scratchpad/w61a6/vprobe6.py):
+ * PASS 14 -> 16 (this fn + _padLoadActInfo), ZERO PASS->FAIL, every other fn byte-identical. */
 extern int _padRecvAtLoadInfo(unsigned char *info)
 {
     switch (info[0x46]) {
@@ -206,7 +219,12 @@ extern int _padLoadActInfo(unsigned char *info, unsigned char *buf)
      * across the two `lbu`s (costing a 3rd temp, $a2).  On the 2.7.2 rung this fn is 2 diffs;
      * the whole-TU flip is net-negative (4 cmd builders 0->4 each, _padRecvAtLoadInfo 6->24)
      * => per-fn splice.  The single text move restores retail's `li $3,4`-before-the-aw-round-up
-     * (sched1-only; source order is provably inert per the falsifications above). */
+     * (sched1-only; source order is provably inert per the falsifications above).
+     * >>> w61-a6 RE-VALIDATION (the w59-a7 spec was never wired; re-measured from a clean object
+     * on the CURRENT basin, unchanged source, probe harness scratchpad/w61a6/vprobe6.py):
+     * ver-splice alone 26 -> 2 (@53/53, the residual is exactly the `li $3,4` position);
+     * ver-splice + the one text move -> PASS 53/53.  WHOLE-TU A/B over all 19 fns: PASS 14 -> 15
+     * with this pair alone, ZERO PASS->FAIL.  Both remain ORCHESTRATOR actions, verbatim above. */
     {
         int r = 1;
         __asm__("" : "=r"(r) : "0"(r));      /* MATCH: opacity fence -- same device as the sibling
@@ -279,7 +297,29 @@ extern void _padLoadActInfo_snd(unsigned char *info)
  *   gcc-2.7.2 law), not source-reachable while the load stays `lbu`; (iii) $v0/$v1 coloring on
  *   the `base+woff` store pair; (iv) the `la $a3,_actcur` preheader anchor lands 2 insns early
  *   and `t0 = -1` is a copy instead of a fresh `li` (the no-copy-prop identity -- both close
- *   under the cc1_272 lane, where this fn is COUNT-EXACT 157/157 @38). */
+ *   under the cc1_272 lane, where this fn is COUNT-EXACT 157/157 @38).
+ * MATCH (w61-a6, 29 -> 17 @156/157) -- THE SHARED-EXIT OWNERSHIP LAW (same instrument that took
+ *   MCXMAIN's _padIntRecvData 12 -> 4; see that receipt for the mechanism).  Residual item (i)
+ *   above ("the two `return 1` wrap sites keep their own `li $v0,1` ... where retail shares one
+ *   .L80105BE8 block") was NOT jump.c return duplication -- it was the OWNERSHIP BIT of two
+ *   independent shared exits, and both were on the wrong site:
+ *     * `return 1`: retail's physical owner is the SWITCH DEFAULT (the trailing `return 1`), with
+ *       case 2 and case 3 cross-jumped onto it.  Spelled as one `return_one:` label at the
+ *       default + `goto return_one;` in cases 2 and 3.  (Owner at case 3 instead = 25 @154; owner
+ *       at case 2 = the 29-diff baseline.)
+ *     * `return 0`: retail's owner is case 4's post-loop `if (info[0x48]==0) goto tail; return 0;`
+ *       site.  Spelled as `return_zero:` there + `goto return_zero;` on the LAST tail return only
+ *       -- the `n >= info[0xea]` arm must keep its OWN literal `return 0;`, because retail
+ *       materialises that arm's zero locally (`addu $v0,$zero,$zero` ahead of the `li $v1,6` /
+ *       `li $v1,254` byte stores, which is also what puts those constants in $v1 not $v0).
+ *       Routing that arm through the goto too costs 9 diffs (26 vs 17) -- MEASURED both ways.
+ *   LANE RE-LADDERED AT THE NEW BASIN (04Z): the "closes under the cc1_272 lane, COUNT-EXACT
+ *   157/157 @38" claim above is now FALSE -- per-fn ver-splice 2.7.2 = 31 @158, 2.6.3 = 50 @159,
+ *   2.8.0 = 33 @156, whole-TU cc1_272 = 31 @158; the wired 2.7.2-970404 rung is best at 17.
+ *   RESIDUAL 17, four named items, all pre-existing: (ii) `srl` vs `sra` on `rx[5] >> 7`;
+ *   (iii) the `_actcur` store reaching through `$at` in retail (an ASSEMBLER MACRO SPLIT, the
+ *   W51 AT-MACRO class) vs our `$v0` base; (iv) the `la $a3,_actcur` preheader anchor landing 2
+ *   insns early with `t0 = -1` as a copy; plus one `lbu $v0,4($v0)` load-delay placement. */
 extern int _padLoadActInfo_rcv(unsigned char *info)
 {
     switch (info[0x46]) {
@@ -293,7 +333,7 @@ extern int _padLoadActInfo_rcv(unsigned char *info)
         if (n < info[0xe3])
             return 0;
         info[0x47] = 0;
-        return 1;
+        goto return_one;
     }
     case 3: {                                        /* mode descriptor R0 */
         unsigned char *d = *(unsigned char **)(info + 4) + info[0x47] * 5;
@@ -309,7 +349,7 @@ extern int _padLoadActInfo_rcv(unsigned char *info)
             return 0;
         info[0x47] = 0;
         info[0x48] = 0;
-        return 1;
+        goto return_one;
     }
     case 4: {                                        /* actuator descriptor R1 (variable length) */
         unsigned char *d = *(unsigned char **)(info + 8) + info[0x47] * 8;
@@ -353,6 +393,7 @@ extern int _padLoadActInfo_rcv(unsigned char *info)
             info[0x48] = info[0x48] - 1;
         }
         if (info[0x48] == 0) goto tail;
+return_zero:
         return 0;
 tail:
         n = info[0x47] + 1;
@@ -363,9 +404,10 @@ tail:
             return 0;
         }
         info[0x48] = 0;
-        return 0;
+        goto return_zero;
     }
     }
+return_one:
     return 1;
 }
 
@@ -406,7 +448,23 @@ extern void _padSetActAlign_snd(unsigned char *info)
 
 /* @0x80105C78 : _padSetActAlign_rcv -- resolve each mode's actuator map from the alignment request.
  * MATCH (w51-a5): it is NOT void -- the oracle's epilogue is `jr $ra / addu $v0,$zero,$zero`
- * (§3.2 void-return bug); the `return 0;` reserves $v0 and re-shapes the tail. */
+ * (§3.2 void-return bug); the `return 0;` reserves $v0 and re-shapes the tail.
+ * w61-a6 STRUCTURAL FINDING (27 @51/50, count NOT yet improved -- reported, not landed).  The
+ * actMap store is the one real SHAPE difference left: retail keeps `slot` as a plain biv
+ * (`addu $a2,$a0,$zero` in the inner preheader, `sb $t3,93($a2)`, `addiu $a2,$a2,1`), while our
+ * loop.c strength-reduces the address `slot[0x5d]` into its own giv (`addiu $v1,$a0,93`,
+ * `sb $t3,0($v1)`).  A PER_FN_FLAG_SPLICE_272 `-fno-strength-reduce` on THIS FN ALONE reproduces
+ * retail's `sb $t3,93($a2)` / `sb $t0,93($a2)` exactly (verified in the spliced .s).  Diff count
+ * is UNCHANGED at 27 because two other items remain, so this is NOT a wiring recommendation yet:
+ *   (i) `addu $t2,$t0,$zero` (cse copies `mode`'s just-materialised 0 into `row`) vs retail's
+ *       independent `addu $t2,$zero,$zero` emitted AFTER `li $t3,255` -- retail's `row` is a
+ *       loop.c GIV of `mode*5` whose preheader init lands in the giv group (same class as
+ *       eaclib pad.c PAD_update item 2, which has ~15 falsified forms);
+ *   (ii) a 3-way register rotation, ours matchcount/k/slot = $a2/$a3/$v1 vs retail $a3/$v1/$a2;
+ *   (iii) one insn over (51 vs 50): retail hoists the outer-loop re-test `lbu $v0,233($a0)`
+ *       ABOVE `addiu $t0,$t0,1` so the increment covers the load-delay slot; ours emits it after
+ *       and pays a nop.  That one IS a pure TEXT_MOVES relocation once (i)+(ii) are settled.
+ * Lane-invariant: 27 on the wired 2.7.2-970404 rung AND on the cc1_272 (PsyQ CC1PSX) lane. */
 extern int _padSetActAlign_rcv(unsigned char *info)
 {
     unsigned mode = 0;
@@ -635,4 +693,4 @@ extern int _padCmd4B(unsigned char *info)
     info[0x35] = 0;
     return r;
 }
-
+

@@ -1393,29 +1393,62 @@ void Weather_CreateSplat
  *   but the fence's pseudo re-colors the s-band).  NEXT: the separation must come from an
  *   add_val difference (e.g. a giv anchored on a DIFFERENT field of splats[i]), not from a
  *   second pointer, since combine_givs merges identical add_vals unconditionally. */
+/* ---- w61-a14 (2026-08-15): 36 -> **PASS** (113/113).  The w53 '6th callee-saved reg'
+ * verdict is CORRECT but its 'combine_givs merges identical (mult_val, add_val)
+ * unconditionally, so the separation cannot come from a second pointer' conclusion is
+ * REFUTED: a second pointer DOES survive if it is LAUNDERED.  Three stacked levers:
+ *  (1) `q = &splats[i];` + the CSE-OPAQUE IDENTITY FENCE `__asm__("" : "=r"(q) : "0"(q));`
+ *      immediately after it, with the two `.pos.vy` stores (both commMode arms) going
+ *      through `q`.  36 -> 16 and the count becomes EXACT 113/113.  The launder is what
+ *      makes it work -- the SAME statement WITHOUT the fence measures exactly 36
+ *      (byte-identical to the control: combine_givs eats it, as w53 said).  This is
+ *      retail's `addu $s2,$s0,$zero` in the `jal random` delay slot + the $s5
+ *      save/restore pair = the whole 2-insn gap, and the s2..s5 band snaps into place.
+ *      Placing the assignment BEFORE the `.pos.vx` store instead = 92 @119 (falsified);
+ *      declaring `q` before `i` = 16 (neutral); extra read-only operands on q = 28.
+ *  (2) ONE-OPERAND READ-ONLY REF FENCE ON `i` AT THE TOP OF THE LOOP BODY -- 16 -> 2.
+ *      This flips the last register pair: local-alloc was handing `q` $s1 (the lower
+ *      free callee-saved) and pushing the loop counter to $s2; +2 refs on `i`
+ *      (in-loop = x2) reverses the order, giving retail's i=$s1 / q=$s2.  POSITION IS
+ *      THE DIAL, exactly as the w60-a6 L3 row says: the same fence with 2 operands
+ *      placed OUT of the loop measures 7 but costs +1 insn (it blocks the `i == 0`
+ *      constant fold into the loop guard, so retail's `blez a2,T; addu s1,zero,zero`
+ *      becomes our 5-insn `slt/beqz` pair); 1 operand out-of-loop = 19 @114,
+ *      4 operands = 29 @114, 2 operands in-loop = 26.
+ *  (3) YODA ON THE TICK GUARD -- 2 -> PASS.  `simGlobal.gameTicks >= splats[i].startTick`
+ *      instead of `splats[i].startTick <= simGlobal.gameTicks`; retail issues
+ *      `lw a0,4(s3)` (gameTicks) BEFORE `lw v1,4(s0)` (startTick), i.e. the operand the
+ *      source names FIRST is loaded first.  The compare itself is identical either way.
+ * (The SYM 8c block lists only `i` + the two REGPARMs, so `q` is a compiler-visible
+ * pseudo retail's source did not name -- but the oracle proves the value exists, and the
+ * launder is the pin-free way to spell it.) */
 void Weather_DoSplats
                (int num,Weather_tSplatInfo *splats)
 
 {
   int i;
+  Weather_tSplatInfo *q;
 
   if (gCurrentNumSplats < num) {
     gCurrentNumSplats = num;
   }
   i = 0;
   while (i < gCurrentNumSplats) {
-      if (splats[i].startTick <= simGlobal.gameTicks) {
+      __asm__("" : : "r"(i));
+      if (simGlobal.gameTicks >= splats[i].startTick) {
         if (splats[i].startTick + 0x20 < simGlobal.gameTicks) {
           if ((num < gCurrentNumSplats) && (i == gCurrentNumSplats + -1)) {
             gCurrentNumSplats = i;
           }
           else {
             splats[i].pos.vx = (short)((u_int)random() % 320);
+            q = &splats[i];
+            __asm__("" : "=r"(q) : "0"(q));
             if (GameSetup_gData.commMode == 1) {
-              splats[i].pos.vy = (short)((u_int)random() % 0xf0 >> 1);
+              q->pos.vy = (short)((u_int)random() % 0xf0 >> 1);
             }
             else {
-              splats[i].pos.vy = (short)((u_int)random() % 0xf0);
+              q->pos.vy = (short)((u_int)random() % 0xf0);
             }
             splats[i].startTick = simGlobal.gameTicks + (u_int)random() % 100;
           }
@@ -1486,6 +1519,7 @@ void Weather_DoWeather(DRender_tView *Vi)
   int n;
   int mode;
   DR_MODE *prim;
+  int *plb;
   u_int *pal;
 
   /* NEAR-MISS 36 (count EXACT 197/197) -- CLASSIFIED (W55-A16).  allocsim replicates
@@ -1519,6 +1553,25 @@ void Weather_DoWeather(DRender_tView *Vi)
      $v1 -- a scheduler hoist of a ready `li`, and the named-constant device pays an insn for
      it; (b) the $v1<->$a1 swap on the `ab` load / prevLookBehind address (w55 blocks 5-8),
      untouched by this fence and still the 06E local-alloc-QTY instrument gap. */
+  /* MATCH (w61-a14, 2026-08-15): 30 -> 18, count still EXACT 197/197.  The w55 'do not
+     spend more source-shape guesses until qtytrace exists' verdict is now FULLY refuted --
+     the w55 blocks-5-8 $v1<->$a1 swap (the `ab` load vs the prevLookBehind address, filed
+     as the 06E local-alloc-QTY instrument gap) IS source-reachable:
+      (1) give the prevLookBehind slot a REAL POINTER LOCAL `plb` and LAUNDER it with the
+          CSE-opaque identity fence `__asm__("" : "=r"(plb) : "0"(plb));` -- 30 -> 20.
+          The SAME pointer WITHOUT the launder measures exactly 30 (byte-identical to the
+          control): cse folds the address straight back into the two `s1 + %lo` rtxes, so
+          the launder is the whole lever, not the naming.  Zero-insn.
+      (2) `clean_up = 0;` moved BELOW the plb setup -- 20 -> 18; retail issues
+          `addu s0,zero,zero` in the `beq a1,v0` DELAY SLOT, which it can only do if the
+          statement is adjacent to the guard.
+     FALSIFIED from the 30 basin (all re-gated, count-exact unless noted): read-only ref
+     fences on `ab` after the opacity fence x1/x2 (30/30, byte-identical), after
+     `clean_up = 0` (32), after the prevLookBehind store (32); fence on `mode` x1 (39 @198)
+     and an identity launder on `mode` (39 @198) -- the tie-(3) `addu a1,v0,zero` copy of
+     the Camera_GetMode result still resists (a tied launder shares the register, so it
+     cannot manufacture a copy; that residual + the head `li a2,1` scheduler hoist are the
+     whole remaining 18).  From the 20 basin an `ab` fence is neutral again (20). */
   player = Vi->player;
   wpt = Weather_gPServerA[player];
   wprevpt = Weather_gPrevPServerA[player];
@@ -1539,11 +1592,13 @@ void Weather_DoWeather(DRender_tView *Vi)
      * and loads it BEFORE building the prevLookBehind[] address.  The zero-insn
      * identity fence blocks the value-numbering that reorders the two.  40->36. */
     __asm__("" : "=r"(ab) : "0"(ab));
+    plb = &prevLookBehind[player];
+    __asm__("" : "=r"(plb) : "0"(plb));
     clean_up = 0;
-    if (ab != prevLookBehind[player]) {
+    if (ab != *plb) {
       clean_up = ab == 1;
     }
-    prevLookBehind[player] = ab;
+    *plb = ab;
     mode = Camera_GetMode(player);
     if (mode != prevCameraMode[player]) {
       clean_up = 1;

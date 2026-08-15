@@ -86,15 +86,43 @@ extern unsigned       _pad_shift(unsigned char *info);
  * stores (36, inert); identity fence at the decl (38, worse).  => this is the receipted 06E
  * global/local-alloc handout gap; next instrument is allocsim `--want base=$s0` + reqdelta,
  * NOT more spelling sweeps.  Rung ladder re-run at this basin (04Z): 2.7.2 (wired) is optimal
- * -- 2.6.3 = 4/8 PASS w/ _pad_filter 27, 970404 = 2/8, 2.8.0/2.8.1 = 1/8. */
+ * -- 2.6.3 = 4/8 PASS w/ _pad_filter 27, 970404 = 2/8, 2.8.0/2.8.1 = 1/8.
+ * MATCH (w61-a5, 36 -> PASS 88/88) -- the w59 "06E allocator gap" verdict was WRONG; the s-band
+ * rotation was a SOURCE-SHAPE consequence, found by reading the cc1 -dl/-dg dumps (qty272.py,
+ * 12A: the 2.7.2 lane is instrument-lit).  Three edits, in this order:
+ *  (A) SPLIT THE LOOP CURSOR FROM THE BLOCK-0 BASE (`cur = info;` + the body walks `cur`).
+ *      THE MECHANISM (dumps, not guessed): with ONE walking `info`, that pseudo is used in two
+ *      blocks => a GLOBAL allocno, so local_alloc runs first and hands the only two remaining
+ *      call-crossing LOCAL qtys -- pad1/pad2 -- the numerically-first call-saved regs $s0/$s1
+ *      (local-alloc.c find_free_reg is a plain numeric scan once call_used_reg_set is excluded),
+ *      and global.c is left with $s2 for the base.  Splitting makes the block-0 base a LOCAL
+ *      qty too, with MORE refs than either pad, so local_alloc allocates it FIRST -> $s0, the
+ *      pads take $s1/$s2, and the loop cursor coalesces onto the same $s0.  Retail's exact
+ *      band, and the whole rotation + prologue-order + giv-bump diff class went with it.
+ *      36 -> 16, count-exact 88/88.
+ *  (B) MATERIALIZE THE BASE AFTER `_padInitDirSeq()` (decl split from init, 12D): retail's
+ *      `lui $s0,%hi(_pad_info)` sits AFTER the jal, i.e. the base pseudo is born after the
+ *      call (calls_crossed 2 -> 1).  `unsigned char *info;` + `info = _pad_info;` after the
+ *      call.  16 -> 10.  The identity fence must STAY (without it: 20 @90/88 -- cse const-folds
+ *      the two `sw` into absolute `lui $at,%hi(sym+off)` pairs again, w59 receipt (2)).
+ *  (C) THE `cur += 0xf0` WALK BELONGS IN THE for-HEADER (`for (p = 0; p < 2; p++, cur += 0xf0)`).
+ *      As a body statement its bump is emitted with the loop-body insns and lands 4th of the
+ *      five bottom bumps; in the header it joins loop.c's giv-update group, which emits
+ *      a3/a2/t0/a0 first and leaves the cursor bump LAST -- so reorg steals exactly that one
+ *      into the `bnez` delay slot = retail's `bnez $v0,.L800FDE08 / addiu $s0,$s0,0xF0`.
+ *      It also fixes the `addiu $a0,$s0,64` preheader position.  10 -> PASS.
+ * FALSIFIED at this basin: swapping the rxbuf/buf2 store order (20); a hand-rolled
+ * `while (p < 2) { ... p++; }` with the walk in the body (10, identical to the for form). */
 extern void PadInitDirect(unsigned char *pad1, unsigned char *pad2)
 {
-    unsigned char *info = _pad_info;
+    unsigned char *info;
+    unsigned char *cur;
     int p;
 
     _padIntExec  = 0;
     _padModeMtap = 0;
     _padInitDirSeq();
+    info = _pad_info;
     __asm__("" : "=r"(info) : "0"(info));
 
     _padFuncNextPort  = _pad_failall;
@@ -113,24 +141,24 @@ extern void PadInitDirect(unsigned char *pad1, unsigned char *pad2)
     *(unsigned char **)(info + 0x30) = pad1;
     *(unsigned char **)(info + 0xf0 + 0x30) = pad2;
 
-    for (p = 0; p < 2; p++) {
-        unsigned char *q = info + 0x5d;
+    cur = info;
+    for (p = 0; p < 2; p++, cur += 0xf0) {
+        unsigned char *q = cur + 0x5d;
         unsigned char fill = 0xff;
         int n = 5;
-        *(int *)(info + 0x0c) = 0;
-        *(unsigned char **)(info + 0x10) = info;        /* self ptr */
+        *(int *)(cur + 0x0c) = 0;
+        *(unsigned char **)(cur + 0x10) = cur;        /* self ptr */
         /* MATCH (w59-a7): the padbuf pointer is spelled INLINE at BOTH uses -- the oracle
-         * carries TWO `lw $v0,-16($a0)` because the first `sb` may-alias info[0x30]; a cached
+         * carries TWO `lw $v0,-16($a0)` because the first `sb` may-alias cur[0x30]; a cached
          * local emits only one load.  Same law as _padRecvAtLoadInfo's rx pointer. */
-        (*(unsigned char **)(info + 0x30))[0] = 0xff;
-        (*(unsigned char **)(info + 0x30))[1] = 0;
-        *(unsigned char **)(info + 0x3c) = _pad_rxbuf[p];
-        *(unsigned char **)(info + 0x40) = _pad_buf2[p];
+        (*(unsigned char **)(cur + 0x30))[0] = 0xff;
+        (*(unsigned char **)(cur + 0x30))[1] = 0;
+        *(unsigned char **)(cur + 0x3c) = _pad_rxbuf[p];
+        *(unsigned char **)(cur + 0x40) = _pad_buf2[p];
         /* MATCH (w59-a7): the 6-byte 0xFF fill is the SAME do/while-with-named-fill idiom that
          * seals the sibling _pad_reset_state (forward pointer + down counter); the index form
-         * `for (i=0;i<6;i++) info[0x5d+i]=0xff;` makes gcc reverse the walk. */
+         * `for (i=0;i<6;i++) cur[0x5d+i]=0xff;` makes gcc reverse the walk. */
         do { *q++ = (unsigned char)fill; } while (--n >= 0);
-        info += 0xf0;
     }
 
     _padSetVsyncParam();
@@ -187,6 +215,47 @@ extern void _pad_reset_state(unsigned char *info)
  *      NEXT ANGLE: the copy exists because `flag` is REASSIGNED (`flag = 0xffff`) at the loop
  *      bottom, so retail's parm pseudo and the loop variable are distinct; try splitting them in
  *      source (a separate loop variable initialised from the param).
+ * MATCH (w61-a5, 26 -> 17 @60/61) -- THREE cooperating edits, each measured, each with the
+ * gcc mechanism read off the cc1 -dg/-dl dumps (qty272.py at the wired 2.7.2 rung):
+ *  (i) `ret` IS THE `else` ARM, not a pre-staged default.  The old `ret = 1;` before the guard
+ *      let sched1 hoist the `li` to the TOP of the block (RTL insn 83 landed in the load-delay
+ *      slot of `lw _padSioRegs`), so ret's live range spanned every $v0/$v1 local qty in that
+ *      block -> `73 conflicts: ... 2 3 ...` in the .greg = a HARD-REG conflict with $v0, and
+ *      find_reg had to give ret $a1 (the two `addu` copies, w59's "ret parks in $a1" residual).
+ *      Writing `if (...) ret = call(...); else ret = (unsigned char *)1;` puts the `li` in the
+ *      guard-branch's delay slot (methodology 5.0c else-in-delay-slot), the conflict disappears
+ *      and ret takes retail's $v0 -- both copies gone.  26 -> 20.
+ *  (ii) VOID-TAIL FENCE AFTER `flag = 0xffff;` (zero insns) restores retail's whole loop tail.
+ *      Without it reorg's BACKWARD scan for the loop-back `beqz` steals the flag store into its
+ *      delay slot; that empties the join, so the call arm's `j` has nothing to steal and
+ *      relax_delay_slots deletes it (ours: `beqz; li 0xffff`).  The fence walls the backward
+ *      scan (06B hard boundary), so reorg instead fills the arm's `j` from the TARGET thread --
+ *      copying the flag store into the `j` slot and redirecting past it -- which is exactly
+ *      retail's `j; ori [slot]; ori; beqz; nop`.  20 -> 19, +3 insns, count 60/61.
+ *  (iii) SPLIT THE CHANNEL READ FROM THE INCREMENT (`chan = _padSioChan; ... chan = chan + 1;
+ *      _padSioChan = chan;`) -- the fused `_padSioChan = _padSioChan + 1` keeps the load, the
+ *      add and the compare in one dependence chain, so sched1 emits `slt` BEFORE the store
+ *      macro; split, the load floats up and the `slt` lands after `sw _padSioChan` = retail.
+ *      19 -> 17.  (Same family as catalog B "split the load from the decrement".)
+ * FALSIFIED at this basin (all measured, output byte-identical unless noted): flag=0xffff
+ *   duplicated into both arms (20, cross_jump merges them back); `int f = flag;` separate loop
+ *   var (19); identity fence on flag in the loop (19), before the loop (19); read-only fence on
+ *   flag after the tests (36); void fence BEFORE the flag store (20); statement-order sweep of
+ *   the state/JOY/chan trio (17 / 19 / 22 / 22); a `sio = _padSioRegs` pointer local to seed the
+ *   LUID order of the two loads (17, both placements).
+ * RESIDUAL 17 @60/61, TWO named classes:
+ *  (a) THE PARM COPY (7 lines): retail copies the incoming `flag` to $a1 (`addu $a1,$a0,$zero`)
+ *      and runs both tests off $a1; ours keeps it in $a0.  The .greg shows why no dial reaches
+ *      it: `72 preferences: 4` -- the parm pseudo carries a HARD-REG COPY PREFERENCE for $a0
+ *      from its own entry copy, and find_reg honours preferences BEFORE the numeric scan (12A),
+ *      so neither a priority dial nor any of the six fence/split spellings above can move it.
+ *      Retail's pseudo must carry a hard CONFLICT with $a0 that ours lacks.  ANGLE (named, not
+ *      floored): the 12A "zero-insn preference killer" -- a device that defines the parm pseudo
+ *      by something other than a reg-reg copy from $a0.  Needs the instrument, not spellings.
+ *  (b) THE TWO-LOAD LUID TIE (4 lines): retail issues `lw _padSioRegs` then `lw _padSioChan`,
+ *      ours the reverse.  Pure sched1 ready-list tie between two independent loads; the source
+ *      statement order of the pair does NOT flip it (sweep above), consistent with sched.c's
+ *      backward list order.
  *      ** THAT ANGLE IS NOW FALSIFIED (w59-a7 -- all three probes measured 34 @59/61, output
  *      byte-identical): (i) a separate `int f = flag;` loop variable (gcc coalesces it straight
  *      back onto the parm's $a0); (ii) the same split PLUS an identity fence on `f` (the fence
@@ -203,6 +272,7 @@ extern unsigned char *_pad_failall(int flag)
 {
     unsigned char *ret;
     int noport = -9;
+    int chan;
 
     do {
         unsigned char *info = _pad_info + _padSioChan * 0xf0;
@@ -214,14 +284,18 @@ extern unsigned char *_pad_failall(int flag)
                 _pad_shift(info);
             }
         }
+        chan = _padSioChan;
         _padSioState = 0;
         JOY_CTRL = 0;
-        _padSioChan = _padSioChan + 1;
-        ret = (unsigned char *)1;
-        if (_padSioChan <= _padChanStop)
+        chan = chan + 1;
+        _padSioChan = chan;
+        if (chan <= _padChanStop)
             ret = (unsigned char *)(unsigned long)
-                  _padInitSioMode(_pad_info + _padSioChan * 0xf0);
+                  _padInitSioMode(_pad_info + chan * 0xf0);
+        else
+            ret = (unsigned char *)1;
         flag = 0xffff;
+        __asm__("" : : "i"(0));
     } while (ret == 0);
     return ret;
 }
@@ -263,6 +337,24 @@ extern unsigned _pad_shift(unsigned char *info)
  * CFG spelled out).  ⇒ the merge direction is not source-reachable here; next angle is the
  * do_cross_jump input (which block ENDS in a jump at cross-jump time), i.e. an allocation/label
  * question, or the permuter.
+ * MATCH (w61-a5, 10 -> 5 @44/47): a ZERO-INSN VOID-TAIL FENCE IN THE `default` ARM, immediately
+ * before its inline `return (*(u_char **)(info+0x2c))[idx];`, un-merges that arm from the 'M'
+ * arm and restores retail's WHOLE 'M' block: guard polarity flips to the oracle's `beqz`, the
+ * `li $v0,255` lands in its delay slot, and the arm becomes `lw $v0,44($a0); j <shared>;
+ * addu $v0,$v0,$v1 [slot]` exactly as retail (12C: find_cross_jump refuses volatile
+ * ASM_OPERANDS, so an asm inside a candidate tail is the on-demand merge BLOCKER).  The default
+ * arm keeps its own full copy = retail's.  No source shape had reached that polarity in 3 waves.
+ * RESIDUAL 5 @44/47 -- ONE class, the same merge DIRECTION as before but now only for case 0:
+ *   retail keeps case 0's own `lw 40; nop; addu; lbu` copy and lets the OTHER arms jump into it;
+ *   ours still lets case 0 `j` into the surviving copy (`lw 40; j; addu [slot]`), 3 insns short.
+ *   FALSIFIED at this basin (all 5, byte-identical): a void fence in case 0 before its `break`;
+ *   case 0 rewritten as an inline `return` with a void fence; and all three in-tail fence
+ *   flavours placed BETWEEN the pointer load and the index (`__asm__("" : : "r"(buf))`,
+ *   the identity fence, and the void fence) -- the asm stops the tail comparison but the
+ *   surviving 2-insn tail (`addu`,`lbu`) is still enough for do_cross_jump.  The direction is
+ *   decided by which block ENDS in a jump vs falls into the epilogue, which no in-arm spelling
+ *   moves: the ANGLE is jump.c's do_cross_jump input (make the `jr ra`-terminated default arm
+ *   ineligible as the merge TARGET), i.e. a mechanism/permuter job, not a spelling one.
  * OLD (stale, 2.8 basin) note: the 4 extra instructions are jump.c RETURN-THREADING -- this fn is a
  * frameless leaf, so every `return` site gets its own threaded `jr $ra; nop` pair, where retail
  * keeps ONE shared epilogue block reached by `j .L800FE0A8` from all four exits.  Not reachable
@@ -294,6 +386,7 @@ extern int _pad_getbyte(unsigned char *info, int align)
     default:                                 /* fixed command param block */
         if (info[0x35] <= idx)
             return 0;
+        __asm__("" : : "i"(0));
         return (*(unsigned char **)(info + 0x2c))[idx];
     }
     return buf[idx];
@@ -352,6 +445,42 @@ extern int _pad_getbyte(unsigned char *info, int align)
  *   UNGUARDED `do { ... } while (i < nmask);` (56 @161/159 -- rotates the whole $a2/$a3 band).
  *   The residual `bne $v1,$t1` vs oracle `slt $v0,$v1,$t1; bnez` therefore stays the documented
  *   guard-fold class, not a comparison-operator miss.
+ * MATCH (w61-a5, 16 -> 11 @158/159) -- two edits:
+ *   (1) SECOND SEARCH LOOP: `if (*m2++ == mode) *flag = 1;` (post-increment FUSED INTO THE LOAD)
+ *       instead of a separate `m2++;` after the guard.  Retail puts that bump in the guard
+ *       branch's DELAY SLOT (`bne $v0,$t0,.L / addiu $a1,$a1,1`); as its own statement after the
+ *       `if` body, reorg's backward scan can only reach it past the conditional store, so ours
+ *       emitted `nop` in the slot and the bump after the `sb`.  16 -> 13.
+ *   (2) THE SHARED `1` IS A NAMED LOCAL (`unsigned char one = 1;`) declared as the FIRST local
+ *       of the `info[0xe9] != 0` block, before `row` (catalog 08D NAMED-ONE; the store becomes
+ *       `*flag = one`).  Retail materializes it in the preheader BEFORE `row`'s zero
+ *       (`addiu $t3,$zero,1 / addu $t2,$zero,$zero`); as an anonymous literal ours emitted the
+ *       hoist AFTER row's init.  Declaring it in the OUTER block instead measures 14.  13 -> 11.
+ * RESIDUAL 11 @158/159, THREE named classes:
+ *   (a) 3 lines: the first search loop's back-edge -- ours `bne $v1,$t1` (from the `!=` bound
+ *       that buys retail's folded `beqz $t1` entry guard), retail `slt $v0,$v1,$t1; bnez`.
+ *       Retail has BOTH the folded guard AND the `slt` back-edge, which is the guarded-do-while
+ *       shape -- and every guarded form is catastrophic in this basin (w53-a8 measured 61/62;
+ *       w61-a5 re-measured three more: `if (nmask != 0) { i = 0; do {...} while (i < nmask); }`
+ *       = 46, the same without braces = 53, with `*map++` fused = 51; plain `while (i < nmask)`
+ *       = 13 @160 -- same diff count, 2 insns WORSE).  Standing class: guard-fold.
+ *   (b) 1 line: the `andi $v1,$v1,255` remask on the second use of `info[0xe8]`.  An `int e8`
+ *       local kills the andi but costs 3 elsewhere (14 @157) -- PROMOTE_MODE family (11D).
+ *   (c) 7 lines: the 6-byte tail fill.  ** THE STRUCTURE IS NOW SOLVED (w61-a5) ** -- retail's
+ *       walking base + kept displacement is reproduced EXACTLY by
+ *         `unsigned char fill = 1; int n = 5; unsigned char *f = info + 5;`
+ *         `do { f[0x57] = fill; f--; } while (--n >= 0);`
+ *       which gives `sb $vN,87($a0)` + `addiu $a0,$a0,-1` in the bgez slot and makes the fn
+ *       COUNT-EXACT 159/159 (w59's "source-resistant, 3 walking spellings all 31" is retired --
+ *       those spellings dropped the 0x57 displacement).  It measures 14, NOT 11, because the
+ *       residual becomes a pure `fill`/`n` $v0<->$v1 LOCAL-ALLOC QTY TIE (retail fill=$v0,
+ *       n=$v1; ours reversed) worth 10 lines.  Not landed under the basin rule (14 > 11).
+ *       FALSIFIED dials on that tie: all SIX decl-order permutations of {fill,n,f} (14, byte-
+ *       identical -- decl order is inert here), read-only fence on `fill` after the loop and
+ *       inside it (14), read-only fence on `n` (14), `int fill` instead of `unsigned char` (14).
+ *       ANGLE: `n` outranks `fill` by REF COUNT (3 vs 2) in local_alloc's qty_compare, so it is
+ *       handed $v0 first; the dial is +1 REF ON `fill` THAT SURVIVES cse (the fences above did
+ *       not change the count), or a qty272-priced equivalent -- then the fn is 4 diffs.
  * => the rung is the TU's home; see the wiring note in the report. */
 extern void _pad_filter(unsigned char *info)
 {
@@ -361,6 +490,7 @@ extern void _pad_filter(unsigned char *info)
         int nmask = *(volatile unsigned char *)(info + 0x34) < 7 ? info[0x34] : 6;
         int mode = 0;
         if (info[0xe9] != 0) {
+            unsigned char one = 1;
             int row = 0;
             do {
                 int matched = 0;
@@ -392,8 +522,8 @@ extern void _pad_filter(unsigned char *info)
                     k = 0;
                     if (nmask != 0) {
                         do {
-                            if (*m2 == mode) *flag = 1;
-                            m2++; flag++;
+                            if (*m2++ == mode) *flag = one;
+                            flag++;
                             k++;
                         } while (k < nmask);
                     }

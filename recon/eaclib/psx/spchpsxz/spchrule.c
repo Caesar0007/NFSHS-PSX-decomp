@@ -33,7 +33,7 @@ typedef int bool;
  */
 
 typedef void (*SentenceRuleSetFn)(unsigned int, unsigned int, int, int);
-typedef int (*SentenceRuleTestFn)(unsigned int, unsigned int, int, int);
+typedef int (*SentenceRuleTestFn)(unsigned int, unsigned int, int);
 extern SentenceRuleSetFn gSentenceRuleSet[];  /* sentence rule-set callback (spchinit-owned); unsized-array
                                                * decl => separate-temp base materialization (catalog SSE #5) */
 extern SentenceRuleTestFn gSentenceRuleTest[]; /* sentence rule-test callback; UNSIZED-ARRAY decl for the
@@ -393,14 +393,51 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
  * pin hit's zeroing after the packed-byte load and defer the param copy into the ruleType branch
  * delay slot.  The remaining 26 are the established reload1 $t0/$a3 hard-register-order cluster
  * plus its spill-slot cascade, and the independent known-zero testValue copy ($s3 vs $zero). */
+/* 🏆 W61-A19 2026-08-15 -- 24 -> PASS 112/112.  The whole multi-wave "$t0-vs-$a3 reload1
+ * order_regs_for_reload floor" was a PROTOTYPE BUG, not an allocator floor.
+ *
+ * (1) THE CALLBACK IS 3-ARG, NOT 4-ARG (correctness fix; gcc-source-cited proof).
+ *     reload1.c:3894 `order_regs_for_reload`: a hard register that appears EXPLICITLY in the RTL
+ *     is in `regs_explicitly_used` (== regs_ever_live at reload entry), which adds `large+1` to
+ *     its use count AND -- because MIPS defines neither SMALL_REGISTER_CLASSES nor
+ *     REG_ALLOC_ORDER -- sets `bad_spill_regs` for it, so it can NEVER be picked as a reload
+ *     register anywhere in the function.  RETAIL USES $a3 AS THE RELOAD SCRATCH at 8 sites that
+ *     have nothing to do with the callback (the numRules spill, the values/out arg reloads)
+ *     ==> in retail's compilation $a3 was NOT an outgoing argument register ==> the
+ *     gSentenceRuleTest call passes THREE arguments.  Corroboration: its sibling callback
+ *     gSentenceRuleSet is called with exactly three ($a0/$a1/$a2, no $a3) at
+ *     iSPCH_ConstantRuleSet 0x801014A0-0x801014B0.  The 4-arg reading came from reading
+ *     `lw $a3,0x50($sp)` before the `jalr` as an argument set-up -- it is really the reload that
+ *     supplies the ADDRESS for argument 1 (`lhu $a0,0($a3)`), the classic methodology §3.1
+ *     caveat.  With arg 4 dropped and argument 1 spelled `(unsigned short)*sentence`, all 12
+ *     $t0-vs-$a3 diff lines vanish at count parity: 24 -> 6.
+ *     (The typedef is corrected to 3 params; the callback pointer is only ever zeroed in this
+ *     image -- SPCH_Init/SPCH_Deinit -- so no callee exists to disagree.)
+ *
+ * (2) THE REMAINING 6 WERE THE SPILL SLOT (0x1C ours vs 0x24 retail), and retail's frame says
+ *     exactly what to do: its inner block owns FOUR 4-byte memory slots 0x10/0x14/0x18/0x1C but
+ *     only writes three (the volatile decode fields), and its two reload spills then land at
+ *     0x20 (ruleData) and 0x24 (numRules).  Reproduced by (a) a fourth declared-but-unused
+ *     volatile local in that block -- zero instructions, it only consumes 0x1C -- and (b)
+ *     declaring `ruleData` before `numRules` so the two spilled pseudos get retail's regno order
+ *     (`alter_reg` hands stack slots out in ascending pseudo number).  Either half alone = 10.
+ *
+ * Falsified in THIS basin before the prototype fix (all worse, recorded so nobody re-runs them):
+ *   opacity fence on arg4 43@111 | volatile view on arg4 41@109 | on arg1 41@109 | on both
+ *   41@109 | opacity fence on arg1 31@113 | plain `sentence` for both args while still 4-arg
+ *   90@112.  After the fix, decl-order-only variants: ruleData-decl-first 10, +result/flags
+ *   reorder 10, ruleData/ruleType/value first 10, all-split 48@108. */
 extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
 {
+    unsigned char *ruleData;
     int            numRules = *(signed char *)((int)sentence + 7);
     unsigned char  result = 0;
     unsigned char  flags = 0;
-    unsigned char *ruleData = (unsigned char *)iSPCH_GetRuleDataAddr((int)sentence);
-    int            ruleType = 1;
-    int           *value = values + 1;
+    int            ruleType;
+    int           *value;
+    ruleData = (unsigned char *)iSPCH_GetRuleDataAddr((int)sentence);
+    ruleType = 1;
+    value = values + 1;
     do {
         int            i;
         int           *currentValue;
@@ -414,6 +451,12 @@ extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *o
                 volatile unsigned int paramStore;
                 unsigned int param;
                 volatile unsigned int type;
+                /* MATCH (w61-a19): retail's frame has a FOURTH 4-byte memory slot in this block
+                 * at 0x1C that is NEVER written -- a declared-but-unused memory local.  Its
+                 * presence pushes the two reload spills to 0x20/0x24 (retail) instead of
+                 * 0x1C/0x20 (ours); with ruleData declared before numRules (below) the whole
+                 * frame + spill map lands byte-exact.  Removing it costs 6 diffs. */
+                volatile unsigned int spare;
                 unsigned int packed;
                 unsigned int bit;
                 unsigned int ruleIdArg;
@@ -447,10 +490,14 @@ extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *o
                         hit = bit;
                 } else {
                     int testResult;
+                    /* MATCH: `sentence` is an ADDRESSABLE parameter in retail (`sw a0,0x50(sp)`
+                     * + reloads).  After the 3-arg fix below, taking its address here is the ONLY
+                     * remaining reason gcc keeps it in its incoming home slot -- dropping this
+                     * decl costs a callee-saved reg + an 88-byte frame (w34-a10 receipt). */
                     short **sentSlot = &sentence;
                     if (gSentenceRuleTest[0] != 0)
                         testResult = gSentenceRuleTest[0](
-                            (unsigned short)**sentSlot, ruleIdArg, testValue, (int)*sentSlot);
+                            (unsigned short)*sentence, ruleIdArg, testValue);
                     else
                         testResult = -1;
                     if (testResult == 0)

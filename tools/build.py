@@ -972,6 +972,8 @@ PER_FN_CC1_VER_SPLICE_272 = {
     # w55-a5 (probe-verified): CdReset -> PASS 27/27 on 2.8.0; whole-TU flip
     # catastrophic (CdControlF PASS->51) => per-fn.
     "recon/syslib/psx/libcd/cdcont.c": {"2.8.0": {"CdReset"}},
+    # w61-a6: _padLoadActInfo 26 -> 2 on the 2.7.2 rung (+1 move -> PASS).
+    "recon/syslib/psx/libpad/PADCMD.c": {"2.7.2": {"_padLoadActInfo"}},
 }
 
 
@@ -1229,6 +1231,45 @@ PER_FN_TEXT_MOVES = {
         ],
         "Flare_2DHalo__Fiiiii": [
             {"take": r"\tsw\t\$19,92\(\$sp\)\n", "after": r"\tmove\t\$17,\$7\n"},
+        ],
+    },
+    # w61-a19 (probe-verified via tm_all.json): transmult 2->PASS,
+    # iFILE_ExecCommand 4->PASS (casesi ready-list tie; nfile 27/27),
+    # unrefpack 6->PASS (3 refcpy arg-order sites), vramfxya 6->PASS.
+    # w61-a6 (whole-TU A/B 14->16 PASS): _padLoadActInfo -> PASS 53/53
+    # (with its 2.7.2 ver-splice), _padRecvAtLoadInfo 6 -> PASS 83/83.
+    "recon/eaclib/psx/eacpsxz/trnsmult.c": {
+        "transmult": [
+            {"take": r"\tsw\t\$4,104\(\$sp\)\n", "after": r"\tsw\t\$22,88\(\$sp\)\n"},
+        ],
+    },
+    "recon/eaclib/psx/eacpsxz/nfile.c": {
+        "iFILE_ExecCommand": [
+            {"take": r"\tsll\t\$3,\$3,2\n", "after": r"\taddiu\t\$2,\$2,%lo\(\$L\d+\) \# low\n"},
+            {"take": r"\tlui\t\$2,%hi\(\$L\d+\) \# high\n", "after": r"\tbeq\t\$2,\$0,\$L\d+\n(?=\t\.set\tmacro\n\t\.set\treorder\n\n\taddiu\t\$2,\$2,%lo\(\$L\d+\) \# low\n)"},
+        ],
+    },
+    "recon/eaclib/psx/eacpsxz/unref.c": {
+        "unrefpack": [
+            {"take": r"\tmove\t\$4,\$19\n(?=\tsrl\t\$2,\$17,8\n\tandi\t\$2,\$2,0x00ff\n)", "after": r"\taddu\t\$18,\$18,\$16\n(?=\tsll\t\$5,\$17,3\n)"},
+            {"take": r"\tmove\t\$4,\$19\n(?=\tsrl\t\$5,\$17,16\n)", "after": r"\taddu\t\$18,\$18,\$16\n(?=\tsrl\t\$2,\$17,8\n \#APP\n)"},
+            {"take": r"\tmove\t\$4,\$19\n(?=\tandi\t\$2,\$17,0xff00\n)", "after": r"\taddu\t\$18,\$18,\$16\n(?=\tsll\t\$3,\$17,12\n)"},
+        ],
+    },
+    "recon/eaclib/psx/eacpsxz/vramfxya.c": {
+        "vramfxya": [
+            {"take": r"\tli\t\$20,-4096[^\n]*\n", "after": r"\t\.set\treorder\n(?=\n\tandi\t\$19,\$21,0x0fff\n)"},
+            {"take": r"\tli\t\$17,-268435456[^\n]*\n\tori\t\$17,\$17,0xffff\n", "after": r"\tli\t\$20,-4096[^\n]*\n"},
+        ],
+    },
+    "recon/syslib/psx/libpad/PADCMD.c": {
+        "_padLoadActInfo": [
+            {"take": r"\tli\t\$3,0x00000004[^\n]*\n", "after": r" #NO_APP\n"},
+        ],
+        "_padRecvAtLoadInfo": [
+            {"take": r"\taddu\t\$4,\$4,8\n", "after": r"\taddu\t\$2,\$2,1\n"},
+            {"take": r"\tlbu\t\$2,71\(\$16\)\n", "after": r"\tlw\t\$4,236\(\$16\)\n"},
+            {"take": r"\tlbu\t\$3,4\(\$3\)\n", "after": r"\taddu\t\$2,\$2,1\n"},
         ],
     },
     # w60-a3 (orchestrator-wired, probe-verified REAL=0 in scratchpad/w60a3):

@@ -171,7 +171,42 @@ extern unsigned _padIntRecvHdr(unsigned char *info)
      * source spelling reaches the fill ORDER; this is the reorg-duplicate-placement class, not a
      * structural or coloring miss.  NEXT ANGLE: reorg processes branches in order and fills the
      * second only after failing the first -- find why the first steal is rejected (`-dR`/reorg
-     * trace), or route to the permuter. */
+     * trace), or route to the permuter.
+     * w61-a6 RTL-LEVEL DIAGNOSIS (the named angle answered as far as C can see it).  Dumped
+     * `-dJ`/`-dd` on the real 2.7.2 rung: our jump2 stream is
+     *   59: beq v1,v0 -> L80 | 61: beq v1,0 -> L80 | 94: v0=-9 | 65: bgez v1 -> L93
+     *   L80: 83: v0=v1 | L93: 92: (use v0) | epilogue
+     * i.e. jump.c ALREADY cross-jumped the two `return r` blocks and hoisted the -9, so the
+     * pre-reorg layout is byte-for-byte what retail must have had.  Retail's extra
+     * `addu $v0,$v1,$zero` is therefore reorg's fill_eager_delay_slots COPYING insn 83 out of
+     * the (un-owned, 2-ref) target thread into insn 59's slot and redirecting it past the copy
+     * to L93; the beqz then hits `redundant_insn` (the slot already performed the copy), gets
+     * redirected to L93 too, and keeps an empty slot -- which is exactly the oracle's
+     * `beq/addu`, `beqz/nop`, `bgez/li -9`, fall-through `addu`.  Our reorg refuses the FIRST
+     * steal.  MINIMAL REPRO built (`pbuild/w61a6/t1.c`, 12 lines, same 4-block tail) and swept:
+     *   * compiler ladder 2.6.0 / 2.6.3 / 2.7.2 / PsyQ CC1PSX 4.0: all refuse the steal
+     *     (identical `beq/beq/bgez+li -9/L2: move` output); 2.7.2-970404 / 2.8.0 / 2.8.1 /
+     *     2.95.2 fill the SECOND branch instead (`beq $3,$0,$L4 / move $2,$3`) -- no rung on
+     *     disk emits retail's shape from this source;
+     *   * flags inert: -fno-schedule-insns, -fno-schedule-insns2, -fno-thread-jumps,
+     *     -fno-cse-follow-jumps, -fomit-frame-pointer;
+     *   * 16 source shapes swept (flat 3x `return r`, if/else-if value chain, goto-out funnel,
+     *     `res` pre-set variable, `||` pair + inner `if` with the label INSIDE the block,
+     *     fully nested ifs both arm orders, do{}while(0)+break, `&&`-folded sign test,
+     *     distinct-arm store to force non-merge): every one either reproduces the base output
+     *     byte-identically or adds instructions.  The `ret_r:`-inside-the-if form
+     *     (`if (r==0x5a||r==0) goto ret_r; if ((int)r<0) { ret_r: return r; } return -9;`) is
+     *     BYTE-IDENTICAL to the current spelling -- jump.c canonicalises them all.
+     * MECHANISM READ (gcc-2.8.1 reorg.c, the only surviving discriminator): the steal is gated
+     * on `! insn_sets_resource_p (trial, &opposite_needed, 1)`, and `opposite_needed` comes from
+     * `mark_target_live_regs`, which reads `basic_block_live_at_start[]` -- an array that reorg
+     * NEVER recomputes and that was last filled by sched2's `find_basic_blocks`, BEFORE the
+     * post-sched2 `jump_optimize (insns, 1, 1, 0)` cross-jumped these very blocks.  So the
+     * liveness reorg consults is CFG-stale, and whether $v0 looks live at the opposite thread
+     * depends on the pre-cross-jump block numbering of the WHOLE function, not on this tail.
+     * => NOT reachable from a local spelling; the lever, if any, is a whole-function change
+     * that alters the pre-jump2 block layout (or a build.py TEXT_MOVES relocation of the one
+     * line).  Same class as _padIntRecvData's 4-diff residual. */
     if (r != 0x5a && r != 0) {
         if ((int)r < 0)
             return r;
@@ -193,7 +228,26 @@ extern unsigned _padIntRecvHdr(unsigned char *info)
  * `cur` is not initialized on paths that define it before use; staging `_padFixResult` through
  * `fixBase` gives the retail address materialization; separate pre-call `initial`, post-call `v`,
  * and stored `next` values reproduce the a0/v1/v0 webs.  The remaining 12 are one duplicated
- * a0 delay-slot placement plus two inverse but count-balancing clear-error branch layouts. */
+ * a0 delay-slot placement plus two inverse but count-balancing clear-error branch layouts.
+ * MATCH (w61-a6, 12 -> 4 @223/223) -- THE SHARED-EXIT OWNERSHIP LAW.  The "two inverse but
+ * count-balancing clear-error branch layouts" above were NOT a coin flip: they are a choice of
+ * WHICH of the three `if (_padClrIntSio0() == 0) return 0xfffffffd;` sites physically OWNS the
+ * `li $v0,-3; j <epilogue>` block.  The owner emits the LONG form (`bnez <skip>; nop; j <end>;
+ * [slot] li $v0,-3`); every other site is cross-jumped onto it, and reorg then steals the
+ * owner block's `li $v0,-3` into the branch slot and redirects -- the SHORT form
+ * (`beqz <end>; [slot] li $v0,-3`).  Ours put the owner at site 3 (stream_retry), retail at
+ * site 2 (the recv_auto `send_byte` tail).  Writing the owner explicitly -- ONE physical
+ * `clr_fail:` return block at the retail site plus `goto clr_fail;` at the other two -- is
+ * codegen-exact and reaches retail's layout at all three sites.  MEASURED: owner at site 1
+ * (drive_mtap) = 12 diffs (three sites wrong in a different pattern), owner at site 2 = 4,
+ * baseline (no explicit owner, gcc picks site 3) = 12.  Transferable: any fn with N identical
+ * early-return sites has a free 1-bit dial per site, and the gate's branch-target blindness
+ * hides it in the LCS count -- read the LONG/SHORT shape, not the diff number.
+ * RESIDUAL 4 (@223/223, one site): the `beqz`/`bltz` pair that both branch to `send_byte`
+ * (`if (v >= 2) goto send_byte; if (v < 0) goto send_byte;`).  Retail steals send_byte's first
+ * insn `addu $a0,$s1,$zero` into the FIRST branch's (beqz) slot and leaves the bltz's empty
+ * (redundant_insn suppresses the second steal); ours fills the SECOND.  This is the same reorg
+ * class as _padIntRecvHdr's residual below -- see that receipt for the falsification set. */
 extern unsigned _padIntRecvData(unsigned char *info)
 {
     int align = 0;
@@ -225,7 +279,7 @@ extern unsigned _padIntRecvData(unsigned char *info)
             {
                 setRC2wait(0x3c);
                 if (_padClrIntSio0() == 0)
-                    return 0xfffffffd;
+                    goto clr_fail;
                 idx = idx + 1;
             }
             off = off + 0xf0;
@@ -297,8 +351,11 @@ drive_done:
                     return (unsigned)st;
             }
             setRC2wait(0x3c);
-            if (_padClrIntSio0() == 0)
-                return 0xfffffffd;
+            if (_padClrIntSio0() != 0)
+                goto clr_ok;
+        clr_fail:
+            return 0xfffffffd;
+        clr_ok:
             _padMtapCount = _padMtapCount - 1;
             if (1 < _padMtapCount)
                 goto recv_auto;
@@ -316,7 +373,7 @@ stream_retry:
     }
     setRC2wait(0x3c);
     if (_padClrIntSio0() == 0)
-        return 0xfffffffd;
+        goto clr_fail;
 
 stream_count:
     _padMtapCount = _padMtapCount - 1;

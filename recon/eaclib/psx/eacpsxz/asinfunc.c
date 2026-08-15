@@ -205,6 +205,20 @@ extern int intarcsin(int x)   /* @0x800EACD8 */
      *     So the single QTY_CMP_PRI question is now reachable from BOTH sides (6 = right pair,
      *     wrong split; 16 = right split, swapped pair) -- that pair of basins is the material for
      *     the qtytrace pass, not another subscript spelling. */
+    /* W61-A19 2026-08-15 -- RE-GATED at 2 @48/48; the residual is confirmed to be ONE line
+     * (ours `addu v0,a1,v0` re-emitting the address vs retail `addu v0,v1,zero` copying it), and
+     * the w50-a9 "the base materialisation register is the only residual" reading applies to the
+     * FENCE basin, not to this one: HERE the la scratch is already retail's $v0 and the sum is
+     * already retail's $v1.  NEW, gcc-source-cited BOUND on the whole family (local-alloc.c:1866,
+     * `combine_regs`): a copy `(set P2 P1)` survives allocation only when `reg_qty[P1] < 0`, i.e.
+     * only when P1 is NOT BLOCK-LOCAL or DIES MORE THAN ONCE.  Both loads live in ONE basic block
+     * here and P1 has a single death, so there is no C spelling of the subscript that can keep the
+     * copy -- which is exactly why every one of the ~20 spellings receipted above collapses to
+     * either 47 insns (one address pseudo) or 48 with a second ADD.  The w47-a5 opacity fence works
+     * precisely because an `asm_operands` def makes P1 non-tieable; that basin (6 diffs at 48/48,
+     * with retail's copy present) is therefore the structurally-correct one and its residual is a
+     * pure local-alloc QTY_CMP_PRI pair assignment.  ANGLE UNCHANGED and now bounded: qtytrace/-dl
+     * the two pointer qtys in the depth-2 fence basin.  Do NOT re-spell the subscript. */
     if (x <= 0xFA00) {                           /* coarse region: round-to-nearest lookup */
         if (x & 0x40)
             idx = (x >> 7) + 1;

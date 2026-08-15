@@ -302,6 +302,31 @@ extern void vramfxya(unsigned int *c, int imgX, int imgY, int clutX, int clutY)
      * the reference step that gives every long-lived value its retail s-reg.
      * Reconstructing `c` as the pointer parameter (instead of an int parameter
      * plus a local cast) also restores retail's a0->s0 prologue placement. */
+    /* 🏆 W61-A19 2026-08-15 -- 6 -> PASS 165/165 via a BUILD.PY TEXT_MOVES row (2 moves).  The
+     * register assignment is already retail-exact (c s0, maskHi s1, clutYm s2, clutXm s3,
+     * maskLo s4, ...), so the residual is ONLY where sched2 floats the two loop-invariant mask
+     * constants inside the post-guard block: retail emits `li s4,-4096` + `lui/ori s1` FIRST,
+     * then the clutXm/clutYm chain; ours emits the clutXm/clutYm chain, then maskHi, then the
+     * clut22p init, then the LICM-hoisted maskLo last.  That is the w44 law "what pins a preheader
+     * constant is REGISTER ASSIGNMENT, not statement order" seen from the other side: with the
+     * assignment already correct there is nothing left for a source dial to move.
+     * FALSIFIED this wave (every one perturbs the allocation the last four waves bought):
+     *   maskHi as the FIRST decl-with-init 14 | + maskLo decl-with-init, in-loop def kept 16 |
+     *   both decl-init, in-loop def dropped 22 | maskHi decl-init + maskLo decl-init, in-loop
+     *   dropped 22 | maskHi assignment moved to the first statement 14 | maskLo (plain / d1
+     *   do-while wrapper / d2 wrapper) moved to the preheader ahead of maskHi 22 / 26 / 26.
+     * ORCHESTRATOR SPEC (probe-verified PASS; TU-mate `checkrect` re-gated PASS under it):
+     *   "recon/eaclib/psx/eacpsxz/vramfxya.c": {"vramfxya": [
+     *     {"take":  r"\tli\t\$20,-4096[^\n]*\n",
+     *      "after": r"\t\.set\treorder\n(?=\n\tandi\t\$19,\$21,0x0fff\n)"},
+     *     {"take":  r"\tli\t\$17,-268435456[^\n]*\n\tori\t\$17,\$17,0xffff\n",
+     *      "after": r"\tli\t\$20,-4096[^\n]*\n"}]}
+     * Move 1 lifts maskLo ($20/s4) to the head of the post-guard block (anchored on the
+     * `.set reorder` that closes the `beq $16,$0,$L5` noreorder wrapper, disambiguated by a
+     * lookahead on the block's first real insn); move 2 then puts the maskHi pair ($17/s1)
+     * directly after it.  Both takes occur exactly once in the .ent region.  NOTE: this fn is
+     * NOT an EA expander-template site -- the w49-a8 template verdict in this file already
+     * cleared it, and the residual here is a plain sched2 float. */
     unsigned int maskLo;
     unsigned int maskHi;                     /* clears bits 16-27 (y field) */
     unsigned int clutXraw = (unsigned int)clutX;

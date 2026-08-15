@@ -41,6 +41,19 @@ extern int      _dirCheck(unsigned char *info);
  * so the lane is a NET LOSS here (whole-TU A/B: base 44 diffs / 1 PASS vs 272 lane 146 / 1 PASS,
  * _dirSendAuto PASS -> 3).  Do NOT wire PADSEQD.c to the lane; re-test once the other four fns
  * are re-matched in the 272 basin.
+ * w61-a5 RE-TEST (that condition is now ANSWERED -- and the answer is still NO): with
+ * _dirRecvAuto rebuilt on its switch dispatch (34 -> 2), the whole-TU A/B is DEFAULT 12 diffs /
+ * 1 PASS vs the 2.7.2 rung 48 diffs / 1 PASS (_padInitDirSeq PASS but _dirSendAuto PASS -> 3,
+ * _dirRecvAuto 2 -> 25, _dirCheck 4 -> 13, _dirFailAuto 3 -> 7).  The lane stays off.
+ * w61-a5 MECHANISM SPEC (the only remaining route -- orchestrator): the class is POST-maspsx.
+ * cc1 emits the macro `sw $2,_padFuncRecvAuto` followed by `j $31` with an EMPTY slot (reorder
+ * mode); maspsx expands the macro to `lui $1,%hi; sw $2,%lo($1)` BEFORE the branch and nops the
+ * slot, while GNU-as/aspsx in reorder mode split it ACROSS the branch.  PER_FN_TEXT_MOVES runs
+ * on the PRE-maspsx .s, so it cannot express this (moving the macro line into the slot would put
+ * BOTH halves there).  Needed: a per-fn POST-maspsx rule -- "if the two insns before `jr $ra`
+ * are `lui $1,%hi(SYM)` + `sw $r,%lo(SYM)($1)`, move the `sw` into the return's delay slot and
+ * drop the nop" -- which reproduces retail's 13 insns exactly.  No source spelling can reach it
+ * (the address must stay in the assembler's $at macro form; a pointer local emits la+sw = 3).
  * Falsified in-basin earlier: original order, hoisted r=_dirRecvAuto temp, order swap,
  * r=_dirRecvAuto var. */
 extern void _padInitDirSeq(void)
@@ -104,10 +117,39 @@ extern int _dirSendAuto(unsigned char *info)
     return 0;
 }
 
-/* @0x8010A1E4 : _dirRecvAuto (_padFuncRecvAuto) -- absorb the reply, advance the state machine. */
+/* @0x8010A1E4 : _dirRecvAuto (_padFuncRecvAuto) -- absorb the reply, advance the state machine.
+ * MATCH (w61-a5, 34 -> 2 @148/148, count-exact) -- three edits, all read off the oracle:
+ *  (1) THE STATE DISPATCH IS A REAL `switch (st)` OVER {0, 1, 0xfe}, EXACTLY LIKE THE SIBLING
+ *      _dirSendAuto (and _pad_getbyte).  The oracle's tree is gcc-2.8's balance_case_nodes:
+ *      root `beq $v1,$a0(=1)` with the bound test `slti $v0,$v1,2` in its DELAY SLOT, then
+ *      `beqz $v1` for case 0 and `beq $v1,$v0(=0xFE)` for case 0xfe, EVERY body out of line and
+ *      `default` falling through to the fn-ptr tail.  The old `if (st == 1) {...} if (st < 2)
+ *      { if (st == 0) {...} } else if (st == 0xfe) {...}` cascade INLINES the st==1 arm as the
+ *      fall-through (`bne` instead of `beq`) and lets cse fold that arm's `info[0x46]` reload
+ *      into `st + 1` (`addu $v0,$v1,$zero; addu $v0,$v0,$a0`), which retail re-reads.
+ *      🔑 CASE ORDER IS LOAD-BEARING: `case 0:` must be written FIRST (retail lays the st==0
+ *      block ahead of the st==1 block and cross-jumps their shared `addiu ,1; sb` tail);
+ *      case-1-first measures 18, case-0-first 14.  34 -> 14.
+ *  (2) THE FN-PTR TAIL ARM ORDER: `if (p != 0) r = (*p)(info); else r = _padRecvAtLoadInfo(info);`
+ *      -- retail's fall-through is the INDIRECT call (`beqz $v0` skips to the `jal`), so the
+ *      non-NULL arm is the if-BODY.  14 -> 8.
+ *  (3) `prev_e8` IS AN `int`, NOT A `char`: with a narrow local, the `(unsigned char)` compare
+ *      operand emits `andi $v0,$s1,255` and swaps the compare's operand order
+ *      (`lbu $v1,232; beq $v1,$v0` vs retail `lbu $v0,232; beq $v0,$s1`).  As an `int` the
+ *      saved-reg copy is already the zero-extended byte from its own `lbu` and the mask
+ *      disappears -- PROMOTE_MODE family (11D).  Measured alternatives: `unsigned char` (14
+ *      then 8, inert), `unsigned` (2, equivalent), Yoda operand order (8 / 4).  8 -> 2.
+ * RESIDUAL 2: ours stages the `info[0x36] == 0` path's return value with
+ * `addu $v0,$zero,$zero` in that `beqz`'s DELAY SLOT where retail leaves `nop` -- retail simply
+ * RETURNS THE TESTED REGISTER (on the taken edge `$v0` is already 0, cse's record_jump_equiv).
+ * FALSIFIED: routing the test through the return variable (`r = info[0x36]; if (r == 0) return r;`
+ * and the `(r = info[0x36]) == 0` embedded-assignment form) -- both still stage a fresh zero (2);
+ * a void-tail fence at the return block's head to block reorg's steal makes it WORSE (4 @150);
+ * the same fence after the guard is inert (2).  ANGLE: this is the "reuse the tested reg as the
+ * return value" class (catalog F) -- a cse/jump-equiv property, not a spelling. */
 extern unsigned _dirRecvAuto(unsigned char *info)
 {
-    char           prev_e8 = info[0xe8];
+    int            prev_e8 = info[0xe8];
     unsigned char  mode    = (*(unsigned char **)(info + 0x3c))[0] >> 4;
     int            st;   /* MATCH: signed -- the oracle's bound test is `slti ,2`, not sltiu */
     unsigned       r;
@@ -130,7 +172,7 @@ extern unsigned _dirRecvAuto(unsigned char *info)
     if (((*(unsigned char **)(info + 0x3c))[1] == 0 &&
          ((info[0x46] != 1 || *(int *)(info + 0x14) != 0) && info[0x50] == 0)) ||
         (_dirCheck(info) == 0 && info[0x37] == 0 && info[0x4a] == 0 &&
-         info[0xe8] != (unsigned char)prev_e8)) {
+         info[0xe8] != prev_e8)) {
         _padFuncClrInfo(info);
     }
     info[0x4a] = 0;
@@ -144,30 +186,30 @@ extern unsigned _dirRecvAuto(unsigned char *info)
         return 0;
 
     st = info[0x46];
-    if (st == 1) {
-        info[0x47] = 0;
+    switch (st) {
+    case 0:
+        info[0x49] = 1;
         r = info[0x46] + 1;                      /* MATCH: the oracle RE-READS +0x46 for the bump
                                                   * (`lbu; addiu ,1; sb`) in both arms, sharing one
                                                   * increment block -- not `st + 1` */
         info[0x46] = (unsigned char)r;
         return r;
-    }
-    if (st < 2) {
-        if (st == 0) {
-            info[0x49] = 1;
-            r = info[0x46] + 1;
-            info[0x46] = (unsigned char)r;
-            return r;
-        }
-    } else if (st == 0xfe) {
+    case 1:
+        info[0x47] = 0;
+        r = info[0x46] + 1;
+        info[0x46] = (unsigned char)r;
+        return r;
+    case 0xfe:
         r = 0xff;
         info[0x46] = (unsigned char)r;
         return r;
+    default:
+        break;
     }
-    if (*(void **)(info + 0x18) == 0)
-        r = _padRecvAtLoadInfo(info);
-    else
+    if (*(void **)(info + 0x18) != 0)
         r = (*(PadRcv *)(info + 0x18))(info);
+    else
+        r = _padRecvAtLoadInfo(info);
     info[0x46] = info[0x46] + (unsigned char)r;
     return r;
 }
@@ -201,7 +243,11 @@ extern unsigned _dirRecvAuto(unsigned char *info)
  * copy direction merely reverses), `return (info[0x46] = 0xff);` assignment-as-expression (3,
  * identical output), ONE mutated carrier for BOTH constants `int v = 2; ... v = 0xff;` (9 -- the
  * merged pseudo takes $v1 and the whole arm rotates).  The reachable angle is the store pseudo
- * winning $2, i.e. a local-alloc qty question, not a spelling one. */
+ * winning $2, i.e. a local-alloc qty question, not a spelling one.
+ * w61-a5: the 12D "assign into the EXISTING variable that owns the register" reading was tested
+ * too -- routing BOTH constants through the fn's own return variable `r` (`r = 2; info[0x49] =
+ * r; r = 0xff; info[0x46] = r; return r;`) measures 16 with the info fence and 16 without, and
+ * carrying only the 255 through `r` measures 12 (all @57/55).  The 3-diff copy stands. */
 extern int _dirFailAuto(unsigned char *info)
 {
     unsigned char st;
@@ -263,7 +309,12 @@ extern int _dirFailAuto(unsigned char *info)
  *   set): result-funnel `int r = 1; if (...) r = 0; return r;` (11 @10 insns), `return !(A && B)`
  *   (13 @12), inner-arm early-return nest (12 @11), `unsigned ff` (4), a 4th block qty `int busy
  *   = 0; return busy;` (4 -- the w46 3-QTY-boundary dial does NOT fire here), a named `mw` word
- *   temp (4), a use fence on ff inside the guard (4), bare literal instead of `ff` (6). */
+ *   temp (4), a use fence on ff inside the guard (4), bare literal instead of `ff` (6).
+ * w61-a5 added 3 more falsifications of the 12D DEAD-PSEUDO-STAGING angle (retail's 0xFF lives
+ * in $v0 = the register the just-tested `mw` halfword owns, so the law says "assign into the
+ * EXISTING variable"): reusing that variable as the constant carrier in the nested form (8), in
+ * the De-Morgan flat form (12), and via a comma-expression inside the `&&` (8).  All three
+ * rotate the whole fn; the hard-reg conflict receipt above stands. */
 extern int _dirCheck(unsigned char *info)
 {
     int ff = 0xff;
@@ -271,4 +322,3 @@ extern int _dirCheck(unsigned char *info)
         return 0;
     return 1;
 }
-

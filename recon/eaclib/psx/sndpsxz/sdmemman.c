@@ -448,7 +448,37 @@ extern int iSNDpsxmalloc(int size)
      * commit_block ++/-- reference dial from before the two entry stores to between them.  This
      * changes only local-alloc/live-range pricing and improves the commit address/store cluster;
      * placing it after both stores regresses to 30, duplicating it before and between returns to
-     * 20, and moving the entry_off dial before the stores regresses to 26. */
+     * 20, and moving the entry_off dial before the stores regresses to 26.
+     *
+     * 🔴 W61-A19 2026-08-15 -- RE-GATED BASELINE WAS 40 @129/127 (ours 2 LONGER), NOT the 18/20
+     * quoted by the W58..W62 fork-corpus notes above -- those numbers do NOT reproduce under this
+     * repo's gate and must not be used as a baseline (re-gate first, standing rule).
+     * 40 -> 26 AT COUNT-EXACT 127/127 with ONE source change: the return value is now computed
+     * into a named `result` BEFORE the alloc-count read-modify-write (see the commit block).  The
+     * two extra instructions were two load-delay `nop`s: `local_block`'s stack home may-alias the
+     * `sndpd+0x518` store, so with the trailing `return local_block << 6;` the scheduler could not
+     * hoist the reload over the count store and neither the count `lhu` nor the result `lw` got a
+     * filler.  Retail interleaves them (`lw v0,16(sp); lhu v1,1304(a0); sll v0,v0,6; addiu v1,v1,1;
+     * sh v1,1304(a0)`), which is exactly what the named result reproduces.
+     * FALSIFIED in the NEW 26-diff basin (the w60-12D int-typed index-first `addu` operand lever,
+     * re-tested per the LEVER-ORDER-DEPENDENCE law because the 40-diff readings were basin-stale):
+     *   commit `entry = (unsigned short *)(entry_off + (unsigned int)table)` 26 (neutral) |
+     *   scan `prev = (unsigned short *)((idx * 4) + (int)previous)` 32 | scan_done
+     *   `prev = (unsigned short *)((int)off + (int)pv)` 26 (neutral) | all three 32 |
+     *   commit+scan_done 26 | commit+scan 32.  (In the OLD 40-diff basin the scan form measured 46
+     *   and the pair 46, so the lever is basin-relative but never a win here.)
+     * RESIDUAL 26 = FOUR count-exact register clusters, all the same mirror the file has tracked
+     * since w32 (ours/retail):
+     *   (i)   the dead `sll ?,s0,2` in three branch delay slots: v0 / v1  (3 lines)
+     *   (ii)  the scan entry address: `addu v1,s3,v0` / `addu a2,v0,s3` + its two `lhu` bases
+     *   (iii) scan_done's base+offset: `sll a2` / `sll v0`, `addiu v0,v1,0` / `addiu v1,v1,0`,
+     *         `addu a2,a2,v0` / `addu a2,v0,v1`
+     *   (iv)  the commit address `addu v0,v0,a0` / `addu a1,v1,a0` + the `lhu v0,16(sp)` position
+     *         (retail loads local_block BEFORE both entry stores, ours between them).
+     * NEXT ANGLE (named, untried in THIS basin): allocsim MATCH check + `reqdelta --want` on the
+     * scan/commit address pseudos -- the whole residual is now ONE consistent v0/v1/a2 rotation at
+     * count parity, which is exactly the priced-dial shape (methodology 4.3), and every prior
+     * spelling sweep in this file was run against a basin that was 7 insns SHORT. */
     unsigned char *base = sndpd;
     unsigned char *pd;
     unsigned int blk, src;
@@ -566,9 +596,19 @@ commit:
         do { commit_block++; commit_block--; } while (0);
         do { entry_off++; entry_off--; } while (0);
         entry[0] = commit_block;
-        *(unsigned short *)(commit_base + 0x518) =
-            *(unsigned short *)(commit_base + 0x518) + 1;
-        return local_block << 6;
+        {
+            /* MATCH (w61-a19, 40 -> 26 at COUNT-EXACT 127/127): retail computes the RETURN VALUE
+             * (`lw v0,16(sp); sll v0,v0,6`) INTERLEAVED with the alloc-count read-modify-write,
+             * which fills both load-delay slots.  Written as a trailing `return local_block << 6;`
+             * the reload sits after the count store and gcc pays TWO nops -- `local_block`'s stack
+             * home may-alias the sndpd store, so the scheduler may not hoist the load over it.
+             * Naming the result BEFORE the RMW puts the load on retail's side of the store and the
+             * `sll` becomes the count-load's delay filler. */
+            int result = (int)(local_block << 6);
+            *(unsigned short *)(commit_base + 0x518) =
+                *(unsigned short *)(commit_base + 0x518) + 1;
+            return result;
+        }
     }
 }
 

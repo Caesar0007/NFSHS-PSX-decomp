@@ -418,57 +418,6 @@ void RaceStatistics(void)
      rotation is very likely a consequence of WHERE the three initialisers sit, not an
      independent tie.  Sweep their statement positions (the w45 stmtclimb family) before
      touching anything else. */
-  /* ---- w64-a13 (2026-08-15): 94 KEPT @471/475, but the w63 "THREE NAMED CONSTANTS"
-   * reading is CORRECTED and a COUNT-EXACT 475/475 basin is now banked with the census
-   * down from five opcodes to TWO.  Repro: scratchpad/w64a13/rprobe{3,4,5,6}.py +
-   * apply.py (variants `pf_below` 102, `pf_rows` 102, `ip` = pf_rows + in-place titleX
-   * 106 -- all 475/475 count-EXACT).
-   * (1) READ THE WHOLE ORACLE, NOT THE PROLOGUE: two of w63's "three constants" are
-   *     NOT constants, they are TWO-ROLE VARIABLES mutated in place --
-   *       $s7: `addiu s7,zero,0xA0` (insn 6) -> `subu s4,s7,v1` (POS_X)
-   *            -> `subu s7,s7,v0` @0x800DA0B0 (titleX, IN PLACE) -> later the j counter;
-   *       $s2: `addiu s2,zero,1` (insn 8) -> both `== 1` tests -> `sw s2,0x10(sp)`
-   *            (the 1st Hud_FBuildF4's 5th arg) -> later colmid.
-   *     And col2 gets its OWN `addiu s5,zero,0xA0` @0x800DA0A8, so the w46 instruction
-   *     "cx must be routed to all three sites incl. col2" was WRONG.  Because both cross
-   *     calls they are callee-saved BY CONSTRUCTION -- no fence is needed to park them,
-   *     which is what separates this from every w45/w46/w50/w63 "named constant" probe.
-   * (2) THE BASIN.  `pitch = 0x96;` + the w45 use fence placed BELOW the SIZE_H statement
-   *     (so numLaps is read first, like retail) is count-EXACT 475/475 at 102; adding the
-   *     w41 `rows` local lands it CLEANLY (ours `addiu a1,a1,28; sh` == oracle
-   *     `addiu a0,a0,28; sh`, the `li t1,52` const-fold gone) and adding the in-place
-   *     titleX merges 160 INTO titleX's own pseudo (ours `subu s1,s1,v0` == retail's
-   *     `subu s7,s7,v0`).  Census ladder: kept 94 = `addiu 68v70 addu 54v55 mflo 0v1
-   *     mult 0v1 sll 53v52` -> pf_rows = `addiu 69v70 addu 54v55 nop 25v23` -> ip =
-   *     `addiu 69v70 nop 24v23`.  Placement of the pitch fence is the whole dial:
-   *     ABOVE the SIZE_H statement 140 @473, BELOW it 102 @475, no fence 139 @472.
-   * (3) THE RESIDUAL IS NOW ONE PRICED BAND SWAP, and the model is VALID here:
-   *     tools/allocsim.py reports MATCH 49/49 on the `ip` basin (dump it with
-   *     `apply.py rprobe5 ip` + `tools/rtl_dump.py recon/game/psx/overlays.cpp -dg -dl`).
-   *     pseudoid names them: p95 = `(set (reg/v:SI 95) (const_int 160))` = titleX,
-   *     p123 = `(set (reg:SI 123) (const_int 1))` = the anonymous cse constant 1.
-   *     Retail wants p95=$s7 and p123=$s2; we get $s1 and $s7.
-   *     multidial PRICES THE titleX HALF EXACTLY: **p95 live 57 -> 61 (+4 RTL insns in
-   *     its range, refs UNCHANGED at 4) lands it in retail's $s7** (verified by
-   *     `multidial.py ... --ov "p95:live=61"` -> that half matches).  p95 refs 4->3 does
-   *     NOT work (it drops to $fp).  The p123 half is NOT priced: it needs $s2, held by
-   *     p257 (a pointer, refs=8 live=68, pri 0.3529) -- reqdelta finds no single- or
-   *     two-dial delta in +-60, and multidial's greedy only closes it with p237
-   *     refs 18->1 (the GameSetup_gData address pointer -- not source-reachable).
-   *     FALSIFIED attempts to buy the +4 live (all on the `ip` basin, all 475/475 unless
-   *     noted): titleX added as a 2nd operand of the pitch fence 110 . titleX declared
-   *     after the pitch fence 106 (bit-identical) . its own `"r"(titleX)` fence right
-   *     after the init 113 @476 . col1/col2 moved ABOVE the in-place update 134 @473 .
-   *     a `"r"(col1)` fence before the Font_TextXY 106 (bit-identical) . the same with
-   *     two operands 106 . both fences together 113 @476.
-   *     NEXT TAKER: the dial is +4 RTL insns inside p95's live range at ZERO refs and
-   *     ZERO barriers -- i.e. exactly the w60-12E "4-WITNESS INSTRUMENT REQUEST" (lengthen
-   *     a live range without adding a ref or a barrier).  A cheaper equivalent is to move
-   *     p95's BIRTH earlier: retail's `li s7,160` is at insn 6 (interleaved with the
-   *     saves) while ours is at ~insn 20, so ~14 insns of the delta are already sitting
-   *     in the birth position -- pin the `li 160` into the prologue group and the live
-   *     dial comes for free.  Do NOT re-probe spellings of the three constants; that axis
-   *     is closed in both waves. */
   HUD_STATS_SIZE_W = Cars_gNumHumanRaceCars * 0x96;
   HUD_STATS_POS_X = 0xa0 - Cars_gNumHumanRaceCars * 0x4b;
   /* the numLaps==1 arm RE-COMPUTES `(numLaps+1)*0xc + 0x1c` (oracle @0x800DA044
@@ -745,43 +694,6 @@ void RaceStatistics(void)
  * catalog's FOLD-REWRITE ESCAPE row (split_tree's varsign=-1 branch: fold never re-folds
  * its own rewrite output) is the one device this receipt stack has never tried, and it is
  * the named next angle. */
-/* ---- w64-a13 (2026-08-15): 24 KEPT @473/473 -- but THE CENSUS'S ONE EXTRA `subu` IS
- * SOLVED, and the residual has moved.  Repro: scratchpad/w64a13/bprobe{,2,3}.py.
- * READ THE ORACLE LOOP BODY, not just the arm: retail hoists BOTH operands above the loop
- * (`sll v0,s7,16; sra s2,v0,16` = (int)SIZE_H, and `subu s1,s0,v0` = yoff) and then writes
- * TWO COMPLETE SUBTRACTIONS -- `beqz postgame,.else / addiu v0,s1,8 / j .join /
- * subu v0,s2,v0 / .else: subu v0,s2,s1`.  So the arm is a 2-arm select over a LOOP-
- * INVARIANT (yoff, sizeH) pair, which w53 (bare ternary, 37 @474) and w60 (bare yoff
- * local, 33 @474) each measured HALF of and never together.
- *   `int yoff` + `int sizeH` hoisted above the loop + the two-arm ternary
- *   (`(postgame ? sizeH - (yoff + 8) : sizeH - yoff) - (showtimeleft ? 0x10 : 0)`)
- *   = 33 @474 and its census is `addiu 52v51  addu 68v67  nop 24v25` --
- *   **`subu` is 11v11, i.e. the ONE opcode w63 bounded the whole 24 to is GONE.**
- * The new +1 addiu/+1 addu are NAMED by side_by_side: retail computes `startY + 0xf`
- * ONCE into an int (`sll s0,s6,16; sra s0; addiu s0,s0,15` @0x800DAA4C) and passes
- * `addu a2,s0,zero` at every call AND derives yoff from that same s0; ours re-derives it
- * and stages a second copy into $s2.  ⚠️ FALSIFIED: minting that as a source local
- * (`int yplus = startY + 0xf;` at the first Hud_FBuildF4, reused at all sites) makes us
- * SHORTER, not longer -- cse over-shares it: yplus alone 38 @471, yplus + the full stack
- * 39 @470, yplus + two-arm ternary 35 @470, full stack with the showtimeleft call left
- * alone 27 @472.  So the term must stay spelled inline and the sharing must come from
- * cse, not from a variable.
- * ALSO FALSIFIED this wave (all on the kept 24 basin, the two devices the w63 note named):
- *   EMBEDDED ASSIGNMENT (catalog 14C, a MODIFY_EXPR operand blocks fold's reassociation)
- *   applied to the SHARED yoff term rather than w49's outer `inset`:
- *     `SIZE_H - ((yoff = (startY+0xf) - POS_Y) + (postgame?8:0)) - ...` 33 @474 .
- *     addend-first 33 @474 . the assignment on `(yoff = startY + 0xf)` instead 27 @472 .
- *     showtimeleft-first 44 @473 . minting yoff at the showtimeleft call site 32 @473.
- *   FOLD-REWRITE ESCAPE (split_tree varsign=-1, `(CON-VAR)+ARG1 -> (CON+ARG1)-VAR`):
- *     `SIZE_H - ((postgame?8:0) - POS_Y + (startY+0xf)) - ...` 32 @473 . the same with
- *     showtimeleft folded into the subtrahend 41 @476 . `(postgame?8:0) + (startY+0xf)
- *     - POS_Y` 24 (BIT-IDENTICAL -- fold reaches it anyway).
- * ⇒ neither device blocks the reassociation in the ONE-EXPRESSION shape; only the
- * TWO-ARM shape does, because there is no addend left to sink.  NEXT TAKER: start from
- * the two-arm + hoisted-pair basin (33 @474) and attack ONLY the `startY + 0xf` sharing
- * -- the target is retail's single int temp reused by three call sites and by yoff, with
- * NO source local (cse must mint it).  Everything else in that basin is register roles
- * (ours s1=SIZE_H/s0=yoff, retail s2=SIZE_H/s1=yoff) plus one nop/lhu rotation. */
 /* HIDDEN-PHANTOM FIX (w14-a2): oracle mangles __Fsb (short,bool) -- 2nd param was `int`, mangling
  * __Fsi, a NAME MISMATCH invisible to the gate (same class as the AudioCmn_GetAsyncSfx precedent).
  * SYM confirms `class ARG type BOOL name postgame`. */

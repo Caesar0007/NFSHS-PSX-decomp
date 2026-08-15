@@ -812,11 +812,38 @@ void InGame_SetRamp(void)
       do {
       int ctrl;
 
-        hp = hoff + i;
         ctrl = *(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288);
         *(int *)(ctrl + 0x1c) = 1;
         *(int *)(ctrl + 0x20) = 1;
         *(int *)(ctrl + 0x18) = 1;
+        /* ===== w64-a14: SEAL 13 -> PASS 98/98.  FOUR ordered devices; the
+         * w63-a14 "push k on loop.c's threshold" angle was never needed --
+         * the &hoff hoist is killed at the MOVABLE-EXISTENCE layer instead.
+         *  (1) MOVABLE-EXISTENCE KILL (catalog 15C): loop.c builds a movable
+         *      only for n_times_set==1, so splitting `hp = hoff + i;` into
+         *      `hp = hoff; hp = hp + i;` removes the invariant-address movable
+         *      outright.  13 -> 10 (count 99 -> 96).
+         *  (2) IDENTITY LAUNDER on the base (`"=r"/"0"`, zero insns): the %hi
+         *      half was still hoisted; laundering the base pseudo blocks it.
+         *      10 -> 9.
+         *  (3) USE-ADJACENCY: retail computes &hoff[i] AFTER the three
+         *      `ctrl->... = 1` stores (ours filled their two load-delay nops
+         *      with the lui/addiu instead).  Moving the whole group down to
+         *      its first use restores retail's two nops.  9 -> 8.
+         *  (4) BLOCK-SCOPED base + INT-TYPED index-first sum: a BLOCK-local
+         *      `hb` gives the §3.15 SEPARATE-scratch form (`lui v0; addiu v0;
+         *      addu s0,..,v0`) where the fn-scope pseudo self-temped into $s0;
+         *      and the sum must be INT-typed with the index FIRST -- a
+         *      pointer sum canonicalises ptr-first and leaves the last diff
+         *      `addu s0,v0,v1` vs retail `addu s0,v1,v0` (catalog 14D/12D).
+         *      8 -> 2 -> PASS.  `i * 4`, `i << 2` and `(int)(i * 4)` all seal;
+         *      `i + hb` (pointer sum) does NOT (2).
+         * SYM NOTE: the 8c block lists only `h`($s4) and `i`($s3) -- `hp`/`hb`
+         * are reconstruction devices, and the SYM's mask $803f0000 (s0-s5+ra,
+         * NO s6) is the receipt that retail carried NO hoisted &hoff pseudo. */
+        { int *hb = hoff;
+          __asm__("" : "=r"(hb) : "0"(hb));
+          hp = (int *)(i * 4 + (int)hb); }
         if (InGame_GetDevice(h[0x4f - *hp]) == 1) {
           *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x18) = 0;
         }

@@ -1,0 +1,12 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMCRD / USERFUNC / UserFuncComplete
+linkage=export  section-size=24 bytes (6 words)  vendor-relocs=2
+retail VA=0x80109CF8  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c020000  3c028014  R  lui	v0,0x0                          <HI16 .data(base)>
+0004  8c420130  8c42c2e0  R  lw	v0,304(v0)                       <LO16 .data(base)>
+0008  03e00008  03e00008  =  jr	ra                             
+000c  000217c2  000217c2  =  srl	v0,v0,0x1f                    
+0010  00000000  00000000  =  nop                               
+0014  00000000  00000000  =  nop                               

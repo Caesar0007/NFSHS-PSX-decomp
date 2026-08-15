@@ -1,0 +1,9 @@
+W67-A1 VENDOR GROUND TRUTH  LIBPAD / PADCMD / _padSetAct
+linkage=export  section-size=12 bytes (3 words)  vendor-relocs=0
+retail VA=0x801055F0  VERDICT=identical
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  ac850028  ac850028  =  sw	a1,40(a0)                      
+0004  03e00008  03e00008  =  jr	ra                             
+0008  a0860034  a0860034  =  sb	a2,52(a0)                      

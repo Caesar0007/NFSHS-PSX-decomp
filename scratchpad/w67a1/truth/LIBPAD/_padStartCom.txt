@@ -1,0 +1,57 @@
+W67-A1 VENDOR GROUND TRUTH  LIBPAD / PADMAIN / _padStartCom
+linkage=export  section-size=204 bytes (51 words)  vendor-relocs=23
+retail VA=0x80104C1C  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0004  afbf0014  afbf0014  =  sw	ra,20(sp)                      
+0008  afb00010  afb00010  =  sw	s0,16(sp)                      
+000c  3c010000  3c018013  R  lui	at,0x0                          <HI16 (0x40 + .data(base))>
+0010  0c000000  0c041a63  R  jal	0x0                             <REL26 EnterCriticalSection>
+0014  ac200d40  ac207cb0  R  sw	zero,3392(at)                    <LO16 (0x40 + .data(base))>
+0018  24040002  24040002  =  li	a0,2                           
+001c  3c100000  3c108015  R  lui	s0,0x0                          <HI16 .bss(base)>
+0020  26100d80  2610857c  R  addiu	s0,s0,3456                    <LO16 .bss(base)>
+0024  0c000000  0c042ff2  R  jal	0x0                             <REL26 SysDeqIntRP>
+0028  02002821  02002821  =  move	a1,s0                        
+002c  24040002  24040002  =  li	a0,2                           
+0030  0c000000  0c042ff6  R  jal	0x0                             <REL26 SysEnqIntRP>
+0034  02002821  02002821  =  move	a1,s0                        
+0038  24040003  24040003  =  li	a0,3                           
+003c  3c030000  3c038013  R  lui	v1,0x0                          <HI16 (0x68 + .data(base))>
+0040  8c630d68  8c637cd8  R  lw	v1,3432(v1)                      <LO16 (0x68 + .data(base))>
+0044  2402fffe  2402fffe  =  li	v0,-2                          
+0048  ac620000  ac620000  =  sw	v0,0(v1)                       
+004c  8c620004  8c620004  =  lw	v0,4(v1)                       
+0050  00002821  00002821  =  move	a1,zero                      
+0054  34420001  34420001  =  ori	v0,v0,0x1                     
+0058  0c000000  0c041999  R  jal	0x0                             <REL26 ChangeClearRCnt>
+005c  ac620004  ac620004  =  sw	v0,4(v1)                       
+0060  0c000000  0c041a5b  R  jal	0x0                             <REL26 ExitCriticalSection>
+0064  00000000  00000000  =  nop                               
+0068  3c040000  3c048013  R  lui	a0,0x0                          <HI16 (0x3C + .data(base))>
+006c  8c840d3c  8c847cac  R  lw	a0,3388(a0)                      <LO16 (0x3C + .data(base))>
+0070  3c020000  3c028013  R  lui	v0,0x0                          <HI16 (0xC + .data(base))>
+0074  8c420d0c  8c427c7c  R  lw	v0,3340(v0)                      <LO16 (0xC + .data(base))>
+0078  00000000  00000000  =  nop                               
+007c  0040f809  0040f809  =  jalr	v0                           
+0080  00000000  00000000  =  nop                               
+0084  3c040000  3c048013  R  lui	a0,0x0                          <HI16 (0x3C + .data(base))>
+0088  8c840d3c  8c847cac  R  lw	a0,3388(a0)                      <LO16 (0x3C + .data(base))>
+008c  3c020000  3c028013  R  lui	v0,0x0                          <HI16 (0xC + .data(base))>
+0090  8c420d0c  8c427c7c  R  lw	v0,3340(v0)                      <LO16 (0xC + .data(base))>
+0094  00000000  00000000  =  nop                               
+0098  0040f809  0040f809  =  jalr	v0                           
+009c  248400f0  248400f0  =  addiu	a0,a0,240                   
+00a0  3c020000  3c028015  R  lui	v0,0x0                          <HI16 (0x10 + .bss(base))>
+00a4  24420d90  2442858c  R  addiu	v0,v0,3472                    <LO16 (0x10 + .bss(base))>
+00a8  ac400004  ac400004  =  sw	zero,4(v0)                     
+00ac  ac400000  ac400000  =  sw	zero,0(v0)                     
+00b0  24020001  24020001  =  li	v0,1                           
+00b4  3c010000  3c018013  R  lui	at,0x0                          <HI16 (0x40 + .data(base))>
+00b8  ac220d40  ac227cb0  R  sw	v0,3392(at)                      <LO16 (0x40 + .data(base))>
+00bc  8fbf0014  8fbf0014  =  lw	ra,20(sp)                      
+00c0  8fb00010  8fb00010  =  lw	s0,16(sp)                      
+00c4  03e00008  03e00008  =  jr	ra                             
+00c8  27bd0018  27bd0018  =  addiu	sp,sp,24                    

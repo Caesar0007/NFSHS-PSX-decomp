@@ -1,0 +1,68 @@
+W67-A1 VENDOR GROUND TRUTH  LIBPAD / PADENTRY / PadInfoMode
+linkage=export  section-size=248 bytes (62 words)  vendor-relocs=10
+retail VA=0x800EFF60  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c020000  3c028013  R  lui	v0,0x0                          <HI16 _padFuncPort2Info>
+0004  8c420000  8c427c8c  R  lw	v0,0(v0)                         <LO16 _padFuncPort2Info>
+0008  27bdffe0  27bdffe0  =  addiu	sp,sp,-32                   
+000c  afb00010  afb00010  =  sw	s0,16(sp)                      
+0010  00a08021  00a08021  =  move	s0,a1                        
+0014  afb10014  afb10014  =  sw	s1,20(sp)                      
+0018  afbf0018  afbf0018  =  sw	ra,24(sp)                      
+001c  0040f809  0040f809  =  jalr	v0                           
+0020  00c08821  00c08821  =  move	s1,a2                        
+0024  00401821  00401821  =  move	v1,v0                        
+0028  24020003  24020003  =  li	v0,3                           
+002c  12020016  12020016  =  beq	s0,v0,0x88                    
+0030  2a020004  2a020004  =  slti	v0,s0,4                      
+0034  10400007  10400007  =  beqz	v0,0x54                      
+0038  24020001  24020001  =  li	v0,1                           
+003c  1202000c  1202000c  =  beq	s0,v0,0x70                    
+0040  24020002  24020002  =  li	v0,2                           
+0044  1202000d  1202000d  =  beq	s0,v0,0x7c                    
+0048  00001021  00001021  =  move	v0,zero                      
+004c  08000094  0803c011  R  j	0x250                             <REL26 (0x250 + .text(base))>
+0050  00000000  00000000  =  nop                               
+0054  24020004  24020004  =  li	v0,4                           
+0058  1202000e  1202000e  =  beq	s0,v0,0x94                    
+005c  24020064  24020064  =  li	v0,100                         
+0060  1202001c  1202001c  =  beq	s0,v0,0xd4                    
+0064  00001021  00001021  =  move	v0,zero                      
+0068  08000094  0803c011  R  j	0x250                             <REL26 (0x250 + .text(base))>
+006c  00000000  00000000  =  nop                               
+0070  906200e8  906200e8  =  lbu	v0,232(v1)                    
+0074  08000094  0803c011  R  j	0x250                             <REL26 (0x250 + .text(base))>
+0078  00000000  00000000  =  nop                               
+007c  946200e6  946200e6  =  lhu	v0,230(v1)                    
+0080  08000094  0803c011  R  j	0x250                             <REL26 (0x250 + .text(base))>
+0084  00000000  00000000  =  nop                               
+0088  906200e4  906200e4  =  lbu	v0,228(v1)                    
+008c  08000094  0803c011  R  j	0x250                             <REL26 (0x250 + .text(base))>
+0090  00000000  00000000  =  nop                               
+0094  06210004  06210004  =  bgez	s1,0xa8                      
+0098  00000000  00000000  =  nop                               
+009c  906200e3  906200e3  =  lbu	v0,227(v1)                    
+00a0  08000094  0803c011  R  j	0x250                             <REL26 (0x250 + .text(base))>
+00a4  00000000  00000000  =  nop                               
+00a8  906200e3  906200e3  =  lbu	v0,227(v1)                    
+00ac  00000000  00000000  =  nop                               
+00b0  0222102a  0222102a  =  slt	v0,s1,v0                      
+00b4  1040000a  1040000a  =  beqz	v0,0xe0                      
+00b8  00111040  00111040  =  sll	v0,s1,0x1                     
+00bc  8c630000  8c630000  =  lw	v1,0(v1)                       
+00c0  00000000  00000000  =  nop                               
+00c4  00431021  00431021  =  addu	v0,v0,v1                     
+00c8  94420000  94420000  =  lhu	v0,0(v0)                      
+00cc  08000094  0803c011  R  j	0x250                             <REL26 (0x250 + .text(base))>
+00d0  00000000  00000000  =  nop                               
+00d4  8c62004c  8c62004c  =  lw	v0,76(v1)                      
+00d8  08000094  0803c011  R  j	0x250                             <REL26 (0x250 + .text(base))>
+00dc  00000000  00000000  =  nop                               
+00e0  00001021  00001021  =  move	v0,zero                      
+00e4  8fbf0018  8fbf0018  =  lw	ra,24(sp)                      
+00e8  8fb10014  8fb10014  =  lw	s1,20(sp)                      
+00ec  8fb00010  8fb00010  =  lw	s0,16(sp)                      
+00f0  03e00008  03e00008  =  jr	ra                             
+00f4  27bd0020  27bd0020  =  addiu	sp,sp,32                    

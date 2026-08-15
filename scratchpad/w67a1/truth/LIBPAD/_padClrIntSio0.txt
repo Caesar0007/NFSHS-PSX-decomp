@@ -1,0 +1,42 @@
+W67-A1 VENDOR GROUND TRUTH  LIBPAD / PADMAIN / _padClrIntSio0
+linkage=export  section-size=144 bytes (36 words)  vendor-relocs=9
+retail VA=0x80105538  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0004  3c030000  3c038013  R  lui	v1,0x0                          <HI16 (0x68 + .data(base))>
+0008  8c630d68  8c637cd8  R  lw	v1,3432(v1)                      <LO16 (0x68 + .data(base))>
+000c  3c040000  3c048013  R  lui	a0,0x0                          <HI16 (0x6C + .data(base))>
+0010  8c840d6c  8c847cdc  R  lw	a0,3436(a0)                      <LO16 (0x6C + .data(base))>
+0014  2402ff7f  2402ff7f  =  li	v0,-129                        
+0018  afbf0010  afbf0010  =  sw	ra,16(sp)                      
+001c  ac620000  ac620000  =  sw	v0,0(v1)                       
+0020  94820004  94820004  =  lhu	v0,4(a0)                      
+0024  00000000  00000000  =  nop                               
+0028  30420080  30420080  =  andi	v0,v0,0x80                   
+002c  1040000d  1040000d  =  beqz	v0,0x64                      
+0030  00000000  00000000  =  nop                               
+0034  0c000000  0c043002  R  jal	0x0                             <REL26 chkRC2wait>
+0038  00000000  00000000  =  nop                               
+003c  14400010  14400010  =  bnez	v0,0x80                      
+0040  00001021  00001021  =  move	v0,zero                      
+0044  3c020000  3c028013  R  lui	v0,0x0                          <HI16 (0x6C + .data(base))>
+0048  8c420d6c  8c427cdc  R  lw	v0,3436(v0)                      <LO16 (0x6C + .data(base))>
+004c  00000000  00000000  =  nop                               
+0050  94420004  94420004  =  lhu	v0,4(v0)                      
+0054  00000000  00000000  =  nop                               
+0058  30420080  30420080  =  andi	v0,v0,0x80                   
+005c  1440fff5  1440fff5  =  bnez	v0,0x34                      
+0060  00000000  00000000  =  nop                               
+0064  3c040000  3c048013  R  lui	a0,0x0                          <HI16 (0x6C + .data(base))>
+0068  8c840d6c  8c847cdc  R  lw	a0,3436(a0)                      <LO16 (0x6C + .data(base))>
+006c  00000000  00000000  =  nop                               
+0070  9483000a  9483000a  =  lhu	v1,10(a0)                     
+0074  24020001  24020001  =  li	v0,1                           
+0078  34630010  34630010  =  ori	v1,v1,0x10                    
+007c  a483000a  a483000a  =  sh	v1,10(a0)                      
+0080  8fbf0010  8fbf0010  =  lw	ra,16(sp)                      
+0084  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+0088  03e00008  03e00008  =  jr	ra                             
+008c  00000000  00000000  =  nop                               

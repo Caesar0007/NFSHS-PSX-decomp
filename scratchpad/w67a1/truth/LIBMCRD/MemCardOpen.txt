@@ -1,0 +1,104 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMCRD / LIBMCRD / MemCardOpen
+linkage=export  section-size=392 bytes (98 words)  vendor-relocs=27
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffc0  --------     addiu	sp,sp,-64                   
+0004  afb30024  --------     sw	s3,36(sp)                      
+0008  00809821  --------     move	s3,a0                        
+000c  afb40028  --------     sw	s4,40(sp)                      
+0010  00a0a021  --------     move	s4,a1                        
+0014  afb5002c  --------     sw	s5,44(sp)                      
+0018  00c0a821  --------     move	s5,a2                        
+001c  afb1001c  --------     sw	s1,28(sp)                      
+0020  3c110000  --------     lui	s1,0x0                          <HI16 (0x28 + .bss(base))>
+0024  26311b38  --------     addiu	s1,s1,6968                    <LO16 (0x28 + .bss(base))>
+0028  afbf0038  --------     sw	ra,56(sp)                      
+002c  afb70034  --------     sw	s7,52(sp)                      
+0030  afb60030  --------     sw	s6,48(sp)                      
+0034  afb20020  --------     sw	s2,32(sp)                      
+0038  afb00018  --------     sw	s0,24(sp)                      
+003c  8e220000  --------     lw	v0,0(s1)                       
+0040  00000000  --------     nop                               
+0044  04400006  --------     bltz	v0,0x60                      
+0048  00009021  --------     move	s2,zero                      
+004c  3c040000  --------     lui	a0,0x0                          <HI16 (0xA8 + .rdata(base))>
+0050  0c000000  --------     jal	0x0                             <REL26 printf>
+0054  24841a18  --------     addiu	a0,a0,6680                    <LO16 (0xA8 + .rdata(base))>
+0058  080001c4  --------     j	0x710                             <REL26 (0x710 + .text(base))>
+005c  2402ffff  --------     li	v0,-1                          
+0060  02602021  --------     move	a0,s3                        
+0064  26300010  --------     addiu	s0,s1,16                    
+0068  0c000645  --------     jal	0x1914                          <REL26 (0x1914 + .text(base))>
+006c  02002821  --------     move	a1,s0                        
+0070  02002021  --------     move	a0,s0                        
+0074  0c000000  --------     jal	0x0                             <REL26 strcat>
+0078  02802821  --------     move	a1,s4                        
+007c  ae33fffc  --------     sw	s3,-4(s1)                      
+0080  2634fff0  --------     addiu	s4,s1,-16                   
+0084  24110002  --------     li	s1,2                           
+0088  24160003  --------     li	s6,3                           
+008c  24170005  --------     li	s7,5                           
+0090  0c000000  --------     jal	0x0                             <REL26 _clr_card_event>
+0094  00000000  --------     nop                               
+0098  02002021  --------     move	a0,s0                        
+009c  0c000000  --------     jal	0x0                             <REL26 open>
+00a0  36a58000  --------     ori	a1,s5,0x8000                  
+00a4  0441002c  --------     bgez	v0,0x158                     
+00a8  ae02fff0  --------     sw	v0,-16(s0)                     
+00ac  0c000482  --------     jal	0x1208                          <REL26 (0x1208 + .text(base))>
+00b0  00002021  --------     move	a0,zero                      
+00b4  8e03ffe0  --------     lw	v1,-32(s0)                     
+00b8  3c010000  --------     lui	at,0x0                          <HI16 (0x6C + .bss(base))>
+00bc  18600006  --------     blez	v1,0xd8                      
+00c0  ac221b7c  --------     sw	v0,7036(at)                      <LO16 (0x6C + .bss(base))>
+00c4  3c040000  --------     lui	a0,0x0                          <HI16 .rdata(base)>
+00c8  0c000000  --------     jal	0x0                             <REL26 printf>
+00cc  24841970  --------     addiu	a0,a0,6512                    <LO16 .rdata(base)>
+00d0  080001ac  --------     j	0x6b0                             <REL26 (0x6B0 + .text(base))>
+00d4  00002021  --------     move	a0,zero                      
+00d8  3c040000  --------     lui	a0,0x0                          <HI16 (0x380 + .text(base))>
+00dc  24840380  --------     addiu	a0,a0,896                     <LO16 (0x380 + .text(base))>
+00e0  ae11ffe0  --------     sw	s1,-32(s0)                     
+00e4  ae800004  --------     sw	zero,4(s4)                     
+00e8  ae800008  --------     sw	zero,8(s4)                     
+00ec  3c010000  --------     lui	at,0x0                          <HI16 (0x24 + .bss(base))>
+00f0  0c000000  --------     jal	0x0                             <REL26 UserFuncOpen>
+00f4  ac331b34  --------     sw	s3,6964(at)                      <LO16 (0x24 + .bss(base))>
+00f8  00002021  --------     move	a0,zero                      
+00fc  00002821  --------     move	a1,zero                      
+0100  0c000487  --------     jal	0x121c                          <REL26 (0x121C + .text(base))>
+0104  27a60010  --------     addiu	a2,sp,16                    
+0108  3c040000  --------     lui	a0,0x0                          <HI16 (0x6C + .bss(base))>
+010c  8c841b7c  --------     lw	a0,7036(a0)                      <LO16 (0x6C + .bss(base))>
+0110  0c000482  --------     jal	0x1208                          <REL26 (0x1208 + .text(base))>
+0114  00000000  --------     nop                               
+0118  8fa30010  --------     lw	v1,16(sp)                      
+011c  00000000  --------     nop                               
+0120  1076ffdb  --------     beq	v1,s6,0x90                    
+0124  00000000  --------     nop                               
+0128  14710005  --------     bne	v1,s1,0x140                   
+012c  00000000  --------     nop                               
+0130  26520001  --------     addiu	s2,s2,1                     
+0134  2a420005  --------     slti	v0,s2,5                      
+0138  1440ffd5  --------     bnez	v0,0x90                      
+013c  00000000  --------     nop                               
+0140  14600002  --------     bnez	v1,0x14c                     
+0144  00000000  --------     nop                               
+0148  afb70010  --------     sw	s7,16(sp)                      
+014c  8fa20010  --------     lw	v0,16(sp)                      
+0150  080001c4  --------     j	0x710                             <REL26 (0x710 + .text(base))>
+0154  00000000  --------     nop                               
+0158  00001021  --------     move	v0,zero                      
+015c  8fbf0038  --------     lw	ra,56(sp)                      
+0160  8fb70034  --------     lw	s7,52(sp)                      
+0164  8fb60030  --------     lw	s6,48(sp)                      
+0168  8fb5002c  --------     lw	s5,44(sp)                      
+016c  8fb40028  --------     lw	s4,40(sp)                      
+0170  8fb30024  --------     lw	s3,36(sp)                      
+0174  8fb20020  --------     lw	s2,32(sp)                      
+0178  8fb1001c  --------     lw	s1,28(sp)                      
+017c  8fb00018  --------     lw	s0,24(sp)                      
+0180  03e00008  --------     jr	ra                             
+0184  27bd0040  --------     addiu	sp,sp,64                    

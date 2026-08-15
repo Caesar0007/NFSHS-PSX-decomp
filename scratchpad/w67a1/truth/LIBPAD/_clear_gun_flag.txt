@@ -1,0 +1,18 @@
+W67-A1 VENDOR GROUND TRUTH  LIBPAD / GUNHOOK / _clear_gun_flag
+linkage=export  section-size=48 bytes (12 words)  vendor-relocs=4
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c010000  --------     lui	at,0x0                          <HI16 (0xD0 + .bss(base))>
+0004  03e00008  --------     jr	ra                             
+0008  ac200400  --------     sw	zero,1024(at)                    <LO16 (0xD0 + .bss(base))>
+000c  3c020000  --------     lui	v0,0x0                          <HI16 (0x144 + .text(base))>
+0010  24420144  --------     addiu	v0,v0,324                     <LO16 (0x144 + .text(base))>
+0014  0040f809  --------     jalr	v0                           
+0018  00000000  --------     nop                               
+001c  00000000  --------     nop                               
+0020  00000000  --------     nop                               
+0024  00000000  --------     nop                               
+0028  00000000  --------     nop                               
+002c  00000000  --------     nop                               

@@ -1,0 +1,54 @@
+W67-A1 VENDOR GROUND TRUTH  LIBPAD / PADENTRY / PadGetState
+linkage=export  section-size=192 bytes (48 words)  vendor-relocs=5
+retail VA=0x800EFEA0  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c020000  3c028013  R  lui	v0,0x0                          <HI16 _padFuncPort2Info>
+0004  8c420000  8c427c8c  R  lw	v0,0(v0)                         <LO16 _padFuncPort2Info>
+0008  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+000c  afbf0010  afbf0010  =  sw	ra,16(sp)                      
+0010  0040f809  0040f809  =  jalr	v0                           
+0014  00000000  00000000  =  nop                               
+0018  00402021  00402021  =  move	a0,v0                        
+001c  8c820034  8c820034  =  lw	v0,52(a0)                      
+0020  3c03ffff  3c03ffff  =  lui	v1,0xffff                     
+0024  00431024  00431024  =  and	v0,v0,v1                      
+0028  1440000f  1440000f  =  bnez	v0,0x68                      
+002c  00000000  00000000  =  nop                               
+0030  8c820010  8c820010  =  lw	v0,16(a0)                      
+0034  00000000  00000000  =  nop                               
+0038  10820005  10820005  =  beq	a0,v0,0x50                    
+003c  00000000  00000000  =  nop                               
+0040  90820038  90820038  =  lbu	v0,56(a0)                     
+0044  00000000  00000000  =  nop                               
+0048  14400007  14400007  =  bnez	v0,0x68                      
+004c  00000000  00000000  =  nop                               
+0050  8c820030  8c820030  =  lw	v0,48(a0)                      
+0054  00000000  00000000  =  nop                               
+0058  90420000  90420000  =  lbu	v0,0(v0)                      
+005c  00000000  00000000  =  nop                               
+0060  10400012  10400012  =  beqz	v0,0xac                      
+0064  00000000  00000000  =  nop                               
+0068  90830049  90830049  =  lbu	v1,73(a0)                     
+006c  24020003  24020003  =  li	v0,3                           
+0070  1062000c  1062000c  =  beq	v1,v0,0xa4                    
+0074  28620004  28620004  =  slti	v0,v1,4                      
+0078  10400005  10400005  =  beqz	v0,0x90                      
+007c  24020002  24020002  =  li	v0,2                           
+0080  1062000b  1062000b  =  beq	v1,v0,0xb0                    
+0084  24020001  24020001  =  li	v0,1                           
+0088  08000056  0803bfd3  R  j	0x158                             <REL26 (0x158 + .text(base))>
+008c  00000000  00000000  =  nop                               
+0090  24020006  24020006  =  li	v0,6                           
+0094  10620006  10620006  =  beq	v1,v0,0xb0                    
+0098  24020004  24020004  =  li	v0,4                           
+009c  08000056  0803bfd3  R  j	0x158                             <REL26 (0x158 + .text(base))>
+00a0  00000000  00000000  =  nop                               
+00a4  08000057  0803bfd4  R  j	0x15c                             <REL26 (0x15C + .text(base))>
+00a8  24020001  24020001  =  li	v0,1                           
+00ac  90820049  90820049  =  lbu	v0,73(a0)                     
+00b0  8fbf0010  8fbf0010  =  lw	ra,16(sp)                      
+00b4  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+00b8  03e00008  03e00008  =  jr	ra                             
+00bc  00000000  00000000  =  nop                               

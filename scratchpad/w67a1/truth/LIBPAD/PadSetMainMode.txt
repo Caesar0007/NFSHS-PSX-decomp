@@ -1,0 +1,24 @@
+W67-A1 VENDOR GROUND TRUTH  LIBPAD / PADENTRY / PadSetMainMode
+linkage=export  section-size=72 bytes (18 words)  vendor-relocs=3
+retail VA=0x800F0164  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c020000  3c028013  R  lui	v0,0x0                          <HI16 _padFuncPort2Info>
+0004  8c420000  8c427c8c  R  lw	v0,0(v0)                         <LO16 _padFuncPort2Info>
+0008  27bdffe0  27bdffe0  =  addiu	sp,sp,-32                   
+000c  afb00010  afb00010  =  sw	s0,16(sp)                      
+0010  00a08021  00a08021  =  move	s0,a1                        
+0014  afb10014  afb10014  =  sw	s1,20(sp)                      
+0018  afbf0018  afbf0018  =  sw	ra,24(sp)                      
+001c  0040f809  0040f809  =  jalr	v0                           
+0020  00c08821  00c08821  =  move	s1,a2                        
+0024  00402021  00402021  =  move	a0,v0                        
+0028  320500ff  320500ff  =  andi	a1,s0,0xff                   
+002c  0c000000  0c041750  R  jal	0x0                             <REL26 _padSetMainMode>
+0030  322600ff  322600ff  =  andi	a2,s1,0xff                   
+0034  8fbf0018  8fbf0018  =  lw	ra,24(sp)                      
+0038  8fb10014  8fb10014  =  lw	s1,20(sp)                      
+003c  8fb00010  8fb00010  =  lw	s0,16(sp)                      
+0040  03e00008  03e00008  =  jr	ra                             
+0044  27bd0020  27bd0020  =  addiu	sp,sp,32                    

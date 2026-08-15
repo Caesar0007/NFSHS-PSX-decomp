@@ -1,0 +1,125 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMCRD / BIOS / _card_start
+linkage=export  section-size=476 bytes (119 words)  vendor-relocs=67
+retail VA=0x80109620  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0004  afbf0014  afbf0014  =  sw	ra,20(sp)                      
+0008  0c000000  0c041a63  R  jal	0x0                             <REL26 EnterCriticalSection>
+000c  afb00010  afb00010  =  sw	s0,16(sp)                      
+0010  3c04f400  3c04f400  =  lui	a0,0xf400                     
+0014  34840001  34840001  =  ori	a0,a0,0x1                     
+0018  24050004  24050004  =  li	a1,4                           
+001c  24061000  24061000  =  li	a2,4096                        
+0020  3c070000  3c078011  R  lui	a3,0x0                          <HI16 .text(base)>
+0024  24e70000  24e79550  R  addiu	a3,a3,0                       <LO16 .text(base)>
+0028  0c000000  0c041b88  R  jal	0x0                             <REL26 OpenEvent>
+002c  00408021  00408021  =  move	s0,v0                        
+0030  3c04f400  3c04f400  =  lui	a0,0xf400                     
+0034  34840001  34840001  =  ori	a0,a0,0x1                     
+0038  34058000  34058000  =  li	a1,0x8000                      
+003c  3c070000  3c078011  R  lui	a3,0x0                          <HI16 (0x14 + .text(base))>
+0040  24e70014  24e79564  R  addiu	a3,a3,20                      <LO16 (0x14 + .text(base))>
+0044  3c010000  3c018015  R  lui	at,0x0                          <HI16 .bss(base)>
+0048  ac2206b0  ac2289ec  R  sw	v0,1712(at)                      <LO16 .bss(base)>
+004c  0c000000  0c041b88  R  jal	0x0                             <REL26 OpenEvent>
+0050  24061000  24061000  =  li	a2,4096                        
+0054  3c04f400  3c04f400  =  lui	a0,0xf400                     
+0058  34840001  34840001  =  ori	a0,a0,0x1                     
+005c  24050100  24050100  =  li	a1,256                         
+0060  3c070000  3c078011  R  lui	a3,0x0                          <HI16 (0x28 + .text(base))>
+0064  24e70028  24e79578  R  addiu	a3,a3,40                      <LO16 (0x28 + .text(base))>
+0068  3c010000  3c018015  R  lui	at,0x0                          <HI16 (0x4 + .bss(base))>
+006c  ac2206b4  ac2289f0  R  sw	v0,1716(at)                      <LO16 (0x4 + .bss(base))>
+0070  0c000000  0c041b88  R  jal	0x0                             <REL26 OpenEvent>
+0074  24061000  24061000  =  li	a2,4096                        
+0078  3c04f400  3c04f400  =  lui	a0,0xf400                     
+007c  34840001  34840001  =  ori	a0,a0,0x1                     
+0080  24052000  24052000  =  li	a1,8192                        
+0084  3c070000  3c078011  R  lui	a3,0x0                          <HI16 (0x3C + .text(base))>
+0088  24e7003c  24e7958c  R  addiu	a3,a3,60                      <LO16 (0x3C + .text(base))>
+008c  3c010000  3c018015  R  lui	at,0x0                          <HI16 (0x8 + .bss(base))>
+0090  ac2206b8  ac2289f4  R  sw	v0,1720(at)                      <LO16 (0x8 + .bss(base))>
+0094  0c000000  0c041b88  R  jal	0x0                             <REL26 OpenEvent>
+0098  24061000  24061000  =  li	a2,4096                        
+009c  3c04f000  3c04f000  =  lui	a0,0xf000                     
+00a0  34840011  34840011  =  ori	a0,a0,0x11                    
+00a4  24050004  24050004  =  li	a1,4                           
+00a8  3c070000  3c078011  R  lui	a3,0x0                          <HI16 (0x50 + .text(base))>
+00ac  24e70050  24e795a0  R  addiu	a3,a3,80                      <LO16 (0x50 + .text(base))>
+00b0  3c010000  3c018015  R  lui	at,0x0                          <HI16 (0xC + .bss(base))>
+00b4  ac2206bc  ac2289f8  R  sw	v0,1724(at)                      <LO16 (0xC + .bss(base))>
+00b8  0c000000  0c041b88  R  jal	0x0                             <REL26 OpenEvent>
+00bc  24061000  24061000  =  li	a2,4096                        
+00c0  3c04f000  3c04f000  =  lui	a0,0xf000                     
+00c4  34840011  34840011  =  ori	a0,a0,0x11                    
+00c8  34058000  34058000  =  li	a1,0x8000                      
+00cc  3c070000  3c078011  R  lui	a3,0x0                          <HI16 (0x64 + .text(base))>
+00d0  24e70064  24e795b4  R  addiu	a3,a3,100                     <LO16 (0x64 + .text(base))>
+00d4  3c010000  3c018015  R  lui	at,0x0                          <HI16 (0x10 + .bss(base))>
+00d8  ac2206c0  ac2289fc  R  sw	v0,1728(at)                      <LO16 (0x10 + .bss(base))>
+00dc  0c000000  0c041b88  R  jal	0x0                             <REL26 OpenEvent>
+00e0  24061000  24061000  =  li	a2,4096                        
+00e4  3c04f000  3c04f000  =  lui	a0,0xf000                     
+00e8  34840011  34840011  =  ori	a0,a0,0x11                    
+00ec  24050100  24050100  =  li	a1,256                         
+00f0  3c070000  3c078011  R  lui	a3,0x0                          <HI16 (0x78 + .text(base))>
+00f4  24e70078  24e795c8  R  addiu	a3,a3,120                     <LO16 (0x78 + .text(base))>
+00f8  3c010000  3c018015  R  lui	at,0x0                          <HI16 (0x14 + .bss(base))>
+00fc  ac2206c4  ac228a00  R  sw	v0,1732(at)                      <LO16 (0x14 + .bss(base))>
+0100  0c000000  0c041b88  R  jal	0x0                             <REL26 OpenEvent>
+0104  24061000  24061000  =  li	a2,4096                        
+0108  3c04f000  3c04f000  =  lui	a0,0xf000                     
+010c  34840011  34840011  =  ori	a0,a0,0x11                    
+0110  24052000  24052000  =  li	a1,8192                        
+0114  3c070000  3c078011  R  lui	a3,0x0                          <HI16 (0x8C + .text(base))>
+0118  24e7008c  24e795dc  R  addiu	a3,a3,140                     <LO16 (0x8C + .text(base))>
+011c  3c010000  3c018015  R  lui	at,0x0                          <HI16 (0x18 + .bss(base))>
+0120  ac2206c8  ac228a04  R  sw	v0,1736(at)                      <LO16 (0x18 + .bss(base))>
+0124  0c000000  0c041b88  R  jal	0x0                             <REL26 OpenEvent>
+0128  24061000  24061000  =  li	a2,4096                        
+012c  3c040000  3c048015  R  lui	a0,0x0                          <HI16 .bss(base)>
+0130  8c8406b0  8c8489ec  R  lw	a0,1712(a0)                      <LO16 .bss(base)>
+0134  3c010000  3c018015  R  lui	at,0x0                          <HI16 (0x1C + .bss(base))>
+0138  0c000000  0c041b84  R  jal	0x0                             <REL26 EnableEvent>
+013c  ac2206cc  ac228a08  R  sw	v0,1740(at)                      <LO16 (0x1C + .bss(base))>
+0140  3c040000  3c048015  R  lui	a0,0x0                          <HI16 (0x4 + .bss(base))>
+0144  8c8406b4  8c8489f0  R  lw	a0,1716(a0)                      <LO16 (0x4 + .bss(base))>
+0148  0c000000  0c041b84  R  jal	0x0                             <REL26 EnableEvent>
+014c  00000000  00000000  =  nop                               
+0150  3c040000  3c048015  R  lui	a0,0x0                          <HI16 (0x8 + .bss(base))>
+0154  8c8406b8  8c8489f4  R  lw	a0,1720(a0)                      <LO16 (0x8 + .bss(base))>
+0158  0c000000  0c041b84  R  jal	0x0                             <REL26 EnableEvent>
+015c  00000000  00000000  =  nop                               
+0160  3c040000  3c048015  R  lui	a0,0x0                          <HI16 (0xC + .bss(base))>
+0164  8c8406bc  8c8489f8  R  lw	a0,1724(a0)                      <LO16 (0xC + .bss(base))>
+0168  0c000000  0c041b84  R  jal	0x0                             <REL26 EnableEvent>
+016c  00000000  00000000  =  nop                               
+0170  3c040000  3c048015  R  lui	a0,0x0                          <HI16 (0x10 + .bss(base))>
+0174  8c8406c0  8c8489fc  R  lw	a0,1728(a0)                      <LO16 (0x10 + .bss(base))>
+0178  0c000000  0c041b84  R  jal	0x0                             <REL26 EnableEvent>
+017c  00000000  00000000  =  nop                               
+0180  3c040000  3c048015  R  lui	a0,0x0                          <HI16 (0x14 + .bss(base))>
+0184  8c8406c4  8c848a00  R  lw	a0,1732(a0)                      <LO16 (0x14 + .bss(base))>
+0188  0c000000  0c041b84  R  jal	0x0                             <REL26 EnableEvent>
+018c  00000000  00000000  =  nop                               
+0190  3c040000  3c048015  R  lui	a0,0x0                          <HI16 (0x18 + .bss(base))>
+0194  8c8406c8  8c848a04  R  lw	a0,1736(a0)                      <LO16 (0x18 + .bss(base))>
+0198  0c000000  0c041b84  R  jal	0x0                             <REL26 EnableEvent>
+019c  00000000  00000000  =  nop                               
+01a0  3c040000  3c048015  R  lui	a0,0x0                          <HI16 (0x1C + .bss(base))>
+01a4  8c8406cc  8c848a08  R  lw	a0,1740(a0)                      <LO16 (0x1C + .bss(base))>
+01a8  0c000000  0c041b84  R  jal	0x0                             <REL26 EnableEvent>
+01ac  00000000  00000000  =  nop                               
+01b0  0c0000e0  0c042634  R  jal	0x380                           <REL26 (0x380 + .text(base))>
+01b4  00000000  00000000  =  nop                               
+01b8  24020001  24020001  =  li	v0,1                           
+01bc  16020003  16020003  =  bne	s0,v0,0x1cc                   
+01c0  00000000  00000000  =  nop                               
+01c4  0c000000  0c041a5b  R  jal	0x0                             <REL26 ExitCriticalSection>
+01c8  00000000  00000000  =  nop                               
+01cc  8fbf0014  8fbf0014  =  lw	ra,20(sp)                      
+01d0  8fb00010  8fb00010  =  lw	s0,16(sp)                      
+01d4  03e00008  03e00008  =  jr	ra                             
+01d8  27bd0018  27bd0018  =  addiu	sp,sp,24                    

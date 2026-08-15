@@ -1,0 +1,92 @@
+W67-A1 VENDOR GROUND TRUTH  LIBPAD / PADGUN / PadInitGun
+linkage=export  section-size=344 bytes (86 words)  vendor-relocs=51
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe0  --------     addiu	sp,sp,-32                   
+0004  afb00010  --------     sw	s0,16(sp)                      
+0008  00808021  --------     move	s0,a0                        
+000c  afb10014  --------     sw	s1,20(sp)                      
+0010  afbf0018  --------     sw	ra,24(sp)                      
+0014  0c000000  --------     jal	0x0                             <REL26 EnterCriticalSection>
+0018  00a08821  --------     move	s1,a1                        
+001c  3c020000  --------     lui	v0,0x0                          <HI16 (0x274 + .text(base))>
+0020  24420274  --------     addiu	v0,v0,628                     <LO16 (0x274 + .text(base))>
+0024  3c010000  --------     lui	at,0x0                          <HI16 _padFuncIntGun>
+0028  ac220000  --------     sw	v0,0(at)                         <LO16 _padFuncIntGun>
+002c  3c020000  --------     lui	v0,0x0                          <HI16 (0x3E8 + .text(base))>
+0030  244203e8  --------     addiu	v0,v0,1000                    <LO16 (0x3E8 + .text(base))>
+0034  3c010000  --------     lui	at,0x0                          <HI16 _padFuncSetGunPort>
+0038  ac220000  --------     sw	v0,0(at)                         <LO16 _padFuncSetGunPort>
+003c  3c020000  --------     lui	v0,0x0                          <HI16 (0x2D0 + .text(base))>
+0040  244202d0  --------     addiu	v0,v0,720                     <LO16 (0x2D0 + .text(base))>
+0044  3c010000  --------     lui	at,0x0                          <HI16 _padGunExec>
+0048  ac200000  --------     sw	zero,0(at)                       <LO16 _padGunExec>
+004c  3c010000  --------     lui	at,0x0                          <HI16 _padFuncGetGunPos>
+0050  0c000000  --------     jal	0x0                             <REL26 read_gun_h>
+0054  ac220000  --------     sw	v0,0(at)                         <LO16 _padFuncGetGunPos>
+0058  3c010000  --------     lui	at,0x0                          <HI16 (0x14 + .data(base))>
+005c  0c000000  --------     jal	0x0                             <REL26 read_gun_v>
+0060  ac2207a4  --------     sw	v0,1956(at)                      <LO16 (0x14 + .data(base))>
+0064  3c030000  --------     lui	v1,0x0                          <HI16 .data(base)>
+0068  8c630790  --------     lw	v1,1936(v1)                      <LO16 .data(base)>
+006c  3c010000  --------     lui	at,0x0                          <HI16 (0x10 + .data(base))>
+0070  ac2207a0  --------     sw	v0,1952(at)                      <LO16 (0x10 + .data(base))>
+0074  26020002  --------     addiu	v0,s0,2                     
+0078  3c010000  --------     lui	at,0x0                          <HI16 (0x24 + .bss(base))>
+007c  ac2207f4  --------     sw	v0,2036(at)                      <LO16 (0x24 + .bss(base))>
+0080  8c620004  --------     lw	v0,4(v1)                       
+0084  2404fbff  --------     li	a0,-1025                       
+0088  3c010000  --------     lui	at,0x0                          <HI16 (0x1C + .data(base))>
+008c  ac3007ac  --------     sw	s0,1964(at)                      <LO16 (0x1C + .data(base))>
+0090  00441024  --------     and	v0,v0,a0                      
+0094  ac620004  --------     sw	v0,4(v1)                       
+0098  8c620000  --------     lw	v0,0(v1)                       
+009c  26100001  --------     addiu	s0,s0,1                     
+00a0  3c010000  --------     lui	at,0x0                          <HI16 (0x20 + .data(base))>
+00a4  ac3007b0  --------     sw	s0,1968(at)                      <LO16 (0x20 + .data(base))>
+00a8  00441024  --------     and	v0,v0,a0                      
+00ac  0c000000  --------     jal	0x0                             <REL26 _clear_gun_flag>
+00b0  ac620000  --------     sw	v0,0(v1)                       
+00b4  3c020000  --------     lui	v0,0x0                          <HI16 (0x8 + .bss(base))>
+00b8  244207d8  --------     addiu	v0,v0,2008                    <LO16 (0x8 + .bss(base))>
+00bc  ac400004  --------     sw	zero,4(v0)                     
+00c0  ac400000  --------     sw	zero,0(v0)                     
+00c4  3c020000  --------     lui	v0,0x0                          <HI16 (0x10 + .bss(base))>
+00c8  244207e0  --------     addiu	v0,v0,2016                    <LO16 (0x10 + .bss(base))>
+00cc  ac400004  --------     sw	zero,4(v0)                     
+00d0  ac400000  --------     sw	zero,0(v0)                     
+00d4  3c020000  --------     lui	v0,0x0                          <HI16 (0x18 + .bss(base))>
+00d8  244207e8  --------     addiu	v0,v0,2024                    <LO16 (0x18 + .bss(base))>
+00dc  3c010000  --------     lui	at,0x0                          <HI16 (0x18 + .data(base))>
+00e0  a42007a8  --------     sh	zero,1960(at)                    <LO16 (0x18 + .data(base))>
+00e4  ac400004  --------     sw	zero,4(v0)                     
+00e8  0c0000ac  --------     jal	0x2b0                           <REL26 (0x2B0 + .text(base))>
+00ec  ac400000  --------     sw	zero,0(v0)                     
+00f0  00402021  --------     move	a0,v0                        
+00f4  3c010000  --------     lui	at,0x0                          <HI16 (0x24 + .data(base))>
+00f8  ac2207b4  --------     sw	v0,1972(at)                      <LO16 (0x24 + .data(base))>
+00fc  0c000000  --------     jal	0x0                             <REL26 _InitGun>
+0100  02202821  --------     move	a1,s1                        
+0104  3c030000  --------     lui	v1,0x0                          <HI16 (0x8 + .data(base))>
+0108  8c630798  --------     lw	v1,1944(v1)                      <LO16 (0x8 + .data(base))>
+010c  24020001  --------     li	v0,1                           
+0110  3c010000  --------     lui	at,0x0                          <HI16 _padGunExec>
+0114  ac220000  --------     sw	v0,0(at)                         <LO16 _padGunExec>
+0118  240203e8  --------     li	v0,1000                        
+011c  ac620000  --------     sw	v0,0(v1)                       
+0120  3c020000  --------     lui	v0,0x0                          <HI16 (0x4 + .data(base))>
+0124  8c420794  --------     lw	v0,1940(v0)                      <LO16 (0x4 + .data(base))>
+0128  00000000  --------     nop                               
+012c  ac400000  --------     sw	zero,0(v0)                     
+0130  3c030000  --------     lui	v1,0x0                          <HI16 (0x4 + .data(base))>
+0134  8c630794  --------     lw	v1,1940(v1)                      <LO16 (0x4 + .data(base))>
+0138  24020043  --------     li	v0,67                          
+013c  0c000000  --------     jal	0x0                             <REL26 ExitCriticalSection>
+0140  ac620000  --------     sw	v0,0(v1)                       
+0144  8fbf0018  --------     lw	ra,24(sp)                      
+0148  8fb10014  --------     lw	s1,20(sp)                      
+014c  8fb00010  --------     lw	s0,16(sp)                      
+0150  03e00008  --------     jr	ra                             
+0154  27bd0020  --------     addiu	sp,sp,32                    

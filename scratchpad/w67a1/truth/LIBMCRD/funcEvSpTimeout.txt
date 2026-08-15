@@ -1,0 +1,11 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMCRD / BIOS / funcEvSpTimeout
+linkage=export  section-size=20 bytes (5 words)  vendor-relocs=2
+retail VA=0x80109578  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  24020001  24020001  =  li	v0,1                           
+0004  3c010000  3c018015  R  lui	at,0x0                          <HI16 (0x28 + .bss(base))>
+0008  ac2206d8  ac228a14  R  sw	v0,1752(at)                      <LO16 (0x28 + .bss(base))>
+000c  03e00008  03e00008  =  jr	ra                             
+0010  00001021  00001021  =  move	v0,zero                      

@@ -1,0 +1,14 @@
+W67-A1 VENDOR GROUND TRUTH  LIBPAD / WAITRC2 / setRC2wait
+linkage=export  section-size=32 bytes (8 words)  vendor-relocs=4
+retail VA=0x8010BFE8  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c021f80  3c021f80  =  lui	v0,0x1f80                     
+0004  34421120  34421120  =  ori	v0,v0,0x1120                  
+0008  94420000  94420000  =  lhu	v0,0(v0)                      
+000c  3c010000  3c018015  R  lui	at,0x0                          <HI16 _waitTime>
+0010  ac240000  ac248aac  R  sw	a0,0(at)                         <LO16 _waitTime>
+0014  3c010000  3c018015  R  lui	at,0x0                          <HI16 _startTime>
+0018  03e00008  03e00008  =  jr	ra                             
+001c  ac220000  ac228ab0  R  sw	v0,0(at)                         <LO16 _startTime>

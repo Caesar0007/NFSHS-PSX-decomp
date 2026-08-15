@@ -1,0 +1,11 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMCRD / LIBMCRD / MemCardCallback
+linkage=export  section-size=20 bytes (5 words)  vendor-relocs=2
+retail VA=0x800FBAE8  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c030000  3c038014  R  lui	v1,0x0                          <HI16 (0x58 + .bss(base))>
+0004  24631b68  24637558  R  addiu	v1,v1,7016                    <LO16 (0x58 + .bss(base))>
+0008  8c620000  8c620000  =  lw	v0,0(v1)                       
+000c  03e00008  03e00008  =  jr	ra                             
+0010  ac640000  ac640000  =  sw	a0,0(v1)                       

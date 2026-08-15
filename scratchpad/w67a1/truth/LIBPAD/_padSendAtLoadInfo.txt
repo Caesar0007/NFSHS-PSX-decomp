@@ -1,0 +1,39 @@
+W67-A1 VENDOR GROUND TRUTH  LIBPAD / PADCMD / _padSendAtLoadInfo
+linkage=export  section-size=132 bytes (33 words)  vendor-relocs=7
+retail VA=0x801055FC  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0004  afbf0010  afbf0010  =  sw	ra,16(sp)                      
+0008  90830046  90830046  =  lbu	v1,70(a0)                     
+000c  24020003  24020003  =  li	v0,3                           
+0010  10620010  10620010  =  beq	v1,v0,0x54                    
+0014  28620004  28620004  =  slti	v0,v1,4                      
+0018  10400005  10400005  =  beqz	v0,0x30                      
+001c  24020002  24020002  =  li	v0,2                           
+0020  10620008  10620008  =  beq	v1,v0,0x44                    
+0024  00000000  00000000  =  nop                               
+0028  08000024  0804159c  R  j	0x90                              <REL26 (0x90 + .text(base))>
+002c  00000000  00000000  =  nop                               
+0030  24020004  24020004  =  li	v0,4                           
+0034  1062000c  1062000c  =  beq	v1,v0,0x68                    
+0038  00000000  00000000  =  nop                               
+003c  08000024  0804159c  R  j	0x90                              <REL26 (0x90 + .text(base))>
+0040  00000000  00000000  =  nop                               
+0044  0c000233  0c0417ab  R  jal	0x8cc                           <REL26 (0x8CC + .text(base))>
+0048  00000000  00000000  =  nop                               
+004c  08000024  0804159c  R  j	0x90                              <REL26 (0x90 + .text(base))>
+0050  00000000  00000000  =  nop                               
+0054  908500e4  908500e4  =  lbu	a1,228(a0)                    
+0058  0c000238  0c0417b0  R  jal	0x8e0                           <REL26 (0x8E0 + .text(base))>
+005c  00000000  00000000  =  nop                               
+0060  08000024  0804159c  R  j	0x90                              <REL26 (0x90 + .text(base))>
+0064  00000000  00000000  =  nop                               
+0068  90850047  90850047  =  lbu	a1,71(a0)                     
+006c  0c000248  0c0417c0  R  jal	0x920                           <REL26 (0x920 + .text(base))>
+0070  00000000  00000000  =  nop                               
+0074  8fbf0010  8fbf0010  =  lw	ra,16(sp)                      
+0078  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+007c  03e00008  03e00008  =  jr	ra                             
+0080  00000000  00000000  =  nop                               

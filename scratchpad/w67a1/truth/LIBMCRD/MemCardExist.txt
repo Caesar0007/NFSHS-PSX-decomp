@@ -1,0 +1,150 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMCRD / LIBMCRD / MemCardExist
+linkage=export  section-size=572 bytes (143 words)  vendor-relocs=53
+retail VA=0x800FAB88  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0004  3c030000  3c038014  R  lui	v1,0x0                          <HI16 (0x18 + .bss(base))>
+0008  24631b28  24637518  R  addiu	v1,v1,6952                    <LO16 (0x18 + .bss(base))>
+000c  afbf0010  afbf0010  =  sw	ra,16(sp)                      
+0010  8c620000  8c620000  =  lw	v0,0(v1)                       
+0014  00000000  00000000  =  nop                               
+0018  1c40000b  1c40000b  =  bgtz	v0,0x48                      
+001c  00802821  00802821  =  move	a1,a0                        
+0020  3c040000  3c048010  R  lui	a0,0x0                          <HI16 (0x144 + .text(base))>
+0024  24840144  2484abf0  R  addiu	a0,a0,324                     <LO16 (0x144 + .text(base))>
+0028  24020001  24020001  =  li	v0,1                           
+002c  ac620000  ac620000  =  sw	v0,0(v1)                       
+0030  ac600004  ac600004  =  sw	zero,4(v1)                     
+0034  ac600008  ac600008  =  sw	zero,8(v1)                     
+0038  0c000000  0c042704  R  jal	0x0                             <REL26 UserFuncOpen>
+003c  ac65000c  ac65000c  =  sw	a1,12(v1)                      
+0040  0800004d  0803eaf8  R  j	0x134                             <REL26 (0x134 + .text(base))>
+0044  24020001  24020001  =  li	v0,1                           
+0048  3c040000  3c048005  R  lui	a0,0x0                          <HI16 .rdata(base)>
+004c  0c000000  0c040a2b  R  jal	0x0                             <REL26 printf>
+0050  24841970  24847370  R  addiu	a0,a0,6512                    <LO16 .rdata(base)>
+0054  00001021  00001021  =  move	v0,zero                      
+0058  8fbf0010  8fbf0010  =  lw	ra,16(sp)                      
+005c  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+0060  03e00008  03e00008  =  jr	ra                             
+0064  00000000  00000000  =  nop                               
+        >> retail symbol here: MemCardExist_cb (0x800FABF0)
+0068  27bdffe0  27bdffe0  =  addiu	sp,sp,-32                   
+006c  afb00010  afb00010  =  sw	s0,16(sp)                      
+0070  00808021  00808021  =  move	s0,a0                        
+0074  afbf0018  afbf0018  =  sw	ra,24(sp)                      
+0078  afb10014  afb10014  =  sw	s1,20(sp)                      
+007c  8e030000  8e030000  =  lw	v1,0(s0)                       
+0080  00000000  00000000  =  nop                               
+0084  10600009  10600009  =  beqz	v1,0xac                      
+0088  2402000a  2402000a  =  li	v0,10                          
+008c  04600065  04600065  =  bltz	v1,0x224                     
+0090  2411000a  2411000a  =  li	s1,10                          
+0094  1071000a  1071000a  =  beq	v1,s1,0xc0                    
+0098  2402000b  2402000b  =  li	v0,11                          
+009c  10620013  10620013  =  beq	v1,v0,0xec                    
+00a0  00001021  00001021  =  move	v0,zero                      
+00a4  080000c1  0803eb6c  R  j	0x304                             <REL26 (0x304 + .text(base))>
+00a8  00000000  00000000  =  nop                               
+00ac  3c010000  3c018014  R  lui	at,0x0                          <HI16 (0x4 + .bss(base))>
+00b0  ac201b14  ac207504  R  sw	zero,6932(at)                    <LO16 (0x4 + .bss(base))>
+00b4  3c010000  3c018014  R  lui	at,0x0                          <HI16 .bss(base)>
+00b8  ac201b10  ac207500  R  sw	zero,6928(at)                    <LO16 .bss(base)>
+00bc  ae020000  ae020000  =  sw	v0,0(s0)                       
+00c0  0c000000  0c042634  R  jal	0x0                             <REL26 _clr_card_event>
+00c4  00000000  00000000  =  nop                               
+00c8  3c040000  3c048014  R  lui	a0,0x0                          <HI16 (0x24 + .bss(base))>
+00cc  8c841b34  8c847524  R  lw	a0,6964(a0)                      <LO16 (0x24 + .bss(base))>
+00d0  0c000000  0c042744  R  jal	0x0                             <REL26 _card_info>
+00d4  00000000  00000000  =  nop                               
+00d8  8e020000  8e020000  =  lw	v0,0(s0)                       
+00dc  00000000  00000000  =  nop                               
+00e0  24420001  24420001  =  addiu	v0,v0,1                     
+00e4  080000c0  0803eb6b  R  j	0x300                             <REL26 (0x300 + .text(base))>
+00e8  ae020000  ae020000  =  sw	v0,0(s0)                       
+00ec  0c000000  0c0426e2  R  jal	0x0                             <REL26 _chk_card_event>
+00f0  00000000  00000000  =  nop                               
+00f4  1040004c  1040004c  =  beqz	v0,0x228                     
+00f8  00001021  00001021  =  move	v0,zero                      
+00fc  0c000000  0c042676  R  jal	0x0                             <REL26 _get_card_event>
+0100  00000000  00000000  =  nop                               
+0104  00401821  00401821  =  move	v1,v0                        
+0108  3c010000  3c018014  R  lui	at,0x0                          <HI16 (0x4 + .bss(base))>
+010c  ac221b14  ac227504  R  sw	v0,6932(at)                      <LO16 (0x4 + .bss(base))>
+0110  28620003  28620003  =  slti	v0,v1,3                      
+0114  10400007  10400007  =  beqz	v0,0x134                     
+0118  00000000  00000000  =  nop                               
+011c  1c600023  1c600023  =  bgtz	v1,0x1ac                     
+0120  00000000  00000000  =  nop                               
+0124  1060000d  1060000d  =  beqz	v1,0x15c                     
+0128  24020001  24020001  =  li	v0,1                           
+012c  080000ad  0803eb58  R  j	0x2b4                             <REL26 (0x2B4 + .text(base))>
+0130  00000000  00000000  =  nop                               
+0134  24020004  24020004  =  li	v0,4                           
+0138  14620027  14620027  =  bne	v1,v0,0x1d8                   
+013c  00000000  00000000  =  nop                               
+0140  0c00060f  0c03f047  R  jal	0x183c                          <REL26 (0x183C + .text(base))>
+0144  24040004  24040004  =  li	a0,4                           
+0148  3c030000  3c038014  R  lui	v1,0x0                          <HI16 (0x18 + .bss(base))>
+014c  24631b28  24637518  R  addiu	v1,v1,6952                    <LO16 (0x18 + .bss(base))>
+0150  ac620004  ac620004  =  sw	v0,4(v1)                       
+0154  080000c1  0803eb6c  R  j	0x304                             <REL26 (0x304 + .text(base))>
+0158  24020001  24020001  =  li	v0,1                           
+015c  3c100000  3c108014  R  lui	s0,0x0                          <HI16 (0x24 + .bss(base))>
+0160  26101b34  26107524  R  addiu	s0,s0,6964                    <LO16 (0x24 + .bss(base))>
+0164  8e040000  8e040000  =  lw	a0,0(s0)                       
+0168  3c030000  3c038014  R  lui	v1,0x0                          <HI16 (0x14 + .bss(base))>
+016c  8c631b24  8c637514  R  lw	v1,6948(v1)                      <LO16 (0x14 + .bss(base))>
+0170  00821004  00821004  =  sllv	v0,v0,a0                     
+0174  00621824  00621824  =  and	v1,v1,v0                      
+0178  14600003  14600003  =  bnez	v1,0x188                     
+017c  24020004  24020004  =  li	v0,4                           
+0180  3c010000  3c018014  R  lui	at,0x0                          <HI16 (0x4 + .bss(base))>
+0184  ac221b14  ac227504  R  sw	v0,6932(at)                      <LO16 (0x4 + .bss(base))>
+0188  3c040000  3c048014  R  lui	a0,0x0                          <HI16 (0x4 + .bss(base))>
+018c  8c841b14  8c847504  R  lw	a0,6932(a0)                      <LO16 (0x4 + .bss(base))>
+0190  0c00060f  0c03f047  R  jal	0x183c                          <REL26 (0x183C + .text(base))>
+0194  00000000  00000000  =  nop                               
+0198  00402021  00402021  =  move	a0,v0                        
+019c  24020001  24020001  =  li	v0,1                           
+01a0  2603fff4  2603fff4  =  addiu	v1,s0,-12                   
+01a4  080000c1  0803eb6c  R  j	0x304                             <REL26 (0x304 + .text(base))>
+01a8  ac640004  ac640004  =  sw	a0,4(v1)                       
+01ac  3c020000  3c028014  R  lui	v0,0x0                          <HI16 .bss(base)>
+01b0  8c421b10  8c427500  R  lw	v0,6928(v0)                      <LO16 .bss(base)>
+01b4  00000000  00000000  =  nop                               
+01b8  24420001  24420001  =  addiu	v0,v0,1                     
+01bc  3c010000  3c018014  R  lui	at,0x0                          <HI16 .bss(base)>
+01c0  ac221b10  ac227500  R  sw	v0,6928(at)                      <LO16 .bss(base)>
+01c4  28420005  28420005  =  slti	v0,v0,5                      
+01c8  10400003  10400003  =  beqz	v0,0x1d8                     
+01cc  00000000  00000000  =  nop                               
+01d0  080000c0  0803eb6b  R  j	0x300                             <REL26 (0x300 + .text(base))>
+01d4  ae110000  ae110000  =  sw	s1,0(s0)                       
+01d8  3c100000  3c108014  R  lui	s0,0x0                          <HI16 (0x24 + .bss(base))>
+01dc  26101b34  26107524  R  addiu	s0,s0,6964                    <LO16 (0x24 + .bss(base))>
+01e0  24020001  24020001  =  li	v0,1                           
+01e4  8e030000  8e030000  =  lw	v1,0(s0)                       
+01e8  3c040000  3c048014  R  lui	a0,0x0                          <HI16 (0x4 + .bss(base))>
+01ec  8c841b14  8c847504  R  lw	a0,6932(a0)                      <LO16 (0x4 + .bss(base))>
+01f0  00621004  00621004  =  sllv	v0,v0,v1                     
+01f4  3c030000  3c038014  R  lui	v1,0x0                          <HI16 (0x14 + .bss(base))>
+01f8  8c631b24  8c637514  R  lw	v1,6948(v1)                      <LO16 (0x14 + .bss(base))>
+01fc  00021027  00021027  =  nor	v0,zero,v0                    
+0200  00621824  00621824  =  and	v1,v1,v0                      
+0204  3c010000  3c018014  R  lui	at,0x0                          <HI16 (0x14 + .bss(base))>
+0208  ac231b24  ac237514  R  sw	v1,6948(at)                      <LO16 (0x14 + .bss(base))>
+020c  0c00060f  0c03f047  R  jal	0x183c                          <REL26 (0x183C + .text(base))>
+0210  2610fff4  2610fff4  =  addiu	s0,s0,-12                   
+0214  00401821  00401821  =  move	v1,v0                        
+0218  24020001  24020001  =  li	v0,1                           
+021c  080000c1  0803eb6c  R  j	0x304                             <REL26 (0x304 + .text(base))>
+0220  ae030004  ae030004  =  sw	v1,4(s0)                       
+0224  00001021  00001021  =  move	v0,zero                      
+0228  8fbf0018  8fbf0018  =  lw	ra,24(sp)                      
+022c  8fb10014  8fb10014  =  lw	s1,20(sp)                      
+0230  8fb00010  8fb00010  =  lw	s0,16(sp)                      
+0234  03e00008  03e00008  =  jr	ra                             
+0238  27bd0020  27bd0020  =  addiu	sp,sp,32                    

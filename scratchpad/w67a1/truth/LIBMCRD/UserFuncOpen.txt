@@ -1,0 +1,37 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMCRD / USERFUNC / UserFuncOpen
+linkage=export  section-size=124 bytes (31 words)  vendor-relocs=12
+retail VA=0x80109C10  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c020000  3c028014  R  lui	v0,0x0                          <HI16 .data(base)>
+0004  8c420130  8c42c2e0  R  lw	v0,304(v0)                       <LO16 .data(base)>
+0008  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+000c  24460001  24460001  =  addiu	a2,v0,1                     
+0010  28c20004  28c20004  =  slti	v0,a2,4                      
+0014  14400006  14400006  =  bnez	v0,0x30                      
+0018  afbf0010  afbf0010  =  sw	ra,16(sp)                      
+001c  3c040000  3c048005  R  lui	a0,0x0                          <HI16 .rdata(base)>
+0020  0c000000  0c040a2b  R  jal	0x0                             <REL26 printf>
+0024  24840110  24847948  R  addiu	a0,a0,272                     <LO16 .rdata(base)>
+0028  0800001f  0804271f  R  j	0x7c                              <REL26 (0x7C + .text(base))>
+002c  00000000  00000000  =  nop                               
+0030  24050003  24050003  =  li	a1,3                           
+0034  00061100  00061100  =  sll	v0,a2,0x4                     
+0038  3c030000  3c038015  R  lui	v1,0x0                          <HI16 (0xC + .bss(base))>
+003c  2463014c  24638a38  R  addiu	v1,v1,332                     <LO16 (0xC + .bss(base))>
+0040  00431821  00431821  =  addu	v1,v0,v1                     
+0044  00061080  00061080  =  sll	v0,a2,0x2                     
+0048  3c010000  3c018014  R  lui	at,0x0                          <HI16 .data(base)>
+004c  ac260130  ac26c2e0  R  sw	a2,304(at)                       <LO16 .data(base)>
+0050  3c010000  3c018015  R  lui	at,0x0                          <HI16 (0x40 + .bss(base))>
+0054  00220821  00220821  =  addu	at,at,v0                     
+0058  ac240180  ac248a6c  R  sw	a0,384(at)                       <LO16 (0x40 + .bss(base))>
+005c  ac600000  ac600000  =  sw	zero,0(v1)                     
+0060  24a5ffff  24a5ffff  =  addiu	a1,a1,-1                    
+0064  04a1fffd  04a1fffd  =  bgez	a1,0x5c                      
+0068  2463fffc  2463fffc  =  addiu	v1,v1,-4                    
+006c  8fbf0010  8fbf0010  =  lw	ra,16(sp)                      
+0070  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+0074  03e00008  03e00008  =  jr	ra                             
+0078  00000000  00000000  =  nop                               

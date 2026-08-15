@@ -1,0 +1,20 @@
+W67-A1 VENDOR GROUND TRUTH  LIBPAD / PADCMD / _padGetActSize
+linkage=export  section-size=56 bytes (14 words)  vendor-relocs=0
+retail VA=0x801057CC  VERDICT=identical
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  908200e3  908200e3  =  lbu	v0,227(a0)                    
+0004  908500e9  908500e9  =  lbu	a1,233(a0)                    
+0008  8c8400ec  8c8400ec  =  lw	a0,236(a0)                     
+000c  24420001  24420001  =  addiu	v0,v0,1                     
+0010  00021043  00021043  =  sra	v0,v0,0x1                     
+0014  00021080  00021080  =  sll	v0,v0,0x2                     
+0018  00051880  00051880  =  sll	v1,a1,0x2                     
+001c  00651821  00651821  =  addu	v1,v1,a1                     
+0020  24630003  24630003  =  addiu	v1,v1,3                     
+0024  30630ffc  30630ffc  =  andi	v1,v1,0xffc                  
+0028  24630004  24630004  =  addiu	v1,v1,4                     
+002c  00431021  00431021  =  addu	v0,v0,v1                     
+0030  03e00008  03e00008  =  jr	ra                             
+0034  00441021  00441021  =  addu	v0,v0,a0                     

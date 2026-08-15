@@ -182,3 +182,112 @@ $Id inventory:
 - FONT: retail links only FntFlush + FntPrint (both reloc-only); FntLoad/FntOpen/
   SetDumpFnt not in retail MAP (absent).
 - absent rows = not linked by NFS4 (BREAK/KANJI/TMD/PARAM/OTAG-extras etc.).
+
+## LIBMCRD (psyq43 vendor objects)
+
+| member | fn | linkage | words | relocs | retail VA | verdict |
+|---|---|---|---|---|---|---|
+| BIOS | funcEvSpIOE | export | 5 | 2 | 0x80109550 | **reloc-only** |
+| BIOS | funcEvSpError | export | 5 | 2 | 0x80109564 | **reloc-only** |
+| BIOS | funcEvSpTimeout | export | 5 | 2 | 0x80109578 | **reloc-only** |
+| BIOS | funcEvSpNewcard | export | 5 | 2 | 0x8010958C | **reloc-only** |
+| BIOS | funcEvSpIOEx | export | 5 | 2 | 0x801095A0 | **reloc-only** |
+| BIOS | funcEvSpErrorx | export | 5 | 2 | 0x801095B4 | **reloc-only** |
+| BIOS | funcEvSpTimeoutx | export | 5 | 2 | 0x801095C8 | **reloc-only** |
+| BIOS | funcEvSpNewcardx | export | 5 | 2 | 0x801095DC | **reloc-only** |
+| BIOS | _card_open | export | 12 | 3 | 0x801095F0 | **reloc-only** |
+| BIOS | _card_start | export | 119 | 67 | 0x80109620 | **reloc-only** |
+| BIOS | _card_close | export | 8 | 1 | 0x801097FC | **reloc-only** |
+| BIOS | _card_stop | export | 45 | 26 | 0x8010981C | **reloc-only** |
+| BIOS | _clr_card_event | export | 66 | 52 | 0x801098D0 | **reloc-only** |
+| BIOS | _get_card_event | export | 54 | 34 | 0x801099D8 | **reloc-only** |
+| BIOS | _get_card_event_x | export | 54 | 34 | 0x80109AB0 | **reloc-only** |
+| BIOS | _chk_card_event | export | 15 | 8 | 0x80109B88 | **reloc-only** |
+| BIOS | _chk_card_event_x | export | 15 | 8 | 0x80109BC4 | **reloc-only** |
+| LIBMCRD | MemCardInit | export | 11 | 5 | 0x800FAAAC | **reloc-only** |
+| LIBMCRD | MemCardEnd | export | 8 | 1 | 0x800FAAD8 | **reloc-only** |
+| LIBMCRD | MemCardStart | export | 20 | 7 | 0x800FAAF8 | **reloc-only** |
+| LIBMCRD | MemCardStop | export | 16 | 4 | 0x800FAB48 | **reloc-only** |
+| LIBMCRD | MemCardExist | export | 143 | 53 | 0x800FAB88 | **reloc-only** |
+| LIBMCRD | MemCardAccept | export | 167 | 64 | 0x800FADC4 | **reloc-only** |
+| LIBMCRD | MemCardOpen | export | 98 | 27 | - | **absent** |
+| LIBMCRD | MemCardClose | export | 17 | 3 | - | **absent** |
+| LIBMCRD | MemCardReadData | export | 125 | 41 | 0x800FB060 | **reloc-only** |
+| LIBMCRD | MemCardWriteData | export | 125 | 41 | 0x800FB254 | **reloc-only** |
+| LIBMCRD | MemCardReadFile | export | 136 | 40 | 0x800FB448 | **reloc-only** |
+| LIBMCRD | MemCardWriteFile | export | 136 | 40 | 0x800FB668 | **reloc-only** |
+| LIBMCRD | MemCardGetDirentry | export | 152 | 34 | 0x800FB888 | **reloc-only** |
+| LIBMCRD | MemCardCallback | export | 5 | 2 | 0x800FBAE8 | **reloc-only** |
+| LIBMCRD | MemCardSync | export | 71 | 14 | 0x800FBAFC | **reloc-only** |
+| LIBMCRD | MemCardCreateFile | export | 130 | 38 | 0x800FBC18 | **reloc-only** |
+| LIBMCRD | MemCardDeleteFile | export | 111 | 33 | 0x800FBE20 | **reloc-only** |
+| LIBMCRD | MemCardFormat | export | 35 | 15 | 0x800FBFDC | **reloc-only** |
+| LIBMCRD | MemCardUnformat | export | 122 | 22 | 0x800FC068 | **reloc-only** |
+| USERFUNC | UserFuncInit | export | 4 | 2 | 0x80109C00 | **reloc-only** |
+| USERFUNC | UserFuncOpen | export | 31 | 12 | 0x80109C10 | **reloc-only** |
+| USERFUNC | UserFuncExecute | export | 27 | 10 | 0x80109C8C | **reloc-only** |
+| USERFUNC | UserFuncComplete | export | 6 | 2 | 0x80109CF8 | **reloc-only** |
+
+## LIBPAD (psyq43 vendor objects)
+
+| member | fn | linkage | words | relocs | retail VA | verdict |
+|---|---|---|---|---|---|---|
+| GUNHOOK | _InitGun | export | 29 | 14 | - | **absent** |
+| GUNHOOK | _ExitGun | export | 28 | 11 | - | **absent** |
+| GUNHOOK | _check_gun_flag | export | 4 | 2 | - | **absent** |
+| GUNHOOK | _clear_gun_flag | export | 12 | 4 | - | **absent** |
+| GUNHOOK | read_gun_v | export | 3 | 2 | - | **absent** |
+| GUNHOOK | read_gun_h | export | 124 | 27 | - | **absent** |
+| PADCMD | _padSetAct | export | 3 | 0 | 0x801055F0 | **identical** |
+| PADCMD | _padSetCmd | export | 4 | 0 | - | **absent** |
+| PADCMD | _padSendAtLoadInfo | export | 33 | 7 | 0x801055FC | **reloc-only** |
+| PADCMD | _padRecvAtLoadInfo | export | 83 | 9 | 0x80105680 | **reloc-only** |
+| PADCMD | _padGetActSize | export | 14 | 0 | 0x801057CC | **identical** |
+| PADCMD | _padLoadActInfo | export | 252 | 29 | 0x80105804 | **reloc-only** |
+| PADCMD | _padSetActAlign | export | 83 | 7 | 0x80105BF4 | **reloc-only** |
+| PADCMD | _padSetMainMode | export | 83 | 12 | 0x80105D40 | **reloc-only** |
+| PADCMD | _padCmdParaMode | export | 45 | 0 | 0x80105E8C | **identical** |
+| PADENTRY | PadChkVsync | export | 8 | 1 | - | **absent** |
+| PADENTRY | PadStartCom | export | 8 | 1 | 0x800EFE60 | **reloc-only** |
+| PADENTRY | PadStopCom | export | 8 | 1 | 0x800EFE80 | **reloc-only** |
+| PADENTRY | PadChkMtap | export | 19 | 5 | - | **absent** |
+| PADENTRY | PadGetState | export | 48 | 5 | 0x800EFEA0 | **reloc-only** |
+| PADENTRY | PadInfoMode | export | 62 | 10 | 0x800EFF60 | **reloc-only** |
+| PADENTRY | PadInfoAct | export | 53 | 10 | 0x800F0058 | **reloc-only** |
+| PADENTRY | PadInfoComb | export | 42 | 5 | - | **absent** |
+| PADENTRY | PadSetActAlign | export | 14 | 3 | 0x800F012C | **reloc-only** |
+| PADENTRY | PadSetMainMode | export | 18 | 3 | 0x800F0164 | **reloc-only** |
+| PADENTRY | PadSetAct | export | 20 | 3 | 0x800F01AC | **reloc-only** |
+| PADGUN | PadInitGun | export | 86 | 51 | - | **absent** |
+| PADGUN | PadEnableGun | export | 3 | 2 | - | **absent** |
+| PADGUN | PadRemoveGun | export | 395 | 145 | - | **absent** |
+| PADMAIN | PadEnableCom | export | 70 | 30 | - | **absent** |
+| PADMAIN | _padSetVsyncParam | export | 128 | 50 | 0x80104A1C | **reloc-only** |
+| PADMAIN | _padChkVsync | export | 5 | 4 | - | **absent** |
+| PADMAIN | _padStartCom | export | 51 | 23 | 0x80104C1C | **reloc-only** |
+| PADMAIN | _padStopCom | export | 17 | 6 | 0x80104CE8 | **reloc-only** |
+| PADMAIN | _padInitSioMode | export | 255 | 79 | 0x80104D2C | **reloc-only** |
+| PADMAIN | _padSioRW | export | 118 | 23 | 0x80105128 | **reloc-only** |
+| PADMAIN | _padSioRW2 | export | 142 | 20 | 0x80105300 | **reloc-only** |
+| PADMAIN | _padClrIntSio0 | export | 36 | 9 | 0x80105538 | **reloc-only** |
+| PADMAIN | _padWaitRXready | export | 10 | 2 | 0x801055C8 | **reloc-only** |
+| PADPORTD | PadInitDirect | export | 408 | 89 | 0x800FDD28 | **reloc-only** |
+| PADPORTM | PadInitMtap | export | 536 | 100 | - | **absent** |
+| PADSEQD | _padInitDirSeq | export | 225 | 35 | 0x8010A0B0 | **reloc-only** |
+| PADSEQD | _dirFailAuto | export | 67 | 4 | 0x8010A434 | **reloc-only** |
+| PADSEQM | _padInitMtapSeq | export | 359 | 46 | - | **absent** |
+| PADSEQM | _mtapFailAuto | export | 229 | 9 | - | **absent** |
+| WAITRC2 | setRC2wait | export | 8 | 4 | 0x8010BFE8 | **reloc-only** |
+| WAITRC2 | chkRC2wait | export | 40 | 12 | 0x8010C008 | **reloc-only** |
+
+### LIBMCRD + LIBPAD ANALYSIS (resolved)
+
+- **ZERO DRIFT on both.** All retail-linked fns reloc-only/identical.
+- LIBMCRD: retail ELIDES `MemCardOpen`(98w)+`MemCardClose`(17w) — vendor
+  MemCardAccept span ends exactly at retail MemCardReadData (same elide-and-shift
+  pattern as LIBETC INTR's thunks: retail lib = slightly later revision, all
+  shared code byte-identical). BIOS.obj (funcEvSp*, _card_*, events) + USERFUNC
+  fully green — the w48 funcEvSp*/.data-attribute class now has vendor proof.
+- LIBPAD: retail elides `PadChkVsync`, `PadChkMtap`, `PadInfoComb`, `_padSetCmd`,
+  `_padChkVsync`, `PadEnableCom` (+ all GUN/MTAP members). Everything else green
+  incl. the whole PADMAIN sio machinery and PadInitDirect (408w).

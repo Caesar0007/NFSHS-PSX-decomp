@@ -1,0 +1,9 @@
+W67-A1 VENDOR GROUND TRUTH  LIBPAD / PADGUN / PadEnableGun
+linkage=export  section-size=12 bytes (3 words)  vendor-relocs=2
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c010000  --------     lui	at,0x0                          <HI16 (0x28 + .data(base))>
+0004  03e00008  --------     jr	ra                             
+0008  a02407b8  --------     sb	a0,1976(at)                      <LO16 (0x28 + .data(base))>

@@ -1,0 +1,35 @@
+W67-A1 VENDOR GROUND TRUTH  LIBPAD / GUNHOOK / _InitGun
+linkage=export  section-size=116 bytes (29 words)  vendor-relocs=14
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c010000  --------     lui	at,0x0                          <HI16 (0xD8 + .bss(base))>
+0004  ac3f0408  --------     sw	ra,1032(at)                      <LO16 (0xD8 + .bss(base))>
+0008  3c010000  --------     lui	at,0x0                          <HI16 (0xD4 + .bss(base))>
+000c  ac240404  --------     sw	a0,1028(at)                      <LO16 (0xD4 + .bss(base))>
+0010  3c010000  --------     lui	at,0x0                          <HI16 (0xDC + .bss(base))>
+0014  0c000000  --------     jal	0x0                             <REL26 EnterCriticalSection>
+0018  ac25040c  --------     sw	a1,1036(at)                      <LO16 (0xDC + .bss(base))>
+001c  24090056  --------     li	t1,86                          
+0020  240a00b0  --------     li	t2,176                         
+0024  0140f809  --------     jalr	t2                           
+0028  00000000  --------     nop                               
+002c  8c420018  --------     lw	v0,24(v0)                      
+0030  3c0a0000  --------     lui	t2,0x0                          <HI16 (0x100 + .text(base))>
+0034  254a0100  --------     addiu	t2,t2,256                     <LO16 (0x100 + .text(base))>
+0038  3c090000  --------     lui	t1,0x0                          <HI16 (0x110 + .text(base))>
+003c  25290110  --------     addiu	t1,t1,272                     <LO16 (0x110 + .text(base))>
+0040  8d430000  --------     lw	v1,0(t2)                       
+0044  00000000  --------     nop                               
+0048  ac430080  --------     sw	v1,128(v0)                     
+004c  254a0004  --------     addiu	t2,t2,4                     
+0050  1549fffb  --------     bne	t2,t1,0x40                    
+0054  24420004  --------     addiu	v0,v0,4                     
+0058  0c000000  --------     jal	0x0                             <REL26 FlushCache>
+005c  00000000  --------     nop                               
+0060  3c1f0000  --------     lui	ra,0x0                          <HI16 (0xD8 + .bss(base))>
+0064  8fff0408  --------     lw	ra,1032(ra)                      <LO16 (0xD8 + .bss(base))>
+0068  00000000  --------     nop                               
+006c  03e00008  --------     jr	ra                             
+0070  00000000  --------     nop                               

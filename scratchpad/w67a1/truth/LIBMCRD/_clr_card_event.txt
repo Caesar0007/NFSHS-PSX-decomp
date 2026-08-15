@@ -1,0 +1,72 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMCRD / BIOS / _clr_card_event
+linkage=export  section-size=264 bytes (66 words)  vendor-relocs=52
+retail VA=0x801098D0  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c040000  3c048015  R  lui	a0,0x0                          <HI16 .bss(base)>
+0004  8c8406b0  8c8489ec  R  lw	a0,1712(a0)                      <LO16 .bss(base)>
+0008  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+000c  afbf0010  afbf0010  =  sw	ra,16(sp)                      
+0010  0c000000  0c04321d  R  jal	0x0                             <REL26 TestEvent>
+0014  00000000  00000000  =  nop                               
+0018  3c040000  3c048015  R  lui	a0,0x0                          <HI16 (0x4 + .bss(base))>
+001c  8c8406b4  8c8489f0  R  lw	a0,1716(a0)                      <LO16 (0x4 + .bss(base))>
+0020  0c000000  0c04321d  R  jal	0x0                             <REL26 TestEvent>
+0024  00000000  00000000  =  nop                               
+0028  3c040000  3c048015  R  lui	a0,0x0                          <HI16 (0x8 + .bss(base))>
+002c  8c8406b8  8c8489f4  R  lw	a0,1720(a0)                      <LO16 (0x8 + .bss(base))>
+0030  0c000000  0c04321d  R  jal	0x0                             <REL26 TestEvent>
+0034  00000000  00000000  =  nop                               
+0038  3c040000  3c048015  R  lui	a0,0x0                          <HI16 (0xC + .bss(base))>
+003c  8c8406bc  8c8489f8  R  lw	a0,1724(a0)                      <LO16 (0xC + .bss(base))>
+0040  0c000000  0c04321d  R  jal	0x0                             <REL26 TestEvent>
+0044  00000000  00000000  =  nop                               
+0048  3c040000  3c048015  R  lui	a0,0x0                          <HI16 (0x10 + .bss(base))>
+004c  8c8406c0  8c8489fc  R  lw	a0,1728(a0)                      <LO16 (0x10 + .bss(base))>
+0050  0c000000  0c04321d  R  jal	0x0                             <REL26 TestEvent>
+0054  00000000  00000000  =  nop                               
+0058  3c040000  3c048015  R  lui	a0,0x0                          <HI16 (0x14 + .bss(base))>
+005c  8c8406c4  8c848a00  R  lw	a0,1732(a0)                      <LO16 (0x14 + .bss(base))>
+0060  0c000000  0c04321d  R  jal	0x0                             <REL26 TestEvent>
+0064  00000000  00000000  =  nop                               
+0068  3c040000  3c048015  R  lui	a0,0x0                          <HI16 (0x18 + .bss(base))>
+006c  8c8406c8  8c848a04  R  lw	a0,1736(a0)                      <LO16 (0x18 + .bss(base))>
+0070  0c000000  0c04321d  R  jal	0x0                             <REL26 TestEvent>
+0074  00000000  00000000  =  nop                               
+0078  3c040000  3c048015  R  lui	a0,0x0                          <HI16 (0x1C + .bss(base))>
+007c  8c8406cc  8c848a08  R  lw	a0,1740(a0)                      <LO16 (0x1C + .bss(base))>
+0080  0c000000  0c04321d  R  jal	0x0                             <REL26 TestEvent>
+0084  00000000  00000000  =  nop                               
+0088  3c010000  3c018015  R  lui	at,0x0                          <HI16 (0x2C + .bss(base))>
+008c  ac2006dc  ac208a18  R  sw	zero,1756(at)                    <LO16 (0x2C + .bss(base))>
+0090  3c020000  3c028015  R  lui	v0,0x0                          <HI16 (0x2C + .bss(base))>
+0094  8c4206dc  8c428a18  R  lw	v0,1756(v0)                      <LO16 (0x2C + .bss(base))>
+0098  3c010000  3c018015  R  lui	at,0x0                          <HI16 (0x28 + .bss(base))>
+009c  ac2206d8  ac228a14  R  sw	v0,1752(at)                      <LO16 (0x28 + .bss(base))>
+00a0  3c020000  3c028015  R  lui	v0,0x0                          <HI16 (0x28 + .bss(base))>
+00a4  8c4206d8  8c428a14  R  lw	v0,1752(v0)                      <LO16 (0x28 + .bss(base))>
+00a8  3c010000  3c018015  R  lui	at,0x0                          <HI16 (0x24 + .bss(base))>
+00ac  ac2206d4  ac228a10  R  sw	v0,1748(at)                      <LO16 (0x24 + .bss(base))>
+00b0  3c020000  3c028015  R  lui	v0,0x0                          <HI16 (0x24 + .bss(base))>
+00b4  8c4206d4  8c428a10  R  lw	v0,1748(v0)                      <LO16 (0x24 + .bss(base))>
+00b8  3c010000  3c018015  R  lui	at,0x0                          <HI16 (0x20 + .bss(base))>
+00bc  ac2206d0  ac228a0c  R  sw	v0,1744(at)                      <LO16 (0x20 + .bss(base))>
+00c0  3c010000  3c018015  R  lui	at,0x0                          <HI16 (0x3C + .bss(base))>
+00c4  ac2006ec  ac208a28  R  sw	zero,1772(at)                    <LO16 (0x3C + .bss(base))>
+00c8  3c020000  3c028015  R  lui	v0,0x0                          <HI16 (0x3C + .bss(base))>
+00cc  8c4206ec  8c428a28  R  lw	v0,1772(v0)                      <LO16 (0x3C + .bss(base))>
+00d0  3c010000  3c018015  R  lui	at,0x0                          <HI16 (0x38 + .bss(base))>
+00d4  ac2206e8  ac228a24  R  sw	v0,1768(at)                      <LO16 (0x38 + .bss(base))>
+00d8  3c020000  3c028015  R  lui	v0,0x0                          <HI16 (0x38 + .bss(base))>
+00dc  8c4206e8  8c428a24  R  lw	v0,1768(v0)                      <LO16 (0x38 + .bss(base))>
+00e0  3c010000  3c018015  R  lui	at,0x0                          <HI16 (0x34 + .bss(base))>
+00e4  ac2206e4  ac228a20  R  sw	v0,1764(at)                      <LO16 (0x34 + .bss(base))>
+00e8  3c020000  3c028015  R  lui	v0,0x0                          <HI16 (0x34 + .bss(base))>
+00ec  8c4206e4  8c428a20  R  lw	v0,1764(v0)                      <LO16 (0x34 + .bss(base))>
+00f0  3c010000  3c018015  R  lui	at,0x0                          <HI16 (0x30 + .bss(base))>
+00f4  ac2206e0  ac228a1c  R  sw	v0,1760(at)                      <LO16 (0x30 + .bss(base))>
+00f8  8fbf0010  8fbf0010  =  lw	ra,16(sp)                      
+00fc  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+0100  03e00008  03e00008  =  jr	ra                             
+0104  00000000  00000000  =  nop                               

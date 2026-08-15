@@ -1,0 +1,26 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMCRD / LIBMCRD / MemCardStart
+linkage=export  section-size=80 bytes (20 words)  vendor-relocs=7
+retail VA=0x800FAAF8  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0004  afbf0010  afbf0010  =  sw	ra,16(sp)                      
+0008  0c000000  0c042700  R  jal	0x0                             <REL26 UserFuncInit>
+000c  00000000  00000000  =  nop                               
+0010  3c020000  3c028014  R  lui	v0,0x0                          <HI16 (0x18 + .bss(base))>
+0014  24421b28  24427518  R  addiu	v0,v0,6952                    <LO16 (0x18 + .bss(base))>
+0018  2403ffff  2403ffff  =  li	v1,-1                          
+001c  ac400000  ac400000  =  sw	zero,0(v0)                     
+0020  ac400004  ac400004  =  sw	zero,4(v0)                     
+0024  ac400008  ac400008  =  sw	zero,8(v0)                     
+0028  0c000000  0c042588  R  jal	0x0                             <REL26 _card_start>
+002c  ac430010  ac430010  =  sw	v1,16(v0)                      
+0030  3c050000  3c058010  R  lui	a1,0x0                          <HI16 (0x1890 + .text(base))>
+0034  24a51890  24a5c170  R  addiu	a1,a1,6288                    <LO16 (0x1890 + .text(base))>
+0038  0c000000  0c03ca44  R  jal	0x0                             <REL26 VSyncCallbacks>
+003c  24040007  24040007  =  li	a0,7                           
+0040  8fbf0010  8fbf0010  =  lw	ra,16(sp)                      
+0044  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+0048  03e00008  03e00008  =  jr	ra                             
+004c  00000000  00000000  =  nop                               

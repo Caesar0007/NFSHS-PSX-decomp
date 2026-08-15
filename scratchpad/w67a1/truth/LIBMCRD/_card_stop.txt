@@ -1,0 +1,51 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMCRD / BIOS / _card_stop
+linkage=export  section-size=180 bytes (45 words)  vendor-relocs=26
+retail VA=0x8010981C  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0004  afbf0014  afbf0014  =  sw	ra,20(sp)                      
+0008  0c000000  0c041a63  R  jal	0x0                             <REL26 EnterCriticalSection>
+000c  afb00010  afb00010  =  sw	s0,16(sp)                      
+0010  3c040000  3c048015  R  lui	a0,0x0                          <HI16 .bss(base)>
+0014  8c8406b0  8c8489ec  R  lw	a0,1712(a0)                      <LO16 .bss(base)>
+0018  0c000000  0c043219  R  jal	0x0                             <REL26 CloseEvent>
+001c  00408021  00408021  =  move	s0,v0                        
+0020  3c040000  3c048015  R  lui	a0,0x0                          <HI16 (0x4 + .bss(base))>
+0024  8c8406b4  8c8489f0  R  lw	a0,1716(a0)                      <LO16 (0x4 + .bss(base))>
+0028  0c000000  0c043219  R  jal	0x0                             <REL26 CloseEvent>
+002c  00000000  00000000  =  nop                               
+0030  3c040000  3c048015  R  lui	a0,0x0                          <HI16 (0x8 + .bss(base))>
+0034  8c8406b8  8c8489f4  R  lw	a0,1720(a0)                      <LO16 (0x8 + .bss(base))>
+0038  0c000000  0c043219  R  jal	0x0                             <REL26 CloseEvent>
+003c  00000000  00000000  =  nop                               
+0040  3c040000  3c048015  R  lui	a0,0x0                          <HI16 (0xC + .bss(base))>
+0044  8c8406bc  8c8489f8  R  lw	a0,1724(a0)                      <LO16 (0xC + .bss(base))>
+0048  0c000000  0c043219  R  jal	0x0                             <REL26 CloseEvent>
+004c  00000000  00000000  =  nop                               
+0050  3c040000  3c048015  R  lui	a0,0x0                          <HI16 (0x10 + .bss(base))>
+0054  8c8406c0  8c8489fc  R  lw	a0,1728(a0)                      <LO16 (0x10 + .bss(base))>
+0058  0c000000  0c043219  R  jal	0x0                             <REL26 CloseEvent>
+005c  00000000  00000000  =  nop                               
+0060  3c040000  3c048015  R  lui	a0,0x0                          <HI16 (0x14 + .bss(base))>
+0064  8c8406c4  8c848a00  R  lw	a0,1732(a0)                      <LO16 (0x14 + .bss(base))>
+0068  0c000000  0c043219  R  jal	0x0                             <REL26 CloseEvent>
+006c  00000000  00000000  =  nop                               
+0070  3c040000  3c048015  R  lui	a0,0x0                          <HI16 (0x18 + .bss(base))>
+0074  8c8406c8  8c848a04  R  lw	a0,1736(a0)                      <LO16 (0x18 + .bss(base))>
+0078  0c000000  0c043219  R  jal	0x0                             <REL26 CloseEvent>
+007c  00000000  00000000  =  nop                               
+0080  3c040000  3c048015  R  lui	a0,0x0                          <HI16 (0x1C + .bss(base))>
+0084  8c8406cc  8c848a08  R  lw	a0,1740(a0)                      <LO16 (0x1C + .bss(base))>
+0088  0c000000  0c043219  R  jal	0x0                             <REL26 CloseEvent>
+008c  00000000  00000000  =  nop                               
+0090  24020001  24020001  =  li	v0,1                           
+0094  16020003  16020003  =  bne	s0,v0,0xa4                    
+0098  00000000  00000000  =  nop                               
+009c  0c000000  0c041a5b  R  jal	0x0                             <REL26 ExitCriticalSection>
+00a0  00000000  00000000  =  nop                               
+00a4  8fbf0014  8fbf0014  =  lw	ra,20(sp)                      
+00a8  8fb00010  8fb00010  =  lw	s0,16(sp)                      
+00ac  03e00008  03e00008  =  jr	ra                             
+00b0  27bd0018  27bd0018  =  addiu	sp,sp,24                    

@@ -1,0 +1,74 @@
+W67-A1 VENDOR GROUND TRUTH  LIBPAD / PADSEQD / _dirFailAuto
+linkage=export  section-size=268 bytes (67 words)  vendor-relocs=4
+retail VA=0x8010A434  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0004  afb00010  afb00010  =  sw	s0,16(sp)                      
+0008  00808021  00808021  =  move	s0,a0                        
+000c  afbf0014  afbf0014  =  sw	ra,20(sp)                      
+0010  8e02004c  8e02004c  =  lw	v0,76(s0)                      
+0014  92030046  92030046  =  lbu	v1,70(s0)                     
+0018  24420001  24420001  =  addiu	v0,v0,1                     
+001c  1060001e  1060001e  =  beqz	v1,0x98                      
+0020  ae02004c  ae02004c  =  sw	v0,76(s0)                      
+0024  24020001  24020001  =  li	v0,1                           
+0028  1462000b  1462000b  =  bne	v1,v0,0x58                    
+002c  00000000  00000000  =  nop                               
+0030  9203004a  9203004a  =  lbu	v1,74(s0)                     
+0034  00000000  00000000  =  nop                               
+0038  2c620002  2c620002  =  sltiu	v0,v1,2                     
+003c  1440000b  1440000b  =  bnez	v0,0x6c                      
+0040  24620001  24620001  =  addiu	v0,v1,1                     
+0044  24020002  24020002  =  li	v0,2                           
+0048  a2020049  a2020049  =  sb	v0,73(s0)                      
+004c  240200ff  240200ff  =  li	v0,255                         
+0050  08000114  08042940  R  j	0x450                             <REL26 (0x450 + .text(base))>
+0054  a2020046  a2020046  =  sb	v0,70(s0)                      
+0058  9203004a  9203004a  =  lbu	v1,74(s0)                     
+005c  00000000  00000000  =  nop                               
+0060  2c620004  2c620004  =  sltiu	v0,v1,4                     
+0064  10400003  10400003  =  beqz	v0,0x74                      
+0068  24620001  24620001  =  addiu	v0,v1,1                     
+006c  08000114  08042940  R  j	0x450                             <REL26 (0x450 + .text(base))>
+0070  a202004a  a202004a  =  sb	v0,74(s0)                      
+0074  92020049  92020049  =  lbu	v0,73(s0)                     
+0078  00000000  00000000  =  nop                               
+007c  10400006  10400006  =  beqz	v0,0x98                      
+0080  00000000  00000000  =  nop                               
+0084  3c020000  3c028013  R  lui	v0,0x0                          <HI16 _padFuncClrInfo>
+0088  8c420000  8c427c7c  R  lw	v0,0(v0)                         <LO16 _padFuncClrInfo>
+008c  00000000  00000000  =  nop                               
+0090  0040f809  0040f809  =  jalr	v0                           
+0094  02002021  02002021  =  move	a0,s0                        
+0098  8e02003c  8e02003c  =  lw	v0,60(s0)                      
+009c  00000000  00000000  =  nop                               
+00a0  90430000  90430000  =  lbu	v1,0(v0)                      
+00a4  240200f3  240200f3  =  li	v0,243                         
+00a8  10620008  10620008  =  beq	v1,v0,0xcc                    
+00ac  240300ff  240300ff  =  li	v1,255                         
+00b0  8e020030  8e020030  =  lw	v0,48(s0)                      
+00b4  00000000  00000000  =  nop                               
+00b8  a0430000  a0430000  =  sb	v1,0(v0)                       
+00bc  8e020030  8e020030  =  lw	v0,48(s0)                      
+00c0  00000000  00000000  =  nop                               
+00c4  a0400001  a0400001  =  sb	zero,1(v0)                     
+00c8  a20000e8  a20000e8  =  sb	zero,232(s0)                   
+00cc  8fbf0014  8fbf0014  =  lw	ra,20(sp)                      
+00d0  8fb00010  8fb00010  =  lw	s0,16(sp)                      
+00d4  03e00008  03e00008  =  jr	ra                             
+00d8  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+        >> retail symbol here: _dirCheck (0x8010A510)
+00dc  948200e6  948200e6  =  lhu	v0,230(a0)                    
+00e0  00000000  00000000  =  nop                               
+00e4  10400005  10400005  =  beqz	v0,0xfc                      
+00e8  240200ff  240200ff  =  li	v0,255                         
+00ec  90830046  90830046  =  lbu	v1,70(a0)                     
+00f0  00000000  00000000  =  nop                               
+00f4  10620002  10620002  =  beq	v1,v0,0x100                   
+00f8  00001021  00001021  =  move	v0,zero                      
+00fc  24020001  24020001  =  li	v0,1                           
+0100  03e00008  03e00008  =  jr	ra                             
+0104  00000000  00000000  =  nop                               
+0108  00000000  00000000  =  nop                               

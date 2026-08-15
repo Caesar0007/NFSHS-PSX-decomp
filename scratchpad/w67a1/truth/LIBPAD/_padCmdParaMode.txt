@@ -1,0 +1,56 @@
+W67-A1 VENDOR GROUND TRUTH  LIBPAD / PADCMD / _padCmdParaMode
+linkage=export  section-size=180 bytes (45 words)  vendor-relocs=0
+retail VA=0x80105E8C  VERDICT=identical
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  24020043  24020043  =  li	v0,67                          
+0004  a0820036  a0820036  =  sb	v0,54(a0)                      
+0008  24820024  24820024  =  addiu	v0,a0,36                    
+000c  ac82002c  ac82002c  =  sw	v0,44(a0)                      
+0010  24020001  24020001  =  li	v0,1                           
+0014  a0850024  a0850024  =  sb	a1,36(a0)                      
+0018  03e00008  03e00008  =  jr	ra                             
+001c  a0820035  a0820035  =  sb	v0,53(a0)                      
+        >> retail symbol here: _padCmdGetStatus (0x80105EAC)
+0020  24020045  24020045  =  li	v0,69                          
+0024  a0820036  a0820036  =  sb	v0,54(a0)                      
+0028  ac80002c  ac80002c  =  sw	zero,44(a0)                    
+002c  03e00008  03e00008  =  jr	ra                             
+0030  a0800035  a0800035  =  sb	zero,53(a0)                    
+        >> retail symbol here: _padCmdSetMap (0x80105EC0)
+0034  2402004c  2402004c  =  li	v0,76                          
+0038  a0820036  a0820036  =  sb	v0,54(a0)                      
+003c  24820024  24820024  =  addiu	v0,a0,36                    
+0040  ac82002c  ac82002c  =  sw	v0,44(a0)                      
+0044  24020001  24020001  =  li	v0,1                           
+0048  a0850024  a0850024  =  sb	a1,36(a0)                      
+004c  03e00008  03e00008  =  jr	ra                             
+0050  a0820035  a0820035  =  sb	v0,53(a0)                      
+        >> retail symbol here: _padCmdGetDescR0 (0x80105EE0)
+0054  24020046  24020046  =  li	v0,70                          
+0058  a0820036  a0820036  =  sb	v0,54(a0)                      
+005c  24820024  24820024  =  addiu	v0,a0,36                    
+0060  ac82002c  ac82002c  =  sw	v0,44(a0)                      
+0064  24020001  24020001  =  li	v0,1                           
+0068  a0850024  a0850024  =  sb	a1,36(a0)                      
+006c  03e00008  03e00008  =  jr	ra                             
+0070  a0820035  a0820035  =  sb	v0,53(a0)                      
+        >> retail symbol here: _padCmdGetDescR1 (0x80105F00)
+0074  24020047  24020047  =  li	v0,71                          
+0078  a0820036  a0820036  =  sb	v0,54(a0)                      
+007c  24820024  24820024  =  addiu	v0,a0,36                    
+0080  ac82002c  ac82002c  =  sw	v0,44(a0)                      
+0084  24020001  24020001  =  li	v0,1                           
+0088  a0850024  a0850024  =  sb	a1,36(a0)                      
+008c  03e00008  03e00008  =  jr	ra                             
+0090  a0820035  a0820035  =  sb	v0,53(a0)                      
+        >> retail symbol here: _padCmd4B (0x80105F20)
+0094  2402004b  2402004b  =  li	v0,75                          
+0098  a0820036  a0820036  =  sb	v0,54(a0)                      
+009c  ac80002c  ac80002c  =  sw	zero,44(a0)                    
+00a0  03e00008  03e00008  =  jr	ra                             
+00a4  a0800035  a0800035  =  sb	zero,53(a0)                    
+00a8  00000000  00000000  =  nop                               
+00ac  00000000  00000000  =  nop                               
+00b0  00000000  00000000  =  nop                               

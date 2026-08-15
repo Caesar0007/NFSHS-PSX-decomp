@@ -1,0 +1,18 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMCRD / BIOS / _card_open
+linkage=export  section-size=48 bytes (12 words)  vendor-relocs=3
+retail VA=0x801095F0  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0004  afbf0010  afbf0010  =  sw	ra,16(sp)                      
+0008  0c000000  0c0431e1  R  jal	0x0                             <REL26 InitCARD>
+000c  00000000  00000000  =  nop                               
+0010  0c000000  0c0431fc  R  jal	0x0                             <REL26 StartCARD>
+0014  00000000  00000000  =  nop                               
+0018  0c000000  0c043215  R  jal	0x0                             <REL26 _bu_init>
+001c  00000000  00000000  =  nop                               
+0020  8fbf0010  8fbf0010  =  lw	ra,16(sp)                      
+0024  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+0028  03e00008  03e00008  =  jr	ra                             
+002c  00000000  00000000  =  nop                               

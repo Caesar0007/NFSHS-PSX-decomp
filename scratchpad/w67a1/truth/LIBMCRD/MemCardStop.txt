@@ -1,0 +1,22 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMCRD / LIBMCRD / MemCardStop
+linkage=export  section-size=64 bytes (16 words)  vendor-relocs=4
+retail VA=0x800FAB48  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0004  3c030000  3c038014  R  lui	v1,0x0                          <HI16 (0x18 + .bss(base))>
+0008  24631b28  24637518  R  addiu	v1,v1,6952                    <LO16 (0x18 + .bss(base))>
+000c  afbf0010  afbf0010  =  sw	ra,16(sp)                      
+0010  8c620000  8c620000  =  lw	v0,0(v1)                       
+0014  00000000  00000000  =  nop                               
+0018  1440fffd  1440fffd  =  bnez	v0,0x10                      
+001c  24040007  24040007  =  li	a0,7                           
+0020  0c000000  0c03ca44  R  jal	0x0                             <REL26 VSyncCallbacks>
+0024  00002821  00002821  =  move	a1,zero                      
+0028  0c000000  0c042607  R  jal	0x0                             <REL26 _card_stop>
+002c  00000000  00000000  =  nop                               
+0030  8fbf0010  8fbf0010  =  lw	ra,16(sp)                      
+0034  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+0038  03e00008  03e00008  =  jr	ra                             
+003c  00000000  00000000  =  nop                               

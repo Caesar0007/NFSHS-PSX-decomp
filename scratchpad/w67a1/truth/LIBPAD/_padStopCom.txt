@@ -1,0 +1,23 @@
+W67-A1 VENDOR GROUND TRUTH  LIBPAD / PADMAIN / _padStopCom
+linkage=export  section-size=68 bytes (17 words)  vendor-relocs=6
+retail VA=0x80104CE8  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0004  afbf0010  afbf0010  =  sw	ra,16(sp)                      
+0008  0c000000  0c041a63  R  jal	0x0                             <REL26 EnterCriticalSection>
+000c  00000000  00000000  =  nop                               
+0010  24040003  24040003  =  li	a0,3                           
+0014  0c000000  0c041999  R  jal	0x0                             <REL26 ChangeClearRCnt>
+0018  24050001  24050001  =  li	a1,1                           
+001c  3c050000  3c058015  R  lui	a1,0x0                          <HI16 .bss(base)>
+0020  24a50d80  24a5857c  R  addiu	a1,a1,3456                    <LO16 .bss(base)>
+0024  0c000000  0c042ff2  R  jal	0x0                             <REL26 SysDeqIntRP>
+0028  24040002  24040002  =  li	a0,2                           
+002c  0c000000  0c041a5b  R  jal	0x0                             <REL26 ExitCriticalSection>
+0030  00000000  00000000  =  nop                               
+0034  8fbf0010  8fbf0010  =  lw	ra,16(sp)                      
+0038  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+003c  03e00008  03e00008  =  jr	ra                             
+0040  00000000  00000000  =  nop                               

@@ -1,0 +1,25 @@
+W67-A1 VENDOR GROUND TRUTH  LIBPAD / PADENTRY / PadChkMtap
+linkage=export  section-size=76 bytes (19 words)  vendor-relocs=5
+retail VA=NONE  VERDICT=absent
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c020000  --------     lui	v0,0x0                          <HI16 _padModeMtap>
+0004  8c420000  --------     lw	v0,0(v0)                         <LO16 _padModeMtap>
+0008  00000000  --------     nop                               
+000c  14400003  --------     bnez	v0,0x1c                      
+0010  00041903  --------     sra	v1,a0,0x4                     
+0014  08000029  --------     j	0xa4                              <REL26 (0xA4 + .text(base))>
+0018  00001021  --------     move	v0,zero                      
+001c  00031100  --------     sll	v0,v1,0x4                     
+0020  00431023  --------     subu	v0,v0,v1                     
+0024  3c030000  --------     lui	v1,0x0                          <HI16 _padInfoDir>
+0028  8c630000  --------     lw	v1,0(v1)                         <LO16 _padInfoDir>
+002c  00021100  --------     sll	v0,v0,0x4                     
+0030  00431021  --------     addu	v0,v0,v1                     
+0034  904200e8  --------     lbu	v0,232(v0)                    
+0038  00000000  --------     nop                               
+003c  38420008  --------     xori	v0,v0,0x8                    
+0040  2c420001  --------     sltiu	v0,v0,1                     
+0044  03e00008  --------     jr	ra                             
+0048  00000000  --------     nop                               

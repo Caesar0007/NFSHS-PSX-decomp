@@ -1,0 +1,41 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMCRD / LIBMCRD / MemCardFormat
+linkage=export  section-size=140 bytes (35 words)  vendor-relocs=15
+retail VA=0x800FBFDC  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffa8  27bdffa8  =  addiu	sp,sp,-88                   
+0004  3c030000  3c038014  R  lui	v1,0x0                          <HI16 (0x18 + .bss(base))>
+0008  24631b28  24637518  R  addiu	v1,v1,6952                    <LO16 (0x18 + .bss(base))>
+000c  afbf0050  afbf0050  =  sw	ra,80(sp)                      
+0010  8c620000  8c620000  =  lw	v0,0(v1)                       
+0014  00000000  00000000  =  nop                               
+0018  14400014  14400014  =  bnez	v0,0x6c                      
+001c  24020001  24020001  =  li	v0,1                           
+0020  8c65000c  8c65000c  =  lw	a1,12(v1)                      
+0024  3c030000  3c038014  R  lui	v1,0x0                          <HI16 (0x14 + .bss(base))>
+0028  8c631b24  8c637514  R  lw	v1,6948(v1)                      <LO16 (0x14 + .bss(base))>
+002c  00a21004  00a21004  =  sllv	v0,v0,a1                     
+0030  00621825  00621825  =  or	v1,v1,v0                       
+0034  27a50010  27a50010  =  addiu	a1,sp,16                    
+0038  3c010000  3c018014  R  lui	at,0x0                          <HI16 (0x14 + .bss(base))>
+003c  0c000645  0c03f07d  R  jal	0x1914                          <REL26 (0x1914 + .text(base))>
+0040  ac231b24  ac237514  R  sw	v1,6948(at)                      <LO16 (0x14 + .bss(base))>
+0044  0c000000  0c042634  R  jal	0x0                             <REL26 _clr_card_event>
+0048  00000000  00000000  =  nop                               
+004c  0c000000  0c042820  R  jal	0x0                             <REL26 format>
+0050  27a40010  27a40010  =  addiu	a0,sp,16                    
+0054  0c000000  0c0426ac  R  jal	0x0                             <REL26 _get_card_event_x>
+0058  00000000  00000000  =  nop                               
+005c  0c00060f  0c03f047  R  jal	0x183c                          <REL26 (0x183C + .text(base))>
+0060  00402021  00402021  =  move	a0,v0                        
+0064  080005de  0803f016  R  j	0x1778                            <REL26 (0x1778 + .text(base))>
+0068  00000000  00000000  =  nop                               
+006c  3c040000  3c048005  R  lui	a0,0x0                          <HI16 (0x150 + .rdata(base))>
+0070  0c000000  0c040a2b  R  jal	0x0                             <REL26 printf>
+0074  24841ac0  248474c0  R  addiu	a0,a0,6848                    <LO16 (0x150 + .rdata(base))>
+0078  2402ffff  2402ffff  =  li	v0,-1                          
+007c  8fbf0050  8fbf0050  =  lw	ra,80(sp)                      
+0080  27bd0058  27bd0058  =  addiu	sp,sp,88                    
+0084  03e00008  03e00008  =  jr	ra                             
+0088  00000000  00000000  =  nop                               

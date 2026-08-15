@@ -1,0 +1,91 @@
+W67-A1 VENDOR GROUND TRUTH  LIBPAD / PADCMD / _padSetMainMode
+linkage=export  section-size=332 bytes (83 words)  vendor-relocs=12
+retail VA=0x80105D40  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffd8  27bdffd8  =  addiu	sp,sp,-40                   
+0004  afb00010  afb00010  =  sw	s0,16(sp)                      
+0008  00808021  00808021  =  move	s0,a0                        
+000c  afb10014  afb10014  =  sw	s1,20(sp)                      
+0010  00a08821  00a08821  =  move	s1,a1                        
+0014  afb20018  afb20018  =  sw	s2,24(sp)                      
+0018  00c09021  00c09021  =  move	s2,a2                        
+001c  afb3001c  afb3001c  =  sw	s3,28(sp)                      
+0020  3c020000  3c028013  R  lui	v0,0x0                          <HI16 _padFuncChkEng>
+0024  8c420000  8c427c94  R  lw	v0,0(v0)                         <LO16 _padFuncChkEng>
+0028  afbf0020  afbf0020  =  sw	ra,32(sp)                      
+002c  0040f809  0040f809  =  jalr	v0                           
+0030  02209821  02209821  =  move	s3,s1                        
+0034  14400011  14400011  =  bnez	v0,0x7c                      
+0038  00001021  00001021  =  move	v0,zero                      
+003c  24020001  24020001  =  li	v0,1                           
+0040  920400e4  920400e4  =  lbu	a0,228(s0)                    
+0044  24030001  24030001  =  li	v1,1                           
+0048  a2030046  a2030046  =  sb	v1,70(s0)                      
+004c  3c030000  3c038010  R  lui	v1,0x0                          <HI16 (0x7F8 + .text(base))>
+0050  246307f8  24635dd8  R  addiu	v1,v1,2040                    <LO16 (0x7F8 + .text(base))>
+0054  ae030014  ae030014  =  sw	v1,20(s0)                      
+0058  3c030000  3c038010  R  lui	v1,0x0                          <HI16 (0x84C + .text(base))>
+005c  2463084c  24635e2c  R  addiu	v1,v1,2124                    <LO16 (0x84C + .text(base))>
+0060  ae030018  ae030018  =  sw	v1,24(s0)                      
+0064  326300ff  326300ff  =  andi	v1,s3,0xff                   
+0068  a2110051  a2110051  =  sb	s1,81(s0)                      
+006c  a2120052  a2120052  =  sb	s2,82(s0)                      
+0070  00641826  00641826  =  xor	v1,v1,a0                      
+0074  2c630001  2c630001  =  sltiu	v1,v1,1                     
+0078  a2030053  a2030053  =  sb	v1,83(s0)                      
+007c  8fbf0020  8fbf0020  =  lw	ra,32(sp)                      
+0080  8fb3001c  8fb3001c  =  lw	s3,28(sp)                      
+0084  8fb20018  8fb20018  =  lw	s2,24(sp)                      
+0088  8fb10014  8fb10014  =  lw	s1,20(sp)                      
+008c  8fb00010  8fb00010  =  lw	s0,16(sp)                      
+0090  03e00008  03e00008  =  jr	ra                             
+0094  27bd0028  27bd0028  =  addiu	sp,sp,40                    
+        >> retail symbol here: _padSetMainMode_snd (0x80105DD8)
+0098  90830046  90830046  =  lbu	v1,70(a0)                     
+009c  24020002  24020002  =  li	v0,2                           
+00a0  10620005  10620005  =  beq	v1,v0,0xb8                    
+00a4  24020003  24020003  =  li	v0,3                           
+00a8  10620009  10620009  =  beq	v1,v0,0xd0                    
+00ac  2402004d  2402004d  =  li	v0,77                          
+00b0  08000211  08041789  R  j	0x844                             <REL26 (0x844 + .text(base))>
+00b4  00000000  00000000  =  nop                               
+00b8  24020044  24020044  =  li	v0,68                          
+00bc  a0820036  a0820036  =  sb	v0,54(a0)                      
+00c0  24820051  24820051  =  addiu	v0,a0,81                    
+00c4  ac82002c  ac82002c  =  sw	v0,44(a0)                      
+00c8  08000211  08041789  R  j	0x844                             <REL26 (0x844 + .text(base))>
+00cc  a0830035  a0830035  =  sb	v1,53(a0)                      
+00d0  a0820036  a0820036  =  sb	v0,54(a0)                      
+00d4  2482005d  2482005d  =  addiu	v0,a0,93                    
+00d8  ac82002c  ac82002c  =  sw	v0,44(a0)                      
+00dc  24020006  24020006  =  li	v0,6                           
+00e0  a0820035  a0820035  =  sb	v0,53(a0)                      
+00e4  03e00008  03e00008  =  jr	ra                             
+00e8  00000000  00000000  =  nop                               
+        >> retail symbol here: _padSetMainMode_rcv (0x80105E2C)
+00ec  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+00f0  afbf0010  afbf0010  =  sw	ra,16(sp)                      
+00f4  90820053  90820053  =  lbu	v0,83(a0)                     
+00f8  00000000  00000000  =  nop                               
+00fc  10400009  10400009  =  beqz	v0,0x124                     
+0100  24020002  24020002  =  li	v0,2                           
+0104  90830046  90830046  =  lbu	v1,70(a0)                     
+0108  00000000  00000000  =  nop                               
+010c  14620003  14620003  =  bne	v1,v0,0x11c                   
+0110  240200fe  240200fe  =  li	v0,254                         
+0114  08000227  0804179f  R  j	0x89c                             <REL26 (0x89C + .text(base))>
+0118  24020001  24020001  =  li	v0,1                           
+011c  08000226  0804179e  R  j	0x898                             <REL26 (0x898 + .text(base))>
+0120  a0820046  a0820046  =  sb	v0,70(a0)                      
+0124  3c020000  3c028013  R  lui	v0,0x0                          <HI16 _padFuncClrInfo>
+0128  8c420000  8c427c7c  R  lw	v0,0(v0)                         <LO16 _padFuncClrInfo>
+012c  00000000  00000000  =  nop                               
+0130  0040f809  0040f809  =  jalr	v0                           
+0134  00000000  00000000  =  nop                               
+0138  00001021  00001021  =  move	v0,zero                      
+013c  8fbf0010  8fbf0010  =  lw	ra,16(sp)                      
+0140  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+0144  03e00008  03e00008  =  jr	ra                             
+0148  00000000  00000000  =  nop                               

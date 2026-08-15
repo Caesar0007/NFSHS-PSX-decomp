@@ -1,0 +1,33 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMCRD / USERFUNC / UserFuncExecute
+linkage=export  section-size=108 bytes (27 words)  vendor-relocs=10
+retail VA=0x80109C8C  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c030000  3c038014  R  lui	v1,0x0                          <HI16 .data(base)>
+0004  8c630130  8c63c2e0  R  lw	v1,304(v1)                       <LO16 .data(base)>
+0008  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+000c  04600013  04600013  =  bltz	v1,0x5c                      
+0010  afbf0010  afbf0010  =  sw	ra,16(sp)                      
+0014  00031080  00031080  =  sll	v0,v1,0x2                     
+0018  00031900  00031900  =  sll	v1,v1,0x4                     
+001c  3c040000  3c048015  R  lui	a0,0x0                          <HI16 .bss(base)>
+0020  24840140  24848a2c  R  addiu	a0,a0,320                     <LO16 .bss(base)>
+0024  3c010000  3c018015  R  lui	at,0x0                          <HI16 (0x40 + .bss(base))>
+0028  00220821  00220821  =  addu	at,at,v0                     
+002c  8c220180  8c228a6c  R  lw	v0,384(at)                       <LO16 (0x40 + .bss(base))>
+0030  00000000  00000000  =  nop                               
+0034  0040f809  0040f809  =  jalr	v0                           
+0038  00642021  00642021  =  addu	a0,v1,a0                     
+003c  10400007  10400007  =  beqz	v0,0x5c                      
+0040  00000000  00000000  =  nop                               
+0044  3c020000  3c028014  R  lui	v0,0x0                          <HI16 .data(base)>
+0048  8c420130  8c42c2e0  R  lw	v0,304(v0)                       <LO16 .data(base)>
+004c  00000000  00000000  =  nop                               
+0050  2442ffff  2442ffff  =  addiu	v0,v0,-1                    
+0054  3c010000  3c018014  R  lui	at,0x0                          <HI16 .data(base)>
+0058  ac220130  ac22c2e0  R  sw	v0,304(at)                       <LO16 .data(base)>
+005c  8fbf0010  8fbf0010  =  lw	ra,16(sp)                      
+0060  27bd0018  27bd0018  =  addiu	sp,sp,24                    
+0064  03e00008  03e00008  =  jr	ra                             
+0068  00000000  00000000  =  nop                               

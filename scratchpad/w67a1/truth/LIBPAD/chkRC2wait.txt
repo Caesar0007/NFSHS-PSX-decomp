@@ -1,0 +1,46 @@
+W67-A1 VENDOR GROUND TRUTH  LIBPAD / WAITRC2 / chkRC2wait
+linkage=export  section-size=160 bytes (40 words)  vendor-relocs=12
+retail VA=0x8010C008  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c021f80  3c021f80  =  lui	v0,0x1f80                     
+0004  34421120  34421120  =  ori	v0,v0,0x1120                  
+0008  94430000  94430000  =  lhu	v1,0(v0)                      
+000c  3c020000  3c028015  R  lui	v0,0x0                          <HI16 _startTime>
+0010  8c420000  8c428ab0  R  lw	v0,0(v0)                         <LO16 _startTime>
+0014  3064ffff  3064ffff  =  andi	a0,v1,0xffff                 
+0018  0082102b  0082102b  =  sltu	v0,a0,v0                     
+001c  1040000a  1040000a  =  beqz	v0,0x48                      
+0020  3c031f80  3c031f80  =  lui	v1,0x1f80                     
+0024  34631128  34631128  =  ori	v1,v1,0x1128                  
+0028  94620000  94620000  =  lhu	v0,0(v1)                      
+002c  00000000  00000000  =  nop                               
+0030  10400004  10400004  =  beqz	v0,0x44                      
+0034  3c020001  3c020001  =  lui	v0,0x1                        
+0038  94620000  94620000  =  lhu	v0,0(v1)                      
+003c  0800001a  08043014  R  j	0x68                              <REL26 (0x68 + .text(base))>
+0040  00822021  00822021  =  addu	a0,a0,v0                     
+0044  00822021  00822021  =  addu	a0,a0,v0                     
+0048  3c021f80  3c021f80  =  lui	v0,0x1f80                     
+004c  34421124  34421124  =  ori	v0,v0,0x1124                  
+0050  94420000  94420000  =  lhu	v0,0(v0)                      
+0054  00000000  00000000  =  nop                               
+0058  30420200  30420200  =  andi	v0,v0,0x200                  
+005c  14400008  14400008  =  bnez	v0,0x80                      
+0060  00000000  00000000  =  nop                               
+0064  3c020000  3c028015  R  lui	v0,0x0                          <HI16 _startTime>
+0068  8c420000  8c428ab0  R  lw	v0,0(v0)                         <LO16 _startTime>
+006c  3c030000  3c038015  R  lui	v1,0x0                          <HI16 _waitTime>
+0070  8c630000  8c638aac  R  lw	v1,0(v1)                         <LO16 _waitTime>
+0074  00821023  00821023  =  subu	v0,a0,v0                     
+0078  0800002d  08043027  R  j	0xb4                              <REL26 (0xB4 + .text(base))>
+007c  000210c2  000210c2  =  srl	v0,v0,0x3                     
+0080  3c020000  3c028015  R  lui	v0,0x0                          <HI16 _startTime>
+0084  8c420000  8c428ab0  R  lw	v0,0(v0)                         <LO16 _startTime>
+0088  3c030000  3c038015  R  lui	v1,0x0                          <HI16 _waitTime>
+008c  8c630000  8c638aac  R  lw	v1,0(v1)                         <LO16 _waitTime>
+0090  00821023  00821023  =  subu	v0,a0,v0                     
+0094  0043102b  0043102b  =  sltu	v0,v0,v1                     
+0098  03e00008  03e00008  =  jr	ra                             
+009c  38420001  38420001  =  xori	v0,v0,0x1                    

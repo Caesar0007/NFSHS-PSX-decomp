@@ -1,0 +1,21 @@
+W67-A1 VENDOR GROUND TRUTH  LIBMCRD / BIOS / _chk_card_event
+linkage=export  section-size=60 bytes (15 words)  vendor-relocs=8
+retail VA=0x80109B88  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c020000  3c028015  R  lui	v0,0x0                          <HI16 (0x24 + .bss(base))>
+0004  8c4206d4  8c428a10  R  lw	v0,1748(v0)                      <LO16 (0x24 + .bss(base))>
+0008  3c040000  3c048015  R  lui	a0,0x0                          <HI16 (0x20 + .bss(base))>
+000c  8c8406d0  8c848a0c  R  lw	a0,1744(a0)                      <LO16 (0x20 + .bss(base))>
+0010  3c030000  3c038015  R  lui	v1,0x0                          <HI16 (0x28 + .bss(base))>
+0014  8c6306d8  8c638a14  R  lw	v1,1752(v1)                      <LO16 (0x28 + .bss(base))>
+0018  00021040  00021040  =  sll	v0,v0,0x1                     
+001c  00822021  00822021  =  addu	a0,a0,v0                     
+0020  00031880  00031880  =  sll	v1,v1,0x2                     
+0024  3c020000  3c028015  R  lui	v0,0x0                          <HI16 (0x2C + .bss(base))>
+0028  8c4206dc  8c428a18  R  lw	v0,1756(v0)                      <LO16 (0x2C + .bss(base))>
+002c  00832021  00832021  =  addu	a0,a0,v1                     
+0030  000210c0  000210c0  =  sll	v0,v0,0x3                     
+0034  03e00008  03e00008  =  jr	ra                             
+0038  00821021  00821021  =  addu	v0,a0,v0                     

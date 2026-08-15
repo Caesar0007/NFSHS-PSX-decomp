@@ -1,0 +1,89 @@
+W67-A1 VENDOR GROUND TRUTH  LIBPAD / PADCMD / _padRecvAtLoadInfo
+linkage=export  section-size=332 bytes (83 words)  vendor-relocs=9
+retail VA=0x80105680  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  27bdffe8  27bdffe8  =  addiu	sp,sp,-24                   
+0004  afb00010  afb00010  =  sw	s0,16(sp)                      
+0008  00808021  00808021  =  move	s0,a0                        
+000c  afbf0014  afbf0014  =  sw	ra,20(sp)                      
+0010  92030046  92030046  =  lbu	v1,70(s0)                     
+0014  24020003  24020003  =  li	v0,3                           
+0018  1062001c  1062001c  =  beq	v1,v0,0x8c                    
+001c  28620004  28620004  =  slti	v0,v1,4                      
+0020  10400005  10400005  =  beqz	v0,0x38                      
+0024  24020002  24020002  =  li	v0,2                           
+0028  10620008  10620008  =  beq	v1,v0,0x4c                    
+002c  24020001  24020001  =  li	v0,1                           
+0030  08000077  080415ef  R  j	0x1dc                             <REL26 (0x1DC + .text(base))>
+0034  00000000  00000000  =  nop                               
+0038  24020004  24020004  =  li	v0,4                           
+003c  1062001c  1062001c  =  beq	v1,v0,0xb0                    
+0040  24020001  24020001  =  li	v0,1                           
+0044  08000077  080415ef  R  j	0x1dc                             <REL26 (0x1DC + .text(base))>
+0048  00000000  00000000  =  nop                               
+004c  8e02003c  8e02003c  =  lw	v0,60(s0)                      
+0050  8e03003c  8e03003c  =  lw	v1,60(s0)                      
+0054  90420003  90420003  =  lbu	v0,3(v0)                      
+0058  00000000  00000000  =  nop                               
+005c  a20200e3  a20200e3  =  sb	v0,227(s0)                     
+0060  90620004  90620004  =  lbu	v0,4(v1)                      
+0064  8e03003c  8e03003c  =  lw	v1,60(s0)                      
+0068  a60000e6  a60000e6  =  sh	zero,230(s0)                   
+006c  a20200e4  a20200e4  =  sb	v0,228(s0)                     
+0070  90620005  90620005  =  lbu	v0,5(v1)                      
+0074  8e03003c  8e03003c  =  lw	v1,60(s0)                      
+0078  a20200e9  a20200e9  =  sb	v0,233(s0)                     
+007c  90620006  90620006  =  lbu	v0,6(v1)                      
+0080  ae0000ec  ae0000ec  =  sw	zero,236(s0)                   
+0084  08000076  080415ee  R  j	0x1d8                             <REL26 (0x1D8 + .text(base))>
+0088  a20200ea  a20200ea  =  sb	v0,234(s0)                     
+008c  8e02003c  8e02003c  =  lw	v0,60(s0)                      
+0090  00000000  00000000  =  nop                               
+0094  90430004  90430004  =  lbu	v1,4(v0)                      
+0098  90420005  90420005  =  lbu	v0,5(v0)                      
+009c  a2000047  a2000047  =  sb	zero,71(s0)                    
+00a0  00031a00  00031a00  =  sll	v1,v1,0x8                     
+00a4  00431021  00431021  =  addu	v0,v0,v1                     
+00a8  08000076  080415ee  R  j	0x1d8                             <REL26 (0x1D8 + .text(base))>
+00ac  a60200e6  a60200e6  =  sh	v0,230(s0)                     
+00b0  8e0400ec  8e0400ec  =  lw	a0,236(s0)                     
+00b4  92020047  92020047  =  lbu	v0,71(s0)                     
+00b8  8e03003c  8e03003c  =  lw	v1,60(s0)                      
+00bc  24420001  24420001  =  addiu	v0,v0,1                     
+00c0  90630004  90630004  =  lbu	v1,4(v1)                      
+00c4  24840008  24840008  =  addiu	a0,a0,8                     
+00c8  a2020047  a2020047  =  sb	v0,71(s0)                      
+00cc  24630003  24630003  =  addiu	v1,v1,3                     
+00d0  306301fc  306301fc  =  andi	v1,v1,0x1fc                  
+00d4  00832021  00832021  =  addu	a0,a0,v1                     
+00d8  920300ea  920300ea  =  lbu	v1,234(s0)                    
+00dc  304200ff  304200ff  =  andi	v0,v0,0xff                   
+00e0  0043102b  0043102b  =  sltu	v0,v0,v1                     
+00e4  10400003  10400003  =  beqz	v0,0xf4                      
+00e8  ae0400ec  ae0400ec  =  sw	a0,236(s0)                     
+00ec  08000077  080415ef  R  j	0x1dc                             <REL26 (0x1DC + .text(base))>
+00f0  00001021  00001021  =  move	v0,zero                      
+00f4  0c00007b  0c0415f3  R  jal	0x1ec                           <REL26 (0x1EC + .text(base))>
+00f8  02002021  02002021  =  move	a0,s0                        
+00fc  28420081  28420081  =  slti	v0,v0,129                    
+0100  14400006  14400006  =  bnez	v0,0x11c                     
+0104  02002021  02002021  =  move	a0,s0                        
+0108  240200fe  240200fe  =  li	v0,254                         
+010c  a2020046  a2020046  =  sb	v0,70(s0)                      
+0110  24020002  24020002  =  li	v0,2                           
+0114  08000063  080415db  R  j	0x18c                             <REL26 (0x18C + .text(base))>
+0118  a2020049  a2020049  =  sb	v0,73(s0)                      
+011c  240200ff  240200ff  =  li	v0,255                         
+0120  26050063  26050063  =  addiu	a1,s0,99                    
+0124  0c000089  0c041601  R  jal	0x224                           <REL26 (0x224 + .text(base))>
+0128  a2020046  a2020046  =  sb	v0,70(s0)                      
+012c  24020002  24020002  =  li	v0,2                           
+0130  08000063  080415db  R  j	0x18c                             <REL26 (0x18C + .text(base))>
+0134  a2020046  a2020046  =  sb	v0,70(s0)                      
+0138  24020001  24020001  =  li	v0,1                           
+013c  8fbf0014  8fbf0014  =  lw	ra,20(sp)                      
+0140  8fb00010  8fb00010  =  lw	s0,16(sp)                      
+0144  03e00008  03e00008  =  jr	ra                             
+0148  27bd0018  27bd0018  =  addiu	sp,sp,24                    

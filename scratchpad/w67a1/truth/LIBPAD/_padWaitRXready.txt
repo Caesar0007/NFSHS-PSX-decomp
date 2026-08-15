@@ -1,0 +1,16 @@
+W67-A1 VENDOR GROUND TRUTH  LIBPAD / PADMAIN / _padWaitRXready
+linkage=export  section-size=40 bytes (10 words)  vendor-relocs=2
+retail VA=0x801055C8  VERDICT=reloc-only
+columns: off | vendor-word | retail-word | flag | disasm | reloc
+flags: '='same  'R'differs-in-reloc-field-only(expected, unlinked)  '!'REAL DRIFT
+
+0000  3c030000  3c038013  R  lui	v1,0x0                          <HI16 (0x6C + .data(base))>
+0004  8c630d6c  8c637cdc  R  lw	v1,3436(v1)                      <LO16 (0x6C + .data(base))>
+0008  00000000  00000000  =  nop                               
+000c  94620004  94620004  =  lhu	v0,4(v1)                      
+0010  00000000  00000000  =  nop                               
+0014  30420002  30420002  =  andi	v0,v0,0x2                    
+0018  1040fffc  1040fffc  =  beqz	v0,0xc                       
+001c  00000000  00000000  =  nop                               
+0020  03e00008  03e00008  =  jr	ra                             
+0024  00000000  00000000  =  nop                               

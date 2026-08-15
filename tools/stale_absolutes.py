@@ -8,7 +8,7 @@ import json
 import re
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[1]
 cen = json.load(open(ROOT / "scratchpad/w65a6/census_recon.json"))
 defined = set(cen["defined"])
 

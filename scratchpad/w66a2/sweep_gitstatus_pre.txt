@@ -1,0 +1,17 @@
+ M recon/eaclib/psx/eacpsxz/savegp.c
+ M recon/eaclib/psx/sndpsxz/spktplay.c
+ M recon/eaclib/psx/sndpsxz/ssysinit.c
+ M recon/frontend/common/feapp_externs.h
+ M recon/frontend/common/fecredits.cpp
+ M recon/frontend/common/screenpost_externs.h
+ M recon/frontend/common/screentrophyinfo_externs.h
+ M recon/game/common/vtables_tdialog.cpp
+ M recon/game/common/vtables_tlist.cpp
+ M recon/syslib/psx/libapi/PAD.c
+ M recon/syslib/psx/libapi/PAD_data.c
+ M recon/syslib/psx/libcd/event.c
+ M recon/syslib/psx/libetc/INTR_DMA.c
+ M recon/syslib/psx/libetc/VMODE.c
+ M recon/syslib/psx/libgpu/FONT.c
+ M recon/syslib/psx/libgte/FGO_01.c
+ M recon/syslib/psx/libgte/FGO_06.c

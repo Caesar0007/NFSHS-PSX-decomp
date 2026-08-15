@@ -1,0 +1,7 @@
+== output -> build  (skip_asm=True) ==
+== assembling data/header ==
+== compiling C TUs ==
+== compiling vendored reconstruction C++ TUs ==
+== 1 TU(s) FAILED to build (skipped; report covers the rest) ==
+   SKIP recon\frontend\common\screencarselect.cpp: C:/Temp/nfs4-decomp/recon/nfs4_types.h:2090: parse error at end of input
+== objects only (no link) ==

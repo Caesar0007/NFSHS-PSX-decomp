@@ -146,6 +146,10 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 #                           objects.  g_value defaults to "0" in this lane.
 #                           See _compile_c_272.
 #   "jtbl_at_fusion"     -> pass --jtbl-at-fusion to maspsx for this TU only
+#   "nop_before_label"   -> pass --nop-before-label to maspsx for this TU
+#                           only (inserted load-delay nop BEFORE a following
+#                           label = retail/aspsx placement; closes FntPrint's
+#                           class-d word. PER-TU ONLY: breaks fememcard/fescreen).
 #                           (see JTBL_AT_FUSION above).
 #   "no_split_addresses" -> pass -mno-split-addresses to cc1/cc1plus for this
 #                           TU (w33-a10; methodology §3.25 axis 3b -- per-obj
@@ -357,6 +361,7 @@ PER_TU_FLAGS = {
     # discarded by the cc1_272 entry below (later key wins) AND is inert in
     # the 272 lane (no maspsx) -- removed rather than merged.
     "recon/syslib/psx/libgpu/FONT.c":       {"jtbl_at_fusion": True,   # FntPrint
+                                             "nop_before_label": True,  # w66-a2: brdist (10,8,9)->0
                                              "no_split_addresses": True},  # w48-a2: -34
     # w51-a3: libcd lane verdicts (measured per-TU; cdread.c = NO, 169->289):
     "recon/syslib/psx/libcd/cdread2.c":     {"cc1_272": True},  # 5->0, 2/2 PASS
@@ -2298,6 +2303,8 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
                   "-I", ROOT, "-o", obj]
     if JTBL_AT_FUSION or tu_flags.get("jtbl_at_fusion"):
         maspsx_cmd.append("--jtbl-at-fusion")
+    if tu_flags.get("nop_before_label"):
+        maspsx_cmd.append("--nop-before-label")
     r = subprocess.run([str(c) for c in maspsx_cmd],
                        input=s_file.read_text(), capture_output=True, text=True,
                        cwd=ROOT)
@@ -2360,6 +2367,8 @@ def compile_cpp(src: Path) -> Path:
                   *AS_ARCH, f"-G{tu_g_value}", "-I", RECON, "-o", obj]
     if JTBL_AT_FUSION or tu_flags.get("jtbl_at_fusion"):
         maspsx_cmd.append("--jtbl-at-fusion")
+    if tu_flags.get("nop_before_label"):
+        maspsx_cmd.append("--nop-before-label")
     # cfront dtor mangling: our CC1PL emits `_._<class>` (NO_DOLLAR_IN_LABEL -> '.'),
     # but EA's toolchain used the '.'->'_' convention (NO_DOT_IN_LABEL) => `___<class>`.
     # `_._` only ever appears as the dtor prefix, so this rename is surgical.

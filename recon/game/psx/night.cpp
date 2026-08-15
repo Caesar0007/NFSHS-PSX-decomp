@@ -317,6 +317,22 @@ void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char 
      on `sourceG` = 90, both = 84; from the SHIPPED basin a launder on `b15` = 55 @114 and
      on `sourceG` = 84.  The shipped 26 stands; the reverse-store-order price is still the
      cheapest way to buy that allocno order. */
+  /* ---- w64-a13 (2026-08-15): 26 STAYS @113/113.  NEW BOUNDING FACT -- the W55 reqdelta
+     TARGET IS ALREADY MET, so the residual is provably NOT an allocno question any more.
+     Re-dumped this basin (`tools/rtl_dump.py recon/game/psx/night.cpp -dg -dl`) and ran
+     tools/allocsim.py: **MATCH 15/15 (order-vs-dump: IDENTICAL)** and the handout is
+     exactly W55's retail target -- p86 (sourceB) = $v1, p85 = $a1, p88 = $t0, bought by
+     the two-operand read-only fence below.  Every long-lived pseudo in the table is on its
+     retail register; what is left (p137 refs=10 live=7 pri 4.29 -> $v1, p157 -> $v1,
+     p93 refs=4 live=8 -> $a0) are the SHORT block-local pack temps, i.e. the residual lives
+     entirely in the by-value CVECTOR assembly and its store/forward choice, not in the
+     priority table.  Concretely (side_by_side): retail reloads bytes 16(sp) and 19(sp) and
+     forwards .g/.b, ours reloads 18(sp)/19(sp) and forwards .r/.g, and retail's OR-tree
+     accumulates into ONE register in ascending byte order (`or a0,a0,v0` x3) where ours
+     builds a different tree.  Since the w50/w63 store-order x read-back table is saturated
+     in both directions (every combination is 26 or 54-58) and the allocno side is now
+     closed, the only remaining axis is which bytes cse chooses to forward -- a cse/expand
+     question for the instrumented lane, not a spelling sweep. */
   __asm__("" : : "r"(sourceB), "r"(sourceB));
   if (0xff < newB) newB = 0xff;
   /* `& ~7` (a register-held -8, oracle `addiu $v1,$zero,-0x8` + three `and`), NOT

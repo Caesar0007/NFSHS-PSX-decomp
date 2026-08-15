@@ -707,7 +707,43 @@ static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,
  *     register assignment of one arm first (AdditivePrim's receipt above quantifies exactly
  *     which permutation retail wants for this same tail shape), THEN re-try the split-RMW.
  *     The "accept the merge and re-derive from the MERGED oracle block" angle is untouched.
- * ===================================================================================== */
+ * ===================================================================================== *
+ * ===== w64-a13 (2026-08-15): 116 STAYS @938/938, but THE CLASS IS NARROWED HARD and the
+ * long-standing "the entire 116 is register assignment AND issue order" framing is now
+ * REFUTED on its first half.  Two cheap instruments, both new to this fn:
+ *  (1) tools/posdiff.py -- ours and the oracle have the **IDENTICAL first-use register
+ *      order**: `s0 a0 s2 a1 s3 s1 v0 v1 a2 a3 t2 t3 t4 t5 t6 t1 t0`, and the
+ *      alpha-renamed LCS is **882 / 938**.  So there is NO register permutation left in
+ *      this function at all -- every role is already retail's -- and the structural
+ *      residual is 56 positions of pure EMISSION ORDER.  (Contrast RaceStatistics, where
+ *      posdiff's two orders diverge from position 1.)
+ *  (2) tools/chunkdiff.py -- the whole thing is **ONE mismatched run of 11 instructions**
+ *      at ours[920:931] (the case-13/14 OT tail); every other block aligns.  Printed:
+ *        OURS                       ORACLE
+ *        lw    a0,0(t1)  <- re-read lw    a0,20(s3)
+ *        lw    v1,20(s3)            addiu v1,t0,40   <- bump off the LIVE prim ($t0)
+ *        addiu v0,a0,40             sll   a0,a0,2
+ *        sll   v1,v1,2              addu  a0,a0,a2
+ *        addu  v1,v1,a1             lw    v0,0(a0)
+ *        sw    v0,0(t1)             and   a1,t0,a1   <- mask the LIVE prim
+ *        lw    v0,0(v1)             sw    v1,0(t1)
+ *        and   a0,a0,a3             and   v0,v0,a3
+ *        and   v0,v0,a2             or    v0,v0,a1
+ *        or    v0,v0,a0             sw    v0,0(a0)
+ *        sw    v0,0(v1)
+ *      -- i.e. retail carries the packet pointer in $t0 across the whole tail and both
+ *      masks/bumps it from there, while ours RE-READS Render_gPacketPtr for the link
+ *      value.  This is the catalog's packet-emission law verbatim.
+ * FALSIFIED (the obvious cure, all re-gated from the 116 base): `link = (u_int)prim &
+ * 0xffffff;` 150 @942 . `Render_gPacketPtr = (u_char *)prim + 0x28;` 116 BIT-IDENTICAL
+ * (gcc already proves prim == the cursor there) . both together 149 @941 . both with the
+ * bump written FIRST 149 @941 . both with the bump moved after the palette store 146 @918
+ * (the cross-jump swallow again).  ⇒ the re-read is NOT a source-spelling choice: cse
+ * already knows the two are the same value and picks the MEM form, so the fix has to come
+ * from the same allocation side the w44 note names.
+ * NEXT TAKER: this is now a ONE-BLOCK, 11-instruction, register-role-CORRECT problem --
+ * dump `-dl`/`-dR` for that block only and read the sched2 ready list; do NOT re-open the
+ * whole-function permutation framing, posdiff has closed it. */
 void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
 
 {

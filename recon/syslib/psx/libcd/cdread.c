@@ -435,6 +435,35 @@ extern int CdRead(int sectors, u_long *buf, int mode)
      * `addu $s2,$a2,$zero` pair placement (a sched1 tie at the top of the first BB, the same
      * shape as CdControl's -- a 2-line PER_FN_TEXT_MOVES candidate).
      *
+     * W62-A6 (23 -> 16): class (a') SOLVED by the 3.25 3c NON-VOLATILE-CAST-ON-THE-STORE
+     * lever.  gcc's reorg REFUSES to move a volatile MEM into a delay slot, so every
+     * `_cdr` store that retail carries in a `j`/`jal` slot was structurally unreachable
+     * while the store went through the volatile anchor.  Writing the two switch-arm
+     * stores and the CdSyncCallback result store through a NON-VOLATILE lvalue cast
+     * (`*(int *)&g->w10 = ...`) hands reorg exactly the fillers retail has: two arm `j`
+     * slots + one `jal` slot, -2 insns and -7 diffs.  PRICED PER SITE (each measured in
+     * the landed basin -- the lever is NOT blanket-applicable): default arm `d->w10` and
+     * `e->w30` INERT at 16; `e->w00` 25; `e->w04` 19; both 19; `e->w0c |= 0x20` 22;
+     * `e->w2c` 28; `e->w1c` 19.  Only the three sites now cast are wins.
+     * ALSO FALSIFIED at 23 (before the landing, so re-priceable): all 23 permutations of
+     * the four local declarations and the split of `busy`'s decl-with-init (13A / 12D) --
+     * ALL INERT (this fn has `vars= 0`, every local is a register, so neither the
+     * spill-slot order nor the allocno-birth dial has anything to move).  Per-fn ladder
+     * re-run in the maspsx lane with the nosplit splice removed: 2.7.2 28 / 2.7.2-970404
+     * 45 / 2.6.3 23 / 2.8.1 27 / plain 30 -- the wired 2.8.0+nosplit stays.  NOTE the
+     * cc1_alt 2.7.2 lane (272 recipe = direct GNU-as REORDER mode) scores CdRead 16 on
+     * its own, i.e. the remaining slot fills are ASSEMBLER-side (vendor-toolchain class,
+     * libcd being a Sony prebuilt), but whole-TU that lane costs 2 PASSes (_read_int 50,
+     * _read_issue 33) so it is not wirable.
+     * RESIDUAL 16, named: (a) the prologue `sw $s2,24($sp)` / `addu $s2,$a2,$zero` pair
+     * (retail sinks the save and puts the copy in the first `beq`'s slot -- sched1 tie,
+     * PER_FN_TEXT_MOVES candidate, probe rows in scratchpad/w62a6); (b) which arm's
+     * constant reorg steals into the `beq` slot (retail the DEFAULT's 0x246, ours
+     * case-0x20's 0x249); (c) the remaining `jal CdSyncCallback` slot (`e->w00`, whose
+     * cast is priced 25 above); (d) `CdControlB(9,0,0)`'s 3rd arg (cse-substituted live
+     * zero -- `(u_char *)0` casts on both args INERT at 16) and the `slt` scheduled
+     * before vs after the frame restores (`0 < _read_issue(0)` Yoda INERT at 16).
+     *
      * MATCH (w59-a7): PER-REGION FIELD ANCHORS, the same Rage-Racer idiom that already seals
      * CdReadSync's block below.  Retail does NOT hold one `&_cdr` across this function: it
      * materializes FOUR separate anchors (`la $s0,_cdr+0x24` for the busy poll; `la $s0,_cdr+0x28`
@@ -472,8 +501,8 @@ extern int CdRead(int sectors, u_long *buf, int mode)
     sel = g->w0c & 0x30;
     __asm__("" : : "r"(sel));   /* W61-A7: +1 ref, reqdelta272-priced (see the receipt) */
     switch (sel) {
-    case 0:    g->w10 = 0x200; break;               /* 2048 bytes */
-    case 0x20: g->w10 = 0x249; break;               /* 2340 bytes (full raw) */
+    case 0:    *(int *)&g->w10 = 0x200; break;               /* 2048 bytes */
+    case 0x20: *(int *)&g->w10 = 0x249; break;               /* 2340 bytes (full raw) */
     default: {                                      /* 2328 bytes -- own anchor in this arm */
         volatile CdrEnv *d = &_cdr;
         __asm__("" : "=r"(d) : "0"(d));
@@ -487,7 +516,7 @@ extern int CdRead(int sectors, u_long *buf, int mode)
     e->w0c |= 0x20;
     e->w04 = (u_char *)buf;
     e->w00 = sectors;
-    e->w28 = CdSyncCallback(0);                     /* save+clear sync cb */
+    *(int *)&e->w28 = CdSyncCallback(0);                     /* save+clear sync cb */
     e->w2c = CdReadyCallback(0);                    /* save+clear ready cb */
     if (CD_read_dma_mode & 1)
         e->w30 = CdDataCallback(0);                 /* save+clear data cb */

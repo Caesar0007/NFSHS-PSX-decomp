@@ -1171,9 +1171,13 @@ void Camera_UpdateSplineCam(int player)
          anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice) :
         (halfSlices <
          Camera_gInfo[player].slicePos.slice - anchor->N.simRoadInfo.slice)) {
-      sliceDist = anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice;
-      if (sliceDist > 0) {
-        sliceDist = gNumSlices - sliceDist;
+      /* MATCH (w64-a11): the SYM's `sliceDist` ($5 = $a1) is only ever assigned
+         the FINAL value here -- retail computes the raw difference into its own
+         temp ($v1) for the guard and for `gNumSlices - diff`.  Assigning the raw
+         difference to sliceDist first merged the two into one register. */
+      if (anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice > 0) {
+        sliceDist = gNumSlices -
+            (anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice);
       } else {
         sliceDist = gNumSlices -
             (Camera_gInfo[player].slicePos.slice - anchor->N.simRoadInfo.slice);

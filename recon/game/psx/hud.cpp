@@ -1191,12 +1191,11 @@ void Hud_Init(void)
   /* MATCH (w61-a1): retail's order after the loop is `ori v0,0x8080` (the colour),
    * `li a1,111` (the first call's shape arg), `lw s1,%gp_rel(gSprite0)`, `addu fp,zero,zero`
    * -- i.e. the colour/transparency stores precede the pointer + counter inits.  -2. */
-  currentSpriteColor = 0x808080;
-  currentSpriteTransparent = 1;
   spriteReplay = gSprite0;
-  i = 0;
   baseX = g1Player[0xd].x;
   baseY = g1Player[0xd].y;
+  currentSpriteColor = 0x808080;
+  currentSpriteTransparent = 1;
   Hud_BuildSprite2(spriteReplay + 0x37,0x6f,baseX,baseY);
   Hud_BuildSprite2(spriteReplay + 0x33,0x6c,baseX + 0x12,baseY);
   Hud_BuildSprite2(spriteReplay + 0x34,0x6e,baseX + 0x25,baseY);
@@ -1213,6 +1212,7 @@ void Hud_Init(void)
   FinalBTC_Countdown = 0;
   BTC_UserHasControl = 0;
   HudBustedOverlay = 0;
+  i = 0;
   do {
     PerpOverlayOn[i] = 0;
     PerpOverlayMessage[i] = 0;

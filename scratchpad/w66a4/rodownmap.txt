@@ -1,0 +1,355 @@
+W66-A4  .rodata OWNMAP  (jump-table-anchored, ownmap E1-E5)
+
+blob records            : 585
+jtbl regions            : 54
+recon .rodata objects   : 127
+anchored objects        : 105  (50 regions)
+OWNABLE windows         : 47
+  after overlap pruning : 47 (dropped 0)
+  needing a record split: 11
+  ending in align pad   : 21
+bytes owned             : 2868
+
+      base        end   size  reg    ok  object
+0x80010078 0x80010098     32    1   OWN  build/recon/frontend/common/feapp.cpp.o
+        regions: ['jtbl_80010078']
+0x8001013c 0x8001017a     62    1     -  build/recon/frontend/common/feaudio.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 12 of 62
+0x800101b4 0x800101da     38    1     -  build/recon/frontend/common/fecars.cpp.o
+        regions: []
+      E1 un-migrated inside (1): ['_vt_21tListIteratorCarColor']
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 6 of 38
+0x80010258 0x800102c2    106    1     -  build/recon/frontend/common/fedialog.cpp.o
+        regions: ['jtbl_80010258']
+      E1 un-migrated inside (1): ['_vt_15tDialogYesNoTri']
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 5 of 106
+0x80010968 0x80010a0c    164    1     -  build/recon/frontend/common/femenuoptions.cpp.o
+        regions: ['jtbl_80010990']
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 33 of 164
+0x80010fc8 0x80010fe7     31    1  OWN+  build/recon/frontend/common/fetracks.cpp.o
+        regions: []
+      + padded 0x80010fe7..0x80010fe8 (1 B retail ZERO align pad)
+0x80011028 0x800110a4    124    1  OWN*  build/recon/frontend/common/fecheats.cpp.o
+        regions: ['jtbl_80011028']
+      * cut splits jtbl_80011028 at 0x800110a4; residual 4 B stays
+0x800113f8 0x80011413     27    1  OWN+  build/recon/frontend/common/fescreen.cpp.o
+        regions: []
+      + padded 0x80011413..0x80011418 (5 B retail ZERO align pad)
+0x80011474 0x80011498     36    1  OWN*  build/recon/frontend/common/fetools.cpp.o
+        regions: []
+      * cut splits D_8001148C at 0x80011498; residual 12 B stays
+0x800114a4 0x800114c5     33    1     -  build/recon/frontend/common/front.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x80011594 0x800115c3     47    1     -  build/recon/frontend/common/fetourn.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 17 of 47
+0x800116a0 0x800116c9     41    1     -  build/recon/frontend/common/femission.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x800116d8 0x80011858    384    4     -  build/recon/frontend/common/fememcard.cpp.o
+        regions: ['jtbl_800116F8', 'jtbl_80011750', 'jtbl_800117A8', 'jtbl_80011800']
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 30 of 384
+0x80011864 0x8001187c     24    1  OWN*  build/recon/frontend/common/fecredits.cpp.o
+        regions: []
+      * cut splits D_80011874 at 0x8001187c; residual 4 B stays
+0x80011880 0x800118b0     48    1   OWN  build/recon/frontend/common/screenmain.cpp.o
+        regions: []
+0x8001190c 0x8001192d     33    1  OWN+  build/recon/frontend/common/screenpinkslips.cpp.o
+        regions: []
+      + padded 0x8001192d..0x80011930 (3 B retail ZERO align pad)
+0x8001198c 0x800119a2     22    1  OWN+  build/recon/frontend/common/screenpost.cpp.o
+        regions: []
+      + padded 0x800119a2..0x800119a8 (6 B retail ZERO align pad)
+0x80011aa8 0x80011b5c    180    3     -  build/recon/frontend/common/screencarselect.cpp.o
+        regions: ['jtbl_80011AB8', 'jtbl_80011AF8', 'jtbl_80011B38']
+      E3 2 implied bases -- 
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 62 of 180
+0x80011d94 0x80011da9     21    1  OWN+  build/recon/frontend/common/screentournselect.cpp.o
+        regions: []
+      + padded 0x80011da9..0x80011db0 (7 B retail ZERO align pad)
+0x80011e0c 0x80011e22     22    1  OWN+  build/recon/frontend/common/screentrophyroom.cpp.o
+        regions: []
+      + padded 0x80011e22..0x80011e28 (6 B retail ZERO align pad)
+0x80011eec 0x80011f07     27    1  OWN+  build/recon/frontend/common/screentracks.cpp.o
+        regions: []
+      + padded 0x80011f07..0x80011f08 (1 B retail ZERO align pad)
+0x80011f58 0x80011f74     28    1  OWN*  build/recon/frontend/common/screentrackinfo.cpp.o
+        regions: []
+      * cut splits D_80011F6C at 0x80011f74; residual 4 B stays
+0x80011fd4 0x80011fee     26    1  OWN+  build/recon/frontend/common/screentrackrecords.cpp.o
+        regions: []
+      + padded 0x80011fee..0x80011ff0 (2 B retail ZERO align pad)
+0x8001204c 0x80012077     43    1     -  build/recon/frontend/common/screencontroller.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 10 of 43
+0x80012130 0x80012153     35    1     -  build/recon/frontend/common/screenaudio.cpp.o
+        regions: ['jtbl_80012138']
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 4 of 35
+0x800121b8 0x80012228    112    1     -  build/recon/frontend/common/screenmemcard.cpp.o
+        regions: ['jtbl_800121C0']
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 7 of 112
+0x80012284 0x800122a5     33    1  OWN+  build/recon/frontend/common/screencongrats.cpp.o
+        regions: []
+      + padded 0x800122a5..0x800122a8 (3 B retail ZERO align pad)
+0x800124bc 0x80012504     72    1  OWN*  build/recon/frontend/common/statchk.cpp.o
+        regions: []
+      * cut splits D_800124FC at 0x80012504; residual 16 B stays
+0x80012518 0x800125dd    197    1     -  build/recon/frontend/common/stattool.cpp.o
+        regions: ['jtbl_80012538']
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 26 of 197
+0x80012790 0x800127c1     49    1     -  build/recon/frontend/psx/movie.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x800127f4 0x80012834     64    1     -  build/recon/frontend/psx/psxfront.cpp.o
+        regions: []
+      E5 BYTES DIFFER 24 of 64
+0x80012848 0x80012851      9    1  OWN+  build/recon/frontend/psx/fetexture.cpp.o
+        regions: []
+      + padded 0x80012851..0x80012858 (7 B retail ZERO align pad)
+0x80012858 0x800128a8     80    2     -  build/recon/frontend/psx/memcard.c.o
+        regions: ['jtbl_80012858', 'jtbl_80012870']
+      E1 un-migrated inside (1): ['jtbl_80012888']
+      E5 BYTES DIFFER 9 of 80
+0x800128a8 0x800128c1     25    1  OWN+  build/recon/frontend/psx/mdec.cpp.o
+        regions: []
+      + padded 0x800128c1..0x800128c8 (7 B retail ZERO align pad)
+0x800128c8 0x800128ed     37    1  OWN+  build/recon/frontend/psx/video.cpp.o
+        regions: []
+      + padded 0x800128ed..0x800128f0 (3 B retail ZERO align pad)
+0x80054f64 0x80054f90     44    1   OWN  build/recon/game/common/aih_btccop.cpp.o
+        regions: ['jtbl_80054F64']
+0x80055040 0x80055088     72    1     -  build/recon/game/common/aih_btcperp.cpp.o
+        regions: ['jtbl_80055070']
+      E1 un-migrated inside (1): ['jtbl_80055040']
+      E5 BYTES DIFFER 2 of 72
+0x80055118 0x80055144     44    1   OWN  build/recon/game/common/aih_opp.cpp.o
+        regions: ['jtbl_80055118']
+0x800551b8 0x800551f4     60    1     -  build/recon/game/common/aih_traf.cpp.o
+        regions: ['jtbl_800551C8']
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 8 of 60
+0x80055200 0x8005520d     13    1     -  build/recon/game/common/aicop.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x80055310 0x80055350     64    1     -  build/recon/game/common/ailife.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 7 of 64
+0x800554d0 0x800554f0     32    1  OWN*  build/recon/game/common/aispeeds.cpp.o
+        regions: []
+      * cut splits D_800554E0 at 0x800554f0; residual 16 B stays
+0x800556ec 0x8005576c    128    1     -  build/recon/game/common/audiocmn.cpp.o
+        regions: ['jtbl_8005573C']
+      E5 BYTES DIFFER 73 of 128
+0x80055778 0x800557e1    105    1     -  build/recon/game/common/audiomus.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 5 of 105
+0x800557e8 0x800557f3     11    1     -  build/recon/game/common/audedit.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x80055800 0x80055856     86    1     -  build/recon/game/common/audioeng.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x80055864 0x80055871     13    1     -  build/recon/game/common/audiotrk.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x800558a0 0x8005597c    220    3     -  build/recon/game/common/camera.cpp.o
+        regions: ['jtbl_800558C8', 'jtbl_80055918', 'jtbl_80055930']
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 11 of 220
+0x80055988 0x800559cd     69    1     -  build/recon/game/common/cars.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x80055a28 0x80055a54     44    1   OWN  build/recon/game/common/control.cpp.o
+        regions: ['jtbl_80055A28']
+0x80055a54 0x80055b52    254    1     -  build/recon/game/common/hudpmx.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+      E5? UNDECIDABLE (232 raw diffs) ['unresolved reloc target .sdata@0x0', 'unresolved reloc target .sdata@0x4', 'unresolved reloc target .sdata@0x8', 'unresolved reloc target .sdata@0xc']
+0x80055ec8 0x80055f76    174    1     -  build/recon/game/common/copspeak.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 2 of 174
+0x80055f94 0x80055fb6     34    1     -  build/recon/game/common/genericpmx.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x80056000 0x80056047     71    1     -  build/recon/game/common/nfs3.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x80056054 0x80056083     47    1  OWN+  build/recon/game/common/object.cpp.o
+        regions: []
+      + padded 0x80056083..0x80056088 (5 B retail ZERO align pad)
+0x80056370 0x800563b0     64    1  OWN*  build/recon/game/common/physics.cpp.o
+        regions: []
+      * cut splits D_80056390 at 0x800563b0; residual 12 B stays
+0x800563b8 0x80056534    380    4     -  build/recon/game/common/r3dcar.cpp.o
+        regions: ['jtbl_80056418', 'jtbl_80056470', 'jtbl_80056488', 'jtbl_800564E0']
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 93 of 380
+0x800564f0 0x80056724    564    1     -  build/recon/game/common/track.cpp.o
+        regions: ['jtbl_80056690']
+      E1 foreign inside (1): ['jtbl_80056578']
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 382 of 564
+0x80056550 0x8005658c     60    1     -  build/recon/game/common/replay.cpp.o
+        regions: ['jtbl_80056578']
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 37 of 60
+0x80056598 0x800565b3     27    1     -  build/recon/game/common/scene.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x80056730 0x8005673b     11    1     -  build/recon/game/common/udff.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x80056770 0x800567fc    140    1     -  build/recon/game/psx/cario.cpp.o
+        regions: ['jtbl_80056788']
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 20 of 140
+0x8005684c 0x80056884     56    1   OWN  build/recon/game/psx/force.cpp.o
+        regions: ['jtbl_8005684C']
+0x80056894 0x800568a8     20    1   OWN  build/recon/game/psx/flare.cpp.o
+        regions: ['jtbl_80056894']
+0x800568b0 0x80056cd8   1064    1     -  build/recon/eaclib/psx/eacpsxz/fixdatan.c.o
+        regions: ['jtbl_80056CB8']
+      E1 foreign inside (6): ['jtbl_8005699C', 'jtbl_800569D4', 'jtbl_80056A98', 'jtbl_80056B60', 'jtbl_80056C6C', 'jtbl_80056C94']
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 921 of 1064
+0x800568dc 0x80056929     77    1     -  build/recon/game/psx/hud.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x80056938 0x80056965     45    1     -  build/recon/game/psx/loading.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 5 of 45
+0x8005696c 0x80056982     22    1     -  build/recon/game/psx/night.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x8005699c 0x80056a08    108    2   OWN  build/recon/game/psx/sfx.cpp.o
+        regions: ['jtbl_8005699C', 'jtbl_800569D4']
+0x800569f0 0x80056aac    188    1     -  build/recon/game/psx/texture.cpp.o
+        regions: ['jtbl_80056A98']
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 151 of 188
+0x80056a14 0x80056a1d      9    1  OWN+  build/recon/game/psx/skidmark.cpp.o
+        regions: []
+      + padded 0x80056a1d..0x80056a20 (3 B retail ZERO align pad)
+0x80056ac4 0x80056ae4     32    1  OWN*  build/recon/game/psx/trackspec.cpp.o
+        regions: []
+      * cut splits D_80056AD4 at 0x80056ae4; residual 24 B stays
+0x80056afc 0x80056b38     60    1   OWN  build/recon/game/psx/weather.cpp.o
+        regions: []
+0x80056b38 0x80056c14    220    1  OWN*  build/recon/syslib/psx/libc/SPRINTF.c.o
+        regions: ['jtbl_80056B60']
+      * cut splits jtbl_80056B60 at 0x80056c14; residual 4 B stays
+0x80056c18 0x80056c2e     22    1     -  build/recon/syslib/psx/libcd/TYPE.c.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x80056c38 0x80056c43     11    1  OWN+  build/recon/eaclib/psx/spchpsxz/spchbank.c.o
+        regions: []
+      + padded 0x80056c43..0x80056c44 (1 B retail ZERO align pad)
+0x80056c44 0x80056cb8    116    2   OWN  build/recon/eaclib/psx/eacpsxz/nfile.c.o
+        regions: ['jtbl_80056C6C', 'jtbl_80056C94']
+0x80056ef8 0x80056f0c     20    1  OWN*  build/recon/syslib/psx/libpad/PADENTRY.c.o
+        regions: ['jtbl_80056EF8']
+      * cut splits jtbl_80056EF8 at 0x80056f0c; residual 12 B stays
+0x80056f18 0x80056f23     11    1  OWN+  build/recon/eaclib/psx/eacpsxz/primate.c.o
+        regions: []
+      + padded 0x80056f23..0x80056f24 (1 B retail ZERO align pad)
+0x80056f24 0x80056f39     21    1  OWN+  build/recon/eaclib/psx/eacpsxz/nasync.c.o
+        regions: []
+      + padded 0x80056f39..0x80056f3c (3 B retail ZERO align pad)
+0x80056f3c 0x80056f4c     16    1     -  build/recon/syslib/psx/libetc/VSYNC.c.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x80056f80 0x80056fb5     53    1  OWN+  build/recon/syslib/psx/libetc/INTR.c.o
+        regions: []
+      + padded 0x80056fb5..0x80056fbc (7 B retail ZERO align pad)
+0x80056fbc 0x80056fd8     28    1   OWN  build/recon/eaclib/psx/eacpsxz/fileroot.c.o
+        regions: ['jtbl_80056FBC']
+0x80056fd8 0x80057060    136    1   OWN  build/recon/eaclib/psx/eacpsxz/vramfxya.c.o
+        regions: ['jtbl_80056FD8']
+0x80057078 0x800570fc    132    1  OWN*  build/recon/syslib/psx/libgpu/FONT.c.o
+        regions: ['jtbl_80057078']
+      * cut splits jtbl_80057078 at 0x800570fc; residual 4 B stays
+0x80057180 0x8005736a    490    1  OWN+  build/recon/syslib/psx/libcd/iso9660.c.o
+        regions: []
+      + padded 0x8005736a..0x80057370 (6 B retail ZERO align pad)
+0x80057370 0x800574e6    374    1     -  build/recon/syslib/psx/libmcrd/LIBMCRD.c.o
+        regions: ['jtbl_80057398']
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 164 of 374
+0x800574f0 0x80057538     72    1   OWN  build/recon/eaclib/psx/eacpsxz/cluttype.c.o
+        regions: ['jtbl_800574F0']
+0x80057538 0x800575b8    128    1   OWN  build/recon/eaclib/psx/eacpsxz/shptype.c.o
+        regions: ['jtbl_80057538']
+0x80057608 0x80057633     43    1     -  build/recon/syslib/psx/libetc/INTR_DMA.c.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x800576a0 0x80057880    480    1     -  build/recon/syslib/psx/libcd/drv.c.o
+        regions: ['jtbl_800577E8']
+      E4 edge not a blob-record boundary
+      E5 BYTES DIFFER 324 of 480
+0x80057898 0x800578da     66    1     -  build/recon/syslib/psx/libcd/cdread.c.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x800578e8 0x800578fd     21    1     -  build/recon/syslib/psx/libcd/event.c.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x80057908 0x80057946     62    1  OWN+  build/recon/syslib/psx/libcd/toc.c.o
+        regions: []
+      + padded 0x80057946..0x80057948 (2 B retail ZERO align pad)
+0x80057948 0x80057961     25    1  OWN+  build/recon/syslib/psx/libmcrd/USERFUNC.c.o
+        regions: []
+      + padded 0x80057961..0x80057968 (7 B retail ZERO align pad)
+0x80057968 0x8005797c     20    1   OWN  build/recon/eaclib/psx/spchpsxz/spchrule.c.o
+        regions: ['jtbl_80057968']
+0x801237ec 0x80123820     52    1     -  build/recon/eaclib/psx/eacpsxz/matrix.c.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x80136ce8 0x80136de9    257    1     -  build/recon/eaclib/psx/eacpsxz/atanfunc.c.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x801371d0 0x80137251    129    1     -  build/recon/syslib/psx/libc/CTYPE0.c.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x80137260 0x80137460    512    1     -  build/recon/eaclib/psx/eacpsxz/asinfunc.c.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x8013c348 0x8013c54a    514    1     -  build/recon/eaclib/psx/sndpsxz/snddata.c.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x8013c5d8 0x8013c5e5     13    1     -  build/recon/game/common/aistate.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x8013d410 0x8013d425     21    1     -  build/recon/game/common/sim.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x8013d440 0x8013d448      8    1     -  build/recon/game/common/souffle.cpp.o
+        regions: []
+      E4 edge not a blob-record boundary
+0x8013dc20 0x8013dc30     16    1     -  build/recon/eaclib/psx/eacpsxz/memstd.c.o
+        regions: []
+      E4 edge not a blob-record boundary
+
+## FAILURE-MODE HISTOGRAM (non-exclusive)
+  E3 multiple implied bases  1
+  E4 edge not a boundary     54
+  E5 bytes differ            29
+  E5? undecidable reloc      1
+  E1 foreign inside          2
+  E1 un-migrated inside      4
+  E2 own region outside      0

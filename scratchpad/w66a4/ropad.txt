@@ -1,0 +1,58 @@
+GAP	0x8001013c	62	build/recon/frontend/common/feaudio.cpp.o	nearest boundary 0x8001016c is 48 B above the anchor
+BASE-OK	0x800101b4	38	build/recon/frontend/common/fecars.cpp.o	base is already a record boundary
+BASE-OK	0x80010258	106	build/recon/frontend/common/fedialog.cpp.o	base is already a record boundary
+PAD	0x80010968	164	build/recon/frontend/common/femenuoptions.cpp.o	4-byte `.align 3` pad at +0x24; true base 0x8001096c
+BASE-OK	0x800114a4	33	build/recon/frontend/common/front.cpp.o	base is already a record boundary
+BASE-OK	0x80011594	47	build/recon/frontend/common/fetourn.cpp.o	base is already a record boundary
+BASE-OK	0x800116a0	41	build/recon/frontend/common/femission.cpp.o	base is already a record boundary
+PAD	0x800116d8	384	build/recon/frontend/common/fememcard.cpp.o	4-byte `.align 3` pad at +0x1c; true base 0x800116dc
+SHIFT?	0x80011aa8	180	build/recon/frontend/common/screencarselect.cpp.o	head=False pad-is-zero=False tail=False (d=4, J=0x10)
+GAP	0x8001204c	43	build/recon/frontend/common/screencontroller.cpp.o	nearest boundary 0x80012064 is 24 B above the anchor
+GAP	0x80012130	35	build/recon/frontend/common/screenaudio.cpp.o	nearest boundary 0x80012138 is 8 B above the anchor
+GAP	0x800121b8	112	build/recon/frontend/common/screenmemcard.cpp.o	nearest boundary 0x800121c0 is 8 B above the anchor
+GAP	0x80012518	197	build/recon/frontend/common/stattool.cpp.o	nearest boundary 0x80012520 is 8 B above the anchor
+BASE-OK	0x80012790	49	build/recon/frontend/psx/movie.cpp.o	base is already a record boundary
+BASE-OK	0x800127f4	64	build/recon/frontend/psx/psxfront.cpp.o	base is already a record boundary
+BASE-OK	0x80012858	80	build/recon/frontend/psx/memcard.c.o	base is already a record boundary
+BASE-OK	0x80055040	72	build/recon/game/common/aih_btcperp.cpp.o	base is already a record boundary
+GAP	0x800551b8	60	build/recon/game/common/aih_traf.cpp.o	nearest boundary 0x800551c8 is 16 B above the anchor
+BASE-OK	0x80055200	13	build/recon/game/common/aicop.cpp.o	base is already a record boundary
+BASE-OK	0x80055310	64	build/recon/game/common/ailife.cpp.o	base is already a record boundary
+BASE-OK	0x800556ec	128	build/recon/game/common/audiocmn.cpp.o	base is already a record boundary
+BASE-OK	0x80055778	105	build/recon/game/common/audiomus.cpp.o	base is already a record boundary
+BASE-OK	0x800557e8	11	build/recon/game/common/audedit.cpp.o	base is already a record boundary
+BASE-OK	0x80055800	86	build/recon/game/common/audioeng.cpp.o	base is already a record boundary
+BASE-OK	0x80055864	13	build/recon/game/common/audiotrk.cpp.o	base is already a record boundary
+PAD	0x800558a0	220	build/recon/game/common/camera.cpp.o	4-byte `.align 3` pad at +0x24; true base 0x800558a4
+BASE-OK	0x80055988	69	build/recon/game/common/cars.cpp.o	base is already a record boundary
+BASE-OK	0x80055a54	254	build/recon/game/common/hudpmx.cpp.o	base is already a record boundary
+BASE-OK	0x80055ec8	174	build/recon/game/common/copspeak.cpp.o	base is already a record boundary
+BASE-OK	0x80055f94	34	build/recon/game/common/genericpmx.cpp.o	base is already a record boundary
+BASE-OK	0x80056000	71	build/recon/game/common/nfs3.cpp.o	base is already a record boundary
+PAD	0x800563b8	380	build/recon/game/common/r3dcar.cpp.o	4-byte `.align 3` pad at +0x5c; true base 0x800563bc
+GAP	0x800564f0	564	build/recon/game/common/track.cpp.o	nearest boundary 0x80056534 is 68 B above the anchor
+GAP	0x80056550	60	build/recon/game/common/replay.cpp.o	nearest boundary 0x8005655c is 12 B above the anchor
+BASE-OK	0x80056598	27	build/recon/game/common/scene.cpp.o	base is already a record boundary
+BASE-OK	0x80056730	11	build/recon/game/common/udff.cpp.o	base is already a record boundary
+GAP	0x80056770	140	build/recon/game/psx/cario.cpp.o	nearest boundary 0x80056778 is 8 B above the anchor
+SHIFT?	0x800568b0	1064	build/recon/eaclib/psx/eacpsxz/fixdatan.c.o	head=False pad-is-zero=True tail=True (d=4, J=0x408)
+BASE-OK	0x800568dc	77	build/recon/game/psx/hud.cpp.o	base is already a record boundary
+BASE-OK	0x80056938	45	build/recon/game/psx/loading.cpp.o	base is already a record boundary
+BASE-OK	0x8005696c	22	build/recon/game/psx/night.cpp.o	base is already a record boundary
+GAP	0x800569f0	188	build/recon/game/psx/texture.cpp.o	nearest boundary 0x80056a08 is 24 B above the anchor
+BASE-OK	0x80056c18	22	build/recon/syslib/psx/libcd/TYPE.c.o	base is already a record boundary
+BASE-OK	0x80056f3c	16	build/recon/syslib/psx/libetc/VSYNC.c.o	base is already a record boundary
+BASE-OK	0x80057370	374	build/recon/syslib/psx/libmcrd/LIBMCRD.c.o	base is already a record boundary
+BASE-OK	0x80057608	43	build/recon/syslib/psx/libetc/INTR_DMA.c.o	base is already a record boundary
+GAP	0x800576a0	480	build/recon/syslib/psx/libcd/drv.c.o	nearest boundary 0x80057774 is 212 B above the anchor
+BASE-OK	0x80057898	66	build/recon/syslib/psx/libcd/cdread.c.o	base is already a record boundary
+BASE-OK	0x800578e8	21	build/recon/syslib/psx/libcd/event.c.o	base is already a record boundary
+OTHER	0x801237ec	52	build/recon/eaclib/psx/eacpsxz/matrix.c.o	
+OTHER	0x80136ce8	257	build/recon/eaclib/psx/eacpsxz/atanfunc.c.o	
+OTHER	0x801371d0	257	build/recon/syslib/psx/libc/CTYPE0.c.o	
+OTHER	0x80137260	512	build/recon/eaclib/psx/eacpsxz/asinfunc.c.o	
+OTHER	0x8013c348	514	build/recon/eaclib/psx/sndpsxz/snddata.c.o	
+OTHER	0x8013c5d8	13	build/recon/game/common/aistate.cpp.o	
+OTHER	0x8013d410	21	build/recon/game/common/sim.cpp.o	
+OTHER	0x8013d440	8	build/recon/game/common/souffle.cpp.o	
+OTHER	0x8013dc20	16	build/recon/eaclib/psx/eacpsxz/memstd.c.o	

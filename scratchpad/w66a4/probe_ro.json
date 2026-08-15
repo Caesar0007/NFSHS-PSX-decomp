@@ -1,0 +1,402 @@
+{
+ "A": {
+  "tag": "A",
+  "bytes": 922008,
+  "ok": 764670,
+  "pct": 82.93528906473696,
+  "exact": 161
+ },
+ "B": {
+  "tag": "B",
+  "bytes": 922008,
+  "ok": 765532,
+  "pct": 83.02878066133917,
+  "exact": 169
+ },
+ "moved": {
+  "build/recon/frontend/common/feapp.cpp.o": [
+   425,
+   423
+  ],
+  "build/recon/frontend/common/feaudio.cpp.o": [
+   520,
+   519
+  ],
+  "build/recon/frontend/common/fedialog.cpp.o": [
+   199,
+   194
+  ],
+  "build/recon/frontend/common/femenuoptions.cpp.o": [
+   369,
+   353
+  ],
+  "build/recon/frontend/common/fetracks.cpp.o": [
+   23,
+   14
+  ],
+  "build/recon/frontend/common/fecheats.cpp.o": [
+   71,
+   68
+  ],
+  "build/recon/frontend/common/fetools.cpp.o": [
+   42,
+   33
+  ],
+  "build/recon/frontend/common/front.cpp.o": [
+   925,
+   913
+  ],
+  "build/recon/frontend/common/fetourn.cpp.o": [
+   163,
+   151
+  ],
+  "build/recon/frontend/common/femission.cpp.o": [
+   24,
+   12
+  ],
+  "build/recon/frontend/common/fememcard.cpp.o": [
+   428,
+   408
+  ],
+  "build/recon/frontend/common/fecredits.cpp.o": [
+   75,
+   69
+  ],
+  "build/recon/frontend/common/screenmain.cpp.o": [
+   225,
+   207
+  ],
+  "build/recon/frontend/common/screenpinkslips.cpp.o": [
+   162,
+   147
+  ],
+  "build/recon/frontend/common/screenpost.cpp.o": [
+   2732,
+   2726
+  ],
+  "build/recon/frontend/common/screentournselect.cpp.o": [
+   136,
+   127
+  ],
+  "build/recon/frontend/common/screentrophyroom.cpp.o": [
+   122,
+   113
+  ],
+  "build/recon/frontend/common/screentracks.cpp.o": [
+   134,
+   122
+  ],
+  "build/recon/frontend/common/screentrackinfo.cpp.o": [
+   49,
+   40
+  ],
+  "build/recon/frontend/common/screentrackrecords.cpp.o": [
+   56,
+   47
+  ],
+  "build/recon/frontend/common/screencontroller.cpp.o": [
+   315,
+   310
+  ],
+  "build/recon/frontend/common/screenaudio.cpp.o": [
+   183,
+   175
+  ],
+  "build/recon/frontend/common/screenmemcard.cpp.o": [
+   405,
+   394
+  ],
+  "build/recon/frontend/common/screencongrats.cpp.o": [
+   256,
+   241
+  ],
+  "build/recon/frontend/common/statchk.cpp.o": [
+   1341,
+   1321
+  ],
+  "build/recon/frontend/common/stattool.cpp.o": [
+   49,
+   30
+  ],
+  "build/recon/frontend/psx/movie.cpp.o": [
+   409,
+   394
+  ],
+  "build/recon/frontend/psx/psxfront.cpp.o": [
+   2556,
+   2542
+  ],
+  "build/recon/frontend/psx/fetexture.cpp.o": [
+   3,
+   0
+  ],
+  "build/recon/frontend/psx/memcard.c.o": [
+   1515,
+   1509
+  ],
+  "build/recon/frontend/psx/mdec.cpp.o": [
+   52,
+   46
+  ],
+  "build/recon/frontend/psx/video.cpp.o": [
+   47,
+   38
+  ],
+  "build/recon/game/common/aih_btccop.cpp.o": [
+   447,
+   444
+  ],
+  "build/recon/game/common/aih_btcperp.cpp.o": [
+   289,
+   283
+  ],
+  "build/recon/game/common/aih_opp.cpp.o": [
+   341,
+   338
+  ],
+  "build/recon/game/common/aih_traf.cpp.o": [
+   97,
+   92
+  ],
+  "build/recon/game/common/aicop.cpp.o": [
+   60,
+   58
+  ],
+  "build/recon/game/common/ailife.cpp.o": [
+   241,
+   238
+  ],
+  "build/recon/game/common/aispeeds.cpp.o": [
+   409,
+   403
+  ],
+  "build/recon/game/common/aistate.cpp.o": [
+   315,
+   309
+  ],
+  "build/recon/game/common/audiocmn.cpp.o": [
+   780,
+   774
+  ],
+  "build/recon/game/common/audiomus.cpp.o": [
+   237,
+   216
+  ],
+  "build/recon/game/common/audedit.cpp.o": [
+   10,
+   7
+  ],
+  "build/recon/game/common/audioeng.cpp.o": [
+   63,
+   51
+  ],
+  "build/recon/game/common/audiotrk.cpp.o": [
+   101,
+   98
+  ],
+  "build/recon/game/common/camera.cpp.o": [
+   8218,
+   8207
+  ],
+  "build/recon/game/common/cars.cpp.o": [
+   625,
+   607
+  ],
+  "build/recon/game/common/control.cpp.o": [
+   45,
+   42
+  ],
+  "build/recon/game/common/hudpmx.cpp.o": [
+   487,
+   475
+  ],
+  "build/recon/game/common/copspeak.cpp.o": [
+   489,
+   451
+  ],
+  "build/recon/game/common/genericpmx.cpp.o": [
+   191,
+   182
+  ],
+  "build/recon/game/common/nfs3.cpp.o": [
+   250,
+   238
+  ],
+  "build/recon/game/common/object.cpp.o": [
+   322,
+   313
+  ],
+  "build/recon/game/common/r3dcar.cpp.o": [
+   954,
+   928
+  ],
+  "build/recon/game/common/replay.cpp.o": [
+   549,
+   540
+  ],
+  "build/recon/game/common/scene.cpp.o": [
+   29,
+   23
+  ],
+  "build/recon/game/common/sim.cpp.o": [
+   348,
+   339
+  ],
+  "build/recon/game/common/souffle.cpp.o": [
+   81,
+   78
+  ],
+  "build/recon/game/common/udff.cpp.o": [
+   3,
+   0
+  ],
+  "build/recon/game/psx/cario.cpp.o": [
+   2494,
+   2489
+  ],
+  "build/recon/game/psx/force.cpp.o": [
+   64,
+   61
+  ],
+  "build/recon/game/psx/flare.cpp.o": [
+   362,
+   359
+  ],
+  "build/recon/game/psx/hud.cpp.o": [
+   22799,
+   22796
+  ],
+  "build/recon/game/psx/loading.cpp.o": [
+   36,
+   27
+  ],
+  "build/recon/game/psx/night.cpp.o": [
+   582,
+   576
+  ],
+  "build/recon/game/psx/sfx.cpp.o": [
+   200,
+   194
+  ],
+  "build/recon/game/psx/skidmark.cpp.o": [
+   73,
+   70
+  ],
+  "build/recon/game/psx/trackspec.cpp.o": [
+   36,
+   30
+  ],
+  "build/recon/game/psx/weather.cpp.o": [
+   531,
+   516
+  ],
+  "build/recon/syslib/psx/libc/SPRINTF.c.o": [
+   62,
+   54
+  ],
+  "build/recon/eaclib/psx/eacpsxz/memstd.c.o": [
+   28,
+   22
+  ],
+  "build/recon/eaclib/psx/eacpsxz/atanfunc.c.o": [
+   3,
+   0
+  ],
+  "build/recon/syslib/psx/libcd/TYPE.c.o": [
+   6,
+   0
+  ],
+  "build/recon/eaclib/psx/eacpsxz/wildcard.c.o": [
+   7,
+   3
+  ],
+  "build/recon/eaclib/psx/eacpsxz/asinfunc.c.o": [
+   10,
+   1
+  ],
+  "build/recon/eaclib/psx/spchpsxz/spchbank.c.o": [
+   66,
+   63
+  ],
+  "build/recon/eaclib/psx/eacpsxz/nfile.c.o": [
+   140,
+   125
+  ],
+  "build/recon/syslib/psx/libpad/PADENTRY.c.o": [
+   28,
+   25
+  ],
+  "build/recon/eaclib/psx/eacpsxz/matrix.c.o": [
+   15,
+   0
+  ],
+  "build/recon/eaclib/psx/eacpsxz/primate.c.o": [
+   53,
+   50
+  ],
+  "build/recon/eaclib/psx/eacpsxz/nasync.c.o": [
+   97,
+   91
+  ],
+  "build/recon/syslib/psx/libetc/VSYNC.c.o": [
+   67,
+   64
+  ],
+  "build/recon/syslib/psx/libetc/INTR.c.o": [
+   624,
+   618
+  ],
+  "build/recon/eaclib/psx/eacpsxz/fileroot.c.o": [
+   101,
+   98
+  ],
+  "build/recon/eaclib/psx/eacpsxz/vramfxya.c.o": [
+   7,
+   4
+  ],
+  "build/recon/syslib/psx/libgpu/FONT.c.o": [
+   45,
+   42
+  ],
+  "build/recon/syslib/psx/libmcrd/LIBMCRD.c.o": [
+   2022,
+   1971
+  ],
+  "build/recon/eaclib/psx/eacpsxz/cluttype.c.o": [
+   3,
+   0
+  ],
+  "build/recon/eaclib/psx/eacpsxz/shptype.c.o": [
+   3,
+   0
+  ],
+  "build/recon/syslib/psx/libcd/drv.c.o": [
+   854,
+   815
+  ],
+  "build/recon/syslib/psx/libcd/cdread.c.o": [
+   657,
+   651
+  ],
+  "build/recon/syslib/psx/libcd/event.c.o": [
+   19,
+   16
+  ],
+  "build/recon/syslib/psx/libcd/toc.c.o": [
+   21,
+   12
+  ],
+  "build/recon/syslib/psx/libmcrd/USERFUNC.c.o": [
+   36,
+   33
+  ],
+  "build/recon/eaclib/psx/spchpsxz/spchrule.c.o": [
+   13,
+   10
+  ],
+  "build/recon/eaclib/psx/sndpsxz/ssine.c.o": [
+   12,
+   0
+  ]
+ }
+}

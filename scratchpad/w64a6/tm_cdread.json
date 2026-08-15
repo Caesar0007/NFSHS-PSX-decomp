@@ -1,0 +1,15 @@
+{
+ "recon/syslib/psx/libcd/cdread.c": {
+  "CdRead": [
+   {
+    "take": "\\tsw\\t\\$18,24\\(\\$sp\\)\\n",
+    "after": "\\tsw\\t\\$31,36\\(\\$sp\\)\\n"
+   },
+   {
+    "take": "\\tsw\\t\\$20,0\\(\\$16\\)\\n(?=\\t#\\.set\\tnovolatile\\n\\tjal\\tCdSyncCallback\\n)",
+    "after": "\\tjal\\tCdSyncCallback\\n(?=\\tmove\\t\\$4,\\$0\\n)",
+    "slot": true
+   }
+  ]
+ }
+}

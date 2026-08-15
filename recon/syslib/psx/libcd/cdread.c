@@ -576,10 +576,21 @@ extern int CdRead(int sectors, u_long *buf, int mode)
      *      `(char *)e + 0` cast 16 @103.  A void barrier BETWEEN the two stores preserves
      *      the order but IS the reorg barrier (stop_search_p), so the slot stays empty
      *      (7 = inert) -- the two requirements are mutually exclusive with any asm.
-     *      ORCHESTRATOR CANDIDATE (15D TEXT_MOVES, one row): take the `sw $19,0($16)`
-     *      line into the following `jal`'s slot, drop_nop.  Semantically identical (the
-     *      slot executes before the call, exactly where the store already stands) --
-     *      objdump-verify per the _padInitDirSeq rule before wiring.
+     *      ORCHESTRATOR ROW, DERIVED AND PROVEN (15D TEXT_MOVES, one row -- the spec
+     *      lives in scratchpad/w64a6/tm_cdread.json, the objdump proof in RECEIPTS.md):
+     *          take  \tsw\t\$20,0\(\$16\)\n(?=\t#\.set\tnovolatile\n\tjal\tCdSyncCallback\n)
+     *          after \tjal\tCdSyncCallback\n(?=\tmove\t\$4,\$0\n)      slot: true
+     *      REGISTER RECONCILED against retail first: the store retail slots is the w00
+     *      one, `sw $s4,0($s0)` = `sw $20,0($16)` in our .s -- NOT `sw $19,4($16)`,
+     *      which is the w04 store ($19 = $s3 = buf, $20 = $s4 = sectors, $16 = $s0).
+     *      No drop_nop: our .s carries no nop there (maspsx materialises it in reorder
+     *      mode), and `slot: true`'s `.set noreorder` wrapper is what suppresses it.
+     *      The `after` lookahead is LOAD-BEARING: unpinned, `jal CdSyncCallback` matches
+     *      TWICE in this region and _apply_text_moves takes the FIRST -- the watchdog
+     *      arm's call, whose slot already holds `addu $16,$16,-40`.
+     *      MEASURED (vprobe W60_TEXT_MOVES_FILE, twice, whole TU): CdRead 5 -> 2
+     *      COUNT-EXACT 103/103; CdReadSync/_read_data_int/_read_sync stay PASS,
+     *      _read_int 15 and _read_issue 8 unchanged -> zero PASS->FAIL.
      *  (d) `CdControlB(9,0,0)`'s 3rd argument: ours `addu $a2,$a1,$zero` (cse shares the
      *      live zero), retail `addu $a2,$zero,$zero` -- the 11B cse-constant-sharing-
      *      across-two-identical-literal-args class (identity fence is NOT the cure).

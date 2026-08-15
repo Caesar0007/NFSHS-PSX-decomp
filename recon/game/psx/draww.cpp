@@ -615,7 +615,30 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
        at the def 41 @587, hoist + tail read-fence 475 @601 (catastrophic -- the
        hoisted load re-schedules the whole backface block).  From the 588 basin:
        two and three stacked tail read-fences 36 (no further move), a tail OPACITY
-       fence 36 (identical) -- so the fence COUNT/flavour is not the dial either. */
+       fence 36 (identical) -- so the fence COUNT/flavour is not the dial either.
+       ---- w62-a2 (2026-08-15): THE 36/588 BASIN IS NOW READ OFF THE INSTRUMENTED
+       cc1plus, and cluster (b) is a QUANTIFIED ALLOCNO-ORDER problem, not a
+       conflict one.  Lab fidelity for this fn is IDENTICAL 517/517 (real CC1PLPSX
+       vs C:/Temp/nfs4-instr-cc1/cc1plus-ecoff.exe, so the trace is quotable, 12H).
+       global.c hands the callee-saved registers out in this order (allocno pri =
+       floor_log2(refs)*refs/live):
+           p90  prim   refs 6  live 54  calls 1  -> reg 16 ($s0)   pri .2222  <-- 4th
+           p80  sd     refs 25 live 752 calls 13 -> reg 18 ($s2)   pri .1330
+           p187 v-ptr  refs 11 live 259 calls 10 -> reg 19 ($s3)   pri .1274
+           p186/188/190/189                      -> 20/21/22/23
+           p82         refs 18 live 686           -> reg 17 ($s1)
+           p84         refs 18 live 730           -> reg 30 ($fp)
+       prim is allocated FOURTH and simply takes the LOWEST free callee-saved.
+       Retail's prim = $s3 = the register p187 takes here, and prim/p187 live in
+       MUTUALLY EXCLUSIVE arms (the GT4 tail vs the recursion arm) so they never
+       conflict -- i.e. retail's prim was simply handed out LATER.  The dial is
+       therefore prim's PRIORITY, and the razor is exact: prim must fall below
+       p187's .1274, which at 6 refs needs live > 94 (today 54) or at 3 refs any
+       live > 23.  Every ref dial goes the WRONG way (7 refs = .2593, 8 = .4444),
+       and the only live-lengthening device (hoisting the PrimPtr load above the
+       backface block) is already falsified above at 42/475.  NEXT INSTRUMENT: a
+       zero-insn live-range EXTENDER that adds no ref (the 13B 4-witness request)
+       -- until it exists this is a priced hardness certificate, not a floor. */
     v4 = &r_div->v[n];
     n = n + 1;
     v5 = &r_div->v[n];
@@ -2203,7 +2226,18 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
      load/store chains (vertexBuf ptr, chunkInd*12 ptr, nightFlags/materials/
      light stores) that gcc's scheduler reorders across statement boundaries
      -- a §A row-38 "N named value-temps" class floor, untried further this
-     session. */
+     session. *
+     ---- w62-a2 (2026-08-15): the prologue parm-copy POSITION class gains a second
+     falsification, and it is a MECHANISM answer: a LOCAL COPY of the parameter
+     (`tBuildEntry *bl = buildList;` declared after negOne/gteFlag, or just before
+     the sd/chunkCount pair, with all four uses + the `bl = bl + 1` bump routed
+     through it) is BYTE-IDENTICAL to the base (86 @361 both) -- gcc coalesces the
+     copy straight into the parm pseudo, so the assign_parms entry copy cannot be
+     moved by any source-level copy (this complements the already-falsified
+     liveness fence, which only ADDED an insn).  alpha.py (register-alpha-renamed
+     compare) reads LCS .744 with the two maps differing only by the s4/fp index
+     rotation, so the remaining mass really is the emission-ORDER class named
+     above, not a structural miss. */
   /* MATCH (w45-a5, 118 -> 114): BIRTH ORDER.  The oracle's prologue interleaves
      the saves with the initializing copies in allocation order --
        s3=Vi, fp=buildInd(0), s6=negOne(-1), s5=&tmp, s7=gteFlag(1),
@@ -2996,6 +3030,17 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      reading: this is not an address-expression question at all; the lui-vs-lbu
      ready-list tie is decided inside sched1/find_free_reg and needs the
      instrumented-cc1 [find_free_reg] window trace, not another source spelling.
+     ---- w62-a2 (2026-08-15): THAT INSTRUMENT IS NOT AVAILABLE FOR THIS FUNCTION.
+     The w60-a7 lab (C:/Temp/nfs4-instr-cc1/cc1plus-ecoff.exe, the only build that
+     prints `[find_free_reg] ... win [a,b) blocked: ...`) is NOT byte-faithful here:
+     real CC1PLPSX 186 insns vs instrumented 188, diverging at insn 2 with an
+     $s6/$s7 rotation -- per 12H its trace must not be quoted for this fn.  Lab
+     fidelity across this TU (scratchpad/w60a7/cmpfn.py): IDENTICAL for DoObjects,
+     SubdividFacet, BuildChunkObjectFacets and BuildCustomObjectFacets; DIFFERS for
+     BuildObjectFacets and DoTrough; NOT EMITTED AT ALL by the instrumented build
+     for BuildSpikeBelt, OnyxLinePrim and Draw_kCtrlSkidmark.  This residual now
+     needs either a faithful instrumented build or the 13A UNREACHABILITY TRIAGE
+     done by hand (K overlapping local qtys can only occupy the first K free regs).
      ============================================================================ */
   totalCount = 0;
   objInstance = (Trk_AnimateInst *)(gObjInfo->objInstanceBuf + 1);
@@ -3386,21 +3431,27 @@ gte_SetTransMatrix((MATRIX *)&sd->matB);
             blend_x = (int)*(short *)(groupBase_p + 0x1c) << 8;
             blend_y = (int)*(short *)(groupBase_p + 0x1e) << 8;
             blend_z = (int)*(short *)(groupBase_p + 0x20) << 8;
+            /* MATCH (w62-a2): retail STORES the two saved results BEFORE the
+             * third fixedmult call of each row -- `sw s5,32(sp); sw s3,44(sp);
+             * jal fixedmult; [ds] sw v0,56(sp)`.  Calling m[6]/m[7]/m[8] first
+             * (the old order) emits the two stores after the call instead.
+             * 110 -> 105 (count 192 -> 189; the 11-insn deficit is the
+             * still-open ARG-SPILL/second-walker gap receipted above). */
             iVar3 = fixedmult(matrix.m[0],blend_x);
             iVar11_emit = fixedmult(matrix.m[3],blend_x);
-            matrix.m[6] = fixedmult(matrix.m[6],blend_x);
             matrix.m[0] = iVar3;
             matrix.m[3] = iVar11_emit;
+            matrix.m[6] = fixedmult(matrix.m[6],blend_x);
             iVar3 = fixedmult(matrix.m[1],blend_y);
             iVar4 = fixedmult(matrix.m[4],blend_y);
-            matrix.m[7] = fixedmult(matrix.m[7],blend_y);
             matrix.m[1] = iVar3;
             matrix.m[4] = iVar4;
+            matrix.m[7] = fixedmult(matrix.m[7],blend_y);
             iVar3 = fixedmult(matrix.m[2],blend_z);
             iVar4 = fixedmult(matrix.m[5],blend_z);
-            matrix.m[8] = fixedmult(matrix.m[8],blend_z);
             matrix.m[2] = iVar3;
             matrix.m[5] = iVar4;
+            matrix.m[8] = fixedmult(matrix.m[8],blend_z);
             iVar3 = DrawObjectTransform(Vi,sd,&matrix,objDef_00,(coorddef *)(groupBase_p + 8),tc4,
                                -1);
             objMat_p = totalCount + iVar3;
@@ -3805,12 +3856,40 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
           shortest segment): lengthen THAT segment and restore case 2's oracle order.
       (B) ~4 diffs: a $v0/$v1 swap on case 5's anim vtable dispatch (`lh a0,16(v1);
           lw v1,20(v1); jalr v1` oracle vs `...v0...` ours) -- a two-pseudo local rotation
-          in the `(*(*anim->_vf)[2].pfn)(...)` expression. */
+          in the `(*(*anim->_vf)[2].pfn)(...)` expression.
+     ---- w62-a2 (2026-08-15): 42 -> 19, count 434 -> 433 (ONE SHORT).  BOTH
+     landings are 13A laws, and cluster (B) is CLOSED:
+       (i) SPILL-SLOT ORDER IS DECLARATION ORDER.  The SYM frame map is
+           simObjs AUTO -56 = sp+72, doFrustumClip AUTO -52 = sp+76, and ours had
+           the two slots SWAPPED (`sw t0,76(sp)` / `sw a1,72(sp)` + the 3 reload
+           sites) purely because `int doFrustumClip;` was DECLARED before
+           `Trk_SimObject *simObjs;`.  Swapping the two declarations (no statement
+           moved) fixes every slot: 42 -> 32, count stays 434.  Declaring simObjs
+           at the very head of the list measures the same 32.
+      (ii) THE BLOCK-LOCAL ANCHOR LAW closes cluster (B): the SYM names NO `anim`
+           local anywhere in this function, and giving case 5's dispatch its own
+           ARM-LOCAL `ObjectAnim *anim = Object_GetAnim(...)` (the fn-scope decl
+           stays, now unused) moves the pseudo from the shared fn-scope anchor to
+           a local qty that keeps the call result in $v0 -- the `addu v1,v0,zero`
+           copy disappears and the vtable load takes $v1 exactly like retail.
+           32 -> 19.  decl-with-init and split decl+assign forms measure the same.
+     FALSIFIED at the 32/19 basins (all re-gated, all reverted): case 2's objDef
+     load swept over all five positions in the sz row (before t2 40 / after t2 =
+     current 32 / after t3 32 / after m[2] 34 / after m[5] 32 / after m[8] 46), so
+     the w46 cluster-(A) coupling is unchanged; a read-only fence on objDef in
+     case 1 to buy the +4 live COSTS an insn (35 @435 alone, 49 @435 with the
+     case-2 restore), i.e. it is not the zero-insn inflator that class needs;
+     a second `return totalCount;` at the loop exit (to mint retail's
+     `addu v0,s7,zero` in the guard's delay slot) 21 @435, and `return 0;` in the
+     empty-group arm 19 (inert).
+     RESIDUAL 19 = the w46 cluster (A) (case 2's objDef load must issue after the
+     last jal + the three matrix stores, which costs it the $s6 race) plus the ONE
+     missing `addu v0,s7,zero` retail duplicates into the loop-guard delay slot. */
 
   u_char type;   /* SYM REG $s0 */
   ObjectAnim *anim;
-  int doFrustumClip;
-  Trk_SimObject *simObjs;
+  Trk_SimObject *simObjs;   /* SYM AUTO -56 -> sp+72 */
+  int doFrustumClip;        /* SYM AUTO -52 -> sp+76 */
   short light;
   Group *instGroup;   /* SYM REG $2 */
   Trk_CollideBoomInst *objInstance;
@@ -4052,9 +4131,14 @@ DrawWChunkFacets_emitObj:
                               (coorddef *)&objInstance->x,objectOffset,-1);
           break;
           }
-          anim = Object_GetAnim(simObjs + objInstance->simIndex);
+          /* MATCH (w62-a2): the SYM names NO `anim` local -- an ARM-LOCAL
+           * declaration (13A block-local anchor law) keeps the call result in
+           * $v0 and puts the vtable load in $v1 like retail, killing the
+           * `addu v1,v0,zero` copy + the whole v0/v1 rotation.  32 -> 19. */
+          { ObjectAnim *anim = Object_GetAnim(simObjs + objInstance->simIndex);
           (*(*anim->_vf)[2].pfn)
                     ((int)&anim->_vf + (int)(*anim->_vf)[2].delta,Vi,0x1f800000,objectOffset);
+          }
           break;
         }
         }
@@ -4303,7 +4387,20 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
        byte-free, the next probe is to put a STATEMENT (not a fence) between the
        chains that legitimately clobbers `$a0` -- e.g. hoisting the `SetSp`
        argument's own address local into that position, which is the very value
-       retail's `lui $a0,0x1F80` is computing. */
+       retail's `lui $a0,0x1F80` is computing. 
+       ---- w62-a2 (2026-08-15): THAT PROBE IS NOW RUN AND FALSIFIED.  The
+       nested-if split (chain 1 { chain 2 { body } }, chain 2 re-spelled with the
+       inline `(u_int)(thisChunkInd - 1U)`) re-measures BYTE-FREE at 30 @222, and
+       putting the SetSp argument's own address local (`int *spArg =
+       &gScratchLastWord;`, the value behind retail's `lui $a0,0x1F80`) between
+       the two chains -- with the call site rewritten to `SetSp(spArg)` -- is ALSO
+       byte-identical 30 @222: gcc coalesces the address local straight back into
+       the call's own materialization, so a named copy cannot own that `lui`.
+       (Same mechanism as the w62 DoTrough finding: a source-level copy of a
+       value gcc already materializes is coalesced away and is never a position
+       dial -- 13B's governing limit, `the copy IS the mechanism`, in the
+       negative direction.)  The class still needs a real $a0 CLOBBER between
+       the chains that is not an extra insn. */
     u_int chunkM1 = thisChunkInd - 1U;
     if (((GameSetup_gData.track != 4) ||
         (((0x27 < chunkM1 && (0x1d < thisChunkInd - 0x3dU)) && (8 < thisChunkInd - 0x6cU)))) &&

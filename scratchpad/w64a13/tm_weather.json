@@ -1,0 +1,8 @@
+{
+  "recon/game/psx/weather.cpp": {
+    "Weather_DoWeather__FP13DRender_tView": [
+      {"take": "\tsll\t\\$16,\\$18,2\n",
+       "after": "\tlui\t\\$3,%hi\\(simGlobal\\+4\\) # high\n(?=\tlui\t\\$2,%hi\\(Weather_gLastProcessTime\\))"}
+    ]
+  }
+}

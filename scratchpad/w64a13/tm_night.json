@@ -1,0 +1,8 @@
+{
+  "recon/game/psx/night.cpp": {
+    "Night_SetEnviroment__FP13DRender_tView": [
+      {"take": "\tlw\t\\$2,4\\(\\$2\\)\n(?= \\#APP\n \\#NO_APP\n\tsw\t\\$3,Night_gZNear\n)",
+       "after": "\taddu\t\\$2,\\$2,\\$3\n(?=\tli\t\\$3,128)"}
+    ]
+  }
+}

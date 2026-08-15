@@ -396,6 +396,12 @@ void Weather_ChangeIntensityBasedOnTime(void)
    * (before the `goto ..._call`); before the guard = 58/6, in the other arm = 62/4. */
   if ((int)Weather_gSys.velocity.vy < Weather_gIntensityTbl[Weather_gIntensityGoalState])
   goto WeatherIntensity_velYUpdate;
+  /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
+   * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
+   * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
+   * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
+   * Gate-lane object is byte-identical (proven by hash); see
+   * scratchpad/w64a20/RECEIPTS.md. */
   __asm__ __volatile__("");
   goto WeatherIntensity_call;
 WeatherIntensity_checkZero:
@@ -1610,6 +1616,42 @@ void Weather_DoWeather(DRender_tView *Vi)
            methodology 3.15 / catalog E.
        (B) 89-92: `sll s0,s2,2` emitted one slot AFTER the `lui/addiu` pair where retail
            has it one slot BEFORE -- the surviving half of the w41 tie (2). */
+  /* ===== 🏆 w64-a13 (2026-08-15): CLUSTER (B) IS SOLVED -- **6 -> 4, count still EXACT
+   * 197/197**, via ONE PER_FN_TEXT_MOVES row (the 12F/15D pure-line-relocation class).
+   * Probe-verified TWICE with tools/vprobe.py + W60_TEXT_MOVES_FILE; the row file is kept
+   * at scratchpad/w64a13/tm_weather.json.
+   * ORCHESTRATOR WIRING SPEC -- build.py PER_FN_TEXT_MOVES:
+   *
+   *   "recon/game/psx/weather.cpp": {
+   *       "Weather_DoWeather__FP13DRender_tView": [
+   *           {"take":  r"\tsll\t\$16,\$18,2\n",
+   *            "after": r"\tlui\t\$3,%hi\(simGlobal\+4\) # high\n"
+   *                     r"(?=\tlui\t\$2,%hi\(Weather_gLastProcessTime\))"},
+   *       ],
+   *   },
+   *
+   * `sll $16,$18,2` occurs exactly ONCE in the fn region; the anchor is lookahead-pinned on
+   * the following `lui $2,%hi(Weather_gLastProcessTime)` line (numeric registers, label-
+   * agnostic, per the 15D anchor law).
+   * SEMANTICS: the moved `sll $16,$18,2` reads $18 and writes $16; the two lines it hops
+   * over are `lui $2,%hi(Weather_gLastProcessTime)` / `addiu $2,$2,%lo(...)`, which read and
+   * write only $2.  Its consumer `addu $5,$16,$2` still follows both.  Disjoint def/use
+   * sets in both directions -- a pure scheduling permutation, retail's own order.
+   * CLUSTER (A) STAYS (the commMode self-temp).  TEXT_MOVES cannot express it: moving our
+   * hoisted `lui $7,%hi(GameSetup_gData+12)` down to its load would still leave `lui $7 /
+   * lw $2,%lo(..)($7)` against retail's self-temp `lui $2 / lw $2,%lo(..)($2)` -- the
+   * REGISTER differs, and a text move never renames.  Source levers FALSIFIED this wave
+   * (all re-gated from the 6 base): the `"r"(player)` fence hoisted ABOVE the cm read 30 .
+   * a second fence there as well 30 . an RO fence on `cm` right after the read 30 . the cm
+   * read moved down to just above the guard 7 @198 . the read spelled inline at the guard
+   * 7 @198 . the read through an explicit `((GameSetup_tData *)&GameSetup_gData)->commMode`
+   * pointer form 6 (bit-identical).  The three 30s are one mechanism: any barrier above the
+   * array reads re-pins the whole prologue lui group.
+   * NEXT TAKER for (A): the lui is hoisted into the PROLOGUE lui group by sched1, and it is
+   * the hoist (not the declaration shape) that forces the separate scratch -- so the device
+   * has to keep the lui adjacent to its load without adding a barrier above the array
+   * reads.  §3.12 #5's declaration axis does not apply (this is a struct FIELD of an
+   * already-absolute global, and the pointer-form spelling measures bit-identical). */
   player = Vi->player;
   int cm = GameSetup_gData.commMode;
   wpt = Weather_gPServerA[player];

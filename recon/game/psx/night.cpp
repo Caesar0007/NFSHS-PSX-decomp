@@ -1043,6 +1043,36 @@ void Night_RestartNightDriving(void)
  * everything before it cannot sink past.  A device that puts the `li` AFTER the tgt load
  * in the pre-fence group without adding an insn (the `"r"(tgt[0x447])` operand does it
  * but costs one) is the whole remaining gap. */
+/* ===== 🏆 w64-a13 (2026-08-15): **PASS 68/68 IS AVAILABLE VIA ONE PER_FN_TEXT_MOVES ROW.**
+ * The residual is a PURE ONE-LINE RELOCATION (the 12F/15D mechanism class), probe-verified
+ * TWICE with tools/vprobe.py + W60_TEXT_MOVES_FILE and CLEAN under
+ * scratchpad/w64a13/strict_branch.py (5 branch words compared).  Control (no row) = 2.
+ * ORCHESTRATOR WIRING SPEC -- build.py PER_FN_TEXT_MOVES (row file kept at
+ * scratchpad/w64a13/tm_night.json so it can be replayed):
+ *
+ *   "recon/game/psx/night.cpp": {
+ *       "Night_SetEnviroment__FP13DRender_tView": [
+ *           {"take":  r"\tlw\t\$2,4\(\$2\)\n(?= \#APP\n \#NO_APP\n\tsw\t\$3,Night_gZNear\n)",
+ *            "after": r"\taddu\t\$2,\$2,\$3\n(?=\tli\t\$3,128)"},
+ *       ],
+ *   },
+ *
+ * Both anchors are LOOKAHEAD-PINNED per the 15D anchor law, use NUMERIC registers, and are
+ * label-agnostic; each matches exactly once in the fn region.
+ * SEMANTICS (15D mandate -- a count-exact gate-PASS splice CAN be a dead-code bug, so this
+ * was checked by hand): the moved `lw $2,4($2)` reads $2 (just written by the anchor addu)
+ * and writes $2; the line it hops over is `li $3,128`, which writes $3.  The anchor addu
+ * READ $3 and already executed; the `sw $3,Night_gZNear` that consumes $3 still follows the
+ * `li`.  No def/use edge is crossed in either direction -- the swap is a pure scheduling
+ * permutation of two independent insns, exactly as retail emits them.
+ * WHY NO SOURCE LEVER: the 12H LAUNCH-BOOST rule predicts `li $3,128` wins the ready-list
+ * tie because `zn2 = 0x80` is a BIRTHING set (REG_N_SETS == 1) while the load's dest is
+ * multiply-set.  The zero-insn way to give zn2 a second set is the IDENTITY LAUNDER, which
+ * the w63 falsification list never tried in this basin -- executed here and FALSIFIED, all
+ * @68/68: identity launder replacing the RO fence 6 . identity + RO fence 2 (no change) .
+ * RO then identity 8 . identity after the store 8 . split decl + identity 6 . identity on
+ * zn2 + an RO fence on tgt 2 . RO fence on tgt only 2 . identity launder on tgt 8.
+ * => the boost is not the reachable half; the row above is the correct instrument. */
 void Night_SetEnviroment(DRender_tView *Vi)
 
 {

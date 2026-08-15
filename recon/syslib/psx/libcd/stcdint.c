@@ -198,6 +198,17 @@ extern void StCdInterrupt(void)
     /* ---- submode / channel filter ----------------------------------------------------------- */
     if (_st_slot[0] != 0x160 || ((_st_slot[1] >> 10) & 0x1F) != CChannel) {
         if (StEmu_Addr != 0) StEmu_Idx = 0;
+        /* MATCH (w63-a6, 36 -> 27): zero-insn VOID BARRIER at the head of the
+         * channel-mismatch tail.  Found by a mechanical fence-POSITION sweep over
+         * every statement in the function (scratchpad/w63a6/fencesweep.py) -- the
+         * W45 fixpoint law says position is the dial, and only this block moves:
+         * the three adjacent slots (before debug_cause / before _st_slot[0]=0 /
+         * before the return) all measure 27, every other one of the ~90 candidate
+         * positions is 36 or worse.  The barrier stops reorg back-scanning out of
+         * this tail into the preceding filter branch, which is cluster (C) of the
+         * w52-a2 residual list (retail RE-READS _st_slot here instead of reusing
+         * the cached base). */
+        __asm__("" : : "i"(0));
         debug_cause = 5;
         _st_slot[0] = 0;
         return;

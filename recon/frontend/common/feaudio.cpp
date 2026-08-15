@@ -393,7 +393,56 @@ LUMPYHEAD * FeAudio_InitViv(char *fname)
        -- the merged pseudo goes GLOBAL but lands in $t0, so that reading is
        WRONG; late-OR variants 34/36/36/40; a separate source name `w` with a
        read-only fence after the loads 40, before the loads 26, after the store
-       40, two operands 40, and without the result fence 36. */
+       40, two operands 40, and without the result fence 36.
+
+       W61-A16 ROUND 3 -- THE HANDOUT IS NOW PROVED UNREACHABLE FROM LOCAL-ALLOC
+       (gcc-2.8.1 local-alloc.c read, real-CC1PLPSX -dl/-dg picture per variant
+       via tools/fast.py; harness scratchpad/w61a16/viv.py).
+       MECHANISM, exactly: MIPS defines no REG_ALLOC_ORDER, so find_free_reg
+       (local-alloc.c:2176) scans hard regs 0..31 ASCENDING and takes the first
+       one free over [birth,death), where `used` is the union of regs_live_at[]
+       across that window.  In the V4 shape the source word is the FIRST qty
+       allocated (QTY_CMP_PRI 2*7/11 beats every other qty in the block), so
+       only pre-existing liveness can push it up the scan -- and over its window
+       only $a0 (the lumpyName string, hard-live for the reservememadr arg) is
+       taken, so it lands $a1 and can never reach $a3.  For $a3 the scan needs
+       $a1 AND $a2 busy over the SAME window, but retail's $a1 is the hlen
+       pseudo (born 28, i.e. AFTER the source word dies at 27) and its $a2 is
+       the hard third-arg zero (born 30) -- both provably disjoint from the
+       window, since retail reuses $a3 itself for the num source at 29.
+       => retail's source word was NOT allocated by the numeric scan; it was a
+       GLOBAL allocno, which is exactly what the identity fence buys us (and
+       why it, uniquely, reaches $a3) at the price of the one carrier copy.
+       NEW FALSIFICATIONS (all measured here, all reverted):
+       - identity fence MID-CHAIN on the source word itself, pre-shift and
+         post-shift, +/- the result fence (the "2 deaths for free" idea): 26 in
+         all four spellings.  A matching "+r" in/out does NOT split the live
+         range -- flow.c emits no death for a reg used and re-set by one insn --
+         so the pseudo stays LOCAL, gains 2 refs (7 -> 9, priority 2.25) and
+         drops to $v1 instead.  Refs move the home; they cannot move it UP.
+       - birth-end lengthening (hoist the type read above the void fence, and
+         above the lumpyName statement): live 11 -> 14, home unchanged $a1,
+         110 insns, 15 diffs.  Only the DEATH end is a dial, confirming R2.
+       - statement ORDER of the two header loads and the type store is fully
+         normalised by sched1/sched2: num-load-first, store-before-loads and
+         store-between-loads are BYTE-IDENTICAL to V4 (12 diffs, identical
+         allocno picture).  Do not re-sweep this axis.
+       - hlen loaded in its decl-init (so $a1 is busy over the window): 36,
+         source word -> $v1; num loaded in its decl-init: 38, source word still
+         $a1 and num -> $a3 with live 26.
+       - shared type+num carrier re-measured with the picture attached (the R2
+         "30/38/30" row, now explained): the merged pseudo IS global and DOES
+         die in 2 places, but the 0xff0000 MASK (refs 4, live 56-64) is the
+         LAST local allocated and, with no local left holding $a3 over its
+         range, takes $a3 itself -- so the carrier falls to $t0/$t1.  Variants:
+         bare 38, +result read-only fence 30, +named byteMask 38, +byteMask
+         +result fence 30, +mask fence 30, +identity fence on the result 30.
+         The mask and the carrier are therefore ONE contested register.
+       => CERTIFICATE: every source-visible dial on this handout is priced.
+       What is missing is unchanged from R2 -- a device that gives the source
+       word a SECOND live range (or a 2nd death) whose value needs no copy insn
+       and does not displace the mask.  W61-A20's zero-ref live-range
+       lengthener is the exact instrument this fn is waiting for. */
     __asm__("" : "+r"(swappedType));
     headerLength = lumpHead.hlen;
     headerNum = lumpHead.num;

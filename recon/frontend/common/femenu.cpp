@@ -898,7 +898,26 @@ int tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &key
    pass files (cse.c, local-alloc.c, global.c, loop.c, reorg.c, sched.c, flow.c,
    jump.c, regclass.c, caller-save.c, toplev.c) -- expr.c and function.c
    (assign_parms, promote_mode) are NOT in that extraction, so the promotion rule
-   above is stated from the emitted code, not cited to a line. */
+   above is stated from the emitted code, not cited to a line.
+
+   W61-A16 2026-08-15 -- THE SPILL-SLOT=DECLARATION-ORDER LAW DOES NOT APPLY HERE
+   (checked on request; re-gated 168 @ 374/366 before and after -- nothing landed).
+   SYM 8c @0x80024c2c: fsize 112, mask 0xc0ff0000, AUTO map fHeight -0x60 => sp+16,
+   rectspace -0x58 => sp+24, width -0x50 => sp+32, factor -0x48 => sp+40.  OUR build
+   already emits sh/lhu at exactly 16/24/32/40(sp), and all ten callee-save slots
+   (72..108) are identical, so there is NO offset permutation to fix; our fn-scope
+   declaration order (prim, x1, width, factor, myDarkBlue, Col) already equals the
+   SYM block order.  What the SYM DOES add to the W59-A9 finding above:
+     - myDarkBlue is REG $0x1e = $fp and fFadeVal is REG $0x16 = $s6 in retail;
+       ours puts myDarkBlue in $s6 and fFadeVal in $s4.  That 2-register rotation --
+       not the frame -- is what makes the prologue read `sw s4,88(sp)` where retail
+       has `sw fp,104(sp)`; the save-order diff is a CONSEQUENCE, not a cause.
+     - fSelFade carries an ARG record but NO REG/AUTO home, confirming from the SYM
+       side that retail never copied it anywhere: the single `lh` + the 0x28(sp)
+       re-read of `factor` IS the retail shape.
+   So the two open items are (1) delete our only SImode use of fSelFade [the count
+   gap] and (2) re-price the myDarkBlue/fFadeVal rotation as a global-allocno tie.
+   Frame/declaration dials are spent on this function. */
 
 /* WARNING: Unable to use type for symbol pkt2 */
 /* WARNING: Unable to use type for symbol pkt */

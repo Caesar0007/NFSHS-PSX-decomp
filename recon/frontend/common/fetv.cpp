@@ -86,7 +86,37 @@ void DrawTVLines(tTVConfig &tv)
    authoritative residual from 151 to 135 without changing behavior.
    W62: after each absolute-value clamp input is known nonnegative; promoting
    the short through u_short for the multiply avoids premature sign-extension
-   and reduces DrawTV from 135 to 131 without volatile lifetime constraints. */
+   and reduces DrawTV from 135 to 131 without volatile lifetime constraints.
+
+   W61-A16 (2026-08-15): the `(u_short)` promotion above was itself the last
+   truncation.  Retail doubles the clamp input with a bare `sll v0,a0,1` on the
+   UNTRUNCATED abs value and only sign-extends for the `> 0x80` compare
+   (`sll 16 / sra 16`); the u_short cast emitted an extra `andi v0,a0,65535`
+   and shifted the pair to `sll 17`.  Spelling the doubling as a SHIFT
+   (`fadeTop = fadeTop << 1;`, all four sites) drops both `andi`s and their
+   downstream fallout: 131 -> 107, count unchanged 822.
+   Measured alternatives at the same four sites: `fadeTop += fadeTop;` 107
+   (tie -- shift chosen because retail's insn IS an sll); plain
+   `fadeTop * 2` 135; `(int)fadeTop * 2` 135; `(short)(fadeTop * 2)` 135.
+
+   RESIDUAL 107 (ours 822 / oracle 815), two named clusters:
+   (a) an s4/s7 SWAP on the two function-long constants -- retail parks the
+       0x1F800004 packet-slot address in s7 and the 0x00FFFFFF rgb mask in s4,
+       we do the reverse (both are global allocnos; global.c hands the lower
+       s-reg to whichever it allocates first, so this is an allocno-priority
+       tie, not a materialisation-order one: both builds emit the ptr pair
+       BEFORE the mask pair).  Naming the mask as a local `u_int rgbmask`
+       declared either BEFORE or AFTER packetPtrSlot is exactly NEUTRAL on
+       diffs (107) while shortening us by 2 insns (820) -- i.e. the W61-A1
+       name-the-constant lever reaches the frame but not this handout.
+   (b) a +7 insn surplus: retail RE-USES the just-loaded packet pointer for
+       the bump (`addiu v1,s0,40; sw v1,0(s7)`) where we reload the slot.
+       Writing that as `*packetPtrSlot = (u_char *)texture + 0x28;` etc. does
+       close the count (822 -> 820 -> 818 -> 816) but re-basins the allocator
+       every time: 0x28-only 121, 0x34-only 175, all-sites 195, all+named mask
+       205, mask+0x28 131.  ALL REVERTED (09K non-monotone).  => the count gap
+       and the s4/s7 tie are one event; the open angle is an allocno-priority
+       dial that buys the reuse WITHOUT re-coloring. */
 
 void DrawTV(tTVConfig &tv)
 
@@ -211,7 +241,7 @@ void DrawTV(tTVConfig &tv)
         if (fadeTop < 0) {
           fadeTop = -fadeTop;
         }
-        fadeTop = (u_short)fadeTop * 2;
+        fadeTop = fadeTop << 1;
         if (fadeTop > 0x80) {
           fadeTop = 0x80;
         }
@@ -219,7 +249,7 @@ void DrawTV(tTVConfig &tv)
         if (fadeBottom < 0) {
           fadeBottom = -fadeBottom;
         }
-        fadeBottom = (u_short)fadeBottom * 2;
+        fadeBottom = fadeBottom << 1;
         if (fadeBottom > 0x80) {
           fadeBottom = 0x80;
         }
@@ -304,7 +334,7 @@ void DrawTV(tTVConfig &tv)
         if (fadeTop < 0) {
           fadeTop = -fadeTop;
         }
-        fadeTop = (u_short)fadeTop * 2;
+        fadeTop = fadeTop << 1;
         if (fadeTop > 0x80) {
           fadeTop = 0x80;
         }
@@ -312,7 +342,7 @@ void DrawTV(tTVConfig &tv)
         if (fadeBottom < 0) {
           fadeBottom = -fadeBottom;
         }
-        fadeBottom = (u_short)fadeBottom * 2;
+        fadeBottom = fadeBottom << 1;
         if (fadeBottom > 0x80) {
           fadeBottom = 0x80;
         }

@@ -47,7 +47,22 @@ def _sec(path, fn):
     return ""
 
 
-def picture(src, dumpfn, gval="0", minrefs=4):
+def picture(src, dumpfn, gval="0", minrefs=4, showpri=False):
+    """allocno picture for ONE fn out of a recon C++ TU.
+
+    w64-a22: the cc1plus invocation now carries -fno-exceptions -fno-rtti (12H
+    "MANDATORY for cc1plus lab fidelity"), which is why w63-a16 and w64-a2 both
+    had to keep private copies of this function (scratchpad/w64a2/pic.py).
+    MEASURED SCOPE NOTE (w64-a22, 6 TUs: psxfront/bworldSm/aistate/fedialog/
+    hud/camera): on the REAL CC1PLPSX.EXE both flags are INERT -- .s and .lreg
+    byte-identical with and without them, i.e. PsyQ's cc1plus already defaults
+    them off (which is also why build.py's compile_cpp never passes them and
+    still byte-matches retail).  The 12H 8/10-vs-0/10 fidelity law is about the
+    INSTRUMENTED FSF cc1plus of the qtytrace lane.  They are passed here anyway
+    so this lab and that lane cannot drift apart.
+    `showpri=True` adds the 15B priority column floor_log2(refs)*refs*SIZE/live
+    (opt-in: default output is unchanged for existing callers).
+    """
     i_file = os.path.join(HERE, "v.i")
     r = subprocess.run([CPP, "-x", "c", "-D__cplusplus=1", "-nostdinc", "-undef",
                         "-Dmips", "-D__mips__", "-D__psx__", "-I" + RECON,
@@ -60,7 +75,8 @@ def picture(src, dumpfn, gval="0", minrefs=4):
             os.remove(i_file + ext)
         except OSError:
             pass
-    subprocess.run([CC1PL, "-quiet", "-O2", "-G" + gval, "-dl", "-dg",
+    subprocess.run([CC1PL, "-quiet", "-O2", "-G" + gval,
+                    "-fno-exceptions", "-fno-rtti", "-dl", "-dg",
                     i_file, "-o", os.path.join(HERE, "v.s")],
                    capture_output=True, cwd=HERE)
     lreg, greg = _sec(i_file + ".lreg", dumpfn), _sec(i_file + ".greg", dumpfn)
@@ -81,9 +97,13 @@ def picture(src, dumpfn, gval="0", minrefs=4):
             continue
         h = disp.get(r_)
         hn = NAME[h] if h is not None and h < 32 else str(h)
-        out.append("    p%-4d refs=%-3d live=%-3d blk=%-4s %-4s %s %s"
-                   % (r_, refs, live, blk, hn,
-                      "GLOBAL" if str(r_) in conf else "local ", note[:40]))
+        line = ("    p%-4d refs=%-3d live=%-3d blk=%-4s %-4s %s %s"
+                % (r_, refs, live, blk, hn,
+                   "GLOBAL" if str(r_) in conf else "local ", note[:40]))
+        if showpri:
+            line += "  pri=%.4f" % ((len(bin(refs)) - 3) * refs / float(live)
+                                    if live else 0.0)
+        out.append(line)
     return "\n".join(out)
 
 

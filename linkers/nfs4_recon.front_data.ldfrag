@@ -1,0 +1,33 @@
+/* linkers/nfs4_recon.front_data.ldfrag -- W64-A18 (supersedes W63-A19)
+ * RECON-lane ordering of the retail run 0x800515b8..0x80052b38.
+ * _rNN = residual splat bytes; <obj> = a recon TU that OWNS its window
+ * (ownmap2 E1-E5 all green, R_MIPS_32 relocations RESOLVED).  The matching
+ * _oNN piece must NOT be linked here -- it is the splat-lane filler for
+ * linkers/nfs4.ld only.
+ * Regenerate:
+ *   python scratchpad/w64a18/ownmap2.py --blob scratchpad/w63a19/ctl_blob/front_data.data.s --end 0x80052b38 \
+ *       --out scratchpad/w64a18/ownmap2_data.txt --json scratchpad/w64a18/ownmap2_data.json
+ *   python scratchpad/w64a18/splitblob2.py --blob ... --json ... --apply
+ *   python scratchpad/w64a18/relink_ld.py --stem front_data --sec data ... --apply
+ */
+
+
+    build/asm/data/front_data_r00.data.s.o(.data);
+    build/recon/frontend/common/fetextrender.cpp.o(.data);   /* 0x800515b8..0x80051610  was front_data_o00.data.s */
+    build/asm/data/front_data_r01.data.s.o(.data);
+    build/recon/frontend/common/fecolor.cpp.o(.data);   /* 0x800516c8..0x80051738  was front_data_o01.data.s */
+    build/asm/data/front_data_r02.data.s.o(.data);
+    build/recon/frontend/common/feinput.cpp.o(.data);   /* 0x8005173c..0x800517bc  was front_data_o02.data.s */
+    build/asm/data/front_data_r03.data.s.o(.data);
+    build/recon/frontend/common/screentournselect.cpp.o(.data);   /* 0x80052058..0x80052060  was front_data_o03.data.s */
+    build/recon/frontend/common/screentrophyroom.cpp.o(.data);   /* 0x80052060..0x80052074  was front_data_o04.data.s */
+    build/asm/data/front_data_r04.data.s.o(.data);
+    build/recon/frontend/common/screentracks.cpp.o(.data);   /* 0x800520a0..0x800520b8  was front_data_o05.data.s */
+    build/recon/frontend/common/screentrackinfo.cpp.o(.data);   /* 0x800520b8..0x800520d0  was front_data_o06.data.s */
+    build/asm/data/front_data_r05.data.s.o(.data);
+    build/recon/frontend/common/screendisplay.cpp.o(.data);   /* 0x800528d8..0x800528dc  was front_data_o07.data.s */
+    build/asm/data/front_data_r06.data.s.o(.data);
+    build/recon/frontend/common/screenaudio.cpp.o(.data);   /* 0x800528e8..0x800528ec  was front_data_o08.data.s */
+    build/asm/data/front_data_r07.data.s.o(.data);
+    build/recon/frontend/common/stattool.cpp.o(.data);   /* 0x800529a0..0x800529b0  was front_data_o09.data.s  (+2 B FILL(0) align pad) */
+    build/asm/data/front_data_r08.data.s.o(.data);

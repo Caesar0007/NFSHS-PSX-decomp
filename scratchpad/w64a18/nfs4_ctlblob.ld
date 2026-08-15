@@ -37,7 +37,7 @@ SECTIONS
         nfs4_TEXT_END = .;
         nfs4_TEXT_SIZE = ABSOLUTE(nfs4_TEXT_END - nfs4_TEXT_START);
         nfs4_DATA_START = .;
-        build/asm/data/front_data.data.s.o(.data);
+        scratchpad/w64a18/proofwork/front_data.data.s.ctl.o(.data);
         build/asm/data/front_bss.data.s.o(.data);
         build/asm/data/rdata_80010000.rodata.s.o(.data);
         build/src/front.c.o(.data);

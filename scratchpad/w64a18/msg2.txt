@@ -1,0 +1,46 @@
+w64a18: LINK CAMPAIGN region 3 (front_data) CUT -- the third and last blob region. 10 owned windows / 428 B; + the AMBIGUOUS-ANCHOR guard (correction D) and a per-STEM ldfrag naming fix.
+
+REGION 3 (front_data, 0x80051260..0x80052B38, 6360 B, 227 records, 78 dups):
+19 pieces (9 residual + 10 owned), 4 of them needing a record split, 1 ending
+in retail zero alignment pad.  Owned: fetextrender 88, feinput 128, fecolor
+112, screentrophyroom 20, screentracks 24, screentrackinfo 24, stattool 16,
+screentournselect 8, screendisplay 4, screenaudio 4.
+
+(D) AMBIGUOUS-ANCHOR GUARD -- a real vacuity defect, caught here.
+    maspsx re-emits every .bss/.sbss entry with an unconditional `.globl`
+    (W62-A18 sec.1.2, T5), so the FIVE file-static copies of `gSwapFileName`
+    become global and are indistinguishable from the one real global.  ownmap
+    anchored a window on that name in FOUR different TUs, all claiming
+    0x80052064; v1's overlap pruning then kept one ARBITRARILY -- a silently
+    wrong cut.  ownmap2 now excludes any blob label defined by more than one
+    (obj,section) from base derivation, and a window left with no unambiguous
+    anchor is reported E0 and never owned.  front_data: 15 "ownable" with 3
+    dropped-by-overlap -> 12 with 0 dropped, then 10 after (E).
+(E) --exclude for USER-LIVE TUs (femenu, fetv, screenpost, screenusername):
+    their section sizes can move under the cut, so their 2 windows (16 B) are
+    deliberately left in the residual blob.
+
+FIXED-NAME HAZARD, SECOND DIMENSION: linkers/nfs4_recon.<SEC>.ldfrag silently
+CLOBBERS -- front_data and data_8010CCD4 are BOTH `.data` runs, so writing the
+front_data fragment overwrote the region-2 one.  W63-A19 fixed this for the
+piece-ORDER file; the same bug lived in the fragment name.  All three
+fragments are now named after the blob STEM:
+  linkers/nfs4_recon.{data_8010CCD4,sdata_8013C54C,front_data}.ldfrag
+(the two section-named files are removed).
+
+PROOFS (front_data): P1 round-trip byte-identical (227 records, 6360 B) -
+P2 1655 data lines identical and in order - P3 concatenated 19 piece objects
+== control object 6360 == 6360 IDENTICAL - P4 71 relocations identical -
+P5 283 bytes differ from ROM, 0 of them OUTSIDE a relocation word.
+P6 (ALL THREE regions at once): ld with the 129 pieces vs ld with the three
+un-split control blob objects -> rc 1 both, 2077 stderr lines both, 0 DIFF
+LINES after normalising object name + section-relative offset.
+splitblob2's record splitter also generalised: a record may carry trailing
+directives after `enddlabel` (front_data has `.align 2`); they now travel with
+the TAIL and the +5-lines-per-split invariant still holds.
+
+GATES: build.py --no-link 508 objects 0 failures; tu_order_audit 508 / 0
+inversions; probe_link 83.29% / 202 of 442 byte-exact (was 81.31% / 201 at my
+baseline -- CLIMBED).
+
+Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>

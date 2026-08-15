@@ -1,4 +1,4 @@
-placed=441 dropped=19 bytes=916336 identical=760698 (83.02%) exact_objs=202
+placed=442 dropped=18 bytes=920100 identical=766387 (83.29%) exact_objs=202
   22802/  32504 differing  build/recon/game/psx/hud.cpp.o
   18635/  27032 differing  build/recon/game/psx/drawc.cpp.o
   12735/  24796 differing  build/recon/frontend/common/femenudefs.cpp.o
@@ -6,7 +6,7 @@ placed=441 dropped=19 bytes=916336 identical=760698 (83.02%) exact_objs=202
    8222/  22380 differing  build/recon/game/common/camera.cpp.o
    7618/  25672 differing  build/recon/game/common/collide.cpp.o
    5887/  15344 differing  build/recon/game/common/aiphysic.cpp.o
-   3960/  20004 differing  build/recon/game/common/newton.cpp.o
+   3959/  20004 differing  build/recon/game/common/newton.cpp.o
    3931/   8320 differing  build/recon/game/common/aih_cop.cpp.o
    3761/   9460 differing  build/recon/game/psx/hrzsku.cpp.o
    2960/   7432 differing  build/recon/frontend/common/femenu.cpp.o
@@ -14,9 +14,8 @@ placed=441 dropped=19 bytes=916336 identical=760698 (83.02%) exact_objs=202
    2557/   6536 differing  build/recon/frontend/psx/psxfront.cpp.o
    2493/   5300 differing  build/recon/game/psx/cario.cpp.o
    2482/   6256 differing  build/recon/game/common/pausemenu.cpp.o
-   2145/   5808 differing  build/recon/game/psx/sfx.cpp.o
    2055/   4936 differing  build/recon/game/common/bworld.cpp.o
-   2026/   6040 differing  build/recon/syslib/psx/libmcrd/LIBMCRD.c.o
+   2024/   6040 differing  build/recon/syslib/psx/libmcrd/LIBMCRD.c.o
    1763/   3036 differing  build/recon/syslib/psx/libpad/PADMAIN.c.o
    1516/   5272 differing  build/recon/frontend/psx/memcard.c.o
    1349/   2776 differing  build/recon/syslib/psx/libcd/stcdint.c.o
@@ -28,17 +27,17 @@ placed=441 dropped=19 bytes=916336 identical=760698 (83.02%) exact_objs=202
     946/  21632 differing  build/recon/game/common/r3dcar.cpp.o
     911/  20104 differing  build/recon/frontend/common/screencarselect.cpp.o
     858/  21124 differing  build/recon/frontend/common/front.cpp.o
-    858/  10216 differing  build/recon/syslib/psx/libgpu/SYS.c.o
+    857/  10216 differing  build/recon/syslib/psx/libgpu/SYS.c.o
     720/   5848 differing  build/recon/syslib/psx/libcd/drv.c.o
-    718/  15060 differing  build/recon/game/common/audiocmn.cpp.o
+    719/  15060 differing  build/recon/game/common/audiocmn.cpp.o
     654/   2052 differing  build/recon/syslib/psx/libcd/cdread.c.o
     626/  22136 differing  build/recon/game/common/cars.cpp.o
     620/   1612 differing  build/recon/syslib/psx/libetc/INTR.c.o
-    588/   4004 differing  build/recon/game/psx/night.cpp.o
+    582/   4004 differing  build/recon/game/psx/night.cpp.o
     549/   9008 differing  build/recon/game/common/replay.cpp.o
-    540/   8140 differing  build/recon/game/psx/weather.cpp.o
     537/    672 differing  build/recon/syslib/psx/libapi/FIRST.c.o
     534/    700 differing  build/recon/syslib/psx/libcd/streamhelp.c.o
+    532/   8140 differing  build/recon/game/psx/weather.cpp.o
     530/   3284 differing  build/recon/game/common/sim.cpp.o
     520/   2612 differing  build/recon/frontend/common/feaudio.cpp.o
     503/  12460 differing  build/recon/game/common/ai.cpp.o
@@ -56,7 +55,7 @@ placed=441 dropped=19 bytes=916336 identical=760698 (83.02%) exact_objs=202
     368/  19856 differing  build/recon/frontend/common/femenuoptions.cpp.o
     363/  14532 differing  build/recon/game/psx/flare.cpp.o
     344/   2288 differing  build/recon/game/common/aih_opp.cpp.o
-    338/   7536 differing  build/recon/game/common/track.cpp.o
+    341/   7536 differing  build/recon/game/common/track.cpp.o
     336/   7792 differing  build/recon/game/common/aih_play.cpp.o
     323/   9008 differing  build/recon/game/common/object.cpp.o
     316/  11976 differing  build/recon/game/common/aistate.cpp.o
@@ -70,21 +69,22 @@ placed=441 dropped=19 bytes=916336 identical=760698 (83.02%) exact_objs=202
     237/   5688 differing  build/recon/game/common/audiomus.cpp.o
     221/   7408 differing  build/recon/game/common/audioclc.cpp.o
     218/   3088 differing  build/recon/game/psx/draw.cpp.o
-    211/   4816 differing  build/recon/game/psx/texture.cpp.o
+    210/   4816 differing  build/recon/game/psx/texture.cpp.o
     208/   7236 differing  build/recon/frontend/common/screenmain.cpp.o
     200/   4256 differing  build/recon/game/common/input.cpp.o
+    200/   5796 differing  build/recon/game/psx/sfx.cpp.o
     197/   2372 differing  build/recon/game/common/genericpmx.cpp.o
-    197/   2464 differing  build/recon/game/common/trgsfx.cpp.o
     185/   6460 differing  build/recon/frontend/common/fedialog.cpp.o
     181/   2128 differing  build/recon/game/common/aiperson.cpp.o
     180/   2292 differing  build/recon/frontend/common/screenaudio.cpp.o
+    179/   2464 differing  build/recon/game/common/trgsfx.cpp.o
     174/   3756 differing  build/recon/eaclib/psx/eacpsxz/cdfs.c.o
     162/   1512 differing  build/recon/syslib/psx/libpad/MCXMAIN.c.o
     160/   2720 differing  build/recon/game/common/aiinit.cpp.o
-    158/   2976 differing  build/recon/game/common/render.cpp.o
     156/   3204 differing  build/recon/frontend/common/screenpinkslips.cpp.o
     153/   8032 differing  build/recon/frontend/common/femenuextended.cpp.o
     150/   7732 differing  build/recon/frontend/common/fetourn.cpp.o
+    146/   2976 differing  build/recon/game/common/render.cpp.o
     140/   3264 differing  build/recon/game/psx/textureprocess.cpp.o
     140/   5956 differing  build/recon/eaclib/psx/eacpsxz/nfile.c.o
     129/   3060 differing  build/recon/frontend/common/screentracks.cpp.o
@@ -97,19 +97,20 @@ placed=441 dropped=19 bytes=916336 identical=760698 (83.02%) exact_objs=202
     105/   1272 differing  build/recon/syslib/psx/libpress/LIBPRESS.c.o
     103/   2708 differing  build/recon/frontend/common/screentrophyroom.cpp.o
     102/   4016 differing  build/recon/game/common/audiotrk.cpp.o
-     97/   3156 differing  build/recon/eaclib/psx/eacpsxz/nasync.c.o
-     82/   2316 differing  build/recon/game/common/souffle.cpp.o
+     95/   3156 differing  build/recon/eaclib/psx/eacpsxz/nasync.c.o
+     81/   2316 differing  build/recon/game/common/souffle.cpp.o
      79/    864 differing  build/recon/game/common/simqueue.cpp.o
      78/   3228 differing  build/recon/game/common/anim.cpp.o
      75/   3240 differing  build/recon/frontend/common/fecredits.cpp.o
      74/   2568 differing  build/recon/game/common/aih_basiccop.cpp.o
      74/   1860 differing  build/recon/eaclib/psx/eacpsxz/fileroot.c.o
+     73/   3776 differing  build/recon/game/psx/skidmark.cpp.o
      72/   2820 differing  build/recon/game/common/AIWORLD.cpp.o
      71/   1168 differing  build/recon/syslib/psx/libpad/PADSEQD.c.o
      70/   1624 differing  build/recon/frontend/common/fecheats.cpp.o
      68/   1640 differing  build/recon/game/psx/fe3dmenu.cpp.o
      68/   4204 differing  build/recon/game/common/audioeng.cpp.o
-     67/    528 differing  build/recon/syslib/psx/libetc/VSYNC.c.o
+     66/    528 differing  build/recon/syslib/psx/libetc/VSYNC.c.o
      66/    528 differing  build/recon/eaclib/psx/eacpsxz/unbtree.c.o
      64/   2164 differing  build/recon/game/psx/force.cpp.o
      63/    908 differing  build/recon/game/common/gmesetup.cpp.o
@@ -119,11 +120,11 @@ placed=441 dropped=19 bytes=916336 identical=760698 (83.02%) exact_objs=202
      62/   2180 differing  build/recon/syslib/psx/libc/SPRINTF.c.o
      62/    576 differing  build/recon/eaclib/psx/spchpsxz/spchinit.c.o
      54/   2768 differing  build/recon/frontend/common/screentrackrecords.cpp.o
-     53/    324 differing  build/recon/eaclib/psx/eacpsxz/primate.c.o
      52/   1028 differing  build/recon/frontend/psx/mdec.cpp.o
      52/    508 differing  build/recon/eaclib/psx/eacpsxz/systask.c.o
      52/   4484 differing  build/recon/eaclib/psx/spchpsxz/spchpick.c.o
      51/    596 differing  build/recon/eaclib/psx/eacpsxz/inittmr.c.o
+     50/    324 differing  build/recon/eaclib/psx/eacpsxz/primate.c.o
      49/   1824 differing  build/recon/frontend/common/stattool.cpp.o
      47/   1528 differing  build/recon/frontend/common/screentrophyinfo.cpp.o
      47/   1104 differing  build/recon/frontend/common/screentrackinfo.cpp.o
@@ -185,11 +186,11 @@ placed=441 dropped=19 bytes=916336 identical=760698 (83.02%) exact_objs=202
      10/    228 differing  build/recon/eaclib/psx/eacpsxz/asinfunc.c.o
      10/    764 differing  build/recon/eaclib/psx/eacpsxz/unref.c.o
       9/    212 differing  build/recon/frontend/common/screendisplay.cpp.o
-      9/    724 differing  build/recon/eaclib/psx/eacpsxz/wildcard.c.o
       9/    152 differing  build/recon/eaclib/psx/eacpsxz/addtimer.c.o
       8/     40 differing  build/recon/game/psx/textpsx.c.o
       8/    292 differing  build/recon/eaclib/psx/sndpsxz/svol.c.o
       8/    320 differing  build/recon/eaclib/psx/eacpsxz/random.c.o
+      8/    724 differing  build/recon/eaclib/psx/eacpsxz/wildcard.c.o
       8/    408 differing  build/recon/syslib/psx/libgte/FGO_06.c.o
       8/     60 differing  build/recon/eaclib/psx/eacpsxz/joystkn.c.o
       8/   6688 differing  build/recon/eaclib/psx/eacpsxz/stream.c.o

@@ -21,9 +21,14 @@ WHAT THE DUMPS GIVE YOU (all of it, per function):
          ";; Register dispositions:  P in H  ..."
          ";; Hard regs used: ..."
 
-USAGE
-  python scratchpad/w60a1/qty272.py <recon/....c> <FUNC> [--rtl] [--all]
-  python scratchpad/w60a1/qty272.py <recon/....c> --list
+USAGE  (w64-a22 doc fix: the tool was promoted out of scratchpad/w60a1/ into
+        tools/, and the advertised `--rtl` flag NEVER EXISTED -- argparse
+        rejects it with "unrecognized arguments".  The real flag set is below;
+        `-dr`-style RTL dumps are not produced by this tool, use tools/rtl_dump.py.)
+  python tools/qty272.py <recon/....c> <FUNC> [--all] [--keep DIR]
+  python tools/qty272.py <recon/....c> --list
+    --all   also show pseudos with no hard-reg home
+    --keep  keep the .i/.lreg/.greg dumps in DIR instead of a temp dir
 
 The flags are taken from tools/build.py's PER_TU_FLAGS for that TU (imported,
 never edited) so the dump describes the SAME compilation the gate measures.

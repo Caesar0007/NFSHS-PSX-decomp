@@ -7,11 +7,49 @@ PURE ALLOCATION (a register handout rotation), which is dial-able.
 import sys, os, re, difflib, importlib.util
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.abspath(os.path.join(HERE, '..', '..', 'tools')))
-from probe import Probe, ROOT
+ROOT = os.path.abspath(os.path.join(HERE, '..'))     # tools/ -> repo root
 
-FN = 'FontUpsideDownBlit__FiiPviiP12charactertbli'
-SRC = 'recon/frontend/psx/psxfront.cpp'
+
+class Probe(object):
+    """byte-exact variant harness with guaranteed restore.
+
+    w64-a22: was `from probe import Probe, ROOT`, importing a SCRATCH-ONLY module
+    (scratchpad/w61a18/probe.py) that is not on any path when alpha.py runs from
+    tools/ -- the tool raised ModuleNotFoundError for every caller (catalog 13F
+    listed it as promoted, BRIEF listed it as BROKEN).  The class is inlined here
+    verbatim so the tool is self-contained; every edit asserts a match count so
+    an anchor miss can never read as an inert result.
+    """
+
+    def __init__(self, relpath, fn):
+        self.path = os.path.join(ROOT, relpath)
+        self.rel = relpath
+        self.fn = fn
+        with open(self.path, 'rb') as f:
+            self.orig = f.read()
+
+    def _write(self, data):
+        tmp = self.path + '.alphatmp'
+        with open(tmp, 'wb') as f:
+            f.write(data)
+        assert os.path.getsize(tmp) > 0
+        os.replace(tmp, self.path)
+
+    def restore(self):
+        self._write(self.orig)
+
+    def apply(self, data, edits):
+        for old, new in edits:
+            n = data.count(old)
+            assert n == 1, 'edit matched %d times: %r' % (n, old[:80])
+            data = data.replace(old, new)
+        return data
+
+# w64-a22: the example target stays the default (the FontUpsideDownBlit row this
+# tool was built for); ALPHA_SRC / ALPHA_FN let any belt point it at its own fn
+# with no edit -- only the 'base' variant is meaningful when overridden.
+FN = os.environ.get('ALPHA_FN', 'FontUpsideDownBlit__FiiPviiP12charactertbli')
+SRC = os.environ.get('ALPHA_SRC', 'recon/frontend/psx/psxfront.cpp')
 P = Probe(SRC, FN)
 
 TINT = b'  *(u_long *)&prim->r0 = font_tint;\n'

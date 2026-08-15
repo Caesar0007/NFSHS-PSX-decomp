@@ -92,10 +92,14 @@ def split_record(rec, va, nl):
     tail_name = f"D_{va:08X}"
     head_tailer = [f"enddlabel {rec['name']}", ""]
     tail_header = [f"nonmatching {tail_name}", "", f"dlabel {tail_name}"]
-    # `post` still ends with the original enddlabel + blank; keep them but
-    # rename the enddlabel to the tail label.
-    assert post[-1] == "" and post[-2].startswith("enddlabel "), rec["lines"][-3:]
-    post = post[:-2] + [f"enddlabel {tail_name}", ""]
+    # A record ends with `enddlabel <name>` possibly followed by a blank and
+    # trailing directives (`.align 2` appears in front_data).  Rename the
+    # enddlabel and keep every trailing line with the TAIL, so the emitted line
+    # count is exactly the original + 5 (asserted by A2 in main()).
+    ei = max(i for i, l in enumerate(rec["lines"]) if l.startswith("enddlabel "))
+    assert ei >= cut_i, (rec["name"], ei, cut_i)
+    ei_rel = ei - cut_i
+    post = post[:ei_rel] + [f"enddlabel {tail_name}"] + post[ei_rel + 1:]
     head = dict(name=rec["name"], va=rec["va"], end=va, lines=pre + head_tailer)
     tail = dict(name=tail_name, va=va, end=rec["end"],
                 lines=tail_header + post)

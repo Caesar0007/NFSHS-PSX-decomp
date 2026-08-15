@@ -1,4 +1,4 @@
-/* linkers/nfs4_recon.sdata.ldfrag -- W64-A18 (supersedes W63-A19)
+/* linkers/nfs4_recon.sdata_8013C54C.ldfrag -- W64-A18 (supersedes W63-A19)
  * RECON-lane ordering of the retail run 0x8013c550..0x8013dd7c.
  * _rNN = residual splat bytes; <obj> = a recon TU that OWNS its window
  * (ownmap2 E1-E5 all green, R_MIPS_32 relocations RESOLVED).  The matching

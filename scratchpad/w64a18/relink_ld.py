@@ -19,7 +19,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 
 FRAG_HDR = """\
-/* linkers/nfs4_recon.{sec}.ldfrag -- W64-A18 (supersedes W63-A19)
+/* linkers/nfs4_recon.{stem}.ldfrag -- W64-A18 (supersedes W63-A19)
  * RECON-lane ordering of the retail run {lo:#010x}..{hi:#010x}.
  * _rNN = residual splat bytes; <obj> = a recon TU that OWNS its window
  * (ownmap2 E1-E5 all green, R_MIPS_32 relocations RESOLVED).  The matching
@@ -81,7 +81,11 @@ def main():
         else:
             frag.append(f"    build/asm/data/{n}.o(.{a.sec});")
     fragtxt = "\n".join(frag) + "\n"
-    fp = ROOT / "linkers" / f"nfs4_recon.{a.sec}.ldfrag"
+    # 🔴 NAME THE FRAGMENT AFTER THE BLOB STEM, NOT THE SECTION.  front_data and
+    # data_8010CCD4 are BOTH `.data` runs, so a per-section name silently
+    # CLOBBERS the other region's ordering (the fixed-name hazard W63-A19 fixed
+    # for the piece-order file, fired again here).
+    fp = ROOT / "linkers" / f"nfs4_recon.{a.stem}.ldfrag"
     if not a.apply:
         print("(dry run)")
         print("\n".join(frag[:12]))

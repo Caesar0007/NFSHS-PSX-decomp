@@ -236796,7 +236796,7 @@
 },
 {
 "sec": ".text",
-"off": 17576,
+"off": 17584,
 "type": "R_MIPS_GPREL16",
 "val": "leftMult"
 },
@@ -322207,13 +322207,13 @@
 {
 "off": 1856,
 "sec": ".text",
-"size": 3764,
+"size": 3752,
 "name": "Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle",
 "glob": true,
 "flags": "g     F"
 },
 {
-"off": 5620,
+"off": 5608,
 "sec": ".text",
 "size": 188,
 "name": "Sfx_Add__FP17Souffle_tISouffle",
@@ -322708,385 +322708,385 @@
 },
 {
 "sec": ".text",
-"off": 3260,
+"off": 3252,
 "type": "R_MIPS_26",
 "val": ".text"
 },
 {
 "sec": ".text",
-"off": 3280,
+"off": 3272,
 "type": "R_MIPS_26",
 "val": "fastintcos"
 },
 {
 "sec": ".text",
-"off": 3292,
+"off": 3284,
 "type": "R_MIPS_26",
 "val": "fixedmult"
 },
 {
 "sec": ".text",
-"off": 3304,
+"off": 3296,
 "type": "R_MIPS_26",
 "val": "fastintsin"
 },
 {
 "sec": ".text",
-"off": 3316,
+"off": 3308,
 "type": "R_MIPS_26",
 "val": "fixedmult"
+},
+{
+"sec": ".text",
+"off": 3468,
+"type": "R_MIPS_HI16",
+"val": "gDirtPalette"
+},
+{
+"sec": ".text",
+"off": 3472,
+"type": "R_MIPS_LO16",
+"val": "gDirtPalette"
 },
 {
 "sec": ".text",
 "off": 3476,
-"type": "R_MIPS_HI16",
-"val": "gDirtPalette"
-},
-{
-"sec": ".text",
-"off": 3480,
-"type": "R_MIPS_LO16",
-"val": "gDirtPalette"
-},
-{
-"sec": ".text",
-"off": 3484,
 "type": "R_MIPS_26",
 "val": ".text"
 },
 {
 "sec": ".text",
-"off": 3512,
+"off": 3504,
 "type": "R_MIPS_26",
 "val": "fastintcos"
 },
 {
 "sec": ".text",
-"off": 3524,
+"off": 3516,
 "type": "R_MIPS_26",
 "val": "fixedmult"
 },
 {
 "sec": ".text",
-"off": 3536,
+"off": 3528,
 "type": "R_MIPS_26",
 "val": "fastintsin"
 },
 {
 "sec": ".text",
-"off": 3548,
+"off": 3540,
 "type": "R_MIPS_26",
 "val": "fixedmult"
 },
 {
 "sec": ".text",
-"off": 3708,
+"off": 3700,
 "type": "R_MIPS_HI16",
 "val": "gGrassPalette"
 },
 {
 "sec": ".text",
-"off": 3712,
+"off": 3704,
 "type": "R_MIPS_LO16",
 "val": "gGrassPalette"
+},
+{
+"sec": ".text",
+"off": 3732,
+"type": "R_MIPS_HI16",
+"val": "gGravelPixmap"
+},
+{
+"sec": ".text",
+"off": 3736,
+"type": "R_MIPS_LO16",
+"val": "gGravelPixmap"
 },
 {
 "sec": ".text",
 "off": 3740,
-"type": "R_MIPS_HI16",
-"val": "gGravelPixmap"
-},
-{
-"sec": ".text",
-"off": 3744,
-"type": "R_MIPS_LO16",
-"val": "gGravelPixmap"
-},
-{
-"sec": ".text",
-"off": 3748,
 "type": "R_MIPS_26",
 "val": ".text"
 },
 {
 "sec": ".text",
-"off": 3776,
+"off": 3768,
 "type": "R_MIPS_26",
 "val": "fastintcos"
 },
 {
 "sec": ".text",
-"off": 3788,
+"off": 3780,
 "type": "R_MIPS_26",
 "val": "fixedmult"
 },
 {
 "sec": ".text",
-"off": 3800,
+"off": 3792,
 "type": "R_MIPS_26",
 "val": "fastintsin"
 },
 {
 "sec": ".text",
-"off": 3812,
+"off": 3804,
 "type": "R_MIPS_26",
 "val": "fixedmult"
 },
 {
 "sec": ".text",
-"off": 3972,
+"off": 3964,
 "type": "R_MIPS_HI16",
 "val": "gSnowPalette"
 },
 {
 "sec": ".text",
-"off": 3976,
+"off": 3968,
 "type": "R_MIPS_LO16",
 "val": "gSnowPalette"
+},
+{
+"sec": ".text",
+"off": 3996,
+"type": "R_MIPS_HI16",
+"val": "gGravelPixmap"
+},
+{
+"sec": ".text",
+"off": 4000,
+"type": "R_MIPS_LO16",
+"val": "gGravelPixmap"
 },
 {
 "sec": ".text",
 "off": 4004,
-"type": "R_MIPS_HI16",
-"val": "gGravelPixmap"
-},
-{
-"sec": ".text",
-"off": 4008,
-"type": "R_MIPS_LO16",
-"val": "gGravelPixmap"
-},
-{
-"sec": ".text",
-"off": 4012,
 "type": "R_MIPS_26",
 "val": ".text"
 },
 {
 "sec": ".text",
-"off": 4040,
+"off": 4032,
 "type": "R_MIPS_26",
 "val": "fastintcos"
 },
 {
 "sec": ".text",
-"off": 4052,
+"off": 4044,
 "type": "R_MIPS_26",
 "val": "fixedmult"
 },
 {
 "sec": ".text",
-"off": 4064,
+"off": 4056,
 "type": "R_MIPS_26",
 "val": "fastintsin"
 },
 {
 "sec": ".text",
-"off": 4076,
+"off": 4068,
 "type": "R_MIPS_26",
 "val": "fixedmult"
 },
 {
 "sec": ".text",
-"off": 4236,
+"off": 4228,
 "type": "R_MIPS_HI16",
 "val": "gSnowPalette"
 },
 {
 "sec": ".text",
-"off": 4240,
+"off": 4232,
 "type": "R_MIPS_LO16",
 "val": "gSnowPalette"
 },
 {
 "sec": ".text",
-"off": 4268,
+"off": 4260,
 "type": "R_MIPS_HI16",
 "val": "gSMokePixmap"
 },
 {
 "sec": ".text",
-"off": 4272,
+"off": 4264,
 "type": "R_MIPS_LO16",
 "val": "gSMokePixmap"
 },
 {
 "sec": ".text",
-"off": 4288,
+"off": 4280,
 "type": "R_MIPS_26",
 "val": "Sfx_BuildFastDisolveFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMapT2"
 },
 {
 "sec": ".text",
-"off": 4312,
+"off": 4304,
 "type": "R_MIPS_26",
 "val": "Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache"
 },
 {
 "sec": ".text",
-"off": 4320,
+"off": 4312,
 "type": "R_MIPS_26",
 "val": ".text"
 },
 {
 "sec": ".text",
-"off": 4384,
+"off": 4376,
 "type": "R_MIPS_26",
 "val": "Math_NormalizeVector__FP8coorddef"
 },
 {
 "sec": ".text",
-"off": 4528,
+"off": 4520,
 "type": "R_MIPS_26",
 "val": "Sfx_ThickenXZ__FP7SVECTORP8coorddefN21"
 },
 {
 "sec": ".text",
-"off": 4536,
+"off": 4528,
 "type": "R_MIPS_HI16",
 "val": "gWorldMat"
 },
 {
 "sec": ".text",
-"off": 4540,
+"off": 4532,
 "type": "R_MIPS_LO16",
 "val": "gWorldMat"
 },
 {
 "sec": ".text",
-"off": 4544,
+"off": 4536,
 "type": "R_MIPS_26",
 "val": "TrsProj_SetPsxMatrix__FP10matrixtdefP8coorddef"
 },
 {
 "sec": ".text",
-"off": 4764,
+"off": 4756,
 "type": "R_MIPS_HI16",
 "val": "Draw_gViewOtSize"
 },
 {
 "sec": ".text",
-"off": 4768,
+"off": 4760,
 "type": "R_MIPS_LO16",
 "val": "Draw_gViewOtSize"
 },
 {
 "sec": ".text",
-"off": 4792,
+"off": 4784,
 "type": "R_MIPS_HI16",
 "val": "gSparkHPixmap"
 },
 {
 "sec": ".text",
-"off": 4796,
+"off": 4788,
 "type": "R_MIPS_LO16",
 "val": "gSparkHPixmap"
 },
 {
 "sec": ".text",
-"off": 4876,
+"off": 4868,
 "type": "R_MIPS_26",
 "val": "ChangeTPage__FPUsi"
 },
 {
 "sec": ".text",
-"off": 4992,
+"off": 4976,
 "type": "R_MIPS_26",
 "val": ".text"
 },
 {
 "sec": ".text",
-"off": 5004,
+"off": 4988,
 "type": "R_MIPS_26",
 "val": "fastintcos"
 },
 {
 "sec": ".text",
-"off": 5016,
+"off": 5000,
 "type": "R_MIPS_26",
 "val": "fixedmult"
 },
 {
 "sec": ".text",
-"off": 5028,
+"off": 5012,
 "type": "R_MIPS_26",
 "val": "fastintsin"
 },
 {
 "sec": ".text",
-"off": 5040,
+"off": 5024,
 "type": "R_MIPS_26",
 "val": "fixedmult"
 },
 {
 "sec": ".text",
-"off": 5424,
+"off": 5408,
 "type": "R_MIPS_HI16",
 "val": "Draw_gViewOtSize"
 },
 {
 "sec": ".text",
-"off": 5428,
+"off": 5412,
 "type": "R_MIPS_LO16",
 "val": "Draw_gViewOtSize"
 },
 {
 "sec": ".text",
-"off": 5456,
+"off": 5444,
 "type": "R_MIPS_HI16",
 "val": "gLeafPixmap"
 },
 {
 "sec": ".text",
-"off": 5460,
+"off": 5448,
 "type": "R_MIPS_LO16",
 "val": "gLeafPixmap"
 },
 {
 "sec": ".text",
-"off": 5656,
+"off": 5644,
 "type": "R_MIPS_HI16",
 "val": ".rodata"
 },
 {
 "sec": ".text",
-"off": 5660,
+"off": 5648,
 "type": "R_MIPS_LO16",
 "val": ".rodata"
+},
+{
+"sec": ".text",
+"off": 5676,
+"type": "R_MIPS_26",
+"val": ".text"
 },
 {
 "sec": ".text",
 "off": 5688,
 "type": "R_MIPS_26",
-"val": ".text"
+"val": "random"
 },
 {
 "sec": ".text",
 "off": 5700,
 "type": "R_MIPS_26",
-"val": "random"
-},
-{
-"sec": ".text",
-"off": 5712,
-"type": "R_MIPS_26",
 "val": ".text"
 },
 {
 "sec": ".text",
-"off": 5720,
+"off": 5708,
 "type": "R_MIPS_26",
 "val": "random"
+},
+{
+"sec": ".text",
+"off": 5728,
+"type": "R_MIPS_26",
+"val": ".text"
 },
 {
 "sec": ".text",
 "off": 5740,
-"type": "R_MIPS_26",
-"val": ".text"
-},
-{
-"sec": ".text",
-"off": 5752,
 "type": "R_MIPS_26",
 "val": ".text"
 },
@@ -323296,7 +323296,7 @@
 }
 ],
 "secs": {
-".text": 5808,
+".text": 5796,
 ".data": 24,
 ".bss": 0,
 ".reginfo": 24,
@@ -330915,13 +330915,13 @@
 },
 {
 "sec": ".text",
-"off": 7620,
+"off": 7624,
 "type": "R_MIPS_HI16",
 "val": "Weather_gLastProcessTime"
 },
 {
 "sec": ".text",
-"off": 7624,
+"off": 7628,
 "type": "R_MIPS_LO16",
 "val": "Weather_gLastProcessTime"
 },
@@ -331360,10 +331360,10 @@
 {
 "off": 180,
 "sec": ".text",
-"size": 0,
+"size": 16,
 "name": "D_800E40D8",
-"glob": false,
-"flags": "l      "
+"glob": true,
+"flags": "g     F"
 },
 {
 "off": 0,
@@ -331416,7 +331416,7 @@
 {
 "off": 168,
 "sec": ".text",
-"size": 12,
+"size": 28,
 "name": "stup0",
 "glob": true,
 "flags": "g     F"
@@ -331459,13 +331459,13 @@
 "sec": ".text",
 "off": 64,
 "type": "R_MIPS_HI16",
-"val": ".text"
+"val": "D_800E40D8"
 },
 {
 "sec": ".text",
 "off": 68,
 "type": "R_MIPS_LO16",
-"val": ".text"
+"val": "D_800E40D8"
 },
 {
 "sec": ".text",

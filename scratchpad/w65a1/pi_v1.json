@@ -1,0 +1,20 @@
+{
+ "file": "recon/frontend/common/femenuoptions.cpp",
+ "fn": "ProcessInput__17tUserNameMenuItem7tPlayerR13tInputKeyTypeR12tMenuCommand",
+ "variants": [
+  {"name": "1 not-dash goto tail-end",
+   "edits": [
+    ["    if (this->fRowList[0][this->fCurrentColumn + iVar9] == '-') {\n      int rowOffset = iVar9;\n      do {\n        this->fCurrentColumn = sVar4 + 1;",
+     "    if (this->fRowList[0][this->fCurrentColumn + iVar9] != '-') goto feo_upper;\n    {\n      int rowOffset = iVar9;\n      do {\n        this->fCurrentColumn = sVar4 + 1;"],
+    ["  Stattool_SamNelsonsUpperLowerStringConverterForRecords(this->fData);\n}",
+     "feo_upper:\n  Stattool_SamNelsonsUpperLowerStringConverterForRecords(this->fData);\n}"]
+   ]},
+  {"name": "2 else-goto tail-end",
+   "edits": [
+    ["      } while (this->fRowList[0][this->fCurrentColumn + rowOffset] == '-');\n    }\n    break;\n  case kInput_KeyType_Cross:",
+     "      } while (this->fRowList[0][this->fCurrentColumn + rowOffset] == '-');\n    }\n    else goto feo_upper;\n    break;\n  case kInput_KeyType_Cross:"],
+    ["  Stattool_SamNelsonsUpperLowerStringConverterForRecords(this->fData);\n}",
+     "feo_upper:\n  Stattool_SamNelsonsUpperLowerStringConverterForRecords(this->fData);\n}"]
+   ]}
+ ]
+}

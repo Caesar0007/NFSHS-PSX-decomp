@@ -480,13 +480,27 @@ void tOptionsMenu::UpdateTransition()
         }
       }
       else {
-        for (i = 0; this->fItemList[i] != 0; i++) {
-          if ((*(*this->fItemList[i]->_vf)[9].pfn)
-                ((char *)this->fItemList[i] + (int)(*this->fItemList[i]->_vf)[9].delta) == 0) break;
+        /* MATCH/CFG (w65-a1, 04Q class): retail's forward scan is the SAME shape as
+           the backward scan below — an explicit head guard, an exit-in-the-middle
+           `while`, then a post-test.  With the plain `for`, gcc routes the ZERO-TRIP
+           guard to the loop-exit block (which then re-tests the same null item and
+           falls through to feo_done); retail's guard branches STRAIGHT to feo_done
+           (branch word 5: ours +23 vs retail +135).  Same 172 instructions either
+           way — only the routing differs.  Falsified alternatives (both also clean
+           + PASS 172, less 1998-natural): guard + do{}while; an explicit
+           `if (fItemList[0]==0) goto feo_done;` in front of the untouched `for`. */
+        i = 0;
+        if (this->fItemList[i] != 0) {
+          while ((*(*this->fItemList[i]->_vf)[9].pfn)
+                   ((char *)this->fItemList[i] + (int)(*this->fItemList[i]->_vf)[9].delta) != 0) {
+            i++;
+            if (this->fItemList[i] == 0) break;
+          }
+          citem = this->fItemList[i];
+          if (citem == 0) goto feo_done;
+          goto feo_callUpdate;
         }
-        citem = this->fItemList[i];
-        if (citem == 0) goto feo_done;
-        goto feo_callUpdate;
+        goto feo_done;
       }
     }
     else {
@@ -2502,6 +2516,14 @@ void tUserNameMenuItem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
         sVar4 = this->fCurrentColumn;
       } while (this->fRowList[0][this->fCurrentColumn + rowOffset] == '-');
     }
+    /* MATCH/CFG (w65-a1, 04Q class): when the Right case lands on a NON-dash cell
+       the function-tail's backward skip re-reads the very same byte and re-tests
+       it, so retail's `bne v1,45` jumps STRAIGHT past that block to the strupr
+       call (branch word 17: ours +113 vs retail +140).  The explicit goto is the
+       only thing that reproduces the routing; the instruction stream is identical
+       (PASS 240 both ways).  Falsified alternative (also clean): spelling the head
+       test as an early-out `if (... != '-') goto feo_upper;` around a bare block. */
+    else goto feo_upper;
     break;
   case kInput_KeyType_Cross:
     uVar5 = strlen(this->fData);
@@ -2570,6 +2592,7 @@ void tUserNameMenuItem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
       sVar4 = this->fCurrentColumn;
     } while (this->fRowList[0][this->fCurrentColumn + rowOffset] == '-');
   }
+feo_upper:
   Stattool_SamNelsonsUpperLowerStringConverterForRecords(this->fData);
 }
 

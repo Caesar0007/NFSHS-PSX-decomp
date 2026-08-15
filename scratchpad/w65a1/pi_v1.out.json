@@ -1,0 +1,12 @@
+[
+ [
+  "1 not-dash goto tail-end",
+  "PASS (240 insns)",
+  "br-CLEAN"
+ ],
+ [
+  "2 else-goto tail-end",
+  "PASS (240 insns)",
+  "br-CLEAN"
+ ]
+]

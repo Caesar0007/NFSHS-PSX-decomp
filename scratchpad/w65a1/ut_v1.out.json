@@ -1,0 +1,17 @@
+[
+ [
+  "D guard+exit-in-middle while",
+  "PASS (172 insns)",
+  "br-CLEAN"
+ ],
+ [
+  "A guard+do-while",
+  "PASS (172 insns)",
+  "br-CLEAN"
+ ],
+ [
+  "E explicit pre-guard + for",
+  "PASS (172 insns)",
+  "br-CLEAN"
+ ]
+]

@@ -1,0 +1,21 @@
+{
+ "file": "recon/frontend/common/femenuoptions.cpp",
+ "fn": "UpdateTransition__12tOptionsMenu",
+ "variants": [
+  {"name": "D guard+exit-in-middle while",
+   "edits": [[
+"        for (i = 0; this->fItemList[i] != 0; i++) {\n          if ((*(*this->fItemList[i]->_vf)[9].pfn)\n                ((char *)this->fItemList[i] + (int)(*this->fItemList[i]->_vf)[9].delta) == 0) break;\n        }\n        citem = this->fItemList[i];\n        if (citem == 0) goto feo_done;\n        goto feo_callUpdate;\n",
+"        i = 0;\n        if (this->fItemList[i] != 0) {\n          while ((*(*this->fItemList[i]->_vf)[9].pfn)\n                   ((char *)this->fItemList[i] + (int)(*this->fItemList[i]->_vf)[9].delta) != 0) {\n            i++;\n            if (this->fItemList[i] == 0) break;\n          }\n          citem = this->fItemList[i];\n          if (citem == 0) goto feo_done;\n          goto feo_callUpdate;\n        }\n        goto feo_done;\n"
+   ]]},
+  {"name": "A guard+do-while",
+   "edits": [[
+"        for (i = 0; this->fItemList[i] != 0; i++) {\n          if ((*(*this->fItemList[i]->_vf)[9].pfn)\n                ((char *)this->fItemList[i] + (int)(*this->fItemList[i]->_vf)[9].delta) == 0) break;\n        }\n        citem = this->fItemList[i];\n        if (citem == 0) goto feo_done;\n        goto feo_callUpdate;\n",
+"        i = 0;\n        if (this->fItemList[i] != 0) {\n          do {\n            if ((*(*this->fItemList[i]->_vf)[9].pfn)\n                  ((char *)this->fItemList[i] + (int)(*this->fItemList[i]->_vf)[9].delta) == 0) break;\n            i++;\n          } while (this->fItemList[i] != 0);\n          citem = this->fItemList[i];\n          if (citem == 0) goto feo_done;\n          goto feo_callUpdate;\n        }\n        goto feo_done;\n"
+   ]]},
+  {"name": "E explicit pre-guard + for",
+   "edits": [[
+"        for (i = 0; this->fItemList[i] != 0; i++) {\n",
+"        if (this->fItemList[0] == 0) goto feo_done;\n        for (i = 0; this->fItemList[i] != 0; i++) {\n"
+   ]]}
+ ]
+}

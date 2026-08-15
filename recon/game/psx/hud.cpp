@@ -1725,7 +1725,18 @@ void Hud_BuildTach(int player)
   tp3 = Render_gPalettePtr;
   ((POLY_F3 *)prim2)->y1 = ((POLY_F3 *)prim2)->y1 + 2;
   ((POLY_F3 *)prim2)->y0 = ((POLY_F3 *)prim2)->y0 + 2;
+  /* MATCH (w63-a1): 22 -> 20 (count EXACT 269/269).  Retail COPIES ts1 into a fresh
+   * caller-saved reg before adding 2 (`addu v1,s1,zero` @0x800d4220 then `addiu v1,v1,2`
+   * @0x800d4240) where we mutate ts1's own home in place (`addiu s1,s1,2`).  A zero-insn
+   * read-only fence keeping ts1 live PAST this statement is the whole dial: the +2 pseudo
+   * can no longer take ts1's register, so it gets a fresh dest and the copy materializes.
+   * Position measured: after this store = 20, before the gSprt1[2] link block = 20,
+   * BEFORE the store = 22 (inert, the range must extend PAST the use), after `tp3 =` = 24.
+   * A second operand buys nothing (20).  FALSIFIED: identity fence on ts1 (83 @270 -- it
+   * adds a def+use and costs an insn); an explicit `ts2 = ts1;` copy variable (22, cse
+   * propagates it away); a block-local `short t = ts1;` at the +2 site (22). */
   ((POLY_F3 *)prim2)->y2 = ts1 + 2;
+  __asm__ ("" : : "r"(ts1));
   ((Hud_PTag *)&gSprt1[2])->addr = ((Hud_PTag *)tp3)->addr;
   ((Hud_PTag *)tp3)->addr = (u_int)(gSprt1 + 2);
   return;

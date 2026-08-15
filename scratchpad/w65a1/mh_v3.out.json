@@ -1,0 +1,17 @@
+[
+ [
+  "H else fence + goto end",
+  "FAIL 73 diffs (ours 210 / oracle 211)",
+  "31 offset diffs [(0, 130, 134), (2, 97, 101), (3, 183, 184), (4, 181, 182), (6, 54, 58), (7, 173, 174)]"
+ ],
+ [
+  "I early-out fence + goto end",
+  "PASS (211 insns)",
+  "1 offset diffs [(13, 148, 94)]"
+ ],
+ [
+  "J else bare fence + goto end",
+  "FAIL 73 diffs (ours 210 / oracle 211)",
+  "31 offset diffs [(0, 130, 134), (2, 97, 101), (3, 183, 184), (4, 181, 182), (6, 54, 58), (7, 173, 174)]"
+ ]
+]

@@ -1,0 +1,12 @@
+[
+ [
+  "G else goto + identity launder",
+  "FAIL 36 diffs (ours 42 / oracle 42)",
+  "1 offset diffs [(2, 11, 12)]"
+ ],
+ [
+  "H else goto + volatile re-read",
+  "FAIL 1 diffs (ours 41 / oracle 42)",
+  "BRANCH COUNT 3 vs 4"
+ ]
+]

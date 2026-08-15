@@ -1,0 +1,212 @@
+idx  OURS                                       ORACLE                                    
+   0 addiu	sp,sp,-40                            addiu      $sp, $sp, -0x28                 
+   1 sw	s1,28(sp)                               sw         $s1, 0x1C($sp)                  
+   2 move	s1,a0                                 addu       $s1, $a0, $zero                 
+   3 sw	s0,24(sp)                               sw         $s0, 0x18($sp)                  
+   4 li	s0,23                                   addiu      $s0, $zero, 0x17                
+   5 sw	ra,36(sp)                               sw         $ra, 0x24($sp)                  
+   6 jal	0 <MCRD_init>                          jal        MCRD_getcard                    
+   7 sw	s2,32(sp)                               sw        $s2, 0x20($sp)                   
+   8 move	a0,zero                               addu       $a0, $zero, $zero               
+   9 move	s2,v0                                 addu       $s2, $v0, $zero                 
+  10 addiu	a1,sp,16                             addiu      $a1, $sp, 0x10                  
+  11 jal	0 <MCRD_init>                          jal        MemCardSync                     
+  12 addiu	a2,sp,20                             addiu     $a2, $sp, 0x14                   
+  13 move	v1,v0                                 addu       $v1, $v0, $zero                 
+  14 beqz	v1,cf0 <MCRD_handlecardevents+0x250>   -> 148 beqz       $v1, .L800500D0   -> 148        
+  15 nop                                        nop                                        
+  16 bgtz	v1,afc <MCRD_handlecardevents+0x5c>   -> 23 bgtz       $v1, .L8004FEDC   -> 23         
+  17 li	v0,1                                    addiu     $v0, $zero, 0x1                  
+  18 li	v0,-1                                   addiu      $v0, $zero, -0x1                
+  19 beq	v1,v0,c80 <MCRD_handlecardevents+0x1e0>   -> 120 beq        $v1, $v0, .L80050060   -> 120   
+  20 move	v0,s0                                 addu      $v0, $s0, $zero                  
+  21 j	dd4 <MCRD_handlecardevents+0x334>   -> 205 j          .L800501B4   -> 205             
+  22 nop                                        nop                                        
+  23 bne	v1,v0,dd4 <MCRD_handlecardevents+0x334>   -> 205 bne        $v1, $v0, .L800501B4   -> 205   .L8004FEDC: 
+  24 move	v0,s0                                 addu      $v0, $s0, $zero                  
+  25 lw	a1,16(sp)                               lw         $a1, 0x10($sp)                  
+  26 nop                                        nop                                        
+  27 beq	a1,v1,b24 <MCRD_handlecardevents+0x84>   -> 33 beq        $a1, $v1, .L8004FF04   -> 33    
+  28 li	v0,2                                    addiu     $v0, $zero, 0x2                  
+  29 beq	a1,v0,bfc <MCRD_handlecardevents+0x15c>   -> 87 beq        $a1, $v0, .L8004FFDC   -> 87    
+  30 move	v0,s0                                 addu      $v0, $s0, $zero                  
+  31 j	dd4 <MCRD_handlecardevents+0x334>   -> 205 j          .L800501B4   -> 205             
+  32 nop                                        nop                                        
+  33 lw	v1,20(sp)                               lw         $v1, 0x14($sp)                  .L8004FF04: 
+  34 nop                                        nop                                        
+  35 beq	v1,a1,b9c <MCRD_handlecardevents+0xfc>   -> 63 beq        $v1, $a1, .L8004FF7C   -> 63    
+  36 li	s0,2                                    addiu     $s0, $zero, 0x2                  
+  37 beqz	v1,b54 <MCRD_handlecardevents+0xb4>   -> 45 beqz       $v1, .L8004FF34   -> 45         
+  38 li	v0,2                                    addiu     $v0, $zero, 0x2                  
+  39 beq	v1,v0,bcc <MCRD_handlecardevents+0x12c>   -> 75 beq        $v1, $v0, .L8004FFAC   -> 75    
+  40 li	v0,3                                    addiu     $v0, $zero, 0x3                  
+  41 beq	v1,v0,be4 <MCRD_handlecardevents+0x144>   -> 81 beq        $v1, $v0, .L8004FFC4   -> 81    
+  42 li	s0,23                                   addiu     $s0, $zero, 0x17                 
+  43 j	dd4 <MCRD_handlecardevents+0x334>   -> 205 j          .L800501B4   -> 205             
+  44 move	v0,s0                                 addu      $v0, $s0, $zero                  
+  45 lui	v0,0x0                                 lui        $v0, %hi(gMemCardInfo)          .L8004FF34: 
+  46 addiu	a0,v0,0                              addiu      $a0, $v0, %lo(gMemCardInfo)     
+  47 addiu	v0,s1,-1                             addiu      $v0, $s1, -0x1                  
+  48 sll	v0,v0,0x2                              sll        $v0, $v0, 2                     
+  49 lui	v1,0x0                                 lui        $v1, %hi(timerhz)               
+  50 lw	v1,0(v1)                                lw         $v1, %lo(timerhz)($v1)          
+  51 addu	v0,v0,a0                              addu       $v0, $v0, $a0                   
+  52 sw	a1,52(a0)                               sw         $a1, 0x34($a0)                  
+  53 sw	v1,64(v0)                               sw         $v1, 0x40($v0)                  
+  54 lw	v1,0(s2)                                lw         $v1, 0x0($s2)                   
+  55 li	v0,-1                                   addiu      $v0, $zero, -0x1                
+  56 bne	v1,v0,dd0 <MCRD_handlecardevents+0x330>   -> 204 bne        $v1, $v0, .L800500D8   -> 150    <<<<<<
+  57 li	s0,22                                   addiu     $s0, $zero, 0x16                 
+  58 lw	a0,60(a0)                               lw         $a0, 0x3C($a0)                  
+  59 jal	0 <MCRD_init>                          jal        MemCardAccept                   
+  60 nop                                        nop                                        
+  61 j	dd4 <MCRD_handlecardevents+0x334>   -> 205 j          .L800501B4   -> 205             
+  62 move	v0,s0                                 addu      $v0, $s0, $zero                  
+  63 lui	a0,0x0                                 lui        $a0, %hi(gMemCardInfo)          .L8004FF7C: 
+  64 addiu	a0,a0,0                              addiu      $a0, $a0, %lo(gMemCardInfo)     
+  65 addiu	v0,s1,-1                             addiu      $v0, $s1, -0x1                  
+  66 sllv	v0,v0,s0                              sllv       $v0, $v0, $s0                   
+  67 lui	v1,0x0                                 lui        $v1, %hi(timerhz)               
+  68 lw	v1,0(v1)                                lw         $v1, %lo(timerhz)($v1)          
+  69 addu	v0,v0,a0                              addu       $v0, $v0, $a0                   
+  70 sw	a1,52(a0)                               sw         $a1, 0x34($a0)                  
+  71 sw	v1,64(v0)                               sw         $v1, 0x40($v0)                  
+  72 li	v0,-1                                   addiu      $v0, $zero, -0x1                
+  73 j	dd0 <MCRD_handlecardevents+0x330>   -> 204 j          .L800501B0   -> 204             
+  74 sw	v0,0(s2)                                sw        $v0, 0x0($s2)                    
+  75 li	s0,3                                    addiu      $s0, $zero, 0x3                 .L8004FFAC: 
+  76 lui	v0,0x0                                 lui        $v0, %hi(D_80052D9C)            
+  77 sw	a1,52(v0)                               sw         $a1, %lo(D_80052D9C)($v0)       
+  78 li	v0,-4                                   addiu      $v0, $zero, -0x4                
+  79 j	dd0 <MCRD_handlecardevents+0x330>   -> 204 j          .L800501B0   -> 204             
+  80 sw	v0,0(s2)                                sw        $v0, 0x0($s2)                    
+  81 lui	v0,0x0                                 lui        $v0, %hi(D_80052DA4)            .L8004FFC4: 
+  82 lw	a0,60(v0)                               lw         $a0, %lo(D_80052DA4)($v0)       
+  83 jal	0 <MCRD_init>                          jal        MemCardAccept                   
+  84 li	s0,21                                   addiu     $s0, $zero, 0x15                 
+  85 j	dd4 <MCRD_handlecardevents+0x334>   -> 205 j          .L800501B4   -> 205             
+  86 move	v0,s0                                 addu      $v0, $s0, $zero                  
+  87 lw	v1,20(sp)                               lw         $v1, 0x14($sp)                  .L8004FFDC: 
+  88 nop                                        nop                                        
+  89 sltiu	v0,v1,5                              sltiu      $v0, $v1, 0x5                   
+  90 beqz	v0,dd0 <MCRD_handlecardevents+0x330>   -> 204 beqz       $v0, .L800501B0   -> 204        
+  91 lui	v0,0x0                                 lui       $v0, %hi(jtbl_80012858)          
+  92 addiu	v0,v0,0                              addiu      $v0, $v0, %lo(jtbl_80012858)    
+  93 sll	v1,v1,0x2                              sll        $v1, $v1, 2                     
+  94 addu	v1,v1,v0                              addu       $v1, $v1, $v0                   
+  95 lw	v0,0(v1)                                lw         $v0, 0x0($v1)                   
+  96 nop                                        nop                                        
+  97 jr	v0                                      jr         $v0                             
+  98 nop                                        nop                                        
+  99 li	s0,4                                    addiu      $s0, $zero, 0x4                 .L8005000C: 
+ 100 lui	v0,0x0                                 lui        $v0, %hi(gMemCardInfo)          
+ 101 addiu	v0,v0,0                              addiu      $v0, $v0, %lo(gMemCardInfo)     
+ 102 li	v1,1                                    addiu      $v1, $zero, 0x1                 
+ 103 sw	s1,608(v0)                              sw         $s1, 0x260($v0)                 
+ 104 j	dd0 <MCRD_handlecardevents+0x330>   -> 204 j          .L800501B0   -> 204             
+ 105 sw	v1,48(v0)                               sw        $v1, 0x30($v0)                   
+ 106 jal	0 <MCRD_init>                          jal        iMCRD_InitCard                  .L80050028: 
+ 107 move	a0,s1                                 addu      $a0, $s1, $zero                  
+ 108 li	v0,-1                                   addiu      $v0, $zero, -0x1                
+ 109 sw	v0,0(s2)                                sw         $v0, 0x0($s2)                   
+ 110 j	dd0 <MCRD_handlecardevents+0x330>   -> 204 j          .L800501B0   -> 204             
+ 111 li	s0,2                                    addiu     $s0, $zero, 0x2                  
+ 112 jal	0 <MCRD_init>                          jal        iMCRD_InitCard                  .L80050040: 
+ 113 move	a0,s1                                 addu      $a0, $s1, $zero                  
+ 114 j	dd0 <MCRD_handlecardevents+0x330>   -> 204 j          .L800501B0   -> 204             
+ 115 li	s0,3                                    addiu     $s0, $zero, 0x3                  
+ 116 li	v0,-2                                   addiu      $v0, $zero, -0x2                .L80050050: 
+ 117 sw	v0,0(s2)                                sw         $v0, 0x0($s2)                   
+ 118 j	dd0 <MCRD_handlecardevents+0x330>   -> 204 j          .L800501B0   -> 204             
+ 119 li	s0,5                                    addiu     $s0, $zero, 0x5                  
+ 120 lui	v0,0x0                                 lui        $v0, %hi(D_80052D98)            .L80050060: 
+ 121 lw	v1,48(v0)                               lw         $v1, %lo(D_80052D98)($v0)       
+ 122 nop                                        nop                                        
+ 123 sltiu	v0,v1,5                              sltiu      $v0, $v1, 0x5                   
+ 124 beqz	v0,dd0 <MCRD_handlecardevents+0x330>   -> 204 beqz       $v0, .L800501B0   -> 204        
+ 125 lui	v0,0x0                                 lui       $v0, %hi(jtbl_80012870)          
+ 126 addiu	v0,v0,24                             addiu      $v0, $v0, %lo(jtbl_80012870)    
+ 127 sll	v1,v1,0x2                              sll        $v1, $v1, 2                     
+ 128 addu	v1,v1,v0                              addu       $v1, $v1, $v0                   
+ 129 lw	v0,0(v1)                                lw         $v0, 0x0($v1)                   
+ 130 nop                                        nop                                        
+ 131 jr	v0                                      jr         $v0                             
+ 132 nop                                        nop                                        
+ 133 lui	v0,0x0                                 lui        $v0, %hi(gMemCardInfo)          .L80050094: 
+ 134 addiu	v1,v0,0                              addiu      $v1, $v0, %lo(gMemCardInfo)     
+ 135 addiu	v0,s1,-1                             addiu      $v0, $s1, -0x1                  
+ 136 sll	v0,v0,0x2                              sll        $v0, $v0, 2                     
+ 137 addu	v0,v0,v1                              addu       $v0, $v0, $v1                   
+ 138 lw	v0,64(v0)                               lw         $v0, 0x40($v0)                  
+ 139 nop                                        nop                                        
+ 140 bgez	v0,cf8 <MCRD_handlecardevents+0x258>   -> 150 bgez       $v0, .L800500D8   -> 150        
+ 141 li	s0,22                                   addiu     $s0, $zero, 0x16                 
+ 142 lw	a0,60(v1)                               lw         $a0, 0x3C($v1)                  
+ 143 li	s0,23                                   addiu      $s0, $zero, 0x17                
+ 144 jal	0 <MCRD_init>                          jal        MemCardExist                    
+ 145 sw	zero,52(v1)                             sw        $zero, 0x34($v1)                 
+ 146 beqz	v0,dd4 <MCRD_handlecardevents+0x334>   -> 205 beqz       $v0, .L800501B4   -> 205        
+ 147 move	v0,s0                                 addu      $v0, $s0, $zero                  
+ 148 j	dd0 <MCRD_handlecardevents+0x330>   -> 204 j          .L800501B0   -> 204             .L800500D0: 
+ 149 li	s0,21                                   addiu     $s0, $zero, 0x15                 
+ 150 j	dd4 <MCRD_handlecardevents+0x334>   -> 205 j          .L800501B4   -> 205             .L800500D8: 
+ 151 move	v0,s0                                 addu      $v0, $s0, $zero                  
+ 152 lui	v0,0x0                                 lui        $v0, %hi(gMemCardInfo)          .L800500E0: 
+ 153 addiu	v1,v0,0                              addiu      $v1, $v0, %lo(gMemCardInfo)     
+ 154 lw	v0,608(v1)                              lw         $v0, 0x260($v1)                 
+ 155 nop                                        nop                                        
+ 156 bne	s1,v0,dd4 <MCRD_handlecardevents+0x334>   -> 205 bne        $s1, $v0, .L800501B4   -> 205   
+ 157 move	v0,s0                                 addu      $v0, $s0, $zero                  
+ 158 move	a0,s1                                 addu       $a0, $s1, $zero                 
+ 159 sw	zero,4(s2)                              sw         $zero, 0x4($s2)                 
+ 160 sw	zero,52(v1)                             sw         $zero, 0x34($v1)                
+ 161 jal	0 <MCRD_init>                          jal        iMCRD_LoadCard                  
+ 162 sw	zero,48(v1)                             sw        $zero, 0x30($v1)                 
+ 163 j	dd4 <MCRD_handlecardevents+0x334>   -> 205 j          .L800501B4   -> 205             
+ 164 nop                                        nop                                        
+ 165 lui	v0,0x0                                 lui        $v0, %hi(gMemCardInfo)          .L80050114: 
+ 166 addiu	v1,v0,0                              addiu      $v1, $v0, %lo(gMemCardInfo)     
+ 167 lw	v0,608(v1)                              lw         $v0, 0x260($v1)                 
+ 168 nop                                        nop                                        
+ 169 bne	s1,v0,dd4 <MCRD_handlecardevents+0x334>   -> 205 bne        $s1, $v0, .L800501B4   -> 205   
+ 170 move	v0,s0                                 addu      $v0, $s0, $zero                  
+ 171 move	a0,s1                                 addu       $a0, $s1, $zero                 
+ 172 sw	zero,4(s2)                              sw         $zero, 0x4($s2)                 
+ 173 sw	zero,52(v1)                             sw         $zero, 0x34($v1)                
+ 174 jal	0 <MCRD_init>                          jal        iMCRD_DoFileWrite               
+ 175 sw	zero,48(v1)                             sw        $zero, 0x30($v1)                 
+ 176 j	dd4 <MCRD_handlecardevents+0x334>   -> 205 j          .L800501B4   -> 205             
+ 177 nop                                        nop                                        
+ 178 lui	v0,0x0                                 lui        $v0, %hi(gMemCardInfo)          .L80050148: 
+ 179 addiu	v1,v0,0                              addiu      $v1, $v0, %lo(gMemCardInfo)     
+ 180 lw	v0,608(v1)                              lw         $v0, 0x260($v1)                 
+ 181 nop                                        nop                                        
+ 182 bne	s1,v0,dd4 <MCRD_handlecardevents+0x334>   -> 205 bne        $s1, $v0, .L800501B4   -> 205   
+ 183 move	v0,s0                                 addu      $v0, $s0, $zero                  
+ 184 move	a0,s1                                 addu       $a0, $s1, $zero                 
+ 185 sw	zero,4(s2)                              sw         $zero, 0x4($s2)                 
+ 186 sw	zero,52(v1)                             sw         $zero, 0x34($v1)                
+ 187 jal	0 <MCRD_init>                          jal        iMCRD_DoFileLoad                
+ 188 sw	zero,48(v1)                             sw        $zero, 0x30($v1)                 
+ 189 j	dd4 <MCRD_handlecardevents+0x334>   -> 205 j          .L800501B4   -> 205             
+ 190 nop                                        nop                                        
+ 191 lui	v0,0x0                                 lui        $v0, %hi(gMemCardInfo)          .L8005017C: 
+ 192 addiu	v1,v0,0                              addiu      $v1, $v0, %lo(gMemCardInfo)     
+ 193 lw	v0,608(v1)                              lw         $v0, 0x260($v1)                 
+ 194 nop                                        nop                                        
+ 195 bne	s1,v0,dd4 <MCRD_handlecardevents+0x334>   -> 205 bne        $s1, $v0, .L800501B4   -> 205   
+ 196 move	v0,s0                                 addu      $v0, $s0, $zero                  
+ 197 move	a0,s1                                 addu       $a0, $s1, $zero                 
+ 198 sw	zero,4(s2)                              sw         $zero, 0x4($s2)                 
+ 199 sw	zero,52(v1)                             sw         $zero, 0x34($v1)                
+ 200 jal	0 <MCRD_init>                          jal        iMCRD_DoFileDelete              
+ 201 sw	zero,48(v1)                             sw        $zero, 0x30($v1)                 
+ 202 j	dd4 <MCRD_handlecardevents+0x334>   -> 205 j          .L800501B4   -> 205             
+ 203 nop                                        nop                                        
+ 204 move	v0,s0                                 addu       $v0, $s0, $zero                 .L800501B0: 
+ 205 lw	ra,36(sp)                               lw         $ra, 0x24($sp)                  .L800501B4: 
+ 206 lw	s2,32(sp)                               lw         $s2, 0x20($sp)                  
+ 207 lw	s1,28(sp)                               lw         $s1, 0x1C($sp)                  
+ 208 lw	s0,24(sp)                               lw         $s0, 0x18($sp)                  
+ 209 jr	ra                                      jr         $ra                             
+ 210 addiu	sp,sp,40                             addiu     $sp, $sp, 0x28                   

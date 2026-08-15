@@ -1,0 +1,15 @@
+{
+ "file": "recon/frontend/psx/memcard.c",
+ "fn": "MCRD_handlecardevents",
+ "variants": [
+  {"name": "A else-fence status inside wrapper",
+   "edits": [["        if (pCI->status == -1) {\n          MemCardAccept(gMemCardInfo.channel);\n        }\n        } while (0); } while (0);",
+              "        if (pCI->status == -1) {\n          MemCardAccept(gMemCardInfo.channel);\n        }\n        else {\n          __asm__ volatile(\"\" : : \"r\"(status));\n        }\n        } while (0); } while (0);"]]},
+  {"name": "B else-fence, if hoisted out of wrapper",
+   "edits": [["        gMemCardInfo.bReady = cmd;\n        gMemCardInfo.existencecheckticks[card + -1] = timerhz;\n        status = 0x16;\n        if (pCI->status == -1) {\n          MemCardAccept(gMemCardInfo.channel);\n        }\n        } while (0); } while (0);",
+              "        gMemCardInfo.bReady = cmd;\n        gMemCardInfo.existencecheckticks[card + -1] = timerhz;\n        status = 0x16;\n        } while (0); } while (0);\n        if (pCI->status == -1) {\n          MemCardAccept(gMemCardInfo.channel);\n        }\n        else {\n          __asm__ volatile(\"\" : : \"r\"(status));\n        }"]]},
+  {"name": "C else-fence on pCI inside wrapper",
+   "edits": [["        if (pCI->status == -1) {\n          MemCardAccept(gMemCardInfo.channel);\n        }\n        } while (0); } while (0);",
+              "        if (pCI->status == -1) {\n          MemCardAccept(gMemCardInfo.channel);\n        }\n        else {\n          __asm__ volatile(\"\" : : \"r\"(pCI));\n        }\n        } while (0); } while (0);"]]}
+ ]
+}

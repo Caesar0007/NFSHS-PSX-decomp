@@ -1,0 +1,12 @@
+{
+ "file": "recon/frontend/common/femenuextended.cpp",
+ "fn": "Draw__29tMenuItemOptionsTwoItemChoiceiib",
+ "variants": [
+  {"name": "A flat-|| shared clamp body",
+   "edits": [["  if (this->fOnOffFade < 1) {\n    sVar3 = 0;\n  }\n  else if (this->fOnOffFade < 0x80) {\n    sVar3 = this->fOnOffFade;\n    if (this->fOnOffFade < 0) {\n      sVar3 = 0;\n    }\n  }\n  else {\n    sVar3 = 0x80;\n  }",
+              "  if (this->fOnOffFade < 1 || this->fOnOffFade < 0x80) {\n    sVar3 = this->fOnOffFade;\n    if (this->fOnOffFade < 0) {\n      sVar3 = 0;\n    }\n  }\n  else {\n    sVar3 = 0x80;\n  }"]]},
+  {"name": "B flat-&& clamp-high first",
+   "edits": [["  if (this->fOnOffFade < 1) {\n    sVar3 = 0;\n  }\n  else if (this->fOnOffFade < 0x80) {\n    sVar3 = this->fOnOffFade;\n    if (this->fOnOffFade < 0) {\n      sVar3 = 0;\n    }\n  }\n  else {\n    sVar3 = 0x80;\n  }",
+              "  if (0 < this->fOnOffFade && 0x7f < this->fOnOffFade) {\n    sVar3 = 0x80;\n  }\n  else {\n    sVar3 = this->fOnOffFade;\n    if (this->fOnOffFade < 0) {\n      sVar3 = 0;\n    }\n  }"]]}
+ ]
+}

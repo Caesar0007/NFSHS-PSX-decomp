@@ -1,0 +1,18 @@
+{
+ "recon/frontend/common/fememcard.cpp": {
+  "LoadGame__FsbT1": [
+   {
+    "take": "\\$L\\d+:\n(?=\t\\.set\tnoreorder\n\t\\.set\tnomacro\n\tj\t\\$L\\d+\n\tli\t\\$17,1)",
+    "after": " \\#NO_APP\n"
+   }
+  ]
+ },
+ "recon/frontend/common/fescreen.cpp": {
+  "InitializeShapes__7tScreenR17tShapeInformationUi": [
+   {
+    "take": "\\$L\\d+:\n(?=\t\\.set\tnoreorder\n\t\\.set\tnomacro\n\tbeq\t\\$17,\\$0,\\$L\\d+\n\tmove\t\\$4,\\$0\n)",
+    "after": "\tbne\t\\$2,\\$0,\\$L\\d+\n\tandi\t\\$2,\\$4,0xffff\n\t\\.set\tmacro\n\t\\.set\treorder\n\n"
+   }
+  ]
+ }
+}

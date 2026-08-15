@@ -1,0 +1,17 @@
+{
+ "file": "recon/frontend/psx/memcard.c",
+ "fn": "MCRD_handlecardevents",
+ "variants": [
+  {"name": "E bare void fence in else",
+   "edits": [["        if (pCI->status == -1) {\n          MemCardAccept(gMemCardInfo.channel);\n        }\n        } while (0); } while (0);",
+              "        if (pCI->status == -1) {\n          MemCardAccept(gMemCardInfo.channel);\n        }\n        else {\n          __asm__ volatile(\"\");\n        }\n        } while (0); } while (0);"]]},
+  {"name": "F goto into NONE else fence exit",
+   "edits": [["        if (pCI->status == -1) {\n          MemCardAccept(gMemCardInfo.channel);\n        }\n        } while (0); } while (0);",
+              "        if (pCI->status != -1) goto MCRDhandleCard_fenceExit;\n        MemCardAccept(gMemCardInfo.channel);\n        } while (0); } while (0);"],
+             ["      __asm__ volatile(\"\" : : \"r\"(status));\n    }\n    break;",
+              "      __asm__ volatile(\"\" : : \"r\"(status));\n    }\nMCRDhandleCard_fenceExit:\n    break;"]]},
+  {"name": "G early-out goto end",
+   "edits": [["        if (pCI->status == -1) {\n          MemCardAccept(gMemCardInfo.channel);\n        }\n        } while (0); } while (0);",
+              "        if (pCI->status != -1) goto MCRDhandleCard_end;\n        MemCardAccept(gMemCardInfo.channel);\n        } while (0); } while (0);"]]}
+ ]
+}

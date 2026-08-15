@@ -1,0 +1,12 @@
+[
+ [
+  "C i=0 before first if",
+  "FAIL 51 diffs (ours 43 / oracle 42)",
+  "BRANCH COUNT 3 vs 4"
+ ],
+ [
+  "D i=0 at declaration",
+  "FAIL 49 diffs (ours 43 / oracle 42)",
+  "BRANCH COUNT 3 vs 4"
+ ]
+]

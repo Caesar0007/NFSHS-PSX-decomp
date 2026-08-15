@@ -1,0 +1,12 @@
+{
+ "file": "recon/frontend/common/femenuextended.cpp",
+ "fn": "Draw__29tMenuItemOptionsTwoItemChoiceiib",
+ "variants": [
+  {"name": "C duplicated arm body",
+   "edits": [["  if (this->fOnOffFade < 1) {\n    sVar3 = 0;\n  }\n  else if (this->fOnOffFade < 0x80) {",
+              "  if (this->fOnOffFade < 1) {\n    sVar3 = this->fOnOffFade;\n    if (this->fOnOffFade < 0) {\n      sVar3 = 0;\n    }\n  }\n  else if (this->fOnOffFade < 0x80) {"]]},
+  {"name": "D low arm = negative-only clamp",
+   "edits": [["  if (this->fOnOffFade < 1) {\n    sVar3 = 0;\n  }\n  else if (this->fOnOffFade < 0x80) {\n    sVar3 = this->fOnOffFade;\n    if (this->fOnOffFade < 0) {\n      sVar3 = 0;\n    }\n  }",
+              "  if (this->fOnOffFade < 1) {\n    goto fme_clampLow;\n  }\n  else if (this->fOnOffFade < 0x80) {\nfme_clampLow:\n    sVar3 = this->fOnOffFade;\n    if (this->fOnOffFade < 0) {\n      sVar3 = 0;\n    }\n  }"]]}
+ ]
+}

@@ -1,0 +1,12 @@
+[
+ [
+  "A else goto done",
+  "FAIL 1 diffs (ours 41 / oracle 42)",
+  "BRANCH COUNT 3 vs 4"
+ ],
+ [
+  "B early-out goto done",
+  "FAIL 1 diffs (ours 41 / oracle 42)",
+  "BRANCH COUNT 3 vs 4"
+ ]
+]

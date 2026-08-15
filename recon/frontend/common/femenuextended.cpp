@@ -586,10 +586,19 @@ void tMenuItemOptionsTwoItemChoice::Draw(int x,int y,bool selected)
   }
   /* MATCH (W57-A5): the clamp re-reads the FIELD (oracle `lh`+`lhu` pair) -- routing the
      stepped value through a short local instead lets cse remat it in-register (sll/sra). */
+  /* MATCH/CFG (w65-a1, 04Q class): retail's `blez` for the <1 arm jumps to the
+     SHARED negative-clamp block (branch word 36: ours +6 vs retail +4), i.e. the
+     low arm and the in-range arm run the SAME `sVar3 = fOnOffFade; if (< 0)
+     sVar3 = 0;` code -- which is value-identical to a plain `sVar3 = 0` for
+     every v <= 0.  Falsified (both re-gated): folding the two guards into
+     `v < 1 || v < 0x80` (and the &&-mirror) loses a branch entirely, 160 insns;
+     physically DUPLICATING the arm body is count-exact 161 and also routes
+     right, but costs 12 coloring diffs -- only the shared block matches. */
   if (this->fOnOffFade < 1) {
-    sVar3 = 0;
+    goto fme_clampLow;
   }
   else if (this->fOnOffFade < 0x80) {
+fme_clampLow:
     sVar3 = this->fOnOffFade;
     if (this->fOnOffFade < 0) {
       sVar3 = 0;

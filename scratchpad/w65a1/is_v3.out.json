@@ -1,0 +1,12 @@
+[
+ [
+  "E i=0 inside first if",
+  "FAIL 1 diffs (ours 41 / oracle 42)",
+  "BRANCH COUNT 3 vs 4"
+ ],
+ [
+  "F i=0 inside first if + else goto",
+  "FAIL 1 diffs (ours 41 / oracle 42)",
+  "BRANCH COUNT 3 vs 4"
+ ]
+]

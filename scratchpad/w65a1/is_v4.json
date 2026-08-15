@@ -1,0 +1,12 @@
+{
+ "file": "recon/frontend/common/fescreen.cpp",
+ "fn": "InitializeShapes__7tScreenR17tShapeInformationUi",
+ "variants": [
+  {"name": "G else goto + identity launder",
+   "edits": [["  if (numShapes != 0) {\n    ptVar1 = (tTexture_ShapeInfo *)reservememadr(\"Shapes\",numShapes << 5,0);\n    data.fShapes = ptVar1;\n  }\n  i = 0;\n  if (numShapes != 0) {\n    do {\n      data.fShapes[(u_short)i].clutID = 0;\n      i = i + 1;\n    } while ((i & 0xffff) < numShapes);\n  }\n  return;",
+              "  if (numShapes != 0) {\n    ptVar1 = (tTexture_ShapeInfo *)reservememadr(\"Shapes\",numShapes << 5,0);\n    data.fShapes = ptVar1;\n  }\n  else goto fes_shapesDone;\n  i = 0;\n  __asm__(\"\" : \"+r\"(numShapes));\n  if (numShapes != 0) {\n    do {\n      data.fShapes[(u_short)i].clutID = 0;\n      i = i + 1;\n    } while ((i & 0xffff) < numShapes);\n  }\nfes_shapesDone:\n  return;"]]},
+  {"name": "H else goto + volatile re-read",
+   "edits": [["  if (numShapes != 0) {\n    ptVar1 = (tTexture_ShapeInfo *)reservememadr(\"Shapes\",numShapes << 5,0);\n    data.fShapes = ptVar1;\n  }\n  i = 0;\n  if (numShapes != 0) {\n    do {\n      data.fShapes[(u_short)i].clutID = 0;\n      i = i + 1;\n    } while ((i & 0xffff) < numShapes);\n  }\n  return;",
+              "  if (numShapes != 0) {\n    ptVar1 = (tTexture_ShapeInfo *)reservememadr(\"Shapes\",numShapes << 5,0);\n    data.fShapes = ptVar1;\n  }\n  else goto fes_shapesDone;\n  i = 0;\n  if (numShapes != 0) {\n    do {\n      data.fShapes[(u_short)i].clutID = 0;\n      i = i + 1;\n    } while ((i & 0xffff) < numShapes);\n    __asm__(\"\");\n  }\nfes_shapesDone:\n  return;"]]}
+ ]
+}

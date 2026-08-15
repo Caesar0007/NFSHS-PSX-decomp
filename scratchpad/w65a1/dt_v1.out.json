@@ -1,0 +1,12 @@
+[
+ [
+  "A flat-|| shared clamp body",
+  "FAIL 11 diffs (ours 160 / oracle 161)",
+  "BRANCH COUNT 8 vs 9"
+ ],
+ [
+  "B flat-&& clamp-high first",
+  "FAIL 17 diffs (ours 160 / oracle 161)",
+  "BRANCH COUNT 8 vs 9"
+ ]
+]

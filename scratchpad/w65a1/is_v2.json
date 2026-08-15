@@ -1,0 +1,14 @@
+{
+ "file": "recon/frontend/common/fescreen.cpp",
+ "fn": "InitializeShapes__7tScreenR17tShapeInformationUi",
+ "variants": [
+  {"name": "C i=0 before first if",
+   "edits": [["  if (numShapes != 0) {\n    ptVar1 = (tTexture_ShapeInfo *)reservememadr(\"Shapes\",numShapes << 5,0);\n    data.fShapes = ptVar1;\n  }\n  i = 0;\n  if (numShapes != 0) {",
+              "  i = 0;\n  if (numShapes != 0) {\n    ptVar1 = (tTexture_ShapeInfo *)reservememadr(\"Shapes\",numShapes << 5,0);\n    data.fShapes = ptVar1;\n  }\n  if (numShapes != 0) {"]]},
+  {"name": "D i=0 at declaration",
+   "edits": [["  tTexture_ShapeInfo *ptVar1;\n  u_int i;\n  ",
+              "  tTexture_ShapeInfo *ptVar1;\n  u_int i = 0;\n  "],
+             ["  }\n  i = 0;\n  if (numShapes != 0) {\n    do {",
+              "  }\n  if (numShapes != 0) {\n    do {"]]}
+ ]
+}

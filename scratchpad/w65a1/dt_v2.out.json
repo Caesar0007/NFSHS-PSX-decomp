@@ -1,0 +1,12 @@
+[
+ [
+  "C duplicated arm body",
+  "FAIL 12 diffs (ours 161 / oracle 161)",
+  "br-CLEAN"
+ ],
+ [
+  "D low arm = negative-only clamp",
+  "PASS (161 insns)",
+  "br-CLEAN"
+ ]
+]

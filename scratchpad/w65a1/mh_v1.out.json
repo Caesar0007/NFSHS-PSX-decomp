@@ -1,0 +1,17 @@
+[
+ [
+  "A else-fence status inside wrapper",
+  "FAIL 12 diffs (ours 209 / oracle 211)",
+  "31 offset diffs [(0, 129, 134), (2, 96, 101), (3, 182, 184), (4, 180, 182), (6, 53, 58), (7, 172, 174)]"
+ ],
+ [
+  "B else-fence, if hoisted out of wrapper",
+  "FAIL 2 diffs (ours 213 / oracle 211)",
+  "BRANCH COUNT 37 vs 36"
+ ],
+ [
+  "C else-fence on pCI inside wrapper",
+  "FAIL 140 diffs (ours 209 / oracle 211)",
+  "31 offset diffs [(0, 129, 134), (2, 96, 101), (3, 182, 184), (4, 180, 182), (6, 53, 58), (7, 172, 174)]"
+ ]
+]

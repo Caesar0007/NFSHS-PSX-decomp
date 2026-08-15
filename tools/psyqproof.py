@@ -102,6 +102,23 @@ def oracle_words(fn):
     sys.exit(f"no oracle asm/nonmatchings/{{main,front}}/{fn}.s")
 
 
+def strip_redundant_externs(text):
+    """w62 close: drop `.extern SYM,size` when this .s also DEFINES SYM
+    (label or .comm/.lcomm) -- GNU-as ignores the conflict, ASPSX drops
+    gp-rel for it (the A20 lane-divergent class)."""
+    import re as _re
+    defined = set(_re.findall(r"^([A-Za-z_$][A-Za-z0-9_$.]*):", text, _re.M))
+    defined |= set(_re.findall(r"^\s*\.l?comm\s+([A-Za-z_$][A-Za-z0-9_$.]*)",
+                               text, _re.M))
+    out = []
+    for ln in text.split("\n"):
+        m = _re.match(r"\s*\.extern\s+([A-Za-z_$][A-Za-z0-9_$.]*)", ln)
+        if m and m.group(1) in defined:
+            continue
+        out.append(ln)
+    return "\n".join(out)
+
+
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("-G") and a != "--dialect"]
     dialect = "--dialect" in sys.argv
@@ -131,6 +148,8 @@ def main():
         if dialect:
             s_out.write_text(to_aspsx_dialect(s_out.read_text(errors="replace")))
         obj_out = Path(td) / "ps.obj"
+        s_out.write_text(strip_redundant_externs(
+            s_out.read_text(errors="replace")))
         r = subprocess.run([str(ASPSX), "-o", str(obj_out), str(s_out)],
                            capture_output=True, text=True, cwd=td)
         blob = r.stdout + r.stderr

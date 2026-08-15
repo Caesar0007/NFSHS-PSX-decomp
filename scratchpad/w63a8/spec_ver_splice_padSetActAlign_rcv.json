@@ -1,0 +1,33 @@
+{
+  "spec": "PER_FN_CC1_VER_SPLICE_272 -- ADD one function to an EXISTING key",
+  "agent": "w63-a8",
+  "table": "PER_FN_CC1_VER_SPLICE_272",
+  "rel_key": "recon/syslib/psx/libpad/PADCMD.c",
+  "action": "MERGE into the existing 2.7.2 set -- do NOT add a second dict entry for this rel key (12F/W47 duplicate-key hazard: a python dict literal silently discards the earlier entry).",
+  "current_in_build_py": { "2.7.2": ["_padLoadActInfo"] },
+  "requested_after_edit": { "2.7.2": ["_padLoadActInfo", "_padSetActAlign_rcv"] },
+  "why": [
+    "Residual on the wired 2.7.2-970404 rung is 2 diffs, COUNT-EXACT 50/50, and is exactly ONE item: `addu $t2,$t0,$zero` (ours) vs `addu $t2,$zero,$zero` (retail).",
+    "cse substitutes the still-live 0 held in `mode`'s register for the mode*5 giv's own zero = the methodology 3.25-3b no-copy-prop identity. It is a COMPILER-VERSION property, not a spelling: 2.7.2 does not make that substitution.",
+    "04Z basin-relativity (9th+ confirmation): BEFORE the w63-a8 source landing this fn was LANE-INVARIANT at 27 diffs (970404 == cc1_272, recorded in-source by w61-a6). AFTER the landing the ladder inverted."
+  ],
+  "measured_ladder_at_the_post_landing_basin": {
+    "2.7.2-970404 (wired, control)": "FAIL 2 diffs (ours 50 / oracle 50)",
+    "2.7.2": "PASS (50 insns)",
+    "2.6.3": "FAIL 3 diffs (ours 51 / oracle 50) [measured pre-fence-position fix]",
+    "2.8.0": "FAIL 5 diffs [measured pre-fence-position fix]",
+    "2.8.1": "FAIL 5 diffs [measured pre-fence-position fix]"
+  },
+  "whole_tu_receipt_with_the_splice_applied": {
+    "harness": "scratchpad/w63a8/w63a8_verflag.py (monkey-patches build.py IN MEMORY; build.py never edited)",
+    "command": "W63A8_VERFLAG='{\"recon/syslib/psx/libpad/PADCMD.c\": {\"2.7.2\": [\"_padSetActAlign_rcv\"]}}' python scratchpad/w63a8/w63a8_verflag.py recon/syslib/psx/libpad/PADCMD.c <all 19 fns>",
+    "result": "18/19 PASS, ZERO regressions",
+    "all_19_gated": {
+      "PASS": ["_padCmd4B", "_padCmdGetDescR0", "_padCmdGetDescR1", "_padCmdGetStatus", "_padCmdParaMode", "_padCmdSetMap", "_padGetActSize", "_padLoadActInfo", "_padLoadActInfo_snd", "_padRecvAtLoadInfo", "_padSendAtLoadInfo", "_padSetAct", "_padSetActAlign", "_padSetActAlign_rcv", "_padSetActAlign_snd", "_padSetMainMode", "_padSetMainMode_rcv", "_padSetMainMode_snd"],
+      "FAIL": { "_padLoadActInfo_rcv": "14 diffs (ours 155 / oracle 157) -- UNCHANGED by the splice" }
+    },
+    "control_without_splice": "17/19 PASS (_padSetActAlign_rcv 2, _padLoadActInfo_rcv 14)"
+  },
+  "source_landed_at": "2a3a0587",
+  "post_wiring_expected_board_delta": "+1 PASS (PADCMD.c 17/19 -> 18/19)"
+}

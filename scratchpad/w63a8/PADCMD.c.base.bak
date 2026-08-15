@@ -1,0 +1,747 @@
+/* syslib/psx/libpad/PADCMD.cpp -- RECONSTRUCTED from nfs4-f.exe (Ghidra + disasm-v3).
+ *   obj libpad.lib(PADCMD.OBJ): the DualShock command-protocol builders -- 19 functions that compose
+ *   the controller command packets (type byte @info+0x36, length @info+0x35, data ptr @info+0x2c) and
+ *   parse the responses while loading the controller's actuator / mode descriptors.  Command IDs:
+ *     0x43 config-into-mode   0x44 set-main-mode   0x45 get-status   0x46/0x47 get-descriptor R0/R1
+ *     0x4B "exit"             0x4C set-map         0x4D actuator-align.
+ *   The send/receive halves of the multi-step commands are installed as the per-port callbacks
+ *   (info+0x14 = sender, info+0x18 = receiver), pumped by the SIO engine in PADMAIN.
+ *
+ *   The per-port device block ("info", 0xF0 bytes, shared with PADENTRY/PADMAIN) is addressed by raw
+ *   byte offset here: several fields are union-overloaded with PADENTRY's view (e.g. +0x34 is both
+ *   PADENTRY's status word and this obj's actuator length byte), so a single struct can't model both
+ *   cleanly -- offset access is the faithful form.  Key fields touched below:
+ *     +0x00 modeTbl  +0x04 actTbl  +0x08 actTbl2  +0x14 sndCb  +0x18 rcvCb  +0x20 alignData
+ *     +0x24 cmdParam +0x28 actCb   +0x2c cmdData  +0x34 actLen +0x35 cmdLen +0x36 cmdType
+ *     +0x3c rxBuf*   +0x46 cmdState +0x47 subIdx  +0x48 byteCtr +0x49 result
+ *     +0x51 mmOffs   +0x52 mmLock   +0x53 mmLocked +0x5d actMap[6]  +0x63 actBuf
+ *     +0xe3 nMode    +0xe4 curMode  +0xe6 modeWord +0xe9 nAct  +0xea nAct2  +0xec actAccum */
+
+typedef void (*PadSndRcv)(unsigned char *info);
+
+extern int  (*_padFuncChkEng)(unsigned char *info);            /* dispatch slot: engine-busy? (0 = free) */
+extern void (*_padFuncClrInfo)(unsigned char *info);
+
+static unsigned char *_actcur __attribute__((section(".bss")));
+                                 /* @0x8014859C : actuator-descriptor write cursor.
+                                  * MATCH (w51-a5): the oracle reaches it ABSOLUTE (`lui $at,%hi;
+                                  * sw %lo($at)`), not gp-relative -- this 4-byte static would land
+                                  * in .sbss under -G4.  Same per-symbol -G0 emulation the other 11
+                                  * syslib TUs use (w48-a9). */
+
+/* ---- forward declarations (mutually recursive) ----------------------------------------------- */
+extern int _padCmdParaMode(unsigned char *info, int para);
+extern int _padCmdGetStatus(unsigned char *info);
+extern int _padCmdSetMap(unsigned char *info, int idx);
+extern int _padCmdGetDescR0(unsigned char *info, int idx);
+extern int _padCmdGetDescR1(unsigned char *info, int idx);
+extern int _padCmd4B(unsigned char *info);
+extern int _padGetActSize(unsigned char *info);
+extern int _padLoadActInfo(unsigned char *info, unsigned char *buf);
+extern void _padLoadActInfo_snd(unsigned char *info);
+extern int  _padLoadActInfo_rcv(unsigned char *info);
+extern void _padSetActAlign_snd(unsigned char *info);
+extern int  _padSetActAlign_rcv(unsigned char *info);
+extern void _padSetMainMode_snd(unsigned char *info);
+extern int  _padSetMainMode_rcv(unsigned char *info);
+
+/* =====================  command-byte builders (one DualShock opcode each)  ===================== */
+
+/* @0x801055F0 : _padSetAct -- stash the actuator data pointer + length for a later send. */
+extern void _padSetAct(unsigned char *info, int data, int len)
+{
+    *(int *)(info + 0x28) = data;
+    info[0x34] = (unsigned char)len;
+}
+
+/* =====================  load-info (actuator/mode descriptor) command sequence  ================= */
+
+/* @0x801055FC : _padSendAtLoadInfo -- pick the send command for the current load-info phase. */
+extern void _padSendAtLoadInfo(unsigned char *info)
+{
+    switch (info[0x46]) {                            /* MATCH (w51-a5): a real `switch` -- the
+                                                      * oracle carries gcc-2.8's balance_case_nodes
+                                                      * fingerprint (median-pivot `beq` on 3 with
+                                                      * `slti ,4` in its delay slot, case bodies
+                                                      * out-of-line in SOURCE order 2/3/4, `j`
+                                                      * default).  Also VOID: no $v0 is staged at
+                                                      * any exit. */
+    case 2:
+        _padCmdGetStatus(info);
+        break;
+    case 3:
+        _padCmdSetMap(info, info[0xe4]);
+        break;
+    case 4:
+        _padCmdGetDescR1(info, info[0x47]);
+        break;
+    }
+}
+
+/* @0x80105680 : _padRecvAtLoadInfo -- consume one response of the load-info handshake.
+ * w51-a5: 105 -> 70 diffs.  Three oracle-read corrections:
+ *   (a) a real `switch (info[0x46])` with cases in SOURCE order 2/3/4 -- gcc-2.8's
+ *       balance_case_nodes fingerprint (median-pivot `beq ,3` with `slti ,4` in its delay slot,
+ *       out-of-line case bodies, `j` default).  The if/else-if cascade laid the arms out wrong.
+ *   (b) the rx pointer (+0x3c) is spelled INLINE at every use -- case 2's oracle has FOUR
+ *       separate `lw $v0,0x3C($s0)` because each `sb` may-alias the pointer field.
+ *   (c) `accum + 8` is its own term (a single `a + 8 + ((n+3)&0x1fc)` expression reassociates
+ *       the +8 onto the masked term), and the size guard is `>= 0x81` so the `slti 0x81; bnez`
+ *       arm order matches.
+ * MATCH (2026-08-14, 70 -> 6, count-exact 83/83): case 2 reads the mutable rx-pointer cell
+ * through a one-use volatile view at each access, reproducing retail's four loads; case 3
+ * names the pointer/high/low values so its loads and zero store match; case 4 stages acc,
+ * idx, rx and chunk in retail lifetime order; explicit physical return_zero/return_one labels
+ * reproduce both shared result blocks and eliminate jump.c's duplicated zero/copy cascade.
+ * The remaining 6 are instruction-order only.  A scratch PER_FN_TEXT_MOVES proof reaches
+ * PASS 83/83 by ordering the case-4 six-line window as:
+ *   lw $4,236($16); lbu $2,71($16); lw $3,60($16);
+ *   addu $2,$2,1; lbu $3,4($3); addu $4,$4,8.
+ * Source-order/type/volatile/flag probes are byte-identical at 6; -fno-schedule-insns is 25,
+ * -fno-schedule-insns2 38, and -fno-delayed-branch 32.
+ * >>> w61-a6: THAT TEXT_MOVES PROOF IS NOW A MEASURED, GATE-VERIFIED SPEC -- 6 -> PASS 83/83.
+ * The case-4 window our cc1 emits is
+ *   lw $4,236($16) / lw $3,60($16) / lbu $2,71($16) / addu $4,$4,8 / lbu $3,4($3) / addu $2,$2,1
+ * and retail's is  A C B F E D of that same six.  `lw $3,60($16)` occurs FOUR times in the fn
+ * (case 2 re-reads the volatile rx cell), so no move may anchor on it; the other five lines are
+ * unique.  Three moves with unique anchors, applied in order, reach A C B F E D:
+ *   PER_FN_TEXT_MOVES["recon/syslib/psx/libpad/PADCMD.c"]["_padRecvAtLoadInfo"] = [
+ *     {"take": r"\taddu\t\$4,\$4,8\n",          "after": r"\taddu\t\$2,\$2,1\n"},
+ *     {"take": r"\tlbu\t\$2,71\(\$16\)\n",      "after": r"\tlw\t\$4,236\(\$16\)\n"},
+ *     {"take": r"\tlbu\t\$3,4\(\$3\)\n",        "after": r"\taddu\t\$2,\$2,1\n"},
+ *   ]
+ * WHOLE-TU A/B (19 fns, tools/verify_asm.py, probe harness scratchpad/w61a6/vprobe6.py):
+ * PASS 14 -> 16 (this fn + _padLoadActInfo), ZERO PASS->FAIL, every other fn byte-identical. */
+extern int _padRecvAtLoadInfo(unsigned char *info)
+{
+    switch (info[0x46]) {
+    case 2:
+        info[0xe3] = (*(unsigned char * volatile *)(info + 0x3c))[3];
+        info[0xe4] = (*(unsigned char * volatile *)(info + 0x3c))[4];
+        *(unsigned short *)(info + 0xe6) = 0;
+        info[0xe9] = (*(unsigned char * volatile *)(info + 0x3c))[5];
+        info[0xea] = (*(unsigned char * volatile *)(info + 0x3c))[6];
+        *(int *)(info + 0xec) = 0;
+        goto return_one;
+    case 3: {
+        unsigned char *rx = *(unsigned char **)(info + 0x3c);
+        unsigned hi = rx[4];
+        unsigned lo = rx[5];
+        info[0x47] = 0;
+        *(unsigned short *)(info + 0xe6) =
+            (unsigned short)lo + (unsigned short)hi * 0x100;
+        goto return_one;
+    }
+    case 4: {
+        int acc = *(int *)(info + 0xec);
+        unsigned char idx = info[0x47];
+        unsigned char *rx = *(unsigned char **)(info + 0x3c);
+        unsigned chunk;
+        idx++;
+        chunk = rx[4];
+        acc += 8;
+        info[0x47] = idx;
+        acc += ((chunk + 3) & 0x1fc);
+        *(int *)(info + 0xec) = acc;
+        if (!(idx < info[0xea]))
+            goto finish_load_info;
+return_zero:
+        return 0;
+finish_load_info:
+        if (_padGetActSize(info) >= 0x81) {       /* MATCH: oracle `slti 0x81; bnez` -- the
+                                                   * >= arm is the FALL-THROUGH */
+            info[0x46] = 0xfe;
+            info[0x49] = 2;
+            goto return_zero;
+        }
+        info[0x46] = 0xff;
+        _padLoadActInfo(info, info + 0x63);
+        info[0x46] = 2;
+        goto return_zero;
+    }
+    }
+return_one:
+    return 1;
+}
+
+/* @0x801057CC : _padGetActSize -- size of the actuator-info block being assembled. */
+extern int _padGetActSize(unsigned char *info)
+{
+    int nmode = info[0xe3];
+    int nact  = info[0xe9];
+    int accum = *(int *)(info + 0xec);
+    int a = ((nmode + 1) >> 1) << 2;
+    int b = ((nact * 5 + 3) & 0xffc) + 4;
+    return a + b + accum;
+}
+
+/* @0x80105804 : _padLoadActInfo -- carve the actuator buffer (info+0x63) into mode/act sub-regions
+ *   and install the descriptor send/recv pump.  `buf` is that buffer (aligned up to 4). */
+extern int _padLoadActInfo(unsigned char *info, unsigned char *buf)
+{
+    int aw;
+    unsigned char *a;
+
+    if (buf == 0 || *(int *)(info + 4) != 0 || _padFuncChkEng(info) != 0)
+        return 0;
+    /* w59-a7: 38 -> 26 (source) -> PASS 53/53 with the wiring below.  The w55-a6 residual was
+     * NOT the PER_FN_PROLOGUE_FILL class at all -- it was the GUARD SHAPE.
+     *
+     * ** THE `||`-CHAIN LAW.  Retail's three guards are ONE `||` expression, not three separate
+     * `if (..) return 0;` statements.  In a `||` chain gcc emits each leading condition as a
+     * branch TO the shared then-block and the LAST condition as the INVERTED branch that skips
+     * it -- which reproduces, in one edit, ALL of:
+     *   (a) `beqz $s1,.L8010584C` with `sw $ra,0x18($sp)` IN ITS DELAY SLOT (reorg has no
+     *       `v0=0` left to steal for that slot -- guard1 now branches to a real block whose
+     *       first insn is the shared `v0=0`, and reorg cannot steal-and-redirect past the
+     *       block's own `j`, so it reaches BACKWARD into the prologue instead).  The
+     *       "prologue store in a delay slot" was a CONSEQUENCE, never an independent mechanism.
+     *   (b) the SHARED ret0 block `.L8010584C: j <epilogue>; addu $v0,$zero,$zero` sitting
+     *       BETWEEN the ChkEng test and the body, with guard2 (`bnez`) steal-redirected
+     *       straight to the epilogue -- retail's exact two-route layout.
+     *   (c) `beqz $v0,.L80105854` (branch to the BODY) with `addiu $v0,$zero,1` pre-set in
+     *       its slot.
+     *   (d) the jalr's `nop`: with the guards in ONE expression the whole entry..call region
+     *       is a single extended basic block, so cse propagates $a0 and delete_noop_moves
+     *       kills the `addu $a0,$s0,$zero` our three-statement form emitted.
+     * FALSIFIED (w55-a6, kept): hoisting the body into `if (ChkEng(info)==0){...} return 0;`
+     * (43 @54/53).  FALSIFIED (w59-a7): void-tail fence `__asm__("":: "i"(0))` before the
+     * body (inert, 26); named `nmode`/`nact` locals for the two lbu's (inert, 26); moving the
+     * `aw` statement below the byte stores (inert, 26) -- the body residual is a sched1
+     * ready-list decision, not a source-order one.
+     *
+     * ORCHESTRATOR WIRING (probe-validated on a scratchpad build.py copy, this fn only):
+     *   PER_FN_CC1_VER_SPLICE_272["recon/syslib/psx/libpad/PADCMD.c"] = {"2.7.2": {"_padLoadActInfo"}}
+     *   PER_FN_TEXT_MOVES["recon/syslib/psx/libpad/PADCMD.c"]["_padLoadActInfo"] =
+     *       [{"take": r"\tli\t\$3,0x00000004[^\n]*\n", "after": r" #NO_APP\n"}]
+     * WHY the rung: 2.7.2 has NO -msplit-addresses, so it emits `la $3,sym` MACROS where the
+     * wired 2.7.2-970404 rung pre-splits `lui/addiu` and sched1 then scatters the rcv pair
+     * across the two `lbu`s (costing a 3rd temp, $a2).  On the 2.7.2 rung this fn is 2 diffs;
+     * the whole-TU flip is net-negative (4 cmd builders 0->4 each, _padRecvAtLoadInfo 6->24)
+     * => per-fn splice.  The single text move restores retail's `li $3,4`-before-the-aw-round-up
+     * (sched1-only; source order is provably inert per the falsifications above).
+     * >>> w61-a6 RE-VALIDATION (the w59-a7 spec was never wired; re-measured from a clean object
+     * on the CURRENT basin, unchanged source, probe harness scratchpad/w61a6/vprobe6.py):
+     * ver-splice alone 26 -> 2 (@53/53, the residual is exactly the `li $3,4` position);
+     * ver-splice + the one text move -> PASS 53/53.  WHOLE-TU A/B over all 19 fns: PASS 14 -> 15
+     * with this pair alone, ZERO PASS->FAIL.  Both remain ORCHESTRATOR actions, verbatim above. */
+    {
+        int r = 1;
+        __asm__("" : "=r"(r) : "0"(r));      /* MATCH: opacity fence -- same device as the sibling
+                                              * _padSetActAlign; stops cse copy-substituting the
+                                              * return constant into the info[0x46] store */
+        aw = ((int)buf + 3) >> 2;            /* MATCH (w51-a5): the oracle rounds up with a SIGNED
+                                              * `addiu ,3 / sra ,2` ... `sll ,2` PAIR (word index
+                                              * materialized early, scaled back late), not the
+                                              * `& ~3` mask a single expression emits */
+        info[0x49] = 4;
+        info[0x46] = 1;
+        *(PadSndRcv *)(info + 0x14) = _padLoadActInfo_snd;
+        *(PadSndRcv *)(info + 0x18) = (PadSndRcv)_padLoadActInfo_rcv;
+        a = (unsigned char *)(aw << 2);
+        *(unsigned char **)(info + 0) = a;
+        info[0x47] = 0;
+        a += ((info[0xe3] + 1) >> 1) << 2;
+        *(unsigned char **)(info + 4) = a;
+        *(unsigned char **)(info + 8) = a + ((info[0xe9] * 5 + 3) & 0xffc);
+        return r;
+    }
+}
+
+/* @0x801058D8 : _padLoadActInfo_snd -- emit the right descriptor request for the current sub-phase. */
+extern void _padLoadActInfo_snd(unsigned char *info)
+{
+    switch (info[0x46]) {                            /* MATCH (w51-a5): balance_case_nodes switch */
+    case 2:
+        _padCmdSetMap(info, info[0x47]);
+        break;
+    case 3:
+        _padCmdGetDescR0(info, info[0x47]);
+        break;
+    case 4:
+        if (info[0x48] == 0)
+            _padCmdGetDescR1(info, info[0x47]);
+        else
+            _padCmd4B(info);
+        break;
+    }
+}
+
+/* @0x80105980 : _padLoadActInfo_rcv -- parse a descriptor response into the mode/act tables.
+ * w51-a5 rebuild from the oracle: 175 diffs @134/157 -> 40 @155/157.  FIVE corrections:
+ *   (a) IT IS NOT void (§3.2).  Every exit stages $v0: `.L80105BE8: addiu $v0,$zero,1` is a
+ *       dedicated block in front of the shared `jr $ra`, and `addu $v0,$zero,$zero` sits in three
+ *       branch delay slots.  1 = "sub-phase index wrapped / state not handled", 0 = "more to come".
+ *   (b) THE RX POINTER IS RE-READ AT EVERY USE, not cached in a local.  In the st==3 arm the
+ *       oracle has FIVE `lw $v0,0x3C($a1)` (each followed by the load-delay nop) because the
+ *       intervening `sb` into the descriptor may-alias the +0x3c pointer field and kills cse's
+ *       copy; the st==2 arm has NO store between its two byte reads, so the same inline spelling
+ *       still CSEs down to one `lw` there -- exactly what the oracle shows.  A cached
+ *       `unsigned char *rx` local is the 23-instruction shortfall.
+ *   (b2) the state dispatch is a real `switch`, not an if/else-if cascade -- gcc-2.8's
+ *       balance_case_nodes fingerprint (median pivot `beq ,3` with `slti ,4` in its delay slot,
+ *       case bodies OUT-OF-LINE in SOURCE order 2/3/4, `j` default).  The cascade inlined the
+ *       st==3 arm and mis-ordered the whole block layout.
+ *   (c) the sub-index guard reuses the INCREMENTED byte (`addiu; sb; andi 0xFF; sltu`), it does
+ *       NOT re-load info[0x47]: hence the `unsigned char n` carrier.
+ *   (d) the R1 payload loop counts the REAL byte counts 3 (rx[5..7]) and 6 (rx[2..7]) with a
+ *       pre-decrementing guard `while (--cnt != -1)`; the oracle's `li 3 / addiu -1` and
+ *       `li 6 / addiu -1` preheader pairs are that peeled first decrement (the old `cnt = 2/5`
+ *       spelling folded them into a single `li`).
+ * RESIDUAL 40 @155/157, all named: (i) the two `return 1` wrap sites keep their own `li $v0,1`
+ *   plus a duplicated `jr $ra` where retail shares one `.L80105BE8` block (jump.c return
+ *   duplication -- the `__asm__ volatile("")`-at-the-label device COSTS more here, it blocks
+ *   reorg's steal of the two DEFAULT `li $v0,1`s into the dispatch beq slots: measured worse);
+ *   (ii) `srl` vs the oracle's `sra` on `rx[5] >> 7` -- our cc1-2.8 combine proves the `lbu`
+ *   value non-negative and demotes the arithmetic shift; a COMPILER-VERSION artifact (04M
+ *   gcc-2.7.2 law), not source-reachable while the load stays `lbu`; (iii) $v0/$v1 coloring on
+ *   the `base+woff` store pair; (iv) the `la $a3,_actcur` preheader anchor lands 2 insns early
+ *   and `t0 = -1` is a copy instead of a fresh `li` (the no-copy-prop identity -- both close
+ *   under the cc1_272 lane, where this fn is COUNT-EXACT 157/157 @38).
+ * MATCH (w61-a6, 29 -> 17 @156/157) -- THE SHARED-EXIT OWNERSHIP LAW (same instrument that took
+ *   MCXMAIN's _padIntRecvData 12 -> 4; see that receipt for the mechanism).  Residual item (i)
+ *   above ("the two `return 1` wrap sites keep their own `li $v0,1` ... where retail shares one
+ *   .L80105BE8 block") was NOT jump.c return duplication -- it was the OWNERSHIP BIT of two
+ *   independent shared exits, and both were on the wrong site:
+ *     * `return 1`: retail's physical owner is the SWITCH DEFAULT (the trailing `return 1`), with
+ *       case 2 and case 3 cross-jumped onto it.  Spelled as one `return_one:` label at the
+ *       default + `goto return_one;` in cases 2 and 3.  (Owner at case 3 instead = 25 @154; owner
+ *       at case 2 = the 29-diff baseline.)
+ *     * `return 0`: retail's owner is case 4's post-loop `if (info[0x48]==0) goto tail; return 0;`
+ *       site.  Spelled as `return_zero:` there + `goto return_zero;` on the LAST tail return only
+ *       -- the `n >= info[0xea]` arm must keep its OWN literal `return 0;`, because retail
+ *       materialises that arm's zero locally (`addu $v0,$zero,$zero` ahead of the `li $v1,6` /
+ *       `li $v1,254` byte stores, which is also what puts those constants in $v1 not $v0).
+ *       Routing that arm through the goto too costs 9 diffs (26 vs 17) -- MEASURED both ways.
+ *   LANE RE-LADDERED AT THE NEW BASIN (04Z): the "closes under the cc1_272 lane, COUNT-EXACT
+ *   157/157 @38" claim above is now FALSE -- per-fn ver-splice 2.7.2 = 31 @158, 2.6.3 = 50 @159,
+ *   2.8.0 = 33 @156, whole-TU cc1_272 = 31 @158; the wired 2.7.2-970404 rung is best at 17.
+ * MATCH (w62-a5, 17 -> 14 @155/157) -- TWO of the four named residual items closed:
+ *   (ii) `srl` vs `sra` on `rx[5] >> 7` was NOT a "compiler-version artifact, not source-reachable
+ *       while the load stays lbu".  combine proves the `lbu` value non-negative and demotes the
+ *       arithmetic shift, so the cure is to make the value OPAQUE to combine without changing the
+ *       load: stage it in an `int` and IDENTITY-LAUNDER it (13B, `__asm__("" : "=r"(x) : "0"(x))`,
+ *       zero insns).  `lbu` stays, `sra` returns, nothing else moves.  -1 diff.
+ *   (iv) the `la $a3,_actcur` preheader anchor landing 2 insns early WITH `t0 = -1` as a cse copy
+ *       was ONE structural fact, not two allocator facts: retail's byte loop is a ZERO-TRIP-GUARDED
+ *       do/while whose anchor is assigned INSIDE the guard.  `if (--cnt != -1) { ac = &_actcur;
+ *       do {...} while (--cnt != -1); }` puts the `la` after the guard AND spells the `-1` twice,
+ *       so the back edge gets its own `li $t0,-1` instead of `addu $t0,$v0,$zero`.  -2 diffs.
+ *   RESIDUAL 14 = ONE identity, fully diagnosed: THE SPLIT-ADDRESSES AXIS.  cc1 emits the UNSPLIT
+ *   macro forms `sw $2,_actcur` / `la $7,_actcur` in the .s, then (this rung being a SPLIT-address
+ *   build) splits them itself into `lui $2,%hi; sw $3,%lo($2)` / `lui $2,%hi; addiu $7,$2,%lo` and
+ *   FILLS TWO BRANCH DELAY SLOTS with the `lui` halves (that is also why we are 2 insns SHORT:
+ *   155 vs 157).  Retail keeps both macros whole -- ASPSX expands the store through `$at`
+ *   (`lui $at,0; sw $3,0($at)`) and the `la` dest-as-scratch (`lui $a3; addiu $a3,$a3`), and
+ *   refuses to put a multi-word macro in a delay slot, so retail pays a `nop` and fills the `j`
+ *   slot with `addiu $a0,$a0,-1` instead.  PROVEN by A/B: whole-TU `cc1_alt 2.8.0` +
+ *   `no_split_addresses` reproduces retail's `lui $at,0 / sw ,0($at)` and the `addiu $a0,$a0,-1`
+ *   j-slot EXACTLY (and is COUNT-EXACT 157/157) -- but scores 32 on the rest, and whole-TU 2.8.0
+ *   costs the TU's other PASSes, so it is not a wiring recommendation.  The 970404 rung REJECTS
+ *   the flag outright (`cc1.exe: Invalid option 'no-split-addresses'`), so neither
+ *   PER_FN_NO_SPLIT_ADDRESSES (default lane only -- inert here) nor PER_FN_FLAG_SPLICE_272 can
+ *   express it; the missing mechanism is a per-fn ver-splice that ALSO carries the flag (the 272
+ *   twin of the 12G `PER_FN_NO_SPLIT_ADDRESSES` + version-splice composition).  TEXT_MOVES cannot
+ *   substitute: the two forms differ in REGISTER ($at/$a3 vs $v0), not only in line position.
+ *   psyqproof (psq43 CC1PSX 2.8.0 + ASPSX 2.77) scores REAL=96 on this fn -- count-exact 157
+ *   words but a different codegen basin; the gate rung stays authoritative.
+ *   RESIDUAL (pre-existing, now the only other item):
+ *   (iii) the `_actcur` store reaching through `$at` in retail (an ASSEMBLER MACRO SPLIT, the
+ *   W51 AT-MACRO class) vs our `$v0` base; (iv) the `la $a3,_actcur` preheader anchor landing 2
+ *   insns early with `t0 = -1` as a copy; plus one `lbu $v0,4($v0)` load-delay placement. */
+extern int _padLoadActInfo_rcv(unsigned char *info)
+{
+    switch (info[0x46]) {
+    case 2: {                                        /* mode-id list (set-map) */
+        unsigned char n;
+        *(unsigned short *)(*(unsigned char **)(info + 0) + info[0x47] * 2) =
+            (unsigned short)(*(unsigned char **)(info + 0x3c))[5] +
+            (unsigned short)(*(unsigned char **)(info + 0x3c))[4] * 0x100;
+        n = info[0x47] + 1;
+        info[0x47] = n;
+        if (n < info[0xe3])
+            return 0;
+        info[0x47] = 0;
+        goto return_one;
+    }
+    case 3: {                                        /* mode descriptor R0 */
+        unsigned char *d = *(unsigned char **)(info + 4) + info[0x47] * 5;
+        unsigned char n;
+        d[0] = (*(unsigned char **)(info + 0x3c))[4];
+        d[1] = (*(unsigned char **)(info + 0x3c))[5] & 0x7f;
+        d[2] = (*(unsigned char **)(info + 0x3c))[6];
+        d[3] = (*(unsigned char **)(info + 0x3c))[7];
+        {
+            int hi = (*(unsigned char **)(info + 0x3c))[5];
+            __asm__("" : "=r"(hi) : "0"(hi));
+            d[4] = (unsigned char)(hi >> 7);
+        }
+        n = info[0x47] + 1;
+        info[0x47] = n;
+        if (n < info[0xe9])
+            return 0;
+        info[0x47] = 0;
+        info[0x48] = 0;
+        goto return_one;
+    }
+    case 4: {                                        /* actuator descriptor R1 (variable length) */
+        unsigned char *d = *(unsigned char **)(info + 8) + info[0x47] * 8;
+        unsigned char *src;
+        unsigned char **ac;
+        unsigned char n;
+        int cnt;
+        if (info[0x48] == 0) {
+            unsigned char v = (*(unsigned char **)(info + 0x3c))[4];
+            unsigned char *base;
+            unsigned woff;
+            unsigned char *cur;
+            cnt = 3;
+            __asm__("" : "=r"(cnt) : "0"(cnt));  /* MATCH: opacity fence, 0 insns -- keeps cse from
+                                                  * folding the live `3` into the woff `sll ,3`
+                                                  * (retail rematerializes: `sllv` is the tell) */
+            info[0x48] = v;
+            d[0] = v;
+            src = (*(unsigned char **)(info + 0x3c)) + 5;
+            if (info[0x47] == 0) {
+                base = *(unsigned char **)(info + 8);
+                woff = (unsigned)info[0xea] << 3;
+            } else {
+                base = *(unsigned char **)(d - 4);
+                woff = (d[-8] + 3) & 0x1fc;
+            }
+            cur = base + woff;
+            *(unsigned char **)(d + 4) = cur;
+            _actcur = cur;
+        } else {
+            src = (*(unsigned char **)(info + 0x3c)) + 2;
+            cnt = 6;
+        }
+        /* MATCH: pointer local -- the oracle keeps `la $a3,_actcur` live across the loop and
+         * the body does ONE `lw 0($a3)` / `sw 0($a3)` per iteration (a direct `_actcur`
+         * re-reads twice).  MATCH (w62-a5): the loop is a ZERO-TRIP-GUARDED do/while and the
+         * anchor is assigned INSIDE the guard -- that is what puts `la $a3,_actcur` AFTER the
+         * `beq $a0,$v0` guard (ours hoisted it 2 insns early) and gives the back-edge its OWN
+         * `li $t0,-1` instead of a cse copy of the guard's `li $v0,-1`. */
+        if (--cnt != -1) {
+            ac = &_actcur;
+            do {
+                if (info[0x48] == 0) goto tail;
+                *(*ac)++ = *src++;
+                info[0x48] = info[0x48] - 1;
+            } while (--cnt != -1);
+        }
+        if (info[0x48] == 0) goto tail;
+return_zero:
+        return 0;
+tail:
+        n = info[0x47] + 1;
+        info[0x47] = n;
+        if (n >= info[0xea]) {
+            info[0x49] = 6;
+            info[0x46] = 0xfe;
+            return 0;
+        }
+        info[0x48] = 0;
+        goto return_zero;
+    }
+    }
+return_one:
+    return 1;
+}
+
+/* =====================  set-actuator-align command  =========================================== */
+
+/* @0x80105BF4 : _padSetActAlign -- queue the actuator-alignment command (returns 1 if accepted).
+ * w48-a3: PASS 26/26.  The w23-a8 "WEAK floor" (oracle materializes TWO separate `li 1`'s --
+ * $v0 for the return, $v1 for the 0x46 store -- where ours copy-substituted `addu v1,v0,zero`)
+ * is the §3.25-3b "old-gcc no-copy-prop" identity: retail's cc1 rematerializes a still-live
+ * constant, ours lets cse substitute the equal live value.  The reachable lever is the w47
+ * OPACITY/IDENTITY FENCE `__asm__("" : "=r"(x) : "0"(x))` -- a ZERO-INSTRUCTION value-numbering
+ * barrier (output tied to input by the "0" constraint, so no code is emitted) that stops cse
+ * proving `r == 1` at the store.  DIRECTION IS LOAD-BEARING: fencing the STORE's constant
+ * instead leaves both `li`s but in the WRONG ORDER (ours v1-then-v0 vs the oracle's v0-then-v1,
+ * still 2 diffs) -- fencing `r` also PINS the return constant's materialization first, which is
+ * exactly the oracle's order.  Do not "simplify" the asm away. */
+extern int _padSetActAlign(unsigned char *info, int data)
+{
+    if (_padFuncChkEng(info) == 0) {
+        int r = 1;
+        __asm__("" : "=r"(r) : "0"(r));   /* MATCH: opacity fence, 0 insns -- see header */
+        info[0x46] = 1;
+        *(PadSndRcv *)(info + 0x14) = _padSetActAlign_snd;
+        *(int *)(info + 0x20) = data;
+        *(PadSndRcv *)(info + 0x18) = (PadSndRcv)_padSetActAlign_rcv;
+        return r;
+    }
+    return 0;
+}
+
+/* @0x80105C5C : _padSetActAlign_snd -- emit the 0x4D align packet. */
+extern void _padSetActAlign_snd(unsigned char *info)
+{
+    info[0x36] = 0x4d;
+    info[0x35] = 6;
+    *(int *)(info + 0x2c) = *(int *)(info + 0x20);
+}
+
+/* @0x80105C78 : _padSetActAlign_rcv -- resolve each mode's actuator map from the alignment request.
+ * MATCH (w51-a5): it is NOT void -- the oracle's epilogue is `jr $ra / addu $v0,$zero,$zero`
+ * (§3.2 void-return bug); the `return 0;` reserves $v0 and re-shapes the tail.
+ * w61-a6 STRUCTURAL FINDING (27 @51/50, count NOT yet improved -- reported, not landed).  The
+ * actMap store is the one real SHAPE difference left: retail keeps `slot` as a plain biv
+ * (`addu $a2,$a0,$zero` in the inner preheader, `sb $t3,93($a2)`, `addiu $a2,$a2,1`), while our
+ * loop.c strength-reduces the address `slot[0x5d]` into its own giv (`addiu $v1,$a0,93`,
+ * `sb $t3,0($v1)`).  A PER_FN_FLAG_SPLICE_272 `-fno-strength-reduce` on THIS FN ALONE reproduces
+ * retail's `sb $t3,93($a2)` / `sb $t0,93($a2)` exactly (verified in the spliced .s).  Diff count
+ * is UNCHANGED at 27 because two other items remain, so this is NOT a wiring recommendation yet:
+ *   (i) `addu $t2,$t0,$zero` (cse copies `mode`'s just-materialised 0 into `row`) vs retail's
+ *       independent `addu $t2,$zero,$zero` emitted AFTER `li $t3,255` -- retail's `row` is a
+ *       loop.c GIV of `mode*5` whose preheader init lands in the giv group (same class as
+ *       eaclib pad.c PAD_update item 2, which has ~15 falsified forms);
+ *   (ii) a 3-way register rotation, ours matchcount/k/slot = $a2/$a3/$v1 vs retail $a3/$v1/$a2;
+ *   (iii) one insn over (51 vs 50): retail hoists the outer-loop re-test `lbu $v0,233($a0)`
+ *       ABOVE `addiu $t0,$t0,1` so the increment covers the load-delay slot; ours emits it after
+ *       and pays a nop.  That one IS a pure TEXT_MOVES relocation once (i)+(ii) are settled.
+ * Lane-invariant: 27 on the wired 2.7.2-970404 rung AND on the cc1_272 (PsyQ CC1PSX) lane.
+ * w62-a5 RE-LADDER + falsifications (04Z re-probe at the current basin, all re-gated here):
+ *   per-fn flag splices -fno-strength-reduce / -fno-schedule-insns / -fno-schedule-insns2 are
+ *   ALL still 27 @51/50 (the strength-reduce splice still produces retail's `sb $t3,93($v1)`
+ *   displacement form, but its base copy `addu $v1,$a0,$zero` then lands 9 insns EARLY, in the
+ *   OUTER preheader instead of the inner one, so the win is traded 1:1).  For item (iii) (the
+ *   one-insn overrun: retail loads `lbu $v0,233($a0)` ABOVE `addiu $t0,$t0,1` so the increment
+ *   covers the load delay) two source spellings were falsified: flipping the do/while compare
+ *   operand order (`(int)info[0xe9] > (int)mode`, inert 27) and hoisting the limit into a named
+ *   `int nmodes` read before `mode++` (inert 27) -- gcc's scheduler re-sinks the load either way.
+ *   Item (ii) remains the blocker: a 3-way LOCAL-QTY rotation (ours matchcount/k/slot =
+ *   $a2/$a3/$v1, retail $a3/$v1/$a2).  Next instrument, not yet run here: tools/qty272.py /
+ *   reqdelta272.py (12A -- the 2.7.x local-alloc handout is now readable off `-dl`), to price
+ *   which qty must move before any further spelling sweep. */
+extern int _padSetActAlign_rcv(unsigned char *info)
+{
+    unsigned mode = 0;
+    if (info[0xe9] != 0) {
+        int row = 0;
+        do {
+            int matchcount;
+            int j;
+            int k;
+            unsigned char *p;
+
+
+            p = *(unsigned char **)(info + 0x20);
+            matchcount = 0;
+            j = 5;
+            do {
+                unsigned v = *p++;   /* MATCH (w53-a8): BASIN-RELATIVE -- this same widening
+                                      * measured 40 BEFORE the second loop's local was widened
+                                      * and 28 -> 27 after it (w45 lever-order law).  Re-probe
+                                      * parked spellings after every landing. */
+                if (v == mode) matchcount++;
+                j--;
+            } while (j > -1);
+
+            {
+                unsigned thresh = *(unsigned char *)(row + *(int *)(info + 4) + 2);
+                unsigned char *slot = info;
+                p = *(unsigned char **)(info + 0x20);
+                k = 0;
+                if (thresh == 0) thresh = 1;
+                do {
+                    unsigned v = *p++;   /* MATCH (w53-a8): `unsigned`, not `unsigned char` --
+                                          * the byte-typed local re-masks with `andi $v0,$v0,255`
+                                          * on every use; `lbu` already zero-extends (29 -> 28,
+                                          * -1 insn).  The SAME change on the match-count loop
+                                          * above regresses (40) -- per-site, measure both. */
+                    if (v == mode) {
+                        if (matchcount < (int)thresh) { slot[0x5d] = 0xff; matchcount--; }
+                        else                          slot[0x5d] = (unsigned char)mode;
+                    }
+                    k++;
+                    slot++;
+                } while (k < 6);
+            }
+            mode++;
+            row += 5;
+        } while ((int)mode < (int)info[0xe9]);
+    }
+    info[0x46] = 0xfe;
+    return 0;
+}
+
+/* =====================  set-main-mode command  ================================================= */
+
+/* @0x80105D40 : _padSetMainMode -- queue the main-mode switch (offs = mode index, lock = lock flag).
+ * w48-a3: PASS 38/38, refuting the w23-a8 "FLOOR (21 diffs)" note.  FOUR cooperating parts, each
+ * measured (drop any one and it regresses: [] 21 / [r] 15 / [o] 14 / [l] 27 / [ro] 10 / [rl] 23 /
+ * [ol] 4 / [rol] 0):
+ *   (1) `int m = offs;` BEFORE the call.  Retail keeps `offs` in TWO callee-saved regs across the
+ *       ChkEng() call -- $s1 for the `info[0x51]` store and $s3 (copied in the jalr delay slot) for
+ *       the `(offs & 0xff)` compare.  Our cse copy-propagates the second home away, so the copy is
+ *       deleted (delete_noop_moves / the §3.25-3b "old-gcc no-copy-prop" identity).
+ *   (2) an OPACITY FENCE on `offs` (w47 §A, `__asm__("" : "=r"(x) : "0"(x))` = a ZERO-INSTRUCTION
+ *       value-numbering barrier) placed AFTER the call: it makes `m` and `offs` un-equatable at the
+ *       compare, so the copy survives -- and, being after the call, it does NOT block dbr from
+ *       sinking that copy into the jalr's delay slot (the same fence placed BEFORE the call keeps
+ *       the copy but pins it in the prologue and costs two nops: measured 20 diffs).
+ *   (3) a fence on `lock` as a pure ZERO-INSN REF INFLATOR (w44/w46 ref-step family).  Without it
+ *       `lock` (2 refs / 38 insns, pri .0526) loses the allocno race to `m` (2 refs / 21, pri .0952)
+ *       and the two land in the WRONG registers ($s3/$s2 instead of retail's $s2/$s3).  The asm insn
+ *       adds a def+use, taking `lock` to 4 refs -> floor_log2 steps 1->2 -> pri .2105 -> `lock` is
+ *       allocated first and takes $s2.  (Measured NEGATIVE first: `& 0xff` re-mask and do{}while(0)
+ *       depth-1/2/3 wrappers all left REG_N_REFS at 2 -- cse/loop.c strip them here.)
+ *   (4) `int cur = info[0xe4];` as a DECL-INITIALIZER at the top of the block -- this, and only this,
+ *       makes sched1 hoist the `lbu a0,0xe4(s0)` to retail's position right after the `li v0,1`.
+ *       The same read as a later ASSIGNMENT statement (any of 3 positions probed) does NOT hoist.
+ *   (5) the fence on `r` supplies the fresh `li v1,1` for the 0x46 store and the `sltiu v1,v1,1`
+ *       immediate compare -- same device/reason as _padSetActAlign above.
+ * Do not "simplify" any of the three asm statements away. */
+extern int _padSetMainMode(unsigned char *info, int offs, int lock)
+{
+    int m = offs;                                  /* MATCH: retail's 2nd callee-saved home for offs */
+    if (_padFuncChkEng(info) == 0) {
+        int r = 1;
+        int cur = info[0xe4];                      /* MATCH: decl-init -> sched1 hoists the lbu */
+        __asm__("" : "=r"(r) : "0"(r));            /* MATCH: opacity fence, 0 insns -- see header */
+        __asm__("" : "=r"(offs) : "0"(offs));      /* MATCH: keeps m's copy alive (post-call) */
+        __asm__("" : "=r"(lock) : "0"(lock));      /* MATCH: ref inflator, wins $s2 for lock */
+        /* MATCH (w53-a8, 2 -> PASS 38/38): USE FENCE ON `cur` = a sched1 issue-position fixpoint.
+         * The only residual was POSITION: retail issues `lbu $a0,228($s0)` immediately after the
+         * `li $v0,1`, ours let sched1 sink it 5 slots down into the second address-materialize's
+         * latency gap.  A zero-insn read-only fence on cur pins it (insns before a fence cannot
+         * sink past it -- w45 law).  Falsified at this basin: splitting the decl-init into
+         * decl + assignment (2, identical). */
+        __asm__("" : : "r"(cur));
+        info[0x46] = 1;
+        *(PadSndRcv *)(info + 0x14) = _padSetMainMode_snd;
+        *(PadSndRcv *)(info + 0x18) = (PadSndRcv)_padSetMainMode_rcv;
+        info[0x51] = (unsigned char)offs;
+        info[0x52] = (unsigned char)lock;
+        info[0x53] = (unsigned char)((m & 0xff) == cur);
+        return r;
+    }
+    return 0;
+}
+
+/* @0x80105DD8 : _padSetMainMode_snd.
+ * MATCH: goto form → beq/beq/j pattern (not bne/bne fall-through).
+ *        info[0x35]=st in case2 delay slot reuses cached v1=st(=2).
+ * w48-a3: PASS 21/21, refuting the w23-a8 "FLOOR (7 diffs)" note.  The residual was gcc-2.8
+ * jump.c replacing each `j end` with a DUPLICATED `jr ra`, because the `end:` label sat
+ * immediately in front of the return -- retail keeps ONE shared epilogue block (`jr ra; nop`
+ * @.L80105E24) that both the no-match fallthrough and case2 `j` to.  A ZERO-INSTRUCTION
+ * `__asm__ volatile ("")` AT the label makes end:'s block start with a non-return insn, so
+ * jump_optimize leaves both `j`s alone; the asm emits no bytes, so the object is retail's
+ * exactly.  (`"r"(info)` use-fence and a `"memory"` clobber measure identically -- the empty
+ * volatile form is the least invasive.)  Do not delete the asm statement. */
+extern void _padSetMainMode_snd(unsigned char *info)
+{
+    int st = info[0x46];    /* lbu; int avoids andi 0xff promotion */
+    if (st == 2) goto case2;
+    if (st == 3) goto case3;
+    goto end;
+case2:
+    info[0x36] = 0x44;
+    *(unsigned char **)(info + 0x2c) = info + 0x51;
+    info[0x35] = st;
+    goto end;
+case3:
+    info[0x36] = 0x4d;
+    *(unsigned char **)(info + 0x2c) = info + 0x5d;
+    info[0x35] = 6;
+end: ;
+    __asm__ volatile ("");   /* MATCH: keeps the shared epilogue -- see header */
+}
+
+/* @0x80105E2C : _padSetMainMode_rcv -- w48-a3: PASS 24/24 (was FAIL 19).
+ * TWO reconstruction errors, both read straight off the oracle (§3.2 + §D arm-order):
+ *   (a) it is NOT void -- the oracle stages `addiu $v0,$zero,1` / `addu $v0,$zero,$zero` into the
+ *       return register on the two paths (1 = "already in the requested mode", 0 = otherwise).
+ *       Declaring it void loses both, and costs the $v0 reservation that shapes the whole tail.
+ *   (b) the ARM ORDER was inverted: the oracle's `beqz $v0,.L80105E64` makes the ClrInfo call the
+ *       BRANCH TARGET and the `info[0x53] != 0` case the FALL-THROUGH, i.e. the != arm is the
+ *       if-BODY.  (The callback is still installed through a `void (*)(u_char *)` slot -- the
+ *       return value is simply ignored by the SIO pump, exactly as in retail.) */
+extern int _padSetMainMode_rcv(unsigned char *info)
+{
+    if (info[0x53] != 0) {
+        if (info[0x46] == 2)
+            return 1;
+        info[0x46] = 0xfe;
+        return 0;
+    }
+    _padFuncClrInfo(info);
+    return 0;
+}
+
+/* @0x80105E8C : _padCmdParaMode -- 0x43 enter-config(para).
+ * MATCH: r=1 hoisted early so v0=1 is live before sb a1,0x24; jr ra delay-slot gets sb v0,0x35. */
+extern int _padCmdParaMode(unsigned char *info, int para)
+{
+    int r;
+    info[0x36] = 0x43;
+    *(unsigned char **)(info + 0x2c) = info + 0x24;
+    r = 1;
+    info[0x24] = (unsigned char)para;
+    info[0x35] = (unsigned char)r;
+    return r;
+}
+
+/* @0x80105EAC : _padCmdGetStatus -- 0x45 get-status. */
+extern int _padCmdGetStatus(unsigned char *info)
+{
+    int r = 0x45;                       /* one li v0,0x45 reused for the 0x36 store AND the return */
+    info[0x36] = (unsigned char)r;
+    *(int *)(info + 0x2c) = 0;
+    info[0x35] = 0;
+    return r;
+}
+
+/* @0x80105EC0 : _padCmdSetMap -- 0x4C set-config-map(idx).
+ * MATCH: same r=1 hoist as _padCmdParaMode. */
+extern int _padCmdSetMap(unsigned char *info, int idx)
+{
+    int r;
+    info[0x36] = 0x4c;
+    *(unsigned char **)(info + 0x2c) = info + 0x24;
+    r = 1;
+    info[0x24] = (unsigned char)idx;
+    info[0x35] = (unsigned char)r;
+    return r;
+}
+
+/* @0x80105EE0 : _padCmdGetDescR0 -- 0x46 get-descriptor-0(idx).
+ * MATCH: same r=1 hoist. */
+extern int _padCmdGetDescR0(unsigned char *info, int idx)
+{
+    int r;
+    info[0x36] = 0x46;
+    *(unsigned char **)(info + 0x2c) = info + 0x24;
+    r = 1;
+    info[0x24] = (unsigned char)idx;
+    info[0x35] = (unsigned char)r;
+    return r;
+}
+
+/* @0x80105F00 : _padCmdGetDescR1 -- 0x47 get-descriptor-1(idx).
+ * MATCH: same r=1 hoist. */
+extern int _padCmdGetDescR1(unsigned char *info, int idx)
+{
+    int r;
+    info[0x36] = 0x47;
+    *(unsigned char **)(info + 0x2c) = info + 0x24;
+    r = 1;
+    info[0x24] = (unsigned char)idx;
+    info[0x35] = (unsigned char)r;
+    return r;
+}
+
+/* @0x80105F20 : _padCmd4B -- 0x4B exit-config. */
+extern int _padCmd4B(unsigned char *info)
+{
+    int r = 0x4b;                       /* one li v0,0x4b reused for the 0x36 store AND the return */
+    info[0x36] = (unsigned char)r;
+    *(int *)(info + 0x2c) = 0;
+    info[0x35] = 0;
+    return r;
+}
+

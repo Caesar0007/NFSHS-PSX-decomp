@@ -1,0 +1,28 @@
+{
+  "spec": "PER_FN_CC1_VER_SPLICE_272 -- NEW rel key + NEW rung (2.6.3) for one function",
+  "agent": "w63-a8",
+  "status": "OPTIONAL / ORCHESTRATOR JUDGEMENT -- this is a -4 PARTIAL, not a seal. Wiring debt vs 4 diffs.",
+  "table": "PER_FN_CC1_VER_SPLICE_272",
+  "rel_key": "recon/syslib/psx/libetc/INTR.c",
+  "action": "ADD a new rel entry (this TU has NO existing entry in this table -- confirmed by grep; the TU's own lane is PER_TU_FLAGS cc1_272:True). Still counter-audit for duplicate rel keys before adding (12F).",
+  "requested": { "2.6.3": ["_intrhand"] },
+
+  "measured": {
+    "wired lane (cc1_272 = PsyQ 4.0 CC1PSX 2.7.2.SN32), control": "FAIL 30 diffs (ours 116 / oracle 116) COUNT-EXACT",
+    "2.6.3 splice": "FAIL 26 diffs (ours 116 / oracle 116) COUNT-EXACT",
+    "2.7.2 rung": "FAIL 30 @116 (identical to the wired lane -- independent re-confirmation of law 04W, PsyQ 4.0 CC1PSX == FSF 2.7.2)",
+    "2.7.2-970404": "FAIL 112 (ours 114)",
+    "2.8.0": "FAIL 112 (ours 114)",
+    "2.8.1": "FAIL 112 (ours 114)"
+  },
+  "what_the_2_6_3_rung_buys": "it removes the 4-diff CLOSING-TEST cluster (the two `lhu` of `(I_STAT & I_MASK)` landing in the opposite register pair). The two remaining clusters are the entry-site and loop-site pend birth-order clusters, unchanged.",
+
+  "whole_tu_receipt": {
+    "harness": "scratchpad/w63a8/w63a8_verflag.py",
+    "control": "recon/syslib/psx/libetc/INTR.c 10/13 PASS (_initIntr 6, _set_intr_callback 25, _intrhand 30)",
+    "with_splice": "10/13 PASS (_initIntr 6, _set_intr_callback 25, _intrhand 26)",
+    "all_13_gated": ["CheckCallback PASS", "DMACallback PASS", "InterruptCallback PASS", "ResetCallback PASS", "RestartCallback PASS", "SetIntrMask PASS", "StopCallback PASS", "VSyncCallback PASS", "VSyncCallbacks PASS", "_bzero_w PASS", "_initIntr FAIL 6", "_intrhand FAIL 26", "_set_intr_callback FAIL 25"],
+    "regressions": "ZERO (a per-FN splice replaces only the named .ent region by construction; verified anyway)"
+  },
+  "note": "A per-fn splice on a still-FAILing fn adds table debt for no board movement. Recommend HOLDING unless the orchestrator is consolidating INTR.c; the value is that the ladder is now measured and recorded in-source, so it is not re-derived."
+}

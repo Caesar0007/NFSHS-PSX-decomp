@@ -1,0 +1,56 @@
+{
+  "spec": "PER_FN_VERFLAG_SPLICE_272 -- NEW MECHANISM (the W62 'composition gap'), PROVEN FUNCTIONAL but NOT recommended for wiring today",
+  "agent": "w63-a8",
+  "status": "MECHANISM IMPLEMENTABLE AND PROVEN; the W62 verdict that it BLOCKS _padLoadActInfo_rcv is REFUTED",
+
+  "the_gap_as_filed_by_w62": "PADCMD.c is wired cc1_alt=2.7.2-970404. _padLoadActInfo_rcv's residual 14 was diagnosed in-source as THE SPLIT-ADDRESSES AXIS, needing a per-fn ver-splice that ALSO carries -mno-split-addresses. Neither PER_FN_CC1_VER_SPLICE_272 (version only) nor PER_FN_FLAG_SPLICE_272 (TU's own cc1 only) can express (rung x extra flag).",
+
+  "what_the_272_lane_drops": {
+    "helper": "tools/build.py::_cc1_flags_for_rung",
+    "rule": "for ver.startswith(('2.6','2.7')) it strips -mno-split-addresses from the TU's cc1_flags",
+    "is_the_guard_over_broad": "NO -- VERIFIED DIRECTLY against every rung binary with a 3-line scratch TU",
+    "measured": {
+      "2.6.3": "rc=33  cc1.exe: Invalid option `no-split-addresses'",
+      "2.7.2": "rc=33  cc1.exe: Invalid option `no-split-addresses'",
+      "2.7.2-970404": "rc=33  cc1.exe: Invalid option `no-split-addresses'",
+      "2.8.0": "rc=0 (accepted)",
+      "2.8.1": "rc=0 (accepted)"
+    },
+    "also_falsified": "-mno-gas is likewise rejected by every 2.6/2.7 rung (`Invalid option no-gas`), so there is NO flag on any 2.7.x rung that suppresses the address split."
+  },
+
+  "what_the_fn_needs": "retail's UNSPLIT assembler-macro forms `sw $v1,SYM` (ASPSX expands through $at) and `la $a3,SYM`. Only a 2.8.x rung + -mno-split-addresses produces them.",
+
+  "proposed_mechanism": {
+    "table": "PER_FN_VERFLAG_SPLICE_272 = {rel: {(ver, (extra_flag, ...)): {fns}}}",
+    "wire_format_used_in_the_probe": "key string '<ver>|<flag>|<flag>...' (empty flag list == today's plain ver splice)",
+    "implementation": "an exact clone of _apply_cc1_ver_splice_272 whose flag list is `_cc1_flags_for_rung(ver, cc1_flags) + list(extra)`; everything else (region extract, _MOVE_RE addu rewrite, _uniq_labels_272, replace-once) is unchanged. Reference implementation: scratchpad/w63a8/w63a8_verflag.py",
+    "call_order": "same slot as _apply_cc1_ver_splice_272 (before the flag splice, before the alt28 unfill)",
+    "supersedes": "nothing -- strictly generalises PER_FN_CC1_VER_SPLICE_272 (which is the extra==() case)"
+  },
+
+  "probe_results_on__padLoadActInfo_rcv": {
+    "harness": "scratchpad/w63a8/w63a8_verflag.py",
+    "wired_control_2.7.2-970404": "FAIL 14 diffs (ours 155 / oracle 157)",
+    "2.8.0": "FAIL 30 (ours 155)",
+    "2.8.0 + -mno-split-addresses": "FAIL 28 (ours 157) <-- COUNT-EXACT; reproduces retail's `lui $at,0 / sw ,0($at)` AT-macro + the `addiu $a0,$a0,-1` j-slot EXACTLY",
+    "2.8.1": "FAIL 30 (ours 155)",
+    "2.8.1 + -mno-split-addresses": "FAIL 28 (ours 157) COUNT-EXACT",
+    "2.7.2": "FAIL 25 (ours 158)",
+    "2.7.2-970404 + -fno-delayed-branch": "FAIL 32 (ours 159)",
+    "verdict": "THE MECHANISM WORKS AND DELIVERS EXACTLY THE PREDICTED SHAPE, BUT COSTS 14 DIFFS NET. Do not wire it for this fn today."
+  },
+
+  "corrections_to_the_in_source_receipt": [
+    "The in-source claim 'cc1 emits the UNSPLIT macro forms `sw $2,_actcur` / `la $7,_actcur` in the .s, then ... splits them itself' is WRONG about WHO splits and WHO fills. Reading build/recon/syslib/psx/libpad/PADCMD.c.s: cc1 (the 970404 rung) emits the SPLIT pair `lui $2,%hi(_actcur) # high` / `sw $3,%lo(_actcur)($2)` directly, and cc1's OWN reorg puts the halves in the delay slots inside its OWN `.set noreorder / .set nomacro` blocks. GNU as never sees a macro to split, so this is NOT the W51 AT-MACRO-SPLIT assembler class and no assembler-side mechanism (maspsx reorder option, .set noreorder fence) can reach it.",
+    "Consequently the residual is a RUNG-BASIN CONFLICT, not a missing mechanism: the fn needs 970404's BODY basin AND 2.8's address-split suppression, and no single rung offers both."
+  ],
+
+  "named_next_angle_for__padLoadActInfo_rcv": {
+    "claim": "NOT a floor. The 2.8.x + -mno-split-addresses basin is the ONLY count-exact basin found (157/157) and is therefore the structurally correct one under the floor bar.",
+    "why_it_scores_28_there": "all three source devices currently in the fn were derived and tuned IN THE 970404 BASIN across w61/w62 -- the shared-exit ownership goto pair, the zero-trip-guarded `ac = &_actcur` anchor, and the two opacity fences. The 28-diff residual in the 2.8 basin is dominated by exactly those devices misfiring: `bnez v0` vs `beqz v0` + `j T` vs `jr ra` (shared-exit ownership on the wrong site for this basin) and `addu t0,v0,zero` vs `li t0,-1` (the zero-trip-guard anchor device not firing).",
+    "work_item": "re-derive the three devices INSIDE the 2.8.0+nosplit basin (04Z basin-relativity), carried by this mechanism as a per-fn splice so the rest of the TU keeps the 970404 rung. Estimated reachable: count-exact 157/157 is already in hand; the residual is device re-tuning, not an identity."
+  },
+
+  "recommendation": "IMPLEMENT the mechanism (it is a genuine capability gap, ~25 lines, strictly generalising), but WIRE NOTHING with it yet. It is the prerequisite for the _padLoadActInfo_rcv work item above and for any future (rung x flag) identity on a 2.6/2.7-wired TU."
+}

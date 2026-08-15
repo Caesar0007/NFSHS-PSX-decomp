@@ -559,7 +559,12 @@ extern int CdRead(int sectors, u_long *buf, int mode)
     volatile CdrEnv *e;
     int sel;
 
-    __asm__("" : "=r"(busy) : "0"(busy));
+    /* W64-A6: the w52-a2 identity fence on `busy` is REMOVED here.  It is a reorg
+     * barrier (reorg.c stop_search_p returns 1 at ANY asm) sitting between assign_parms'
+     * `addu $s2,$a2,$zero` parm copy and the first `beqz`, so reorg could never steal the
+     * copy into that branch's delay slot the way retail does.  Measured 14 -> 11; the
+     * anchor still comes out as retail's single `la` form here (13F: re-probe parked
+     * spellings after every structural landing). */
 
     if (*busy != 0) {                               /* a previous read is still active */
         int t0 = VSync(-1);
@@ -584,9 +589,18 @@ extern int CdRead(int sectors, u_long *buf, int mode)
     case 0:    *(int *)&g->w10 = 0x200; break;               /* 2048 bytes */
     case 0x20: *(int *)&g->w10 = 0x249; break;               /* 2340 bytes (full raw) */
     default: {                                      /* 2328 bytes -- own anchor in this arm */
+        /* W64-A6: `sz` declared+initialised BEFORE the anchor is LOAD-BEARING (11 -> 7).
+         * reorg fills the `beq $v1,$v0` slot from a THREAD; retail takes the fall-through
+         * (this arm) and steals its `li $v0,582`, ours took the branch TARGET's `li $v0,585`.
+         * Cause: this arm's first insn was the anchor's `lui $v1` -- and $v1 is the register
+         * the `beq` READS, so insn_sets_resource_p (09L) barred it and reorg abandoned the
+         * thread.  Naming the constant first puts an eligible `li` at the head of the thread.
+         * A fence on `sz` is WRONG here (15 diffs): it is an asm at the thread head and
+         * stop_search_p then bars the whole thread again. */
+        int sz = 0x246;
         volatile CdrEnv *d = &_cdr;
         __asm__("" : "=r"(d) : "0"(d));
-        d->w10 = 0x246;
+        d->w10 = sz;
         break;
     }
     }
@@ -603,7 +617,12 @@ extern int CdRead(int sectors, u_long *buf, int mode)
     e->w1c = VSync(-1);
     if (CdStatus() & 0xE0)                          /* drive busy -> pause first */
         CdControlB(9, 0, 0);
-    return _read_issue(0) > 0;
+    /* W64-A6: retail schedules the `slt $v0,$zero,$v0` BEFORE the frame restores; sched2
+     * sinks ours below them.  A named boolean + a zero-insn read-only fence pins the
+     * compare above the epilogue (7 -> 5).  An identity fence measures the same 5; the
+     * plain `return f() > 0;`, the Yoda form, an if/return pair and a void barrier before
+     * the return are all INERT at 7. */
+    { int r = _read_issue(0) > 0; __asm__("" : : "r"(r)); return r; }
 }
 
 /* @0x80108F78 : CdReadSync -- poll (mode!=0) or block (mode==0) until the read completes.

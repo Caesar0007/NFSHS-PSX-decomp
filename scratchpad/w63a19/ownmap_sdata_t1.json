@@ -1,0 +1,2226 @@
+[
+ {
+  "obj": "build/recon/game/common/ai.cpp.o",
+  "sec": ".sdata",
+  "base": 2148779344,
+  "end": 2148779356,
+  "size": 12,
+  "n": 3,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "AI_time",
+    "lines": [
+     "nonmatching AI_time",
+     "",
+     "dlabel AI_time",
+     "    /* 12CD50 8013C550 00000000 */ .word 0x00000000",
+     "enddlabel AI_time",
+     ""
+    ],
+    "va": 2148779344,
+    "end": 2148779348
+   },
+   {
+    "name": "AI_elapsedTime",
+    "lines": [
+     "nonmatching AI_elapsedTime",
+     "",
+     "dlabel AI_elapsedTime",
+     "    /* 12CD54 8013C554 00000000 */ .word 0x00000000",
+     "enddlabel AI_elapsedTime",
+     ""
+    ],
+    "va": 2148779348,
+    "end": 2148779352
+   },
+   {
+    "name": "AI_iTime",
+    "lines": [
+     "nonmatching AI_iTime",
+     "",
+     "dlabel AI_iTime",
+     "    /* 12CD58 8013C558 00000000 */ .word 0x00000000",
+     "enddlabel AI_iTime",
+     ""
+    ],
+    "va": 2148779352,
+    "end": 2148779356
+   }
+  ],
+  "labels": [
+   "AI_elapsedTime",
+   "AI_iTime",
+   "AI_time"
+  ],
+  "inwin": [
+   "AI_time",
+   "AI_elapsedTime",
+   "AI_iTime"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/common/aihigh.cpp.o",
+  "sec": ".sdata",
+  "base": 2148779356,
+  "end": 2148779360,
+  "size": 4,
+  "n": 1,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "AIHigh_CopGameType",
+    "lines": [
+     "nonmatching AIHigh_CopGameType",
+     "",
+     "dlabel AIHigh_CopGameType",
+     "    /* 12CD5C 8013C55C 00000000 */ .word 0x00000000",
+     "enddlabel AIHigh_CopGameType",
+     ""
+    ],
+    "va": 2148779356,
+    "end": 2148779360
+   }
+  ],
+  "labels": [
+   "AIHigh_CopGameType"
+  ],
+  "inwin": [
+   "AIHigh_CopGameType"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/common/aih_btccop.cpp.o",
+  "sec": ".sdata",
+  "base": 2148779360,
+  "end": 2148779368,
+  "size": 8,
+  "n": 1,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "_19AIHigh_BTC_HumanCop_lastInputRequestTick_",
+    "lines": [
+     "nonmatching _19AIHigh_BTC_HumanCop_lastInputRequestTick_",
+     "",
+     "dlabel _19AIHigh_BTC_HumanCop_lastInputRequestTick_",
+     "    /* 12CD60 8013C560 00000000 */ .word 0x00000000",
+     "enddlabel _19AIHigh_BTC_HumanCop_lastInputRequestTick_",
+     ""
+    ],
+    "va": 2148779360,
+    "end": 2148779364
+   },
+   {
+    "name": "D_8013C564",
+    "lines": [
+     "nonmatching D_8013C564",
+     "",
+     "dlabel D_8013C564",
+     "    /* 12CD64 8013C564 01000000 */ .word 0x00000001",
+     "enddlabel D_8013C564",
+     ""
+    ],
+    "va": 2148779364,
+    "end": 2148779368
+   }
+  ],
+  "labels": [
+   "_19AIHigh_BTC_HumanCop_lastInputRequestTick_"
+  ],
+  "inwin": [
+   "_19AIHigh_BTC_HumanCop_lastInputRequestTick_",
+   "D_8013C564"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/common/aicop.cpp.o",
+  "sec": ".sdata",
+  "base": 2148779376,
+  "end": 2148779388,
+  "size": 12,
+  "n": 3,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "AICop_rawTriggers",
+    "lines": [
+     "nonmatching AICop_rawTriggers",
+     "",
+     "dlabel AICop_rawTriggers",
+     "    /* 12CD70 8013C570 00000000 */ .word 0x00000000",
+     "enddlabel AICop_rawTriggers",
+     ""
+    ],
+    "va": 2148779376,
+    "end": 2148779380
+   },
+   {
+    "name": "AICop_gRoadBlockState",
+    "lines": [
+     "nonmatching AICop_gRoadBlockState",
+     "",
+     "dlabel AICop_gRoadBlockState",
+     "    /* 12CD74 8013C574 00000000 */ .word 0x00000000",
+     "enddlabel AICop_gRoadBlockState",
+     ""
+    ],
+    "va": 2148779380,
+    "end": 2148779384
+   },
+   {
+    "name": "AICop_numArrestedHumans",
+    "lines": [
+     "nonmatching AICop_numArrestedHumans",
+     "",
+     "dlabel AICop_numArrestedHumans",
+     "    /* 12CD78 8013C578 00000000 */ .word 0x00000000",
+     "enddlabel AICop_numArrestedHumans",
+     ""
+    ],
+    "va": 2148779384,
+    "end": 2148779388
+   }
+  ],
+  "labels": [
+   "AICop_gRoadBlockState",
+   "AICop_numArrestedHumans",
+   "AICop_rawTriggers"
+  ],
+  "inwin": [
+   "AICop_rawTriggers",
+   "AICop_gRoadBlockState",
+   "AICop_numArrestedHumans"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/common/aiinit.cpp.o",
+  "sec": ".sdata",
+  "base": 2148779388,
+  "end": 2148779400,
+  "size": 12,
+  "n": 3,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "AITraffic_rawTriggers",
+    "lines": [
+     "nonmatching AITraffic_rawTriggers",
+     "",
+     "dlabel AITraffic_rawTriggers",
+     "    /* 12CD7C 8013C57C 00000000 */ .word 0x00000000",
+     "enddlabel AITraffic_rawTriggers",
+     ""
+    ],
+    "va": 2148779388,
+    "end": 2148779392
+   },
+   {
+    "name": "AIInit_useSpreadForce",
+    "lines": [
+     "nonmatching AIInit_useSpreadForce",
+     "",
+     "dlabel AIInit_useSpreadForce",
+     "    /* 12CD80 8013C580 00000000 */ .word 0x00000000",
+     "enddlabel AIInit_useSpreadForce",
+     ""
+    ],
+    "va": 2148779392,
+    "end": 2148779396
+   },
+   {
+    "name": "AIInit_forceHumanHandBrake",
+    "lines": [
+     "nonmatching AIInit_forceHumanHandBrake",
+     "",
+     "dlabel AIInit_forceHumanHandBrake",
+     "    /* 12CD84 8013C584 00000000 */ .word 0x00000000",
+     "enddlabel AIInit_forceHumanHandBrake",
+     "",
+     ".align 2"
+    ],
+    "va": 2148779396,
+    "end": 2148779400
+   }
+  ],
+  "labels": [
+   "AIInit_forceHumanHandBrake",
+   "AIInit_useSpreadForce",
+   "AITraffic_rawTriggers"
+  ],
+  "inwin": [
+   "AITraffic_rawTriggers",
+   "AIInit_useSpreadForce",
+   "AIInit_forceHumanHandBrake"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/common/aidatarecord.cpp.o",
+  "sec": ".sdata",
+  "base": 2148779424,
+  "end": 2148779440,
+  "size": 16,
+  "n": 4,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "AIDataRecord_BestLine",
+    "lines": [
+     "nonmatching AIDataRecord_BestLine",
+     "",
+     "dlabel AIDataRecord_BestLine",
+     "    /* 12CDA0 8013C5A0 00000000 */ .word 0x00000000",
+     "enddlabel AIDataRecord_BestLine",
+     ""
+    ],
+    "va": 2148779424,
+    "end": 2148779428
+   },
+   {
+    "name": "AIDataRecord_TrackCurve",
+    "lines": [
+     "nonmatching AIDataRecord_TrackCurve",
+     "",
+     "dlabel AIDataRecord_TrackCurve",
+     "    /* 12CDA4 8013C5A4 00000000 */ .word 0x00000000",
+     "enddlabel AIDataRecord_TrackCurve",
+     ""
+    ],
+    "va": 2148779428,
+    "end": 2148779432
+   },
+   {
+    "name": "AIDataRecord_WhichRecord",
+    "lines": [
+     "nonmatching AIDataRecord_WhichRecord",
+     "",
+     "dlabel AIDataRecord_WhichRecord",
+     "    /* 12CDA8 8013C5A8 00000000 */ .word 0x00000000",
+     "enddlabel AIDataRecord_WhichRecord",
+     ""
+    ],
+    "va": 2148779432,
+    "end": 2148779436
+   },
+   {
+    "name": "AIDataRecord_RecordMethod",
+    "lines": [
+     "nonmatching AIDataRecord_RecordMethod",
+     "",
+     "dlabel AIDataRecord_RecordMethod",
+     "    /* 12CDAC 8013C5AC 00000000 */ .word 0x00000000",
+     "enddlabel AIDataRecord_RecordMethod",
+     ""
+    ],
+    "va": 2148779436,
+    "end": 2148779440
+   }
+  ],
+  "labels": [
+   "AIDataRecord_BestLine",
+   "AIDataRecord_RecordMethod",
+   "AIDataRecord_TrackCurve",
+   "AIDataRecord_WhichRecord"
+  ],
+  "inwin": [
+   "AIDataRecord_BestLine",
+   "AIDataRecord_TrackCurve",
+   "AIDataRecord_WhichRecord",
+   "AIDataRecord_RecordMethod"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/common/aitriger.cpp.o",
+  "sec": ".sdata",
+  "base": 2148779496,
+  "end": 2148779504,
+  "size": 8,
+  "n": 2,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "triggerManagerCops",
+    "lines": [
+     "nonmatching triggerManagerCops",
+     "",
+     "dlabel triggerManagerCops",
+     "    /* 12CDE8 8013C5E8 00000000 */ .word 0x00000000",
+     "enddlabel triggerManagerCops",
+     ""
+    ],
+    "va": 2148779496,
+    "end": 2148779500
+   },
+   {
+    "name": "triggerManagerTraffic",
+    "lines": [
+     "nonmatching triggerManagerTraffic",
+     "",
+     "dlabel triggerManagerTraffic",
+     "    /* 12CDEC 8013C5EC 00000000 */ .word 0x00000000",
+     "enddlabel triggerManagerTraffic",
+     ""
+    ],
+    "va": 2148779500,
+    "end": 2148779504
+   }
+  ],
+  "labels": [
+   "triggerManagerCops",
+   "triggerManagerTraffic"
+  ],
+  "inwin": [
+   "triggerManagerCops",
+   "triggerManagerTraffic"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/common/aitune.cpp.o",
+  "sec": ".sdata",
+  "base": 2148779504,
+  "end": 2148779516,
+  "size": 12,
+  "n": 3,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "AITune_oneWay",
+    "lines": [
+     "nonmatching AITune_oneWay",
+     "",
+     "dlabel AITune_oneWay",
+     "    /* 12CDF0 8013C5F0 00000000 */ .word 0x00000000",
+     "enddlabel AITune_oneWay",
+     ""
+    ],
+    "va": 2148779504,
+    "end": 2148779508
+   },
+   {
+    "name": "AITune_driveSide",
+    "lines": [
+     "nonmatching AITune_driveSide",
+     "",
+     "dlabel AITune_driveSide",
+     "    /* 12CDF4 8013C5F4 00000000 */ .word 0x00000000",
+     "enddlabel AITune_driveSide",
+     ""
+    ],
+    "va": 2148779508,
+    "end": 2148779512
+   },
+   {
+    "name": "AITune_gRoughLapTime",
+    "lines": [
+     "nonmatching AITune_gRoughLapTime",
+     "",
+     "dlabel AITune_gRoughLapTime",
+     "    /* 12CDF8 8013C5F8 00000000 */ .word 0x00000000",
+     "enddlabel AITune_gRoughLapTime",
+     "",
+     ".align 2"
+    ],
+    "va": 2148779512,
+    "end": 2148779516
+   }
+  ],
+  "labels": [
+   "AITune_driveSide",
+   "AITune_gRoughLapTime",
+   "AITune_oneWay"
+  ],
+  "inwin": [
+   "AITune_oneWay",
+   "AITune_driveSide",
+   "AITune_gRoughLapTime"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/common/audioclc.cpp.o",
+  "sec": ".sdata",
+  "base": 2148779528,
+  "end": 2148779560,
+  "size": 32,
+  "n": 8,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "AudioClc_gCameraVelocity",
+    "lines": [
+     "nonmatching AudioClc_gCameraVelocity",
+     "",
+     "dlabel AudioClc_gCameraVelocity",
+     "    /* 12CE08 8013C608 00000000 */ .word 0x00000000",
+     "enddlabel AudioClc_gCameraVelocity",
+     ""
+    ],
+    "va": 2148779528,
+    "end": 2148779532
+   },
+   {
+    "name": "AudioClc_gRandomPhrase",
+    "lines": [
+     "nonmatching AudioClc_gRandomPhrase",
+     "",
+     "dlabel AudioClc_gRandomPhrase",
+     "    /* 12CE0C 8013C60C 00000000 */ .word 0x00000000",
+     "enddlabel AudioClc_gRandomPhrase",
+     ""
+    ],
+    "va": 2148779532,
+    "end": 2148779536
+   },
+   {
+    "name": "AudioClc_gBullHornCount",
+    "lines": [
+     "nonmatching AudioClc_gBullHornCount",
+     "",
+     "dlabel AudioClc_gBullHornCount",
+     "    /* 12CE10 8013C610 00000000 */ .word 0x00000000",
+     "enddlabel AudioClc_gBullHornCount",
+     ""
+    ],
+    "va": 2148779536,
+    "end": 2148779540
+   },
+   {
+    "name": "AudioClc_gBumpCopCount",
+    "lines": [
+     "nonmatching AudioClc_gBumpCopCount",
+     "",
+     "dlabel AudioClc_gBumpCopCount",
+     "    /* 12CE14 8013C614 00000000 */ .word 0x00000000",
+     "enddlabel AudioClc_gBumpCopCount",
+     ""
+    ],
+    "va": 2148779540,
+    "end": 2148779544
+   },
+   {
+    "name": "AudioClc_gLastVoice",
+    "lines": [
+     "nonmatching AudioClc_gLastVoice",
+     "",
+     "dlabel AudioClc_gLastVoice",
+     "    /* 12CE18 8013C618 00000000 */ .word 0x00000000",
+     "enddlabel AudioClc_gLastVoice",
+     ""
+    ],
+    "va": 2148779544,
+    "end": 2148779548
+   },
+   {
+    "name": "AudioClc_gLastphrase1",
+    "lines": [
+     "nonmatching AudioClc_gLastphrase1",
+     "",
+     "dlabel AudioClc_gLastphrase1",
+     "    /* 12CE1C 8013C61C 00000000 */ .word 0x00000000",
+     "enddlabel AudioClc_gLastphrase1",
+     ""
+    ],
+    "va": 2148779548,
+    "end": 2148779552
+   },
+   {
+    "name": "AudioClc_gLastphrase2",
+    "lines": [
+     "nonmatching AudioClc_gLastphrase2",
+     "",
+     "dlabel AudioClc_gLastphrase2",
+     "    /* 12CE20 8013C620 00000000 */ .word 0x00000000",
+     "enddlabel AudioClc_gLastphrase2",
+     ""
+    ],
+    "va": 2148779552,
+    "end": 2148779556
+   },
+   {
+    "name": "AudioClc_gLastphrase3",
+    "lines": [
+     "nonmatching AudioClc_gLastphrase3",
+     "",
+     "dlabel AudioClc_gLastphrase3",
+     "    /* 12CE24 8013C624 00000000 */ .word 0x00000000",
+     "enddlabel AudioClc_gLastphrase3",
+     ""
+    ],
+    "va": 2148779556,
+    "end": 2148779560
+   }
+  ],
+  "labels": [
+   "AudioClc_gBullHornCount",
+   "AudioClc_gBumpCopCount",
+   "AudioClc_gCameraVelocity",
+   "AudioClc_gLastVoice",
+   "AudioClc_gLastphrase1",
+   "AudioClc_gLastphrase2",
+   "AudioClc_gLastphrase3",
+   "AudioClc_gRandomPhrase"
+  ],
+  "inwin": [
+   "AudioClc_gCameraVelocity",
+   "AudioClc_gRandomPhrase",
+   "AudioClc_gBullHornCount",
+   "AudioClc_gBumpCopCount",
+   "AudioClc_gLastVoice",
+   "AudioClc_gLastphrase1",
+   "AudioClc_gLastphrase2",
+   "AudioClc_gLastphrase3"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/common/audiomus.cpp.o",
+  "sec": ".sdata",
+  "base": 2148779808,
+  "end": 2148779812,
+  "size": 4,
+  "n": 1,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "AudioMus_g",
+    "lines": [
+     "nonmatching AudioMus_g",
+     "",
+     "dlabel AudioMus_g",
+     "    /* 12CF20 8013C720 00000000 */ .word 0x00000000",
+     "enddlabel AudioMus_g",
+     "",
+     ".align 2"
+    ],
+    "va": 2148779808,
+    "end": 2148779812
+   }
+  ],
+  "labels": [
+   "AudioMus_g"
+  ],
+  "inwin": [
+   "AudioMus_g"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/common/audiotrk.cpp.o",
+  "sec": ".sdata",
+  "base": 2148779860,
+  "end": 2148779864,
+  "size": 4,
+  "n": 1,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "AudioTrk_g",
+    "lines": [
+     "nonmatching AudioTrk_g",
+     "",
+     "dlabel AudioTrk_g",
+     "    /* 12CF54 8013C754 00000000 */ .word 0x00000000",
+     "enddlabel AudioTrk_g",
+     ""
+    ],
+    "va": 2148779860,
+    "end": 2148779864
+   }
+  ],
+  "labels": [
+   "AudioTrk_g"
+  ],
+  "inwin": [
+   "AudioTrk_g"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/common/bworldSm.cpp.o",
+  "sec": ".sdata",
+  "base": 2148779964,
+  "end": 2148779996,
+  "size": 32,
+  "n": 8,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "GlobalSimQuad",
+    "lines": [
+     "nonmatching GlobalSimQuad",
+     "",
+     "dlabel GlobalSimQuad",
+     "    /* 12CFBC 8013C7BC 0E000000 */ .word 0x0000000E",
+     "enddlabel GlobalSimQuad",
+     ""
+    ],
+    "va": 2148779964,
+    "end": 2148779968
+   },
+   {
+    "name": "BWorldSm_slices",
+    "lines": [
+     "nonmatching BWorldSm_slices",
+     "",
+     "dlabel BWorldSm_slices",
+     "    /* 12CFC0 8013C7C0 00000000 */ .word 0x00000000",
+     "enddlabel BWorldSm_slices",
+     ""
+    ],
+    "va": 2148779968,
+    "end": 2148779972
+   },
+   {
+    "name": "sim_Handle",
+    "lines": [
+     "nonmatching sim_Handle",
+     "",
+     "dlabel sim_Handle",
+     "    /* 12CFC4 8013C7C4 00000000 */ .word 0x00000000",
+     "enddlabel sim_Handle",
+     ""
+    ],
+    "va": 2148779972,
+    "end": 2148779976
+   },
+   {
+    "name": "gNumSlices",
+    "lines": [
+     "nonmatching gNumSlices",
+     "",
+     "dlabel gNumSlices",
+     "    /* 12CFC8 8013C7C8 00000000 */ .word 0x00000000",
+     "enddlabel gNumSlices",
+     ""
+    ],
+    "va": 2148779976,
+    "end": 2148779980
+   },
+   {
+    "name": "sim_File",
+    "lines": [
+     "nonmatching sim_File",
+     "",
+     "dlabel sim_File",
+     "    /* 12CFCC 8013C7CC 00000000 */ .word 0x00000000",
+     "enddlabel sim_File",
+     ""
+    ],
+    "va": 2148779980,
+    "end": 2148779984
+   },
+   {
+    "name": "sim_ItemPtr",
+    "lines": [
+     "nonmatching sim_ItemPtr",
+     "",
+     "dlabel sim_ItemPtr",
+     "    /* 12CFD0 8013C7D0 00000000 */ .word 0x00000000",
+     "enddlabel sim_ItemPtr",
+     ""
+    ],
+    "va": 2148779984,
+    "end": 2148779988
+   },
+   {
+    "name": "gMaxFindQuadSliceIterations",
+    "lines": [
+     "nonmatching gMaxFindQuadSliceIterations",
+     "",
+     "dlabel gMaxFindQuadSliceIterations",
+     "    /* 12CFD4 8013C7D4 00000000 */ .word 0x00000000",
+     "enddlabel gMaxFindQuadSliceIterations",
+     ""
+    ],
+    "va": 2148779988,
+    "end": 2148779992
+   },
+   {
+    "name": "BWSM_NormalCacheSysTime",
+    "lines": [
+     "nonmatching BWSM_NormalCacheSysTime",
+     "",
+     "dlabel BWSM_NormalCacheSysTime",
+     "    /* 12CFD8 8013C7D8 00000000 */ .word 0x00000000",
+     "enddlabel BWSM_NormalCacheSysTime",
+     ""
+    ],
+    "va": 2148779992,
+    "end": 2148779996
+   }
+  ],
+  "labels": [
+   "BWSM_NormalCacheSysTime",
+   "BWorldSm_slices",
+   "GlobalSimQuad",
+   "gMaxFindQuadSliceIterations",
+   "gNumSlices",
+   "sim_File",
+   "sim_Handle",
+   "sim_ItemPtr"
+  ],
+  "inwin": [
+   "GlobalSimQuad",
+   "BWorldSm_slices",
+   "sim_Handle",
+   "gNumSlices",
+   "sim_File",
+   "sim_ItemPtr",
+   "gMaxFindQuadSliceIterations",
+   "BWSM_NormalCacheSysTime"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/common/camera.cpp.o",
+  "sec": ".sdata",
+  "base": 2148779996,
+  "end": 2148780000,
+  "size": 4,
+  "n": 1,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "Camera_gGeomScreen",
+    "lines": [
+     "nonmatching Camera_gGeomScreen",
+     "",
+     "dlabel Camera_gGeomScreen",
+     "    /* 12CFDC 8013C7DC BE000000 */ .word 0x000000BE",
+     "enddlabel Camera_gGeomScreen",
+     ""
+    ],
+    "va": 2148779996,
+    "end": 2148780000
+   }
+  ],
+  "labels": [
+   "Camera_gGeomScreen"
+  ],
+  "inwin": [
+   "Camera_gGeomScreen"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/common/chunk.cpp.o",
+  "sec": ".sdata",
+  "base": 2148780056,
+  "end": 2148780064,
+  "size": 8,
+  "n": 2,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "Chunk_lightTable",
+    "lines": [
+     "nonmatching Chunk_lightTable",
+     "",
+     "dlabel Chunk_lightTable",
+     "    /* 12D018 8013C818 00000000 */ .word 0x00000000",
+     "enddlabel Chunk_lightTable",
+     ""
+    ],
+    "va": 2148780056,
+    "end": 2148780060
+   },
+   {
+    "name": "Chunk_chunkCenters",
+    "lines": [
+     "nonmatching Chunk_chunkCenters",
+     "",
+     "dlabel Chunk_chunkCenters",
+     "    /* 12D01C 8013C81C 00000000 */ .word 0x00000000",
+     "enddlabel Chunk_chunkCenters",
+     ""
+    ],
+    "va": 2148780060,
+    "end": 2148780064
+   }
+  ],
+  "labels": [
+   "Chunk_chunkCenters",
+   "Chunk_lightTable"
+  ],
+  "inwin": [
+   "Chunk_lightTable",
+   "Chunk_chunkCenters"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/common/input.cpp.o",
+  "sec": ".sdata",
+  "base": 2148782624,
+  "end": 2148782656,
+  "size": 32,
+  "n": 5,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "Input_gTime",
+    "lines": [
+     "nonmatching Input_gTime",
+     "",
+     "dlabel Input_gTime",
+     "    /* 12DA20 8013D220 00000000 */ .word 0x00000000",
+     "enddlabel Input_gTime",
+     ""
+    ],
+    "va": 2148782624,
+    "end": 2148782628
+   },
+   {
+    "name": "Input_gResults",
+    "lines": [
+     "nonmatching Input_gResults",
+     "",
+     "dlabel Input_gResults",
+     "    /* 12DA24 8013D224 00000000 */ .word 0x00000000",
+     "enddlabel Input_gResults",
+     ""
+    ],
+    "va": 2148782628,
+    "end": 2148782632
+   },
+   {
+    "name": "D_8013D228",
+    "lines": [
+     "nonmatching D_8013D228",
+     "",
+     "dlabel D_8013D228",
+     "    /* 12DA28 8013D228 00000000 */ .word 0x00000000",
+     "enddlabel D_8013D228",
+     ""
+    ],
+    "va": 2148782632,
+    "end": 2148782636
+   },
+   {
+    "name": "Input_gSim",
+    "lines": [
+     "nonmatching Input_gSim",
+     "",
+     "dlabel Input_gSim",
+     "    /* 12DA2C 8013D22C */ .byte 0x00",
+     "enddlabel Input_gSim",
+     ""
+    ],
+    "va": 2148782636,
+    "end": 2148782637
+   },
+   {
+    "name": "D_8013D22D",
+    "lines": [
+     "nonmatching D_8013D22D",
+     "",
+     "dlabel D_8013D22D",
+     "    /* 12DA2D 8013D22D */ .byte 0x00",
+     "enddlabel D_8013D22D",
+     ""
+    ],
+    "va": 2148782637,
+    "end": 2148782638
+   },
+   {
+    "name": "D_8013D22E",
+    "lines": [
+     "nonmatching D_8013D22E",
+     "",
+     "dlabel D_8013D22E",
+     "    /* 12DA2E 8013D22E */ .byte 0x00",
+     "enddlabel D_8013D22E",
+     ""
+    ],
+    "va": 2148782638,
+    "end": 2148782639
+   },
+   {
+    "name": "D_8013D22F",
+    "lines": [
+     "nonmatching D_8013D22F",
+     "",
+     "dlabel D_8013D22F",
+     "    /* 12DA2F 8013D22F */ .byte 0x00",
+     "enddlabel D_8013D22F",
+     ""
+    ],
+    "va": 2148782639,
+    "end": 2148782640
+   },
+   {
+    "name": "Input_gLookBehind",
+    "lines": [
+     "nonmatching Input_gLookBehind",
+     "",
+     "dlabel Input_gLookBehind",
+     "    /* 12DA30 8013D230 00000000 */ .word 0x00000000",
+     "    /* 12DA34 8013D234 00000000 */ .word 0x00000000",
+     "enddlabel Input_gLookBehind",
+     ""
+    ],
+    "va": 2148782640,
+    "end": 2148782648
+   },
+   {
+    "name": "Input_gMode",
+    "lines": [
+     "nonmatching Input_gMode",
+     "",
+     "dlabel Input_gMode",
+     "    /* 12DA38 8013D238 00000000 */ .word 0x00000000",
+     "    /* 12DA3C 8013D23C 00000000 */ .word 0x00000000",
+     "enddlabel Input_gMode",
+     ""
+    ],
+    "va": 2148782648,
+    "end": 2148782656
+   }
+  ],
+  "labels": [
+   "Input_gLookBehind",
+   "Input_gMode",
+   "Input_gResults",
+   "Input_gSim",
+   "Input_gTime"
+  ],
+  "inwin": [
+   "Input_gTime",
+   "Input_gResults",
+   "D_8013D228",
+   "Input_gSim",
+   "D_8013D22D",
+   "D_8013D22E",
+   "D_8013D22F",
+   "Input_gLookBehind",
+   "Input_gMode"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/common/paths.cpp.o",
+  "sec": ".sdata",
+  "base": 2148782824,
+  "end": 2148782828,
+  "size": 4,
+  "n": 1,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "Paths_File",
+    "lines": [
+     "nonmatching Paths_File",
+     "",
+     "dlabel Paths_File",
+     "    /* 12DAE8 8013D2E8 00000000 */ .word 0x00000000",
+     "enddlabel Paths_File",
+     ""
+    ],
+    "va": 2148782824,
+    "end": 2148782828
+   }
+  ],
+  "labels": [
+   "Paths_File"
+  ],
+  "inwin": [
+   "Paths_File"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/common/physics.cpp.o",
+  "sec": ".sdata",
+  "base": 2148782832,
+  "end": 2148782884,
+  "size": 52,
+  "n": 12,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "gBrakeRatio",
+    "lines": [
+     "nonmatching gBrakeRatio",
+     "",
+     "dlabel gBrakeRatio",
+     "    /* 12DAF0 8013D2F0 00000000 */ .word 0x00000000",
+     "enddlabel gBrakeRatio",
+     ""
+    ],
+    "va": 2148782832,
+    "end": 2148782836
+   },
+   {
+    "name": "gGasRatio",
+    "lines": [
+     "nonmatching gGasRatio",
+     "",
+     "dlabel gGasRatio",
+     "    /* 12DAF4 8013D2F4 00000000 */ .word 0x00000000",
+     "enddlabel gGasRatio",
+     ""
+    ],
+    "va": 2148782836,
+    "end": 2148782840
+   },
+   {
+    "name": "gSteerRatio",
+    "lines": [
+     "nonmatching gSteerRatio",
+     "",
+     "dlabel gSteerRatio",
+     "    /* 12DAF8 8013D2F8 00000000 */ .word 0x00000000",
+     "enddlabel gSteerRatio",
+     ""
+    ],
+    "va": 2148782840,
+    "end": 2148782844
+   },
+   {
+    "name": "D_8013D2FC",
+    "lines": [
+     "nonmatching D_8013D2FC",
+     "",
+     "dlabel D_8013D2FC",
+     "    /* 12DAFC 8013D2FC 00000000 */ .word 0x00000000",
+     "enddlabel D_8013D2FC",
+     ""
+    ],
+    "va": 2148782844,
+    "end": 2148782848
+   },
+   {
+    "name": "exceedRedline",
+    "lines": [
+     "nonmatching exceedRedline",
+     "",
+     "dlabel exceedRedline",
+     "    /* 12DB00 8013D300 00000000 */ .word 0x00000000",
+     "enddlabel exceedRedline",
+     ""
+    ],
+    "va": 2148782848,
+    "end": 2148782852
+   },
+   {
+    "name": "roadMult",
+    "lines": [
+     "nonmatching roadMult",
+     "",
+     "dlabel roadMult",
+     "    /* 12DB04 8013D304 00000000 */ .word 0x00000000",
+     "enddlabel roadMult",
+     ""
+    ],
+    "va": 2148782852,
+    "end": 2148782856
+   },
+   {
+    "name": "frontMult",
+    "lines": [
+     "nonmatching frontMult",
+     "",
+     "dlabel frontMult",
+     "    /* 12DB08 8013D308 00000000 */ .word 0x00000000",
+     "enddlabel frontMult",
+     ""
+    ],
+    "va": 2148782856,
+    "end": 2148782860
+   },
+   {
+    "name": "rearMult",
+    "lines": [
+     "nonmatching rearMult",
+     "",
+     "dlabel rearMult",
+     "    /* 12DB0C 8013D30C 00000000 */ .word 0x00000000",
+     "enddlabel rearMult",
+     ""
+    ],
+    "va": 2148782860,
+    "end": 2148782864
+   },
+   {
+    "name": "leftMult",
+    "lines": [
+     "nonmatching leftMult",
+     "",
+     "dlabel leftMult",
+     "    /* 12DB10 8013D310 00000000 */ .word 0x00000000",
+     "enddlabel leftMult",
+     ""
+    ],
+    "va": 2148782864,
+    "end": 2148782868
+   },
+   {
+    "name": "rightMult",
+    "lines": [
+     "nonmatching rightMult",
+     "",
+     "dlabel rightMult",
+     "    /* 12DB14 8013D314 00000000 */ .word 0x00000000",
+     "enddlabel rightMult",
+     ""
+    ],
+    "va": 2148782868,
+    "end": 2148782872
+   },
+   {
+    "name": "slippery",
+    "lines": [
+     "nonmatching slippery",
+     "",
+     "dlabel slippery",
+     "    /* 12DB18 8013D318 00000000 */ .word 0x00000000",
+     "enddlabel slippery",
+     ""
+    ],
+    "va": 2148782872,
+    "end": 2148782876
+   },
+   {
+    "name": "steeringControl",
+    "lines": [
+     "nonmatching steeringControl",
+     "",
+     "dlabel steeringControl",
+     "    /* 12DB1C 8013D31C 00000000 */ .word 0x00000000",
+     "enddlabel steeringControl",
+     ""
+    ],
+    "va": 2148782876,
+    "end": 2148782880
+   },
+   {
+    "name": "powerControl",
+    "lines": [
+     "nonmatching powerControl",
+     "",
+     "dlabel powerControl",
+     "    /* 12DB20 8013D320 00000000 */ .word 0x00000000",
+     "enddlabel powerControl",
+     ""
+    ],
+    "va": 2148782880,
+    "end": 2148782884
+   }
+  ],
+  "labels": [
+   "exceedRedline",
+   "frontMult",
+   "gBrakeRatio",
+   "gGasRatio",
+   "gSteerRatio",
+   "leftMult",
+   "powerControl",
+   "rearMult",
+   "rightMult",
+   "roadMult",
+   "slippery",
+   "steeringControl"
+  ],
+  "inwin": [
+   "gBrakeRatio",
+   "gGasRatio",
+   "gSteerRatio",
+   "D_8013D2FC",
+   "exceedRedline",
+   "roadMult",
+   "frontMult",
+   "rearMult",
+   "leftMult",
+   "rightMult",
+   "slippery",
+   "steeringControl",
+   "powerControl"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/common/scene.cpp.o",
+  "sec": ".sdata",
+  "base": 2148783112,
+  "end": 2148783116,
+  "size": 4,
+  "n": 1,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "gGameSceneList",
+    "lines": [
+     "nonmatching gGameSceneList",
+     "",
+     "dlabel gGameSceneList",
+     "    /* 12DC08 8013D408 00000000 */ .word 0x00000000",
+     "enddlabel gGameSceneList",
+     ""
+    ],
+    "va": 2148783112,
+    "end": 2148783116
+   }
+  ],
+  "labels": [
+   "gGameSceneList"
+  ],
+  "inwin": [
+   "gGameSceneList"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/common/souffle.cpp.o",
+  "sec": ".sdata",
+  "base": 2148783176,
+  "end": 2148783192,
+  "size": 16,
+  "n": 4,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "gISouffle",
+    "lines": [
+     "nonmatching gISouffle",
+     "",
+     "dlabel gISouffle",
+     "    /* 12DC48 8013D448 00000000 */ .word 0x00000000",
+     "enddlabel gISouffle",
+     ""
+    ],
+    "va": 2148783176,
+    "end": 2148783180
+   },
+   {
+    "name": "gCISouffle",
+    "lines": [
+     "nonmatching gCISouffle",
+     "",
+     "dlabel gCISouffle",
+     "    /* 12DC4C 8013D44C 00000000 */ .word 0x00000000",
+     "enddlabel gCISouffle",
+     ""
+    ],
+    "va": 2148783180,
+    "end": 2148783184
+   },
+   {
+    "name": "gTMoveSouffle",
+    "lines": [
+     "nonmatching gTMoveSouffle",
+     "",
+     "dlabel gTMoveSouffle",
+     "    /* 12DC50 8013D450 00000000 */ .word 0x00000000",
+     "enddlabel gTMoveSouffle",
+     ""
+    ],
+    "va": 2148783184,
+    "end": 2148783188
+   },
+   {
+    "name": "gWindDir",
+    "lines": [
+     "nonmatching gWindDir",
+     "",
+     "dlabel gWindDir",
+     "    /* 12DC54 8013D454 00000000 */ .word 0x00000000",
+     "enddlabel gWindDir",
+     ""
+    ],
+    "va": 2148783188,
+    "end": 2148783192
+   }
+  ],
+  "labels": [
+   "gCISouffle",
+   "gISouffle",
+   "gTMoveSouffle",
+   "gWindDir"
+  ],
+  "inwin": [
+   "gISouffle",
+   "gCISouffle",
+   "gTMoveSouffle",
+   "gWindDir"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/common/trgsfx.cpp.o",
+  "sec": ".sdata",
+  "base": 2148783344,
+  "end": 2148783352,
+  "size": 8,
+  "n": 2,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "gTAddCarWheelDelay",
+    "lines": [
+     "nonmatching gTAddCarWheelDelay",
+     "",
+     "dlabel gTAddCarWheelDelay",
+     "    /* 12DCF0 8013D4F0 00000000 */ .word 0x00000000",
+     "enddlabel gTAddCarWheelDelay",
+     ""
+    ],
+    "va": 2148783344,
+    "end": 2148783348
+   },
+   {
+    "name": "gTAddCSmoke",
+    "lines": [
+     "nonmatching gTAddCSmoke",
+     "",
+     "dlabel gTAddCSmoke",
+     "    /* 12DCF4 8013D4F4 00000000 */ .word 0x00000000",
+     "enddlabel gTAddCSmoke",
+     ""
+    ],
+    "va": 2148783348,
+    "end": 2148783352
+   }
+  ],
+  "labels": [
+   "gTAddCSmoke",
+   "gTAddCarWheelDelay"
+  ],
+  "inwin": [
+   "gTAddCarWheelDelay",
+   "gTAddCSmoke"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/common/aidebug.cpp.o",
+  "sec": ".sdata",
+  "base": 2148783352,
+  "end": 2148783356,
+  "size": 4,
+  "n": 1,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "grabValue",
+    "lines": [
+     "nonmatching grabValue",
+     "",
+     "dlabel grabValue",
+     "    /* 12DCF8 8013D4F8 00000000 */ .word 0x00000000",
+     "enddlabel grabValue",
+     ""
+    ],
+    "va": 2148783352,
+    "end": 2148783356
+   }
+  ],
+  "labels": [
+   "grabValue"
+  ],
+  "inwin": [
+   "grabValue"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/psx/audio.cpp.o",
+  "sec": ".sdata",
+  "base": 2148783356,
+  "end": 2148783364,
+  "size": 8,
+  "n": 2,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "Audio_direct3davail",
+    "lines": [
+     "nonmatching Audio_direct3davail",
+     "",
+     "dlabel Audio_direct3davail",
+     "    /* 12DCFC 8013D4FC 00000000 */ .word 0x00000000",
+     "enddlabel Audio_direct3davail",
+     ""
+    ],
+    "va": 2148783356,
+    "end": 2148783360
+   },
+   {
+    "name": "Audio_gHeap",
+    "lines": [
+     "nonmatching Audio_gHeap",
+     "",
+     "dlabel Audio_gHeap",
+     "    /* 12DD00 8013D500 00000000 */ .word 0x00000000",
+     "enddlabel Audio_gHeap",
+     "",
+     ".align 2"
+    ],
+    "va": 2148783360,
+    "end": 2148783364
+   }
+  ],
+  "labels": [
+   "Audio_direct3davail",
+   "Audio_gHeap"
+  ],
+  "inwin": [
+   "Audio_direct3davail",
+   "Audio_gHeap"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/psx/drawdbg.cpp.o",
+  "sec": ".sdata",
+  "base": 2148784152,
+  "end": 2148784156,
+  "size": 4,
+  "n": 1,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "gSavePtr",
+    "lines": [
+     "nonmatching gSavePtr",
+     "",
+     "dlabel gSavePtr",
+     "    /* 12E018 8013D818 00000000 */ .word 0x00000000",
+     "enddlabel gSavePtr",
+     ""
+    ],
+    "va": 2148784152,
+    "end": 2148784156
+   }
+  ],
+  "labels": [
+   "gSavePtr"
+  ],
+  "inwin": [
+   "gSavePtr"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/psx/force.cpp.o",
+  "sec": ".sdata",
+  "base": 2148784192,
+  "end": 2148784212,
+  "size": 20,
+  "n": 4,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "Force_gActAlign",
+    "lines": [
+     "nonmatching Force_gActAlign",
+     "",
+     "dlabel Force_gActAlign",
+     "    /* 12E040 8013D840 0001FFFF */ .word 0xFFFF0100",
+     "    /* 12E044 8013D844 FFFF0000 */ .word 0x0000FFFF",
+     "enddlabel Force_gActAlign",
+     ""
+    ],
+    "va": 2148784192,
+    "end": 2148784200
+   },
+   {
+    "name": "Force_gOffAlign",
+    "lines": [
+     "nonmatching Force_gOffAlign",
+     "",
+     "dlabel Force_gOffAlign",
+     "    /* 12E048 8013D848 FFFFFFFF */ .word 0xFFFFFFFF",
+     "    /* 12E04C 8013D84C */ .short 0xFFFF",
+     "enddlabel Force_gOffAlign",
+     ""
+    ],
+    "va": 2148784200,
+    "end": 2148784206
+   },
+   {
+    "name": "Force_gTick",
+    "lines": [
+     "nonmatching Force_gTick",
+     "",
+     "dlabel Force_gTick",
+     "    /* 12E04E 8013D84E */ .short 0x0000",
+     "enddlabel Force_gTick",
+     ""
+    ],
+    "va": 2148784206,
+    "end": 2148784208
+   },
+   {
+    "name": "Force_gVblHandle",
+    "lines": [
+     "nonmatching Force_gVblHandle",
+     "",
+     "dlabel Force_gVblHandle",
+     "    /* 12E050 8013D850 00000000 */ .word 0x00000000",
+     "enddlabel Force_gVblHandle",
+     ""
+    ],
+    "va": 2148784208,
+    "end": 2148784212
+   }
+  ],
+  "labels": [
+   "Force_gActAlign",
+   "Force_gOffAlign",
+   "Force_gTick",
+   "Force_gVblHandle"
+  ],
+  "inwin": [
+   "Force_gActAlign",
+   "Force_gOffAlign",
+   "Force_gTick",
+   "Force_gVblHandle"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/psx/flare.cpp.o",
+  "sec": ".sdata",
+  "base": 2148784236,
+  "end": 2148784248,
+  "size": 12,
+  "n": 3,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "gfrgb",
+    "lines": [
+     "nonmatching gfrgb",
+     "",
+     "dlabel gfrgb",
+     "    /* 12E06C 8013D86C FFFFFF00 */ .word 0x00FFFFFF",
+     "enddlabel gfrgb",
+     ""
+    ],
+    "va": 2148784236,
+    "end": 2148784240
+   },
+   {
+    "name": "gfrgb2",
+    "lines": [
+     "nonmatching gfrgb2",
+     "",
+     "dlabel gfrgb2",
+     "    /* 12E070 8013D870 40408000 */ .word 0x00804040",
+     "enddlabel gfrgb2",
+     ""
+    ],
+    "va": 2148784240,
+    "end": 2148784244
+   },
+   {
+    "name": "gscale",
+    "lines": [
+     "nonmatching gscale",
+     "",
+     "dlabel gscale",
+     "    /* 12E074 8013D874 00100000 */ .word 0x00001000",
+     "enddlabel gscale",
+     ""
+    ],
+    "va": 2148784244,
+    "end": 2148784248
+   }
+  ],
+  "labels": [
+   "gfrgb",
+   "gfrgb2",
+   "gscale"
+  ],
+  "inwin": [
+   "gfrgb",
+   "gfrgb2",
+   "gscale"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/psx/texture.cpp.o",
+  "sec": ".sdata",
+  "base": 2148784904,
+  "end": 2148784956,
+  "size": 52,
+  "n": 13,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "Texture_CarColor",
+    "lines": [
+     "nonmatching Texture_CarColor",
+     "",
+     "dlabel Texture_CarColor",
+     "    /* 12E308 8013DB08 00000000 */ .word 0x00000000",
+     "enddlabel Texture_CarColor",
+     ""
+    ],
+    "va": 2148784904,
+    "end": 2148784908
+   },
+   {
+    "name": "Texture_palCopy",
+    "lines": [
+     "nonmatching Texture_palCopy",
+     "",
+     "dlabel Texture_palCopy",
+     "    /* 12E30C 8013DB0C 00000000 */ .word 0x00000000",
+     "enddlabel Texture_palCopy",
+     ""
+    ],
+    "va": 2148784908,
+    "end": 2148784912
+   },
+   {
+    "name": "Texture_palNum",
+    "lines": [
+     "nonmatching Texture_palNum",
+     "",
+     "dlabel Texture_palNum",
+     "    /* 12E310 8013DB10 */ .short 0x0000",
+     "    /* 12E312 8013DB12 */ .short 0x0000",
+     "enddlabel Texture_palNum",
+     ""
+    ],
+    "va": 2148784912,
+    "end": 2148784916
+   },
+   {
+    "name": "Texture_gNum4bitPal",
+    "lines": [
+     "nonmatching Texture_gNum4bitPal",
+     "",
+     "dlabel Texture_gNum4bitPal",
+     "    /* 12E314 8013DB14 00000000 */ .word 0x00000000",
+     "enddlabel Texture_gNum4bitPal",
+     ""
+    ],
+    "va": 2148784916,
+    "end": 2148784920
+   },
+   {
+    "name": "Texture_gNum8bitPal",
+    "lines": [
+     "nonmatching Texture_gNum8bitPal",
+     "",
+     "dlabel Texture_gNum8bitPal",
+     "    /* 12E318 8013DB18 00000000 */ .word 0x00000000",
+     "enddlabel Texture_gNum8bitPal",
+     ""
+    ],
+    "va": 2148784920,
+    "end": 2148784924
+   },
+   {
+    "name": "Texture_gP4bitPmx",
+    "lines": [
+     "nonmatching Texture_gP4bitPmx",
+     "",
+     "dlabel Texture_gP4bitPmx",
+     "    /* 12E31C 8013DB1C 00000000 */ .word 0x00000000",
+     "enddlabel Texture_gP4bitPmx",
+     ""
+    ],
+    "va": 2148784924,
+    "end": 2148784928
+   },
+   {
+    "name": "Texture_gP8bitPmx",
+    "lines": [
+     "nonmatching Texture_gP8bitPmx",
+     "",
+     "dlabel Texture_gP8bitPmx",
+     "    /* 12E320 8013DB20 00000000 */ .word 0x00000000",
+     "enddlabel Texture_gP8bitPmx",
+     ""
+    ],
+    "va": 2148784928,
+    "end": 2148784932
+   },
+   {
+    "name": "Texture_gPalette4bit",
+    "lines": [
+     "nonmatching Texture_gPalette4bit",
+     "",
+     "dlabel Texture_gPalette4bit",
+     "    /* 12E324 8013DB24 00000000 */ .word 0x00000000",
+     "enddlabel Texture_gPalette4bit",
+     ""
+    ],
+    "va": 2148784932,
+    "end": 2148784936
+   },
+   {
+    "name": "Texture_gPalette8bit",
+    "lines": [
+     "nonmatching Texture_gPalette8bit",
+     "",
+     "dlabel Texture_gPalette8bit",
+     "    /* 12E328 8013DB28 00000000 */ .word 0x00000000",
+     "enddlabel Texture_gPalette8bit",
+     ""
+    ],
+    "va": 2148784936,
+    "end": 2148784940
+   },
+   {
+    "name": "gFreePal4",
+    "lines": [
+     "nonmatching gFreePal4",
+     "",
+     "dlabel gFreePal4",
+     "    /* 12E32C 8013DB2C 00000000 */ .word 0x00000000",
+     "enddlabel gFreePal4",
+     ""
+    ],
+    "va": 2148784940,
+    "end": 2148784944
+   },
+   {
+    "name": "gNbFreePal4",
+    "lines": [
+     "nonmatching gNbFreePal4",
+     "",
+     "dlabel gNbFreePal4",
+     "    /* 12E330 8013DB30 00000000 */ .word 0x00000000",
+     "enddlabel gNbFreePal4",
+     ""
+    ],
+    "va": 2148784944,
+    "end": 2148784948
+   },
+   {
+    "name": "gFreePal8",
+    "lines": [
+     "nonmatching gFreePal8",
+     "",
+     "dlabel gFreePal8",
+     "    /* 12E334 8013DB34 00000000 */ .word 0x00000000",
+     "enddlabel gFreePal8",
+     ""
+    ],
+    "va": 2148784948,
+    "end": 2148784952
+   },
+   {
+    "name": "gNbFreePal8",
+    "lines": [
+     "nonmatching gNbFreePal8",
+     "",
+     "dlabel gNbFreePal8",
+     "    /* 12E338 8013DB38 00000000 */ .word 0x00000000",
+     "enddlabel gNbFreePal8",
+     ""
+    ],
+    "va": 2148784952,
+    "end": 2148784956
+   }
+  ],
+  "labels": [
+   "Texture_CarColor",
+   "Texture_gNum4bitPal",
+   "Texture_gNum8bitPal",
+   "Texture_gP4bitPmx",
+   "Texture_gP8bitPmx",
+   "Texture_gPalette4bit",
+   "Texture_gPalette8bit",
+   "Texture_palCopy",
+   "Texture_palNum",
+   "gFreePal4",
+   "gFreePal8",
+   "gNbFreePal4",
+   "gNbFreePal8"
+  ],
+  "inwin": [
+   "Texture_CarColor",
+   "Texture_palCopy",
+   "Texture_palNum",
+   "Texture_gNum4bitPal",
+   "Texture_gNum8bitPal",
+   "Texture_gP4bitPmx",
+   "Texture_gP8bitPmx",
+   "Texture_gPalette4bit",
+   "Texture_gPalette8bit",
+   "gFreePal4",
+   "gNbFreePal4",
+   "gFreePal8",
+   "gNbFreePal8"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/psx/trackspec.cpp.o",
+  "sec": ".sdata",
+  "base": 2148785040,
+  "end": 2148785052,
+  "size": 12,
+  "n": 3,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "TrackSpec_gPrevSpec",
+    "lines": [
+     "nonmatching TrackSpec_gPrevSpec",
+     "",
+     "dlabel TrackSpec_gPrevSpec",
+     "    /* 12E390 8013DB90 00000000 */ .word 0x00000000",
+     "enddlabel TrackSpec_gPrevSpec",
+     ""
+    ],
+    "va": 2148785040,
+    "end": 2148785044
+   },
+   {
+    "name": "TrackSpec_gCurrentSpec",
+    "lines": [
+     "nonmatching TrackSpec_gCurrentSpec",
+     "",
+     "dlabel TrackSpec_gCurrentSpec",
+     "    /* 12E394 8013DB94 00000000 */ .word 0x00000000",
+     "enddlabel TrackSpec_gCurrentSpec",
+     ""
+    ],
+    "va": 2148785044,
+    "end": 2148785048
+   },
+   {
+    "name": "TrackSpec_gMaxSpec",
+    "lines": [
+     "nonmatching TrackSpec_gMaxSpec",
+     "",
+     "dlabel TrackSpec_gMaxSpec",
+     "    /* 12E398 8013DB98 00000000 */ .word 0x00000000",
+     "enddlabel TrackSpec_gMaxSpec",
+     ""
+    ],
+    "va": 2148785048,
+    "end": 2148785052
+   }
+  ],
+  "labels": [
+   "TrackSpec_gCurrentSpec",
+   "TrackSpec_gMaxSpec",
+   "TrackSpec_gPrevSpec"
+  ],
+  "inwin": [
+   "TrackSpec_gPrevSpec",
+   "TrackSpec_gCurrentSpec",
+   "TrackSpec_gMaxSpec"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/game/psx/trsproj.cpp.o",
+  "sec": ".sdata",
+  "base": 2148785052,
+  "end": 2148785056,
+  "size": 4,
+  "n": 1,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "TrsProj_precision",
+    "lines": [
+     "nonmatching TrsProj_precision",
+     "",
+     "dlabel TrsProj_precision",
+     "    /* 12E39C 8013DB9C 0A000000 */ .word 0x0000000A",
+     "enddlabel TrsProj_precision",
+     ""
+    ],
+    "va": 2148785052,
+    "end": 2148785056
+   }
+  ],
+  "labels": [
+   "TrsProj_precision"
+  ],
+  "inwin": [
+   "TrsProj_precision"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/joystkn.c.o",
+  "sec": ".sbss",
+  "base": 2148785448,
+  "end": 2148785452,
+  "size": 4,
+  "n": 1,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "joy_inited",
+    "lines": [
+     "nonmatching joy_inited",
+     "",
+     "dlabel joy_inited",
+     "    /* 12E528 8013DD28 00000000 */ .word 0x00000000",
+     "enddlabel joy_inited",
+     "",
+     ".align 2"
+    ],
+    "va": 2148785448,
+    "end": 2148785452
+   }
+  ],
+  "labels": [
+   "joy_inited"
+  ],
+  "inwin": [
+   "joy_inited"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/threads.c.o",
+  "sec": ".sbss",
+  "base": 2148785500,
+  "end": 2148785504,
+  "size": 4,
+  "n": 1,
+  "nbases": 1,
+  "foreign": [],
+  "unmig": [],
+  "outside": [],
+  "e3": true,
+  "e4": true,
+  "e5": true,
+  "ok": [
+   {
+    "name": "g_currentthread",
+    "lines": [
+     "nonmatching g_currentthread",
+     "",
+     "dlabel g_currentthread",
+     "    /* 12E55C 8013DD5C 00000000 */ .word 0x00000000",
+     "enddlabel g_currentthread",
+     ""
+    ],
+    "va": 2148785500,
+    "end": 2148785504
+   }
+  ],
+  "labels": [
+   "g_currentthread"
+  ],
+  "inwin": [
+   "g_currentthread"
+  ],
+  "bytes_ok": true,
+  "bytediff": 0
+ }
+]

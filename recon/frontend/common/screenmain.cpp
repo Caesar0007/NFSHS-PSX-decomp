@@ -480,8 +480,17 @@ void tScreenMain::DrawBackground()
       uVar9 = 0x80 - (int)this->fWarningFade;
       this->tvConfigs[i].tint = uVar9 * 0x10000 | uVar9 * 0x100 | uVar9;
     }
-    uVar9 = 0x80 - ((int)this->fWarningFade << 6) / 0x60;
-    fade = uVar9 * 0x10000 | uVar9 * 0x100 | uVar9;
+    /* MATCH W63-A17 (44 -> 12, count still EXACT 822/822): W46 STORAGE-SCOPE LAW.
+       Retail homes the packed-tint scratch in $a1 INSIDE the tvConfigs[4..0xb]
+       loop and in $v1 AFTER it -- two different registers for what our recon
+       carried in ONE fn-scope `uVar9`, i.e. one global allocno whose merged
+       conflict set was barred from both.  Giving the POST-LOOP use its own
+       block-scoped variable turns it into a local qty and the whole a1/a2 (loop)
+       plus a2/v1 (tail) rotation collapses.  Splitting the IN-LOOP use instead --
+       alone, in-place-mutated, or together with this one -- REGRESSES to 52
+       (all three re-gated): only the second site is the dial. */
+    { uint uFade = 0x80 - ((int)this->fWarningFade << 6) / 0x60;
+    fade = uFade * 0x10000 | uFade * 0x100 | uFade; }
     this->tvConfigs[6].tint = fade;
     this->tvConfigs[5].tint = fade;
     drawFlags.tint[0] = 0xbebe;

@@ -4,6 +4,11 @@ so a branch whose OFFSET differs from retail's still reads PASS.  This compares 
 per-branch DISTANCE (in instructions, branch -> target) of ours vs the oracle for
 every function of a TU, using verify_asm's own compile + normalisation front end.
 
+w63-a15 VACUITY FIX: the target-address regex was {4,8} hex digits, but objdump
+prints targets UNPADDED -- any target below 0x1000 (1-3 digits) parsed as None
+and was silently skipped, so the census printed "0 divergence" vacuously on most
+TUs.  Regex is now +.  Every pre-w63 "clean" brdist run is unaudited.
+
 Anti-drift (12H): loads tools/verify_asm.py's SOURCE; only the compare step is new.
 """
 import re
@@ -45,7 +50,7 @@ def ours_branches(fn):
     out = []
     for i, (a, t) in enumerate(body):
         if BR.match(t):
-            m = re.search(r'\b([0-9a-f]{4,8})\b\s*<', t) or re.search(r',([0-9a-f]+)$', t)
+            m = re.search(r'\b([0-9a-f]+)\b\s*<', t) or re.search(r',([0-9a-f]+)$', t)
             if m:
                 out.append((i, (int(m.group(1), 16) - a) // 4))
             else:

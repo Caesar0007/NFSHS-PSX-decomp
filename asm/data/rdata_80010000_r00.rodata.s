@@ -10,6 +10,14 @@
 nonmatching _front_obj
 
 dlabel _front_obj
+/* W66-A3 (link): `bigBuf` is the recon lane's spelling for this same address --
+ * the front overlay's load buffer, referenced from 5 TUs (feapp/feaudio/minfront/
+ * nfs3/fe3dmenu) as `bigBuf + <offset>` and defined nowhere.  A second GLOBAL
+ * LABEL at offset 0 resolves it without a byte moving and without touching any
+ * recon TU (`dlabel` = `.global` + label only; no `.size`, so the unsized-array
+ * declarations the consumers use stay honest).  Never `bigBuf = _front_obj` --
+ * ASPSX 2.77 has no symbol-assignment form (catalog 15E). */
+dlabel bigBuf
     /* 800 80010000 */ .asciz "SimpleMem"
     /* 53696D706C654D656D000000 */
 .align 2

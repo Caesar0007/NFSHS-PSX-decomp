@@ -29,7 +29,7 @@
  *
  *   The `#else` host body is a behavioural placeholder only (never assembled on MIPS). */
 
-extern const int _rsincos[];   /* @0x80137D20 : 4096 x { short sin; short cos } (one circle) */
+extern const int rcossin_tbl[];   /* @0x80137D20 : 4096 x { short sin; short cos } (one circle) */
 
 #if defined(__mips__)
 
@@ -49,9 +49,9 @@ __asm__(
     "\tandi\t$t7,$t7,4095\n"
     ".L800F3148:\n"
     "\tsll\t$t8,$t7,2\n"
-    "\tlui\t$t9,%hi(_rsincos)\n"
+    "\tlui\t$t9,%hi(rcossin_tbl)\n"
     "\taddu\t$t9,$t9,$t8\n"
-    "\tlw\t$t9,%lo(_rsincos)($t9)\n"
+    "\tlw\t$t9,%lo(rcossin_tbl)($t9)\n"
     "\tnop\n"
     "\tsll\t$t6,$t9,16\n"
     "\tsra\t$t6,$t6,16\n"
@@ -60,9 +60,9 @@ __asm__(
     "\tsra\t$t0,$t9,16\n"
     ".L800F3170:\n"
     "\tsll\t$t8,$t9,2\n"
-    "\tlui\t$t9,%hi(_rsincos)\n"
+    "\tlui\t$t9,%hi(rcossin_tbl)\n"
     "\taddu\t$t9,$t9,$t8\n"
-    "\tlw\t$t9,%lo(_rsincos)($t9)\n"
+    "\tlw\t$t9,%lo(rcossin_tbl)($t9)\n"
     "\tnop\n"
     "\tsll\t$t8,$t9,16\n"
     "\tsra\t$t1,$t8,16\n"

@@ -754,30 +754,48 @@ void tDialogYesNo::CalculateDimensions()
 
 /* ---- tDialogYesNo::ctor  [FEDIALOG.CPP:765-767] SLD-VERIFIED ---- */
 
+/* W66-A3 (link + calltarget): the tDialog family's base ctors are INLINE-ONLY in
+ * retail -- there is no `__11tDialogBase` / `__20tDialogMessageString` function
+ * anywhere in the image, and this ctor's oracle jal's `__7tScreen` directly with
+ * every base body expanded in place.  feapp.cpp / fememcard.cpp / front.cpp all
+ * carry the inline definitions; fedialog.cpp did NOT, so gcc had to emit an
+ * out-of-line call to a ctor nobody defines -- an undefined symbol at link time
+ * that the gate's reloc-name leniency hid (one jal, right position, wrong name).
+ * Supplying the definitions here lets the member-init chain inline them and reach
+ * `__7tScreen`, exactly like retail; the store list below drops the copies that
+ * are now emitted by the inlined bodies. */
+inline tDialogBase::tDialogBase()
+{
+  *(void **)&_vf = (void *)tDialogBase_vtable;
+  currentlyOn = 0;
+  reservedheight = 0;
+  MaxH = 0;
+  OffsetY = 0;
+  OffsetX = 0;
+  height = 0;
+  width = 0;
+  top = 0;
+  left = 0;
+  MaxW = 0x120;
+  specificPlayer = -1;
+  fDefault = 0;
+  timeOutTicks = 0;
+}
+
+inline tDialogMessageString::tDialogMessageString()
+{
+  *(void **)&_vf = (void *)tDialogMessageString_vtable;
+  Centerit = 0;
+  fFullyOpen = 0;
+  timeOutTicks = 0;
+  fFadeText = 0x80;
+}
+
 tDialogYesNo::tDialogYesNo()
   : tDialogInteractive()
 {
-  
-  *(void **)&(this->_vf) = (void *)tDialogBase_vtable;
-  this->MaxW = 0x120;
-  this->specificPlayer = -1;
-  *(void **)&(this->_vf) = (void *)tDialogMessageString_vtable;
-  this->fFadeText = 0x80;
+
   *(void **)&(this->_vf) = (void *)tDialogInteractive_vtable;
-  this->currentlyOn = 0;
-  this->reservedheight = 0;
-  this->MaxH = 0;
-  this->OffsetY = 0;
-  this->OffsetX = 0;
-  this->height = 0;
-  this->width = 0;
-  this->top = 0;
-  this->left = 0;
-  this->fDefault = 0;
-  this->timeOutTicks = 0;
-  this->Centerit = 0;
-  this->fFullyOpen = 0;
-  this->timeOutTicks = 0;
   /* MATCH: oracle emits 3 separate `sw zero,0x78` (timeOutTicks); gcc folds the 2nd of two
    * adjacent identical plain stores. The volatile-cast keeps the redundant store (codegen-
    * neutral: same `sw zero,0x78`). Do NOT "simplify" away or the 3rd store disappears (45 vs 46). */

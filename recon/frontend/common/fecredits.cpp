@@ -14,7 +14,12 @@ extern int A_ticks[] __asm__("ticks");
 #define ticks A_ticks[0]
 extern tScreenMain *A_screenMain[] __asm__("screenMain");
 #define screenMain A_screenMain[0]
-extern int A_FECredits_lastFadeTick[] __asm__("FECredits_lastFadeTick");
+/* W66-A3 (link): the storage is the blob's `D_80051AA4` (front_data_r03.data.s,
+ * the word right after CREDFADETICKS) -- point the asm-label view at the label
+ * that actually exists instead of at the project spelling, which nothing defines.
+ * Name-only: the unsized-array view (and its absolute lui/lw addressing) is
+ * unchanged. */
+extern int A_FECredits_lastFadeTick[] __asm__("D_80051AA4");
 #define FECredits_lastFadeTick A_FECredits_lastFadeTick[0]
 
 

@@ -1,6 +1,6 @@
 /* syslib/psx/libgte/FGO_01.c -- RECONSTRUCTED from nfs4-f.exe.  NOT original source.
  *   obj libgte.lib(FGO_01.OBJ): RotMatrix -- build a 3x3 rotation matrix from an SVECTOR of Euler angles (rx,ry,rz; one
- *   revolution = 0x1000), 4.12 fixed point, sin/cos from the packed _rsincos table.
+ *   revolution = 0x1000), 4.12 fixed point, sin/cos from the packed rcossin_tbl table.
  *
  *   HAND-WRITTEN PsyQ libgte SDK ASSEMBLY -- transcribed VERBATIM (blockmove / MSC02 / PATCH
  *   precedent).  It was never C, so it is NOT a C-matching target.  THREE independent proofs:
@@ -29,7 +29,7 @@
  *
  *   The `#else` host body is a behavioural placeholder only (never assembled on MIPS). */
 
-extern const int _rsincos[];   /* @0x80137D20 : 4096 x { short sin; short cos } (one circle) */
+extern const int rcossin_tbl[];   /* @0x80137D20 : 4096 x { short sin; short cos } (one circle) */
 
 #if defined(__mips__)
 
@@ -49,9 +49,9 @@ __asm__(
     "\tandi\t$t7,$t7,4095\n"
     ".L800F2548:\n"
     "\tsll\t$t8,$t7,2\n"
-    "\tlui\t$t9,%hi(_rsincos)\n"
+    "\tlui\t$t9,%hi(rcossin_tbl)\n"
     "\taddu\t$t9,$t9,$t8\n"
-    "\tlw\t$t9,%lo(_rsincos)($t9)\n"
+    "\tlw\t$t9,%lo(rcossin_tbl)($t9)\n"
     "\tnop\n"
     "\tsll\t$t8,$t9,16\n"
     "\tsra\t$t8,$t8,16\n"
@@ -60,9 +60,9 @@ __asm__(
     "\tsra\t$t0,$t9,16\n"
     ".L800F2570:\n"
     "\tsll\t$t8,$t9,2\n"
-    "\tlui\t$t9,%hi(_rsincos)\n"
+    "\tlui\t$t9,%hi(rcossin_tbl)\n"
     "\taddu\t$t9,$t9,$t8\n"
-    "\tlw\t$t9,%lo(_rsincos)($t9)\n"
+    "\tlw\t$t9,%lo(rcossin_tbl)($t9)\n"
     "\tnop\n"
     "\tsll\t$t8,$t9,16\n"
     "\tsra\t$t3,$t8,16\n"
@@ -77,9 +77,9 @@ __asm__(
     "\tandi\t$t7,$t7,4095\n"
     ".L800F25AC:\n"
     "\tsll\t$t8,$t7,2\n"
-    "\tlui\t$t9,%hi(_rsincos)\n"
+    "\tlui\t$t9,%hi(rcossin_tbl)\n"
     "\taddu\t$t9,$t9,$t8\n"
-    "\tlw\t$t9,%lo(_rsincos)($t9)\n"
+    "\tlw\t$t9,%lo(rcossin_tbl)($t9)\n"
     "\tnop\n"
     "\tsll\t$t4,$t9,16\n"
     "\tsra\t$t4,$t4,16\n"
@@ -88,9 +88,9 @@ __asm__(
     "\tsra\t$t1,$t9,16\n"
     ".L800F25D4:\n"
     "\tsll\t$t8,$t9,2\n"
-    "\tlui\t$t9,%hi(_rsincos)\n"
+    "\tlui\t$t9,%hi(rcossin_tbl)\n"
     "\taddu\t$t9,$t9,$t8\n"
-    "\tlw\t$t9,%lo(_rsincos)($t9)\n"
+    "\tlw\t$t9,%lo(rcossin_tbl)($t9)\n"
     "\tnop\n"
     "\tsll\t$t6,$t9,16\n"
     "\tsra\t$t6,$t6,16\n"
@@ -115,9 +115,9 @@ __asm__(
     "\tandi\t$t7,$t7,4095\n"
     ".L800F2638:\n"
     "\tsll\t$t8,$t7,2\n"
-    "\tlui\t$t9,%hi(_rsincos)\n"
+    "\tlui\t$t9,%hi(rcossin_tbl)\n"
     "\taddu\t$t9,$t9,$t8\n"
-    "\tlw\t$t9,%lo(_rsincos)($t9)\n"
+    "\tlw\t$t9,%lo(rcossin_tbl)($t9)\n"
     "\tnop\n"
     "\tsll\t$t8,$t9,16\n"
     "\tsra\t$t8,$t8,16\n"
@@ -129,9 +129,9 @@ __asm__(
     "\tsra\t$t6,$t7,12\n"
     "\tsh\t$t6,16($a1)\n"
     "\tsll\t$t8,$t9,2\n"
-    "\tlui\t$t9,%hi(_rsincos)\n"
+    "\tlui\t$t9,%hi(rcossin_tbl)\n"
     "\taddu\t$t9,$t9,$t8\n"
-    "\tlw\t$t9,%lo(_rsincos)($t9)\n"
+    "\tlw\t$t9,%lo(rcossin_tbl)($t9)\n"
     "\tnop\n"
     "\tsll\t$t8,$t9,16\n"
     "\tsra\t$t5,$t8,16\n"

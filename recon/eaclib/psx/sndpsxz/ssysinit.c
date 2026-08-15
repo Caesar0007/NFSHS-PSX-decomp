@@ -27,13 +27,23 @@ extern int  sndgs[];
  * They are emitted as extra LABELS at their exact offsets rather than as `sym = sndgs+N`
  * assignments, because ASPSX 2.77 (the production assembler) has no symbol-assignment form
  * (catalog 15E) -- a second label is the only dual-legal spelling.  This also retires 3 of the
- * 7 `DAT_` seal-criterion #3 violations (a Ghidra-ism referenced from code). */
-__asm__("\t.globl\tsndgs\n\t.globl\tD_80147871\n\t.globl\tD_80147898\n\t.globl\tDAT_801478f4\n"
+ * 7 `DAT_` seal-criterion #3 violations (a Ghidra-ism referenced from code).
+ * W66-A3 adds TWO more interior/alias labels of the SAME run, both previously
+ * undefined at link time and both previously "defined" by a private 4-byte
+ * tentative def at a VA retail does not have (the gRepeatCount class):
+ *      gSndState        = sndgs + 0      (snd.h's `SND` base view; 3 TUs)
+ *      iSNDplatformrate = sndgs + 0xA0   (= D_80147900, the platform sample
+ *                                         rate SNDPKTPLAY_start/stagpat load;
+ *                                         inside the DAT_801478f4 sub-run) */
+__asm__("\t.globl\tsndgs\n\t.globl\tgSndState\n\t.globl\tD_80147871\n"
+        "\t.globl\tD_80147898\n\t.globl\tDAT_801478f4\n\t.globl\tiSNDplatformrate\n"
         "\t.section\t.bss\n\t.align\t2\n"
-        "sndgs:\n\t.space\t0x11\n"
+        "sndgs:\n"
+        "gSndState:\n\t.space\t0x11\n"
         "D_80147871:\n\t.space\t0x27\n"
         "D_80147898:\n\t.space\t0x5c\n"
-        "DAT_801478f4:\n\t.space\t0x20\n\t.text");
+        "DAT_801478f4:\n\t.space\t0xc\n"
+        "iSNDplatformrate:\n\t.space\t0x14\n\t.text");
 extern int  DAT_80134a68[];                /* output-caps flag; owned by snddata.c (array view forces
                                              * the oracle's retained absolute address, not GP-relative) */
 

@@ -120,7 +120,16 @@ int   Front_GetTrackRaced(void);
 int   PSXDrawBrightEndLine(int, int, int, int, int, int, int, int);
 char *Stattool_GetAINameFromPersonality(tPersonalities);
 extern "C" int textpixels(char *);
-int   tScreen_ProcessInput(tScreen *, tPlayer, tInputKeyType &, tMenuCommand &);
+/* W66-A3 (link): this is tScreen::ProcessInput written in the flattened free-fn
+ * form (§3.23b) -- and the free form MANGLES DIFFERENTLY, so the reference was a
+ * real undefined symbol that the gate's reloc-name leniency hid (the oracle for
+ * ProcessInput__24tScreenPinkSlipStandings… jal's the method form).  An asm-label
+ * on the declaration fixes the emitted name only: the ABI is identical (`this` in
+ * $a0 == the explicit first pointer arg), so the bytes cannot move, and the
+ * `int` return keeps the existing `return tScreen_ProcessInput(...)` body legal
+ * (the base method is void; retail's $v0 there is incidental). */
+int   tScreen_ProcessInput(tScreen *, tPlayer, tInputKeyType &, tMenuCommand &)
+    __asm__("ProcessInput__7tScreen7tPlayerR13tInputKeyTypeR12tMenuCommand");
 extern tTexture_ShapeInfo *gCurrentShapes[];
 extern __nfs4_vtbl_ptr_t tScreenTournamentStandings_vtable[10], tScreenTournamentStandings3item_vtable[10], tScreenPinkSlipStandings_vtable[10];
 

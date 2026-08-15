@@ -65,7 +65,10 @@ struct FntStream {              /* 0x30 bytes; @0x80135E58 + id*0x30 */
 };
 typedef struct FntStream FntStream;
 
-extern FntStream _fnt[8];       /* @0x80135E58 : open font streams */
+/* W66-A3 (link): the stream array IS in the image; the splat blob emits it under
+ * the project label `Font` (data_8010CCD4_r17.data.s, symbol_addrs Font=0x80135E58).
+ * Alias the PsyQ spelling onto it -- name-only, no second copy. */
+extern FntStream _fnt[8] __asm__("Font");   /* @0x80135E58 : open font streams */
 extern int _fnt_count __asm__("D_80135FD8");          /* @0x80135FD8 : number of open streams */
 extern int _fnt_active __asm__("D_80135FDC");         /* @0x80135FDC : current active stream id */
 extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */

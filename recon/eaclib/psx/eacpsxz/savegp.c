@@ -25,7 +25,13 @@
  *   `D_801234E8` in an asm/data blob; promoting this TU means defining g_bootGP here and de-duping the blob.)
  */
 
-extern unsigned int g_bootGP;   /* @0x801234E8 : lib/boot $gp; written by initgp, reloaded by savegp */
+/* W66-A3 (link): the word IS in the image and the splat blob emits it as
+ * `D_801234E8` (data_8010CCD4_r16.data.s) -- so the promotion follow-up above is
+ * answered by ALIASING, not by defining a second copy here.  The `%hi/%lo`
+ * operand inside initgp's template is spelled with the blob's label for the same
+ * reason (an asm-label alias on a C declaration cannot rename a symbol that only
+ * appears inside an __asm__ string). */
+extern unsigned int g_bootGP __asm__("D_801234E8");   /* @0x801234E8 : lib/boot $gp */
 
 #if defined(__mips__)
 
@@ -41,8 +47,8 @@ __asm__(
 /* initgp @0x800EB080 : g_bootGP = $gp */
 "       .globl initgp\n"
 "initgp:\n"
-"       lui     $1, %hi(g_bootGP)\n"
-"       sw      $28, %lo(g_bootGP)($1)\n"
+"       lui     $1, %hi(D_801234E8)\n"
+"       sw      $28, %lo(D_801234E8)($1)\n"
 "       jr      $31\n"
 "        nop\n"
 /* savegp @0x800EB090 : *a0 = $gp; then $gp = g_bootGP (reload the lib gp from 0x801234E8).

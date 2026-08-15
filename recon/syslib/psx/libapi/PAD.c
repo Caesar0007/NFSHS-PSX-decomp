@@ -8,7 +8,15 @@
  *   which mismatches the oracle's 2-instr absolute form -- see methodology §3.12 #6).  The owning
  *   zero def lives in a sibling data TU (PAD_data.cpp) so the link still resolves. */
 
-extern int _init_pad_flag;   /* @0x8013C338 : set by the BIOS-level pad init (owned in PAD_data.cpp) */
+/* W66-A3 (link): PAD_data.c's `int _init_pad_flag;` never actually resolved this
+ * reference -- at 4 bytes the tentative def routes to a LOCAL .sbss/.bss symbol
+ * (nm `b`, the w65-a6 §6.1 falsification), so the real link kept the reference
+ * undefined AND the private copy sat at a VA retail does not have.  The word IS
+ * in the image: the splat blob emits it as `D_8013C338`
+ * (data_8010CCD4_r21.data.s, first word of a 4-word run).  Alias onto it; the
+ * declaration stays a pure extern so the absolute lui/%hi + lw/%lo form is
+ * unchanged. */
+extern int _init_pad_flag __asm__("D_8013C338");   /* @0x8013C338 : set by the BIOS pad init */
 
 /* @0x8010C9B0 : ReadInitPadFlag. */
 extern int ReadInitPadFlag(void) { return _init_pad_flag; }

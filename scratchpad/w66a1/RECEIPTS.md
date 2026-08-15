@@ -10,6 +10,9 @@ the orchestrator applies* are the same bytes by construction (12H anti-drift).
 
 ## 0. HEADLINE
 
+*(Post-resume: re-measured end-to-end at the moved HEAD after peers landed
+w66-a2/a6; `FntPrint` withdrawn from the wiring per the orchestrator � see 2.3.)*
+
 | item | before | after |
 |---|---|---|
 | open **class-d** rows (w65-a4 §4.1) | 6 | **0** |
@@ -75,7 +78,7 @@ exactly (`ACCEPT_base.txt`), i.e. the patch is provably inert until rows exist.
 | 3 | `DrawBackground__11tScreenMain` | frontend/common | (9,11,12) · prod REAL=1 | **0** · **REAL=0** | two labels 1 word apart |
 | 4 | `Hud_BuildString__FPciiiib` | game/psx/hud | (2,154,155) | **0** | two labels; `$L764` has 4 users |
 | 5 | `MCRD_handlecardevents` | frontend/psx | (13,148,94) · prod REAL=1 | **0** · **REAL=0** | cross-jump partner choice |
-| 6 | `FntPrint` | libgpu/FONT | (10,8,9) | **0** | maspsx label-hoist |
+| ~~6~~ | ~~`FntPrint`~~ | libgpu/FONT | (10,8,9) | **0** *(measured, NOT SHIPPED)* | maspsx label-hoist � **w66-a2 owns this row**; see 2.3 |
 | 7 | `Sim_MainGameLoop__Fv` | game/common/sim | gate FAIL 6 · prod REAL=50 · calltarget 2 | **PASS 321/321** · **REAL=0** · **0** | block placement (4 moves + 1 retarget) |
 
 Rows 1/3/4 are the pure **two-label** class w65-a2 §4.2 specified this mechanism
@@ -178,7 +181,7 @@ are compared by resolved target index:
 | `DrawBackground__11tScreenMain` | 1 DIFF (`1462000a` vs `1462000b`) | **0** |
 | `Hud_BuildString` | 1 DIFF (target 194 vs 195) | **0** |
 | `MCRD_handlecardevents` | 1 DIFF (`14620093` vs `1462005d`) | **0** |
-| `FntPrint` | 1 DIFF (target 88 vs 89) | **0** |
+| `FntPrint` *(not shipped)* | 1 DIFF (target 88 vs 89) | **0** |
 | `Sim_MainGameLoop__Fv` | **17 DIFF** | **0** |
 
 **Production lane** (`pq.py` = `tools/psyqproof.py` with a BRANCH_RETARGET hook),

@@ -34,10 +34,6 @@ Hud_RenderTacView__Fv                                        3 offset diffs [(0,
 --- recon/frontend/psx/memcard.c
 recon/frontend/psx/memcard.c: 20/20 PASS
 # 20 fns checked, 0 with branch-offset/count divergence
---- recon/syslib/psx/libgpu/FONT.c
-recon/syslib/psx/libgpu/FONT.c: 1/2 PASS
-      2  FntFlush
-# 2 fns checked, 0 with branch-offset/count divergence
 --- recon/game/common/sim.cpp
 recon/game/common/sim.cpp: 8/8 PASS
 # 8 fns checked, 0 with branch-offset/count divergence
@@ -77,10 +73,6 @@ Hud_RenderTacView__Fv                                        3 offset diffs [(0,
 --- recon/frontend/psx/memcard.c
 recon/frontend/psx/memcard.c: 20/20 PASS
 # 20 fns checked, 0 with branch-offset/count divergence
---- recon/syslib/psx/libgpu/FONT.c
-recon/syslib/psx/libgpu/FONT.c: 1/2 PASS
-      2  FntFlush
-# 2 fns checked, 0 with branch-offset/count divergence
 --- recon/game/common/sim.cpp
 recon/game/common/sim.cpp: 8/8 PASS
 # 8 fns checked, 0 with branch-offset/count divergence

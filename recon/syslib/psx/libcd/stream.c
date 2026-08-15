@@ -38,18 +38,27 @@ typedef unsigned long u_long;
  *      A @0x80144874   8 B : StFunc1, StFunc2   (then 9216 B = iso9660.c's _cd_* buffers)
  *      B @0x80146C7C  72 B : StEmu_Addr .. StStartFrame (ends exactly at Cdinfo @0x80146CC4)
  *      C @0x801489CC   4 B : StMode      (then 16 B unattributed, GlobalCallback @0x801489E0)
- * They are emitted below in VA order as one block; splitting stream.c (or per-run sections)
- * is a placement decision for the link lane, not a symbol-definition one.
- * Receipts: scratchpad/w65a6/RECEIPTS.md */
+ * W66-A3 LANDS THE SPLIT: each run now lives in its OWN nobits section
+ * (`.bss.st_<retail base VA>`), so ONE object can reproduce three DISJOINT runs --
+ * a linker script places each section at its own base and the interior offsets
+ * inside a run are exactly the retail deltas (`nm` verified).  Nothing else
+ * changes: the C view stays `extern`, the symbol names, order and sizes are
+ * identical, and no byte of .text moves (a nobits section emits no data).  The
+ * catch-alls in linkers/nfs4.ld and linkers/nfs4_recon.ld were widened to
+ * `*(.bss.*)` so an un-placed build links exactly as before.
+ * Receipts: scratchpad/w65a6/RECEIPTS.md + scratchpad/w66a3/RECEIPTS.md */
 __asm__("\t.globl\tStFunc1\n\t.globl\tStFunc2\n"
         "\t.globl\tStEmu_Addr\n\t.globl\tStCdIntrFlag\n\t.globl\tCChannel\n\t.globl\tStCHANNEL\n"
         "\t.globl\tStframe_no\n\t.globl\tStRgb24\n\t.globl\tStEndFrame\n\t.globl\tStSTART_FLAG\n"
         "\t.globl\tStEmu_Idx\n\t.globl\tStsector_offset\n\t.globl\tStFinalSector\n"
         "\t.globl\tStRingBase\n\t.globl\tStRingAddr\n\t.globl\tStRingIdx1\n\t.globl\tStRingIdx2\n"
         "\t.globl\tStRingIdx3\n\t.globl\tStRingSize\n\t.globl\tStStartFrame\n\t.globl\tStMode\n"
-        "\t.section\t.bss\n\t.align\t2\n"
+        /* run A @0x80144874, 8 B */
+        "\t.section\t.bss.st_80144874,\"aw\",@nobits\n\t.align\t2\n"
         "StFunc1:\n\t.space\t4\n"
         "StFunc2:\n\t.space\t4\n"
+        /* run B @0x80146C7C, 72 B -- ends exactly at Cdinfo @0x80146CC4 */
+        "\t.section\t.bss.st_80146C7C,\"aw\",@nobits\n\t.align\t2\n"
         "StEmu_Addr:\n\t.space\t4\n"
         "StCdIntrFlag:\n\t.space\t4\n"
         "CChannel:\n\t.space\t4\n"
@@ -68,6 +77,8 @@ __asm__("\t.globl\tStFunc1\n\t.globl\tStFunc2\n"
         "StRingIdx3:\n\t.space\t4\n"
         "StRingSize:\n\t.space\t4\n"
         "StStartFrame:\n\t.space\t4\n"
+        /* run C @0x801489CC, 4 B -- then 16 B unattributed, GlobalCallback @0x801489E0 */
+        "\t.section\t.bss.st_801489CC,\"aw\",@nobits\n\t.align\t2\n"
         "StMode:\n\t.space\t4\n\t.text");
 
 extern int   StFunc1;            /* @0x80144874 : per-sector "VLC ready" callback   */

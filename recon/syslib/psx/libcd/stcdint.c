@@ -58,7 +58,12 @@ static volatile int    *_d3_chcr     ST_DATA = (volatile int   *)0x1F8010B8;  /*
  * g_intr).  Receipts: scratchpad/w65a6/RECEIPTS.md */
 __asm__("\t.globl\t_st_slot\n\t.section\t.bss\n\t.align\t2\n_st_slot:\n\t.space\t4\n\t.text");
 extern u_short *_st_slot;   /* @0x80144864 : cached current ring slot                 */
-int      debug_cause ST_BSS;   /* @0x80136AE0 : last interrupt stage/abort code (debug); see above */
+/* W66-A3: the blob cut named above HAS LANDED -- asm/data/data_8010CCD4_r17.data.s
+ * now carries `dlabel debug_cause` at 0x80136AE0, under that exact name, so no
+ * asm-label alias is needed either.  Demoting this to a pure `extern` retires the
+ * last COMMON in the tree (37 -> 1 -> 0) and stops a zero-filled ld-placed COMMON
+ * from competing with the real in-image word. */
+extern int debug_cause;   /* @0x80136AE0 : last interrupt stage/abort code (debug) */
 
 
 /* ---- streaming state (stream.cpp) ------------------------------------------------------------- */

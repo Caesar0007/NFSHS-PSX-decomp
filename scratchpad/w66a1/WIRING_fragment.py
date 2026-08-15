@@ -48,15 +48,6 @@ PER_FN_BRANCH_RETARGET = {
             },
         ],
     },
-    'recon/syslib/psx/libgpu/FONT.c': {
-        'FntPrint': [
-            {
-             "_note": "brdist (10,8,9) -> 0. REFUTES w65-a2 section 4.1's 'maspsx LAW -- needs a 3-line maspsx option'. maspsx's _handle_nop_before_next_instruction hoists exactly ONE label line above the load-delay nop it inserts (`skip_instructions = 1`), so our $L115 lands ON the nop (88) while retail's .L800F7198 is on the `addiu` (89). Planting a SECOND label behind $L115 puts it AFTER the nop -- the single hoist has already been consumed -- and the retarget reaches retail's target with NO maspsx change and no --nop-before-label. Verified in the shipped object: the `j` at 0x45c now targets 0x480 = `addiu v0,a0,-48`. FntPrint PASS 240/240, psyqproof REAL=0 2x; TU 1/2 PASS 2x (FntFlush FAIL 2 pre-existing).",
-             'branch': '\\tj\\t\\$L\\d+\\n(?=\\tmove\\t\\$6,\\$2\\n)',
-             'after': '\\$L\\d+:\\n(?=\\taddu\\t\\$2,\\$4,-48\\n)',
-            },
-        ],
-    },
     'recon/game/common/sim.cpp': {
         'Sim_MainGameLoop__Fv': [
             {

@@ -33,7 +33,11 @@ extern void _dma_isr(void);
 int func_80106878(int ch, int func);
 
 extern volatile unsigned int *g_dicr_ptr __asm__("D_8013BD20");   /* @0x8013BD20 : = 0x1F8010F4 */
-extern int dma_cb[8];                        /* @0x8013BD24 : per-channel DMA callbacks */
+/* W66-A3 (link): the 8-word run at 0x8013BD24 is emitted by the splat blob
+ * (asm/data/data_8010CCD4_r18.data.s, dlabel D_8013BD24) -- alias the recon
+ * spelling onto it rather than minting a second, unplaced object.  Name-only:
+ * the reloc changes, the bytes do not (the two neighbours already do this). */
+extern int dma_cb[8] __asm__("D_8013BD24");  /* @0x8013BD24 : per-channel DMA callbacks */
 extern volatile unsigned int *g_madr_ptr __asm__("D_8013BD44");   /* @0x8013BD44 : = 0x1F801080 */
 
 #define DICR (*g_dicr_ptr)

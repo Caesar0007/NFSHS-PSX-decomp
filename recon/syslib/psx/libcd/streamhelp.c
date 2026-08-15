@@ -47,13 +47,23 @@ extern int  DS_active;                  /* @0x8013BF68 : libds stream active */
  * struct below, `struct _ds_loc *dst = &_ds_word0`), then 8 unattributed bytes, then
  * GlobalCallback @0x801489E0 -- so _ds_ready_cb @0x801489E4 is INSIDE GlobalCallback's span
  * (= GlobalCallback+4, its slot 1), i.e. a THIRD retail run this object does not own alone.
- * Emitted here in VA order with the 8-byte gap explicit; the split is a placement question for
- * the .ld lane.  Receipts: scratchpad/w65a6/RECEIPTS.md */
+ * W66-A3 LANDS THE SPLIT: the two runs now live in SEPARATE nobits sections
+ * (`.bss.ds_<retail base VA>`), so a linker script can place each at its own base
+ * and ONE object reproduces two DISJOINT runs.  This also DELETES the 8-byte
+ * filler, which was not neutral: it was storage this object does not own, sitting
+ * exactly on GlobalCallback @0x801489E0.  Byte-neutral for the gate (nobits emits
+ * nothing, the C view stays `extern`, names/order/sizes unchanged); the un-placed
+ * link is unchanged because the catch-alls now read `*(.bss); *(.bss.*)`.
+ * Receipts: scratchpad/w65a6/RECEIPTS.md + scratchpad/w66a3/RECEIPTS.md */
 __asm__("\t.globl\t_ds_word0\n\t.globl\t_ds_word1\n\t.globl\t_ds_ready_cb\n"
-        "\t.section\t.bss\n\t.align\t2\n"
+        /* run A @0x801489D0, 8 B */
+        "\t.section\t.bss.ds_801489D0,\"aw\",@nobits\n\t.align\t2\n"
         "_ds_word0:\n\t.space\t4\n"
         "_ds_word1:\n\t.space\t4\n"
-        "\t.space\t8\n"          /* 0x801489D8..0x801489E0 unattributed; GlobalCallback @0x801489E0 */
+        /* run B @0x801489E4, 4 B -- == GlobalCallback+4, slot 1 of a block this
+         * object does not own alone; kept a separate section so nothing here
+         * claims the 8 bytes at 0x801489D8 or GlobalCallback itself. */
+        "\t.section\t.bss.ds_801489E4,\"aw\",@nobits\n\t.align\t2\n"
         "_ds_ready_cb:\n\t.space\t4\n\t.text");
 extern int _ds_word0;     /* @0x801489D0 : last sector sub-header (slot+28) */
 extern int _ds_word1;     /* @0x801489D4 : last sector word (slot+8)        */

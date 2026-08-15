@@ -810,5 +810,10 @@ extern unsigned int iSNDpacketfreeframes(int p, int idx, int bytes)
     } while (0);
 }
 
-/* owning-TU def (extern-declared, never defined; link-harness) */
-int iSNDplatformrate[1];
+/* W66-A3 (link): the "owning-TU def" that used to sit here (`int
+ * iSNDplatformrate[1];`) was a LATENT DEFECT, not a link harness -- at 4 bytes
+ * it routes to a LOCAL symbol (nm `b`), so it never resolved anything, and it
+ * placed a private word at an address retail does not have.  The real storage is
+ * `sndgs + 0xA0` (= D_80147900, this file's own header note), and ssysinit.c now
+ * emits `iSNDplatformrate` as an interior LABEL of the sndgs .bss run.  Do not
+ * re-add a definition here.  (Same class as w65-a6's gRepeatCount fix.) */

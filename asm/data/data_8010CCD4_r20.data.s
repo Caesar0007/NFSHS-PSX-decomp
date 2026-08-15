@@ -402,6 +402,17 @@ enddlabel D_8013C250
 nonmatching D_8013C290
 
 dlabel D_8013C290
+/* W66-A3 (link): libcd's `_cdr` (CdrEnv) base is this address -- the last member
+ * of w65-a6's true-undefined set and the ONE symbol whose C-side asm-label alias
+ * was NOT byte-neutral (`extern volatile CdrEnv _cdr __asm__("D_8013C290");`
+ * regressed cdread.c 3/6 -> 2/6, CdReadSync PASS->FAIL; w65-a6 §6.2).  This is
+ * the follow-up that receipt named: put the name on the BLOB side instead.  A
+ * second GLOBAL LABEL touches no C declaration, so cdread.c's object cannot
+ * move -- byte-neutrality is structural here, not measured.  (The struct spans
+ * several dlabel runs from here on; the label marks its base, which is all the
+ * `%hi/%lo(_cdr)` relocations need.)  Never `_cdr = D_8013C290` -- ASPSX 2.77
+ * has no symbol-assignment form (catalog 15E). */
+dlabel _cdr
     /* 12CA90 8013C290 00000000 */ .word 0x00000000
     /* 12CA94 8013C294 00000000 */ .word 0x00000000
 enddlabel D_8013C290

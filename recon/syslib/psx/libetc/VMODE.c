@@ -7,7 +7,11 @@
  *   -G4 small-data threshold (>4 bytes total) so the oracle uses absolute lui/lw, not gp-relative.
  *   MATCH: declare as int[9] to force absolute addressing; g_videomode is the actual videomode field.
  */
-extern int g_videomode;        /* @0x80134838 (offset 0 of a 9-word BSS block) */
+/* W66-A3 (link): the 9-word block IS in the image and the splat blob already emits
+ * it (data_8010CCD4_r17.data.s, dlabel D_80134838) -- alias the recon spelling onto
+ * that label so the link resolves without a second copy.  Name-only; the scalar
+ * declaration shape above (the macro-form lever) is untouched. */
+extern int g_videomode __asm__("D_80134838");  /* @0x80134838 (offset 0 of a 9-word block) */
 
 extern int SetVideoMode(int mode)   /* @0x800F1770 */
 {

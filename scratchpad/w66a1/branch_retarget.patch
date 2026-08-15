@@ -1,8 +1,8 @@
 diff --git a/tools/build.py b/tools/build.py
-index f3757c4..74347ee 100644
+index 3ffb74d..9020bea 100644
 --- a/tools/build.py
 +++ b/tools/build.py
-@@ -1937,6 +1937,93 @@ def _apply_text_moves(rel_posix: str, s_file: Path) -> None:
+@@ -1942,6 +1942,93 @@ def _apply_text_moves(rel_posix: str, s_file: Path) -> None:
          s_file.write_text(txt)
  
  
@@ -96,7 +96,7 @@ index f3757c4..74347ee 100644
  # w53-a10: PROLOGUE UNSINK -- sched2 sinks a callee-saved save (zero
  # dependents => lowest priority) below the first body insns; retail sank only
  # $ra.  Move the named regs' `sw $R,N($sp)` back up to right after the
-@@ -2194,6 +2281,7 @@ def _compile_c_272(rel: Path, tu_flags: dict, i_file: Path, s_file: Path,
+@@ -2199,6 +2286,7 @@ def _compile_c_272(rel: Path, tu_flags: dict, i_file: Path, s_file: Path,
      s_file.write_text(txt)
      # w55-a5: the 272 lane never called the TEXT_MOVES mechanism.
      _apply_text_moves(rel.as_posix(), s_file)
@@ -104,7 +104,7 @@ index f3757c4..74347ee 100644
      r = run([AS, *AS_ARCH, f"-G{tu_g_value}", "-I", ROOT / "include",
               "-I", ROOT, "-o", obj, s_file])
      if r.returncode or not obj.exists():
-@@ -2290,6 +2378,7 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
+@@ -2295,6 +2383,7 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
      _apply_ra_sink(rel.as_posix(), s_file)
      _apply_prologue_unsink(rel.as_posix(), s_file)
      _apply_text_moves(rel.as_posix(), s_file)
@@ -112,7 +112,7 @@ index f3757c4..74347ee 100644
  
      # maspsx reads cc1 .s on stdin; remaining args pass through to GNU as.
      maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
-@@ -2354,6 +2443,7 @@ def compile_cpp(src: Path) -> Path:
+@@ -2361,6 +2450,7 @@ def compile_cpp(src: Path) -> Path:
      _apply_ra_sink(rel.as_posix(), s_file)
      _apply_prologue_unsink(rel.as_posix(), s_file)
      _apply_text_moves(rel.as_posix(), s_file)

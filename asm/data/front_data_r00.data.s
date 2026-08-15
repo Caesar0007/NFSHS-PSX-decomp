@@ -10,6 +10,13 @@
 nonmatching _front_data_org
 
 dlabel _front_data_org
+/* W66-A3 (link): `showRoomFlag` (SYM: EXT @0x80051260) IS this word -- the first
+ * object of the front data segment, which is why the project's segment-origin
+ * marker and the game flag share an address.  Three TUs (screencarselect,
+ * screencongrats, fe3dmenu) read/write it and nothing defined it.  A second
+ * GLOBAL LABEL resolves the link with zero byte movement and zero recon-TU
+ * churn; never a `sym = base+N` assignment (ASPSX has no such form). */
+dlabel showRoomFlag
     /* 41A60 80051260 00000000 */ .word 0x00000000
 enddlabel _front_data_org
 

@@ -4609,8 +4609,36 @@ void Hud_RenderHudView(void)
       if ((u_int)((BTC_Countdown >> 6) - 1U) < 0x1e) {
         BigBTCTime(BTC_Countdown >> 6);
       } else {
-        Hud_BuildCdPlayer((0x23f < simGlobal.gameTicks) &&
-                          ((3 < (u_char)countdown) || (Hud_BeTheCop != 0)), j);
+        /* MATCH (w62-a1): 14 -> 4, count EXACT 606/606.  Two levers, and they only
+         * work TOGETHER (the w60/w61 receipts had each half separately):
+         *  (1) 13C INVERTED-DEFAULT / PRE-SET-THE-DEFAULT: written as the `&&`/`||`
+         *      expression, gcc branches TO a `li a0,1` block; retail pre-sets `a0`
+         *      in each guard's DELAY SLOT (`addu a0,zero,zero` in the `bnez` slot,
+         *      `li a0,1` in the `beqz` slot) and clears on the fall-through.  Only
+         *      the explicit default+override statement chain emits that.
+         *  (2) 12C SAME-SOURCE-LINE CROSS_JUMP RULE (inverse direction): the preset
+         *      chain ALONE is 8 diffs but ours 604 (2 SHORT) -- find_cross_jump
+         *      merges the `cdshow = 0` tail onto the entry default.  reorg/jump
+         *      refuses to merge a thread containing an ASM_OPERANDS, so ONE zero-insn
+         *      void fence in the override arm un-merges it and restores exactly the
+         *      2 insns, WITHOUT re-coloring anything (that was the w61 open item:
+         *      "a +2 device that does not re-color").
+         * FALSIFIED in THIS basin: De Morgan on the inner `||` [14], De Morgan on the
+         * whole expression [14], `countdown >= 4` spelling [14] -- i.e. all three w60
+         * expression re-spellings are still exactly neutral; the preset chain WITHOUT
+         * the fence [8 @604].  Fence placement/scope are free: fn-scope `cdshow`,
+         * block-local, fence before or after the `cdshow = 0`, and the nested-if vs
+         * `&&` spelling of the override guard all measure the same 4 @606. */
+        int cdshow = 0;
+
+        if (0x23f < simGlobal.gameTicks) {
+          cdshow = 1;
+          if (((u_char)countdown < 4) && (Hud_BeTheCop == 0)) {
+            __asm__ ("" : : "i"(0));
+            cdshow = 0;
+          }
+        }
+        Hud_BuildCdPlayer(cdshow, j);
       }
     }
     if (((dashhud_info *)((int)&DashHUD_gInfo + viewOff))->showhud[0] != 0) {

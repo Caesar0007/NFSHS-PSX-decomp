@@ -446,7 +446,50 @@ void tFEApplication::Redraw()
          than to fight the hoist after it happens.
        Do NOT re-run the 17 spellings above -- every one is downstream of the
        hoist.  Working control to diff against: screentracks.cpp
-       DrawBackground (+ its W62-A15 TEXT_MOVES row). */
+       DrawBackground (+ its W62-A15 TEXT_MOVES row).
+
+       W64-A16 -- THE LICM BLOCKER IS SOLVED; THE RESIDUAL IS A NEW, SMALLER ONE.
+       Recipe (measured, NOT landed because 14 > this basin's 10):
+         (1) a FUNCTION-SCOPE `u_char **pc;` -- a block-scope declaration inside
+             the for body plants a NOTE_INSN_BLOCK_BEG, which switches OFF
+             jump.c:2296 duplicate_loop_exit_test and re-rotates the whole loop
+             (55 diffs, bltz-vs-bgez); decl POSITION inside the fn decl list is
+             completely inert (5 positions x 2 types all 28);
+         (2) the ARM-DUPLICATED assignment `pc = (u_char **)0x1f800004;` in BOTH
+             arms of the fCurrentScreen if/else -- two SETs in the loop, so
+             loop.c never builds a movable (13C/loop.c scan_loop) and the final
+             cross_jump merges the two `li` back into one at the join;
+         (3) the read at the JOIN, the store through `*pc`;
+         (4) a read-only fence `__asm__("" : : "r"(daprim));` right after the
+             join read -- WITHOUT it daprim loses $a0 to the extra pseudo and
+             pays two `addu a0,tN,zero` copies (28 diffs @395).
+       Result: 14 diffs @393/393 with the ENTIRE address window byte-exact --
+       `lui t0,8064` stolen into the beqz slot, `lui t0/ori t0,t0,4/lw a0,0(t0)`
+       at the join and `sw v0,0(t0)`, i.e. every diff this block was ever about
+       is gone.  The 14 that remain are TWO new facts: (a) fYOffset lands $a1
+       for us and $a2 for retail, with retail materialising `addiu a1,sp,56`
+       earlier; (b) reorg fills the SetDrawArea jal slot with our packet store
+       where retail fills it with the palette store (our packet store is emitted
+       last).  Fence position x operand-count is a PLATEAU at 14 (read/after-r.x
+       = 14, after-r.y = 19, after-r.h = 24; 1/2/3 operands identical).
+       FALSIFIED here, all reverted: the struct-view alias dial (a one-member
+       `typedef struct { u_char *pkt; }` at 0x1f800004 to flip MEM_IN_STRUCT_P,
+       14D/15C) is EXACTLY INERT -- 14 with it, 14 without, so w63-A16's
+       "find a struct view of *cell" ask is answered NO; the same struct view in
+       the pre-fence basin is 54@393 and at base 0x1F800000 (offset 4) 55@394;
+       splitting the comma-expression to put the packet store between the two
+       prim-tag statements costs +7 insns (69@400) because the shared palette
+       load is lost, and a 3-way comma with the store in the middle is the same
+       69@400 (store first = 26@393); ONE shared fn-scope cell for BOTH packet
+       blocks 58; two short-lived cells 89 (cse merges them); block-1 written
+       with the literal macro instead of its own cell is EXACTLY 10 -- i.e. the
+       `packetCell` local there is cosmetic, cse commons the constant address by
+       itself in a straight-line block.
+       => NAMED ANGLE (replaces the w63 one): in the 14-diff basin, make daprim's
+       block-local qty win $a0 in the FIRST packet block too and give retail's
+       `addiu a1,sp,56` its early position -- an ordering question inside one
+       basic block, not an address-materialisation one.  Harnesses:
+       scratchpad/w64a16/rw{,2,3,4,5,6,7,8,9,10}.py. */
     if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
       (this->fCurrentScreen[(u_char)this->fPlayer])->Draw(true);
       daprim = (DR_AREA *)Render_gPacketPtr;

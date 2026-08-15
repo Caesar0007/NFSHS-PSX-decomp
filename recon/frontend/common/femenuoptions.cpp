@@ -2682,7 +2682,36 @@ int tUserNameMenuItem::Draw(bool selected)
      emitted code ALREADY carries a real reg-reg copy -- and here it does not.
      => the open device is one that lengthens the constant's live range across
      the argument-move block without relocating a use (the same 4-witness
-     instrument feaudio's FeAudio_InitViv is waiting for). */
+     instrument feaudio's FeAudio_InitViv is waiting for).
+
+     W64-A16 -- THE CLASS IS RE-READ: retail's $t0 is a RELOAD REGISTER, not an
+     allocno at all, so no allocno instrument can ever reach it.  Evidence, all
+     from the oracle stream itself: two insns before the block retail does
+     `lw t0,88(sp)` (the spilled `x` reloaded) + `addiu s1,t0,156`; $t0 is dead
+     immediately after, and retail then RE-USES it for `li t0,156` placed
+     IMMEDIATELY BEFORE its consumer (after `addu a2,s0,zero`, not before
+     `addu a0,zero,zero` as ours is).  Rematerialising a REG_EQUIV constant into
+     a spill/reload register at the point of use, in a register drawn from
+     order_regs_for_reload's pool (which starts at the least-used caller-saved
+     regs, i.e. $t0), reproduces BOTH facts at once -- the register AND the
+     2-slot-later position -- where an allocated pseudo reproduces neither
+     (find_reg's ascending scan can only ever hand out $v1 here, exactly as
+     W62-A15's conflict-structure certificate proves).  So the 8 diffs are the
+     price of the identity fence FORCING an allocation: the fence kills the
+     REG_EQUIV, and every spelling that restores it (plain literal, unfenced
+     local) lets cse share ONE constant across both blocks instead of two.
+     NEW FALSIFICATIONS (base 8, re-gated, all reverted): plain `0x9c` literal in
+     both blocks 67 @253 (one shared `li`, plus a whole s2<->s3 saved-band
+     rotation); unfenced `int boxRight = 0x9c;` in both blocks the same 67 @253;
+     literal in the FIRST block only 78 @254; literal in the SECOND block only
+     EXACTLY 8 -- i.e. the second block's identity fence is inert and only the
+     first one is load-bearing; `int boxRight; boxRight = 0x9c;` (12D
+     decl-with-init demote) exactly 8, inert; a 15A foreign-operand fence on
+     `shape` after the identity fence 32.
+     => the wanted device is now precisely named and is NOT an allocno dial: a
+     way to keep the constant REG_EQUIV/unallocated per block (two remats) while
+     stopping cse from sharing one materialisation between the two blocks.
+     Harness: scratchpad/w64a16/un.py. */
   int x;
   int y;
   tTexture_ShapeInfo *shape;

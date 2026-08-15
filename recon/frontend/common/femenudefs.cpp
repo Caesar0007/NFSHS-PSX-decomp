@@ -2688,7 +2688,28 @@ winCase:
    add `{ *(void **)&_base_tInsideBoxLeftRightSlider._vf =
    (void *)&tInsideBoxControllerLeftRightSlider_vtable; }` to that ctor and delete the
    two body stores here.  (Probed indirectly via the comma-expression form above, which
-   is NOT the same shape -- the header form is untested and may re-basin the fn.) */
+   is NOT the same shape -- the header form is untested and may re-basin the fn.)
+
+   [W64-A16 2026-08-15] Re-gated on a fresh --skip-asm build: 3365 (3180/3207),
+   unchanged from W59-A12 / W63-A16; the board's 86.19% row is stale (it is not a
+   residual count).  Nothing probed this wave; the two live receipts stand and are
+   NOT re-opened: (a) W63-A16's alpha-rename triage -- renaming every register to a
+   per-stream first-appearance index does not move the LCS diff by one instruction
+   (1744 raw == 1744 alpha), so the residual is NOT an allocator rotation and every
+   qty/allocno instrument is the wrong tool here; (b) the frame receipt -- retail's
+   spill area is 72..592 and ours 128..596, and a DECLARED local can never occupy
+   72..127 because gcc assigns declared locals at expand and reload spill slots
+   later from one upward-growing frame_offset, so `compilerFramePad` necessarily
+   buys the 640 total at the price of mis-siting every spill.  The open angle is
+   still the one named above: retail derives N sub-object addresses from ONE
+   `lw this,640(sp)` with FRESH destinations (`addiu s3,t1,88` / `addiu t0,t1,388`)
+   while we mutate the reload in place and re-load `this` per address -- a
+   post-RELOAD effect on compiler-generated `this + offset` operands of an
+   initializer list, i.e. not spellable from the init list itself.  The
+   highest-value remaining action is the SHARED-HEADER diff recommended above
+   (move the tInsideBoxControllerLeftRightSlider vptr store into its own ctor in
+   nfs4_types.h); it is deliberately NOT applied here -- a shared-header edit
+   mid-wave forces a full-tree re-gate and would collide with concurrent belts. */
 
 
 /* [2026-08-10] Retail constructs every iterator in declaration order between its

@@ -463,7 +463,40 @@ LUMPYHEAD * FeAudio_InitViv(char *fname)
        => CERTIFICATE RE-CONFIRMED with the copy-device class now priced.  The
        missing instrument is unchanged and is NOT a copy: a way to give the
        pseudo a second live range with no copy insn.
-       Harness: scratchpad/w62a15/viv.py. */
+       Harness: scratchpad/w62a15/viv.py.
+
+       W64-A16 -- THE MISSING INSTRUMENT EXISTS, AND THE CERTIFICATE IS UPGRADED.
+       local-alloc.c:471-477 (gcc-2.8.1) admits a pseudo to LOCAL allocation iff
+           REG_BASIC_BLOCK (i) >= 0   AND   REG_N_DEATHS (i) == 1
+       Four waves only ever attacked the SECOND conjunct (identity fence => two
+       deaths => GLOBAL => $a3, at the price of one carrier copy).  The FIRST
+       conjunct is a completely independent, ZERO-INSN route to the same GLOBAL
+       set: give the value a reference from a SECOND basic block (05D promotion).
+       InitViv has a structurally identical byte-swap block after the
+       `if (bigfileHeader == 0) return 0;` and the second async wait, so ONE
+       shared source-word variable spans two blocks for free.  MEASURED (real
+       CC1PLPSX -dl/-dg via scratchpad/w64a16/dmp.py, all reverted):
+         shared source word + fence      32 diffs, 109 insns
+         shared source word, NO fence    40 diffs, 109 insns
+         shared with block-2 num         34 / 42 (fence / no fence), 109
+         shared with block-2 hlen        42 / 50, 109
+         no fence, not shared (control)  34,      109
+       EVERY sharing variant is COUNT-EXACT 109/109 -- the carrier copy is gone,
+       which is exactly the device the R2/R3/W62 certificates asked for and could
+       not name.  The dump says why it still misses: the merged pseudo p84 is
+       reported as a real global (`;; 3 regs to allocate: 84 81 82`, 15-17 refs,
+       "dies in 2 places", no "in block N" tag) but its conflict set now reads
+           ;; 84 conflicts: 82 84 2 3 4 5 6 7 8 29
+       i.e. it picks up $a3(7) AND $t0(8) from the second region, so find_reg's
+       ascending scan hands it $t1($9).  In the 7-diff base the same pseudo's
+       conflicts are `2 3 4 5 6 8 29` -- a3 absent -- which is the whole reason
+       the fence shape reaches $a3.
+       => CERTIFICATE, corrected: the missing device is NOT "a second live range
+       without a copy insn" (that is the 2-block reference, and it is free); it
+       is "a second live range whose SECOND region does not add $a3 to the
+       conflict set".  Any second reference sited where $a3 is dead would land
+       both the count AND the register; none of InitViv's three candidate
+       block-2 words qualifies.  Harness: scratchpad/w64a16/viv.py, viv2.py. */
     __asm__("" : "+r"(swappedType));
     headerLength = lumpHead.hlen;
     headerNum = lumpHead.num;

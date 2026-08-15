@@ -502,7 +502,34 @@ LUMPYHEAD * FeAudio_InitViv(char *fname)
        is "a second live range whose SECOND region does not add $a3 to the
        conflict set".  Any second reference sited where $a3 is dead would land
        both the count AND the register; none of InitViv's three candidate
-       block-2 words qualifies.  Harness: scratchpad/w64a16/viv.py, viv2.py. */
+       block-2 words qualifies.  Harness: scratchpad/w64a16/viv.py, viv2.py.
+
+       W67-A8 -- THE REQUESTED DEVICE EXISTS: the un-tried 4th block-2 word.
+       Sharing the source word with block-2's byteMask (swappedType = 0xff0000
+       plus the three mask uses) on the V4 read-only-result shape is
+       COUNT-EXACT 8 @109/109 and lands the source word in $a3 (both sides
+       lw a3,16(sp)): the mask's block-2 range adds a1/a2 but NOT a3 to the
+       merged conflict set, so find_reg's ascending scan reaches $a3 with the
+       carrier copy GONE -- the exact certificate ask.  The residual MOVES to
+       a new mechanism-named blocker: retail's last mask use is the
+       dying-register triple `and a3,a1,a3 / srl a3,a3,8 / or a0,a0,a3`, ours
+       keeps a fresh $v1 -- and combine_regs cannot tie the and's fresh dest
+       to the now-GLOBAL shared pseudo (local-alloc.c:1866 refuses
+       reg_qty < 0 sources), while the in-place RMW spelling that would force
+       the dest (swappedType = swappedType & headerNum; then >> 8) rotates
+       the whole handout to 46 @109.  Plus one load-position pair (retail
+       floats the type lw between the lui/addiu la halves; ours is
+       fence-blocked below the addiu).  BASIN TRADE: 8 @109/109 (count-exact,
+       and/srl/or renames) vs this shape's 7 @110/109 (carrier copy) -- HELD
+       at 7 per the gate bar; the byteMask share is the banked count-exact
+       basin if the last-use tie is ever reached.  Also measured from the VJ
+       basin, all reverted: hoist type read above the void fence 13 @110;
+       read above lumpyName 13 @110; fence-first order 9 @110; num RMW
+       in-place 46 @109 / both 49 @110.  Second-range carriers at the
+       reservememadr/asyncload sites (hlen shares) are COPY-PROPAGATED AWAY
+       (single foldable use): all 12 @109 == the V4 control; a fence-anchored
+       def there 66 @109; the full-addend carrier 26 @109; no-fence share
+       34 @109.  Harness: scratchpad/w67a8/viv_v{1,2,3,4}.json + probe.py. */
     __asm__("" : "+r"(swappedType));
     headerLength = lumpHead.hlen;
     headerNum = lumpHead.num;

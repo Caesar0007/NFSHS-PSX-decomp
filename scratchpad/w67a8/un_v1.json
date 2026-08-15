@@ -1,0 +1,35 @@
+{
+ "file": "recon/frontend/common/femenuoptions.cpp",
+ "fn": "Draw__17tUserNameMenuItemb",
+ "variants": [
+  {"name": "U1_literals_voidfence_blk2",
+   "edits": [[
+    "  {\n    int boxRight = 0x9c;\n    __asm__(\"\" : \"=r\"(boxRight) : \"0\"(boxRight));\n    PSXDrawSquare(0,x,y + -3,boxRight - shape->width,(int)shape->height);\n  }",
+    "  PSXDrawSquare(0,x,y + -3,0x9c - shape->width,(int)shape->height);"
+   ],[
+    "  {\n    int boxRight = 0x9c;\n    __asm__(\"\" : \"=r\"(boxRight) : \"0\"(boxRight));\n    PSXDrawSquare(0,x,y + 0xc,boxRight - shape->width,(int)shape->height);\n  }",
+    "  __asm__(\"\" : : \"i\"(0));\n  PSXDrawSquare(0,x,y + 0xc,0x9c - shape->width,(int)shape->height);"
+   ]]},
+  {"name": "U1b_decls_voidfence_blk2",
+   "edits": [[
+    "  {\n    int boxRight = 0x9c;\n    __asm__(\"\" : \"=r\"(boxRight) : \"0\"(boxRight));\n    PSXDrawSquare(0,x,y + -3,boxRight - shape->width,(int)shape->height);\n  }",
+    "  {\n    int boxRight = 0x9c;\n    PSXDrawSquare(0,x,y + -3,boxRight - shape->width,(int)shape->height);\n  }"
+   ],[
+    "  {\n    int boxRight = 0x9c;\n    __asm__(\"\" : \"=r\"(boxRight) : \"0\"(boxRight));\n    PSXDrawSquare(0,x,y + 0xc,boxRight - shape->width,(int)shape->height);\n  }",
+    "  __asm__(\"\" : : \"i\"(0));\n  {\n    int boxRight = 0x9c;\n    PSXDrawSquare(0,x,y + 0xc,boxRight - shape->width,(int)shape->height);\n  }"
+   ]]},
+  {"name": "U2_keepfences_voidfence_blk2",
+   "edits": [[
+    "  {\n    int boxRight = 0x9c;\n    __asm__(\"\" : \"=r\"(boxRight) : \"0\"(boxRight));\n    PSXDrawSquare(0,x,y + 0xc,boxRight - shape->width,(int)shape->height);\n  }",
+    "  __asm__(\"\" : : \"i\"(0));\n  {\n    int boxRight = 0x9c;\n    __asm__(\"\" : \"=r\"(boxRight) : \"0\"(boxRight));\n    PSXDrawSquare(0,x,y + 0xc,boxRight - shape->width,(int)shape->height);\n  }"
+   ]]},
+  {"name": "U1c_literals_fence_both_heads",
+   "edits": [[
+    "  {\n    int boxRight = 0x9c;\n    __asm__(\"\" : \"=r\"(boxRight) : \"0\"(boxRight));\n    PSXDrawSquare(0,x,y + -3,boxRight - shape->width,(int)shape->height);\n  }",
+    "  __asm__(\"\" : : \"i\"(0));\n  PSXDrawSquare(0,x,y + -3,0x9c - shape->width,(int)shape->height);"
+   ],[
+    "  {\n    int boxRight = 0x9c;\n    __asm__(\"\" : \"=r\"(boxRight) : \"0\"(boxRight));\n    PSXDrawSquare(0,x,y + 0xc,boxRight - shape->width,(int)shape->height);\n  }",
+    "  __asm__(\"\" : : \"i\"(0));\n  PSXDrawSquare(0,x,y + 0xc,0x9c - shape->width,(int)shape->height);"
+   ]]}
+ ]
+}

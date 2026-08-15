@@ -374,7 +374,24 @@ short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
  * insn-costing operand buys retail's REGISTERS at +1 count (33).  The open
  * item is unchanged and is retail's THIRD opacity mechanism for the literal
  * 20 (a REG_EQUIV constant rematerialised at the use, born after the
- * topPlacements loop in $t0) -- an instrumented-cc1 job, not a spelling. */
+ * topPlacements loop in $t0) -- an instrumented-cc1 job, not a spelling.
+ *
+ * W67-A8 (2026-08-15, re-gated baseline 33 @ 417/416): the do-while(0) DEPTH
+ * WRAPPER probed as the NON-FENCE ref instrument at sites 1+2 -- it
+ * reproduces the 12E law exactly like every other zero-insn device and does
+ * NOT combine with the register half.  All re-gated, all reverted: wrapper
+ * on the uBulkUnit assignment replacing the identity fence 60 @416 (retail
+ * count, wrong regs = the fence-2-dropped basin) / at depth 2 60 @416 /
+ * minus the RO fence 59 @415; wrapper around the uBulkSz multiply with the
+ * identity fence KEPT 33 (inert) / with a RO carInfo fence instead 34 @416
+ * -- count EXACT but structurally FALSE (cse folds 20*8 through the
+ * stripped phony loop into `li a2,160`; the sll is gone, so NOT landed);
+ * wrapper on the uRecSz assignment with a no-operand identity 110 @416 /
+ * no fence 111 @413 / depth 2 111 @413 / RO fence 34 @414 (3 short) / full
+ * fence kept 33 (inert); laundering uBulkSz instead of uBulkUnit 57 @417.
+ * => the wrapper buys only the count half (59-111 basins); the 12E
+ * certificate now stands on a second instrument family.
+ * Harness: scratchpad/w67a8/stt_v{1,2}.json + probe.py. */
 void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
 
 {

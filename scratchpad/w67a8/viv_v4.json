@@ -1,0 +1,96 @@
+{
+ "file": "recon/frontend/common/feaudio.cpp",
+ "fn": "FeAudio_InitViv__FPc",
+ "variants": [
+  {
+   "name": "VN_VJ_read_above_all",
+   "edits": [
+    [
+     "  char *lumpyName;\n",
+     "  char *lumpyName;\n  u_int swappedType;\n"
+    ],
+    [
+     "    u_int swappedType = lumpHead.type;",
+     "    swappedType = lumpHead.type;"
+    ],
+    [
+     "    swappedResult |= swappedType;\n    swappedType = swappedResult;",
+     "    swappedResult |= swappedType;"
+    ],
+    [
+     "    __asm__(\"\" : \"+r\"(swappedType));",
+     "    __asm__(\"\" : : \"r\"(swappedResult));"
+    ],
+    [
+     "    lumpHead.type = swappedType;",
+     "    lumpHead.type = swappedResult;"
+    ],
+    [
+     "    u_int byteMask = 0xff0000;\n    u_int headerType = bigfileHeader->type;\n    __asm__(\"\" : : \"r\"(headerType), \"r\"(byteMask));",
+     "    swappedType = 0xff0000;\n    u_int headerType = bigfileHeader->type;\n    __asm__(\"\" : : \"r\"(headerType), \"r\"(swappedType));"
+    ],
+    [
+     "    header->type = headerType << 0x18 | (headerType & 0xff00) << 8 |\n                   (headerType & byteMask) >> 8 | headerType >> 0x18;",
+     "    header->type = headerType << 0x18 | (headerType & 0xff00) << 8 |\n                   (headerType & swappedType) >> 8 | headerType >> 0x18;"
+    ],
+    [
+     "    header->hlen = headerLength << 0x18 | (headerLength & 0xff00) << 8 |\n                   (headerLength & byteMask) >> 8 | headerLength >> 0x18;",
+     "    header->hlen = headerLength << 0x18 | (headerLength & 0xff00) << 8 |\n                   (headerLength & swappedType) >> 8 | headerLength >> 0x18;"
+    ],
+    [
+     "    header->num = headerNum << 0x18 | (headerNum & 0xff00) << 8 |\n                  (headerNum & byteMask) >> 8 | headerNum >> 0x18;",
+     "    header->num = headerNum << 0x18 | (headerNum & 0xff00) << 8 |\n                  (headerNum & swappedType) >> 8 | headerNum >> 0x18;"
+    ],
+    [
+     "  lumpyName = \"lumpyhead\";\n  __asm__(\"\" : : \"i\"(0));\n  {\n    swappedType = lumpHead.type;",
+     "  swappedType = lumpHead.type;\n  lumpyName = \"lumpyhead\";\n  __asm__(\"\" : : \"i\"(0));\n  {"
+    ]
+   ]
+  },
+  {
+   "name": "VO_VJ_fence_first",
+   "edits": [
+    [
+     "  char *lumpyName;\n",
+     "  char *lumpyName;\n  u_int swappedType;\n"
+    ],
+    [
+     "    u_int swappedType = lumpHead.type;",
+     "    swappedType = lumpHead.type;"
+    ],
+    [
+     "    swappedResult |= swappedType;\n    swappedType = swappedResult;",
+     "    swappedResult |= swappedType;"
+    ],
+    [
+     "    __asm__(\"\" : \"+r\"(swappedType));",
+     "    __asm__(\"\" : : \"r\"(swappedResult));"
+    ],
+    [
+     "    lumpHead.type = swappedType;",
+     "    lumpHead.type = swappedResult;"
+    ],
+    [
+     "    u_int byteMask = 0xff0000;\n    u_int headerType = bigfileHeader->type;\n    __asm__(\"\" : : \"r\"(headerType), \"r\"(byteMask));",
+     "    swappedType = 0xff0000;\n    u_int headerType = bigfileHeader->type;\n    __asm__(\"\" : : \"r\"(headerType), \"r\"(swappedType));"
+    ],
+    [
+     "    header->type = headerType << 0x18 | (headerType & 0xff00) << 8 |\n                   (headerType & byteMask) >> 8 | headerType >> 0x18;",
+     "    header->type = headerType << 0x18 | (headerType & 0xff00) << 8 |\n                   (headerType & swappedType) >> 8 | headerType >> 0x18;"
+    ],
+    [
+     "    header->hlen = headerLength << 0x18 | (headerLength & 0xff00) << 8 |\n                   (headerLength & byteMask) >> 8 | headerLength >> 0x18;",
+     "    header->hlen = headerLength << 0x18 | (headerLength & 0xff00) << 8 |\n                   (headerLength & swappedType) >> 8 | headerLength >> 0x18;"
+    ],
+    [
+     "    header->num = headerNum << 0x18 | (headerNum & 0xff00) << 8 |\n                  (headerNum & byteMask) >> 8 | headerNum >> 0x18;",
+     "    header->num = headerNum << 0x18 | (headerNum & 0xff00) << 8 |\n                  (headerNum & swappedType) >> 8 | headerNum >> 0x18;"
+    ],
+    [
+     "  lumpyName = \"lumpyhead\";\n  __asm__(\"\" : : \"i\"(0));\n  {\n    swappedType = lumpHead.type;",
+     "  __asm__(\"\" : : \"i\"(0));\n  lumpyName = \"lumpyhead\";\n  {\n    swappedType = lumpHead.type;"
+    ]
+   ]
+  }
+ ]
+}

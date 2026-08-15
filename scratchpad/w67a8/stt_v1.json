@@ -1,0 +1,56 @@
+{
+ "file": "recon/frontend/common/statchk.cpp",
+ "fn": "StatChk_SaveTopTime__FP10Car_tStatss",
+ "variants": [
+  {"name": "s2A_wrap_dropIdent_keepRO",
+   "edits": [[
+    "            uBulkUnit = sizeof(tRecordBuffer);\n            __asm__(\"\" : \"=r\"(uBulkUnit) : \"0\"(uBulkUnit), \"r\"(carInfo));\n            uBulkSz = uBulkUnit * 8;\n            __asm__(\"\" : : \"r\"(uBulkUnit));",
+    "            do { uBulkUnit = sizeof(tRecordBuffer); } while (0);\n            __asm__(\"\" : : \"r\"(carInfo));\n            uBulkSz = uBulkUnit * 8;\n            __asm__(\"\" : : \"r\"(uBulkUnit));"
+   ]]},
+  {"name": "s2B_wrap_keepIdent",
+   "edits": [[
+    "            uBulkUnit = sizeof(tRecordBuffer);\n            __asm__(\"\" : \"=r\"(uBulkUnit) : \"0\"(uBulkUnit), \"r\"(carInfo));",
+    "            do { uBulkUnit = sizeof(tRecordBuffer); } while (0);\n            __asm__(\"\" : \"=r\"(uBulkUnit) : \"0\"(uBulkUnit), \"r\"(carInfo));"
+   ]]},
+  {"name": "s2C_wrap_dropIdent_dropRO",
+   "edits": [[
+    "            uBulkUnit = sizeof(tRecordBuffer);\n            __asm__(\"\" : \"=r\"(uBulkUnit) : \"0\"(uBulkUnit), \"r\"(carInfo));\n            uBulkSz = uBulkUnit * 8;\n            __asm__(\"\" : : \"r\"(uBulkUnit));",
+    "            do { uBulkUnit = sizeof(tRecordBuffer); } while (0);\n            __asm__(\"\" : : \"r\"(carInfo));\n            uBulkSz = uBulkUnit * 8;"
+   ]]},
+  {"name": "s2D_wrap2_dropIdent_keepRO",
+   "edits": [[
+    "            uBulkUnit = sizeof(tRecordBuffer);\n            __asm__(\"\" : \"=r\"(uBulkUnit) : \"0\"(uBulkUnit), \"r\"(carInfo));\n            uBulkSz = uBulkUnit * 8;\n            __asm__(\"\" : : \"r\"(uBulkUnit));",
+    "            do { do { uBulkUnit = sizeof(tRecordBuffer); } while (0); } while (0);\n            __asm__(\"\" : : \"r\"(carInfo));\n            uBulkSz = uBulkUnit * 8;\n            __asm__(\"\" : : \"r\"(uBulkUnit));"
+   ]]},
+  {"name": "s2E_wrap_ubulksz",
+   "edits": [[
+    "            uBulkUnit = sizeof(tRecordBuffer);\n            __asm__(\"\" : \"=r\"(uBulkUnit) : \"0\"(uBulkUnit), \"r\"(carInfo));\n            uBulkSz = uBulkUnit * 8;\n            __asm__(\"\" : : \"r\"(uBulkUnit));",
+    "            uBulkUnit = sizeof(tRecordBuffer);\n            __asm__(\"\" : : \"r\"(carInfo));\n            do { uBulkSz = uBulkUnit * 8; } while (0);\n            __asm__(\"\" : : \"r\"(uBulkUnit));"
+   ]]},
+  {"name": "s1F_wrap_ident_noNum",
+   "edits": [[
+    "  uRecSz = sizeof(tRecordBuffer);\n  __asm__(\"\" : \"=r\"(uRecSz) : \"0\"(uRecSz), \"r\"(nNumCars));",
+    "  do { uRecSz = sizeof(tRecordBuffer); } while (0);\n  __asm__(\"\" : \"=r\"(uRecSz) : \"0\"(uRecSz));"
+   ]]},
+  {"name": "s1G_wrap_nofence",
+   "edits": [[
+    "  uRecSz = sizeof(tRecordBuffer);\n  __asm__(\"\" : \"=r\"(uRecSz) : \"0\"(uRecSz), \"r\"(nNumCars));",
+    "  do { uRecSz = sizeof(tRecordBuffer); } while (0);"
+   ]]},
+  {"name": "s1H_wrap_ROfence",
+   "edits": [[
+    "  uRecSz = sizeof(tRecordBuffer);\n  __asm__(\"\" : \"=r\"(uRecSz) : \"0\"(uRecSz), \"r\"(nNumCars));",
+    "  do { uRecSz = sizeof(tRecordBuffer); } while (0);\n  __asm__(\"\" : : \"r\"(uRecSz));"
+   ]]},
+  {"name": "s1I_wrap2_nofence",
+   "edits": [[
+    "  uRecSz = sizeof(tRecordBuffer);\n  __asm__(\"\" : \"=r\"(uRecSz) : \"0\"(uRecSz), \"r\"(nNumCars));",
+    "  do { do { uRecSz = sizeof(tRecordBuffer); } while (0); } while (0);"
+   ]]},
+  {"name": "s1J_wrap_keepfull",
+   "edits": [[
+    "  uRecSz = sizeof(tRecordBuffer);\n  __asm__(\"\" : \"=r\"(uRecSz) : \"0\"(uRecSz), \"r\"(nNumCars));",
+    "  do { uRecSz = sizeof(tRecordBuffer); } while (0);\n  __asm__(\"\" : \"=r\"(uRecSz) : \"0\"(uRecSz), \"r\"(nNumCars));"
+   ]]}
+ ]
+}

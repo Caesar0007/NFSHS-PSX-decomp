@@ -1,0 +1,31 @@
+{
+ "file": "recon/frontend/psx/psxfront.cpp",
+ "fn": "FontUpsideDownBlit__FiiPviiP12charactertbli",
+ "variants": [
+  {"name": "P2_rmw2_staged_arg6_semi",
+   "edits": [[
+    "  ((PSXFront_PTag *)prim)->addr = pal->addr,\n  pal->addr = (uint)prim;",
+    "  ((PSXFront_PTag *)prim)->addr = pal->addr;\n  arg6 = *(int *)pal;\n  *(u_long *)pal = ((u_int)arg6 & 0xff000000) | ((u_int)prim & 0xffffff);"
+   ]]},
+  {"name": "P2b_rmw2_staged_arg6_comma",
+   "edits": [[
+    "  ((PSXFront_PTag *)prim)->addr = pal->addr,\n  pal->addr = (uint)prim;",
+    "  ((PSXFront_PTag *)prim)->addr = pal->addr,\n  arg6 = *(int *)pal,\n  *(u_long *)pal = ((u_int)arg6 & 0xff000000) | ((u_int)prim & 0xffffff);"
+   ]]},
+  {"name": "P1_nine_block",
+   "edits": [[
+    "  ((PSXFront_PTag *)prim)->len = 9,\n  prim->code = 0x2c;",
+    "  { int nine = 9;\n  ((PSXFront_PTag *)prim)->len = nine,\n  prim->code = 0x2c; }"
+   ]]},
+  {"name": "P1b_nine_before_rmw2",
+   "edits": [[
+    "  ((PSXFront_PTag *)prim)->addr = pal->addr,\n  pal->addr = (uint)prim;\n  ((PSXFront_PTag *)prim)->len = 9,\n  prim->code = 0x2c;",
+    "  { int nine = 9;\n  ((PSXFront_PTag *)prim)->addr = pal->addr,\n  pal->addr = (uint)prim;\n  ((PSXFront_PTag *)prim)->len = nine,\n  prim->code = 0x2c; }"
+   ]]},
+  {"name": "P2c_staged_arg6_bitfield_store",
+   "edits": [[
+    "  ((PSXFront_PTag *)prim)->addr = pal->addr,\n  pal->addr = (uint)prim;",
+    "  ((PSXFront_PTag *)prim)->addr = pal->addr;\n  arg6 = (int)(uint)prim;\n  pal->addr = (uint)arg6;"
+   ]]}
+ ]
+}

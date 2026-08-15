@@ -1,0 +1,29 @@
+{
+ "file": "recon/frontend/common/statchk.cpp",
+ "fn": "StatChk_SaveTopTime__FP10Car_tStatss",
+ "variants": [
+  {"name": "s2F_ident_wrapMult",
+   "edits": [[
+    "            uBulkSz = uBulkUnit * 8;\n            __asm__(\"\" : : \"r\"(uBulkUnit));",
+    "            do { uBulkSz = uBulkUnit * 8; } while (0);\n            __asm__(\"\" : : \"r\"(uBulkUnit));"
+   ]]},
+  {"name": "s2G_ident_wrapMult_dropRO",
+   "edits": [[
+    "            uBulkSz = uBulkUnit * 8;\n            __asm__(\"\" : : \"r\"(uBulkUnit));",
+    "            do { uBulkSz = uBulkUnit * 8; } while (0);"
+   ]]},
+  {"name": "s1K_wrapCarttime_identNoNum",
+   "edits": [[
+    "  __asm__(\"\" : \"=r\"(uRecSz) : \"0\"(uRecSz), \"r\"(nNumCars));",
+    "  __asm__(\"\" : \"=r\"(uRecSz) : \"0\"(uRecSz));"
+   ],[
+    "  nCarTotalTimes = (int *)reservememadr(\"carttime\",nNumCars * sizeof(int),0x10);",
+    "  do { nCarTotalTimes = (int *)reservememadr(\"carttime\",nNumCars * sizeof(int),0x10); } while (0);"
+   ]]},
+  {"name": "s2H_launder_into_uBulkSz",
+   "edits": [[
+    "            uBulkUnit = sizeof(tRecordBuffer);\n            __asm__(\"\" : \"=r\"(uBulkUnit) : \"0\"(uBulkUnit), \"r\"(carInfo));\n            uBulkSz = uBulkUnit * 8;\n            __asm__(\"\" : : \"r\"(uBulkUnit));",
+    "            uBulkUnit = sizeof(tRecordBuffer);\n            uBulkSz = uBulkUnit;\n            __asm__(\"\" : \"=r\"(uBulkSz) : \"0\"(uBulkSz), \"r\"(carInfo));\n            uBulkSz = uBulkSz * 8;\n            __asm__(\"\" : : \"r\"(uBulkUnit));"
+   ]]}
+ ]
+}

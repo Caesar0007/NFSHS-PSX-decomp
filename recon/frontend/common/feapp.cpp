@@ -489,7 +489,12 @@ void tFEApplication::Redraw()
        block-local qty win $a0 in the FIRST packet block too and give retail's
        `addiu a1,sp,56` its early position -- an ordering question inside one
        basic block, not an address-materialisation one.  Harnesses:
-       scratchpad/w64a16/rw{,2,3,4,5,6,7,8,9,10}.py. */
+       scratchpad/w64a16/rw{,2,3,4,5,6,7,8,9,10}.py.
+       W67-A8 LAND-VS-HOLD DECISION (2026-08-15, re-gated: this body 10 @393/393):
+       the banked 14-basin buys the byte-exact address window at 14 diffs, same
+       insn count, and its residual is the named serving-order angle above.  By
+       the gate bar (10 < 14 at equal count) the 14-basin stays BANKED, not
+       landed; revisit only when the serving-order angle has an instrument. */
     if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
       (this->fCurrentScreen[(u_char)this->fPlayer])->Draw(true);
       daprim = (DR_AREA *)Render_gPacketPtr;

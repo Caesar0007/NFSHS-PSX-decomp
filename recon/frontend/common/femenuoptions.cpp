@@ -2734,7 +2734,16 @@ int tUserNameMenuItem::Draw(bool selected)
      => the wanted device is now precisely named and is NOT an allocno dial: a
      way to keep the constant REG_EQUIV/unallocated per block (two remats) while
      stopping cse from sharing one materialisation between the two blocks.
-     Harness: scratchpad/w64a16/un.py. */
+     Harness: scratchpad/w64a16/un.py.
+     W67-A8 (2026-08-15, base 8): the screenmain VOID-FENCE UN-SHARER probed as
+     that device -- FALSIFIED in every form.  A void fence at block-2's head
+     with plain literals 67 @253, with unfenced per-block decls 67 @253, at
+     BOTH block heads 67 @253 (all three land the known shared-li basin -- the
+     volatile asm does not invalidate cse's register-constant equivalence the
+     way it un-shared screenmain's cse2 cross-arm %hi), and on top of the
+     current fences exactly 8 (inert).  The un-sharer axis is closed; the
+     device still does not exist at source level.
+     Harness: scratchpad/w67a8/un_v1.json + probe.py. */
   int x;
   int y;
   tTexture_ShapeInfo *shape;

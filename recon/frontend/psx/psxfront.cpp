@@ -1663,7 +1663,21 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    *     take `lw $3,0($9)` after `sw $2,0($3)`  =>  22 -> 20, still 82/82,
    *     zero effect on any TU-mate.  ORCHESTRATOR: wire it.  The other 20
    *   are the tint/RMW2 $v0-$v1 role swap, a REGISTER difference and therefore NOT
-   *   text-movable; route stays the instrumented-cc1 sched/find_free_reg trace. */
+   *   text-movable; route stays the instrumented-cc1 sched/find_free_reg trace.
+   * W67-A8 (2026-08-15, base 20): the QTY HALF probed per the brief
+   *   (block-scope/birth-order on RMW2's read temp) -- ALL INERT OR WORSE,
+   *   confirming the availability-loss certificate from the qty side: a named
+   *   `nine` block-local born before/after RMW2 both exactly 20 (cse folds the
+   *   synthetic constant back); staging the link value through the dead arg6
+   *   (`arg6 = (int)(uint)prim; pal->addr = (uint)arg6;`) exactly 20
+   *   (copy-propagated -- 13B "cse eats synthetic copies"); RMW2 respelled as
+   *   a scalar masked or-store staged through arg6 (the 12D dead-pseudo route
+   *   to $v1, arg6 owned $v1) 92 @78 -- 4 insns SHORT, the scalar respell
+   *   lets fold collapse the mask pair (same 4-short class as the edgbla
+   *   dv-split).  => RMW2's read temp is anonymous and source-unreachable;
+   *   its $v0 ownership follows the tint's early death, which is the closed
+   *   tint half.  Route unchanged: the #E' instrumented-cc1 trace.
+   *   Harness: scratchpad/w67a8/font_v1.json + probe.py. */
   POLY_FT4      *prim;
   PSXFront_PTag *pal;
   int            width;

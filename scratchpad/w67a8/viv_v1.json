@@ -1,0 +1,58 @@
+{
+ "file": "recon/frontend/common/feaudio.cpp",
+ "fn": "FeAudio_InitViv__FPc",
+ "variants": [
+  {"name": "VA_share_hlen_at_reserve",
+   "edits": [
+    ["  char *lumpyName;\n", "  char *lumpyName;\n  u_int swappedType;\n"],
+    ["    u_int swappedType = lumpHead.type;", "    swappedType = lumpHead.type;"],
+    ["    swappedResult |= swappedType;\n    swappedType = swappedResult;", "    swappedResult |= swappedType;"],
+    ["    __asm__(\"\" : \"+r\"(swappedType));", "    __asm__(\"\" : : \"r\"(swappedResult));"],
+    ["    lumpHead.type = swappedType;", "    lumpHead.type = swappedResult;"],
+    ["  bigfileHeader = reservememadr(lumpyName,lumpHead.hlen + 0x20,0);", "  swappedType = lumpHead.hlen;\n  bigfileHeader = reservememadr(lumpyName,swappedType + 0x20,0);"]
+   ]},
+  {"name": "VC_share_hlen_at_async",
+   "edits": [
+    ["  char *lumpyName;\n", "  char *lumpyName;\n  u_int swappedType;\n"],
+    ["    u_int swappedType = lumpHead.type;", "    swappedType = lumpHead.type;"],
+    ["    swappedResult |= swappedType;\n    swappedType = swappedResult;", "    swappedResult |= swappedType;"],
+    ["    __asm__(\"\" : \"+r\"(swappedType));", "    __asm__(\"\" : : \"r\"(swappedResult));"],
+    ["    lumpHead.type = swappedType;", "    lumpHead.type = swappedResult;"],
+    ["  vivHandle = asyncloadsegment((char *)0x0,bigfileHeader,lumpHead.hlen + 0x20);", "  swappedType = lumpHead.hlen;\n  vivHandle = asyncloadsegment((char *)0x0,bigfileHeader,swappedType + 0x20);"]
+   ]},
+  {"name": "VD_share_both_sites",
+   "edits": [
+    ["  char *lumpyName;\n", "  char *lumpyName;\n  u_int swappedType;\n"],
+    ["    u_int swappedType = lumpHead.type;", "    swappedType = lumpHead.type;"],
+    ["    swappedResult |= swappedType;\n    swappedType = swappedResult;", "    swappedResult |= swappedType;"],
+    ["    __asm__(\"\" : \"+r\"(swappedType));", "    __asm__(\"\" : : \"r\"(swappedResult));"],
+    ["    lumpHead.type = swappedType;", "    lumpHead.type = swappedResult;"],
+    ["  bigfileHeader = reservememadr(lumpyName,lumpHead.hlen + 0x20,0);", "  swappedType = lumpHead.hlen;\n  bigfileHeader = reservememadr(lumpyName,swappedType + 0x20,0);"],
+    ["  vivHandle = asyncloadsegment((char *)0x0,bigfileHeader,lumpHead.hlen + 0x20);", "  swappedType = lumpHead.hlen;\n  vivHandle = asyncloadsegment((char *)0x0,bigfileHeader,swappedType + 0x20);"]
+   ]},
+  {"name": "VE_share_nofence",
+   "edits": [
+    ["  char *lumpyName;\n", "  char *lumpyName;\n  u_int swappedType;\n"],
+    ["    u_int swappedType = lumpHead.type;", "    swappedType = lumpHead.type;"],
+    ["    swappedResult |= swappedType;\n    swappedType = swappedResult;", "    swappedResult |= swappedType;"],
+    ["    __asm__(\"\" : \"+r\"(swappedType));", ""],
+    ["    lumpHead.type = swappedType;", "    lumpHead.type = swappedResult;"],
+    ["  bigfileHeader = reservememadr(lumpyName,lumpHead.hlen + 0x20,0);", "  swappedType = lumpHead.hlen;\n  bigfileHeader = reservememadr(lumpyName,swappedType + 0x20,0);"]
+   ]},
+  {"name": "VF_share_full_addend",
+   "edits": [
+    ["  char *lumpyName;\n", "  char *lumpyName;\n  u_int swappedType;\n"],
+    ["    u_int swappedType = lumpHead.type;", "    swappedType = lumpHead.type;"],
+    ["    swappedResult |= swappedType;\n    swappedType = swappedResult;", "    swappedResult |= swappedType;"],
+    ["    __asm__(\"\" : \"+r\"(swappedType));", "    __asm__(\"\" : : \"r\"(swappedResult));"],
+    ["    lumpHead.type = swappedType;", "    lumpHead.type = swappedResult;"],
+    ["  bigfileHeader = reservememadr(lumpyName,lumpHead.hlen + 0x20,0);", "  swappedType = lumpHead.hlen + 0x20;\n  bigfileHeader = reservememadr(lumpyName,swappedType,0);"]
+   ]},
+  {"name": "V4_control_readonly_result",
+   "edits": [
+    ["    swappedResult |= swappedType;\n    swappedType = swappedResult;", "    swappedResult |= swappedType;"],
+    ["    __asm__(\"\" : \"+r\"(swappedType));", "    __asm__(\"\" : : \"r\"(swappedResult));"],
+    ["    lumpHead.type = swappedType;", "    lumpHead.type = swappedResult;"]
+   ]}
+ ]
+}

@@ -990,7 +990,30 @@ extern int CD_init_80108140(void)
      * count-EXACT 120/120.  The 13B anti-steal void fence in the earlier `return -1`
      * arms (retail fills the preceding `bnez`'s slot with the `addu $a0,$zero,$zero` arg
      * setup where we steal `li $v0,-1` into it) is WORSE: CdlDemute arm 13, CdlReset arm
-     * 15, both 18.  Class stands as 3b old-gcc no-copy-prop + one reorg steal choice.  */
+     * 15, both 18.  Class stands as 3b old-gcc no-copy-prop + one reorg steal choice.
+     * W63-A5: the 10 splits into TWO independent items, and the tail one is now
+     * MECHANISM-NAMED rather than "a reorg steal choice":
+     *   (R1, 2 diffs) a pure CODE MOTION -- retail emits `li $a0,1; move $a1,$0` (the
+     *     CD_cw(CdlNop,...) arg setup) BEFORE the `la` of the Intr base; ours emits them
+     *     four insns later, after the `lbu`.  Everything else in the block is identical,
+     *     so this is a PER_FN_TEXT_MOVES take/after row (spec + anchors in
+     *     scratchpad/w63a5/moves_cd_init.json, NOT submitted -- the anchors were derived
+     *     from the -dl dump's out.s and did not fire against the build pipeline's .s, so
+     *     it lacks the mandatory probe proof; re-derive from the pipeline .s).
+     *   (R2, 4 diffs) retail's `li $v0,-1` sits in the FINAL `bne`'s delay slot, which is
+     *     WHY the tested value has to live somewhere else -- reorg cannot fill a slot with
+     *     an insn writing a register the branch READS (09L, reorg.c insn_sets_resource_p).
+     *     So retail's `addu $a0,$v0,$zero` copy is a CONSEQUENCE of that fill, not a
+     *     separate no-copy-prop artifact: the cure must stop reorg stealing the -1 into the
+     *     EARLIER CdlDemute `bnez` slot so it is still available for the `bne`.
+     * Also re-gated here (04Z, post-alarm-struct): the `c` identity fence is now INERT
+     * (10 with and without) -- it is documented as a ref-step promote but no longer buys
+     * anything; the `state` identity fence IS load-bearing (10 -> 19 @123 without it).
+     * And the Intr triple's spelling is CERTIFIED FREE: our store/reload/store form, the
+     * chained `state[1] = state[2] = 0;` (sotn-decomp psxsdk/libcd/bios.c) and the
+     * two-statement `state[2] = 0; state[1] = state[2];` (psyz decomp/src/libcd/bios.c)
+     * all gate identically at 10 @120/120 -- the corpus angle is confirmed equivalent,
+     * not a lever. */
     if (CD_sync(0, 0) != 2) {
         __asm__("" : : "i"(0));
         return -1;

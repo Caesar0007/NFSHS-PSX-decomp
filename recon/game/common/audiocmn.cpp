@@ -77,9 +77,21 @@ char         fReverbLevel = 0;   /* @0x8013c679 */
 int          falseLapTrigCur;   /* @0x8013c6b4  (bss(zero)) */
 int          flaseLapTrigTrack;   /* @0x8013c6b8  (bss(zero)) */
 char         currentLap[2];   /* @0x8013c6bc  (bss(zero)) */
-int          bestLapTime[2];   /* @0x8013c6c0  (bss(zero)) */
-int          gtotallaptimes[2];   /* @0x8013c6c8  (bss(zero)) */
-int          AudioCmn_gPlayerArrested[2];   /* @0x8013c6d0  (bss(zero)) */
+/* MATCH (w66-a6): the five 8-byte objects of this TU's .sdata run sit INSIDE
+ * retail's small-data window (0x8013c628..0x8013c71c) but -G4 exiles anything
+ * over 4 bytes to .data, punching 24- and 16-byte holes in the ownership map.
+ * The per-fn -G8 region splice CANNOT fix that: PER_FN_G8 substitutes only the
+ * `.ent NAME ... .end NAME` TEXT region, and every data directive lives outside
+ * it -- measured with the splice applied to ALL 48 functions of this TU, all
+ * five objects still emit under `.data` (scratchpad/w66a6, probes A/B/C).
+ * A whole-TU -G8 does place them, but it re-materializes every small-object
+ * address as the unschedulable `la` macro and breaks CheckState (W59-11G).
+ * The section attribute is the storage-only equivalent: it moves the object and
+ * leaves -G (and therefore every address materialization) alone -- the object's
+ * TEXT is BYTE-IDENTICAL to the un-attributed build, 3765/3765 words. */
+int          bestLapTime[2] __attribute__((section(".sdata")));   /* @0x8013c6c0  (bss(zero)) */
+int          gtotallaptimes[2] __attribute__((section(".sdata")));   /* @0x8013c6c8  (bss(zero)) */
+int          AudioCmn_gPlayerArrested[2] __attribute__((section(".sdata")));   /* @0x8013c6d0  (bss(zero)) */
 int          AudioCmn_gCursorSndHandle;   /* @0x8013c6d8  (bss(zero)) */
 int          AudioCmn_gLastFade;   /* @0x8013c6dc  (bss(zero)) */
 void         *AudioCmn_gLoadTables;   /* @0x8013c6e0  (bss(zero)) */
@@ -88,8 +100,8 @@ int          AudioCmn_gResume;   /* @0x8013c6e8  (bss(zero)) */
 int          AudioCmn_gStreamRestartTimer;   /* @0x8013c6ec  (bss(zero)) */
 char         fMysticWindON[2];   /* @0x8013c6f0  (bss(zero)) */
 char         fAmbientRangeON[2];   /* @0x8013c6f4  (bss(zero)) */
-int          currentWindVal[2];   /* @0x8013c6f8  (bss(zero)) */
-int          nextWindVal[2];   /* @0x8013c700  (bss(zero)) */
+int          currentWindVal[2] __attribute__((section(".sdata")));   /* @0x8013c6f8  (bss(zero)) */
+int          nextWindVal[2] __attribute__((section(".sdata")));   /* @0x8013c700  (bss(zero)) */
 int          currentWindPan;   /* @0x8013c708  (bss(zero)) */
 int          nextWindPan;   /* @0x8013c70c  (bss(zero)) */
 int          gQuickSirenCount;   /* @0x8013c710  (bss(zero)) */

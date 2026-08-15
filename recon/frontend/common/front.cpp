@@ -1164,6 +1164,34 @@ extern "C" void Front_InitTourneyTraffic__FR9tFEStream(tFEStream *streamData)
    angle is a source shape that raises carInfo's REF COUNT naturally -- e.g.
    retail reading carInfo->fColorOrder / fDefaultColor through the pointer more
    often than our carColor temp does -- or that shortens i's live range.  */
+/* 🏆 W64-A17 (2026-08-15): 111 -> PASS 357/357.  TWO source-shape edits; the
+   W61-A17 "+7 refs on carInfo" allocator certificate was aimed at a SYMPTOM.
+   (1) 111 -> 6 @357/357 -- THE FN-SCOPE ALIAS WAS THE WHOLE HANDOUT.  The
+       `carLineup = streamData->carLineup;` alias in the oppNumber==1 arm was a
+       Ghidra artifact: retail addresses that arm's slots straight off
+       streamData (`sw zero,440(s2)`/`sb v1,428(s2)`... == 420+N), never
+       emitting `addiu sN,s2,420`.  Deleting it removed the +1 insn AND
+       collapsed the s0<->s1 swap the certificate priced -- because the alias
+       stretched the FN-SCOPE carLineup pseudo's live range across a whole arm
+       that never needed it, which is what pushed `i` ahead of carInfo in
+       QTY_CMP_PRI.  LAW (catalog candidate): before pricing a priority dial,
+       check whether one of the two contested pseudos is live in a region the
+       SOURCE does not require -- a fn-scope local aliasing a struct member is
+       the cheapest way to inflate a live range invisibly, and the allocator
+       certificate reads as a hard floor while it is present.
+   (2) 6 -> PASS -- `numOpponents = 5` moved into an explicit ELSE ARM.  With
+       the pre-assigned default, gcc materialised `&frontEnd` as a la at the
+       raceType guard and read the field off it (`addiu a0,v0,0; lbu v1,4(a0)`),
+       then copied that reg into the loop's `fp` (`addu fp,a0,zero`); retail
+       keeps the guard read FUSED (`lbu %lo(frontEnd+4)(v0)`) and materialises
+       `&frontEnd` fresh in the preheader (`lui v0,0; addiu fp,v0,0`).  Same
+       count either way -- it is purely which lo_sum cse2 gets to share.
+   FALSIFIED from the 6 basin (all re-gated): `(byte)frontEnd.raceType == 2`
+   guard cast 6 (neutral); swapping the in-loop `tier`/`raceType` test order 14;
+   an explicit `tfrontEnd *fe = &frontEnd;` local for the three in-loop reads 8.
+   Also measured: declaring carLineup inside arm 1 instead of at fn scope = 6,
+   identical to keeping the SYM's fn-scope declaration -- so the SYM-true
+   declaration was kept. */
 extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
 
 {
@@ -1215,12 +1243,23 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
               [(uint)tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
                tournamentManager.fTournament];
     }
-    numOpponents = 5;
+    /* MATCH W64-A17: the 5 is the ELSE ARM, not a pre-assigned default.  A
+       top-of-block `numOpponents = 5;` followed by a bare `if` makes gcc
+       materialise the 5 ahead of the raceType guard and reuse the guard's
+       own `&frontEnd` lo_sum for the field read (`addiu a0,v0,0; lbu v1,4(a0)`
+       + a later `addu fp,a0,zero`); the two-armed form lets the guard read
+       stay FUSED (`lbu %lo(frontEnd+4)(v0)`) and rematerialise `&frontEnd`
+       fresh in the loop preheader, exactly as retail does.  6 -> PASS.
+       (§5.0c "explicit else x = N" / 13C inverted-default, applied to the
+       constant arm rather than the computed one.) */
     if (frontEnd.raceType == '\x02') {
       /* MATCH: an `int` temp forces the WORD load of fNumRacers (retail `lw`); assigning
          the expression straight into the `short` lets gcc narrow it to `lhu`. */
       int numRacers = tournamentManager.fNumRacers;
       numOpponents = numRacers + -1;
+    }
+    else {
+      numOpponents = 5;
     }
     i = 0;
     if (0 < numOpponents) {
@@ -1281,7 +1320,12 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
     char carColor;
     tCarModels modelList [3];
 
-    carLineup = streamData->carLineup;
+    /* MATCH W64-A17: NO carLineup alias in this arm -- retail addresses every
+       slot straight off streamData (`sw zero,440(s2)` .. `sb v1,428(s2)`,
+       i.e. 420+N), never materialising `addiu sN,s2,420`.  The alias was a
+       Ghidra artifact; it cost one insn AND (by stretching the fn-scope
+       carLineup pseudo's live range across this arm) inverted the whole
+       s0/s1 handout the W61-A17 certificate priced.  111 -> 6 @357/357. */
     carManager.GetStockCar((ushort)(byte)frontEnd.oppCar,carInfo);
     carModel = (tCarModels)(int)*(signed char *)&carInfo.fCarID;
     carColor = carInfo.fColorOrder[carInfo.fDefaultColor];
@@ -1295,13 +1339,13 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
       }
     }
     streamData->numOpponents = streamData->numOpponents + 1;
-    carLineup[1].isPlayerCar = 0;
-    carLineup[1].personality = kPersonalityNemesis;
-    carLineup[1].carModel = carModel;
-    carLineup[1].carColor = carColor;
-    carLineup[1].carUpgrades = streamData->playerCars[0].fUpgrades;
-    carLineup[1].position = '\x01';
-    carLineup[0].position = (char)streamData->numOpponents + '\x01';
+    streamData->carLineup[1].isPlayerCar = 0;
+    streamData->carLineup[1].personality = kPersonalityNemesis;
+    streamData->carLineup[1].carModel = carModel;
+    streamData->carLineup[1].carColor = carColor;
+    streamData->carLineup[1].carUpgrades = streamData->playerCars[0].fUpgrades;
+    streamData->carLineup[1].position = '\x01';
+    streamData->carLineup[0].position = (char)streamData->numOpponents + '\x01';
     carManager.AddCarToIngameList(carModel,carColor);
     streamData->totalCars = streamData->totalCars + 2;
   }

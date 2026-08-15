@@ -348,7 +348,36 @@ extern void _padLoadActInfo_snd(unsigned char *info)
  *   RESIDUAL (pre-existing, now the only other item):
  *   (iii) the `_actcur` store reaching through `$at` in retail (an ASSEMBLER MACRO SPLIT, the
  *   W51 AT-MACRO class) vs our `$v0` base; (iv) the `la $a3,_actcur` preheader anchor landing 2
- *   insns early with `t0 = -1` as a copy; plus one `lbu $v0,4($v0)` load-delay placement. */
+ *   insns early with `t0 = -1` as a copy; plus one `lbu $v0,4($v0)` load-delay placement.
+ * w64-a7 2026-08-15 -- THE 2.8.0+nosplit BASIN RE-DERIVATION (w63-a8's named job) EXECUTED, and
+ *   the answer is that the three shipped devices do NOT all transfer.  Re-gated wired baseline
+ *   14 @155/157.  Probed through the w63-a8 PER_FN_VERFLAG_SPLICE_272 harness (kept at
+ *   `scratchpad/w64a7/verflag.py`; build.py untouched), key "2.8.0|-mno-split-addresses":
+ *     shipped 3 devices                       28 @157/157   (w63's number, reproduced)
+ *     - the `cnt` opacity fence                26   <-- the fence is HARMFUL in this basin
+ *     - the `hi` opacity fence                 28   (inert here; keep it, the wired rung wants it)
+ *     - `hi` local dropped entirely            30
+ *     - the anchor assigned OUTSIDE the guard  32   (load-bearing in BOTH basins)
+ *     - the anchor local altogether            28
+ *     - `cnt` fence AND `hi` fence             26   (the basin's current best)
+ *     - all three                              30
+ *   AND the `cnt` fence's premise does not hold here either: its in-source rationale is "retail
+ *   rematerializes, `sllv` is the tell", but the ORACLE HAS NO `sllv` -- both `woff` shifts are
+ *   `sll $v0,$v0,3` (0x80105AC0, 0x80105B04).  In the 2.8 basin OURS emits `sllv $v0,$v0,$a0`
+ *   with or without the fence (cse substitutes `cnt`'s live 3 for the literal), so the device is
+ *   aimed at a real defect but does not cure it there.  Four statement POSITIONS of `cnt = 3;`
+ *   measured against that fold: top of the block 26, end of the block 28, after the `woff`
+ *   if/else 28, end + fence 27 @158 -- position is not the dial.
+ *   ⇒ 26 @157 count-exact is the basin's floor as of this wave, still 12 worse than the wired
+ *   14 @155, so NOTHING is wired and the shipped source is unchanged.  The named next step is
+ *   unchanged in KIND but sharper in CONTENT: the 2.8+nosplit basin needs its OWN cure for the
+ *   `cnt`-into-`sll` cse substitution (a non-fence one), not a transplant of the 970404 device.
+ *   ALSO FALSIFIED this wave, on the WIRED rung, against residual item (iv) (`la $a3,_actcur`
+ *   separate-scratch vs retail's self-temp -- the catalog-E sized-vs-scalar %hi-scratch family):
+ *   declaring `_actcur` as a sized `*_actcur[1]` with the anchor by array decay (14), the same
+ *   with `&_actcur[0]` (14), and a `(unsigned char **)&_actcur` cast anchor on the scalar (14) --
+ *   all three byte-identical.  The `section(".bss")` attribute already fixes the storage shape,
+ *   so the declaration-shape family is CLOSED for this symbol. */
 extern int _padLoadActInfo_rcv(unsigned char *info)
 {
     switch (info[0x46]) {

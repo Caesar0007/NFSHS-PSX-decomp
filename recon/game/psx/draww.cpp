@@ -647,10 +647,33 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
        -- until it exists this is a priced hardness certificate, not a floor. */
     v4 = &r_div->v[n];
     n = n + 1;
-    v5 = &r_div->v[n];
-    v6 = &r_div->v[(short)(n + 1)];
-    v7 = &r_div->v[(short)(n + 2)];
-    v8 = &r_div->v[(short)(n + 3)];
+    {
+      /* w64-a2 (26 -> 8 @588/588, ALL REGISTERS NOW EXACT): the v5..v8 index
+         chain is a BLOCK-LOCAL qty question, and the dial is the qty SET, not
+         the ref/live counts.  With four indices derived straight off `n` the
+         three derived temps are pairwise DISJOINT, so local-alloc's ascending
+         find_free_reg collapses them all onto $v0 and hands `n` the next free
+         reg, $v1; retail keeps the chain base in $a3, which needs BOTH $v0 and
+         $v1 blocked over its window.  A single named pivot `q = n + 1` supplies
+         the extra simultaneously-live qty (13A block-local anchor / w46 3-QTY
+         boundary): measured, all count-exact 588/588 --
+             base (all four off `n`)                    26
+             q = n + 2  (v7/v8 off q)                   24
+             q = n + 2 and q = n + 3                    22
+             q = n + 2, q mutated for v8                24
+             two pipelined temps i1/i2 (retail's own
+               overlapping-live shape, 3 spellings)     26 / 26 / 28
+             q = n + 1  (v6/v7/v8 off q)                 8   <-- landed
+         Residual 8 = FOUR insns (addiu a3,s4,1 / addiu t8,a3,4 / addiu v0,a3,2 /
+         addiu a3,a3,3) emitted at different POSITIONS -- identical opcodes and
+         identical registers, i.e. a pure sched2 emission-order residual, no
+         longer an allocation one. */
+      short q = n + 1;
+      v5 = &r_div->v[n];
+      v6 = &r_div->v[q];
+      v7 = &r_div->v[(short)(q + 1)];
+      v8 = &r_div->v[(short)(q + 2)];
+    }
     n = n + 4;
     DrawW_DivVertice(v4,v0,v1);
     {

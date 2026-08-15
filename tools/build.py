@@ -1470,6 +1470,14 @@ PER_FN_TEXT_MOVES = {
         ],
     },
     # w66-a1 sim block-relocation rows (land WITH the sim retarget row).
+    "recon/game/psx/hud.cpp": {
+        # w67-a7: Hud_Init 8 -> PASS 624/624 (3 pure slides; probe 3x)
+        "Hud_Init__Fv": [
+            {"take": "\tli\t\\$19,60[^\n]*\n", "after": "\t\\.set\treorder\n\n(?=\taddu\t\\$4,\\$21,160\n)"},
+            {"take": "\taddu\t\\$16,\\$16,\\$20\n(?=\taddu\t\\$4,\\$22,72\n)", "after": "\taddu\t\\$4,\\$22,72\n\tli\t\\$5,1[^\n]*\n"},
+            {"take": "\taddu\t\\$16,\\$16,\\$19\n(?=\tli\t\\$5,1[^\n]*\n\tmove\t\\$6,\\$16\n\taddu\t\\$7,\\$17,7\n\tlw\t\\$9,44\\(\\$sp\\)\n\tli\t\\$8,7[^\n]*\n\tsw\t\\$8,16\\(\\$sp\\)\n\tlw\t\\$8,52\\(\\$sp\\)\n\taddu\t\\$4,\\$9,72\n)", "after": "\tli\t\\$5,1[^\n]*\n(?=\tmove\t\\$6,\\$16\n\taddu\t\\$7,\\$17,7\n\tlw\t\\$9,44\\(\\$sp\\)\n\tli\t\\$8,7[^\n]*\n\tsw\t\\$8,16\\(\\$sp\\)\n\tlw\t\\$8,52\\(\\$sp\\)\n\taddu\t\\$4,\\$9,72\n)"},
+        ],
+    },
     # w60-a3 (orchestrator-wired, probe-verified REAL=0 in scratchpad/w60a3):
     # _BlitClear 2 -> PASS 140/140 (result copy before the epilogue reloads; the
     # jal slot is already taken by the la split, no wrapper).  _clearOTagR_dma
@@ -1818,6 +1826,13 @@ PER_FN_TEXT_MOVES = {
         ],
     },
     "recon/game/psx/draww.cpp": {
+        # w67-a7: BuildChunkObjectFacets 8 -> PASS 434/434 (COUPLED to its BR row; copy alone = wrong guard word)
+        "DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo": [
+            {"take": "\tli\t\\$5,528482304[^\n]*\n(?=\tlw\t\\$4,128\\(\\$sp\\)\n\taddu\t\\$7,\\$20,8\n)", "after": "\tbeq\t\\$3,\\$2,\\$L\\d+\n(?=\tj\t\\$L\\d+\n\\$L\\d+:\n\tli\t\\$2,5[^\n]*\n)", "slot": True},
+            {"take": "\tlw\t\\$4,128\\(\\$sp\\)\n(?=\taddu\t\\$7,\\$20,8\n)", "after": "\\$L\\d+:\n(?=\tlh\t\\$2,6\\(\\$20\\)\n\tlw\t\\$3,Track_gObjDefs\n)"},
+            {"take": "\tsw\t\\$21,40\\(\\$sp\\)\n(?=\tsw\t\\$2,16\\(\\$sp\\)\n)", "after": "\taddu\t\\$2,\\$20,8\n(?=\tsw\t\\$19,52\\(\\$sp\\)\n)"},
+            {"take": "\tmove\t\\$2,\\$23\n", "copy": True, "after": "\tbeq\t\\$2,\\$0,\\$L\\d+\n(?=\tlui\t\\$2,%hi\\(goffsets\\)[^\n]*\n)"},
+        ],
         "DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi": [
             {"take": r"\tsw\t\$21,68\(\$sp\)\n", "after": r"\tsw\t\$31,72\(\$sp\)\n"},
             {"take": r"\tlw\t\$21,96\(\$sp\)\n", "after": r"\tlbu\t\$2,3\(\$20\)\n",
@@ -1995,6 +2010,11 @@ def _apply_text_moves(rel_posix: str, s_file: Path) -> None:
 # the POST-move text.
 PER_FN_BRANCH_RETARGET = {
     # w66-a1 rows (probe-verified 2x + wp.py word-proofs; notes in scratchpad/w66a1)
+    'recon/game/psx/draww.cpp': {
+        'DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo': [
+            {"branch": "\tbeq\t\\$2,\\$0,\\$L\\d+\n(?=\tmove\t\\$2,\\$23\n\tlui\t\\$2,%hi\\(goffsets\\))", "after": "\tmove\t\\$2,\\$23\n(?=\tlw\t\\$31,124\\(\\$sp\\)\n)"},
+        ],
+    },
     "recon/syslib/psx/libpad/PADSEQD.c": {
         "_dirSendAuto": [
             {"branch": "\\tbeq\\t\\$2,\\$0,\\$L\\d+\\n(?=\\tli\\t\\$2,2\\b)", "after": "\\tmove\\t\\$4,\\$16\\n(?=\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tjal\\t_padCmdParaMode\\n\\tmove\\t\\$5,\\$0\\n)"},

@@ -1,0 +1,765 @@
+
+DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo:
+	.frame	$sp,128,$31		# vars= 56, regs= 10/0, args= 32, extra= 0
+	.mask	0xc0ff0000,-4
+	.fmask	0x00000000,0
+	subu	$sp,$sp,128
+	sw	$31,124($sp)
+	sw	$fp,120($sp)
+	sw	$23,116($sp)
+	sw	$22,112($sp)
+	sw	$21,108($sp)
+	sw	$20,104($sp)
+	sw	$19,100($sp)
+	sw	$18,96($sp)
+	sw	$17,92($sp)
+	sw	$16,88($sp)
+	sw	$4,128($sp)
+	lw	$2,4($5)
+	lw	$8,0($5)
+	addu	$20,$2,4
+	sw	$8,72($sp)
+	lw	$2,0($2)
+	#nop
+	sw	$2,80($sp)
+	lw	$5,8($5)
+	move	$23,$0
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L900
+	sw	$5,76($sp)
+	.set	macro
+	.set	reorder
+
+	li	$2,528482304			# 0x1f800000
+	ori	$2,$2,0x0014
+	li	$9,528482304			# 0x1f800000
+	ori	$9,$9,0x0014
+	sw	$0,28($2)
+	sw	$0,24($2)
+	sw	$0,528482344
+ #APP
+	lw   $12, 20($9)
+	lw   $13, 24($9)
+	ctc2 $12, $5
+	lw   $14, 28($9)
+	ctc2 $13, $6
+	ctc2 $14, $7
+ #NO_APP
+	sw	$0,84($sp)
+$L901:
+	lw	$8,84($sp)
+	lw	$9,80($sp)
+	#nop
+	slt	$2,$8,$9
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L900
+	lui	$2,%hi(goffsets) # high
+	.set	macro
+	.set	reorder
+
+	addiu	$2,$2,%lo(goffsets) # low
+	lbu	$3,4($20)
+	lbu	$16,2($20)
+	addu	$3,$3,$2
+	andi	$2,$16,0x0080
+	lb	$fp,0($3)
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L925
+	li	$2,5			# 0x00000005
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$16,$2,$L926
+	li	$2,1024			# 0x00000400
+	.set	macro
+	.set	reorder
+
+	lw	$8,76($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	beq	$8,$0,$L926
+	addu	$6,$20,8
+	.set	macro
+	.set	reorder
+
+	lw	$4,128($sp)
+	lh	$5,6($20)
+	.set	noreorder
+	.set	nomacro
+	jal	ObjectClipped__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache
+	li	$7,528482304			# 0x1f800000
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L907
+	li	$2,2			# 0x00000002
+	.set	macro
+	.set	reorder
+
+	lbu	$3,2($20)
+	#nop
+	bne	$3,$2,$L906
+$L907:
+	li	$2,1024			# 0x00000400
+$L926:
+	sh	$2,528482632
+	lbu	$2,5($20)
+	#nop
+	andi	$2,$2,0x0001
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L910
+	li	$17,-1			# 0xffffffff
+	.set	macro
+	.set	reorder
+
+	lw	$3,8($20)
+	lw	$9,128($sp)
+	lw	$2,16($20)
+	lw	$4,8($9)
+	lw	$5,16($9)
+	subu	$4,$3,$4
+	.set	noreorder
+	.set	nomacro
+	jal	fixedatan
+	subu	$5,$2,$5
+	.set	macro
+	.set	reorder
+
+	addu	$4,$sp,32
+	.set	noreorder
+	.set	nomacro
+	jal	fixedxformy
+	move	$5,$2
+	.set	macro
+	.set	reorder
+
+	andi	$3,$16,0x00ff
+	li	$2,9			# 0x00000009
+	bne	$3,$2,$L911
+	lh	$16,24($20)
+	lw	$4,32($sp)
+	lh	$17,22($20)
+	sll	$16,$16,8
+	move	$5,$16
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	sll	$17,$17,8
+	.set	macro
+	.set	reorder
+
+	move	$19,$2
+	lw	$4,44($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$16
+	.set	macro
+	.set	reorder
+
+	move	$18,$2
+	lw	$4,56($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$16
+	.set	macro
+	.set	reorder
+
+	lw	$4,36($sp)
+	move	$5,$17
+	sw	$19,32($sp)
+	sw	$18,44($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	sw	$2,56($sp)
+	.set	macro
+	.set	reorder
+
+	move	$19,$2
+	lw	$4,48($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$17
+	.set	macro
+	.set	reorder
+
+	move	$18,$2
+	lw	$4,60($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$17
+	.set	macro
+	.set	reorder
+
+	lw	$4,40($sp)
+	move	$5,$16
+	sw	$19,36($sp)
+	sw	$18,48($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	sw	$2,60($sp)
+	.set	macro
+	.set	reorder
+
+	move	$19,$2
+	lw	$4,52($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$16
+	.set	macro
+	.set	reorder
+
+	move	$18,$2
+	lw	$4,64($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$16
+	.set	macro
+	.set	reorder
+
+	sw	$19,40($sp)
+	sw	$18,52($sp)
+	sw	$2,64($sp)
+	lhu	$17,26($20)
+	sh	$0,528482632
+$L911:
+	li	$5,528482304			# 0x1f800000
+	addu	$6,$sp,32
+	lw	$4,128($sp)
+	lh	$2,6($20)
+	lw	$3,Track_gObjDefs
+	sll	$2,$2,2
+	addu	$2,$2,$3
+	lw	$22,0($2)
+	addu	$2,$20,8
+	sw	$2,16($sp)
+	sll	$2,$17,16
+	sra	$2,$2,16
+	sw	$fp,20($sp)
+	sw	$2,24($sp)
+	.set	noreorder
+	.set	nomacro
+	j	$L923
+	move	$7,$22
+	.set	macro
+	.set	reorder
+
+$L910:
+	andi	$3,$16,0x00ff
+	li	$2,2			# 0x00000002
+	.set	noreorder
+	.set	nomacro
+	beq	$3,$2,$L916
+	slt	$2,$3,3
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L922
+	li	$2,1			# 0x00000001
+	.set	macro
+	.set	reorder
+
+	beq	$3,$2,$L915
+	j	$L906
+$L922:
+	li	$2,5			# 0x00000005
+	.set	noreorder
+	.set	nomacro
+	beq	$3,$2,$L918
+	li	$2,9			# 0x00000009
+	.set	macro
+	.set	reorder
+
+	beq	$3,$2,$L917
+	j	$L906
+$L915:
+	lh	$2,6($20)
+	lw	$3,Track_gObjDefs
+	sll	$2,$2,2
+	addu	$2,$2,$3
+	lw	$22,0($2)
+ #APP
+ #NO_APP
+	li	$5,528482304			# 0x1f800000
+	lw	$4,128($sp)
+	addu	$7,$20,8
+	sw	$fp,16($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi
+	move	$6,$22
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	j	$L906
+	addu	$23,$23,$2
+	.set	macro
+	.set	reorder
+
+$L916:
+	addu	$4,$20,20
+	.set	noreorder
+	.set	nomacro
+	jal	Quatern_QuatToMat__FP5tQuatP10matrixtdef
+	addu	$5,$sp,32
+	.set	macro
+	.set	reorder
+
+	lh	$16,28($20)
+	lw	$4,32($sp)
+	lh	$17,30($20)
+	lh	$18,32($20)
+	sll	$16,$16,8
+	move	$5,$16
+	sll	$17,$17,8
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	sll	$18,$18,8
+	.set	macro
+	.set	reorder
+
+	move	$21,$2
+	lw	$4,44($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$16
+	.set	macro
+	.set	reorder
+
+	move	$19,$2
+	lw	$4,56($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$16
+	.set	macro
+	.set	reorder
+
+	lw	$4,36($sp)
+	move	$5,$17
+	sw	$21,32($sp)
+	sw	$19,44($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	sw	$2,56($sp)
+	.set	macro
+	.set	reorder
+
+	move	$21,$2
+	lw	$4,48($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$17
+	.set	macro
+	.set	reorder
+
+	move	$19,$2
+	lw	$4,60($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$17
+	.set	macro
+	.set	reorder
+
+	lw	$4,40($sp)
+	move	$5,$18
+	sw	$21,36($sp)
+	sw	$19,48($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	sw	$2,60($sp)
+	.set	macro
+	.set	reorder
+
+	move	$21,$2
+	lw	$4,52($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$18
+	.set	macro
+	.set	reorder
+
+	move	$19,$2
+	lw	$4,64($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$18
+	.set	macro
+	.set	reorder
+
+	li	$5,528482304			# 0x1f800000
+	lw	$4,128($sp)
+	addu	$6,$sp,32
+	sw	$21,40($sp)
+	sw	$19,52($sp)
+	sw	$2,64($sp)
+	lh	$2,6($20)
+	lw	$3,Track_gObjDefs
+	sll	$2,$2,2
+	addu	$2,$2,$3
+	lw	$22,0($2)
+	addu	$2,$20,8
+	sw	$2,16($sp)
+	sw	$fp,20($sp)
+	lh	$2,34($20)
+	.set	noreorder
+	.set	nomacro
+	j	$L924
+	move	$7,$22
+	.set	macro
+	.set	reorder
+
+$L917:
+	lh	$5,20($20)
+	.set	noreorder
+	.set	nomacro
+	jal	xformy
+	addu	$4,$sp,32
+	.set	macro
+	.set	reorder
+
+	lh	$16,24($20)
+	lw	$4,32($sp)
+	lh	$17,22($20)
+	sll	$16,$16,8
+	move	$5,$16
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	sll	$17,$17,8
+	.set	macro
+	.set	reorder
+
+	move	$19,$2
+	lw	$4,44($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$16
+	.set	macro
+	.set	reorder
+
+	move	$18,$2
+	lw	$4,56($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$16
+	.set	macro
+	.set	reorder
+
+	lw	$4,36($sp)
+	move	$5,$17
+	sw	$19,32($sp)
+	sw	$18,44($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	sw	$2,56($sp)
+	.set	macro
+	.set	reorder
+
+	move	$19,$2
+	lw	$4,48($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$17
+	.set	macro
+	.set	reorder
+
+	move	$18,$2
+	lw	$4,60($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$17
+	.set	macro
+	.set	reorder
+
+	lw	$4,40($sp)
+	move	$5,$16
+	sw	$19,36($sp)
+	sw	$18,48($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	sw	$2,60($sp)
+	.set	macro
+	.set	reorder
+
+	move	$19,$2
+	lw	$4,52($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$16
+	.set	macro
+	.set	reorder
+
+	move	$18,$2
+	lw	$4,64($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$16
+	.set	macro
+	.set	reorder
+
+	li	$5,528482304			# 0x1f800000
+	lw	$4,128($sp)
+	addu	$6,$sp,32
+	sw	$19,40($sp)
+	sw	$18,52($sp)
+	sw	$2,64($sp)
+	sh	$0,528482632
+	lh	$2,6($20)
+	lw	$3,Track_gObjDefs
+	sll	$2,$2,2
+	addu	$2,$2,$3
+	lw	$22,0($2)
+	addu	$2,$20,8
+	sw	$2,16($sp)
+	sw	$fp,20($sp)
+	lh	$2,26($20)
+	.set	noreorder
+	.set	nomacro
+	j	$L924
+	move	$7,$22
+	.set	macro
+	.set	reorder
+
+$L918:
+	lbu	$2,34($20)
+	lw	$8,72($sp)
+	lw	$3,Track_gObjDefs
+	sll	$4,$2,2
+	addu	$4,$4,$2
+	sll	$4,$4,2
+	lh	$2,6($20)
+	#nop
+	sll	$2,$2,2
+	addu	$2,$2,$3
+	lw	$22,0($2)
+	.set	noreorder
+	.set	nomacro
+	jal	Object_GetAnim__FP13Trk_SimObject
+	addu	$4,$8,$4
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	bne	$2,$0,$L919
+	addu	$4,$20,20
+	.set	macro
+	.set	reorder
+
+	.set	noreorder
+	.set	nomacro
+	jal	Quatern_QuatToMat__FP5tQuatP10matrixtdef
+	addu	$5,$sp,32
+	.set	macro
+	.set	reorder
+
+	lh	$16,28($20)
+	lw	$4,32($sp)
+	lh	$17,30($20)
+	lh	$18,32($20)
+	sll	$16,$16,8
+	move	$5,$16
+	sll	$17,$17,8
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	sll	$18,$18,8
+	.set	macro
+	.set	reorder
+
+	move	$21,$2
+	lw	$4,44($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$16
+	.set	macro
+	.set	reorder
+
+	move	$19,$2
+	lw	$4,56($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$16
+	.set	macro
+	.set	reorder
+
+	lw	$4,36($sp)
+	move	$5,$17
+	sw	$21,32($sp)
+	sw	$19,44($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	sw	$2,56($sp)
+	.set	macro
+	.set	reorder
+
+	move	$21,$2
+	lw	$4,48($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$17
+	.set	macro
+	.set	reorder
+
+	move	$19,$2
+	lw	$4,60($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$17
+	.set	macro
+	.set	reorder
+
+	lw	$4,40($sp)
+	move	$5,$18
+	sw	$21,36($sp)
+	sw	$19,48($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	sw	$2,60($sp)
+	.set	macro
+	.set	reorder
+
+	move	$21,$2
+	lw	$4,52($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$18
+	.set	macro
+	.set	reorder
+
+	move	$19,$2
+	lw	$4,64($sp)
+	.set	noreorder
+	.set	nomacro
+	jal	fixedmult
+	move	$5,$18
+	.set	macro
+	.set	reorder
+
+	li	$5,528482304			# 0x1f800000
+	addu	$6,$sp,32
+	lw	$4,128($sp)
+	move	$7,$22
+	sw	$2,64($sp)
+	addu	$2,$20,8
+	sw	$19,52($sp)
+	sw	$21,40($sp)
+	sw	$2,16($sp)
+	li	$2,-1			# 0xffffffff
+	sw	$fp,20($sp)
+$L924:
+	sw	$2,24($sp)
+$L923:
+	jal	DrawObjectTransform__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefis
+	.set	noreorder
+	.set	nomacro
+	j	$L906
+	addu	$23,$23,$2
+	.set	macro
+	.set	reorder
+
+$L919:
+	lbu	$2,34($20)
+	lw	$9,72($sp)
+	sll	$4,$2,2
+	addu	$4,$4,$2
+	sll	$4,$4,2
+	.set	noreorder
+	.set	nomacro
+	jal	Object_GetAnim__FP13Trk_SimObject
+	addu	$4,$9,$4
+	.set	macro
+	.set	reorder
+
+	li	$6,528482304			# 0x1f800000
+	move	$7,$fp
+	lw	$3,0($2)
+	lw	$5,128($sp)
+	lh	$4,16($3)
+	lw	$3,20($3)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	jal	$31,$3
+	addu	$4,$2,$4
+	.set	macro
+	.set	reorder
+
+$L906:
+	lw	$8,84($sp)
+$L925:
+	lh	$2,0($20)
+	addu	$8,$8,1
+	addu	$20,$20,$2
+	.set	noreorder
+	.set	nomacro
+	j	$L901
+	sw	$8,84($sp)
+	.set	macro
+	.set	reorder
+
+$L900:
+	move	$2,$23
+	lw	$31,124($sp)
+	lw	$fp,120($sp)
+	lw	$23,116($sp)
+	lw	$22,112($sp)
+	lw	$21,108($sp)
+	lw	$20,104($sp)
+	lw	$19,100($sp)
+	lw	$18,96($sp)
+	lw	$17,92($sp)
+	lw	$16,88($sp)
+	#nop
+	.set	noreorder
+	.set	nomacro
+	j	$31
+	addu	$sp,$sp,128
+	.set	macro
+	.set	reorder
+
+	

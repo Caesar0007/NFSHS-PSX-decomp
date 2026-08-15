@@ -1,0 +1,25 @@
+{
+ "tu": "recon/eaclib/psx/eacpsxz/crc.c",
+ "tag": "before",
+ "obj_sha": "4ade04a132f3d2a166e10e9d2af564fbd4674320f2a9ba9fa0713f13ccaa4c0b",
+ "dis_sha": "df813ac7bf2f774c252d03cbb919ff3200b34db156e3fc66357d809e83035484",
+ "gate": {
+  "pass": 1,
+  "total": 1,
+  "fails": {}
+ },
+ "prod": {
+  "crc16": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 2
+  }
+ },
+ "prod_nodialect": {
+  "crc16": {
+   "ok": false,
+   "err": "aspsx failed:"
+  }
+ }
+}

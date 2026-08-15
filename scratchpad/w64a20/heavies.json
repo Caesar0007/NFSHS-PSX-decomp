@@ -1,0 +1,431 @@
+[
+ {
+  "tu": "recon/game/psx/draww.cpp",
+  "fn": "DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad",
+  "no_mech": [
+   303,
+   7
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/game/psx/psxcontroller.cpp",
+  "fn": "InGame_ResetPSXController__Fii",
+  "no_mech": [
+   228,
+   48
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/game/common/audiocmn.cpp",
+  "fn": "AudioCmn_SoundCar__FP8Car_tObjiiiiiii",
+  "no_mech": [
+   218,
+   23
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/game/psx/draww.cpp",
+  "fn": "DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi",
+  "no_mech": [
+   160,
+   24
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/game/common/camera.cpp",
+  "fn": "Camera_UpdateTailCam__Fii",
+  "no_mech": [
+   147,
+   21
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/frontend/common/femenudefs.cpp",
+  "fn": "MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand",
+  "no_mech": [
+   17,
+   7
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/game/psx/flare.cpp",
+  "fn": "Flare_LensFlare__FP7DVECTORP15Draw_FlareCache",
+  "no_mech": [
+   13,
+   2
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/frontend/common/screencongrats.cpp",
+  "fn": "CalculatePrizes__15tScreenCongrats",
+  "no_mech": [
+   14,
+   0
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/eaclib/psx/eacpsxz/unref.c",
+  "fn": "unrefpack",
+  "no_mech": [
+   11,
+   0
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/frontend/common/fescreen.cpp",
+  "fn": "GoNonInterlaced__7tScreen",
+  "no_mech": [
+   4,
+   7
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/game/common/audioeng.cpp",
+  "fn": "AudioEng_Set__Fiiiiiiii",
+  "no_mech": [
+   11,
+   0
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/frontend/common/screentracks.cpp",
+  "fn": "DrawBackground__18tScreenTrackSelect",
+  "no_mech": [
+   9,
+   0
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/game/common/speech.cpp",
+  "fn": "Status__Q26Speech13MobileSpeaker",
+  "no_mech": [
+   9,
+   0
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/eaclib/psx/eacpsxz/trnsmult.c",
+  "fn": "transmult",
+  "no_mech": [
+   8,
+   0
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/eaclib/psx/eacpsxz/vramfxya.c",
+  "fn": "vramfxya",
+  "no_mech": [
+   8,
+   0
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/game/psx/drawc.cpp",
+  "fn": "DrawC_NightHeadlight__FP8Car_tObj",
+  "no_mech": [
+   3,
+   3
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/game/common/speech.cpp",
+  "fn": "LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell",
+  "no_mech": [
+   6,
+   2
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/frontend/common/fefades.cpp",
+  "fn": "CalcOnOffFade__F13tMenuTextTypesssRiT4",
+  "no_mech": [
+   4,
+   3
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/frontend/common/femenudefs.cpp",
+  "fn": "MenuExtended_GoToDealer__FR12tMenuCommand",
+  "no_mech": [
+   3,
+   4
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/frontend/common/femenudefs.cpp",
+  "fn": "MenuExtended_GoToSeller__FR12tMenuCommand",
+  "no_mech": [
+   3,
+   4
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/game/common/physics.cpp",
+  "fn": "Physics_DoBarrierCheck__FP8Car_tObj",
+  "no_mech": [
+   5,
+   0
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/eaclib/psx/spchpsxz/spchpick.c",
+  "fn": "iSPCH_ConstantRuleSet",
+  "no_mech": [
+   4,
+   0
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/frontend/common/femenudefs.cpp",
+  "fn": "MenuExtended_GoToTournTrackInfo__FR12tMenuCommand",
+  "no_mech": [
+   1,
+   3
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/frontend/common/femenudefs.cpp",
+  "fn": "MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand",
+  "no_mech": [
+   4,
+   0
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/frontend/common/femenuextended.cpp",
+  "fn": "MenuNFS4_DrawTextBox__FiR4RECTissbT5",
+  "no_mech": [
+   4,
+   0
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/game/common/speech.cpp",
+  "fn": "Roger__Q26Speech13MobileSpeaker",
+  "no_mech": [
+   4,
+   0
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/game/psx/flare.cpp",
+  "fn": "Flare_2DHalo__Fiiiii",
+  "no_mech": [
+   4,
+   0
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/eaclib/psx/eacpsxz/nfile.c",
+  "fn": "iFILE_ExecCommand",
+  "no_mech": [
+   1,
+   2
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/eaclib/psx/spchpsxz/spchinit.c",
+  "fn": "SPCH_Init",
+  "no_mech": [
+   1,
+   2
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/frontend/common/femenudefs.cpp",
+  "fn": "MenuExtended_SellCar__FR12tMenuCommand",
+  "no_mech": [
+   3,
+   0
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/game/common/aistate.cpp",
+  "fn": "___17AIState_Purgatory",
+  "no_mech": [
+   1,
+   2
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/game/common/speech.cpp",
+  "fn": "CheckLocationBank__6SpeechPQ26Speech12LocationBankPci",
+  "no_mech": [
+   3,
+   0
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ },
+ {
+  "tu": "recon/frontend/common/femenudefs.cpp",
+  "fn": "MenuExtended_PurchaseUpgrade__Fi",
+  "no_mech": [
+   2,
+   0
+  ],
+  "with_mech": [
+   0,
+   0
+  ],
+  "verdict": "MECHANISM ACCOUNTS FOR ALL OF IT"
+ }
+]

@@ -1,0 +1,10 @@
+{
+ "recon/game/psx/draww.cpp": {
+  "DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad": [
+   {
+    "take": "\\tlw\\t\\$17,4\\(\\$16\\)\\n",
+    "after": "\\$L\\d+:\\n(?= \\#APP\\n\\tlw\\t\\$12,0\\(\\$2\\)\\n)"
+   }
+  ]
+ }
+}

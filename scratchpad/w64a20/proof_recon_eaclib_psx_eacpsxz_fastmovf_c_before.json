@@ -1,0 +1,25 @@
+{
+ "tu": "recon/eaclib/psx/eacpsxz/fastmovf.c",
+ "tag": "before",
+ "obj_sha": "2ede183ddd64da0f83d906d66a5d0059a7c3cc5602844ec0ee9d5adb1f030430",
+ "dis_sha": "aab3d8dfaccb1f41cd0e9b8544948f38586c21cbb5d4fd736bad46ef91f4d64c",
+ "gate": {
+  "pass": 1,
+  "total": 1,
+  "fails": {}
+ },
+ "prod": {
+  "fastmovfxya": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 13
+  }
+ },
+ "prod_nodialect": {
+  "fastmovfxya": {
+   "ok": false,
+   "err": "aspsx failed:"
+  }
+ }
+}

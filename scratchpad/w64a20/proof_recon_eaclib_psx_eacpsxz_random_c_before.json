@@ -1,0 +1,35 @@
+{
+ "tu": "recon/eaclib/psx/eacpsxz/random.c",
+ "tag": "before",
+ "obj_sha": "8499f738050f61ed125c62300d8ea30b99e8e9e62876fea323d5c9b965b5d933",
+ "dis_sha": "d70c086158293c2bd41c39a1764cf27204355913046536458efd7bd15e5f86a5",
+ "gate": {
+  "pass": 2,
+  "total": 2,
+  "fails": {}
+ },
+ "prod": {
+  "random": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 2
+  },
+  "seedrandom": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 2
+  }
+ },
+ "prod_nodialect": {
+  "random": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "seedrandom": {
+   "ok": false,
+   "err": "aspsx failed:"
+  }
+ }
+}

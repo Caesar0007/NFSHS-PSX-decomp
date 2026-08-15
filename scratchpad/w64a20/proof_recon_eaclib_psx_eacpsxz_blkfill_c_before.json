@@ -1,0 +1,35 @@
+{
+ "tu": "recon/eaclib/psx/eacpsxz/blkfill.c",
+ "tag": "before",
+ "obj_sha": "4429012ff326cc62efb8dd540cd474a42197aeca8606f331b09e7eefb20d1731",
+ "dis_sha": "a647f55e6f1254eba5d820a0e66c7e9e1a2ca87225d46a713c2adbd5afd96150",
+ "gate": {
+  "pass": 2,
+  "total": 2,
+  "fails": {}
+ },
+ "prod": {
+  "blockclear": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 0
+  },
+  "blockfill": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 0
+  }
+ },
+ "prod_nodialect": {
+  "blockclear": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "blockfill": {
+   "ok": false,
+   "err": "aspsx failed:"
+  }
+ }
+}

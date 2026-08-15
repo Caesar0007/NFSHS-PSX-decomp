@@ -1,0 +1,25 @@
+{
+ "tu": "recon/eaclib/psx/eacpsxz/fixdmult.c",
+ "tag": "before",
+ "obj_sha": "19f883ae70d1766c79bc06fccc8d0ee8602b4abe043c7b150c4b33c390d1e4e8",
+ "dis_sha": "153c24d1eaa3eced189c42241c944ff5d9a778f1f3b23b200ce239fdafa19973",
+ "gate": {
+  "pass": 1,
+  "total": 1,
+  "fails": {}
+ },
+ "prod": {
+  "fixedmult": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 0
+  }
+ },
+ "prod_nodialect": {
+  "fixedmult": {
+   "ok": false,
+   "err": "aspsx failed:"
+  }
+ }
+}

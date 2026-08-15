@@ -1,0 +1,25 @@
+{
+ "tu": "recon/eaclib/psx/eacpsxz/shpdepth.c",
+ "tag": "before",
+ "obj_sha": "db1e14a8d41d2cd487775d47ba8cce5de085d08605f586ce591f1b38237744b2",
+ "dis_sha": "e2592856e78d49df2b8d8525285bbcda961d68f5a3950f53b554e05c03b9a583",
+ "gate": {
+  "pass": 1,
+  "total": 1,
+  "fails": {}
+ },
+ "prod": {
+  "shapedepth": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 0
+  }
+ },
+ "prod_nodialect": {
+  "shapedepth": {
+   "ok": false,
+   "err": "aspsx failed:"
+  }
+ }
+}

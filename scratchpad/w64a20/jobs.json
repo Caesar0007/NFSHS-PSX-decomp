@@ -1,0 +1,5111 @@
+{
+"units": {
+"recon/game/common/minfront.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"MinFront_ParseOptions__Fv"
+],
+"lane": null
+},
+"recon/game/psx/fe3dmenu.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Fe3D_InitShowroom__Fv",
+"CameraLookAt__FP10matrixtdefP8coorddef",
+"Draw_MenuRenderingView__FP8Car_tObjP13DRender_tViewiiiUliffii"
+],
+"lane": null
+},
+"recon/frontend/common/feapp.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"__14tFEApplication",
+"___14tFEApplication",
+"PerformMenuInitialization__14tFEApplication",
+"PerformMenuDestruction__14tFEApplication",
+"DrawHelpIcons__14tFEApplication",
+"UpdateMusic__14tFEApplication",
+"SetMenu__14tFEApplicationsP5tMenu",
+"SetScreen__14tFEApplicationsP7tScreen",
+"DisplayHelp__14tFEApplications",
+"FreeHelpShapeCluts__Fv",
+"RunDemoVideo__14tFEApplication",
+"MainLoop__14tFEApplicationP5tMenu",
+"RunPostGame__14tFEApplication",
+"RunFrontEnd__14tFEApplication"
+],
+"lane": null
+},
+"recon/frontend/common/fedialog.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"___31tDialogMessageStringWithTimeout",
+"ShouldTimeOut__11tDialogBase",
+"InitializeClass__11tDialogBase",
+"DrawAllDialogs__11tDialogBase",
+"HideAllDialogs__11tDialogBase",
+"GetTopMostDialog__11tDialogBase",
+"Display__11tDialogBase",
+"Hide__11tDialogBase",
+"Draw__11tDialogBase",
+"ProcessInput__11tDialogBase7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"AddItem__11tDialogHelpss",
+"CalculateDimensions__11tDialogHelp",
+"Draw__11tDialogHelp",
+"CalculateDimensions__20tDialogMessageString",
+"Draw__20tDialogMessageString",
+"ProcessInput__17tDialogBackUpOnly7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"Run__18tDialogInteractive",
+"CalculateDimensions__12tDialogYesNo",
+"__12tDialogYesNo",
+"Draw__12tDialogYesNo",
+"ProcessInput__12tDialogYesNo7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"ProcessInput__15tDialogYesNoMem7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"ProcessInput__15tDialogYesNoTri7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"ProcessInput__21tDialogNoInputMessage7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"___15tDialogYesNoTri",
+"___15tDialogYesNoMem",
+"___12tDialogYesNo",
+"___18tDialogInteractive",
+"___21tDialogNoInputMessage",
+"___17tDialogBackUpOnly",
+"___20tDialogMessageString",
+"___11tDialogHelp",
+"___11tDialogBase"
+],
+"lane": null
+},
+"recon/frontend/common/feaudio.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"FEAudio_StartLoadPatch__FP10SPEECHINFO",
+"Feaudio_StartPatch__FP10SPEECHINFO",
+"FeAudio_systemtask__Fi",
+"FeAudio_AsyncPlayCommentary__FPc",
+"FeAudio_AsyncPlaySpeech__Fii",
+"FeAudio_StartBigfileRead__FPciiPi",
+"FeAudio_LocateBigfile__FP9LUMPYHEADPcPiT2",
+"FeAudio_InitCommentary__Fii",
+"FeAudio_DeInitCommentary__Fv"
+],
+"lane": null
+},
+"recon/frontend/common/fecars.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"Initialize__11tCarManager",
+"GetCarFromID__11tCarManagers",
+"GetCarFromSimID__11tCarManagers",
+"CheapestCarStockPrice__11tCarManager",
+"CalcUsedPrice__11tCarManagers",
+"PurchaseCar__11tCarManagersss",
+"SellCar__11tCarManagerss",
+"PurchaseUpgrade__11tCarManagersss",
+"RemoveFromPinkSlipsList__11tCarManagerss",
+"AddToPinkSlipsList__11tCarManagersss",
+"AddUpgradesToPinkSlipsList__11tCarManagersss",
+"LoadCars__11tCarManagerR12tSaveCarInfos",
+"SaveCars__11tCarManagerR12tSaveCarInfo",
+"LoadPinkSlipsCars__11tCarManagerR12tSaveCarInfos",
+"SavePinkSlipsCars__11tCarManagerR12tSaveCarInfoss",
+"SetClassAvailable__11tCarManager13tCarClassTypeb",
+"SetCarAvailable__11tCarManager10tCarModelsb",
+"SetClassViewable__11tCarManager13tCarClassTypeb",
+"SetCarViewable__11tCarManager10tCarModelsb",
+"GetStockCar__11tCarManagersR8tCarInfo",
+"GetGarageCar__11tCarManagersR8tCarInfos",
+"GetPinkSlipsCar__11tCarManagersR8tCarInfos",
+"LoadDescription__11tCarManager",
+"ReleaseDescription__11tCarManager",
+"GetNumOwnedCars__11tCarManagers",
+"GetNumTourneyCars__11tCarManagers",
+"GetNumPinkSlipsCars__11tCarManagers",
+"GetClassList__11tCarManager13tCarClassTypesP10tCarModels",
+"InitializeIngameCarList__11tCarManager",
+"IsCarAnAddedModel__11tCarManagerR10tCarModelsRc",
+"AddCarToIngameList__11tCarManagerR10tCarModelsRc",
+"FindSimilarCar__11tCarManagerR10tCarModelsRcsP10tCarModels",
+"__16tListIteratorCarPcP11tCarManager",
+"___16tListIteratorCar",
+"Value__16tListIteratorCar7tPlayer",
+"TextValue__16tListIteratorCar7tPlayer",
+"AdjustPosition__16tListIteratorCar7tPlayers",
+"Increment__16tListIteratorCar7tPlayer",
+"Decrement__16tListIteratorCar7tPlayer",
+"ValidCar__16tListIteratorCar7tPlayerc",
+"__21tListIteratorCarColorPcN21iP11tCarManager",
+"___21tListIteratorCarColor",
+"Value__21tListIteratorCarColor7tPlayer",
+"TextValue__21tListIteratorCarColor7tPlayer",
+"Increment__21tListIteratorCarColor7tPlayer",
+"Decrement__21tListIteratorCarColor7tPlayer"
+],
+"lane": null
+},
+"recon/frontend/common/femenuextended.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"MenuNFS4_SetHelpPos__FR4RECT",
+"MenuNFS4_DrawTextBox__FiR4RECTissbT5",
+"__27tMenuItemGoToMenuNFS4ButtonUiP5tMenuPFR12tMenuCommand_vii",
+"___27tMenuItemGoToMenuNFS4Button",
+"Draw__27tMenuItemGoToMenuNFS4Buttoniib",
+"TransitionOn__27tMenuItemGoToMenuNFS4Button",
+"TransitionOff__27tMenuItemGoToMenuNFS4Button",
+"TransitionIsFinished__27tMenuItemGoToMenuNFS4Button",
+"UpdateTransition__27tMenuItemGoToMenuNFS4Buttonb",
+"__28tMenuItemNFS4LeftRightChoiceUiP13tListIteratorii",
+"___28tMenuItemNFS4LeftRightChoice",
+"Draw__28tMenuItemNFS4LeftRightChoiceiib",
+"TransitionOn__28tMenuItemNFS4LeftRightChoice",
+"TransitionOff__28tMenuItemNFS4LeftRightChoice",
+"TransitionIsFinished__28tMenuItemNFS4LeftRightChoice",
+"UpdateTransition__28tMenuItemNFS4LeftRightChoiceb",
+"Draw__31tMenuItemOptionsLeftRightChoiceiib",
+"TransitionOn__29tMenuItemOptionsTwoItemChoice",
+"__9tMenuNFS4UiP7tScreenP5tMenuT3PFR12tMenuCommand_vsP9tMenuIteme",
+"__9tMenuNFS4UiP7tScreenP5tMenuT3PFR12tMenuCommand_vs",
+"___9tMenuNFS4",
+"Initialize__9tMenuNFS4",
+"ProcessInput__9tMenuNFS47tPlayerR13tInputKeyTypeR12tMenuCommand",
+"TransitionOff__9tMenuNFS4",
+"TransitionOn__9tMenuNFS4",
+"TransitionIsFinished__9tMenuNFS4",
+"UpdateTransition__9tMenuNFS4",
+"DrawItem__9tMenuNFS4i",
+"Draw__9tMenuNFS4",
+"__18tMenuNFS4TwoPlayerUiP7tScreenP5tMenuT3PFR12tMenuCommand_vsP9tMenuIteme",
+"___18tMenuNFS4TwoPlayer",
+"DrawItem__18tMenuNFS4TwoPlayeri",
+"__15tMenuNFS4BottomUiP7tScreenP5tMenuT3PFR12tMenuCommand_vsP9tMenuIteme",
+"___15tMenuNFS4Bottom",
+"Draw__15tMenuNFS4Bottom",
+"__10tMenuBlankUiP7tScreenP5tMenuT3PFR12tMenuCommand_vs",
+"___10tMenuBlank",
+"Draw__10tMenuBlank",
+"ProcessInput__10tMenuBlank7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"Initialize__10tMenuBlank",
+"DebounceKeys__10tMenuBlank",
+"TransitionOff__10tMenuBlank",
+"TransitionOn__10tMenuBlank",
+"TransitionIsFinished__10tMenuBlank",
+"__12tMenuOptionsUiP7tScreenP5tMenuT3PFR12tMenuCommand_vssP9tMenuIteme",
+"___12tMenuOptions",
+"Draw__12tMenuOptions",
+"TransitionOff__12tMenuOptions",
+"TransitionOn__12tMenuOptions",
+"TransitionIsFinished__12tMenuOptions",
+"ProcessInput__12tMenuOptions7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"IsSubMenu__12tMenuOptions",
+"UpdateTransition__10tMenuBlank",
+"___29tMenuItemOptionsTwoItemChoice",
+"___31tMenuItemOptionsLeftRightChoice"
+],
+"lane": null
+},
+"recon/frontend/common/femenuoptions.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"CalcPulsateYellow__Fv",
+"DrawLeftFlare__FiiiRi",
+"SubtractiveBox__Fiiiiiiii",
+"TransitionOff__27tMenuItemGoToMenuButtonFade",
+"TransitionOn__27tMenuItemGoToMenuButtonFade",
+"TransitionIsFinished__27tMenuItemGoToMenuButtonFade",
+"UpdateTransition__27tMenuItemGoToMenuButtonFadeb",
+"__22tMenuItemLeftRightFadeUiP13tListIterator",
+"TransitionOff__22tMenuItemLeftRightFade",
+"TransitionOn__22tMenuItemLeftRightFade",
+"TransitionIsFinished__22tMenuItemLeftRightFade",
+"UpdateTransition__22tMenuItemLeftRightFadeb",
+"__12tOptionsMenuUiP7tScreenP5tMenuT3PFR12tMenuCommand_vsiiP9tMenuIteme",
+"___12tOptionsMenu",
+"DebounceKeys__12tOptionsMenu",
+"TransitionOff__12tOptionsMenu",
+"TransitionOn__12tOptionsMenu",
+"TransitionIsFinished__12tOptionsMenu",
+"Draw__12tOptionsMenu",
+"ProcessInput__12tOptionsMenu7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"__14tInsideBoxMenuUiP7tScreenP5tMenuT3PFR12tMenuCommand_vsP9tMenuIteme",
+"___14tInsideBoxMenu",
+"ProcessInput__14tInsideBoxMenu7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"Draw__14tInsideBoxMenusssss",
+"__20tMenuItemSlidingMenuUissssb",
+"___20tMenuItemSlidingMenu",
+"TransitionOff__20tMenuItemSlidingMenu",
+"TransitionOn__20tMenuItemSlidingMenu",
+"TransitionIsFinished__20tMenuItemSlidingMenu",
+"UpdateTransition__20tMenuItemSlidingMenub",
+"DebounceKeys__20tMenuItemSlidingMenu",
+"Draw__20tMenuItemSlidingMenub",
+"UpdatefOpenHeight__20tMenuItemSlidingMenub",
+"Draw__20tMenuItemSlidingMenuiib",
+"ProcessInput__20tMenuItemSlidingMenu7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"SetMenu__20tMenuItemSlidingMenubP14tInsideBoxMenu",
+"UpdatefOpenHeight__25tMenuItemSlidingActivatedb",
+"TransitionOff__25tMenuItemSlidingActivated",
+"TransitionOn__25tMenuItemSlidingActivated",
+"TransitionIsFinished__25tMenuItemSlidingActivated",
+"UpdateTransition__25tMenuItemSlidingActivatedb",
+"ProcessInput__25tMenuItemSlidingActivated7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"MyLeftRightDraw__22tMenuItemLeftRightFadeii",
+"Draw__31tMenuItemDisplayLeftRightChoiceiib",
+"TransitionOn__29tMenuItemOnOffLeftRightChoice",
+"Draw__29tMenuItemOnOffLeftRightChoiceiib",
+"__29tMenuItemLeftRightAudioSliderUiP13tListIteratori",
+"___29tMenuItemLeftRightAudioSlider",
+"Draw__29tMenuItemLeftRightAudioSlideriib",
+"Percentage__29tMenuItemLeftRightAudioSlider",
+"TransitionOff__29tMenuItemLeftRightAudioSlider",
+"TransitionOn__29tMenuItemLeftRightAudioSlider",
+"TransitionIsFinished__29tMenuItemLeftRightAudioSlider",
+"UpdateTransition__29tMenuItemLeftRightAudioSliderb",
+"__18tInsideBoxSongMenuUiP7tScreenP5tMenuT3PFR12tMenuCommand_vsP9tMenuIteme",
+"___18tInsideBoxSongMenu",
+"Draw__18tInsideBoxSongMenusssss",
+"DrawOneSong__18tInsideBoxSongMenussssss",
+"DebounceKeys__18tInsideBoxSongMenu",
+"ProcessInput__18tInsideBoxSongMenu7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"Draw__34tMenuItemControllerLeftRightChoiceiib",
+"__25tInsideBoxLeftRightSliderUiP13tListIterator",
+"___25tInsideBoxLeftRightSlider",
+"Draw__25tInsideBoxLeftRightSlideriiib",
+"__22tInsideBoxTwoWaySliderUiP13tListIteratori",
+"___22tInsideBoxTwoWaySlider",
+"ProcessInput__22tInsideBoxTwoWaySlider7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"Draw__22tInsideBoxTwoWaySlideriiib",
+"GetCurrentStickRange__Fi",
+"GetCurrentStickRange2__Fi",
+"Calibrate__22tInsideBoxTwoWaySlider",
+"__17tUserNameMenuItemUi",
+"CheckForCheats__FPc",
+"SpecialCharacter__Fc",
+"TransitionOff__17tUserNameMenuItem",
+"TransitionOn__17tUserNameMenuItem",
+"TransitionIsFinished__17tUserNameMenuItem",
+"UpdateTransition__17tUserNameMenuItemb",
+"Draw__19tMemoryCardMenuItemb",
+"ProcessInput__35tInsideBoxControllerLeftRightSlider7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"___35tInsideBoxControllerLeftRightSlider",
+"___27tMenuItemGoToMenuButtonFade",
+"___17tUserNameMenuItem",
+"___34tMenuItemControllerLeftRightChoice",
+"___29tMenuItemOnOffLeftRightChoice",
+"___31tMenuItemDisplayLeftRightChoice",
+"___25tMenuItemSlidingActivated",
+"___22tMenuItemLeftRightFade"
+],
+"lane": null
+},
+"recon/frontend/common/fetextrender.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"FETextRender_SetFont__Fi",
+"FETextRender_FullTextRGB__FPcssics",
+"FETextRender_FullText__FPcss13tMenuTextType14tMenuTextStates",
+"FETextRender_FullTextFade__FiPcss13tMenuTextType14tMenuTextStates",
+"FETextRender_MenuTextPositioned__Fsss14tMenuTextState13tMenuTextType",
+"FETextRender_MenuTextFade__Fis14tMenuTextState13tMenuTextType",
+"FETextRender_MenuTextPositionedJustify__Fssss14tMenuTextState13tMenuTextType",
+"FETextRender_MenuTextPositionedJustifyFade__Fissss14tMenuTextState13tMenuTextType",
+"FETextRender_WordWrapTextRGBJustify__FPcR4RECTiiib",
+"FETextRender_WordWrapTextRGB__FPcR4RECTi",
+"FETextRender_WordWrapTextFade__FiPcR4RECT14tMenuTextState13tMenuTextType",
+"FETextRender_WordWrapText__FPcR4RECT14tMenuTextState13tMenuTextType",
+"FETextRender_WordWrapFade__FisR4RECT14tMenuTextState13tMenuTextType",
+"FETextRender_WordWrap__FsR4RECT14tMenuTextState13tMenuTextType",
+"FETextRender_WordWrapHeight__FsPc",
+"FETextRender_Title__Fs",
+"FETextRender_SetABR__Fib"
+],
+"lane": null
+},
+"recon/frontend/common/fetracks.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"Initialize__13tTrackManager",
+"LoadTracks__13tTrackManagerR14tSaveTrackInfo",
+"SaveTracks__13tTrackManagerR14tSaveTrackInfo",
+"GetTrack__13tTrackManagersR17tTrackInformation",
+"LoadDescription__13tTrackManager",
+"ReleaseDescription__13tTrackManager",
+"SetTrackAvailable__13tTrackManagersb",
+"SetClassAvailable__13tTrackManager15tTrackClassTypeb",
+"GetTrackByID__13tTrackManagers",
+"__18tListIteratorTrackPcT1P13tTrackManager",
+"___18tListIteratorTrack",
+"TextValue__18tListIteratorTrack7tPlayer",
+"Increment__18tListIteratorTrack7tPlayer",
+"Decrement__18tListIteratorTrack7tPlayer",
+"ValidTrack__18tListIteratorTrackc"
+],
+"lane": null
+},
+"recon/frontend/common/fetv.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"DrawTVLines__FR9tTVConfig",
+"InitTV__FR9tTVConfigP18tTexture_ShapeInfos",
+"TurnOffTV__FR9tTVConfig",
+"TurnOnTV__FR9tTVConfig"
+],
+"lane": null
+},
+"recon/frontend/common/fecheats.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"FECheat_HandleActivation__F10tCheatCode",
+"FECheat_EncodeString__FPcT0",
+"FECheat_EncodeString2__FPcT0",
+"FECheat_ActivateBonus__F10tCheatCode",
+"FECheat_ActivateCheat__FPc",
+"FECheat_IsCheatEnabled__F10tCheatCode",
+"FECheat_SaveBonus__FRUl",
+"FECheat_LoadBonus__FRUl",
+"FECheat_IsTheUserACryBabyCheater__Fv",
+"FECheat_ActivateBonusByCode__FPc"
+],
+"lane": null
+},
+"recon/frontend/common/feinput.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"FEInput_VerifyControllerValues__Fi",
+"FEInput_GetNoDebounceKey__Fii",
+"FEInput_GetDebounceKey__Fii",
+"FEInput_GetKeyFromPlayer__F7tPlayerl"
+],
+"lane": null
+},
+"recon/frontend/common/femenu.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"__13tListIteratorPsPc",
+"___13tListIterator",
+"Value__13tListIterator7tPlayer",
+"TextValue__13tListIterator7tPlayer",
+"Increment__13tListIterator7tPlayer",
+"Decrement__13tListIterator7tPlayer",
+"__20tListIteratorIndexedPsPcT2",
+"___20tListIteratorIndexed",
+"Value__20tListIteratorIndexed7tPlayer",
+"TextValue__20tListIteratorIndexed7tPlayer",
+"Increment__20tListIteratorIndexed7tPlayer",
+"Decrement__20tListIteratorIndexed7tPlayer",
+"___26tListIteratorDoubleIndexed",
+"Value__26tListIteratorDoubleIndexed7tPlayer",
+"TextValue__26tListIteratorDoubleIndexed7tPlayer",
+"Increment__26tListIteratorDoubleIndexed7tPlayer",
+"Decrement__26tListIteratorDoubleIndexed7tPlayer",
+"___24tListIteratorMultiPlayer",
+"Value__24tListIteratorMultiPlayer7tPlayer",
+"TextValue__24tListIteratorMultiPlayer7tPlayer",
+"Increment__24tListIteratorMultiPlayer7tPlayer",
+"Decrement__24tListIteratorMultiPlayer7tPlayer",
+"__18tListIteratorRangeccPc",
+"___18tListIteratorRange",
+"Value__18tListIteratorRange7tPlayer",
+"TextValue__18tListIteratorRange7tPlayer",
+"Increment__18tListIteratorRange7tPlayer",
+"Decrement__18tListIteratorRange7tPlayer",
+"__25tListIteratorRangeIndexedccPcT3",
+"___25tListIteratorRangeIndexed",
+"Value__25tListIteratorRangeIndexed7tPlayer",
+"Increment__25tListIteratorRangeIndexed7tPlayer",
+"Decrement__25tListIteratorRangeIndexed7tPlayer",
+"__9tMenuItemUi",
+"___9tMenuItem",
+"DebounceKeys__9tMenuItem",
+"ProcessInput__9tMenuItem7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"UpdateTransition__9tMenuItemb",
+"TransitionIsFinished__9tMenuItem",
+"UpdateSelFade__9tMenuItemb",
+"Draw__9tMenuItemiib",
+"Draw__9tMenuItemiiib",
+"__20tMenuItemInteractiveUi",
+"___20tMenuItemInteractive",
+"__24tMenuItemLeftRightChoiceUiP13tListIterator",
+"___24tMenuItemLeftRightChoice",
+"ProcessInput__24tMenuItemLeftRightChoice7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"Draw__24tMenuItemLeftRightChoiceb",
+"__24tMenuItemLeftRightSliderUiP13tListIterator",
+"___24tMenuItemLeftRightSlider",
+"DebounceKeys__24tMenuItemLeftRightSlider",
+"ProcessInput__24tMenuItemLeftRightSlider7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"Draw__24tMenuItemLeftRightSliderb",
+"SetDimensions__24tMenuItemLeftRightSliderssss",
+"__23tMenuItemGoToMenuButtonUiP5tMenuPFR12tMenuCommand_v",
+"___23tMenuItemGoToMenuButton",
+"ProcessInput__23tMenuItemGoToMenuButton7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"tMenuConstructor__5tMenuP9tMenuItemPv",
+"__5tMenuUiP7tScreenP5tMenuT3PFR12tMenuCommand_vs",
+"___5tMenu",
+"Initialize__5tMenu",
+"ProcessInput__5tMenu7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"GetNumberEnabledItems__5tMenu",
+"Draw__5tMenu",
+"UpdateTransition__5tMenu",
+"TransitionOff__5tMenu",
+"TransitionOn__5tMenu",
+"TransitionIsFinished__5tMenu",
+"IsSubMenu__5tMenu",
+"DebounceKeys__5tMenu",
+"TransitionOn__9tMenuItem",
+"TransitionOff__9tMenuItem"
+],
+"lane": null
+},
+"recon/frontend/common/fescreen.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"DisplayLoadingText__7tScreen",
+"GoNonInterlaced__7tScreen",
+"DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi",
+"AsyncLoadPermanentShapeFile__7tScreenPc",
+"AsyncLoadSwapShapeFile__7tScreenPc",
+"IsShapeFileLoaded__7tScreenR17tShapeInformation",
+"UploadPermanentShapes__7tScreeni",
+"UploadSwapShapes__7tScreeni",
+"GetShapeInfo__7tScreenRsT1PPcT3",
+"__7tScreen",
+"___7tScreen",
+"Initialize__7tScreen",
+"Cleanup__7tScreen",
+"Draw__7tScreenb",
+"AsyncLoadShapeFile__7tScreenPcR17tShapeInformation",
+"CancelAsyncLoad__7tScreenR17tShapeInformation",
+"FreeShapes__7tScreenR17tShapeInformation",
+"UploadShapes__7tScreenR17tShapeInformationssss",
+"PreLoad__7tScreen",
+"TransitionOff__7tScreen22tScreen_TransitionTypeP5tMenu",
+"TransitionOn__7tScreen22tScreen_TransitionTypeP5tMenu",
+"UpdateTransition__7tScreen",
+"TransitionIsFinished__7tScreen",
+"ProcessInput__7tScreen7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"DrawForeground__7tScreen",
+"DrawBackground__7tScreen"
+],
+"lane": null
+},
+"recon/frontend/common/fetools.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"s_upper__FPc",
+"s_lower__FPc",
+"FeTools_DrawPSXButton__FUcUsii",
+"FeTools_init__Fv",
+"FeTools_deinit__Fv",
+"FeTools_FormatMoney__FPcl"
+],
+"lane": null
+},
+"recon/frontend/common/front.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"Front_ConstructAll__Fv",
+"Front_DeleteAll__Fv",
+"Front_ResetSettingsForCar__Fii",
+"Front_ResetSettingsMenu__Fi",
+"Front_ResetPSXController__Fii",
+"Front_ResetPSXAnalogs__Fi",
+"SetPads__Fv",
+"InitFrontEndStructure__Fv",
+"LoadConfig__Fv",
+"Front_InitialMemCardCheck__Fv",
+"Front_SecondaryMemCardCheck__Fv",
+"Front_InitGraphics__Fv",
+"Front_InitGraphicsAndDisplayLoading__Fv",
+"Front_Menu__F21tFront_ProcessingType",
+"OutputDisplaySettings__FPiiiR17tTrackInformation",
+"Front_GetLapsForType__Fv",
+"Front_InitStream__FR9tFEStream",
+"Front_InitPlayerCars__FR9tFEStream",
+"Front_InitTourneyTraffic__FR9tFEStream",
+"Front_InitMissions__FR9tFEStream",
+"Front_InitCopCars__FR9tFEStream",
+"Front_InitPerps__FR9tFEStream",
+"Front_InitTrack__FR9tFEStream",
+"Front_InitTraffic__FR9tFEStream",
+"Front_AppendPlayerCarData__FPiR9tFEStream",
+"Front_AppendOpponentData__FPiR9tFEStream",
+"Front_AppendCopData__FPiR9tFEStream",
+"Front_AppendPerpData__FPiR9tFEStream",
+"Front_AppendTrafficData__FPiR9tFEStream",
+"Front_AppendTrackData__FPiR9tFEStream",
+"Front_EnableLocalSpeech__Fv",
+"Front_BuildStream__FPi",
+"Front_GetInGameVars__Fv",
+"SetLicensePlate__Fv",
+"SetPlayList__Fi",
+"Front_GetTrackRaced__Fv",
+"PlayerNameExist__Fi",
+"PlayerName__Fi",
+"PlayerNameMixedCase__Fi",
+"__11tAllScreens",
+"___11tAllScreens"
+],
+"lane": null
+},
+"recon/frontend/common/femenudefs.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"MenuExtended_SetOnePlayer__FR12tMenuCommand",
+"MenuExtended_SetTwoPlayer__FR12tMenuCommand",
+"MenuExtended_SetTestDrive__FR12tMenuCommand",
+"MenuExtended_SetSingleRace__FR12tMenuCommand",
+"MenuExtended_SetTournament__FR12tMenuCommand",
+"MenuExtended_SetSpecialEvent__FR12tMenuCommand",
+"MenuExtended_SetSoloRace__FR12tMenuCommand",
+"MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand",
+"MenuExtended_SetDuelRace__FR12tMenuCommand",
+"MenuExtended_SetFullGrid__FR12tMenuCommand",
+"AskTheUserToSaveTheGame__Fv",
+"MenuExtended_TransitionFromPostGameToMainMenu__FR12tMenuCommand",
+"MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame__FR12tMenuCommand",
+"MenuExtended_GoToCarSelect__FR12tMenuCommand",
+"MenuExtended_GoToDealer__FR12tMenuCommand",
+"MenuExtended_GoToSeller__FR12tMenuCommand",
+"MenuExtended_GoToUpgrades__FR12tMenuCommand",
+"GenericMenuSaveGame__Fi",
+"PinkSlipsPreSave__Fv",
+"MenuExtended_GoToBestOfOne__FR12tMenuCommand",
+"MenuExtended_GoToBestOfThree__FR12tMenuCommand",
+"MenuExtended_GoToBestOfFive__FR12tMenuCommand",
+"MenuExtended_GoToRace__FR12tMenuCommand",
+"MenuExtended_GoTo2PlayerRace__FR12tMenuCommand",
+"MenuExtended_GoToTournTrackInfo__FR12tMenuCommand",
+"MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand",
+"MenuExtended_EnterUserName__FR12tMenuCommand",
+"MenuExtended_GoToShowroom__FR12tMenuCommand",
+"MenuExtended_GoToDealerShowroom__FR12tMenuCommand",
+"MenuExtended_SetHPSoloRace__FR12tMenuCommand",
+"MenuExtended_SetHPDuelRace__FR12tMenuCommand",
+"MenuExtended_SetHotPursuit__FR12tMenuCommand",
+"MenuExtended_SellCar__FR12tMenuCommand",
+"MenuExtended_BuyCar__FR12tMenuCommand",
+"MenuExtended_PurchaseUpgrade__Fi",
+"MenuExtended_PurchaseUpgrade1__FR12tMenuCommand",
+"MenuExtended_PurchaseUpgrade2__FR12tMenuCommand",
+"MenuExtended_PurchaseUpgrade3__FR12tMenuCommand",
+"MenuExtended_SaveGame__FR12tMenuCommand",
+"GenericMenuLoadGame__Fi",
+"MenuExtended_LoadGame__FR12tMenuCommand",
+"MenuExtended_TierFinished__FR12tMenuCommand",
+"MenuExtended_DidUserWinBeTheCop__Fv",
+"MenuExtended_PostGameMenu__FR12tMenuCommand",
+"MenuExtended_FinishedPlayer1GetName__FR12tMenuCommand",
+"MenuExtended_FinishedPlayer2GetName__FR12tMenuCommand",
+"MenuExtended_SetPinkSlips__FR12tMenuCommand",
+"MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand",
+"MenuExtended_GoToGarage__FR12tMenuCommand",
+"MenuExtended_GoToTournTrophyRoom__FR12tMenuCommand",
+"MenuExtended_GoToSETrophyRoom__FR12tMenuCommand",
+"MenuExtended_SetBeginner__FR12tMenuCommand",
+"MenuExtended_SetIntermediate__FR12tMenuCommand",
+"MenuExtended_SetExpert__FR12tMenuCommand",
+"MenuExtended_ExitTourney__FR12tMenuCommand",
+"MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand",
+"MenuExtended_PinkSlipsContinue__FR12tMenuCommand",
+"___15tGlobalMenuDefs",
+"TransitionIsFinished__32tBlankMenuItemGoToMenuNFS4Button",
+"Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib",
+"Draw__32tBlankMenuItemGoToMenuNFS4Buttonb",
+"___32tBlankMenuItemGoToMenuNFS4Button",
+"TransitionIsFinished__33tBlankMenuItemNFS4LeftRightChoice",
+"Draw__33tBlankMenuItemNFS4LeftRightChoiceiib",
+"___33tBlankMenuItemNFS4LeftRightChoice"
+],
+"lane": null
+},
+"recon/frontend/common/fetourn.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"Initialize__18tTournamentManager",
+"LoadDescription__18tTournamentManager",
+"ReleaseDescription__18tTournamentManager",
+"UpdateTrackList__18tTournamentManagerss",
+"GetTrackList__18tTournamentManagerss",
+"GetTrackToRace__18tTournamentManagerR10tTrackInfo",
+"StartNewTournament__18tTournamentManagerUcUc",
+"IsTournamentFinished__18tTournamentManager",
+"tournPointsCompare__FPcT0",
+"UpdateTournFinishMoney__18tTournamentManager",
+"UpdateTrackFinishMoney__18tTournamentManager",
+"CalcTrackFinishDamageBill__18tTournamentManagerbRlT2",
+"UpdateTrackFinishPoints__18tTournamentManager",
+"AdvanceToNextTrack__18tTournamentManager",
+"GetLastTrackRaced__18tTournamentManager",
+"SaveTournament__18tTournamentManagerR15tSaveTournament",
+"LoadTournament__18tTournamentManagerR15tSaveTournament",
+"GetNumCompetitors__18tTournamentManager",
+"UpdateCarLineup__18tTournamentManager",
+"GetTrackFinishPrize__18tTournamentManagers",
+"GetTournamentFinishPrize__18tTournamentManagers",
+"GetAwardInformation__18tTournamentManagerR17tAwardInformation",
+"UpdateAwardInformation__18tTournamentManager",
+"TournPointTotal__18tTournamentManagerPs",
+"PlayerRanking__18tTournamentManagers",
+"CalcTierFinishPrize__18tTournamentManager",
+"GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci",
+"ValidCar__18tTournamentManagerR8tCarInfo",
+"__23tListIteratorTournamentPcP18tTournamentManager",
+"___23tListIteratorTournament",
+"Value__23tListIteratorTournament7tPlayer",
+"TextValue__23tListIteratorTournament7tPlayer",
+"Increment__23tListIteratorTournament7tPlayer",
+"Decrement__23tListIteratorTournament7tPlayer",
+"ValidTournament__23tListIteratorTournamentc"
+],
+"lane": null
+},
+"recon/frontend/common/femission.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"Initialize__15tMissionManager",
+"LoadDescription__15tMissionManagerb",
+"ReleaseDescription__15tMissionManager",
+"GetMissionStages__15tMissionManagerssPP10tStageInfo",
+"GetMissionToRace__15tMissionManagerPP12tMissionInfo"
+],
+"lane": null
+},
+"recon/frontend/common/fememcard.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"ChecksumData__FP12tMemCardData",
+"VerifySuccessfulRead__FP12tMemCardData",
+"MakeWayForMemoryCard__Fv",
+"BringThatBeatBack__Fv",
+"Confirm__Fii",
+"OverwriteConfirm__Fv",
+"OverwriteAlwaysYes__Fv",
+"FormatConfirm__Fv",
+"LoadingProc__Fv",
+"LoadingRedrawProc__Fv",
+"SavingProc__Fv",
+"Init_Memcard__FbT0",
+"DeInit_Memcard__Fv",
+"Init_MemcardFile__FR12MCRDFILE_defsb",
+"SaveGame__Fs",
+"SavePinkSlipsCarsWithErrorDialogs__Fsss"
+],
+"lane": null
+},
+"recon/frontend/common/fecredits.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"Setup__14tCreditManager",
+"Init__14tCreditManageri",
+"DeInit__14tCreditManager",
+"RealDeInit__14tCreditManager",
+"Draw__14tCreditManagerb",
+"SetupCurrCredit__14tCreditManager",
+"DrawCurrCredit__14tCreditManager"
+],
+"lane": null
+},
+"recon/frontend/common/fevideowall.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"Initialize__10tVideoWallP9tTVConfigP18tTexture_ShapeInfossPss",
+"UpdateImages__10tVideoWall",
+"SetAvailableText__10tVideoWallsss",
+"SetAvailableIcon__10tVideoWallssssP18tTexture_ShapeInfo",
+"SetOffset__10tVideoWallss",
+"SetAvailable__10tVideoWalls",
+"SetValid__10tVideoWalls",
+"UpdateTransition__10tVideoWall",
+"Draw__10tVideoWall",
+"TurnOff__10tVideoWall",
+"TurnOffInstant__10tVideoWall",
+"TurnOn__10tVideoWall"
+],
+"lane": null
+},
+"recon/frontend/common/screenmain.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"SwapBackground__11tScreenMaini",
+"DoneLoadingBackground__11tScreenMain",
+"SetState__11tScreenMain16tScreenMainState",
+"InitDynamicImages__11tScreenMain",
+"ProcessInput__11tScreenMain7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"DrawDropShadow__11tScreenMain",
+"DrawVideoLines__11tScreenMain",
+"GetShapeInfo__11tScreenMainRsT1PPcT3",
+"PreLoad__11tScreenMain",
+"Initialize__11tScreenMain",
+"Cleanup__11tScreenMain",
+"___11tScreenMain"
+],
+"lane": null
+},
+"recon/frontend/common/screenpinkslips.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"DrawBackground__16tScreenPinkSlips",
+"GetShapeInfo__16tScreenPinkSlipsRsT1PPcT3",
+"Initialize__16tScreenPinkSlips",
+"Cleanup__16tScreenPinkSlips",
+"UpdateVideoWall__16tScreenPinkSlipsR17tTrackInformation",
+"DrawVideoWall__16tScreenPinkSlips",
+"ProcessInput__16tScreenPinkSlips7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"___16tScreenPinkSlips"
+],
+"lane": null
+},
+"recon/frontend/common/screenpost.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"DrawMoney__Fiiilii",
+"__26tScreenTournamentStandings",
+"Initialize__26tScreenTournamentStandings",
+"Cleanup__26tScreenTournamentStandings",
+"GetShapeInfo__26tScreenTournamentStandingsRsT1PPcT3",
+"GetShapeInfo__31tScreenTournamentStandings3itemRsT1PPcT3",
+"ProcessInput__26tScreenTournamentStandings7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"DrawBackground__24tScreenPinkSlipStandings",
+"ProcessInput__24tScreenPinkSlipStandings7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"___24tScreenPinkSlipStandings",
+"___31tScreenTournamentStandings3item",
+"___26tScreenTournamentStandings"
+],
+"lane": null
+},
+"recon/frontend/common/screencarselect.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"TransformVector",
+"DrawCar__FR8tCarInfossffcbUl7tPlayer",
+"__16tScreenCarSelect",
+"___16tScreenCarSelect",
+"Cleanup__16tScreenCarSelect",
+"DrawOverlay__16tScreenCarSelectP8tOverlay",
+"SetState__16tScreenCarSelecti",
+"CalcSplinePosition__16tScreenCarSelectiiiiUlRiN46",
+"GetShapeInfo__16tScreenCarSelectRsT1PPcT3",
+"UpdateVideoWall__16tScreenCarSelectR8tCarInfo",
+"AllocateAsyncBuffer__16tScreenCarSelect",
+"FreeAsyncBuffer__16tScreenCarSelect",
+"InitializeVideoWall__16tScreenCarSelect",
+"Initialize__16tScreenCarSelect",
+"ProcessInput__16tScreenCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"DrawVideoWall__16tScreenCarSelects",
+"GetCar__16tScreenCarSelectR8tCarInfo",
+"SetBrightness__16tScreenCarSelectss",
+"UpdateBrightness__16tScreenCarSelects",
+"DrawBackground__16tScreenCarSelect",
+"DrawSliders__16tScreenCarSelectR8tCarInfoss",
+"DrawForeground__16tScreenCarSelect",
+"PreLoad__20tScreenCarSelectDuel",
+"AllocateAsyncBuffer__20tScreenCarSelectDuel",
+"FreeAsyncBuffer__20tScreenCarSelectDuel",
+"InitializeVideoWall__20tScreenCarSelectDuel",
+"Initialize__20tScreenCarSelectDuel",
+"Cleanup__20tScreenCarSelectDuel",
+"GetShapeInfo__20tScreenCarSelectDuelRsT1PPcT3",
+"UpdateVideoWall__20tScreenCarSelectDuelR8tCarInfo",
+"UpdateOpponentVideoWall__20tScreenCarSelectDuelR8tCarInfo",
+"DrawBackground__20tScreenCarSelectDuel",
+"DrawForeground__20tScreenCarSelectDuel",
+"GetCar__25tScreenCarSelectTwoPlayerR8tCarInfo",
+"DrawVideoWall__25tScreenCarSelectTwoPlayers",
+"GetShapeInfo__25tScreenCarSelectTwoPlayerRsT1PPcT3",
+"UpdateVideoWall__25tScreenCarSelectTwoPlayerR8tCarInfo",
+"TurnOffVideoWall__25tScreenCarSelectTwoPlayer",
+"DrawForeground__25tScreenCarSelectTwoPlayer",
+"SetDialog__25tScreenCarSelectTwoPlayer",
+"AllocateAsyncBuffer__25tScreenCarSelectTwoPlayer",
+"InitializeVideoWall__25tScreenCarSelectTwoPlayer",
+"Initialize__25tScreenCarSelectTwoPlayer",
+"Cleanup__25tScreenCarSelectTwoPlayer",
+"GetCar__25tScreenPinkSlipsCarSelectR8tCarInfo",
+"DrawBackground__25tScreenPinkSlipsCarSelect",
+"DoMemCardStuff__25tScreenPinkSlipsCarSelect",
+"DrawForeground__25tScreenPinkSlipsCarSelect",
+"Initialize__25tScreenPinkSlipsCarSelect",
+"Cleanup__25tScreenPinkSlipsCarSelect",
+"SetDialog__25tScreenPinkSlipsCarSelect",
+"ProcessInput__25tScreenPinkSlipsCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"GetShapeInfo__25tScreenPinkSlipsCarSelectRsT1PPcT3",
+"___25tScreenPinkSlipsCarSelect",
+"___25tScreenCarSelectTwoPlayer",
+"___20tScreenCarSelectDuel"
+],
+"lane": null
+},
+"recon/frontend/common/screentournselect.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"__18tScreenTournSelect",
+"___18tScreenTournSelect",
+"GetShapeInfo__18tScreenTournSelectRsT1PPcT3",
+"Initialize__18tScreenTournSelect",
+"Cleanup__18tScreenTournSelect",
+"UpdateVideoWall__18tScreenTournSelectP12tTourneyInfo",
+"DrawVideoWall__18tScreenTournSelect",
+"DrawBackground__18tScreenTournSelect",
+"DrawForeground__18tScreenTournSelect"
+],
+"lane": null
+},
+"recon/frontend/common/screentrophyroom.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"__17tScreenTrophyRoom",
+"___17tScreenTrophyRoom",
+"GetShapeInfo__17tScreenTrophyRoomRsT1PPcT3",
+"ProcessInput__17tScreenTrophyRoom7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"PreLoad__17tScreenTrophyRoom",
+"Initialize__17tScreenTrophyRoom",
+"Cleanup__17tScreenTrophyRoom",
+"DrawBackground__17tScreenTrophyRoom",
+"LoadTrophy__17tScreenTrophyRoom"
+],
+"lane": null
+},
+"recon/frontend/common/screentrophyinfo.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"GetShapeInfo__17tScreenTrophyInfoRsT1PPcT3",
+"DrawBackground__17tScreenTrophyInfo",
+"___17tScreenTrophyInfo"
+],
+"lane": null
+},
+"recon/frontend/common/screentracks.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"DrawBackground__18tScreenTrackSelect",
+"GetShapeInfo__18tScreenTrackSelectRsT1PPcT3",
+"Initialize__18tScreenTrackSelect",
+"Cleanup__18tScreenTrackSelect",
+"SetBrightness__18tScreenTrackSelects",
+"UpdateBrightness__18tScreenTrackSelectR17tTrackInformation",
+"UpdateVideoWall__18tScreenTrackSelectR17tTrackInformation",
+"DrawVideoWall__18tScreenTrackSelect",
+"ProcessInput__18tScreenTrackSelect7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"___18tScreenTrackSelect"
+],
+"lane": null
+},
+"recon/frontend/common/screentrackinfo.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"GetShapeInfo__16tScreenTrackInfoRsT1PPcT3",
+"DrawBackground__16tScreenTrackInfo",
+"Initialize__16tScreenTrackInfo",
+"ProcessInput__16tScreenTrackInfo7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"___16tScreenTrackInfo"
+],
+"lane": null
+},
+"recon/frontend/common/screentrackrecords.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"GetShapeInfo__19tScreenTrackRecordsRsT1PPcT3",
+"Initialize__19tScreenTrackRecords",
+"Cleanup__19tScreenTrackRecords",
+"DrawOneRecord__19tScreenTrackRecordsibi",
+"DrawRecords__19tScreenTrackRecordss",
+"DrawBackground__19tScreenTrackRecords",
+"___19tScreenTrackRecords"
+],
+"lane": null
+},
+"recon/frontend/common/screencontroller.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"ClearActuators__23tScreenControllerConfig",
+"SetActuators__23tScreenControllerConfigi",
+"TurnOffShakers__23tScreenControllerConfig",
+"ShakeIt__23tScreenControllerConfig",
+"Controller_SetRamp__Fv",
+"AnimKeyPoints__23tScreenControllerConfigbT1",
+"CheckConfigs__23tScreenControllerConfig",
+"SwapInController__23tScreenControllerConfig",
+"SetCurrentController__23tScreenControllerConfigb",
+"CalcAnimFrame__23tScreenControllerConfigi",
+"ActualDrawController__23tScreenControllerConfigiiiii",
+"DrawController__23tScreenControllerConfig",
+"HorzVertLine__23tScreenControllerConfigPsb",
+"DrawArrow__23tScreenControllerConfigPs",
+"DrawBackground__23tScreenControllerConfig",
+"DrawForeground__23tScreenControllerConfig",
+"GetShapeInfo__23tScreenControllerConfigRsT1PPcT3",
+"Initialize__23tScreenControllerConfig",
+"Cleanup__23tScreenControllerConfig",
+"__23tScreenControllerConfig",
+"GetHelpText__23tScreenControllerConfig",
+"___23tScreenControllerConfig"
+],
+"lane": null
+},
+"recon/frontend/common/screendisplay.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"DrawBackground__14tScreenDisplay",
+"GetShapeInfo__14tScreenDisplayRsT1PPcT3",
+"___14tScreenDisplay"
+],
+"lane": null
+},
+"recon/frontend/common/screenaudio.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"PlaySound__12tScreenAudio",
+"DrawForeground__12tScreenAudio",
+"DrawBackground__12tScreenAudio",
+"GetShapeInfo__12tScreenAudioRsT1PPcT3",
+"__12tScreenAudio",
+"Initialize__12tScreenAudio",
+"Cleanup__12tScreenAudio",
+"___12tScreenAudio"
+],
+"lane": null
+},
+"recon/frontend/common/screenmemcard.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"GetShapeInfo__14tScreenMemcardRsT1PPcT3",
+"DrawIcon__14tScreenMemcardP8shapetbliiiis",
+"LoadIcon__14tScreenMemcardi",
+"DrawVerticalLine__14tScreenMemcardssss",
+"DrawHorizontalLine__14tScreenMemcardssss",
+"PlaceIcons__14tScreenMemcardii",
+"SetEnablings__14tScreenMemcard",
+"DrawBackground__14tScreenMemcard",
+"DrawForeground__14tScreenMemcard",
+"__14tScreenMemcard",
+"ReleaseIcons__14tScreenMemcard",
+"Initialize__14tScreenMemcard",
+"Cleanup__14tScreenMemcard",
+"___14tScreenMemcard"
+],
+"lane": null
+},
+"recon/frontend/common/screencongrats.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"Cleanup__15tScreenCongrats",
+"GetShapeInfo__15tScreenCongratsRsT1PPcT3",
+"GetCar__15tScreenCongratsR8tCarInfo",
+"DrawBackground__15tScreenCongrats",
+"DrawForeground__15tScreenCongrats",
+"CalculatePrizes__15tScreenCongrats",
+"Initialize__15tScreenCongrats",
+"ProcessInput__15tScreenCongrats7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"DrawCongratsMessage__23tScreenPinkSlipCongrats",
+"GetCar__23tScreenPinkSlipCongratsR8tCarInfo",
+"CalculatePrizes__23tScreenPinkSlipCongrats",
+"Initialize__23tScreenPinkSlipCongrats",
+"Cleanup__23tScreenPinkSlipCongrats",
+"ProcessInput__23tScreenTournamentTrophy7tPlayerR13tInputKeyTypeR12tMenuCommand",
+"GetCar__23tScreenTournamentTrophyR8tCarInfo",
+"DrawCongratsMessage__23tScreenTournamentTrophy",
+"GetCar__23tScreenBeTheCopCongratsR8tCarInfo",
+"CalculatePrizes__23tScreenBeTheCopCongrats",
+"DrawCongratsMessage__23tScreenBeTheCopCongrats",
+"GetCar__25tScreenTournamentCongratsR8tCarInfo",
+"CalculatePrizes__25tScreenTournamentCongrats",
+"DrawCongratsMessage__25tScreenTournamentCongrats",
+"___25tScreenTournamentCongrats",
+"___23tScreenBeTheCopCongrats",
+"___23tScreenPinkSlipCongrats",
+"___23tScreenTournamentTrophy",
+"___15tScreenCongrats"
+],
+"lane": null
+},
+"recon/frontend/common/statchk.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"StatChk_IsRecordLapTime__FP10Car_tStatssPs",
+"StatChk_SaveRecordLapTime__FP10Car_tStatsss",
+"StatChk_ClearNewRecords__Fv"
+],
+"lane": null
+},
+"recon/frontend/common/stattool.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"Stattool_nCreateIndex__FiPiPs",
+"Stattool_ParseTime__FiPc",
+"UserNameUpperCaseOneLetter__FPc",
+"Stattool_SamNelsonsUpperLowerStringConverterForRecords__FPc",
+"StatTool_UpperCaseItKeepingInMindThoseBloodySpecialCharacters__FPc",
+"Stattool_GetAllDefaultRecords__FP13tRecordBufferb",
+"Stattool_ReadDefaultRecords__FP13tRecordBufferb",
+"Stattool_GetRecords__FsP13tRecordBuffer",
+"Stattool_ReturnRecordLapTime__Fs",
+"Stattool_CheckForHumanCar__FP10Car_tStats",
+"Stattool_GetAINameFromPersonality__F14tPersonalities"
+],
+"lane": null
+},
+"recon/frontend/common/screenusername.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"Initialize__15tScreenUserName",
+"GetShapeInfo__15tScreenUserNameRsT1PPcT3",
+"DrawVerticalLine__15tScreenUserNamesss",
+"DrawHorizontalLine__15tScreenUserNamesss",
+"___15tScreenUserName"
+],
+"lane": null
+},
+"recon/frontend/common/fefades.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"CalcFadeVal__Fiii",
+"CalcFadeVal__Fii",
+"CalcFadeVal__Fiiii",
+"CalcTextFadeUnselToSel__F13tMenuTextTypess",
+"CalcTextFadeSelToHi__F13tMenuTextTypess",
+"CalcOnOffFade__F13tMenuTextTypesssRiT4"
+],
+"lane": null
+},
+"recon/frontend/common/felines.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"PSXDrawBrightEndLine__Fiiiiiiii",
+"PSXTransDrawBrightEndLine__Fiiiiiiiii"
+],
+"lane": null
+},
+"recon/frontend/psx/drawshp.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"DrawShape_SubtractNFS4RectEdges__FR4RECT",
+"DrawShape_NFS4RoundRectangle__FiR4RECTs",
+"DrawShape_NFS4Rectangle__FR4RECT",
+"DrawShape_NFS4TransRectangle__FR4RECTs"
+],
+"lane": null
+},
+"recon/frontend/psx/movie.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Movie_Init__Fc",
+"Movie_DeInit__Fv",
+"Movie_SetDecodeOffset__Fssss",
+"Movie_Load__Fc",
+"Movie_NextFrame__Fv",
+"Movie_DownloadFrame__Fv",
+"Movie_Stop__Fv",
+"Movie_Finished__Fv",
+"Movie_Play__Fc",
+"play_movie__Fc",
+"strSetDefDecEnv__FP6DECENV",
+"strInit__FP6CdlLOCiPFe_vT2",
+"strCallback__Fv",
+"strNextVlc__FP6DECENV",
+"strNext__FP6DECENV",
+"strSync__FP6DECENVi",
+"strKickCD__FP6CdlLOC"
+],
+"lane": null
+},
+"recon/frontend/psx/mmeffect.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"FeDraw_SetABRMode__Fi"
+],
+"lane": null
+},
+"recon/frontend/psx/psxfront.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Quick_DD__Fiii",
+"PSXFront_AllocateDrawMemory__Fv",
+"PSXFront_FreeDrawMemory__Fv",
+"InitializeSpinningCars__Fv",
+"CleanupSpinningCars__Fv",
+"CleanupSpinningCarsMenu__Fv",
+"DoTitleScreen__Fv",
+"DoLanguageScreen__Fv",
+"PSXExitFrontend__Fv",
+"PSX_AllocShapes__Fv",
+"Init_RenderingEnvironment__Fv",
+"Init_PSX_FrontEnd__Fv",
+"AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended",
+"DrawFlatShape__FP18tTexture_ShapeInfoiiiPii",
+"DrawShapeExtended__FiiiiiiP18tDrawShapeExtended",
+"ScaleGouraudShape__FP18tTexture_ShapeInfoiiiiiPii",
+"ScaleFlatShape__FP18tTexture_ShapeInfoiiiiiPii",
+"ScaleShapeExtended__FiiiiiiP18tDrawShapeExtended",
+"LoadAllHelpShapes__Fv",
+"PSXDrawSquare__Fiiiii",
+"PSXDrawGouraudSquare__Fiiiiiiii",
+"PSXDrawTransGouraudSquare__Fiiiiiiiii",
+"PSXDrawTransSquare__Fiiiiis"
+],
+"lane": null
+},
+"recon/frontend/psx/fetexture.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"FETexture_LoadPmxAtOffset__FPciP18tTexture_ShapeInfoii",
+"FETexture_LoadPmx__FPciP18tTexture_ShapeInfo"
+],
+"lane": null
+},
+"recon/frontend/psx/memcard.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"MCRD_init",
+"iMCRD_InitCard",
+"MCRD_restore",
+"MCRD_getopts",
+"MCRD_setopts",
+"MCRD_loadfile",
+"iMCRD_DoFileLoad",
+"MCRD_savefile",
+"iMCRD_DoFileWrite",
+"iMCRD_DoFileDelete",
+"MCRD_fileexists",
+"iMCRD_timersub",
+"garyMemCardGrabBlocks",
+"iMCRD_LoadCard",
+"iMCRD_FormatCard",
+"iMCRD_HandleError",
+"iMCRD_DefaultCBProc1",
+"ascii2sjis",
+"sjis2ascii"
+],
+"lane": null
+},
+"recon/frontend/common/mcrd.cpp": {
+"g": "0",
+"cpp": true,
+"fns": [
+"MCRD_getcard"
+],
+"lane": null
+},
+"recon/frontend/psx/mdec.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"initmdec",
+"restoremdec",
+"mdecreset__Fv",
+"mdec",
+"mdecdone",
+"MDECCompleteHandler__Fv"
+],
+"lane": null
+},
+"recon/frontend/psx/video.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"VIDEO_create__Fiiiii",
+"VIDEO_destroy__Fi",
+"VIDEO_spoolfile__FiPc",
+"VIDEO_startplayback__Fi",
+"VIDEO_abortplayback__Fi",
+"VIDEO_state__Fi",
+"VIDEO_updateframexy__Fiii",
+"videoupdatetime__FP11VIDEOSTRUCT",
+"videodecode__FP11VIDEOSTRUCTP14STREAMCHUNKHDRii"
+],
+"lane": null
+},
+"recon/game/common/ai.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"AI_StartUp__Fv",
+"AI_CleanUp__Fv",
+"AI_Main_OverallSetup__Fv",
+"AI_CarAvoidance__FP8Car_tObj",
+"AI_WorldAvoidance__FP8Car_tObj",
+"AI_InitAIInfo__FP8Car_tObj",
+"AI_GenericBeginCycle__FP8Car_tObj",
+"AI_GenericCycle__FP8Car_tObj",
+"AI_GenericEndCycle__FP8Car_tObj",
+"AI_TargetLane__FP8Car_tObji",
+"AI_ClearLaneMerits__Fv",
+"AI_DoReactions__FP8Car_tObj",
+"AI_CheckForPlayerActions__FP8Car_tObjT0",
+"AI_DoReactionsAndBehavior__FP8Car_tObj",
+"AI_OpponentBlockPlayer__FP8Car_tObjT0",
+"AI_CheckForBarriers__FP8Car_tObj",
+"AI_SetupOncomingLaneDemerits__FP8Car_tObj",
+"AI_HandleChangeInNumLanes__FP8Car_tObj",
+"AI_HandleShouldersAndOffRoad__FP8Car_tObj",
+"AI_CalculateLaneSpeeds__FP8Car_tObj",
+"AI_CalcMeritsBasedOnSpeed__FP8Car_tObj",
+"AI_CheckForClearLanes__FP8Car_tObj",
+"AI_CalcBestLineMerits__FP8Car_tObj",
+"AI_AddCollidableObjects__FP8Car_tObjP5Group",
+"AI_AvoidObjects__FP8Car_tObj",
+"AI_AvoidSpikeBelt__FP8Car_tObj",
+"AI_SubmitObstacle__FP8Car_tObjiiii",
+"AI_HandleTrafficHonking__FP8Car_tObj",
+"AI_CheckForCarsOnSide__FP8Car_tObj",
+"AI_ProcessObservationsAndChooseLane__FP8Car_tObj",
+"AI_ChooseBestLane__FP8Car_tObj",
+"AI_CheckPreferredLateralPosition__FP8Car_tObj",
+"AI_TryToShareLanes__FP8Car_tObjT0",
+"AI_CalculateDesiredLatPosition__FP8Car_tObj",
+"AI_CalculateAdjustedDesiredSpeed__FP8Car_tObj",
+"AI_IsMellowZone__FP8Car_tObji",
+"AI_KeepCarsInLane__FP8Car_tObj",
+"AI_PushFinishedCarsToSide__FP8Car_tObj",
+"AI_MaybeChangeLaneSlack__FP8Car_tObj",
+"AI_ChooseNewLaneSlack__FP8Car_tObj"
+],
+"lane": null
+},
+"recon/game/common/aidelaycar.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"__10AIDelayCarP8Car_tObjT1i",
+"SetNewTargetCar__10AIDelayCarP8Car_tObj",
+"Update__10AIDelayCar"
+],
+"lane": null
+},
+"recon/game/common/aihigh.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"AIHigh_StartUp__Fv",
+"AIHigh_Restart1__Fv",
+"AIHigh_Restart2__Fv",
+"AIHigh_CleanUp__Fv",
+"AIHigh_Execute__Fv",
+"__11AIHigh_BaseP8Car_tObj",
+"___11AIHigh_Base",
+"___15AIHigh_BTC_Perp",
+"HighExecute__11AIHigh_None",
+"___11AIHigh_None",
+"Execute__12AIState_None",
+"___12AIState_None",
+"TestForRelease__12AIState_Base",
+"___12AIState_Base"
+],
+"lane": null
+},
+"recon/game/common/aih_basicperp.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"CheckForCrimes__16AIHigh_BasicPerp",
+"CheckIfCaught__16AIHigh_BasicPerp",
+"RemoveCloseCops__16AIHigh_BasicPerp",
+"RemoveChaser__16AIHigh_BasicPerpii7copType",
+"AddChaser__16AIHigh_BasicPerpii7copType",
+"Clear__16AIHigh_BasicPerp",
+"__16AIHigh_BasicPerpP8Car_tObj",
+"___16AIHigh_BasicPerp"
+],
+"lane": null
+},
+"recon/game/common/aih_basiccop.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"__15AIHigh_BasicCopP8Car_tObji",
+"CheckSpikeBelt__15AIHigh_BasicCop",
+"ShouldIPerformCutOffBlock__15AIHigh_BasicCopiP8Car_tObj",
+"Blockade_AddRoadFlare__FP8coorddef",
+"Blockade_AddObject__FiP8coorddefi",
+"PlacePointOnRoad__FiP8coorddef",
+"SetupBlockadeElements__15AIHigh_BasicCopP10blockade_t",
+"HandleBlockadeSpeech__15AIHigh_BasicCop",
+"___15AIHigh_BasicCop"
+],
+"lane": null
+},
+"recon/game/common/aih_btccop.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"__14AIHigh_BTC_CopP8Car_tObji",
+"AssignToPlayer__14AIHigh_BTC_CopP15AIHigh_BTC_Perp",
+"GetCheckChasePosition__14AIHigh_BTC_CopP8coorddef",
+"CheckForNewTarget__14AIHigh_BTC_Cop",
+"StartArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp",
+"FinishArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp",
+"FalseArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp",
+"FreezeAndEndChase__14AIHigh_BTC_Cop",
+"HudOff__14AIHigh_BTC_Cop",
+"__19AIHigh_BTC_HumanCopP8Car_tObji",
+"FindRandomBarrierFreeArea__19AIHigh_BTC_HumanCopiii",
+"ReleaseAndStartChase__19AIHigh_BTC_HumanCopP15AIHigh_BTC_Perp",
+"FreezeAndEndChase__19AIHigh_BTC_HumanCop",
+"CheckConditionWithCop0__19AIHigh_BTC_HumanCop",
+"NewStage__19AIHigh_BTC_HumanCopiii",
+"UpdateAndCheckTimeLeft__19AIHigh_BTC_HumanCop",
+"UpdateFreezeModeAndPullOverMode__19AIHigh_BTC_HumanCop",
+"RequestWingman__19AIHigh_BTC_HumanCop",
+"RequestBlockader__19AIHigh_BTC_HumanCopi",
+"CheckForWingmanRequest__19AIHigh_BTC_HumanCop",
+"CheckForBlockaderRequest__19AIHigh_BTC_HumanCopPi",
+"UpdateWingmanRole__19AIHigh_BTC_HumanCop12Wingman_Role",
+"ClearTrafficToPurgatory__19AIHigh_BTC_HumanCop",
+"ResetClearTrafficToPurgatory__19AIHigh_BTC_HumanCop",
+"SetDesiredSpeed__19AIHigh_BTC_HumanCop",
+"HighExecute__19AIHigh_BTC_HumanCop",
+"HudOn__19AIHigh_BTC_HumanCopP15AIHigh_BTC_PerpiP8Car_tObj",
+"__18AIHigh_BTC_WingmanP8Car_tObji",
+"CheckForActivation__18AIHigh_BTC_Wingman",
+"UpdateFreezeModeAndPullOverMode__18AIHigh_BTC_Wingman",
+"SetupWingman__18AIHigh_BTC_WingmanP19AIHigh_BTC_HumanCop",
+"SetupBlockader__18AIHigh_BTC_WingmanP19AIHigh_BTC_HumanCopi",
+"___18AIHigh_BTC_Wingman",
+"___19AIHigh_BTC_HumanCop",
+"___14AIHigh_BTC_Cop",
+"Execute__17AIState_NonActive",
+"___17AIState_NonActive",
+"TestForRelease__12AIState_Base_8005F678",
+"___12AIState_Base_8005F680"
+],
+"lane": null
+},
+"recon/game/common/aih_btcperp.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"ReleaseCops__15AIHigh_BTC_Perp",
+"HandleCops__15AIHigh_BTC_Perp",
+"IsFalseArrest__15AIHigh_BTC_Perp",
+"CheckForControlsPressed__15AIHigh_BTC_Perp",
+"HandlePullOver__15AIHigh_BTC_Perp",
+"NotifyCopsOfArrest__15AIHigh_BTC_Perp",
+"NotifyCopsOfArrestComplete__15AIHigh_BTC_Perp",
+"NotifyCopsOfFalseArrest__15AIHigh_BTC_Perp",
+"NotifyHumanCopsOfArrestHud__15AIHigh_BTC_Perp",
+"ClearForNewStage__15AIHigh_BTC_PerpP19AIHigh_BTC_HumanCop",
+"CheckForActivation__15AIHigh_BTC_Perp",
+"NewStage__20AIHigh_BTC_HumanPerpP19AIHigh_BTC_HumanCop",
+"HighExecute__20AIHigh_BTC_HumanPerp",
+"__17AIHigh_BTC_AIPerpP8Car_tObj",
+"___17AIHigh_BTC_AIPerp",
+"AvoidCops__17AIHigh_BTC_AIPerp",
+"CalculateTimeTillContact__17AIHigh_BTC_AIPerp",
+"FindClosestCop__17AIHigh_BTC_AIPerp",
+"HighExecute__17AIHigh_BTC_AIPerp",
+"NewStage__17AIHigh_BTC_AIPerpP19AIHigh_BTC_HumanCop",
+"___20AIHigh_BTC_HumanPerp",
+"Execute__17AIState_NonActive_80061370",
+"___17AIState_NonActive_80061378",
+"TestForRelease__12AIState_Base_800613C4",
+"___12AIState_Base_800613CC"
+],
+"lane": null
+},
+"recon/game/common/aih_play.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"CheckIfABlockadeCanBeSetup__13AIHigh_Player",
+"SetupBlockade__13AIHigh_Player",
+"CheckForNewLevel__13AIHigh_Playeri",
+"HandleSpeech__13AIHigh_Player",
+"MaintainAvailableCops__13AIHigh_Player",
+"__13AIHigh_PlayerP8Car_tObj",
+"HandleCops__13AIHigh_Player",
+"CleanupBlockaders__13AIHigh_Playeri",
+"HandlePullOver__13AIHigh_Player",
+"___13AIHigh_Player"
+],
+"lane": null
+},
+"recon/game/common/aih_hum.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"HighExecute__12AIHigh_Human",
+"__12AIHigh_HumanP8Car_tObj",
+"___12AIHigh_Human"
+],
+"lane": null
+},
+"recon/game/common/aih_opp.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"HighExecute__15AIHigh_Opponent",
+"__15AIHigh_OpponentP8Car_tObj",
+"DoProvokedAttack__15AIHigh_Opponent",
+"___15AIHigh_Opponent"
+],
+"lane": null
+},
+"recon/game/common/aih_cop.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"__10AIHigh_CopP8Car_tObji",
+"SetTuningLevers__10AIHigh_Cop",
+"CheckForNeedyPlayers__10AIHigh_Cop",
+"CheckForWipeOut__10AIHigh_Cop",
+"CheckForNewTarget__10AIHigh_Cop",
+"AssignToPlayer__10AIHigh_CopP13AIHigh_Player",
+"GetCheckChasePosition__10AIHigh_CopP8coorddef",
+"CheckForNewTriggers__10AIHigh_Cop",
+"___10AIHigh_Cop"
+],
+"lane": null
+},
+"recon/game/common/aih_traf.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"CheckForCops__14AIHigh_TrafficPi",
+"CopCheck__14AIHigh_TrafficPi",
+"HighExecute__14AIHigh_Traffic",
+"__14AIHigh_TrafficP8Car_tObj",
+"CheckForNewTriggers__14AIHigh_Traffic",
+"___14AIHigh_Traffic"
+],
+"lane": null
+},
+"recon/game/common/aicop.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"AICop_StartUp__Fv",
+"AICop_Restart__Fv",
+"AICop_CleanUp__Fv",
+"AICop_NoCopsInArea__Fii"
+],
+"lane": null
+},
+"recon/game/common/aiinit.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"AIInit_StartUp1__Fv",
+"AIInit_StartUp2__Fv",
+"AIInit_Reset1__Fv",
+"AIInit_Reset2__Fv",
+"AIInit_CleanUp1__Fv",
+"AIInit_CleanUp2__Fv",
+"AI_TrafficStartUp__Fv",
+"AI_TrafficCleanUp__Fv",
+"AIInit_LoadConfigs__Fv",
+"AIInit_LoadPhysicsConfig__FP10Udff_tInfo",
+"AIInit_ClearAICar__FP8Car_tObj",
+"AIInit_RestartAICar__FP8Car_tObj",
+"AIInit_InitAICar__FP8Car_tObjP10Udff_tInfo",
+"AIInit_DeInitAICar__FP8Car_tObj",
+"AIInit_InitAICar2__FP8Car_tObj",
+"AIInit_DeInitAICar2__FP8Car_tObj",
+"AIInit_IsNonStandardCarFile__Fi"
+],
+"lane": null
+},
+"recon/game/common/ailife.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"AILife_EvaluateLife__FP8Car_tObj",
+"AILife_RCSetSpeeds__FP8Car_tObj",
+"AILife_RCPickSliceAndDirection__FP8Car_tObj",
+"AILife_RCPickDesiredLatPosition__FP8Car_tObj",
+"AILife_PlaceCarAtLocation__FP8Car_tObjiiiii",
+"AILife_SetInitialSlicePositionOrientationEtc__FP8Car_tObj",
+"AILife_PlaceCarAtLocation__FP8Car_tObji",
+"AILife_ReencarnateTraffic__FP8Car_tObj",
+"AILife_ReencarnateTrafficByPosition__FP8Car_tObjiiP8coorddefP10matrixtdef",
+"AILife_ReencarnateCopBySlice__FP8Car_tObjiiii",
+"AILife_ReencarnateCopByPosition__FP8Car_tObjiiP8coorddefP10matrixtdef",
+"AILife_ReencarnateCopByLatPosAndRotation__FP8Car_tObjiiii",
+"AILife_IsCoordInThisLiveArea__FP8coorddefP8Car_tObj",
+"AILife_IsTrafficCarInAnyLiveArea__FP8Car_tObj",
+"AILife_IsCoordInThisVisibleArea__FP8coorddefP8Car_tObj",
+"AILife_IsCarInAnyVisibleArea__FP8Car_tObj",
+"AILife_IsSliceInAnyVisibleArea__Fi",
+"AILife_IsSliceCloseToAnyCopCar__Fi",
+"AILife_IsPositionInAnyVisibleArea__FP8coorddef",
+"AILife_Debug__FPce"
+],
+"lane": null
+},
+"recon/game/common/aiperson.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"AIPerson_LoadGridAndSetPersonalityIndexes__Fv",
+"AIPerson_SetPersonality__FP8Car_tObji",
+"AIPerson_SetPersonalityPointers__Fv",
+"AIPerson_LoadPersonalityData__FP10Udff_tInfo",
+"AIPerson_LoadScriptData__FP10Udff_tInfo",
+"AIPerson_LoadGlue__FP10Udff_tInfo",
+"AIPerson_Startup__Fv",
+"AIPerson_Cleanup__Fv"
+],
+"lane": null
+},
+"recon/game/common/aiphysic.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"AIPhysic_StopCar__FP8Car_tObjii",
+"AIPhysic_RevEngine__FP8Car_tObj",
+"AIPhysic_HandleShifting__FP8Car_tObj",
+"AIPhysic_CalculateGear__FP8Car_tObj",
+"AIPhysic_GearInvSpeedRange__FP8Car_tObj6Gear_t",
+"AIPhysic_GearTopSpeed__FP8Car_tObj6Gear_t",
+"AIPhysic_GearBottomSpeed__FP8Car_tObj6Gear_t",
+"AIPhysic_ModifyAccelerationAccordingToScript__FP8Car_tObji",
+"AIPhysic_CalcDeceleration__FP8Car_tObj",
+"AIPhysic_HandleSignalling__FP8Car_tObj",
+"AIPhysic_HandleWipeoutTimer__FP8Car_tObj",
+"AIPhysic_Main__FP8Car_tObj",
+"AIPhysic_CheckForBadPosition__FP8Car_tObj",
+"AIPhysics_UseCoolPhysics__FP8Car_tObj",
+"AIPhysic_SimplePhysics__FP8Car_tObj",
+"AIPhysic_SimplePhysics_LongVel__FP8Car_tObj",
+"AIPhysic_SimplePhysics_LatVel__FP8Car_tObj",
+"AIPhysic_CoolPhysics__FP8Car_tObj",
+"AIPhysic_HandleDirection__FP8Car_tObj",
+"AIPhysic_Preperation__FP8Car_tObj",
+"AIPhysic_CalculateRoadPosition__FP8coorddefi",
+"AIPhysic_GetDesiredVector__FP8Car_tObj",
+"AIPhysic_TargetedGetDesiredVector__FP8Car_tObj",
+"AIPhysic_CheckIfOutOfControl__FP8Car_tObj",
+"AIPhysic_GetRearEndDamageFactor__FP8Car_tObj",
+"AIPhysic_InControlPhysics__FP8Car_tObj",
+"AIPhysic_FinishUp__FP8Car_tObj",
+"AIPhysic_CalculateRampedDesiredLatPos__FP8Car_tObj9eRampType",
+"AIPhysic_HitWallCheck__FP8Car_tObj",
+"AIPhysic_ProcessBarrierCollision__FP8Car_tObj",
+"AIPhysic_ProcessCollision__FP8Car_tObj",
+"AIPhysic_ChangeDirection__FP8Car_tObji",
+"AIPhysic_CheckForGripReduction__FP8Car_tObj",
+"AIPhysic_StartUp__Fv",
+"AIPhysic_CleanUp__Fv",
+"AIPhysic_Reset__Fv",
+"AIPhysic_ResetCar__FP8Car_tObj",
+"AIPhysic_InitCar__FP8Car_tObj",
+"AIPhysic_DeInitCar__FP8Car_tObj"
+],
+"lane": null
+},
+"recon/game/common/aidatarecord.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"__14AIDataRecord_t26AIDataRecord_WhichRecord_tPc",
+"___14AIDataRecord_t",
+"AddRecordToCollection__14AIDataRecord_t",
+"RemoveRecordFromCollection__14AIDataRecord_t",
+"StartUp1__14AIDataRecord_t",
+"StartUp2__14AIDataRecord_t",
+"CleanUp1__14AIDataRecord_t",
+"CleanUp2__14AIDataRecord_t",
+"Setup__14AIDataRecord_t",
+"Load__14AIDataRecord_t",
+"SaveAndPurge__14AIDataRecord_t",
+"__23AIDataRecord_AccTable_tPci26AIDataRecord_WhichRecord_t",
+"Get__23AIDataRecord_AccTable_ti",
+"Setup__23AIDataRecord_AccTable_t",
+"__23AIDataRecord_BestLine_t26AIDataRecord_WhichRecord_t",
+"__25AIDataRecord_TrackCurve_t26AIDataRecord_WhichRecord_t",
+"Get__25AIDataRecord_TrackCurve_ti",
+"__30AIDataRecord_CurveSpeedTable_tPc26AIDataRecord_WhichRecord_t",
+"Get__30AIDataRecord_CurveSpeedTable_ti",
+"Upgrade__30AIDataRecord_CurveSpeedTable_ti",
+"Get__26AIDataRecord_CarTracking_ti",
+"___26AIDataRecord_CarTracking_t",
+"___30AIDataRecord_CurveSpeedTable_t",
+"___25AIDataRecord_TrackCurve_t",
+"___23AIDataRecord_BestLine_t",
+"___23AIDataRecord_AccTable_t"
+],
+"lane": null
+},
+"recon/game/common/aispeeds.cpp": {
+"g": "8",
+"cpp": true,
+"fns": [
+"AISpeeds_StartUp__Fv",
+"AISpeeds_ReadTuningInfo__Fv",
+"AISpeeds_CleanUp__Fv",
+"AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRenderingTheseCars__FP8Car_tObj",
+"AISpeeds_NeedToSlowDownForCurve__FP8Car_tObjiii",
+"AISpeeds_CalcOpponentCurveSpeed__FP8Car_tObj",
+"AISpeeds_BTCGetGlueFactor__FP8Car_tObj",
+"AISpeeds_GetNextAICar__FP8Car_tObj",
+"AISpeeds_GetPrevAICar__FP8Car_tObj",
+"AISpeeds_GetCaravanFactor__FP8Car_tObj",
+"AISpeeds_GetGlueFactor__FP8Car_tObj",
+"AISpeeds_GetDamageFactor__FP8Car_tObj",
+"AISpeeds_LimitGlueMultiplier__FP8Car_tObji",
+"AISpeeds_CalcCopTopSpeed__FP8Car_tObj",
+"AISpeeds_CalcTrafficTopSpeed__FP8Car_tObj",
+"AISpeeds_GetLegalSpeed__Fi",
+"AISpeeds_RandomizeTrafficSpeed__FP8Car_tObji",
+"AISpeeds_CalcDesiredSpeed__FP8Car_tObj",
+"AISpeeds_CalculateOncomingCarSpeed__FP8Car_tObj",
+"AISpeeds_SetTrafficSpeedRandomFactor__FP8Car_tObj",
+"AISpeeds_MaintainLeaderBoard__Fv",
+"AISpeeds_GetScriptFactor__FP8Car_tObj",
+"AISpeeds_GetUpgradeAccMult__Fi",
+"AISpeeds_GetUpgradeBrakeMult__Fi",
+"AISpeeds_GetUpgradeHandlingMult__Fi",
+"AISpeeds_GetUpgradeTopSpeedMult__Fi",
+"AISpeeds_CalcHumanTopSpeed__FP8Car_tObj",
+"AISpeeds_CalcHumanCurveSpeed__FP8Car_tObj"
+],
+"lane": null
+},
+"recon/game/common/aiscript.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"AIScript_Assign__FP10AIScript_tPA7_25AIScript_tReactionDetails",
+"AIScript_ClearLastReactionIndex__FP10AIScript_t",
+"AIScript_Startup__FP10AIScript_t",
+"AIScript_Cleanup__Fv",
+"AIScript_SubmitPlayerAction__FP10AIScript_ti20AIScript_tPlayActioni",
+"AIScript_ProcessActionsAndReactions__FP10AIScript_ti",
+"AIScript_DoReAction__FP10AIScript_t20AIScript_tAIReaction",
+"AIScript_GetReactionTicksLeft__FP10AIScript_t"
+],
+"lane": null
+},
+"recon/game/common/aistate.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"AIState_StartUp__Fv",
+"AIState_Restart__Fv",
+"AIState_CleanUp__Fv",
+"StateExecute__12AIState_Base",
+"__12AIState_BaseP8Car_tObj",
+"Execute__14AIState_Normal",
+"__14AIState_NormalP8Car_tObj",
+"Execute__12AIState_Idle",
+"SetIdlePosition__12AIState_Idlei",
+"__13AIState_ChaseP8Car_tObjT1P8coorddefiiiii",
+"___13AIState_Chase",
+"SetTarget__13AIState_ChaseP8Car_tObjP8coorddef",
+"SetMurderMode__13AIState_Chaseii",
+"SetUp__13AIState_Chase",
+"DoSlowNitrous__13AIState_Chase",
+"DoNitrous__13AIState_Chasei",
+"Execute__13AIState_Chase",
+"FarTargeting__13AIState_Chase",
+"CalculateCloseTargettingAheadSlowDownFactor__13AIState_Chase",
+"CloseTargeting__13AIState_Chase",
+"ApproachTargeting__13AIState_Chasei",
+"CheckForBarriersAndTargetAroundThem__13AIState_Chase",
+"FindBarrierEndSlice__13AIState_Chase",
+"___15AIState_Offroad",
+"__15AIState_OffroadP8Car_tObjiP8coorddefP10matrixtdefiii",
+"UnleashIfInRange__15AIState_OffroadP8Car_tObj",
+"Execute__15AIState_Offroad",
+"__17AIState_PurgatoryP8Car_tObj",
+"___17AIState_Purgatory",
+"TestForRelease__17AIState_Purgatory",
+"Execute__17AIState_Purgatory",
+"StartUp__17AIState_Purgatory",
+"__21AIState_RovingTrafficP8Car_tObjP9trigger_t",
+"Execute__21AIState_RovingTraffic",
+"___14AIState_Donuts",
+"Execute__14AIState_Donuts",
+"__17AIState_GotoSliceP8Car_tObjii",
+"Execute__17AIState_GotoSlice",
+"InTargetSliceRange__17AIState_GotoSlicei",
+"__14AIState_CruiseP8Car_tObj12cruiseMode_ti",
+"Execute__14AIState_Cruise",
+"___14AIState_Cruise",
+"___17AIState_GotoSlice",
+"TestForRelease__21AIState_RovingTraffic",
+"___21AIState_RovingTraffic",
+"Execute__17AIState_NonActive_80072750",
+"___17AIState_NonActive_80072758",
+"___12AIState_Idle",
+"___14AIState_Normal",
+"TestForRelease__12AIState_Base_80072830",
+"___12AIState_Base_80072838"
+],
+"lane": null
+},
+"recon/game/common/aitriger.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Init__24AITrigger_TriggerManagerPc",
+"InsertTrigger__24AITrigger_TriggerManagerP9trigger_tb",
+"GetNextTrigger__24AITrigger_TriggerManageri",
+"GetPrevTrigger__24AITrigger_TriggerManageri",
+"CheckForTriggerAtSlice__24AITrigger_TriggerManagerii",
+"GetTrigger__24AITrigger_TriggerManageriPi",
+"CheckForClosestTriggerOfType__24AITrigger_TriggerManageri11triggerTypei",
+"DescribeTrigger__24AITrigger_TriggerManagerP9trigger_t",
+"AITrigger_Compare__FPCvT0",
+"Sort__24AITrigger_TriggerManager"
+],
+"lane": null
+},
+"recon/game/common/aitune.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"AITune_GetOneWay__Fv",
+"AITune_GetDriveSide__Fv",
+"AITune_GetRoughLapTimes__Fv",
+"AITune_StartUp1__Fv",
+"AITune_StartUp2__Fv",
+"AITune_CleanUp1__Fv",
+"AITune_CleanUp2__Fv"
+],
+"lane": null
+},
+"recon/game/common/AIWORLD.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"AIWorld_ZSplineDistance__FP8Car_tObjT0",
+"AIWorld_ZSplineDistance__FP8coorddefT0P10matrixtdef",
+"AIWorld_ApxSplineDistance__FP8Car_tObjT0",
+"AIWorld_ApxSplineDistance__FP8Car_tObji",
+"AIWorld_ApxSplineDistance__FiP8Car_tObj",
+"AIWorld_ApxSplineDistance__Fii",
+"AIWorld_SplineDistance__FP8Car_tObjT0",
+"AIWorld_SplineDistance__FP8Car_tObjiP8coorddef",
+"AIWorld_GameOdometer__FP8Car_tObj",
+"AIWorld_IsDriveableLaneInSliceRange__Fiiii",
+"AIWorld_IsDriveableLane__Fii",
+"AIWorld_GetProfileMask__Fi",
+"AIWorld_IsDriveableLane_UsingMask__Fii",
+"AIWorld_CheckForBarrierBetweenLanes__Fiii",
+"AIWorld_LaneIndex__Fii",
+"AIWorld_CalculateLaneInfo__FP8Car_tObj",
+"AIWorld_CalculateDeltaRoadYaw__FP8Car_tObj",
+"AIWorld_CalcRoadBend__FP8Car_tObji",
+"AIWorld_CalcFutureLateralVel__FP8Car_tObji",
+"AIWorld_CalcSpeed__FP8Car_tObj",
+"AIWorld_CalcLateralVelocity__FP8Car_tObj",
+"AIWorld_FindBarrierLessLaneAndPosition__FP8Car_tObjPiT1"
+],
+"lane": null
+},
+"recon/game/common/anim.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Anim_Restart__Fv",
+"Anim_InitSystem__FPc",
+"Anim_DeInitSystem__Fv",
+"Anim_Handle__Fi",
+"Anim_FreeHandle__Fi",
+"Anim_GetAnim__Fi",
+"Anim_GetLastRotPos__FP15Trk_AnimateInstP8coorddefP10matrixtdef",
+"Anim_GetLastAnimPosRot__FiiP8coorddefP10matrixtdef",
+"Anim_GetRotPos__FP15Trk_AnimateInstiiP8coorddefP10matrixtdef",
+"Anim_GetPos__FP15Trk_AnimateInstiiP8coorddefPiT4",
+"__10AnimScripti",
+"__10AnimScriptii",
+"__10AnimScriptP5Groupiii",
+"SetAnimAttrib__10AnimScripti",
+"GetAnimFrameInfo__10AnimScriptPiT1",
+"GetTimedAnimPosRot__10AnimScriptP8coorddefP10matrixtdef",
+"GetTimedAnimPosRot__10AnimScriptiP8coorddefP10matrixtdef",
+"GetStatus__10AnimScript"
+],
+"lane": null
+},
+"recon/game/common/audioclc.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"AudioClc_SndError__Fi",
+"AudioClc_SetHorn__FP8Car_tObji",
+"AudioClc_HonkHorn__FP8Car_tObjiii",
+"AudioClc_InitSource__FP16AudioClc_tSourceP8Car_tObj",
+"AudioClc_StartUp__Fv",
+"AudioClc_CalcDopplerShiftRatio__FP8coorddefT0",
+"AudioClc_CalcDistance__FP17DRender_tCalcViewP8coorddef",
+"AudioClc_CalcAzimuth__FP17DRender_tCalcViewP8coorddef",
+"AudioClc_CalcCarDirection__FP17DRender_tCalcViewP8Car_tObj",
+"AudioClc_CalcTrackAzimuth__FP17DRender_tCalcViewP8Car_tObj",
+"AudioClc_SoundOpponentHorn__Fiiii",
+"AudioClc_SilenceOpponentHorn__Fi",
+"AudioClc_SoundCloseCar__Fii",
+"AudioClc_SoundPlayersCar__Fi",
+"AudioClc_ResetClosest__FiP8Car_tObji",
+"AudioClc_GetClosestCars__Fiii",
+"AudioClc_SoundSpeech__Fv",
+"AudioClc_SoundCars__Fv"
+],
+"lane": null
+},
+"recon/game/common/audiocmn.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"AudioCmn_MusicLevel__Fi",
+"AudioCmn_GetTrackRecordLapTime__Fv",
+"AudioCmn_InitThunder__Fv",
+"AudioCmn_PlayThunder__Fii",
+"AudioCmn_UpdateThunder__Fv",
+"AudioCmn_InitAsyncSfx__Fv",
+"AudioCmn_RemoveAsyncSfx__Fi",
+"AudioCmn_DeInitAsyncSfx__Fv",
+"AudioCmn_RemoveOldestAsyncSfx__Fi",
+"AudioCmn_LoadAsyncSfx__FiiPvi",
+"AudioCmn_GetAsyncSfx__Fiib",
+"AudioCmn_Init__Fv",
+"AudioCmn_Reset__Fv",
+"AudioCmn_DeInit__Fv",
+"AudioCmn_SetLevels__Fv",
+"AudioCmn_GetTimePhrase__Fi",
+"AudioCmn_LoadFESamples__Fv",
+"AudioCmn_LoadGameSamples__Fv",
+"AudioCmn_InitChannelArray__Fv",
+"scaleFrequency__Fiii",
+"ChooseImpactSample__Fi6s_typeT1",
+"ChooseLoopedSample__F6s_typeT0",
+"AudioCmn_SFX__Fi6s_typeT1iii",
+"freeVoiceChannel__Fi",
+"AudioCmn_PlayDoppleredSound__Fiiiiii",
+"AudioCmn_PlaySound__Fiiiii",
+"AudioCmn_PlaySFX__Fiiiiii",
+"AudioCmn_SoundCar__FP8Car_tObjiiiiiii",
+"AudioCmn_TrafficSFX__Fiiiiiiii",
+"AudioCmn_TrafficSkidSFX__Fi6s_typeT1iii",
+"AudioCmn_PlayerHornOn__Fiiiii",
+"AudioCmn_PlayerHornOff__Fi",
+"AudioCmn_PlayFESFX__Fi",
+"AudioCmn_PlayFESFXVol__Fii",
+"AudioCmn_PlayWrongWaySFX__Fv",
+"AudioCmn_PlayPauseSound__Fi",
+"quickSirenOn__Fi",
+"SuperCopSirenOn__Fi",
+"SirenOn__Fii",
+"SirenOff__Fi",
+"UpdateSiren__Fiiiii",
+"AudioCmn_Pause__Fv",
+"AudioCmn_UnPause__Fv",
+"AudioCmn_UnPauseAndQuit__Fv",
+"AudioCmn_UnPauseAndRestart__Fv",
+"AudioCmn_InitReverb__Fv",
+"AudioCmn_ReverbOff__Fv"
+],
+"lane": null
+},
+"recon/game/common/audiomus.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"AudioMus_RefreshStatus__Fv",
+"AudioMus_Threshold__Fv",
+"AudioMus_Buffered__Fv",
+"AudioMus_GetCurrentSong__Fv",
+"AudioMus_SwitchSong__Fv",
+"AudioMus_Fail__Fi",
+"AudioMus_QueueRequestedSong__Fv",
+"AudioMus_SetEntry__FP19AudioMus_tSongEntry",
+"AudioMus_SetCurrentSongInfo__Fv",
+"AudioMus_Server__Fii",
+"AudioMus_GetSongList__FPci",
+"AudioMus_InitGlobals__Fv",
+"AudioMus_InitDriverGlobals__Fv",
+"AudioMus_DriverStartUp__Fii",
+"AudioMus_SysStartUp__FiiPc",
+"AudioMus_DriverCleanUp__Fv",
+"AudioMus_SysCleanUp__Fv",
+"AudioMus_StopSong__Fi",
+"AudioMus_BuildPlayList__FiPi",
+"AudioMus_BuildPattern__FPc",
+"AudioMus_PlaySong__FPc",
+"AudioMus_Volume__Fi",
+"AudioMus_AutoVolume__Fii"
+],
+"lane": null
+},
+"recon/game/common/audedit.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"AudList_PurgeAudio__Fv",
+"AudList_LoadAudioFile__Fi"
+],
+"lane": null
+},
+"recon/game/common/audioeng.cpp": {
+"g": "8",
+"cpp": true,
+"fns": [
+"AudioEng_Set__Fiiiiiiii",
+"AudioEng_Update__Fv",
+"AudioEng_LoadDef__FPcT0illPP13AudioEng_tDef",
+"AudioEng_StartUp__FiPc",
+"AudioEng_StartServer__Fv",
+"AudioEng_StopServer__Fv",
+"AudioEng_Pause__Fv",
+"AudioEng_Resume__Fv",
+"AudioEng_CleanUp__Fv"
+],
+"lane": null
+},
+"recon/game/common/audiotrk.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"AudioTrk_Reset__Fv",
+"AudioTrk_StartUp__Fv",
+"AudioTrk_SoundTrack__FP8Car_tObji",
+"AudioTrk_PreLoad__Fv",
+"AudioTrk_CleanUp__Fv"
+],
+"lane": null
+},
+"recon/game/common/bworld.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"xzsquaredist32__FP8coorddefT0",
+"UpdateContext__FP13DRender_tViewi",
+"BWorld_BuildGlareEffects__FP13DRender_tViewP11Draw_DCacheP5Group",
+"BWorld_InitSpikeBelt__Fv",
+"BWorld_SetSpikeBelt__Fiii",
+"BWorld_GetSpikeBelt__FPiN20",
+"SetupBuildMatrices__FP13DRender_tViewP11Draw_DCache",
+"BWorld_CheckChunkVisible__FP12BWorldSm_PosT0",
+"GetRezIndex__Fi",
+"BWorld_IsSliceInBuildList__Fi",
+"BWorld_OnyxBuildFacets__FP13DRender_tView",
+"BWAllocMem__Fl",
+"BWorld_InitContexts__Fv",
+"BWorld_DeInitContexts__Fv",
+"SetContext__Fi",
+"BWorld_OpenContext__Fii",
+"BWorld_Restart__Fv",
+"BWorld_StartLoop__Fv",
+"BWorld_Init__Fv",
+"BWorld_DeInit__Fv"
+],
+"lane": null
+},
+"recon/game/common/bworldSm.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"BWorldSm_Init__FP5Group",
+"BWorldSm_Restart__Fv",
+"BWorldSm_DeInit__Fv",
+"FindAbsClosestSliceCrude__FP8coorddefP12BWorldSm_Pos",
+"BWorldSm_FindClosestSlice__FP8coorddefP12BWorldSm_Pos",
+"RawFindClosestSlice__FP8coorddefP12BWorldSm_Pos",
+"BWorldSm_SetSlice__FiP12BWorldSm_Pos",
+"GetStmQuadPts__FP12BWorldSm_PosP8coorddef",
+"SetStrip__FP12BWorldSm_Pos",
+"GetFirstStmQuadPts__FP12BWorldSm_PosP8CCOORD16",
+"BWorld_SetSimSlice__FP12BWorldSm_Pos",
+"BworldSm_UpdateSimQuad__FP12BWorldSm_Pos",
+"BworldSm_IsSimQuadValid__FP12BWorldSm_Pos",
+"RawFindClosestQuad__FP8coorddefP12BWorldSm_Pos",
+"FindClosestQuad__FP8coorddefP12BWorldSm_Pos",
+"BWorldSm_FindClosestQuadRez__FP8coorddefP12BWorldSm_Posi",
+"BWorldSm_FindClosestQuadMaxIterations__FP8coorddefP12BWorldSm_Posi",
+"PointDirection__FP8coorddefN20",
+"BWorldSm_FindEdgeOff__FP8coorddefP12BWorldSm_PosT1Pi",
+"BWorldSm_QuadLight__FP12BWorldSm_Pos",
+"BWorldSm_TunnelFlagSm__FP12BWorldSm_Pos",
+"NormalCache_AddEntry__FP12BWorldSm_Pos",
+"NormalCache_FindEntry__FP12BWorldSm_Pos",
+"NormalCache_Init__Fv",
+"Check_Rot__FP12BWorldSm_Pos",
+"BWorldSm_UNormal__FP12BWorldSm_Pos",
+"BWorldSm_UForward__FP12BWorldSm_Pos",
+"BWorldSm_FindClosestTriangleRez__FP8coorddefP12BWorldSm_Posi"
+],
+"lane": null
+},
+"recon/game/common/camera.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"EulerToMat__FP10matrixtdefiii",
+"Camera_SetCamera__FP13DRender_tView",
+"Camera_LookBack__FP10matrixtdefT0",
+"Camera_TunnelLimit__FiPi",
+"Camera_UpdateCollisionCam__Fi",
+"Camera_UpdateSimpleCam__Fi",
+"Camera_UpdateBumperCam__Fi",
+"Camera_UpdateTailCam__Fii",
+"Camera_UpdateCircleCam__Fi",
+"SetCameraZoom__Fii",
+"Camera_UpdateTVCam__Fi",
+"Camera_UpdateAnimCam__Fi",
+"Camera_UpdateFinishCam__Fi",
+"Camera_UpdateBlimpCam__Fi",
+"Camera_SetSplineCam__Fi",
+"Camera_IslandProfile__FUs",
+"Camera_UpdatePulloverCam__Fi",
+"Camera_UpdateCopCam1__Fi",
+"Camera_UpdateCopCam2__Fi",
+"Camera_UpdateBTCopCam__Fi",
+"Camera_Update__Fv",
+"Camera_Init__Fv",
+"Camera_Kill__Fv",
+"Camera_PitchAndRoll__Fi",
+"Camera_TooSteep__FiP12BWorldSm_Pos",
+"Camera_CheckWallCollisions__FiP8coorddef",
+"Camera_SetAboveGround__FiP8coorddef",
+"Camera_AcquireTarget__FiP8coorddefT1P10matrixtdefi",
+"Camera_OpponentLookBehind__FiP8coorddefi",
+"Camera_GetViewInfo__FiP17DRender_tCalcViewi",
+"Camera_GetAudioViewInfo__FiP17DRender_tCalcViewPP8coorddef",
+"Camera_GetMode__Fi",
+"Camera_SetMode__Fii",
+"Camera_NextMode__Fi",
+"Camera_ReplayUpdate__FiP15Camera_tCamSlot",
+"Camera_ResetRelPos__Fi"
+],
+"lane": null
+},
+"recon/game/common/cars.cpp": {
+"g": "8",
+"cpp": true,
+"fns": [
+"Cars_DoGravityEffectsOnAcc__FP8Car_tObji",
+"Cars_GetDashData__FP8Car_tObjPiN21",
+"Cars_QDUpdateVelGlue__FP8Car_tObj",
+"Cars_InitDashData__FP8Car_tObjPiT1",
+"Cars_SetAudioCalls__FP8Car_tObjiiiiii",
+"Cars_ResetCarCounters__Fv",
+"Cars_InitStats__FP8Car_tObj",
+"Cars_InitializeCarTablesFlagsAndCounters__FP8Car_tObj",
+"Cars_ResetVariablesAfterACollision__FP8Car_tObj",
+"Cars_SetCarUpForHiRezSim__FP8Car_tObj",
+"Cars_AddCarSfx__FP8Car_tObjiP8coorddefiii",
+"Car_TireSkiddingStuff__FP8Car_tObj",
+"Cars_FindTotalSlice__FP8Car_tObj",
+"Car_DoSkiddingStuff__FP8Car_tObj",
+"Car_DoPostCollisionStuff__FP8Car_tObj",
+"Cars_CalculateStartingGridOffset__FP8Car_tObjPiP8coorddef",
+"Cars_IniCarObjects__FP8Car_tObji",
+"Cars_InitCar__FP8Car_tObji",
+"Cars_DeInitCar__FP8Car_tObj",
+"Cars_Restart__Fv",
+"Cars_Initialize__FPci",
+"Cars_StartUp__Fv",
+"Cars_CleanUp__Fv",
+"Cars_FindCurrentLap__FP8Car_tObj",
+"Cars_CalculateRoadSpan__FP8Car_tObj",
+"Cars_CalculateRoadPosition__FP8Car_tObj",
+"Cars_CalcVelDownRoad__FP8Car_tObj",
+"Cars_Randomize__Fv",
+"Cars_ManageBureaucracy__Fv",
+"Cars_CheckForAccidentScenes__Fv",
+"Cars_SortCars__Fv"
+],
+"lane": null
+},
+"recon/game/common/chunk.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"InstanceGroup__5ChunkP15SerializedGroupP9SimpleMem",
+"Chunk_UpdateSys__FP13DRender_tView",
+"Chunk_Init__Fv",
+"Chunk_DeInit__Fv"
+],
+"lane": null
+},
+"recon/game/common/clock.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Clock_MasterInterruptHandler__Fv",
+"Clock_SystemStartUp__Fv",
+"Clock_SystemCleanUp__Fv"
+],
+"lane": null
+},
+"recon/game/common/collide.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"CHECK_CENTER_VERTEX_WITH_DIRS__Fiii",
+"CHECK_CENTER_VERTEX_WITH_DIRS_OTHER__Fiii",
+"CHECK_VERTEX_WITH_DIRS__Fiii",
+"CHECK_VERTEX_WITH_DIRS_OTHER__Fiii",
+"Collide_DoObjectFixedObjectCollision__FP13BO_tNewtonObjP8coorddefN21",
+"Collide_LimitAngularVel__FP13BO_tNewtonObj",
+"Collide_TestWithPlane__FP13BO_tNewtonObjP8coorddefT1",
+"Collide_DoObjectObjectCollision__FP13BO_tNewtonObjT0P8coorddefT2",
+"Collide_CheckForCollisionBetween__FP13BO_tNewtonObjT0",
+"Collide_ClearCollisionRegistry__Fv",
+"Collide_CheckAccuratePointRadiusCollision__FP13BO_tNewtonObjP8coorddefi",
+"Collide_CheckMeForCollisions__FP13BO_tNewtonObj"
+],
+"lane": null
+},
+"recon/game/common/color.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"IsNumChar__Fc",
+"Risk_ReadNextValue__FPPc"
+],
+"lane": null
+},
+"recon/game/common/control.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Control_AI__FP8Car_tObj",
+"Control_Human__FP8Car_tObj"
+],
+"lane": null
+},
+"recon/game/common/hudpmx.cpp": {
+"g": "8",
+"cpp": true,
+"fns": [
+"HudPmx_LoadShape__FPcP13HudPmx_tShape",
+"HudPmx_InitTextures__Fv",
+"HudPmx_Kill__Fv"
+],
+"lane": null
+},
+"recon/game/common/spchevnt.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SPCHNFS_C_A_CONFIRM",
+"SPCHNFS_C_D_REQUEST_EMS",
+"SPCHNFS_D_C_BEGIN_PURS_REP_SPDR",
+"SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR_REPLY",
+"SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR",
+"SPCHNFS_C_C_IN_PURS_NEAR_PERP",
+"SPCHNFS_D_C_IN_PURS_NEAR_PERP",
+"SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_STS",
+"SPCHNFS_D_C_IN_PURS_NEAR_PERP_CONFIRM",
+"SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_STS",
+"SPCHNFS_D_C_IN_PURS_AWAY_PERP_CONFIRM",
+"SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_STS",
+"SPCHNFS_C_C_IDLE_WINGMAN_DISAPPEARS",
+"SPCHNFS_C_D_REQ_RDBLK",
+"SPCHNFS_D_C_RDBLK_SPBLT_DENIED_REPLY",
+"SPCHNFS_D_C_RDBLK_SPBLT_GRANT_REPLY",
+"SPCHNFS_D_C_RDBLK_CONFIRMED",
+"SPCHNFS_C_D_RDBLK_FAILED",
+"SPCHNFS_C_D_REQUEST_BKUP",
+"SPCHNFS_D_C_BKUP_REQUEST_GRANT_REPLY",
+"SPCHNFS_D_C_BKUP_REQUEST_DENIED_REPLY",
+"SPCHNFS_C_C_NEW_OFFICER_ENGAGING",
+"SPCHNFS_C_D_PERP_SIGHTED",
+"SPCHNFS_D_C_PERP_SIGHTED_CONFIRM",
+"SPCHNFS_C_D_PERP_LOST",
+"SPCHNFS_D_C_PERP_LOST_CONFIRM",
+"SPCHNFS_C_C_PERP_REAQUIRED",
+"SPCHNFS_C_D_PERP_APPREHENSION",
+"SPCHNFS_D_C_PERP_APPREHENSION_REPLY",
+"SPCHNFS_C_D_PERP_CRASH_GEN",
+"SPCHNFS_C_P_ARRESTED",
+"SPCHNFS_C_P_WARNING",
+"SPCHNFS_C_P_TICKET",
+"SPCHNFS_C_P_FALSE_ARREST_BULLHORN",
+"SPCHNFS_C_D_DURING_FALSE_ARREST",
+"SPCHNFS_C_P_BULLHORN_SPEECH",
+"SPCHNFS_S_C_SUPER_COP_ARRIVAL",
+"SPCHNFS_S_C_SUPER_COP_CRITICISM",
+"SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_LOC",
+"SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_SPD",
+"SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_LOC",
+"SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_LOC",
+"SPCHNFS_D_C_INTRO_CALL",
+"SPCHNFS_C_A_INTRO",
+"SPCHNFS_C_D_IN_PURS_PERP_AIRBORN",
+"SPCHNFS_D_C_SPBLT_CONFIRMED",
+"SPCHNFS_C_D_REQ_SPBLT",
+"SPCHNFS_C_D_SPBLT_FAILED",
+"SPCHNFS_W_D_RDBLK_PLC",
+"SPCHNFS_W_D_SPBLT_PLC",
+"SPCHNFS_C_D_PERP_CRASH_ROLL",
+"SPCHNFS_D_A_CONFIRM",
+"SPCHNFS_C_D_ENDGAME"
+],
+"lane": null
+},
+"recon/game/common/speech.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Speech_AllocateRAM__FlPc",
+"Speech_PurgeRAM__FPc",
+"Speech_HandleRequest__Fllll",
+"SetCar__Q26Speech11CarBankNamei",
+"Check__Q26Speech7CarBankPciPQ26Speech11CarBankName",
+"CheckCarBank__6SpeechPQ26Speech7CarBankPciPQ26Speech11CarBankName",
+"SetCar__Q26Speech7SpeakerP8Car_tObj",
+"CountLocations__6Speech",
+"CheckLocationBank__6SpeechPQ26Speech12LocationBankPci",
+"Distance__Q26Speech12LocationBanki",
+"FindClosestLocationTo__6SpeechPQ26Speech12LocationBanki",
+"FindLocation__Q26Speech7SpeakerP8Car_tObj",
+"CheckCallSignBank__6SpeechPQ26Speech12CallSignBankPci",
+"CheckMultiBank__6SpeechPciPQ26Speech11CarBankName",
+"CalculateBankSize__6SpeechPcPQ26Speech11CarBankNamePlT3",
+"LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell",
+"__6Speech",
+"Reset__6Speech",
+"___6Speech",
+"BankPatch__6SpeechlP8Car_tObj",
+"SubmitRequest__6Speechlll",
+"Report__Q26Speech7SpeakerP8Car_tObj",
+"Deny__Q26Speech7Speaker",
+"Grant__Q26Speech7Speaker",
+"Ready__Q26Speech7SpeakerP8Car_tObj",
+"Engage__Q26Speech7SpeakerP8Car_tObj",
+"Lose__Q26Speech7Speaker",
+"Accident__Q26Speech7Speakeri",
+"Catch__Q26Speech7Speakeri",
+"RoadBlock__Q26Speech7Speaker",
+"SpikeBelt__Q26Speech7Speaker",
+"Backup__Q26Speech7Speaker",
+"ReportBlockade__Q26Speech7Speaker",
+"Roger__Q26Speech7Speaker",
+"Bullhorn__Q26Speech7Speaker",
+"Purge__Q26Speech7Speaker",
+"Promote__Q26Speech7Speaker",
+"Speech_Server__Fv",
+"SetDelayedStatus__6SpeechPQ26Speech7Speakeri",
+"Activate__Q26Speech15DispatchSpeakeri",
+"Dispatch__6Speech",
+"Roger__Q26Speech15DispatchSpeaker",
+"Status__Q26Speech15DispatchSpeaker",
+"Status__Q26Speech13MobileSpeaker",
+"ClearPerp__Q26Speech15DispatchSpeakerP8Car_tObj",
+"KnownPerp__Q26Speech15DispatchSpeakerP8Car_tObj",
+"AddPerp__Q26Speech15DispatchSpeakerP8Car_tObj",
+"Accident__Q26Speech15DispatchSpeakeri",
+"Deny__Q26Speech15DispatchSpeaker",
+"Grant__Q26Speech15DispatchSpeaker",
+"Ready__Q26Speech15DispatchSpeakerP8Car_tObj",
+"PickVoice__6SpeechP8Car_tObj",
+"GetVoice__6SpeechP8Car_tObj",
+"Activate__Q26Speech13MobileSpeakerP8Car_tObj",
+"ReActivate__Q26Speech13MobileSpeaker",
+"FindMobile__6SpeechP8Car_tObj",
+"Mobile__6SpeechP8Car_tObj",
+"CalcMph__Q26Speech7SpeakerP8Car_tObj",
+"SetSpeed__Q26Speech13MobileSpeakerP8Car_tObj",
+"DistToPerp__Q26Speech13MobileSpeaker",
+"Report__Q26Speech13MobileSpeakerP8Car_tObj",
+"Engage__Q26Speech13MobileSpeakerP8Car_tObj",
+"Lose__Q26Speech13MobileSpeaker",
+"Accident__Q26Speech13MobileSpeakeri",
+"Catch__Q26Speech13MobileSpeakeri",
+"RoadBlock__Q26Speech13MobileSpeaker",
+"SpikeBelt__Q26Speech13MobileSpeaker",
+"Backup__Q26Speech13MobileSpeaker",
+"Roger__Q26Speech13MobileSpeaker",
+"Bullhorn__Q26Speech13MobileSpeaker",
+"Purge__Q26Speech13MobileSpeaker",
+"ReportBlockade__Q26Speech13MobileSpeaker",
+"Perp__Q26Speech13MobileSpeaker",
+"Unit__Q26Speech13MobileSpeaker",
+"CallSign__Q26Speech13MobileSpeaker",
+"FindClosestLocationTo__Q26Speech13MobileSpeakeri",
+"GetCarBank__Q26Speech13MobileSpeakeri",
+"CarObj__Q26Speech13MobileSpeaker",
+"IsSuper__Q26Speech13MobileSpeaker",
+"CallSign__Q26Speech15DispatchSpeaker",
+"FindClosestLocationTo__Q26Speech15DispatchSpeakeri",
+"GetCarBank__Q26Speech15DispatchSpeakeri",
+"PurgeStatusSub__Q26Speech15DispatchSpeaker",
+"StatusSub__Q26Speech15DispatchSpeaker",
+"StatusCount__Q26Speech15DispatchSpeaker",
+"CallSign__Q26Speech7Speaker",
+"FindClosestLocationTo__Q26Speech7Speakeri",
+"GetCarBank__Q26Speech7Speakeri",
+"Perp__Q26Speech7Speaker",
+"ReActivate__Q26Speech7Speaker",
+"CarObj__Q26Speech7Speaker",
+"DistToPerp__Q26Speech7Speaker",
+"PurgeStatusSub__Q26Speech7Speaker",
+"StatusSub__Q26Speech7Speaker",
+"StatusCount__Q26Speech7Speaker",
+"IsSuper__Q26Speech7Speaker",
+"ClearPerp__Q26Speech7SpeakerP8Car_tObj",
+"KnownPerp__Q26Speech7SpeakerP8Car_tObj",
+"Unit__Q26Speech7Speaker",
+"Status__Q26Speech7Speaker"
+],
+"lane": null
+},
+"recon/game/common/copspeak.cpp": {
+"g": "8",
+"cpp": true,
+"fns": [
+"CopSpeak_RadioStaticInit__Fv",
+"CopSpeak_RadioStaticActive__Fi",
+"CopSpeak_RadioStaticSquelch__Fv",
+"CopSpeak_InitRequest__FP17CopSpeak_tRequest",
+"CopSpeak_SilenceCop__FP8Car_tObji",
+"CopSpeak_Alloc__FP17CopSpeak_tRequest",
+"CopSpeak_Free__FP17CopSpeak_tRequest",
+"CopSpeak_ReadyNextRequest__Fv",
+"CopSpeak_Cancel__Fv",
+"CopSpeak_Stop__Fv",
+"CopSpeak_CleanUp__Fv",
+"CopSpeak_InitVars__Fv",
+"CopSpeak_DirectRequest__FillP8Car_tObjPc",
+"CopSpeak_GenericBankRequest__FiP8Car_tObj",
+"CopSpeak_StartUp__Fv",
+"CopSpeak_GetEnginePatch__Fii",
+"CopSpeak_Play__FP17CopSpeak_tRequesti",
+"CopSpeak_Skip__Fv",
+"CopSpeak_Request__FP17CopSpeak_tRequest",
+"CopSpeak_BankVolume__FP17CopSpeak_tRequest",
+"CopSpeak_LoadNextRequest__Fv",
+"CopSpeak_PlayNextRequest__Fv",
+"CopSpeak_Flush__Fv",
+"CopSpeak_Server__Fv",
+"CopSpeak_SfxQueued__Fv",
+"CopSpeak_ShowQueue__Fv",
+"CopSpeak_Debug__Fv"
+],
+"lane": null
+},
+"recon/game/common/dashhud.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"DashHUD_InitHUD__Fv",
+"DashHUD_KillHUD__Fv",
+"DashHUD_ResetHUD__Fv",
+"DashHUD_ToggleHud__Fi",
+"DashHUD_CheckWrongWay__Fi",
+"DashHUD_HUDCalc__Fi"
+],
+"lane": null
+},
+"recon/game/common/fastrand.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"FastRandom_CleanUp__Fv",
+"FastRandom_StartUp__FUi"
+],
+"lane": null
+},
+"recon/game/common/genericpmx.cpp": {
+"g": "8",
+"cpp": true,
+"fns": [
+"GenericPMX_LoadTexture__Fv"
+],
+"lane": null
+},
+"recon/game/common/gmesetup.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"GameSetup_StartUp__FPi",
+"GameSetup_CleanUp__Fv"
+],
+"lane": null
+},
+"recon/game/common/group.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"LocateNextGroupType__15SerializedGroupi",
+"LocateGroupType__15SerializedGroupii",
+"LocateGroupNum__15SerializedGroupi",
+"LocateCreateGroupType__15SerializedGroupiP9SimpleMemi",
+"CreateLiteGroup__15SerializedGroupP15SerializedGroupP9SimpleMem",
+"CreateLiteGroupDataSize__15SerializedGroupP15SerializedGroupP9SimpleMemi"
+],
+"lane": null
+},
+"recon/game/common/input.cpp": {
+"g": "8",
+"cpp": true,
+"fns": [
+"Input_StartUp__Fv",
+"Input_WingCommandMode__Fi",
+"Input_Update__Fv",
+"Input_Store__Fv",
+"Input_Fetch__Fi",
+"Input_Gear__Fci",
+"Input_Interface__FUli",
+"Input_MainExitKey__Fv"
+],
+"lane": null
+},
+"recon/game/common/mathnfs.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Math_DistXZ__FP8coorddefT0",
+"Math_Dist3D__FP8coorddefT0",
+"Math_BetterDist__Fii",
+"Math_ResolveRotatedVector__FiiiPiT3",
+"Math_VectorLength__FP8coorddef",
+"Math_VectorLength2__FP8coorddef",
+"Math_NormalizeVector__FP8coorddef",
+"Math_NormalizeShortVector__FP8coorddef",
+"Math_QDNormalizeVector__FP8coorddef",
+"Math_fasttransmult__FP10matrixtdefN20"
+],
+"lane": null
+},
+"recon/game/common/mpause.cpp": {
+"g": "8",
+"cpp": true,
+"fns": [
+"__14tPauseMenuDefs",
+"___14tPauseMenuDefs",
+"MPause_MusicLogic__Fc",
+"MPause_ControllerLogic__Fv",
+"MPause_Logic__Fv",
+"MPause_Render__Fv",
+"MPause_InitMPause__Fv",
+"MPause_StartPauseMenu__Fv",
+"MPause_EndPauseMenu__Fv",
+"MPause_KillMPause__Fv"
+],
+"lane": null
+},
+"recon/game/common/newton.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Newton_AddDamageZone__FP13BO_tNewtonObjiii",
+"Newton_FindClosestQuad__FP13BO_tNewtonObj",
+"Newton_CalculateSliceYaw__Fi",
+"Newton_UpdateRoadGeometry__FP13BO_tNewtonObj",
+"Newton_FindGroundElevationGeneral__FP8coorddefN20",
+"Newton_FindGroundElevationRough__FP8coorddefN20",
+"Newton_FindGroundElevationAndNormalFast__FP13BO_tNewtonObjP8coorddef",
+"Newton_FindGroundElevationAndNormal__FP13BO_tNewtonObjP8coorddef",
+"Newton_LimitCarsToDrivableDist__FP13BO_tNewtonObj",
+"Newton_CalcPerpenHeightOfLowestPointFromGround__FP13BO_tNewtonObjP8coorddefT1",
+"Newton_CalcPerpenHeightOfCenterPointFromGround__FP13BO_tNewtonObjP8coorddefT1",
+"Newton_CalcDistToClosestPlayerCar__FP13BO_tNewtonObj",
+"Newton_UpdateRoadInfo__FP13BO_tNewtonObj",
+"Newton_CopyRoadMatrixToOrientMat__FP13BO_tNewtonObji",
+"Newton_CopyRoadMatrixToShadowMat__FP13BO_tNewtonObji",
+"Newton_SetInitialSlicePositionOrientationEtc__FP13BO_tNewtonObjiP8coorddefi",
+"Newton_InitBaseNewtonObj__FP13BO_tNewtonObjiiiiii",
+"Newton_QDUpdateVel__FP13BO_tNewtonObj",
+"Newton_OptzRotxform__FP10matrixtdefiiiPiiT4",
+"Newton_QDUpdateRot64Hz__FP13BO_tNewtonObj",
+"Newton_QDUpdateRot32Hz__FP13BO_tNewtonObj",
+"Newton_CalculateGroundShadowMatrix__FP13BO_tNewtonObjP8coorddefi",
+"Newton_CalcRealShadowCoordinates__FP8Car_tObji",
+"Newton_CheckForSpikeBelts__FP13BO_tNewtonObj",
+"Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos",
+"Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi",
+"Newton_LimitAngularVelocity__FP13BO_tNewtonObj",
+"Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj",
+"Newton_CalculateRoadPositionFromSliceAndPosition__FiP8coorddefP10matrixtdef",
+"Newton_CalculateRoadPosition__FP13BO_tNewtonObj"
+],
+"lane": null
+},
+"recon/game/common/new.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"__builtin_new",
+"__builtin_vec_new",
+"__builtin_delete",
+"__builtin_vec_delete"
+],
+"lane": null
+},
+"recon/game/common/nfs3.cpp": {
+"g": "8",
+"cpp": true,
+"fns": [
+"Nfs2_SystemNLibStartUp__Fv",
+"Nfs2_BefuddleCode__Fv",
+"Nfs2_ResetGame__Fv",
+"NFS4_LoadPerps__Fv",
+"Nfs2_GameModuleStartUp__FPi",
+"Nfs2_CleanUpGameModule__Fv",
+"LoadFrontendOverlay__Fv",
+"LoadOverlay__Fv",
+"NFS4_LoadingIcon__Fv",
+"main"
+],
+"lane": null
+},
+"recon/game/common/object.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"CalcObjYawAngle__FP8CCOORD16",
+"CalcObjExtentPoints__FP8coorddefP8CCOORD16T0P5tQuat",
+"BuildObjCollisionMatrix__FiiiP10matrixtdef",
+"FindObjInstanceFromSerialNum__FP5Groupi",
+"Object_InitCollisionCheckLoop__FP12BWorldSm_PosP18Object_tSimObjListPi",
+"GetSimObj__FiP18Object_tSimObjListPi",
+"Object_GetRadiusCollisionData__FP18Object_tSimObjListiP8coorddefPi",
+"Object_GetPointsCollisionData__FP18Object_tSimObjListiPiP8coorddef",
+"Object_InitStatus__Fv",
+"Object_KillStatus__Fv",
+"Object_GetAnim__FP13Trk_SimObject",
+"Object_CheckCollisionResults__FP18Object_tSimObjListiP13BO_tNewtonObj",
+"Object_InitCustomObjects__Fv",
+"Object_DeInitCustomObjects__Fv",
+"Object_ClearCustomObjects__Fv",
+"SetCautionSurface__FP8coorddefP12BWorldSm_Pos",
+"Object_AddCustomSimObject__FP9SceneElemii",
+"Object_GetObjDefID__Fi",
+"Object_FindDefWithThisID__Fi",
+"Object_AddCustomObject__FP9SceneElemi",
+"GetObjMaxDimensions__FPP13Trk_ObjectDefP14Trk_SimpleInstP8coorddef",
+"Object_InitIMassObjectInfo__Fv",
+"Object_DeInitIMassObjectInfo__Fv",
+"Object_GetNumIMassObjects__Fv",
+"Object_GetIMassObjectDimensions__FiP8coorddef",
+"Object_GetIMassObjectMotion__FiP8coorddefP10matrixtdefT1",
+"Draw__23ObjectFinishedMultiAnimP13DRender_tViewP11Draw_DCachei",
+"__15ObjectMultiAnimP8coorddefP7AnimDefP19Trk_CollideBoomInstP13Trk_ObjectDefP13Trk_SimObjectP23ObjectFinishedMultiAnim",
+"Draw__15ObjectMultiAnimP13DRender_tViewP11Draw_DCachei",
+"Draw__22ObjectFinishedSignAnimP13DRender_tViewP11Draw_DCachei",
+"__14ObjectSignAnimP8coorddefiP7AnimDefP19Trk_CollideBoomInstP13Trk_ObjectDefP13Trk_SimObjectT1P22ObjectFinishedSignAnim",
+"Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei",
+"___14ObjectSignAnim",
+"___22ObjectFinishedSignAnim",
+"___15ObjectMultiAnim",
+"___23ObjectFinishedMultiAnim",
+"___10ObjectAnim"
+],
+"lane": null
+},
+"recon/game/common/paths.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Paths_StartUp__Fv"
+],
+"lane": null
+},
+"recon/game/common/pausemenu.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"PauseMenu_FullText__FPcsss",
+"PauseMenu_MenuTextPositioned__Fssss",
+"PauseMenu_MenuText__FsbT1",
+"__14tPListIteratorPsPi",
+"___14tPListIterator",
+"Value__14tPListIterator7tPlayer",
+"TextValue__14tPListIterator7tPlayer",
+"Increment__14tPListIterator7tPlayer",
+"Decrement__14tPListIterator7tPlayer",
+"__21tPListIteratorIndexedPsPiPc",
+"___21tPListIteratorIndexed",
+"Value__21tPListIteratorIndexed7tPlayer",
+"TextValue__21tPListIteratorIndexed7tPlayer",
+"Increment__21tPListIteratorIndexed7tPlayer",
+"Decrement__21tPListIteratorIndexed7tPlayer",
+"__10tPMenuItemUi",
+"___10tPMenuItem",
+"NextMenu__10tPMenuItem",
+"Debounce__10tPMenuItem",
+"ProcessInput__10tPMenuItemR13tInputKeyTypeR13tPMenuCommand",
+"__28tPMenuItemNonInteractiveTextUi",
+"___28tPMenuItemNonInteractiveText",
+"Draw__28tPMenuItemNonInteractiveTextb",
+"__21tPMenuItemInteractiveUi",
+"___21tPMenuItemInteractive",
+"Draw__21tPMenuItemInteractiveb",
+"__25tPMenuItemLeftRightChoiceUiP14tPListIterator",
+"___25tPMenuItemLeftRightChoice",
+"ProcessInput__25tPMenuItemLeftRightChoiceR13tInputKeyTypeR13tPMenuCommand",
+"Draw__25tPMenuItemLeftRightChoiceb",
+"__25tPMenuItemLeftRightSliderUiPic",
+"___25tPMenuItemLeftRightSlider",
+"Debounce__25tPMenuItemLeftRightSlider",
+"ProcessInput__25tPMenuItemLeftRightSliderR13tInputKeyTypeR13tPMenuCommand",
+"__32tPMenuItemLeftRightSliderIndexedUiPicPc",
+"___32tPMenuItemLeftRightSliderIndexed",
+"ProcessInput__32tPMenuItemLeftRightSliderIndexedR13tInputKeyTypeR13tPMenuCommand",
+"Draw__32tPMenuItemLeftRightSliderIndexedb",
+"__24tPMenuItemGoToMenuButtonUiP6tPMenuPFR13tPMenuCommand_v",
+"___24tPMenuItemGoToMenuButton",
+"NextMenu__24tPMenuItemGoToMenuButton",
+"ProcessInput__24tPMenuItemGoToMenuButtonR13tInputKeyTypeR13tPMenuCommand",
+"__23tPMenuItemCommandButtonUi17tPMenuCommandType",
+"___23tPMenuItemCommandButton",
+"ProcessInput__23tPMenuItemCommandButtonR13tInputKeyTypeR13tPMenuCommand",
+"tPMenuConstructor__6tPMenuP10tPMenuItemPv",
+"__6tPMenuP10tPMenuIteme",
+"___6tPMenu",
+"Initialize__6tPMenu",
+"Debounce__6tPMenu",
+"CheckForDisabled__6tPMenu",
+"ProcessInput__6tPMenuR13tInputKeyTypeR13tPMenuCommand",
+"Draw__6tPMenu",
+"NumEnabledItems__6tPMenu",
+"ItemEnabledNum__6tPMenui",
+"IsNavigable__21tPMenuItemInteractive",
+"IsNavigable__28tPMenuItemNonInteractiveText",
+"IsEnabled__10tPMenuItem",
+"IsDisabled__10tPMenuItem"
+],
+"lane": null
+},
+"recon/game/common/physics.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Physics_InitCarSpecs__FP8Car_tObjP10Udff_tInfo",
+"Physics_CalculateDerivedCarSpecs__FP8Car_tObj",
+"Physics_CheckGamedata__Fv",
+"Physics_AttenuateVelocity__FP8Car_tObjiP10matrixtdef",
+"Physics_SetCurrentWallType__Fi",
+"Physics_GetTorque__FP8Car_tObji",
+"Physics_CorrectPostCollisionYaw__FP8Car_tObjiG8coorddef",
+"Physics_DoBarrierCheck__FP8Car_tObj",
+"Physics_AutoShift__FP8Car_tObj",
+"Physics_RampCarControlValues__FP8Car_tObj",
+"Physics_FixEngineRpm__FP8Car_tObj",
+"Physics_ResetCar__FP8Car_tObj",
+"Physics_StopCar__FP8Car_tObj",
+"Physics_TestForBarrierCollision__FP8Car_tObj",
+"Physics_CalculateRoadGripModifiers__FP8Car_tObj",
+"Physics_CalcWheelLockAcc__FP8Car_tObjP23Physics_tWheelAccStruct",
+"Physics_CalcTractionCircleAcc__FP8Car_tObjP23Physics_tWheelAccStruct",
+"Physics_CalculateRSControlDesiredPosition__FP8Car_tObjii",
+"Physics_SimCar__FP8Car_tObj"
+],
+"lane": null
+},
+"recon/game/common/quatern.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Quatern_VecInterpolate__FP8coorddefT0iT0",
+"Quatern_Interpolate__FP5tQuatT0P8coorddefT2iT0T2",
+"Quatern_QuatToMat__FP5tQuatP10matrixtdef",
+"Quatern_MatToQuat__FP10matrixtdefP5tQuat"
+],
+"lane": null
+},
+"recon/game/common/r3dcar.cpp": {
+"g": "8",
+"cpp": true,
+"fns": [
+"R3DCar_ChangeTrafficColor__FP8Car_tObji",
+"R3DCar_StartUp__Fv",
+"R3DCar_PostStartUp__Fv",
+"R3DCar_Restart__Fv",
+"R3DCar_CleanUp__Fv",
+"R3DCar_ReadInCarData__FPcP8Car_tObj",
+"R3DCcar_ReadeMapData__Fv",
+"R3DCcar_ReadTrackShadow__Fv",
+"R3DCar_DeInstantiate3DCar__FP8Car_tObj",
+"R3DCar_DeInstantiate3DCarMenu__FP8Car_tObj",
+"R3DCar_GetFileName__FPcN20",
+"R3DCar_LoadFileAdr__FPc",
+"R3DCar_GetCarName__FPcii",
+"R3DCar_Instantiate3DCar__FP8Car_tObji",
+"R3DCar_Visibilty__FP8Car_tObjP13DRender_tView",
+"R3DCar_TurnHeadLightOn__FP8Car_tObji",
+"R3DCar_TurnHeadLightOff__FP8Car_tObji",
+"R3DCar_MATRIX3DT_Copy__FPiT0",
+"R3DCar_InsertCarFacet__FP8Car_tObjP13DRender_tView",
+"R3DCar_ReadInCarTextureMenu__FP8Car_tObjPcii",
+"R3DCar_InsertCarFacetII__FP8Car_tObj",
+"R3DCar_InsertCarFacetMenuII__FP8Car_tObji",
+"R3DCar_Showroom__FP13DRender_tView",
+"R3DCar_InsertCarFacetZ__FP8Car_tObjP13DRender_tView",
+"R3DCar_InsertAllListFacet__FP13DRender_tView"
+],
+"lane": null
+},
+"recon/game/common/render.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Render_CreatePlayerViews__Fv",
+"Render_CreatePauseMenuViews__Fv",
+"Render_CreateViews__Fv",
+"Render_StartRenderingWorldView__Fi",
+"Render_StopRenderingWorldView__Fi",
+"Render_RenderWorld__FP13DRender_tView",
+"Render_RenderPlayerView__Fii",
+"Render_RenderDebugView__Fv",
+"Render_StartFrameRender__Fv",
+"Render_StopFrameRender__Fv",
+"Render_InitPauseMenu__Fv",
+"Render_RenderPauseMenuView__Fv",
+"Render_KillPauseMenu__Fv",
+"Render_Render__Fi",
+"FlareThing__Fv",
+"Render_InitTrackRender__Fv",
+"Render_RestartTrackRender__Fv",
+"Render_InitTrackRenderPostSim__Fv",
+"Render_KillTrackRender__Fv",
+"Render_InitLibRender__Fv",
+"StampImage__Fii",
+"Render_InitBlurMode__Fv",
+"Render_InsertDepthOfField__Fv"
+],
+"lane": null
+},
+"recon/game/common/replay.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Replay_Compress__FPc",
+"Replay_Decompress__FPc",
+"Replay_InitReplay__Fv",
+"Replay_ResetReplay__Fv",
+"Replay_StoringReplay__Fv",
+"Replay_StoringControllerData__FG15tControllerData",
+"Replay_RetreivingControllerData__Fv",
+"Replay_SaveInput__Fi",
+"Replay_GetInput__Fi",
+"Replay_SaveReplay__Fv",
+"Replay_LoadReplay__Fv",
+"Replay_DoReplay__FP8Car_tObj",
+"Replay_GetInterfaceKey__Fv",
+"Replay_LoadCameraFile__Fv",
+"Replay_ReplayChooseCamera__Fii",
+"Replay_ReplayFindClosestCamera__Fii"
+],
+"lane": null
+},
+"recon/game/common/scene.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Scene_Init__Fi",
+"Scene_DeInit__Fv",
+"Scene_PurgeScene__Fv",
+"Scene_BuildCustomSceneList__Fv",
+"Scene_LoadSceneFile__Fi",
+"GetPlaneY__FPC8coorddefN20"
+],
+"lane": null
+},
+"recon/game/common/schedule.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Sched_ExecuteCheck__FiiiiPiN24i",
+"Sched_CreateNewSchedule__FPci",
+"Sched_CleanUpSchedule__FP15Sched_tSchedule",
+"Sched_AddFunction__FP15Sched_tSchedulePFPv_vPvi",
+"Sched_DeleteFunction__FP15Sched_tSchedulePFPv_vPv",
+"Sched_Execute__FP15Sched_tSchedule"
+],
+"lane": null
+},
+"recon/game/common/sim.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Sim_StartUp__Fv",
+"Sim_Restart__Fv",
+"Sim_CleanUp__Fv",
+"Sim_FadeInSFX__Fv",
+"Sim_ProcessSimSchedules__Fv",
+"Sim_ProcessPause__Fv",
+"Sim_CheckForPause__Fi"
+],
+"lane": null
+},
+"recon/game/common/simplemem.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Alloc__9SimpleMemii",
+"FeignAlloc__9SimpleMemi",
+"ResizeToFit__9SimpleMem"
+],
+"lane": null
+},
+"recon/game/common/simqueue.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"SimQueue_StartUp__Fv",
+"SimQueue_Reset__Fv",
+"SimQueue_CleanUp__Fv",
+"SimQueue_Put__FiP14Input_tResults",
+"SimQueue_GetCurrentInput__FiP14Input_tResults",
+"SimQueue_SetLag__Fv",
+"SimQueue_IsBlocking__Fi"
+],
+"lane": null
+},
+"recon/game/common/souffle.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"GetGustWind__FP17Souffle_tISouffle",
+"GetAngleWind__FP17Souffle_tISouffle",
+"MoveAngleWind__FP17Souffle_tISouffle",
+"Souffle_Add__FP8coorddefiT0iii",
+"Souffle_DoSouffle__Fv",
+"Souffle_CircleClip__FP8coorddefT0i",
+"Souffle_InsertFacet__FP13DRender_tView",
+"Souffle_InitTrackSouffle__Fv",
+"Souffle_RestartTrackSouffle__Fv",
+"Souffle_KillTrackSouffle__Fv"
+],
+"lane": null
+},
+"recon/game/common/stats.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Stats_DoPlayerGlue__Fv",
+"Stats_ClearPosition__Fv",
+"Stats_GetPosition__FP8Car_tObj",
+"Stats_GetNumOpponents__Fv",
+"Stats_TrackStats__FP8Car_tObj",
+"Stats_ExtrapolateOpponentTimes__Fi"
+],
+"lane": null
+},
+"recon/game/common/textsys.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"TextSys_LoadWordsGeneric__FiPc",
+"TextSys_LoadInGame__Fi",
+"TextSys_LoadWords__Fi",
+"TextSys_Word__Fi",
+"TextSys_WordFlags__Fi",
+"TextSys_WordX__Fi",
+"TextSys_WordY__Fi",
+"TextSys_UnloadWords__Fv"
+],
+"lane": null
+},
+"recon/game/common/track.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Track_SetTrackNumber__Fi",
+"Track_MakeTrackPathName__FPc",
+"Track_MakeTrackDataPathName__FPc",
+"AllocArtResource__FP18Track_tArtresourcei",
+"InitArtResources__Fv",
+"DeInitArtResources__Fv",
+"LoadShapesAndMakePmx__FPcP12Draw_tPixMapiii",
+"LoadShapesAndMakePmx_EnvMap__FPcP12Draw_tPixMapii",
+"TexturesLoadInitial__Fv",
+"Track_AnimateTextures__Fv",
+"Track_GetProperMultiPalShapeIndex__Fii",
+"Track_ProcessFlipAndUVFlags__FiP12Draw_tPixMapT1",
+"Track_AssociateSingleMaterial__FP12Trk_MaterialP15Track_tMaterialP18Track_tArtresource",
+"Track_LinkMaterials__FP15SerializedGroupiP15Track_tMaterial",
+"ReduceObjectPrecision__FP5GroupT0i",
+"InvalidatePersistentCollideBoomObjects__FP5GroupT0",
+"CalcObjectBoundingSphere__FP5GroupT0",
+"CalcObjDefPtrs__Fv",
+"Track_InitPersistentData__FP15SerializedGroup",
+"Track_Init__FPc",
+"Track_DeInit__Fv",
+"Track_AnimateTrackLighting__Fv",
+"KillFile_OpenRead__Fv",
+"KillFile_ReadEntry__FPciRiT2",
+"Track_LoadObjectKillData__Fv",
+"Save__11SaveSurfaceP14Trk_NewSimQuad",
+"__11SaveSurfacei",
+"___11SaveSurface",
+"RestoreAll__11SaveSurface"
+],
+"lane": null
+},
+"recon/game/common/trgsfx.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"TrgSfx_AddEnviroEffect__FiiP8coorddefT2",
+"TrgSfx_AddCarSfx__FiP8coorddefiT1",
+"TrgSfx_AddCarWheelSfx__FiiP8coorddefiT2i",
+"TrgSfx_AddCarExtraCheck__Fii",
+"TrgSfx_AddCarExtraSfx__FiiP8coorddefiT2iii",
+"TrgSfx_AddCarSplash__FiiP8coorddefiT2ii",
+"TrgSfx_CrashCar__FP8coorddef",
+"TrgSfx_AddSkidmark__FiiP8coorddefiiP8Car_tObji",
+"TrgSfx_InitTrgSfx__Fv",
+"TrgSfx_RestartTrgSfx__Fv",
+"TrgSfx_KillTrgSfx__Fv"
+],
+"lane": null
+},
+"recon/game/common/udff.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Udff_Opena__FPcT0i",
+"Udff_Close__FP10Udff_tInfo",
+"Udff_GetInt__FP10Udff_tInfo",
+"Udff_GetBuffer__FP10Udff_tInfoPci"
+],
+"lane": null
+},
+"recon/game/psx/audio.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Audio_InitDriver__Fii",
+"Audio_DeInitDriver__Fv",
+"Audio_CleanUp__Fv",
+"Audio_FECleanUp__Fv",
+"AudioCmn_AddBank__FPciT0i",
+"AudioCmn_LoadBank__FPci"
+],
+"lane": null
+},
+"recon/game/psx/cario.cpp": {
+"g": "8",
+"cpp": true,
+"fns": [
+"CarIO_StartUp__Fv",
+"CarIO_CleanUp__Fv",
+"CarIO_ReStart__Fv",
+"CarIO_CopyFromShape__FPsT0iiii",
+"CarIO_CopyToShape__FPsT0i",
+"CarIO_CleanUpLicense__Fi",
+"CarIO_LicenseCheck__FiPiT1P8Car_tObji",
+"CarIO_UpdateCarTextureData__FPcP8Car_tObji",
+"CarIO_ReleaseCarCluts__FP8Car_tObj"
+],
+"lane": null
+},
+"recon/game/psx/device.cpp": {
+"g": "8",
+"cpp": true,
+"fns": [
+"Device_VerifyType__Fi",
+"Device_Fail__Fi",
+"Device_Update__Fv",
+"Device_StartUp__Fv",
+"Device_SetHardCodedKeys__Fv",
+"Device_PSXPad__FUl",
+"Device_ReadPad__FiUl",
+"Device_PSXPadMulti__FUl",
+"Device_Analog__FUl",
+"Device_Null__FUl"
+],
+"lane": null
+},
+"recon/game/psx/draw.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Draw_SetView__Fiiiiiiiii",
+"Draw_InitViews__Fv",
+"Draw_InitViewOT__Fv",
+"Draw_InitViewOTInGame__Fv",
+"Draw_DeInitViews__Fv",
+"Draw_DeInitViewsInGame__Fv",
+"Draw_GetDRAWENV__Fii",
+"Draw_SetViewMemBudget__Fii",
+"Draw_SetViewColor__Fiiii",
+"AllocatePrimitivesBuffer__Fv",
+"ClearPrimitivesBuffer__Fv",
+"ClearPlatformPrimitivesBuffer__Fv",
+"Draw_StartRenderingView__Fi",
+"Draw_StopRenderingView__Fi",
+"Draw_CheckFirstFrameRender__Fv",
+"Draw_StartFrameRender__Fv",
+"Draw_SetDrawSyncCallback__FPFv_v",
+"Draw_StopFrameRender__Fv",
+"Draw_DrawDirectScreen__FP8shapetblii",
+"Draw_DirectSetEnvironment__Fiiiiiiiiii",
+"Draw_SetEnvironment__Fiiiiiiii",
+"Draw_InitRenderEngine__Fiiiiii",
+"Draw_RestartRenderEngine__Fv",
+"Draw_DeInitRenderEngine__Fv",
+"Draw_InitLibRender__Fv"
+],
+"lane": null
+},
+"recon/game/psx/drawc.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"ChangeTPage__FPUsi",
+"DrawC_SetEnviroment__Fv",
+"DrawC_ReadLightingData__Fv",
+"DrawC_ReadeMapData__Fv",
+"DrawC_BuildRenderingData__Fv",
+"DrawC_KillRenderingData__Fv",
+"DrawC_NightHeadlight__FP8Car_tObj",
+"DrawC_MenuColorData__FiP8Car_tObji",
+"DrawC_PrimStop__FP8Car_tObjP13Draw_CarCache",
+"DrawC_DividePrim__FP7COORD16N20PUsN23P12Draw_tPixMapP13Draw_CarCache",
+"DrawC_PrimMenu__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+"DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer_zObjiiiP13Draw_CarCache",
+"DrawC_ShadowPrim__FP12Draw_tVertexP13Draw_CarCache",
+"DrawC_DivideShadowPrim__FP7COORD16N30PUsN34P12Draw_tPixMapP13Draw_CarCache",
+"DrawC_ShadowPrimClip__FP12Draw_tVertexP13Draw_CarCache",
+"DrawC_SpotPrims__FP10matrixtdefP8coorddefP13Draw_CarCache",
+"DrawC_ShowroomPrims__FP10matrixtdefP8coorddefP13Draw_CarCache"
+],
+"lane": null
+},
+"recon/game/psx/draww.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache",
+"DrawW_AddSubdividPrimGT3__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache",
+"DrawW_DivVertice__FP12Draw_SVertexN20",
+"DrawW_CalcSubdivision__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31",
+"DrawW_LoadPrecVECTOR__FP12Draw_SVertexP6VECTOR",
+"DrawW_SetUpSubdividFacet__FiP25Draw_tGiveShelbyMoreCache",
+"Night_NightCopCalc__FP6VECTORPs",
+"Night_NightCalc__FP6VECTORPsP25Draw_tGiveShelbyMoreCache",
+"DrawW_NightColorCalc__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32",
+"DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad",
+"DrawW_kCtrlWorld_High__FP25Draw_tGiveShelbyMoreCache",
+"DrawW_StripDraw_High__FP25Draw_tGiveShelbyMoreCache",
+"DrawW_WorldSetUpMatrix__FP10matrixtdefP6MATRIX",
+"DrawW_WorldSetUpTranslation__FP8coorddefP6MATRIX",
+"DrawW_ResetAnimationTimer__Fv",
+"DrawW_GetAnimationTime__FP15Trk_AnimateInst",
+"DrawW_SetAnimationTime__FP15Trk_AnimateInstPii",
+"DrawW_DoObjectAnimations__Fv",
+"DrawObjectTransform__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefis",
+"DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi",
+"ObjectClipped__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache",
+"Draw_CircleClip__FP8coorddefT0i",
+"DrawW_SetUpSubdividFacet_Line__FP25Draw_tGiveShelbyMoreCache",
+"DrawW_BuildChunkCenterLineFacets__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16",
+"DrawW_DoLines__FP13DRender_tViewP11tBuildEntryP11Draw_DCache",
+"DepthCue_Init__Fv"
+],
+"lane": null
+},
+"recon/game/psx/force.cpp": {
+"g": "8",
+"cpp": true,
+"fns": [
+"Force_Vbl__Fv",
+"Force_Update__FP8Car_tObj",
+"Force_StartUp__Fv",
+"Force_Disable__Fv",
+"Force_IsForceOn__FP8Car_tObj",
+"Force_Pause__Fv",
+"Force_UnPause__Fv",
+"Force_HitSign__FP8Car_tObj",
+"Force_HitWall__Fi"
+],
+"lane": null
+},
+"recon/game/psx/font.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Font_TextColor__Fi",
+"Font_TextTint__Fi",
+"Font_SetABR__Fi",
+"Font_Blit__FiiPviiP12charactertbli",
+"Font_ComputeColors__Fiiic",
+"Font_textbsearch__FiPcUlUl",
+"Font_Getcharacter__Fi",
+"Font_SetBlitter__FPFiiPviiP12charactertbli_v",
+"Font_ReSetBlitter__Fv",
+"Font_SwitchFont__FPc",
+"Font_DeInit__Fv",
+"Font_ExitFromGame__Fv",
+"Font_LoadFont__FPciic",
+"Font_TextXY__FPcii",
+"Font_GetUVWH__FcPiN41"
+],
+"lane": null
+},
+"recon/game/psx/flare.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Flare_Tri__FPlN20i",
+"Flare_SetMatrix__FP10matrixtdef",
+"Flare_IdentMatrix__FP6MATRIX",
+"Flare_OctFlare__FPli",
+"Flare_OctFlareSpikes__FPli",
+"Flare_Spikes__FPli",
+"Flare_HexFlare__FPli",
+"Flare_ReflectHexFlare__FPli",
+"Flare_QuadFlare__FPli",
+"Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache",
+"Flare_Halo2__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache",
+"Flare_Halo__FP13DRender_tViewiiP8coorddefP15Draw_FlareCache",
+"Flare_2DSpike__FPlT0i",
+"Flare_2DHalo__Fiiiii",
+"Flare_PreCalcHexLightBeam__FPli",
+"Flare_Quad__FPlP7CVECTORi",
+"Flare_QuadNotTransparent__FPlP7CVECTORi",
+"Flare_QuadRing__FPlP7CVECTORi",
+"Flare_TextureQuad__FPlP7CVECTORci",
+"Flare_SingleColorTex__FP7DVECTORP7CVECTORiici",
+"Flare_SingleColorHex__FP7DVECTORP7CVECTORiii",
+"Flare_SingleColorOct__FP7DVECTORP7CVECTORiii",
+"Flare_SingleColorOctRing__FP7DVECTORP7CVECTORiii",
+"Flare_InitLensFlare__Fv",
+"Flare_LensFlare__FP7DVECTORP15Draw_FlareCache",
+"Flare_Sun__FP7SVECTORP15Draw_FlareCache",
+"Flare_Moon__FP7SVECTORP15Draw_FlareCache"
+],
+"lane": null
+},
+"recon/game/psx/hrzsku.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii",
+"Sky_InitStars__Fv",
+"Sky_KillStars__Fv",
+"Hrz_InitSkyColor__Fv",
+"Hrz_InitSky__Fv",
+"Hrz_Init2DRing__Fv",
+"Hrz_GetHorizonPixMap__FP12Draw_tPixMap",
+"Hrz_InitHorizon__Fv",
+"Hrz_KillHorizon__Fv",
+"Hrz_LightningAddFork__FScScSc",
+"Hrz_CalculateLightning__Fv",
+"Hrz_TextureQuad__FP7DVECTORccP11Draw_DCache",
+"Hrz_SetLightingPosInSky__FP13DRender_tView",
+"Hrz_BuildForkLightning__FP11Draw_DCache",
+"Hrz_LightningFlicker__Fi",
+"HrzSetPsxTranslation__FP8coorddef",
+"Hrz_RotProj16__FiP7SVECTORPiP7DVECTOR",
+"Hrz_SetDitheringPrim__Fii",
+"Sky_RenderStars__FP13Draw_SkyCachei"
+],
+"lane": null
+},
+"recon/game/psx/hud.cpp": {
+"g": "8",
+"cpp": true,
+"fns": [
+"Hud_CreateHudViews__Fv",
+"Hud_GoTpage__Fi",
+"Hud_DebugInfo__Fv",
+"Hud_DebugCrap__Fv",
+"Hud_BuildSprite__FP4SPRTiiiUli",
+"Hud_BuildSprite2__FP4SPRTiii",
+"Hud_FBuildSprite__FiiiUli",
+"Hud_BuildSpriteFromFont__FP4SPRTcii",
+"Hud_BuildF3__FP7POLY_F3P13HudPmx_tShapeiiUl",
+"Hud_BuildGT4__FP8POLY_GT4P13HudPmx_tShapeiiUl",
+"Hud_BuildFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+"Hud_BuildMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+"Hud_BuildMapMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+"Hud_BuildF4__FP7POLY_F4iiiiiUl",
+"Hud_BuildG4__FP7POLY_G4iiiiiUlUlUlUl",
+"Hud_BuildF4o__FP7POLY_F4iiiiiUlScSc",
+"Hud_FBuildGT4__FP13HudPmx_tShapeiiUl",
+"Hud_FBuildFT4__FP13HudPmx_tShapeiiUl",
+"Hud_FBuildF4__FiiiiiUlcc",
+"uppercase__FPc",
+"Hud_Kill__Fv",
+"Hud_Init0__Fv",
+"Hud_InitMapFrame__Fii",
+"Hud_InitTables__Fv",
+"Hud_BuildETimeString__FP4SPRTi",
+"Hud_BuildDistanceString__FP4SPRTi",
+"Hud_BuildTimeString__FP4SPRTi",
+"Hud_BuildNumbers0__Fi",
+"Hud_InitMap__Fv",
+"Hud_WingmanFlash__Fii",
+"Hud_BuildWingmanInterface__Fi",
+"Hud_InitCdPlayer__Fv",
+"Hud_BuildRadar__Fi",
+"Hud_BuildReplay__Fv",
+"Hud_NextPlayer__Fi",
+"Hud_NextPlayerNameOrCarOrTime__Fi",
+"Hud_RenderMapView__Fv",
+"Hud_BlackThinBox__Fiiii",
+"Hud_Draw321Num__Fiiiiii",
+"Hud_Render321Go__Fv",
+"BigBTCTime__Fi",
+"Hud_ParseTime__FiPc",
+"Hud_RenderPauseBox__Fiiii",
+"Hud_Render__Fv",
+"Hud_PositionMap__Fv",
+"Hud_BTC_Update__FPcib",
+"Hud_BustedOverlayOn__FiPcbs",
+"Hud_BustedOverlayOff__Fv",
+"Hud_Reset__Fv",
+"Hud_BTC_QuitOut__Fv",
+"Hud_BTC_BonusTime__Fl",
+"Hud_Perp_OverlayOn__Fii",
+"Hud_Perp_OverlayOff__Fi"
+],
+"lane": null
+},
+"recon/game/psx/overlays.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"OptionsBarThing__Fiiii",
+"RaceSummary__Fv",
+"Hud_RenderStatsView__Fv"
+],
+"lane": null
+},
+"recon/game/psx/loading.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Loading_DrawLoadingScreen__Fv",
+"Loading_UpdateLoadingScreen__Fi",
+"Loading_GetInitialMemory__Fv"
+],
+"lane": null
+},
+"recon/game/psx/night.cpp": {
+"g": "8",
+"cpp": true,
+"fns": [
+"Night_FindClosestColor__FG7CVECTORPi",
+"Night_CreateNightTable__FiliPA256_A16_Uc",
+"Night_GenerateNextLightningEvent__Fv",
+"Night_PauseLightningEffect__Fi",
+"Night_DoLightningEffect__FP13DRender_tView",
+"Night_SetCopColor__FP18GameSetup_tCarData",
+"Night_InitPlayerHeadLightColor__Fi",
+"Night_SetPlayerHeadLightColor__Fiii",
+"Night_InitCopLightColors__Fv",
+"Night_SetCopLightColors__Fii",
+"Night_InitWeatherTables__Fv",
+"Night_SetWeatherColors__Fi",
+"Night_GenerateAllLightTables__Fv",
+"Night_InitNightDriving__Fv",
+"Night_KillNightDriving__Fv",
+"Night_RestartNightDriving__Fv"
+],
+"lane": null
+},
+"recon/game/psx/platform.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Platform_InitMemory__Fv",
+"Platform_ReserveMemory__FiPc",
+"Platform_TempReserveMemory__FiPc",
+"Platform_SysStartUp__Fv",
+"Platform_DebuggerPollHost__Fv",
+"nfs2eacinit__Fv",
+"Platform_ResetDCTBuffer__Fv",
+"Platform_GetDCTBuffer__FiPc"
+],
+"lane": null
+},
+"recon/game/psx/psxcontroller.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"InGame_ResetPSXController__Fii",
+"InGame_GetDevice__Fi"
+],
+"lane": null
+},
+"recon/game/psx/rpause.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"RPause_CopyBackToFrontBuffer__Fv",
+"RPause_StartPauseMenu__Fv",
+"RPause_StopPauseMenu__Fv"
+],
+"lane": null
+},
+"recon/game/psx/sfx.cpp": {
+"g": "8",
+"cpp": true,
+"fns": [
+"Sfx_Transform__FP8coorddefP7SVECTORT0",
+"Sfx_BuildSmokeFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMap",
+"Sfx_ThickenXZ__FP7SVECTORP8coorddefN21",
+"Sfx_BuildFastDisolveFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMapT2",
+"Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache",
+"Sfx_Add__FP17Souffle_tISouffle"
+],
+"lane": null
+},
+"recon/game/psx/skidmark.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i",
+"CalcOneSegment__FP16Skidmark_SegmentP8coorddefN21i",
+"Skidmark_CheckChunk__FP8coorddefii",
+"Skidmark_Add__FP5tSkidP8coorddefP7CVECTORiii",
+"Skidmark_AddStretch__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii",
+"Skidmark_Stretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii",
+"Skidmark_EndStretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii",
+"Skidmark_OnyxBuildFacets__FP13DRender_tView",
+"Skidmark_InitSkidmark__Fv",
+"Skidmark_RestartSkidmark__Fv",
+"Skidmark_KillSkidmark__Fv"
+],
+"lane": null
+},
+"recon/game/psx/texture.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"Texture_InitPaletteSharing__Fv",
+"Texture_DeInitPaletteSharing__Fv",
+"Texture_ResetPaletteSharing__Fv",
+"Texture_CheckForSharedPalette__FiPcP12Draw_tPixMapi",
+"Texture_AddSharedPalette__FPcP12Draw_tPixMapi",
+"Texture_InitClut__Fv",
+"Texture_GetClutId__FiPiT1",
+"Texture_MenuReleaseClutId__Fs",
+"Texture_ColorCarPalette__FPcT0i",
+"Texture_CopyPalette__FPciii",
+"Texture_ProcessPaletteCopy__FP15Texture_pal8bitii",
+"Texture_LoadImage__FP4RECTPUl",
+"Texture_Vramf__FP8shapetbliiii",
+"Texture_Vramcf__FP8shapetbliiii",
+"Texture_GetTranslucencyMode__FP8shapetbl",
+"Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap",
+"Texture_CloneUVPmx__FP12Draw_tPixMapiT0",
+"Texture_InitTrackTexture__Fv",
+"Texture_InitMenuClut__Fv",
+"Texture_InitMenuTexture__Fv",
+"Texture_CleanupMenuTexture__Fv",
+"Texture_LoadMenuTexture__Fv",
+"Texture_KillTrackTexture__Fv",
+"Texture_KillMenuTexture__Fv"
+],
+"lane": null
+},
+"recon/game/psx/textureprocess.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"TextureProcess_TransColorCheck__FPci",
+"TextureProcess_ColorClut__FiiPciii",
+"TextureProcess_DepthColorCluts__FPci",
+"Fog_CheckRange__FiP6FogKey",
+"Fog_FindKey__FiP6FogKey",
+"Fog_AllocKey__Fv",
+"Fog_AddKey__Fii",
+"Fog_Update__Fi",
+"Fog_MakeTrackPathName__FPc",
+"Fog_ReadFogKeys__Fv",
+"Fog_InitFogTriggers__Fv",
+"Fog_DeInitFogTriggers__Fv",
+"TextureProcess_Init__Fv",
+"CV_ProcessWorldColors_FINAL__FiP7CVECTORs",
+"CV_ColorTracks__Fiii",
+"CV_InitColorVertices__Fv"
+],
+"lane": null
+},
+"recon/game/psx/trackspec.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"TrackSpec_SetDefault__FP10CTrackSpec",
+"TrackSpec_SetUp__Fv",
+"read__FPPcPvi",
+"TrackSpec_Read__Fi",
+"TrackSpec_Load__Fii"
+],
+"lane": null
+},
+"recon/game/psx/trsproj.cpp": {
+"g": "4",
+"cpp": true,
+"fns": [
+"TrsProj_SetTransPrecision__Fi",
+"TrsProj_ResetTransPrecision__Fv",
+"TrsProj_SetProjection__Fiiii",
+"TrsProj_SetMenuProjection__Fiiii",
+"TrsProj_SetViewTrsProjEnviro__FP13DRender_tView",
+"TrsProj_SetPsxMatrix__FP10matrixtdefP8coorddef",
+"TrsProj_SetPsxTrans__FP8coorddef",
+"TrsProj_SetPsxTransZero__Fv",
+"TrsProj_TransPt__FP8coorddefT0",
+"TrsProj_TransPtN16__FP10RelCoord16P8coorddefi",
+"TrsProj_TransformProjectVertex__FP10matrixtdefP8coorddefiT1P12Draw_tVertex"
+],
+"lane": null
+},
+"recon/game/psx/weather.cpp": {
+"g": "8",
+"cpp": true,
+"fns": [
+"Weather_GetNumParticles__Fi",
+"Weather_SetMatrix__FP10matrixtdef",
+"Weather_SetIdentMatrix__Fv",
+"Weather_InitSnow__Fv",
+"Weather_InitRain__Fv",
+"Weather_InitSplats__Fv",
+"Weather_GetNewState__Fv",
+"Weather_ChangeDensityState__Fv",
+"Weather_ChangeIntensityState__Fv",
+"Weather_ChangeIntensityBasedOnTime__Fv",
+"Weather_InitStateControls__Fv",
+"Weather_Restart__Fv",
+"Weather_Init__Fv",
+"Weather_DeInit__Fv",
+"Weather_TransformVertex__FP10matrixtdefiP7SVECTOR",
+"Weather_CheckAndResetParticles__FP7SVECTOR",
+"Weather_QuickReOrthogonalize__FP10matrixtdefT0",
+"Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc",
+"Weather_CreateSnow__FP7SVECTOR",
+"Weather_CreateRain__FP7SVECTORP7DVECTORPc",
+"Weather_CreateSplat__FP18Weather_tSplatInfo",
+"Weather_DoSplats__FiP18Weather_tSplatInfo",
+"Weather_BuildWeather__FP13DRender_tView"
+],
+"lane": null
+},
+"recon/game/psx/textpix.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"textnpixels",
+"textpixels"
+],
+"lane": null
+},
+"recon/game/psx/textpsx.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"fortext4",
+"inittextdraw",
+"restoretextdraw"
+],
+"lane": null
+},
+"recon/game/psx/unpack.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"unpackz",
+"unpack",
+"unpacksizez",
+"unpacksize"
+],
+"lane": null
+},
+"recon/eaclib/psx/pad.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"padinit",
+"PAD_restore",
+"PAD_state"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/fixdmult.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"fixedmult"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/trnspos.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"transpose"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/fixddiv.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"rdiv"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/memstd.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"FREE_find",
+"FREE_findlargest",
+"FREE_add",
+"FREE_remove",
+"initmemblock",
+"MEM_infosize",
+"MEM_tailsize",
+"creatememclass",
+"largestunused",
+"getblocksize",
+"getblockname",
+"reservememadr",
+"purgememadr"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/nsync.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"filesizeatomic",
+"filesize",
+"loadfileadratomic",
+"loadfileadrz",
+"loadfileadr",
+"loadfileatadratomic",
+"loadfileatadrz",
+"loadfileatadr",
+"loadbigfileheaderatomic",
+"loadbigfileheader"
+],
+"lane": "cc1_ver"
+},
+"recon/eaclib/psx/eacpsxz/xform.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"xformy",
+"fixedxformx",
+"fixedxformy",
+"fixedxformz"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/atanfunc.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"intatan"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/nloadpk.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"loadpackadrz",
+"loadpackadr"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/locatbig.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"typeofbigfile",
+"sizeofbigfileheader",
+"locatebigentryz",
+"locatebigentry",
+"locatebigoffset",
+"locatebig",
+"bigcount"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/blkmov.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"blockmove"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sbremove.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDremovepatches",
+"SNDbankremove",
+"cSNDbankremove"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/splysdef.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDplaysetdef"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/span.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDpan"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/svol.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDunsafevol",
+"SNDvol"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/systask.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"addsystemtask",
+"delsystemtask",
+"systemtask"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sstsetpr.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDSTRM_setpriority"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/seffect.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDfxinitbus",
+"SNDfxmasterlevel"
+],
+"lane": null
+},
+"recon/eaclib/psx/spchpsxz/spchdata.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"VoxEvent_GetFilterLengthFlag",
+"iSPCH_GetOffset16",
+"iSPCH_GetMatchValue",
+"VoxSentence_GetShortRule",
+"VoxSentence_GetNumPhrases",
+"iSPCH_GetOffset8"
+],
+"lane": null
+},
+"recon/eaclib/psx/spchpsxz/spchevnt.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"VoxEvent_GetKeepTillExpiresFlag",
+"iSPCH_SearchEventDat",
+"iSPCH_FindEvent",
+"iSPCH_InitEventDat",
+"GetFilterLength",
+"GetFilterPriority",
+"iSPCH_InitEventQueue",
+"iSPCH_FindEventSlot",
+"SPCH_AddEvent",
+"iSPCH_ChooseEvent",
+"SPCH_ClearEventQueue",
+"iSPCH_ClearOldEvents",
+"SPCH_PlaySpeech",
+"SPCH_ChooseSpeech"
+],
+"lane": null
+},
+"recon/eaclib/psx/spchpsxz/spchrule.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSPCH_GetOffset16",
+"VoxSentence_GetNumPhrases",
+"iSPCH_GetOffset8",
+"iSPCH_GetRuleDataAddr",
+"iSPCH_SentenceUsesParm",
+"iSPCH_GetRuleID",
+"iSPCH_RuleSet",
+"iSPCH_GetRuleSettings",
+"iSPCH_CheckSentenceRules"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/random.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"random",
+"seedrandom"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sbend.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDunsafebend",
+"SNDpitchbend"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/splay.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDplay",
+"cSNDplay"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sover.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDover"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sbhdrsze.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDbankheadersize"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sbhdrcpy.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDbankheadercopy"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sdmemlu.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDmemlargestunused"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sbadd.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDbankadd"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sstop.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDstop"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/spitch.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDpitchmult"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/smasterv.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDmastervol"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/s3dlow.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SND3dpos"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sstopall.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDstopall"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/timer.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"gettick",
+"elapsedticks",
+"resettick",
+"timedwait"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sautovol.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDautovol"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sstgetv.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDSTRM_getvol"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sststat.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDSTRM_status"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sstrstat.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDSTRM_requeststatus"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/wildcard.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"strrstr",
+"wildcard"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sst.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDstreamdestroyall",
+"iSNDstreamgetstreamptr",
+"iSNDstreamremoverequest",
+"iSNDstreamreleasecallback",
+"iSNDstreamnotifycallback",
+"iSNDstreamparseheader",
+"iSNDstreamparsenumchunks",
+"iSNDstreamparsedata",
+"iSNDstreamparseend",
+"iSNDstreamparsechunk",
+"iSNDstreamisheld",
+"iSNDstreamhotroddatachunks",
+"iSNDstreamservice",
+"iSNDstreamnumcreated",
+"iSNDstreamcreate",
+"iSNDstreamqueue"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/spvoices.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDSTRM_create",
+"SNDSTRM_destroy",
+"SNDSTRM_queuefile",
+"SNDSTRM_purge"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sstsetgl.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDSTRM_setgreedylevel"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sstsetgs.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDSTRM_setgreedystate"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sstautov.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDSTRM_autovol"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/slimits.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDgetlimits",
+"SNDsetlimits"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sstovrhd.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDSTRM_overheadtap",
+"SNDSTRM_overhead"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sstvol.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDSTRM_vol"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sserver.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDserver",
+"iSND100hzserver",
+"iSNDenteraudio",
+"iSNDleaveaudio",
+"iSNDserveradd100hzclient",
+"iSNDserverremove100hzclient"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/syncfile.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"synccallback",
+"syncblockio",
+"FILE_opensync",
+"FILE_readsync",
+"FILE_closesync",
+"FILE_sizesync",
+"FILE_addbigsync",
+"FILE_delbigsync"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/crossprd.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"crossproduct"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/asinfunc.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"intarccos"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/isincos.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"intsincos"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/trnsfrm.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"transform"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/addtimer.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"addtimer",
+"deltimer"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/savegp.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"initgp",
+"savegp",
+"restoregp"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/fixdsqrt.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"fixedsqrt"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/locatshp.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"locateshape",
+"locateshapez"
+],
+"lane": null
+},
+"recon/eaclib/psx/spchpsxz/spchbank.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSPCH_InitBanks",
+"iSPCH_DisposeBanks",
+"iSPCH_BankMemAlloc",
+"iSPCH_GetFreeBank",
+"iSPCH_FindBank",
+"iSPCH_TestSubBankBounds",
+"iSPCH_SetCycleBits",
+"SPCH_AddBank"
+],
+"lane": null
+},
+"recon/eaclib/psx/spchpsxz/spchinit.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSPCH_MemAlloc",
+"iSPCH_MemFree",
+"SPCH_Deinit",
+"iSPCH_InitInGame",
+"SPCH_GetSampleDataRate",
+"SPCH_InitBankMem",
+"SPCH_Init"
+],
+"lane": null
+},
+"recon/eaclib/psx/spchpsxz/spchrand.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSPCH_EACrandom",
+"iSPCH_EACseedrandom",
+"iSPCH_Rand",
+"iSPCH_BindData"
+],
+"lane": null
+},
+"recon/eaclib/psx/spchpsxz/spchrslv.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SPCH_ResolveData"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/nfile.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"FILE_init",
+"FILE_initwithmem",
+"FILE_overhead",
+"FILE_opstatus",
+"FILE_operror",
+"FILE_callbackop",
+"FILE_priorityop",
+"FILE_cancelop",
+"FILE_waitop",
+"FILE_completeop",
+"FILE_open",
+"FILE_close",
+"FILE_read",
+"FILE_size",
+"iFILE_addbigreadcallback",
+"iFILE_addbigopencallback",
+"FILE_addbig",
+"iFILE_delbigclosecallback",
+"FILE_delbig",
+"FILE_atomic",
+"iFILE_ExecCommand",
+"iFILE_CommandCompleteCallback",
+"iFILE_perror",
+"reserveop",
+"freeop",
+"reservehandle",
+"freehandle"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/stimerem.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDtimeremaining"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/fixdinv.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"fixedinverse"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/fixdsin.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"fixedsin",
+"fixedcos"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/fixdatan.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"fixedatan"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/matrix.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"addmatrix",
+"submatrix",
+"scalematrix",
+"reorthogonalize"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/primate.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"initlinkmode",
+"waitdraw",
+"settrans"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/movf.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"movfxya"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/shpsubs.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"shapecount",
+"shapepointer",
+"shapename"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/nasync.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"queueadd",
+"queuefetch",
+"newrequestid",
+"locaterequest",
+"cancelrequest",
+"finishrequest",
+"loadfileclosecallback",
+"loadfilereadcallback",
+"loadfilesizecallback",
+"loadfileopencallback",
+"loadsegreadcallback",
+"asyncsystemtask",
+"initasync",
+"asyncloadfilecallback",
+"asyncloadfile",
+"asyncloadfileatcallback",
+"asyncloadfileat",
+"setasyncfile",
+"asyncloadsegmentcallback",
+"asyncloadsegment",
+"cancelasyncload",
+"getasyncreadadr",
+"getasyncreadstatus"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/blkfill.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"blockclear",
+"blockfill"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/sinfunc.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"intcos",
+"intsin"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/resize.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"resizememadr"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/loadshp.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"loadshapeadr"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/exit.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"addexit"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/ssysinit.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDSYS_getopts",
+"SNDSYS_setopts",
+"SNDSYS_init",
+"SNDSYS_restore"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/ssysreal.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDsystemtaskreal",
+"SNDSYS_vectortoreal"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/setfont.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"setfont"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/getm.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"getm",
+"geti"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/textcrnt.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"putm",
+"puti"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/isqrt.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"isqrt"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/fsincos.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"fixedsincos"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/joystkn.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"initjoy"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/fileroot.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"initfileio",
+"setdirectory",
+"openfile",
+"closefile",
+"readfile",
+"readfile_systask",
+"writefile",
+"getfilesize",
+"stopreadfile"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/meminit.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"MEM_defaultevent"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/inittmr.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"initmemadr",
+"inittimer",
+"restoretimer",
+"tmrint"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/shpdepth.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"shapedepth"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/textfor.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"textbsearch",
+"getcharacter"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/unhuff.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"unhuff",
+"memcpyl",
+"memcpyb",
+"refcpy"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/unref.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"unrefpack",
+"chase"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/unbtree.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"unbtree"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/nullfunc.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"setclipwindow"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/crc.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"crc16"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/vramfxya.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"checkrect",
+"vramimage",
+"vramfxya"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/shpclut.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"getshapeclut",
+"shapetoclutid"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/cdfs.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"CD_systaskfunc",
+"CD_timerfunc",
+"readsectorB",
+"loaddirinfo",
+"dircompare",
+"CD_Restore",
+"CD_Init",
+"CD_Restart",
+"CD_Open",
+"CD_Close",
+"CD_Read",
+"CD_Stopread",
+"CD_Getinfo"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/scdvol.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDcdvol"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/cluttype.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"cluttype"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/shptype.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"shapetype"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/stream.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"validatehandle",
+"inbetween",
+"decbufferusage",
+"getfreerequest",
+"queuerequest",
+"freerequest",
+"filterchunk",
+"parsechunks",
+"opencallback",
+"closecallback",
+"readcallback",
+"startnextrequest",
+"restartstream",
+"STREAM_overhead",
+"STREAM_create",
+"STREAM_setfilter",
+"STREAM_destroy",
+"STREAM_setpriority",
+"STREAM_setgreedylevel",
+"STREAM_setgreedystate",
+"STREAM_queuefile",
+"STREAM_queuemem",
+"STREAM_kill",
+"STREAM_get",
+"STREAM_release",
+"STREAM_gettable",
+"STREAM_state",
+"STREAM_isendofstream",
+"STREAM_buffersize",
+"STREAM_bufferusage"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/threads.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iscurrentthread",
+"yieldthread"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/callback.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"allocmutex",
+"freemutex"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/math64a.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"make64",
+"divu64"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/stricmp.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"stricmp"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sdata.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDplatformfree"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sbirmpat.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDbankremovepat"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sbvalid.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDvalidbank"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/salloc.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDischanreserved",
+"iSNDallocchan",
+"iSNDfreechan",
+"iSNDgetchan"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/s3dpos.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDplatform3dpos"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/spatkey.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDpatchkey",
+"iSNDcalcvol",
+"iSNDpsxkeyon",
+"iSNDpsxkeyoff",
+"iSNDpsxeffecton",
+"iSNDpsxeffectoff",
+"iSNDpsxeffectvol",
+"iSNDsetvol",
+"iSNDsetslot",
+"iSNDstartvoice"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/slib.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDplatformoutputcaps",
+"iSNDplatformoutputset",
+"iSNDinit",
+"iSNDrestore",
+"iSNDserve"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sdriver.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDstop",
+"iSNDplatformpitch",
+"iSNDplatformfxlevel",
+"iSNDvol"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sdfx.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDI_mutexalloc",
+"SNDI_mutexfree",
+"SNDI_mutexlock",
+"SNDI_mutexunlock",
+"iSNDpsxfxinit",
+"iSNDplatformfxinit"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sfxlevel.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDplatformfxmasterlevel",
+"SNDfxlevel"
+],
+"lane": null
+},
+"recon/eaclib/psx/spchpsxz/spchpick.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSPCH_MatchSample",
+"iSPCH_GetPhraseBank",
+"iSPCH_GetBankBits",
+"iSPCH_ClearCycleBit",
+"iSPCH_CheckBankBit",
+"iSPCH_CheckTemplateSample",
+"iSPCH_SampleExists",
+"iSPCH_ChooseSamples",
+"iSPCH_SampleLength",
+"iSPCH_ConvertTime",
+"iSPCH_SentenceLength",
+"iSPCH_OrderSentences",
+"iSPCH_RepeatEvent",
+"iSPCH_ShortRuleStatus",
+"iSPCH_SentenceGetChoices",
+"iSPCH_RandomizeSentencePicks",
+"iSPCH_IterateChoice",
+"iSPCH_ChooseShortSentence",
+"iSPCH_SentenceMakeChoice",
+"iSPCH_ConstantRuleSet",
+"iSPCH_MakeSampleRequests",
+"iSPCH_ClearChosen",
+"iSPCH_SaveChosenSentence",
+"iSPCH_OneChosen",
+"iSPCH_PlayChosen",
+"iSPCH_ChooseSentence",
+"SPCH_SetPreLoadTicks"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sclcptch.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDdetunetolinear",
+"iSNDcalcpitch"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/stagpat.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDresetpatch",
+"iSNDresettimbre",
+"iSNDresolveheader",
+"iSNDfindfreekey",
+"iSNDplaytaggedtimbre",
+"iSNDplaytaggedpatch",
+"iSNDresolvetaggedpatch",
+"iSNDremovetaggedpatch"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sbdload.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDdownloadbank"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sballoc.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDbankalloc"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sgetvol.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDgetvol"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/spktplay.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDpacketplayoverhead",
+"SNDPKTPLAY_overhead",
+"SNDPKTPLAY_create",
+"SNDPKTPLAY_start",
+"SNDPKTPLAY_submit",
+"SNDPKTPLAY_submitspace",
+"SNDPKTPLAY_unsafeframesoutstanding",
+"SNDPKTPLAY_framesoutstanding",
+"SNDPKTPLAY_purge",
+"SNDPKTPLAY_stop",
+"SNDPKTPLAY_destroy",
+"iSNDpacketget",
+"iSNDpacketfreeframes"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/smath64.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDmulu64",
+"iSNDdivu64"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sstgetrp.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDstreamgetrequestptr"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/spat2hdr.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"SNDattributessetdef",
+"iSNDpatchtohdr"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sdpacket.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDpacketgetirq",
+"iSNDpacketsetirq",
+"iSNDpacketirqcallback",
+"iSNDpsxzerospu",
+"iSNDpacketpurgeframes",
+"iSNDpacketserve",
+"iSNDplatformpacketoverhead",
+"iSNDplatformcalcdatarate",
+"iSNDplatformpacketplaycreate",
+"iSNDplatformpacketplaydestroy",
+"iSNDplatformpacketplay",
+"iSNDpsxpacketstop"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/ssysserv.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDserveraddclient",
+"iSNDserverremoveclient",
+"SNDSYS_service"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sdtimrem.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDtimeremaining"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/trnsmult.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"transmult"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/fastmovf.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"fastmovfxya"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/smemman.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDmemconstrain",
+"iSNDmeminit",
+"iSNDmemrestore",
+"iSNDmalloc"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/textcode.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"decodeansi"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/isqrttbl.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"remapshiftjiscode",
+"decodeshiftjis"
+],
+"lane": null
+},
+"recon/eaclib/psx/eacpsxz/devsys.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"psxdevelopmentsystem"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sdcdvol.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDplatformcdpanvol"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sdmemman.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDpsxmemconstrain",
+"iSNDpsxfree"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sdma.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDdmtransfer",
+"iSNDdmcallback",
+"iSNDdmservice",
+"iSNDdmqueue",
+"iSNDdmqueuesplit",
+"iSNDdmcomplete"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/saetodv.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDabs",
+"iSNDatodlrv"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/saetolrv.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDatolrv"
+],
+"lane": null
+},
+"recon/eaclib/psx/spchpsxz/spchsamp.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSPCH_InitSample",
+"iSPCH_UnPackSample"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sdresolv.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDplatformresolve",
+"iSNDplatformremove"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sdplapat.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDplatformplay"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/srrange.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"randrange"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sgettag.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDgettag"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/srandom.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDrandom"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sdspuirq.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDpsxenablespuirq",
+"iSNDpsxdisablespuirq"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/spvtolrv.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDpvtolrv"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/saelib.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDlibatodlrv"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/sgetdata.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDgetdata"
+],
+"lane": null
+},
+"recon/eaclib/psx/sndpsxz/ssine.c": {
+"g": "4",
+"cpp": false,
+"fns": [
+"iSNDsin"
+],
+"lane": null
+}
+}
+}

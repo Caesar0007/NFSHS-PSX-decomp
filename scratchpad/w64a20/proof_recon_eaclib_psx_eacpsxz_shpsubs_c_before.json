@@ -1,0 +1,45 @@
+{
+ "tu": "recon/eaclib/psx/eacpsxz/shpsubs.c",
+ "tag": "before",
+ "obj_sha": "cf392fe406803dba3ca504892d6c783655bdb67e77517070e5d0382c12092dd1",
+ "dis_sha": "fa883ab654f72da812a4116fd1ebd7954d26fc051c20ea7b186020501e334577",
+ "gate": {
+  "pass": 3,
+  "total": 3,
+  "fails": {}
+ },
+ "prod": {
+  "shapecount": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 0
+  },
+  "shapename": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 0
+  },
+  "shapepointer": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 0
+  }
+ },
+ "prod_nodialect": {
+  "shapecount": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "shapename": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "shapepointer": {
+   "ok": false,
+   "err": "aspsx failed:"
+  }
+ }
+}

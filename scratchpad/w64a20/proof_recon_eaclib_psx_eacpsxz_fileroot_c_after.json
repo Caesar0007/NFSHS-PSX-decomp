@@ -1,0 +1,123 @@
+{
+ "tu": "recon/eaclib/psx/eacpsxz/fileroot.c",
+ "tag": "after",
+ "obj_sha": "a188b247fd9e0576a2fe8e6ea0cfc71db2bf2e3fb093c4c169dac11b25f6f69b",
+ "dis_sha": "d4e444d1a1ec8843ddefdbb64b56019881da16ad30e17302d0b892766b2cb9f3",
+ "gate": {
+  "pass": 9,
+  "total": 9,
+  "fails": {}
+ },
+ "prod": {
+  "closefile": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 3
+  },
+  "getfilesize": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 3
+  },
+  "initfileio": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 20
+  },
+  "openfile": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 41
+  },
+  "readfile": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 6
+  },
+  "readfile_systask": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 7
+  },
+  "setdirectory": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 21
+  },
+  "stopreadfile": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 7
+  },
+  "writefile": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 3
+  }
+ },
+ "prod_nodialect": {
+  "closefile": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 3
+  },
+  "getfilesize": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 3
+  },
+  "initfileio": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 20
+  },
+  "openfile": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 41
+  },
+  "readfile": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 6
+  },
+  "readfile_systask": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 7
+  },
+  "setdirectory": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 21
+  },
+  "stopreadfile": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 7
+  },
+  "writefile": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 3
+  }
+ }
+}

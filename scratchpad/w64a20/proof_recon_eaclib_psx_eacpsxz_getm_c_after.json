@@ -1,0 +1,39 @@
+{
+ "tu": "recon/eaclib/psx/eacpsxz/getm.c",
+ "tag": "after",
+ "obj_sha": "5f821ed1a21277c0390404ea2af30693d0a6cfa21b18ff2505c834a2c2d8842b",
+ "dis_sha": "011ddae551540c358aec4a313f4ab78732e962041296641afe3ae1e58d566ed7",
+ "gate": {
+  "pass": 2,
+  "total": 2,
+  "fails": {}
+ },
+ "prod": {
+  "geti": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 0
+  },
+  "getm": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 0
+  }
+ },
+ "prod_nodialect": {
+  "geti": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 0
+  },
+  "getm": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 0
+  }
+ }
+}

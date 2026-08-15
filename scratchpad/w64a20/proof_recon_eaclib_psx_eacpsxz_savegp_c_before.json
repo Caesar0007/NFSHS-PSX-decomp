@@ -1,0 +1,45 @@
+{
+ "tu": "recon/eaclib/psx/eacpsxz/savegp.c",
+ "tag": "before",
+ "obj_sha": "ff6b782d0c65c91b689a708efa37afdc3b77a8146a09dd3e16e3bbdd1057378b",
+ "dis_sha": "24d53dd13462b9805341c20f819e0e06ecaf6cb014496788b9918d80d2663665",
+ "gate": {
+  "pass": 3,
+  "total": 3,
+  "fails": {}
+ },
+ "prod": {
+  "initgp": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 2
+  },
+  "restoregp": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 0
+  },
+  "savegp": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 0
+  }
+ },
+ "prod_nodialect": {
+  "initgp": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "restoregp": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "savegp": {
+   "ok": false,
+   "err": "aspsx failed:"
+  }
+ }
+}

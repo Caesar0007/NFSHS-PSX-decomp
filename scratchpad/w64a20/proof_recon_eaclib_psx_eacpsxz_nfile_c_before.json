@@ -1,0 +1,285 @@
+{
+ "tu": "recon/eaclib/psx/eacpsxz/nfile.c",
+ "tag": "before",
+ "obj_sha": "487b1c57204e37e6212dfcb193514a7244dd2a0b208b5cf93b8c8f3e7ff65dd9",
+ "dis_sha": "bee77922e60313a9d1a45a455f2b1bead1e657db3316a49efecd9d6591bb5c46",
+ "gate": {
+  "pass": 27,
+  "total": 27,
+  "fails": {}
+ },
+ "prod": {
+  "FILE_addbig": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 15
+  },
+  "FILE_atomic": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 3
+  },
+  "FILE_callbackop": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 2
+  },
+  "FILE_cancelop": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 11
+  },
+  "FILE_close": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 6
+  },
+  "FILE_completeop": {
+   "ok": true,
+   "real": 6,
+   "relop": 2,
+   "reloc": 8
+  },
+  "FILE_delbig": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 13
+  },
+  "FILE_init": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 8
+  },
+  "FILE_initwithmem": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 16
+  },
+  "FILE_open": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 6
+  },
+  "FILE_operror": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 2
+  },
+  "FILE_opstatus": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 3
+  },
+  "FILE_overhead": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 0
+  },
+  "FILE_priorityop": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 10
+  },
+  "FILE_read": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 3
+  },
+  "FILE_size": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 3
+  },
+  "FILE_waitop": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 4
+  },
+  "freehandle": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 1
+  },
+  "freeop": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 1
+  },
+  "iFILE_CommandCompleteCallback": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 5
+  },
+  "iFILE_ExecCommand": {
+   "ok": true,
+   "real": 1,
+   "relop": 2,
+   "reloc": 42
+  },
+  "iFILE_addbigopencallback": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 9
+  },
+  "iFILE_addbigreadcallback": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 18
+  },
+  "iFILE_delbigclosecallback": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 2
+  },
+  "iFILE_perror": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 0
+  },
+  "reservehandle": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 5
+  },
+  "reserveop": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 11
+  }
+ },
+ "prod_nodialect": {
+  "FILE_addbig": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "FILE_atomic": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "FILE_callbackop": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "FILE_cancelop": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "FILE_close": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "FILE_completeop": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "FILE_delbig": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "FILE_init": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "FILE_initwithmem": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "FILE_open": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "FILE_operror": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "FILE_opstatus": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "FILE_overhead": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "FILE_priorityop": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "FILE_read": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "FILE_size": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "FILE_waitop": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "freehandle": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "freeop": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "iFILE_CommandCompleteCallback": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "iFILE_ExecCommand": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "iFILE_addbigopencallback": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "iFILE_addbigreadcallback": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "iFILE_delbigclosecallback": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "iFILE_perror": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "reservehandle": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "reserveop": {
+   "ok": false,
+   "err": "aspsx failed:"
+  }
+ }
+}

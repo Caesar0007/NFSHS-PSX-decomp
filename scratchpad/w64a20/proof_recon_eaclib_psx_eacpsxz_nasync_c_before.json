@@ -1,0 +1,245 @@
+{
+ "tu": "recon/eaclib/psx/eacpsxz/nasync.c",
+ "tag": "before",
+ "obj_sha": "6384bf90cb3b08f747cfdeb84b33eb646274ba71d9872c3f643531b97606e59d",
+ "dis_sha": "6d1a68cf93a8b246b8caa1b164f62d72dabe02046f3f414c48ebd01ac7cb49c8",
+ "gate": {
+  "pass": 23,
+  "total": 23,
+  "fails": {}
+ },
+ "prod": {
+  "asyncloadfile": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 1
+  },
+  "asyncloadfileat": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 1
+  },
+  "asyncloadfileatcallback": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 9
+  },
+  "asyncloadfilecallback": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 9
+  },
+  "asyncloadsegment": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 1
+  },
+  "asyncloadsegmentcallback": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 13
+  },
+  "asyncsystemtask": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 11
+  },
+  "cancelasyncload": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 3
+  },
+  "cancelrequest": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 4
+  },
+  "finishrequest": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 3
+  },
+  "getasyncreadadr": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 4
+  },
+  "getasyncreadstatus": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 4
+  },
+  "initasync": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 19
+  },
+  "loadfileclosecallback": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 4
+  },
+  "loadfileopencallback": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 18
+  },
+  "loadfilereadcallback": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 10
+  },
+  "loadfilesizecallback": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 13
+  },
+  "loadsegreadcallback": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 12
+  },
+  "locaterequest": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 2
+  },
+  "newrequestid": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 4
+  },
+  "queueadd": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 1
+  },
+  "queuefetch": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 0
+  },
+  "setasyncfile": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 8
+  }
+ },
+ "prod_nodialect": {
+  "asyncloadfile": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "asyncloadfileat": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "asyncloadfileatcallback": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "asyncloadfilecallback": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "asyncloadsegment": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "asyncloadsegmentcallback": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "asyncsystemtask": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "cancelasyncload": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "cancelrequest": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "finishrequest": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "getasyncreadadr": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "getasyncreadstatus": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "initasync": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "loadfileclosecallback": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "loadfileopencallback": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "loadfilereadcallback": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "loadfilesizecallback": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "loadsegreadcallback": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "locaterequest": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "newrequestid": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "queueadd": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "queuefetch": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "setasyncfile": {
+   "ok": false,
+   "err": "aspsx failed:"
+  }
+ }
+}

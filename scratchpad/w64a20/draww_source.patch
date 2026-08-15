@@ -1,0 +1,143 @@
+diff --git a/recon/game/psx/draww.cpp b/recon/game/psx/draww.cpp
+index bae119aa..bd9d3abf 100644
+--- a/recon/game/psx/draww.cpp
++++ b/recon/game/psx/draww.cpp
+@@ -845,20 +845,26 @@ DrawWSubdiv_edgedone:
+      * prim->tag = slot->addr24 | (0x0C<<24); slot->addr24 = prim.  Operand %2 = &sd->otz
+      * (the expander read otz through a pointer arg -- the compiler materializes
+      * `addiu v0,s2,0x94`, reorg copies it into the joining branches' delay slots). */
++    /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
++     * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
++     * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
++     * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
++     * Gate-lane object is byte-identical (proven by hash); see
++     * scratchpad/w64a20/RECEIPTS.md. */
+     __asm__ volatile(
+-        "lw	$t4,0(%2)
+-	lw	$t5,0(%1)
+-	addiu	$t6,%0,52
+-	sll	$t4,$t4,2
+-	addu	$t5,$t5,$t4
+-	sw	$t6,4(%1)
+-	lwl	$t6,2($t5)
+-	lui	$t4,0x0C00
+-	srl	$t6,$t6,8
+-	or	$t6,$t6,$t4
+-	sll	$t4,%0,8
+-	sw	$t6,0(%0)
+-	swl	$t4,2($t5)"
++        "lw	$12,0(%2)
++	lw	$13,0(%1)
++	addiu	$14,%0,52
++	sll	$12,$12,2
++	addu	$13,$13,$12
++	sw	$14,4(%1)
++	lwl	$14,2($13)
++	lui	$12,0x0C00
++	srl	$14,$14,8
++	or	$14,$14,$12
++	sll	$12,%0,8
++	sw	$14,0(%0)
++	swl	$12,2($13)"
+         : : "r"(v4), "r"(sd), "r"(&sd->otz)
+         : "$12", "$13", "$14", "memory");
+     /* w64-a2 PRICED REF DIAL (predicted N=5, measured N=5 -- allocsim-by-hand on
+@@ -1880,19 +1886,19 @@ gte_swc2(0x8,&depthcue);
+          * PrimPtr = prim+1 (0x34); prim->tag = slot->addr24 | (0x0C<<24);
+          * slot->addr24 = prim. */
+         __asm__ volatile(
+-            "lw	$t4,0(%2)
+-	lw	$t5,0(%1)
+-	addiu	$t6,%0,52
+-	sll	$t4,$t4,2
+-	addu	$t5,$t5,$t4
+-	sw	$t6,4(%1)
+-	lwl	$t6,2($t5)
+-	lui	$t4,0x0C00
+-	srl	$t6,$t6,8
+-	or	$t6,$t6,$t4
+-	sll	$t4,%0,8
+-	sw	$t6,0(%0)
+-	swl	$t4,2($t5)"
++            "lw	$12,0(%2)
++	lw	$13,0(%1)
++	addiu	$14,%0,52
++	sll	$12,$12,2
++	addu	$13,$13,$12
++	sw	$14,4(%1)
++	lwl	$14,2($13)
++	lui	$12,0x0C00
++	srl	$14,$14,8
++	or	$14,$14,$12
++	sll	$12,%0,8
++	sw	$14,0(%0)
++	swl	$12,2($13)"
+             : : "r"(prim), "r"(sd), "r"(&sd->otz)
+             : "$12", "$13", "$14", "memory");
+       }
+@@ -5130,19 +5136,19 @@ gte_swc2(0x7,(void *)0x1f800094);
+           {
+             void *primOut;
+             __asm__ volatile(
+-                "lw	%0,4(%1)\n\t"
+-                "sll	$t4,%2,2\n\t"
+-                "lw	$t5,0(%1)\n\t"
+-                "addiu	$t6,%0,52\n\t"
+-                "addu	$t5,$t5,$t4\n\t"
+-                "sw	$t6,4(%1)\n\t"
+-                "lwl	$t6,2($t5)\n\t"
+-                "lui	$t4,0x0C00\n\t"
+-                "srl	$t6,$t6,8\n\t"
+-                "or	$t6,$t6,$t4\n\t"
+-                "sll	$t4,%0,8\n\t"
+-                "sw	$t6,0(%0)\n\t"
+-                "swl	$t4,2($t5)"
++                "lw\t%0,4(%1)\n\t"
++                "sll\t$12,%2,2\n\t"
++                "lw\t$13,0(%1)\n\t"
++                "addiu\t$14,%0,52\n\t"
++                "addu\t$13,$13,$12\n\t"
++                "sw\t$14,4(%1)\n\t"
++                "lwl\t$14,2($13)\n\t"
++                "lui\t$12,0x0C00\n\t"
++                "srl\t$14,$14,8\n\t"
++                "or\t$14,$14,$12\n\t"
++                "sll\t$12,%0,8\n\t"
++                "sw\t$14,0(%0)\n\t"
++                "swl\t$12,2($13)"
+                 : "=&r"(primOut)
+                 : "r"(sd), "r"(*otz94)
+                 : "$12", "$13", "$14", "memory");
+@@ -5395,19 +5401,19 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
+          * prim->tag = slot->addr24 | (0x0C<<24); slot->addr24 = prim. */
+         prim = (POLY_GT4 *)(sd->head).cprim.PrimPtr;
+         __asm__ volatile(
+-            "lw	$t4,0(%2)
+-	lw	$t5,0(%1)
+-	addiu	$t6,%0,52
+-	sll	$t4,$t4,2
+-	addu	$t5,$t5,$t4
+-	sw	$t6,4(%1)
+-	lwl	$t6,2($t5)
+-	lui	$t4,0x0C00
+-	srl	$t6,$t6,8
+-	or	$t6,$t6,$t4
+-	sll	$t4,%0,8
+-	sw	$t6,0(%0)
+-	swl	$t4,2($t5)"
++            "lw	$12,0(%2)
++	lw	$13,0(%1)
++	addiu	$14,%0,52
++	sll	$12,$12,2
++	addu	$13,$13,$12
++	sw	$14,4(%1)
++	lwl	$14,2($13)
++	lui	$12,0x0C00
++	srl	$14,$14,8
++	or	$14,$14,$12
++	sll	$12,%0,8
++	sw	$14,0(%0)
++	swl	$12,2($13)"
+             : : "r"(prim), "r"(sd), "r"(&sd->otz)
+             : "$12", "$13", "$14", "memory");
+       }

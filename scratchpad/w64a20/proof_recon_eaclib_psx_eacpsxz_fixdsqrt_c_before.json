@@ -1,0 +1,25 @@
+{
+ "tu": "recon/eaclib/psx/eacpsxz/fixdsqrt.c",
+ "tag": "before",
+ "obj_sha": "9f085fe133ddcad7a80db5f4989e84a370717320ffd1cc6bb87046e6368c36de",
+ "dis_sha": "ae38abd8dc91f71c25a31ccf78058c3c15bbaf3ca6210ce648608d3d5f1a5fca",
+ "gate": {
+  "pass": 1,
+  "total": 1,
+  "fails": {}
+ },
+ "prod": {
+  "fixedsqrt": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 2
+  }
+ },
+ "prod_nodialect": {
+  "fixedsqrt": {
+   "ok": false,
+   "err": "aspsx failed:"
+  }
+ }
+}

@@ -1,0 +1,510 @@
+{"tu": "recon/eaclib/psx/eacpsxz/addtimer.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/asinfunc.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/atanfunc.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/blkfill.c", "napp": 103, "reg": 147, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 149, "sample": ["\t\t.set push", "\taddiu\t$a2,$zero,0", "\tslti\t$at,$a1,4", "\tbnez\t$at,.L800F18C4", "\t andi\t$a2,$a2,255", "\tsll\t$t2,$a2,8"]}
+{"tu": "recon/eaclib/psx/eacpsxz/blkmov.c", "napp": 236, "reg": 337, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 339, "sample": ["\t\t.set push", "\tslt    $at, $a0, $a1", "\tbnez   $at, .L800E64D0", "\tor     $v0, $a0, $a1", "\tandi   $v0, $v0, 3", "\tbnez   $v0, .L800E641C"]}
+{"tu": "recon/eaclib/psx/eacpsxz/callback.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/cdfs.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/cluttype.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/crc.c", "napp": 65, "reg": 107, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 109, "sample": ["\t\t.set push", "\tlui\t$t0,%hi(D_80135C58)", "\taddiu\t$t0,$t0,%lo(D_80135C58)", "\taddiu\t$v1,$zero,251", "\taddiu\t$a1,$a1,-4", "\tbltz\t$a1,.L800F61D0"]}
+{"tu": "recon/eaclib/psx/eacpsxz/crossprd.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/devsys.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/exit.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/fastmovf.c", "napp": 4, "reg": 4, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 4, "sample": ["\tlwl\t$t6,2($2)", " sll $t7,$16,8", " swl $t6,2($16)", " swl $t7,2($2)"]}
+{"tu": "recon/eaclib/psx/eacpsxz/fileroot.c", "napp": 20, "reg": 6, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 6, "sample": ["\t addiu $at,$zero,-0x402", "\t and $8,$10,$at", "\t addiu $at,$zero,-0x402", "\t and $8,$18,$at"]}
+{"tu": "recon/eaclib/psx/eacpsxz/fixdatan.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/fixddiv.c", "napp": 68, "reg": 85, "pushpop": 2, "alias": 1, "rawdiv": 0, "drop": 2, "total": 90, "sample": ["\t\t.set push", "\tbgez\t$a0,.L800E4410", "\t slt\t$t0,$a0,$zero", "\tnegu\t$a0,$a0", "\tbgez\t$a1,.L800E441C", "\t slt\t$t1,$a1,$zero"]}
+{"tu": "recon/eaclib/psx/eacpsxz/fixdinv.c", "napp": 30, "reg": 30, "pushpop": 2, "alias": 1, "rawdiv": 0, "drop": 2, "total": 35, "sample": ["\t\t.set push", "\taddiu\t$t0,$zero,-1", "\tsra\t$t2,$a0,31", "\txor\t$t1,$a0,$t2", "\tsubu\t$t1,$t1,$t2", "\tdivu\t$zero,$t0,$t1"]}
+{"tu": "recon/eaclib/psx/eacpsxz/fixdmult.c", "napp": 24, "reg": 21, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 23, "sample": ["\t\t.set push", "\tori\t$t2,$zero,0x8000", "\tmflo\t$t0", "\tmfhi\t$t1", "\taddu\t$t0,$t0,$t2", "\tsltu\t$t2,$t0,$t2"]}
+{"tu": "recon/eaclib/psx/eacpsxz/fixdsin.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/fixdsqrt.c", "napp": 34, "reg": 34, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 36, "sample": ["\t\t.set push", "\tbeqz\t$a0,.L800EB0F8", "\t lui\t$t1,0x8000", "\tlui\t$t0,%hi(D_8012356C)", "\taddiu\t$t0,$t0,%lo(D_8012356C)", "\tand\t$t2,$a0,$t1"]}
+{"tu": "recon/eaclib/psx/eacpsxz/fsincos.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/fxform.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/getm.c", "napp": 50, "reg": 67, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 69, "sample": ["\t\t.set push", "\tlbu\t$t1,0($a0)", "\taddiu\t$t0,$a1,-3", "\tbltz\t$t0,.L800F306C", "\t sll\t$v0,$t1,8", "\tlbu\t$t2,1($a0)"]}
+{"tu": "recon/eaclib/psx/eacpsxz/inittmr.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/isincos.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/isqrt.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/isqrttbl.c", "napp": 5, "reg": 0, "pushpop": 0, "alias": 2, "rawdiv": 0, "drop": 0, "total": 2, "sample": ["decodeshiftjis2 = decodeshiftjis", "decodeshiftjis3 = decodeshiftjis"]}
+{"tu": "recon/eaclib/psx/eacpsxz/joystkn.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/loadshp.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/locatbig.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/locatshp.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/math64a.c", "napp": 55, "reg": 67, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 69, "sample": ["\t\t.set push", "\tslti\t$t0,$a2,32", "\tbnez\t$t0,.L800FE4A8", "\t addi\t$t1,$a2,-32", "\tsllv\t$t6,$a1,$t1", "\tsw\t$zero,0($a0)"]}
+{"tu": "recon/eaclib/psx/eacpsxz/matrix.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/meminit.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/memstd.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/movf.c", "napp": 6, "reg": 7, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\tlui\t$t5,%hi(nextprim)", " lw $t5,%lo(nextprim)($t5)", " lwl $t6,2($2)", " sll $t7,$16,8", " swl $t6,2($16)", " swl $t7,2($2)"]}
+{"tu": "recon/eaclib/psx/eacpsxz/nasync.c", "napp": 27, "reg": 9, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 9, "sample": ["\t addiu $at,$zero,-0x402", "\t and $8,$3,$at", "\t addiu $at,$zero,-0x402", "\t and $8,$5,$at", "\t addiu $at,$zero,-0x402", "\t and $8,$4,$at"]}
+{"tu": "recon/eaclib/psx/eacpsxz/nfile.c", "napp": 65, "reg": 21, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 21, "sample": ["\t addiu $at,$zero,-0x402", "\t and $8,$9,$at", "\t addiu $at,$zero,-0x402", "\t and $8,$16,$at", "\t addiu $at,$zero,-0x402", "\t and $8,$6,$at"]}
+{"tu": "recon/eaclib/psx/eacpsxz/nloadpk.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/nsync.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/nullfunc.c", "napp": 58, "reg": 1, "pushpop": 0, "alias": 20, "rawdiv": 0, "drop": 0, "total": 21, "sample": ["\tsetmousesensitivity = setclipwindow", "\tnullfunctionz = setclipwindow", "\trestorewindow = setclipwindow", "\tresetclipwindow = setclipwindow", "\tnullwindow = setclipwindow", "\tsavewindow = setclipwindow"]}
+{"tu": "recon/eaclib/psx/eacpsxz/primate.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/random.c", "napp": 94, "reg": 160, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 162, "sample": ["\t\t.set push", "\tlui\t$a0,%hi(seed)", "\taddiu\t$a0,$a0,%lo(seed)", "\tlw\t$t5,20($a0)", "\tlw\t$t4,16($a0)", "\tlw\t$t3,12($a0)"]}
+{"tu": "recon/eaclib/psx/eacpsxz/resize.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/savegp.c", "napp": 25, "reg": 14, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 14, "sample": ["       lui     $at, %hi(g_bootGP)", "       sw      $gp, %lo(g_bootGP)($at)", "       jr      $ra", "       sw      $gp, 0($a0)", "       lui     $gp, 32786", "       lw      $gp, 13544($gp)"]}
+{"tu": "recon/eaclib/psx/eacpsxz/setfont.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/shpclut.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/shpdepth.c", "napp": 43, "reg": 47, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 49, "sample": ["\t\t.set push", "\tlbu\t$v0,0($a0)", "\tori\t$v1,$zero,0x41", "\tandi\t$v0,$v0,0x77", "\tbeq\t$v1,$v0,.L800F4438", "\t ori\t$v1,$zero,0x40"]}
+{"tu": "recon/eaclib/psx/eacpsxz/shpsubs.c", "napp": 45, "reg": 48, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 50, "sample": ["\t\t.set push", "\tlw\t$v0,8($a0)", "\tjr\t$ra", "\tlw\t$t0,8($a0)", "\tsll\t$t2,$a1,3", "\tsltu\t$at,$a1,$t0"]}
+{"tu": "recon/eaclib/psx/eacpsxz/shptype.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/sinfunc.c", "napp": 52, "reg": 46, "pushpop": 2, "alias": 2, "rawdiv": 0, "drop": 4, "total": 54, "sample": ["\t\t.set push", "\taddiu\t$a0,$a0,256", "\tlui\t$t4,%hi(sintbl)", "\taddiu\t$t4,$t4,%lo(sintbl)", "\tandi\t$t1,$a0,512", "\tandi\t$t2,$a0,256"]}
+{"tu": "recon/eaclib/psx/eacpsxz/stream.c", "napp": 126, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/stricmp.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/syncfile.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/systask.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/textcode.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/textcrnt.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/textfor.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/threads.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/timer.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/trnsfrm.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/trnsmult.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/trnspos.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/unbtree.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/unhuff.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/unref.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/vramfxya.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/wildcard.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/eacpsxz/xform.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/pad.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/s3dlow.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/s3dpos.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/saelib.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/saetodv.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/saetolrv.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/salloc.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sautovol.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sbadd.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sballoc.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sbdload.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sbend.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sbhdrcpy.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sbhdrsze.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sbirmpat.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sbremove.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sbvalid.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/scdvol.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sclcptch.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sdata.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sdcdvol.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sdfx.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sdma.c", "napp": 30, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sdmemlu.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sdmemman.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sdpacket.c", "napp": 18, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sdplapat.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sdresolv.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sdriver.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sdspuirq.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sdtimrem.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/seffect.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sfxlevel.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sgetdata.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sgettag.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sgetvol.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/slib.c", "napp": 18, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/slimits.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/smasterv.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/smath64.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/smemman.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/snddata.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sover.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/span.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/spat2hdr.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/spatkey.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/spitch.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/spktplay.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/splay.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/splysdef.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/spvoices.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/spvtolrv.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/srandom.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/srrange.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sserver.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/ssine.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sst.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sstautov.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sstgetrp.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sstgetv.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sstop.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sstopall.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sstovrhd.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sstrstat.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sstsetgl.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sstsetgs.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sstsetpr.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sststat.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/sstvol.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/ssysinit.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/ssysreal.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/ssysserv.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/stagpat.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/stimerem.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/sndpsxz/svol.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/spchpsxz/spchbank.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/spchpsxz/spchdata.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/spchpsxz/spchevnt.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/spchpsxz/spchinit.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/spchpsxz/spchpick.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/spchpsxz/spchrand.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/spchpsxz/spchrslv.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/spchpsxz/spchrule.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/eaclib/psx/spchpsxz/spchsamp.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/feapp.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/feaudio.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/fecars.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/fecheats.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/fecntl.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/fecolor.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/fecredits.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/fedialog.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/fefades.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/feinput.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/felines.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/fememcard.cpp", "napp": 4, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/femenu.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/femenudefs.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/femenuextended.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/femenuoptions.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/femission.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/fescreen.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/fetextrender.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/fetools.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/fetourn.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/fetracks.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/fetv.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/fevideowall.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/front.cpp", "napp": 1, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/mcrd.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/records.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/screenaudio.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/screencameras.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/screencarselect.cpp", "napp": 51, "reg": 66, "pushpop": 4, "alias": 0, "rawdiv": 0, "drop": 0, "total": 70, "sample": ["\t\t.set push", "\taddiu $sp, $sp, -32", "\tsw    $s0, 16($sp)", "\taddu  $s0, $a0, $zero", "\tsw    $s1, 20($sp)", "\taddu  $s1, $a1, $zero"]}
+{"tu": "recon/frontend/common/screencongrats.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/screencontroller.cpp", "napp": 26, "reg": 33, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 35, "sample": ["\t\t.set push", "\taddiu $sp, $sp, -32", "\tsw    $s0, 16($sp)", "\taddu  $s0, $a0, $zero", "\tsw    $s1, 20($sp)", "\taddu  $s1, $a1, $zero"]}
+{"tu": "recon/frontend/common/screendemo.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/screendisplay.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/screengrid.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/screenmain.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/screenmemcard.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/screenoptions.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/screenpinkslips.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/screenpost.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/screentournselect.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/screentrackinfo.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/screentrackrecords.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/screentracks.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/screentrophyinfo.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/screentrophyroom.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/screenusername.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/statchk.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/common/stattool.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/psx/cache.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/psx/drawshp.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/psx/endcode.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/psx/fetexture.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/psx/mdec.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/psx/mdecstat.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/psx/memcard.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/psx/memdsp.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/psx/mmeffect.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/psx/movie.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/psx/psxfront.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/psx/readpix.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/psx/video.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/frontend/psx/vsprintf.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/ai.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/aicop.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/aidatarecord.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/aidebug.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/aidelaycar.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/aih_basiccop.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/aih_basicperp.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/aih_btccop.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/aih_btcperp.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/aih_cop.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/aih_hum.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/aih_opp.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/aih_play.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/aih_traf.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/aihigh.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/aiinit.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/ailife.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/aiperson.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/aiphysic.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/aiscript.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/aispeech.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/aispeeds.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/aistate.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/aitriger.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/aitune.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/AIWORLD.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/anim.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/async.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/audedit.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/audioclc.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/audiocmn.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/audioeng.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/audiomus.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/audiotrk.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/bworld.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/bworldSm.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/camera.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/cars.cpp", "napp": 1, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/chunk.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/chunkvis.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/clock.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/collide.cpp", "napp": 2, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/color.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/control.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/copspeak.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/dashhud.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/debugvar.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/fastrand.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/fei.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/func_va_data.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/genericpmx.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/gmesetup.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/group.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/hudpmx.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/input.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/mathnfs.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/minfront.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/mpause.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/new.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/newton.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/nfs3.cpp", "napp": 2, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/object.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/paths.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/pausemenu.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/physics.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/quatern.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/r3dcar.cpp", "napp": 1, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/render.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/replay.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/scene.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/schedule.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/sim.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/simplemem.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/simqueue.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/simqueue_externs.h", "error": "cc1 failed: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\simqueue_externs.h:6: parse error before `GameSetup_gData' C:\\Temp\\nfs4-decomp\\recon\\game\\common\\simqueue_externs.h:6: warning: data definition has no type or sto"}
+{"tu": "recon/game/common/smack.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/souffle.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/spchevnt.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/speech.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/stats.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/textsys.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/track.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/trgsfx.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/udff.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/vtables_aidatarecord.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/vtables_aihigh.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/vtables_aistate.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/vtables_object.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/vtables_tdialog.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/vtables_tlist.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/vtables_tmenu.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/vtables_tpausemenu.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/vtables_tscreen.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/common/vtables_tscreen2.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/audio.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/cario.cpp", "napp": 1, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/ddvfont.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/debug.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/device.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/draw.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/draw2.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/drawc.cpp", "napp": 1295, "reg": 1131, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 1131, "sample": ["\tmfc2\t$t4,$19", " sra $t4,$t4,2", " sw $t4,0($2)", "\tlw\t$t4,60($17)", "\tlw\t$t5,56($17)", "\taddiu\t$t6,$5,32"]}
+{"tu": "recon/game/psx/drawdbg.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/draww.cpp", "napp": 703, "reg": 82, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 82, "sample": ["\tlw\t$t4,0($2)", " lw $t5,0($18)", " addiu $t6,$4,52", " sll $t4,$t4,2", " addu $t5,$t5,$t4", " sw $t6,4($18)"]}
+{"tu": "recon/game/psx/fe3dmenu.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/filedbg.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/flare.cpp", "napp": 914, "reg": 9, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 9, "sample": ["\tlw   $12, 0($sp)", "\tlw   $13, 4($sp)", "\tlw   $12, 8($sp)", "\tlw   $13, 12($sp)", "\tlw   $14, 16($sp)", "\tswc2 $14, 0($sp)"]}
+{"tu": "recon/game/psx/font.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/force.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/hrzsku.cpp", "napp": 83, "reg": 8, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 8, "sample": ["\tlw   $12, 0($sp)", "\tlw   $13, 4($sp)", "\tlw   $12, 8($sp)", "\tlw   $13, 12($sp)", "\tlw   $14, 16($sp)", "\tlw   $12, 20($sp)"]}
+{"tu": "recon/game/psx/hud.cpp", "napp": 1, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/loading.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/nfs2mem.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/night.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/overlays.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/platform.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/profile.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/psxcontroller.cpp", "napp": 1, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/rpause.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/sfx.cpp", "napp": 118, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/skidmark.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/textpix.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/textpsx.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/texture.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/textureprocess.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/trackspec.cpp", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/trsproj.cpp", "napp": 53, "reg": 10, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 10, "sample": ["\tlw   $12, 20($sp)", "\tlw   $13, 24($sp)", "\tlw   $14, 28($sp)", "\tlw   $12, 20($sp)", "\tlw   $13, 24($sp)", "\tlw   $14, 28($sp)"]}
+{"tu": "recon/game/psx/unpack.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/game/psx/weather.cpp", "napp": 106, "reg": 22, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 22, "sample": ["\tlw   $12, 0($sp)", "\tlw   $13, 4($sp)", "\tlw   $12, 8($sp)", "\tlw   $13, 12($sp)", "\tlw   $14, 16($sp)", "\tlw   $12, 20($sp)"]}
+{"tu": "recon/lib/libfns.h", "error": "cc1 failed: In file included from C:\\Temp\\nfs4-decomp\\recon\\lib\\libfns.h:16: C:/Temp/nfs4-decomp/recon/nfs4_types.h:639: ANSI C requires a named argument before `...' C:/Temp/nfs4-decomp/recon/nfs4_types.h:1535: "}
+{"tu": "recon/syslib/psx/2mbyte/2mbyte.c", "napp": 93, "reg": 62, "pushpop": 8, "alias": 0, "rawdiv": 0, "drop": 0, "total": 70, "sample": ["\t.set push", "\tjr         $ra", ".set pop", "\t.set push", "\tlui        $v0, %hi(_bss_obj)", "\taddiu      $v0, $v0, %lo(_bss_obj)"]}
+{"tu": "recon/syslib/psx/libapi/A07.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0x7", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/A08.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0x8", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/A09.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0x9", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/A11.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0xB", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/A12.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0xC", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/A13.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0xD", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/A23.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0x17", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/A24.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0x18", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/A25.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0x19", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/A36.c", "napp": 2, "reg": 2, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 2, "sample": ["\taddiu $a0, $zero, 0x1"]}
+{"tu": "recon/syslib/psx/libapi/A37.c", "napp": 2, "reg": 2, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 2, "sample": ["\taddiu $a0, $zero, 0x2"]}
+{"tu": "recon/syslib/psx/libapi/A39.c", "napp": 12, "reg": 7, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 9, "sample": ["\t\t.set push", "\taddu  $v0, $sp, $zero", "\tjr    $ra", "\t addu $sp, $a0, $zero", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/A50.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0x32", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/A51.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0x33", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/A52.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0x34", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/A53.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0x35", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/A54.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0x36", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/A65.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0x41", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/A66.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0x42", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/A67.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0x43", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/A69.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0x45", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/A91.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0x5B", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/C112.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x70", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/C114.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x72", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/C57.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x39", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/C68.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x44", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/C73.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x49", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/COUNTER.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libapi/COUNTER_data.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libapi/FIRST.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libapi/L02.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xC0", "\tjr    $t2", "\t addiu $t1, $zero, 0x2", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/L03.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xC0", "\tjr    $t2", "\t addiu $t1, $zero, 0x3", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/L10.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xC0", "\tjr    $t2", "\t addiu $t1, $zero, 0xA", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libapi/PAD.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libapi/PAD_data.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libc/A63.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0x3F", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libc/BSEARCH.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libc/C16.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x10", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libc/C19.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x13", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libc/C21.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x15", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libc/C23.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x17", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libc/C24.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x18", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libc/C25.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x19", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libc/C26.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x1A", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libc/C27.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x1B", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libc/C30.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x1E", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libc/C31.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x1F", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libc/C36.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x24", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libc/C37.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x25", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libc/C38.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x26", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libc/C40.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x28", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libc/C42.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x2A", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libc/C43.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x2B", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libc/C46.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x2E", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libc/C47.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x2F", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libc/C52.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libc/C63.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0x3F", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libc/CTYPE0.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libc/MEMCMP.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libc/MEMMOVE.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libc/QSORT.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libc/SPRINTF.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libcard/A74.c", "napp": 47, "reg": 36, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 38, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0x4A", "\tlhu   $t7, 10($v1)", "\tlui   $t0, 0"]}
+{"tu": "recon/syslib/psx/libcard/A75.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0x4B", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libcard/A76.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0x4C", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libcard/A78.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0x4E", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libcard/A80.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xB0", "\tjr    $t2", "\t addiu $t1, $zero, 0x50", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libcard/C171.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0xAB", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libcard/C172.c", "napp": 12, "reg": 5, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 7, "sample": ["\t\t.set push", "\taddiu $t2, $zero, 0xA0", "\tjr    $t2", "\t addiu $t1, $zero, 0xAC", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libcard/CARD.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libcard/CARDINIT.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libcard/END.c", "napp": 47, "reg": 30, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 30, "sample": ["\tlui   $at, %hi(D_80148AD4)", "\tsw    $ra, %lo(D_80148AD4)($at)", "\taddiu $t1, $zero, 0x56", "\taddiu $t2, $zero, 0xB0", "\tjalr  $t2", "\tlw    $v0, 24($v0)"]}
+{"tu": "recon/syslib/psx/libcard/INIT.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libcard/PATCH.c", "napp": 125, "reg": 107, "pushpop": 3, "alias": 0, "rawdiv": 0, "drop": 2, "total": 112, "sample": ["\tlui   $v0, 0xA001", "\taddiu $v0, $v0, -8276", "\tjr    $v0", "\tlui   $t0, 0xA001", "\taddiu $t0, $t0, -8320", "\tjalr  $t0"]}
+{"tu": "recon/syslib/psx/libcd/cdcont.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libcd/cddebug.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libcd/cdread.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libcd/cdread2.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libcd/cdtables.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libcd/drv.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libcd/event.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libcd/iso9660.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libcd/stcdint.c", "napp": 2, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libcd/stream.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libcd/streamhelp.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libcd/toc.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libcd/TYPE.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libds/DSCB.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libetc/INTR.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libetc/INTR_DMA.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libetc/INTR_VB.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libetc/VMODE.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libetc/VSYNC.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libgpu/EXT.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libgpu/FONT.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libgpu/P00.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libgpu/P01.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libgpu/P06.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libgpu/P09.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libgpu/P10.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libgpu/P11.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libgpu/P12.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libgpu/P16.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libgpu/P17.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libgpu/P18.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libgpu/P19.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libgpu/P34.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libgpu/SYS.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libgte/COR_01.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libgte/COR_02.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libgte/COR_03.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libgte/FGO_01.c", "napp": 182, "reg": 207, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 207, "sample": ["\tlh\t$t7,0($a0)", "\taddu\t$v0,$a1,$zero", "\tbgez\t$t7,.L800F2570", "\tandi\t$t9,$t7,4095", "\tnegu\t$t7,$t7", "\tbgez\t$t7,.L800F2548"]}
+{"tu": "recon/syslib/psx/libgte/FGO_06.c", "napp": 115, "reg": 111, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 111, "sample": ["\taddu\t$t7,$a0,$zero", "\taddu\t$v0,$a1,$zero", "\tbgez\t$t7,.L800F3170", "\tandi\t$t9,$t7,4095", "\tnegu\t$t7,$t7", "\tbgez\t$t7,.L800F3148"]}
+{"tu": "recon/syslib/psx/libgte/FOG_01.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libgte/MSC00.c", "napp": 37, "reg": 29, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 31, "sample": ["\t\t.set push", "\tlui  $at, %hi(_InitGeom_ra_save)", "\tsw   $ra, %lo(_InitGeom_ra_save)($at)", "\tlui  $ra, %hi(_InitGeom_ra_save)", "\tlw   $ra, %lo(_InitGeom_ra_save)($ra)", "\tmfc0 $v0, $12"]}
+{"tu": "recon/syslib/psx/libgte/MSC02.c", "napp": 108, "reg": 111, "pushpop": 4, "alias": 0, "rawdiv": 0, "drop": 0, "total": 115, "sample": ["\tlw    $t0, 0($a0)", "\tlw    $t1, 4($a0)", "\tlw    $t2, 8($a0)", "\t.set\tpop", "\tlw    $t0, 0($a0)", "\tlw    $t1, 4($a0)"]}
+{"tu": "recon/syslib/psx/libgte/PATCHGTE.c", "napp": 77, "reg": 56, "pushpop": 1, "alias": 1, "rawdiv": 0, "drop": 2, "total": 60, "sample": ["\tlui   $at, %hi(_patch_gte_ra_save)", "\tsw    $ra, %lo(_patch_gte_ra_save)($at)", "\taddiu $t1, $zero, 86", "\taddiu $t2, $zero, 176", "\tjalr  $t2", "\tlw    $v0, 24($v0)"]}
+{"tu": "recon/syslib/psx/libgte/REG03.c", "napp": 21, "reg": 4, "pushpop": 4, "alias": 0, "rawdiv": 0, "drop": 0, "total": 8, "sample": ["\t\t.set push", "\tctc2 $a0, $27", "\tjr   $ra", "\t.set pop", "\t\t.set push", "\tctc2 $a0, $28"]}
+{"tu": "recon/syslib/psx/libgte/REG11.c", "napp": 3, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libgte/REG13.c", "napp": 1, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libmath/ADDDF3.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libmath/ADDMANT.c", "napp": 56, "reg": 88, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 90, "sample": ["\t\t.set push", "\taddiu\t$sp,$sp,-16", "\taddu\t$t1,$a0,$zero", "\tsrl\t$t0,$a1,16", "\tsw\t$a1,20($sp)", "\tandi\t$a1,$a1,0xFFFF"]}
+{"tu": "recon/syslib/psx/libmath/DBSHIFT.c", "napp": 64, "reg": 84, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 86, "sample": ["\t\t.set push", "\tsw\t$a2,8($sp)", "\tlw\t$a2,16($sp)", "\taddu\t$t0,$a0,$zero", "\tbnez\t$a1,.L80106EA0", "\t sw\t$a3,12($sp)"]}
+{"tu": "recon/syslib/psx/libmath/DBSHIFTU.c", "napp": 64, "reg": 84, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 86, "sample": ["\t\t.set push", "\tsw\t$a2,8($sp)", "\tlw\t$a2,16($sp)", "\taddu\t$t0,$a0,$zero", "\tbnez\t$a1,.L80104948", "\t sw\t$a3,12($sp)"]}
+{"tu": "recon/syslib/psx/libmath/DIVDF3.c", "napp": 273, "reg": 99, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 101, "sample": ["\t\t.set push", "\tsltu\t$v0,$a3,$a1", "\tsw\t$a0,0($sp)", "\tsw\t$a1,4($sp)", "\tsw\t$a2,8($sp)", "\tbnez\t$v0,.L800F60F8"]}
+{"tu": "recon/syslib/psx/libmath/DIVSF3.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libmath/EXTSFDF2.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libmath/FERR.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libmath/FIXDFSI.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libmath/FIXSFSI.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libmath/FLTSIDF.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libmath/FLTSISF.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libmath/GTDF2.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libmath/LTDF2.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libmath/MAINASU.c", "napp": 39, "reg": 57, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 59, "sample": ["\t\t.set push", "\taddiu\t$sp,$sp,-40", "\tsw\t$s0,32($sp)", "\taddu\t$s0,$a0,$zero", "\taddiu\t$v0,$zero,1", "\tsw\t$a2,48($sp)"]}
+{"tu": "recon/syslib/psx/libmath/MULDF3.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libmath/MULSF3.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libmath/TRUDFSF2.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libmcrd/BIOS.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libmcrd/LIBMCRD.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libmcrd/USERFUNC.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libpad/MCXMAIN.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libpad/PAD.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libpad/PADCMD.c", "napp": 1, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libpad/PADENTRY.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libpad/PADMAIN.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libpad/PADPORTD.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libpad/PADSEQD.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libpad/WAITRC2.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libpress/LIBPRESS.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libpress/VLC.c", "napp": 266, "reg": 435, "pushpop": 4, "alias": 0, "rawdiv": 0, "drop": 0, "total": 439, "sample": ["\t.set push", "\tlui        $t0, %hi(_vlc_blksize)", "\taddiu      $t0, $t0, %lo(_vlc_blksize)", "\taddi       $at, $a0, -1", "\tblez       $at, .L800F7420", "\tlw        $v0, 0($t0)"]}
+{"tu": "recon/syslib/psx/libsn/CLOSE.c", "napp": 13, "reg": 4, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 6, "sample": ["\t\t.set push", "\taddu  $a1, $a0, $zero", "\tjr    $ra", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libsn/CREAT.c", "napp": 17, "reg": 13, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 15, "sample": ["\t\t.set push", "\taddu  $a1, $a0, $zero", "\taddu  $a2, $zero, $zero", "\tbeqz  $v0, 1f", "\t addu $v0, $v1, $zero", "\taddiu $v0, $zero, -1"]}
+{"tu": "recon/syslib/psx/libsn/FSINIT.c", "napp": 12, "reg": 1, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 3, "sample": ["\t\t.set push", "\tjr    $ra", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libsn/LSEEK.c", "napp": 18, "reg": 16, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 18, "sample": ["\t\t.set push", "\taddu  $a3, $a2, $zero", "\taddu  $a2, $a1, $zero", "\taddu  $a1, $a0, $zero", "\tbeqz  $v0, 1f", "\t addu $v0, $v1, $zero"]}
+{"tu": "recon/syslib/psx/libsn/OPEN.c", "napp": 17, "reg": 13, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 15, "sample": ["\t\t.set push", "\taddu  $a2, $a1, $zero", "\taddu  $a1, $a0, $zero", "\tbeqz  $v0, 1f", "\t addu $v0, $v1, $zero", "\taddiu $v0, $zero, -1"]}
+{"tu": "recon/syslib/psx/libsn/operators.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libsn/PUREV.c", "napp": 10, "reg": 0, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 2, "sample": ["\t\t.set push", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libsn/READ.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}
+{"tu": "recon/syslib/psx/libsn/SNMAIN.c", "napp": 11, "reg": 1, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 3, "sample": ["\t\t.set push", "\tjr    $ra", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libsn/SNREAD.c", "napp": 15, "reg": 7, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 9, "sample": ["\t\t.set push", "\tbeqz  $v0, 1f", "\t addu $v0, $v1, $zero", "\taddiu $v0, $zero, -1", "1:\tjr   $ra", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libsn/SNWRITE.c", "napp": 15, "reg": 7, "pushpop": 2, "alias": 0, "rawdiv": 0, "drop": 0, "total": 9, "sample": ["\t\t.set push", "\tbeqz  $v0, 1f", "\t addu $v0, $v1, $zero", "\taddiu $v0, $zero, -1", "1:\tjr   $ra", "\t.set pop"]}
+{"tu": "recon/syslib/psx/libsn/WRITE.c", "napp": 0, "reg": 0, "pushpop": 0, "alias": 0, "rawdiv": 0, "drop": 0, "total": 0}

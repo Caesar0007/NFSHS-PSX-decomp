@@ -1,0 +1,25 @@
+{
+ "tu": "recon/eaclib/psx/eacpsxz/blkmov.c",
+ "tag": "before",
+ "obj_sha": "630ee37d5c669e9c2236f5a43f34ca963f61730dc7d31b39a1b651f63c346112",
+ "dis_sha": "794d6952d8eb6866f2395b311cbbdc11b9cfb15e73b8696bbe4caa18d6667566",
+ "gate": {
+  "pass": 1,
+  "total": 1,
+  "fails": {}
+ },
+ "prod": {
+  "blockmove": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 1
+  }
+ },
+ "prod_nodialect": {
+  "blockmove": {
+   "ok": false,
+   "err": "aspsx failed:"
+  }
+ }
+}

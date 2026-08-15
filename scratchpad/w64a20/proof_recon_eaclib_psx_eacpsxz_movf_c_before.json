@@ -1,0 +1,25 @@
+{
+ "tu": "recon/eaclib/psx/eacpsxz/movf.c",
+ "tag": "before",
+ "obj_sha": "4623cd718f0ef36dbaa7608a6fa8359d831be87a73f2aef6ac5ee9fd1811805f",
+ "dis_sha": "f2139ba47982dc4c194bfee3935c7f2fd06ff039bab9ccbd65c7a02535487038",
+ "gate": {
+  "pass": 1,
+  "total": 1,
+  "fails": {}
+ },
+ "prod": {
+  "movfxya": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 22
+  }
+ },
+ "prod_nodialect": {
+  "movfxya": {
+   "ok": false,
+   "err": "aspsx failed:"
+  }
+ }
+}

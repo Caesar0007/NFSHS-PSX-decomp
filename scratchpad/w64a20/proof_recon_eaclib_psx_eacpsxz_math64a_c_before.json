@@ -1,0 +1,35 @@
+{
+ "tu": "recon/eaclib/psx/eacpsxz/math64a.c",
+ "tag": "before",
+ "obj_sha": "a25fb8547088d75e8a25fc758c305bba243d8ba2a0b961bf94c223df7168f455",
+ "dis_sha": "d0725be2e00cdc451b60022f5b922418036a4b8398d79ebc7a34ed14c6106d07",
+ "gate": {
+  "pass": 2,
+  "total": 2,
+  "fails": {}
+ },
+ "prod": {
+  "divu64": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 0
+  },
+  "make64": {
+   "ok": true,
+   "real": 0,
+   "relop": 0,
+   "reloc": 0
+  }
+ },
+ "prod_nodialect": {
+  "divu64": {
+   "ok": false,
+   "err": "aspsx failed:"
+  },
+  "make64": {
+   "ok": false,
+   "err": "aspsx failed:"
+  }
+ }
+}

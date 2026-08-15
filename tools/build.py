@@ -973,7 +973,11 @@ PER_FN_CC1_VER_SPLICE_272 = {
     # catastrophic (CdControlF PASS->51) => per-fn.
     "recon/syslib/psx/libcd/cdcont.c": {"2.8.0": {"CdReset"}},
     # w61-a6: _padLoadActInfo 26 -> 2 on the 2.7.2 rung (+1 move -> PASS).
-    "recon/syslib/psx/libpad/PADCMD.c": {"2.7.2": {"_padLoadActInfo"}},
+    "recon/syslib/psx/libpad/PADCMD.c": {"2.7.2": {"_padLoadActInfo",
+        # w63-a8: 27->2 count-exact via source landing @2a3a0587, then
+        # PASS 50/50 on 2.7.2 (cse no-copy-prop identity is a version
+        # property; 970404 control = 2). Whole-TU 18/19, 0 regressions.
+        "_padSetActAlign_rcv"}},
 }
 
 

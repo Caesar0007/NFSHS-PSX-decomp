@@ -334,6 +334,7 @@ extern int _read_issue(int retry)
      * result is in `$a0`; splitting the sector value into its own local ahead of the
      * anchor is the untested shape.  */
     volatile CdrEnv *g;
+    int sect;
     CdSyncCallback(0);
     CdReadyCallback(0);
     if (CD_read_dma_mode & 1)
@@ -357,6 +358,15 @@ extern int _read_issue(int retry)
     }
 
     CdFlush();
+    /* MATCH (w63-a6, 12 -> 8 @122/122 COUNT-EXACT): two more zero-insn VOID
+     * BARRIERS at the branch delay slots retail leaves `nop`.  reorg.c stop_search_p
+     * halts the backward scan at any asm, so the `lui` halves of the following
+     * region anchors can no longer be stolen into the CdlSetloc `beqz` and the
+     * CdlSetmode `bnez` slots.  Sweep (scratchpad/w63a6/probe_issue2.py, on the
+     * 12-diff basin): before CdFlush 12 (inert), AFTER CdFlush 11, error-label head 9,
+     * before-CdFlush+error 9, AFTER-CdFlush+error 8 -- POSITION is the dial, exactly
+     * per the W45 fence-fixpoint law. */
+    __asm__("" : : "i"(0));
     {
         volatile int *mp = &_cdr.w0c;   /* MATCH: FIELD ANCHOR ($s1) held across CdMode() */
         int    m;
@@ -367,6 +377,7 @@ extern int _read_issue(int retry)
         if ((m & 0xFF) != CdMode() || retry != 0) {
             if (CdControl(0xE, &modeb, 0) == 0) {            /* CdlSetmode */
             error:
+                __asm__("" : : "i"(0));
                 _cdr.w14 = -1;      /* MATCH: retail keeps this error tail INLINE (bnez skips it); */
                 return _cdr.w14;    /* sharing it via `goto error` cross-jumps + inverts polarity */
             }
@@ -376,9 +387,23 @@ extern int _read_issue(int retry)
     }
 
     /* delay-slot capture: w20 receives CdPosToInt()'s result (computed before CdReadyCallback). */
+    /* MATCH (w63-a6, 15 -> 12): the TAIL-ANCHOR POSITION angle named in the w62-a6
+     * residual note, now measured.  Retail mints `la $s0,_cdr` only AFTER the
+     * CdPosToInt result exists (`jal CdPosToInt` / `lui a0;addiu a0` for _read_int /
+     * `lui s0;addiu s0` / `jal CdReadyCallback` with `sw v0,32(s0)` in its slot);
+     * ours had reorg steal the `lui $s0` half backwards into an earlier jal's delay
+     * slot where retail keeps a `nop`.  TWO parts, both required (either alone is
+     * inert at 15): (a) split the sector value into its own local so the anchor is
+     * minted after the call, (b) a zero-insn VOID BARRIER immediately before the
+     * anchor -- reorg.c's stop_search_p halts the backward scan at any asm, so the
+     * `lui` can no longer be stolen.  Measured: (a) alone 15, (b) alone 15,
+     * (a)+(b) 12 @120/122, (a) without the identity fence 19.
+     * scratchpad/w63a6/probe_issue.py. */
+    sect = CdPosToInt((CdlLOC *)CdLastPos());                        /* start sector */
+    __asm__("" : : "i"(0));
     g = &_cdr;                      /* MATCH: TAIL ANCHOR ($s0) -- one `la` for the whole tail */
     __asm__("" : "=r"(g) : "0"(g));
-    *(int *)&g->w20 = CdPosToInt((CdlLOC *)CdLastPos());             /* start sector */
+    *(int *)&g->w20 = sect;
     CdReadyCallback((int)_read_int);
     if (CD_read_dma_mode & 1)
         CdDataCallback((int)_read_data_int);

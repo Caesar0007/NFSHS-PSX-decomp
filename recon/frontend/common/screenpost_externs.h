@@ -55,7 +55,7 @@ void tScreenCarSelectTwoPlayer_ctor(tScreenCarSelectTwoPlayer*); void tScreenCar
 void tScreenCarSelectDuel_dtor(tScreenCarSelectDuel*); void tScreenPinkSlipsCarSelect_dtor(tScreenPinkSlipsCarSelect*);
 
 /* ===== tScreen helpers (free-fn form) ===== */
-void  DrawBackgroundImage(tScreen*, int, int, tTexture_ShapeInfo*, int);
+void  DrawBackgroundImage(tScreen*, int, int, tTexture_ShapeInfo*, int) __asm__("DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi");  /* w64 unlock: member form (A19 2.4) */
 void *IsShapeFileLoaded(tScreen*, tShapeInformation*);
 void  UploadShapes(...);
 void  FreeShapes(tScreen*, tShapeInformation*);
@@ -74,7 +74,7 @@ void Initialize(tVideoWall*, tTVConfig*, tTexture_ShapeInfo*, short, short, shor
 /* ===== FE / game / PsyQ helpers ===== */
 int   CalcFadeVal(int, int);
 char *TextSys_Word(int); int TextSys_WordX(int); int TextSys_WordY(int); int TextSys_WordFlags(int);
-short TextValue(void*, tPlayer); void Decrement(void*, tPlayer); void Increment(void*, tPlayer);
+short TextValue(void*, tPlayer) __asm__("TextValue__13tListIterator7tPlayer");  /* w64 unlock: base-class member (hierarchy binds BASE, A21) */ void Decrement(void*, tPlayer); void Increment(void*, tPlayer);
 void  DrawMoney(int, int, int, long, int, int);
 void  DrawShapeExtended(int, int, int, int, int, int, tDrawShapeExtended *);
 void  DrawShape_NFS4Rectangle(...); void DrawShape_NFS4RoundRectangle(int, RECT*, short);
@@ -108,7 +108,7 @@ void PreLoad(tScreen*);
 
 /* --- ScreenPost.obj-specific externs --- */
 int   FeTools_FormatMoney(char *out, long amount);
-int   FETextRender_FullTextRGB(char *s, short x, short y, int col, char a, int b);
+int   FETextRender_FullTextRGB(char *s, short x, short y, int col, char a, int b) __asm__("FETextRender_FullTextRGB__FPcssics");  /* w64 unlock: last parm is short in retail (A19 2.4) */
 int   FETextRender_FullTextFade(int, char *, short, short, tMenuTextType, tMenuTextState, short);
 /* W58-A1 (08A phantom fix): FETextRender_MenuTextPositionedJustifyFade__Fissss14tMenuTextState13tMenuTextType. */
 int   FETextRender_MenuTextPositionedJustifyFade(int, short, short, short, short, tMenuTextState, tMenuTextType);

@@ -38,7 +38,12 @@ extern void  BWorldSm_SetSlice(int slice, BWorldSm_Pos *pos);
 extern void AIScript_SubmitPlayerAction(AIScript_t *script,int humCarIndex,AIScript_tPlayAction playerAction, int currentTime64);
 extern void AudioClc_SetHorn(Car_tObj *car,int state);
 int  BWorldSm_FindClosestSlice(coorddef *pt, BWorldSm_Pos *slicePos);
+/* w64 unlock (A21 calltarget): all FOUR overloads -- a single decl made every
+ * call bind __FP8Car_tObjT0 via silent 0->pointer conversion (w22-a14 back). */
 int AIWorld_ApxSplineDistance(Car_tObj *a, Car_tObj *b);
+int AIWorld_ApxSplineDistance(Car_tObj *a, int sliceB);
+int AIWorld_ApxSplineDistance(int sliceA, Car_tObj *b);
+int AIWorld_ApxSplineDistance(int sliceA, int sliceB);
 int AIWorld_SplineDistance(Car_tObj *a, Car_tObj *b);
 void  trap(int code);
 void AudioClc_HonkHorn(Car_tObj *carObj, int a, int b, int c);

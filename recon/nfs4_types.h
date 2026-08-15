@@ -4563,12 +4563,12 @@ struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {   /* 40 
 
 };
 
-extern __vtbl_ptr_type tMenuItemOptionsLeftRightChoice_vtable[], tMenuItemOptionsTwoItemChoice_vtable[], tBlankMenuItemGoToMenuNFS4Button_vtable[], tMenuItemDisplayLeftRightChoice_vtable[], tMenuItemSlidingActivated_vtable[], tMenuItemOnOffLeftRightChoice_vtable[], tMenuItemControllerLeftRightChoice_vtable[], tMemoryCardMenuItem_vtable[], tBlankMenuItemNFS4LeftRightChoice_vtable[];   /* manual vtables for fwd-ctor stores */
+extern __vtbl_ptr_type tMenuItemOptionsLeftRightChoice_vtable[], tMenuItemOptionsTwoItemChoice_vtable[], tBlankMenuItemGoToMenuNFS4Button_vtable[], tMenuItemDisplayLeftRightChoice_vtable[], tMenuItemSlidingActivated_vtable[], tMenuItemOnOffLeftRightChoice_vtable[], tMenuItemControllerLeftRightChoice_vtable[], tMemoryCardMenuItem_vtable[], tBlankMenuItemNFS4LeftRightChoice_vtable[], tInsideBoxControllerLeftRightSlider_vtable[];   /* manual vtables for fwd-ctor stores */
 struct tBlankMenuItemNFS4LeftRightChoice : public tMenuItemNFS4LeftRightChoice {   /* 40 bytes */
     tBlankMenuItemNFS4LeftRightChoice() {}   /* default ctor (members not init-listed elsewhere) */
     tBlankMenuItemNFS4LeftRightChoice(unsigned int t, tListIterator *d, int ff, int nf) : tMenuItemNFS4LeftRightChoice(t, d, ff, nf) { *(void **)&_vf = (void *)&tBlankMenuItemNFS4LeftRightChoice_vtable; }   /* inline fwd ctor */
     void *TransitionIsFinished();
-    void Draw(int, int, char);
+    void Draw(int, int, bool);   /* w64 unlock (A19 2.4): char form was undefined */
     ~tBlankMenuItemNFS4LeftRightChoice();
 };
 
@@ -4884,14 +4884,16 @@ struct tBlankMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuNFS4Button {  
     tBlankMenuItemGoToMenuNFS4Button() {}   /* default ctor (members not init-listed elsewhere) */
     tBlankMenuItemGoToMenuNFS4Button(unsigned int t, tMenu *m, void (*f)(tMenuCommand&), int ff, int nf) : tMenuItemGoToMenuNFS4Button(t, m, f, ff, nf) { *(void **)&_vf = (void *)&tBlankMenuItemGoToMenuNFS4Button_vtable; }   /* inline fwd ctor */
     void *TransitionIsFinished();
-    void Draw(int, int, char);
-    void Draw(int);
+    /* w64 unlock (A19 2.4): the int/char spellings were the overloads NOTHING
+     * defines -- vtable slots relocated against phantoms (runtime NULL dispatch). */
+    void Draw(int, int, bool);
+    void Draw(bool);
     ~tBlankMenuItemGoToMenuNFS4Button();
 };
 
 struct tInsideBoxControllerLeftRightSlider {   /* 40 bytes */
     tInsideBoxControllerLeftRightSlider() {}   /* default ctor (members not init-listed elsewhere) */
-    tInsideBoxControllerLeftRightSlider(unsigned int t, tListIterator *d) : _base_tInsideBoxLeftRightSlider(t, d) {}   /* inline fwd ctor (composition) */
+    tInsideBoxControllerLeftRightSlider(unsigned int t, tListIterator *d) : _base_tInsideBoxLeftRightSlider(t, d) { *(void **)&_base_tInsideBoxLeftRightSlider._vf = (void *)&tInsideBoxControllerLeftRightSlider_vtable; }   /* w64 unlock (A16 wish): vptr store INSIDE construction, as retail 0x80030ADC/AFC/B34 and the :4577/:4586 siblings do */
     tInsideBoxLeftRightSlider _base_tInsideBoxLeftRightSlider;   /* +0x0 */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */

@@ -32,7 +32,12 @@ extern int AIWorld_GameOdometer(Car_tObj *carObj);
 extern u_int               fastRandom, randSeed, randtemp;   /* fastrand.obj PRNG state */
 extern void Udff_Close(Udff_tInfo *handle);
 extern void Udff_GetBuffer(Udff_tInfo *handle,char *mem,int size);
+/* w64 unlock (A21 calltarget): all FOUR overloads -- a single decl made every
+ * call bind __FP8Car_tObjT0 via silent 0->pointer conversion (w22-a14 back). */
 int AIWorld_ApxSplineDistance(Car_tObj *a, Car_tObj *b);
+int AIWorld_ApxSplineDistance(Car_tObj *a, int sliceB);
+int AIWorld_ApxSplineDistance(int sliceA, Car_tObj *b);
+int AIWorld_ApxSplineDistance(int sliceA, int sliceB);
 /* AIDataRecord_TrackCurve_t::Get / AIDataRecord_CurveSpeedTable_t::Get now called as C++ members (aidatarecord.obj) -- flat externs removed */
 
 #endif /* _GAME_COMMON_CAMERA_EXTERNS_H_ */

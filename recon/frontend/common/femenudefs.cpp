@@ -2971,8 +2971,6 @@ tGlobalMenuDefs::tGlobalMenuDefs()
 {
   char compilerFramePad[56];
 
-  *(void **)&((itemControllerShockMode)._base_tInsideBoxLeftRightSlider._vf) = (void *)&tInsideBoxControllerLeftRightSlider_vtable;
-  *(void **)&((itemControllerShockImpact)._base_tInsideBoxLeftRightSlider._vf) = (void *)&tInsideBoxControllerLeftRightSlider_vtable;
   (menuPlayerOneCarSelect).fChildMenu = (tMenu *)&menuPlayerTwoCarSelect;
   (menuPlayerOneGarage).fChildMenu = (tMenu *)&menuPlayerTwoGarage;
   (menuPlayerOnePinkSlipCarSelect).fChildMenu = (tMenu *)&menuPlayerTwoPinkSlipCarSelect;
@@ -3037,10 +3035,9 @@ void * tBlankMenuItemGoToMenuNFS4Button::TransitionIsFinished()
    retail slot between TransitionIsFinished (0x800321C0) and the dtor (0x800321D8).
    (A fully clean fix = correct the class decls to bool in nfs4_types.h -- a shared-header
    change, still deferred.) */
-extern "C" {
-void Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib(void) {}  /* @0x800321C8 */
-void Draw__32tBlankMenuItemGoToMenuNFS4Buttonb(void) {}  /* @0x800321D0 */
-}
+/* w64 unlock: real member defs (the header now declares the bool forms). */
+void tBlankMenuItemGoToMenuNFS4Button::Draw(int, int, bool) {}  /* @0x800321C8 */
+void tBlankMenuItemGoToMenuNFS4Button::Draw(bool) {}  /* @0x800321D0 */
 
 /* ---- tBlankMenuItemGoToMenuNFS4Button::dtor  [FEMENUDEFS.CPP:?] ---- */
 
@@ -3059,9 +3056,7 @@ void * tBlankMenuItemNFS4LeftRightChoice::TransitionIsFinished()
 }
 
 /* ---- Draw nullsub @0x80032200  [W60-A10: MOVED here from the TU tail; see the note above] ---- */
-extern "C" {
-void Draw__33tBlankMenuItemNFS4LeftRightChoiceiib(void) {}  /* @0x80032200 */
-}
+void tBlankMenuItemNFS4LeftRightChoice::Draw(int, int, bool) {}  /* @0x80032200 -- w64 unlock: real member def */
 
 /* ---- tBlankMenuItemNFS4LeftRightChoice::dtor  [FEMENUDEFS.CPP:?] ---- */
 

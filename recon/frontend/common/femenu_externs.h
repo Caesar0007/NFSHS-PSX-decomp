@@ -30,7 +30,9 @@ void  FETextRender_Title(short word);
 void  FETextRender_MenuTextPositioned(short word, short x, short y, tMenuTextState state, tMenuTextType type);
 void  AudioCmn_PlayFESFX(int sfx);
 void  AudioCmn_PlayFESFXVol(int sfx, int vol);
-void  DisplayHelp(tFEApplication *app, int which);
+/* w64 unlock (A19 sec-2.4): member fn taking short -- the free-fn int decl
+ * emitted the phantom DisplayHelp__FP14tFEApplicationi. */
+void  DisplayHelp(tFEApplication *app, short which) __asm__("DisplayHelp__14tFEApplications");
 
 /* ===== fefades.obj fade helper (overloaded) + libgpu ===== */
 int   CalcFadeVal(int color, int fade);

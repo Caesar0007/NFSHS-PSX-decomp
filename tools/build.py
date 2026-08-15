@@ -457,7 +457,7 @@ PER_TU_FLAGS = {
     "recon/syslib/psx/libmcrd/USERFUNC.c":  {"cc1_272": True},
     # w51-a7: INTR.c -> cc1_272 (8 PASS incl. VSyncCallback; _intrhand 110->49).
     "recon/syslib/psx/libetc/INTR.c":       {"cc1_272": True},
-    "recon/syslib/psx/libcd/iso9660.c":    {"cc1_272": True},  # w51-a4 (drops no_split)
+    "recon/syslib/psx/libcd/iso9660.c":    {"cc1_272": True, "signed_char": True},  # w51-a4 (drops no_split)
     # 04M -- the gcc-2.7.2 lane (see "cc1_272" key above).  FERR/_err_math and
     # FLTSIDF/__floatsidf sealed the lane (PASS); the rest of libmath probed
     # TU-by-TU at consolidation, kept only where the gate net-improves with
@@ -1939,6 +1939,10 @@ def _compile_c_272(rel: Path, tu_flags: dict, i_file: Path, s_file: Path,
         cc1_flags.append("-fno-delayed-branch")
     if tu_flags.get("no_strength_reduce"):
         cc1_flags.append("-fno-strength-reduce")
+    # w61-a8: char is UNSIGNED on the cc1_272 lane by default -- a lbu-vs-lb
+    # diff on plain char is a TU FLAG question, not a cast question.
+    if tu_flags.get("signed_char"):
+        cc1_flags.append("-fsigned-char")
     if tu_flags.get("no_schedule_insns"):
         cc1_flags.append("-fno-schedule-insns")
     if tu_flags.get("no_schedule_insns2"):

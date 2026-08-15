@@ -79,15 +79,52 @@ static int rd32le(const u_char *p)
  *  - the two-pointer final scan ALONE (`nm = _cd_dir[0].name; rec = (CdlFILE*)(nm-8); rec++;
  *    nm += 24;`) grafted onto the existing body -> 75 -> 108.
  * The existing `_cd_dir[i]`-indexed scan + cached-`ch` split loop is the better basin. */
+/* MATCH (w61-a8): 75 -> 64 diffs, `.frame` regs 7 -> retail's 8.  Three levers, each
+ * gated individually on the whole TU (zero PASS->FAIL):
+ *  (1) SIGNED-CHAR CURSORS.  Retail loads every path byte with `lb` (sign-extended);
+ *      plain `char` is UNSIGNED on this cc1_272 lane (measured: `*name != '\\'` on a
+ *      `char *` emits `lbu` where retail has `lb`), so only an explicit `signed char`
+ *      changes it.  `unsigned char` also cost a redundant `andi v1,a1,255` per test.
+ *  (2) THE TWO LOOP CONSTANTS AS NAMED PREHEADER LOCALS (`sep` / `notfound`).  Retail
+ *      materialises BOTH into callee-saved registers in the outer preheader
+ *      (`addiu s5,zero,0x5C` / `addiu s4,zero,-1`, live across the `_cd_find_path`
+ *      call) and therefore saves EIGHT callee-saved regs; our literals were
+ *      rematerialised inside the loop, so we only ever saved seven and every
+ *      s-register was one slot off.  Assigned in the preheader, NOT decl-with-init
+ *      (a decl-with-init moves the live-range start and demotes the allocno).
+ *  (3) THE TWO TESTS RE-READ `*s`; THE STORE KEEPS THE CACHED `ch`.  Retail issues a
+ *      fresh `lb`+`lbu` pair per test (the `*q` store may alias `name`), so a cached
+ *      `ch` carried across the back-edge cost a `move` + a `sll/sra` sign-extend.
+ *      Re-reading the STORE too (`*q++ = *s`) is 4 diffs WORSE.
+ * RESIDUAL 64 = (a) the inner loop still CSEs the compare's load with `ch = *++s`
+ *   (same address) and sign-extends by `sll 24/sra 24` instead of retail's second
+ *   `lb`, and the loop entry is a `j <bottom test>` where retail PEELS the guard;
+ *   (b) the `lb` vs `lbu` split at the three PLAIN-`char` sites (`*name`, `comp[0]`,
+ *   `_cd_dir[i].name[0]`) -- a TU FLAG question, see the -fsigned-char note below.
+ * FALSIFIED (each measured on this basin, with and without -fsigned-char):
+ *   `*q++ = *s++` / a standalone `s++` / a `for(;;)`-with-`break` peeled guard all
+ *   reproduce retail's `lb`+`lbu` pair BUT make gcc-2.7.2 reserve 16 bytes of DEAD
+ *   `vars` (frame 80 -> 96, `vars= 32` -> `48`, nothing ever stored there), which
+ *   costs more than the pair wins (86-96 diffs).  Only the `ch = *++s` increment
+ *   form keeps the frame at retail's 80.  NEW NAMED ANGLE (unexplained, reusable):
+ *   the phantom 16-byte `vars` reservation is what blocks retail's exact loop here.
+ *   Source `(signed char *)` casts at the three plain-`char` sites: 103 (WORSE --
+ *   the cast costs a callee-saved reg); -fno-strength-reduce on this TU: 2/6 PASS
+ *   (breaks _cd_find_path AND CD_cachefile) -- do not retry.
+ * ORCHESTRATOR: a `-fsigned-char` PER_TU flag is worth -4 more here (CdSearchFile
+ *   64 -> 60, everything else in the TU unchanged) and is INERT on libmcrd/BIOS.c
+ *   17/17, libcd/stcdint.c, libcd/streamhelp.c, libetc/INTR.c and libapi/FIRST.c --
+ *   i.e. zero risk on the measured belt.  There is no such key in PER_TU_FLAGS today
+ *   (probe harness: scratchpad/w61a8/fprobe.py). */
 /* @0x800F9088 : resolve an absolute "\\dir\\file" path to its CdlFILE. */
 extern CdlFILE *CdSearchFile(CdlFILE *fp, char *name)
 {
     char           comp[0x20];
     int            dir;                                     /* current parent dir number */
-    int            i;
-    unsigned char *s;                                       /* cursor into `name` */
-    unsigned char *q;                                       /* cursor into `comp` */
-    unsigned char  ch;
+    int            i, sep, notfound;
+    signed char   *s;                                       /* cursor into `name` */
+    signed char   *q;                                       /* cursor into `comp` */
+    signed char    ch;
 
     if (_cd_search_nopen != CD_nopen) {                     /* media changed -> remount */
         if (CD_newmedia() == 0)
@@ -98,17 +135,17 @@ extern CdlFILE *CdSearchFile(CdlFILE *fp, char *name)
     if (*name != '\\')                                     /* paths must be absolute */
         return 0;
     comp[0] = 0;
-    s = (unsigned char *)name;
+    s = (signed char *)name;
     /* split on '\\'; descend through each directory component, leaving the filename in `comp`.
      * (the binary threads the parent dir id through $a0 across _cd_find_path calls, and keeps fp
      * live across the loop -- reproduced with the `fp++;fp--;` no-op.) */
-    for (i = 0; i < 8; i++) {
+    sep = '\\'; notfound = -1; for (i = 0; i < 8; i++) {
         fp++;
         fp--;
         ch = *s;
-        q = (unsigned char *)comp;
-        while (ch != '\\') {
-            if (!ch)
+        q = (signed char *)comp;
+        while (*s != sep) {
+            if (!*s)
                 goto out;                                   /* reached the filename */
             *q++ = ch;
             ch = *++s;
@@ -118,7 +155,7 @@ extern CdlFILE *CdSearchFile(CdlFILE *fp, char *name)
         s++;                                                /* skip the separator */
         *q = 0;
         dir = _cd_find_path(dir, comp);
-        if (dir == -1) {                                    /* directory not found */
+        if (dir == notfound) {                                    /* directory not found */
             comp[0] = 0;
             break;
         }
@@ -172,6 +209,23 @@ extern int _cd_cmp_name(char *a, char *b)
  * W56: Rage's `CdRawWord` is a four-byte STRUCT, not the earlier union-shaped LBA.  Reinterpreting
  * the raw struct at both call/diagnostic uses makes gcc reload the value from its stack slot rather
  * than retain it in $s0 across `cd_read`: 39 -> 32, with exact 177/177 instruction count. */
+/* RESIDUAL 11 (w61-a8), two named clusters:
+ *  (a) the misaligned +140 read: retail `lwl 143(s0)/lwr 140(s0)` off the SHARED base
+ *      register, ours materialises `la $5,_cd_secbuf+140` first (ours +2 insns).  Root
+ *      cause is cse knowing buf == &_cd_secbuf and folding the address.  An IDENTITY
+ *      fence (`"=r"(buf) : "0"(buf)`) DOES defeat the fold and produces retail's
+ *      lwl/lwr exactly -- but it is cse-opaque for the whole function and costs +8
+ *      elsewhere (19).  FALSIFIED for a cheaper local launder: a block-local
+ *      `pb = buf` + identity fence at the read only (15), a plain block-local copy
+ *      (11, inert), `((RawWord *)buf)[35]` (11, inert), and the older list
+ *      ((LBA*)(buf+140), decl reorder, -fforce-addr/-fforce-mem/-fno-schedule-insns).
+ *      NEXT DIAL: a zero-insn way to make ONE address opaque to cse.
+ *  (b) the loop bound: retail computes it into a guard-block temp (`addiu v1,s1,2048`)
+ *      and COPIES it into the callee-saved loop register in the preheader
+ *      (`addu s5,v1,zero`); ours computes straight into the callee-saved reg and is
+ *      one insn SHORT -- the combine_regs/global-allocno copy device (w60-a1 law 6).
+ *      FALSIFIED: `while (rec < buf + 0x800)` with no `end` variable (46),
+ *      `end = rec + 0x800` (11, inert), assigning `end` on the `rec = buf` line (11). */
 extern int CD_newmedia(void)
 {
     u_char *buf;
@@ -182,7 +236,15 @@ extern int CD_newmedia(void)
     int     r;
 
     buf = (u_char *)_cd_secbuf;
-    r = cd_read(1, 0x10, (char *)buf);                       /* read PVD at LBA 0x10 */
+    r = cd_read(1, 0x10, (char *)buf);   /* read PVD at LBA 0x10 */
+    /* MATCH (w61-a8): READ-ONLY FENCE on `buf` -- the allocno DEMOTE dial.  32 -> 11
+     * diffs.  Lengthening buf's live range past the first cd_read drops its priority
+     * so it takes retail's $s0 and `r` takes $s1 (we had them swapped, which shifted
+     * every s-register in the function).  PLACEMENT IS THE DIAL: the same fence on
+     * the `buf = _cd_secbuf` line scores 15, because an asm at the top of the
+     * function is a scheduling barrier and retail sets up the cd_read arguments
+     * BEFORE the callee-saved stores.  Operand count is inert here (1/2/3 all 11). */
+    __asm__("" : : "r"(buf));
     if (r != 1) {
         if (CD_debug > 0) printf("CD_newmedia: Read error in cd_read(PVD)\n");
         return 0;

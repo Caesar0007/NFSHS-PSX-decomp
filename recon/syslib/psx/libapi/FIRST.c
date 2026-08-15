@@ -140,6 +140,15 @@ pass2:
     e   = BIOS_DCB_BASE;
     lim = e + (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
     if (e < lim) {
+        /* MATCH (w61-a8): void-tail fence, 6 -> 5.  Retail fills pass 2's zero-trip
+         * `beqz $v0` slot by EAGER-STEALING `addu $a0,$s2,$zero` from the BRANCH
+         * TARGET thread (the shared firstfile2 arg setup); ours filled it from the
+         * fall-through with this `end = lim` copy.  An asm stops reorg's BACKWARD
+         * scan, so the fall-through candidate disappears and reorg takes the target
+         * thread instead.  SITE-SELECTIVE, priced per site: the same fence at pass 1
+         * is inert (6) and at _first_patch's identical walk it REGRESSES (2 -> 3), so
+         * the all-three-sites sweep is a wash (5+3).  Zero insns. */
+        __asm__("" : : "i"(0));
         end = lim;
 scan2:
         if (e->name != 0 && strcmp(e->name, _first_devname) == 0)

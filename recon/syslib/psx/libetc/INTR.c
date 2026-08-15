@@ -132,6 +132,15 @@ extern IntrState *_initIntr(void)       /* @0x800F2968 */
     g_intr.jmpbuf[1] = (long)g_intr.evcb;
     HookEntryInt(g_intr.jmpbuf);
     g_intr.inited = 1;
+    /* RESIDUAL 6 (w61-a8), count-EXACT 54/54: the SECOND `g_hooks_ptr` load lands in
+     * $v1 where retail uses $a0 (the first one is $v1 in both) -- two identical
+     * local-alloc QTYs where retail's second conflicts with the first and ours does
+     * not.  The defining expression is a MEM off a SYMBOL_REF, so w61-a20's
+     * set_preference records nothing and only the numeric scan runs; the only way in
+     * is to make $v1 busy.  FALSIFIED (all gated): one shared `IntrHooks *` local
+     * across both stores 20, two separate named locals 27, a read-only fence on the
+     * first pointer after the second store 20 -- each makes the pointer live across
+     * the `jal`, which forces a callee-saved register and grows the frame. */
     g_hooks_ptr->vsync_setter = (IntrSetter)startIntrVSync();
     g_hooks_ptr->dma_setter   = (IntrSetter)startIntrDMA();
     _96_remove();
@@ -165,6 +174,20 @@ extern void _intrhand(void)            /* @0x800F2A40 */
      * `(state[0x18] & I_STAT) & I_MASK` 50, `state&I_STAT` then `&I_MASK` as two statements 46,
      * `I_MASK & pend` as two statements 46, `I_STAT & (state & I_MASK)` 44 (ties, kept the
      * I_MASK-outer form); `(I_MASK & I_STAT)` for the closing timeout test 46.
+     * FALSIFIED w61-a8 (with w61-a20's DEVICES.md in hand; all gated, all reverted):
+     *  - the qty-ORDER attack from the OTHER side -- instead of hoisting the `enabled`
+     *    read above `state[1] = 1` (A20: 46/49/46), LENGTHEN the constant's live range so
+     *    it still owns $v0 when `enabled` is born: reuse the already-declared `one` for
+     *    the store (`one = 1; state[1] = (u_short)one;`) with the loop-side `one = 1`
+     *    dropped 51, kept 51, on one line 51;
+     *  - the hoist crossed with the w61-a20 DEVICE-1b mode dial: `long en` 49,
+     *    `int en` 49, `unsigned short en` 50 (qty_size does not decide this tie);
+     *  - the hoist crossed with every AND-tree spelling: `(en & I_STAT) & I_MASK` 46,
+     *    `I_MASK & (en & I_STAT)` 49, and retail's OWN tree read off the oracle
+     *    (`lhu v1,48(s1); lhu a0,0(a0); and v1,v1,a0; and v0,v0,v1` = 
+     *    `I_STAT & (enabled & I_MASK)`) 49 hoisted / 44 un-hoisted (ties the shipped
+     *    form at both sites, entry-only and loop-only).  So the tree is NOT the dial:
+     *    every spelling that keeps the count also keeps the two-qty swap.
      * FALSIFIED in the OLD 115-insn basin (04Z: basin-relative, re-test if the basin moves):
      * g_intr_timeout as an unsized `[]` / sized `[1]`/`[2]`/`[4]` array (the catalog's store-side
      * $at lever) all 48 @114/116 -- they REMOVE an instruction here, they do not add retail's
@@ -261,7 +284,18 @@ extern int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C10 */
      *     the disable arm goes through the GLOBAL -- an asymmetry that is in the original;
      *   - `bit` is a u_long, and the running mask is `pendingValue & 0xFFFF`.
      * RR's `register ... asm("$N")` pins are NOT copied (project hard rule); the zero-insn
-     * opacity fences it also carries are kept, since they are the pin-free device. */
+     * opacity fences it also carries are kept where re-pricing says so (see the `st` one,
+     * removed below), since they are the pin-free device.
+     * RESIDUAL 25 (w61-a8): ours 83 insns vs oracle 82.  Two clusters:
+     *  (a) ONE extra `andi v1,v1,0xFFFF` before the `andi s3,v1,0xFFFF` retail keeps --
+     *      the pendingValue identity fence makes cse forget the `lhu` already proved
+     *      the range, so the mask is materialised twice.  Dropping that fence removes
+     *      the insn but costs more elsewhere (26/28 in both basins).
+     *  (b) a 3-way ADDRESS-REGISTER rotation: ours {a0 = table base, a1 = slot},
+     *      retail {a1 = base, a0 = slot, a2 = base-4}.  FALSIFIED as zero-insn dials
+     *      (w61-a20 DEVICE 2a, preference = first operand of the defining expr):
+     *      `(long)base + offset` operand swap, `&base[index]` index form, and
+     *      read-only / identity fences on `slot` and on `base` -- all 25, inert. */
     long index;
     int callback;
     int *base;
@@ -289,8 +323,17 @@ extern int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C10 */
 
     if (*((unsigned short *)base - 2) == 0) {
     } else {
+        /* MATCH (w61-a8): the transplanted identity fence on `st` is REMOVED, 27 -> 25.
+         * It is structurally right and measurably wrong: it forces retail's separate
+         * `addiu a2,a1,-4` pointer (without it gcc folds `st[0x18]` into `44(base)`),
+         * but an asm also stops reorg's backward delay-slot scan, and that very addiu
+         * is what retail puts in the `beqz` slot -- so the fence buys the pointer and
+         * loses the slot, net +2.  FALSIFIED (all gated): the fence moved after the
+         * maskPtr load / after `*maskPtr = 0` / after the `& 0xFFFF` (27 each -- the
+         * position is NOT the dial here), and read-only instead of identity (25, i.e.
+         * no better than removing it).  04Z: this fence came from the Rage Racer
+         * transplant and was never re-priced after the basin moved. */
         st = (unsigned short *)base - 2;
-        __asm__("" : "=r"(st) : "0"(st));
         maskPtr = (volatile unsigned short *)g_imask_ptr;
         pendingValue = *maskPtr;
         __asm__("" : "=r"(pendingValue) : "0"(pendingValue));

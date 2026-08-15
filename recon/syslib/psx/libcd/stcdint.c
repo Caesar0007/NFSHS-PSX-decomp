@@ -85,6 +85,18 @@ extern void _st_dma(int ch, int madr, int blocks, int blocksize, volatile int ch
  *      (81 unflagged).
  * RESIDUAL 36 (flagged) = four named clusters:
  *   (A) 1-insn order at the sub-header loop's entry;
+ * W61-A8 RE-PRICING of (B) on the CURRENT basin (all gated, all reverted): the Pack4
+ * `struct {char b[4];}` cast-assign REPRODUCES retail's `lwl 43(sp)/lwr 40(sp)` +
+ * `swl 31(v0)/swr 28(v0)` EXACTLY and its only residual in that block is a 3-register
+ * rotation (retail {a0 = the 0x20843 constant, a1 = copy temp, v1 = _cdrom_delay ptr},
+ * ours {v1, a0, v0}) -- but it still scores 43.  Falsified for that rotation: moving
+ * the `*_cdrom_delay = 0x20843` store AHEAD of the copy (43; and 41 without Pack4),
+ * a named `int d1 = 0x20843` local (43), a read-only fence on `_st_slot` after the
+ * delay stores (45) and one on `loc[0]` (44).  Cluster (D) IS reachable: a w61-a20
+ * DEVICE-2 identity fence on the `_st_slot[4]` read (`int fn_ = ...; asm =r/0`)
+ * RESTORES the `andi v0,v0,0xFFFF` retail keeps -- the 12E law that only an
+ * OUTPUT-BEARING fence invalidates cse's value-range proof, confirmed at a new site
+ * -- but it lands the mask 9 insns early and nets +3 (39).
  *   (B) the `_st_slot[0x1C] = loc[0]` store: retail emits an UNALIGNED movstrsi block move
  *       (`lwl/lwr` + `swl/swr`, +3 insns of our 8-insn shortfall).  A `struct {char b[4];}`
  *       cast-assign DOES reproduce that exact sequence -- verified twice -- but the
@@ -353,6 +365,12 @@ loop:
  * law): retail's $v0 is occupied across dv's whole window by the BCR value
  * (`sll $v0,$s3,16` scheduled UP into the DPCR load's delay gap), so $v0 is not free when dv
  * fills; ours computes BCR after dv dies.  FALSIFIED so far: hoisting BCR into a named local
+ * W61-A8: the PLACEMENT axis of the BCR hoist is now falsified too (the CD_newmedia lesson
+ * that fence position is a separate dial from fence choice does NOT transfer here): with
+ * `bcr_` hoisted above `dp = _dpcr`, a read-only fence placed AFTER its real consumer
+ * (`*p++ = bcr_`, so the live range genuinely spans dv), the same with two operands, an
+ * identity fence there, and a read-only fence at the `dv = *dp` line are ALL exactly 25;
+ * both fences together cost 46.  The hoist alone is 25 (inert), reconfirming w52-a2.
  * before `dp = _dpcr` / before `dv = *dp` (sched1 sinks it straight back, 25), the same with a
  * read-only fence pinning it (25), read-only/identity/volatile fences on `p` (31, +2 insns),
  * read-only fences on dv at either def (25/33), a 3rd `bit` fence (25), and a void-tail fence

@@ -174,7 +174,14 @@ extern void data_ready_callback(void)
      * structurally correct BASIN for a future coloring dial.  Measured: identity
      * fence before or after the status store 10 (count-exact), read-only fence 26,
      * fence + `dst` assigned after the status store 10, same in a nested block 10,
-     * `dst` assigned late WITHOUT a fence 9 (identical to the current form). */
+     * `dst` assigned late WITHOUT a fence 9 (identical to the current form).
+     * W61-A8 re-priced the fenced (count-exact) basin with the w61-a20 preference law:
+     * the anchor's defining expression is a SYMBOL_REF, so set_preference records
+     * NOTHING and only the numeric scan runs -- $a0 is simply the first free reg, and
+     * nothing here can make $a0/$a1 busy without adding an instruction.  FALSIFIED on
+     * that basin (all gated, all reverted): a read-only fence on `dst` after the copy
+     * 18, two operands 18, `dst` defined after the status store 10, and routing the
+     * aligned `_ds_word1` store through the same anchor 21. */
     u_short *slot = (u_short *)(StRingAddr + (StRingIdx2 << 5));
     struct _ds_loc *dst = (struct _ds_loc *)&_ds_word0;
 

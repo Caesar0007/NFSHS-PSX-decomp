@@ -482,11 +482,22 @@ extern void CdReadyHandler(unsigned char intr, unsigned char *result)
                         done = 1;
                     }
                 }
+                goto cdrh_doneTest;
             }
-        } else {
-            CdFlush();
-            CdSync(0, 0);
         }
+        /* 🔴 REAL CFG BUG FIXED (w65-a1, 04Q class-d / 11C class): branch word 65
+         * -- ours `j +104` vs retail `j +99`.  Retail's STOP-REQUESTED arm
+         * (Cdinfo & 4, i.e. CD_Stopread) does NOT jump to the `done` test: it
+         * falls into this CdFlush/CdSync block, the same one the "not reading"
+         * path (`beqz (Cdinfo & 1)` above) branches to.  Our nested if/else sent
+         * it straight to the done test, so a read aborted mid-flight never
+         * flushed the drive FIFO nor waited for the command to settle -- the
+         * next CdControl then ran against a dirty FIFO.  Same 300 instructions
+         * either way, which is why every gate was green: only the jump WORD
+         * differs.  The goto above is the literal expression of retail's CFG. */
+        CdFlush();
+        CdSync(0, 0);
+cdrh_doneTest:
 
         if (done) {                       /* request satisfied -> fire the completion callback */
             Cdinfo &= ~1;

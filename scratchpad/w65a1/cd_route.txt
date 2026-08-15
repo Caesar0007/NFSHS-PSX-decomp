@@ -1,0 +1,301 @@
+idx  OURS                                       ORACLE                                    
+   0 addiu	sp,sp,-352                           addiu      $sp, $sp, -0x160                
+   1 sw	s3,340(sp)                              sw         $s3, 0x154($sp)                 
+   2 move	s3,a1                                 addu       $s3, $a1, $zero                 
+   3 sw	s1,332(sp)                              sw         $s1, 0x14C($sp)                 
+   4 move	s1,a0                                 addu       $s1, $a0, $zero                 
+   5 move	a0,zero                               addu       $a0, $zero, $zero               
+   6 lui	v0,0x0                                 lui        $v0, %hi(D_80146CE4)            
+   7 sw	s0,328(sp)                              sw         $s0, 0x148($sp)                 
+   8 addiu	s0,v0,32                             addiu      $s0, $v0, %lo(D_80146CE4)       
+   9 sw	ra,344(sp)                              sw         $ra, 0x158($sp)                 
+  10 jal	0 <CD_systaskfunc>                     jal        CdReadyCallback                 
+  11 sw	s2,336(sp)                              sw        $s2, 0x150($sp)                  
+  12 lbu	v0,0(s3)                               lbu        $v0, 0x0($s3)                   
+  13 nop                                        nop                                        
+  14 andi	v0,v0,0x10                            andi       $v0, $v0, 0x10                  
+  15 beqz	v0,228 <CdReadyHandler+0x6c>   -> 27  beqz       $v0, .L800F9D10   -> 27         
+  16 move	s2,zero                               addu      $s2, $zero, $zero                
+  17 lui	a0,0x0                                 lui        $a0, %hi(CD_timerfunc)          
+  18 jal	0 <CD_systaskfunc>                     jal        deltimer                        
+  19 addiu	a0,a0,0                              addiu     $a0, $a0, %lo(CD_timerfunc)      
+  20 lui	a0,0x0                                 lui        $a0, %hi(CD_systaskfunc)        
+  21 addiu	a0,a0,0                              addiu      $a0, $a0, %lo(CD_systaskfunc)   
+  22 move	a1,s2                                 addu       $a1, $s2, $zero                 
+  23 jal	0 <CD_systaskfunc>                     jal        addsystemtask                   
+  24 move	a2,s2                                 addu      $a2, $s2, $zero                  
+  25 j	650 <CdReadyHandler+0x494>   -> 293      j          .L800FA138   -> 293             
+  26 nop                                        nop                                        
+  27 andi	a0,s1,0xff                            andi       $a0, $s1, 0xFF                  .L800F9D10: 
+  28 li	v0,2                                    addiu      $v0, $zero, 0x2                 
+  29 beq	a0,v0,264 <CdReadyHandler+0xa8>   -> 42 beq        $a0, $v0, .L800F9D4C   -> 42    
+  30 slti	v0,a0,3                               slti      $v0, $a0, 0x3                    
+  31 beqz	v0,250 <CdReadyHandler+0x94>   -> 37  beqz       $v0, .L800F9D38   -> 37         
+  32 li	v0,1                                    addiu     $v0, $zero, 0x1                  
+  33 beq	a0,v0,284 <CdReadyHandler+0xc8>   -> 50 beq        $a0, $v0, .L800F9D6C   -> 50    
+  34 lui	a0,0x0                                 lui       $a0, %hi(Cdinfo)                 
+  35 j	548 <CdReadyHandler+0x38c>   -> 227      j          .L800FA030   -> 227             
+  36 addiu	s1,a0,0                              addiu     $s1, $a0, %lo(Cdinfo)            
+  37 li	v0,5                                    addiu      $v0, $zero, 0x5                 .L800F9D38: 
+  38 beq	a0,v0,4d8 <CdReadyHandler+0x31c>   -> 199 beq        $a0, $v0, .L800F9FC0   -> 199   
+  39 lui	a0,0x0                                 lui       $a0, %hi(Cdinfo)                 
+  40 j	548 <CdReadyHandler+0x38c>   -> 227      j          .L800FA030   -> 227             
+  41 addiu	s1,a0,0                              addiu     $s1, $a0, %lo(Cdinfo)            
+  42 addiu	a0,s0,-32                            addiu      $a0, $s0, -0x20                 .L800F9D4C: 
+  43 lw	v1,28(a0)                               lw         $v1, 0x1C($a0)                  
+  44 li	v0,-1                                   addiu      $v0, $zero, -0x1                
+  45 bne	v1,v0,540 <CdReadyHandler+0x384>   -> 225 bne        $v1, $v0, .L800FA028   -> 225   
+  46 nop                                        nop                                        
+  47 lw	v0,-32(s0)                              lw         $v0, -0x20($s0)                 
+  48 j	534 <CdReadyHandler+0x378>   -> 222      j          .L800FA01C   -> 222             
+  49 sw	zero,28(a0)                             sw        $zero, 0x1C($a0)                 
+  50 lw	v0,-32(s0)                              lw         $v0, -0x20($s0)                 .L800F9D6C: 
+  51 nop                                        nop                                        
+  52 andi	v0,v0,0x1                             andi       $v0, $v0, 0x1                   
+  53 beqz	v0,44c <CdReadyHandler+0x290>   -> 164 beqz       $v0, .L800F9F34   -> 164        
+  54 nop                                        nop                                        
+  55 lw	v0,-32(s0)                              lw         $v0, -0x20($s0)                 
+  56 nop                                        nop                                        
+  57 andi	v0,v0,0x4                             andi       $v0, $v0, 0x4                   
+  58 beqz	v0,2c8 <CdReadyHandler+0x10c>   -> 67 beqz       $v0, .L800F9DB0   -> 67         
+  59 nop                                        nop                                        
+  60 li	s2,1                                    addiu      $s2, $zero, 0x1                 
+  61 lw	v0,-32(s0)                              lw         $v0, -0x20($s0)                 
+  62 li	v1,-5                                   addiu      $v1, $zero, -0x5                
+  63 and	v0,v0,v1                               and        $v0, $v0, $v1                   
+  64 sw	v0,-32(s0)                              sw         $v0, -0x20($s0)                 
+  65 j	460 <CdReadyHandler+0x2a4>   -> 169      j          .L800F9F34   -> 164              <<<<<<
+  66 nop                                        nop                                        
+  67 lw	v0,-32(s0)                              lw         $v0, -0x20($s0)                 .L800F9DB0: 
+  68 nop                                        nop                                        
+  69 andi	v0,v0,0x8                             andi       $v0, $v0, 0x8                   
+  70 bnez	v0,2e8 <CdReadyHandler+0x12c>   -> 75 bnez       $v0, .L800F9DD0   -> 75         
+  71 addiu	s1,s0,28                             addiu     $s1, $s0, 0x1C                   
+  72 lw	s1,12(s0)                               lw         $s1, 0xC($s0)                   
+  73 j	2ec <CdReadyHandler+0x130>   -> 76       j          .L800F9DD4   -> 76              
+  74 addiu	a0,sp,16                             addiu     $a0, $sp, 0x10                   
+  75 addiu	a0,sp,16                             addiu      $a0, $sp, 0x10                  .L800F9DD0: 
+  76 jal	0 <CD_systaskfunc>                     jal        CdGetSector                     .L800F9DD4: 
+  77 li	a1,3                                    addiu     $a1, $zero, 0x3                  
+  78 move	a0,s1                                 addu       $a0, $s1, $zero                 
+  79 jal	0 <CD_systaskfunc>                     jal        CdGetSector                     
+  80 li	a1,512                                  addiu     $a1, $zero, 0x200                
+  81 addiu	a0,sp,28                             addiu      $a0, $sp, 0x1C                  
+  82 jal	0 <CD_systaskfunc>                     jal        CdGetSector                     
+  83 li	a1,70                                   addiu     $a1, $zero, 0x46                 
+  84 jal	0 <CD_systaskfunc>                     jal        CdDataSync                      
+  85 move	a0,zero                               addu      $a0, $zero, $zero                
+  86 jal	0 <CD_systaskfunc>                     jal        CdPosToInt                      
+  87 addiu	a0,sp,16                             addiu     $a0, $sp, 0x10                   
+  88 lui	s1,0x0                                 lui        $s1, %hi(Cdinfo)                
+  89 addiu	a0,s1,0                              addiu      $a0, $s1, %lo(Cdinfo)           
+  90 lw	v1,12(a0)                               lw         $v1, 0xC($a0)                   
+  91 nop                                        nop                                        
+  92 beq	v0,v1,380 <CdReadyHandler+0x1c4>   -> 113 beq        $v0, $v1, .L800F9E68   -> 113   
+  93 lui	v0,0x0                                 lui       $v0, %hi(timerhz)                
+  94 lw	v0,28(a0)                               lw         $v0, 0x1C($a0)                  
+  95 lw	v1,12(a0)                               lw         $v1, 0xC($a0)                   
+  96 addiu	v0,v0,1                              addiu      $v0, $v0, 0x1                   
+  97 sw	v0,28(a0)                               sw         $v0, 0x1C($a0)                  
+  98 slti	v0,v0,4                               slti       $v0, $v0, 0x4                   
+  99 beqz	v0,368 <CdReadyHandler+0x1ac>   -> 107 beqz       $v0, .L800F9E50   -> 107        
+ 100 sw	v1,20(a0)                               sw        $v1, 0x14($a0)                   
+ 101 lw	v0,0(s1)                                lw         $v0, %lo(Cdinfo)($s1)           
+ 102 nop                                        nop                                        
+ 103 ori	v0,v0,0x2                              ori        $v0, $v0, 0x2                   
+ 104 sw	v0,0(s1)                                sw         $v0, %lo(Cdinfo)($s1)           
+ 105 j	460 <CdReadyHandler+0x2a4>   -> 169      j          .L800F9F48   -> 169             
+ 106 nop                                        nop                                        
+ 107 li	v0,-1                                   addiu      $v0, $zero, -0x1                .L800F9E50: 
+ 108 sw	v0,28(a0)                               sw         $v0, 0x1C($a0)                  
+ 109 li	a0,9                                    addiu      $a0, $zero, 0x9                 
+ 110 move	a1,zero                               addu       $a1, $zero, $zero               
+ 111 j	63c <CdReadyHandler+0x480>   -> 288      j          .L800FA124   -> 288             
+ 112 move	a2,a1                                 addu      $a2, $a1, $zero                  
+ 113 lw	v1,0(v0)                                lw         $v1, %lo(timerhz)($v0)          .L800F9E68: 
+ 114 nop                                        nop                                        
+ 115 sll	v0,v1,0x1                              sll        $v0, $v1, 1                     
+ 116 addu	v0,v0,v1                              addu       $v0, $v0, $v1                   
+ 117 lw	v1,0(s1)                                lw         $v1, %lo(Cdinfo)($s1)           
+ 118 sll	v0,v0,0x1                              sll        $v0, $v0, 1                     
+ 119 andi	v1,v1,0x8                             andi       $v1, $v1, 0x8                   
+ 120 beqz	v1,3e0 <CdReadyHandler+0x224>   -> 137 beqz       $v1, .L800F9EC8   -> 137        
+ 121 sw	v0,24(a0)                               sw        $v0, 0x18($a0)                   
+ 122 li	v1,-9                                   addiu      $v1, $zero, -0x9                
+ 123 lw	a1,12(s0)                               lw         $a1, 0xC($s0)                   
+ 124 lw	v0,0(s1)                                lw         $v0, %lo(Cdinfo)($s1)           
+ 125 lw	a2,0(s0)                                lw         $a2, 0x0($s0)                   
+ 126 and	v0,v0,v1                               and        $v0, $v0, $v1                   
+ 127 addiu	v1,a0,60                             addiu      $v1, $a0, 0x3C                  
+ 128 sw	v0,0(s1)                                sw         $v0, %lo(Cdinfo)($s1)           
+ 129 lw	a0,8(s0)                                lw         $a0, 0x8($s0)                   
+ 130 lw	v0,0(s1)                                lw         $v0, %lo(Cdinfo)($s1)           
+ 131 addu	a0,a0,v1                              addu       $a0, $a0, $v1                   
+ 132 ori	v0,v0,0x10                             ori        $v0, $v0, 0x10                  
+ 133 sw	v0,0(s1)                                sw         $v0, %lo(Cdinfo)($s1)           
+ 134 jal	0 <CD_systaskfunc>                     jal        blockmove                       
+ 135 nop                                        nop                                        
+ 136 sw	zero,8(s0)                              sw         $zero, 0x8($s0)                 
+ 137 lw	v0,4(s0)                                lw         $v0, 0x4($s0)                   .L800F9EC8: 
+ 138 nop                                        nop                                        
+ 139 blez	v0,444 <CdReadyHandler+0x288>   -> 162 blez       $v0, .L800F9F2C   -> 162        
+ 140 nop                                        nop                                        
+ 141 lw	v0,12(s0)                               lw         $v0, 0xC($s0)                   
+ 142 lw	v1,0(s0)                                lw         $v1, 0x0($s0)                   
+ 143 lw	a0,4(s0)                                lw         $a0, 0x4($s0)                   
+ 144 addu	v0,v0,v1                              addu       $v0, $v0, $v1                   
+ 145 sw	v0,12(s0)                               sw         $v0, 0xC($s0)                   
+ 146 slti	v0,a0,2048                            slti       $v0, $a0, 0x800                 
+ 147 beqz	v0,428 <CdReadyHandler+0x26c>   -> 155 beqz       $v0, .L800F9F10   -> 155        
+ 148 li	v0,2048                                 addiu     $v0, $zero, 0x800                
+ 149 lw	v0,0(s1)                                lw         $v0, %lo(Cdinfo)($s1)           
+ 150 sw	a0,0(s0)                                sw         $a0, 0x0($s0)                   
+ 151 ori	v0,v0,0x8                              ori        $v0, $v0, 0x8                   
+ 152 sw	v0,0(s1)                                sw         $v0, %lo(Cdinfo)($s1)           
+ 153 j	42c <CdReadyHandler+0x270>   -> 156      j          .L800F9F14   -> 156             
+ 154 nop                                        nop                                        
+ 155 sw	v0,0(s0)                                sw         $v0, 0x0($s0)                   .L800F9F10: 
+ 156 lw	v0,4(s0)                                lw         $v0, 0x4($s0)                   .L800F9F14: 
+ 157 lw	v1,0(s0)                                lw         $v1, 0x0($s0)                   
+ 158 nop                                        nop                                        
+ 159 subu	v0,v0,v1                              subu       $v0, $v0, $v1                   
+ 160 j	460 <CdReadyHandler+0x2a4>   -> 169      j          .L800F9F48   -> 169             
+ 161 sw	v0,4(s0)                                sw        $v0, 0x4($s0)                    
+ 162 j	460 <CdReadyHandler+0x2a4>   -> 169      j          .L800F9F48   -> 169             .L800F9F2C: 
+ 163 li	s2,1                                    addiu     $s2, $zero, 0x1                  
+ 164 jal	0 <CD_systaskfunc>                     jal        CdFlush                         .L800F9F34: 
+ 165 nop                                        nop                                        
+ 166 move	a0,zero                               addu       $a0, $zero, $zero               
+ 167 jal	0 <CD_systaskfunc>                     jal        CdSync                          
+ 168 move	a1,a0                                 addu      $a1, $a0, $zero                  
+ 169 beqz	s2,540 <CdReadyHandler+0x384>   -> 225 beqz       $s2, .L800FA028   -> 225        .L800F9F48: 
+ 170 lui	a0,0x0                                 lui       $a0, %hi(Cdinfo)                 
+ 171 li	v1,-2                                   addiu      $v1, $zero, -0x2                
+ 172 lw	v0,0(a0)                                lw         $v0, %lo(Cdinfo)($a0)           
+ 173 addiu	s1,a0,0                              addiu      $s1, $a0, %lo(Cdinfo)           
+ 174 and	v0,v0,v1                               and        $v0, $v0, $v1                   
+ 175 sw	v0,0(a0)                                sw         $v0, %lo(Cdinfo)($a0)           
+ 176 lui	a0,0x0                                 lui        $a0, %hi(CD_timerfunc)          
+ 177 lw	v0,12(s1)                               lw         $v0, 0xC($s1)                   
+ 178 addiu	a0,a0,0                              addiu      $a0, $a0, %lo(CD_timerfunc)     
+ 179 sw	zero,24(s1)                             sw         $zero, 0x18($s1)                
+ 180 jal	0 <CD_systaskfunc>                     jal        deltimer                        
+ 181 sw	v0,16(s1)                               sw        $v0, 0x10($s1)                   
+ 182 lw	v0,48(s1)                               lw         $v0, 0x30($s1)                  
+ 183 nop                                        nop                                        
+ 184 beqz	v0,540 <CdReadyHandler+0x384>   -> 225 beqz       $v0, .L800FA028   -> 225        
+ 185 addiu	a0,sp,320                            addiu     $a0, $sp, 0x140                  
+ 186 lui	s0,0x0                                 lui        $s0, %hi(g_currentthread)       
+ 187 li	v0,2                                    addiu      $v0, $zero, 0x2                 
+ 188 jal	0 <CD_systaskfunc>                     jal        savegp                          
+ 189 sw	v0,0(s0)                                sw        $v0, %lo(g_currentthread)($s0)   
+ 190 lw	v0,48(s1)                               lw         $v0, 0x30($s1)                  
+ 191 nop                                        nop                                        
+ 192 jalr	v0                                    jalr       $v0                             
+ 193 li	a0,1                                    addiu     $a0, $zero, 0x1                  
+ 194 lw	a0,320(sp)                              lw         $a0, 0x140($sp)                 
+ 195 jal	0 <CD_systaskfunc>                     jal        restoregp                       
+ 196 nop                                        nop                                        
+ 197 j	540 <CdReadyHandler+0x384>   -> 225      j          .L800FA028   -> 225             
+ 198 sw	zero,0(s0)                              sw        $zero, %lo(g_currentthread)($s0) 
+ 199 lw	v0,-32(s0)                              lw         $v0, -0x20($s0)                 .L800F9FC0: 
+ 200 nop                                        nop                                        
+ 201 andi	v0,v0,0x1                             andi       $v0, $v0, 0x1                   
+ 202 beqz	v0,540 <CdReadyHandler+0x384>   -> 225 beqz       $v0, .L800FA028   -> 225        
+ 203 addiu	s1,s0,-32                            addiu     $s1, $s0, -0x20                  
+ 204 li	a0,1                                    addiu      $a0, $zero, 0x1                 
+ 205 move	a1,zero                               addu       $a1, $zero, $zero               
+ 206 jal	0 <CD_systaskfunc>                     jal        CdControl                       
+ 207 addiu	a2,sp,16                             addiu     $a2, $sp, 0x10                   
+ 208 lw	v0,28(s1)                               lw         $v0, 0x1C($s1)                  
+ 209 lw	v1,12(s1)                               lw         $v1, 0xC($s1)                   
+ 210 addiu	v0,v0,1                              addiu      $v0, $v0, 0x1                   
+ 211 sw	v0,28(s1)                               sw         $v0, 0x1C($s1)                  
+ 212 slti	v0,v0,4                               slti       $v0, $v0, 0x4                   
+ 213 bnez	v0,530 <CdReadyHandler+0x374>   -> 221 bnez       $v0, .L800FA018   -> 221        
+ 214 sw	v1,20(s1)                               sw        $v1, 0x14($s1)                   
+ 215 li	v0,-1                                   addiu      $v0, $zero, -0x1                
+ 216 sw	v0,28(s1)                               sw         $v0, 0x1C($s1)                  
+ 217 li	a0,9                                    addiu      $a0, $zero, 0x9                 
+ 218 move	a1,zero                               addu       $a1, $zero, $zero               
+ 219 j	63c <CdReadyHandler+0x480>   -> 288      j          .L800FA124   -> 288             
+ 220 move	a2,a1                                 addu      $a2, $a1, $zero                  
+ 221 lw	v0,-32(s0)                              lw         $v0, -0x20($s0)                 .L800FA018: 
+ 222 nop                                        nop                                        .L800FA01C: 
+ 223 ori	v0,v0,0x2                              ori        $v0, $v0, 0x2                   
+ 224 sw	v0,-32(s0)                              sw         $v0, -0x20($s0)                 
+ 225 lui	a0,0x0                                 lui        $a0, %hi(Cdinfo)                .L800FA028: 
+ 226 addiu	s1,a0,0                              addiu      $s1, $a0, %lo(Cdinfo)           
+ 227 lw	v0,12(s1)                               lw         $v0, 0xC($s1)                   .L800FA030: 
+ 228 nop                                        nop                                        
+ 229 addiu	v0,v0,1                              addiu      $v0, $v0, 0x1                   
+ 230 sw	v0,12(s1)                               sw         $v0, 0xC($s1)                   
+ 231 lw	v0,0(a0)                                lw         $v0, %lo(Cdinfo)($a0)           
+ 232 nop                                        nop                                        
+ 233 andi	v0,v0,0x2                             andi       $v0, $v0, 0x2                   
+ 234 beqz	v0,5f0 <CdReadyHandler+0x434>   -> 269 beqz       $v0, .L800FA0D8   -> 269        
+ 235 lui	v1,0x0                                 lui       $v1, %hi(Cdinfo)                 
+ 236 lw	v0,0(a0)                                lw         $v0, %lo(Cdinfo)($a0)           
+ 237 li	v1,-3                                   addiu      $v1, $zero, -0x3                
+ 238 and	v0,v0,v1                               and        $v0, $v0, $v1                   
+ 239 sw	v0,0(a0)                                sw         $v0, %lo(Cdinfo)($a0)           
+ 240 lw	v0,0(a0)                                lw         $v0, %lo(Cdinfo)($a0)           
+ 241 li	v1,-17                                  addiu      $v1, $zero, -0x11               
+ 242 and	v0,v0,v1                               and        $v0, $v0, $v1                   
+ 243 sw	v0,0(a0)                                sw         $v0, %lo(Cdinfo)($a0)           
+ 244 lw	v0,0(a0)                                lw         $v0, %lo(Cdinfo)($a0)           
+ 245 nop                                        nop                                        
+ 246 ori	v0,v0,0x1                              ori        $v0, $v0, 0x1                   
+ 247 sw	v0,0(a0)                                sw         $v0, %lo(Cdinfo)($a0)           
+ 248 lw	v1,12(s1)                               lw         $v1, 0xC($s1)                   
+ 249 lw	v0,20(s1)                               lw         $v0, 0x14($s1)                  
+ 250 nop                                        nop                                        
+ 251 beq	v1,v0,5ec <CdReadyHandler+0x430>   -> 268 beq        $v1, $v0, .L800FA0D4   -> 268   
+ 252 nop                                        nop                                        
+ 253 jal	0 <CD_systaskfunc>                     jal        CdFlush                         
+ 254 nop                                        nop                                        
+ 255 move	a0,zero                               addu       $a0, $zero, $zero               
+ 256 jal	0 <CD_systaskfunc>                     jal        CdSync                          
+ 257 move	a1,a0                                 addu      $a1, $a0, $zero                  
+ 258 addiu	s0,sp,312                            addiu      $s0, $sp, 0x138                 
+ 259 lw	a0,20(s1)                               lw         $a0, 0x14($s1)                  
+ 260 move	a1,s0                                 addu       $a1, $s0, $zero                 
+ 261 sw	a0,12(s1)                               sw         $a0, 0xC($s1)                   
+ 262 jal	0 <CD_systaskfunc>                     jal        CdIntToPos                      
+ 263 nop                                        nop                                        
+ 264 li	a0,27                                   addiu      $a0, $zero, 0x1B                
+ 265 move	a1,s0                                 addu       $a1, $s0, $zero                 
+ 266 jal	0 <CD_systaskfunc>                     jal        CdControl                       
+ 267 move	a2,s3                                 addu      $a2, $s3, $zero                  
+ 268 lui	v1,0x0                                 lui        $v1, %hi(Cdinfo)                .L800FA0D4: 
+ 269 lw	v0,0(v1)                                lw         $v0, %lo(Cdinfo)($v1)           .L800FA0D8: 
+ 270 nop                                        nop                                        
+ 271 andi	v0,v0,0x1                             andi       $v0, $v0, 0x1                   
+ 272 bnez	v0,644 <CdReadyHandler+0x488>   -> 290 bnez       $v0, .L800FA12C   -> 290        
+ 273 addiu	v1,v1,0                              addiu     $v1, $v1, %lo(Cdinfo)            
+ 274 lw	v0,12(v1)                               lw         $v0, 0xC($v1)                   
+ 275 lw	a0,16(v1)                               lw         $a0, 0x10($v1)                  
+ 276 nop                                        nop                                        
+ 277 subu	v0,v0,a0                              subu       $v0, $v0, $a0                   
+ 278 slti	v0,v0,21                              slti       $v0, $v0, 0x15                  
+ 279 bnez	v0,644 <CdReadyHandler+0x488>   -> 290 bnez       $v0, .L800FA12C   -> 290        
+ 280 nop                                        nop                                        
+ 281 sw	a0,12(v1)                               sw         $a0, 0xC($v1)                   
+ 282 addiu	s0,sp,312                            addiu      $s0, $sp, 0x138                 
+ 283 jal	0 <CD_systaskfunc>                     jal        CdIntToPos                      
+ 284 move	a1,s0                                 addu      $a1, $s0, $zero                  
+ 285 li	a0,27                                   addiu      $a0, $zero, 0x1B                
+ 286 move	a1,s0                                 addu       $a1, $s0, $zero                 
+ 287 move	a2,s3                                 addu       $a2, $s3, $zero                 
+ 288 jal	0 <CD_systaskfunc>                     jal        CdControl                       .L800FA124: 
+ 289 nop                                        nop                                        
+ 290 lui	a0,0x0                                 lui        $a0, %hi(CdReadyHandler)        .L800FA12C: 
+ 291 jal	0 <CD_systaskfunc>                     jal        CdReadyCallback                 
+ 292 addiu	a0,a0,0                              addiu     $a0, $a0, %lo(CdReadyHandler)    
+ 293 lw	ra,344(sp)                              lw         $ra, 0x158($sp)                 .L800FA138: 
+ 294 lw	s3,340(sp)                              lw         $s3, 0x154($sp)                 
+ 295 lw	s2,336(sp)                              lw         $s2, 0x150($sp)                 
+ 296 lw	s1,332(sp)                              lw         $s1, 0x14C($sp)                 
+ 297 lw	s0,328(sp)                              lw         $s0, 0x148($sp)                 
+ 298 jr	ra                                      jr         $ra                             
+ 299 addiu	sp,sp,352                            addiu     $sp, $sp, 0x160                  

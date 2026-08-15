@@ -1,0 +1,9 @@
+{
+ "file": "recon/eaclib/psx/eacpsxz/cdfs.c",
+ "fn": "CdReadyHandler",
+ "variants": [
+  {"name": "A stop-path falls into CdFlush/CdSync",
+   "edits": [["                    } else {\n                        done = 1;\n                    }\n                }\n            }\n        } else {\n            CdFlush();\n            CdSync(0, 0);\n        }\n",
+              "                    } else {\n                        done = 1;\n                    }\n                }\n                goto cdrh_doneTest;\n            }\n        }\n        CdFlush();\n        CdSync(0, 0);\ncdrh_doneTest:\n"]]}
+ ]
+}

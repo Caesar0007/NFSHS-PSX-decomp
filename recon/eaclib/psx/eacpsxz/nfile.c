@@ -626,14 +626,24 @@ extern void FILE_cancelop(unsigned int id)
     }
     if (*(volatile int *)&op->status != 1) {     /* still queued -> remove it */
         FileOp *prev = 0, *node = gFileMgr.queuehead;
-        if (node == 0) goto cleanup;
+        /* w63a15 (04Q class): retail's EMPTY-QUEUE exit shares the "not in queue"
+         * duplicate CS-leave block (.L800EC0F4), NOT the shared `cleanup:` tail --
+         * `goto cleanup;` here compiled to a branch to .L800EC1A8, a wrong branch
+         * TARGET that verify_asm normalises away (gate PASS, production REAL=1).
+         * Writing the early-out as its own CS_LEAVE+return (the same shape the
+         * post-loop exit already uses) lets cross_jump merge the two copies, so the
+         * branch lands on retail's block. */
+        if (node == 0) goto notfound;
         while (node != 0) {
             if (node == op)
                 break;
             prev = node;
             node = node->qnext;
         }
-        if (node == 0) { FILE_CS_LEAVE(sr); return; }  /* not in queue */
+        if (node == 0) {                               /* not in queue */
+notfound:
+            FILE_CS_LEAVE(sr); return;
+        }
         if (prev != 0) prev->qnext        = op->qnext;
         else            gFileMgr.queuehead = op->qnext;
         do {

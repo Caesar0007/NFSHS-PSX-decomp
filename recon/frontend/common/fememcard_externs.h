@@ -15,7 +15,13 @@ extern tTournamentManager tournamentManager;
 extern tPadModuleState gPadinfo;
 extern fMemCardInfo_def gMemCardInfo;
 extern tScreenMemcard *screenMemcard;
-extern int         *Stats_gTrackRecords;
+/* TRUE TYPE = the array object (was `int *`; W62-A17).  Every oracle reference in
+   asm/nonmatchings/ materializes its ADDRESS (7x `addiu`, i.e. `la`), never loads a
+   pointer VALUE -- so it is storage, not a pointer cell.  Owner def:
+   game/common/nfs3.cpp `tRecordBuffer Stats_gTrackRecords[187];` @0x80114d94, and the
+   0x154-byte per-track blockmoves in statchk/stattool (0x11 records x 20 bytes) confirm
+   the element type + extent. */
+extern tRecordBuffer Stats_gTrackRecords[187];
 extern int          gMasterSFXLevel;
 /* FEMemCard.obj data globals */
 extern int          CURRENTPLAYER[];          /* @0x80051A68 -- unsized-array form: int-value loads

@@ -83,7 +83,10 @@ extern int CountryMeasurement[16];
 extern tCreditManager CreditManager;   /* W58-A1: real type -- Setup__14tCreditManager */
 extern GameSetup_tData GameSetup_gData;
 extern int MEMCARDFRONTENDISINITTED[];
-extern int Stats_gTrackRecords;
+/* TRUE TYPE = the array object (was a bare `int`; W62-A17).  Owner def:
+   game/common/nfs3.cpp `tRecordBuffer Stats_gTrackRecords[187];` @0x80114d94; every
+   oracle reference is an ADDRESS materialization (`addiu`), never a load. */
+extern tRecordBuffer Stats_gTrackRecords[187];
 extern int _7tScreen_fSuppressLoadingText;
 extern int _usePlayerUpgrades;
 extern int colourChosen[8];

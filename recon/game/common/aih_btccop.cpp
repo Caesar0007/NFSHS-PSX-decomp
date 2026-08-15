@@ -2455,7 +2455,26 @@ stateExecuteAndReturn:
    (489 diffs) -- the `offset=memset(...)` capture is frame-layout load-bearing.
    The remat-vs-reuse is coupled to where `carObj->carIndex*0xa0000`'s multiply
    result lands (clobber of v0 forces remat in arm 1); coloring, -fno-builtin
-   inert. */
+   inert.
+   W61-A12 mapped the two basins.  The 4 diffs are exactly the two arms that PASS
+   `offset` (the memset return) to Newton; the two arms that pass `&trafficOffset`
+   already remat and PASS.  EVERY spelling that stops feeding the call the returned
+   pointer lands in the SAME wrong basin -- frame -112 (vs retail -104), `this`
+   rotated $s1->$s2 and one extra callee-saved $s3, ~489 diffs of pure rotation:
+   drop the capture + pass &trafficOffset (both arms) 489/698; keep the capture,
+   change only the arg 489/698; ONE arm only 506/697 resp. 497/716; `offset =
+   &trafficOffset;` assigned before, between or after the memset 489/698.  So the
+   `offset` pseudo (which coalesces into the call's $v0 and costs no allocno) is
+   what holds the retail frame; any address-valued pseudo costs one.
+   ALSO FALSIFIED: this build has NO memset builtin to exploit -- giving libfns.h a
+   TYPED prototype (void*,int,int / unsigned int / unsigned long) or even a
+   `#define memset(a,b,c) __builtin_memset(...)` shim leaves the gate at exactly
+   4 diffs (gcc-2.8 has no BUILT_IN_MEMSET; the dest/return equivalence in retail
+   therefore came from the SOURCE, not from builtin knowledge).
+   Next lens: reach retail's remat WITHOUT minting an allocno -- i.e. the arg must
+   be an address expression whose reload rematerializes, while the other three arms
+   keep their current allocation.  That is a reload/REG_EQUIV question, not a
+   spelling one. */
 void AIHigh_BTC_Wingman::HighExecute()
 {
   ((AIHigh_BasicCop *)this)->CheckSpikeBelt();

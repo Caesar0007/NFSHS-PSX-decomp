@@ -1111,7 +1111,19 @@ LAB_80070704:
      * longPos/bigLongPos (`>= low` guard with a nested no-else inner if and the -1 in
      * the else, dir*longMetersBetween_ and dimension.z recomputed at every use, no
      * hoisted t/z temps) -> 94 diffs.  The PSX oracle keeps our if/else-if ladder and
-     * the in-place clamp override; the mobile port diverged here. */
+     * the in-place clamp override; the mobile port diverged here.
+     * W61-A12 READ THE RESIDUAL (78 diffs, count-exact 300/300, no probe spent):
+     * it is NOT a spill-slot permutation (zero sp-offset diffs, so the W61-A1
+     * declaration-order/frame law does not apply here) and NOT one uniform swap.
+     * The band rotation starts at the FIRST mflo of the function (ours t0, retail
+     * t1) -- i.e. retail already has one more t-register committed there -- and the
+     * only STRUCTURAL divergence is in `targetLanePosition = delayCar_.roadPosition_
+     * + latOffset * dir`: retail completes the sum EAGERLY (`lw v0,76(s1); mult;
+     * lw v0,56(s1); mflo t1; addu a0,v0,t1`, oracle 239-244) while ours defers the
+     * mflo and the add past the whole slicePtr limit block (ours 240-258).  Land the
+     * eager-sum shape first (a named temp for the product, or the sum split so the
+     * roadPosition_ load sits between the mult and the mflo) and re-read the band;
+     * the t0/t1 base of the rotation is downstream of who owns the first multiply. */
 
     targettingStrength = 0xf0000;
     if (this->murderMode_ != 0) {
@@ -2099,7 +2111,17 @@ extern "C" void ___17AIState_Purgatory(AIState_Purgatory *pThis,int __in_chrg)
    * ARRAY SUBSCRIPT device on this site: both `(Car_tObj**)((iVar2<<2)+(int)Cars_gSortedList)`
    * and the operand-swapped `((int)Cars_gSortedList+(iVar2<<2))` are byte-identical to
    * the pointer form (still 2 diffs) -- address-block-order pinning does not reach a
-   * sll-vs-la ready-list tie. */
+   * sll-vs-la ready-list tie.
+   * W60-A8 r2 showed the SPLIT-INIT (`ppCVar3 = Cars_gSortedList;` then
+   * `ppCVar3 = ppCVar3 + iVar2;`) DOES flip the sll/la order to retail's, but floats
+   * the whole address block above the line-1031 stores and drops a load-delay nop
+   * (15 diffs / 71 insns).  W61-A12 then falsified the obvious completion -- pinning
+   * the block's POSITION with a void-tail barrier so the split cannot float:
+   * `__asm__("" : : "i"(0))` before the loop init + split -> 21 / 71; the barrier
+   * placed between iVar2 and the split -> 19 / 71; the barrier ALONE (no split,
+   * baseline shape) -> 24 / 72.  The barrier moves the block itself instead of
+   * anchoring it, so a scheduling-barrier device cannot buy the position back.
+   * What is needed is a statement-local, NON-barrier ready-list dial. */
   iVar2 = Cars_gNumCars + -1;
 
   ppCVar3 = Cars_gSortedList + iVar2;

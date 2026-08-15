@@ -156,7 +156,22 @@ int AIHigh_Opponent::DoRearEnder()
        W59-A3 FALSIFIED: 09L's `hand-rolled abs is a jump-merge magnet` cure --
        latDistance = __builtin_abs(roadPosition - other->roadPosition) -- makes it
        WORSE (58 diffs) and rotates a1/v1 on the carObj_ load; the branchy abs is what
-       retail has.  The residual is the constant hoist across the abs BB split. */
+       retail has.  The residual is the constant hoist across the abs BB split.
+       W60-A8 r2 found the hoist lever (named c1 before the abs + a read-only fence
+       pins both halves early: 51 diffs but 180/181, a wrong count) and left it
+       unlanded.  W61-A12 re-measured the whole family on the CURRENT baseline and
+       every spelling is WORSE than 54, so the lever does not reproduce as receipted:
+       decl-in-the-decl-block `int c1 = -0x10001;` + `(u_int)(longDistance+c1) <
+       0x26ffffU` at BOTH sites -> 60 (181/181, and the lui migrates to a CALLEE-SAVED
+       $s2 = a new allocno); + a read-only fence on c1 -> 58 (179/181); the same pair
+       with the decl moved to just before the abs -> 60 / 58; naming BOTH constants
+       and comparing `<= c2` -> 62 / 60 (179); decl-init + fence with 2 operands ->
+       84 / 66.  Reading: naming the constant creates a loop/branch-invariant allocno
+       that LICM parks in a saved register, which costs more than the hoist buys, and
+       the fence's -1 insn is the bgez delay slot (retail keeps a nop there, ours
+       fills it with the mflo).  A landing needs the mflo kept OUT of that slot at
+       the same time -- i.e. the pair is (constant hoist) + (mflo deferral), and no
+       single-statement device produces both. */
 
     otherCarObj = Cars_gList[attackIndex];
 

@@ -305,9 +305,19 @@ void AIHigh_Cop::HighExecute()
 
         triggerManagerCops->DescribeTrigger(&newTrigger);
 
-        switch (newTrigger.roadblock.type) {
-
-        case 3:
+        /* W61-A12: retail is NOT a switch here -- the oracle's test order
+           (beq==1 -> body1 | slti<2 -> out | beq==2 -> out | bne!=3 -> out |
+           fall -> body3) is byte-for-byte gcc-2.8's lowering of THIS nested
+           if-chain (scratchpad/w61a12/swlab.c V10, CC1PLPSX-verified).  A
+           3-case switch cannot produce it: balance_case_nodes (stmt.c:6059-6095)
+           splits any 3-node list at the MIDDLE (root=2) and use_cost_table is 0
+           here because estimate_case_costs rejects control-character case values
+           (cost_table[1..3] < 0, stmt.c:5957-5960).  An `&&` chain folds the two
+           guards away (swlab V12) -- they must be NESTED ifs.  84 -> 80 diffs. */
+        if (newTrigger.roadblock.type != 1) {
+          if (newTrigger.roadblock.type > 1) {
+            if (newTrigger.roadblock.type != 2) {
+              if (newTrigger.roadblock.type == 3) {
           {
           u_int wrongWay;
 
@@ -319,6 +329,20 @@ void AIHigh_Cop::HighExecute()
 
           }
 
+          /* W61-A12 RESIDUAL ISLAND (5 of the fn's 61 diff insns).  Retail's SLD puts
+             the reverseTrack select AND this test on ONE line (303) and emits
+             `bnez G; nor(delay); xori; sltiu v0,v0,1; bnez v0 -> body` plus a RELOAD
+             of roadblock.dir from the frame for the second operand; ours branches
+             straight off the xori (`beqz`) and keeps dir in a register -- 2 insns
+             shorter.  FALSIFIED spellings (standalone CC1PLPSX lab,
+             scratchpad/w61a12/wlab*.c, all emit our `beq r,0` form): w == 0 / w <= 0
+             / w < 1 / !w with w unsigned, the same with w signed, a materialized
+             `int c = (w == 0)` temp, the if/else select instead of the
+             default-then-override, and the ternary-inside-the-test one-liner.
+             Only the BITWISE `|` form reproduces the sltiu -- but it materializes
+             BOTH operands (no short circuit), which retail does not.  So the
+             materialization comes from something structural on retail line 303 that
+             the four natural spellings do not express. */
           if ((wrongWay == 0) || (newTrigger.roadblock.dir == 0)) {
 
             AIState_Offroad *newState;
@@ -351,9 +375,10 @@ void AIHigh_Cop::HighExecute()
           }
           }
 
-          break;
-
-        case 1:
+              }
+            }
+          }
+        } else {
           {
           int direction;
 
@@ -430,8 +455,6 @@ void AIHigh_Cop::HighExecute()
           AILife_ReencarnateCopBySlice(this->carObj_,newTrigger.roadblock.slice,direction,direction,
                      newTrigger.roadblock.spikeBelt);
           }
-
-          break;
 
         }
 
@@ -1060,13 +1083,14 @@ LAB_80064a0c:
 
           int rightLatPos;
 
-          if (GameSetup_gData.skill == 0) {
-
-            size = 0xb333;
-
-          }
-
-          else {
+          /* W61-A12: test INVERTED (was `skill == 0` first).  Retail puts the
+             0xb333 arm in its own block AFTER the else arm and reaches it by the
+             beqz, with the else arm ending `j <merge>; li s0,0xcccc` -- our
+             then-first form let reorg sink `li s0,0xb333` into the beqz delay slot
+             and fall through, 1 insn short.  Inverting the arms reproduces retail's
+             block order exactly.  80 -> 77 diffs (fn is 84 -> 77 with the trigger
+             if-chain above). */
+          if (GameSetup_gData.skill != 0) {
 
             size = 0xe666;
 
@@ -1075,6 +1099,12 @@ LAB_80064a0c:
               size = 0xcccc;
 
             }
+
+          }
+
+          else {
+
+            size = 0xb333;
 
           }
 

@@ -62,7 +62,23 @@ void AIHigh_StartUp(void)
          RESIDUAL 8 diffs (234/234): base(la) and sll swap v0<->v1 in the held
          slot-addr computation.  W56-A16 FALSIFIED: moving this stmt to loop-top
          (before carObj/carFlags) regresses to 28 diffs + count change; current
-         position is the best.  Local-alloc birth-order tie, §4.6 qtytrace gap. */
+         position is the best.  Local-alloc birth-order tie, §4.6 qtytrace gap.
+         W61-A12 PRICED IT (real CC1PLPSX -dl dump, this fn): both fighting qtys are
+         BLOCK-LOCAL with refs=4 (2 refs x loop depth 2), size=1, so
+         QTY_CMP_PRI = floor_log2(4)*4*1/life = 8/life (local-alloc.c:1727-1729);
+         the sll qty has the SHORTER life and therefore wins the numeric scan (v0).
+         To flip, the la qty needs priority > the sll's, i.e. refs 4 -> 8 (the next
+         floor_log2 step) without lengthening its life.
+         FALSIFIED (each re-gated, all 8-diff baseline): five address SPELLINGS are
+         byte-identical -- (int)base + i*4, (i<<2) + (int)base, base + i, &*(base+i),
+         (int)base + (i<<2) -- so the expression shape is inert on this site (the
+         12D-A6 index-term-first device does not reach a birth-order tie).  The only
+         way to attach a ref-dial to the la is to NAME the base, and that is fatal:
+         `AIHigh_Base **base = highLevelAIObjs;` alone -> 58 diffs / 238 insns
+         (LICM hoists the loop-invariant la into a callee-saved reg, frame 48->56),
+         same with 1 or 2 read-only fence operands; a 2-operand fence on carLoop
+         instead -> 77 diffs.  So the dial exists on paper but has no pin-free
+         carrier here -- next lens = local-alloc qty instrumentation, not source. */
       slot = &highLevelAIObjs[carLoop];
       if ((carFlags & 0x200U) != 0) {
         AIHigh_BTC_HumanCop *p = operator new(0x8c);

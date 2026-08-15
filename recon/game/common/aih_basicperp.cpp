@@ -550,7 +550,21 @@ int AIHigh_BasicPerp::CheckChaserPosition(int copIndex,int carIndex)
          same with the loop UN-ROTATED to `while (0 < pos) { ... }` (no outer if, no
          do/while) -> the identical 26-diff basin.  So the deletion is independent of
          both the loop shape and break-vs-if, and the extra lexical block alone costs
-         the band -- only a cse-invalidating device can restore the branch. */
+         the band -- only a cse-invalidating device can restore the branch.
+         W60-A8 r2 refuted the "no device exists" half: an OPACITY fence on a fresh
+         BLOCK-LOCAL copy of pos DOES restore the guard (15 diffs/86; +`pos = p;`
+         11/86), the blocker being that pos is a GLOBAL allocno so combine_regs
+         refuses to tie the copy (a real addu).
+         W61-A12 FALSIFIED that receipt's own "next, untried" step -- carrying the
+         OPAQUE COPY THROUGH THE WHOLE LOOP BODY (every positionVSCopList_ index,
+         the guard, the copVSPositionList_ stores and `pos = p + -1` at the bottom):
+         fence at the loop TOP -> 19 diffs / 88 insns, fence at the GUARD -> 19 / 88,
+         and declaring p at FUNCTION scope -> 50 / 95 (LICM hoists it, +1 saved reg).
+         All three keep the guard but pay the same `addu s0,a1,zero` copy plus a
+         `bnez`/`j` tail-polarity flip: making p the loop's live value does NOT
+         dissolve the copy, because the copy is minted at the fence, not at the use.
+         Next lens = local-alloc combine_regs (dies-more-than-once refusal), not a
+         source spelling. */
             if (pos < 1) break;
 
       if (nextCopIndex != -1) {

@@ -108,6 +108,27 @@ void AIHigh_Cop::SetTuningLevers()
 
 
 /* ---- HighExecute__10AIHigh_Cop  AIHigh_Cop::HighExecute  [AIH_COP.CPP:147-816] SLD-VERIFIED ---- */
+/* NEAR-MISS 69 diffs, ours 1457 / oracle 1460 (W64-A12 re-gated; w63-a12 landed 77->69
+   with the fenced boolean + the 09I volatile-on-the-test-read, both halves ablated and
+   both load-bearing).  ONE named residual is now isolated and its cheapest angle is
+   FALSIFIED, so the next agent can skip it:
+   THE SITE: the two nested `(mode == 1) || (mode == 4)` tests on this->blockade_.mode
+   (source ~line 814 outer / ~818 inner; oracle idx 348-353 and 361-365).  The OUTER test
+   already matches byte-for-byte (`li a1,1` / `li s2,4` fresh).  At the INNER test retail
+   RE-MATERIALIZES the 4 into a caller-saved temp *inside the branch delay slot*
+   (`li v0,4; beq v1,v0`) while ours re-uses the callee-saved $s2 and nops the slot --
+   that is one of the three missing instructions, and it also pins $s2 for the whole fn.
+   FALSIFIED (each re-gated from the 69 baseline, all WORSE):
+     inner test through a fresh named local `int m4 = 4;`            -> 81 @1457
+     ... same + an opacity/identity fence on it                      -> 82 @1458
+     inner test through a freshly re-read `blockadeMode_t mode1b`    -> 81 @1457
+   Reading: naming the constant creates an allocno that LICM/cse parks somewhere, which
+   costs more than the rematerialization buys (the same shape that failed on DoRearEnder
+   before __builtin_abs retired the whole device there).  What retail has is TWO separate
+   constant pseudos with cse declining to share across the intervening branch -- a cse
+   constant-table question, so the lens is the -dl/-dg pair (or w64-a10 copypref.py) on
+   the block pair, not another spelling.  The remaining ~64 diffs are the scattered
+   caller-saved naming bands the w63 multidial program was working through. */
 
 void AIHigh_Cop::HighExecute()
 

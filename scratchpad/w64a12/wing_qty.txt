@@ -1,0 +1,250 @@
+== void AIHigh_BTC_Wingman::HighExecute()
+-- block 0  (live-in: a0 sp fp)
+     p466  q0   refs=2   birth=14   death=16   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+  !! p469  q1   refs=4   birth=18   death=24   pri=13333   copy_sugg=-            sugg=-          pred=v1   actual=v0  
+  !! p468  q1   refs=4   birth=18   death=24   pri=13333   copy_sugg=-            sugg=-          pred=v1   actual=v0  
+  !! p471  q2   refs=4   birth=22   death=26   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v1  
+  !! p472  q2   refs=4   birth=22   death=26   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v1  
+     p473  q3   refs=2   birth=26   death=28   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 3  (live-in: sp fp)
+     p84   q0   refs=3   birth=8    death=18   pri=3000    copy_sugg=-            sugg=-          pred=a1   actual=a1  
+     p86   q1   refs=4   birth=12   death=18   pri=13333   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p87   q1   refs=4   birth=12   death=18   pri=13333   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p88   q2   refs=2   birth=14   death=16   pri=10000   copy_sugg=-            sugg=-          pred=v1   actual=v1  
+     p81   q3   refs=3   birth=24   death=48   pri=1250    copy_sugg=a1           sugg=-          pred=s0   actual=s0  
+     p91   q4   refs=4   birth=38   death=42   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p92   q4   refs=4   birth=38   death=42   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p93   q5   refs=3   birth=48   death=54   pri=5000    copy_sugg=-            sugg=-          pred=v1   actual=v1  
+     p95   q6   refs=6   birth=52   death=58   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p96   q6   refs=6   birth=52   death=58   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p97   q6   refs=6   birth=52   death=58   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p98   q7   refs=2   birth=66   death=68   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 4  (live-in: sp fp)
+     p99   q0   refs=3   birth=2    death=8    pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p101  q1   refs=2   birth=6    death=10   pri=5000    copy_sugg=-            sugg=a0         pred=a0   actual=a0  
+     p105  q2   refs=2   birth=8    death=12   pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p106  q3   refs=2   birth=18   death=20   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 6  (live-in: sp fp)
+     p107  q0   refs=3   birth=4    death=12   pri=3750    copy_sugg=-            sugg=-          pred=a0   actual=a0  
+     p109  q1   refs=4   birth=6    death=12   pri=13333   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p110  q1   refs=4   birth=6    death=12   pri=13333   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p111  q2   refs=2   birth=8    death=10   pri=10000   copy_sugg=-            sugg=-          pred=v1   actual=v1  
+     p113  q3   refs=2   birth=16   death=18   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p115  q4   refs=4   birth=20   death=24   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p116  q4   refs=4   birth=20   death=24   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 9  (live-in: sp fp)
+     p118  q0   refs=3   birth=10   death=18   pri=3750    copy_sugg=v0           sugg=a0         pred=v0   actual=v0  
+     p121  q1   refs=3   birth=12   death=16   pri=7500    copy_sugg=-            sugg=-          pred=v1   actual=v1  
+     p123  q2   refs=2   birth=14   death=18   pri=5000    copy_sugg=-            sugg=a0         pred=a0   actual=a0  
+     p127  q3   refs=2   birth=16   death=20   pri=5000    copy_sugg=-            sugg=-          pred=v1   actual=v1  
+     p130  q4   refs=4   birth=24   death=32   pri=10000   copy_sugg=-            sugg=a2         pred=a2   actual=a2  
+     p132  q4   refs=4   birth=24   death=32   pri=10000   copy_sugg=-            sugg=a2         pred=a2   actual=a2  
+     p128  q5   refs=2   birth=30   death=34   pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p135  q6   refs=4   birth=50   death=54   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p136  q6   refs=4   birth=50   death=54   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p137  q7   refs=2   birth=56   death=58   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 10  (live-in: sp fp)
+     p138  q0   refs=3   birth=2    death=8    pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p140  q1   refs=2   birth=6    death=10   pri=5000    copy_sugg=-            sugg=a0         pred=a0   actual=a0  
+     p144  q2   refs=2   birth=8    death=12   pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p145  q3   refs=2   birth=18   death=20   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 12  (live-in: sp fp)
+     p146  q0   refs=2   birth=8    death=10   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 13  (live-in: sp fp)
+     p150  q0   refs=2   birth=18   death=22   pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p149  q1   refs=2   birth=22   death=46   pri=833     copy_sugg=a2           sugg=-          pred=a2   actual=a2  
+     p153  q2   refs=2   birth=24   death=26   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p154  q3   refs=2   birth=28   death=30   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p155  q4   refs=2   birth=32   death=34   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p156  q5   refs=2   birth=36   death=38   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p157  q6   refs=2   birth=40   death=42   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 14  (live-in: sp fp)
+     p158  q0   refs=3   birth=2    death=8    pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p160  q1   refs=2   birth=6    death=10   pri=5000    copy_sugg=-            sugg=a0         pred=a0   actual=a0  
+     p164  q2   refs=2   birth=8    death=12   pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p165  q3   refs=2   birth=18   death=20   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 17  (live-in: sp fp)
+     p167  q0   refs=3   birth=18   death=42   pri=1250    copy_sugg=a1           sugg=-          pred=s0   actual=s0  
+     p173  q1   refs=4   birth=32   death=36   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p174  q1   refs=4   birth=32   death=36   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p175  q2   refs=3   birth=42   death=48   pri=5000    copy_sugg=-            sugg=-          pred=v1   actual=v1  
+     p177  q3   refs=6   birth=46   death=52   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p178  q3   refs=6   birth=46   death=52   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p179  q3   refs=6   birth=46   death=52   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p180  q4   refs=2   birth=60   death=62   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 18  (live-in: sp fp)
+     p181  q0   refs=3   birth=2    death=8    pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p183  q1   refs=2   birth=6    death=10   pri=5000    copy_sugg=-            sugg=a0         pred=a0   actual=a0  
+     p187  q2   refs=2   birth=8    death=12   pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p188  q3   refs=2   birth=18   death=20   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 20  (live-in: sp fp)
+     p190  q0   refs=3   birth=4    death=14   pri=3000    copy_sugg=-            sugg=-          pred=v1   actual=v1  
+     p192  q1   refs=4   birth=8    death=14   pri=13333   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p193  q1   refs=4   birth=8    death=14   pri=13333   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 21  (live-in: sp fp)
+     p195  q0   refs=2   birth=2    death=6    pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p196  q1   refs=4   birth=14   death=18   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p197  q1   refs=4   birth=14   death=18   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 23  (live-in: sp fp)
+     p198  q0   refs=2   birth=12   death=18   pri=3333    copy_sugg=v0,a2        sugg=-          pred=s0   actual=s0  
+-- block 24  (live-in: sp fp)
+     p203  q0   refs=3   birth=2    death=8    pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p205  q1   refs=2   birth=6    death=10   pri=5000    copy_sugg=-            sugg=a0         pred=a0   actual=a0  
+     p209  q2   refs=2   birth=8    death=12   pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p210  q3   refs=2   birth=18   death=20   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 27  (live-in: sp fp)
+     p212  q0   refs=3   birth=4    death=16   pri=2500    copy_sugg=a1,a2        sugg=fp         pred=s0   actual=s0  
+     p213  q1   refs=2   birth=10   death=14   pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p215  q2   refs=4   birth=24   death=30   pri=13333   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p220  q2   refs=4   birth=24   death=30   pri=13333   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p219  q3   refs=2   birth=26   death=28   pri=10000   copy_sugg=-            sugg=-          pred=v1   actual=v1  
+-- block 29  (live-in: sp fp)
+     p221  q0   refs=6   birth=2    death=10   pri=15000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p222  q0   refs=6   birth=2    death=10   pri=15000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p223  q0   refs=6   birth=2    death=10   pri=15000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p216  q1   refs=2   birth=6    death=8    pri=10000   copy_sugg=-            sugg=-          pred=v1   actual=v1  
+-- block 30  (live-in: sp fp)
+     p224  q0   refs=4   birth=2    death=8    pri=13333   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p225  q0   refs=4   birth=2    death=8    pri=13333   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p217  q1   refs=2   birth=6    death=8    pri=10000   copy_sugg=-            sugg=-          pred=v1   actual=v1  
+-- block 32  (live-in: sp fp)
+     p227  q0   refs=2   birth=12   death=14   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 35  (live-in: sp fp)
+     p233  q0   refs=3   birth=2    death=8    pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p235  q1   refs=2   birth=6    death=10   pri=5000    copy_sugg=-            sugg=a0         pred=a0   actual=a0  
+     p239  q2   refs=2   birth=8    death=12   pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p240  q3   refs=2   birth=18   death=20   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 37  (live-in: sp fp)
+     p242  q0   refs=2   birth=6    death=8    pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p244  q1   refs=4   birth=10   death=14   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p245  q1   refs=4   birth=10   death=14   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 39  (live-in: sp fp)
+     p249  q0   refs=3   birth=6    death=16   pri=3000    copy_sugg=-            sugg=-          pred=v1   actual=v1  
+     p251  q1   refs=4   birth=10   death=16   pri=13333   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p252  q1   refs=4   birth=10   death=16   pri=13333   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 40  (live-in: sp fp)
+     p256  q0   refs=3   birth=2    death=8    pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p258  q1   refs=2   birth=6    death=10   pri=5000    copy_sugg=-            sugg=a0         pred=a0   actual=a0  
+     p262  q2   refs=2   birth=8    death=12   pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p263  q3   refs=2   birth=20   death=22   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p248  q4   refs=3   birth=26   death=34   pri=3750    copy_sugg=v0           sugg=a0         pred=v0   actual=v0  
+     p264  q5   refs=3   birth=28   death=32   pri=7500    copy_sugg=-            sugg=-          pred=v1   actual=v1  
+     p266  q6   refs=2   birth=30   death=34   pri=5000    copy_sugg=-            sugg=a0         pred=a0   actual=a0  
+     p270  q7   refs=2   birth=32   death=36   pri=5000    copy_sugg=-            sugg=-          pred=v1   actual=v1  
+-- block 43  (live-in: sp fp)
+     p272  q0   refs=3   birth=18   death=42   pri=1250    copy_sugg=a1           sugg=-          pred=s0   actual=s0  
+     p278  q1   refs=4   birth=32   death=36   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p279  q1   refs=4   birth=32   death=36   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p281  q2   refs=3   birth=42   death=48   pri=5000    copy_sugg=-            sugg=-          pred=v1   actual=v1  
+     p283  q3   refs=6   birth=46   death=52   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p284  q3   refs=6   birth=46   death=52   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p285  q3   refs=6   birth=46   death=52   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p286  q4   refs=2   birth=60   death=62   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 44  (live-in: sp fp)
+     p287  q0   refs=3   birth=2    death=8    pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p289  q1   refs=2   birth=6    death=10   pri=5000    copy_sugg=-            sugg=a0         pred=a0   actual=a0  
+     p293  q2   refs=2   birth=8    death=12   pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p294  q3   refs=2   birth=18   death=20   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 46  (live-in: sp fp)
+  !! p298  q0   refs=3   birth=4    death=12   pri=3750    copy_sugg=-            sugg=-          pred=v1   actual=v0  
+  !! p300  q1   refs=4   birth=6    death=12   pri=13333   copy_sugg=-            sugg=-          pred=v0   actual=v1  
+  !! p301  q1   refs=4   birth=6    death=12   pri=13333   copy_sugg=-            sugg=-          pred=v0   actual=v1  
+     p302  q2   refs=2   birth=16   death=20   pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 47  (live-in: sp fp)
+     p305  q0   refs=3   birth=8    death=12   pri=7500    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 48  (live-in: sp fp)
+     p310  q0   refs=3   birth=2    death=8    pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p312  q1   refs=2   birth=6    death=10   pri=5000    copy_sugg=-            sugg=a0         pred=a0   actual=a0  
+     p316  q2   refs=2   birth=8    death=12   pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p317  q3   refs=2   birth=18   death=20   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 50  (live-in: sp fp)
+     p318  q0   refs=2   birth=10   death=12   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p320  q1   refs=2   birth=14   death=16   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p321  q2   refs=2   birth=18   death=22   pri=5000    copy_sugg=-            sugg=-          pred=v1   actual=v1  
+     p322  q3   refs=2   birth=20   death=22   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 52  (live-in: sp fp)
+     p325  q0   refs=2   birth=2    death=4    pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p327  q1   refs=2   birth=4    death=6    pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p328  q2   refs=2   birth=10   death=14   pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p329  q3   refs=4   birth=18   death=28   pri=8000    copy_sugg=-            sugg=-          pred=v1   actual=v1  
+     p330  q3   refs=4   birth=18   death=28   pri=8000    copy_sugg=-            sugg=-          pred=v1   actual=v1  
+-- block 55  (live-in: sp fp)
+     p331  q0   refs=4   birth=4    death=10   pri=13333   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p332  q0   refs=4   birth=4    death=10   pri=13333   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 56  (live-in: sp fp)
+     p336  q0   refs=2   birth=2    death=4    pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p335  q1   refs=2   birth=4    death=6    pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 57  (live-in: sp fp)
+     p337  q0   refs=2   birth=6    death=10   pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 59  (live-in: sp fp)
+     p339  q0   refs=2   birth=2    death=4    pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p340  q1   refs=2   birth=4    death=6    pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p342  q2   refs=4   birth=16   death=20   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p343  q2   refs=4   birth=16   death=20   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 63  (live-in: sp fp)
+     p347  q0   refs=3   birth=10   death=14   pri=7500    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p349  q1   refs=2   birth=20   death=24   pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p346  q2   refs=2   birth=24   death=48   pri=833     copy_sugg=a2           sugg=-          pred=a2   actual=a2  
+     p352  q3   refs=2   birth=26   death=28   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p353  q4   refs=2   birth=30   death=32   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p354  q5   refs=2   birth=34   death=36   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p355  q6   refs=2   birth=38   death=40   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p356  q7   refs=2   birth=42   death=44   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 64  (live-in: sp fp)
+     p357  q0   refs=3   birth=2    death=8    pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p359  q1   refs=2   birth=6    death=10   pri=5000    copy_sugg=-            sugg=a0         pred=a0   actual=a0  
+     p363  q2   refs=2   birth=8    death=12   pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p364  q3   refs=2   birth=18   death=20   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 66  (live-in: sp fp)
+     p366  q0   refs=2   birth=6    death=8    pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p368  q1   refs=2   birth=10   death=12   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 69  (live-in: sp fp)
+     p375  q0   refs=3   birth=2    death=8    pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p377  q1   refs=2   birth=6    death=10   pri=5000    copy_sugg=-            sugg=a0         pred=a0   actual=a0  
+     p381  q2   refs=2   birth=8    death=12   pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p382  q3   refs=2   birth=18   death=20   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 72  (live-in: sp fp)
+     p384  q0   refs=3   birth=18   death=42   pri=1250    copy_sugg=a1           sugg=-          pred=s0   actual=s0  
+     p390  q1   refs=4   birth=32   death=36   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p391  q1   refs=4   birth=32   death=36   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p393  q2   refs=3   birth=42   death=48   pri=5000    copy_sugg=-            sugg=-          pred=v1   actual=v1  
+     p395  q3   refs=6   birth=46   death=52   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p396  q3   refs=6   birth=46   death=52   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p397  q3   refs=6   birth=46   death=52   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p398  q4   refs=2   birth=60   death=62   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 73  (live-in: sp fp)
+     p399  q0   refs=3   birth=2    death=8    pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p401  q1   refs=2   birth=6    death=10   pri=5000    copy_sugg=-            sugg=a0         pred=a0   actual=a0  
+     p405  q2   refs=2   birth=8    death=12   pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p406  q3   refs=2   birth=18   death=20   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 75  (live-in: sp fp)
+     p409  q0   refs=3   birth=4    death=12   pri=3750    copy_sugg=-            sugg=-          pred=a0   actual=a0  
+     p411  q1   refs=4   birth=6    death=12   pri=13333   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p412  q1   refs=4   birth=6    death=12   pri=13333   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p413  q2   refs=2   birth=8    death=10   pri=10000   copy_sugg=-            sugg=-          pred=v1   actual=v1  
+     p407  q3   refs=2   birth=14   death=18   pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 78  (live-in: sp fp)
+     p418  q0   refs=4   birth=4    death=8    pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p419  q0   refs=4   birth=4    death=8    pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 79  (live-in: sp fp)
+     p421  q0   refs=4   birth=8    death=16   pri=10000   copy_sugg=-            sugg=a2         pred=a2   actual=a2  
+     p423  q0   refs=4   birth=8    death=16   pri=10000   copy_sugg=-            sugg=a2         pred=a2   actual=a2  
+     p426  q1   refs=4   birth=32   death=36   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p427  q1   refs=4   birth=32   death=36   pri=20000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 80  (live-in: sp fp)
+     p429  q0   refs=3   birth=2    death=8    pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p431  q1   refs=2   birth=6    death=10   pri=5000    copy_sugg=-            sugg=a0         pred=a0   actual=a0  
+     p435  q2   refs=2   birth=8    death=12   pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p436  q3   refs=2   birth=18   death=20   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 83  (live-in: sp fp)
+     p442  q0   refs=3   birth=2    death=8    pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p444  q1   refs=2   birth=6    death=10   pri=5000    copy_sugg=-            sugg=a0         pred=a0   actual=a0  
+     p448  q2   refs=2   birth=8    death=12   pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p449  q3   refs=2   birth=18   death=20   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  
+-- block 85  (live-in: sp fp)
+     p450  q0   refs=2   birth=8    death=14   pri=3333    copy_sugg=a0           sugg=-          pred=s0   actual=s0  
+-- block 87  (live-in: sp fp)
+     p457  q0   refs=3   birth=2    death=8    pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p459  q1   refs=2   birth=6    death=10   pri=5000    copy_sugg=-            sugg=a0         pred=a0   actual=a0  
+     p463  q2   refs=2   birth=8    death=12   pri=5000    copy_sugg=-            sugg=-          pred=v0   actual=v0  
+     p464  q3   refs=2   birth=18   death=20   pri=10000   copy_sugg=-            sugg=-          pred=v0   actual=v0  

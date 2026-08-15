@@ -5046,7 +5046,17 @@ void Hud_RenderHudView(void)
  *   an alias whose HIGH cse can equate but whose value it cannot (the two entry/exit loads
  *   are also self-temp `lui v0;lw v0,0(v0)` vs retail's separate-temp `lui v1;lw v0,0(v1)`,
  *   so the separate-temp shape -- sec.3.12 #5 -- is the same missing ingredient).  Also still
- *   open: `lui $s5,0xff000000` is materialized one slot early (position only). */
+ *   open: `lui $s5,0xff000000` is materialized one slot early (position only).
+ * w67-a7: the named high-share angle, one probe FALSIFIED: tail set spelled at a
+ *   DIFFERENT constant offset of the REAL symbol (`dh = (int *)DashHUD_gInfo.showhud;`
+ *   + exit `dh[-7]`) -- cse folds the +28 against the -7 index back into a direct
+ *   sym+0 load, the tail set's address never materializes, gate bit-identical 13 @72.
+ *   SHARPENED MECHANISM: the entry/tail self-temp folds are DOWNSTREAM of the missing
+ *   share -- cse's availability for `(high sym)` dies when the self-temp load OVERWRITES
+ *   the high's register, so by the time the body's lo_sum could derive, no live copy
+ *   exists; retail's separate-temp survives BECAUSE its high has the body use.  The
+ *   wanted device must keep the entry high live into the body addiu WITHOUT letting cse
+ *   equate the full lo_sum values (view-alias kills both, real-symbol kills neither). */
 extern int DashHUD_view[] __asm__("DashHUD_gInfo");
 
 void Hud_RenderTacView(void)

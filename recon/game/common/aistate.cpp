@@ -2466,10 +2466,16 @@ void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int 
 
         fixedmult(((this->carObj_)->N).orientMat.m[8],posDiff.z);
 
-  /* CORRECTNESS (w13-a5): oracle stores *status = 0 on the sum<=0 path (blez -> sw zero)
-     -- recon previously left *status unwritten there. */
+  /* CORRECTNESS (w65-a2, REVERSES the w13-a5 note above it): retail's `blez $s0` at
+     0x80071A0C encodes offset 0x000F -> .L80071A4C = the EPILOGUE, NOT the
+     `sw $zero,0($s3)` one word earlier (.L80071A48, which only the
+     `0xC0000 < distance` guard's `bnez` at 0x80071930 reaches).  So retail leaves
+     *status UNTOUCHED on the sum<=0 path; `goto LAB_STATUS0` here wrote a 0 the
+     original never wrote.  The gate could never see it (verify_asm normalises every
+     branch TARGET to `T`); `tools/brdist.py` reported it as (9, 15, 16).  Bare
+     `return;` reproduces retail's branch word and drops the spurious store. */
 
-  if (sum <= 0) goto LAB_STATUS0;
+  if (sum <= 0) return;
 
   AudioClc_HonkHorn(this->carObj_,4,0x10,8);
 

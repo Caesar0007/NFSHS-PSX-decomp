@@ -675,19 +675,26 @@ cdone:                                  /* ev == 0 : the accept sequence complet
          * the delay slot, the 3 on the fall-through).  Writing the select as `rslt = 0; if
          * (cleared) rslt = 3;` lets gcc-2.7.2 go BRANCHLESS (`sltu;negu;andi 3`), so the two
          * arms must both assign (§5.0c clamp-as-if/else). */
-        if (_mc_cleared == 0) {
-            rslt = 0;
-        } else {
+        if (_mc_cleared != 0) {
+            __asm__("" : : "i"(0));
             rslt = 3;                   /* 3 = "new card, was cleared" */
             /* the fence is what BLOCKS the branchless if-conversion: gcc-2.7.2 turns BOTH
              * `rslt=0; if(c) rslt=3;` and a bare two-arm if/else into `sltu;negu;andi 3`, and an
              * asm inside an arm is the only thing that keeps the arm a real basic block */
             __asm__("" : "=r"(rslt) : "0"(rslt));
+        } else {
+            rslt = 0;
         }
-        pc = &mc.cmd;
-        __asm__("" : "=r"(pc) : "0"(pc));
-        pc[1] = rslt;
-        return 1;
+        {   /* w61-a3: a BLOCK-LOCAL anchor here (not the shared function-scope `pc`).
+             * `pc` is referenced from three arms, so it is a GLOBAL allocno and
+             * local_alloc hands this block's rslt qty $v0 first; a block-local pointer
+             * is a local QTY whose priority (refs/live) beats rslt`s, so it takes $v0
+             * and rslt falls to $v1 -- retail`s handout. */
+            int *pd = &mc.cmd;
+            __asm__("" : "=r"(pd) : "0"(pd));
+            pd[1] = rslt;
+            return 1;
+        }
 cretry:
         _mc_retry = _mc_retry + 1;
         /* the `st[0]=0x1e` block is the FALL-THROUGH here and the result tail is the branch
@@ -700,9 +707,9 @@ set1e:
 ctail:
         e = _mc_evrslt;                 /* re-read: retail loads it into $a0 for the call/store */
         if (e == 4) {
-            pc = &mc.cmd;
-            __asm__("" : "=r"(pc) : "0"(pc));
-            pc[1] = e;                  /* stores the LOADED 4, not a fresh `li` */
+            int *pe = &mc.cmd;          /* w61-a3: block-local anchor (see cdone) */
+            __asm__("" : "=r"(pe) : "0"(pe));
+            pe[1] = e;                  /* stores the LOADED 4, not a fresh `li` */
             return 1;
         }
         {

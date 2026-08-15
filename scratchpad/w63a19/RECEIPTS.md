@@ -31,7 +31,8 @@ failures**), then `scan.py` → `probe_link.py`:
 |---|---|---|---|
 | W62-A19 (briefed) | 80.15 % | 203 / 438 | 438 / 23 |
 | **W63 open (this run, 13:52)** | **80.76 %** | **202 / 439** | 439 / 22 |
-| W63 close (this run, fresh scan) | **80.93 %** | 202 / 437 | 437 / 24 |
+| W63 close (this run, fresh scan) | **80.93 %** | 202 / 437 | 437 / 24 |
+| W63 FINAL (both regions cut, fresh scan) | **81.38 %** | 201 / 438 | 438 / 23 |
 
 🔴 **probe_link is NOT attributable to this lane and moved under my feet.**
 `git status` at wave open listed 4 modified `recon/**` files; by mid-run it

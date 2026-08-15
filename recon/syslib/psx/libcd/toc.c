@@ -126,6 +126,27 @@ extern int CdGetToc2(int n, CdlLOC *loc)
     int nTrack;
     int magic;               /* MATCH (W60-A4): magic-reciprocal hoist, see above */
 
+    /* W62-A6 -- the residual 4 is now MECHANISM-NAMED (gcc-cited), not just observed.
+     * loop.c `scan_loop` (2.8.1 loop.c:738-755, the "potential lossage" rule) does NOT
+     * hoist an invariant set whose register has exactly ONE in-loop use: when
+     * reg_single_usage says one, it VALIDATE_REPLACEs the use with the SET_SRC and
+     * DELETES the set.  The division's own 0x66666667 is exactly that -- one use, in the
+     * `mult` -- so it is substituted and re-materialised inside the loop, while retail
+     * carries it in $s5 from the preheader.  Our fenced `magic` local reproduces the
+     * preheader lui/ori pair and the 8-register frame, but it is a DIFFERENT pseudo, and
+     * cse (extended-basic-block scope, loop body has several predecessors) never learns
+     * the live $s5 already holds the constant.
+     * W62-A6 FALSIFIED (all re-gated in the landed basin): `magic = 0x66666667;` moved
+     * INTO the loop body as its first statement 54 / after the fence 22 / in-loop with
+     * the magic operand dropped from the fence 18 @135 / duplicated preheader+in-loop 54
+     * / `magic = magic;` in the loop INERT 4.  Trying to give the constant a SECOND use
+     * so the lossage rule stops firing is also dead: `(track_first - (track_first / 10) *
+     * 10)` spelled out, and the same via a named `tens` local, are both INERT at 4 -- cse
+     * runs BEFORE loop and merges the two divisions back into one.  Control re-gate:
+     * dropping the magic local entirely is now 64 @135 (the w60-a4 receipt's 18 is
+     * basin-stale).  NEXT ANGLE unchanged and now precise: the cure must make the
+     * DIVISION's own constant have >= 2 in-loop uses at LOOP time (i.e. survive cse), or
+     * defeat validate_replace_rtx for the `mult` operand.  */
     param[0] = 1;
     save = CdSyncCallback(0);
     if (CdControlB(0x13, 0, result) == 0)               /* CdlGetTN */

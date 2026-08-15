@@ -943,6 +943,17 @@ extern int CD_init_80108140(void)
      * void-tail fence in BOTH arms restores retail's real `li $v1,2; bne; li -1;
      * j; addu $v0,$zero,$zero; li -1` branch + duplicated-constant tail.
      * 15 (117/120) -> 10 at count-EXACT 120/120.  One fence only = 10 @118/120. */
+    /* W62-A6: the 12D A5 DEAD-PSEUDO STAGING law was tested here and is FALSIFIED for
+     * this function.  Retail copies CD_sync's result into $a0 (`addu $a0,$v0,$zero`) and
+     * tests $a0, filling the `bne`'s slot with `li $v0,-1`.  A5 says to assign into the
+     * variable that ALREADY owns $a0 -- here the only owner is CD_sync's own first
+     * argument, so the argument was made a variable and the result assigned back into
+     * it: `sarg = 0; sarg = CD_sync(sarg, 0);` INERT (10), the same with both arguments
+     * from the carrier INERT (10), and the plain named result temp INERT (10) -- all
+     * count-EXACT 120/120.  The 13B anti-steal void fence in the earlier `return -1`
+     * arms (retail fills the preceding `bnez`'s slot with the `addu $a0,$zero,$zero` arg
+     * setup where we steal `li $v0,-1` into it) is WORSE: CdlDemute arm 13, CdlReset arm
+     * 15, both 18.  Class stands as 3b old-gcc no-copy-prop + one reorg steal choice.  */
     if (CD_sync(0, 0) != 2) {
         __asm__("" : : "i"(0));
         return -1;
@@ -994,6 +1005,14 @@ extern int CD_datasync(int mode)
              * sched1 reproduces the block exactly.  Hoisting the sync STRING
              * instead (or both strings) pulls its load forward = 12; hoisting
              * only the ready string = 20; hoisting both index bytes = 22. */
+            /* W62-A6 -- the ONE genuinely new device the w60-a4 sched1 HARDNESS
+             * CERTIFICATE had not been tested against: a zero-insn SCHEDULING BARRIER
+             * (13B head-of-thread void fence).  All three placements measured on this,
+             * the 8-diff instance: before `puts` 10, after `puts` 10, BETWEEN the arg
+             * chain and the `printf` 10 -- every one WORSE than the unfenced 8.  The
+             * certificate therefore stands: the residual is a sched1 ready-list pick
+             * forced by the MIPS-I load-delay hazard on the CD_com load, and a barrier
+             * cannot change WHICH insn is ready at that cycle.  */
             int syncIdx;
             char *readyName;
             puts("CD timeout: ");

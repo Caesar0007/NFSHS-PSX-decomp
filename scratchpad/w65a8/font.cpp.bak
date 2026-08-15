@@ -16,20 +16,11 @@ typedef struct { unsigned addr : 24, len : 8; } Font_PTag;
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
-/* W65-A8 REAL DEFECT, decoded from rom/nfs4-f.exe: these three are INITIALISED
- * in retail and we emitted them as zero-valued tentative definitions.
- *   0x8013d854 font_clutx  = ff ff ff ff = -1
- *   0x8013d858 font_cluty  = ff ff ff ff = -1
- *   0x8013d85c font_tint   = 80 80 80 66 = 0x66808080
- * The -1 pair is load-bearing at RUNTIME, not just for the data image:
- * Font_ReleaseClut guards on `if (font_clutx != -1)` before calling
- * Texture_MenuReleaseClutId(...) -- starting at 0 makes that guard TRUE on the
- * first call and releases a CLUT id that was never allocated. */
-int font_clutx = -1;
-int font_cluty = -1;
+int font_clutx;
+int font_cluty;
 u_char gFontSpaceWidth;
 u_long font_abr;
-u_long font_tint = 0x66808080;
+u_long font_tint;
 u_short font_currentTPage;
 u_short gFontClut;
 

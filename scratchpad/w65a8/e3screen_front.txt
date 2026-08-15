@@ -1,14 +1,14 @@
 bases sec       size lbls zero retailspan  verdict / object
 ----------------------------------------------------------------------------------------------------
     2 .data       32    4    4         32  P PERMUTATION-ONLY     build/recon/frontend/common/screenusername.cpp.o
-    6 .data      387    9    9        392  H run-gap size-gap     build/recon/frontend/common/front.cpp.o
+    6 .data      387    9    9        392  H  size-gap            build/recon/frontend/common/front.cpp.o
     4 .data      112    6    4        120  H run-gap size-gap     build/recon/frontend/common/feaudio.cpp.o
     3 .data       36    3    2         40  H  size-gap            build/recon/frontend/common/screentrophyinfo.cpp.o
-    2 .data       12    2    2         16  H run-gap size-gap     build/recon/frontend/common/feapp.cpp.o
+    2 .data       12    2    2         16  H  size-gap            build/recon/frontend/common/feapp.cpp.o
     2 .data      101    2    2        104  H  size-gap            build/recon/frontend/common/fecars.cpp.o
     2 .data       40    2    0         52  H run-gap size-gap     build/recon/frontend/common/fememcard.cpp.o
-    2 .data      236   15    2        240  H run-gap size-gap     build/recon/frontend/common/femenudefs.cpp.o
+    2 .data      236   15    2        240  H  size-gap            build/recon/frontend/common/femenudefs.cpp.o
     2 .data       48    6    6         52  H  size-gap            build/recon/frontend/common/screencongrats.cpp.o
-    2 .data     2040    5    1       2004  H run-gap size-gap     build/recon/frontend/common/screencontroller.cpp.o
+    2 .data     2040    5    1       2004  H  size-gap            build/recon/frontend/common/screencontroller.cpp.o
 
 E3 windows: 10   PERMUTATION-ONLY (cheap `=0` candidates): 1   needing a heavier lever: 9

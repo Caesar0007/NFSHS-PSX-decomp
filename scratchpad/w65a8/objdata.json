@@ -17362,6 +17362,14 @@
 },
 {
 "off": 0,
+"sec": ".bss",
+"size": 0,
+"name": "systemtasksubs",
+"glob": false,
+"flags": "l      "
+},
+{
+"off": 0,
 "sec": ".text",
 "size": 180,
 "name": "addsystemtask",
@@ -17389,14 +17397,6 @@
 "sec": "*UND*",
 "size": 0,
 "name": "libticks",
-"glob": false,
-"flags": "       "
-},
-{
-"off": 0,
-"sec": "*UND*",
-"size": 0,
-"name": "systemtasksubs",
 "glob": false,
 "flags": "       "
 },
@@ -17452,13 +17452,13 @@
 "sec": ".text",
 "off": 16,
 "type": "R_MIPS_HI16",
-"val": "systemtasksubs"
+"val": ".bss"
 },
 {
 "sec": ".text",
 "off": 24,
 "type": "R_MIPS_LO16",
-"val": "systemtasksubs"
+"val": ".bss"
 },
 {
 "sec": ".text",
@@ -17476,13 +17476,13 @@
 "sec": ".text",
 "off": 112,
 "type": "R_MIPS_HI16",
-"val": "systemtasksubs"
+"val": ".bss"
 },
 {
 "sec": ".text",
 "off": 116,
 "type": "R_MIPS_LO16",
-"val": "systemtasksubs"
+"val": ".bss"
 },
 {
 "sec": ".text",
@@ -17512,13 +17512,13 @@
 "sec": ".text",
 "off": 184,
 "type": "R_MIPS_HI16",
-"val": "systemtasksubs"
+"val": ".bss"
 },
 {
 "sec": ".text",
 "off": 188,
 "type": "R_MIPS_LO16",
-"val": "systemtasksubs"
+"val": ".bss"
 },
 {
 "sec": ".text",
@@ -17554,13 +17554,13 @@
 "sec": ".text",
 "off": 324,
 "type": "R_MIPS_HI16",
-"val": "systemtasksubs"
+"val": ".bss"
 },
 {
 "sec": ".text",
 "off": 336,
 "type": "R_MIPS_LO16",
-"val": "systemtasksubs"
+"val": ".bss"
 },
 {
 "sec": ".text",
@@ -17626,7 +17626,7 @@
 "secs": {
 ".text": 508,
 ".data": 0,
-".bss": 0,
+".bss": 256,
 ".reginfo": 24,
 ".MIPS.abiflags": 24,
 ".pdr": 96,
@@ -52365,7 +52365,7 @@
 "off": 0,
 "sec": "*UND*",
 "size": 0,
-"name": "debounce",
+"name": "D_80052B60",
 "glob": false,
 "flags": "       "
 },
@@ -52381,7 +52381,7 @@
 "off": 0,
 "sec": "*UND*",
 "size": 0,
-"name": "nextTick",
+"name": "D_80051738",
 "glob": false,
 "flags": "       "
 },
@@ -52629,13 +52629,13 @@
 "sec": ".text",
 "off": 764,
 "type": "R_MIPS_HI16",
-"val": "debounce"
+"val": "D_80052B60"
 },
 {
 "sec": ".text",
 "off": 768,
 "type": "R_MIPS_LO16",
-"val": "debounce"
+"val": "D_80052B60"
 },
 {
 "sec": ".text",
@@ -52653,13 +52653,13 @@
 "sec": ".text",
 "off": 840,
 "type": "R_MIPS_HI16",
-"val": "nextTick"
+"val": "D_80051738"
 },
 {
 "sec": ".text",
 "off": 844,
 "type": "R_MIPS_LO16",
-"val": "nextTick"
+"val": "D_80051738"
 },
 {
 "sec": ".text",
@@ -52677,13 +52677,13 @@
 "sec": ".text",
 "off": 880,
 "type": "R_MIPS_LO16",
-"val": "nextTick"
+"val": "D_80051738"
 },
 {
 "sec": ".text",
 "off": 884,
 "type": "R_MIPS_LO16",
-"val": "nextTick"
+"val": "D_80051738"
 },
 {
 "sec": ".text",
@@ -52707,7 +52707,7 @@
 "sec": ".text",
 "off": 924,
 "type": "R_MIPS_LO16",
-"val": "nextTick"
+"val": "D_80051738"
 },
 {
 "sec": ".text",
@@ -52719,25 +52719,25 @@
 "sec": ".text",
 "off": 940,
 "type": "R_MIPS_HI16",
-"val": "nextTick"
+"val": "D_80051738"
 },
 {
 "sec": ".text",
 "off": 948,
 "type": "R_MIPS_LO16",
-"val": "nextTick"
+"val": "D_80051738"
 },
 {
 "sec": ".text",
 "off": 956,
 "type": "R_MIPS_HI16",
-"val": "debounce"
+"val": "D_80052B60"
 },
 {
 "sec": ".text",
 "off": 960,
 "type": "R_MIPS_LO16",
-"val": "debounce"
+"val": "D_80052B60"
 },
 {
 "sec": ".text",
@@ -92038,7 +92038,7 @@
 "off": 0,
 "sec": ".bss",
 "size": 0,
-"name": "lastpercentage.228",
+"name": "lastpercentage.230",
 "glob": false,
 "flags": "l      "
 },
@@ -92046,7 +92046,7 @@
 "off": 4,
 "sec": ".bss",
 "size": 0,
-"name": "perfade.229",
+"name": "perfade.231",
 "glob": false,
 "flags": "l      "
 },
@@ -100238,7 +100238,7 @@
 "off": 0,
 "sec": ".bss",
 "size": 0,
-"name": "carRotate.230",
+"name": "carRotate.232",
 "glob": false,
 "flags": "l      "
 },
@@ -112378,7 +112378,7 @@
 "off": 0,
 "sec": "*UND*",
 "size": 0,
-"name": "TextValue__13tListIterator7tPlayer",
+"name": "TextValue__23tListIteratorTournament7tPlayer",
 "glob": false,
 "flags": "       "
 },
@@ -112994,7 +112994,7 @@
 "sec": ".text",
 "off": 1740,
 "type": "R_MIPS_26",
-"val": "TextValue__13tListIterator7tPlayer"
+"val": "TextValue__23tListIteratorTournament7tPlayer"
 },
 {
 "sec": ".text",
@@ -133232,7 +133232,7 @@
 "off": 0,
 "sec": ".sbss",
 "size": 0,
-"name": "firstTime.271",
+"name": "firstTime.273",
 "glob": false,
 "flags": "l      "
 },
@@ -133240,7 +133240,7 @@
 "off": 0,
 "sec": ".bss",
 "size": 0,
-"name": "spos.270",
+"name": "spos.272",
 "glob": false,
 "flags": "l      "
 },
@@ -141550,7 +141550,7 @@
 "off": 0,
 "sec": ".sbss",
 "size": 0,
-"name": "sayLose.256",
+"name": "sayLose.258",
 "glob": false,
 "flags": "l      "
 }
@@ -145068,7 +145068,7 @@
 "off": 0,
 "sec": "*UND*",
 "size": 0,
-"name": "___15AIHigh_BTC_Perp",
+"name": "___11AIHigh_Base",
 "glob": false,
 "flags": "       "
 },
@@ -145197,14 +145197,6 @@
 "sec": "*UND*",
 "size": 0,
 "name": "__14AIState_CruiseP8Car_tObj12cruiseMode_ti",
-"glob": false,
-"flags": "       "
-},
-{
-"off": 0,
-"sec": "*UND*",
-"size": 0,
-"name": "___11AIHigh_Base",
 "glob": false,
 "flags": "       "
 },
@@ -146066,7 +146058,7 @@
 "sec": ".text",
 "off": 3328,
 "type": "R_MIPS_26",
-"val": "___15AIHigh_BTC_Perp"
+"val": "___11AIHigh_Base"
 },
 {
 "sec": ".text",
@@ -146930,7 +146922,7 @@
 "sec": ".text",
 "off": 7292,
 "type": "R_MIPS_26",
-"val": "___15AIHigh_BTC_Perp"
+"val": "___11AIHigh_Base"
 },
 {
 "sec": ".text",
@@ -155107,7 +155099,7 @@
 "sec": ".text",
 "off": 8,
 "type": "R_MIPS_26",
-"val": "___15AIHigh_BTC_Perp"
+"val": "___11AIHigh_Base"
 },
 {
 "sec": ".text",
@@ -161718,7 +161710,7 @@
 "off": 0,
 "sec": ".sbss",
 "size": 0,
-"name": "copCollisionReactionTime.280",
+"name": "copCollisionReactionTime.282",
 "glob": false,
 "flags": "l      "
 },
@@ -161726,7 +161718,7 @@
 "off": 0,
 "sec": ".bss",
 "size": 0,
-"name": "copCollisionGripLoss.281",
+"name": "copCollisionGripLoss.283",
 "glob": false,
 "flags": "l      "
 },
@@ -161734,7 +161726,7 @@
 "off": 16,
 "sec": ".bss",
 "size": 0,
-"name": "copCollisionSlowDown.282",
+"name": "copCollisionSlowDown.284",
 "glob": false,
 "flags": "l      "
 },
@@ -173863,7 +173855,7 @@
 "off": 0,
 "sec": ".data",
 "size": 0,
-"name": "trafficFreqs.240",
+"name": "trafficFreqs.246",
 "glob": false,
 "flags": "l      "
 },
@@ -177461,7 +177453,7 @@
 "off": 0,
 "sec": ".sbss",
 "size": 0,
-"name": "lastImpactSample.264",
+"name": "lastImpactSample.270",
 "glob": false,
 "flags": "l      "
 },
@@ -177573,7 +177565,7 @@
 "off": 4,
 "sec": ".sbss",
 "size": 0,
-"name": "cobbleCount.279",
+"name": "cobbleCount.285",
 "glob": false,
 "flags": "l      "
 },
@@ -188148,7 +188140,7 @@
 "off": 0,
 "sec": ".sbss",
 "size": 0,
-"name": "cop_angle.232",
+"name": "cop_angle.238",
 "glob": false,
 "flags": "l      "
 },
@@ -188156,7 +188148,7 @@
 "off": 4,
 "sec": ".sbss",
 "size": 0,
-"name": "totalMem.245",
+"name": "totalMem.251",
 "glob": false,
 "flags": "l      "
 }
@@ -190600,7 +190592,7 @@
 "off": 0,
 "sec": ".bss",
 "size": 0,
-"name": "sliceOffs.248",
+"name": "sliceOffs.254",
 "glob": false,
 "flags": "l      "
 },
@@ -190608,7 +190600,7 @@
 "off": 48,
 "sec": ".bss",
 "size": 0,
-"name": "corrPt.251",
+"name": "corrPt.257",
 "glob": false,
 "flags": "l      "
 },
@@ -192368,7 +192360,7 @@
 "off": 0,
 "sec": ".bss",
 "size": 0,
-"name": "lastX.246",
+"name": "lastX.248",
 "glob": false,
 "flags": "l      "
 },
@@ -192376,7 +192368,7 @@
 "off": 8,
 "sec": ".bss",
 "size": 0,
-"name": "lastY.247",
+"name": "lastY.249",
 "glob": false,
 "flags": "l      "
 },
@@ -192480,7 +192472,7 @@
 "off": 16,
 "sec": ".bss",
 "size": 0,
-"name": "lastOppVector.286",
+"name": "lastOppVector.288",
 "glob": false,
 "flags": "l      "
 },
@@ -215106,7 +215098,7 @@
 "off": 1256,
 "sec": ".sdata",
 "size": 0,
-"name": "alph.226",
+"name": "alph.228",
 "glob": false,
 "flags": "l      "
 },
@@ -215114,7 +215106,7 @@
 "off": 1264,
 "sec": ".sdata",
 "size": 0,
-"name": "alph.227",
+"name": "alph.229",
 "glob": false,
 "flags": "l      "
 },
@@ -253798,6 +253790,38 @@
 },
 {
 "off": 0,
+"sec": ".sdata",
+"size": 0,
+"name": "gSimQueue_Ticker",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 4,
+"sec": ".sdata",
+"size": 0,
+"name": "gSimQueue_BlockSelf",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 8,
+"sec": ".sdata",
+"size": 0,
+"name": "gSimQueue_BlockOther",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 0,
+"sec": ".bss",
+"size": 0,
+"name": "inputQueue",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 0,
 "sec": ".text",
 "size": 44,
 "name": "SimQueue_StartUp__Fv",
@@ -253861,30 +253885,6 @@
 "flags": "g     F"
 },
 {
-"off": 0,
-"sec": ".sdata",
-"size": 0,
-"name": "gSimQueue_BlockOther",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 4,
-"sec": ".sdata",
-"size": 0,
-"name": "gSimQueue_BlockSelf",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 8,
-"sec": ".sdata",
-"size": 0,
-"name": "gSimQueue_Ticker",
-"glob": true,
-"flags": "g      "
-},
-{
 "off": 12,
 "sec": ".sdata",
 "size": 0,
@@ -253896,7 +253896,7 @@
 "off": 0,
 "sec": "*UND*",
 "size": 0,
-"name": "output",
+"name": "D_8013DDC8",
 "glob": false,
 "flags": "       "
 },
@@ -253905,14 +253905,6 @@
 "sec": "*UND*",
 "size": 0,
 "name": "GameSetup_gData",
-"glob": false,
-"flags": "       "
-},
-{
-"off": 0,
-"sec": "*UND*",
-"size": 0,
-"name": "inputQueue",
 "glob": false,
 "flags": "       "
 }
@@ -254096,13 +254088,13 @@
 "sec": ".text",
 "off": 544,
 "type": "R_MIPS_HI16",
-"val": "output"
+"val": "D_8013DDC8"
 },
 {
 "sec": ".text",
 "off": 548,
 "type": "R_MIPS_LO16",
-"val": "output"
+"val": "D_8013DDC8"
 },
 {
 "sec": ".text",
@@ -254144,13 +254136,13 @@
 "sec": ".text",
 "off": 696,
 "type": "R_MIPS_HI16",
-"val": "output"
+"val": "D_8013DDC8"
 },
 {
 "sec": ".text",
 "off": 700,
 "type": "R_MIPS_LO16",
-"val": "output"
+"val": "D_8013DDC8"
 },
 {
 "sec": ".text",
@@ -254252,7 +254244,7 @@
 "secs": {
 ".text": 864,
 ".data": 0,
-".bss": 0,
+".bss": 524,
 ".reginfo": 24,
 ".MIPS.abiflags": 24,
 ".pdr": 256,
@@ -266529,7 +266521,7 @@
 "off": 0,
 "sec": ".bss",
 "size": 0,
-"name": "strspc.228",
+"name": "strspc.230",
 "glob": false,
 "flags": "l      "
 },
@@ -266553,7 +266545,7 @@
 "off": 64,
 "sec": ".bss",
 "size": 0,
-"name": "strspc.231",
+"name": "strspc.233",
 "glob": false,
 "flags": "l      "
 },
@@ -271465,14 +271457,6 @@
 "off": 0,
 "sec": "*UND*",
 "size": 0,
-"name": "___15AIHigh_BTC_Perp",
-"glob": false,
-"flags": "       "
-},
-{
-"off": 0,
-"sec": "*UND*",
-"size": 0,
 "name": "___18AIHigh_BTC_Wingman",
 "glob": false,
 "flags": "       "
@@ -271515,7 +271499,7 @@
 "sec": ".text",
 "off": 136,
 "type": "R_MIPS_26",
-"val": "___15AIHigh_BTC_Perp"
+"val": "___11AIHigh_Base"
 },
 {
 "sec": ".text",
@@ -284721,7 +284705,7 @@
 "off": 0,
 "sec": "*UND*",
 "size": 0,
-"name": "CarIO_textureName",
+"name": "D_8011E804",
 "glob": false,
 "flags": "       "
 },
@@ -285691,13 +285675,13 @@
 "sec": ".text",
 "off": 2724,
 "type": "R_MIPS_HI16",
-"val": "CarIO_textureName"
+"val": "D_8011E804"
 },
 {
 "sec": ".text",
 "off": 2732,
 "type": "R_MIPS_LO16",
-"val": "CarIO_textureName"
+"val": "D_8011E804"
 },
 {
 "sec": ".text",
@@ -285985,13 +285969,13 @@
 "sec": ".text",
 "off": 4188,
 "type": "R_MIPS_HI16",
-"val": "CarIO_textureName"
+"val": "D_8011E804"
 },
 {
 "sec": ".text",
 "off": 4196,
 "type": "R_MIPS_LO16",
-"val": "CarIO_textureName"
+"val": "D_8011E804"
 },
 {
 "sec": ".text",
@@ -286728,7 +286712,7 @@
 "off": 0,
 "sec": ".sbss",
 "size": 0,
-"name": "failtime.226",
+"name": "failtime.228",
 "glob": false,
 "flags": "l      "
 },
@@ -289339,7 +289323,7 @@
 "off": 0,
 "sec": "*UND*",
 "size": 0,
-"name": "hilight_colors",
+"name": "D_8011F4B4",
 "glob": false,
 "flags": "       "
 },
@@ -292383,13 +292367,13 @@
 "sec": ".text",
 "off": 26640,
 "type": "R_MIPS_HI16",
-"val": "hilight_colors"
+"val": "D_8011F4B4"
 },
 {
 "sec": ".text",
 "off": 26664,
 "type": "R_MIPS_LO16",
-"val": "hilight_colors"
+"val": "D_8011F4B4"
 },
 {
 "sec": ".text",
@@ -300587,6 +300571,30 @@
 },
 {
 "off": 0,
+"sec": ".sdata",
+"size": 0,
+"name": "font_clutx",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 4,
+"sec": ".sdata",
+"size": 0,
+"name": "font_cluty",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 8,
+"sec": ".sdata",
+"size": 0,
+"name": "font_tint",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 0,
 "sec": ".text",
 "size": 56,
 "name": "Font_TextColor__Fi",
@@ -300704,30 +300712,6 @@
 "name": "Font_GetUVWH__FcPiN41",
 "glob": true,
 "flags": "g     F"
-},
-{
-"off": 0,
-"sec": ".sdata",
-"size": 0,
-"name": "font_clutx",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 4,
-"sec": ".sdata",
-"size": 0,
-"name": "font_cluty",
-"glob": true,
-"flags": "g      "
-},
-{
-"off": 8,
-"sec": ".sdata",
-"size": 0,
-"name": "font_tint",
-"glob": true,
-"flags": "g      "
 },
 {
 "off": 12,
@@ -306444,7 +306428,7 @@
 "off": 0,
 "sec": ".sbss",
 "size": 0,
-"name": "keepup.302",
+"name": "keepup.304",
 "glob": false,
 "flags": "l      "
 },
@@ -306612,7 +306596,7 @@
 "off": 4,
 "sec": ".sbss",
 "size": 0,
-"name": "countdownTick.321",
+"name": "countdownTick.323",
 "glob": false,
 "flags": "l      "
 }
@@ -315326,7 +315310,7 @@
 "off": 0,
 "sec": "*UND*",
 "size": 0,
-"name": "loading_languageNames",
+"name": "D_80120D00",
 "glob": false,
 "flags": "       "
 },
@@ -315450,13 +315434,13 @@
 "sec": ".text",
 "off": 196,
 "type": "R_MIPS_HI16",
-"val": "loading_languageNames"
+"val": "D_80120D00"
 },
 {
 "sec": ".text",
 "off": 200,
 "type": "R_MIPS_LO16",
-"val": "loading_languageNames"
+"val": "D_80120D00"
 },
 {
 "sec": ".text",
@@ -315823,7 +315807,7 @@
 "off": 20,
 "sec": ".data",
 "size": 0,
-"name": "colorCreationTable.250",
+"name": "colorCreationTable.252",
 "glob": false,
 "flags": "l      "
 },
@@ -320774,7 +320758,7 @@
 "off": 0,
 "sec": "*UND*",
 "size": 0,
-"name": "hoff",
+"name": "D_8013DAC0",
 "glob": false,
 "flags": "       "
 },
@@ -320884,13 +320868,13 @@
 "sec": ".text",
 "off": 244,
 "type": "R_MIPS_HI16",
-"val": "hoff"
+"val": "D_8013DAC0"
 },
 {
 "sec": ".text",
 "off": 248,
 "type": "R_MIPS_LO16",
-"val": "hoff"
+"val": "D_8013DAC0"
 },
 {
 "sec": ".text",
@@ -321010,13 +320994,13 @@
 "sec": ".text",
 "off": 784,
 "type": "R_MIPS_HI16",
-"val": "hoff"
+"val": "D_8013DAC0"
 },
 {
 "sec": ".text",
 "off": 788,
 "type": "R_MIPS_LO16",
-"val": "hoff"
+"val": "D_8013DAC0"
 },
 {
 "sec": ".text",
@@ -321034,13 +321018,13 @@
 "sec": ".text",
 "off": 860,
 "type": "R_MIPS_HI16",
-"val": "hoff"
+"val": "D_8013DAC0"
 },
 {
 "sec": ".text",
 "off": 864,
 "type": "R_MIPS_LO16",
-"val": "hoff"
+"val": "D_8013DAC0"
 },
 {
 "sec": ".text",
@@ -321082,13 +321066,13 @@
 "sec": ".text",
 "off": 1036,
 "type": "R_MIPS_HI16",
-"val": "hoff"
+"val": "D_8013DAC0"
 },
 {
 "sec": ".text",
 "off": 1040,
 "type": "R_MIPS_LO16",
-"val": "hoff"
+"val": "D_8013DAC0"
 },
 {
 "sec": ".text",
@@ -321442,13 +321426,13 @@
 "sec": ".text",
 "off": 2328,
 "type": "R_MIPS_HI16",
-"val": "hoff"
+"val": "D_8013DAC0"
 },
 {
 "sec": ".text",
 "off": 2332,
 "type": "R_MIPS_LO16",
-"val": "hoff"
+"val": "D_8013DAC0"
 },
 {
 "sec": ".text",
@@ -332930,6 +332914,22 @@
 },
 {
 "off": 0,
+"sec": ".bss",
+"size": 0,
+"name": "_first_save",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 8,
+"sec": ".bss",
+"size": 0,
+"name": "_first_devname",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 0,
 "sec": ".text",
 "size": 416,
 "name": "firstfile",
@@ -332943,22 +332943,6 @@
 "name": "_first_patch",
 "glob": true,
 "flags": "g     F"
-},
-{
-"off": 0,
-"sec": "*UND*",
-"size": 0,
-"name": "_first_save",
-"glob": false,
-"flags": "       "
-},
-{
-"off": 0,
-"sec": "*UND*",
-"size": 0,
-"name": "_first_devname",
-"glob": false,
-"flags": "       "
 },
 {
 "off": 0,
@@ -333154,7 +333138,7 @@
 "secs": {
 ".text": 672,
 ".data": 0,
-".bss": 0,
+".bss": 48,
 ".reginfo": 24,
 ".MIPS.abiflags": 24,
 ".pdr": 64,
@@ -335919,19 +335903,19 @@
 },
 {
 "off": 0,
+"sec": ".bss",
+"size": 0,
+"name": "D_80148AD4",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 0,
 "sec": ".text",
 "size": 112,
 "name": "_ExitCard",
 "glob": true,
 "flags": "g     F"
-},
-{
-"off": 0,
-"sec": "*UND*",
-"size": 0,
-"name": "D_80148AD4",
-"glob": false,
-"flags": "       "
 },
 {
 "off": 0,
@@ -336045,7 +336029,7 @@
 "secs": {
 ".text": 128,
 ".data": 0,
-".bss": 0,
+".bss": 4,
 ".reginfo": 24,
 ".MIPS.abiflags": 24,
 ".pdr": 0,
@@ -336253,6 +336237,14 @@
 },
 {
 "off": 0,
+"sec": ".bss",
+"size": 0,
+"name": "D_80148AC4",
+"glob": true,
+"flags": "g      "
+},
+{
+"off": 0,
 "sec": ".text",
 "size": 36,
 "name": "func_8010CA40",
@@ -336274,14 +336266,6 @@
 "name": "_patch_card",
 "glob": true,
 "flags": "g     F"
-},
-{
-"off": 0,
-"sec": "*UND*",
-"size": 0,
-"name": "D_80148AC4",
-"glob": false,
-"flags": "       "
 },
 {
 "off": 0,
@@ -336473,7 +336457,7 @@
 "secs": {
 ".text": 352,
 ".data": 0,
-".bss": 0,
+".bss": 4,
 ".reginfo": 24,
 ".MIPS.abiflags": 24,
 ".pdr": 0,
@@ -348285,7 +348269,7 @@
 "off": 0,
 "sec": "*UND*",
 "size": 0,
-"name": "g_hooks_ptr",
+"name": "D_80135B80",
 "glob": false,
 "flags": "       "
 },
@@ -348349,7 +348333,7 @@
 "off": 0,
 "sec": "*UND*",
 "size": 0,
-"name": "g_imask_ptr",
+"name": "D_80135B88",
 "glob": false,
 "flags": "       "
 },
@@ -348365,7 +348349,7 @@
 "off": 0,
 "sec": "*UND*",
 "size": 0,
-"name": "g_istat_ptr",
+"name": "D_80135B84",
 "glob": false,
 "flags": "       "
 },
@@ -348373,7 +348357,7 @@
 "off": 0,
 "sec": "*UND*",
 "size": 0,
-"name": "g_dpcr_ptr",
+"name": "D_80135B8C",
 "glob": false,
 "flags": "       "
 },
@@ -348461,7 +348445,7 @@
 "off": 0,
 "sec": "*UND*",
 "size": 0,
-"name": "g_intr_timeout",
+"name": "D_80135B90",
 "glob": false,
 "flags": "       "
 },
@@ -348527,61 +348511,61 @@
 "sec": ".text",
 "off": 0,
 "type": "R_MIPS_HI16",
-"val": "g_hooks_ptr"
+"val": "D_80135B80"
 },
 {
 "sec": ".text",
 "off": 4,
 "type": "R_MIPS_LO16",
-"val": "g_hooks_ptr"
+"val": "D_80135B80"
 },
 {
 "sec": ".text",
 "off": 48,
 "type": "R_MIPS_HI16",
-"val": "g_hooks_ptr"
+"val": "D_80135B80"
 },
 {
 "sec": ".text",
 "off": 52,
 "type": "R_MIPS_LO16",
-"val": "g_hooks_ptr"
+"val": "D_80135B80"
 },
 {
 "sec": ".text",
 "off": 96,
 "type": "R_MIPS_HI16",
-"val": "g_hooks_ptr"
+"val": "D_80135B80"
 },
 {
 "sec": ".text",
 "off": 100,
 "type": "R_MIPS_LO16",
-"val": "g_hooks_ptr"
+"val": "D_80135B80"
 },
 {
 "sec": ".text",
 "off": 148,
 "type": "R_MIPS_HI16",
-"val": "g_hooks_ptr"
+"val": "D_80135B80"
 },
 {
 "sec": ".text",
 "off": 152,
 "type": "R_MIPS_LO16",
-"val": "g_hooks_ptr"
+"val": "D_80135B80"
 },
 {
 "sec": ".text",
 "off": 196,
 "type": "R_MIPS_HI16",
-"val": "g_hooks_ptr"
+"val": "D_80135B80"
 },
 {
 "sec": ".text",
 "off": 200,
 "type": "R_MIPS_LO16",
-"val": "g_hooks_ptr"
+"val": "D_80135B80"
 },
 {
 "sec": ".text",
@@ -348599,13 +348583,13 @@
 "sec": ".text",
 "off": 260,
 "type": "R_MIPS_HI16",
-"val": "g_imask_ptr"
+"val": "D_80135B88"
 },
 {
 "sec": ".text",
 "off": 264,
 "type": "R_MIPS_LO16",
-"val": "g_imask_ptr"
+"val": "D_80135B88"
 },
 {
 "sec": ".text",
@@ -348623,37 +348607,37 @@
 "sec": ".text",
 "off": 320,
 "type": "R_MIPS_HI16",
-"val": "g_istat_ptr"
+"val": "D_80135B84"
 },
 {
 "sec": ".text",
 "off": 324,
 "type": "R_MIPS_LO16",
-"val": "g_istat_ptr"
+"val": "D_80135B84"
 },
 {
 "sec": ".text",
 "off": 328,
 "type": "R_MIPS_HI16",
-"val": "g_imask_ptr"
+"val": "D_80135B88"
 },
 {
 "sec": ".text",
 "off": 332,
 "type": "R_MIPS_LO16",
-"val": "g_imask_ptr"
+"val": "D_80135B88"
 },
 {
 "sec": ".text",
 "off": 356,
 "type": "R_MIPS_HI16",
-"val": "g_dpcr_ptr"
+"val": "D_80135B8C"
 },
 {
 "sec": ".text",
 "off": 360,
 "type": "R_MIPS_LO16",
-"val": "g_dpcr_ptr"
+"val": "D_80135B8C"
 },
 {
 "sec": ".text",
@@ -348701,13 +348685,13 @@
 "sec": ".text",
 "off": 440,
 "type": "R_MIPS_HI16",
-"val": "g_hooks_ptr"
+"val": "D_80135B80"
 },
 {
 "sec": ".text",
 "off": 444,
 "type": "R_MIPS_LO16",
-"val": "g_hooks_ptr"
+"val": "D_80135B80"
 },
 {
 "sec": ".text",
@@ -348719,13 +348703,13 @@
 "sec": ".text",
 "off": 456,
 "type": "R_MIPS_HI16",
-"val": "g_hooks_ptr"
+"val": "D_80135B80"
 },
 {
 "sec": ".text",
 "off": 460,
 "type": "R_MIPS_LO16",
-"val": "g_hooks_ptr"
+"val": "D_80135B80"
 },
 {
 "sec": ".text",
@@ -348755,13 +348739,13 @@
 "sec": ".text",
 "off": 552,
 "type": "R_MIPS_HI16",
-"val": "g_istat_ptr"
+"val": "D_80135B84"
 },
 {
 "sec": ".text",
 "off": 556,
 "type": "R_MIPS_LO16",
-"val": "g_istat_ptr"
+"val": "D_80135B84"
 },
 {
 "sec": ".text",
@@ -348791,61 +348775,61 @@
 "sec": ".text",
 "off": 588,
 "type": "R_MIPS_HI16",
-"val": "g_imask_ptr"
+"val": "D_80135B88"
 },
 {
 "sec": ".text",
 "off": 592,
 "type": "R_MIPS_LO16",
-"val": "g_imask_ptr"
+"val": "D_80135B88"
 },
 {
 "sec": ".text",
 "off": 596,
 "type": "R_MIPS_HI16",
-"val": "g_istat_ptr"
+"val": "D_80135B84"
 },
 {
 "sec": ".text",
 "off": 600,
 "type": "R_MIPS_LO16",
-"val": "g_istat_ptr"
+"val": "D_80135B84"
 },
 {
 "sec": ".text",
 "off": 680,
 "type": "R_MIPS_HI16",
-"val": "g_istat_ptr"
+"val": "D_80135B84"
 },
 {
 "sec": ".text",
 "off": 684,
 "type": "R_MIPS_LO16",
-"val": "g_istat_ptr"
+"val": "D_80135B84"
 },
 {
 "sec": ".text",
 "off": 740,
 "type": "R_MIPS_HI16",
-"val": "g_imask_ptr"
+"val": "D_80135B88"
 },
 {
 "sec": ".text",
 "off": 744,
 "type": "R_MIPS_LO16",
-"val": "g_imask_ptr"
+"val": "D_80135B88"
 },
 {
 "sec": ".text",
 "off": 748,
 "type": "R_MIPS_HI16",
-"val": "g_istat_ptr"
+"val": "D_80135B84"
 },
 {
 "sec": ".text",
 "off": 752,
 "type": "R_MIPS_LO16",
-"val": "g_istat_ptr"
+"val": "D_80135B84"
 },
 {
 "sec": ".text",
@@ -348863,37 +348847,37 @@
 "sec": ".text",
 "off": 788,
 "type": "R_MIPS_HI16",
-"val": "g_istat_ptr"
+"val": "D_80135B84"
 },
 {
 "sec": ".text",
 "off": 792,
 "type": "R_MIPS_LO16",
-"val": "g_istat_ptr"
+"val": "D_80135B84"
 },
 {
 "sec": ".text",
 "off": 796,
 "type": "R_MIPS_HI16",
-"val": "g_imask_ptr"
+"val": "D_80135B88"
 },
 {
 "sec": ".text",
 "off": 800,
 "type": "R_MIPS_LO16",
-"val": "g_imask_ptr"
+"val": "D_80135B88"
 },
 {
 "sec": ".text",
 "off": 828,
 "type": "R_MIPS_HI16",
-"val": "g_intr_timeout"
+"val": "D_80135B90"
 },
 {
 "sec": ".text",
 "off": 832,
 "type": "R_MIPS_LO16",
-"val": "g_intr_timeout"
+"val": "D_80135B90"
 },
 {
 "sec": ".text",
@@ -348917,25 +348901,25 @@
 "sec": ".text",
 "off": 888,
 "type": "R_MIPS_HI16",
-"val": "g_istat_ptr"
+"val": "D_80135B84"
 },
 {
 "sec": ".text",
 "off": 892,
 "type": "R_MIPS_LO16",
-"val": "g_istat_ptr"
+"val": "D_80135B84"
 },
 {
 "sec": ".text",
 "off": 896,
 "type": "R_MIPS_HI16",
-"val": "g_intr_timeout"
+"val": "D_80135B90"
 },
 {
 "sec": ".text",
 "off": 900,
 "type": "R_MIPS_LO16",
-"val": "g_intr_timeout"
+"val": "D_80135B90"
 },
 {
 "sec": ".text",
@@ -348947,13 +348931,13 @@
 "sec": ".text",
 "off": 912,
 "type": "R_MIPS_HI16",
-"val": "g_intr_timeout"
+"val": "D_80135B90"
 },
 {
 "sec": ".text",
 "off": 916,
 "type": "R_MIPS_LO16",
-"val": "g_intr_timeout"
+"val": "D_80135B90"
 },
 {
 "sec": ".text",
@@ -348989,13 +348973,13 @@
 "sec": ".text",
 "off": 1048,
 "type": "R_MIPS_HI16",
-"val": "g_imask_ptr"
+"val": "D_80135B88"
 },
 {
 "sec": ".text",
 "off": 1052,
 "type": "R_MIPS_LO16",
-"val": "g_imask_ptr"
+"val": "D_80135B88"
 },
 {
 "sec": ".text",
@@ -349037,13 +349021,13 @@
 "sec": ".text",
 "off": 1244,
 "type": "R_MIPS_HI16",
-"val": "g_imask_ptr"
+"val": "D_80135B88"
 },
 {
 "sec": ".text",
 "off": 1248,
 "type": "R_MIPS_LO16",
-"val": "g_imask_ptr"
+"val": "D_80135B88"
 },
 {
 "sec": ".text",
@@ -349067,49 +349051,49 @@
 "sec": ".text",
 "off": 1340,
 "type": "R_MIPS_HI16",
-"val": "g_imask_ptr"
+"val": "D_80135B88"
 },
 {
 "sec": ".text",
 "off": 1344,
 "type": "R_MIPS_LO16",
-"val": "g_imask_ptr"
+"val": "D_80135B88"
 },
 {
 "sec": ".text",
 "off": 1348,
 "type": "R_MIPS_HI16",
-"val": "g_dpcr_ptr"
+"val": "D_80135B8C"
 },
 {
 "sec": ".text",
 "off": 1352,
 "type": "R_MIPS_LO16",
-"val": "g_dpcr_ptr"
+"val": "D_80135B8C"
 },
 {
 "sec": ".text",
 "off": 1372,
 "type": "R_MIPS_HI16",
-"val": "g_istat_ptr"
+"val": "D_80135B84"
 },
 {
 "sec": ".text",
 "off": 1376,
 "type": "R_MIPS_LO16",
-"val": "g_istat_ptr"
+"val": "D_80135B84"
 },
 {
 "sec": ".text",
 "off": 1400,
 "type": "R_MIPS_HI16",
-"val": "g_dpcr_ptr"
+"val": "D_80135B8C"
 },
 {
 "sec": ".text",
 "off": 1404,
 "type": "R_MIPS_LO16",
-"val": "g_dpcr_ptr"
+"val": "D_80135B8C"
 },
 {
 "sec": ".text",
@@ -349139,25 +349123,25 @@
 "sec": ".text",
 "off": 1500,
 "type": "R_MIPS_HI16",
-"val": "g_imask_ptr"
+"val": "D_80135B88"
 },
 {
 "sec": ".text",
 "off": 1504,
 "type": "R_MIPS_LO16",
-"val": "g_imask_ptr"
+"val": "D_80135B88"
 },
 {
 "sec": ".text",
 "off": 1524,
 "type": "R_MIPS_HI16",
-"val": "g_dpcr_ptr"
+"val": "D_80135B8C"
 },
 {
 "sec": ".text",
 "off": 1528,
 "type": "R_MIPS_LO16",
-"val": "g_dpcr_ptr"
+"val": "D_80135B8C"
 },
 {
 "sec": ".text",
@@ -349315,7 +349299,7 @@
 "off": 0,
 "sec": "*UND*",
 "size": 0,
-"name": "g_dicr_ptr",
+"name": "D_8013BD20",
 "glob": false,
 "flags": "       "
 },
@@ -349355,7 +349339,7 @@
 "off": 0,
 "sec": "*UND*",
 "size": 0,
-"name": "g_madr_ptr",
+"name": "D_8013BD44",
 "glob": false,
 "flags": "       "
 }
@@ -349383,13 +349367,13 @@
 "sec": ".text",
 "off": 64,
 "type": "R_MIPS_HI16",
-"val": "g_dicr_ptr"
+"val": "D_8013BD20"
 },
 {
 "sec": ".text",
 "off": 68,
 "type": "R_MIPS_LO16",
-"val": "g_dicr_ptr"
+"val": "D_8013BD20"
 },
 {
 "sec": ".text",
@@ -349425,13 +349409,13 @@
 "sec": ".text",
 "off": 112,
 "type": "R_MIPS_HI16",
-"val": "g_dicr_ptr"
+"val": "D_8013BD20"
 },
 {
 "sec": ".text",
 "off": 116,
 "type": "R_MIPS_LO16",
-"val": "g_dicr_ptr"
+"val": "D_8013BD20"
 },
 {
 "sec": ".text",
@@ -349449,37 +349433,37 @@
 "sec": ".text",
 "off": 228,
 "type": "R_MIPS_HI16",
-"val": "g_dicr_ptr"
+"val": "D_8013BD20"
 },
 {
 "sec": ".text",
 "off": 232,
 "type": "R_MIPS_LO16",
-"val": "g_dicr_ptr"
+"val": "D_8013BD20"
 },
 {
 "sec": ".text",
 "off": 296,
 "type": "R_MIPS_HI16",
-"val": "g_dicr_ptr"
+"val": "D_8013BD20"
 },
 {
 "sec": ".text",
 "off": 300,
 "type": "R_MIPS_LO16",
-"val": "g_dicr_ptr"
+"val": "D_8013BD20"
 },
 {
 "sec": ".text",
 "off": 332,
 "type": "R_MIPS_HI16",
-"val": "g_dicr_ptr"
+"val": "D_8013BD20"
 },
 {
 "sec": ".text",
 "off": 336,
 "type": "R_MIPS_LO16",
-"val": "g_dicr_ptr"
+"val": "D_8013BD20"
 },
 {
 "sec": ".text",
@@ -349515,13 +349499,13 @@
 "sec": ".text",
 "off": 420,
 "type": "R_MIPS_HI16",
-"val": "g_madr_ptr"
+"val": "D_8013BD44"
 },
 {
 "sec": ".text",
 "off": 424,
 "type": "R_MIPS_LO16",
-"val": "g_madr_ptr"
+"val": "D_8013BD44"
 },
 {
 "sec": ".text",
@@ -349545,13 +349529,13 @@
 "sec": ".text",
 "off": 540,
 "type": "R_MIPS_HI16",
-"val": "g_dicr_ptr"
+"val": "D_8013BD20"
 },
 {
 "sec": ".text",
 "off": 544,
 "type": "R_MIPS_LO16",
-"val": "g_dicr_ptr"
+"val": "D_8013BD20"
 },
 {
 "sec": ".text",
@@ -349563,13 +349547,13 @@
 "sec": ".text",
 "off": 596,
 "type": "R_MIPS_HI16",
-"val": "g_dicr_ptr"
+"val": "D_8013BD20"
 },
 {
 "sec": ".text",
 "off": 600,
 "type": "R_MIPS_LO16",
-"val": "g_dicr_ptr"
+"val": "D_8013BD20"
 },
 {
 "sec": ".pdr",
@@ -349653,7 +349637,7 @@
 "off": 0,
 "sec": "*UND*",
 "size": 0,
-"name": "g_rcnt_ptr",
+"name": "D_80137D14",
 "glob": false,
 "flags": "       "
 },
@@ -349715,13 +349699,13 @@
 "sec": ".text",
 "off": 12,
 "type": "R_MIPS_HI16",
-"val": "g_rcnt_ptr"
+"val": "D_80137D14"
 },
 {
 "sec": ".text",
 "off": 16,
 "type": "R_MIPS_LO16",
-"val": "g_rcnt_ptr"
+"val": "D_80137D14"
 },
 {
 "sec": ".text",
@@ -350003,7 +349987,7 @@
 "off": 0,
 "sec": "*UND*",
 "size": 0,
-"name": "g_vsync_gp1_ptr",
+"name": "D_80134A88",
 "glob": false,
 "flags": "       "
 },
@@ -350011,7 +349995,7 @@
 "off": 0,
 "sec": "*UND*",
 "size": 0,
-"name": "g_vsync_t1_ptr",
+"name": "D_80134A8C",
 "glob": false,
 "flags": "       "
 },
@@ -350035,7 +350019,7 @@
 "off": 0,
 "sec": "*UND*",
 "size": 0,
-"name": "vsync_lastcount",
+"name": "D_80134A94",
 "glob": false,
 "flags": "       "
 },
@@ -350077,25 +350061,25 @@
 "sec": ".text",
 "off": 0,
 "type": "R_MIPS_HI16",
-"val": "g_vsync_gp1_ptr"
+"val": "D_80134A88"
 },
 {
 "sec": ".text",
 "off": 4,
 "type": "R_MIPS_LO16",
-"val": "g_vsync_gp1_ptr"
+"val": "D_80134A88"
 },
 {
 "sec": ".text",
 "off": 8,
 "type": "R_MIPS_HI16",
-"val": "g_vsync_t1_ptr"
+"val": "D_80134A8C"
 },
 {
 "sec": ".text",
 "off": 12,
 "type": "R_MIPS_LO16",
-"val": "g_vsync_t1_ptr"
+"val": "D_80134A8C"
 },
 {
 "sec": ".text",
@@ -350131,13 +350115,13 @@
 "sec": ".text",
 "off": 132,
 "type": "R_MIPS_HI16",
-"val": "vsync_lastcount"
+"val": "D_80134A94"
 },
 {
 "sec": ".text",
 "off": 136,
 "type": "R_MIPS_LO16",
-"val": "vsync_lastcount"
+"val": "D_80134A94"
 },
 {
 "sec": ".text",
@@ -350149,13 +350133,13 @@
 "sec": ".text",
 "off": 156,
 "type": "R_MIPS_HI16",
-"val": "vsync_lastcount"
+"val": "D_80134A94"
 },
 {
 "sec": ".text",
 "off": 160,
 "type": "R_MIPS_LO16",
-"val": "vsync_lastcount"
+"val": "D_80134A94"
 },
 {
 "sec": ".text",
@@ -350167,13 +350151,13 @@
 "sec": ".text",
 "off": 184,
 "type": "R_MIPS_HI16",
-"val": "g_vsync_gp1_ptr"
+"val": "D_80134A88"
 },
 {
 "sec": ".text",
 "off": 188,
 "type": "R_MIPS_LO16",
-"val": "g_vsync_gp1_ptr"
+"val": "D_80134A88"
 },
 {
 "sec": ".text",
@@ -350197,13 +350181,13 @@
 "sec": ".text",
 "off": 236,
 "type": "R_MIPS_HI16",
-"val": "g_vsync_gp1_ptr"
+"val": "D_80134A88"
 },
 {
 "sec": ".text",
 "off": 240,
 "type": "R_MIPS_LO16",
-"val": "g_vsync_gp1_ptr"
+"val": "D_80134A88"
 },
 {
 "sec": ".text",
@@ -350221,25 +350205,25 @@
 "sec": ".text",
 "off": 300,
 "type": "R_MIPS_HI16",
-"val": "g_vsync_t1_ptr"
+"val": "D_80134A8C"
 },
 {
 "sec": ".text",
 "off": 304,
 "type": "R_MIPS_LO16",
-"val": "g_vsync_t1_ptr"
+"val": "D_80134A8C"
 },
 {
 "sec": ".text",
 "off": 308,
 "type": "R_MIPS_HI16",
-"val": "vsync_lastcount"
+"val": "D_80134A94"
 },
 {
 "sec": ".text",
 "off": 312,
 "type": "R_MIPS_LO16",
-"val": "vsync_lastcount"
+"val": "D_80134A94"
 },
 {
 "sec": ".text",
@@ -350506,7 +350490,7 @@
 "off": 0,
 "sec": "*UND*",
 "size": 0,
-"name": "_fnt_active",
+"name": "D_80135FDC",
 "glob": false,
 "flags": "       "
 },
@@ -350522,7 +350506,7 @@
 "off": 0,
 "sec": "*UND*",
 "size": 0,
-"name": "_fnt_count",
+"name": "D_80135FD8",
 "glob": false,
 "flags": "       "
 },
@@ -350580,25 +350564,25 @@
 "sec": ".text",
 "off": 68,
 "type": "R_MIPS_HI16",
-"val": "_fnt_count"
+"val": "D_80135FD8"
 },
 {
 "sec": ".text",
 "off": 72,
 "type": "R_MIPS_LO16",
-"val": "_fnt_count"
+"val": "D_80135FD8"
 },
 {
 "sec": ".text",
 "off": 92,
 "type": "R_MIPS_HI16",
-"val": "_fnt_active"
+"val": "D_80135FDC"
 },
 {
 "sec": ".text",
 "off": 96,
 "type": "R_MIPS_LO16",
-"val": "_fnt_active"
+"val": "D_80135FDC"
 },
 {
 "sec": ".text",
@@ -350688,25 +350672,25 @@
 "sec": ".text",
 "off": 860,
 "type": "R_MIPS_HI16",
-"val": "_fnt_count"
+"val": "D_80135FD8"
 },
 {
 "sec": ".text",
 "off": 864,
 "type": "R_MIPS_LO16",
-"val": "_fnt_count"
+"val": "D_80135FD8"
 },
 {
 "sec": ".text",
 "off": 884,
 "type": "R_MIPS_HI16",
-"val": "_fnt_active"
+"val": "D_80135FDC"
 },
 {
 "sec": ".text",
 "off": 888,
 "type": "R_MIPS_LO16",
-"val": "_fnt_active"
+"val": "D_80135FDC"
 },
 {
 "sec": ".text",

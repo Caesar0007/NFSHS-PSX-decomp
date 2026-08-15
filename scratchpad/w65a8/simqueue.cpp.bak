@@ -8,16 +8,8 @@
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
-/* W65-A8 REAL DEFECT, decoded from rom/nfs4-f.exe 0x8013d434..0x8013d440:
- *   gSimQueue_Ticker     = ff ff ff ff = -1
- *   gSimQueue_BlockSelf  = 01 00 00 00 =  1
- *   gSimQueue_BlockOther = 01 00 00 00 =  1
- * all three were zero-valued tentative definitions here, so every one of
- * them held the WRONG value until SimQueue_StartUp/Reset ran.  Retail's
- * order is Ticker, BlockSelf, BlockOther -- keep it. */
-int gSimQueue_Ticker     = -1;
-int gSimQueue_BlockSelf  = 1;
-int gSimQueue_BlockOther = 1;
+int gSimQueue_BlockOther;
+int gSimQueue_BlockSelf;
 
 /* W65-A6 DATA-MAT: `inputQueue` (15 reloc sites) was extern-only tree-wide, and simqueue.obj is
  * both its only referencer and its retail owner -- the SYM records it as
@@ -30,7 +22,7 @@ int gSimQueue_BlockOther = 1;
  * (7/8 PASS unchanged, the residual pre-existing).
  * Receipts: scratchpad/w65a6/RECEIPTS.md */
 __asm__("\t.section\t.bss\n\t.align\t2\ninputQueue:\n\t.space\t524\n\t.text");
-/* gSimQueue_Ticker is defined with its siblings at the top of this TU (W65-A8). */
+int gSimQueue_Ticker;
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void SimQueue_StartUp(void);

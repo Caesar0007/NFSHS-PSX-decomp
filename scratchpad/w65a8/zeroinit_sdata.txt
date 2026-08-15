@@ -1,0 +1,15 @@
+checked 445 TU-defined blob labels in 508 objects
+UNKNOWN (not readable, NOT counted clean): 2
+
+MISSING INITIALISER -- retail non-zero, ours all-zero, no reloc:
+------------------------------------------------------------------------------------------------
+0x8013d434     4 B  gSimQueue_Ticker                   .sdata   game/common/simqueue.cpp.o
+            retail ff ff ff ff
+0x8013d438     4 B  gSimQueue_BlockSelf                .sdata   game/common/simqueue.cpp.o
+            retail 01 00 00 00
+0x8013d43c     4 B  gSimQueue_BlockOther               .sdata   game/common/simqueue.cpp.o
+            retail 01 00 00 00
+
+TOTAL: 3 symbols
+UNKNOWN build/recon/game/common/aih_play.cpp.o .data gBlockadeTypes short read
+UNKNOWN build/recon/game/common/copspeak.cpp.o .sdata CopSpeak_gStaticPatch short read

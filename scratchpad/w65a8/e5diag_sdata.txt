@@ -1,0 +1,717 @@
+# W64-A18 E5 diagnostic  blob=scratchpad/w63a19/ctl_blob/sdata_8013C54C.sdata.s
+
+0x8013dd34..0x8013dd3c      8 .sbss   build/recon/eaclib/psx/eacpsxz/fileroot.c.o
+      8 differing bytes
+        0x8013dd34..0x8013dd3c     8 B  in D_8013DD34 (+0x0)
+            retail 2c dd 13 80 73 69 6d 3a
+            ours   00 00 00 00 00 00 00 00
+
+0x8013dd20..0x8013dd24      4 .sbss   build/recon/eaclib/psx/eacpsxz/loadshp.c.o
+      4 differing bytes
+        0x8013dd20..0x8013dd24     4 B  in shapeext (+0x0)
+            retail 18 dd 13 80
+            ours   00 00 00 00
+
+0x8013dcfc..0x8013dd38     60 .sbss   build/recon/eaclib/psx/eacpsxz/primate.c.o
+      22 differing bytes
+        0x8013dd02..0x8013dd03     1 B  in aspectratio (+0x2)
+            retail 01
+            ours   00
+        0x8013dd14..0x8013dd15     1 B  in semitrans (+0x0)
+            retail 01
+            ours   00
+        0x8013dd18..0x8013dd1c     4 B  in D_8013DD18 (+0x0)
+            retail 2e 70 73 68
+            ours   00 00 00 00
+        0x8013dd20..0x8013dd26     6 B  in shapeext (+0x0)
+            retail 18 dd 13 80 25 63
+            ours   00 00 00 00 00 00
+        0x8013dd2c..0x8013dd32     6 B  in D_8013DD2C (+0x0)
+            retail 63 64 72 6f 6d 3a
+            ours   00 00 00 00 00 00
+        0x8013dd34..0x8013dd38     4 B  in D_8013DD34 (+0x0)
+            retail 2c dd 13 80
+            ours   00 00 00 00
+
+0x8013c55c..0x8013c56d     17 .data   build/recon/game/common/aih_play.cpp.o
+      3 differing bytes
+        0x8013c55c..0x8013c55d     1 B  in AIHigh_CopGameType (+0x0)
+            retail 00
+            ours   03
+        0x8013c560..0x8013c561     1 B  in _19AIHigh_BTC_HumanCop_lastInputRequestTick_ (+0x0)
+            retail 00
+            ours   05
+        0x8013c564..0x8013c565     1 B  in D_8013C564 (+0x0)
+            retail 01
+            ours   08
+
+0x8013c5b8..0x8013c5e0     40 .sdata  build/recon/game/common/aispeeds.cpp.o
+      4 differing bytes
+        0x8013c5d8..0x8013c5dc     4 B  in D_8013C5D8 (+0x0)
+            retail 53 42 55 53
+            ours   00 00 00 00
+
+0x8013bcd0..0x8013c6f0   2592 .data   build/recon/game/common/audiocmn.cpp.o
+      1664 differing bytes
+        0x8013bcd0..0x8013bcfa    42 B  in ? (+0x0)
+            retail 82 ff fe 0f 89 ff fe 0f 8f ff fe 0f 95 ff ff 0f 9b ff ff 0f a2 ff ff 0f a8 ff ff 0f ae ff ff 0f b5 ff ff 0f bb ff ff 0f c1 ff
+            ours   40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 00 00 00 00 00 00 00 04 00
+        0x8013bcfb..0x8013bcfe     3 B  in ? (+0x0)
+            retail 10 c7 ff
+            ours   00 00 00
+        0x8013bcff..0x8013bd02     3 B  in ? (+0x0)
+            retail 10 ce ff
+            ours   00 08 00
+        0x8013bd03..0x8013bd06     3 B  in ? (+0x0)
+            retail 10 d4 ff
+            ours   00 00 00
+        0x8013bd07..0x8013bd0a     3 B  in ? (+0x0)
+            retail 10 da ff
+            ours   00 04 00
+        0x8013bd0b..0x8013bd0e     3 B  in ? (+0x0)
+            retail 10 e1 ff
+            ours   00 0c 00
+        0x8013bd0f..0x8013bd12     3 B  in ? (+0x0)
+            retail 10 e7 ff
+            ours   00 04 00
+        0x8013bd13..0x8013bd16     3 B  in ? (+0x0)
+            retail 10 ed ff
+            ours   00 00 00
+        0x8013bd17..0x8013bd1a     3 B  in ? (+0x0)
+            retail 10 f3 ff
+            ours   00 00 00
+        0x8013bd1b..0x8013bd1e     3 B  in ? (+0x0)
+            retail 10 fa ff
+            ours   00 00 00
+        0x8013bd1f..0x8013bd24     5 B  in ? (+0x0)
+            retail 10 f4 10 80 1f
+            ours   00 00 00 00 00
+        0x8013bd28..0x8013bd29     1 B  in ? (+0x0)
+            retail 00
+            ours   02
+        0x8013bd30..0x8013bd31     1 B  in ? (+0x0)
+            retail 00
+            ours   02
+        0x8013bd38..0x8013bd39     1 B  in ? (+0x0)
+            retail 00
+            ours   02
+        0x8013bd3c..0x8013bd3d     1 B  in ? (+0x0)
+            retail 00
+            ours   03
+        0x8013bd40..0x8013bd41     1 B  in ? (+0x0)
+            retail 00
+            ours   03
+        0x8013bd44..0x8013bd49     5 B  in ? (+0x0)
+            retail 80 10 80 1f 00
+            ours   03 00 00 00 03
+        0x8013bd4c..0x8013bd4d     1 B  in ? (+0x0)
+            retail 00
+            ours   03
+        0x8013bd50..0x8013bf61   529 B  in ? (+0x0)
+            retail 40 81 49 81 67 81 94 81 90 81 93 81 95 81 66 81 69 81 6a 81 96 81 7b 81 43 81 7c 81 44 81 5e 81 4f 82 50 82 51 82 52 82 53 82 54 82 55 82 56 82 57 82 58 82 46 81 47 81 83 81 81 81 84 81 48 81 ...
+            ours   03 00 00 00 03 00 00 00 03 00 00 00 03 00 00 00 03 00 00 00 03 00 00 00 03 00 00 00 03 00 00 00 03 00 00 00 03 00 00 00 03 00 00 00 03 00 00 00 03 00 00 00 03 00 00 00 03 00 00 00 03 00 00 00 ...
+        0x8013bf64..0x8013c00d   169 B  in ? (+0x0)
+            retail 00 00 00 00 00 00 00 00 2c 77 05 80 24 77 05 80 18 77 05 80 10 77 05 80 04 77 05 80 f8 76 05 80 ec 76 05 80 e0 76 05 80 d8 76 05 80 cc 76 05 80 c0 76 05 80 b8 76 05 80 ac 76 05 80 9c 76 05 80 ...
+            ours   40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ...
+        0x8013c010..0x8013c011     1 B  in ? (+0x0)
+            retail 00
+            ours   03
+        0x8013c014..0x8013c015     1 B  in ? (+0x0)
+            retail 00
+            ours   03
+        0x8013c018..0x8013c019     1 B  in ? (+0x0)
+            retail 00
+            ours   03
+        0x8013c01c..0x8013c01d     1 B  in ? (+0x0)
+            retail 00
+            ours   03
+        0x8013c020..0x8013c021     1 B  in ? (+0x0)
+            retail 00
+            ours   03
+        0x8013c024..0x8013c025     1 B  in ? (+0x0)
+            retail 00
+            ours   03
+        0x8013c028..0x8013c041    25 B  in ? (+0x0)
+            retail 01 00 00 00 01 00 00 00 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00
+            ours   1e 0c 06 05 04 03 02 01 00 ff fe fd fc fb fa f9 f8 f7 f6 f5 f4 f1 ec e7 e2
+        0x8013c054..0x8013c055     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c060..0x8013c061     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c064..0x8013c065     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c074..0x8013c075     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c098..0x8013c099     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c09c..0x8013c09d     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c0a0..0x8013c0a1     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c0a4..0x8013c0a5     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c0e0..0x8013c0e1     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c0e4..0x8013c0e5     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c0f8..0x8013c0f9     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c10c..0x8013c10d     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c110..0x8013c111     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c114..0x8013c115     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c118..0x8013c119     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c11c..0x8013c11d     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c120..0x8013c121     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c124..0x8013c125     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c128..0x8013c129     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c12c..0x8013c12d     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c130..0x8013c131     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c134..0x8013c135     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c138..0x8013c139     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c13c..0x8013c13d     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c140..0x8013c141     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c144..0x8013c145     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c148..0x8013c149     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c154..0x8013c155     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c158..0x8013c159     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c15c..0x8013c15d     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c160..0x8013c161     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c164..0x8013c165     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        0x8013c168..0x8013c169     1 B  in ? (+0x0)
+            retail 01
+            ours   00
+        ... 59 more runs
+
+0x8013c624..0x8013c6e0    188 .sdata  build/recon/game/common/audiocmn.cpp.o
+      63 differing bytes
+        0x8013c624..0x8013c627     3 B  in AudioClc_gLastphrase3 (+0x0)
+            retail 00 00 00
+            ours   65 6e 67
+        0x8013c628..0x8013c62b     3 B  in trackMusicState (+0x0)
+            retail 04 00 00
+            ours   62 72 74
+        0x8013c62c..0x8013c62f     3 B  in audioBackwardsDirection (+0x0)
+            retail 00 00 00
+            ours   66 72 65
+        0x8013c630..0x8013c633     3 B  in intensityFalseLapCounter (+0x0)
+            retail 00 00 00
+            ours   67 65 72
+        0x8013c634..0x8013c637     3 B  in falseLapCounter (+0x0)
+            retail 00 00 00
+            ours   66 72 6e
+        0x8013c638..0x8013c63b     3 B  in gMusicStyle (+0x0)
+            retail 00 00 00
+            ours   73 70 6e
+        0x8013c63c..0x8013c63f     3 B  in countdown (+0x0)
+            retail 00 00 00
+            ours   69 74 6c
+        0x8013c640..0x8013c641     1 B  in recordLapTime (+0x0)
+            retail 00
+            ours   04
+        0x8013c670..0x8013c671     1 B  in NumSFXOn (+0x0)
+            retail 00
+            ours   01
+        0x8013c674..0x8013c675     1 B  in gStereoMode (+0x0)
+            retail 01
+            ours   00
+        0x8013c678..0x8013c67b     3 B  in fReverbOn (+0x0)
+            retail 00 00 00
+            ours   47 65 6e
+        0x8013c67c..0x8013c682     6 B  in D_8013C67C (+0x0)
+            retail 53 46 58 48 44 52
+            ours   00 00 00 00 00 00
+        0x8013c684..0x8013c689     5 B  in D_8013C684 (+0x0)
+            retail 66 65 73 66 78
+            ours   00 00 00 00 00
+        0x8013c68c..0x8013c68f     3 B  in D_8013C68C (+0x0)
+            retail 65 6e 67
+            ours   00 00 00
+        0x8013c690..0x8013c693     3 B  in D_8013C690 (+0x0)
+            retail 67 65 72
+            ours   00 00 00
+        0x8013c694..0x8013c697     3 B  in D_8013C694 (+0x0)
+            retail 66 72 6e
+            ours   00 00 00
+        0x8013c698..0x8013c69b     3 B  in D_8013C698 (+0x0)
+            retail 73 70 6e
+            ours   00 00 00
+        0x8013c69c..0x8013c69f     3 B  in D_8013C69C (+0x0)
+            retail 69 74 6c
+            ours   00 00 00
+        0x8013c6a0..0x8013c6a3     3 B  in D_8013C6A0 (+0x0)
+            retail 47 65 6e
+            ours   00 00 00
+        0x8013c6a4..0x8013c6a7     3 B  in D_8013C6A4 (+0x0)
+            retail 62 72 74
+            ours   00 00 00
+        0x8013c6a8..0x8013c6ab     3 B  in D_8013C6A8 (+0x0)
+            retail 66 72 65
+            ours   00 00 00
+        0x8013c6ac..0x8013c6ad     1 B  in D_8013C6AC (+0x0)
+            retail 63
+            ours   00
+
+0x8013c71c..0x8013c73c     32 .sdata  build/recon/game/common/audioeng.cpp.o
+      14 differing bytes
+        0x8013c71c..0x8013c721     5 B  in AudioCmn_ThunderDel (+0x0)
+            retail 00 00 00 00 00
+            ours   2a 2e 62 6e 6b
+        0x8013c725..0x8013c729     4 B  in D_8013C724 (+0x1)
+            retail 2d 25 73 00
+            ours   2e 6c 74 62
+        0x8013c72c..0x8013c731     5 B  in D_8013C72C (+0x0)
+            retail 00 00 00 00 00
+            ours   2a 2e 63 74 62
+
+0x8013c784..0x8013c7bc     56 .sdata  build/recon/game/common/bworld.cpp.o
+      4 differing bytes
+        0x8013c784..0x8013c788     4 B  in D_8013C784 (+0x0)
+            retail 2e 67 72 70
+            ours   00 00 00 00
+
+0x8013c82c..0x8013c858     44 .sdata  build/recon/game/common/collide.cpp.o
+      8 differing bytes
+        0x8013c84c..0x8013c850     4 B  in D_8013C84C (+0x0)
+            retail 74 73 6c 6b
+            ours   00 00 00 00
+        0x8013c854..0x8013c858     4 B  in D_8013C854 (+0x0)
+            retail 74 62 7a 33
+            ours   00 00 00 00
+
+0x8013d07c..0x8013d0fa    126 .sdata  build/recon/game/common/copspeak.cpp.o
+      37 differing bytes
+        0x8013d07c..0x8013d080     4 B  in cdsectorreseek (+0x0)
+            retail 00 00 00 00
+            ours   42 41 44 21
+        0x8013d084..0x8013d088     4 B  in D_8013D084 (+0x0)
+            retail 42 41 44 21
+            ours   6c 64 65 6e
+        0x8013d08f..0x8013d090     1 B  in D_8013D08C (+0x3)
+            retail 6e
+            ours   78
+        0x8013d094..0x8013d096     2 B  in D_8013D094 (+0x0)
+            retail 6c 64
+            ours   66 72
+        0x8013d097..0x8013d09b     4 B  in D_8013D094 (+0x3)
+            retail 78 00 00 00
+            ours   00 67 65 72
+        0x8013d09c..0x8013d09f     3 B  in D_8013D09C (+0x0)
+            retail 66 72 65
+            ours   65 6e 67
+        0x8013d0a0..0x8013d0a3     3 B  in D_8013D0A0 (+0x0)
+            retail 67 65 72
+            ours   78 00 00
+        0x8013d0a4..0x8013d0a7     3 B  in D_8013D0A4 (+0x0)
+            retail 65 6e 67
+            ours   73 00 00
+        0x8013d0a8..0x8013d0a9     1 B  in D_8013D0A8 (+0x0)
+            retail 78
+            ours   2e
+        0x8013d0ac..0x8013d0ad     1 B  in D_8013D0AC (+0x0)
+            retail 73
+            ours   6e
+        0x8013d0b0..0x8013d0b1     1 B  in D_8013D0B0 (+0x0)
+            retail 2e
+            ours   44
+        0x8013d0b4..0x8013d0b9     5 B  in D_8013D0B4 (+0x0)
+            retail 6e 00 00 00 44
+            ours   25 73 25 64 00
+        0x8013d0bc..0x8013d0c0     4 B  in D_8013D0BC (+0x0)
+            retail 25 73 25 64
+            ours   7c 00 00 00
+        0x8013d0c4..0x8013d0c5     1 B  in D_8013D0C4 (+0x0)
+            retail 7c
+            ours   00
+
+0x8013d244..0x8013d260     28 .sdata  build/recon/game/common/mpause.cpp.o
+      1 differing bytes
+        0x8013d258..0x8013d259     1 B  in D_8013D258 (+0x0)
+            retail 7f
+            ours   00
+
+0x8013d270..0x8013d2c6     86 .sdata  build/recon/game/common/nfs3.cpp.o
+      33 differing bytes
+        0x8013d294..0x8013d298     4 B  in D_8013D294 (+0x0)
+            retail 25 73 25 73
+            ours   00 00 00 00
+        0x8013d29c..0x8013d2a0     4 B  in D_8013D29C (+0x0)
+            retail 79 6d 75 73
+            ours   00 00 00 00
+        0x8013d2a4..0x8013d2b4    16 B  in D_8013D2A4 (+0x0)
+            retail 77 69 6e 2a 00 00 00 00 6c 6f 73 65 2a 00 00 00
+            ours   00 00 00 00 25 73 25 73 00 00 00 00 79 6d 75 73
+        0x8013d2b8..0x8013d2bc     4 B  in missionManager (+0x0)
+            retail 00 00 00 00
+            ours   77 69 6e 2a
+        0x8013d2c0..0x8013d2c5     5 B  in finishOrder (+0x0)
+            retail 00 00 00 00 00
+            ours   6c 6f 73 65 2a
+
+0x8013d324..0x8013d3c0    156 .sdata  build/recon/game/common/r3dcar.cpp.o
+      74 differing bytes
+        0x8013d324..0x8013d355    49 B  in R3DCar_InMenu (+0x0)
+            retail 00 00 00 00 73 75 62 5f 6f 74 30 00 73 75 62 5f 6f 74 31 00 2e 67 65 6f 00 00 00 00 2e 70 73 68 00 00 00 00 62 69 67 66 69 6c 65 00 7a 7a 25 73 00
+            ours   73 75 62 5f 6f 74 30 00 73 75 62 5f 6f 74 31 00 2e 67 65 6f 00 00 00 00 2e 70 73 68 00 00 00 00 62 69 67 66 69 6c 65 00 7a 7a 25 73 00 00 00 00 68
+        0x8013d358..0x8013d359     1 B  in D_8013D358 (+0x0)
+            retail 68
+            ours   73
+        0x8013d35c..0x8013d36f    19 B  in D_8013D35C (+0x0)
+            retail 73 00 00 00 2e 76 69 76 00 00 00 00 70 61 6c 43 6f 70 79
+            ours   2e 76 69 76 00 00 00 00 70 61 6c 43 6f 70 79 00 00 00 00
+        0x8013d370..0x8013d371     1 B  in D_8013D370 (+0x0)
+            retail 00
+            ours   69
+        0x8013d374..0x8013d375     1 B  in D_8013D374 (+0x0)
+            retail 69
+            ours   64
+        0x8013d378..0x8013d379     1 B  in D_8013D378 (+0x0)
+            retail 64
+            ours   6c
+        0x8013d37c..0x8013d37d     1 B  in D_8013D37C (+0x0)
+            retail 6c
+            ours   67
+        0x8013d380..0x8013d381     1 B  in D_8013D380 (+0x0)
+            retail 67
+            ours   00
+
+0x8013d43c..0x8013d44c     16 .sdata  build/recon/game/common/simqueue.cpp.o
+      8 differing bytes
+        0x8013d43c..0x8013d43d     1 B  in gSimQueue_BlockOther (+0x0)
+            retail 01
+            ours   00
+        0x8013d440..0x8013d447     7 B  in D_8013D440 (+0x0)
+            retail 73 6f 75 66 66 6c 65
+            ours   00 00 00 00 00 00 00
+
+0x8013d454..0x8013d45c      8 .sdata  build/recon/game/common/textsys.cpp.o
+      1 differing bytes
+        0x8013d454..0x8013d455     1 B  in gWindDir (+0x0)
+            retail 00
+            ours   70
+
+0x8013d4b8..0x8013d510     88 .sdata  build/recon/game/common/track.cpp.o
+      11 differing bytes
+        0x8013d4b8..0x8013d4b9     1 B  in Track_chunkList (+0x0)
+            retail 00
+            ours   80
+        0x8013d4bc..0x8013d4be     2 B  in gPersistObjDef (+0x0)
+            retail 00 00
+            ours   25 73
+        0x8013d504..0x8013d508     4 B  in D_8013D504 (+0x0)
+            retail 61 6d 75 73
+            ours   00 00 00 00
+        0x8013d50c..0x8013d510     4 B  in D_8013D504 (+0x8)
+            retail 67 61 6d 65
+            ours   00 00 00 00
+
+0x8013d70c..0x8013d748     60 .sdata  build/recon/game/psx/cario.cpp.o
+      36 differing bytes
+        0x8013d70c..0x8013d712     6 B  in D_8013D70C (+0x0)
+            retail 69 6e 73 37 00 00
+            ours   70 6c 61 74 65 31
+        0x8013d714..0x8013d71a     6 B  in D_8013D714 (+0x0)
+            retail 69 6e 73 38 00 00
+            ours   70 6c 61 74 65 32
+        0x8013d71c..0x8013d727    11 B  in CarIO_carPixMap (+0x0)
+            retail 00 00 00 00 70 6c 61 74 65 31 00
+            ours   62 6c 6e 6b 00 00 00 00 20 20 20
+        0x8013d728..0x8013d72e     6 B  in D_8013D728 (+0x0)
+            retail 70 6c 61 74 65 32
+            ours   00 00 00 00 00 00
+        0x8013d730..0x8013d734     4 B  in D_8013D730 (+0x0)
+            retail 62 6c 6e 6b
+            ours   00 00 00 00
+        0x8013d738..0x8013d73b     3 B  in D_8013D738 (+0x0)
+            retail 20 20 20
+            ours   00 00 00
+
+0x8013d774..0x8013d794     32 .sdata  build/recon/game/psx/device.cpp.o
+      1 differing bytes
+        0x8013d774..0x8013d775     1 B  in D_8013D770 (+0x4)
+            retail 69
+            ours   00
+
+0x8013d798..0x8013d7cc     52 .sdata  build/recon/game/psx/draw.cpp.o
+      2 differing bytes
+        0x8013d7c8..0x8013d7c9     1 B  in DrawC_gEnvMapOffset (+0x0)
+            retail 80
+            ours   00
+        0x8013d7ca..0x8013d7cb     1 B  in DrawC_gEnvMapOffset (+0x2)
+            retail 40
+            ours   00
+
+0x8013d7e8..0x8013d80c     36 .sdata  build/recon/game/psx/drawc.cpp.o
+      5 differing bytes
+        0x8013d7e8..0x8013d7ed     5 B  in D_8013D7E8 (+0x0)
+            retail 2e 70 73 68 00
+            ours   64 00 00 00 6c
+
+0x8013d7e4..0x8013d840     92 .sdata  build/recon/game/psx/draww.cpp.o
+      17 differing bytes
+        0x8013d7e4..0x8013d7e5     1 B  in D_8013D7E4 (+0x0)
+            retail 6c
+            ours   00
+        0x8013d7e8..0x8013d7ec     4 B  in D_8013D7E8 (+0x0)
+            retail 2e 70 73 68
+            ours   00 00 00 00
+        0x8013d820..0x8013d826     6 B  in D_8013D820 (+0x0)
+            retail 7d 7d 32 0f ff 7d
+            ours   00 00 00 00 00 00
+        0x8013d828..0x8013d82e     6 B  in D_8013D828 (+0x0)
+            retail 7d 7d 32 0f ff 7d
+            ours   00 00 00 00 00 00
+
+0x8013d854..0x8013d870     28 .sdata  build/recon/game/psx/font.cpp.o
+      15 differing bytes
+        0x8013d854..0x8013d860    12 B  in font_clutx (+0x0)
+            retail ff ff ff ff ff ff ff ff 80 80 80 66
+            ours   00 00 00 00 00 00 00 00 00 00 00 00
+        0x8013d86c..0x8013d86f     3 B  in gfrgb (+0x0)
+            retail ff ff ff
+            ours   00 00 00
+
+0x8013d878..0x8013d8ac     52 .sdata  build/recon/game/psx/hrzsku.cpp.o
+      17 differing bytes
+        0x8013d880..0x8013d885     5 B  in D_8013D880 (+0x0)
+            retail 73 74 61 72 73
+            ours   00 00 00 00 00
+        0x8013d89c..0x8013d8a2     6 B  in HudminChar (+0x0)
+            retail 3a 3a 27 27 27 2e
+            ours   00 00 00 00 00 00
+        0x8013d8a4..0x8013d8aa     6 B  in HudsecChar (+0x0)
+            retail 2e 3a 22 22 22 2c
+            ours   00 00 00 00 00 00
+
+0x8013d890..0x8013d9d0    320 .sdata  build/recon/game/psx/hud.cpp.o
+      131 differing bytes
+        0x8013d890..0x8013d891     1 B  in gRngCoordTop (+0x0)
+            retail 00
+            ours   32
+        0x8013d894..0x8013d895     1 B  in Hrz_gLightningPosInSky (+0x0)
+            retail 00
+            ours   ff
+        0x8013d898..0x8013d8aa    18 B  in D_8013D898 (+0x0)
+            retail 00 00 00 00 3a 3a 27 27 27 2e 00 00 2e 3a 22 22 22 2c
+            ours   3a 3a 27 27 27 2e 00 00 2e 3a 22 22 22 2c 00 00 01 00
+        0x8013d8ac..0x8013d8b2     6 B  in D_8013D8AC (+0x0)
+            retail 00 00 00 00 00 00
+            ours   53 4c 43 20 25 64
+        0x8013d8b4..0x8013d8b8     4 B  in Hud_gWingmanFlashIcon (+0x0)
+            retail 00 00 00 00
+            ours   48 55 44 31
+        0x8013d8bc..0x8013d8c1     5 B  in Hud_gWingmanFlashTicks (+0x4)
+            retail 00 00 00 00 01
+            ours   48 55 44 32 00
+        0x8013d8c4..0x8013d8ca     6 B  in D_8013D8C4 (+0x0)
+            retail 53 4c 43 20 25 64
+            ours   3a 3a 27 27 27 2e
+        0x8013d8cc..0x8013d8d2     6 B  in D_8013D8CC (+0x0)
+            retail 48 55 44 31 00 00
+            ours   2e 3a 22 22 22 2c
+        0x8013d8d4..0x8013d8e1    13 B  in D_8013D8D4 (+0x0)
+            retail 48 55 44 32 00 00 00 00 3a 3a 27 27 27
+            ours   30 2f 30 00 30 4d 30 30 53 30 30 00 30
+        0x8013d8e2..0x8013d8ea     8 B  in D_8013D8DC (+0x6)
+            retail 00 00 2e 3a 22 22 22 2c
+            ours   30 30 30 00 00 00 25 73
+        0x8013d8ec..0x8013d8f7    11 B  in D_8013D8EC (+0x0)
+            retail 30 2f 30 00 30 4d 30 30 53 30 30
+            ours   25 30 32 64 00 00 00 00 2d 20 2d
+        0x8013d8f8..0x8013d8fe     6 B  in D_8013D8F8 (+0x0)
+            retail 30 2e 30 30 30 00
+            ours   3a 3a 27 27 27 2e
+        0x8013d900..0x8013d901     1 B  in D_8013D900 (+0x0)
+            retail 00
+            ours   04
+        0x8013d902..0x8013d906     4 B  in D_8013D900 (+0x2)
+            retail 00 00 25 73
+            ours   01 02 03 00
+        0x8013d908..0x8013d90c     4 B  in D_8013D908 (+0x0)
+            retail 25 30 32 64
+            ours   00 00 00 00
+        0x8013d910..0x8013d913     3 B  in D_8013D910 (+0x0)
+            retail 2d 20 2d
+            ours   00 00 00
+        0x8013d914..0x8013d915     1 B  in D_8013D914 (+0x0)
+            retail 04
+            ours   00
+        0x8013d916..0x8013d919     3 B  in D_8013D914 (+0x2)
+            retail 01 02 03
+            ours   00 00 00
+        0x8013d91d..0x8013d91e     1 B  in D_8013D91D (+0x0)
+            retail ff
+            ours   00
+        0x8013d920..0x8013d921     1 B  in D_8013D920 (+0x0)
+            retail 32
+            ours   00
+        0x8013d98c..0x8013d98e     2 B  in D_8013D98C (+0x0)
+            retail 25 64
+            ours   00 00
+        0x8013d990..0x8013d992     2 B  in D_8013D990 (+0x0)
+            retail 25 73
+            ours   00 00
+        0x8013d9a0..0x8013d9a4     4 B  in D_8013D9A0 (+0x0)
+            retail 65 6e 67 6c
+            ours   00 00 00 00
+        0x8013d9a8..0x8013d9ac     4 B  in D_8013D9A8 (+0x0)
+            retail 67 65 72 6d
+            ours   00 00 00 00
+        0x8013d9b0..0x8013d9b4     4 B  in D_8013D9B0 (+0x0)
+            retail 66 72 65 6e
+            ours   00 00 00 00
+        0x8013d9b8..0x8013d9bc     4 B  in D_8013D9B8 (+0x0)
+            retail 73 70 61 6e
+            ours   00 00 00 00
+        0x8013d9c0..0x8013d9c4     4 B  in D_8013D9C0 (+0x0)
+            retail 69 74 6c 79
+            ours   00 00 00 00
+        0x8013d9c8..0x8013d9cc     4 B  in D_8013D9C8 (+0x0)
+            retail 73 77 65 64
+            ours   00 00 00 00
+
+0x8013d9d0..0x8013d9d8      8 .sdata  build/recon/game/psx/loading.cpp.o
+      4 differing bytes
+        0x8013d9d4..0x8013d9d8     4 B  in D_8013D9D4 (+0x0)
+            retail 62 61 63 6b
+            ours   00 00 00 00
+
+0x8013d9dc..0x8013da9c    192 .sdata  build/recon/game/psx/night.cpp.o
+      50 differing bytes
+        0x8013d9dc..0x8013d9dd     1 B  in totalAvailMem (+0x0)
+            retail 00
+            ours   01
+        0x8013d9e2..0x8013d9e3     1 B  in D_8013D9E2 (+0x0)
+            retail 00
+            ours   01
+        0x8013d9e4..0x8013d9e6     2 B  in Night_gPlayerLightingTable (+0x0)
+            retail 00 00
+            ours   01 01
+        0x8013d9e8..0x8013d9ef     7 B  in Night_gCopLightingTableRed (+0x0)
+            retail 00 00 00 00 00 00 00
+            ours   70 6c 6e 69 67 68 74
+        0x8013d9f0..0x8013d9f6     6 B  in Night_gWeatherLightingTable (+0x0)
+            retail 00 00 00 00 00 00
+            ours   43 6f 70 52 65 64
+        0x8013d9f8..0x8013d9ff     7 B  in CopCarTypeLights (+0x0)
+            retail 00 00 01 00 01 01 01
+            ours   43 6f 70 42 6c 75 65
+        0x8013da00..0x8013da02     2 B  in D_8013DA00 (+0x0)
+            retail 70 6c
+            ours   77 74
+        0x8013da08..0x8013da0e     6 B  in D_8013DA08 (+0x0)
+            retail 43 6f 70 52 65 64
+            ours   6e 67 68 74 00 00
+        0x8013da10..0x8013da17     7 B  in D_8013DA10 (+0x0)
+            retail 43 6f 70 42 6c 75 65
+            ours   00 00 00 00 00 00 00
+        0x8013da18..0x8013da1f     7 B  in D_8013DA18 (+0x0)
+            retail 77 74 6e 69 67 68 74
+            ours   00 00 00 00 00 00 00
+        0x8013da20..0x8013da24     4 B  in D_8013DA20 (+0x0)
+            retail 6e 67 68 74
+            ours   00 00 00 00
+
+0x8013d990..0x8013d9a4     20 .sdata  build/recon/game/psx/overlays.cpp.o
+      7 differing bytes
+        0x8013d991..0x8013d992     1 B  in D_8013D990 (+0x1)
+            retail 73
+            ours   64
+        0x8013d994..0x8013d996     2 B  in Hud_NextPerp (+0x0)
+            retail 00 00
+            ours   25 73
+        0x8013d9a0..0x8013d9a4     4 B  in D_8013D9A0 (+0x0)
+            retail 65 6e 67 6c
+            ours   00 00 00 00
+
+0x8013daac..0x8013dac4     24 .sdata  build/recon/game/psx/platform.cpp.o
+      1 differing bytes
+        0x8013dac0..0x8013dac1     1 B  in D_8013DAC0 (+0x0)
+            retail 4d
+            ours   00
+
+0x8013dac8..0x8013db04     60 .sdata  build/recon/game/psx/skidmark.cpp.o
+      24 differing bytes
+        0x8013dad8..0x8013dadc     4 B  in D_8013DAD8 (+0x0)
+            retail 73 68 6f 77
+            ours   00 00 00 00
+        0x8013dae0..0x8013dae4     4 B  in D_8013DAE0 (+0x0)
+            retail 73 68 61 64
+            ours   00 00 00 00
+        0x8013dae8..0x8013daec     4 B  in D_8013DAE8 (+0x0)
+            retail 6c 67 74 33
+            ours   00 00 00 00
+        0x8013daf0..0x8013daf4     4 B  in D_8013DAF0 (+0x0)
+            retail 6c 67 74 61
+            ours   00 00 00 00
+        0x8013daf8..0x8013dafc     4 B  in D_8013DAF8 (+0x0)
+            retail 6c 67 74 62
+            ours   00 00 00 00
+        0x8013db00..0x8013db04     4 B  in D_8013DB00 (+0x0)
+            retail 6c 67 74 63
+            ours   00 00 00 00
+
+0x8013dbd8..0x8013dc40    104 .sdata  build/recon/game/psx/weather.cpp.o
+      17 differing bytes
+        0x8013dc20..0x8013dc26     6 B  in D_8013DC20 (+0x0)
+            retail 25 73 20 4c 4f 57
+            ours   00 00 00 00 00 00
+        0x8013dc28..0x8013dc2f     7 B  in D_8013DC28 (+0x0)
+            retail 25 73 20 48 49 47 48
+            ours   00 00 00 00 00 00 00
+        0x8013dc30..0x8013dc34     4 B  in defaultbigext (+0x0)
+            retail 2e 76 69 76
+            ours   00 00 00 00
+

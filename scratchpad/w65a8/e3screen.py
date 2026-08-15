@@ -24,6 +24,7 @@ heavier lever named in the report.
   python scratchpad/w65a8/e3screen.py --blob <ctl blob> --end 0xVA
 """
 import argparse
+import re
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -35,6 +36,7 @@ import ownmap  # noqa: E402
 ROOT = Path(__file__).resolve().parents[2]
 FBASE = 0x8000F800
 DATA_SECS = (".sdata", ".sbss", ".data", ".bss", ".rodata")
+DRX = re.compile(r"^D_[0-9A-Fa-f]{8}$")
 
 
 def main():
@@ -69,12 +71,23 @@ def main():
                 continue                      # not an E3 window
             names = [n for _, n in members]
             byva = sorted(names, key=lambda n: by_name[n]["va"])
-            # retail must hold OUR labels as one uninterrupted run ...
+            # retail must hold OUR labels as one uninterrupted run.  ownmap
+            # ABSORBS splat `D_<VA>` interior labels (its correction C), so a
+            # D_ record between two of ours is NOT a run gap -- excluding them
+            # keeps this screen and the ownership gate on the same rule.
             pos = [idx[n] for n in byva]
-            contiguous = pos == list(range(pos[0], pos[0] + len(pos)))
-            # ... and their retail record sizes must tile our section exactly
+            mine = set(names)
+            contiguous = all(r["name"] in mine or DRX.match(r["name"])
+                             for r in ordered[pos[0]:pos[-1] + 1])
+            # ... and their retail record sizes must tile our section exactly.
+            # W65-A8 SOUNDNESS FIX: the SUM of our labels' retail record sizes
+            # must equal BOTH our section size AND the retail span.  Comparing
+            # the span alone to the section size is UNSOUND -- r3dcar.cpp
+            # passed that test while retail holds a 96-byte FOREIGN run in the
+            # middle of its label set (the two errors cancelled exactly).
             span = (by_name[byva[-1]]["end"] - by_name[byva[0]]["va"])
-            tiles = span == size
+            recsum = sum(by_name[n]["end"] - by_name[n]["va"] for n in names)
+            tiles = (span == recsum == size)
             z = sum(1 for n in names
                     if set(rom[by_name[n]["va"] - FBASE:
                                by_name[n]["end"] - FBASE]) <= {0})

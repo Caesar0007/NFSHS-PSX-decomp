@@ -44,10 +44,7 @@ int            _padSioState  = 0;   /* @0x80137CBC : SIO state index */
 int            _padTotalCurr = 0;   /* @0x80137CC0 : actuator current draw */
 int            _padModeMtap  = 0;   /* @0x80137CC4 : multitap mode */
 int            _padChanStart = 0;   /* @0x80137CC8 : first active channel */
-int            _padChanStop  = 1;   /* @0x80137CCC : last active channel -- W65-A8:
-                                     * retail's word here is 01 00 00 00, ours was 0.
-                                     * PADMAIN's `if (_padChanStop == 0)` default-fill
-                                     * guard therefore fired on a build it must not. */
+int            _padChanStop  = 0;   /* @0x80137CCC : last active channel */
 int            _padFixResult[2] = { -1, -1 };  /* @0x80137CD0 : per-channel auto-fix count (real .data, byte-exact from image; was zero-stubbed) */
 
 /* ---- cached HW register-block base pointers (point at the I/O page) --------------------------- */

@@ -1,0 +1,58 @@
+w65a8: THE MISSING-INITIALISER SCREEN + 7 real data defects fixed (font x3, simqueue x3, libpad x1)
+
+NEW INSTRUMENT scratchpad/w65a8/zeroinit.py -- a per-SYMBOL, order-independent
+real-bug screen that ownmap's E5 leg cannot be: E5 reports "N bytes differ" per
+WINDOW, so a window whose labels are merely out of ORDER buries the genuine
+defects in alignment noise.  zeroinit compares, for every blob label a recon TU
+defines, retail's bytes at its retail VA against OUR bytes at its offset in our
+section, and reports only the class that cannot be a layout artifact: retail
+NON-ZERO, ours ALL-ZERO, no relocation covering our bytes = the object is
+initialised in retail and we emitted a zero-valued tentative definition.
+This is the class behind W64-A18's aicop/fastrand finds and W64-A18 sec.10's
+flare/sndpdsafeloop hand-offs, made mechanical.  Swept all three blob regions
+(773 labels): 7 hits, all decoded from rom/nfs4-f.exe and all fixed here.
+
+  game/psx/font.cpp      0x8013d854 font_clutx = -1   (was 0)
+                         0x8013d858 font_cluty = -1   (was 0)
+                         0x8013d85c font_tint  = 0x66808080 (was 0)
+      The -1 pair is LOAD-BEARING AT RUNTIME: Font_DeInit/ExitFromGame guard on
+      `if (font_clutx != -1)` before Texture_MenuReleaseClutId(...) -- starting
+      at 0 makes that guard TRUE on the first call and releases a CLUT id that
+      was never allocated.
+  game/common/simqueue.cpp  0x8013d434 gSimQueue_Ticker     = -1 (was 0)
+                            0x8013d438 gSimQueue_BlockSelf  =  1 (was 0)
+                            0x8013d43c gSimQueue_BlockOther =  1 (was 0)
+      All three held the wrong value until SimQueue_StartUp/Reset ran.  Also
+      re-ordered to retail's Ticker/BlockSelf/BlockOther run.
+  syslib/psx/libpad/PAD.c   0x80137ccc _padChanStop = 1 (was 0)
+      PADMAIN's `if (_padChanStop == 0)` default-fill guard fired on a build
+      where retail's word is 01 00 00 00.
+
+TWO ANTI-VACUITY DEFECTS IN THE NEW SCREEN, both caught by its own asserts
+before any conclusion was drawn, both recorded in-source:
+  * `objdump -s` prints the offset at the section VMA's width -- 4 hex digits
+    for an unlinked object, not 8.  An 8-digit regex made EVERY read come back
+    empty; the assert-to-UNKNOWN path reported 447 UNKNOWN instead of "0
+    defects, clean".
+  * `set(ours) > {0}` is a SUPERSET test and is FALSE for {0xff}: it reported
+    16 already-correct symbols (aispeeds, fastrand, nfs3, force) as defects.
+    Fixed to `any(ours)`; 19 -> 3 hits on that region, and the 16 were
+    re-verified against the ROM as already byte-correct.
+Also fixed a soundness hole in e3screen.py's tiling test (span-vs-section-size
+let r3dcar.cpp pass while retail holds a 96-byte FOREIGN run in the middle of
+its label set -- the two errors cancelled exactly); the test is now
+span == sum(retail record sizes) == our section size.
+
+GATES: build 508 objects 0 failures; tu_order_audit 508 / 0 inversions;
+tugate x2 -- font 15/15 PASS, simqueue 7/8 PASS, PAD.c 0/0 PASS, PADMAIN
+10/11 PASS, each identical to its own re-measured baseline (simqueue's 4-diff
+SimQueue_SetCurrentInput and PADMAIN's residual are pre-existing).  ZERO
+PASS->FAIL.  The three edits are proven probe_link-NEUTRAL by CONTROL: reverted
+and re-linked, the probe reads 763001 B / 82.93% / 161 of 442 byte-exact, and
+restored it reads the same three numbers to the byte.
+
+CONCURRENCY NOTE: probe_link fell 83.07% / 202 byte-exact (my baseline, held
+across my region 1+2 landing) to 82.93% / 161 while peer belts committed
+w65a1/a5/a6 in between.  The control above shows none of it is this lane's --
+and this lane cannot move it by construction: probe_link's input set is
+build/recon/**.o and it compares .text only.

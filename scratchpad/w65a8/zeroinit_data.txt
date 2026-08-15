@@ -1,0 +1,12 @@
+checked 265 TU-defined blob labels in 508 objects
+UNKNOWN (not readable, NOT counted clean): 3
+
+MISSING INITIALISER -- retail non-zero, ours all-zero, no reloc:
+------------------------------------------------------------------------------------------------
+0x80137ccc     4 B  _padChanStop                       .sdata   syslib/psx/libpad/PAD.c.o
+            retail 01 00 00 00
+
+TOTAL: 1 symbols
+UNKNOWN build/recon/eaclib/psx/eacpsxz/isqrt.c.o .data isqrttbl short read
+UNKNOWN build/recon/game/common/nfs3.cpp.o .data befuddleTemp short read
+UNKNOWN build/recon/syslib/psx/libpad/PAD.c.o .data padIntFunc short read

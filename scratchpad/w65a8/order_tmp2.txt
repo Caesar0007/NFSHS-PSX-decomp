@@ -1,0 +1,21 @@
+== build/recon/game/common/r3dcar.cpp.o [.sdata] size 156 (15 blob labels)
+   majority implied base 0x8013d324  (2 distinct)
+    ouroff    implied   retailVA  rsize zero  name
+        92 0x8013d2c8 0x8013d324      4  yes  R3DCar_InMenu   <-- DRIFT
+        96 0x8013d324 0x8013d384      4  yes  R3DCar_aSyncLoading
+       100 0x8013d324 0x8013d388      4  yes  R3DCar_orientMat
+       104 0x8013d324 0x8013d38c      4  yes  R3DCar_position
+       108 0x8013d324 0x8013d390      8  yes  R3DCar_center
+       116 0x8013d324 0x8013d398      4  yes  R3DCar_shadowFlag
+       120 0x8013d324 0x8013d39c      1  yes  R3DCar_shadowColour
+       124 0x8013d324 0x8013d3a0      1  yes  R3DCar_eMapColour
+       128 0x8013d324 0x8013d3a4      4  yes  R3DCar_yawCam
+       132 0x8013d324 0x8013d3a8      4  yes  R3DCar_Clock
+       136 0x8013d324 0x8013d3ac      4  yes  R3DCar_ClockLast
+       140 0x8013d324 0x8013d3b0      4  yes  R3DCar_BigFile
+       144 0x8013d324 0x8013d3b4      4  yes  R3DCar_LicenseShapeFile
+       148 0x8013d324 0x8013d3b8      4  yes  R3DCar_subOt
+       152 0x8013d324 0x8013d3bc      4  yes  R3DCar_rightHandDrive
+   retail VA order: R3DCar_InMenu R3DCar_aSyncLoading R3DCar_orientMat R3DCar_position R3DCar_center R3DCar_shadowFlag R3DCar_shadowColour R3DCar_eMapColour R3DCar_yawCam R3DCar_Clock R3DCar_ClockLast R3DCar_BigFile R3DCar_LicenseShapeFile R3DCar_subOt R3DCar_rightHandDrive
+   our  offset order: R3DCar_InMenu R3DCar_aSyncLoading R3DCar_orientMat R3DCar_position R3DCar_center R3DCar_shadowFlag R3DCar_shadowColour R3DCar_eMapColour R3DCar_yawCam R3DCar_Clock R3DCar_ClockLast R3DCar_BigFile R3DCar_LicenseShapeFile R3DCar_subOt R3DCar_rightHandDrive
+

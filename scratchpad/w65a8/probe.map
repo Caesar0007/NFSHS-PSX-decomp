@@ -3120,74 +3120,6 @@ LOAD build/recon/eaclib/psx/sndpsxz/ssine.c.o
                 0x1f8000b8                        D_1F8000B8 = 0x1f8000b8
                 0x1f8000c8                        D_1F8000C8 = 0x1f8000c8
                 0x80000004                        D_80000004 = 0x80000004
-                0x800515d5                        D_800515D5 = 0x800515d5
-                0x800515e1                        D_800515E1 = 0x800515e1
-                0x800515fd                        D_800515FD = 0x800515fd
-                0x800515ff                        D_800515FF = 0x800515ff
-                0x800529b2                        MENUUSERNAME_STARTY = 0x800529b2
-                0x80052a2e                        skip_all = 0x80052a2e
-                0x80052cfe                        D_80052CFE = 0x80052cfe
-                0x80052d0a                        D_80052D0A = 0x80052d0a
-                0x80052d6d                        D_80052D6D = 0x80052d6d
-                0x80052d6e                        D_80052D6E = 0x80052d6e
-                0x8005732e                        D_8005732E = 0x8005732e
-                0x800e40d8                        D_800E40D8 = 0x800e40d8
-                0x80106518                        D_80106518 = 0x80106518
-                0x80106530                        D_80106530 = 0x80106530
-                0x8010cc30                        D_8010CC30 = 0x8010cc30
-                0x8010cc3c                        D_8010CC3C = 0x8010cc3c
-                0x80114603                        D_80114603 = 0x80114603
-                0x80114606                        D_80114606 = 0x80114606
-                0x80114623                        D_80114623 = 0x80114623
-                0x80114646                        D_80114646 = 0x80114646
-                0x80114721                        D_80114721 = 0x80114721
-                0x80114722                        D_80114722 = 0x80114722
-                0x80114723                        D_80114723 = 0x80114723
-                0x80114729                        D_80114729 = 0x80114729
-                0x8011472a                        D_8011472A = 0x8011472a
-                0x8011472d                        D_8011472D = 0x8011472d
-                0x8011491d                        D_8011491D = 0x8011491d
-                0x8011491e                        D_8011491E = 0x8011491e
-                0x80114941                        D_80114941 = 0x80114941
-                0x80114942                        D_80114942 = 0x80114942
-                0x80114943                        D_80114943 = 0x80114943
-                0x80114945                        D_80114945 = 0x80114945
-                0x80114946                        D_80114946 = 0x80114946
-                0x80123412                        D_80123412 = 0x80123412
-                0x8012369e                        D_8012369E = 0x8012369e
-                0x8012369f                        D_8012369F = 0x8012369f
-                0x801236a2                        D_801236A2 = 0x801236a2
-                0x80123772                        D_80123772 = 0x80123772
-                0x80134afa                        D_80134AFA = 0x80134afa
-                0x8013745f                        D_8013745F = 0x8013745f
-                0x8013c225                        D_8013C225 = 0x8013c225
-                0x8013c63d                        FadingMusic = 0x8013c63d
-                0x8013c63e                        StartedNewMusic = 0x8013c63e
-                0x8013c679                        fReverbLevel = 0x8013c679
-                0x8013cd37                        D_8013CD37 = 0x8013cd37
-                0x8013cd3f                        D_8013CD3F = 0x8013cd3f
-                0x8013d0ea                        CopSpeak_gBufferStart = 0x8013d0ea
-                0x8013d0ee                        CopSpeak_gBufferHigh = 0x8013d0ee
-                0x8013d22d                        D_8013D22D = 0x8013d22d
-                0x8013d22e                        D_8013D22E = 0x8013d22e
-                0x8013d22f                        D_8013D22F = 0x8013d22f
-                0x8013d28d                        gCalculateVictory = 0x8013d28d
-                0x8013d39d                        D_8013D39D = 0x8013d39d
-                0x8013d39e                        D_8013D39E = 0x8013d39e
-                0x8013d3a1                        D_8013D3A1 = 0x8013d3a1
-                0x8013d3a2                        D_8013D3A2 = 0x8013d3a2
-                0x8013d3d6                        D_8013D3D6 = 0x8013d3d6
-                0x8013d3da                        D_8013D3DA = 0x8013d3da
-                0x8013d84e                        Force_gTick = 0x8013d84e
-                0x8013d866                        gFontSpaceWidth = 0x8013d866
-                0x8013d896                        D_8013D896 = 0x8013d896
-                0x8013d91d                        D_8013D91D = 0x8013d91d
-                0x8013d996                        D_8013D996 = 0x8013d996
-                0x8013d9e2                        D_8013D9E2 = 0x8013d9e2
-                0x8013d9fe                        D_8013D9FE = 0x8013d9fe
-                0x8013ddba                        D_8013DDBA = 0x8013ddba
-                0x8013ddf2                        D_8013DDF2 = 0x8013ddf2
-                0x8013ddfa                        D_8013DDFA = 0x8013ddfa
                 0x8013e008                        D_8013E008 = 0x8013e008
                 0x8013e038                        D_8013E038 = 0x8013e038
                 0x8013e068                        D_8013E068 = 0x8013e068
@@ -3212,34 +3144,24 @@ LOAD build/recon/eaclib/psx/sndpsxz/ssine.c.o
                 0x8013e730                        D_8013E730 = 0x8013e730
                 0x8013e850                        D_8013E850 = 0x8013e850
                 0x8013e85c                        D_8013E85C = 0x8013e85c
-                0x8013e89c                        gPadinfo = 0x8013e89c
                 0x8013e8a0                        D_8013E8A0 = 0x8013e8a0
                 0x8013e8a1                        D_8013E8A1 = 0x8013e8a1
                 0x8013e8a2                        D_8013E8A2 = 0x8013e8a2
                 0x8013e8a4                        D_8013E8A4 = 0x8013e8a4
                 0x8013e8c0                        D_8013E8C0 = 0x8013e8c0
                 0x8013e8e1                        D_8013E8E1 = 0x8013e8e1
-                0x8013e8f0                        Padglobal = 0x8013e8f0
-                0x8013e900                        memclass = 0x8013e900
                 0x8013e980                        D_8013E980 = 0x8013e980
-                0x8013ea80                        sndss = 0x8013ea80
                 0x8013ea88                        gFileDevice = 0x8013ea88
                 0x8013ea9c                        D_8013EA9C = 0x8013ea9c
                 0x8013eaa0                        D_8013EAA0 = 0x8013eaa0
                 0x8013eaa8                        D_8013EAA8 = 0x8013eaa8
                 0x8013eaac                        D_8013EAAC = 0x8013eaac
                 0x8013eab0                        D_8013EAB0 = 0x8013eab0
-                0x8013ead8                        D_8013EAD8 = 0x8013ead8
                 0x8013eaf8                        D_8013EAF8 = 0x8013eaf8
-                0x8013ec00                        _que = 0x8013ec00
                 0x8013ec04                        D_8013EC04 = 0x8013ec04
                 0x8013ec08                        D_8013EC08 = 0x8013ec08
                 0x8013ec0c                        D_8013EC0C = 0x8013ec0c
-                0x80140400                        readcmd = 0x80140400
-                0x80140414                        currentdirectory = 0x80140414
                 0x80144864                        D_80144864 = 0x80144864
-                0x80144874                        StFunc1 = 0x80144874
-                0x80144878                        StFunc2 = 0x80144878
                 0x8014487c                        D_8014487C = 0x8014487c
                 0x8014487d                        D_8014487D = 0x8014487d
                 0x8014487e                        D_8014487E = 0x8014487e
@@ -3251,24 +3173,6 @@ LOAD build/recon/eaclib/psx/sndpsxz/ssine.c.o
                 0x80144e84                        D_80144E84 = 0x80144e84
                 0x80144e88                        D_80144E88 = 0x80144e88
                 0x8014647c                        D_8014647C = 0x8014647c
-                0x80146c7c                        StEmu_Addr = 0x80146c7c
-                0x80146c80                        StCdIntrFlag = 0x80146c80
-                0x80146c84                        CChannel = 0x80146c84
-                0x80146c88                        StCHANNEL = 0x80146c88
-                0x80146c8c                        Stframe_no = 0x80146c8c
-                0x80146c90                        StRgb24 = 0x80146c90
-                0x80146c94                        StEndFrame = 0x80146c94
-                0x80146c98                        StSTART_FLAG = 0x80146c98
-                0x80146c9c                        StEmu_Idx = 0x80146c9c
-                0x80146ca0                        Stsector_offset = 0x80146ca0
-                0x80146ca4                        StFinalSector = 0x80146ca4
-                0x80146ca8                        StRingBase = 0x80146ca8
-                0x80146cac                        StRingAddr = 0x80146cac
-                0x80146cb0                        StRingIdx1 = 0x80146cb0
-                0x80146cb4                        StRingIdx2 = 0x80146cb4
-                0x80146cb8                        StRingIdx3 = 0x80146cb8
-                0x80146cbc                        StRingSize = 0x80146cbc
-                0x80146cc0                        StStartFrame = 0x80146cc0
                 0x80146cc4                        Cdinfo = 0x80146cc4
                 0x80146cd8                        D_80146CD8 = 0x80146cd8
                 0x80146ce4                        D_80146CE4 = 0x80146ce4
@@ -3292,11 +3196,7 @@ LOAD build/recon/eaclib/psx/sndpsxz/ssine.c.o
                 0x80147570                        D_80147570 = 0x80147570
                 0x801475b8                        D_801475B8 = 0x801475b8
                 0x80147600                        D_80147600 = 0x80147600
-                0x801477e0                        mutexbuf = 0x801477e0
-                0x80147860                        sndgs = 0x80147860
                 0x80147870                        D_80147870 = 0x80147870
-                0x80147871                        D_80147871 = 0x80147871
-                0x80147898                        D_80147898 = 0x80147898
                 0x8014789c                        D_8014789C = 0x8014789c
                 0x8014789d                        D_8014789D = 0x8014789d
                 0x801478e8                        D_801478E8 = 0x801478e8
@@ -3304,50 +3204,22 @@ LOAD build/recon/eaclib/psx/sndpsxz/ssine.c.o
                 0x801478f8                        D_801478F8 = 0x801478f8
                 0x801478fc                        D_801478FC = 0x801478fc
                 0x80147900                        D_80147900 = 0x80147900
-                0x80147914                        sndchanreserved = 0x80147914
-                0x80147918                        sndpd = 0x80147918
                 0x8014791a                        D_8014791A = 0x8014791a
                 0x8014791c                        D_8014791C = 0x8014791c
-                0x801479f0                        D_801479F0 = 0x801479f0
-                0x80147a0c                        D_80147A0C = 0x80147a0c
                 0x80147e28                        D_80147E28 = 0x80147e28
                 0x80147e2c                        D_80147E2C = 0x80147e2c
-                0x80147e34                        D_80147E34 = 0x80147e34
                 0x80147e38                        D_80147E38 = 0x80147e38
-                0x80148044                        gPreLoadTicks = 0x80148044
-                0x80148048                        gEventDats = 0x80148048
-                0x80148058                        gVoxInGame = 0x80148058
-                0x80148060                        gVoxEvents = 0x80148060
                 0x80148064                        D_80148064 = 0x80148064
-                0x80148428                        gGameNum = 0x80148428
-                0x8014842c                        gFilterSetting = 0x8014842c
-                0x80148430                        gLastSubTick = 0x80148430
-                0x80148434                        gDataRate = 0x80148434
-                0x80148438                        gLastTick = 0x80148438
-                0x8014843c                        gSentenceChoice = 0x8014843c
                 0x80148448                        D_80148448 = 0x80148448
-                0x8014847c                        ispch_gPickSamples = 0x8014847c
-                0x801484e4                        ispch_gChoice = 0x801484e4
-                0x80148574                        sndpps = 0x80148574
-                0x80148578                        sndpp = 0x80148578
                 0x8014857c                        D_8014857C = 0x8014857c
                 0x80148580                        D_80148580 = 0x80148580
                 0x8014858c                        D_8014858C = 0x8014858c
                 0x80148590                        D_80148590 = 0x80148590
                 0x8014859c                        D_8014859C = 0x8014859c
-                0x801486e4                        currentwindow = 0x801486e4
-                0x80148780                        sndmm = 0x80148780
                 0x80148786                        D_80148786 = 0x80148786
                 0x80148788                        D_80148788 = 0x80148788
                 0x8014878c                        D_8014878C = 0x8014878c
                 0x8014898c                        D_8014898C = 0x8014898c
-                0x8014899c                        D_8014899C = 0x8014899c
-                0x801489a4                        D_801489A4 = 0x801489a4
-                0x801489ac                        D_801489AC = 0x801489ac
-                0x801489b4                        D_801489B4 = 0x801489b4
-                0x801489b8                        D_801489B8 = 0x801489b8
-                0x801489bc                        D_801489BC = 0x801489bc
-                0x801489cc                        StMode = 0x801489cc
                 0x801489d0                        D_801489D0 = 0x801489d0
                 0x801489d4                        D_801489D4 = 0x801489d4
                 0x801489e4                        D_801489E4 = 0x801489e4
@@ -3372,10 +3244,6 @@ LOAD build/recon/eaclib/psx/sndpsxz/ssine.c.o
                 0x80148a6c                        D_80148A6C = 0x80148a6c
                 0x80148a7c                        D_80148A7C = 0x80148a7c
                 0x80148a84                        D_80148A84 = 0x80148a84
-                0x80148aac                        _waitTime = 0x80148aac
-                0x80148ab0                        _startTime = 0x80148ab0
-                0x80148ac4                        D_80148AC4 = 0x80148ac4
-                0x80148ad4                        D_80148AD4 = 0x80148ad4
                 0x80148b04                        __last_org = 0x80148b04
                 0x80148b0c                        D_80148B0C = 0x80148b0c
                 0xa000df80                        D_A000DF80 = 0xa000df80
@@ -6332,6 +6200,7 @@ LOAD build/recon/eaclib/psx/sndpsxz/ssine.c.o
                 0x800e402c                __SN_ENTRY_POINT
                 0x800e4050                stup1
                 0x800e40cc                stup0
+                0x800e40d8                D_800E40D8
 
 .t0142          0x800e40e8      0x230
  build/recon/eaclib/psx/pad.c.o(.text)
@@ -7879,8 +7748,10 @@ LOAD build/recon/eaclib/psx/sndpsxz/ssine.c.o
  build/recon/syslib/psx/libgte/PATCHGTE.c.o(.text)
  .text          0x80106454       0xe0 build/recon/syslib/psx/libgte/PATCHGTE.c.o
                 0x80106454                _patch_gte
-                0x80106500                _gte_patch_text
                 0x80106500                _patch_gte_handler_1
+                0x80106500                _gte_patch_text
+                0x80106518                D_80106518
+                0x80106530                D_80106530
 
 .t0349          0x80106534      0x114
  build/recon/syslib/psx/libetc/INTR_VB.c.o(.text)
@@ -8421,6 +8292,8 @@ LOAD build/recon/eaclib/psx/sndpsxz/ssine.c.o
  build/recon/syslib/psx/libcard/END.c.o(.text)
  .text          0x8010cbc0       0x80 build/recon/syslib/psx/libcard/END.c.o
                 0x8010cbc0                _ExitCard
+                0x8010cc30                D_8010CC30
+                0x8010cc3c                D_8010CC3C
 
 .t0441          0x8010cc40       0x94
  build/recon/eaclib/psx/sndpsxz/ssine.c.o(.text)
@@ -8430,7 +8303,7 @@ LOAD build/recon/eaclib/psx/sndpsxz/ssine.c.o
 .rel.dyn        0x8010ccd4        0x0
  .rel.dyn       0x8010ccd4        0x0 build/recon/frontend/common/screenmain.cpp.o
 
-.other          0x80300000    0x14bd0
+.other          0x80300000    0x14f10
  *(.data)
  .data          0x80300000        0x0 build/recon/game/common/minfront.cpp.o
  .data          0x80300000        0x0 build/recon/game/psx/fe3dmenu.cpp.o
@@ -8598,6 +8471,7 @@ LOAD build/recon/eaclib/psx/sndpsxz/ssine.c.o
  *fill*         0x80301446        0x2 
  .data          0x80301448       0x20 build/recon/frontend/common/screenusername.cpp.o
                 0x80301448                menu_kUserNameRows
+                0x8030144a                MENUUSERNAME_STARTY
                 0x8030144c                screenUserName
                 0x80301454                UserPermFileName
  .data          0x80301468        0x0 build/recon/frontend/common/fefades.cpp.o
@@ -9333,11 +9207,14 @@ LOAD build/recon/eaclib/psx/sndpsxz/ssine.c.o
                 0x8030ca98                AudioCmn_musicInteractive
                 0x8030ca9c                gFEmusicON
                 0x8030caa0                gStereoMode
+                0x8030caa4                fReverbLevel
                 0x8030caac                audioBackwardsDirection
                 0x8030cab0                intensityFalseLapCounter
                 0x8030cab4                falseLapCounter
                 0x8030cab8                gMusicStyle
                 0x8030cabc                countdown
+                0x8030cabd                FadingMusic
+                0x8030cabe                StartedNewMusic
                 0x8030cac0                recordLapTime
                 0x8030cac4                NumSFXOn
                 0x8030cac8                fReverbOn
@@ -9443,7 +9320,9 @@ LOAD build/recon/eaclib/psx/sndpsxz/ssine.c.o
                 0x8030d1f8                CopSpeak_gWrongWay
                 0x8030d1fc                CopSpeak_gBuffer
                 0x8030d200                CopSpeak_gBufferLow
+                0x8030d202                CopSpeak_gBufferStart
                 0x8030d204                CopSpeak_gBufferEnd
+                0x8030d206                CopSpeak_gBufferHigh
                 0x8030d208                CopSpeak_gStaticHandle
                 0x8030d210                CopSpeak_gStaticPatch
  *fill*         0x8030d212        0x2 
@@ -9492,6 +9371,7 @@ LOAD build/recon/eaclib/psx/sndpsxz/ssine.c.o
                 0x8030d392                gUpdateTournamentInfoFlag
                 0x8030d393                gUpdateKnockoutInfoFlag
                 0x8030d394                gKnockOutSpeechFlag
+                0x8030d395                gCalculateVictory
                 0x8030d398                gPlayerEnteredNameAlready
                 0x8030d39c                nfs_sysInfo
                 0x8030d3a0                missionManager
@@ -9532,7 +9412,9 @@ LOAD build/recon/eaclib/psx/sndpsxz/ssine.c.o
                 0x8030d49c                Draw_gPlayer1View
                 0x8030d4a0                Draw_gPlayer2View
                 0x8030d4a4                gPauseMenuRect
+                0x8030d4a6                D_8013D3D6
                 0x8030d4a8                D_8013D3D8
+                0x8030d4aa                D_8013D3DA
                 0x8030d4ac                gPauseRender
                 0x8030d4b0                Draw_gRearView
                 0x8030d4b4                Render_gDebugView
@@ -9556,9 +9438,9 @@ LOAD build/recon/eaclib/psx/sndpsxz/ssine.c.o
                 0x8030d4f0                skipRender
                 0x8030d4f4                quitType
  .sdata         0x8030d4f8       0x10 build/recon/game/common/simqueue.cpp.o
-                0x8030d4f8                gSimQueue_BlockOther
+                0x8030d4f8                gSimQueue_Ticker
                 0x8030d4fc                gSimQueue_BlockSelf
-                0x8030d500                gSimQueue_Ticker
+                0x8030d500                gSimQueue_BlockOther
                 0x8030d504                maxTicksPerFrame
  .sdata         0x8030d508       0x10 build/recon/game/common/souffle.cpp.o
                 0x8030d508                gISouffle
@@ -9623,6 +9505,7 @@ LOAD build/recon/eaclib/psx/sndpsxz/ssine.c.o
  .sdata         0x8030d61c       0x14 build/recon/game/psx/force.cpp.o
                 0x8030d61c                Force_gActAlign
                 0x8030d624                Force_gOffAlign
+                0x8030d62a                Force_gTick
                 0x8030d62c                Force_gVblHandle
  .sdata         0x8030d630       0x1c build/recon/game/psx/font.cpp.o
                 0x8030d630                font_clutx
@@ -9630,6 +9513,7 @@ LOAD build/recon/eaclib/psx/sndpsxz/ssine.c.o
                 0x8030d638                font_tint
                 0x8030d63c                font_abr
                 0x8030d640                gFontClut
+                0x8030d642                gFontSpaceWidth
                 0x8030d644                font_currentTPage
                 0x8030d648                gCurrentBlitter
  .sdata         0x8030d64c        0xc build/recon/game/psx/flare.cpp.o
@@ -10129,392 +10013,434 @@ LOAD build/recon/eaclib/psx/sndpsxz/ssine.c.o
  .bss           0x80310ee8        0x0 build/recon/game/common/schedule.cpp.o
  .bss           0x80310ee8        0x0 build/recon/game/common/sim.cpp.o
  .bss           0x80310ee8        0x0 build/recon/game/common/simplemem.cpp.o
- .bss           0x80310ee8        0x0 build/recon/game/common/simqueue.cpp.o
- .bss           0x80310ee8        0x0 build/recon/game/common/souffle.cpp.o
- .bss           0x80310ee8        0x0 build/recon/game/common/stats.cpp.o
- .bss           0x80310ee8        0x0 build/recon/game/common/textsys.cpp.o
- .bss           0x80310ee8       0x80 build/recon/game/common/track.cpp.o
- .bss           0x80310f68        0x0 build/recon/game/common/trgsfx.cpp.o
- .bss           0x80310f68        0x0 build/recon/game/common/udff.cpp.o
- .bss           0x80310f68        0x0 build/recon/game/psx/audio.cpp.o
- .bss           0x80310f68        0x0 build/recon/game/psx/cario.cpp.o
- .bss           0x80310f68        0x0 build/recon/game/psx/draw.cpp.o
- .bss           0x80310f68        0x0 build/recon/game/psx/drawc.cpp.o
- .bss           0x80310f68        0x0 build/recon/game/psx/force.cpp.o
- .bss           0x80310f68        0x0 build/recon/game/psx/font.cpp.o
- .bss           0x80310f68        0x0 build/recon/game/psx/flare.cpp.o
- .bss           0x80310f68        0x0 build/recon/game/psx/hrzsku.cpp.o
- .bss           0x80310f68        0x0 build/recon/game/psx/hud.cpp.o
- .bss           0x80310f68        0x0 build/recon/game/psx/loading.cpp.o
- .bss           0x80310f68        0x0 build/recon/game/psx/night.cpp.o
- .bss           0x80310f68        0x0 build/recon/game/psx/psxcontroller.cpp.o
- .bss           0x80310f68        0x0 build/recon/game/psx/sfx.cpp.o
- .bss           0x80310f68        0x0 build/recon/game/psx/skidmark.cpp.o
- .bss           0x80310f68        0x0 build/recon/game/psx/texture.cpp.o
- .bss           0x80310f68      0x100 build/recon/game/psx/textureprocess.cpp.o
- .bss           0x80311068        0x0 build/recon/game/psx/trackspec.cpp.o
- .bss           0x80311068        0x0 build/recon/game/psx/trsproj.cpp.o
- .bss           0x80311068        0x0 build/recon/game/psx/weather.cpp.o
- .bss           0x80311068        0x0 build/recon/game/psx/textpix.c.o
- .bss           0x80311068        0x0 build/recon/game/psx/textpsx.c.o
- .bss           0x80311068        0x0 build/recon/game/psx/unpack.c.o
- .bss           0x80311068        0x0 build/recon/syslib/psx/2mbyte/2mbyte.c.o
- .bss           0x80311068       0x64 build/recon/eaclib/psx/pad.c.o
- .bss           0x803110cc        0x0 build/recon/syslib/psx/libc/C43.c.o
- .bss           0x803110cc        0x0 build/recon/eaclib/psx/eacpsxz/fixdmult.c.o
- .bss           0x803110cc        0x0 build/recon/syslib/psx/libsn/PUREV.c.o
- .bss           0x803110cc        0x0 build/recon/eaclib/psx/eacpsxz/trnspos.c.o
- .bss           0x803110cc        0x0 build/recon/eaclib/psx/eacpsxz/fixddiv.c.o
- .bss           0x803110cc        0x0 build/recon/syslib/psx/libapi/A39.c.o
- .bss           0x803110cc        0x0 build/recon/syslib/psx/libc/SPRINTF.c.o
- .bss           0x803110cc       0x40 build/recon/eaclib/psx/eacpsxz/memstd.c.o
-                0x803110cc                gMemClassTable
- .bss           0x8031110c        0x0 build/recon/eaclib/psx/eacpsxz/nsync.c.o
- .bss           0x8031110c        0x0 build/recon/syslib/psx/libc/C25.c.o
- .bss           0x8031110c        0x0 build/recon/eaclib/psx/eacpsxz/atanfunc.c.o
- .bss           0x8031110c        0x0 build/recon/eaclib/psx/eacpsxz/nloadpk.c.o
- .bss           0x8031110c        0x0 build/recon/syslib/psx/libc/C23.c.o
- .bss           0x8031110c        0x0 build/recon/syslib/psx/libc/QSORT.c.o
- .bss           0x8031110c        0x0 build/recon/eaclib/psx/eacpsxz/locatbig.c.o
- .bss           0x8031110c        0x0 build/recon/syslib/psx/libc/C36.c.o
- .bss           0x8031110c        0x0 build/recon/eaclib/psx/eacpsxz/blkmov.c.o
- .bss           0x8031110c        0x0 build/recon/eaclib/psx/sndpsxz/sbremove.c.o
- .bss           0x8031110c        0x0 build/recon/eaclib/psx/sndpsxz/splysdef.c.o
- .bss           0x8031110c        0x0 build/recon/eaclib/psx/sndpsxz/span.c.o
- .bss           0x8031110c        0x0 build/recon/eaclib/psx/sndpsxz/svol.c.o
- .bss           0x8031110c        0x0 build/recon/eaclib/psx/eacpsxz/systask.c.o
- .bss           0x8031110c        0x0 build/recon/eaclib/psx/sndpsxz/sstsetpr.c.o
- .bss           0x8031110c        0x0 build/recon/eaclib/psx/sndpsxz/seffect.c.o
- .bss           0x8031110c      0x3e4 build/recon/eaclib/psx/spchpsxz/spchevnt.c.o
-                0x80311124                gRepeatCount
-                0x8031112c                DAT_80148064
- .bss           0x803114f0        0x0 build/recon/eaclib/psx/eacpsxz/random.c.o
- .bss           0x803114f0        0x0 build/recon/syslib/psx/libc/C21.c.o
- .bss           0x803114f0        0x0 build/recon/eaclib/psx/sndpsxz/sbend.c.o
- .bss           0x803114f0        0x0 build/recon/eaclib/psx/sndpsxz/splay.c.o
- .bss           0x803114f0        0x0 build/recon/eaclib/psx/sndpsxz/sover.c.o
- .bss           0x803114f0        0x0 build/recon/eaclib/psx/sndpsxz/sbhdrsze.c.o
- .bss           0x803114f0        0x0 build/recon/eaclib/psx/sndpsxz/sbhdrcpy.c.o
- .bss           0x803114f0        0x0 build/recon/eaclib/psx/sndpsxz/sdmemlu.c.o
- .bss           0x803114f0        0x0 build/recon/eaclib/psx/sndpsxz/sbadd.c.o
- .bss           0x803114f0        0x0 build/recon/eaclib/psx/sndpsxz/sstop.c.o
- .bss           0x803114f0        0x0 build/recon/eaclib/psx/sndpsxz/spitch.c.o
- .bss           0x803114f0        0x0 build/recon/eaclib/psx/sndpsxz/smasterv.c.o
- .bss           0x803114f0        0x0 build/recon/syslib/psx/libc/A63.c.o
- .bss           0x803114f0        0x0 build/recon/eaclib/psx/sndpsxz/s3dlow.c.o
- .bss           0x803114f0        0x0 build/recon/eaclib/psx/sndpsxz/sstopall.c.o
- .bss           0x803114f0        0x0 build/recon/eaclib/psx/eacpsxz/timer.c.o
- .bss           0x803114f0        0x0 build/recon/eaclib/psx/sndpsxz/sautovol.c.o
- .bss           0x803114f0        0x0 build/recon/eaclib/psx/sndpsxz/sstgetv.c.o
- .bss           0x803114f0        0x0 build/recon/syslib/psx/libcd/TYPE.c.o
- .bss           0x803114f0        0x0 build/recon/eaclib/psx/sndpsxz/sststat.c.o
- .bss           0x803114f0        0x0 build/recon/eaclib/psx/sndpsxz/sstrstat.c.o
- .bss           0x803114f0        0x0 build/recon/eaclib/psx/eacpsxz/wildcard.c.o
- .bss           0x803114f0        0x8 build/recon/eaclib/psx/sndpsxz/sst.c.o
-                0x803114f4                sndStreamMap
- .bss           0x803114f8        0x0 build/recon/eaclib/psx/sndpsxz/spvoices.c.o
- .bss           0x803114f8        0x0 build/recon/eaclib/psx/sndpsxz/sstsetgl.c.o
- .bss           0x803114f8        0x0 build/recon/eaclib/psx/sndpsxz/sstsetgs.c.o
- .bss           0x803114f8        0x0 build/recon/eaclib/psx/sndpsxz/sstautov.c.o
- .bss           0x803114f8        0x0 build/recon/syslib/psx/libapi/COUNTER.c.o
- .bss           0x803114f8        0x0 build/recon/syslib/psx/libc/C27.c.o
- .bss           0x803114f8        0x0 build/recon/eaclib/psx/sndpsxz/slimits.c.o
- .bss           0x803114f8        0x0 build/recon/eaclib/psx/sndpsxz/sstovrhd.c.o
- .bss           0x803114f8        0x0 build/recon/eaclib/psx/sndpsxz/sstvol.c.o
- .bss           0x803114f8        0x0 build/recon/eaclib/psx/sndpsxz/sserver.c.o
- .bss           0x803114f8        0x0 build/recon/eaclib/psx/eacpsxz/syncfile.c.o
- .bss           0x803114f8        0x0 build/recon/syslib/psx/libc/C42.c.o
- .bss           0x803114f8        0x0 build/recon/syslib/psx/libc/C47.c.o
- .bss           0x803114f8        0x0 build/recon/eaclib/psx/eacpsxz/crossprd.c.o
- .bss           0x803114f8        0x0 build/recon/syslib/psx/libgte/REG13.c.o
- .bss           0x803114f8        0x0 build/recon/eaclib/psx/eacpsxz/fxform.c.o
- .bss           0x803114f8        0x0 build/recon/eaclib/psx/eacpsxz/asinfunc.c.o
- .bss           0x803114f8        0x0 build/recon/eaclib/psx/eacpsxz/isincos.c.o
- .bss           0x803114f8        0x0 build/recon/eaclib/psx/eacpsxz/trnsfrm.c.o
- .bss           0x803114f8       0x20 build/recon/eaclib/psx/eacpsxz/addtimer.c.o
-                0x803114f8                gTimerSubs
- .bss           0x80311518        0x0 build/recon/eaclib/psx/eacpsxz/savegp.c.o
- .bss           0x80311518        0x0 build/recon/eaclib/psx/eacpsxz/fixdsqrt.c.o
- .bss           0x80311518        0x0 build/recon/syslib/psx/libc/C16.c.o
- .bss           0x80311518        0x0 build/recon/eaclib/psx/eacpsxz/locatshp.c.o
- .bss           0x80311518        0x0 build/recon/syslib/psx/libc/C24.c.o
- .bss           0x80311518        0x0 build/recon/eaclib/psx/spchpsxz/spchbank.c.o
- .bss           0x80311518       0x14 build/recon/eaclib/psx/spchpsxz/spchinit.c.o
- .bss           0x8031152c        0x0 build/recon/syslib/psx/libmath/FLTSIDF.c.o
- .bss           0x8031152c        0x0 build/recon/syslib/psx/libmath/LTDF2.c.o
- .bss           0x8031152c        0x0 build/recon/eaclib/psx/spchpsxz/spchrand.c.o
- .bss           0x8031152c        0x0 build/recon/eaclib/psx/spchpsxz/spchrslv.c.o
- .bss           0x8031152c       0x30 build/recon/eaclib/psx/eacpsxz/nfile.c.o
-                0x8031152c                gFileMgr
- .bss           0x8031155c        0x0 build/recon/eaclib/psx/sndpsxz/stimerem.c.o
- .bss           0x8031155c        0x0 build/recon/eaclib/psx/eacpsxz/fixdinv.c.o
- .bss           0x8031155c        0x0 build/recon/eaclib/psx/eacpsxz/fixdsin.c.o
- .bss           0x8031155c        0x0 build/recon/eaclib/psx/eacpsxz/fixdatan.c.o
- *fill*         0x8031155c        0x4 
- .bss           0x80311560     0x1a34 build/recon/syslib/psx/libgpu/SYS.c.o
-                0x80311580                _gp1_shadow
-                0x80311680                GPU_printf
- .bss           0x80312f94        0x0 build/recon/syslib/psx/libpad/PADENTRY.c.o
- .bss           0x80312f94        0x0 build/recon/eaclib/psx/eacpsxz/matrix.c.o
- .bss           0x80312f94        0x0 build/recon/syslib/psx/libmath/GTDF2.c.o
- .bss           0x80312f94        0x0 build/recon/eaclib/psx/eacpsxz/primate.c.o
- .bss           0x80312f94      0x1d4 build/recon/eaclib/psx/eacpsxz/movf.c.o
-                0x80312f94                windowbuf
- .bss           0x80313168        0x0 build/recon/eaclib/psx/eacpsxz/shpsubs.c.o
- .bss           0x80313168        0x0 build/recon/eaclib/psx/eacpsxz/nasync.c.o
- .bss           0x80313168        0x0 build/recon/syslib/psx/libetc/VMODE.c.o
- .bss           0x80313168        0x0 build/recon/eaclib/psx/eacpsxz/blkfill.c.o
- .bss           0x80313168        0x0 build/recon/eaclib/psx/eacpsxz/sinfunc.c.o
- .bss           0x80313168        0x0 build/recon/eaclib/psx/eacpsxz/resize.c.o
- .bss           0x80313168        0x0 build/recon/syslib/psx/libgte/MSC02.c.o
- .bss           0x80313168        0x0 build/recon/syslib/psx/libgpu/P00.c.o
- .bss           0x80313168        0x0 build/recon/eaclib/psx/eacpsxz/loadshp.c.o
- .bss           0x80313168       0x80 build/recon/eaclib/psx/eacpsxz/exit.c.o
-                0x80313168                gExitFuncs
- .bss           0x803131e8       0xb4 build/recon/eaclib/psx/sndpsxz/ssysinit.c.o
-                0x8031327c                DAT_801478f4
- .bss           0x8031329c        0x0 build/recon/eaclib/psx/sndpsxz/ssysreal.c.o
- .bss           0x8031329c        0x0 build/recon/syslib/psx/libgte/MSC00.c.o
- .bss           0x8031329c        0x0 build/recon/syslib/psx/libgpu/EXT.c.o
- .bss           0x8031329c        0x0 build/recon/syslib/psx/libetc/VSYNC.c.o
- .bss           0x8031329c        0x0 build/recon/syslib/psx/libgte/FGO_01.c.o
- .bss           0x8031329c        0x0 build/recon/syslib/psx/libgte/REG11.c.o
- .bss           0x8031329c        0x0 build/recon/syslib/psx/libgte/FOG_01.c.o
- .bss           0x8031329c        0x0 build/recon/syslib/psx/libetc/INTR.c.o
- .bss           0x8031329c        0x0 build/recon/eaclib/psx/eacpsxz/getm.c.o
- .bss           0x8031329c        0x0 build/recon/eaclib/psx/eacpsxz/textcrnt.c.o
- .bss           0x8031329c        0x0 build/recon/syslib/psx/libgpu/P10.c.o
- .bss           0x8031329c        0x0 build/recon/syslib/psx/libgte/FGO_06.c.o
- .bss           0x8031329c        0x0 build/recon/eaclib/psx/eacpsxz/isqrt.c.o
- .bss           0x8031329c        0x0 build/recon/syslib/psx/libgpu/P19.c.o
- .bss           0x8031329c        0x0 build/recon/syslib/psx/libmath/MULSF3.c.o
- .bss           0x8031329c        0x0 build/recon/syslib/psx/libgpu/P12.c.o
- .bss           0x8031329c        0x0 build/recon/syslib/psx/libgpu/P16.c.o
- .bss           0x8031329c        0x0 build/recon/syslib/psx/libgpu/P18.c.o
- .bss           0x8031329c        0x0 build/recon/syslib/psx/libgpu/P17.c.o
- .bss           0x8031329c        0x0 build/recon/eaclib/psx/eacpsxz/fsincos.c.o
- .bss           0x8031329c        0x0 build/recon/syslib/psx/libgte/COR_02.c.o
- .bss           0x8031329c        0x0 build/recon/syslib/psx/libgte/COR_03.c.o
- .bss           0x8031329c        0x0 build/recon/syslib/psx/libmath/FIXSFSI.c.o
- .bss           0x8031329c        0x0 build/recon/eaclib/psx/eacpsxz/joystkn.c.o
- .bss           0x8031329c       0x54 build/recon/eaclib/psx/eacpsxz/fileroot.c.o
- .bss           0x803132f0        0x0 build/recon/eaclib/psx/eacpsxz/meminit.c.o
- .bss           0x803132f0       0x40 build/recon/eaclib/psx/eacpsxz/inittmr.c.o
- .bss           0x80313330        0x0 build/recon/syslib/psx/libapi/C68.c.o
- .bss           0x80313330        0x0 build/recon/eaclib/psx/eacpsxz/shpdepth.c.o
- .bss           0x80313330        0x0 build/recon/syslib/psx/libgpu/P01.c.o
- .bss           0x80313330        0x0 build/recon/eaclib/psx/eacpsxz/textfor.c.o
- .bss           0x80313330        0x0 build/recon/eaclib/psx/eacpsxz/unhuff.c.o
- .bss           0x80313330        0x0 build/recon/eaclib/psx/eacpsxz/unref.c.o
- .bss           0x80313330        0x0 build/recon/eaclib/psx/eacpsxz/unbtree.c.o
- .bss           0x80313330        0x0 build/recon/syslib/psx/libmath/EXTSFDF2.c.o
- .bss           0x80313330        0x0 build/recon/syslib/psx/libmath/TRUDFSF2.c.o
- .bss           0x80313330        0x0 build/recon/syslib/psx/libmath/ADDDF3.c.o
- .bss           0x80313330        0x0 build/recon/syslib/psx/libmath/DIVDF3.c.o
- .bss           0x80313330        0x0 build/recon/syslib/psx/libc/C26.c.o
- .bss           0x80313330        0x0 build/recon/eaclib/psx/eacpsxz/nullfunc.c.o
- .bss           0x80313330        0x0 build/recon/syslib/psx/libgpu/P11.c.o
- .bss           0x80313330        0x0 build/recon/eaclib/psx/eacpsxz/crc.c.o
- .bss           0x80313330        0x0 build/recon/syslib/psx/libc/C30.c.o
- .bss           0x80313330        0x0 build/recon/syslib/psx/libmath/FLTSISF.c.o
- .bss           0x80313330        0x0 build/recon/syslib/psx/libmath/MULDF3.c.o
- .bss           0x80313330        0x0 build/recon/syslib/psx/libmath/DIVSF3.c.o
- .bss           0x80313330        0x0 build/recon/syslib/psx/libmath/FIXDFSI.c.o
- .bss           0x80313330        0x0 build/recon/eaclib/psx/eacpsxz/vramfxya.c.o
- .bss           0x80313330        0x0 build/recon/eaclib/psx/eacpsxz/shpclut.c.o
- .bss           0x80313330        0x0 build/recon/syslib/psx/libgpu/FONT.c.o
- .bss           0x80313330       0x28 build/recon/syslib/psx/libpress/VLC.c.o
- .bss           0x80313358        0x0 build/recon/syslib/psx/libcd/cdcont.c.o
- .bss           0x80313358        0x4 build/recon/syslib/psx/libcd/stcdint.c.o
-                0x80313358                _st_slot
- .bss           0x8031335c       0x24 build/recon/syslib/psx/libpress/LIBPRESS.c.o
- .bss           0x80313380       0x14 build/recon/syslib/psx/libcd/streamhelp.c.o
-                0x80313380                _ds_word0
-                0x80313384                _ds_word1
-                0x80313390                _ds_ready_cb
- .bss           0x80313394      0x83c build/recon/eaclib/psx/eacpsxz/cdfs.c.o
-                0x80313394                CD_ctx
- .bss           0x80313bd0        0x0 build/recon/eaclib/psx/sndpsxz/scdvol.c.o
- .bss           0x80313bd0       0x80 build/recon/syslib/psx/libmcrd/LIBMCRD.c.o
- .bss           0x80313c50        0x0 build/recon/eaclib/psx/eacpsxz/cluttype.c.o
- .bss           0x80313c50        0x0 build/recon/eaclib/psx/eacpsxz/shptype.c.o
- .bss           0x80313c50        0x0 build/recon/eaclib/psx/eacpsxz/stream.c.o
- .bss           0x80313c50        0x0 build/recon/syslib/psx/libapi/C57.c.o
- .bss           0x80313c50      0x270 build/recon/syslib/psx/libpad/PADPORTD.c.o
- .bss           0x80313ec0        0x0 build/recon/syslib/psx/libc/C46.c.o
- .bss           0x80313ec0        0x0 build/recon/syslib/psx/libc/MEMMOVE.c.o
- .bss           0x80313ec0        0x0 build/recon/eaclib/psx/eacpsxz/threads.c.o
- .bss           0x80313ec0       0x80 build/recon/eaclib/psx/eacpsxz/callback.c.o
- .bss           0x80313f40        0x0 build/recon/eaclib/psx/eacpsxz/math64a.c.o
- .bss           0x80313f40        0x0 build/recon/eaclib/psx/eacpsxz/stricmp.c.o
- .bss           0x80313f40        0x0 build/recon/eaclib/psx/sndpsxz/sdata.c.o
- .bss           0x80313f40        0x0 build/recon/eaclib/psx/sndpsxz/sbirmpat.c.o
- .bss           0x80313f40        0x0 build/recon/eaclib/psx/sndpsxz/sbvalid.c.o
- .bss           0x80313f40        0x4 build/recon/eaclib/psx/sndpsxz/salloc.c.o
- .bss           0x80313f44        0x0 build/recon/eaclib/psx/sndpsxz/s3dpos.c.o
- .bss           0x80313f44        0x0 build/recon/eaclib/psx/sndpsxz/spatkey.c.o
- .bss           0x80313f44      0x72c build/recon/eaclib/psx/sndpsxz/slib.c.o
-                0x8031401c                DAT_801479f0
-                0x80314454                DAT_80147e28
- .bss           0x80314670        0x0 build/recon/eaclib/psx/sndpsxz/sdriver.c.o
- .bss           0x80314670        0x0 build/recon/eaclib/psx/sndpsxz/sdfx.c.o
- .bss           0x80314670        0x0 build/recon/eaclib/psx/sndpsxz/sfxlevel.c.o
- .bss           0x80314670        0x0 build/recon/eaclib/psx/spchpsxz/spchdata.c.o
- .bss           0x80314670      0x138 build/recon/eaclib/psx/spchpsxz/spchpick.c.o
-                0x8031467c                DAT_80148448
-                0x80314714                gChooseShort
- .bss           0x803147a8        0x0 build/recon/eaclib/psx/sndpsxz/sclcptch.c.o
- .bss           0x803147a8        0x0 build/recon/eaclib/psx/sndpsxz/stagpat.c.o
- .bss           0x803147a8        0x0 build/recon/eaclib/psx/sndpsxz/sbdload.c.o
- .bss           0x803147a8        0x0 build/recon/eaclib/psx/sndpsxz/sballoc.c.o
- .bss           0x803147a8        0x0 build/recon/eaclib/psx/sndpsxz/sgetvol.c.o
- .bss           0x803147a8        0x0 build/recon/syslib/psx/libc/C63.c.o
- .bss           0x803147a8        0x4 build/recon/eaclib/psx/sndpsxz/spktplay.c.o
- .bss           0x803147ac        0x0 build/recon/eaclib/psx/sndpsxz/smath64.c.o
- .bss           0x803147ac        0x0 build/recon/eaclib/psx/sndpsxz/sstgetrp.c.o
- .bss           0x803147ac        0x0 build/recon/syslib/psx/libc/C31.c.o
- .bss           0x803147ac        0x0 build/recon/syslib/psx/libc/C38.c.o
- .bss           0x803147ac        0x0 build/recon/eaclib/psx/sndpsxz/spat2hdr.c.o
- .bss           0x803147ac        0x0 build/recon/syslib/psx/libc/MEMCMP.c.o
- .bss           0x803147ac       0x34 build/recon/eaclib/psx/sndpsxz/sdpacket.c.o
- .bss           0x803147e0        0x0 build/recon/eaclib/psx/sndpsxz/ssysserv.c.o
- .bss           0x803147e0        0x0 build/recon/syslib/psx/libmath/DBSHIFTU.c.o
- .bss           0x803147e0        0x0 build/recon/eaclib/psx/sndpsxz/sdtimrem.c.o
- .bss           0x803147e0        0x0 build/recon/syslib/psx/libapi/C73.c.o
- .bss           0x803147e0       0x18 build/recon/syslib/psx/libpad/PADMAIN.c.o
- .bss           0x803147f8        0x4 build/recon/syslib/psx/libpad/PADCMD.c.o
- .bss           0x803147fc        0x0 build/recon/eaclib/psx/eacpsxz/trnsmult.c.o
- .bss           0x803147fc        0x0 build/recon/eaclib/psx/eacpsxz/fastmovf.c.o
- .bss           0x803147fc      0x20c build/recon/eaclib/psx/sndpsxz/smemman.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libgte/PATCHGTE.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libetc/INTR_VB.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libapi/A91.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libapi/L10.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libgte/REG03.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libc/C19.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libapi/A25.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libapi/C114.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libapi/A37.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libapi/A23.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libapi/A36.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libapi/A24.c.o
- .bss           0x80314a08        0x0 build/recon/eaclib/psx/eacpsxz/textcode.c.o
- .bss           0x80314a08        0x0 build/recon/eaclib/psx/eacpsxz/isqrttbl.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libmath/FERR.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libgte/COR_01.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libsn/READ.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libsn/OPEN.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libsn/FSINIT.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libsn/CREAT.c.o
- .bss           0x80314a08        0x0 build/recon/eaclib/psx/eacpsxz/devsys.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libsn/LSEEK.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libsn/CLOSE.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libsn/WRITE.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libapi/A12.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libapi/A08.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libapi/A13.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libmath/DBSHIFT.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libmath/MAINASU.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libmath/ADDMANT.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libgpu/P09.c.o
- .bss           0x80314a08        0x0 build/recon/syslib/psx/libgpu/P06.c.o
- .bss           0x80314a08       0x24 build/recon/syslib/psx/libcd/drv.c.o
- .bss           0x80314a2c        0x4 build/recon/syslib/psx/libds/DSCB.c.o
- .bss           0x80314a30        0x0 build/recon/syslib/psx/libcd/cdread.c.o
- .bss           0x80314a30        0x0 build/recon/syslib/psx/libc/C37.c.o
- .bss           0x80314a30        0x0 build/recon/syslib/psx/libcd/event.c.o
- .bss           0x80314a30        0x0 build/recon/syslib/psx/libc/BSEARCH.c.o
- .bss           0x80314a30        0x0 build/recon/syslib/psx/libcd/toc.c.o
- .bss           0x80314a30        0x0 build/recon/eaclib/psx/sndpsxz/sdcdvol.c.o
- .bss           0x80314a30        0x0 build/recon/syslib/psx/libmcrd/BIOS.c.o
- .bss           0x80314a30       0x50 build/recon/syslib/psx/libmcrd/USERFUNC.c.o
- .bss           0x80314a80        0x0 build/recon/syslib/psx/libcard/C171.c.o
- .bss           0x80314a80        0x0 build/recon/syslib/psx/libcard/CARD.c.o
- .bss           0x80314a80        0x0 build/recon/syslib/psx/libcard/C172.c.o
- .bss           0x80314a80        0x0 build/recon/syslib/psx/libapi/A50.c.o
- .bss           0x80314a80        0x0 build/recon/syslib/psx/libapi/A54.c.o
- .bss           0x80314a80        0x0 build/recon/syslib/psx/libapi/A51.c.o
- .bss           0x80314a80        0x0 build/recon/syslib/psx/libapi/A52.c.o
- .bss           0x80314a80        0x0 build/recon/syslib/psx/libapi/A53.c.o
- .bss           0x80314a80        0x0 build/recon/syslib/psx/libapi/FIRST.c.o
- .bss           0x80314a80        0x0 build/recon/syslib/psx/libapi/A67.c.o
- .bss           0x80314a80        0x0 build/recon/syslib/psx/libapi/A69.c.o
- .bss           0x80314a80        0x0 build/recon/syslib/psx/libapi/A65.c.o
- .bss           0x80314a80        0x0 build/recon/syslib/psx/libcard/A80.c.o
- .bss           0x80314a80        0x0 build/recon/syslib/psx/libcard/A78.c.o
- .bss           0x80314a80        0x0 build/recon/syslib/psx/libpad/PADSEQD.c.o
- .bss           0x80314a80        0x0 build/recon/syslib/psx/libc/C40.c.o
- .bss           0x80314a80        0x0 build/recon/eaclib/psx/sndpsxz/sdmemman.c.o
- .bss           0x80314a80        0x0 build/recon/eaclib/psx/sndpsxz/sdma.c.o
- .bss           0x80314a80        0x0 build/recon/eaclib/psx/sndpsxz/saetodv.c.o
- .bss           0x80314a80        0x0 build/recon/eaclib/psx/sndpsxz/saetolrv.c.o
- .bss           0x80314a80        0x0 build/recon/eaclib/psx/spchpsxz/spchrule.c.o
- .bss           0x80314a80        0x0 build/recon/eaclib/psx/spchpsxz/spchsamp.c.o
- .bss           0x80314a80        0x0 build/recon/eaclib/psx/sndpsxz/sdresolv.c.o
- .bss           0x80314a80        0x0 build/recon/eaclib/psx/sndpsxz/sdplapat.c.o
- .bss           0x80314a80        0x0 build/recon/eaclib/psx/sndpsxz/srrange.c.o
- .bss           0x80314a80        0x0 build/recon/eaclib/psx/sndpsxz/sgettag.c.o
- .bss           0x80314a80        0x0 build/recon/eaclib/psx/sndpsxz/srandom.c.o
- .bss           0x80314a80        0x0 build/recon/eaclib/psx/sndpsxz/sdspuirq.c.o
- .bss           0x80314a80        0x0 build/recon/syslib/psx/libapi/L03.c.o
- .bss           0x80314a80        0x0 build/recon/syslib/psx/libapi/L02.c.o
- .bss           0x80314a80        0x0 build/recon/syslib/psx/libpad/WAITRC2.c.o
- .bss           0x80314a80        0x8 build/recon/syslib/psx/libpad/MCXMAIN.c.o
- .bss           0x80314a88        0x0 build/recon/syslib/psx/libgpu/P34.c.o
- .bss           0x80314a88        0x0 build/recon/syslib/psx/libapi/A07.c.o
- .bss           0x80314a88        0x0 build/recon/syslib/psx/libsn/SNREAD.c.o
- .bss           0x80314a88        0x0 build/recon/syslib/psx/libsn/SNWRITE.c.o
- .bss           0x80314a88        0x0 build/recon/eaclib/psx/sndpsxz/spvtolrv.c.o
- .bss           0x80314a88        0x0 build/recon/syslib/psx/libcard/INIT.c.o
- .bss           0x80314a88        0x0 build/recon/syslib/psx/libcard/CARDINIT.c.o
- .bss           0x80314a88        0x0 build/recon/syslib/psx/libapi/C112.c.o
- .bss           0x80314a88        0x0 build/recon/syslib/psx/libapi/A09.c.o
- .bss           0x80314a88        0x0 build/recon/syslib/psx/libapi/A11.c.o
- .bss           0x80314a88        0x0 build/recon/syslib/psx/libapi/A66.c.o
- .bss           0x80314a88        0x0 build/recon/eaclib/psx/sndpsxz/saelib.c.o
- .bss           0x80314a88        0x0 build/recon/eaclib/psx/sndpsxz/sgetdata.c.o
- .bss           0x80314a88        0x0 build/recon/syslib/psx/libapi/PAD.c.o
- .bss           0x80314a88        0x0 build/recon/syslib/psx/libcard/A74.c.o
- .bss           0x80314a88        0x0 build/recon/syslib/psx/libcard/PATCH.c.o
- .bss           0x80314a88        0x0 build/recon/syslib/psx/libcard/A75.c.o
- .bss           0x80314a88        0x0 build/recon/syslib/psx/libcard/A76.c.o
- .bss           0x80314a88        0x0 build/recon/syslib/psx/libcard/END.c.o
- .bss           0x80314a88        0x0 build/recon/eaclib/psx/sndpsxz/ssine.c.o
+ .bss           0x80310ee8      0x20c build/recon/game/common/simqueue.cpp.o
+                0x80310ee8                inputQueue
+ .bss           0x803110f4        0x0 build/recon/game/common/souffle.cpp.o
+ .bss           0x803110f4        0x0 build/recon/game/common/stats.cpp.o
+ .bss           0x803110f4        0x0 build/recon/game/common/textsys.cpp.o
+ .bss           0x803110f4       0x80 build/recon/game/common/track.cpp.o
+ .bss           0x80311174        0x0 build/recon/game/common/trgsfx.cpp.o
+ .bss           0x80311174        0x0 build/recon/game/common/udff.cpp.o
+ .bss           0x80311174        0x0 build/recon/game/psx/audio.cpp.o
+ .bss           0x80311174        0x0 build/recon/game/psx/cario.cpp.o
+ .bss           0x80311174        0x0 build/recon/game/psx/draw.cpp.o
+ .bss           0x80311174        0x0 build/recon/game/psx/drawc.cpp.o
+ .bss           0x80311174        0x0 build/recon/game/psx/force.cpp.o
+ .bss           0x80311174        0x0 build/recon/game/psx/font.cpp.o
+ .bss           0x80311174        0x0 build/recon/game/psx/flare.cpp.o
+ .bss           0x80311174        0x0 build/recon/game/psx/hrzsku.cpp.o
+ .bss           0x80311174        0x0 build/recon/game/psx/hud.cpp.o
+ .bss           0x80311174        0x0 build/recon/game/psx/loading.cpp.o
+ .bss           0x80311174        0x0 build/recon/game/psx/night.cpp.o
+ .bss           0x80311174        0x0 build/recon/game/psx/psxcontroller.cpp.o
+ .bss           0x80311174        0x0 build/recon/game/psx/sfx.cpp.o
+ .bss           0x80311174        0x0 build/recon/game/psx/skidmark.cpp.o
+ .bss           0x80311174        0x0 build/recon/game/psx/texture.cpp.o
+ .bss           0x80311174      0x100 build/recon/game/psx/textureprocess.cpp.o
+ .bss           0x80311274        0x0 build/recon/game/psx/trackspec.cpp.o
+ .bss           0x80311274        0x0 build/recon/game/psx/trsproj.cpp.o
+ .bss           0x80311274        0x0 build/recon/game/psx/weather.cpp.o
+ .bss           0x80311274        0x0 build/recon/game/psx/textpix.c.o
+ .bss           0x80311274        0x0 build/recon/game/psx/textpsx.c.o
+ .bss           0x80311274        0x0 build/recon/game/psx/unpack.c.o
+ .bss           0x80311274        0x0 build/recon/syslib/psx/2mbyte/2mbyte.c.o
+ .bss           0x80311274       0x64 build/recon/eaclib/psx/pad.c.o
+                0x80311274                gPadinfo
+                0x803112c8                Padglobal
+ .bss           0x803112d8        0x0 build/recon/syslib/psx/libc/C43.c.o
+ .bss           0x803112d8        0x0 build/recon/eaclib/psx/eacpsxz/fixdmult.c.o
+ .bss           0x803112d8        0x0 build/recon/syslib/psx/libsn/PUREV.c.o
+ .bss           0x803112d8        0x0 build/recon/eaclib/psx/eacpsxz/trnspos.c.o
+ .bss           0x803112d8        0x0 build/recon/eaclib/psx/eacpsxz/fixddiv.c.o
+ .bss           0x803112d8        0x0 build/recon/syslib/psx/libapi/A39.c.o
+ .bss           0x803112d8        0x0 build/recon/syslib/psx/libc/SPRINTF.c.o
+ .bss           0x803112d8       0x40 build/recon/eaclib/psx/eacpsxz/memstd.c.o
+                0x803112d8                gMemClassTable
+ .bss           0x80311318        0x0 build/recon/eaclib/psx/eacpsxz/nsync.c.o
+ .bss           0x80311318        0x0 build/recon/syslib/psx/libc/C25.c.o
+ .bss           0x80311318        0x0 build/recon/eaclib/psx/eacpsxz/atanfunc.c.o
+ .bss           0x80311318        0x0 build/recon/eaclib/psx/eacpsxz/nloadpk.c.o
+ .bss           0x80311318        0x0 build/recon/syslib/psx/libc/C23.c.o
+ .bss           0x80311318        0x0 build/recon/syslib/psx/libc/QSORT.c.o
+ .bss           0x80311318        0x0 build/recon/eaclib/psx/eacpsxz/locatbig.c.o
+ .bss           0x80311318        0x0 build/recon/syslib/psx/libc/C36.c.o
+ .bss           0x80311318        0x0 build/recon/eaclib/psx/eacpsxz/blkmov.c.o
+ .bss           0x80311318        0x0 build/recon/eaclib/psx/sndpsxz/sbremove.c.o
+ .bss           0x80311318        0x0 build/recon/eaclib/psx/sndpsxz/splysdef.c.o
+ .bss           0x80311318        0x0 build/recon/eaclib/psx/sndpsxz/span.c.o
+ .bss           0x80311318        0x0 build/recon/eaclib/psx/sndpsxz/svol.c.o
+ .bss           0x80311318      0x100 build/recon/eaclib/psx/eacpsxz/systask.c.o
+ .bss           0x80311418        0x0 build/recon/eaclib/psx/sndpsxz/sstsetpr.c.o
+ .bss           0x80311418        0x0 build/recon/eaclib/psx/sndpsxz/seffect.c.o
+ .bss           0x80311418      0x3e4 build/recon/eaclib/psx/spchpsxz/spchevnt.c.o
+                0x80311418                gPreLoadTicks
+                0x8031141c                gEventDats
+                0x8031142c                gVoxInGame
+                0x80311430                gRepeatCount
+                0x80311434                gVoxEvents
+                0x80311438                DAT_80148064
+ .bss           0x803117fc        0x0 build/recon/eaclib/psx/eacpsxz/random.c.o
+ .bss           0x803117fc        0x0 build/recon/syslib/psx/libc/C21.c.o
+ .bss           0x803117fc        0x0 build/recon/eaclib/psx/sndpsxz/sbend.c.o
+ .bss           0x803117fc        0x0 build/recon/eaclib/psx/sndpsxz/splay.c.o
+ .bss           0x803117fc        0x0 build/recon/eaclib/psx/sndpsxz/sover.c.o
+ .bss           0x803117fc        0x0 build/recon/eaclib/psx/sndpsxz/sbhdrsze.c.o
+ .bss           0x803117fc        0x0 build/recon/eaclib/psx/sndpsxz/sbhdrcpy.c.o
+ .bss           0x803117fc        0x0 build/recon/eaclib/psx/sndpsxz/sdmemlu.c.o
+ .bss           0x803117fc        0x0 build/recon/eaclib/psx/sndpsxz/sbadd.c.o
+ .bss           0x803117fc        0x0 build/recon/eaclib/psx/sndpsxz/sstop.c.o
+ .bss           0x803117fc        0x0 build/recon/eaclib/psx/sndpsxz/spitch.c.o
+ .bss           0x803117fc        0x0 build/recon/eaclib/psx/sndpsxz/smasterv.c.o
+ .bss           0x803117fc        0x0 build/recon/syslib/psx/libc/A63.c.o
+ .bss           0x803117fc        0x0 build/recon/eaclib/psx/sndpsxz/s3dlow.c.o
+ .bss           0x803117fc        0x0 build/recon/eaclib/psx/sndpsxz/sstopall.c.o
+ .bss           0x803117fc        0x0 build/recon/eaclib/psx/eacpsxz/timer.c.o
+ .bss           0x803117fc        0x0 build/recon/eaclib/psx/sndpsxz/sautovol.c.o
+ .bss           0x803117fc        0x0 build/recon/eaclib/psx/sndpsxz/sstgetv.c.o
+ .bss           0x803117fc        0x0 build/recon/syslib/psx/libcd/TYPE.c.o
+ .bss           0x803117fc        0x0 build/recon/eaclib/psx/sndpsxz/sststat.c.o
+ .bss           0x803117fc        0x0 build/recon/eaclib/psx/sndpsxz/sstrstat.c.o
+ .bss           0x803117fc        0x0 build/recon/eaclib/psx/eacpsxz/wildcard.c.o
+ .bss           0x803117fc        0x8 build/recon/eaclib/psx/sndpsxz/sst.c.o
+                0x803117fc                sndss
+                0x80311800                sndStreamMap
+ .bss           0x80311804        0x0 build/recon/eaclib/psx/sndpsxz/spvoices.c.o
+ .bss           0x80311804        0x0 build/recon/eaclib/psx/sndpsxz/sstsetgl.c.o
+ .bss           0x80311804        0x0 build/recon/eaclib/psx/sndpsxz/sstsetgs.c.o
+ .bss           0x80311804        0x0 build/recon/eaclib/psx/sndpsxz/sstautov.c.o
+ .bss           0x80311804        0x0 build/recon/syslib/psx/libapi/COUNTER.c.o
+ .bss           0x80311804        0x0 build/recon/syslib/psx/libc/C27.c.o
+ .bss           0x80311804        0x0 build/recon/eaclib/psx/sndpsxz/slimits.c.o
+ .bss           0x80311804        0x0 build/recon/eaclib/psx/sndpsxz/sstovrhd.c.o
+ .bss           0x80311804        0x0 build/recon/eaclib/psx/sndpsxz/sstvol.c.o
+ .bss           0x80311804        0x0 build/recon/eaclib/psx/sndpsxz/sserver.c.o
+ .bss           0x80311804        0x0 build/recon/eaclib/psx/eacpsxz/syncfile.c.o
+ .bss           0x80311804        0x0 build/recon/syslib/psx/libc/C42.c.o
+ .bss           0x80311804        0x0 build/recon/syslib/psx/libc/C47.c.o
+ .bss           0x80311804        0x0 build/recon/eaclib/psx/eacpsxz/crossprd.c.o
+ .bss           0x80311804        0x0 build/recon/syslib/psx/libgte/REG13.c.o
+ .bss           0x80311804        0x0 build/recon/eaclib/psx/eacpsxz/fxform.c.o
+ .bss           0x80311804        0x0 build/recon/eaclib/psx/eacpsxz/asinfunc.c.o
+ .bss           0x80311804        0x0 build/recon/eaclib/psx/eacpsxz/isincos.c.o
+ .bss           0x80311804        0x0 build/recon/eaclib/psx/eacpsxz/trnsfrm.c.o
+ .bss           0x80311804       0x20 build/recon/eaclib/psx/eacpsxz/addtimer.c.o
+                0x80311804                gTimerSubs
+ .bss           0x80311824        0x0 build/recon/eaclib/psx/eacpsxz/savegp.c.o
+ .bss           0x80311824        0x0 build/recon/eaclib/psx/eacpsxz/fixdsqrt.c.o
+ .bss           0x80311824        0x0 build/recon/syslib/psx/libc/C16.c.o
+ .bss           0x80311824        0x0 build/recon/eaclib/psx/eacpsxz/locatshp.c.o
+ .bss           0x80311824        0x0 build/recon/syslib/psx/libc/C24.c.o
+ .bss           0x80311824        0x0 build/recon/eaclib/psx/spchpsxz/spchbank.c.o
+ .bss           0x80311824       0x14 build/recon/eaclib/psx/spchpsxz/spchinit.c.o
+                0x80311824                gGameNum
+                0x80311828                gFilterSetting
+                0x8031182c                gLastSubTick
+                0x80311830                gDataRate
+                0x80311834                gLastTick
+ .bss           0x80311838        0x0 build/recon/syslib/psx/libmath/FLTSIDF.c.o
+ .bss           0x80311838        0x0 build/recon/syslib/psx/libmath/LTDF2.c.o
+ .bss           0x80311838        0x0 build/recon/eaclib/psx/spchpsxz/spchrand.c.o
+ .bss           0x80311838        0x0 build/recon/eaclib/psx/spchpsxz/spchrslv.c.o
+ .bss           0x80311838       0x30 build/recon/eaclib/psx/eacpsxz/nfile.c.o
+                0x80311838                gFileMgr
+ .bss           0x80311868        0x0 build/recon/eaclib/psx/sndpsxz/stimerem.c.o
+ .bss           0x80311868        0x0 build/recon/eaclib/psx/eacpsxz/fixdinv.c.o
+ .bss           0x80311868        0x0 build/recon/eaclib/psx/eacpsxz/fixdsin.c.o
+ .bss           0x80311868        0x0 build/recon/eaclib/psx/eacpsxz/fixdatan.c.o
+ .bss           0x80311868     0x1a34 build/recon/syslib/psx/libgpu/SYS.c.o
+                0x80311868                D_8013EAD8
+                0x80311888                _gp1_shadow
+                0x80311988                GPU_printf
+ .bss           0x8031329c        0x0 build/recon/syslib/psx/libpad/PADENTRY.c.o
+ .bss           0x8031329c        0x0 build/recon/eaclib/psx/eacpsxz/matrix.c.o
+ .bss           0x8031329c        0x0 build/recon/syslib/psx/libmath/GTDF2.c.o
+ .bss           0x8031329c        0x0 build/recon/eaclib/psx/eacpsxz/primate.c.o
+ .bss           0x8031329c      0x1d4 build/recon/eaclib/psx/eacpsxz/movf.c.o
+                0x8031329c                windowbuf
+                0x803133d4                currentwindow
+ .bss           0x80313470        0x0 build/recon/eaclib/psx/eacpsxz/shpsubs.c.o
+ .bss           0x80313470        0x0 build/recon/eaclib/psx/eacpsxz/nasync.c.o
+ .bss           0x80313470        0x0 build/recon/syslib/psx/libetc/VMODE.c.o
+ .bss           0x80313470        0x0 build/recon/eaclib/psx/eacpsxz/blkfill.c.o
+ .bss           0x80313470        0x0 build/recon/eaclib/psx/eacpsxz/sinfunc.c.o
+ .bss           0x80313470        0x0 build/recon/eaclib/psx/eacpsxz/resize.c.o
+ .bss           0x80313470        0x0 build/recon/syslib/psx/libgte/MSC02.c.o
+ .bss           0x80313470        0x0 build/recon/syslib/psx/libgpu/P00.c.o
+ .bss           0x80313470        0x0 build/recon/eaclib/psx/eacpsxz/loadshp.c.o
+ .bss           0x80313470       0x80 build/recon/eaclib/psx/eacpsxz/exit.c.o
+                0x80313470                gExitFuncs
+ .bss           0x803134f0       0xb4 build/recon/eaclib/psx/sndpsxz/ssysinit.c.o
+                0x803134f0                sndgs
+                0x80313501                D_80147871
+                0x80313528                D_80147898
+                0x80313584                DAT_801478f4
+ .bss           0x803135a4        0x0 build/recon/eaclib/psx/sndpsxz/ssysreal.c.o
+ .bss           0x803135a4        0x0 build/recon/syslib/psx/libgte/MSC00.c.o
+ .bss           0x803135a4        0x0 build/recon/syslib/psx/libgpu/EXT.c.o
+ .bss           0x803135a4        0x0 build/recon/syslib/psx/libetc/VSYNC.c.o
+ .bss           0x803135a4        0x0 build/recon/syslib/psx/libgte/FGO_01.c.o
+ .bss           0x803135a4        0x0 build/recon/syslib/psx/libgte/REG11.c.o
+ .bss           0x803135a4        0x0 build/recon/syslib/psx/libgte/FOG_01.c.o
+ .bss           0x803135a4        0x0 build/recon/syslib/psx/libetc/INTR.c.o
+ .bss           0x803135a4        0x0 build/recon/eaclib/psx/eacpsxz/getm.c.o
+ .bss           0x803135a4        0x0 build/recon/eaclib/psx/eacpsxz/textcrnt.c.o
+ .bss           0x803135a4        0x0 build/recon/syslib/psx/libgpu/P10.c.o
+ .bss           0x803135a4        0x0 build/recon/syslib/psx/libgte/FGO_06.c.o
+ .bss           0x803135a4        0x0 build/recon/eaclib/psx/eacpsxz/isqrt.c.o
+ .bss           0x803135a4        0x0 build/recon/syslib/psx/libgpu/P19.c.o
+ .bss           0x803135a4        0x0 build/recon/syslib/psx/libmath/MULSF3.c.o
+ .bss           0x803135a4        0x0 build/recon/syslib/psx/libgpu/P12.c.o
+ .bss           0x803135a4        0x0 build/recon/syslib/psx/libgpu/P16.c.o
+ .bss           0x803135a4        0x0 build/recon/syslib/psx/libgpu/P18.c.o
+ .bss           0x803135a4        0x0 build/recon/syslib/psx/libgpu/P17.c.o
+ .bss           0x803135a4        0x0 build/recon/eaclib/psx/eacpsxz/fsincos.c.o
+ .bss           0x803135a4        0x0 build/recon/syslib/psx/libgte/COR_02.c.o
+ .bss           0x803135a4        0x0 build/recon/syslib/psx/libgte/COR_03.c.o
+ .bss           0x803135a4        0x0 build/recon/syslib/psx/libmath/FIXSFSI.c.o
+ .bss           0x803135a4        0x0 build/recon/eaclib/psx/eacpsxz/joystkn.c.o
+ .bss           0x803135a4       0x54 build/recon/eaclib/psx/eacpsxz/fileroot.c.o
+                0x803135a4                currentdirectory
+                0x803135e4                readcmd
+ .bss           0x803135f8        0x0 build/recon/eaclib/psx/eacpsxz/meminit.c.o
+ .bss           0x803135f8       0x40 build/recon/eaclib/psx/eacpsxz/inittmr.c.o
+                0x803135f8                memclass
+ .bss           0x80313638        0x0 build/recon/syslib/psx/libapi/C68.c.o
+ .bss           0x80313638        0x0 build/recon/eaclib/psx/eacpsxz/shpdepth.c.o
+ .bss           0x80313638        0x0 build/recon/syslib/psx/libgpu/P01.c.o
+ .bss           0x80313638        0x0 build/recon/eaclib/psx/eacpsxz/textfor.c.o
+ .bss           0x80313638        0x0 build/recon/eaclib/psx/eacpsxz/unhuff.c.o
+ .bss           0x80313638        0x0 build/recon/eaclib/psx/eacpsxz/unref.c.o
+ .bss           0x80313638        0x0 build/recon/eaclib/psx/eacpsxz/unbtree.c.o
+ .bss           0x80313638        0x0 build/recon/syslib/psx/libmath/EXTSFDF2.c.o
+ .bss           0x80313638        0x0 build/recon/syslib/psx/libmath/TRUDFSF2.c.o
+ .bss           0x80313638        0x0 build/recon/syslib/psx/libmath/ADDDF3.c.o
+ .bss           0x80313638        0x0 build/recon/syslib/psx/libmath/DIVDF3.c.o
+ .bss           0x80313638        0x0 build/recon/syslib/psx/libc/C26.c.o
+ .bss           0x80313638        0x0 build/recon/eaclib/psx/eacpsxz/nullfunc.c.o
+ .bss           0x80313638        0x0 build/recon/syslib/psx/libgpu/P11.c.o
+ .bss           0x80313638        0x0 build/recon/eaclib/psx/eacpsxz/crc.c.o
+ .bss           0x80313638        0x0 build/recon/syslib/psx/libc/C30.c.o
+ .bss           0x80313638        0x0 build/recon/syslib/psx/libmath/FLTSISF.c.o
+ .bss           0x80313638        0x0 build/recon/syslib/psx/libmath/MULDF3.c.o
+ .bss           0x80313638        0x0 build/recon/syslib/psx/libmath/DIVSF3.c.o
+ .bss           0x80313638        0x0 build/recon/syslib/psx/libmath/FIXDFSI.c.o
+ .bss           0x80313638        0x0 build/recon/eaclib/psx/eacpsxz/vramfxya.c.o
+ .bss           0x80313638        0x0 build/recon/eaclib/psx/eacpsxz/shpclut.c.o
+ .bss           0x80313638        0x0 build/recon/syslib/psx/libgpu/FONT.c.o
+ .bss           0x80313638       0x28 build/recon/syslib/psx/libpress/VLC.c.o
+ .bss           0x80313660        0x0 build/recon/syslib/psx/libcd/cdcont.c.o
+ .bss           0x80313660        0x4 build/recon/syslib/psx/libcd/stcdint.c.o
+                0x80313660                _st_slot
+ .bss           0x80313664       0x24 build/recon/syslib/psx/libpress/LIBPRESS.c.o
+ .bss           0x80313688       0x14 build/recon/syslib/psx/libcd/streamhelp.c.o
+                0x80313688                _ds_word0
+                0x8031368c                _ds_word1
+                0x80313698                _ds_ready_cb
+ .bss           0x8031369c      0x83c build/recon/eaclib/psx/eacpsxz/cdfs.c.o
+                0x8031369c                CD_ctx
+ .bss           0x80313ed8        0x0 build/recon/eaclib/psx/sndpsxz/scdvol.c.o
+ .bss           0x80313ed8       0x80 build/recon/syslib/psx/libmcrd/LIBMCRD.c.o
+ .bss           0x80313f58        0x0 build/recon/eaclib/psx/eacpsxz/cluttype.c.o
+ .bss           0x80313f58        0x0 build/recon/eaclib/psx/eacpsxz/shptype.c.o
+ .bss           0x80313f58        0x0 build/recon/eaclib/psx/eacpsxz/stream.c.o
+ .bss           0x80313f58        0x0 build/recon/syslib/psx/libapi/C57.c.o
+ .bss           0x80313f58      0x270 build/recon/syslib/psx/libpad/PADPORTD.c.o
+ .bss           0x803141c8        0x0 build/recon/syslib/psx/libc/C46.c.o
+ .bss           0x803141c8        0x0 build/recon/syslib/psx/libc/MEMMOVE.c.o
+ .bss           0x803141c8        0x0 build/recon/eaclib/psx/eacpsxz/threads.c.o
+ .bss           0x803141c8       0x80 build/recon/eaclib/psx/eacpsxz/callback.c.o
+                0x803141c8                mutexbuf
+ .bss           0x80314248        0x0 build/recon/eaclib/psx/eacpsxz/math64a.c.o
+ .bss           0x80314248        0x0 build/recon/eaclib/psx/eacpsxz/stricmp.c.o
+ .bss           0x80314248        0x0 build/recon/eaclib/psx/sndpsxz/sdata.c.o
+ .bss           0x80314248        0x0 build/recon/eaclib/psx/sndpsxz/sbirmpat.c.o
+ .bss           0x80314248        0x0 build/recon/eaclib/psx/sndpsxz/sbvalid.c.o
+ .bss           0x80314248        0x4 build/recon/eaclib/psx/sndpsxz/salloc.c.o
+                0x80314248                sndchanreserved
+ .bss           0x8031424c        0x0 build/recon/eaclib/psx/sndpsxz/s3dpos.c.o
+ .bss           0x8031424c        0x0 build/recon/eaclib/psx/sndpsxz/spatkey.c.o
+ .bss           0x8031424c      0x72c build/recon/eaclib/psx/sndpsxz/slib.c.o
+                0x8031424c                sndpd
+                0x80314324                DAT_801479f0
+                0x80314324                D_801479F0
+                0x80314340                D_80147A0C
+                0x8031475c                DAT_80147e28
+                0x80314768                D_80147E34
+ .bss           0x80314978        0x0 build/recon/eaclib/psx/sndpsxz/sdriver.c.o
+ .bss           0x80314978        0x0 build/recon/eaclib/psx/sndpsxz/sdfx.c.o
+ .bss           0x80314978        0x0 build/recon/eaclib/psx/sndpsxz/sfxlevel.c.o
+ .bss           0x80314978        0x0 build/recon/eaclib/psx/spchpsxz/spchdata.c.o
+ .bss           0x80314978      0x138 build/recon/eaclib/psx/spchpsxz/spchpick.c.o
+                0x80314978                gSentenceChoice
+                0x80314984                DAT_80148448
+                0x803149b8                ispch_gPickSamples
+                0x80314a1c                gChooseShort
+                0x80314a20                ispch_gChoice
+ .bss           0x80314ab0        0x0 build/recon/eaclib/psx/sndpsxz/sclcptch.c.o
+ .bss           0x80314ab0        0x0 build/recon/eaclib/psx/sndpsxz/stagpat.c.o
+ .bss           0x80314ab0        0x0 build/recon/eaclib/psx/sndpsxz/sbdload.c.o
+ .bss           0x80314ab0        0x0 build/recon/eaclib/psx/sndpsxz/sballoc.c.o
+ .bss           0x80314ab0        0x0 build/recon/eaclib/psx/sndpsxz/sgetvol.c.o
+ .bss           0x80314ab0        0x0 build/recon/syslib/psx/libc/C63.c.o
+ .bss           0x80314ab0        0x4 build/recon/eaclib/psx/sndpsxz/spktplay.c.o
+                0x80314ab0                sndpps
+ .bss           0x80314ab4        0x0 build/recon/eaclib/psx/sndpsxz/smath64.c.o
+ .bss           0x80314ab4        0x0 build/recon/eaclib/psx/sndpsxz/sstgetrp.c.o
+ .bss           0x80314ab4        0x0 build/recon/syslib/psx/libc/C31.c.o
+ .bss           0x80314ab4        0x0 build/recon/syslib/psx/libc/C38.c.o
+ .bss           0x80314ab4        0x0 build/recon/eaclib/psx/sndpsxz/spat2hdr.c.o
+ .bss           0x80314ab4        0x0 build/recon/syslib/psx/libc/MEMCMP.c.o
+ .bss           0x80314ab4       0x34 build/recon/eaclib/psx/sndpsxz/sdpacket.c.o
+                0x80314ab4                sndpp
+ .bss           0x80314ae8        0x0 build/recon/eaclib/psx/sndpsxz/ssysserv.c.o
+ .bss           0x80314ae8        0x0 build/recon/syslib/psx/libmath/DBSHIFTU.c.o
+ .bss           0x80314ae8        0x0 build/recon/eaclib/psx/sndpsxz/sdtimrem.c.o
+ .bss           0x80314ae8        0x0 build/recon/syslib/psx/libapi/C73.c.o
+ .bss           0x80314ae8       0x18 build/recon/syslib/psx/libpad/PADMAIN.c.o
+ .bss           0x80314b00        0x4 build/recon/syslib/psx/libpad/PADCMD.c.o
+ .bss           0x80314b04        0x0 build/recon/eaclib/psx/eacpsxz/trnsmult.c.o
+ .bss           0x80314b04        0x0 build/recon/eaclib/psx/eacpsxz/fastmovf.c.o
+ .bss           0x80314b04      0x20c build/recon/eaclib/psx/sndpsxz/smemman.c.o
+                0x80314b04                sndmm
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libgte/PATCHGTE.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libetc/INTR_VB.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libapi/A91.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libapi/L10.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libgte/REG03.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libc/C19.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libapi/A25.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libapi/C114.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libapi/A37.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libapi/A23.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libapi/A36.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libapi/A24.c.o
+ .bss           0x80314d10        0x0 build/recon/eaclib/psx/eacpsxz/textcode.c.o
+ .bss           0x80314d10        0x0 build/recon/eaclib/psx/eacpsxz/isqrttbl.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libmath/FERR.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libgte/COR_01.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libsn/READ.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libsn/OPEN.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libsn/FSINIT.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libsn/CREAT.c.o
+ .bss           0x80314d10        0x0 build/recon/eaclib/psx/eacpsxz/devsys.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libsn/LSEEK.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libsn/CLOSE.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libsn/WRITE.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libapi/A12.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libapi/A08.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libapi/A13.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libmath/DBSHIFT.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libmath/MAINASU.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libmath/ADDMANT.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libgpu/P09.c.o
+ .bss           0x80314d10        0x0 build/recon/syslib/psx/libgpu/P06.c.o
+ .bss           0x80314d10       0x24 build/recon/syslib/psx/libcd/drv.c.o
+                0x80314d10                D_8014899C
+                0x80314d18                D_801489A4
+                0x80314d20                D_801489AC
+                0x80314d28                D_801489B4
+                0x80314d2c                D_801489B8
+                0x80314d30                D_801489BC
+ .bss           0x80314d34        0x4 build/recon/syslib/psx/libds/DSCB.c.o
+ .bss           0x80314d38        0x0 build/recon/syslib/psx/libcd/cdread.c.o
+ .bss           0x80314d38        0x0 build/recon/syslib/psx/libc/C37.c.o
+ .bss           0x80314d38        0x0 build/recon/syslib/psx/libcd/event.c.o
+ .bss           0x80314d38        0x0 build/recon/syslib/psx/libc/BSEARCH.c.o
+ .bss           0x80314d38        0x0 build/recon/syslib/psx/libcd/toc.c.o
+ .bss           0x80314d38        0x0 build/recon/eaclib/psx/sndpsxz/sdcdvol.c.o
+ .bss           0x80314d38        0x0 build/recon/syslib/psx/libmcrd/BIOS.c.o
+ .bss           0x80314d38       0x50 build/recon/syslib/psx/libmcrd/USERFUNC.c.o
+ .bss           0x80314d88        0x0 build/recon/syslib/psx/libcard/C171.c.o
+ .bss           0x80314d88        0x0 build/recon/syslib/psx/libcard/CARD.c.o
+ .bss           0x80314d88        0x0 build/recon/syslib/psx/libcard/C172.c.o
+ .bss           0x80314d88        0x0 build/recon/syslib/psx/libapi/A50.c.o
+ .bss           0x80314d88        0x0 build/recon/syslib/psx/libapi/A54.c.o
+ .bss           0x80314d88        0x0 build/recon/syslib/psx/libapi/A51.c.o
+ .bss           0x80314d88        0x0 build/recon/syslib/psx/libapi/A52.c.o
+ .bss           0x80314d88        0x0 build/recon/syslib/psx/libapi/A53.c.o
+ .bss           0x80314d88       0x30 build/recon/syslib/psx/libapi/FIRST.c.o
+                0x80314d88                _first_save
+                0x80314d90                _first_devname
+ .bss           0x80314db8        0x0 build/recon/syslib/psx/libapi/A67.c.o
+ .bss           0x80314db8        0x0 build/recon/syslib/psx/libapi/A69.c.o
+ .bss           0x80314db8        0x0 build/recon/syslib/psx/libapi/A65.c.o
+ .bss           0x80314db8        0x0 build/recon/syslib/psx/libcard/A80.c.o
+ .bss           0x80314db8        0x0 build/recon/syslib/psx/libcard/A78.c.o
+ .bss           0x80314db8        0x0 build/recon/syslib/psx/libpad/PADSEQD.c.o
+ .bss           0x80314db8        0x0 build/recon/syslib/psx/libc/C40.c.o
+ .bss           0x80314db8        0x0 build/recon/eaclib/psx/sndpsxz/sdmemman.c.o
+ .bss           0x80314db8        0x0 build/recon/eaclib/psx/sndpsxz/sdma.c.o
+ .bss           0x80314db8        0x0 build/recon/eaclib/psx/sndpsxz/saetodv.c.o
+ .bss           0x80314db8        0x0 build/recon/eaclib/psx/sndpsxz/saetolrv.c.o
+ .bss           0x80314db8        0x0 build/recon/eaclib/psx/spchpsxz/spchrule.c.o
+ .bss           0x80314db8        0x0 build/recon/eaclib/psx/spchpsxz/spchsamp.c.o
+ .bss           0x80314db8        0x0 build/recon/eaclib/psx/sndpsxz/sdresolv.c.o
+ .bss           0x80314db8        0x0 build/recon/eaclib/psx/sndpsxz/sdplapat.c.o
+ .bss           0x80314db8        0x0 build/recon/eaclib/psx/sndpsxz/srrange.c.o
+ .bss           0x80314db8        0x0 build/recon/eaclib/psx/sndpsxz/sgettag.c.o
+ .bss           0x80314db8        0x0 build/recon/eaclib/psx/sndpsxz/srandom.c.o
+ .bss           0x80314db8        0x0 build/recon/eaclib/psx/sndpsxz/sdspuirq.c.o
+ .bss           0x80314db8        0x0 build/recon/syslib/psx/libapi/L03.c.o
+ .bss           0x80314db8        0x0 build/recon/syslib/psx/libapi/L02.c.o
+ .bss           0x80314db8        0x0 build/recon/syslib/psx/libpad/WAITRC2.c.o
+ .bss           0x80314db8        0x8 build/recon/syslib/psx/libpad/MCXMAIN.c.o
+ .bss           0x80314dc0        0x0 build/recon/syslib/psx/libgpu/P34.c.o
+ .bss           0x80314dc0        0x0 build/recon/syslib/psx/libapi/A07.c.o
+ .bss           0x80314dc0        0x0 build/recon/syslib/psx/libsn/SNREAD.c.o
+ .bss           0x80314dc0        0x0 build/recon/syslib/psx/libsn/SNWRITE.c.o
+ .bss           0x80314dc0        0x0 build/recon/eaclib/psx/sndpsxz/spvtolrv.c.o
+ .bss           0x80314dc0        0x0 build/recon/syslib/psx/libcard/INIT.c.o
+ .bss           0x80314dc0        0x0 build/recon/syslib/psx/libcard/CARDINIT.c.o
+ .bss           0x80314dc0        0x0 build/recon/syslib/psx/libapi/C112.c.o
+ .bss           0x80314dc0        0x0 build/recon/syslib/psx/libapi/A09.c.o
+ .bss           0x80314dc0        0x0 build/recon/syslib/psx/libapi/A11.c.o
+ .bss           0x80314dc0        0x0 build/recon/syslib/psx/libapi/A66.c.o
+ .bss           0x80314dc0        0x0 build/recon/eaclib/psx/sndpsxz/saelib.c.o
+ .bss           0x80314dc0        0x0 build/recon/eaclib/psx/sndpsxz/sgetdata.c.o
+ .bss           0x80314dc0        0x0 build/recon/syslib/psx/libapi/PAD.c.o
+ .bss           0x80314dc0        0x0 build/recon/syslib/psx/libcard/A74.c.o
+ .bss           0x80314dc0        0x4 build/recon/syslib/psx/libcard/PATCH.c.o
+                0x80314dc0                D_80148AC4
+ .bss           0x80314dc4        0x0 build/recon/syslib/psx/libcard/A75.c.o
+ .bss           0x80314dc4        0x0 build/recon/syslib/psx/libcard/A76.c.o
+ .bss           0x80314dc4        0x4 build/recon/syslib/psx/libcard/END.c.o
+                0x80314dc4                D_80148AD4
+ .bss           0x80314dc8        0x0 build/recon/eaclib/psx/sndpsxz/ssine.c.o
  *(.sbss)
- .sbss          0x80314a88        0x4 build/recon/frontend/psx/psxfront.cpp.o
- .sbss          0x80314a8c        0x1 build/recon/game/common/ai.cpp.o
- *fill*         0x80314a8d        0x3 
- .sbss          0x80314a90        0x4 build/recon/game/common/aih_btccop.cpp.o
- .sbss          0x80314a94        0x4 build/recon/game/common/aiphysic.cpp.o
- .sbss          0x80314a98        0x5 build/recon/game/common/audiocmn.cpp.o
- *fill*         0x80314a9d        0x3 
- .sbss          0x80314aa0        0xc build/recon/game/common/bworld.cpp.o
- .sbss          0x80314aac       0x1c build/recon/game/common/mpause.cpp.o
- .sbss          0x80314ac8        0x4 build/recon/game/common/pausemenu.cpp.o
- .sbss          0x80314acc       0x10 build/recon/game/psx/hrzsku.cpp.o
- .sbss          0x80314adc        0x8 build/recon/game/psx/hud.cpp.o
- *fill*         0x80314ae4        0x4 
- .sbss          0x80314ae8       0x10 build/recon/game/psx/weather.cpp.o
- .sbss          0x80314af8        0x4 build/recon/eaclib/psx/eacpsxz/locatbig.c.o
- .sbss          0x80314afc        0x8 build/recon/eaclib/psx/eacpsxz/systask.c.o
- .sbss          0x80314b04        0x8 build/recon/eaclib/psx/eacpsxz/timer.c.o
- .sbss          0x80314b0c        0x4 build/recon/eaclib/psx/sndpsxz/sserver.c.o
- .sbss          0x80314b10        0x4 build/recon/eaclib/psx/eacpsxz/nfile.c.o
- .sbss          0x80314b14       0x3c build/recon/eaclib/psx/eacpsxz/primate.c.o
- .sbss          0x80314b50       0x2c build/recon/eaclib/psx/eacpsxz/nasync.c.o
- .sbss          0x80314b7c        0x4 build/recon/eaclib/psx/eacpsxz/loadshp.c.o
- .sbss          0x80314b80        0x4 build/recon/syslib/psx/libgte/MSC00.c.o
- .sbss          0x80314b84        0x4 build/recon/eaclib/psx/eacpsxz/joystkn.c.o
- .sbss          0x80314b88        0x8 build/recon/eaclib/psx/eacpsxz/fileroot.c.o
-                0x80314b88                D_8013DD34
-                0x80314b8c                D_8013DD40
- .sbss          0x80314b90        0xc build/recon/eaclib/psx/eacpsxz/inittmr.c.o
- .sbss          0x80314b9c       0x10 build/recon/eaclib/psx/eacpsxz/unref.c.o
- .sbss          0x80314bac       0x14 build/recon/eaclib/psx/eacpsxz/unbtree.c.o
- .sbss          0x80314bc0        0x4 build/recon/eaclib/psx/eacpsxz/stream.c.o
- .sbss          0x80314bc4        0x4 build/recon/eaclib/psx/eacpsxz/threads.c.o
- .sbss          0x80314bc8        0x4 build/recon/eaclib/psx/sndpsxz/spktplay.c.o
- .sbss          0x80314bcc        0x4 build/recon/syslib/psx/libgte/PATCHGTE.c.o
+ .sbss          0x80314dc8        0x4 build/recon/frontend/psx/psxfront.cpp.o
+ .sbss          0x80314dcc        0x1 build/recon/game/common/ai.cpp.o
+ *fill*         0x80314dcd        0x3 
+ .sbss          0x80314dd0        0x4 build/recon/game/common/aih_btccop.cpp.o
+ .sbss          0x80314dd4        0x4 build/recon/game/common/aiphysic.cpp.o
+ .sbss          0x80314dd8        0x5 build/recon/game/common/audiocmn.cpp.o
+ *fill*         0x80314ddd        0x3 
+ .sbss          0x80314de0        0xc build/recon/game/common/bworld.cpp.o
+ .sbss          0x80314dec       0x1c build/recon/game/common/mpause.cpp.o
+ .sbss          0x80314e08        0x4 build/recon/game/common/pausemenu.cpp.o
+ .sbss          0x80314e0c       0x10 build/recon/game/psx/hrzsku.cpp.o
+ .sbss          0x80314e1c        0x8 build/recon/game/psx/hud.cpp.o
+ *fill*         0x80314e24        0x4 
+ .sbss          0x80314e28       0x10 build/recon/game/psx/weather.cpp.o
+ .sbss          0x80314e38        0x4 build/recon/eaclib/psx/eacpsxz/locatbig.c.o
+ .sbss          0x80314e3c        0x8 build/recon/eaclib/psx/eacpsxz/systask.c.o
+ .sbss          0x80314e44        0x8 build/recon/eaclib/psx/eacpsxz/timer.c.o
+ .sbss          0x80314e4c        0x4 build/recon/eaclib/psx/sndpsxz/sserver.c.o
+ .sbss          0x80314e50        0x4 build/recon/eaclib/psx/eacpsxz/nfile.c.o
+ .sbss          0x80314e54       0x3c build/recon/eaclib/psx/eacpsxz/primate.c.o
+ .sbss          0x80314e90       0x2c build/recon/eaclib/psx/eacpsxz/nasync.c.o
+ .sbss          0x80314ebc        0x4 build/recon/eaclib/psx/eacpsxz/loadshp.c.o
+ .sbss          0x80314ec0        0x4 build/recon/syslib/psx/libgte/MSC00.c.o
+ .sbss          0x80314ec4        0x4 build/recon/eaclib/psx/eacpsxz/joystkn.c.o
+ .sbss          0x80314ec8        0x8 build/recon/eaclib/psx/eacpsxz/fileroot.c.o
+                0x80314ec8                D_8013DD34
+                0x80314ecc                D_8013DD40
+ .sbss          0x80314ed0        0xc build/recon/eaclib/psx/eacpsxz/inittmr.c.o
+ .sbss          0x80314edc       0x10 build/recon/eaclib/psx/eacpsxz/unref.c.o
+ .sbss          0x80314eec       0x14 build/recon/eaclib/psx/eacpsxz/unbtree.c.o
+ .sbss          0x80314f00        0x4 build/recon/eaclib/psx/eacpsxz/stream.c.o
+ .sbss          0x80314f04        0x4 build/recon/eaclib/psx/eacpsxz/threads.c.o
+ .sbss          0x80314f08        0x4 build/recon/eaclib/psx/sndpsxz/spktplay.c.o
+ .sbss          0x80314f0c        0x4 build/recon/syslib/psx/libgte/PATCHGTE.c.o
  *(COMMON)
 
 /DISCARD/

@@ -3932,7 +3932,31 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      empty-group arm 19 (inert).
      RESIDUAL 19 = the w46 cluster (A) (case 2's objDef load must issue after the
      last jal + the three matrix stores, which costs it the $s6 race) plus the ONE
-     missing `addu v0,s7,zero` retail duplicates into the loop-guard delay slot. */
+     missing `addu v0,s7,zero` retail duplicates into the loop-guard delay slot.
+  ===== w67-a7 (2026-08-15): 8 -> PASS 434/434, branch words 15/15 BYTE-EXACT =====
+  FOUR PER_FN_TEXT_MOVES rows + ONE COUPLED PER_FN_BRANCH_RETARGET row (probe-verified
+  2x via scratchpad/w67a7/vprobe_br.py -- a tools/vprobe.py copy with a W67_BR_FILE hook,
+  ROOT hardcoded per the 16F parents[] promotion bug; row files:
+  scratchpad/w67a7/tm_bcof.json + br_bcof.json; siblings re-gated unchanged):
+   (1) `li $5,0x1f800000` moved into the case-dispatch `beq $3,$2,$L915` delay slot
+       (slot:true; kills our maspsx reorder nop -- the 8-diff cluster's balance insn);
+   (2) `lw $4,128($sp)` hoisted to the $L915 arm head (retail loads the sd arg FIRST,
+       before the objDef chain; crosses the w63-a2 empty fence harmlessly post-cc1);
+   (3) `sw $21,40($sp)`/`sw $19,52($sp)` adjacent stack-arg store swap at the
+       DrawObjectTransform site (pin: the following `sw $2,16($sp)`);
+   (4) copy:true row -- `move $2,$23` DUPLICATED into the loop-guard `beq $2,$0` slot
+       (the 11B/aspsx copy-into-slot class: retail stages the return value on BOTH
+       paths; our exit-block copy stays).
+  RED FLAG LAW UPHELD -- THE COPY ROW ALONE IS THE HeliCam TRAP: with only rows 1-4 the
+  gate reads PASS but the guard beqz's WORD is 0x17a vs retail 0x17b -- retail's exit
+  branch lands ONE INSN PAST the exit-block `move $2,$23` (the slot copy already staged
+  v0; executing the exit move twice is value-identical, so the gate AND the board are
+  both blind).  The BR row plants a fresh label after the exit move and re-points the
+  guard beqz: branch-word census 15/15 == retail.  17C: every slot-touching TEXT_MOVES
+  row needs its branch-word proof, and a copy-into-slot row nearly always needs a
+  coupled BR row (the duplicate changes where the taken edge should land).
+  ORCHESTRATOR: wire tm_bcof.json into PER_FN_TEXT_MOVES and br_bcof.json into
+  PER_FN_BRANCH_RETARGET as ONE unit (18A coupling). */
 
   u_char type;   /* SYM REG $s0 */
   ObjectAnim *anim;

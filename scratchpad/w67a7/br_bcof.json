@@ -1,0 +1,8 @@
+{
+  "recon/game/psx/draww.cpp": {
+    "DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo": [
+      {"branch": "\tbeq\t\\$2,\\$0,\\$L\\d+\n(?=\tmove\t\\$2,\\$23\n\tlui\t\\$2,%hi\\(goffsets\\))",
+       "after": "\tmove\t\\$2,\\$23\n(?=\tlw\t\\$31,124\\(\\$sp\\)\n)"}
+    ]
+  }
+}

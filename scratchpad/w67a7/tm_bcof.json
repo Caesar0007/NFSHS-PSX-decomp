@@ -1,0 +1,15 @@
+{
+  "recon/game/psx/draww.cpp": {
+    "DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo": [
+      {"take": "\tli\t\\$5,528482304[^\n]*\n(?=\tlw\t\\$4,128\\(\\$sp\\)\n\taddu\t\\$7,\\$20,8\n)",
+       "after": "\tbeq\t\\$3,\\$2,\\$L\\d+\n(?=\tj\t\\$L\\d+\n\\$L\\d+:\n\tli\t\\$2,5[^\n]*\n)",
+       "slot": true},
+      {"take": "\tlw\t\\$4,128\\(\\$sp\\)\n(?=\taddu\t\\$7,\\$20,8\n)",
+       "after": "\\$L\\d+:\n(?=\tlh\t\\$2,6\\(\\$20\\)\n\tlw\t\\$3,Track_gObjDefs\n)"},
+      {"take": "\tsw\t\\$21,40\\(\\$sp\\)\n(?=\tsw\t\\$2,16\\(\\$sp\\)\n)",
+       "after": "\taddu\t\\$2,\\$20,8\n(?=\tsw\t\\$19,52\\(\\$sp\\)\n)"},
+      {"take": "\tmove\t\\$2,\\$23\n", "copy": true,
+       "after": "\tbeq\t\\$2,\\$0,\\$L\\d+\n(?=\tlui\t\\$2,%hi\\(goffsets\\)[^\n]*\n)"}
+    ]
+  }
+}

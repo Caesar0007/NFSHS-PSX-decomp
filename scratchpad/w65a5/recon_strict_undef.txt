@@ -1,0 +1,15 @@
+CD_init
+FECredits_lastFadeTick
+__20tDialogMessageString
+_cdr
+_fnt
+_init_pad_flag
+_rsincos
+bigBuf
+dma_cb
+gSndState
+g_bootGP
+g_videomode
+iSNDplatformrate
+showRoomFlag
+tScreen_ProcessInput__FP7tScreen7tPlayerR13tInputKeyTypeR12tMenuCommand

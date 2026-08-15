@@ -1,0 +1,52 @@
+w65a5: THE .L LOCALIZE CUT, region 2 -- rdata_80054548 split at its 36 jump-table records; the recon lane's `.L` class is now ZERO
+
+36 `jtbl_<VA>` regions cut out of asm/data/rdata_80054548.rodata.s into
+`_j00.._j35` (61 pieces with the 25 `_rNN` residuals), same mechanism and same
+proof battery as region 1.
+
+OWNERSHIP (scratchpad/w65a5/jtbl_own.txt, jtbl_diag.txt): 33 of 36 byte-proven
+[E5] word-for-word against the owning recon TU's own `.rodata` at its implied
+base; 3 owned by text-window containment with a near-miss owner
+(aih_btcperp 80055040 -- one target word, aih_cop 8005516C -- a uniform +0xC
+drift, camera 800558C8 -- 3 words).  Across BOTH regions: 54 regions, 48 E5,
+6 containment, 0 without an owner.
+
+SPLAT LANE UNCHANGED:
+  P1 round-trip byte-identical (345 records, 13364 B) · P2 2449 data lines in
+  order · P3 61 piece objects concatenated == control, 13364 == 13364 ·
+  P4 902 relocations identical · P5 0 bytes differ from the ROM outside a
+  relocation word · P6 (both regions, control derived from the LIVE script)
+  .nfs4 image BYTE-IDENTICAL at 238416 B, 2077 == 2077 diagnostics, 0 diff.
+
+TWO DEFECTS THE P6 IMAGE CHECK CAUGHT (a diagnostics-only P6 is blind to both):
+ 1. region 1 replaced the blob's `(.data)` and `(.bss)` entries with a comment
+    because those sections are EMPTY.  A zero-size input section still takes
+    part in SUBALIGN, so dropping the entries removed a 4-byte fill and shifted
+    the image.  Both stems now list every piece for all three sections.
+ 2. the P6 control must be derived from the LIVE `linkers/nfs4.ld`, not from a
+    snapshot: a peer belt re-ordered the sdata_8013C54C pieces in that same
+    file mid-run and the stale control attributed a 96-byte phantom diff to
+    this cut.  p6.py now reverses only this lane's edit, every run.
+
+RECON LANE -- the ladder, each rung measured on the tree as it stood:
+    no-cut control (same tree, same instant) : 393 undefined (350 `.L`)
+    after region 1                           : 277 undefined (236 `.L`)
+    after region 2                           :  26 undefined (  0 `.L`)
+multiple-definition 796 and reloc-truncated 10 are UNCHANGED at every rung, so
+every name that left is a `.L` and nothing else moved.  The residual 26 are
+exactly the true-undefined class W64-A19 priced at 52 (libetc MMIO pointer
+names, EA data-mat debt, 2 `DAT_`) -- A6 owns them; not touched here.
+
+GATES: tools/build.py --no-link RC=0 (508 recon objects) · tu_order_audit 508
+objects / 0 inversions · probe_link HELD at 83.07% / 202 of 442 byte-exact
+(my own re-measured baseline before the cut was the identical 83.07% /
+202 of 442; probe_link links only recon objects, so this lane cannot move it
+by construction -- it is a no-regression check) · ownmap over all three data
+regions runs clean and is untouched by this lane (no `.data`/`.sdata` blob and
+no recon/** source is involved) · tugate spot-checks on 8 owning TUs, every
+result equal to its pre-existing baseline: fememcard 18/18, memcard.c 20/20,
+feapp 14/15, camera 37/38, r3dcar 26/27, aih_cop 9/10, FONT.c 1/2,
+SPRINTF.c 0/1 (zero PASS->FAIL is STRUCTURAL here: no recon source, no shared
+header and no tools/*.py was touched, and no recon TU includes asm/data/**).
+
+No recon/** source, no shared header and no tools/*.py touched.

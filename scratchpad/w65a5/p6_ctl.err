@@ -1,0 +1,14 @@
+C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: build/src/eaclib/psx/spchpsxz/spchrule.c.o: in function `VoxSentence_GetNumPhrases':
+(.text+0x44c): multiple definition of `VoxSentence_GetNumPhrases'; build/src/eaclib/psx/spchpsxz/spchdata.c.o:(.text+0x20): first defined here
+C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: build/src/eaclib/psx/spchpsxz/spchrule.c.o: in function `iSPCH_GetOffset8':
+(.text+0x458): multiple definition of `iSPCH_GetOffset8'; build/src/eaclib/psx/spchpsxz/spchdata.c.o:(.text+0x38): first defined here
+C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: build/src/eaclib/psx/spchpsxz/spchrule.c.o: in function `iSPCH_GetOffset16':
+(.text+0x470): multiple definition of `iSPCH_GetOffset16'; build/src/eaclib/psx/spchpsxz/spchdata.c.o:(.text+0x50): first defined here
+C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: build/src/game/common/aihigh.c.o: in function `___15AIHigh_BTC_Perp':
+(.text+0x6a4): multiple definition of `___15AIHigh_BTC_Perp'; build/src/game/common/aih_btcperp.c.o:(.text+0x1c94): first defined here
+C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: build/src/syslib/psx/libetc/INTR_DMA.c.o: in function `_bzero_w':
+(.text+0x278): multiple definition of `_bzero_w'; build/src/syslib/psx/libetc/INTR.c.o:(.text+0x624): first defined here
+C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: build/src/eaclib/psx/pad.c.o: in function `PAD_state':
+(.text+0xf0): undefined reference to `PAD_convert'
+C:\Tools\mips-ps1\mips\bin\mipsel-none-elf-ld.exe: build/src/syslib/psx/libcard/INIT.c.o: in function `InitCARD':
+(.text+0x20): undefined reference to `ReadInitPadFlag'

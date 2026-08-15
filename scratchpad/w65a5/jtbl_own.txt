@@ -1,0 +1,61 @@
+W65-A5  jump-table region ownership (E5 discipline)
+
+regions                     : 54
+byte-proven duplicates (E5) : 48
+owned by containment        : 6
+no owner                    : 0
+
+jtbl_80010078        0x80010078..0x80010098   8 words  [E5] build/recon/frontend/common/feapp.cpp.o @+0x0
+jtbl_80010258        0x80010258..0x800102b0  22 words  [E5] build/recon/frontend/common/fedialog.cpp.o @+0x0
+jtbl_80010990        0x80010990..0x80010a00  28 words  [E5] build/recon/frontend/common/femenuoptions.cpp.o @+0x28
+jtbl_80011028        0x80011028..0x800110a8  32 words  [E5] build/recon/frontend/common/fecheats.cpp.o @+0x0
+jtbl_800116F8        0x800116f8..0x80011750  22 words  [E5] build/recon/frontend/common/fememcard.cpp.o @+0x20
+jtbl_80011750        0x80011750..0x800117a8  22 words  [E5] build/recon/frontend/common/fememcard.cpp.o @+0x78
+jtbl_800117A8        0x800117a8..0x80011800  22 words  [CONTAIN] build/recon/frontend/common/fememcard.cpp.o (owning fn is a near-miss)
+jtbl_80011800        0x80011800..0x80011858  22 words  [E5] build/recon/frontend/common/fememcard.cpp.o @+0x128
+jtbl_80011AB8        0x80011ab8..0x80011ad4   7 words  [E5] build/recon/frontend/common/screencarselect.cpp.o @+0x10
+jtbl_80011AF8        0x80011af8..0x80011b18   8 words  [E5] build/recon/frontend/common/screencarselect.cpp.o @+0x48
+jtbl_80011B38        0x80011b38..0x80011b60  10 words  [E5] build/recon/frontend/common/screencarselect.cpp.o @+0x90
+jtbl_80012138        0x80012138..0x8001214c   5 words  [E5] build/recon/frontend/common/screenaudio.cpp.o @+0x8
+jtbl_800121C0        0x800121c0..0x80012218  22 words  [E5] build/recon/frontend/common/screenmemcard.cpp.o @+0x8
+jtbl_80012538        0x80012538..0x800125ac  29 words  [E5] build/recon/frontend/common/stattool.cpp.o @+0x20
+jtbl_800125F0        0x800125f0..0x800126e8  62 words  [CONTAIN] build/recon/frontend/common/screenusername.cpp.o (owning fn is a near-miss)
+jtbl_80012858        0x80012858..0x80012870   6 words  [E5] build/recon/frontend/psx/memcard.c.o @+0x0
+jtbl_80012870        0x80012870..0x80012884   5 words  [E5] build/recon/frontend/psx/memcard.c.o @+0x18
+jtbl_80012888        0x80012888..0x800128a8   8 words  [CONTAIN] build/recon/frontend/psx/memcard.c.o (owning fn is a near-miss)
+jtbl_80054F64        0x80054f64..0x80054f90  11 words  [E5] build/recon/game/common/aih_btccop.cpp.o @+0x0
+jtbl_80055040        0x80055040..0x80055070  12 words  [CONTAIN] build/recon/game/common/aih_btcperp.cpp.o (owning fn is a near-miss)
+jtbl_80055070        0x80055070..0x80055088   6 words  [E5] build/recon/game/common/aih_btcperp.cpp.o @+0x30
+jtbl_80055118        0x80055118..0x80055144  11 words  [E5] build/recon/game/common/aih_opp.cpp.o @+0x0
+jtbl_8005516C        0x8005516c..0x80055198  11 words  [CONTAIN] build/recon/game/common/aih_cop.cpp.o (owning fn is a near-miss)
+jtbl_800551C8        0x800551c8..0x800551f4  11 words  [E5] build/recon/game/common/aih_traf.cpp.o @+0x10
+jtbl_8005573C        0x8005573c..0x8005576c  12 words  [E5] build/recon/game/common/audiocmn.cpp.o @+0x50
+jtbl_800558C8        0x800558c8..0x80055918  20 words  [CONTAIN] build/recon/game/common/camera.cpp.o (owning fn is a near-miss)
+jtbl_80055918        0x80055918..0x80055930   6 words  [E5] build/recon/game/common/camera.cpp.o @+0x78
+jtbl_80055930        0x80055930..0x8005597c  19 words  [E5] build/recon/game/common/camera.cpp.o @+0x90
+jtbl_80055A28        0x80055a28..0x80055a54  11 words  [E5] build/recon/game/common/control.cpp.o @+0x0
+jtbl_80056418        0x80056418..0x80056470  22 words  [E5] build/recon/game/common/r3dcar.cpp.o @+0x60
+jtbl_80056470        0x80056470..0x80056488   6 words  [E5] build/recon/game/common/r3dcar.cpp.o @+0xb8
+jtbl_80056488        0x80056488..0x800564e0  22 words  [E5] build/recon/game/common/r3dcar.cpp.o @+0xd0
+jtbl_800564E0        0x800564e0..0x80056534  21 words  [E5] build/recon/game/common/r3dcar.cpp.o @+0x128
+jtbl_80056578        0x80056578..0x8005658c   5 words  [E5] build/recon/game/common/replay.cpp.o @+0x28
+jtbl_80056690        0x80056690..0x80056724  37 words  [E5] build/recon/game/common/track.cpp.o @+0x1a0
+jtbl_80056788        0x80056788..0x800567fc  29 words  [E5] build/recon/game/psx/cario.cpp.o @+0x18
+jtbl_8005684C        0x8005684c..0x80056884  14 words  [E5] build/recon/game/psx/force.cpp.o @+0x0
+jtbl_80056894        0x80056894..0x800568a8   5 words  [E5] build/recon/game/psx/flare.cpp.o @+0x0
+jtbl_8005699C        0x8005699c..0x800569d4  14 words  [E5] build/recon/game/psx/sfx.cpp.o @+0x0
+jtbl_800569D4        0x800569d4..0x80056a08  13 words  [E5] build/recon/game/psx/sfx.cpp.o @+0x38
+jtbl_80056A98        0x80056a98..0x80056aac   5 words  [E5] build/recon/game/psx/texture.cpp.o @+0xa8
+jtbl_80056B60        0x80056b60..0x80056c18  46 words  [E5] build/recon/syslib/psx/libc/SPRINTF.c.o @+0x28
+jtbl_80056C6C        0x80056c6c..0x80056c94  10 words  [E5] build/recon/eaclib/psx/eacpsxz/nfile.c.o @+0x28
+jtbl_80056C94        0x80056c94..0x80056cb8   9 words  [E5] build/recon/eaclib/psx/eacpsxz/nfile.c.o @+0x50
+jtbl_80056CB8        0x80056cb8..0x80056cd8   8 words  [E5] build/recon/eaclib/psx/eacpsxz/fixdatan.c.o @+0x408
+jtbl_80056EF8        0x80056ef8..0x80056f18   8 words  [E5] build/recon/syslib/psx/libpad/PADENTRY.c.o @+0x0
+jtbl_80056FBC        0x80056fbc..0x80056fd8   7 words  [E5] build/recon/eaclib/psx/eacpsxz/fileroot.c.o @+0x0
+jtbl_80056FD8        0x80056fd8..0x80057060  34 words  [E5] build/recon/eaclib/psx/eacpsxz/vramfxya.c.o @+0x0
+jtbl_80057078        0x80057078..0x80057100  34 words  [E5] build/recon/syslib/psx/libgpu/FONT.c.o @+0x0
+jtbl_80057398        0x80057398..0x80057418  32 words  [E5] build/recon/syslib/psx/libmcrd/LIBMCRD.c.o @+0x28
+jtbl_800574F0        0x800574f0..0x80057538  18 words  [E5] build/recon/eaclib/psx/eacpsxz/cluttype.c.o @+0x0
+jtbl_80057538        0x80057538..0x800575b8  32 words  [E5] build/recon/eaclib/psx/eacpsxz/shptype.c.o @+0x0
+jtbl_800577E8        0x800577e8..0x800577fc   5 words  [E5] build/recon/syslib/psx/libcd/drv.c.o @+0x148
+jtbl_80057968        0x80057968..0x8005797c   5 words  [E5] build/recon/eaclib/psx/spchpsxz/spchrule.c.o @+0x0

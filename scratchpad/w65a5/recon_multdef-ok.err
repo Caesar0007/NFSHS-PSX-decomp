@@ -1,0 +1,113 @@
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/game/common/minfront.cpp.o: in function `MinFront_ParseOptions__Fv':
+(.text+0x4): undefined reference to `bigBuf'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x8): undefined reference to `bigBuf'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/game/psx/fe3dmenu.cpp.o: in function `CameraLookAt__FP10matrixtdefP8coorddef':
+(.text+0x1b0): undefined reference to `bigBuf'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x1c4): undefined reference to `bigBuf'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/game/psx/fe3dmenu.cpp.o: in function `Draw_MenuRenderingView__FP8Car_tObjP13DRender_tViewiiiUliffii':
+(.text+0x310): undefined reference to `showRoomFlag'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x314): undefined reference to `showRoomFlag'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x350): undefined reference to `showRoomFlag'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/frontend/common/feapp.cpp.o: in function `UpdateMusic__14tFEApplication':
+(.text+0xe00): undefined reference to `bigBuf'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0xe08): undefined reference to `bigBuf'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0xe1c): undefined reference to `bigBuf'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0xe24): undefined reference to `bigBuf'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0xe38): undefined reference to `bigBuf'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/frontend/common/feapp.cpp.o:(.text+0xe40): more undefined references to `bigBuf' follow
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/frontend/common/fedialog.cpp.o: in function `__12tDialogYesNo':
+(.text+0x13f0): undefined reference to `__20tDialogMessageString'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/frontend/common/fecredits.cpp.o: in function `SetupCurrCredit__14tCreditManager':
+(.text+0x284): undefined reference to `FECredits_lastFadeTick'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x28c): undefined reference to `FECredits_lastFadeTick'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x324): undefined reference to `FECredits_lastFadeTick'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x328): undefined reference to `FECredits_lastFadeTick'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/frontend/common/screenpost.cpp.o: in function `ProcessInput__24tScreenPinkSlipStandings7tPlayerR13tInputKeyTypeR12tMenuCommand':
+(.text+0x107c): undefined reference to `tScreen_ProcessInput__FP7tScreen7tPlayerR13tInputKeyTypeR12tMenuCommand'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/frontend/common/screencarselect.cpp.o: in function `DrawForeground__16tScreenCarSelect':
+(.text+0x22e4): undefined reference to `showRoomFlag'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x22e8): undefined reference to `showRoomFlag'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x2638): undefined reference to `showRoomFlag'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x2648): undefined reference to `showRoomFlag'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/frontend/common/screencarselect.cpp.o: in function `DrawBackground__20tScreenCarSelectDuel':
+(.text+0x316c): undefined reference to `showRoomFlag'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/frontend/common/screencarselect.cpp.o:(.text+0x3170): more undefined references to `showRoomFlag' follow
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: small-data section too large; lower small-data size limit (see option -G)
+build/recon/game/common/ai.cpp.o: in function `AI_AddCollidableObjects__FP8Car_tObjP5Group':
+(.text+0x1db0): relocation truncated to fit: R_MIPS_GPREL16 against `.sbss'
+(.text+0x1de0): relocation truncated to fit: R_MIPS_GPREL16 against `.sbss'
+build/recon/game/common/audiocmn.cpp.o: in function `ChooseImpactSample__Fi6s_typeT1':
+(.text+0x16d8): relocation truncated to fit: R_MIPS_GPREL16 against `.sbss'
+(.text+0x17c0): relocation truncated to fit: R_MIPS_GPREL16 against `.sbss'
+build/recon/game/common/audiocmn.cpp.o: in function `AudioCmn_SoundCar__FP8Car_tObjiiiiiii':
+(.text+0x27ac): relocation truncated to fit: R_MIPS_GPREL16 against `.sbss'
+(.text+0x27b8): relocation truncated to fit: R_MIPS_GPREL16 against `.sbss'
+(.text+0x27f0): relocation truncated to fit: R_MIPS_GPREL16 against `.sbss'
+build/recon/game/common/bworld.cpp.o: in function `UpdateContext__FP13DRender_tViewi':
+(.text+0x6c): relocation truncated to fit: R_MIPS_GPREL16 against `gCurrContext'
+(.text+0x7c): relocation truncated to fit: R_MIPS_GPREL16 against `gBWSlice'
+(.text+0x84): relocation truncated to fit: R_MIPS_GPREL16 against `gCurrContext'
+(.text+0x94): additional relocation overflows omitted from the output
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/game/common/nfs3.cpp.o: in function `LoadFrontendOverlay__Fv':
+(.text+0x718): undefined reference to `bigBuf'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x71c): undefined reference to `bigBuf'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/eaclib/psx/sndpsxz/span.c.o: in function `SNDpan':
+(.text+0xc): undefined reference to `gSndState'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x14): undefined reference to `gSndState'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/eaclib/psx/sndpsxz/svol.c.o: in function `iSNDunsafevol':
+(.text+0x30): undefined reference to `gSndState'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x34): undefined reference to `gSndState'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/eaclib/psx/sndpsxz/svol.c.o: in function `SNDvol':
+(.text+0xc4): undefined reference to `gSndState'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/eaclib/psx/sndpsxz/svol.c.o:(.text+0xc8): more undefined references to `gSndState' follow
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/eaclib/psx/eacpsxz/savegp.c.o: in function `initgp':
+(.text+0x0): undefined reference to `g_bootGP'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x4): undefined reference to `g_bootGP'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/syslib/psx/libetc/VMODE.c.o: in function `SetVideoMode':
+(.text+0x0): undefined reference to `g_videomode'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x4): undefined reference to `g_videomode'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x8): undefined reference to `g_videomode'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x10): undefined reference to `g_videomode'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/syslib/psx/libetc/VMODE.c.o: in function `GetVideoMode':
+(.text+0x14): undefined reference to `g_videomode'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/syslib/psx/libetc/VMODE.c.o:(.text+0x18): more undefined references to `g_videomode' follow
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/syslib/psx/libgte/FGO_01.c.o: in function `RotMatrix':
+(.text+0x20): undefined reference to `_rsincos'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x28): undefined reference to `_rsincos'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x48): undefined reference to `_rsincos'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x50): undefined reference to `_rsincos'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x84): undefined reference to `_rsincos'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/syslib/psx/libgte/FGO_01.c.o:(.text+0x8c): more undefined references to `_rsincos' follow
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/syslib/psx/libgpu/FONT.c.o: in function `FntFlush':
+(.text+0x74): undefined reference to `_fnt'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x7c): undefined reference to `_fnt'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x9c): undefined reference to `_fnt'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0xa0): undefined reference to `_fnt'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/syslib/psx/libgpu/FONT.c.o: in function `FntPrint':
+(.text+0x38c): undefined reference to `_fnt'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/syslib/psx/libgpu/FONT.c.o:(.text+0x394): more undefined references to `_fnt' follow
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/eaclib/psx/sndpsxz/stagpat.c.o: in function `iSNDplaytaggedtimbre':
+(.text+0x61c): undefined reference to `iSNDplatformrate'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x624): undefined reference to `iSNDplatformrate'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/syslib/psx/libcd/cdread.c.o: in function `_read_sync':
+(.text+0x8): undefined reference to `_cdr'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0xc): undefined reference to `_cdr'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/syslib/psx/libcd/cdread.c.o: in function `_read_int':
+(.text+0x40): undefined reference to `_cdr'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x44): undefined reference to `_cdr'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0xdc): undefined reference to `_cdr'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/syslib/psx/libcd/cdread.c.o:(.text+0xe0): more undefined references to `_cdr' follow
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/syslib/psx/libcd/event.c.o: in function `_cd_event_init':
+(.text+0x98): undefined reference to `CD_init'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/syslib/psx/libapi/PAD.c.o: in function `ReadInitPadFlag':
+(.text+0x0): undefined reference to `_init_pad_flag'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x4): undefined reference to `_init_pad_flag'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/syslib/psx/libetc/INTR_DMA.c.o: in function `startIntrDMA':
+(.text+0x28): undefined reference to `dma_cb'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0x2c): undefined reference to `dma_cb'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/syslib/psx/libetc/INTR_DMA.c.o: in function `_dma_isr':
+(.text+0xbc): undefined reference to `dma_cb'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: (.text+0xc0): undefined reference to `dma_cb'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/syslib/psx/libetc/INTR_DMA.c.o: in function `func_80106878':
+(.text+0x1f0): undefined reference to `dma_cb'
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: build/recon/syslib/psx/libetc/INTR_DMA.c.o:(.text+0x1f4): more undefined references to `dma_cb' follow

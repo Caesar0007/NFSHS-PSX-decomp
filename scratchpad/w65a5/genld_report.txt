@@ -1,0 +1,42 @@
+cut enabled                  : True
+objects with text            : 460
+  placed (front overlay)     : 0
+  placed (resident .text)    : 442
+  DROPPED (interleaved)      : 18
+objects with text but NO base: 10
+front rodata pieces          : 33 (18 jump-table, excluded=True)
+_jNN objects excluded        : 54
+.data  fragment lines        : 56 (+69 appended; front_data NOT placed -- see the cursor)
+.sdata fragment lines        : 64 (+36)
+
+== DROPPED (would move the location counter backwards) ==
+  0x800161b0   9496 build/recon/frontend/common/fecars.cpp.o
+  0x80021fdc   4704 build/recon/frontend/common/fetv.cpp.o
+  0x80025ab8   3640 build/recon/frontend/common/fescreen.cpp.o
+  0x80050244     72 build/recon/frontend/common/mcrd.cpp.o
+  0x8005ad54   1964 build/recon/game/common/aihigh.cpp.o
+  0x8006ce24   1936 build/recon/game/common/aidatarecord.cpp.o
+  0x800a86c8  20224 build/recon/game/common/physics.cpp.o
+  0x800bd3c0   1792 build/recon/game/psx/device.cpp.o
+  0x800c5028  22860 build/recon/game/psx/draww.cpp.o
+  0x800d9968   5952 build/recon/game/psx/overlays.cpp.o
+  0x800dc2b8    532 build/recon/game/psx/platform.cpp.o
+  0x800dcec4    396 build/recon/game/psx/rpause.cpp.o
+  0x800eab48    400 build/recon/eaclib/psx/eacpsxz/xform.c.o
+  0x800f2e94    400 build/recon/eaclib/psx/eacpsxz/setfont.c.o
+  0x800f8968    272 build/recon/syslib/psx/libcd/stream.c.o
+  0x800f8f48    164 build/recon/syslib/psx/libcd/cdread2.c.o
+  0x800f9060   2444 build/recon/syslib/psx/libcd/iso9660.c.o
+  0x80106688    660 build/recon/syslib/psx/libetc/INTR_DMA.c.o
+
+== TEXT BUT NO IMPLIED BASE ==
+     192 build/recon/game/common/vtables_aidatarecord.cpp.o
+     448 build/recon/game/common/vtables_aihigh.cpp.o
+      32 build/recon/game/common/vtables_aistate.cpp.o
+     320 build/recon/game/common/vtables_tdialog.cpp.o
+     320 build/recon/game/common/vtables_tlist.cpp.o
+     896 build/recon/game/common/vtables_tmenu.cpp.o
+     512 build/recon/game/common/vtables_tpausemenu.cpp.o
+     632 build/recon/game/common/vtables_tscreen.cpp.o
+     284 build/recon/game/common/vtables_tscreen2.cpp.o
+       8 build/recon/syslib/psx/libc/C52.c.o

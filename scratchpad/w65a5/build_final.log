@@ -1,0 +1,5 @@
+== output -> build  (skip_asm=False) ==
+== assembling data/header ==
+== compiling C TUs ==
+== compiling vendored reconstruction C++ TUs ==
+== objects only (no link) ==

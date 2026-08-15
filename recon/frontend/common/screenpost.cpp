@@ -162,7 +162,7 @@ void tScreenTournamentStandings::ProcessInput(tPlayer keyval,tInputKeyType &key_
 
 
 
-/* MATCH W61-A17 (127 -> 95 diffs, 556/561 insns):
+/* MATCH W61-A17 (127 -> 95 diffs, 556/561 insns), continued to 56/559:
    (1) THE LOOP-ROTATION CURE IS A BLOCK-SCOPE DECLARATION.  Retail's racer
    loop is UN-rotated: a top test that re-loads the spilled bound
    (`lw t1,196(sp); nop; slt v0,s4,t1; beqz` at SLD:183) with an unconditional
@@ -188,11 +188,19 @@ void tScreenTournamentStandings::ProcessInput(tPlayer keyval,tInputKeyType &key_
    FRAME CENSUS: our sp-offset multiset is ALREADY identical to retail's (20
    slots incl. the 196/200 spill pair), so the W61-A1 declaration-order spill
    law does not apply to this function.
-   RESIDUAL (named angles): (a) the 3 DrawShapeExtended arg stagings -- retail
-   loads the fade field into v0/v1 and stores 16(sp) AFTER the 24(sp) zero;
-   (b) the textType constant 11 lands in t1 for retail and v0/v1 for us at 5
-   call sites (a local-alloc numeric-scan window, qtytrace class);
-   (c) an s4/s5 rotation around the ticks[0] address.  */
+   CONTINUATION: SLD 234/235 requires the TextValue result and +19 as two
+   statements; a separate halfWidth local gives retail's subtraction order;
+   removing the manager alias and sharing only the branch-selected driver name
+   gives retail's single renderer call.  Retail's three shape calls then really
+   do reload fScreenFadeVal.  Two zero-byte input-only pricing fences recover
+   the SYM saved-register order after those source corrections: the loop fence
+   prices fade/state/line, and the post-TextValue line use keeps i/state/line/
+   this in s4/s5/s6/s7.  Together these authoritative changes cut 95 -> 56.
+   RESIDUAL: (a) the textType constant 11 lands in t1 for retail and v0/v1 for
+   us at five call sites (local-alloc numeric scan); (b) an s4/s5 rotation around
+   the ticks[0] address and late constant one; (c) one duplicate manager-base
+   copy in the prologue.  FALSIFIED at 56: named definition pointer is neutral;
+   an input-priced textType local is 57/558; plain money literals are 217/548. */
 /* ---- tScreenTournamentStandings::DrawBackground  [SCREENPOST.CPP:164-312] ---- */
 void tScreenTournamentStandings::DrawBackground()
 
@@ -217,17 +225,15 @@ void tScreenTournamentStandings::DrawBackground()
   int lastRacer;
   int line;
   tScreenTournamentStandings *self;
-  tTournamentManager *tm;
 
   self = this;
-  tm = &tournamentManager;
   fade = self->fScreenFadeVal;
   fadeline = fade;
   i = 0;
   line = 0x2fe;
-  tourneyInfo = &tm->fDefinition->fTournaments[
-      tm->fDefinition->fTiers[tm->fTier].fTournOffset + tm->fTournament];
-  numRacers = (short)((short)tm->fNumRacers + (tourneyInfo->fKnockout != 0));
+  tourneyInfo = &tournamentManager.fDefinition->fTournaments[
+      tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset + tournamentManager.fTournament];
+  numRacers = (short)((short)tournamentManager.fNumRacers + (tourneyInfo->fKnockout != 0));
   lastRacer = numRacers - 1;
   for (;;) {
     short p;
@@ -235,7 +241,7 @@ void tScreenTournamentStandings::DrawBackground()
     if (i >= numRacers) {
       break;
     }
-    j = (short)tm->PlayerRanking((short)(i + 1));
+    j = (short)tournamentManager.PlayerRanking((short)(i + 1));
     state = textState_Selected;
     if (j == 0) {
       state = textState_Hilighted;
@@ -246,22 +252,20 @@ void tScreenTournamentStandings::DrawBackground()
     }
     FETextRender_FullTextFade(fade,TextSys_Word(i + 599),(short)TextSys_WordX(0x2f7),
                              (short)TextSys_WordY(line),textType_TrackRecords,statedull,0);
-    if (j == 0) {
-      FETextRender_FullTextFade(fade,PlayerName(0),(short)TextSys_WordX(0x2f8),
-                               (short)TextSys_WordY(line),textType_TrackRecords,state,0);
-    }
-    else {
-      FETextRender_FullTextFade(fade,
-                               Stattool_GetAINameFromPersonality(tm->fCompetitors[j].fPersonality),
-                               (short)TextSys_WordX(0x2f8),(short)TextSys_WordY(line),
-                               textType_TrackRecords,state,0);
-    }
+    FETextRender_FullTextFade(
+        fade,
+        j == 0 ? PlayerName(0) :
+                 Stattool_GetAINameFromPersonality(tournamentManager.fCompetitors[j].fPersonality),
+        (short)TextSys_WordX(0x2f8),(short)TextSys_WordY(line),
+        textType_TrackRecords,state,0);
+    __asm__("" : : "r"(fade), "r"(state), "r"(state),
+                    "r"(line), "r"(line));
     p = j;
     if (tourneyInfo->fKnockout != 0) {
       sprintf(sBuildOutput,TextSys_Word(i == lastRacer ? 0x31c : 0x31b));
     }
     else {
-      sprintf(sBuildOutput,"%d %s",(int)tm->TournPointTotal(&p),TextSys_Word(0x31d));
+      sprintf(sBuildOutput,"%d %s",(int)tournamentManager.TournPointTotal(&p),TextSys_Word(0x31d));
     }
     FETextRender_FullTextFade(fade,sBuildOutput,(short)TextSys_WordX(0x2fb),
                              (short)TextSys_WordY(line),textType_TrackRecords,state,1);
@@ -273,21 +277,24 @@ void tScreenTournamentStandings::DrawBackground()
                            (short)TextSys_WordY(0x2fd),textType_TrackRecords,textState_Hilighted,2);
   i = (short)(frontEnd.tier != '\0' ?
                 TextValue(&menuDefs->iteratorSpecialEvent,kPlayerBoth) :
-                TextValue(&menuDefs->iteratorTournament,kPlayerBoth)) + 0x13;
+                TextValue(&menuDefs->iteratorTournament,kPlayerBoth));
+  i += 0x13;
+  __asm__("" : : "r"(line));
   FETextRender_MenuTextPositionedJustifyFade(fade,(short)i,(short)TextSys_WordX(0x2f6),(short)TextSys_WordY(0x2fc),
                                              2,textState_Hilighted,textType_TrackRecords);
   wwwww = textpixels(TextSys_Word(i));
   PSXDrawSquare(0,TextSys_WordX(0x2f6) - (wwwww >> 1),TextSys_WordY(0x2fc) - 1,wwwww,9);
   shape = &gCurrentShapes[0][0x27];
-  lbx = (((short)shape->width >> 1) - shape->centerx) - 2;
+  int halfWidth = ((short)shape->width >> 1) - 2;
+  lbx = halfWidth - shape->centerx;
   tt = ticks[0] % (short)shape->width;
   if (((short)shape->width / 2) < tt) {
     tt = (short)shape->width - tt;
   }
-  DrawShapeExtended(0x28,0,lbx + tt,TextSys_WordY(0x2fc) + 1,fade,1,(tDrawShapeExtended *)0x0);
-  DrawShapeExtended(0x28,0,lbx - tt,TextSys_WordY(0x2fc) + 1,fade,1,(tDrawShapeExtended *)0x0);
+  DrawShapeExtended(0x28,0,lbx + tt,TextSys_WordY(0x2fc) + 1,self->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
+  DrawShapeExtended(0x28,0,lbx - tt,TextSys_WordY(0x2fc) + 1,self->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
   drawflags.tint[0] = 0x282828;
-  DrawShapeExtended(0x27,0x400,0,-1,fade,0,&drawflags);
+  DrawShapeExtended(0x27,0x400,0,-1,self->fScreenFadeVal,0,&drawflags);
   PSXDrawBrightEndLine(0x232323,TextSys_WordX(0x2f6) - 0x96,TextSys_WordY(0x2fd) + 10,
                        300,1,3,fadeline,0x1e);
   /* Shared by the three money-state/justify pairs; this gives retail's late

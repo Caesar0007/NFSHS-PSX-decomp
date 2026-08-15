@@ -55,7 +55,24 @@ extern int      _dirCheck(unsigned char *info);
  * drop the nop" -- which reproduces retail's 13 insns exactly.  No source spelling can reach it
  * (the address must stay in the assembler's $at macro form; a pointer local emits la+sw = 3).
  * Falsified in-basin earlier: original order, hoisted r=_dirRecvAuto temp, order swap,
- * r=_dirRecvAuto var. */
+ * r=_dirRecvAuto var.
+ * w63-a7 2026-08-15 CERTIFICATE RE-VERIFIED, twice, in the NEW basin (04Z):
+ *  (1) residual re-gated 3 @14/13 and the shape is unchanged -- oracle `lui $at,%hi(SYM);
+ *      jr $ra; sw $v0,%lo(SYM)($at)` vs ours both macro halves before the branch + nop.
+ *  (2) the 2.7.2-rung whole-TU A/B was re-run AFTER _dirCheck (4->1) and _dirFailAuto
+ *      (3->PASS) landed, because rung tables are basin-relative: DEFAULT 3/5 PASS / 4 diffs
+ *      total vs the 2.7.2 rung 1/5 PASS / 36 diffs (_padInitDirSeq PASS but _dirSendAuto
+ *      PASS->3, _dirFailAuto PASS->4, _dirCheck 1->4, _dirRecvAuto PASS->25).  Still a
+ *      decisive net loss; the lane stays off.
+ *  (3) NEW -- the "PER_FN_TEXT_MOVES cannot express it" claim above was REASONED; it is now
+ *      MEASURED, and the measurement is worse than unreachable: slotting the macro line
+ *      (`{"take": "\\tsw\\t\\$2,_padFuncRecvAuto\\n", "after": "\\tj\\t\\$31\\n", "slot": 1}`)
+ *      gates 2 diffs at COUNT-EXACT 13/13 -- but objdump shows maspsx expanded BOTH halves
+ *      after the branch (`jr ra; lui $at; sw $v0,0($at)`), i.e. the store lands PAST the
+ *      return and _padFuncRecvAuto is NEVER WRITTEN.  A semantically dead function that the
+ *      gate scores 2/13.  Do NOT wire this row; it is a textbook case of the gate being
+ *      blind in both directions (w46 hazard).  The POST-maspsx rule spec'd above stays the
+ *      only route, and it stays orchestrator-owned. */
 extern void _padInitDirSeq(void)
 {
     _padFuncSendAuto = _dirSendAuto;

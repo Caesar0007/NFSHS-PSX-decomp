@@ -374,9 +374,9 @@ void BworldSm_UpdateSimQuad(BWorldSm_Pos *slicePos)
 
   pTVar2 = slicePos->simSlice;
   iVar3 = (int)(signed char)slicePos->quad - (u_int)pTVar2->simquadStartIndex;
-  slicePos->simSlice++;   /* @codegen-device: net-zero pair forces pTVar2 into oracle's a1
-                              (permuter-derived; do NOT simplify away, see verify_asm) */
-  slicePos->simSlice--;
+  /* w64-a22: the former net-zero ++/-- pair here was DEAD CODE at HEAD
+   * (PASS 34/34 without it, re-gated 2x on all lanes); its in-source claim
+   * was adjudicated false -- catalog row re-classed fix -> diagnostic. */
   if ((-1 < iVar3) && (iVar3 < (int)(u_int)pTVar2->simquadCount)) {
     pGVar1 = Track_chunkList[slicePos->chunk].simQuadBuf;
     startsimquad = (Trk_NewSimQuad *)(pGVar1 + 1);

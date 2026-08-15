@@ -515,12 +515,48 @@ extern void _padSetActAlign_snd(unsigned char *info)
  *   Item (ii) remains the blocker: a 3-way LOCAL-QTY rotation (ours matchcount/k/slot =
  *   $a2/$a3/$v1, retail $a3/$v1/$a2).  Next instrument, not yet run here: tools/qty272.py /
  *   reqdelta272.py (12A -- the 2.7.x local-alloc handout is now readable off `-dl`), to price
- *   which qty must move before any further spelling sweep. */
+ *   which qty must move before any further spelling sweep.
+ * MATCH (w63-a8, 27 -> 2 @50/50 count-EXACT; PASS under a per-fn 2.7.2 ver-splice).  The w61/w62
+ *   verdict "3-way LOCAL-QTY rotation" was WRONG ON TWO COUNTS, and running the instrument the
+ *   w62 receipt itself named settled both:
+ *   (A) THEY ARE GLOBAL ALLOCNOS, NOT LOCAL QTYS.  qty272.py puts matchcount/slot/k at global
+ *       ranks 3/2/4 (pri 2.3448 / 3.0000 / 1.6500); the local-qty list holds only the $v0 temps.
+ *       So the 3-QTY LADDER LAW (14C) never applied and the whole "local-alloc handout" framing
+ *       was a dead end.  reqdelta272 prices the WHOLE 3-cycle as ONE promotion: `k` must clear
+ *       pri 3.00 to overtake BOTH rivals, i.e. refs 11 -> 16 across the floor_log2 step
+ *       (4*16/20 = 3.20).  Two in-loop read-only fence operands buy exactly that -> 27 -> 8, and
+ *       matchcount/k/slot land on retail's $a3/$v1/$a2 simultaneously.  OPERAND COUNT IS THE DIAL
+ *       (1 op = 26, 2/3/4 ops = 8) and FENCE POSITION IS A SEPARATE DIAL (13B): after the if-block
+ *       and BEFORE `k++` = 2 @50/50; after `k++` = 5 @51 (the asm then sits between the branch and
+ *       its only eligible filler, and reorg.c:685 stop_search_p aborts the backward scan -> the
+ *       back-edge slot stays `nop` where retail has `addiu $a2,$a2,1`); top-of-body = 24; before
+ *       the `if` = 5 @49.
+ *   (B) TWO "allocator" items were really GHIDRA-INVENTED BIVS -- the same defect twice:
+ *       * `slot` (a walking `unsigned char *`) made loop.c strength-reduce `slot[0x5d]` into its
+ *         own address giv (`addiu $v1,$a0,93` + `sb $t3,0($v1)`).  Retail keeps a plain walker
+ *         with 0x5D as the load DISPLACEMENT.  Deleting `slot` and writing the INDEX form
+ *         `info[k + 0x5d]` (the counter `k` already exists) makes loop.c build exactly retail's
+ *         giv: `addu $a2,$a0,$zero` + `sb $t3,0x5D($a2)` + `addiu $a2,$a2,1`.  This RETIRES the
+ *         w61/w62 `-fno-strength-reduce` PER_FN_FLAG_SPLICE_272 angle -- the shape is source-
+ *         reachable, and the flag splice is now measured 48 @48 (strictly worse).
+ *       * `row` (the `row += 5` accumulator) is retail's giv of `mode*5`.  Deleting it and
+ *         writing `mode * 5 + *(int *)(info + 4) + 2` inline puts the init in the giv preheader
+ *         group and closes item (iii) (the `lbu $v0,233($a0)` hoist) for free: 8 -> 5 @51.
+ *   RESIDUAL 2 (wired 970404 rung), count-EXACT: `addu $t2,$t0,$zero` vs retail `addu $t2,$zero,
+ *       $zero` -- cse substitutes the still-live 0 in `mode`'s register for the giv's own zero.
+ *       That is the pure 3.25-3b no-copy-prop identity, and it is a RUNG property, not a spelling:
+ *       falsified here = identity-launder on `row`, decl/assign split, row-before-mode (10).
+ *   04Z (9th+ confirmation): the ladder INVERTED at the new basin.  Pre-landing this fn was
+ *       LANE-INVARIANT at 27 (970404 == cc1_272); post-landing 2.7.2 = 3 and 2.6.3 = 3 vs the
+ *       wired 970404's 5, and after the fence-position fix 2.7.2 = PASS 50/50 vs 970404's 2.
+ *       => ORCHESTRATOR WIRING (spec + whole-TU receipts in scratchpad/w63a8/): add
+ *       `_padSetActAlign_rcv` to the EXISTING PER_FN_CC1_VER_SPLICE_272 2.7.2 set for this TU
+ *       (merge into the existing key -- 12F duplicate-key hazard).  Whole-TU with the splice:
+ *       18/19 PASS, ZERO regressions (all 19 fns gated). */
 extern int _padSetActAlign_rcv(unsigned char *info)
 {
     unsigned mode = 0;
     if (info[0xe9] != 0) {
-        int row = 0;
         do {
             int matchcount;
             int j;
@@ -541,8 +577,7 @@ extern int _padSetActAlign_rcv(unsigned char *info)
             } while (j > -1);
 
             {
-                unsigned thresh = *(unsigned char *)(row + *(int *)(info + 4) + 2);
-                unsigned char *slot = info;
+                unsigned thresh = *(unsigned char *)(mode * 5 + *(int *)(info + 4) + 2);
                 p = *(unsigned char **)(info + 0x20);
                 k = 0;
                 if (thresh == 0) thresh = 1;
@@ -553,15 +588,14 @@ extern int _padSetActAlign_rcv(unsigned char *info)
                                           * -1 insn).  The SAME change on the match-count loop
                                           * above regresses (40) -- per-site, measure both. */
                     if (v == mode) {
-                        if (matchcount < (int)thresh) { slot[0x5d] = 0xff; matchcount--; }
-                        else                          slot[0x5d] = (unsigned char)mode;
+                        if (matchcount < (int)thresh) { info[k + 0x5d] = 0xff; matchcount--; }
+                        else                          info[k + 0x5d] = (unsigned char)mode;
                     }
+                    __asm__("" : : "r"(k), "r"(k));
                     k++;
-                    slot++;
                 } while (k < 6);
             }
             mode++;
-            row += 5;
         } while ((int)mode < (int)info[0xe9]);
     }
     info[0x46] = 0xfe;

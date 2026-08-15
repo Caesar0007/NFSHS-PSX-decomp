@@ -134,7 +134,43 @@ static int rd32le(const u_char *p)
  *   64 -> 60, everything else in the TU unchanged) and is INERT on libmcrd/BIOS.c
  *   17/17, libcd/stcdint.c, libcd/streamhelp.c, libetc/INTR.c and libapi/FIRST.c --
  *   i.e. zero risk on the measured belt.  There is no such key in PER_TU_FLAGS today
- *   (probe harness: scratchpad/w61a8/fprobe.py). */
+ *   (probe harness: scratchpad/w61a8/fprobe.py).   [LANDED since -- the TU carries
+ *   {"cc1_272": True, "signed_char": True}.]
+ * W63-A6 (2026-08-15) 42 -> 19.  TWO LEVERS, in this order:
+ *  (A) THE TRAILING printf ARG WAS WRONG (a real transcription bug, not a dial):
+ *      the oracle passes `addiu $a1,$sp,0x10` == &comp[0], NOT `name`
+ *      (CdSearchFile.s @0x800F9320); the matched PsyQ-4.0 twin agrees
+ *      (C:/Temp/psyz/decomp/src/libcd/iso9660.c:118).  `name` therefore stayed live
+ *      across the whole final scan loop (qty272: refs 6 / live 88 / crosses 5 calls)
+ *      and CONFLICTED with that loop's `_cd_dir` address givs -- pseudo 154
+ *      (`_cd_dir+8`, refs 7 / live 14 / pri 10000) was allocated first and took the
+ *      $s3 retail gives `name`.  Fixing the arg killed the conflict outright: 42 -> 37.
+ *  (B) then the priced ref dial: with 154 out of the way qty272 read
+ *      sep .2000 ($s3) > name .1754 ($s4) > notfound .0517 ($s5), exactly inverted
+ *      from retail (name $s3 / notfound $s4 / sep $s5).  ONE in-loop read-only fence
+ *      operand = +2 loop-weighted refs; name x1 + notfound x2 lifts both over sep.
+ *      37 -> 19, ZERO instructions (181 both sides of the edit), all registers now
+ *      retail-exact.  Operand grid (scratchpad/w63a6/probe_iso7.py): x1/x1 = 23,
+ *      x1/x2 = x2/x2 = x2/x3 = x3/x3 = x3/x4 = x4/x5 = 19, x2/x4 = 37 (over-dial
+ *      re-inverts name/notfound) -- x1/x2 is the minimal operand set.
+ * RESIDUAL 19 = the inner split loop ALONE, one shape:
+ *      retail  lb v0,0(s0) / beq v0,s5 / li a1,0x5C / beqz v1 / lb v0,0(s0) / bne v0,a1
+ *      ours    j T / beqz a1 / sll v0,v1,24 / sra v0,v0,24 / bne v0,s5 / addu a1,v1
+ *   i.e. retail PEELS the entry guard, keeps a caller-saved inner-preheader copy of
+ *   the separator, and loads the SAME byte TWICE per iteration -- `lb` (signed, feeds
+ *   the != sep compare) AND `lbu` (unsigned, feeds the zero test AND the *q store) --
+ *   with no sign-extend anywhere.  RE-TESTED ON THIS BASIN (04Z basin law) and all
+ *   FALSIFIED, scratchpad/w63a6/probe_iso8.py: `ch` as u_char decl-only 19 (inert);
+ *   zero-test off the cached `ch` 23; explicit u_char cache + signed re-read compare
+ *   (`ch = *(u_char*)s` ... `while (*s != sep)`) 55 at 177 insns; the same with
+ *   `*(u_char*)++s` 55/177; no cache at all (`if(!*(u_char*)s)` + `*q++ = *(u_char*)s`)
+ *   55/177 -- every distinct-extension spelling makes cc1-2.7.2 FUSE the lb+lbu pair
+ *   into one load and lands 4-5 insns SHORT.  Also falsified on the PRE-fence basin
+ *   (probe_iso.py / probe_iso3.py): the whole psyz-4.0 loop transplant (cached-`ch`
+ *   test + `fp++;fp--;`) 64-74, and an explicit peeled guard + do-while 82-90.
+ *   NAMED ANGLE for the next pass: force cc1 to keep TWO loads of one QImode address
+ *   without the phantom-`vars` frame growth (the 13E blocker above) -- i.e. a
+ *   zero-insn way to defeat the lb/lbu fusion. */
 /* @0x800F9088 : resolve an absolute "\\dir\\file" path to its CdlFILE. */
 extern CdlFILE *CdSearchFile(CdlFILE *fp, char *name)
 {
@@ -160,6 +196,15 @@ extern CdlFILE *CdSearchFile(CdlFILE *fp, char *name)
      * liveness no-op -- it is live to the `*fp = _cd_dir[i]` copy-out, and the `fp++;fp--;`
      * pair that used to sit here only inflated its ref count, see the W62-A7 note above.) */
     sep = '\\'; notfound = -1; for (i = 0; i < 8; i++) {
+        /* MATCH (w63-a6, reqdelta272-priced, ZERO instructions): retail hands out
+         * name=$s3 / notfound=$s4 / sep=$s5; ours priced (after the printf-arg fix)
+         * sep .2000 > name .1754 > notfound .0517 = $s3/$s4/$s5 -- exactly inverted.
+         * An in-loop read-only fence operand is +2 loop-weighted refs, so ONE `name`
+         * operand (5->7 refs) and TWO `notfound` operands (3->7) lift both over sep
+         * and restore retail's order.  Minimal operand set: x1/x1 = 23, x1/x2 = 19,
+         * and every larger combo measured 19 as well (x2/x4 = 37, an over-dial that
+         * re-inverts name/notfound).  See scratchpad/w63a6/probe_iso7.py. */
+        __asm__("" : : "r"(name), "r"(notfound), "r"(notfound));
         ch = *s;
         q = (signed char *)comp;
         while (*s != sep) {
@@ -203,7 +248,13 @@ out:
             return &_cd_dir[i];                             /* (binary returns the cache slot) */
         }
     }
-    if (CD_debug > 0) printf("%s: not found\n", name);
+    /* BUG FIX (w63-a6): the trailing diagnostic prints the COMPONENT, not the whole path --
+     * the oracle's arg is `addiu $a1,$sp,0x10` == &comp[0] (CdSearchFile.s @0x800F9320), and the
+     * matched PsyQ-4.0 twin agrees (C:/Temp/psyz/decomp/src/libcd/iso9660.c:118
+     * `printf("%s: not found\n", buf)`).  Passing `name` kept the path pointer live across the
+     * whole final scan loop (qty272: 73 refs 6 / live 88 / crosses 5 calls), where it conflicted
+     * with the loop's `_cd_dir` address givs and lost $s3 to one of them. */
+    if (CD_debug > 0) printf("%s: not found\n", comp);
     return 0;
 }
 

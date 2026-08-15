@@ -506,7 +506,43 @@ int SetupChunkBuildList(DRender_tView *Vi)
        Note the fences never change the COUNT (202 in every case): they do not
        stop the sink, they only re-color.  So the sink is not a sched2 barrier
        question -- next angle is -dS/-dR on this TU to see which pass moves the
-       addu below the lbu. */
+       addu below the lbu.
+
+       W64-A15 2026-08-15 -- THE PASS IS NAMED, and the mechanism is quantified.
+       A raw CC1PLPSX A/B (scratchpad/w64a15/cc1probe.py, -O2 -G4 -fno-exceptions
+       -fno-rtti) shows the sink is entirely SCHED2:
+         default            sll ; addu $2,$2,$5 ; lbu ; addu $19,$3,$4 ; sw
+         -fno-schedule-insns2  sll ; addu $19,$3,$4 ; addu $2,$2,$5 ; lbu ; #nop ; sw
+       i.e. the pre-sched2 order ALREADY has retail's order and cc1 itself marks
+       the un-fillable load-delay slot (`#nop`).  sched2 then swaps them because
+       `addu $19` is the only insn ready at the lbu's stall cycle.
+       WHY it is only reachable through priority, not through a barrier:
+       INSN_PRIORITY in sched2 is the dependency-chain length inside the block --
+       addu $2 -> lbu -> sw = 3, while addu $19 (viewList's biv init, live-out
+       into the loop) has NO dependent in the block = 0.  And the LAUNCH_PRIORITY
+       boost cannot help: sched.c:2499 `birthing_insn_p` returns 0 outright once
+       `reload_completed`, so sched2 has no boost at all.  That is exactly why
+       every fence flavour/position re-colors without moving the count -- a
+       barrier does not change a priority.
+       ALSO FALSIFIED this wave (each a real gate run):
+         named `int cc = gCurrContext->currentChunk;` local ................ 7 @202
+         same + statement order swapped ................................... 7 @202
+         count as an unsized u_char[] subscript ........................... 7 @202
+         viewList via `(cc << 6) + (int)Track_gInViewList` ................ 7 @202
+         count address split into its own pointer local ................... 7 @202
+         ... + opacity fence on that pointer ............................. 13 @202
+         identity fence on viewList (between statements) ................. 33 @202
+         read-only fence on viewList (between statements) ................ 33 @202
+         identity fence on viewList AFTER the count statement ............ 15 @202
+         read-only fence on (viewList, totalVisChunks) after both ........ 15 @202
+         WHOLE-TU no_schedule_insns2 (vprobe W60_TU_FLAGS) ............... 44 @205
+       The `volatile u_char` read is still the ONLY count-exact form (18 @203):
+       it wins by ADDING an insn (the VOLATILE-QImode `andi v0,v0,255`, which
+       cannot fuse into the lbu), not by stopping the sink -- and it costs the
+       early Track_gInViewList materialization as well.  So it is not the basin.
+       NEXT ANGLE (named, instrument): give `addu $19` a real dependent chain of
+       length >= 3 inside this block at zero bytes, or read the -dR sched2 ready
+       list (tools/rtl_dump.py) to find a cheaper priority edge.  NOT a floor. */
     viewList =
         ((short (*)[32])Track_gInViewList)[gCurrContext->currentChunk];
     totalVisChunks =

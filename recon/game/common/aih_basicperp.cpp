@@ -577,7 +577,23 @@ int AIHigh_BasicPerp::CheckChaserPosition(int copIndex,int carIndex)
          price of the copy, because `pos` is a GLOBAL allocno and combine_regs refuses
          to tie a copy whose destination is global).  That leaves exactly one named
          lever untried: make `pos` BLOCK-LOCAL at the guard rather than fencing it --
-         i.e. a local-alloc-layer change, which is the qtytrace lane. */
+         i.e. a local-alloc-layer change, which is the qtytrace lane.
+         W64-A12 re-gated (2 @ 85/87, unchanged) and adds one NEGATIVE + one POSITIVE
+         pointer.  NEGATIVE: the w64 "m"-CONSTRAINT FENCE (the zero-insn device that
+         sealed AIPhysic_CheckDesiredDirection this session) does NOT apply here -- it
+         buys an extra MEMORY reference off a live %hi pseudo, and this residual is a
+         cse VALUE-RANGE record on a REGISTER quantity (cse.c qty_comparison_code /
+         _const: the `blez` fall-through records "pos > 0" against pos's qty, and the
+         second identical compare against the same constant is then folded).  No memory
+         device can invalidate a register qty record; only giving the guard a DIFFERENT
+         qty can, which is what the value-fence family does -- at the price of the copy.
+         POSITIVE: the qtytrace/local-alloc lane this receipt has been parked on since
+         w60 EXISTS as of this wave -- w64-a10's scratchpad/w64a10/{dump.py,copypref.py}
+         prints local-alloc ELIGIBILITY directly (local-alloc.c:470-477: a pseudo is
+         block-local iff REG_BASIC_BLOCK >= 0 AND REG_N_DEATHS == 1).  That is exactly
+         the bit this fn turns on: `pos` fails it, so combine_regs (:1866) refuses to tie
+         the opaque copy and it stays a real `addu`.  Run copypref on this TU and read
+         `pos`'s line before spending another spelling wave. */
             if (pos < 1) break;
 
       if (nextCopIndex != -1) {

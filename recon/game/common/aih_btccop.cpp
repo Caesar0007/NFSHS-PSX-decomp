@@ -2500,7 +2500,25 @@ stateExecuteAndReturn:
    being an address-valued expression.  That sharpens the standing verdict -- the device
    needed is one that makes reload rematerialize `addiu a2,sp,N` from a REG_EQUIV
    without the address ever becoming an allocno; no fence in the toolkit does that
-   (a fence can add refs or opacity, never remove an allocno). */
+   (a fence can add refs or opacity, never remove an allocno).
+   W64-A12 re-gated (4 @ 675/675) and re-confirmed the standing basin fact on TODAY's
+   tree: passing `&trafficOffset` at BOTH remaining arms is still exactly 489 @698
+   (frame -104 -> -112, `this` $s1->$s2, one extra callee-saved) -- unchanged across
+   two more waves of surrounding edits, so it is basin-independent.
+   THE NAMED NEXT LENS IS NOW AVAILABLE: w64-a10 built the 12A local-alloc instrument,
+   and it RUNS on this TU --
+     python scratchpad/w64a10/dump.py recon/game/common/aih_btccop.cpp -dl
+     python scratchpad/w64a10/copypref.py <dump>.lreg "AIHigh_BTC_Wingman::HighExecute"
+   (my table is saved at scratchpad/w64a12/wing_qty.txt).  It prints, per block-local
+   qty: refs / birth / death / QTY_CMP_PRI / copy_sugg / arith sugg / predicted vs
+   ACTUAL hard reg, plus `--why <pseudo>` (the find_free_reg window + the BLOCKED and
+   FREE sets) and `--want <pseudo>=<reg>`.  That is exactly the "per-pseudo handout
+   (offset -> $a2)" question this receipt has been parked on since w63.  ONE caution
+   from my pass: do NOT start from the pseudos whose copy_sugg merely CONTAINS a2
+   (p198 block 23, p212 block 27) -- `--why 198` shows those CROSS A CALL, so the
+   whole caller-saved bank is excluded from their window by construction and $a2 was
+   never reachable for them.  The offset pseudo to chase is the 2-ref one BORN at the
+   memset return and DYING at the `addu a2,v0,zero`. */
 void AIHigh_BTC_Wingman::HighExecute()
 {
   ((AIHigh_BasicCop *)this)->CheckSpikeBelt();

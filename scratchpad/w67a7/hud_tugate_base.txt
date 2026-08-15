@@ -1,0 +1,9 @@
+  __none__: NO ORACLE
+recon/game/psx/hud.cpp: 55/62 PASS
+      8  Hud_Init__Fv
+     13  Hud_RenderTacView__Fv
+     20  Hud_BuildTach__Fi
+     21  Hud_BuildTimeSprites__FP4SPRTPcii
+     54  Hud_BuildMapMarkers__Fi
+     58  Hud_BuildCdPlayer__Fii
+    200  Hud_BuildNumbers__Fi

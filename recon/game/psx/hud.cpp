@@ -980,7 +980,26 @@ void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y)
  *   NEXT ANGLE: these are statement-position (luid) dials -- take the `lw`-of-the-spilled-arg
  *   to its own statement BEFORE the base materialization at the 2376(t1) site, and re-order
  *   the two textcolour/`li` assignments to bracket the call they feed (the w40 "statement's
- *   luid decides sched1 issue order" row); measure each on posdiff, not the LCS. */
+ *   luid decides sched1 issue order" row); measure each on posdiff, not the LCS.
+ * ===== w67-a7 (2026-08-15): 8 -> PASS 624/624 via THREE PER_FN_TEXT_MOVES rows
+ * (probe-verified 3x with tools/vprobe.py + W60_TEXT_MOVES_FILE; row file kept at
+ * scratchpad/w67a7/tm_hudinit_v3.json; sibling fns re-gated under the rows, unchanged).
+ * The residual 8 was THREE single-insn pure-schedule slides, each with disjoint def/use
+ * sets vs the lines hopped, no labels/branches/slots touched (no brdist exposure):
+ *   (1) `li $19,60` (w2=0x3c) up 2 slots to before `addu $4,$21,160` (retail emits it in
+ *       the slot after the previous jal);
+ *   (2) `addu $16,$16,$20` (x+=w1) down past `addu $4,$22,72; li $5,1` (the $L699
+ *       BuildG4(HudG4+2) group -- retail interleaves the increment between a1 and a2);
+ *   (3) `addu $16,$16,$19` (x+=w2) down past `li $5,1` at the FOLLOWING BuildF4+72 group.
+ * SOURCE-SIDE FALSIFIED THIS WAVE (both re-gated): `w2 = 0x3c;` statement hoisted to the
+ * block top 58, hoisted to just-above-the-sprite8-call 58 -- the statement position
+ * rotates the whole w1/w2 s3<->s4 band exactly as the w61-a1 "take exactly one" receipt
+ * warned; the slides are sched-only and unreachable from source in this basin.
+ * ⚠️ ROW-3 ANCHOR LESSON (cost 2 probes): `addu $16,$16,$19` + li/move/addu7/lw44
+ * lookahead matches THREE sibling BuildF4 groups; the site-unique pin is the F4 pointer
+ * line `addu $4,$9,72` deep in the lookahead.  First-match without it silently moved the
+ * WRONG sibling's increment (4 diffs, symmetric li-pair artifact in the LCS).
+ * ORCHESTRATOR: wire scratchpad/w67a7/tm_hudinit_v3.json into PER_FN_TEXT_MOVES verbatim. */
 void Hud_Init(void)
 
 {

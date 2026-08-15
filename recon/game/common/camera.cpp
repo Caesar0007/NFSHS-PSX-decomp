@@ -1160,10 +1160,16 @@ void Camera_UpdateSplineCam(int player)
     int sliceDist;
     int numSlice;
 
-    numSlice = gNumSlices / 2;
-    if (numSlice <
-        ((anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice > 0) ?
-         anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice :
+    /* MATCH (w64-a11): `gNumSlices / 2` is an ANONYMOUS temp in retail
+       (`sra $a0,$v0,1` -- a caller-saved reg), not the SYM's `numSlice`
+       ($s2, which only ever holds the camSpeedTable-derived step).  Assigning
+       it to numSlice was a Ghidra variable-merge: it lengthened numSlice's
+       range over the whole guard and cost an extra callee-saved reg + frame. */
+    int halfSlices = gNumSlices / 2;
+    if ((anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice > 0) ?
+        (halfSlices <
+         anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice) :
+        (halfSlices <
          Camera_gInfo[player].slicePos.slice - anchor->N.simRoadInfo.slice)) {
       sliceDist = anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice;
       if (sliceDist > 0) {
@@ -1191,36 +1197,44 @@ void Camera_UpdateSplineCam(int player)
 
       {
         /* w62-a11: BLOCK-LOCAL carrier -- `d` dies here so it takes a2 and the
-           assignment into the call-crossing `direction` becomes retail's
+           assignment into the call-crossing step becomes retail's
            `addu s2,a2,zero` in the first fixedmult delay slot (61 -> 55). */
         int d = 8;
         if (numSlice + 1 < 9) {
           d = numSlice + 1;
         }
-        direction = d;
+        numSlice = d;
       }
-      if (fixedmult(Camera_gInfo[player].rotation.m[6],
-                    Camera_gInfo[player].anchor->roadMatrix.m[6]) +
-          fixedmult(Camera_gInfo[player].rotation.m[7],
-                    Camera_gInfo[player].anchor->roadMatrix.m[7]) +
-          fixedmult(Camera_gInfo[player].rotation.m[8],
-                    Camera_gInfo[player].anchor->roadMatrix.m[8]) < 0) {
-        direction = -direction;
+      /* MATCH (w64-a11 VARIABLE IDENTITY): the SYM names the DOT PRODUCT
+         `direction` ($16 = $s0 -- the oracle accumulates the three fixedmult
+         results in $s0 and tests it with `bgez $s0`), while the CLAMPED STEP
+         stays in `numSlice` ($18 = $s2, negated in place by `negu $s2,$s2` and
+         tested by `bltz $s2`).  Our recon had the two roles swapped, which is
+         why numSlice never crossed a call (calls=0 -> $v1) -- as the step it
+         now lives across all three fixedmult calls and lands in retail's seat. */
+      direction = fixedmult(Camera_gInfo[player].rotation.m[6],
+                            Camera_gInfo[player].anchor->roadMatrix.m[6]) +
+                  fixedmult(Camera_gInfo[player].rotation.m[7],
+                            Camera_gInfo[player].anchor->roadMatrix.m[7]) +
+                  fixedmult(Camera_gInfo[player].rotation.m[8],
+                            Camera_gInfo[player].anchor->roadMatrix.m[8]);
+      if (direction < 0) {
+        numSlice = -numSlice;
       }
       if (anchor->linearVel_ch.z < 0) {
-        direction = -direction;
+        numSlice = -numSlice;
       }
-      if (direction >= 0) {
+      if (numSlice >= 0) {
         u_short anchorSlice = anchor->N.simRoadInfo.slice;
-        short newSlice = anchorSlice + direction;
-        if ((short)anchorSlice + direction >= gNumSlices) {
+        short newSlice = anchorSlice + numSlice;
+        if ((short)anchorSlice + numSlice >= gNumSlices) {
           newSlice -= (u_short)gNumSlices;
         }
         Camera_gInfo[player].slicePos.slice = newSlice;
       } else {
         u_short anchorSlice = anchor->N.simRoadInfo.slice;
-        short newSlice = anchorSlice + direction;
-        if ((short)anchorSlice + direction < 0) {
+        short newSlice = anchorSlice + numSlice;
+        if ((short)anchorSlice + numSlice < 0) {
           newSlice = (u_short)gNumSlices + newSlice;
         }
         Camera_gInfo[player].slicePos.slice = newSlice;
@@ -1238,13 +1252,21 @@ void Camera_UpdateSplineCam(int player)
       coorddef nextVel;
       Trk_NewSlice *nextSlice;
       int relativeVel;
+      int nextSliceIdx;
 
+      /* MATCH (w64-a11): the indexed read goes through the GLOBAL, not through
+         the just-assigned `nextSlice` -- that second, anonymous evaluation is
+         what cse turns into retail's `addu $v1,$a1,$zero` copy (the trichotomy
+         case-2 generator), leaving the named cursor in $a1 for the `+= n`
+         mutation below.  And the `slice + 1` step is an ANONYMOUS temp in
+         retail ($v1, caller-saved): reusing the SYM's `numSlice` for it merged
+         two disjoint live ranges into one callee-saved global allocno. */
       nextSlice = BWorldSm_slices;
-      splineVel = *(coorddef *)nextSlice[
+      splineVel = *(coorddef *)BWorldSm_slices[
           Camera_gInfo[player].slicePos.slice].center;
-      numSlice = Camera_gInfo[player].slicePos.slice + 1;
-      if (numSlice < gNumSlices) {
-        nextSlice += numSlice;
+      nextSliceIdx = Camera_gInfo[player].slicePos.slice + 1;
+      if (nextSliceIdx < gNumSlices) {
+        nextSlice += nextSliceIdx;
       }
       nextVel = *(coorddef *)nextSlice->center;
       splineVel.x = nextVel.x - splineVel.x;

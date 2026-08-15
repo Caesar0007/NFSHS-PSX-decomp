@@ -313,8 +313,14 @@ extern int CD_get_intr(void)
      * it = 2 (the steal happens at the thread HEAD). */
     __asm__("" : : "i"(0));
     if ((*(const unsigned char *)&nReg) == 5) {
+        /* MATCH (W65-A3, calltarget): retail calls PRINTF here, not puts -- the
+         * oracle's first jal in this arm is `jal printf` with a lone `%hi/%lo
+         * (D_800577A0)` arg ("DiskError: ", 12 bytes before the format string at
+         * D_800577AC).  A transcription bug the reloc-name-lenient gate could
+         * never see; the instruction stream is unchanged (one pointer arg either
+         * way), only the call TARGET was wrong. */
         if (CD_debug > 0)
-            puts("DiskError: ");
+            printf("DiskError: ");
         if (CD_debug > 0)
             printf("com=%s,code=(%02x:%02x)\n", CD_comstr[CD_com], CD_status, CD_status1);
     }

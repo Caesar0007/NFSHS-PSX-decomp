@@ -165,6 +165,12 @@ unsigned char D_801489AC[8];
 extern int          D_801489B4;       /* deadline (VSync frame) */
 extern int          D_801489B8;       /* spin counter */
 extern const char  *D_801489BC;       /* current op name (debug) */
+/* W63-A5: the three are ONE 12-byte alarm object.  Both matched sibling libcd
+ * decomps model it that way (sotn-decomp psxsdk/libcd/bios.c `volatile Alarm_t
+ * Alarm`; rage-racer-decomp libcd/command_write.c `((CdAlarm *)&g_CdTimeoutDeadline)
+ * ->name`).  Kept as a VIEW so the three data symbols stay owned as-is. */
+typedef struct { int deadline; int counter; char *name; } CD_alarm;
+#define ALARM (*(CD_alarm *)&D_801489B4)
 
 /* command-name + interrupt-name string tables (debug; in asm/data). */
 extern char *CD_comstr[];             /* @ : CdlXXX names, indexed by CD_com */
@@ -383,9 +389,9 @@ extern int CD_get_intr(void)
 
 static inline void set_alarm(const char *name)
 {
-    D_801489B4 = VSync(-1) + 0x3c0;
-    D_801489B8 = 0;
-    D_801489BC = name;
+    ALARM.deadline = VSync(-1) + 0x3c0;
+    ALARM.counter = 0;
+    ALARM.name = (char *)name;
 }
 
 /* MATCH (w52-a1): the oracle's spin bump is `lw v0; addu v1,v0,zero; addiu v0,v0,1; sw v0`
@@ -396,21 +402,21 @@ static inline void set_alarm(const char *name)
  * (catalog: "two values simultaneously live with different values => un-copy-propagatable"). */
 static inline int _spin_bump(void)
 {
-    int c = D_801489B8;
+    int c = ALARM.counter;
     int old = c++;
-    D_801489B8 = c;
+    ALARM.counter = c;
     return old;
 }
 
 static inline int get_alarm(void)
 {
-    if (D_801489B4 < VSync(-1) || _spin_bump() > 0x3c0000) {
+    if (ALARM.deadline < VSync(-1) || _spin_bump() > 0x3c0000) {
         /* w53-a9 FALSIFIED HERE (90->93, +1 insn): the CD_datasync/CD_sync
          * split-local lever does NOT transfer to this shared get_alarm() copy
          * -- CD_cw's inlined instance is 4 insns SHORT of its oracle, i.e. a
          * different (structural) basin.  Re-probe after CD_cw's count is exact. */
         puts("CD timeout: ");
-        printf("%s:(%s) Sync=%s, Ready=%s\n", D_801489BC,
+        printf("%s:(%s) Sync=%s, Ready=%s\n", ALARM.name,
                CD_comstr[CD_com], CD_intstr[Intr.sync], CD_intstr[Intr.ready]);
         CD_flush();
         return -1;
@@ -455,17 +461,17 @@ extern int CD_sync(int mode, unsigned char *result)
     unsigned char restore;
     unsigned char sync;
 
-    D_801489B4 = VSync(-1) + 0x3c0;
+    ALARM.deadline = VSync(-1) + 0x3c0;
     cmdNames = CD_comstr;
     statusNames = CD_intstr;
     intr  = &Intr;
     ready = &intr->ready;
-    D_801489B8 = 0;
-    D_801489BC = "CD_sync";
+    ALARM.counter = 0;
+    ALARM.name = "CD_sync";
 
     for (;;) {
         int alarm;
-        if (D_801489B4 < VSync(-1) || _spin_bump() > 0x3c0000) {
+        if (ALARM.deadline < VSync(-1) || _spin_bump() > 0x3c0000) {
             /* MATCH (w53-a9): see CD_datasync -- the "ready" string as a named
              * local + the "sync" INDEX BYTE as a named local reproduce the
              * oracle's arg-block schedule (late CD_com lbu, sync string load
@@ -475,7 +481,7 @@ extern int CD_sync(int mode, unsigned char *result)
             puts("CD timeout: ");
             syncIdx   = intr->sync;
             readyName = statusNames[intr->ready];
-            printf("%s:(%s) Sync=%s, Ready=%s\n", D_801489BC,
+            printf("%s:(%s) Sync=%s, Ready=%s\n", ALARM.name,
                    cmdNames[CD_com], statusNames[syncIdx], readyName);
             CD_flush();
             alarm = -1;
@@ -563,25 +569,25 @@ extern int CD_ready(int mode, unsigned char *result)
     int c;
     int ready;
 
-    D_801489B4 = VSync(-1) + 0x3c0;
+    ALARM.deadline = VSync(-1) + 0x3c0;
     cmdNames = CD_comstr;
     statusNames = CD_intstr;
     intr = &Intr;
     readyp = &intr->ready;
     cflag = &intr->c;
-    D_801489B8 = 0;
-    D_801489BC = "CD_ready";
+    ALARM.counter = 0;
+    ALARM.name = "CD_ready";
 
     for (;;) {
         int alarm;
-        if (D_801489B4 < VSync(-1) || _spin_bump() > 0x3c0000) {
+        if (ALARM.deadline < VSync(-1) || _spin_bump() > 0x3c0000) {
             /* MATCH (w53-a9): see CD_datasync. */
             int syncIdx;
             char *readyName;
             puts("CD timeout: ");
             syncIdx   = intr->sync;
             readyName = statusNames[intr->ready];
-            printf("%s:(%s) Sync=%s, Ready=%s\n", D_801489BC,
+            printf("%s:(%s) Sync=%s, Ready=%s\n", ALARM.name,
                    cmdNames[CD_com], statusNames[syncIdx], readyName);
             CD_flush();
             alarm = -1;
@@ -724,19 +730,19 @@ extern int CD_cw(unsigned char com, unsigned char *param, unsigned char *result,
      * cmdNames 77 · an explicit `statusNames` local 79 · `cmdNames = CD_comstr` moved to
      * the last preamble statement 75 (INERT) · identity fence on `ip` 94 · a separate
      * loop counter `j` for the parameter loop 93 · dropping the store-flag breaker 86. */
-    D_801489B4 = VSync(-1) + 0x3c0;
+    ALARM.deadline = VSync(-1) + 0x3c0;
     cmdNames = CD_comstr;
-    D_801489B8 = 0;
-    D_801489BC = "CD_cw";
+    ALARM.counter = 0;
+    ALARM.name = "CD_cw";
     while (Intr.sync == 0) {
         int alarm;
-        if (D_801489B4 < VSync(-1) || _spin_bump() > 0x3c0000) {
+        if (ALARM.deadline < VSync(-1) || _spin_bump() > 0x3c0000) {
             int syncIdx;
             char *readyName;
             puts("CD timeout: ");
             syncIdx   = Intr.sync;
             readyName = CD_intstr[Intr.ready];
-            printf("%s:(%s) Sync=%s, Ready=%s\n", D_801489BC,
+            printf("%s:(%s) Sync=%s, Ready=%s\n", ALARM.name,
                    cmdNames[CD_com], CD_intstr[syncIdx], readyName);
             CD_flush();
             alarm = -1;
@@ -981,16 +987,16 @@ extern int CD_datasync(int mode)
     int spinmax;
     int ret;
 
-    D_801489B4 = VSync(-1) + 0x3c0;
+    ALARM.deadline = VSync(-1) + 0x3c0;
     spinmax = 0x3c0000;
     comstr = CD_comstr;
     intr   = &Intr.sync;
     intstr = CD_intstr;
-    D_801489B8 = 0;
-    D_801489BC = "CD_datasync";
+    ALARM.counter = 0;
+    ALARM.name = "CD_datasync";
     do {
         int status;
-        if (VSync(-1) > D_801489B4 || _spin_bump() > spinmax) {
+        if (VSync(-1) > ALARM.deadline || _spin_bump() > spinmax) {
             /* MATCH (w53-a9): the oracle's arg block issues
              *   lbu sync; lbu ready; lw name; <ready index+load>; <sync sll>;
              *   lbu CD_com; <com index+load>; sw ready,16(sp); lw sync-value
@@ -1018,7 +1024,7 @@ extern int CD_datasync(int mode)
             puts("CD timeout: ");
             syncIdx   = intr[0];
             readyName = intstr[intr[1]];
-            printf("%s:(%s) Sync=%s, Ready=%s\n", D_801489BC,
+            printf("%s:(%s) Sync=%s, Ready=%s\n", ALARM.name,
                    comstr[CD_com], intstr[syncIdx], readyName);
             CD_flush();
             status = -1;

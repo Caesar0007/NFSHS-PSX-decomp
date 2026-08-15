@@ -103,7 +103,33 @@ void AIHigh_Opponent::CheckForWipeOut()
              single-store shared-RANDGATE shape (goto and else-continue forms, both 61)
              -- it does drop the sim-base copy's refs 5->3 as wanted, but the smaller
              loop then lets loop.c hoist the 0xd5554 literal that retail rematerializes
-             per iteration.  ==== */
+             per iteration.
+         ==== W64-A12: A STRUCTURALLY TRUER BASIN FOUND AND BANKED (not landed -- it gates
+         55, worse than this 50, but it is the one the next pass should price).  Baseline
+         re-gated 50 @118/120; the 2 missing insns are retail's preheader `addu t4,a2,zero`
+         and its SECOND `lui/lw` of AI_elapsedTime.
+         BASIN x1 = scratchpad/w64a12/aih_opp.cpp.x1_55 : DELETE the pre-loop `new_var`
+         statement entirely and write `perTickProb = AI_elapsedTime * 116;` in BOTH arms.
+         The w63 movable-existence law then does the whole job by itself: perTickProb is
+         set twice so loop.c builds no movable for it, but the 29*ae SUBCHAIN is a
+         once-set cse temp, so loop.c hoists exactly that -- reproducing retail's preheader
+         BYTE-FOR-BYTE (`lui v1;lw v1` fresh reload + sll3/subu/sll2/addu, oracle 74-81)
+         AND keeping `sll a0,t2,2` in the loop duplicated into both branch delay slots
+         (oracle 103/107).  No `new_var` variable, no volatile, and the w63 REF-STEP fence
+         is still needed (dropping it = 64 @120).  Residual there = 55 @121: ONE stray
+         beq-slot nop plus a clean 3-WAY $t ROTATION (ours this=t1 randVal=t2 29ae=t0 vs
+         retail this=t0 randVal=t1 29ae=t2) -- i.e. an allocno-order job for
+         allocsim/reqdelta/multidial on a structurally correct base, which is strictly
+         better posed than this 50-basin's "two pseudos dying on one insn" impossibility.
+         FALSIFIED on top of x1 (each re-gated): naming the hoisted product back into a
+         loop-body local (`int inv = AI_elapsedTime*29;` inside the loop, or assigning the
+         fn-scope new_var there) = 88 @122 -- gcc then keeps it as a real in-loop set;
+         dropping the now-unused new_var declaration = inert (55, decl order is not the
+         dial here); `AI_elapsedTime*29*4` == `*116` exactly; dropping the playFines fence
+         = 64 @120; reading the global directly in the for-condition = 67 @121.
+         Also re-measured in THIS basin: new_var after the if-block (the w63 "wipe52")
+         = 52 @120 count-exact, new_var after `pInfo =` = 52, inside the guard = 61/61/55.
+         ==== */
       /* ---- W62-A10 (51 diffs, ours 121 / oracle 120) -- SUPERSEDED by the block above;
          kept for its falsification list.  The residual is now ONE
          NAMED gcc question, not a spelling search.  NEW MEASUREMENTS this session

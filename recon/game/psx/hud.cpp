@@ -4219,17 +4219,54 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
   int j;
   int k;
   int by;
-  int byw;
   int by2;
   int index;
 
   if (flare_intensity != 0) {
     k = 0;
     i = 0;
-    byw = y;
     do {
       j = 0;
-      by = byw;
+      /* MATCH (w63-a1): 2 -> PASS (count stays EXACT 111/111).  THE LAST RESIDUAL WAS THE
+       * POSITION OF `addu s4,a1,zero` and the mechanism is loop.c's GIV-BENEFIT RAZOR, read
+       * off gcc-2.8.1 loop.c (all line numbers from C:/Temp/gcc-2.8.1-src/extracted/loop.c):
+       *   3877  if (! v->replaceable && ! bl->eliminable && REG_USERVAR_P (v->dest_reg))
+       *           benefit -= copy_cost;                      [copy_cost = 4, loop.c:316]
+       *   3881  benefit -= add_cost * bl->biv_count;         [add_cost  = 4, loop.c:310]
+       *   3914  if (v->lifetime * threshold * benefit < insn_count) -> v->ignore = 1
+       * `by` is a USER VARIABLE and is NON-REPLACEABLE (the w50 read-only fence after the
+       * loop keeps it live past loop_end), so it pays copy_cost.  The natural 2-op spelling
+       * `by = y + i * 9` accumulates benefit = rtx_cost(mult) + rtx_cost(plus) = 8
+       * (simplify_giv_expr, loop.c:5456 + 5216), so 8 - 4 - 4 = 0 and `-dL` prints
+       * "giv of insn 228 not worth while, 0 vs 25" -- loop.c reduces only the inner
+       * `i * 9` giv (base 0) and leaves `by = y_reload + giv` in the loop (5 diffs @112,
+       * with a per-outer-iteration `lw t0,76(sp)` ARG-HOME reload of y).
+       * ANY THREE-OP spelling of 9*i pushes the raw benefit to >= 12, the razor is cleared,
+       * and loop.c reduces `by` itself: `emit_iv_add_mult` puts the giv init `addu s4,a1,zero`
+       * in the PREHEADER **after** move_movables' hoists (loop.c:1538 inserts movables before
+       * loop_start, giv inits are emitted after them) = retail's exact slot, and the
+       * non-replaceable path emits the `addu s5,s4,zero` move at the outer-body head + the
+       * `addiu s4,s4,9` bump at the outer bottom.  That is retail's whole shape.
+       * MEASURED PASS with `y + i*5 + i*4`, `y + i*4 + i*5`, `y + 4*i + 5*i`, `(y+i*4)+(i*5)`,
+       * `y + i*3 + i*6`, `y + i*10 - i`, `y + i*9 + i - i` -- i.e. the SPELLING is free, the
+       * OP COUNT is the dial.  Kept as 5 + 4 = the 5-pixel glyph row + the 4-pixel gap of the
+       * 5x5 grid this loop walks (the halo/sprite offsets +4/+1 are the same cell geometry).
+       * FALSIFIED HERE (all re-measured in this basin):
+       *   2-op `y + i*9` / `9*i` / `i*9 + y`                      5 @112 (razor, above)
+       *   `y + i*8 + i`, `y + i*9 + 1` (+ call arg by+3)          4 @111
+       *   `y + i + i*8`, `by = i*9; by = by + y;`                51 @110 (giv replaced away)
+       *   `by = y; by = by + i*9;` (consec sets)                  5 @112
+       *   `y + (i*3)*3`                                           5 @112
+       *   `y + i*9 + j*0` / `+ k*0` (the "outer additive term of   5 @112 -- fold eats them,
+       *     ZERO" question the w62 receipt named)                  so the +0 door is CLOSED
+       *   extra read-only fence operands on `by` (2 and 3)        5 / 27 @112 -- the benefit
+       *     and fence repositioning (before BlackThinBox)         5 @112 -- razor is NOT a
+       *                                                           lifetime dial, benefit == 0
+       *                                                           makes the product 0.
+       *   separate loop-2 counters i2 (+ j2/k2) to make loop 1's  26/27/53 -- the
+       *     biv eliminable and dodge the copy_cost guard          `! bl->eliminable` door is
+       *                                                           closed too. */
+      by = y + i * 5 + i * 4;
       do {
         /* MATCH (w51-a9): 10 -> 2.  `index` is ONE fn-scope variable driving BOTH loops'
          * bit tests -- exactly the named angle in the w49 receipt below ("make it span two
@@ -4247,7 +4284,6 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
         j = j + 1;
         k = k + 1;
       } while (j < 5);
-      byw = byw + 9;
       i = i + 1;
     } while (i < 5);
   }

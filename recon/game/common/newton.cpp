@@ -1877,7 +1877,9 @@ extern "C" void Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coordd
   upVec.x = 0;
   upVec.y = 0x10000;
   upVec.z = 0;
+  __asm__("" : : "i"(0));   /* w62-a11 reorg slot-steal barrier, see receipt */
   barrierVec.x = -(normal.z / 0x100 * 0x100);
+  __asm__("" : : "i"(0));   /* w62-a11 reorg slot-steal barrier, see receipt */
   barrierVec.y = 0;
   barrierVec.z = normal.x / 0x100 * 0x100;
   distRetreat = normal.x / 0x100 * (newtonObj->linearVel.x / 0x100) +
@@ -1968,7 +1970,35 @@ extern "C" void Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coordd
      and dial the residual THERE -- a count-exact register rotation is a far better
      base than the shipped 2-insn-short form.  The instrumented cc1plus IS available
      for this fn (byte-identical; scratchpad/w61a11/newb.trace.txt, produced by
-     scratchpad/w61a11/icefix.py which blanks the five bodies that ICE it). */
+     scratchpad/w61a11/icefix.py which blanks the five bodies that ICE it).
+     W62-A11 LANDED 76 -> 73 (@105/106).  The N7 fence basin was RE-PRICED and is
+     WRONG: `"r"(normal.x)`-style read-only fences on the by-value parm components
+     are NOT zero-insn here (each emits a real `addu t4,aN,zero`), so the w61-a11
+     "count-exact 106/106" was 104 good insns + 2 junk copies; re-measured this wave
+     it scores 80, not 76.  Do not re-enter it.  THE DEVICE IS THE VOID FENCE:
+     `__asm__("" : : "i"(0))` between `upVec.z = 0;` and `barrierVec.x`, and a second
+     one between `barrierVec.x` and `barrierVec.y`.  Mechanism: reorg was STEALING the
+     `sw zero,48(sp)` (upVec.z) backwards into the first `bgez a3` delay slot; retail
+     emits that store BEFORE the branch and fills the slot with the divide's own
+     dividend copy.  The barrier restores retail's prologue block EXACTLY (insns 0-12
+     now align 1:1) and gives the normal.x divide its `addu v0,a1,zero` survivor.
+     POSITION SWEEP (all gated this wave, single void fence): before upVec.x 78 |
+     after upVec.y 76 | after upVec.z 74 | after barrierVec.x 74 | after barrierVec.y
+     74 | after barrierVec.z 76.  PAIRS: P2+P3 73 @105 | P2+P4 73 @105 | P2+P4+P5 73 |
+     P2+P3+P4 73 | P3+P4 74.  `__volatile__` flavour is NEUTRAL (74 either way).
+     RESIDUAL 73 SHAPE: the z- and y-divides still mutate the dividend in place
+     (`addiu a3,a3,255`) where retail copies it to a fresh temp first
+     (`addu v0,a3,zero; addiu v0,a3,255; sra v0,v0,8`) -- but the INSN COUNT per
+     divide already matches (reorg duplicates the `sra` into the slot instead), so
+     this is a pure allocation question: retail's divide temp did not coalesce with
+     the dividend pseudo, ours did (delete_noop_moves).  FALSIFIED ON THIS BASE
+     (04Z re-price, do not retry): `int nz` shared bvx+m2 83 | nz laundered 78 |
+     nz feeding the dot instead of the volatile view 73 @101 | `int ny` shared
+     dot+m1 77 | ny laundered 82 | `int nx` survivor to m[0] 88, laundered 90 |
+     read-only fence on normal.x 76 / .y 76 / .z 75 | m[1] or m[2] read through a
+     volatile view 73 (neutral) | a 3rd void fence before/after the dot or before
+     the abs 73 (neutral).  13B identity-launder is FALSIFIED here in every
+     placement; the remaining lever class is the qty STRUCTURE of the two divides. */
   islandMatrix.m[0] = normal.x;
   islandMatrix.m[1] = normal.y;
   islandMatrix.m[2] = normal.z;
@@ -2083,7 +2113,16 @@ Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi(int newtonObj,int test
    ICE also truncates the whole-TU trace -- scratchpad/w61a11/icefix.py blanks it and
    the four other ICE-ing newton bodies so the rest of the TU still traces).  The
    global layer (tools/allocsim.py / reqdelta.py off the real CC1PLPSX -dg dump) is
-   unaffected and remains the named instrument. */
+   unaffected and remains the named instrument.
+   W62-A11 -- NEW NAMED ANGLE, and it CONTRADICTS the '2-way seat swap only'
+   reading above: a BRANCH CENSUS (scratchpad/w62a11/brdist.py, which compares the
+   per-branch instruction DISTANCE ours-vs-oracle -- the one thing verify_asm is
+   blind to, since it normalises branch targets) says ours emits 47 branches and
+   retail 48.  A whole conditional is MISSING or fused in our source, so the seat
+   swap is downstream of a control-flow difference and NO allocator dial can close
+   this fn until the 48th branch is found.  Run brdist.py first, localise the arm,
+   then re-price.  (Same census found the arm-1 funnel that took
+   Physics_CalculateTireForces 55 -> 49 in this wave.) */
 void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
 
 {

@@ -1842,7 +1842,22 @@ PhyTracCircle_skidAdjust:
        the three wheel-lock guards: 55 @347 (one insn LONG -- no gain).
      - twin C applied to the REAR clamp (per-arm re-emission of the abs, which is the
        shape the residual below asks for): 56 @350.
-   => keep `__builtin_abs` and the goto form here; the PSX oracle's words win. */
+   => keep `__builtin_abs` and the goto form here; the PSX oracle's words win.
+   W62-A11 LANDED 55 -> 49 (@349/346).  Re-baselined 55.  The BRANCH CENSUS is the
+   new diagnostic: ours had 71 conditional/uncond branches vs retail's 72, and the
+   missing one is in the arm-1 max -- retail emits `slt v0,v1,a0; beqz v0,T; nop;
+   j T; addu v1,a0,zero`, i.e. the SAME both-arms-funnel-into-one-register-then-one-
+   store shape already banked for the FRONT velCap clamp.  Rewriting the arm-1
+   ternary as an explicit if/else through a block-local `a` buys it (-6).
+   MEASURED this wave: arm-2 min funnelled the same way ALSO 49 @349 on its own,
+   but BOTH funnels together fall back to 55 @347 (non-additive -- cross_jump
+   re-merges the two selects once they are the same shape), so exactly ONE funnel
+   is the landed form; arm-1 Yoda 67 @351; arm-2 Yoda 51 @351.
+   NEXT ANGLE: re-run the branch census after this landing (tools-free: compare the
+   per-branch instruction DISTANCE ours-vs-oracle, scratchpad/w62a11/brdist.py) --
+   it localises a missing/extra guard far faster than reading the diff, and it is
+   the only view that sees branch-OFFSET divergence at all (verify_asm normalises
+   branch targets). */
 void Physics_CalculateTireForces(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
 
 {
@@ -1860,7 +1875,20 @@ void Physics_CalculateTireForces(Car_tObj *carObj,Physics_tWheelAccStruct *wheel
   }
   if ((wheel->acc < 0) && (wheel->velCap.z < 0)) {
     if ((gGasRatio < 0x4001) || ((carObj->control).gear != '\0')) {
-      wheel->acc = (wheel->acc > wheel->velCap.z) ? wheel->acc : wheel->velCap.z;
+      /* w62-a11: ARM-1 MAX FUNNELLED through a block-local (55 -> 49).  Retail
+         funnels both arms into one register and stores once -- the same device
+         as the FRONT velCap clamp above.  Doing the SAME to the arm-2 min also
+         scores 49 alone, but BOTH together fall back to 55 (non-additive:
+         cross_jump re-merges them) -- keep exactly one. */
+      {
+        int a;
+        if (wheel->acc > wheel->velCap.z) {
+          a = wheel->acc;
+        } else {
+          a = wheel->velCap.z;
+        }
+        wheel->acc = a;
+      }
       brakingSituation = 1;
     }
   }
@@ -2219,11 +2247,39 @@ void Physics_Real(Car_tObj *carObj)
        DIFFERENT hard regs.  NEXT ANGLE: keep `damage` live PAST the shift with a
        zero-insn read-only fence -- but note the one position tried (after the
        damageMult line) emits an insn (33@1273), and the W61-A11 HeliCam result
-       proves fence POSITION is its own dial, so sweep the position properly. */
+       proves fence POSITION is its own dial, so sweep the position properly.
+       W62-A11 LANDED 14 -> 6 (@1272/1272), cluster (a) SEALED and the identity
+       launder DELETED.  THE LEVER IS THE STATEMENT SPLIT ONTO THE SAME VARIABLE:
+       `damage = damage / 0x200; damageMult = 0x10000 - damage;` instead of the
+       fused `damageMult = 0x10000 - damage / 0x200;`.  Writing the quotient BACK
+       INTO `damage` makes the divide's destination the dividend's own pseudo, so
+       expand_sdiv_pow2 must materialise its bias in a THIRD register -- retail's
+       `addu v0,v1,zero` in the bgez delay slot, `addiu v0,v1,511`, `sra v1,v0,9`
+       -- byte-exact, and the sum already landed in damage's own seat (v1) without
+       any fence.  The whole 5-wave `keep the dividend live` programme was chasing
+       the wrong axis: the copy is bought by the DESTINATION, not by liveness.
+       Falsified/priced this wave: the shipped fused form + launder 14 | fused,
+       no launder 15@1271 | fused + read-only fence on damage after the steer line
+       24@1272 (this DOES buy retail's exact 6-insn shape but rotates every seat
+       one slot up: sum a1 / temp v1 / tempSteer a2 vs retail v1 / v0 / a1) | the
+       same with 2 or 3 fence operands 24 (ref dials are INERT -- the rotation is
+       conflict-driven, not priority-driven) | fence after the damageMult line
+       33@1273 | void fence either side 15/31 | declaration order swapped 14/15 |
+       an extra unused local 15 | a `damageTmp` carrier 15 | staging through
+       damageMult 33.  RESIDUAL 6 = cluster (b) ONLY (SLD 2341): retail issues
+       `lw a2,52(sp); lw a0,100(sp)` (the finalAcc.z pair) BEFORE `lw v1,0(gp)`
+       and keeps front-z in a2; ours hoists `lw v1,0(gp)` first and uses v0.
+       Shape sweep on the wheelMult block, all gated: control 6 | named accSum
+       local before wheelMult 10 | after wheelMult 6 | no local, fully inlined 10 |
+       accSum local + inlined wheelMult 10 | void fence after the wheelMult decl 14 |
+       swapped `.z` sum operands 6 | `* 2` on one line 6.  => source shape is
+       exhausted; this is a sched1 emission-order + one seat, i.e. a
+       PER_FN_TEXT_MOVES candidate (move `lw v1,0(gp)` down past the two stack
+       loads) that would still leave the a2-vs-v0 pair. */
     damage = (carObj->N).damage[0] + (carObj->N).damage[1] +
              (carObj->N).damage[2] + (carObj->N).damage[9];
-    __asm__("" : "=r"(damage) : "0"(damage));
-    damageMult = 0x10000 - damage / 0x200;
+    damage = damage / 0x200;
+    damageMult = 0x10000 - damage;
     frontWheel.steeringAngle =
         (frontWheel.steeringAngle / 0x100) * (damageMult / 0x100);
   }

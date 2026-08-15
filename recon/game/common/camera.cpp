@@ -529,7 +529,32 @@ lookahead_done:;
  * `j; li s1,-3`), (b) the rear-abs `bgez v1` slot (ours steals the `slt`, retail
  * nops), (c) two `beqz s4`/`beq s4,v0` slots (ours `lui v1,0` twice, retail
  * `nop` + `lui v0,3`), (d) `lw v0,20(sp)` one line late.  All four are
- * PER_FN_TEXT_MOVES/drop_after territory, not source shape. */
+ * PER_FN_TEXT_MOVES/drop_after territory, not source shape.
+ * W62-A11 -- the mechanism is now NAMED and it is NOT plain TEXT_MOVES.  The .s
+ * (saved verbatim at scratchpad/w62a11/helicam.s) shows all three `lui`
+ * duplications are reorg TARGET-STEALS WITH A BRANCH REDIRECT:
+ *   $L579: j $L640 / lui $2,%hi(simVar+16)   <- stolen from $L580's head, and
+ *          $L580: lui $2,%hi(simVar+16) / $L640: lw $2,%lo(simVar+16)($2)
+ *          i.e. $L640 was PLANTED after the stolen insn.
+ *   beq $20,$0,$L616 / lui $3,%hi(Input_gLookBehind)   and
+ *   beq $20,$2,$L623 / lui $3,%hi(Input_gLookBehind)   <- both stolen from
+ *          $L615: lui $3,%hi(Input_gLookBehind) / $L641: lw $2,20($sp)
+ * Undoing any of them requires re-pointing the branch ($L640->$L580,
+ * $L641->$L615) as well as deleting the slot copy, and PER_FN_TEXT_MOVES
+ * (take/after/slot/drop_nop/drop_after) can relocate LINES but cannot change a
+ * branch TARGET -- so this needs a new per-fn mechanism (a reorg
+ * `fill_slots_from_thread` / target-steal disable, i.e. a dual-compile splice
+ * like PER_FN_NO_DELAYED_BRANCH but keeping the ordinary backward slot fill),
+ * OR a TEXT_MOVES extension with a label-relocation key (moving `$L640:` above
+ * the stolen `lui` is itself expressible as a line move).
+ * Cluster (d) `lw v0,20(sp)` is the SAME object: the lw sits under $L641, which
+ * only exists because of the steal -- fixing the steals fixes (d) for free.
+ * SOURCE LEVERS FALSIFIED THIS WAVE (13B head-of-thread barrier does NOT reach
+ * reorg's target steal here): void fence before the simVar guard 12 | before the
+ * InBetween guard 12 | before the Replay_ReplayMode guard 12 | before the
+ * Input_gLookBehind guard 15 @446 | both 15 | DROPPING the existing wrongway-arm
+ * fence 17 @442 | that fence moved before the inner if 17 @442 | inside the inner
+ * if 12 | the arm as a ternary 12 (with fence) / 17 (without). */
 void Camera_UpdateHeliCam(int player,int behavior)
 {
   coorddef arm;      /* SYM: AUTO @0x10 */
@@ -1085,7 +1110,30 @@ void Camera_SetSplineCam(int player)
  * `tools/reqdelta.py --want` on those allocnos, not a blind local-alloc ref-step.
  * W61-A11 also checked the W61-A1 SPILL-SLOT/declaration-order law here: the sp
  * offset SETS are identical ours-vs-oracle (0 ours-only, 0 oracle-only), so the
- * frame map already matches and that law does not apply. */
+ * frame map already matches and that law does not apply.
+ * W62-A11 LANDED 61 -> 55 (@350/351).  THE LEVER = 13A BLOCK-LOCAL ANCHOR on
+ * `direction`: wrap its clamp in a block, compute into a block-local `d` that
+ * DIES there, and assign `direction = d;`.  `d` becomes a local qty and takes $a2
+ * (retail's `li a2,8` / `addu a2,v1,zero`), while `direction` stays the
+ * call-crossing global allocno in $s2 -- and the assignment materialises as
+ * retail's `addu s2,a2,zero` IN THE FIRST fixedmult DELAY SLOT, which is the
+ * insn we were short there.  A ternary instead 66 @349 (one MORE short).
+ * W62-A11 falsified for cluster 3: `int *rot = &Camera_gInfo[player].rotation.m[6]`
+ * with rot[0..2] 135 @352 (+ the d carrier 136 @353) -- the +72/-72 object still
+ * is NOT reachable by naming the rotation row.
+ * W62-A11 PRICED cluster 2 AND CLOSED IT AS STRUCTURE-BOUND: with allocsim
+ * MATCHING 29/29 on the landed source, our numSlice is global allocno p98
+ * (refs 9, live 29, calls 0, pri 0.9310, rank 3) and it takes $v1 as the second
+ * free register of find_reg's plain ascending scan.  `reqdelta --want p98=s2`
+ * reports NO single-dial and NO two-dial (refs x live, +-40) solution -- retail's
+ * $s2 is the 9th free register, so per the 13A UNREACHABILITY TRIAGE no priority
+ * dial can reach it.  The remaining axis is `calls`: a pseudo with calls>0 is
+ * scanned against call_used_reg_set and starts at $s0.  MEASURED (all much
+ * WORSE, do not retry): a read-only fence on numSlice placed AFTER the fixedmult
+ * block 171 @352 | after the linearVel if 171 @352 | two operands 187 @352 |
+ * the same on sliceDist 163 @350.  Buying calls_crossed with a fence costs real
+ * insns (the value must survive the call), so the calls dial needs a SOURCE use
+ * of numSlice after the calls, not a fence -- that is the next named angle. */
 void Camera_UpdateSplineCam(int player)
 {
   Car_tObj *anchor;
@@ -1127,9 +1175,15 @@ void Camera_UpdateSplineCam(int player)
     if ((change != 0) && (Replay_ReplayCamera[player].defaultCamera == 0)) {
       int direction;
 
-      direction = 8;
-      if (numSlice + 1 < 9) {
-        direction = numSlice + 1;
+      {
+        /* w62-a11: BLOCK-LOCAL carrier -- `d` dies here so it takes a2 and the
+           assignment into the call-crossing `direction` becomes retail's
+           `addu s2,a2,zero` in the first fixedmult delay slot (61 -> 55). */
+        int d = 8;
+        if (numSlice + 1 < 9) {
+          d = numSlice + 1;
+        }
+        direction = d;
       }
       if (fixedmult(Camera_gInfo[player].rotation.m[6],
                     Camera_gInfo[player].anchor->roadMatrix.m[6]) +
@@ -1277,9 +1331,18 @@ void Camera_UpdatePulloverCam(int player)
     sRight.z = (signed char)BWorldSm_slices[cameraInfo->anchor->simRoadInfo.slice].right[2] << 0xb;
     iVar3 = fixedmult(sccVec.z,sForward.x) - fixedmult(sccVec.x,sForward.z);
     ySign = Camera_IslandProfile(BWorldSm_slices[cameraInfo->anchor->simRoadInfo.slice].pavedProfile);
-    if (iVar3 < 0) {
-      ySign = ySign != 1;   /* MATCH: != 1 canonicalizes to xori + sltu (0/1 renormalize) */
-    }
+    /* w62-a11 PRODUCTION-LANE FIX (psyqproof REAL 1 -> 0).  The shipped form
+       `if (iVar3 < 0) { ySign = ySign != 1; }` put BOTH the xori and the 0/1
+       renormalising `sltu v0,zero,v0` inside the guard, so our `bgez $s0`
+       skipped 3 insns where retail skips 2 (word 146 @0x80082EDC: ours
+       0x06010003 vs retail 0x06010002).  verify_asm normalises branch TARGETS,
+       so the testing gate called it PASS -- only the ASPSX word compare saw it.
+       The ternary puts the `!= 0` on the SHARED result, so the sltu falls
+       through on both arms exactly like retail.  Falsified alternatives (all
+       222 insns = one SHORT, gcc drops the redundant sltu): `ySign ^= 1` in the
+       guard with the test alone / with a separate `ySign = ySign != 0;` /
+       with `(ySign != 0) != 0` in the test. */
+    ySign = ((iVar3 < 0) ? (ySign ^ 1) : ySign) != 0;
     if (ySign != 0) {
       sRight.x = -sRight.x;
       sRight.y = -sRight.y;

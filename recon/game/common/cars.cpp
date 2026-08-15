@@ -380,7 +380,17 @@ void Cars_ResetCollidedCars(Car_tObj *carObj,int forceReset,int forceParkAtSide)
   memset((u_char *)&offset,'\0',0xc);
   direction = carObj->desiredDirection;
   (carObj->collision).smoking = 0;
+  /* MATCH (w64-a15, DUAL-LANE: gate PASS 280/280 + psyqproof REAL=0): the blowout early-return
+   * REPEATS `smoking = 0` even though the store two lines up already did it.  That duplicate is
+   * what makes cross_jump merge this arm's `sw $zero,0x78C($s2); j <epilogue>` tail with the
+   * SAME tail of the big early-return arm below, and -- crucially -- the merged block's LABEL
+   * lands BEFORE the store, so the `bnez $v0` guard targets `.L800867D0` (dist 75) exactly like
+   * retail.  Without the duplicate our arm is a bare `j <epilogue>`, jump.c's follow_jumps
+   * forwards the guard straight to the epilogue (dist 256), and the resulting wrong branch WORD
+   * is invisible to verify_asm (04Q: targets normalise to T) -- gate PASS, psyqproof REAL=1
+   * word 15.  Count is unchanged (280) because the two tails merge back to one copy. */
   if (carObj->blowout != 0) {
+    (carObj->collision).smoking = 0;
     return;
   }
   if (forceReset == 0) {
@@ -494,9 +504,16 @@ void Cars_DoExtraCarCollisionProcessing(Car_tObj *carObj)
       carObj->blowout = 0;
       Cars_ResetCollidedCars(carObj,1,0);
     }
+    /* MATCH (w64-a15, DUAL-LANE: gate PASS 597/597 + psyqproof REAL=0): the blowout RE-TEST lives
+     * INSIDE the `y != 0` arm, spelled as an inverted `goto` over the pull-over block -- NOT as a
+     * following `if (carObj->blowout == 0) { ... }` wrapper.  Retail's entry guard is
+     * `beqz $v1,.L80086BF0` (dist 31) = straight to the pullOver `lw 0x278`, skipping the re-read
+     * of blowout entirely; the wrapper form makes that guard target the re-read block instead
+     * (dist 27).  Both spellings emit the SAME 597 words, so verify_asm cannot tell them apart
+     * (04Q) -- psyqproof word 14 is the only witness. */
+    if (carObj->blowout != 0) goto afterPullOver;
   }
-  if (carObj->blowout == 0) {
-    if (carObj->pullOver == 0) {
+  if (carObj->pullOver == 0) {
       if (carObj->control.abort) {
         if (carObj->stats.finishType == 0) {
           if (simGlobal.gameTicks > 0x340) {
@@ -516,7 +533,7 @@ void Cars_DoExtraCarCollisionProcessing(Car_tObj *carObj)
         }
       }
     }
-  }
+afterPullOver:
   if (carObj->stats.fatalCrashes > 0) {
     carObj->stats.fatalCrashes--;
   }

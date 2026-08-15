@@ -1,0 +1,16 @@
+== build/recon/frontend/common/fememcard.cpp.o [.bss] our size 44  retail span 0x80051a7c..0x80051a80 (4 B)  0 foreign/un-migrated records, 0 B
+== build/recon/frontend/common/fememcard.cpp.o [.data] our size 40  retail span 0x80051a6c..0x80051aa0 (52 B)  3 foreign/un-migrated records, 12 B
+   0x80051a78   4 B  nomessage              all-zero (un-migrated scalar / file-static)
+   0x80051a7c   4 B  CURRENTLYUSINGMEMCARD  all-zero (un-migrated scalar / file-static)
+   0x80051a80   4 B  MEMCARD_INITIALIZED    all-zero (un-migrated scalar / file-static)
+== build/recon/frontend/common/fetools.cpp.o [.data] our size 2  retail span 0x800517e0..0x800517e8 (8 B)  0 foreign/un-migrated records, 0 B
+== build/recon/frontend/common/fetracks.cpp.o [.data] our size 116  retail span 0x80051610..0x80051628 (24 B)  0 foreign/un-migrated records, 0 B
+== build/recon/frontend/common/screencarselect.cpp.o [.bss] our size 196  retail span 0x80052064..0x80052078 (20 B)  0 foreign/un-migrated records, 0 B
+== build/recon/frontend/common/screencarselect.cpp.o [.data] our size 392  retail span 0x8005203c..0x80052040 (4 B)  0 foreign/un-migrated records, 0 B
+== build/recon/frontend/common/screencongrats.cpp.o [.data] our size 48  retail span 0x80052944..0x80052978 (52 B)  0 foreign/un-migrated records, 0 B
+== build/recon/frontend/common/screencontroller.cpp.o [.data] our size 2040  retail span 0x80052104..0x800528d8 (2004 B)  3 foreign/un-migrated records, 12 B
+   0x800528c4   4 B  D_800528C4             all-zero (un-migrated scalar / file-static)
+   0x800528c8   4 B  D_800528C8             data: a60e0000
+   0x800528cc   4 B  D_800528CC             data: fa000000
+== build/recon/frontend/common/screenpinkslips.cpp.o [.bss] our size 20  retail span 0x80052064..0x80052078 (20 B)  0 foreign/un-migrated records, 0 B
+== build/recon/frontend/common/screenpinkslips.cpp.o [.data] our size 12  retail span 0x80051e64..0x80051e68 (4 B)  0 foreign/un-migrated records, 0 B

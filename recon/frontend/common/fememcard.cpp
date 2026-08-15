@@ -9,16 +9,30 @@
    productCode="SLUS-00826" = the retail PSX game ID; textSysMemCardFail_Index = fail-message LUT).
    Only the 4 externed-not-defined gaps (nm-confirmed); TITLE/nomessage/MEMCARD_INITIALIZED are
    already defined elsewhere. ---- */
-/* CURRENTPLAYER is declared (unsized-array form) in fememcard_externs.h; defined in another obj.
-   Unsized-array + [0] access makes the int-value load into an ARG reg use the oracle's SEPARATE v0
-   scratch (lui v0; lw a0,(v0)) rather than dest-as-temp (lui a0; lw a0,(a0)); §3.15-CORRECTION. */
+/* THIS BLOCK IS FEMemCard.obj's WHOLE retail .data RUN, IN RETAIL ORDER -- DO NOT RE-SORT.
+   From the SYM's own FEMemCard.obj block (W66-A5 symown.py):
+     0x80051a68 CURRENTPLAYER -> a6c productCode[11] -> a78 nomessage ->
+     a7c CURRENTLYUSINGMEMCARD -> a80 MEMCARD_INITIALIZED -> a84 textSysMemCardFail_Index[7].
+   The four zero cells sit BETWEEN two INITIALISED objects, and a tentative definition can never
+   do that (16E: tentative defs emit after every initialised object) -- so retail's source
+   initialised them explicitly.  gcc-2.8 has no zero-initialized-in-bss pass, so `= 0` keeps them
+   in .data at their definition position, which IS the emission order for initialised objects.
+   (The "defined elsewhere / nm-confirmed" note above was STALE: an nm sweep over all 508 recon
+   objects this run shows NOTHING defines CURRENTPLAYER / nomessage / MEMCARD_INITIALIZED --
+   they were still sitting in the blob.  Migrated here W66-A5.)
+   CURRENTPLAYER keeps the unsized-array + [0] access form (fememcard_externs.h): the int-value
+   load into an ARG reg then uses the oracle's SEPARATE v0 scratch (lui v0; lw a0,(v0)) rather
+   than dest-as-temp (lui a0; lw a0,(a0)); §3.15-CORRECTION. */
+int          CURRENTPLAYER[1] = { 0 };   /* @0x80051a68 */
 char         productCode[11] = { 83, 76, 85, 83, 45, 48, 48, 56, 50, 54, 0 };   /* @0x80051a6c */
+int          nomessage = 0;   /* @0x80051a78  SYM BOOL (4 B) */
 /* CURRENTLYUSINGMEMCARD @0x80051a7c (bss(zero)) -- REAL TYPE IS A 4-BYTE BOOL: every oracle
    access in the whole front overlay is a WORD op (7 lw / 6 sw, zero byte ops), and the next
    symbol sits at +4 (0x80051a80). The shared fememcard_externs.h declares it `char` (HEADER
    WISH) -- define through an asm-label int alias; section(".bss") keeps it out of .sbss
    (oracle addresses it absolutely, not gp-rel). */
-int          CURRENTLYUSINGMEMCARD_word asm("CURRENTLYUSINGMEMCARD") __attribute__((section(".bss")));
+int          CURRENTLYUSINGMEMCARD_word asm("CURRENTLYUSINGMEMCARD") = 0;   /* @0x80051a7c */
+int          MEMCARD_INITIALIZED_word2 asm("MEMCARD_INITIALIZED") = 0;   /* @0x80051a80  SYM BOOL */
 int          textSysMemCardFail_Index[7] = { 0, 677, 685, 675, 811, 671, 669 };   /* @0x80051a84 */
 
 /* [HEADER WISH -- TU-local TRUE-TYPE redeclarations via asm labels; the shared headers declare
@@ -30,7 +44,7 @@ int          textSysMemCardFail_Index[7] = { 0, 677, 685, 675, 811, 671, 669 }; 
    - MEMCARD_INITIALIZED / MEMCARDFRONTENDISINITTED are 4-byte BOOLs (SYM; oracle uses lw/sw
      word ops), declared `char` in fememcard_externs.h. */
 extern volatile int ticks_vol            asm("ticks");
-extern int          MEMCARD_INITIALIZED_word asm("MEMCARD_INITIALIZED");
+#define MEMCARD_INITIALIZED_word MEMCARD_INITIALIZED_word2   /* defined above, inside the run */
 extern int          MEMCARDFRONTENDISINITTED_word asm("MEMCARDFRONTENDISINITTED");
 /* base-class vtables for the inlined WarningDialog ctor chains (declared in feapp_externs.h
    for other TUs; TU-local externs here) */

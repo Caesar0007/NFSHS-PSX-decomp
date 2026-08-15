@@ -246,12 +246,21 @@ def main():
                     # the blob as its own piece.
                     e4 = True
                     split_at = end
-                elif (hostok and nb is not None and nb - end < 4
+                elif (hostok and nb is not None and nb - end < 16
                       and nb % 4 == 0 and nb <= host["end"]
                       and set(rom[end - FBASE:nb - FBASE]) <= {0}):
-                    # B2 ALIGNMENT SLACK: our section ends <4 bytes short of the
-                    # next boundary and retail's bytes there are ZERO -- that is
+                    # B2 ALIGNMENT SLACK: our section ends short of the next
+                    # boundary and retail's bytes there are ZERO -- that is
                     # inter-object alignment pad, supplied by the .ld's FILL(0).
+                    # W66-A5: bound relaxed 4 -> 16.  The `< 4` was a guess about
+                    # word alignment, but retail's obj .data bases in this image
+                    # run to 16-alignment (0x80051540, 0x800517c0, 0x800517d0,
+                    # 0x80051970), so the pad after a char/short-tailed object is
+                    # routinely 5..15 bytes.  It is the same FILL(0) either way,
+                    # and the zero-bytes test below is what actually proves the
+                    # class -- the length never did.  Unblocked fetools (18 B,
+                    # 6 B pad) and front.cpp (387 B, 5 B pad), both of which are
+                    # otherwise base-exact and content-exact.
                     e4 = True
                     pad_to = nb
         # ---- E5, reloc-aware (correction A) ----

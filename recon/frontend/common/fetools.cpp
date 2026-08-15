@@ -14,10 +14,21 @@
  * `[]` + `[0]` access (§3.15) forces gcc to materialize the base in a separate reg before the load
  * (a scalar folds the addr into the dest). Declared extern here (front_data.data.s owns the defn);
  * currentSize[0] stays a scalar but pinned to .data (it's stored, addressed absolutely). */
-extern char *font12[];
-extern char *font18[];
-extern char *fontTitle[];             /* @0x800517d4..dc  FE font pointers (.data) */
-short currentSize[1] __attribute__((section(".data")));   /* @0x800517e0  current FE font size */
+/* THIS IS Fetools.obj's WHOLE retail .data RUN, IN RETAIL ORDER -- DO NOT RE-SORT.
+   SYM Fetools.obj block (W66-A5 symown.py): 0x800517d0 FeTools_gScrollTicksOut ->
+   d4 font12 -> d8 font18 -> dc fontTitle -> e0 currentSize (SHORT).  gScrollTicksOut
+   holds 1e 00 00 00 = 30 on disk, so it is the run's one INITIALISED object and leads;
+   the four zero cells follow it as TENTATIVE definitions in FIRST-DECLARATION order
+   (17B EXTERN-ORDER LAW) -- which is exactly these four lines.  Migrated here W66-A5:
+   nothing in the 508 recon objects defined the first four, they were still in the blob.
+   All keep the unsized-array `[]` + `[0]` access shape (§3.15): a global VALUE loaded
+   into an ARG reg then uses the oracle's SEPARATE $v0 scratch (`lui v0; lw a0,(v0)`)
+   rather than dest-as-temp (`lui a0; lw a0,(a0)`), which a scalar would fold. */
+int   FeTools_gScrollTicksOut[1] = { 30 };   /* @0x800517d0 */
+char *font12[1];                             /* @0x800517d4 */
+char *font18[1];                             /* @0x800517d8 */
+char *fontTitle[1];                          /* @0x800517dc */
+short currentSize[1];                        /* @0x800517e0  current FE font size (SYM SHORT) */
 
 
 /* ---- s_upper  [FETOOLS.CPP:90-95] SLD-VERIFIED ---- */

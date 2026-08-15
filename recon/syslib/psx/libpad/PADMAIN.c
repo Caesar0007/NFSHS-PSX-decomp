@@ -253,6 +253,68 @@ extern void _padStopCom(void)
  *   frame; for (ii) it is a local-alloc qty question at the tail (retail's byte pseudo must
  *   conflict with $v0, i.e. the return constant has to be live across the load -- the only form
  *   that does that today, the launder hoisted above the test, costs 2 insns: 32 @207).
+ * w64-a7 2026-08-15 -- THE PHANTOM FRAME IS SOLVED AT THE MECHANISM LEVEL AND IS
+ *   SOURCE-REACHABLE; what is left is one priced allocno tie.  Re-gated 24 @203/205.
+ *   `tools/brdist.py` reports BRANCH COUNT 20 vs 21 for this fn -- i.e. the missing branch is
+ *   the folded final byte test, so the w62 launder device (which restores it) is the
+ *   STRUCTURALLY CORRECT form and the 26-vs-24 LCS reading is 09K non-monotonicity.
+ *   (1) WHO OWNS `vars= 8`.  Bisected on the .i with the real rung binaries: the whole 8 bytes
+ *       belong to the queued-recv FIX BLOCK, and inside it to the DO-WHILE -- minimal repro is
+ *       13 lines, `if (g[ch] > 0) { do { fp(0); } while (g[ch] > 0); }` (a loop whose exit test
+ *       reads a global ARRAY INDEXED BY A GLOBAL, with a call in the body).  A scalar global,
+ *       a constant index, or the same loop without a call all give vars=0.
+ *   (2) THE MECHANISM (read off the RTL dumps, not guessed).  Expanding
+ *       `_padFixResult[_padSioChan]` creates TWO pseudos: 91 = `(set (reg) (symbol_ref))` (the
+ *       `la`, which SURVIVES and is what the loop's `$s1` base comes from) and 94 =
+ *       `(plus (reg 93) (reg 91))` (the address).  cse2 (`rerun-cse-after-loop`) then folds the
+ *       address straight into the MEM as `(plus (reg) (symbol_ref))` and 94's insns disappear --
+ *       but gcc-2.7.2 runs `flow_analysis` ONLY ONCE, before combine/cse2, so REG_N_REFS(94)
+ *       stays 2.  regclass never sees 94 in an insn, all its class costs are 0, and the
+ *       all-zero tie-break lands on the SMALLEST class -- the .lreg literally prints
+ *       "Register 94 used 2 times across 1 insns in block 4; ST_REGS or none; pointer".
+ *       ST_REGS is unallocatable for a pointer, global.c lists 94 in "regs to allocate" and
+ *       leaves it with NO home, and reload's `alter_reg` gives it a 4-byte stack slot that
+ *       MIPS_STACK_ALIGN rounds to 8.  This is exactly why 2.8.0/2.8.1 print vars=0 on the same
+ *       source (2.8 added a reg-usage recomputation after combine) and 2.6.0/2.6.3/2.7.2 print
+ *       vars=8.  PsyQ 4.0's own CC1PSX.EXE reproduces vars=8 byte-for-byte, so it is NOT a
+ *       windows-gcc-psx artifact -- retail's source must simply not have created pseudo 94.
+ *   (3) TWO DEVICES KILL IT, both giving retail's frame EXACTLY (`$sp,32 / vars=0 / regs=3`):
+ *       spell the FIRST read as `*(int *)((_padSioChan << 2) + (int)_padFixResult)` (the 09I
+ *       cast-int subscript -- expand builds the MEM address directly, no intermediate pseudo),
+ *       or `*(volatile int *)&_padFixResult[_padSioChan]`.  `-fno-rerun-cse-after-loop` on the
+ *       rung produces the IDENTICAL object (27 @204), which is the independent confirmation of
+ *       (2); no build.py wiring is needed since the source device is equivalent.
+ *       NEUTRAL (all still vars=8, i.e. the pseudo survives): `*(_padFixResult + _padSioChan)`,
+ *       `_padSioChan * 4 + (int)_padFixResult` (the `*4` form goes through pointer_int_sum),
+ *       `((int *)_padFixResult)[_padSioChan]`, `(unsigned)` index, `(char *)base + ch*4`,
+ *       `&_padFixResult[_padSioChan]` into a pointer local, a `q` pointer in its own block,
+ *       a split decl, a chan-local, a base-ptr local, dropping the `fix` local entirely, and
+ *       identity/read-only fences on `fix`.  A pointer local WITH a use fence on it does kill it
+ *       but turns the $at macro into a real 4-insn address chain (39 @204).
+ *   (4) WHAT THE FRAME FIX COSTS, decomposed.  cast + launder = 25 @206 (vs 24 @203); the frame
+ *       lines are GONE and the residual is exactly three clusters: [11 lines] a `$v1`<->`$a0`
+ *       swap on the JOY_CTRL select, [6 lines] the `&_padFixResult` materialization (retail
+ *       `lui $v1; addiu $v1; addu $s1,$v1,$zero`, ours two nops then `lui $s1; addiu $s1` = the
+ *       +1 insn), [6 lines] the tail `lbu $v0` vs retail `lbu $v1`.  Clusters 1 and 2 are the
+ *       SAME cause: killing pseudo 94 also removes pseudo 91, so the block-0 `la` the loop
+ *       preheader reuses is gone and loop.c materializes into `$s1` directly.
+ *   (5) CLUSTER 1 IS PRICED (qty272 on the rung, both basins).  It is a two-allocno tie:
+ *       p86 = the HImode JOY_CTRL constant, p85 = the `_padSioRegs` value.  CONTROL basin:
+ *       86 refs 3 / live 7 = .4285 (rank 4, $v1 = retail) vs 85 refs 2 / live 5 = .4000
+ *       (rank 7, $a0 = retail) -- correct.  CAST basin: 86 refs 3 / live 6 = .5000 and
+ *       85 refs 2 / live 4 = .5000 -- an EXACT TIE, broken by allocno NUMBER, so 85 allocates
+ *       first and takes $v1.  Under the 272 rule `floor_log2(refs)*refs/live` the minimal dials
+ *       are +1 REF on 86 (3->4 crosses the floor_log2 step: 2*4/6 = 1.333) or +1 LIVE on 85
+ *       (2/5 = .400).  MEASURED: a named ctrl-constant local + a read-only fence DOES flip 86
+ *       onto $v1 -- but the named local costs 2 insns (25 @208) and rotates chan/base instead.
+ *       Falsified for the same tie: base-pointer-first spelling of the store, a `sio` base
+ *       local, a read-only fence on `_padSioRegs` after the store (26 @207), `int` vs
+ *       `unsigned short` carriers, if/else instead of the ternary (33 @214).
+ *       => THE ONE OPEN QUESTION on this function is a ZERO-INSTRUCTION +1 ref on the HImode
+ *       constant (or +1 live on the SIO base) in the cast basin; land that and the fn is ~4.
+ *   Also falsified this wave (all in the cast+launder basin): a laundered `fb` base local
+ *   carrying the loop accesses (44 @205), the same for the loop only (39 @206), an unlaundered
+ *   `fb` (28 @203), and the volatile first-read instead of the cast (31 @206).
  * Five earlier ORACLE-READ corrections, three of them REAL BUGS:
  *  (1) setRC2wait is VOID (WAITRC2.c receipt) and it is _padClrIntSio0's RETURN that retail
  *      tests (`jal _padClrIntSio0; beqz $v0,<ret 0>`), not a setRC2wait result.  The old

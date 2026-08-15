@@ -204,7 +204,7 @@ void tScreenPinkSlips::Initialize()
   Decrement(&menuDefs->iteratorTrack,kPlayerBoth);
   Increment(&menuDefs->iteratorTrack,kPlayerBoth);
   this->fMenu = FEApp->fCurrentMenu[0];
-  this->Initialize();
+  this->tScreen::Initialize();
   this->fTVsInitialized = 0;
   GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);
   sprintf(moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],*(signed char *)&trackInfo.fTrackID);  /* MATCH: lb -- plain char is unsigned on this build */
@@ -232,7 +232,7 @@ void tScreenPinkSlips::Cleanup()
   VIDEO_destroy(this->hVideo);
   purgememadr((void *)this->hVideo);
   frontEnd.pinkSlipsTrackIndex = '\0';
-  this->Cleanup();
+  this->tScreen::Cleanup();
   return;
 }
 

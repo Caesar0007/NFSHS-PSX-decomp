@@ -293,7 +293,7 @@ void tScreenAudio::Initialize()
   this->fPrevSelectedSong = -1;
   SetMenu((tMenuItemSlidingMenu *)&menus->itemSlidingPlayList,true,
              (tInsideBoxMenu*)&menus->menuPlayListMenu);
-  this->Initialize();
+  this->tScreen::Initialize();
   audioMode = frontEnd.audioMode;
   this->audioTest = 0;
   this->audioTestHandle = 0;
@@ -318,7 +318,7 @@ void tScreenAudio::Cleanup()
   gMasterEngineLevel = (int)(byte)frontEnd.engineVolume;
   gMasterAmbientLevel = (int)(byte)frontEnd.ambientVolume;
   AudioMus_Volume((int)(byte)frontEnd.musicVolume * 0x23 >> 6);
-  this->Cleanup();
+  this->tScreen::Cleanup();
   SPEECHINFO *info = &ginfo;
 L_wait:
   if ((*(u_short *)&info->areLoading) != 0) {

@@ -799,7 +799,7 @@ void tScreenMain::PreLoad()
   rnd = rand();
   this->fPreviousAnim = (short)(rnd % 0x19);
   sprintf(gNameBuffer,"yVda%02d",(rnd % 0x19) * 0x10000 >> 0x10);
-  this->PreLoad();
+  this->tScreen::PreLoad();
   /* MATCH: ONE fn-scope `short i` serves BOTH loops -- splitting it into i/j
      halves the allocno's refs and loses the oracle's s2 handout (s0 instead).
      A plain `short` counter -- the decompiler's `i_int * 0x10000 >> 0x10`
@@ -844,7 +844,7 @@ void tScreenMain::Initialize()
   int shapesLoaded;
   short i;
 
-  this->Initialize();
+  this->tScreen::Initialize();
   do {
     FeAudio_systemtask(0);
     shapesLoaded = (int)::IsShapeFileLoaded((tScreen *)this,this->fVideoShapes);
@@ -916,7 +916,7 @@ void tScreenMain::Cleanup()
     i_2 = i_2 + 1;
     off = off + 0x28;
   } while (i_2 < 2);
-  this->Cleanup();
+  this->tScreen::Cleanup();
   return;
 }
 

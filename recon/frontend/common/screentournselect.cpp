@@ -98,7 +98,7 @@ void tScreenTournSelect::Initialize()
   r.h = 0xa0;
   ClearImage(&r,'\0','\0','\0');
   DrawSync(0);
-  this->Initialize();
+  this->tScreen::Initialize();
   this->fCurrentMovie = 0;
   this->fPreviousMovie = 0;
   sprintf(moviename,"%szzzTRN.dct",Paths_Paths[0x29]);
@@ -149,7 +149,7 @@ void tScreenTournSelect::Cleanup()
   
   VIDEO_destroy(this->hVideo);
   purgememadr((void *)this->hVideo);
-  this->Cleanup();
+  this->tScreen::Cleanup();
   return;
 }
 

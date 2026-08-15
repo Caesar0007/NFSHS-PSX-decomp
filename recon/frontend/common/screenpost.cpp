@@ -60,7 +60,7 @@ void tScreenTournamentStandings::Initialize()
   int max_money;
   tAwardInformation tInfo;
   
-  this->Initialize();
+  this->tScreen::Initialize();
   tournamentManager.GetAwardInformation(tInfo);
   this->gotmoney = 0;
   this->gotbonus = 0;
@@ -111,7 +111,7 @@ void tScreenTournamentStandings::Cleanup()
 
 {
   this->fDrawMoney = 0;
-  this->Cleanup();
+  this->tScreen::Cleanup();
   return;
 }
 

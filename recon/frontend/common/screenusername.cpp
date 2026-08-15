@@ -24,7 +24,7 @@ void tScreenUserName::Initialize()
       i = i + 1;
     } while (i < menu_kUserNameRows);
   }
-  this->Initialize();
+  this->tScreen::Initialize();
   return;
 }
 

@@ -271,7 +271,7 @@ void tScreenTrackSelect::Initialize()
   r.h = 0x100;
   ClearImage(&r,'\0','\0','\0');
   DrawSync(0);
-  this->Initialize();
+  this->tScreen::Initialize();
   sprintf
             (moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],(int)(signed char)trackInfo.fTrackID);
   iVar1 = VIDEO_create(0xa0,0x80,0xf0000,0x2c000,0x10);
@@ -303,7 +303,7 @@ void tScreenTrackSelect::Cleanup()
   
   VIDEO_destroy(this->hVideo);
   purgememadr((void *)this->hVideo);
-  this->Cleanup();
+  this->tScreen::Cleanup();
   return;
 }
 

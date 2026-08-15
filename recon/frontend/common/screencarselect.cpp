@@ -146,7 +146,7 @@ void tScreenCarSelect::Cleanup()
   __vtbl_ptr_type (*vtbl) [10];
   
   CleanupSpinningCarsMenu();
-  this->Cleanup();
+  this->tScreen::Cleanup();
   vtbl = this->_vf;
   (*vtbl[1][5].pfn)(this->fPermShapes.fFilename + -0x14 + vtbl[1][5].delta);
   return;
@@ -668,7 +668,7 @@ void tScreenCarSelect::Initialize()
   if (frontEnd.raceType == '\x02') {
     (mdefs->itemDamage).fFlags = uVar6 | 1;
   }
-  this->Initialize();
+  this->tScreen::Initialize();
   /* MATCH (W66): retail reloads each virtual-table entry directly from `_vf`;
      keeping a named vtbl temporary changes the load destination from $v0 to
      $v1.  GROUP THE INT TERMS -- `base + (delta + -0x14)` not
@@ -1427,7 +1427,7 @@ void tScreenCarSelectDuel::Initialize()
 
 {
   
-  this->Initialize();
+  this->tScreenCarSelect::Initialize();
   this->fState = 0;
   gShowroomLights[0] = 0;
   return;
@@ -1441,7 +1441,7 @@ void tScreenCarSelectDuel::Cleanup()
 {
   
   ::FreeShapes((tScreen *)this,&this->fOpponentShapes);
-  this->Cleanup();
+  this->tScreenCarSelect::Cleanup();
   return;
 }
 
@@ -2365,7 +2365,7 @@ void tScreenCarSelectTwoPlayer::Initialize()
 
 {
   
-  this->Initialize();
+  this->tScreenCarSelect::Initialize();
   this->fState = 0;
   this->fPreviousCar = -1;
   this->fPreviousCarID = -1;
@@ -2386,7 +2386,7 @@ void tScreenCarSelectTwoPlayer::Cleanup()
 {
   
   ((tDialogBase *)&this->CarDialog)->Hide();
-  this->Cleanup();
+  this->tScreenCarSelect::Cleanup();
   return;
 }
 
@@ -2433,7 +2433,7 @@ void tScreenPinkSlipsCarSelect::DrawBackground()
 {
   
   this->DoMemCardStuff();
-  this->DrawBackground();
+  this->tScreenCarSelectTwoPlayer::DrawBackground();
   if (this->fExitingScreen != 0) {
     ((tDialogBase *)&this->CarDialog)->Hide();
   }
@@ -2562,7 +2562,7 @@ void tScreenPinkSlipsCarSelect::DrawForeground()
 
 {
   
-  this->DrawForeground();
+  this->tScreenCarSelectTwoPlayer::DrawForeground();
   return;
 }
 
@@ -2583,7 +2583,7 @@ void tScreenPinkSlipsCarSelect::Initialize()
   this->pCI = cardInfo;
   Init_Memcard(true,1);
   this->fExitingScreen = 0;
-  this->Initialize();
+  this->tScreenCarSelectTwoPlayer::Initialize();
   return;
 }
 
@@ -2599,7 +2599,7 @@ void tScreenPinkSlipsCarSelect::Cleanup()
   PinkSlipsScreenState[1] = WhoCaresWeBeExiting;
   ((tDialogBase *)&this->CarDialog)->Hide();
   DeInit_Memcard();
-  this->Cleanup();
+  this->tScreenCarSelectTwoPlayer::Cleanup();
   return;
 }
 

@@ -850,7 +850,7 @@ void tMenuNFS4::Draw()
   if (-1 < index) {
     FETextRender_Title(index);
   }
-  this->Initialize();
+  this->tMenu::Initialize();
   ptVar1 = this->fItemList[this->fCurrentItem];
   iVar4 = ptVar1->fButtonImage;
   iVar3 = ptVar1->fNumFrames;

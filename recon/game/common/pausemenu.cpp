@@ -707,7 +707,7 @@ void tPMenuItemLeftRightSliderIndexed::ProcessInput(tInputKeyType &keyval,tPMenu
   
   orgdata = this->fData;
   this->fData = orgdata + (u_char)*this->fIndex;
-  this->ProcessInput(keyval,command);
+  this->tPMenuItemLeftRightSlider::ProcessInput(keyval,command);
   this->fData = orgdata;
   return;
 }
@@ -723,7 +723,7 @@ void tPMenuItemLeftRightSliderIndexed::Draw(bool selected)
   
   orgdata = this->fData;
   this->fData = orgdata + (u_char)*this->fIndex;
-  this->Draw(selected);
+  this->tPMenuItemLeftRightSlider::Draw(selected);
   this->fData = orgdata;
   return;
 }

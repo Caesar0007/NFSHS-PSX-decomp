@@ -88,7 +88,7 @@ void tScreenTrackInfo::DrawBackground()
 void tScreenTrackInfo::Initialize()
 
 {
-  this->Initialize();
+  this->tScreen::Initialize();
   ::Initialize(&this->fVideoWall,this->tvConfigs,this->fSwapShapes.fShapes,0,10,tvOrder,0);
   UpdateImages(&this->fVideoWall);
   TurnOn(&this->fVideoWall);

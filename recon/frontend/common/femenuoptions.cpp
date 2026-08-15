@@ -876,7 +876,7 @@ void tMenuItemSlidingMenu::UpdateTransition(bool selected)
   pa_Var1 = this->_vf;
   this->fFadeVal = (short)iVar2;
   (*(*pa_Var1)[9].pfn)((int)&this->fFlags + (int)(*pa_Var1)[9].delta);
-  this->UpdateTransition(selected);
+  this->tMenuItem::UpdateTransition(selected);
   return;
 }
 
@@ -1202,7 +1202,7 @@ void tMenuItemSlidingMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval
   if (keyval == kInput_KeyType_Down) {
     keyval = kInput_KeyType_AlreadyProcessed;
   }
-  this->ProcessInput(fromPlayer,keyval,command);
+  this->tMenuItem::ProcessInput(fromPlayer,keyval,command);
   return;
 }
 
@@ -1499,7 +1499,7 @@ void tMenuItemOnOffLeftRightChoice::TransitionOn()
   cVar1 = (*(u_char (*)(char *, int))(*pa_Var3)[2].pfn)((char *)ptVar2 + (int)(*pa_Var3)[2].delta,0xffffffff);
   bSet = (0 < cVar1);
   this->fOnFade = (u_short)(bSet << 7);
-  this->TransitionOn();
+  this->tMenuItemLeftRightFade::TransitionOn();
   return;
 }
 
@@ -2961,7 +2961,7 @@ void tUserNameMenuItem::UpdateTransition(bool selected)
   pa_Var1 = this->_vf;
   this->fFadeVal = (short)iVar2;
   (*(*pa_Var1)[9].pfn)((int)this + (int)(*pa_Var1)[9].delta);
-  this->UpdateTransition(selected);
+  this->tMenuItem::UpdateTransition(selected);
   return;
 }
 

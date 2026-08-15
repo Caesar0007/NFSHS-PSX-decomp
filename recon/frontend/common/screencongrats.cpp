@@ -21,7 +21,7 @@ void tScreenCongrats::Cleanup()
 {
   
   CleanupSpinningCarsMenu();
-  this->Cleanup();
+  this->tScreen::Cleanup();
   return;
 }
 
@@ -380,7 +380,7 @@ void tScreenCongrats::Initialize()
     this->fStartCountdownNOW = 1;
     this->fCountSpeed = 1000;
   }
-  this->Initialize();
+  this->tScreen::Initialize();
   return;
 }
 
@@ -529,7 +529,7 @@ void tScreenPinkSlipCongrats::Initialize()
   else {
     this->fWinner = 1;
   }
-  this->Initialize();
+  this->tScreenCongrats::Initialize();
   return;
 }
 
@@ -539,7 +539,7 @@ void tScreenPinkSlipCongrats::Cleanup()
 {
   
   CleanupSpinningCarsMenu();
-  this->Cleanup();
+  this->tScreen::Cleanup();
   return;
 }
 
@@ -551,7 +551,7 @@ void tScreenTournamentTrophy::ProcessInput(tPlayer p,tInputKeyType &keyval,tMenu
     keyval = kInput_KeyType_AlreadyProcessed;
     this->fStartCountdownNOW = 1;
   }
-  this->ProcessInput(p,keyval,c);
+  this->tScreenCongrats::ProcessInput(p,keyval,c);
   return;
 }
 
@@ -808,7 +808,7 @@ void tScreenBeTheCopCongrats::CalculatePrizes()
 
 {
   
-  this->CalculatePrizes();
+  this->tScreenCongrats::CalculatePrizes();
   this->trophy = kTrophyCar;
   this->fCarX = 0x116;
   this->fCarY = 0x4b;
@@ -878,7 +878,7 @@ void tScreenTournamentCongrats::CalculatePrizes()
   tAwardInformation tInfo;
   
   GetAwardInformation(&tournamentManager,&tInfo);
-  this->CalculatePrizes();
+  this->tScreenCongrats::CalculatePrizes();
   this->trophy = kTrophyCar;
   this->TotalCash = tournamentManager.fMoney;
   cash = -1;

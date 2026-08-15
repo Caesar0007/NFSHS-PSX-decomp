@@ -980,7 +980,7 @@ void tScreenMemcard::Initialize()
   this->fReadyToGetNewIcons = 0;
   this->theNFS4icon = -1;
   this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = 0;
-  this->Initialize();
+  this->tScreen::Initialize();
   return;
 }
 
@@ -1000,7 +1000,7 @@ void tScreenMemcard::Cleanup()
   (menus->itemLoadGame).fFlags =
        (menus->itemLoadGame).fFlags & 0xfffffffe;
   purgememadr(iconTable);
-  this->Cleanup();
+  this->tScreen::Cleanup();
   return;
 }
 

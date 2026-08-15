@@ -24,7 +24,7 @@ void tScreenTrackRecords::Initialize()
   tRecordBuffer *recs;
   
   this->flareextra = 0;
-  this->Initialize();
+  this->tScreen::Initialize();
   recs = (tRecordBuffer *)reservememadr("trkrcrds",0x168,0x10);
   this->TrackRecords = recs;
   nShowTrack = Front_GetTrackRaced();
@@ -41,7 +41,7 @@ void tScreenTrackRecords::Cleanup()
   purgememadr(this->TrackRecords);
   this->TrackRecords = (tRecordBuffer *)0x0;
   StatChk_ClearNewRecords();
-  this->Cleanup();
+  this->tScreen::Cleanup();
   return;
 }
 

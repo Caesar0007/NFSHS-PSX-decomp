@@ -1321,7 +1321,7 @@ void tScreenControllerConfig::Initialize()
   this->CurrentlyLoadedArt = -1;
   this->negconChoice = -1;
   this->player = b;
-  this->Initialize();
+  this->tScreen::Initialize();
   this->fCurrentController = '\0';
   SetMenu(&menuDefs[0]->itemControllerSettings,true,(tInsideBoxMenu *)0x0);
   this->SetCurrentController(true);
@@ -1361,7 +1361,7 @@ void tScreenControllerConfig::Cleanup()
   this->ClearActuators();
   this->TurnOffShakers();
   PadStartCom();
-  this->Cleanup();
+  this->tScreen::Cleanup();
   return;
 }
 

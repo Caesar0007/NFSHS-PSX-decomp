@@ -163,7 +163,7 @@ void tScreenTrophyRoom::Initialize()
   tfrontEnd *loopFe;
   short i;
 
-  this->Initialize();
+  this->tScreen::Initialize();
   do {
     systemtask(0);
     loaded = (int)::IsShapeFileLoaded((tScreen *)this,&this->fTrophyShapes);
@@ -215,7 +215,7 @@ void tScreenTrophyRoom::Cleanup()
 {
   
   ::FreeShapes((tScreen *)this,&this->fTrophyShapes);
-  this->Cleanup();
+  this->tScreen::Cleanup();
   return;
 }
 

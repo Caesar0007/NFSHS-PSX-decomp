@@ -1275,7 +1275,6 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
   u_short uv2;
   u_char primTypeByte_b;
   u_char code;
-  int iVar7;
   int facetByteOff;
   int iVar8;
   u_int uVar10;
@@ -1461,14 +1460,12 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     int id2;
     int otzSum;
     if ((envmap & 2U) == 0) {
-      iVar7 = facetIdx * 0xc;
       while( true ) {
         facetIdx = facetIdx - 1;
-        iVar7 = iVar7 + -0xc;
         if (facetIdx == 0xffffffff) {
           return;
         }
-        facet = (int)obj->facet + iVar7;
+        facet = (int)(obj->facet + facetIdx);
         id0 = *(u_char *)(facet + 3);
         id1 = *(u_char *)(facet + 4);
         id2 = *(u_char *)(facet + 5);
@@ -1476,55 +1473,52 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         /* SYM 3.8b: id0-2 morph index->address IN PLACE (one pseudo each);
          * oracle scales the id regs themselves (sll aN,aN,3; addu aN,aN,s1)
          * and keeps tV's 0xD0 in the lwc2 displacement.
-         * w55-a9 NEGATIVE (Prim only -- the same edit is a -74 WIN on PrimClip,
-         * see its header): splitting the fused morph into `idN = idN * 8;
-         * idN = idN + (int)sd;` regresses Prim 338 -> 426..450 at EVERY one of the
-         * 36 load x morph statement permutations, and with the FUSED form the morph
-         * order is a strict no-op (all 6 permutations gate 338) while the load order
-         * is already optimal at L(0,1,2) (L210 350, L102 368, ...).  Prim's id block
-         * is at its own optimum; do not port the PrimClip lever here.
-         * w62-a14 RE-SWEPT FROM THE 336 BASIN (04Z; the w55-a9 numbers were taken
-         * at 338) -- the verdict holds and is now sharper.  Applied to ALL FIVE
-         * fused sites at once: `(int)sd + idN * 8` 336, `((int)sd) + (idN << 3)`
-         * 336, `(idN << 3) + (int)sd` 336 (every operand order and every
-         * shift/multiply spelling is BIT-IDENTICAL -- fold canonicalises them),
-         * `idN *= 8; idN += (int)sd;` 448, `idN = idN*8; idN = idN + (int)sd;` 448.
-         * ALPHA-RENAME DIAGNOSIS (scratchpad/w62a14/alphacmp.py): alpha LCS
-         * 1085/1389, so the residual is NOT a pure handout rotation -- the streams
-         * genuinely differ.  This block's own difference is that retail's morph is
-         * IN-PLACE (`sll a2,a2,3; addu a2,a2,s1`) while ours uses a scratch
-         * (`sll v0,a0,3; addu a0,v0,s1`): same count, different qty structure.
-         * local-alloc's combine_regs can only tie the shift temp to idN when idN is
-         * a BLOCK-LOCAL qty; ours is a global allocno (13A block-local anchor law),
-         * which is why no spelling of the expression reaches it.  The named angle
-         * is therefore the DECLARATION SCOPE of id0/id1/id2 (declared once in the
-         * `case 0:` block that spans every arm), not the expression.  Also read off
-         * the same dump: retail materialises `li t3,36` and `li s4,38` in the loop
-         * head where we have neither, and ours is 6 insns LONGER overall -- a
-         * second, independent constant-naming axis (13C literal-vs-named).
-         * w63-a14 RAN THE DECLARATION-SCOPE ANGLE.  FALSIFIED -- C-level scope is
-         * NOT the dial here.  Three placements, all re-gated from the 336 basin:
-         * moving the whole `u_int *prim; int facet; int id0-2; int otzSum;` group
-         * from the `case 0:` block (which spans the alt loop too) INTO the
-         * `if ((envmap & 2U) == 0)` arm = 336 BIT-IDENTICAL; moving only id0/id1/id2
-         * into that arm = 336 BIT-IDENTICAL; declaring id0/id1/id2 inside the
-         * `while( true )` BODY = 415 @1394 (worse, and it also plants the
-         * NOTE_INSN_BLOCK_BEG that 13D says blocks duplicate_loop_exit_test).
-         * WHY the w62 reading still stands but names the wrong knob: id0 is LOADED
-         * before the `MPrimPtr <= PrimPtr` guard and MORPHED after it, i.e. it is
-         * referenced in TWO basic blocks, so local-alloc.c:471-477 sets reg_qty -1
-         * and it is a GLOBAL allocno no matter which C scope declares it.  The
-         * knob is therefore the BASIC-BLOCK span of the id pseudos (move the three
-         * `lbu` loads BELOW the guard so def and morph share one block), not the
-         * lexical scope -- and that reorder must be priced against the w55/w62
-         * finding that the load order L(0,1,2) is already the local optimum.
-         * Retail's `sll a2,a2,3; addu a2,a2,s1` in-place morph is then reachable
-         * two ways: local-alloc combine_regs tying the shift temp to a block-local
-         * id, or (13A SET_PREFERENCE) the global allocno preferring the shift
-         * temp's home -- ours takes $a0 while the temp takes $v0. */
-        id0 = id0 * 8 + (int)sd;
-        id1 = id1 * 8 + (int)sd;
-        id2 = id2 * 8 + (int)sd;
+         * ===== w64-a14 (2026-08-15): THE PrimMenu TRANSFER, 336 -> 174 =====
+         * The multi-wave "Prim's id block is at its own optimum, do not port the
+         * PrimClip/PrimMenu lever" verdict (w55-a9 338->426..450, w62-a14 336->448,
+         * w63-a14 decl-scope 336 bit-identical) was BASIN-RELATIVE (04Z): every one
+         * of those measurements was taken with the Ghidra byte-offset biv `iVar7`
+         * still driving the facet loop.  Two ordered landings:
+         *  (1) DROP THE BIV.  `iVar7 = facetIdx*0xc; ... iVar7 += -0xc;
+         *      facet = (int)obj->facet + iVar7;` is a Ghidra invention -- the SYM
+         *      lists exactly ONE fn-scope counter (`i`, REG $t2 INT) and a typed
+         *      per-block `facet` (PTR Transformer_zFacet), NO byte offset.  Writing
+         *      `facet = (int)(obj->facet + facetIdx)` lets loop.c strength-reduce
+         *      the *12 into its own giv (retail's t1/t3 base + the `addiu t2,t2,-1`
+         *      counter whose dec reorg steals into the guard's delay slot with the
+         *      `addiu t2,t2,1` undo on the continue path -- exactly the shape
+         *      DrawC_PrimMenu's identical loop is SEALED with).  336 -> 276 at an
+         *      unchanged count, all 5 sites.  `int iVar7;` is then dead: removing
+         *      the declaration is BIT-IDENTICAL (measured).
+         *  (2) THEN the morph lever finally bites, PER SITE (measured individually
+         *      from the 276 basin; the w55/w62 "all five at once" runs hid this):
+         *        site 3 (SYM block line=261, ids t1/t0/a3 -- registers ALREADY
+         *          retail-exact, only the scratch differed): the plain SPLIT
+         *          `idN = idN*8; idN = idN + (int)sd;` -> in-place `sll t1,t1,3;
+         *          addu t1,t1,s1`.  276 -> 264.
+         *        sites 1,2,4 (SYM blocks 87/178/413, ids a2/a1/a0): split + the
+         *          PrimMenu floor_log2 REF-STEP dial (do{}while(0) on id1's `+= sd`
+         *          and on BOTH of id2's statements) reverses the allocno order
+         *          id0,id1,id2 -> id2,id1,id0 = retail a2/a1/a0.  -30 EACH,
+         *          strictly additive: 264 -> 234 -> 204 -> 174.
+         *        site 5 (SYM block 554, ids t9/t8/t3): the split REGRESSES there
+         *          (264 -> 448) and the PrimMenu dial too (436) -- left FUSED.
+         *          NAMED ANGLE: that block is the only one whose ids land in the
+         *          $t8/$t9 band, i.e. they are NOT the first-served qtys; price it
+         *          with qtyprio/-dl before trying another dial.
+         * Falsified from the 276 basin (all still count 1395/1389 unless noted):
+         *   moving the three `lbu` loads BELOW the guard = 331 @1390 (it DOES buy
+         *   5 of the +6 excess insns -- retail interleaves `lw v1,8(s1)` / facet /
+         *   lbu id0,id1 / `lw v0,4(s1)` / lbu id2 / sltu -- but the LCS cost is
+         *   worse at this basin; re-probe it after the remaining rotations);
+         *   `int facetIdx` + `== -1` (SYM says INT) = bit-identical;
+         *   `facet = (int)(obj->facet) + facetIdx*12` = bit-identical. */
+        id0 = id0 * 8;
+        id0 = id0 + (int)sd;
+        id1 = id1 * 8;
+        do { id1 = id1 + (int)sd; } while (0);
+        do { id2 = id2 * 8; } while (0);
+        do { id2 = id2 + (int)sd; } while (0);
         gte_ldVXY0m(*(u_int *)(id0 + 0xd0));
         gte_ldVZ0m(*(u_int *)(id0 + 0xd4));
         gte_ldVXY1m(*(u_int *)(id1 + 0xd0));
@@ -1612,22 +1606,23 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       int id1;
       int id2;
       int otzSum;
-      iVar7 = facetIdx * 0xc;
       while( true ) {
         facetIdx = facetIdx - 1;
-        iVar7 = iVar7 + -0xc;
         if (facetIdx == 0xffffffff) {
           return;
         }
-        facet = (int)obj->facet + iVar7;
+        facet = (int)(obj->facet + facetIdx);
         id0 = *(u_char *)(facet + 3);
         id1 = *(u_char *)(facet + 4);
         id2 = *(u_char *)(facet + 5);
         if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) continue;
         /* SYM 3.8b: id0-2 morph index->address in place (oracle sll aN,aN,3) */
-        id0 = id0 * 8 + (int)sd;
-        id1 = id1 * 8 + (int)sd;
-        id2 = id2 * 8 + (int)sd;
+        id0 = id0 * 8;
+        id0 = id0 + (int)sd;
+        id1 = id1 * 8;
+        do { id1 = id1 + (int)sd; } while (0);
+        do { id2 = id2 * 8; } while (0);
+        do { id2 = id2 + (int)sd; } while (0);
         gte_ldVXY0m(*(u_int *)(id0 + 0xd0));
         gte_ldVZ0m(*(u_int *)(id0 + 0xd4));
         gte_ldVXY1m(*(u_int *)(id1 + 0xd0));
@@ -1717,22 +1712,20 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     int id1;
     int id2;
     int otzSum;
-    iVar7 = facetIdx * 0xc;
     while( true ) {
       facetIdx = facetIdx - 1;
-      iVar7 = iVar7 + -0xc;
       if (facetIdx == 0xffffffff) {
         return;
       }
-      facet = (int)obj->facet + iVar7;
+      facet = (int)(obj->facet + facetIdx);
       id0 = *(u_char *)(facet + 3);
       id1 = *(u_char *)(facet + 4);
       id2 = *(u_char *)(facet + 5);
       if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) continue;
       /* SYM 3.8b: id0-2 morph index->address in place (oracle sll aN,aN,3) */
-      id0 = id0 * 8 + (int)sd;
-      id1 = id1 * 8 + (int)sd;
-      id2 = id2 * 8 + (int)sd;
+      id0 = id0 * 8; id0 = id0 + (int)sd;
+      id1 = id1 * 8; id1 = id1 + (int)sd;
+      id2 = id2 * 8; id2 = id2 + (int)sd;
       gte_ldVXY0m(*(u_int *)(id0 + 0xd0));
       gte_ldVZ0m(*(u_int *)(id0 + 0xd4));
       gte_ldVXY1m(*(u_int *)(id1 + 0xd0));
@@ -1989,22 +1982,23 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     int facet_flag;
     int sd_otz;
     int otzSum;
-    iVar7 = facetIdx * 0xc;
     while( true ) {
       facetIdx = facetIdx - 1;
-      iVar7 = iVar7 + -0xc;
       if (facetIdx == 0xffffffff) {
         return;
       }
-      facet = (int)obj->facet + iVar7;
+      facet = (int)(obj->facet + facetIdx);
       id0 = *(u_char *)(facet + 3);
       id1 = *(u_char *)(facet + 4);
       id2 = *(u_char *)(facet + 5);
       if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) continue;
       /* SYM 3.8b: id0-2 morph index->address in place (oracle sll aN,aN,3) */
-      id0 = id0 * 8 + (int)sd;
-      id1 = id1 * 8 + (int)sd;
-      id2 = id2 * 8 + (int)sd;
+      id0 = id0 * 8;
+      id0 = id0 + (int)sd;
+      id1 = id1 * 8;
+      do { id1 = id1 + (int)sd; } while (0);
+      do { id2 = id2 * 8; } while (0);
+      do { id2 = id2 + (int)sd; } while (0);
       gte_ldVXY0m(*(u_int *)(id0 + 0xd0));
       gte_ldVZ0m(*(u_int *)(id0 + 0xd4));
       gte_ldVXY1m(*(u_int *)(id1 + 0xd0));
@@ -2159,14 +2153,12 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     int facet_flag;
     int sd_otz;
     int otzSum;
-    iVar7 = facetIdx * 0xc;
     while( true ) {
       facetIdx = facetIdx - 1;
-      iVar7 = iVar7 + -0xc;
       if (facetIdx == 0xffffffff) {
         return;
       }
-      facet = (int)obj->facet + iVar7;
+      facet = (int)(obj->facet + facetIdx);
       id0 = *(u_char *)(facet + 3);
       id1 = *(u_char *)(facet + 4);
       id2 = *(u_char *)(facet + 5);

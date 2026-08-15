@@ -806,6 +806,16 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
       addw = 1;
     }
     w1 = w;
+    /* MATCH (W62-A16, 16 -> 14, count still EXACT 245/245): the `w1 <= 0` guard
+     * must test w1, not w.  cse puts w and w1 in ONE quantity (w1 is a plain copy
+     * of w) and canon_reg rewrites every use to the quantity's FIRST register --
+     * which is w's $s5 -- so ours emitted `sll v0,s5,16` where retail has
+     * `sll v0,a1,16`.  The identity launder (13B) makes w1 opaque to cse, so the
+     * guard reads w1's own register; it emits nothing and the count is unchanged.
+     * NON-ASM alternatives all falsified from this basin (re-gated): decl order
+     * w1-before-w 16 (exactly neutral), `w1 = wsel; w = w1;` 99 @244,
+     * `w1 = w; w = w1;` 88, `(int)w1` cast 0 (cse folds it), dropping `w` 168. */
+    __asm__("" : "=r"(w1) : "0"(w1));
     prim[0xc] = u;
     prim[0xd] = v;
     prim[0x18] = u + w1;
@@ -1610,7 +1620,39 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    * initializer is a real scheduling lever, but a reused {9,0x2c} local is 24 here
    * (both constants move to t9). Reversing the len/code comma arms stays 22 but emits
    * their stores in the wrong order. A named font_tint carrier is byte-neutral at 22;
-   * moving its load/store after addPrim reproduces the already-known 112 basin. */
+   * moving its load/store after addPrim reproduces the already-known 112 basin.
+   * ==== W62-A16 (2026-08-15): POSITION and the tint LIVE-RANGE are both CLOSED;
+   * the 22 now splits cleanly into 2 + 20 diffs.
+   * POSITION RE-RUN FROM THE 22 BASIN (04Z basin-relativity): a def-use-correct
+   *   climber (scratchpad/w62a16/climb.py -- tools/stmtclimb3.py CANNOT run on this
+   *   fn, it reads the decl `int width;` as a USE of width and its baseline
+   *   assertion fires) gated ALL 230 valid single moves and 633 compound pairs:
+   *   every single one is exactly 22.  So 22 is a single- AND two-move positional
+   *   optimum, exactly as 50 and 48 were before it -- position stays a closed dial.
+   * ANGLE #G FALSIFIED IN EVERY FORM (w61a18 asked for: tint value long-lived,
+   *   store late, zero instructions).  Named carrier with the store moved after
+   *   RMW2 112, after len/code 112, volatile-view load 112.  And the one untried
+   *   shape -- pin the LOAD high with a barrier so only the STORE sinks -- costs
+   *   three insns: identity launder / void-tail fence / read-only fence placed
+   *   immediately after the load all gate 135 @ 79 (fold collapses the pair once a
+   *   barrier separates it from its store).
+   * NEW NEGATIVE, not previously reachable by ANY position tool: the RMW1
+   *   DESTINATION READ `lw v1,0(t1)` is at ours 18 / retail 15, and no statement
+   *   move can reach it because that read lives INSIDE the RMW statement, which
+   *   must follow `pal = ...`.  Splitting it into its own earlier statement
+   *   (`tag = *(u_long *)prim;` before the palette load, RMW1 respelled as a scalar
+   *   masked or-store) gives it the LOWEST luid -- five spellings (raw/masked read,
+   *   scalar or-store, bitfield RMW1 kept, control placement after pal) measure
+   *   EXACTLY 22.  => that slot is NOT sched1's luid tie-break; it is decided
+   *   post-reload (sched2), so no source order can move it.
+   * RESIDUAL ANATOMY 22 = 2 + 20.  The 2 are that `lw v1,0(t1)` slot alone, and
+   *   both sides use IDENTICAL registers there -- so it is expressible as a
+   *   PER_FN_TEXT_MOVES take/after pair -- PROBE-VERIFIED TWICE via tools/vprobe.py
+   *   (W60_TEXT_MOVES_FILE, row in scratchpad/w62a16/font_moves.json):
+   *     take `lw $3,0($9)` after `sw $2,0($3)`  =>  22 -> 20, still 82/82,
+   *     zero effect on any TU-mate.  ORCHESTRATOR: wire it.  The other 20
+   *   are the tint/RMW2 $v0-$v1 role swap, a REGISTER difference and therefore NOT
+   *   text-movable; route stays the instrumented-cc1 sched/find_free_reg trace. */
   POLY_FT4      *prim;
   PSXFront_PTag *pal;
   int            width;

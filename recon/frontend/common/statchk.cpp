@@ -308,7 +308,35 @@ short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
  * hard argument $a2.  GCC now keeps the loop size in retail's $t0 and emits
  * the late `addu a2,t0,zero`, removing one instruction and reducing 34->33
  * (417/416).  Moving this fence before copyDst or duplicating it is neutral;
- * naming the source offset or reusing uBulkSz regresses to 79/62 diffs. */
+ * naming the source offset or reusing uBulkSz regresses to 79/62 diffs.
+ *
+ * W62-A16 (2026-08-15, re-gated baseline 33 @ 417/416 -- NOT the 34 the W69 note
+ * implies; the basin moved, so every parked spelling below was re-priced here):
+ * 🔑 NEW DEVICE FOUND for the receipted open question "what made retail's 20
+ * OPAQUE without an asm" -- gcc-2.8 cse is BASIC-BLOCK-LOCAL, so a
+ * `size = sizeof(T);` assignment placed on the FAR SIDE OF A LOOP from its use
+ * cannot be constant-folded into the multiply expansion.  Hoisting
+ * `uRecSz = sizeof(tRecordBuffer);` above the topPlacements zero-loop and
+ * DELETING fence-1 keeps retail's `sll/addu/sll` *18 chain at ZERO instructions
+ * and ZERO asm: 112 diffs @ 416 == the ORACLE COUNT (the fence basin is 417).
+ * It is not landed because the pseudo is then live ACROSS the loop and takes
+ * $a1 (forcing the nNumCars spill up 10 slots), where retail's is born AFTER
+ * the loop in $t0 -- so retail's opacity is a THIRD mechanism (a REG_EQUIV
+ * constant rematerialised at the use), not cross-BB and not an asm.
+ * Re-gated from the 33 basin, all falsified: assign-before-loop no fence 112@416
+ * / with fence 37@417 / fence-also-before-loop 120@416; assign INSIDE the loop
+ * 112@416; decl-with-init 112@416; identity(no extra operand) at the use 114@416;
+ * read-only at the use 112@416 (x2 operands 114); fence operand = uRecSz itself
+ * 33@417 (the dead `lhu` is replaced by an equally dead `addu t0,v0,zero`),
+ * = topPlacements[0] 33, = nCarTotalTimes 33, = "i"(0) 110@416, double identity
+ * 110@416, = dummyCars (a ZERO-INSN operand, already in $fp) 110@416.
+ * ⇒ 12E's law reproduced exactly: every operand that costs a real insn gives 33
+ * (retail's REGISTERS, +1 count); every zero-insn operand gives 110-112
+ * (retail's COUNT, wrong registers).  The device is priced, not free.
+ * The cross-BB device does NOT transfer to the other two size sites: uBulkUnit
+ * hoisted above the placement loop = 193@421 (no f2) / 235@421 (f2 kept), and
+ * uCopySz hoisted above the copy loop = 248@424 / 327@423 -- both hoists escape
+ * the outer per-car loop and buy a callee-saved home.  Dropping f3 alone = 60@416. */
 void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
 
 {

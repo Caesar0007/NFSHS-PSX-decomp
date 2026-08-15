@@ -1675,7 +1675,22 @@ void StatusReply__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
        materialises retail's `addu a3,v1,zero` copy, both stay ONE SHORT.  Staging
        works when retail needs a FRESH register for a stack arg; it does not defeat
        a copy-preference onto an arg register that is genuinely the value's only
-       consumer.  Route unchanged (06E copy-preference / 12A preference killer). */
+       consumer.  Route unchanged (06E copy-preference / 12A preference killer).
+       W62-A9 (13B copy devices) -- the residual is now QUANTIFIED, not just named.
+       A read-only fence on `wing` placed AFTER the call DOES mint retail's missing
+       copy and makes the count EXACT 269/269 (`addu a3,s0,zero`), so the copy device
+       IS the right family -- but any post-call reference extends the live range
+       ACROSS the call, so the value is forced CALLEE-saved ($s0) where retail keeps
+       it caller-saved ($v1, dead at the copy): 8 diffs, worse than 5.  A `wingArg`
+       copy carrier plus an identity launder does the same at 14@269.  Read-only
+       fences on `wing` before/after the fWing store, with 1, 2 and 3 operands, are
+       ALL 15@268 -- the floor_log2 ref-step is inert here because this is a hard-reg
+       PREFERENCE, not a priority (12A).  Moving the fWing store to just before the
+       call: 5 (inert).
+       => THE EXACT WANTED DEVICE (13B's 4-witness request, sharpened by a witness):
+       mint the copy WITHOUT adding a reference after the call.  Every device that
+       mints it today also lengthens the range past the call and therefore buys the
+       wrong register CLASS. */
     SPCHNFS_D_C_SPBLT_CONFIRMED((SPCHNFSType_POSITION *)pThis,
       location,distance,wing,
       &(pThis->_base_Speaker).fSpikeSide);
@@ -2295,7 +2310,20 @@ void AddPerp__Q26Speech15DispatchSpeakerP8Car_tObj(DispatchSpeaker *pThis,Car_tO
  *   on iVar3; the named receiver local + the iVar3 read-only fence together.
  *   NEXT ANGLE: the dial has to make $v0 UNAVAILABLE at the receiver load, i.e. keep
  *   the first result's pseudo in $v0 across it -- an allocsim/reqdelta job on the
- *   iVar3 allocno, or the 12A "hard-reg preference killer" instrument, not a fence. */
+ *   iVar3 allocno, or the 12A "hard-reg preference killer" instrument, not a fence.
+ * W62-A9 re-gated 11@103 and applied the 13B copy devices.  SEVEN more
+ * falsifications, all measured in the CURRENT basin (this TU has had structural
+ * landings since W60-A9, so they supersede the stale numbers above): the
+ * SYM-driven single-expression form (the 8c block declares NO named locals at
+ * all -- every temp is anonymous) 17@101; the half-expression form 15@103; a
+ * `pa_Var2` receiver carrier 11 (inert); the same carrier with a 13B identity
+ * launder 11 (inert); the sum written product-first `iVar4*4 + iVar3` 11 (inert);
+ * a read-only fence on iVar4 after the sum 16@104; dropping the pSVar6 launder
+ * 16@102.  MECHANISM CONFIRMED BY EXHAUSTION: reorg cannot sink the
+ * `addu s0,v0,zero` copy because OUR arg insn `addu a0,v1,a0` is still eligible
+ * for the jalr slot -- retail's is not, because retail's pfn load `lw v1,140(a1)`
+ * clobbers v1 AFTER it.  Everything is downstream of the receiver's register;
+ * route unchanged (12A hard-reg preference killer). */
 /* MATCH: 36 -> 11 diffs (103/104).  Distinct short-lived speech arguments
    recover every tail register, the SLD Speech* local plus the first empty
    barrier recover the retail prologue, and the pin-free pSVar6 fence recovers

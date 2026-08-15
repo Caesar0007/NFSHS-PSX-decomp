@@ -1281,6 +1281,18 @@ PER_FN_TEXT_MOVES = {
             {"take": r"\taddu\t\$4,\$17,\$0\n(?=\t\.set\tmacro\n\t\.set\treorder\n\n\tj\t\$L\d+\n\$L\d+:\n\tli\t\$2,0x00000004)", "after": r"\tbeq\t\$2,\$0,\$L\d+\n(?=\t\.set\tnoreorder\n\t\.set\tnomacro\n\tbltz\t\$3,)", "slot": True, "drop_after": r"\t\.set\tnoreorder\n\t\.set\tnomacro\n"},
         ],
     },
+    # w62 wired (probe-verified by belt agent).
+    "recon/frontend/psx/psxfront.cpp": {
+        "FontUpsideDownBlit__FiiPviiP12charactertbli": [
+            {"take": "\tlw\t\\$3,0\\(\\$9\\)\n", "after": "\tsw\t\\$2,0\\(\\$3\\)\n"},
+        ],
+    },
+    # w62 wired (probe-verified by belt agent).
+    "recon/game/common/aistate.cpp": {
+        "___17AIState_Purgatory": [
+            {"take": "\\tsll\\t\\$3,\\$4,2\\n", "after": "\\taddiu\\t\\$2,\\$2,%lo\\(Cars_gSortedList\\)[^\\n]*\\n"},
+        ],
+    },
     # w60-a3 (orchestrator-wired, probe-verified REAL=0 in scratchpad/w60a3):
     # _BlitClear 2 -> PASS 140/140 (result copy before the epilogue reloads; the
     # jal slot is already taken by the la split, no wrapper).  _clearOTagR_dma

@@ -293,7 +293,30 @@ void AIState_Idle::SetIdlePosition(int roadPosition)
 
 
 /* ---- __13AIState_ChaseP8Car_tObjT1P8coorddefiiiii  AIState_Chase::ctor  [AISTATE.CPP:180-201] SLD-VERIFIED ---- */
-/* WALL (register-coloring near-miss, insn count now EXACT 66/66; was 8 SHORT before the
+/* W62-A9: SEALED 11 -> PASS 66/66 (psyqproof REAL=0 RELOP=0).  The standing
+   "pure coloring floor" verdict below was WRONG.  TWO levers, each inert alone:
+   (1) THE -G-THRESHOLD GATE-GLOBAL LEVER (new, generalises).  A 4-byte `extern int`
+       is at-or-under the -G4 small-data threshold, so cc1plus emits the single
+       UNSCHEDULABLE assembler macro `lw $2,D_8011321C`; the retail oracle has the
+       SPLIT `lui %hi` (hoisted into the store block) + `lw %lo` pair, which only a
+       symbol ABOVE the threshold produces.  Declaring it `extern int D_8011321C[]`
+       (3.12 #5 unsized array => unknown size => never small-data) restores the split,
+       kills the load-delay `nop` (67 -> 66, count-exact) and lets the `lui` hoist.
+       SYMPTOM TO GREP FOR: ours `lw rD,SYM` plus a nop where retail has `lui`..`lw`.
+       Alone: 13 diffs (WORSE than the 11 baseline -- it must be paired).
+   (2) The both-arms-assign TERNARY for the reverseDirCheck select -- exactly the
+       shape the ai.cpp sibling AI_HandleTrafficHonking already uses.  It frees $v0
+       (the gate value dies at the branch) so the nor/xori land in $v0 like retail
+       instead of $a0.  Alone: 16 diffs.  Together: PASS.
+   Also PASSing (equivalent, not landed): the if/else both-arms form; the ternary
+   with the gate read into a named `rev` first; an in-place `(int)this->carObj_`
+   receiver cast; a read-only fence on `rev`.  FALSIFIED at 11-20 (pre-landing
+   basin, listed so nobody re-fights them): gate-read-first alone, inverted default,
+   per-arm field re-read, identity launder on `direction`, read-only fence on
+   `direction`, named receiver pointer, block-local reverseDirCheck (13A block
+   anchor -- INERT here), and the unsized array WITHOUT the ternary. */
+/* HISTORICAL, superseded by the receipt above:
+   WALL (register-coloring near-miss, insn count now EXACT 66/66; was 8 SHORT before the
    reverseDirCheck fix below): two independent saved-reg swaps remain vs the oracle --
    (carObj<->delayTime) and (relPosition<->nitrousTicks) -- both are short/long-lived params
    that gcc-2.x's global allocator ties differently than the oracle build; every statement
@@ -302,7 +325,12 @@ void AIState_Idle::SetIdlePosition(int roadPosition)
 
 /* D_8011321C == GameSetup_gData.reverseTrack -- standalone-symbol form, same precedent as
  * ai.cpp AI_HandleTrafficHonking / aiinit.cpp AIInit_RestartAICar / hud.cpp Hud_NextPlayer. */
-extern int D_8011321C;
+/* W62-A9: declared an UNSIZED ARRAY on purpose -- see the ctor receipt below.
+   A 4-byte `extern int` is at-or-under the -G4 small-data threshold, so cc1plus
+   emits the single UNSCHEDULABLE assembler macro `lw $2,D_8011321C`; retail's
+   split `lui %hi` + `lw %lo` pair proves this object saw the symbol as ABOVE the
+   threshold.  The unsized `[]` restores that (unknown size => never small-data). */
+extern int D_8011321C[];
 
 AIState_Chase::AIState_Chase(Car_tObj *carObj,Car_tObj *targetCar,coorddef *relPosition,
 
@@ -355,14 +383,7 @@ AIState_Chase::AIState_Chase(Car_tObj *carObj,Car_tObj *targetCar,coorddef *relP
      by the "declaration-scope/order noise" class, not a missing/wrong construct. */
   {
     int direction = (this->carObj_)->direction;
-
-    reverseDirCheck = ~direction;
-
-    if (D_8011321C == 0) {
-
-      reverseDirCheck = direction ^ 1;
-
-    }
+    reverseDirCheck = (D_8011321C[0] == 0) ? (direction ^ 1) : ~direction;
   }
 
   if (reverseDirCheck) {
@@ -1141,17 +1162,35 @@ LAB_80070704:
         latOffset = (this->relPosition_).x;
       }
       targetLanePosition = (this->delayCar_).roadPosition_ + latOffset * dir;
+      /* W62-A9 EAGER-SUM BARRIER: retail completes this sum inside the mult
+       * latency (`lw v0,76; mult; lw v0,56; mflo t1; addu a0,v0,t1`); without
+       * the barrier sched1 hoists the whole slicePtr chain into that window and
+       * defers the mflo/add past it, which rotated the entire t/caller band
+       * (targettingStrength a3 instead of t0).  78 -> 59 on its own. */
+      __asm__("" : : "i"(0));
 
       slicePtr = ((this->carObj_)->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices;
 
-      latOffset = -((u_int)*(u_char *)(slicePtr + 0x1e) * 0x8000 * (u_int)(*(u_char *)(slicePtr + 0x1d) >> 4));
-      if (latOffset < targetLanePosition) {
-        latOffset = targetLanePosition;
+      /* W62-A9 CLAMP FUNNEL (SYM 8c: retail declares ONLY targettingStrength ($8=t0)
+       * and targetLanePosition ($4=a0) -- latOffset/slicePtr are Ghidra-invented, so
+       * each clamp used a FRESH block temp and copied BACK into targetLanePosition.
+       * That is what mints retail's two `addu a0,<tmp>,zero` funnel copies.  The
+       * `<< 0xf` spelling (not `* 0x8000`) keeps the shift on the FIRST factor --
+       * with `* 0x8000` gcc reassociates it onto the other operand and swaps the
+       * mult's operand registers.  59 -> 27 (funnel) -> 15 (shift form). */
+      {
+        int limit = -(((u_int)*(u_char *)(slicePtr + 0x1e) << 0xf) * (u_int)(*(u_char *)(slicePtr + 0x1d) >> 4));
+        if (limit < targetLanePosition) {
+          limit = targetLanePosition;
+        }
+        targetLanePosition = limit;
       }
-
-      targetLanePosition = (u_int)*(u_char *)(slicePtr + 0x1f) * 0x8000 * (*(u_char *)(slicePtr + 0x1d) & 0xf);
-      if (latOffset < targetLanePosition) {
-        targetLanePosition = latOffset;
+      {
+        int limit = ((u_int)*(u_char *)(slicePtr + 0x1f) << 0xf) * (u_int)(*(u_char *)(slicePtr + 0x1d) & 0xf);
+        if (targetLanePosition < limit) {
+          limit = targetLanePosition;
+        }
+        targetLanePosition = limit;
       }
     }
 
@@ -2121,7 +2160,25 @@ extern "C" void ___17AIState_Purgatory(AIState_Purgatory *pThis,int __in_chrg)
    * placed between iVar2 and the split -> 19 / 71; the barrier ALONE (no split,
    * baseline shape) -> 24 / 72.  The barrier moves the block itself instead of
    * anchoring it, so a scheduling-barrier device cannot buy the position back.
-   * What is needed is a statement-local, NON-barrier ready-list dial. */
+   * What is needed is a statement-local, NON-barrier ready-list dial.
+   * W62-A9: the SOURCE axis is now CLOSED and the fn is SOLVED by a
+   * PER_FN_TEXT_MOVES row (probe-verified PASS 72/72, whole-TU 51/52; the
+   * EXTRA={} control on the same probe reproduces 2).  ORCHESTRATOR SPEC --
+   * a new key inside the "recon/game/common/aistate.cpp" entry of
+   * PER_FN_TEXT_MOVES (that file key does not exist yet; create it).  The exact
+   * python row is in scratchpad/w62a9/spec_purg.py -- copy it from there, it is
+   * regex-escaped: take = the sll of $3 from $4 by 2, after = the addiu of $2
+   * carrying %lo(Cars_gSortedList) with a trailing-comment tail.  Both anchors
+   * are unique inside the .ent/.end region (12F).
+   * WHY no source form reaches it (mechanism, now named): the base is an
+   * ARRAY, so `Cars_gSortedList + i` folds to PLUS(MULT, ADDR) -- the address
+   * is TREE_CONSTANT and is canonicalised to operand 2, so expand ALWAYS emits
+   * the sll first; retail's order needs the ADDR as operand 1.  W62-A9 ALSO
+   * FALSIFIED (on top of the earlier index/cast/barrier lists): the plain
+   * `iVar2 + Cars_gSortedList` operand swap (2, inert); a 13B IDENTITY-LAUNDER
+   * on a `Car_tObj **base` local (19/71); the launder without the ref fence
+   * (19/71); split-init plus a launder on ppCVar3 (19/71).  Every split form
+   * loses the load-delay nop (71 insns, not 72). */
   iVar2 = Cars_gNumCars + -1;
 
   ppCVar3 = Cars_gSortedList + iVar2;

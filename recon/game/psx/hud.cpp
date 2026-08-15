@@ -2865,6 +2865,15 @@ void Hud_BuildMapMarkers(int player)
         x = -x;
       }
       pktcell = (u_char **)0x1F800004;   /* one addr materialization per iter (shared by read+bump) -- keeps the 0x1F800004 constant un-hoisted like retail */
+      /* MATCH (w64-a1): identity launder = the w45/w46 NAMED ANGLE executed -- attack the
+       * CROSS-LOOP CSE, not the $fp occupant.  Both loops reach the packet cursor through the
+       * same integer literal, so cse fuses the two address pseudos into ONE value live across
+       * the whole function, which parks 0x1F800004 in $fp (prologue lui/ori, +2) and evicts
+       * `mapy` to a per-call-site `li $t0,24`.  The launder makes the two pseudos un-equatable
+       * at ZERO instructions: retail's shape returns (per-loop lui/ori, `li $fp,24`,
+       * `subu $a3,$fp,$s0`).  Cop loop wants it BEFORE the `sprt` read, race loop AFTER
+       * (measured B/B 65, B/A 63, A/B 101, A/A 65 -- position is its own dial).  81 -> 63. */
+      __asm__("" : "=r"(pktcell) : "0"(pktcell));
       sprt = (SPRT *)*pktcell;
       pal = Render_gPalettePtr;
       ((Hud_PTag *)sprt)->addr = ((Hud_PTag *)pal)->addr;
@@ -2896,6 +2905,7 @@ void Hud_BuildMapMarkers(int player)
       }
       pktcell = (u_char **)0x1F800004;   /* see cop loop */
       sprt = (SPRT *)*pktcell;
+      __asm__("" : "=r"(pktcell) : "0"(pktcell));
       pal = Render_gPalettePtr;
       ((Hud_PTag *)sprt)->addr = ((Hud_PTag *)pal)->addr;
       ((Hud_PTag *)pal)->addr = (u_int)sprt;
@@ -2904,14 +2914,19 @@ void Hud_BuildMapMarkers(int player)
         currentSpriteColor = ((Cars_gRaceCarList[i]->AIFlags & 2) != 0)
                            ? (((gFlip != 0) || (simVar.quickPauseSim != 0)) ? 0xff : 0xff0000)
                            : *(u_long *)&Hud_gMarkerColor[i];
-        Hud_BuildSprite(sprt,0x79,mapx + x + -3 & 0xffff,mapy - z & 0xffff,currentSpriteColor,0);
+        /* MATCH (w64-a1): `x + mapx` (variable SECOND) at the THREE race-loop sites emits
+         * retail's `addiu $a2,$s3,0x16` + `addiu $a2,$a2,-3`; `mapx + x` materialises the
+         * const-propagated mapx into a register first (`li $t0,22; addu $a2,$t0,$s3`, +1 insn
+         * per site).  The COP-loop site must KEEP `mapx + x` -- retail is li+addu there
+         * (@0x800D5D04), and swapping it too costs 3 (57 @309 vs 54 @310). */
+        Hud_BuildSprite(sprt,0x79,x + mapx + -3 & 0xffff,mapy - z & 0xffff,currentSpriteColor,0);
       }
       else if ((Cars_gRaceCarList[i]->carFlags & 4U) != 0) {
-        Hud_BuildSprite(sprt,0x79,mapx + x + -3 & 0xffff,mapy - z & 0xffff,
+        Hud_BuildSprite(sprt,0x79,x + mapx + -3 & 0xffff,mapy - z & 0xffff,
                    *(u_long *)&Hud_gMarkerColor[i],0);
       }
       else {
-        Hud_BuildSprite(sprt,0x7a,mapx + x + -2 & 0xffff,mapy - z & 0xffff,
+        Hud_BuildSprite(sprt,0x7a,x + mapx + -2 & 0xffff,mapy - z & 0xffff,
                    *(u_long *)&Hud_gMarkerColor[i],0);
       }
     }

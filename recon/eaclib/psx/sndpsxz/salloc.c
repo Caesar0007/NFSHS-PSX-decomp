@@ -57,6 +57,7 @@ extern int           sndgs[];
  * symbol stops cse from unifying the two `&sndgs` materializations. */
 extern unsigned char sndgs_v[] __asm__("sndgs");
 extern signed char    sndchanreserved[];       /* scratch list of chosen channel indices */
+__asm__("\t.globl\tsndchanreserved\n\t.section\t.bss\nsndchanreserved:\n\t.space\t4\n\t.text");
 extern int           DAT_80136dec[];             /* rolling allocation id counter (+=0x20); OWNED by
                                                   snddata.c (strong def there). MATCH: must stay a pure
                                                   extern HERE -- a local tentative def would make it

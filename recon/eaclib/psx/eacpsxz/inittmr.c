@@ -9,6 +9,13 @@
  int reentryflag;  /* tmrint re-entry guard -- owning-TU tentative def → .comm/.sbss → gp-rel
                     * (only inittimer.s oracle gp-rels it: `sw zero,%gp_rel(reentryflag)(gp)`) */
 extern int   timerhz;       /* tick rate */
+/* W65-A6 DATA-MAT: `memclass` was extern-only tree-wide (3 reloc-referenced undefined sites);
+ * inittmr.obj is its sole referencer (it WRITES memclass[1] = memclass[0]).  Retail: .bss
+ * @0x8013E900, size 64 (= bigfilename @0x8013E940 - 0x8013E900); VA > t_addr+t_size
+ * (0x8013E000) => pure zero-init BSS, no file bytes.  DEVICE = file-scope asm .bss definition
+ * so the C view stays the UNSIZED `extern int memclass[]` the decl comment below documents as
+ * load-bearing (one shared %hi).  Receipts: scratchpad/w65a6/RECEIPTS.md */
+__asm__("\t.globl\tmemclass\n\t.section\t.bss\n\t.align\t2\nmemclass:\n\t.space\t64\n\t.text");
 extern int   memclass[];    /* @0x8013E900 memstd class id; [1] = the cached copy @0x8013E904
                              * (UNSIZED array shape: oracle shares ONE %hi -- lw %lo(memclass)(v1);
                              *  addiu v1,%lo; sw a0,4(v1)) */

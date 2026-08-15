@@ -1,0 +1,12 @@
+[
+ [
+  "A guard+do-while else goto after",
+  "FAIL 14 diffs (ours 343 / oracle 343)",
+  "1 offset diffs [(22, -14, -13)]"
+ ],
+ [
+  "B explicit pre-guard + for",
+  "FAIL 2 diffs (ours 345 / oracle 343)",
+  "BRANCH COUNT 52 vs 51"
+ ]
+]

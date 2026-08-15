@@ -42,6 +42,37 @@
  *   VoxEvent_GetFilterLengthFlag / iSPCH_GetOffset16 are per-TU `static` copies (canon in spchdata.obj).
  */
 
+/* ======================== W65-A6 DATA-MAT: the spchpsxz BSS run @0x80148044 ================
+ * gPreLoadTicks / gEventDats / gVoxInGame / gVoxEvents were extern-only tree-wide (4+10+10+44
+ * = 68 reloc-referenced undefined sites).  All four VAs are > t_addr+t_size (0x8013E000) so
+ * they carry NO file bytes -- pure zero-init BSS.  Sizes are exact, not guessed: the run is
+ * fully accounted, 0x80148428 (gGameNum) - 0x80148044 = 0x3E4 = 4 + 16 + 8 + 968.
+ *   gPreLoadTicks @0x80148044   4
+ *   gEventDats    @0x80148048  16   (int[4] bound event-data blobs)
+ *   gVoxInGame    @0x80148058   8   (+ interior gRepeatCount @0x8014805C == gVoxInGame[1])
+ *   gVoxEvents    @0x80148060 968   (+ interior DAT_80148064 == gVoxEvents+4)
+ * OWNERSHIP: the four are INTERLEAVED in VA with each other while being referenced from four
+ * different TUs (spchevnt/spchrand/spchinit/spchpick), and ld places whole object sections --
+ * so retail had them in ONE object, and only one owner is possible.  spchevnt.obj is that
+ * owner on the reference evidence (3 of the 4 are referenced here, and gVoxEvents -- 92% of
+ * the run's bytes -- is spchevnt-only).
+ * DEVICE = file-scope asm .bss definition, keeping every C view `extern` UNSIZED: three of the
+ * four are <= the TU's -G4 (a C tentative def would land in `.sbss` as a LOCAL symbol via
+ * maspsx and flip cc1 to gp-relative addressing, while the oracle has ZERO %gp_rel sites for
+ * any of them), and the unsized-array shape is documented load-bearing on the decls below.
+ * Byte-neutral by construction: 16/16 PASS unchanged.
+ * `gRepeatCount` also drops its stale 4-byte tentative definition in spchinit.c (it was an
+ * UNREFERENCED `.comm` -> a private local .sbss object at the wrong address).
+ * Receipts: scratchpad/w65a6/RECEIPTS.md */
+__asm__("\t.globl\tgPreLoadTicks\n\t.globl\tgEventDats\n\t.globl\tgVoxInGame\n"
+        "\t.globl\tgRepeatCount\n\t.globl\tgVoxEvents\n\t.globl\tDAT_80148064\n"
+        "\t.section\t.bss\n\t.align\t2\n"
+        "gPreLoadTicks:\n\t.space\t4\n"
+        "gEventDats:\n\t.space\t16\n"
+        "gVoxInGame:\n\t.space\t4\n"
+        "gRepeatCount:\n\t.space\t4\n"
+        "gVoxEvents:\n\t.space\t4\n"
+        "DAT_80148064:\n\t.space\t964\n\t.text");
 extern int            gVoxEvents[];      /* @0x80148060 : live event count + base of the 16-slot queue */
 /* gVoxEventQueue: a SECOND declaration of the same storage (co-equal XDEF / asm-label view, catalog
  * wave-13 "unsized-array asm-label view").  The 0x80148060 block is a deliberate OVERLAY -- slot 0's

@@ -55,7 +55,20 @@
 extern int sndss[];                     /* @0x8013EA80 -- single stream slot (loops are `<1`) */
 extern int sndgs[];                      /* SND global state: (char)sndgs[0xf]=init, sndgs[0x22]=destroyall hook */
 extern unsigned char sndStreamMap[];     /* @0x8013EA84 (=sndss+4): pktplay-handle -> stream slot */
-unsigned char sndStreamMap[64];  /* def @0x8013EA84 (owning TU; BSS; FIXME size approx) */
+/* W65-A6 DATA-MAT (BSS run @0x8013EA80, 8 bytes, ends exactly at gFileDevice @0x8013EA88):
+ *   sndss @0x8013EA80 size 4   +   sndStreamMap @0x8013EA84 size 4.
+ * `sndss` was extern-only tree-wide (24 reloc-referenced undefined sites).  The old
+ * `unsigned char sndStreamMap[64]` def also OVERRAN the retail run by 60 bytes, i.e. into
+ * gFileMgr/gFileDevice's storage (a real latent clobber in a recompiled image).
+ * DEVICE: a file-scope asm .bss definition, not a C tentative definition -- both objects are
+ * <= the TU's -G4, and maspsx routes a `.comm` of size <= -G into `.section .sbss` WITHOUT a
+ * `.globl` (maspsx/__init__.py: sbss_entries; the `.globl` guard fires for `bss` only), which
+ * would make them LOCAL (not fixing the link) AND flip cc1 to gp-relative addressing.  The
+ * oracle has ZERO `%gp_rel(sndss)`/`%gp_rel(sndStreamMap)` sites, so retail addressed them
+ * absolutely -- the C view must therefore stay `extern` (byte-neutral by construction). */
+__asm__("\t.globl\tsndss\n\t.globl\tsndStreamMap\n\t.section\t.bss\n\t.align\t2\n"
+        "sndss:\n\t.space\t4\n"
+        "sndStreamMap:\n\t.space\t4\n\t.text");
 
 /* ---- stream.obj ring (the layer below; already reconstructed) ---- */
 extern void         STREAM_release(int strm, int chunk);

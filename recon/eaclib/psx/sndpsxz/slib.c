@@ -32,6 +32,31 @@
  */
 
 extern int            sndgs[];
+/* W65-A6 DATA-MAT: `sndpd` was extern-only tree-wide -- 113 reloc-referenced undefined sites
+ * across 20 TUs.  Retail: .bss @0x80147918, size 1836 (= gPreLoadTicks @0x80148044 - 0x80147918);
+ * VA > t_addr+t_size (0x8013E000) => no file bytes, pure zero-init BSS.  slib.obj owns it
+ * (50 references here, the driver core).  DEVICE = file-scope asm .bss definition (not a C
+ * tentative def): every consumer declares it `extern unsigned char sndpd[]` UNSIZED and that
+ * shape is load-bearing for address materialization (see the decl comment below), so keeping
+ * the C view `extern` makes the storage byte-neutral BY CONSTRUCTION.
+ * INTERIOR ALIASES -- five more undefined `D_`/`DAT_` names are offsets INSIDE this one block:
+ *      D_801479F0 / DAT_801479f0 = sndpd + 0x0D8  (voice-table base; slib.c+sdtimrem.c /
+ *                                                  sdplapat.c+sdriver.c -- two spellings, one VA)
+ *      D_80147A0C               = sndpd + 0x0F4  (that table's +0x1c state field)
+ *      DAT_80147e28             = sndpd + 0x510  (spatkey.c)
+ *      D_80147E34               = sndpd + 0x51C  (sdmemman.c)
+ * Emitted as extra LABELS (not `sym = sndpd+N`): ASPSX 2.77 has no symbol-assignment form
+ * (catalog 15E), a second label is the only dual-legal spelling.  Retires 2 more `DAT_`
+ * seal-criterion #3 violations.  Receipts: scratchpad/w65a6/RECEIPTS.md */
+__asm__("\t.globl\tsndpd\n\t.globl\tD_801479F0\n\t.globl\tDAT_801479f0\n\t.globl\tD_80147A0C\n"
+        "\t.globl\tDAT_80147e28\n\t.globl\tD_80147E34\n"
+        "\t.section\t.bss\n\t.align\t2\n"
+        "sndpd:\n\t.space\t0xd8\n"
+        "D_801479F0:\n"
+        "DAT_801479f0:\n\t.space\t0x1c\n"
+        "D_80147A0C:\n\t.space\t0x41c\n"
+        "DAT_80147e28:\n\t.space\t0xc\n"
+        "D_80147E34:\n\t.space\t0x210\n\t.text");
 extern unsigned char  sndpd[];              /* voice/queue state base @0x80147918 (unsized array: forces
                                               * base+offset addressing instead of folding &sndpd+const into
                                               * one absolute %lo load -- see sdpacket.c/spatkey.c precedent) */

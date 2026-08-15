@@ -37,6 +37,34 @@
  *   ChooseSentence's dropped-arg calls recovered from disasm; SetPreLoadTicks' `this` is the tick value.
  */
 
+/* ======================== W65-A6 DATA-MAT: the spchpsxz BSS run @0x8014843C ================
+ * gSentenceChoice / ispch_gPickSamples / ispch_gChoice were extern-only tree-wide (7+10+16 =
+ * 33 reloc-referenced undefined sites), plus the undefined `DAT_80148448`, which is not a
+ * separate object at all -- it is gSentenceChoice+0xC (retiring one more `DAT_` seal-criterion
+ * #3 violation).  VAs > t_addr+t_size (0x8013E000) => pure zero-init BSS, no file bytes.
+ * The run is exactly accounted, 0x80148574 (sndpps) - 0x8014843C = 0x138 = 64 + 100 + 4 + 144:
+ *   gSentenceChoice    @0x8014843C  64  (+ interior DAT_80148448 @+0xC)
+ *   ispch_gPickSamples @0x8014847C 100
+ *   gChooseShort       @0x801484E0   4  (retail-named in configs/symbol_addrs.txt, referenced
+ *                                        by nothing in the recon -- materialized anyway so the
+ *                                        object's .bss reproduces the run instead of a hole)
+ *   ispch_gChoice      @0x801484E4 144
+ * OWNERSHIP: spchpick.obj -- it is the SOLE referencer of all four (HIGH confidence), and the
+ * run is contiguous from gSentenceChoice through ispch_gChoice, ending exactly where
+ * spktplay.obj's sndpps begins.
+ * DEVICE = file-scope asm .bss definition, keeping every C view `extern` UNSIZED -- the decls
+ * below record that shape as load-bearing ("unsized-array -> separate-temp addr load"), and
+ * gChooseShort/DAT_80148448 are <= -G4 (a C tentative def would go LOCAL to .sbss via maspsx
+ * and flip addressing).  Byte-neutral by construction: 27/27 PASS unchanged.
+ * Receipts: scratchpad/w65a6/RECEIPTS.md */
+__asm__("\t.globl\tgSentenceChoice\n\t.globl\tDAT_80148448\n\t.globl\tispch_gPickSamples\n"
+        "\t.globl\tgChooseShort\n\t.globl\tispch_gChoice\n"
+        "\t.section\t.bss\n\t.align\t2\n"
+        "gSentenceChoice:\n\t.space\t0xc\n"
+        "DAT_80148448:\n\t.space\t0x34\n"
+        "ispch_gPickSamples:\n\t.space\t100\n"
+        "gChooseShort:\n\t.space\t4\n"
+        "ispch_gChoice:\n\t.space\t144\n\t.text");
 extern short          ispch_gChoice[];     /* short[6]/phrase choice records */
 extern unsigned char  ispch_gPickSamples[]; /* chosen sample-index pool; MATCH: unsized-array -> separate-temp addr load */
 extern int            gSentenceChoice[];   /* @0x8014843C saved chosen sentence ptr; [0..2]=choice/40/44 (== old

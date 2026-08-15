@@ -8,6 +8,32 @@
  */
 
 extern int  sndgs[];
+/* W65-A6 DATA-MAT: `sndgs` was extern-only tree-wide -- 201 reloc-referenced undefined sites,
+ * the single biggest link hole.  Retail: .bss @0x80147860, size 180 (= sndchanreserved
+ * @0x80147914 - 0x80147860); VA > t_addr+t_size (0x8013E000) so it carries NO file bytes =
+ * pure zero-init BSS.  ssysinit.obj owns it (SNDSYS_getopts/setopts read+write the whole
+ * option block sndgs[0..0xe] and it is the sound system's init module).
+ * DEVICE = file-scope asm .bss definition, NOT a C tentative definition: every consumer
+ * (30 TUs incl. this one) declares it `extern int sndgs[]` UNSIZED, and the unsized-vs-sized
+ * array shape is a live codegen lever (methodology 3.12 #5 / 3.15-CORRECTION) -- a sized
+ * `int sndgs[45]` definition would change address materialization in this TU.  Keeping the
+ * C view `extern` makes the storage byte-neutral BY CONSTRUCTION (TU re-gates 4/4).
+ * Receipts: scratchpad/w65a6/RECEIPTS.md
+ * INTERIOR ALIASES: three of the tree's undefined `DAT_`/`D_` names are not separate objects
+ * at all -- they are fixed offsets INSIDE this block, which is why nothing ever defined them:
+ *      D_80147871   = sndgs + 0x11   (the channel count byte; sdpacket.c)
+ *      D_80147898   = sndgs + 0x38   (SNDSYS_setopts' opts[14] destination; this TU)
+ *      DAT_801478f4 = sndgs + 0x94   (= sndgs[0x25], the channel-pool pointer; salloc.c)
+ * They are emitted as extra LABELS at their exact offsets rather than as `sym = sndgs+N`
+ * assignments, because ASPSX 2.77 (the production assembler) has no symbol-assignment form
+ * (catalog 15E) -- a second label is the only dual-legal spelling.  This also retires 3 of the
+ * 7 `DAT_` seal-criterion #3 violations (a Ghidra-ism referenced from code). */
+__asm__("\t.globl\tsndgs\n\t.globl\tD_80147871\n\t.globl\tD_80147898\n\t.globl\tDAT_801478f4\n"
+        "\t.section\t.bss\n\t.align\t2\n"
+        "sndgs:\n\t.space\t0x11\n"
+        "D_80147871:\n\t.space\t0x27\n"
+        "D_80147898:\n\t.space\t0x5c\n"
+        "DAT_801478f4:\n\t.space\t0x20\n\t.text");
 extern int  DAT_80134a68[];                /* output-caps flag; owned by snddata.c (array view forces
                                              * the oracle's retained absolute address, not GP-relative) */
 

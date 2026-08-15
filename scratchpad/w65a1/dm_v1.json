@@ -1,0 +1,12 @@
+{
+ "file": "recon/frontend/common/screenmemcard.cpp",
+ "fn": "DrawMemCardStuff__14tScreenMemcards",
+ "variants": [
+  {"name": "A guard+do-while else goto after",
+   "edits": [["  this->fReadyToGetNewIcons = 1;\n  for (i = 0; i < this->pCI->numfiles; i = i + 1) {\n    if (this->fFadeIcon[i] < 0x80) {\n      this->fReadyToGetNewIcons = 0;\n    }\n  }\n",
+              "  this->fReadyToGetNewIcons = 1;\n  i = 0;\n  if (0 < this->pCI->numfiles) {\n    do {\n      if (this->fFadeIcon[i] < 0x80) {\n        this->fReadyToGetNewIcons = 0;\n      }\n      i = i + 1;\n    } while (i < this->pCI->numfiles);\n  }\n  else goto DrawMC_afterPerFileLoop;\n"]]},
+  {"name": "B explicit pre-guard + for",
+   "edits": [["  this->fReadyToGetNewIcons = 1;\n  for (i = 0; i < this->pCI->numfiles; i = i + 1) {\n",
+              "  this->fReadyToGetNewIcons = 1;\n  if (this->pCI->numfiles <= 0) goto DrawMC_afterPerFileLoop;\n  for (i = 0; i < this->pCI->numfiles; i = i + 1) {\n"]]}
+ ]
+}

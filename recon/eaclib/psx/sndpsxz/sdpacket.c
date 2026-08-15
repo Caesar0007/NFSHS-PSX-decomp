@@ -118,6 +118,13 @@
 extern int           sndgs[];
 /* Exact scalar byte symbol for sndgs+0x11, supplied by undefined_syms_auto.txt. */
 extern unsigned char D_80147871;
+/* W65-A6 DATA-MAT: `sndpp` was extern-only tree-wide (8 reloc-referenced undefined sites);
+ * sdpacket.obj is its sole referencer.  Retail: .bss @0x80148578, size 52 (= windowbuf
+ * @0x801485AC - 0x80148578); VA > t_addr+t_size (0x8013E000) => pure zero-init BSS, no file
+ * bytes.  DEVICE = file-scope asm .bss definition, keeping the C view `extern int sndpp[]`
+ * UNSIZED (that shape is load-bearing here -- see the decl comment) so the storage is
+ * byte-neutral by construction.  Receipts: scratchpad/w65a6/RECEIPTS.md */
+__asm__("\t.globl\tsndpp\n\t.section\t.bss\n\t.align\t2\nsndpp:\n\t.space\t52\n\t.text");
 extern int           sndpp[];               /* current-player IRQ cursor (one-int symbol; array view keeps
                                               * the shared %hi base with %lo displacements) */
 extern unsigned char sndpd[];               /* EA sound-driver state base @0x80147918 (unsized array:

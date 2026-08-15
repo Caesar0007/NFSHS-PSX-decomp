@@ -531,12 +531,27 @@ DrawMC_cardPulled:
   this->fGetNewIcons = 0;
   goto DrawMC_afterPerFileLoop;
 DrawMC_checkIconFades:
+  /* MATCH/CFG (w65-a1, 04Q class): retail's zero-trip guard for this scan jumps
+     STRAIGHT to DrawMC_afterPerFileLoop (branch word 139: ours +19 vs retail
+     +166) -- with no files the per-file loop below re-loads the identical
+     pCI->numfiles and its own guard skips to the same join, so the two routings
+     are equivalent and the instruction stream is identical (PASS 343 both ways).
+     The explicit guard must be spelled `i = 0; if (i < ...)` over a `for` that
+     keeps its own test: that way cse deletes the duplicate test AND loop.c still
+     hoists pCI into the unnamed invariant temp ($a0).  Falsified (all re-gated):
+     guard + do-while 14 diffs @343 (pCI reloaded per iteration, the hoist is
+     lost); `if (0 < ...)` around the same for +2 insns (guard not merged);
+     `if (numfiles <= 0) goto` before the for +2; a trailing `if (i == 0) goto` +3. */
   this->fReadyToGetNewIcons = 1;
-  for (i = 0; i < this->pCI->numfiles; i = i + 1) {
-    if (this->fFadeIcon[i] < 0x80) {
-      this->fReadyToGetNewIcons = 0;
+  i = 0;
+  if (i < this->pCI->numfiles) {
+    for (; i < this->pCI->numfiles; i = i + 1) {
+      if (this->fFadeIcon[i] < 0x80) {
+        this->fReadyToGetNewIcons = 0;
+      }
     }
   }
+  else goto DrawMC_afterPerFileLoop;
 DrawMC_perFileLoopTop:
     i = 0;
     if (0 < this->pCI->numfiles) {

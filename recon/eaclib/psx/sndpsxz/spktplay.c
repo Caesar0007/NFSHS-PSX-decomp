@@ -28,6 +28,16 @@
  */
 
 extern int  sndpps[];                /* @0x80148574 -- one-slot player pointer array */
+/* W65-A6 DATA-MAT: `sndpps` was extern-only tree-wide (22 reloc-referenced undefined sites);
+ * spktplay.obj is its sole referencer.  Retail: .bss @0x80148574, size 4 (= sndpp @0x80148578
+ * - 0x80148574); VA > t_addr+t_size (0x8013E000) => pure zero-init BSS.
+ * DEVICE = file-scope asm .bss definition.  A C tentative definition is WRONG here twice over:
+ * 4 <= the TU's -G4, so (a) maspsx routes the `.comm` to `.section .sbss` with NO `.globl`
+ * (LOCAL symbol -- fixes nothing at link) and (b) cc1 would switch this TU to gp-relative
+ * addressing, while the oracle has ZERO `%gp_rel(sndpps)` sites (grep asm/nonmatchings) i.e.
+ * retail addressed it absolutely.  Keeping the C view `extern` is byte-neutral by
+ * construction; 13/13 PASS unchanged.  Receipts: scratchpad/w65a6/RECEIPTS.md */
+__asm__("\t.globl\tsndpps\n\t.section\t.bss\n\t.align\t2\nsndpps:\n\t.space\t4\n\t.text");
 extern int  sndgs[];                  /* (signed char)sndgs[0xf]=init, sndgs[0x25]=channel pool base */
 /* HEADER WISH: the oracle actually loads this global from D_80147900 (SNDPKTPLAY_start @0x80102C34,
  * iSNDplaytaggedtimbre @0x801020D8 -- same "rate * ch-field * ch-field, magic-const mult, dur"

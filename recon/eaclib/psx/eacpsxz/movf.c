@@ -159,6 +159,22 @@ extern char * volatile nextprim;                         /* primate : OT link ta
                                * post-processor left) -- volatile keeps both reads as direct
                                * lui/lw self-temp loads, matching the oracle. */
 extern int   semitrans;                                  /* primate : semi-transparency mode */
+/* W65-A6 DATA-MAT: `currentwindow` was extern-only tree-wide (4 reloc-referenced undefined
+ * sites, from movf.c + fastmovf.c).  Retail .bss run @0x801485AC (VA > t_addr+t_size
+ * 0x8013E000 => pure zero-init BSS, no file bytes):
+ *      windowbuf     @0x801485AC size 312  (= currentwindow - windowbuf)
+ *      currentwindow @0x801486E4 size 156  (= sndmm @0x80148780 - 0x801486E4)
+ * `windowbuf` is retail-named in configs/symbol_addrs.txt but referenced by nothing in the
+ * recon (no undefined site); it is materialized here anyway so the object's .bss reproduces
+ * the retail run's byte layout instead of leaving a 312-byte hole for the .ld to guess.
+ * movf.obj is picked as owner over fastmovf.obj because the window block is the frame-move
+ * primitive's own state (both TUs reference it; MEDIUM-confidence ownership, recorded).
+ * DEVICE = file-scope asm .bss definition, keeping the UNSIZED `extern int currentwindow[]`
+ * shape the decl documents ("ONE struct base like fastmovf").
+ * Receipts: scratchpad/w65a6/RECEIPTS.md */
+__asm__("\t.globl\twindowbuf\n\t.globl\tcurrentwindow\n\t.section\t.bss\n\t.align\t2\n"
+        "windowbuf:\n\t.space\t312\n"
+        "currentwindow:\n\t.space\t156\n\t.text");
 extern int   currentwindow[];  /* @0x801486E4 : GPU window block -- draw-origin X/Y @+4/+8 (u_short
                                 * reads here), clip @+0x18..0x24.  ONE struct base like fastmovf. */
 

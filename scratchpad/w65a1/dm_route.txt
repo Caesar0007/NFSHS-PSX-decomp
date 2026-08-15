@@ -1,0 +1,344 @@
+idx  OURS                                       ORACLE                                    
+   0 addiu	sp,sp,-48                            addiu      $sp, $sp, -0x30                 
+   1 sw	s1,20(sp)                               sw         $s1, 0x14($sp)                  
+   2 move	s1,a0                                 addu       $s1, $a0, $zero                 
+   3 sw	ra,40(sp)                               sw         $ra, 0x28($sp)                  
+   4 sw	s5,36(sp)                               sw         $s5, 0x24($sp)                  
+   5 sw	s4,32(sp)                               sw         $s4, 0x20($sp)                  
+   6 sw	s3,28(sp)                               sw         $s3, 0x1C($sp)                  
+   7 sw	s2,24(sp)                               sw         $s2, 0x18($sp)                  
+   8 sw	s0,16(sp)                               sw         $s0, 0x10($sp)                  
+   9 lw	a0,104(s1)                              lw         $a0, 0x68($s1)                  
+  10 jal	0 <GetShapeInfo__14tScreenMemcardRsT1PPcT3> jal        MCRD_getcard                    
+  11 move	s5,a1                                 addu      $s5, $a1, $zero                  
+  12 lw	v1,100(s1)                              lw         $v1, 0x64($s1)                  
+  13 sw	v0,108(s1)                              sw         $v0, 0x6C($s1)                  
+  14 li	v0,-1                                   addiu      $v0, $zero, -0x1                
+  15 beq	v1,v0,a98 <DrawMemCardStuff__14tScreenMemcards+0x58>   -> 22 beq        $v1, $v0, .L80046DB8   -> 22    
+  16 sh	zero,1420(s1)                           sh        $zero, 0x58C($s1)                
+  17 lhu	v0,1418(s1)                            lhu        $v0, 0x58A($s1)                 
+  18 nop                                        nop                                        
+  19 addiu	v0,v0,1                              addiu      $v0, $v0, 0x1                   
+  20 j	aa0 <DrawMemCardStuff__14tScreenMemcards+0x60>   -> 24 j          .L80046DC0   -> 24              
+  21 sh	v0,1418(s1)                             sh        $v0, 0x58A($s1)                  
+  22 sh	zero,1416(s1)                           sh         $zero, 0x588($s1)               .L80046DB8: 
+  23 sh	zero,1418(s1)                           sh         $zero, 0x58A($s1)               
+  24 lh	v1,1418(s1)                             lh         $v1, 0x58A($s1)                 .L80046DC0: 
+  25 li	v0,4                                    addiu      $v0, $zero, 0x4                 
+  26 bne	v1,v0,ad8 <DrawMemCardStuff__14tScreenMemcards+0x98>   -> 38 bne        $v1, $v0, .L80046DF8   -> 38    
+  27 nop                                        nop                                        
+  28 lhu	v0,1416(s1)                            lhu        $v0, 0x588($s1)                 
+  29 sh	zero,1418(s1)                           sh         $zero, 0x58A($s1)               
+  30 addiu	v0,v0,1                              addiu      $v0, $v0, 0x1                   
+  31 sh	v0,1416(s1)                             sh         $v0, 0x588($s1)                 
+  32 sll	v0,v0,0x10                             sll        $v0, $v0, 16                    
+  33 sra	v0,v0,0x10                             sra        $v0, $v0, 16                    
+  34 slti	v0,v0,30                              slti       $v0, $v0, 0x1E                  
+  35 bnez	v0,ad8 <DrawMemCardStuff__14tScreenMemcards+0x98>   -> 38 bnez       $v0, .L80046DF8   -> 38         
+  36 nop                                        nop                                        
+  37 sh	zero,1416(s1)                           sh         $zero, 0x588($s1)               
+  38 lw	v0,108(s1)                              lw         $v0, 0x6C($s1)                  .L80046DF8: 
+  39 nop                                        nop                                        
+  40 lw	v1,0(v0)                                lw         $v1, 0x0($v0)                   
+  41 li	v0,-1                                   addiu      $v0, $zero, -0x1                
+  42 bne	v1,v0,bfc <DrawMemCardStuff__14tScreenMemcards+0x1bc>   -> 111 bne        $v1, $v0, .L80046F1C   -> 111   
+  43 li	v0,-2                                   addiu     $v0, $zero, -0x2                 
+  44 lw	v1,1424(s1)                             lw         $v1, 0x590($s1)                 
+  45 li	v0,1                                    addiu      $v0, $zero, 0x1                 
+  46 bnez	v1,b10 <DrawMemCardStuff__14tScreenMemcards+0xd0>   -> 52 bnez       $v1, .L80046E30   -> 52         
+  47 sw	v0,1428(s1)                             sw        $v0, 0x594($s1)                  
+  48 lui	v0,0x0                                 lui        $v0, %hi(ticks)                 
+  49 lw	v0,0(v0)                                lw         $v0, %lo(ticks)($v0)            
+  50 nop                                        nop                                        
+  51 sw	v0,1424(s1)                             sw         $v0, 0x590($s1)                 
+  52 lui	v0,0x0                                 lui        $v0, %hi(ticks)                 .L80046E30: 
+  53 lw	v0,0(v0)                                lw         $v0, %lo(ticks)($v0)            
+  54 lw	v1,1424(s1)                             lw         $v1, 0x590($s1)                 
+  55 nop                                        nop                                        
+  56 subu	v0,v0,v1                              subu       $v0, $v0, $v1                   
+  57 slti	v0,v0,801                             slti       $v0, $v0, 0x321                 
+  58 bnez	v0,b34 <DrawMemCardStuff__14tScreenMemcards+0xf4>   -> 61 bnez       $v0, .L80046E54   -> 61         
+  59 li	a0,635                                  addiu     $a0, $zero, 0x27B                
+  60 li	a0,639                                  addiu      $a0, $zero, 0x27F               
+  61 lw	v0,108(s1)                              lw         $v0, 0x6C($s1)                  .L80046E54: 
+  62 sw	a0,1408(s1)                             sw         $a0, 0x580($s1)                 
+  63 lw	v0,8(v0)                                lw         $v0, 0x8($v0)                   
+  64 nop                                        nop                                        
+  65 blez	v0,f28 <DrawMemCardStuff__14tScreenMemcards+0x4e8>   -> 314 blez       $v0, .L80047248   -> 314        
+  66 move	s3,zero                               addu      $s3, $zero, $zero                
+  67 sll	v0,s3,0x10                             sll        $v0, $s3, 16                    
+  68 sra	a1,v0,0x10                             sra        $a1, $v0, 16                    .L80046E70: 
+  69 addu	v1,s1,a1                              addu       $v1, $s1, $a1                   
+  70 lbu	v0,592(v1)                             lbu        $v0, 0x250($v1)                 
+  71 nop                                        nop                                        
+  72 beqz	v0,bd0 <DrawMemCardStuff__14tScreenMemcards+0x190>   -> 100 beqz       $v0, .L80046EF0   -> 100        
+  73 sll	v0,a1,0x1                              sll       $v0, $a1, 1                      
+  74 addu	s0,s1,v0                              addu       $s0, $s1, $v0                   
+  75 lhu	v0,1330(s0)                            lhu        $v0, 0x532($s0)                 
+  76 nop                                        nop                                        
+  77 addiu	v0,v0,8                              addiu      $v0, $v0, 0x8                   
+  78 sh	v0,1330(s0)                             sh         $v0, 0x532($s0)                 
+  79 sll	v0,v0,0x10                             sll        $v0, $v0, 16                    
+  80 sra	v0,v0,0x10                             sra        $v0, $v0, 16                    
+  81 slti	v0,v0,129                             slti       $v0, $v0, 0x81                  
+  82 bnez	v0,bc4 <DrawMemCardStuff__14tScreenMemcards+0x184>   -> 97 bnez       $v0, .L80046EE4   -> 97         
+  83 move	a0,s1                                 addu      $a0, $s1, $zero                  
+  84 li	v0,128                                  addiu      $v0, $zero, 0x80                
+  85 sh	v0,1330(s0)                             sh         $v0, 0x532($s0)                 
+  86 sb	zero,592(v1)                            sb         $zero, 0x250($v1)               
+  87 sb	zero,607(v1)                            sb         $zero, 0x25F($v1)               
+  88 sb	zero,622(v1)                            sb         $zero, 0x26E($v1)               
+  89 lhu	a0,1300(s0)                            lhu        $a0, 0x514($s0)                 
+  90 nop                                        nop                                        
+  91 beqz	a0,bd0 <DrawMemCardStuff__14tScreenMemcards+0x190>   -> 100 beqz       $a0, .L80046EF0   -> 100        
+  92 sll	a0,a0,0x10                             sll       $a0, $a0, 16                     
+  93 jal	0 <GetShapeInfo__14tScreenMemcardRsT1PPcT3> jal        Texture_MenuReleaseClutId__Fs   
+  94 sra	a0,a0,0x10                             sra       $a0, $a0, 16                     
+  95 j	bd0 <DrawMemCardStuff__14tScreenMemcards+0x190>   -> 100 j          .L80046EF0   -> 100             
+  96 sh	zero,1300(s0)                           sh        $zero, 0x514($s0)                
+  97 sll	a2,s5,0x10                             sll        $a2, $s5, 16                    .L80046EE4: 
+  98 jal	0 <GetShapeInfo__14tScreenMemcardRsT1PPcT3> jal        PlaceIcons__14tScreenMemcardii  
+  99 sra	a2,a2,0x10                             sra       $a2, $a2, 16                     
+ 100 addiu	v0,s3,1                              addiu      $v0, $s3, 0x1                   .L80046EF0: 
+ 101 move	s3,v0                                 addu       $s3, $v0, $zero                 
+ 102 lw	v1,108(s1)                              lw         $v1, 0x6C($s1)                  
+ 103 sll	v0,v0,0x10                             sll        $v0, $v0, 16                    
+ 104 lw	v1,8(v1)                                lw         $v1, 0x8($v1)                   
+ 105 sra	v0,v0,0x10                             sra        $v0, $v0, 16                    
+ 106 slt	v0,v0,v1                               slt        $v0, $v0, $v1                   
+ 107 bnez	v0,b50 <DrawMemCardStuff__14tScreenMemcards+0x110>   -> 68 bnez       $v0, .L80046E70   -> 68         
+ 108 sll	v0,s3,0x10                             sll       $v0, $s3, 16                     
+ 109 j	f28 <DrawMemCardStuff__14tScreenMemcards+0x4e8>   -> 314 j          .L80047248   -> 314             
+ 110 nop                                        nop                                        
+ 111 bne	v1,v0,c10 <DrawMemCardStuff__14tScreenMemcards+0x1d0>   -> 116 bne        $v1, $v0, .L80046F30   -> 116   .L80046F1C: 
+ 112 li	v0,648                                  addiu     $v0, $zero, 0x288                
+ 113 sw	zero,1424(s1)                           sw         $zero, 0x590($s1)               
+ 114 j	f28 <DrawMemCardStuff__14tScreenMemcards+0x4e8>   -> 314 j          .L80047248   -> 314             
+ 115 sw	v0,1408(s1)                             sw        $v0, 0x580($s1)                  
+ 116 lw	v0,108(s1)                              lw         $v0, 0x6C($s1)                  .L80046F30: 
+ 117 sw	zero,1424(s1)                           sw         $zero, 0x590($s1)               
+ 118 lw	v0,8(v0)                                lw         $v0, 0x8($v0)                   
+ 119 nop                                        nop                                        
+ 120 bnez	v0,c2c <DrawMemCardStuff__14tScreenMemcards+0x1ec>   -> 123 bnez       $v0, .L80046F4C   -> 123        
+ 121 li	v0,637                                  addiu     $v0, $zero, 0x27D                
+ 122 li	v0,644                                  addiu      $v0, $zero, 0x284               
+ 123 sw	v0,1408(s1)                             sw         $v0, 0x580($s1)                 .L80046F4C: 
+ 124 lw	v0,1440(s1)                             lw         $v0, 0x5A0($s1)                 
+ 125 nop                                        nop                                        
+ 126 bnez	v0,c5c <DrawMemCardStuff__14tScreenMemcards+0x21c>   -> 135 bnez       $v0, .L80046F7C   -> 135        
+ 127 li	v0,1                                    addiu     $v0, $zero, 0x1                  
+ 128 j	cb8 <DrawMemCardStuff__14tScreenMemcards+0x278>   -> 158 j          .L80046FD8   -> 158             
+ 129 sw	zero,1360(s1)                           sw        $zero, 0x550($s1)                
+ 130 jal	0 <GetShapeInfo__14tScreenMemcardRsT1PPcT3> jal        ReleaseIcons__14tScreenMemcard  .L80046F68: 
+ 131 move	a0,s1                                 addu      $a0, $s1, $zero                  
+ 132 sw	zero,1428(s1)                           sw         $zero, 0x594($s1)               
+ 133 j	f04 <DrawMemCardStuff__14tScreenMemcards+0x4c4>   -> 305 j          .L80047224   -> 305             
+ 134 sw	zero,1440(s1)                           sw        $zero, 0x5A0($s1)                
+ 135 lw	v1,108(s1)                              lw         $v1, 0x6C($s1)                  .L80046F7C: 
+ 136 sw	v0,1360(s1)                             sw         $v0, 0x550($s1)                 
+ 137 lw	v0,8(v1)                                lw         $v0, 0x8($v1)                   
+ 138 nop                                        nop                                        
+ 139 blez	v0,cb8 <DrawMemCardStuff__14tScreenMemcards+0x278>   -> 158 blez       $v0, .L80047224   -> 305         <<<<<<
+ 140 move	s3,zero                               addu      $s3, $zero, $zero                
+ 141 move	a0,v1                                 addu       $a0, $v1, $zero                 
+ 142 sll	v0,s3,0x10                             sll        $v0, $s3, 16                    
+ 143 sra	v0,v0,0xf                              sra        $v0, $v0, 15                    .L80046F9C: 
+ 144 addu	v0,s1,v0                              addu       $v0, $s1, $v0                   
+ 145 lh	v0,1330(v0)                             lh         $v0, 0x532($v0)                 
+ 146 nop                                        nop                                        
+ 147 slti	v0,v0,128                             slti       $v0, $v0, 0x80                  
+ 148 beqz	v0,c9c <DrawMemCardStuff__14tScreenMemcards+0x25c>   -> 151 beqz       $v0, .L80046FBC   -> 151        
+ 149 addiu	v0,s3,1                              addiu     $v0, $s3, 0x1                    
+ 150 sw	zero,1360(s1)                           sw         $zero, 0x550($s1)               
+ 151 move	s3,v0                                 addu       $s3, $v0, $zero                 .L80046FBC: 
+ 152 sll	v0,v0,0x10                             sll        $v0, $v0, 16                    
+ 153 lw	v1,8(a0)                                lw         $v1, 0x8($a0)                   
+ 154 sra	v0,v0,0x10                             sra        $v0, $v0, 16                    
+ 155 slt	v0,v0,v1                               slt        $v0, $v0, $v1                   
+ 156 bnez	v0,c7c <DrawMemCardStuff__14tScreenMemcards+0x23c>   -> 143 bnez       $v0, .L80046F9C   -> 143        
+ 157 sll	v0,s3,0x10                             sll       $v0, $s3, 16                     
+ 158 lw	v0,108(s1)                              lw         $v0, 0x6C($s1)                  .L80046FD8: 
+ 159 nop                                        nop                                        
+ 160 lw	v0,8(v0)                                lw         $v0, 0x8($v0)                   
+ 161 nop                                        nop                                        
+ 162 blez	v0,f04 <DrawMemCardStuff__14tScreenMemcards+0x4c4>   -> 305 blez       $v0, .L80047224   -> 305        
+ 163 move	s3,zero                               addu      $s3, $zero, $zero                
+ 164 li	s4,-1                                   addiu      $s4, $zero, -0x1                
+ 165 lw	v0,1428(s1)                             lw         $v0, 0x594($s1)                 .L80046FF4: 
+ 166 nop                                        nop                                        
+ 167 bnez	v0,c48 <DrawMemCardStuff__14tScreenMemcards+0x208>   -> 130 bnez       $v0, .L80046F68   -> 130        
+ 168 sll	v0,s3,0x10                             sll       $v0, $s3, 16                     
+ 169 sra	a1,v0,0x10                             sra        $a1, $v0, 16                    
+ 170 addu	v0,s1,a1                              addu       $v0, $s1, $a1                   
+ 171 lbu	v0,592(v0)                             lbu        $v0, 0x250($v0)                 
+ 172 nop                                        nop                                        
+ 173 bnez	v0,d24 <DrawMemCardStuff__14tScreenMemcards+0x2e4>   -> 185 bnez       $v0, .L80047044   -> 185        
+ 174 lui	v0,0x0                                 lui       $v0, %hi(CURRENTLYUSINGMEMCARD)  
+ 175 lw	v0,0(v0)                                lw         $v0, %lo(CURRENTLYUSINGMEMCARD)($v0) 
+ 176 nop                                        nop                                        
+ 177 bnez	v0,d24 <DrawMemCardStuff__14tScreenMemcards+0x2e4>   -> 185 bnez       $v0, .L80047044   -> 185        
+ 178 nop                                        nop                                        
+ 179 lw	v0,1440(s1)                             lw         $v0, 0x5A0($s1)                 
+ 180 nop                                        nop                                        
+ 181 bnez	v0,d34 <DrawMemCardStuff__14tScreenMemcards+0x2f4>   -> 189 bnez       $v0, .L80047054   -> 189        
+ 182 nop                                        nop                                        
+ 183 jal	0 <GetShapeInfo__14tScreenMemcardRsT1PPcT3> jal        LoadIcon__14tScreenMemcardi     
+ 184 move	a0,s1                                 addu      $a0, $s1, $zero                  
+ 185 lw	v0,1440(s1)                             lw         $v0, 0x5A0($s1)                 .L80047044: 
+ 186 nop                                        nop                                        
+ 187 beqz	v0,d54 <DrawMemCardStuff__14tScreenMemcards+0x314>   -> 197 beqz       $v0, .L80047074   -> 197        
+ 188 lui	v0,0x0                                 lui       $v0, %hi(CURRENTLYUSINGMEMCARD)  
+ 189 lw	v0,1360(s1)                             lw         $v0, 0x550($s1)                 .L80047054: 
+ 190 nop                                        nop                                        
+ 191 beqz	v0,d50 <DrawMemCardStuff__14tScreenMemcards+0x310>   -> 196 beqz       $v0, .L80047070   -> 196        
+ 192 sll	v0,s3,0x10                             sll       $v0, $s3, 16                     
+ 193 sra	v0,v0,0x10                             sra        $v0, $v0, 16                    
+ 194 addu	v0,s1,v0                              addu       $v0, $s1, $v0                   
+ 195 sb	zero,592(v0)                            sb         $zero, 0x250($v0)               
+ 196 lui	v0,0x0                                 lui        $v0, %hi(CURRENTLYUSINGMEMCARD) .L80047070: 
+ 197 lw	v0,0(v0)                                lw         $v0, %lo(CURRENTLYUSINGMEMCARD)($v0) .L80047074: 
+ 198 nop                                        nop                                        
+ 199 bnez	v0,e0c <DrawMemCardStuff__14tScreenMemcards+0x3cc>   -> 243 bnez       $v0, .L8004712C   -> 243        
+ 200 sll	v0,s3,0x10                             sll       $v0, $s3, 16                     
+ 201 sra	v1,v0,0x10                             sra        $v1, $v0, 16                    
+ 202 addu	v0,s1,v1                              addu       $v0, $s1, $v1                   
+ 203 lbu	v0,592(v0)                             lbu        $v0, 0x250($v0)                 
+ 204 nop                                        nop                                        
+ 205 beqz	v0,ee0 <DrawMemCardStuff__14tScreenMemcards+0x4a0>   -> 296 beqz       $v0, .L80047200   -> 296        
+ 206 sll	v0,v1,0x1                              sll       $v0, $v1, 1                      
+ 207 addu	v0,s1,v0                              addu       $v0, $s1, $v0                   
+ 208 lh	v0,1330(v0)                             lh         $v0, 0x532($v0)                 
+ 209 nop                                        nop                                        
+ 210 bnez	v0,e0c <DrawMemCardStuff__14tScreenMemcards+0x3cc>   -> 243 bnez       $v0, .L8004712C   -> 243        
+ 211 sll	v0,s3,0x10                             sll       $v0, $s3, 16                     
+ 212 lui	a1,0x0                                 lui        $a1, %hi(D_80012218)            
+ 213 lw	a0,104(s1)                              lw         $a0, 0x68($s1)                  
+ 214 jal	0 <GetShapeInfo__14tScreenMemcardRsT1PPcT3> jal        MCRD_fileexists                 
+ 215 addiu	a1,a1,96                             addiu     $a1, $a1, %lo(D_80012218)        
+ 216 lw	v1,1408(s1)                             lw         $v1, 0x580($s1)                 
+ 217 sw	v0,100(s1)                              sw         $v0, 0x64($s1)                  
+ 218 li	v0,639                                  addiu      $v0, $zero, 0x27F               
+ 219 beq	v1,v0,dc0 <DrawMemCardStuff__14tScreenMemcards+0x380>   -> 224 beq        $v1, $v0, .L800470E0   -> 224   
+ 220 li	v0,635                                  addiu     $v0, $zero, 0x27B                
+ 221 beq	v1,v0,dc0 <DrawMemCardStuff__14tScreenMemcards+0x380>   -> 224 beq        $v1, $v0, .L800470E0   -> 224   
+ 222 nop                                        nop                                        
+ 223 sw	zero,1424(s1)                           sw         $zero, 0x590($s1)               
+ 224 lw	v0,100(s1)                              lw         $v0, 0x64($s1)                  .L800470E0: 
+ 225 nop                                        nop                                        
+ 226 beq	v0,s4,e00 <DrawMemCardStuff__14tScreenMemcards+0x3c0>   -> 240 beq        $v0, $s4, .L80047120   -> 240   
+ 227 addu	v0,s1,v0                              addu      $v0, $s1, $v0                    
+ 228 lbu	v0,592(v0)                             lbu        $v0, 0x250($v0)                 
+ 229 nop                                        nop                                        
+ 230 beqz	v0,e00 <DrawMemCardStuff__14tScreenMemcards+0x3c0>   -> 240 beqz       $v0, .L80047120   -> 240        
+ 231 addiu	a0,s1,1368                           addiu     $a0, $s1, 0x558                  
+ 232 lw	a1,100(s1)                              lw         $a1, 0x64($s1)                  
+ 233 sw	s4,1408(s1)                             sw         $s4, 0x580($s1)                 
+ 234 sll	a1,a1,0x5                              sll        $a1, $a1, 5                     
+ 235 addiu	a1,a1,112                            addiu      $a1, $a1, 0x70                  
+ 236 jal	0 <GetShapeInfo__14tScreenMemcardRsT1PPcT3> jal        sprintf                         
+ 237 addu	a1,s1,a1                              addu      $a1, $s1, $a1                    
+ 238 j	e0c <DrawMemCardStuff__14tScreenMemcards+0x3cc>   -> 243 j          .L8004712C   -> 243             
+ 239 sll	v0,s3,0x10                             sll       $v0, $s3, 16                     
+ 240 li	v0,644                                  addiu      $v0, $zero, 0x284               .L80047120: 
+ 241 sw	v0,1408(s1)                             sw         $v0, 0x580($s1)                 
+ 242 sll	v0,s3,0x10                             sll        $v0, $s3, 16                    
+ 243 sra	v1,v0,0x10                             sra        $v1, $v0, 16                    .L8004712C: 
+ 244 addu	s2,s1,v1                              addu       $s2, $s1, $v1                   
+ 245 lbu	v0,592(s2)                             lbu        $v0, 0x250($s2)                 
+ 246 nop                                        nop                                        
+ 247 beqz	v0,ee4 <DrawMemCardStuff__14tScreenMemcards+0x4a4>   -> 297 beqz       $v0, .L80047204   -> 297        
+ 248 addiu	v0,s3,1                              addiu     $v0, $s3, 0x1                    
+ 249 lw	v0,1440(s1)                             lw         $v0, 0x5A0($s1)                 
+ 250 nop                                        nop                                        
+ 251 beqz	v0,ea0 <DrawMemCardStuff__14tScreenMemcards+0x460>   -> 280 beqz       $v0, .L800471C0   -> 280        
+ 252 sll	v0,s3,0x10                             sll       $v0, $s3, 16                     
+ 253 lw	v0,1360(s1)                             lw         $v0, 0x550($s1)                 
+ 254 nop                                        nop                                        
+ 255 bnez	v0,ea0 <DrawMemCardStuff__14tScreenMemcards+0x460>   -> 280 bnez       $v0, .L800471C0   -> 280        
+ 256 sll	v0,s3,0x10                             sll       $v0, $s3, 16                     
+ 257 sll	v0,v1,0x1                              sll        $v0, $v1, 1                     
+ 258 addu	s0,s1,v0                              addu       $s0, $s1, $v0                   
+ 259 lhu	v0,1330(s0)                            lhu        $v0, 0x532($s0)                 
+ 260 nop                                        nop                                        
+ 261 addiu	v0,v0,8                              addiu      $v0, $v0, 0x8                   
+ 262 sh	v0,1330(s0)                             sh         $v0, 0x532($s0)                 
+ 263 sll	v0,v0,0x10                             sll        $v0, $v0, 16                    
+ 264 sra	v0,v0,0x10                             sra        $v0, $v0, 16                    
+ 265 slti	v0,v0,129                             slti       $v0, $v0, 0x81                  
+ 266 bnez	v0,ecc <DrawMemCardStuff__14tScreenMemcards+0x48c>   -> 291 bnez       $v0, .L800471EC   -> 291        
+ 267 move	a0,s1                                 addu      $a0, $s1, $zero                  
+ 268 lhu	a0,1300(s0)                            lhu        $a0, 0x514($s0)                 
+ 269 li	v0,128                                  addiu      $v0, $zero, 0x80                
+ 270 beqz	a0,e90 <DrawMemCardStuff__14tScreenMemcards+0x450>   -> 276 beqz       $a0, .L800471B0   -> 276        
+ 271 sh	v0,1330(s0)                             sh        $v0, 0x532($s0)                  
+ 272 sll	a0,a0,0x10                             sll        $a0, $a0, 16                    
+ 273 jal	0 <GetShapeInfo__14tScreenMemcardRsT1PPcT3> jal        Texture_MenuReleaseClutId__Fs   
+ 274 sra	a0,a0,0x10                             sra       $a0, $a0, 16                     
+ 275 sh	zero,1300(s0)                           sh         $zero, 0x514($s0)               
+ 276 sb	zero,592(s2)                            sb         $zero, 0x250($s2)               .L800471B0: 
+ 277 sb	zero,607(s2)                            sb         $zero, 0x25F($s2)               
+ 278 j	ec8 <DrawMemCardStuff__14tScreenMemcards+0x488>   -> 290 j          .L800471E8   -> 290             
+ 279 sb	zero,622(s2)                            sb        $zero, 0x26E($s2)                
+ 280 sra	v0,v0,0xf                              sra        $v0, $v0, 15                    .L800471C0: 
+ 281 addu	v1,s1,v0                              addu       $v1, $s1, $v0                   
+ 282 lhu	v0,1330(v1)                            lhu        $v0, 0x532($v1)                 
+ 283 nop                                        nop                                        
+ 284 addiu	v0,v0,-8                             addiu      $v0, $v0, -0x8                  
+ 285 sh	v0,1330(v1)                             sh         $v0, 0x532($v1)                 
+ 286 sll	v0,v0,0x10                             sll        $v0, $v0, 16                    
+ 287 bgez	v0,ecc <DrawMemCardStuff__14tScreenMemcards+0x48c>   -> 291 bgez       $v0, .L800471EC   -> 291        
+ 288 move	a0,s1                                 addu      $a0, $s1, $zero                  
+ 289 sh	zero,1330(v1)                           sh         $zero, 0x532($v1)               
+ 290 move	a0,s1                                 addu       $a0, $s1, $zero                 .L800471E8: 
+ 291 sll	a1,s3,0x10                             sll        $a1, $s3, 16                    .L800471EC: 
+ 292 sra	a1,a1,0x10                             sra        $a1, $a1, 16                    
+ 293 sll	a2,s5,0x10                             sll        $a2, $s5, 16                    
+ 294 jal	0 <GetShapeInfo__14tScreenMemcardRsT1PPcT3> jal        PlaceIcons__14tScreenMemcardii  
+ 295 sra	a2,a2,0x10                             sra       $a2, $a2, 16                     
+ 296 addiu	v0,s3,1                              addiu      $v0, $s3, 0x1                   .L80047200: 
+ 297 move	s3,v0                                 addu       $s3, $v0, $zero                 .L80047204: 
+ 298 lw	v1,108(s1)                              lw         $v1, 0x6C($s1)                  
+ 299 sll	v0,v0,0x10                             sll        $v0, $v0, 16                    
+ 300 lw	v1,8(v1)                                lw         $v1, 0x8($v1)                   
+ 301 sra	v0,v0,0x10                             sra        $v0, $v0, 16                    
+ 302 slt	v0,v0,v1                               slt        $v0, $v0, $v1                   
+ 303 bnez	v0,cd4 <DrawMemCardStuff__14tScreenMemcards+0x294>   -> 165 bnez       $v0, .L80046FF4   -> 165        
+ 304 nop                                        nop                                        
+ 305 lw	v0,1440(s1)                             lw         $v0, 0x5A0($s1)                 .L80047224: 
+ 306 nop                                        nop                                        
+ 307 beqz	v0,f28 <DrawMemCardStuff__14tScreenMemcards+0x4e8>   -> 314 beqz       $v0, .L80047248   -> 314        
+ 308 nop                                        nop                                        
+ 309 lw	v0,1360(s1)                             lw         $v0, 0x550($s1)                 
+ 310 nop                                        nop                                        
+ 311 beqz	v0,f28 <DrawMemCardStuff__14tScreenMemcards+0x4e8>   -> 314 beqz       $v0, .L80047248   -> 314        
+ 312 nop                                        nop                                        
+ 313 sw	zero,1440(s1)                           sw         $zero, 0x5A0($s1)               
+ 314 lw	v0,108(s1)                              lw         $v0, 0x6C($s1)                  .L80047248: 
+ 315 nop                                        nop                                        
+ 316 lw	v1,0(v0)                                lw         $v1, 0x0($v0)                   
+ 317 li	v0,-3                                   addiu      $v0, $zero, -0x3                
+ 318 bne	v1,v0,f5c <DrawMemCardStuff__14tScreenMemcards+0x51c>   -> 327 bne        $v1, $v0, .L8004727C   -> 327   
+ 319 lui	v0,0x0                                 lui       $v0, %hi(CURRENTLYUSINGMEMCARD)  
+ 320 lw	v1,100(s1)                              lw         $v1, 0x64($s1)                  
+ 321 li	v0,-1                                   addiu      $v0, $zero, -0x1                
+ 322 bne	v1,v0,f5c <DrawMemCardStuff__14tScreenMemcards+0x51c>   -> 327 bne        $v1, $v0, .L8004727C   -> 327   
+ 323 lui	v0,0x0                                 lui       $v0, %hi(CURRENTLYUSINGMEMCARD)  
+ 324 li	v0,703                                  addiu      $v0, $zero, 0x2BF               
+ 325 sw	v0,1408(s1)                             sw         $v0, 0x580($s1)                 
+ 326 lui	v0,0x0                                 lui        $v0, %hi(CURRENTLYUSINGMEMCARD) 
+ 327 lw	v0,0(v0)                                lw         $v0, %lo(CURRENTLYUSINGMEMCARD)($v0) .L8004727C: 
+ 328 nop                                        nop                                        
+ 329 bnez	v0,f78 <DrawMemCardStuff__14tScreenMemcards+0x538>   -> 334 bnez       $v0, .L80047298   -> 334        
+ 330 nop                                        nop                                        
+ 331 lw	a0,104(s1)                              lw         $a0, 0x68($s1)                  
+ 332 jal	0 <GetShapeInfo__14tScreenMemcardRsT1PPcT3> jal        MCRD_handlecardevents           
+ 333 nop                                        nop                                        
+ 334 lw	ra,40(sp)                               lw         $ra, 0x28($sp)                  .L80047298: 
+ 335 lw	s5,36(sp)                               lw         $s5, 0x24($sp)                  
+ 336 lw	s4,32(sp)                               lw         $s4, 0x20($sp)                  
+ 337 lw	s3,28(sp)                               lw         $s3, 0x1C($sp)                  
+ 338 lw	s2,24(sp)                               lw         $s2, 0x18($sp)                  
+ 339 lw	s1,20(sp)                               lw         $s1, 0x14($sp)                  
+ 340 lw	s0,16(sp)                               lw         $s0, 0x10($sp)                  
+ 341 jr	ra                                      jr         $ra                             
+ 342 addiu	sp,sp,48                             addiu     $sp, $sp, 0x30                   

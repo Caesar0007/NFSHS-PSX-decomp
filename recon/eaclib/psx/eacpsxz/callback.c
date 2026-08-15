@@ -4,6 +4,13 @@
  *   Ghidra nfs4-f.exe.c (callback) + IDA sigs (allocmutex returns the slot ptr; void return dropped it).
  */
 extern short mutexbuf[];   /* short[32*2] : 32 mutex slots (4 bytes each, first word = taken flag) */
+/* W65-A6 DATA-MAT: `mutexbuf` was extern-only tree-wide (4 reloc-referenced undefined sites);
+ * callback.obj is its sole referencer.  Retail: .bss @0x801477E0, size 128 (= sndgs
+ * @0x80147860 - 0x801477E0) -- exactly the short[32*2] the decl documents.  VA >
+ * t_addr+t_size (0x8013E000) => pure zero-init BSS.  DEVICE = file-scope asm .bss definition,
+ * keeping the UNSIZED `extern short mutexbuf[]` the loop's index form depends on.
+ * Receipts: scratchpad/w65a6/RECEIPTS.md */
+__asm__("\t.globl\tmutexbuf\n\t.section\t.bss\n\t.align\t2\nmutexbuf:\n\t.space\t128\n\t.text");
 
 extern short *allocmutex(void);            /* @0x800FE424 */
 extern void   freemutex(void *mutex);      /* @0x800FE480 */

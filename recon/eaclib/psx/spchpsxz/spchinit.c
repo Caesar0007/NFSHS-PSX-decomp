@@ -43,7 +43,36 @@
  */
 
 /* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
- int gRepeatCount; 
+/* ======================== W65-A6 DATA-MAT: the spchpsxz BSS run @0x80148428 ================
+ * gGameNum / gFilterSetting / gLastSubTick / gDataRate / gLastTick were extern-only tree-wide
+ * (4+6+9+4+6 = 29 reloc-referenced undefined sites).  VAs > t_addr+t_size (0x8013E000) => pure
+ * zero-init BSS, no file bytes.  The run is exactly accounted:
+ *   0x80148428 gGameNum 4 | 0x8014842C gFilterSetting 4 | 0x80148430 gLastSubTick 4
+ *   0x80148434 gDataRate 4 | 0x80148438 gLastTick 4     -> 0x8014843C = gSentenceChoice.
+ * OWNERSHIP: the five INTERLEAVE spchinit-referenced and spchevnt-referenced symbols
+ * (gLastSubTick/gLastTick are spchevnt's, gGameNum/gDataRate spchinit's, gFilterSetting both),
+ * and ld places whole object sections -- so retail held all five in ONE object.  spchinit.obj
+ * is that owner on the reference count (3 of 5 here).
+ * DEVICE = file-scope asm .bss definition: all five are <= the TU's -G4, so a C tentative
+ * definition would (a) be routed by maspsx into `.section .sbss` with NO `.globl` -- a LOCAL
+ * symbol that fixes nothing at link -- and (b) flip cc1 to gp-relative addressing, while the
+ * oracle has ZERO %gp_rel sites for any of them (retail addressed them absolutely).  Keeping
+ * every C view `extern` is byte-neutral by construction: 7/7 PASS unchanged.
+ * Receipts: scratchpad/w65a6/RECEIPTS.md */
+__asm__("\t.globl\tgGameNum\n\t.globl\tgFilterSetting\n\t.globl\tgLastSubTick\n"
+        "\t.globl\tgDataRate\n\t.globl\tgLastTick\n"
+        "\t.section\t.bss\n\t.align\t2\n"
+        "gGameNum:\n\t.space\t4\n"
+        "gFilterSetting:\n\t.space\t4\n"
+        "gLastSubTick:\n\t.space\t4\n"
+        "gDataRate:\n\t.space\t4\n"
+        "gLastTick:\n\t.space\t4\n\t.text");
+/* W65-A6: the stale `int gRepeatCount;` tentative definition that stood here is GONE.  It was
+ * never referenced by this TU's code (every use spells it `gVoxInGame[1]`), so maspsx turned
+ * it into a private 4-byte LOCAL .sbss object at an address retail does not have -- retail's
+ * gRepeatCount IS gVoxInGame+4 (0x8014805C) and is now an interior label of the gVoxInGame
+ * run in spchevnt.c.  Deleting an unreferenced `.comm` is codegen-neutral (7/7 PASS before
+ * and after; the only delta is 4 fewer dead .sbss bytes). */
 
 extern int gMemAlloc[];        /* user alloc callback (fn ptr stored as int) */
 extern int gMemFree[];         /* user free callback (fn ptr stored as int; array decl -> explicit lui+%lo store like gMemAlloc) */

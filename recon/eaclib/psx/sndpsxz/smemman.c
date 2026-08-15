@@ -38,6 +38,17 @@ typedef struct SNDMemState {
     unsigned short entries[256];        /* +0x0c {block,size}[128] */
 } SNDMemState;
 extern SNDMemState sndmm;
+/* W65-A6 DATA-MAT: `sndmm` was extern-only tree-wide (13 reloc-referenced undefined sites).
+ * Retail: .bss @0x80148780 (VA > t_addr+t_size 0x8013E000 => no file bytes, pure zero-init).
+ * smemman.obj owns it (sole referencer besides its own asm-label alias `sndmm_b`).
+ * Size = sizeof(SNDMemState) = 524, the oracle-derived struct above; the VA delta to the next
+ * known symbol (drv.c's D_8014899C @0x8014899C) is 540, so 16 trailing bytes of that gap are
+ * unattributed -- recorded, not invented.
+ * A C tentative definition is correct HERE (unlike sndgs/sndpd): the type is COMPLETE and
+ * identical to the existing extern declaration, so nothing about address materialization can
+ * move, and 524 > the TU's -G4 so maspsx routes it to `.section .bss` + `.globl` (a `.comm`
+ * of size <= -G would land in `.sbss` as a LOCAL symbol and fix nothing).  4/4 PASS unchanged. */
+SNDMemState sndmm;                  /* @0x80148780 [BSS] definition */
 /* UNSIZED-ARRAY VIEW of the same storage (asm-label alias): an unsized `unsigned char[]`
  * makes gcc materialize each `sndmm_b + K` as the FUSED high(sym+K)/lo_sum pair, so the two
  * distinct table bases (+8 and +0xC, splat D_80148788 / D_8014878C) cannot share one hoisted

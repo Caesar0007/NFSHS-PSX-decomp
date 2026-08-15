@@ -1,0 +1,17 @@
+[
+ [
+  "C if-wrapped for + else goto",
+  "FAIL 2 diffs (ours 345 / oracle 343)",
+  "BRANCH COUNT 52 vs 51"
+ ],
+ [
+  "D i-first if-wrapped for + else goto",
+  "PASS (343 insns)",
+  "br-CLEAN"
+ ],
+ [
+  "E for + trailing zero-trip goto",
+  "FAIL 3 diffs (ours 346 / oracle 343)",
+  "BRANCH COUNT 52 vs 51"
+ ]
+]

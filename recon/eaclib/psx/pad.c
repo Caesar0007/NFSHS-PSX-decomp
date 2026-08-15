@@ -43,9 +43,23 @@ typedef struct tPadModuleState {      /* 84 bytes */
     tActiveTime state[8];             /* +0x44 */
 } tPadModuleState;
 
-/* ---- pad.obj data globals (eaclib/psx, from canonical Globals) ---- */
-extern PAD_COMMON      Padglobal[2];  /* 0x8013e8f0  per-port pad buffers   */
-extern tPadModuleState gPadinfo;      /* 0x8013e89c  module state (84 B)    */
+/* ---- pad.obj data globals (eaclib/psx, from canonical Globals) ----
+ * W65-A6 DATA-MAT: these were `extern`-only tree-wide (never defined), i.e. 115+6
+ * reloc-referenced undefined symbols at link.  Retail has them in .bss (VA >
+ * the PS-X EXE's t_addr+t_size = 0x8013E000, so they carry NO file bytes: pure
+ * zero-init BSS), CONTIGUOUS and in this order:
+ *      gPadinfo  @0x8013E89C size 84   (SYM: `96 Def2 class EXT type STRUCT size 84`)
+ *      Padglobal @0x8013E8F0 size 16   (= 0x8013E900 memclass - 0x8013E8F0)
+ * A tentative definition is the right shape here: cc1 emits `.comm sym,size`,
+ * maspsx re-emits it as a REAL `.section .bss` + `.globl` + `.space` definition
+ * (sdata_limit=0 in build.py's maspsx invocation), so the object owns the storage
+ * instead of leaving it a linker-placed COMMON.  Both are > -G8, so address
+ * materialization stays absolute `%hi/%lo` (the §3.12 #6 gp-rel lever cannot
+ * fire) -- pad.c re-gates identically (see scratchpad/w65a6/RECEIPTS.md).
+ * Declaration order IS emission order (catalog 16E), so they are declared in
+ * retail VA order.  */
+tPadModuleState gPadinfo;             /* @0x8013e89c  module state (84 B) [BSS] */
+PAD_COMMON      Padglobal[2];         /* @0x8013e8f0  per-port pad buffers [BSS] */
 
 /* ---- PsyQ libpad (direct mode) ---- */
 extern void PadInitDirect(unsigned char *pad1, unsigned char *pad2);

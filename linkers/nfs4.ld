@@ -27,12 +27,14 @@ SECTIONS
         build/src/front.c.o(.rodata);
         build/asm/data/rdata_80054548.rodata.s.o(.rodata);
         build/src/main.c.o(.rodata);
+        build/src/*(.rodata);
         . = ALIGN(., 16);
         nfs4_RODATA_END = .;
         nfs4_RODATA_SIZE = ABSOLUTE(nfs4_RODATA_END - nfs4_RODATA_START);
         nfs4_TEXT_START = .;
         build/src/front.c.o(.text);
         build/src/main.c.o(.text);
+        build/src/*(.text);
         . = ALIGN(., 16);
         nfs4_TEXT_END = .;
         nfs4_TEXT_SIZE = ABSOLUTE(nfs4_TEXT_END - nfs4_TEXT_START);
@@ -117,7 +119,12 @@ SECTIONS
         build/asm/data/data_8010CCD4_r18.data.s.o(.data);
         build/asm/data/data_8010CCD4_o31.data.s.o(.data);
         build/asm/data/data_8010CCD4_r19.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o32.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r20.data.s.o(.data);
+        build/asm/data/data_8010CCD4_o33.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r21.data.s.o(.data);
         build/asm/data/tail.data.s.o(.data);
+        build/src/*(.data);
         . = ALIGN(., 16);
         nfs4_DATA_END = .;
         nfs4_DATA_SIZE = ABSOLUTE(nfs4_DATA_END - nfs4_DATA_START);
@@ -186,11 +193,13 @@ SECTIONS
         build/asm/data/sdata_8013C54C_r21.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_o34.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata);
+        build/src/*(.sdata);
         . = ALIGN(., 16);
         nfs4_SDATA_END = .;
         nfs4_SDATA_SIZE = ABSOLUTE(nfs4_SDATA_END - nfs4_SDATA_START);
         nfs4_SBSS_START = .;
         build/asm/data/sbss.sbss.s.o(.sbss);
+        build/src/*(.sbss);
         . = ALIGN(., 16);
         nfs4_SBSS_END = .;
         nfs4_SBSS_SIZE = ABSOLUTE(nfs4_SBSS_END - nfs4_SBSS_START);
@@ -200,6 +209,8 @@ SECTIONS
         build/asm/data/rdata_80054548.rodata.s.o(.bss);
         build/src/main.c.o(.bss);
         build/asm/data/bss.bss.s.o(.bss);
+        build/src/*(.bss);
+        build/src/*(COMMON);
         . = ALIGN(., 16);
         nfs4_BSS_END = .;
         nfs4_BSS_SIZE = ABSOLUTE(nfs4_BSS_END - nfs4_BSS_START);
@@ -210,8 +221,17 @@ SECTIONS
     nfs4_ROM_END = __romPos;
     nfs4_VRAM_END = .;
 
+    /* W65-A7: the trailing `*(*)` rule ate 459 of the src lane's 461
+     * per-module objects ("defined in discarded section" x1975).  It is
+     * narrowed to metadata + linker-generated sections ONLY; every real
+     * input section is now placed by the catch-alls above.  The list is
+     * derived from a census of every input section across both lanes
+     * (scratchpad/w65a7/seccensus.py) plus the ld-generated .rel.dyn --
+     * dropping .rel.dyn is what keeps the splat link byte-identical. */
     /DISCARD/ :
     {
-        *(*);
+        *(.pdr); *(.reginfo); *(.MIPS.abiflags); *(.gnu.attributes);
+        *(.comment); *(.mdebug*); *(.rel.dyn); *(.rel*); *(.note*);
+        *(.debug*); *(.line); *(.stab*); *(.got*); *(.dyn*);
     }
 }

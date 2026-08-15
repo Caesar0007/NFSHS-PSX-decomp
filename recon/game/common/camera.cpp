@@ -1701,11 +1701,6 @@ LAB_80083584:
       case 7:
         Camera_UpdateHeliCam(player,2);
         break;
-      case 8:
-      case 9:
-      case 0xf:
-        Camera_UpdateSimpleCam(player);
-        break;
       case 10:
         Camera_UpdateCircleCam(player);
         break;
@@ -1720,6 +1715,18 @@ LAB_80083584:
         break;
       case 0xe:
         Camera_UpdateAnimCam(player);
+        break;
+      /* MATCH (W65-A3, calltarget): the SimpleCam group is emitted LAST of this
+       * run, not first -- the oracle's jal order is Circle, Spline, TV, Blimp,
+       * Anim, Simple, CopCam1 (case BODIES emit in SOURCE order, catalog D).
+       * With the group written first, every one of those six jals pointed at the
+       * WRONG handler after link: 6 audit rows in one cyclic shift.  Writing it
+       * here is also the natural 1998 shape -- the group is placed where its
+       * LAST label (0xf) belongs. */
+      case 8:
+      case 9:
+      case 0xf:
+        Camera_UpdateSimpleCam(player);
         break;
       case 0x10:
         Camera_UpdateCopCam1(player);

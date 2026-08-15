@@ -2096,7 +2096,6 @@ struct AIHigh_BTC_Perp : public AIHigh_BasicPerp {   /* 136 bytes */
     int                caught_, hudActivated_;   /* +0x7C */
     AIHigh_BTC_HumanCop *originalActivationCop_;   /* +0x84 */
     AIHigh_BTC_Perp() {}
-    ~AIHigh_BTC_Perp();
     void ReleaseCops();
     void HandleCops();
     int IsFalseArrest();
@@ -2123,7 +2122,6 @@ struct AIHigh_BasicCop : public AIHigh_Base {   /* 88 bytes */
     int                driveAway_;   /* +0x54 */
     AIHigh_BasicCop() {}
     AIHigh_BasicCop(Car_tObj *carObj, int idx);
-    ~AIHigh_BasicCop();   /* W56-A2: NOT-IN-OBJECT dtor -> ___15AIHigh_BasicCop (base-forward, mirrors ~AIHigh_BTC_Cop) */
     void CheckSpikeBelt();
     void SetupBlockadeElements(blockade_t *blockade);
     void HandleBlockadeSpeech();
@@ -2135,7 +2133,6 @@ struct AIHigh_BTC_Cop : public AIHigh_BasicCop {   /* 100 bytes */
     int                chaseIndex_, freezeMode_;   /* +0x5C */
     AIHigh_BTC_Cop() {}
     AIHigh_BTC_Cop(Car_tObj *carObj, int copIndex);
-    ~AIHigh_BTC_Cop();
     void AssignToPlayer(AIHigh_BTC_Perp *target);
     int GetCheckChasePosition(coorddef *pos);
     int CheckForNewTarget();

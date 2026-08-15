@@ -74,7 +74,7 @@ void Initialize(tVideoWall*, tTVConfig*, tTexture_ShapeInfo*, short, short, shor
 /* ===== FE / game / PsyQ helpers ===== */
 int   CalcFadeVal(int, int);
 char *TextSys_Word(int); int TextSys_WordX(int); int TextSys_WordY(int); int TextSys_WordFlags(int);
-short TextValue(void*, tPlayer) __asm__("TextValue__13tListIterator7tPlayer");  /* w64 unlock: base-class member (hierarchy binds BASE, A21) */ void Decrement(void*, tPlayer); void Increment(void*, tPlayer);
+short TextValue(void*, tPlayer) __asm__("TextValue__23tListIteratorTournament7tPlayer");  /* W65-A3 (calltarget): REVERTS the w64 "hierarchy binds BASE" alias -- the ORACLE is the authority and DrawBackground__26tScreenTournamentStandings's single (tail-merged) jal names the tListIteratorTournament override, which is also the static type of BOTH ternary operands (menuDefs->iteratorSpecialEvent / ->iteratorTournament). */ void Decrement(void*, tPlayer); void Increment(void*, tPlayer);
 void  DrawMoney(int, int, int, long, int, int);
 void  DrawShapeExtended(int, int, int, int, int, int, tDrawShapeExtended *);
 void  DrawShape_NFS4Rectangle(...); void DrawShape_NFS4RoundRectangle(int, RECT*, short);

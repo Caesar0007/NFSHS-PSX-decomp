@@ -3776,16 +3776,12 @@ AIHigh_BTC_HumanCop::~AIHigh_BTC_HumanCop()
 
 /* ---- _._14AIHigh_BTC_Cop  AIHigh_BTC_Cop::dtor  [AIH_BTCCOP.CPP:?] SLD-FLAG:NO_SLD ---- */
 
-AIHigh_BTC_Cop::~AIHigh_BTC_Cop()
-
-
-
-{
-
-
-  return;
-
-}
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___11AIHigh_Base the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___11AIHigh_Base(void *);
+extern "C" void ___14AIHigh_BTC_Cop(void *thisp) { ___11AIHigh_Base(thisp); }
 
 
 

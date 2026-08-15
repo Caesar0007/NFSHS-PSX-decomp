@@ -469,10 +469,18 @@ AIHigh_Base::~AIHigh_Base()
    copy at 0x80061348), and src/game/common/aihigh.c INCLUDE_ASMs it -- but no aihigh TU
    emitted it (0.00% NOT-IN-OBJECT).  Same cross-TU duplicate model the tree already uses for
    TestForRelease__12AIState_Base (defined in aistate/aih_btccop/aih_btcperp alike). */
-AIHigh_BTC_Perp::~AIHigh_BTC_Perp()
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so ~AIHigh_BTC_AIPerp / ~AIHigh_BTC_HumanPerp collapse past it
+ * to ___11AIHigh_Base the way retail does.  The oracle proves AIHigh_BTC_Perp
+ * owns NO vtable of its own -- its standalone dtor stores _vt_16AIHigh_BasicPerp
+ * (its BASE's), i.e. it is gcc INLINING AIHigh_BasicPerp's implicit reset before
+ * chaining on -- so the standalone symbol is supplied here in place, with the
+ * same store and C linkage. */
+extern "C" void ___11AIHigh_Base(void *);
+extern "C" void ___15AIHigh_BTC_Perp(void *thisp)
 {
-  this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_BasicPerp_vtable;
-  return;
+  ((AIHigh_BTC_Perp *)thisp)->_vf = (__vtbl_ptr_type (*) [3])AIHigh_BasicPerp_vtable;
+  ___11AIHigh_Base(thisp);
 }
 
 

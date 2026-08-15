@@ -1,0 +1,70 @@
+w66a3: RECEIPTS + tools for THE LAST-UNDEFINED BELT.  NOTE: the belt's 20 source files
+were swept into peer commit ff0f17ce by a `git add -A` before my own `git commit -F` ran
+(the 15F/w65-a6 sec.7 hazard, again).  CONTENT VERIFIED INTACT: all 20 files diff CLEAN
+against HEAD.  Only the message was lost -- it is reproduced verbatim below.
+
+w66a3: THE LAST-UNDEFINED BELT -- recon-lane real-link undefined 15 -> 0 (relink unresolved 20 -> 5, all five ld-provided; REAL dup 0, HIDDEN PHANTOMS 0), tree-wide COMMONs 1 -> 0, the multi-run .bss split landed, 2 wrong call targets fixed that NO byte gate can see, 4 latent defects retired. 23 TUs gated 2x, ZERO PASS->FAIL; tu_order_audit 508/0; probe_link 82.93 -> 82.95%.
+
+THE 15, five mechanical classes (scratchpad/w66a3/plan.py = the classifier):
+ (1) NAME PHANTOM: CD_init -> CD_init_80108140 (drv.c owns that spelling; splat appended
+     the VA for the CD_init/CD_Init NTFS case-collision, cdcont.c already used it).
+ (2) BLOB ALREADY EMITS THE VA -> asm-label alias on the C decl: dma_cb=D_8013BD24,
+     g_videomode=D_80134838, g_bootGP=D_801234E8, _init_pad_flag=D_8013C338, _fnt=Font,
+     FECredits_lastFadeTick=D_80051AA4; _rsincos renamed to the blob's (and canonical PsyQ)
+     rcossin_tbl -- it appears ONLY inside hand-asm templates, and an asm-label on a C
+     declaration cannot rename a symbol that lives in an __asm__ string (same for g_bootGP's
+     %hi/%lo operand inside initgp).
+ (3) BLOB-SIDE LABEL (no C change at all -> byte-neutral BY CONSTRUCTION): _cdr, bigBuf,
+     showRoomFlag.  This CORRECTS w65-a6 sec.6.2's recommended follow-up: renaming the blob
+     label is unnecessary (9 files reference D_8013C290) -- ADDING a second dlabel is one
+     line and has the identical decisive property.  cdread.c held 3/6 (the C-side alias had
+     cost CdReadSync PASS->FAIL).  bigBuf (5 consumer TUs) and showRoomFlag (4 declarations)
+     cost one line each instead of ten header edits.
+ (4) INTERIOR LABELS of a run we already own: gSndState = sndgs+0, iSNDplatformrate =
+     sndgs+0xA0 (nm-verified offsets 0x00/0x11/0x38/0x94/0xA0).
+ (5) C++ SHAPE DEFECTS -- see below.
+
+LATENT DEFECTS RETIRED (all the gRepeatCount class, 3rd/4th instances):
+ * PAD_data.c's "owning definition" int _init_pad_flag; and spktplay.c's "link-harness"
+   int iSNDplatformrate[1]; -- a 4-byte tentative def routes to a LOCAL symbol on both
+   lanes, so it resolved NOTHING and parked a private word at a VA retail does not have.
+   LAW: a 4-byte "link harness" is never a link harness.
+ * streamhelp.c's 8-byte .bss filler claimed 0x801489D8..E0 -- storage this object does not
+   own, sitting on GlobalCallback @0x801489E0.  Deleted by the run split.
+ * debug_cause: the blob cut w65-a6 parked HAS landed (dlabel debug_cause @0x80136AE0),
+   under that exact name -> plain extern, and the last COMMON in the tree is gone.
+
+TWO WRONG CALL TARGETS IN GATE-PASSING, BOARD-100 FUNCTIONS:
+ * __12tDialogYesNo jal'd __20tDialogMessageString where retail jal's __7tScreen.  THE CTOR
+   MIRROR OF THE w65-a3 DTOR-CHAIN LAW: retail has NO out-of-line __11tDialogBase /
+   __20tDialogMessageString anywhere -- those ctors are INLINE-only, expanded at every
+   construction site (feapp/fememcard/front carry the definitions; fedialog.cpp did not, so
+   gcc emitted an out-of-line call to a ctor nobody defines).  Supplying the two inline
+   definitions in fedialog.cpp + deleting the hand-written duplicate stores: PASS 46/46 on
+   the first compile, whole TU 33/33.
+ * tScreen_ProcessInput__FP7tScreen... = a flattened instance method (sec.3.23b); the oracle
+   jal's the METHOD mangling.  asm-label on the declaration = name-only, ABI identical.
+ THE GAP: verify_asm is reloc-name lenient AND calltarget_audit needs BOTH names to have
+ VAs, so a call to an UNDEFINED callee is invisible to every byte gate -- the real link is
+ the only witness.  Fold the relink undefined set into calltarget_audit as a third class.
+
+THE MULTI-RUN .bss SPLIT (w65-a6 sec.7.2 hand-off), LANDED: one object's .bss is contiguous,
+so stream.c's THREE and streamhelp.c's TWO disjoint retail runs each get their own nobits
+section named for its retail base -- .bss.st_80144874 (8B) / .bss.st_80146C7C (72B, ends at
+Cdinfo @0x80146CC4) / .bss.st_801489CC (4B) and .bss.ds_801489D0 (8B) / .bss.ds_801489E4
+(4B == GlobalCallback+4).  objdump -h + nm verified; every interior offset is the exact
+retail delta.  Byte-neutral by construction (nobits emits nothing, C views stay extern).
+An unplaced link is unchanged via `*(.bss); *(.bss.*)`; linkers/nfs4.ld needs no change (it
+links the src lane, which has no recon objects).  linkers/nfs4_recon.ld is GENERATED and is
+deliberately NOT committed here -- the one-line spec is in scratchpad/w66a3/gen_ld.py.
+
+HONEST RESIDUE (5, none materializable): _gp and ticksA are script assignments,
+__last_org is the SYM's endofcode bss-end marker, D_80000004/D_1000001 are BIOS absolutes.
+Materializing any of them would put storage where the image has none.
+
+TOOL DEFECT REPORTED: tools/stale_absolutes.py cannot run as promoted -- ROOT=parents[2]
+resolves to C:\Temp (the 16F root-resolution law, firing again) and it hard-depends on
+scratchpad/w65a6/census_recon.json.  Equivalent check done by hand: no undefined_syms_auto /
+undefined_funcs_auto row shadows any symbol this belt resolved.
+
+Receipts, ledger, falsifications and the catalog-row candidates: scratchpad/w66a3/RECEIPTS.md

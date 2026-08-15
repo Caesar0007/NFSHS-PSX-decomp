@@ -1,0 +1,45 @@
+[
+ {
+  "lane": "recon",
+  "objects": 747,
+  "ld_r_rc": 1,
+  "dup_total": 796,
+  "dup_blob": 796,
+  "dup_real": 0,
+  "unresolved_reloc": 20,
+  "unresolved_benign": 0,
+  "phantoms": 0,
+  "multi_va_names_excluded": 5,
+  "excluded_subtrees": {
+   "diffsrc": 111,
+   "scratch": 26,
+   "scratchpad": 4,
+   "pbuild": 0,
+   "relink": 2
+  },
+  "dup_real_rows": [],
+  "phantom_rows": [],
+  "unresolved_names": [
+   "CD_init",
+   "D_1000001",
+   "D_80000004",
+   "FECredits_lastFadeTick",
+   "__20tDialogMessageString",
+   "__last_org",
+   "_cdr",
+   "_fnt",
+   "_gp",
+   "_init_pad_flag",
+   "_rsincos",
+   "bigBuf",
+   "dma_cb",
+   "gSndState",
+   "g_bootGP",
+   "g_videomode",
+   "iSNDplatformrate",
+   "showRoomFlag",
+   "tScreen_ProcessInput__FP7tScreen7tPlayerR13tInputKeyTypeR12tMenuCommand",
+   "ticksA"
+  ]
+ }
+]

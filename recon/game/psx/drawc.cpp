@@ -1279,7 +1279,6 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
   int iVar8;
   u_int uVar10;
   u_char v;
-  int iVar11;
   /* w60-a7: the envmap-UV cursor is the TYPED `Draw_CarVertex *` walker, not a raw
      byte cursor -- the same shape DrawC_PrimMenu's identical loop was SEALED with this
      wave.  A `char *` walked `+ 8` is a BIV whose init is an ordinary source statement
@@ -2521,19 +2520,49 @@ gte_ldv3(vt0,vt1,vt2);
  *      pure no-op (all 6 permutations identical) -- Prim's id block is
  *      already at its own optimum with the fused single-statement form and
  *      the natural L012 order.  Measured, do not port.
- * RESIDUAL 552: chunkdiff finds NO mismatched run >= 10 -- what is left is the
- * whole-function callee-saved ROTATION visible in the prologue (ours
- * `addu s2,a1,zero`, oracle `addu s4,a1,zero`) plus its caller-saved fallout,
- * and a residual id0<->id2 register swap inside the morph block (ours
- * {id0:a1,id1:a0,id2:a2}, oracle {id0:a2,id1:a1,id2:a0} -- no load/morph
- * permutation reaches it; the reachable map set is only the two the sweep
- * found).  NEXT: allocsim/reqdelta on the s-pool rotation.
+ * ===== w64-a14 (2026-08-15): 552 -> 428, three ordered landings =====
+ *  (c) DROP THE GHIDRA BYTE-OFFSET BIV (the same lever that unblocked
+ *      DrawC_Prim this wave -- see its in-fn receipt).  `iVar11 = facetIdx*0xc;
+ *      ... iVar11 += -0xc; facet = (int)obj->facet + iVar11;` is a Ghidra
+ *      invention; the SYM lists ONE fn-scope counter + a typed per-block
+ *      `facet` and NO byte offset.  `facet = (int)(obj->facet + facetIdx)`
+ *      lets loop.c strength-reduce the *12 into its own giv.  552 -> 524
+ *      at an unchanged count, all 5 loops.
+ *  (d) 🔑 VOID-TAIL FENCE AFTER THE THREE `(sd->vtN).z = zN;` STORES, all 4
+ *      sites: 524 -> 432 (count 1883 -> 1887).  Without it sched2 SINKS the
+ *      three `sh`s into the clip-compare block's branch delay slots (ours was
+ *      3 insns SHORT there and the oracle carries a `nop`); the barrier
+ *      groups them and the whole block becomes COUNT- AND OFFSET-EXACT
+ *      against the oracle.  The fence must sit AFTER the stores -- between
+ *      the loads and the stores it is inert (524).
+ *  (e) the PrimMenu floor_log2 REF-STEP dial (do{}while(0) on id2's two
+ *      statements + id1's `+= sd`) at morph sites 1 and 3 only: 432 -> 428.
+ *      Sites 2 and 4 REGRESS under it at every depth measured (d1/d2, with
+ *      and without the id1 leg: 434..450) -- their ids are t1/t0/a3 and
+ *      t3/... i.e. they are not the first-served qtys; price with qty/-dl.
+ * RESIDUAL 428, the named classes (chunkdiff, largest first):
+ *   * the z-block ×4 is now count- and offset-EXACT and differs ONLY in the
+ *     register CLASS -- ours $v0/$v1/$a0, retail $t4/$t5/$t6.  Census:
+ *     `grep -cE 'lhu +\$t[4-7], 0xD4' asm/nonmatchings/main/DrawC_PrimClip*.s`
+ *     = 12 (4 sites x 3) and ZERO in Prim/PrimMenu.  That is the §3.25-2 EA
+ *     expander-template signature (same reserved $t4-$t7 window as the
+ *     DRAWC_OTLINK and DRAWC_UVTINT templates already vendored in this TU) --
+ *     BUT the single-function census is weaker than those, so before writing
+ *     a template check whether the id rotation at that site explains it.
+ *   * the id rotation still live at the 2 un-dialed sites (ours id0:t0
+ *     id1:a3 id2:t1, retail t1/t0/a3).
+ *   * the xy0/xy1/xy2 load order at the first FT3 block (ours dvx1,dvx2,dvx0
+ *     into a0,v0,v1; retail dvx2,dvx0,dvx1 -- SYM xy0=$v0 xy1=$v1 xy2=$a0).
+ *   * the whole-function callee-saved ROTATION in the prologue (ours
+ *     `addu s2,a1,zero`, oracle `addu s4,a1,zero`).
+ * FALSIFIED at the 428 basin: moving the three index `lbu`s BELOW the
+ * `MPrimPtr <= PrimPtr` guard = 470 @1875 (it is the COUNT dial -- it takes
+ * ours from +10 to -2 -- but costs 42 LCS; per-site 437..439 @1884).
  * ---- DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache  [DRAWC.CPP:2647-3495] SLD-VERIFIED ---- */
 void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOverlay *overlay,
                int envmap,Draw_CarCache *sd)
 
 {
-  int iVar11;
   u_int facetIdx;
   int Nvertex_p;
   u_char *u2;
@@ -2669,22 +2698,22 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         int id1;
         int id2;
         int otzSum;
-        iVar11 = facetIdx * 0xc;
         while( true ) {
           facetIdx = facetIdx - 1;
-          iVar11 = iVar11 + -0xc;
           if (facetIdx == 0xffffffff) {
             return;
           }
-          facet = (int)obj->facet + iVar11;
+          facet = (int)(obj->facet + facetIdx);
           id2 = *(u_char *)(facet + 5);
           id0 = *(u_char *)(facet + 3);
           id1 = *(u_char *)(facet + 4);
           if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) continue;
           /* SYM 3.8b: id0-2 morph index->address in place (oracle sll aN,aN,3) */
-          id2 = id2 * 8; id2 = id2 + (int)sd;
+          do { id2 = id2 * 8; } while (0);
+          do { id2 = id2 + (int)sd; } while (0);
           id0 = id0 * 8; id0 = id0 + (int)sd;
-          id1 = id1 * 8; id1 = id1 + (int)sd;
+          id1 = id1 * 8;
+          do { id1 = id1 + (int)sd; } while (0);
           gte_ldVXY0m(*(u_int *)(id0 + 0xd0));
           gte_ldVZ0m(*(u_int *)(id0 + 0xd4));
           gte_ldVXY1m(*(u_int *)(id1 + 0xd0));
@@ -2712,6 +2741,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
             (sd->vt0).z = z0;
             (sd->vt1).z = z1;
             (sd->vt2).z = z2;
+            __asm__("" : : "i"(0));
           }
           {
             int clipW = (sd->head).clipW;
@@ -2829,15 +2859,13 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
       u2_00 = (int)&sd->u5;
       vt2_00 = (int)&sd->vt4;
       u2 = &sd->u4;
-      iVar11 = facetIdx * 0xc;
       while( true ) {
         facetIdx = facetIdx - 1;
-        iVar11 = iVar11 + -0xc;
         if (facetIdx == 0xffffffff) break;
         {
         /* SYM block line=218 {facet,id0,id1,id2,pmx} -- literal repeated SYM
          * names redeclared per case block (wave-9 same-identifier lever) */
-        int facet = (int)obj->facet + iVar11;
+        int facet = (int)(obj->facet + facetIdx);
         int id0 = *(u_char *)(facet + 3);
         int id1 = *(u_char *)(facet + 4);
         int id2 = *(u_char *)(facet + 5);
@@ -2924,14 +2952,12 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     int id1;
     int id2;
     int otzSum;
-    iVar11 = facetIdx * 0xc;
     while( true ) {
       facetIdx = facetIdx - 1;
-      iVar11 = iVar11 + -0xc;
       if (facetIdx == 0xffffffff) {
         return;
       }
-      facet = (int)obj->facet + iVar11;
+      facet = (int)(obj->facet + facetIdx);
       id2 = *(u_char *)(facet + 5);
       id0 = *(u_char *)(facet + 3);
       id1 = *(u_char *)(facet + 4);
@@ -2967,6 +2993,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         (sd->vt0).z = z0;
         (sd->vt1).z = z1;
         (sd->vt2).z = z2;
+        __asm__("" : : "i"(0));
       }
       {
         int clipW = (sd->head).clipW;
@@ -3101,22 +3128,22 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     int facet_flag;
     int sd_otz;
     int otzSum;
-    iVar11 = facetIdx * 0xc;
     while( true ) {
       facetIdx = facetIdx - 1;
-      iVar11 = iVar11 + -0xc;
       if (facetIdx == 0xffffffff) {
         return;
       }
-      facet = (int)obj->facet + iVar11;
+      facet = (int)(obj->facet + facetIdx);
       id2 = *(u_char *)(facet + 5);
       id0 = *(u_char *)(facet + 3);
       id1 = *(u_char *)(facet + 4);
       if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) continue;
       /* SYM 3.8b: id0-2 morph index->address in place (oracle sll aN,aN,3) */
-      id2 = id2 * 8; id2 = id2 + (int)sd;
+      do { id2 = id2 * 8; } while (0);
+      do { id2 = id2 + (int)sd; } while (0);
       id0 = id0 * 8; id0 = id0 + (int)sd;
-      id1 = id1 * 8; id1 = id1 + (int)sd;
+      id1 = id1 * 8;
+      do { id1 = id1 + (int)sd; } while (0);
       gte_ldVXY0m(*(u_int *)(id0 + 0xd0));
       gte_ldVZ0m(*(u_int *)(id0 + 0xd4));
       gte_ldVXY1m(*(u_int *)(id1 + 0xd0));
@@ -3144,6 +3171,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         (sd->vt0).z = z0;
         (sd->vt1).z = z1;
         (sd->vt2).z = z2;
+        __asm__("" : : "i"(0));
       }
       {
         int clipW = (sd->head).clipW;
@@ -3305,14 +3333,12 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     int facet_flag;
     int sd_otz;
     int otzSum;
-    iVar11 = facetIdx * 0xc;
     while( true ) {
       facetIdx = facetIdx - 1;
-      iVar11 = iVar11 + -0xc;
       if (facetIdx == 0xffffffff) {
         return;
       }
-      facet = (int)obj->facet + iVar11;
+      facet = (int)(obj->facet + facetIdx);
       id2 = *(u_char *)(facet + 5);
       id0 = *(u_char *)(facet + 3);
       id1 = *(u_char *)(facet + 4);
@@ -3348,6 +3374,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         (sd->vt0).z = z0;
         (sd->vt1).z = z1;
         (sd->vt2).z = z2;
+        __asm__("" : : "i"(0));
       }
       {
         int clipW = (sd->head).clipW;

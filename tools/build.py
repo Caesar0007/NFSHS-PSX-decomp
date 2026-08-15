@@ -1301,6 +1301,14 @@ PER_FN_TEXT_MOVES = {
     },
     # w62 wired (probe-verified by belt agent).
     "recon/frontend/psx/psxfront.cpp": {
+        # w63-a17 (probe-verified 2x): DrawGouraudShape 14->11 @246/245.
+        # Retail leaves the lhu load-delay slot as a nop and emits
+        # sh s7,10(s0) after sh v0,8(s0); moving pre-maspsx lets maspsx
+        # insert the nop. The +1 = a pre-existing read-back copy the old
+        # order cancelled numerically.
+        "DrawGouraudShape__FP18tTexture_ShapeInfoiiiPii": [
+            {"take": r"\tsh\t\$23,10\(\$16\)\n", "after": r"\tsh\t\$2,8\(\$16\)\n"},
+        ],
         "FontUpsideDownBlit__FiiPviiP12charactertbli": [
             {"take": "\tlw\t\\$3,0\\(\\$9\\)\n", "after": "\tsw\t\\$2,0\\(\\$3\\)\n"},
         ],

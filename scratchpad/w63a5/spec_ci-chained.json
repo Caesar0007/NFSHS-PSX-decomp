@@ -1,0 +1,1 @@
+{"name": "ci-chained", "subs": [["    state[2] = 0;                             /* Intr.c     = 0 */\n    c = state[2];                             /* volatile RELOAD */\n    __asm__(\"\" : \"=r\"(c) : \"0\"(c));           /* ref-step PROMOTE: c -> $v0 */\n    state[1] = c;                             /* Intr.ready = Intr.c */\n", "    state[1] = state[2] = 0;\n"]]}

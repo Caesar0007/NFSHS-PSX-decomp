@@ -1,0 +1,1 @@
+{"name": "ci-c-ro", "subs": [["    __asm__(\"\" : \"=r\"(c) : \"0\"(c));           /* ref-step PROMOTE: c -> $v0 */\n", "    __asm__(\"\" : : \"r\"(c));\n"]]}

@@ -1,0 +1,1 @@
+{"name": "ci-no-both", "subs": [["    __asm__(\"\" : \"=r\"(state) : \"0\"(state));   /* keep the anchor un-foldable (see CD_flush) */\n", ""], ["    __asm__(\"\" : \"=r\"(c) : \"0\"(c));           /* ref-step PROMOTE: c -> $v0 */\n", ""]]}

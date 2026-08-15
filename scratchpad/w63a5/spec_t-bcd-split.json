@@ -1,0 +1,1 @@
+{"name": "t-bcd-split", "subs": [["            param[0] = (u_char)(((track_first / 10) << 4) + track_first % 10);   /* track # -> BCD */\n", "            {\n                int tens = track_first / 10;\n                param[0] = (u_char)((tens << 4) + (track_first - tens * 10));\n            }\n"]]}

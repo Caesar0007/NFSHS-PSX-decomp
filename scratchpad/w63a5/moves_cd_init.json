@@ -1,0 +1,10 @@
+{
+  "recon/syslib/psx/libcd/drv.c": {
+    "CD_init_80108140": [
+      {
+        "take": "\\tli\\t\\$4,0x00000001[^\\n]*\\n\\tmove\\t\\$5,\\$0\\n",
+        "after": "\\tandi\\t\\$2,\\$2,0x0007\\n\\tbne\\t\\$2,\\$0,\\$L\\d+\\n\\$L\\d+:\\n"
+      }
+    ]
+  }
+}

@@ -1,0 +1,1 @@
+{"name": "cc-one-head-rof", "subs": [["    int sentinel;\n\n    arg = param;\n", "    int sentinel;\n    int one;\n\n    arg = param;\n"], ["        CD_cbsync = 0;\n", "        one = 1;\n        __asm__(\"\" : : \"r\"(one));\n        CD_cbsync = 0;\n"], ["        if (command != 1) {\n", "        if (command != one) {\n"]]}

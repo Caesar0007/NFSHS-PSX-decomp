@@ -1,0 +1,1 @@
+{"name": "ci-no-sfence", "subs": [["    __asm__(\"\" : \"=r\"(state) : \"0\"(state));   /* keep the anchor un-foldable (see CD_flush) */\n", ""]]}

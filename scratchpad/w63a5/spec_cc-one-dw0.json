@@ -1,0 +1,1 @@
+{"name": "cc-one-dw0", "subs": [["extern int CdControl(int com, unsigned char *param, unsigned char *result)\n{\n    unsigned char *arg;\n", "extern int CdControl(int com, unsigned char *param, unsigned char *result)\n{\n    unsigned char *arg;\n    int one;\n"], ["        if (command != 1) {\n", "        do { one = 1; } while (0);\n        if (command != one) {\n"]]}

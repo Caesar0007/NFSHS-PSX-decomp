@@ -1,0 +1,1 @@
+{"name": "clean", "subs": [["    i = 0;\n    cnt = tbl + 0x40;\n    i = 0;\n", "    cnt = tbl + 0x40;\n    i = 0;\n"]]}

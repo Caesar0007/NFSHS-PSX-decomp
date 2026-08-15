@@ -1,0 +1,1 @@
+{"name": "t-magic3ops", "subs": [["            __asm__(\"\" : : \"r\"(magic), \"r\"(track_first));   /* MATCH (W60-A4): see the receipt above */\n", "            __asm__(\"\" : : \"r\"(magic), \"r\"(track_first), \"r\"(magic));\n"]]}

@@ -1,0 +1,1 @@
+{"name": "tbl-idf-no-ip", "subs": [["    i = 0;\n    cnt = tbl + 0x40;\n    i = 0;\n", "    cnt = tbl + 0x40;\n    i = 0;\n"], ["    __asm__(\"\" : \"=r\"(ip) : \"0\"(ip));\n", ""], ["    tbl = _cd_result_flag;\n", "    tbl = _cd_result_flag;\n    __asm__(\"\" : \"=r\"(tbl) : \"0\"(tbl));\n"]]}

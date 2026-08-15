@@ -1,0 +1,7 @@
+    ip = &Intr;
+    __asm__("" : "=r"(ip) : "0"(ip));
+    ip->sync = 0;
+    tbl = _cd_result_flag;
+    if (tbl[com])
+        ip->ready = 0;
+    CDREG0 = 0;

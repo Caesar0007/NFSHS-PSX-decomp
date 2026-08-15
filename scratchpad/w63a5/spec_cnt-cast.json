@@ -1,0 +1,1 @@
+{"name": "cnt-cast", "subs": [["    if (_cd_result_flag[0x40 + com] > 0)\n", "    if (*(int *)((com << 2) + (int)_cd_result_flag + 256) > 0)\n"], ["        } while (i < _cd_result_flag[0x40 + com]);\n", "        } while (i < *(int *)((com << 2) + (int)_cd_result_flag + 256));\n"]]}

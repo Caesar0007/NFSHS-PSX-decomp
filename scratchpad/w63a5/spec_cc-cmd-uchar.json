@@ -1,0 +1,1 @@
+{"name": "cc-cmd-uchar", "subs": [["        if (command != 1) {\n", "        if ((unsigned char)cmd != 1) {\n"]]}

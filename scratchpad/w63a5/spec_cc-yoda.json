@@ -1,0 +1,1 @@
+{"name": "cc-yoda", "subs": [["        if (command != 1) {\n", "        if (1 != command) {\n"]]}

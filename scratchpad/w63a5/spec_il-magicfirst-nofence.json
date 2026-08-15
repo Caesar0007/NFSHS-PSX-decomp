@@ -1,0 +1,1 @@
+{"name": "il-magicfirst-nofence", "subs": [["        magic = 0x66666667;\n        do {\n", "        do {\n"], ["            __asm__(\"\" : : \"r\"(magic), \"r\"(track_first));   /* MATCH (W60-A4): see the receipt above */\n", "            magic = 0x66666667;\n"]]}

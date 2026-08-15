@@ -1,0 +1,1 @@
+{"name": "sotn-order", "subs": [["    if (_cd_result_flag[0x40 + com] > 0)\n", "    if (_cd_result_flag[com + 0x40] > 0)\n"], ["        } while (i < _cd_result_flag[0x40 + com]);\n", "        } while (i < _cd_result_flag[com + 0x40]);\n"]]}

@@ -1,0 +1,10 @@
+            int syncIdx;
+            char *readyName;
+            char *nm;
+            puts("CD timeout: ");
+            readyName = intstr[intr[1]];
+            syncIdx   = intr[0];
+            nm        = D_801489BC;
+            printf("%s:(%s) Sync=%s, Ready=%s
+", nm,
+                   comstr[CD_com], intstr[syncIdx], readyName);

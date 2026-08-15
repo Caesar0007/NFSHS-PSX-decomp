@@ -1,0 +1,1 @@
+InGame_ResetPSXController__Fii,InGame_GetPSXPadValue__Fii,InGame_GetDevice__Fi,InGame_SetRamp__Fv

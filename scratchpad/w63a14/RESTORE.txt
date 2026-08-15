@@ -1,0 +1,1 @@
+if probe died: copy C:\Temp\nfs4-decomp\scratchpad\w63a14\drawc.cpp.probebak -> C:\Temp\nfs4-decomp\recon\game\psx\drawc.cpp

@@ -1,0 +1,23 @@
+{
+  "agent": "w63-a14",
+  "table": "PER_TU_FLAGS",
+  "action": "remove one flag from an existing entry",
+  "rel_key": "recon/game/common/r3dcar.cpp",
+  "remove_flag": "jtbl_at_fusion",
+  "keep_flags": { "g_value": "8" },
+  "resulting_entry": "\"recon/game/common/r3dcar.cpp\": {\"g_value\": \"8\"},",
+  "why": [
+    "Same class as the w38-a5 sfx.cpp mis-attribution. The entry's own comment says it was added for R3DCar_InsertCarFacet, but that function's oracle has NO $at jump-table macro: all three jtbl references (jtbl_80056418, jtbl_80056470, jtbl_80056488) use the SPLIT form `lui $vN,%hi(jtbl); addiu $rD,$vN,%lo(jtbl)` + `sll idx,2; addu; lw 0(idx)`. The only `$at` uses in the whole .s are two `addiu $at,$zero,-1` sentinel compares.",
+    "The sibling R3DCar_InsertCarFacetMenu oracle also has ZERO $at uses, so no per-fn key is needed -- the flag is unnecessary TU-wide.",
+    "PRODUCTION-LANE CORROBORATION: tools/psyqproof.py (psq43 cc1 + ASPSX 2.77) already reports R3DCar_InsertCarFacet 1144 words -G8 REAL=0 RELOP=0 with the flag present, i.e. ASPSX emits the split form natively and the fused-$at shape is a maspsx-gate-only artifact."
+  ],
+  "evidence": {
+    "whole_TU_sweep_27_fns": "baseline 25 PASS / InsertCarFacet 9 / InsertCarFacetMenu 12",
+    "wiring_only": "InsertCarFacet 9 -> 2; every other row BIT-IDENTICAL (the two gate listings differ by exactly one line)",
+    "wiring + the w63a14 source landing (already committed, 70e2d239)": "InsertCarFacet PASS 1144/1144, zero PASS->FAIL in the TU",
+    "source landing alone under the current wiring": "9 -> 7 (already committed, safe standalone)",
+    "reproduced": "2x via tools/vprobe.py with W60_TU_FLAGS={\"recon/game/common/r3dcar.cpp\":{\"jtbl_at_fusion\":false}}",
+    "post_wiring_expectation": "DUAL-LANE SEAL (gate PASS + psyqproof REAL=0)"
+  },
+  "coupling": "COUPLED landing, BSEARCH-class: source alone 9->7, wiring alone 9->2, both = PASS."
+}

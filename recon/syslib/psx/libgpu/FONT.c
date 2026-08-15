@@ -66,8 +66,8 @@ struct FntStream {              /* 0x30 bytes; @0x80135E58 + id*0x30 */
 typedef struct FntStream FntStream;
 
 extern FntStream _fnt[8];       /* @0x80135E58 : open font streams */
-extern int _fnt_count;          /* @0x80135FD8 : number of open streams */
-extern int _fnt_active;         /* @0x80135FDC : current active stream id */
+extern int _fnt_count __asm__("D_80135FD8");          /* @0x80135FD8 : number of open streams */
+extern int _fnt_active __asm__("D_80135FDC");         /* @0x80135FDC : current active stream id */
 extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
 
 /* @0x800F6D18 : convert a stream's accumulated text into font sprites and draw the OT.

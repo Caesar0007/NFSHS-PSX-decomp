@@ -62,6 +62,20 @@ struct CdrEnv {
 };
 typedef struct CdrEnv CdrEnv;
 
+/* 🔴 W65-A6 FALSIFIED, do not retry blind: `_cdr` is one of the tree's reloc-referenced
+ * UNDEFINED symbols (34 sites, the biggest in libcd), and 0x8013C290 IS already emitted by the
+ * splat blob as `dlabel D_8013C290` (asm/data/data_8010CCD4_r20.data.s) -- so the obvious fix
+ * is the project's asm-label alias `extern volatile CdrEnv _cdr __asm__("D_8013C290");`, which
+ * is byte-neutral everywhere else it was applied this session (13 symbols across INTR/INTR_DMA/
+ * INTR_VB/VSYNC/FONT, all zero-delta).  HERE IT IS NOT: measured twice, it costs
+ * CdReadSync PASS -> FAIL (2 diffs) while CdRead/_read_issue/_read_int stay put, i.e. 3/6 -> 2/6.
+ * The alias is therefore REVERTED and `_cdr` stays undefined pending the blob-vs-TU ownership
+ * decision for the 0x8013C290 region (the storage exists; only the NAME is missing).  The
+ * mechanism is worth naming before the next attempt: everything else about the TU is unchanged,
+ * so a reloc-NAME change alone moved a scheduling/coloring decision -- most likely through the
+ * `volatile` MEM ordering this TU depends on (catalog: volatile-store-vs-slot).  Whoever
+ * retries it should gate CdReadSync specifically, and prefer renaming the BLOB label to `_cdr`
+ * (an oracle-side rename, zero effect on this object) over aliasing the C declaration. */
 extern volatile CdrEnv _cdr;   /* @0x8013C290 -- zero-initialised .bss */
 
 /* ---- libetc / libc ---------------------------------------------------------------------------- */

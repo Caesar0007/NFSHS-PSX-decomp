@@ -24,12 +24,12 @@ extern void ChangeClearPAD(int v);            /* A91 */
 extern int  ChangeClearRCnt(int t, int m);    /* L10 */
 extern volatile int Vcount;                    /* INTR_VB @0x80137D10 */
 
-extern volatile unsigned int *g_vsync_gp1_ptr; /* @0x80134A88 : = 0x1F801814 */
-extern volatile unsigned int *g_vsync_t1_ptr;  /* @0x80134A8C : = 0x1F801110 */
+extern volatile unsigned int *g_vsync_gp1_ptr __asm__("D_80134A88"); /* @0x80134A88 : = 0x1F801814 */
+extern volatile unsigned int *g_vsync_t1_ptr __asm__("D_80134A8C");  /* @0x80134A8C : = 0x1F801110 */
 extern volatile int Hcount;       /* @0x80134A90 -- volatile: the oracle STORES then RE-READS it
                                    * from memory in the closing settle loop (`sw`; `lui;lw`), which a
                                    * plain int lets gcc keep in a register (w51-a7). */
-extern int vsync_lastcount;       /* @0x80134A94 : Vcount at the previous VSync */
+extern int vsync_lastcount __asm__("D_80134A94");       /* @0x80134A94 : Vcount at the previous VSync */
 
 #define T1_VALUE (*g_vsync_t1_ptr)
 #define GP1      (*g_vsync_gp1_ptr)

@@ -48,7 +48,7 @@ extern void  startIntrVSync_helper_3(int *p, int nwords); /* this obj's private 
 extern int Vcount;            /* @0x80137D10 */
 extern int vsync_cb[8] __asm__("D_80137CF0");  /* @0x80137CF0 : 8 vblank callbacks (storage
                                                 * owned by the splat blob -- W65-A6 note above) */
-extern volatile unsigned int *g_rcnt_ptr;   /* @0x80137D14 : = 0x1F801114 (RCnt vblank-timing mode reg) */
+extern volatile unsigned int *g_rcnt_ptr __asm__("D_80137D14");   /* @0x80137D14 : = 0x1F801114 (RCnt vblank-timing mode reg) */
 
 extern void *startIntrVSync(int priority)   /* @0x80106534 */
 {

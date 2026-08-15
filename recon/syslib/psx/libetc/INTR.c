@@ -55,11 +55,11 @@ typedef struct {
     IntrState   *state;                           /* +0x1C : &g_intr */
 } IntrHooks;
 extern IntrHooks        g_hooks;             /* @0x80135B60 */
-extern IntrHooks       *g_hooks_ptr;         /* @0x80135B80 : = &g_hooks */
-extern volatile unsigned short *g_istat_ptr; /* @0x80135B84 : = 0x1F801070 */
-extern volatile unsigned short *g_imask_ptr; /* @0x80135B88 : = 0x1F801074 */
-extern volatile unsigned int   *g_dpcr_ptr;  /* @0x80135B8C : = 0x1F8010F0 */
-extern int g_intr_timeout;                   /* @0x80135B90 */
+extern IntrHooks       *g_hooks_ptr __asm__("D_80135B80");         /* @0x80135B80 : = &g_hooks */
+extern volatile unsigned short *g_istat_ptr __asm__("D_80135B84"); /* @0x80135B84 : = 0x1F801070 */
+extern volatile unsigned short *g_imask_ptr __asm__("D_80135B88"); /* @0x80135B88 : = 0x1F801074 */
+extern volatile unsigned int   *g_dpcr_ptr __asm__("D_80135B8C");  /* @0x80135B8C : = 0x1F8010F0 */
+extern int g_intr_timeout __asm__("D_80135B90");                   /* @0x80135B90 */
 
 #define I_STAT (*g_istat_ptr)
 #define I_MASK (*g_imask_ptr)

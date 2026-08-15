@@ -32,9 +32,9 @@ extern void _dma_isr(void);
  * `_dma_set_callback` (W52-A9; same hidden-phantom class as the _bzero_w note above). */
 int func_80106878(int ch, int func);
 
-extern volatile unsigned int *g_dicr_ptr;   /* @0x8013BD20 : = 0x1F8010F4 */
+extern volatile unsigned int *g_dicr_ptr __asm__("D_8013BD20");   /* @0x8013BD20 : = 0x1F8010F4 */
 extern int dma_cb[8];                        /* @0x8013BD24 : per-channel DMA callbacks */
-extern volatile unsigned int *g_madr_ptr;   /* @0x8013BD44 : = 0x1F801080 */
+extern volatile unsigned int *g_madr_ptr __asm__("D_8013BD44");   /* @0x8013BD44 : = 0x1F801080 */
 
 #define DICR (*g_dicr_ptr)
 

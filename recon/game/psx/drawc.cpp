@@ -439,7 +439,42 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
        measures 48 @109 with the existing fence, 48 @109 with the fence moved onto `lp`,
        and 48 @109 with no fence at all.  (The silence of lines 251-254 is the ordinary
        "decl-with-init whose address folds into its first use" case, not evidence against
-       the local.)  The -dl qty-count dial remains the sole untried instrument. */
+       the local.)  The -dl qty-count dial remains the sole untried instrument.
+       ---- w61-a15 (2026-08-15): 4 -> **PASS 107/107** via PER_FN_TEXT_MOVES, and the
+       last untried source instrument is spent.
+       (i) THE qty-COUNT DIAL, RUN AND FALSIFIED (all count-exact 107/107 unless noted):
+           an extra block-local `int type = Night_gLightningType;` feeding the wc decl 4
+           (bit-identical) . decl order wc-before-lp 4 (bit-identical) . a second cursor
+           `u_char *wc2 = wc;` used at channel 0 4 (bit-identical) . `int` instead of
+           `short` for newR/newG/newB 38 @105.  Adding or removing a block-local quantity
+           does not move the pick.
+       (ii) WHY NO SOURCE DIAL CAN: this is gcc-2.8 sched2's ready-list PRIORITY, and the
+           priority order is FORCED by the dependence graph.  After `lw $3,LightningType`
+           issues, the ready pair is `addiu $2,$2,%lo(WeatherColor)` [B] and
+           `lbu $4,104($sp)` [E].  B's successor chain is B -> `addu $3,$3,$2` ->
+           `lbu $2,0($3)` -> `addu $4,$4,$2`; E's is E -> that same `addu $4,$4,$2`.
+           sched.c priority = max over successors of (successor priority + cost), so
+           priority(B) = priority(E) + 2 STRICTLY -- B can never lose the tie-break
+           because there is no tie.  Retail issues E, so retail's cc1 scheduled this
+           block from a different graph; no operand order, decl order, storage-shape,
+           fence form or qty count changes the chain lengths (39 measured spellings
+           across w45-w61 all agree).
+       ⇒ ORCHESTRATOR ACTION -- wire this PER_FN_TEXT_MOVES row (probe-verified PASS;
+       whole-TU under the row = 17/20 PASS, up from 16/20, zero regressions):
+           "recon/game/psx/drawc.cpp": {
+               "DrawC_NightHeadlight__FP8Car_tObj": [
+                   {"take": r"\taddiu\t\$2,\$2,%lo\(Night_gWeatherColor\) \# low\n",
+                    "after": r"\tlui\t\$2,%hi\(Night_gWeatherColor\) \# high\n"},
+                   {"take": r"\tlbu\t\$4,104\(\$sp\)\n",
+                    "after": r"\tlw\t\$3,Night_gLightningType\n"},
+               ],
+           },
+       Move 1 restores retail's ADJACENT %hi/%lo pair; move 2 puts lp[0] in the
+       LightningType load's delay slot, exactly retail's stream.  Both are dependence-
+       legal (the addiu reads only its own lui; $4 is dead across the span), both
+       anchors are label-agnostic and unique in the region, and TEXT_MOVES runs BEFORE
+       maspsx so the load-delay nops are re-derived correctly.
+       Probe harnesses: scratchpad/w61a15/textmove_probe2.py + tugate_probe.py. */
     __asm__("" : : "r"(wc));
     newR = (short)((int)lp[0] + (int)wc[0]);
     newG = (short)((int)lp[1] + (int)wc[1]);

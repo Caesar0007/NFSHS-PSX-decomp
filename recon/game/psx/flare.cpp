@@ -1369,6 +1369,33 @@ void Flare_2DHalo(int x,int y,int scalex,int scaley,int type)
  *   should be spent on it.  Residual (B) likewise sits below the global layer (both
  *   colour carriers are block-local qtys), where w51's 10-device sweep already
  *   closed the source axis.
+ *   ---- w61-a15 (2026-08-15): 6 -> 4 IS AVAILABLE NOW; the last 2 need a mechanism
+ *   that does not exist yet.  RESIDUAL (A) IS A ONE-LINE PER_FN_TEXT_MOVES (the
+ *   "prologue-save-order splice" this receipt has been asking for since w51 -- it
+ *   needs NO new build.py mechanism, the generic text-move table expresses it):
+ *       "Flare_2DHalo__Fiiiii": [
+ *           {"take": r"\tsw\t\$19,92\(\$sp\)\n", "after": r"\tmove\t\$17,\$7\n"},
+ *       ],
+ *   Probe-verified: 6 -> 4, count-exact 247/247, TU 26/27 with the LensFlare rows,
+ *   zero regressions.  (Wire it only together with a fix for (B), or as a receipted
+ *   partial -- on its own it does not change the PASS count.)
+ *   RESIDUAL (B) RE-SWEPT FROM THE NEW 4-DIFF BASIN (lever-order law: every earlier
+ *   (B) falsification was measured in the 6 basin): control 4 . two temps 8 . direct
+ *   second store 8 . byte-base second read `*(u_long*)((char*)&Flare_gType[ft]+4)`
+ *   45 @248 . index-term-first on BOTH reads 45 @250.  The source axis is closed in
+ *   the new basin too.
+ *   ⇒ (B) IS A PURE REGISTER SUBSTITUTION -- ours `lw $v1,4($v0); sw $v1,0($gp)`,
+ *   retail `lw $v0,4($v0); sw $v0,0($gp)`, same two slots, same operands, the dead
+ *   base reused as the destination.  PER_FN_TEXT_MOVES can relocate a line but not
+ *   rename a register, so this function is the first concrete adopter for a
+ *   `{"sub": <regex>, "with": <repl>}` key on the same table (a bounded, per-fn,
+ *   dependence-checked substitution).  That key would also be the first handle on
+ *   the much larger reload-scratch class this belt carries -- e.g.
+ *   cario.cpp CarIO_ReadInCarTextureData, where 164 of 184 diffs collapse under a
+ *   {$t0,$t1} rename (its own w41/w42 receipts measured exactly that).  Recommend
+ *   the orchestrator decide the policy before it is wired; it is a bigger step than
+ *   a relocation and every adopter must be dependence-checked by hand.
+ *   Probe harnesses: scratchpad/w61a15/{p4.py,tugate_probe.py,row_flare2.txt}.
  *   CORPUS CHECK (user directive, read-only): silent-hill's src/maps/unk_draw_m1s05.c
  *   writes packet colour/UV words exactly the way this fn does
  *   (`*(u32*)&(*poly)->u0 = <packed literal>`), i.e. one word store per pair --
@@ -2054,7 +2081,35 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
        * still applies and confirms what the side-by-side already shows: every
        * register in the pt[] region matches the oracle, so the residual 3 lines are
        * pure sched2 EMISSION POSITION in the entry block, the same class as
-       * Flare_2DHalo's residual (A) -- a PER_FN emission splice, not a source dial. */
+       * Flare_2DHalo's residual (A) -- a PER_FN emission splice, not a source dial.
+       * ---- w61-a15 (2026-08-15): 6 -> **PASS 409/409**.  The w60 verdict was exactly
+       * right and its named mechanism is realisable with the EXISTING generic
+       * PER_FN_TEXT_MOVES table -- no new build.py mechanism was needed.  All three
+       * residual lines are pure entry-block relocations, each dependence-legal:
+       *   X `move $16,$0`  (i = 0)                 -> up to just after `addu $5,$sp,48`
+       *   Z `addu $6,$6,-2` (Draw_gViewOtSize - 2) -> up to just after `lh $3,2($15)`
+       *   Y `sw $7,48($sp)` (the packed col store) -> up to just after Z
+       * (X's dest is dead before; Z's source $6 is loaded 3 insns earlier so the load
+       * delay stays satisfied; Y's $a3 is not redefined until `addu $7,$fp,-2`, which
+       * still follows.)  Probe-verified PASS twice; flare.cpp 25/27 -> 26/27, zero
+       * regressions (Flare_2DHalo unaffected by these rows).
+       * ⇒ ORCHESTRATOR ACTION -- wire into PER_FN_TEXT_MOVES:
+       *   "recon/game/psx/flare.cpp": {
+       *       "Flare_LensFlare__FP7DVECTORP15Draw_FlareCache": [
+       *           {"take": r"\tmove\t\$16,\$0\n(?=\tmove\t\$fp,\$2\n)",
+       *            "after": r"\taddu\t\$5,\$sp,48\n"},
+       *           {"take": r"\taddu\t\$6,\$6,-2\n",
+       *            "after": r"\tlh\t\$3,2\(\$15\)\n"},
+       *           {"take": r"\tsw\t\$7,48\(\$sp\)\n",
+       *            "after": r"\taddu\t\$6,\$6,-2\n"},
+       *       ],
+       *   },
+       * GOTCHA banked for the catalog: `move $16,$0` occurs TWICE in this region, and
+       * the empty entry fence prints as ` #APP\n #NO_APP\n` BEFORE it, not after -- a
+       * first attempt anchored the lookahead on ` #APP` and the take silently no-op'd
+       * (TEXT_MOVES `continue`s on a miss), which reads as "the move did nothing"
+       * rather than as an error.  Disambiguate on the FOLLOWING real insn instead.
+       * Probe harnesses: scratchpad/w61a15/{tugate_probe.py,fnprobe.py,row_flare2.txt}. */
       *(u_long *)&col = colw;
       pt[0].vx = (short)(sx + -2);
       pt[1].vy = pt[0].vy = (short)(sy + -2);

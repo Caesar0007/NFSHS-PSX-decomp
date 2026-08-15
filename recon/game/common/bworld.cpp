@@ -485,6 +485,28 @@ int SetupChunkBuildList(DRender_tView *Vi)
     int viewInd;
     short *viewList;
 
+    /* NEAR-MISS 7 (ours 202 / oracle 203) -- W61-A13 2026-08-15.  The residual is
+       ONE scheduling decision plus its %hi-scratch shadow.  Retail emits
+           sll a0,a1,6 ; addu s3,v1,a0 ; addu v0,v0,a1 ; lbu v0,0(v0) ; nop
+       ours
+           sll a0,a1,6 ; addu v0,v0,a1 ; lbu v0,0(v0) ; addu s3,v1,a0
+       i.e. we SINK the viewList address computation into the `lbu`'s load-delay
+       slot (so no nop is needed -> we are exactly 1 insn short), and that in turn
+       flips the %hi scratch of BWorld_gChunkBuildList from retail's $v1 to $v0.
+       FALSIFIED (each a real gate run, all 7 diffs / 202-203 unless noted):
+         index-term-first cast subscript
+           `(short *)((currentChunk << 6) + (int)Track_gInViewList)` ..... 7
+         base-first cast subscript ..................................... 7
+         statement order swapped (InViewCount first, InViewList second) . 7
+         swapped + index-term-first .................................... 7
+         void-tail fence between the two statements .................... 33
+         read-only fence on viewList ................................... 33
+         void-tail fence after both statements ......................... 15
+         void-tail fence before both statements ........................ 27
+       Note the fences never change the COUNT (202 in every case): they do not
+       stop the sink, they only re-color.  So the sink is not a sched2 barrier
+       question -- next angle is -dS/-dR on this TU to see which pass moves the
+       addu below the lbu. */
     viewList =
         ((short (*)[32])Track_gInViewList)[gCurrContext->currentChunk];
     totalVisChunks =

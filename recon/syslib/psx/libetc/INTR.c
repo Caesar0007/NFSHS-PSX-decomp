@@ -140,7 +140,22 @@ extern IntrState *_initIntr(void)       /* @0x800F2968 */
      * is to make $v1 busy.  FALSIFIED (all gated): one shared `IntrHooks *` local
      * across both stores 20, two separate named locals 27, a read-only fence on the
      * first pointer after the second store 20 -- each makes the pointer live across
-     * the `jal`, which forces a callee-saved register and grows the frame. */
+     * the `jal`, which forces a callee-saved register and grows the frame.
+     * W63-A8 (2026-08-15) qty272.py NAMES THE DIAL, and it is NEITHER refs NOR live length.
+     * The two hooks_ptr loads are block-4 local qtys 89 and 91.  EVERY block-4 qty ties at
+     * refs 2 / live 4 / pri 5000 (84, 86, 87, 89, 91), so the qsort key is DEGENERATE and
+     * local-alloc falls through to its NUMBER tie-break (14C: "qty = block birth order") --
+     * measured handout 84 $v0, 86 $s0, 87 $v0, 89 $v1, 91 $v1.  91 reuses $v1 purely because
+     * 89 is already DEAD when 91 is born.  => no ref-step and no live-length dial can move 91
+     * (both feed a priority that is already tied), which is exactly why the three forms in the
+     * list above all failed the SAME way: they lengthen 89 ACROSS the `jal startIntrDMA`, which
+     * promotes it out of the caller-saved pool entirely instead of merely overlapping 91.
+     * THE NAMED ANGLE (untried, 14C INTRUDER-EVICTION): retail's $a0 needs $v0 AND $v1 both BUSY
+     * over 91's 4-insn window.  $v0 already holds the call result; the missing piece is a THIRD
+     * short-lived block-4 value holding $v1 across those four insns WITHOUT crossing the jal --
+     * an intruder born after the call and dead before the store, not a longer-lived 89.
+     * 04Z ladder (never run before this; the TU is wired cc1_272): 2.6.3 6, 2.7.2 6,
+     * 2.7.2-970404 65 @53, 2.8.0 65 @53, 2.8.1 65 @53 -- the VERSION AXIS IS CLOSED here. */
     g_hooks_ptr->vsync_setter = (IntrSetter)startIntrVSync();
     g_hooks_ptr->dma_setter   = (IntrSetter)startIntrDMA();
     _96_remove();
@@ -221,7 +236,54 @@ extern void _intrhand(void)            /* @0x800F2A40 */
      *    the closing test's operand order swapped 32; naming I_STAT first 38.
      * ANGLE: the birth order is fixed BEFORE any source-visible choice (fold + sched1),
      * so this needs the 2.7.2 scheduler dump (-dS/-dR on CC1PSX.EXE, 12A) or a
-     * zero-insn preference killer -- not another spelling sweep. */
+     * zero-insn preference killer -- not another spelling sweep.
+     * W63-A8 (2026-08-15): ran the instrument the W62 angle named (qty272.py).  TWO results.
+     *  (1) THE TARGET IS RE-STATED, AND THE W62 READING OF IT IS WRONG.  Both pend blocks
+     *      (entry = block 2, loop = block 11) carry SIX local qtys, so the 14C 3-QTY LADDER
+     *      LAW does NOT apply (checked before spending on it) -- they take the qsort path and
+     *      every one of them has refs == 2, so the handout is decided by LIVE LENGTH ALONE.
+     *      The measured live->home map in block 2 is  live 6 -> $v1,  live 8 -> $v0,
+     *      live 10 -> $a0  (pri 3333 / 2500 / 2000, allocated last-to-first up the register
+     *      scan).  Inverting it gives retail's REQUIRED live lengths, which is NOT the birth
+     *      order the w62 receipt read off the oracle's post-sched instruction order:
+     *        required   I_STAT ptr live 10 ($a0),  I_MASK ptr live 8 ($v0),  enabled live 6 ($v1)
+     *        ours       I_MASK ptr live 10 ($a0),  enabled   live 8 ($v0),  I_STAT ptr live 6 ($v1)
+     *      i.e. the two POINTERS must trade live lengths AND `enabled` must become the
+     *      SHORTEST-lived of the three -- a 3-way LIVE-LENGTH permutation, not a 2-way swap.
+     *      That is why every w62 spelling that only reorders the two pointer materialisations
+     *      (`sp = g_istat_ptr` before the store, the `mp` mirror, both together) measured 30
+     *      INERT: they attack a two-element permutation that was never the target.
+     *  (2) 04Z LADDER (the fn had never been laddered; the TU is wired cc1_272):
+     *        cc1_272 / 2.7.2 rung  30 @116/116   (identical -- 04W: PsyQ 4.0 CC1PSX == FSF 2.7.2)
+     *        2.6.3                 26 @116/116   <-- kills the closing-test `lhu` pair outright
+     *        2.7.2-970404         112 @114       2.8.0 112 @114       2.8.1 112 @114
+     *      The 2.6.3 rung removes the 4-diff closing-test cluster (the two `lhu` in the
+     *      opposite pair) at COUNT-EXACT parity and leaves the two birth-order clusters
+     *      untouched => ORCHESTRATOR WIRING candidate, whole-TU receipt in scratchpad/w63a8/
+     *      (INTR.c 10/13 PASS with and without the splice, all 13 fns gated, zero regressions).
+     *      It is a -4 partial, NOT a seal: land it only if the wiring debt is judged worth it.
+     *  (3) CORPUS ANGLES FROM sotn-decomp + PE2 -- ALL FOUR FALSIFIED HERE (w63-a18 relay).
+     *      sotn `src/main/psxsdk/libetc/intr.c :: trapIntr` is a FULLY MATCHED body for this
+     *      exact function, but it is `$Id: intr.c,v 1.73 1995/11/10` (PsyQ 3.x) against our
+     *      v1.76 (PsyQ 4.3), and its shape does not survive the generation gap.  Measured, all
+     *      gated and reverted, against the shipped 30 @116/116 COUNT-EXACT baseline:
+     *        - sotn's NO-BASE-POINTER shape (drop the `state` alias + its opacity fence, read
+     *          `g_intr.inited` / `g_intr.in_handler` / `g_intr.enabled` / `g_intr.cb` by name):
+     *          32 @118  -- and dropping the fence alone is the same 32 @118, so the alias is
+     *          carrying two insns, not one.  The named-`enabled`-only half-step: 29 @117.
+     *          Every variant goes COUNT-OVER; the shipped RR-transplant form is the only
+     *          count-exact one, so all are rejected under the 14E count bar.
+     *        - sotn's INDEX-FORM callback walk (`base[i]` instead of the `p++` walk): 32 @116
+     *          (count-exact but +2) -- the pointer walk stays.
+     *        - sotn's POST-INCREMENT timeout compare (`if ((*tp)++ >= 0x801)` replacing the
+     *          4-statement read-then-store): 39 @115 -- it deletes the very copy the w60-a1
+     *          note says retail keeps, confirming that receipt from the other direction.
+     *        - PE2's `T* volatile` (pointer-volatile) on g_istat_ptr / g_imask_ptr, the relayed
+     *          "untried birth-order lever": 51 @119, the worst of the set.
+     *      => The birth-order residual survives the ONLY fully-matched corpus body in existence
+     *      for this function.  That is a strong (not terminal) result: it bounds the remaining
+     *      search to the 2.7.2 scheduler dumps (-dS/-dR, 12A) plus the live-length permutation
+     *      named in (1), and it retires the corpus axis. */
     unsigned short *state;
     unsigned short s0;
     long pend;
@@ -335,7 +397,25 @@ extern int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C10 */
      *      retail {a1 = base, a0 = slot, a2 = base-4}.  FALSIFIED as zero-insn dials
      *      (w61-a20 DEVICE 2a, preference = first operand of the defining expr):
      *      `(long)base + offset` operand swap, `&base[index]` index form, and
-     *      read-only / identity fences on `slot` and on `base` -- all 25, inert. */
+     *      read-only / identity fences on `slot` and on `base` -- all 25, inert.
+     * W63-A8 (2026-08-15) RE-READ OF CLUSTER (b) + the 04Z ladder.
+     *   THE SHAPE, precisely: retail keeps TWO live bases for the SAME address -- `a2 = base-4`
+     *   reached as `48($a2)` and `a1 = base` reached as `44($a1)`.  base-4+0x30 == base+0x2C, so
+     *   these are the SAME word written through two different registers.  That is not a register
+     *   rotation at all: it is a CSE NON-MERGE.  Our cc1 folds both source expressions onto one
+     *   base (`44($a0)`) because it proves them equal; retail's did not.  Filed to the
+     *   3.25-3b weaker-cse identity family, NOT to allocation -- which explains why every
+     *   allocation-side dial in the list above measured 25 inert.
+     *   The one device that DOES restore the second base is the `st` identity fence, and its cost
+     *   is structural, not incidental: reorg.c:685 stop_search_p aborts the backward delay-slot
+     *   scan at ANY asm, and retail's `addiu a2,a1,-4` is precisely what fills the `beqz` slot.
+     *   So the fence buys the base and loses the slot (net +2) -- a genuine mutual exclusion
+     *   (13B), not a placement problem (the w61-a8 4-position sweep already proved position is
+     *   not the dial).  A NON-ASM anti-fold device is what this needs.
+     *   04Z ladder (never run before this; TU wired cc1_272): 2.6.3 25 @83, 2.7.2 25 @83,
+     *   2.7.2-970404 22 @84, 2.8.0 38 @84, 2.8.1 68 @84.  The 970404 rung scores -3 but is
+     *   TWO insns over (84 vs 82) where the wired lane is one -- rejected under the count-exact
+     *   bar (14E), and recorded so it is not re-derived as a win. */
     long index;
     int callback;
     int *base;

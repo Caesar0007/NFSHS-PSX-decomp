@@ -3,7 +3,11 @@
 
 nonmatching iSPCH_GetOffset8, 0x18
 
-glabel iSPCH_GetOffset8
+/* W67-A5: LOCALIZED (retail-static-copy class, w65-a7 RECEIPTS §3.2): this is
+   spchrule.c's file-local static copy @0x8010B10C; the canonical global stays
+   in spchdata's iSPCH_GetOffset8.s @0x80100748.  Binding-only change. */
+    .type iSPCH_GetOffset8, @function
+iSPCH_GetOffset8:
     /* FB90C 8010B10C 2128A600 */  addu       $a1, $a1, $a2
     /* FB910 8010B110 0000A290 */  lbu        $v0, 0x0($a1)
     /* FB914 8010B114 00000000 */  nop

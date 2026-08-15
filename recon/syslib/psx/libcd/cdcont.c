@@ -170,6 +170,7 @@ extern int CdReadyCallback(int func)
 extern int CdControl(int com, unsigned char *param, unsigned char *result)
 {
     unsigned char *arg;
+    int one;
     unsigned char *resultReg;
     int cmd;
     int retries;
@@ -181,6 +182,27 @@ extern int CdControl(int com, unsigned char *param, unsigned char *result)
     int status;
     int sentinel;
 
+    /* MATCH (W63-A5, 4 -> PASS 79/79): retail holds the `!= 1` compare constant in
+     * $t0, ours in $v0.  UNREACHABLE by any local-alloc dial -- the -dl table shows
+     * every block-local qty here is alone in its block, so find_free_reg's ascending
+     * numeric scan can only ever return $v0 (13A UNREACHABILITY TRIAGE: K overlapping
+     * qtys can occupy only the first K free regs).  $t0 is reachable ONLY from the
+     * GLOBAL layer: the -dg table shows NINE call-crossing allocnos already filling
+     * s0-s7+$fp, so a TENTH one finds no callee-saved reg, global.c falls into its
+     * CALLER_SAVE_PROFITABLE retry and hands out a caller-saved temp -- $t0, the first
+     * one not tied up by the loop's three calls' argument/return regs.
+     * THE SOURCE FORM: name the constant and set it in the PREAMBLE so it is live
+     * across the loop's calls.  POSITION IS THE DIAL (13A: both allocator layers
+     * tie-break on pseudo NUMBER = first-use order): as the FIRST statement of the
+     * function -> PASS; after `sentinel = -1;` -> 9; inside the loop body (any
+     * spelling) it stays block-local and cse const-props it back -> INERT 4.
+     * FALSIFIED (all re-gated here): read-only fence on `one` 29, identity launder 53,
+     * `do { one = 1; } while (0)` 9, Yoda `1 != command` INERT, `(unsigned char)cmd != 1`
+     * 25, a second named constant for the CdlSetloc `2` 7 @80.
+     * The pre-existing PER_FN_TEXT_MOVES row for this fn stays -- it fixes the parm-copy
+     * ORDER; its in-table note "residual = a li v0/t0 register substitution TEXT_MOVES
+     * cannot reach" is now CLOSED from the source side. */
+    one = 1;
     arg = param;
     resultReg = result;
     cmd = com;
@@ -195,7 +217,7 @@ extern int CdControl(int com, unsigned char *param, unsigned char *result)
 
     do {
         CD_cbsync = 0;
-        if (command != 1) {
+        if (command != one) {
             if (CD_status & 0x10)
                 CD_cw(1, 0, 0, 0);
         }

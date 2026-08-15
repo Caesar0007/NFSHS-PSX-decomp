@@ -1066,7 +1066,36 @@ vhalf:   /* VERTEX!=0 : o0 orientMat, if(0<xRange) negation */
            RTL for this region and find what keeps our (set t3 (lo)) adjacent to the
            mult; candidates are an opacity fence on `dotz` placed AFTER the abs
            chain, or a source order in which the dotz SUM (not its terms) is written
-           after the dotx/doty abs statements. */
+           after the dotx/doty abs statements.
+
+           W64-A15 2026-08-15 -- THE COUNT-EXACT BASIN IS FOUND (not landed).
+           Hoisting BOTH abs blocks above the dotz assignment --
+               dotx = ...; doty = ...;
+               if (dotx < 0) dotx = -dotx;
+               if (doty < 0) doty = -doty;
+               dotz = ...;                 <- the fence stays with dotz
+               if (dotz < 0) dotz = -dotz;
+           -- gates 44 diffs at **765/765, COUNT-EXACT** (applied at BOTH sites).
+           That is the first form to reach retail's length: it restores both missing
+           `nop`s, i.e. the "2 short" half of the residual is a pure STATEMENT-ORDER
+           fact, not a delay-slot/fence question.  Reverted under the honest-count
+           rule (44 > 14) but this is the right basin: what is left is dotz's MULT,
+           which retail issues BEFORE the abs blocks while its `mflo`+`addu` land
+           after them.  MECHANISM (mips.md `mulsi3_internal` has dest constraint
+           "=l"): the product pseudo LIVES IN LO across the abs blocks and the
+           `mflo` is reload's move emitted at the USE, so retail's shape needs the
+           product's single use to sit after the abs blocks while the multiply
+           itself sits before -- exactly one pseudo held in LO across two branches.
+           ALSO FALSIFIED this wave (both sites, real gate runs):
+             dotz = z-product only, x/y tail after the abs blocks .... 526 @755
+             dotz = x/y partial, z-product after the abs blocks ....... 86 @767
+             block-scoped `zprod`/`zpart` pair + sum after the abs .... 108 @753
+             same without the fence .................................. 106 @751
+           NEXT: from the absfirst basin, price the 44 with posdiff/alpha and hunt
+           the one edit that keeps the z multiply in the pre-abs block (a named
+           product local whose ONLY use is after the abs blocks, without adding a
+           block scope -- the block scopes above cost 10-14 insns of frame).
+           NOT a floor. */
         if (dotx < 0) {
           dotx = -dotx;
         }

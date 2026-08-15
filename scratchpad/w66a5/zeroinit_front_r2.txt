@@ -1,0 +1,25 @@
+checked 78 TU-defined blob labels in 508 objects
+UNKNOWN (not readable, NOT counted clean): 16
+
+MISSING INITIALISER -- retail non-zero, ours all-zero, no reloc:
+------------------------------------------------------------------------------------------------
+0x800529d0     8 B  kNoColor                           .sdata   frontend/psx/drawshp.cpp.o
+            retail 80 80 80 00
+
+TOTAL: 1 symbols
+UNKNOWN build/recon/frontend/common/feapp.cpp.o .data FEApp short read (compared 4 of 8 B)
+UNKNOWN build/recon/frontend/common/feaudio.cpp.o .data commentaryActualLevel short read (compared 4 of 8 B)
+UNKNOWN build/recon/frontend/common/feinput.cpp.o .data getKeyMappings short read (compared 128 of 132 B)
+UNKNOWN build/recon/frontend/common/femenu.cpp.o .data gMenu_SubMenuPlayer short read (compared 4 of 8 B)
+UNKNOWN build/recon/frontend/common/fetools.cpp.o .data currentSize short read (compared 2 of 8 B)
+UNKNOWN build/recon/frontend/common/fetracks.cpp.o .data tracks_maxTrackIndex short read (compared 4 of 8 B)
+UNKNOWN build/recon/frontend/common/front.cpp.o .data picked short read (compared 11 of 16 B)
+UNKNOWN build/recon/frontend/common/screenaudio.cpp.o .data screenAudio short read (compared 4 of 8 B)
+UNKNOWN build/recon/frontend/common/screencontroller.cpp.o .data screenControllerConfig short read (compared 4 of 8 B)
+UNKNOWN build/recon/frontend/common/screendisplay.cpp.o .data screenDisplay short read (compared 4 of 8 B)
+UNKNOWN build/recon/frontend/common/screenpost.cpp.o .data screenPinkSlipStandings short read (compared 4 of 8 B)
+UNKNOWN build/recon/frontend/common/screentrophyinfo.cpp.o .data gSwapFileNameTI short read (compared 16 of 20 B)
+UNKNOWN build/recon/frontend/common/screentrophyroom.cpp.o .data gSwapFileName short read (compared 16 of 20 B)
+UNKNOWN build/recon/frontend/common/screenusername.cpp.o .data UserPermFileName short read (compared 20 of 24 B)
+UNKNOWN build/recon/frontend/common/stattool.cpp.o .data secChar short read (compared 6 of 8 B)
+UNKNOWN build/recon/frontend/psx/drawshp.cpp.o .sdata kNoColor short read (compared 4 of 8 B)

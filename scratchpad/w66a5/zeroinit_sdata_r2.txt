@@ -1,0 +1,9 @@
+checked 447 TU-defined blob labels in 508 objects
+UNKNOWN (not readable, NOT counted clean): 2
+
+MISSING INITIALISER -- retail non-zero, ours all-zero, no reloc:
+------------------------------------------------------------------------------------------------
+
+TOTAL: 0 symbols
+UNKNOWN build/recon/game/common/aih_play.cpp.o .sdata gBlockadeTypes short read (compared 5 of 8 B)
+UNKNOWN build/recon/game/common/copspeak.cpp.o .sdata CopSpeak_gStaticPatch short read (compared 2 of 4 B)

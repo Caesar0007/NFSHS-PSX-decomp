@@ -2122,7 +2122,27 @@ Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi(int newtonObj,int test
    swap is downstream of a control-flow difference and NO allocator dial can close
    this fn until the 48th branch is found.  Run brdist.py first, localise the arm,
    then re-price.  (Same census found the arm-1 funnel that took
-   Physics_CalculateTireForces 55 -> 49 in this wave.) */
+   Physics_CalculateTireForces 55 -> 49 in this wave.)
+   W63-A11 -- THE 48th BRANCH IS LOCALISED AND FULLY CHARACTERISED (73 -> 70; the
+   two per-arm `normal.y = 0;` tails landed, the branch itself is still open):
+     oracle @0x800A34F0  beqz $s6, .L800A3594     <- collision_type == 0 -> NEXT i
+     oracle @0x800A34F4   addu $t3,$zero,$zero    <- [delay slot] SLD 2321
+     oracle @0x800A34F8  bnez $t3, .L800A35AC     <- SLD 2327 -> the EPILOGUE
+   The two targets DIFFER (loop-continue vs return), so it is NOT an `&&` on the
+   collision_type test: retail has a SECOND, NESTED guard `if (<x>) return;` as the
+   first statement of the `if (collision_type != 0)` block, on a value its compiler
+   const-propagated to a register 0 but did not fold away.  SYM confirms two Block
+   starts at that very VA (rel line 162 and 167 off base 2161).
+   WHAT IT IS NOT: `newHeight`.  The SYM classes it `AUTO -48 sp+128`, i.e. memory
+   (our recon takes its address for BWorldSm_FindEdgeOff, and so did retail), so a
+   test on it emits `lw`+`nop`+`bnez` = +4 insns: measured 74 @472.  The tested
+   lvalue is therefore SYM-invisible (an expression, not a listed local).
+   PROOF THAT THE SHAPE IS REACHABLE AND IS THE WHOLE COUNT GAP: a laundered zero
+   (`int p = 0; __asm__("" : "=r"(p) : "0"(p)); if (p != 0) return;`) emits exactly
+   `addu $tN,$zero,$zero` + `bnez` and gates COUNT-EXACT 470/470 (72 diffs -- LCS is
+   non-monotone, 09K).  NOT LANDED: that is scaffolding nobody would write, and the
+   residual after it is the pure $s3<->$s6 + $t3/$t4/$t5/$t1 seat rotation.  Naming
+   the real lvalue is the one remaining question on this fn. */
 void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
 
 {
@@ -2259,6 +2279,13 @@ NewtonTestUndrv_loop1:
                 undrivableCenter.z /= 4;
                 normal.x = cautionaryCenter.x - undrivableCenter.x;
                 normal.z = cautionaryCenter.z - undrivableCenter.z;
+                /* MATCH (w63-a11, 09J each-arm-carries-its-own-tail): retail
+                   writes `normal.y = 0;` at the END OF EACH ARM as well as at the
+                   join -- the SLD attributes an extra `sw zero,20(sp)` to 2290
+                   (this arm) and 2313 (the else arm), on top of the joined one at
+                   2317.  Ours had it only at the join.  Both arms 73->70; arm1
+                   alone 72@468, arm2 alone 71@467, y-between-x-and-z 88. */
+                normal.y = 0;
               }
             }
             else {
@@ -2290,6 +2317,7 @@ NewtonTestUndrv_loop2:
               undrivableCenter.z /= 4;
               normal.x = (newtonObj->position).x - undrivableCenter.x;
               normal.z = (newtonObj->position).z - undrivableCenter.z;
+              normal.y = 0;   /* MATCH: per-arm tail, see the arm-1 receipt above */
             }
           }
         }

@@ -61,16 +61,128 @@ _REGS = {"zero": 0, "at": 1, "v0": 2, "v1": 3, "a0": 4, "a1": 5, "a2": 6,
          "s5": 21, "s6": 22, "s7": 23, "t8": 24, "t9": 25, "k0": 26, "k1": 27,
          "gp": 28, "sp": 29, "fp": 30, "s8": 30, "ra": 31}
 _REG_RE = re.compile(r"\$(" + "|".join(sorted(_REGS, key=len, reverse=True)) + r")\b")
+_STRDATA_RE = re.compile(r"^\s*\.(ascii|asciiz|asciz|string)\b")
+_SET_RE = re.compile(r"^\s*\.set\s+(\w+)\s*$")
+_DROP_RE = re.compile(r"^\s*\.(type|size|weak)\b")
+_ALIAS_RE = re.compile(r"^\s*([A-Za-z_$.][\w$.]*)\s*=\s*([A-Za-z_$.][\w$.]*)\s*$")
+_LABEL_RE = re.compile(r"^([A-Za-z_$.][\w$.]*):")
+_RAWDIV_RE = re.compile(r"^(\s*)(div|divu)(\s+)\$0\s*,\s*([^,\s]+)\s*,\s*([^,\s]+)\s*$")
+# .set axes: (state key, "on" spelling, "off" spelling)
+_SET_AXES = (("at", "at", "noat"),
+             ("reorder", "reorder", "noreorder"),
+             ("macro", "macro", "nomacro"))
 
 
 def to_aspsx_dialect(text):
-    """ASPSX 2.77 accepts numeric regs, %hi/%lo, .set noreorder/reorder/noat,
-    beqz/bnez, .L/$L labels, lwl/swl, mfc2, move, li; it REJECTS ABI register
-    NAMES, `.set push/pop` and `sym2 = sym` (probe: scratchpad/w62a20/dialect.py)."""
-    text = _REG_RE.sub(lambda m: "$%d" % _REGS[m.group(1)], text)
-    text = re.sub(r"^\s*\.set\s+push\s*$", "", text, flags=re.M)
-    text = re.sub(r"^\s*\.set\s+pop\s*$", "\t.set\treorder\n\t.set\tat", text, flags=re.M)
-    return text
+    """Rewrite the GNU-as spellings ASPSX 2.77 rejects into ASPSX-legal,
+    SEMANTICS-PRESERVING equivalents.  General text transform -- no per-fn
+    special cases.  Probe tables: scratchpad/w63a20/aspsxprobe{,2}.py, run
+    against the real ASPSX 2.77 (w62a20/dialect.py was the first cut).
+
+    ACCEPTED by ASPSX, left alone: numeric regs, %hi/%lo, .set
+    noreorder/reorder/noat/at/macro/nomacro/volatile/mipsN, beqz/bnez, .L/$L
+    labels, lwl/swl, mfc2, .word, move, li, la, .ent/.end, .frame, and TWO
+    LABELS AT THE SAME ADDRESS (the alias mechanism used below).
+
+    REJECTED, rewritten here:
+      1. ABI register NAMES (`$a0`)   -> numeric (`$4`).  Whole-file, but never
+         inside .ascii/.asciz data so a literal "$a0" in a string is safe.
+      2. `.set push` / `.set pop`     -> an explicit save/restore of the three
+         tracked axes (at / reorder / macro).  Only the axes that actually
+         changed are re-emitted, so the restore is exact rather than the
+         blanket `.set reorder; .set at` of the w62 cut.
+      3. `sym2 = sym` assignment      -> `sym2:` inserted immediately after
+         `sym:`, i.e. a second label at the same address (probe-confirmed
+         equivalent; ASPSX has NO working symbol-assignment form -- `=`, `.set
+         a,b`, `equ` and `.equ` are all rejected).  Detected only inside
+         #APP..#NO_APP; an alias whose target label cannot be found is left
+         verbatim so ASPSX errors visibly instead of silently mis-placing it.
+      4. 3-operand `div`/`divu` with a `$0` destination, INSIDE #APP only
+                                      -> the 2-operand raw form.
+         🔴 THIS ONE IS LOAD-BEARING AND MUST STAY #APP-SCOPED.  In GNU-as a
+         `$0` destination means "raw machine op, no guard"; ASPSX instead
+         expands `divu $0,$4,$5` to the raw op PLUS a 4-word divide-by-zero
+         guard (measured: 0085001b vs 0085001b/a0140200/00000000/0d000700 --
+         and under `.set noat` it fails outright with "Assembler does not have
+         AT register available", which is how the class was found).  Compiler-
+         emitted `div $0,rs,rt` (outside #APP) MUST keep the 3-operand form:
+         that assembler-side guard expansion IS what retail carries (it is the
+         same expansion maspsx reproduces with --expand-div).
+      5. `.type X,@function` / `.size X,N` / `.weak X` -> dropped.  ELF-only
+         directives that emit no bytes; ASPSX rejects them ("Expression must
+         evaluate").  The gate lane keeps them (objdiff sizes symbols from
+         them) -- this is a production-lane-only strip, like the redundant
+         .extern shim below.
+    """
+    eol = "\r\n" if "\r\n" in text else "\n"
+    lines = text.replace("\r\n", "\n").split("\n")
+    out = []
+    aliases = []                       # (new_name, target_name), in #APP order
+    state = {"at": True, "reorder": True, "macro": True}   # GAS defaults
+    stack = []
+    in_app = False
+    for ln in lines:
+        body = ln if _STRDATA_RE.match(ln) else \
+            _REG_RE.sub(lambda m: "$%d" % _REGS[m.group(1)], ln)
+        s = body.strip()
+        if s == "#APP":
+            in_app = True
+            out.append(body)
+            continue
+        if s == "#NO_APP":
+            in_app = False
+            out.append(body)
+            continue
+        m = _SET_RE.match(body)
+        if m:
+            opt = m.group(1)
+            if opt == "push":
+                stack.append(dict(state))
+                continue
+            if opt == "pop":
+                if stack:
+                    saved = stack.pop()
+                    for key, on, off in _SET_AXES:
+                        if saved[key] != state[key]:
+                            out.append("\t.set\t" + (on if saved[key] else off))
+                    state = saved
+                continue
+            for key, on, off in _SET_AXES:
+                if opt == on:
+                    state[key] = True
+                elif opt == off:
+                    state[key] = False
+            out.append(body)
+            continue
+        if _DROP_RE.match(body):
+            continue
+        if in_app:
+            m = _ALIAS_RE.match(body)
+            if m and m.group(1) != m.group(2):
+                aliases.append((m.group(1), m.group(2)))
+                continue
+            m = _RAWDIV_RE.match(body)
+            if m:
+                out.append("%s%s%s%s,%s" % m.groups())
+                continue
+        out.append(body)
+    pending = aliases
+    while pending:                     # resolve chains (alias-of-an-alias)
+        still = []
+        for new, tgt in pending:
+            idx = next((i for i, l in enumerate(out)
+                        if _LABEL_RE.match(l) and _LABEL_RE.match(l).group(1) == tgt),
+                       None)
+            if idx is None:
+                still.append((new, tgt))
+            else:
+                out.insert(idx + 1, new + ":")
+        if len(still) == len(pending):
+            for new, tgt in still:     # unresolvable -> let ASPSX shout
+                out.append("%s = %s" % (new, tgt))
+            break
+        pending = still
+    return eol.join(out)
 
 
 def tu_settings(rel):
@@ -120,8 +232,12 @@ def strip_redundant_externs(text):
 
 
 def main():
-    args = [a for a in sys.argv[1:] if not a.startswith("-G") and a != "--dialect"]
-    dialect = "--dialect" in sys.argv
+    args = [a for a in sys.argv[1:]
+            if not a.startswith("-G") and a not in ("--dialect", "--no-dialect")]
+    # w63-a20: the dialect shim is ON BY DEFAULT (it is a no-op on a .s that
+    # carries no GNU-only spelling).  `--dialect` is kept as an accepted no-op
+    # for the w62 call sites; `--no-dialect` turns it off for A/B probes.
+    dialect = "--no-dialect" not in sys.argv
     rel, fn = args[0], args[1]
     rel = rel.replace("\\", "/")
     src_rel = rel[:-2] if rel.endswith(".i") else rel
@@ -207,4 +323,5 @@ def main():
     sys.exit(0 if real + relop == 0 else 1)
 
 
-main()
+if __name__ == "__main__":          # importable: batch harnesses reuse the shim
+    main()                          # verbatim instead of re-implementing it (12H)

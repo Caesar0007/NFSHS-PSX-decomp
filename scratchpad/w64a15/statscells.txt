@@ -1,0 +1,48 @@
+WANT {104: 20, 101: 21, 130: 22, 103: 23}
+base {101: (9, 28), 103: (13, 41), 104: (13, 41), 130: (5, 11)}
+control mismatches 4
+
+-- single-pseudo cells --
+
+-- two-pseudo cells (minimal |delta| first) --
+  cost3   p101  refs+0 live+1  |  p103  refs-1 live+0
+  cost3   p101  refs+0 live+1  |  p103  refs+0 live+2
+  cost4   p101  refs+0 live+1  |  p103  refs-1 live-1
+  cost4   p101  refs+0 live+1  |  p103  refs-1 live+1
+  cost4   p101  refs+0 live+1  |  p103  refs+0 live+3
+  cost5   p101  refs+0 live+1  |  p103  refs-2 live+0
+  cost5   p101  refs+0 live+1  |  p103  refs-1 live+2
+  cost5   p101  refs+0 live+1  |  p103  refs+0 live+4
+  cost6   p101  refs-1 live-2  |  p103  refs-1 live+0
+  cost6   p101  refs-1 live-2  |  p103  refs+0 live+2
+  cost6   p101  refs+0 live+1  |  p103  refs-2 live-1
+  cost6   p101  refs+0 live+1  |  p103  refs-2 live+1
+  cost6   p101  refs+0 live+1  |  p103  refs-1 live+3
+  cost6   p101  refs+0 live+1  |  p103  refs+0 live+5
+  cost7   p101  refs-1 live-2  |  p103  refs-1 live-1
+  cost7   p101  refs-1 live-2  |  p103  refs-1 live+1
+  cost7   p101  refs-1 live-2  |  p103  refs+0 live+3
+  cost7   p101  refs+0 live+1  |  p103  refs-3 live+0
+  cost7   p101  refs+0 live+1  |  p103  refs-2 live-2
+  cost7   p101  refs+0 live+1  |  p103  refs-2 live+2
+  cost7   p101  refs+0 live+1  |  p103  refs-1 live+4
+  cost7   p101  refs+0 live+1  |  p103  refs+0 live+6
+  cost8   p101  refs-1 live-2  |  p103  refs-2 live+0
+  cost8   p101  refs-1 live-2  |  p103  refs-1 live+2
+  cost8   p101  refs-1 live-2  |  p103  refs+0 live+4
+  cost8   p101  refs+0 live+1  |  p103  refs-3 live-1
+  cost8   p101  refs+0 live+1  |  p103  refs-3 live+1
+  cost8   p101  refs+0 live+1  |  p103  refs-2 live-3
+  cost8   p101  refs+0 live+1  |  p103  refs-2 live+3
+  cost8   p101  refs+0 live+1  |  p103  refs-1 live+5
+  cost8   p101  refs+1 live+4  |  p103  refs-1 live+0
+  cost8   p101  refs+1 live+4  |  p103  refs+0 live+2
+  cost8   p103  refs-1 live+0  |  p104  refs-1 live-4
+  cost8   p103  refs+0 live+2  |  p104  refs-1 live-4
+  cost9   p101  refs-1 live-2  |  p103  refs-2 live-1
+  cost9   p101  refs-1 live-2  |  p103  refs-2 live+1
+  cost9   p101  refs-1 live-2  |  p103  refs-1 live+3
+  cost9   p101  refs-1 live-2  |  p103  refs+0 live+5
+  cost9   p101  refs+0 live+1  |  p103  refs-3 live-2
+  cost9   p101  refs+0 live+1  |  p103  refs-3 live+2
+total two-pseudo solutions: 180

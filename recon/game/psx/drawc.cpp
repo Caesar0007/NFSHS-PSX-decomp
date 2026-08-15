@@ -728,8 +728,21 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
   else {
     sd->sub_otz = 0;
   }
-  puVar4 = (carObj->render).sort_carObj;
+  /* MATCH (w63-a14, 54 -> 52 @976/976 count-exact): retail reads sd->sub_otz for the
+     world_otz copy BEFORE it loads sort_carObj (`lw v0,64(s3); lw a0,2168(s2)`), ours
+     had the two statements the other way round.  Pure statement order; the store
+     `sw v0,2148(s2)` stays in the beqz delay slot on both sides.
+     Falsified alongside (same basin): hoisting the R3DCar_InMenu test into a block
+     temp declared before `shapeIdx = sd->sub_otz;` to make the global load fill that
+     load's delay slot (exactly 54 = inert -- the asm-volatile "memory" barrier above
+     pins the global load after the mfc2 block, so source order cannot move it);
+     `nabr_blend = 2;` moved above the envExtra guard to reach retail's first-beqz
+     delay slot (64); splitting `iVar3 = (uVar5 - 1)<<16>>16` into its own decrement
+     statement, the sibling lever that worked for shadow_align_b (55 alone, 53 with
+     this swap, 51 with both -- but all three cost +1 insn @977, so the count-exact
+     52 form is kept per the project's count bar). */
   (carObj->render).world_otz = sd->sub_otz;
+  puVar4 = (carObj->render).sort_carObj;
   /* shapeIdx morphs in place to <<2 BEFORE the branch (oracle sll s0,s0,2 in
    * the beqz slot region); non-null arm INLINE first (oracle beqz to far arm) */
   shapeIdx = shapeIdx << 2;
@@ -1488,7 +1501,27 @@ gte_SetTransMatrix(((char *)sd + 0x14));
          * `case 0:` block that spans every arm), not the expression.  Also read off
          * the same dump: retail materialises `li t3,36` and `li s4,38` in the loop
          * head where we have neither, and ours is 6 insns LONGER overall -- a
-         * second, independent constant-naming axis (13C literal-vs-named). */
+         * second, independent constant-naming axis (13C literal-vs-named).
+         * w63-a14 RAN THE DECLARATION-SCOPE ANGLE.  FALSIFIED -- C-level scope is
+         * NOT the dial here.  Three placements, all re-gated from the 336 basin:
+         * moving the whole `u_int *prim; int facet; int id0-2; int otzSum;` group
+         * from the `case 0:` block (which spans the alt loop too) INTO the
+         * `if ((envmap & 2U) == 0)` arm = 336 BIT-IDENTICAL; moving only id0/id1/id2
+         * into that arm = 336 BIT-IDENTICAL; declaring id0/id1/id2 inside the
+         * `while( true )` BODY = 415 @1394 (worse, and it also plants the
+         * NOTE_INSN_BLOCK_BEG that 13D says blocks duplicate_loop_exit_test).
+         * WHY the w62 reading still stands but names the wrong knob: id0 is LOADED
+         * before the `MPrimPtr <= PrimPtr` guard and MORPHED after it, i.e. it is
+         * referenced in TWO basic blocks, so local-alloc.c:471-477 sets reg_qty -1
+         * and it is a GLOBAL allocno no matter which C scope declares it.  The
+         * knob is therefore the BASIC-BLOCK span of the id pseudos (move the three
+         * `lbu` loads BELOW the guard so def and morph share one block), not the
+         * lexical scope -- and that reorder must be priced against the w55/w62
+         * finding that the load order L(0,1,2) is already the local optimum.
+         * Retail's `sll a2,a2,3; addu a2,a2,s1` in-place morph is then reachable
+         * two ways: local-alloc combine_regs tying the shift temp to a block-local
+         * id, or (13A SET_PREFERENCE) the global allocno preferring the shift
+         * temp's home -- ours takes $a0 while the temp takes $v0. */
         id0 = id0 * 8 + (int)sd;
         id1 = id1 * 8 + (int)sd;
         id2 = id2 * 8 + (int)sd;

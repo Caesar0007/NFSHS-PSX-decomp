@@ -20,10 +20,16 @@ extern tPadModuleState    gPadinfo;
 extern int                screenheight, showRoomFlag, gFlip, gShowroomLights, gStopCommentaryNow;
 extern int gMenuRotate[2];
 extern u_long             gCameraRotation;
-extern int *gCView;
+/* TRUE TYPE (was `int *`; W62-A17, the 10E class): SYM nfs4-f-v3.txt
+   `96 Def2 class EXT type STRUCT size 140 tag DRender_tView name gCView` @0x80116f7c,
+   matching the owner def in game/common/render.cpp.  A pointer decl here would read the
+   struct's own first word as an address. */
+extern DRender_tView gCView;
 extern Car_tObj *gCarObj[2];
 char *PlayerName(int);
-extern char               CURRENTLYUSINGMEMCARD;
+/* TRUE TYPE = 4-byte BOOL (was `char`; W62-A17) -- SYM `class EXT type BOOL` @0x80051a7c,
+   oracle census 7 lw / 8 sw, zero byte ops; next symbol at +4. */
+extern int                CURRENTLYUSINGMEMCARD;
 extern GameSetup_tData GameSetup_gData;
 extern tCarManager carManager;
 void DrawC_MenuColorData(int, Car_tObj *, int);

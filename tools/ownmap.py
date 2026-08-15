@@ -41,7 +41,7 @@ import blobparse  # noqa: E402
 import ownmap  # noqa: E402
 import vamap  # noqa: E402
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[1]
 OBJDUMP = r"C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-objdump.exe"
 FBASE = 0x8000F800
 DRX = re.compile(r"^D_[0-9A-Fa-f]{8}$")

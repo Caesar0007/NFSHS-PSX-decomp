@@ -1446,6 +1446,7 @@ PER_FN_TEXT_MOVES = {
             {"take": "\\$L\\d+:\\n(?=\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tj\\t\\$L\\d+\\n\\tli\\t\\$17,1)", "after": " \\#NO_APP\\n"},
         ],
     },
+    # w66-a1 sim block-relocation rows (land WITH the sim retarget row).
     # w60-a3 (orchestrator-wired, probe-verified REAL=0 in scratchpad/w60a3):
     # _BlitClear 2 -> PASS 140/140 (result copy before the epilogue reloads; the
     # jal slot is already taken by the la split, no wrapper).  _clearOTagR_dma
@@ -1942,6 +1943,124 @@ def _apply_text_moves(rel_posix: str, s_file: Path) -> None:
         s_file.write_text(txt)
 
 
+# w66-a1: PER_FN_BRANCH_RETARGET -- the PER_FN_TEXT_MOVES sibling that plants a
+# FRESH label after a matched line and re-points ONE matched branch at it.
+# It REMOVES NOTHING: strictly safer than `drop_after`, whose delay-slot
+# deletion silently changed semantics on Camera_UpdateHeliCam (w63-a11 landed
+# the deletion, w65-a2 found the branch still aimed past the deleted copy --
+# a live correctness defect behind a green gate).  Here the word stream is
+# untouched apart from the ONE retargeted branch's own 16-bit offset.
+#
+# WHY IT EXISTS (w65-a2 4.2, w65-a4 4.1): retail's `.s` routinely carries TWO
+# labels ONE WORD APART and sends different branches to each, while cc1 emitted
+# a SINGLE label all of them share (or the inverse, where cc1 threaded a branch
+# retail did not).  A label MOVE cannot express that -- moving the shared label
+# repairs one branch and breaks every other user of it.  Planting a second
+# label at the wanted address and re-pointing exactly one branch does.
+#
+# Each row:
+#   {"branch": regex matching EXACTLY ONE line in the .ent/.end region; its
+#              single `$L<n>` operand is rewritten to the fresh label,
+#    "after":  regex matching EXACTLY ONE line; the fresh label is inserted
+#              immediately after that match}
+# Both match counts are asserted == 1 (the w62/w64 anchor law).  A row that
+# does not match exactly once is SKIPPED with a stderr line -- never applied
+# partially, never silently.  Anchors must be label-number agnostic (`$L\d+`)
+# because any TU reorder renumbers every `$L`.
+#
+# Runs AFTER _apply_text_moves in every lane, so anchors are written against
+# the POST-move text.
+PER_FN_BRANCH_RETARGET = {
+    # w66-a1 rows (probe-verified 2x + wp.py word-proofs; notes in scratchpad/w66a1)
+    "recon/syslib/psx/libpad/PADSEQD.c": {
+        "_dirSendAuto": [
+            {"branch": "\\tbeq\\t\\$2,\\$0,\\$L\\d+\\n(?=\\tli\\t\\$2,2\\b)", "after": "\\tmove\\t\\$4,\\$16\\n(?=\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tjal\\t_padCmdParaMode\\n\\tmove\\t\\$5,\\$0\\n)"},
+        ],
+    },
+    "recon/syslib/psx/libmcrd/LIBMCRD.c": {
+        "MemCardWriteData_cb": [
+            {"branch": "(?<=\\tsw\\t\\$0,_mc_wr_retry\\n\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n)\\tj\\t\\$L\\d+\\n", "after": "\\$L\\d+:\\n(?=\\taddu\\t\\$2,\\$0,\\$0\\n\\$L\\d+:\\n\\tlw\\t\\$31,24\\(\\$sp\\)\\n)"},
+        ],
+    },
+    "recon/frontend/common/screenmain.cpp": {
+        "DrawBackground__11tScreenMain": [
+            {"branch": "\\tbne\\t\\$3,\\$2,\\$L\\d+\\n(?=\\tlui\\t\\$2,%hi\\(FEApp\\) # high\\n)", "after": "\\tlui\\t\\$2,%hi\\(FEApp\\) # high\\n(?=\\tlui\\t\\$3,%hi\\(menuDefs\\) # high\\n\\tlw\\t\\$4,%lo\\(FEApp\\)\\(\\$2\\)\\n)"},
+        ],
+    },
+    "recon/game/psx/hud.cpp": {
+        "Hud_BuildString__FPciiiib": [
+            {"branch": "\\tj\\t\\$L\\d+\\n(?=\\taddu\\t\\$17,\\$17,3\\n)", "after": "\\tlw\\t\\$8,24\\(\\$sp\\)\\n(?=\\taddu\\t\\$18,\\$18,1\\n)"},
+        ],
+    },
+    "recon/frontend/psx/memcard.c": {
+        "MCRD_handlecardevents": [
+            {"branch": "\\tbne\\t\\$3,\\$2,\\$L\\d+\\n(?=\\tli\\t\\$16,22\\b)", "after": "\\$L\\d+:\\n(?= #APP\\n #NO_APP\\n\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tj\\t\\$L\\d+\\n\\tmove\\t\\$2,\\$16\\n)"},
+        ],
+    },
+    "recon/game/common/sim.cpp": {
+        "Sim_MainGameLoop__Fv": [
+            {"branch": "\\tj\\t\\$L\\d+\\n(?=\\$L\\d+:\\n\\tsw\\t\\$16,InBetween\\n)", "after": "\\$L\\d+:\\n(?=\\tjal\\tSim_ProcessSimSchedules__Fv\\n\\$L\\d+:\\n\\tlw\\t\\$2,24\\(\\$17\\)\\n)"},
+        ],
+    },
+}
+
+_BR_RETARGET_SEQ = [0]
+
+
+def _apply_branch_retarget(rel_posix: str, s_file: Path) -> None:
+    table = PER_FN_BRANCH_RETARGET.get(rel_posix)
+    if not table:
+        return
+    txt = s_file.read_text(errors="replace")
+    changed = False
+    for name, rows in table.items():
+        m = re.search(r"^\t\.ent\t%s\b[^\n]*\n" % re.escape(name), txt, re.M)
+        if not m:
+            continue
+        m2 = re.search(r"^\t\.end\t%s[ \t]*$" % re.escape(name), txt[m.end():], re.M)
+        end = m.end() + (m2.start() if m2 else 0)
+        region = txt[m.start():end]
+        before = region
+        for row in rows:
+            brs = list(re.finditer(row["branch"], region))
+            ans = list(re.finditer(row["after"], region))
+            if len(brs) != 1 or len(ans) != 1:
+                sys.stderr.write("[branch_retarget] %s %s: branch x%d after x%d"
+                                 " -- ROW SKIPPED\n"
+                                 % (rel_posix, name, len(brs), len(ans)))
+                continue
+            br, an = brs[0], ans[0]
+            if br.start() < an.end() and an.start() < br.end():
+                sys.stderr.write("[branch_retarget] %s %s: branch/after overlap"
+                                 " -- ROW SKIPPED\n" % (rel_posix, name))
+                continue
+            _BR_RETARGET_SEQ[0] += 1
+            lab = "$L%d" % (966000 + _BR_RETARGET_SEQ[0])
+            if lab in txt:
+                sys.stderr.write("[branch_retarget] %s %s: label %s collides"
+                                 " -- ROW SKIPPED\n" % (rel_posix, name, lab))
+                continue
+            newbr, nsub = re.subn(r"\$L\d+", lab, br.group(0))
+            if nsub != 1:
+                sys.stderr.write("[branch_retarget] %s %s: branch line has %d"
+                                 " $L operands -- ROW SKIPPED\n"
+                                 % (rel_posix, name, nsub))
+                continue
+            labline = lab + ":\n"
+            ins = an.end()
+            if br.end() <= ins:
+                region = (region[:br.start()] + newbr + region[br.end():ins]
+                          + labline + region[ins:])
+            else:
+                region = (region[:ins] + labline + region[ins:br.start()]
+                          + newbr + region[br.end():])
+        if region != before:
+            txt = txt[:m.start()] + region + txt[end:]
+            changed = True
+    if changed:
+        s_file.write_text(txt)
+
+
 # w53-a10: PROLOGUE UNSINK -- sched2 sinks a callee-saved save (zero
 # dependents => lowest priority) below the first body insns; retail sank only
 # $ra.  Move the named regs' `sw $R,N($sp)` back up to right after the
@@ -2199,6 +2318,7 @@ def _compile_c_272(rel: Path, tu_flags: dict, i_file: Path, s_file: Path,
     s_file.write_text(txt)
     # w55-a5: the 272 lane never called the TEXT_MOVES mechanism.
     _apply_text_moves(rel.as_posix(), s_file)
+    _apply_branch_retarget(rel.as_posix(), s_file)
     r = run([AS, *AS_ARCH, f"-G{tu_g_value}", "-I", ROOT / "include",
              "-I", ROOT, "-o", obj, s_file])
     if r.returncode or not obj.exists():
@@ -2295,6 +2415,7 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
     _apply_ra_sink(rel.as_posix(), s_file)
     _apply_prologue_unsink(rel.as_posix(), s_file)
     _apply_text_moves(rel.as_posix(), s_file)
+    _apply_branch_retarget(rel.as_posix(), s_file)
 
     # maspsx reads cc1 .s on stdin; remaining args pass through to GNU as.
     maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
@@ -2361,6 +2482,7 @@ def compile_cpp(src: Path) -> Path:
     _apply_ra_sink(rel.as_posix(), s_file)
     _apply_prologue_unsink(rel.as_posix(), s_file)
     _apply_text_moves(rel.as_posix(), s_file)
+    _apply_branch_retarget(rel.as_posix(), s_file)
 
     maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
                   "--run-assembler", f"--gnu-as-path={AS}",

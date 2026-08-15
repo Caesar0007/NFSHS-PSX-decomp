@@ -245,7 +245,22 @@ int AIHigh_Opponent::DoRearEnder()
        the fence's -1 insn is the bgez delay slot (retail keeps a nop there, ours
        fills it with the mflo).  A landing needs the mflo kept OUT of that slot at
        the same time -- i.e. the pair is (constant hoist) + (mflo deferral), and no
-       single-statement device produces both. */
+       single-statement device produces both.
+       ==== W63-A12 (54 -> 50, still count-exact 181/181): THE CONSTANT HOIST LANDED.
+       The lever is NOT a named constant -- it is a named constant that cse cannot
+       fold back: ASSIGN (never decl-with-init, cf 07B) into a block-local declared
+       just above the abs, then put an OPACITY/IDENTITY fence on each
+       (`__asm__("" : "=r"(x) : "0"(x))`, 0 insns).  A plain `int c1 = -0x10001;`
+       (re-measured this session, both as a decl-with-init and as an assignment
+       WITHOUT the fence) is const-propagated straight back into the compare and
+       measures exactly 54 = inert; only the pair (assignment + identity fence)
+       creates a real pseudo born in the pre-abs block, which is what lets sched1
+       fill the roadPosition load-delay slots with the two lui/ori pairs.
+       ORDER IS LOAD-BEARING: lo1-then-hi1 = 50 @181; hi1-then-lo1 = 51 @180 (one
+       insn lost).  DO NOT APPLY THE SAME DEVICE AT THE IN-LOOP SITE (line ~334):
+       the fences there are loop-weighted (+2 refs each) and the whole $s-band
+       rotates -> 68.  Residual 50 = the site-1 register naming (ours a0/a2 vs
+       retail a1/v1 on the carObj_ field pair) + the untouched in-loop site.  ==== */
 
     otherCarObj = Cars_gList[attackIndex];
 
@@ -255,13 +270,21 @@ int AIHigh_Opponent::DoRearEnder()
 
     latDistance = this->carObj_->roadPosition - otherCarObj->roadPosition;
 
+    {
+    int lo1;
+    int hi1;
+    lo1 = -0x10001;
+    hi1 = 0x26fffe;
+    __asm__("" : "=r"(lo1) : "0"(lo1));
+    __asm__("" : "=r"(hi1) : "0"(hi1));
+
     if (latDistance < 0) {
 
       latDistance = -latDistance;
 
     }
 
-    if ((longDistance - 0x10001U < 0x26ffff) && (latDistance < longDistance * 2)) {
+    if (((u_int)(longDistance + lo1) <= (u_int)hi1) && (latDistance < longDistance * 2)) {
 
       int speed = __builtin_abs(otherCarObj->currentSpeed);
 
@@ -271,6 +294,7 @@ int AIHigh_Opponent::DoRearEnder()
 
       }
 
+    }
     }
 
   }

@@ -31,6 +31,23 @@ _pm = open(_pmf,'rb').read().decode() if _pmf else None
 if _pm:
     for _k,_v in _json.loads(_pm).items():
         bld.PER_FN_TEXT_MOVES.setdefault(_k, {}).update(_v)
+# w61-a7 generic hook: patch ANY per-fn set-valued build table in memory,
+# e.g. W61_TABLE='{"PER_FN_CC1_VER_SPLICE_272": {"recon/x.c": {"2.7.2": ["fn"]}}}'
+# (dict-of-sets tables) -- makes every future per-fn wiring probe a one-liner.
+_gt = _os.environ.get('W61_TABLE')
+if _gt:
+    for _tname, _tv in _json.loads(_gt).items():
+        _tab = getattr(bld, _tname)
+        for _k, _v in _tv.items():
+            if isinstance(_v, dict):
+                _e = _tab.setdefault(_k, {})
+                for _vk, _vv in _v.items():
+                    if isinstance(_vv, list):
+                        _e.setdefault(_vk, set()).update(_vv)
+                    else:
+                        _e[_vk] = _vv
+            else:
+                _tab.setdefault(_k, set()).update(_v)
 obj = bld.compile_c(cpp, skip_asm=False) if cpp.suffix == '.c' else bld.compile_cpp(cpp)
 dis = subprocess.run([OBJD, '-d', '-r', '-z', str(obj)], capture_output=True, text=True).stdout
 

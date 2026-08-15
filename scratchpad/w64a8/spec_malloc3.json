@@ -1,0 +1,29 @@
+{
+ "src": "recon/eaclib/psx/sndpsxz/sdmemman.c",
+ "fn": "iSNDpsxmalloc",
+ "proof": false,
+ "variants": {
+  "W1_volatile_localblock": [
+   [
+    "        commit_block = (unsigned short)local_block;\n        entry[1] = (short)size;",
+    "        commit_block = (unsigned short)*(volatile unsigned int *)&local_block;\n        entry[1] = (short)size;"
+   ]
+  ],
+  "W2_void_fence_after": [
+   [
+    "        commit_block = (unsigned short)local_block;\n        entry[1] = (short)size;",
+    "        commit_block = (unsigned short)local_block;\n        __asm__(\"\" : : \"i\"(0));\n        entry[1] = (short)size;"
+   ]
+  ],
+  "W3_vol_plus_indexfirst": [
+   [
+    "        commit_block = (unsigned short)local_block;\n        entry[1] = (short)size;",
+    "        commit_block = (unsigned short)*(volatile unsigned int *)&local_block;\n        entry[1] = (short)size;"
+   ],
+   [
+    "        entry = (unsigned short *)(table + entry_off);",
+    "        entry = (unsigned short *)(entry_off + (unsigned int)table);"
+   ]
+  ]
+ }
+}

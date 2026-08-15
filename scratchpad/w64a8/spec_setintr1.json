@@ -1,0 +1,57 @@
+{
+ "src": "recon/syslib/psx/libetc/INTR.c",
+ "fn": "_set_intr_callback",
+ "proof": false,
+ "variants": {
+  "V1_enable_struct_keep_st": [
+   [
+    "            {\n                unsigned long value;\n\n                value = st[0x18];\n                value |= bit;\n                st[0x18] = (unsigned short)value;\n            }",
+    "            {\n                unsigned long value;\n\n                value = g_intr.enabled;\n                value |= bit;\n                g_intr.enabled = (unsigned short)value;\n            }"
+   ]
+  ],
+  "V2_enable_struct_drop_st": [
+   [
+    "            {\n                unsigned long value;\n\n                value = st[0x18];\n                value |= bit;\n                st[0x18] = (unsigned short)value;\n            }",
+    "            {\n                unsigned long value;\n\n                value = g_intr.enabled;\n                value |= bit;\n                g_intr.enabled = (unsigned short)value;\n            }"
+   ],
+   [
+    "        st = (unsigned short *)base - 2;\n",
+    ""
+   ]
+  ],
+  "V3_both_struct": [
+   [
+    "            {\n                unsigned long value;\n\n                value = st[0x18];\n                value |= bit;\n                st[0x18] = (unsigned short)value;\n            }",
+    "            {\n                unsigned long value;\n\n                value = g_intr.enabled;\n                value |= bit;\n                g_intr.enabled = (unsigned short)value;\n            }"
+   ],
+   [
+    "            pendingValue = *(unsigned short *)(base + 11);\n            pendingMask &= bit;\n            pendingValue &= bit;\n            *(unsigned short *)(base + 11) = (unsigned short)pendingValue;",
+    "            pendingValue = g_intr.enabled;\n            pendingMask &= bit;\n            pendingValue &= bit;\n            g_intr.enabled = (unsigned short)pendingValue;"
+   ],
+   [
+    "        st = (unsigned short *)base - 2;\n",
+    ""
+   ]
+  ],
+  "V4_test_struct_enable_struct": [
+   [
+    "            {\n                unsigned long value;\n\n                value = st[0x18];\n                value |= bit;\n                st[0x18] = (unsigned short)value;\n            }",
+    "            {\n                unsigned long value;\n\n                value = g_intr.enabled;\n                value |= bit;\n                g_intr.enabled = (unsigned short)value;\n            }"
+   ],
+   [
+    "        st = (unsigned short *)base - 2;\n",
+    ""
+   ],
+   [
+    "    if (*((unsigned short *)base - 2) == 0) {",
+    "    if (g_intr.inited == 0) {"
+   ]
+  ],
+  "V5_disable_struct_only": [
+   [
+    "            pendingValue = *(unsigned short *)(base + 11);\n            pendingMask &= bit;\n            pendingValue &= bit;\n            *(unsigned short *)(base + 11) = (unsigned short)pendingValue;",
+    "            pendingValue = g_intr.enabled;\n            pendingMask &= bit;\n            pendingValue &= bit;\n            g_intr.enabled = (unsigned short)pendingValue;"
+   ]
+  ]
+ }
+}

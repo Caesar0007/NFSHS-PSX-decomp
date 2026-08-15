@@ -1,0 +1,41 @@
+{
+ "src": "recon/syslib/psx/libetc/INTR.c",
+ "fn": "_set_intr_callback",
+ "proof": false,
+ "variants": {
+  "Z1_addiu_guardblock_fence_armhead": [
+   [
+    "    if (*((unsigned short *)base - 2) == 0) {\n    } else {",
+    "    st = (unsigned short *)base - 2;\n    if (*((unsigned short *)base - 2) == 0) {\n    } else {\n        __asm__(\"\" : \"=r\"(st) : \"0\"(st));\n"
+   ],
+   [
+    "        st = (unsigned short *)base - 2;\n",
+    ""
+   ]
+  ],
+  "Z2_same_test_via_st": [
+   [
+    "    if (*((unsigned short *)base - 2) == 0) {\n    } else {",
+    "    st = (unsigned short *)base - 2;\n    if (*st == 0) {\n    } else {\n        __asm__(\"\" : \"=r\"(st) : \"0\"(st));\n"
+   ],
+   [
+    "        st = (unsigned short *)base - 2;\n",
+    ""
+   ]
+  ],
+  "Z3_fence_at_enable_arm_use": [
+   [
+    "    if (*((unsigned short *)base - 2) == 0) {\n    } else {",
+    "    st = (unsigned short *)base - 2;\n    if (*((unsigned short *)base - 2) == 0) {\n    } else {"
+   ],
+   [
+    "        st = (unsigned short *)base - 2;\n",
+    ""
+   ],
+   [
+    "            {\n                unsigned long value;\n\n                value = st[0x18];",
+    "            {\n                unsigned long value;\n\n                __asm__(\"\" : \"=r\"(st) : \"0\"(st));\n                value = st[0x18];"
+   ]
+  ]
+ }
+}

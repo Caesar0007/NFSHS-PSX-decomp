@@ -1,0 +1,51 @@
+{
+ "src": "recon/syslib/psx/libetc/INTR.c",
+ "fn": "_intrhand",
+ "proof": false,
+ "variants": {
+  "S1_entry_en_barrier": [
+   [
+    "    int *p;\n    int *base;",
+    "    int *p;\n    int *base;\n    unsigned long en;"
+   ],
+   [
+    "    state[1] = 1;\n    pend = I_MASK & (state[0x18] & I_STAT);",
+    "    state[1] = 1;\n    en = state[0x18];\n    __asm__(\"\" : : \"i\"(0));\n    pend = I_MASK & (en & I_STAT);"
+   ]
+  ],
+  "S2_entry_hoist_barrier": [
+   [
+    "    int *p;\n    int *base;",
+    "    int *p;\n    int *base;\n    unsigned long en;"
+   ],
+   [
+    "    state[1] = 1;\n    pend = I_MASK & (state[0x18] & I_STAT);",
+    "    en = state[0x18];\n    state[1] = 1;\n    __asm__(\"\" : : \"i\"(0));\n    pend = I_MASK & (en & I_STAT);"
+   ]
+  ],
+  "S3_loop_en_barrier": [
+   [
+    "    int *p;\n    int *base;",
+    "    int *p;\n    int *base;\n    unsigned long en;"
+   ],
+   [
+    "            pend = I_MASK & (g_intr.enabled & I_STAT);",
+    "            en = g_intr.enabled;\n            __asm__(\"\" : : \"i\"(0));\n            pend = I_MASK & (en & I_STAT);"
+   ]
+  ],
+  "S4_both": [
+   [
+    "    int *p;\n    int *base;",
+    "    int *p;\n    int *base;\n    unsigned long en;"
+   ],
+   [
+    "    state[1] = 1;\n    pend = I_MASK & (state[0x18] & I_STAT);",
+    "    state[1] = 1;\n    en = state[0x18];\n    __asm__(\"\" : : \"i\"(0));\n    pend = I_MASK & (en & I_STAT);"
+   ],
+   [
+    "            pend = I_MASK & (g_intr.enabled & I_STAT);",
+    "            en = g_intr.enabled;\n            __asm__(\"\" : : \"i\"(0));\n            pend = I_MASK & (en & I_STAT);"
+   ]
+  ]
+ }
+}

@@ -1,0 +1,25 @@
+{
+ "src": "recon/eaclib/psx/sndpsxz/sdmemman.c",
+ "fn": "iSNDpsxmalloc",
+ "proof": false,
+ "variants": {
+  "U1_lim_first_decl": [
+   [
+    "                unsigned int block;\n                int avail;\n                unsigned short *prev =\n                    (unsigned short *)(previous + idx * 4);\n                block = (unsigned int)prev[0] + (unsigned int)prev[1];\n                avail = *(unsigned short *)entry - (int)block;\n                local_block = block;\n                local_avail = avail;",
+    "                unsigned int block;\n                int avail;\n                int lim = *(unsigned short *)entry;\n                unsigned short *prev =\n                    (unsigned short *)(previous + idx * 4);\n                block = (unsigned int)prev[0] + (unsigned int)prev[1];\n                avail = lim - (int)block;\n                local_block = block;\n                local_avail = avail;"
+   ]
+  ],
+  "U2_lim_first_split_decl": [
+   [
+    "                unsigned int block;\n                int avail;\n                unsigned short *prev =\n                    (unsigned short *)(previous + idx * 4);\n                block = (unsigned int)prev[0] + (unsigned int)prev[1];\n                avail = *(unsigned short *)entry - (int)block;\n                local_block = block;\n                local_avail = avail;",
+    "                unsigned int block;\n                int avail;\n                unsigned short *prev;\n                int lim = *(unsigned short *)entry;\n                prev = (unsigned short *)(previous + idx * 4);\n                block = (unsigned int)prev[0] + (unsigned int)prev[1];\n                avail = lim - (int)block;\n                local_block = block;\n                local_avail = avail;"
+   ]
+  ],
+  "U3_lim_after_prev": [
+   [
+    "                unsigned int block;\n                int avail;\n                unsigned short *prev =\n                    (unsigned short *)(previous + idx * 4);\n                block = (unsigned int)prev[0] + (unsigned int)prev[1];\n                avail = *(unsigned short *)entry - (int)block;\n                local_block = block;\n                local_avail = avail;",
+    "                unsigned int block;\n                int avail;\n                unsigned short *prev =\n                    (unsigned short *)(previous + idx * 4);\n                int lim = *(unsigned short *)entry;\n                block = (unsigned int)prev[0] + (unsigned int)prev[1];\n                avail = lim - (int)block;\n                local_block = block;\n                local_avail = avail;"
+   ]
+  ]
+ }
+}

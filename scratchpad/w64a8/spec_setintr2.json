@@ -1,0 +1,37 @@
+{
+ "src": "recon/syslib/psx/libetc/INTR.c",
+ "fn": "_set_intr_callback",
+ "proof": false,
+ "variants": {
+  "W1_st_before_test_via_st": [
+   [
+    "    if (*((unsigned short *)base - 2) == 0) {\n    } else {",
+    "    st = (unsigned short *)base - 2;\n    if (*st == 0) {\n    } else {"
+   ],
+   [
+    "        st = (unsigned short *)base - 2;\n",
+    ""
+   ]
+  ],
+  "W2_st_before_test_anon": [
+   [
+    "    if (*((unsigned short *)base - 2) == 0) {\n    } else {",
+    "    st = (unsigned short *)base - 2;\n    if (*((unsigned short *)base - 2) == 0) {\n    } else {"
+   ],
+   [
+    "        st = (unsigned short *)base - 2;\n",
+    ""
+   ]
+  ],
+  "W3_st_before_test_index0": [
+   [
+    "    if (*((unsigned short *)base - 2) == 0) {\n    } else {",
+    "    st = (unsigned short *)base - 2;\n    if (st[0] == 0) {\n    } else {"
+   ],
+   [
+    "        st = (unsigned short *)base - 2;\n",
+    ""
+   ]
+  ]
+ }
+}

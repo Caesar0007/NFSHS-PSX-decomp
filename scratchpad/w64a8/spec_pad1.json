@@ -1,0 +1,35 @@
+{
+ "src": "recon/eaclib/psx/pad.c",
+ "fn": "PAD_update",
+ "proof": false,
+ "variants": {
+  "T1_btnOff_before_loop": [
+   [
+    "  for (i = 0, btnOff = 0; i < 8; i++, btnOff += 8) {",
+    "  btnOff = 0;\n  for (i = 0; i < 8; i++, btnOff += 8) {"
+   ]
+  ],
+  "T2_swap_comma": [
+   [
+    "  for (i = 0, btnOff = 0; i < 8; i++, btnOff += 8) {",
+    "  for (btnOff = 0, i = 0; i < 8; i++, btnOff += 8) {"
+   ]
+  ],
+  "T3_i_before_loop": [
+   [
+    "  for (i = 0, btnOff = 0; i < 8; i++, btnOff += 8) {",
+    "  i = 0;\n  for (btnOff = 0; i < 8; i++, btnOff += 8) {"
+   ]
+  ],
+  "T4_both_before_while": [
+   [
+    "  for (i = 0, btnOff = 0; i < 8; i++, btnOff += 8) {",
+    "  i = 0;\n  btnOff = 0;\n  while (i < 8) {"
+   ],
+   [
+    "    }\n  }\n}",
+    "    }\n    i++; btnOff += 8;\n  }\n}"
+   ]
+  ]
+ }
+}

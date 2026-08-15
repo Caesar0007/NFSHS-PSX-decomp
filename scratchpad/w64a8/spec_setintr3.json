@@ -1,0 +1,43 @@
+{
+ "src": "recon/syslib/psx/libetc/INTR.c",
+ "fn": "_set_intr_callback",
+ "proof": false,
+ "variants": {
+  "X1_opaque_copy_then_addiu": [
+   [
+    "    unsigned short *st;",
+    "    unsigned short *st;\n    int *stx;"
+   ],
+   [
+    "        st = (unsigned short *)base - 2;",
+    "        stx = base;\n        __asm__(\"\" : \"=r\"(stx) : \"0\"(stx));\n        st = (unsigned short *)stx - 2;"
+   ]
+  ],
+  "X2_opaque_copy_before_if": [
+   [
+    "    unsigned short *st;",
+    "    unsigned short *st;\n    int *stx;"
+   ],
+   [
+    "    if (*((unsigned short *)base - 2) == 0) {",
+    "    stx = base;\n    __asm__(\"\" : \"=r\"(stx) : \"0\"(stx));\n    st = (unsigned short *)stx - 2;\n    if (*((unsigned short *)base - 2) == 0) {"
+   ],
+   [
+    "        st = (unsigned short *)base - 2;\n",
+    ""
+   ]
+  ],
+  "X3_fence_on_st_after_addiu": [
+   [
+    "        st = (unsigned short *)base - 2;",
+    "        st = (unsigned short *)base - 2;\n        __asm__(\"\" : \"=r\"(st) : \"0\"(st));"
+   ]
+  ],
+  "X4_volatile_enable_field": [
+   [
+    "                value = st[0x18];\n                value |= bit;\n                st[0x18] = (unsigned short)value;",
+    "                value = ((volatile unsigned short *)st)[0x18];\n                value |= bit;\n                ((volatile unsigned short *)st)[0x18] = (unsigned short)value;"
+   ]
+  ]
+ }
+}

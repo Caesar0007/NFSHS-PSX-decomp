@@ -1,0 +1,12 @@
+{
+ "src": "recon/eaclib/psx/sndpsxz/sdpacket.c",
+ "fn": "iSNDfillspuwithpackets",
+ "variants": {
+  "A_dma_guard_volatile": [
+   [
+    "    i = 0;                                   /* kick the SPU DMA for each channel */\n    if (voice[0x1F] != 0) {",
+    "    i = 0;                                   /* kick the SPU DMA for each channel */\n    if (*(volatile unsigned char *)(voice + 0x1F) != 0) {"
+   ]
+  ]
+ }
+}

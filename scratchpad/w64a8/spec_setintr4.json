@@ -1,0 +1,29 @@
+{
+ "src": "recon/syslib/psx/libetc/INTR.c",
+ "fn": "_set_intr_callback",
+ "proof": false,
+ "variants": {
+  "Y1_single_and_condition": [
+   [
+    "    if (callback == oldCallback)\n        return oldCallback;\n\n    if (*((unsigned short *)base - 2) == 0) {\n    } else {",
+    "    if (callback != oldCallback && *((unsigned short *)base - 2) != 0) {"
+   ]
+  ],
+  "Y2_nested_ifs": [
+   [
+    "    if (callback == oldCallback)\n        return oldCallback;\n\n    if (*((unsigned short *)base - 2) == 0) {\n    } else {",
+    "    if (callback != oldCallback) if (*((unsigned short *)base - 2) != 0) {"
+   ]
+  ],
+  "Y3_and_with_st": [
+   [
+    "    if (callback == oldCallback)\n        return oldCallback;\n\n    if (*((unsigned short *)base - 2) == 0) {\n    } else {",
+    "    st = (unsigned short *)base - 2;\n    if (callback != oldCallback && *st != 0) {"
+   ],
+   [
+    "        st = (unsigned short *)base - 2;\n",
+    ""
+   ]
+  ]
+ }
+}

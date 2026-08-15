@@ -1,0 +1,13 @@
+{
+ "src": "recon/eaclib/psx/sndpsxz/sdmemman.c",
+ "fn": "iSNDpsxmalloc",
+ "proof": false,
+ "variants": {
+  "SANITY_stride8": [
+   [
+    "                unsigned short *prev =\n                    (unsigned short *)(previous + idx * 4);",
+    "                unsigned short *prev =\n                    (unsigned short *)(previous + idx * 8);"
+   ]
+  ]
+ }
+}

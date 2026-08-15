@@ -1,0 +1,51 @@
+{
+ "src": "recon/syslib/psx/libetc/INTR.c",
+ "fn": "_intrhand",
+ "proof": false,
+ "variants": {
+  "P1_addr_istat_entry": [
+   [
+    "    int *p;\n    int *base;",
+    "    int *p;\n    int *base;\n    volatile unsigned short **ap;"
+   ],
+   [
+    "    pend = I_MASK & (state[0x18] & I_STAT);",
+    "    ap = &g_istat_ptr;\n    pend = I_MASK & (state[0x18] & *(*ap));"
+   ]
+  ],
+  "P2_addr_istat_loop": [
+   [
+    "    int *p;\n    int *base;",
+    "    int *p;\n    int *base;\n    volatile unsigned short **ap;"
+   ],
+   [
+    "            pend = I_MASK & (g_intr.enabled & I_STAT);",
+    "            ap = &g_istat_ptr;\n            pend = I_MASK & (g_intr.enabled & *(*ap));"
+   ]
+  ],
+  "P3_addr_istat_both": [
+   [
+    "    int *p;\n    int *base;",
+    "    int *p;\n    int *base;\n    volatile unsigned short **ap;"
+   ],
+   [
+    "    pend = I_MASK & (state[0x18] & I_STAT);",
+    "    ap = &g_istat_ptr;\n    pend = I_MASK & (state[0x18] & *(*ap));"
+   ],
+   [
+    "            pend = I_MASK & (g_intr.enabled & I_STAT);",
+    "            ap = &g_istat_ptr;\n            pend = I_MASK & (g_intr.enabled & *(*ap));"
+   ]
+  ],
+  "P4_addr_imask_entry": [
+   [
+    "    int *p;\n    int *base;",
+    "    int *p;\n    int *base;\n    volatile unsigned short **ap;"
+   ],
+   [
+    "    pend = I_MASK & (state[0x18] & I_STAT);",
+    "    ap = &g_imask_ptr;\n    pend = *(*ap) & (state[0x18] & I_STAT);"
+   ]
+  ]
+ }
+}

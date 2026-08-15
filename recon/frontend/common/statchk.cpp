@@ -336,7 +336,38 @@ short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
  * The cross-BB device does NOT transfer to the other two size sites: uBulkUnit
  * hoisted above the placement loop = 193@421 (no f2) / 235@421 (f2 kept), and
  * uCopySz hoisted above the copy loop = 248@424 / 327@423 -- both hoists escape
- * the outer per-car loop and buy a callee-saved home.  Dropping f3 alone = 60@416. */
+ * the outer per-car loop and buy a callee-saved home.  Dropping f3 alone = 60@416.
+ *
+ * W64-A17 (2026-08-15, re-gated baseline 33 @ 417/416 -- unchanged basin):
+ * LANDED (scaffolding only, gate-neutral): fence-2 lost its INERT `uBulkSz`
+ * operand (`"r"(uBulkUnit),"r"(uBulkSz)` -> `"r"(uBulkUnit)`), re-confirmed
+ * EXACTLY 33 @ 417 -- one fewer artificial operand for the same result.
+ * THE +1 IS NOW FULLY ITEMISED (three sites, read off tools/side_by_side.py):
+ *   site 1 (uRecSz*18) ours `li v0,20; lhu t0,96(sp); ... sll s0,v0,3;
+ *          addu a1,s0,v0` vs retail `li t0,20; sll s0,t0,3; addu a1,s0,t0`
+ *          => +1 (the dead `lhu` = fence-1's `"r"(nNumCars)` price);
+ *   site 2 (uBulkUnit*8) ours `li t1,20; addu v0,t1,zero; sll a2,v0,3` vs
+ *          retail `li t1,20; sll a2,t1,3` => +1 (the identity fence's
+ *          output copy: `"=r"/"0"` puts the asm result in a NEW pseudo);
+ *   site 3 (memcpy size) ours `li a2,20 ... mult v0,a2` vs retail
+ *          `li t0,20; mult v0,t0; addu a2,t0,zero` => -1 (retail's copy).
+ *   +1 +1 -1 = +1 == 417-416.  QED.
+ * NEW FALSIFICATIONS this wave (all re-gated from the 33 basin):
+ *   - fence-2 DROPPED entirely 60 @416 (retail's COUNT, wrong registers --
+ *     the 12E law again, and the SAME 60@416 basin as dropping f3);
+ *   - site-2 identity fence -> READ-ONLY fence (the one shape that should
+ *     delete its output copy) 35 @417 -- the copy is NOT the fence's output
+ *     but the global-allocno price 13B names, so removing the output does
+ *     not remove the copy;
+ *   - read-only + fence-2 reduced 60 @416 (same basin);
+ *   - fence-3 given a second read operand (`uCopySz` / `copyDst`) 33 @417
+ *     both -- the site-3 missing `addu a2,t0,zero` is not ref-reachable.
+ * => the residual stays the priced 12E certificate: EVERY zero-insn device
+ * buys retail's COUNT (416) with the wrong registers (60-115 diffs), every
+ * insn-costing operand buys retail's REGISTERS at +1 count (33).  The open
+ * item is unchanged and is retail's THIRD opacity mechanism for the literal
+ * 20 (a REG_EQUIV constant rematerialised at the use, born after the
+ * topPlacements loop in $t0) -- an instrumented-cc1 job, not a spelling. */
 void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
 
 {
@@ -440,7 +471,7 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
             uBulkUnit = sizeof(tRecordBuffer);
             __asm__("" : "=r"(uBulkUnit) : "0"(uBulkUnit), "r"(carInfo));
             uBulkSz = uBulkUnit * 8;
-            __asm__("" : : "r"(uBulkUnit), "r"(uBulkSz));
+            __asm__("" : : "r"(uBulkUnit));
             RecordHolders[nLapIndicator + 7] = DummyRaceResult;
             memcpy_call(buffer,&RecordHolders[nLapIndicator],uBulkSz);
             for (k = 0; k < 8; k = k + 1) {

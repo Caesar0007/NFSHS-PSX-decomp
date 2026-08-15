@@ -834,10 +834,21 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
      * `--solve 82=t2,167=t3,90=t4`  ->  `p90 refs 9 -> 7 (|d|=2)` -- a single-pseudo,
      * single-dial requirement.  103 -> 83. */
     prim[0x19] = prim[0xd];
-    prim[0x24] = u;
-    prim[0x30] = u + w1;
+    /* MATCH W64-A17 (11 -> 7, count still 246/245): the vertex-2/3 V pair is
+       written BEFORE the U pair.  With the U stores first, sched hoists
+       `prim[0x30] = u + w1` up between the 0x18 store and the 0x19 read-back
+       (`sb v0,24; sb v0,48; addu v1,t4,zero; sb v1,25`), where retail has
+       `sb v1,24; sb t4,25; sb v1,48`; putting the V pair first lets the
+       read-back keep its slot.  Re-gated alternatives from the 11 basin:
+       0x30-before-0x24 alone 11, read-back after 0x24 11, a void fence after
+       the read-back 10 @247, a fence before it 11, `prim[0x30]=prim[0x18]`
+       read-back 47 @248.  From THIS basin: 0x30-before-0x24 7 (neutral),
+       fence after the read-back 9, interleaved 0x25/0x24/0x31/0x30 114 @245,
+       `prim[0x24]=prim[0xc]` read-back 42 @247, `prim[0x19]=v` direct 32 @245. */
     prim[0x25] = vh + vb;
     prim[0x31] = vh + vb;
+    prim[0x24] = u;
+    prim[0x30] = u + w1;
     if (w1 <= 0) {
       w1 = 1;
     }

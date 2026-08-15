@@ -1,0 +1,12 @@
+{
+  "recon/game/psx/hud.cpp": {
+    "Hud_Init__Fv": [
+      {"take": "\tli\t\\$19,60[^\n]*\n",
+       "after": "\t\\.set\treorder\n\n(?=\taddu\t\\$4,\\$21,160\n)"},
+      {"take": "\taddu\t\\$16,\\$16,\\$20\n(?=\taddu\t\\$4,\\$22,72\n)",
+       "after": "\taddu\t\\$4,\\$22,72\n\tli\t\\$5,1[^\n]*\n"},
+      {"take": "\taddu\t\\$16,\\$16,\\$19\n(?=\tli\t\\$5,1[^\n]*\n\tmove\t\\$6,\\$16\n\taddu\t\\$7,\\$17,7\n\tlw\t\\$9,44\\(\\$sp\\)\n)",
+       "after": "\tli\t\\$5,1[^\n]*\n(?=\tmove\t\\$6,\\$16\n\taddu\t\\$7,\\$17,7\n\tlw\t\\$9,44\\(\\$sp\\)\n)"}
+    ]
+  }
+}

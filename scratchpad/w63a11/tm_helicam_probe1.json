@@ -1,0 +1,10 @@
+{
+  "recon/game/common/camera.cpp": {
+    "Camera_UpdateHeliCam__Fii": [
+      {
+        "take": "\\tlui\\t\\$3,%hi\\(Input_gLookBehind\\) \\# high\\n(?=\\$L\\d+:\\n\\tlw\\t\\$2,20\\(\\$sp\\)\\n)",
+        "after": "\\tlw\\t\\$2,20\\(\\$sp\\)\\n(?=\\taddiu\\t\\$3,\\$3,%lo\\(Input_gLookBehind\\))"
+      }
+    ]
+  }
+}

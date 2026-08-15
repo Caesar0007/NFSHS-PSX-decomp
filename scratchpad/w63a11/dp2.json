@@ -1,0 +1,9 @@
+[
+ {"name":"E0 control","subs":[]},
+ {"name":"E1 foreign fence after barrierVec.z","subs":[["  barrierVec.z = normal.x / 0x100 * 0x100;\n","  barrierVec.z = normal.x / 0x100 * 0x100;\n  __asm__(\"\" : : \"r\"(newtonObj));\n"]]},
+ {"name":"E2 foreign fence before barrierVec.x","subs":[["  barrierVec.x = -(normal.z / 0x100 * 0x100);","  __asm__(\"\" : : \"r\"(newtonObj));\n  barrierVec.x = -(normal.z / 0x100 * 0x100);"]]},
+ {"name":"E3 foreign fence x2 (before bvx, after bvz)","subs":[["  barrierVec.x = -(normal.z / 0x100 * 0x100);","  __asm__(\"\" : : \"r\"(newtonObj));\n  barrierVec.x = -(normal.z / 0x100 * 0x100);"],["  barrierVec.z = normal.x / 0x100 * 0x100;\n","  barrierVec.z = normal.x / 0x100 * 0x100;\n  __asm__(\"\" : : \"r\"(newtonObj));\n"]]},
+ {"name":"E4 foreign fence after distRetreat","subs":[["  if (distRetreat < 0) {","  __asm__(\"\" : : \"r\"(newtonObj));\n  if (distRetreat < 0) {"]]},
+ {"name":"E5 foreign fence x3","subs":[["  barrierVec.x = -(normal.z / 0x100 * 0x100);","  __asm__(\"\" : : \"r\"(newtonObj));\n  barrierVec.x = -(normal.z / 0x100 * 0x100);"],["  barrierVec.z = normal.x / 0x100 * 0x100;\n","  barrierVec.z = normal.x / 0x100 * 0x100;\n  __asm__(\"\" : : \"r\"(newtonObj));\n"],["  if (distRetreat < 0) {","  __asm__(\"\" : : \"r\"(newtonObj));\n  if (distRetreat < 0) {"]]},
+ {"name":"E6 foreign fence operand = impactVel-free islandMatrix base","subs":[["  barrierVec.z = normal.x / 0x100 * 0x100;\n","  barrierVec.z = normal.x / 0x100 * 0x100;\n  __asm__(\"\" : : \"r\"(&islandMatrix));\n"]]}
+]

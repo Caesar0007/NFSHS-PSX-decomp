@@ -1,0 +1,123 @@
+   0    0     addiu sp,sp,-112                  | addiu sp,sp,-112
+   1    1     sw s1,100(sp)                     | sw s1,100(sp)
+   2    2     addu s1,a0,zero                   | addu s1,a0,zero
+   3    3     lui v0,1                          | lui v0,1
+   4    4     sw ra,104(sp)                     | sw ra,104(sp)
+   5    5     sw s0,96(sp)                      | sw s0,96(sp)
+   6    6     sw a1,116(sp)                     | sw a1,116(sp)
+   7    7     sw a2,120(sp)                     | sw a2,120(sp)
+   8    8     sw a3,124(sp)                     | sw a3,124(sp)
+   9    9     sw zero,40(sp)                    | sw zero,40(sp)
+  10   10     sw v0,44(sp)                      | sw v0,44(sp)
+  11   11     sw zero,48(sp)                    | sw zero,48(sp)
+  12   12     bgez a3,T                         | bgez a3,T
+  13   13  *  sra v0,a3,8                       | addu v0,a3,zero
+  14   14  *  addiu a3,a3,255                   | addiu v0,a3,255
+  15   15  *  sra v0,a3,8                       | sra v0,v0,8
+  16   16     sll v0,v0,8                       | sll v0,v0,8
+  17   17     negu v0,v0                        | negu v0,v0
+  18   18     sw v0,24(sp)                      | sw v0,24(sp)
+  19   19  *  addu v0,a1,zero                   | addu a3,a1,zero
+  20   20  *  bgez a1,T                         | bgez a3,T
+       21  *                                    | addu v0,a3,zero
+       22  *                                    | addiu v0,a3,255
+  21   23     sw zero,28(sp)                    | sw zero,28(sp)
+  22       *  addiu v0,a1,255                   | 
+  23   24     sra v1,v0,8                       | sra v1,v0,8
+       25  *                                    | addu v0,a2,zero
+       26  *                                    | bgez a2,T
+  24   27     sll t3,v1,8                       | sll t3,v1,8
+       28  *                                    | addiu v0,a2,255
+  25   29     sw t3,32(sp)                      | sw t3,32(sp)
+       30  *                                    | sra a1,v0,8
+  26   31     lw v0,172(s1)                     | lw v0,172(s1)
+  27   32     nop                               | nop
+  28   33     bgez v0,T                         | bgez v0,T
+  29   34     nop                               | nop
+  30   35     addiu v0,v0,255                   | addiu v0,v0,255
+  31   36     sra v0,v0,8                       | sra v0,v0,8
+  32   37     mult v1,v0                        | mult v1,v0
+  33   38     mflo a0                           | mflo a0
+  34       *  bgez a2,T                         | 
+  35       *  nop                               | 
+  36       *  addiu a2,a2,255                   | 
+  37   39     lw v0,176(s1)                     | lw v0,176(s1)
+  38   40     nop                               | nop
+  39   41     bgez v0,T                         | bgez v0,T
+  40   42  *  sra a2,a2,8                       | nop
+  41   43     addiu v0,v0,255                   | addiu v0,v0,255
+  42   44     sra v0,v0,8                       | sra v0,v0,8
+  43   45  *  mult a2,v0                        | mult a1,v0
+  44   46  *  lw v1,124(sp)                     | lw t2,124(sp)
+       47  *                                    | nop
+       48  *                                    | addu v1,t2,zero
+  45   49     mflo t4                           | mflo t4
+  46   50  *  bgez v1,T                         | bgez t2,T
+  47   51  *  addu a1,a0,t4                     | addu a0,a0,t4
+  48   52  *  addiu v1,v1,255                   | addiu v1,t2,255
+  49   53     lw v0,180(s1)                     | lw v0,180(s1)
+  50   54     nop                               | nop
+  51   55     bgez v0,T                         | bgez v0,T
+  52   56     sra v1,v1,8                       | sra v1,v1,8
+  53   57     addiu v0,v0,255                   | addiu v0,v0,255
+  54   58     sra v0,v0,8                       | sra v0,v0,8
+  55   59     mult v1,v0                        | mult v1,v0
+  56   60     mflo t4                           | mflo t4
+  57   61  *  addu a1,a1,t4                     | addu v0,a0,t4
+  58       *  bgez a1,T                         | 
+  59       *  negu v0,a1                        | 
+  60       *  negu a1,a1                        | 
+  61       *  negu v0,a1                        | 
+  62   62     bgez v0,T                         | bgez v0,T
+  63   63  *  sra a1,v0,4                       | nop
+       64  *                                    | negu v0,v0
+       65  *                                    | negu v0,v0
+       66  *                                    | bgez v0,T
+       67  *                                    | sra v1,v0,4
+  64   68     addiu v0,v0,15                    | addiu v0,v0,15
+  65   69  *  sra a1,v0,4                       | sra v1,v0,4
+  66   70  *  slti v0,a1,-1965                  | slti v0,v1,-1965
+  67   71  *  bnez v0,T                         | beqz v0,T
+  68       *  nop                               | 
+  69   72     li a1,-1966                       | li a1,-1966
+  70   73  *  lw v0,116(sp)                     | addu a1,v1,zero
+       74  *                                    | addu a0,s1,zero
+       75  *                                    | sw a3,56(sp)
+       76  *                                    | lw v0,120(sp)
+  71   77     lw v1,44(sp)                      | lw v1,44(sp)
+  72   78     lw a3,48(sp)                      | lw a3,48(sp)
+  73   79     lw t0,24(sp)                      | lw t0,24(sp)
+  74   80     lw t1,28(sp)                      | lw t1,28(sp)
+  75   81  *  sw v0,56(sp)                      | addiu a2,sp,56
+  76   82  *  lw v0,120(sp)                     | sw t2,64(sp)
+  77   83  *  addu a0,s1,zero                   | sw zero,68(sp)
+       84  *                                    | sw t3,88(sp)
+  78   85     sw v0,60(sp)                      | sw v0,60(sp)
+  79       *  lw t2,124(sp)                     | 
+  80       *  lw v0,40(sp)                      | 
+  81       *  addiu a2,sp,56                    | 
+  82   86     sw v1,72(sp)                      | sw v1,72(sp)
+  83   87     sw a3,76(sp)                      | sw a3,76(sp)
+  84   88     sw t0,80(sp)                      | sw t0,80(sp)
+       89  *                                    | jal T
+  85   90     sw t1,84(sp)                      | sw t1,84(sp)
+  86       *  sw t3,88(sp)                      | 
+  87       *  sw v0,68(sp)                      | 
+  88       *  jal T                             | 
+  89       *  sw t2,64(sp)                      | 
+  90   91     li a0,4                           | li a0,4
+  91   92     jal T                             | jal T
+  92   93     addu s0,v0,zero                   | addu s0,v0,zero
+  93   94     lw v0,124(sp)                     | lw v0,124(sp)
+  94   95     addu a0,s1,zero                   | addu a0,s1,zero
+  95   96     sw v0,16(sp)                      | sw v0,16(sp)
+  96   97     lw a2,116(sp)                     | lw a2,116(sp)
+  97   98     lw a3,120(sp)                     | lw a3,120(sp)
+  98   99     jal T                             | jal T
+  99  100     addu a1,s0,zero                   | addu a1,s0,zero
+ 100  101     lw ra,104(sp)                     | lw ra,104(sp)
+ 101  102     lw s1,100(sp)                     | lw s1,100(sp)
+ 102  103     lw s0,96(sp)                      | lw s0,96(sp)
+ 103  104     jr ra                             | jr ra
+ 104  105     addiu sp,sp,112                   | addiu sp,sp,112
+# ours 105 oracle 106  diffs(seqmatch) 73

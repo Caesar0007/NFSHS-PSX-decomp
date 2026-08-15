@@ -1,0 +1,8 @@
+[
+ {"name":"V0 control (fence as shipped)","subs":[]},
+ {"name":"V1 drop fence","subs":[["      __asm__(\"\" : : \"i\"(0));\n    }\n    else {\n      lookahead = 3;\n      if (rev == 0) {","    }\n    else {\n      lookahead = 3;\n      if (rev == 0) {"]]},
+ {"name":"V2 fence before inner if","subs":[["      lookahead = 3;\n      if ((rev ^ 1) == 0) {\n        lookahead = -3;\n      }\n      __asm__(\"\" : : \"i\"(0));","      lookahead = 3;\n      __asm__(\"\" : : \"i\"(0));\n      if ((rev ^ 1) == 0) {\n        lookahead = -3;\n      }"]]},
+ {"name":"V3 fence inside inner if","subs":[["      lookahead = 3;\n      if ((rev ^ 1) == 0) {\n        lookahead = -3;\n      }\n      __asm__(\"\" : : \"i\"(0));","      lookahead = 3;\n      if ((rev ^ 1) == 0) {\n        lookahead = -3;\n        __asm__(\"\" : : \"i\"(0));\n      }"]]},
+ {"name":"V4 fence also in else arm tail","subs":[["      lookahead = 3;\n      if (rev == 0) {\n        lookahead = -3;\n      }\n    }","      lookahead = 3;\n      if (rev == 0) {\n        lookahead = -3;\n      }\n      __asm__(\"\" : : \"i\"(0));\n    }"]]},
+ {"name":"V5 arms swapped (wrongway as else)","subs":[["    if (0 < anchor->wrongway) {\n      lookahead = 3;\n      if ((rev ^ 1) == 0) {\n        lookahead = -3;\n      }\n      __asm__(\"\" : : \"i\"(0));\n    }\n    else {\n      lookahead = 3;\n      if (rev == 0) {\n        lookahead = -3;\n      }\n    }","    if (anchor->wrongway <= 0) {\n      lookahead = 3;\n      if (rev == 0) {\n        lookahead = -3;\n      }\n      __asm__(\"\" : : \"i\"(0));\n    }\n    else {\n      lookahead = 3;\n      if ((rev ^ 1) == 0) {\n        lookahead = -3;\n      }\n    }"]]}
+]

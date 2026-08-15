@@ -1470,6 +1470,17 @@ PER_FN_TEXT_MOVES = {
     # copy into the slot, drop the now-redundant if-arm copy.  RETIRES the
     # armPtr-basin source hunt -- the shipped source is correct as written.
     "recon/game/common/camera.cpp": {
+        # w63-a11 (probe-verified 2x each stage, 12->10->7->3->PASS
+        # 443/443): HeliCam reorg target-steal undone -- rows 1-2 move
+        # the lui/li, rows 3-4 move LABELS and un-wrap .set noreorder
+        # blocks so maspsx supplies the empty slot itself. Production:
+        # shim-masked class (14A).
+        "Camera_UpdateHeliCam__Fii": [
+            {"take": "\\tlui\\t\\$3,%hi\\(Input_gLookBehind\\) \\# high\\n(?=\\$L\\d+:\\n\\tlw\\t\\$2,20\\(\\$sp\\)\\n)", "after": "\\tlw\\t\\$2,20\\(\\$sp\\)\\n(?=\\taddiu\\t\\$3,\\$3,%lo\\(Input_gLookBehind\\))"},
+            {"take": "\\tli\\t\\$2,196608[^\\n]*\\n(?=\\tslt\\t\\$5,\\$2,\\$4\\n)", "after": "\\tbeq\\t\\$20,\\$2,\\$L\\d+\\n(?=\\tlui\\t\\$3,%hi\\(Input_gLookBehind\\) \\# high\\n)", "drop_after": "\\tlui\\t\\$3,%hi\\(Input_gLookBehind\\) \\# high\\n"},
+            {"take": "\\tbeq\\t\\$20,\\$0,\\$L\\d+\\n(?=\\tlui\\t\\$3,%hi\\(Input_gLookBehind\\) \\# high\\n)", "after": "\\t\\.set\\treorder\\n\\n(?=\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tlui\\t\\$3,%hi\\(Input_gLookBehind\\) \\# high\\n)", "drop_after": "\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tlui\\t\\$3,%hi\\(Input_gLookBehind\\) \\# high\\n\\t\\.set\\tmacro\\n\\t\\.set\\treorder\\n"},
+            {"take": "\\tbgez\\t\\$3,\\$L\\d+\\n(?=\\tslt\\t\\$2,\\$3,\\$4\\n)", "after": "1:\\n\\t\\.set\\treorder\\n(?=\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tslt\\t\\$2,\\$3,\\$4\\n)", "drop_after": "\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tslt\\t\\$2,\\$3,\\$4\\n\\t\\.set\\tmacro\\n\\t\\.set\\treorder\\n"},
+        ],
         "Camera_UpdateTailCam__Fii": [
             {"take": r"\taddu\t\$4,\$sp,16\n(?=\tlui\t\$2,%hi\(Camera_gInfo\))",
              "after": r"\tbeq\t\$2,\$0,\$L\d+\n(?=\taddu\t\$4,\$sp,16\n #APP\n)",

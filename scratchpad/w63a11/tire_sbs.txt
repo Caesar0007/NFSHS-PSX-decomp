@@ -1,0 +1,360 @@
+   0    0     addiu sp,sp,-48                   | addiu sp,sp,-48
+   1    1     sw s2,32(sp)                      | sw s2,32(sp)
+   2    2     addu s2,a0,zero                   | addu s2,a0,zero
+   3    3     sw s1,28(sp)                      | sw s1,28(sp)
+   4    4     addu s1,a1,zero                   | addu s1,a1,zero
+   5    5     sw ra,40(sp)                      | sw ra,40(sp)
+   6    6     sw s3,36(sp)                      | sw s3,36(sp)
+   7    7     sw s0,24(sp)                      | sw s0,24(sp)
+   8    8     lw v0,12(s1)                      | lw v0,12(s1)
+   9    9     lw s3,4(s1)                       | lw s3,4(s1)
+  10   10     addu s0,zero,zero                 | addu s0,zero,zero
+  11   11     beqz v0,T                         | beqz v0,T
+  12   12     sw zero,44(s1)                    | sw zero,44(s1)
+  13   13     addiu v0,s1,24                    | addiu v0,s1,24
+  14   14     sw v0,16(sp)                      | sw v0,16(sp)
+  15   15     lw a0,16(s1)                      | lw a0,16(s1)
+  16   16     lw a1,24(s1)                      | lw a1,24(s1)
+  17   17     lw a2,12(s1)                      | lw a2,12(s1)
+  18   18     jal T                             | jal T
+  19   19     addiu a3,s1,16                    | addiu a3,s1,16
+  20   20     lw a0,0(s1)                       | lw a0,0(s1)
+  21   21     nop                               | nop
+  22   22     bgez a0,T                         | bgez a0,T
+  23   23     nop                               | nop
+  24   24     lw v1,24(s1)                      | lw v1,24(s1)
+  25   25     nop                               | nop
+  26   26     bgez v1,T                         | bgez v1,T
+  27   27     nop                               | nop
+  28   28     lw v0,0(gp)                       | lw v0,0(gp)
+  29   29     nop                               | nop
+  30   30     slti v0,v0,16385                  | slti v0,v0,16385
+  31   31     bnez v0,T                         | bnez v0,T
+  32   32     slt v0,v1,a0                      | slt v0,v1,a0
+  33   33     lbu v0,1090(s2)                   | lbu v0,1090(s2)
+  34   34     nop                               | nop
+  35   35     beqz v0,T                         | beqz v0,T
+  36   36     slt v0,v1,a0                      | slt v0,v1,a0
+  37   37     beqz v0,T                         | beqz v0,T
+  38   38     nop                               | nop
+  39   39     j T                               | j T
+  40   40     addu v1,a0,zero                   | addu v1,a0,zero
+  41   41     blez a0,T                         | blez a0,T
+  42   42     nop                               | nop
+  43   43     lw v1,24(s1)                      | lw v1,24(s1)
+  44   44     nop                               | nop
+  45   45     blez v1,T                         | blez v1,T
+  46   46     nop                               | nop
+  47   47     lw v0,0(gp)                       | lw v0,0(gp)
+  48   48     nop                               | nop
+  49   49     slti v0,v0,16385                  | slti v0,v0,16385
+  50   50     bnez v0,T                         | bnez v0,T
+  51   51  *  slt v0,a0,v1                      | slt v0,v1,a0
+  52   52     lbu v0,1090(s2)                   | lbu v0,1090(s2)
+  53   53     nop                               | nop
+  54   54     sltiu v0,v0,2                     | sltiu v0,v0,2
+  55   55     beqz v0,T                         | beqz v0,T
+  56   56  *  slt v0,a0,v1                      | slt v0,v1,a0
+  57   57  *  beqz v0,T                         | bnez v0,T
+  58   58     nop                               | nop
+  59   59     addu v1,a0,zero                   | addu v1,a0,zero
+  60   60     sw v1,0(s1)                       | sw v1,0(s1)
+  61   61     li s0,1                           | li s0,1
+  62   62     lw v0,1124(s2)                    | lw v0,1124(s2)
+  63   63     lw a0,0(s1)                       | lw a0,0(s1)
+  64   64     lw a1,276(v0)                     | lw a1,276(v0)
+  65   65     jal T                             | jal T
+  66   66     nop                               | nop
+  67   67     addu v1,v0,zero                   | addu v1,v0,zero
+  68   68     beqz s0,T                         | beqz s0,T
+  69   69     sw v1,0(s1)                       | sw v1,0(s1)
+  70   70     lw v0,4(s1)                       | lw v0,4(s1)
+  71   71     bgez v1,T                         | bgez v1,T
+  72   72     nop                               | nop
+  73   73     negu v1,v1                        | negu v1,v1
+  74   74     slt v0,v0,v1                      | slt v0,v0,v1
+  75   75     bnez v0,T                         | bnez v0,T
+  76   76     nop                               | nop
+  77   77     lbu v0,1093(s2)                   | lbu v0,1093(s2)
+  78   78     nop                               | nop
+  79   79     beqz v0,T                         | beqz v0,T
+  80   80     nop                               | nop
+  81   81     lw v0,40(s1)                      | lw v0,40(s1)
+  82   82     nop                               | nop
+  83   83     bnez v0,T                         | bnez v0,T
+  84   84     li v0,32768                       | li v0,32768
+  85   85     lw v1,1056(s2)                    | lw v1,1056(s2)
+  86   86     nop                               | nop
+  87   87     bgez v1,T                         | bgez v1,T
+  88   88     nop                               | nop
+  89   89     negu v1,v1                        | negu v1,v1
+  90   90     slt v0,v0,v1                      | slt v0,v0,v1
+  91   91     beqz v0,T                         | beqz v0,T
+  92   92     nop                               | nop
+  93   93     lbu v0,1093(s2)                   | lbu v0,1093(s2)
+  94   94     nop                               | nop
+  95   95     bnez v0,T                         | bnez v0,T
+  96   96     nop                               | nop
+  97   97     lw v0,648(s2)                     | lw v0,648(s2)
+  98   98     nop                               | nop
+  99   99     lw v0,72(v0)                      | lw v0,72(v0)
+ 100  100     nop                               | nop
+ 101  101     bnez v0,T                         | bnez v0,T
+ 102  102     lui v0,25                         | lui v0,25
+ 103  103     lw v1,1056(s2)                    | lw v1,1056(s2)
+ 104  104     nop                               | nop
+ 105  105     slt v0,v0,v1                      | slt v0,v0,v1
+ 106  106     bnez v0,T                         | bnez v0,T
+ 107  107     nop                               | nop
+ 108  108     lbu v0,1088(s2)                   | lbu v0,1088(s2)
+ 109  109     nop                               | nop
+ 110  110     sltiu v0,v0,236                   | sltiu v0,v0,236
+ 111  111     bnez v0,T                         | bnez v0,T
+ 112  112     lui v0,4                          | lui v0,4
+ 113  113     ori v0,v0,65535                   | ori v0,v0,65535
+ 114  114     bgez v1,T                         | bgez v1,T
+ 115  115     nop                               | nop
+ 116  116     negu v1,v1                        | negu v1,v1
+ 117  117     slt v0,v0,v1                      | slt v0,v0,v1
+ 118  118     bnez v0,T                         | bnez v0,T
+ 119  119     nop                               | nop
+ 120  120     lw v0,1132(s2)                    | lw v0,1132(s2)
+ 121  121     nop                               | nop
+ 122  122     bnez v0,T                         | bnez v0,T
+ 123  123     nop                               | nop
+ 124  124     lw a0,0(s1)                       | lw a0,0(s1)
+ 125  125     lw v1,4(s1)                       | lw v1,4(s1)
+ 126  126     nop                               | nop
+ 127  127     slt v0,v1,a0                      | slt v0,v1,a0
+ 128  128     bnez v0,T                         | bnez v0,T
+ 129  129     nop                               | nop
+ 130  130     negu v1,v1                        | negu v1,v1
+ 131  131     slt v0,a0,v1                      | slt v0,a0,v1
+ 132  132     beqz v0,T                         | beqz v0,T
+ 133  133     nop                               | nop
+ 134  134     sw v1,0(s1)                       | sw v1,0(s1)
+ 135  135     lw v0,648(s2)                     | lw v0,648(s2)
+ 136  136     nop                               | nop
+ 137  137     lw v0,72(v0)                      | lw v0,72(v0)
+ 138  138     nop                               | nop
+ 139  139     beqz v0,T                         | beqz v0,T
+ 140  140     lui v0,24                         | lui v0,24
+ 141  141     lw v1,1056(s2)                    | lw v1,1056(s2)
+ 142  142     ori v0,v0,65535                   | ori v0,v0,65535
+ 143  143     slt v0,v0,v1                      | slt v0,v0,v1
+ 144  144     bnez v0,T                         | bnez v0,T
+ 145  145     lui v0,0                          | lui v0,0
+ 146  146     lw v0,0(v0)                       | lw v0,0(v0)
+ 147  147     nop                               | nop
+ 148  148     andi v0,v0,3                      | andi v0,v0,3
+ 149  149     bnez v0,T                         | bnez v0,T
+ 150  150     lui v0,8                          | lui v0,8
+ 151  151     j T                               | j T
+ 152  152     sw v0,44(s1)                      | sw v0,44(s1)
+ 153  153     j T                               | j T
+ 154  154     sw zero,44(s1)                    | sw zero,44(s1)
+ 155  155     lw v0,40(s1)                      | lw v0,40(s1)
+ 156  156     nop                               | nop
+ 157  157     beqz v0,T                         | beqz v0,T
+ 158  158     nop                               | nop
+ 159  159     lw v0,1140(s2)                    | lw v0,1140(s2)
+ 160  160     j T                               | j T
+ 161  161     addiu v0,v0,1                     | addiu v0,v0,1
+ 162  162     lw v0,1140(s2)                    | lw v0,1140(s2)
+ 163  163     nop                               | nop
+ 164  164     addiu v0,v0,2                     | addiu v0,v0,2
+ 165  165     sw v0,1140(s2)                    | sw v0,1140(s2)
+ 166  166     addu a0,s2,zero                   | addu a0,s2,zero
+ 167  167     jal T                             | jal T
+ 168  168     addu a1,s1,zero                   | addu a1,s1,zero
+ 169  169     lw v0,40(s1)                      | lw v0,40(s1)
+ 170  170     nop                               | nop
+ 171  171     beqz v0,T                         | beqz v0,T
+ 172  172     nop                               | nop
+ 173  173     j T                               | j T
+ 174  174     nop                               | nop
+ 175  175     lw a1,24(s1)                      | lw a1,24(s1)
+ 176  176     nop                               | nop
+ 177  177     beqz a1,T                         | beqz a1,T
+ 178  178     negu a1,a1                        | negu a1,a1
+ 179  179     srl v0,a1,31                      | srl v0,a1,31
+ 180  180     addu a1,a1,v0                     | addu a1,a1,v0
+ 181  181     lw a0,16(s1)                      | lw a0,16(s1)
+ 182  182     jal T                             | jal T
+ 183  183     sra a1,a1,1                       | sra a1,a1,1
+ 184  184     lw v1,24(s1)                      | lw v1,24(s1)
+ 185  185     nop                               | nop
+ 186  186     blez v1,T                         | blez v1,T
+ 187  187     addu s0,v0,zero                   | addu s0,v0,zero
+ 188  188     lw v0,16(s1)                      | lw v0,16(s1)
+ 189  189     nop                               | nop
+ 190  190     blez v0,T                         | blez v0,T
+ 191  191     nop                               | nop
+ 192  192     j T                               | j T
+ 193  193     li v0,32768                       | li v0,32768
+ 194  194     bgez v0,T                         | bgez v0,T
+ 195  195     li v0,-32768                      | li v0,-32768
+ 196  196     subu s0,v0,s0                     | subu s0,v0,s0
+ 197  197     j T                               | j T
+ 198  198     sll s0,s0,8                       | sll s0,s0,8
+ 199  199     addu s0,zero,zero                 | addu s0,zero,zero
+ 200  200     lw v0,40(s1)                      | lw v0,40(s1)
+ 201  201     nop                               | nop
+ 202  202     beqz v0,T                         | beqz v0,T
+ 203  203     lui a0,16                         | lui a0,16
+ 204  204     bgez s0,T                         | bgez s0,T
+ 205  205     addu v1,s0,zero                   | addu v1,s0,zero
+ 206  206     negu v1,v1                        | negu v1,v1
+ 207  207     addu v0,a0,zero                   | addu v0,a0,zero
+ 208  208     slt v0,v0,v1                      | slt v0,v0,v1
+ 209  209     bnez v0,T                         | bnez v0,T
+ 210  210     nop                               | nop
+ 211  211     addu a0,v1,zero                   | addu a0,v1,zero
+ 212  212     jal T                             | jal T
+ 213  213     addu a1,s3,zero                   | addu a1,s3,zero
+ 214  214     addu a0,v0,zero                   | addu a0,v0,zero
+ 215  215     jal T                             | jal T
+ 216  216     li a1,5461                        | li a1,5461
+ 217  217     bgez s0,T                         | bgez s0,T
+ 218  218     addu a1,v0,zero                   | addu a1,v0,zero
+ 219  219     negu a1,a1                        | negu a1,a1
+ 220  220     lui a0,31                         | lui a0,31
+ 221  221     lui v0,0                          | lui v0,0
+ 222  222     ori a0,a0,65535                   | ori a0,a0,65535
+ 223  223     sw a1,28(s1)                      | sw a1,28(s1)
+ 224  224     lw v0,0(v0)                       | lw v0,0(v0)
+ 225  225     lw a2,16(s1)                      | lw a2,16(s1)
+ 226  226     srl v1,v0,31                      | srl v1,v0,31
+ 227  227     addu v0,v0,v1                     | addu v0,v0,v1
+ 228  228     sra v0,v0,1                       | sra v0,v0,1
+ 229  229     addu v0,a1,v0                     | addu v0,a1,v0
+ 230  230     sw v0,28(s1)                      | sw v0,28(s1)
+ 231  231     lw v0,24(s1)                      | lw v0,24(s1)
+ 232  232     bgez a2,T                         | bgez a2,T
+ 233  233     addu v1,a2,zero                   | addu v1,a2,zero
+ 234  234     negu v1,v1                        | negu v1,v1
+ 235  235     bgez v0,T                         | bgez v0,T
+ 236  236     nop                               | nop
+ 237  237     negu v0,v0                        | negu v0,v0
+ 238  238     addu v1,v1,v0                     | addu v1,v1,v0
+ 239  239     slt a0,a0,v1                      | slt a0,a0,v1
+ 240  240     bnez a0,T                         | bnez a0,T
+ 241  241     nop                               | nop
+ 242  242     blez a2,T                         | blez a2,T
+ 243  243     nop                               | nop
+ 244  244     bgez a1,T                         | bgez a1,T
+ 245  245     addu v0,a1,zero                   | addu v0,a1,zero
+ 246  246     negu v0,v0                        | negu v0,v0
+ 247  247     addu v1,v0,zero                   | addu v1,v0,zero
+ 248  248     slt v0,v1,a2                      | slt v0,v1,a2
+ 249  249     bnez v0,T                         | bnez v0,T
+ 250  250     nop                               | nop
+ 251  251     j T                               | j T
+ 252  252     addu v1,a2,zero                   | addu v1,a2,zero
+ 253  253     bgez a1,T                         | bgez a1,T
+ 254  254     addu v0,a1,zero                   | addu v0,a1,zero
+ 255  255     negu v0,v0                        | negu v0,v0
+ 256  256     negu v1,v0                        | negu v1,v0
+ 257  257     slt v0,v1,a2                      | slt v0,v1,a2
+ 258  258     beqz v0,T                         | beqz v0,T
+ 259  259     nop                               | nop
+ 260  260     j T                               | j T
+ 261  261  *  sw a2,28(s1)                      | addu v1,a2,zero
+ 262  262     bgez s0,T                         | bgez s0,T
+ 263  263     addu v1,s0,zero                   | addu v1,s0,zero
+ 264  264     negu v1,v1                        | negu v1,v1
+ 265  265     li a1,32768                       | li a1,32768
+ 266  266     slt v0,v1,a1                      | slt v0,v1,a1
+ 267  267     beqz v0,T                         | beqz v0,T
+ 268  268     lui v0,2                          | lui v0,2
+ 269  269     addu v1,a1,zero                   | addu v1,a1,zero
+ 270  270     slt v0,v0,v1                      | slt v0,v0,v1
+ 271  271     bnez v0,T                         | bnez v0,T
+ 272  272     lui a0,2                          | lui a0,2
+ 273  273     bgez s0,T                         | bgez s0,T
+ 274  274  *  addu v1,s0,zero                   | addu a0,s0,zero
+ 275  275  *  negu v1,v1                        | negu a0,a0
+ 276  276  *  slt v0,v1,a1                      | slt v0,a0,a1
+ 277  277  *  bnez v0,T                         | beqz v0,T
+      278  *                                    | nop
+ 278  279     li a0,32768                       | li a0,32768
+ 279       *  addu a0,v1,zero                   | 
+ 280  280     jal T                             | jal T
+ 281  281     addu a1,s3,zero                   | addu a1,s3,zero
+ 282  282     srl v1,v0,31                      | srl v1,v0,31
+ 283  283     addu v1,v1,v0                     | addu v1,v1,v0
+ 284  284     bgez s0,T                         | bgez s0,T
+ 285  285     sra a1,v1,1                       | sra a1,v1,1
+ 286  286     negu a1,a1                        | negu a1,a1
+ 287  287     lui v0,0                          | lui v0,0
+ 288  288     lw v0,0(v0)                       | lw v0,0(v0)
+ 289  289  *  nop                               | lw a0,16(s1)
+ 290  290     srl v1,v0,31                      | srl v1,v0,31
+ 291  291     addu v0,v0,v1                     | addu v0,v0,v1
+ 292  292     sra v0,v0,1                       | sra v0,v0,1
+ 293  293  *  lw v1,16(s1)                      | blez a0,T
+ 294       *  nop                               | 
+ 295       *  blez v1,T                         | 
+ 296  294     addu a1,a1,v0                     | addu a1,a1,v0
+ 297       *  addu a0,v1,zero                   | 
+ 298       *  bgez a1,T                         | 
+ 299       *  addu v1,a1,zero                   | 
+ 300       *  negu v1,v1                        | 
+ 301       *  slt v0,v1,a0                      | 
+ 302       *  beqz v0,T                         | 
+ 303       *  nop                               | 
+ 304       *  addu a0,v1,zero                   | 
+ 305       *  j T                               | 
+ 306       *  sw a0,28(s1)                      | 
+ 307  295     bgez a1,T                         | bgez a1,T
+ 308  296     addu v0,a1,zero                   | addu v0,a1,zero
+ 309  297     negu v0,v0                        | negu v0,v0
+ 310  298  *  negu a0,v0                        | addu v1,v0,zero
+ 311  299  *  slt v0,a0,v1                      | slt v0,v1,a0
+ 312  300     bnez v0,T                         | bnez v0,T
+      301  *                                    | nop
+      302  *                                    | j T
+      303  *                                    | addu v1,a0,zero
+      304  *                                    | bgez a1,T
+      305  *                                    | addu v0,a1,zero
+      306  *                                    | negu v0,v0
+      307  *                                    | negu v1,v0
+      308  *                                    | slt v0,v1,a0
+      309  *                                    | beqz v0,T
+ 313  310     nop                               | nop
+ 314  311     addu v1,a0,zero                   | addu v1,a0,zero
+ 315  312     sw v1,28(s1)                      | sw v1,28(s1)
+ 316  313     addu a0,s2,zero                   | addu a0,s2,zero
+ 317  314     lw v0,0(s1)                       | lw v0,0(s1)
+ 318  315     addu a1,s1,zero                   | addu a1,s1,zero
+ 319  316     sw zero,32(s1)                    | sw zero,32(s1)
+ 320  317     jal T                             | jal T
+ 321  318     sw v0,36(s1)                      | sw v0,36(s1)
+ 322  319     lw a2,12(s1)                      | lw a2,12(s1)
+ 323  320     nop                               | nop
+ 324  321     beqz a2,T                         | beqz a2,T
+ 325  322     negu a2,a2                        | negu a2,a2
+ 326  323     addiu v0,s1,36                    | addiu v0,s1,36
+ 327  324     sw v0,16(sp)                      | sw v0,16(sp)
+ 328  325     lw a0,28(s1)                      | lw a0,28(s1)
+ 329  326     lw a1,36(s1)                      | lw a1,36(s1)
+ 330  327     jal T                             | jal T
+ 331  328     addiu a3,s1,28                    | addiu a3,s1,28
+ 332  329     lw v0,40(s1)                      | lw v0,40(s1)
+ 333  330     nop                               | nop
+ 334  331     beqz v0,T                         | beqz v0,T
+ 335  332     nop                               | nop
+ 336  333     lw v0,44(s1)                      | lw v0,44(s1)
+ 337  334     j T                               | j T
+ 338  335     sw v0,1156(s2)                    | sw v0,1156(s2)
+ 339  336     lw v0,44(s1)                      | lw v0,44(s1)
+ 340  337     nop                               | nop
+ 341  338     sw v0,1160(s2)                    | sw v0,1160(s2)
+ 342  339     lw ra,40(sp)                      | lw ra,40(sp)
+ 343  340     lw s3,36(sp)                      | lw s3,36(sp)
+ 344  341     lw s2,32(sp)                      | lw s2,32(sp)
+ 345  342     lw s1,28(sp)                      | lw s1,28(sp)
+ 346  343     lw s0,24(sp)                      | lw s0,24(sp)
+ 347  344     jr ra                             | jr ra
+ 348  345     addiu sp,sp,48                    | addiu sp,sp,48
+# ours 349 oracle 346  diffs(seqmatch) 47

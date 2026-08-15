@@ -166,7 +166,7 @@ glabel R3DCar_CalcCarDimensions__FP8Car_tObjP18Transformer_zScenei
     /* 9F188 800AE988 72004014 */  bnez       $v0, .L800AEB54
     /* 9F18C 800AE98C 6300093C */   lui       $t1, (0x630000 >> 16)
     /* 9F190 800AE990 21682001 */  addu       $t5, $t1, $zero
-    /* 9F194 800AE994 9DFF0A3C */  lui        $t2, %hi(D_FF9D0001)
+    /* 9F194 800AE994 9DFF0A3C */  lui        $t2, 0xFF9D
     /* 9F198 800AE998 21704001 */  addu       $t6, $t2, $zero
     /* 9F19C 800AE99C 00000295 */  lhu        $v0, 0x0($t0)
     /* 9F1A0 800AE9A0 00000000 */  nop
@@ -263,12 +263,12 @@ glabel R3DCar_CalcCarDimensions__FP8Car_tObjP18Transformer_zScenei
     /* 9F2D4 800AEAD4 10004014 */  bnez       $v0, .L800AEB18
     /* 9F2D8 800AEAD8 2F00022B */   slti      $v0, $t8, 0x2F
     /* 9F2DC 800AEADC 21102A01 */  addu       $v0, $t1, $t2
-    /* 9F2E0 800AEAE0 01004224 */  addiu      $v0, $v0, %lo(D_FF9D0001)
+    /* 9F2E0 800AEAE0 01004224 */  addiu      $v0, $v0, 0x1
     /* 9F2E4 800AEAE4 43100200 */  sra        $v0, $v0, 1
     /* 9F2E8 800AEAE8 00120200 */  sll        $v0, $v0, 8
     /* 9F2EC 800AEAEC E00002AE */  sw         $v0, 0xE0($s0)
     /* 9F2F0 800AEAF0 2110AE01 */  addu       $v0, $t5, $t6
-    /* 9F2F4 800AEAF4 01004224 */  addiu      $v0, $v0, %lo(D_FF9D0001)
+    /* 9F2F4 800AEAF4 01004224 */  addiu      $v0, $v0, 0x1
     /* 9F2F8 800AEAF8 43100200 */  sra        $v0, $v0, 1
     /* 9F2FC 800AEAFC 00120200 */  sll        $v0, $v0, 8
     /* 9F300 800AEB00 E40002AE */  sw         $v0, 0xE4($s0)

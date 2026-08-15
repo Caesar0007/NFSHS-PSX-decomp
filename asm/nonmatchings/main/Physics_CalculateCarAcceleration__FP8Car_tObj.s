@@ -706,7 +706,7 @@ glabel Physics_CalculateCarAcceleration__FP8Car_tObj
     /* 9BB40 800AB340 21206000 */  addu       $a0, $v1, $zero
   .L800AB344:
     /* 9BB44 800AB344 680424AE */  sw         $a0, 0x468($s1)
-    /* 9BB48 800AB348 0100043C */  lui        $a0, %hi(D_100FF)
+    /* 9BB48 800AB348 0100043C */  lui        $a0, 0x1
     /* 9BB4C 800AB34C 1180023C */  lui        $v0, %hi(D_80113224)
     /* 9BB50 800AB350 7804238E */  lw         $v1, 0x478($s1)
     /* 9BB54 800AB354 2432428C */  lw         $v0, %lo(D_80113224)($v0)
@@ -737,7 +737,7 @@ glabel Physics_CalculateCarAcceleration__FP8Car_tObj
     /* 9BBA8 800AB3A8 21106000 */  addu       $v0, $v1, $zero
     /* 9BBAC 800AB3AC 02004104 */  bgez       $v0, .L800AB3B8
     /* 9BBB0 800AB3B0 03220400 */   sra       $a0, $a0, 8
-    /* 9BBB4 800AB3B4 FF004224 */  addiu      $v0, $v0, %lo(D_100FF)
+    /* 9BBB4 800AB3B4 FF004224 */  addiu      $v0, $v0, 0xFF
   .L800AB3B8:
     /* 9BBB8 800AB3B8 03120200 */  sra        $v0, $v0, 8
     /* 9BBBC 800AB3BC 18008200 */  mult       $a0, $v0

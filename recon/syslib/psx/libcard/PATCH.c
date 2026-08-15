@@ -26,12 +26,17 @@
  *
  * The two kernel targets are hardcoded KSEG1 constants (0xA000DFAC / 0xA000DF80 = the relocated
  * card handlers _copy_memcard_patch installs at 0xDF80), NOT relocatable symbols -- they are
- * written as literal lui/addiu pairs so the BYTES are retail-exact.  ⚠ verify_asm reports 8
- * residual lines on this function purely as a NORMALIZER artifact: spimdisasm names the literals
- * `D_A000DFAC` / `D_A000DF80` and verify_asm's literal-dlabel rule resolves `%hi()` as a bare
- * `addr>>16` (0xA000) and `%lo()` as an UNSIGNED `addr&0xFFFF` (0xDFAC), while the real assembler
- * emits the %hi CARRY (0xA001, because %lo's bit 15 is set) and objdump renders the %lo SIGNED
- * (-8276).  Retail word 0x3C02A001 == ours; see the W52-A9 patch proposal for the fix. */
+ * written as literal lui/addiu pairs so the BYTES are retail-exact.  Retail word 0x3C02A001 == ours.
+ *
+ * HISTORY (both halves now CLOSED -- do not re-open):
+ *   W52-A9 fixed the GATE side: verify_asm's literal-dlabel rule now applies the %hi CARRY
+ *     (0xA001, because %lo bit 15 is set) and renders %lo SIGNED (-8276), so this gates PASS 9/9.
+ *   W65-A4 fixed the ORACLE side: spimdisasm had invented the data symbols `D_A000DFAC` /
+ *     `D_A000DF80` for what are plain CONSTANTS, so the assembled expected object carried
+ *     R_MIPS_HI16/LO16 relocations our (correct) recon has none of -- invisible to
+ *     `functionRelocDiffs`, so objdiff charged 4 arg mismatches forever (97.778%).  The four
+ *     operands in asm/nonmatchings/main/func_8010CA40.s were relabelled to the bare constants
+ *     the retail words already encode; board row 97.778 -> 100.00, byte-identical. */
 __asm__(
     "\t.set noat\n"
     "\t.set\tnoreorder\n"

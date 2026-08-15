@@ -72,13 +72,13 @@ glabel AISpeeds_CalcOpponentTopSpeed__FP8Car_tObjPi
     /* 5E228 8006DA28 EC31438C */  lw         $v1, %lo(GameSetup_gData)($v0)
     /* 5E22C 8006DA2C 01000224 */  addiu      $v0, $zero, 0x1
     /* 5E230 8006DA30 0B006210 */  beq        $v1, $v0, .L8006DA60
-    /* 5E234 8006DA34 0100023C */   lui       $v0, %hi(D_100FF)
+    /* 5E234 8006DA34 0100023C */   lui       $v0, 0x1
     /* 5E238 8006DA38 1480023C */  lui        $v0, %hi(Cars_gNumAIRaceCars)
     /* 5E23C 8006DA3C 04C8428C */  lw         $v0, %lo(Cars_gNumAIRaceCars)($v0)
     /* 5E240 8006DA40 00000000 */  nop
     /* 5E244 8006DA44 02004228 */  slti       $v0, $v0, 0x2
     /* 5E248 8006DA48 05004014 */  bnez       $v0, .L8006DA60
-    /* 5E24C 8006DA4C 0100023C */   lui       $v0, %hi(D_100FF)
+    /* 5E24C 8006DA4C 0100023C */   lui       $v0, 0x1
     /* 5E250 8006DA50 B4B8010C */  jal        AISpeeds_GetCaravanFactor__FP8Car_tObj
     /* 5E254 8006DA54 21206002 */   addu      $a0, $s3, $zero
     /* 5E258 8006DA58 99B60108 */  j          .L8006DA64
@@ -99,7 +99,7 @@ glabel AISpeeds_CalcOpponentTopSpeed__FP8Car_tObjPi
     /* 5E284 8006DA84 21304000 */  addu       $a2, $v0, $zero
     /* 5E288 8006DA88 0200C104 */  bgez       $a2, .L8006DA94
     /* 5E28C 8006DA8C 033A0400 */   sra       $a3, $a0, 8
-    /* 5E290 8006DA90 FF00C624 */  addiu      $a2, $a2, %lo(D_100FF)
+    /* 5E290 8006DA90 FF00C624 */  addiu      $a2, $a2, 0xFF
   .L8006DA94:
     /* 5E294 8006DA94 1180083C */  lui        $t0, %hi(GameSetup_gData)
     /* 5E298 8006DA98 EC310225 */  addiu      $v0, $t0, %lo(GameSetup_gData)

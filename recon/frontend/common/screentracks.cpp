@@ -15,6 +15,7 @@ void tScreenTrackSelect::DrawBackground()
 
 {
   short creditsTextVal;
+  short shapeX;
   short shapeY;
   int videoY;
   RECT r;
@@ -42,14 +43,15 @@ void tScreenTrackSelect::DrawBackground()
     }
   }
   videoY = ((this->fFrame & 1U) == 0) << 7;
+  shapeX = 0x200;
   shapeY = (short)videoY;
   state = (VIDEOSTATE)VIDEO_state(this->hVideo);
   if (state == VIDEOSTATE_SPOOLING) {
     RECT r;
     int startTicks;
 
+    r.x = shapeX;
     r.w = 0xaa;
-    r.x = 0x200;
     r.y = 0;
     r.h = 0x100;
     ClearImage(&r,'\0','\0','\0');
@@ -59,7 +61,7 @@ void tScreenTrackSelect::DrawBackground()
     this->fStartTicks = startTicks - 0x14;
   }
   else if (state == VIDEOSTATE_PLAYING) {
-    if (VIDEO_updateframexy(this->hVideo,0x200,
+    if (VIDEO_updateframexy(this->hVideo,shapeX,
                             (u_int)(videoY << 0x10) >> 0x10) != 0) {
       this->fFrame = this->fFrame + 1;
       videoY = ((this->fFrame & 1U) == 0) << 7;
@@ -144,14 +146,24 @@ void tScreenTrackSelect::DrawBackground()
        while ours carries one fenced pseudo (t1) across the whole block.  Every
        opacity strong enough to stop the `512 & ~0x3f` fold also pins the value
        into a live carrier.  */
+    /* MATCH W69 (2026-08-15): the SYM local table names only shapeY, prim,
+       state, the RECTs, and trackInfo--there is no late texture-X local.
+       Restoring one function-scope shapeX shared by ClearImage,
+       VIDEO_updateframexy, and both quads lets GCC propagate 512 at each use
+       without folding away retail's mask operations.  That recovers the
+       first `andi a2,s1,512`, both UV materializations, and the second
+       `li/addiu/and` chain (26->6, count-exact).  Writing r.x before r.w
+       restores the RECT constant schedule (6->4), and a packet-pointer slot
+       born before the address mask restores the remaining constant birth
+       order (4->2).  The authoritative two-diff residual is one identical
+       `sw t2,160(sp)` scheduled earlier than retail; const-qualifying the slot
+       removes the lever and returns to 4. */
+    u_char **packetPtrSlot = &Render_gPacketPtr;
     u_int addrMask = 0xffffff;
-    short textureX = 0x200;
-
-    __asm__("" : "+r"(textureX));
     __asm__("" : : "r"(addrMask));
-    (prim = (POLY_FT4 *)Render_gPacketPtr,
+    (prim = (POLY_FT4 *)*packetPtrSlot,
      ((tTrackSelectPrimTag *)prim)->addr = *(u_int *)Render_gPalettePtr,
-     Render_gPacketPtr = (u_char *)prim + sizeof(POLY_FT4),
+     *packetPtrSlot = (u_char *)prim + sizeof(POLY_FT4),
      ((tTrackSelectPrimTag *)Render_gPalettePtr)->addr = (u_int)prim);
     *(u_int *)&prim->r0 = this->fBrightness << 0x10 |
                           this->fBrightness << 8 | this->fBrightness;
@@ -160,16 +172,14 @@ void tScreenTrackSelect::DrawBackground()
      prim->x1 = 0x139, prim->y1 = 0x69,
      prim->x2 = 0x99, prim->y2 = 0xe8,
      prim->x3 = 0x139, prim->y3 = 0xe8);
-    (prim->u0 = textureX & 0x3f, prim->v0 = shapeY,
-     prim->u1 = (textureX & 0x3f) + 0x50, prim->v1 = shapeY,
-     prim->u2 = textureX & 0x3f, prim->v2 = shapeY | 0x7f,
-     prim->u3 = (textureX & 0x3f) + 0x50, prim->v3 = shapeY | 0x7f);
-    prim->tpage = GetTPage(2,1,textureX & ~0x3f,shapeY & ~0xff);
+    (prim->u0 = shapeX & 0x3f, prim->v0 = shapeY,
+     prim->u1 = (shapeX & 0x3f) + 0x50, prim->v1 = shapeY,
+     prim->u2 = shapeX & 0x3f, prim->v2 = shapeY | 0x7f,
+     prim->u3 = (shapeX & 0x3f) + 0x50, prim->v3 = shapeY | 0x7f);
+    prim->tpage = GetTPage(2,1,shapeX & ~0x3f,shapeY & ~0xff);
     prim->clut = 0;
 
-    textureX = 0x200;
-    __asm__("" : "+r"(textureX));
-    textureX += 0x50;
+    shapeX += 0x50;
     (prim = (POLY_FT4 *)Render_gPacketPtr,
      ((tTrackSelectPrimTag *)prim)->addr = *(u_int *)Render_gPalettePtr,
      Render_gPacketPtr = (u_char *)prim + sizeof(POLY_FT4),
@@ -181,11 +191,11 @@ void tScreenTrackSelect::DrawBackground()
      prim->x1 = 0x1d9, prim->y1 = 0x69,
      prim->x2 = 0x139, prim->y2 = 0xe8,
      prim->x3 = 0x1d9, prim->y3 = 0xe8);
-    (prim->u0 = textureX & 0x3f, prim->v0 = shapeY,
-     prim->u1 = (textureX & 0x3f) + 0x50, prim->v1 = shapeY,
-     prim->u2 = textureX & 0x3f, prim->v2 = shapeY | 0x7f,
-     prim->u3 = (textureX & 0x3f) + 0x50, prim->v3 = shapeY | 0x7f);
-    prim->tpage = GetTPage(2,1,textureX & ~0x3f,shapeY & ~0xff);
+    (prim->u0 = shapeX & 0x3f, prim->v0 = shapeY,
+     prim->u1 = (shapeX & 0x3f) + 0x50, prim->v1 = shapeY,
+     prim->u2 = shapeX & 0x3f, prim->v2 = shapeY | 0x7f,
+     prim->u3 = (shapeX & 0x3f) + 0x50, prim->v3 = shapeY | 0x7f);
+    prim->tpage = GetTPage(2,1,shapeX & ~0x3f,shapeY & ~0xff);
     prim->clut = 0;
   }
   this->DrawVideoWall();

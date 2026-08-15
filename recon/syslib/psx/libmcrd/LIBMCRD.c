@@ -1236,8 +1236,10 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
     strcat(devname, name);
     err     = 0;
     idx     = 0;
+    __asm__("" : : "r"(idx));
     stored  = 0;
     fretry  = 0;
+    __asm__("" : : "r"(fretry));
     _mc_present |= 1 << (mc.chan);
 
     if (ofs + max > 0) {
@@ -1263,14 +1265,14 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
                     if (fretry > 3) {
                         /* repeated failure: re-accept the card, then bail */
                         _mc_save_cb = (int (*)(int, int))MemCardCallback(0);
-                        if (mc.cmd < 1) {
+                        if (mc.cmd > 0) {
+                            printf("Access Denied. : event multiple open\n");
+                        } else {
                             mc.cmd  = 2;
                             mc.rslt = 0;
                             mc.done = 0;
                             mc.chan = chan;
                             UserFuncOpen((int)MemCardCmd_cb);
-                        } else {
-                            printf("Access Denied. : event multiple open\n");
                         }
                         MemCardSync(0, 0, &err);
                         MemCardCallback((int)_mc_save_cb);

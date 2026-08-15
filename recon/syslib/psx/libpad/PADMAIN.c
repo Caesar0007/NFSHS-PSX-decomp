@@ -233,6 +233,26 @@ extern void _padStopCom(void)
  *   2.6.3 emit vars=8/regs=3, while 2.7.2-970404 and 2.8.0 emit vars=0/regs=5 (and are far
  *   worse overall) -- i.e. a gcc-2.7.2 dangling-pseudo stack temp (13E class).  Next angle: a
  *   `-dl`/`-dg` dump on the wired rung to name the pseudo that owns the slot.
+ * w63-a7 2026-08-15 -- baseline re-gated 24 @203/205 (the w62 numbers reproduce exactly).  The
+ *   w62-a5 launder device was RE-APPLIED and its paired follow-ups completed per the hard-floor
+ *   basin rule; the branch is UNWOUND because its final result (26) does not beat 24.  What the
+ *   detour bought is a SHARP decomposition of the 26 -- with the device the instruction STREAM is
+ *   identical to retail except TWO things: (i) the frame (`-40/24/32/28` vs `-32/16/24/20`,
+ *   8 diff lines) and (ii) ONE register, `lbu $v0,54($s0)` vs retail `lbu $v1,54($s0)`, which
+ *   mis-aligns the whole 8-insn tail block in the LCS and is what actually costs 18 of the 26.
+ *   So the endgame is TWO named dials, not one, and (ii) is the cheaper of the pair.
+ *   FALSIFIED for (ii) at the count-exact 205 basin (all five 26 @205, byte-identical output --
+ *   the tail is canonicalized): a named `int b = info[0x36];` test temp, the same with an
+ *   identity launder on it, an `unsigned char b` temp, and a read-only fence on `one` after the
+ *   launder.  FALSIFIED for the phantom frame (all 26 @205, i.e. `vars=8` survives every one):
+ *   naming the `JOY_CTRL` read-modify-write operand (`unsigned short c = JOY_CTRL; JOY_CTRL =
+ *   c | 0x10;`), the `|=` spelling of the same store, and dropping the `!= 0` from BOTH
+ *   `(JOY_STAT & 0x200)` tests -- i.e. the volatile-MMIO expressions are NOT the dangling-use
+ *   owner (13E), which joins w62's list (`fix`, the JOY_DATA8 discards, the ternaries, block
+ *   scope).  The `-dl`/`-dg` dump on the wired 2.7.2 rung remains the named next angle for the
+ *   frame; for (ii) it is a local-alloc qty question at the tail (retail's byte pseudo must
+ *   conflict with $v0, i.e. the return constant has to be live across the load -- the only form
+ *   that does that today, the launder hoisted above the test, costs 2 insns: 32 @207).
  * Five earlier ORACLE-READ corrections, three of them REAL BUGS:
  *  (1) setRC2wait is VOID (WAITRC2.c receipt) and it is _padClrIntSio0's RETURN that retail
  *      tests (`jal _padClrIntSio0; beqz $v0,<ret 0>`), not a setRC2wait result.  The old

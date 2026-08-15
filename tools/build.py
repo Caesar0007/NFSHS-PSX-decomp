@@ -1383,6 +1383,18 @@ PER_FN_TEXT_MOVES = {
             {"take": "\\tsw\\t\\$0,48\\(\\$sp\\)\\n", "after": "\\tsubu\\t\\$sp,\\$sp,96\\n"},
         ],
     },
+    "recon/game/psx/night.cpp": {
+        # w64-a13 (probe-verified 2x + no-row control): SetEnviroment 2 -> PASS 68/68 (moved lw crosses only li $3,128)
+        "Night_SetEnviroment__FP13DRender_tView": [
+            {"take": "\tlw\t\\$2,4\\(\\$2\\)\n(?= \\#APP\n \\#NO_APP\n\tsw\t\\$3,Night_gZNear\n)", "after": "\taddu\t\\$2,\\$2,\\$3\n(?=\tli\t\\$3,128)"},
+        ],
+    },
+    "recon/game/psx/weather.cpp": {
+        # w64-a13 (probe-verified 2x + no-row control): DoWeather 6 -> 4 count-exact 197/197
+        "Weather_DoWeather__FP13DRender_tView": [
+            {"take": "\tsll\t\\$16,\\$18,2\n", "after": "\tlui\t\\$3,%hi\\(simGlobal\\+4\\) # high\n(?=\tlui\t\\$2,%hi\\(Weather_gLastProcessTime\\))"},
+        ],
+    },
     # w60-a3 (orchestrator-wired, probe-verified REAL=0 in scratchpad/w60a3):
     # _BlitClear 2 -> PASS 140/140 (result copy before the epilogue reloads; the
     # jal slot is already taken by the la split, no wrapper).  _clearOTagR_dma

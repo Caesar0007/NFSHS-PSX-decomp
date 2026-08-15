@@ -32,7 +32,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]          # C:/Temp/nfs4-decomp
+ROOT = Path(__file__).resolve().parents[1]          # C:/Temp/nfs4-decomp
 OBJD = str(Path(r'C:/Tools/mips-ps1/mips/bin') / 'mipsel-none-elf-objdump.exe')
 BUILD_RECON = ROOT / 'build' / 'recon'
 SEGS = ('main', 'front')

@@ -2,7 +2,7 @@
 normalizers (12H anti-drift: load its SOURCE, never re-implement)."""
 import sys, os
 from pathlib import Path
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[1]
 os.chdir(str(ROOT))
 sys.path.insert(0, str(ROOT / 'tools'))
 src = (ROOT / 'tools' / 'verify_asm.py').read_text()

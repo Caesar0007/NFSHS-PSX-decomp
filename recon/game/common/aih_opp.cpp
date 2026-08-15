@@ -199,11 +199,11 @@ void AIHigh_Opponent::CheckForWipeOut()
 
 
 /* ---- DoRearEnder__15AIHigh_Opponent  AIHigh_Opponent::DoRearEnder  [AIH_OPP.CPP:97-146] SLD-VERIFIED ----
- * MATCH (185 -> 54, exact 181/181 size): restoring the SYM block scopes separates
+ * MATCH (185 -> PASS 181/181, w64-a12): restoring the SYM block scopes separates
  * attackIndex from the loop counter/list walk; explicit shifted road bounds preserve
- * the retail byte/multiply handout; builtin_abs fixes both speed paths; and splitting
- * the two probability tests restores the retail early-return CFG. The two remaining
- * islands are repeated self/direction/roadPosition allocation-scheduling variants. */
+ * the retail byte/multiply handout; builtin_abs fixes both speed paths AND both
+ * latDistance sign tests (see the block receipt below -- that was the seal); and
+ * splitting the two probability tests restores the retail early-return CFG. */
 
 int AIHigh_Opponent::DoRearEnder()
 
@@ -222,45 +222,28 @@ int AIHigh_Opponent::DoRearEnder()
     Car_tObj *otherCarObj;
     int longDistance;
     int latDistance;
-    /* NEAR-MISS 54 diffs, count-exact 181/181 (W59-A3 re-gated).  Retail interleaves
-       the two 32-bit range constants of the line-112 test (-0x10001 and 0x26FFFE) INTO
-       the roadPosition load-delay slots ABOVE the latDistance sign test (oracle idx
-       28-33, SLD 112 sitting between SLD-106 loads), and defers the mflo of
-       longDistance*direction past the bgez; ours emits the constants after the branch.
-       W59-A3 FALSIFIED: 09L's `hand-rolled abs is a jump-merge magnet` cure --
-       latDistance = __builtin_abs(roadPosition - other->roadPosition) -- makes it
-       WORSE (58 diffs) and rotates a1/v1 on the carObj_ load; the branchy abs is what
-       retail has.  The residual is the constant hoist across the abs BB split.
-       W60-A8 r2 found the hoist lever (named c1 before the abs + a read-only fence
-       pins both halves early: 51 diffs but 180/181, a wrong count) and left it
-       unlanded.  W61-A12 re-measured the whole family on the CURRENT baseline and
-       every spelling is WORSE than 54, so the lever does not reproduce as receipted:
-       decl-in-the-decl-block `int c1 = -0x10001;` + `(u_int)(longDistance+c1) <
-       0x26ffffU` at BOTH sites -> 60 (181/181, and the lui migrates to a CALLEE-SAVED
-       $s2 = a new allocno); + a read-only fence on c1 -> 58 (179/181); the same pair
-       with the decl moved to just before the abs -> 60 / 58; naming BOTH constants
-       and comparing `<= c2` -> 62 / 60 (179); decl-init + fence with 2 operands ->
-       84 / 66.  Reading: naming the constant creates a loop/branch-invariant allocno
-       that LICM parks in a saved register, which costs more than the hoist buys, and
-       the fence's -1 insn is the bgez delay slot (retail keeps a nop there, ours
-       fills it with the mflo).  A landing needs the mflo kept OUT of that slot at
-       the same time -- i.e. the pair is (constant hoist) + (mflo deferral), and no
-       single-statement device produces both.
-       ==== W63-A12 (54 -> 50, still count-exact 181/181): THE CONSTANT HOIST LANDED.
-       The lever is NOT a named constant -- it is a named constant that cse cannot
-       fold back: ASSIGN (never decl-with-init, cf 07B) into a block-local declared
-       just above the abs, then put an OPACITY/IDENTITY fence on each
-       (`__asm__("" : "=r"(x) : "0"(x))`, 0 insns).  A plain `int c1 = -0x10001;`
-       (re-measured this session, both as a decl-with-init and as an assignment
-       WITHOUT the fence) is const-propagated straight back into the compare and
-       measures exactly 54 = inert; only the pair (assignment + identity fence)
-       creates a real pseudo born in the pre-abs block, which is what lets sched1
-       fill the roadPosition load-delay slots with the two lui/ori pairs.
-       ORDER IS LOAD-BEARING: lo1-then-hi1 = 50 @181; hi1-then-lo1 = 51 @180 (one
-       insn lost).  DO NOT APPLY THE SAME DEVICE AT THE IN-LOOP SITE (line ~334):
-       the fences there are loop-weighted (+2 refs each) and the whole $s-band
-       rotates -> 68.  Residual 50 = the site-1 register naming (ours a0/a2 vs
-       retail a1/v1 on the carObj_ field pair) + the untouched in-loop site.  ==== */
+    /* ==== W64-A12: SEALED, PASS 181/181 (was 50).  THE LEVER WAS THE ABS FORM AT
+       THE *OTHER* SITE.  Retail defers the `mflo` of longDistance*direction PAST the
+       latDistance sign test at BOTH sites (oracle idx 38 / 127), which no scheduler can
+       do while the abs is a real branch: a hand-rolled `if (x<0) x = -x;` splits the
+       region into three basic blocks, so the mult/mflo pair is pinned in the first one.
+       `__builtin_abs` is ONE RTL insn (its bgez/nop/negu is an asm template, invisible to
+       the CFG), so the whole region stays ONE basic block and sched2 places the mflo after
+       it, exactly like retail -- and the two 32-bit range constants then fall into the
+       roadPosition load-delay slots for free.
+       ORDER OF LANDING IS LOAD-BEARING (measured, this basin): the IN-LOOP site (~line 352)
+       first = 50 -> 24; site 1 alone = 60; BOTH at once from the 50-basin = 34.  Only after
+       the in-loop site was landed did site 1 pay: 24 -> PASS.
+       THE W63 FENCE SCAFFOLDING IS RETIRED BY THIS.  The named+opacity-fenced lo1/hi1
+       constants (w63-a12, 54 -> 50) were a WORKAROUND for the constant-hoist that the
+       branchy abs made necessary; with __builtin_abs they are actively harmful --
+       re-measured on the post-site-2 basin: plain literals 24 -> PASS, named+fenced 34,
+       named-unfenced PASS, fence order reversed 30, single fence 34.  Landed form = plain
+       literal constants, zero asm, zero named temps (09L: __builtin_abs is the retail
+       spelling; 04Z: the W59 "__builtin_abs makes it WORSE (58)" receipt was measured in a
+       basin where the other site still had the branchy abs).  W59/W60/W61/W63 near-miss
+       receipts for this fn (constant-hoist family, ~20 falsified spellings) are all
+       superseded and deleted with this seal. ==== */
 
     otherCarObj = Cars_gList[attackIndex];
 
@@ -271,20 +254,10 @@ int AIHigh_Opponent::DoRearEnder()
     latDistance = this->carObj_->roadPosition - otherCarObj->roadPosition;
 
     {
-    int lo1;
-    int hi1;
-    lo1 = -0x10001;
-    hi1 = 0x26fffe;
-    __asm__("" : "=r"(lo1) : "0"(lo1));
-    __asm__("" : "=r"(hi1) : "0"(hi1));
 
-    if (latDistance < 0) {
+    latDistance = __builtin_abs(latDistance);
 
-      latDistance = -latDistance;
-
-    }
-
-    if (((u_int)(longDistance + lo1) <= (u_int)hi1) && (latDistance < longDistance * 2)) {
+    if (((u_int)(longDistance - 0x10001) <= 0x26fffeU) && (latDistance < longDistance * 2)) {
 
       int speed = __builtin_abs(otherCarObj->currentSpeed);
 
@@ -349,11 +322,11 @@ int AIHigh_Opponent::DoRearEnder()
           int latDistance = pCVar6->roadPosition - otherCarObj->roadPosition;   /* SYM: latDistance REG $a1,
                                      re-declared fresh in this block (same reg as section 1's). */
 
-          if (latDistance < 0) {
-
-            latDistance = -latDistance;
-
-          }
+          latDistance = __builtin_abs(latDistance);   /* MATCH (w64-a12, THE seal lever, 50 -> 24):
+                                     __builtin_abs is ONE RTL insn, so this whole region stays ONE
+                                     basic block and sched2 can put the longDistance*direction `mflo`
+                                     AFTER the sign test like retail; the branchy `if (x<0) x=-x;`
+                                     splits the region and pins the mflo before it. */
 
           if ((longDistance - 0x10001U < 0x26ffff) &&
               (latDistance < longDistance * 2)) {

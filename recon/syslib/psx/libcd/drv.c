@@ -641,6 +641,8 @@ extern int CD_cw(unsigned char com, unsigned char *param, unsigned char *result,
     volatile CD_intr *ep;
     int i;
     int ret;
+    int *tbl;
+    int *cnt;
 
     if (CD_debug > 1)
         printf("%s...\n", CD_comstr[com]);
@@ -690,19 +692,48 @@ extern int CD_cw(unsigned char com, unsigned char *param, unsigned char *result,
     ip = &Intr;
     __asm__("" : "=r"(ip) : "0"(ip));
     ip->sync = 0;
+    tbl = _cd_result_flag;
     if (*(int *)((com << 2) + (int)_cd_result_flag))
         ip->ready = 0;
     CDREG0 = 0;
     /* MATCH (w52-a1): the parameter-count table is _cd_result_flag's OWN array 0x100
      * bytes on (oracle: `addiu v0,v1,256; addu v1,a0,v0; lw`), i.e. one base shared by
      * the ready-clear flag and the count -- the same `[0x40 + command]` spelling the
-     * byte-exact Rage Racer libcd decomp uses. */
+     * byte-exact Rage Racer libcd decomp uses.
+     * W63-A5 (41 -> 40, count now EXACT 259/259 and this whole region STRUCTURALLY
+     * retail-shaped): the `+ 0x40` must be its OWN STATEMENT on a base POINTER LOCAL
+     * (`tbl = _cd_result_flag; ... cnt = tbl + 0x40; cnt[com]`).  Spelling the count as
+     * `_cd_result_flag[0x40 + com]` folds the whole thing into ONE `la sym+256` (2 insns,
+     * +1 over retail); spelling it with a base pointer but keeping `tbl[0x40 + com]`
+     * folds the 256 into the LOAD DISPLACEMENT (`lw v0,256(v1)`) because the index add
+     * happens first.  Only the split form emits retail's three-step
+     * `la tbl / addiu cnt,tbl,256 / addu idx,a0,cnt / lw 0(idx)`, and the `la` then sits
+     * where GNU-as (reorder mode) SPLITS it across the preceding `beqz` -- reproducing
+     * the oracle's `lui v1` before the branch and `addiu v1,v1,%lo` IN its delay slot,
+     * which is where our two nops were.
+     * FALSIFIED in this basin (all re-gated after the alarm-struct landing, i.e. the
+     * w52/w62 receipts for these were basin-stale): `tbl` used for the FLAG too 49;
+     * `tbl = _cd_result_flag + 0x40` with `tbl[com]` 46 @257; an index-first cast on
+     * the count 49; SOTN's `[com + 0x40]` operand order INERT 41; identity fence on
+     * `tbl` 44 @261 (the UNLAUNDERED control is the winner -- 13B); read-only fence on
+     * `tbl` 42 @261; `tbl` assigned before `ip` 40 (inert, same basin); dropping the
+     * `ip` identity fence 47; ip read-only instead of identity 47.
+     * RESIDUAL (40) is now a 3-WAY LOCAL-ALLOC QTY ROTATION in this one region, no
+     * structure left: ours {ip=$v1, tbl=$a1, maskedCom/idx=$a0 mutated in place},
+     * retail {ip=$a1, tbl=$v1 (REUSING the register the masked `com` just vacated),
+     * maskedCom=$v1 with a FRESH-DEST `sll a0,v1,2`}.  Two named sub-angles: (a) the
+     * fresh-dest shift (w43 qty birth-order/fresh-dest pair -- our `sll a0,a0,2` is the
+     * in-place form because cse merges the `== 0xe` mask and the index mask into one
+     * dying pseudo that combine_regs then ties to the shift's dest); (b) the ip/tbl
+     * $v1<->$a1 swap, which is their local-alloc PRIORITY order and did not move under
+     * any fence permutation above -- price it with the -dl qty table before dialing. */
+    cnt = tbl + 0x40;
     i = 0;
-    if (_cd_result_flag[0x40 + com] > 0)
+    if (cnt[com] > 0)
         do {
             CDREG2 = param[i];
             i++;
-        } while (i < _cd_result_flag[0x40 + com]);
+        } while (i < cnt[com]);
     CD_com = (unsigned char)com;
     CDREG1 = CD_com;
     if (arg3 != 0)

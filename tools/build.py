@@ -1501,6 +1501,11 @@ PER_FN_TEXT_MOVES = {
     # Sole residual = retail issues the mflo four insns early; probe-verified
     # (scratchpad/root_probe_physics_barrier_splice.py).
     "recon/game/common/physics.cpp": {
+        # w64-a11 (probed 2x; cross-validated vs a source experiment that
+        # reproduces the load order but pays the seat): Physics_Real 6 -> 4.
+        "Physics_Real__FP8Car_tObj": [
+            {"take": "\tlw\t\\$3,leftMult\n(?=\tlw\t\\$2,52\\(\\$sp\\)\n)", "after": "\tlw\t\\$4,100\\(\\$sp\\)\n(?=\tlw\t\\$5,rightMult\n)"},
+        ],
         "Physics_DoBarrierCheck__FP8Car_tObj": [
             {"take": r"\tmflo\t\$10\n(?=\t#nop\n\tlw\t\$4,268\(\$17\)\n)",
              "after": r"\tmove\t\$5,\$3\n(?=\taddu\t\$18,\$2,\$10\n)"},

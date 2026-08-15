@@ -785,7 +785,26 @@ int AudioCmn_GetTimePhrase(int time)
  * fully closed by a 6-row PER_FN_TEXT_MOVES (PASS 530/530, TU 47/48 under the
  * probe) -- CheckState's two sites are the same shape (a base/index issue-order swap
  * and a {high,lo_sum} tie), so a TEXT_MOVES row is the FIRST thing to try here too;
- * spec in scratchpad/w60a9/RECEIPTS.md. */
+ * spec in scratchpad/w60a9/RECEIPTS.md.
+ * W61-A10: site (1) IS a TEXT_MOVES row and is PROBE-VERIFIED -- 6 -> 4, spec in
+ * scratchpad/w61a10/spec_ccs.py (take the `lui $5,%hi(simGlobal+4)`, slot it into
+ * the `beq $2,$0` that guards the lap!=0 block; label-agnostic, the anchor is
+ * disambiguated by a lookahead on its original slot content `andi $3,$20,0x00ff`).
+ * Site (2) is NOT reachable by a move -- ours uses a SEPARATE scratch ($v1) for the
+ * high part, so the two lines differ in an OPERAND, and _apply_text_moves can only
+ * relocate lines.  W61-A10 FALSIFICATIONS on site (2), all measured on the gate:
+ *   whole-fn `-mno-split-addresses` via PER_FN_NO_SPLIT_ADDRESSES (275 diffs @410 --
+ *     this is NOT the split-address identity, the fn needs split addresses);
+ *   index-term-first cast `*(int *)((car->carIndex << 2) + (int)bestLapTime)` 28;
+ *   base-term-first cast 28; `*(bestLapTime + car->carIndex)` 6 (inert);
+ *   `*(int *)((int)&bestLapTime[car->carIndex])` 6 (inert); `*&bestLapTime[...]` 6;
+ *   `(int)car->carIndex` 6; Yoda `bestLapTime[..] > time[..]` 18;
+ *   `bestLapTime[(u_char)carnum]` 30 @413 (WRONG -- carIndex and carnum differ here);
+ *   `*(int *)(((u_char)carnum << 2) + (int)bestLapTime)` 30 @413 (same, wrong index).
+ * The cc1 .s shows sched1 hoisting `lui $3,%hi(bestLapTime)` ABOVE the
+ * `lw $2,596($18)` carIndex load, which is what splits the {high, lo_sum} pair; the
+ * remaining route is a scheduling barrier that does not also break the `&&` shape,
+ * or the 06E local-alloc instrument. */
 void AudioCmn_CheckState(Car_tObj *car)
 {
   char carnum;

@@ -1668,7 +1668,14 @@ void StatusReply__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
        an identity fence on `wing` AFTER the fWing store gives 15, and the same fence
        placed right after `wing` is computed gives 9 (it DOES move the load to $v1 as
        predicted, but rotates the surrounding arg block).  Both worse than 5; the
-       dial remains local-alloc copy-preference (06E), not a fence placement. */
+       dial remains local-alloc copy-preference (06E), not a fence placement.
+       W61-A10: the 12D DEAD-PSEUDO STAGING route (which SEALED Status's LOOK arm in
+       this same TU on this wave) is FALSIFIED here -- staging the value into the
+       fn-scope `context` gives 15@268, into `from` gives 11@268; neither
+       materialises retail's `addu a3,v1,zero` copy, both stay ONE SHORT.  Staging
+       works when retail needs a FRESH register for a stack arg; it does not defeat
+       a copy-preference onto an arg register that is genuinely the value's only
+       consumer.  Route unchanged (06E copy-preference / 12A preference killer). */
     SPCHNFS_D_C_SPBLT_CONFIRMED((SPCHNFSType_POSITION *)pThis,
       location,distance,wing,
       &(pThis->_base_Speaker).fSpikeSide);
@@ -1923,17 +1930,44 @@ DispStatus_fetchSpeechCtx:
 }
 
 /* ---- Status__Q26Speech13MobileSpeaker  [SPEECH.CPP:1853-1948] SLD-VERIFIED ----
- * NEAR-MISS 14 (W60-A9 triage), three separable classes:
- *  (1) x2 `addu a1,s1,v0` (ours) vs `addiu a1,s1,8` (retail).  $v0 holds the
- *      constant 8 from the neighbouring `beq v1,v0` compare, and cse REUSES that
- *      register as the address offset; retail rematerialises the immediate.  This is
- *      the INVERSE of the catalog's "name the constant so cse reuses its register"
- *      row -- the cure direction here is to stop the compare constant living in a
- *      register at that point (spell the test so it uses an immediate form), or to
- *      write the +8 address as a real field access rather than a computed offset.
- *  (2) x2 `lw v1,48(a1)` issue position (retail two slots earlier).
- *  (3) one `sw v0,20(sp)` vs `sw v1,20(sp)` register pick riding on (2).
- * Classes (2)+(3) are emission order = TEXT_MOVES-shaped; (1) is the real lever. */
+ * W61-A10: 14 -> 8 by SOURCE (two levers below), then PASS 358/358 with four
+ * PER_FN_TEXT_MOVES rows (probe-verified, spec in scratchpad/w61a10/spec_status.py;
+ * whole-TU probe speech.cpp 99/102, zero PASS->FAIL).  The residual after the two
+ * source levers is FOUR pure line relocations and nothing else.
+ *
+ * LEVER 1 -- CSE-CONSTANT-CAPTURE ESCAPE (kills the x2 `addu a1,s1,v0`).
+ *   cc1 emits `li $2,8` at the HEAD of the `uVar8 != 8` block (the compare needs a
+ *   register: MIPS `beq`/`bne` have no immediate form), and cse then rewrites the
+ *   *following* `&fColour` address `(plus $17 (const_int 8))` into `addu $5,$17,$2`
+ *   -- a register reuse retail does not make.  Proof it is cse and not maspsx: the
+ *   raw cc1 .s carries `addu $5,$17,$2` at the two captured sites and
+ *   `addu $5,$17,8` at the third (`$L943`, a JOIN target, so the constant is not in
+ *   cse's table there).  CURE = hoist `pCVar5 = &fColour;` ABOVE the `if (uVar8 != 8)`
+ *   guard so the address insn PRECEDES the `li 8` in the block; the two sites then
+ *   emit `addiu a1,s1,8` exactly like retail, count-exact.  This is the general
+ *   escape for the whole "cse captured my address constant" class: move the address
+ *   computation above the compare that materialises the same constant.
+ *   FALSIFIED first (all neutral at 14): `(char *)pThis + 8`, a block-local colour
+ *   pointer, the address inline in the call, colour-assigned-last, and an identity
+ *   fence on pCVar5 (16, worse).
+ *
+ * LEVER 2 -- DEAD-PSEUDO STAGING (12D) on the LOOK_PERP_REPLY_LOC arm.
+ *   Retail loads fCar into a FRESH register before materialising &fColour, so the
+ *   stack-arg copy survives into the jal delay slot; ours reused $v0 for both and
+ *   emitted the loads in the wrong order.  Do NOT add a variable: the guard variable
+ *   `uVar8` is DEAD on this arm (its compare already branched), so retail's carrier
+ *   is uVar8 itself -- `uVar8 = fCar;` staged before the two address setups gives
+ *   count-exact 358 and reduces the site to one line relocation.
+ *   FALSIFIED: staging into iVar4 (13 @359, one insn LONG), iVar11 (28), uVar13
+ *   (33 @359), pCVar5 (43 @361), a fresh block-local (60), and a `{ }`-scoped local
+ *   (60); swapping the pMVar12/vs_KMH_MPH setup order is inert (14).
+ *
+ * REMAINING (all four are PER_FN_TEXT_MOVES rows, none source-reachable here):
+ *  (a) x2 STS arms: retail puts the receiver copy `move $4,$16` in the beq DELAY
+ *      SLOT and the &fColour address after it; cc1 fills the slot with the address.
+ *  (b) AWAY_PERP_REPLY_LOC: retail issues the fCar load right after the fLocation
+ *      load; ours two slots later (same register -- pure move).
+ *  (c) LOOK_PERP_REPLY_LOC: retail issues fLocation before fCar; ours swapped. */
 /* MATCH: 90 -> 14 diffs (358/358).  IDA/SLD recovered the shared s0 boolean
    lifetimes, direct Dispatch virtual call, far-subbranch order, and speed/look
    cross-jump layout.  The remaining 14 are four call-argument scheduling
@@ -2108,10 +2142,13 @@ void Status__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
           pCVar5 = (Car_tObj *)pThis;
           goto DispStatus_playSpeechReturn;
         }
+        /* MATCH lever 1: the &fColour address MUST precede the `li 8` cc1 emits
+           for this guard, else cse rewrites it to `addu a1,s1,v0`.  Do not sink
+           this back inside the if. [W61-A10] */
+        pCVar5 = (Car_tObj *)&(pThis->_base_Speaker).fColour;
         if (uVar8 != 8) {
           int nearLocation;
 
-          pCVar5 = (Car_tObj *)&(pThis->_base_Speaker).fColour;
           vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)(pThis->_base_Speaker).fCar;
           pMVar12 = (MobileSpeaker *)&(pThis->_base_Speaker).fDistance;
           nearLocation = (pThis->_base_Speaker).fLocation;
@@ -2132,8 +2169,9 @@ void Status__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
           pCVar5 = (Car_tObj *)pThis;
           goto DispStatus_playSpeechReturn;
         }
+        /* MATCH lever 1 (2nd site): same cse-constant-capture escape. [W61-A10] */
+        pCVar5 = (Car_tObj *)&(pThis->_base_Speaker).fColour;
         if (uVar8 != 8) {
-          pCVar5 = (Car_tObj *)&(pThis->_base_Speaker).fColour;
           vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)(pThis->_base_Speaker).fCar;
           SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_STS(pSVar10,(SPCHNFSType_COLOUR *)pCVar5,(int)vs_KMH_MPH,
                      (SPCHNFSType_POSITION *)pThis,(pThis->_base_Speaker).fLocation,
@@ -2145,10 +2183,14 @@ void Status__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
       else {
         uVar8 = (pThis->_base_Speaker).fUpdate.flags;
         if (uVar8 == 1) {
+          /* MATCH lever 2 (12D dead-pseudo staging): uVar8 is dead on this arm and
+             is retail's carrier for fCar -- staging it here (NOT a new local) gives
+             the fresh register the stack-arg copy needs. [W61-A10] */
+          uVar8 = (pThis->_base_Speaker).fCar;
           pMVar12 = (MobileSpeaker *)&(pThis->_base_Speaker).fDistance;
           vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)(pThis->_base_Speaker).fLocation;
           SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_LOC(pSVar10,(SPCHNFSType_POSITION *)pThis,(int)vs_KMH_MPH,
-                     (SPCHNFSType_DISTANCE *)pMVar12,&(pThis->_base_Speaker).fColour,(pThis->_base_Speaker).fCar);
+                     (SPCHNFSType_DISTANCE *)pMVar12,&(pThis->_base_Speaker).fColour,(int)uVar8);
           pCVar5 = (Car_tObj *)pThis;
           goto DispStatus_playSpeechReturn;
         }
@@ -2235,7 +2277,25 @@ void AddPerp__Q26Speech15DispatchSpeakerP8Car_tObj(DispatchSpeaker *pThis,Car_tO
  * chain as Roger's single-expression form `pfnA() + pfnB()*4` -- 13@101 with the
  * fenced pSVar6 hoisted, 15@103 keeping the statement order, 14@100 without the
  * identity fence.  All three LOSE insns (ours already runs short), so the missing
- * insn is retail's extra receiver register, not the expression shape. */
+ * insn is retail's extra receiver register, not the expression shape.
+ * W61-A10 MECHANISM (read before re-trying) + SIX more falsifications.
+ *   The whole residual is ONE decision: which register holds the second vf-thunk's
+ *   RECEIVER (`pSVar6->_vf`).  Retail cannot use $v0 there because $v0 still carries
+ *   the FIRST call's result (retail defers the `addu s0,v0,zero` copy all the way
+ *   into the second jalr's DELAY SLOT, where it still reads the pre-call $v0, S3.1),
+ *   so find_reg's caller-saved scan v0,v1,a0,a1 lands on $a1 -- v1 = pSVar6, a0 =
+ *   the arg -- and the pfn then reuses the dying $v1.  Ours copies v0->s0 straight
+ *   after the first call, which FREES $v0 before the receiver load, so cc1 takes it
+ *   and reorg can no longer sink the copy (the receiver load clobbers $v0).  The two
+ *   facts are circular: the allocator runs first, reorg second.
+ *   FALSIFIED, all INERT at exactly 11@103 (so the receiver pseudo is a LOCAL qty
+ *   reached by block_alloc's numeric scan -- no fence dial touches it):
+ *   a named `__vtbl_ptr_type (*subVf)[31]` local for the receiver with and without an
+ *   identity fence; a read-only fence on iVar3 (1 and 2 operands); an identity fence
+ *   on iVar3; the named receiver local + the iVar3 read-only fence together.
+ *   NEXT ANGLE: the dial has to make $v0 UNAVAILABLE at the receiver load, i.e. keep
+ *   the first result's pseudo in $v0 across it -- an allocsim/reqdelta job on the
+ *   iVar3 allocno, or the 12A "hard-reg preference killer" instrument, not a fence. */
 /* MATCH: 36 -> 11 diffs (103/104).  Distinct short-lived speech arguments
    recover every tail register, the SLD Speech* local plus the first empty
    barrier recover the retail prologue, and the pin-free pSVar6 fence recovers
@@ -3052,7 +3112,18 @@ MSEngage_emitSpeech:
  * `addu a0,s0,zero` and issue `lw a2,48(s1)` one slot later than retail.  Ours-longer
  * with a redundant receiver copy = the "cache a pointer the oracle re-derives" class;
  * try inlining the receiver expression at that call site instead of the cached local
- * (catalog: drop the eager whole-pointer cache). */
+ * (catalog: drop the eager whole-pointer cache).
+ * W61-A10 RE-DIAGNOSIS (the "cached pointer" reading is WRONG -- do not chase it):
+ * the extra insn is a0 SETUP, not a receiver cache.  Retail's `.L800986BC`
+ * `bne $v1,$v0,.L800986D8` carries `addu $a0,$s0,$zero` in its DELAY SLOT, so on the
+ * BRANCH-TAKEN path $a0 already holds pSVar7 when control reaches `.L800986F0`
+ * (PERP_LOST) -- nothing clobbers it in between (`.L800986D8` only tests $s2 and sets
+ * $a1 in its own slot).  Retail's PERP_LOST block therefore opens straight with
+ * `addu $a3,$s1,$zero`; ours re-materialises `addu $a0,$s0,$zero` first because our
+ * RTL has an independent a0 set in that block that reorg never got to delete.  The
+ * second diff (a2/v1 load order) rides on it.  So this is a reorg/`redundant_insn`
+ * cross-path question, NOT a source-level pointer-caching one; the source levers to
+ * price are the ones that change which insn reorg puts in the `bne` slot. */
 void Lose__Q26Speech13MobileSpeaker(MobileSpeaker *pThis)
 
 {

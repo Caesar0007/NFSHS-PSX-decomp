@@ -1225,6 +1225,21 @@ PER_FN_TEXT_MOVES = {
             {"take": r"\taddu\t\$18,\$17,6\n",
              "after": r"\tmove\t\$16,\$5\n"},
         ],
+        # w61-a10 (probe-verified, valid on top of the in-source landings):
+        # Status 8 -> PASS 358/358 -- four pure relocations.  Row 4 MUST run
+        # after row 3 (that row makes its anchor unique).
+        "Status__Q26Speech13MobileSpeaker": [
+            {"take": r"\tmove\t\$4,\$16\n(?=\tlw\t\$6,48\(\$17\)\n)",
+             "after": r"\tbeq\t\$3,\$2,\$L\d+\n(?=\taddu\t\$5,\$17,8\n\t\.set\tmacro\n\t\.set\treorder\n\n\tlw\t\$6,48\(\$17\)\n)",
+             "slot": True},
+            {"take": r"\tmove\t\$4,\$16\n(?=\tmove\t\$7,\$17\n)",
+             "after": r"\tbeq\t\$3,\$2,\$L\d+\n(?=\taddu\t\$5,\$17,8\n\t\.set\tmacro\n\t\.set\treorder\n\n\tmove\t\$7,\$17\n)",
+             "slot": True},
+            {"take": r"(?<=\tsw\t\$2,16\(\$sp\)\n)\tlw\t\$3,48\(\$5\)\n",
+             "after": r"(?<=\taddu\t\$7,\$5,4\n)\tlw\t\$6,52\(\$5\)\n(?=\taddu\t\$2,\$5,8\n)"},
+            {"take": r"\tlw\t\$3,48\(\$5\)\n(?=\tlw\t\$6,52\(\$5\)\n)",
+             "after": r"(?<=\taddu\t\$7,\$5,4\n)\tlw\t\$6,52\(\$5\)\n(?=\taddu\t\$2,\$5,8\n)"},
+        ],
     },
     # w60-a9 (probe-verified, 6 moves): AudioCmn_SoundCar 14 -> PASS 530/530 --
     # all 14 were scheduling: 3x PlayersRampedGasLevel base/index swap (a take
@@ -1244,6 +1259,14 @@ PER_FN_TEXT_MOVES = {
              "after": r"\tbgez\t\$2,\$L\d+\n(?=\taddu\t\$3,\$2,7\n)", "slot": True},
             {"take": r"\tlw\t\$8,40\(\$sp\)\n", "after": r"\tmult\t\$17,\$6\n"},
             {"take": r"\tsra\t\$18,\$3,7\n", "after": r"\tlw\t\$8,40\(\$sp\)\n"},
+        ],
+        # w61-a10 (probe-verified): CheckState 6 -> 4 -- the simGlobal+4 lui
+        # into the beq slot (sched1 had hoisted it above the carIndex lw;
+        # whole-fn nosplit falsified at 275).
+        "AudioCmn_CheckState__FP8Car_tObj": [
+            {"take": r"\tlui\t\$5,%hi\(simGlobal\+4\)[^\n]*\n",
+             "after": r"\tbeq\t\$2,\$0,\$L\d+\n(?=\tandi\t\$3,\$20,0x00ff\n)",
+             "slot": True},
         ],
     },
     # w60-a9 (probe-verified, uses drop_after): TailCam 2 -> PASS 402/402.

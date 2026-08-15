@@ -28,7 +28,7 @@
       "target_path": "expected/src/eaclib/psx/eacpsxz/asinfunc.c.o",
       "base_path": "build/recon/eaclib/psx/eacpsxz/asinfunc.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/eacpsxz/asinfunc.cpp"
+        "source_path": "recon/eaclib/psx/eacpsxz/asinfunc.c"
       }
     },
     {
@@ -36,7 +36,7 @@
       "target_path": "expected/src/eaclib/psx/eacpsxz/atanfunc.c.o",
       "base_path": "build/recon/eaclib/psx/eacpsxz/atanfunc.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/eacpsxz/atanfunc.cpp"
+        "source_path": "recon/eaclib/psx/eacpsxz/atanfunc.c"
       }
     },
     {
@@ -68,7 +68,7 @@
       "target_path": "expected/src/eaclib/psx/eacpsxz/cdfs.c.o",
       "base_path": "build/recon/eaclib/psx/eacpsxz/cdfs.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/eacpsxz/cdfs.cpp"
+        "source_path": "recon/eaclib/psx/eacpsxz/cdfs.c"
       }
     },
     {
@@ -124,7 +124,7 @@
       "target_path": "expected/src/eaclib/psx/eacpsxz/fileroot.c.o",
       "base_path": "build/recon/eaclib/psx/eacpsxz/fileroot.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/eacpsxz/fileroot.cpp"
+        "source_path": "recon/eaclib/psx/eacpsxz/fileroot.c"
       }
     },
     {
@@ -132,7 +132,7 @@
       "target_path": "expected/src/eaclib/psx/eacpsxz/fixdatan.c.o",
       "base_path": "build/recon/eaclib/psx/eacpsxz/fixdatan.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/eacpsxz/fixdatan.cpp"
+        "source_path": "recon/eaclib/psx/eacpsxz/fixdatan.c"
       }
     },
     {
@@ -180,7 +180,7 @@
       "target_path": "expected/src/eaclib/psx/eacpsxz/fsincos.c.o",
       "base_path": "build/recon/eaclib/psx/eacpsxz/fsincos.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/eacpsxz/fsincos.cpp"
+        "source_path": "recon/eaclib/psx/eacpsxz/fsincos.c"
       }
     },
     {
@@ -244,7 +244,7 @@
       "target_path": "expected/src/eaclib/psx/eacpsxz/locatbig.c.o",
       "base_path": "build/recon/eaclib/psx/eacpsxz/locatbig.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/eacpsxz/locatbig.cpp"
+        "source_path": "recon/eaclib/psx/eacpsxz/locatbig.c"
       }
     },
     {
@@ -284,7 +284,7 @@
       "target_path": "expected/src/eaclib/psx/eacpsxz/memstd.c.o",
       "base_path": "build/recon/eaclib/psx/eacpsxz/memstd.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/eacpsxz/memstd.cpp"
+        "source_path": "recon/eaclib/psx/eacpsxz/memstd.c"
       }
     },
     {
@@ -316,7 +316,7 @@
       "target_path": "expected/src/eaclib/psx/eacpsxz/nloadpk.c.o",
       "base_path": "build/recon/eaclib/psx/eacpsxz/nloadpk.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/eacpsxz/nloadpk.cpp"
+        "source_path": "recon/eaclib/psx/eacpsxz/nloadpk.c"
       }
     },
     {
@@ -324,7 +324,7 @@
       "target_path": "expected/src/eaclib/psx/eacpsxz/nsync.c.o",
       "base_path": "build/recon/eaclib/psx/eacpsxz/nsync.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/eacpsxz/nsync.cpp"
+        "source_path": "recon/eaclib/psx/eacpsxz/nsync.c"
       }
     },
     {
@@ -356,7 +356,7 @@
       "target_path": "expected/src/eaclib/psx/eacpsxz/resize.c.o",
       "base_path": "build/recon/eaclib/psx/eacpsxz/resize.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/eacpsxz/resize.cpp"
+        "source_path": "recon/eaclib/psx/eacpsxz/resize.c"
       }
     },
     {
@@ -508,7 +508,7 @@
       "target_path": "expected/src/eaclib/psx/eacpsxz/trnspos.c.o",
       "base_path": "build/recon/eaclib/psx/eacpsxz/trnspos.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/eacpsxz/trnspos.cpp"
+        "source_path": "recon/eaclib/psx/eacpsxz/trnspos.c"
       }
     },
     {
@@ -556,7 +556,7 @@
       "target_path": "expected/src/eaclib/psx/eacpsxz/xform.c.o",
       "base_path": "build/recon/eaclib/psx/eacpsxz/xform.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/eacpsxz/xform.cpp"
+        "source_path": "recon/eaclib/psx/eacpsxz/xform.c"
       }
     },
     {
@@ -588,7 +588,7 @@
       "target_path": "expected/src/eaclib/psx/sndpsxz/saelib.c.o",
       "base_path": "build/recon/eaclib/psx/sndpsxz/saelib.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/sndpsxz/saelib.cpp"
+        "source_path": "recon/eaclib/psx/sndpsxz/saelib.c"
       }
     },
     {
@@ -732,7 +732,7 @@
       "target_path": "expected/src/eaclib/psx/sndpsxz/sdfx.c.o",
       "base_path": "build/recon/eaclib/psx/sndpsxz/sdfx.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/sndpsxz/sdfx.cpp"
+        "source_path": "recon/eaclib/psx/sndpsxz/sdfx.c"
       }
     },
     {
@@ -900,7 +900,7 @@
       "target_path": "expected/src/eaclib/psx/sndpsxz/span.c.o",
       "base_path": "build/recon/eaclib/psx/sndpsxz/span.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/sndpsxz/span.cpp"
+        "source_path": "recon/eaclib/psx/sndpsxz/span.c"
       }
     },
     {
@@ -932,7 +932,7 @@
       "target_path": "expected/src/eaclib/psx/sndpsxz/spktplay.c.o",
       "base_path": "build/recon/eaclib/psx/sndpsxz/spktplay.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/sndpsxz/spktplay.cpp"
+        "source_path": "recon/eaclib/psx/sndpsxz/spktplay.c"
       }
     },
     {
@@ -1004,7 +1004,7 @@
       "target_path": "expected/src/eaclib/psx/sndpsxz/sst.c.o",
       "base_path": "build/recon/eaclib/psx/sndpsxz/sst.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/sndpsxz/sst.cpp"
+        "source_path": "recon/eaclib/psx/sndpsxz/sst.c"
       }
     },
     {
@@ -1084,7 +1084,7 @@
       "target_path": "expected/src/eaclib/psx/sndpsxz/sstsetpr.c.o",
       "base_path": "build/recon/eaclib/psx/sndpsxz/sstsetpr.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/sndpsxz/sstsetpr.cpp"
+        "source_path": "recon/eaclib/psx/sndpsxz/sstsetpr.c"
       }
     },
     {
@@ -1148,7 +1148,7 @@
       "target_path": "expected/src/eaclib/psx/sndpsxz/svol.c.o",
       "base_path": "build/recon/eaclib/psx/sndpsxz/svol.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/sndpsxz/svol.cpp"
+        "source_path": "recon/eaclib/psx/sndpsxz/svol.c"
       }
     },
     {
@@ -1188,7 +1188,7 @@
       "target_path": "expected/src/eaclib/psx/spchpsxz/spchpick.c.o",
       "base_path": "build/recon/eaclib/psx/spchpsxz/spchpick.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/spchpsxz/spchpick.cpp"
+        "source_path": "recon/eaclib/psx/spchpsxz/spchpick.c"
       }
     },
     {
@@ -1212,7 +1212,7 @@
       "target_path": "expected/src/eaclib/psx/spchpsxz/spchrule.c.o",
       "base_path": "build/recon/eaclib/psx/spchpsxz/spchrule.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/spchpsxz/spchrule.cpp"
+        "source_path": "recon/eaclib/psx/spchpsxz/spchrule.c"
       }
     },
     {
@@ -2468,7 +2468,7 @@
       "target_path": "expected/src/syslib/psx/2mbyte/2mbyte.c.o",
       "base_path": "build/recon/syslib/psx/2mbyte/2mbyte.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/2mbyte/2mbyte.cpp"
+        "source_path": "recon/syslib/psx/2mbyte/2mbyte.c"
       }
     },
     {
@@ -2700,7 +2700,7 @@
       "target_path": "expected/src/syslib/psx/libapi/FIRST.c.o",
       "base_path": "build/recon/syslib/psx/libapi/FIRST.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libapi/FIRST.cpp"
+        "source_path": "recon/syslib/psx/libapi/FIRST.c"
       }
     },
     {
@@ -2916,7 +2916,7 @@
       "target_path": "expected/src/syslib/psx/libc/QSORT.c.o",
       "base_path": "build/recon/syslib/psx/libc/QSORT.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libc/QSORT.cpp"
+        "source_path": "recon/syslib/psx/libc/QSORT.c"
       }
     },
     {
@@ -2924,7 +2924,7 @@
       "target_path": "expected/src/syslib/psx/libc/SPRINTF.c.o",
       "base_path": "build/recon/syslib/psx/libc/SPRINTF.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libc/SPRINTF.cpp"
+        "source_path": "recon/syslib/psx/libc/SPRINTF.c"
       }
     },
     {
@@ -3036,7 +3036,7 @@
       "target_path": "expected/src/syslib/psx/libcd/cdcont.c.o",
       "base_path": "build/recon/syslib/psx/libcd/cdcont.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libcd/cdcont.cpp"
+        "source_path": "recon/syslib/psx/libcd/cdcont.c"
       }
     },
     {
@@ -3044,7 +3044,7 @@
       "target_path": "expected/src/syslib/psx/libcd/cdread.c.o",
       "base_path": "build/recon/syslib/psx/libcd/cdread.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libcd/cdread.cpp"
+        "source_path": "recon/syslib/psx/libcd/cdread.c"
       }
     },
     {
@@ -3052,7 +3052,7 @@
       "target_path": "expected/src/syslib/psx/libcd/cdread2.c.o",
       "base_path": "build/recon/syslib/psx/libcd/cdread2.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libcd/cdread2.cpp"
+        "source_path": "recon/syslib/psx/libcd/cdread2.c"
       }
     },
     {
@@ -3068,7 +3068,7 @@
       "target_path": "expected/src/syslib/psx/libcd/event.c.o",
       "base_path": "build/recon/syslib/psx/libcd/event.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libcd/event.cpp"
+        "source_path": "recon/syslib/psx/libcd/event.c"
       }
     },
     {
@@ -3076,7 +3076,7 @@
       "target_path": "expected/src/syslib/psx/libcd/iso9660.c.o",
       "base_path": "build/recon/syslib/psx/libcd/iso9660.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libcd/iso9660.cpp"
+        "source_path": "recon/syslib/psx/libcd/iso9660.c"
       }
     },
     {
@@ -3108,7 +3108,7 @@
       "target_path": "expected/src/syslib/psx/libcd/toc.c.o",
       "base_path": "build/recon/syslib/psx/libcd/toc.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libcd/toc.cpp"
+        "source_path": "recon/syslib/psx/libcd/toc.c"
       }
     },
     {
@@ -3124,7 +3124,7 @@
       "target_path": "expected/src/syslib/psx/libetc/INTR.c.o",
       "base_path": "build/recon/syslib/psx/libetc/INTR.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libetc/INTR.cpp"
+        "source_path": "recon/syslib/psx/libetc/INTR.c"
       }
     },
     {
@@ -3132,7 +3132,7 @@
       "target_path": "expected/src/syslib/psx/libetc/INTR_DMA.c.o",
       "base_path": "build/recon/syslib/psx/libetc/INTR_DMA.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libetc/INTR_DMA.cpp"
+        "source_path": "recon/syslib/psx/libetc/INTR_DMA.c"
       }
     },
     {
@@ -3156,7 +3156,7 @@
       "target_path": "expected/src/syslib/psx/libetc/VSYNC.c.o",
       "base_path": "build/recon/syslib/psx/libetc/VSYNC.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libetc/VSYNC.cpp"
+        "source_path": "recon/syslib/psx/libetc/VSYNC.c"
       }
     },
     {
@@ -3172,7 +3172,7 @@
       "target_path": "expected/src/syslib/psx/libgpu/FONT.c.o",
       "base_path": "build/recon/syslib/psx/libgpu/FONT.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libgpu/FONT.cpp"
+        "source_path": "recon/syslib/psx/libgpu/FONT.c"
       }
     },
     {
@@ -3396,7 +3396,7 @@
       "target_path": "expected/src/syslib/psx/libmath/DBSHIFT.c.o",
       "base_path": "build/recon/syslib/psx/libmath/DBSHIFT.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libmath/DBSHIFT.cpp"
+        "source_path": "recon/syslib/psx/libmath/DBSHIFT.c"
       }
     },
     {
@@ -3404,7 +3404,7 @@
       "target_path": "expected/src/syslib/psx/libmath/DBSHIFTU.c.o",
       "base_path": "build/recon/syslib/psx/libmath/DBSHIFTU.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libmath/DBSHIFTU.cpp"
+        "source_path": "recon/syslib/psx/libmath/DBSHIFTU.c"
       }
     },
     {
@@ -3532,7 +3532,7 @@
       "target_path": "expected/src/syslib/psx/libmcrd/LIBMCRD.c.o",
       "base_path": "build/recon/syslib/psx/libmcrd/LIBMCRD.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libmcrd/LIBMCRD.cpp"
+        "source_path": "recon/syslib/psx/libmcrd/LIBMCRD.c"
       }
     },
     {
@@ -3564,7 +3564,7 @@
       "target_path": "expected/src/syslib/psx/libpad/PADCMD.c.o",
       "base_path": "build/recon/syslib/psx/libpad/PADCMD.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libpad/PADCMD.cpp"
+        "source_path": "recon/syslib/psx/libpad/PADCMD.c"
       }
     },
     {
@@ -3580,7 +3580,7 @@
       "target_path": "expected/src/syslib/psx/libpad/PADMAIN.c.o",
       "base_path": "build/recon/syslib/psx/libpad/PADMAIN.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libpad/PADMAIN.cpp"
+        "source_path": "recon/syslib/psx/libpad/PADMAIN.c"
       }
     },
     {
@@ -3620,7 +3620,7 @@
       "target_path": "expected/src/syslib/psx/libpress/VLC.c.o",
       "base_path": "build/recon/syslib/psx/libpress/VLC.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libpress/VLC.cpp"
+        "source_path": "recon/syslib/psx/libpress/VLC.c"
       }
     },
     {

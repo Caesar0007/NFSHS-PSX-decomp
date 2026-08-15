@@ -238,6 +238,23 @@ int Night_FindClosestColor(CVECTOR colorMatch,int *bestIndex)
  * WHOLE block, and here the whole block includes the clamps, not just the stores.
  * REMAINING TARGET (unchanged, now better framed): find a dial for the b15/sourceG order
  * that does NOT require the reverse store order; then the SLD-natural pack block is free. */
+/* ===== w63-a13: 26 STAYS (re-gated, count-exact 113/113).  The w60 reframing is CONFIRMED
+ * from a new direction: the SLD-natural r,g,b pack block costs +30 NO MATTER WHICH BYTES
+ * ARE FORWARDED, so the store order is definitely paying for the upstream allocno order
+ * and not for the pack block's own forwarding pattern.  MEASURED (all count-exact
+ * 113/113, on top of the w60 table which removed the read-back entirely):
+ *   r,g,b + read-back of BOTH .g and .b (retail's own forwarding pair)  56
+ *   r,g,b + read-back of .b only                                       56
+ *   r,g,b + read-back of .g only                                       56
+ *   shipped b,g,r + an EXTRA read-back of .g                           26 (bit-identical)
+ *   g,b,r (r last, g/b in retail order) + read-back of .r              26 (bit-identical)
+ * ⇒ the pack-block half is saturated in BOTH directions: nothing in the store/forward
+ * table moves the gate off 26/56.  The only live target remains the b15 <-> sourceG
+ * global-allocno order.  🔴 NOTE FOR THAT WORK: the w49-a5 "-SIZE" numerator quoted in
+ * the AdditiveNightCalc block below is WRONG (see the w63-a13 law correction there);
+ * gcc-2.8.1 uses floor_log2(refs)*refs*SIZE/live.  Every pseudo here is a 4-byte int, so
+ * the *4 is a common factor and the w41-a7/W55-A16 ORDERINGS and the reqdelta receipt are
+ * all unaffected -- but re-derive any NEW dial from the multiplicative form. */
 void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char *colorval)
 
 {
@@ -978,6 +995,54 @@ void Night_RestartNightDriving(void)
  * lives ~10 slots; retail's `sw v0,0(gp)` for gZDistShift=12 likewise sits 2 slots later.
  * Next dial = whatever keeps the constant's birth adjacent to its store WITHOUT putting
  * it back in the qty pool. */
+/* ---- w63-a13 (2026-08-15): 6 -> 2 diffs, count still EXACT 68/68, and EVERY REGISTER
+ * AND EVERY SCHEDULE POSITION NOW MATCHES except one adjacent pair.
+ * 🔴 FIRST: a LAW CORRECTION that invalidates the arithmetic in the w49/w50/w51 blocks
+ * above.  gcc-2.8.1 local-alloc.c:1727 and global.c:600 both read
+ *     floor_log2(refs) * refs * SIZE / live_length          (size MULTIPLIES)
+ * NOT `floor_log2(refs)*refs - SIZE` (the w45 "correction" that the catalog carries and
+ * that the w49-a5/w50-a5 notes below build on).  Consequences here: the two rivals are
+ * NOT at -0.5 each, they are at (1*2*4)/4 = +2.0 each -- still an exact tie resolved by
+ * qty NUMBER, so the w49 CONCLUSION survives -- but "for this pair a LONGER live range
+ * RAISES priority" is FALSE.  Shorter live and MORE refs both raise priority, normally.
+ * THE LANDED SHAPE (each half measured separately; both are required):
+ *   u_char *tgt = (u_char *)Camera_gInfo[Vi->player].target;   <- the pointer NAMED and
+ *   int zn2 = 0x80;                                               read BEFORE the store
+ *   __asm__("" : : "r"(zn2));                                  <- read-only fence on the
+ *   Night_gZNear = zn2;                                           CONSTANT, before the sw
+ *   if ((tgt[0x447] & 4) != 0) { ... }
+ * WHY IT IS NOT THE w50 USE-FENCE WALK: that walk fenced the POINTER and its best
+ * position (p4, between the store and the guard) cost the +1 nop because the fence sat
+ * BETWEEN the store group and the guard, so the store could no longer sink into the
+ * `lw v0,4(v0)` load-delay slot.  Here the fence sits BEFORE the store, so the whole
+ * store group is still free to sink -- 68 insns preserved.
+ * LADDER (all re-gated by me, all 68/68 unless noted):
+ *   plain (no device)                                    8
+ *   w61 constant identity-launder alone (previous ship)  6
+ *   named tgt + RO fence on tgt at the guard             5 @69  (the w50 p4 result)
+ *   named tgt (no fence) + w61 launder                   6
+ *   named tgt + RO fence on tgt BEFORE the store + launder  4
+ *   named tgt + ONE fence carrying BOTH tgt and zn2      2
+ *   named tgt + RO fence on zn2 only  (LANDED)           2      <- simplest 2
+ * FALSIFIED from the 2-diff basin (all re-gated): fence operand order swapped (2, bit-
+ * identical) . split decl/assign (2) . `__volatile__` flavour (2) . extra "r"(tgt) or
+ * "r"(zn2) operands (2) . `"i"(0)` void-tail operand added (2) . dropping the dead
+ * `int mode;`/`int zn;` decls (2) . fence moved AFTER the store (5 @69) . zn2 declared
+ * before tgt (4) . TWO separate fences, one per value (8 -- the second barrier re-pins
+ * the store group) . the constant left inline with only tgt fenced (2 -- equivalent) .
+ * dropping the `tgt` local and fencing only zn2 (6 -- THE POINTER LOCAL IS LOAD-BEARING)
+ * . hoisting the guard byte into an `int flg` before the store (9 @67) .
+ * `"r"(tgt[0x447])` as the fence operand (1 diff @69 -- count-INEXACT, rejected by the
+ * bar; recorded because it shows the last pair IS reachable).
+ * RESIDUAL 2 = a pure sched2 ISSUE-ORDER pair of two independent insns:
+ *   ours   ... addu v0,v0,v1 ; li v1,128     ; lw v0,4(v0) ; sw v1,0(gp) ; lbu ...
+ *   retail ... addu v0,v0,v1 ; lw v0,4(v0)   ; li v1,128   ; sw v1,0(gp) ; lbu ...
+ * i.e. retail issues the .target LOAD first (its result is consumed 3 slots later by the
+ * lbu, so the li+sw cover the load delay); ours issues the `li` first.  Both are legal
+ * and the register map is identical.  NAMED NEXT ANGLE: the fence is a sched fixpoint --
+ * everything before it cannot sink past.  A device that puts the `li` AFTER the tgt load
+ * in the pre-fence group without adding an insn (the `"r"(tgt[0x447])` operand does it
+ * but costs one) is the whole remaining gap. */
 void Night_SetEnviroment(DRender_tView *Vi)
 
 {
@@ -993,10 +1058,13 @@ void Night_SetEnviroment(DRender_tView *Vi)
     }
     Night_gXDistShift = 10;
     Night_gZDistShift = 0xc;
-    zn = 0x80;
-    __asm__("" : "=r"(zn) : "0"(zn));
-    Night_gZNear = zn;
-    if ((*((u_char *)Camera_gInfo[Vi->player].target + 0x447) & 4) != 0) {
+    /* MATCH (w63-a13): 6 -> 2, count still EXACT 68/68.  See the w63-a13 block
+     * above the function for the mechanism and the falsification list. */
+    u_char *tgt = (u_char *)Camera_gInfo[Vi->player].target;
+    int zn2 = 0x80;
+    __asm__("" : : "r"(zn2));
+    Night_gZNear = zn2;
+    if ((tgt[0x447] & 4) != 0) {
       Night_gZDistShift = 0xd;
       Night_gXDistShift = 0xb;
     }
@@ -1097,6 +1165,48 @@ void Night_SetEnviroment(DRender_tView *Vi)
  * innermost block = 62 @66, doubled = 61, plus a 1-operand read-only fence = 61.
  * Also falsified this pass: identity launders on `x` (72 @66), `z` (75), `xdist` (75),
  * and a block-local `CVECTOR *c = color;` copy used for all six field accesses (71). */
+/* ---- w63-a13 (2026-08-15): 59 STAYS @65/64.  🔴 LAW CORRECTION FIRST -- the w49-a5
+ * "FORMULA CORRECTION" above is ITSELF WRONG, and everything derived from it in this
+ * block (and in HrzSetPsxMatrix's w50-a5 block) must be re-derived.  gcc-2.8.1
+ * global.c:600 (allocno_compare) and local-alloc.c:1727 (QTY_CMP_PRI) both read
+ *     floor_log2(refs) * refs * SIZE / live_length            <- size MULTIPLIES
+ * There is no `- SIZE` term anywhere in either file.  Consequences for THIS fn (size 4
+ * throughout, so the ORDER the w41-a7 dump printed is unchanged -- only the derived
+ * "how far away is the flip" arithmetic changes, and it changes a lot):
+ *     x 2*4*4/10 = 3.20 > xdist 32/11 = 2.91 > z 32/16 = 2.00 = zfar 1*2*4/4 = 2.00
+ *     > znear 32/17 = 1.88 > color 2*7*4/120 = 0.47
+ * and CRITICALLY: zfar's numerator is POSITIVE (+8, not -2), so the w49 claim that "for
+ * any 2-ref pseudo in this fn a LONGER live range RAISES priority" is FALSE -- shorter
+ * live and more refs both raise priority here, with no inversion anywhere.
+ * RE-DERIVED TARGETS (the model's real numbers): to allocate z before x, either
+ *   (a) DEMOTE x below 2.00: shed one ref (3 refs -> 1*3*4/10 = 1.20) OR stretch x's
+ *       live range past 16 (32/17 = 1.88); or
+ *   (b) PROMOTE z above 3.20: z needs SEVEN refs (2*7*4/16 = 3.50; six gives 3.00).
+ * FALSIFIED THIS PASS (all re-gated; all 65/64 unless noted):
+ *   (a) the stretch-and-add-a-ref dial, a zero-insn read-only fence on `x` AFTER its
+ *       last use -- at the end of the inner block 79 . before the three colour stores 79
+ *       . the same on `xdist` 71 . on both 79 . on `z` 71.  Every one moves the gate the
+ *       WRONG way, so the priority model's prediction is not what decides this fn.
+ *   (b) the receipt's OWN named mechanism -- "find_reg SKIPS $v1/$a0 because the
+ *       conflicting `v` allocno PREFERS them" -- attacked with the device that is
+ *       supposed to delete a parm's copy preference (catalog 11A/12E: an asm_operands
+ *       def makes global.c set_preference return early).  Identity launder on `v`:
+ *       alone 75 . before the color launder 59 (bit-identical) . after it 59
+ *       (bit-identical) . both on ONE asm with two tied operands 61 . a read-only fence
+ *       on `v` instead 59 (bit-identical) . the v-launder moved below `z = v->vz;` 63.
+ *       ⇒ laundering `v` does NOT free $v1/$a0 for z/x; the preference skip survives it.
+ * NAMED NEXT ANGLE (untried): retail's x lives in $a0 = `v`'s own home and v is DEAD at
+ * `x = v->vx`, i.e. retail's x looks COMBINED with v (local-alloc combine_regs ties a
+ * load's dest to a dying source).  Ours cannot combine because `v` spans two blocks
+ * (local-alloc.c:1867 refuses a non-block-local source).  So the reachable shape may be
+ * to make `v` BLOCK-LOCAL -- read `v->vz` and `v->vx` through the SAME block-scoped
+ * pointer copy that dies at the vx load -- rather than to dial priorities at all.  (The
+ * w61 block-local `CVECTOR *c = color;` probe was the analogue on the COLOR side; the
+ * `v` side has never been tried.)  EXECUTED SAME PASS AND FALSIFIED: a block-scoped
+ * `VECTOR *vp = v; x = vp->vx;` inside the z-guard = 59, BIT-IDENTICAL (cse copy-props
+ * the pointer copy away, so no new block-local pseudo is ever minted); the same with an
+ * identity launder on `vp` = 65.  ⇒ the combine_regs route needs a device that survives
+ * copy-propagation, not just a narrower scope. */
 void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
 
 {

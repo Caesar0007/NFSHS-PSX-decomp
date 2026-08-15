@@ -1,0 +1,375 @@
+idx  OURS                                       ORACLE                                    
+   0 addiu	sp,sp,-5824                          addiu      $sp, $sp, -0x16C0               
+   1 move	a3,a0                                 addu       $a3, $a0, $zero                 
+   2 sll	v0,a3,0x10                             sll        $v0, $a3, 16                    
+   3 sw	s1,5788(sp)                             sw         $s1, 0x169C($sp)                
+   4 sra	s1,v0,0x10                             sra        $s1, $v0, 16                    
+   5 sll	v0,s1,0x2                              sll        $v0, $s1, 2                     
+   6 sw	s3,5796(sp)                             sw         $s3, 0x16A4($sp)                
+   7 ori	s3,v0,0x1                              ori        $s3, $v0, 0x1                   
+   8 sw	s0,5784(sp)                             sw         $s0, 0x1698($sp)                
+   9 addiu	s0,sp,5568                           addiu      $s0, $sp, 0x15C0                
+  10 move	a0,s0                                 addu       $a0, $s0, $zero                 
+  11 lui	v0,0x0                                 lui        $v0, %hi(CURRENTPLAYER)         
+  12 lui	v1,0x0                                 lui        $v1, %hi(CURRENTLYUSINGMEMCARD) 
+  13 sw	s1,0(v0)                                sw         $s1, %lo(CURRENTPLAYER)($v0)    
+  14 li	v0,1                                    addiu      $v0, $zero, 0x1                 
+  15 sw	ra,5820(sp)                             sw         $ra, 0x16BC($sp)                
+  16 sw	s8,5816(sp)                             sw         $fp, 0x16B8($sp)                
+  17 sw	s7,5812(sp)                             sw         $s7, 0x16B4($sp)                
+  18 sw	s6,5808(sp)                             sw         $s6, 0x16B0($sp)                
+  19 sw	s5,5804(sp)                             sw         $s5, 0x16AC($sp)                
+  20 sw	s4,5800(sp)                             sw         $s4, 0x16A8($sp)                
+  21 sw	s2,5792(sp)                             sw         $s2, 0x16A0($sp)                
+  22 sw	a1,5828(sp)                             sw         $a1, 0x16C4($sp)                
+  23 sw	a2,5832(sp)                             sw         $a2, 0x16C8($sp)                
+  24 sw	v0,0(v1)                                sw         $v0, %lo(CURRENTLYUSINGMEMCARD)($v1) 
+  25 jal	0 <ChecksumData__FP12tMemCardData>     jal        __7tScreen                      
+  26 sh	a3,5768(sp)                             sh        $a3, 0x1688($sp)                 
+  27 lui	v0,0x0                                 lui        $v0, %hi(_vt_11tDialogBase)     
+  28 addiu	v0,v0,0                              addiu      $v0, $v0, %lo(_vt_11tDialogBase) 
+  29 sw	v0,5664(sp)                             sw         $v0, 0x1620($sp)                
+  30 li	v0,288                                  addiu      $v0, $zero, 0x120               
+  31 sw	zero,5680(sp)                           sw         $zero, 0x1630($sp)              
+  32 sh	zero,5678(sp)                           sh         $zero, 0x162E($sp)              
+  33 sh	zero,5698(sp)                           sh         $zero, 0x1642($sp)              
+  34 sh	zero,5694(sp)                           sh         $zero, 0x163E($sp)              
+  35 sh	zero,5692(sp)                           sh         $zero, 0x163C($sp)              
+  36 sh	zero,5676(sp)                           sh         $zero, 0x162C($sp)              
+  37 sh	zero,5674(sp)                           sh         $zero, 0x162A($sp)              
+  38 sh	zero,5672(sp)                           sh         $zero, 0x1628($sp)              
+  39 sh	zero,5670(sp)                           sh         $zero, 0x1626($sp)              
+  40 sh	v0,128(s0)                              sh         $v0, 0x80($s0)                  
+  41 li	v0,-1                                   addiu      $v0, $zero, -0x1                
+  42 sh	v0,100(s0)                              sh         $v0, 0x64($s0)                  
+  43 lui	v0,0x0                                 lui        $v0, %hi(_vt_20tDialogMessageString) 
+  44 addiu	v0,v0,0                              addiu      $v0, $v0, %lo(_vt_20tDialogMessageString) 
+  45 sw	v0,5664(sp)                             sw         $v0, 0x1620($sp)                
+  46 li	v0,128                                  addiu      $v0, $zero, 0x80                
+  47 sh	zero,5704(sp)                           sh         $zero, 0x1648($sp)              
+  48 sw	zero,5688(sp)                           sw         $zero, 0x1638($sp)              
+  49 sw	zero,5716(sp)                           sw         $zero, 0x1654($sp)              
+  50 sw	zero,5700(sp)                           sw         $zero, 0x1644($sp)              
+  51 sw	zero,5688(sp)                           sw         $zero, 0x1638($sp)              
+  52 sw	v0,140(s0)                              sw         $v0, 0x8C($s0)                  
+  53 lui	v0,0x0                                 lui        $v0, %hi(_vt_21tDialogNoInputMessage) 
+  54 lw	t0,5832(sp)                             lw         $t0, 0x16C8($sp)                
+  55 addiu	v0,v0,0                              addiu      $v0, $v0, %lo(_vt_21tDialogNoInputMessage) 
+  56 bnez	t0,c70 <LoadGame__FsbT1+0xf8>   -> 62 bnez       $t0, .L80034F10   -> 62         
+  57 sw	v0,5664(sp)                             sw        $v0, 0x1620($sp)                 
+  58 lw	t1,5828(sp)                             lw         $t1, 0x16C4($sp)                
+  59 nop                                        nop                                        
+  60 beqz	t1,cd8 <LoadGame__FsbT1+0x160>   -> 88 beqz       $t1, .L80034F78   -> 88         
+  61 lui	v0,0x0                                 lui       $v0, %hi(nomessage)              
+  62 jal	0 <ChecksumData__FP12tMemCardData>     jal        TextSys_Word__Fi                .L80034F10: 
+  63 addiu	a0,s1,630                            addiu     $a0, $s1, 0x276                  
+  64 lw	t0,5828(sp)                             lw         $t0, 0x16C4($sp)                
+  65 nop                                        nop                                        
+  66 bnez	t0,c94 <LoadGame__FsbT1+0x11c>   -> 71 bnez       $t0, .L80034F34   -> 71         
+  67 sw	v0,5712(sp)                             sw        $v0, 0x1650($sp)                 
+  68 li	v0,50                                   addiu      $v0, $zero, 0x32                
+  69 sh	zero,5692(sp)                           sh         $zero, 0x163C($sp)              
+  70 sh	v0,5694(sp)                             sh         $v0, 0x163E($sp)                
+  71 jal	0 <ChecksumData__FP12tMemCardData>     jal        Display__11tDialogBase          .L80034F34: 
+  72 move	a0,s0                                 addu      $a0, $s0, $zero                  
+  73 lui	s0,0x0                                 lui        $s0, %hi(FEApp)                 
+  74 lw	v0,5700(sp)                             lw         $v0, 0x1644($sp)                .L80034F40: 
+  75 nop                                        nop                                        
+  76 xori	v0,v0,0x1                             xori       $v0, $v0, 0x1                   
+  77 beqz	v0,cc8 <LoadGame__FsbT1+0x150>   -> 84 beqz       $v0, .L80034F68   -> 84         
+  78 lui	v0,0x0                                 lui       $v0, %hi(FEApp)                  
+  79 lw	a0,0(s0)                                lw         $a0, %lo(FEApp)($s0)            
+  80 jal	0 <ChecksumData__FP12tMemCardData>     jal        Redraw__14tFEApplication        
+  81 nop                                        nop                                        
+  82 j	ca0 <LoadGame__FsbT1+0x128>   -> 74      j          .L80034F40   -> 74              
+  83 nop                                        nop                                        
+  84 lw	a0,0(v0)                                lw         $a0, %lo(FEApp)($v0)            .L80034F68: 
+  85 jal	0 <ChecksumData__FP12tMemCardData>     jal        Redraw__14tFEApplication        
+  86 nop                                        nop                                        
+  87 lui	v0,0x0                                 lui        $v0, %hi(nomessage)             
+  88 move	s1,zero                               addu       $s1, $zero, $zero               .L80034F78: 
+  89 move	s4,s1                                 addu       $s4, $s1, $zero                 
+  90 lw	t1,5832(sp)                             lw         $t1, 0x16C8($sp)                
+  91 li	s8,44                                   addiu      $fp, $zero, 0x2C                
+  92 beqz	t1,cf4 <LoadGame__FsbT1+0x17c>   -> 95 beqz       $t1, .L80034F94   -> 95         
+  93 sw	zero,0(v0)                              sw        $zero, %lo(nomessage)($v0)       
+  94 move	s8,s1                                 addu       $fp, $s1, $zero                 
+  95 li	s2,653                                  addiu      $s2, $zero, 0x28D               .L80034F94: 
+  96 lhu	t0,5768(sp)                            lhu        $t0, 0x1688($sp)                
+  97 sll	s5,s3,0x10                             sll        $s5, $s3, 16                    
+  98 sll	t0,t0,0x10                             sll        $t0, $t0, 16                    
+  99 sw	t0,5776(sp)                             sw         $t0, 0x1690($sp)                
+ 100 jal	0 <ChecksumData__FP12tMemCardData>     jal        MakeWayForMemoryCard__Fv        .L80034FA8: 
+ 101 addiu	s8,s8,1                              addiu     $fp, $fp, 0x1                    
+ 102 addiu	a0,sp,5720                           addiu      $a0, $sp, 0x1658                
+ 103 sra	a1,s5,0x10                             sra        $a1, $s5, 16                    
+ 104 jal	0 <ChecksumData__FP12tMemCardData>     jal        Init_MemcardFile__FR12MCRDFILE_defsb 
+ 105 li	a2,1                                    addiu     $a2, $zero, 0x1                  
+ 106 jal	0 <ChecksumData__FP12tMemCardData>     jal        MCRD_handlecardevents           .L80034FC0: 
+ 107 sra	a0,s5,0x10                             sra       $a0, $s5, 16                     
+ 108 li	t1,21                                   addiu      $t1, $zero, 0x15                
+ 109 bne	v0,t1,d44 <LoadGame__FsbT1+0x1cc>   -> 115 bne        $v0, $t1, .L80034FE4   -> 115   
+ 110 addiu	v0,sp,16                             addiu     $v0, $sp, 0x10                   
+ 111 jal	0 <ChecksumData__FP12tMemCardData>     jal        VSync                           
+ 112 move	a0,zero                               addu      $a0, $zero, $zero                
+ 113 j	d20 <LoadGame__FsbT1+0x1a8>   -> 106     j          .L80034FC0   -> 106             
+ 114 nop                                        nop                                        
+ 115 lw	t0,5776(sp)                             lw         $t0, 0x1690($sp)                .L80034FE4: 
+ 116 sw	v0,5740(sp)                             sw         $v0, 0x166C($sp)                
+ 117 sw	zero,5736(sp)                           sw         $zero, 0x1668($sp)              
+ 118 sra	s3,t0,0x10                             sra        $s3, $t0, 16                    
+ 119 sll	s7,s3,0x3                              sll        $s7, $s3, 3                     
+ 120 sll	t1,s3,0x2                              sll        $t1, $s3, 2                     
+ 121 lui	t0,0x0                                 lui        $t0, %hi(frontEnd)              
+ 122 addiu	t0,t0,0                              addiu      $t0, $t0, %lo(frontEnd)         
+ 123 addu	s6,t1,t0                              addu       $s6, $t1, $t0                   
+ 124 sw	t1,5780(sp)                             sw         $t1, 0x1694($sp)                
+ 125 bnez	s1,f98 <LoadGame__FsbT1+0x420>   -> 264 bnez       $s1, .L80035238   -> 264        .L8003500C: 
+ 126 li	s0,22                                   addiu     $s0, $zero, 0x16                 
+ 127 jal	0 <ChecksumData__FP12tMemCardData>     jal        MCRD_handlecardevents           
+ 128 sra	a0,s5,0x10                             sra       $a0, $s5, 16                     
+ 129 move	a0,zero                               addu       $a0, $zero, $zero               
+ 130 jal	0 <ChecksumData__FP12tMemCardData>     jal        systemtask                      
+ 131 move	s0,v0                                 addu      $s0, $v0, $zero                  
+ 132 jal	0 <ChecksumData__FP12tMemCardData>     jal        VSync                           
+ 133 move	a0,zero                               addu      $a0, $zero, $zero                
+ 134 addiu	s0,s0,-2                             addiu      $s0, $s0, -0x2                  
+ 135 sltiu	v0,s0,22                             sltiu      $v0, $s0, 0x16                  
+ 136 beqz	v0,d6c <LoadGame__FsbT1+0x1f4>   -> 125 beqz       $v0, .L8003500C   -> 125        
+ 137 sll	v0,s0,0x2                              sll       $v0, $s0, 2                      
+ 138 lui	t1,0x0                                 lui        $t1, %hi(jtbl_80011750)         
+ 139 addiu	t1,t1,120                            addiu      $t1, $t1, %lo(jtbl_80011750)    
+ 140 addu	v0,v0,t1                              addu       $v0, $v0, $t1                   
+ 141 lw	v0,0(v0)                                lw         $v0, 0x0($v0)                   
+ 142 nop                                        nop                                        
+ 143 jr	v0                                      jr         $v0                             
+ 144 nop                                        nop                                        
+ 145 sra	a0,s5,0x10                             sra        $a0, $s5, 16                    .L8003505C: 
+ 146 addiu	a1,sp,5720                           addiu      $a1, $sp, 0x1658                
+ 147 jal	0 <ChecksumData__FP12tMemCardData>     jal        MCRD_loadfile                   
+ 148 move	a2,zero                               addu      $a2, $zero, $zero                
+ 149 j	d6c <LoadGame__FsbT1+0x1f4>   -> 125     j          .L8003500C   -> 125             
+ 150 nop                                        nop                                        
+ 151 jal	0 <ChecksumData__FP12tMemCardData>     jal        VerifySuccessfulRead__FP12tMemCardData .L80035074: 
+ 152 addiu	a0,sp,16                             addiu     $a0, $sp, 0x10                   
+ 153 beqz	v0,ed4 <LoadGame__FsbT1+0x35c>   -> 215 beqz       $v0, .L80035174   -> 215        
+ 154 nop                                        nop                                        
+ 155 lw	t0,5828(sp)                             lw         $t0, 0x16C4($sp)                
+ 156 nop                                        nop                                        
+ 157 bnez	t0,e84 <LoadGame__FsbT1+0x30c>   -> 195 bnez       $t0, .L80035124   -> 195        
+ 158 move	s4,zero                               addu      $s4, $zero, $zero                
+ 159 bnez	s3,e50 <LoadGame__FsbT1+0x2d8>   -> 182 bnez       $s3, .L800350F0   -> 182        
+ 160 addiu	a0,sp,24                             addiu     $a0, $sp, 0x18                   
+ 161 lui	t1,0x0                                 lui        $t1, %hi(frontEnd)              
+ 162 addiu	a1,t1,0                              addiu      $a1, $t1, %lo(frontEnd)         
+ 163 jal	0 <ChecksumData__FP12tMemCardData>     jal        blockmove                       
+ 164 li	a2,1104                                 addiu     $a2, $zero, 0x450                
+ 165 lui	a0,0x0                                 lui        $a0, %hi(tournamentManager)     
+ 166 addiu	a0,a0,0                              addiu      $a0, $a0, %lo(tournamentManager) 
+ 167 jal	0 <ChecksumData__FP12tMemCardData>     jal        LoadTournament__18tTournamentManagerR15tSaveTournament 
+ 168 addiu	a1,sp,1368                           addiu     $a1, $sp, 0x558                  
+ 169 lui	a0,0x0                                 lui        $a0, %hi(trackManager)          
+ 170 addiu	a0,a0,0                              addiu      $a0, $a0, %lo(trackManager)     
+ 171 jal	0 <ChecksumData__FP12tMemCardData>     jal        LoadTracks__13tTrackManagerR14tSaveTrackInfo 
+ 172 addiu	a1,sp,1352                           addiu     $a1, $sp, 0x548                  
+ 173 addiu	a0,sp,1544                           addiu      $a0, $sp, 0x608                 
+ 174 lui	a1,0x0                                 lui        $a1, %hi(Stats_gTrackRecords)   
+ 175 addiu	a1,a1,0                              addiu      $a1, $a1, %lo(Stats_gTrackRecords) 
+ 176 jal	0 <ChecksumData__FP12tMemCardData>     jal        blockmove                       
+ 177 li	a2,3740                                 addiu     $a2, $zero, 0xE9C                
+ 178 jal	0 <ChecksumData__FP12tMemCardData>     jal        FECheat_LoadBonus__FRUl         
+ 179 addiu	a0,sp,20                             addiu     $a0, $sp, 0x14                   
+ 180 j	e68 <LoadGame__FsbT1+0x2f0>   -> 188     j          .L80035108   -> 188             
+ 181 lui	a0,0x0                                 lui       $a0, %hi(carManager)             
+ 182 lui	a0,0x0                                 lui        $a0, %hi(D_80114964)            .L800350F0: 
+ 183 addiu	a0,a0,868                            addiu      $a0, $a0, %lo(D_80114964)       
+ 184 addu	a0,s7,a0                              addu       $a0, $s7, $a0                   
+ 185 jal	0 <ChecksumData__FP12tMemCardData>     jal        sprintf                         
+ 186 addiu	a1,sp,892                            addiu     $a1, $sp, 0x37C                  
+ 187 lui	a0,0x0                                 lui        $a0, %hi(carManager)            
+ 188 addiu	a0,a0,0                              addiu      $a0, $a0, %lo(carManager)       .L80035108: 
+ 189 lw	t0,5776(sp)                             lw         $t0, 0x1690($sp)                
+ 190 addiu	a1,sp,1128                           addiu      $a1, $sp, 0x468                 
+ 191 jal	0 <ChecksumData__FP12tMemCardData>     jal        LoadCars__11tCarManagerR12tSaveCarInfos 
+ 192 sra	a2,t0,0x10                             sra       $a2, $t0, 16                     
+ 193 j	ec4 <LoadGame__FsbT1+0x34c>   -> 211     j          .L80035164   -> 211             
+ 194 nop                                        nop                                        
+ 195 lui	a0,0x0                                 lui        $a0, %hi(carManager)            .L80035124: 
+ 196 addiu	a0,a0,0                              addiu      $a0, $a0, %lo(carManager)       
+ 197 addiu	a1,sp,1128                           addiu      $a1, $sp, 0x468                 
+ 198 lw	v0,5284(sp)                             lw         $v0, 0x14A4($sp)                
+ 199 move	a2,s3                                 addu       $a2, $s3, $zero                 
+ 200 jal	0 <ChecksumData__FP12tMemCardData>     jal        LoadPinkSlipsCars__11tCarManagerR12tSaveCarInfos 
+ 201 sw	v0,1084(s6)                             sw        $v0, 0x43C($s6)                  
+ 202 lui	t1,0x0                                 lui        $t1, %hi(frontEnd)              
+ 203 addiu	t1,t1,0                              addiu      $t1, $t1, %lo(frontEnd)         
+ 204 addiu	a0,t1,868                            addiu      $a0, $t1, 0x364                 
+ 205 addu	a0,s7,a0                              addu       $a0, $s7, $a0                   
+ 206 jal	0 <ChecksumData__FP12tMemCardData>     jal        sprintf                         
+ 207 addiu	a1,sp,892                            addiu     $a1, $sp, 0x37C                  
+ 208 lw	v0,1368(sp)                             lw         $v0, 0x558($sp)                 
+ 209 nop                                        nop                                        
+ 210 sw	v0,76(s6)                               sw         $v0, 0x4C($s6)                  
+ 211 jal	0 <ChecksumData__FP12tMemCardData>     jal        SetPads__Fv                     .L80035164: 
+ 212 li	s2,653                                  addiu     $s2, $zero, 0x28D                
+ 213 j	d6c <LoadGame__FsbT1+0x1f4>   -> 125     j          .L8003500C   -> 125             
+ 214 li	s1,1                                    addiu     $s1, $zero, 0x1                  
+ 215 lw	t0,5832(sp)                             lw         $t0, 0x16C8($sp)                .L80035174: 
+ 216 nop                                        nop                                        
+ 217 beqz	t0,ecc <LoadGame__FsbT1+0x354>   -> 213 beqz       $t0, .L80035230   -> 262         <<<<<<
+ 218 li	s4,1                                    addiu     $s4, $zero, 0x1                  
+ 219 lui	v0,0x0                                 lui        $v0, %hi(nomessage)             
+ 220 lw	v0,0(v0)                                lw         $v0, %lo(nomessage)($v0)        
+ 221 nop                                        nop                                        
+ 222 bnez	v0,d6c <LoadGame__FsbT1+0x1f4>   -> 125 bnez       $v0, .L8003500C   -> 125        
+ 223 li	s1,1                                    addiu     $s1, $zero, 0x1                  
+ 224 lui	s1,0x0                                 lui        $s1, %hi(FEApp)                 
+ 225 lw	a0,0(s1)                                lw         $a0, %lo(FEApp)($s1)            
+ 226 jal	0 <ChecksumData__FP12tMemCardData>     jal        Hide__11tDialogBase             
+ 227 addiu	a0,a0,720                            addiu     $a0, $a0, 0x2D0                  
+ 228 lw	a0,0(s1)                                lw         $a0, %lo(FEApp)($s1)            
+ 229 jal	0 <ChecksumData__FP12tMemCardData>     jal        Hide__11tDialogBase             
+ 230 addiu	a0,a0,568                            addiu     $a0, $a0, 0x238                  
+ 231 lw	s0,0(s1)                                lw         $s0, %lo(FEApp)($s1)            
+ 232 addiu	a0,s3,809                            addiu      $a0, $s3, 0x329                 
+ 233 jal	0 <ChecksumData__FP12tMemCardData>     jal        TextSys_Word__Fi                
+ 234 addiu	s0,s0,568                            addiu     $s0, $s0, 0x238                  
+ 235 lw	a0,0(s1)                                lw         $a0, %lo(FEApp)($s1)            
+ 236 sw	v0,144(s0)                              sw         $v0, 0x90($s0)                  
+ 237 jal	0 <ChecksumData__FP12tMemCardData>     jal        Display__11tDialogBase          
+ 238 addiu	a0,a0,568                            addiu     $a0, $a0, 0x238                  
+ 239 j	d6c <LoadGame__FsbT1+0x1f4>   -> 125     j          .L8003500C   -> 125             
+ 240 li	s1,1                                    addiu     $s1, $zero, 0x1                  
+ 241 lw	t1,5780(sp)                             lw         $t1, 0x1694($sp)                .L800351DC: 
+ 242 jal	0 <ChecksumData__FP12tMemCardData>     jal        MCRD_getcard                    
+ 243 addiu	a0,t1,1                              addiu     $a0, $t1, 0x1                    
+ 244 lui	v1,0x0                                 lui        $v1, %hi(FEApp)                 
+ 245 lw	a0,0(v1)                                lw         $a0, %lo(FEApp)($v1)            
+ 246 move	s0,v0                                 addu       $s0, $v0, $zero                 
+ 247 jal	0 <ChecksumData__FP12tMemCardData>     jal        Hide__11tDialogBase             
+ 248 addiu	a0,a0,720                            addiu     $a0, $a0, 0x2D0                  
+ 249 lw	s0,0(s0)                                lw         $s0, 0x0($s0)                   
+ 250 li	v0,-2                                   addiu      $v0, $zero, -0x2                
+ 251 bne	s0,v0,f78 <LoadGame__FsbT1+0x400>   -> 256 bne        $s0, $v0, .L80035218   -> 256   
+ 252 li	v0,-1                                   addiu     $v0, $zero, -0x1                 
+ 253 li	s2,671                                  addiu      $s2, $zero, 0x29F               
+ 254 j	ecc <LoadGame__FsbT1+0x354>   -> 213     j          .L80035230   -> 262              <<<<<<
+ 255 li	s4,2                                    addiu     $s4, $zero, 0x2                  
+ 256 bne	s0,v0,f8c <LoadGame__FsbT1+0x414>   -> 261 bne        $s0, $v0, .L8003522C   -> 261   .L80035218: 
+ 257 li	s4,1                                    addiu     $s4, $zero, 0x1                  
+ 258 li	s4,3                                    addiu      $s4, $zero, 0x3                 
+ 259 j	ecc <LoadGame__FsbT1+0x354>   -> 213     j          .L80035230   -> 262              <<<<<<
+ 260 li	s2,811                                  addiu     $s2, $zero, 0x32B                
+ 261 li	s2,809                                  addiu      $s2, $zero, 0x329               .L8003522C: 
+ 262 j	d6c <LoadGame__FsbT1+0x1f4>   -> 125     j          .L8003500C   -> 125             .L80035230: 
+ 263 li	s1,1                                    addiu     $s1, $zero, 0x1                  
+ 264 jal	0 <ChecksumData__FP12tMemCardData>     jal        MCRD_handlecardevents           .L80035238: 
+ 265 sra	a0,s5,0x10                             sra       $a0, $s5, 16                     
+ 266 beq	v0,s0,fb8 <LoadGame__FsbT1+0x440>   -> 272 beq        $v0, $s0, .L80035258   -> 272   
+ 267 nop                                        nop                                        
+ 268 jal	0 <ChecksumData__FP12tMemCardData>     jal        VSync                           
+ 269 move	a0,zero                               addu      $a0, $zero, $zero                
+ 270 j	f98 <LoadGame__FsbT1+0x420>   -> 264     j          .L80035238   -> 264             
+ 271 nop                                        nop                                        
+ 272 jal	0 <ChecksumData__FP12tMemCardData>     jal        BringThatBeatBack__Fv           .L80035258: 
+ 273 nop                                        nop                                        
+ 274 li	v0,653                                  addiu      $v0, $zero, 0x28D               
+ 275 beq	s2,v0,fd4 <LoadGame__FsbT1+0x45c>   -> 279 beq        $s2, $v0, .L80035274   -> 279   
+ 276 slti	v0,s8,3                               slti      $v0, $fp, 0x3                    
+ 277 bnez	v0,d08 <LoadGame__FsbT1+0x190>   -> 100 bnez       $v0, .L80034FA8   -> 100        
+ 278 nop                                        nop                                        
+ 279 lw	t0,5832(sp)                             lw         $t0, 0x16C8($sp)                .L80035274: 
+ 280 nop                                        nop                                        
+ 281 beqz	t0,1070 <LoadGame__FsbT1+0x4f8>   -> 318 beqz       $t0, .L80035310   -> 318        
+ 282 lui	v0,0x0                                 lui       $v0, %hi(nomessage)              
+ 283 lw	v0,0(v0)                                lw         $v0, %lo(nomessage)($v0)        
+ 284 nop                                        nop                                        
+ 285 bnez	v0,1074 <LoadGame__FsbT1+0x4fc>   -> 319 bnez       $v0, .L80035314   -> 319        
+ 286 lui	v0,0x0                                 lui       $v0, %hi(frontEnd)               
+ 287 lui	s1,0x0                                 lui        $s1, %hi(FEApp)                 
+ 288 lw	a0,0(s1)                                lw         $a0, %lo(FEApp)($s1)            
+ 289 jal	0 <ChecksumData__FP12tMemCardData>     jal        Hide__11tDialogBase             
+ 290 addiu	a0,a0,720                            addiu     $a0, $a0, 0x2D0                  
+ 291 lw	a0,0(s1)                                lw         $a0, %lo(FEApp)($s1)            
+ 292 jal	0 <ChecksumData__FP12tMemCardData>     jal        Hide__11tDialogBase             
+ 293 addiu	a0,a0,568                            addiu     $a0, $a0, 0x238                  
+ 294 lhu	t1,5768(sp)                            lhu        $t1, 0x1688($sp)                
+ 295 lw	s0,0(s1)                                lw         $s0, %lo(FEApp)($s1)            
+ 296 sll	a0,t1,0x10                             sll        $a0, $t1, 16                    
+ 297 sra	a0,a0,0x10                             sra        $a0, $a0, 16                    
+ 298 addu	a0,s2,a0                              addu       $a0, $s2, $a0                   
+ 299 jal	0 <ChecksumData__FP12tMemCardData>     jal        TextSys_Word__Fi                
+ 300 addiu	s0,s0,568                            addiu     $s0, $s0, 0x238                  
+ 301 lw	a0,0(s1)                                lw         $a0, %lo(FEApp)($s1)            
+ 302 sw	v0,144(s0)                              sw         $v0, 0x90($s0)                  
+ 303 jal	0 <ChecksumData__FP12tMemCardData>     jal        Display__11tDialogBase          
+ 304 addiu	a0,a0,568                            addiu     $a0, $a0, 0x238                  
+ 305 lw	a0,0(s1)                                lw         $a0, %lo(FEApp)($s1)            .L800352DC: 
+ 306 nop                                        nop                                        
+ 307 lw	v0,700(a0)                              lw         $v0, 0x2BC($a0)                 
+ 308 nop                                        nop                                        
+ 309 xori	v0,v0,0x1                             xori       $v0, $v0, 0x1                   
+ 310 beqz	v0,1068 <LoadGame__FsbT1+0x4f0>   -> 316 beqz       $v0, .L80035308   -> 316        
+ 311 nop                                        nop                                        
+ 312 jal	0 <ChecksumData__FP12tMemCardData>     jal        Redraw__14tFEApplication        
+ 313 nop                                        nop                                        
+ 314 j	103c <LoadGame__FsbT1+0x4c4>   -> 305    j          .L800352DC   -> 305             
+ 315 nop                                        nop                                        
+ 316 jal	0 <ChecksumData__FP12tMemCardData>     jal        Redraw__14tFEApplication        .L80035308: 
+ 317 nop                                        nop                                        
+ 318 lui	v0,0x0                                 lui        $v0, %hi(frontEnd)              .L80035310: 
+ 319 lhu	t0,5768(sp)                            lhu        $t0, 0x1688($sp)                .L80035314: 
+ 320 addiu	s0,v0,0                              addiu      $s0, $v0, %lo(frontEnd)         
+ 321 sll	a0,t0,0x10                             sll        $a0, $t0, 16                    
+ 322 sra	a0,a0,0x10                             sra        $a0, $a0, 16                    
+ 323 addu	v0,a0,s0                              addu       $v0, $a0, $s0                   
+ 324 lbu	a1,866(v0)                             lbu        $a1, 0x362($v0)                 
+ 325 jal	0 <ChecksumData__FP12tMemCardData>     jal        Front_ResetPSXController__Fii   
+ 326 nop                                        nop                                        
+ 327 lw	t1,5828(sp)                             lw         $t1, 0x16C4($sp)                
+ 328 nop                                        nop                                        
+ 329 bnez	t1,10c4 <LoadGame__FsbT1+0x54c>   -> 339 bnez       $t1, .L80035364   -> 339        
+ 330 li	v0,6                                    addiu     $v0, $zero, 0x6                  
+ 331 lbu	v1,4(s0)                               lbu        $v1, 0x4($s0)                   
+ 332 nop                                        nop                                        
+ 333 bne	v1,v0,10b8 <LoadGame__FsbT1+0x540>   -> 336 bne        $v1, $v0, .L80035358   -> 336   
+ 334 nop                                        nop                                        
+ 335 sb	zero,4(s0)                              sb         $zero, 0x4($s0)                 
+ 336 lbu	v1,834(s0)                             lbu        $v1, 0x342($s0)                 .L80035358: 
+ 337 lui	v0,0x0                                 lui        $v0, %hi(gMasterSFXLevel)       
+ 338 sw	v1,0(v0)                                sw         $v1, %lo(gMasterSFXLevel)($v0)  
+ 339 lw	t0,5832(sp)                             lw         $t0, 0x16C8($sp)                .L80035364: 
+ 340 nop                                        nop                                        
+ 341 bnez	t0,10e4 <LoadGame__FsbT1+0x56c>   -> 347 bnez       $t0, .L80035384   -> 347        
+ 342 nop                                        nop                                        
+ 343 lw	t1,5828(sp)                             lw         $t1, 0x16C4($sp)                
+ 344 nop                                        nop                                        
+ 345 beqz	t1,10f0 <LoadGame__FsbT1+0x578>   -> 350 beqz       $t1, .L80035390   -> 350        
+ 346 nop                                        nop                                        
+ 347 jal	0 <ChecksumData__FP12tMemCardData>     jal        Hide__11tDialogBase             .L80035384: 
+ 348 addiu	a0,sp,5568                           addiu     $a0, $sp, 0x15C0                 
+ 349 lw	t0,5832(sp)                             lw         $t0, 0x16C8($sp)                
+ 350 nop                                        nop                                        .L80035390: 
+ 351 beqz	t0,1108 <LoadGame__FsbT1+0x590>   -> 356 beqz       $t0, .L800353A8   -> 356        
+ 352 lui	v0,0x0                                 lui       $v0, %hi(FEApp)                  
+ 353 lw	a0,0(v0)                                lw         $a0, %lo(FEApp)($v0)            
+ 354 jal	0 <ChecksumData__FP12tMemCardData>     jal        Redraw__14tFEApplication        
+ 355 nop                                        nop                                        
+ 356 lui	v0,0x0                                 lui        $v0, %hi(CURRENTLYUSINGMEMCARD) .L800353A8: 
+ 357 addiu	a0,sp,5568                           addiu      $a0, $sp, 0x15C0                
+ 358 li	a1,2                                    addiu      $a1, $zero, 0x2                 
+ 359 jal	0 <ChecksumData__FP12tMemCardData>     jal        ___7tScreen                     
+ 360 sw	zero,0(v0)                              sw        $zero, %lo(CURRENTLYUSINGMEMCARD)($v0) 
+ 361 move	v0,s4                                 addu       $v0, $s4, $zero                 
+ 362 lw	ra,5820(sp)                             lw         $ra, 0x16BC($sp)                
+ 363 lw	s8,5816(sp)                             lw         $fp, 0x16B8($sp)                
+ 364 lw	s7,5812(sp)                             lw         $s7, 0x16B4($sp)                
+ 365 lw	s6,5808(sp)                             lw         $s6, 0x16B0($sp)                
+ 366 lw	s5,5804(sp)                             lw         $s5, 0x16AC($sp)                
+ 367 lw	s4,5800(sp)                             lw         $s4, 0x16A8($sp)                
+ 368 lw	s3,5796(sp)                             lw         $s3, 0x16A4($sp)                
+ 369 lw	s2,5792(sp)                             lw         $s2, 0x16A0($sp)                
+ 370 lw	s1,5788(sp)                             lw         $s1, 0x169C($sp)                
+ 371 lw	s0,5784(sp)                             lw         $s0, 0x1698($sp)                
+ 372 jr	ra                                      jr         $ra                             
+ 373 addiu	sp,sp,5824                           addiu     $sp, $sp, 0x16C0                 

@@ -1,0 +1,22 @@
+[
+ [
+  "A fence after success finished",
+  "FAIL 3 diffs (ours 375 / oracle 374)",
+  "3 offset diffs [(8, 140, 139), (11, 63, 62), (28, -178, -177)]"
+ ],
+ [
+  "B fence before success finished",
+  "PASS (374 insns)",
+  "3 offset diffs [(17, -4, 45), (21, -41, 8), (23, -46, 3)]"
+ ],
+ [
+  "C fence after failure finished",
+  "FAIL 3 diffs (ours 375 / oracle 374)",
+  "5 offset diffs [(8, 140, 139), (17, 22, 45), (21, -42, 8), (23, -47, 3), (28, -178, -177)]"
+ ],
+ [
+  "D fences A+C",
+  "FAIL 6 diffs (ours 376 / oracle 374)",
+  "4 offset diffs [(8, 141, 139), (11, 63, 62), (17, 22, 45), (28, -179, -177)]"
+ ]
+]

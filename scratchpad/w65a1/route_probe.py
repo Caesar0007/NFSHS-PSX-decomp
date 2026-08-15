@@ -19,9 +19,9 @@ sys.path.insert(0, str(ROOT / 'tools'))
 OBJD = r'C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-objdump.exe'
 BR = re.compile(r'^\s*(b\w*|j)\b')
 
-src = (ROOT / 'tools' / 'verify_asm.py').read_text()
+src = (ROOT / 'scratchpad' / 'w65a1' / 'verify_probe.py').read_text()
 head = src.split('allpass=True')[0]
-g = {'__name__': '__vsrc__', '__file__': str(ROOT / 'tools' / 'verify_asm.py')}
+g = {'__name__': '__vsrc__', '__file__': str(ROOT / 'scratchpad' / 'w65a1' / 'verify_probe.py')}
 cpp = sys.argv[1]
 fn = sys.argv[2]
 lo = int(sys.argv[3]) if len(sys.argv) > 3 else 0

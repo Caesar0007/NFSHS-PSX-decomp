@@ -1,0 +1,12 @@
+[
+ [
+  "V5 goto lg_finish from failure",
+  "PASS (374 insns)",
+  "3 offset diffs [(17, -4, 45), (21, -41, 8), (23, -46, 3)]"
+ ],
+ [
+  "V6 V5 + getcard arms goto too",
+  "PASS (374 insns)",
+  "3 offset diffs [(17, -4, 45), (21, -41, 8), (23, -46, 3)]"
+ ]
+]

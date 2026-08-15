@@ -1,0 +1,18 @@
+{
+ "file": "recon/frontend/common/fememcard.cpp",
+ "fn": "LoadGame__FsbT1",
+ "variants": [
+  {"name": "V5 goto lg_finish from failure",
+   "edits": [["        result = 1;\n        if (WithDialogs != 0) {\n          if (nomessage_arr[0] == 0) {",
+              "        result = 1;\n        if (WithDialogs == 0) goto lg_finish;\n        {\n          if (nomessage_arr[0] == 0) {"],
+             ["          }\n        }\n      }\n      finished = true;\n    }\n  }",
+              "          }\n        }\n      }\nlg_finish:\n      finished = true;\n    }\n  }"]]},
+  {"name": "V6 V5 + getcard arms goto too",
+   "edits": [["        result = 1;\n        if (WithDialogs != 0) {\n          if (nomessage_arr[0] == 0) {",
+              "        result = 1;\n        if (WithDialogs == 0) goto lg_finish;\n        {\n          if (nomessage_arr[0] == 0) {"],
+             ["          returnmessage = 0x29f;\n          result = 2;\n        }",
+              "          returnmessage = 0x29f;\n          result = 2;\n          goto lg_finish;\n        }"],
+             ["          }\n        }\n      }\n      finished = true;\n    }\n  }",
+              "          }\n        }\n      }\nlg_finish:\n      finished = true;\n    }\n  }"]]}
+ ]
+}

@@ -1,0 +1,20 @@
+{
+ "file": "recon/frontend/common/fememcard.cpp",
+ "fn": "LoadGame__FsbT1",
+ "variants": [
+  {"name": "V1 getcard finished inside braces",
+   "edits": [["          }\n        }\n      }\n      finished = true;\n    }\n  }",
+              "          }\n        }\n        finished = true;\n      }\n    }\n  }"]]},
+  {"name": "V2 flat && failure dialog guard",
+   "edits": [["        if (WithDialogs != 0) {\n          if (nomessage_arr[0] == 0) {\n            Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);\n            Hide((tDialogBase *)&FEApp[0]->MemCardDialog);\n            /* dlgmsg held across the TextSys call (inlined-this block, s0) */\n            tDialogMessageString *dlgmsg = &FEApp[0]->MemCardDialog;\n            char *dialogText = TextSys_Word(player + 0x329);",
+              "        if ((WithDialogs != 0) && (nomessage_arr[0] == 0)) {\n          {\n            Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);\n            Hide((tDialogBase *)&FEApp[0]->MemCardDialog);\n            /* dlgmsg held across the TextSys call (inlined-this block, s0) */\n            tDialogMessageString *dlgmsg = &FEApp[0]->MemCardDialog;\n            char *dialogText = TextSys_Word(player + 0x329);"]]},
+  {"name": "V3 success finished first",
+   "edits": [["        returnmessage = 0x28d;\n        SetPads();\n        finished = true;\n      }\n      else {",
+              "        finished = true;\n        returnmessage = 0x28d;\n        SetPads();\n      }\n      else {"]]},
+  {"name": "V4 failure finished first",
+   "edits": [["        result = 1;\n        if (WithDialogs != 0) {",
+              "        result = 1;\n        finished = true;\n        if (WithDialogs != 0) {"],
+             ["          }\n        }\n        finished = true;\n      }\n      break;\n    case 2:",
+              "          }\n        }\n      }\n      break;\n    case 2:"]]}
+ ]
+}

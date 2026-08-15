@@ -1,0 +1,12 @@
+[
+ [
+  "V1 role-swap arms reordered",
+  "PASS (226 insns)",
+  "br-CLEAN"
+ ],
+ [
+  "V2 role-swap, no empty asm",
+  "PASS (226 insns)",
+  "br-CLEAN"
+ ]
+]

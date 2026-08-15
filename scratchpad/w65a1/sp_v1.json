@@ -1,0 +1,20 @@
+{
+ "file": "recon/frontend/common/fememcard.cpp",
+ "fn": "SavePinkSlipsCars__Fss",
+ "variants": [
+  {"name": "V1 role-swap arms reordered",
+   "edits": [
+    ["      else {\n        goto load_failed_outer;\n      }",
+     "      else {\n        result = PinkSlipsError_LoadFailed;\n        goto finish_outer_card_case;\n      }"],
+    ["    case 3:\n    case 7:\n    case 10:\n    case 0xb:\n    case 0x17:\n      result = PinkSlipsError_LoadFailed;\n      goto finish_outer_card_case;\n    case 2:\n    case 0x10:\n      {\n        CARDINFO_def *pCVar7 = MCRD_getcard(player * 4 + 1);\n        result = PinkSlipsError_NotFormatted;\n        if (pCVar7->status != -2) {\n          result = PinkSlipsError_LoadFailed;\n          if (pCVar7->status == -1) {\n            result = PinkSlipsError_CardNotFound;\n          }\n        }\n      }\nfinish_outer_card_case:\n      __asm__(\"\");\n      finished = true;\n      break;\nload_failed_outer:\n      finished = true;\n      result = PinkSlipsError_LoadFailed;\n      break;\n    }",
+     "    case 2:\n    case 0x10:\n      {\n        CARDINFO_def *pCVar7 = MCRD_getcard(player * 4 + 1);\n        result = PinkSlipsError_NotFormatted;\n        if (pCVar7->status != -2) {\n          result = PinkSlipsError_LoadFailed;\n          if (pCVar7->status == -1) {\n            result = PinkSlipsError_CardNotFound;\n          }\n        }\n      }\nfinish_outer_card_case:\n      __asm__(\"\");\n      finished = true;\n      break;\n    case 3:\n    case 7:\n    case 10:\n    case 0xb:\n    case 0x17:\n      finished = true;\n      result = PinkSlipsError_LoadFailed;\n      break;\n    }"]
+   ]},
+  {"name": "V2 role-swap, no empty asm",
+   "edits": [
+    ["      else {\n        goto load_failed_outer;\n      }",
+     "      else {\n        result = PinkSlipsError_LoadFailed;\n        goto finish_outer_card_case;\n      }"],
+    ["    case 3:\n    case 7:\n    case 10:\n    case 0xb:\n    case 0x17:\n      result = PinkSlipsError_LoadFailed;\n      goto finish_outer_card_case;\n    case 2:\n    case 0x10:\n      {\n        CARDINFO_def *pCVar7 = MCRD_getcard(player * 4 + 1);\n        result = PinkSlipsError_NotFormatted;\n        if (pCVar7->status != -2) {\n          result = PinkSlipsError_LoadFailed;\n          if (pCVar7->status == -1) {\n            result = PinkSlipsError_CardNotFound;\n          }\n        }\n      }\nfinish_outer_card_case:\n      __asm__(\"\");\n      finished = true;\n      break;\nload_failed_outer:\n      finished = true;\n      result = PinkSlipsError_LoadFailed;\n      break;\n    }",
+     "    case 2:\n    case 0x10:\n      {\n        CARDINFO_def *pCVar7 = MCRD_getcard(player * 4 + 1);\n        result = PinkSlipsError_NotFormatted;\n        if (pCVar7->status != -2) {\n          result = PinkSlipsError_LoadFailed;\n          if (pCVar7->status == -1) {\n            result = PinkSlipsError_CardNotFound;\n          }\n        }\n      }\nfinish_outer_card_case:\n      finished = true;\n      break;\n    case 3:\n    case 7:\n    case 10:\n    case 0xb:\n    case 0x17:\n      finished = true;\n      result = PinkSlipsError_LoadFailed;\n      break;\n    }"]
+   ]}
+ ]
+}

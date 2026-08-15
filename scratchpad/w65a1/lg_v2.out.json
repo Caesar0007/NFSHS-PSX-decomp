@@ -1,0 +1,22 @@
+[
+ [
+  "V1 getcard finished inside braces",
+  "PASS (374 insns)",
+  "3 offset diffs [(17, -4, 45), (21, -41, 8), (23, -46, 3)]"
+ ],
+ [
+  "V2 flat && failure dialog guard",
+  "PASS (374 insns)",
+  "3 offset diffs [(17, -4, 45), (21, -41, 8), (23, -46, 3)]"
+ ],
+ [
+  "V3 success finished first",
+  "FAIL 9 diffs (ours 375 / oracle 374)",
+  "4 offset diffs [(8, 140, 139), (11, 63, 62), (15, 19, 18), (28, -178, -177)]"
+ ],
+ [
+  "V4 failure finished first",
+  "FAIL 203 diffs (ours 381 / oracle 374)",
+  "6 offset diffs [(8, 138, 139), (17, -92, 45), (21, -40, 8), (23, -45, 3), (27, 8, 4), (28, -179, -177)]"
+ ]
+]

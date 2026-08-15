@@ -1,0 +1,227 @@
+idx  OURS                                       ORACLE                                    
+   0 addiu	sp,sp,-5736                          addiu      $sp, $sp, -0x1668               
+   1 sw	s0,5696(sp)                             sw         $s0, 0x1640($sp)                
+   2 move	s0,a0                                 addu       $s0, $a0, $zero                 
+   3 sw	s8,5728(sp)                             sw         $fp, 0x1660($sp)                
+   4 move	s8,s0                                 addu       $fp, $s0, $zero                 
+   5 sw	ra,5732(sp)                             sw         $ra, 0x1664($sp)                
+   6 sw	s7,5724(sp)                             sw         $s7, 0x165C($sp)                
+   7 sw	s6,5720(sp)                             sw         $s6, 0x1658($sp)                
+   8 sw	s5,5716(sp)                             sw         $s5, 0x1654($sp)                
+   9 sw	s4,5712(sp)                             sw         $s4, 0x1650($sp)                
+  10 sw	s3,5708(sp)                             sw         $s3, 0x164C($sp)                
+  11 sw	s2,5704(sp)                             sw         $s2, 0x1648($sp)                
+  12 sw	s1,5700(sp)                             sw         $s1, 0x1644($sp)                
+  13 jal	0 <ChecksumData__FP12tMemCardData>     jal        MakeWayForMemoryCard__Fv        
+  14 sh	a1,5680(sp)                             sh        $a1, 0x1630($sp)                 
+  15 sll	s0,s0,0x10                             sll        $s0, $s0, 16                    
+  16 sra	s0,s0,0x10                             sra        $s0, $s0, 16                    
+  17 sll	v0,s0,0x2                              sll        $v0, $s0, 2                     
+  18 addiu	v0,v0,1                              addiu      $v0, $v0, 0x1                   
+  19 move	s3,zero                               addu       $s3, $zero, $zero               
+  20 move	s5,s3                                 addu       $s5, $s3, $zero                 
+  21 move	s2,s3                                 addu       $s2, $s3, $zero                 
+  22 addiu	s1,sp,5568                           addiu      $s1, $sp, 0x15C0                
+  23 move	a0,s1                                 addu       $a0, $s1, $zero                 
+  24 lui	a1,0x0                                 lui        $a1, %hi(D_800116EC)            
+  25 addiu	a1,a1,16                             addiu      $a1, $a1, %lo(D_800116EC)       
+  26 sh	v0,5688(sp)                             sh         $v0, 0x1638($sp)                
+  27 sll	v0,v0,0x10                             sll        $v0, $v0, 16                    
+  28 move	s4,v0                                 addu       $s4, $v0, $zero                 
+  29 li	s6,21                                   addiu      $s6, $zero, 0x15                
+  30 lui	v0,0x0                                 lui        $v0, %hi(D_801164E8)            
+  31 lw	a2,128(v0)                              lw         $a2, %lo(D_801164E8)($v0)       
+  32 lui	v0,0x0                                 lui        $v0, %hi(CURRENTPLAYER)         
+  33 lui	v1,0x0                                 lui        $v1, %hi(CURRENTLYUSINGMEMCARD) 
+  34 sw	s0,0(v0)                                sw         $s0, %lo(CURRENTPLAYER)($v0)    
+  35 li	v0,1                                    addiu      $v0, $zero, 0x1                 
+  36 sw	v0,0(v1)                                sw         $v0, %lo(CURRENTLYUSINGMEMCARD)($v1) 
+  37 lui	v0,0x0                                 lui        $v0, %hi(nomessage)             
+  38 jal	0 <ChecksumData__FP12tMemCardData>     jal        sprintf                         
+  39 sw	zero,0(v0)                              sw        $zero, %lo(nomessage)($v0)       
+  40 move	a0,s1                                 addu       $a0, $s1, $zero                 
+  41 jal	0 <ChecksumData__FP12tMemCardData>     jal        loadshapeadr                    
+  42 move	a1,s3                                 addu      $a1, $s3, $zero                  
+  43 addiu	a0,sp,5632                           addiu      $a0, $sp, 0x1600                
+  44 sra	a1,s4,0x10                             sra        $a1, $s4, 16                    
+  45 li	a2,1                                    addiu      $a2, $zero, 0x1                 
+  46 jal	0 <ChecksumData__FP12tMemCardData>     jal        Init_MemcardFile__FR12MCRDFILE_defsb 
+  47 move	s7,v0                                 addu      $s7, $v0, $zero                  
+  48 jal	0 <ChecksumData__FP12tMemCardData>     jal        MCRD_handlecardevents           .L800354B0: 
+  49 sra	a0,s4,0x10                             sra       $a0, $s4, 16                     
+  50 bne	v0,s6,1230 <SavePinkSlipsCars__Fss+0xe0>   -> 56 bne        $v0, $s6, .L800354D0   -> 56    
+  51 sll	v0,s8,0x10                             sll       $v0, $fp, 16                     
+  52 jal	0 <ChecksumData__FP12tMemCardData>     jal        VSync                           
+  53 move	a0,zero                               addu      $a0, $zero, $zero                
+  54 j	1210 <SavePinkSlipsCars__Fss+0xc0>   -> 48 j          .L800354B0   -> 48              
+  55 nop                                        nop                                        
+  56 sra	s4,v0,0x10                             sra        $s4, $v0, 16                    .L800354D0: 
+  57 lhu	t0,5688(sp)                            lhu        $t0, 0x1638($sp)                
+  58 addiu	v0,sp,16                             addiu      $v0, $sp, 0x10                  
+  59 sw	v0,5652(sp)                             sw         $v0, 0x1614($sp)                
+  60 sw	zero,5648(sp)                           sw         $zero, 0x1610($sp)              
+  61 sll	s1,t0,0x10                             sll        $s1, $t0, 16                    
+  62 bnez	s3,1460 <SavePinkSlipsCars__Fss+0x310>   -> 196 bnez       $s3, .L80035700   -> 196        .L800354E8: 
+  63 nop                                        nop                                        
+  64 jal	0 <ChecksumData__FP12tMemCardData>     jal        MCRD_handlecardevents           
+  65 sra	a0,s1,0x10                             sra       $a0, $s1, 16                     
+  66 move	a0,zero                               addu       $a0, $zero, $zero               
+  67 jal	0 <ChecksumData__FP12tMemCardData>     jal        systemtask                      
+  68 move	s0,v0                                 addu      $s0, $v0, $zero                  
+  69 jal	0 <ChecksumData__FP12tMemCardData>     jal        VSync                           
+  70 move	a0,zero                               addu      $a0, $zero, $zero                
+  71 addiu	s0,s0,-2                             addiu      $s0, $s0, -0x2                  
+  72 sltiu	v0,s0,22                             sltiu      $v0, $s0, 0x16                  
+  73 beqz	v0,1248 <SavePinkSlipsCars__Fss+0xf8>   -> 62 beqz       $v0, .L800354E8   -> 62         
+  74 sll	v0,s0,0x2                              sll       $v0, $s0, 2                      
+  75 lui	t0,0x0                                 lui        $t0, %hi(jtbl_800117A8)         
+  76 addiu	t0,t0,208                            addiu      $t0, $t0, %lo(jtbl_800117A8)    
+  77 addu	v0,v0,t0                              addu       $v0, $v0, $t0                   
+  78 lw	v0,0(v0)                                lw         $v0, 0x0($v0)                   
+  79 nop                                        nop                                        
+  80 jr	v0                                      jr         $v0                             
+  81 nop                                        nop                                        
+  82 sra	a0,s1,0x10                             sra        $a0, $s1, 16                    .L80035538: 
+  83 addiu	a1,sp,5632                           addiu      $a1, $sp, 0x1600                
+  84 jal	0 <ChecksumData__FP12tMemCardData>     jal        MCRD_loadfile                   
+  85 move	a2,zero                               addu      $a2, $zero, $zero                
+  86 j	1248 <SavePinkSlipsCars__Fss+0xf8>   -> 62 j          .L800354E8   -> 62              
+  87 nop                                        nop                                        
+  88 jal	0 <ChecksumData__FP12tMemCardData>     jal        VerifySuccessfulRead__FP12tMemCardData .L80035550: 
+  89 addiu	a0,sp,16                             addiu     $a0, $sp, 0x10                   
+  90 beqz	v0,1454 <SavePinkSlipsCars__Fss+0x304>   -> 193 beqz       $v0, .L800356B8   -> 178         <<<<<<
+  91 sll	v0,s4,0x2                              sll       $v0, $s4, 2                      
+  92 lui	t0,0x0                                 lui        $t0, %hi(frontEnd)              
+  93 addiu	t0,t0,0                              addiu      $t0, $t0, %lo(frontEnd)         
+  94 addu	v0,v0,t0                              addu       $v0, $v0, $t0                   
+  95 lw	v1,1084(v0)                             lw         $v1, 0x43C($v0)                 
+  96 lw	v0,5284(sp)                             lw         $v0, 0x14A4($sp)                
+  97 nop                                        nop                                        
+  98 beq	v1,v0,12e8 <SavePinkSlipsCars__Fss+0x198>   -> 102 beq        $v1, $v0, .L80035588   -> 102   
+  99 li	s3,1                                    addiu     $s3, $zero, 0x1                  
+ 100 j	1248 <SavePinkSlipsCars__Fss+0xf8>   -> 62 j          .L800354E8   -> 62              
+ 101 move	s2,s3                                 addu      $s2, $s3, $zero                  
+ 102 lui	a0,0x0                                 lui        $a0, %hi(carManager)            .L80035588: 
+ 103 addiu	a0,a0,0                              addiu      $a0, $a0, %lo(carManager)       
+ 104 addiu	a1,sp,1128                           addiu      $a1, $sp, 0x468                 
+ 105 lhu	t0,5680(sp)                            lhu        $t0, 0x1630($sp)                
+ 106 move	a2,s4                                 addu       $a2, $s4, $zero                 
+ 107 sll	a3,t0,0x10                             sll        $a3, $t0, 16                    
+ 108 jal	0 <ChecksumData__FP12tMemCardData>     jal        SavePinkSlipsCars__11tCarManagerR12tSaveCarInfoss 
+ 109 sra	a3,a3,0x10                             sra       $a3, $a3, 16                     
+ 110 li	s0,21                                   addiu      $s0, $zero, 0x15                
+ 111 jal	0 <ChecksumData__FP12tMemCardData>     jal        MCRD_handlecardevents           .L800355AC: 
+ 112 sra	a0,s1,0x10                             sra       $a0, $s1, 16                     
+ 113 bne	v0,s0,132c <SavePinkSlipsCars__Fss+0x1dc>   -> 119 bne        $v0, $s0, .L800355CC   -> 119   
+ 114 move	a0,s7                                 addu      $a0, $s7, $zero                  
+ 115 jal	0 <ChecksumData__FP12tMemCardData>     jal        VSync                           
+ 116 move	a0,zero                               addu      $a0, $zero, $zero                
+ 117 j	130c <SavePinkSlipsCars__Fss+0x1bc>   -> 111 j          .L800355AC   -> 111             
+ 118 nop                                        nop                                        
+ 119 move	a1,zero                               addu       $a1, $zero, $zero               .L800355CC: 
+ 120 li	v0,512                                  addiu      $v0, $zero, 0x200               
+ 121 jal	0 <ChecksumData__FP12tMemCardData>     jal        shapepointer                    
+ 122 sw	v0,5648(sp)                             sw        $v0, 0x1610($sp)                 
+ 123 addiu	a0,sp,16                             addiu      $a0, $sp, 0x10                  
+ 124 sw	v0,5656(sp)                             sw         $v0, 0x1618($sp)                
+ 125 sw	zero,5660(sp)                           sw         $zero, 0x161C($sp)              
+ 126 jal	0 <ChecksumData__FP12tMemCardData>     jal        ChecksumData__FP12tMemCardData  
+ 127 sw	zero,5664(sp)                           sw        $zero, 0x1620($sp)               
+ 128 lui	v0,0x0                                 lui        $v0, %hi(jtbl_80011800)         
+ 129 addiu	s6,v0,296                            addiu      $s6, $v0, %lo(jtbl_80011800)    
+ 130 lui	v0,0x0                                 lui        $v0, %hi(gMemCardInfo)          
+ 131 addiu	s3,v0,0                              addiu      $s3, $v0, %lo(gMemCardInfo)     
+ 132 bnez	s5,144c <SavePinkSlipsCars__Fss+0x2fc>   -> 191 bnez       $s5, .L800356EC   -> 191        .L80035600: 
+ 133 nop                                        nop                                        
+ 134 jal	0 <ChecksumData__FP12tMemCardData>     jal        MCRD_handlecardevents           
+ 135 sra	a0,s1,0x10                             sra       $a0, $s1, 16                     
+ 136 move	a0,zero                               addu       $a0, $zero, $zero               
+ 137 jal	0 <ChecksumData__FP12tMemCardData>     jal        systemtask                      
+ 138 move	s0,v0                                 addu      $s0, $v0, $zero                  
+ 139 jal	0 <ChecksumData__FP12tMemCardData>     jal        VSync                           
+ 140 move	a0,zero                               addu      $a0, $zero, $zero                
+ 141 addiu	s0,s0,-2                             addiu      $s0, $s0, -0x2                  
+ 142 sltiu	v0,s0,22                             sltiu      $v0, $s0, 0x16                  
+ 143 beqz	v0,1360 <SavePinkSlipsCars__Fss+0x210>   -> 132 beqz       $v0, .L80035600   -> 132        
+ 144 sll	v0,s0,0x2                              sll       $v0, $s0, 2                      
+ 145 addu	v0,v0,s6                              addu       $v0, $v0, $s6                   
+ 146 lw	v0,0(v0)                                lw         $v0, 0x0($v0)                   
+ 147 nop                                        nop                                        
+ 148 jr	v0                                      jr         $v0                             
+ 149 nop                                        nop                                        
+ 150 lw	v0,52(s3)                               lw         $v0, 0x34($s3)                  .L80035648: 
+ 151 nop                                        nop                                        
+ 152 beqz	v0,1360 <SavePinkSlipsCars__Fss+0x210>   -> 132 beqz       $v0, .L80035600   -> 132        
+ 153 sra	a0,s1,0x10                             sra       $a0, $s1, 16                     
+ 154 jal	0 <ChecksumData__FP12tMemCardData>     jal        MCRD_savefile                   
+ 155 addiu	a1,sp,5632                           addiu     $a1, $sp, 0x1600                 
+ 156 j	1360 <SavePinkSlipsCars__Fss+0x210>   -> 132 j          .L80035600   -> 132             
+ 157 nop                                        nop                                        
+ 158 li	s5,1                                    addiu      $s5, $zero, 0x1                 .L80035668: 
+ 159 j	1360 <SavePinkSlipsCars__Fss+0x210>   -> 132 j          .L80035600   -> 132             
+ 160 move	s2,zero                               addu      $s2, $zero, $zero                
+ 161 lui	v0,0x0                                 lui        $v0, %hi(FEApp)                 .L80035674: 
+ 162 lw	a0,0(v0)                                lw         $a0, %lo(FEApp)($v0)            
+ 163 jal	0 <ChecksumData__FP12tMemCardData>     jal        Hide__11tDialogBase             
+ 164 addiu	a0,a0,720                            addiu     $a0, $a0, 0x2D0                  
+ 165 sll	a0,s4,0x2                              sll        $a0, $s4, 2                     
+ 166 jal	0 <ChecksumData__FP12tMemCardData>     jal        MCRD_getcard                    
+ 167 addiu	a0,a0,1                              addiu     $a0, $a0, 0x1                    
+ 168 lw	v1,0(v0)                                lw         $v1, 0x0($v0)                   
+ 169 li	v0,-3                                   addiu      $v0, $zero, -0x3                
+ 170 beq	v1,v0,1410 <SavePinkSlipsCars__Fss+0x2c0>   -> 176 beq        $v1, $v0, .L800356B0   -> 176   
+ 171 li	s2,6                                    addiu     $s2, $zero, 0x6                  
+ 172 li	v0,-1                                   addiu      $v0, $zero, -0x1                
+ 173 bne	v1,v0,1410 <SavePinkSlipsCars__Fss+0x2c0>   -> 176 bne        $v1, $v0, .L800356B0   -> 176   
+ 174 li	s2,3                                    addiu     $s2, $zero, 0x3                  
+ 175 li	s2,4                                    addiu      $s2, $zero, 0x4                 
+ 176 j	1360 <SavePinkSlipsCars__Fss+0x210>   -> 132 j          .L80035600   -> 132             .L800356B0: 
+ 177 li	s5,1                                    addiu     $s5, $zero, 0x1                  
+ 178 j	144c <SavePinkSlipsCars__Fss+0x2fc>   -> 191 j          .L800356EC   -> 191             .L800356B8: 
+ 179 li	s2,2                                    addiu     $s2, $zero, 0x2                  
+ 180 sll	a0,s4,0x2                              sll        $a0, $s4, 2                     .L800356C0: 
+ 181 jal	0 <ChecksumData__FP12tMemCardData>     jal        MCRD_getcard                    
+ 182 addiu	a0,a0,1                              addiu     $a0, $a0, 0x1                    
+ 183 lw	v1,0(v0)                                lw         $v1, 0x0($v0)                   
+ 184 li	v0,-2                                   addiu      $v0, $zero, -0x2                
+ 185 beq	v1,v0,144c <SavePinkSlipsCars__Fss+0x2fc>   -> 191 beq        $v1, $v0, .L800356EC   -> 191   
+ 186 li	s2,5                                    addiu     $s2, $zero, 0x5                  
+ 187 li	v0,-1                                   addiu      $v0, $zero, -0x1                
+ 188 bne	v1,v0,144c <SavePinkSlipsCars__Fss+0x2fc>   -> 191 bne        $v1, $v0, .L800356EC   -> 191   
+ 189 li	s2,2                                    addiu     $s2, $zero, 0x2                  
+ 190 li	s2,4                                    addiu      $s2, $zero, 0x4                 
+ 191 j	1248 <SavePinkSlipsCars__Fss+0xf8>   -> 62 j          .L800354E8   -> 62              .L800356EC: 
+ 192 li	s3,1                                    addiu     $s3, $zero, 0x1                  
+ 193 li	s3,1                                    addiu      $s3, $zero, 0x1                 .L800356F4: 
+ 194 j	1248 <SavePinkSlipsCars__Fss+0xf8>   -> 62 j          .L800354E8   -> 62              
+ 195 li	s2,2                                    addiu     $s2, $zero, 0x2                  
+ 196 lhu	t0,5688(sp)                            lhu        $t0, 0x1638($sp)                .L80035700: 
+ 197 li	s1,22                                   addiu      $s1, $zero, 0x16                
+ 198 sll	s0,t0,0x10                             sll        $s0, $t0, 16                    
+ 199 jal	0 <ChecksumData__FP12tMemCardData>     jal        MCRD_handlecardevents           .L8003570C: 
+ 200 sra	a0,s0,0x10                             sra       $a0, $s0, 16                     
+ 201 beq	v0,s1,148c <SavePinkSlipsCars__Fss+0x33c>   -> 207 beq        $v0, $s1, .L8003572C   -> 207   
+ 202 nop                                        nop                                        
+ 203 jal	0 <ChecksumData__FP12tMemCardData>     jal        VSync                           
+ 204 move	a0,zero                               addu      $a0, $zero, $zero                
+ 205 j	146c <SavePinkSlipsCars__Fss+0x31c>   -> 199 j          .L8003570C   -> 199             
+ 206 nop                                        nop                                        
+ 207 jal	0 <ChecksumData__FP12tMemCardData>     jal        purgememadr                     .L8003572C: 
+ 208 move	a0,s7                                 addu      $a0, $s7, $zero                  
+ 209 jal	0 <ChecksumData__FP12tMemCardData>     jal        BringThatBeatBack__Fv           
+ 210 nop                                        nop                                        
+ 211 lui	v0,0x0                                 lui        $v0, %hi(CURRENTLYUSINGMEMCARD) 
+ 212 sw	zero,0(v0)                              sw         $zero, %lo(CURRENTLYUSINGMEMCARD)($v0) 
+ 213 move	v0,s2                                 addu       $v0, $s2, $zero                 
+ 214 lw	ra,5732(sp)                             lw         $ra, 0x1664($sp)                
+ 215 lw	s8,5728(sp)                             lw         $fp, 0x1660($sp)                
+ 216 lw	s7,5724(sp)                             lw         $s7, 0x165C($sp)                
+ 217 lw	s6,5720(sp)                             lw         $s6, 0x1658($sp)                
+ 218 lw	s5,5716(sp)                             lw         $s5, 0x1654($sp)                
+ 219 lw	s4,5712(sp)                             lw         $s4, 0x1650($sp)                
+ 220 lw	s3,5708(sp)                             lw         $s3, 0x164C($sp)                
+ 221 lw	s2,5704(sp)                             lw         $s2, 0x1648($sp)                
+ 222 lw	s1,5700(sp)                             lw         $s1, 0x1644($sp)                
+ 223 lw	s0,5696(sp)                             lw         $s0, 0x1640($sp)                
+ 224 jr	ra                                      jr         $ra                             
+ 225 addiu	sp,sp,5736                           addiu     $sp, $sp, 0x1668                 

@@ -1,0 +1,20 @@
+{
+ "file": "recon/frontend/common/fememcard.cpp",
+ "fn": "LoadGame__FsbT1",
+ "variants": [
+  {"name": "A fence after success finished",
+   "edits": [["        SetPads();\n        finished = true;\n      }\n      else {",
+              "        SetPads();\n        finished = true;\n        __asm__ volatile(\"\" : : \"i\"(0));\n      }\n      else {"]]},
+  {"name": "B fence before success finished",
+   "edits": [["        SetPads();\n        finished = true;\n      }\n      else {",
+              "        SetPads();\n        __asm__ volatile(\"\" : : \"i\"(0));\n        finished = true;\n      }\n      else {"]]},
+  {"name": "C fence after failure finished",
+   "edits": [["        finished = true;\n      }\n      break;\n    case 2:",
+              "        finished = true;\n        __asm__ volatile(\"\" : : \"i\"(0));\n      }\n      break;\n    case 2:"]]},
+  {"name": "D fences A+C",
+   "edits": [["        SetPads();\n        finished = true;\n      }\n      else {",
+              "        SetPads();\n        finished = true;\n        __asm__ volatile(\"\" : : \"i\"(0));\n      }\n      else {"],
+             ["        finished = true;\n      }\n      break;\n    case 2:",
+              "        finished = true;\n        __asm__ volatile(\"\" : : \"i\"(0));\n      }\n      break;\n    case 2:"]]}
+ ]
+}

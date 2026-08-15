@@ -1,0 +1,8 @@
+{
+ "recon/frontend/common/fememcard.cpp": {
+  "LoadGame__FsbT1": [
+   {"take": "\\$L\\d+:\\n(?=\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tj\\t\\$L\\d+\\n\\tli\\t\\$17,1)",
+    "after": " \\#NO_APP\\n"}
+  ]
+ }
+}

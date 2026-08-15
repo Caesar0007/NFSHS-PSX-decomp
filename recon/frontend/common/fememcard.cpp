@@ -889,16 +889,26 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
         finished = true;
       }
       else {
-        goto load_failed_outer;
+        /* MATCH/CFG (w65-a1): retail's read-failure arm sets the code and joins
+           the SHARED outer `finished = true` tail (branch word 5: ours +103 vs
+           retail +88) -- see the case-3 arm below for the role swap this pairs
+           with, and the jump-table proof in scratchpad/w65a1/RECEIPTS.md. */
+        result = PinkSlipsError_LoadFailed;
+        goto finish_outer_card_case;
       }
       break;
-    case 3:
-    case 7:
-    case 10:
-    case 0xb:
-    case 0x17:
-      result = PinkSlipsError_LoadFailed;
-      goto finish_outer_card_case;
+    /* MATCH/CFG (w65-a1): the two "load failed" spellings and the two outer arms
+       were ROLE-SWAPPED against retail.  Retail's jump table (jtbl_800117A8,
+       asm/data/rdata_80010000_j06.rodata.s) sends cases 3/7/0xa/0xb/0x17 to
+       .L800356F4 = the 3-insn `finished = true; result = LoadFailed; break;`
+       block, and the read-failure arm above to the 2-insn `result = LoadFailed;
+       goto <shared finished tail>` at .L800356B8.  Ours had it exactly the other
+       way round, so our .rodata jump table pointed at the wrong block and the
+       `beqz` at word 90 routed the other way -- same 226 instructions, different
+       CFG.  The case-2/0x10 arm must therefore come FIRST (it owns the shared
+       tail) and the 3/7/... arm last.  The old `__asm__("")` at the shared tail
+       (a stand-in for "retail's distinct read-failure block") is now redundant
+       and was measured exactly neutral, so it is gone. */
     case 2:
     case 0x10:
       {
@@ -912,10 +922,13 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
         }
       }
 finish_outer_card_case:
-      __asm__("");
       finished = true;
       break;
-load_failed_outer:
+    case 3:
+    case 7:
+    case 10:
+    case 0xb:
+    case 0x17:
       finished = true;
       result = PinkSlipsError_LoadFailed;
       break;

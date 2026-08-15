@@ -1210,7 +1210,7 @@ extern int FILE_atomic(int (*fn)(int, int), int unused, int a3, int a4)
  *        "after": r"\taddiu\t\$2,\$2,%lo\(\$L\d+\) \# low\n"},
  *       {"take":  r"\tlui\t\$2,%hi\(\$L\d+\) \# high\n",
  *        "after": r"\tbeq\t\$2,\$0,\$L\d+\n(?=\t\.set\tmacro\n\t\.set\treorder\n\n"
- *                 r"\taddiu\t\\$2,\\$2,%lo\\(\\$L\\d+\\) \\# low\n)"}]}
+ *                 r"\taddiu\t\$2,\$2,%lo\(\$L\d+\) \# low\n)"}]}
  * Move 1 pulls the `sll` out of the (already noreorder-wrapped) delay slot and re-inserts it after
  * the `%lo`; move 2 then drops the `lui` into the now-empty slot INSIDE the existing
  * `.set noreorder/nomacro` block, so no assembler mode change is needed and no nop is minted.

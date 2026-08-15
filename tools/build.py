@@ -1185,6 +1185,8 @@ PER_FN_TEXT_MOVES = {
             {"take": r"\tmove\t\$2,\$16\n(?=\$L\d+:\n\$L\d+:\n\tlw\t\$31,)",
              "after": r"\tbeq\t\$5,\$2,\$L\d+\n",
              "copy": True, "slot": True},
+            # w65-a2 label-move (probed 2x, objdump 15D).
+            {"_note": "brdist (27,5,6) -> 0. APPEND AFTER the existing w59-a3/w60-a8 copy+slot row (anchors below are the post-row text). The beq's delay slot already carries `move $2,$16`; retail's .L80069974 is the epilogue `lw $31`, one past the merge copy. TU 41/42 PASS 2x (AIPhysic_OutOfControlPhysics FAIL 5 = pre-existing).", "take": "\\$L\\d+:\\n(?=\\tmove\\t\\$2,\\$16\\n\\$L\\d+:\\n\\$L\\d+:\\n\\tlw\\t\\$31,)", "after": "\\tmove\\t\\$2,\\$16\\n(?=\\$L\\d+:\\n\\$L\\d+:\\n\\tlw\\t\\$31,)"},
         ],
     },
     # w60-a4 (orchestrator-wired, probe-verified): CD_get_intr -> PASS 343/343
@@ -1303,6 +1305,8 @@ PER_FN_TEXT_MOVES = {
         ],
         "_padIntRecvData": [
             {"take": r"\taddu\t\$4,\$17,\$0\n(?=\t\.set\tmacro\n\t\.set\treorder\n\n\tj\t\$L\d+\n\$L\d+:\n\tli\t\$2,0x00000004)", "after": r"\tbeq\t\$2,\$0,\$L\d+\n(?=\t\.set\tnoreorder\n\t\.set\tnomacro\n\tbltz\t\$3,)", "slot": True, "drop_after": r"\t\.set\tnoreorder\n\t\.set\tnomacro\n"},
+            # w65-a2 label-move (probed 2x, objdump 15D).
+            {"_note": "brdist (13,34,35) -> 0. The FOLLOW-UP the w64-a7 spec named but did not probe. Same shape as its TU-mate _padIntRecvHdr: our beqz targets the merge copy `addu $4,$17,$0`, retail's .L8010C550 sits AFTER it (the beqz's own delay slot already performed the copy). TU 5/5 PASS 2x.", "take": "\\$L\\d+:\\n(?=\\taddu\\t\\$4,\\$17,\\$0\\n\\$L\\d+:\\n\\tlw\\t\\$2,_padFuncGetTxd\\n)", "after": "\\taddu\\t\\$4,\\$17,\\$0\\n(?=\\$L\\d+:\\n\\tlw\\t\\$2,_padFuncGetTxd\\n)"},
         ],
     },
     # w62 wired (probe-verified by belt agent).
@@ -1394,9 +1398,35 @@ PER_FN_TEXT_MOVES = {
         ],
     },
     "recon/game/psx/weather.cpp": {
+        # w65-a2 label-move (probed 2x, objdump 15D).
+        "Weather_ChangeDensityBasedOnTime__Fv": [
+            {"_note": "brdist (5,10,11) -> 0. Our `j $L585` lands on a redundant `lui $4,%hi(Weather_gSys)` that its own path already executed; retail's .L800E22C4 is the following `lw $2,%lo(Weather_gSys)($4)`, where our $L593 already sits. Single user of $L585. TU 24/25 PASS 2x (Weather_DoWeather FAIL 4 = pre-existing).", "take": "\\$L\\d+:\\n(?=\\tlui\\t\\$4,%hi\\(Weather_gSys\\) \\# high\\n\\$L\\d+:\\n\\tlw\\t\\$2,%lo\\(Weather_gSys\\)\\(\\$4\\)\\n)", "after": "\\tlui\\t\\$4,%hi\\(Weather_gSys\\) \\# high\\n(?=\\$L\\d+:\\n\\tlw\\t\\$2,%lo\\(Weather_gSys\\)\\(\\$4\\)\\n)"},
+        ],
         # w64-a13 (probe-verified 2x + no-row control): DoWeather 6 -> 4 count-exact 197/197
         "Weather_DoWeather__FP13DRender_tView": [
             {"take": "\tsll\t\\$16,\\$18,2\n", "after": "\tlui\t\\$3,%hi\\(simGlobal\\+4\\) # high\n(?=\tlui\t\\$2,%hi\\(Weather_gLastProcessTime\\))"},
+        ],
+    },
+    # w65-a2 label-move rows (probed 2x, objdump 15D).
+    "recon/syslib/psx/libcd/streamhelp.c": {
+        "StGetNext": [
+            {"_note": "brdist (0,15,14) -> 0. MIRROR direction: retail's .L800F9A84 sits BEFORE the shared `lhu $3,0($6)` (its bne re-executes the redundant reload); cc1 put our label after it. Move the label UP, in front of the lhu. TU 5/6 PASS 2x (data_ready_callback FAIL 9 = pre-existing).", "take": "\\$L\\d+:\\n(?=\\tli\\t\\$2,0x00000002)", "after": "\\taddu\\t\\$6,\\$3,\\$2\\n(?=\\tlhu\\t\\$3,0\\(\\$6\\)\\n\\tli\\t\\$2,0x00000002)"},
+        ],
+    },
+    # w65-a2 label-move rows (probed 2x, objdump 15D).
+    "recon/frontend/common/screencarselect.cpp": {
+        # w65-a2 label-move (probed 2x, objdump 15D).
+        "DrawOpponentVideoWall__20tScreenCarSelectDuels": [
+            {"_note": "brdist (3,13,14) -> 0. Same shape, sibling fn ($L918/$L921, base $17, offset 828). TU 59/59 PASS 2x.", "take": "\\$L\\d+:\\n(?=\\taddu\\t\\$16,\\$17,828\\n\\$L\\d+:\\n)", "after": "\\taddu\\t\\$16,\\$17,828\\n(?=\\$L\\d+:\\n)"},
+        ],
+        "DrawVideoWall__20tScreenCarSelectDuels": [
+            {"_note": "brdist (3,14,15) -> 0. Textbook w64-a7 shape: `beq $2,$0,$L908` fills its own delay slot with `addu $16,$18,772`, and retail's .L8003D474 is the following `jal UpdateTransition__10tVideoWall`, one past the merge copy. Both labels already exist in our .s ($L908 before the copy, $L911 after); the move makes them coincide. TU 59/59 PASS 2x.", "take": "\\$L\\d+:\\n(?=\\taddu\\t\\$16,\\$18,772\\n\\$L\\d+:\\n)", "after": "\\taddu\\t\\$16,\\$18,772\\n(?=\\$L\\d+:\\n)"},
+        ],
+    },
+    # w65-a2 label-move rows (probed 2x, objdump 15D).
+    "recon/game/common/audiotrk.cpp": {
+        "AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji": [
+            {"_note": "brdist (48,14,13) -> 0. MIRROR direction (like StGetNext): retail's .L8007CBF0 IS the shared `lbu $3,20($20)`; cc1 emitted $L670 one line later, so our `j` skipped the reload. $L670 has exactly one user (checked), so moving it in front of the lbu -- where $L651 already sits -- is safe. TU 6/6 PASS 2x.", "take": "\\$L\\d+:\\n(?=\\taddu\\t\\$2,\\$3,-4\\n\\tsltu\\t\\$2,\\$2,32\\n)", "after": "\\$L\\d+:\\n(?=\\tlbu\\t\\$3,20\\(\\$20\\)\\n\\taddu\\t\\$2,\\$3,-4\\n)"},
         ],
     },
     # w60-a3 (orchestrator-wired, probe-verified REAL=0 in scratchpad/w60a3):
@@ -1505,6 +1535,8 @@ PER_FN_TEXT_MOVES = {
             {"take": "\\tli\\t\\$2,196608[^\\n]*\\n(?=\\tslt\\t\\$5,\\$2,\\$4\\n)", "after": "\\tbeq\\t\\$20,\\$2,\\$L\\d+\\n(?=\\tlui\\t\\$3,%hi\\(Input_gLookBehind\\) \\# high\\n)", "drop_after": "\\tlui\\t\\$3,%hi\\(Input_gLookBehind\\) \\# high\\n"},
             {"take": "\\tbeq\\t\\$20,\\$0,\\$L\\d+\\n(?=\\tlui\\t\\$3,%hi\\(Input_gLookBehind\\) \\# high\\n)", "after": "\\t\\.set\\treorder\\n\\n(?=\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tlui\\t\\$3,%hi\\(Input_gLookBehind\\) \\# high\\n)", "drop_after": "\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tlui\\t\\$3,%hi\\(Input_gLookBehind\\) \\# high\\n\\t\\.set\\tmacro\\n\\t\\.set\\treorder\\n"},
             {"take": "\\tbgez\\t\\$3,\\$L\\d+\\n(?=\\tslt\\t\\$2,\\$3,\\$4\\n)", "after": "1:\\n\\t\\.set\\treorder\\n(?=\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tslt\\t\\$2,\\$3,\\$4\\n)", "drop_after": "\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tslt\\t\\$2,\\$3,\\$4\\n\\t\\.set\\tmacro\\n\\t\\.set\\treorder\\n"},
+            # w65-a2 label-move (probed 2x, objdump 15D).
+            {"_note": "\u0440\u045f\u201d\u0491 THIS ONE IS A CORRECTNESS FIX, NOT A COSMETIC BRANCH WORD. APPEND AS THE 5th ROW, AFTER the four wired w63-a11 rows. Row 4 of w63-a11 undid reorg's TARGET-STEAL by DELETING the stolen `slt $2,$3,$4` copy out of the `bgez $3` delay slot -- but the branch still points at $L702, the label reorg PLANTED past the steal. Net effect in the shipped object: on the z>=0 path the branch skips BOTH the `negu` and the `slt`, so `beq $2,$0` tests a STALE $v0 -- the |z| < |x| comparison of the heli-cam fallback is never made. Retail's word is `bgez $v1, .L80081610` = 0x04610002, landing ON the slt. Moving $L702 in front of the slt restores retail's exact branch word (objdump-verified 0x04610002 == retail) and the semantics. The w63-a11 receipt in camera.cpp itself predicted this hazard (\"PER_FN_TEXT_MOVES ... cannot change a branch TARGET\"); the label move is the missing half. brdist: HeliCam row gone. TU 37/38 PASS 2x (Camera_UpdateSplineCam FAIL 13 = pre-existing, class a).", "take": "\\$L\\d+:\\n(?=\\t\\.set\\tnoreorder\\n\\t\\.set\\tnomacro\\n\\tbeq\\t\\$2,\\$0,\\$L\\d+\\n\\tsra\\t\\$2,\\$3,2\\n)", "after": "\\tsubu\\t\\$3,\\$0,\\$3\\n(?=\\tslt\\t\\$2,\\$3,\\$4\\n)"},
         ],
         "Camera_UpdateTailCam__Fii": [
             {"take": r"\taddu\t\$4,\$sp,16\n(?=\tlui\t\$2,%hi\(Camera_gInfo\))",
@@ -1517,6 +1549,10 @@ PER_FN_TEXT_MOVES = {
     # Sole residual = retail issues the mflo four insns early; probe-verified
     # (scratchpad/root_probe_physics_barrier_splice.py).
     "recon/game/common/physics.cpp": {
+        # w65-a2 label-move (probed 2x, objdump 15D).
+        "Physics_CalculateCarAcceleration__FP8Car_tObj": [
+            {"_note": "brdist (25,71,72) -> 0. Retail's .L800AAE34 is the load-delay NOP after the shared `lw $v0,0x468($s1)` reload (the j's delay slot already stored the value, so retail skips both the store and the reload); our $L987 sits in front of the lw. Anchors carry a fixed-length lookbehind because the same `lw/#nop/bgez` triple occurs twice in this fn. maspsx's label-hoist (it emits a label immediately before a nop it inserts) lands the label exactly on retail's nop -- verified, and NO extra nop is emitted. TU 21/22 PASS 2x (Physics_Real FAIL 4 = pre-existing).", "take": "(?<=\\tsw\\t\\$2,1128\\(\\$17\\)\\n)\\$L\\d+:\\n(?=\\tlw\\t\\$2,1128\\(\\$17\\)\\n\\t#nop\\n\\tbgez\\t\\$2,\\$L\\d+\\n)", "after": "(?<=\\tsw\\t\\$2,1128\\(\\$17\\)\\n)\\tlw\\t\\$2,1128\\(\\$17\\)\\n(?=\\t#nop\\n\\tbgez\\t\\$2,\\$L\\d+\\n)"},
+        ],
         # w64-a11 (probed 2x; cross-validated vs a source experiment that
         # reproduces the load order but pays the seat): Physics_Real 6 -> 4.
         "Physics_Real__FP8Car_tObj": [
@@ -1577,6 +1613,10 @@ PER_FN_TEXT_MOVES = {
     # constant and keeps the fCarY store with the preceding field stores.
     # Probe: 4 -> PASS 29/29.
     "recon/frontend/common/screencongrats.cpp": {
+        # w65-a2 label-move (probed 2x, objdump 15D).
+        "CalculatePrizes__23tScreenTournamentTrophy": [
+            {"_note": "brdist (9,17,18) -> 0. Our $L739 sits before the shared `sw $0,108($18)`; retail's .L800493C0 is the `lui` after it (the arm already stored 0x6C two insns earlier, so retail's j skips the re-store). The anchor pins the ` #APP/ #NO_APP` zero-insn fence that follows. TU 28/28 PASS 2x.", "take": "\\$L\\d+:\\n(?=\\tsw\\t\\$0,108\\(\\$18\\)\\n \\#APP\\n)", "after": "\\tsw\\t\\$0,108\\(\\$18\\)\\n(?= \\#APP\\n)"},
+        ],
         "CalculatePrizes__15tScreenCongrats": [
             {"take": r"\tli\t\$5,1082130432[^\n]*\n",
              "after": r"\t\.fmask\t[^\n]*\n"},

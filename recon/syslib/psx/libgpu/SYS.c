@@ -482,10 +482,31 @@ extern int MoveImage(void *rect, int x, int y)
 {
     short *r = (short *)rect;
     u_long *p;
+    u_long srcxy;
+    GpuTbl *drv;
     _image("MoveImage", rect);                   /* @0x80056e1c */
     if (r[2] == 0 || r[3] == 0)
         return -1;
-    /* MATCH: PAYLOAD-ANCHOR POINTER (w51-a1, landed WITH the cc1_272 lane wiring).
+    /* MATCH (W64-A3, SEALED 46/46) -- TWO landings, both mechanism-first.
+     * (1) THE FENCE POSITION WAS THE CFG (see the block at the fence below):
+     *     reorg's stop_search_p returns 1 at any asm, so the opacity fence at the
+     *     BODY-thread head starved guard2's target-thread steal.  9 -> 4, 46/46.
+     * (2) THE LAST 4 WERE A sched2 LUID TIE, not coloring: retail emits the src
+     *     word load `lw $a1,0($s0)` and THEN the driver-table load `lui/lw $a3`,
+     *     before `addiu $a2,$zero,0x14`.  Both are loads of equal priority, so
+     *     sched.c breaks the tie on LUID = RTL order = SOURCE order.  Naming the
+     *     two values (`srcxy` then `drv`, in that order, right after the anchor)
+     *     puts them in retail's order -> PASS.  Measured ladder in this basin:
+     *     nothing 4 * `drv` alone after the anchor 2 * `drv` after p[0]/p[1]/the
+     *     fence/p[2] 4 each * `GpuTbl *drv = GEnv_drv;` decl-init 35 (49 insns) *
+     *     a named `dc` for dma_chain only 14 * `srcxy` alone (no `drv`) 4 *
+     *     `drv` BEFORE `srcxy` 2 (the order IS the dial) * p[1]-store-before-p[0]
+     *     on top of `drv` 24 * a read-only fence on `drv` 9 (45 insns, loses the
+     *     reorg steal again -- an asm right after the anchor re-starves guard2).
+     * The historical falsification map below is kept as the record of what did NOT
+     * work; it was all aimed at a register handout that was in fact already right.
+     *
+     * MATCH: PAYLOAD-ANCHOR POINTER (w51-a1, landed WITH the cc1_272 lane wiring).
      * The oracle materializes ONE base for the payload words -- `la $v1,_move_prim+8`
      * (= &_move_prim[2]) -- stores the three words as 0/4/8($v1) displacements, and
      * derives the call argument by `addiu $a1,$v1,-8`.  Direct `_move_prim[2] = ...`
@@ -494,6 +515,8 @@ extern int MoveImage(void *rect, int x, int y)
      * address.  The explicit payload pointer restores the anchor+displacement shape.
      * (Under the OLD 2.8 lane this form regressed the then-PASS to 35 -- lane-paired.) */
     p = &_move_prim[2];
+    srcxy = *(u_long *)rect;
+    drv = GEnv_drv;
     /* FALSIFIED (272 basin, w51): dst-xy store FIRST rotates the payload base off
      * $v1 onto $a2 and costs +16 (17 -> 33); the oracle's `sw 4 / sw 0 / sw 8`
      * emission order is a scheduling product, not the source statement order.
@@ -599,7 +622,7 @@ extern int MoveImage(void *rect, int x, int y)
      * device that cracked PutDispEnv's site 1 (pin a COMPETING value's materialization earlier
      * with an opacity fence) has no competing value to pin here: the anchor is already the
      * only fenced pseudo in the block. */
-    p[0] = *(u_long *)rect;                      /* src xy */
+    p[0] = srcxy;                                /* src xy */
     p[1] = (u_long)((y << 16) | (x & 0xffff));   /* dst xy */
     /* W64-A3 -- FENCE POSITION IS THE CFG DIAL (reorg.c:685-712 stop_search_p).
      * This opacity fence still pins the payload ANCHOR (see the note above), but it
@@ -614,7 +637,7 @@ extern int MoveImage(void *rect, int x, int y)
      * * dropped entirely 28 * read-only fence after the stores 28. */
     __asm__("" : "=r"(p) : "0"(p));
     p[2] = *((u_long *)rect + 1);                /* wh */
-    return GEnv_drv->que_push((QueFunc)GEnv_drv->dma_chain, p - 2, 0x14, 0);
+    return drv->que_push((QueFunc)drv->dma_chain, p - 2, 0x14, 0);
 }
 
 /* @0x800EDC08 : clear an ordering table in reverse, then append the fixed terminator tail. */

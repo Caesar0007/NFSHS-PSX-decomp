@@ -1,0 +1,7 @@
+checked 0 TU-defined blob labels in 508 objects
+UNKNOWN (not readable, NOT counted clean): 0
+
+MISSING INITIALISER -- retail non-zero, ours all-zero, no reloc:
+------------------------------------------------------------------------------------------------
+
+TOTAL: 0 symbols

@@ -1,0 +1,15 @@
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: small-data section too large; lower small-data size limit (see option -G)
+build/recon/game/common/hudpmx.cpp.o: in function `HudPmx_LoadShape__FPcP13HudPmx_tShape':
+(.text+0x14): relocation truncated to fit: R_MIPS_GPREL16 against `gShpfile'
+(.text+0x2c): relocation truncated to fit: R_MIPS_GPREL16 against `gShpfile'
+(.text+0x30): relocation truncated to fit: R_MIPS_GPREL16 against `loadShapeXOff'
+build/recon/game/common/hudpmx.cpp.o: in function `HudPmx_InitTextures__Fv':
+(.text+0x770): relocation truncated to fit: R_MIPS_GPREL16 against `loadShapeXOff'
+(.text+0x794): relocation truncated to fit: R_MIPS_GPREL16 against `gHudFont'
+(.text+0x828): relocation truncated to fit: R_MIPS_GPREL16 against `gShpfile'
+(.text+0x93c): relocation truncated to fit: R_MIPS_GPREL16 against `.sdata'
+(.text+0x97c): relocation truncated to fit: R_MIPS_GPREL16 against `.sdata'
+(.text+0xa98): relocation truncated to fit: R_MIPS_GPREL16 against `loadShapeXOff'
+(.text+0xaa4): relocation truncated to fit: R_MIPS_GPREL16 against `gShpfile'
+build/recon/game/common/hudpmx.cpp.o: in function `HudPmx_Kill__Fv':
+(.text+0xacc): additional relocation overflows omitted from the output

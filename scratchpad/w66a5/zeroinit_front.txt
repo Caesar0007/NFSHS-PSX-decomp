@@ -1,0 +1,23 @@
+checked 62 TU-defined blob labels in 508 objects
+UNKNOWN (not readable, NOT counted clean): 16
+
+MISSING INITIALISER -- retail non-zero, ours all-zero, no reloc:
+------------------------------------------------------------------------------------------------
+
+TOTAL: 0 symbols
+UNKNOWN build/recon/frontend/common/feapp.cpp.o .data FEApp short read
+UNKNOWN build/recon/frontend/common/feaudio.cpp.o .data commentaryActualLevel short read
+UNKNOWN build/recon/frontend/common/feinput.cpp.o .data getKeyMappings short read
+UNKNOWN build/recon/frontend/common/femenu.cpp.o .data gMenu_SubMenuPlayer short read
+UNKNOWN build/recon/frontend/common/fetools.cpp.o .data currentSize short read
+UNKNOWN build/recon/frontend/common/fetracks.cpp.o .data tracks_maxTrackIndex short read
+UNKNOWN build/recon/frontend/common/front.cpp.o .data picked short read
+UNKNOWN build/recon/frontend/common/screenaudio.cpp.o .data screenAudio short read
+UNKNOWN build/recon/frontend/common/screencontroller.cpp.o .data screenControllerConfig short read
+UNKNOWN build/recon/frontend/common/screendisplay.cpp.o .data screenDisplay short read
+UNKNOWN build/recon/frontend/common/screenpost.cpp.o .data screenPinkSlipStandings short read
+UNKNOWN build/recon/frontend/common/screentrophyinfo.cpp.o .data gSwapFileNameTI short read
+UNKNOWN build/recon/frontend/common/screentrophyroom.cpp.o .data gSwapFileName short read
+UNKNOWN build/recon/frontend/common/screenusername.cpp.o .data UserPermFileName short read
+UNKNOWN build/recon/frontend/common/stattool.cpp.o .data secChar short read
+UNKNOWN build/recon/frontend/psx/drawshp.cpp.o .sdata kNoColor short read

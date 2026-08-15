@@ -1,0 +1,11 @@
+checked 264 TU-defined blob labels in 508 objects
+UNKNOWN (not readable, NOT counted clean): 4
+
+MISSING INITIALISER -- retail non-zero, ours all-zero, no reloc:
+------------------------------------------------------------------------------------------------
+
+TOTAL: 0 symbols
+UNKNOWN build/recon/eaclib/psx/eacpsxz/isqrt.c.o .data isqrttbl short read
+UNKNOWN build/recon/game/common/nfs3.cpp.o .data befuddleTemp short read
+UNKNOWN build/recon/syslib/psx/libc/CTYPE0.c.o .rodata _ctype_ short read
+UNKNOWN build/recon/syslib/psx/libpad/PAD.c.o .data padIntFunc short read

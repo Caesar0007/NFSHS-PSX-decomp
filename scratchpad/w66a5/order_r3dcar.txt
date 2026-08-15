@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "C:\Temp\nfs4-decomp\scratchpad\w66a5\orderdiag.py", line 85, in <module>
+    main()
+    ~~~~^^
+  File "C:\Temp\nfs4-decomp\scratchpad\w66a5\orderdiag.py", line 47, in main
+    assert o.exists(), o
+           ~~~~~~~~^^
+AssertionError: C:\Temp\nfs4-decomp\r3dcar

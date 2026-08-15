@@ -1,0 +1,13 @@
+== build/recon/game/psx/drawc.cpp.o [.sdata] size 36 (7 blob labels)
+   majority implied base 0x8013d7e8  (7 distinct)
+    ouroff    implied   retailVA  rsize zero  name
+         8 0x8013d7e8 0x8013d7f0      4  yes  DrawC_gEnvMap
+        12 0x8013d7ec 0x8013d7f8      4  yes  DrawC_gEnvMapMax   <-- DRIFT
+        16 0x8013d7fc 0x8013d80c      4  yes  DrawC_gMenuLightsDirection   <-- DRIFT
+        20 0x8013d800 0x8013d814      4  yes  DrawC_gReflectOffset   <-- DRIFT
+        24 0x8013d7dc 0x8013d7f4      4  yes  DrawC_gShadow   <-- DRIFT
+        28 0x8013d7e0 0x8013d7fc      4  yes  DrawC_gShadowMax   <-- DRIFT
+        32 0x8013d7f0 0x8013d810      4  yes  DrawC_gWetRoad   <-- DRIFT
+   retail VA order: DrawC_gEnvMap DrawC_gShadow DrawC_gEnvMapMax DrawC_gShadowMax DrawC_gMenuLightsDirection DrawC_gWetRoad DrawC_gReflectOffset
+   our  offset order: DrawC_gEnvMap DrawC_gEnvMapMax DrawC_gMenuLightsDirection DrawC_gReflectOffset DrawC_gShadow DrawC_gShadowMax DrawC_gWetRoad
+

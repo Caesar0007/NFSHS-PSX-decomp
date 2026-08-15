@@ -1,0 +1,32 @@
+#include "../../lib/libfns.h"
+/* device_externs.h -- extern decls for game/psx/device.cpp (NFS4 PSX input/pad). */
+#ifndef DEVICE_EXTERNS_H
+#define DEVICE_EXTERNS_H
+
+/* ---- compiler builtin ---- */
+extern void trap(int);  /* Ghidra builtin = MIPS `break` (gcc div-by-zero 0x1C00 / INT_MIN/-1 overflow 0x1800 guard) */
+
+/* ---- PsyQ libpad ---- */
+
+/* ---- harvested from sealed *_externs.h ---- */
+extern GameSetup_tData   GameSetup_gData;
+extern Sim_tSimSystemVar simVar;
+extern int               Replay_ReplayMode;   /* 0x8013d3f4 */
+extern int             Input_gHandler[];        /* 0x80113c14  per-control packed input descriptor */
+extern int gUseFrontend;
+extern tPadModuleState   gPadinfo;
+extern tfrontEnd         frontEnd;
+
+/* ---- SYM Globals + free fns ---- */
+extern void InGame_ResetPSXController(int, int);
+
+/* ---- Device.obj own globals (SYM c_type absent; widths inferred from Ghidra literals/usage) ---- */
+extern int    Device_gPaused;          /* !=0 / =0,1 */
+extern int    Device_gForcePause;      /* = iVar1/0/1 */
+extern int    Device_gPausePort;       /* holds -1/0/4 */
+extern char   Device_gPausePortIndex;  /* Ghidra char literal \x01/\0 */
+extern int    Device_gToggleTime[2];   /* per-port toggle frame-count (=0x11) */
+extern u_long Device_gPrev[2];         /* per-port previous pad state */
+/* Device_gFailCount -> now SYM-faithful function-local `static u_char failtime[2]` in Device_Fail (STAT @0x8013DDE4) */
+
+#endif

@@ -1,0 +1,201 @@
+[
+ {
+  "sym": "CD_init",
+  "va": "0x80108140",
+  "va_src": "SYM",
+  "kind": "IMAGE",
+  "blob": [
+   "CD_init_80108140.s",
+   null,
+   0
+  ],
+  "refs": [
+   "build/recon/syslib/psx/libcd/event.c.o"
+  ]
+ },
+ {
+  "sym": "FECredits_lastFadeTick",
+  "va": null,
+  "va_src": "",
+  "kind": null,
+  "blob": null,
+  "refs": [
+   "build/recon/frontend/common/fecredits.cpp.o"
+  ]
+ },
+ {
+  "sym": "__20tDialogMessageString",
+  "va": null,
+  "va_src": "",
+  "kind": null,
+  "blob": null,
+  "refs": [
+   "build/recon/frontend/common/fedialog.cpp.o"
+  ]
+ },
+ {
+  "sym": "_cdr",
+  "va": "0x8013c290",
+  "va_src": "cdread.c",
+  "kind": "IMAGE",
+  "blob": [
+   "data_8010CCD4_r20.data.s",
+   "D_8013C290",
+   0
+  ],
+  "refs": [
+   "build/recon/syslib/psx/libcd/cdread.c.o"
+  ]
+ },
+ {
+  "sym": "_fnt",
+  "va": "0x80135e58",
+  "va_src": "FONT.c",
+  "kind": "IMAGE",
+  "blob": [
+   "data_8010CCD4_r17.data.s",
+   "Font",
+   0
+  ],
+  "refs": [
+   "build/recon/syslib/psx/libgpu/FONT.c.o"
+  ]
+ },
+ {
+  "sym": "_init_pad_flag",
+  "va": "0x8013c338",
+  "va_src": "PAD.c",
+  "kind": "IMAGE",
+  "blob": [
+   "data_8010CCD4_r21.data.s",
+   "D_8013C338",
+   0
+  ],
+  "refs": [
+   "build/recon/syslib/psx/libapi/PAD.c.o"
+  ]
+ },
+ {
+  "sym": "_rsincos",
+  "va": "0x80137d20",
+  "va_src": "FGO_01.c",
+  "kind": "IMAGE",
+  "blob": [
+   "data_8010CCD4_r18.data.s",
+   "rcossin_tbl",
+   0
+  ],
+  "refs": [
+   "build/recon/syslib/psx/libgte/FGO_01.c.o",
+   "build/recon/syslib/psx/libgte/FGO_06.c.o"
+  ]
+ },
+ {
+  "sym": "bigBuf",
+  "va": "0x80010000",
+  "va_src": "SYM",
+  "kind": "IMAGE",
+  "blob": [
+   "rdata_80010000_r00.rodata.s",
+   "_front_obj",
+   0
+  ],
+  "refs": [
+   "build/recon/frontend/common/feapp.cpp.o",
+   "build/recon/frontend/common/feaudio.cpp.o",
+   "build/recon/game/common/minfront.cpp.o",
+   "build/recon/game/common/nfs3.cpp.o",
+   "build/recon/game/psx/fe3dmenu.cpp.o"
+  ]
+ },
+ {
+  "sym": "dma_cb",
+  "va": "0x80106878",
+  "va_src": "INTR_DMA.c",
+  "kind": "IMAGE",
+  "blob": [
+   "func_80106878.s",
+   null,
+   0
+  ],
+  "refs": [
+   "build/recon/syslib/psx/libetc/INTR_DMA.c.o"
+  ]
+ },
+ {
+  "sym": "gSndState",
+  "va": null,
+  "va_src": "",
+  "kind": null,
+  "blob": null,
+  "refs": [
+   "build/recon/eaclib/psx/sndpsxz/span.c.o",
+   "build/recon/eaclib/psx/sndpsxz/sstsetpr.c.o",
+   "build/recon/eaclib/psx/sndpsxz/svol.c.o"
+  ]
+ },
+ {
+  "sym": "g_bootGP",
+  "va": "0x800eb080",
+  "va_src": "savegp.c",
+  "kind": "IMAGE",
+  "blob": [
+   "initgp.s",
+   null,
+   0
+  ],
+  "refs": [
+   "build/recon/eaclib/psx/eacpsxz/savegp.c.o"
+  ]
+ },
+ {
+  "sym": "g_videomode",
+  "va": "0x800f1784",
+  "va_src": "VMODE.c",
+  "kind": "IMAGE",
+  "blob": [
+   "GetVideoMode.s",
+   null,
+   0
+  ],
+  "refs": [
+   "build/recon/syslib/psx/libetc/VMODE.c.o"
+  ]
+ },
+ {
+  "sym": "iSNDplatformrate",
+  "va": null,
+  "va_src": "",
+  "kind": null,
+  "blob": null,
+  "refs": [
+   "build/recon/eaclib/psx/sndpsxz/stagpat.c.o"
+  ]
+ },
+ {
+  "sym": "showRoomFlag",
+  "va": "0x80051260",
+  "va_src": "SYM",
+  "kind": "IMAGE",
+  "blob": [
+   "front_data_r00.data.s",
+   "_front_data_org",
+   0
+  ],
+  "refs": [
+   "build/recon/frontend/common/screencarselect.cpp.o",
+   "build/recon/frontend/common/screencongrats.cpp.o",
+   "build/recon/game/psx/fe3dmenu.cpp.o"
+  ]
+ },
+ {
+  "sym": "tScreen_ProcessInput__FP7tScreen7tPlayerR13tInputKeyTypeR12tMenuCommand",
+  "va": null,
+  "va_src": "",
+  "kind": null,
+  "blob": null,
+  "refs": [
+   "build/recon/frontend/common/screenpost.cpp.o"
+  ]
+ }
+]

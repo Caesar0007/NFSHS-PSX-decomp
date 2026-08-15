@@ -1,0 +1,16 @@
+C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: small-data section too large; lower small-data size limit (see option -G)
+build/recon/game/common/ai.cpp.o: in function `AI_AddCollidableObjects__FP8Car_tObjP5Group':
+(.text+0x1db0): relocation truncated to fit: R_MIPS_GPREL16 against `.sbss'
+(.text+0x1de0): relocation truncated to fit: R_MIPS_GPREL16 against `.sbss'
+build/recon/game/common/audiocmn.cpp.o: in function `ChooseImpactSample__Fi6s_typeT1':
+(.text+0x16d8): relocation truncated to fit: R_MIPS_GPREL16 against `.sbss'
+(.text+0x17c0): relocation truncated to fit: R_MIPS_GPREL16 against `.sbss'
+build/recon/game/common/audiocmn.cpp.o: in function `AudioCmn_SoundCar__FP8Car_tObjiiiiiii':
+(.text+0x27ac): relocation truncated to fit: R_MIPS_GPREL16 against `.sbss'
+(.text+0x27b8): relocation truncated to fit: R_MIPS_GPREL16 against `.sbss'
+(.text+0x27f0): relocation truncated to fit: R_MIPS_GPREL16 against `.sbss'
+build/recon/game/common/bworld.cpp.o: in function `UpdateContext__FP13DRender_tViewi':
+(.text+0x6c): relocation truncated to fit: R_MIPS_GPREL16 against `gCurrContext'
+(.text+0x7c): relocation truncated to fit: R_MIPS_GPREL16 against `gBWSlice'
+(.text+0x84): relocation truncated to fit: R_MIPS_GPREL16 against `gCurrContext'
+(.text+0x94): additional relocation overflows omitted from the output

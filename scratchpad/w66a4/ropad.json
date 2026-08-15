@@ -1,0 +1,70 @@
+{
+ "GAP": [
+  "build/recon/frontend/common/feaudio.cpp.o",
+  "build/recon/frontend/common/screencontroller.cpp.o",
+  "build/recon/frontend/common/screenaudio.cpp.o",
+  "build/recon/frontend/common/screenmemcard.cpp.o",
+  "build/recon/frontend/common/stattool.cpp.o",
+  "build/recon/game/common/aih_traf.cpp.o",
+  "build/recon/game/common/track.cpp.o",
+  "build/recon/game/common/replay.cpp.o",
+  "build/recon/game/psx/cario.cpp.o",
+  "build/recon/game/psx/texture.cpp.o",
+  "build/recon/syslib/psx/libcd/drv.c.o"
+ ],
+ "BASE-OK": [
+  "build/recon/frontend/common/fecars.cpp.o",
+  "build/recon/frontend/common/fedialog.cpp.o",
+  "build/recon/frontend/common/front.cpp.o",
+  "build/recon/frontend/common/fetourn.cpp.o",
+  "build/recon/frontend/common/femission.cpp.o",
+  "build/recon/frontend/psx/movie.cpp.o",
+  "build/recon/frontend/psx/psxfront.cpp.o",
+  "build/recon/frontend/psx/memcard.c.o",
+  "build/recon/game/common/aih_btcperp.cpp.o",
+  "build/recon/game/common/aicop.cpp.o",
+  "build/recon/game/common/ailife.cpp.o",
+  "build/recon/game/common/audiocmn.cpp.o",
+  "build/recon/game/common/audiomus.cpp.o",
+  "build/recon/game/common/audedit.cpp.o",
+  "build/recon/game/common/audioeng.cpp.o",
+  "build/recon/game/common/audiotrk.cpp.o",
+  "build/recon/game/common/cars.cpp.o",
+  "build/recon/game/common/hudpmx.cpp.o",
+  "build/recon/game/common/copspeak.cpp.o",
+  "build/recon/game/common/genericpmx.cpp.o",
+  "build/recon/game/common/nfs3.cpp.o",
+  "build/recon/game/common/scene.cpp.o",
+  "build/recon/game/common/udff.cpp.o",
+  "build/recon/game/psx/hud.cpp.o",
+  "build/recon/game/psx/loading.cpp.o",
+  "build/recon/game/psx/night.cpp.o",
+  "build/recon/syslib/psx/libcd/TYPE.c.o",
+  "build/recon/syslib/psx/libetc/VSYNC.c.o",
+  "build/recon/syslib/psx/libmcrd/LIBMCRD.c.o",
+  "build/recon/syslib/psx/libetc/INTR_DMA.c.o",
+  "build/recon/syslib/psx/libcd/cdread.c.o",
+  "build/recon/syslib/psx/libcd/event.c.o"
+ ],
+ "PAD": [
+  "build/recon/frontend/common/femenuoptions.cpp.o",
+  "build/recon/frontend/common/fememcard.cpp.o",
+  "build/recon/game/common/camera.cpp.o",
+  "build/recon/game/common/r3dcar.cpp.o"
+ ],
+ "SHIFT?": [
+  "build/recon/frontend/common/screencarselect.cpp.o",
+  "build/recon/eaclib/psx/eacpsxz/fixdatan.c.o"
+ ],
+ "OTHER": [
+  "build/recon/eaclib/psx/eacpsxz/matrix.c.o",
+  "build/recon/eaclib/psx/eacpsxz/atanfunc.c.o",
+  "build/recon/syslib/psx/libc/CTYPE0.c.o",
+  "build/recon/eaclib/psx/eacpsxz/asinfunc.c.o",
+  "build/recon/eaclib/psx/sndpsxz/snddata.c.o",
+  "build/recon/game/common/aistate.cpp.o",
+  "build/recon/game/common/sim.cpp.o",
+  "build/recon/game/common/souffle.cpp.o",
+  "build/recon/eaclib/psx/eacpsxz/memstd.c.o"
+ ]
+}

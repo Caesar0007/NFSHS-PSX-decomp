@@ -1672,18 +1672,18 @@ void Hud_BuildTach(int player)
   prim[7] = prim[7] & 0xfd;
   fixedsincos(fangle + -0x200,&sin,&cos);
   ts3 = 0xe - (short)fixedmult(cos,0x20);
-  *(short *)(prim + 0xc) = ts3;
-  *(short *)(prim2 + 0xc) = ts3;
+  ((POLY_F3 *)prim)->x1 = ts3;
+  ((POLY_F3 *)prim2)->x1 = ts3;
   ts4 = 0xe - (short)fixedmult(sin,0x20);
-  *(short *)(prim + 0xe) = ts4;
-  *(short *)(prim2 + 0xe) = ts4;
+  ((POLY_F3 *)prim)->y1 = ts4;
+  ((POLY_F3 *)prim2)->y1 = ts4;
   fixedsincos(fangle + 0x200,&sin,&cos);
   ts1 = 0xe - (short)fixedmult(cos,0x20);
-  *(short *)(prim + 0x10) = ts1;
-  *(short *)(prim2 + 0x10) = ts1;
+  ((POLY_F3 *)prim)->x2 = ts1;
+  ((POLY_F3 *)prim2)->x2 = ts1;
   ts1 = 0xe - (short)fixedmult(sin,0x20);
-  *(short *)(prim + 0x12) = ts1;
-  *(short *)(prim2 + 0x12) = ts1;
+  ((POLY_F3 *)prim)->y2 = ts1;
+  ((POLY_F3 *)prim2)->y2 = ts1;
   /* MATCH (w50-a1): 43 -> 41 by STATEMENT ORDER alone in the "+2" tail (cluster (2) of the
    * w46 receipt: retail interleaves the re-reads with the stores, we batch them).  Measured
    * orders, tp3 first unless noted: [0xe,10,0x12] 41 · [10,0xe,0x12] 43 · [10,0x12,0xe] 43
@@ -1695,10 +1695,24 @@ void Hud_BuildTach(int player)
    * is one scheduling cluster away, which is a better starting point than this 41 if the
    * fn is picked up again (per the standing "judge on count + posdiff" rule the re-read is
    * probably the retail spelling). */
+  /* MATCH (w63-a1): 40 -> 30 by the 14D ALIAS-DEPENDENCE DIAL alone -- the eight
+   * `*(short *)(prim + 0xNN)` / `(prim2 + 0xNN)` vertex stores and the three `+2` tail
+   * RMWs are POLY_F3 MEMBERS (tag 0 / rgb+code 4 / x0 8 / y0 10 / x1 0xc / y1 0xe /
+   * x2 0x10 / y2 0x12), and spelling them as COMPONENT_REFs sets MEM_IN_STRUCT_P so
+   * sched.c's fixed_scalar_and_varying_struct_p (sched.c:846-56) proves them INDEPENDENT
+   * of the fixed frame slots (`sin`/`cos`/`color` at 24/28/40(sp)) -- the cast-int deref
+   * is a plain MEM and CHAINS them, which is what pinned the fixedmult arg setup below
+   * the stores and left `li a1,32` as reorg's delay-slot steal.  Zero insn change
+   * (269/269 throughout).  SIDE EFFECT: the w50-a1 statement-ORDER sensitivity of this
+   * `+2` tail is GONE -- all six orders (y0/y1/y2 x tp3 position) now measure 30, so the
+   * w50 receipt's order table is superseded (it was an artifact of the aliasing chain).
+   * FALSIFIED in this basin: converting the tp9 x0/y0/x1/y1 stores too (neutral 30);
+   * + `((POLY_F3 *)tp9)->code = 3` (32); + the tp9 rgb word via `&->r0` (32);
+   * `prim[7] &= 0xfd` as `->code` (neutral); the y2 tail as a re-read RMW (75/270). */
   tp3 = Render_gPalettePtr;
-  *(short *)(prim2 + 0xe) = *(short *)(prim2 + 0xe) + 2;
-  *(short *)(prim2 + 10) = *(short *)(prim2 + 10) + 2;
-  *(short *)(prim2 + 0x12) = ts1 + 2;
+  ((POLY_F3 *)prim2)->y1 = ((POLY_F3 *)prim2)->y1 + 2;
+  ((POLY_F3 *)prim2)->y0 = ((POLY_F3 *)prim2)->y0 + 2;
+  ((POLY_F3 *)prim2)->y2 = ts1 + 2;
   ((Hud_PTag *)&gSprt1[2])->addr = ((Hud_PTag *)tp3)->addr;
   ((Hud_PTag *)tp3)->addr = (u_int)(gSprt1 + 2);
   return;

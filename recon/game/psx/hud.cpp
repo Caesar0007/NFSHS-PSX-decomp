@@ -2554,7 +2554,11 @@ void Hud_BuildNumbers(int player)
     int j;
     u_char *pal;
 
-    pSprt[37].x0 = (g1Player[0xe].x + g1Player[10].x + HudPmx_gShapes[0x2c].width + -2) -
+    /* MATCH (w64-a1): the `HudPmx_gShapes[0x2c].width` term must lead.  With it last, fold
+     * reassociates `(A + B + W + -2) - P` into `(A + B + W) - (P + 2)` (ours `addiu v0,v0,2`
+     * on the SUBTRAHEND); leading, retail's `lhu a1,896(a2); addiu a1,a1,-2` (the -2 stays on
+     * the width) is emitted early and the whole caller-saved band follows.  208 -> 200. */
+    pSprt[37].x0 = (HudPmx_gShapes[0x2c].width + g1Player[0xe].x + g1Player[10].x + -2) -
                    HudPmx_gShapes[DashHUD_gInfo.position + 0x2c].width;
     *(int *)&pSprt[37].u0 = *(int *)&HudPmx_gShapes[DashHUD_gInfo.position + 0x2c].pixmap;
     pSprt[37].w = HudPmx_gShapes[DashHUD_gInfo.position + 0x2c].width;

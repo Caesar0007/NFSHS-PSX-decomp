@@ -11,7 +11,22 @@ extern char        *Paths_Paths[];
 extern tCarManager  carManager;
 extern tTournamentManager tournamentManager;
 extern tTrackManager trackManager;
+
+/* 🔴 DO NOT RE-SORT the next five (17B EXTERN-ORDER LAW).  They are TU-owned
+   TENTATIVE definitions in front.cpp and therefore emit in the order their
+   identifiers are FIRST DECLARED -- these lines -- after every INITIALISED
+   object.  Retail run (SYM Front.obj block), base 0x800517e8:
+     +0x000 overRide (=0)            +0x004 ComingIntoTheFrontEndTheVeryFirstTime (=0)
+     +0x008 regularCopModels         +0x094 superCopModels        [initialised]
+     +0x120 gFE_Cheats  +0x128 gPSXMemCardFull  +0x12c colourChosen
+     +0x14c gAllScreens +0x150 memCardReadOK    +0x154 CarLineup  +0x178 picked
+   (gFE_Cheats/CarLineup/picked keep their front.cpp definition order, which is
+   already retail's.) */
+extern char         gFE_Cheats[];
+extern int          gPSXMemCardFull[];
+extern int          colourChosen[8];
 extern tAllScreens *gAllScreens[];
+extern int          memCardReadOK[];
 
 /* ===== auto-generated stubs ===== */
 /* W58-A1 (08A phantom fix): the entry points below were free `Type f(...)` decls,
@@ -88,7 +103,7 @@ extern int MEMCARDFRONTENDISINITTED[];
    oracle reference is an ADDRESS materialization (`addiu`), never a load. */
 extern tRecordBuffer Stats_gTrackRecords[187];
 extern int _7tScreen_fSuppressLoadingText;
-extern int _usePlayerUpgrades;
+/* _usePlayerUpgrades removed W66-A5 (dead: 0 references, 0 SYM records). */
 extern int colourChosen[8];
 extern char gCalculateVictory;   /* was stale int (4B); owner nfs3.cpp defines it char (1B) packed
                                      tightly before gPlayerEnteredNameAlready[2] -- a wrong 4B `sw`

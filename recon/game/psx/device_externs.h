@@ -20,13 +20,19 @@ extern tfrontEnd         frontEnd;
 /* ---- SYM Globals + free fns ---- */
 extern void InGame_ResetPSXController(int, int);
 
-/* ---- Device.obj own globals (SYM c_type absent; widths inferred from Ghidra literals/usage) ---- */
-extern int    Device_gPaused;          /* !=0 / =0,1 */
+/* ---- Device.obj own globals (SYM c_type absent; widths inferred from Ghidra literals/usage) ----
+   🔴 DO NOT RE-SORT (17B EXTERN-ORDER LAW).  All six are TU-owned TENTATIVE
+   definitions in device.cpp, so they emit in the order their identifiers are
+   FIRST DECLARED -- these lines, not the .cpp.  This order IS device.obj's
+   retail .sdata run (SYM device.obj block):
+     0x8013d778 gForcePause -> d77c gPausePort -> d780 gPaused ->
+     0x8013d784 gToggleTime[2] -> d78c gPrev[2] -> d794 gPausePortIndex. */
 extern int    Device_gForcePause;      /* = iVar1/0/1 */
 extern int    Device_gPausePort;       /* holds -1/0/4 */
-extern char   Device_gPausePortIndex;  /* Ghidra char literal \x01/\0 */
+extern int    Device_gPaused;          /* !=0 / =0,1 */
 extern int    Device_gToggleTime[2];   /* per-port toggle frame-count (=0x11) */
 extern u_long Device_gPrev[2];         /* per-port previous pad state */
+extern char   Device_gPausePortIndex;  /* Ghidra char literal \x01/\0 */
 /* Device_gFailCount -> now SYM-faithful function-local `static u_char failtime[2]` in Device_Fail (STAT @0x8013DDE4) */
 
 #endif

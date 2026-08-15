@@ -6,7 +6,12 @@
  */
 #include "drawshp.h"
 
-int kNoColor;   /* 0x800529d0 (EXT data global) */
+/* REAL DATA DEFECT fixed W66-A5 (zeroinit per-symbol screen, after its UNKNOWN
+   bucket was taught to compare the readable OVERLAP): retail's word at
+   0x800529d0 is `80 80 80 00` = 0x00808080, the neutral "no tint" RGB the shape
+   blitter compares/assigns against.  We emitted a zero-valued tentative
+   definition, i.e. black. */
+int kNoColor = 0x00808080;   /* 0x800529d0 (EXT data global) */
 
 /* PsyQ libgpu P_TAG head word (addr:24 | len:8) -- the SDK addPrim()/setaddr()/getaddr()
  * macro family, same house idiom that PASSed PSXDrawTrans*Square/PrimStop (w44). */

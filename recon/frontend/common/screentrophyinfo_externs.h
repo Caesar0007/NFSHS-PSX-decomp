@@ -13,9 +13,15 @@ extern char               textDefinitions[14][6];
 extern int                ticks;
 
 /* --- data owned by ScreenTrophyInfo.obj (EXT linkage) --- */
+/* 🔴 DO NOT RE-SORT (17B EXTERN-ORDER LAW).  A TU-owned TENTATIVE definition is
+   emitted in the order its identifier is FIRST DECLARED; an INITIALISED object is
+   emitted at its definition.  These three lines therefore encode retail's run
+   0x80052078 kBannerColors[16] -> 0x80052088 screenTrophyInfo -> 0x8005208c
+   gSwapFileNameTI[16] (SYM: ARY CHAR size 16; the 4 B to 0x800520a0 are the
+   next input section's alignment pad and stay in the blob). */
 int  kBannerColors[4] = { 0x003c410a, 0x00003e44, 0x00212121, 0x00003044 };  /* EXT @0x80052078 */
-char gSwapFileNameTI[16];                                                     /* EXT @0x8005208c */
 tScreenTrophyInfo *screenTrophyInfo;                                          /* EXT @0x80052088 (runtime-set) */
+char gSwapFileNameTI[16];                                                     /* EXT @0x8005208c */
 
 /* --- FE text / fade / shape (de-namespaced) --- */
 int   CalcFadeVal(int rgb, int idx);

@@ -9,7 +9,12 @@ extern tTournamentManager tournamentManager;
 extern tTrackManager      trackManager;
 extern tCarManager        carManager;          /* the global car-manager singleton (gCarManager alias) */
 
-/* global data (SYM Globals.jsonl) */
+/* global data (SYM Globals.jsonl)
+   🔴 DO NOT RE-SORT the next two (17B EXTERN-ORDER LAW): both are TU-owned
+   TENTATIVE definitions in fecars.cpp, emitted in FIRST-DECLARATION order.
+   Retail run (SYM FECars.obj block): 0x80051540 cars_disableBonuses (CHAR) ->
+   0x80051544 gCarSelected[2][50]. */
+extern char  cars_disableBonuses;              /* 0x80051540  CHAR */
 extern char  gCarSelected[2][50];              /* 0x80051544  ARY ARY CHAR dims 2x50 (per-player car-seen bitmap) */
 extern char  bigBuf[];                         /* 0x80010000  shared big load/scratch buffer */
 

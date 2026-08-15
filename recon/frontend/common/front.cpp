@@ -5,14 +5,21 @@
 #include "front.h"
 
 /* ---- Front.obj-OWNED globals -- DEFINED here (self-contained; .data=real EXE bytes, .bss=zero) ---- */
-int          overRide;   /* @0x800517e8  (bss(zero)) */
-int          ComingIntoTheFrontEndTheVeryFirstTime;   /* @0x800517ec  (bss(zero)) */
+/* overRide + ComingIntoTheFrontEndTheVeryFirstTime lead Front.obj's run at
+   0x800517e8, BEFORE the two initialised cop-model tables -- a tentative
+   definition can never do that (16E), so retail initialised them explicitly.
+   gcc-2.8 has no zero-initialized-in-bss pass, so `= 0` keeps them in .data at
+   the head of the definition order (17B EXTERN-ORDER LAW). */
+int          overRide = 0;   /* @0x800517e8 */
+int          ComingIntoTheFrontEndTheVeryFirstTime = 0;   /* @0x800517ec */
 tCarModels   regularCopModels[7][5] = { 24, 24, 24, 23, 22, 24, 24, 24, 23, 22, 24, 24, 24, 24, 22, 24, 24, 24, 24, 25, 26, 26, 26, 24, 25, 26, 26, 26, 24, 25, 27, 27, 27, 27, 27 };   /* @0x800517f0 */
 tCarModels   superCopModels[7][5] = { 26, 26, 26, 24, 25, 26, 26, 26, 24, 25, 26, 26, 26, 24, 25, 26, 26, 26, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27 };   /* @0x8005187c */
 char         gFE_Cheats[5];   /* @0x80051908  (bss(zero)) */
 int          gPSXMemCardFull[1];   /* @0x80051910  (bss(zero)) */
 int          colourChosen[8];   /* @0x80051914  (bss(zero)) */
-tAllScreens  *gAllScreens[0];   /* @0x80051934  (bss(zero)) */
+tAllScreens  *gAllScreens[1];   /* @0x80051934  (bss(zero)) -- SYM: PTR STRUCT, 4 B.
+                                   The [0] form emitted NOTHING and let the dead
+                                   _usePlayerUpgrades occupy retail's 4 bytes. */
 int          memCardReadOK[1];   /* @0x80051938  (bss(zero)) */
 tCarInLineup CarLineup[9];   /* @0x8005193c  (bss(zero)) */
 char         picked[11];   /* @0x80051960  (bss(zero)) */
@@ -3138,4 +3145,6 @@ tAllScreens::~tAllScreens()
 /* end of front.cpp */
 
 /* owning-TU def (extern-declared, never defined; link-harness) */
-int _usePlayerUpgrades;
+/* _usePlayerUpgrades REMOVED W66-A5: no reference anywhere in recon and no SYM
+   record in ANY obj block -- an invention that was silently occupying
+   gAllScreens' 4 retail bytes in Front.obj's .data run. */

@@ -1,0 +1,108 @@
+== build/recon/eaclib/psx/eacpsxz/fileroot.c.o [.sbss] our size 8  retail span 0x8013dd34..0x8013dd44 (16 B)  1 foreign/un-migrated records, 8 B
+   0x8013dd38   8 B  D_8013DD38             STRING "sim:"  -> -G8 LITERAL TELL
+== build/recon/eaclib/psx/eacpsxz/primate.c.o [.sbss] our size 60  retail span 0x8013dd04..0x8013dd18 (20 B)  0 foreign/un-migrated records, 0 B
+== build/recon/game/common/audiocmn.cpp.o [.sdata] our size 224  retail span 0x8013c628..0x8013c720 (248 B)  12 foreign/un-migrated records, 56 B
+   0x8013c67c   8 B  D_8013C67C             STRING "SFXHDR"  -> -G8 LITERAL TELL
+   0x8013c684   8 B  D_8013C684             STRING "fesfx"  -> -G8 LITERAL TELL
+   0x8013c68c   4 B  D_8013C68C             STRING "eng"  -> -G8 LITERAL TELL
+   0x8013c690   4 B  D_8013C690             STRING "ger"  -> -G8 LITERAL TELL
+   0x8013c694   4 B  D_8013C694             STRING "frn"  -> -G8 LITERAL TELL
+   0x8013c698   4 B  D_8013C698             STRING "spn"  -> -G8 LITERAL TELL
+   0x8013c69c   4 B  D_8013C69C             STRING "itl"  -> -G8 LITERAL TELL
+   0x8013c6a0   4 B  D_8013C6A0             STRING "Gen"  -> -G8 LITERAL TELL
+   0x8013c6a4   4 B  D_8013C6A4             STRING "brt"  -> -G8 LITERAL TELL
+   0x8013c6a8   4 B  D_8013C6A8             STRING "fre"  -> -G8 LITERAL TELL
+   0x8013c6ac   4 B  D_8013C6AC             STRING "c"  -> -G8 LITERAL TELL
+   0x8013c6b0   4 B  D_8013C6B0             all-zero (un-migrated scalar / file-static)
+== build/recon/game/common/bworld.cpp.o [.sdata] our size 56  retail span 0x8013c758..0x8013c7bc (100 B)  8 foreign/un-migrated records, 52 B
+   0x8013c75c   4 B  D_8013C75C             all-zero (un-migrated scalar / file-static)
+   0x8013c760   4 B  D_8013C760             all-zero (un-migrated scalar / file-static)
+   0x8013c764   8 B  D_8013C764             STRING "bworld"  -> -G8 LITERAL TELL
+   0x8013c76c   8 B  D_8013C76C             STRING "S.grp"  -> -G8 LITERAL TELL
+   0x8013c774   8 B  D_8013C774             STRING "N.grp"  -> -G8 LITERAL TELL
+   0x8013c77c   8 B  D_8013C77C             STRING "W.grp"  -> -G8 LITERAL TELL
+   0x8013c784   8 B  D_8013C784             STRING ".grp"  -> -G8 LITERAL TELL
+   0x8013c78c   4 B  D_8013C78C             all-zero (un-migrated scalar / file-static)
+== build/recon/game/common/copspeak.cpp.o [.sdata] our size 126  retail span 0x8013d07c..0x8013d0fc (128 B)  13 foreign/un-migrated records, 68 B
+   0x8013d084   8 B  D_8013D084             STRING "BAD!"  -> -G8 LITERAL TELL
+   0x8013d08c   8 B  D_8013D08C             STRING "lden"  -> -G8 LITERAL TELL
+   0x8013d094   8 B  D_8013D094             STRING "ldex"  -> -G8 LITERAL TELL
+   0x8013d09c   4 B  D_8013D09C             STRING "fre"  -> -G8 LITERAL TELL
+   0x8013d0a0   4 B  D_8013D0A0             STRING "ger"  -> -G8 LITERAL TELL
+   0x8013d0a4   4 B  D_8013D0A4             STRING "eng"  -> -G8 LITERAL TELL
+   0x8013d0a8   4 B  D_8013D0A8             STRING "x"  -> -G8 LITERAL TELL
+   0x8013d0ac   4 B  D_8013D0AC             STRING "s"  -> -G8 LITERAL TELL
+   0x8013d0b0   4 B  D_8013D0B0             STRING "."  -> -G8 LITERAL TELL
+   0x8013d0b4   4 B  D_8013D0B4             STRING "n"  -> -G8 LITERAL TELL
+   0x8013d0b8   4 B  D_8013D0B8             STRING "D"  -> -G8 LITERAL TELL
+   0x8013d0bc   8 B  D_8013D0BC             STRING "%s%d"  -> -G8 LITERAL TELL
+   0x8013d0c4   4 B  D_8013D0C4             STRING "|"  -> -G8 LITERAL TELL
+== build/recon/game/common/r3dcar.cpp.o [.sdata] our size 156  retail span 0x8013d324..0x8013d3c0 (156 B)  19 foreign/un-migrated records, 98 B
+   0x8013d328   8 B  D_8013D328             STRING "sub_ot0"  -> -G8 LITERAL TELL
+   0x8013d330   8 B  D_8013D330             STRING "sub_ot1"  -> -G8 LITERAL TELL
+   0x8013d338   8 B  D_8013D338             STRING ".geo"  -> -G8 LITERAL TELL
+   0x8013d340   8 B  D_8013D340             STRING ".psh"  -> -G8 LITERAL TELL
+   0x8013d348   8 B  D_8013D348             STRING "bigfile"  -> -G8 LITERAL TELL
+   0x8013d350   8 B  D_8013D350             STRING "zz%s"  -> -G8 LITERAL TELL
+   0x8013d358   4 B  D_8013D358             STRING "h"  -> -G8 LITERAL TELL
+   0x8013d35c   4 B  D_8013D35C             STRING "s"  -> -G8 LITERAL TELL
+   0x8013d360   8 B  D_8013D360             STRING ".viv"  -> -G8 LITERAL TELL
+   0x8013d368   8 B  D_8013D368             STRING "palCopy"  -> -G8 LITERAL TELL
+   0x8013d370   4 B  D_8013D370             all-zero (un-migrated scalar / file-static)
+   0x8013d374   4 B  D_8013D374             STRING "i"  -> -G8 LITERAL TELL
+   0x8013d378   4 B  D_8013D378             STRING "d"  -> -G8 LITERAL TELL
+   0x8013d37c   4 B  D_8013D37C             STRING "l"  -> -G8 LITERAL TELL
+   0x8013d380   4 B  D_8013D380             STRING "g"  -> -G8 LITERAL TELL
+   0x8013d39d   1 B  D_8013D39D             all-zero (un-migrated scalar / file-static)
+   0x8013d39e   2 B  D_8013D39E             all-zero (un-migrated scalar / file-static)
+   0x8013d3a1   1 B  D_8013D3A1             all-zero (un-migrated scalar / file-static)
+   0x8013d3a2   2 B  D_8013D3A2             all-zero (un-migrated scalar / file-static)
+== build/recon/game/common/track.cpp.o [.sdata] our size 88  retail span 0x8013d4ac..0x8013d4f0 (68 B)  0 foreign/un-migrated records, 0 B
+== build/recon/game/psx/device.cpp.o [.sdata] our size 29  retail span 0x8013d778..0x8013d798 (32 B)  2 foreign/un-migrated records, 8 B
+   0x8013d788   4 B  D_8013D788             all-zero (un-migrated scalar / file-static)
+   0x8013d790   4 B  D_8013D790             all-zero (un-migrated scalar / file-static)
+== build/recon/game/psx/draw.cpp.o [.sdata] our size 52  retail span 0x8013d7a8..0x8013d7c8 (32 B)  0 foreign/un-migrated records, 0 B
+== build/recon/game/psx/drawc.cpp.o [.sdata] our size 36  retail span 0x8013d7f0..0x8013d818 (40 B)  2 foreign/un-migrated records, 12 B
+   0x8013d800   8 B  DrawC_gMenuColor       all-zero (un-migrated scalar / file-static)
+   0x8013d808   4 B  DrawC_gMenuLights      all-zero (un-migrated scalar / file-static)
+== build/recon/game/psx/draww.cpp.o [.sdata] our size 92  retail span 0x8013d81c..0x8013d840 (36 B)  2 foreign/un-migrated records, 16 B
+   0x8013d820   8 B  D_8013D820             data: 7d7d320fff7d0000
+   0x8013d828   8 B  D_8013D828             data: 7d7d320fff7d0000
+== build/recon/game/psx/hud.cpp.o [.sdata] our size 320  retail span 0x8013d89c..0x8013d98c (240 B)  21 foreign/un-migrated records, 116 B
+   0x8013d8ac   4 B  D_8013D8AC             all-zero (un-migrated scalar / file-static)
+   0x8013d8c4   8 B  D_8013D8C4             STRING "SLC %d"  -> -G8 LITERAL TELL
+   0x8013d8cc   8 B  D_8013D8CC             STRING "HUD1"  -> -G8 LITERAL TELL
+   0x8013d8d4   8 B  D_8013D8D4             STRING "HUD2"  -> -G8 LITERAL TELL
+   0x8013d8dc   8 B  D_8013D8DC             STRING "::'''."  -> -G8 LITERAL TELL
+   0x8013d8e4   8 B  D_8013D8E4             STRING ".:""","  -> -G8 LITERAL TELL
+   0x8013d8ec   4 B  D_8013D8EC             STRING "0/0"  -> -G8 LITERAL TELL
+   0x8013d8f0   8 B  D_8013D8F0             STRING "0M00S00"  -> -G8 LITERAL TELL
+   0x8013d8f8   8 B  D_8013D8F8             STRING "0.000"  -> -G8 LITERAL TELL
+   0x8013d900   4 B  D_8013D900             all-zero (un-migrated scalar / file-static)
+   0x8013d904   4 B  D_8013D904             STRING "%s"  -> -G8 LITERAL TELL
+   0x8013d908   8 B  D_8013D908             STRING "%02d"  -> -G8 LITERAL TELL
+   0x8013d910   4 B  D_8013D910             STRING "- -"  -> -G8 LITERAL TELL
+   0x8013d914   8 B  D_8013D914             data: 0400010203000000
+   0x8013d91c   1 B  D_8013D91C             all-zero (un-migrated scalar / file-static)
+   0x8013d91d   3 B  D_8013D91D             data: ff0000
+   0x8013d920   4 B  D_8013D920             STRING "2"  -> -G8 LITERAL TELL
+   0x8013d924   4 B  D_8013D924             all-zero (un-migrated scalar / file-static)
+   0x8013d954   4 B  D_8013D954             all-zero (un-migrated scalar / file-static)
+   0x8013d95c   4 B  D_8013D95C             all-zero (un-migrated scalar / file-static)
+   0x8013d964   4 B  D_8013D964             all-zero (un-migrated scalar / file-static)
+== build/recon/game/psx/night.cpp.o [.sdata] our size 192  retail span 0x8013d9e0..0x8013da9c (188 B)  7 foreign/un-migrated records, 44 B
+   0x8013d9e2   2 B  D_8013D9E2             all-zero (un-migrated scalar / file-static)
+   0x8013d9fe   2 B  D_8013D9FE             data: 0100
+   0x8013da00   8 B  D_8013DA00             STRING "plnight"  -> -G8 LITERAL TELL
+   0x8013da08   8 B  D_8013DA08             STRING "CopRed"  -> -G8 LITERAL TELL
+   0x8013da10   8 B  D_8013DA10             STRING "CopBlue"  -> -G8 LITERAL TELL
+   0x8013da18   8 B  D_8013DA18             STRING "wtnight"  -> -G8 LITERAL TELL
+   0x8013da20   8 B  D_8013DA20             STRING "nght"  -> -G8 LITERAL TELL
+== build/recon/game/psx/weather.cpp.o [.sdata] our size 104  retail span 0x8013dba0..0x8013dc10 (112 B)  7 foreign/un-migrated records, 36 B
+   0x8013dbb4   8 B  D_8013DBB4             data: ffffffffffffffff
+   0x8013dbbc   8 B  D_8013DBBC             data: ffffffffffffffff
+   0x8013dbcc   4 B  D_8013DBCC             all-zero (un-migrated scalar / file-static)
+   0x8013dbd4   4 B  D_8013DBD4             all-zero (un-migrated scalar / file-static)
+   0x8013dbdc   4 B  D_8013DBDC             all-zero (un-migrated scalar / file-static)
+   0x8013dbe4   4 B  D_8013DBE4             all-zero (un-migrated scalar / file-static)
+   0x8013dbe8   4 B  Weather_gLastTimeProcessed all-zero (un-migrated scalar / file-static)

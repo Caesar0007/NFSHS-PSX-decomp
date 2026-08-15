@@ -4,12 +4,18 @@
 #include "feaudio.h"
 
 /* ---- Feaudio.obj-OWNED globals -- DEFINED here (self-contained; real NFS4.EXE bytes / .bss zero) ---- */
-int          gStopCommentaryNow;   /* @0x800514c8  (bss(zero)) */
+/* gStopCommentaryNow leads the run at 0x800514c8, BEFORE the two initialised
+   objects -- a tentative definition can never do that (16E), so retail's source
+   initialised it explicitly.  gcc-2.8 has no zero-initialized-in-bss pass, so
+   `= 0` keeps it in .data at the head of the definition order. */
+int          gStopCommentaryNow = 0;   /* @0x800514c8 */
 signed char  gCurrentVIV = -1;   /* @0x800514cc */
 char *allLanguages[6] = {"zEngl","zGerm","zFren","zSpan","zItal","zSwed"};   /* @0x800514d0 .rodata prefixes */
 SPEECHINFO   ginfo;   /* @0x800514e8  (bss(zero)) */
 /* speechfileHeader declared (unsized-array form) in feaudio_externs.h; accessed [0] so the value-load
-   into an arg reg is non-gp + separate v0 scratch (matches oracle lui v0; lw a0,(v0)); §3.15-CORRECTION */
+   into an arg reg is non-gp + separate v0 scratch (matches oracle lui v0; lw a0,(v0)); §3.15-CORRECTION.
+   MIGRATED here W66-A5 (SYM Feaudio.obj block owns 0x8005150c). */
+LUMPYHEAD   *speechfileHeader[1];   /* @0x8005150c */
 char         currentSpeechViv[40];   /* @0x80051510  (bss(zero)) */
 int          commentaryActualLevel;   /* @0x80051538  (bss(zero)) */
 

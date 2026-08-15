@@ -35,9 +35,14 @@ char         gUpdateKnockoutInfoFlag = 1;   /* @0x8013d28b */
 char         gKnockOutSpeechFlag = 1;   /* @0x8013d28c */
 char         gCalculateVictory = 1;   /* @0x8013d28d */
 char         gPlayerEnteredNameAlready[2] = {0, 0};   /* @0x8013d290 */
-tNfsSystemInfo nfs_sysInfo = {0};   /* @0x8013d2b4 */
-tMissionManager missionManager = {0};   /* @0x8013d2b8 */
-char         finishOrder[8] = {0};   /* @0x8013d2c0 */
+/* W67-A4: the next three are TENTATIVE on purpose -- retail emits them AFTER the
+   TU's -G8 string-literal pool 0x8013d294..0x8013d2b4 ("%s%s" "ymus" "win*" "lose*"),
+   i.e. in the deferred batch, while every cell above is initialised (16E =0
+   discriminator, read in reverse).  First-declaration order nfs_sysInfo ->
+   missionManager -> finishOrder is load-bearing (17B).  DO NOT initialise. */
+tNfsSystemInfo nfs_sysInfo;   /* @0x8013d2b4 */
+tMissionManager missionManager;   /* @0x8013d2b8 */
+char         finishOrder[8];   /* @0x8013d2c0 */
 
 
 /* ---- Nfs2_SystemNLibStartUp  [NFS3.CPP:118-135] SLD-VERIFIED ---- */

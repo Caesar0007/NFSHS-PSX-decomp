@@ -22,12 +22,21 @@
 
 /* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
  char currentdirectory[64];
-/* 04U: owned sbss pointers must be NAMED GLOBAL symbols (oracle relocs name
+/* 04U: owned pointers must be NAMED GLOBAL symbols (oracle relocs name
  * D_8013DD34/D_8013DD40; a plain tentative def becomes a LOCAL .sbss symbol
  * via maspsx's comm->lcomm conversion and objdiff sees `.sbss+addend`).
- * Explicit .sbss section keeps the gp-rel form with a global name. */
- char *D_8013DD34 __attribute__((section(".sbss")));  /* fsprefix1 */
- char *D_8013DD40 __attribute__((section(".sbss")));  /* fsprefix2 */
+ * W67-A4 (retail-byte correction, ROM 0x8013dd2c..0x8013dd44): these two are
+ * NOT zero cells -- retail INITIALISES them, fsprefix1 = "cdrom:" (literal
+ * @0x8013dd2c) and fsprefix2 = "sim:" (literal @0x8013dd38), pooled into
+ * .sdata by the retail -G8 build (18C).  The literals are materialized as
+ * NAMED .sdata arrays (referenced only from the data initialisers, so no
+ * address-form/codegen exposure); definition order = emission order =
+ * retail order.  The explicit section attribute keeps the gp-rel ref form
+ * with a global name (same device as the old .sbss shape).  DO NOT RE-SORT. */
+ char D_8013DD2C[] __attribute__((section(".sdata"), aligned(4))) = "cdrom:";
+ char *D_8013DD34 __attribute__((section(".sdata"))) = D_8013DD2C;  /* fsprefix1 */
+ char D_8013DD38[] __attribute__((section(".sdata"), aligned(4))) = "sim:";
+ char *D_8013DD40 __attribute__((section(".sdata"))) = D_8013DD38;  /* fsprefix2 */
 #define fsprefix1 D_8013DD34
 #define fsprefix2 D_8013DD40
 /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no

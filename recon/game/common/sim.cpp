@@ -8,7 +8,23 @@
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
-int InBetween;
+int InBetween = 0;   /* @0x8013d40c  W67-A4: explicit =0 -- retail emits this cell
+    BEFORE the schedule-name literal pool below, so it cannot have been tentative
+    (16E =0 discriminator).  DO NOT strip the =0. */
+
+/* W67-A4: retail's .sdata run 0x8013d410..0x8013d428 holds the Sched_CreateNewSchedule
+   name literals -- a -G8 build keeps <=8-byte literals in .sdata (18C), but whole-TU
+   -G8 REGRESSES this TU (Sim_MainGameLoop 12 / Sim_ProcessSimSchedules 13 diffs,
+   measured w67a4 -- the audiocmn class), so the literals are materialized as NAMED
+   .sdata arrays instead (the audiocmn/w66a6 section-attribute device; codegen-neutral:
+   >G4 so the address form stays absolute, and the gate is reloc-name lenient). */
+static char D_8013D410[] __attribute__((section(".sdata"), aligned(4))) = "Sc32-1";
+static char D_8013D418[] __attribute__((section(".sdata"), aligned(4))) = "Sc32-2";
+static char D_8013D420[] __attribute__((section(".sdata"), aligned(4))) = "Sc64";
+
+/* retail emits the next three AFTER the literal pool -> they stay tentative;
+   first-declaration order unPauseDelay, skipRender, quitType is load-bearing (17B).
+   DO NOT RE-SORT. */
 int quitType;
 int skipRender;
 int unPauseDelay;
@@ -37,9 +53,9 @@ void Sim_StartUp(void)
   simVar.keyRelease = 0;
   simGlobal.gameStarted = 0;
   simGlobal.gameTicks = 0;
-  simGlobal.schedule32Hz = Sched_CreateNewSchedule("Sc32-1",0x46);
-  simGlobal.schedule32Hz2 = Sched_CreateNewSchedule("Sc32-2",0xb);
-  simGlobal.schedule64Hz = Sched_CreateNewSchedule("Sc64",0x1a);
+  simGlobal.schedule32Hz = Sched_CreateNewSchedule(D_8013D410,0x46);   /* "Sc32-1" */
+  simGlobal.schedule32Hz2 = Sched_CreateNewSchedule(D_8013D418,0xb);   /* "Sc32-2" */
+  simGlobal.schedule64Hz = Sched_CreateNewSchedule(D_8013D420,0x1a);   /* "Sc64" */
   FastRandom_StartUp(GameSetup_gData.randSeed);
   AICop_StartUp();
   AIInit_StartUp1();

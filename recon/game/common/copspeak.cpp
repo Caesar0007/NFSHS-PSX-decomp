@@ -14,8 +14,12 @@ CopSpeak_tRequest  CopSpeak_gRequest;
 CopSpeak_tRequest  CopSpeak_gCurrent;
 CopSpeak_tRequest  CopSpeak_gQueue[64];
 SNDSTREAMSTATUS    CopSpeak_gMusicStat;
-int                cdsectorreseek;
-char               CopSpeak_gHandleCount;
+/* W67-A4: explicit =0 on the next two cells -- retail emits them BEFORE the TU's
+   -G8 string-literal pool (0x8013d084..0x8013d0c8), so they cannot have been
+   tentative (16E =0 discriminator).  The cells from CopSpeak_gQueueHead down stay
+   tentative: retail emits them AFTER the pool.  DO NOT strip the =0. */
+int                cdsectorreseek = 0;
+char               CopSpeak_gHandleCount = 0;
 int                CopSpeak_gQueueHead;
 int                CopSpeak_gQueuePlay;
 int                CopSpeak_gSpchHandle;

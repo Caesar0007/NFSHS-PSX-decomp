@@ -29,7 +29,10 @@ short        R3DCar_LoadedSceneVRam[2][50][2];   /* @0x80116bf8  (bss(zero)) */
 int          R3DCar_PositionZ[9];   /* @0x80116d88  (bss(zero)) */
 u_long       *R3DCar_subOtStart[2][2];   /* @0x80116dac  (bss(zero)) */
 R3DCar_tEnvMapInfo R3DCar_EnvMapInfo[28];   /* @0x80116dbc  (bss(zero)) */
-int          R3DCar_InMenu;   /* @0x8013d324  (bss(zero)) */
+int          R3DCar_InMenu = 0;   /* @0x8013d324  W67-A4: explicit =0 -- retail emits
+    this cell BEFORE the TU's -G8 string-literal pool (0x8013d328..0x8013d384), so it
+    cannot have been tentative (16E =0 discriminator); initialised objects emit at
+    definition position, tentative ones after every literal.  DO NOT strip the =0. */
 int          R3DCar_aSyncLoading;   /* @0x8013d384  (bss(zero)) */
 void         *R3DCar_orientMat;   /* @0x8013d388  (bss(zero)) */
 void         *R3DCar_position;   /* @0x8013d38c  (bss(zero)) */

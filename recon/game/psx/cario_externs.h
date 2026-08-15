@@ -30,11 +30,16 @@ extern short     CarIO_carVRamAdd[6];          /* SYM: ARY SHORT dims 1 6, size 
 extern short     CarIO_carVRamOffset[6];       /* (int) cast => short */
 extern short     CarIO_licensePlate[22][6];    /* [c][0..2] short (id+coords) */
 extern short     CarIO_licenseSFX_Vram[12][2]; /* short vram coords */
-extern shapetbl *CarIO_Plate1[2];              /* = (shapetbl*)0 */
-extern shapetbl *CarIO_Plate2[2];
+/* W67-A4: FIRST-DECLARATION order below is load-bearing (17B: a TU-owned
+   tentative def emits in the order its identifier is FIRST DECLARED -- this
+   header's line, not the .cpp's).  Retail cario.obj .sdata tail order:
+   carPixMapCount, carVRamCount, licenseSFX_Count, Plate1, Plate2.
+   DO NOT RE-SORT. */
 extern int       CarIO_carPixMapCount;
 extern int       CarIO_carVRamCount;
 extern int       CarIO_licenseSFX_Count;
+extern shapetbl *CarIO_Plate1[2];              /* = (shapetbl*)0 */
+extern shapetbl *CarIO_Plate2[2];
 extern char     *R3DCar_LicenseShapeFile;      /* OWNER r3dcar.cpp:44 defines a
                                                 * POINTER; the old `char []` decl made
                                                 * both locateshapez calls pass &ptr. */

@@ -7,8 +7,7 @@
 #include "bworld_externs.h"
 
 /* ---- bworld.obj anon file-statics (no SYM name; Ghidra DAT_; real .bss bytes = 0) ---- */
-static void *gBWPrimPtr;    /* @0x8013c75c */
-int   gBWMemTotal;   /* @0x8013c760  (global, not static: per-symbol gp-rel reloc, sec.3.12 #12) */
+static void *gBWPrimPtr;    /* .sbss (no SYM .sdata record; not in the image window) */
 
 
 /* ---- bworld.obj-owned globals (SYM-typed; .data=real EXE bytes, .bss=zero) ---- */
@@ -17,7 +16,10 @@ matrixtdef   gNightMat;   /* @0x8010ee64  (bss(zero)) */
 matrixtdef   gCopMat;   /* @0x8010ee88  (bss(zero)) */
 BW_tContextMgr gContextMan;   /* @0x8010eeac  (bss(zero)) */
 int BWorld_gChunkBuildList[36];   /* @0x8010efec  (bss(zero)) */
-int          SceneLoaded;   /* @0x8013c758  (bss(zero)) */
+int          SceneLoaded = 0;   /* @0x8013c758  W67-A4: explicit =0 -- retail emits this
+    cell FIRST in bworld.obj's .sdata run, before the fn-local statics and the -G8
+    literal pool, so it cannot have been tentative (16E =0 discriminator).
+    DO NOT strip the =0. */
 BW_tContext  *gCurrContext;   /* @0x8013c790  (bss(zero)) */
 int          gSpikeBelt;   /* @0x8013c794  (bss(zero)) */
 int          gSpikeBeltSlice;   /* @0x8013c798  (bss(zero)) */
@@ -342,7 +344,9 @@ void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd)
       }
       if (BW_gCopCarObj != (Car_tObj *)0x0) {
         matrixtdef rotY;
-        static int cop_angle;
+        static int cop_angle = 0;   /* @0x8013c75c  W67-A4: =0 puts this (unused,
+            SYM-attested) fn-local static into .sdata at its retail position;
+            uninitialised it lands in .sbss.  Zero codegen impact (no refs). */
 
         Night_SetCopColor(BW_gCopCarObj->carInfo);
         gBWPrimPtr = (void *)((int)gBWPrimPtr + 0x40);
@@ -745,12 +749,21 @@ NO_LINES:
   return;
 }
 
+/* W67-A4: bworld.obj's retail .sdata run resumes here -- totalMem (our gBWMemTotal)
+   @0x8013c760 then the -G8 string-literal pool 0x8013c764..0x8013c790 (18C):
+   "bworld" "S.grp" "N.grp" "W.grp" ".grp" "" in use order.  NEEDS whole-TU
+   g_value 8 (PER_TU_FLAGS spec, w67a4: gates 20/21 2x == baseline).  A named
+   section(".sdata") array device was probed and REVERTED: such an array is
+   la-addressed, losing the oracle's split lui/addiu delay-slot fill.
+   gBWMemTotal's definition position (before BWAllocMem) is load-bearing. */
+int gBWMemTotal = 0;   /* @0x8013c760  SYM: STAT totalMem (kept global: per-symbol
+                          gp-rel reloc, sec.3.12 #12) */
+
 /* ---- BWAllocMem__Fl  [@0x8007e3f8] ---- */
 char * BWAllocMem(long size)
 {
-  static int totalMem;
   char *pcVar1;
-  
+
   gBWMemTotal = gBWMemTotal + size;
   pcVar1 = Platform_GetDCTBuffer(size,"bworld");
   return pcVar1;

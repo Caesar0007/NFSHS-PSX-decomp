@@ -8,7 +8,10 @@
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
-Draw_tPixMap *CarIO_carPixMap;
+Draw_tPixMap *CarIO_carPixMap = 0;   /* @0x8013d71c  W67-A4: explicit =0 -- retail
+    emits this cell BEFORE the TU's -G8 literal pool 0x8013d720..0x8013d73c
+    ("plate1" "plate2" "blnk" "   "), so it cannot have been tentative (16E =0
+    discriminator).  DO NOT strip the =0. */
 int CarIO_carPixMapCount;
 int CarIO_carVRamCount;
 int CarIO_licenseSFX_Count;

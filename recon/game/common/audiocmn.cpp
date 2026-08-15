@@ -25,8 +25,14 @@ static char gAudioCmnLastFreq[34] = "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@";   /* @0
 
 
 /* ---- audiocmn.obj-owned globals (SYM-typed; .data=real EXE bytes, .bss=zero) ---- */
+/* forward decls of the W67-A4 .sdata literal-pool arrays (defined after the
+   =0 batch below so they EMIT at their retail positions 0x8013c67c..0x8013c6a8;
+   the tables here only reference them). */
+extern char D_8013C67C[], D_8013C684[], D_8013C68C[], D_8013C690[], D_8013C694[],
+            D_8013C698[], D_8013C69C[], D_8013C6A0[], D_8013C6A4[], D_8013C6A8[];
 char         *AudioCmn_FESFX_loadLangMap[12] = {   /* @0x8005570c : image ptrs into the pooled lang-code literals @0x8013c68c+ (gcc string pooling reproduces the sharing) */
-    "eng", "brt", "eng", "fre", "eng", "brt", "ger", "brt", "eng", "eng", "eng", 0
+    D_8013C68C, D_8013C6A4, D_8013C68C, D_8013C6A8, D_8013C68C, D_8013C6A4,
+    D_8013C690, D_8013C6A4, D_8013C68C, D_8013C68C, D_8013C68C, 0
 };
 int          gBankNumLookupTable[71] = { 0, 2, 0, 2, 0, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 5, 5, 3, 3, 3, 3, 5, 2, 2, 2, 2, 0, 1, 2, 2, 2, 2, 0, 0, 3, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0 };   /* @0x8010e4d0 */
 int          falseLapTrigNumsForward[10][2] = { 4, 7, 4, 7, 4, 7, -1, -1, 4, 7, 4, 9, 4, 9, -1, -1, -1, -1, 4, 9 };   /* @0x8010e5ec */
@@ -34,7 +40,7 @@ int          falseLapTrigNumsBackward[10][2] = { 4, 5, 4, 5, -1, -1, -1, -1, 4, 
 char         Xfade[129] = { 0, 3, 7, 10, 13, 16, 19, 22, 24, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 46, 48, 50, 51, 53, 54, 55, 57, 58, 60, 61, 62, 63, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 84, 85, 86, 87, 88, 88, 89, 90, 91, 91, 92, 93, 94, 94, 95, 96, 96, 97, 98, 98, 99, 100, 100, 101, 101, 102, 103, 103, 104, 104, 105, 106, 106, 107, 107, 108, 108, 109, 109, 110, 110, 111, 111, 112, 112, 113, 113, 114, 114, 115, 115, 116, 116, 117, 117, 118, 118, 119, 119, 119, 120, 120, 121, 121, 122, 122, 122, 123, 123, 124, 124, 125, 125, 125, 126, 127, 127 };   /* @0x8010e68c */
 char         SkidInitMaxFreq[71] = { 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };   /* @0x8010e710 */
 char         *AudioCmn_LanguageName[7] = {   /* @0x8010e774 : image ptrs 0x8013c68c/90/94/98/9c + "eng" x2 (pooled) */
-    "eng", "ger", "frn", "spn", "itl", "eng", "eng"
+    D_8013C68C, D_8013C690, D_8013C694, D_8013C698, D_8013C69C, D_8013C68C, D_8013C68C
 };
 int          bSirenOn[6];   /* @0x8010e790  (bss(zero)) */
 int          bSirenPitchingUp[6] = { 1, 1, 1, 1, 1, 1 };   /* @0x8010e7a8 */
@@ -74,6 +80,30 @@ int          NumSFXOn = 0;   /* @0x8013c670  (bss(zero)) */
 int          gStereoMode = 1;   /* @0x8013c674 */
 char         fReverbOn = 0;   /* @0x8013c678  (bss(zero)) */
 char         fReverbLevel = 0;   /* @0x8013c679 */
+/* W67-A4: retail's -G8 string-literal pool 0x8013c67c..0x8013c6ac + the two
+   initialised fn-statics @0x8013c6ac/0x8013c6b0 (SYM: lastImpactSample INT,
+   cobbleCount CHAR), reproduced in DEFINITION ORDER.  Whole-TU -G8 breaks
+   CheckState (W59-11G), so the literals are NAMED .sdata arrays (w66a6/sim.cpp
+   device; storage-only, address form stays absolute).  The two data tables and
+   the three code sites reference these arrays -- reloc-name-lenient, and the
+   pooling ("eng" x6 -> one copy) is exactly retail's.  DO NOT RE-SORT. */
+char D_8013C67C[] __attribute__((section(".sdata"), aligned(4))) = "SFXHDR";
+char D_8013C684[] __attribute__((section(".sdata"), aligned(4))) = "fesfx";
+char D_8013C68C[] __attribute__((section(".sdata"), aligned(4))) = "eng";
+char D_8013C690[] __attribute__((section(".sdata"), aligned(4))) = "ger";
+char D_8013C694[] __attribute__((section(".sdata"), aligned(4))) = "frn";
+char D_8013C698[] __attribute__((section(".sdata"), aligned(4))) = "spn";
+char D_8013C69C[] __attribute__((section(".sdata"), aligned(4))) = "itl";
+char D_8013C6A0[] __attribute__((section(".sdata"), aligned(4))) = "Gen";
+char D_8013C6A4[] __attribute__((section(".sdata"), aligned(4))) = "brt";
+char D_8013C6A8[] __attribute__((section(".sdata"), aligned(4))) = "fre";
+/* W67-A4 REAL DATA DEFECT (zeroinit class, 9th): retail initialises
+   lastImpactSample to 0x63 (ROM bytes 63 00 00 00 @0x8013c6ac -- gaptell
+   misread them as STR "c"); our uninitialised static compared against 0,
+   changing the double-impact-suppression behavior.  File-scope static (was
+   fn-local in HandleImpactSample) so it emits at its retail position. */
+static int  lastImpactSample = 0x63;   /* @0x8013c6ac */
+static char cobbleCount = 0;           /* @0x8013c6b0 */
 int          falseLapTrigCur = 0;   /* @0x8013c6b4  (bss(zero)) */
 int          flaseLapTrigTrack = 0;   /* @0x8013c6b8  (bss(zero)) */
 char         currentLap[2] = {0, 0};   /* @0x8013c6bc  (bss(zero)) */
@@ -373,7 +403,7 @@ void AudioCmn_LoadAsyncSfx(int bank,int patch,void *pbank,int size)
         }
         check = SNDbankadd(&s->handle,(int)pbank);
         if (check == 7) {
-          s->header = (char *)reservememadr("SFXHDR",SNDbankheadersize(s->handle),0x10);
+          s->header = (char *)reservememadr(D_8013C67C,SNDbankheadersize(s->handle),0x10);
           if (s->header != 0) {
             SNDbankheadercopy(s->header,(u_char *)s->handle);
             s->patch = patch;
@@ -1079,7 +1109,7 @@ void AudioCmn_LoadFESamples(void)
   char acStack_70 [104];
 
   strcpy(acStack_70, gAudioBasePath[0]);
-  strcat(acStack_70, "fesfx");
+  strcat(acStack_70, D_8013C684);   /* "fesfx" */
   AudioCmn_LoadBank(acStack_70,0);
   return;
 }
@@ -1096,7 +1126,7 @@ void AudioCmn_LoadGameSamples(void)
   }
   AudioEng_StartServer();
   strcpy(filename, gAudioBasePath[0]);
-  strcat(filename, "Gen");
+  strcat(filename, D_8013C6A0);   /* "Gen" */
   memcpy(TrackGenBank, (char **)AudioCmn_FESFX_loadLangMap, sizeof(TrackGenBank));
   strcat(filename, TrackGenBank[(int)Audio_gFESFXTable.languages]);
   AudioCmn_LoadBank(filename,3);
@@ -1176,7 +1206,7 @@ int scaleFrequency(int sndPlayer,int iSFXnum,int tweakedForce)
    `iSFXnum` and an anti-repeat block per half of the switch instead of an early `return`. */
 int ChooseImpactSample(int force,s_type surface1,s_type surface2)
 {
-  static int lastImpactSample;
+  /* lastImpactSample: file-scope static now (W67-A4, = 0x63) */
   int iSFXnum = 0;
 
   if (surface1 == 8) {
@@ -1770,7 +1800,7 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   int cobblestoneAmp;
   char SPSC;
   int PlayerPan;
-  static char cobbleCount;
+  /* cobbleCount: file-scope static now (W67-A4, = 0) */
   int loadAmp;
   int amplitude;
   int roadNoiseAmp;

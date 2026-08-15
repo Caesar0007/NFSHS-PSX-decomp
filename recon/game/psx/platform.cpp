@@ -6,22 +6,28 @@
 #include "../../nfs4_types.h"
 #include "platform_externs.h"
 
-/* D_8013DAA0 = path/directory string buffer immediately following gSysStartUp (0x8013DA9C+4).
- * Declared here so gcc emits lui+jal+addiu(delay) for setdirectory(D_8013DAA0) instead
- * of lui+addiu+jal+nop for &gSysStartUp+4. */
-extern char D_8013DAA0[];
-
-/* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
- * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
- * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
-int gCurrentMemory;
-int gHighMemory;
-int gLowMemory;
-int gSysStartUp;
-u_int gTotalMemory;
+/* W67-A4: platform.obj's retail .sdata run 0x8013da9c..0x8013dac0, reproduced
+ * byte-for-byte in DEFINITION ORDER (SYM FILE-record oracle, objruns):
+ *   gSysStartUp, "cdrom:" literal, disablecard, gDctXtraMem(STAT), gLowMemory,
+ *   gHighMemory, gCurrentMemory, gTotalMemory.
+ * Everything carries an explicit initialiser so the whole run is ONE
+ * declaration-order batch (16E =0 pair lever); the "cdrom:" literal retail kept
+ * in .sdata under -G8 is materialized as a NAMED .sdata array (sim.cpp/w66a6
+ * device; >G4 so its address form stays absolute -- oracle uses %hi/%lo).
+ * =0 keeps the gp-rel form of the small cells (gate-proven).  DO NOT RE-SORT. */
+int gSysStartUp = 0;        /* @0x8013da9c */
+/* D_8013DAA0 = the setdirectory("cdrom:") literal @0x8013daa0.  Defining it as a
+ * named array also keeps gcc's lui+jal+addiu(delay) shape in Platform_SysStartUp. */
+char D_8013DAA0[] __attribute__((section(".sdata"), aligned(4))) = "cdrom:";
+int disablecard = 0;        /* @0x8013daa8  EXT INT per SYM; referenced nowhere in code */
+char *gDctXtraMem = 0;      /* @0x8013daac  SYM: STAT PTR CHAR (kept non-static: extern decl in platform_externs.h) */
+int gLowMemory = 0;         /* @0x8013dab0 */
+int gHighMemory = 0;        /* @0x8013dab4 */
+int gCurrentMemory = 0;     /* @0x8013dab8 */
+u_int gTotalMemory = 0;     /* @0x8013dabc */
 
 /* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
-char gDctBuffer[64]; char *gDctXtraMem; char gEAMemPoolBase[64]; char gPlatformInitMem[64];  /* FIXME sizes approx */
+char gDctBuffer[64]; char gEAMemPoolBase[64]; char gPlatformInitMem[64];  /* FIXME sizes approx */
 
 
 /* ---- Platform_InitMemory__Fv  [PLATFORM.CPP:125-135] SLD-VERIFIED ---- */

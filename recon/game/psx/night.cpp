@@ -8,15 +8,25 @@
 
 /* ---- Night.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
    .data = real NFS4.EXE bytes, .bss = zero; extern-vs-SYM disagreements resolved to SYM) ---- */
-u_char       Night_gCopCarTypeColorIdx[2];   /* @0x8013d9e2  (bss(zero)) */
-char         lightningInit = 1;   /* @0x8013D9FE */
+/* W67-A4: night.obj's retail .sdata run 0x8013d9e0..0x8013da28 is reproduced in
+   DEFINITION ORDER (16E: initialised objects emit in .cpp definition order;
+   everything before the -G8 literal pool @0x8013da00 is therefore initialised,
+   everything after it stays tentative).  DO NOT RE-SORT, DO NOT strip the =0. */
+char         Night_gDrawLightning = 0;   /* @0x8013d9e0 */
+/* W67-A4: the 2-byte cell @0x8013d9e2 is 2-ALIGNED in retail; a u_char[2] def
+   gets word-aligned by DATA_ALIGNMENT (+2B pad, breaks the whole run).  Define
+   the STORAGE as a u_short under the asm label and keep BYTE-indexed refs via
+   the sized array VIEW (established dual-model device, cf. WeatherLightingTable
+   below; arrays are not gp-encoded by cc1plus, so the view keeps the oracle's
+   absolute %hi/%lo form). */
+u_short      Night_gCopCarTypeColorIdx_cell asm("Night_gCopCarTypeColorIdx") = 0;   /* @0x8013d9e2 */
+extern u_char Night_gCopCarTypeColorIdx[2];   /* byte view of the cell */
 char         Night_gCopCountryLightTbl[2][5][2] = { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1 };   /* @0x80120d18 */
 int          Night_gLightningPauseAreas[16][2];   /* @0x80120d2c  (bss(zero)) */
 CVECTOR      Night_gAdditiveHeadlightColor[16];   /* @0x80120dbc  (bss(zero)) */
-char         Night_gDrawLightning;   /* @0x8013d9e0  (bss(zero)) */
-u_char       (*Night_gPlayerLightingTable)[256][16];   /* @0x8013d9e4  (bss(zero)) */
-u_char       (*Night_gCopLightingTableRed)[256][8];   /* @0x8013d9e8  (bss(zero)) */
-u_char       (*Night_gCopLightingTableBlue)[256][8];   /* @0x8013d9ec  (bss(zero)) */
+u_char       (*Night_gPlayerLightingTable)[256][16] = 0;   /* @0x8013d9e4 */
+u_char       (*Night_gCopLightingTableRed)[256][8] = 0;   /* @0x8013d9e8 */
+u_char       (*Night_gCopLightingTableBlue)[256][8] = 0;   /* @0x8013d9ec */
 /* Night_gWeatherLightingTable[2] is modelled as its TWO retail per-element gp-rel symbols
    (StatsTimer/overlays.cpp model, catalog sec.E dual-model + wave-13 "unsized-array asm-label
    view"): the oracle reaches the CONSTANT-index sites (Night_KillNightDriving [0] and [1])
@@ -34,10 +44,11 @@ u_char       (*Night_gCopLightingTableBlue)[256][8];   /* @0x8013d9ec  (bss(zero
    over the -G threshold.  Sized [2] = 8 bytes > -G8's threshold-inclusive small test for
    an EXTERN of known size here, so gcc lowers it itself.  Measured: unsized -> 6/8 diffs
    on Night_InitWeatherTables/Night_SetWeatherColors, sized [2] -> 4/PASS. */
-u_char       (*Night_gWeatherLightingTable)[256];   /* @0x8013d9f0  = [0]  (bss(zero)) */
-u_char       (*D_8013D9F4)[256];   /* @0x8013d9f4  = [1] retail per-element gp-rel alias (bss(zero)) */
+u_char       (*Night_gWeatherLightingTable)[256] = 0;   /* @0x8013d9f0  = [0] */
+u_char       (*D_8013D9F4)[256] = 0;   /* @0x8013d9f4  = [1] retail per-element gp-rel alias */
 extern u_char (*Night_gWeatherLightingTable_arr[2])[256] asm("Night_gWeatherLightingTable"); /* array VIEW -- MUST be sized [2] */
 char         CopCarTypeLights[6] = { 0, 0, 1, 0, 1, 1 };   /* @0x8013d9f8 */
+char         lightningInit = 1;   /* @0x8013D9FE  SYM: STAT CHAR; abuts CopCarTypeLights (chars pack, no pad) */
 int          gNight_renderNight;   /* @0x8013da28  (bss(zero)) */
 int          Night_gXDist;   /* @0x8013da2c  (bss(zero)) */
 int          Night_gZNear;   /* @0x8013da30  (bss(zero)) */

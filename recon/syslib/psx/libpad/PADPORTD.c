@@ -596,12 +596,23 @@ extern void _pad_filter(unsigned char *info)
                     mask = 0xff;
                 map = info + 0x5d;
                 dat = *(unsigned char **)(info + 0x28);
+                /* MATCH (w64-a7): the early exit is a `goto` OUT of the loop,
+                   NOT a `break` -- see the class-(a) note above.  With `break`
+                   the exit jump targets the loop's own exit label, so jump.c's
+                   duplicate_loop_exit_test copies the bound test ahead of the
+                   loop (43 @162); a `goto` to a label the loop machinery does
+                   not own leaves the guarded do-while intact and retail's
+                   `beqz $t1` guard + `slt $v0,$v1,$t1; bnez` back-edge come out
+                   verbatim.  Same shape the SECOND search loop below uses. */
                 i = 0;
-                while (i != nmask) {
-                    if (*map == mode && (mask & *dat) != 0) { matched = 1; break; }
-                    map++; dat++;
-                    i++;
+                if (nmask != 0) {
+                    do {
+                        if (*map == mode && (mask & *dat) != 0) { matched = 1; goto found; }
+                        map++; dat++;
+                        i++;
+                    } while (i < nmask);
                 }
+                found:
                 if (matched) {
                     int t = _padTotalCurr + *(unsigned char *)(row + *(int *)(info + 4) + 3);
                     if (t < 0x3d)

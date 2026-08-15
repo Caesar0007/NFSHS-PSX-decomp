@@ -59,13 +59,53 @@ void AIHigh_Opponent::CheckForWipeOut()
 
     if ((!bVar1) &&
 
-       (perTickProb = 0x27f < simGlobal.gameTicks -   /* permuter: early perTickProb-reg reservation
-                                            (525 vs 740 score) -- dead store, immediately overwritten
-                                            below, but reserves perTickProb's home register early */
+       (0x27f < simGlobal.gameTicks -
 
                 (this->carObj_)->wipeOutEndTick)) {
 
-      /* ---- W62-A10 (51 diffs HELD, ours 121 / oracle 120) -- the residual is now ONE
+      /* ==== W63-A12 (51 -> 50, ours 118 / oracle 120).  THE LICM QUESTION IS ANSWERED AND
+         THE WHOLE $t-BAND IS NOW RETAIL-EXACT; the residual is ONE named razor.
+         (a) THE LOOP.C HOIST STOP IS *NOT* A BUDGET QUESTION.  -dL says the two 116*ae
+             movables carry savings 4 / life 4; move_movables' test is
+             threshold*savings*lifetime >= insn_count with threshold ~62 decaying 3 per
+             move and insn_count = 49, so 4x4 can NEVER be declined.  Retail kept them
+             in the loop because they were NOT MOVABLES AT ALL: loop.c only builds a
+             movable for a reg with n_times_set == 1.  Writing the product into ONE
+             NAMED LOCAL assigned in BOTH arms (`perTickProb = new_var * 4;`) makes the
+             pseudo set twice -> no movable -> retail's in-loop `sll a0,t2,2` + the
+             single cross-jumped `slt` return.  76 -> 64, count-exact.  (This retires the
+             volatile-read device that the 51-diff basin used for the same job.)
+         (b) THE BAND IS ALLOCSIM/REQDELTA WORK, NOT A SPELLING SEARCH.  allocsim MATCHes
+             17/17 on this fn.  reqdelta priced retail's handout
+             (this=$t0 randVal=$t1 29ae=$t2 numRacers=$t3 simGlobalBase=$t4
+              highLevelAIObjs=$t5 oppFines=$t6 oppLevel=$t7) at THREE deltas:
+               p137 (loop bound)  refs 3->4          [floor_log2 step over the sim-base copy]
+               p82  (new_var)     live 41->54..60    [birth earlier]
+               p147 (hlAIObjs)    live 100->=<97
+             All three landed: the bound now goes through the SYM-declared `playFines`
+             carrier + a ZERO-INSN read-only fence (+1 out-of-loop ref -- fencing the
+             GLOBAL directly does NOT work, it mints a fresh load: +2 insns, refs
+             unchanged), and `new_var` moved up.  Band = retail-exact, 64 -> 50.
+         (c) THE LAST RAZOR, quantified.  p82 and p83 (randVal) die on the SAME insn, so
+             live(p83) = live(p82) + gap where gap = luid distance between their defs
+             (currently 12).  pri(p83) > pri(p82) needs 12L/(L+g) > 10L/L, i.e. L > 5g,
+             i.e. live(p82) > 60 at g=12.  Only moving new_var's def ABOVE the pre-loop
+             `wipeOutEndTick` store reaches that -- and THAT store is exactly what makes
+             retail RE-LOAD AI_elapsedTime in the preheader (`lui v1;lw v1` @0x80063430,
+             two loads in the oracle).  So the 50-diff basin buys the band by losing that
+             reload (118 vs 120).  scratchpad/w63a12/aih_opp.cpp.wipe52 keeps the
+             COUNT-EXACT 120/120 sibling (52 diffs) with new_var after the store and only
+             the p82/p83 pair inverted -- structurally the truer base for the next pass.
+             Closing that pair needs g <= 10 (two fewer insns between randVal's def and
+             new_var's def) or a p83 refs/live dial that keeps it under p80's .1930;
+             every fence/wrapper tried moves BOTH pseudos equally (they span the same
+             region) and so cannot change their ORDER.  FALSIFIED this session: the
+             single-store shared-RANDGATE shape (goto and else-continue forms, both 61)
+             -- it does drop the sim-base copy's refs 5->3 as wanted, but the smaller
+             loop then lets loop.c hoist the 0xd5554 literal that retail rematerializes
+             per iteration.  ==== */
+      /* ---- W62-A10 (51 diffs, ours 121 / oracle 120) -- SUPERSEDED by the block above;
+         kept for its falsification list.  The residual is now ONE
          NAMED gcc question, not a spelling search.  NEW MEASUREMENTS this session
          (each re-gated through scratchpad/w62a10/p_wipe*.py, baseline 51):
          (1) THE x29 CHAIN IS REPRODUCIBLE.  A plain (non-volatile) `AI_elapsedTime * 116`
@@ -102,13 +142,18 @@ void AIHigh_Opponent::CheckForWipeOut()
       perTickProb = AI_elapsedTime * 2 + AI_elapsedTime;          /* $a0 = 3*ae, 0x800633BC-C0 -- scheduled into the mult->mflo latency gap */
       fastRandom  = randtemp & 0xffff;                            /* 0x800633C8/E4 */
       randVal     = (int)(randtemp >> 8) & 0xffff;                /* $t1, 0x800633D4-D8 */
+      new_var = AI_elapsedTime * 29;
       if (randVal < perTickProb) {                                /* 0x800633DC-E8 */
         this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0xC0;      /* 0x800633EC-F8 */
       }
       pInfo = &this->perpChaseInfo_;
       if (pInfo->bestChaseLevelIndex_ != (pInfo->copGameInfo_)->numLevels + -1) {
-        new_var = 116;
-        for (hLoop = 0; hLoop < Cars_gNumHumanRaceCars; hLoop = hLoop + 1) {   /* 0x80063450 */
+        playFines = Cars_gNumHumanRaceCars;            /* w63-a12 REF-STEP dial (SYM-declared local
+                                       re-used as the loop-bound carrier) */
+        __asm__("" : : "r"(playFines));                /* +1 out-of-loop ref, 0 insns: floor_log2
+                                       3->4 lifts the bound's allocno over the simGlobal-base copy,
+                                       reproducing retail's $t3/$t4 (reqdelta-priced) */
+        for (hLoop = 0; hLoop < playFines; hLoop = hLoop + 1) {   /* 0x80063450 */
           Car_tObj    *carObj_h     = Cars_gHumanRaceCarList[hLoop];           /* 0x8006345C */
           int          field1380    = *(int *)((char *)carObj_h + 1380);       /* 0x80063468 */
           AIHigh_Base *tableEntry   = highLevelAIObjs[*(int *)((char *)carObj_h + 596)]; /* carIndex, 0x80063464-84 */
@@ -126,10 +171,12 @@ void AIHigh_Opponent::CheckForWipeOut()
                  (real semantic effect: this->AI_elapsedTime is a per-tick global gcc must not treat as
                  provably loop-invariant across this branch merge) and reproduces the oracle's per-branch
                  recompute shape (107->86 diffs measured). */
-              if (randVal < *(volatile int *)&AI_elapsedTime * new_var)           /* 0x800634B8 */
+              perTickProb = new_var * 4;
+              if (randVal < perTickProb)           /* 0x800634B8 */
                 this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0xC0;    /* 0x800634C4-D0 */
             } else if (2 <= oppFines_v1 - oppFines) {                          /* 0x800634A8-B0 (skip if <2) */
-              if (randVal < *(volatile int *)&AI_elapsedTime * new_var)          /* $t2<<2, 0x800634B4-BC */
+              perTickProb = new_var * 4;
+              if (randVal < perTickProb)          /* $t2<<2, 0x800634B4-BC */
                 this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0xC0;    /* 0x800634C4-D0 */
             }
           }

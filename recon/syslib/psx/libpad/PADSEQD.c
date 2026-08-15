@@ -260,7 +260,28 @@ extern unsigned _dirRecvAuto(unsigned char *info)
  * these see it; the reachable angle stays "the store pseudo must win $2" (a local-alloc qty
  * question).  NOTE the sibling seal: _dirRecvAuto's 2-diff residual WAS this shape's cousin and
  * fell to `return <the tested lvalue>` (cse record_jump_equiv) -- that lever needs a COMPARISON
- * to carry the value, which this arm does not have. */
+ * to carry the value, which this arm does not have.
+ *
+ * w63-a7 2026-08-15 -- SEALED, 3 -> PASS 55/55.  Every wave above had the MECHANISM right
+ * (two distinct pseudos where retail has one, minted by cc1's own expander) and the CURE
+ * one step away: the SHARED-CONSTANT-RETURN carrier is necessary but NOT sufficient -- on
+ * its own cse copy-propagates the carrier straight back into the two mode-specific pseudos
+ * (measured control `r = 0xff; info[0x46] = (unsigned char)r; return r;` = 16 @57).  Adding
+ * the zero-insn IDENTITY LAUNDER on the carrier between its init and its two consumers
+ * (13B: the pseudo now dies TWICE, so local-alloc's combine_regs refuses to tie it and cse
+ * can no longer prove it equal to the literal) makes the ONE carrier serve both the `sb`
+ * and the return, exactly like retail: `li $v0,255 / j / sb $v0,0x46($s0)`.
+ *   The old `__asm__("" : : "r"(info))` USE fence is RETIRED by this -- it was buying the
+ *   store ORDER (7 -> 3) that the carrier now gets for free; dropping it is PASS either way
+ *   (with it 55/55 PASS, without it 55/55 PASS), so the function keeps only the one device.
+ *   Unlaundered control gated per 13B: 16 @57.  Falsified alongside: launder placed AFTER
+ *   the store (3, the copy is already minted), a READ-ONLY fence instead of the identity
+ *   fence (12 @57 -- wrong direction, 12E), an `unsigned char` laundered carrier (5),
+ *   `return (info[0x46] = 0xff);` embedded assignment with (3) and without (7) the info
+ *   fence.  LAW (catalog candidate): when the residual is an EXTRA reg-reg copy that
+ *   delete_noop_moves will not remove, the cure is not another spelling of the value -- it
+ *   is to make the SOURCE pseudo un-provable to cse, i.e. the identity launder; the 13B
+ *   "the copy IS the mechanism" rule reads in this direction too. */
 extern int _dirFailAuto(unsigned char *info)
 {
     unsigned char st;
@@ -276,9 +297,12 @@ extern int _dirFailAuto(unsigned char *info)
             cnt = info[0x4a];
             if (1 < cnt) {
                 info[0x49] = 2;
-                __asm__("" : : "r"(info));
-                info[0x46] = 0xff;
-                return 0xff;
+                r = 0xff;
+                /* identity launder: keeps ONE pseudo serving the sb AND the
+                   return (13B) -- unlaundered this is 16 diffs, see the note */
+                __asm__("" : "=r"(r) : "0"(r));
+                info[0x46] = r;
+                return r;
             }
             r = cnt + 1;
             info[0x4a] = (unsigned char)r;

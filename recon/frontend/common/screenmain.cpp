@@ -443,19 +443,29 @@ void tScreenMain::DrawBackground()
       }
     }
   }
-  if (this->fState == kScreenMain_Credits) {
-    if (FEApp->fCurrentMenu[0] != (tMenu *)&menuDefs->menuCredits) {
-      this->SetState(kScreenMain_StaticImage);
-    }
+  /* MATCH W64-A17 -- REAL CFG FIX (the 11C branch-target audit class; the
+     gate normalises branch targets so this was invisible to it, and
+     tools/psyqproof.py + tools/brdist.py caught it as REAL=2 on a gate-PASSing
+     body).  Retail's guard is a FLAT `&&`, not a nested if: its `beq` (fState
+     == Credits AND menu == credits) targets .L80037B44 = the SECOND test's
+     head, so retail RE-RUNS the menu test and calls SetState(Credits) on that
+     path; our nested `if (fState==Credits) { if (menu!=credits) ... }` sent it
+     to the join instead and skipped the second test.  Same instruction stream,
+     different control flow.  Re-gated alternatives: two SEQUENTIAL ifs 5 @821
+     (retail's SetState calls cross-jump onto one shared `jal`, ours emits two),
+     the same with an explicit goto-funnel 6 @820 / 6 @820.
+     The else-arm void fence is the 1 -> PASS %hi un-sharer (see below). */
+  if ((this->fState == kScreenMain_Credits) &&
+     (FEApp->fCurrentMenu[0] != (tMenu *)&menuDefs->menuCredits)) {
+    this->SetState(kScreenMain_StaticImage);
   }
   else {
     /* MATCH W64-A17 (1 -> PASS 822/822): the ON-DEMAND %hi UN-SHARER.  Both
        arms materialise `%hi(FEApp)`; reorg slots the then-arm's copy into the
        `bne` delay slot, which executes on BOTH paths, so cse2
        (-fcse-follow-jumps) lets the else arm reuse it and we came out ONE
-       `lui v0,0` short.  Retail keeps two distinct pseudos.  A zero-insn void
-       fence at the head of the else arm is the only device that un-shares them
-       without disturbing the compare's operand/register roles.
+       `lui v0,0` short (retail keeps two pseudos and enters the second test
+       block at TWO labels -- .L80037B44 with the lui, .L80037B48 without).
        FALSIFIED, all re-gated from the 1-diff basin: Yoda in the else arm
        10 @822 (adds the lui but reverses `bne v1,v0` and the three loads),
        Yoda in the then arm 11, Yoda in both 21, arms swapped (`!=` first) 19,

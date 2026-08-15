@@ -422,6 +422,23 @@ extern long MemCardExist(long chan)
  * registers were already retail's; only the fence position was wrong.  Floor-hygiene: a receipt
  * that names an allocator mechanism is still falsifiable.) */
 
+/* W61-A3 47 -> 41: the same BLOCK-LOCAL ANCHOR law that sealed MemCardCmd_cb (see its
+ * receipt).  The function-scope `pc` was a GLOBAL allocno shared by the ev==4 arm and the
+ * iodone tail; giving each arm its own pointer makes both local QTYs and every anchor
+ * register now matches retail ($v1).  `pc` itself became dead and was removed (re-gated:
+ * still 41, so the unused decl was not load-bearing here).
+ * FALSIFIED in the post-split basin (the "return constant materialized BEFORE the store"
+ * angle below, re-measured because 12C says receipts are basin-relative):
+ *   fenced `long ret = 1;` after the call, before the store ... 41 but +2 insns (116->118)
+ *   12D dead-pseudo staging -- reuse the dead `c` as the result carrier ... 52
+ * REMAINING 41: (a) the two tails` `addu $a0,$v0,$zero` / `addu $v1,$v0,$zero` copies,
+ * i.e. retail materialises the return constant into $v0 BEFORE the store and therefore has
+ * to move the call result out of $v0 -- ours stores straight from $v0 and puts the `li` in
+ * the `j` slot, 1 insn shorter per tail; (b) a $v0/$v1 swap on the `_mc_exretry` bump and
+ * on the common tail`s mask chain, both of which look like the same local-QTY-vs-return-
+ * value race as (a).  NAMED ANGLE: the carrier for the return constant must be a BLOCK-LOCAL
+ * qty born BEFORE the call result`s qty in the same block -- neither a fence (parks it in a
+ * saved reg) nor an existing dead variable (12D) does that here. */
 /* @0x800FABF0 : MemCardExist / MemCardAccept(card-present) probe step. */
 static int MemCardExist_cb(void *pv)
 {
@@ -431,7 +448,6 @@ static int MemCardExist_cb(void *pv)
     int  c;
     int  pres;
     int *pchan;
-    int *pc;
 
     /* MATCH (w53-a7 -- SUPERSEDES the w51-a2 "not a switch" reading): the dispatch IS a real
      * `switch` on cases 0 / 10 / 0xB.  gcc-2.7.2 expands a 3-case set whose lowest case is 0 as a
@@ -489,9 +505,9 @@ static int MemCardExist_cb(void *pv)
              * call would force a callee-saved home + a frame save (catalog: post-call
              * address materialization) */
             int r = MemCardEventToRslt(4);
-            pc = &mc.cmd;
-            __asm__("" : "=r"(pc) : "0"(pc));
-            pc[1] = r;
+            int *pn = &mc.cmd;          /* w61-a3: block-local anchor = a local QTY */
+            __asm__("" : "=r"(pn) : "0"(pn));
+            pn[1] = r;
             return 1;
         }
 iodone:                                 /* ev == 0 : I/O complete */
@@ -515,9 +531,9 @@ iodone:                                 /* ev == 0 : I/O complete */
              * otherwise-redundant `addu $a0,$v0,$zero` copy of the result out of $v0
              * (`addu a0,v0,zero; li v0,1; addiu v1,s0,-0xC; j; sw a0,4(v1)`) */
             int r = MemCardEventToRslt(_mc_exrslt);
-            pc = pchan - 3;
-            __asm__("" : "=r"(pc) : "0"(pc));
-            pc[1] = r;
+            int *pi = pchan - 3;        /* w61-a3: block-local anchor = a local QTY */
+            __asm__("" : "=r"(pi) : "0"(pi));
+            pi[1] = r;
             return 1;
         }
 retry:
@@ -564,6 +580,36 @@ extern long MemCardAccept(long chan)
     return 1;
 }
 
+/* W61-A3 -- MemCardCmd_cb 17 -> PASS (141/141).  THREE devices, all zero-insn:
+ *
+ * (1) BLOCK-LOCAL ANCHORS BEAT THE SHARED ONE (17 -> 11 -> 5).  A single function-scope
+ *     `pc` referenced from three arms is a GLOBAL allocno, so local_alloc has already
+ *     handed each arm`s own qty (the rslt value, the loaded event) $v0 by the time
+ *     global.c places `pc` -- it lands in $v1 and every store in the function comes out
+ *     mirrored.  Declaring the anchor INSIDE the arm makes it a block-local QTY whose
+ *     local_alloc priority (refs/live = 3/3) beats the rslt qty`s (2/4), so it takes $v0
+ *     and rslt falls to $v1 -- retail`s handout, exactly.  cdone: -6.  ctail ev==4: -6.
+ *     GENERAL RULE: if retail`s per-arm registers are the mirror of ours and the arms
+ *     share one pointer variable, SPLIT the variable -- do not dial it.  This is the
+ *     cheap answer to the whole "local-alloc QTY handout" class that methodology 4.6
+ *     de-prioritised as instrument-blind: qty272.py shows the local table directly, and
+ *     scope (not refs) is the lever that moves a pseudo between the two allocators.
+ *
+ * (2) ARM ORDER (5 -> 4).  Retail branches `beqz` with the ZERO arm as the branch target
+ *     and the `li 3` arm as the fall-through, so the source test is `if (cleared != 0)
+ *     { rslt = 3; } else { rslt = 0; }`, not the natural `== 0` spelling.
+ *
+ * (3) HEAD-OF-THREAD BARRIER (4 -> PASS).  With the arms right, reorg still filled the
+ *     `beqz` slot from the FALL-THROUGH thread (`li $v1,3`) instead of stealing the
+ *     target thread`s `addu $v1,$zero,$zero`: mostly_true_jump (reorg.c) scores an EQ
+ *     branch 0 = "unlikely", and fill_eager_delay_slots then tries the fall-through
+ *     FIRST.  A zero-insn `__asm__("" : : "i"(0));` as the first statement of the
+ *     fall-through arm makes that thread unstealable, so reorg falls through to the
+ *     target thread and reproduces retail`s slot -- and the extra `j; nop` block that
+ *     our version needed for the zero arm disappears (143 -> 141 insns).
+ *     CATALOG CANDIDATE: "reorg took the wrong delay-slot thread" is dialable -- put a
+ *     zero-insn barrier at the HEAD of the thread you do not want it to take.
+ */
 /* @0x800FAE2C : MemCardAccept command step (probe -> clear -> load). */
 static int MemCardCmd_cb(void *pv)
 {
@@ -1227,6 +1273,26 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
      * a fresh `lui;lw` pair) and the `sw $t0,0($s3); sw $zero,4($s3); sw $zero,8($s3)` store
      * block -- but it grows the frame 0x90 -> 0x98 and rotates the whole $s0-$s7/$fp band:
      * 69 -> 108, ours 154 vs oracle 152.  MEASURED, reverted.
+     * W61-A3 69 -> 44 WITH NO ANCHOR LOCAL AT ALL (so the frame stays 0x90 and the whole
+     * "the base anchor costs a 9th saved reg" objection above evaporates).  The base register
+     * retail uses is the COMPILER`S OWN cse-created base for the `mc` struct -- our build
+     * already has it ($s2); it was merely ranked one place too high.  qty272 named the pair:
+     *   base   refs 16 / live 100 / pri 0.6400
+     *   idx    refs 11 / live  51 / pri 0.6470   (sits in the gap)
+     *   fretry refs 10 / live  49 / pri 0.6122
+     * The window between idx and base is 0.007 wide, so fretry cannot be lifted into it on
+     * its own -- lift BOTH by one ref (two 1-operand read-only fences at loop depth 0, right
+     * after `idx = 0` and `fretry = 0`): idx -> 0.7059 ($s1), fretry -> 0.6735 ($s2), base
+     * unchanged at 0.6400 ($s3) = retail.  69 -> 54.
+     * LAW: when a pair will not flip because a THIRD allocno sits in the gap, move the third
+     * one up as well -- only the ORDER matters, never the absolute priorities.
+     * Then the guard written blez-side (`if (mc.cmd > 0) printf; else latch`, the same shape
+     * MemCardCreateFile/DeleteFile already use) puts the latch block out-of-line: 54 -> 44.
+     * REMAINING 44: (a) the $t0/$t1 local-QTY swap on the `max` reload and on `files`;
+     * (b) retail hoists the movstrsi end pointer `addiu $t0,$sp,80` into the preheader and
+     *     SPILLS it (`sw $t0,0x60($sp)`, reloaded inside the copy loop) while ours recomputes
+     *     it -- that missing spill slot is also why our `files` param lands at 0x60($sp) and
+     *     retail`s at 0x5C($sp); (c) the _mc_chan read/write asymmetry named just below.
      * REFINED NAMED ANGLE (unclaimed): retail is ASYMMETRIC about _mc_chan -- it READS it off
      * the anchor (`lw $a0,0xC($s3)`) but WRITES it with the `$at` assembler MACRO
      * (`lui $at,%hi(D_80147524); sw $s7,%lo(D_80147524)($at)`, in the UserFuncOpen delay slot).
@@ -1329,6 +1395,37 @@ extern int MemCardCallback(int func)
  * `lw $v0,4($s0)`, results unused because `cmds` is the constant 0 at those call sites), which no
  * hand-written copy of the logic would ever contain.  That expansion was the whole 22-24-insn
  * shortfall in both callers (CreateFile 108 -> 132 of 130, DeleteFile 87 -> 111 of 111 EXACT). */
+/* W61-A3 NAMED ANGLE (worth 15 diffs in EACH of MemCardCreateFile / MemCardDeleteFile;
+ * mechanism now identified end to end, so this is a receipt, not a floor).
+ *
+ * SYMPTOM: in both callers retail`s INLINED copy of this body reaches cmd/rslt/done through
+ * the CALLER`s anchor register ($s0: `lw $v0,0($s0)`, `lw $v0,4($s0)`, `sw $zero,8($s0)`)
+ * and materialises a SEPARATE `lui;addiu` only for the spin address, while ours materialises
+ * this fn`s own anchor inside the loop and then rebases it (`addiu $v1,$v1,8`).  Retail also
+ * keeps the two DEAD snapshot loads (`lw $v0,0($s0); lw $v0,4($s0)`) that our inlined copy
+ * dead-code-eliminates, which is independent evidence that retail`s reads are not plain.
+ *
+ * WHY THE OBVIOUS FIXES CANNOT WORK (all measured, in the post-rotation basin):
+ *   drop this fence entirely ....... MemCardSync 0 -> 3, DeleteFile 34 -> 39, Create -> 73
+ *                                    (with a plain base the inlined loads at offsets 4/8
+ *                                    constant-fold to `lui;lw` macros -- 2 insns each)
+ *   make it non-volatile ........... byte-identical whole-TU (so the flavour is NOT the
+ *                                    lever, contrary to what the old note implied)
+ *   shared `static __inline__ int *mc_anchor(void)` used by this fn AND the callers, so
+ *   every expansion of the fence carries ONE source line ... DeleteFile 48, Create 41.
+ *     Rationale (correct, but insufficient): cse.c`s exp_equiv_p compares the generic
+ *     `i` fields, and ASM_OPERANDS carries ASM_OPERANDS_SOURCE_LINE as one -- so two
+ *     fences on the SAME line ARE cse-equal (this is 12C`s rule, on the cse side).
+ *     It still does not merge, because the caller`s anchor is in the loop PREHEADER and
+ *     the inlined body is inside the loop: different extended basic blocks, and cse`s
+ *     table is reset at an EBB boundary.  loop.c would have to hoist the asm first;
+ *     invariant_p (loop.c) does accept a non-volatile ASM_OPERANDS, but scan_loop does
+ *     not move it out of this loop (maybe_never is set by the branches above it).
+ *
+ * SHARPENED ANGLE: get the inlined anchor into the loop PREHEADER (where cse2-after-loop
+ * can merge it with the caller`s anchor) -- i.e. a device that is loop-hoistable AND
+ * opacity-preserving.  A gcc -dL/-dS dump of MemCardDeleteFile will show exactly why
+ * scan_loop declines the asm; that is the next experiment, not another spelling sweep. */
 __inline__ long MemCardSync(long mode, int *cmds, int *result)
 {
     int rslt;
@@ -1422,6 +1519,22 @@ extern long MemCardCreateFile(long chan, char *file, long blocks)
     int *p;
     /* MATCH (w52-a6): ONE anchor at &_mc_cmd ($s2 in retail) serves cmd/rslt/done/chan --
      * the oracle reaches _mc_chan as `lw $a2,0xC($s2)`, not with its own %hi/%lo pair. */
+    /* W61-A3 68 -> 30: the MemCardDeleteFile recipe ported (read that receipt for the laws).
+     * Retail band file=$s0, retry=$s1, base=$s2 (-> $s0 via the preheader copy), chan=$s3,
+     * blocks=$s4, hoisted `li 2` inherits $s2.  Priced with reqdelta272 in STEPS, because
+     * the second anchor re-writes the table (04Z: re-price after every structural landing):
+     *   p = base (second anchor) + file fence 2 operands ......... 81  (file=$s0 only)
+     *   chan +2 refs (1 operand in the loop) ..................... 65  (chan/blocks fixed)
+     *   retry +6 refs (3 operands in the loop) ................... 39  (retry over base)
+     *   file fence moved ABOVE the guard + `goto created` tail .... 34
+     *   `if (0) { nocard: return 7; }` after the return-6 block ... 30
+     * The 3rd retry operand bought exactly ONE step: at 11 refs retry priced 0.4783 against
+     * base`s 0.4800 -- reqdelta272 named the +1 ref and the gate confirmed 65 -> 39.
+     * FALSIFIED here (DeleteFile measures the opposite way, so A/B per function): dropping
+     * the base opacity fence 39 -> 68; `p = &mc.cmd` instead of `p = base` 39 -> 60.
+     * REMAINING 30: the inlined-MemCardSync anchor class (15), the `p[0]`-load-vs-
+     * `_mc_save_cb`-store schedule the opaque base costs us (8; DeleteFile is free of it
+     * because its base is plain), and the `li $a1,1` open() argument position. */
     int *base = &mc.cmd;
     __asm__ __volatile__("" : "=r"(base) : "0"(base));
     __asm__("" : : "r"(file), "r"(file));
@@ -1517,14 +1630,46 @@ extern long MemCardDeleteFile(long chan, char *file)
      * 57 / volatile 60.  (CreateFile measures the opposite way -- volatile 68 / plain 70 / none
      * 81 -- so A/B per function.)
      * 🔴 w60-a2 FALSIFIED -- the floor_log2 REF-STEP dial that cracked MemCardCmd_cb's $s0/$s1
-     * swap (47 -> 17 with 8 read-only fence operands) does NOT reach this fn's saved-reg
-     * ROTATION (retail chan=$s2/file=$s0/base=$s3->$s0; ours base=$s0/file=$s2/chan=$s3):
-     *   PROMOTE `file` (read-only fence, 2/4/6/8/10 operands) ..... 57 -> 67 on every count
-     *   DEMOTE `base` (late read-only fence, 1 and 4 operands) ..... 57 (inert)
-     * Cmd_cb's was a TWO-allocno tie (one step flipped the pair); this is a THREE-way rotation,
-     * so a single-pseudo ref/live delta cannot express it.  NAMED ANGLE: price it properly --
-     * dump -dg/-dl for this fn and run tools/reqdelta.py --want "file=s0,chan=s2,base=s3" to get
-     * the minimal MULTI-pseudo delta, instead of hand-dialling one pseudo at a time. */
+     * W61-A3: THE w60-A2 NAMED ANGLE IS CLOSED -- 57 -> 23.  The "a three-way rotation
+     * cannot be expressed by a single-pseudo delta" verdict was true and beside the point:
+     * a rotation is a TOTAL ORDER, so dial every pseudo that has to move, at once, and
+     * price it with tools/reqdelta272.py (the real 2.7.2 rule pri = floor_log2(refs)*refs
+     * / live -- NO size term; the old gcc-2.8 pricing was wrong on this lane).  Retail order
+     * file > retry > chan > base, predicted handout == measured handout (qty272.py):
+     *   file  refs 2 -> 4  (2 fence operands)              pri 0.222 -> 0.889  -> $s0
+     *   retry refs 7 -> 9  (1 operand INSIDE the loop, x2) pri 0.241 -> 0.466  -> $s1
+     *   chan  refs 4 -> 8  (2 operands INSIDE the loop)    pri 0.131 -> 0.393  -> $s2
+     *   base  untouched                                    pri 0.246          -> $s3
+     * (57 -> 47 on this step alone.)
+     *
+     * The `file` fence sits ABOVE the busy guard on purpose.  There it ALSO forces
+     * assign_parms` file copy into the prologue group (retail`s `sw $s0,56($sp);
+     * addu $s0,$a1,$zero`) instead of leaving it the last insn before the guard load, where
+     * reorg steals it into the `beqz` slot and retail`s `retry = 0` can never land there.
+     * Same fence, same operand count, 6 diffs apart, purely by POSITION (29 -> 23).
+     *
+     * SECOND ANCHOR (47 -> 37 -> 34): retail runs the head guard off one materialization
+     * ($s3) and hands it to a SECOND pointer ($s0, `addu $s0,$s3,$zero` in the loop
+     * preheader, which frees $s3 for the hoisted `li 2`).  A PLAIN `p = base;` reproduces
+     * it -- cse2-after-loop rewrites the hoisted `&mc.cmd` as a reg COPY of the live base.
+     * An opacity fence on `p` is WORSE (37 vs 34): it makes `*p` may-alias `_mc_save_cb`,
+     * so sched1 can no longer hoist retail`s `lw $v1,0($s0)` above that store.  Cost of the
+     * plain form: `p[3]` is a LOAD at a non-zero offset through a known-constant pointer,
+     * so cse constant-folds it back to the `lui;lw` macro (2 of the remaining 23).  STORES
+     * at non-zero offsets do NOT fold, which is why p[0..2] stay base-relative.
+     *
+     * EXIT-BLOCK PLACEMENT, catalog 12C (34 -> 29): retail`s `erase() != 0` success block is
+     * the LAST block before the epilogue (`j <epi>; nop`, then a bare `addu $v0,$zero,$zero`
+     * falling into it).  Written inline in the loop, gcc emits it right after the busy-return
+     * block and displaces `retry = 0`.  `goto erased;` + the block placed after `return rslt;`
+     * is the zero-cost fix.
+     *
+     * REMAINING 23 = the inlined-MemCardSync anchor class (15, see that fn`s receipt) + the
+     * p[3] fold (2) + tail scheduling.  FALSIFIED in this basin: retry fence moved out of
+     * the loop (29, inert); MemCardSync`s base fence dropped (42) or made non-volatile
+     * (identical); a shared `static __inline__ int *mc_anchor(void)` so both fences share ONE
+     * source line (48 -- see MemCardSync). */
+
     int *base = &mc.cmd;
     __asm__("" : : "r"(file), "r"(file));
 

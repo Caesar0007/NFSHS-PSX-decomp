@@ -1,0 +1,90 @@
+=== A control
+_padInitSioMode: FAIL 24 diffs (ours 203 / oracle 205)
+    -addiu sp,sp,-40
+    -sw s0,24(sp)
+    +addiu sp,sp,-32
+    +sw s0,16(sp)
+    -sw ra,32(sp)
+    -sw s1,28(sp)
+    +sw ra,24(sp)
+    +sw s1,20(sp)
+    -lbu v0,54(s0)
+    -nop
+    -sltiu v0,v0,1
+    -lw ra,32(sp)
+    -lw s1,28(sp)
+    -lw s0,24(sp)
+    +lbu v1,54(s0)
+    +nop
+    +bnez v1,T
+    +addu v0,zero,zero
+    +li v0,1
+    +lw ra,24(sp)
+    +lw s1,20(sp)
+    +lw s0,16(sp)
+    -addiu sp,sp,40
+    +addiu sp,sp,32
+=== D cast-int first read
+_padInitSioMode: FAIL 27 diffs (ours 204 / oracle 205)
+    -lui v1,0
+    -lw v1,0(v1)
+    -beqz v0,T
+    -li a0,4099
+    -li a0,12291
+    +lui a0,0
+    +lw a0,0(a0)
+    +beqz v0,T
+    +li v1,4099
+    +li v1,12291
+    -sh a0,10(v1)
+    +sh v1,10(a0)
+    -nop
+    +lui v1,0
+    -nop
+    +addiu v1,v1,0
+    -lui s1,0
+    -addiu s1,s1,0
+    +addu s1,v1,zero
+    -lbu v0,54(s0)
+    -nop
+    -sltiu v0,v0,1
+    +lbu v1,54(s0)
+    +nop
+    +bnez v1,T
+    +addu v0,zero,zero
+    +li v0,1
+=== E volatile first read
+_padInitSioMode: FAIL 33 diffs (ours 204 / oracle 205)
+    -lui v1,0
+    -lw v1,0(v1)
+    -beqz v0,T
+    -li a0,4099
+    -li a0,12291
+    -sh a0,10(v1)
+    -lui v1,0
+    +lui a0,0
+    +lw a0,0(a0)
+    +beqz v0,T
+    +li v1,4099
+    +li v1,12291
+    +sll v0,v0,2
+    +sh v1,10(a0)
+    +lui at,0
+    +addu at,at,v0
+    +lw v0,0(at)
+    +lui v1,0
+    +bltz v0,T
+    -sll v0,v0,2
+    -addu v0,v0,v1
+    -lw v0,0(v0)
+    -nop
+    -bltz v0,T
+    -nop
+    -lbu v0,54(s0)
+    -nop
+    -sltiu v0,v0,1
+    +lbu v1,54(s0)
+    +nop
+    +bnez v1,T
+    +addu v0,zero,zero
+    +li v0,1

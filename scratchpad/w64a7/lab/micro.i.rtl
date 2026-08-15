@@ -1,0 +1,153 @@
+
+;; Function f
+
+(note 2 0 4 "" NOTE_INSN_DELETED)
+
+(insn 4 2 5 (set (reg/v:SI 72)
+        (reg:SI 4 a0)) -1 (nil)
+    (nil))
+
+(note 5 4 6 "" NOTE_INSN_FUNCTION_BEG)
+
+(note 6 5 8 "" NOTE_INSN_DELETED)
+
+(note 8 6 10 "" NOTE_INSN_DELETED)
+
+(insn 10 8 12 (set (reg:SI 73)
+        (mem:SI (symbol_ref:SI ("ch")))) -1 (nil)
+    (nil))
+
+(insn 12 10 14 (set (reg:SI 74)
+        (symbol_ref:SI ("g"))) -1 (nil)
+    (expr_list:REG_EQUAL (symbol_ref:SI ("g"))
+        (nil)))
+
+(insn 14 12 15 (set (reg:SI 75)
+        (reg:SI 73)) -1 (nil)
+    (nil))
+
+(insn 15 14 17 (set (reg:SI 76)
+        (ashift:SI (reg:SI 75)
+            (const_int 2))) -1 (nil)
+    (expr_list:REG_EQUAL (mult:SI (reg:SI 73)
+            (const_int 4))
+        (nil)))
+
+(insn 17 15 19 (set (reg:SI 77)
+        (plus:SI (reg:SI 76)
+            (reg:SI 74))) -1 (nil)
+    (nil))
+
+(insn 19 17 21 (set (reg:SI 78)
+        (mem/s:SI (reg:SI 77))) -1 (nil)
+    (nil))
+
+(jump_insn 21 19 22 (set (pc)
+        (if_then_else (le:SI (reg:SI 78)
+                (const_int 0))
+            (label_ref 54)
+            (pc))) 221 {branch_zero} (nil)
+    (nil))
+
+(note 22 21 23 "" NOTE_INSN_DELETED)
+
+(note 23 22 24 "" NOTE_INSN_LOOP_BEG)
+
+(code_label 24 23 25 3 "")
+
+(note 25 24 27 "" NOTE_INSN_DELETED)
+
+(insn 27 25 29 (set (reg:SI 79)
+        (mem:SI (symbol_ref:SI ("fp")))) -1 (nil)
+    (nil))
+
+(insn 29 27 31 (set (reg:SI 4 a0)
+        (const_int 0)) -1 (nil)
+    (nil))
+
+(call_insn 31 29 32 (parallel[ 
+            (set (reg:SI 2 v0)
+                (call (mem:SI (reg:SI 79))
+                    (const_int 16)))
+            (clobber (reg:SI 31 ra))
+        ] ) -1 (nil)
+    (nil)
+    (expr_list (use (reg:SI 4 a0))
+        (nil)))
+
+(note 32 31 33 "" NOTE_INSN_LOOP_CONT)
+
+(code_label 33 32 35 5 "")
+
+(insn 35 33 37 (set (reg:SI 80)
+        (mem:SI (symbol_ref:SI ("ch")))) -1 (nil)
+    (nil))
+
+(insn 37 35 39 (set (reg:SI 81)
+        (symbol_ref:SI ("g"))) -1 (nil)
+    (expr_list:REG_EQUAL (symbol_ref:SI ("g"))
+        (nil)))
+
+(insn 39 37 40 (set (reg:SI 82)
+        (reg:SI 80)) -1 (nil)
+    (nil))
+
+(insn 40 39 42 (set (reg:SI 83)
+        (ashift:SI (reg:SI 82)
+            (const_int 2))) -1 (nil)
+    (expr_list:REG_EQUAL (mult:SI (reg:SI 80)
+            (const_int 4))
+        (nil)))
+
+(insn 42 40 44 (set (reg:SI 84)
+        (plus:SI (reg:SI 83)
+            (reg:SI 81))) -1 (nil)
+    (nil))
+
+(insn 44 42 46 (set (reg:SI 85)
+        (mem/s:SI (reg:SI 84))) -1 (nil)
+    (nil))
+
+(jump_insn 46 44 47 (set (pc)
+        (if_then_else (gt:SI (reg:SI 85)
+                (const_int 0))
+            (label_ref 49)
+            (pc))) -1 (nil)
+    (nil))
+
+(jump_insn 47 46 48 (set (pc)
+        (label_ref 53)) -1 (nil)
+    (nil))
+
+(barrier 48 47 49)
+
+(code_label 49 48 50 6 "")
+
+(jump_insn 50 49 51 (set (pc)
+        (label_ref 24)) -1 (nil)
+    (nil))
+
+(barrier 51 50 52)
+
+(note 52 51 53 "" NOTE_INSN_LOOP_END)
+
+(code_label 53 52 54 4 "")
+
+(code_label 54 53 57 2 "")
+
+(insn 57 54 58 (set (reg/i:SI 2 v0)
+        (const_int 1)) -1 (nil)
+    (nil))
+
+(insn 58 57 59 (use (reg/i:SI 2 v0)) -1 (nil)
+    (nil))
+
+(jump_insn 59 58 60 (set (pc)
+        (label_ref 64)) -1 (nil)
+    (nil))
+
+(barrier 60 59 62)
+
+(note 62 60 64 "" NOTE_INSN_FUNCTION_END)
+
+(code_label 64 62 0 1 "")

@@ -1,0 +1,64 @@
+=== A control
+_padLoadActInfo_rcv: FAIL 14 diffs (ours 155 / oracle 157)
+    +nop
+    +lbu v0,4(v0)
+    -lbu v0,4(v0)
+    -nop
+    -lui v0,0
+    +lui at,0
+    +sw v1,0(at)
+    -sw v1,0(v0)
+    +addiu a0,a0,-1
+    -lui v0,0
+    -addiu a3,v0,0
+    +nop
+    +lui a3,0
+    +addiu a3,a3,0
+=== V1 sized [1] + decay anchor
+_padLoadActInfo_rcv: FAIL 14 diffs (ours 155 / oracle 157)
+    +nop
+    +lbu v0,4(v0)
+    -lbu v0,4(v0)
+    -nop
+    -lui v0,0
+    +lui at,0
+    +sw v1,0(at)
+    -sw v1,0(v0)
+    +addiu a0,a0,-1
+    -lui v0,0
+    -addiu a3,v0,0
+    +nop
+    +lui a3,0
+    +addiu a3,a3,0
+=== V2 sized [1] + &arr[0] anchor
+_padLoadActInfo_rcv: FAIL 14 diffs (ours 155 / oracle 157)
+    +nop
+    +lbu v0,4(v0)
+    -lbu v0,4(v0)
+    -nop
+    -lui v0,0
+    +lui at,0
+    +sw v1,0(at)
+    -sw v1,0(v0)
+    +addiu a0,a0,-1
+    -lui v0,0
+    -addiu a3,v0,0
+    +nop
+    +lui a3,0
+    +addiu a3,a3,0
+=== V3 scalar + cast anchor
+_padLoadActInfo_rcv: FAIL 14 diffs (ours 155 / oracle 157)
+    +nop
+    +lbu v0,4(v0)
+    -lbu v0,4(v0)
+    -nop
+    -lui v0,0
+    +lui at,0
+    +sw v1,0(at)
+    -sw v1,0(v0)
+    +addiu a0,a0,-1
+    -lui v0,0
+    -addiu a3,v0,0
+    +nop
+    +lui a3,0
+    +addiu a3,a3,0

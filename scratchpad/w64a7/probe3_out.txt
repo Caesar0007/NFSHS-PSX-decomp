@@ -1,0 +1,147 @@
+=== A shipped
+_padLoadActInfo_rcv: FAIL 28 diffs (ours 157 / oracle 157)
+    -beqz v0,T
+    -nop
+    -jr ra
+    +bnez v0,T
+    -nop
+    +addu v0,zero,zero
+    +nop
+    +lbu v0,4(v0)
+    -lbu v0,4(v0)
+    -nop
+    -addu v0,v1,v0
+    -sw v0,4(a3)
+    +addu v1,v1,v0
+    +sw v1,4(a3)
+    -sw v0,0(at)
+    +sw v1,0(at)
+    -addu t0,v0,zero
+    +li t0,-1
+    -nop
+    +addiu a0,a0,-1
+    -addiu a0,a0,-1
+    +nop
+    -bnez v0,T
+    +beqz v0,T
+    +j T
+    +addu v0,zero,zero
+    -jr ra
+    +j T
+=== B -hi -cntfence (cnt at top)
+_padLoadActInfo_rcv: FAIL 26 diffs (ours 157 / oracle 157)
+    -beqz v0,T
+    -nop
+    -jr ra
+    +bnez v0,T
+    -nop
+    +addu v0,zero,zero
+    -sllv v0,v0,a0
+    +sll v0,v0,3
+    -addu v0,v1,v0
+    -sw v0,4(a3)
+    +addu v1,v1,v0
+    +sw v1,4(a3)
+    -sw v0,0(at)
+    +sw v1,0(at)
+    -addu t0,v0,zero
+    +li t0,-1
+    -nop
+    +addiu a0,a0,-1
+    -addiu a0,a0,-1
+    +nop
+    -bnez v0,T
+    +beqz v0,T
+    +j T
+    +addu v0,zero,zero
+    -jr ra
+    +j T
+=== C -hi cnt at END of block
+_padLoadActInfo_rcv: FAIL 28 diffs (ours 157 / oracle 157)
+    -beqz v0,T
+    -nop
+    -jr ra
+    +bnez v0,T
+    -nop
+    +addu v0,zero,zero
+    -nop
+    +li a0,3
+    -addu v0,v1,v0
+    -sw v0,4(a3)
+    +addu v1,v1,v0
+    +sw v1,4(a3)
+    -sw v0,0(at)
+    +sw v1,0(at)
+    -li a0,3
+    +addiu a0,a0,-1
+    -addu t0,v0,zero
+    +li t0,-1
+    -nop
+    +addiu a0,a0,-1
+    -addiu a0,a0,-1
+    +nop
+    -bnez v0,T
+    +beqz v0,T
+    +j T
+    +addu v0,zero,zero
+    -jr ra
+    +j T
+=== D -hi cnt MID (after woff)
+_padLoadActInfo_rcv: FAIL 28 diffs (ours 157 / oracle 157)
+    -beqz v0,T
+    -nop
+    -jr ra
+    +bnez v0,T
+    -nop
+    +addu v0,zero,zero
+    -nop
+    +li a0,3
+    -addu v0,v1,v0
+    -sw v0,4(a3)
+    +addu v1,v1,v0
+    +sw v1,4(a3)
+    -sw v0,0(at)
+    +sw v1,0(at)
+    -li a0,3
+    +addiu a0,a0,-1
+    -addu t0,v0,zero
+    +li t0,-1
+    -nop
+    +addiu a0,a0,-1
+    -addiu a0,a0,-1
+    +nop
+    -bnez v0,T
+    +beqz v0,T
+    +j T
+    +addu v0,zero,zero
+    -jr ra
+    +j T
+=== E -hi cnt END + fence
+_padLoadActInfo_rcv: FAIL 27 diffs (ours 158 / oracle 157)
+    -beqz v0,T
+    -nop
+    -jr ra
+    +bnez v0,T
+    -nop
+    +addu v0,zero,zero
+    -nop
+    +li a0,3
+    -addu v0,v1,v0
+    -li a0,3
+    -sw v0,4(a3)
+    +addu v1,v1,v0
+    +sw v1,4(a3)
+    -sw v0,0(at)
+    +sw v1,0(at)
+    -addu t0,v0,zero
+    +li t0,-1
+    -nop
+    +addiu a0,a0,-1
+    -addiu a0,a0,-1
+    +nop
+    -bnez v0,T
+    +beqz v0,T
+    +j T
+    +addu v0,zero,zero
+    -jr ra
+    +j T

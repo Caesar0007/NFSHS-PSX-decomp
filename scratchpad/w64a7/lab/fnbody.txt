@@ -1,0 +1,71 @@
+extern int _padInitSioMode(unsigned char *info)
+{
+    (*(volatile unsigned short *)(_padSioRegs + 0x0a)) = 0x40;
+    (*(volatile unsigned short *)(_padSioRegs + 0x0a)) = 0;
+    (*(volatile unsigned short *)(_padSioRegs + 0x08)) = 0xd;
+    (*(volatile unsigned short *)(_padSioRegs + 0x0e)) = 0x88;
+    setRC2wait(info[0xe8] == 8 ? 0x50 : 0x91);
+    (*(volatile unsigned short *)(_padSioRegs + 0x0a)) = (_padSioChan != 0) ? 0x3003 : 0x1003;
+
+
+    {
+        int fix = _padFixResult[_padSioChan];
+        if (fix >= 0) {
+            if (fix > 0) {
+                do {
+                    --_padFixResult[_padSioChan];
+                    _padFuncRecvAuto(*(unsigned char **)(info + 0xc) +
+                                     _padFixResult[_padSioChan] * 0xf0);
+                } while (_padFixResult[_padSioChan] > 0);
+            }
+            if (_padFixResult[_padSioChan] == 0) {
+                _padFixResult[_padSioChan] = -1;
+                _padFuncRecvAuto(info);
+                _padFuncClrCmdNo(info);
+            }
+        }
+    }
+
+    if (((*(volatile unsigned short *)(_padSioRegs + 0x04)) & 0x200) != 0) {
+        (*(volatile unsigned short *)(_padSioRegs + 0x0a)) = (*(volatile unsigned short *)(_padSioRegs + 0x0a)) | 0x10;
+        if (((*(volatile unsigned short *)(_padSioRegs + 0x04)) & 0x200) != 0) {
+            while (chkRC2wait() == 0)
+                ;
+            (*(volatile unsigned char *)(_padSioRegs)) = 1;
+            setRC2wait(100);
+            if (_padClrIntSio0() == 0)
+                return 0;
+            _padWaitRXready();
+            (void)(*(volatile unsigned char *)(_padSioRegs));
+            setRC2wait(0x1ae);
+            while (((*(volatile unsigned int *)(_padIntRegs + 0x00)) & 0x80) == 0) {
+                if (chkRC2wait() != 0)
+                    return 0;
+            }
+            (*(volatile unsigned char *)(_padSioRegs)) = 0x42;
+            setRC2wait(0x3c);
+            if (_padClrIntSio0() == 0)
+                return 0;
+            _padWaitRXready();
+            (void)(*(volatile unsigned char *)(_padSioRegs));
+            setRC2wait(0x1ae);
+            while (((*(volatile unsigned int *)(_padIntRegs + 0x00)) & 0x80) == 0) {
+                if (chkRC2wait() != 0)
+                    return 0;
+            }
+            (*(volatile unsigned char *)(_padSioRegs)) = 1;
+            setRC2wait(0x3c);
+            if (_padClrIntSio0() == 0)
+                return 0;
+            _padWaitRXready();
+            (void)(*(volatile unsigned char *)(_padSioRegs));
+            return 0;
+        }
+        (*(volatile unsigned int *)(_padIntRegs + 0x00)) = 0xffffff7f;
+    }
+    if (info[0x50] == 0)
+        return 1;
+    if (info[0x36] != 0)
+        return 0;
+    return 1;
+}

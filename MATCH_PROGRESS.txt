@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3489 functions, 3382 at 100% (96.9%)
+TOTAL: 3489 functions, 3389 at 100% (97.1%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -609,7 +609,7 @@ VA             %match  unit                     function
 0x80037798    100.00%  frontend/common/screenmain ProcessInput__11tScreenMain7tPlayerR13tInputKeyTypeR12tMenuCommand
 0x80037804    100.00%  frontend/common/screenmain DrawDropShadow__11tScreenMain
 0x80037918    100.00%  frontend/common/screenmain DrawVideoLines__11tScreenMain
-0x800379C0     99.99%  frontend/common/screenmain DrawBackground__11tScreenMain
+0x800379C0    100.00%  frontend/common/screenmain DrawBackground__11tScreenMain
 0x80038698    100.00%  frontend/common/screenmain GetShapeInfo__11tScreenMainRsT1PPcT3
 0x800386C8    100.00%  frontend/common/screenmain PreLoad__11tScreenMain
 0x800388D4    100.00%  frontend/common/screenmain Initialize__11tScreenMain
@@ -903,7 +903,7 @@ VA             %match  unit                     function
 0x8004FA4C    100.00%  frontend/psx/memcard     MCRD_savefile
 0x8004FC88    100.00%  frontend/psx/memcard     iMCRD_DoFileWrite
 0x8004FDEC    100.00%  frontend/psx/memcard     iMCRD_DoFileDelete
-0x8004FE80     99.98%  frontend/psx/memcard     MCRD_handlecardevents
+0x8004FE80    100.00%  frontend/psx/memcard     MCRD_handlecardevents
 0x800501CC    100.00%  frontend/psx/memcard     MCRD_fileexists
 0x80050244    100.00%  frontend/common/mcrd     MCRD_getcard
 0x8005028C    100.00%  frontend/psx/memcard     iMCRD_timersub
@@ -2104,7 +2104,7 @@ VA             %match  unit                     function
 0x800B6878    100.00%  game/common/sim          Sim_ProcessSimSchedules__Fv
 0x800B6B9C    100.00%  game/common/sim          Sim_ProcessPause__Fv
 0x800B6CA0    100.00%  game/common/sim          Sim_CheckForPause__Fi
-0x800B6D4C     98.68%  game/common/sim          Sim_MainGameLoop__Fv
+0x800B6D4C    100.00%  game/common/sim          Sim_MainGameLoop__Fv
 0x800B7250    100.00%  game/common/simplemem    Alloc__9SimpleMemii
 0x800B729C    100.00%  game/common/simplemem    FeignAlloc__9SimpleMemi
 0x800B72BC    100.00%  game/common/simplemem    ResizeToFit__9SimpleMem
@@ -2395,7 +2395,7 @@ VA             %match  unit                     function
 0x800D3BA4    100.00%  game/psx/hud             Hud_BuildDistanceString__FP4SPRTi
 0x800D3D44    100.00%  game/psx/hud             Hud_BuildTimeString__FP4SPRTi
 0x800D3E94     95.17%  game/psx/hud             Hud_BuildTach__Fi
-0x800D42C8     99.98%  game/psx/hud             Hud_BuildString__FPciiiib
+0x800D42C8    100.00%  game/psx/hud             Hud_BuildString__FPciiiib
 0x800D4624    100.00%  game/psx/hud             Hud_BuildNumbers0__Fi
 0x800D4E70     93.53%  game/psx/hud             Hud_BuildNumbers__Fi
 0x800D5A48    100.00%  game/psx/hud             Hud_InitMap__Fv
@@ -3008,7 +3008,7 @@ VA             %match  unit                     function
 0x800F6C3C    100.00%  eaclib/psx/eacpsxz/shpclut getshapeclut
 0x800F6C94    100.00%  eaclib/psx/eacpsxz/shpclut shapetoclutid
 0x800F6D18     98.99%  syslib/psx/libgpu/FONT   FntFlush
-0x800F7034     99.98%  syslib/psx/libgpu/FONT   FntPrint
+0x800F7034    100.00%  syslib/psx/libgpu/FONT   FntPrint
 0x800F7400    100.00%  syslib/psx/libpress/VLC  DecDCTvlcSize
 0x800F7430    100.00%  syslib/psx/libpress/VLC  DecDCTvlc
 0x800F7780    100.00%  syslib/psx/libcd/cdcont  CdStatus
@@ -3085,7 +3085,7 @@ VA             %match  unit                     function
 0x800FB060    100.00%  syslib/psx/libmcrd/LIBMCRD MemCardReadData
 0x800FB118    100.00%  syslib/psx/libmcrd/LIBMCRD MemCardReadData_cb
 0x800FB254    100.00%  syslib/psx/libmcrd/LIBMCRD MemCardWriteData
-0x800FB30C     99.94%  syslib/psx/libmcrd/LIBMCRD MemCardWriteData_cb
+0x800FB30C    100.00%  syslib/psx/libmcrd/LIBMCRD MemCardWriteData_cb
 0x800FB448    100.00%  syslib/psx/libmcrd/LIBMCRD MemCardReadFile
 0x800FB560    100.00%  syslib/psx/libmcrd/LIBMCRD MemCardReadFile_cb
 0x800FB668    100.00%  syslib/psx/libmcrd/LIBMCRD MemCardWriteFile
@@ -3420,7 +3420,7 @@ VA             %match  unit                     function
 0x8010A090    100.00%  syslib/psx/libcard/A80   _new_card
 0x8010A0A0    100.00%  syslib/psx/libcard/A78   _card_write
 0x8010A0B0     87.69%  syslib/psx/libpad/PADSEQD _padInitDirSeq
-0x8010A0E4     99.92%  syslib/psx/libpad/PADSEQD _dirSendAuto
+0x8010A0E4    100.00%  syslib/psx/libpad/PADSEQD _dirSendAuto
 0x8010A1E4    100.00%  syslib/psx/libpad/PADSEQD _dirRecvAuto
 0x8010A434    100.00%  syslib/psx/libpad/PADSEQD _dirFailAuto
 0x8010A510    100.00%  syslib/psx/libpad/PADSEQD _dirCheck

@@ -1,0 +1,23 @@
+[
+ {"name":"A1 busy fence REMOVED",
+  "edits":[["    __asm__(\"\" : \"=r\"(busy) : \"0\"(busy));\n","" ]]},
+
+ {"name":"A2 busy fence -> read-only",
+  "edits":[["    __asm__(\"\" : \"=r\"(busy) : \"0\"(busy));","    __asm__(\"\" : : \"r\"(busy));"]]},
+
+ {"name":"A3 busy fence inside the if",
+  "edits":[["    __asm__(\"\" : \"=r\"(busy) : \"0\"(busy));\n    if (*busy != 0) {","    if (*busy != 0) {\n        __asm__(\"\" : \"=r\"(busy) : \"0\"(busy));"]]},
+
+ {"name":"B1 w00 nonvolatile",
+  "edits":[["    e->w00 = sectors;","    *(int *)&e->w00 = sectors;"]]},
+
+ {"name":"B2 w04 nonvolatile",
+  "edits":[["    e->w04 = (u_char *)buf;","    *(u_char **)&e->w04 = (u_char *)buf;"]]},
+
+ {"name":"B3 w00+w04 nonvolatile",
+  "edits":[["    e->w04 = (u_char *)buf;\n    e->w00 = sectors;","    *(u_char **)&e->w04 = (u_char *)buf;\n    *(int *)&e->w00 = sectors;"]]},
+
+ {"name":"B4 w00 nonvol + A1",
+  "edits":[["    __asm__(\"\" : \"=r\"(busy) : \"0\"(busy));\n",""],
+           ["    e->w00 = sectors;","    *(int *)&e->w00 = sectors;"]]}
+]

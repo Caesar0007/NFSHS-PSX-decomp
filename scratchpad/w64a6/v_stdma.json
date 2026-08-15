@@ -1,0 +1,116 @@
+[
+ {
+  "name": "R1 drop bv fence",
+  "edits": [
+   [
+    "    __asm__(\"\" : : \"r\"(bv));   /* MATCH: DEMOTE bv (read-only fence) so dptr wins $v1 */\r\n",
+    ""
+   ]
+  ]
+ },
+ {
+  "name": "R2 drop bit fences",
+  "edits": [
+   [
+    "        __asm__(\"\" : \"=r\"(bit) : \"0\"(bit));  /* MATCH: PROMOTE bit -> $v1 (2 refs => negative */\r\n        __asm__(\"\" : \"=r\"(bit) : \"0\"(bit));  /* MATCH: allocno numerator; needs TWO fences)   */\r\n",
+    ""
+   ]
+  ]
+ },
+ {
+  "name": "R3 drop dp fence",
+  "edits": [
+   [
+    "        __asm__(\"\" : \"=r\"(dp) : \"0\"(dp));  /* MATCH: PROMOTE dp -> $a0 (p then takes $a1) */\r\n",
+    ""
+   ]
+  ]
+ },
+ {
+  "name": "R4 drop both vol barriers",
+  "edits": [
+   [
+    "    __asm__ __volatile__(\"\");  /* MATCH: Rage Racer CD_dmastart barrier -- keep the DICR read-back serial */\r\n",
+    ""
+   ],
+   [
+    "        __asm__ __volatile__(\"\");  /* MATCH: Rage Racer CD_dmastart barrier */\r\n",
+    ""
+   ]
+  ]
+ },
+ {
+  "name": "R4a drop vol1 only",
+  "edits": [
+   [
+    "    __asm__ __volatile__(\"\");  /* MATCH: Rage Racer CD_dmastart barrier -- keep the DICR read-back serial */\r\n",
+    ""
+   ]
+  ]
+ },
+ {
+  "name": "R4b drop vol2 only",
+  "edits": [
+   [
+    "        __asm__ __volatile__(\"\");  /* MATCH: Rage Racer CD_dmastart barrier */\r\n",
+    ""
+   ]
+  ]
+ },
+ {
+  "name": "R5 named loop limit",
+  "edits": [
+   [
+    "    int           mode;\r\n",
+    "    int           mode;\r\n    int           lim;\r\n"
+   ],
+   [
+    "    mode = enable_irq;\r\n    i = 0;\r\n",
+    "    lim = 0x10000;\r\n    mode = enable_irq;\r\n    i = 0;\r\n"
+   ],
+   [
+    "        if (i == 0x10000) {\r\n",
+    "        if (i == lim) {\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "R6 R5 + drop bv fence",
+  "edits": [
+   [
+    "    int           mode;\r\n",
+    "    int           mode;\r\n    int           lim;\r\n"
+   ],
+   [
+    "    mode = enable_irq;\r\n    i = 0;\r\n",
+    "    lim = 0x10000;\r\n    mode = enable_irq;\r\n    i = 0;\r\n"
+   ],
+   [
+    "        if (i == 0x10000) {\r\n",
+    "        if (i == lim) {\r\n"
+   ],
+   [
+    "    __asm__(\"\" : : \"r\"(bv));   /* MATCH: DEMOTE bv (read-only fence) so dptr wins $v1 */\r\n",
+    ""
+   ]
+  ]
+ },
+ {
+  "name": "R7 one bit fence only",
+  "edits": [
+   [
+    "        __asm__(\"\" : \"=r\"(bit) : \"0\"(bit));  /* MATCH: PROMOTE bit -> $v1 (2 refs => negative */\r\n        __asm__(\"\" : \"=r\"(bit) : \"0\"(bit));  /* MATCH: allocno numerator; needs TWO fences)   */\r\n",
+    "        __asm__(\"\" : \"=r\"(bit) : \"0\"(bit));\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "R8 three bit fences",
+  "edits": [
+   [
+    "        __asm__(\"\" : \"=r\"(bit) : \"0\"(bit));  /* MATCH: PROMOTE bit -> $v1 (2 refs => negative */\r\n        __asm__(\"\" : \"=r\"(bit) : \"0\"(bit));  /* MATCH: allocno numerator; needs TWO fences)   */\r\n",
+    "        __asm__(\"\" : \"=r\"(bit) : \"0\"(bit));  /* MATCH: PROMOTE bit -> $v1 (2 refs => negative */\r\n        __asm__(\"\" : \"=r\"(bit) : \"0\"(bit));  /* MATCH: allocno numerator; needs TWO fences)   */\r\n        __asm__(\"\" : \"=r\"(bit) : \"0\"(bit));\r\n"
+   ]
+  ]
+ }
+]

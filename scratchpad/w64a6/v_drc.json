@@ -1,0 +1,38 @@
+[
+ {"name":"Z0 fenced basin (control)",
+  "edits":[["    struct _ds_loc *dst = (struct _ds_loc *)&_ds_word0;\n",
+            "    struct _ds_loc *dst = (struct _ds_loc *)&_ds_word0;\n    __asm__(\"\" : \"=r\"(dst) : \"0\"(dst));\n"]]},
+
+ {"name":"Q1 fenced + w1 hoisted",
+  "edits":[["    struct _ds_loc *dst = (struct _ds_loc *)&_ds_word0;\n",
+            "    struct _ds_loc *dst = (struct _ds_loc *)&_ds_word0;\n    int w1;\n    __asm__(\"\" : \"=r\"(dst) : \"0\"(dst));\n    w1 = *(int *)(slot + 4);\n"],
+           ["    _ds_word1 = *(int *)(slot + 4);","    _ds_word1 = w1;"]]},
+
+ {"name":"Q2 fenced + StFunc1 hoisted",
+  "edits":[["    struct _ds_loc *dst = (struct _ds_loc *)&_ds_word0;\n",
+            "    struct _ds_loc *dst = (struct _ds_loc *)&_ds_word0;\n    void (*f)();\n    __asm__(\"\" : \"=r\"(dst) : \"0\"(dst));\n    f = (void (*)())StFunc1;\n"],
+           ["    if (StFunc1 != 0)\n        ((void (*)())StFunc1)();","    if (f != 0)\n        f();"]]},
+
+ {"name":"Q3 fenced + both hoisted",
+  "edits":[["    struct _ds_loc *dst = (struct _ds_loc *)&_ds_word0;\n",
+            "    struct _ds_loc *dst = (struct _ds_loc *)&_ds_word0;\n    int w1;\n    void (*f)();\n    __asm__(\"\" : \"=r\"(dst) : \"0\"(dst));\n    w1 = *(int *)(slot + 4);\n    f = (void (*)())StFunc1;\n"],
+           ["    _ds_word1 = *(int *)(slot + 4);","    _ds_word1 = w1;"],
+           ["    if (StFunc1 != 0)\n        ((void (*)())StFunc1)();","    if (f != 0)\n        f();"]]},
+
+ {"name":"Q4 unfenced + both hoisted",
+  "edits":[["    struct _ds_loc *dst = (struct _ds_loc *)&_ds_word0;\n",
+            "    struct _ds_loc *dst = (struct _ds_loc *)&_ds_word0;\n    int w1;\n    void (*f)();\n    w1 = *(int *)(slot + 4);\n    f = (void (*)())StFunc1;\n"],
+           ["    _ds_word1 = *(int *)(slot + 4);","    _ds_word1 = w1;"],
+           ["    if (StFunc1 != 0)\n        ((void (*)())StFunc1)();","    if (f != 0)\n        f();"]]},
+
+ {"name":"Q5 fenced + StRingIdx1 hoisted",
+  "edits":[["    struct _ds_loc *dst = (struct _ds_loc *)&_ds_word0;\n",
+            "    struct _ds_loc *dst = (struct _ds_loc *)&_ds_word0;\n    int nx;\n    __asm__(\"\" : \"=r\"(dst) : \"0\"(dst));\n    nx = StRingIdx1;\n"],
+           ["    StRingIdx2 = StRingIdx1;","    StRingIdx2 = nx;"]]},
+
+ {"name":"Q6 fenced + w1 + StRingIdx1 hoisted",
+  "edits":[["    struct _ds_loc *dst = (struct _ds_loc *)&_ds_word0;\n",
+            "    struct _ds_loc *dst = (struct _ds_loc *)&_ds_word0;\n    int w1;\n    int nx;\n    __asm__(\"\" : \"=r\"(dst) : \"0\"(dst));\n    w1 = *(int *)(slot + 4);\n    nx = StRingIdx1;\n"],
+           ["    _ds_word1 = *(int *)(slot + 4);","    _ds_word1 = w1;"],
+           ["    StRingIdx2 = StRingIdx1;","    StRingIdx2 = nx;"]]}
+]

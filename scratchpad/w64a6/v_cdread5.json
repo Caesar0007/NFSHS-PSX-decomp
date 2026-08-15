@@ -1,0 +1,22 @@
+[
+ {"name":"N1 w00 nonvol FIRST, w04 vol",
+  "edits":[["    e->w04 = (u_char *)buf;\n    e->w00 = sectors;",
+            "    *(int *)&e->w00 = sectors;\n    e->w04 = (u_char *)buf;"]]},
+ {"name":"N2 both nonvol, source order swapped",
+  "edits":[["    e->w04 = (u_char *)buf;\n    e->w00 = sectors;",
+            "    *(int *)&e->w00 = sectors;\n    *(u_char **)&e->w04 = (u_char *)buf;"]]},
+ {"name":"N3 w00 vol first, w04 nonvol second",
+  "edits":[["    e->w04 = (u_char *)buf;\n    e->w00 = sectors;",
+            "    e->w00 = sectors;\n    *(u_char **)&e->w04 = (u_char *)buf;"]]},
+ {"name":"M1 e non-volatile pointer",
+  "edits":[["    volatile CdrEnv *e;","    CdrEnv *e;"],
+           ["    e = &_cdr;\n    __asm__(\"\" : \"=r\"(e) : \"0\"(e));","    e = (CdrEnv *)&_cdr;\n    __asm__(\"\" : \"=r\"(e) : \"0\"(e));"],
+           ["    *(int *)&e->w28 = CdSyncCallback(0);","    e->w28 = CdSyncCallback(0);"]]},
+ {"name":"P1 CdControlB arg via named int 0",
+  "edits":[["        CdControlB(9, 0, 0);","        { u_char *p0 = 0; u_char *p1 = 0; CdControlB(9, p0, p1); }"]]},
+ {"name":"P2 void fence before CdControlB",
+  "edits":[["        CdControlB(9, 0, 0);","        { __asm__(\"\" : : \"i\"(0)); CdControlB(9, 0, 0); }"]]},
+ {"name":"P3 CdStatus result named",
+  "edits":[["    if (CdStatus() & 0xE0)                          /* drive busy -> pause first */\n        CdControlB(9, 0, 0);",
+            "    { int st = CdStatus();\n      if (st & 0xE0)                              /* drive busy -> pause first */\n        CdControlB(9, 0, 0); }"]]}
+]

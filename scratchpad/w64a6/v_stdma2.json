@@ -1,0 +1,101 @@
+[
+ {
+  "name": "S1 int base, index first",
+  "edits": [
+   [
+    "    int           mode;\r\n",
+    "    int           mode;\r\n    int           base;\r\n"
+   ],
+   [
+    "        p   = (volatile int *)(0x1F801080 + (ch << 4));\r\n",
+    "        base = 0x1F801080;\r\n        p   = (volatile int *)((ch << 4) + base);\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "S2 int base, base first",
+  "edits": [
+   [
+    "    int           mode;\r\n",
+    "    int           mode;\r\n    int           base;\r\n"
+   ],
+   [
+    "        p   = (volatile int *)(0x1F801080 + (ch << 4));\r\n",
+    "        base = 0x1F801080;\r\n        p   = (volatile int *)(base + (ch << 4));\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "S3 literal, index first",
+  "edits": [
+   [
+    "        p   = (volatile int *)(0x1F801080 + (ch << 4));\r\n",
+    "        p   = (volatile int *)((ch << 4) + 0x1F801080);\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "S4 p computed before dp",
+  "edits": [
+   [
+    "        p   = (volatile int *)(0x1F801080 + (ch << 4));\r\n        dp  = _dpcr;\r\n",
+    "        dp  = _dpcr;\r\n        p   = (volatile int *)(0x1F801080 + (ch << 4));\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "S5 named bcr before dp",
+  "edits": [
+   [
+    "    int           mode;\r\n",
+    "    int           mode;\r\n    int           bcr;\r\n"
+   ],
+   [
+    "        dp  = _dpcr;\r\n",
+    "        bcr = (blocks << 16) | blocksize;\r\n        dp  = _dpcr;\r\n"
+   ],
+   [
+    "        *p++ = (blocks << 16) | blocksize;          /* BCR  */\r\n",
+    "        *p++ = bcr;                                 /* BCR  */\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "S6 S1 + named bcr",
+  "edits": [
+   [
+    "    int           mode;\r\n",
+    "    int           mode;\r\n    int           base;\r\n    int           bcr;\r\n"
+   ],
+   [
+    "        p   = (volatile int *)(0x1F801080 + (ch << 4));\r\n",
+    "        base = 0x1F801080;\r\n        p   = (volatile int *)((ch << 4) + base);\r\n"
+   ],
+   [
+    "        dp  = _dpcr;\r\n",
+    "        bcr = (blocks << 16) | blocksize;\r\n        dp  = _dpcr;\r\n"
+   ],
+   [
+    "        *p++ = (blocks << 16) | blocksize;          /* BCR  */\r\n",
+    "        *p++ = bcr;                                 /* BCR  */\r\n"
+   ]
+  ]
+ },
+ {
+  "name": "S7 bcr fenced before dp",
+  "edits": [
+   [
+    "    int           mode;\r\n",
+    "    int           mode;\r\n    int           bcr;\r\n"
+   ],
+   [
+    "        dp  = _dpcr;\r\n",
+    "        bcr = (blocks << 16) | blocksize;\r\n        __asm__(\"\" : \"=r\"(bcr) : \"0\"(bcr));\r\n        dp  = _dpcr;\r\n"
+   ],
+   [
+    "        *p++ = (blocks << 16) | blocksize;          /* BCR  */\r\n",
+    "        *p++ = bcr;                                 /* BCR  */\r\n"
+   ]
+  ]
+ }
+]

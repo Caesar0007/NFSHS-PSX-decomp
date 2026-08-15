@@ -1,0 +1,158 @@
+[
+ {
+  "name": "RI drop L187",
+  "edits": [
+   [
+    "                    __asm__(\"\" : \"=r\"(exp) : \"0\"(exp));\n",
+    ""
+   ]
+  ],
+  "fns": [
+   "_read_int"
+  ]
+ },
+ {
+  "name": "RI drop L204",
+  "edits": [
+   [
+    "            if (CD_read_dma_mode & 1) {\n                volatile int *cur = (volatile int *)&_cdr.w08;\n                __asm__(\"\" : \"=r\"(cur) : \"0\"(cur));\n",
+    "            if (CD_read_dma_mode & 1) {\n                volatile int *cur = (volatile int *)&_cdr.w08;\n"
+   ]
+  ],
+  "fns": [
+   "_read_int"
+  ]
+ },
+ {
+  "name": "RI drop L208",
+  "edits": [
+   [
+    "            } else {\n                volatile int *cur = (volatile int *)&_cdr.w08;\n                __asm__(\"\" : \"=r\"(cur) : \"0\"(cur));\n",
+    "            } else {\n                volatile int *cur = (volatile int *)&_cdr.w08;\n"
+   ]
+  ],
+  "fns": [
+   "_read_int"
+  ]
+ },
+ {
+  "name": "RI drop L219",
+  "edits": [
+   [
+    "                    __asm__(\"\" : \"=r\"(g) : \"0\"(g));\n",
+    ""
+   ]
+  ],
+  "fns": [
+   "_read_int"
+  ]
+ },
+ {
+  "name": "RI drop ALL",
+  "edits": [
+   [
+    "                    __asm__(\"\" : \"=r\"(exp) : \"0\"(exp));\n",
+    ""
+   ],
+   [
+    "            if (CD_read_dma_mode & 1) {\n                volatile int *cur = (volatile int *)&_cdr.w08;\n                __asm__(\"\" : \"=r\"(cur) : \"0\"(cur));\n",
+    "            if (CD_read_dma_mode & 1) {\n                volatile int *cur = (volatile int *)&_cdr.w08;\n"
+   ],
+   [
+    "            } else {\n                volatile int *cur = (volatile int *)&_cdr.w08;\n                __asm__(\"\" : \"=r\"(cur) : \"0\"(cur));\n",
+    "            } else {\n                volatile int *cur = (volatile int *)&_cdr.w08;\n"
+   ],
+   [
+    "                    __asm__(\"\" : \"=r\"(g) : \"0\"(g));\n",
+    ""
+   ]
+  ],
+  "fns": [
+   "_read_int"
+  ]
+ },
+ {
+  "name": "RQ drop L363",
+  "edits": [
+   [
+    "    if (retry != 0) {\n        __asm__(\"\" : : \"i\"(0));\n",
+    "    if (retry != 0) {\n"
+   ]
+  ],
+  "fns": [
+   "_read_issue"
+  ]
+ },
+ {
+  "name": "RQ drop L379",
+  "edits": [
+   [
+    "     * per the W45 fence-fixpoint law. */\n    __asm__(\"\" : : \"i\"(0));\n",
+    "     * per the W45 fence-fixpoint law. */\n"
+   ]
+  ],
+  "fns": [
+   "_read_issue"
+  ]
+ },
+ {
+  "name": "RQ drop L384",
+  "edits": [
+   [
+    "        __asm__(\"\" : \"=r\"(mp) : \"0\"(mp));\n",
+    ""
+   ]
+  ],
+  "fns": [
+   "_read_issue"
+  ]
+ },
+ {
+  "name": "RQ drop L390",
+  "edits": [
+   [
+    "                __asm__(\"\" : : \"i\"(0));\n",
+    ""
+   ]
+  ],
+  "fns": [
+   "_read_issue"
+  ]
+ },
+ {
+  "name": "RQ drop L395",
+  "edits": [
+   [
+    "        __asm__(\"\" : : \"r\"(mp));  /* MATCH: keep the anchor live PAST CdMode -> $s1,\n",
+    ""
+   ]
+  ],
+  "fns": [
+   "_read_issue"
+  ]
+ },
+ {
+  "name": "RQ drop L413",
+  "edits": [
+   [
+    "    sect = CdPosToInt((CdlLOC *)CdLastPos());                        /* start sector */\n    __asm__(\"\" : : \"i\"(0));\n",
+    "    sect = CdPosToInt((CdlLOC *)CdLastPos());                        /* start sector */\n"
+   ]
+  ],
+  "fns": [
+   "_read_issue"
+  ]
+ },
+ {
+  "name": "RQ drop L415",
+  "edits": [
+   [
+    "    g = &_cdr;                      /* MATCH: TAIL ANCHOR ($s0) -- one `la` for the whole tail */\n    __asm__(\"\" : \"=r\"(g) : \"0\"(g));\n",
+    "    g = &_cdr;                      /* MATCH: TAIL ANCHOR ($s0) -- one `la` for the whole tail */\n"
+   ]
+  ],
+  "fns": [
+   "_read_issue"
+  ]
+ }
+]

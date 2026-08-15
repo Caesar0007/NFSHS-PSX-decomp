@@ -1,0 +1,39 @@
+[
+ {"name":"E1 default arm anchor REMOVED",
+  "edits":[["    default: {                                      /* 2328 bytes -- own anchor in this arm */\n        volatile CdrEnv *d = &_cdr;\n        __asm__(\"\" : \"=r\"(d) : \"0\"(d));\n        d->w10 = 0x246;\n        break;\n    }\n",
+            "    default: *(int *)&g->w10 = 0x246; break;\n"]]},
+
+ {"name":"E2 default sz named first",
+  "edits":[["        volatile CdrEnv *d = &_cdr;\n        __asm__(\"\" : \"=r\"(d) : \"0\"(d));\n        d->w10 = 0x246;",
+            "        int sz = 0x246;\n        volatile CdrEnv *d = &_cdr;\n        __asm__(\"\" : \"=r\"(d) : \"0\"(d));\n        d->w10 = sz;"]]},
+
+ {"name":"E3 default sz named+fenced",
+  "edits":[["        volatile CdrEnv *d = &_cdr;\n        __asm__(\"\" : \"=r\"(d) : \"0\"(d));\n        d->w10 = 0x246;",
+            "        int sz = 0x246;\n        volatile CdrEnv *d;\n        __asm__(\"\" : \"=r\"(sz) : \"0\"(sz));\n        d = &_cdr;\n        __asm__(\"\" : \"=r\"(d) : \"0\"(d));\n        d->w10 = sz;"]]},
+
+ {"name":"E4 void fence head of case 0x20",
+  "edits":[["    case 0x20: *(int *)&g->w10 = 0x249; break;",
+            "    case 0x20: __asm__(\"\" : : \"i\"(0)); *(int *)&g->w10 = 0x249; break;"]]},
+
+ {"name":"E5 default nonvol store",
+  "edits":[["        d->w10 = 0x246;","        *(int *)&d->w10 = 0x246;"]]},
+
+ {"name":"F1 w00 nonvolatile (reprice)",
+  "edits":[["    e->w00 = sectors;","    *(int *)&e->w00 = sectors;"]]},
+
+ {"name":"F2 w04 nonvolatile (reprice)",
+  "edits":[["    e->w04 = (u_char *)buf;","    *(u_char **)&e->w04 = (u_char *)buf;"]]},
+
+ {"name":"F3 w00+w04 nonvolatile",
+  "edits":[["    e->w04 = (u_char *)buf;\n    e->w00 = sectors;","    *(u_char **)&e->w04 = (u_char *)buf;\n    *(int *)&e->w00 = sectors;"]]},
+
+ {"name":"F4 w00 store after w28 stmt",
+  "edits":[["    e->w04 = (u_char *)buf;\n    e->w00 = sectors;\n    *(int *)&e->w28 = CdSyncCallback(0);",
+            "    e->w04 = (u_char *)buf;\n    *(int *)&e->w00 = sectors;\n    *(int *)&e->w28 = CdSyncCallback(0);"]]},
+
+ {"name":"G1 slt: named result",
+  "edits":[["    return _read_issue(0) > 0;","    { int r = _read_issue(0); return r > 0; }"]]},
+
+ {"name":"G2 slt: Yoda",
+  "edits":[["    return _read_issue(0) > 0;","    return 0 < _read_issue(0);"]]}
+]

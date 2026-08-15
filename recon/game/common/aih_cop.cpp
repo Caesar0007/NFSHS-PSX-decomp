@@ -342,8 +342,45 @@ void AIHigh_Cop::HighExecute()
              Only the BITWISE `|` form reproduces the sltiu -- but it materializes
              BOTH operands (no short circuit), which retail does not.  So the
              materialization comes from something structural on retail line 303 that
-             the four natural spellings do not express. */
-          if ((wrongWay == 0) || (newTrigger.roadblock.dir == 0)) {
+             the four natural spellings do not express.
+             ==== W63-A12 (77 -> 69, ours 1455 -> 1457 / oracle 1460): THE ISLAND IS
+             CLOSED STRUCTURALLY -- chunkdiff now reports ZERO mismatched runs >= 6 for
+             the whole function (it was one 7-insn run here).  It took a PAIR, and each
+             half is measured on the other's basin:
+               baseline (neither)                                  77  @1455
+               boolean materialized only                           78  @1456
+               dir re-read forced only                             70  @1456
+               BOTH                                                69  @1457
+             (a) THE sltiu IS THE BOOLEAN AS A VALUE, and the device is the same one
+                 that sealed CloseTargeting and DoRearEnder this session: an ASSIGNED
+                 local plus a zero-insn OPACITY/IDENTITY fence
+                 `__asm__("" : "=r"(x) : "0"(x))`.  W61-A12's lab list is NOT refuted --
+                 a PLAIN `int c = (w == 0)` temp really does fold back to `beq r,0`;
+                 what the lab never tried is the fenced form, which cse cannot collapse
+                 into the branch.  (This is the third independent confirmation this
+                 session that "named constant/boolean" and "named constant/boolean +
+                 identity fence" are DIFFERENT levers -- do not read a falsified plain
+                 temp as closing the axis.)
+             (b) RETAIL RE-LOADS `roadblock.dir` FROM THE FRAME for the second `||`
+                 operand (`lw v0,0x48(sp)`), which our cse shares out of the register
+                 holding the first read.  `newTrigger` is an address-escaping local
+                 (DescribeTrigger takes &newTrigger), so the honest device is the
+                 09I volatile-on-the-TEST-read: `*(volatile int *)&newTrigger.roadblock.dir`.
+                 Per the volatile-dial rule the alternatives are receipted above (every
+                 non-volatile spelling of a second read is CSE'd by construction -- that
+                 IS the diff) and the ablation table above shows the final authoritative
+                 result needs it: dropping it costs 5 diffs.
+             RESIDUAL 69 is now spread over the smaller islands B-F of the W62-A10
+             census with NO run >= 6 insns anywhere; ours is still 3 insns short overall.
+             Two shapes measured INERT here this session: hoisting the reverseTrack read
+             into its own local ahead of the `~dir` (an attempt at retail's load order
+             `lw reverseTrack; lw dir` vs ours `lw dir; lw reverseTrack; nop`) -- gcc
+             reschedules to the same stream, 69 unchanged. ==== */
+          int wrongWayHit;
+          wrongWayHit = (wrongWay == 0);
+          __asm__("" : "=r"(wrongWayHit) : "0"(wrongWayHit));
+
+          if (wrongWayHit || (*(volatile int *)&newTrigger.roadblock.dir == 0)) {
 
             AIState_Offroad *newState;
 

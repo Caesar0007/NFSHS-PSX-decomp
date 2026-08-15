@@ -9,7 +9,7 @@
 extern __vtbl_ptr_type AIHigh_Cop_vtable[], AIState_Idle_vtable[];
 
 extern "C" CARDINFO_def *MCRD_getcard(int);
-int Speech_Mobile(Car_tObj *carObj);   /* speech.obj flat (was Mobile__6SpeechP8Car_tObj; cast result to Speaker*) */
+int Speech_Mobile(Car_tObj *carObj) asm("Mobile__6SpeechP8Car_tObj");   /* speech.obj flat (was Mobile__6SpeechP8Car_tObj; cast result to Speaker*) */
 extern AICop_spikeBelt_t AICop_spikeBelt;
 extern AIHigh_Base *highLevelAIObjs[];
 extern AITrigger_TriggerManager *triggerManagerCops;

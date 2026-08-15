@@ -8,7 +8,7 @@
 /* ---- vtable: AIHigh_BasicPerp (this obj) ---- */
 extern __vtbl_ptr_type AIHigh_BasicPerp_vtable[];
 
-int Speech_Mobile(Car_tObj *carObj);   /* speech.obj flat (was Mobile__6SpeechP8Car_tObj; cast result to Speaker*) */
+int Speech_Mobile(Car_tObj *carObj) asm("Mobile__6SpeechP8Car_tObj");   /* speech.obj flat (was Mobile__6SpeechP8Car_tObj; cast result to Speaker*) */
 extern AIHigh_Base *highLevelAIObjs[];
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj *Cars_gList[];

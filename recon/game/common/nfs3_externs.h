@@ -93,6 +93,6 @@ extern int Stats_GetNumOpponents(void);
 extern int Weather_DeInit(void);
 extern int Weather_Init(void);
 extern int Weather_Restart(void);
-extern void Speech_Reset();
+extern void Speech_Reset() asm("Reset__6Speech");
 
 #endif

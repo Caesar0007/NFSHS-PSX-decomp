@@ -8,7 +8,7 @@
 /* ---- vtable: AIHigh_BasicCop (this obj) ---- */
 extern __vtbl_ptr_type AIHigh_BasicCop_vtable[];
 
-int Speech_Mobile(Car_tObj *carObj);   /* speech.obj flat free fn (was mangled Mobile__6SpeechP8Car_tObj; Speech::Mobile is a static, reconstructed flat) */
+int Speech_Mobile(Car_tObj *carObj) asm("Mobile__6SpeechP8Car_tObj");   /* speech.obj flat free fn (was mangled Mobile__6SpeechP8Car_tObj; Speech::Mobile is a static, reconstructed flat) */
 extern AICop_spikeBelt_t AICop_spikeBelt;
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj * AILife_IsSliceInAnyVisibleArea(int slice);

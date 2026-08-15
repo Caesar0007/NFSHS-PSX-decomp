@@ -9,8 +9,8 @@
 extern __vtbl_ptr_type AIHigh_BTC_Perp_vtable[], AIHigh_BTC_HumanPerp_vtable[], AIHigh_BTC_AIPerp_vtable[], AIState_NonActive_vtable[], AIState_Base_vtable[];
 
 extern "C" CARDINFO_def *MCRD_getcard(int);
-int Speech_Dispatch(void);                /* speech.obj flat (was Dispatch__6Speech; Speech::Dispatch is static->flat) */
-int Speech_Mobile(Car_tObj *carObj);      /* speech.obj flat (was Mobile__6SpeechP8Car_tObj; cast result to Speaker*) */
+int Speech_Dispatch(void) asm("Dispatch__6Speech");                /* speech.obj flat (was Dispatch__6Speech; Speech::Dispatch is static->flat) */
+int Speech_Mobile(Car_tObj *carObj) asm("Mobile__6SpeechP8Car_tObj");      /* speech.obj flat (was Mobile__6SpeechP8Car_tObj; cast result to Speaker*) */
 extern AIHigh_Base *highLevelAIObjs[];
 extern AITune_BTC_t AITune_BTC[];
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */

@@ -337,11 +337,46 @@ extern int _dirFailAuto(unsigned char *info)
  * constant lands $v1 and the byte load is pushed to $a0 -- i.e. block 1 never offers $v0 at all,
  * so the target register is barred by something outside the constant's own birth position
  * (candidate: the return-value pseudo's hard-reg range).  The landed `int ff` form is still the
- * best (it at least buys retail's $v1 byte load).  Open, quantified, not a floor. */
+ * best (it at least buys retail's $v1 byte load).  Open, quantified, not a floor.
+ *
+ * w63-a7 2026-08-15 -- 4 -> 1 diff.  THE CONSTANT'S REGISTER IS SOLVED; the residual is a
+ * different, named mechanism.  The w62 conflict-set receipt was right about WHY the flat
+ * `int ff = 0xff;` form can never reach $v0 (born before the `lhu`, so it conflicts with the
+ * lhu's block-local qty which local_alloc homes in $v0) -- what it missed is that retail's
+ * 0xFF and retail's returned 0 ARE THE SAME PSEUDO.  Spelling ONE variable that (a) is born
+ * INSIDE the guard, after the lhu dies, (b) carries the compare constant, and (c) is then
+ * zeroed and RETURNED gives that pseudo a $v0 copy-preference from the (set (reg 2) (reg r))
+ * return copy (13A SET_PREFERENCE LAW), and it spans two blocks, so global_alloc -- not
+ * local_alloc -- assigns it.  Result: every instruction of the oracle is reproduced,
+ * including `li $v0,255` in the beqz slot and `addu $v0,$zero,$zero` in the beq slot.
+ *   RESIDUAL 1 (12 insns vs 11): OUR reorg pass converts the `return 1` fall-through into
+ *   its OWN return insn and steals `li $2,1` into its delay slot (make_return_insns,
+ *   reorg.c:4289), where retail lets that block FALL THROUGH into the shared `jr ra`.
+ *   cc1 .s evidence (this is the whole difference, nothing else):
+ *       ours    $L56: [noreorder/nomacro] j $31 ; li $2,1 [macro/reorder]   $L59: j $31
+ *       retail  $L56: li $2,1                                              $L59: j $31 ; nop
+ *   It is a pure post-cc1 text edit (delete the duplicated `j $31`, leave the `li` in place)
+ *   => PER_FN_TEXT_MOVES; spec + probe proof in scratchpad/w63a7/.  NOT source-reachable:
+ *   every single-exit / goto-shared-exit / exit-block-device spelling of this shape rotates
+ *   the whole function instead (B1 goto-shared-exit 14 @13, B2 else-arm single exit 14 @13,
+ *   C3 `if (0) { out: }` exit-block device 14 @13, C1 early-out chain 5 @14, C5 nested
+ *   early-out 5 @14), and a void-tail fence before the `return 1` is diff-NEUTRAL (the
+ *   backward scan reaches the `li` before it ever sees the fence).  Other measurements at
+ *   this basin: A carrier born at fn scope 7 @12 (the w62 conflict is back), C carrier +
+ *   De-Morgan early-out 11 @12, D returns-only-via-var 13 @10, E carrier single-exit 14 @13,
+ *   E2/E3 modeword-as-carrier 8 @11 (the carrier follows the lhu into $a1), E5 nested with a
+ *   LITERAL 0 return 6 @11 (single-block => local qty => $v1, the w62 class), E4 dead
+ *   `else ff = 0;` 1 @12 (same basin as the landed form, but with a dead store). */
 extern int _dirCheck(unsigned char *info)
 {
-    int ff = 0xff;
-    if (*(unsigned short *)(info + 0xe6) != 0 && info[0x46] == ff)
-        return 0;
+    int r;
+
+    if (*(unsigned short *)(info + 0xe6) != 0) {
+        r = 0xff;
+        if (info[0x46] == r) {
+            r = 0;
+            return r;
+        }
+    }
     return 1;
 }

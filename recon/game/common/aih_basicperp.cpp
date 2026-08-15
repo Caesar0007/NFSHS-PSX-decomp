@@ -564,7 +564,20 @@ int AIHigh_BasicPerp::CheckChaserPosition(int copIndex,int carIndex)
          `bnez`/`j` tail-polarity flip: making p the loop's live value does NOT
          dissolve the copy, because the copy is minted at the fence, not at the use.
          Next lens = local-alloc combine_regs (dies-more-than-once refusal), not a
-         source spelling. */
+         source spelling.
+         W63-A12 re-gated (2 @ 85/87) and FALSIFIED the one device class the four prior
+         waves had NOT tried here: the OPERAND-LESS VOID-TAIL FENCE
+         `__asm__("" : : "i"(0));` immediately above the guard.  The rationale was that
+         every previous attempt fenced a VALUE (`pos`, or a copy of it) and therefore
+         minted the `addu` copy that ruins the count -- an operand-less fence adds no
+         ref and can mint no copy, so if the guard's deletion were a pure cse/jump
+         barrier question this would restore it for free.  It does NOT: 35 diffs @ 90
+         insns (+5).  So the deletion is not reachable by a barrier either, and the
+         value-fence family remains the only thing that restores the branch (at the
+         price of the copy, because `pos` is a GLOBAL allocno and combine_regs refuses
+         to tie a copy whose destination is global).  That leaves exactly one named
+         lever untried: make `pos` BLOCK-LOCAL at the guard rather than fencing it --
+         i.e. a local-alloc-layer change, which is the qtytrace lane. */
             if (pos < 1) break;
 
       if (nextCopIndex != -1) {

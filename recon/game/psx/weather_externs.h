@@ -54,7 +54,7 @@ extern void  Math_NormalizeVector(coorddef *v);         /* game math (mangled __
                    /* 16.16 fixed-point multiply */
 extern void  Math_fasttransmult(matrixtdef *a, matrixtdef *b, matrixtdef *out);  /* __FP10matrixtdefN20 */
 extern int   Camera_GetMode(int player);                /* __Fi */
-extern void *BWorldSm_TunnelFlagSm(void *slicePos);     /* __FP12BWorldSm_Pos -> void* */
+extern void *BWorldSm_TunnelFlagSm(void *slicePos) asm("BWorldSm_TunnelFlagSm__FP12BWorldSm_Pos");     /* __FP12BWorldSm_Pos -> void* */
    /* PsyQ libgpu */
 
 /* render packet/palette write cursors + per-player weather pixmaps + look-behind input */

@@ -31,7 +31,7 @@ extern void Texture_LoadPmx(char *, char *, int, int, int, int, int, Draw_tPixMa
 extern void Texture_ResetPaletteSharing(void);
 
 /* ---- SYM Globals + free fns ---- */
-extern void *BWAllocMem(int);
+extern void *BWAllocMem(int) asm("BWAllocMem__Fl");
 extern void BWorldSm_DeInit(void);
 extern void BWorldSm_Init(Group *);
 extern void Chunk_DeInit(void);

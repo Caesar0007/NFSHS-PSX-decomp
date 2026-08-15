@@ -43,7 +43,7 @@ extern DRAWENV *Draw_GetDRAWENV(int view, int buf);
 extern int Draw_gViewOtSize;
 extern COORD16  Fe3D_lightsVertex[64];   /* 0x80051334  ARY STRUCT COORD16 x64 */
 extern COORD16  Fe3D_spotVertex[33];     /* 0x8005126c  ARY STRUCT COORD16 x33 */
-extern void Flare_CarShapedHalo(int, COORD16 *, int, int, short, int, Draw_FlareCache *);
+extern void Flare_CarShapedHalo(int, COORD16 *, int, int, short, int, Draw_FlareCache *) asm("Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache");
 extern GameSetup_tData GameSetup_gData;
 extern void Night_AdditiveNightCalc(VECTOR *, CVECTOR *);
 extern char          *Paths_Paths[];           /* 0x80116468 */

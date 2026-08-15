@@ -15,12 +15,12 @@ extern int   ticks;
 
 /* --- eaclib / platform / mdec / stream prototypes --- */
 extern "C" {
-void  Platform_ResetDCTBuffer(void);
+void  Platform_ResetDCTBuffer(void) asm("Platform_ResetDCTBuffer__Fv");
 int   initmdec(int, int, int, int);   /* SYM: FCN INT (returns mdec handle) - was wrongly void* */
 void  restoremdec(int);
 void  mdec(int, char *, int, int);
 int   mdecdone(int);
-void  mdecreset(void);
+void  mdecreset(void) asm("mdecreset__Fv");
 void *STREAM_create(int, int, int, void *, int);
 void  STREAM_setfilter(long, int, int, int, int);
 long  STREAM_queuefile(long, char *, int, int);

@@ -28,7 +28,7 @@ long DecDCToutCallback(void * func);
 int DecDCTvlc(u_long * bs, u_long * buf);
 int DecDCTvlcSize(int size);
 u_long * FntFlush(int id);   /* match real PsyQ libgpu.h proto (int, not long) */
-void Platform_ResetDCTBuffer(void);
+void Platform_ResetDCTBuffer(void) asm("Platform_ResetDCTBuffer__Fv");
 int SNDcdvol(int vol);
 void StCdInterrupt(void);
 void StClearRing(void);

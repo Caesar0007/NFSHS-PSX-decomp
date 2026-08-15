@@ -30,9 +30,9 @@ extern int   AudioCmn_MusicLevel(int masterLevel);                  /* audiocmn.
 extern int   AudioCmn_PlaySound(int bnkID, int a, int b, int c, int d);   /* audiocmn.obj */
 
 /* ---- cross-TU functions (input / system) ---- */
-extern int   Debounce(void *menu);
-extern int   Input_Interface(int key, int debounce);
-extern void  InGame_ResetPSXController(u_int port, int config);
+extern int   Debounce(void *menu) asm("Debounce__6tPMenu");
+extern int   Input_Interface(int key, int debounce) asm("Input_Interface__FUli");
+extern void  InGame_ResetPSXController(u_int port, int config) asm("InGame_ResetPSXController__Fii");
                                     /* libgpu */
 extern void  TextSys_LoadInGame(int language);                      /* textsys.obj */
 extern void  TextSys_UnloadWords(void);                             /* textsys.obj */
@@ -41,7 +41,7 @@ extern void  Hud_RenderPauseBox(int x, int y, int w, int h);       /* hud.obj */
 /* ---- tPMenu / tPMenuItem methods rendered as free fns by Ghidra (PauseMenu.obj) ---- */
 extern int   IsEnabled(int item);
 extern int   IsDisabled(int item);
-extern int   ItemEnabledNum(void *menu, int item);     /* dropped-arg Logic site disasm-bound */
-extern int   NumEnabledItems(void *menu);
+extern int   ItemEnabledNum(void *menu, int item) asm("ItemEnabledNum__6tPMenui");     /* dropped-arg Logic site disasm-bound */
+extern int   NumEnabledItems(void *menu) asm("NumEnabledItems__6tPMenu");
 
 #endif /* MPAUSE_EXTERNS_H */

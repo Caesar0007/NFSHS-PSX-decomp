@@ -8,7 +8,7 @@ extern "C" {
      /* shape-table entry for index */
 int   unpacksize(void *src);                 /* decompressed size */
 void  unpack(void *src, void *dst);          /* shpsubs decompressor */
-void  Texture_GetClutId(unsigned int bpp, int *xclut, int *yclut);
+void  Texture_GetClutId(unsigned int bpp, int *xclut, int *yclut) asm("Texture_GetClutId__FiPiT1");
    /* upload to VRAM */
 }
 #endif

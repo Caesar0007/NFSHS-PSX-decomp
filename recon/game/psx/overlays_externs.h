@@ -36,7 +36,7 @@ extern int            FinalBTC_Countdown;       /* 0x8013d938 */
 
 /* ---- HUD / text helpers ---- */
 extern void  Hud_GoTpage(int page);
-extern int   Hud_BuildString(char *str, int x, int y, int rgb, int flag, int center);
+extern int   Hud_BuildString(char *str, int x, int y, int rgb, int flag, int center) asm("Hud_BuildString__FPciiiib");
 extern void  Hud_FBuildF4(int x, int y, int yy, int w, int h, u_long col, char c0, char c1);
 extern char *TextSys_Word(int id);
 extern "C" int textpixels(char *s);

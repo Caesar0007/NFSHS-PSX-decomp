@@ -1572,12 +1572,52 @@ void Weather_DoWeather(DRender_tView *Vi)
      the Camera_GetMode result still resists (a tied launder shares the register, so it
      cannot manufacture a copy; that residual + the head `li a2,1` scheduler hoist are the
      whole remaining 18).  From the 20 basin an `ab` fence is neutral again (20). */
+  /* ---- MATCH (w63-a13, 2026-08-15): 18 -> 6 diffs, count still EXACT 197/197.  BOTH of
+     the w61 "whole remaining 18" clusters are now cracked, and neither needed the qtytrace
+     instrument the w55 verdict demanded.
+     (1) THE Camera_GetMode COPY -- see the 12D staging receipt at its call site below
+         (`ab` carries the mode; the SYM has no `mode` local).  18 -> 12.
+     (2) THE HEAD `li a2,1` HOIST -- 12 -> 6, and it is TWO cooperating source facts:
+         (a) read commMode into a local `cm` BEFORE the three server-array reads, so its
+             load is schedulable alongside them (retail interleaves it: lw s6, lw s7,
+             lw v0=commMode, lw s4).  With the read left after the array reads the
+             `__asm__("" : : "r"(player))` fence BELOW them is a scheduling barrier that
+             pins the commMode load past all three -> a load-delay `nop` (+1 insn), which
+             is exactly why every earlier "name the constant" probe measured 198.
+         (b) name the compare's `1` (`int one = 1;`) immediately above that fence, so the
+             constant is born early and lives across the array reads = retail's `li a2,1`
+             at index 18.
+         POSITION IS THE WHOLE DIAL for (a): cm read BEFORE the three array reads = 6;
+         between reads 1 and 2 = 22; between 2 and 3 = 22; AFTER them = 5 diffs but 198
+         insns (count-inexact, rejected by the bar).  For (b): `one` above the fence = 6;
+         `one` alone with cm left inline = 7 @198; `one` shared with the other two literal
+         1s in the fn (`clean_up = ab == 1`, `clean_up = 1`) = 33 @200.
+     🔴 BASIN NOTE (04Z, another confirmation on this belt): the w60 receipt REJECTED a
+     named `int one = 1;` as "29 diffs but 198 insns"; in the post-12D basin the identical
+     declaration is count-EXACT and worth 6.  That falsification was basin-relative.
+     ALSO FALSIFIED from the 12 and 6 basins (all re-gated): a read-only fence or an
+     identity launder on `cm` (12/12/12, byte-identical) . a 2-operand `player` fence
+     (12) . moving the `player` fence below the commMode guard (18, i.e. the fence's
+     position is still load-bearing) . `cm` as a split decl+assign (6, bit-identical) .
+     a `*(volatile int *)&` view on the commMode read (6, bit-identical) .
+     `int gt = simGlobal.gameTicks;` hoisted at the LastProcessTime guard (6) .
+     index-term-first cast spelling on Weather_gLastProcessTimeA (14, worse).
+     RESIDUAL 6, two clusters, both count-exact:
+       (A) 23-26: retail materialises the commMode base as a SELF-TEMP
+           (`lui v0,0 ... lw v0,0(v0)`) born AFTER the three addu's; ours hoists that
+           `lui` into the early lui group and gives it its own scratch ($a3), so the load
+           reads `lw v0,0(a3)`.  Same self-temp-vs-separate-scratch class as
+           methodology 3.15 / catalog E.
+       (B) 89-92: `sll s0,s2,2` emitted one slot AFTER the `lui/addiu` pair where retail
+           has it one slot BEFORE -- the surviving half of the w41 tie (2). */
   player = Vi->player;
+  int cm = GameSetup_gData.commMode;
   wpt = Weather_gPServerA[player];
   wprevpt = Weather_gPrevPServerA[player];
   wd = Weather_gDrawnServerA[player];
+  int one = 1;
   __asm__("" : : "r"(player));
-  if ((GameSetup_gData.commMode != 1) && (0x20 < simGlobal.gameTicks - timechange)) {
+  if ((cm != one) && (0x20 < simGlobal.gameTicks - timechange)) {
     timechange = simGlobal.gameTicks;
     if (Weather_gSnowTrack == 0) {
       Weather_ChangeIntensityBasedOnTime();
@@ -1599,11 +1639,22 @@ void Weather_DoWeather(DRender_tView *Vi)
       clean_up = ab == 1;
     }
     *plb = ab;
-    mode = Camera_GetMode(player);
-    if (mode != prevCameraMode[player]) {
+    /* MATCH (w63-a13, 18 -> 12, count still EXACT 197/197): THE 12D DEAD-PSEUDO STAGING
+     * LAW, and the SYM is the proof.  The `8c` block lists exactly
+     * {n,wpt,wprevpt,wd,player,ab,clean_up,i,prim} -- there is NO `mode` local, and
+     * retail carries the Camera_GetMode result in $a1, which is `ab`'s own register.
+     * `ab` is DEAD after `*plb = ab;`, so retail simply REUSED IT.  Assigning into the
+     * existing variable (instead of adding a `mode` pseudo) mints retail's
+     * `addu a1,v0,zero` copy in the jal delay slot for free -- the copy that four waves
+     * of fences and launders on a separate `mode` could not manufacture (w41 explicit
+     * copy-through-local 96 @199 . w50 fence on mode 49 @198 . w61 fence 39 @198 and
+     * identity launder 39 @198, all rejected on count).  12D's rule reads exactly:
+     * "do NOT add a variable -- find the EXISTING variable that owns that register". */
+    ab = Camera_GetMode(player);
+    if (ab != prevCameraMode[player]) {
       clean_up = 1;
     }
-    prevCameraMode[player] = mode;
+    prevCameraMode[player] = ab;
     if (clean_up != 0) {
       i = 0;
       if (0 < Weather_gSys.num[player]) {

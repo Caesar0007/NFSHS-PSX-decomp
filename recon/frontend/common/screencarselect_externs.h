@@ -50,6 +50,8 @@ static int  gCatmullRom[4][4] = {         /* STAT @0x80051f18 Catmull-Rom basis 
 static tCarStatType remap[5] = { (tCarStatType)0, (tCarStatType)2, (tCarStatType)1, (tCarStatType)3, (tCarStatType)4 };  /* STAT @0x80051f58 */
 static short textVals[5], text2PVals[5];  /* STAT @0x80051f6c/f78 */
 static short tvOrder[10], tvSplitOrder[5];/* STAT @0x80051f84/f98 */
+/* SYM-TYPE-OVERRIDE: gStateOverlays -- SYM reports CHAR, but retail uses signed
+   byte loads/tests and this build's plain char is unsigned. */
 static signed char gStateOverlays[8][4] = { /* STAT @0x80051fa4 (byte-exact) */
     {-1, 6, 0, -1},
     { 4, 6, 0, -1},
@@ -60,17 +62,17 @@ static signed char gStateOverlays[8][4] = { /* STAT @0x80051fa4 (byte-exact) */
     {-1,-1,-1, -1},
     {-1,-1,-1, -1}
 };
-static char gOverlayPositions[1][112] = { /* STAT @0x80051fc4 (byte-exact) */
-    {34, 1, 0, 1, -56, 0, 12, 0, 34, 1, -56, 0, -56, 0, 12, 0,
-     -43, 0, 0, 1, 32, 1, 41, 0, -43, 0, -71, 0, 32, 1, 41, 0,
-     -43, 0, 0, 1, 32, 1, 41, 0, -43, 0, -71, 0, 32, 1, 41, 0,
-     -43, 0, 0, 1, 32, 1, 41, 0, -43, 0, -71, 0, 32, 1, 41, 0,
-     69, 1, 5, 0, -94, 0, 24, 0, 69, 1, 29, 0, -94, 0, 24, 0,
-     -17, 1, 21, 0, 3, 0, 3, 0, -43, 0, 21, 0, 29, 1, 105, 0,
-     -120, -1, -120, 0, -126, 0, 77, 0, 0, 0, -120, 0, -126, 0, 77, 0}
+static RECT gOverlayPositions[7][2] = { /* STAT @0x80051fc4 */
+    {{ 290, 256, 200, 12}, {290, 200, 200, 12}},
+    {{ 213, 256, 288, 41}, {213, 185, 288, 41}},
+    {{ 213, 256, 288, 41}, {213, 185, 288, 41}},
+    {{ 213, 256, 288, 41}, {213, 185, 288, 41}},
+    {{ 325,   5, 162, 24}, {325,  29, 162, 24}},
+    {{ -17,  21,   3,  3}, {213,  21, 285,105}},
+    {{-120, 120, 130, 77}, {  0, 120, 130, 77}}
 };
 static int  gRotateOffset[4];             /* STAT @0x80052c18 */
-static char gSwapFileName[2][40];         /* STAT @0x80052c28 */
+static char gSwapFileName[2][20];         /* STAT @0x80052c28 */
 static char WaitingString[50];            /* STAT @0x80052c58 */
 /* vtable data refs (Ghidra _DAT_) + per-class vtables */
 extern __vtbl_ptr_type tScreenCarSelect_vtable[], tScreenCarSelectDuel_vtable[], tScreenCarSelectTwoPlayer_vtable[], tScreenPinkSlipsCarSelect_vtable[];

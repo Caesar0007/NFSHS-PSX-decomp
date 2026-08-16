@@ -95,16 +95,14 @@ extern "C" void DrawCar__FR8tCarInfossffcbUl7tPlayer(tCarInfo *carInfo,short x,s
    nfs4_types.h) -- deleted the manual tScreen_ctor(...) free-fn call (phantom-ctor pattern,
    catalog wave-3 row 1); g++ auto-emits `jal __7tScreen` at entry, matching oracle exactly.
    The fOverlays[i].location[0..1] init was Ghidra-decompiled as byte-packed bitfield-merge
-   arithmetic (gOverlayPositions mistyped char[1][112] in the header); the oracle disasm is
+   arithmetic; the oracle disasm is
    actually a plain UNALIGNED RECT[2] struct copy (lwl/lwr+swl/swr pairs, 2 words per RECT) --
    RECT's natural alignment is 2 (all-short members) so gcc emits the unaligned-word copy
-   idiom for the struct assignment (catalog §D "plain C struct assignment" row). Reinterpret
-   gOverlayPositions locally as RECT(*)[2] (16-byte stride = 2 RECTs) to reproduce it. */
+   idiom for the struct assignment (catalog §D "plain C struct assignment" row). */
 tScreenCarSelect::tScreenCarSelect()
 
 {
   short i;
-  RECT (*srcPos)[2];
   tOverlay *overlay;
 
   this->_vf = (__vtbl_ptr_type (*)[10])tScreenCarSelect_vtable;
@@ -112,11 +110,10 @@ tScreenCarSelect::tScreenCarSelect()
   this->fPreviousCarID = -1;
   this->fPreviousCountry = 0;
   i = 0;
-  srcPos = (RECT (*)[2])gOverlayPositions;
   for (; i < 7; i = i + 1) {
     overlay = this->fOverlays + i;
-    overlay->location[0] = srcPos[i][0];
-    overlay->location[1] = srcPos[i][1];
+    overlay->location[0] = gOverlayPositions[i][0];
+    overlay->location[1] = gOverlayPositions[i][1];
     overlay->ID = i;
     overlay->direction = 0;
     overlay->transition = 0;

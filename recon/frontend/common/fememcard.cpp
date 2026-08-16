@@ -96,7 +96,7 @@ extern int MEMCARDFRONTENDISINITTED_arr[] asm("MEMCARDFRONTENDISINITTED");
 
 /* ---- ChecksumData  [FEMEMCARD.CPP:63-70] ---- */
 
-void ChecksumData(tMemCardData *memCardData)
+static void ChecksumData(tMemCardData *memCardData)
 
 {
   u_long uVar1;
@@ -119,7 +119,7 @@ void ChecksumData(tMemCardData *memCardData)
 
 /* ---- VerifySuccessfulRead  [FEMEMCARD.CPP:75-86] ---- */
 
-bool VerifySuccessfulRead(tMemCardData *memCardData)
+static bool VerifySuccessfulRead(tMemCardData *memCardData)
 
 {
   bool result;
@@ -169,7 +169,7 @@ void BringThatBeatBack(void)
 
 /* ---- Confirm  [FEMEMCARD.CPP:124-168] ---- */
 
-int Confirm(int Text,int yesText)
+static int Confirm(int Text,int yesText)
 
 {
   bool putbackon;         /* SYM: REG BOOL $s3 */
@@ -268,7 +268,7 @@ int Confirm(int Text,int yesText)
 
 /* ---- OverwriteConfirm  [FEMEMCARD.CPP:171-180] ---- */
 
-int OverwriteConfirm(void)
+static int OverwriteConfirm(void)
 
 {
   int iVar1;
@@ -281,7 +281,7 @@ int OverwriteConfirm(void)
 
 /* ---- OverwriteAlwaysYes  [FEMEMCARD.CPP:184-185] ---- */
 
-int OverwriteAlwaysYes(void)
+static int OverwriteAlwaysYes(void)
 
 {
   return 1;
@@ -291,7 +291,7 @@ int OverwriteAlwaysYes(void)
 
 /* ---- FormatConfirm  [FEMEMCARD.CPP:191-204] ---- */
 
-int FormatConfirm(void)
+static int FormatConfirm(void)
 
 {
   int iVar1;
@@ -304,7 +304,7 @@ int FormatConfirm(void)
 
 /* ---- LoadingProc  [FEMEMCARD.CPP:209-213] ---- */
 
-void LoadingProc(void)
+static void LoadingProc(void)
 
 {
   return;
@@ -314,7 +314,7 @@ void LoadingProc(void)
 
 /* ---- LoadingRedrawProc  [FEMEMCARD.CPP:217-221] ---- */
 
-void LoadingRedrawProc(void)
+static void LoadingRedrawProc(void)
 
 {
   Redraw(FEApp[0]);
@@ -325,7 +325,7 @@ void LoadingRedrawProc(void)
 
 /* ---- SavingProc  [FEMEMCARD.CPP:226-230] ---- */
 
-void SavingProc(void)
+static void SavingProc(void)
 
 {
   Redraw(FEApp[0]);

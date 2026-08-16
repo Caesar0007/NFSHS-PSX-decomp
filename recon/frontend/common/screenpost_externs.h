@@ -99,7 +99,7 @@ void  SetValid(...); void Hide(void*); void Display(void*); void Redraw(void*);
 /* re-added (varargs; one per line to avoid shared-line breakage) */
 void  AudioMus_StopSong(int); void  CleanupSpinningCarsMenu(void); void  DeInit_Memcard(void);
 void  DrawShape_NFS4TransRectangle(...); void  FETextRender_MenuTextPositioned(...); void  Init_Memcard(bool, bool);
- void  SetLicensePlate(void); void  TransformVector(...); void  UploadSwapShapes(...);
+ void  SetLicensePlate(void); void  UploadSwapShapes(...);
 int CalcUsedPrice(...); long CheapestCarStockPrice(...); int GetNumOwnedCars(...); int GetNumTourneyCars(...);
 extern "C" CARDINFO_def *MCRD_getcard(int);
 void *Draw_GetDRAWENV(int, int); void *GetGarageCar(...); void *GetPinkSlipsCar(...); void *GetStockCar(...);

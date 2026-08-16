@@ -140,7 +140,7 @@ void  AudioMus_StopSong(int); void  CleanupSpinningCarsMenu(void); void  DeInit_
 /* W58-A1 (08A phantom fix): DrawShape_NFS4TransRectangle__FR4RECTs,
  * FETextRender_MenuTextPositioned__Fsss14tMenuTextState13tMenuTextType. */
 void  DrawShape_NFS4TransRectangle(RECT &, short); void  FETextRender_MenuTextPositioned(short, short, short, tMenuTextState, tMenuTextType); void  Init_Memcard(bool, bool);
- void  SetLicensePlate(void); void  TransformVector(...);
+ void  SetLicensePlate(void);
 int GetNumOwnedCars(...); int GetNumTourneyCars(...);
 extern "C" CARDINFO_def *MCRD_getcard(int);
 void *Draw_GetDRAWENV(int, int); void *GetGarageCar(...); void *GetPinkSlipsCar(...);

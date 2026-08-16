@@ -585,7 +585,7 @@ MX_GoToCar_oppFilterSetup:
    four independent setup operations are restored to retail order by the scoped build recipe.
    MATCH: 26/26. */
 
-extern "C" void MenuExtended_GoToDealer__FR12tMenuCommand(tMenuCommand *command)
+static void MenuExtended_GoToDealer(tMenuCommand &command)
 
 {
   int cmdType;
@@ -596,8 +596,8 @@ extern "C" void MenuExtended_GoToDealer__FR12tMenuCommand(tMenuCommand *command)
   __asm__("" : "+r" (cmdType));
   dlgThis = screenCarSelect[0];
   ptVar1 = menuDefs[0];
-  command->type = cmdType;
-  command->nextMenu = (tMenu *)&ptVar1->menuCarDealer;
+  command.type = cmdType;
+  command.nextMenu = (tMenu *)&ptVar1->menuCarDealer;
   dlgThis->SetState(2);
   menuDefs[0]->iteratorDealerCar.Decrement(kPlayerBoth);
   menuDefs[0]->iteratorDealerCar.Increment(kPlayerBoth);
@@ -625,7 +625,7 @@ extern "C" void MenuExtended_GoToDealer__FR12tMenuCommand(tMenuCommand *command)
    live-range lever and scoped retail-order recipe as the twin GoToDealer above.
    MATCH: 26/26. */
 
-extern "C" void MenuExtended_GoToSeller__FR12tMenuCommand(tMenuCommand *command)
+static void MenuExtended_GoToSeller(tMenuCommand &command)
 
 {
   int cmdType;
@@ -636,8 +636,8 @@ extern "C" void MenuExtended_GoToSeller__FR12tMenuCommand(tMenuCommand *command)
   __asm__("" : "+r" (cmdType));
   dlgThis = screenCarSelect[0];
   ptVar1 = menuDefs[0];
-  command->type = cmdType;
-  command->nextMenu = (tMenu *)&ptVar1->menuCarSeller;
+  command.type = cmdType;
+  command.nextMenu = (tMenu *)&ptVar1->menuCarSeller;
   dlgThis->SetState(3);
   menuDefs[0]->iteratorSellerCar.Decrement(kPlayerBoth);
   menuDefs[0]->iteratorSellerCar.Increment(kPlayerBoth);
@@ -654,14 +654,14 @@ extern "C" void MenuExtended_GoToSeller__FR12tMenuCommand(tMenuCommand *command)
    
    [ghidra-meta] section: front.text */
 
-extern "C" void MenuExtended_GoToUpgrades__FR12tMenuCommand(tMenuCommand *command)
+static void MenuExtended_GoToUpgrades(tMenuCommand &command)
 
 {
   tGlobalMenuDefs *ptVar1;
   
   ptVar1 = menuDefs[0];
-  command->type = kMenu_Command_GoToMenu;
-  command->nextMenu = (tMenu *)(tMenu*)&ptVar1->menuCarUpgrades;
+  command.type = kMenu_Command_GoToMenu;
+  command.nextMenu = (tMenu *)(tMenu*)&ptVar1->menuCarUpgrades;
   screenCarSelect[0]->SetState(4);
   return;
 }
@@ -1943,7 +1943,7 @@ extern "C" void MenuExtended_TierFinished__FR12tMenuCommand(tMenuCommand *comman
    written `finalPerpArrests > numPerps` so the 440 load is issued before the 428 one.
    Return type corrected void*->int (SYM BOOL; not declared in any header, single in-TU caller). */
 
-int MenuExtended_DidUserWinBeTheCop(void)
+static int MenuExtended_DidUserWinBeTheCop(void)
 
 {
   tCarInfo *activateCar;
@@ -2805,14 +2805,14 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , iteratorGarageCar(frontEnd.garageCar, &carManager)   /* +0x12CC tListIteratorCar */
  , itemGarageCar(0x92, (tListIterator *)&iteratorGarageCar, 0x1c, 10)   /* +0x12E8 tMenuItemNFS4LeftRightChoice */
  , itemCarDealer(0x74, (tMenu*)&menuGoToCarDealer, 0, 0x3a, 10)   /* +0x1310 tMenuItemGoToMenuNFS4Button */
- , itemUpgradeCar(0x91, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToUpgrades__FR12tMenuCommand, 0x44, 10)   /* +0x133C tMenuItemGoToMenuNFS4Button */
+ , itemUpgradeCar(0x91, (tMenu *)0x0, MenuExtended_GoToUpgrades, 0x44, 10)   /* +0x133C tMenuItemGoToMenuNFS4Button */
  , menuCarGarage(0x1a00, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace__FR12tMenuCommand, 0x8f, (tMenuItem *)&itemCarSelectRace, &itemGarageCar, &itemCarDealer, &itemUpgradeCar, 0)   /* +0x1368 tMenuNFS4 */
  , menuPostCarGarage(0x1a00, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace__FR12tMenuCommand, 0x8f, (tMenuItem *)&itemCarSelectRace, &itemUpgradeCar, 0)   /* +0x13E4 tMenuNFS4 */
  , iteratorOpponentCar(&frontEnd.oppCar, &carManager)   /* +0x1460 tListIteratorCar */
  , itemDuelRace(0xbd, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToRace__FR12tMenuCommand, 0x2a, 10)   /* +0x147C tMenuItemGoToMenuNFS4Button */
  , itemCar2(0x92, (tListIterator *)&iteratorCar1, 0xc, 10)   /* +0x14A8 tMenuItemNFS4LeftRightChoice */
  , itemColor2(0x120, (tListIterator *)&iteratorColor, 0x16, 10)   /* +0x14D0 tMenuItemNFS4LeftRightChoice */
- , itemGoToDuelBuyCar(0x78, (tMenu*)&menuCarDealer, (void (*)(tMenuCommand&))MenuExtended_GoToDealer__FR12tMenuCommand, -1, 10)   /* +0x14F8 tMenuItemGoToMenuNFS4Button */
+ , itemGoToDuelBuyCar(0x78, (tMenu*)&menuCarDealer, MenuExtended_GoToDealer, -1, 10)   /* +0x14F8 tMenuItemGoToMenuNFS4Button */
  , itemOpponentCar(0xbc, (tListIterator *)&iteratorOpponentCar, 0x20, 10)   /* +0x1524 tMenuItemNFS4LeftRightChoice */
  , menuDuelCarSelect(0x1800, (tScreen *)screenCarSelectDuel, (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace__FR12tMenuCommand, 0xba, (tMenuItem *)&itemDuelRace, &itemGarageCar, &itemGoToDuelBuyCar, &itemOpponentCar, 0)   /* +0x154C tMenuNFS4 */
  , menuHPDuelCarSelect(0x1800, (tScreen *)screenCarSelectDuel, (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace__FR12tMenuCommand, 0xba, (tMenuItem *)&itemDuelRace, &itemCar, &itemColor, &itemOpponentCar, 0)   /* +0x15C8 tMenuNFS4 */
@@ -2837,8 +2837,8 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemPlayerTwoPinkSlipRace(0xbd, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoTo2PlayerRace__FR12tMenuCommand, 0x2a, 10)   /* +0x1AC0 tMenuItemGoToMenuNFS4Button */
  , itemPinkSlipCarP2(0x92, (tListIterator *)&iteratorPinkSlipsCar, 0xc, 10)   /* +0x1AEC tMenuItemNFS4LeftRightChoice */
  , menuPlayerTwoPinkSlipCarSelect(0x1008, (tScreen *)screenPinkSlipsCarSelectPlayerTwo, (tMenu *)0x0, (tMenu *)&menuPinkSlipCarOptionsPlayerTwo, (void (*)(tMenuCommand&))MenuExtended_GoTo2PlayerRace__FR12tMenuCommand, 0xba, (tMenuItem *)&itemPlayerTwoPinkSlipRace, &itemPinkSlipCarP2, 0)   /* +0x1B14 tMenuNFS4TwoPlayer */
- , itemGoToBuyCar(0x78, (tMenu*)&menuCarDealer, (void (*)(tMenuCommand&))MenuExtended_GoToDealer__FR12tMenuCommand, 0x58, 10)   /* +0x1B90 tMenuItemGoToMenuNFS4Button */
- , itemGoToSellCar(0x79, (tMenu*)&menuCarSeller, (void (*)(tMenuCommand&))MenuExtended_GoToSeller__FR12tMenuCommand, 0x4e, 10)   /* +0x1BBC tMenuItemGoToMenuNFS4Button */
+ , itemGoToBuyCar(0x78, (tMenu*)&menuCarDealer, MenuExtended_GoToDealer, 0x58, 10)   /* +0x1B90 tMenuItemGoToMenuNFS4Button */
+ , itemGoToSellCar(0x79, (tMenu*)&menuCarSeller, MenuExtended_GoToSeller, 0x4e, 10)   /* +0x1BBC tMenuItemGoToMenuNFS4Button */
  , menuGoToCarDealer(0x1200, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)0x0, 0, 0x90, (tMenuItem *)&itemGoToBuyCar, &itemGoToSellCar, 0)   /* +0x1BE8 tMenuNFS4 */
  , iteratorDealerCar(&frontEnd.dealerCar, &carManager)   /* +0x1C64 tListIteratorCar */
  , iteratorDealerColor((char *)&iteratorDealerCar, &FEApp->fPlayer, &frontEnd.dealerCar, 0x30, &carManager)   /* +0x1C80 tListIteratorCarColor */

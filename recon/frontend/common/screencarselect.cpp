@@ -13,9 +13,11 @@ typedef struct tPsyQPrimTag {
 
 
 /* ---- (static)::TransformVector  [SCREENCARSELECT.CPP:51-59] ---- */
-/* File-static 4x4 fixed-point matrix * 4-vector (ScreenCarSelect.obj 1st fn @0x8003a8f0). Mangled R =
-   refs (= ptr at ABI; call sites pass &T/&gCatmullRom/&Result) -> ptr form. SYM REG I=$s3, J=$s0. */
-extern "C" void TransformVector(int (*vect)[4],int (*transform)[4][4],int (*result)[4])
+/* File-static 4x4 fixed-point matrix * 4-vector (ScreenCarSelect.obj 1st fn @0x8003a8f0).
+   GCC-v2 `FRA4_iRA4_A4_iT0` decodes to the retail array-reference signature below;
+   SYM REG I=$s3, J=$s0. */
+static void TransformVector(int (&vect)[4],int (&transform)[4][4],int (&result)[4]) asm("TransformVector");
+static void TransformVector(int (&vect)[4],int (&transform)[4][4],int (&result)[4])
 
 {
   int prod;
@@ -23,10 +25,10 @@ extern "C" void TransformVector(int (*vect)[4],int (*transform)[4][4],int (*resu
   short J;
 
   for (I = 0; I < 4; I = I + 1) {
-    (*result)[I] = 0;
+    result[I] = 0;
     for (J = 0; J < 4; J = J + 1) {
-      prod = fixedmult((*vect)[J],(*transform)[J][I]);
-      (*result)[I] = (*result)[I] + prod;
+      prod = fixedmult(vect[J],transform[J][I]);
+      result[I] = result[I] + prod;
     }
   }
   return;
@@ -508,8 +510,8 @@ void tScreenCarSelect::CalcSplinePosition(int knot1,int knot2,int knot3,int knot
     G[3][i] = gKnots[knot4][i];
     i = i + 1;
   } while (i < 4);
-  TransformVector(&T,&gCatmullRom,&Result1);
-  TransformVector(&Result1,(int (*) [4] [4])G,&Result2);
+  TransformVector(T,gCatmullRom,Result1);
+  TransformVector(Result1,G,Result2);
   camY = Result2[0] >> 1;
   camZ = Result2[1] >> 1;
   _i = Result2[2] >> 1;
@@ -526,8 +528,8 @@ void tScreenCarSelect::CalcSplinePosition(int knot1,int knot2,int knot3,int knot
   G[1][0] = gKnots[knot2][4] + gRotateOffset[1];
   G[2][0] = gKnots[knot3][4] + gRotateOffset[2];
   G[3][0] = gKnots[knot4][4] + gRotateOffset[3];
-  TransformVector(&T,&gCatmullRom,&Result1);
-  TransformVector(&Result1,(int (*) [4] [4])G,&Result2);
+  TransformVector(T,gCatmullRom,Result1);
+  TransformVector(Result1,G,Result2);
   _i = Result2[0] >> 1;
   if (_i < 0) {
     _i = _i + 0xffff;

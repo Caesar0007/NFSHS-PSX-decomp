@@ -438,7 +438,56 @@ void NFS3_CheckForFileOperations(void)
    * still does not CONFLICT with the load's pseudo, so both keep reg 4.
    * ROUTE: a source shape whose pre-loop test and loop test use SIMULTANEOUSLY-LIVE
    * pseudos (retail's `addu a1,a0,zero` is that overlap made visible), or the
-   * reload-side instrument.  The $4-clobber policy item stays refuted. */
+   * reload-side instrument.  The $4-clobber policy item stays refuted.
+   *
+   * W69 (2026-08-16) -- THE ROUTE ABOVE WAS WALKED WITH THE NEW W69 DEVICE (the
+   * NON-VOLATILE identity launder `asm("" : "=r"(x) : "0"(x) : "$N")`, which
+   * seals StatusReply in speech.cpp: an asm WITH an output is not volatile, so it
+   * is a zero-insn hard-register CONFLICT that is NOT a sched barrier).  Result:
+   * the residual is now a PROVEN MUTUAL EXCLUSION, and the best form is a TRAP,
+   * so the natural 8-diff body is deliberately KEPT.  Everything measured:
+   *   -- $4-denying devices (any placement) ....................... 2 diffs 21/21
+   *      `asm("" : : : "$4")` at the top of the loop body ......... 2
+   *      launder on the walker `piVar1` + "$4", top of body ....... 2
+   *      the same two INSIDE the `if` ............................. 3 @22
+   *      (and, from W61, the "$4" clobber on the trap asm itself ... 2)
+   *      ALL of them fix the WHOLE loop -- the bound moves off $a0 to $a1, the
+   *      copy `addu a1,a0,zero` mints in the beqz slot, the loop tests `a1` --
+   *      and ALL of them leave exactly `-addu a3,a2,zero / +addu a0,a2,zero`.
+   *   !!! WHY THAT IS A CAP, NOT A NEAR-MISS (the new certificate): the trap asm's
+   *      two `"r"(0)` operands are satisfied by RELOAD SPILL REGISTERS (W62-A12's
+   *      -dl/-dg reading, unchanged), and reload puts every EXPLICITLY-USED hard
+   *      register into bad_spill_regs (reload1.c:3894, the 13E law).  A clobber
+   *      of "$4" ANYWHERE IN THE FUNCTION therefore removes $a0 from the spill
+   *      pool for the WHOLE function.  So the one dial that moves the bound off
+   *      $a0 is the same dial that forbids retail's `addu a0,a2,zero`: the two
+   *      halves of this residual cannot both be bought with a hard-reg clobber.
+   *      => landing the 2-diff form would BAKE IN THE BLOCKER (the W64 "an
+   *      INHERITED fence can BE the blocker" hazard).  Natural body retained.
+   *   -- overlap shapes (split `e` for the pre-test / laundered `lim` for the
+   *      loop, so the two bound pseudos are simultaneously live -- exactly the
+   *      route W62-A12 asked for).  They DO mint a real copy, but gcc then self-
+   *      temps the load (`lw v0,28(v0)`) instead of retail's `lw a0,28(v0)` and
+   *      spends the copy on the load-delay slot instead of the beqz slot:
+   *        launder, no clobber .................. 13 @22
+   *        launder + "$4" ........................ 9 @22
+   *        launder + "$5" ....................... 11 @22   + "$6" ... 13 @22
+   *      Denying $v0 to force the load up one register wrecks the walker/base
+   *      pair instead (clobber "$2" 18, "$2","$5" 20, "$2","$3" 18, "$2","$6" 20,
+   *      "$2","$7" 18 -- all 21/21).
+   *   -- >>> BEST FENCE-COMPATIBLE, NON-$4 form: rotate the loop by hand
+   *      (`e = handlearray; p = oparray; if (p < e) { do {...; p++;} while
+   *      (p < lim); }`) with `lim` laundered from `e` INSIDE the guard and the
+   *      launder clobbering "$5" ................................. 6 diffs 21/21
+   *      (the same shape with "$4" 8, no clobber 8; the pre-guard placements 8/8/6).
+   *      Not landed either: it is 2 worse than the $4 forms, needs a loop
+   *      restructure, and still carries a fence into a non-sealed basin.
+   *   -- named `end` + launder in the loop BODY: "$4" 8, "$5" 8, none 10, "$6" 10.
+   *   -- named `end` + launder before the loop: "$4" 8, none 10, volatile "$4" 8.
+   *   ROUTE UNCHANGED AND NOW SHARPER: the only remaining instrument is one that
+   *   moves the loop-carried bound off $a0 WITHOUT naming a hard register --
+   *   i.e. a third simultaneously-live value in the loop that legitimately takes
+   *   $a0 (retail's own reason), or a reload-side spill-order dial. */
   FileMgr *mgr = &gFileMgr;
   int *piVar1;
 

@@ -249,13 +249,20 @@ DrawBg_noSlider:
                                (short)TextSys_WordY(0x1dc),ColText,'\0',1);
     }
   }
-  percent = 0;
-  do {
-    DrawShapeExtended
-              (percent + 6,1,0,0,(int)fade,0,
-               (tDrawShapeExtended *)0x0);
-    percent = percent + 1;
-  } while (percent < 0x20);
+  {
+    int i;
+
+    /* SYM has a distinct block-local `i` in $s0.  Keeping the dead outer
+       assignment in the same expression preserves retail's coalescing: both
+       the instruction stream and the -g SLD twin are exact. */
+    i = percent = 0;
+    do {
+      DrawShapeExtended
+                (i + 6,1,0,0,(int)fade,0,
+                 (tDrawShapeExtended *)0x0);
+      i = i + 1;
+    } while (i < 0x20);
+  }
   return;
 }
 

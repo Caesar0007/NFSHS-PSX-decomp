@@ -33,8 +33,13 @@ extern int           CD_debug;    /* @0x8013BF50 */
 extern int           CD_cbsync;   /* @0x8013BF48 */
 extern int           CD_cbready;  /* @0x8013BF4C */
 
-/* per-command parameter-count table (data-mat: bytes live in the EXE @0x80136A18) */
-extern const int _cd_param_count[];   /* @0x80136A18 */
+/* SYS.OBJ local `setloc` @0x80136A18.  The archived PsyQ 4.3 object and
+ * retail image carry the same writable 32-word table; it tells CdControl*
+ * which commands need a preliminary CdlSetloc command. */
+static int setloc[32] = {
+    0,0,0,1,0,0,1,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,1,1,0, 0,0,0,1,0,0,0,0
+};
 
 /* @0x800F7780 : CdStatus */
 extern int CdStatus(void) { return (unsigned)CD_status; }
@@ -208,7 +213,7 @@ extern int CdControl(int com, unsigned char *param, unsigned char *result)
     cmd = com;
     retries = 3;
     command = (unsigned char)cmd;
-    base = _cd_param_count;
+    base = setloc;
     savedMode = CD_cbsync;
     offset = command * 4;
     commandState = (const int *)(offset + (int)base);
@@ -272,7 +277,7 @@ extern int CdControlF(int com, unsigned char *param)
     one = 1;
     command = (unsigned char)cmd;
     __asm__("" : "=r"(command) : "0"(command));
-    base = _cd_param_count;
+    base = setloc;
     savedMode = CD_cbsync;
     offset = command * 4;
     commandState = (const int *)(offset + (int)base);
@@ -331,7 +336,7 @@ extern int CdControlB(int com, unsigned char *param, unsigned char *result)
      * CdControl keeps the literal.  272-lane: F 15->4, B 15->4, both COUNT-EXACT. */
     one = 1;
     command = (unsigned char)cmd;
-    base = _cd_param_count;
+    base = setloc;
     savedMode = CD_cbsync;
     offset = command * 4;
     commandState = (const int *)(offset + (int)base);

@@ -11,8 +11,7 @@ extern Car_tObj *Cars_gList[];   /* real def: cars.cpp Car_tObj *Cars_gList[9] (
 extern GameSetup_tData   GameSetup_gData;
 extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */
 extern camera_info       Camera_gInfo[2];            /* camera.obj */
-extern char *Audio_gLangAssignmentTable[];
-extern char *gAudioBasePath[];
+extern char             *Paths_Paths[50];            /* paths.obj; [0x1c] = audio base */
 extern char GameSetup_gCarNames[51][5];
 extern int            gNumSlices;
 extern int       Cars_gNumHumanRaceCars;
@@ -32,7 +31,6 @@ extern void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int 
 extern void AudioEng_StartServer(void);
 extern void AudioTrk_StartUp(void);
 extern void CopSpeak_InitRequest(CopSpeak_tRequest *r);
-struct Audio_tFESFXTable { int languages; unsigned char audioCounter; }; extern struct Audio_tFESFXTable Audio_gFESFXTable;
 void  trap(int code);
 void AudioMus_Volume(int);
 

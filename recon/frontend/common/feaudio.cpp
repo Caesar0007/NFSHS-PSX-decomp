@@ -3,23 +3,6 @@
  */
 #include "feaudio.h"
 
-/* ---- Feaudio.obj-OWNED globals -- DEFINED here (self-contained; real NFS4.EXE bytes / .bss zero) ---- */
-/* gStopCommentaryNow leads the run at 0x800514c8, BEFORE the two initialised
-   objects -- a tentative definition can never do that (16E), so retail's source
-   initialised it explicitly.  gcc-2.8 has no zero-initialized-in-bss pass, so
-   `= 0` keeps it in .data at the head of the definition order. */
-int          gStopCommentaryNow = 0;   /* @0x800514c8 */
-signed char  gCurrentVIV = -1;   /* @0x800514cc; SYM-TYPE-OVERRIDE: gCurrentVIV -- CHAR requires signed spelling under unsigned-char mode */
-char *allLanguages[6] = {"zEngl","zGerm","zFren","zSpan","zItal","zSwed"};   /* @0x800514d0 .rodata prefixes */
-SPEECHINFO   ginfo;   /* @0x800514e8  (bss(zero)) */
-/* speechfileHeader declared (unsized-array form) in feaudio_externs.h; accessed [0] so the value-load
-   into an arg reg is non-gp + separate v0 scratch (matches oracle lui v0; lw a0,(v0)); §3.15-CORRECTION.
-   MIGRATED here W66-A5 (SYM Feaudio.obj block owns 0x8005150c). */
-LUMPYHEAD   *speechfileHeader[1];   /* @0x8005150c; SYM-CARRIER: speechfileHeader */
-char         currentSpeechViv[40];   /* @0x80051510  (bss(zero)) */
-int          commentaryActualLevel;   /* @0x80051538  (bss(zero)) */
-
-
 /* ---- FEAudio_StartLoadPatch  [FEAUDIO.CPP:43-64] SLD-VERIFIED ---- */
 
 int FEAudio_StartLoadPatch(SPEECHINFO *info)
@@ -566,19 +549,27 @@ LUMPYHEAD * FeAudio_InitViv(char *fname)
 }
 
 
+/* ---- Feaudio.obj-owned globals [FEAUDIO.CPP:349-357] SYM/SLD-VERIFIED ----
+ * Their original source position is between FeAudio_InitViv (ends line 347)
+ * and FeAudio_InitCommentary (starts line 360). This source order emits the
+ * retail .rodata sequence: "lumpyhead", the six language prefixes, "000",
+ * then "%s%s.viv". */
+SPEECHINFO   ginfo;                     /* @0x800514e8 */
+LUMPYHEAD   *speechfileHeader[1];       /* @0x8005150c; SYM-CARRIER: speechfileHeader */
+char         currentSpeechViv[40];      /* @0x80051510 */
+int          commentaryActualLevel;     /* @0x80051538 */
+int          gStopCommentaryNow = 0;    /* @0x800514c8 */
+signed char  gCurrentVIV = -1;          /* @0x800514cc; SYM CHAR; SYM-TYPE-OVERRIDE: gCurrentVIV */
+char *allLanguages[6] = {"zEngl","zGerm","zFren","zSpan","zItal","zSwed"}; /* @0x800514d0 */
+
+
 
 /* ---- FeAudio_InitCommentary  [FEAUDIO.CPP:360-377] SLD-VERIFIED ---- */
 
 void FeAudio_InitCommentary(int language,int arg1)
 
 {
-  u_int speechName;
-  /* These are distinct existing rodata symbols in the retail link, not two
-     fields of bigBuf. Keeping their identities prevents a false shared %hi. */
-  extern u_int D_8001016C[];
-  extern char D_80010170[];
-
-  speechName = D_8001016C[0];
+  strcpy(ginfo.name,"000");
   ginfo.nHandle = 0;
   ginfo.multiplay = 1;
   ginfo.nSoundHandle = 0;
@@ -589,10 +580,9 @@ void FeAudio_InitCommentary(int language,int arg1)
   ginfo.sSpeechData = (char *)0x0;
   ginfo.lastSpeechData = (char *)0x0;
   ginfo.vivHandle = 0;
-  *(u_int *)ginfo.name = speechName;
   /* The volatile value read keeps the language pointer load at the call site,
      matching retail while leaving the Paths_Paths %hi free to schedule early. */
-  sprintf(currentSpeechViv,D_80010170,Paths_Paths[0x26],
+  sprintf(currentSpeechViv,"%s%s.viv",Paths_Paths[0x26],
           *(char * volatile *)&allLanguages[language]);  /* H11: dest was "" (oracle 0x800160EC $a0=$s0=&currentSpeechViv @0x80051510) */
   speechfileHeader[0] = FeAudio_InitViv(currentSpeechViv);  /* H11: arg was "" (oracle 0x8001615C $a0=$s0) */
   return;

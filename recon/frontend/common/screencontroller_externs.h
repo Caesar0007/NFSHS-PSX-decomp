@@ -7,6 +7,7 @@
 extern tfrontEnd   frontEnd;
 extern int  ticks;
 extern u_char Force_rand_256[256];   /* @0x8011fc60 rumble noise LUT (owned by game/psx/force.cpp) */
+extern u_char Force_gActAlign[6];    /* @0x8013d840 actuator alignment table (owned by game/psx/force.cpp) */
 extern tGlobalMenuDefs *menuDefs[];
 extern int  kRGBVals[28];
 extern char textDefinitions[14][6];

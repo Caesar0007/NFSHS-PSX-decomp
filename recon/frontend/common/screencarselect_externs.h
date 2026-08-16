@@ -48,8 +48,18 @@ static int  gCatmullRom[4][4] = {         /* STAT @0x80051f18 Catmull-Rom basis 
     {0, 131072, 0, 0}
 };
 static tCarStatType remap[5] = { (tCarStatType)0, (tCarStatType)2, (tCarStatType)1, (tCarStatType)3, (tCarStatType)4 };  /* STAT @0x80051f58 */
-static short textVals[5], text2PVals[5];  /* STAT @0x80051f6c/f78 */
-static short tvOrder[10], tvSplitOrder[5];/* STAT @0x80051f84/f98 */
+static short textVals[5] = {              /* STAT @0x80051f6c */
+    278, 279, 280, 281, 282
+};
+static short text2PVals[5] = {            /* STAT @0x80051f78 */
+    283, 284, 285, 286, 287
+};
+static short tvOrder[10] = {              /* STAT @0x80051f84 */
+    2, 7, 4, 8, 1, 6, 0, 9, 3, 5
+};
+static short tvSplitOrder[5] = {          /* STAT @0x80051f98 */
+    2, 1, 3, 0, 4
+};
 /* SYM-TYPE-OVERRIDE: gStateOverlays -- SYM reports CHAR, but retail uses signed
    byte loads/tests and this build's plain char is unsigned. */
 static signed char gStateOverlays[8][4] = { /* STAT @0x80051fa4 (byte-exact) */
@@ -68,8 +78,8 @@ static RECT gOverlayPositions[7][2] = { /* STAT @0x80051fc4 */
     {{ 213, 256, 288, 41}, {213, 185, 288, 41}},
     {{ 213, 256, 288, 41}, {213, 185, 288, 41}},
     {{ 325,   5, 162, 24}, {325,  29, 162, 24}},
-    {{ -17,  21,   3,  3}, {213,  21, 285,105}},
-    {{-120, 120, 130, 77}, {  0, 120, 130, 77}}
+    {{ 495,  21,   3,  3}, {213,  21, 285,105}},
+    {{-120, 136, 130, 77}, {  0, 136, 130, 77}}
 };
 static int  gRotateOffset[4];             /* STAT @0x80052c18 */
 static char gSwapFileName[2][20];         /* STAT @0x80052c28 */

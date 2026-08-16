@@ -12,25 +12,13 @@
  * defined in this same object.  Prototype hoisted, signature unchanged. */
 void AudioCmn_ReverbOff(void);
 
-/* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
-char *gAudioBasePath[1] __attribute__((section(".bss")));   /* .bss=absolute; oracle never %gp_rel's this symbol */
-
-/* ---- AudioCmn.obj-OWNED data globals -- extern-declared in audiocmn_externs.h but never
-   defined (surfaced by the link harness). Defined here in the owning TU; BSS zero. */
-Audio_tFESFXTable Audio_gFESFXTable;             /* single FE-SFX descriptor */
-char *Audio_gLangAssignmentTable[9];             /* per-language sample-name table (iterated +0..+9) */
-
-/* ---- audiocmn.obj anon writable global (no SYM name; Ghidra inlined as string literal) ---- */
-static char gAudioCmnLastFreq[34] = "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@";   /* @0x8010E710 */
-
-
 /* ---- audiocmn.obj-owned globals (SYM-typed; .data=real EXE bytes, .bss=zero) ---- */
 /* forward decls of the W67-A4 .sdata literal-pool arrays (defined after the
    =0 batch below so they EMIT at their retail positions 0x8013c67c..0x8013c6a8;
    the tables here only reference them). */
 extern char D_8013C67C[], D_8013C684[], D_8013C68C[], D_8013C690[], D_8013C694[],
             D_8013C698[], D_8013C69C[], D_8013C6A0[], D_8013C6A4[], D_8013C6A8[];
-char         *AudioCmn_FESFX_loadLangMap[12] = {   /* @0x8005570c : image ptrs into the pooled lang-code literals @0x8013c68c+ (gcc string pooling reproduces the sharing) */
+char         *const AudioCmn_FESFX_loadLangMap[12] = {   /* @0x8005570c: readonly image pointers */
     D_8013C68C, D_8013C6A4, D_8013C68C, D_8013C6A8, D_8013C68C, D_8013C6A4,
     D_8013C690, D_8013C6A4, D_8013C68C, D_8013C68C, D_8013C68C, 0
 };
@@ -39,23 +27,28 @@ int          falseLapTrigNumsForward[10][2] = { 4, 7, 4, 7, 4, 7, -1, -1, 4, 7, 
 int          falseLapTrigNumsBackward[10][2] = { 4, 5, 4, 5, -1, -1, -1, -1, 4, 5, 4, 5, 4, 5, -1, -1, -1, -1, 4, 5 };   /* @0x8010e63c */
 char         Xfade[129] = { 0, 3, 7, 10, 13, 16, 19, 22, 24, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 46, 48, 50, 51, 53, 54, 55, 57, 58, 60, 61, 62, 63, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 84, 85, 86, 87, 88, 88, 89, 90, 91, 91, 92, 93, 94, 94, 95, 96, 96, 97, 98, 98, 99, 100, 100, 101, 101, 102, 103, 103, 104, 104, 105, 106, 106, 107, 107, 108, 108, 109, 109, 110, 110, 111, 111, 112, 112, 113, 113, 114, 114, 115, 115, 116, 116, 117, 117, 118, 118, 119, 119, 119, 120, 120, 121, 121, 122, 122, 122, 123, 123, 124, 124, 125, 125, 125, 126, 127, 127 };   /* @0x8010e68c */
 char         SkidInitMaxFreq[71] = { 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };   /* @0x8010e710 */
+/* SYM STAT, file scope: immediately follows SkidInitMaxFreq at 0x8010e758. */
+static char compareTimes[25] = {
+  30, 12, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5, -6, -7, -8, -9,
+  -10, -11, -12, -15, -20, -25, -30
+};
 char         *AudioCmn_LanguageName[7] = {   /* @0x8010e774 : image ptrs 0x8013c68c/90/94/98/9c + "eng" x2 (pooled) */
     D_8013C68C, D_8013C690, D_8013C694, D_8013C698, D_8013C69C, D_8013C68C, D_8013C68C
 };
-int          bSirenOn[6];   /* @0x8010e790  (bss(zero)) */
+int          bSirenOn[6] = {0};   /* @0x8010e790: explicit zero preserves .data order */
 int          bSirenPitchingUp[6] = { 1, 1, 1, 1, 1, 1 };   /* @0x8010e7a8 */
-int          quickSirenActive[6];   /* @0x8010e7c0  (bss(zero)) */
+int          quickSirenActive[6] = {0};   /* @0x8010e7c0 */
 int          sirenPitchWidth[6] = { 32, 40, 28, 42, 28, 42 };   /* @0x8010e7d8 */
 int          sirenCurrentPitch[6] = { 32, 32, 32, 32, 32, 32 };   /* @0x8010e7f0 */
 int          slowSirenReps[6] = { 3, 3, 3, 3, 3, 3 };   /* @0x8010e808 */
-int          sirenCount[6];   /* @0x8010e820  (bss(zero)) */
-int          reachedSirenMin[6];   /* @0x8010e838  (bss(zero)) */
-int          quickSirenTimeCount[6];   /* @0x8010e850  (bss(zero)) */
-AudioCmn_tReTrig AudioCmn_gReTrig[2];   /* @0x8010e868  (bss(zero)) */
-SndBnk_t     gSndBnk[7];   /* @0x8010e8a8  (bss(zero)) */
-Channels_t   gaChannel[71];   /* @0x8010e8fc  (bss(zero)) */
-AudioCmn_tAsyncSfxSlot AudioCmn_gSfxSlot[32];   /* @0x8010eb34  (bss(zero)) */
-char         carbankname[12];   /* @0x8010ee34  (bss(zero)) */
+int          sirenCount[6] = {0};   /* @0x8010e820 */
+int          reachedSirenMin[6] = {0};   /* @0x8010e838 */
+int          quickSirenTimeCount[6] = {0};   /* @0x8010e850 */
+AudioCmn_tReTrig AudioCmn_gReTrig[2] = {0};   /* @0x8010e868 */
+SndBnk_t     gSndBnk[7] = {0};   /* @0x8010e8a8 */
+Channels_t   gaChannel[71] = {0};   /* @0x8010e8fc */
+AudioCmn_tAsyncSfxSlot AudioCmn_gSfxSlot[32] = {0};   /* @0x8010eb34 */
+char         carbankname[12] = {0};   /* @0x8010ee34 */
 char         trackMusicState = 4;   /* @0x8013c628 */
 int          audioBackwardsDirection = 0;   /* @0x8013c62c  (bss(zero)) */
 int          intensityFalseLapCounter = 0;   /* @0x8013c630  (bss(zero)) */
@@ -138,7 +131,7 @@ int          gQuickSirenCount = 0;   /* @0x8013c710  (bss(zero)) */
 int          AudioCmn_ThunderAmp = 0;   /* @0x8013c714  (bss(zero)) */
 int          AudioCmn_ThunderAzi = 0;   /* @0x8013c718  (bss(zero)) */
 int          AudioCmn_ThunderDel = 0;   /* @0x8013c71c  (bss(zero)) */
-int          PlayersRampedGasLevel[2];   /* @0x8013dd80  (bss(zero)) */
+static int   PlayersRampedGasLevel[2] __attribute__((section(".bss")));   /* SYM STAT @0x8013dd80 */
 
 
 /* ---- intra-TU forward declarations ---- */
@@ -785,14 +778,6 @@ void AudioCmn_SetLevels(void)
   return;
 }
 
-/* file-scope (NOT function-local) -- oracle places this array immediately after
-   SkidInitMaxFreq[71]@0x8010e710 at VA 0x8010E758 (0x8010e710+0x47), i.e. it's a
-   TU-static global data table, not a function-local static. */
-static char compareTimes[25] = {
-  30, 12, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5, -6, -7, -8, -9,
-  -10, -11, -12, -15, -20, -25, -30
-};
-
 /* ---- AudioCmn_GetTimePhrase__Fi  [@0x8007706c] ---- */
 int AudioCmn_GetTimePhrase(int time)
 {
@@ -1108,7 +1093,7 @@ void AudioCmn_LoadFESamples(void)
 {
   char acStack_70 [104];
 
-  strcpy(acStack_70, gAudioBasePath[0]);
+  strcpy(acStack_70, Paths_Paths[0x1c]);
   strcat(acStack_70, D_8013C684);   /* "fesfx" */
   AudioCmn_LoadBank(acStack_70,0);
   return;
@@ -1125,10 +1110,10 @@ void AudioCmn_LoadGameSamples(void)
     AudioEng_StartUp(1,GameSetup_gCarNames[0] + GameSetup_gData.carInfo[1].carType * 5);
   }
   AudioEng_StartServer();
-  strcpy(filename, gAudioBasePath[0]);
+  strcpy(filename, Paths_Paths[0x1c]);
   strcat(filename, D_8013C6A0);   /* "Gen" */
   memcpy(TrackGenBank, (char **)AudioCmn_FESFX_loadLangMap, sizeof(TrackGenBank));
-  strcat(filename, TrackGenBank[(int)Audio_gFESFXTable.languages]);
+  strcat(filename, TrackGenBank[GameSetup_gData.track]);
   AudioCmn_LoadBank(filename,3);
   gSndBnk[5].bnkID = -2;
   gSndBnk[2].bnkID = -3;
@@ -1182,10 +1167,10 @@ int scaleFrequency(int sndPlayer,int iSFXnum,int tweakedForce)
     if ((int)uVar1 < 0x80) {
       uVar2 = uVar1;
     }
-    gAudioCmnLastFreq[sndPlayer] = (char)uVar2;
+    SkidInitMaxFreq[sndPlayer] = (char)uVar2;
   }
   else {
-    uVar2 = (u_int)(u_char)gAudioCmnLastFreq[sndPlayer];
+    uVar2 = (u_int)(u_char)SkidInitMaxFreq[sndPlayer];
   }
   return uVar2;
 }

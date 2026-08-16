@@ -17,13 +17,13 @@ BO_tNewtonObj *obj0;   /* @0x8013c83c  (bss(zero)) */
 BO_tNewtonObj *obj1;   /* @0x8013c840  (bss(zero)) */
 coorddef     *pNormal;   /* @0x8013c844  (bss(zero)) */
 coorddef     *pP;   /* @0x8013c848  (bss(zero)) */
-int          xRange;   /* @0x8013dd98  (bss(zero)) */
-int          yRange;   /* @0x8013dd9c  (bss(zero)) */
-int          zRange;   /* @0x8013dda0  (bss(zero)) */
-int          basisDots[9];   /* @0x8013e008  (bss?) */
-int          scaledBasisDots[9];   /* @0x8013e038  (bss?) */
-int          scaledBasisDotsOther[9];   /* @0x8013e068  (bss?) */
-int          basisDotRelative[6];   /* @0x8013e098  (bss?) */
+static int   xRange;   /* SYM STAT @0x8013dd98 */
+static int   yRange;   /* SYM STAT @0x8013dd9c */
+static int   zRange;   /* SYM STAT @0x8013dda0 */
+static int   basisDots[9];   /* SYM STAT @0x8013e008 */
+static int   scaledBasisDots[9];   /* SYM STAT @0x8013e038 */
+static int   scaledBasisDotsOther[9];   /* SYM STAT @0x8013e068 */
+static int   basisDotRelative[6];   /* SYM STAT @0x8013e098 */
 
 
 /* ---- intra-TU forward declarations ---- */

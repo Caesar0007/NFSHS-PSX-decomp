@@ -83,7 +83,7 @@ void tScreenControllerConfig::ShakeIt()
   else if ((this->fShaker).active == '\0') {
     (this->fShaker).active = '\x01';
     PadSetAct(padnum,(this->fShaker).actuator,2);
-    PadSetActAlign(padnum,"");
+    PadSetActAlign(padnum,Force_gActAlign);
   }
   return;
 }
@@ -874,14 +874,18 @@ DrawCtrl_ticksUpdate:
     }
   }
   int frame = (uint)(byte)this->fCurrentController;
-  int axisB;
+  /* SYM-TYPE-OVERRIDE: range -- SYM's inlined block records SHORT.  Keeping
+     the promoted arithmetic carrier as int is required for retail codegen;
+     spelling the carrier itself short adds a truncation/sign-extension chain
+     (55 diffs, 837/836) and was reverted. */
+  int range;
   int modeBase;
   byte controller;
   if (((u_int)(frame - 1) < 2) &&
       (((menuDefs[0]->itemControllerJoyRange).fActive != 0 ||
        ((menuDefs[0]->itemControllerCenterPoint).fActive != 0)))) {
-    axisB = gPadinfo.buf[this->player * 4].data.negcon.twist - 0x80;
-    if (axisB < 0xb) goto DrawCtrl_smallAxis;
+    range = gPadinfo.buf[this->player * 4].data.negcon.twist - 0x80;
+    if (range < 0xb) goto DrawCtrl_smallAxis;
     modeBase = 0x1a;
     controller = (byte)frame;
     if ((byte)this->fCurrentController == 2) {
@@ -889,24 +893,24 @@ DrawCtrl_ticksUpdate:
     }
     if (controller == 2) {
 DrawCtrl_calcModeTwo:
-      frame = modeBase + (axisB * 0xd) / 0x81;
+      frame = modeBase + (range * 0xd) / 0x81;
       goto DrawCtrl_axisDone;
     }
     /* The retail CFG tests the fresh field read and captured frame separately. */
     goto DrawCtrl_calcModeOther;
 DrawCtrl_smallAxis:
     modeBase = 0x23;
-    if (axisB >= -10) {
+    if (range >= -10) {
       goto DrawCtrl_zeroAxis;
     }
-    axisB = -axisB;
+    range = -range;
     controller = (byte)frame;
     if ((byte)this->fCurrentController == 2) {
       modeBase = 0x10;
     }
     if (controller == 2) goto DrawCtrl_calcModeTwo;
 DrawCtrl_calcModeOther:
-    frame = modeBase + (axisB << 3) / 0x81;
+    frame = modeBase + (range << 3) / 0x81;
     goto DrawCtrl_axisDone;
 DrawCtrl_zeroAxis:
     frame = (uint)(frame == 2);

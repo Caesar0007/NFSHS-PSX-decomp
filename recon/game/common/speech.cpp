@@ -1519,15 +1519,11 @@ void Roger__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
 }
 
 /* ---- StatusReply__Q26Speech15DispatchSpeaker  [SPEECH.CPP:1636-1713] SLD-VERIFIED ----
- * NEAR-MISS 5, ours 268 / oracle 269 -- ours is ONE SHORT (W60-A9).  Retail loads
- * the value into $v1 (`lw v1,8(s0)`), stores it (`sw v1,64(s1)`) and keeps a
- * SURVIVING copy `addu a3,v1,zero`; ours loads straight into $a3 and needs no copy.
- * That is the w47 delete_noop_moves class.  >>> The FULL receipt for this residual
- * (with the W55-A16 re-read measurement and the W59-A4 identity-fence placements,
- * 15 and 9, both worse) lives at the SPCHNFS_D_C_SPBLT_CONFIRMED call site below --
- * read it before touching this fn.  W60-A9 ADDED and FALSIFIED: the w43 trichotomy
- * case-2 store-then-read-back (`fTo = expr;` then `context = fTo;`) applied to the
- * OTHER (else-branch) INTRO_CALL site: 15@268 in both statement orders. */
+ * MATCH 269/269 (W69).  SYM: 40-byte frame, `this` in $s1, `Blocker` in $s2,
+ * saved mask $80070000 ($s0-$s2).  The former 5-diff/268-insn residual was the
+ * delete_noop_moves copy-preference case documented at the
+ * SPCHNFS_D_C_SPBLT_CONFIRMED call below; its non-volatile zero-insn preference
+ * killer restores retail's surviving `addu a3,v1,zero`. */
 void StatusReply__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
 
 {

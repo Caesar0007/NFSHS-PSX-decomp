@@ -6,9 +6,13 @@
 #include "hudpmx_externs.h"
 
 /* ---- HudPmx.obj OWNED globals ($gp state) ---- */
-char  *gHudFont;        /* 0x8013dda4 */
-char  *gShpfile;        /* 0x8013dda8 */
-char   loadShapeXOff;   /* 0x8013ddac */
+static char *gHudFont;        /* SYM STAT @0x8013dda4 */
+static char *gShpfile;        /* SYM STAT @0x8013dda8 */
+static char  loadShapeXOff;   /* SYM STAT @0x8013ddac */
+/* Their SYM-required internal linkage also keeps them out of the initialized
+ * string pool.  That pool is byte-exact (1333/1333) at its retail base
+ * 0x8013c84c; resolving the rodata pointer initializer against that base also
+ * makes HudPmx.obj .rodata byte-exact (254/254). */
 /* Note: the two patchable HUD shape-name buffers @0x8013cd34/0x8013cd3c are the SYM STAT locals
    `alph` (char[5]="alpX"), materialized as scoped statics inside InitTextures; the other 8 names
    (alTR/alCI/.. @0x8013cd44+) are anonymous .rodata strings -> emitted as string literals. */
@@ -17,7 +21,7 @@ HudPmx_tUV     HudPmx_gHudNumberUV[10];   /* 0x80110c70 */
 HudPmx_tShape  HudPmx_gShapes[175];        /* 0x80110c98 */
 
 /* ---- intra-TU forward declarations ---- */
-void HudPmx_LoadShape(char *n,HudPmx_tShape *s);
+static void HudPmx_LoadShape(char *n,HudPmx_tShape *s);
 void HudPmx_InitTextures(void);
 void HudPmx_Kill(void);
 
@@ -30,7 +34,7 @@ void HudPmx_Kill(void);
  * HudPmx_tShape, matching `*((short*)(16+$s0))`/`*((short*)(18+$s0))`) and fabricated a `clut`
  * store the oracle never makes. Texture_LoadPmx's last arg is literally $s0 (s itself, cast --
  * HudPmx_tShape::pixmap is the struct's first member so the address is identical). */
-void HudPmx_LoadShape(char *n,HudPmx_tShape *s)
+static void HudPmx_LoadShape(char *n,HudPmx_tShape *s)
 
 {
   shapetbl *shp;

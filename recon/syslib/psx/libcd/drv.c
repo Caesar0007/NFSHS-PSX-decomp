@@ -92,22 +92,36 @@ typedef int (*CdlCB)(int intr, unsigned char *result);
  *   The driver caches each CD/SPU/DMA register address in a word at init; every access dereferences
  *   the cached pointer (matches the oracle's `lui %hi(D_8013Cxx); lw; sb/lbu`). */
 
-extern volatile unsigned char *D_8013C20C;   /* &CDREG0  index/status        0x1F801800 */
-extern volatile unsigned char *D_8013C210;   /* &CDREG1  command/response    0x1F801801 */
-extern volatile unsigned char *D_8013C214;   /* &CDREG2  data/parameter      0x1F801802 */
-extern volatile unsigned char *D_8013C218;   /* &CDREG3  interrupt en/ack    0x1F801803 */
-extern volatile unsigned int  *D_8013C21C;   /* &COM_DELAY                   0x1F801020 */
-extern volatile unsigned short*D_8013C220;   /* &SPU base                    0x1F801C00 */
-extern volatile unsigned int  *D_8013C240;   /* &CDROM_DELAY                 0x1F801018 */
-extern volatile unsigned int  *D_8013C244;   /* &DPCR  DMA control           0x1F8010F0 */
-extern volatile unsigned int  *D_8013C248;   /* &D3_MADR  DMA3 addr          0x1F8010B0 */
-extern volatile unsigned int  *D_8013C24C;   /* &D3_BCR   DMA3 block control 0x1F8010B4 */
-extern volatile unsigned int  *D_8013C250;   /* &D3_CHCR  DMA3 channel ctrl  0x1F8010B8 */
+static volatile unsigned char  *reg0; /* &CDREG0 */
+static volatile unsigned char  *reg1; /* &CDREG1 */
+static volatile unsigned char  *reg2; /* &CDREG2 */
+static volatile unsigned char  *reg3; /* &CDREG3 */
+static volatile unsigned int   *com_delay;
+static volatile unsigned short *spu;
+static volatile unsigned int   *dv5_delay;
+static volatile unsigned int   *d_pcr;
+static volatile unsigned int   *d3_madr;
+static volatile unsigned int   *d3_bcr;
+static volatile unsigned int   *d3_chcr;
 
-#define CDREG0  (*D_8013C20C)
-#define CDREG1  (*D_8013C210)
-#define CDREG2  (*D_8013C214)
-#define CDREG3  (*D_8013C218)
+/* Address-style compatibility spellings remain only in existing function
+ * commentary/expressions; emitted symbols use the archived C identifiers. */
+#define D_8013C20C reg0
+#define D_8013C210 reg1
+#define D_8013C214 reg2
+#define D_8013C218 reg3
+#define D_8013C21C com_delay
+#define D_8013C220 spu
+#define D_8013C240 dv5_delay
+#define D_8013C244 d_pcr
+#define D_8013C248 d3_madr
+#define D_8013C24C d3_bcr
+#define D_8013C250 d3_chcr
+
+#define CDREG0  (*reg0)
+#define CDREG1  (*reg1)
+#define CDREG2  (*reg2)
+#define CDREG3  (*reg3)
 
 /* ---- externs (kernel / other libs) ----------------------------------------------------------- */
 extern int  VSync(int mode);
@@ -121,25 +135,37 @@ extern void CD_flush(void);
 extern int  CD_sync(int mode, unsigned char *result);
 extern void _cd_intr_dispatch(void);   /* @0x80108680 -- defined LAST in this TU (retail VA order) */
 
-/* ---- shared CD state globals (defined in asm/data with REGULAR .data placement -> ABSOLUTE
- *   addressing; the oracle reaches them via `lui %hi; lw/sw %lo`, NOT gp-rel, so they must be
- *   plain externs here -- a TU-local `int X=0;` def would land them in .sdata = gp-rel = mismatch). */
-
-extern int           CD_cbsync;   /* @0x8013BF48 : sync-complete callback */
-extern int           CD_cbready;  /* @0x8013BF4C : data-ready callback */
-extern int           CD_debug;    /* @0x8013BF50 : debug verbosity */
-extern int           CD_status;   /* @0x8013BF54 : last controller status (WORD: oracle sw/lw, 4-byte spaced) */
-extern int           CD_status1;  /* @0x8013BF58 */
-extern unsigned char CD_pos[4];   /* @0x8013BF60 : last seek location (MSF) */
-extern unsigned char CD_mode;     /* @0x8013BF64 */
-extern unsigned char CD_com;      /* @0x8013BF65 : last command */
-extern int           CD_nopen;    /* lid-open event counter */
+/* BIOS.OBJ starts with Sony's two-word library-info record, followed by the
+ * driver state in the exact order exposed by the archived ECOFF symbols and
+ * the retail CPE.  This TU is compiled on the -G0 2.7.2 library lane, so these
+ * definitions stay in ordinary .data and retain the absolute accesses used by
+ * retail. */
+unsigned int __ps_libinfo__[2] = { 0x26047350, 0x10432df4 }; /* @0x8013BF40 */
+int           CD_cbsync = 0;       /* @0x8013BF48 */
+int           CD_cbready = 0;      /* @0x8013BF4C */
+int           CD_debug = 0;        /* @0x8013BF50 */
+int           CD_status = 0;       /* @0x8013BF54 */
+int           CD_status1 = 0;      /* @0x8013BF58 */
+int           CD_nopen = 0;        /* @0x8013BF5C */
+unsigned char CD_pos[4] = {2,0,0,0}; /* @0x8013BF60 */
+unsigned char CD_mode = 0;         /* @0x8013BF64 */
+unsigned char CD_com = 0;          /* @0x8013BF65 */
+int           DS_active = 0;       /* @0x8013BF68 */
 
 
 /* The 3-byte interrupt-state struct {sync, ready, c} @0x8013C224. */
 struct CD_intr { unsigned char sync, ready, c; };
 typedef struct CD_intr CD_intr;
-extern volatile CD_intr D_8013C224;   /* = Intr (in asm/data .bss-ish region).
+typedef struct {
+    CD_intr *intr;
+    unsigned char *result;
+    unsigned char *cd_com;
+    int *cd_status;
+    unsigned char *cd_pos;
+    const char *rcsid;
+} CD_init_struct;
+static volatile CD_intr Intr __asm__("D_8013C224");
+/* Intr is the archived BIOS.OBJ identifier (in the fixed driver data region).
  * MATCH (w51-a4): `volatile` is CORRECT and is the retail shape -- the byte-exact Rage Racer
  * libcd decomp declares the same struct `extern volatile CdIntr g_CdSyncStatus;`
  * (C:\Temp\rage-racer-decomp\include\psyq\cd_internal.h:54); it is mutated by the CD IRQ
@@ -149,12 +175,14 @@ extern volatile CD_intr D_8013C224;   /* = Intr (in asm/data .bss-ish region).
  *   CD_sync 95->91, CD_ready 126->102, CD_cw 225->199, CD_datasync 60->42,
  *   _cd_intr_dispatch 26->PASS, CD_init 31->24 (count-exact 120/120); CD_flush unchanged 13.
  * Zero PASS->FAIL on EITHER lane.  Keep it paired with the cc1_272 lane recommendation. */
-#define Intr D_8013C224
-
-/* Per-command 8-byte response buffers (this TU OWNS these in BSS @0x8014899C..). */
-extern unsigned char D_8014899C[8];   /* sync   result */
-extern unsigned char D_801489A4[8];   /* ready  result */
-extern unsigned char D_801489AC[8];   /* data-end (c) result */
+/* BIOS.OBJ's two BSS objects: Result[3] followed by Alarm.  Compatibility
+ * aliases for the three result rows remain declared because two verified
+ * text-move anchors key on their historical address labels. */
+typedef unsigned char CD_result[8];
+extern CD_result Result[3];
+extern unsigned char D_8014899C[8];
+extern unsigned char D_801489A4[8];
+extern unsigned char D_801489AC[8];
 /* ======================== W65-A6 DATA-MAT: drv.obj's BSS run @0x8014899C ==================
  * BEFORE: D_8014899C/A4/AC were C tentative definitions.  This TU compiles on the cc1_272 lane
  * (macro cc1 + direct GNU as, NO maspsx), so a tentative def stays a genuine `.comm` = a
@@ -173,40 +201,72 @@ extern unsigned char D_801489AC[8];   /* data-end (c) result */
  * (CD_init_80108140 @10, CD_cw @18) at their pre-existing counts.
  * Labels, never `sym = base+N`: ASPSX 2.77 has no symbol-assignment form (catalog 15E).
  * Receipts: scratchpad/w65a6/RECEIPTS.md */
-__asm__("\t.globl\tD_8014899C\n\t.globl\tD_801489A4\n\t.globl\tD_801489AC\n"
-        "\t.globl\tD_801489B4\n\t.globl\tD_801489B8\n\t.globl\tD_801489BC\n"
-        "\t.section\t.bss\n\t.align\t2\n"
-        "D_8014899C:\n\t.space\t8\n"
-        "D_801489A4:\n\t.space\t8\n"
-        "D_801489AC:\n\t.space\t8\n"
-        "D_801489B4:\n\t.space\t4\n"
-        "D_801489B8:\n\t.space\t4\n"
-        "D_801489BC:\n\t.space\t4\n\t.text");
-
 /* alarm/timeout state is part of the driver's fixed data block.  These need
  * external linkage so each inlined polling helper uses absolute references,
  * as in the oracle, rather than gp-relative small-BSS accesses. */
-extern int          D_801489B4;       /* deadline (VSync frame) */
-extern int          D_801489B8;       /* spin counter */
-extern const char  *D_801489BC;       /* current op name (debug) */
 /* W63-A5: the three are ONE 12-byte alarm object.  Both matched sibling libcd
  * decomps model it that way (sotn-decomp psxsdk/libcd/bios.c `volatile Alarm_t
  * Alarm`; rage-racer-decomp libcd/command_write.c `((CdAlarm *)&g_CdTimeoutDeadline)
  * ->name`).  Kept as a VIEW so the three data symbols stay owned as-is. */
 typedef struct { int deadline; int counter; char *name; } CD_alarm;
-#define ALARM (*(CD_alarm *)&D_801489B4)
+extern volatile CD_alarm Alarm;
+/* PsyQ declares the object volatile but its inline helpers intentionally use
+ * a non-volatile typed view, as the matched SDK sources do. */
+#define ALARM (*(CD_alarm *)&Alarm)
 
-/* command-name + interrupt-name string tables (debug; in asm/data). */
-extern char *CD_comstr[];             /* @ : CdlXXX names, indexed by CD_com */
-extern char *CD_intstr[];             /* @ : NoIntr/DataReady/.. names, indexed by Intr.* */
+/* BIOS.OBJ-owned command/interrupt names.  PsyQ 4.3's archived BIOS.O and
+ * the retail CPE agree byte-for-byte on this pool and on its placement ahead
+ * of the driver's remaining literals.  Keeping these definitions in the
+ * driver TU also restores their true object ownership from the SYM/MAP
+ * layout; the historical standalone cddebug.c split could not reproduce it. */
+char *CD_comstr[32] = {                    /* @0x8013BF6C */
+    "CdlSync",     "CdlNop",       "CdlSetloc",  "CdlPlay",
+    "CdlForward",  "CdlBackward",  "CdlReadN",   "CdlStandby",
+    "CdlStop",     "CdlPause",     "CdlReset",   "CdlMute",
+    "CdlDemute",   "CdlSetfilter", "CdlSetmode", "?",
+    "CdlGetlocL",  "CdlGetlocP",   "?",          "CdlGetTN",
+    "CdlGetTD",    "CdlSeekL",     "CdlSeekP",   "?",
+    "?",           "?",            "?",          "CdlReadS",
+    "?",           "?",            "?",          "?"
+};
 
-/* per-command attribute tables (data-mat: bytes live in the EXE / cdtables.cpp). */
-extern int _cd_result_flag[];       /* @0x8013C08C : command produces a ready result? */
-extern int _cd_param_count[];       /* @0x8013C18C : #parameter bytes per command */
-static const int _cd_int3_ack[32] = {     /* @0x8013C00C : INT3 means "ack, hold result"? (D_80032B68) */
-    0,0,0,0,0,0,0,1, 1,1,1,0,0,0,0,0, 0,0,1,0,0,1,1,0, 0,0,1,0,0,0,0,0 };
-static const int _cd_status_ok[32] = {    /* @0x8013C10C : interrupt carries a valid status byte? (D_80032C68) */
-    1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 0,0,1,1,1,1,1,1, 1,1,1,1,1,1,1,1 };
+char *CD_intstr[8] = {                     /* @0x8013BFEC */
+    "NoIntr", "DataReady", "Complete", "Acknowledge",
+    "DataEnd", "DiskError", "?", "?"
+};
+
+/* BIOS.OBJ owns one 128-word local aggregate named ComAttr.  Its ECOFF symbol
+ * starts at data+0xCC and the next local, reg0, starts exactly 0x200 bytes
+ * later.  The four views below preserve the established source expressions
+ * while restoring that authoritative object boundary. */
+static int ComAttr[128] = {               /* @0x8013C00C */
+    0,0,0,0,0,0,0,1, 1,1,1,0,0,0,0,0, 0,0,1,0,0,1,1,0, 0,0,1,0,0,0,0,0,
+    0,0,0,1,1,1,1,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,1,1,0, 0,0,0,1,0,0,0,0,
+    1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 0,0,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,
+    0,0,3,0,0,0,0,0, 0,0,0,0,0,2,1,0, 0,0,1,0,1,0,0,0, 0,0,0,0,0,0,0,0
+};
+#define _cd_int3_ack    (ComAttr)
+#define _cd_result_flag (ComAttr + 0x20)
+#define _cd_status_ok   (ComAttr + 0x40)
+#define _cd_param_count (ComAttr + 0x60)
+
+/* Archived BIOS.O local names, retaining their established assembler labels
+ * so the already-verified instruction stream and linker anchors stay exact. */
+static volatile unsigned char  *reg0      = (volatile unsigned char *)0x1f801800;
+static volatile unsigned char  *reg1      = (volatile unsigned char *)0x1f801801;
+static volatile unsigned char  *reg2      = (volatile unsigned char *)0x1f801802;
+static volatile unsigned char  *reg3      = (volatile unsigned char *)0x1f801803;
+static volatile unsigned int   *com_delay = (volatile unsigned int *)0x1f801020;
+static volatile unsigned short *spu       = (volatile unsigned short *)0x1f801c00;
+static volatile CD_intr Intr __asm__("D_8013C224") = {0,0,0};
+
+/* Result[3][8] and Alarm occupy BIOS.O's contiguous 36-byte BSS tail.  Keep
+ * the established external labels until the local-name migration is gated. */
+__asm__("\t.section\t.bss\n\t.align\t2\n"
+        "Result:\nD_8014899C:\n\t.space\t8\n"
+        "D_801489A4:\n\t.space\t8\n"
+        "D_801489AC:\n\t.space\t8\n"
+        "Alarm:\n\t.space\t12\n\t.align\t4\n\t.text");
 
 /* ------------------------------------------------------------------------------------------------
  * getintr  (func_80107080) -- acquire one CD-ROM controller interrupt: read+stabilise the code,
@@ -286,6 +346,49 @@ static inline void _memcpy8(unsigned char *dst, unsigned char *src)
  *   local declared before `b` (10, .s order unchanged), the same with the memcpy call
  *   pulled inside the block (10), an identity fence on `dst` as well (32).  (b) 2 diffs =
  *   ours steals `li v0,5` into the `beqz` delay slot where retail has a `nop`. */
+/* ---- inlined alarm helpers (set_alarm / get_alarm) --------------------------------------------
+ *
+ * The PsyQ BIOS.OBJ and retail CPE place these helpers' timeout literals before
+ * CD_get_intr's debug literals.  Static-inline bodies contribute no standalone
+ * text here, but their source order controls gcc's literal-pool order. */
+
+static inline void set_alarm(const char *name)
+{
+    ALARM.deadline = VSync(-1) + 0x3c0;
+    ALARM.counter = 0;
+    ALARM.name = (char *)name;
+}
+
+/* MATCH (w52-a1): the oracle's spin bump is `lw v0; addu v1,v0,zero; addiu v0,v0,1; sw v0`
+ * -- a REGISTER post-increment (copy-out then in-place +1), NOT gcc's memory-postincrement
+ * expansion (`lw v1; addiu v0,v1,1; sw v0`, one insn shorter, what a bare `D_801489B8++`
+ * emits).  Reading the global into a local and post-incrementing THE LOCAL reproduces it:
+ * the copy survives cse/delete_noop_moves because `c` is modified while `old` is still live
+ * (catalog: "two values simultaneously live with different values => un-copy-propagatable"). */
+static inline int _spin_bump(void)
+{
+    int c = ALARM.counter;
+    int old = c++;
+    ALARM.counter = c;
+    return old;
+}
+
+static inline int get_alarm(void)
+{
+    if (ALARM.deadline < VSync(-1) || _spin_bump() > 0x3c0000) {
+        /* w53-a9 FALSIFIED HERE (90->93, +1 insn): the CD_datasync/CD_sync
+         * split-local lever does NOT transfer to this shared get_alarm() copy
+         * -- CD_cw's inlined instance is 4 insns SHORT of its oracle, i.e. a
+         * different (structural) basin.  Re-probe after CD_cw's count is exact. */
+        puts("CD timeout: ");
+        printf("%s:(%s) Sync=%s, Ready=%s\n", ALARM.name,
+               CD_comstr[CD_com], CD_intstr[Intr.sync], CD_intstr[Intr.ready]);
+        CD_flush();
+        return -1;
+    }
+    return 0;
+}
+
 extern int CD_get_intr(void)
 {
     volatile unsigned char nReg;
@@ -415,44 +518,7 @@ extern int CD_get_intr(void)
     }
 }
 
-/* ---- inlined helpers (set_alarm / get_alarm / callback) --------------------------------------- */
-
-static inline void set_alarm(const char *name)
-{
-    ALARM.deadline = VSync(-1) + 0x3c0;
-    ALARM.counter = 0;
-    ALARM.name = (char *)name;
-}
-
-/* MATCH (w52-a1): the oracle's spin bump is `lw v0; addu v1,v0,zero; addiu v0,v0,1; sw v0`
- * -- a REGISTER post-increment (copy-out then in-place +1), NOT gcc's memory-postincrement
- * expansion (`lw v1; addiu v0,v1,1; sw v0`, one insn shorter, what a bare `D_801489B8++`
- * emits).  Reading the global into a local and post-incrementing THE LOCAL reproduces it:
- * the copy survives cse/delete_noop_moves because `c` is modified while `old` is still live
- * (catalog: "two values simultaneously live with different values => un-copy-propagatable"). */
-static inline int _spin_bump(void)
-{
-    int c = ALARM.counter;
-    int old = c++;
-    ALARM.counter = c;
-    return old;
-}
-
-static inline int get_alarm(void)
-{
-    if (ALARM.deadline < VSync(-1) || _spin_bump() > 0x3c0000) {
-        /* w53-a9 FALSIFIED HERE (90->93, +1 insn): the CD_datasync/CD_sync
-         * split-local lever does NOT transfer to this shared get_alarm() copy
-         * -- CD_cw's inlined instance is 4 insns SHORT of its oracle, i.e. a
-         * different (structural) basin.  Re-probe after CD_cw's count is exact. */
-        puts("CD timeout: ");
-        printf("%s:(%s) Sync=%s, Ready=%s\n", ALARM.name,
-               CD_comstr[CD_com], CD_intstr[Intr.sync], CD_intstr[Intr.ready]);
-        CD_flush();
-        return -1;
-    }
-    return 0;
-}
+/* ---- inlined callback helper ------------------------------------------------------------------ */
 
 static inline void callback(void)
 {
@@ -964,9 +1030,6 @@ extern int CD_initintr(void)
      * incidental); an explicit `return 0` adds `addu v0,zero,zero` (ours 20 vs oracle 19). */
 }
 
-/* @0x8013C228 : the CD_init bookkeeping struct (SOTN's CD_init_struct), only its address is used. */
-extern int D_8013C228;
-
 /* @0x80108140 : libcd's lowercase CD_init -- bring the CD-ROM subsystem up (nop, reset, demute).
  * NAME (W52-A10): the symbol is spelled `CD_init_80108140` on BOTH sides of the gate, not
  * `CD_init`.  splat appended the VA because this name and eaclib's high-level `CD_Init`
@@ -979,6 +1042,10 @@ extern int D_8013C228;
  * what closes it.  Oracle: asm/nonmatchings/main/CD_init_80108140.s. */
 extern int CD_init_80108140(void)
 {
+    static CD_init_struct tab = {
+        (CD_intr *)&Intr, D_8014899C, &CD_com, &CD_status, CD_pos,
+        "$Id: bios.c,v 1.86 1997/03/28 07:42:42 makoto Exp yos $"
+    };
     /* MATCH (w55-a5): the Intr reset block is the SAME fenced byte anchor + `reg`
      * local recipe that took CD_flush to PASS (see its receipt) -- 24 diffs at
      * 120/120 -> 15 at 117/120.  The remaining 3-instruction shortfall is all in
@@ -996,7 +1063,7 @@ extern int CD_init_80108140(void)
     volatile unsigned char *reg;
     unsigned char c;
     puts("CD_init:");
-    printf("addr=%08x\n", &D_8013C228);
+    printf("addr=%08x\n", &tab);
     CD_com     = 0;
     CD_mode    = 0;
     CD_cbready = 0;
@@ -1210,13 +1277,26 @@ extern int CD_getsector2(void *madr, int size)
     return 0;
 }
 
-/* @0x80108674 : CD_set_test_parmnum -- patch the param-count of command 0x19 (test).
- * The original stored to &_cd_param_count[25] via a STANDALONE data symbol (splat named it
- * D_8013C1F0 @0x8013C1F0 = 0x8013C18C + 25*4) -> a direct absolute store `lui $at; sw a0,%lo($at)`. */
-extern int D_8013C1F0;
-extern void CD_set_test_parmnum(int n) { D_8013C1F0 = n; }
+/* @0x80108674 : patch command 0x19's parameter count.  ECOFF identifies
+ * ComAttr as the owning aggregate; element 0x79 is retail VA 0x8013C1F0. */
+extern void CD_set_test_parmnum(int n) { ComAttr[0x79] = n; }
 
 /* @0x80108680 : the registered CD interrupt handler (InterruptCallback(2, ...)).
  * W60-A4: moved to the END of the TU -- retail VA order puts it LAST in drv.obj
  * (it sat 2nd in source, inverting all 11 following functions; tu_order_audit). */
 extern void _cd_intr_dispatch(void) { callback(); }
+
+/* Remaining BIOS.O register-cache words follow CD_init's static `tab` in
+ * retail .data.  Keeping the definitions after the function reproduces that
+ * source/emission order while the declarations near the top serve earlier
+ * users. */
+static volatile unsigned int *dv5_delay = (volatile unsigned int *)0x1f801018;
+static volatile unsigned int *d_pcr     = (volatile unsigned int *)0x1f8010f0;
+static volatile unsigned int *d3_madr   = (volatile unsigned int *)0x1f8010b0;
+static volatile unsigned int *d3_bcr    = (volatile unsigned int *)0x1f8010b4;
+static volatile unsigned int *d3_chcr   = (volatile unsigned int *)0x1f8010b8;
+
+/* BIOS.OBJ uses 16-byte section tails.  These are layout directives only:
+ * the retail CPE contains twelve zero bytes after both the last .rdata string
+ * and d3_chcr, while the SYM/ECOFF BSS extent likewise rounds Alarm to 0x30. */
+__asm__("\t.data\n\t.align\t4\n\t.rdata\n\t.align\t4\n\t.text");

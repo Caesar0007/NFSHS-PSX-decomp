@@ -11,10 +11,10 @@
  },
  {
   "obj": "build/recon/frontend/common/feaudio.cpp.o",
-  "base": 2147549500,
-  "end": 2147549562,
-  "size": 62,
-  "ok": false,
+  "base": 2147549484,
+  "end": 2147549561,
+  "size": 77,
+  "ok": true,
   "regions": []
  },
  {
@@ -191,9 +191,9 @@
  {
   "obj": "build/recon/frontend/common/screencontroller.cpp.o",
   "base": 2147557452,
-  "end": 2147557495,
-  "size": 43,
-  "ok": false,
+  "end": 2147557491,
+  "size": 39,
+  "ok": true,
   "regions": []
  },
  {
@@ -359,9 +359,9 @@
  },
  {
   "obj": "build/recon/game/common/audiocmn.cpp.o",
-  "base": 2147833580,
-  "end": 2147833708,
-  "size": 128,
+  "base": 2147833552,
+  "end": 2147833712,
+  "size": 160,
   "ok": false,
   "regions": [
    "jtbl_8005573C"
@@ -436,6 +436,19 @@
   "size": 254,
   "ok": false,
   "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/speech.cpp.o",
+  "base": 2147834720,
+  "end": 2147835580,
+  "size": 860,
+  "ok": true,
+  "regions": [
+   "D_80055BD0",
+   "_vt_Q26Speech13MobileSpeaker",
+   "_vt_Q26Speech15DispatchSpeaker",
+   "_vt_Q26Speech7Speaker"
+  ]
  },
  {
   "obj": "build/recon/game/common/copspeak.cpp.o",
@@ -758,14 +771,14 @@
   "end": 2147841587,
   "size": 43,
   "ok": false,
-  "regions": []
+ "regions": []
  },
  {
   "obj": "build/recon/syslib/psx/libcd/drv.c.o",
-  "base": 2147841696,
-  "end": 2147842176,
-  "size": 480,
-  "ok": false,
+  "base": 2147841592,
+  "end": 2147842200,
+  "size": 608,
+  "ok": true,
   "regions": [
    "jtbl_800577E8"
   ]

@@ -846,6 +846,15 @@ ret0:                                   /* the SHARED `addu $v0,$zero,$zero` blo
     }
 }
 
+/* PsyQ 4.3's vendor LIBMCRD.OBJ and the retail CPE both place this diagnostic
+ * before the ReadData diagnostics.  Keeping the accessor inline records the
+ * pooled literal at this source position without emitting an extra function;
+ * its two consumers still compile to the same direct literal address. */
+static __inline__ const char *MemCardFileAlreadyOpenMessage(void)
+{
+    return "Access Denied. : file already open.\n";
+}
+
 /* @0x800FB060 : MemCardReadData -- async read into adrs (offset/length must be 128-byte aligned). */
 extern long MemCardReadData(unsigned long *adrs, long ofs, long bytes)
 {
@@ -1092,7 +1101,7 @@ extern long MemCardReadFile(long chan, char *file, unsigned long *adrs, long ofs
     if (0 < base[0]) {
         fmt = "Access Denied. : system busy\n";
     } else if (0 <= base[4]) {                     /* fd */
-        fmt = "Access Denied. : file already open.\n";
+        fmt = MemCardFileAlreadyOpenMessage();
     } else if ((bytes & 0x7f) != 0) {
         fmt = "Access Denied. : invalid data size align\n";
     } else if ((ofs & 0x7f) == 0) {
@@ -1214,7 +1223,7 @@ extern long MemCardWriteFile(long chan, char *file, unsigned long *adrs, long of
     if (0 < base[0]) {
         fmt = "Access Denied. : system busy\n";
     } else if (0 <= base[4]) {                     /* fd */
-        fmt = "Access Denied. : file already open.\n";
+        fmt = MemCardFileAlreadyOpenMessage();
     } else if ((bytes & 0x7f) != 0) {
         fmt = "Access Denied. : invalid data size align\n";
     } else if ((ofs & 0x7f) == 0) {

@@ -106,9 +106,13 @@
 
 /* ---- Hud.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
    .data = real NFS4.EXE bytes, .bss = zero; extern-vs-SYM disagreements resolved to SYM) ---- */
-int          BigBTCTime_state1 = 50;   /* @0x8013d920 */
-int          BigBTCTime_state2;   /* @0x8013d924  (bss(zero)) */
-signed char  oldCountdown = -1;   /* @0x8013D91D */
+/* SYM/raw storage receipt: retail's initialized HUD .sdata ends at +0x8c;
+ * the tentative definitions below belong to COMMON/.bss/.sbss.  CC1PLPSX
+ * needs -fconserve-space to reproduce that split: a controlled full-TU gate
+ * leaves all 62 function results unchanged and makes the 140-byte initialized
+ * .sdata prefix byte-exact.  Without that original option, GCC appends the
+ * tentative definitions to .data/.sdata.  Build wiring is intentionally kept
+ * out of this source file. */
 tSmallCoordXY Hud_gElementPositions[2][19] = { { {22, 54}, {159, 19}, {8, 19}, {18, 35}, {8, 204}, {221, 24}, {23, -2}, {21, -2}, {23, -3}, {2, -4}, {7, 50}, {4, 18}, {-41, 0}, {90, 212}, {253, 162}, {8, 196}, {218, 20}, {160, 97}, {160, 97} }, { {22, 56}, {252, 17}, {8, 17}, {26, 30}, {8, 101}, {128, 18}, {23, -2}, {21, -2}, {23, -3}, {2, -1}, {7, 52}, {4, 18}, {-42, 0}, {90, 105}, {259, 60}, {8, 72}, {215, 22}, {160, 99}, {160, 42} } };   /* @0x80120924 */
 u_long       day_needle[30] = { 657850u, 16053492u, 657850u, 657850u, 657850u, 236260u, 657850u, 657850u, 657850u, 657850u, 526344u, 657850u, 16053492u, 43184u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 43184u, 657850u, 0, 0, 0 };   /* @0x801209bc */
 u_long       night_needle[30] = { 657850u, 1147055u, 4168420u, 657850u, 657850u, 236260u, 657850u, 657850u, 657850u, 657850u, 526344u, 4110581u, 2648104u, 43184u, 657850u, 657850u, 4110581u, 4168420u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 4110581u, 43184u, 657850u, 0, 0, 0 };   /* @0x80120a34 */
@@ -122,10 +126,10 @@ CVECTOR      Hud_gMarkerColor[12];   /* @0x80120b60  (bss(zero)) */
 CVECTOR      Hud_gCopMarkerColor[12];   /* @0x80120b90  (bss(zero)) */
 char         HudminChar[6] = { 58, 58, 39, 39, 39, 46 };   /* @0x8013d89c */
 char         HudsecChar[6] = { 46, 58, 34, 34, 34, 44 };   /* @0x8013d8a4 */
-int          BTC_playedsoundalready;   /* @0x8013d8ac  (bss(zero)) */
-char         Hud_gWingmanInterface[2];   /* @0x8013d8b0  (bss(zero)) */
-char         Hud_gWingmanFlashIcon[2];   /* @0x8013d8b4  (bss(zero)) */
-int          Hud_gWingmanFlashTicks[2];   /* @0x8013d8b8  (bss(zero)) */
+int          BTC_playedsoundalready = 0;   /* @0x8013d8ac */
+char         Hud_gWingmanInterface[2] = {0};   /* @0x8013d8b0 */
+char         Hud_gWingmanFlashIcon[2] = {0};   /* @0x8013d8b4 */
+int          Hud_gWingmanFlashTicks[2] = {0};   /* @0x8013d8b8 */
 int          Hud_gDebugInfo = 1;   /* @0x8013d8c0 */
 int          HudBustedOverlay;   /* @0x8013d928  (bss(zero)) */
 int          Hud_gCdActive;   /* @0x8013d92c  (bss(zero)) */
@@ -3280,7 +3284,10 @@ void Hud_BuildCdPlayer(int type,int arg1)
   char strtitle [30];
   char strtime [10];
   char strtest [2];
-  static bool keepup;   /* SYM: fn-local STAT BOOL @0x8013D900 (was wrongly a file-scope int) */
+  /* The explicit initializer is layout-significant: SYM encodes this fn-local
+   * STAT BOOL at HUD .sdata+0x64.  Without it GCC emits keepup in .sbss and
+   * shifts every following small-data literal/static away from retail. */
+  static bool keepup = false;
 
   /* SYM-exact locals (8c block @0x800d63dc): x=$s7=g1Player[0xf].x+2, y=$fp=g1Player[0xf].y+2
    * (fused with the +2 directly -- SYM has NO separate raw-x local), index=$s4, time=$s5,
@@ -3515,7 +3522,7 @@ HudCdPlay_buildOutString:
         time = time - min * 60000;
         sec = time / 1000;
         sprintf(strtime,"%1d%c%02d",min,
-                   (u_int)(u_char)"::\'\'\'."[GameSetup_gData.userSetting.language],
+                   (u_int)(u_char)HudminChar[GameSetup_gData.userSetting.language],
                    sec);
         Font_TextColor(4);
         Font_TextXY(strtime,(x - textpixels(strtime)) + 0x5c,y + 0xc);
@@ -4426,6 +4433,7 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int arg4,int arg5)
 void Hud_Render321Go(void)
 
 {
+  static signed char oldCountdown = -1;
   static u_long countdownTick;
   u_long currentTick;
   u_int uVar1;
@@ -4443,9 +4451,9 @@ void Hud_Render321Go(void)
   x = 160;
   if ((int)oldCountdown != (u_int)(u_char)countdown) {
     oldCountdown = countdown;
-    countdownTick_216 = ticks;
+    countdownTick = ticks;
   }
-  uVar1 = ticks - countdownTick_216;
+  uVar1 = ticks - countdownTick;
   if ((u_char)countdown == 4) {
     if (uVar1 < 100) {
       flare_intensity_00 = 8000 - uVar1 * 0x50;
@@ -4491,6 +4499,10 @@ HudRender321_drawCountNum:
 void BigBTCTime(int secs)
 
 {
+  static int lastsec = 50;
+  /* SYM records this local static at HUD .sdata+0x88, immediately after
+   * lastsec.  An implicit initializer instead sends it to .sbss. */
+  static int lastsectick = 0;
   POLY_GT4 *prim;
   int x;
   int y;
@@ -4503,9 +4515,9 @@ void BigBTCTime(int secs)
   int ten;
 
   if (((BTC_BonusTime == 0) && (HudBustedOverlay == 0)) && (-1 < secs)) {
-    if (secs != BigBTCTime_state1) {
-      BigBTCTime_state1 = secs;
-      BigBTCTime_state2 = ticks;
+    if (secs != lastsec) {
+      lastsec = secs;
+      lastsectick = ticks;
     }
     x = g1Player[0xf].x + 2;
     y = g1Player[0xf].y;
@@ -4521,7 +4533,7 @@ void BigBTCTime(int secs)
     else {
       int diff;
 
-      diff = ticks - BigBTCTime_state2;
+      diff = ticks - lastsectick;
       if (diff < 0x40) {
         Hud_BlackThinBox(xx,yy,w1 * 2,0xe);
         Hud_FBuildF4(0,xx,yy,w1 * 2,0xe,0,'\0','\0');
@@ -5533,6 +5545,3 @@ void Hud_Perp_OverlayOff(int player)
 }
 
 /* end of hud.cpp */
-
-/* owning-TU def (link-harness) */
-int countdownTick_216;

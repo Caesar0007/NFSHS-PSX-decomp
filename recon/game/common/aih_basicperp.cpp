@@ -178,7 +178,7 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
             ((cop->carFlags & 0x200U) != 0)) ||
 
-           ((((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != Id5)) ||
+           ((((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) ||
 
              ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0 &&
 

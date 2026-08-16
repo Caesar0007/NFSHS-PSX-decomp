@@ -318,7 +318,7 @@ LAB_80086300:
     carObj->carFlags = carObj->carFlags | 1;
     Cars_gNumRaceCars = Cars_gNumRaceCars + 1;
     if ((GameSetup_gData.cops != 0) &&
-       (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != Id5)) ||
+       (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) ||
         (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) == 0) &&
          ((Cars_gNumHumanRaceCars != 2) || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) == 0)))))) {
       Cars_gLifeBasisCarList[Cars_gNumLifeBasisCars] = carObj;
@@ -2297,7 +2297,7 @@ void Cars_ManageBureaucracy(void)
 void Cars_CheckForAccidentScenes(void)
 {
   if (((GameSetup_gData.commMode != 1) && (GameSetup_gData.raceType != RaceType_HotPursuit)) &&
-     (GameSetup_gData.raceType != Id5)) {
+     (GameSetup_gData.raceType != RaceType_Id5)) {
     if (SceneLoaded != 0) {
       if ((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x360)) == GameSetup_gData.SceneEndLap) {
         Object_ClearCustomObjects();

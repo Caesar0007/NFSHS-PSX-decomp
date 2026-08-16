@@ -95,7 +95,7 @@ void AIInit_Reset1(void)
 /* ---- AIInit_Reset2__Fv  [@0x80066d08] ---- */
 void AIInit_Reset2(void)
 {
-  if (GameSetup_gData.raceType != Id3) {
+  if (GameSetup_gData.raceType != RaceType_Id3) {
     AIInit_useSpreadForce = 1;
   }
   else {

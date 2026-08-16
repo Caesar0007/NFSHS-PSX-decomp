@@ -207,7 +207,7 @@ void AIPerson_LoadGlue(Udff_tInfo *handle)
   Udff_GetInt(handle);
   Udff_GetBuffer(handle,(char *)AIPerson_glueTable,0x54);
   if ((Cars_gNumCopCars != 0) &&
-     (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != Id5)) ||
+     (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) ||
       ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0 &&
        ((Cars_gNumHumanRaceCars != 2 || (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) == 0)))))))) {
     iVar3 = 0;

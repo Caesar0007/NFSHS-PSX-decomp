@@ -269,7 +269,7 @@ haveCaravan:
   newDesired = (topSpeed / 256) * (carObj->aiGlue / 256);
   *unFetteredDesiredSpeed = (topSpeed / 256) * (f_unfettered / 256);
   if ((((carObj->carFlags & 1U) != 0) && ((carObj->stats).finishType == 2)) &&
-     (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != Id5)) ||
+     (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) ||
       ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0 &&
        ((Cars_gNumHumanRaceCars != 2 || (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) == 0)))))))) {
     int metersPastFinish;
@@ -756,7 +756,7 @@ negativeThirdGlueIndex:
 haveThirdGlueIndex:
     glue = AIPerson_glueTable[glueIndex];
     packPositionGlueModifier = 0x8000;
-    if (GameSetup_gData.raceType != Id3) {
+    if (GameSetup_gData.raceType != RaceType_Id3) {
       packPositionGlueModifier = 0xe666;
     }
   }

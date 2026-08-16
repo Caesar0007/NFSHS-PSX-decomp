@@ -943,7 +943,7 @@ void BWorld_Init(void)
   Loading_UpdateLoadingScreen(5);
   Anim_InitSystem(Track_MakeTrackDataPathName(""));
   if (((GameSetup_gData.commMode != 1) && (GameSetup_gData.raceType != RaceType_HotPursuit)) &&
-     (GameSetup_gData.raceType != Id5)) {
+     (GameSetup_gData.raceType != RaceType_Id5)) {
     Scene_LoadSceneFile(GameSetup_gData.SceneNumber);
   }
   AudioScene = (u_int)(GameSetup_gData.Time != 0);

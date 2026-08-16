@@ -158,7 +158,7 @@ void Stats_TrackStats(Car_tObj *carObj)
       (carObj->stats).lapTime = currentTime;
       (carObj->stats).lap = carObj->lap;
       if (((carObj->stats).lap == GameSetup_gData.numLaps) &&
-         (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != Id5)) ||
+         (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) ||
           (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0 &&
            ((Cars_gNumHumanRaceCars != 2 || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0))))
           )))) {

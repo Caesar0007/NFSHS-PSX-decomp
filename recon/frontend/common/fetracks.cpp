@@ -282,34 +282,35 @@ void tListIteratorTrack::Decrement(tPlayer atIndex)
 
 
 /* ---- tListIteratorTrack::ValidTrack  [FETRACKS.CPP:269-288] SLD-VERIFIED ---- */
+/* SYM-CONFORM (2026-08-16, PASS retained): the retail block names exactly
+   `tTrackInformation *trackInfo` and `BOOL result`.  Here BOOL is EA's
+   four-byte `typedef int BOOL`, not native C++ bool; using native bool adds
+   two normalization instructions and causes 36 diffs.  Restoring the two
+   SYM locals also lets gcc recover the former cVar1/ptVar3 compiler temps. */
 
 void * tListIteratorTrack::ValidTrack(char track)
 
 {
-  signed char cVar1;
-  tTrackInformation *ptVar2;
-  tTrackManager *ptVar3;
-  int avail;
+  tTrackInformation *trackInfo;
+  BOOL result;
   
-  ptVar3 = this->fTrackManager;
-  ptVar2 = ptVar3->fTracks + (u_char)track;
-  cVar1 = (signed char)ptVar2->fTrackID;
-  avail = ptVar3->fAvailableTracks[cVar1];
+  trackInfo = this->fTrackManager->fTracks + (u_char)track;
+  result = this->fTrackManager->fAvailableTracks[(signed char)trackInfo->fTrackID];
   switch (frontEnd.raceType) {
   case 0:
-    avail = (avail | ptVar3->fViewableTracks[cVar1]) != 0;
+    result = (result | this->fTrackManager->fViewableTracks[(signed char)trackInfo->fTrackID]) != 0;
     break;
   case 1:
-    avail = (avail | ptVar3->fViewableTracks[cVar1]) != 0;
-    if (ptVar2->fIsEgg != '\0') {
-      avail = 0;
+    result = (result | this->fTrackManager->fViewableTracks[(signed char)trackInfo->fTrackID]) != 0;
+    if (trackInfo->fIsEgg != '\0') {
+      result = 0;
     }
-    if (2 < ptVar2->fTrackDifficulty) {
-      avail = 0;
+    if (2 < trackInfo->fTrackDifficulty) {
+      result = 0;
     }
     break;
   }
-  return (void *)avail;
+  return (void *)result;
 }
 
 

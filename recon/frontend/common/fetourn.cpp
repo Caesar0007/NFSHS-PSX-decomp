@@ -845,12 +845,12 @@ long tTournamentManager::GetTournamentFinishPrize(short position)
 
 /* ---- tTournamentManager::GetAwardInformation  [FETOURN.CPP:913-914] ---- */
 
-void tTournamentManager::GetAwardInformation(tAwardInformation &info_r)
+void tTournamentManager::GetAwardInformation(tAwardInformation &info)
 
 {
   /* Ghidra hand-expanded gcc's own movstrsi block copy of the 68-byte
      tAwardInformation (4 words/iter + 1-word tail) — it is one struct assignment. */
-  info_r = this->fAwards;
+  info = this->fAwards;
 }
 
 
@@ -980,7 +980,7 @@ void tTournamentManager::GetTrophyName(tTourneyInfo *tourn,tTrophySize size,char
 
 /* ---- tTournamentManager::ValidCar  [FETOURN.CPP:1063-1102] ---- */
 
-void * tTournamentManager::ValidCar(tCarInfo &carInfo_r)
+void * tTournamentManager::ValidCar(tCarInfo &carInfo)
 
 {
   u_char oppClass;
@@ -994,28 +994,28 @@ void * tTournamentManager::ValidCar(tCarInfo &carInfo_r)
   oppClass = tourney->fOpponentCarClass;
   result = (void *)0x1;
   if (oppClass != '\n') {
-    result = (void *)(u_int)(carInfo_r.fCarClass == oppClass);
+    result = (void *)(u_int)(carInfo.fCarClass == oppClass);
     if ((FECheat_IsCheatEnabled(cheat_FinishedTournament) != 0) && (this->fTier == 0)) {
       result = (void *)0x1;
     }
   }
   if ((tourney->fRequiredFlags & 4) != 0) {
-    if ((int)(signed char)carInfo_r.fCarID == (int)tourney->fRequiredCar) {
+    if ((int)(signed char)carInfo.fCarID == (int)tourney->fRequiredCar) {
       switch (tourney->fRequiredUpgrades) {
       case 0:
-        if (carInfo_r.fUpgrades != '\0') {
+        if (carInfo.fUpgrades != '\0') {
           result = (void *)0x0;
         }
         break;
       case 1:
         break;
       case 2:
-        if (carInfo_r.fUpgrades == '\0') {
+        if (carInfo.fUpgrades == '\0') {
           result = (void *)0x0;
         }
         break;
       case 3:
-        if ((carInfo_r.fUpgrades & tourney->fSpecificUpgrades) !=
+        if ((carInfo.fUpgrades & tourney->fSpecificUpgrades) !=
             tourney->fSpecificUpgrades) {
           result = (void *)0x0;
         }

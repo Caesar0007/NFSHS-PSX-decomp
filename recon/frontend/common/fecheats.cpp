@@ -108,6 +108,11 @@ void FECheat_HandleActivation(tCheatCode cheat)
     char placement;
     char *placements;
 
+    /* SYM-CARRIER: num=i.  SYM names this non-overlapping block lifetime
+       `short num` in $s0.
+       A separate C local prevents gcc from coalescing it with the earlier
+       `$s0` short `i` and regresses this PASS by 14 diffs (116/116).  Reusing
+       `i` is the byte-exact representation of that retail lifetime. */
     i = 0;
     placement = (char)cheat + -0x1b;
     placements = (char *)&tournamentManager;

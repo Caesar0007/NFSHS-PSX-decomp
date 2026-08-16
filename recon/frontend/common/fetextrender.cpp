@@ -94,14 +94,18 @@ void FETextRender_FullTextRGB(char *sMenuText,short x,short y,int col,char size,
 
 
 
-/* ---- FETextRender_FullText  [FETEXTRENDER.CPP:136-139] SLD-FLAG:NONMONO ---- */
+/* ---- FETextRender_FullText  [FETEXTRENDER.CPP:136-139] SLD-FLAG:NONMONO ----
+   SYM-CONFORM (2026-08-16, PASS retained): restored the original `textcol`
+   local.  The same audit restored `x`/`y` in MenuTextFade and the exact
+   `RECT r` + `short offset` stack/register declarations in Title; all three
+   remain byte-identical to retail. */
 void FETextRender_FullText(char *sMenuText,short x,short y,tMenuTextType textType,tMenuTextState textState,
                short justify)
 
 {
   
-  int col = kRGBVals[(u_char)textDefinitions[textType][textState + textState_NumStates]];
-  FETextRender_FullTextRGB(sMenuText,x,y,col,textDefinitions[textType][0],justify);
+  int textcol = kRGBVals[(u_char)textDefinitions[textType][textState + textState_NumStates]];
+  FETextRender_FullTextRGB(sMenuText,x,y,textcol,textDefinitions[textType][0],justify);
   return;
 }
 
@@ -140,17 +144,17 @@ void FETextRender_MenuTextPositioned(short index,short x,short y,tMenuTextState 
 void FETextRender_MenuTextFade(int fade,short index,tMenuTextState textState,tMenuTextType textType)
 
 {
-  int iVar1;
-  int iVar2;
+  int x;
+  int y;
   int wordnum;
   
   wordnum = (int)index;
-  iVar1 = TextSys_WordX(wordnum);
-  iVar2 = TextSys_WordY(wordnum);
+  x = TextSys_WordX(wordnum);
+  y = TextSys_WordY(wordnum);
   if (textType == textType_Default) {
     textType = (tMenuTextType)TextSys_WordFlags(wordnum);
   }
-  FETextRender_MenuTextPositionedJustifyFade(fade,index,(short)iVar1,(short)iVar2,(u_short)(u_char)textDefinitions[textType][1],
+  FETextRender_MenuTextPositionedJustifyFade(fade,index,(short)x,(short)y,(u_short)(u_char)textDefinitions[textType][1],
              textState,textType);
   return;
 }
@@ -375,25 +379,23 @@ void FETextRender_Title(short index)
 
 {
   char *src;
-  int iVar1;
-  u_short uVar2;
   char upstr [80];
-  short box [4];
+  RECT r;
+  short offset;
   
-  uVar2 = 0;
+  offset = 0;
   if (FEApp->fPlayer == '\x01') {
-    uVar2 = 0x69;
+    offset = 0x69;
   }
   src = TextSys_Word((int)index);
   strcpy(upstr,src);
   s_lower(upstr);
-  FETextRender_FullText(upstr,0x30,uVar2 | 0x10,textType_Title,textState_Selected,0);
-  box[0] = 0x2b;
-  box[1] = uVar2 + 0x12;
-  iVar1 = textpixels(upstr);
-  box[2] = iVar1 + 10;
-  box[3] = 0xc;
-  PSXDrawTransSquare(0,box[0],box[1],box[2],box[3],2);
+  FETextRender_FullText(upstr,0x30,offset | 0x10,textType_Title,textState_Selected,0);
+  r.x = 0x2b;
+  r.y = offset + 0x12;
+  r.w = textpixels(upstr) + 10;
+  r.h = 0xc;
+  PSXDrawTransSquare(0,r.x,r.y,r.w,r.h,2);
   FeDraw_SetABRMode(0);
   return;
 }

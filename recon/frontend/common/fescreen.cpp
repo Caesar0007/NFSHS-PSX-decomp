@@ -179,18 +179,20 @@ void tScreen::AsyncLoadSwapShapeFile(char *fileName)
 void * tScreen::IsShapeFileLoaded(tShapeInformation &shapes)
 
 {
-  int status;
-  char *file;
-  int result;
+  int async_status;
+  char *bogus;
+  BOOL result;
 
   /* MATCH: ONE result var (retail's $s1, set to 1 in the entry branch's delay
      slot) with a single return -- the per-arm `pvVar3 = 0` funnel Ghidra
      produced duplicates the tail.  getasyncreadadr takes ONE arg (the oracle
-     sets only $a0). */
+     sets only $a0).  SYM-CONFORM (2026-08-16, PASS retained): the three
+     retail locals are `BOOL result`, `int async_status`, and `char *bogus`;
+     BOOL is the four-byte EA typedef, not native C++ bool. */
   result = 1;
   if (shapes.async_handle != 0) {
-    status = getasyncreadstatus(shapes.async_handle);
-    if (0 < status) {
+    async_status = getasyncreadstatus(shapes.async_handle);
+    if (0 < async_status) {
       if (shapes.fDestFile == (char *)0x0) {
         shapes.fFile = (char *)getasyncreadadr(shapes.async_handle);
       }
@@ -206,15 +208,15 @@ void * tScreen::IsShapeFileLoaded(tShapeInformation &shapes)
       }
     }
     else {
-      if (status == -1) {
-        file = (char *)getasyncreadadr(shapes.async_handle);
-        if (file != (char *)0x0) {
-          purgememadr(file);
+      if (async_status == -1) {
+        bogus = (char *)getasyncreadadr(shapes.async_handle);
+        if (bogus != (char *)0x0) {
+          purgememadr(bogus);
         }
         this->AsyncLoadShapeFile(shapes.fFilename,shapes);
         result = 0;
       }
-      else if (status == -2) {
+      else if (async_status == -2) {
         this->AsyncLoadShapeFile(shapes.fFilename,shapes);
         result = 0;
       }
@@ -502,16 +504,17 @@ void tScreen::InitializeShapes(tShapeInformation &data,u_int numShapes)
 void tScreen::FreeShapes(tShapeInformation &data)
 
 {
-  int status;
+  int async_status;
   short i;
 
   this->CancelAsyncLoad(data);
   /* MATCH: a plain top-tested `while` -- gcc rotates it (entry test + bottom
      bne) and LICMs the -1/-2 sentinels into callee-saved regs, which the
-     do{}while(true)+early-return shape does not. */
+     do{}while(true)+early-return shape does not.  SYM-CONFORM (2026-08-16):
+     restored the original `int async_status` name; PASS remains 88/88. */
   while (data.async_handle != 0) {
-    status = getasyncreadstatus(data.async_handle);
-    if ((0 < status) || (status == -1)) {
+    async_status = getasyncreadstatus(data.async_handle);
+    if ((0 < async_status) || (async_status == -1)) {
       if (data.fDestFile == (char *)0x0) {
         data.fFile = getasyncreadadr(data.async_handle);
       }
@@ -520,7 +523,7 @@ void tScreen::FreeShapes(tShapeInformation &data)
       }
       data.async_handle = 0;
     }
-    else if (status == -2) {
+    else if (async_status == -2) {
       data.async_handle = 0;
     }
     FeAudio_systemtask(0);

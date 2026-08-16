@@ -70,18 +70,18 @@ void tMissionManager::ReleaseDescription()
 
 
 /* ---- tMissionManager::GetMissionStages  [FEMISSION.CPP:172-178] ---- */
+/* SYM-CONFORM (2026-08-16, PASS retained): restored the sole retail local,
+   `tMissionInfo *pMissionInfo`; gcc recreates the former definition/index
+   address temporaries without exposing them as source declarations. */
 short tMissionManager::GetMissionStages(short tier,short mission,tStageInfo **pStages)
 
 {
-  int iVar1;
-  tMissionInfo *pMission;
-  tAcademyDefinition *ptVar2;
+  tMissionInfo *pMissionInfo;
 
-  ptVar2 = this->fDefinition;
-  iVar1 = (uint)ptVar2->fTiers[tier].fMissionOffset + (int)mission;
-  pMission = &ptVar2->fMissions[iVar1];
-  *pStages = ptVar2->fStages + pMission->fStageOffset;
-  return (short)pMission->fNumStages;
+  pMissionInfo = &this->fDefinition->fMissions[
+      (uint)this->fDefinition->fTiers[tier].fMissionOffset + (int)mission];
+  *pStages = this->fDefinition->fStages + pMissionInfo->fStageOffset;
+  return (short)pMissionInfo->fNumStages;
 }
 
 

@@ -1384,23 +1384,32 @@ tScreenControllerConfig::tScreenControllerConfig()
 int tScreenControllerConfig::GetHelpText()
 
 {
+  int retvalue;
+
   /* MATCH: a real switch, NOT an if-chain.  The oracle's dispatch is gcc-2.8's
      balance_case_nodes TREE over 3 case nodes {1},{2},{5..6} (root == 2, then
      slti 3 / slti 7 / slti 5) with the case BODIES in SOURCE order
      (5|6, 1, 2) and the default -1 as a shared funnel block.  Switching on the
      field directly (int-promoted) also drops the `andi 0xff` a u_char local
-     re-mask emitted.  [SLD 1897=switch, 1899/1903/1906=case bodies, 1912=-1] */
+     re-mask emitted.  SYM-CONFORM (2026-08-16): the case values now flow
+     through retail's named `int retvalue`; gcc collapses that source funnel
+     to the same 24-byte-identical instructions.
+     [SLD 1897=switch, 1899/1903/1906=case bodies, 1912=-1] */
   switch (this->fCurrentController) {
   case 5:
   case 6:
-    return 0x218;
+    retvalue = 0x218;
+    break;
   case 1:
-    return 0x219;
+    retvalue = 0x219;
+    break;
   case 2:
-    return 0x21a;
+    retvalue = 0x21a;
+    break;
   default:
-    return -1;
+    retvalue = -1;
   }
+  return retvalue;
 }
 
 /* ---- ___23tScreenControllerConfig  (screencontroller.cpp:177) ----

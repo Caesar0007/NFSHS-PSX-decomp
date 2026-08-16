@@ -939,15 +939,19 @@ int Front_GetLapsForType(void)
 /* ---- Front_InitStream__FR9tFEStream  [FRONT.CPP:1231-1235] ---- */
 
 /* Decoded Phase 83: Front_InitStream__FR9tFEStream(tFEStream&) - clear tFEStream to safe initial state (48 B).Called first in BuildStream pipeline.
+   SYM-CONFORM (2026-08-16): the mangled text is the GCC-v2 linkage name,
+   not the retail C++ identifier.  Restored `Front_InitStream(tFEStream&)`;
+   gcc regenerates `Front_InitStream__FR9tFEStream` and both this function
+   (12/12) and its Front_BuildStream caller (1000/1000) remain PASS.
    
    [ghidra-meta] section: front.text */
 
-extern "C" void Front_InitStream__FR9tFEStream(tFEStream *streamData)
+void Front_InitStream(tFEStream &streamData)
 
 {
-  streamData->totalCars = 0;
-  streamData->totalModels = 0;
-  streamData->currentCar = 0;
+  streamData.totalCars = 0;
+  streamData.totalModels = 0;
+  streamData.currentCar = 0;
   carManager.InitializeIngameCarList();
   return;
 }
@@ -2368,7 +2372,7 @@ int * Front_BuildStream(int *stream)
   int config;
   tFEStream streamData;
   
-  Front_InitStream__FR9tFEStream(&streamData);
+  Front_InitStream(streamData);
   Front_InitPlayerCars__FR9tFEStream(&streamData);
   Front_InitTrack__FR9tFEStream(&streamData);
   Front_InitTourneyTraffic__FR9tFEStream(&streamData);

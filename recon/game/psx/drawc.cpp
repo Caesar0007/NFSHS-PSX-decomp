@@ -1280,7 +1280,21 @@ void DrawC_PrimStop(Car_tObj *carObj,Draw_CarCache *sd)
  *    That is the SAME block, with the same allocno bar, as DrawC_PrimMenu's -- see the
  *    long `u0` receipt there (reqdelta: a second uv pseudo is admissible only as a
  *    GLOBAL allocno with pri < .7578).  ⇒ CRACK PrimMenu's uv pair FIRST; the lever
- *    then transfers to Prim and PrimClip unchanged (three fns, one dial). */
+ *    then transfers to Prim and PrimClip unchanged (three fns, one dial).
+ * w70-a1 (166 @1395/1389) -- m2c CROSS-VERIFY + one falsification.
+ *  - m2c cross-verify against C:\Temp\nfs4-clean\Binaries\NFS4-B-USA\c\func_800BFD44.c
+ *    (seal criterion 6): calls, arg counts, branch structure, field offsets and the
+ *    return all agree with this body.  The 166 is codegen only, confirming the
+ *    w50-A3 brcensus triage above.
+ *  - FALSIFIED (named angle "facetFlag as int"): the +6 insn excess includes an
+ *    EXTRA `lhu v1,0(facet)` beside the `lh v0,0(facet)` at each of the three
+ *    facetFlag sites -- cc1 narrows `((short)mem) & 0xfff` back to a halfword
+ *    reload, while retail derives BOTH masks (`andi 4095` / `andi 1008`) from the
+ *    single SIGNED load.  Declaring `facetFlag` int (which does kill the reloads)
+ *    measures 1391 insns -- 4 CLOSER to the oracle's 1389 -- but 256 diffs, so the
+ *    LCS realignment cost dwarfs it and it was NOT landed.  Keep the SHORT (the SYM
+ *    says SHORT); the reload wants a narrowing-blocker at the USE, not a type change.
+ */
 void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOverlay *overlay,
                int envmap,Draw_CarCache *sd)
 

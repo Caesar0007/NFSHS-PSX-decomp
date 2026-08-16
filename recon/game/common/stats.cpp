@@ -270,7 +270,7 @@ void Stats_ExtrapolateOpponentTimes(int type)
       else {
         Cars_gHumanRaceCarList[i]->stats.lapTime = extrapolatedTime << 1;
       }
-      if (GameSetup_gData.raceType != 2) {
+      if (GameSetup_gData.raceType != RaceType_Tournament) {
         if (quick_finish) {
           Cars_gHumanRaceCarList[i]->stats.finishType = 2;
         }
@@ -289,7 +289,7 @@ void Stats_ExtrapolateOpponentTimes(int type)
     }
 
     if (type == 1) {
-      if (GameSetup_gData.raceType != 2) {
+      if (GameSetup_gData.raceType != RaceType_Tournament) {
         if (quick_finish) {
           Cars_gHumanRaceCarList[i]->stats.finishType = 2;
         }

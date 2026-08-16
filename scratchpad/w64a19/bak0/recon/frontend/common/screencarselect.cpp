@@ -644,7 +644,7 @@ void tScreenCarSelect::Initialize()
   tTrackInformation trackInfo;
   tTrackInfo tourneyTrack;
   
-  if (frontEnd.raceType == '\x02') {
+  if (frontEnd.raceType == RaceType_Tournament) {
     tournamentManager.GetTrackToRace(tourneyTrack);
     GameSetup_gData.track =
         (int)trackManager.GetTrackByID((short)tourneyTrack.fTrackNumber)->fSimNumber;
@@ -659,7 +659,7 @@ void tScreenCarSelect::Initialize()
   uVar6 = (menuDefs->itemDamage).fFlags &
           0xfffffffe;
   (menuDefs->itemDamage).fFlags = uVar6;
-  if (frontEnd.raceType == '\x02') {
+  if (frontEnd.raceType == RaceType_Tournament) {
     (mdefs->itemDamage).fFlags = uVar6 | 1;
   }
   this->Initialize();
@@ -1110,7 +1110,7 @@ void tScreenCarSelect::DrawForeground()
     (menuDefs->itemUpgradeCar).fFlags =
          (menuDefs->itemUpgradeCar).fFlags &
          0xfffffffe;
-    if (((frontEnd.raceType == '\x02') && (frontEnd.tier == '\0')) &&
+    if (((frontEnd.raceType == RaceType_Tournament) && (frontEnd.tier == '\0')) &&
        (FECheat_IsCheatEnabled(cheat_FinishedTournament) != (void *)0x0)) {
       (menuDefs->itemOpponentUpgrades).
       fFlags = (menuDefs->itemOpponentUpgrades).fFlags & 0xfffffffe;

@@ -92,7 +92,7 @@ extern "C" void MenuExtended_SetTestDrive__FR12tMenuCommand(tMenuCommand *comman
   frontEnd.carListType = '\0';
   frontEnd.oppNumber = '\0';
   frontEnd.pinkSlipsTrackIndex = '\0';
-  frontEnd.raceType = '\0';
+  frontEnd.raceType = RaceType_SingleRace;
   return;
 }
 
@@ -117,7 +117,7 @@ extern "C" void MenuExtended_SetSingleRace__FR12tMenuCommand(tMenuCommand *comma
 {
   frontEnd.carListType = '\x01';
   frontEnd.pinkSlipsTrackIndex = '\0';
-  frontEnd.raceType = '\0';
+  frontEnd.raceType = RaceType_SingleRace;
   screenMain[0]->SwapBackground(-1);
   return;
 }
@@ -144,7 +144,7 @@ extern "C" void MenuExtended_SetTournament__FR12tMenuCommand(tMenuCommand *comma
   frontEnd.carListType = '\x01';
   frontEnd.pinkSlipsTrackIndex = '\0';
   frontEnd.tier = '\0';
-  frontEnd.raceType = '\x02';
+  frontEnd.raceType = RaceType_Tournament;
   screenMain[0]->SwapBackground(-1);
   return;
 }
@@ -171,7 +171,7 @@ extern "C" void MenuExtended_SetSpecialEvent__FR12tMenuCommand(tMenuCommand *com
   frontEnd.carListType = '\x01';
   frontEnd.tier = '\x01';
   frontEnd.pinkSlipsTrackIndex = '\0';
-  frontEnd.raceType = '\x02';
+  frontEnd.raceType = RaceType_Tournament;
   screenMain[0]->SwapBackground(-1);
   return;
 }
@@ -504,7 +504,7 @@ extern "C" void MenuExtended_GoToCarSelect__FR12tMenuCommand(tMenuCommand *comma
     if (frontEnd.carListType == '\0') {
       (menuDefs[0]->iteratorCar1).fCarListFilter = 1;
     }
-    else if (frontEnd.raceType == '\x02') {
+    else if (frontEnd.raceType == RaceType_Tournament) {
       (menuDefs[0]->iteratorGarageCar).fCarListFilter = 0x40;
     }
     else {
@@ -539,7 +539,7 @@ MX_GoToCar_garageIter:
     return;
   }
 MX_GoToCar_oppFilterSetup:
-  if (frontEnd.raceType != '\x02') {
+  if (frontEnd.raceType != RaceType_Tournament) {
     menuDefs[0]->iteratorOpponentCar.Decrement(kPlayerBoth);
     menuDefs[0]->iteratorOpponentCar.Increment(kPlayerBoth);
     (menuDefs[0]->iteratorOpponentCar).fCarListFilter = 1;
@@ -908,7 +908,7 @@ extern "C" void MenuExtended_GoToRace__FR12tMenuCommand(tMenuCommand *command)
     command->type = kMenu_Command_None;
     return;
   }
-  if ((frontEnd.raceType == '\x02') &&
+  if ((frontEnd.raceType == RaceType_Tournament) &&
      (uVar2 = carManager.GetNumTourneyCars(0), (int)((uint)uVar2 << 0x10) < 1)) {
     pcVar3 = TextSys_Word(0xf1);
     popUp->string = pcVar3;

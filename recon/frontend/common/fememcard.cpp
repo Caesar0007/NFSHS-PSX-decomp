@@ -754,8 +754,8 @@ extern "C" short LoadGame__FsbT1(short player,bool PinkSlips,bool WithDialogs)
   }
   Front_ResetPSXController((int)player,(uint)(byte)frontEnd.controlConfig[player]);
   if (PinkSlips == 0) {
-    if (frontEnd.raceType == '\x06') {
-      frontEnd.raceType = '\0';
+    if (frontEnd.raceType == RaceType_PinkSlips) {
+      frontEnd.raceType = RaceType_SingleRace;
     }
     gMasterSFXLevel = (int)(byte)frontEnd.sfxVolume;
   }

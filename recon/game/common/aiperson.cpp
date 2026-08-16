@@ -255,7 +255,7 @@ void AIPerson_Startup(void)
       ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
     sprintf(acStack_80,D_80055374,pathBase[2]);
   }
-  else if (((u_int)GameSetup_gData.raceType < 2) && (Cars_gNumAIRaceCars == 1)) {
+  else if (((u_int)GameSetup_gData.raceType < RaceType_Tournament) && (Cars_gNumAIRaceCars == 1)) {
     sprintf(acStack_80,D_80055384,D_80116470[0]);
   }
   else {

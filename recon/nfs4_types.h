@@ -1239,6 +1239,20 @@ typedef enum {   /* 4 bytes */
     VIDEOSTATE_PLAYING = 3
 } VIDEOSTATE;
 
+/* ============ ENUM MACROS ============ */
+// Some of the obvious enumerations were not included in the .sym files.
+// This probably means that the developers used macros instead of enums here.
+// It's also useful for different value types and sizes of the same fields/objects.
+
+/* RaceType */
+#define RaceType_SingleRace     0 // Also a Default + Test Drive
+#define RaceType_HotPursuit     1
+#define RaceType_Tournament     2
+#define RaceType_Id3            3
+#define RaceType_Id4            4
+#define RaceType_Id5            5 // Must be related to HotPursuit (?)
+#define RaceType_PinkSlips      6
+
 /* ============ STRUCTS + UNIONS (topo-sorted, interleaved) ============ */
 
 struct PAD_ANALOG {   /* 6 bytes */

@@ -199,7 +199,7 @@ void Nfs2_GameModuleStartUp(int *FrontEndDataStream)
   Clock_SystemStartUp();
   AudioCmn_LoadGameSamples();
   CopSpeak_StartUp();
-  if ((GameSetup_gData.raceType == 1) && (_6Speech_fgSpeech == 0)) {
+  if ((GameSetup_gData.raceType == RaceType_HotPursuit) && (_6Speech_fgSpeech == 0)) {
     pThis = __builtin_new(0x3a4);
     _6Speech_fgSpeech = (int)new ((Speech *)pThis) Speech;
   }

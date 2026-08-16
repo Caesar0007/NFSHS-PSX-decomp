@@ -816,7 +816,7 @@ void BWorld_Init(void)
   int random;
 
   if (Replay_ReplayMode == 0) {
-    if ((GameSetup_gData.commMode != 1) && (GameSetup_gData.raceType != 2)) {
+    if ((GameSetup_gData.commMode != 1) && (GameSetup_gData.raceType != RaceType_Tournament)) {
       GameSetup_gData.SceneNumber = rand() / 0x4000;
       random = rand();
       if (GameSetup_gData.numLaps >= 2) {

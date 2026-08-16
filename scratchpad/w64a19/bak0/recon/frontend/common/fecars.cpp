@@ -1396,7 +1396,7 @@ ValidCar_classDone:
   if ((this->fCarListFilter & 1U) == 0) {
     return result;
   }
-  if (frontEnd.raceType != 2) {
+  if (frontEnd.raceType != RaceType_Tournament) {
     return result;
   }
   result = tournamentManager.ValidCar(this->fCarManager->fCars[(u_char)carNumber]);

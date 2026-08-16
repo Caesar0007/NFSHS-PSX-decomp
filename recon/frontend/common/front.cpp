@@ -911,7 +911,7 @@ int Front_Menu(tFront_ProcessingType role)
     break;
   case kFront_QuitToPostGame:
     gCalculateVictory = (char)one;
-    if ((frontEnd.raceType == '\x02') && (GameSetup_gData.replayMode == 0)) {
+    if ((frontEnd.raceType == RaceType_Tournament) && (GameSetup_gData.replayMode == 0)) {
       tournamentManager.AdvanceToNextTrack();
       tournamentManager.UpdateAwardInformation();
     }
@@ -1039,7 +1039,7 @@ int Front_GetLapsForType(void)
 
   lapconv[0] = 2;
   lapconv[1] = 4;
-  if (frontEnd.raceType != '\x02') {
+  if (frontEnd.raceType != RaceType_Tournament) {
     uVar1 = (uint)lapconv[(byte)frontEnd.lapind[(byte)frontEnd.pinkSlipsTrackIndex]];
   }
   else {
@@ -1100,7 +1100,7 @@ static void Front_InitPlayerCars(tFEStream &streamData)
      raceType==2 tail into the pinkslips arm's SECOND tail (the `j` at the end of the
      tournament arm targets it), while a shared fall-through tail instead makes the pinkslips
      arm jump AWAY and drops its own copy -- an 18-insn block the oracle has and we lacked. */
-  if (frontEnd.raceType == '\x02') {
+  if (frontEnd.raceType == RaceType_Tournament) {
     carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[0],*streamData.playerCars,0);
     carInfo = &streamData.playerCars[streamData.numPlayers];
     carInfo->fColor = carInfo->fColorOrder[carInfo->fColor];
@@ -1219,7 +1219,7 @@ static void Front_InitTourneyTraffic(tFEStream &streamData)
           (tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
            tournamentManager.fTournament);
   streamData.numTraffic = 0;
-  if ((frontEnd.raceType == '\x02') && (tourn->fTraffic != '\0'))
+  if ((frontEnd.raceType == RaceType_Tournament) && (tourn->fTraffic != '\0'))
   {
     /* MATCH: same shape as Front_InitTraffic -- SYM has ONE short `i` (REG $17),
        the postfix `fTrafficCars[i++]` gives the oracle's old-i copy + increment
@@ -1326,7 +1326,7 @@ static void Front_InitOpponentCars(tFEStream &streamData)
   short numOpponents;
 
   streamData.numOpponents = 0;
-  if ((frontEnd.raceType == '\x02') ||
+  if ((frontEnd.raceType == RaceType_Tournament) ||
      ((frontEnd.raceType == '\0' && (frontEnd.oppNumber == '\x02')))) {
     tCarInfo *carInfo;
     tCarModels carModel;
@@ -1336,7 +1336,7 @@ static void Front_InitOpponentCars(tFEStream &streamData)
     tTourneyInfo *tourn;
 
     usePlayerUpgrades = 0;
-    if (frontEnd.raceType == '\x02') {
+    if (frontEnd.raceType == RaceType_Tournament) {
       /* MATCH W62-A15: 12D-A7 / W60-A6 INDEX-TERM-FIRST address spelling.
          Retail closes this element address with the INDEX as operand 0
          (`addu v0,v0,a1` then `lbu v1,39(v0)`); a plain `arr[idx].field`
@@ -1378,7 +1378,7 @@ static void Front_InitOpponentCars(tFEStream &streamData)
        fresh in the loop preheader, exactly as retail does.  6 -> PASS.
        (§5.0c "explicit else x = N" / 13C inverted-default, applied to the
        constant arm rather than the computed one.) */
-    if (frontEnd.raceType == '\x02') {
+    if (frontEnd.raceType == RaceType_Tournament) {
       /* MATCH: an `int` temp forces the WORD load of fNumRacers (retail `lw`); assigning
          the expression straight into the `short` lets gcc narrow it to `lhu`. */
       int numRacers = tournamentManager.fNumRacers;
@@ -1407,7 +1407,7 @@ static void Front_InitOpponentCars(tFEStream &streamData)
       else {
         streamData.carLineup[i + 1].carUpgrades = tourn->fOpponentUpgrades[i];
       }
-      if ((frontEnd.raceType == '\x02') && (frontEnd.tier == '\0')) {
+      if ((frontEnd.raceType == RaceType_Tournament) && (frontEnd.tier == '\0')) {
         void *pvVar5 = FECheat_IsCheatEnabled(cheat_FinishedTournament);
         if ((pvVar5 != (void *)0x0) && (frontEnd.opponentUpgrades != '\0')) {
           streamData.carLineup[i + 1].carUpgrades = tourn->fOpponentUpgrades[i];
@@ -1421,7 +1421,7 @@ static void Front_InitOpponentCars(tFEStream &streamData)
       streamData.numOpponents = streamData.numOpponents + 1;
       } while (i < numOpponents);
     }
-    if (frontEnd.raceType == '\x02') {
+    if (frontEnd.raceType == RaceType_Tournament) {
       tournamentManager.UpdateCarLineup();
       /* MATCH: same int-temp WORD-load fix as the raceType==2 block above (retail `lw`). */
       int numRacers2 = tournamentManager.fNumRacers;
@@ -1440,7 +1440,7 @@ static void Front_InitOpponentCars(tFEStream &streamData)
       streamData.carLineup[0].position = '\x06';
     }
   }
-  else if (((byte)frontEnd.raceType < 2) && (frontEnd.oppNumber == '\x01')) {
+  else if (((byte)frontEnd.raceType < RaceType_Tournament) && (frontEnd.oppNumber == '\x01')) {
     tCarInfo carInfo;
     tCarModels carModel;
     char carColor;
@@ -1722,7 +1722,7 @@ static void Front_InitTrack(tFEStream &streamData)
   int iVar1;
   tTrackInfo *tournTrack;
   
-  if (frontEnd.raceType == '\x02') {
+  if (frontEnd.raceType == RaceType_Tournament) {
     tournamentManager.GetTrackToRace(streamData.track);
     src = trackManager.GetTrackByID((short)(signed char)streamData.track.fTrackNumber);
     blockmove(src,&streamData.trackInfo,0x30);
@@ -1796,7 +1796,7 @@ static void Front_InitTraffic(tFEStream &streamData)
   if (frontEnd.gameMode == '\x01') {
     maxTraffic = 3;
   }
-  if (frontEnd.raceType == '\x01') {
+  if (frontEnd.raceType == RaceType_HotPursuit) {
     maxTraffic = 2;
     if (streamData.track.fTimeOfDay == '\x01') {
       maxTraffic = 1;
@@ -1809,12 +1809,12 @@ static void Front_InitTraffic(tFEStream &streamData)
      on the `char` field can never emit the bltz, and `(byte)x < 2` gives sltiu).
      The empty `case 6:` is required for the 3-node tree. */
   switch (frontEnd.raceType) {
-  case 0:
-  case 1:
-    if ((frontEnd.carListType == '\0') && (frontEnd.raceType == '\0')) {
+  case RaceType_SingleRace:
+  case RaceType_HotPursuit:
+    if ((frontEnd.carListType == '\0') && (frontEnd.raceType == RaceType_SingleRace)) {
       bTraffic = true;
     }
-    else if (frontEnd.raceType == '\x01') {
+    else if (frontEnd.raceType == RaceType_HotPursuit) {
       bTraffic = frontEnd.traffic[0] != '\0';
     }
     if (2 < streamData.trackInfo.fTrackDifficulty) {
@@ -1824,7 +1824,7 @@ static void Front_InitTraffic(tFEStream &streamData)
       bTraffic = false;
     }
     if (frontEnd.gameMode == '\x01') {
-      if (frontEnd.raceType == '\x01') {
+      if (frontEnd.raceType == RaceType_HotPursuit) {
         bTraffic = false;
       }
     }
@@ -1832,7 +1832,7 @@ static void Front_InitTraffic(tFEStream &streamData)
       bTraffic = false;
     }
     break;
-  case 6:
+  case RaceType_PinkSlips:
     break;
   default:
     bTraffic = false;
@@ -2450,7 +2450,7 @@ void * Front_EnableLocalSpeech(void)
   int lang;
 
   ret = (void *)0x0;
-  if (frontEnd.raceType == '\x01') {
+  if (frontEnd.raceType == RaceType_HotPursuit) {
     trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
                trackInfo);
     lang = (byte)trackInfo.fLanguage;
@@ -2607,7 +2607,7 @@ int * Front_BuildStream(int *stream)
     *d++ = 0;
   }
   else {
-    if (frontEnd.raceType != '\x02') {
+    if (frontEnd.raceType != RaceType_Tournament) {
       *d++ = (uint)(byte)frontEnd.damage;
     }
     else {
@@ -2633,14 +2633,14 @@ int * Front_BuildStream(int *stream)
   iVar3 = Stattool_ReturnRecordLapTime((short)(signed char)streamData.track.fTrackNumber);
   *d++ = iVar3;
   *d++ = 8;
-  if ((frontEnd.raceType == '\0') && (frontEnd.carListType == '\0')) {
+  if ((frontEnd.raceType == RaceType_SingleRace) && (frontEnd.carListType == '\0')) {
     *d++ = 1;
   }
   else {
     *d++ = Front_GetLapsForType();
   }
   if (((streamData.playerCars[0].fCarClass == '\a') || (streamData.playerCars[1].fCarClass == '\a'))
-     || ((frontEnd.raceType == '\0' && ((frontEnd.oppNumber == '\0' && (frontEnd.gameMode == '\0')))
+     || ((frontEnd.raceType == RaceType_SingleRace && ((frontEnd.oppNumber == '\0' && (frontEnd.gameMode == '\0')))
          ))) {
     *d++ = 0x20;
     *d++ = 0;
@@ -2985,7 +2985,7 @@ short Front_GetTrackRaced(void)
   short sVar1;
   tTrackInformation trackInfo;
   
-  if (frontEnd.raceType == '\x02') {
+  if (frontEnd.raceType == RaceType_Tournament) {
     sVar1 = tournamentManager.GetLastTrackRaced();
   }
   else {

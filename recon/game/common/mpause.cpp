@@ -423,13 +423,13 @@ void MPause_StartPauseMenu(void)
   ((MPauseMenuVirtual *)gPauseCurrentMenu)->Initialize();
   gBackDepth = 0;
 
-  if ((GameSetup_gData.raceType != 6) && (GameSetup_gData.raceType != 2)) {
+  if ((GameSetup_gData.raceType != RaceType_PinkSlips) && (GameSetup_gData.raceType != RaceType_Tournament)) {
     MPause_EnableItem(&gPauseMenuDefs->itemRestart);
   } else {
     MPause_DisableItem(&gPauseMenuDefs->itemRestart);
   }
 
-  if (GameSetup_gData.raceType == 6) {
+  if (GameSetup_gData.raceType == RaceType_PinkSlips) {
     MPause_EnableItem(&gPauseMenuDefs->itemForfeitRace);
     MPause_DisableItem(&gPauseMenuDefs->itemQuitRace);
   }

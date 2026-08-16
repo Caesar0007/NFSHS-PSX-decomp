@@ -7,6 +7,14 @@
 #include "../../nfs4_types.h"
 #include "speech_externs.h"
 
+/* Speech static data precedes this TU's literal pools in retail.  Keep the
+ * demangled source names while binding the compiler-emitted ABI labels.
+ * Storage receipt: this TU is retail -G8 plus -fconserve-space.  Together,
+ * .data=0x460 and .sdata=0x2f8 both link byte-exact; all 102 text gates retain
+ * their result.  Build wiring is intentionally kept out of this source file. */
+Speech *Speech_fgSpeech __asm__("_6Speech_fgSpeech") = 0;
+Speaker *Speech_fgUndefined __asm__("_6Speech_fgUndefined") = 0;
+
 /* ---- speech.obj OWNED globals (EXT; SYM Globals.jsonl tu=Speech.obj, @0x80111a44+) ----
  * Byte-exact from image 2026-07-12 (were bare zero-init defs — real .data: car speech-bank
  * names + per-track location records + dispatch/mobile callsigns). String pointers restored
@@ -81,91 +89,6 @@ Speech_tCallSignDescription Speech_gCallSignDescription[1] = {{   /* @0x80111e08
 Speech_tMobileVoiceAttr     Speech_gCopAttr[9] = {   /* @0x80111e5c : {voice, pitch} */
     { 1, 0 }, { 2, 0 }, { 4, 0 }, { 1, 5 }, { 2, 5 }, { 4, 5 }, { 1, -5 }, { 2, -5 }, { 4, -5 }
 };
-/* Speech::fgSpeech static-member singleton (active engine instance; $gp+0x838=0x8013cd84) */
-Speech            *Speech_fgSpeech;
-/* Speech::fgUndefined static-member (cfront fn-local static _6Speech.fgUndefined; SYM-confirmed
-   scalar Speaker* @0x8013cd88 -- oracle sdata dump (asm/data/sdata_8013C54C.sdata.s) shows it as
-   ONE `.word 0x00000000`, NOT an array; 3 speech fns (Dispatch/FindMobile/Mobile) reach it via
-   %gp_rel, which only applies to a true <=4B scalar (methodology 3.12 #6). nfs3.cpp's non-owner
-   extern (_6Speech_fgUndefined) confirms the ownership + gp-rel-only-for-owner split. The 752
-   bytes previously bundled into this symbol as a fake "array" are really a SEPARATE run of
-   discrete per-string rodata dlabels the linker placed contiguously after it (D_8013CD8C.. =
-   "BMWZ"/"bmwz3."/... car-abbreviation strings, ending in the 4 strings CheckMultiBank__6Speech...
-   strncmp's against: "j:id\", "j:cars\", "j:cid\", "j:clip."). Preserved verbatim below as an
-   opaque byte blob (Speech_gBankNameStrings) so any other absolute-VA pointer into this region
-   keeps byte-exact content; CheckMultiBank's 4 named comparisons now use the literal strings
-   directly (matches the oracle's per-dlabel D_8013D04C.."j:id\" family, confirmed via disasm). */
-Speaker *Speech_fgUndefined;
-static const unsigned char Speech_gBankNameStrings[752] = {
-    0x42,0x4d,0x57,0x5a,0x00,0x00,0x00,0x00,
-    0x62,0x6d,0x77,0x7a,0x33,0x2e,0x00,0x00,0x62,0x6d,0x77,0x2e,
-    0x00,0x00,0x00,0x00,0x7a,0x33,0x2e,0x00,0x48,0x53,0x56,0x54,
-    0x00,0x00,0x00,0x00,0x73,0x65,0x64,0x61,0x6e,0x2e,0x00,0x00,
-    0x46,0x4f,0x52,0x44,0x00,0x00,0x00,0x00,0x43,0x4d,0x52,0x4f,
-    0x00,0x00,0x00,0x00,0x63,0x68,0x76,0x63,0x61,0x6d,0x2e,0x00,
-    0x63,0x68,0x65,0x76,0x72,0x6f,0x2e,0x00,0x63,0x61,0x6d,0x2e,
-    0x00,0x00,0x00,0x00,0x54,0x52,0x41,0x4d,0x00,0x00,0x00,0x00,
-    0x70,0x6f,0x6e,0x74,0x2e,0x00,0x00,0x00,0x41,0x44,0x42,0x37,
-    0x00,0x00,0x00,0x00,0x61,0x73,0x74,0x6f,0x6e,0x2e,0x00,0x00,
-    0x4a,0x58,0x4b,0x52,0x00,0x00,0x00,0x00,0x6a,0x61,0x67,0x2e,
-    0x00,0x00,0x00,0x00,0x42,0x4d,0x57,0x4d,0x00,0x00,0x00,0x00,
-    0x62,0x6d,0x77,0x6d,0x35,0x2e,0x00,0x00,0x6d,0x35,0x2e,0x00,
-    0x43,0x4f,0x52,0x56,0x00,0x00,0x00,0x00,0x63,0x68,0x76,0x63,
-    0x6f,0x72,0x2e,0x00,0x63,0x6f,0x72,0x76,0x2e,0x00,0x00,0x00,
-    0x50,0x39,0x39,0x33,0x00,0x00,0x00,0x00,0x70,0x6f,0x72,0x39,
-    0x31,0x31,0x2e,0x00,0x70,0x6f,0x72,0x73,0x63,0x2e,0x00,0x00,
-    0x44,0x49,0x41,0x42,0x00,0x00,0x00,0x00,0x6c,0x61,0x6d,0x64,
-    0x69,0x61,0x2e,0x00,0x6c,0x61,0x6d,0x62,0x2e,0x00,0x00,0x00,
-    0x64,0x69,0x61,0x2e,0x00,0x00,0x00,0x00,0x4d,0x43,0x46,0x31,
-    0x00,0x00,0x00,0x00,0x6d,0x63,0x6c,0x61,0x72,0x2e,0x00,0x00,
-    0x58,0x39,0x39,0x33,0x00,0x00,0x00,0x00,0x58,0x43,0x46,0x31,
-    0x00,0x00,0x00,0x00,0x73,0x70,0x6f,0x72,0x74,0x2e,0x00,0x00,
-    0x63,0x61,0x62,0x2e,0x00,0x00,0x00,0x00,0x62,0x61,0x6f,0x76,
-    0x2e,0x00,0x00,0x00,0x74,0x75,0x6e,0x2e,0x00,0x00,0x00,0x00,
-    0x73,0x63,0x72,0x76,0x2e,0x00,0x00,0x00,0x74,0x77,0x72,0x2e,
-    0x00,0x00,0x00,0x00,0x62,0x72,0x67,0x2e,0x00,0x00,0x00,0x00,
-    0x66,0x72,0x6d,0x2e,0x00,0x00,0x00,0x00,0x70,0x69,0x6b,0x65,
-    0x2e,0x00,0x00,0x00,0x6c,0x74,0x75,0x6e,0x2e,0x00,0x00,0x00,
-    0x69,0x63,0x65,0x63,0x2e,0x00,0x00,0x00,0x6d,0x61,0x72,0x2e,
-    0x00,0x00,0x00,0x00,0x62,0x61,0x79,0x2e,0x00,0x00,0x00,0x00,
-    0x72,0x61,0x72,0x63,0x2e,0x00,0x00,0x00,0x6c,0x74,0x68,0x2e,
-    0x00,0x00,0x00,0x00,0x72,0x75,0x69,0x6e,0x2e,0x00,0x00,0x00,
-    0x73,0x70,0x66,0x6c,0x2e,0x00,0x00,0x00,0x74,0x62,0x72,0x67,
-    0x2e,0x00,0x00,0x00,0x62,0x67,0x64,0x72,0x2e,0x00,0x00,0x00,
-    0x6f,0x76,0x65,0x72,0x2e,0x00,0x00,0x00,0x66,0x6c,0x64,0x2e,
-    0x00,0x00,0x00,0x00,0x73,0x74,0x75,0x6e,0x2e,0x00,0x00,0x00,
-    0x68,0x74,0x6f,0x75,0x2e,0x00,0x00,0x00,0x6f,0x67,0x74,0x2e,
-    0x00,0x00,0x00,0x00,0x74,0x72,0x6e,0x78,0x2e,0x00,0x00,0x00,
-    0x6c,0x73,0x70,0x2e,0x00,0x00,0x00,0x00,0x68,0x73,0x76,0x2e,
-    0x00,0x00,0x00,0x00,0x70,0x65,0x6e,0x74,0x2e,0x00,0x00,0x00,
-    0x77,0x66,0x72,0x6d,0x2e,0x00,0x00,0x00,0x6f,0x77,0x65,0x6c,
-    0x2e,0x00,0x00,0x00,0x74,0x6f,0x6c,0x6c,0x2e,0x00,0x00,0x00,
-    0x6f,0x62,0x77,0x6d,0x2e,0x00,0x00,0x00,0x76,0x69,0x6c,0x6c,
-    0x2e,0x00,0x00,0x00,0x6f,0x6d,0x75,0x73,0x2e,0x00,0x00,0x00,
-    0x6b,0x6e,0x67,0x6d,0x2e,0x00,0x00,0x00,0x68,0x70,0x69,0x6e,
-    0x2e,0x00,0x00,0x00,0x61,0x72,0x63,0x68,0x2e,0x00,0x00,0x00,
-    0x6d,0x65,0x64,0x69,0x2e,0x00,0x00,0x00,0x66,0x61,0x72,0x6d,
-    0x2e,0x00,0x00,0x00,0x61,0x6c,0x6c,0x2e,0x00,0x00,0x00,0x00,
-    0x64,0x69,0x73,0x2e,0x00,0x00,0x00,0x00,0x63,0x65,0x6e,0x2e,
-    0x00,0x00,0x00,0x00,0x63,0x6f,0x6e,0x74,0x2e,0x00,0x00,0x00,
-    0x68,0x71,0x2e,0x00,0x63,0x6f,0x75,0x2e,0x00,0x00,0x00,0x00,
-    0x32,0x30,0x2e,0x00,0x32,0x35,0x2e,0x00,0x33,0x31,0x2e,0x00,
-    0x33,0x37,0x2e,0x00,0x33,0x38,0x2e,0x00,0x34,0x33,0x2e,0x00,
-    0x34,0x35,0x2e,0x00,0x34,0x36,0x2e,0x00,0x35,0x32,0x2e,0x00,
-    0x32,0x31,0x37,0x2e,0x00,0x00,0x00,0x00,0x32,0x32,0x33,0x2e,
-    0x00,0x00,0x00,0x00,0x33,0x31,0x36,0x2e,0x00,0x00,0x00,0x00,
-    0x33,0x33,0x32,0x2e,0x00,0x00,0x00,0x00,0x33,0x35,0x35,0x2e,
-    0x00,0x00,0x00,0x00,0x33,0x37,0x31,0x2e,0x00,0x00,0x00,0x00,
-    0x6a,0x3a,0x69,0x64,0x5c,0x00,0x00,0x00,0x6a,0x3a,0x63,0x61,
-    0x72,0x73,0x5c,0x00,0x6a,0x3a,0x63,0x69,0x64,0x5c,0x00,0x00,
-    0x6a,0x3a,0x63,0x6c,0x69,0x70,0x2e,0x00,0x66,0x72,0x65,0x00,
-    0x67,0x65,0x72,0x00,0x62,0x72,0x74,0x00,0x65,0x6e,0x67,0x00,
-};
-/* gSpeechBankPool: in-race speech bank pool head (STAT void*, MEMORY-POOL-OVERLAY w/ CF_DVLC) */
-void              *gSpeechBankPool;
-/* @0x8013d06c: packed language-suffix table (4-byte stride, 3-char codes; bytes verified vs
-   NFS4.EXE). Read in StartUp via switch(GameSetup_gData.languageSpeech) -> "%szzzz%s.viv". */
-static char        gSpeechLangSuffix[4][4] = { "fre", "ger", "brt", "eng" };
 
 static inline int Speech_ReadBE32(char *p)
 {
@@ -1114,16 +1037,16 @@ Speech::Speech()
   banksize = 0;
   switch (GameSetup_gData.languageSpeech) {
   case 2:
-    SpeechLanguage = gSpeechLangSuffix[0];
+    SpeechLanguage = "fre";
     break;
   case 1:
-    SpeechLanguage = gSpeechLangSuffix[1];
+    SpeechLanguage = "ger";
     break;
   case 6:
-    SpeechLanguage = gSpeechLangSuffix[2];
+    SpeechLanguage = "brt";
     break;
   default:
-    SpeechLanguage = gSpeechLangSuffix[3];
+    SpeechLanguage = "eng";
     break;
   }
 
@@ -1690,7 +1613,53 @@ void StatusReply__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
     SPCHNFSType_DISTANCE *distance = &(pThis->_base_Speaker).fDistance;
     (pThis->_base_Speaker).fSpikeSide.flags = 4;
     (pThis->_base_Speaker).fWing = wing;
-    /* NEAR-MISS 5 (ours 268 / oracle 269) -- same class as SubmitRequest above:
+    /* *** MATCH (W69) -- THE 12A PREFERENCE-KILLER IN ITS NON-VOLATILE FORM.
+       The seal is the one-line `__asm__("" : "=r"(wing) : "0"(wing) : "$7");`
+       sitting immediately before the SPCHNFS_D_C_SPBLT_CONFIRMED call below.
+       ZERO INSNS.  DO NOT DELETE OR "SIMPLIFY" IT: it is the only thing
+       standing between this function and the 5-diff near-miss documented below.
+       It is NOT a register pin (no `register T x asm("$N")` binding); it is the
+       13B identity launder carrying a 12A hard-register clobber, and it emits
+       nothing (empty template + matching "0" constraint = a reg-reg tie gcc
+       coalesces away).  BOTH halves are load-bearing and BOTH were measured:
+         launder alone, no clobber ................ 15 diffs
+         clobber alone, volatile (no output) ...... 12 diffs   (W68's 14@269 class)
+         launder + clobber, NON-volatile .......... PASS 269/269
+       The clobber may be spelled "$7" or "a3" (both PASS); adding "memory"
+       is also PASS but is noise -- keep the minimal form.
+       WHY NON-VOLATILE IS THE WHOLE TRICK (this is the W68/20A closure, solved):
+       an output-LESS asm is implicitly volatile => a sched1 BARRIER, and retail
+       hoists the call's $a0/$a2 arg setup (`addu a0,s1,zero`, `addiu a2,s1,4`)
+       from the call site all the way ABOVE the index chain; a barrier anywhere
+       inside wing's live range traps them below it.  Giving the asm an OUTPUT
+       (here wing itself, matched back to its own input) drops MEM_VOLATILE_P,
+       so the insn is an ordinary schedulable RTL node: the clobber still makes
+       $a3 conflict with wing's quantity -- denying local-alloc's
+       qty_phys_copy_sugg, so wing takes $v1 and retail's surviving copy
+       `addu a3,v1,zero` MINTS -- while sched1 remains free to hoist a0/a2.
+       W68's structural law ("any RTL fence inside the range blocks the hoists")
+       was right about VOLATILE fences only; the non-volatile launder is the
+       device 13B had been asking for across four waves.
+       POSITION IS A DIAL, and only P5 wins (all five measured, W69):
+         P1 after the wing load ....... 7 @270   P2 after `location` .... 7 @270
+         P3 after `distance` .......... 7 @270   P4 after `flags = 4` ... 10 @269
+         P5 after the fWing store ..... PASS     (volatile controls at the same
+         five positions: 10 / 12 / 12 / 14 / 12 -- never better than the 5-diff
+         no-fence baseline, exactly as W68 recorded.)
+       FENCE-FREE ANGLES RE-SWEPT THIS WAVE, ALL INERT AT EXACTLY 5 @268 (so the
+       "source-level preference change" 20A asked for still does not exist, but
+       it is no longer needed): `unsigned int wing`; a `pos` local for arg0 taken
+       before the wing statement; `(int)wing` cast at the call; wing+call wrapped
+       in one inner block (13A block anchor); the fWing store spelled through an
+       int-pun lvalue (14D alias dial); a read-back `wing = fWing;` after the
+       store (w43 case-2).  Two were WORSE: the index-term-first address spelling
+       of the fMobile read and a `volatile int` read of the same slot both give
+       7 @268 (they only re-order the `addu`).  Hoisting the location/distance
+       declarations above the CallSign call is catastrophic (208 @273 -- the two
+       locals then live across the virtual call and buy an extra callee-saved
+       register plus a bigger frame).
+       ---- the historical near-miss receipt this seal retires ----
+       NEAR-MISS 5 (ours 268 / oracle 269) -- same class as SubmitRequest above:
        retail stages the loaded value in $v1 and COPIES it into the $a3 call-arg
        (`addu a3,v1,zero`); ours colours `wing` straight into $a3 because
        local-alloc's qty_phys_copy_sugg (and, for a global allocno, global.c's
@@ -1740,7 +1709,32 @@ void StatusReply__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
        decider here: local-alloc's copy suggestion hands the pseudo $a3 whatever
        its number, its scope, or how its value is spelled.  The residual is
        exactly and only the 12A hard-reg PREFERENCE; nothing below the
-       preference-killer instrument will move it. */
+       preference-killer instrument will move it.
+       W68 (this session, 3 new angles, all real gate runs):
+         (1) overlap-blocked carrier (`int wingSent = wing;` BEFORE the fWing
+             store, call passes wingSent -- live ranges overlap so local-alloc
+             cannot tie): 5@268 INERT -- cse copy-propagates wingSent:=wing
+             before allocation ever sees the copy.
+         (2) assignment-as-argument (`CALL(..., fWing = wing, ...)`, no separate
+             store stmt -- hoping expand_assignment(want_value) returns a
+             protected copy): 5@268 INERT -- 2.8 returns the source pseudo.
+         (3) 🏆 ZERO-INSN a3-CLOBBER (`__asm__("" ::: "$7")` between the load
+             and the store -- the wanted 12A preference killer, adds NO
+             references to wing): MINTS THE COPY, count EXACT 269/269, wing
+             lands in $v1 exactly as retail -- but the volatile asm is a
+             SCHED BARRIER: retail's a0/a2 call-arg hoists land BETWEEN the
+             index chain and the lw (inside wing's range), so they cannot
+             cross the fence: 14@269, worse.  STRUCTURAL CLOSURE of the asm
+             axis: ANY RTL fence inside [lw..sw] blocks exactly those hoists;
+             a fence outside the range does not deny the preference.  The
+             remaining wanted device must deny $a3 with ZERO RTL between the
+             load and the store -- i.e. at the SOURCE/preference level, not
+             via an inserted insn.  Keeping the 5-diff form.
+             [W69 RESOLUTION: the premise "ANY RTL fence inside [lw..sw]" was
+             true only for VOLATILE fences; a NON-VOLATILE asm (one with an
+             output) is not a sched barrier, denies the preference just the
+             same, and seals the function -- see the MATCH block at the top.] */
+    __asm__("" : "=r"(wing) : "0"(wing) : "$7");  /* W69 seal -- see MATCH above */
     SPCHNFS_D_C_SPBLT_CONFIRMED((SPCHNFSType_POSITION *)pThis,
       location,distance,wing,
       &(pThis->_base_Speaker).fSpikeSide);
@@ -2332,6 +2326,9 @@ void AddPerp__Q26Speech15DispatchSpeakerP8Car_tObj(DispatchSpeaker *pThis,Car_tO
 }
 
 /* ---- Report__Q26Speech15DispatchSpeakerP8Car_tObj  [SPEECH.CPP:1990-2031] SLD-VERIFIED ----
+ * PASS (104/104): the direct, combined bank-address expression keeps the first
+ * virtual result live through the second call and sinks its v0->s0 copy into
+ * that call's delay slot.  This supersedes the historical near-miss analysis below.
  * NEAR-MISS 11, ours 103 / oracle 104 (W60-A9).  Retail keeps the second vf-thunk's
  * receiver in a FRESH register ($a1: `lw a1,76(v1); lh a0,136(a1); lw v1,140(a1)`)
  * and defers the first call's result copy `addu s0,v0,zero` into the SECOND jalr's
@@ -2402,7 +2399,7 @@ void AddPerp__Q26Speech15DispatchSpeakerP8Car_tObj(DispatchSpeaker *pThis,Car_tO
  * genuinely holds a live value in $v0 across the receiver load.  That is the
  * 12A preference/availability instrument (or an allocsim/reqdelta reading of the
  * receiver's qty window), not a fence and not a spelling. */
-/* MATCH: 36 -> 11 diffs (103/104).  Distinct short-lived speech arguments
+/* SUPERSEDED RECEIPT: 36 -> 11 diffs (103/104).  Distinct short-lived speech arguments
    recover every tail register, the SLD Speech* local plus the first empty
    barrier recover the retail prologue, and the pin-free pSVar6 fence recovers
    fSub=$v1.  Remaining named angle: retail keeps the first virtual result in
@@ -2417,7 +2414,6 @@ void Report__Q26Speech15DispatchSpeakerP8Car_tObj(DispatchSpeaker *pThis,Car_tOb
   int iVar3;
   int iVar4;
   int *piVar5;
-  Speaker *pSVar6;
   SPCHNFSType_CONFIRM *CONFIRM;
   void *ctx;
   SPCHNFSType_COLOUR *COLOUR;
@@ -2441,14 +2437,15 @@ void Report__Q26Speech15DispatchSpeakerP8Car_tObj(DispatchSpeaker *pThis,Car_tOb
   if (bVar1) {
     if (*(int *)(((int)Speech_fgSpeech) + 0x388) == 0) {
       int sightedTo;
+      int *bank;
 
-      iVar3 = (*(*(pThis->_base_Speaker)._vf)[0x1e].pfn)(((int)pThis->fPerp + -0x5c) + (*(pThis->_base_Speaker)._vf)[0x1e].delta);
-      pSVar6 = (pThis->_base_Speaker).fSub;
-      __asm__("" : "=r"(pSVar6) : "0"(pSVar6));
-      iVar4 = (*(*pSVar6->_vf)[0x11].pfn)((int)&(pSVar6->fPosition).flags + (int)(*pSVar6->_vf)[0x11].delta)
-      ;
-      iVar3 = iVar3 + iVar4 * 4;
-      sightedTo = *(int *)(iVar3 + 8);
+      bank = (int *)((int)(*(*(pThis->_base_Speaker)._vf)[0x1e].pfn)
+        (((int)pThis->fPerp + -0x5c) +
+         (*(pThis->_base_Speaker)._vf)[0x1e].delta) +
+        (*(*(pThis->_base_Speaker).fSub->_vf)[0x11].pfn)
+        ((int)&(pThis->_base_Speaker).fSub->fPosition.flags +
+         (int)(*(pThis->_base_Speaker).fSub->_vf)[0x11].delta) * 4);
+      sightedTo = bank[2];
       CONFIRM = &(pThis->_base_Speaker).fConfirm;
       (pThis->_base_Speaker).fTo = sightedTo;
       SPCHNFS_D_C_PERP_SIGHTED_CONFIRM(CONFIRM,sightedTo);
@@ -4126,40 +4123,10 @@ void Status__Q26Speech7Speaker(Speaker *pThis)
 }
 
 /* ---- #75 data-materialization: 3 Speech vtables (nested Speech::<Leaf>, flat <Leaf>_<Method> pfns). ---- */
-__vtbl_ptr_type Speaker_vtable[31] = {   /* @0x80055dc4  Speech::Speaker vtable (#75 data-mat; faithful nfs4-f.exe bytes) */
-  {0, 0, (int (*)(...))0},                           /* @0x80055dc4  null */
-  {0, 0, (int (*)(...))&Report__Q26Speech7SpeakerP8Car_tObj},             /* @0x80055dcc  Report__Q26Speech7SpeakerP8Car_tObj */
-  {0, 0, (int (*)(...))&Status__Q26Speech7Speaker},             /* @0x80055dd4  Status__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Deny__Q26Speech7Speaker},               /* @0x80055ddc  Deny__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Grant__Q26Speech7Speaker},              /* @0x80055de4  Grant__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Ready__Q26Speech7SpeakerP8Car_tObj},              /* @0x80055dec  Ready__Q26Speech7SpeakerP8Car_tObj */
-  {0, 0, (int (*)(...))&Engage__Q26Speech7SpeakerP8Car_tObj},             /* @0x80055df4  Engage__Q26Speech7SpeakerP8Car_tObj */
-  {0, 0, (int (*)(...))&Lose__Q26Speech7Speaker},               /* @0x80055dfc  Lose__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Accident__Q26Speech7Speakeri},           /* @0x80055e04  Accident__Q26Speech7Speakeri */
-  {0, 0, (int (*)(...))&Catch__Q26Speech7Speakeri},              /* @0x80055e0c  Catch__Q26Speech7Speakeri */
-  {0, 0, (int (*)(...))&RoadBlock__Q26Speech7Speaker},          /* @0x80055e14  RoadBlock__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&SpikeBelt__Q26Speech7Speaker},          /* @0x80055e1c  SpikeBelt__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Backup__Q26Speech7Speaker},             /* @0x80055e24  Backup__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&ReportBlockade__Q26Speech7Speaker},     /* @0x80055e2c  ReportBlockade__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Roger__Q26Speech7Speaker},              /* @0x80055e34  Roger__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Bullhorn__Q26Speech7Speaker},           /* @0x80055e3c  Bullhorn__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Purge__Q26Speech7Speaker},              /* @0x80055e44  Purge__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Unit__Q26Speech7Speaker},               /* @0x80055e4c  Unit__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&KnownPerp__Q26Speech7SpeakerP8Car_tObj},          /* @0x80055e54  KnownPerp__Q26Speech7SpeakerP8Car_tObj */
-  {0, 0, (int (*)(...))&ClearPerp__Q26Speech7SpeakerP8Car_tObj},          /* @0x80055e5c  ClearPerp__Q26Speech7SpeakerP8Car_tObj */
-  {0, 0, (int (*)(...))&IsSuper__Q26Speech7Speaker},            /* @0x80055e64  IsSuper__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&StatusCount__Q26Speech7Speaker},        /* @0x80055e6c  StatusCount__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&StatusSub__Q26Speech7Speaker},          /* @0x80055e74  StatusSub__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&PurgeStatusSub__Q26Speech7Speaker},     /* @0x80055e7c  PurgeStatusSub__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&DistToPerp__Q26Speech7Speaker},         /* @0x80055e84  DistToPerp__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&CarObj__Q26Speech7Speaker},             /* @0x80055e8c  CarObj__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&ReActivate__Q26Speech7Speaker},         /* @0x80055e94  ReActivate__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Perp__Q26Speech7Speaker},               /* @0x80055e9c  Perp__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&GetCarBank__Q26Speech7Speakeri},         /* @0x80055ea4  GetCarBank__Q26Speech7Speakeri */
-  {0, 0, (int (*)(...))&FindClosestLocationTo__Q26Speech7Speakeri}, /* @0x80055eac  FindClosestLocationTo__Q26Speech7Speakeri */
-  {0, 0, (int (*)(...))&CallSign__Q26Speech7Speaker},           /* @0x80055eb4  CallSign__Q26Speech7Speaker */
-};
-__vtbl_ptr_type MobileSpeaker_vtable[31] = {   /* @0x80055bd4  Speech::MobileSpeaker vtable (#75 data-mat; faithful nfs4-f.exe bytes) */
+/* Compiler-emitted empty type-name/literal slot between strings and vtables. */
+extern const char Speech_vtableTypeName[4] __asm__("D_80055BD0")
+    __attribute__((section(".rodata"))) = "";
+const __vtbl_ptr_type MobileSpeaker_vtable[31] __asm__("_vt_Q26Speech13MobileSpeaker") = {   /* @0x80055bd4  Speech::MobileSpeaker vtable (#75 data-mat; faithful nfs4-f.exe bytes) */
   {0, 0, (int (*)(...))0},                           /* @0x80055bd4  null */
   {0, 0, (int (*)(...))&Report__Q26Speech13MobileSpeakerP8Car_tObj},       /* @0x80055bdc  Report__Q26Speech13MobileSpeakerP8Car_tObj */
   {0, 0, (int (*)(...))&Status__Q26Speech13MobileSpeaker},       /* @0x80055be4  Status__Q26Speech13MobileSpeaker */
@@ -4192,7 +4159,7 @@ __vtbl_ptr_type MobileSpeaker_vtable[31] = {   /* @0x80055bd4  Speech::MobileSpe
   {0, 0, (int (*)(...))&FindClosestLocationTo__Q26Speech13MobileSpeakeri}, /* @0x80055cbc  FindClosestLocationTo__Q26Speech13MobileSpeakeri */
   {0, 0, (int (*)(...))&CallSign__Q26Speech13MobileSpeaker},     /* @0x80055cc4  CallSign__Q26Speech13MobileSpeaker */
 };
-__vtbl_ptr_type DispatchSpeaker_vtable[31] = {   /* @0x80055ccc  Speech::DispatchSpeaker vtable (#75 data-mat; faithful nfs4-f.exe bytes) */
+const __vtbl_ptr_type DispatchSpeaker_vtable[31] __asm__("_vt_Q26Speech15DispatchSpeaker") = {   /* @0x80055ccc  Speech::DispatchSpeaker vtable (#75 data-mat; faithful nfs4-f.exe bytes) */
   {0, 0, (int (*)(...))0},                           /* @0x80055ccc  null */
   {0, 0, (int (*)(...))&Report__Q26Speech15DispatchSpeakerP8Car_tObj},     /* @0x80055cd4  Report__Q26Speech15DispatchSpeakerP8Car_tObj */
   {0, 0, (int (*)(...))&Status__Q26Speech15DispatchSpeaker},     /* @0x80055cdc  Status__Q26Speech15DispatchSpeaker */
@@ -4224,6 +4191,39 @@ __vtbl_ptr_type DispatchSpeaker_vtable[31] = {   /* @0x80055ccc  Speech::Dispatc
   {0, 0, (int (*)(...))&GetCarBank__Q26Speech15DispatchSpeakeri}, /* @0x80055dac  GetCarBank__Q26Speech15DispatchSpeakeri */
   {0, 0, (int (*)(...))&FindClosestLocationTo__Q26Speech15DispatchSpeakeri}, /* @0x80055db4  FindClosestLocationTo__Q26Speech15DispatchSpeakeri */
   {0, 0, (int (*)(...))&CallSign__Q26Speech15DispatchSpeaker},   /* @0x80055dbc  CallSign__Q26Speech15DispatchSpeaker */
+};
+const __vtbl_ptr_type Speaker_vtable[31] __asm__("_vt_Q26Speech7Speaker") = {   /* @0x80055dc4  Speech::Speaker vtable (#75 data-mat; faithful nfs4-f.exe bytes) */
+  {0, 0, (int (*)(...))0},                           /* @0x80055dc4  null */
+  {0, 0, (int (*)(...))&Report__Q26Speech7SpeakerP8Car_tObj},             /* @0x80055dcc  Report__Q26Speech7SpeakerP8Car_tObj */
+  {0, 0, (int (*)(...))&Status__Q26Speech7Speaker},             /* @0x80055dd4  Status__Q26Speech7Speaker */
+  {0, 0, (int (*)(...))&Deny__Q26Speech7Speaker},               /* @0x80055ddc  Deny__Q26Speech7Speaker */
+  {0, 0, (int (*)(...))&Grant__Q26Speech7Speaker},              /* @0x80055de4  Grant__Q26Speech7Speaker */
+  {0, 0, (int (*)(...))&Ready__Q26Speech7SpeakerP8Car_tObj},              /* @0x80055dec  Ready__Q26Speech7SpeakerP8Car_tObj */
+  {0, 0, (int (*)(...))&Engage__Q26Speech7SpeakerP8Car_tObj},             /* @0x80055df4  Engage__Q26Speech7SpeakerP8Car_tObj */
+  {0, 0, (int (*)(...))&Lose__Q26Speech7Speaker},               /* @0x80055dfc  Lose__Q26Speech7Speaker */
+  {0, 0, (int (*)(...))&Accident__Q26Speech7Speakeri},           /* @0x80055e04  Accident__Q26Speech7Speakeri */
+  {0, 0, (int (*)(...))&Catch__Q26Speech7Speakeri},              /* @0x80055e0c  Catch__Q26Speech7Speakeri */
+  {0, 0, (int (*)(...))&RoadBlock__Q26Speech7Speaker},          /* @0x80055e14  RoadBlock__Q26Speech7Speaker */
+  {0, 0, (int (*)(...))&SpikeBelt__Q26Speech7Speaker},          /* @0x80055e1c  SpikeBelt__Q26Speech7Speaker */
+  {0, 0, (int (*)(...))&Backup__Q26Speech7Speaker},             /* @0x80055e24  Backup__Q26Speech7Speaker */
+  {0, 0, (int (*)(...))&ReportBlockade__Q26Speech7Speaker},     /* @0x80055e2c  ReportBlockade__Q26Speech7Speaker */
+  {0, 0, (int (*)(...))&Roger__Q26Speech7Speaker},              /* @0x80055e34  Roger__Q26Speech7Speaker */
+  {0, 0, (int (*)(...))&Bullhorn__Q26Speech7Speaker},           /* @0x80055e3c  Bullhorn__Q26Speech7Speaker */
+  {0, 0, (int (*)(...))&Purge__Q26Speech7Speaker},              /* @0x80055e44  Purge__Q26Speech7Speaker */
+  {0, 0, (int (*)(...))&Unit__Q26Speech7Speaker},               /* @0x80055e4c  Unit__Q26Speech7Speaker */
+  {0, 0, (int (*)(...))&KnownPerp__Q26Speech7SpeakerP8Car_tObj},          /* @0x80055e54  KnownPerp__Q26Speech7SpeakerP8Car_tObj */
+  {0, 0, (int (*)(...))&ClearPerp__Q26Speech7SpeakerP8Car_tObj},          /* @0x80055e5c  ClearPerp__Q26Speech7SpeakerP8Car_tObj */
+  {0, 0, (int (*)(...))&IsSuper__Q26Speech7Speaker},            /* @0x80055e64  IsSuper__Q26Speech7Speaker */
+  {0, 0, (int (*)(...))&StatusCount__Q26Speech7Speaker},        /* @0x80055e6c  StatusCount__Q26Speech7Speaker */
+  {0, 0, (int (*)(...))&StatusSub__Q26Speech7Speaker},          /* @0x80055e74  StatusSub__Q26Speech7Speaker */
+  {0, 0, (int (*)(...))&PurgeStatusSub__Q26Speech7Speaker},     /* @0x80055e7c  PurgeStatusSub__Q26Speech7Speaker */
+  {0, 0, (int (*)(...))&DistToPerp__Q26Speech7Speaker},         /* @0x80055e84  DistToPerp__Q26Speech7Speaker */
+  {0, 0, (int (*)(...))&CarObj__Q26Speech7Speaker},             /* @0x80055e8c  CarObj__Q26Speech7Speaker */
+  {0, 0, (int (*)(...))&ReActivate__Q26Speech7Speaker},         /* @0x80055e94  ReActivate__Q26Speech7Speaker */
+  {0, 0, (int (*)(...))&Perp__Q26Speech7Speaker},               /* @0x80055e9c  Perp__Q26Speech7Speaker */
+  {0, 0, (int (*)(...))&GetCarBank__Q26Speech7Speakeri},         /* @0x80055ea4  GetCarBank__Q26Speech7Speakeri */
+  {0, 0, (int (*)(...))&FindClosestLocationTo__Q26Speech7Speakeri}, /* @0x80055eac  FindClosestLocationTo__Q26Speech7Speakeri */
+  {0, 0, (int (*)(...))&CallSign__Q26Speech7Speaker},           /* @0x80055eb4  CallSign__Q26Speech7Speaker */
 };
 
 /* end of speech.cpp */

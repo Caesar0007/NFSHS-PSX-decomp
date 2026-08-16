@@ -546,7 +546,22 @@ int SetupChunkBuildList(DRender_tView *Vi)
        early Track_gInViewList materialization as well.  So it is not the basin.
        NEXT ANGLE (named, instrument): give `addu $19` a real dependent chain of
        length >= 3 inside this block at zero bytes, or read the -dR sched2 ready
-       list (tools/rtl_dump.py) to find a cheaper priority edge.  NOT a floor. */
+       list (tools/rtl_dump.py) to find a cheaper priority edge.  NOT a floor.
+
+       W69 2026-08-16 -- THAT NAMED ANGLE WAS WALKED AND IS FALSIFIED.  The
+       candidate zero-byte chain builder is the W69 device (the NON-VOLATILE
+       identity launder `asm("" : "=r"(x) : "0"(y))`, which seals StatusReply in
+       speech.cpp): N launders chained off `viewList` should give `addu $19` an
+       in-block dependent chain of length N without emitting anything.  Gated:
+         depth 1 ....... 33 diffs @202   (re-colors, sink unchanged)
+         depth 2 ....... 35 diffs @204   depth 3 ... 35 @204   depth 4 ... 35 @204
+       THE CHAIN IS NOT FREE past depth 1: from the second launder on, the
+       matching-"0" tie can no longer be coalesced away and each link costs a
+       real `addu` (+2 insns at depth 2 and it does not grow further), so the
+       device cannot buy priority at zero bytes.  The sched2-priority route
+       therefore needs a dependent that the SOURCE genuinely has (a real use of
+       viewList inside this block), not a synthetic one -- or the reload/ready-
+       list instrument.  Still NOT a floor; the axis is just narrower. */
     viewList =
         ((short (*)[32])Track_gInViewList)[gCurrContext->currentChunk];
     totalVisChunks =

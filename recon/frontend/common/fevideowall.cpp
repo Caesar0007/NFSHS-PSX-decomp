@@ -49,23 +49,23 @@ void tVideoWall::Initialize
 void tVideoWall::UpdateImages()
 
 {
-  short i_2;
+  short i;
 
-  i_2 = 0;
+  i = 0;
   if (0 < this->fNumTVs) {
     do {
-      InitTV(this->fTVs + i_2,this->fTVShapes,(short)(this->fFirstTVShape + i_2));
-      this->fTVs[i_2].x = this->fTVs[i_2].x + this->fOffsetX;
-      this->fTVs[i_2].y = this->fTVs[i_2].y + this->fOffsetY;
+      InitTV(this->fTVs + i,this->fTVShapes,(short)(this->fFirstTVShape + i));
+      this->fTVs[i].x = this->fTVs[i].x + this->fOffsetX;
+      this->fTVs[i].y = this->fTVs[i].y + this->fOffsetY;
       if (0 < this->fFlipAxis) {
-        this->fTVs[i_2].flags = this->fTVs[i_2].flags | 4;
-        this->fTVs[i_2].flip_axis = this->fFlipAxis;
+        this->fTVs[i].flags = this->fTVs[i].flags | 4;
+        this->fTVs[i].flip_axis = this->fFlipAxis;
       }
       if ((this->fValid == 0) || (this->fAvailable == 0)) {
-        this->fTVs[i_2].flags = this->fTVs[i_2].flags | 0x28;
+        this->fTVs[i].flags = this->fTVs[i].flags | 0x28;
       }
-      i_2 = i_2 + 1;
-    } while (i_2 < this->fNumTVs);
+      i = i + 1;
+    } while (i < this->fNumTVs);
   }
   this->fUpdated = 1;
   return;
@@ -178,7 +178,7 @@ void tVideoWall::UpdateTransition()
 void tVideoWall::Draw()
 
 {
-  int textColor;
+  long textColor;
   char *sMenuText;
   int iVar2;
   short i;

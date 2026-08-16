@@ -46,7 +46,7 @@ void tTrackManager::LoadTracks(tSaveTrackInfo &load)
 /* ---- tTrackManager::SaveTracks  [FETRACKS.CPP:65-77] SLD-VERIFIED ---- */
 void tTrackManager::SaveTracks(tSaveTrackInfo &save)
 {
-  u_int i;
+  u_long i;
 
   i = 0;
   do {

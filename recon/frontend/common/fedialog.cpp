@@ -648,10 +648,11 @@ void tDialogBackUpOnly::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
    FALSIFIED: explicit goto entry loops 129 (collapsed allocator); identity
    fence after i=0 21 (blocked strength reduction); void barrier 22; explicit
    key/menu-offset induction locals 40.  No fence or volatile remains. */
-
 short tDialogInteractive::Run()
 
 {
+  /* SYM-OPTIMIZED: player -- the two SLD entries are inlined formals that
+     share $s1 with loop `i`, not a distinct local allocation. */
   bool bVar2;
   __vtbl_ptr_type (*pa_Var3) [10];
   int iVar5;

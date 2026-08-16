@@ -775,41 +775,41 @@ void Front_InitialMemCardCheck(void)
    
    [ghidra-meta] section: front.text
    
-   [Locals 2026-05-08] Locals renamed via deep-body inspection. FE secondary memcard scan.Init_Memcard(0,0); MEMCARDFRONTENDISINITTED = 0. Outer loop card_i 0..1 (2 cards): inner retry
-   loop retry_i 0..2 (3 retries) - LoadGame() sets memCardReadOK if successful (sVar1==0); else
+   [Locals 2026-08-16] SYM restores outer loop `j` ($s1, cards 0..1) and nested retry
+   loop `i` ($s0, retries 0..2). LoadGame() sets memCardReadOK if successful (sVar1==0); else
    clears. After all retries: continue to next card. After loop: DeInit_Memcard + SetPads +
-   MEMCARDFRONTENDISINITTED=1. j local is caller-side spill. Note: outer loop has no explicit
+   MEMCARDFRONTENDISINITTED=1. Note: outer loop has no explicit
    termination - exits via the iVar3>=2 check at top of loop body. */
 
 void Front_SecondaryMemCardCheck(void)
 
 {
   short sVar1;
-  int retry_i;
-  int card_i;
+  int i;
+  int j;
 
   MEMCARDFRONTENDISINITTED[0] = 0;
   Init_Memcard(false,0);
-  card_i = 0;
-  /* MATCH: loop-top guard (card_i<2) with the RARE exit/cleanup pushed OUT-OF-LINE after
+  j = 0;
+  /* MATCH: loop-top guard (j<2) with the RARE exit/cleanup pushed OUT-OF-LINE after
      the loop (oracle: beqz skips to the tail block at the bottom; the loop body is the
-     fall-through). The equivalent do{if(1<card_i){exit;return;}...}while(true) shape
+     fall-through). The equivalent do{if(1<j){exit;return;}...}while(true) shape
      inlined the exit block at the top, duplicating/misplacing it vs the oracle.
      EXIT-IN-THE-MIDDLE keeps the test+unconditional-j-back TOP-TEST shape the oracle uses
      (a plain `while(card_i<2)` rotates to a bottom-test loop instead). */
   while (true) {
-    if (!(card_i < 2)) break;
-    retry_i = 0;
+    if (!(j < 2)) break;
+    i = 0;
     if (memCardReadOK[0] == 0) {
       do {
-        sVar1 = LoadGame((short)card_i,false,0);
+        sVar1 = LoadGame((short)j,false,0);
         memCardReadOK[0] = (int)(sVar1 == 0);
-        retry_i = retry_i + 1;
-        if (2 < retry_i) break;
+        i = i + 1;
+        if (2 < i) break;
       } while (memCardReadOK[0] == 0);
     }
     memCardReadOK[0] = 0;
-    card_i = card_i + 1;
+    j = j + 1;
   }
   DeInit_Memcard();
   SetPads();

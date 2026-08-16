@@ -58,7 +58,7 @@ void tCarManager::Initialize()
 tCarInfo * tCarManager::GetCarFromID(short carID)
 
 {
-  u_int i;
+  u_long i;
 
   for (i = 0; i < this->fNumCars; i++) {
     if ((int)(signed char)this->fCars[i].fCarID == (int)carID) {
@@ -75,7 +75,7 @@ tCarInfo * tCarManager::GetCarFromID(short carID)
 tCarInfo * tCarManager::GetCarFromSimID(short carID)
 
 {
-  u_int i;
+  u_long i;
 
   for (i = 0; i < this->fNumCars; i++) {
     if ((u_short)this->fCars[i].fSimNumber == carID) {
@@ -93,8 +93,8 @@ long tCarManager::CheapestCarStockPrice()
 
 {
   int carPrice;
-  u_int i;
-  int returnprice;
+  u_long i;
+  long returnprice;
 
   returnprice = 10000000;
   for (i = 0; i < this->fNumCars; i++) {
@@ -479,7 +479,7 @@ void tCarManager::AddUpgradesToPinkSlipsList(short garageNumber,short upgradeFla
 void tCarManager::LoadCars(tSaveCarInfo &load,short playerNum)
 
 {
-  u_int i;
+  u_long i;
 
   blockmove(&load,this->fCarGarage[playerNum],0x80);
   if (playerNum == 0) {
@@ -523,7 +523,7 @@ void tCarManager::SaveCars(tSaveCarInfo &save)
 void tCarManager::LoadPinkSlipsCars(tSaveCarInfo &load,short playerNum)
 
 {
-  u_int i;
+  int i;
   
   blockmove(&load,this->fPinkSlipsCars[playerNum],0x80);
   i = 0;
@@ -544,7 +544,7 @@ void tCarManager::LoadPinkSlipsCars(tSaveCarInfo &load,short playerNum)
 void tCarManager::SavePinkSlipsCars(tSaveCarInfo &save,short playerNum,short withoutCarInGarageNumber)
 
 {
-  u_int i;
+  int i;
   tCarInfo carInfo;
   
   if (withoutCarInGarageNumber != -1) {
@@ -575,7 +575,7 @@ void tCarManager::SavePinkSlipsCars(tSaveCarInfo &save,short playerNum,short wit
 void tCarManager::SetClassAvailable(tCarClassType carClass,bool avail)
 
 {
-  u_int i;
+  u_long i;
 
   i = 0;
   if (this->fNumCars != 0) {
@@ -615,7 +615,7 @@ void tCarManager::SetCarAvailable(tCarModels carModel,bool avail)
 void tCarManager::SetClassViewable(tCarClassType carClass,bool view)
 
 {
-  u_int i;
+  u_long i;
 
   for (i = 0; i < this->fNumCars; i = i + 1) {
     if ((signed char)this->fCars[i].fCarID >= 0) {

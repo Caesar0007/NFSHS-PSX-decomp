@@ -1,5 +1,5 @@
 /* frontend/common/screencarselect.cpp -- RECONSTRUCTED (car-select screens; C++ TU)
- *   4 classes (tScreenCarSelect + Duel/TwoPlayer/PinkSlips derived) + free DrawCar__FR8tCarInfossffcbUl7tPlayer; 58 fns.
+ *   4 classes (tScreenCarSelect + Duel/TwoPlayer/PinkSlips derived) + free DrawCar; 58 fns.
  *   Bodies from Ghidra; namespaces stripped, phantom stack-args resolved vs disasm.
  */
 #include "screencarselect.h"
@@ -34,9 +34,9 @@ static void TransformVector(int (&vect)[4],int (&transform)[4][4],int (&result)[
   return;
 }
 
-/* ---- (free)::DrawCar__FR8tCarInfossffcbUl7tPlayer  [SCREENCARSELECT.CPP:180-212] ---- */
+/* ---- (free)::DrawCar  [SCREENCARSELECT.CPP:180-212] ---- */
 
-/* Decoded Phase 84: DrawCar__FR8tCarInfossffcbUl7tPlayer(tCarInfo&, short, short, float, float, char, bool, u_long, tPlayer) -
+/* Decoded Phase 84: DrawCar(tCarInfo&, short, short, float, float, char, bool, u_long, tPlayer) -
    render car in 3D (428 B, 7 callers - hot). When tcarinfo->fCarID >= 0: applies fColor /
    carType=fSimNumber / Country=fCountry to (*ppCVar3)->carInfo. Used in showroom + dealer screens.
    
@@ -53,7 +53,7 @@ static void TransformVector(int (&vect)[4],int (&transform)[4][4],int (&result)[
    remove the decompiler's byte/pointer aliases and make the remainder of the
    body byte-identical. */
 
-extern "C" void DrawCar__FR8tCarInfossffcbUl7tPlayer(tCarInfo *carInfo,short x,short y,float camerax,float cameray,char brightness,
+void DrawCar(tCarInfo &carInfo,short x,short y,float camerax,float cameray,char brightness,
                bool reflection,u_long rotate,tPlayer player)
 
 {
@@ -73,14 +73,14 @@ extern "C" void DrawCar__FR8tCarInfossffcbUl7tPlayer(tCarInfo *carInfo,short x,s
   }
   /* W55-A2 BUGFIX (class-1, unsigned-char deleted guard): fCarID is signed in the
      shared type, preserving the oracle's `lb`/`bltz` empty-slot guard here. */
-  if (-1 < carInfo->fCarID) {
-    the_simcarcolor = carInfo->fColor;
-    gCarObj[player]->carInfo->carType = (uint)carInfo->fSimNumber;
-    gCarObj[player]->carInfo->Country = (uint)carInfo->fCountry;
+  if (-1 < carInfo.fCarID) {
+    the_simcarcolor = carInfo.fColor;
+    gCarObj[player]->carInfo->carType = (uint)carInfo.fSimNumber;
+    gCarObj[player]->carInfo->Country = (uint)carInfo.fCountry;
     gMenuRotate[player] = gMenuRotate[player] + 3;
-    gCarObj[player]->carInfo->EngineMods = carInfo->fUpgrades >> 2 & 1;
-    gCarObj[player]->carInfo->WeightTransfer = carInfo->fUpgrades >> 1 & 1;
-    gCarObj[player]->carInfo->GroundEffects = carInfo->fUpgrades & 1;
+    gCarObj[player]->carInfo->EngineMods = carInfo.fUpgrades >> 2 & 1;
+    gCarObj[player]->carInfo->WeightTransfer = carInfo.fUpgrades >> 1 & 1;
+    gCarObj[player]->carInfo->GroundEffects = carInfo.fUpgrades & 1;
     DrawC_MenuColorData((uint)the_simcarcolor,gCarObj[player],player);
     Draw_MenuRenderingView(gCarObj[player],&gCView,(int)x,(int)y,player,0,rotate,camerax,cameray,(uint)(byte)brightness
                ,reflection);
@@ -1205,7 +1205,7 @@ void tScreenCarSelect::DrawForeground()
       if ((u_int)((ushort)this->fState - 5) >= 2) {
         showRoomFlag = 0;
         this->fCameraRotation = this->fCameraRotation + 3;
-        DrawCar__FR8tCarInfossffcbUl7tPlayer(&carInfo,0x13a,0x54,4.0,-7.5,
+        DrawCar(carInfo,0x13a,0x54,4.0,-7.5,
                    (char)this->fBrightness[0],true,this->fCameraRotation,kPlayerOne);
         goto DrawFG_afterCarRender;
       }
@@ -1310,7 +1310,7 @@ DrawFG_fadeDone:
         this->CalcSplinePosition((int)knot1,(int)knot2,(int)knot3,(int)knot4,
                            (u_long)elapsedticks,cameraY,cameraZ,screenX,screenY,camRot);
         showRoomFlag = 1;
-        DrawCar__FR8tCarInfossffcbUl7tPlayer(&carInfo,(short)screenX,(short)screenY,
+        DrawCar(carInfo,(short)screenX,(short)screenY,
                    (float)cameraY * 0.0000152587890625f,
                    (float)cameraZ * 0.0000152587890625f,(char)this->fBrightness[0],
                    true,camRot,kPlayerOne);
@@ -1684,7 +1684,7 @@ void tScreenCarSelectDuel::DrawBackground()
   }
   this->UpdateBrightness(1);
   showRoomFlag = 0;
-  DrawCar__FR8tCarInfossffcbUl7tPlayer(&carInfo,0x116,0xb8,1.7,-9.9,(char)this->fBrightness[1],false,
+  DrawCar(carInfo,0x116,0xb8,1.7,-9.9,(char)this->fBrightness[1],false,
              this->fCameraRotation,kPlayerTwo);
   if (((gCarObj[1]->async_handle == 0) &&
       (sVar2 = this->fBrightness[1],
@@ -1734,7 +1734,7 @@ void tScreenCarSelectDuel::DrawBackground()
   }
   this->UpdateBrightness(0);
   showRoomFlag = 0;
-  DrawCar__FR8tCarInfossffcbUl7tPlayer(&carInfo,0x116,0x4f,1.7,-9.9,(char)this->fBrightness[0],false,
+  DrawCar(carInfo,0x116,0x4f,1.7,-9.9,(char)this->fBrightness[0],false,
              this->fCameraRotation,kPlayerOne);
   if ((((gCarObj[0]->async_handle == 0) &&
        (sVar2 = this->fBrightness[0],
@@ -2032,7 +2032,7 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
   union {
     tCarInfo carInfo;
     signed char signedCarID;
-  };
+  }; /* SYM-CARRIER: carInfo (AUTO -256; union alias is codegen-only) */
   RECT temp;
   u_char *cur_pkt;
   DR_AREA *daprim;
@@ -2099,7 +2099,7 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
     this->UpdateBrightness(0);
     showRoomFlag = 0;
     tPlayer player = (tPlayer)(byte)FEAppB[0]->fPlayer;
-    DrawCar__FR8tCarInfossffcbUl7tPlayer(&carInfo,0x116,ts10,1.7,-9.9,(char)this->fBrightness[0],false,
+    DrawCar(carInfo,0x116,ts10,1.7,-9.9,(char)this->fBrightness[0],false,
                this->fCameraRotation,player);
   }
   else {
@@ -2110,7 +2110,7 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
                &carInfo);
     showRoomFlag = 0;
     tPlayer player = (tPlayer)(byte)FEAppB[0]->fPlayer;
-    DrawCar__FR8tCarInfossffcbUl7tPlayer(&carInfo,0x116,0x4f,1.7,-9.9,(char)this->fBrightness[0],false,
+    DrawCar(carInfo,0x116,0x4f,1.7,-9.9,(char)this->fBrightness[0],false,
                this->fCameraRotation,player);
     vtbl = this->_vf;
     (*vtbl[1][6].pfn)
@@ -2455,7 +2455,7 @@ void tScreenPinkSlipsCarSelect::DoMemCardStuff()
   CARDINFO_def *cardInfo;
   PinkSlipsCarSelectState resultState;
   PinkSlipsCarSelectState *resultStatePtr;
-  short ret;
+  int ret;
   PinkSlipsCarSelectState *pinkState;
   int card;
   int player;

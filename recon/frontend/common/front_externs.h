@@ -56,10 +56,9 @@ int FeTools_deinit(void);
 int Init_Memcard(bool, bool);
 int Init_PSX_FrontEnd(void);
 int InitializeSpinningCars(void);
-/* MATCH: returns bool -- the oracle tests it with `xori v0,v0,1; beqz` at all 7
-   call sites, which is cc1plus's `if (!b)` codegen for a C++ bool. An int return
-   gives `li v1,1; beq` instead. Do NOT widen back to int. */
-int LoadGame(short, bool, bool);
+/* Retail SYM type is short; keep the narrow declaration consistent with the
+   definition and all frontend callers. */
+short LoadGame(short, bool, bool);
 int MenuExtended_TransitionFromPostGameToMainMenu(tMenuCommand &);  /* W58-A1: ..__FR12tMenuCommand (was `(...)` -> __Fe phantom) */
 int PSXExitFrontend(void);
 int Platform_ResetDCTBuffer(void);

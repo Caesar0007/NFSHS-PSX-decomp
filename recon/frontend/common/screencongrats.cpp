@@ -300,7 +300,7 @@ void tScreenCongrats::DrawBackground()
     }
   }
   if ((this->trophy == kTrophyCar) && (this->fGotCar != 0)) {
-    DrawCar(&this->fCarInfo,this->fCarX,this->fCarY,this->fCarCX,this->fCarCY,
+    DrawCar(this->fCarInfo,this->fCarX,this->fCarY,this->fCarCX,this->fCarCY,
             (showRoomFlag[0] = 0, -0x80),true,carRotate,(tPlayer)this->fCarPlayer);
   }
   return;

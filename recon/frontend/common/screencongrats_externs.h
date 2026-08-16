@@ -32,7 +32,7 @@ int   CalcFadeVal(int col1, int amount);   /* 2-arg overload */
 extern int ticks[];
 void  CarIO_CleanUpLicense(int player);
 void  CarIO_CreateLicense(char *text, int carType, int player);
-void  DrawCar(tCarInfo *carInfo, short x, short y, float camerax, float cameray, char brightness, bool reflection, u_long rotate, tPlayer player) asm("DrawCar__FR8tCarInfossffcbUl7tPlayer");
+void  DrawCar(tCarInfo &carInfo, short x, short y, float camerax, float cameray, char brightness, bool reflection, u_long rotate, tPlayer player);
 void  DrawMoney(int x, int y, int numplaces, long number, int colfore, int colback);
 void  ScaleShapeExtended(int index, int flags, int x, int y, int fade, int abr, tDrawShapeExtended *extra);
 void  FETextRender_FullTextRGB(char *s, short x, short y, int col, char size, short justify);

@@ -88,7 +88,7 @@ void *FECheat_IsCheatEnabled(...);
 int  GetNumPinkSlipsCars(...);
 void*  GetStockCar(...);   /* W58-A1: GetTrack is a tTrackManager member (free decl mangled to the unlinkable GetTrack__FP13tTrackManagersPv) */
 tTrackInformation *GetTrackByID(tTrackManager*, short); void GetTrackToRace(tTournamentManager*, void*);
-int   LoadGame(short, bool, bool);
+short LoadGame(short, bool, bool);
 extern "C" int MCRD_handlecardevents(int);
 char *Platform_GetDCTBuffer(int, char *); void Platform_ResetDCTBuffer();
 void  Draw_MenuRenderingView(Car_tObj *, DRender_tView *, int, int, int, unsigned long, int, float, float, int, int); extern void *Draw_gPlayer1View;   /* int def in render.cpp */

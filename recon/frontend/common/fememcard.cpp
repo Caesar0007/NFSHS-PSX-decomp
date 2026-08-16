@@ -394,17 +394,17 @@ void DeInit_Memcard(void)
   return;
 }
 
-/* ---- Init_MemcardFile__FR12MCRDFILE_defsb  [FEMEMCARD.CPP:357-381] ---- */
+/* ---- Init_MemcardFile  [FEMEMCARD.CPP:357-381] ---- */
 
-extern "C" void Init_MemcardFile__FR12MCRDFILE_defsb(MCRDFILE_def *memCardFile,short cardnum,bool notitle)
+void Init_MemcardFile(MCRDFILE_def &memCardFile,short cardnum,bool notitle)
 
 {
   void *pvVar1;
   char *pcVar2;
   char *pcVar3;
   
-  blockclear(memCardFile,0x2c);
-  memCardFile->name = "NFS4";
+  blockclear(&memCardFile,0x2c);
+  memCardFile.name = "NFS4";
   /* [branch-polarity fix] oracle's beqz skips the (rare) notitle==true case out-of-line and
      falls straight through the common PlayerNameExist path -- arm order flipped to match
      (catalog wave-3 "if/else ARM ORDER controls beqz/bnez polarity" row). */
@@ -423,10 +423,10 @@ extern "C" void Init_MemcardFile__FR12MCRDFILE_defsb(MCRDFILE_def *memCardFile,s
       sprintf(TITLE,pcVar2);
     }
   }
-  memCardFile->title = TITLE;
-  memCardFile->size = 0x1500;
-  memCardFile->offset = 0;
-  memCardFile->flags = 0;
+  memCardFile.title = TITLE;
+  memCardFile.size = 0x1500;
+  memCardFile.offset = 0;
+  memCardFile.flags = 0;
   return;
 }
 
@@ -494,7 +494,7 @@ void * SaveGame(short player)
   cardNum = player * 4 + 1;
   nomessage_arr[0] = 0;
   MakeWayForMemoryCard();
-  Init_MemcardFile__FR12MCRDFILE_defsb(&memCardFile,cardNum,false);
+  Init_MemcardFile(memCardFile,cardNum,false);
   memCardFile.pData = (u_char *)&memCardData;
   while (MCRD_handlecardevents(cardNum) == 0x15) {
     VSync(0);
@@ -582,7 +582,7 @@ void * SaveGame(short player)
 
 
 
-/* ---- LoadGame__FsbT1  [FEMEMCARD.CPP:591-812] ---- */
+/* ---- LoadGame  [FEMEMCARD.CPP:591-812] ---- */
 /* MATCH (2026-08-11, 26 -> 20 -> 17 -> 6 -> PASS, 374/374): restoring the
    header-inline dialog constructor fixed the ctor target and address lifetime.  The
    retry is a real do/while (IDA), which lets loop-invariant motion hoist the promoted
@@ -591,7 +591,7 @@ void * SaveGame(short player)
    The final empty scheduling fence keeps the last error-message assignment out of a
    jump delay slot, leaving `finished = true` there instead. */
 
-extern "C" short LoadGame__FsbT1(short player,bool PinkSlips,bool WithDialogs)
+short LoadGame(short player,bool PinkSlips,bool WithDialogs)
 
 {
   /* SYM reg map: cardNum=s3(SHORT) finished=s1(BOOL) result=s4 memCardResult=s0 count=fp
@@ -641,7 +641,7 @@ extern "C" short LoadGame__FsbT1(short player,bool PinkSlips,bool WithDialogs)
   do {
   count = count + 1;
   MakeWayForMemoryCard();
-  Init_MemcardFile__FR12MCRDFILE_defsb(&memCardFile,(short)(cardshifted >> 0x10),true);
+  Init_MemcardFile(memCardFile,(short)(cardshifted >> 0x10),true);
   while (MCRD_handlecardevents(cardshifted >> 0x10) == 0x15) {
     VSync(0);
   }
@@ -807,7 +807,7 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
   nomessage_arr[0] = 0;
   sprintf(shapeFileName,"%szMem.psh",Paths_Paths[0x20]);
   shapeFile = (char *)loadshapeadr(shapeFileName,(void *)0x0);
-  Init_MemcardFile__FR12MCRDFILE_defsb(&memCardFile,cardNum,true);
+  Init_MemcardFile(memCardFile,cardNum,true);
   while (MCRD_handlecardevents(cardNum) == 0x15) {
     VSync(0);
   }

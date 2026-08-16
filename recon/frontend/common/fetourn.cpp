@@ -323,12 +323,12 @@ static int tournPointsCompare(char *p1,char *p2)
   tCompetitor *comps;
   tCompetitor *c1;
   tCompetitor *c2;
-  Car_tStats *cars;
+  Car_tStats *dummyCars;
   int result;
 
   tm = &tournamentManager;
   comps = tm->fCompetitors;
-  cars = Cars_gNewCarStatsList;
+  dummyCars = Cars_gNewCarStatsList;
   bVar1 = *p2;
   bVar2 = *p1;
   c1 = comps + bVar1;
@@ -336,7 +336,7 @@ static int tournPointsCompare(char *p1,char *p2)
   result = (u_int)c1->fPoints - (u_int)c2->fPoints;
   if ((result == 0) &&
      (result = (int)c1->fIsPlayerCar - (int)c2->fIsPlayerCar, result == 0)) {
-    result = cars[bVar2].finalPosition - cars[bVar1].finalPosition;
+    result = dummyCars[bVar2].finalPosition - dummyCars[bVar1].finalPosition;
   }
   return result;
 }
@@ -404,11 +404,11 @@ void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill_r
   short mask;
   long totalcarprice;
   int damage;
-  Car_tStats *cars;
+  Car_tStats *dummyCars;
   tCarInfo carInfo;
 
   if (recalculate != 0) {
-    cars = Cars_gNewCarStatsList;
+    dummyCars = Cars_gNewCarStatsList;
     carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[0],carInfo,0);
     totalcarprice = carInfo.fPrices[0];
     for (i = 0; i < 2; i++) {
@@ -417,14 +417,14 @@ void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill_r
         totalcarprice = totalcarprice + carInfo.fPrices[i + 1];
       }
     }
-    damage = cars->finalDamage / 0x10000;
-    if ((damage == 0) && (cars->finalPosition < 4)) {
+    damage = dummyCars->finalDamage / 0x10000;
+    if ((damage == 0) && (dummyCars->finalPosition < 4)) {
       retbill = 0;
       retbonus = totalcarprice / 0x14;
-      if (cars->finalPosition == 2) {
+      if (dummyCars->finalPosition == 2) {
         retbonus = (totalcarprice * 3) / 100;
       }
-      else if (cars->finalPosition == 3) {
+      else if (dummyCars->finalPosition == 3) {
         retbonus = totalcarprice / 100;
       }
     }
@@ -1142,6 +1142,7 @@ void * tListIteratorTournament::ValidTournament(char tourn)
 
 {
   u_short flags;
+  tTierInfo *currentTier;
   tTourneyInfo *currentTourn;
   tTournamentDefinition *definition;
   tTournamentManager *tournamentManager;
@@ -1149,8 +1150,9 @@ void * tListIteratorTournament::ValidTournament(char tourn)
 
   tournamentManager = this->fTournamentManager;
   definition = tournamentManager->fDefinition;
+  currentTier = &definition->fTiers[(u_char)frontEnd.tier];
   currentTourn = &definition->fTournaments
-      [(u_int)definition->fTiers[(u_char)frontEnd.tier].fTournOffset + (u_int)(u_char)tourn];
+      [(u_int)currentTier->fTournOffset + (u_int)(u_char)tourn];
   flags = currentTourn->fRequiredFlags;
   result = (void *)0x1;
   if ((flags & 1) != 0) {

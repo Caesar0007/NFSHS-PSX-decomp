@@ -126,7 +126,7 @@ void FETextRender_WordWrap(short index, RECT &r, tMenuTextState textState,
 void  FeAudio_AsyncPlaySpeech(int, int);
 void *FECheat_IsCheatEnabled(tCheatCode);   /* W58-A1: FECheat_IsCheatEnabled__F10tCheatCode */
 /* W58-A1: GetTrackByID / GetTrackToRace are tTrackManager / tTournamentManager members. */
-int   LoadGame(short, bool, bool);
+short LoadGame(short, bool, bool);
 extern "C" int MCRD_handlecardevents(int);
 char *Platform_GetDCTBuffer(int, char *); void Platform_ResetDCTBuffer();
 /* W58-A1 (08A phantom fix): Draw_MenuRenderingView__FP8Car_tObjP13DRender_tViewiiiUliffii.

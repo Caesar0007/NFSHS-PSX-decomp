@@ -219,7 +219,7 @@ void FECheat_ActivateBonus(tCheatCode cheat)
 
 /* ---- FECheat_ActivateCheat  [FECHEATS.CPP:242-271] SLD-VERIFIED ---- */
 
-void * FECheat_ActivateCheat(char *cheat)
+BOOL FECheat_ActivateCheat(char *cheat)
 
 {
   tFEApplication *ptVar2;
@@ -227,7 +227,7 @@ void * FECheat_ActivateCheat(char *cheat)
   tDialogMessageString *dlgThis;
   int i;
   int j;
-  int result;
+  BOOL result;
   char buffer [8];
 
   /* MATCH: ONE result var (retail $s1) with a single return at the end; the
@@ -256,7 +256,7 @@ void * FECheat_ActivateCheat(char *cheat)
     }
     i = i + 1;
   }
-  return (void *)result;
+  return result;
 }
 
 
@@ -316,12 +316,12 @@ void * FECheat_IsTheUserACryBabyCheater(void)
 
 /* ---- FECheat_ActivateBonusByCode  [FECHEATS.CPP:324-349] SLD-VERIFIED ---- */
 
-void * FECheat_ActivateBonusByCode(char *code)
+BOOL FECheat_ActivateBonusByCode(char *code)
 
 {
   int i;
   int j;
-  int result;
+  BOOL result;
   char buffer [8];
 
   /* MATCH: twin of FECheat_ActivateCheat -- one result var + single return,
@@ -343,7 +343,7 @@ void * FECheat_ActivateBonusByCode(char *code)
     }
     i = i + 1;
   } while (i < 3);
-  return (void *)result;
+  return result;
 }
 
 

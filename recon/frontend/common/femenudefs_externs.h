@@ -41,7 +41,7 @@ int AudioCmn_PlayFESFX(int);
 int DeInit_Memcard(void);
 int FECheat_IsTheUserACryBabyCheater(void);
 int Init_Memcard(bool, bool);
-int LoadGame(short, bool, bool);
+short LoadGame(short, bool, bool);
 int PlayerName(int);
 int SaveGame(short);
 int SavePinkSlipsCarsWithErrorDialogs(short, short, short);

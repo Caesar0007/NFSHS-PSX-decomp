@@ -721,7 +721,7 @@ void tFEApplication::RunDemoVideo()
  * `8c Function start` Block-1 list exactly (this,newMenu params; then stackBackupPin,
  * wasSubMenu,needToSetChildMenu,doRedraw,ticksAtLastInput,tick,inputStartPlayer,
  * inputEndPlayer,i,demoLoopLastInputTick,string, then the nested-block SYM locals
- * command/keyVal/debounce/dialog/err/player/carInfo/ticks_l351 in their SYM block order,
+ * command/keyVal/debounce/dialog/err/player/carInfo/ticks in their SYM block order,
  * with the Ghidra-fabricated (non-SYM) temps left AFTER all real SYM locals) -- this is a
  * PURE reorder, no logic/type changes, insn count unaffected (1139==1139) -- dropped to
  * FAIL 1554 diffs, a real but partial improvement (no regression risk: same instruction
@@ -767,6 +767,7 @@ void tFEApplication::RunDemoVideo()
  * pre-call tick carrier were neutral; fencing function- or block-scope `tick`
  * rotates the whole `$t0/$t1` scratch band (255) and was rejected. */
 
+#undef ticks
 tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
 
 {
@@ -797,7 +798,7 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
   memset(ticksAtLastInput,0,8);
   this->fInputPlayer = '\0';
   this->PerformMenuInitialization();
-  demoLoopLastInputTick = ticks;
+  demoLoopLastInputTick = ticks_array[0];
   gFlip = 0;
   this->fPlayer = '\0';
   do {
@@ -816,9 +817,9 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
   tMenuCommand command [2];
   tInputKeyType keyVal [2];
   tCarInfo carInfo;
-  u_long ticks_l351;
+  u_long ticks;
   do {
-    tick = ticks;
+    tick = ticks_array[0];
     doRedraw = true;
     this->fPlayer = '\0';
     while ((u_char)this->fPlayer < 2) {
@@ -876,7 +877,7 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
             needToSetChildMenu = false;
           }
         }
-        demoLoopLastInputTick = ticks;
+        demoLoopLastInputTick = ticks_array[0];
       }
 MainLoop_subMenuDetect:
       if ((u_char)this->fPlayer == kPlayerTwo) {
@@ -973,7 +974,7 @@ MainLoop_perPlayerFlagCheck:
           if (keyVal[i] != kInput_KeyType_NoKey) {
             this->fInputPlayer = (char)i;
           }
-          if ((0xf < ticks - ticksAtLastInput[i]) ||
+          if ((0xf < ticks_array[0] - ticksAtLastInput[i]) ||
              ((debounce & keyVal[i]) == kInput_KeyType_NoKey)) {
             this->fLastKeyPressed[i] = keyVal[i];
           }
@@ -1188,9 +1189,9 @@ MainLoop_carInfoApplied:
             if (carInfo.fEnginePatch != 0) {
               AudioCmn_PlayFESFX((u_int)carInfo.fEnginePatch);
             }
-            ticks_l351 = ticks;
+            ticks = ticks_array[0];
             while (true) {
-              if ((u_int)(ticks - ticks_l351) >= 0x100) break;
+              if ((u_int)(ticks_array[0] - ticks) >= 0x100) break;
               FeAudio_systemtask(0);
             }
             GameSetup_gData.replayMode = 0;
@@ -1215,13 +1216,15 @@ MainLoop_nextPlayer:
     }
     if (0xf00 < (int)(tick - demoLoopLastInputTick)) {
       this->RunDemoVideo();
-      int ticksValue = ticks;
+      int ticksValue = ticks_array[0];
       __asm__("" : : "r"(ticksValue));
       demoLoopLastInputTick = ticksValue;
     }
   } while( true );
   }
 }
+
+#define ticks ticks_array[0]
 
 
 

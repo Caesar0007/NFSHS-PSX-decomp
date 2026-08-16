@@ -108,7 +108,7 @@ void tCreditManager::Draw(bool selected)
    copy into the nonnegative delay slot and negative arm exactly as retail. */
 {
   tScreenMain *mainScreen;
-  int iVar1;
+  int i;
   int iVar2;
   int fadeValue;
   uint uVar3;
@@ -137,13 +137,13 @@ void tCreditManager::Draw(bool selected)
     this->fTextFade = fadeValue;
   }
   mainScreen = screenMain;
-  iVar1 = 0;
+  i = 0;
   do {
-    mainScreen->tvConfigs[iVar1].flags = mainScreen->tvConfigs[iVar1].flags | 2;
+    mainScreen->tvConfigs[i].flags = mainScreen->tvConfigs[i].flags | 2;
     uVar3 = 0x80 - this->fTVFade;
-    mainScreen->tvConfigs[iVar1].tint = uVar3 * 0x10000 | uVar3 * 0x100 | uVar3;
-    iVar1 = iVar1 + 1;
-  } while (iVar1 < 0x10);
+    mainScreen->tvConfigs[i].tint = uVar3 * 0x10000 | uVar3 * 0x100 | uVar3;
+    i = i + 1;
+  } while (i < 0x10);
   if (this->fTVFade == 0) {
     if (this->fRequestDeInit != 0) {
       this->RealDeInit();
@@ -164,7 +164,7 @@ void tCreditManager::Draw(bool selected)
 void tCreditManager::SetupCurrCredit()
 
 /* MATCH (w37-a2 + 2026-08-03 follow-up, 58->PASS): SYM has only ONE named local for the whole
-   fn (function-static `lasttick`, i.e. FECredits_lastFadeTick) besides
+   fn (function-static `lasttick`, i.e. FECredits_lastFadeTick; SYM-CARRIER: lasttick) besides
    `this` -- everything else is compiler-transient. Two levers found:
    (1) the fCurrCredit%3-or-bgNumber SwapBackground index is a SEPARATE
    nested-block local (SYM block@0x80035f94) for `iVar5+1`, not a
@@ -241,11 +241,11 @@ void tCreditManager::SetupCurrCredit()
       /* MATCH (w37-a2): SYM shows a SEPARATE nested-block local at
          VA 0x80035f94 (line 66) for iVar5+1, not a reassignment of
          iVar5 itself. */
-      int nextIdx = iVar5 + 1;
-      if (this->fNumCredits < nextIdx) {
-        nextIdx = 0;
+      int NNNNN = iVar5 + 1;
+      if (this->fNumCredits < NNNNN) {
+        NNNNN = 0;
       }
-      screenMain->SwapBackground((int)this->CreditBuffer[nextIdx].bgNumber);
+      screenMain->SwapBackground((int)this->CreditBuffer[NNNNN].bgNumber);
     }
   }
   if (((this->StartedLines == 0) && (this->StartedTransition != 0)) &&

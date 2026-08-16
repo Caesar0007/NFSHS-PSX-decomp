@@ -1149,15 +1149,15 @@ void tMenuOptions::Draw()
 {
   short numItems;
   __vtbl_ptr_type (*pa_Var2) [11];
-  u_int deltaTicks;
-  int itemY;
+  u_long deltaTicks;
+  long itemY;
   tMenuItem *ptVar5;
   short i;
   int iVar6;
-  int y;
-  int x;
-  u_int h;
-  u_int w;
+  long y;
+  long x;
+  long h;
+  long w;
   
   numItems = ((tMenu *)this)->GetNumberEnabledItems();
   w = 0x140;

@@ -1376,7 +1376,7 @@ extern "C" void Front_InitOpponentCars__FR9tFEStream(tFEStream *streamData)
    
    [ghidra-meta] section: front.text */
 
-extern "C" void Front_InitMissions__FR9tFEStream(tFEStream *streamData)
+void Front_InitMissions(tFEStream &streamData)
 
 {
   int cVar1;
@@ -1389,19 +1389,19 @@ extern "C" void Front_InitMissions__FR9tFEStream(tFEStream *streamData)
   char oldTier;
   char oldMission;
   
-  streamData->pMission = (tMissionInfo *)0x0;
-  streamData->pStages = (tStageInfo *)0x0;
+  streamData.pMission = (tMissionInfo *)0x0;
+  streamData.pStages = (tStageInfo *)0x0;
   cVar5 = '\0';
   if (frontEnd.raceType == '\x01') {
     /* MATCH: a plain short-counter `for` -- retail's zero-trip guard is
        `slt i,numPlayers` (i's initial 0 shares the register with cVar5's 0), NOT
        the `blez numPlayers` a literal `0 < numPlayers` if-guard produces, and the
        bound is LICM-hoisted because the body has no aliasing store. */
-    for (i = 0; i < streamData->numPlayers; i = i + 1) {            /* 1552 */
-      if (streamData->playerCars[i].fCarClass != '\a') {               /* 1557 */
+    for (i = 0; i < streamData.numPlayers; i = i + 1) {            /* 1552 */
+      if (streamData.playerCars[i].fCarClass != '\a') {               /* 1557 */
         return;                                                          /* 1559 */
       }
-      cVar1 = *(signed char *)&streamData->playerCars[i].fCarID;                        /* 1561 */
+      cVar1 = *(signed char *)&streamData.playerCars[i].fCarID;                        /* 1561 */
       if (cVar5 < cVar1) {                                              /* 1562 */
         cVar5 = cVar1;                                                  /* 1563 */
       }
@@ -1415,9 +1415,9 @@ extern "C" void Front_InitMissions__FR9tFEStream(tFEStream *streamData)
     frontEnd.policeTier = cVar5 + -0x16;                                /* 1569 */
     frontEnd.policeMission = '\0';                                      /* 1570 */
     missionManager.LoadDescription(true);                              /* 1572 */
-    missionManager.GetMissionToRace(&streamData->pMission);            /* 1573 */
+    missionManager.GetMissionToRace(&streamData.pMission);            /* 1573 */
     missionManager.GetMissionStages((ushort)(byte)frontEnd.policeTier,
-               (ushort)(byte)frontEnd.policeMission,&streamData->pStages); /* 1574 */
+               (ushort)(byte)frontEnd.policeMission,&streamData.pStages); /* 1574 */
     frontEnd.policeTier = cVar2;                                        /* 1576 */
     frontEnd.policeMission = cVar3;                                     /* 1577 */
   }
@@ -1533,7 +1533,7 @@ extern "C" void Front_InitCopCars__FR9tFEStream(tFEStream *streamData)
    
    [ghidra-meta] section: front.text */
 
-extern "C" void Front_InitPerps__FR9tFEStream(tFEStream *streamData)
+void Front_InitPerps(tFEStream &streamData)
 
 {
   /* SYM (nfs4-f-v3.txt @0x80029054) `8c Function start` gives the EXACT local set:
@@ -1548,9 +1548,9 @@ extern "C" void Front_InitPerps__FR9tFEStream(tFEStream *streamData)
   short j;
   tCarInfo *carInfo;
 
-  streamData->numPerpObjects = 0;
-  streamData->numPerps = 0;
-  if (streamData->pMission != (tMissionInfo *)0x0) {
+  streamData.numPerpObjects = 0;
+  streamData.numPerps = 0;
+  if (streamData.pMission != (tMissionInfo *)0x0) {
     i = 0;
     /* MATCH: EXIT-IN-THE-MIDDLE keeps the bound test at the TOP with an unconditional
        `j` back-edge (the oracle is un-rotated, no peeled guard) while STILL being a
@@ -1561,9 +1561,9 @@ extern "C" void Front_InitPerps__FR9tFEStream(tFEStream *streamData)
       tCarModels carModel;   /* SYM: declared in the loop-body block, not fn scope */
       char carColor;
 
-      if ((int)(uint)streamData->pMission->fNumStages <= (int)i) break;
-      carModel = (tCarModels)streamData->pStages[i].fCarModel;
-      carColor = streamData->pStages[i].fColor;
+      if ((int)(uint)streamData.pMission->fNumStages <= (int)i) break;
+      carModel = (tCarModels)streamData.pStages[i].fCarModel;
+      carColor = streamData.pStages[i].fColor;
       carInfo = carManager.GetCarFromID(carModel);
       j = 0;
       /* MATCH: `fColorOrder` is declared plain `char` in the shared header, which is
@@ -1575,16 +1575,16 @@ extern "C" void Front_InitPerps__FR9tFEStream(tFEStream *streamData)
       }
       carColor = (char)j;
       if (!carManager.IsCarAnAddedModel(carModel,carColor)) {
-        if (streamData->totalModels < 0x10) {
-          streamData->totalModels = streamData->totalModels + 6;
+        if (streamData.totalModels < 0x10) {
+          streamData.totalModels = streamData.totalModels + 6;
         }
         carManager.AddCarToIngameList(carModel,carColor);
-        streamData->totalCars = streamData->totalCars + 2;
-        streamData->perps[streamData->numPerpObjects].carModel = carModel;
-        streamData->perps[streamData->numPerpObjects].carColor = streamData->pStages[i].fColor;
-        streamData->numPerpObjects = streamData->numPerpObjects + 1;
+        streamData.totalCars = streamData.totalCars + 2;
+        streamData.perps[streamData.numPerpObjects].carModel = carModel;
+        streamData.perps[streamData.numPerpObjects].carColor = streamData.pStages[i].fColor;
+        streamData.numPerpObjects = streamData.numPerpObjects + 1;
       }
-      streamData->numPerps = streamData->numPerps + 1;
+      streamData.numPerps = streamData.numPerps + 1;
       i = i + 1;
     }
   }
@@ -1600,7 +1600,7 @@ extern "C" void Front_InitPerps__FR9tFEStream(tFEStream *streamData)
    
    [ghidra-meta] section: front.text */
 
-extern "C" void Front_InitTrack__FR9tFEStream(tFEStream *streamData)
+void Front_InitTrack(tFEStream &streamData)
 
 {
   tTrackInformation *src;
@@ -1608,19 +1608,19 @@ extern "C" void Front_InitTrack__FR9tFEStream(tFEStream *streamData)
   tTrackInfo *tournTrack;
   
   if (frontEnd.raceType == '\x02') {
-    tournamentManager.GetTrackToRace(streamData->track);
-    src = trackManager.GetTrackByID((short)(signed char)(streamData->track).fTrackNumber);
-    blockmove(src,&streamData->trackInfo,0x30);
+    tournamentManager.GetTrackToRace(streamData.track);
+    src = trackManager.GetTrackByID((short)(signed char)streamData.track.fTrackNumber);
+    blockmove(src,&streamData.trackInfo,0x30);
   }
   else {
     trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
-               streamData->trackInfo);
-    (streamData->track).fTrackNumber = (streamData->trackInfo).fTrackID;
+               streamData.trackInfo);
+    streamData.track.fTrackNumber = streamData.trackInfo.fTrackID;
     /* MATCH: local pointer to &streamData->track materialized ONCE before the branch
        (in the branch's delay slot in the oracle) and reused by BOTH arms -- reproduces
        the oracle's shared v1=&track pointer + offset stores instead of per-field
        absolute streamData-relative offsets. */
-    tTrackInfo *pTrack = &streamData->track;
+    tTrackInfo *pTrack = &streamData.track;
     if ((frontEnd.carListType == '\x01') || (frontEnd.raceType == '\x01')) {
       pTrack->fDirection = frontEnd.trackdirection[(byte)frontEnd.pinkSlipsTrackIndex];
       pTrack->fMirrored = frontEnd.trackmirrored[(byte)frontEnd.pinkSlipsTrackIndex];
@@ -1633,23 +1633,23 @@ extern "C" void Front_InitTrack__FR9tFEStream(tFEStream *streamData)
       pTrack->fMirrored = '\0';
       pTrack->fDirection = '\0';
     }
-    (streamData->track).fDifficulty = 0x10000;
+    streamData.track.fDifficulty = 0x10000;
   }
-  if (1 < (streamData->track).fDirection) {
+  if (1 < streamData.track.fDirection) {
     iVar1 = rand();
-    (streamData->track).fDirection = (byte)iVar1 & 1;
+    streamData.track.fDirection = (byte)iVar1 & 1;
   }
-  if (1 < (streamData->track).fMirrored) {
+  if (1 < streamData.track.fMirrored) {
     iVar1 = rand();
-    (streamData->track).fMirrored = (byte)iVar1 & 1;
+    streamData.track.fMirrored = (byte)iVar1 & 1;
   }
-  if (1 < (streamData->track).fTimeOfDay) {
+  if (1 < streamData.track.fTimeOfDay) {
     iVar1 = rand();
-    (streamData->track).fTimeOfDay = (byte)iVar1 & 1;
+    streamData.track.fTimeOfDay = (byte)iVar1 & 1;
   }
-  if (1 < (streamData->track).fWeather) {
+  if (1 < streamData.track.fWeather) {
     iVar1 = rand();
-    (streamData->track).fWeather = (byte)iVar1 & 1;
+    streamData.track.fWeather = (byte)iVar1 & 1;
   }
   return;
 }
@@ -1663,7 +1663,7 @@ extern "C" void Front_InitTrack__FR9tFEStream(tFEStream *streamData)
    
    [ghidra-meta] section: front.text */
 
-extern "C" void Front_InitTraffic__FR9tFEStream(tFEStream *streamData)
+void Front_InitTraffic(tFEStream &streamData)
 
 {
   /* SYM (nfs4-f-v3.txt @0x800293E0) `8c Function start`: streamData REGPARM $19
@@ -1683,7 +1683,7 @@ extern "C" void Front_InitTraffic__FR9tFEStream(tFEStream *streamData)
   }
   if (frontEnd.raceType == '\x01') {
     maxTraffic = 2;
-    if ((streamData->track).fTimeOfDay == '\x01') {
+    if (streamData.track.fTimeOfDay == '\x01') {
       maxTraffic = 1;
     }
   }
@@ -1702,10 +1702,10 @@ extern "C" void Front_InitTraffic__FR9tFEStream(tFEStream *streamData)
     else if (frontEnd.raceType == '\x01') {
       bTraffic = frontEnd.traffic[0] != '\0';
     }
-    if (2 < (streamData->trackInfo).fTrackDifficulty) {
+    if (2 < streamData.trackInfo.fTrackDifficulty) {
       bTraffic = false;
     }
-    if ((streamData->trackInfo).fIsEgg != '\0') {
+    if (streamData.trackInfo.fIsEgg != '\0') {
       bTraffic = false;
     }
     if (frontEnd.gameMode == '\x01') {
@@ -1725,19 +1725,19 @@ extern "C" void Front_InitTraffic__FR9tFEStream(tFEStream *streamData)
   }
   if (bTraffic) {
     i = 0;
-    streamData->numTraffic = 0;
+    streamData.numTraffic = 0;
     if (maxTraffic != 0) {
       do {
-        carModel = (tCarModels)(byte)(streamData->trackInfo).fTrafficCars[i++];
+        carModel = (tCarModels)(byte)streamData.trackInfo.fTrafficCars[i++];
         if (5 < (int)i) {
           i = 0;
         }
         if (!carManager.IsCarAnAddedModel(carModel,carColor)) {
           carManager.AddCarToIngameList(carModel,carColor);
         }
-        streamData->trafficCars[streamData->numTraffic] = (u_short)carModel;
-        streamData->numTraffic = streamData->numTraffic + 1;
-      } while (streamData->numTraffic < maxTraffic);
+        streamData.trafficCars[streamData.numTraffic] = (u_short)carModel;
+        streamData.numTraffic = streamData.numTraffic + 1;
+      } while (streamData.numTraffic < maxTraffic);
     }
   }
   return;
@@ -2256,7 +2256,7 @@ extern "C" int * Front_AppendTrafficData__FPiR9tFEStream(int *stream,tFEStream *
    
    [ghidra-meta] section: front.text */
 
-extern "C" int * Front_AppendTrackData__FPiR9tFEStream(int *stream,tFEStream *streamData)
+int *Front_AppendTrackData(int *stream,tFEStream &streamData)
 
 {
   int valtopass;
@@ -2289,17 +2289,17 @@ track_value_ready:
   *stream++ = 0x1a;
   *stream++ = valtopass;
   *stream++ = 0x18;
-  *stream++ = (uint)(streamData->track).fMirrored;
+  *stream++ = (uint)streamData.track.fMirrored;
   *stream++ = 0x19;
-  *stream++ = (uint)(streamData->track).fDirection;
+  *stream++ = (uint)streamData.track.fDirection;
   *stream++ = 0x14;
-  *stream++ = (uint)(streamData->track).fWeather;
+  *stream++ = (uint)streamData.track.fWeather;
   *stream++ = 0x17;
-  *stream++ = (uint)(streamData->track).fTimeOfDay;
+  *stream++ = (uint)streamData.track.fTimeOfDay;
   *stream++ = 0x12;
-  *stream++ = (uint)(streamData->trackInfo).fSimNumber;
+  *stream++ = (uint)streamData.trackInfo.fSimNumber;
   *stream++ = 0xb;
-  *stream++ = (streamData->track).fDifficulty;
+  *stream++ = streamData.track.fDifficulty;
   return stream;
   /* NEAR-SEAL FLOOR (4 diffs, local-alloc/sched gap §4.6 qtytrace): the final
      fDifficulty temp colors to v1 here vs v0 in the oracle. Oracle order is
@@ -2374,13 +2374,13 @@ int * Front_BuildStream(int *stream)
   
   Front_InitStream(streamData);
   Front_InitPlayerCars__FR9tFEStream(&streamData);
-  Front_InitTrack__FR9tFEStream(&streamData);
+  Front_InitTrack(streamData);
   Front_InitTourneyTraffic(streamData);
   Front_InitOpponentCars__FR9tFEStream(&streamData);
-  Front_InitMissions__FR9tFEStream(&streamData);
+  Front_InitMissions(streamData);
   Front_InitCopCars__FR9tFEStream(&streamData);
-  Front_InitPerps__FR9tFEStream(&streamData);
-  Front_InitTraffic__FR9tFEStream(&streamData);
+  Front_InitPerps(streamData);
+  Front_InitTraffic(streamData);
   seedrandom(frontEnd.randomSeed = (short)*(volatile int *)ticks);
   for (colourLoop = 7; 0 <= colourLoop; colourLoop--) {
     colourChosen[colourLoop] = 0;
@@ -2472,7 +2472,7 @@ int * Front_BuildStream(int *stream)
   *d++ = 0;
   *d++ = 0xf;
   *d++ = (uint)(byte)frontEnd.catchup;
-  d = Front_AppendTrackData__FPiR9tFEStream(d,&streamData);
+  d = Front_AppendTrackData(d,streamData);
   *d++ = 0x13;
   *d++ = (uint)(byte)frontEnd.song;
   *d++ = 0x2a;

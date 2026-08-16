@@ -54,7 +54,9 @@ long SPCHNFS_D_C_PERP_SIGHTED_CONFIRM(int = 0, ...);
 long SPCHNFS_D_C_RDBLK_CONFIRMED(int = 0, ...);
 long SPCHNFS_D_C_RDBLK_SPBLT_DENIED_REPLY(int = 0, ...);
 long SPCHNFS_D_C_RDBLK_SPBLT_GRANT_REPLY(int = 0, ...);
-long SPCHNFS_D_C_SPBLT_CONFIRMED(int = 0, ...);
+long SPCHNFS_D_C_SPBLT_CONFIRMED(SPCHNFSType_POSITION *, int,
+                                 SPCHNFSType_DISTANCE *, int,
+                                 SPCHNFSType_SPIKE_BELT_SIDE *);
 long SPCHNFS_S_C_SUPER_COP_ARRIVAL(int = 0, ...);
 long SPCHNFS_S_C_SUPER_COP_CRITICISM(int = 0, ...);
 long SPCHNFS_W_D_RDBLK_PLC(int = 0, ...);
@@ -110,8 +112,8 @@ extern u_int randtemp;
 extern int stackSpeedUpEnbabledFlag;
 
 /* ---- per-class vtables (data syms; assigned to _vf[31]) ---- */
-extern __vtbl_ptr_type Speaker_vtable[];   /* @0x80055dc4 #75 data-mat (defined in speech.cpp) */
-extern __vtbl_ptr_type MobileSpeaker_vtable[];   /* @0x80055bd4 #75 data-mat (defined in speech.cpp) */
-extern __vtbl_ptr_type DispatchSpeaker_vtable[];   /* @0x80055ccc #75 data-mat (defined in speech.cpp) */
+extern const __vtbl_ptr_type Speaker_vtable[] __asm__("_vt_Q26Speech7Speaker");
+extern const __vtbl_ptr_type MobileSpeaker_vtable[] __asm__("_vt_Q26Speech13MobileSpeaker");
+extern const __vtbl_ptr_type DispatchSpeaker_vtable[] __asm__("_vt_Q26Speech15DispatchSpeaker");
 
 #endif /* SPEECH_EXTERNS_H */

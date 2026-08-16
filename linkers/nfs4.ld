@@ -789,6 +789,10 @@ SECTIONS
         build/asm/data/data_8010CCD4_r16.data.s.o(.data);
         build/asm/data/data_8010CCD4_o29.data.s.o(.data);
         build/asm/data/data_8010CCD4_r17.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r17.data.s.o(.data.table_blob);
+        build/asm/data/data_8010CCD4_r17.data.s.o(.data.r17_post_table);
+        build/asm/data/data_8010CCD4_r17.data.s.o(.data.sndef_blob);
+        build/asm/data/data_8010CCD4_r17.data.s.o(.data.r17_post_sndef);
         build/asm/data/data_8010CCD4_r17.data.s.o(.data.atantbl_blob);
         build/asm/data/data_8010CCD4_r17.data.s.o(.data.r17_post_atantbl);
         build/asm/data/data_8010CCD4_o30.data.s.o(.data);
@@ -800,6 +804,8 @@ SECTIONS
         build/asm/data/data_8010CCD4_r18.data.s.o(.data.sintbl_blob);
         build/asm/data/data_8010CCD4_r18.data.s.o(.data.fatantbl_blob);
         build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_post_tables);
+        build/asm/data/data_8010CCD4_r18.data.s.o(.data.cstbl_blob);
+        build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_post_cstbl);
         build/asm/data/data_8010CCD4_o31.data.s.o(.data);
         build/asm/data/data_8010CCD4_r19.data.s.o(.data);
         build/asm/data/data_8010CCD4_o32.data.s.o(.data);

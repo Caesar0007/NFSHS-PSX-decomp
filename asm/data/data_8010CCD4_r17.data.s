@@ -18,6 +18,8 @@ dlabel D_80123820
     /* 114034 80123834 21F4FFFF */ .word 0xFFFFF421
 enddlabel D_80123820
 
+.section .data.table_blob, "wa"
+
 nonmatching DCL_DVLC
 
 dlabel DCL_DVLC
@@ -17446,6 +17448,8 @@ dlabel CF2_DVLC
     /* 125034 80134834 0600FF5B */ .word 0x5BFF0006
 enddlabel CF2_DVLC
 
+.section .data.r17_post_table, "wa"
+
 nonmatching D_80134838
 
 dlabel D_80134838
@@ -20219,6 +20223,8 @@ dlabel D_80136CC4
     /* 1274CC 80136CCC 00000000 */ .word 0x00000000
 enddlabel D_80136CC4
 
+.section .data.sndef_blob, "wa"
+
 nonmatching _stacksize
 
 dlabel _stacksize
@@ -20230,6 +20236,8 @@ nonmatching _ramsize
 dlabel _ramsize
     /* 1274D4 80136CD4 00008000 */ .word 0x00800000
 enddlabel _ramsize
+
+.section .data.r17_post_sndef, "wa"
 
 nonmatching D_80136CD8
 

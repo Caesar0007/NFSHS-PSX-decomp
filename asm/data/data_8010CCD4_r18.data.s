@@ -1243,6 +1243,8 @@ dlabel D_80137D14
     /* 12851C 80137D1C 00000000 */ .word 0x00000000
 enddlabel D_80137D14
 
+.section .data.cstbl_blob, "wa"
+
 nonmatching rcossin_tbl
 
 dlabel rcossin_tbl
@@ -5343,6 +5345,8 @@ dlabel rcossin_tbl
     /* 12C518 8013BD18 F3FF0010 */ .word 0x1000FFF3
     /* 12C51C 8013BD1C FAFF0010 */ .word 0x1000FFFA
 enddlabel rcossin_tbl
+
+.section .data.r18_post_cstbl, "wa"
 
 nonmatching D_8013BD20
 

@@ -60,6 +60,10 @@
     build/asm/data/data_8010CCD4_r16.data.s.o(.data);
     build/recon/eaclib/psx/eacpsxz/matrix.c.o(.rodata);   /* 0x801237ec..0x80123820  was data_8010CCD4_o29.data.s */
     build/asm/data/data_8010CCD4_r17.data.s.o(.data);
+    build/recon/syslib/psx/libpress/TABLE.c.o(.data);   /* 0x80123838..0x80134838 */
+    build/asm/data/data_8010CCD4_r17.data.s.o(.data.r17_post_table);
+    build/recon/syslib/psx/libsn/SNDEF.c.o(.data);      /* 0x80136cd0..0x80136cd8 */
+    build/asm/data/data_8010CCD4_r17.data.s.o(.data.r17_post_sndef);
     build/recon/eaclib/psx/eacpsxz/atantbl.c.o(.data);   /* 0x80136ce8..0x80136dec */
     build/asm/data/data_8010CCD4_r17.data.s.o(.data.r17_post_atantbl);
     build/recon/eaclib/psx/sndpsxz/slib.c.o(.data);   /* 0x80136df0..0x80136e00  was data_8010CCD4_o30.data.s */
@@ -71,6 +75,8 @@
     build/recon/eaclib/psx/eacpsxz/sintbl.c.o(.data);     /* 0x80137464..0x80137868 */
     build/recon/eaclib/psx/eacpsxz/fatantbl.c.o(.data);   /* 0x80137868..0x80137c6c */
     build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_post_tables);
+    build/recon/syslib/psx/libgte/CSTBL.c.o(.data);       /* 0x80137d20..0x8013bd20 */
+    build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_post_cstbl);
     build/recon/eaclib/psx/eacpsxz/isqrttbl.c.o(.data);   /* 0x8013be10..0x8013bf10  was data_8010CCD4_o31.data.s */
     build/asm/data/data_8010CCD4_r19.data.s.o(.data);
     build/recon/syslib/psx/libmath/FERR.c.o(.data);   /* 0x8013bf18..0x8013bf20  was data_8010CCD4_o32.data.s */

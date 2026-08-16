@@ -38,3 +38,6 @@ scratchpad_dump.py
 /parser.out
 /debug_source.c
 scratch/
+
+# Visual Studio local data
+.vs/

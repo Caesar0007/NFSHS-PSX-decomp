@@ -1358,7 +1358,7 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
   int tV_dst;
   int facet_p_v3;
   short facetFlag;
-  int vertCounter;
+  int i;
   u_int facetIdx;
   int loopDoneTag;
   short ts10;
@@ -1390,7 +1390,7 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
           hoists).  It also lands `vt` on retail's $a3.
       (b) `vt = Nvertice;` hoisted ABOVE the two gte_Set*Matrix macros (the same edit
           that took PrimMenu 11 -> 9).
-      (c) loop-1 and loop-2 SHARE one fn-scope counter (`vertCounter`; the dead
+      (c) loop-1 and loop-2 SHARE one fn-scope counter (`i`; the dead
           `remVerts`/`ts9`/`ts6`/`vert_yz_iter` decls deleted), exactly as PrimMenu's
           SYM-verified single fn-scope `i` does.  -8 on its own.
      RESIDUAL in this block = a 3-way {counter,172-addr,156-addr} rotation: ours
@@ -1406,11 +1406,11 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
     vt = Nvertice;
 gte_SetRotMatrix(&DrawC_gMatA);
 gte_SetTransMatrix(&DrawC_gMatA);
-    vertCounter = (int)obj->numVertex;
+    i = (int)obj->numVertex;
     envmapUV_dst = sd->tV;
     while( true ) {
-      vertCounter = vertCounter - 1;
-      if (vertCounter == -1) break;
+      i = i - 1;
+      if (i == -1) break;
       {
         short e1, e2, e3;
         e1 = vt->x;
@@ -1486,10 +1486,10 @@ gte_SetTransMatrix(((char *)sd + 0x14));
   Draw_CarVertex *tV = sd->tV;
 
   vertex_iter = obj->vertex;
-  vertCounter = (int)obj->numVertex;
+  i = (int)obj->numVertex;
   while( true ) {
-    vertCounter = vertCounter + -1;
-    if (vertCounter == -1) break;
+    i = i + -1;
+    if (i == -1) break;
     {
       short t1, t2, t3;
 
@@ -2624,7 +2624,7 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
 
 {
   u_int facetIdx;
-  int Nvertex_p;
+  COORD16 *Nvertice;
   u_char *u2;
   int vt2_00;
   int u2_00;
@@ -2632,7 +2632,7 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
   int vt1;
   int vt2;
 
-  Nvertex_p = (int)obj->Nvertex;
+  Nvertice = obj->Nvertex;
   if ((*(int *)&sd->ePmx0 == 0) && (*(int *)&sd->ePmx1 == 0)) {
     envmap = envmap & 0xbe;
   }
@@ -2642,11 +2642,11 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
      * distinct from psVar8's later, unrelated facet-vertex uses -- give it a
      * fresh block-scoped 'vt' pseudo (shadowing the outer psVar8) instead of
      * reusing the function-scope one, matching the oracle's short-lived reg. */
-    short *psVar8 = (short *)Nvertex_p;
+    short *psVar8 = (short *)Nvertice;
 gte_SetRotMatrix(&DrawC_gMatA);
 gte_SetTransMatrix(&DrawC_gMatA);
     char *envmapUV_dst = &sd->tV[0].v;
-    short *vert_yz_iter = (short *)(Nvertex_p + 4);
+    short *vert_yz_iter = (short *)((char *)Nvertice + 4);
     int facetCount = (int)obj->numVertex;
     while( true ) {
       facetCount = facetCount - 1;
@@ -3072,7 +3072,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
       if (sd->sub_otSize < otzSum) continue;
       if (((*(u_short *)facet & 0x3f3) != 0) && (*(int *)&sd->ePmx1 != 0)) {
         {
-          u_short *z = (u_short *)(Nvertex_p + (u_int)*(u_char *)(facet + 3) * 6);
+          u_short *z = (u_short *)&Nvertice[*(u_char *)(facet + 3)];
           u_short t1 = z[0];
           u_short t2 = z[1];
           u_short t3 = z[2];
@@ -3081,7 +3081,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           (sd->vt0).z = t3;
         }
         {
-          u_short *z = (u_short *)(Nvertex_p + (u_int)*(u_char *)(facet + 4) * 6);
+          u_short *z = (u_short *)&Nvertice[*(u_char *)(facet + 4)];
           u_short t1 = z[0];
           u_short t2 = z[1];
           u_short t3 = z[2];
@@ -3090,7 +3090,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           (sd->vt1).z = t3;
         }
         {
-          u_short *z = (u_short *)(Nvertex_p + (u_int)*(u_char *)(facet + 5) * 6);
+          u_short *z = (u_short *)&Nvertice[*(u_char *)(facet + 5)];
           u_short t1 = z[0];
           u_short t2 = z[1];
           u_short t3 = z[2];
@@ -3489,7 +3489,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
       }
       if (((facet_flag & 0x3f3) != 0) && (*(int *)&sd->ePmx1 != 0)) {
         {
-          u_short *z = (u_short *)(Nvertex_p + (u_int)*(u_char *)(facet + 3) * 6);
+          u_short *z = (u_short *)&Nvertice[*(u_char *)(facet + 3)];
           u_short t1 = z[0];
           u_short t2 = z[1];
           u_short t3 = z[2];
@@ -3498,7 +3498,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           (sd->vt0).z = t3;
         }
         {
-          u_short *z = (u_short *)(Nvertex_p + (u_int)*(u_char *)(facet + 4) * 6);
+          u_short *z = (u_short *)&Nvertice[*(u_char *)(facet + 4)];
           u_short t1 = z[0];
           u_short t2 = z[1];
           u_short t3 = z[2];
@@ -3507,7 +3507,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           (sd->vt1).z = t3;
         }
         {
-          u_short *z = (u_short *)(Nvertex_p + (u_int)*(u_char *)(facet + 5) * 6);
+          u_short *z = (u_short *)&Nvertice[*(u_char *)(facet + 5)];
           u_short t1 = z[0];
           u_short t2 = z[1];
           u_short t3 = z[2];
@@ -4495,7 +4495,7 @@ gte_stsxy3((char *)prim + 0x10,(char *)prim + 0x20,(char *)prim + 0x18);
     if ((-1 < iVar1) && (iVar1 <= Draw_gViewOtSize + -3)) {
       u_long *ot;
       {
-      u_long lc;      /* MATCH: the colour word needs its OWN temp -- reusing l1 for it
+      u_long l0;      /* MATCH: the colour word needs its OWN temp -- reusing l1 for it
                          rotates the whole {l1,l2,l3} triple off the oracle's regs (19->3) */
       u_long l1;
       u_long l2;
@@ -4520,9 +4520,9 @@ gte_stsxy3((char *)prim + 0x10,(char *)prim + 0x20,(char *)prim + 0x18);
       *(u_long *)prim = *(u_long *)prim & 0xff000000 | *otp & 0xffffff;
       *otp = *otp & 0xff000000 | (u_long)prim & 0xffffff;
       }
-      lc = sd->color;
+      l0 = sd->color;
       *(u_char *)((char *)prim + 3) = 9;
-      *(u_long *)&prim->r0 = lc;
+      *(u_long *)&prim->r0 = l0;
       *(u_char *)((char *)prim + 7) = 0x2e;
       l1 = *(u_long *)&shadowPmx->u1;
       l2 = *(u_long *)&shadowPmx->u2;

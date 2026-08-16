@@ -15,13 +15,14 @@ typedef struct tPsyQPrimTag {
 
 
 /* ---- MenuNFS4_SetHelpPos__FR4RECT  [@0x800?] ---- RECONSTRUCTED 2026-06-12 (Ghidra @NFS4.EXE.c:5887).
- *  Skipped from the FEMenuExtended pass; trivial RECT copy into gHelpPos (defined above @0x80052b58). */
-extern "C" void MenuNFS4_SetHelpPos__FR4RECT(RECT *r)
+ *  SYM-CONFORM: the GCC-v2 spelling above is the linkage key; retail source is
+ *  the demangled MenuNFS4_SetHelpPos(RECT&) declaration. */
+void MenuNFS4_SetHelpPos(RECT &r)
 {
-  gHelpPos.x = r->x;
-  gHelpPos.y = r->y;
-  gHelpPos.w = r->w;
-  gHelpPos.h = r->h;
+  gHelpPos.x = r.x;
+  gHelpPos.y = r.y;
+  gHelpPos.w = r.w;
+  gHelpPos.h = r.h;
 }
 
 
@@ -971,7 +972,7 @@ void tMenuNFS4Bottom::Draw()
   r.y = 0xc6;
   r.w = 0x72;
   r.h = 0xb;
-  MenuNFS4_SetHelpPos__FR4RECT(&r);
+  MenuNFS4_SetHelpPos(r);
   i = 0;
   ptVar1 = this->fItemList[0];
   while (ptVar1 != (tMenuItem *)0x0) {

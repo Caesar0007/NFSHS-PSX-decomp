@@ -846,7 +846,7 @@ int Front_Menu(tFront_ProcessingType role)
    
    Toolchain: PsyQ SDK 4.3 (May 1998), GCC 2.7.2, ASPSX 2.77, PSYLINK 2.73.Build date: 1999-02-22.See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md. */
 
-extern "C" int * OutputDisplaySettings__FPiiiR17tTrackInformation(int *d,int c,int player,tTrackInformation *trackInfo)
+int *OutputDisplaySettings(int *d,int c,int player,tTrackInformation &trackInfo)
 
 {
   /* W64 (2026-08-10): 159 diffs -> PASS (134/134).  SYM's lone local is the
@@ -857,7 +857,7 @@ extern "C" int * OutputDisplaySettings__FPiiiR17tTrackInformation(int *d,int c,i
 
   switch (frontEnd.displaySpeed[player]) {
   case 0:
-    valtopass = ((short *)CountryMeasurement)[trackInfo->fSpeedoCountry];
+    valtopass = ((short *)CountryMeasurement)[trackInfo.fSpeedoCountry];
     break;
   case 1:
     break;
@@ -1084,7 +1084,7 @@ extern "C" void Front_InitPlayerCars__FR9tFEStream(tFEStream *streamData)
    
    [ghidra-meta] section: front.text */
 
-extern "C" void Front_InitTourneyTraffic__FR9tFEStream(tFEStream *streamData)
+void Front_InitTourneyTraffic(tFEStream &streamData)
 
 {
   short i;
@@ -1103,7 +1103,7 @@ extern "C" void Front_InitTourneyTraffic__FR9tFEStream(tFEStream *streamData)
   tourn = tournamentManager.fDefinition->fTournaments +
           (tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
            tournamentManager.fTournament);
-  streamData->numTraffic = 0;
+  streamData.numTraffic = 0;
   if ((frontEnd.raceType == '\x02') && (tourn->fTraffic != '\0'))
   {
     /* MATCH: same shape as Front_InitTraffic -- SYM has ONE short `i` (REG $17),
@@ -1111,17 +1111,17 @@ extern "C" void Front_InitTourneyTraffic__FR9tFEStream(tFEStream *streamData)
        pair, and `i = 0;` first so reorg steals it into the guard's delay slot. */
     i = 0;
     do {
-      carModel = (tCarModels)(byte)(streamData->trackInfo).fTrafficCars[i++];
+      carModel = (tCarModels)(byte)streamData.trackInfo.fTrafficCars[i++];
       if (5 < (int)i) {
         i = 0;
       }
       if (!carManager.IsCarAnAddedModel(carModel,carColor)) {
-        streamData->totalModels = streamData->totalModels + 1;
+        streamData.totalModels = streamData.totalModels + 1;
         carManager.AddCarToIngameList(carModel,carColor);
       }
-      streamData->trafficCars[streamData->numTraffic] = (u_short)carModel;
-      streamData->totalCars = streamData->totalCars + 1;
-    } while (++streamData->numTraffic < maxTraffic);
+      streamData.trafficCars[streamData.numTraffic] = (u_short)carModel;
+      streamData.totalCars = streamData.totalCars + 1;
+    } while (++streamData.numTraffic < maxTraffic);
   }
   return;
 }
@@ -1893,7 +1893,7 @@ extern "C" int * Front_AppendPlayerCarData__FPiR9tFEStream(int *stream,tFEStream
       *stream++ = 0x109;
       *stream++ = (int)streamData->currentCar;
       *stream++ = (uint)(byte)frontEnd.rampBrake[iVar1];
-      stream = OutputDisplaySettings__FPiiiR17tTrackInformation(stream,(int)streamData->currentCar,iVar1,&streamData->trackInfo);
+      stream = OutputDisplaySettings(stream,(int)streamData->currentCar,iVar1,streamData->trackInfo);
       i = i + 1;
       streamData->currentCar = streamData->currentCar + 1;
     } while (i < streamData->numPlayers);
@@ -2375,7 +2375,7 @@ int * Front_BuildStream(int *stream)
   Front_InitStream(streamData);
   Front_InitPlayerCars__FR9tFEStream(&streamData);
   Front_InitTrack__FR9tFEStream(&streamData);
-  Front_InitTourneyTraffic__FR9tFEStream(&streamData);
+  Front_InitTourneyTraffic(streamData);
   Front_InitOpponentCars__FR9tFEStream(&streamData);
   Front_InitMissions__FR9tFEStream(&streamData);
   Front_InitCopCars__FR9tFEStream(&streamData);

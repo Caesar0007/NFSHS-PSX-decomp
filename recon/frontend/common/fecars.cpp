@@ -1485,17 +1485,17 @@ int tListIteratorCarColor::Increment(tPlayer arg1)
 
 {
   tCarInfo *carInfo;
-  u_int fNumColors_offset;
+  int offset;
   int notWrapped;
   int fNumColors;
 
-  fNumColors_offset = *fPlayer * fIndexSize;
+  offset = *fPlayer * fIndexSize;
   carInfo = &fCarManager->fCars[fPlayerCar[*fPlayer]];
-  fValue[fNumColors_offset + (signed char)carInfo->fCarID]++;
-  fNumColors = fValue[fNumColors_offset + (signed char)carInfo->fCarID];
+  fValue[offset + (signed char)carInfo->fCarID]++;
+  fNumColors = fValue[offset + (signed char)carInfo->fCarID];
   notWrapped = fNumColors < carInfo->fNumLightColors + carInfo->fNumDarkColors;
   if (notWrapped == 0) {
-    fValue[fNumColors_offset + (signed char)carInfo->fCarID] = 0;
+    fValue[offset + (signed char)carInfo->fCarID] = 0;
   }
 }
 
@@ -1505,13 +1505,13 @@ void tListIteratorCarColor::Decrement(tPlayer arg1)
 
 {
   tCarInfo *carInfo;
-  u_int fNumColors_offset;
+  int offset;
   u_int fNumColors;
 
   carInfo = &fCarManager->fCars[fPlayerCar[*fPlayer]];
-  fNumColors_offset = *fPlayer * fIndexSize + (signed char)carInfo->fCarID;
-  fNumColors = fValue[fNumColors_offset];
-  fValue[fNumColors_offset] = fNumColors == 0 ? carInfo->fNumLightColors + carInfo->fNumDarkColors - 1 : fNumColors - 1;
+  offset = *fPlayer * fIndexSize + (signed char)carInfo->fCarID;
+  fNumColors = fValue[offset];
+  fValue[offset] = fNumColors == 0 ? carInfo->fNumLightColors + carInfo->fNumDarkColors - 1 : fNumColors - 1;
 }
 
 

@@ -12,6 +12,7 @@ typedef struct tFEMenuPrimTag {
 } tFEMenuPrimTag;
 
 /* ---- FEMenu.obj-OWNED globals -- DEFINED here (self-contained; .data=real EXE bytes) ---- */
+/* SYM-CARRIER: gMenu_SubMenuPlayer -- measured unsized-array spelling preserves retail addressing. */
 tPlayer      gMenu_SubMenuPlayer[] = { (tPlayer)-1 };   /* @0x800517c0 -- unsized-array form (§3.12 #5) */
 
 

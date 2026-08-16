@@ -24,11 +24,11 @@
    All keep the unsized-array `[]` + `[0]` access shape (§3.15): a global VALUE loaded
    into an ARG reg then uses the oracle's SEPARATE $v0 scratch (`lui v0; lw a0,(v0)`)
    rather than dest-as-temp (`lui a0; lw a0,(a0)`), which a scalar would fold. */
-int   FeTools_gScrollTicksOut[1] = { 30 };   /* @0x800517d0 */
-char *font12[1];                             /* @0x800517d4 */
-char *font18[1];                             /* @0x800517d8 */
-char *fontTitle[1];                          /* @0x800517dc */
-short currentSize[1];                        /* @0x800517e0  current FE font size (SYM SHORT) */
+int   FeTools_gScrollTicksOut[1] = { 30 };   /* @0x800517d0; SYM-CARRIER: FeTools_gScrollTicksOut */
+char *font12[1];                             /* @0x800517d4; SYM-CARRIER: font12 */
+char *font18[1];                             /* @0x800517d8; SYM-CARRIER: font18 */
+char *fontTitle[1];                          /* @0x800517dc; SYM-CARRIER: fontTitle */
+short currentSize[1];                        /* @0x800517e0; SYM-CARRIER: currentSize */
 
 
 /* ---- s_upper  [FETOOLS.CPP:90-95] SLD-VERIFIED ---- */

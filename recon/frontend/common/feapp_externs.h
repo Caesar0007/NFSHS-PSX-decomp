@@ -10,7 +10,7 @@
      0x800514b8 gLargestUnused (ULONG) -> +4 currentVideo (STAT, SYM offset $4,
      = the splat label D_800514BC) -> 0x800514c0 FEApp (PTR).
    (0x800514b4 gShowroomLights is NOT ours -- SYM puts it in fe3dmenu.obj.) */
-extern int               gLargestUnused[];
+extern u_long            gLargestUnused[];
 extern int               currentVideo;
 
 /* global instances / data */

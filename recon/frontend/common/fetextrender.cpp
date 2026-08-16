@@ -22,7 +22,7 @@ char textDefinitions[14][6] = {   /* @0x800515b8 (ARY ARY CHAR, SYM dims 14x6 ->
   {1,0,0,16,20,9},
   {3,2,0,9,9,9},
 };
-int  gSemiTransText __attribute__((section(".data"))) = 0;
+BOOL gSemiTransText __attribute__((section(".data"))) = 0;
 extern int gSemiTransText_arr[] asm("gSemiTransText");
 
 

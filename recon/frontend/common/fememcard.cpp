@@ -23,9 +23,9 @@
    CURRENTPLAYER keeps the unsized-array + [0] access form (fememcard_externs.h): the int-value
    load into an ARG reg then uses the oracle's SEPARATE v0 scratch (lui v0; lw a0,(v0)) rather
    than dest-as-temp (lui a0; lw a0,(a0)); §3.15-CORRECTION. */
-int          CURRENTPLAYER[1] = { 0 };   /* @0x80051a68 */
+int          CURRENTPLAYER[1] = { 0 };   /* @0x80051a68; SYM-CARRIER: CURRENTPLAYER */
 char         productCode[11] = { 83, 76, 85, 83, 45, 48, 48, 56, 50, 54, 0 };   /* @0x80051a6c */
-int          nomessage = 0;   /* @0x80051a78  SYM BOOL (4 B) */
+BOOL         nomessage = 0;   /* @0x80051a78  SYM BOOL (4 B) */
 /* CURRENTLYUSINGMEMCARD @0x80051a7c (bss(zero)) -- REAL TYPE IS A 4-BYTE BOOL: every oracle
    access in the whole front overlay is a WORD op (7 lw / 6 sw, zero byte ops), and the next
    symbol sits at +4 (0x80051a80). The shared fememcard_externs.h declares it `char` (HEADER

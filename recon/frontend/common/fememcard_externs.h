@@ -27,7 +27,7 @@ extern int          gMasterSFXLevel;
 extern int          CURRENTPLAYER[];          /* @0x80051A68 -- unsized-array form: int-value loads
                                                  into an arg reg use the oracle's separate v0 scratch */
 extern char         productCode[11];          /* @0x80051A6C */
-extern int          nomessage;                /* @0x80051A78 */
+extern BOOL         nomessage;                /* @0x80051A78  SYM BOOL */
 /* TRUE TYPE = 4-byte BOOL (was `char`; W62-A17 decl-divergence fix).  Evidence:
    SYM `94 Def class EXT type BOOL` @0x80051A7C (v3 BOOL = 4 bytes), the next symbol
    MEMCARD_INITIALIZED sits at +4 (0x80051A80), and an oracle census over

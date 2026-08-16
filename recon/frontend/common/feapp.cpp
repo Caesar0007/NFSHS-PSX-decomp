@@ -16,7 +16,7 @@ typedef struct tPsyQPrimTag {
 /* ---- FEApp.obj-OWNED globals -- DEFINED here (self-contained; .bss zero; types match the
    feapp_externs.h decls all FE TUs consume). FEApp = the global FE application pointer. ---- */
 int             currentVideo;     /* FE play-movie index (SYM STAT; externed as shared int) */
-int             gLargestUnused[1];   /* @0x800514b8  largest unused heap block (SYM u_long) */
+u_long          gLargestUnused[1];   /* @0x800514b8; SYM-CARRIER: gLargestUnused -- ULONG[1] forces retail value-load addressing */
 tFEApplication *FEApp;            /* @0x800514c0  global FE application pointer */
 extern int Draw_gDoVSync_arr[] asm("Draw_gDoVSync");
 

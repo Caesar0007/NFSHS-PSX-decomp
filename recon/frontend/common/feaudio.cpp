@@ -9,13 +9,13 @@
    initialised it explicitly.  gcc-2.8 has no zero-initialized-in-bss pass, so
    `= 0` keeps it in .data at the head of the definition order. */
 int          gStopCommentaryNow = 0;   /* @0x800514c8 */
-signed char  gCurrentVIV = -1;   /* @0x800514cc */
+signed char  gCurrentVIV = -1;   /* @0x800514cc; SYM-TYPE-OVERRIDE: gCurrentVIV -- CHAR requires signed spelling under unsigned-char mode */
 char *allLanguages[6] = {"zEngl","zGerm","zFren","zSpan","zItal","zSwed"};   /* @0x800514d0 .rodata prefixes */
 SPEECHINFO   ginfo;   /* @0x800514e8  (bss(zero)) */
 /* speechfileHeader declared (unsized-array form) in feaudio_externs.h; accessed [0] so the value-load
    into an arg reg is non-gp + separate v0 scratch (matches oracle lui v0; lw a0,(v0)); §3.15-CORRECTION.
    MIGRATED here W66-A5 (SYM Feaudio.obj block owns 0x8005150c). */
-LUMPYHEAD   *speechfileHeader[1];   /* @0x8005150c */
+LUMPYHEAD   *speechfileHeader[1];   /* @0x8005150c; SYM-CARRIER: speechfileHeader */
 char         currentSpeechViv[40];   /* @0x80051510  (bss(zero)) */
 int          commentaryActualLevel;   /* @0x80051538  (bss(zero)) */
 

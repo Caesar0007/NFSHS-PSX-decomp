@@ -26,7 +26,7 @@ extern char         gFE_Cheats[];
 extern int          gPSXMemCardFull[];
 extern int          colourChosen[8];
 extern tAllScreens *gAllScreens[];
-extern int          memCardReadOK[];
+extern BOOL         memCardReadOK[];
 
 /* ===== auto-generated stubs ===== */
 /* W58-A1 (08A phantom fix): the entry points below were free `Type f(...)` decls,
@@ -109,7 +109,7 @@ extern char gCalculateVictory;   /* was stale int (4B); owner nfs3.cpp defines i
                                      tightly before gPlayerEnteredNameAlready[2] -- a wrong 4B `sw`
                                      here would clobber 3 adjacent bytes incl. that neighbor global */
 extern int gFEBigHandle[];
-extern int gLargestUnused[];
+extern u_long gLargestUnused[];
 extern int gMasterAmbientLevel[];
 extern int gMasterEngineLevel[];
 extern int gMasterFENarrationLevel[];
@@ -119,7 +119,7 @@ extern int gPSXMemCardFull[];
 extern tPadModuleState gPadinfo;
 extern int gUseFrontend;
 extern int mappings[3][13][3];
-extern int memCardReadOK[];
+extern BOOL memCardReadOK[];
 extern tMissionManager missionManager;   /* W58-A1: real type -- ..__15tMissionManager */
 extern tCarModels regularCopModels[7][5];
 extern tScreenAudio *screenAudio;

@@ -59,7 +59,7 @@ int InitializeSpinningCars(void);
 /* Retail SYM type is short; keep the narrow declaration consistent with the
    definition and all frontend callers. */
 short LoadGame(short, bool, bool);
-int MenuExtended_TransitionFromPostGameToMainMenu(tMenuCommand &);  /* W58-A1: ..__FR12tMenuCommand (was `(...)` -> __Fe phantom) */
+void MenuExtended_TransitionFromPostGameToMainMenu(tMenuCommand &);  /* W58-A1: ..__FR12tMenuCommand (was `(...)` -> __Fe phantom); SYM `Def class EXT type FCN VOID` @0x8002c494 -> void, matching the femenudefs.cpp definition */
 int PSXExitFrontend(void);
 int Platform_ResetDCTBuffer(void);
 char * PlayerName(int);

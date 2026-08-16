@@ -37,20 +37,20 @@ extern short SelectListSplitDisplay[3], SelectListUpgrades[4], SelectListControl
  * GetTrack, Hide, Increment, IsTournamentFinished, PurchaseCar, PurchaseUpgrade,
  * Redraw, Run, SellCar, SetCarAvailable, SetDimensions, SetState, StartNewTournament,
  * SwapBackground. */
-int AudioCmn_PlayFESFX(int);
-int DeInit_Memcard(void);
-int FECheat_IsTheUserACryBabyCheater(void);
-int Init_Memcard(bool, bool);
+void AudioCmn_PlayFESFX(int);   /* SYM Def class EXT type FCN */
+void DeInit_Memcard(void);   /* SYM Def class EXT type FCN */
+bool FECheat_IsTheUserACryBabyCheater(void);   /* SYM Def class EXT type FCN */
+void Init_Memcard(bool, bool);   /* SYM Def class EXT type FCN */
 short LoadGame(short, bool, bool);
-int PlayerName(int);
-int SaveGame(short);
+char *PlayerName(int);   /* SYM Def class EXT type FCN */
+bool SaveGame(short);   /* SYM: Def class EXT type FCN BOOL @0x80034988 */
 int SavePinkSlipsCarsWithErrorDialogs(short, short, short);
-int StatChk_ClearNewRecords(void);
-int StatChk_IsRecordLapTime(Car_tStats *, short, short *);
-int StatChk_IsTopTime(Car_tStats *, short);
-int StatChk_SaveRecordLapTime(Car_tStats *, short, short);
-int StatChk_SaveTopTime(Car_tStats *, short);
-int TextSys_Word(int);
+void StatChk_ClearNewRecords(void);   /* SYM Def class EXT type FCN */
+bool StatChk_IsRecordLapTime(Car_tStats *, short, short *);   /* SYM Def class EXT type FCN */
+short StatChk_IsTopTime(Car_tStats *, short);   /* SYM Def class EXT type FCN */
+void StatChk_SaveRecordLapTime(Car_tStats *, short, short);   /* SYM Def class EXT type FCN */
+void StatChk_SaveTopTime(Car_tStats *, short);   /* SYM Def class EXT type FCN */
+char *TextSys_Word(int);   /* SYM Def class EXT type FCN */
 int __builtin_delete(...);
 tDialogYesNo *tDialogYesNo_ctor(...);
 extern "C" tInsideBoxLeftRightSlider *tInsideBoxLeftRightSlider_ctor(...) __asm__("__25tInsideBoxLeftRightSliderUiP13tListIterator");  /* real ctor symbol */

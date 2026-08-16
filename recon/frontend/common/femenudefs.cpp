@@ -684,14 +684,18 @@ static void MenuExtended_GoToUpgrades(tMenuCommand &command)
    gcc's duplicate_loop_exit_test rotation (ours had the guard AND a bottom re-test = 6 extra
    insns) and reproduces the oracle's a0-reuse after the loop. */
 
-void * GenericMenuSaveGame(int showdialog)
+/* [SYM 2026-08-16] retail `Def class EXT type FCN BOOL` @0x8002c9a0 -> bool, not void*.
+   The result temp only stays a plain move (`addu s0,v0,zero`, not a `sltu` bool
+   normalisation) because SaveGame is ALSO BOOL in the SYM (@0x80034988) -- the
+   femenudefs_externs.h decl was corrected in the same pass. */
+bool GenericMenuSaveGame(int showdialog)
 
 {
   bool successful;
   char *pcVar4;
-  void *pvVar5;
+  bool ret;
   tScreenMemcard *dlgThis;
-  byte uninitafter;
+  bool uninitafter;   /* SYM: REG bool uninitafter */
 
   tFEApplication *app;
 
@@ -723,13 +727,13 @@ void * GenericMenuSaveGame(int showdialog)
       Init_Memcard(true,0);
     }
   }
-  pvVar5 = SaveGame(0);
+  ret = SaveGame(0);
   screenMemcard->message = -1;
   if (successful) {
     DeInit_Memcard();
   }
   ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();
-  return pvVar5;
+  return ret;
 }
 
 
@@ -740,12 +744,14 @@ void * GenericMenuSaveGame(int showdialog)
    
    [ghidra-meta] section: front.text */
 
-void * PinkSlipsPreSave(void)
+/* [SYM 2026-08-16] retail `Def class EXT type FCN BOOL` @0x8002cabc -> bool, not void*;
+   the SYM also names the result local `REG bool ret`.  Codegen-neutral (65/66 held). */
+bool PinkSlipsPreSave(void)
 
 {
   short sVar1;
   int is_cheater;
-  void *ret;
+  bool ret;
   tDialogYesNoTri *dlgThis;
 
   /* MATCH: keep the default result outside the dialog's lifetime but assign it
@@ -754,7 +760,7 @@ void * PinkSlipsPreSave(void)
      field stores. The local's automatic destructor handles both exits. */
   is_cheater = (int)FECheat_IsTheUserACryBabyCheater();
   if ((is_cheater ^ 1) != 0) {
-    ret = (void *)0x1;
+    ret = true;
     {
       tDialogYesNoTri YesNoDialog;
 
@@ -770,12 +776,12 @@ void * PinkSlipsPreSave(void)
         ret = GenericMenuSaveGame(1);
       }
       else if (sVar1 == -1) {
-        return (void *)0x0;
+        return false;
       }
     }
     return ret;
   }
-  return (void *)0x1;
+  return true;
 }
 
 
@@ -792,10 +798,10 @@ void MenuExtended_GoToBestOfOne(tMenuCommand &command)
 
 {
   tGlobalMenuDefs *ptVar1;
-  void *pvVar2;
+  bool pvVar2;
   
   pvVar2 = PinkSlipsPreSave();
-  if (pvVar2 != (void *)0x0) {
+  if (pvVar2) {
     ptVar1 = menuDefs[0];
     command.type = kMenu_Command_GoToMenu;
     command.nextMenu = (tMenu *)(tMenu*)&ptVar1->menuSingleTrackSelect;
@@ -822,10 +828,10 @@ void MenuExtended_GoToBestOfThree(tMenuCommand &command)
 
 {
   tGlobalMenuDefs *ptVar1;
-  void *pvVar2;
+  bool pvVar2;
   
   pvVar2 = PinkSlipsPreSave();
-  if (pvVar2 != (void *)0x0) {
+  if (pvVar2) {
     ptVar1 = menuDefs[0];
     command.type = kMenu_Command_GoToMenu;
     command.nextMenu = (tMenu *)(tMenu*)&ptVar1->menuPinkSlipsBestOfThree;
@@ -852,10 +858,10 @@ void MenuExtended_GoToBestOfFive(tMenuCommand &command)
 
 {
   tGlobalMenuDefs *ptVar1;
-  void *pvVar2;
+  bool pvVar2;
   
   pvVar2 = PinkSlipsPreSave();
-  if (pvVar2 != (void *)0x0) {
+  if (pvVar2) {
     ptVar1 = menuDefs[0];
     command.type = kMenu_Command_GoToMenu;
     command.nextMenu = (tMenu *)(tMenu*)&ptVar1->menuPinkSlipsBestOfFive;
@@ -1943,7 +1949,9 @@ void MenuExtended_TierFinished(tMenuCommand &command)
    written `finalPerpArrests > numPerps` so the 440 load is issued before the 428 one.
    Return type corrected void*->int (SYM BOOL; not declared in any header, single in-TU caller). */
 
-static int MenuExtended_DidUserWinBeTheCop(void)
+/* [SYM 2026-08-16] retail `Def class STAT type FCN BOOL` @0x8002d9e8 -> bool (the earlier
+   void*->int correction stopped one step short); STAT confirms the `static`. */
+static bool MenuExtended_DidUserWinBeTheCop(void)
 
 {
   tCarInfo *activateCar;
@@ -2000,7 +2008,7 @@ void MenuExtended_PostGameMenu(tMenuCommand &command)
 
 {
   short sVar1;
-  void *pvVar2;
+  bool pvVar2;
   tMenu *ptVar3;
   tScreenTournamentStandings *dlgThis;
   tScreenTournamentStandings *ptVar4;
@@ -2024,8 +2032,8 @@ void MenuExtended_PostGameMenu(tMenuCommand &command)
     ptVar3 = (tMenu*)&menuDefs[0]->menuPinkSlipStandings;
     break;
   case 1:
-    pvVar2 = (void *)MenuExtended_DidUserWinBeTheCop();
-    if (pvVar2 != (void *)0x0) {
+    pvVar2 = MenuExtended_DidUserWinBeTheCop();
+    if (pvVar2) {
       ptVar3 = (tMenu *)&menuDefs[0]->menuBeTheCopCongrats;
       break;
     }
@@ -2062,7 +2070,7 @@ void MenuExtended_FinishedPlayer1GetName(tMenuCommand &command)
   tGlobalMenuDefs *ptVar2;
   tScreenUserName *ptVar3;
   short sVar4;
-  void *pvVar5;
+  bool pvVar5;
   tUserNameMenuItem *dlgThis;
   tOptionsMenu *m;
   Car_tStats *dummyCars;
@@ -2084,7 +2092,7 @@ void MenuExtended_FinishedPlayer1GetName(tMenuCommand &command)
   }
   else {
     pvVar5 = StatChk_IsRecordLapTime(Cars_gNewCarStatsList,(short)Cars_gNumRaceCars,&nBestCarIndex);
-    if (pvVar5 != (void *)0x0) {
+    if (pvVar5) {
       StatChk_SaveRecordLapTime(Cars_gNewCarStatsList,(short)Cars_gNumRaceCars,nBestCarIndex);
     }
     sVar4 = StatChk_IsTopTime(Cars_gNewCarStatsList,(short)Cars_gNumRaceCars);
@@ -2111,7 +2119,7 @@ void MenuExtended_FinishedPlayer2GetName(tMenuCommand &command)
 {
   tGlobalMenuDefs *ptVar1;
   short sVar2;
-  void *pvVar3;
+  bool pvVar3;
   Car_tStats *dummyCars;
   short nBestCarIndex;
 
@@ -2131,7 +2139,7 @@ void MenuExtended_FinishedPlayer2GetName(tMenuCommand &command)
      pin (forbidden). Accept as floor. */
   dummyCars = Cars_gNewCarStatsList;
   pvVar3 = StatChk_IsRecordLapTime(dummyCars,(short)Cars_gNumRaceCars,&nBestCarIndex);
-  if (pvVar3 != (void *)0x0) {
+  if (pvVar3) {
     StatChk_SaveRecordLapTime(dummyCars,(short)Cars_gNumRaceCars,nBestCarIndex);
   }
   sVar2 = StatChk_IsTopTime(dummyCars,(short)Cars_gNumRaceCars);
@@ -2233,7 +2241,6 @@ void MenuExtended_AwardPinkSlipsCar(tMenuCommand &command)
   tFEApplication *ptVar2;
   tGlobalMenuDefs *ptVar3;
   char *mess;
-  char *pcVar4;
   char *pcVar5;
   tScreenPinkSlipCongrats *dlgThis;
   tDialogYesNo *dlgThis2;
@@ -2256,9 +2263,9 @@ void MenuExtended_AwardPinkSlipsCar(tMenuCommand &command)
   dlgThis2->yesnowords[1] = 0x292;
   dlgThis2->fDefault = 1;
   fWinner = screenPinkSlipCongrats->fWinner;
-  pcVar4 = TextSys_Word(0x29a);
+  mess = TextSys_Word(0x29a);
   pcVar5 = PlayerName(fWinner);
-  sprintf(string,pcVar4,pcVar5,fWinner + 1);
+  sprintf(string,mess,pcVar5,fWinner + 1);
   dlgThis3 = &FEApp->NoInputMemCardDialog;
   dlgThis3->string = string;
   ((tDialogBase *)dlgThis3)->Display();
@@ -2281,8 +2288,8 @@ void MenuExtended_AwardPinkSlipsCar(tMenuCommand &command)
   command.type = kMenu_Command_GoToMenuOneWay;
   command.nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuMain;
   this_00 = &FEApp->NoInputMemCardDialog;
-  pcVar4 = TextSys_Word(0x274);
-  this_00->string = pcVar4;
+  mess = TextSys_Word(0x274);
+  this_00->string = mess;
   ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Display();
   while (1) {
     ptVar2 = FEApp;

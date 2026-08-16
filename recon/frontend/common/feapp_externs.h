@@ -73,7 +73,7 @@ void *StatChk_IsRecordLapTime(Car_tStats *, short, short *);
 short StatChk_IsTopTime(Car_tStats *, short);
 int  SavePinkSlipsCarsWithErrorDialogs(short, short, short);
 char *PlayerName(int);
-int  MenuExtended_PostGameMenu(tMenuCommand &command);
+void MenuExtended_PostGameMenu(tMenuCommand &command);  /* SYM `Def class EXT type FCN VOID` @0x8002db04 -> void, matching the femenudefs.cpp definition */
 void play_movie(int) asm("play_movie__Fc");
 
 /* CRT */

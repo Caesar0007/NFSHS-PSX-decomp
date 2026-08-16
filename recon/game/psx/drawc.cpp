@@ -589,6 +589,45 @@ void DrawC_MenuColorData(int color,Car_tObj *carObj,int player)
  * `sra a2,fp,2` there and multiplies out of $a2); (2) the tw.x/tw.y `lbu`/`sh`
  * interleave in the SetDrawMode RECT build; (3) the split-address `lui`/`addiu`
  * pair for R3DCar_InMenu.  All ready-list ties.
+ * ===== w70-a1: 52 -> 8, count stays EXACT 976/976 =====
+ * FIVE cooperating source edits; each was measured on its own and every one of
+ * the w55/w62/w63 "ready-list tie" verdicts above turned out to be DOWNSTREAM of
+ * a structural miss (methodology sec.5.0c META).  In landing order:
+ *  (1) `eColor = lightAvg >> 2;` given its OWN statement at the head of the
+ *      InMenu==0 arm (was fused into the `* eMapColour.r >> 7` expression).
+ *      The fused form let cc1 compute the >>2 into a scratch ($v0) and hoist the
+ *      ELSE arm's `>>1` into the guard's delay slot; split, the >>2 defines
+ *      eColor's own reg ($a2) directly, so retail's `sra a2,fp,2` fills the slot
+ *      and the else arm keeps its `j T; sra a2,fp,1` tail.  52 -> 40 (@978 -- it
+ *      EXPOSED a pre-existing 2-insn excess the old alignment was hiding).
+ *  (2) the envmap `-1` decrement split out as `envMap = (short)(uVar5 - 1);`
+ *      HOISTED above the shadow-sign `if` (the w55-a9 sibling lever, re-measured
+ *      at the new basin): 40 -> 35 @977.  Position matters -- immediately before
+ *      its use = 41 @979, between the two shadow `if`s = 40 @978.  It must be a
+ *      SHORT-typed NAMED local (the SYM's `envMap`, REG $6), not an in-place
+ *      `uVar5 = uVar5 - 1`: retail writes the decrement to a FRESH reg
+ *      (`addiu v1,a2,-1`) here while the shadow one really is in-place
+ *      (`addiu a1,a1,-1`), so the same conversion applied to shadow_align_b
+ *      measures 39 and was NOT landed.
+ *  (3) `sub_otz_h2 = shapeIdx >> 1;` SUNK into the InMenu==0 arm.  It shortens the
+ *      sd->sub_otz load's successor chain below R3DCar_InMenu's, so sched1 issues
+ *      the InMenu load FIRST and the `lw s0,64(s3)` fills its load-delay slot
+ *      exactly like retail (kills the last stray `nop`): 35 -> 30 @976 EXACT.
+ *  (4) the SetDrawMode RECT build: `tw.x`/`tw.y` read as FIELDS of
+ *      `Track_gReflectionMaps[iVar3]` (was a raw `vertBuf_p` byte cursor +
+ *      `*(u_char*)`) and ordered x,y,w,h (was x,w,h,y).  One CSE'd element
+ *      address instead of a separate cursor pseudo, and retail's
+ *      `lbu; addu a2,zero,zero; sh` interleave falls out: 30 -> 16.
+ *  (5) the ePmx0 arm indexed by `envMap` DIRECTLY (`Track_gReflectionMaps[envMap]`,
+ *      `if (envMap < 0)`) instead of copying through the fn-scope `iVar3` scratch --
+ *      the SYM says there is no local there, so the fn-scope copy was inventing a
+ *      long-lived pseudo that took a callee-saved home ($s0) where retail morphs
+ *      the sign-extended value in place ($v0): 16 -> 10.
+ *  (6) `nabr_blend = 2;` hoisted ABOVE the envExtra guard so it reaches retail's
+ *      FIRST beqz delay slot (falsified at the w63 basin at 64 diffs; the basin
+ *      law again): 10 -> 8.
+ * RESIDUAL 8 = ONE cluster, the sd->eAddZ address/schedule tie -- receipt at the
+ * statement itself.
  * ---- DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache  [DRAWC.CPP:1148-1531] SLD-VERIFIED ---- */
 int DrawC_PrimStart(Draw_tVertex *center,Car_tObj *carObj,int lightAvg,Draw_CarCache *sd)
 
@@ -632,7 +671,6 @@ int DrawC_PrimStart(Draw_tVertex *center,Car_tObj *carObj,int lightAvg,Draw_CarC
   int menuPmx_w1;
   int sub_otz;
   int shapeIdx;
-  int vertBuf_p;
   int carType;
   int vertCount;
   DRAWENV *LEnv;
@@ -724,8 +762,8 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
      `sra $t4,$t4,2` before `sw 0x40($s3)` @0x800BEDF8. Costs ~17 fuzzy diffs (our cc1plus
      CSEs a reload the PsyQ compiler kept) -- accepted. */
   shapeIdx = sd->sub_otz;
-  sub_otz_h2 = shapeIdx >> 1;
   if (R3DCar_InMenu == 0) {
+    sub_otz_h2 = shapeIdx >> 1;
     sd->sub_otz = sub_otz_h2;
     if ((sub_otz_h2 < 0) || (Draw_gViewOtSize + -3 < sub_otz_h2)) {
       return -1;
@@ -1055,10 +1093,10 @@ DrawCPrimStart_camRotMatrix:
       envExtra = (u_short)DrawC_gEnvMap[eIndexEnvMap].extra;
       shadow_align_b = (u_int)(u_short)DrawC_gShadow[eIndexShadow].tex;
       shadExtra = (u_short)DrawC_gShadow[eIndexShadow].extra;
+      nabr_blend = 2;
       if (quadB < (int)(envExtra & 0xff)) {
         uVar5 = (int)(envExtra << 0x10) >> 0x18;
       }
-      nabr_blend = 2;
       if (quadB < (int)(shadExtra & 0xff)) {
         shadow_align_b = (int)(shadExtra << 0x10) >> 0x18;
       }
@@ -1067,6 +1105,7 @@ DrawCPrimStart_camRotMatrix:
       uVar5 = uVar5 - 10;
       envMapBigBit = 1;   /* oracle li s7,1 inside the arm (no bool materialize) */
     }
+    envMap = (short)(uVar5 - 1);
     if ((int)(shadow_align_b << 0x10) < 0) {
       shadowAbsOffs = 0;
       shadow_align_b = -shadow_align_b;
@@ -1076,8 +1115,7 @@ DrawCPrimStart_camRotMatrix:
       nabr_blend = 1;
     }
     shadow_align_b = shadow_align_b - 1;   /* MATCH w55-a9: own statement -> reorg steals it into the (short)(uVar5-1) bgez delay slot (oracle addiu a1,a1,-1 @800BF918) */
-    iVar3 = (int)((uVar5 - 1) * 0x10000) >> 0x10;
-    if (iVar3 < 0) {
+    if (envMap < 0) {
       *(u_int *)&sd->ePmx0 = 0;   /* fused u0/v0/clut word store (oracle sw zero) */
     }
     else {
@@ -1085,7 +1123,7 @@ DrawCPrimStart_camRotMatrix:
        * struct-assignment codegen (lwl/lwr/swl/swr) reproduces the oracle's
        * 16-byte movstrsi-style block; the old byte/word-peeled shift-mask form
        * was a Ghidra decompile artifact, not the true source shape. */
-      sd->ePmx0 = Track_gReflectionMaps[iVar3];
+      sd->ePmx0 = Track_gReflectionMaps[envMap];
     }
     iVar3 = (int)(shadow_align_b * 0x10000) >> 0x10;
     if (iVar3 < 0) {
@@ -1093,11 +1131,10 @@ DrawCPrimStart_camRotMatrix:
     }
     else {
       RECT tw;
-      vertBuf_p = (int)(Track_gReflectionMaps + iVar3);
-      tw.x = (short)*(u_char *)vertBuf_p;
+      tw.x = (short)Track_gReflectionMaps[iVar3].u0;
+      tw.y = (short)Track_gReflectionMaps[iVar3].v0;
       tw.w = 0x80;
       tw.h = 0x40;
-      tw.y = (short)Track_gReflectionMaps[iVar3].v0;
       SetDrawMode(&sd->drawModeOn,(u_int)*(u_char *)(drawEnv_p + 0x17),0,
                  (u_int)Track_gReflectionMaps[iVar3].tpage,&tw);
       tw.h = 0;
@@ -1110,6 +1147,22 @@ DrawCPrimStart_camRotMatrix:
       sd->ePmx1 = Track_gReflectionMaps[iVar3];
       ChangeTPage(&(sd->ePmx1).tpage,nabr_blend);
     }
+    /* w70-a1 RESIDUAL (8 diffs, count-exact 976/976): a pure sched2 ready-list
+       ORDER + one register pick.  The insn MULTISET is identical -- ours
+       `addiu v0,s6,3 / lh v1 / lui a0 / srav v1,v1,v0 / lbu v0,117(s3) /
+       addiu a0,a0,0 / srl / sll / addu`, retail
+       `addiu a0,s6,3 / lh v1 / lbu v0,117(s3) / srav v1,v1,a0 / srl / sll /
+       lui a0 / addiu a0 / addu`: retail fills the `lh`'s load-delay with the
+       ePmx1.v0 `lbu` and materialises &DrawC_gEnvMapOffset LAST (so the shift
+       amount and the base SHARE $a0), ours interleaves the address pair into
+       the delay slots so both are live at once.  FALSIFIED at this basin (all
+       count-exact 976): index-term-first address spelling
+       `*(short*)(((v0>>6)<<1)+(int)DrawC_gEnvMapOffset)` = 30; a named
+       `envShift = shadowAbsOffs + 3` local = 8 (bit-identical); splitting the
+       first term into its own block-local `za` = 8 (bit-identical); operand
+       swap (array term first) = 18.  Same class as the DrawC_NightHeadlight
+       w61-a15 residual (dependence-graph-forced priority) => PER_FN_TEXT_MOVES
+       is the instrument, not a source dial. */
     sd->eAddZ = ((int)(carObj->N).positionXZ >> shadowAbsOffs + 3 & 0x3fU) +
                 (int)DrawC_gEnvMapOffset[(sd->ePmx1).v0 >> 6];
     if (((GameSetup_gData.Weather != 0) &&
@@ -1146,7 +1199,8 @@ DrawCPrimStart_camRotMatrix:
      * is a sched1 hoist of the arm's shift, not an arm-order defect. */
     int eColor;
     if (R3DCar_InMenu == 0) {
-      eColor = (int)((lightAvg >> 2) * (u_int)R3DCar_eMapColour.r) >> 7;
+      eColor = lightAvg >> 2;
+      eColor = (int)((u_int)eColor * (u_int)R3DCar_eMapColour.r) >> 7;
       if (envMapBigBit) {
         eColor = (eColor << 1) / 3;
       }

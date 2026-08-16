@@ -1613,7 +1613,53 @@ void StatusReply__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
     SPCHNFSType_DISTANCE *distance = &(pThis->_base_Speaker).fDistance;
     (pThis->_base_Speaker).fSpikeSide.flags = 4;
     (pThis->_base_Speaker).fWing = wing;
-    /* NEAR-MISS 5 (ours 268 / oracle 269) -- same class as SubmitRequest above:
+    /* *** MATCH (W69) -- THE 12A PREFERENCE-KILLER IN ITS NON-VOLATILE FORM.
+       The seal is the one-line `__asm__("" : "=r"(wing) : "0"(wing) : "$7");`
+       sitting immediately before the SPCHNFS_D_C_SPBLT_CONFIRMED call below.
+       ZERO INSNS.  DO NOT DELETE OR "SIMPLIFY" IT: it is the only thing
+       standing between this function and the 5-diff near-miss documented below.
+       It is NOT a register pin (no `register T x asm("$N")` binding); it is the
+       13B identity launder carrying a 12A hard-register clobber, and it emits
+       nothing (empty template + matching "0" constraint = a reg-reg tie gcc
+       coalesces away).  BOTH halves are load-bearing and BOTH were measured:
+         launder alone, no clobber ................ 15 diffs
+         clobber alone, volatile (no output) ...... 12 diffs   (W68's 14@269 class)
+         launder + clobber, NON-volatile .......... PASS 269/269
+       The clobber may be spelled "$7" or "a3" (both PASS); adding "memory"
+       is also PASS but is noise -- keep the minimal form.
+       WHY NON-VOLATILE IS THE WHOLE TRICK (this is the W68/20A closure, solved):
+       an output-LESS asm is implicitly volatile => a sched1 BARRIER, and retail
+       hoists the call's $a0/$a2 arg setup (`addu a0,s1,zero`, `addiu a2,s1,4`)
+       from the call site all the way ABOVE the index chain; a barrier anywhere
+       inside wing's live range traps them below it.  Giving the asm an OUTPUT
+       (here wing itself, matched back to its own input) drops MEM_VOLATILE_P,
+       so the insn is an ordinary schedulable RTL node: the clobber still makes
+       $a3 conflict with wing's quantity -- denying local-alloc's
+       qty_phys_copy_sugg, so wing takes $v1 and retail's surviving copy
+       `addu a3,v1,zero` MINTS -- while sched1 remains free to hoist a0/a2.
+       W68's structural law ("any RTL fence inside the range blocks the hoists")
+       was right about VOLATILE fences only; the non-volatile launder is the
+       device 13B had been asking for across four waves.
+       POSITION IS A DIAL, and only P5 wins (all five measured, W69):
+         P1 after the wing load ....... 7 @270   P2 after `location` .... 7 @270
+         P3 after `distance` .......... 7 @270   P4 after `flags = 4` ... 10 @269
+         P5 after the fWing store ..... PASS     (volatile controls at the same
+         five positions: 10 / 12 / 12 / 14 / 12 -- never better than the 5-diff
+         no-fence baseline, exactly as W68 recorded.)
+       FENCE-FREE ANGLES RE-SWEPT THIS WAVE, ALL INERT AT EXACTLY 5 @268 (so the
+       "source-level preference change" 20A asked for still does not exist, but
+       it is no longer needed): `unsigned int wing`; a `pos` local for arg0 taken
+       before the wing statement; `(int)wing` cast at the call; wing+call wrapped
+       in one inner block (13A block anchor); the fWing store spelled through an
+       int-pun lvalue (14D alias dial); a read-back `wing = fWing;` after the
+       store (w43 case-2).  Two were WORSE: the index-term-first address spelling
+       of the fMobile read and a `volatile int` read of the same slot both give
+       7 @268 (they only re-order the `addu`).  Hoisting the location/distance
+       declarations above the CallSign call is catastrophic (208 @273 -- the two
+       locals then live across the virtual call and buy an extra callee-saved
+       register plus a bigger frame).
+       ---- the historical near-miss receipt this seal retires ----
+       NEAR-MISS 5 (ours 268 / oracle 269) -- same class as SubmitRequest above:
        retail stages the loaded value in $v1 and COPIES it into the $a3 call-arg
        (`addu a3,v1,zero`); ours colours `wing` straight into $a3 because
        local-alloc's qty_phys_copy_sugg (and, for a global allocno, global.c's
@@ -1683,7 +1729,12 @@ void StatusReply__Q26Speech15DispatchSpeaker(DispatchSpeaker *pThis)
              a fence outside the range does not deny the preference.  The
              remaining wanted device must deny $a3 with ZERO RTL between the
              load and the store -- i.e. at the SOURCE/preference level, not
-             via an inserted insn.  Keeping the 5-diff form. */
+             via an inserted insn.  Keeping the 5-diff form.
+             [W69 RESOLUTION: the premise "ANY RTL fence inside [lw..sw]" was
+             true only for VOLATILE fences; a NON-VOLATILE asm (one with an
+             output) is not a sched barrier, denies the preference just the
+             same, and seals the function -- see the MATCH block at the top.] */
+    __asm__("" : "=r"(wing) : "0"(wing) : "$7");  /* W69 seal -- see MATCH above */
     SPCHNFS_D_C_SPBLT_CONFIRMED((SPCHNFSType_POSITION *)pThis,
       location,distance,wing,
       &(pThis->_base_Speaker).fSpikeSide);

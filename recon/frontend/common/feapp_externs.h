@@ -3,15 +3,14 @@
 #ifndef FEAPP_EXTERNS_H
 #define FEAPP_EXTERNS_H
 
-/* 🔴 DO NOT RE-SORT these three (17B EXTERN-ORDER LAW).  All three are TU-owned
+/* 🔴 DO NOT RE-SORT these TU-owned declarations.  Their first declaration
    TENTATIVE definitions in feapp.cpp, so they are emitted in the order their
    identifiers are FIRST DECLARED -- which is here, not in the .cpp.  This order
    encodes FEApp.obj's retail .data run, from the SYM's own FEApp.obj block:
-     0x800514b8 gLargestUnused (ULONG) -> +4 currentVideo (STAT, SYM offset $4,
-     = the splat label D_800514BC) -> 0x800514c0 FEApp (PTR).
+     0x800514b8 gLargestUnused (ULONG) -> +4 RunDemoVideo's function-static
+     currentVideo (= splat D_800514BC) -> 0x800514c0 FEApp (PTR).
    (0x800514b4 gShowroomLights is NOT ours -- SYM puts it in fe3dmenu.obj.) */
 extern u_long            gLargestUnused[];
-extern int               currentVideo;
 
 /* global instances / data */
 extern tFEApplication   *FEApp;

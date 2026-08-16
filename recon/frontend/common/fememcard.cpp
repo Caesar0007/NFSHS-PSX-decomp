@@ -26,13 +26,8 @@
 int          CURRENTPLAYER[1] = { 0 };   /* @0x80051a68; SYM-CARRIER: CURRENTPLAYER */
 char         productCode[11] = { 83, 76, 85, 83, 45, 48, 48, 56, 50, 54, 0 };   /* @0x80051a6c */
 BOOL         nomessage = 0;   /* @0x80051a78  SYM BOOL (4 B) */
-/* CURRENTLYUSINGMEMCARD @0x80051a7c (bss(zero)) -- REAL TYPE IS A 4-BYTE BOOL: every oracle
-   access in the whole front overlay is a WORD op (7 lw / 6 sw, zero byte ops), and the next
-   symbol sits at +4 (0x80051a80). The shared fememcard_externs.h declares it `char` (HEADER
-   WISH) -- define through an asm-label int alias; section(".bss") keeps it out of .sbss
-   (oracle addresses it absolutely, not gp-rel). */
-int          CURRENTLYUSINGMEMCARD_word asm("CURRENTLYUSINGMEMCARD") = 0;   /* @0x80051a7c */
-int          MEMCARD_INITIALIZED_word2 asm("MEMCARD_INITIALIZED") = 0;   /* @0x80051a80  SYM BOOL */
+BOOL         CURRENTLYUSINGMEMCARD = 0;   /* @0x80051a7c  SYM BOOL */
+BOOL         MEMCARD_INITIALIZED = 0;     /* @0x80051a80  SYM BOOL */
 int          textSysMemCardFail_Index[7] = { 0, 677, 685, 675, 811, 671, 669 };   /* @0x80051a84 */
 
 /* [HEADER WISH -- TU-local TRUE-TYPE redeclarations via asm labels; the shared headers declare
@@ -42,9 +37,8 @@ int          textSysMemCardFail_Index[7] = { 0, 677, 685, 675, 811, 671, 669 }; 
      into INFINITE loops (li v0,1; bnez -- real bug) and blocks the oracle's per-iteration
      reload + hoisted %hi base.
    - MEMCARD_INITIALIZED / MEMCARDFRONTENDISINITTED are 4-byte BOOLs (SYM; oracle uses lw/sw
-     word ops), declared `char` in fememcard_externs.h. */
+     word ops). */
 extern volatile int ticks_vol            asm("ticks");
-#define MEMCARD_INITIALIZED_word MEMCARD_INITIALIZED_word2   /* defined above, inside the run */
 extern int          MEMCARDFRONTENDISINITTED_word asm("MEMCARDFRONTENDISINITTED");
 /* base-class vtables for the inlined WarningDialog ctor chains (declared in feapp_externs.h
    for other TUs; TU-local externs here) */

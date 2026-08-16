@@ -5,7 +5,6 @@
  */
 #include "screenusername.h"
 
-static const char *MOD = "ScreenUserName.obj globals: menu_kUserNameRows/MENUUSERNAME_STARTY/screenUserName/UserPermFileName (EXT, in .h)";
 
 /* ---- tScreenUserName::Initialize  (screenusername.cpp:33) ---- */
 void tScreenUserName::Initialize()

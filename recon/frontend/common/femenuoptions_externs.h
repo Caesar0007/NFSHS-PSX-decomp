@@ -7,7 +7,7 @@ extern tFEApplication *FEApp;
 extern tfrontEnd frontEnd;
 extern tPadModuleState gPadinfo;
 extern int ticks[];   /* unsized array (§3.12 #5): oracle lui/lw separate-scratch (matches femenuextended/fescreen) */
-extern int PulsateYellow[];   /* store-[] lever (§3.12 #5): oracle materialises addr in genreg (sw v0,%lo($v1)) not $at; storage @0x800515ac in front_data.data.s */
+extern int PulsateYellow;
 extern short MENUUSERNAME_STARTY;   /* @0x800529b2 ScreenUserName.obj-owned (cross-TU) */
 extern char *Paths_Paths[];
 extern tGlobalMenuDefs *menuDefs;
@@ -51,7 +51,6 @@ extern char ginfo[256];  extern int gFlip;  extern int Draw_gPlayer1View;
 void *Draw_GetDRAWENV(int,int);
 int  TextSys_WordFlags(int);
 void Stattool_SamNelsonsUpperLowerStringConverterForRecords(char*);
-extern short _UNK_80010a02,_UNK_80010a06,_UNK_80010a0a;
 void FeMenuOptions_drawLeftFlareOut(int,int,int);  void FeAudio_AsyncPlaySpeech(int, int);
 int  FECheat_ActivateBonusByCode(char*);
 /* W58-A1 (08A phantom fix): CalcOnOffFade__F13tMenuTextTypesssRiT4 -- (tMenuTextType,

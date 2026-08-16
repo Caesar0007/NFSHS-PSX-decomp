@@ -5673,8 +5673,6 @@ struct tAllScreens {   /* 15320 bytes */
     tScreenPinkSlips   screenPinkSlips;   /* +0x3608 */
     tScreenBeTheCopCongrats screenBeTheCopCongrats;   /* +0x38D0 */
     tScreenTournamentCongrats screenTournamentCongrats;   /* +0x3A54 */
-    tAllScreens();
-    ~tAllScreens();
 };
 
 struct tPerpModelList {   /* 8 bytes */

@@ -7,9 +7,8 @@
  */
 #include "fescreen.h"
 
-/* ---- FEScreen.obj globals -- gCurrentShapes is DEFINED in front_data.data.s (.data @0x800517cc,
- *      absolute-addressed by the oracle, NOT small-data/gp-rel); declared extern via the header so
- *      this TU emits the oracle's absolute lui/%lo store, not a -G4 small-common gp-rel store. ---- */
+/* ---- FEScreen.obj globals ---- */
+tTexture_ShapeInfo *gCurrentShapes;   /* @0x800517cc; SYM EXT */
 
 
 /* MATCH (w35-a10): unsized-array asm-label views -- these globals are
@@ -252,7 +251,7 @@ void tScreen::UploadPermanentShapes(int numPermanentShapes)
 {
   
   this->UploadShapes(this->fPermShapes,0,0,(short)numPermanentShapes,0);
-  gCurrentShapes[0] = (this->fPermShapes).fShapes;
+  gCurrentShapes = (this->fPermShapes).fShapes;
   return;
 }
 

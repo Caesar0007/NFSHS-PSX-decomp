@@ -166,7 +166,7 @@ void tScreenMemcard::LoadIcon(int filenum)
       cardInfo = this->pCI;
       this->fMemFile[filenum].title = (char *)((int)this->fMemTitle + filenum * 0x20);
       this->fMemFile[filenum].name = (char *)(cardInfo->dir + filenum);
-      iconShape = (shapetbl *)(*fMemIcon[0] + filenum);
+      iconShape = (shapetbl *)(*fMemIcon + filenum);
       this->fMemFile[filenum].icon[0] = iconShape;
       this->fMemFile[filenum].icon[1] = (shapetbl *)&*(int *)((char *)&iconShape[9] + 0xc);
       this->fMemFile[filenum].icon[2] = (shapetbl *)&iconShape[0x13].width;
@@ -209,8 +209,8 @@ void tScreenMemcard::LoadIcon(int filenum)
             do {
               __asm__("" : :
                       "r"(i * 0xc0), "r"(i * 0xc0), "r"(i * 0xc0));
-              if (((*fMemIcon[0])[filenum][i][0] & 0xf7U) == 0x40) {
-                vramfxya((*fMemIcon[0])[filenum][i],i * 0x11 + 900,
+              if (((*fMemIcon)[filenum][i][0] & 0xf7U) == 0x40) {
+                vramfxya((*fMemIcon)[filenum][i],i * 0x11 + 900,
                          filenum * 0x11,clutx,cluty);
               }
               i = i + 1;
@@ -403,7 +403,7 @@ void tScreenMemcard::PlaceIcons(register int i,int fadeval)
                  &fFlags);
     }
     else {
-      icon = (shapetbl *)(*fMemIcon[0])[i][animFrame];
+      icon = (shapetbl *)(*fMemIcon)[i][animFrame];
       this->DrawIcon(icon,xx * 0x10000 >> 0x10,yy * 0x10000 >> 0x10,0x1f,0x10,
                  (short)(fadeval + this->fFadeIcon[i] < 0x81 ?
                          fadeval + this->fFadeIcon[i] : 0x80));
@@ -962,7 +962,7 @@ void tScreenMemcard::Initialize()
   kMemCardMessage1X = 0x150;
   this->fScreenFadeReadyTick = 0;
   kMemCardMessageY = 0xc6;
-  fMemIcon[0] = (char (*)[15][3][192])reservememadr("records",0x21c0,0);
+  fMemIcon = (char (*)[15][3][192])reservememadr("records",0x21c0,0);
   feApp = FEApp;
   this->checkingstart = 0;
   this->memcardanimframe = 0;
@@ -1008,7 +1008,7 @@ void tScreenMemcard::Cleanup()
 
   this->ReleaseIcons();
   DeInit_Memcard();
-  iconTable = fMemIcon[0];
+  iconTable = fMemIcon;
   menus = menuDefs[0];
   (menus->itemSaveGame).fFlags =
        (menus->itemSaveGame).fFlags & 0xfffffffe;
@@ -1034,3 +1034,41 @@ extern "C" void ___7tScreen(void *);
 extern "C" void ___14tScreenMemcard(void *thisp) { ___7tScreen(thisp); }
 
 /* end of screenmemcard.cpp */
+
+#undef GRIDMEMCARD_STARTX
+#undef GRIDMEMCARD_STARTY
+#undef MEMCARD_DELTAX
+#undef MEMCARD_DELTAY
+#undef EXTRAYATTOP
+#undef GRIDMEMCARDGOURAUDBIT_X
+#undef GRIDMEMCARDGOURAUDBIT_Y
+#undef GRIDMEMCARD_WIDTH
+#undef GRIDMEMCARD_HEIGHT
+#undef MEMCARDICONOFFX
+#undef MEMCARDICONOFFY
+#undef kMemCardMessageX
+#undef kMemCardMessageY
+#undef kMemCardMessage1X
+#undef kMemCardMessage1Y
+#undef kMemCardMessageH
+#undef kMemCardMessageH1
+
+tScreenMemcard *screenMemcard;              /* @0x800528f0 */
+int GRIDMEMCARD_STARTX;                      /* @0x800528f4 */
+int GRIDMEMCARD_STARTY;                      /* @0x800528f8 */
+int MEMCARD_DELTAX;                          /* @0x800528fc */
+int MEMCARD_DELTAY;                          /* @0x80052900 */
+int kMemCardMessageH;                        /* @0x80052904 */
+int kMemCardMessageH1;                       /* @0x80052908 */
+int EXTRAYATTOP;                              /* @0x8005290c */
+int GRIDMEMCARD_WIDTH;                       /* @0x80052910 */
+int GRIDMEMCARD_HEIGHT;                      /* @0x80052914 */
+int GRIDMEMCARDGOURAUDBIT_X;                 /* @0x80052918 */
+int GRIDMEMCARDGOURAUDBIT_Y;                 /* @0x8005291c */
+int MEMCARDICONOFFX;                         /* @0x80052920 */
+int MEMCARDICONOFFY;                         /* @0x80052924 */
+int kMemCardMessage1X;                       /* @0x80052928 */
+int kMemCardMessage1Y;                       /* @0x8005292c */
+int kMemCardMessageX;                        /* @0x80052930 */
+int kMemCardMessageY;                        /* @0x80052934 */
+char (*fMemIcon)[15][3][192];                /* @0x80052938 */

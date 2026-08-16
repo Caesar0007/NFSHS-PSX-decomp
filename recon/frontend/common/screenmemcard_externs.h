@@ -8,17 +8,21 @@ typedef long long longlong; typedef unsigned long long ulonglong;
 
 extern tfrontEnd   frontEnd;
 extern int  ticks;
-extern int  CURRENTLYUSINGMEMCARD;
-extern char (*fMemIcon[])[15][3][192];   /* unsized-array shape -> absolute + separate-temp arg-load (3.12#5) */
+extern BOOL CURRENTLYUSINGMEMCARD;
 int CalcFadeVal(int col1, int col2, int amount);
 int CalcFadeVal(int col1, int amount);   /* 2-arg overload */
 /* SCREENMEMCARD.CPP layout int globals (@0x800528xx) are DEFINED in the .cpp (this TU owns them;
    SYM EXT @ data addrs, Initialize() sets them). extern-declared here for completeness. */
+extern tScreenMemcard *screenMemcard;
 extern int GRIDMEMCARD_STARTX, GRIDMEMCARD_STARTY, MEMCARD_DELTAX, MEMCARD_DELTAY;
-extern int EXTRAYATTOP, GRIDMEMCARDGOURAUDBIT_X, GRIDMEMCARDGOURAUDBIT_Y;
-extern int GRIDMEMCARD_WIDTH, GRIDMEMCARD_HEIGHT, MEMCARDICONOFFX, MEMCARDICONOFFY;
-extern int kMemCardMessageX, kMemCardMessageY, kMemCardMessage1X, kMemCardMessage1Y;
 extern int kMemCardMessageH, kMemCardMessageH1;
+extern int EXTRAYATTOP;
+extern int GRIDMEMCARD_WIDTH, GRIDMEMCARD_HEIGHT;
+extern int GRIDMEMCARDGOURAUDBIT_X, GRIDMEMCARDGOURAUDBIT_Y;
+extern int MEMCARDICONOFFX, MEMCARDICONOFFY;
+extern int kMemCardMessage1X, kMemCardMessage1Y;
+extern int kMemCardMessageX, kMemCardMessageY;
+extern char (*fMemIcon)[15][3][192];
 extern int  kRGBVals[28];
 extern char textDefinitions[14][6];
 extern tFEApplication *FEApp;

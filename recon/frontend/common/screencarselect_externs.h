@@ -23,7 +23,7 @@ extern u_long             gCameraRotation;
 extern DRender_tView gCView;   /* W58-A1: real type (render.cpp @0x80116F7C); was mistyped int* */
 extern Car_tObj *gCarObj[2];
 char *PlayerName(int);
-extern int                CURRENTLYUSINGMEMCARD;
+extern BOOL               CURRENTLYUSINGMEMCARD;
 extern GameSetup_tData GameSetup_gData;
 extern tCarManager carManager;
 void DrawC_MenuColorData(int, Car_tObj *, int);
@@ -77,7 +77,7 @@ static char WaitingString[50];            /* STAT @0x80052c58 */
 /* vtable data refs (Ghidra _DAT_) + per-class vtables */
 extern __vtbl_ptr_type tScreenCarSelect_vtable[], tScreenCarSelectDuel_vtable[], tScreenCarSelectTwoPlayer_vtable[], tScreenPinkSlipsCarSelect_vtable[];
 /* singletons (EXT) */
-tScreenCarSelect *screenCarSelect;
+extern tScreenCarSelect *screenCarSelect;
 
 /* ===== base ctor/dtor helpers ===== */
 void tScreen_ctor(tScreen*); void tScreen_dtor(tScreen*, int __in_chrg);

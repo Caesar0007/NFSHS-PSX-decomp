@@ -29,7 +29,7 @@ extern Car_tObj *gCarObj[2];
 char *PlayerName(int);
 /* TRUE TYPE = 4-byte BOOL (was `char`; W62-A17) -- SYM `class EXT type BOOL` @0x80051a7c,
    oracle census 7 lw / 8 sw, zero byte ops; next symbol at +4. */
-extern int                CURRENTLYUSINGMEMCARD;
+extern BOOL               CURRENTLYUSINGMEMCARD;
 extern GameSetup_tData GameSetup_gData;
 extern tCarManager carManager;
 void DrawC_MenuColorData(int, Car_tObj *, int);

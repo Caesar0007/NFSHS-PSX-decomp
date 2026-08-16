@@ -32,10 +32,10 @@ extern BOOL         nomessage;                /* @0x80051A78  SYM BOOL */
    SYM `94 Def class EXT type BOOL` @0x80051A7C (v3 BOOL = 4 bytes), the next symbol
    MEMCARD_INITIALIZED sits at +4 (0x80051A80), and an oracle census over
    asm/nonmatchings/ shows 7 `lw` + 8 `sw` and ZERO byte ops on this symbol. */
-extern int          CURRENTLYUSINGMEMCARD;    /* @0x80051A7C */
+extern BOOL         CURRENTLYUSINGMEMCARD;    /* @0x80051A7C */
 /* TRUE TYPE = 4-byte BOOL (was `char`; W62-A17).  SYM `94 Def class EXT type BOOL`
    @0x80051A80; oracle census = 4 `lw` + 2 `sw`, zero byte ops. */
-extern int          MEMCARD_INITIALIZED;      /* @0x80051A80 */
+extern BOOL         MEMCARD_INITIALIZED;      /* @0x80051A80 */
 extern int          textSysMemCardFail_Index[7]; /* @0x80051A84 */
 /* TRUE TYPE = 4-byte BOOL (was `char`; W62-A17).  SYM `94 Def class EXT type BOOL`
    @0x8013D284; oracle census = 2 `lw` + 3 `sw`, zero byte ops. */

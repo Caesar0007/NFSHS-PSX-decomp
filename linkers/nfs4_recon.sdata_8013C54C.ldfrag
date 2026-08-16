@@ -72,6 +72,8 @@
     build/recon/game/psx/trackspec.cpp.o(.sdata);   /* 0x8013db90..0x8013db9c  was sdata_8013C54C_o35.sdata.s */
     build/recon/game/psx/trsproj.cpp.o(.sdata);   /* 0x8013db9c..0x8013dba0  was sdata_8013C54C_o36.sdata.s */
     build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata);
+    build/recon/eaclib/psx/eacpsxz/vars.c.o(.sdata);   /* 0x8013dc64..0x8013dd04 */
+    build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata.r22_post_vars);
     build/recon/eaclib/psx/eacpsxz/joystkn.c.o(.sbss);   /* 0x8013dd28..0x8013dd2c  was sdata_8013C54C_o37.sdata.s */
     build/asm/data/sdata_8013C54C_r23.sdata.s.o(.sdata);
     build/recon/eaclib/psx/eacpsxz/threads.c.o(.sbss);   /* 0x8013dd5c..0x8013dd60  was sdata_8013C54C_o38.sdata.s */

@@ -215,16 +215,13 @@ void tDialogHelp::AddItem(short textID,short controllerID)
 /* ---- tDialogHelp::CalculateDimensions  [FEDIALOG.CPP:286-451] SLD-VERIFIED ---- */
 
 /* MATCH: the oracle initializes the WHOLE 18-byte helpArray[0] with a single
-   lwl/lwr-block copy from a named .rodata template at 0x80010244 (autoGenerate=1,
+   lwl/lwr-block copy from an anonymous .rodata template at 0x80010244 (autoGenerate=1,
    all 4 items {text=0,button=0} -- verified byte-exact against rom/nfs4-f.exe
    @foff 0xa44: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00). The prior
    recon hand-unrolled this as a masked-word alignment copy (tp1/uVar10/puVar8) --
    that shape is a Ghidra artifact of the byte-address computation, not a real
-   source construct; a plain aggregate-initialized local template + struct-assign
+   source construct; a plain aggregate-initialized local
    reproduces the exact lwl/lwr/swl/swr sequence. */
-static const tHelpData kHelpArrayTemplate /* @0x80010244 */ =
-     { 1, { {0,0}, {0,0}, {0,0}, {0,0} } };
-
 void tDialogHelp::CalculateDimensions()
 
 {
@@ -232,11 +229,10 @@ void tDialogHelp::CalculateDimensions()
   tMenu *menu;
   short i;
   tPlayer player;
-  tHelpData helpArray [1];
+  tHelpData helpArray [1] = { { 1, { {0,0}, {0,0}, {0,0}, {0,0} } } };
   long currentTicks;
   tTexture_ShapeInfo *shape3;
 
-  helpArray[0] = kHelpArrayTemplate;
   FETextRender_SetFont(0);
   this->numItems = 0;
   this->AddItem(0x59,0);

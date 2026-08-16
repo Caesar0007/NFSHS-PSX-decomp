@@ -5,10 +5,10 @@
  */
 #include "feinput.h"
 
-/* ---- FEInput.obj-OWNED data -- DEFINED here (self-contained; real NFS4.EXE bytes).
-   nextTick/debounce are fn-static state (materialized in-fn); getKeyMappings is the PSX->FE
-   key-map table (16 x tPSXToFEMapping). ---- */
+/* ---- FEInput.obj-OWNED data -- DEFINED here (self-contained; real NFS4.EXE bytes). ---- */
+static long nextTick = 0;   /* @0x80051738; SYM STAT LONG */
 tPSXToFEMapping getKeyMappings[16] = { {16, 512}, {128, 2048}, {32, 4096}, {64, 1024}, {1024, 32}, {256, 64}, {2048, 128}, {512, 256}, {1048576, 512}, {8388608, 2048}, {2097152, 4096}, {4194304, 1024}, {268435456, 512}, {-2147483648, 2048}, {536870912, 4096}, {1073741824, 1024} };   /* @0x8005173c */
+static int debounce[2];     /* @0x80052b60; SYM STAT INT[2] */
 
 
 /* ---- FEInput_VerifyControllerValues  [FEINPUT.CPP:28-38] SLD-VERIFIED ---- */
@@ -145,19 +145,19 @@ int FEInput_GetDebounceKey(int key,int controller)
       int tick = ticks[0];
 
       if ((((key == 0x10) || (key == 0x80)) || (key == 0x20)) || (key == 0x40)) {
-        if (nextTick[0] == 0) {
-          nextTick[0] = tick + FeTools_gScrollTicksOut[0] + 10;
+        if (nextTick == 0) {
+          nextTick = tick + FeTools_gScrollTicksOut[0] + 10;
         }
-        if (tick < nextTick[0]) {
+        if (tick < nextTick) {
           return 0;
         }
-        nextTick[0] = tick + FeTools_gScrollTicksOut[0];
+        nextTick = tick + FeTools_gScrollTicksOut[0];
         return 1;
       }
       return 0;
     }
     debounce[controller] = debounce[controller] | key;
-    nextTick[0] = 0;
+    nextTick = 0;
     return 1;
   }
   debounce[controller] = debounce[controller] & ~key;

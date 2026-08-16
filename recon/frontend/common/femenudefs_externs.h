@@ -105,7 +105,7 @@ tOptionsMenu *tOptionsMenu_ctor(...);
 tOptionsMenu *tOptionsMenu_dtor(...);
 tScreen *tScreen_dtor(...);
 tUserNameMenuItem *tUserNameMenuItem_ctor(...);
-extern int CURRENTLYUSINGMEMCARD;
+extern BOOL CURRENTLYUSINGMEMCARD;
 extern Car_tStats Cars_gNewCarStatsList[];   /* was stale scalar int; owner cars.cpp
                                      Car_tStats Cars_gNewCarStatsList[9] (array of value structs) --
                                      passed bare to StatChk_IsRecordLapTime/StatChk_SaveTopTime etc
@@ -113,7 +113,7 @@ extern Car_tStats Cars_gNewCarStatsList[];   /* was stale scalar int; owner cars
                                      address instead of computing the array's own address */
 extern int Cars_gNumRaceCars;
 extern GameSetup_tData GameSetup_gData;
-extern int MEMCARD_INITIALIZED;
+extern BOOL MEMCARD_INITIALIZED;
 
 
 extern tPadModuleState gPadinfo;

@@ -13,7 +13,7 @@ extern char              *Paths_Paths[];
 extern tCreditManager     CreditManager;
 
 /* ===== statics owned by ScreenMain.obj ===== */
-extern tScreenMain        screenMain;                /* EXT @0x80051E58 */
+extern tScreenMain       *screenMain;                /* EXT @0x80051E58 */
 static char  tvOrder[16] = {5,14,3,8,6,0,11,13,2,15,4,10,1,12,7,9};   /* STAT @0x80051AA8 */
 static int   tintColors[28] = {                                       /* STAT @0x80051AB8 */
     0x216b8e,0x216b8e,0x293700,0x293700,0x5c2a18,0x5c2a18,0x5c2a18,0x5c2a18,

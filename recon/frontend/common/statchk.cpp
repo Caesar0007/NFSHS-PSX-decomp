@@ -552,3 +552,8 @@ void StatChk_ClearNewRecords(void)
 }
 
 /* end of statchk.cpp */
+
+#undef NewRecords
+#undef NewBestLap
+bool NewRecords[8];   /* @0x80052978; SYM EXT BOOL[8] */
+bool NewBestLap;      /* @0x80052998; SYM EXT BOOL */

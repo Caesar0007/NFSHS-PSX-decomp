@@ -933,3 +933,5 @@ extern "C" void ___11tScreenMain(void *thisp) { ___7tScreen(thisp); }
 
 
 /* end of screenmain.cpp */
+
+tScreenMain *screenMain;   /* @0x80051e58; SYM EXT */

@@ -279,6 +279,8 @@ dlabel availablefilesystems
     /* 12E460 8013DC60 00000000 */ .word 0x00000000
 enddlabel availablefilesystems
 
+.section .sdata.vars_blob, "wa"
+
 nonmatching kanjiwidth
 
 dlabel kanjiwidth
@@ -527,6 +529,8 @@ nonmatching aspectratio
 dlabel aspectratio
     /* 12E500 8013DD00 00000100 */ .word 0x00010000
 enddlabel aspectratio
+
+.section .sdata.r22_post_vars, "wa"
 
 nonmatching otbuf
 

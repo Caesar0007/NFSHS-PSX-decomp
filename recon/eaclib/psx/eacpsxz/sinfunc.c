@@ -22,7 +22,7 @@
  * this session: const vs non-const -> intcos PASS (1) / intsin PASS (26) either way, byte-identical.
  * So `const` stays (it IS a read-only table, and it is what the host fallback wants); isincos.c's
  * "worth re-testing there" note is hereby answered NO.  No regression risk to intsin/intcos. */
-extern const int sintbl[257];   /* @0x80137464 : quarter-sine table, 16.16 (blob-owned) */
+extern int sintbl[257];   /* @0x80137464 : quarter-sine table, 16.16 */
 
 #if defined(__mips__)
 /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no

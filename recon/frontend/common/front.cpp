@@ -25,6 +25,130 @@ tCarInLineup CarLineup[9];   /* @0x8005193c  (bss(zero)) */
 char         picked[11];   /* @0x80051960  (bss(zero)) */
 
 
+/* The retail headers supplied these tiny default constructors inline.  They
+   must be visible before the first `new tAllScreens`: that is where CC1PLPSX
+   synthesizes the aggregate's internal-linkage constructor. */
+inline tDialogBase::tDialogBase()
+{
+  *(void **)&_vf = (void *)tDialogBase_vtable;
+  MaxW = 0x120;
+  currentlyOn = 0;
+  reservedheight = 0;
+  MaxH = 0;
+  OffsetY = 0;
+  OffsetX = 0;
+  height = 0;
+  width = 0;
+  top = 0;
+  left = 0;
+  specificPlayer = -1;
+  fDefault = 0;
+  timeOutTicks = 0;
+}
+
+inline tDialogMessageString::tDialogMessageString()
+{
+  *(void **)&_vf = (void *)tDialogMessageString_vtable;
+  Centerit = 0;
+  fFullyOpen = 0;
+  timeOutTicks = 0;
+  fFadeText = 0x80;
+}
+
+inline tDialogBackUpOnly::tDialogBackUpOnly(int)
+{
+  *(void **)&_vf = (void *)tDialogBackUpOnly_vtable;
+}
+
+inline tScreenMain::tScreenMain()
+{
+  *(void **)&_vf = (void *)tScreenMain_vtable;
+}
+
+inline tScreenCarSelectDuel::tScreenCarSelectDuel()
+{
+  *(void **)&_vf = (void *)tScreenCarSelectDuel_vtable;
+}
+
+inline tScreenCarSelectTwoPlayer::tScreenCarSelectTwoPlayer()
+  /* The dummy CarDialog argument makes the inherited screen vptr assignment
+     occur before the member's inlined construction, matching C++'s real
+     compiler-generated vptr phase without changing the reconstructed layout. */
+  : CarDialog((*(void **)&_vf = (void *)tScreenCarSelectTwoPlayer_vtable, 0))
+{
+}
+
+inline tScreenPinkSlipsCarSelect::tScreenPinkSlipsCarSelect()
+{
+  *(void **)&_vf = (void *)tScreenPinkSlipsCarSelect_vtable;
+}
+
+inline tScreenTrackRecords::tScreenTrackRecords()
+{
+  *(void **)&_vf = (void *)tScreenTrackRecords_vtable;
+}
+
+inline tScreenTrackInfo::tScreenTrackInfo()
+{
+  *(void **)&_vf = (void *)tScreenTrackInfo_vtable;
+}
+
+inline tScreenTrackSelect::tScreenTrackSelect()
+{
+  *(void **)&_vf = (void *)tScreenTrackSelect_vtable;
+}
+
+inline tScreenTournamentTrophy::tScreenTournamentTrophy()
+{
+  *(void **)&_vf = (void *)tScreenTournamentTrophy_vtable;
+}
+
+inline tScreenTrophyInfo::tScreenTrophyInfo()
+{
+  *(void **)&_vf = (void *)tScreenTrophyInfo_vtable;
+}
+
+inline tScreenDisplay::tScreenDisplay()
+{
+  *(void **)&_vf = (void *)tScreenDisplay_vtable;
+}
+
+inline tScreenUserName::tScreenUserName()
+{
+  *(void **)&_vf = (void *)tScreenUserName_vtable;
+}
+
+inline tScreenPinkSlipCongrats::tScreenPinkSlipCongrats()
+{
+  *(void **)&_vf = (void *)tScreenPinkSlipCongrats_vtable;
+}
+
+inline tScreenTournamentStandings3item::tScreenTournamentStandings3item()
+{
+  *(void **)&_vf = (void *)tScreenTournamentStandings3item_vtable;
+}
+
+inline tScreenPinkSlipStandings::tScreenPinkSlipStandings()
+{
+  *(void **)&_vf = (void *)tScreenPinkSlipStandings_vtable;
+}
+
+inline tScreenPinkSlips::tScreenPinkSlips()
+{
+  *(void **)&_vf = (void *)tScreenPinkSlips_vtable;
+}
+
+inline tScreenBeTheCopCongrats::tScreenBeTheCopCongrats()
+{
+  *(void **)&_vf = (void *)tScreenBeTheCopCongrats_vtable;
+}
+
+inline tScreenTournamentCongrats::tScreenTournamentCongrats()
+{
+  *(void **)&_vf = (void *)tScreenTournamentCongrats_vtable;
+}
+
+
 /* ---- Front_ConstructAll  [FRONT.CPP:231-266] ---- */
 
 /* Decoded Phase 83: Front_ConstructAll() - one-shot allocate all menu screens (400 B). Sets up
@@ -38,13 +162,7 @@ char         picked[11];   /* @0x80051960  (bss(zero)) */
 void Front_ConstructAll(void)
 
 {
-  tAllScreens *dlgThis;
-  tFEApplication *this_00;
-  tGlobalMenuDefs *this_01;
-  uint size;
-  
-  dlgThis = __builtin_new(0x3bd8);
-  gAllScreens[0] = tAllScreens_ctor(dlgThis);
+  gAllScreens[0] = new tAllScreens;
   /* MATCH: retail publishes screenMain before the remaining sub-screen pointers. */
   screenMain = &gAllScreens[0]->screenMain;
   screenCarSelect = &gAllScreens[0]->screenCarSelect;
@@ -70,13 +188,10 @@ void Front_ConstructAll(void)
   screenPinkSlipStandings = &gAllScreens[0]->screenPinkSlipStandings;
   screenTournamentStandings3item = &gAllScreens[0]->screenTournamentStandings3item;
   screenPinkSlips = &gAllScreens[0]->screenPinkSlips;
-  size = 0x3b18;
   screenBeTheCopCongrats = &gAllScreens[0]->screenBeTheCopCongrats;
   screenTournamentCongrats = &gAllScreens[0]->screenTournamentCongrats;
-  this_00 = __builtin_new(0x380);
-  FEApp[0] = tFEApplication_ctor(this_00);
-  this_01 = __builtin_new(size);
-  menuDefs[0] = tGlobalMenuDefs_ctor(this_01);
+  FEApp[0] = new tFEApplication;
+  menuDefs[0] = new tGlobalMenuDefs;
   return;
 }
 
@@ -93,13 +208,13 @@ void Front_DeleteAll(void)
 
 {
   if (gAllScreens[0] != (tAllScreens *)0x0) {
-    tAllScreens_dtor(gAllScreens[0],3);
+    delete gAllScreens[0];
   }
   if (FEApp[0] != (tFEApplication *)0x0) {
-    tFEApplication_dtor(FEApp[0],3);
+    delete FEApp[0];
   }
   if (menuDefs[0] != (tGlobalMenuDefs *)0x0) {
-    tGlobalMenuDefs_dtor(menuDefs[0],3);
+    delete menuDefs[0];
   }
   return;
 }
@@ -2989,159 +3104,6 @@ char * PlayerNameMixedCase(int player)
     wordnum = player + 0x50;
   }
   return (char *)TextSys_Word(wordnum);
-}
-
-
-
-/* The retail headers supplied these tiny default constructors inline.  Keeping
-   their initialization with the owning type is important here: tAllScreens is
-   just an aggregate of screens, and GCC can then interleave each member's base
-   constructor with its vptr/field setup exactly as in Front.obj. */
-inline tDialogBase::tDialogBase()
-{
-  *(void **)&_vf = (void *)tDialogBase_vtable;
-  MaxW = 0x120;
-  currentlyOn = 0;
-  reservedheight = 0;
-  MaxH = 0;
-  OffsetY = 0;
-  OffsetX = 0;
-  height = 0;
-  width = 0;
-  top = 0;
-  left = 0;
-  specificPlayer = -1;
-  fDefault = 0;
-  timeOutTicks = 0;
-}
-
-inline tDialogMessageString::tDialogMessageString()
-{
-  *(void **)&_vf = (void *)tDialogMessageString_vtable;
-  Centerit = 0;
-  fFullyOpen = 0;
-  timeOutTicks = 0;
-  fFadeText = 0x80;
-}
-
-inline tDialogBackUpOnly::tDialogBackUpOnly(int)
-{
-  *(void **)&_vf = (void *)tDialogBackUpOnly_vtable;
-}
-
-inline tScreenMain::tScreenMain()
-{
-  *(void **)&_vf = (void *)tScreenMain_vtable;
-}
-
-inline tScreenCarSelectDuel::tScreenCarSelectDuel()
-{
-  *(void **)&_vf = (void *)tScreenCarSelectDuel_vtable;
-}
-
-inline tScreenCarSelectTwoPlayer::tScreenCarSelectTwoPlayer()
-  /* The dummy CarDialog argument makes the inherited screen vptr assignment
-     occur before the member's inlined construction, matching C++'s real
-     compiler-generated vptr phase without changing the reconstructed layout. */
-  : CarDialog((*(void **)&_vf = (void *)tScreenCarSelectTwoPlayer_vtable, 0))
-{
-}
-
-inline tScreenPinkSlipsCarSelect::tScreenPinkSlipsCarSelect()
-{
-  *(void **)&_vf = (void *)tScreenPinkSlipsCarSelect_vtable;
-}
-
-inline tScreenTrackRecords::tScreenTrackRecords()
-{
-  *(void **)&_vf = (void *)tScreenTrackRecords_vtable;
-}
-
-inline tScreenTrackInfo::tScreenTrackInfo()
-{
-  *(void **)&_vf = (void *)tScreenTrackInfo_vtable;
-}
-
-inline tScreenTrackSelect::tScreenTrackSelect()
-{
-  *(void **)&_vf = (void *)tScreenTrackSelect_vtable;
-}
-
-inline tScreenTournamentTrophy::tScreenTournamentTrophy()
-{
-  *(void **)&_vf = (void *)tScreenTournamentTrophy_vtable;
-}
-
-inline tScreenTrophyInfo::tScreenTrophyInfo()
-{
-  *(void **)&_vf = (void *)tScreenTrophyInfo_vtable;
-}
-
-inline tScreenDisplay::tScreenDisplay()
-{
-  *(void **)&_vf = (void *)tScreenDisplay_vtable;
-}
-
-inline tScreenUserName::tScreenUserName()
-{
-  *(void **)&_vf = (void *)tScreenUserName_vtable;
-}
-
-inline tScreenPinkSlipCongrats::tScreenPinkSlipCongrats()
-{
-  *(void **)&_vf = (void *)tScreenPinkSlipCongrats_vtable;
-}
-
-inline tScreenTournamentStandings3item::tScreenTournamentStandings3item()
-{
-  *(void **)&_vf = (void *)tScreenTournamentStandings3item_vtable;
-}
-
-inline tScreenPinkSlipStandings::tScreenPinkSlipStandings()
-{
-  *(void **)&_vf = (void *)tScreenPinkSlipStandings_vtable;
-}
-
-inline tScreenPinkSlips::tScreenPinkSlips()
-{
-  *(void **)&_vf = (void *)tScreenPinkSlips_vtable;
-}
-
-inline tScreenBeTheCopCongrats::tScreenBeTheCopCongrats()
-{
-  *(void **)&_vf = (void *)tScreenBeTheCopCongrats_vtable;
-}
-
-inline tScreenTournamentCongrats::tScreenTournamentCongrats()
-{
-  *(void **)&_vf = (void *)tScreenTournamentCongrats_vtable;
-}
-
-/* ---- tAllScreens::ctor  [FRONT.CPP:226-232] ---- */
-
-tAllScreens::tAllScreens()
-
-{
-  return;
-}
-
-
-
-/* ---- tAllScreens::dtor  [FRONT.CPP:226-232] ---- */
-
-tAllScreens::~tAllScreens()
-
-{
-  /* [2026-07-11] deleted 30 REDUNDANT tScreen_dtor/tScreenXxx_dtor(...,2) manual calls: all
-     are undefined phantom externs duplicating C++'s own automatic (reverse-declaration-order)
-     member/base destruction -- textbook double-destruction (confirmed by objdump -r on the
-     CURRENT/unfixed object: it emits BOTH the phantom calls AND the real ones, e.g.
-     tScreenCarSelect_dtor__Fe x6 duplicating __*tScreenCarSelect-family calls). Deleting them
-     lets the compiler's mandatory member/base teardown emit the real dtor calls in reverse
-     declaration order (screenTournamentCongrats first .. screenMain/base last), matching
-     the oracle's own X::~X(this,2) sequence for members whose OWN dtor is genuinely
-     non-trivial in THIS TU. */
-  return;
 }
 
 

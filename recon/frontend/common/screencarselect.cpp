@@ -2902,3 +2902,11 @@ extern "C" void ___20tScreenCarSelectDuel(void *thisp) { ___16tScreenCarSelect(t
 
 
 /* end of screencarselect.cpp */
+
+PinkSlipsCarSelectState PinkSlipsScreenState[2];                 /* @0x80052034 */
+tScreenCarSelect *screenCarSelect;                               /* @0x8005203c */
+tScreenCarSelectDuel *screenCarSelectDuel;                       /* @0x80052040 */
+tScreenCarSelectTwoPlayer *screenCarSelectTwoPlayer;             /* @0x80052044 */
+tScreenCarSelectTwoPlayer *screenCarSelectPlayerTwo;             /* @0x80052048 */
+tScreenPinkSlipsCarSelect *screenPinkSlipsCarSelectTwoPlayer;    /* @0x8005204c */
+tScreenPinkSlipsCarSelect *screenPinkSlipsCarSelectPlayerTwo;    /* @0x80052050 */

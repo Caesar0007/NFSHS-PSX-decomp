@@ -275,3 +275,5 @@ extern "C" void ___7tScreen(void *);
 extern "C" void ___19tScreenTrackRecords(void *thisp) { ___7tScreen(thisp); }
 
 /* end of screentrackrec.cpp */
+
+tScreenTrackRecords *screenTrackRecords;   /* @0x800520d0; SYM EXT */

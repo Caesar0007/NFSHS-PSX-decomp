@@ -7,10 +7,8 @@
 #include "femenuoptions.h"
 
 /* EXT/STAT data owned by FeMenuOptions.obj (byte-exact from retail binary) */
-/* PulsateYellow: storage in front_data.data.s @0x800515ac; declared extern int[] in
- * femenuoptions_externs.h (store-[] lever §3.12 #5 -> addr in genreg not $at). */
-extern int fHelpText[];       /* @0x800515b0, storage in front_data.data.s */
-static int flareextra = 0;     /* file-static */
+int PulsateYellow = 0;   /* @0x800515ac; SYM EXT INT */
+int fHelpText = 0;       /* @0x800515b0; SYM EXT INT */
 
 typedef struct tPsyQPrimTag {
   unsigned int addr : 24;
@@ -36,7 +34,7 @@ void CalcPulsateYellow(void)
   if (0x40 < pulsateval) {
     pulsateval = 0x80 - pulsateval;
   }
-  PulsateYellow[0] = CalcFadeVal(0xbebe,pulsateval);
+  PulsateYellow = CalcFadeVal(0xbebe,pulsateval);
   return;
 }
 
@@ -1053,6 +1051,7 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
   int x;
   int y;
   tTexture_ShapeInfo *shape;
+  static int flareextra;
   bool fPlayList;
 
   /* SYM: fn-scope locals are ONLY ColText/x/y/shape/fPlayList; drawFlags+
@@ -1073,7 +1072,7 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
   x = TextSys_WordX(this->fTextDescription) + offx;
   y = TextSys_WordY(this->fTextDescription) + offy;
   shape = &gHelpShapes[0x1e];
-  fHelpText[0] = -1;
+  fHelpText = -1;
   fPlayList = (tInsideBoxSongMenu *)this->currMenu == &menuDefs->menuPlayListMenu;
   if ((this->fFadeVal != 0x80) && (fPlayList)) {
     DrawLeftFlare(y,(int)this->fSelFade,(int)this->fFadeVal,
@@ -1168,9 +1167,9 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
     ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
     Render_gPacketPtr = Render_gPacketPtr + 0xc;
     SetDrawArea(daprim,&temp);
-    if (fHelpText[0] != -1) {
-      FETextRender_FullTextRGB(TextSys_Word(fHelpText[0]),TextSys_WordX(fHelpText[0]),
-                               TextSys_WordY(fHelpText[0]),PulsateYellow[0],'\0',2);
+    if (fHelpText != -1) {
+      FETextRender_FullTextRGB(TextSys_Word(fHelpText),TextSys_WordX(fHelpText),
+                               TextSys_WordY(fHelpText),PulsateYellow,'\0',2);
     }
     FETextRender_FullTextRGB((char *)TextSys_Word(this->fTextDescription),(short)x,(short)y,ColText,'\0',
                              fPlayList ? 1 : 0);
@@ -2295,7 +2294,7 @@ void tInsideBoxTwoWaySlider::Calibrate()
   padBase = &gPadinfo;
   player = (u_char)app->fInputPlayer;
   padInfo = (tPadModuleState *)((char *)padBase + player * 0x20);
-  fHelpText[0] = GetHelpText(screen);
+  fHelpText = GetHelpText(screen);
   switch (this->fType) {
   case 0:
     if (padInfo->buf[0].ID == '#') {
@@ -2802,7 +2801,7 @@ int tUserNameMenuItem::Draw(bool selected)
       tDrawShapeExtended fFlags;
       char current;
 
-      fFlags.tint[0] = PulsateYellow[0];
+      fFlags.tint[0] = PulsateYellow;
       current = this->fRowList[0][(int)this->fCurrentColumn + this->fCurrentRow * 9];
       if ((current == '!') || (current == '@')) {
         DrawShapeExtended(0x4e,0x10,columnx + 0xfd,yy - 3,0,0,&fFlags);
@@ -3124,9 +3123,6 @@ void tInsideBoxControllerLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInput
 
 
 /* end of femenuoptions.cpp */
-
-/* owning-TU def (extern-declared, never defined; link-harness) */
-short _UNK_80010a02, _UNK_80010a06, _UNK_80010a0a;
 
 extern "C" {
 void ___25tInsideBoxLeftRightSlider(void *);

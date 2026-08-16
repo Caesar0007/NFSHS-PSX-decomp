@@ -21,6 +21,7 @@ extern int A_ticks[] __asm__("ticks");
 void tScreenPinkSlips::DrawBackground()
 
 {
+  static int flareextra;
   RECT r;
   short i;
   short j;
@@ -50,11 +51,11 @@ void tScreenPinkSlips::DrawBackground()
       int pulse;
       int flare_intensity;
 
-      flareextra_248 = flareextra_248 + 1;
-      if (0x3c < flareextra_248) {
-        flareextra_248 = 0;
+      flareextra = flareextra + 1;
+      if (0x3c < flareextra) {
+        flareextra = 0;
       }
-      pulse = flareextra_248;
+      pulse = flareextra;
       /* MATCH: ONE statement (oracle SLD groups the subu+srl on one line) and
          the arms in THIS order - the reversed test picks the oracle's commutative
          `addu $v0,$v1,$v0` in the signed /2 idiom. */

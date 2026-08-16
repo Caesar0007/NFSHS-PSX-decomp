@@ -16,7 +16,6 @@ extern char              *Paths_Paths[];
 tScreenPinkSlips         *screenPinkSlips = 0;        /* @0x80051E64 bss(zero), owned here; referenced cross-TU (front.cpp/femenudefs) as pointer */
 static char  imageTVOrder[4] = {1,2,0,3};             /* STAT @0x80051E60 - TV reveal order */
 static char  gSwapFileName[20];                       /* STAT @0x80052C00 */
-static int   flareextra_248 = 0;                      /* @0x80052bf0 fn-static, real bytes=00000000 (flare ramp counter) */
 
 /* ===== free helpers (member fns rendered free by Ghidra; tScreen* first arg where applicable) ===== */
 void *IsShapeFileLoaded(tScreen*, tShapeInformation*) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");

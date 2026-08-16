@@ -20240,6 +20240,8 @@ dlabel D_80136CD8
     /* 1274E4 80136CE4 00000000 */ .word 0x00000000
 enddlabel D_80136CD8
 
+.section .data.atantbl_blob, "wa"
+
 nonmatching atantbl
 
 dlabel atantbl
@@ -20309,6 +20311,8 @@ dlabel atantbl
     /* 1275E4 80136DE4 7F7F7F80 */ .word 0x807F7F7F
     /* 1275E8 80136DE8 80000000 */ .word 0x00000080
 enddlabel atantbl
+
+.section .data.r17_post_atantbl, "wa"
 
 nonmatching D_80136DEC
 

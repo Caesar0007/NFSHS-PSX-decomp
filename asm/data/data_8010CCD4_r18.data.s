@@ -331,6 +331,8 @@ dlabel D_801371CC
     /* 1279CC 801371CC 00000000 */ .word 0x00000000
 enddlabel D_801371CC
 
+.section .data.ctype_blob, "wa"
+
 nonmatching _ctype_
 
 dlabel _ctype_
@@ -366,11 +368,17 @@ dlabel _ctype_
     /* 127A44 80137244 02020202 */ .word 0x02020202
     /* 127A48 80137248 02020202 */ .word 0x02020202
     /* 127A4C 8013724C 10101010 */ .word 0x10101010
-    /* 127A50 80137250 20000000 */ .word 0x00000020
+    /* 127A50 80137250 */ .byte 0x20
+enddlabel _ctype_
+
+.section .data.r18_gap_after_ctype, "wa"
+
+    /* 127A51..127A53 are linker alignment padding before this input section. */
     /* 127A54 80137254 00000000 */ .word 0x00000000
     /* 127A58 80137258 00000000 */ .word 0x00000000
     /* 127A5C 8013725C 00000000 */ .word 0x00000000
-enddlabel _ctype_
+
+.section .data.asintbl_blob, "wa"
 
 nonmatching asintbl
 
@@ -505,14 +513,16 @@ dlabel asintbl
     /* 127C5C 8013745C */ .byte 0xEC
     /* 127C5D 8013745D */ .byte 0xEE
     /* 127C5E 8013745E */ .byte 0xF2
-enddlabel asintbl
-
-nonmatching D_8013745F
-
 dlabel D_8013745F
     /* 127C5F 8013745F */ .byte 0xF6
-    /* 127C60 80137460 00000000 */ .word 0x00000000
 enddlabel D_8013745F
+enddlabel asintbl
+
+.section .data.r18_gap_after_asintbl, "wa"
+
+    /* 127C60 80137460 00000000 */ .word 0x00000000
+
+.section .data.sintbl_blob, "wa"
 
 nonmatching sintbl
 
@@ -776,6 +786,8 @@ dlabel sintbl
     /* 128064 80137864 00000100 */ .word 0x00010000
 enddlabel sintbl
 
+.section .data.fatantbl_blob, "wa"
+
 nonmatching fatantbl
 
 dlabel fatantbl
@@ -1036,10 +1048,13 @@ dlabel fatantbl
     /* 128460 80137C60 D71F0000 */ .word 0x00001FD7
     /* 128464 80137C64 EC1F0000 */ .word 0x00001FEC
     /* 128468 80137C68 00200000 */ .word 0x00002000
+enddlabel fatantbl
+
+.section .data.r18_post_tables, "wa"
+
     /* 12846C 80137C6C 00200000 */ .word 0x00002000
     /* 128470 80137C70 50730C25 */ .word 0x250C7350
     /* 128474 80137C74 9B534300 */ .word 0x0043539B
-enddlabel fatantbl
 
 nonmatching _padFuncNextPort
 

@@ -760,9 +760,18 @@ SECTIONS
         build/asm/data/data_8010CCD4_r16.data.s.o(.data);
         build/recon/eaclib/psx/eacpsxz/matrix.c.o(.rodata);   /* 0x801237ec..0x80123820  was data_8010CCD4_o29.data.s */
         build/asm/data/data_8010CCD4_r17.data.s.o(.data);
+        build/recon/eaclib/psx/eacpsxz/atantbl.c.o(.data);   /* 0x80136ce8..0x80136dec */
+        build/asm/data/data_8010CCD4_r17.data.s.o(.data.r17_post_atantbl);
         build/recon/eaclib/psx/sndpsxz/slib.c.o(.data);   /* 0x80136df0..0x80136e00  was data_8010CCD4_o30.data.s */
         build/asm/data/data_8010CCD4_r18.data.s.o(.data);
-        build/recon/eaclib/psx/eacpsxz/isqrt.c.o(.data);   /* 0x8013be10..0x8013bf10  was data_8010CCD4_o31.data.s */
+        build/recon/syslib/psx/libc/CTYPE0.c.o(.rodata);       /* 0x801371d0..0x80137251 */
+        build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_gap_after_ctype);
+        build/recon/eaclib/psx/eacpsxz/asintbl.c.o(.data);    /* 0x80137260..0x80137460 */
+        build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_gap_after_asintbl);
+        build/recon/eaclib/psx/eacpsxz/sintbl.c.o(.data);     /* 0x80137464..0x80137868 */
+        build/recon/eaclib/psx/eacpsxz/fatantbl.c.o(.data);   /* 0x80137868..0x80137c6c */
+        build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_post_tables);
+        build/recon/eaclib/psx/eacpsxz/isqrttbl.c.o(.data);   /* 0x8013be10..0x8013bf10  was data_8010CCD4_o31.data.s */
         build/asm/data/data_8010CCD4_r19.data.s.o(.data);
         build/recon/syslib/psx/libmath/FERR.c.o(.data);   /* 0x8013bf18..0x8013bf20  was data_8010CCD4_o32.data.s */
         build/asm/data/data_8010CCD4_r20.data.s.o(.data);
@@ -901,6 +910,8 @@ SECTIONS
         build/recon/game/psx/trackspec.cpp.o(.sdata);   /* 0x8013db90..0x8013db9c  was sdata_8013C54C_o35.sdata.s */
         build/recon/game/psx/trsproj.cpp.o(.sdata);   /* 0x8013db9c..0x8013dba0  was sdata_8013C54C_o36.sdata.s */
         build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata);
+        build/recon/eaclib/psx/eacpsxz/vars.c.o(.sdata);   /* 0x8013dc64..0x8013dd04 */
+        build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata.r22_post_vars);
         build/recon/eaclib/psx/eacpsxz/joystkn.c.o(.sbss);   /* 0x8013dd28..0x8013dd2c  was sdata_8013C54C_o37.sdata.s */
         build/asm/data/sdata_8013C54C_r23.sdata.s.o(.sdata);
         build/recon/eaclib/psx/eacpsxz/threads.c.o(.sbss);   /* 0x8013dd5c..0x8013dd60  was sdata_8013C54C_o38.sdata.s */

@@ -4,16 +4,6 @@
  */
 #include "fetourn.h"
 
-/* ---- link-harness owned-global definition (extern-declared, never defined) ---- */
-long gTrackFinishBill, gTrackFinishBonus; long gTrackFinishPrizes[64];  /* fetourn.obj-owned race-finish accounting (BSS) */
-
-/* ---- anonymous .rodata constants Ghidra named gFEData_<addr> (NOT in SYM; part of the blob
-   "SML\0WGSBTR%c%02d" @0x80011658) -- materialized byte-exact + symbol-split as Ghidra saw them:
-   the SML trophy-size letters + the "WGSB" trophy-file 4-byte magic. ---- */
-static char gFEData_80011658 = 'S', gFEData_80011659 = 'M', gFEData_8001165a = 'L';
-static int  gFEData_8001165c = 0x42534757;   /* "WGSB" (LE) trophy-file magic */
-
-
 /* ---- tTournamentManager::Initialize  [FETOURN.CPP:36-82] ---- */
 
 void tTournamentManager::Initialize()
@@ -407,6 +397,8 @@ void tTournamentManager::UpdateTrackFinishMoney()
 void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill_r,long &bonus_r)
 
 {
+  static long retbill;
+  static long retbonus;
   long *bill = &bill_r; long *bonus = &bonus_r;   /* R-ref params; alias keeps body codegen-identical */
   int i;
   short mask;
@@ -427,22 +419,22 @@ void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill_r
     }
     damage = cars->finalDamage / 0x10000;
     if ((damage == 0) && (cars->finalPosition < 4)) {
-      gTrackFinishBill = 0;
-      gTrackFinishBonus = totalcarprice / 0x14;
+      retbill = 0;
+      retbonus = totalcarprice / 0x14;
       if (cars->finalPosition == 2) {
-        gTrackFinishBonus = (totalcarprice * 3) / 100;
+        retbonus = (totalcarprice * 3) / 100;
       }
       else if (cars->finalPosition == 3) {
-        gTrackFinishBonus = totalcarprice / 100;
+        retbonus = totalcarprice / 100;
       }
     }
     else {
-      gTrackFinishBonus = 0;
-      gTrackFinishBill = (totalcarprice * damage * 3) / 10000;
+      retbonus = 0;
+      retbill = (totalcarprice * damage * 3) / 10000;
     }
   }
-  *bill = gTrackFinishBill;
-  *bonus = gTrackFinishBonus;
+  *bill = retbill;
+  *bonus = retbonus;
   return;
 }
 
@@ -798,13 +790,19 @@ long tTournamentManager::GetTrackFinishPrize(short position)
 
 {
   tTourneyInfo *currentTourney;
-  long result;
+  long result = 0;
   tCarInfo carInfo;
   long carPrice;
-  int openClassAdjust[7][6];
+  int openClassAdjust[7][6] = {
+    {1310, 1310, 1310, 1310, 1310, 1310},
+    {1310, 1310, 1310, 1310, 1310, 1310},
+    {1966, 1966, 1966, 1966, 1966, 1966},
+    {2621, 2621, 2621, 2621, 2621, 2621},
+    {1966, 1966, 1966, 1966, 1966, 1966},
+    {1966, 1966, 1966, 1966, 1966, 1966},
+    {1966, 1966, 1966, 1966, 1966, 1966}
+  };
 
-  result = 0;
-  memcpy(openClassAdjust,gTrackFinishPrizes,sizeof(openClassAdjust));
   if ((ushort)position < 6) {
     currentTourney = &this->fDefinition->fTournaments[
         this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament];

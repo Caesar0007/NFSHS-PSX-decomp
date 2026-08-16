@@ -266,7 +266,7 @@ void tScreenTournSelect::DrawBackground()
   short shapeY;
   short shapeX;
   char moviename [80];
-  u_long movieRGB [1];
+  u_long movieRGB;
   byte tournament;
   tfrontEnd *fe = &frontEnd;
 
@@ -313,7 +313,7 @@ void tScreenTournSelect::DrawBackground()
     shapeY = 0x50;
   }
   shapeX = 0x200;
-  movieRGB[0] = 0x2c1e1e;
+  movieRGB = 0x2c1e1e;
   i = 0;
   do {
     j = 0;
@@ -331,7 +331,7 @@ void tScreenTournSelect::DrawBackground()
       this->tvConfigs[tvIdx].state = tv_StateOn;
       this->tvConfigs[tvIdx].clut = 0;
       this->tvConfigs[tvIdx].flags = 0x22;
-      this->tvConfigs[tvIdx].tint = movieRGB[0];
+      this->tvConfigs[tvIdx].tint = movieRGB;
       this->tvConfigs[tvIdx].destBrightness = 0x80;
       this->tvConfigs[tvIdx].transition = 0x80;
       j++;

@@ -45,7 +45,8 @@ void tScreenUserName::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
 void tScreenUserName::DrawVerticalLine(short x,short y,short gridpos)
 
 {
-  /* MATCH: retail sign-extends the short param ONCE into a separate int
+  /* MATCH: SYM-CODEGEN-CARRIER: depth -- retail sign-extends the short param
+     ONCE into a separate int
      (oracle sll $v0,$a3,16 / sra $v1,$v0,16) and TESTS that int, while the
      clamp STORES back into the short param register $a3.  One variable for
      both roles makes gcc clamp+test in the same reg + an extra copy. */
@@ -82,7 +83,8 @@ DrawVerticalLine_draw:
 void tScreenUserName::DrawHorizontalLine(short x,short y,short gridpos)
 
 {
-  /* Same parameter-clamp source shape as DrawVerticalLine (same fence receipt). */
+  /* SYM-CODEGEN-CARRIER: depth -- same parameter-clamp source shape as
+     DrawVerticalLine (same fence receipt). */
   int depth;
 
   __asm__("" : "=r"(gridpos) : "0"(gridpos));

@@ -48,7 +48,7 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
 
 {
   DRAWENV *drenv;
-  u_char *daprim;
+  DR_AREA *daprim;
   RECT temp;
   int dist;
   int textpix;
@@ -64,15 +64,15 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
   }
   DrawShape_SubtractNFS4RectEdges(r);   /* W58-A1: decl is RECT& (was `(...)`) -- same $a0 address */
   if (-1 < helpText) {
-    daprim = Render_gPacketPtr;
+    daprim = (DR_AREA *)Render_gPacketPtr;
     temp.x = 0;
     temp.y = *(short *)((char *)drenv + 2);
     temp.w = 0x200;
     temp.h = 0xf0;
     ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr;
-    Render_gPacketPtr = daprim + 0xc;
+    Render_gPacketPtr = (u_char *)daprim + 0xc;
     ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
-    SetDrawArea((DR_AREA *)daprim,&temp);
+    SetDrawArea(daprim,&temp);
     FETextRender_SetFont(0);
     sprintf(buffer,"%s",TextSys_Word(helpText));
     s_upper(buffer);
@@ -101,15 +101,15 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
         }
       }
     }
-    daprim = Render_gPacketPtr;
+    daprim = (DR_AREA *)Render_gPacketPtr;
     temp = r;
     temp.y = temp.y + *(short *)((char *)drenv + 2);
     temp.x = temp.x + 2;
     temp.w = temp.w + -4;
     ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr;
-    Render_gPacketPtr = daprim + 0xc;
+    Render_gPacketPtr = (u_char *)daprim + 0xc;
     ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
-    SetDrawArea((DR_AREA *)daprim,&temp);
+    SetDrawArea(daprim,&temp);
   }
   temp = r;
   temp.y++;
@@ -158,7 +158,6 @@ tMenuItemGoToMenuNFS4Button::~tMenuItemGoToMenuNFS4Button()
 void tMenuItemGoToMenuNFS4Button::Draw(int x,int y,bool selected)
 
 {
-  short sVar1;
   short dist;
   RECT rect;
   char buffer [64];
@@ -176,10 +175,9 @@ void tMenuItemGoToMenuNFS4Button::Draw(int x,int y,bool selected)
     } else {
       dist = dist + 0x19;
     }
-    sVar1 = this->fOffset;
-    this->fOffset = sVar1 + -2;
+    this->fOffset -= 2;
     if (selected == 0) {
-      this->fOffset = sVar1 + -4;
+      this->fOffset -= 2;
     }
     if (this->fOffset < 0) {
       this->fOffset = (u_short)this->fOffset + dist;
@@ -272,15 +270,12 @@ void * tMenuItemGoToMenuNFS4Button::TransitionIsFinished()
 void tMenuItemGoToMenuNFS4Button::UpdateTransition(bool selected)
 
 {
-  short sVar1;
-  
-  sVar1 = this->fTransitionVal + this->fTransitionSpeed;
-  this->fTransitionVal = sVar1;
-  if (sVar1 < 0) {
+  this->fTransitionVal += this->fTransitionSpeed;
+  if (this->fTransitionVal < 0) {
     this->fTransitionVal = 0;
   }
   else {
-    if (sVar1 < 0x81) goto UpdTrans_callBaseGoToMenu;
+    if (this->fTransitionVal < 0x81) goto UpdTrans_callBaseGoToMenu;
     this->fTransitionVal = 0x80;
   }
   this->fTransitionSpeed = 0;
@@ -457,15 +452,12 @@ void * tMenuItemNFS4LeftRightChoice::TransitionIsFinished()
 void tMenuItemNFS4LeftRightChoice::UpdateTransition(bool selected)
 
 {
-  short sVar1;
-  
-  sVar1 = this->fTransitionVal + this->fTransitionSpeed;
-  this->fTransitionVal = sVar1;
-  if (sVar1 < 0) {
+  this->fTransitionVal += this->fTransitionSpeed;
+  if (this->fTransitionVal < 0) {
     this->fTransitionVal = 0;
   }
   else {
-    if (sVar1 < 0x81) goto UpdTrans_callBaseLRChoice;
+    if (this->fTransitionVal < 0x81) goto UpdTrans_callBaseLRChoice;
     this->fTransitionVal = 0x80;
   }
   this->fTransitionSpeed = 0;
@@ -780,21 +772,27 @@ void * tMenuNFS4::TransitionIsFinished()
   int iVar2;
   u_int uVar3;
   int iVar4;
-  void *result;
+  BOOL result;
   short i;
 
-  result = (void *)0x1;
+  result = 1;
   i = 0;
+  /* SYM-CODEGEN-CARRIER: ptVar1
+   * SYM-CODEGEN-CARRIER: iVar2
+   * SYM-CODEGEN-CARRIER: uVar3
+   * SYM-CODEGEN-CARRIER: iVar4
+   * The natural member call devirtualizes under the reconstructed protected
+   * class declaration (FAIL 10 / 34); retail uses the 40-insn vtable call. */
   ptVar1 = this->fItemList[0];
   while (ptVar1 != (tMenuItem *)0x0) {
     iVar4 = (int)this->fItemList[i];
     iVar2 = *(int *)(iVar4 + 0x18);
     uVar3 = (**(int (**)(...))(iVar2 + 0x4c))(iVar4 + *(short *)(iVar2 + 0x48));
-    result = (void *)(u_int)(((u_int)result & uVar3) != 0);
+    result = (result & uVar3) != 0;
     i = i + 1;
     ptVar1 = this->fItemList[i];
   }
-  return result;
+  return (void *)result;
 }
 
 
@@ -1020,11 +1018,8 @@ tMenuBlank::~tMenuBlank()
 void tMenuBlank::Draw()
 
 {
-  __vtbl_ptr_type (*pa_Var1) [11];
-  
   if (this->fInMenuTransition != 0) {
-    pa_Var1 = this->_vf;
-    (*(*pa_Var1)[7].pfn)((int)this + (*pa_Var1)[7].delta);
+    (*(*this->_vf)[7].pfn)((int)this + (*this->_vf)[7].delta);
     this->fTransitionVal =
          this->fTransitionVal + (short)*(signed char *)&this->fTransitionDirection;
   }
@@ -1101,15 +1096,12 @@ void tMenuBlank::TransitionOn()
 void * tMenuBlank::TransitionIsFinished()
 
 {
-  u_int uVar1;
-  
   if (0 < *(signed char *)&this->fTransitionDirection) {
-    uVar1 = (u_int)(int)this->fTransitionVal >> 0x1f;
+    this->fInMenuTransition = (u_int)(int)this->fTransitionVal >> 0x1f;
   }
   else {
-    uVar1 = this->fTransitionVal < -0x6f ^ 1;
+    this->fInMenuTransition = this->fTransitionVal < -0x6f ^ 1;
   }
-  this->fInMenuTransition = uVar1;
   return (void *)(*(volatile BOOL *)&this->fInMenuTransition ^ 1);
 }
 
@@ -1232,8 +1224,12 @@ void tMenuOptions::TransitionOff()
 
 {
   int iVar1;
-  
+
   *(signed char *)&this->fTransitionDirection = -1;
+  /* SYM-CODEGEN-CARRIER: iVar1
+   * Retail SLD line 856 loads ticks before the line-857 transition store,
+   * then line 858 consumes that value.  Direct field assignment reloads
+   * ticks later and adds a scheduling nop (FAIL 7 / 16 versus PASS 15). */
   iVar1 = ticks[0];
   this->fInMenuTransition = 1;
   this->fMenuEnterTicks = iVar1;
@@ -1279,11 +1275,8 @@ TransitionOn_itemsDone:
 void * tMenuOptions::TransitionIsFinished()
 
 {
-  u_int uVar1;
-  
-  uVar1 = (u_int)(ticks[0] - this->fMenuEnterTicks < 0x20);
-  this->fInMenuTransition = uVar1;
-  return (void *)(uVar1 ^ 1);
+  this->fInMenuTransition = (u_int)(ticks[0] - this->fMenuEnterTicks < 0x20);
+  return (void *)(this->fInMenuTransition ^ 1);
 }
 
 

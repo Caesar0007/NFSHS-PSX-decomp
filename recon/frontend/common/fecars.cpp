@@ -132,6 +132,10 @@ long tCarManager::CheapestCarStockPrice()
 long tCarManager::CalcUsedPrice(short garageNumber)
 
 {
+  /* SYM-CODEGEN-CARRIER: carID
+   * SYM-CODEGEN-CARRIER: upgrades
+   * Signed one-read slot staging restores retail's lb/-1 guard, and the
+   * upgrades staging preserves the single garage-byte load used by its tests. */
   signed char carID;
   u_char upgrades;
   tCarInfo *carInfo;
@@ -825,7 +829,8 @@ short tCarManager::GetNumOwnedCars(short playerNum)
 short tCarManager::GetNumTourneyCars(short playerNum)
 
 {
-  /* MATCH: one signed slot-ID carrier preserves lb/bltz and the call argument;
+  /* MATCH: SYM-CODEGEN-CARRIER: carID -- one signed slot-ID carrier preserves
+     lb/bltz and the call argument;
      natural array indexing lets gcc form the retail s0 strength-reduction walk. */
   signed char carID;
   int i;
@@ -1275,7 +1280,7 @@ void * tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
 {
   short i;
   short k;
-  void *result;
+  BOOL result;
   short carID;
   /* SYM-CODEGEN-CARRIER: carClass -- widening the enum field to int preserves
      retail's signed slti/bltz class dispatch; direct field tests collapse to
@@ -1289,7 +1294,7 @@ void * tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
   if (atIndex != kPlayerBoth) {
     i = (short)atIndex;
   }
-  result = (void *)0;
+  result = 0;
   k = i;
   if ((i == 1) && (this->fCarManager->GetNumOwnedCars(1) <= 0)) {
     k = 0;
@@ -1298,16 +1303,16 @@ void * tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
     carNumber -= (u_char)this->fCarManager->fNumCars;
     if ((this->fCarListFilter & 0x20U) != 0) {
       if ((signed char)this->fCarManager->fPinkSlipsCars[i][(u_char)carNumber].fCarID >= 0) {
-        result = (void *)1;
+        result = 1;
       }
-      return result;
+      return (void *)result;
     }
     if ((this->fCarListFilter & 0x42U) == 0) {
       goto ValidCar_returnResult;
     }
     carID = (signed char)this->fCarManager->fCarGarage[k][(u_char)carNumber].fCarID;
     if (carID >= 0) {
-      result = (void *)1;
+      result = 1;
     }
     carInfo = this->fCarManager->GetCarFromID(carID);
     if ((frontEnd.raceType == RaceType_HotPursuit) && (carInfo->fPursuitAvailable == 0)) {
@@ -1317,11 +1322,11 @@ void * tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
       goto ValidCar_returnResult;
     }
     if ((this->fCarListFilter & 0x40U) == 0) {
-      return result;
+      return (void *)result;
     }
     this->fCarManager->GetGarageCar((short)((u_char)carNumber +
                                             (u_short)this->fCarManager->fNumCars),garageCar,0);
-    result = tournamentManager.ValidCar(garageCar);
+    result = (BOOL)(u_int)tournamentManager.ValidCar(garageCar);
     /* MATCH: the common result tail lets gcc cross-jump this call with the
        stock-car tournament call below. */
     goto ValidCar_returnResult;
@@ -1354,12 +1359,12 @@ void * tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
 ValidCar_classNormal:
   if (carClass >= 0) {
     if ((this->fCarListFilter & 0x81U) != 0) {
-      result = (void *)1;
+      result = 1;
     }
     if ((carID == 0x1c) &&
        ((frontEnd.carListType == 1 || (frontEnd.gameMode == 1)) ||
         (frontEnd.raceType != RaceType_SingleRace))) {
-      result = (void *)0;
+      result = 0;
     }
   }
   goto ValidCar_classDone;
@@ -1371,7 +1376,7 @@ ValidCar_classCop:
         trackManager.GetTrack((u_short)(u_char)frontEnd.track[0],trackInfo);
         if (FECheat_IsCheatEnabled(cheat_AllCops)) goto ValidCar_setValid;
         if ((u_char)trackInfo.fCountry == (signed char)frontEnd.carCountry[i][carID]) {
-          result = (void *)1;
+          result = 1;
         }
       }
     }
@@ -1380,21 +1385,22 @@ ValidCar_classCop:
 ValidCar_classTraffic:
   if ((this->fCarListFilter & 0x10U) != 0) {
 ValidCar_setValid:
-    result = (void *)1;
+    result = 1;
   }
 ValidCar_classDone:
   if (!result) {
     goto ValidCar_returnResult;
   }
   if ((this->fCarListFilter & 1U) == 0) {
-    return result;
+    return (void *)result;
   }
   if (frontEnd.raceType != RaceType_Tournament) {
-    return result;
+    return (void *)result;
   }
-  result = tournamentManager.ValidCar(this->fCarManager->fCars[(u_char)carNumber]);
+  result = (BOOL)(u_int)tournamentManager.ValidCar(
+      this->fCarManager->fCars[(u_char)carNumber]);
 ValidCar_returnResult:
-  return result;
+  return (void *)result;
 }
 
 
@@ -1428,7 +1434,7 @@ tListIteratorCarColor::~tListIteratorCarColor()
 
 /* ---- tListIteratorCarColor::Value  [FECARS.CPP:1189-1196] SLD-VERIFIED ---- */
 
-char tListIteratorCarColor::Value(tPlayer arg1)
+char tListIteratorCarColor::Value(tPlayer)
 
 {
   int offset;
@@ -1446,7 +1452,7 @@ char tListIteratorCarColor::Value(tPlayer arg1)
 
 /* ---- tListIteratorCarColor::TextValue  [FECARS.CPP:1200-1201] SLD-VERIFIED ---- */
 
-int tListIteratorCarColor::TextValue(tPlayer arg1)
+int tListIteratorCarColor::TextValue(tPlayer)
 
 {
   return 0;
@@ -1474,11 +1480,16 @@ int tListIteratorCarColor::TextValue(tPlayer arg1)
    value is ALREADY in $v0 = a MISSING-RETURN retail body, not a coalescing wall.
  */
 
-int tListIteratorCarColor::Increment(tPlayer arg1)
+int tListIteratorCarColor::Increment(tPlayer)
 
 {
   tCarInfo *carInfo;
   int offset;
+  /* SYM-CODEGEN-CARRIER: notWrapped
+   * SYM-CODEGEN-CARRIER: fNumColors
+   * These source-only staging values are required by the sealed PASS receipt
+   * above: the named value-load feeds retail's signed slt, while falling off
+   * the int-returning body avoids two non-retail return-value copies. */
   int notWrapped;
   int fNumColors;
 
@@ -1494,17 +1505,17 @@ int tListIteratorCarColor::Increment(tPlayer arg1)
 
 /* ---- tListIteratorCarColor::Decrement  [FECARS.CPP:1218-1228] SLD-VERIFIED ---- */
 
-void tListIteratorCarColor::Decrement(tPlayer arg1)
+void tListIteratorCarColor::Decrement(tPlayer)
 
 {
   tCarInfo *carInfo;
   int offset;
-  u_int fNumColors;
 
   carInfo = &fCarManager->fCars[fPlayerCar[*fPlayer]];
   offset = *fPlayer * fIndexSize + (signed char)carInfo->fCarID;
-  fNumColors = fValue[offset];
-  fValue[offset] = fNumColors == 0 ? carInfo->fNumLightColors + carInfo->fNumDarkColors - 1 : fNumColors - 1;
+  fValue[offset] = fValue[offset] == 0
+      ? carInfo->fNumLightColors + carInfo->fNumDarkColors - 1
+      : fValue[offset] - 1;
 }
 
 

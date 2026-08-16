@@ -906,10 +906,8 @@ long tMenuItemSlidingMenu::DebounceKeys()
 void tMenuItemSlidingMenu::Draw(bool selected)
 
 {
-  __vtbl_ptr_type (*pa_Var1) [11];
-  
-  pa_Var1 = this->_vf;
-  (*(*pa_Var1)[5].pfn)((int)&this->fFlags + (int)(*pa_Var1)[5].delta,0,0,selected);
+  (*(*this->_vf)[5].pfn)(
+      (int)&this->fFlags + (int)(*this->_vf)[5].delta,0,0,selected);
   return;
 }
 
@@ -1429,7 +1427,6 @@ void tMenuItemLeftRightFade::MyLeftRightDraw(int x,int y)
 
 {
   int ColText;
-  char *sMenuText;
   tDrawShapeExtended aCol;
   
   aCol.tint[0] = CalcFadeVal(0xc83c1e,0xbebe,
@@ -1439,8 +1436,8 @@ void tMenuItemLeftRightFade::MyLeftRightDraw(int x,int y)
   ColText = CalcTextFadeSelToHi(textType_Options,
                    this->fSelFade,
                    this->fFadeVal);
-  sMenuText = TextSys_Word(this->fTextDescription);
-  FETextRender_FullTextRGB(sMenuText,(short)x,(short)y,ColText,'\0',1);
+  FETextRender_FullTextRGB(TextSys_Word(this->fTextDescription),
+                           (short)x,(short)y,ColText,'\0',1);
   DrawShapeExtended(0x2e,0x18,x + 0x1a,y + 1,0,0,&aCol);
   DrawShapeExtended(0x2f,0x18,x + 0xc8,y + 1,0,0,&aCol);
   return;
@@ -1721,8 +1718,11 @@ void * tMenuItemLeftRightAudioSlider::TransitionIsFinished()
 void tMenuItemLeftRightAudioSlider::UpdateTransition(bool selected)
 
 {
+  /* SYM-CODEGEN-CARRIER: iVar1 -- one signed promoted sum is required for
+   * retail's 19-insn clamp.  Field-in-place is FAIL 21 / 24; a repeated
+   * ternary is count-exact but FAIL 20 from unsigned reloads/allocation. */
   int iVar1;
-  
+
   iVar1 = (int)this->fFadeVal + (int)this->fFadeDir;
   if (0x80 < iVar1) {
     iVar1 = 0x80;

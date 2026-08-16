@@ -93,6 +93,9 @@ void tScreenMemcard::DrawIcon(shapetbl *icon,int x,int y,int destwidth,int desth
   long width = icon->width;
   long height = icon->height;
   int bpp = 4;
+  /* SYM-CODEGEN-CARRIER: u -- naming the shared texture coordinate preserves
+   * retail's early divide and whole-function allocation; repeated source
+   * expressions move it to first use (FAIL 87 / 125 versus PASS 126). */
   int u = ((sposx & 0x3f) << bpp) / bpp;
   int v = sposy % 0x100;
 

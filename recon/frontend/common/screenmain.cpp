@@ -299,15 +299,21 @@ void tScreenMain::DrawDropShadow()
   uint tagMask;
   u_char *pal_link;
   uint palTag;
-  u_char *prim;
+  POLY_G4 *prim;
   
   i = 0;
   do {
-    prim = Render_gPacketPtr;
+    prim = (POLY_G4 *)Render_gPacketPtr;
     pal_link = Render_gPalettePtr;
     addrMask = 0xffffff;
     tagMask = 0xff000000;
-    /* MATCH (2026-08-11, 32 -> PASS, 69/69): allocsim reproduced all seven
+    /* MATCH (2026-08-11, 32 -> PASS, 69/69):
+       SYM-CODEGEN-CARRIER: addr_24
+       SYM-CODEGEN-CARRIER: addrMask
+       SYM-CODEGEN-CARRIER: tagMask
+       SYM-CODEGEN-CARRIER: pal_link
+       SYM-CODEGEN-CARRIER: palTag
+       allocsim reproduced all seven
        allocnos and priced the 3-way rotation to exactly +2 weighted refs on
        addrMask.  Re-masking the already-masked addr_24 inside the loop supplies
        those refs at zero instructions, yielding retail's i->$t0,
@@ -321,27 +327,27 @@ void tScreenMain::DrawDropShadow()
     __asm__("" : : "r" (prim), "r" (pal_link));
     palTag = *(uint *)pal_link;
     addr_24 = (uint)prim & addrMask;
-    Render_gPacketPtr = prim + 0x24;
+    Render_gPacketPtr = (u_char *)prim + 0x24;
     *(uint *)pal_link = palTag & tagMask | (addr_24 & addrMask);
-    *(u_int *)(prim + 4) = 0x808080;
-    prim[7] = 0x3a;
-    *(u_int *)(prim + 0xc) = 0x808080;
-    *(u_int *)(prim + 0x1c) = 0;
-    *(u_int *)(prim + 0x14) = 0;
-    prim[3] = 8;
+    *(u_int *)((u_char *)prim + 4) = 0x808080;
+    ((u_char *)prim)[7] = 0x3a;
+    *(u_int *)((u_char *)prim + 0xc) = 0x808080;
+    *(u_int *)((u_char *)prim + 0x1c) = 0;
+    *(u_int *)((u_char *)prim + 0x14) = 0;
+    ((u_char *)prim)[3] = 8;
     /* MATCH (W57, 69->28): the SYM 8c block lists ONLY `i` and `prim` --
        `src_walk` was a Ghidra-invented walk pointer, and gcc strength-reduced
        it into a SECOND induction giv (`addiu a3,v0,0` + `addiu a2,a3,14`)
        where the oracle carries one.  dropShadow is `tVertex[4][4]`, so retail
        indexed it by the loop counter (3.12 #1 index-form). */
-    *(u_short *)(prim + 8) = dropShadow[i][0].x;
-    *(u_short *)(prim + 10) = dropShadow[i][0].y;
-    *(u_short *)(prim + 0x10) = dropShadow[i][1].x;
-    *(u_short *)(prim + 0x12) = dropShadow[i][1].y;
-    *(u_short *)(prim + 0x18) = dropShadow[i][2].x;
-    *(u_short *)(prim + 0x1a) = dropShadow[i][2].y;
-    *(u_short *)(prim + 0x20) = dropShadow[i][3].x;
-    *(u_short *)(prim + 0x22) = dropShadow[i][3].y;
+    *(u_short *)((u_char *)prim + 8) = dropShadow[i][0].x;
+    *(u_short *)((u_char *)prim + 10) = dropShadow[i][0].y;
+    *(u_short *)((u_char *)prim + 0x10) = dropShadow[i][1].x;
+    *(u_short *)((u_char *)prim + 0x12) = dropShadow[i][1].y;
+    *(u_short *)((u_char *)prim + 0x18) = dropShadow[i][2].x;
+    *(u_short *)((u_char *)prim + 0x1a) = dropShadow[i][2].y;
+    *(u_short *)((u_char *)prim + 0x20) = dropShadow[i][3].x;
+    *(u_short *)((u_char *)prim + 0x22) = dropShadow[i][3].y;
     i = i + 1;
   } while (i < 4);
   FeDraw_SetABRMode(2);

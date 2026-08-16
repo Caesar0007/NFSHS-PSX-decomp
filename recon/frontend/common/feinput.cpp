@@ -29,7 +29,8 @@ void FEInput_VerifyControllerValues(int controller)
 /* MATCH: PASS (159 insns), improved from 38 diffs @147/159.
    The SLD fixes the negCon source order as twist-high, twist-low, buttonII, buttonI
    (lines 122/125/129/132); restoring that order moves every case block into retail
-   order.  The compiler-eliminated `result` pseudo and the shared comparison funnels
+   order.  The compiler-eliminated `result` pseudo (SYM-CODEGEN-CARRIER: result) and
+   the shared comparison funnels
    preserve retail's branch normalisers instead of folding them to xori/sltu.
    `return_one` gives buttonI and the final PAD-state test the shared constant target;
    `return_mask` joins the analog `~state` and negCon `PAD_state & 0xffff` paths before

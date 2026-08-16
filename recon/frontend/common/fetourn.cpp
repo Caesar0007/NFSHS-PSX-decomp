@@ -984,17 +984,17 @@ void * tTournamentManager::ValidCar(tCarInfo &carInfo)
   u_char oppClass;
   tTournamentDefinition *definition;
   tTourneyInfo *tourney;
-  void *result;
+  BOOL result;
 
   definition = this->fDefinition;
   tourney = &definition->fTournaments
       [(u_int)definition->fTiers[this->fTier].fTournOffset + this->fTournament];
   oppClass = tourney->fOpponentCarClass;
-  result = (void *)0x1;
+  result = 1;
   if (oppClass != '\n') {
-    result = (void *)(u_int)(carInfo.fCarClass == oppClass);
+    result = carInfo.fCarClass == oppClass;
     if ((FECheat_IsCheatEnabled(cheat_FinishedTournament) != 0) && (this->fTier == 0)) {
-      result = (void *)0x1;
+      result = 1;
     }
   }
   if ((tourney->fRequiredFlags & 4) != 0) {
@@ -1002,20 +1002,20 @@ void * tTournamentManager::ValidCar(tCarInfo &carInfo)
       switch (tourney->fRequiredUpgrades) {
       case 0:
         if (carInfo.fUpgrades != '\0') {
-          result = (void *)0x0;
+          result = 0;
         }
         break;
       case 1:
         break;
       case 2:
         if (carInfo.fUpgrades == '\0') {
-          result = (void *)0x0;
+          result = 0;
         }
         break;
       case 3:
         if ((carInfo.fUpgrades & tourney->fSpecificUpgrades) !=
             tourney->fSpecificUpgrades) {
-          result = (void *)0x0;
+          result = 0;
         }
         break;
       default:
@@ -1023,10 +1023,10 @@ void * tTournamentManager::ValidCar(tCarInfo &carInfo)
       }
     }
     else {
-      result = (void *)0x0;
+      result = 0;
     }
   }
-  return result;
+  return (void *)result;
 }
 
 
@@ -1056,7 +1056,7 @@ tListIteratorTournament::~tListIteratorTournament()
 
 /* ---- tListIteratorTournament::Value  [FETOURN.CPP:1119-1120] ---- */
 
-int tListIteratorTournament::Value(tPlayer arg1)
+int tListIteratorTournament::Value(tPlayer)
 
 {
   return (uint)(byte)*this->fValue;
@@ -1146,7 +1146,7 @@ void * tListIteratorTournament::ValidTournament(char tourn)
   tTourneyInfo *currentTourn;
   tTournamentDefinition *definition;
   tTournamentManager *tournamentManager;
-  void *result;
+  BOOL result;
 
   tournamentManager = this->fTournamentManager;
   definition = tournamentManager->fDefinition;
@@ -1154,16 +1154,16 @@ void * tListIteratorTournament::ValidTournament(char tourn)
   currentTourn = &definition->fTournaments
       [(u_int)currentTier->fTournOffset + (u_int)(u_char)tourn];
   flags = currentTourn->fRequiredFlags;
-  result = (void *)0x1;
+  result = 1;
   if ((flags & 1) != 0) {
-    result = (void *)(u_int)
-        ((signed char)tournamentManager->fBestPlacement[currentTourn->fRequiredTournamentID] < '\x04');
+    result = (signed char)tournamentManager->fBestPlacement[
+        currentTourn->fRequiredTournamentID] < '\x04';
   }
   if (((flags & 2) != 0) &&
      ('\x01' < (signed char)tournamentManager->fBestPlacement[currentTourn->fRequiredTournamentID])) {
-    result = (void *)0x0;
+    result = 0;
   }
-  return result;
+  return (void *)result;
 }
 
 

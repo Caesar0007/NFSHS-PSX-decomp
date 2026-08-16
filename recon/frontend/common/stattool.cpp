@@ -25,7 +25,8 @@ void Stattool_nCreateIndex(int nNumber,int *nInput,short *nIndex)
      the guard's live `li $v0,1` into i where retail re-materializes `li $s0,1` in the beq
      delay slot.  It was NOT the 3.25-3b no-copy-prop identity -- it is plain cse constant
      sharing, and the OPACITY/IDENTITY FENCE (catalog 04-a4/a5, zero insns) breaks it: with
-     `one` laundered, cse can no longer prove the compare's register holds 1, so `i = 1`
+     `one` laundered (SYM-CODEGEN-CARRIER: one), cse can no longer prove the
+     compare's register holds 1, so `i = 1`
      re-materializes.  Falsified at this basin BEFORE the fence: i=1 hoisted above the guard,
      i=1 inside the guard, guard spelled against i. */
   int i;
@@ -71,7 +72,8 @@ void Stattool_ParseTime(int nTime,char *sLapTime)
      Folding it into the last sprintf argument sinks the whole sec*100 multiply
      chain past those loads and pushes nTime off its SYM-declared home
      (8c block @0x8004A99C: nTime REGPARM $0a = $t2, sLapTime REGPARM $10 = $s0,
-     and ZERO declared locals -- min/sec are compiler temps). */
+     and ZERO declared locals -- SYM-CODEGEN-CARRIER: min and
+     SYM-CODEGEN-CARRIER: sec are compiler temps). */
   short min;
   short sec;
 
@@ -165,20 +167,17 @@ void Stattool_SamNelsonsUpperLowerStringConverterForRecords(char *string)
 
 {
   char previousLetter;
-  char cur_ch;
 
   s_lower(string);
   previousLetter = *string;
   UserNameUpperCaseOneLetter(string);
   string = string + 1;
-  cur_ch = *string;
-  while (cur_ch != '\0') {
+  while (*string != '\0') {
     if (previousLetter == ' ') {
       UserNameUpperCaseOneLetter(string);
     }
     previousLetter = *string;
     string = string + 1;
-    cur_ch = *string;
   }
   return;
 }
@@ -187,13 +186,9 @@ void Stattool_SamNelsonsUpperLowerStringConverterForRecords(char *string)
 void StatTool_UpperCaseItKeepingInMindThoseBloodySpecialCharacters(char *string)
 
 {
-  char ch;
-  
-  ch = *string;
-  while (ch != '\0') {
+  while (*string != '\0') {
     UserNameUpperCaseOneLetter(string);
     string = string + 1;
-    ch = *string;
   }
   return;
 }
@@ -238,7 +233,6 @@ void Stattool_GetAllDefaultRecords(tRecordBuffer *TrackRecords,bool cheatones)
 void Stattool_ReadDefaultRecords(tRecordBuffer *Records,bool cheatones)
 
 {
-  int fsize;
   char filename [80];
   
   if (cheatones != 0) {
@@ -247,8 +241,7 @@ void Stattool_ReadDefaultRecords(tRecordBuffer *Records,bool cheatones)
   else {
     sprintf(filename,"%szrecord.dat",Paths_Paths[0x24]);
   }
-  fsize = filesize(filename);
-  if (fsize == 0xe9c) {
+  if (filesize(filename) == 0xe9c) {
     loadfileatadrz(filename,Records);
   }
   else {
@@ -309,8 +302,11 @@ short Stattool_CheckForHumanCar(Car_tStats *dummyCars)
 char * Stattool_GetAINameFromPersonality(tPersonalities personality)
 
 {
+  /* SYM-CODEGEN-CARRIER: namePtr -- the shared-result source shape is the
+   * retail 15-insn basin.  Direct/ternary returns invert the branch and add a
+   * jump (FAIL 9 / 16). */
   char (*namePtr) [8];
-  
+
   if ((unsigned int)personality < (kPersonalityTraffic|kPersonalityCop3)) {
     namePtr = GameSetup_gPersonalityNames + personality;
   }

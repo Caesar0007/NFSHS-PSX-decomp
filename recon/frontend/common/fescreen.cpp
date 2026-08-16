@@ -157,13 +157,11 @@ void tScreen::AsyncLoadPermanentShapeFile(char *fileName)
 void tScreen::AsyncLoadSwapShapeFile(char *fileName)
 
 {
-  char *name;
   char buffer [32];
 
   if (fileName != 0) {
     sprintf(buffer,"z%s",fileName);
-    name = buffer;
-    this->AsyncLoadShapeFile(name,this->fSwapShapes);
+    this->AsyncLoadShapeFile(buffer,this->fSwapShapes);
   }
   else {
     this->AsyncLoadShapeFile((char *)0x0,this->fSwapShapes);
@@ -396,7 +394,6 @@ void tScreen::Draw(bool drawBackground)
 void tScreen::AsyncLoadShapeFile(char *name,tShapeInformation &data)
 
 {
-  u_int uVar1;
   char buffer [128];
   
   if ((name == (char *)0x0) && (data.async_handle != 0)) {
@@ -417,12 +414,10 @@ void tScreen::AsyncLoadShapeFile(char *name,tShapeInformation &data)
     if (data.fLoadCancelled == 0) {
       data.fLoadCancelled = 0;
       if (data.fDestFile != (char *)0x0) {
-        uVar1 = asyncloadfileat(buffer,data.fDestFile);
-        data.async_handle = uVar1;
+        data.async_handle = asyncloadfileat(buffer,data.fDestFile);
       }
       else {
-        uVar1 = asyncloadfile(buffer,(void *)0x10);
-        data.async_handle = uVar1;
+        data.async_handle = asyncloadfile(buffer,(void *)0x10);
       }
     }
   }
@@ -468,7 +463,6 @@ void tScreen::CancelAsyncLoad(tShapeInformation &data)
 void tScreen::InitializeShapes(tShapeInformation &data,u_int numShapes)
 
 {
-  tTexture_ShapeInfo *ptVar1;
   u_short i;
   
   if (data.fShapes != (tTexture_ShapeInfo *)0x0) {
@@ -482,8 +476,8 @@ void tScreen::InitializeShapes(tShapeInformation &data,u_int numShapes)
   data.fDestFile = (char *)0x0;
   data.fLoadCancelled = 0;
   if (numShapes != 0) {
-    ptVar1 = (tTexture_ShapeInfo *)reservememadr("Shapes",numShapes << 5,0);
-    data.fShapes = ptVar1;
+    data.fShapes =
+        (tTexture_ShapeInfo *)reservememadr("Shapes",numShapes << 5,0);
   }
   i = 0;
   if (numShapes != 0) {

@@ -31,22 +31,19 @@ extern int gSemiTransText_arr[] asm("gSemiTransText");
 void FETextRender_SetFont(int size)
 
 {
-  char *f1;
-  
   if (currentSize != size) {
     currentSize = (short)size;
     switch (currentSize) {
     case 0:
-      f1 = font12[0];
+      Font_SwitchFont(font12[0]);
       break;
     case 3:
-      f1 = fontTitle[0];
+      Font_SwitchFont(fontTitle[0]);
       break;
     default:
-      f1 = font18[0];
+      Font_SwitchFont(font18[0]);
       break;
     }
-    Font_SwitchFont(f1);
   }
   return;
 }
@@ -58,12 +55,9 @@ void FETextRender_SetFont(int size)
 void FETextRender_FullTextRGB(char *sMenuText,short x,short y,int col,char size,short justify)
 
 {
-  short xx;
   char *str;
   char buffer [128];
-  int iVar2;
   
-  xx = x;
   str = sMenuText;
   FETextRender_SetFont((u_int)(u_char)size);
   if ((u_char)size == 0) {
@@ -72,21 +66,17 @@ void FETextRender_FullTextRGB(char *sMenuText,short x,short y,int col,char size,
     str = buffer;
   }
   if (((justify == 1) || (justify == 4)) || (justify == 6)) {
-    xx = xx - (short)textpixels(str);
+    x = x - (short)textpixels(str);
   }
   else if ((justify == 2) || (justify == 5)) {
-    xx = x - (short)(textpixels(str) / 2);
+    x = x - (short)(textpixels(str) / 2);
   }
-  iVar2 = 1;
-  if (gSemiTransText_arr[0] != 0) {
-    iVar2 = 0xf;
-  }
-  Font_TextColor(iVar2);
+  Font_TextColor(gSemiTransText_arr[0] != 0 ? 0xf : 1);
   Font_TextTint(col);
-  Font_TextXY(str,(int)xx,(int)y);
+  Font_TextXY(str,(int)x,(int)y);
   if ((u_short)(justify - 3U) < 3) {
     Font_TextTint(0);
-    Font_TextXY(str,xx + 2,y + 1);
+    Font_TextXY(str,x + 2,y + 1);
   }
   return;
   return;
@@ -116,11 +106,10 @@ void FETextRender_FullTextFade(int fade,char *sMenuText,short x,short y,tMenuTex
                tMenuTextState textState,short justify)
 
 {
-  int col;
-  
-  col = CalcFadeVal(kRGBVals[(u_char)textDefinitions[textType][textState + textState_NumStates]],
-                   fade);
-  FETextRender_FullTextRGB(sMenuText,x,y,col,textDefinitions[textType][0],justify);
+  FETextRender_FullTextRGB(
+      sMenuText,x,y,
+      CalcFadeVal(kRGBVals[(u_char)textDefinitions[textType][textState + textState_NumStates]],fade),
+      textDefinitions[textType][0],justify);
   return;
 }
 
@@ -146,13 +135,11 @@ void FETextRender_MenuTextFade(int fade,short index,tMenuTextState textState,tMe
 {
   int x;
   int y;
-  int wordnum;
-  
-  wordnum = (int)index;
-  x = TextSys_WordX(wordnum);
-  y = TextSys_WordY(wordnum);
+
+  x = TextSys_WordX((int)index);
+  y = TextSys_WordY((int)index);
   if (textType == textType_Default) {
-    textType = (tMenuTextType)TextSys_WordFlags(wordnum);
+    textType = (tMenuTextType)TextSys_WordFlags((int)index);
   }
   FETextRender_MenuTextPositionedJustifyFade(fade,index,(short)x,(short)y,(u_short)(u_char)textDefinitions[textType][1],
              textState,textType);
@@ -176,8 +163,6 @@ void FETextRender_MenuTextPositionedJustifyFade(int fade,short index,short x,sho
                tMenuTextType textType)
 
 {
-  char *sMenuText;
-  
   if ((justify == 6) || (textType == textType_Title)) {
     FETextRender_Title(index);
   }
@@ -185,8 +170,8 @@ void FETextRender_MenuTextPositionedJustifyFade(int fade,short index,short x,sho
     if (textType == textType_Default) {
       textType = (tMenuTextType)TextSys_WordFlags((int)index);
     }
-    sMenuText = TextSys_Word((int)index);
-    FETextRender_FullTextFade(fade,sMenuText,x,y,textType,textState,justify);
+    FETextRender_FullTextFade(
+        fade,TextSys_Word((int)index),x,y,textType,textState,justify);
   }
   return;
 }
@@ -268,6 +253,9 @@ int FETextRender_WordWrapTextRGBJustify(char *str,RECT &r,int col,int justify,in
       }
       buffer[index2 - index1] = '\0';
       {
+        /* SYM-CODEGEN-CARRIER: pixels -- collapsing this value into `x`
+         * changes the whole-function register handout (FAIL 64 / 289 versus
+         * PASS 285), while this scoped carrier preserves retail allocation. */
         short pixels = textpixels(buffer);
 
         index1 = index2;
@@ -335,10 +323,7 @@ void FETextRender_WordWrapText(char *str,RECT &r,tMenuTextState textState,tMenuT
 void FETextRender_WordWrapFade(int fade,short index,RECT &r,tMenuTextState state,tMenuTextType type)
 
 {
-  char *str;
-  
-  str = TextSys_Word((int)index);
-  FETextRender_WordWrapTextFade(fade,str,r,state,type);
+  FETextRender_WordWrapTextFade(fade,TextSys_Word((int)index),r,state,type);
   return;
 }
 
@@ -360,15 +345,13 @@ void FETextRender_WordWrap(short index,RECT &r,tMenuTextState textState,tMenuTex
 int FETextRender_WordWrapHeight(short width,char *str)
 
 {
-  int h;
   RECT r;
   
   r.h = 500;
   r.x = 0;
   r.y = 0;
   r.w = width;
-  h = FETextRender_WordWrapTextRGBJustify(str,r,0,0,0,true);
-  return h;
+  return FETextRender_WordWrapTextRGBJustify(str,r,0,0,0,true);
 }
 
 
@@ -378,7 +361,6 @@ int FETextRender_WordWrapHeight(short width,char *str)
 void FETextRender_Title(short index)
 
 {
-  char *src;
   char upstr [80];
   RECT r;
   short offset;
@@ -387,8 +369,7 @@ void FETextRender_Title(short index)
   if (FEApp->fPlayer == '\x01') {
     offset = 0x69;
   }
-  src = TextSys_Word((int)index);
-  strcpy(upstr,src);
+  strcpy(upstr,TextSys_Word((int)index));
   s_lower(upstr);
   FETextRender_FullText(upstr,0x30,offset | 0x10,textType_Title,textState_Selected,0);
   r.x = 0x2b;

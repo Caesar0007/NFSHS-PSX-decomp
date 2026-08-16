@@ -299,7 +299,8 @@ void tCreditManager::DrawCurrCredit()
      tag reads volatile: this defeats GCC's inappropriate cross-join CSE
      and restores both of retail's fresh `lbu v1,0(s0)` instructions at
      zero code-size cost. The 2026-08-03 GCC-2.8.1 follow-up seals the final
-     8 diffs: `y` is an unsigned full-width carrier, with explicit 16-bit
+     8 diffs: SYM-TYPE-OVERRIDE: y is an unsigned full-width carrier, with
+     explicit 16-bit
      source loads. This lets the scheduler advance `y += 8` before the render
      call without a truncation temporary. Splitting the later `textY` test
      from its unsigned value load reproduces retail's `lh`/`lhu` pair. PASS,
@@ -316,7 +317,7 @@ void tCreditManager::DrawCurrCredit()
   uint uVar4;
   int width;
   short x;
-  byte *p, *p2;
+  char *p, *p2;
   byte tagByte;
   bool hidden;
   bool jaguar;

@@ -142,17 +142,16 @@ void tDialogBase::Display()
 void tDialogBase::Hide()
 
 {
-  tDialogBase **dst;
   short i;
 
   if (this->currentlyOn != 0) {
     this->currentlyOn = 0;
     for (i = 0; i < 8; i++) {
-      dst = DialogVisibilityList + i;
-      if (*dst == this) {
+      if (DialogVisibilityList[i] == this) {
         this->currentlyOn = 0;
-        *dst = (tDialogBase *)0x0;
-        blockmove(DialogVisibilityList + i + 1,dst,(7 - i) * 4);
+        DialogVisibilityList[i] = (tDialogBase *)0x0;
+        blockmove(DialogVisibilityList + i + 1,
+                  DialogVisibilityList + i,(7 - i) * 4);
         DialogVisibilityList[7] = (tDialogBase *)0x0;
         AudioCmn_PlayFESFX(0x12);
       }
@@ -199,11 +198,8 @@ void tDialogBase::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCom
 void tDialogHelp::AddItem(short textID,short controllerID)
 
 {
-  char *pcVar1;
-  
   if (this->numItems < 7) {
-    pcVar1 = TextSys_Word((int)textID);
-    this->text[this->numItems] = pcVar1;
+    this->text[this->numItems] = TextSys_Word((int)textID);
     this->cont[this->numItems] = (int)controllerID;
     this->numItems = this->numItems + 1;
   }
@@ -615,7 +611,7 @@ void tDialogMessageString::Draw()
 /* ---- tDialogBackUpOnly::ProcessInput  [FEDIALOG.CPP:654-670] SLD-VERIFIED ---- */
 
 void tDialogBackUpOnly::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
-              tMenuCommand &command)
+              tMenuCommand &)
 
 {
   /* SYM: FCN VOID, no locals (the "iVar1" return funnel was a Ghidra fiction --

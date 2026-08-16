@@ -250,13 +250,12 @@ void Front_ResetSettingsMenu(int player)
 
 {
   int i;
-  int car;
-  
-  car = 0;
+
+  i = 0;
   do {
-    Front_ResetSettingsForCar(player,car);
-    car = car + 1;
-  } while (car < 0x30);
+    Front_ResetSettingsForCar(player,i);
+    i = i + 1;
+  } while (i < 0x30);
   return;
 }
 
@@ -561,6 +560,9 @@ void SetPads(void)
       LookingFor = 7;
     }
     starttick = ticks[0];
+    /* SYM-CODEGEN-CARRIER: waiting -- the explicit false/conditional update
+     * preserves retail's boolean normalization and constant/register handout;
+     * a direct short-circuit loop is FAIL 21 / 78 versus PASS 79. */
     bool waiting;
     do {
       waiting = false;
@@ -784,7 +786,6 @@ void Front_InitialMemCardCheck(void)
 void Front_SecondaryMemCardCheck(void)
 
 {
-  short sVar1;
   int i;
   int j;
 
@@ -802,8 +803,7 @@ void Front_SecondaryMemCardCheck(void)
     i = 0;
     if (memCardReadOK[0] == 0) {
       do {
-        sVar1 = LoadGame((short)j,false,0);
-        memCardReadOK[0] = (int)(sVar1 == 0);
+        memCardReadOK[0] = LoadGame((short)j,false,0) == 0;
         i = i + 1;
         if (2 < i) break;
       } while (memCardReadOK[0] == 0);
@@ -827,13 +827,11 @@ void Front_SecondaryMemCardCheck(void)
 void Front_InitGraphics(void)
 
 {
-  int iVar1;
   char buffer [40];
 
   initlinkmode(0,1,1);
   sprintf(buffer,"%szzFE.viv",Paths_Paths[0x23]);
-  iVar1 = FILE_addbigsync(buffer,(void *)0x0,100,gFEBigHandle);
-  if (iVar1 == 0) {
+  if (FILE_addbigsync(buffer,(void *)0x0,100,gFEBigHandle) == 0) {
     do {
                     /* WARNING: Do nothing block with infinite loop */
     } while( true );
@@ -1034,17 +1032,23 @@ int *OutputDisplaySettings(int *d,int c,int player,tTrackInformation &trackInfo)
 int Front_GetLapsForType(void)
 
 {
+  /* SYM-CODEGEN-CARRIER: uVar1 -- the shared-result source shape preserves
+   * retail's non-tournament fall-through and common return.  Direct returns
+   * invert the branch and move the 11-insn lap-table arm (FAIL 22 / 42). */
   uint uVar1;
   short lapconv [2];
 
   lapconv[0] = 2;
   lapconv[1] = 4;
   if (frontEnd.raceType != RaceType_Tournament) {
-    uVar1 = (uint)lapconv[(byte)frontEnd.lapind[(byte)frontEnd.pinkSlipsTrackIndex]];
+    uVar1 = (uint)lapconv[
+        (byte)frontEnd.lapind[(byte)frontEnd.pinkSlipsTrackIndex]];
   }
   else {
     uVar1 = (uint)((tournamentManager.fDefinition)->fTournaments +
-                  ((uint)(tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset + tournamentManager.fTournament))->fNumLaps;
+                  ((uint)(tournamentManager.fDefinition)->fTiers[
+                       tournamentManager.fTier].fTournOffset +
+                   tournamentManager.fTournament))->fNumLaps;
   }
   return uVar1;
 }
@@ -2383,7 +2387,8 @@ static int *Front_AppendTrackData(int *stream,tFEStream &streamData)
   valtopass = 0;
   speedMode = frontEnd.displaySpeed[0];
   if (speedMode == 1) goto track_value_ready;
-  /* MATCH: retail has three explicit tests and one shared measurement block. The gotos
+  /* MATCH: SYM-CODEGEN-CARRIER: speedMode -- retail has three explicit tests
+     and one shared measurement block. The gotos
      preserve its `slti; bnez`, `bne`, and case-2 `j` CFG; the signed int pseudo is required
      for GCC 2.8.1 to select `slti` rather than the unsigned-char `sltiu` form. */
   if (speedMode < 2) goto use_country_measurement;
@@ -2978,18 +2983,17 @@ short Front_GetTrackRaced(void)
 
 {
   short trackraced;
-  short sVar1;
   tTrackInformation trackInfo;
   
   if (frontEnd.raceType == RaceType_Tournament) {
-    sVar1 = tournamentManager.GetLastTrackRaced();
+    trackraced = tournamentManager.GetLastTrackRaced();
   }
   else {
     trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
                trackInfo);
-    sVar1 = (short)(signed char)trackInfo.fTrackID;
+    trackraced = (short)(signed char)trackInfo.fTrackID;
   }
-  return sVar1;
+  return trackraced;
 }
 
 
@@ -3011,10 +3015,7 @@ short Front_GetTrackRaced(void)
 void * PlayerNameExist(int player)
 
 {
-  uint uVar1;
-  
-  uVar1 = strlen(frontEnd.playerNameList[player]);
-  return (void *)(uint)(uVar1 != 0);
+  return (void *)(uint)(strlen(frontEnd.playerNameList[player]) != 0);
 }
 
 

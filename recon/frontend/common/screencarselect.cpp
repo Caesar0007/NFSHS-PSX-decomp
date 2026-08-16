@@ -728,7 +728,7 @@ void tScreenCarSelect::Initialize()
 
 
 /* ---- tScreenCarSelect::ProcessInput  [SCREENCARSELECT.CPP:764-810] ---- */
-int tScreenCarSelect::ProcessInput(tPlayer keyval,tInputKeyType &key_input,tMenuCommand &menu_cmd
+int tScreenCarSelect::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &
               )
 
 {
@@ -740,7 +740,7 @@ int tScreenCarSelect::ProcessInput(tPlayer keyval,tInputKeyType &key_input,tMenu
   tMenuItemOptionsLeftRightChoice *lrItem;
   tCarInfo carInfo;
   
-  tVar4 = key_input;
+  tVar4 = keyval;
   if (tVar4 == kInput_KeyType_Square) {
     vtbl = this->_vf;
     item = (tMenuItem *)(int)vtbl[1][3].delta;
@@ -764,7 +764,7 @@ int tScreenCarSelect::ProcessInput(tPlayer keyval,tInputKeyType &key_input,tMenu
       (menuDefs->itemOpponentUpgrades).
       fFlags = (menuDefs->itemOpponentUpgrades).fFlags | 1;
     }
-    tVar4 = key_input;
+    tVar4 = keyval;
   }
   if (tVar4 != kInput_KeyType_Triangle) {
     return 5;
@@ -2752,17 +2752,17 @@ switchD_8003f3b4_default:
 
 
 /* ---- tScreenPinkSlipsCarSelect::ProcessInput  [SCREENCARSELECT.CPP:2190-2200] ---- */
-int tScreenPinkSlipsCarSelect::ProcessInput(tPlayer keyval,tInputKeyType &key_input,
-              tMenuCommand &menu_cmd)
+int tScreenPinkSlipsCarSelect::ProcessInput(tPlayer,tInputKeyType &keyval,
+              tMenuCommand &)
 
 {
-  if (key_input != kInput_KeyType_Triangle) {
-    if ((key_input != kInput_KeyType_Circle) &&
+  if (keyval != kInput_KeyType_Triangle) {
+    if ((keyval != kInput_KeyType_Circle) &&
        ((PinkSlipsScreenState[0] != CardLoadedFine || (PinkSlipsScreenState[1] != CardLoadedFine))))
     {
-      key_input = kInput_KeyType_AlreadyProcessed;
+      keyval = kInput_KeyType_AlreadyProcessed;
     }
-    if (key_input != kInput_KeyType_Triangle) {
+    if (keyval != kInput_KeyType_Triangle) {
       return 0x10;
     }
   }

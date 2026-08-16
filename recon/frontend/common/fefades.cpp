@@ -38,10 +38,7 @@ int CalcFadeVal(int col1,int col2,int amount)
 int CalcFadeVal(int col1,int amount)
 
 {
-  int result;
-  
-  result = CalcFadeVal(col1,0,amount);
-  return result;
+  return CalcFadeVal(col1,0,amount);
 }
 
 /* lines 36-38: (static data / macros / comments - no emitted code) */
@@ -50,11 +47,7 @@ int CalcFadeVal(int col1,int amount)
 int CalcFadeVal(int col1,int col2,int amount,int fFade)
 
 {
-  int result;
-  
-  result = CalcFadeVal(col1,col2,amount);
-  result = CalcFadeVal(result,0,fFade);
-  return result;
+  return CalcFadeVal(CalcFadeVal(col1,col2,amount),0,fFade);
 }
 
 /* lines 41-43: (static data / macros / comments - no emitted code) */
@@ -76,13 +69,11 @@ int CalcTextFadeUnselToSel(tMenuTextType type,short fSelFade,short fFade)
 int CalcTextFadeSelToHi(tMenuTextType type,short fSelFade,short fFade)
 
 {
-  int result;
-
   /* MATCH: two inlined accessor calls reproduce the SYM block nesting. */
-  result = CalcFadeVal(TextDefinitionColor(type,4),
-                            TextDefinitionColor(type,5),(int)fSelFade);
-  result = CalcFadeVal(result,0,(int)fFade);
-  return result;
+  return CalcFadeVal(
+      CalcFadeVal(TextDefinitionColor(type,4),
+                  TextDefinitionColor(type,5),(int)fSelFade),
+      0,(int)fFade);
 }
 
 /* lines 60-64: (static data / macros / comments - no emitted code) */

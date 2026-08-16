@@ -45,7 +45,7 @@ tListIterator::~tListIterator()
 
 /* ---- tListIterator::Value  [FEMENU.CPP:73-74] SLD-VERIFIED ---- */
 
-int tListIterator::Value(tPlayer arg1)
+int tListIterator::Value(tPlayer)
 
 {
   return (u_int)(u_char)*this->fValue;
@@ -55,21 +55,18 @@ int tListIterator::Value(tPlayer arg1)
 
 /* ---- tListIterator::TextValue  [FEMENU.CPP:78-79] SLD-VERIFIED ---- */
 
-int tListIterator::TextValue(tPlayer arg1)
+int tListIterator::TextValue(tPlayer)
 
 {
-  u_int uVar1;
-  
-  uVar1 = (*(*this->_vf)[2].pfn)((char *)this + (int)(*this->_vf)[2].delta,0xffffffff)
-  ;
-  return (int)this->fSelectionList[uVar1 & 0xff];
+  return (int)this->fSelectionList[
+      (*(*this->_vf)[2].pfn)((char *)this + (int)(*this->_vf)[2].delta,0xffffffff) & 0xff];
 }
 
 
 
 /* ---- tListIterator::Increment  [FEMENU.CPP:83-86] SLD-VERIFIED ---- */
 
-int tListIterator::Increment(tPlayer arg1)
+int tListIterator::Increment(tPlayer)
 
 {
   short sVar1;
@@ -86,7 +83,7 @@ int tListIterator::Increment(tPlayer arg1)
 
 /* ---- tListIterator::Decrement  [FEMENU.CPP:90-97] SLD-VERIFIED ---- */
 
-void tListIterator::Decrement(tPlayer arg1)
+void tListIterator::Decrement(tPlayer)
 
 {
   /* MATCH: SYM = FCN VOID, no locals; plain while (jump.c duplicate_loop_exit_test)
@@ -107,8 +104,6 @@ void tListIterator::Decrement(tPlayer arg1)
 tListIteratorIndexed::tListIteratorIndexed(short *selection,char *valPtr,char *index)
   : tListIterator(selection,valPtr)
 {
-  tListIterator *in_v0;
-  
   *(void **)&(this->_vf) = (void *)tListIteratorIndexed_vtable;
   this->fIndex = index;
   return;
@@ -129,7 +124,7 @@ tListIteratorIndexed::~tListIteratorIndexed()
 
 /* ---- tListIteratorIndexed::Value  [FEMENU.CPP:114-115] SLD-VERIFIED ---- */
 
-int tListIteratorIndexed::Value(tPlayer arg1)
+int tListIteratorIndexed::Value(tPlayer)
 
 {
   return (u_int)(u_char)this->fValue[(u_char)*this->fIndex];
@@ -139,7 +134,7 @@ int tListIteratorIndexed::Value(tPlayer arg1)
 
 /* ---- tListIteratorIndexed::TextValue  [FEMENU.CPP:119-120] SLD-VERIFIED ---- */
 
-int tListIteratorIndexed::TextValue(tPlayer arg1)
+int tListIteratorIndexed::TextValue(tPlayer)
 
 {
   __vtbl_ptr_type (*pa_Var1) [6];
@@ -156,7 +151,7 @@ int tListIteratorIndexed::TextValue(tPlayer arg1)
 
 /* ---- tListIteratorIndexed::Increment  [FEMENU.CPP:126-129] SLD-VERIFIED ---- */
 
-int tListIteratorIndexed::Increment(tPlayer arg1)
+int tListIteratorIndexed::Increment(tPlayer)
 
 {
   int iVar1;
@@ -177,7 +172,7 @@ int tListIteratorIndexed::Increment(tPlayer arg1)
 
 /* ---- tListIteratorIndexed::Decrement  [FEMENU.CPP:133-140] SLD-VERIFIED ---- */
 
-void tListIteratorIndexed::Decrement(tPlayer arg1)
+void tListIteratorIndexed::Decrement(tPlayer)
 
 {
   /* MATCH: SYM = FCN VOID, no locals; plain while (jump.c duplicate_loop_exit_test)
@@ -207,7 +202,7 @@ tListIteratorDoubleIndexed::~tListIteratorDoubleIndexed()
 
 /* ---- tListIteratorDoubleIndexed::Value  [FEMENU.CPP:160-161] SLD-VERIFIED ---- */
 
-int tListIteratorDoubleIndexed::Value(tPlayer arg1)
+int tListIteratorDoubleIndexed::Value(tPlayer)
 
 {
   return (u_int)(u_char)this->fValue
@@ -219,7 +214,7 @@ int tListIteratorDoubleIndexed::Value(tPlayer arg1)
 
 /* ---- tListIteratorDoubleIndexed::TextValue  [FEMENU.CPP:165-166] SLD-VERIFIED ---- */
 
-int tListIteratorDoubleIndexed::TextValue(tPlayer arg1)
+int tListIteratorDoubleIndexed::TextValue(tPlayer)
 
 {
   __vtbl_ptr_type (*pa_Var1) [6];
@@ -236,7 +231,7 @@ int tListIteratorDoubleIndexed::TextValue(tPlayer arg1)
 
 /* ---- tListIteratorDoubleIndexed::Increment  [FEMENU.CPP:172-175] SLD-VERIFIED ---- */
 
-int tListIteratorDoubleIndexed::Increment(tPlayer arg1)
+int tListIteratorDoubleIndexed::Increment(tPlayer)
 
 {
   int iVar1;
@@ -260,7 +255,7 @@ int tListIteratorDoubleIndexed::Increment(tPlayer arg1)
 
 /* ---- tListIteratorDoubleIndexed::Decrement  [FEMENU.CPP:179-186] SLD-VERIFIED ---- */
 
-void tListIteratorDoubleIndexed::Decrement(tPlayer arg1)
+void tListIteratorDoubleIndexed::Decrement(tPlayer)
 
 {
   /* MATCH: SYM = FCN VOID, no locals; plain while (jump.c duplicate_loop_exit_test)
@@ -375,8 +370,6 @@ void tListIteratorMultiPlayer::Decrement(tPlayer atIndex)
 tListIteratorRange::tListIteratorRange(char minValue,char maxValue,char *valPtr)
   : tListIterator((short *)0x0,valPtr)
 {
-  tListIterator *in_v0;
-  
   *(void **)&(this->_vf) = (void *)tListIteratorRange_vtable;
   this->fMinValue = minValue;
   this->fMaxValue = maxValue;
@@ -398,7 +391,7 @@ tListIteratorRange::~tListIteratorRange()
 
 /* ---- tListIteratorRange::Value  [FEMENU.CPP:262-266] SLD-VERIFIED ---- */
 
-int tListIteratorRange::Value(tPlayer arg1)
+int tListIteratorRange::Value(tPlayer)
 
 {
   return (u_int)(u_char)*this->fValue;
@@ -408,7 +401,7 @@ int tListIteratorRange::Value(tPlayer arg1)
 
 /* ---- tListIteratorRange::TextValue  [FEMENU.CPP:270-271] SLD-VERIFIED ---- */
 
-int tListIteratorRange::TextValue(tPlayer arg1)
+int tListIteratorRange::TextValue(tPlayer)
 
 {
   return 0;
@@ -418,14 +411,11 @@ int tListIteratorRange::TextValue(tPlayer arg1)
 
 /* ---- tListIteratorRange::Increment  [FEMENU.CPP:276-281] SLD-VERIFIED ---- */
 
-void tListIteratorRange::Increment(tPlayer arg1)
+void tListIteratorRange::Increment(tPlayer)
 
 {
-  u_char *pbVar3;
-
-  pbVar3 = (u_char *)this->fValue;
-  if ((u_int)*pbVar3 < (u_char)this->fMaxValue) {
-    *pbVar3 = *pbVar3 + '\x01';
+  if ((u_int)(u_char)*this->fValue < (u_char)this->fMaxValue) {
+    *this->fValue = (u_char)*this->fValue + '\x01';
   }
   return;
 }
@@ -434,14 +424,11 @@ void tListIteratorRange::Increment(tPlayer arg1)
 
 /* ---- tListIteratorRange::Decrement  [FEMENU.CPP:285-290] SLD-VERIFIED ---- */
 
-void tListIteratorRange::Decrement(tPlayer arg1)
+void tListIteratorRange::Decrement(tPlayer)
 
 {
-  u_char *pbVar3;
-
-  pbVar3 = (u_char *)this->fValue;
-  if ((u_char)this->fMinValue < (u_int)*pbVar3) {
-    *pbVar3 = (u_char)((u_int)*pbVar3 - 1);
+  if ((u_char)this->fMinValue < (u_int)(u_char)*this->fValue) {
+    *this->fValue = (u_char)((u_int)(u_char)*this->fValue - 1);
   }
   return;
 }
@@ -473,7 +460,7 @@ tListIteratorRangeIndexed::~tListIteratorRangeIndexed()
 
 /* ---- tListIteratorRangeIndexed::Value  [FEMENU.CPP:308-309] SLD-VERIFIED ---- */
 
-int tListIteratorRangeIndexed::Value(tPlayer arg1)
+int tListIteratorRangeIndexed::Value(tPlayer)
 
 {
   return (u_int)(u_char)this->fValue[(u_char)*this->fIndex];
@@ -483,14 +470,13 @@ int tListIteratorRangeIndexed::Value(tPlayer arg1)
 
 /* ---- tListIteratorRangeIndexed::Increment  [FEMENU.CPP:313-315] SLD-VERIFIED ---- */
 
-void tListIteratorRangeIndexed::Increment(tPlayer arg1)
+void tListIteratorRangeIndexed::Increment(tPlayer)
 
 {
-  u_char *pbVar3;
-
-  pbVar3 = (u_char *)(this->fValue + (u_char)*this->fIndex);
-  if ((u_int)*pbVar3 < (u_char)this->fMaxValue) {
-    *pbVar3 = *pbVar3 + '\x01';
+  if ((u_int)(u_char)this->fValue[(u_char)*this->fIndex] <
+      (u_char)this->fMaxValue) {
+    this->fValue[(u_char)*this->fIndex] =
+        (u_char)this->fValue[(u_char)*this->fIndex] + '\x01';
   }
   return;
 }
@@ -499,14 +485,13 @@ void tListIteratorRangeIndexed::Increment(tPlayer arg1)
 
 /* ---- tListIteratorRangeIndexed::Decrement  [FEMENU.CPP:319-321] SLD-VERIFIED ---- */
 
-void tListIteratorRangeIndexed::Decrement(tPlayer arg1)
+void tListIteratorRangeIndexed::Decrement(tPlayer)
 
 {
-  u_char *pbVar3;
-
-  pbVar3 = (u_char *)(this->fValue + (u_char)*this->fIndex);
-  if ((u_char)this->fMinValue < (u_int)*pbVar3) {
-    *pbVar3 = (u_char)((u_int)*pbVar3 - 1);
+  if ((u_char)this->fMinValue <
+      (u_int)(u_char)this->fValue[(u_char)*this->fIndex]) {
+    this->fValue[(u_char)*this->fIndex] =
+        (u_char)((u_int)(u_char)this->fValue[(u_char)*this->fIndex] - 1);
   }
   return;
 }

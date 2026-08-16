@@ -38,7 +38,6 @@ void s_upper(char *string)
 {
   int len;
   int n;
-  u_char *pbVar2;
 
   len = strlen(string);
   n = 0;
@@ -46,11 +45,10 @@ void s_upper(char *string)
     do {
       /* MATCH: index form string[n] rematerializes (s0 + a0) each iteration (incl. n==0 ->
        * `addu a1,s0,a0`, not the hoisted `addu a1,s0,zero`). (u_int) cast forces sltiu. */
-      pbVar2 = (u_char *)(string + n);
-      if ((u_int)(*pbVar2 - 0x61) < 0x1a) {
+      if ((u_int)((u_char)string[n] - 0x61) < 0x1a) {
         /* MATCH: oracle emits `addiu v0,v1,0xE0` (=-0x20 mod 256, stored to u_char). Writing
          * the constant as +0xE0 reproduces it; -0x20 would emit `addiu v0,v1,-32`. */
-        *pbVar2 = *pbVar2 + 0xe0;
+        string[n] = (u_char)string[n] + 0xe0;
       }
       n = n + 1;
     } while (n < (int)len);
@@ -67,7 +65,6 @@ void s_lower(char *string)
 {
   int len;
   int n;
-  u_char *pbVar2;
 
   len = strlen(string);
   n = 0;
@@ -75,9 +72,8 @@ void s_lower(char *string)
     do {
       /* MATCH: index form string[n] rematerializes (s0 + a0) each iteration (incl. n==0 ->
        * `addu a1,s0,a0`, not the hoisted `addu a1,s0,zero`). (u_int) cast forces sltiu. */
-      pbVar2 = (u_char *)(string + n);
-      if ((u_int)(*pbVar2 - 0x41) < 0x1a) {
-        *pbVar2 = *pbVar2 + 0x20;
+      if ((u_int)((u_char)string[n] - 0x41) < 0x1a) {
+        string[n] = (u_char)string[n] + 0x20;
       }
       n = n + 1;
     } while (n < (int)len);

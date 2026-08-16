@@ -202,24 +202,24 @@ void StatTool_UpperCaseItKeepingInMindThoseBloodySpecialCharacters(char *string)
 void Stattool_GetAllDefaultRecords(tRecordBuffer *TrackRecords,bool cheatones)
 
 {
-  tRecordBuffer *Records;
-  int idx;
+  tRecordBuffer *AllRecords;
+  int s;
   tRecordBuffer *src;
   tRecordBuffer *dest;
   int i;
   int n;
   int base;
   
-  Records = (tRecordBuffer *)reservememadr("records",0xe9c,0x10);
-  Stattool_ReadDefaultRecords(Records,cheatones);
+  AllRecords = (tRecordBuffer *)reservememadr("records",0xe9c,0x10);
+  Stattool_ReadDefaultRecords(AllRecords,cheatones);
   i = 0;
   base = 0;
   do {
     n = 0;
     do {
-      idx = base + n;
-      dest = TrackRecords + idx;
-      src = Records + idx;
+      s = base + n;
+      dest = TrackRecords + s;
+      src = AllRecords + s;
       strcpy(dest->sName,src->sName);
       Stattool_SamNelsonsUpperLowerStringConverterForRecords(dest->sName);
       dest->nCar = src->nCar;
@@ -230,7 +230,7 @@ void Stattool_GetAllDefaultRecords(tRecordBuffer *TrackRecords,bool cheatones)
     i = i + 1;
     base = base + 0x11;
   } while (i < 0xb);
-  purgememadr(Records);
+  purgememadr(AllRecords);
   return;
 }
 

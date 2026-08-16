@@ -807,18 +807,18 @@ void tMenuNFS4::UpdateTransition()
   tMenuItem *ptVar1;
   tMenuItem *pItem;
   __vtbl_ptr_type (*pa_Var2) [11];
-  short item;
+  short i;
 
-  item = 0;
+  i = 0;
   ptVar1 = this->fItemList[0];
   while (ptVar1 != (tMenuItem *)0x0) {
-    pItem = this->fItemList[item];
+    pItem = this->fItemList[i];
     pa_Var2 = pItem->_vf;
     (*(*pa_Var2)[10].pfn)
               ((char *)pItem + (int)(*pa_Var2)[10].delta,
-               (int)item == this->fCurrentItem);
-    item = item + 1;
-    ptVar1 = this->fItemList[item];
+               (int)i == this->fCurrentItem);
+    i = i + 1;
+    ptVar1 = this->fItemList[i];
   }
   return;
 }

@@ -1991,7 +1991,9 @@ int tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool selected)
      ($s5: `lui;lw;addiu +960`), not the array base re-indexed per use;
      (b) ONE tDrawShapeExtended AUTO (the 2nd cost 32 frame bytes);
      (c) no return funnel — $v0 is the last stack arg, incidental;
-     (d) `y` is an int MUTATED in place by -3 (`addiu s0,s0,-3`) and reused. */
+     (d) `y` is an int MUTATED in place by -3 (`addiu s0,s0,-3`) and reused;
+     (e) SYM records inner `tCol` and outer `drawFlags` at the same AUTO -56.
+     Declaring drawFlags after the inner block lets gcc reuse that slot. */
   tTexture_ShapeInfo *shape;
   short sVar2;
   int x;
@@ -2002,7 +2004,6 @@ int tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool selected)
   char *pcVar6;
   __vtbl_ptr_type (*pa_Var7) [6];
   tListIterator *ptVar8;
-  tDrawShapeExtended drawFlags;
 
   x = TextSys_WordX(this->fTextDescription) + ox;
   y = TextSys_WordY(this->fTextDescription) + oy;
@@ -2013,7 +2014,9 @@ int tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool selected)
   ColText = CalcTextFadeSelToHi(textType_Options,
                    this->fSelFade,this->fFadeVal);
   if (this->fFadeVal != 0x80) {
-    drawFlags.tint[0] = Col;
+    tDrawShapeExtended tCol;
+
+    tCol.tint[0] = Col;
     pcVar6 = TextSys_Word(this->fTextDescription);
     FETextRender_FullTextRGB(pcVar6,(short)x,(short)y,ColText,'\0',0);
     ptVar8 = this->fData;
@@ -2023,6 +2026,8 @@ int tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool selected)
     pcVar6 = TextSys_Word((int)sVar2);
     FETextRender_FullTextRGB(pcVar6,(short)(x + 0x97),(short)y,ColText,'\0',2);
   }
+  tDrawShapeExtended drawFlags;
+
   drawFlags.tint[0] = CalcFadeVal(0,0xbebe,(int)this->fSelFade,
                             (int)this->fFadeVal);
   DrawShapeExtended(0xa,0x18,(short)x + 0x83,(short)y,0,1,&drawFlags);

@@ -826,7 +826,7 @@ void tScreenBeTheCopCongrats::DrawCongratsMessage()
   char *copWord;
   RECT r;
   tMenuTextState fade;
-  int wordnum;
+  short congrats;
   char buffer [250];
 
   /* @0x80049540-58: oracle materializes a real RECT{x=0x29,y=0x3C,w=0xC8,h=0xC8} local (same idiom
@@ -840,9 +840,9 @@ void tScreenBeTheCopCongrats::DrawCongratsMessage()
   /* @0x80049598/end: oracle's FETextRender_WordWrapText 3rd arg is a LITERAL `li a2,1` (=
    * textState_Selected), not a read of an uninitialized `fade` local. */
   fade = textState_Selected;
-  wordnum = 0x4c;
+  congrats = 0x4c;
   if (frontEnd.congratsCopCar == 0x1c) {
-    wordnum = 0x4d;
+    congrats = 0x4d;
   }
   padState = PAD_state(4);
   if ((padState & 0xffff) != 0) {
@@ -850,7 +850,7 @@ void tScreenBeTheCopCongrats::DrawCongratsMessage()
      * SIGNED (`lb`) here -- cast in-TU only, matches the fSpeechCarID precedent elsewhere. */
     TextSys_Word((signed char)this->fCarInfo.fCarID + 0x121);
   }
-  fmt = TextSys_Word(wordnum);
+  fmt = TextSys_Word(congrats);
   copWord = TextSys_Word((signed char)this->fCarInfo.fCarID + 0x121);
   sprintf(buffer,fmt,copWord);
   FETextRender_WordWrapText(buffer,r,fade,textType_PostGame);   /* MATCH: pass buffer (addr held in s0 across sprintf, 3.12#16), NOT sprintf's return */

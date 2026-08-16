@@ -41,10 +41,11 @@
 
 /* ---- DrawW.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
    .data = real NFS4.EXE bytes, .bss = zero) ---- */
-signed char  offsets[8] = { 125, 125, 50, 15, -1, 125, 0, 0 };   /* @0x8013D828 -- MATCH+CORRECTNESS:
-                        the oracle reads this table with `lb` (BuildCustomObjectFacets @0x800C7C3C,
-                        %hi(D_8013D828)); `char` is UNSIGNED on this build, so entry 4 (-1) was
-                        being read as +255 -- a real z-offset bug as well as an lbu-vs-lb diff. */
+/* `offsets` moved to a FUNCTION-SCOPE static inside DrawW_BuildCustomObjectFacets
+   (SYM rule-8, nfs4-f-v3.txt:191805 -- its `96 Def2 class STAT type ARY CHAR
+   size 8 dims 1 8 name offsets` record sits INSIDE that fn's 8c block, and no
+   symbol-table entry exists at 0x8013D828, unlike file-scope `goffsets`
+   @0x8013D820 which does carry a type-6 local symbol). */
 MATRIX       gIdentTemplate = {4096, 0};   /* @0x8011f570 */
 int          trk0[9][2] = { 410, 530, 800, 850, 800, 850, 800, 850, 800, 850, 800, 850, 815, 885, 815, 885, 815, 885 };   /* @0x8011f590 */
 int          trk4[10][2] = { 300, 440, 300, 440, 300, 440, 300, 440, 300, 440, 705, 910, 705, 910, 705, 910, 705, 910, 705, 910 };   /* @0x8011f5d8 */
@@ -53,7 +54,12 @@ int          animation_timer[12];   /* @0x8011f718  (bss(zero)) */
 ChunkObjectInfo gChunkObjInfo;   /* @0x8011f748  (bss(zero)) */
 CCOORD16     gVertex3d[160];   /* @0x8011f760  (bss(zero)) */
 int          stackSpeedUpEnbabledFlag;   /* @0x8013d81c  (bss(zero)) */
-signed char  goffsets[8] = { 125, 125, 50, 15, -1, 125, 0, 0 };   /* @0x8013d820 -- MATCH: oracle `lb` (signed byte) at the goffsets[] lookup site; -1 must sign-extend, not zero-extend */
+/* SYM (rule-8, nfs4-f-v3.txt:192375): `96 Def2 class STAT type ARY CHAR size 8
+   dims 1 8 name goffsets` @0x8013d820, and the symbol-table entry (:3390) is
+   type `6` (local) not `2` (global) -- i.e. a FILE-SCOPE STATIC of DRAWW.CPP,
+   not a linked global.  Only draww.cpp references it (grep-confirmed), so the
+   `static` is both SYM-true and safe. */
+static signed char  goffsets[8] = { 125, 125, 50, 15, -1, 125, 0, 0 };   /* @0x8013d820 -- MATCH: oracle `lb` (signed byte) at the goffsets[] lookup site; -1 must sign-extend, not zero-extend */
 u_long       gWSavePtr;   /* @0x8013d830  (bss(zero)) */
 int          gSD_gt4counter;   /* @0x8013d834  (bss(zero)) */
 int          gSD_gt3counter;   /* @0x8013d838  (bss(zero)) */
@@ -345,22 +351,28 @@ void DrawW_AddSubdividPrimGT4(POLY_GT4 *prim,Draw_SVertex *v0,Draw_SVertex *v1,D
                Draw_tGiveShelbyMoreCache *sd)
 
 {
-  u_int c0,c1,c2,c3, p0,p1,p2,p3;
-  u_short t0,t1,t2,t3;
-  u_char code;
-  u_short tpage, clut;
-
+  /* SYM (rule-8, nfs4-f-v3.txt @0x800C5028): the retail source is FOUR sibling
+     block scopes, each re-declaring `a,b,c,d` with the block's own type --
+       blk1 `long a,b,c,d`   ($2/$3/$8/$9)   RGBA words
+       blk2 `long a,b,c,d`   ($2/$3/$8/$9)   XY   words
+       blk3 `short a,b,c,d`  ($2/$3/$5/$6)   UV   halfwords
+       blk4 `u_char a; u_short b,c` ($2/$3/$5) code/tpage/clut
+     -- not one flat fn-scope temp set.  Restored; gate-verified. */
   /* MATCH: field-fusion + load-4/store-4 (see GT3).  POLY_GT4 stores v2 in slot 3 (+0x28)
      and v3 in slot 2 (+0x1C) -- the screen-quad vertex order. */
   *(u_char *)((int)&prim->tag + 3) = 0xc;
-  c0 = *(u_int *)&v0->r;  c1 = *(u_int *)&v1->r;  c2 = *(u_int *)&v2->r;  c3 = *(u_int *)&v3->r;
-  *(u_int *)&prim->r0 = c0;  *(u_int *)&prim->r1 = c1;  *(u_int *)&prim->r3 = c2;  *(u_int *)&prim->r2 = c3;
-  p0 = *(u_int *)&v0->dvx;  p1 = *(u_int *)&v1->dvx;  p2 = *(u_int *)&v2->dvx;  p3 = *(u_int *)&v3->dvx;
-  *(u_int *)&prim->x0 = p0;  *(u_int *)&prim->x1 = p1;  *(u_int *)&prim->x3 = p2;  *(u_int *)&prim->x2 = p3;
-  t0 = *(u_short *)&v0->u;  t1 = *(u_short *)&v1->u;  t2 = *(u_short *)&v2->u;  t3 = *(u_short *)&v3->u;
-  *(u_short *)&prim->u0 = t0;  *(u_short *)&prim->u1 = t1;  *(u_short *)&prim->u3 = t2;  *(u_short *)&prim->u2 = t3;
-  code = (sd->GT4Prim).code;  tpage = (sd->GT4Prim).tpage;  clut = (sd->GT4Prim).clut;
-  prim->code = code;  prim->tpage = tpage;  prim->clut = clut;
+  { long a,b,c,d;
+    a = *(u_int *)&v0->r;  b = *(u_int *)&v1->r;  c = *(u_int *)&v2->r;  d = *(u_int *)&v3->r;
+    *(u_int *)&prim->r0 = a;  *(u_int *)&prim->r1 = b;  *(u_int *)&prim->r3 = c;  *(u_int *)&prim->r2 = d; }
+  { long a,b,c,d;
+    a = *(u_int *)&v0->dvx;  b = *(u_int *)&v1->dvx;  c = *(u_int *)&v2->dvx;  d = *(u_int *)&v3->dvx;
+    *(u_int *)&prim->x0 = a;  *(u_int *)&prim->x1 = b;  *(u_int *)&prim->x3 = c;  *(u_int *)&prim->x2 = d; }
+  { short a,b,c,d;
+    a = *(u_short *)&v0->u;  b = *(u_short *)&v1->u;  c = *(u_short *)&v2->u;  d = *(u_short *)&v3->u;
+    *(u_short *)&prim->u0 = a;  *(u_short *)&prim->u1 = b;  *(u_short *)&prim->u3 = c;  *(u_short *)&prim->u2 = d; }
+  { u_char a;  u_short b, c;
+    a = (sd->GT4Prim).code;  b = (sd->GT4Prim).tpage;  c = (sd->GT4Prim).clut;
+    prim->code = a;  prim->tpage = b;  prim->clut = c; }
   return;
 }
 
@@ -369,24 +381,27 @@ void DrawW_AddSubdividPrimGT3(POLY_GT3 *prim,Draw_SVertex *v0,Draw_SVertex *v1,D
                Draw_tGiveShelbyMoreCache *sd)
 
 {
-  u_int c0,c1,c2, p0,p1,p2;
-  u_short t0,t1,t2;
-  u_char code;
-  u_short tpage, clut;
-
+  /* SYM (rule-8, nfs4-f-v3.txt @0x800C50B4): four sibling block scopes, each
+     re-declaring `a,b,c` with the block's own type -- `long` (RGBA), `long`
+     (XY), `short` (UV), `u_char a; u_short b,c` (code/tpage/clut).  Restored;
+     gate-verified. */
   /* MATCH: field-fusion + load-3/store-3 -- the oracle copies each vertex's RGBA as one
      32-bit word (v+0xC), XY as one word (v+0x8), UV as one halfword (v+0x6).  Loading all
      three vertices into SEPARATE temps before storing avoids the load-delay nop that
      `lw v0;nop;sw v0` (single-reg reuse) emits per copy. */
   *(u_char *)((int)&prim->tag + 3) = 9;
-  c0 = *(u_int *)&v0->r;  c1 = *(u_int *)&v1->r;  c2 = *(u_int *)&v2->r;
-  *(u_int *)&prim->r0 = c0;  *(u_int *)&prim->r1 = c1;  *(u_int *)&prim->r2 = c2;
-  p0 = *(u_int *)&v0->dvx;  p1 = *(u_int *)&v1->dvx;  p2 = *(u_int *)&v2->dvx;
-  *(u_int *)&prim->x0 = p0;  *(u_int *)&prim->x1 = p1;  *(u_int *)&prim->x2 = p2;
-  t0 = *(u_short *)&v0->u;  t1 = *(u_short *)&v1->u;  t2 = *(u_short *)&v2->u;
-  *(u_short *)&prim->u0 = t0;  *(u_short *)&prim->u1 = t1;  *(u_short *)&prim->u2 = t2;
-  code = (sd->GT4Prim).code;  tpage = (sd->GT4Prim).tpage;  clut = (sd->GT4Prim).clut;
-  prim->code = code;  prim->tpage = tpage;  prim->clut = clut;
+  { long a,b,c;
+    a = *(u_int *)&v0->r;  b = *(u_int *)&v1->r;  c = *(u_int *)&v2->r;
+    *(u_int *)&prim->r0 = a;  *(u_int *)&prim->r1 = b;  *(u_int *)&prim->r2 = c; }
+  { long a,b,c;
+    a = *(u_int *)&v0->dvx;  b = *(u_int *)&v1->dvx;  c = *(u_int *)&v2->dvx;
+    *(u_int *)&prim->x0 = a;  *(u_int *)&prim->x1 = b;  *(u_int *)&prim->x2 = c; }
+  { short a,b,c;
+    a = *(u_short *)&v0->u;  b = *(u_short *)&v1->u;  c = *(u_short *)&v2->u;
+    *(u_short *)&prim->u0 = a;  *(u_short *)&prim->u1 = b;  *(u_short *)&prim->u2 = c; }
+  { u_char a;  u_short b, c;
+    a = (sd->GT4Prim).code;  b = (sd->GT4Prim).tpage;  c = (sd->GT4Prim).clut;
+    prim->code = a;  prim->tpage = b;  prim->clut = c; }
   return;
 }
 
@@ -667,7 +682,31 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
          Residual 8 = FOUR insns (addiu a3,s4,1 / addiu t8,a3,4 / addiu v0,a3,2 /
          addiu a3,a3,3) emitted at different POSITIONS -- identical opcodes and
          identical registers, i.e. a pure sched2 emission-order residual, no
-         longer an allocation one. */
+         longer an allocation one.
+         ---- W70 (2026-08-16): the w45 ZERO-INSN FENCE WALK is FALSIFIED for this
+         residual, and so is every remaining SOURCE SPELLING of the chain.  Base
+         re-gated 8 @588/588.  Exact residual re-read: retail issues each index
+         `addiu` ONE GROUP EARLIER than we do -- retail runs
+         [addiu q][sll][addiu n+4][sra][addu] where ours runs
+         [sll][sra][addu][addiu q][addiu n+4]; opcodes and registers match 1:1.
+         FENCE WALK (36 probes: 4 devices x 9 statement slots -- read-only
+         `asm("":: "r"(n))` / `"r"(q)` / `"i"(0)`, and the w47 opacity fence
+         `asm("":"=r"(n):"0"(n))` -- placed before v4=, after v4=, after n=n+1,
+         after q=, after each of v5..v8, and after n=n+4): EVERY placement
+         regresses (best 9, then 14/16/32/36/60/76/149) and, decisively, EVERY
+         one is +2 insns @590 -- the fence is NOT zero-insn on a `short` here, so
+         it can never be count-neutral in this block.  SPELLINGS also falsified
+         (all count-checked): `v4 = &r_div->v[n++];` 8 (BYTE-IDENTICAL -- gcc
+         normalises it); `n = n + 4;` moved inside the block after v5 8
+         (BYTE-IDENTICAL); `n = n + 1; v4 = &r_div->v[(short)(n-1)];` 26; and the
+         single-chain-base form (drop the `n=n+1` mutation, drive v5..v8 off
+         `q = n+1` and set `n = q+4`) 143 @587 -- the in-place `n = n + 1` IS what
+         mints retail's `$a3` chain base and must stay.
+         => nothing at the SOURCE layer reaches this; it is a sched2 ready-list
+         DRAIN question.  NEXT INSTRUMENT (named): -dS/-dR sched dumps on the
+         588/588 basin (lab fidelity for THIS fn is IDENTICAL 517/517 per w62-a2,
+         so the instrumented cc1plus IS quotable here -- unlike BuildObjectFacets
+         and DoTrough), read the ready-list order at the four sites. */
       short q = n + 1;
       v5 = &r_div->v[n];
       v6 = &r_div->v[q];
@@ -892,6 +931,11 @@ void DrawW_LoadPrecVECTOR(Draw_SVertex *v,VECTOR *dv)
   int x;
   int y;
   int z;
+  /* SYM (rule-8, nfs4-f-v3.txt @0x800C5BB4): the block declares a FOURTH local
+     `temp` (class REG, type LONG) whose home is $3 -- the same register `y`
+     lives in, i.e. the packed vx:vy word that overwrites y's value.  Restored
+     as a real C variable; gate-verified codegen-neutral (PASS held). */
+  long temp;
 
   /* MATCH (§3.12 #15b split-load): load all three FIRST, then shift-assign -- this
      groups the three shifts (vx<<2, vy<<18, vz<<2) the way the oracle does, instead of
@@ -903,7 +947,8 @@ void DrawW_LoadPrecVECTOR(Draw_SVertex *v,VECTOR *dv)
   x <<= 2;
   y <<= 0x12;
   z <<= 2;
-  *(u_int *)&v->vx = y | (x & 0xffffU);
+  temp = y | (x & 0xffffU);
+  *(u_int *)&v->vx = temp;
   v->vz = (short)z;
   return;
 }
@@ -1207,7 +1252,7 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
    * oracle). Vertex colours come from Chunk_lightTable[vtN->light] as word stores;
    * the quad's verts 2 and 3 are cross-fed (vt3 -> slot2, vt2 -> slot3). */
   VECTOR temp0;
-  u_long CVar12;
+  u_long color;
   CVECTOR *lt;
 
   if (sd->light == -1) {
@@ -1275,12 +1320,23 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
       do {
         *(u_long *)&prim->r1 = b;
         *(u_long *)&prim->r2 = c;
-        CVar12 = d;
+        color = d;
       } while (0);
     }
   }
   else {
+    /* SYM (rule-8, nfs4-f-v3.txt @0x800C609C) records the else arm's two GTE
+       scratch VECTORs under their own block-scoped names -- `tempnight`
+       (AUTO -0x30, block line 66) and `tempcop` (AUTO -0x30, block line 74) --
+       all three (with `temp0`, block line 3) sharing frame slot -0x30.
+       FALSIFIED (W70): writing them as real block-local `VECTOR tempnight;` /
+       `VECTOR tempcop;` is NOT codegen-neutral on cc1plus 2.8.0 -- it does NOT
+       overlap the disjoint scopes and the frame grows 64 -> 80 (PASS -> 44
+       diffs @279/279, every offset shifted).  Retail's single -0x30 slot is
+       only reproducible with ONE variable, so `temp0` carries all three roles
+       here; the SYM names are recorded in this comment instead. */
     if ((sd->nightFlags & 1U) != 0) {
+      /* SYM name: tempnight */
       gte_SetRotMatrix(&sd->matNight);
       gte_SetTransMatrix(&sd->matNight);
       gte_ldv0(vt0);
@@ -1289,6 +1345,7 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
       Night_NightCalc(&temp0, &sd->light, sd);
     }
     if ((sd->nightFlags & 2U) != 0) {
+      /* SYM name: tempcop */
       gte_SetRotMatrix(&sd->matCop);
       gte_SetTransMatrix(&sd->matCop);
       gte_ldv0(vt0);
@@ -1296,12 +1353,12 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
       gte_stlvnl(&temp0);
       Night_NightCopCalc(&temp0, &sd->light);
     }
-    CVar12 = *(u_long *)&Chunk_lightTable[sd->light];
-    *(u_long *)&prim->r0 = CVar12;
-    *(u_long *)&prim->r1 = CVar12;
-    *(u_long *)&prim->r2 = CVar12;
+    color = *(u_long *)&Chunk_lightTable[sd->light];
+    *(u_long *)&prim->r0 = color;
+    *(u_long *)&prim->r1 = color;
+    *(u_long *)&prim->r2 = color;
   }
-  *(u_long *)&prim->r3 = CVar12;
+  *(u_long *)&prim->r3 = color;
   gte_SetRotMatrix(&sd->matB);
   gte_SetTransMatrix(&sd->matB);
   return;
@@ -3398,6 +3455,13 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
                   original local was int-width (catalog par.C u_char->u_int lever). */
   int tc4;   /* the z-offset -- SYM/oracle keep it sign-extended in a saved reg (`lb`) */
   u_char tc5;
+  /* SYM (rule-8, nfs4-f-v3.txt:191805): `offsets` is a FUNCTION-SCOPE STATIC of
+     THIS function (`96 Def2 class STAT type ARY CHAR size 8 dims 1 8`, recorded
+     inside this fn's 8c block; unlike the file-scope static `goffsets` it has no
+     symbol-table entry at all).  `signed char` because the oracle reads it with
+     `lb` @0x800C7C3C and entry 4 is -1 -- plain `char` is UNSIGNED on this build,
+     which read it as +255 (a real z-offset bug). */
+  static signed char offsets[8] = { 125, 125, 50, 15, -1, 125, 0, 0 };   /* @0x8013D828 */
 
   /* w53-a1 LANDED (120 -> 110, still ours 192 / oracle 200): the element
      count was carried by a FABRICATED `iVar6` while the SYM's own AUTO
@@ -4492,7 +4556,28 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
        value gcc already materializes is coalesced away and is never a position
        dial -- 13B's governing limit, `the copy IS the mechanism`, in the
        negative direction.)  The class still needs a real $a0 CLOBBER between
-       the chains that is not an extra insn. */
+       the chains that is not an extra insn.
+       ---- W70 (2026-08-16): THAT DEVICE NOW EXISTS AND IS FALSIFIED HERE.  The
+       catalog's 20B row (`__asm__("" : "=r"(x) : "0"(x) : "$N")` -- a zero-insn,
+       NON-volatile hard-register conflict; the output tied via "0" drops the
+       implicit volatility so it is not a sched barrier) is exactly the "real $a0
+       clobber that is not an extra insn" this receipt asked for.  Measured from
+       the byte-free nested-if split, 12 probes (2 chain-2 spellings x 6 devices):
+         chain2 = `chunkM1`         : no fence 30 @222 (byte-free, confirms w62)
+                  clobber "$4"      : 58 @222   <- count-EXACT but far worse
+                  clobber "$4" on chunkM1 : 40 @222
+                  clobber "$4","$5" : 58 @222
+                  clobber "$3"      : 66 @222
+                  launder, no clobber: 54 @222
+         chain2 = inline (u_int)(thisChunkInd - 1U):
+                  no fence 30 @222 ; every fenced variant 57-61 @223 (+1 insn)
+       READ: denying `$a0` DOES land count-exact (222/222) but the freed register
+       is taken by the WRONG qty and the whole guard-chain block re-colours -- the
+       remat we want is not gated on $a0 availability at all.  So the w46/w53/w62
+       "$a0 clobber" hypothesis is dead; the dial is cse's reachability across the
+       chains, and the only untried instrument is a -dS/-dR + cse dump on the
+       30-diff basin.  ⚠️ lab fidelity for THIS fn is IDENTICAL per w62-a2, so the
+       instrumented cc1plus is quotable. */
     u_int chunkM1 = thisChunkInd - 1U;
     if (((GameSetup_gData.track != 4) ||
         (((0x27 < chunkM1 && (0x1d < thisChunkInd - 0x3dU)) && (8 < thisChunkInd - 0x6cU)))) &&
@@ -4801,6 +4886,28 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
      permutes which source offset lands in which destination half-word.  That is
      the catalog's "N named value-temps / parallel chains" row and it is worth
      attacking BEFORE the rotation -- it is a source shape, the rotation is not. */
+  /* ================= W70 (2026-08-16): 303 -> 274, ONE REAL BUG FIXED ==========
+     Found by the MANDATORY m2c CROSS-VERIFY (seal criterion 6) against the fresh
+     whole-binary m2c decompilation at
+       C:/Temp/nfs4-clean/Binaries/NFS4-B-USA/c/func_800C909C.c
+     m2c line 86 is unambiguous:  temp_a3 = *(0x8013D1EC + ((temp_t0 & 1) * 4));
+     i.e. `gSkidMarkPixmap` is an ARRAY OF POINTERS and the entry is LOADED, then
+     dereferenced (`temp_a3->unk0/4/8/C`, `temp_a3->unkA << 5`).  Our recon took
+     the ADDRESS of the pointer slot (`&gSkidMarkPixmap[i]`) and read five fields
+     off it -- so the primitive's four UV words were the two POINTER words plus
+     8 bytes PAST THE END of the 8-byte array, and the gClutDepth row index was
+     garbage.  Exactly the catalog's BWorld_SetSpikeBelt typed-global class.
+     FIXED: use the SYM's own local `pmx` (block @0x800C9438 line 89, class REG,
+     `PTR STRUCT size 16 tag Draw_tPixMap`) -- `pmx = gSkidMarkPixmap[i]` and all
+     five reads through `pmx->`.  The dead `pmx_dst` int is gone.
+     Everything else in this function CROSS-VERIFIES CLEAN against m2c: the
+     `var_t1`/`var_t3`/`var_t7` walker triple maps 1:1 onto pt1_index/segOff/
+     depth_skid (pt1_index IS the advancing 0x1C cursor, smBase the constant
+     base), the `>> 5` + `0x32` OTZ math, the `var_t1->unk24 & 1` colour select,
+     the `Draw_gViewOtSize - 3` guard and the OT-link template all agree.
+     ⚠️ The receipted allocsim table above is now BASIN-STALE (it was measured at
+     303/354; we are at 274/355) -- re-dump before using its reqdelta chain.
+     ============================================================================ */
   int skidChunk_p;
   int vert_count;
   int smBase;
@@ -4809,7 +4916,6 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
   POLY_GT4 *prim;
   void *primPtr;
   Draw_tPixMap *pmx;
-  int pmx_dst;
   int type;
   int color_pack;
   int pt1_index;
@@ -5043,7 +5149,20 @@ gte_stlvnl(&sd->tVn3);
               ) || (-sd->tVn2.vx < sd->tVn2.vz)) ||
             (-sd->tVn3.vx < sd->tVn3.vz)))) {
           color_pack = ((coorddef *)(pt1_index + 0x24))->x;
-          pmx_dst = (int)&gSkidMarkPixmap[color_pack & 1];
+          /* CORRECTNESS BUG (W70, found by the m2c cross-verify -- seal criterion
+           * 6 -- against C:/Temp/nfs4-clean/Binaries/NFS4-B-USA/c/func_800C909C.c):
+           * `gSkidMarkPixmap` is an ARRAY OF POINTERS (SYM nfs4-f-v3.txt:119780
+           * `class EXT type ARY PTR STRUCT size 8 dims 1 2 tag Draw_tPixMap`), and
+           * the SYM's own local here is `pmx` class REG, `PTR STRUCT size 16 tag
+           * Draw_tPixMap` (block @0x800C9438 line 89).  The recon took the ADDRESS
+           * of the pointer SLOT (`&gSkidMarkPixmap[i]` = 0x8013D1EC + i*4) and then
+           * read four words + a halfword off it -- i.e. it copied the two POINTER
+           * WORDS themselves (plus 8 bytes PAST the end of the 8-byte array) into
+           * the primitive's UV slots, and indexed gClutDepth with garbage.
+           * m2c is unambiguous: `temp_a3 = *(0x8013D1EC + ((temp_t0 & 1) * 4));`
+           * then `temp_a2->unkC = temp_a3->unk0` ... `temp_a3->unkA << 5`, i.e. the
+           * pointer is LOADED and dereferenced.  One indirection was missing. */
+          pmx = gSkidMarkPixmap[color_pack & 1];
           /* CORRECTNESS BUG (w46-a6) -- the three transformed screen XYs were
            * written to SCRATCHPAD 0x1F800014/2C/20 (= sd->matB's interior!),
            * clobbering the rotation matrix and leaving the primitive's
@@ -5097,10 +5216,10 @@ gte_swc2(0x7,(void *)0x1f800094);
           {
             u_long l0, l1, l2, l3;
 
-            l0 = *(u_long *)pmx_dst;
-            l1 = *(u_long *)(pmx_dst + 4);
-            l2 = *(u_long *)(pmx_dst + 8);
-            l3 = *(u_long *)(pmx_dst + 0xc);
+            l0 = *(u_long *)&pmx->u0;
+            l1 = *(u_long *)&pmx->u1;
+            l2 = *(u_long *)&pmx->u2;
+            l3 = *(u_long *)&pmx->u3;
             *(u_long *)((int)primPtr + 0xc) = l0;
             *(u_long *)((int)primPtr + 0x18) = l1;
             *(u_long *)((int)primPtr + 0x24) = l2;
@@ -5136,7 +5255,7 @@ gte_swc2(0x7,(void *)0x1f800094);
               vert_idx = 0xf;
             }
             *(short *)((int)primPtr + 0xe) =
-                 ((short (*)[16])gClutDepth_v)[*(u_short *)(pmx_dst + 10)][vert_idx];
+                 ((short (*)[16])gClutDepth_v)[pmx->pad2][vert_idx];
           }
           /* OT-link, EA DMPSX-analog FIXED-REG TEMPLATE (2026-07-11; same shape
            * as DrawW_OnyxLinePrim's sealed instance -- fastmovf.c family;
@@ -5936,7 +6055,24 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
      => neither birth order, nor named cursors, nor which side is the explicit
      biv moves the 2-way handout.  The remaining instrument is the local-alloc
      [find_free_reg] trace on the 268/268 basin (why a2 goes to the source qty),
-     exactly as clusters (a) and (c) already say. */
+     exactly as clusters (a) and (c) already say.
+     ---- W70 (2026-08-16) CLUSTER (a): the catalog's "load-3/store-3 grouped
+     temps" row (par.B row 55) is FALSIFIED here, which CONFIRMS the w53 reading
+     that ONE reused pseudo is the optimum.  Retail loads the three signed bytes
+     into THREE DISTINCT registers (`lb s4,15(v1); lb s3,16(v1); sra s4,s4,1;
+     lb s2,17(v1); sra s3,s3,1; sh s3,376(sp); sra s2,s2,1`) which reads exactly
+     like the grouped-temps signature -- but those three registers come from the
+     ALLOCATOR, not from three source temps.  Measured, all count-exact 268/268,
+     all reverted:
+       base (one reused block temp `t`)                        66  <- optimum
+       three temps in ONE block, loads interleaved with stores 76
+       three temps in ONE block, loads then stores (grouped)   76
+       three temps in ONE block, reverse assignment order      76
+       two temps in one block (t0/t1, t0 reused for fz)        72
+       one temp + one extra (`t`,`u`)                          72
+     Monotone in the number of block pseudos: every added pseudo costs ~+3.  Do
+     NOT re-try any grouped-temp spelling; the residual is the 2-way qty handout,
+     as clusters (b)/(c) already say. */
   { int t;
     t = (signed char)BWorldSm_slices[slice].forward[0]; t++; t--; fx = (u_short)(t >> 1);
     t = (signed char)BWorldSm_slices[slice].forward[1]; t++; t--; fy = (u_short)(t >> 1);

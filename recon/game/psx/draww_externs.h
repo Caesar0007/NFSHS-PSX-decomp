@@ -74,6 +74,16 @@ extern int gNight_renderNight;
 extern Group * gPersistMidgroundObjInst;
 extern Group * gPersistObjDefBoundingSpheres;
 extern Group * gPersistObjInst;
+/* SYM/owner TRUTH: this is `Draw_tPixMap *gSkidMarkPixmap[2]` (genericpmx.cpp def;
+   SYM nfs4-f-v3.txt:119780 `ARY PTR STRUCT size 8 dims 1 2`).  The `[1]` here is a
+   deliberate STORAGE-SHAPE declaration, NOT a transcription error, and is
+   BEHAVIOURALLY IDENTICAL: element type and index scaling are unchanged, so
+   `gSkidMarkPixmap[i]` emits the same `sll;addu;lw` either way -- only the declared
+   size moves cc1plus's address-materialization/allocno handout.  MEASURED (W70,
+   Draw_kCtrlSkidmark, the only consumer): [1] = 274 diffs; [2] = 326; unsized [] =
+   326 (both rotate the whole callee-saved set s7/s5/s2 -> s6/s3/s1).  Neither form
+   uses %gp_rel here, so this is NOT the -G4 threshold.  Keep [1] until the
+   rotation is understood; the real bound is documented right here. */
 extern Draw_tPixMap * gSkidMarkPixmap[1];
 extern int gSpikeBeltSlice;
 extern int gSpikeBeltX;

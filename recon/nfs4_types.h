@@ -1253,6 +1253,10 @@ typedef enum {   /* 4 bytes */
 #define RaceType_Id5            5 // Must be related to HotPursuit (?)
 #define RaceType_PinkSlips      6
 
+/* Tournaments & Career */
+#define Tourn_StartMoney        20000;
+#define Tourn_RacersCount       6;
+
 /* ============ STRUCTS + UNIONS (topo-sorted, interleaved) ============ */
 
 struct PAD_ANALOG {   /* 6 bytes */

@@ -13,7 +13,7 @@ extern GameSetup_tData GameSetup_gData;         /* 0x801131ec */
 extern char          *Paths_Paths[];           /* 0x80116468 */
 
 /* ---- eaclib / syslib / Draw helpers ---- */
-extern void  Draw_SetEnvironment(int w, int h, int a, int b, int c, int d, int e, int f);
+extern void  Draw_SetEnvironment(int w, int h, int edraw, int edisplay, int erase, int r, int g, int b);
 extern void  Draw_DrawDirectScreen(shapetbl *s, int x, int y);
 
 #endif

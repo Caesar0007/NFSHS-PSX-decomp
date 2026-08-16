@@ -22,7 +22,7 @@ extern char gDctBuffer[];         /* 0x80124038  DCT scratch buffer base */
 
 /* ---- eaclib / syslib / sibling helpers ---- */
 extern "C" int ResetGraph(int mode);   /* @0x800ED670 libgpu (real target of the old "Eac_vars") */
-extern void  Draw_SetEnvironment(int w, int h, int a, int b, int c, int d, int e, int f);
+extern void  Draw_SetEnvironment(int w, int h, int edraw, int edisplay, int erase, int r, int g, int b);
 extern void  Paths_StartUp(void);
 
 /* ---- this module ---- */

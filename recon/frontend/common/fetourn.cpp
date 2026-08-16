@@ -11,27 +11,26 @@ void tTournamentManager::Initialize()
 {
   short i;
 
-  this->fMoney = 20000;
+  this->fMoney = Tourn_StartMoney;
   this->fCurrentTrack = 0;
-  this->fNumTiers = '\0';
-  this->fDefinition = (tTournamentDefinition *)0x0;
+  this->fNumTiers = 0;
+  this->fDefinition = NULL;
   this->fTournamentList[0] = 0;
   this->fTrackList[0] = 0;
-  for (i = 0; i < 6; i++) {
-    this->fRanking[i] = '\0';
+  for (i = 0; i < Tourn_RacersCount; i++) {
+    this->fRanking[i] = 0;
   }
-  for (i = 0; i < 0x40; i++) {
-    this->fBestPlacement[i] = '\a';
+  for (i = 0; i < 64; i++) { // 64 = tournament array size?
+    this->fBestPlacement[i] = 7;
   }
   for (i = 0; i < 3; i++) {
     this->fTierFinishPrize[i] = 6;
     this->fTierFinishPrizeChange[i] = 0;
   }
-  { /* MATCH: a `long` temp forces the WORD load of fNumCars -- assigning the expression
-       straight into the char slot lets gcc narrow the load to `lbu` (retail has `lw`). */
-    long numCars = carManager.fNumCars;
-    frontEnd.garageCar[0] = numCars - 1;
-    frontEnd.garageCar[1] = frontEnd.garageCar[0]; }
+
+  long numCars = carManager.fNumCars;
+  frontEnd.garageCar[0] = numCars - 1;
+  frontEnd.garageCar[1] = frontEnd.garageCar[0];
   return;
 }
 

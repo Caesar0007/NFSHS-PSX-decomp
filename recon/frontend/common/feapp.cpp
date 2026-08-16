@@ -99,12 +99,10 @@ tFEApplication::~tFEApplication()
 void tFEApplication::PerformMenuInitialization()
 
 {
-  tDialogBase *this_00;
   extern void InitializeClass_noarg() asm("InitializeClass__11tDialogBase");
 
   this->fCurrentMusic = 0;
-  this_00 = (tDialogBase *)((int)((u_int)(u_char)frontEnd.musicVolume * 0x23) >> 6);
-  AudioMus_Volume((int)this_00);
+  AudioMus_Volume((int)((u_int)(u_char)frontEnd.musicVolume * 0x23) >> 6);
   InitializeClass_noarg();
   Clock_SystemStartUp();
   Draw_gDoVSync_arr[0] = 1;
@@ -119,21 +117,18 @@ void tFEApplication::PerformMenuInitialization()
 void tFEApplication::PerformMenuDestruction()
 
 {
-  int off;
-  int screen;
   short i;
 
   Clock_SystemCleanUp();
   i = 0;
   do {
-    off = (i << 0x10) >> 0xe;
-    screen = *(int *)((char *)this + off + 0xc);
-    if (screen != 0) {
-      (**(int (**)(...))(*(int *)(screen + 0x60) + 0x3c))
-                (screen + *(short *)(*(int *)(screen + 0x60) + 0x38));
+    if (this->fCurrentScreen[i] != (tScreen *)0x0) {
+      (*(*this->fCurrentScreen[i]->_vf)[7].pfn)
+          ((char *)this->fCurrentScreen[i] +
+           (*this->fCurrentScreen[i]->_vf)[7].delta);
     }
+    this->fCurrentScreen[i] = (tScreen *)0x0;
     i = i + 1;
-    *(u_int *)((char *)this + off + 0xc) = 0;
   } while (i < 2);
   AudioMus_StopSong(1000);
   Draw_gDoVSync_arr[0] = 0;
@@ -268,7 +263,7 @@ void tFEApplication::Redraw()
 
 {
   short i;
-  u_char saveFPlayer;
+  char saveFPlayer;
   short height;
   char buffer [32];
   DRAWENV *drenv;
@@ -295,6 +290,8 @@ void tFEApplication::Redraw()
   tDialogBase::DrawAllDialogs();
   this->DrawHelpIcons();
   if ((gPadinfo.buf[0].nopad != '\0') || (gPadinfo.buf[4].nopad != '\0')) {
+    /* SYM-CODEGEN-CARRIER: globalMenuDefs -- a shared menuDefs load is needed
+       for the retail register/address schedule in this block. */
     tGlobalMenuDefs *globalMenuDefs = menuDefs[0];
     (globalMenuDefs->itemMainTwoPlayerRace).fFlags
          = (globalMenuDefs->itemMainTwoPlayerRace).fFlags | 1;
@@ -326,15 +323,14 @@ void tFEApplication::Redraw()
          = (menuDefs[0]->itemMainOnePlayerRace).fFlags & 0xfffffffe;
   }
   {
-  u_char **packetCell = (u_char **)0x1f800004;
-  daprim = (DR_AREA *)*packetCell;
+  daprim = (DR_AREA *)Render_gPacketPtr;
   r.x = 0;
   r.y = *(short *)((char *)drenv + 2);
   r.w = 0x200;
   r.h = (short)screenheight;
   ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr,
   ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
-  *packetCell = (u_char *)daprim + 0xc;
+  Render_gPacketPtr = (u_char *)daprim + 0xc;
   SetDrawArea(daprim,&r);
   }
   for (i = 1; i >= 0; i--) {
@@ -524,20 +520,17 @@ void tFEApplication::Redraw()
 void tFEApplication::UpdateMusic()
 
 {
-  u_int uVar1;
-  
   AudioMus_Volume((int)((u_int)(u_char)frontEnd.musicVolume * 0x23) >> 6);
-  uVar1 = this->fCurrentMusic;
-  if ((uVar1 & 0x1000) != 0) {
+  if ((this->fCurrentMusic & 0x1000) != 0) {
     AudioMus_PlaySong((char *)(bigBuf + 0x50));
   }
-  else if ((uVar1 & 0x2000) != 0) {
+  else if ((this->fCurrentMusic & 0x2000) != 0) {
     AudioMus_PlaySong((char *)(bigBuf + 0x58));
   }
-  else if ((uVar1 & 0x4000) != 0) {
+  else if ((this->fCurrentMusic & 0x4000) != 0) {
     AudioMus_PlaySong((char *)(bigBuf + 0x60));
   }
-  else if ((uVar1 & 0x8000) != 0) {
+  else if ((this->fCurrentMusic & 0x8000) != 0) {
     AudioMus_PlaySong((char *)(bigBuf + 0x6c));
   }
   else {
@@ -553,20 +546,17 @@ void tFEApplication::UpdateMusic()
 void tFEApplication::SetMenu(short i,tMenu *menu)
 
 {
-  u_int uVar1;
-  int iVar2;
-
   if (menu != this->fCurrentMenu[i]) {
-    if ((i == 0) && (uVar1 = menu->fFlags & 0xf000, uVar1 != this->fCurrentMusic)) {
-      this->fCurrentMusic = uVar1;
+    if ((i == 0) && ((menu->fFlags & 0xf000) != this->fCurrentMusic)) {
+      this->fCurrentMusic = menu->fFlags & 0xf000;
       this->UpdateMusic();
     }
     if (((*(*menu->_vf)[8].pfn)((int)menu + (*menu->_vf)[8].delta) ^ 1) != 0) {
-      iVar2 = (int)this->fCurrentMenu[i];
       this->fTransitionToMenu[i] = menu;
-      if ((iVar2 != 0) && (menu != (tMenu *)0x0)) {
-        (**(int (**)(...))(*(int *)(iVar2 + 0x68) + 0x2c))
-                  (iVar2 + *(short *)(*(int *)(iVar2 + 0x68) + 0x28));
+      if ((this->fCurrentMenu[i] != (tMenu *)0x0) && (menu != (tMenu *)0x0)) {
+        (*(*this->fCurrentMenu[i]->_vf)[5].pfn)
+            ((char *)this->fCurrentMenu[i] +
+             (*this->fCurrentMenu[i]->_vf)[5].delta);
       }
     }
     else {
@@ -584,6 +574,8 @@ void tFEApplication::SetMenu(short i,tMenu *menu)
 void tFEApplication::SetScreen(short i,tScreen *screen)
 
 {
+  /* SYM-CODEGEN-CARRIER: this_00
+     SYM-CODEGEN-CARRIER: iVar1 */
   tScreen *this_00;
   int iVar1;
 
@@ -695,7 +687,10 @@ void tFEApplication::RunDemoVideo()
     {
       /* These spell the hidden evaluation temporaries of a native virtual
          call; they are not additional semantic source state.  Loading both
-         before publishing `largest` permits retail's load/load/store order. */
+         before publishing `largest` permits retail's load/load/store order.
+         SYM-CODEGEN-CARRIER: largest
+         SYM-CODEGEN-CARRIER: menu
+         SYM-CODEGEN-CARRIER: vtbl */
       int largest = largestunused();
       tMenu *menu = this->fCurrentMenu[0];
       __vtbl_ptr_type (*vtbl)[11] = menu->_vf;
@@ -782,7 +777,7 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
   short i;
   int demoLoopLastInputTick;
   char string [80];
-  PinkSlipsErrorCode err;
+  int err;
   int player;
   int iVar10;
   __vtbl_ptr_type (*pa_Var11) [11];
@@ -1357,10 +1352,7 @@ tAppCommand tFEApplication::RunPostGame()
 tAppCommand tFEApplication::RunFrontEnd()
 
 {
-  tAppCommand tVar1;
-  
-  tVar1 = this->MainLoop((tMenu*)&menuDefs[0]->menuMain);
-  return tVar1;
+  return this->MainLoop((tMenu*)&menuDefs[0]->menuMain);
 }
 
 /* end of feapp.cpp */

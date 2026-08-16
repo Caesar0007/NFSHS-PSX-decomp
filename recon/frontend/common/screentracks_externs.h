@@ -33,7 +33,7 @@ void  DrawShape_NFS4RoundRectangle(int textValue, RECT *r, short s) asm("DrawSha
 void  FETextRender_MenuTextPositionedJustify(short index, short x, short y, short justify, tMenuTextState state, tMenuTextType type);
 void  PSXDrawTransSquare(int col, int x, int y, int w, int h, short opacity);
 void  FeDraw_SetABRMode(int abr);
-void *Front_EnableLocalSpeech();
+BOOL Front_EnableLocalSpeech();
 
 /* --- list iterator / track manager (called as free fns) --- */
 short TextValue(tListIteratorTrack *it, tPlayer p) asm("TextValue__18tListIteratorTrack7tPlayer");

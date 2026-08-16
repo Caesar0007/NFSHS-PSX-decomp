@@ -2428,37 +2428,35 @@ track_value_ready:
 
 /* ---- Front_EnableLocalSpeech  [FRONT.CPP:2269-2290] ---- */
 
-/* FE-side hook to enable speech for the local player. 2 FE callers.Sets up gSpeech->speechEnabled flag and routes audio for the player
-   channel.Decoded Phase 49.
-   
-   [ghidra-meta] section: front.text
-   
-   [Locals 2026-05-08] Locals renamed via deep-body inspection. FE local-speech-enable test. Returns
-   1 if pinkslip-mode (raceType==1) AND track's language differs from current AND track lang in {<3,
-   6}. Conditions: ret=0 default; if raceType==1: GetTrack populates trackInfo; check lang!=current
-   AND (lang<3 OR lang==6) - then ret=1. Used by Front_BuildStream to switch speech-bank for race
-   intros (e.g., German driver on French track plays the host's local language). result is
-   caller-side spill. */
+/* FE-side hook to enable speech for the local player. Returns true in
+   Hot Pursuit when the track language differs from the frontend language and
+   is one of the locally supported languages.
 
-void * Front_EnableLocalSpeech(void)
+   [Locals 2026-08-16] Retail SYM restores the BOOL result in $s1 and the
+   stack-local trackInfo. SYM-CODEGEN-CARRIER: lang is an optimized-away
+   expression carrier: it
+   is required for retail's lbu followed by the signed bltz/slti range test,
+   but has no surviving SYM debug entry. Detailed gate: PASS 35/35;
+   Front_BuildStream remains PASS 1000/1000. */
+
+BOOL Front_EnableLocalSpeech(void)
 
 {
-  byte result;
-  void *ret;
+  BOOL result;
   tTrackInformation trackInfo;
-  
   int lang;
 
-  ret = (void *)0x0;
+  result = false;
   if (frontEnd.raceType == RaceType_HotPursuit) {
     trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
                trackInfo);
-    lang = (byte)trackInfo.fLanguage;
-    if ((lang != (byte)frontEnd.language) && (0 <= lang) && (lang < 3 || lang == 6)) {
-      ret = (void *)0x1;
+    lang = trackInfo.fLanguage;
+    if ((lang != (byte)frontEnd.language) && (0 <= lang) &&
+       (lang < 3 || lang == 6)) {
+      result = true;
     }
   }
-  return ret;
+  return result;
 }
 
 
@@ -2475,7 +2473,6 @@ void * Front_EnableLocalSpeech(void)
 int * Front_BuildStream(int *stream)
 
 {
-  void *pvVar1;
   int colourLoop;
   int j, type;
   int iVar3;
@@ -2559,8 +2556,7 @@ int * Front_BuildStream(int *stream)
   stream[0x31] = iVar3;
   gameLang = (uint)(byte)frontEnd.language;
   trackLang = (uint)(byte)streamData.trackInfo.fLanguage;
-  if ((frontEnd.localSpeech != '\0') &&
-     (pvVar1 = Front_EnableLocalSpeech(), pvVar1 != (void *)0x0)) {
+  if ((frontEnd.localSpeech != '\0') && Front_EnableLocalSpeech()) {
     stream[0x35] = trackLang;
     d = stream + 0x36;
   }

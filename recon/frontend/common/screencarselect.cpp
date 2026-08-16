@@ -171,7 +171,7 @@ void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
   long value;
   short text;
   int moneyColor;
-  int validCar;
+  BOOL validCar;
   short i;
   short j;
   short fade;
@@ -734,9 +734,8 @@ int tScreenCarSelect::ProcessInput(tPlayer keyval,tInputKeyType &key_input,tMenu
 {
   short state2;
   __vtbl_ptr_type (*vtbl) [10];
-  int iVar3;
+  BOOL validCar;
   tInputKeyType tVar4;
-  byte validCar;
   tMenuItem *item;
   tMenuItemOptionsLeftRightChoice *lrItem;
   tCarInfo carInfo;
@@ -745,7 +744,7 @@ int tScreenCarSelect::ProcessInput(tPlayer keyval,tInputKeyType &key_input,tMenu
   if (tVar4 == kInput_KeyType_Square) {
     vtbl = this->_vf;
     item = (tMenuItem *)(int)vtbl[1][3].delta;
-    iVar3 = (*vtbl[1][3].pfn)((int)(tScreen *)this + (int)&item->fFlags,&carInfo);
+    validCar = (*vtbl[1][3].pfn)((int)(tScreen *)this + (int)&item->fFlags,&carInfo);
     if (FEApp->fPlayer == '\0') {
       lrItem = &menuDefs->itemABS;
     }
@@ -753,7 +752,7 @@ int tScreenCarSelect::ProcessInput(tPlayer keyval,tInputKeyType &key_input,tMenu
       lrItem = &menuDefs->itemABS2;
     }
     lrItem->fTextDescription = 0x10b;
-    if (iVar3 != 0) {
+    if (validCar != 0) {
       if ((signed char)carInfo.fCarID == '\b') {
         lrItem->fTextDescription = 0x10c;
       }
@@ -832,14 +831,13 @@ done:
 void tScreenCarSelect::DrawVideoWall(short y)
 
 {
-  short valid;
+  BOOL validCar;
   __vtbl_ptr_type (*vtbl) [10];
   tVideoWall *this_00;
-  byte validCar;
   tCarInfo carInfo;
   
   vtbl = this->_vf;
-  valid = (*vtbl[1][3].pfn)
+  validCar = (*vtbl[1][3].pfn)
                     (this->fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
   ::DrawBackgroundImage((tScreen *)this,0,0x1c,this->fPermShapes.fShapes,0x96);
   this->DrawOverlay(this->fCurrentOverlays[0]);
@@ -853,7 +851,7 @@ void tScreenCarSelect::DrawVideoWall(short y)
   }
   this_00 = this->fVideoWall;
   ::UpdateTransition(this_00);
-  this_00->SetValid(valid);
+  this_00->SetValid(validCar);
   SetAvailable(this_00,(ushort)carInfo.fAvailable);
   ::Draw(this_00);
   return;
@@ -1450,15 +1448,14 @@ void tScreenCarSelectDuel::Cleanup()
 void tScreenCarSelectDuel::DrawVideoWall(short y)
 
 {
-  short valid;
+  BOOL validCar;
   __vtbl_ptr_type (*vtbl) [10];
   tVideoWall *vw;
   short i;
-  byte validCar;
   tCarInfo carInfo;
 
   vtbl = this->_vf;
-  valid = (*vtbl[1][3].pfn)
+  validCar = (*vtbl[1][3].pfn)
                     (this->fPermShapes.fFilename + -0x14 +
                      vtbl[1][3].delta,&carInfo);
   i = 0;
@@ -1498,7 +1495,7 @@ void tScreenCarSelectDuel::DrawVideoWall(short y)
      relabel spec.  Sibling: DrawOpponentVideoWall has the identical defect. */
   vw = this->fVideoWall;
   ::UpdateTransition(vw);
-  vw->SetValid(valid);
+  vw->SetValid(validCar);
   SetAvailable(vw,(ushort)carInfo.fAvailable);
   ::Draw(vw);
   return;
@@ -1900,16 +1897,15 @@ int tScreenCarSelectTwoPlayer::GetCar(tCarInfo &carInfo)
 void tScreenCarSelectTwoPlayer::DrawVideoWall(short y)
 
 {
-  short valid;
+  BOOL validCar;
   __vtbl_ptr_type (*vtbl) [10];
   short sVar2;
   int offset;
   short i;
-  byte validCar;
   tCarInfo carInfo;
 
   vtbl = this->_vf;
-  valid = (*vtbl[1][3].pfn)
+  validCar = (*vtbl[1][3].pfn)
                     (this->fPermShapes.fFilename + -0x14 +
                      vtbl[1][3].delta,&carInfo);
   i = 0;
@@ -1939,7 +1935,7 @@ void tScreenCarSelectTwoPlayer::DrawVideoWall(short y)
     this->SetBrightness(0,0);
   }
   ::UpdateTransition(this->fVideoWall);
-  this->fVideoWall->SetValid(valid);
+  this->fVideoWall->SetValid(validCar);
   SetAvailable(this->fVideoWall,(ushort)carInfo.fAvailable);
   ::Draw(this->fVideoWall);
   return;

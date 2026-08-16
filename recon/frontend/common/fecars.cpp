@@ -652,6 +652,9 @@ void tCarManager::SetCarViewable(tCarModels carModel,bool view)
 void tCarManager::GetStockCar(short carNumber,tCarInfo &carInfo)
 
 {
+  /* SYM-CODEGEN-CARRIER: uVar1 -- retail schedules the fViewableCars read before
+     the two zero stores, then publishes it afterward. Inlining the read moves
+     both stores across the load (PASS -> 6 diffs). */
   uchar uVar1;
 
   if ((u_int)(int)carNumber >= this->fNumCars) {
@@ -802,16 +805,12 @@ short tCarManager::GetNumOwnedCars(short playerNum)
 
 {
   int i;
-  int iVar2;
   short num;
-  int base;
 
   num = 0;
   i = 0;
-  base = (int)((u_int)(u_short)playerNum << 0x10) >> 9;
   do {
-    iVar2 = base + i * 4;
-    if (-1 < *(signed char *)((char *)this + iVar2 + 8)) {
+    if (-1 < this->fCarGarage[playerNum][i].fCarID) {
       num = num + 1;
     }
     i = i + 1;
@@ -859,16 +858,12 @@ short tCarManager::GetNumPinkSlipsCars(short playerNum)
 
 {
   int i;
-  int iVar2;
   short num;
-  int base;
 
   num = 0;
   i = 0;
-  base = (int)((u_int)(u_short)playerNum << 0x10) >> 9;
   do {
-    iVar2 = base + i * 4;
-    if (-1 < *(signed char *)((char *)this + iVar2 + 0x108)) {
+    if (-1 < this->fPinkSlipsCars[playerNum][i].fCarID) {
       num = num + 1;
     }
     i = i + 1;
@@ -954,11 +949,9 @@ bool tCarManager::IsCarAnAddedModel(tCarModels &model,char &color)
 void tCarManager::AddCarToIngameList(tCarModels &model,char &color)
 
 {
-  tCarInfo *ptVar1;
   short carColor;
 
-  ptVar1 = this->GetCarFromID((short)model);
-  carColor = (short)(signed char)ptVar1->fColorOrder[(u_char)color];
+  carColor = (short)(signed char)this->GetCarFromID((short)model)->fColorOrder[(u_char)color];
   gCarSelected[carColor / 8][model] |= (u_char)(1 << (carColor & 7));
   return;
 }
@@ -1081,7 +1074,7 @@ tListIteratorCar::~tListIteratorCar()
 char tListIteratorCar::Value(tPlayer atIndex)
 
 {
-  tPlayer i;
+  short i;
   
   i = kPlayerOne;
   if (atIndex != kPlayerBoth) {
@@ -1225,14 +1218,11 @@ adjusted_country:;
       else {
         this->fValue[i] += direction;
       }
-      {
-        char *value = this->fValue + i;
-        if ((signed char)*value >= lastCar) {
-          *value = firstCar;
-          if ((u_char)this->fValue[i] < this->fCarManager->fNumCars) {
-            carInfo = this->fCarManager->fCars + (u_char)this->fValue[i];
-            frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 0;
-          }
+      if ((signed char)this->fValue[i] >= lastCar) {
+        this->fValue[i] = firstCar;
+        if ((u_char)this->fValue[i] < this->fCarManager->fNumCars) {
+          carInfo = this->fCarManager->fCars + (u_char)this->fValue[i];
+          frontEnd.carCountry[i][(signed char)carInfo->fCarID] = 0;
         }
       }
       if ((signed char)this->fValue[i] < firstCar) {
@@ -1287,6 +1277,9 @@ void * tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
   short k;
   void *result;
   short carID;
+  /* SYM-CODEGEN-CARRIER: carClass -- widening the enum field to int preserves
+     retail's signed slti/bltz class dispatch; direct field tests collapse to
+     unsigned range logic and remove two instructions (PASS -> 4 diffs). */
   int carClass;
   tCarInfo *carInfo;
   tCarInfo garageCar;

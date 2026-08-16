@@ -916,7 +916,7 @@ void tMenuNFS4TwoPlayer::DrawItem(int item)
 {
   tMenuItem *ptVar1;
   __vtbl_ptr_type (*pa_Var2) [11];
-  int y;
+  short y;
   
   y = 0x2b;
   if (FEApp->fPlayer == '\x01') {

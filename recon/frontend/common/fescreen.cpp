@@ -325,11 +325,10 @@ void tScreen::Initialize()
      `this` is REGPARM $11 = $s1 and the frame carries just $s0/$s1/$ra
      (mask $80030000, fsize 56).  So there is NO separate pvVar2 -- ONE variable
      holds both the perm-file result and the &&-combined flag, which is why gcc
-     reuses $s0.  It is spelled `int` here (not `bool`) so the direct assignment
-     from tScreen::IsShapeFileLoaded's declared `void *` return is a plain move,
-     exactly as retail (whose IsShapeFileLoaded returns the BOOL); the shared
-     nfs4_types.h signature cannot be corrected from this TU. */
-  int shapesLoaded;
+     reuses $s0. `BOOL` is the retail spelling and aliases `int`; the explicit
+     cast from the currently misdeclared `void *` return preserves retail's raw
+     move exactly. */
+  BOOL shapesLoaded;
   short numPermShapes;
   short numSwapShapes;
   char *permFileName;
@@ -470,7 +469,7 @@ void tScreen::InitializeShapes(tShapeInformation &data,u_int numShapes)
 
 {
   tTexture_ShapeInfo *ptVar1;
-  u_int i;
+  u_short i;
   
   if (data.fShapes != (tTexture_ShapeInfo *)0x0) {
     purgememadr(data.fShapes);
@@ -489,9 +488,9 @@ void tScreen::InitializeShapes(tShapeInformation &data,u_int numShapes)
   i = 0;
   if (numShapes != 0) {
     do {
-      data.fShapes[(u_short)i].clutID = 0;
+      data.fShapes[i].clutID = 0;
       i = i + 1;
-    } while ((i & 0xffff) < numShapes);
+    } while (i < numShapes);
   }
   return;
 }

@@ -838,10 +838,10 @@ void tScreenMain::Initialize()
      one register over disjoint ranges; mask $800f0000 = ra + s0..s3, i.e. FOUR
      saved regs.  loaded / pv / all_loaded / iVar2 / scratch / iVar3 were Ghidra
      inventions and bought a fifth saved register ($s4). */
-  /* SYM types it BOOL, which in this codebase is a 4-byte int -- the oracle's
-     first assignment is a RAW COPY (`addu s0,v0,zero`), not a normalization, so
-     it is an int taking the pointer; only the `&&` below normalizes (`sltu`). */
-  int shapesLoaded;
+  /* SYM types it BOOL, which in this codebase aliases a 4-byte int. The first
+     assignment remains a raw pointer-result copy (`addu s0,v0,zero`); only the
+     `&&` below normalizes (`sltu`). */
+  BOOL shapesLoaded;
   short i;
 
   this->tScreen::Initialize();

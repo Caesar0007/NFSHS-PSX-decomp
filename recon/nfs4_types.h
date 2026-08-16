@@ -1254,8 +1254,12 @@ typedef enum {   /* 4 bytes */
 #define RaceType_PinkSlips      6
 
 /* Tournaments & Career */
-#define Tourn_StartMoney        20000;
-#define Tourn_RacersCount       6;
+#define Tourn_StartMoney        20000
+#define Tourn_RacersCount       6
+
+#ifndef NULL
+#define NULL 0
+#endif
 
 /* ============ STRUCTS + UNIONS (topo-sorted, interleaved) ============ */
 

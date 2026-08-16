@@ -1137,7 +1137,7 @@ MainLoop_noBack:
               break;
             }
             this->waitingForOtherPlayer[iVar10] = 0;
-            if (frontEnd.raceType != '\x06') goto MainLoop_carInfoStockGarage;
+            if (frontEnd.raceType != RaceType_PinkSlips) goto MainLoop_carInfoStockGarage;
             AudioMus_StopSong(400);
             Init_Memcard(false,1);
             err = PinkSlipsNoError;
@@ -1169,7 +1169,7 @@ MainLoop_noBack:
           case 5:
           case 7:
 MainLoop_carInfoPinkSlips:
-            if (frontEnd.raceType != '\x06') {
+            if (frontEnd.raceType != RaceType_PinkSlips) {
 MainLoop_carInfoStockGarage:
               if (frontEnd.carListType == '\0') {
                 carManager.GetStockCar((u_short)(u_char)frontEnd.playerCar[(u_char)this->fPlayer],carInfo)
@@ -1236,8 +1236,8 @@ tAppCommand tFEApplication::RunPostGame()
   int i;
   short nBestCarIndex;
   
-  if ((frontEnd.raceType != '\x06') &&
-     ((frontEnd.raceType != '\0' || (frontEnd.carListType != '\0')))) {
+  if ((frontEnd.raceType != RaceType_PinkSlips) &&
+     ((frontEnd.raceType != RaceType_SingleRace || (frontEnd.carListType != '\0')))) {
     dummyCars = (Car_tStats *)Cars_gNewCarStatsList;
     StatChk_ClearNewRecords();
     i = 0;

@@ -170,7 +170,7 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
         validCar = 0;
 
-        if (((((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
+        if (((((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
 
              ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
 
@@ -178,7 +178,7 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
             ((cop->carFlags & 0x200U) != 0)) ||
 
-           ((((GameSetup_gData.raceType != 1 && (GameSetup_gData.raceType != 5)) ||
+           ((((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != Id5)) ||
 
              ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0 &&
 
@@ -249,7 +249,7 @@ int AIHigh_BasicPerp::CheckIfCaught()
           xDot = 0;
           zDot = 0x10000;
 
-          if (((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
+          if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
 
              ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
 

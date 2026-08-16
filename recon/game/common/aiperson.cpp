@@ -207,7 +207,7 @@ void AIPerson_LoadGlue(Udff_tInfo *handle)
   Udff_GetInt(handle);
   Udff_GetBuffer(handle,(char *)AIPerson_glueTable,0x54);
   if ((Cars_gNumCopCars != 0) &&
-     (((GameSetup_gData.raceType != 1 && (GameSetup_gData.raceType != 5)) ||
+     (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != Id5)) ||
       ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0 &&
        ((Cars_gNumHumanRaceCars != 2 || (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) == 0)))))))) {
     iVar3 = 0;
@@ -250,7 +250,7 @@ void AIPerson_Startup(void)
   pUVar1 = Udff_Opena(acStack_80,(char *)0x0,1);
   AIPerson_LoadScriptData(pUVar1);
   Udff_Close(pUVar1);
-  if (((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
+  if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
      ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
       ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
     sprintf(acStack_80,D_80055374,pathBase[2]);

@@ -110,7 +110,7 @@ void AISpeeds_ReadTuningInfo(void)
     CaravanInfo[slotLoop].fallBackRandomTime_TickPercent = uVar2;
     slotLoop = slotLoop + 1;
   }
-  if ((GameSetup_gData.raceType == 0) && (0 < Cars_gNumAIRaceCars)) {
+  if ((GameSetup_gData.raceType == RaceType_SingleRace) && (0 < Cars_gNumAIRaceCars)) {
     int skillMult[3];
     /* SYM identifies the selected model as `carType` (s3) and the nested
      * iteration variable as `carModelLoop` (s0). Keeping those scopes distinct
@@ -186,7 +186,7 @@ int AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRend
   int leadIndex;
   int f_crappyFrameRateCompensatingSpeedup;
   leadIndex = Cars_gNumAIRaceCars - carObj->AISlot;   /* H41: compute EARLY (oracle: subu right after loading Cars_gNumAIRaceCars, before the guard) */
-  if ((((1 < Cars_gNumAIRaceCars) && (GameSetup_gData.raceType != 1)) &&
+  if ((((1 < Cars_gNumAIRaceCars) && (GameSetup_gData.raceType != RaceType_HotPursuit)) &&
       (simGlobal.gameTicks < 0x780)) &&
      ((Cars_gNumHumanRaceCars == 1 && ((*(u_short *)((char *)Cars_gHumanRaceCarList[0] + 6)) < (carObj->N).totalSlice)))) {
     return leadIndex * 0x3333 + 0x10000;
@@ -212,7 +212,7 @@ int AISpeeds_CalcOpponentTopSpeed(Car_tObj *carObj,int *unFetteredDesiredSpeed)
   if (carObj->fallBehindCar != (Car_tObj *)0x0) {
     f_glue = 0x10000;
   }
-  else if (((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
+  else if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
      ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
       ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
     f_glue = AISpeeds_BTCGetGlueFactor(carObj);
@@ -223,7 +223,7 @@ int AISpeeds_CalcOpponentTopSpeed(Car_tObj *carObj,int *unFetteredDesiredSpeed)
   f_script = AISpeeds_GetScriptFactor(carObj);
   f_nitrous = carObj->speedNitrous;
   f_damage = AISpeeds_GetDamageFactor(carObj);
-  if (GameSetup_gData.raceType == 1) goto useDefaultCaravan;
+  if (GameSetup_gData.raceType == RaceType_HotPursuit) goto useDefaultCaravan;
   if (Cars_gNumAIRaceCars < 2) goto useDefaultCaravan;
   f_caravan = AISpeeds_GetCaravanFactor(carObj);
   goto haveCaravan;
@@ -240,7 +240,7 @@ haveCaravan:
   f_final =
       (f_unfettered / 256) *
       (((f_damage / 256) * (f_script / 256)) / 256);
-  if ((GameSetup_gData.raceType != 1) && ((carObj->N).totalSlice < 0x96)) {
+  if ((GameSetup_gData.raceType != RaceType_HotPursuit) && ((carObj->N).totalSlice < 0x96)) {
     f_unfettered = fixedmult(
         (0x10000 - f_unfettered) * (u_int)(carObj->N).totalSlice,0x1b4);
     f_unfettered = 0x10000 - f_unfettered;
@@ -269,7 +269,7 @@ haveCaravan:
   newDesired = (topSpeed / 256) * (carObj->aiGlue / 256);
   *unFetteredDesiredSpeed = (topSpeed / 256) * (f_unfettered / 256);
   if ((((carObj->carFlags & 1U) != 0) && ((carObj->stats).finishType == 2)) &&
-     (((GameSetup_gData.raceType != 1 && (GameSetup_gData.raceType != 5)) ||
+     (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != Id5)) ||
       ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0 &&
        ((Cars_gNumHumanRaceCars != 2 || (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) == 0)))))))) {
     int metersPastFinish;
@@ -756,7 +756,7 @@ negativeThirdGlueIndex:
 haveThirdGlueIndex:
     glue = AIPerson_glueTable[glueIndex];
     packPositionGlueModifier = 0x8000;
-    if (GameSetup_gData.raceType != 3) {
+    if (GameSetup_gData.raceType != Id3) {
       packPositionGlueModifier = 0xe666;
     }
   }
@@ -791,7 +791,7 @@ int AISpeeds_GetDamageFactor(Car_tObj *carObj)
           (carObj->N).damage[3] + (carObj->N).damage[4] + (carObj->N).damage[5] +
           (carObj->N).damage[6] + (carObj->N).damage[7];
   carObj->damageMult = iVar1;
-  if (((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
+  if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
      ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
       ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
     iVar2 = 0x147;
@@ -899,7 +899,7 @@ int AISpeeds_CalcTrafficTopSpeed(Car_tObj *carObj)
 
   desired = AISpeeds_GetLegalSpeed((int)(carObj->N).simRoadInfo.slice);
   desired = fixedmult(desired,0xc000);
-  if (((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
+  if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
      ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
       ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
     if (carObj->direction != (*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x554))) {

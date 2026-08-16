@@ -449,7 +449,7 @@ extern "C" void MenuExtended_GoToCarSelect__FR12tMenuCommand(tMenuCommand *comma
   }
   if (frontEnd.gameMode == '\x01') {
     command->type = kMenu_Command_GoToMenuTwoPlayer;
-    if (frontEnd.raceType != '\x06') {
+    if (frontEnd.raceType != RaceType_PinkSlips) {
       if (frontEnd.carListType == '\0') {
         command->nextMenu = (tMenu *)&menuDefs[0]->menuPlayerOneCarSelect;
       }
@@ -464,7 +464,7 @@ extern "C" void MenuExtended_GoToCarSelect__FR12tMenuCommand(tMenuCommand *comma
   else {
     if (frontEnd.oppNumber == '\x01') {
       command->type = kMenu_Command_GoToMenu;
-      if (frontEnd.raceType == '\x01') {
+      if (frontEnd.raceType == RaceType_HotPursuit) {
         command->nextMenu = (tMenu*)&menuDefs[0]->menuHPDuelCarSelect;
       }
       else {
@@ -520,7 +520,7 @@ extern "C" void MenuExtended_GoToCarSelect__FR12tMenuCommand(tMenuCommand *comma
   }
   else {
     if ((int)((uint)carManager.GetNumOwnedCars(0) << 0x10) < 1) {
-      if (frontEnd.raceType == '\x01') {
+      if (frontEnd.raceType == RaceType_HotPursuit) {
         if (frontEnd.oppNumber == '\x01') goto MX_GoToCar_oppFilterSetup;
         goto MX_GoToCar_garageIter;
       }
@@ -901,7 +901,7 @@ extern "C" void MenuExtended_GoToRace__FR12tMenuCommand(tMenuCommand *command)
   popUp = &ptVar1->messagePopup;
   if (((frontEnd.carListType == '\x01') &&
       (uVar2 = carManager.GetNumOwnedCars(0), (int)((uint)uVar2 << 0x10) <= 0)) &&
-     ((frontEnd.raceType != '\x01') && (frontEnd.raceType != '\x06'))) {
+     ((frontEnd.raceType != RaceType_HotPursuit) && (frontEnd.raceType != RaceType_PinkSlips))) {
     pcVar3 = TextSys_Word(0xaa);
     popUp->string = pcVar3;
     ((tDialogBase *)popUp)->Display();
@@ -916,7 +916,7 @@ extern "C" void MenuExtended_GoToRace__FR12tMenuCommand(tMenuCommand *command)
     command->type = kMenu_Command_None;
     return;
   }
-  if ((frontEnd.raceType == '\x01') &&
+  if ((frontEnd.raceType == RaceType_HotPursuit) &&
      (carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[0],carInfo),
       carInfo.fPursuitAvailable == '\x00')) {
     pcVar3 = TextSys_Word(0xf2);
@@ -968,12 +968,12 @@ extern "C" void MenuExtended_GoTo2PlayerRace__FR12tMenuCommand(tMenuCommand *com
   ptVar1 = FEApp;
   command->type = kMenu_Command_Start2PlayerRace;
   popUp = &ptVar1->messagePopup;
-  if (frontEnd.raceType == '\x06') {
+  if (frontEnd.raceType == RaceType_PinkSlips) {
     return;
   }
   if (((frontEnd.carListType == '\x01') &&
       (uVar2 = carManager.GetNumOwnedCars(0), (int)((uint)uVar2 << 0x10) <= 0)) &&
-     (frontEnd.raceType != '\x01')) {
+     (frontEnd.raceType != RaceType_HotPursuit)) {
     pcVar3 = TextSys_Word(0xaa);
     popUp->string = pcVar3;
     ((tDialogBase *)popUp)->Display();
@@ -989,7 +989,7 @@ extern "C" void MenuExtended_GoTo2PlayerRace__FR12tMenuCommand(tMenuCommand *com
     command->type = kMenu_Command_None;
     return;
   }
-  if (frontEnd.raceType != '\x01') {
+  if (frontEnd.raceType != RaceType_HotPursuit) {
     return;
   }
   carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[(byte)FEApp->fPlayer],carInfo);
@@ -1959,7 +1959,7 @@ static int MenuExtended_DidUserWinBeTheCop(void)
   result = 0;
   carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[0],carInfo);
   if (carInfo.fCarClass == '\a') {
-    if (frontEnd.raceType == '\x01') {
+    if (frontEnd.raceType == RaceType_HotPursuit) {
       if (frontEnd.gameMode != '\x01') {
         if (GameSetup_gData.finalPerpArrests > GameSetup_gData.numPerps) {
           activateCar = carManager.GetCarFromID(

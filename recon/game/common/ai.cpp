@@ -190,7 +190,7 @@ void AI_DoReactions(Car_tObj *carObj)
   
   iVar1 = AIScript_DoReAction(&carObj->script,8);
   if (iVar1 == -1) goto LAB_horncheck;
-  if (GameSetup_gData.raceType == 1) goto LAB_horncheck;
+  if (GameSetup_gData.raceType == RaceType_HotPursuit) goto LAB_horncheck;
   AudioClc_SetHorn(carObj,1);
   goto LAB_afterhorn;
 LAB_horncheck:
@@ -200,7 +200,7 @@ LAB_horncheck:
 LAB_afterhorn:
   iVar1 = AIScript_DoReAction(&carObj->script,0x1000);
   if (iVar1 == -1) goto LAB_80057cc0;
-  if (GameSetup_gData.raceType == 1) goto LAB_80057cc0;
+  if (GameSetup_gData.raceType == RaceType_HotPursuit) goto LAB_80057cc0;
   {
     uVar2 = (int)(simGlobal.gameTicks & 0x18U) >> 3;
     switch (uVar2) {

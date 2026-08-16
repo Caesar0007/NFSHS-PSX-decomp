@@ -645,7 +645,7 @@ void AudioCmn_Reset(void)
       CopSpeak_Server();
       systemtask(0);
       if (0x8000 < SNDmemlargestunused(unused)) {
-        if (GameSetup_gData.raceType == 1) {
+        if (GameSetup_gData.raceType == RaceType_HotPursuit) {
           int i;
           for (i = 0; i < 4; i++) {
             if (AudioCmn_GetAsyncSfx(2, i + 0x2f, false) == -1)
@@ -912,7 +912,7 @@ void AudioCmn_CheckState(Car_tObj *car)
   int carspeed;
 
   carnum = (char)car->carIndex;
-  if ((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) {
+  if ((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) {
     if (((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0) {
       return;
     }

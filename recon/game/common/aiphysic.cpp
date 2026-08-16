@@ -243,7 +243,7 @@ int AIPhysic_CalcAcceleration(Car_tObj *carObj,int speed)
     if ((carObj->carFlags & 0x20U) != 0) {
       acceleration = acceleration / 256 * (carObj->copAccMult / 256);
     }
-    if ((((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
+    if ((((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
         ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
          ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) &&
        ((carObj->carFlags & 8U) != 0)) {

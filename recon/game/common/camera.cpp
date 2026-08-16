@@ -1785,7 +1785,7 @@ void Camera_Init(void)
     Camera_gInfo[i].circleCounter = 0;
     Camera_gInfo[i].circleAngle = 0;
     Camera_gInfo[i].animNum = gAnimCams[GameSetup_gData.track][0];
-    if (((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
+    if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
        ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
         ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
       Camera_gInfo[i].animNum = '\x01';
@@ -2420,7 +2420,7 @@ void Camera_NextMode(int cviewP)
       Camera_gInfo[cviewP].mode =
            *(short *)(splitBase + (((int)sVar1 % 3) * 0x10000 >> 0xe));
     }
-    else if (((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
+    else if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
             ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
              ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
       uVar2 = (u_short)Camera_gInfo[cviewP].camNum + 1;

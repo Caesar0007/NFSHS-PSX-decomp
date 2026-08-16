@@ -160,7 +160,7 @@ void Sim_ProcessSimSchedules(void)
 {
   int i;
 
-  if (!(((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) &&
+  if (!(((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
        (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0 ||
         ((Cars_gNumHumanRaceCars == 2 &&
           ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0))))))) {

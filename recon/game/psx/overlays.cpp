@@ -201,7 +201,7 @@ void RaceSummary(void)
       if (GameSetup_gData.pinkSlipsForfeit == i) {
         sprintf(string,TextSys_Word(0x36));
       }
-      else if ((GameSetup_gData.raceType == 1) &&
+      else if ((GameSetup_gData.raceType == RaceType_HotPursuit) &&
                (Cars_gRaceCarList[i]->stats.finalNumArrests != 0)) {
         sprintf(string,TextSys_Word(0x3d));
       }
@@ -483,7 +483,7 @@ void RaceStatistics(void)
   if (GameSetup_gData.numLaps == 1) {
     HUD_STATS_SIZE_H = (GameSetup_gData.numLaps + 1) * 0xc + 0x1c;
   }
-  if (GameSetup_gData.raceType == 1) {
+  if (GameSetup_gData.raceType == RaceType_HotPursuit) {
     HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 0x1b;
   }
   sizeH16 = (int)((u_int)(u_short)HUD_STATS_SIZE_H << 0x10);
@@ -501,7 +501,7 @@ void RaceStatistics(void)
   Font_TextColor(6);
   Font_TextXY(TextSys_Word(0x39),titleX * 0x10000 >> 0x10,titleY);
   Hud_FBuildF4(0,HUD_STATS_POS_X,((titleY + 0x11) * 0x10000 >> 0x10) + 0xb,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
-  if (GameSetup_gData.raceType == 1) {
+  if (GameSetup_gData.raceType == RaceType_HotPursuit) {
     Hud_FBuildF4(0,HUD_STATS_POS_X,HUD_STATS_HOTPURSUIT_Y,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
   }
   i = 0;
@@ -572,7 +572,7 @@ void RaceStatistics(void)
       else if ((Cars_gHumanRaceCarList[i]->stats).finalFinishType == 2) {
         Hud_ParseTime((Cars_gHumanRaceCarList[i]->stats).finalTotalTime,string);
       }
-      else if ((GameSetup_gData.raceType == 1) &&
+      else if ((GameSetup_gData.raceType == RaceType_HotPursuit) &&
                ((Cars_gHumanRaceCarList[i]->stats).finalNumArrests != 0)) {
         sprintf(string,TextSys_Word(0x3d));
       }
@@ -583,7 +583,7 @@ void RaceStatistics(void)
                   (GameSetup_gData.numLaps != 1 ?
                    ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc : ((titleY + 0x11) * 0x10000 >> 0x10)) + 0xc);
     }
-    if (GameSetup_gData.raceType == 1) {
+    if (GameSetup_gData.raceType == RaceType_HotPursuit) {
       if (GameSetup_gData.numLaps * 2 + 6 < D_8013D99C) {
         sprintf(string,TextSys_Word(0x3e));
         Font_TextColor(3);

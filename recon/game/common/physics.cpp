@@ -885,7 +885,7 @@ void Physics_RampCarControlValues(Car_tObj *carObj)
   if (0x200 < simGlobal.gameTicks) {
     if (GameSetup_gData.carInfo[carObj->carIndex].Transmission == 1) {
       if ((simGlobal.gameTicks < 0x208) &&
-         (((GameSetup_gData.raceType != 1 && (GameSetup_gData.raceType != 5)) ||
+         (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != Id5)) ||
           (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0 &&
            ((Cars_gNumHumanRaceCars != 2 || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0))))
           )))) {
@@ -990,7 +990,7 @@ RampCtrl_setSteering:
   }
 RampCtrl_earlyBrake:
   if ((simGlobal.gameTicks < 0x200) &&
-     (((GameSetup_gData.raceType != 1 && (GameSetup_gData.raceType != 5)) ||
+     (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != Id5)) ||
       (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0 &&
        ((Cars_gNumHumanRaceCars != 2 || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0))))))))
   {

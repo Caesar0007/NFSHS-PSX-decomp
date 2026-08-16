@@ -1317,7 +1317,7 @@ void * tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
       result = (void *)1;
     }
     carInfo = this->fCarManager->GetCarFromID(carID);
-    if ((frontEnd.raceType == 1) && (carInfo->fPursuitAvailable == 0)) {
+    if ((frontEnd.raceType == RaceType_HotPursuit) && (carInfo->fPursuitAvailable == 0)) {
       return (void *)0;
     }
     if (!result) {
@@ -1340,7 +1340,7 @@ void * tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
   if (this->fCarManager->fViewableCars[carID] == 0) {
     goto ValidCar_returnResult;
   }
-  if ((frontEnd.raceType == 1) &&
+  if ((frontEnd.raceType == RaceType_HotPursuit) &&
       (this->fCarManager->fCars[(u_char)carNumber].fPursuitAvailable == 0)) {
     return (void *)0;
   }
@@ -1365,7 +1365,7 @@ ValidCar_classNormal:
     }
     if ((carID == 0x1c) &&
        ((frontEnd.carListType == 1 || (frontEnd.gameMode == 1)) ||
-        (frontEnd.raceType != 0))) {
+        (frontEnd.raceType != RaceType_SingleRace))) {
       result = (void *)0;
     }
   }
@@ -1396,7 +1396,7 @@ ValidCar_classDone:
   if ((this->fCarListFilter & 1U) == 0) {
     return result;
   }
-  if (frontEnd.raceType != 2) {
+  if (frontEnd.raceType != RaceType_Tournament) {
     return result;
   }
   result = tournamentManager.ValidCar(this->fCarManager->fCars[(u_char)carNumber]);

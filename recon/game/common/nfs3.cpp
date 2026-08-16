@@ -210,7 +210,7 @@ void Nfs2_GameModuleStartUp(int *FrontEndDataStream)
   Clock_SystemStartUp();
   AudioCmn_LoadGameSamples();
   CopSpeak_StartUp();
-  if ((GameSetup_gData.raceType == 1) && (_6Speech_fgSpeech == 0)) {
+  if ((GameSetup_gData.raceType == RaceType_HotPursuit) && (_6Speech_fgSpeech == 0)) {
     pThis = __builtin_new(0x3a4);
     _6Speech_fgSpeech = (int)new ((Speech *)pThis) Speech;
   }
@@ -579,7 +579,7 @@ int main(void)
             Replay_ReplayInterface.statsScreen = 1;
             iVar2 = Stats_GetNumOpponents();
             if ((1 < iVar2) &&
-               (((GameSetup_gData.raceType != 1 && (GameSetup_gData.raceType != 5)) ||
+               (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != Id5)) ||
                 (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0 &&
                  ((Cars_gNumHumanRaceCars != 2 ||
                   ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0)))))))) {

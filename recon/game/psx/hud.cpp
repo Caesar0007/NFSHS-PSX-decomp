@@ -4667,7 +4667,7 @@ void Hud_RenderHudView(void)
     Draw_StartRenderingView(*(int *)((int)Hud_gHudView + viewOff));
     Hud_DebugInfo();
     Hud_DebugCrap();
-    if ((GameSetup_gData.raceType == 1) && (*(int *)((int)PerpOverlayOn + viewOff) != 0)) {
+    if ((GameSetup_gData.raceType == RaceType_HotPursuit) && (*(int *)((int)PerpOverlayOn + viewOff) != 0)) {
       int flare_intensity;
       u_long x;
       u_long y;

@@ -363,7 +363,7 @@ void tScreenPinkSlips::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMe
            (menuDefs->itemTraffic).fFlags |
            1;
     }
-    if ((frontEnd.gameMode == '\x01') && (frontEnd.raceType == '\x01')) {
+    if ((frontEnd.gameMode == '\x01') && (frontEnd.raceType == RaceType_HotPursuit)) {
       (menuDefs->itemTraffic).fFlags =
            (menuDefs->itemTraffic).fFlags |
            1;

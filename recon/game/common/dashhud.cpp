@@ -142,7 +142,7 @@ void DashHUD_HUDCalc(int player)
     if ((simGlobal.gameTicks - (car->stats).lapTime < 0x140) ||
         ((car->stats).finishType == 2)) {
     DashHUD_gInfo.laptime = (car->stats).time[(car->stats).lap + -1];
-    if (((GameSetup_gData.raceType != 4) && (Replay_ReplayMode < 2)) &&
+    if (((GameSetup_gData.raceType != Id4) && (Replay_ReplayMode < 2)) &&
        ((DashHUD_gInfo.record == 0 ||
         ((DashHUD_gInfo.laptime < DashHUD_gInfo.record || (GameSetup_gData.checkpointType == 4))))))
     {

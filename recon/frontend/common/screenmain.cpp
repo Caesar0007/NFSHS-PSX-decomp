@@ -281,7 +281,7 @@ void tScreenMain::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCom
   if ((keyval == kInput_KeyType_Triangle) && (0 < FEApp->backDepth[0])) {
     this->SwapBackground(-1);
     if ((tMenuNFS4 *)FEApp->fCurrentMenu[0] == &menuDefs->menuPinkSlipSelect) {
-      frontEnd.raceType = '\0';
+      frontEnd.raceType = RaceType_SingleRace;
     }
   }
   return;
@@ -480,14 +480,14 @@ void tScreenMain::DrawBackground()
   }
   ::Draw(&CreditManager,this->fState == kScreenMain_Credits);
   if (this->fState == kScreenMain_WarningImage) {
-    if ((frontEnd.raceType != '\x06') &&
+    if ((frontEnd.raceType != RaceType_PinkSlips) &&
        ((tMenuItemGoToMenuNFS4Button *)
         FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem] !=
         &menuDefs->itemTwoPlayerPinkSlips)) {
       this->SetState(kScreenMain_StaticImage);
     }
   }
-  else if ((frontEnd.raceType == '\x06') ||
+  else if ((frontEnd.raceType == RaceType_PinkSlips) ||
           ((tMenuItemGoToMenuNFS4Button *)
            FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem] ==
            &menuDefs->itemTwoPlayerPinkSlips)) {

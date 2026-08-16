@@ -461,11 +461,11 @@ void tScreenTrackSelect::ProcessInput(tPlayer player,tInputKeyType &keyval,
            (menuDefsA[0]->itemTraffic).fFlags | 1;
     }
     if (frontEnd.gameMode == '\x01') {
-      if (frontEnd.raceType != '\x01') goto ProcInpLocSpch_setFlags;
+      if (frontEnd.raceType != RaceType_HotPursuit) goto ProcInpLocSpch_setFlags;
       (menuDefsA[0]->itemTraffic).fFlags =
            (menuDefsA[0]->itemTraffic).fFlags | 1;
     }
-    if ((frontEnd.raceType == '\x01') &&
+    if ((frontEnd.raceType == RaceType_HotPursuit) &&
        (pvVar2 = Front_EnableLocalSpeech(), pvVar2 != (void *)0x0))
     {
       (menuDefsA[0]->itemLocalSpeech).fFlags =

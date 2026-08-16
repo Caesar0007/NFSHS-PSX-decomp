@@ -915,7 +915,7 @@ int Front_Menu(tFront_ProcessingType role)
       tournamentManager.AdvanceToNextTrack();
       tournamentManager.UpdateAwardInformation();
     }
-    else if ((frontEnd.raceType == '\x06') && (GameSetup_gData.replayMode == 0)) {
+    else if ((frontEnd.raceType == RaceType_PinkSlips) && (GameSetup_gData.replayMode == 0)) {
       Car_tStats *dummyCars = Cars_gNewCarStatsList;
 
       if (((dummyCars[0].finalPosition < 2) && (frontEnd.pinkSlipsForfeit != 0)) ||
@@ -1110,7 +1110,7 @@ static void Front_InitPlayerCars(tFEStream &streamData)
      laid out out-of-line (oracle `bne raceType,6 -> .L800281DC`, with `i = 0` stolen
      into that branch's delay slot).  Writing it as `if (!=6) {loop} pinkslips;`
      inverts the layout. */
-  else if (frontEnd.raceType == '\x06') {
+  else if (frontEnd.raceType == RaceType_PinkSlips) {
     carManager.GetPinkSlipsCar((ushort)(byte)frontEnd.pinkSlipsCar[0],*streamData.playerCars,0);
     /* MATCH: SYM local `carInfo` REG $5 (a1) -- a real tCarInfo* local forces the
        playerCars member offset (+8) INTO the pointer (`addiu v0,v0,8; addu a1,s1,v0`);
@@ -1327,7 +1327,7 @@ static void Front_InitOpponentCars(tFEStream &streamData)
 
   streamData.numOpponents = 0;
   if ((frontEnd.raceType == RaceType_Tournament) ||
-     ((frontEnd.raceType == '\0' && (frontEnd.oppNumber == '\x02')))) {
+     ((frontEnd.raceType == RaceType_SingleRace && (frontEnd.oppNumber == '\x02')))) {
     tCarInfo *carInfo;
     tCarModels carModel;
     char carColor;
@@ -1507,7 +1507,7 @@ static void Front_InitMissions(tFEStream &streamData)
   streamData.pMission = (tMissionInfo *)0x0;
   streamData.pStages = (tStageInfo *)0x0;
   cVar5 = '\0';
-  if (frontEnd.raceType == '\x01') {
+  if (frontEnd.raceType == RaceType_HotPursuit) {
     /* MATCH: a plain short-counter `for` -- retail's zero-trip guard is
        `slt i,numPlayers` (i's initial 0 shares the register with cVar5's 0), NOT
        the `blez numPlayers` a literal `0 < numPlayers` if-guard produces, and the
@@ -1603,7 +1603,7 @@ static void Front_InitCopCars(tFEStream &streamData)
       }
     }
   }
-  else if (frontEnd.raceType == '\x01') {
+  else if (frontEnd.raceType == RaceType_HotPursuit) {
     for (i = 0; i < streamData.numPlayers; i = i + 1) {
       if (streamData.playerCars[i].fCarClass == '\a') {
         return;
@@ -1736,7 +1736,7 @@ static void Front_InitTrack(tFEStream &streamData)
        the oracle's shared v1=&track pointer + offset stores instead of per-field
        absolute streamData-relative offsets. */
     tTrackInfo *pTrack = &streamData.track;
-    if ((frontEnd.carListType == '\x01') || (frontEnd.raceType == '\x01')) {
+    if ((frontEnd.carListType == '\x01') || (frontEnd.raceType == RaceType_HotPursuit)) {
       pTrack->fDirection = frontEnd.trackdirection[(byte)frontEnd.pinkSlipsTrackIndex];
       pTrack->fMirrored = frontEnd.trackmirrored[(byte)frontEnd.pinkSlipsTrackIndex];
       pTrack->fTimeOfDay = frontEnd.timeOfDay[(byte)frontEnd.pinkSlipsTrackIndex];

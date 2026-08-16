@@ -498,7 +498,7 @@ void AudioClc_SoundPlayersCar(int playerIndex)
     }
   }
   if (((car->stats).finishType != 2) &&
-     (!((((GameSetup_gData.raceType == 1 || (GameSetup_gData.raceType == 5)) &&
+     (!((((GameSetup_gData.raceType == RaceType_HotPursuit || (GameSetup_gData.raceType == RaceType_Id5)) &&
         ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
          ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) &&
        ((car->carFlags & 0x204U) == 4)))) &&
@@ -866,7 +866,7 @@ void AudioClc_SoundCars(void)
   AudioClc_SoundSpeech();
   AudioCmn_UpdateThunder();
 
-  if ((GameSetup_gData.raceType == 1 || GameSetup_gData.raceType == 5) &&
+  if ((GameSetup_gData.raceType == RaceType_HotPursuit || GameSetup_gData.raceType == RaceType_Id5) &&
       ((Cars_gHumanRaceCarList[0]->carFlags & 0x200) ||
        (Cars_gNumHumanRaceCars == 2 && (Cars_gHumanRaceCarList[1]->carFlags & 0x200))) &&
       HudBustedOverlay != 0) {

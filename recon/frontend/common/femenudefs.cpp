@@ -21,7 +21,7 @@ short        SelectListSplitDisplay[3] = { 492, 493, 0 };   /* @0x800519c0 */
 short        SelectListUpgrades[4] = { 150, 151, 152, 0 };   /* @0x800519c8 */
 short        SelectListControllerConfig[4] = { 539, 540, 541, 0 };   /* @0x800519d0 */
 short        SelectListAudioMode[4] = { 466, 467, 468, 0 };   /* @0x800519d8 */
-int          gCarActivation[6][5] = { 25, 25, 25, 25, 25, 24, 24, 24, 24, 24, 26, 26, 26, 27, 26, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 28, 28, 28, 28, 28 };   /* @0x800519e0 */
+static tCarModels gCarActivation[6][5] = { 25, 25, 25, 25, 25, 24, 24, 24, 24, 24, 26, 26, 26, 27, 26, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 28, 28, 28, 28, 28 };   /* @0x800519e0; SYM STAT */
 tGlobalMenuDefs *menuDefs[1];   /* @0x80051a58  (array shape -> header extern[] forces absolute separate-temp load, matching oracle %hi/%lo) */
 
 

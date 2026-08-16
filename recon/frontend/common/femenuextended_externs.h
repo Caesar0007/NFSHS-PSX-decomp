@@ -42,7 +42,7 @@ void  FETextRender_SetFont(int);  extern "C" int textpixels(char*);  void s_uppe
 void  Font_SetBlitter(void (*)(int,int,void *,int,int,charactertbl *,int));
 void  Font_ReSetBlitter();
 void  FontUpsideDownBlit(int,int,void *,int,int,charactertbl *,int);
-void  MenuNFS4_SetHelpPos(...);  extern int screenwidth;
+extern int screenwidth;
 /* W58-A1 (08A phantom fix): CalcOnOffFade__F13tMenuTextTypesssRiT4 -- (tMenuTextType,
  * short,short,short,int&,int&); T4 = a repeat of param 4 (0-based) = int&. */
 int   CalcOnOffFade(tMenuTextType, short, short, short, int &, int &);

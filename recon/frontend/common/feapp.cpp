@@ -632,7 +632,7 @@ void tFEApplication::DisplayHelp(short variant)
 extern tTexture_ShapeInfo *gHelpShapes[];          /* @0x80052a64; unsized-array view (sec.3.15): materialise &gHelpShapes into a genreg, shared across the loop loads */
 void Texture_MenuReleaseClutId(short clutID);      /* @0x800df9a4 */
 
-void FreeHelpShapeCluts(void)
+static void FreeHelpShapeCluts(void)
 {
   int i;
   for (i = 0; i < 0x3b; i++) {

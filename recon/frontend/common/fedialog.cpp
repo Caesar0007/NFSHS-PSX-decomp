@@ -6,7 +6,7 @@
 #include "fedialog.h"
 
 /* ---- FEDialog.obj-OWNED globals -- DEFINED here (self-contained; .bss zero; SYM-typed) ---- */
-tDialogBase  *DialogVisibilityList[8];   /* @0x80052b38  (bss(zero)) */
+static tDialogBase *DialogVisibilityList[8];   /* @0x80052b38  (bss(zero)); SYM STAT */
 
 extern tTexture_ShapeInfo *gHelpShapesA[] asm("gHelpShapes");
 

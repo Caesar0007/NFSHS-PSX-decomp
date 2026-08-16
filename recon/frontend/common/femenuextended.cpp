@@ -6,7 +6,7 @@
 #include "femenuextended.h"
 
 /* ---- FEMenuExtended.obj-OWNED globals -- DEFINED here (self-contained; .bss zero; SYM-typed) ---- */
-RECT         gHelpPos;   /* @0x80052b58  (bss(zero)) */
+static RECT  gHelpPos;   /* @0x80052b58  (bss(zero)); SYM STAT */
 
 typedef struct tPsyQPrimTag {
   unsigned int addr : 24;
@@ -17,7 +17,7 @@ typedef struct tPsyQPrimTag {
 /* ---- MenuNFS4_SetHelpPos__FR4RECT  [@0x800?] ---- RECONSTRUCTED 2026-06-12 (Ghidra @NFS4.EXE.c:5887).
  *  SYM-CONFORM: the GCC-v2 spelling above is the linkage key; retail source is
  *  the demangled MenuNFS4_SetHelpPos(RECT&) declaration. */
-void MenuNFS4_SetHelpPos(RECT &r)
+static void MenuNFS4_SetHelpPos(RECT &r)
 {
   gHelpPos.x = r.x;
   gHelpPos.y = r.y;

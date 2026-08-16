@@ -116,7 +116,6 @@ extern GameSetup_tData GameSetup_gData;
 extern int MEMCARD_INITIALIZED;
 
 
-extern int gCarActivation[6][5];
 extern tPadModuleState gPadinfo;
 extern tScreenAudio *screenAudio;
 extern tScreenBeTheCopCongrats *screenBeTheCopCongrats;

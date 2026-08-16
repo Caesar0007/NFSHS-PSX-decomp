@@ -61,7 +61,6 @@ char *TextSys_Word(int id);
 void FeTools_init(void);
 int  FeTools_deinit(void);
 void LoadAllHelpShapes(void);
-void FreeHelpShapeCluts(void);
 
 /* input / clock / memcard / stats / misc subsystems */
 int  FEInput_GetKeyFromPlayer(tPlayer, int) asm("FEInput_GetKeyFromPlayer__F7tPlayerl");

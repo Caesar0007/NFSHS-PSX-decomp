@@ -22,7 +22,6 @@ char *TextSys_Word(int id);
 void  Stattool_GetAllDefaultRecords(tRecordBuffer *buf, bool def);
 
 /* same-TU forward decls */
-void  FECheat_HandleActivation(tCheatCode cheat);
 void  FECheat_EncodeString(char *input, char *output);
 void  FECheat_EncodeString2(char *input, char *output);
 void  FECheat_ActivateBonus(tCheatCode cheat);

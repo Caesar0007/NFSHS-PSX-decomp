@@ -324,7 +324,7 @@ ret0:
 
 /* ---- (free)::free  [FETOURN.CPP:349-365] ---- */
 
-int tournPointsCompare(char *p1,char *p2)
+static int tournPointsCompare(char *p1,char *p2)
 
 {
   u_char bVar1;

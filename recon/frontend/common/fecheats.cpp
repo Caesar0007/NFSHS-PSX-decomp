@@ -48,7 +48,7 @@ static tCheat bonusList[3] = {   /* @0x800516a0, byte-exact from retail binary *
 
 /* ---- FECheat_HandleActivation  [FECHEATS.CPP:89-152] SLD-VERIFIED ---- */
 
-void FECheat_HandleActivation(tCheatCode cheat)
+static void FECheat_HandleActivation(tCheatCode cheat)
 
 {
   /* W65 PASS (57->0): preserve retail case-body order, pass the records array

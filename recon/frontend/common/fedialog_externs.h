@@ -39,9 +39,8 @@ void  FETextRender_SetFont(int);  extern "C" int textpixels(char*);  void s_uppe
 void  Font_SetBlitter(void (*)(int,int,void *,int,int,charactertbl *,int));
 void  Font_ReSetBlitter();
 void  FontUpsideDownBlit(int,int,void *,int,int,charactertbl *,int);
-void  MenuNFS4_SetHelpPos(...);  int CalcOnOffFade(...);  extern int screenwidth;
+int CalcOnOffFade(...);  extern int screenwidth;
 void  FETextRender_MenuTextPositionedJustify(short,short,short,short,tMenuTextState,tMenuTextType);
-extern tDialogBase *DialogVisibilityList[8];
 void FeTools_DrawPSXButton(u_char,u_short,int,int);
 void FETextRender_SetABR(int,bool);
 void FETextRender_FullText(char*,short,short,tMenuTextType,tMenuTextState,short);

@@ -26,7 +26,6 @@ static tVertex dropShadow[4][4] = {                                   /* STAT @0
     {{483,42},{483,210},{463,52},{463,200}},
     {{163,210},{483,210},{183,200},{463,200}}};
 static tVertex animLocations[4] = {{163,42},{403,42},{163,168},{403,168}};   /* STAT @0x80051B68 */
-extern tVideoWallConfig videoWallConfigs[24];        /* STAT @0x80051C78 (initialized elsewhere) */
 static char  numberValues[25];                       /* STAT @0x80052B90 (rand-filled at init) */
 static char  gNameBuffer[32];                        /* STAT @0x80052BB0 */
 static char  gPermBuffer[32];                         /* STAT @0x80052BD0 */

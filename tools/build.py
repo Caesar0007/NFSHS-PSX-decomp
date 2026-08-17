@@ -37,7 +37,21 @@ CPP = _env("NFS4_CPP", MIPS / "mipsel-none-elf-cpp.exe")
 AS = _env("NFS4_AS", MIPS / "mipsel-none-elf-as.exe")
 LD = _env("NFS4_LD", MIPS / "mipsel-none-elf-ld.exe")
 OBJCOPY = _env("NFS4_OBJCOPY", MIPS / "mipsel-none-elf-objcopy.exe")
-MASPSX = _env("NFS4_MASPSX", r"C:/Temp/maspsx-master/maspsx.py")
+# maspsx is VENDORED in-repo (tools/maspsx, MIT) -- the exact patched assembler
+# stack the gate + CI use (li.d reg LUT + generalized .section parsing). Default
+# to the tracked copy so a bare `build.py` (e.g. from update_match_progress.py)
+# never depends on an out-of-repo maspsx; the old dev-box path is a last resort
+# only if the vendored file is somehow absent.
+def _resolve_maspsx():
+    if os.environ.get("NFS4_MASPSX"):
+        return Path(os.environ["NFS4_MASPSX"])
+    vendored = ROOT / "tools" / "maspsx" / "maspsx.py"
+    if vendored.is_file():
+        return vendored
+    return Path(r"C:/Temp/maspsx-master/maspsx.py")
+
+
+MASPSX = _resolve_maspsx()
 CC1PL = _env("NFS4_CC1PL", r"C:/Temp/psq43/COMPILER/CC1PLPSX.EXE")
 # 04M (2026-08-04): PsyQ 4.0's CC1PSX = GNU C 2.7.2.SN32.3.7 -- the compiler
 # Sony's PsyQ-4.3-era LIBRARY objects were actually built with (proven byte-

@@ -13,6 +13,18 @@ function -- sorted by VA (rows with no known VA go last, sorted by name).
 objdiff-cli discovery order: $NFS4_OBJDIFF env var, PATH, C:/Temp/nfs4-clean/.
 NOTE: fuzzy% is the objdiff metric; tools/verify_asm.py remains the sole seal
 authority (fuzzy 100.00 and gate PASS almost always agree, but re-gate to seal).
+
+REQUIRED FILES NOT IN THIS GIT REPO (provide out-of-band; all env-overridable):
+  * objdiff-cli(.exe)          -- $NFS4_OBJDIFF / PATH / C:/Temp/nfs4-clean/;
+                                  CI fetches it from encounter/objdiff releases.
+  * PsyQ CC1PSX / CC1PLPSX      -- copyrighted, cannot be committed. $NFS4_CC1 /
+                                  $NFS4_CC1PL; CI unzips them from a private
+                                  TOOLCHAIN_ZIP_URL secret (see report.yml).
+  * mipsel-none-elf binutils   -- $NFS4_MIPS_BIN (cpp/as/ld/objcopy).
+  * (optional lanes) CC1PSX272, gcc-ladder rungs -- absent => that lane's TUs
+                                  fall back with a warning; build still green.
+maspsx is NOT in this list: it is VENDORED at tools/maspsx/maspsx.py and used by
+default, so a bare `build.py` here needs no out-of-repo maspsx.
 """
 import argparse
 import json

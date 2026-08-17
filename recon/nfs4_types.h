@@ -1257,6 +1257,10 @@ typedef enum {   /* 4 bytes */
 #define Tourn_StartMoney        20000
 #define Tourn_RacersCount       6
 
+/* TOURN.TRN file */
+#define Tourn_TRN_HeaderSize    0x6
+#define Tourn_TRN_EntriesStart  0x7
+
 #ifndef NULL
 #define NULL 0
 #endif

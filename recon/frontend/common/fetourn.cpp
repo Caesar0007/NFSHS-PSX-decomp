@@ -37,74 +37,69 @@ void tTournamentManager::Initialize()
 
 
 /* ---- tTournamentManager::LoadDescription  [FETOURN.CPP:89-139] ---- */
-/* MATCH (2026-08-10, 77 -> PASS, 147/147): SYM names the signed SHORT
-   counters tier/tourney/track, while SLD 119/122 and 127/130 separate each
-   field load from its widened loop-bound value.  Assigning the short first
-   and then copying it to uVar7/uVar6 gives retail's direct $s4/$s0 loads and
-   $v1 compare copies.  Placing each data-cursor increment after that copy
-   lets reorg sink it into the bound branch delay slot.  Together these also
-   restore the tournament byte offset in $s1 and the exact saved-reg map. */
 
 void tTournamentManager::LoadDescription()
 
 {
-  short sVar1;
-  void *src;
-  tTournamentDefinition *ptVar2;
-  uint uVar3;
-  short sVar4;
-  uint uVar5;
+  short unk1;   // Unused
+  void *tourneyPtr;
+  tTournamentDefinition *tourneyDef;
+  uint unk2;    // Unused
+  short unk3;   // Unused
+  uint unk4;    // Unused
   short track;
-  uint uVar6;
-  char *data;
-  void *src_00;
+  uint trackId;
+  char *data;   // Unused
+  void *tourneyEntries;
   short tourney;
-  uint uVar7;
+  uint trnId;
   short tier;
-  int iVar8;
+  int unk5;     // Unused
   char filename [80];
-  char *input;
+  char *input;  // Unused
   
   sprintf(filename,"%s%s",Paths_Paths[0x25],"tourn.trn");
   this->ReleaseDescription();
-  src = (void *)loadfileadr(filename,0x10);
-  blockmove(src,this->fFinishPoints,6);
-  this->fNumTiers = *(char *)((int)src + 6);
-  ptVar2 = reservememadr("Tourney",0x2924,0);
+  tourneyPtr = (void *)loadfileadr(filename,0x10);
+  blockmove(tourneyPtr,this->fFinishPoints,6);
+  this->fNumTiers = *(char *)((int)tourneyPtr + Tourn_TRN_HeaderSize);
+  tourneyDef = reservememadr("Tourney",0x2924,0);
   tier = 0;
-  this->fDefinition = ptVar2;
-  src_00 = (void *)((int)src + 7);
-  if (this->fNumTiers != '\0') {
+  this->fDefinition = tourneyDef;
+  tourneyEntries = (void *)((int)tourneyPtr + Tourn_TRN_EntriesStart);
+
+  if (this->fNumTiers != 0) {
     do {
-      blockmove(src_00,this->fDefinition->fTiers + tier,0xc);
-      ptVar2 = this->fDefinition;
-      tourney = (short)ptVar2->fTiers[tier].fTournOffset;
-      uVar7 = (uint)tourney;
-      src_00 = (void *)((int)src_00 + 0xc);
-      if ((short)uVar7 < (short)uVar7 + ptVar2->fTiers[tier].fNumTournaments) {
+      blockmove(tourneyEntries,this->fDefinition->fTiers + tier, sizeof(tTierInfo));
+      tourneyDef = this->fDefinition;
+      tourney = (short)tourneyDef->fTiers[tier].fTournOffset;
+      trnId = (uint)tourney;
+      tourneyEntries = (void *)((int)tourneyEntries + sizeof(tTierInfo));
+      if ((short)trnId < (short)trnId + tourneyDef->fTiers[tier].fNumTournaments) {
         do {
-          blockmove(src_00,ptVar2->fTournaments + tourney,0x54);
-          ptVar2 = this->fDefinition;
-          track = (short)ptVar2->fTournaments[tourney].fTrackOffset;
-          uVar6 = (uint)track;
-          src_00 = (void *)((int)src_00 + 0x54);
-          if ((short)uVar6 < (short)uVar6 + ptVar2->fTournaments[tourney].fNumTracks) {
+          blockmove(tourneyEntries, tourneyDef->fTournaments + tourney, sizeof(tTourneyInfo));
+          tourneyDef = this->fDefinition;
+          track = (short)tourneyDef->fTournaments[tourney].fTrackOffset;
+          trackId = (uint)track;
+          tourneyEntries = (void *)((int)tourneyEntries + sizeof(tTourneyInfo));
+          if ((short)trackId < (short)trackId + tourneyDef->fTournaments[tourney].fNumTracks) {
             do {
-              blockmove(src_00,ptVar2->fTracks + track,0x28);
+              blockmove(tourneyEntries, tourneyDef->fTracks + track, sizeof(tTrackInfo));
               track = track + 1;
-              ptVar2 = this->fDefinition;
-              src_00 = (void *)((int)src_00 + 0x28);
-            } while (track < (int)((short)uVar6 +
-                                    ptVar2->fTournaments[tourney].fNumTracks));
+              tourneyDef = this->fDefinition;
+              tourneyEntries = (void *)((int)tourneyEntries + sizeof(tTrackInfo));
+            } while (track < (int)((short)trackId +
+                                    tourneyDef->fTournaments[tourney].fNumTracks));
           }
           tourney = tourney + 1;
-          ptVar2 = this->fDefinition;
-        } while (tourney < (int)((short)uVar7 + ptVar2->fTiers[tier].fNumTournaments));
+          tourneyDef = this->fDefinition;
+        } while (tourney < (int)((short)trnId + tourneyDef->fTiers[tier].fNumTournaments));
       }
       tier = tier + 1;
     } while (tier < (int)(uint)(byte)this->fNumTiers);
   }
-  purgememadr(src);
+
+  purgememadr(tourneyPtr);
   return;
 }
 

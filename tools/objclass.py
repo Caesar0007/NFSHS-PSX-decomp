@@ -22,7 +22,6 @@ Usage: python objclass.py UNIT SYMBOL [--json]
        python objclass.py --batch worklist.json  (writes objclass.jsonl)
 """
 import json
-import os
 import re
 import subprocess
 import sys
@@ -30,7 +29,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(r'C:\Temp\nfs4-decomp')
-CLI = os.environ.get('NFS4_OBJDIFF', str(ROOT / 'tools' / 'objdiff' / 'objdiff-cli.exe'))
+CLI = str(ROOT / 'tools' / 'objdiff' / 'objdiff-cli.exe')   # vendored 3.8.0; the repo IS the version pin
 
 _ADDRS = None
 

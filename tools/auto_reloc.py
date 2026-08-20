@@ -17,7 +17,6 @@ Splices candidates, rebuilds, keeps ONLY objdiff-verified matches (reverts the
 rest back to INCLUDE_ASM), so imperfect guesses do no harm.
 """
 import json
-import os
 import re
 import subprocess
 import sys
@@ -27,8 +26,7 @@ ROOT = Path(__file__).resolve().parent.parent
 ASM = ROOT / "asm" / "nonmatchings" / "main"
 MAIN = ROOT / "src" / "main.c"
 PY = sys.executable
-OBJDIFF = Path(os.environ.get("NFS4_OBJDIFF",
-                              ROOT / "tools" / "objdiff" / "objdiff-cli.exe"))
+OBJDIFF = ROOT / "tools" / "objdiff" / "objdiff-cli.exe"   # vendored 3.8.0; the repo IS the version pin
 INSTR = re.compile(r'/\* \w+ \w+ [0-9A-Fa-f]{8} \*/\s+(\S+)\s*(.*)$')
 
 

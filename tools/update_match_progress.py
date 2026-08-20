@@ -10,13 +10,13 @@ Output format matches the historical file: header, TOTAL line, then one row per
 tracked function -- VA (from configs/symbol_addrs.txt), objdiff fuzzy%, unit,
 function -- sorted by VA (rows with no known VA go last, sorted by name).
 
-objdiff-cli discovery order: $NFS4_OBJDIFF env var, PATH, C:/Temp/nfs4-clean/.
+objdiff-cli: the vendored tools/objdiff/objdiff-cli.exe, and ONLY it -- the
+committed binary is the version pin (local runs, CI and decomp.dev all measure
+with the same exe; no env/PATH override to silently drift versions).
 NOTE: fuzzy% is the objdiff metric; tools/verify_asm.py remains the sole seal
 authority (fuzzy 100.00 and gate PASS almost always agree, but re-gate to seal).
 
 REQUIRED FILES NOT IN THIS GIT REPO (provide out-of-band; all env-overridable):
-  * objdiff-cli(.exe)          -- $NFS4_OBJDIFF / PATH / C:/Temp/nfs4-clean/;
-                                  CI fetches it from encounter/objdiff releases.
   * PsyQ CC1PSX / CC1PLPSX      -- copyrighted, cannot be committed. $NFS4_CC1 /
                                   $NFS4_CC1PL; CI unzips them from a private
                                   TOOLCHAIN_ZIP_URL secret (see report.yml).
@@ -30,7 +30,6 @@ import argparse
 import json
 import os
 import re
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -41,17 +40,14 @@ OUT = ROOT / "MATCH_PROGRESS.txt"
 
 
 def find_objdiff():
-    p = os.environ.get("NFS4_OBJDIFF")
-    if p and Path(p).is_file():
-        return p
-    p = shutil.which("objdiff-cli")
-    if p:
-        return p
+    # The ONLY resolver is the vendored copy: the committed binary is the
+    # version pin, and an env-var/PATH override would silently reintroduce
+    # the cross-version metric drift the vendoring exists to prevent.
     cand = ROOT / "tools" / "objdiff" / "objdiff-cli.exe"
     if cand.is_file():
         return str(cand)
-    sys.exit("objdiff-cli not found: set NFS4_OBJDIFF, add to PATH, "
-             "or place at tools/objdiff/objdiff-cli.exe")
+    sys.exit("tools/objdiff/objdiff-cli.exe missing -- it is committed; "
+             "restore it (git checkout tools/objdiff)")
 
 
 def load_vas():

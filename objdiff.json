@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/encounter/objdiff/main/config.schema.json",
-  "custom_make": "C:/Users/Vyacheslav/AppData/Local/Programs/Python/Python312/python.exe",
+  "custom_make": "python",
   "custom_args": [
     "tools/build.py",
     "--skip-asm"

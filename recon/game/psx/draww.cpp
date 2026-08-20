@@ -5469,9 +5469,9 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
   CCOORD16 vt2;
   CCOORD16 vt3;
 
+  lineQuadCount = 0;
   sd->offsubdivid = 0x200;
-  for (lineQuadCount = 0; lineQuadCount < count + -1;
-       lineQuadCount = lineQuadCount + 1, lineQuad = lineQuad + 1, geomVertices = geomVertices + 2) {
+  while (lineQuadCount < count + -1) {
     int linetype;
 
     while ((lineQuadCount < count + -1) && (lineQuad->type != 0xff)) {
@@ -5672,8 +5672,11 @@ loopbot:
       lineQuad = lineQuad + 1;
       geomVertices = geomVertices + 2;
     }
+	
+	lineQuadCount++;
+	lineQuad++;
+	geomVertices += 2;
   }
-  return;
 }
 
 /* ---- DrawW_BuildChunkCenterLineFacets__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16  [DRAWW.CPP:3344-3392] SLD-VERIFIED ---- */

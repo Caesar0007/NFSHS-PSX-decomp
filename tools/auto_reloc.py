@@ -17,6 +17,7 @@ Splices candidates, rebuilds, keeps ONLY objdiff-verified matches (reverts the
 rest back to INCLUDE_ASM), so imperfect guesses do no harm.
 """
 import json
+import os
 import re
 import subprocess
 import sys
@@ -26,7 +27,8 @@ ROOT = Path(__file__).resolve().parent.parent
 ASM = ROOT / "asm" / "nonmatchings" / "main"
 MAIN = ROOT / "src" / "main.c"
 PY = sys.executable
-OBJDIFF = Path(r"C:/Temp/objdiff/objdiff-cli.exe")
+OBJDIFF = Path(os.environ.get("NFS4_OBJDIFF",
+                              ROOT / "tools" / "objdiff" / "objdiff-cli.exe"))
 INSTR = re.compile(r'/\* \w+ \w+ [0-9A-Fa-f]{8} \*/\s+(\S+)\s*(.*)$')
 
 

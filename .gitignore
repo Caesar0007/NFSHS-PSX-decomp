@@ -41,3 +41,7 @@ scratch/
 
 # Visual Studio local data
 .vs/
+
+# objdiff GUI is optional and NOT committed (24MB); drop it next to the
+# committed CLI if you want it: tools/objdiff/objdiff.exe
+tools/objdiff/objdiff.exe

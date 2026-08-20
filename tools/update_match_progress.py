@@ -47,11 +47,12 @@ def find_objdiff():
     p = shutil.which("objdiff-cli")
     if p:
         return p
-    for cand in (Path("C:/Temp/nfs4-clean/objdiff-cli.exe"),):
+    for cand in (ROOT / "tools" / "objdiff" / "objdiff-cli.exe",
+                 Path("C:/Temp/nfs4-clean/objdiff-cli.exe")):
         if cand.is_file():
             return str(cand)
     sys.exit("objdiff-cli not found: set NFS4_OBJDIFF, add to PATH, "
-             "or place at C:/Temp/nfs4-clean/objdiff-cli.exe")
+             "or place at tools/objdiff/objdiff-cli.exe")
 
 
 def load_vas():

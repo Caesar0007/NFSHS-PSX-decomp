@@ -67,13 +67,6 @@ jobs:
           if ((Get-Item toolchain.zip).Length -lt 1MB) { throw "download too small - not the zip (check the link / dl=1)" }
           Expand-Archive toolchain.zip -DestinationPath ${{ github.workspace }}/tc -Force
 
-      - name: Fetch objdiff-cli
-        shell: pwsh
-        run: |
-          $rel = Invoke-RestMethod https://api.github.com/repos/encounter/objdiff/releases/latest
-          $asset = $rel.assets | Where-Object { $_.name -like "objdiff-cli-windows-x86_64*.exe" } | Select-Object -First 1
-          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile objdiff-cli.exe
-
       - name: Build expected (target) + base, generate report
         shell: pwsh
         env:
@@ -88,7 +81,9 @@ jobs:
         run: |
           python tools/build.py --out expected --no-link
           python tools/build.py --skip-asm
-          ./objdiff-cli.exe report generate -p . -o nfs4-f_report.binpb -f proto
+          # objdiff-cli is COMMITTED at tools/objdiff (v3.8.0): the report tool is
+          # version-locked by the repo itself -- no 'latest' drift vs local runs.
+          ./tools/objdiff/objdiff-cli.exe report generate -p . -o nfs4-f_report.binpb -f proto
 
       - name: Upload report artifact for decomp.dev
         uses: actions/upload-artifact@v4

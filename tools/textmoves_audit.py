@@ -19,6 +19,7 @@ Every flagged row also carries objdiff's per-symbol `match_percent` (the honest
 metric) instead of the report's fuzzy_match_percent.
 """
 import ast
+import os
 import json
 import re
 import subprocess
@@ -28,7 +29,7 @@ from pathlib import Path
 
 ROOT = Path(r"C:\Temp\nfs4-decomp")
 OD = r"C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-objdump.exe"
-CLI = r"C:/Temp/nfs4-clean/objdiff-cli.exe"
+CLI = os.environ.get("NFS4_OBJDIFF", str(ROOT / "tools" / "objdiff" / "objdiff-cli.exe"))
 BR = re.compile(r"^\s*(b\w*|j)\b")
 # Only PC-relative branches are comparable in an UNLINKED object (j/jal encode an
 # absolute target + R_MIPS_26).  REGIMM 0x01, beq/bne/blez/bgtz 0x04-0x07, COPz 0x10-0x13.

@@ -13,6 +13,7 @@ configs/symbol_addrs.txt at DIFFERENT addresses -- i.e. a provably different
 call target, not a splat-`D_<VA>`-vs-C-symbol spelling.
 """
 import json
+import os
 import re
 import subprocess
 import sys
@@ -20,7 +21,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(r'C:\Temp\nfs4-decomp')
-CLI = r'C:/Temp/nfs4-clean/objdiff-cli.exe'
+CLI = os.environ.get('NFS4_OBJDIFF', str(ROOT / 'tools' / 'objdiff' / 'objdiff-cli.exe'))
 sys.path.insert(0, str(Path(__file__).parent))
 from objclass import addrs, mnem, reloc_of  # noqa: E402
 

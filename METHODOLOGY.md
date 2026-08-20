@@ -263,7 +263,7 @@ change the objdiff %; it advances the self-contained-source goal.
 ```sh
 python tools/build.py --out expected --no-link    # target objects (after asm changes)
 python tools/build.py --skip-asm                   # base objects (after every C edit)
-C:/Temp/objdiff/objdiff-cli.exe report generate -p . -o C:/Temp/rep.binpb -f json
+tools/objdiff/objdiff-cli.exe report generate -p . -o C:/Temp/rep.binpb -f json
 ```
 Per-function percentages:
 ```sh

@@ -99,7 +99,7 @@ the report locally:
 ```sh
 py -3.12 tools/build.py --out expected --no-link   # target objects (once)
 py -3.12 tools/build.py --skip-asm                  # base objects
-C:/Temp/objdiff/objdiff-cli.exe report generate -p . -o build/report.binpb -f proto
+tools/objdiff/objdiff-cli.exe report generate -p . -o build/report.binpb -f proto
 ```
 
 This is a per-*object* diff, so it does **not** depend on the whole-image link.

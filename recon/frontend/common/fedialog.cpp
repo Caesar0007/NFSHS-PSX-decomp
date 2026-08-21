@@ -100,10 +100,10 @@ void tDialogBase::HideAllDialogs()
 
 /* ---- tDialogBase::GetTopMostDialog  [FEDIALOG.CPP:117-120] SLD-VERIFIED ---- */
 
-int tDialogBase::GetTopMostDialog()
+tDialogBase *tDialogBase::GetTopMostDialog()
 
 {
-  return (int)DialogVisibilityList[0];
+  return DialogVisibilityList[0];
 }
 
 

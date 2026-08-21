@@ -33,7 +33,7 @@ void  DrawShape_NFS4RoundRectangle(int textValue, RECT *r, short s) asm("DrawSha
 void  FETextRender_MenuTextPositionedJustify(short index, short x, short y, short justify, tMenuTextState state, tMenuTextType type);
 void  PSXDrawTransSquare(int col, int x, int y, int w, int h, short opacity);
 void  FeDraw_SetABRMode(int abr);
-BOOL Front_EnableLocalSpeech();
+bool Front_EnableLocalSpeech();
 
 /* --- list iterator / track manager (called as free fns) --- */
 short TextValue(tListIteratorTrack *it, tPlayer p) asm("TextValue__18tListIteratorTrack7tPlayer");
@@ -42,7 +42,7 @@ void  Increment(tListIteratorTrack *it, tPlayer p) asm("Increment__18tListIterat
 void  GetTrack(tTrackManager *tm, u_short track, tTrackInformation *out) asm("GetTrack__13tTrackManagersR17tTrackInformation");
 
 /* --- tScreen helpers (non-member; base passed explicitly) --- */
-BOOL IsShapeFileLoaded(tScreen *s, tShapeInformation *shp) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
+bool IsShapeFileLoaded(tScreen *s, tShapeInformation *shp) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
 void UploadSwapShapes(tScreen *s, int n) asm("UploadSwapShapes__7tScreeni");
 void AsyncLoadSwapShapeFile(tScreen *s, char *name) asm("AsyncLoadSwapShapeFile__7tScreenPc");
 void DrawBackgroundImage(tScreen *s, int startShape, int numShapes, tTexture_ShapeInfo *shapes, int flip) asm("DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi");

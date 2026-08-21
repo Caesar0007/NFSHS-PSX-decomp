@@ -645,21 +645,21 @@ void AIHigh_BasicPerp::Clear()
 
 
 {
-  int iVar2;
+  int loop;
 
 
 
-  iVar2 = 0;
+  loop = 0;
 
   do {
 
-    this->positionVSCopList_[iVar2].copIndex = -1;
+    this->positionVSCopList_[loop].copIndex = -1;
 
-    this->positionVSCopList_[iVar2].carIndex = -1;
+    this->positionVSCopList_[loop].carIndex = -1;
 
-    iVar2 = iVar2 + 1;
+    loop = loop + 1;
 
-  } while (iVar2 < 6);
+  } while (loop < 6);
 
   this->pullOverMode_ = 0;
 

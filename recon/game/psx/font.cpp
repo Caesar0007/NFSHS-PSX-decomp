@@ -35,7 +35,7 @@ u_short gFontClut;
 
 /* gCurrentBlitter @0x8013ddec : font.obj-owned glyph-blit fn-ptr (STAT PTR FCN VOID).  BSS;
  *   Font_SetBlitter assigns it, Font_ReSetBlitter resets it to Font_Blit, Font_TextXY calls it. */
-fn_void *gCurrentBlitter;
+static fn_void *gCurrentBlitter;
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void Font_TextColor(int color);
@@ -248,7 +248,7 @@ void Font_ComputeColors(int colour,int forecolour,int backcolour,char in_game)
  * cmp $v0, ch $s0.  This is the classic BSD bsearch loop (lim halved per iteration,
  * lim-- on the take-the-upper-half side) -- the Ghidra body had it as a while(true)
  * with the lim/nmemb roles fused. */
-charactertbl *
+static charactertbl *
 Font_textbsearch(int key,char *base,u_long nmemb,u_long size)
 
 {
@@ -277,9 +277,9 @@ charactertbl * Font_Getcharacter(int targetindex)
   int probe_idx;
   charactertbl *ch;
   charactertbl *p;
-  u_char *base;
+  char *base;
 
-  base = (u_char *)&(currentfont);
+  base = (char *)&(currentfont);
   base_00 = (*(int *)(base + 132));
   p = (charactertbl *)((*(int *)(base + 132)) + (targetindex + -0x20) * 0xb);
   probe_idx = geti(p,2);

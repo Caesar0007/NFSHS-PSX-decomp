@@ -29,7 +29,6 @@ void ___23AIDataRecord_AccTable_t(AIDataRecord_AccTable_t *self, int __in_chrg);
 void ___23AIDataRecord_BestLine_t(AIDataRecord_BestLine_t *self, int __in_chrg);   /* :150 */
 void ___25AIDataRecord_TrackCurve_t(AIDataRecord_TrackCurve_t *self, int __in_chrg);   /* :163 */
 void ___30AIDataRecord_CurveSpeedTable_t(AIDataRecord_CurveSpeedTable_t *self, int __in_chrg);   /* :182 */
-int Get__26AIDataRecord_CarTracking_ti(AIDataRecord_CarTracking_t *self, int slice);   /* :191 */
 void ___26AIDataRecord_CarTracking_t(AIDataRecord_CarTracking_t *self, int __in_chrg);   /* :199 */
 
 #endif /* _GAME_COMMON_AIDATARECORD_H_ */

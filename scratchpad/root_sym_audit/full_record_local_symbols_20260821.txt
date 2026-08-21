@@ -1,0 +1,400 @@
+# SYM opcode-6 local/static symbol audit
+
+- Opcode-6 records: 372
+- Distinct opcode-6 (VA,name) pairs: 372
+- Exact opcode-2/opcode-6 pair overlap: 0
+- Typed opcode-2 rows paired with EXT: 3390/3390
+- Typed opcode-6 rows paired with STAT: 278/278
+- Typed opcode-6 storage contradictions: 0
+- Typed opcode-6 rows: 278
+- Untyped opcode-6 rows: 94
+- Exact raw-name config carriers: 140
+- Any exact-VA config carrier: 172
+- typed static function: 99
+- untyped local text label: 60
+- typed static data: 177
+- untyped local data/BSS label: 34
+- typed static function-pointer object: 2
+
+## Interpretation receipt
+
+Opcode 6 is the local/static name lane.  This is proven by the complete
+typed subset: all 278 typed opcode-6 rows pair with STAT and none pair
+with EXT; conversely all 3,390 typed opcode-2 rows pair with EXT.  The
+94 untyped rows occur in the same local lane but come from objects with
+no corresponding top-level type definition in this SYM.
+
+## Per-record ledger
+
+- `0x8005972c` `AI_AddCollidableObjects__FP8Car_tObjP5Group`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AI.CPP`; config exact name
+- `0x8005b438` `_._15AIHigh_BTC_Perp`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AIHIGH.H`; config VA alias: ___15AIHigh_BTC_Perp
+- `0x8005b460` `HighExecute__11AIHigh_None`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AIHIGH.H`; config exact name
+- `0x8005b468` `_._11AIHigh_None`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AIHIGH.H`; config VA alias: ___11AIHigh_None
+- `0x8005b488` `Execute__12AIState_None`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AISTATE.H`; config exact name
+- `0x8005b490` `_._12AIState_None`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AISTATE.H`; config VA alias: ___12AIState_None
+- `0x8005b4c4` `TestForRelease__12AIState_Base`: typed static function; type `FCN INT`; owner `C:\nfs4\GAME\COMMON\AISTATE.H`; config exact name
+- `0x8005b4cc` `_._12AIState_Base`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AISTATE.H`; config VA alias: ___12AIState_Base
+- `0x8005c414` `Blockade_AddRoadFlare__FP8coorddef`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AIH_BASICCOP.CPP`; config exact name
+- `0x8005c468` `Blockade_AddObject__FiP8coorddefi`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AIH_BASICCOP.CPP`; config exact name
+- `0x8005c5e4` `PlacePointOnRoad__FiP8coorddef`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AIH_BASICCOP.CPP`; config exact name
+- `0x8005cb4c` `_._15AIHigh_BasicCop`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AIHIGH.H`; config VA alias: ___15AIHigh_BasicCop
+- `0x8005f624` `Execute__17AIState_NonActive`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AISTATE.H`; config exact name
+- `0x8005f62c` `_._17AIState_NonActive`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AISTATE.H`; config VA alias: ___17AIState_NonActive
+- `0x8005f678` `TestForRelease__12AIState_Base`: typed static function; type `FCN INT`; owner `C:\nfs4\GAME\COMMON\AISTATE.H`; config VA alias: TestForRelease__12AIState_Base_8005F678
+- `0x8005f680` `_._12AIState_Base`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AISTATE.H`; config VA alias: ___12AIState_Base_8005F680
+- `0x80061348` `_._15AIHigh_BTC_Perp`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AIHIGH.H`; config VA alias: ___15AIHigh_BTC_Perp_80061348
+- `0x80061370` `Execute__17AIState_NonActive`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AISTATE.H`; config VA alias: Execute__17AIState_NonActive_80061370
+- `0x80061378` `_._17AIState_NonActive`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AISTATE.H`; config VA alias: ___17AIState_NonActive_80061378
+- `0x800613c4` `TestForRelease__12AIState_Base`: typed static function; type `FCN INT`; owner `C:\nfs4\GAME\COMMON\AISTATE.H`; config VA alias: TestForRelease__12AIState_Base_800613C4
+- `0x800613cc` `_._12AIState_Base`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AISTATE.H`; config VA alias: ___12AIState_Base_800613CC
+- `0x80063248` `_._13AIHigh_Player`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AIHIGH.H`; config VA alias: ___13AIHigh_Player
+- `0x8006d50c` `Get__26AIDataRecord_CarTracking_ti`: typed static function; type `FCN INT`; owner `C:\nfs4\GAME\COMMON\AIDATARECORD.H`; config exact name
+- `0x8006d514` `_._26AIDataRecord_CarTracking_t`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AIDATARECORD.H`; config VA alias: ___26AIDataRecord_CarTracking_t
+- `0x8006d534` `_._30AIDataRecord_CurveSpeedTable_t`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AIDATARECORD.H`; config VA alias: ___30AIDataRecord_CurveSpeedTable_t
+- `0x8006d554` `_._25AIDataRecord_TrackCurve_t`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AIDATARECORD.H`; config VA alias: ___25AIDataRecord_TrackCurve_t
+- `0x8006d574` `_._23AIDataRecord_BestLine_t`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AIDATARECORD.H`; config VA alias: ___23AIDataRecord_BestLine_t
+- `0x80072750` `Execute__17AIState_NonActive`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AISTATE.H`; config VA alias: Execute__17AIState_NonActive_80072750
+- `0x80072758` `_._17AIState_NonActive`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AISTATE.H`; config VA alias: ___17AIState_NonActive_80072758
+- `0x80072830` `TestForRelease__12AIState_Base`: typed static function; type `FCN INT`; owner `C:\nfs4\GAME\COMMON\AISTATE.H`; config VA alias: TestForRelease__12AIState_Base_80072830
+- `0x80072838` `_._12AIState_Base`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\AISTATE.H`; config VA alias: ___12AIState_Base_80072838
+- `0x80092464` `HudPmx_LoadShape__FPcP13HudPmx_tShape`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\HUDPMX.CPP`; config exact name
+- `0x800a3f08` `NFS4_LoadPerps__Fv`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\NFS3.CPP`; config exact name
+- `0x800a6de0` `_._10ObjectAnim`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\OBJECT.H`; config VA alias: ___10ObjectAnim
+- `0x800b6b9c` `Sim_ProcessPause__Fv`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\SIM.CPP`; config exact name
+- `0x800b75cc` `SimQueue_SetLag__Fv`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\COMMON\SIMQUEUE.CPP`; config exact name
+- `0x800b75f8` `SimQueue_IsBlocking__Fi`: typed static function; type `FCN INT`; owner `C:\nfs4\GAME\COMMON\SIMQUEUE.CPP`; config exact name
+- `0x800cb6a0` `Font_textbsearch__FiPcUlUl`: typed static function; type `FCN PTR STRUCT`; owner `C:\nfs4\GAME\PSX\FONT.CPP`; config exact name
+- `0x800d2a44` `uppercase__FPc`: typed static function; type `FCN VOID`; owner `C:\nfs4\GAME\PSX\HUD.CPP`; config exact name
+- `0x800e41fc` `PAD_convert`: typed static function; type `FCN USHORT`; owner `D:\nfs4\EACLIB\PSX\PAD.C`; config exact name
+- `0x800e56b0` `loadfileadratomic`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800e5830` `loadfileatadratomic`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800e5938` `loadbigfileheaderatomic`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800e6e88` `VoxEvent_GetFilterLengthFlag`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800e6e94` `VoxEvent_GetKeepTillExpiresFlag`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800e6ea8` `iSPCH_GetOffset16`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800e8940` `strrstr`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800ea6cc` `synccallback`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800ea7e8` `syncblockio`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800ecb98` `iFILE_ExecCommand`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800ed0d4` `iFILE_perror`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800ed0dc` `reserveop`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800ed1f8` `freeop`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800ed240` `reservehandle`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800ed2f0` `freehandle`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800f0b1c` `queueadd`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800f0b74` `queuefetch`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800f0bc0` `newrequestid`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800f0bf4` `locaterequest`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800f0c50` `cancelrequest`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800f0ce8` `finishrequest`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800f0d24` `loadfileclosecallback`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800f0d80` `loadfilereadcallback`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800f0e54` `loadfilesizecallback`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800f0f18` `loadfileopencallback`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800f1024` `loadsegreadcallback`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800f1120` `asyncsystemtask`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800f4470` `textbsearch`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800f51c0` `memcpyl`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800f5234` `memcpyb`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800f5254` `refcpy`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800f5530` `chase`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800f9ae8` `CD_systaskfunc`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800f9c44` `CD_timerfunc`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800f9ca4` `CdReadyHandler`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800fa344` `dircompare`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800fc2f8` `validatehandle`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800fc334` `inbetween`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800fc374` `decbufferusage`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800fc400` `getfreerequest`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800fc478` `queuerequest`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800fc4e4` `locaterequest`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config same name at other VA (requires local disambiguation)
+- `0x800fc548` `freerequest`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800fc5e4` `filterchunk`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800fc634` `parsechunks`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800fc810` `opencallback`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800fc850` `closecallback`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800fc8a8` `readcallback`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800fc9b4` `startnextrequest`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x800fcb44` `restartstream`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x80100710` `iSPCH_GetMatchValue`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x80100724` `VoxSentence_GetShortRule`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x80100730` `VoxSentence_GetNumPhrases`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x8010073c` `VoxEvent_GetFilterLengthFlag`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x80100748` `iSPCH_GetOffset8`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x80100760` `iSPCH_GetOffset16`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x8010b100` `VoxSentence_GetNumPhrases`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x8010b10c` `iSPCH_GetOffset8`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x8010b124` `iSPCH_GetOffset16`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x8010b140` `iSPCH_GetRuleDataAddr`: untyped local text label; type `no 0x94/0x96 definition`; owner `no typed owner`; config exact name
+- `0x8010e710` `SkidInitMaxFreq`: typed static data; type `ARY CHAR`; owner `audiocmn.obj`; config not carried
+- `0x8010f4cc` `gTunnelCamHeight`: typed static data; type `ARY INT`; owner `camera.obj`; config not carried
+- `0x8010f500` `gSplitCameras`: typed static data; type `ARY INT`; owner `camera.obj`; config not carried
+- `0x8010f50c` `gAnimMode`: typed static data; type `ARY CHAR`; owner `camera.obj`; config not carried
+- `0x8010f51c` `gAnimCams`: typed static data; type `ARY ARY CHAR`; owner `camera.obj`; config not carried
+- `0x8010f680` `gDriverCam`: typed static data; type `ARY STRUCT`; owner `camera.obj`; config not carried
+- `0x8010f880` `Cars_kSmokingSurface`: typed static data; type `ARY INT`; owner `cars.obj`; config not carried
+- `0x8010f900` `Cars_kConvertFromRoadToSfxType`: typed static data; type `ARY INT`; owner `cars.obj`; config not carried
+- `0x8010f940` `Cars_kAudioRoadSurfaceInterface`: typed static data; type `ARY INT`; owner `cars.obj`; config not carried
+- `0x8010f980` `Cars_kSFXWallSurfaceInterface`: typed static data; type `ARY INT`; owner `cars.obj`; config not carried
+- `0x8010f9a0` `Cars_kAudioWallSurfaceInterface`: typed static data; type `ARY INT`; owner `cars.obj`; config not carried
+- `0x8010f9c0` `Cars_kAudioCollisoinTypeInterface`: typed static data; type `ARY INT`; owner `cars.obj`; config not carried
+- `0x8011e804` `CarIO_textureName`: typed static data; type `ARY STRUCT`; owner `CarIO.obj`; config not carried
+- `0x8011f4b4` `hilight_colors`: typed static data; type `ARY ULONG`; owner `DrawC.obj`; config not carried
+- `0x801209bc` `day_needle`: typed static data; type `ARY ULONG`; owner `hud.obj`; config not carried
+- `0x80120a34` `night_needle`: typed static data; type `ARY ULONG`; owner `hud.obj`; config not carried
+- `0x80120d00` `loading_languageNames`: typed static data; type `ARY PTR CHAR`; owner `loading.obj`; config not carried
+- `0x8013c5b0` `AISpeeds_WeatherMultFactors`: typed static data; type `PTR INT`; owner `AISPEEDS.obj`; config not carried
+- `0x8013c5b4` `AISpeeds_trackAndNightMult`: typed static data; type `INT`; owner `AISPEEDS.obj`; config not carried
+- `0x8013c820` `clock_InterruptStarted`: typed static data; type `INT`; owner `clock.obj`; config not carried
+- `0x8013d2fc` `currentWallType`: typed static data; type `INT`; owner `physics.obj`; config not carried
+- `0x8013d820` `goffsets`: typed static data; type `ARY CHAR`; owner `DrawW.obj`; config not carried
+- `0x8013d878` `starPosInSky`: typed static data; type `PTR STRUCT`; owner `hrzsku.obj`; config not carried
+- `0x8013d87c` `starColors`: typed static data; type `PTR ULONG`; owner `hrzsku.obj`; config not carried
+- `0x8013d8ac` `BTC_playedsoundalready`: typed static data; type `BOOL`; owner `hud.obj`; config not carried
+- `0x8013daac` `gDctXtraMem`: typed static data; type `PTR CHAR`; owner `platform.obj`; config not carried
+- `0x8013dac0` `hoff`: typed static data; type `ARY INT`; owner `psxcontroller.obj`; config not carried
+- `0x8013dd7c` `AIState_Purgatory_numTrafficCarsInPurgatory`: typed static data; type `INT`; owner `aistate.obj`; config VA alias: _bss_obj
+- `0x8013dd80` `PlayersRampedGasLevel`: typed static data; type `ARY INT`; owner `audiocmn.obj`; config exact name
+- `0x8013dd88` `lastX.64`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013dd90` `lastY.65`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013dd98` `xRange`: typed static data; type `INT`; owner `collide.obj`; config exact name
+- `0x8013dd9c` `yRange`: typed static data; type `INT`; owner `collide.obj`; config exact name
+- `0x8013dda0` `zRange`: typed static data; type `INT`; owner `collide.obj`; config exact name
+- `0x8013dda4` `gHudFont`: typed static data; type `PTR CHAR`; owner `HudPmx.obj`; config exact name
+- `0x8013dda8` `gShpfile`: typed static data; type `PTR CHAR`; owner `HudPmx.obj`; config exact name
+- `0x8013ddac` `loadShapeXOff`: typed static data; type `CHAR`; owner `HudPmx.obj`; config exact name
+- `0x8013ddb0` `resethud.28`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013ddb4` `tick32.32`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013ddb8` `kMovingHighlight`: typed static data; type `SHORT`; owner `mpause.obj`; config not carried
+- `0x8013ddba` `kMovingHighlightDir`: typed static data; type `SHORT`; owner `mpause.obj`; config not carried
+- `0x8013ddbc` `gBackDepth`: typed static data; type `INT`; owner `mpause.obj`; config not carried
+- `0x8013ddc0` `gPauseCurrentMenu`: typed static data; type `PTR STRUCT`; owner `mpause.obj`; config not carried
+- `0x8013ddc4` `gPause_CurrentY`: typed static data; type `INT`; owner `PauseMenu.obj`; config not carried
+- `0x8013ddc8` `output`: typed static data; type `ARY STRUCT`; owner `simqueue.obj`; config not carried
+- `0x8013ddd0` `maxTicksPerFrame`: typed static data; type `INT`; owner `simqueue.obj`; config not carried
+- `0x8013ddd4` `gTempMipMapInfo`: typed static data; type `PTR STRUCT`; owner `Track.obj`; config not carried
+- `0x8013ddd8` `gTempMultiPalInfo`: typed static data; type `PTR STRUCT`; owner `Track.obj`; config not carried
+- `0x8013dddc` `gAIDebug_PosX`: typed static data; type `INT`; owner `aidebug.obj`; config not carried
+- `0x8013dde0` `gAIDebug_PosY`: typed static data; type `INT`; owner `aidebug.obj`; config not carried
+- `0x8013dde4` `failtime.98`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013dde8` `Draw_gSyncCallback`: typed static function-pointer object; type `PTR FCN VOID`; owner `Draw.obj`; config not carried
+- `0x8013ddec` `gCurrentBlitter`: typed static function-pointer object; type `PTR FCN VOID`; owner `font.obj`; config not carried
+- `0x8013ddf0` `sunPosInSky`: typed static data; type `STRUCT`; owner `hrzsku.obj`; config not carried
+- `0x8013ddf8` `moonPosInSky`: typed static data; type `STRUCT`; owner `hrzsku.obj`; config not carried
+- `0x8013de00` `countdownTick.216`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013de04` `g1Player`: typed static data; type `PTR STRUCT`; owner `hud.obj`; config not carried
+- `0x8013de08` `gSprite0`: typed static data; type `PTR STRUCT`; owner `hud.obj`; config not carried
+- `0x8013de0c` `gSprite1`: typed static data; type `PTR STRUCT`; owner `hud.obj`; config not carried
+- `0x8013de10` `currentSpriteTransparent`: typed static data; type `CHAR`; owner `hud.obj`; config not carried
+- `0x8013de14` `currentSpriteColor`: typed static data; type `LONG`; owner `hud.obj`; config not carried
+- `0x8013de18` `HudSplitTimeDiff1`: typed static data; type `ARY INT`; owner `hud.obj`; config not carried
+- `0x8013de20` `HudSplitTimeDiff2`: typed static data; type `ARY INT`; owner `hud.obj`; config not carried
+- `0x8013de28` `BTC_BonusTime`: typed static data; type `INT`; owner `hud.obj`; config not carried
+- `0x8013de2c` `BTC_BonusTimeTick`: typed static data; type `INT`; owner `hud.obj`; config not carried
+- `0x8013de30` `BTC_UserHasControl`: typed static data; type `BOOL`; owner `hud.obj`; config not carried
+- `0x8013de38` `PerpOverlayOn`: typed static data; type `ARY BOOL`; owner `hud.obj`; config not carried
+- `0x8013de40` `PerpOverlayMessage`: typed static data; type `ARY INT`; owner `hud.obj`; config not carried
+- `0x8013de48` `Hud_gShowedCDPlayer`: typed static data; type `BOOL`; owner `hud.obj`; config not carried
+- `0x8013de4c` `timechange`: typed static data; type `INT`; owner `Weather.obj`; config not carried
+- `0x8013de54` `Weather_gLastProcessTime`: typed static data; type `ARY INT`; owner `Weather.obj`; config not carried
+- `0x8013de60` `bighandle`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013de90` `readblocksize`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013de94` `numrequests`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013de98` `request`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013dea0` `freequeue`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013dea8` `callqueue`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013deb0` `asyncfilehandle`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013deb4` `asyncfileoffset`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013deb8` `requestidcounter`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013debc` `mutex`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013dec8` `SQVclue`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013decc` `SQVleft`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013ded0` `SQVright`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013ded4` `SQVs`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013ded8` `SQVd`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013dedc` `requestidcounter`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013dee0` `spos.118`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config VA alias: __bss_org
+- `0x8013df64` `recordCollection`: typed static data; type `ARY PTR STRUCT`; owner `AIDATARECORD.obj`; config not carried
+- `0x8013dfc4` `corrPt.47`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013dfd0` `lastOppVector.106`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013dff0` `gCop1Target`: typed static data; type `ARY STRUCT`; owner `camera.obj`; config not carried
+- `0x8013e008` `basisDots`: typed static data; type `ARY INT`; owner `collide.obj`; config exact name
+- `0x8013e038` `scaledBasisDots`: typed static data; type `ARY INT`; owner `collide.obj`; config exact name
+- `0x8013e068` `scaledBasisDotsOther`: typed static data; type `ARY INT`; owner `collide.obj`; config exact name
+- `0x8013e098` `basisDotRelative`: typed static data; type `ARY INT`; owner `collide.obj`; config exact name
+- `0x8013e0b0` `Copspeak_gTimeString.308`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013e0c0` `gBackList`: typed static data; type `ARY PTR STRUCT`; owner `mpause.obj`; config not carried
+- `0x8013e0d8` `dummy.124`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013e0e8` `dummy.133`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013e0f4` `inputQueue`: typed static data; type `STRUCT`; owner `simqueue.obj`; config not carried
+- `0x8013e300` `strspc.42`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013e340` `strspc.45`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013e380` `Hrz_gSaveCol`: typed static data; type `ARY STRUCT`; owner `hrzsku.obj`; config not carried
+- `0x8013e390` `gTPage0`: typed static data; type `ARY ARY STRUCT`; owner `hud.obj`; config not carried
+- `0x8013e3f0` `gTPage1`: typed static data; type `ARY ARY STRUCT`; owner `hud.obj`; config not carried
+- `0x8013e450` `gHudF4`: typed static data; type `ARY STRUCT`; owner `hud.obj`; config not carried
+- `0x8013e5a0` `gHudFT4`: typed static data; type `ARY STRUCT`; owner `hud.obj`; config not carried
+- `0x8013e730` `gHudG4`: typed static data; type `ARY STRUCT`; owner `hud.obj`; config not carried
+- `0x8013e850` `BTC_CurrentPerpName`: typed static data; type `ARY CHAR`; owner `hud.obj`; config not carried
+- `0x8013e85c` `fogstrspc.36`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013e940` `bigfilename`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x8013e980` `systemtasksubs`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x80013f98` `FreeHelpShapeCluts__Fv`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FEAPP.CPP`; config exact name
+- `0x80015760` `_._31tDialogMessageStringWithTimeout`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FEDIALOG.H`; config VA alias: ___31tDialogMessageStringWithTimeout
+- `0x80019f24` `_._18tDialogInteractive`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FEDIALOG.H`; config VA alias: ___18tDialogInteractive
+- `0x80019fe8` `MenuNFS4_SetHelpPos__FR4RECT`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FEMENUEXTENDED.CPP`; config exact name
+- `0x80023240` `FECheat_HandleActivation__F10tCheatCode`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FECHEATS.CPP`; config exact name
+- `0x80028068` `Front_InitStream__FR9tFEStream`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FRONT.CPP`; config exact name
+- `0x80028098` `Front_InitPlayerCars__FR9tFEStream`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FRONT.CPP`; config exact name
+- `0x8002845c` `Front_InitTourneyTraffic__FR9tFEStream`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FRONT.CPP`; config exact name
+- `0x800285d0` `Front_InitOpponentCars__FR9tFEStream`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FRONT.CPP`; config exact name
+- `0x80028b64` `Front_InitMissions__FR9tFEStream`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FRONT.CPP`; config exact name
+- `0x80028c94` `Front_InitCopCars__FR9tFEStream`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FRONT.CPP`; config exact name
+- `0x80029054` `Front_InitPerps__FR9tFEStream`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FRONT.CPP`; config exact name
+- `0x8002921c` `Front_InitTrack__FR9tFEStream`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FRONT.CPP`; config exact name
+- `0x800293e0` `Front_InitTraffic__FR9tFEStream`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FRONT.CPP`; config exact name
+- `0x80029618` `Front_AppendPlayerCarData__FPiR9tFEStream`: typed static function; type `FCN PTR INT`; owner `C:\nfs4\FRONTEND\COMMON\FRONT.CPP`; config exact name
+- `0x80029afc` `Front_AppendOpponentData__FPiR9tFEStream`: typed static function; type `FCN PTR INT`; owner `C:\nfs4\FRONTEND\COMMON\FRONT.CPP`; config exact name
+- `0x80029e30` `Front_AppendCopData__FPiR9tFEStream`: typed static function; type `FCN PTR INT`; owner `C:\nfs4\FRONTEND\COMMON\FRONT.CPP`; config exact name
+- `0x8002a084` `Front_AppendPerpData__FPiR9tFEStream`: typed static function; type `FCN PTR INT`; owner `C:\nfs4\FRONTEND\COMMON\FRONT.CPP`; config exact name
+- `0x8002a31c` `Front_AppendTrafficData__FPiR9tFEStream`: typed static function; type `FCN PTR INT`; owner `C:\nfs4\FRONTEND\COMMON\FRONT.CPP`; config exact name
+- `0x8002a56c` `Front_AppendTrackData__FPiR9tFEStream`: typed static function; type `FCN PTR INT`; owner `C:\nfs4\FRONTEND\COMMON\FRONT.CPP`; config exact name
+- `0x8002baf4` `__11tAllScreens`: typed static function; type `FCN PTR STRUCT`; owner `C:\nfs4\FRONTEND\COMMON\FRONT.CPP`; config exact name
+- `0x8002bf0c` `_._11tAllScreens`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FRONT.CPP`; config VA alias: ___11tAllScreens
+- `0x8002c890` `MenuExtended_GoToDealer__FR12tMenuCommand`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FEMENUDEFS.CPP`; config exact name
+- `0x8002c8f8` `MenuExtended_GoToSeller__FR12tMenuCommand`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FEMENUDEFS.CPP`; config exact name
+- `0x8002c960` `MenuExtended_GoToUpgrades__FR12tMenuCommand`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FEMENUDEFS.CPP`; config exact name
+- `0x8002d9e8` `MenuExtended_DidUserWinBeTheCop__Fv`: typed static function; type `FCN BOOL`; owner `C:\nfs4\FRONTEND\COMMON\FEMENUDEFS.CPP`; config exact name
+- `0x800321c0` `TransitionIsFinished__32tBlankMenuItemGoToMenuNFS4Button`: typed static function; type `FCN BOOL`; owner `C:\nfs4\FRONTEND\COMMON\FEMENUOPTIONS.H`; config exact name
+- `0x800321c8` `Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FEMENUOPTIONS.H`; config exact name
+- `0x800321d0` `Draw__32tBlankMenuItemGoToMenuNFS4Buttonb`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FEMENUOPTIONS.H`; config exact name
+- `0x800321d8` `_._32tBlankMenuItemGoToMenuNFS4Button`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FEMENUOPTIONS.H`; config VA alias: ___32tBlankMenuItemGoToMenuNFS4Button
+- `0x800321f8` `TransitionIsFinished__33tBlankMenuItemNFS4LeftRightChoice`: typed static function; type `FCN BOOL`; owner `C:\nfs4\FRONTEND\COMMON\FEMENUEXTENDED.H`; config exact name
+- `0x80032200` `Draw__33tBlankMenuItemNFS4LeftRightChoiceiib`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FEMENUEXTENDED.H`; config exact name
+- `0x80032208` `_._33tBlankMenuItemNFS4LeftRightChoice`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FEMENUEXTENDED.H`; config VA alias: ___33tBlankMenuItemNFS4LeftRightChoice
+- `0x80032a50` `tournPointsCompare__FPcT0`: typed static function; type `FCN INT`; owner `C:\nfs4\FRONTEND\COMMON\FETOURN.CPP`; config exact name
+- `0x800342a0` `ChecksumData__FP12tMemCardData`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FEMEMCARD.CPP`; config exact name
+- `0x80034318` `VerifySuccessfulRead__FP12tMemCardData`: typed static function; type `FCN BOOL`; owner `C:\nfs4\FRONTEND\COMMON\FEMEMCARD.CPP`; config exact name
+- `0x80034438` `Confirm__Fii`: typed static function; type `FCN INT`; owner `C:\nfs4\FRONTEND\COMMON\FEMEMCARD.CPP`; config exact name
+- `0x800345ec` `OverwriteConfirm__Fv`: typed static function; type `FCN INT`; owner `C:\nfs4\FRONTEND\COMMON\FEMEMCARD.CPP`; config exact name
+- `0x80034618` `OverwriteAlwaysYes__Fv`: typed static function; type `FCN INT`; owner `C:\nfs4\FRONTEND\COMMON\FEMEMCARD.CPP`; config exact name
+- `0x80034620` `FormatConfirm__Fv`: typed static function; type `FCN INT`; owner `C:\nfs4\FRONTEND\COMMON\FEMEMCARD.CPP`; config exact name
+- `0x8003464c` `LoadingProc__Fv`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FEMEMCARD.CPP`; config exact name
+- `0x80034654` `LoadingRedrawProc__Fv`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FEMEMCARD.CPP`; config exact name
+- `0x8003467c` `SavingProc__Fv`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\FEMEMCARD.CPP`; config exact name
+- `0x8003a8f0` `TransformVector__FRA4_iRA4_A4_iT0`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\COMMON\SCREENCARSELECT.CPP`; config VA alias: TransformVector
+- `0x8004cf14` `strSetDefDecEnv__FP6DECENV`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\PSX\MOVIE.CPP`; config exact name
+- `0x8004cfa0` `strInit__FP6CdlLOCiPFe_vT2`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\PSX\MOVIE.CPP`; config exact name
+- `0x8004d038` `strCallback__Fv`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\PSX\MOVIE.CPP`; config exact name
+- `0x8004d334` `strNextVlc__FP6DECENV`: typed static function; type `FCN INT`; owner `C:\nfs4\FRONTEND\PSX\MOVIE.CPP`; config exact name
+- `0x8004d3d4` `strNext__FP6DECENV`: typed static function; type `FCN PTR ULONG`; owner `C:\nfs4\FRONTEND\PSX\MOVIE.CPP`; config exact name
+- `0x8004d5dc` `strSync__FP6DECENVi`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\PSX\MOVIE.CPP`; config exact name
+- `0x8004d68c` `strKickCD__FP6CdlLOC`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\PSX\MOVIE.CPP`; config exact name
+- `0x8004df38` `AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\PSX\PSXFRONT.CPP`; config exact name
+- `0x8004e264` `DrawGouraudShape__FP18tTexture_ShapeInfoiiiPii`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\PSX\PSXFRONT.CPP`; config exact name
+- `0x8004e638` `DrawFlatShape__FP18tTexture_ShapeInfoiiiPii`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\PSX\PSXFRONT.CPP`; config exact name
+- `0x8004e77c` `ScaleGouraudShape__FP18tTexture_ShapeInfoiiiiiPii`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\PSX\PSXFRONT.CPP`; config exact name
+- `0x8004ea38` `ScaleFlatShape__FP18tTexture_ShapeInfoiiiiiPii`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\PSX\PSXFRONT.CPP`; config exact name
+- `0x8005028c` `iMCRD_timersub`: typed static function; type `FCN VOID`; owner `C:\nfs4\FRONTEND\PSX\MEMCARD.C`; config exact name
+- `0x800506f0` `ascii2sjis`: typed static function; type `FCN SHORT`; owner `C:\nfs4\FRONTEND\PSX\MEMCARD.C`; config exact name
+- `0x80050810` `sjis2ascii`: typed static function; type `FCN UCHAR`; owner `C:\nfs4\FRONTEND\PSX\MEMCARD.C`; config exact name
+- `0x80051628` `cheatList`: typed static data; type `ARY STRUCT`; owner `FECheats.obj`; config not carried
+- `0x800516a0` `bonusList`: typed static data; type `ARY STRUCT`; owner `FECheats.obj`; config not carried
+- `0x80051738` `nextTick`: typed static data; type `LONG`; owner `FEInput.obj`; config not carried
+- `0x800517f0` `regularCopModels`: typed static data; type `ARY ARY ENUM`; owner `Front.obj`; config not carried
+- `0x8005187c` `superCopModels`: typed static data; type `ARY ARY ENUM`; owner `Front.obj`; config not carried
+- `0x800519e0` `gCarActivation`: typed static data; type `ARY ARY ENUM`; owner `FEMenuDefs.obj`; config not carried
+- `0x80051aa8` `tvOrder`: typed static data; type `ARY CHAR`; owner `ScreenMain.obj`; config not carried
+- `0x80051ab8` `tintColors`: typed static data; type `ARY INT`; owner `ScreenMain.obj`; config not carried
+- `0x80051b28` `dropShadow`: typed static data; type `ARY ARY STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051b68` `animLocations`: typed static data; type `ARY STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051b78` `video11a`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051b80` `video11b`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051b88` `video11c`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051b90` `video11d`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051b98` `video11e`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051ba0` `video11h`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051ba8` `video11i`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051bb0` `video11l`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051bb8` `video11m`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051bc0` `video11n`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051bc8` `video11o`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051bd0` `video11p`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051bd8` `video21a`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051be0` `video21c`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051be8` `video21j`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051bf0` `video21l`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051bf8` `video31a`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051c00` `video31b`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051c08` `video31g`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051c10` `video31h`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051c18` `video22a`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051c20` `video22b`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051c28` `video22c`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051c30` `video22d`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051c38` `video22f`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051c40` `video22g`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051c48` `video22h`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051c50` `video22i`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051c58` `video32a`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051c60` `video32b`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051c68` `video32e`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051c70` `video32f`: typed static data; type `STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051c78` `videoWallConfigs`: typed static data; type `ARY STRUCT`; owner `ScreenMain.obj`; config not carried
+- `0x80051e60` `imageTVOrder`: typed static data; type `ARY CHAR`; owner `ScreenPinkSlips.obj`; config not carried
+- `0x80051e78` `gKnots`: typed static data; type `ARY ARY INT`; owner `ScreenCarSelect.obj`; config not carried
+- `0x80051f18` `gCatmullRom`: typed static data; type `ARY ARY INT`; owner `ScreenCarSelect.obj`; config not carried
+- `0x80051f58` `remap`: typed static data; type `ARY ENUM`; owner `ScreenCarSelect.obj`; config not carried
+- `0x80051f6c` `textVals`: typed static data; type `ARY SHORT`; owner `ScreenCarSelect.obj`; config not carried
+- `0x80051f78` `text2PVals`: typed static data; type `ARY SHORT`; owner `ScreenCarSelect.obj`; config not carried
+- `0x80051f84` `tvOrder`: typed static data; type `ARY SHORT`; owner `ScreenCarSelect.obj`; config not carried
+- `0x80051f98` `tvSplitOrder`: typed static data; type `ARY SHORT`; owner `ScreenCarSelect.obj`; config not carried
+- `0x80051fa4` `gStateOverlays`: typed static data; type `ARY ARY CHAR`; owner `ScreenCarSelect.obj`; config not carried
+- `0x80051fc4` `gOverlayPositions`: typed static data; type `ARY ARY STRUCT`; owner `ScreenCarSelect.obj`; config not carried
+- `0x80052058` `trophyTVOrder`: typed static data; type `ARY CHAR`; owner `ScreenTournSelect.obj`; config not carried
+- `0x800520a0` `tvOrder`: typed static data; type `ARY SHORT`; owner `ScreenTracks.obj`; config not carried
+- `0x800520b8` `tvOrder`: typed static data; type `ARY SHORT`; owner `ScreenTrackInfo.obj`; config not carried
+- `0x800520d8` `Offset`: typed static data; type `ARY ARY UCHAR`; owner `ScreenController.obj`; config not carried
+- `0x800520e8` `fileNames`: typed static data; type `ARY PTR CHAR`; owner `ScreenController.obj`; config not carried
+- `0x80052a24` `width`: typed static data; type `INT`; owner `Movie.obj`; config not carried
+- `0x80052a28` `height`: typed static data; type `INT`; owner `Movie.obj`; config not carried
+- `0x80052a54` `STR_FRMT`: typed static data; type `PTR CHAR`; owner `PSXFront.obj`; config not carried
+- `0x80052a5c` `ofs`: typed static data; type `ARY USHORT`; owner `PSXFront.obj`; config not carried
+- `0x80052a60` `rendering3DEnvironmentInitialized`: typed static data; type `CHAR`; owner `PSXFront.obj`; config not carried
+- `0x80052a78` `ascii_table`: typed static data; type `ARY ARY USHORT`; owner `memcard.obj`; config not carried
+- `0x80052a84` `ascii_k_table`: typed static data; type `ARY USHORT`; owner `memcard.obj`; config not carried
+- `0x80052ac8` `sjis_table`: typed static data; type `ARY ARY UCHAR`; owner `memcard.obj`; config not carried
+- `0x80052ad0` `sjis_k_table`: typed static data; type `ARY UCHAR`; owner `memcard.obj`; config not carried
+- `0x80052b38` `DialogVisibilityList`: typed static data; type `ARY PTR STRUCT`; owner `FEDialog.obj`; config VA alias: _front_data_orgend
+- `0x80052b58` `gHelpPos`: typed static data; type `STRUCT`; owner `FEMenuExtended.obj`; config not carried
+- `0x80052b60` `debounce`: typed static data; type `ARY INT`; owner `FEInput.obj`; config not carried
+- `0x80052b68` `TITLE`: typed static data; type `ARY CHAR`; owner `FEMemCard.obj`; config not carried
+- `0x80052b90` `numberValues`: typed static data; type `ARY CHAR`; owner `ScreenMain.obj`; config not carried
+- `0x80052bb0` `gNameBuffer`: typed static data; type `ARY CHAR`; owner `ScreenMain.obj`; config not carried
+- `0x80052bd0` `gPermBuffer`: typed static data; type `ARY CHAR`; owner `ScreenMain.obj`; config not carried
+- `0x80052bf0` `flareextra.248`: untyped local data/BSS label; type `no 0x94/0x96 definition`; owner `no typed owner`; config not carried
+- `0x80052c00` `gSwapFileName`: typed static data; type `ARY CHAR`; owner `ScreenPinkSlips.obj`; config same name at other VA (requires local disambiguation)
+- `0x80052c18` `gRotateOffset`: typed static data; type `ARY INT`; owner `ScreenCarSelect.obj`; config not carried
+- `0x80052c28` `gSwapFileName`: typed static data; type `ARY ARY CHAR`; owner `ScreenCarSelect.obj`; config same name at other VA (requires local disambiguation)
+- `0x80052c58` `WaitingString`: typed static data; type `ARY CHAR`; owner `ScreenCarSelect.obj`; config not carried
+- `0x80052c90` `gSwapFileName`: typed static data; type `ARY CHAR`; owner `ScreenTournSelect.obj`; config same name at other VA (requires local disambiguation)
+- `0x80052ca0` `gSwapFileName`: typed static data; type `ARY CHAR`; owner `ScreenTracks.obj`; config same name at other VA (requires local disambiguation)
+- `0x80052cb8` `gSwapFileName`: typed static data; type `ARY CHAR`; owner `ScreenTrackInfo.obj`; config same name at other VA (requires local disambiguation)
+- `0x80052cf8` `loc`: typed static data; type `STRUCT`; owner `Movie.obj`; config not carried
+- `0x80052cfc` `PPWTop`: typed static data; type `SHORT`; owner `Movie.obj`; config not carried
+- `0x80052cfe` `PPWBottom`: typed static data; type `SHORT`; owner `Movie.obj`; config not carried
+- `0x80052d00` `gMode`: typed static data; type `SHORT`; owner `Movie.obj`; config not carried
+- `0x80052d04` `gIsRGB24`: typed static data; type `BOOL`; owner `Movie.obj`; config not carried
+- `0x80052d08` `gMovieHeight`: typed static data; type `SHORT`; owner `Movie.obj`; config not carried
+- `0x80052d0a` `gMovieWidth`: typed static data; type `SHORT`; owner `Movie.obj`; config not carried
+- `0x80052d0c` `gMovieFrame`: typed static data; type `ULONG`; owner `Movie.obj`; config not carried
+- `0x80052d10` `gEndFrame`: typed static data; type `ULONG`; owner `Movie.obj`; config not carried
+- `0x80052d14` `bMovieLoaded`: typed static data; type `BOOL`; owner `Movie.obj`; config not carried
+- `0x80052d18` `bStopMovie`: typed static data; type `BOOL`; owner `Movie.obj`; config not carried
+- `0x80052d1c` `bRewindMovie`: typed static data; type `INT`; owner `Movie.obj`; config not carried
+- `0x80052d20` `isFirstSlice`: typed static data; type `INT`; owner `Movie.obj`; config not carried
+- `0x80052d28` `dec`: typed static data; type `STRUCT`; owner `Movie.obj`; config not carried
+- `0x80052d58` `vlcbuf0`: typed static data; type `PTR ULONG`; owner `Movie.obj`; config not carried
+- `0x80052d5c` `vlcbuf1`: typed static data; type `PTR ULONG`; owner `Movie.obj`; config not carried
+- `0x80052d60` `imgbuf`: typed static data; type `PTR USHORT`; owner `Movie.obj`; config not carried
+- `0x80052d64` `sect_buff`: typed static data; type `PTR ULONG`; owner `Movie.obj`; config not carried

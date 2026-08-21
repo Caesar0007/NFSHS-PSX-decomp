@@ -5,6 +5,19 @@
 #include "../../nfs4_types.h"
 #include "schedule_externs.h"
 
+/* schedule.obj-owned stagger tables, in SYM/retail .data order.
+ * The five definitions occupy 0x8011DFDC..0x8011E09C exactly. */
+int Sched_ExecuteTimes[7]        = { 0, 1, 2, 4, 8, 16, 32 };
+int Sched_ExecuteElapsedTimes[7] = { 32, 32, 16, 8, 4, 2, 1 };
+int Sched_ExecuteiTimes[7]       = { 0, 65536, 32768, 16384, 8192, 4096, 2048 };
+int Sched_ExecuteMasks[7]        = { 63, 31, 15, 7, 3, 1, 0 };
+char Sched_gExecuteInfo[4][20] = {
+  { 4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,3,3,3,3 },
+  { 6,6,6,6,6,6,6,6,6,6,5,5,5,5,5,5,5,5,5,5 },
+  { 6,5,5,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4 },
+  { 6,6,6,6,6,6,5,5,4,4,4,4,4,4,4,4,4,4,4,4 }
+};
+
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void Sched_CleanUpSchedule(Sched_tSchedule *schedule);
 void Sched_AddFunction(Sched_tSchedule *schedule,fn_void *function,void *var1,int priority);

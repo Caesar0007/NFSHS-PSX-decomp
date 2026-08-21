@@ -15,7 +15,7 @@ matrixtdef   gWorldMat;   /* @0x8010ee40  (bss(zero)) */
 matrixtdef   gNightMat;   /* @0x8010ee64  (bss(zero)) */
 matrixtdef   gCopMat;   /* @0x8010ee88  (bss(zero)) */
 BW_tContextMgr gContextMan;   /* @0x8010eeac  (bss(zero)) */
-int BWorld_gChunkBuildList[36];   /* @0x8010efec  (bss(zero)) */
+tBuildEntry BWorld_gChunkBuildList[36];   /* @0x8010efec  (bss(zero)) */
 int          SceneLoaded = 0;   /* @0x8013c758  W67-A4: explicit =0 -- retail emits this
     cell FIRST in bworld.obj's .sdata run, before the fn-local statics and the -G8
     literal pool, so it cannot have been tentative (16E =0 discriminator).
@@ -44,7 +44,7 @@ void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd);
 int BWorld_CheckChunkVisible(BWorldSm_Pos *slicePosSource,BWorldSm_Pos *slicePosTest);
 int GetRezIndex(int dist);
 int SetupChunkBuildList(DRender_tView *Vi);
-void * BWorld_IsSliceInBuildList(int slice);
+bool BWorld_IsSliceInBuildList(int slice);
 void BWorld_OnyxBuildFacets(DRender_tView *Vi);
 char * BWAllocMem(long size);
 void BWorld_InitContexts(void);
@@ -105,11 +105,11 @@ void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group)
   objInstance = (Trk_SFX *)(group + 1);
   numObjects = group->m_num_elements;
   while (i < numObjects) {
-    u_short type;
+    short type;
     short pad;
 
     pad = objInstance[i].pad;
-    type = (u_short)objInstance[i].type;
+    type = (short)objInstance[i].type;
     if (objInstance[i].type == 100) {
       coorddef dir = {0, 0xa0000, 0};
 
@@ -479,6 +479,10 @@ int GetRezIndex(int dist)
  * prologue scheduling choices (one temporary register and one load-delay nop). */
 int SetupChunkBuildList(DRender_tView *Vi)
 {
+  /* SYM-CODEGEN-CARRIER: buildList
+   * SYM-CODEGEN-CARRIER: viewList
+   * IDA/m2c identify their retail $s1/$s3 roles; the optimized SYM stream does
+   * not retain declarations for these two address walkers. */
   int chunkInd;
   int chunkCount;
   int totalVisChunks;
@@ -635,29 +639,30 @@ int SetupChunkBuildList(DRender_tView *Vi)
  * long-lived loop-bound value to $a2, materialized via the delay-slot copy) -- semantically a
  * no-op re-read of the same never-mutated global, but it hands gcc's -O2 scheduler two distinct
  * materializations instead of one, reproducing the oracle's v0-then-a2 shape exactly. */
-void * BWorld_IsSliceInBuildList(int slice)
+bool BWorld_IsSliceInBuildList(int slice)
 {
   int *piVar1;
   int bi;
+  int chunk;
   int chunkCount;
 
   bi = 0;
   if (slice < 0) {
     slice = slice + 7;
   }
-  slice = slice >> 3;
+  chunk = slice >> 3;
   if (0 < BWorld_gChunkCount) {
     chunkCount = BWorld_gChunkCount;
-    piVar1 = BWorld_gChunkBuildList;
+    piVar1 = (int *)BWorld_gChunkBuildList;
     do {
       bi = bi + 1;
-      if ((int)(short)*piVar1 == slice) {
-        return (void *)0x1;
+      if ((int)(short)*piVar1 == chunk) {
+        return 1;
       }
       piVar1 = piVar1 + 1;
     } while (bi < chunkCount);
   }
-  return (void *)0x0;
+  return 0;
 }
 
 /* ---- BWorld_OnyxBuildFacets__FP13DRender_tView  [@0x8007e0f4] ---- */
@@ -669,7 +674,7 @@ void BWorld_OnyxBuildFacets(DRender_tView *Vi)
   u_short fogDist;
   u_char fogState;
   int time;
-  void *pvVar3;
+  BOOL pvVar3;
   
   Chunk_UpdateSys(Vi);
   gVi2 = Vi;
@@ -756,7 +761,7 @@ NO_LINES:
     }
   }
   if ((Object_customSFXInst != (Group *)0x0) &&
-     (pvVar3 = BWorld_IsSliceInBuildList(Object_customSliceNum), pvVar3 != (void *)0x0)) {
+     (pvVar3 = BWorld_IsSliceInBuildList(Object_customSliceNum), pvVar3 != 0)) {
     BWorld_BuildGlareEffects(Vi,sd,Object_customSFXInst);
   }
   DrawW_WorldSetUpMatrix(&gWorldMat,&sd->matB);
@@ -764,22 +769,22 @@ NO_LINES:
   return;
 }
 
-/* W67-A4: bworld.obj's retail .sdata run resumes here -- totalMem (our gBWMemTotal)
+/* W67-A4: bworld.obj's retail .sdata run resumes here -- totalMem
    @0x8013c760 then the -G8 string-literal pool 0x8013c764..0x8013c790 (18C):
    "bworld" "S.grp" "N.grp" "W.grp" ".grp" "" in use order.  NEEDS whole-TU
    g_value 8 (PER_TU_FLAGS spec, w67a4: gates 20/21 2x == baseline).  A named
    section(".sdata") array device was probed and REVERTED: such an array is
    la-addressed, losing the oracle's split lui/addiu delay-slot fill.
-   gBWMemTotal's definition position (before BWAllocMem) is load-bearing. */
-int gBWMemTotal = 0;   /* @0x8013c760  SYM: STAT totalMem (kept global: per-symbol
-                          gp-rel reloc, sec.3.12 #12) */
+   totalMem's definition position at BWAllocMem is load-bearing. */
 
 /* ---- BWAllocMem__Fl  [@0x8007e3f8] ---- */
 char * BWAllocMem(long size)
 {
+  /* SYM records this as BWAllocMem's function-local STAT at 0x8013c760. */
+  static int totalMem = 0;
   char *pcVar1;
 
-  gBWMemTotal = gBWMemTotal + size;
+  totalMem = totalMem + size;
   pcVar1 = Platform_GetDCTBuffer(size,"bworld");
   return pcVar1;
 }

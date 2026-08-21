@@ -8,6 +8,22 @@
 
 
 /* EXT/STAT data OWNED by object.obj */
+AnimDef gAnimDefs[14] = {
+  {0, 1, -1, 2, 0},
+  {1, 10, 0, 0, 1},
+  {1, 20, 0, 0, 1},
+  {1, 6, 0, 0, 1},
+  {1, 2, 0, 0, 1},
+  {1, 1, 0, 0, 1},
+  {1, 10, 0, 0, 1},
+  {1, 14, 0, 0, 1},
+  {1, 5, 0, 0, 1},
+  {1, 5, 0, 0, 1},
+  {1, 1, 0, 0, 1},
+  {1, 8, 0, 0, 1},
+  {0, 1, -1, 2, 0},
+  {0, 1, -1, 2, 0}
+};   /* @0x80115c48; SYM EXT AnimDef[14] */
 Group              *Object_customObjInst;   /* 0x8013d2c8 */
 Group              *Object_customSimObjs;   /* 0x8013d2cc */
 Group              *Object_customSFXInst;   /* 0x8013d2d0 */
@@ -425,18 +441,19 @@ int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNe
     if (vel < 0) goto Object_ret1;
     {
     Chunk *pMChunk;
-    Trk_CollideBoomInst *objInstance;
+    Trk_SimpleInst *objInstance;
     Trk_ObjectDef *objDef;
     AnimDef *animDef;
 
     pMChunk = Track_chunkList + chunk;
-    objInstance = (Trk_CollideBoomInst *)
+    objInstance = (Trk_SimpleInst *)
          FindObjInstanceFromSerialNum(pMChunk->objInstanceBuf,(int)simObj->instIndex);
     if (objInstance->type == '\x06') {
       animDef = gAnimDefs + *(u_char *)((int)&objInstance->y + 1);
     }
     else {
-      animDef = gAnimDefs + objInstance->boomIndex;
+      animDef = gAnimDefs +
+          ((Trk_CollideBoomInst *)(void *)objInstance)->boomIndex;
     }
     if (animDef->animIndex != 0) {
       objDef = (Trk_ObjectDef *)(gPersistObjDef + 1);
@@ -455,7 +472,8 @@ int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNe
       (finishedMulti->_base_ObjectAnim)._vf =
            (__vtbl_ptr_type (*) [3])ObjectFinishedMultiAnim_vtable;
       gSimObjAnims[simObj->serialNum] =
-          &(new ObjectMultiAnim(&N->linearVel,animDef,objInstance,objDef,simObj,
+          &(new ObjectMultiAnim(&N->linearVel,animDef,
+                                (Trk_CollideBoomInst *)(void *)objInstance,objDef,simObj,
                                 finishedMulti))->_base_ObjectAnim;
     }
     else {
@@ -465,7 +483,9 @@ int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNe
       (finishedSign->_base_ObjectAnim)._vf =
            (__vtbl_ptr_type (*) [3])ObjectFinishedSignAnim_vtable;
       gSimObjAnims[simObj->serialNum] =
-          &Object_CreateSignAnim(N,animDef,objInstance,objDef,simObj,finishedSign)
+          &Object_CreateSignAnim(N,animDef,
+                                 (Trk_CollideBoomInst *)(void *)objInstance,
+                                 objDef,simObj,finishedSign)
                ->_base_ObjectAnim;
     }
     ret = -1;
@@ -905,7 +925,7 @@ void GetObjMaxDimensions(Trk_ObjectDef **pObjDefs,Trk_SimpleInst *objInstance,co
 void Object_InitIMassObjectInfo(void)
 
 {
-  Trk_SimpleInst *objInst;
+  Trk_AnimateInst *objInst;
   int objIndex;
   
   gNumIMassObjects = 0;
@@ -916,13 +936,13 @@ void Object_InitIMassObjectInfo(void)
     ;
     if (Object_IMassObjInst != (Object_tIMassObjInfo *)0x0) {
       objIndex = 0;
-      objInst = (Trk_SimpleInst *)(gPersistObjInst + 1);
+      objInst = (Trk_AnimateInst *)(gPersistObjInst + 1);
       if (0 < gPersistObjInst->m_num_elements) {
         do {
           if (objInst->type == '\a') {
             Object_IMassObjInst[gNumIMassObjects].animInst =
                 (Trk_AnimateInst *)objInst;
-            GetObjMaxDimensions(Track_gObjDefs,objInst,
+            GetObjMaxDimensions(Track_gObjDefs,(Trk_SimpleInst *)objInst,
                 &Object_IMassObjInst[gNumIMassObjects].dimension);
             Object_IMassObjInst[gNumIMassObjects].lastPos.x = 0;
             Object_IMassObjInst[gNumIMassObjects].lastPos.y = 0;
@@ -932,7 +952,7 @@ void Object_InitIMassObjectInfo(void)
           }
           objIndex = objIndex + 1;
           objInst =
-              (Trk_SimpleInst *)((int)&objInst->size + (int)objInst->size);
+              (Trk_AnimateInst *)((int)&objInst->size + (int)objInst->size);
         } while (objIndex < gPersistObjInst->m_num_elements);
       }
     }

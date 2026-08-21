@@ -11,7 +11,7 @@
 #include "aistate_externs.h"
 
 /* ---- aistate.obj-owned globals (.bss zero) ---- */
-int          AIState_Purgatory_numTrafficCarsInPurgatory;   /* @0x8013dd7c  (bss(zero)) */
+static int   AIState_Purgatory_numTrafficCarsInPurgatory;   /* @0x8013dd7c  (bss(zero); SYM STAT) */
 
 
 /* w60 link-debt fix (W60-A8 finding, user-unblocked): the canonical
@@ -1075,17 +1075,17 @@ void AIState_Chase::CloseTargeting()
   else {
     if (forceLongAction != -2) goto LAB_80070704;
     {
-      int f;
+      int superSlowDown;
       if (this->aggressionLevel_ != 0) {
-        f = 0xa666;
+        superSlowDown = 0xa666;
         if (this->aggressionLevel_ == 1) {
-          f = 0xbae1;
+          superSlowDown = 0xbae1;
         }
       }
       else {
-        f = 0xca3d;
+        superSlowDown = 0xca3d;
       }
-      desiredSpeed = fixedmult(desiredSpeed,f);
+      desiredSpeed = fixedmult(desiredSpeed,superSlowDown);
     }
   }
 

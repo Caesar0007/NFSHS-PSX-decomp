@@ -36,20 +36,12 @@ int          Render_gBlurEffectDepth2;   /* @0x8013d3c4  (bss(zero)) */
 int          Render_gBlurEffectMode;   /* @0x8013d3c8  (bss(zero)) */
 int          Draw_gPlayer1View;   /* @0x8013d3cc  (bss(zero)) */
 int          Draw_gPlayer2View;   /* @0x8013d3d0  (bss(zero)) */
-/* gPauseMenuRect: SPLIT (was one `RECT` struct) -- both this TU's Render_Render oracle
-   AND rpause.cpp's RPause_CopyBackToFrontBuffer oracle address the 4 fields as INDIVIDUAL
-   2-byte scalar symbols (x/y/w/h @0x8013d3d4/d6/d8/da), not offsets into one 8-byte RECT
-   (Ghidra names: gPauseMenuRect=x, D_8013D3D6=y, D_8013D3D8=w, D_8013D3DA=h). A single
-   8-byte RECT exceeds the -G4 gp-relative threshold (forces lui/%hi+%lo addressing of a
-   struct base held in a saved reg, needing a stack frame); 4 separate <=4-byte scalars
-   are each individually gp-eligible in render.cpp (%gp_rel) and match rpause.cpp's
-   per-field absolute lui/lhu addressing too (verified: RPause_CopyBackToFrontBuffer
-   40-byte/s0+s1-frame -> 32-byte/leaf-ish, oracle-shaped). Declaration order preserves
-   the original struct's byte layout (x,y,w,h @ d4,d6,d8,da consecutive). */
-short        gPauseMenuRect;   /* @0x8013d3d4  (bss(zero)) -- RECT.x */
-short        D_8013D3D6;       /* @0x8013d3d6  (bss(zero)) -- RECT.y */
-short        D_8013D3D8;       /* @0x8013d3d8  (bss(zero)) -- RECT.w */
-short        D_8013D3DA;       /* @0x8013d3da  (bss(zero)) -- RECT.h */
+/* SYM declares one 8-byte RECT at 0x8013d3d4.  render.obj's proven -G8 build
+   identity keeps that honest aggregate gp-relative and makes Render_Render
+   byte-exact.  rpause.obj intentionally keeps zero-storage short views of the
+   four addresses because its retail object names the interior addresses
+   independently; those declarations do not create additional storage. */
+RECT         gPauseMenuRect;   /* @0x8013d3d4  (bss(zero)); x/y/w/h @ +0/+2/+4/+6 */
 int          gPauseRender;   /* @0x8013d3dc  (bss(zero)) */
 int          Draw_gRearView;   /* @0x8013d3e0  (bss(zero)) */
 int          Render_gDebugView;   /* @0x8013d3e4  (bss(zero)) */
@@ -266,20 +258,20 @@ void Render_Render(int pause)
   if (pause != 0) {
     if (gPauseRender == 0) {
       gPauseRender = 1;
-      D_8013D3D8 = 0x140;
-      gPauseMenuRect = 0;
-      D_8013D3D6 = 0;
-      D_8013D3DA = 0xf0;
+      gPauseMenuRect.w = 0x140;
+      gPauseMenuRect.x = 0;
+      gPauseMenuRect.y = 0;
+      gPauseMenuRect.h = 0xf0;
       DrawSync(0);
       RPause_CopyBackToFrontBuffer();
       MPause_StartPauseMenu();
       gMPauseUpdate = 1;
       gMPauseUpdateNextTime = 0;
     }
-    gPauseMenuRect = 0x4e;
-    D_8013D3D6 = 0x62;
-    D_8013D3D8 = 0xa4;
-    D_8013D3DA = 0x8b;
+    gPauseMenuRect.x = 0x4e;
+    gPauseMenuRect.y = 0x62;
+    gPauseMenuRect.w = 0xa4;
+    gPauseMenuRect.h = 0x8b;
     if (gMPauseUpdate != 0) {
       RPause_StartPauseMenu();
       Render_RenderPauseMenuView();

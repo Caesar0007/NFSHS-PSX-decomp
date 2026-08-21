@@ -219,7 +219,7 @@ void FECheat_ActivateBonus(tCheatCode cheat)
 
 /* ---- FECheat_ActivateCheat  [FECHEATS.CPP:242-271] SLD-VERIFIED ---- */
 
-BOOL FECheat_ActivateCheat(char *cheat)
+bool FECheat_ActivateCheat(char *cheat)
 
 {
   tFEApplication *ptVar2;
@@ -227,7 +227,7 @@ BOOL FECheat_ActivateCheat(char *cheat)
   tDialogMessageString *dlgThis;
   int i;
   int j;
-  BOOL result;
+  bool result;
   char buffer [8];
 
   /* MATCH: ONE result var (retail $s1) with a single return at the end; the
@@ -264,10 +264,10 @@ BOOL FECheat_ActivateCheat(char *cheat)
 
 /* ---- FECheat_IsCheatEnabled  [FECHEATS.CPP:277-278] SLD-VERIFIED ---- */
 
-void * FECheat_IsCheatEnabled(tCheatCode cheat)
+bool FECheat_IsCheatEnabled(tCheatCode cheat)
 
 {
-  return (void *)(u_int)(((gFECheats | gFEBonus) & 1 << cheat) != 0);
+  return ((gFECheats | gFEBonus) & 1 << cheat) != 0;
 }
 
 
@@ -289,16 +289,15 @@ void FECheat_LoadBonus(u_long &cheat)
 
 {
   int i;
-  u_int i_2;
-  i_2 = 0;
+  i = 0;
   gFEBonus = cheat;
   gFECheats = 0;
   do {
-    if ((gFEBonus & 1 << i_2) != 0) {
-      FECheat_HandleActivation((tCheatCode)(i_2));
+    if ((gFEBonus & 1 << i) != 0) {
+      FECheat_HandleActivation((tCheatCode)i);
     }
-    i_2 = i_2 + cheat_Pony;
-  } while ((int)i_2 < 0x1f);
+    i = i + cheat_Pony;
+  } while (i < 0x1f);
   return;
 }
 
@@ -306,22 +305,22 @@ void FECheat_LoadBonus(u_long &cheat)
 
 /* ---- FECheat_IsTheUserACryBabyCheater  [FECHEATS.CPP:312-316] SLD-VERIFIED ---- */
 
-void * FECheat_IsTheUserACryBabyCheater(void)
+bool FECheat_IsTheUserACryBabyCheater(void)
 
 {
-  return (void *)(u_int)(gFECheats != 0);
+  return gFECheats != 0;
 }
 
 
 
 /* ---- FECheat_ActivateBonusByCode  [FECHEATS.CPP:324-349] SLD-VERIFIED ---- */
 
-BOOL FECheat_ActivateBonusByCode(char *code)
+bool FECheat_ActivateBonusByCode(char *code)
 
 {
   int i;
   int j;
-  BOOL result;
+  bool result;
   char buffer [8];
 
   /* MATCH: twin of FECheat_ActivateCheat -- one result var + single return,

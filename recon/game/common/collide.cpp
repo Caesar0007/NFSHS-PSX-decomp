@@ -907,7 +907,8 @@ int Collide_DoActualObjectCollisionCheck(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coo
 {
   /* MATCH (2026-08-13): SYM/SLD + raw 0x8008F550..0x80090140 require two symmetric
      halves and three physical shared tails: high-velocity normal X/Y/Z, low-velocity
-     negation, and return-one.  Reconstructing those funnels plus selectedRange removed
+     negation, and return-one.  SYM-CODEGEN-CARRIER: selectedRange; reconstructing those
+     funnels plus this shared-tail carrier removed
      the duplicated arm tests (101 -> 88 -> 20 -> 16 authoritative diffs).  The empty
      normal fences price p83 refs to 38, yielding retail o0/o1/normal = s1/s2/s0.
      A zero-insn boundary after each dotz expression preserves the two retail branch-delay
@@ -1575,11 +1576,11 @@ int Collide_CheckForCollisionBetween(BO_tNewtonObj *o0,BO_tNewtonObj *o1)
 
   int iVar3;
 
-  int iVar4;
+  int count;
 
-  coorddef cStack_38;
+  coorddef p;
 
-  coorddef cStack_28;
+  coorddef normal;
 
 
 
@@ -1587,7 +1588,7 @@ int Collide_CheckForCollisionBetween(BO_tNewtonObj *o0,BO_tNewtonObj *o1)
 
   (o1->collision).impulse = 0;
 
-  iVar2 = Collide_TestObjectVertices(o0,o1,&cStack_38,&cStack_28);
+  iVar2 = Collide_TestObjectVertices(o0,o1,&p,&normal);
 
   if (iVar2 == 0) {
 
@@ -1595,21 +1596,21 @@ int Collide_CheckForCollisionBetween(BO_tNewtonObj *o0,BO_tNewtonObj *o1)
 
   }
 
-  Collide_DoObjectObjectCollision(o0,o1,&cStack_38,&cStack_28);
+  Collide_DoObjectObjectCollision(o0,o1,&p,&normal);
 
-  iVar4 = 8;
+  count = 8;
 
   Physics_TestForBarrierCollision((Car_tObj *)o0);
 
   Physics_TestForBarrierCollision((Car_tObj *)o1);
 
-  new_var = &cStack_28;
+  new_var = &normal;
 
   speedThresh = 0xf0000;
 
   while( true ) {
 
-    iVar3 = Collide_TestObjectVertices(o0,o1,&cStack_38,new_var);
+    iVar3 = Collide_TestObjectVertices(o0,o1,&p,new_var);
 
     if (iVar3 == 0) {
 
@@ -1617,15 +1618,15 @@ int Collide_CheckForCollisionBetween(BO_tNewtonObj *o0,BO_tNewtonObj *o1)
 
     }
 
-    if (iVar4 <= 0) {
+    if (count <= 0) {
 
       return 1;
 
     }
 
-    iVar4 = iVar4 - 1;
+    count = count - 1;
 
-    iVar2 = Collide_DoObjectObjectCollision(o0,o1,&cStack_38,new_var);
+    iVar2 = Collide_DoObjectObjectCollision(o0,o1,&p,new_var);
 
     if (iVar2 == 0) {
 
@@ -1637,7 +1638,7 @@ int Collide_CheckForCollisionBetween(BO_tNewtonObj *o0,BO_tNewtonObj *o1)
 
     Physics_TestForBarrierCollision((Car_tObj *)o1);
 
-    if (iVar4 == 0) {
+    if (count == 0) {
 
       if ((o0[1].collision.lastCollision != 0) && (speedThresh < o0->speedXZ)) {
 

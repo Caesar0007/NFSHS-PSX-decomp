@@ -88,7 +88,7 @@ Skidmark_Chunk *
 Skidmark_CheckChunk(coorddef *skidpt,int newsegs,int slice)
 
 {
-  bool needNew;
+  int NewChunk;
   int d;
   int nseg;
   Skidmark_Chunk *returnsm;
@@ -104,28 +104,28 @@ Skidmark_CheckChunk(coorddef *skidpt,int newsegs,int slice)
      arms, so it becomes a global allocno and drags the whole compare chain.) */
   nseg = returnsm->n;
   nseg = nseg + newsegs;
-  needNew = 0x18 < nseg;
+  NewChunk = 0x18 < nseg;
   /* The oracle does NOT compute |d| once and compare once -- it materializes the
      0xFFFFF limit and does a SEPARATE `slt 0xFFFFF,<diff>` in EACH arm
      (`blez a1,.L800DEA48` + a duplicated `lui/ori 0xFFFFF`), i.e. the source is a
      two-comparison ternary per axis, not an abs-then-compare. */
   d = (returnsm->cp).x - skidpt->x;
   if ((0 < d) ? (0xfffff < d) : (0xfffff < skidpt->x - (returnsm->cp).x)) {
-    needNew = true;
+    NewChunk = true;
   }
   else {
     d = (returnsm->cp).y - skidpt->y;
     if ((0 < d) ? (0xfffff < d) : (0xfffff < skidpt->y - (returnsm->cp).y)) {
-      needNew = true;
+      NewChunk = true;
     }
     else {
       d = (returnsm->cp).z - skidpt->z;
       if ((0 < d) ? (0xfffff < d) : (0xfffff < skidpt->z - (returnsm->cp).z)) {
-        needNew = true;
+        NewChunk = true;
       }
     }
   }
-  if (needNew) {
+  if (NewChunk) {
     if (gCountSm < gMaxSChunk) {
       gUseSm = gCountSm;
       gCountSm = gCountSm + 1;
@@ -312,9 +312,9 @@ void Skidmark_OnyxBuildFacets(DRender_tView *Vi)
 {
   Draw_tCtrlSkidmark fskidspace;
   Draw_tCtrlSkidmark *fskid;
-  int r0;
-  int r1;
-  int r2;
+  int t1;
+  int t2;
+  int t3;
 
   /* Oracle loads each 3-int group into THREE distinct caller-saved regs and only then
      stores them (the loads fill each other's load-delay slots); per-field
@@ -325,24 +325,24 @@ void Skidmark_OnyxBuildFacets(DRender_tView *Vi)
   fskidspace.t = Vi->cview.translation;
   fskid->count = gCountSm;
   fskid->smp = gSm;
-  r0 = Vi->cview.mrotationInv.m[0];
-  r1 = Vi->cview.mrotationInv.m[1];
-  r2 = Vi->cview.mrotationInv.m[2];
-  fskidspace.m.m[0] = r0;
-  fskid->m.m[1] = -r1;
-  fskid->m.m[2] = r2;
-  r0 = Vi->cview.mrotationInv.m[3];
-  r1 = Vi->cview.mrotationInv.m[4];
-  r2 = Vi->cview.mrotationInv.m[5];
-  fskid->m.m[3] = r0;
-  fskid->m.m[4] = -r1;
-  fskid->m.m[5] = r2;
-  r0 = Vi->cview.mrotationInv.m[6];
-  r1 = Vi->cview.mrotationInv.m[7];
-  r2 = Vi->cview.mrotationInv.m[8];
-  fskid->m.m[6] = r0;
-  fskid->m.m[7] = -r1;
-  fskid->m.m[8] = r2;
+  t1 = Vi->cview.mrotationInv.m[0];
+  t2 = Vi->cview.mrotationInv.m[1];
+  t3 = Vi->cview.mrotationInv.m[2];
+  fskidspace.m.m[0] = t1;
+  fskid->m.m[1] = -t2;
+  fskid->m.m[2] = t3;
+  t1 = Vi->cview.mrotationInv.m[3];
+  t2 = Vi->cview.mrotationInv.m[4];
+  t3 = Vi->cview.mrotationInv.m[5];
+  fskid->m.m[3] = t1;
+  fskid->m.m[4] = -t2;
+  fskid->m.m[5] = t3;
+  t1 = Vi->cview.mrotationInv.m[6];
+  t2 = Vi->cview.mrotationInv.m[7];
+  t3 = Vi->cview.mrotationInv.m[8];
+  fskid->m.m[6] = t1;
+  fskid->m.m[7] = -t2;
+  fskid->m.m[8] = t3;
   Draw_kCtrlSkidmark(fskid);
   return;
 }

@@ -18,7 +18,7 @@ static char  imageTVOrder[4] = {1,2,0,3};             /* STAT @0x80051E60 - TV r
 static char  gSwapFileName[20];                       /* STAT @0x80052C00 */
 
 /* ===== free helpers (member fns rendered free by Ghidra; tScreen* first arg where applicable) ===== */
-void *IsShapeFileLoaded(tScreen*, tShapeInformation*) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
+bool IsShapeFileLoaded(tScreen*, tShapeInformation*) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
 void  UploadSwapShapes(tScreen*, int) asm("UploadSwapShapes__7tScreeni");
 void  AsyncLoadSwapShapeFile(tScreen*, char*) asm("AsyncLoadSwapShapeFile__7tScreenPc");
 short TextValue(void*, tPlayer) asm("TextValue__18tListIteratorTrack7tPlayer");

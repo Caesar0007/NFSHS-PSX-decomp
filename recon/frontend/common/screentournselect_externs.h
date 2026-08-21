@@ -21,7 +21,7 @@ extern __vtbl_ptr_type tScreenTournSelect_vtable[];              /* _vt.18tScree
 void tScreen_ctor(tScreen *s);
 void tScreen_dtor(tScreen *s);
 void  DrawBackgroundImage(tScreen *s, int startShape, int numShapes, tTexture_ShapeInfo *shapes, int flip) asm("DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi");
-void *IsShapeFileLoaded(tScreen *s, tShapeInformation *shp) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
+bool IsShapeFileLoaded(tScreen *s, tShapeInformation *shp) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
 void  UploadSwapShapes(tScreen *s, int n) asm("UploadSwapShapes__7tScreeni");
 void  AsyncLoadSwapShapeFile(tScreen *s, char *name) asm("AsyncLoadSwapShapeFile__7tScreenPc");
 

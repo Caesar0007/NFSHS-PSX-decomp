@@ -39,11 +39,11 @@ extern short SelectListSplitDisplay[3], SelectListUpgrades[4], SelectListControl
  * SwapBackground. */
 void AudioCmn_PlayFESFX(int);   /* SYM Def class EXT type FCN */
 void DeInit_Memcard(void);   /* SYM Def class EXT type FCN */
-bool FECheat_IsTheUserACryBabyCheater(void);   /* SYM Def class EXT type FCN */
+bool FECheat_IsTheUserACryBabyCheater(void);   /* SYM: FCN bool */
 void Init_Memcard(bool, bool);   /* SYM Def class EXT type FCN */
 short LoadGame(short, bool, bool);
 char *PlayerName(int);   /* SYM Def class EXT type FCN */
-bool SaveGame(short);   /* SYM: Def class EXT type FCN BOOL @0x80034988 */
+bool SaveGame(short);   /* SYM: Def class EXT type FCN bool @0x80034988 */
 int SavePinkSlipsCarsWithErrorDialogs(short, short, short);
 void StatChk_ClearNewRecords(void);   /* SYM Def class EXT type FCN */
 bool StatChk_IsRecordLapTime(Car_tStats *, short, short *);   /* SYM Def class EXT type FCN */
@@ -105,7 +105,7 @@ tOptionsMenu *tOptionsMenu_ctor(...);
 tOptionsMenu *tOptionsMenu_dtor(...);
 tScreen *tScreen_dtor(...);
 tUserNameMenuItem *tUserNameMenuItem_ctor(...);
-extern BOOL CURRENTLYUSINGMEMCARD;
+extern bool CURRENTLYUSINGMEMCARD;
 extern Car_tStats Cars_gNewCarStatsList[];   /* was stale scalar int; owner cars.cpp
                                      Car_tStats Cars_gNewCarStatsList[9] (array of value structs) --
                                      passed bare to StatChk_IsRecordLapTime/StatChk_SaveTopTime etc
@@ -113,7 +113,7 @@ extern Car_tStats Cars_gNewCarStatsList[];   /* was stale scalar int; owner cars
                                      address instead of computing the array's own address */
 extern int Cars_gNumRaceCars;
 extern GameSetup_tData GameSetup_gData;
-extern BOOL MEMCARD_INITIALIZED;
+extern bool MEMCARD_INITIALIZED;
 
 
 extern tPadModuleState gPadinfo;

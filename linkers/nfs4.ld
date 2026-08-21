@@ -770,7 +770,9 @@ SECTIONS
         build/asm/data/data_8010CCD4_o17.data.s.o(.data);
         build/asm/data/data_8010CCD4_o18.data.s.o(.data);
         build/asm/data/data_8010CCD4_o19.data.s.o(.data);
-        build/asm/data/data_8010CCD4_r09.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r09.data.s.o(.data.r09_pre);
+        /* Legacy lane retains the original gmesetup.obj lookup-name payload. */
+        build/asm/data/data_8010CCD4_r09.data.s.o(.data.r09_gmesetup_names_legacy);
         build/asm/data/data_8010CCD4_o20.data.s.o(.data);
         build/asm/data/data_8010CCD4_o21.data.s.o(.data);
         build/asm/data/data_8010CCD4_r10.data.s.o(.data);
@@ -780,7 +782,18 @@ SECTIONS
         build/asm/data/data_8010CCD4_o24.data.s.o(.data);
         build/asm/data/data_8010CCD4_r12.data.s.o(.data);
         build/asm/data/data_8010CCD4_o25.data.s.o(.data);
-        build/asm/data/data_8010CCD4_r13.data.s.o(.data);
+        /* SYM ownership seams: the legacy lane retains the original replay,
+           schedule, and Stats payloads between the same neighbors. */
+        build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_pre);
+        build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_replay_legacy);
+        build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_schedule_legacy);
+        build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_sim_legacy);
+        build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_stats_legacy);
+        build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_textsys_legacy);
+        build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_track_legacy);
+        /* Legacy lane keeps the original bytes for the TrgSfx SYM ownership window. */
+        build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_trgsfx_legacy);
+        build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_after_trgsfx);
         build/asm/data/data_8010CCD4_o26.data.s.o(.data);
         build/asm/data/data_8010CCD4_r14.data.s.o(.data);
         build/asm/data/data_8010CCD4_o27.data.s.o(.data);
@@ -812,7 +825,11 @@ SECTIONS
         build/asm/data/data_8010CCD4_r20.data.s.o(.data);
         build/asm/data/data_8010CCD4_o33.data.s.o(.data);
         build/asm/data/data_8010CCD4_r21.data.s.o(.data);
-        build/asm/data/tail.data.s.o(.data);
+        build/asm/data/tail.data.s.o(.data.tail_pre_simqueue);
+        /* Legacy lane retains simqueue.obj's output/maxTicks tail-data words. */
+        build/asm/data/tail.data.s.o(.data.tail_simqueue_output_legacy);
+        build/asm/data/tail.data.s.o(.data.tail_simqueue_max_legacy);
+        build/asm/data/tail.data.s.o(.data.tail_after_simqueue);
         build/src/*(.data);
         . = ALIGN(., 16);
         nfs4_DATA_END = .;
@@ -855,7 +872,10 @@ SECTIONS
         build/asm/data/sdata_8013C54C_o18.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_o19.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_o20.sdata.s.o(.sdata);
-        build/asm/data/sdata_8013C54C_r10.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r10.sdata.s.o(.sdata.r10_pre_new);
+        /* Legacy lane retains the original new.obj heap-pointer word. */
+        build/asm/data/sdata_8013C54C_r10.sdata.s.o(.sdata.r10_new_legacy);
+        build/asm/data/sdata_8013C54C_r10.sdata.s.o(.sdata.r10_after_new);
         build/asm/data/sdata_8013C54C_o21.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_r11.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_o22.sdata.s.o(.sdata);
@@ -863,9 +883,12 @@ SECTIONS
         build/asm/data/sdata_8013C54C_o23.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_r13.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_o24.sdata.s.o(.sdata);
-        build/asm/data/sdata_8013C54C_r14.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r14.sdata.s.o(.sdata.r14_replay_counter_legacy);
         build/asm/data/sdata_8013C54C_o25.sdata.s.o(.sdata);
-        build/asm/data/sdata_8013C54C_r15.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r15.sdata.s.o(.sdata.r15_pre_simqueue);
+        /* Legacy lane retains simqueue.obj's three initialized state words. */
+        build/asm/data/sdata_8013C54C_r15.sdata.s.o(.sdata.r15_simqueue_legacy);
+        build/asm/data/sdata_8013C54C_r15.sdata.s.o(.sdata.r15_after_simqueue);
         build/asm/data/sdata_8013C54C_o26.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_r16.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_o27.sdata.s.o(.sdata);

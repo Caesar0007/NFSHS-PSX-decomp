@@ -40,7 +40,7 @@ int BWorldSm_FindClosestQuadMaxIterations(coorddef *pt,BWorldSm_Pos *slicePos,in
 int PointDirection(coorddef *p1,coorddef *p2,coorddef *p3);
 int BWorldSm_FindEdgeOff(coorddef *pt,BWorldSm_Pos *slicePos1,BWorldSm_Pos *slicePos2,int *heightDiff);
 int BWorldSm_QuadLight(BWorldSm_Pos *slicePos);
-void * BWorldSm_TunnelFlagSm(BWorldSm_Pos *slicePos);
+bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *slicePos);
 void NormalCache_AddEntry(BWorldSm_Pos *slicePos);
 bool NormalCache_FindEntry(BWorldSm_Pos *slicePos);
 void NormalCache_Init(void);
@@ -787,14 +787,14 @@ int BWorldSm_QuadLight(BWorldSm_Pos *slicePos)
 }
 
 /* ---- BWorldSm_TunnelFlagSm__FP12BWorldSm_Pos  [@0x8007ffd4] ---- */
-void * BWorldSm_TunnelFlagSm(BWorldSm_Pos *slicePos)
+bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *slicePos)
 {
   int surf;
   u_long surfVal;
   u_char bVar1;
 
   if ((*(u_char *)(slicePos->slice * 0x20 + (char *)BWorldSm_slices + 0x15) & 0x44) != 0) {
-    return (void *)0x1;
+    return 1;
   }
   if (slicePos->simQuad != (Trk_NewSimQuad *)0x0) {
     surfVal = slicePos->simQuad->surface;
@@ -803,7 +803,7 @@ void * BWorldSm_TunnelFlagSm(BWorldSm_Pos *slicePos)
   else {
     bVar1 = 0xe;
   }
-  return (void *)(u_int)((bVar1 ^ 8) < 1);
+  return (u_int)((bVar1 ^ 8) < 1);
 }
 
 /* ---- NormalCache_AddEntry__FP12BWorldSm_Pos  [@0x8008002c] ---- */

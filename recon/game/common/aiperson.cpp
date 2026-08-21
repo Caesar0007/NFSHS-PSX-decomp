@@ -1,13 +1,39 @@
 /* game/common/aiperson.cpp -- RECONSTRUCTED (NFS4 AI personality/script/glue loader; 8 free AIPerson_* fns).
  *   Per-car personality assignment + .bin table loaders. SYM-faithful, recompilable C++.
- *   NOT original source. Owned data externs -> func_va_data.cpp at data-mat time.
+ *   NOT original source. SYM-owned globals are defined in this TU.
  */
 #include "../../nfs4_types.h"
 #include "aiperson_externs.h"
 
+/* ---- aiperson.obj-owned globals ----
+ * SYM records these 20 definitions in aiperson.obj.  Their order and bytes
+ * reproduce the retail 0x8010D5CC..0x8010DC54 data run; the final three
+ * tables are runtime-filled but CC1PLPSX emits tentative aggregates as
+ * zero-filled .data in this configuration. */
+int          AIPerson_blockMaxDistance[4]        = { 2293760, 3276800, 5242880, 7864320 };
+int          AIPerson_blockMinDistance[4]        = { 2293760, 1310720, 655360, 0 };
+int          AIPerson_oncomingLookAhead[4]       = { 5898240, 10485760, 13762560, 16384000 };
+int          AIPerson_laneSwerve[4][4]           = { {0,0,0,0}, {-65536,-32768,0,65536}, {-131072,0,65536,131072}, {-196608,-98304,98304,196608} };
+int          AIPerson_swerveChangeProb[4]        = { 400, 100, 40, 10 };
+int          AIPerson_brakeMultiplier[4]         = { 55705, 65536, 78643, 88473 };
+int          AIPerson_attackActivationHits[4]    = { 10000, 15, 40, 40 };
+int          AIPerson_attackTimes[4]             = { 0, 96, 320, 1280 };
+int          AIPerson_fishtailAngles[4]          = { 35, 40, 45, 50 };
+int          AIPerson_gripLossProbPerSecond[4]   = { 32768, 32768, 32768, 0 };
+int          AIPerson_gripLossMinFactor[4]       = { 19660, 26214, 32768, 64880 };
+int          AIPerson_gripLossRecoveryPerTick[4] = { 71, 61, 40, 65536 };
+int          AIPerson_minimumWipeOutTicks[5]     = { 65536, 4096, 2048, 1024, 1024 };
+int          AIPerson_randomWipeOutTicks[5]      = { 65535, 8191, 4095, 2047, 2047 };
+u_int        AIPerson_rearEndProbMask[4]         = { 65535u, 768u, 1792u, 512u };
+u_int        AIPerson_smackProbMask[4]           = { 65535u, 768u, 1792u, 1536u };
+int          AIPerson_bestLineAbilities[4]       = { 19660, 32768, 52428, 65536 };
+int          AIPerson_glueTable[21];                       /* @0x8010D714 */
+AIPerson_t   AIPerson_PersonalityData[9];                  /* @0x8010D768 */
+AIScript_tReactionDetails AIPerson_ScriptData[9][7];       /* @0x8010DA5C */
+
 
 /* ---- intra-TU forward declarations ---- */
-int AIPerson_LoadGridAndSetPersonalityIndexes(void);
+void AIPerson_LoadGridAndSetPersonalityIndexes(void);
 void AIPerson_SetPersonality(Car_tObj *carObj,int personalityIndex);
 void AIPerson_SetPersonalityPointers(void);
 void AIPerson_LoadPersonalityData(Udff_tInfo *handle);
@@ -18,38 +44,20 @@ void AIPerson_Cleanup(void);
 
 
 /* ---- AIPerson_LoadGridAndSetPersonalityIndexes__Fv  [@0x800689e8] — PIN-FREE 100% ----
- * 🔑 §3.2 VOID-RETURN-BUG: the oracle was compiled NON-void — gcc reserving $v0 for the
- * return value is what puts the counter in $a0 and the counter-init in the blez delay slot
- * (the `void` form is exactly 1 insn off; the counter-`asm("$4")` pin was forcing this by
- * hand). Declaring the true `int` return type is the clean fix (a type correction, NOT a
- * pin); the returned $v0 is incidental (the loop-exit slt) and unused by callers. The
- * permuter independently confirmed it (6 score-0 candidates, all non-void return types).
- * counter assigned LAST (after the pointers) for the $a0 allocation. */
-int AIPerson_LoadGridAndSetPersonalityIndexes(void)
+ * SYM is authoritative here: FCN VOID and the sole named local is `int carLoop`.
+ * The direct indexed `for` loop is also the split-m2c data-flow shape.  GCC strength-
+ * reduces the two indexed arrays to the retail $a1/$a2 cursors and schedules the $a0
+ * counter initialization into the entry `blez` delay slot.  The former pointer-carrier
+ * reconstruction needed a false `int` return type to obtain that schedule. */
+void AIPerson_LoadGridAndSetPersonalityIndexes(void)
 {
-  int personality;
-  int iVar2;
-  int iVar3;
-  Car_tObj *carObj;
-  Car_tObj **ppCVar4;
-  GameSetup_tData *pGVar5;
+  int carLoop;
 
-  iVar2 = Cars_gNumCars;
-  if (0 < Cars_gNumCars) {
-    pGVar5 = &GameSetup_gData;
-    ppCVar4 = Cars_gList;
-    iVar3 = 0;
-    do {
-      personality = pGVar5->carInfo->Personality;
-      pGVar5 = (GameSetup_tData *)((pGVar5->controllerData).shockImpact + 1);
-      carObj = *ppCVar4;
-      carObj->personalityIndex = personality;
-      ppCVar4 = ppCVar4 + 1;
-      iVar3 = iVar3 + 1;
-    } while (iVar3 < iVar2);
+  for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
+    Cars_gList[carLoop]->personalityIndex =
+        GameSetup_gData.carInfo[carLoop].Personality;
   }
-  return;   /* §3.2: non-void type recovered, but $v0 is the incidental loop-slt — NO explicit
-             * return value (a `return <expr>;` adds an instr); callers ignore it. */
+  return;
 }
 
 /* ---- AIPerson_SetPersonality__FP8Car_tObji  [@0x80068a34] ---- */
@@ -89,63 +97,66 @@ void AIPerson_SetPersonalityPointers(void)
 /* ---- AIPerson_LoadPersonalityData__FP10Udff_tInfo  [@0x80068b60] ---- */
 void AIPerson_LoadPersonalityData(Udff_tInfo *handle)
 {
-  int local_40;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
-  int iVar8;
-  int iVar9;
-  int iVar10;
-  int iVar11;
-  int iVar12;
-  int iVar13;
+  int perLoop;
+  int blockingDistance;
+  int cutOffDistance;
+  int lookAhead;
+  int swervyness;
+  int braking;
+  int roadRage;
+  int fishtailControl;
+  int wipeOutFreq;
+  int corneringAbility;
+  int bestLineAbility;
+  int rearEndingTendency;
+  int aggression;
+  /* SYM-CODEGEN-CARRIER: copCollisionFirmness -- no retail debug name survives for this final read,
+   * but keeping it distinct reproduces the 80-byte frame and saved-register
+   * allocation; assigning Udff_GetInt directly removes three instructions. */
+  int copCollisionFirmness;
   Udff_GetInt(handle);
 
-  local_40 = 0;
+  perLoop = 0;
   while (1) {
-    if (local_40 >= 9) {
+    if (perLoop >= 9) {
       break;
     }
-    iVar1 = Udff_GetInt(handle);
-    iVar2 = Udff_GetInt(handle);
-    iVar3 = Udff_GetInt(handle);
-    iVar4 = Udff_GetInt(handle);
-    iVar5 = Udff_GetInt(handle);
-    iVar6 = Udff_GetInt(handle);
-    iVar7 = Udff_GetInt(handle);
+    blockingDistance = Udff_GetInt(handle);
+    cutOffDistance = Udff_GetInt(handle);
+    lookAhead = Udff_GetInt(handle);
+    swervyness = Udff_GetInt(handle);
+    braking = Udff_GetInt(handle);
+    roadRage = Udff_GetInt(handle);
+    fishtailControl = Udff_GetInt(handle);
     Udff_GetInt(handle);
-    iVar8 = Udff_GetInt(handle);
-    iVar9 = Udff_GetInt(handle);
-    iVar10 = Udff_GetInt(handle);
-    iVar11 = Udff_GetInt(handle);
-    iVar12 = Udff_GetInt(handle);
-    iVar13 = Udff_GetInt(handle);
-    AIPerson_PersonalityData[local_40].blockMaxDistance = AIPerson_blockMaxDistance[iVar1];
-    AIPerson_PersonalityData[local_40].blockMinDistance = AIPerson_blockMinDistance[iVar2];
-    AIPerson_PersonalityData[local_40].oncomingLookAhead = AIPerson_oncomingLookAhead[iVar3];
-    AIPerson_PersonalityData[local_40].laneSwerve[0] = AIPerson_laneSwerve[iVar4][0];
-    AIPerson_PersonalityData[local_40].laneSwerve[1] = AIPerson_laneSwerve[iVar4][1];
-    AIPerson_PersonalityData[local_40].laneSwerve[2] = AIPerson_laneSwerve[iVar4][2];
-    AIPerson_PersonalityData[local_40].laneSwerve[3] = AIPerson_laneSwerve[iVar4][3];
-    AIPerson_PersonalityData[local_40].swerveChangeProb = AIPerson_swerveChangeProb[iVar4];
-    AIPerson_PersonalityData[local_40].brakeMultiplier = AIPerson_brakeMultiplier[iVar5];
-    AIPerson_PersonalityData[local_40].attackActivationHits = AIPerson_attackActivationHits[iVar6];
-    AIPerson_PersonalityData[local_40].attackTime = AIPerson_attackTimes[iVar6];
-    AIPerson_PersonalityData[local_40].fishtailAngle = AIPerson_fishtailAngles[iVar7];
-    AIPerson_PersonalityData[local_40].minimumBetweenWipeoutTicks = AIPerson_minimumWipeOutTicks[iVar8 + GameSetup_gData.Weather];
-    AIPerson_PersonalityData[local_40].randomBetweenWipeoutTicks = AIPerson_randomWipeOutTicks[iVar8 + GameSetup_gData.Weather];
-    AIPerson_PersonalityData[local_40].gripLossProbPerSecond = AIPerson_gripLossProbPerSecond[iVar9];
-    AIPerson_PersonalityData[local_40].gripLossMinFactor = AIPerson_gripLossMinFactor[iVar9];
-    AIPerson_PersonalityData[local_40].gripLossRecoveryPerTick = AIPerson_gripLossRecoveryPerTick[iVar9];
-    AIPerson_PersonalityData[local_40].bestLineAbility = AIPerson_bestLineAbilities[iVar10];
-    AIPerson_PersonalityData[local_40].rearBumpProbMask = AIPerson_rearEndProbMask[iVar11];
-    AIPerson_PersonalityData[local_40].smackProbMask = AIPerson_smackProbMask[iVar12];
-    AIPerson_PersonalityData[local_40].copCollisionFirmness = iVar13;
-    local_40++;
+    wipeOutFreq = Udff_GetInt(handle);
+    corneringAbility = Udff_GetInt(handle);
+    bestLineAbility = Udff_GetInt(handle);
+    rearEndingTendency = Udff_GetInt(handle);
+    aggression = Udff_GetInt(handle);
+    copCollisionFirmness = Udff_GetInt(handle);
+    AIPerson_PersonalityData[perLoop].blockMaxDistance = AIPerson_blockMaxDistance[blockingDistance];
+    AIPerson_PersonalityData[perLoop].blockMinDistance = AIPerson_blockMinDistance[cutOffDistance];
+    AIPerson_PersonalityData[perLoop].oncomingLookAhead = AIPerson_oncomingLookAhead[lookAhead];
+    AIPerson_PersonalityData[perLoop].laneSwerve[0] = AIPerson_laneSwerve[swervyness][0];
+    AIPerson_PersonalityData[perLoop].laneSwerve[1] = AIPerson_laneSwerve[swervyness][1];
+    AIPerson_PersonalityData[perLoop].laneSwerve[2] = AIPerson_laneSwerve[swervyness][2];
+    AIPerson_PersonalityData[perLoop].laneSwerve[3] = AIPerson_laneSwerve[swervyness][3];
+    AIPerson_PersonalityData[perLoop].swerveChangeProb = AIPerson_swerveChangeProb[swervyness];
+    AIPerson_PersonalityData[perLoop].brakeMultiplier = AIPerson_brakeMultiplier[braking];
+    AIPerson_PersonalityData[perLoop].attackActivationHits = AIPerson_attackActivationHits[roadRage];
+    AIPerson_PersonalityData[perLoop].attackTime = AIPerson_attackTimes[roadRage];
+    AIPerson_PersonalityData[perLoop].fishtailAngle = AIPerson_fishtailAngles[fishtailControl];
+    AIPerson_PersonalityData[perLoop].minimumBetweenWipeoutTicks = AIPerson_minimumWipeOutTicks[wipeOutFreq + GameSetup_gData.Weather];
+    AIPerson_PersonalityData[perLoop].randomBetweenWipeoutTicks = AIPerson_randomWipeOutTicks[wipeOutFreq + GameSetup_gData.Weather];
+    AIPerson_PersonalityData[perLoop].gripLossProbPerSecond = AIPerson_gripLossProbPerSecond[corneringAbility];
+    AIPerson_PersonalityData[perLoop].gripLossMinFactor = AIPerson_gripLossMinFactor[corneringAbility];
+    AIPerson_PersonalityData[perLoop].gripLossRecoveryPerTick = AIPerson_gripLossRecoveryPerTick[corneringAbility];
+    AIPerson_PersonalityData[perLoop].bestLineAbility = AIPerson_bestLineAbilities[bestLineAbility];
+    AIPerson_PersonalityData[perLoop].rearBumpProbMask = AIPerson_rearEndProbMask[rearEndingTendency];
+    AIPerson_PersonalityData[perLoop].smackProbMask = AIPerson_smackProbMask[aggression];
+    AIPerson_PersonalityData[perLoop].copCollisionFirmness = copCollisionFirmness;
+    perLoop++;
   }
   return;
 }
@@ -237,33 +248,33 @@ LAB_skip:
 void AIPerson_Startup(void)
 {
   char **pathBase;
-  Udff_tInfo *pUVar1;
-  char acStack_80 [112];
+  Udff_tInfo *handle;
+  char filename[110];
 
   AIPerson_LoadGridAndSetPersonalityIndexes();
   pathBase = Paths_Paths;
-  sprintf(acStack_80,D_80055354,pathBase[2]);
-  pUVar1 = Udff_Opena(acStack_80,(char *)0x0,1);
-  AIPerson_LoadPersonalityData(pUVar1);
-  Udff_Close(pUVar1);
-  sprintf(acStack_80,D_80055364,pathBase[2]);
-  pUVar1 = Udff_Opena(acStack_80,(char *)0x0,1);
-  AIPerson_LoadScriptData(pUVar1);
-  Udff_Close(pUVar1);
+  sprintf(filename,D_80055354,pathBase[2]);
+  handle = Udff_Opena(filename,(char *)0x0,1);
+  AIPerson_LoadPersonalityData(handle);
+  Udff_Close(handle);
+  sprintf(filename,D_80055364,pathBase[2]);
+  handle = Udff_Opena(filename,(char *)0x0,1);
+  AIPerson_LoadScriptData(handle);
+  Udff_Close(handle);
   if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
      ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
       ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
-    sprintf(acStack_80,D_80055374,pathBase[2]);
+    sprintf(filename,D_80055374,pathBase[2]);
   }
   else if (((u_int)GameSetup_gData.raceType < RaceType_Tournament) && (Cars_gNumAIRaceCars == 1)) {
-    sprintf(acStack_80,D_80055384,D_80116470[0]);
+    sprintf(filename,D_80055384,D_80116470[0]);
   }
   else {
-    sprintf(acStack_80,D_80055394,D_80116470[0]);
+    sprintf(filename,D_80055394,D_80116470[0]);
   }
-  pUVar1 = Udff_Opena(acStack_80,(char *)0x0,1);
-  AIPerson_LoadGlue(pUVar1);
-  Udff_Close(pUVar1);
+  handle = Udff_Opena(filename,(char *)0x0,1);
+  AIPerson_LoadGlue(handle);
+  Udff_Close(handle);
   AIPerson_SetPersonalityPointers();
   return;
 }

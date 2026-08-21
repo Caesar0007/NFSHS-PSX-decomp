@@ -263,10 +263,10 @@ void AudioMus_QueueRequestedSong(void)
 /* ---- AudioMus_SetEntry__FP19AudioMus_tSongEntry  [@0x8007a308] ---- */
 void AudioMus_SetEntry(AudioMus_tSongEntry *info)
 {
-  char cVar1;
-  bool bVar2;
+  int titlechar;
+  int havefile;
   int iVar3;
-  char *pcVar4;
+  char *p;
 
   /* MATCH (w54-a11) -- SEALED; retires the w30-a7 "proven scheduler floor" receipt.
    * Two edits, both read straight off retail's SLD (LAW 05A):
@@ -289,29 +289,29 @@ void AudioMus_SetEntry(AudioMus_tSongEntry *info)
   info->date = (char *)0x0;
   info->notes = (char *)0x0;
   iVar3 = 0;
-  bVar2 = false;
-  pcVar4 = info->filename;
-  cVar1 = *pcVar4;
-  if (cVar1 != '\0') {   /* loop-rotated: oracle tests the FIRST char once up-front, then the */
+  havefile = false;
+  p = info->filename;
+  titlechar = *p;
+  if (titlechar != '\0') {   /* loop-rotated: oracle tests the FIRST char once up-front, then the */
                          /* back-edge test is the ONLY other '\0' check (matches the rotated */
     do {               /* while-loop gcc emits for a plain `while` — see methodology §3.12#15a) */
-      if (cVar1 == '-') {
-        if (!bVar2) {
-          bVar2 = true;
+      if (titlechar == '-') {
+        if (!havefile) {
+          havefile = true;
           iVar3 = 0;
         }
         else {
-          info->artist = pcVar4 + 1;
+          info->artist = p + 1;
           goto LAB_8007a37c;
         }
       }
       else if (iVar3 < 0x1f) {
-        info->strbuf[iVar3] = cVar1;
+        info->strbuf[iVar3] = titlechar;
         iVar3 = iVar3 + 1;
       }
-      pcVar4 = pcVar4 + 1;
-      cVar1 = *pcVar4;
-    } while (cVar1 != '\0');
+      p = p + 1;
+      titlechar = *p;
+    } while (titlechar != '\0');
   }
 LAB_8007a37c:
   info->strbuf[iVar3] = '\0';

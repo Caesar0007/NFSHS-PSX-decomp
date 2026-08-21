@@ -436,7 +436,7 @@ void tScreenTrackSelect::ProcessInput(tPlayer player,tInputKeyType &keyval,
      With ptVar1 retained for the two stores, GCC assigns retail's menuDefs
      base to $a0 and trafficFlags to $a1, with no reload or extra instruction. */
   tGlobalMenuDefs *ptVar1;
-  void *pvVar2;
+  bool pvVar2;
   __vtbl_ptr_type (*menuVtbl) [11];
   uint cmdResult;
   tTrackInformation trackInfo;
@@ -466,7 +466,7 @@ void tScreenTrackSelect::ProcessInput(tPlayer player,tInputKeyType &keyval,
            (menuDefsA[0]->itemTraffic).fFlags | 1;
     }
     if ((frontEnd.raceType == RaceType_HotPursuit) &&
-       (pvVar2 = Front_EnableLocalSpeech(), pvVar2 != (void *)0x0))
+       (pvVar2 = Front_EnableLocalSpeech(), pvVar2))
     {
       (menuDefsA[0]->itemLocalSpeech).fFlags =
            (menuDefsA[0]->itemLocalSpeech).fFlags & 0xfffffffe;

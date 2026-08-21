@@ -1,0 +1,1357 @@
+# Header-attributed SYM function coverage
+
+- Records: 122
+- Records with a config symbol at the exact VA: 122
+- Records with an extracted oracle: 122
+- Raw GCC-v2 identifiers used as code identifiers: 0
+- Demangled records with signature findings: 0
+- DEMANGLED_SOURCE: 55
+- VA_CARRIER: 15
+- COMPILER_GENERATED_NO_EXPLICIT_BODY: 52
+- RAW_IDENTIFIER_IN_CODE: 0
+- UNRESOLVED: 0
+
+## Per-record ledger
+
+### `_._15AIHigh_BTC_Perp` @ 0x8005b438 -- VA_CARRIER
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AIHIGH.H:267`
+- Demangled identity: `AIHigh_BTC_Perp::~AIHigh_BTC_Perp`
+- Source definitions: none
+- VA breadcrumbs/carriers: recon\game\common\aih_btcperp.cpp:1953, recon\game\common\aihigh.cpp:25, recon\game\common\aihigh.cpp:468, recon\game\common\aihigh.cpp:470
+- Config symbols: ___15AIHigh_BTC_Perp
+- Oracle files: asm\nonmatchings\main\___15AIHigh_BTC_Perp.s, asm\nonmatchings\main\___15AIHigh_BTC_Perp_80061348.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `HighExecute__11AIHigh_None` @ 0x8005b460 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AIHIGH.H:132`
+- Demangled identity: `AIHigh_None::HighExecute`
+- Source definitions: aihigh.cpp:491 AIHigh_None::HighExecute
+- VA breadcrumbs/carriers: recon\game\common\aihigh.cpp:30
+- Config symbols: HighExecute__11AIHigh_None
+- Oracle files: asm\nonmatchings\main\HighExecute__11AIHigh_None.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._11AIHigh_None` @ 0x8005b468 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AIHIGH.H:134`
+- Demangled identity: `AIHigh_None::~AIHigh_None`
+- Source definitions: aihigh.cpp:510 AIHigh_None::~AIHigh_None
+- VA breadcrumbs/carriers: recon\game\common\aihigh.cpp:31
+- Config symbols: ___11AIHigh_None
+- Oracle files: asm\nonmatchings\main\___11AIHigh_None.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `Execute__12AIState_None` @ 0x8005b488 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AISTATE.H:35`
+- Demangled identity: `AIState_None::Execute`
+- Source definitions: aihigh.cpp:530 AIState_None::Execute
+- VA breadcrumbs/carriers: none
+- Config symbols: Execute__12AIState_None
+- Oracle files: asm\nonmatchings\main\Execute__12AIState_None.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._12AIState_None` @ 0x8005b490 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AISTATE.H:34`
+- Demangled identity: `AIState_None::~AIState_None`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___12AIState_None
+- Oracle files: asm\nonmatchings\main\___12AIState_None.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `TestForRelease__12AIState_Base` @ 0x8005b4c4 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AISTATE.H:25`
+- Demangled identity: `AIState_Base::TestForRelease`
+- Source definitions: aihigh.cpp:591 AIState_Base::TestForRelease
+- VA breadcrumbs/carriers: recon\game\common\aih_btccop.cpp:3858, recon\game\common\aih_btcperp.cpp:2046, recon\game\common\aistate.cpp:3285, recon\game\common\aistate.cpp:3402, recon\game\common\aistate.cpp:3457
+- Config symbols: TestForRelease__12AIState_Base
+- Oracle files: asm\nonmatchings\main\TestForRelease__12AIState_Base.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._12AIState_Base` @ 0x8005b4cc -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AISTATE.H:24`
+- Demangled identity: `AIState_Base::~AIState_Base`
+- Source definitions: aihigh.cpp:610 AIState_Base::~AIState_Base
+- VA breadcrumbs/carriers: recon\game\common\aistate.cpp:3426, recon\game\common\aistate.cpp:3457
+- Config symbols: ___12AIState_Base
+- Oracle files: asm\nonmatchings\main\___12AIState_Base.s, asm\nonmatchings\main\___12AIState_Base_8005F680.s, asm\nonmatchings\main\___12AIState_Base_800613CC.s, asm\nonmatchings\main\___12AIState_Base_80072838.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._16AIHigh_BasicPerp` @ 0x8005c13c -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AIHIGH.H:164`
+- Demangled identity: `AIHigh_BasicPerp::~AIHigh_BasicPerp`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___16AIHigh_BasicPerp
+- Oracle files: asm\nonmatchings\main\___16AIHigh_BasicPerp.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._15AIHigh_BasicCop` @ 0x8005cb4c -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AIHIGH.H:414`
+- Demangled identity: `AIHigh_BasicCop::~AIHigh_BasicCop`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___15AIHigh_BasicCop
+- Oracle files: asm\nonmatchings\main\___15AIHigh_BasicCop.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._18AIHigh_BTC_Wingman` @ 0x8005f5c4 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AIHIGH.H:548`
+- Demangled identity: `AIHigh_BTC_Wingman::~AIHigh_BTC_Wingman`
+- Source definitions: aih_btccop.cpp:3740 AIHigh_BTC_Wingman::~AIHigh_BTC_Wingman
+- VA breadcrumbs/carriers: none
+- Config symbols: ___18AIHigh_BTC_Wingman
+- Oracle files: asm\nonmatchings\main\___18AIHigh_BTC_Wingman.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._19AIHigh_BTC_HumanCop` @ 0x8005f5e4 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AIHIGH.H:527`
+- Demangled identity: `AIHigh_BTC_HumanCop::~AIHigh_BTC_HumanCop`
+- Source definitions: aih_btccop.cpp:3760 AIHigh_BTC_HumanCop::~AIHigh_BTC_HumanCop
+- VA breadcrumbs/carriers: none
+- Config symbols: ___19AIHigh_BTC_HumanCop
+- Oracle files: asm\nonmatchings\main\___19AIHigh_BTC_HumanCop.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._14AIHigh_BTC_Cop` @ 0x8005f604 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AIHIGH.H:471`
+- Demangled identity: `AIHigh_BTC_Cop::~AIHigh_BTC_Cop`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___14AIHigh_BTC_Cop
+- Oracle files: asm\nonmatchings\main\___14AIHigh_BTC_Cop.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `Execute__17AIState_NonActive` @ 0x8005f624 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AISTATE.H:174`
+- Demangled identity: `AIState_NonActive::Execute`
+- Source definitions: aih_btccop.cpp:3834 AIState_NonActive::Execute
+- VA breadcrumbs/carriers: recon\game\common\aih_btccop.cpp:3832, recon\game\common\aih_btcperp.cpp:2025, recon\game\common\aistate.cpp:18, recon\game\common\aistate.cpp:3285
+- Config symbols: Execute__17AIState_NonActive
+- Oracle files: asm\nonmatchings\main\Execute__17AIState_NonActive.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._17AIState_NonActive` @ 0x8005f62c -- VA_CARRIER
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AISTATE.H:170`
+- Demangled identity: `AIState_NonActive::~AIState_NonActive`
+- Source definitions: none
+- VA breadcrumbs/carriers: recon\game\common\aih_btccop.cpp:3839, recon\game\common\aistate.cpp:3285, recon\game\common\aistate.cpp:3308
+- Config symbols: ___17AIState_NonActive
+- Oracle files: asm\nonmatchings\main\___17AIState_NonActive.s, asm\nonmatchings\main\___17AIState_NonActive_80061378.s, asm\nonmatchings\main\___17AIState_NonActive_80072758.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `TestForRelease__12AIState_Base` @ 0x8005f678 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AISTATE.H:25`
+- Demangled identity: `AIState_Base::TestForRelease`
+- Source definitions: aihigh.cpp:591 AIState_Base::TestForRelease
+- VA breadcrumbs/carriers: recon\game\common\aih_btccop.cpp:3851, recon\game\common\aih_btccop.cpp:3852
+- Config symbols: TestForRelease__12AIState_Base_8005F678
+- Oracle files: asm\nonmatchings\main\TestForRelease__12AIState_Base.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._12AIState_Base` @ 0x8005f680 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AISTATE.H:24`
+- Demangled identity: `AIState_Base::~AIState_Base`
+- Source definitions: aihigh.cpp:610 AIState_Base::~AIState_Base
+- VA breadcrumbs/carriers: recon\game\common\aih_btccop.cpp:3860, recon\game\common\aih_btccop.cpp:3861
+- Config symbols: ___12AIState_Base_8005F680
+- Oracle files: asm\nonmatchings\main\___12AIState_Base.s, asm\nonmatchings\main\___12AIState_Base_8005F680.s, asm\nonmatchings\main\___12AIState_Base_800613CC.s, asm\nonmatchings\main\___12AIState_Base_80072838.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._20AIHigh_BTC_HumanPerp` @ 0x80061320 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AIHIGH.H:281`
+- Demangled identity: `AIHigh_BTC_HumanPerp::~AIHigh_BTC_HumanPerp`
+- Source definitions: aih_btcperp.cpp:1929 AIHigh_BTC_HumanPerp::~AIHigh_BTC_HumanPerp
+- VA breadcrumbs/carriers: none
+- Config symbols: ___20AIHigh_BTC_HumanPerp
+- Oracle files: asm\nonmatchings\main\___20AIHigh_BTC_HumanPerp.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._15AIHigh_BTC_Perp` @ 0x80061348 -- VA_CARRIER
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AIHIGH.H:267`
+- Demangled identity: `AIHigh_BTC_Perp::~AIHigh_BTC_Perp`
+- Source definitions: none
+- VA breadcrumbs/carriers: recon\game\common\aih_btcperp.cpp:1951, recon\game\common\aih_btcperp.cpp:1958, recon\game\common\aihigh.cpp:471
+- Config symbols: ___15AIHigh_BTC_Perp_80061348
+- Oracle files: asm\nonmatchings\main\___15AIHigh_BTC_Perp.s, asm\nonmatchings\main\___15AIHigh_BTC_Perp_80061348.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `Execute__17AIState_NonActive` @ 0x80061370 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AISTATE.H:174`
+- Demangled identity: `AIState_NonActive::Execute`
+- Source definitions: aih_btccop.cpp:3834 AIState_NonActive::Execute
+- VA breadcrumbs/carriers: recon\game\common\aih_btcperp.cpp:2017, recon\game\common\aih_btcperp.cpp:2019
+- Config symbols: Execute__17AIState_NonActive_80061370
+- Oracle files: asm\nonmatchings\main\Execute__17AIState_NonActive.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._17AIState_NonActive` @ 0x80061378 -- VA_CARRIER
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AISTATE.H:170`
+- Demangled identity: `AIState_NonActive::~AIState_NonActive`
+- Source definitions: none
+- VA breadcrumbs/carriers: recon\game\common\aih_btcperp.cpp:2027, recon\game\common\aih_btcperp.cpp:2028
+- Config symbols: ___17AIState_NonActive_80061378
+- Oracle files: asm\nonmatchings\main\___17AIState_NonActive.s, asm\nonmatchings\main\___17AIState_NonActive_80061378.s, asm\nonmatchings\main\___17AIState_NonActive_80072758.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `TestForRelease__12AIState_Base` @ 0x800613c4 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AISTATE.H:25`
+- Demangled identity: `AIState_Base::TestForRelease`
+- Source definitions: aihigh.cpp:591 AIState_Base::TestForRelease
+- VA breadcrumbs/carriers: recon\game\common\aih_btcperp.cpp:2039, recon\game\common\aih_btcperp.cpp:2040
+- Config symbols: TestForRelease__12AIState_Base_800613C4
+- Oracle files: asm\nonmatchings\main\TestForRelease__12AIState_Base.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._12AIState_Base` @ 0x800613cc -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AISTATE.H:24`
+- Demangled identity: `AIState_Base::~AIState_Base`
+- Source definitions: aihigh.cpp:610 AIState_Base::~AIState_Base
+- VA breadcrumbs/carriers: recon\game\common\aih_btcperp.cpp:2048, recon\game\common\aih_btcperp.cpp:2049
+- Config symbols: ___12AIState_Base_800613CC
+- Oracle files: asm\nonmatchings\main\___12AIState_Base.s, asm\nonmatchings\main\___12AIState_Base_8005F680.s, asm\nonmatchings\main\___12AIState_Base_800613CC.s, asm\nonmatchings\main\___12AIState_Base_80072838.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._13AIHigh_Player` @ 0x80063248 -- VA_CARRIER
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AIHIGH.H:202`
+- Demangled identity: `AIHigh_Player::~AIHigh_Player`
+- Source definitions: none
+- VA breadcrumbs/carriers: recon\game\common\aih_play.cpp:1450
+- Config symbols: ___13AIHigh_Player
+- Oracle files: asm\nonmatchings\main\___13AIHigh_Player.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._12AIHigh_Human` @ 0x800632e0 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AIHIGH.H:219`
+- Demangled identity: `AIHigh_Human::~AIHigh_Human`
+- Source definitions: aih_hum.cpp:64 AIHigh_Human::~AIHigh_Human
+- VA breadcrumbs/carriers: none
+- Config symbols: ___12AIHigh_Human
+- Oracle files: asm\nonmatchings\main\___12AIHigh_Human.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._15AIHigh_Opponent` @ 0x80063bd8 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AIHIGH.H:242`
+- Demangled identity: `AIHigh_Opponent::~AIHigh_Opponent`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___15AIHigh_Opponent
+- Oracle files: asm\nonmatchings\main\___15AIHigh_Opponent.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._10AIHigh_Cop` @ 0x80065c6c -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AIHIGH.H:448`
+- Demangled identity: `AIHigh_Cop::~AIHigh_Cop`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___10AIHigh_Cop
+- Oracle files: asm\nonmatchings\main\___10AIHigh_Cop.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._14AIHigh_Traffic` @ 0x8006698c -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AIHIGH.H:584`
+- Demangled identity: `AIHigh_Traffic::~AIHigh_Traffic`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___14AIHigh_Traffic
+- Oracle files: asm\nonmatchings\main\___14AIHigh_Traffic.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `Get__26AIDataRecord_CarTracking_ti` @ 0x8006d50c -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AIDATARECORD.H:191`
+- Demangled identity: `AIDataRecord_CarTracking_t::Get`
+- Source definitions: aidatarecord.cpp:333 AIDataRecord_CarTracking_t::Get
+- VA breadcrumbs/carriers: recon\game\common\aidatarecord.cpp:331
+- Config symbols: Get__26AIDataRecord_CarTracking_ti
+- Oracle files: asm\nonmatchings\main\Get__26AIDataRecord_CarTracking_ti.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._26AIDataRecord_CarTracking_t` @ 0x8006d514 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AIDATARECORD.H:199`
+- Demangled identity: `AIDataRecord_CarTracking_t::~AIDataRecord_CarTracking_t`
+- Source definitions: aidatarecord.cpp:343 AIDataRecord_CarTracking_t::~AIDataRecord_CarTracking_t
+- VA breadcrumbs/carriers: recon\game\common\aidatarecord.cpp:338
+- Config symbols: ___26AIDataRecord_CarTracking_t
+- Oracle files: asm\nonmatchings\main\___26AIDataRecord_CarTracking_t.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._30AIDataRecord_CurveSpeedTable_t` @ 0x8006d534 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AIDATARECORD.H:182`
+- Demangled identity: `AIDataRecord_CurveSpeedTable_t::~AIDataRecord_CurveSpeedTable_t`
+- Source definitions: aidatarecord.cpp:352 AIDataRecord_CurveSpeedTable_t::~AIDataRecord_CurveSpeedTable_t
+- VA breadcrumbs/carriers: recon\game\common\aidatarecord.cpp:347
+- Config symbols: ___30AIDataRecord_CurveSpeedTable_t
+- Oracle files: asm\nonmatchings\main\___30AIDataRecord_CurveSpeedTable_t.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._25AIDataRecord_TrackCurve_t` @ 0x8006d554 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AIDATARECORD.H:163`
+- Demangled identity: `AIDataRecord_TrackCurve_t::~AIDataRecord_TrackCurve_t`
+- Source definitions: aidatarecord.cpp:361 AIDataRecord_TrackCurve_t::~AIDataRecord_TrackCurve_t
+- VA breadcrumbs/carriers: recon\game\common\aidatarecord.cpp:356
+- Config symbols: ___25AIDataRecord_TrackCurve_t
+- Oracle files: asm\nonmatchings\main\___25AIDataRecord_TrackCurve_t.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._23AIDataRecord_BestLine_t` @ 0x8006d574 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AIDATARECORD.H:150`
+- Demangled identity: `AIDataRecord_BestLine_t::~AIDataRecord_BestLine_t`
+- Source definitions: aidatarecord.cpp:370 AIDataRecord_BestLine_t::~AIDataRecord_BestLine_t
+- VA breadcrumbs/carriers: recon\game\common\aidatarecord.cpp:365
+- Config symbols: ___23AIDataRecord_BestLine_t
+- Oracle files: asm\nonmatchings\main\___23AIDataRecord_BestLine_t.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._23AIDataRecord_AccTable_t` @ 0x8006d594 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AIDATARECORD.H:109`
+- Demangled identity: `AIDataRecord_AccTable_t::~AIDataRecord_AccTable_t`
+- Source definitions: aidatarecord.cpp:375 AIDataRecord_AccTable_t::~AIDataRecord_AccTable_t
+- VA breadcrumbs/carriers: none
+- Config symbols: ___23AIDataRecord_AccTable_t
+- Oracle files: asm\nonmatchings\main\___23AIDataRecord_AccTable_t.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._14AIState_Cruise` @ 0x8007265c -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AISTATE.H:262`
+- Demangled identity: `AIState_Cruise::~AIState_Cruise`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___14AIState_Cruise
+- Oracle files: asm\nonmatchings\main\___14AIState_Cruise.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._17AIState_GotoSlice` @ 0x80072690 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AISTATE.H:238`
+- Demangled identity: `AIState_GotoSlice::~AIState_GotoSlice`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___17AIState_GotoSlice
+- Oracle files: asm\nonmatchings\main\___17AIState_GotoSlice.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `TestForRelease__21AIState_RovingTraffic` @ 0x800726c4 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AISTATE.H:210`
+- Demangled identity: `AIState_RovingTraffic::TestForRelease`
+- Source definitions: aistate.cpp:3212 AIState_RovingTraffic::TestForRelease
+- VA breadcrumbs/carriers: none
+- Config symbols: TestForRelease__21AIState_RovingTraffic
+- Oracle files: asm\nonmatchings\main\TestForRelease__21AIState_RovingTraffic.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._21AIState_RovingTraffic` @ 0x800726dc -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AISTATE.H:204`
+- Demangled identity: `AIState_RovingTraffic::~AIState_RovingTraffic`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___21AIState_RovingTraffic
+- Oracle files: asm\nonmatchings\main\___21AIState_RovingTraffic.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `Execute__17AIState_NonActive` @ 0x80072750 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AISTATE.H:174`
+- Demangled identity: `AIState_NonActive::Execute`
+- Source definitions: aih_btccop.cpp:3834 AIState_NonActive::Execute
+- VA breadcrumbs/carriers: recon\game\common\aistate.cpp:21, recon\game\common\aistate.cpp:3280, recon\game\common\aistate.cpp:3288, recon\game\common\aistate.cpp:3293, recon\game\common\aistate.cpp:3295, recon\game\common\aistate.cpp:3307, recon\game\common\aistate.cpp:3424
+- Config symbols: Execute__17AIState_NonActive_80072750
+- Oracle files: asm\nonmatchings\main\Execute__17AIState_NonActive.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._17AIState_NonActive` @ 0x80072758 -- VA_CARRIER
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AISTATE.H:170`
+- Demangled identity: `AIState_NonActive::~AIState_NonActive`
+- Source definitions: none
+- VA breadcrumbs/carriers: recon\game\common\aistate.cpp:3282, recon\game\common\aistate.cpp:3306, recon\game\common\aistate.cpp:3312, recon\game\common\aistate.cpp:3316
+- Config symbols: ___17AIState_NonActive_80072758
+- Oracle files: asm\nonmatchings\main\___17AIState_NonActive.s, asm\nonmatchings\main\___17AIState_NonActive_80061378.s, asm\nonmatchings\main\___17AIState_NonActive_80072758.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._12AIState_Idle` @ 0x800727a4 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AISTATE.H:58`
+- Demangled identity: `AIState_Idle::~AIState_Idle`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___12AIState_Idle
+- Oracle files: asm\nonmatchings\main\___12AIState_Idle.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._14AIState_Normal` @ 0x800727fc -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AISTATE.H:45`
+- Demangled identity: `AIState_Normal::~AIState_Normal`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___14AIState_Normal
+- Oracle files: asm\nonmatchings\main\___14AIState_Normal.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `TestForRelease__12AIState_Base` @ 0x80072830 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AISTATE.H:25`
+- Demangled identity: `AIState_Base::TestForRelease`
+- Source definitions: aihigh.cpp:591 AIState_Base::TestForRelease
+- VA breadcrumbs/carriers: recon\game\common\aistate.cpp:3282, recon\game\common\aistate.cpp:3400, recon\game\common\aistate.cpp:3404, recon\game\common\aistate.cpp:3409, recon\game\common\aistate.cpp:3460
+- Config symbols: TestForRelease__12AIState_Base_80072830
+- Oracle files: asm\nonmatchings\main\TestForRelease__12AIState_Base.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._12AIState_Base` @ 0x80072838 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\AISTATE.H:24`
+- Demangled identity: `AIState_Base::~AIState_Base`
+- Source definitions: aihigh.cpp:610 AIState_Base::~AIState_Base
+- VA breadcrumbs/carriers: recon\game\common\aistate.cpp:3282, recon\game\common\aistate.cpp:3420, recon\game\common\aistate.cpp:3430, recon\game\common\aistate.cpp:3432, recon\game\common\aistate.cpp:3460, recon\game\common\vtables_aistate.cpp:13, recon\game\common\vtables_aistate.cpp:102
+- Config symbols: ___12AIState_Base_80072838
+- Oracle files: asm\nonmatchings\main\___12AIState_Base.s, asm\nonmatchings\main\___12AIState_Base_8005F680.s, asm\nonmatchings\main\___12AIState_Base_800613CC.s, asm\nonmatchings\main\___12AIState_Base_80072838.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `CallSign__Q26Speech7Speaker` @ 0x80099364 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\SPEECH.H:370`
+- Demangled identity: `Speaker::CallSign`
+- Source definitions: speech.cpp:3941 Speaker::CallSign
+- VA breadcrumbs/carriers: recon\game\common\speech.cpp:3938, recon\game\common\speech.cpp:3940, recon\game\common\speech.cpp:3941
+- Config symbols: CallSign__Q26Speech7Speaker
+- Oracle files: asm\nonmatchings\main\CallSign__Q26Speech7Speaker.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `FindClosestLocationTo__Q26Speech7Speakeri` @ 0x8009936c -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\SPEECH.H:366`
+- Demangled identity: `Speaker::FindClosestLocationTo`
+- Source definitions: speech.cpp:3947 Speaker::FindClosestLocationTo
+- VA breadcrumbs/carriers: none
+- Config symbols: FindClosestLocationTo__Q26Speech7Speakeri
+- Oracle files: asm\nonmatchings\main\FindClosestLocationTo__Q26Speech7Speakeri.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `GetCarBank__Q26Speech7Speakeri` @ 0x80099374 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\SPEECH.H:362`
+- Demangled identity: `Speaker::GetCarBank`
+- Source definitions: speech.cpp:3954 Speaker::GetCarBank
+- VA breadcrumbs/carriers: none
+- Config symbols: GetCarBank__Q26Speech7Speakeri
+- Oracle files: asm\nonmatchings\main\GetCarBank__Q26Speech7Speakeri.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `Perp__Q26Speech7Speaker` @ 0x8009937c -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\SPEECH.H:338`
+- Demangled identity: `Speaker::Perp`
+- Source definitions: speech.cpp:3961 Speaker::Perp
+- VA breadcrumbs/carriers: none
+- Config symbols: Perp__Q26Speech7Speaker
+- Oracle files: asm\nonmatchings\main\Perp__Q26Speech7Speaker.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `ReActivate__Q26Speech7Speaker` @ 0x80099384 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\SPEECH.H:337`
+- Demangled identity: `Speaker::ReActivate`
+- Source definitions: speech.cpp:3968 Speaker::ReActivate
+- VA breadcrumbs/carriers: none
+- Config symbols: ReActivate__Q26Speech7Speaker
+- Oracle files: asm\nonmatchings\main\ReActivate__Q26Speech7Speaker.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `CarObj__Q26Speech7Speaker` @ 0x8009938c -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\SPEECH.H:336`
+- Demangled identity: `Speaker::CarObj`
+- Source definitions: speech.cpp:3975 Speaker::CarObj
+- VA breadcrumbs/carriers: none
+- Config symbols: CarObj__Q26Speech7Speaker
+- Oracle files: asm\nonmatchings\main\CarObj__Q26Speech7Speaker.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `DistToPerp__Q26Speech7Speaker` @ 0x80099394 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\SPEECH.H:335`
+- Demangled identity: `Speaker::DistToPerp`
+- Source definitions: speech.cpp:3982 Speaker::DistToPerp
+- VA breadcrumbs/carriers: none
+- Config symbols: DistToPerp__Q26Speech7Speaker
+- Oracle files: asm\nonmatchings\main\DistToPerp__Q26Speech7Speaker.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `PurgeStatusSub__Q26Speech7Speaker` @ 0x8009939c -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\SPEECH.H:334`
+- Demangled identity: `Speaker::PurgeStatusSub`
+- Source definitions: speech.cpp:3989 Speaker::PurgeStatusSub
+- VA breadcrumbs/carriers: none
+- Config symbols: PurgeStatusSub__Q26Speech7Speaker
+- Oracle files: asm\nonmatchings\main\PurgeStatusSub__Q26Speech7Speaker.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `StatusSub__Q26Speech7Speaker` @ 0x800993a4 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\SPEECH.H:333`
+- Demangled identity: `Speaker::StatusSub`
+- Source definitions: speech.cpp:3996 Speaker::StatusSub
+- VA breadcrumbs/carriers: none
+- Config symbols: StatusSub__Q26Speech7Speaker
+- Oracle files: asm\nonmatchings\main\StatusSub__Q26Speech7Speaker.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `StatusCount__Q26Speech7Speaker` @ 0x800993ac -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\SPEECH.H:332`
+- Demangled identity: `Speaker::StatusCount`
+- Source definitions: speech.cpp:4003 Speaker::StatusCount
+- VA breadcrumbs/carriers: none
+- Config symbols: StatusCount__Q26Speech7Speaker
+- Oracle files: asm\nonmatchings\main\StatusCount__Q26Speech7Speaker.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `IsSuper__Q26Speech7Speaker` @ 0x800993b4 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\SPEECH.H:331`
+- Demangled identity: `Speaker::IsSuper`
+- Source definitions: speech.cpp:4010 Speaker::IsSuper
+- VA breadcrumbs/carriers: none
+- Config symbols: IsSuper__Q26Speech7Speaker
+- Oracle files: asm\nonmatchings\main\IsSuper__Q26Speech7Speaker.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `ClearPerp__Q26Speech7SpeakerP8Car_tObj` @ 0x800993bc -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\SPEECH.H:329`
+- Demangled identity: `Speaker::ClearPerp`
+- Source definitions: speech.cpp:4017 Speaker::ClearPerp
+- VA breadcrumbs/carriers: none
+- Config symbols: ClearPerp__Q26Speech7SpeakerP8Car_tObj
+- Oracle files: asm\nonmatchings\main\ClearPerp__Q26Speech7SpeakerP8Car_tObj.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `KnownPerp__Q26Speech7SpeakerP8Car_tObj` @ 0x800993c4 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\SPEECH.H:328`
+- Demangled identity: `Speaker::KnownPerp`
+- Source definitions: speech.cpp:4024 Speaker::KnownPerp
+- VA breadcrumbs/carriers: none
+- Config symbols: KnownPerp__Q26Speech7SpeakerP8Car_tObj
+- Oracle files: asm\nonmatchings\main\KnownPerp__Q26Speech7SpeakerP8Car_tObj.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `Unit__Q26Speech7Speaker` @ 0x800993cc -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\SPEECH.H:323`
+- Demangled identity: `Speaker::Unit`
+- Source definitions: speech.cpp:4031 Speaker::Unit
+- VA breadcrumbs/carriers: none
+- Config symbols: Unit__Q26Speech7Speaker
+- Oracle files: asm\nonmatchings\main\Unit__Q26Speech7Speaker.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `Status__Q26Speech7Speaker` @ 0x800993d4 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\SPEECH.H:264`
+- Demangled identity: `Speaker::Status`
+- Source definitions: speech.cpp:4038 Speaker::Status
+- VA breadcrumbs/carriers: none
+- Config symbols: Status__Q26Speech7Speaker
+- Oracle files: asm\nonmatchings\main\Status__Q26Speech7Speaker.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._14ObjectSignAnim` @ 0x800a6c10 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\GAME\COMMON\OBJECT.H:124`
+- Demangled identity: `ObjectSignAnim::~ObjectSignAnim`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___14ObjectSignAnim
+- Oracle files: asm\nonmatchings\main\___14ObjectSignAnim.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._22ObjectFinishedSignAnim` @ 0x800a6cc4 -- VA_CARRIER
+
+- SYM owner: `C:\nfs4\GAME\COMMON\OBJECT.H:101`
+- Demangled identity: `ObjectFinishedSignAnim::~ObjectFinishedSignAnim`
+- Source definitions: none
+- VA breadcrumbs/carriers: recon\game\common\object.cpp:1397
+- Config symbols: ___22ObjectFinishedSignAnim
+- Oracle files: asm\nonmatchings\main\___22ObjectFinishedSignAnim.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._15ObjectMultiAnim` @ 0x800a6cf8 -- VA_CARRIER
+
+- SYM owner: `C:\nfs4\GAME\COMMON\OBJECT.H:84`
+- Demangled identity: `ObjectMultiAnim::~ObjectMultiAnim`
+- Source definitions: none
+- VA breadcrumbs/carriers: recon\game\common\object.cpp:1397
+- Config symbols: ___15ObjectMultiAnim
+- Oracle files: asm\nonmatchings\main\___15ObjectMultiAnim.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._23ObjectFinishedMultiAnim` @ 0x800a6dac -- VA_CARRIER
+
+- SYM owner: `C:\nfs4\GAME\COMMON\OBJECT.H:61`
+- Demangled identity: `ObjectFinishedMultiAnim::~ObjectFinishedMultiAnim`
+- Source definitions: none
+- VA breadcrumbs/carriers: recon\game\common\object.cpp:1397
+- Config symbols: ___23ObjectFinishedMultiAnim
+- Oracle files: asm\nonmatchings\main\___23ObjectFinishedMultiAnim.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._10ObjectAnim` @ 0x800a6de0 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\OBJECT.H:53`
+- Demangled identity: `ObjectAnim::~ObjectAnim`
+- Source definitions: object.cpp:1398 ObjectAnim::~ObjectAnim
+- VA breadcrumbs/carriers: recon\game\common\object.cpp:1396
+- Config symbols: ___10ObjectAnim
+- Oracle files: asm\nonmatchings\main\___10ObjectAnim.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `IsEnabled__10tPMenuItem` @ 0x800a86a8 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\PAUSEMENU.H:116`
+- Demangled identity: `tPMenuItem::IsEnabled`
+- Source definitions: pausemenu.cpp:1192 tPMenuItem::IsEnabled
+- VA breadcrumbs/carriers: none
+- Config symbols: IsEnabled__10tPMenuItem
+- Oracle files: asm\nonmatchings\main\IsEnabled__10tPMenuItem.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `IsDisabled__10tPMenuItem` @ 0x800a86bc -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\GAME\COMMON\PAUSEMENU.H:115`
+- Demangled identity: `tPMenuItem::IsDisabled`
+- Source definitions: pausemenu.cpp:1202 tPMenuItem::IsDisabled
+- VA breadcrumbs/carriers: none
+- Config symbols: IsDisabled__10tPMenuItem
+- Oracle files: asm\nonmatchings\main\IsDisabled__10tPMenuItem.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._31tDialogMessageStringWithTimeout` @ 0x80015760 -- VA_CARRIER
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEDIALOG.H:215`
+- Demangled identity: `tDialogMessageStringWithTimeout::~tDialogMessageStringWithTimeout`
+- Source definitions: none
+- VA breadcrumbs/carriers: recon\game\common\vtables_tdialog.cpp:82, recon\game\common\vtables_tdialog.cpp:89
+- Config symbols: ___31tDialogMessageStringWithTimeout
+- Oracle files: asm\nonmatchings\front\___31tDialogMessageStringWithTimeout.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._15tDialogYesNoTri` @ 0x80019ec4 -- VA_CARRIER
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEDIALOG.H:294`
+- Demangled identity: `tDialogYesNoTri::~tDialogYesNoTri`
+- Source definitions: none
+- VA breadcrumbs/carriers: recon\nfs4_types.h:3911
+- Config symbols: ___15tDialogYesNoTri
+- Oracle files: asm\nonmatchings\front\___15tDialogYesNoTri.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._15tDialogYesNoMem` @ 0x80019ee4 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEDIALOG.H:284`
+- Demangled identity: `tDialogYesNoMem::~tDialogYesNoMem`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___15tDialogYesNoMem
+- Oracle files: asm\nonmatchings\front\___15tDialogYesNoMem.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._12tDialogYesNo` @ 0x80019f04 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEDIALOG.H:275`
+- Demangled identity: `tDialogYesNo::~tDialogYesNo`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___12tDialogYesNo
+- Oracle files: asm\nonmatchings\front\___12tDialogYesNo.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._18tDialogInteractive` @ 0x80019f24 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEDIALOG.H:254`
+- Demangled identity: `tDialogInteractive::~tDialogInteractive`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___18tDialogInteractive
+- Oracle files: asm\nonmatchings\front\___18tDialogInteractive.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._21tDialogNoInputMessage` @ 0x80019f44 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEDIALOG.H:233`
+- Demangled identity: `tDialogNoInputMessage::~tDialogNoInputMessage`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___21tDialogNoInputMessage
+- Oracle files: asm\nonmatchings\front\___21tDialogNoInputMessage.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._17tDialogBackUpOnly` @ 0x80019f64 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEDIALOG.H:223`
+- Demangled identity: `tDialogBackUpOnly::~tDialogBackUpOnly`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___17tDialogBackUpOnly
+- Oracle files: asm\nonmatchings\front\___17tDialogBackUpOnly.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._20tDialogMessageString` @ 0x80019f84 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEDIALOG.H:204`
+- Demangled identity: `tDialogMessageString::~tDialogMessageString`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___20tDialogMessageString
+- Oracle files: asm\nonmatchings\front\___20tDialogMessageString.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._11tDialogHelp` @ 0x80019fa4 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEDIALOG.H:174`
+- Demangled identity: `tDialogHelp::~tDialogHelp`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___11tDialogHelp
+- Oracle files: asm\nonmatchings\front\___11tDialogHelp.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._11tDialogBase` @ 0x80019fc4 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEDIALOG.H:132`
+- Demangled identity: `tDialogBase::~tDialogBase`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___11tDialogBase
+- Oracle files: asm\nonmatchings\front\___11tDialogBase.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `UpdateTransition__10tMenuBlank` @ 0x8001bef8 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEMENUEXTENDED.H:215`
+- Demangled identity: `tMenuBlank::UpdateTransition`
+- Source definitions: femenuextended.cpp:1310 tMenuBlank::UpdateTransition
+- VA breadcrumbs/carriers: none
+- Config symbols: UpdateTransition__10tMenuBlank
+- Oracle files: asm\nonmatchings\front\UpdateTransition__10tMenuBlank.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._29tMenuItemOptionsTwoItemChoice` @ 0x8001bf00 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEMENUEXTENDED.H:110`
+- Demangled identity: `tMenuItemOptionsTwoItemChoice::~tMenuItemOptionsTwoItemChoice`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___29tMenuItemOptionsTwoItemChoice
+- Oracle files: asm\nonmatchings\front\___29tMenuItemOptionsTwoItemChoice.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._31tMenuItemOptionsLeftRightChoice` @ 0x8001bf20 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEMENUEXTENDED.H:99`
+- Demangled identity: `tMenuItemOptionsLeftRightChoice::~tMenuItemOptionsLeftRightChoice`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___31tMenuItemOptionsLeftRightChoice
+- Oracle files: asm\nonmatchings\front\___31tMenuItemOptionsLeftRightChoice.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `Draw__27tMenuItemGoToMenuNFS4Buttonb` @ 0x8001bf40 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEMENUEXTENDED.H:46`
+- Demangled identity: `tMenuItemGoToMenuNFS4Button::Draw`
+- Source definitions: femenuextended.cpp:1342 tMenuItemGoToMenuNFS4Button::Draw, femenuextended.cpp:158 tMenuItemGoToMenuNFS4Button::Draw
+- VA breadcrumbs/carriers: recon\frontend\common\femenuoptions.cpp:3187, recon\frontend\common\femenuoptions.cpp:3190
+- Config symbols: Draw__27tMenuItemGoToMenuNFS4Buttonb
+- Oracle files: asm\nonmatchings\front\Draw__27tMenuItemGoToMenuNFS4Buttonb.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._35tInsideBoxControllerLeftRightSlider` @ 0x80020bb8 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEMENUOPTIONS.H:428`
+- Demangled identity: `tInsideBoxControllerLeftRightSlider::~tInsideBoxControllerLeftRightSlider`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___35tInsideBoxControllerLeftRightSlider
+- Oracle files: asm\nonmatchings\front\___35tInsideBoxControllerLeftRightSlider.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._19tMemoryCardMenuItem` @ 0x80020bd8 -- VA_CARRIER
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEMENUOPTIONS.H:407`
+- Demangled identity: `tMemoryCardMenuItem::~tMemoryCardMenuItem`
+- Source definitions: none
+- VA breadcrumbs/carriers: recon\frontend\common\fememcard.cpp:1052, recon\frontend\common\femenuoptions.cpp:3141
+- Config symbols: ___19tMemoryCardMenuItem
+- Oracle files: asm\nonmatchings\front\___19tMemoryCardMenuItem.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._27tMenuItemGoToMenuButtonFade` @ 0x80020bf8 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEMENUOPTIONS.H:396`
+- Demangled identity: `tMenuItemGoToMenuButtonFade::~tMenuItemGoToMenuButtonFade`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___27tMenuItemGoToMenuButtonFade
+- Oracle files: asm\nonmatchings\front\___27tMenuItemGoToMenuButtonFade.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._17tUserNameMenuItem` @ 0x80020c18 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEMENUOPTIONS.H:375`
+- Demangled identity: `tUserNameMenuItem::~tUserNameMenuItem`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___17tUserNameMenuItem
+- Oracle files: asm\nonmatchings\front\___17tUserNameMenuItem.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._34tMenuItemControllerLeftRightChoice` @ 0x80020c38 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEMENUOPTIONS.H:290`
+- Demangled identity: `tMenuItemControllerLeftRightChoice::~tMenuItemControllerLeftRightChoice`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___34tMenuItemControllerLeftRightChoice
+- Oracle files: asm\nonmatchings\front\___34tMenuItemControllerLeftRightChoice.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._29tMenuItemOnOffLeftRightChoice` @ 0x80020c58 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEMENUOPTIONS.H:217`
+- Demangled identity: `tMenuItemOnOffLeftRightChoice::~tMenuItemOnOffLeftRightChoice`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___29tMenuItemOnOffLeftRightChoice
+- Oracle files: asm\nonmatchings\front\___29tMenuItemOnOffLeftRightChoice.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._31tMenuItemDisplayLeftRightChoice` @ 0x80020c78 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEMENUOPTIONS.H:206`
+- Demangled identity: `tMenuItemDisplayLeftRightChoice::~tMenuItemDisplayLeftRightChoice`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___31tMenuItemDisplayLeftRightChoice
+- Oracle files: asm\nonmatchings\front\___31tMenuItemDisplayLeftRightChoice.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._25tMenuItemSlidingActivated` @ 0x80020c98 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEMENUOPTIONS.H:193`
+- Demangled identity: `tMenuItemSlidingActivated::~tMenuItemSlidingActivated`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___25tMenuItemSlidingActivated
+- Oracle files: asm\nonmatchings\front\___25tMenuItemSlidingActivated.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._22tMenuItemLeftRightFade` @ 0x80020cb8 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEMENUOPTIONS.H:46`
+- Demangled identity: `tMenuItemLeftRightFade::~tMenuItemLeftRightFade`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___22tMenuItemLeftRightFade
+- Oracle files: asm\nonmatchings\front\___22tMenuItemLeftRightFade.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `TransitionOn__9tMenuItem` @ 0x80025aa8 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEMENU.H:275`
+- Demangled identity: `tMenuItem::TransitionOn`
+- Source definitions: femenu.cpp:1458 tMenuItem::TransitionOn
+- VA breadcrumbs/carriers: recon\frontend\common\femenu.cpp:1455, recon\nfs4_types.h:2830
+- Config symbols: TransitionOn__9tMenuItem
+- Oracle files: asm\nonmatchings\front\TransitionOn__9tMenuItem.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `TransitionOff__9tMenuItem` @ 0x80025ab0 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEMENU.H:274`
+- Demangled identity: `tMenuItem::TransitionOff`
+- Source definitions: femenu.cpp:1459 tMenuItem::TransitionOff
+- VA breadcrumbs/carriers: recon\frontend\common\femenu.cpp:1455, recon\nfs4_types.h:2831
+- Config symbols: TransitionOff__9tMenuItem
+- Oracle files: asm\nonmatchings\front\TransitionOff__9tMenuItem.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `DrawForeground__7tScreen` @ 0x800268e0 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FESCREEN.H:97`
+- Demangled identity: `tScreen::DrawForeground`
+- Source definitions: fescreen.cpp:699 tScreen::DrawForeground
+- VA breadcrumbs/carriers: none
+- Config symbols: DrawForeground__7tScreen
+- Oracle files: asm\nonmatchings\front\DrawForeground__7tScreen.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `DrawBackground__7tScreen` @ 0x800268e8 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FESCREEN.H:96`
+- Demangled identity: `tScreen::DrawBackground`
+- Source definitions: fescreen.cpp:709 tScreen::DrawBackground
+- VA breadcrumbs/carriers: none
+- Config symbols: DrawBackground__7tScreen
+- Oracle files: asm\nonmatchings\front\DrawBackground__7tScreen.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `TransitionIsFinished__32tBlankMenuItemGoToMenuNFS4Button` @ 0x800321c0 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEMENUOPTIONS.H:417`
+- Demangled identity: `tBlankMenuItemGoToMenuNFS4Button::TransitionIsFinished`
+- Source definitions: femenudefs.cpp:3042 tBlankMenuItemGoToMenuNFS4Button::TransitionIsFinished
+- VA breadcrumbs/carriers: recon\frontend\common\femenudefs.cpp:3055
+- Config symbols: TransitionIsFinished__32tBlankMenuItemGoToMenuNFS4Button
+- Oracle files: asm\nonmatchings\front\TransitionIsFinished__32tBlankMenuItemGoToMenuNFS4Button.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib` @ 0x800321c8 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEMENUOPTIONS.H:416`
+- Demangled identity: `tBlankMenuItemGoToMenuNFS4Button::Draw`
+- Source definitions: femenudefs.cpp:3060 tBlankMenuItemGoToMenuNFS4Button::Draw, femenudefs.cpp:3059 tBlankMenuItemGoToMenuNFS4Button::Draw
+- VA breadcrumbs/carriers: recon\frontend\common\femenudefs.cpp:3047, recon\frontend\common\femenudefs.cpp:3059, recon\frontend\common\femenudefs.cpp:3096
+- Config symbols: Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib
+- Oracle files: asm\nonmatchings\front\Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `Draw__32tBlankMenuItemGoToMenuNFS4Buttonb` @ 0x800321d0 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEMENUOPTIONS.H:415`
+- Demangled identity: `tBlankMenuItemGoToMenuNFS4Button::Draw`
+- Source definitions: femenudefs.cpp:3060 tBlankMenuItemGoToMenuNFS4Button::Draw, femenudefs.cpp:3059 tBlankMenuItemGoToMenuNFS4Button::Draw
+- VA breadcrumbs/carriers: recon\frontend\common\femenudefs.cpp:3047, recon\frontend\common\femenudefs.cpp:3060
+- Config symbols: Draw__32tBlankMenuItemGoToMenuNFS4Buttonb
+- Oracle files: asm\nonmatchings\front\Draw__32tBlankMenuItemGoToMenuNFS4Buttonb.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._32tBlankMenuItemGoToMenuNFS4Button` @ 0x800321d8 -- VA_CARRIER
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEMENUOPTIONS.H:418`
+- Demangled identity: `tBlankMenuItemGoToMenuNFS4Button::~tBlankMenuItemGoToMenuNFS4Button`
+- Source definitions: none
+- VA breadcrumbs/carriers: recon\frontend\common\femenudefs.cpp:3055
+- Config symbols: ___32tBlankMenuItemGoToMenuNFS4Button
+- Oracle files: asm\nonmatchings\front\___32tBlankMenuItemGoToMenuNFS4Button.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `TransitionIsFinished__33tBlankMenuItemNFS4LeftRightChoice` @ 0x800321f8 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEMENUEXTENDED.H:81`
+- Demangled identity: `tBlankMenuItemNFS4LeftRightChoice::TransitionIsFinished`
+- Source definitions: femenudefs.cpp:3074 tBlankMenuItemNFS4LeftRightChoice::TransitionIsFinished
+- VA breadcrumbs/carriers: none
+- Config symbols: TransitionIsFinished__33tBlankMenuItemNFS4LeftRightChoice
+- Oracle files: asm\nonmatchings\front\TransitionIsFinished__33tBlankMenuItemNFS4LeftRightChoice.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `Draw__33tBlankMenuItemNFS4LeftRightChoiceiib` @ 0x80032200 -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEMENUEXTENDED.H:80`
+- Demangled identity: `tBlankMenuItemNFS4LeftRightChoice::Draw`
+- Source definitions: femenudefs.cpp:3080 tBlankMenuItemNFS4LeftRightChoice::Draw
+- VA breadcrumbs/carriers: recon\frontend\common\femenudefs.cpp:3079, recon\frontend\common\femenudefs.cpp:3080, recon\frontend\common\femenudefs.cpp:3096
+- Config symbols: Draw__33tBlankMenuItemNFS4LeftRightChoiceiib
+- Oracle files: asm\nonmatchings\front\Draw__33tBlankMenuItemNFS4LeftRightChoiceiib.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._33tBlankMenuItemNFS4LeftRightChoice` @ 0x80032208 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\FEMENUEXTENDED.H:83`
+- Demangled identity: `tBlankMenuItemNFS4LeftRightChoice::~tBlankMenuItemNFS4LeftRightChoice`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___33tBlankMenuItemNFS4LeftRightChoice
+- Oracle files: asm\nonmatchings\front\___33tBlankMenuItemNFS4LeftRightChoice.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._11tScreenMain` @ 0x80038b44 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\SCREENMAIN.H:162`
+- Demangled identity: `tScreenMain::~tScreenMain`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___11tScreenMain
+- Oracle files: asm\nonmatchings\front\___11tScreenMain.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._16tScreenPinkSlips` @ 0x800397cc -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\SCREENPINKSLIPS.H:82`
+- Demangled identity: `tScreenPinkSlips::~tScreenPinkSlips`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___16tScreenPinkSlips
+- Oracle files: asm\nonmatchings\front\___16tScreenPinkSlips.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `ProcessInput__24tScreenPinkSlipStandings7tPlayerR13tInputKeyTypeR12tMenuCommand` @ 0x8003a86c -- DEMANGLED_SOURCE
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\SCREENPOST.H:80`
+- Demangled identity: `tScreenPinkSlipStandings::ProcessInput`
+- Source definitions: screenpost.cpp:446 tScreenPinkSlipStandings::ProcessInput
+- VA breadcrumbs/carriers: none
+- Config symbols: ProcessInput__24tScreenPinkSlipStandings7tPlayerR13tInputKeyTypeR12tMenuCommand
+- Oracle files: asm\nonmatchings\front\ProcessInput__24tScreenPinkSlipStandings7tPlayerR13tInputKeyTypeR12tMenuCommand.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._24tScreenPinkSlipStandings` @ 0x8003a88c -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\SCREENPOST.H:82`
+- Demangled identity: `tScreenPinkSlipStandings::~tScreenPinkSlipStandings`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___24tScreenPinkSlipStandings
+- Oracle files: asm\nonmatchings\front\___24tScreenPinkSlipStandings.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._31tScreenTournamentStandings3item` @ 0x8003a8ac -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\SCREENPOST.H:72`
+- Demangled identity: `tScreenTournamentStandings3item::~tScreenTournamentStandings3item`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___31tScreenTournamentStandings3item
+- Oracle files: asm\nonmatchings\front\___31tScreenTournamentStandings3item.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._26tScreenTournamentStandings` @ 0x8003a8cc -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\SCREENPOST.H:64`
+- Demangled identity: `tScreenTournamentStandings::~tScreenTournamentStandings`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___26tScreenTournamentStandings
+- Oracle files: asm\nonmatchings\front\___26tScreenTournamentStandings.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._25tScreenPinkSlipsCarSelect` @ 0x8003f6d0 -- VA_CARRIER
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\SCREENCARSELECT.H:348`
+- Demangled identity: `tScreenPinkSlipsCarSelect::~tScreenPinkSlipsCarSelect`
+- Source definitions: none
+- VA breadcrumbs/carriers: recon\frontend\common\screencarselect.cpp:2830
+- Config symbols: ___25tScreenPinkSlipsCarSelect
+- Oracle files: asm\nonmatchings\front\___25tScreenPinkSlipsCarSelect.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._25tScreenCarSelectTwoPlayer` @ 0x8003f714 -- VA_CARRIER
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\SCREENCARSELECT.H:313`
+- Demangled identity: `tScreenCarSelectTwoPlayer::~tScreenCarSelectTwoPlayer`
+- Source definitions: none
+- VA breadcrumbs/carriers: recon\frontend\common\screencarselect.cpp:2831
+- Config symbols: ___25tScreenCarSelectTwoPlayer
+- Oracle files: asm\nonmatchings\front\___25tScreenCarSelectTwoPlayer.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._20tScreenCarSelectDuel` @ 0x8003f758 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\SCREENCARSELECT.H:285`
+- Demangled identity: `tScreenCarSelectDuel::~tScreenCarSelectDuel`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___20tScreenCarSelectDuel
+- Oracle files: asm\nonmatchings\front\___20tScreenCarSelectDuel.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._17tScreenTrophyInfo` @ 0x800415e0 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\SCREENTROPHYINFO.H:30`
+- Demangled identity: `tScreenTrophyInfo::~tScreenTrophyInfo`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___17tScreenTrophyInfo
+- Oracle files: asm\nonmatchings\front\___17tScreenTrophyInfo.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._18tScreenTrackSelect` @ 0x800421d4 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\SCREENTRACKS.H:89`
+- Demangled identity: `tScreenTrackSelect::~tScreenTrackSelect`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___18tScreenTrackSelect
+- Oracle files: asm\nonmatchings\front\___18tScreenTrackSelect.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._16tScreenTrackInfo` @ 0x80042628 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\SCREENTRACKINFO.H:52`
+- Demangled identity: `tScreenTrackInfo::~tScreenTrackInfo`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___16tScreenTrackInfo
+- Oracle files: asm\nonmatchings\front\___16tScreenTrackInfo.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._19tScreenTrackRecords` @ 0x800430f8 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\SCREENTRACKRECORDS.H:55`
+- Demangled identity: `tScreenTrackRecords::~tScreenTrackRecords`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___19tScreenTrackRecords
+- Oracle files: asm\nonmatchings\front\___19tScreenTrackRecords.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._23tScreenControllerConfig` @ 0x8004590c -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\SCREENCONTROLLER.H:177`
+- Demangled identity: `tScreenControllerConfig::~tScreenControllerConfig`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___23tScreenControllerConfig
+- Oracle files: asm\nonmatchings\front\___23tScreenControllerConfig.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._14tScreenDisplay` @ 0x80045a04 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\SCREENDISPLAY.H:41`
+- Demangled identity: `tScreenDisplay::~tScreenDisplay`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___14tScreenDisplay
+- Oracle files: asm\nonmatchings\front\___14tScreenDisplay.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._12tScreenAudio` @ 0x800462fc -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\SCREENAUDIO.H:74`
+- Demangled identity: `tScreenAudio::~tScreenAudio`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___12tScreenAudio
+- Oracle files: asm\nonmatchings\front\___12tScreenAudio.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._14tScreenMemcard` @ 0x80047e3c -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\SCREENMEMCARD.H:99`
+- Demangled identity: `tScreenMemcard::~tScreenMemcard`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___14tScreenMemcard
+- Oracle files: asm\nonmatchings\front\___14tScreenMemcard.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._25tScreenTournamentCongrats` @ 0x800497a0 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\SCREENCONGRATS.H:161`
+- Demangled identity: `tScreenTournamentCongrats::~tScreenTournamentCongrats`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___25tScreenTournamentCongrats
+- Oracle files: asm\nonmatchings\front\___25tScreenTournamentCongrats.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._23tScreenBeTheCopCongrats` @ 0x800497c0 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\SCREENCONGRATS.H:151`
+- Demangled identity: `tScreenBeTheCopCongrats::~tScreenBeTheCopCongrats`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___23tScreenBeTheCopCongrats
+- Oracle files: asm\nonmatchings\front\___23tScreenBeTheCopCongrats.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._23tScreenPinkSlipCongrats` @ 0x800497e0 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\SCREENCONGRATS.H:141`
+- Demangled identity: `tScreenPinkSlipCongrats::~tScreenPinkSlipCongrats`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___23tScreenPinkSlipCongrats
+- Oracle files: asm\nonmatchings\front\___23tScreenPinkSlipCongrats.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._23tScreenTournamentTrophy` @ 0x80049800 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\SCREENCONGRATS.H:126`
+- Demangled identity: `tScreenTournamentTrophy::~tScreenTournamentTrophy`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___23tScreenTournamentTrophy
+- Oracle files: asm\nonmatchings\front\___23tScreenTournamentTrophy.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._15tScreenCongrats` @ 0x80049820 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\SCREENCONGRATS.H:109`
+- Demangled identity: `tScreenCongrats::~tScreenCongrats`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___15tScreenCongrats
+- Oracle files: asm\nonmatchings\front\___15tScreenCongrats.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+
+### `_._15tScreenUserName` @ 0x8004b7d4 -- COMPILER_GENERATED_NO_EXPLICIT_BODY
+
+- SYM owner: `C:\nfs4\FRONTEND\COMMON\SCREENUSERNAME.H:97`
+- Demangled identity: `tScreenUserName::~tScreenUserName`
+- Source definitions: none
+- VA breadcrumbs/carriers: none
+- Config symbols: ___15tScreenUserName
+- Oracle files: asm\nonmatchings\front\___15tScreenUserName.s
+- Raw identifier in code (comments/strings excluded): none
+- Signature findings: none
+

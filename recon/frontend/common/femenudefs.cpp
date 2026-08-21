@@ -695,7 +695,7 @@ bool GenericMenuSaveGame(int showdialog)
   char *pcVar4;
   bool ret;
   tScreenMemcard *dlgThis;
-  bool uninitafter;   /* SYM: REG bool uninitafter */
+  bool uninitafter;   /* SYM: REG BOOL uninitafter */
 
   tFEApplication *app;
 
@@ -744,12 +744,12 @@ bool GenericMenuSaveGame(int showdialog)
    
    [ghidra-meta] section: front.text */
 
-/* [SYM 2026-08-16] retail `Def class EXT type FCN BOOL` @0x8002cabc -> bool, not void*;
-   the SYM also names the result local `REG bool ret`.  Codegen-neutral (65/66 held). */
+/* [SYM 2026-08-16] retail `Def class EXT type FCN BOOL` @0x8002cabc;
+   the SYM also names the result local `REG BOOL ret`. */
 bool PinkSlipsPreSave(void)
 
 {
-  short sVar1;
+  int answer;
   int is_cheater;
   bool ret;
   tDialogYesNoTri *dlgThis;
@@ -771,11 +771,11 @@ bool PinkSlipsPreSave(void)
       dlgThis->yesnowords[0] = 0x321;
       dlgThis->yesnowords[1] = 0x322;
       dlgThis->fDefault = 0;
-      sVar1 = ((tDialogInteractive *)dlgThis)->Run();
-      if (sVar1 == 1) {
+      answer = ((tDialogInteractive *)dlgThis)->Run();
+      if (answer == 1) {
         ret = GenericMenuSaveGame(1);
       }
-      else if (sVar1 == -1) {
+      else if (answer == -1) {
         return false;
       }
     }
@@ -1252,6 +1252,8 @@ void MenuExtended_EnterUserName(tMenuCommand &command)
 {
   u_int bVar1;
   u_int bVar2;
+  char *data;
+  tOptionsMenu *m;
   tGlobalMenuDefs *ptVar3;
   tScreenUserName *ptVar4;
   tUserNameMenuItem *dlgThis;
@@ -1265,10 +1267,12 @@ void MenuExtended_EnterUserName(tMenuCommand &command)
   ptVar4 = screenUserName;
   dlgThis->fCurrentRow = 0;
   dlgThis->fCurrentColumn = 0;
-  dlgThis->fData = frontEnd.playerNameList[bVar2];
-  ptVar4->callingMenu = &ptVar3->menuUserName;
+  data = frontEnd.playerNameList[bVar2];
+  dlgThis->fData = data;
+  m = &ptVar3->menuUserName;
+  ptVar4->callingMenu = m;
   command.type = kMenu_Command_GoToMenu;
-  command.nextMenu = (tMenu *)(tMenu*)&ptVar3->menuUserName;
+  command.nextMenu = (tMenu *)m;
   return;
 }
 
@@ -1955,12 +1959,12 @@ static bool MenuExtended_DidUserWinBeTheCop(void)
 
 {
   tCarInfo *activateCar;
-  int result;
+  bool result;
   tCarInfo carInfo;
 
   /* [W57-A1] SYM 8c budget (fsize 248, mask 0x800f0000): exactly TWO named locals besides
-     carInfo -- activateCar (class REG $10 = s0) and result (class REG $13 = s3, type BOOL =
-     4-byte int).  The old `pvVar1 = 0` repeated inside an `&&` chain never produced a
+     carInfo -- activateCar (class REG $10 = s0) and result (class REG $13 = s3, SYM BOOL;
+     this compiler's C++ `bool`).  The old `pvVar1 = 0` repeated inside an `&&` chain never produced a
      long-lived result pseudo (it landed in $a0); a real `result` local + flat early-return
      guard chain (04T `return VARIABLE;` keeps DISTINCT return sites -> the oracle's
      `addu v0,s3,zero` in each guard's delay slot) reproduces the 4-saved-reg frame. */
@@ -2560,7 +2564,7 @@ void MenuExtended_ExitPinkSlipsEarly(tMenuCommand &command)
   char *pcVar4;
   tDialogYesNo *dlgThis;
   int iVar5;
-  int player_00;
+  int player;
   char *msg;
   tDialogYesNo AreYouSure;
   char string [80];
@@ -2573,17 +2577,17 @@ void MenuExtended_ExitPinkSlipsEarly(tMenuCommand &command)
   sVar3 = ((tDialogInteractive *)dlgThis)->Run();
   if (sVar3 != 0) {
     Init_Memcard(false,1);
-    player_00 = 0;
+    player = 0;
     msg = string;
   nextPlayer:
-    if (player_00 < 2) {
+    if (player < 2) {
       fmt = TextSys_Word(0x297);
-      pcVar4 = PlayerName(player_00);
-      iVar5 = player_00 + 1;
+      pcVar4 = PlayerName(player);
+      iVar5 = player + 1;
       sprintf(msg,fmt,pcVar4,iVar5);
       (FEApp->NoInputMemCardDialog).string = msg;
-      SavePinkSlipsCarsWithErrorDialogs((short)player_00,1,-1);
-      player_00 = iVar5;
+      SavePinkSlipsCarsWithErrorDialogs((short)player,1,-1);
+      player = iVar5;
       goto nextPlayer;
     }
     DeInit_Memcard();
@@ -2978,9 +2982,18 @@ tGlobalMenuDefs::tGlobalMenuDefs()
 {
   char compilerFramePad[56];
 
-  (menuPlayerOneCarSelect).fChildMenu = (tMenu *)&menuPlayerTwoCarSelect;
-  (menuPlayerOneGarage).fChildMenu = (tMenu *)&menuPlayerTwoGarage;
-  (menuPlayerOnePinkSlipCarSelect).fChildMenu = (tMenu *)&menuPlayerTwoPinkSlipCarSelect;
+  {
+    tMenu *child = (tMenu *)&menuPlayerTwoCarSelect;
+    (menuPlayerOneCarSelect).fChildMenu = child;
+  }
+  {
+    tMenu *child = (tMenu *)&menuPlayerTwoGarage;
+    (menuPlayerOneGarage).fChildMenu = child;
+  }
+  {
+    tMenu *child = (tMenu *)&menuPlayerTwoPinkSlipCarSelect;
+    (menuPlayerOnePinkSlipCarSelect).fChildMenu = child;
+  }
   ((tMenuItemLeftRightSlider *)&itemMusicVolume)->SetDimensions(0,0,0x78,5);
   ((tMenuItemLeftRightSlider *)&itemSoundEffectsVolume)->SetDimensions(0,0,0x78,5);
   ((tMenuItemLeftRightSlider *)&itemEngineVolume)->SetDimensions(0,0,0x78,5);
@@ -3026,9 +3039,9 @@ tGlobalMenuDefs::~tGlobalMenuDefs()
 
 
 /* ---- TransitionIsFinished  [FEMENUDEFS.CPP:?] ---- */
-void * tBlankMenuItemGoToMenuNFS4Button::TransitionIsFinished()
+bool tBlankMenuItemGoToMenuNFS4Button::TransitionIsFinished()
 {
-  return (void *)0x1;
+  return true;
 }
 
 /* ---- Draw nullsubs @0x800321C8 / @0x800321D0  [W60-A10: MOVED here from the TU tail] ----
@@ -3058,9 +3071,9 @@ extern "C" void ___32tBlankMenuItemGoToMenuNFS4Button(void *thisp) { ___27tMenuI
 
 
 /* ---- TransitionIsFinished  [FEMENUDEFS.CPP:?] ---- */
-void * tBlankMenuItemNFS4LeftRightChoice::TransitionIsFinished()
+bool tBlankMenuItemNFS4LeftRightChoice::TransitionIsFinished()
 {
-  return (void *)0x1;
+  return true;
 }
 
 /* ---- Draw nullsub @0x80032200  [W60-A10: MOVED here from the TU tail; see the note above] ---- */

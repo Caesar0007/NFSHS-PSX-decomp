@@ -245,7 +245,7 @@ int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coo
  * stream (cse folds them).  Re-run prio.py after each single edit and stop the
  * moment p88 crosses below 1.2414. */
 int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo);
-void * ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMoreCache *sd);
+bool ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMoreCache *sd);
 void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList);
 int Draw_CircleClip(coorddef *pt1,coorddef *pt2,int r);
 void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid);
@@ -1252,7 +1252,7 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
    * oracle). Vertex colours come from Chunk_lightTable[vtN->light] as word stores;
    * the quad's verts 2 and 3 are cross-fed (vt3 -> slot2, vt2 -> slot3). */
   VECTOR temp0;
-  u_long color;
+  long color;
   CVECTOR *lt;
 
   if (sd->light == -1) {
@@ -1336,7 +1336,8 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
        only reproducible with ONE variable, so `temp0` carries all three roles
        here; the SYM names are recorded in this comment instead. */
     if ((sd->nightFlags & 1U) != 0) {
-      /* SYM name: tempnight */
+      /* SYM-CARRIER: tempnight -- `temp0` must carry this disjoint inline role;
+         a second VECTOR grows the frame and regresses PASS to 44 diffs. */
       gte_SetRotMatrix(&sd->matNight);
       gte_SetTransMatrix(&sd->matNight);
       gte_ldv0(vt0);
@@ -1345,7 +1346,7 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
       Night_NightCalc(&temp0, &sd->light, sd);
     }
     if ((sd->nightFlags & 2U) != 0) {
-      /* SYM name: tempcop */
+      /* SYM-CARRIER: tempcop -- same measured shared-slot constraint as tempnight. */
       gte_SetRotMatrix(&sd->matCop);
       gte_SetTransMatrix(&sd->matCop);
       gte_ldv0(vt0);
@@ -1415,12 +1416,12 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
   short sVar1;
   short ts27;
   int iVar2;
-  u_int uVar3;
+  u_long l2;
   int depth_index;
   int primPtr;
   int depth_avg;
   short ts31;
-  int uVar7_00;
+  u_long l3;
   int ti18;
   Track_tMaterial *currentQuadMat;
   int vert_y_pack;
@@ -1467,8 +1468,8 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
   u_char *tp20;
   u_char *p;
   int tu1;
-  u_int tu2;
-  u_int tu18;
+  u_long l0;
+  u_long l1;
   
   /* MATCH (2026-08-01, rule-8 SYM rewrite of the whole vertex-setup section):
    * the SYM 8c block @0x800C64F8 names EVERY local here -- outer block:
@@ -2060,14 +2061,14 @@ gte_strgb(&color);
        * oracle's access width, not 3 manual sub-field byte/half stores per
        * group (field-fusion lever, same family as DrawW_SetUpSubdividFacet
        * _Line's *(u_short*)&v->u fusion). */
-      tu2 = *(u_int *)&workPmx->u0;
-      tu18 = *(u_int *)&workPmx->u1;
-      uVar3 = *(u_int *)&workPmx->u2;
-      uVar7_00 = *(int *)&workPmx->u3;
-      *(u_int *)&prim->u0 = tu2;
-      *(u_int *)&prim->u1 = tu18;
-      *(u_int *)&prim->u2 = uVar3;
-      *(u_int *)&prim->u3 = uVar7_00;
+      l0 = *(u_long *)&workPmx->u0;
+      l1 = *(u_long *)&workPmx->u1;
+      l2 = *(u_long *)&workPmx->u2;
+      l3 = *(u_long *)&workPmx->u3;
+      *(u_long *)&prim->u0 = l0;
+      *(u_long *)&prim->u1 = l1;
+      *(u_long *)&prim->u2 = l2;
+      *(u_long *)&prim->u3 = l3;
       if (prim->clut == 0xffff) {
         ti18 = (save_pre_otz - sd->startfog) * 0x10 >> ((int)sd->distfog);
         if (ti18 < 0) {
@@ -2506,10 +2507,10 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
          branch is taken). The previous draft had the arms backwards (`==0`
          first, `!=0` second) -- same behavior, wrong branch sense/layout. */
       if (sd->rezInd != 0) {
-        Group *strip = chunkDat->stripBuf;
-        if (strip != (Group *)0x0) {
-          sd->stripPtr = (Trk_NewStrip *)(strip + 1);
-          sd->numStrips = (short)strip->m_num_elements;
+          Group *group = chunkDat->stripBuf;
+          if (group != (Group *)0x0) {
+            sd->stripPtr = (Trk_NewStrip *)(group + 1);
+            sd->numStrips = (short)group->m_num_elements;
           sd->offset = 0x7d;
           DrawW_StripDraw_High(sd);
           sd->quadCount = chunkDat->quadCounts[5];
@@ -2879,9 +2880,10 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      (groupNumElements, visList, offset, doFrustumClip) put gObjInfo->offset at
      112(sp) and visList at 108(sp) where the oracle has 108/116. */
   Draw_DCache *sd;                 /* $fp   -- the 0x1F800000 scratchpad cache */
-  Trk_AnimateInst *objInstance;    /* $s0   -- SYM type Trk_SimpleInst* */
+  Trk_SimpleInst *objInstance;     /* $s0 */
   Trk_ObjectDef *objDef;           /* $s1 */
   int totalCount;                  /* $s5 */
+  Group *group;                    /* $v0 */
   int groupNumElements;            /* AUTO -0x40 -> 104(sp) */
   int offset;                      /* AUTO -0x3c -> 108(sp) */
   int doFrustumClip;               /* AUTO -0x38 -> 112(sp) */
@@ -2893,7 +2895,7 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
   coorddef cp;                     /* AUTO -0x60 -> 72(sp) */
   coorddef pt2;                    /* AUTO -0x50 -> 88(sp) */
   int animType;
-  void *clipRes;
+  BOOL clipRes;
   int distSq;
 
   
@@ -3148,9 +3150,10 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      done by hand (K overlapping local qtys can only occupy the first K free regs).
      ============================================================================ */
   totalCount = 0;
-  objInstance = (Trk_AnimateInst *)(gObjInfo->objInstanceBuf + 1);
+  group = gObjInfo->objInstanceBuf;
+  objInstance = (Trk_SimpleInst *)(group + 1);
   __asm__("" : "=r"(objInstance) : "0"(objInstance));
-  groupNumElements = gObjInfo->objInstanceBuf->m_num_elements;
+  groupNumElements = group->m_num_elements;
   sd = (Draw_DCache *)&Render_gPalettePtr;
   /* MATCH (w46-a6): the zero-count arm RETURNS instead of assigning the
    * accumulator -- one fewer REG_N_REF on `totalCount` drops its allocno
@@ -3211,12 +3214,12 @@ gte_SetTransMatrix((void *)0x1f800014);
          * (`move s2,zero` / `li s2,1` / `beqz s2`) = +2 insns AND it stole the
          * delay slot the oracle fills with `addu $a0,$s7,$zero`. */
         if (doFrustumClip != 0) {
-          clipRes = ObjectClipped(Vi,(int)objInstance->pad,(coorddef *)&objInstance->count,
+          clipRes = ObjectClipped(Vi,(int)objInstance->pad,(coorddef *)&objInstance->x,
                              (Draw_tGiveShelbyMoreCache *)sd);
-          if (clipRes != (void *)0x0) goto animNext;
+          if (clipRes != 0) goto animNext;
         }
         if (zClipSq != -1) {
-          distSq = xzsquaredist32((coorddef *)&objInstance->count,&(Vi->cview).translation);
+          distSq = xzsquaredist32((coorddef *)&objInstance->x,&(Vi->cview).translation);
           if (zClipSq <= distSq) goto animNext;
         }
         /* MATCH (w46-a6): retail accumulates the RETURN VALUE directly --
@@ -3225,10 +3228,11 @@ gte_SetTransMatrix((void *)0x1f800014);
          * arg, `sw $s2,0x10($sp)`).  Round-tripping it through objectOffset
          * added 2 loop-weighted refs per call site to that allocno. */
         totalCount = totalCount + DrawObjectSimple(Vi,sd,objDef,
-                           (coorddef *)&objInstance->count,objectOffset);
+                           (coorddef *)&objInstance->x,objectOffset);
         goto animNext;
       animCase37:
-        Anim_GetRotPos(objInstance,1,DrawW_GetAnimationTime(objInstance),&cp,&matrix);
+        Anim_GetRotPos((Trk_AnimateInst *)objInstance,1,
+                       DrawW_GetAnimationTime((Trk_AnimateInst *)objInstance),&cp,&matrix);
         /* MATCH (w49-a2): the SYM's fn-scope `objDef` ($s1) is REUSED here -- the
            oracle loads the shape argument into that same $s1 (`lw s1,0(v0)`), not an
            anonymous temp.  Placed BEFORE the zClipSq guard on purpose: the SLD puts
@@ -3250,7 +3254,7 @@ gte_SetTransMatrix((void *)0x1f800014);
         }
       animNext:;
       }
-      objInstance = (Trk_AnimateInst *)((int)&objInstance->size + (int)objInstance->size);
+      objInstance = (Trk_SimpleInst *)((int)&objInstance->size + (int)objInstance->size);
       /* MATCH (w49-a2): zero-insn scheduling fence.  The oracle's loop tail is
          `lh v0,0(s0); nop; addu s0,s0,v0; j .Ltop; addiu s4,s4,1` -- it PAYS the
          lh load-delay nop and spends the `j` slot on the counter increment.  Ours
@@ -3874,15 +3878,12 @@ gte_SetTransMatrix(m);
 int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
 
 {
-  /* MATCH (2026-07-11): pGVar12 (Group*, 4-byte-stride byte-offset arithmetic) is the
-     Ghidra-collapsed view of what the oracle really walks as a variable-length instance
-     record. Every access site's byte offset (0,2,4,6,8,12,16,20,22,24,26,28,30,32,34)
-     lines up EXACTLY with the existing (already-vendored) Trk_CollideBoomInst layout
-     {size@0,type@2,objectIndex@3,zoffset@4,flags@5,pad@6,x@8,y@12,z@16,
-     qx@20,qy@22,qz@24,qw@26,sx@28,sy@30,sz@32,simIndex@34,boomIndex@35} -- retyping the
-     walking pointer as Trk_CollideBoomInst* turns every `pGVar12[N].m_num_elements`
-     byte-math expression into a real field access, which is rule-8/SYM-driven local
-     structure (SYM names this pointer `objInstance`). */
+  /* MATCH (2026-08-21): SYM declares the variable-length record walker as
+     Trk_SimpleInst*.  That type owns the common header through x/y/z; only the
+     type-specific switch arms cast it to Trk_CollideBoomInst for the q/s/light
+     tail.  This is also the source idiom preserved by the matched NFS2 PC beta.
+     The explicit casts are zero-code and the corrected declaration retains
+     PASS434. */
   /* RECEIPT (w44-a7) -- RE-GATED 212 diffs, COUNT-EXACT 434/434 (the worklist's
      78 is stale in the usual direction).  posdiff's first-use order is IDENTICAL
      to the oracle; the whole residual is ONE saved-register pair swap plus its
@@ -4028,7 +4029,7 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
   int doFrustumClip;        /* SYM AUTO -52 -> sp+76 */
   short light;
   Group *instGroup;   /* SYM REG $2 */
-  Trk_CollideBoomInst *objInstance;
+  Trk_SimpleInst *objInstance;
   Trk_ObjectDef *objDef;
   int totalCount;
   int objectOffset;
@@ -4038,7 +4039,7 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
 
   simObjs = gObjInfo->simObjs;
   instGroup = gObjInfo->objInstanceBuf;
-  objInstance = (Trk_CollideBoomInst *)(instGroup + 1);
+  objInstance = (Trk_SimpleInst *)(instGroup + 1);
   groupNumElements = instGroup->m_num_elements;
   doFrustumClip = gObjInfo->doFrustumClip;
   totalCount = 0;
@@ -4084,7 +4085,7 @@ gte_SetTransMatrix(&DW_WORLDMAT);
            * heading -- both were invented temps whose register pressure pushed
            * `totalCount` (SYM REG $s7) out into a stack slot (frame 136 vs 128). */
           if ((ObjectClipped(Vi,(int)objInstance->pad,(coorddef *)&objInstance->x,
-                             (Draw_tGiveShelbyMoreCache *)&Render_gPalettePtr) != (void *)0x0)
+                             (Draw_tGiveShelbyMoreCache *)&Render_gPalettePtr) != 0)
               && (objInstance->type != 2)) {
             goto DrawWChunkFacets_groupNext;
           }
@@ -4104,8 +4105,8 @@ gte_SetTransMatrix(&DW_WORLDMAT);
           /* MATCH: SYM block scope (t1,t2,sx,sy -- no sz for the qz/qy-only shift pair). */
           int t1, t2, t3, sx, sy;
 
-          sx = (int)objInstance->qz << 8;
-          sy = (int)objInstance->qy << 8;
+          sx = (int)((Trk_CollideBoomInst *)objInstance)->qz << 8;
+          sy = (int)((Trk_CollideBoomInst *)objInstance)->qy << 8;
           t1 = fixedmult(matrix.m[0],sx);
           t2 = fixedmult(matrix.m[3],sx);
           t3 = fixedmult(matrix.m[6],sx);
@@ -4124,7 +4125,7 @@ gte_SetTransMatrix(&DW_WORLDMAT);
           matrix.m[2] = t1;
           matrix.m[5] = t2;
           matrix.m[8] = t3;
-          light = objInstance->qw;
+          light = ((Trk_CollideBoomInst *)objInstance)->qw;
           DW_SCRATCH->offsubdivid = 0;
         }
         objDef = Track_gObjDefs[objInstance->pad];
@@ -4167,10 +4168,10 @@ DrawWChunkFacets_emitObj:
           /* MATCH: SYM block scope (t1,t2,sx,sy,sz -- full 3-axis shift). */
           int t1, t2, t3, sx, sy, sz;
 
-          Quatern_QuatToMat((tQuat *)&objInstance->qx,&matrix);
-          sx = (int)objInstance->sx << 8;
-          sy = (int)objInstance->sy << 8;
-          sz = (int)objInstance->sz << 8;
+          Quatern_QuatToMat((tQuat *)&((Trk_CollideBoomInst *)objInstance)->qx,&matrix);
+          sx = (int)((Trk_CollideBoomInst *)objInstance)->sx << 8;
+          sy = (int)((Trk_CollideBoomInst *)objInstance)->sy << 8;
+          sz = (int)((Trk_CollideBoomInst *)objInstance)->sz << 8;
           t1 = fixedmult(matrix.m[0],sx);
           t2 = fixedmult(matrix.m[3],sx);
           t3 = fixedmult(matrix.m[6],sx);
@@ -4207,16 +4208,16 @@ DrawWChunkFacets_emitObj:
            * sites into `lhu` (census lh 19v21 / lhu 3v1). */
           totalCount = totalCount + DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
                               (coorddef *)&objInstance->x,objectOffset,
-                              *(short *)&objInstance->simIndex);
+                              *(short *)&((Trk_CollideBoomInst *)objInstance)->simIndex);
           break;
         }
         case 9: {
         /* MATCH: SYM block scope (t1,t2,sx,sy -- no sz for the qz/qy-only shift pair). */
         int t1, t2, t3, sx, sy;
 
-        xformy(&matrix,(int)objInstance->qx);
-        sx = (int)objInstance->qz << 8;
-        sy = (int)objInstance->qy << 8;
+        xformy(&matrix,(int)((Trk_CollideBoomInst *)objInstance)->qx);
+        sx = (int)((Trk_CollideBoomInst *)objInstance)->qz << 8;
+        sy = (int)((Trk_CollideBoomInst *)objInstance)->qy << 8;
         t1 = fixedmult(matrix.m[0],sx);
         t2 = fixedmult(matrix.m[3],sx);
         t3 = fixedmult(matrix.m[6],sx);
@@ -4239,20 +4240,21 @@ DrawWChunkFacets_emitObj:
         objDef = Track_gObjDefs[objInstance->pad];
         /* MATCH (w41-a2): inline light, see the case-2 note. */
         totalCount = totalCount + DrawObjectTransform(Vi,(Draw_DCache *)&Render_gPalettePtr,&matrix,objDef,
-                            (coorddef *)&objInstance->x,objectOffset,objInstance->qw);
+                            (coorddef *)&objInstance->x,objectOffset,
+                            ((Trk_CollideBoomInst *)objInstance)->qw);
         break;
         }
         case 5: {
         objDef = Track_gObjDefs[objInstance->pad];
-        anim = Object_GetAnim(simObjs + objInstance->simIndex);
+        anim = Object_GetAnim(simObjs + ((Trk_CollideBoomInst *)objInstance)->simIndex);
         if (anim == (ObjectAnim *)0x0) {
           /* MATCH: SYM block scope (t1,t2,sx,sy,sz -- full 3-axis shift). */
           int t1, t2, t3, sx, sy, sz;
 
-          Quatern_QuatToMat((tQuat *)&objInstance->qx,&matrix);
-          sx = (int)objInstance->sx << 8;
-          sy = (int)objInstance->sy << 8;
-          sz = (int)objInstance->sz << 8;
+          Quatern_QuatToMat((tQuat *)&((Trk_CollideBoomInst *)objInstance)->qx,&matrix);
+          sx = (int)((Trk_CollideBoomInst *)objInstance)->sx << 8;
+          sy = (int)((Trk_CollideBoomInst *)objInstance)->sy << 8;
+          sz = (int)((Trk_CollideBoomInst *)objInstance)->sz << 8;
           t1 = fixedmult(matrix.m[0],sx);
           t2 = fixedmult(matrix.m[3],sx);
           t3 = fixedmult(matrix.m[6],sx);
@@ -4291,7 +4293,8 @@ DrawWChunkFacets_emitObj:
            * declaration (13A block-local anchor law) keeps the call result in
            * $v0 and puts the vtable load in $v1 like retail, killing the
            * `addu v1,v0,zero` copy + the whole v0/v1 rotation.  32 -> 19. */
-          { ObjectAnim *anim = Object_GetAnim(simObjs + objInstance->simIndex);
+          { ObjectAnim *anim = Object_GetAnim(
+                simObjs + ((Trk_CollideBoomInst *)objInstance)->simIndex);
           (*(*anim->_vf)[2].pfn)
                     ((int)&anim->_vf + (int)(*anim->_vf)[2].delta,Vi,0x1f800000,objectOffset);
           }
@@ -4300,14 +4303,14 @@ DrawWChunkFacets_emitObj:
         }
       }
 DrawWChunkFacets_groupNext:
-      objInstance = (Trk_CollideBoomInst *)((char *)objInstance + objInstance->size);
+      objInstance = (Trk_SimpleInst *)((char *)objInstance + objInstance->size);
     }
   }
   return totalCount;
 }
 
 /* ---- ObjectClipped__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:2660-2709] SLD-VERIFIED ---- */
-void * ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMoreCache *sd)
+bool ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMoreCache *sd)
 
 {
   /* MATCH (2026-07-04, was 59 diffs -> 43): SYM (nfs4-f-v3.txt @0x800C8BD0) shows this
@@ -4355,7 +4358,7 @@ void * ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMor
   tBoundingSphere *bSphere;
   int iVar1;
   int iVar2;
-  void *pvVar3;
+  BOOL pvVar3;
   coorddef tmp;
   coorddef tmp2;
   coorddef trans;
@@ -4377,10 +4380,10 @@ void * ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMor
   tmp2.z = tmp2.z + bSphere->radius * 0x400;
   iVar2 = tmp2.z;
   if (iVar1 <= iVar2) {
-    pvVar3 = (void *)(u_int)(iVar2 < -iVar1);
+    pvVar3 = (u_int)(iVar2 < -iVar1);
   }
   else {
-    pvVar3 = (void *)0x1;
+    pvVar3 = 1;
   }
   return pvVar3;
 }
@@ -4912,7 +4915,7 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
   int vert_count;
   int smBase;
   int segOff;
-  int vert_idx;
+  int depth_index;
   POLY_GT4 *prim;
   void *primPtr;
   Draw_tPixMap *pmx;
@@ -5246,16 +5249,16 @@ gte_swc2(0x7,(void *)0x1f800094);
              * @0x800C9548.  The DW_SCRATCH literal form materialized TWO extra
              * `lui 0x1F80`s.  (Draw_DCache stops at 0xDC; the fog pair lives in
              * the bigger Draw_tGiveShelbyMoreCache view of the same header.) */
-            vert_idx = (vt_y - ((Draw_tGiveShelbyMoreCache *)sd)->startfog) * 0x10 >>
+            depth_index = (vt_y - ((Draw_tGiveShelbyMoreCache *)sd)->startfog) * 0x10 >>
                        ((Draw_tGiveShelbyMoreCache *)sd)->distfog;
-            if (vert_idx < 0) {
-              vert_idx = 0;
+            if (depth_index < 0) {
+              depth_index = 0;
             }
-            else if (0xf < vert_idx) {
-              vert_idx = 0xf;
+            else if (0xf < depth_index) {
+              depth_index = 0xf;
             }
             *(short *)((int)primPtr + 0xe) =
-                 ((short (*)[16])gClutDepth_v)[pmx->pad2][vert_idx];
+                 ((short (*)[16])gClutDepth_v)[pmx->pad2][depth_index];
           }
           /* OT-link, EA DMPSX-analog FIXED-REG TEMPLATE (2026-07-11; same shape
            * as DrawW_OnyxLinePrim's sealed instance -- fastmovf.c family;
@@ -5991,11 +5994,11 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
   Track_tMaterial material;
   coorddef tmp;
   coorddef tmp2;
-  u_short fx;
-  u_short fy;
-  u_short fz;
-  u_short sx;
-  u_short sy;
+  short fx;
+  short fy;
+  short fz;
+  short sx;
+  short sy;
   short sz;
   short wx, wy, wz;
   int slice;

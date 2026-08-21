@@ -12,10 +12,10 @@
 2. **The asm oracle is `C:\Temp\symdump-disasm\disasm-v4.txt`** (~348k lines).
 3. **DATA-MAT IS MANDATORY — a function is NOT done until its data is materialized.**
    The moment a function hits 100%, materialize every absolute-VA global it
-   defines/writes (and isn't already defined in the project) as real bytes — owned
-   module globals in the module's `.cpp`, cross-module globals it writes in
-   `recon/game/common/func_va_data.cpp` (bss→zero-init by type/size; data→oracle
-   bytes). Read-only refs to other modules' data stay `extern`. This is additive
+   defines/writes (and isn't already defined in the project) as real bytes in the
+   SYM-owning module's `.cpp` (bss→zero-init by type/size; data→oracle bytes).
+   Cross-module and read-only references stay `extern`; do not centralize their
+   definitions in an artificial carrier TU. This is additive
    (objdiff % unchanged) but it is NOT optional — do it in the same commit/turn as the
    match. (Missed twice; do not skip it again.)
 4. **BACKPORT byte-perfect findings to the run-tree** (see Backport rule below).
@@ -39,8 +39,8 @@ in the run-tree with the byte-proven **VA + type + size + bytes** (bss→zero, d
 bytes). The run-tree is a *full* reconstruction, so cross-module globals live in their
 owning module's `.cpp` (e.g. `AI_Info`→ai.cpp, `leaderBoard`→aispeeds.cpp,
 `AIPhysicConfig`→aiphysic.cpp, `triggerManagerTraffic`→aitriger.cpp) — there's no
-`func_va_data.cpp` there. So this is a **consistency check**: verify the run-tree's
-definition matches the byte-proven fact; if it's missing, wrong-typed, wrong-VA, or has
+So this is a **consistency check**: verify the run-tree's definition matches the
+byte-proven fact; if it's missing, wrong-typed, wrong-VA, or has
 placeholder/wrong initialized bytes, fix it and push. (2026-06-15: verified all 4 current
 entries already consistent — no-op that round.)
 - Backport the **whole verified body** (per the user rule above) — and especially any
@@ -249,14 +249,14 @@ python tools/run_permuter.py permuter_work/<MANGLED_SYM> -j 8 --stop-on-zero
 
 ## Data materialization pass
 
-When a function reaches 100%, materialize the absolute-VA data **it owns** into
-`recon/game/common/func_va_data.cpp` as real bytes (BSS globals = zero-init,
-sized by type/next symbol; initialized data = bytes from the oracle / cross-check
-the run-tree `C:\Temp\claud\reconstructed_headers\tree`). Data that lives in
+When a function reaches 100%, materialize the absolute-VA data **it owns** in
+the same SYM-owning source module as real bytes (BSS globals = zero-init, sized
+by type/next symbol; initialized data = bytes from the oracle / cross-check the
+run-tree `C:\Temp\claud\reconstructed_headers\tree`). Data that lives in
 **other** units (shared rodata, another module's globals) stays `extern` — it gets
-materialized when its owning unit is reconstructed. This is additive (extern decl
-stays in the header, the *definition* goes in func_va_data.cpp) and does not
-change the objdiff %; it advances the self-contained-source goal.
+materialized when its owning unit is reconstructed. The extern declaration stays
+in the consumer header and the single definition belongs to the owning module;
+this advances the self-contained-source goal without inventing a carrier object.
 
 ## Build & report
 

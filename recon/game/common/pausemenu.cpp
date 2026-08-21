@@ -6,7 +6,9 @@
 #include "../../nfs4_types.h"
 #include "pausemenu_externs.h"
 
-/* STAT data owned by PauseMenu.obj (gPause_CurrentY @0x8013ddc4, file-static int) */
+/* Data owned by PauseMenu.obj.  SYM records ChangedEnabling as EXT BOOL and
+   gPause_CurrentY as file-static INT. */
+bool ChangedEnabling;   /* @0x8013d2ec; CC1PLPSX bool is 4 bytes */
 static int gPause_CurrentY;
 
 
@@ -15,17 +17,17 @@ static int gPause_CurrentY;
 void PauseMenu_FullText(char *sMenuText,short x,short flags,short color)
 
 {
-  char *new_var;
+  char *str;
   int iVar1;
 
-  new_var = sMenuText;
+  str = sMenuText;
   if (gPause_CurrentY == 0x62) {
     x = 0xa0;
     flags = 2;
     color = 6;
   }
   if (flags == 1) {
-    iVar1 = textpixels(new_var);
+    iVar1 = textpixels(str);
     x = x - (short)iVar1;
   }
   else if (flags == 2) {
@@ -33,7 +35,7 @@ void PauseMenu_FullText(char *sMenuText,short x,short flags,short color)
     x = x - (short)(iVar1 / 2);
   }
   Font_TextColor((int)color);
-  Font_TextXY(new_var,(int)x,gPause_CurrentY);
+  Font_TextXY(str,(int)x,gPause_CurrentY);
   return;
 }
 
@@ -103,7 +105,7 @@ tPListIterator::~tPListIterator()
 
 /* ---- tPListIterator::Value  [PAUSEMENU.CPP:134-135] SLD-VERIFIED ---- */
 
-int tPListIterator::Value(tPlayer arg1)
+char tPListIterator::Value(tPlayer arg1)
 
 {
   return *this->fValue;
@@ -113,7 +115,7 @@ int tPListIterator::Value(tPlayer arg1)
 
 /* ---- tPListIterator::TextValue  [PAUSEMENU.CPP:139-140] SLD-VERIFIED ---- */
 
-int tPListIterator::TextValue(tPlayer arg1)
+short tPListIterator::TextValue(tPlayer arg1)
 
 {
   u_int uVar1;
@@ -127,7 +129,7 @@ int tPListIterator::TextValue(tPlayer arg1)
 
 /* ---- tPListIterator::Increment  [PAUSEMENU.CPP:144-149] SLD-VERIFIED ---- */
 
-int tPListIterator::Increment(tPlayer arg1)
+void tPListIterator::Increment(tPlayer arg1)
 
 {
   *this->fValue = *this->fValue + 1;
@@ -136,14 +138,14 @@ int tPListIterator::Increment(tPlayer arg1)
   }
   AudioCmn_PlayPauseSound(5);
   gMPauseUpdateNextTime = 1;
-  return 1;
+  return;
 }
 
 
 
 /* ---- tPListIterator::Decrement  [PAUSEMENU.CPP:154-163] SLD-VERIFIED ---- */
 
-int tPListIterator::Decrement(tPlayer arg1)
+void tPListIterator::Decrement(tPlayer arg1)
 
 {
   short sVar1;
@@ -165,7 +167,7 @@ int tPListIterator::Decrement(tPlayer arg1)
   }
   AudioCmn_PlayPauseSound(5);
   gMPauseUpdateNextTime = 1;
-  return 1;
+  return;
 }
 
 
@@ -195,7 +197,7 @@ tPListIteratorIndexed::~tPListIteratorIndexed()
 
 /* ---- tPListIteratorIndexed::Value  [PAUSEMENU.CPP:207-208] SLD-VERIFIED ---- */
 
-int tPListIteratorIndexed::Value(tPlayer arg1)
+char tPListIteratorIndexed::Value(tPlayer arg1)
 
 {
   return this->fValue[(u_char)*this->fIndex];
@@ -205,7 +207,7 @@ int tPListIteratorIndexed::Value(tPlayer arg1)
 
 /* ---- tPListIteratorIndexed::TextValue  [PAUSEMENU.CPP:212-213] SLD-VERIFIED ---- */
 
-int tPListIteratorIndexed::TextValue(tPlayer arg1)
+short tPListIteratorIndexed::TextValue(tPlayer arg1)
 
 {
   __vtbl_ptr_type (*pa_Var1) [6];
@@ -222,7 +224,7 @@ int tPListIteratorIndexed::TextValue(tPlayer arg1)
 
 /* ---- tPListIteratorIndexed::Increment  [PAUSEMENU.CPP:219-224] SLD-VERIFIED ---- */
 
-int tPListIteratorIndexed::Increment(tPlayer arg1)
+void tPListIteratorIndexed::Increment(tPlayer arg1)
 
 {
   this->fValue[(u_char)*this->fIndex] =
@@ -232,14 +234,14 @@ int tPListIteratorIndexed::Increment(tPlayer arg1)
   }
   AudioCmn_PlayPauseSound(5);
   gMPauseUpdateNextTime = 1;
-  return 1;
+  return;
 }
 
 
 
 /* ---- tPListIteratorIndexed::Decrement  [PAUSEMENU.CPP:229-238] SLD-VERIFIED ---- */
 
-int tPListIteratorIndexed::Decrement(tPlayer arg1)
+void tPListIteratorIndexed::Decrement(tPlayer arg1)
 
 {
   short sVar1;
@@ -264,7 +266,7 @@ int tPListIteratorIndexed::Decrement(tPlayer arg1)
   }
   AudioCmn_PlayPauseSound(5);
   gMPauseUpdateNextTime = 1;
-  return 1;
+  return;
 }
 
 
@@ -305,10 +307,10 @@ tPMenu * tPMenuItem::NextMenu()
 
 /* ---- tPMenuItem::Debounce  [PAUSEMENU.CPP:261-262] SLD-VERIFIED ---- */
 
-void * tPMenuItem::Debounce()
+bool tPMenuItem::Debounce()
 
 {
-  return (void *)0x1;
+  return 1;
 }
 
 
@@ -418,7 +420,7 @@ tPMenuItemLeftRightChoice::~tPMenuItemLeftRightChoice()
 
 /* ---- tPMenuItemLeftRightChoice::ProcessInput  [PAUSEMENU.CPP:329-341] SLD-VERIFIED ---- */
 
-int tPMenuItemLeftRightChoice::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
+void tPMenuItemLeftRightChoice::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
 
 {
   if (keyval == kInput_KeyType_Left) {
@@ -427,7 +429,7 @@ int tPMenuItemLeftRightChoice::ProcessInput(tInputKeyType &keyval,tPMenuCommand 
   if (keyval == kInput_KeyType_Right) {
     goto right;
   }
-  return 0x1000;
+  return;
 
 left:
     (*(*this->fData->_vf)[5].pfn)
@@ -440,7 +442,7 @@ right:
                0xffffffff);
 processed:
   keyval = kInput_KeyType_AlreadyProcessed;
-  return 1;
+  return;
 }
 
 
@@ -519,10 +521,10 @@ tPMenuItemLeftRightSlider::~tPMenuItemLeftRightSlider()
 
 /* ---- tPMenuItemLeftRightSlider::Debounce  [PAUSEMENU.CPP:453-454] SLD-VERIFIED ---- */
 
-void * tPMenuItemLeftRightSlider::Debounce()
+bool tPMenuItemLeftRightSlider::Debounce()
 
 {
-  return (void *)0x0;
+  return 0;
 }
 
 
@@ -647,7 +649,7 @@ void tPMenuItemLeftRightSlider::Draw(bool selected)
         u_int len : 8;
       };
       POLY_GT4 *prim;
-      u_char **packetPtr;
+      u_char **packetPtr; /* SYM-CODEGEN-CARRIER: packetPtr -- allocsim-confirmed retail $s4. */
 
       packetPtr = (u_char **)0x1f800004;
       prim = (POLY_GT4 *)*packetPtr;
@@ -941,17 +943,18 @@ void tPMenu::Initialize()
 
 /* ---- tPMenu::Debounce  [PAUSEMENU.CPP:698-699] SLD-VERIFIED ---- */
 
-void * tPMenu::Debounce()
+bool tPMenu::Debounce()
 
 {
   __vtbl_ptr_type (*pa_Var1) [7];
-  void *pvVar2;
   
   pa_Var1 = this->fItemList[this->fCurrentItem]->_vf;
-  pvVar2 = (void *)(*(*pa_Var1)[3].pfn)
-                             ((int)&this->fItemList[this->fCurrentItem]->fFlags +
-                              (int)(*pa_Var1)[3].delta);
-  return pvVar2;
+  /* SYM declares the virtual result as native bool.  Preserve that result type
+     at the manual vtable boundary so GCC trusts the callee's normalization,
+     just as it would for the original C++ virtual call. */
+  return (*(bool (*)(...))(*pa_Var1)[3].pfn)
+                         ((int)&this->fItemList[this->fCurrentItem]->fFlags +
+                          (int)(*pa_Var1)[3].delta);
 }
 
 
@@ -1166,37 +1169,37 @@ int tPMenu::ItemEnabledNum(int num)
 
 /* ---- tPMenuItemInteractive::IsNavigable  [PAUSEMENU.CPP:306-825] SLD-FLAG:NONMONO ---- */
 
-void * tPMenuItemInteractive::IsNavigable()
+bool tPMenuItemInteractive::IsNavigable()
 
 {
-  return (void *)0x1;
+  return 1;
 }
 
 
 
 /* ---- tPMenuItemNonInteractiveText::IsNavigable  [PAUSEMENU.CPP:288-307] SLD-FLAG:NONMONO ---- */
 
-void * tPMenuItemNonInteractiveText::IsNavigable()
+bool tPMenuItemNonInteractiveText::IsNavigable()
 
 {
-  return (void *)0x0;
+  return 0;
 }
 
 
 
 /* ---- tPMenuItem::IsEnabled  [PAUSEMENU.CPP:?] SLD-FLAG:NO_SLD ---- */
 
-void * tPMenuItem::IsEnabled()
+bool tPMenuItem::IsEnabled()
 
 {
-  return (void *)((this->fFlags ^ 1) & 1);
+  return (this->fFlags ^ 1) & 1;
 }
 
 
 
 /* ---- tPMenuItem::IsDisabled  [PAUSEMENU.CPP:?] SLD-FLAG:NO_SLD ---- */
 
-void * tPMenuItem::IsDisabled()
+bool tPMenuItem::IsDisabled()
 
 {
   int ret;
@@ -1205,7 +1208,7 @@ void * tPMenuItem::IsDisabled()
   u_int col;
   int i;
   
-  return (void *)(this->fFlags & 1);
+  return this->fFlags & 1;
 }
 
 

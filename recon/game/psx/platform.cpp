@@ -20,7 +20,7 @@ int gSysStartUp = 0;        /* @0x8013da9c */
  * named array also keeps gcc's lui+jal+addiu(delay) shape in Platform_SysStartUp. */
 char D_8013DAA0[] __attribute__((section(".sdata"), aligned(4))) = "cdrom:";
 int disablecard = 0;        /* @0x8013daa8  EXT INT per SYM; referenced nowhere in code */
-char *gDctXtraMem = 0;      /* @0x8013daac  SYM: STAT PTR CHAR (kept non-static: extern decl in platform_externs.h) */
+static char *gDctXtraMem = 0; /* @0x8013daac  SYM: STAT PTR CHAR */
 int gLowMemory = 0;         /* @0x8013dab0 */
 int gHighMemory = 0;        /* @0x8013dab4 */
 int gCurrentMemory = 0;     /* @0x8013dab8 */

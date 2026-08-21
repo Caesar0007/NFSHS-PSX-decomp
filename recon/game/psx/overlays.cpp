@@ -10,6 +10,7 @@
    them via %gp_rel -- which only happens for a <=G4 object defined (not just declared) in
    this TU.  StatsTimer's two words are separate 4-byte symbols for exactly that reason.
    CAUTION (documented dual-model tradeoff, catalog section E): hud_externs.h still declares
+   SYM-CARRIER: StatsTimer
    StatsTimer as `int StatsTimer[2]`.  The two 4-byte .comm symbols land adjacently in .sbss
    in declaration order, so that array view still reaches both words -- but if StatsTimer or
    D_8013D99C ever gains an initializer or another owner, re-check that adjacency. */

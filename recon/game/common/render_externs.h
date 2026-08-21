@@ -12,8 +12,9 @@ typedef void fn_void(void);   /* Draw_SetDrawSyncCallback callback (void(*)(void
 extern int   Render_gMenuRenderFlag;
 // gScratchLastWord: fixed-address scratchpad macro, see nfs4_types.h
 // [owned->defined in render.cpp] extern int   gFlip, gPauseRender, gMPauseUpdate, gMPauseUpdateNextTime;
-extern int gFlip, gMPauseUpdate, gMPauseUpdateNextTime;
-// [owned->defined in render.cpp] extern short gPauseMenuRect, D_8013D3D6, D_8013D3D8, D_8013D3DA;  /* was RECT gPauseMenuRect (x/y/w/h), split for gp-rel -- see render.cpp */
+extern int gFlip;
+extern bool gMPauseUpdate, gMPauseUpdateNextTime;  /* SYM BOOL; C++ source spelling */
+// [owned->defined in render.cpp] extern RECT gPauseMenuRect;  /* SYM: one 8-byte RECT; render.cpp uses -G8 */
 extern dflip gEnviro[];
 extern FLARE_DEF gFlare_LensFlare;
 extern GameSetup_tData GameSetup_gData;

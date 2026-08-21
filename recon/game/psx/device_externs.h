@@ -31,7 +31,7 @@ extern int    Device_gForcePause;      /* = iVar1/0/1 */
 extern int    Device_gPausePort;       /* holds -1/0/4 */
 extern int    Device_gPaused;          /* !=0 / =0,1 */
 extern int    Device_gToggleTime[2];   /* per-port toggle frame-count (=0x11) */
-extern u_long Device_gPrev[2];         /* per-port previous pad state */
+extern int Device_gPrev[2];            /* per-port previous pad state (SYM INT[2]) */
 extern char   Device_gPausePortIndex;  /* Ghidra char literal \x01/\0 */
 /* Device_gFailCount -> now SYM-faithful function-local `static u_char failtime[2]` in Device_Fail (STAT @0x8013DDE4) */
 

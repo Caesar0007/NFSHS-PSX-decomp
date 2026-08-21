@@ -15,7 +15,6 @@ extern u_long    font_abr;                /* 0x8013d860 */
 extern u_short   gFontClut;               /* 0x8013d864 */
 extern u_char    gFontSpaceWidth;         /* 0x8013d866 */
 extern u_short   font_currentTPage;       /* 0x8013d868 */
-extern fn_void  *gCurrentBlitter;         /* 0x8013ddec  (PTR FCN VOID) */
 extern cluttbl   shpfontclut;             /* 0x8011fdb0  (48 bytes) */
 extern long      colourRGB[16];           /* 0x8011fd70  (ARY LONG, 64 bytes) */
 extern u_char    currentfont[0xa0];       /* 0x80135ba0  (active font header buffer) */

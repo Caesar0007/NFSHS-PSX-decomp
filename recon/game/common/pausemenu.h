@@ -21,15 +21,15 @@ void Decrement__21tPListIteratorIndexed7tPlayer(tPListIteratorIndexed *self, int
 void * __10tPMenuItemUi(tPMenuItem *self, unsigned int textDescription);   /* :246 */
 void ___10tPMenuItem(tPMenuItem *self, int __in_chrg);   /* :252 */
 void * NextMenu__10tPMenuItem(tPMenuItem *self);   /* :256 */
-BOOL Debounce__10tPMenuItem(tPMenuItem *self);   /* :261 */
+bool Debounce__10tPMenuItem(tPMenuItem *self);   /* :261 */
 void ProcessInput__10tPMenuItemR13tInputKeyTypeR13tPMenuCommand(tPMenuItem *self, int *key_input, tPMenuCommand *menu_cmd);   /* :266 */
 void * __28tPMenuItemNonInteractiveTextUi(tPMenuItemNonInteractiveText *self, unsigned int textDescription);   /* :273 */
 void ___28tPMenuItemNonInteractiveText(tPMenuItemNonInteractiveText *self, int __in_chrg);   /* :278 */
 void Draw__28tPMenuItemNonInteractiveTextb(tPMenuItemNonInteractiveText *self, BOOL selected);   /* :283 */
-BOOL IsNavigable__28tPMenuItemNonInteractiveText(tPMenuItemNonInteractiveText *self);   /* :288 */
+bool IsNavigable__28tPMenuItemNonInteractiveText(tPMenuItemNonInteractiveText *self);   /* :288 */
 void * __21tPMenuItemInteractiveUi(tPMenuItemInteractive *self, unsigned int textDescription);   /* :297 */
 void ___21tPMenuItemInteractive(tPMenuItemInteractive *self, int __in_chrg);   /* :302 */
-BOOL IsNavigable__21tPMenuItemInteractive(tPMenuItemInteractive *self);   /* :306 */
+bool IsNavigable__21tPMenuItemInteractive(tPMenuItemInteractive *self);   /* :306 */
 void Draw__21tPMenuItemInteractiveb(tPMenuItemInteractive *self, BOOL selected);   /* :311 */
 void * __25tPMenuItemLeftRightChoiceUiP14tPListIterator(tPMenuItemLeftRightChoice *self, unsigned int textDescription, tPListIterator *dataPtr);   /* :319 */
 void ___25tPMenuItemLeftRightChoice(tPMenuItemLeftRightChoice *self, int __in_chrg);   /* :325 */
@@ -37,7 +37,7 @@ void ProcessInput__25tPMenuItemLeftRightChoiceR13tInputKeyTypeR13tPMenuCommand(t
 void Draw__25tPMenuItemLeftRightChoiceb(tPMenuItemLeftRightChoice *self, BOOL selected);   /* :346 */
 void * __25tPMenuItemLeftRightSliderUiPic(tPMenuItemLeftRightSlider *self, unsigned int textDescription, int *dataPtr, char maxVal);   /* :441 */
 void ___25tPMenuItemLeftRightSlider(tPMenuItemLeftRightSlider *self, int __in_chrg);   /* :449 */
-BOOL Debounce__25tPMenuItemLeftRightSlider(tPMenuItemLeftRightSlider *self);   /* :453 */
+bool Debounce__25tPMenuItemLeftRightSlider(tPMenuItemLeftRightSlider *self);   /* :453 */
 void ProcessInput__25tPMenuItemLeftRightSliderR13tInputKeyTypeR13tPMenuCommand(tPMenuItemLeftRightSlider *self, int *keyval, tPMenuCommand *menu_command);   /* :458 */
 void Draw__25tPMenuItemLeftRightSliderb(tPMenuItemLeftRightSlider *self, BOOL selected);   /* :498 */
 void * __32tPMenuItemLeftRightSliderIndexedUiPicPc(tPMenuItemLeftRightSliderIndexed *self, unsigned int textDescription, int *dataPtr, char maxVal, char *index);   /* :541 */
@@ -55,15 +55,13 @@ void tPMenuConstructor__6tPMenuP10tPMenuItemPv(tPMenu *self, tPMenuItem *firstIt
 void * __6tPMenuP10tPMenuIteme(tPMenu *self, tPMenuItem *firstItem);   /* :669 */
 void ___6tPMenu(tPMenu *self, int __in_chrg);   /* :679 */
 void Initialize__6tPMenu(tPMenu *self);   /* :683 */
-BOOL Debounce__6tPMenu(tPMenu *self);   /* :698 */
+bool Debounce__6tPMenu(tPMenu *self);   /* :698 */
 void CheckForDisabled__6tPMenu(tPMenu *self);   /* :703 */
 void ProcessInput__6tPMenuR13tInputKeyTypeR13tPMenuCommand(tPMenu *self, int *keyval, tPMenuCommand *command);   /* :718 */
 void Draw__6tPMenu(tPMenu *self);   /* :783 */
 int NumEnabledItems__6tPMenu(tPMenu *self);   /* :805 */
 int ItemEnabledNum__6tPMenui(tPMenu *self, int num);   /* :818 */
 
-/* ---- header-defined (inline / class) functions ---- */
-BOOL IsDisabled__10tPMenuItem(tPMenuItem *self);   /* :115 */
-BOOL IsEnabled__10tPMenuItem(tPMenuItem *self);   /* :116 */
+/* Header-attributed inline methods are declared on tPMenuItem in nfs4_types.h. */
 
 #endif /* _GAME_COMMON_PAUSEMENU_H_ */

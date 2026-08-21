@@ -13,7 +13,11 @@
 #define RENDER_PACKETPTR_ADDR (*(u_char **)0x1F800004)
 #define RENDER_PALETTEPTR_ADDR (*(u_char **)0x1F800000)
 
-/* Weather_gLastProcessTime[2] is SPLIT STORAGE, same shape as the four server arrays below.
+/* SYM-CARRIER: Weather_gLastProcessTime
+ * SYM-STORAGE-OVERRIDE: Weather_gLastProcessTime -- spelling the split carrier
+ * file-static makes Weather_Init 219/211 with 24 diffs; external tentative
+ * element symbols are required for the verified PASS 211/211 gp/absolute mix.
+ * Weather_gLastProcessTime[2] is SPLIT STORAGE, same shape as the four server arrays below.
  * Weather_Init/Weather_Restart reach the CONSTANT-index elements as two independent one-insn
  * %gp_rel(D_8013DE54)/%gp_rel(D_8013DE58) symbols (8 bytes is over this build's -G4 threshold
  * as ONE object, each 4-byte element alone is gp-eligible), while Weather_DoWeather's RUNTIME
@@ -45,6 +49,10 @@ extern int Weather_gLastProcessTimeA[] asm("Weather_gLastProcessTime");
  * UNSIZED asm-label array VIEW aliased onto element [0]'s symbol: unsized + extern keeps it
  * out of maspsx's sbss_entries, and `gp_allow_la` is off, so `la` stays absolute.  The view
  * ALIASES the real storage (no duplicated object, unlike the older gLastProcessTime duality). */
+/* SYM-CARRIER: Weather_gSplatInfoServer
+ * SYM-CARRIER: Weather_gPServer
+ * SYM-CARRIER: Weather_gPrevPServer
+ * SYM-CARRIER: Weather_gDrawnServer */
 Weather_tSplatInfo *Weather_gSplatInfoServer;   /* [0] @0x8013dbc8 */
 Weather_tSplatInfo *Weather_gSplatInfoServer1;  /* [1] @0x8013dbcc (oracle D_8013DBCC) */
 SVECTOR            *Weather_gPServer;           /* [0] @0x8013dbd0 */
@@ -75,7 +83,8 @@ int Weather_gIntensityGoalState;
 int Weather_gIntensityTimerGoal;
 int Weather_gSnowTrack;
 int Weather_gTrackIntensityLimit;
-int Weather_gType;
+Weather_tState Weather_gType;
+static int timechange;                         /* @0x8013de4c SYM STAT */
 int gCurrentNumSplats;
 
 /* DoWeather function-local statics (SYM STAT class; persist across frames) */
@@ -213,17 +222,15 @@ void Weather_InitRain(void)
 /* ---- Weather_InitSplats__Fv  [WEATHER.CPP:182-191] SLD-VERIFIED ----
  * NEAR-MISS 7 diffs (68/69 insns, down from 11): moving `splat_i = 0` to be the FIRST statement
  * (before gs/commModeNetwork) fixed the callee-saved SAVE ORDER (oracle inits+saves $s2 first, as
- * the loop counter is the first-used var per IDA sub_800E1FD8). Also made the return type the TRUE
- * `int` per IDA (`BOOL f(){ for(i=0;;++i){ result=i<19; if(i>=19)break; ...} return result; }`) --
- * the SYM types it VOID but the codegen returns the loop's final `i<19` in $v0 (same void-return
- * mistype class as Ghidra, methodology 3.2; the sole caller ignores the value so `int` is harmless).
+ * the loop counter is the first-used var per IDA sub_800E1FD8). The authoritative SYM signature is
+ * VOID; IDA's BOOL return is a decompiler artifact caused by the final loop test remaining in $v0.
  * Kept the plain `% 320`/`% y_max`/`% 300` (gcc-2.8 -O2 auto-emits the multu+mfhi magic-divide; a
  * 64-bit cast forced an unwanted mflo). SEALED (69/69 PASS): the no-rotation shape is the catalog
  * B-row EXIT-IN-THE-MIDDLE form -- `while(true){ result = i<19; if (result==0) break; body; i++; }`
  * (increment at body END, break tested via the result var, NOT a for(;;i++) head-increment) keeps
  * the oracle's top-test `slti;beqz->exit` + unconditional `j` back-edge. MATCH: exit-in-the-middle
  * no-rotation + result-var break. */
-int Weather_InitSplats(void)
+void Weather_InitSplats(void)
 
 {
   u_int rnd;
@@ -256,20 +263,20 @@ int Weather_InitSplats(void)
     Weather_gSplatInfo[splat_i].startTick = uVar1 % 300;
     splat_i = splat_i + 1;
   }
-  return result;
+  return;
 }
 
 /* ---- Weather_GetNewState__Fv  [WEATHER.CPP:238-249] SLD-VERIFIED ---- */
 int Weather_GetNewState(void)
 
 {
-  int r;
+  int randseed;
 
-  r = random() & 3;
-  if (r < 2) {
+  randseed = random() & 3;
+  if (randseed < 2) {
     return 0;
   }
-  if (r == 2) {
+  if (randseed == 2) {
     return 1;
   }
   return -1;
@@ -905,6 +912,9 @@ void Weather_QuickReOrthogonalize
  *      swap on the result.vy/result.vz pair). */
 void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
 {
+  /* SYM-CARRIER: pt -- retail aliases this inner-loop name onto temp_vector's
+     stack slot. A literal second SVECTOR makes cc1plus grow the frame and
+     regresses this function from PASS to 56 diffs, so the shared carrier stays. */
   int n;
   matrixtdef matdiff;
   matrixtdef orthoMat;
@@ -1772,11 +1782,11 @@ void Weather_DoWeather(DRender_tView *Vi)
 void Weather_BuildWeather(DRender_tView *Vi)
 
 {
-  void *pvVar1;
+  BOOL pvVar1;
 
   if ((GameSetup_gData.Weather != 0) &&
      (pvVar1 = BWorldSm_TunnelFlagSm
-                         (&Camera_gInfo[Vi->player].slicePos), pvVar1 == (void *)0x0)) {
+                         (&Camera_gInfo[Vi->player].slicePos), pvVar1 == 0)) {
     Weather_DoWeather(Vi);
   }
   return;
@@ -1785,4 +1795,3 @@ void Weather_BuildWeather(DRender_tView *Vi)
 /* end of weather.cpp */
 
 /* owning-TU def (link-harness) */
-int timechange;

@@ -33,7 +33,7 @@ __vtbl_ptr_type AIHigh_None_vtable[3] = {   /* @0x80054dec (AIHigh_None vtable) 
 
 /* ---- aihigh.obj-owned globals (.bss zero) ---- */
 AIHigh_Base  *highLevelAIObjs[9];   /* @0x8010cd38  (bss(zero)) */
-int          AIHigh_CopGameType;   /* @0x8013c55c  (bss(zero)) */
+AIHigh_CopGameType_t AIHigh_CopGameType;   /* @0x8013c55c  (bss(zero)) */
 
 
 /* ---- AIHigh_StartUp__Fv  AIHigh_StartUp  [AIHIGH.CPP:58-105] SLD-VERIFIED ---- */
@@ -136,16 +136,16 @@ void AIHigh_StartUp(void)
     }
 
     if (humanCopCounter == 2) {
-      AIHigh_CopGameType = 3;
+      AIHigh_CopGameType = COP_GAME_BTC_2HC;
       return;
     }
     if (humanCopCounter == 1) {
       if (copCounter == humanCopCounter) {
-        AIHigh_CopGameType = 4;
+        AIHigh_CopGameType = COP_GAME_BTC_1HC1HP;
         return;
       }
     }
-    AIHigh_CopGameType = 2;
+    AIHigh_CopGameType = COP_GAME_BTC_1HC;
     return;
   }
   else {
@@ -182,10 +182,10 @@ void AIHigh_StartUp(void)
     }
 
     if (0 < copCounter) {
-      AIHigh_CopGameType = 1;
+      AIHigh_CopGameType = COP_GAME_PURSUIT;
       return;
     }
-    AIHigh_CopGameType = 0;
+    AIHigh_CopGameType = COP_GAME_NO;
     return;
   }
 }
@@ -245,24 +245,20 @@ void AIHigh_Restart2(void)
 
 void AIHigh_CleanUp(void)
 {
-  AIHigh_Base *pAVar1;
-  AIHigh_Base **ppAVar2;
-  int iVar3;
+  int carLoop;
 
-  iVar3 = 0;
+  carLoop = 0;
   if (0 < Cars_gNumCars) {
-    ppAVar2 = highLevelAIObjs;
     do {
-      pAVar1 = *ppAVar2;
-      if (pAVar1 != (AIHigh_Base *)0x0) {
+      if (highLevelAIObjs[carLoop] != (AIHigh_Base *)0x0) {
         /* vtable entry 2: fn-ptr @ byte +20, this-delta @ byte +16 (byte-base, sec.3.12 #10) */
-        (*(int (**)(...))((char *)pAVar1->_vf + 20))
-                  ((int)&pAVar1->carObj_ + (int)*(short *)((char *)pAVar1->_vf + 16),3);
-        *ppAVar2 = (AIHigh_Base *)0x0;
+        (*(int (**)(...))((char *)highLevelAIObjs[carLoop]->_vf + 20))
+                  ((int)&highLevelAIObjs[carLoop]->carObj_ +
+                   (int)*(short *)((char *)highLevelAIObjs[carLoop]->_vf + 16),3);
+        highLevelAIObjs[carLoop] = (AIHigh_Base *)0x0;
       }
-      ppAVar2 = ppAVar2 + 1;
-      iVar3 = iVar3 + 1;
-    } while (iVar3 < Cars_gNumCars);
+      carLoop = carLoop + 1;
+    } while (carLoop < Cars_gNumCars);
   }
   AIState_CleanUp();
   return;

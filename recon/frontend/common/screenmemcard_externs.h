@@ -8,7 +8,7 @@ typedef long long longlong; typedef unsigned long long ulonglong;
 
 extern tfrontEnd   frontEnd;
 extern int  ticks;
-extern BOOL CURRENTLYUSINGMEMCARD;
+extern bool CURRENTLYUSINGMEMCARD;
 int CalcFadeVal(int col1, int col2, int amount);
 int CalcFadeVal(int col1, int amount);   /* 2-arg overload */
 /* SCREENMEMCARD.CPP layout int globals (@0x800528xx) are DEFINED in the .cpp (this TU owns them;
@@ -46,7 +46,7 @@ int FETextRender_WordWrapTextRGBJustify(char * str, RECT & r, int col, int justi
 char * TextSys_Word(int wordnum);
 void DrawShapeExtended(int index, int flags, int x, int y, int fade, int abr, tDrawShapeExtended * extra);
 void Texture_GetClutId(int bpp, int * xclut, int * yclut);
-void * FECheat_IsTheUserACryBabyCheater(void);
+bool FECheat_IsTheUserACryBabyCheater(void);  /* SYM: FCN bool */
 /* W62-A17: same C-lane rule -- was emitting MCRD_fileexists__FiPc (nonexistent). */
 extern "C" int MCRD_fileexists(int card, char * name);
 extern "C" int MCRD_handlecardevents(int card);

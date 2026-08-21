@@ -1,0 +1,1404 @@
+# SYM-to-source declaration audit
+
+Target: `C:\Temp\nfs4-decomp\recon\frontend\common`
+Trusted SYM: `C:\Temp\claud\dumpsym_clean\dumpsym_src\nfs4-f-v3.txt`
+
+This is a review queue, not an auto-fix list. Missing retail names are
+strong evidence; extra source names can be matching carriers or decompiler
+temporaries and must be tested against the function oracle before removal.
+GCC-v2-mangled function/EXT names are used only as linkage keys; source
+functions are mapped to their demangled C++ names and class scopes.
+
+## Summary
+
+- SYM functions in target TUs: 781
+- Mapped to reconstructed definitions: 779 (779 demangled class/name maps)
+- Source definitions still using mangled linkage identifiers: 0
+- Explicit deleting-destructor ABI carriers: 0
+- Explicit cross-TU ownership closures: 0
+- Declaration-clean mapped functions: 452
+- Missing SYM names: 0
+- Extra source-local names: 1137
+- Type-comparison findings: 0
+- Recognized ABI/debug-equivalent type encodings: 241
+  (generic-function-pointer=12, promoted-stack-argument=26, reference-as-pointer=203)
+- Function storage-class findings: 0
+- Compiler-generated aggregate functions without source bodies: 2
+- Explicit oracle-receipted carrier mappings: 4
+- Explicit source-only codegen carriers: 53
+- Explicit oracle-proven function type overrides: 2
+- Functions needing mapping review: 0
+- SYM object-owned data records in target TUs: 190
+- Mapped source global definitions: 190
+- Blob-backed object globals: 0
+- Missing/extra global definitions: 0/0
+- Global storage-class findings: 0
+- Explicit oracle-proven global storage overrides: 0
+- Global type findings: 0
+- Recognized global debug-equivalent types: 0
+  (none)
+- Explicit measured global array carriers: 13
+- Explicit oracle-proven global type overrides: 2
+
+## Review queue
+
+### `DrawHelpIcons__14tFEApplication` (0x80013344, feapp.cpp:171, map=exact)
+
+- Extra source locals: `bVar1`, `iVar4`, `pcVar2`, `uVar3`
+
+### `MainLoop__14tFEApplicationP5tMenu` (0x800142a4, feapp.cpp:767, map=exact)
+
+- Extra source locals: `currentScreen`, `iVar10`, `inputFlags`, `menuFlags`, `pa_Var11`, `pa_Var12`, `ptVar17`, `ptVar18`, `this_tDialogBase_l181`, `this_tDialogMessageString_l311`, `this_tMenu_l139`, `this_tMenu_l92`, `ticksValue`
+
+### `RunPostGame__14tFEApplication` (0x80015430, feapp.cpp:1229, map=exact)
+
+- Extra source locals: `item`, `screen`
+
+### `SellCar__11tCarManagerss` (0x8001652c, fecars.cpp:229, map=exact)
+
+- Extra source locals: `chk`, `fePlayer`, `nc`, `newSel`, `prevSlot`, `slot`, `slot31`
+
+### `PurchaseUpgrade__11tCarManagersss` (0x800166ac, fecars.cpp:283, map=exact)
+
+- Extra source locals: `bVar1`, `slot`
+
+### `RemoveFromPinkSlipsList__11tCarManagerss` (0x800167b8, fecars.cpp:362, map=exact)
+
+- Extra source locals: `chk`, `fePlayer`, `nc`, `newSel`, `prevSlot`, `slot`, `slot31`
+
+### `AddUpgradesToPinkSlipsList__11tCarManagersss` (0x8001697c, fecars.cpp:455, map=exact)
+
+- Extra source locals: `bVar1`, `slot`
+
+### `GetGarageCar__11tCarManagersR8tCarInfos` (0x80016f4c, fecars.cpp:683, map=exact)
+
+- Extra source locals: `iVar3`, `iVar5`, `src`, `uVar1`, `uVar2`, `uVar4`
+
+### `GetPinkSlipsCar__11tCarManagersR8tCarInfos` (0x80017058, fecars.cpp:715, map=exact)
+
+- Extra source locals: `iVar2`, `iVar3`, `src`, `uVar1`
+
+### `IsCarAnAddedModel__11tCarManagerR10tCarModelsRc` (0x800175f8, fecars.cpp:932, map=exact)
+
+- Extra source locals: `base`, `iVar2`, `index`, `ptVar1`
+
+### `FindSimilarCar__11tCarManagerR10tCarModelsRcsP10tCarModels` (0x80017718, fecars.cpp:999, map=exact)
+
+- Extra source locals: `arg3`, `arg4`, `bVar1`, `iVar5`, `uVar7`
+
+### `DrawAllDialogs__11tDialogBase` (0x80018720, fedialog.cpp:61, map=exact)
+
+- Extra source locals: `pa_Var2`, `pptVar5`, `sVar1`
+
+### `ProcessInput__11tDialogBase7tPlayerR13tInputKeyTypeR12tMenuCommand` (0x80018ac8, fedialog.cpp:183, map=exact)
+
+- Extra source locals: `command`, `fromPlayer`
+
+### `CalculateDimensions__11tDialogHelp` (0x80018b90, fedialog.cpp:221, map=exact)
+
+- Extra source locals: `canContinue`, `currentTicks`, `openHeight`, `openWidth`, `padState`, `scanMenu`, `shape3`
+
+### `Draw__11tDialogHelp` (0x8001912c, fedialog.cpp:394, map=exact)
+
+- Extra source locals: `bufferPtr`, `buttonY`, `firstTick`, `loadedTicks`, `pa_Var3`
+
+### `CalculateDimensions__20tDialogMessageString` (0x80019418, fedialog.cpp:493, map=exact)
+
+- Extra source locals: `clampedFade`, `fade_or_h`, `iVar2`, `shapeHeight`, `shapeWidth`, `tick_age`
+
+### `Draw__20tDialogMessageString` (0x8001962c, fedialog.cpp:563, map=exact)
+
+- Extra source locals: `halfw`, `idx`, `pa_Var1`, `rh`
+
+### `Run__18tDialogInteractive` (0x800197e8, fedialog.cpp:647, map=exact)
+
+- Extra source locals: `bVar2`, `helpPopup`, `iVar5`, `iVar6`, `pa_Var3`
+
+### `CalculateDimensions__12tDialogYesNo` (0x800199d4, fedialog.cpp:717, map=exact)
+
+- Extra source locals: `iVar2`
+
+### `Draw__12tDialogYesNo` (0x80019b44, fedialog.cpp:825, map=exact)
+
+- Extra source locals: `idx`, `pa_Var3`, `ptVar8`, `rgbBase`, `sMenuText`, `sVar1`, `sVar2`, `textBase`
+
+### `ProcessInput__15tDialogYesNoMem7tPlayerR13tInputKeyTypeR12tMenuCommand` (0x80019d98, fedialog.cpp:913, map=exact)
+
+- Extra source locals: `iVar2`, `pCVar3`
+
+### `ProcessInput__21tDialogNoInputMessage7tPlayerR13tInputKeyTypeR12tMenuCommand` (0x80019ebc, fedialog.cpp:976, map=exact)
+
+- Extra source locals: `atPlayer`, `command`, `keyVal`
+
+### `Draw__28tMenuItemNFS4LeftRightChoiceiib` (0x8001a8c8, femenuextended.cpp:332, map=exact)
+
+- Extra source locals: `bVar3`, `iVar2`, `sVar1`, `sVar4`, `string`
+
+### `Draw__31tMenuItemOptionsLeftRightChoiceiib` (0x8001abe0, femenuextended.cpp:480, map=exact)
+
+- Extra source locals: `pa_Var4`, `pcVar3`, `ptVar5`, `sVar2`, `y_00`
+
+### `TransitionOn__29tMenuItemOptionsTwoItemChoice` (0x8001adb8, femenuextended.cpp:524, map=exact)
+
+- Extra source locals: `bVar`, `cVar1`, `pa_Var3`, `ptVar2`
+
+### `Draw__29tMenuItemOptionsTwoItemChoiceiib` (0x8001ae14, femenuextended.cpp:554, map=exact)
+
+- Extra source locals: `cVar2`, `pa_Var7`, `pcVar5`, `ptVar4`, `sVar3`, `sVar6`
+
+### `Initialize__9tMenuNFS4` (0x8001b180, femenuextended.cpp:673, map=exact)
+
+- Extra source locals: `bVar1`, `ptVar2`, `puVar3`
+
+### `TransitionOff__9tMenuNFS4` (0x8001b250, femenuextended.cpp:720, map=exact)
+
+- Extra source locals: `iVar2`, `iVar3`, `ptVar1`
+
+### `TransitionOn__9tMenuNFS4` (0x8001b2d8, femenuextended.cpp:744, map=exact)
+
+- Extra source locals: `iVar2`, `iVar3`, `ptVar1`
+
+### `UpdateTransition__9tMenuNFS4` (0x8001b400, femenuextended.cpp:802, map=exact)
+
+- Extra source locals: `pItem`, `pa_Var2`, `ptVar1`
+
+### `DrawItem__9tMenuNFS4i` (0x8001b494, femenuextended.cpp:828, map=exact)
+
+- Extra source locals: `pa_Var2`, `ptVar1`
+
+### `Draw__9tMenuNFS4` (0x8001b4f4, femenuextended.cpp:846, map=exact)
+
+- Extra source locals: `iVar3`, `iVar4`, `index`, `pa_Var2`, `ptVar1`
+
+### `DrawItem__18tMenuNFS4TwoPlayeri` (0x8001b6d0, femenuextended.cpp:912, map=exact)
+
+- Extra source locals: `pa_Var2`, `ptVar1`
+
+### `Draw__15tMenuNFS4Bottom` (0x8001b7d8, femenuextended.cpp:960, map=exact)
+
+- Extra source locals: `pItem`, `pa_Var2`, `ptVar1`
+
+### `Draw__12tMenuOptions` (0x8001baec, femenuextended.cpp:1139, map=exact)
+
+- Extra source locals: `iVar6`, `pa_Var2`, `ptVar5`
+
+### `TransitionOn__12tMenuOptions` (0x8001be00, femenuextended.cpp:1244, map=exact)
+
+- Extra source locals: `iVar1`, `ptVar2`, `ptVar3`
+
+### `DrawLeftFlare__FiiiRi` (0x8001bfa0, femenuoptions.cpp:43, map=exact)
+
+- Extra source locals: `iVar1`, `index`
+
+### `SubtractiveBox__Fiiiiiiii` (0x8001c0fc, femenuoptions.cpp:105, map=exact)
+
+- Extra source locals: `packetCell`
+
+### `UpdateTransition__27tMenuItemGoToMenuButtonFadeb` (0x8001c2dc, femenuoptions.cpp:201, map=exact)
+
+- Extra source locals: `iVar2`, `pa_Var1`
+
+### `UpdateTransition__22tMenuItemLeftRightFadeb` (0x8001c438, femenuoptions.cpp:292, map=exact)
+
+- Extra source locals: `iVar2`, `pa_Var1`
+
+### `DebounceKeys__12tOptionsMenu` (0x8001c56c, femenuoptions.cpp:348, map=exact)
+
+- Extra source locals: `lVar1`, `ptVar2`
+
+### `UpdateTransition__12tOptionsMenu` (0x8001c854, femenuoptions.cpp:454, map=exact)
+
+- Extra source locals: `adjusted`, `citem`, `entry`, `item`
+
+### `Draw__12tOptionsMenu` (0x8001cb04, femenuoptions.cpp:555, map=exact)
+
+- Extra source locals: `adjusted`, `bVar4`, `entry`, `pa_Var2`, `ptVar1`
+
+### `ProcessInput__12tOptionsMenu7tPlayerR13tInputKeyTypeR12tMenuCommand` (0x8001cd08, femenuoptions.cpp:620, map=exact)
+
+- Extra source locals: `sVar1`
+
+### `ProcessInput__14tInsideBoxMenu7tPlayerR13tInputKeyTypeR12tMenuCommand` (0x8001ce2c, femenuoptions.cpp:668, map=exact)
+
+- Extra source locals: `pa_Var1`, `ptVar3`, `tVar2`
+
+### `Draw__14tInsideBoxMenusssss` (0x8001cefc, femenuoptions.cpp:699, map=exact)
+
+- Extra source locals: `arg5`, `entry10`, `entry6`, `item`
+
+### `UpdateTransition__20tMenuItemSlidingMenub` (0x8001d31c, femenuoptions.cpp:861, map=exact)
+
+- Extra source locals: `iVar2`, `pa_Var1`
+
+### `DebounceKeys__20tMenuItemSlidingMenu` (0x8001d398, femenuoptions.cpp:885, map=exact)
+
+- Extra source locals: `pa_Var2`, `ptVar3`, `uVar1`
+
+### `UpdatefOpenHeight__20tMenuItemSlidingMenub` (0x8001d41c, femenuoptions.cpp:918, map=exact)
+
+- Extra source locals: `closeH`, `cur`, `fade`, `fadeOut`, `lim`, `newFade`, `shrinkH`, `slide`
+
+### `Draw__20tMenuItemSlidingMenuiib` (0x8001d63c, femenuoptions.cpp:1045, map=exact-signature)
+
+- Extra source locals: `draw`, `drawFlagsPtr`, `drawX`, `drawY`, `right`
+
+### `ProcessInput__20tMenuItemSlidingMenu7tPlayerR13tInputKeyTypeR12tMenuCommand` (0x8001dc80, femenuoptions.cpp:1187, map=exact)
+
+- Extra source locals: `pa_Var1`, `ptVar2`
+
+### `UpdatefOpenHeight__25tMenuItemSlidingActivatedb` (0x8001dd6c, femenuoptions.cpp:1230, map=exact)
+
+- Extra source locals: `arg1`, `iVar2`, `iVar4`
+
+### `UpdateTransition__25tMenuItemSlidingActivatedb` (0x8001dec8, femenuoptions.cpp:1328, map=exact)
+
+- Extra source locals: `iVar2`, `pa_Var1`
+
+### `ProcessInput__25tMenuItemSlidingActivated7tPlayerR13tInputKeyTypeR12tMenuCommand` (0x8001df44, femenuoptions.cpp:1353, map=exact)
+
+- Extra source locals: `iVar2`, `pAVar1`, `pa_Var3`, `ptVar4`
+
+### `Draw__31tMenuItemDisplayLeftRightChoiceiib` (0x8001e230, femenuoptions.cpp:1450, map=exact)
+
+- Extra source locals: `pa_Var4`, `ptVar5`, `sMenuText`, `sVar1`, `selected`, `x`, `y`
+
+### `TransitionOn__29tMenuItemOnOffLeftRightChoice` (0x8001e320, femenuoptions.cpp:1485, map=exact)
+
+- Extra source locals: `bSet`, `cVar1`, `pa_Var3`, `ptVar2`
+
+### `Draw__29tMenuItemOnOffLeftRightChoiceiib` (0x8001e384, femenuoptions.cpp:1506, map=exact)
+
+- Extra source locals: `cVar1`, `pa_Var3`, `ptVar6`, `selected`, `x`, `y`
+
+### `Draw__29tMenuItemLeftRightAudioSlideriib` (0x8001e570, femenuoptions.cpp:1578, map=exact)
+
+- Extra source locals: `iVar6`, `pa_Var3`, `ptVar4`, `rgbVals`, `sMenuText`, `selected`, `uVar1`, `uVar5`
+
+### `Percentage__29tMenuItemLeftRightAudioSlider` (0x8001e77c, femenuoptions.cpp:1643, map=exact)
+
+- Extra source locals: `cVar1`, `iVar4`, `pa_Var2`, `ptVar5`, `ptVar6`, `uVar3`
+
+### `Draw__18tInsideBoxSongMenusssss` (0x8001e9d8, femenuoptions.cpp:1783, map=exact)
+
+- Extra source locals: `drawBaseY`, `fadeValue`, `fe`, `slide`, `width`
+
+### `ProcessInput__18tInsideBoxSongMenu7tPlayerR13tInputKeyTypeR12tMenuCommand` (0x8001ee7c, femenuoptions.cpp:1915, map=exact)
+
+- Extra source locals: `command`, `fromPlayer`
+
+### `Draw__34tMenuItemControllerLeftRightChoiceiib` (0x8001f084, femenuoptions.cpp:1987, map=exact)
+
+- Extra source locals: `pa_Var7`, `pcVar6`, `ptVar8`, `sVar2`, `selected`, `w`, `x`, `y`
+
+### `Draw__25tInsideBoxLeftRightSlideriiib` (0x8001f2f0, femenuoptions.cpp:2072, map=exact)
+
+- Extra source locals: `pa_Var3`, `ptVar4`, `sMenuText`, `selected`, `uVar1`
+
+### `ProcessInput__22tInsideBoxTwoWaySlider7tPlayerR13tInputKeyTypeR12tMenuCommand` (0x8001f4f0, femenuoptions.cpp:2141, map=exact)
+
+- Extra source locals: `command`, `fromPlayer`
+
+### `Draw__22tInsideBoxTwoWaySlideriiib` (0x8001f5a0, femenuoptions.cpp:2177, map=exact)
+
+- Extra source locals: `fWidth`, `pa_Var4`, `ptVar5`, `sMenuText`, `sVar1`, `selected`, `uVar2`
+
+### `Calibrate__22tInsideBoxTwoWaySlider` (0x8001f918, femenuoptions.cpp:2280, map=exact)
+
+- Extra source locals: `app`, `minimum`, `padBase`, `padInfo`, `screen`, `value`
+
+### `ProcessInput__17tUserNameMenuItem7tPlayerR13tInputKeyTypeR12tMenuCommand` (0x8001fd2c, femenuoptions.cpp:2451, map=exact)
+
+- Extra source locals: `bVar1`, `command`, `fromPlayer`, `iVar9`, `rowOffset`, `sVar4`, `sfxArg`, `uVar10`, `uVar5`, `wrapColumn`
+
+### `Draw__17tUserNameMenuItemb` (0x8002017c, femenuoptions.cpp:2654, map=exact)
+
+- Extra source locals: `boxRight`, `columnx`, `menuStartY`, `right`, `row`, `selected`
+
+### `UpdateTransition__17tUserNameMenuItemb` (0x80020820, femenuoptions.cpp:2964, map=exact)
+
+- Extra source locals: `iVar2`, `pa_Var1`
+
+### `Draw__19tMemoryCardMenuItemb` (0x8002089c, femenuoptions.cpp:2988, map=exact)
+
+- Extra source locals: `less`, `sVar2`, `selected`, `sv`, `v`
+
+### `ProcessInput__35tInsideBoxControllerLeftRightSlider7tPlayerR13tInputKeyTypeR12tMenuCommand` (0x80020af4, femenuoptions.cpp:3107, map=exact)
+
+- Extra source locals: `cVar1`, `pa_Var2`, `ptVar4`, `tVar3`
+
+### `LoadDescription__13tTrackManager` (0x80021b14, fetracks.cpp:74, map=exact)
+
+- Extra source locals: `addr`, `dst`, `iVar3`, `one`, `pcVar2`, `uVar1`, `uVar4`
+
+### `TextValue__18tListIteratorTrack7tPlayer` (0x80021dd4, fetracks.cpp:210, map=exact)
+
+- Extra source locals: `trackEntry`, `uVar1`
+
+### `Increment__18tListIteratorTrack7tPlayer` (0x80021e14, fetracks.cpp:227, map=exact)
+
+- Extra source locals: `iVar1`, `pbVar3`, `pcVar2`
+
+### `Decrement__18tListIteratorTrack7tPlayer` (0x80021ec0, fetracks.cpp:253, map=exact)
+
+- Extra source locals: `cVar1`, `iVar2`, `pcVar3`
+
+### `DrawTV__FR9tTVConfig` (0x8002234c, fetv.cpp:137, map=exact)
+
+- Extra source locals: `noiseHeight`, `noiseShapeY`, `packetPtrSlot`, `palette`, `paletteTag`, `rgbMask`, `tagMask`
+
+### `InitTV__FR9tTVConfigP18tTexture_ShapeInfos` (0x80023008, fetv.cpp:432, map=exact)
+
+- Extra source locals: `iVar4`, `iVar5`, `uVar1`, `uVar2`, `uVar3`
+
+### `FECheat_HandleActivation__F10tCheatCode` (0x80023240, fecheats.cpp:51, map=exact)
+
+- Extra source locals: `placement`, `placements`
+
+### `FECheat_EncodeString__FPcT0` (0x80023410, fecheats.cpp:134, map=exact)
+
+- Extra source locals: `iVar6`, `pbVar4`, `pcVar1`, `pcVar2`, `pcVar3`, `uVar5`
+
+### `FECheat_ActivateCheat__FPc` (0x80023614, fecheats.cpp:222, map=exact)
+
+- Extra source locals: `dlgThis`, `pcVar4`, `ptVar2`
+
+### `TextValue__20tListIteratorIndexed7tPlayer` (0x80023ff0, femenu.cpp:133, map=exact)
+
+- Extra source locals: `pa_Var1`, `uVar2`
+
+### `TextValue__26tListIteratorDoubleIndexed7tPlayer` (0x800241b8, femenu.cpp:206, map=exact)
+
+- Extra source locals: `pa_Var1`, `uVar2`
+
+### `TextValue__24tListIteratorMultiPlayer7tPlayer` (0x800243e0, femenu.cpp:288, map=exact)
+
+- Extra source locals: `pa_Var1`, `uVar2`
+
+### `Increment__24tListIteratorMultiPlayer7tPlayer` (0x80024430, femenu.cpp:304, map=exact)
+
+- Extra source locals: `pbVar2`, `pcVar1`
+
+### `Decrement__24tListIteratorMultiPlayer7tPlayer` (0x80024494, femenu.cpp:326, map=exact)
+
+- Extra source locals: `cVar1`, `pcVar3`, `sVar2`
+
+### `ProcessInput__9tMenuItem7tPlayerR13tInputKeyTypeR12tMenuCommand` (0x800247a0, femenu.cpp:525, map=exact)
+
+- Extra source locals: `command`, `fromPlayer`, `keyval`
+
+### `Draw__9tMenuItemiib` (0x80024828, femenu.cpp:578, map=exact-signature)
+
+- Extra source locals: `x`, `y`
+
+### `Draw__9tMenuItemiiib` (0x80024864, femenu.cpp:589, map=exact-signature)
+
+- Extra source locals: `w`
+
+### `__24tMenuItemLeftRightChoiceUiP13tListIterator` (0x80024904, femenu.cpp:621, map=exact)
+
+- Extra source locals: `uVar1`
+
+### `ProcessInput__24tMenuItemLeftRightChoice7tPlayerR13tInputKeyTypeR12tMenuCommand` (0x8002497c, femenu.cpp:648, map=exact)
+
+- Extra source locals: `SFXnum`, `command`, `frameFiller`, `pa_Var2`, `ptVar3`, `uVar1`
+
+### `Draw__24tMenuItemLeftRightChoiceb` (0x80024a2c, femenu.cpp:691, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`, `index`, `pa_Var3`, `textState`
+
+### `__24tMenuItemLeftRightSliderUiP13tListIterator` (0x80024af8, femenu.cpp:717, map=exact)
+
+- Extra source locals: `uVar1`, `uVar2`
+
+### `ProcessInput__24tMenuItemLeftRightSlider7tPlayerR13tInputKeyTypeR12tMenuCommand` (0x80024b84, femenu.cpp:757, map=exact)
+
+- Extra source locals: `command`, `frameFiller`, `pcVar3`, `ptVar4`, `sVar1`, `uVar2`
+
+### `DrawSlider__FsssssssssbT9ss` (0x80024c2c, femenu.cpp:907, map=exact)
+
+- Extra source locals: `reverseSelFade`
+
+### `Draw__24tMenuItemLeftRightSliderb` (0x800251e4, femenu.cpp:1022, map=exact)
+
+- Extra source locals: `iVar2`, `pa_Var3`, `uVar1`, `wordnum`
+
+### `ProcessInput__23tMenuItemGoToMenuButton7tPlayerR13tInputKeyTypeR12tMenuCommand` (0x800253a4, femenu.cpp:1095, map=exact)
+
+- Extra source locals: `frameFiller`, `fromPlayer`, `reg_a3`, `uVar1`, `uVar2`
+
+### `tMenuConstructor__5tMenuP9tMenuItemPv` (0x80025434, femenu.cpp:1133, map=exact)
+
+- Extra source locals: `ptVar1`
+
+### `Initialize__5tMenu` (0x800254e4, femenu.cpp:1189, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`
+
+### `ProcessInput__5tMenu7tPlayerR13tInputKeyTypeR12tMenuCommand` (0x80025578, femenu.cpp:1222, map=exact)
+
+- Extra source locals: `ptVar3`
+
+### `GetNumberEnabledItems__5tMenu` (0x80025894, femenu.cpp:1319, map=exact)
+
+- Extra source locals: `puVar1`
+
+### `Draw__5tMenu` (0x800258fc, femenu.cpp:1352, map=exact)
+
+- Extra source locals: `pa_Var2`, `ptVar1`
+
+### `UpdateTransition__5tMenu` (0x800259a8, femenu.cpp:1379, map=exact)
+
+- Extra source locals: `pa_Var2`, `ptVar1`
+
+### `DebounceKeys__5tMenu` (0x80025a5c, femenu.cpp:1441, map=exact)
+
+- Extra source locals: `lVar2`, `pa_Var1`
+
+### `GoNonInterlaced__7tScreen` (0x80025bf8, fescreen.cpp:73, map=exact)
+
+- Extra source locals: `env`, `height`, `iVar1`, `iVar2`, `playerView`, `sVar3`, `view0`, `view1`, `views`
+
+### `CancelAsyncLoad__7tScreenR17tShapeInformation` (0x80026354, fescreen.cpp:431, map=exact)
+
+- Extra source locals: `iVar1`, `pcVar2`
+
+### `TransitionOff__7tScreen22tScreen_TransitionTypeP5tMenu` (0x80026804, fescreen.cpp:603, map=exact)
+
+- Extra source locals: `arg2`, `iVar1`
+
+### `TransitionOn__7tScreen22tScreen_TransitionTypeP5tMenu` (0x80026824, fescreen.cpp:620, map=exact)
+
+- Extra source locals: `arg2`, `iVar1`
+
+### `UpdateTransition__7tScreen` (0x80026848, fescreen.cpp:637, map=exact)
+
+- Extra source locals: `iVar2`, `iVar3`, `sVar1`
+
+### `FeTools_FormatMoney__FPcl` (0x80026ce0, fetools.cpp:199, map=exact)
+
+- Extra source locals: `format`, `hi`, `lo`
+
+### `Front_Menu__F21tFront_ProcessingType` (0x80027af4, front.cpp:882, map=exact)
+
+- Extra source locals: `needCar`, `one`
+
+### `Front_InitPlayerCars__FR9tFEStream` (0x80028098, front.cpp:1093, map=exact)
+
+- Extra source locals: `pcVar3`, `ptVar6`, `pvVar4`, `sVar2`, `uVar1`
+
+### `Front_InitTourneyTraffic__FR9tFEStream` (0x8002845c, front.cpp:1211, map=exact)
+
+- Extra source locals: `maxTraffic`, `tourn`
+
+### `Front_InitOpponentCars__FR9tFEStream` (0x800285d0, front.cpp:1330, map=exact)
+
+- Extra source locals: `numRacers`, `numRacers2`, `pvVar5`
+
+### `Front_InitMissions__FR9tFEStream` (0x80028b64, front.cpp:1503, map=exact)
+
+- Extra source locals: `cVar1`, `cVar2`, `cVar3`, `cVar5`, `iVar4`
+
+### `Front_InitTrack__FR9tFEStream` (0x8002921c, front.cpp:1727, map=exact)
+
+- Extra source locals: `iVar1`, `pTrack`, `src`
+
+### `Front_AppendPlayerCarData__FPiR9tFEStream` (0x80029618, front.cpp:1880, map=exact)
+
+- Extra source locals: `iVar1`, `uVar2`
+
+### `Front_AppendOpponentData__FPiR9tFEStream` (0x80029afc, front.cpp:2043, map=exact)
+
+- Extra source locals: `bVar1`, `iVar2`, `ptVar3`
+
+### `Front_AppendCopData__FPiR9tFEStream` (0x80029e30, front.cpp:2135, map=exact)
+
+- Extra source locals: `iVar2`, `ptVar1`, `slot`
+
+### `Front_AppendPerpData__FPiR9tFEStream` (0x8002a084, front.cpp:2221, map=exact)
+
+- Extra source locals: `carManagerPtr`, `iVar2`, `piVar3`, `ptVar1`
+
+### `Front_AppendTrafficData__FPiR9tFEStream` (0x8002a31c, front.cpp:2309, map=exact)
+
+- Extra source locals: `ptVar1`, `traffic`
+
+### `Front_EnableLocalSpeech__Fv` (0x8002a6ac, front.cpp:2452, map=exact)
+
+- Extra source locals: `lang`
+
+### `Front_BuildStream__FPi` (0x8002a738, front.cpp:2483, map=exact)
+
+- Extra source locals: `iVar3`, `uVar6`
+
+### `SetLicensePlate__Fv` (0x8002b7cc, front.cpp:2912, map=exact)
+
+- Extra source locals: `fmt`, `s`
+
+### `PlayerName__Fi` (0x8002b9fc, front.cpp:3050, map=exact)
+
+- Extra source locals: `name_len`, `s`, `wordnum`
+
+### `PlayerNameMixedCase__Fi` (0x8002ba88, front.cpp:3092, map=exact)
+
+- Extra source locals: `name_len`, `s`, `wordnum`
+
+### `MenuExtended_SetTestDrive__FR12tMenuCommand` (0x8002c17c, femenudefs.cpp:89, map=exact)
+
+- Extra source locals: `command`
+
+### `MenuExtended_SetSingleRace__FR12tMenuCommand` (0x8002c198, femenudefs.cpp:115, map=exact)
+
+- Extra source locals: `command`
+
+### `MenuExtended_SetTournament__FR12tMenuCommand` (0x8002c1d8, femenudefs.cpp:141, map=exact)
+
+- Extra source locals: `command`
+
+### `MenuExtended_SetSpecialEvent__FR12tMenuCommand` (0x8002c220, femenudefs.cpp:168, map=exact)
+
+- Extra source locals: `command`
+
+### `MenuExtended_SetSoloRace__FR12tMenuCommand` (0x8002c268, femenudefs.cpp:195, map=exact)
+
+- Extra source locals: `command`
+
+### `MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand` (0x8002c288, femenudefs.cpp:235, map=exact)
+
+- Extra source locals: `defs`, `dlgThis`, `ptVar1`, `sVar3`, `screenState`, `this_00`, `uVar2`
+
+### `MenuExtended_SetDuelRace__FR12tMenuCommand` (0x8002c39c, femenudefs.cpp:296, map=exact)
+
+- Extra source locals: `command`
+
+### `MenuExtended_SetFullGrid__FR12tMenuCommand` (0x8002c3dc, femenudefs.cpp:322, map=exact)
+
+- Extra source locals: `command`
+
+### `AskTheUserToSaveTheGame__Fv` (0x8002c41c, femenudefs.cpp:346, map=exact)
+
+- Extra source locals: `dlgThis`, `is_cheater`
+
+### `MenuExtended_TransitionFromPostGameToMainMenu__FR12tMenuCommand` (0x8002c494, femenudefs.cpp:381, map=exact)
+
+- Extra source locals: `ptVar1`
+
+### `MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame__FR12tMenuCommand` (0x8002c4b0, femenudefs.cpp:406, map=exact)
+
+- Extra source locals: `iVar2`, `ptVar1`
+
+### `MenuExtended_GoToCarSelect__FR12tMenuCommand` (0x8002c4fc, femenudefs.cpp:434, map=exact)
+
+- Extra source locals: `dialog`, `nextMenu`, `screen`, `state`
+
+### `MenuExtended_GoToDealer__FR12tMenuCommand` (0x8002c890, femenudefs.cpp:588, map=exact)
+
+- Extra source locals: `cmdType`, `dlgThis`, `ptVar1`
+
+### `MenuExtended_GoToSeller__FR12tMenuCommand` (0x8002c8f8, femenudefs.cpp:628, map=exact)
+
+- Extra source locals: `cmdType`, `dlgThis`, `ptVar1`
+
+### `MenuExtended_GoToUpgrades__FR12tMenuCommand` (0x8002c960, femenudefs.cpp:657, map=exact)
+
+- Extra source locals: `ptVar1`
+
+### `GenericMenuSaveGame__Fi` (0x8002c9a0, femenudefs.cpp:691, map=exact)
+
+- Extra source locals: `app`, `dlgThis`, `noInput`, `pcVar4`, `ret`
+
+### `PinkSlipsPreSave__Fv` (0x8002cabc, femenudefs.cpp:749, map=exact)
+
+- Extra source locals: `dlgThis`, `is_cheater`
+
+### `MenuExtended_GoToBestOfOne__FR12tMenuCommand` (0x8002cb84, femenudefs.cpp:797, map=exact)
+
+- Extra source locals: `ptVar1`, `pvVar2`
+
+### `MenuExtended_GoToBestOfThree__FR12tMenuCommand` (0x8002cbe0, femenudefs.cpp:827, map=exact)
+
+- Extra source locals: `ptVar1`, `pvVar2`
+
+### `MenuExtended_GoToBestOfFive__FR12tMenuCommand` (0x8002cc3c, femenudefs.cpp:857, map=exact)
+
+- Extra source locals: `ptVar1`, `pvVar2`
+
+### `MenuExtended_GoToRace__FR12tMenuCommand` (0x8002cc98, femenudefs.cpp:886, map=exact)
+
+- Extra source locals: `dlgThis`, `pcVar3`, `ptVar1`, `uVar2`, `wordnum`
+
+### `MenuExtended_GoTo2PlayerRace__FR12tMenuCommand` (0x8002cdf4, femenudefs.cpp:958, map=exact)
+
+- Extra source locals: `dlgThis`, `pcVar3`, `ptVar1`, `uVar2`, `wordnum`
+
+### `MenuExtended_GoToTournTrackInfo__FR12tMenuCommand` (0x8002cf40, femenudefs.cpp:1030, map=exact)
+
+- Extra source locals: `dlgThis`, `fe`, `iVar6`, `iVar7`, `pcVar5`, `pp`, `ptVar1`, `ptVar2`, `ptVar3`, `sVar4`, `this_00`, `tm`, `tsaved`
+
+### `MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand` (0x8002d0a8, femenudefs.cpp:1127, map=exact)
+
+- Extra source locals: `dlgThis`, `fe`, `iVar6`, `iVar7`, `pcVar5`, `pp`, `ptVar1`, `ptVar2`, `ptVar3`, `sVar4`, `this_00`, `tm`, `tsaved`
+
+### `MenuExtended_EnterUserName__FR12tMenuCommand` (0x8002d214, femenudefs.cpp:1250, map=exact)
+
+- Extra source locals: `bVar1`, `bVar2`, `dlgThis`, `ptVar3`, `ptVar4`
+
+### `MenuExtended_GoToShowroom__FR12tMenuCommand` (0x8002d278, femenudefs.cpp:1289, map=exact)
+
+- Extra source locals: `ptVar1`
+
+### `MenuExtended_GoToDealerShowroom__FR12tMenuCommand` (0x8002d2b8, femenudefs.cpp:1311, map=exact)
+
+- Extra source locals: `ptVar1`
+
+### `MenuExtended_SetHPSoloRace__FR12tMenuCommand` (0x8002d2f8, femenudefs.cpp:1339, map=exact)
+
+- Extra source locals: `command`
+
+### `MenuExtended_SetHPDuelRace__FR12tMenuCommand` (0x8002d324, femenudefs.cpp:1365, map=exact)
+
+- Extra source locals: `command`
+
+### `MenuExtended_SetHotPursuit__FR12tMenuCommand` (0x8002d350, femenudefs.cpp:1392, map=exact)
+
+- Extra source locals: `command`
+
+### `MenuExtended_SellCar__FR12tMenuCommand` (0x8002d3a0, femenudefs.cpp:1435, map=exact)
+
+- Extra source locals: `bVar1`, `command`, `dlgThis`, `lVar4`, `lVar5`, `lVar6`, `pcVar7`, `pp`, `ptVar2`, `sVar3`, `this_00`
+
+### `MenuExtended_BuyCar__FR12tMenuCommand` (0x8002d4f8, femenudefs.cpp:1539, map=exact)
+
+- Extra source locals: `command`, `dlgThis`, `lVar3`, `pcVar4`, `pp`, `ptVar1`, `sVar2`, `this_00`
+
+### `MenuExtended_PurchaseUpgrade__Fi` (0x8002d64c, femenudefs.cpp:1610, map=exact)
+
+- Extra source locals: `dlgThis`, `lVar3`, `pcVar4`, `pp`, `ptVar1`, `sVar2`, `uVar5`
+
+### `MenuExtended_PurchaseUpgrade1__FR12tMenuCommand` (0x8002d78c, femenudefs.cpp:1702, map=exact)
+
+- Extra source locals: `command`
+
+### `MenuExtended_PurchaseUpgrade2__FR12tMenuCommand` (0x8002d7ac, femenudefs.cpp:1726, map=exact)
+
+- Extra source locals: `command`
+
+### `MenuExtended_PurchaseUpgrade3__FR12tMenuCommand` (0x8002d7cc, femenudefs.cpp:1750, map=exact)
+
+- Extra source locals: `command`
+
+### `MenuExtended_SaveGame__FR12tMenuCommand` (0x8002d7ec, femenudefs.cpp:1772, map=exact)
+
+- Extra source locals: `command`
+
+### `GenericMenuLoadGame__Fi` (0x8002d83c, femenudefs.cpp:1795, map=exact)
+
+- Extra source locals: `app`, `mc`
+
+### `MenuExtended_LoadGame__FR12tMenuCommand` (0x8002d8d0, femenudefs.cpp:1868, map=exact)
+
+- Extra source locals: `command`, `dlgThis`, `framePadding`, `sVar1`
+
+### `MenuExtended_TierFinished__FR12tMenuCommand` (0x8002d968, femenudefs.cpp:1903, map=exact)
+
+- Extra source locals: `iVar1`, `ptVar2`
+
+### `MenuExtended_PostGameMenu__FR12tMenuCommand` (0x8002db04, femenudefs.cpp:2011, map=exact)
+
+- Extra source locals: `dlgThis`, `ptVar3`, `ptVar4`, `pvVar2`, `sVar1`
+
+### `MenuExtended_FinishedPlayer1GetName__FR12tMenuCommand` (0x8002dc04, femenudefs.cpp:2070, map=exact)
+
+- Extra source locals: `dlgThis`, `ptVar1`, `ptVar2`, `ptVar3`, `pvVar5`, `sVar4`
+
+### `MenuExtended_FinishedPlayer2GetName__FR12tMenuCommand` (0x8002dd14, femenudefs.cpp:2121, map=exact)
+
+- Extra source locals: `ptVar1`, `pvVar3`, `sVar2`
+
+### `MenuExtended_SetPinkSlips__FR12tMenuCommand` (0x8002ddb4, femenudefs.cpp:2183, map=exact)
+
+- Extra source locals: `command`
+
+### `MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand` (0x8002de74, femenudefs.cpp:2241, map=exact)
+
+- Extra source locals: `dlgThis`, `dlgThis2`, `dlgThis3`, `pcVar5`, `playerNum`, `ptVar1`, `ptVar2`, `ptVar3`, `this_00`
+
+### `MenuExtended_GoToGarage__FR12tMenuCommand` (0x8002e09c, femenudefs.cpp:2333, map=exact)
+
+- Extra source locals: `dlgThis`, `ptVar1`, `this_00`
+
+### `MenuExtended_GoToTournTrophyRoom__FR12tMenuCommand` (0x8002e144, femenudefs.cpp:2374, map=exact)
+
+- Extra source locals: `command`
+
+### `MenuExtended_GoToSETrophyRoom__FR12tMenuCommand` (0x8002e150, femenudefs.cpp:2398, map=exact)
+
+- Extra source locals: `command`
+
+### `MenuExtended_SetBeginner__FR12tMenuCommand` (0x8002e160, femenudefs.cpp:2421, map=exact)
+
+- Extra source locals: `command`
+
+### `MenuExtended_SetIntermediate__FR12tMenuCommand` (0x8002e16c, femenudefs.cpp:2445, map=exact)
+
+- Extra source locals: `command`
+
+### `MenuExtended_SetExpert__FR12tMenuCommand` (0x8002e17c, femenudefs.cpp:2468, map=exact)
+
+- Extra source locals: `command`
+
+### `MenuExtended_ExitTourney__FR12tMenuCommand` (0x8002e18c, femenudefs.cpp:2500, map=exact)
+
+- Extra source locals: `dlgThis`, `ptVar1`, `sVar2`
+
+### `MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand` (0x8002e21c, femenudefs.cpp:2558, map=exact)
+
+- Extra source locals: `dlgThis`, `fmt`, `iVar5`, `msg`, `pcVar4`, `ptVar2`, `sVar3`
+
+### `MenuExtended_PinkSlipsContinue__FR12tMenuCommand` (0x8002e34c, femenudefs.cpp:2621, map=exact)
+
+- Extra source locals: `bVar2`, `ptVar1`
+
+### `__15tGlobalMenuDefs` (0x8002e3b8, femenudefs.cpp:2732, map=exact)
+
+- Extra source locals: `compilerFramePad`
+
+### `Initialize__18tTournamentManager` (0x80032228, fetourn.cpp:9, map=exact)
+
+- Extra source locals: `numCars`
+
+### `LoadDescription__18tTournamentManager` (0x800322fc, fetourn.cpp:41, map=exact)
+
+- Extra source locals: `tourneyDef`, `tourneyEntries`, `tourneyPtr`, `trackId`, `trnId`, `unk1`, `unk2`, `unk3`, `unk4`, `unk5`
+
+### `GetTrackToRace__18tTournamentManagerR10tTrackInfo` (0x8003268c, fetourn.cpp:160, map=exact)
+
+- Extra source locals: `ptVar1`, `track_r`
+
+### `StartNewTournament__18tTournamentManagerUcUc` (0x80032784, fetourn.cpp:209, map=exact)
+
+- Extra source locals: `bVar1`, `iVar3`, `iVar4`, `iVar5`, `iVar7`, `iVar9`, `ptVar6`, `ptVar8`, `sVar2`
+
+### `IsTournamentFinished__18tTournamentManager` (0x800329bc, fetourn.cpp:293, map=exact)
+
+- Extra source locals: `currentTourney`, `def`
+
+### `tournPointsCompare__FPcT0` (0x80032a50, fetourn.cpp:311, map=exact)
+
+- Extra source locals: `bVar1`, `bVar2`, `c1`, `c2`, `comps`, `tm`
+
+### `UpdateTournFinishMoney__18tTournamentManager` (0x80032adc, fetourn.cpp:342, map=exact)
+
+- Extra source locals: `prize`
+
+### `UpdateTrackFinishMoney__18tTournamentManager` (0x80032c0c, fetourn.cpp:374, map=exact)
+
+- Extra source locals: `prize`
+
+### `CalcTrackFinishDamageBill__18tTournamentManagerbRlT2` (0x80032c6c, fetourn.cpp:391, map=exact)
+
+- Extra source locals: `bill_r`, `bonus_r`, `mask`
+
+### `UpdateTrackFinishPoints__18tTournamentManager` (0x80032e30, fetourn.cpp:502, map=exact)
+
+- Extra source locals: `comp`, `knockout`, `next`, `rankVal`, `ranked`, `ranking`, `stats`
+
+### `GetLastTrackRaced__18tTournamentManager` (0x8003348c, fetourn.cpp:697, map=exact)
+
+- Extra source locals: `ptVar1`
+
+### `SaveTournament__18tTournamentManagerR15tSaveTournament` (0x800334fc, fetourn.cpp:712, map=exact)
+
+- Extra source locals: `save_r`
+
+### `LoadTournament__18tTournamentManagerR15tSaveTournament` (0x80033544, fetourn.cpp:727, map=exact)
+
+- Extra source locals: `load_r`
+
+### `UpdateCarLineup__18tTournamentManager` (0x800335d8, fetourn.cpp:755, map=exact)
+
+- Extra source locals: `numCompetitors`
+
+### `GetTournamentFinishPrize__18tTournamentManagers` (0x80033860, fetourn.cpp:827, map=exact)
+
+- Extra source locals: `tourn`
+
+### `UpdateAwardInformation__18tTournamentManager` (0x80033914, fetourn.cpp:852, map=exact)
+
+- Extra source locals: `ptVar3`
+
+### `PlayerRanking__18tTournamentManagers` (0x80033aa8, fetourn.cpp:905, map=exact)
+
+- Extra source locals: `numCompetitors`
+
+### `GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci` (0x80033b64, fetourn.cpp:936, map=exact)
+
+- Extra source locals: `best`, `t`
+
+### `ValidCar__18tTournamentManagerR8tCarInfo` (0x80033c24, fetourn.cpp:975, map=exact)
+
+- Extra source locals: `definition`, `oppClass`
+
+### `TextValue__23tListIteratorTournament7tPlayer` (0x80033e28, fetourn.cpp:1063, map=exact)
+
+- Extra source locals: `player_id`
+
+### `Increment__23tListIteratorTournament7tPlayer` (0x80033e80, fetourn.cpp:1079, map=exact)
+
+- Extra source locals: `arg1`, `iVar1`, `pbVar5`, `pcVar4`, `ptVar3`, `uVar2`
+
+### `Decrement__23tListIteratorTournament7tPlayer` (0x80033f20, fetourn.cpp:1107, map=exact)
+
+- Extra source locals: `arg1`, `iVar2`, `ptVar4`, `puVar5`, `uVar1`, `uVar3`
+
+### `ValidTournament__23tListIteratorTournamentc` (0x80033fb0, fetourn.cpp:1135, map=exact)
+
+- Extra source locals: `definition`, `flags`, `tournamentManager`
+
+### `GetMissionToRace__15tMissionManagerPP12tMissionInfo` (0x8003425c, femission.cpp:90, map=exact)
+
+- Extra source locals: `numMissions`, `numStages`
+
+### `ChecksumData__FP12tMemCardData` (0x800342a0, fememcard.cpp:93, map=exact)
+
+- Extra source locals: `uVar1`
+
+### `VerifySuccessfulRead__FP12tMemCardData` (0x80034318, fememcard.cpp:116, map=exact)
+
+- Extra source locals: `uVar1`
+
+### `Confirm__Fii` (0x80034438, fememcard.cpp:166, map=exact)
+
+- Extra source locals: `app`, `dialogVf`, `displayDialog`, `dlg`, `dlgmsg`, `noInput`, `pcVar5`, `sVar4`
+
+### `OverwriteConfirm__Fv` (0x800345ec, fememcard.cpp:265, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `FormatConfirm__Fv` (0x80034620, fememcard.cpp:288, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `SaveGame__Fs` (0x80034988, fememcard.cpp:436, map=exact)
+
+- Extra source locals: `displayDialog`, `dlgmsg`, `message`, `pCVar4`, `wd`
+
+### `LoadGame__FsbT1` (0x80034e18, fememcard.cpp:586, map=exact)
+
+- Extra source locals: `cardshifted`, `dialogBase`, `dialogText`, `dlgmsg`
+
+### `SavePinkSlipsCars__Fss` (0x800353f0, fememcard.cpp:775, map=exact)
+
+- Extra source locals: `pCVar7`
+
+### `SavePinkSlipsCarsWithErrorDialogs__Fsss` (0x80035778, fememcard.cpp:950, map=exact)
+
+- Extra source locals: `dialog`, `rc`
+
+### `Init__14tCreditManageri` (0x80035af8, fecredits.cpp:38, map=exact)
+
+- Extra source locals: `arg1`
+
+### `Draw__14tCreditManagerb` (0x80035c24, fecredits.cpp:92, map=exact)
+
+- Extra source locals: `fadeValue`, `iVar2`, `mainScreen`, `uVar3`
+
+### `SetupCurrCredit__14tCreditManager` (0x80035d68, fecredits.cpp:156, map=exact)
+
+- Extra source locals: `bVar1`, `iVar2`, `iVar3`, `iVar4`, `iVar5`, `pvVar3`, `startTicks`
+
+### `DrawCurrCredit__14tCreditManager` (0x80036084, fecredits.cpp:262, map=exact)
+
+- Extra source locals: `lineWidth`, `nextY`, `pcVar3`, `scrollY`, `t16`, `tagByte`, `textY`, `uVar4`, `width2`
+
+### `Draw__10tVideoWall` (0x80036bb4, fevideowall.cpp:178, map=exact)
+
+- Extra source locals: `iVar2`, `sMenuText`
+
+### `TurnOff__10tVideoWall` (0x80036e58, fevideowall.cpp:240, map=exact)
+
+- Extra source locals: `tickCounter`
+
+### `TurnOn__10tVideoWall` (0x80036ef8, fevideowall.cpp:275, map=exact)
+
+- Extra source locals: `tickCounter`
+
+### `SwapBackground__11tScreenMaini` (0x80036f20, screenmain.cpp:72, map=exact)
+
+- Extra source locals: `iVar1`, `tVar2`
+
+### `ProcessInput__11tScreenMain7tPlayerR13tInputKeyTypeR12tMenuCommand` (0x80037798, screenmain.cpp:277, map=exact)
+
+- Extra source locals: `command`, `fromPlayer`
+
+### `DrawBackground__11tScreenMain` (0x800379c0, screenmain.cpp:407, map=exact)
+
+- Extra source locals: `el`, `frameIdx`, `iVar10`, `iVar5`, `iVar7`, `sVar3`, `str`, `uFade`, `uVar6`, `uVar9`, `vy`
+
+### `PreLoad__11tScreenMain` (0x800386c8, screenmain.cpp:797, map=exact)
+
+- Extra source locals: `rnd`
+
+### `Cleanup__11tScreenMain` (0x80038ad8, screenmain.cpp:908, map=exact)
+
+- Extra source locals: `i_2`, `off`
+
+### `DrawBackground__16tScreenPinkSlips` (0x80038b68, screenpinkslips.cpp:21, map=exact)
+
+- Extra source locals: `currentItem`, `movieVramX`, `pulse`, `rx`, `ry`, `selected`, `trackIndex`
+
+### `Initialize__16tScreenPinkSlips` (0x800391d8, screenpinkslips.cpp:189, map=exact)
+
+- Extra source locals: `iVar1`, `tmp`
+
+### `UpdateVideoWall__16tScreenPinkSlipsR17tTrackInformation` (0x80039368, screenpinkslips.cpp:243, map=exact)
+
+- Extra source locals: `iVar1`, `trackID`
+
+### `ProcessInput__16tScreenPinkSlips7tPlayerR13tInputKeyTypeR12tMenuCommand` (0x80039690, screenpinkslips.cpp:334, map=exact)
+
+- Extra source locals: `command`, `defs`, `fromPlayer`, `uVar2`
+
+### `DrawMoney__Fiiilii` (0x800397f0, screenpost.cpp:13, map=exact)
+
+- Extra source locals: `str`
+
+### `Initialize__26tScreenTournamentStandings` (0x80039960, screenpost.cpp:55, map=exact)
+
+- Extra source locals: `iVar1`, `max_damage`, `max_money`
+
+### `DrawBackground__26tScreenTournamentStandings` (0x80039b84, screenpost.cpp:205, map=exact)
+
+- Extra source locals: `bonus`, `halfWidth`, `lastRacer`, `line`, `numRacers`, `one`, `self`
+
+### `DrawBackground__24tScreenPinkSlipStandings` (0x8003a448, screenpost.cpp:355, map=exact)
+
+- Extra source locals: `halfWidth`, `pixels`, `row`
+
+### `TransformVector__FRA4_iRA4_A4_iT0` (0x8003a8f0, screencarselect.cpp:20, map=exact)
+
+- Extra source locals: `prod`
+
+### `DrawCar__FR8tCarInfossffcbUl7tPlayer` (0x8003a9d4, screencarselect.cpp:56, map=exact)
+
+- Extra source locals: `signedTicks`
+
+### `Cleanup__16tScreenCarSelect` (0x8003acb8, screencarselect.cpp:142, map=exact)
+
+- Extra source locals: `vtbl`
+
+### `DrawOverlay__16tScreenCarSelectP8tOverlay` (0x8003ad00, screencarselect.cpp:167, map=exact)
+
+- Extra source locals: `flags`, `tournamentMoney`, `vtbl`, `xPos`, `yOffset`
+
+### `SetState__16tScreenCarSelecti` (0x8003b59c, screencarselect.cpp:368, map=exact)
+
+- Extra source locals: `cVar1`, `ovl`, `t1`, `t2`
+
+### `CalcSplinePosition__16tScreenCarSelectiiiiUlRiN46` (0x8003b820, screencarselect.cpp:487, map=exact)
+
+- Extra source locals: `_i`
+
+### `GetShapeInfo__16tScreenCarSelectRsT1PPcT3` (0x8003bae0, screencarselect.cpp:541, map=exact)
+
+- Extra source locals: `valid`, `vtbl`
+
+### `UpdateVideoWall__16tScreenCarSelectR8tCarInfo` (0x8003bba4, screencarselect.cpp:569, map=exact)
+
+- Extra source locals: `bVar1`
+
+### `AllocateAsyncBuffer__16tScreenCarSelect` (0x8003bc74, screencarselect.cpp:594, map=exact)
+
+- Extra source locals: `str`
+
+### `InitializeVideoWall__16tScreenCarSelect` (0x8003bcd0, screencarselect.cpp:619, map=exact)
+
+- Extra source locals: `videowall`
+
+### `Initialize__16tScreenCarSelect` (0x8003bd88, screencarselect.cpp:638, map=exact)
+
+- Extra source locals: `fadeTick`, `mdefs`, `sVar2`, `showroomTick`, `uVar6`, `valid`
+
+### `ProcessInput__16tScreenCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand` (0x8003bf90, screencarselect.cpp:731, map=exact)
+
+- Extra source locals: `lrItem`, `state2`, `tVar4`, `vtbl`
+
+### `DrawVideoWall__16tScreenCarSelects` (0x8003c118, screencarselect.cpp:831, map=exact)
+
+- Extra source locals: `this_00`, `vtbl`
+
+### `GetCar__16tScreenCarSelectR8tCarInfo` (0x8003c224, screencarselect.cpp:879, map=exact)
+
+- Extra source locals: `count`, `uVar1`
+
+### `UpdateBrightness__16tScreenCarSelects` (0x8003c4b8, screencarselect.cpp:950, map=exact)
+
+- Extra source locals: `brightness`, `destBrightness`, `sVar3`
+
+### `DrawBackground__16tScreenCarSelect` (0x8003c53c, screencarselect.cpp:985, map=exact)
+
+- Extra source locals: `bVar1`, `bright`, `valid`, `vtbl`
+
+### `DrawForeground__16tScreenCarSelect` (0x8003c7d8, screencarselect.cpp:1089, map=exact)
+
+- Extra source locals: `currentItemValue`, `fadeBase`, `overlayDirection`, `shapeFade`, `shapeTicks`, `textBase`, `validCarValue`
+
+### `PreLoad__20tScreenCarSelectDuel` (0x8003d08c, screencarselect.cpp:1335, map=exact)
+
+- Extra source locals: `buf_or_path`, `str`, `use_default`, `vtbl`
+
+### `InitializeVideoWall__20tScreenCarSelectDuel` (0x8003d1e8, screencarselect.cpp:1393, map=exact)
+
+- Extra source locals: `vw_opp`, `vw_player`
+
+### `DrawVideoWall__20tScreenCarSelectDuels` (0x8003d364, screencarselect.cpp:1448, map=exact)
+
+- Extra source locals: `vtbl`, `vw`
+
+### `DrawOpponentVideoWall__20tScreenCarSelectDuels` (0x8003d4bc, screencarselect.cpp:1507, map=exact)
+
+- Extra source locals: `this_00`, `vw_opp`
+
+### `GetShapeInfo__20tScreenCarSelectDuelRsT1PPcT3` (0x8003d5e0, screencarselect.cpp:1543, map=exact)
+
+- Extra source locals: `valid`, `vtbl`
+
+### `UpdateVideoWall__20tScreenCarSelectDuelR8tCarInfo` (0x8003d69c, screencarselect.cpp:1572, map=exact)
+
+- Extra source locals: `bVar1`
+
+### `DrawBackground__20tScreenCarSelectDuel` (0x8003d7f0, screencarselect.cpp:1622, map=exact)
+
+- Extra source locals: `bVar1`, `bVar2`, `creditsTextVal`, `elapsed`, `sVar2`, `screenVtbl`, `screenVtbl2`, `vtbl`
+
+### `DrawForeground__20tScreenCarSelectDuel` (0x8003de68, screencarselect.cpp:1777, map=exact)
+
+- Extra source locals: `ci`, `sliderResult`, `vtbl`
+
+### `GetCar__25tScreenCarSelectTwoPlayerR8tCarInfo` (0x8003e040, screencarselect.cpp:1848, map=exact)
+
+- Extra source locals: `color`, `player`
+
+### `DrawVideoWall__25tScreenCarSelectTwoPlayers` (0x8003e190, screencarselect.cpp:1897, map=exact)
+
+- Extra source locals: `offset`, `sVar2`, `vtbl`
+
+### `UpdateVideoWall__25tScreenCarSelectTwoPlayerR8tCarInfo` (0x8003e3c8, screencarselect.cpp:1968, map=exact)
+
+- Extra source locals: `bVar1`
+
+### `DrawBackground__25tScreenCarSelectTwoPlayer` (0x8003e4bc, screencarselect.cpp:2010, map=exact)
+
+- Extra source locals: `bVar1`, `brightness`, `carY_2`, `cur_pkt`, `cur_pkt_2`, `elapsed`, `pkt_addr24`, `pkt_addr24_2`, `player`, `sVar3`, `screenVtbl`, `screenVtbl2`, `ti7`, `ts10`, `ts3`, `vtbl`
+
+### `DrawForeground__25tScreenCarSelectTwoPlayer` (0x8003ea14, screencarselect.cpp:2175, map=exact)
+
+- Extra source locals: `ci`
+
+### `SetDialog__25tScreenCarSelectTwoPlayer` (0x8003ec50, screencarselect.cpp:2271, map=exact)
+
+- Extra source locals: `dlg`, `y_off`
+
+### `AllocateAsyncBuffer__25tScreenCarSelectTwoPlayer` (0x8003ed10, screencarselect.cpp:2329, map=exact)
+
+- Extra source locals: `str`
+
+### `GetCar__25tScreenPinkSlipsCarSelectR8tCarInfo` (0x8003ee40, screencarselect.cpp:2403, map=exact)
+
+- Extra source locals: `garageNumber`, `player`
+
+### `DoMemCardStuff__25tScreenPinkSlipsCarSelect` (0x8003ef14, screencarselect.cpp:2447, map=exact)
+
+- Extra source locals: `cardInfo`, `pinkState`, `resultState`, `resultStatePtr`, `stateBase`
+
+### `Initialize__25tScreenPinkSlipsCarSelect` (0x8003f24c, screencarselect.cpp:2566, map=exact)
+
+- Extra source locals: `cardInfo`
+
+### `SetDialog__25tScreenPinkSlipsCarSelect` (0x8003f300, screencarselect.cpp:2608, map=exact)
+
+- Extra source locals: `dlg`, `iVar3`, `p`, `p_byte`, `str`, `str2`, `wordnum`, `y_off`
+
+### `GetShapeInfo__18tScreenTournSelectRsT1PPcT3` (0x8003f7d4, screentournselect.cpp:36, map=exact)
+
+- Extra source locals: `fe`, `swapName`, `trophyTourn`, `useSpecial`
+
+### `Initialize__18tScreenTournSelect` (0x8003f8a0, screentournselect.cpp:75, map=exact)
+
+- Extra source locals: `fe`, `flags`, `tvIdx`, `useSpecial`
+
+### `UpdateVideoWall__18tScreenTournSelectP12tTourneyInfo` (0x8003fb28, screentournselect.cpp:159, map=exact)
+
+- Extra source locals: `fileName`
+
+### `DrawBackground__18tScreenTournSelect` (0x8003fe5c, screentournselect.cpp:250, map=exact)
+
+- Extra source locals: `descriptionText`, `fe`, `number`, `shapeX`, `tournament`, `tvIdx`, `word`
+
+### `GetShapeInfo__17tScreenTrophyRoomRsT1PPcT3` (0x800405d8, screentrophyroom.cpp:36, map=exact)
+
+- Extra source locals: `cur`, `swapName`, `tourn`
+
+### `PreLoad__17tScreenTrophyRoom` (0x800408a8, screentrophyroom.cpp:119, map=exact)
+
+- Extra source locals: `name`
+
+### `Initialize__17tScreenTrophyRoom` (0x80040910, screentrophyroom.cpp:140, map=exact)
+
+- Extra source locals: `curIdx`, `fe`, `loaded`, `loopFe`, `place`, `placement`, `tournIdx`, `tourney`
+
+### `DrawBackground__17tScreenTrophyRoom` (0x80040b18, screentrophyroom.cpp:235, map=exact)
+
+- Extra source locals: `currentTourn`, `feTier`, `pDrawFlags`, `selectedTourn`, `tourn`
+
+### `LoadTrophy__17tScreenTrophyRoom` (0x80040f2c, screentrophyroom.cpp:319, map=exact)
+
+- Extra source locals: `cur`, `swapName`, `tierIdx`, `tourn`
+
+### `GetShapeInfo__17tScreenTrophyInfoRsT1PPcT3` (0x80041008, screentrophyinfo.cpp:9, map=exact)
+
+- Extra source locals: `currentTourn`, `feTier`, `idx`, `placement`
+
+### `DrawBackground__17tScreenTrophyInfo` (0x80041138, screentrophyinfo.cpp:84, map=exact)
+
+- Extra source locals: `currentTourn`, `definition`, `fade`, `feTier`, `tourn`, `tournID`, `tournamentIndex`, `tournaments`, `word`
+
+### `DrawBackground__18tScreenTrackSelect` (0x80041600, screentracks.cpp:14, map=exact)
+
+- Extra source locals: `addrMask`, `creditsTextVal`, `packetPtrSlot`, `shapeX`, `startTicks`, `videoWall`, `videoY`
+
+### `Initialize__18tScreenTrackSelect` (0x80041b6c, screentracks.cpp:255, map=exact)
+
+- Extra source locals: `iVar1`, `this_00`
+
+### `SetBrightness__18tScreenTrackSelects` (0x80041d68, screentracks.cpp:313, map=exact)
+
+- Extra source locals: `curBrightness`, `iVar1`
+
+### `ProcessInput__18tScreenTrackSelect7tPlayerR13tInputKeyTypeR12tMenuCommand` (0x8004200c, screentracks.cpp:421, map=exact)
+
+- Extra source locals: `cmdResult`, `command`, `menuVtbl`, `player`, `ptVar1`, `pvVar2`, `trafficFlags`
+
+### `GetShapeInfo__16tScreenTrackInfoRsT1PPcT3` (0x800421f8, screentrackinfo.cpp:7, map=exact)
+
+- Extra source locals: `dayTimes2`, `weatherPlus`
+
+### `DrawBackground__16tScreenTrackInfo` (0x80042298, screentrackinfo.cpp:32, map=exact)
+
+- Extra source locals: `highlighted`, `pList`, `screenInfo`, `state`, `word`
+
+### `ProcessInput__16tScreenTrackInfo7tPlayerR13tInputKeyTypeR12tMenuCommand` (0x8004258c, screentrackinfo.cpp:99, map=exact)
+
+- Extra source locals: `fee`
+
+### `Initialize__19tScreenTrackRecords` (0x8004266c, screentrackrecords.cpp:20, map=exact)
+
+- Extra source locals: `nShowTrack`, `recs`
+
+### `DrawBackground__19tScreenTrackRecords` (0x80042b48, screentrackrecords.cpp:157, map=exact)
+
+- Extra source locals: `clampTmp`, `fadeAmt`, `half`, `lineFadeCalc`
+
+### `SetActuators__23tScreenControllerConfigi` (0x80043124, screencontroller.cpp:30, map=exact)
+
+- Extra source locals: `pulse`, `tickValue`
+
+### `CheckConfigs__23tScreenControllerConfig` (0x80043400, screencontroller.cpp:186, map=exact)
+
+- Extra source locals: `armArrowDim`, `cmp`, `ctrlCur`, `swapCur`, `swapPrev`
+
+### `SetCurrentController__23tScreenControllerConfigb` (0x80043778, screencontroller.cpp:332, map=exact)
+
+- Extra source locals: `choice`, `ctrlType`, `dialog`, `dialogIdle`, `menus`
+
+### `DrawController__23tScreenControllerConfig` (0x80043de4, screencontroller.cpp:593, map=exact)
+
+- Extra source locals: `controller`, `controllerOffset`, `haloX`, `iy`, `modeBase`, `offsets`, `row`, `shockImpactActive`, `shockModeActive`, `x`, `xOffset`
+
+### `DrawBackground__23tScreenControllerConfig` (0x80044e40, screencontroller.cpp:1060, map=exact)
+
+- Extra source locals: `om`
+
+### `DrawForeground__23tScreenControllerConfig` (0x80045064, screencontroller.cpp:1142, map=exact)
+
+- Extra source locals: `candidate`, `config`, `controller`, `dialog`, `flag`, `n`, `pTL`, `pTextLoc`, `squareWidth`, `textLength`, `textWidth`
+
+### `Initialize__23tScreenControllerConfig` (0x800456fc, screencontroller.cpp:1320, map=exact)
+
+- Extra source locals: `b`, `mode`
+
+### `PlaySound__12tScreenAudio` (0x80045a28, screenaudio.cpp:9, map=exact)
+
+- Extra source locals: `item`, `testMode`, `validItem`
+
+### `DrawForeground__12tScreenAudio` (0x80045dc8, screenaudio.cpp:124, map=exact)
+
+- Extra source locals: `fadeCalc`, `label`, `textWidth`
+
+### `DrawBackground__12tScreenAudio` (0x80045ed8, screenaudio.cpp:178, map=exact)
+
+- Extra source locals: `displayPercent`, `fadeValue`, `optionsMenu`
+
+### `Initialize__12tScreenAudio` (0x800461a4, screenaudio.cpp:293, map=exact)
+
+- Extra source locals: `audioMode`, `menus`
+
+### `LoadIcon__14tScreenMemcardi` (0x8004653c, screenmemcard.cpp:151, map=exact)
+
+- Extra source locals: `cardInfo`, `iconShape`, `one`, `pulled`
+
+### `DrawVerticalLine__14tScreenMemcardssss` (0x80046898, screenmemcard.cpp:253, map=exact)
+
+- Extra source locals: `height`, `innerHeight`, `pos`, `shifted`, `test`
+
+### `DrawHorizontalLine__14tScreenMemcardssss` (0x8004694c, screenmemcard.cpp:305, map=exact)
+
+- Extra source locals: `pos`, `shifted`, `test`, `width`
+
+### `PlaceIcons__14tScreenMemcardii` (0x80046a0c, screenmemcard.cpp:353, map=exact)
+
+- Extra source locals: `animFrame`, `icon`, `nfs4Icon`, `numIcons`, `savedY`, `tickFrame`, `tickPtr`
+
+### `DrawBackground__14tScreenMemcard` (0x80047470, screenmemcard.cpp:723, map=exact)
+
+- Extra source locals: `extraY`, `fadeCalc`, `finalDir`, `finalGouraudX`, `finalMessageH`, `finalStartX`, `finalX`, `finalY`, `gouraudX`, `gouraudY`, `h`, `startX`, `startY`, `value`, `w`, `width`
+
+### `DrawForeground__14tScreenMemcard` (0x80047ad8, screenmemcard.cpp:883, map=exact)
+
+- Extra source locals: `fade`
+
+### `Initialize__14tScreenMemcard` (0x80047c30, screenmemcard.cpp:939, map=exact)
+
+- Extra source locals: `feApp`, `inputPlayer`, `loadFlags`, `menus`, `msgId`, `saveFlags`
+
+### `Cleanup__14tScreenMemcard` (0x80047dd8, screenmemcard.cpp:1006, map=exact)
+
+- Extra source locals: `iconTable`, `menus`
+
+### `GetShapeInfo__15tScreenCongratsRsT1PPcT3` (0x80047e8c, screencongrats.cpp:29, map=exact)
+
+- Extra source locals: `numRanked`
+
+### `DrawBackground__15tScreenCongrats` (0x8004813c, screencongrats.cpp:110, map=exact)
+
+- Extra source locals: `spinTicks`, `vtbl`
+
+### `CalculatePrizes__15tScreenCongrats` (0x800489b8, screencongrats.cpp:317, map=exact)
+
+- Extra source locals: `carCXBits`, `carCYBits`
+
+### `Initialize__15tScreenCongrats` (0x80048a2c, screencongrats.cpp:350, map=exact)
+
+- Extra source locals: `tick`, `vtbl`
+
+### `ProcessInput__15tScreenCongrats7tPlayerR13tInputKeyTypeR12tMenuCommand` (0x80048af0, screencongrats.cpp:387, map=exact)
+
+- Extra source locals: `bConsumeKey`
+
+### `CalculatePrizes__23tScreenPinkSlipCongrats` (0x80048cdc, screencongrats.cpp:454, map=exact)
+
+- Extra source locals: `base`, `player`, `speechId2`, `vtbl`
+
+### `GetCar__23tScreenTournamentTrophyR8tCarInfo` (0x80048eb8, screencongrats.cpp:558, map=exact)
+
+- Extra source locals: `srcCar`
+
+### `CalculatePrizes__23tScreenTournamentTrophy` (0x8004923c, screencongrats.cpp:685, map=exact)
+
+- Extra source locals: `carCXBits`, `cashAwarded`, `knockout`, `loopLimit`, `money`, `numRanked`, `ranked`
+
+### `GetCar__23tScreenBeTheCopCongratsR8tCarInfo` (0x8004947c, screencongrats.cpp:794, map=exact)
+
+- Extra source locals: `srcCar`
+
+### `DrawCongratsMessage__23tScreenBeTheCopCongrats` (0x8004952c, screencongrats.cpp:820, map=exact)
+
+- Extra source locals: `copWord`, `fade`, `fmt`, `padState`
+
+### `GetCar__25tScreenTournamentCongratsR8tCarInfo` (0x800495e8, screencongrats.cpp:860, map=exact)
+
+- Extra source locals: `srcCar`
+
+### `CalculatePrizes__25tScreenTournamentCongrats` (0x8004963c, screencongrats.cpp:873, map=exact)
+
+- Extra source locals: `cash`
+
+### `DrawCongratsMessage__25tScreenTournamentCongrats` (0x800496d4, screencongrats.cpp:896, map=exact)
+
+- Extra source locals: `fade`, `word`
+
+### `StatChk_SaveRecordLapTime__FP10Car_tStatsss` (0x80049b7c, statchk.cpp:97, map=exact)
+
+- Extra source locals: `newBestLap`, `playerName`, `track`
+
+### `StatChk_SaveTopTime__FP10Car_tStatss` (0x8004a1b8, statchk.cpp:395, map=exact)
+
+- Extra source locals: `copyDst`, `uBulkSz`, `uBulkUnit`, `uCopySz`, `uRecSz`
+
+### `Stattool_GetAllDefaultRecords__FP13tRecordBufferb` (0x8004ac98, stattool.cpp:197, map=exact)
+
+- Extra source locals: `base`, `dest`, `src`
+
+### `Stattool_CheckForHumanCar__FP10Car_tStats` (0x8004aec4, stattool.cpp:276, map=exact)
+
+- Extra source locals: `bound`, `numCars`, `one`
+
+### `DrawBackground__15tScreenUserName` (0x8004b1ac, screenusername.cpp:126, map=exact)
+
+- Extra source locals: `fadeboxv`, `gridposv`, `textfadev`
+
+### `CalcOnOffFade__F13tMenuTextTypesssRiT4` (0x8004b9d4, fefades.cpp:90, map=exact)
+
+- Extra source locals: `baseA`, `baseB`, `baseC`
+
+## Explicit SYM carrier/optimization mappings
+
+- `Run__18tDialogInteractive`: `player`
+- `FECheat_HandleActivation__F10tCheatCode`: `num`
+- `SetupCurrCredit__14tCreditManager`: `lasttick`
+- `DrawBackground__25tScreenCarSelectTwoPlayer`: `carInfo`
+
+## Explicit source-only codegen carriers
+
+- `Redraw__14tFEApplication`: `globalMenuDefs`
+- `SetScreen__14tFEApplicationsP7tScreen`: `iVar1`, `this_00`
+- `DisplayHelp__14tFEApplications`: `this_tDialogHelp`
+- `RunDemoVideo__14tFEApplication`: `largest`, `menu`, `vtbl`
+- `FeAudio_InitViv__FPc`: `byteMask`, `header`, `headerLength`, `headerNum`, `headerType`, `lumpyName`, `swappedResult`, `swappedType`
+- `FeAudio_InitCommentary__Fii`: `arg1`
+- `CalcUsedPrice__11tCarManagers`: `carID`, `upgrades`
+- `GetStockCar__11tCarManagersR8tCarInfo`: `uVar1`
+- `GetNumTourneyCars__11tCarManagers`: `carID`
+- `ValidCar__16tListIteratorCar7tPlayerc`: `carClass`
+- `Increment__21tListIteratorCarColor7tPlayer`: `fNumColors`, `notWrapped`
+- `TransitionIsFinished__9tMenuNFS4`: `iVar2`, `iVar4`, `ptVar1`, `uVar3`
+- `TransitionOff__12tMenuOptions`: `iVar1`
+- `UpdateTransition__29tMenuItemLeftRightAudioSliderb`: `iVar1`
+- `TransitionOn__17tUserNameMenuItem`: `dst`
+- `FETextRender_WordWrapTextRGBJustify__FPcR4RECTiiib`: `pixels`
+- `DrawTVLines__FR9tTVConfig`: `abe`
+- `FEInput_GetNoDebounceKey__Fii`: `result`
+- `SetPads__Fv`: `waiting`
+- `Front_GetLapsForType__Fv`: `uVar1`
+- `Front_AppendTrackData__FPiR9tFEStream`: `speedMode`
+- `DrawDropShadow__11tScreenMain`: `addrMask`, `addr_24`, `palTag`, `pal_link`, `tagMask`
+- `Controller_SetRamp__Fv`: `one`
+- `AnimKeyPoints__23tScreenControllerConfigbT1`: `result`
+- `DrawArrow__23tScreenControllerConfigPs`: `clampVal`
+- `Cleanup__12tScreenAudio`: `info`
+- `DrawIcon__14tScreenMemcardP8shapetbliiiis`: `u`
+- `StatChk_ClearNewRecords__Fv`: `pRec`
+- `Stattool_nCreateIndex__FiPiPs`: `one`
+- `Stattool_ParseTime__FiPc`: `min`, `sec`
+- `Stattool_GetAINameFromPersonality__F14tPersonalities`: `namePtr`
+- `DrawVerticalLine__15tScreenUserNamesss`: `depth`
+- `DrawHorizontalLine__15tScreenUserNamesss`: `depth`
+
+## Explicit oracle-proven function type overrides
+
+- `DrawCurrCredit__14tCreditManager`: `y`
+- `DrawController__23tScreenControllerConfig`: `range`
+
+## Object-owned global/storage review
+
+- No ownership, storage-class, or type findings.
+

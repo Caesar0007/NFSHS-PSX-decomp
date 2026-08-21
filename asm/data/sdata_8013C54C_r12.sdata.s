@@ -1,7 +1,6 @@
 .include "macro.inc"
-/* W64-A18: residual segment of sdata_8013C54C -- labels no recon TU defines
- * (or a record tail a recon TU's section stops short of).
- * Linked by BOTH lanes. */
+/* Legacy splat-lane filler.  The reconstruction lane now gets this exact
+ * four-byte BOOL from pausemenu.cpp, its SYM-owning translation unit. */
 
 .section .sdata, "wa"
 

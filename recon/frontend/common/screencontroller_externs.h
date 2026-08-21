@@ -45,7 +45,7 @@ short Run(tDialogInteractive * thisobj) asm("Run__18tDialogInteractive");
 void PSXDrawTransSquare(int col, int x, int y, int w, int h, short opacity);
 void AudioCmn_PlayFESFX(int SFXnum);
 void FeDraw_SetABRMode(int abr);
-void * IsShapeFileLoaded(tScreen * thisobj, tShapeInformation * shapes) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
+bool IsShapeFileLoaded(tScreen * thisobj, tShapeInformation * shapes) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
 void FETextRender_SetFont(int size);
 
 #endif

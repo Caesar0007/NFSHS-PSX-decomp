@@ -4,7 +4,7 @@
  *
  * This segment's data is OWNED by
  *     build/recon/game/common/object.cpp.o
- * (section .data, retail 0x80115d60..0x80116468), whose own bytes were
+ * (section .data, retail 0x80115c48..0x80116468), whose own bytes were
  * proved byte-identical to retail before the cut (ownmap2 E1-E5, with
  * R_MIPS_32 relocations RESOLVED against the retail VA map).
  *

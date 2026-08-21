@@ -4,8 +4,8 @@
  *   C TU: SLD source = C:\nfs4\FRONTEND\PSX\MEMCARD.C -> CC1PSX lane (methodology 3.25;
  *   migrated from memcard.cpp, task #90). Self-contained per C-lane convention (local
  *   type mirrors; nfs4_types.h is C++-only). Unmangled C symbols match the SYM.
- *   3 helpers iMCRD_timersub/ascii2sjis/sjis2ascii are SYM class STAT (kept as plain
- *   globals here, same as the .cpp shape - names pair with the front oracle .s).
+ *   3 helpers iMCRD_timersub/ascii2sjis/sjis2ascii are SYM class STAT and are
+ *   reconstructed with their original file-local storage class.
  *   Drives the typed global gMemCardInfo (fMemCardInfo_def) - fields decompiler-named.
  *   NOTE: a few bodies carry decompiler mis-renderings (e.g. MCRD_getopts' 8-byte RECT
  *   copy was byte-unaligned -> rewritten as a struct assignment). Local temp names are
@@ -173,9 +173,9 @@ int  iMCRD_LoadCard(int card);
 int  iMCRD_FormatCard(int card);
 int  iMCRD_HandleError(int func, int opResult, int card);
 int  iMCRD_DefaultCBProc1(void);
-void  iMCRD_timersub(void);              /* SYM class STAT (see header note) */
-short ascii2sjis(u_char ascii_code);
-u_char sjis2ascii(short sjis_code);      /* @0x80050810 */
+static void  iMCRD_timersub(void);
+static short ascii2sjis(u_char ascii_code);
+static u_char sjis2ascii(short sjis_code);      /* @0x80050810 */
 
 /* file-local SJIS<->ASCII lookup tables (SYM class STAT; byte-exact from image). */
 static u_short ascii_table[3][2] = {   /* 0x80052a78 : ASCII range base -> SJIS base (digit/upper/lower) */
@@ -1014,7 +1014,7 @@ int MCRD_fileexists(int card,char *name)
 /* lines 1378-1535: (static data / macros / comments - no emitted code) */
 
 /* ---- iMCRD_timersub  (memcard.c:1536, code lines 1536-1541) [static] ---- */
-void iMCRD_timersub(void)
+static void iMCRD_timersub(void)
 
 {
   int i;
@@ -1373,7 +1373,7 @@ int iMCRD_DefaultCBProc1(void)
 /* lines 1900-2062: (static data / macros / comments - no emitted code) */
 
 /* ---- ascii2sjis  (memcard.c:2063, code lines 2063-2096) [static] ---- */
-short ascii2sjis(u_char ascii_code)
+static short ascii2sjis(u_char ascii_code)
 
 {
   /* SYM 8c block: sjis_code USHORT $3($v1), stmp UCHAR $3($v1), stmp2 UCHAR $5($a1).
@@ -1455,16 +1455,16 @@ short ascii2sjis(u_char ascii_code)
 /* lines 2097-2101: (static data / macros / comments - no emitted code) */
 
 /* ---- sjis2ascii  (memcard.c:2102, code lines 2102-2122) [static] ---- */
-u_char sjis2ascii(short sjis_code)
+static u_char sjis2ascii(short sjis_code)
 
 {
-  uint hi;
-  u_char hb;
+  int idx;
+  u_char bottom;
   int kind;
 
   kind = 0;
-  hi = sjis_code >> 8;          /* MATCH: short >> 8 = the oracle's sll 16 / sra 24 */
-  hb = hi;                      /* the SECOND BYTE itself */
+  idx = sjis_code >> 8;         /* MATCH: short >> 8 = the oracle's sll 16 / sra 24 */
+  bottom = idx;                 /* the SECOND BYTE itself */
   /* MATCH: retail keeps TWO live values for the second byte - the sign-extended
    * word in $v1 that all three RANGE TESTS read, and a byte-typed copy in $a2
    * (the oracle's `addu $a2,$v1,$zero`, filled into the 0x81 bne's delay slot)
@@ -1477,18 +1477,18 @@ u_char sjis2ascii(short sjis_code)
     /* MATCH: the reverse table is its OWN symbol @0x80052ad0 indexed from 0x40 -
      * the oracle's lbu -0x40(base); modelling it as ascii_k_table+0xc folded the
      * displacement into %lo and aliased a different object (real bug). */
-    return sjis_k_table[(hb & 0xff) - 0x40];
+    return sjis_k_table[(bottom & 0xff) - 0x40];
   }
   if ((sjis_code & 0xffU) == 0x82) {
-    if (9 < hi - 0x4f) {
-      if (hi - 0x60 < 0x1a) {
+    if (9U < (uint)(idx - 0x4f)) {
+      if ((uint)(idx - 0x60) < 0x1aU) {
         kind = 1;
       }
-      else if ((hi + 0x7f & 0xff) < 0x1a) {
+      else if ((uint)(idx + 0x7f & 0xff) < 0x1aU) {
         kind = 2;
       }
     }
-    return sjis_table[kind][1] + (hb - sjis_table[kind][0]);
+    return sjis_table[kind][1] + (bottom - sjis_table[kind][0]);
   }
   return '\0';
 }

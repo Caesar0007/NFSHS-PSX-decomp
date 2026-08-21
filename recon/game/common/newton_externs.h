@@ -1,7 +1,7 @@
 #include "../../lib/libfns.h"
 /* newton_externs.h -- cross-TU declarations for game/common/newton.cpp (Newton physics integrator).
  * Harvested from sealed sibling *_externs.h (compile-proven) + SYM Demangled/Globals.
- * newton's OWN file-statics (divTable/fudgeTable/swap/testSimRoadInfo/newtestSimRoadInfo/dummy_124/
+ * newton's OWN data (divTable/fudgeTable/swap/testSimRoadInfo/newtestSimRoadInfo/dummy_124/
  * dummy_133) are declared `static` inside newton.cpp, NOT here. */
 #ifndef NEWTON_EXTERNS_H
 #define NEWTON_EXTERNS_H
@@ -19,7 +19,7 @@ extern int   BWorldSm_FindClosestQuadRez(coorddef *c, BWorldSm_Pos *pos, int rez
 extern int   BWorldSm_FindClosestTriangleRez(coorddef *c, BWorldSm_Pos *pos, int rez);
 extern int   BWorldSm_FindEdgeOff(coorddef *c, BWorldSm_Pos *a, BWorldSm_Pos *b, int *edge);
 extern void  BWorldSm_SetSlice(int slice, BWorldSm_Pos *pos);
-extern void *BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
+extern bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
 extern void *BWorldSm_UNormal(BWorldSm_Pos *pos);
 extern void *BWorldSm_UForward(BWorldSm_Pos *pos);
 extern int   BWorld_CheckChunkVisible(BWorldSm_Pos *a, BWorldSm_Pos *b);

@@ -34,6 +34,6 @@ void  PSXTransDrawBrightEndLine(int, int, int, int, int, int, int, int, int);
 /* ===== input / audio / cheat ===== */
 int   FEInput_GetNoDebounceKey(int, int);
 void  AudioCmn_PlayFESFX(int);
-int   FECheat_IsCheatEnabled(tCheatCode);
+bool  FECheat_IsCheatEnabled(tCheatCode);
 
 #endif

@@ -10,8 +10,8 @@
  *   $gp base 0x8013C54C). EXT = external linkage (other TUs extern these); STAT = file-static.
  *   wasActive..lastplaytick are MPause_MusicLogic-private statics (laid out in this block). */
 tPauseMenuDefs *gPauseMenuDefs;              /* EXT 0x8013d268 [$gp+0xd1c] */
-int   gMPauseUpdate;                         /* EXT 0x8013d264 [$gp+0xd18] */
-int   gMPauseUpdateNextTime;                 /* EXT 0x8013d240 [$gp+0xcf4] */
+bool  gMPauseUpdate;                         /* EXT 0x8013d264 [$gp+0xd18], SYM BOOL */
+bool  gMPauseUpdateNextTime;                 /* EXT 0x8013d240 [$gp+0xcf4], SYM BOOL */
 short InGameSelectListAudioMode[4] = {0x12, 0x11, 0x13, 0};  /* EXT 0x8013d244 -- retail init (w63-a19 E5) */
 short SelectListConfig[4] = {0x17, 0x18, 0x19, 0};           /* EXT 0x8013d24c -- retail init (w63-a19 E5) */
 static tPMenu *gPauseCurrentMenu;            /* STAT 0x8013ddc0 [$gp+0x1874] */
@@ -25,7 +25,7 @@ static int    vol, SFXHandle, lastplaytick;     /* STAT MusicLogic statics 0x18/
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void MPause_MusicLogic(char active);
 void MPause_ControllerLogic(void);
-u_int MPause_Logic(void);
+int MPause_Logic(void);
 void MPause_Render(void);
 void MPause_InitMPause(void);
 void MPause_StartPauseMenu(void);
@@ -255,12 +255,12 @@ void MPause_ControllerLogic(void)
 }
 
 /* ---- MPause_Logic__Fv  [MPAUSE.CPP:390-486] SLD-VERIFIED ---- */
-u_int MPause_Logic(void)
+int MPause_Logic(void)
 
 {
   tPMenuCommand command;
   tInputKeyType keyVal;
-  BOOL debounce;
+  bool debounce;
   int oldItem;
   int newItem;
 

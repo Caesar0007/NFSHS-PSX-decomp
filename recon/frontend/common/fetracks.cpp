@@ -95,7 +95,7 @@ void tTrackManager::LoadDescription()
   blockmove(addr + 1,dst,this->fNumTracks * 0x30);
   uVar4 = 0;
   if (this->fNumTracks != 0) {
-    int one = 1;
+    bool one = true;
     iVar3 = 0;
     do {
       pcVar2 = (char *)(iVar3 + (int)this->fTracks);
@@ -274,17 +274,16 @@ void tListIteratorTrack::Decrement(tPlayer atIndex)
 
 
 /* ---- tListIteratorTrack::ValidTrack  [FETRACKS.CPP:269-288] SLD-VERIFIED ---- */
-/* SYM-CONFORM (2026-08-16, PASS retained): the retail block names exactly
-   `tTrackInformation *trackInfo` and `BOOL result`.  Here BOOL is EA's
-   four-byte `typedef int BOOL`, not native C++ bool; using native bool adds
-   two normalization instructions and causes 36 diffs.  Restoring the two
-   SYM locals also lets gcc recover the former cVar1/ptVar3 compiler temps. */
+/* SYM-CONFORM: the retail block names exactly `tTrackInformation *trackInfo`
+   and native C++ `bool result`.  CC1PLPSX represents bool as four bytes; the
+   BOOL spelling in dumpsym is the compiler's boolean base type, not the
+   reconstruction's `typedef int BOOL`. */
 
-void * tListIteratorTrack::ValidTrack(char track)
+bool tListIteratorTrack::ValidTrack(char track)
 
 {
   tTrackInformation *trackInfo;
-  BOOL result;
+  bool result;
   
   trackInfo = this->fTrackManager->fTracks + (u_char)track;
   result = this->fTrackManager->fAvailableTracks[(signed char)trackInfo->fTrackID];
@@ -302,7 +301,7 @@ void * tListIteratorTrack::ValidTrack(char track)
     }
     break;
   }
-  return (void *)result;
+  return result;
 }
 
 

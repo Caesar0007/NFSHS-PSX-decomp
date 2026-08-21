@@ -63,6 +63,10 @@ void TrsProj_SetViewTrsProjEnviro(DRender_tView *Vi)
 /* ---- TrsProj_SetPsxMatrix__FP10matrixtdefP8coorddef  [TRSPROJ.CPP:137-151] SLD-VERIFIED ---- */
 void TrsProj_SetPsxMatrix(matrixtdef *m,coorddef *t)
 {
+  /* SYM-TYPE-OVERRIDE: r0; SYM-TYPE-OVERRIDE: r1; SYM-TYPE-OVERRIDE: r2.
+   * SYM records INT, but the short lexical
+   * temporaries reproduce the retail load/store scheduling exactly (60/60);
+   * int variants are one instruction short and regress to 47+ diffs. */
   short r0;
   short r1;
   short r2;

@@ -45,7 +45,7 @@ tListIterator::~tListIterator()
 
 /* ---- tListIterator::Value  [FEMENU.CPP:73-74] SLD-VERIFIED ---- */
 
-int tListIterator::Value(tPlayer)
+char tListIterator::Value(tPlayer)
 
 {
   return (u_int)(u_char)*this->fValue;
@@ -55,7 +55,7 @@ int tListIterator::Value(tPlayer)
 
 /* ---- tListIterator::TextValue  [FEMENU.CPP:78-79] SLD-VERIFIED ---- */
 
-int tListIterator::TextValue(tPlayer)
+short tListIterator::TextValue(tPlayer)
 
 {
   return (int)this->fSelectionList[
@@ -66,17 +66,13 @@ int tListIterator::TextValue(tPlayer)
 
 /* ---- tListIterator::Increment  [FEMENU.CPP:83-86] SLD-VERIFIED ---- */
 
-int tListIterator::Increment(tPlayer)
+void tListIterator::Increment(tPlayer)
 
 {
-  short sVar1;
-  
   *this->fValue = *this->fValue + '\x01';
-  sVar1 = this->fSelectionList[(u_char)*this->fValue];
-  if (sVar1 == 0) {
+  if (this->fSelectionList[(u_char)*this->fValue] == 0) {
     *this->fValue = 0;
   }
-  return (int)sVar1;
 }
 
 
@@ -124,7 +120,7 @@ tListIteratorIndexed::~tListIteratorIndexed()
 
 /* ---- tListIteratorIndexed::Value  [FEMENU.CPP:114-115] SLD-VERIFIED ---- */
 
-int tListIteratorIndexed::Value(tPlayer)
+char tListIteratorIndexed::Value(tPlayer)
 
 {
   return (u_int)(u_char)this->fValue[(u_char)*this->fIndex];
@@ -134,7 +130,7 @@ int tListIteratorIndexed::Value(tPlayer)
 
 /* ---- tListIteratorIndexed::TextValue  [FEMENU.CPP:119-120] SLD-VERIFIED ---- */
 
-int tListIteratorIndexed::TextValue(tPlayer)
+short tListIteratorIndexed::TextValue(tPlayer)
 
 {
   __vtbl_ptr_type (*pa_Var1) [6];
@@ -151,21 +147,14 @@ int tListIteratorIndexed::TextValue(tPlayer)
 
 /* ---- tListIteratorIndexed::Increment  [FEMENU.CPP:126-129] SLD-VERIFIED ---- */
 
-int tListIteratorIndexed::Increment(tPlayer)
+void tListIteratorIndexed::Increment(tPlayer)
 
 {
-  int iVar1;
-  char *pcVar2;
-  u_char *pbVar3;
-  
-  pcVar2 = this->fValue + (u_char)*this->fIndex;
-  *pcVar2 = *pcVar2 + '\x01';
-  pbVar3 = (u_char *)(this->fValue + (u_char)*this->fIndex);
-  iVar1 = (int)this->fSelectionList[*pbVar3];
-  if (iVar1 == 0) {
-    *pbVar3 = 0;
+  this->fValue[(u_char)*this->fIndex] =
+      this->fValue[(u_char)*this->fIndex] + '\x01';
+  if (this->fSelectionList[(u_char)this->fValue[(u_char)*this->fIndex]] == 0) {
+    this->fValue[(u_char)*this->fIndex] = 0;
   }
-  return iVar1;
 }
 
 
@@ -202,7 +191,7 @@ tListIteratorDoubleIndexed::~tListIteratorDoubleIndexed()
 
 /* ---- tListIteratorDoubleIndexed::Value  [FEMENU.CPP:160-161] SLD-VERIFIED ---- */
 
-int tListIteratorDoubleIndexed::Value(tPlayer)
+char tListIteratorDoubleIndexed::Value(tPlayer)
 
 {
   return (u_int)(u_char)this->fValue
@@ -214,7 +203,7 @@ int tListIteratorDoubleIndexed::Value(tPlayer)
 
 /* ---- tListIteratorDoubleIndexed::TextValue  [FEMENU.CPP:165-166] SLD-VERIFIED ---- */
 
-int tListIteratorDoubleIndexed::TextValue(tPlayer)
+short tListIteratorDoubleIndexed::TextValue(tPlayer)
 
 {
   __vtbl_ptr_type (*pa_Var1) [6];
@@ -231,24 +220,19 @@ int tListIteratorDoubleIndexed::TextValue(tPlayer)
 
 /* ---- tListIteratorDoubleIndexed::Increment  [FEMENU.CPP:172-175] SLD-VERIFIED ---- */
 
-int tListIteratorDoubleIndexed::Increment(tPlayer)
+void tListIteratorDoubleIndexed::Increment(tPlayer)
 
 {
-  int iVar1;
-  char *pcVar2;
-  u_char *pbVar3;
-  
-  pcVar2 = this->fValue +
-           ((u_int)(u_char)*this->fIndex1 * this->index1multiplier + (u_int)(u_char)*this->fIndex2);
-  *pcVar2 = *pcVar2 + '\x01';
-  pbVar3 = (u_char *)(this->fValue +
-                   ((u_int)(u_char)*this->fIndex1 * this->index1multiplier + (u_int)(u_char)*this->fIndex2))
-  ;
-  iVar1 = (int)this->fSelectionList[*pbVar3];
-  if (iVar1 == 0) {
-    *pbVar3 = 0;
+  this->fValue[(u_int)(u_char)*this->fIndex1 * this->index1multiplier +
+               (u_int)(u_char)*this->fIndex2] =
+      this->fValue[(u_int)(u_char)*this->fIndex1 * this->index1multiplier +
+                   (u_int)(u_char)*this->fIndex2] + '\x01';
+  if (this->fSelectionList[(u_char)this->fValue[
+          (u_int)(u_char)*this->fIndex1 * this->index1multiplier +
+          (u_int)(u_char)*this->fIndex2]] == 0) {
+    this->fValue[(u_int)(u_char)*this->fIndex1 * this->index1multiplier +
+                 (u_int)(u_char)*this->fIndex2] = 0;
   }
-  return iVar1;
 }
 
 
@@ -391,7 +375,7 @@ tListIteratorRange::~tListIteratorRange()
 
 /* ---- tListIteratorRange::Value  [FEMENU.CPP:262-266] SLD-VERIFIED ---- */
 
-int tListIteratorRange::Value(tPlayer)
+char tListIteratorRange::Value(tPlayer)
 
 {
   return (u_int)(u_char)*this->fValue;
@@ -401,7 +385,7 @@ int tListIteratorRange::Value(tPlayer)
 
 /* ---- tListIteratorRange::TextValue  [FEMENU.CPP:270-271] SLD-VERIFIED ---- */
 
-int tListIteratorRange::TextValue(tPlayer)
+short tListIteratorRange::TextValue(tPlayer)
 
 {
   return 0;
@@ -460,7 +444,7 @@ tListIteratorRangeIndexed::~tListIteratorRangeIndexed()
 
 /* ---- tListIteratorRangeIndexed::Value  [FEMENU.CPP:308-309] SLD-VERIFIED ---- */
 
-int tListIteratorRangeIndexed::Value(tPlayer)
+char tListIteratorRangeIndexed::Value(tPlayer)
 
 {
   return (u_int)(u_char)this->fValue[(u_char)*this->fIndex];
@@ -559,10 +543,10 @@ void tMenuItem::UpdateTransition(bool selected)
 
 /* ---- tMenuItem::TransitionIsFinished  [FEMENU.CPP:466-467] SLD-VERIFIED ---- */
 
-void * tMenuItem::TransitionIsFinished()
+bool tMenuItem::TransitionIsFinished()
 
 {
-  return (void *)0x1;
+  return 1;
 }
 
 
@@ -591,28 +575,22 @@ void tMenuItem::UpdateSelFade(bool selected)
 
 /* ---- tMenuItem::Draw  [FEMENU.CPP:481-482] SLD-VERIFIED ---- */
 
-int tMenuItem::Draw(int x,int y,bool selected)
+void tMenuItem::Draw(int x,int y,bool selected)
 
 {
-  int iVar1;
-  
-  iVar1 = (*(*this->_vf)[4].pfn)
-                    ((char *)this + (int)(*this->_vf)[4].delta,
-                     selected);
-  return iVar1;
+  (*(*this->_vf)[4].pfn)((char *)this + (int)(*this->_vf)[4].delta,
+                         selected);
 }
 
 
 
 /* ---- tMenuItem::Draw  [FEMENU.CPP:486-487] SLD-VERIFIED ---- */
 
-int tMenuItem::Draw(int x,int y,int w,bool selected)
+void tMenuItem::Draw(int x,int y,int w,bool selected)
 
 {
-  int iVar1;
-  
-  iVar1 = (*(*this->_vf)[6].pfn)((char *)this + (int)(*this->_vf)[6].delta,selected,x,y,0);
-  return iVar1;
+  (*(*this->_vf)[6].pfn)((char *)this + (int)(*this->_vf)[6].delta,
+                         selected,x,y,0);
 }
 
 
@@ -667,7 +645,7 @@ tMenuItemLeftRightChoice::~tMenuItemLeftRightChoice()
 
 /* ---- tMenuItemLeftRightChoice::ProcessInput  [FEMENU.CPP:563-582] SLD-VERIFIED ---- */
 
-int tMenuItemLeftRightChoice::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
+void tMenuItemLeftRightChoice::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
               tMenuCommand &command)
 
 {
@@ -682,7 +660,7 @@ int tMenuItemLeftRightChoice::ProcessInput(tPlayer fromPlayer,tInputKeyType &key
 
   uVar1 = this->fFlags & 1;
   if (uVar1 != 0) {
-    return uVar1;
+    return;
   }
   switch (keyval) {
   case kInput_KeyType_Left:
@@ -698,7 +676,7 @@ int tMenuItemLeftRightChoice::ProcessInput(tPlayer fromPlayer,tInputKeyType &key
     SFXnum = 6;
     break;
   default:
-    return 0x1000;
+    return;
   }
   keyval = kInput_KeyType_AlreadyProcessed;
   AudioCmn_PlayFESFX(SFXnum);
@@ -776,7 +754,7 @@ long tMenuItemLeftRightSlider::DebounceKeys()
 
 /* ---- tMenuItemLeftRightSlider::ProcessInput  [FEMENU.CPP:630-650] SLD-VERIFIED ---- */
 
-int tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
+void tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
               tMenuCommand &command)
 
 {
@@ -789,7 +767,7 @@ int tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &key
 
   uVar2 = this->fFlags & 1;
   if (uVar2 != 0) {
-    return uVar2;
+    return;
   }
   switch (keyval) {
   case kInput_KeyType_Left:
@@ -801,7 +779,7 @@ int tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &key
     (*(*ptVar4->_vf)[4].pfn)((char *)ptVar4 + (int)(*ptVar4->_vf)[4].delta);
     break;
   default:
-    return 0x1000;
+    return;
   }
   /* MATCH: this natural statement order produces retail's exact instruction set and
      register allocation.  GCC sched2 instead chooses li a1 for the call delay slot;
@@ -1114,7 +1092,7 @@ tMenuItemGoToMenuButton::~tMenuItemGoToMenuButton()
 
 /* ---- tMenuItemGoToMenuButton::ProcessInput  [FEMENU.CPP:897-926] SLD-VERIFIED ---- */
 
-int tMenuItemGoToMenuButton::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
+void tMenuItemGoToMenuButton::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
               tMenuCommand &command)
 
 {
@@ -1127,10 +1105,10 @@ int tMenuItemGoToMenuButton::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyv
   uVar2 = this->fFlags;
   uVar1 = uVar2 & 1;
   if (uVar1 != 0) {
-    return uVar1;
+    return;
   }
   if (keyval != kInput_KeyType_Cross) {
-    return 2;
+    return;
   }
   if (this->fNewMenu != (tMenu *)0x0) {
     if ((uVar2 & 0x40) != 0) {
@@ -1145,7 +1123,7 @@ int tMenuItemGoToMenuButton::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyv
     ((void(*)(tMenuCommand&))this->fOnButtonPress)(command);
   }
   keyval = kInput_KeyType_AlreadyProcessed;
-  return 1;
+  return;
 }
 
 
@@ -1440,20 +1418,20 @@ void tMenu::TransitionOn()
 
 /* ---- tMenu::TransitionIsFinished  [FEMENU.CPP:1243-1244] SLD-VERIFIED ---- */
 
-void * tMenu::TransitionIsFinished()
+bool tMenu::TransitionIsFinished()
 
 {
-  return (void *)0x1;
+  return 1;
 }
 
 
 
 /* ---- tMenu::IsSubMenu  [FEMENU.CPP:1253-1254] SLD-VERIFIED ---- */
 
-void * tMenu::IsSubMenu()
+bool tMenu::IsSubMenu()
 
 {
-  return (void *)0x0;
+  return 0;
 }
 
 

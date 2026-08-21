@@ -14,7 +14,7 @@ extern tTexture_ShapeInfo *gCurrentShapes[];
    int are the same STORAGE; the oracle confirms 4-byte objects (front_data.data.s
    dlabels NewRecords = 8 .words @0x80052978, StatChk_ClearNewRecords walks them with
    `addiu $v0,-0x4`, DrawRecords indexes with `sll $s1,2`).  The types differ only at
-   implicit-conversion sites, and there the oracle proves BOOL: DrawRecords passes
+   implicit-conversion sites, and there the oracle proves bool: DrawRecords passes
    `lw $a2,0($s0)` straight into DrawOneRecord__19tScreenTrackRecords*i*b*i with NO
    sltu normalization, which an `int` source type would have forced (measured:
    int -> +1 `sltu a2,zero,a2`, 7/7 -> 6/7).  statchk.h's `int NewRecords[8]` /

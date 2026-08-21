@@ -5,6 +5,12 @@
 #include "../../nfs4_types.h"
 #include "stats_externs.h"
 
+/* stats.obj-owned race-order scratch table.
+ * SYM: EXT Stats_tPosition[6], 96 bytes at 0x8011E0E0.  The retail image is
+ * entirely zero-initialized, and CC1PLPSX emits this tentative aggregate in
+ * .data; the reconstruction linker substitutes it for only that residual run. */
+Stats_tPosition Stats_racePosition[6];
+
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void Stats_DoPlayerGlue(void);
 void Stats_ClearPosition(void);
@@ -68,16 +74,16 @@ void Stats_DoPlayerGlue(void)
 void Stats_ClearPosition(void)
 
 {
-  int iVar2;
+  int i;
 
-  iVar2 = 0;
+  i = 0;
   do {
-    Stats_racePosition[iVar2].car = -1;
-    Stats_racePosition[iVar2].slice = -99999;
-    Stats_racePosition[iVar2].sliceTime = 0;
-    Stats_racePosition[iVar2].isHuman = 0;
-    iVar2 = iVar2 + 1;
-  } while (iVar2 < 6);
+    Stats_racePosition[i].car = -1;
+    Stats_racePosition[i].slice = -99999;
+    Stats_racePosition[i].sliceTime = 0;
+    Stats_racePosition[i].isHuman = 0;
+    i = i + 1;
+  } while (i < 6);
   return;
 }
 
@@ -620,7 +626,7 @@ void Stats_TrackEndGame(void)
 
         {
           int j;
-          int jj;
+          int jj; /* SYM-CODEGEN-CARRIER: jj -- measured register-band dial; see receipt above. */
 
           /* SLD 500/512: TOP test + UNCONDITIONAL `j` back-edge -> exit-in-the-middle
              (a `for` lets gcc prove entry and ROTATE to a bottom test). */

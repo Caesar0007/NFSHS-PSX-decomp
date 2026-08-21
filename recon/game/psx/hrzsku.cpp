@@ -20,12 +20,14 @@ Draw_tPixMap *gpPmx[16];   /* @0x801207b4  (bss(zero)) */
 CVECTOR      gHrzRingColor[2][17];   /* @0x801207f4  (bss(zero)) */
 int          gfxPmxHeightPercentage[16];   /* @0x8012087c  (bss(zero)) */
 tHrz_Lightning gHrz_Lightning;   /* @0x801208bc  (bss(zero)) */
-SVECTOR      *starPosInSky;   /* @0x8013d878  (bss(zero)) */
-CVECTOR      *starColors;   /* @0x8013d87c  (bss(zero)) */
+static SVECTOR *starPosInSky;   /* @0x8013d878  (bss(zero)) */
+static u_long *starColors;    /* @0x8013d87c  SYM PTR ULONG (bss(zero)) */
 CHorizonSpec *Hrz_gTrackSpec;   /* @0x8013d888  (bss(zero)) */
 CSkySpec     *Sky_gTrackSpec;   /* @0x8013d88c  (bss(zero)) */
 SVECTOR      *gRngCoordTop;   /* @0x8013d890  (bss(zero)) */
-/* PER-FIELD SPLIT (wave-13, catalog per-element gp-rel lever): the oracle stores each
+/* SYM-CARRIER: sunPosInSky
+   SYM-CARRIER: moonPosInSky
+   PER-FIELD SPLIT (wave-13, catalog per-element gp-rel lever): the oracle stores each
    16-bit field of these three 8-byte SVECTORs via its OWN %gp_rel sub-symbol
    (D_8013D894/96/98, D_8013DDF0/F2/F4, D_8013DDF8/FA/FC) -- an 8-byte struct under OUR
    -G4 can never be gp-addressed (the old "genuine -G4 floor"), but four 2-byte SHORT
@@ -50,7 +52,7 @@ static short moonPosInSky_vx, moonPosInSky_vy, moonPosInSky_vz, moonPosInSky_pad
 #define MOONPOS_VX (((SVECTOR *)&moonPosInSky_vx)->vx)
 #define MOONPOS_VY (((SVECTOR *)&moonPosInSky_vy)->vx)
 #define MOONPOS_VZ (((SVECTOR *)&moonPosInSky_vz)->vx)
-CVECTOR      Hrz_gSaveCol[4];   /* @0x8013e380  (bss?) */
+static CVECTOR Hrz_gSaveCol[4];   /* @0x8013e380  (bss?) */
 /* hrzsku-internal lost-symbol globals (NOT in SYM Globals; 4 contiguous ints, sky double-buffer
    vertex counts, accessed via (&A0)[i]). DEFINED here for self-containment (was extern-only). */
 int Hrz_gSkyVtx_A0, Hrz_gSkyVtx_A1, Hrz_gSkyVtx_B0, Hrz_gSkyVtx_B1;
@@ -200,12 +202,14 @@ void Sky_InitStars(void)
     seed = random();
     seedrandom(Sky_gTrackSpec->starRandomSeed);
     starPosInSky = (SVECTOR *)reservememadr("stars",Sky_gTrackSpec->numStars << 3,0);
-    starColors = (CVECTOR *)reservememadr("starCols",Sky_gTrackSpec->numStars << 2,0);
+    starColors = (u_long *)reservememadr("starCols",Sky_gTrackSpec->numStars << 2,0);
     for (i = 0; i < Sky_gTrackSpec->numStars; i = i + 1) {
       int latAngle;
       int heightAngle;
       int height;
       int radius;
+      /* SYM-TYPE-OVERRIDE: starBright -- the retail body uses unsigned modulo
+       * (`divu`); an int local emits the signed divide/overflow guard. */
       u_int starBright;
 
       latAngle = random();
@@ -222,7 +226,7 @@ void Sky_InitStars(void)
       starBright = random();
       starBright = Sky_gTrackSpec->starBrightMin +
                    starBright % (Sky_gTrackSpec->starBrightMax - Sky_gTrackSpec->starBrightMin);
-      (*(u_long *)&starColors[i]) = starBright * 0x10000 | starBright * 0x100 | starBright;
+      starColors[i] = starBright * 0x10000 | starBright * 0x100 | starBright;
     }
     seedrandom(seed);
   }
@@ -236,11 +240,11 @@ void Sky_KillStars(void)
   if (starPosInSky != (SVECTOR *)0x0) {
     purgememadr(starPosInSky);
   }
-  if (starColors != (CVECTOR *)0x0) {
+  if (starColors != (u_long *)0x0) {
     purgememadr(starColors);
   }
   starPosInSky = (SVECTOR *)0x0;
-  starColors = (CVECTOR *)0x0;
+  starColors = (u_long *)0x0;
   return;
 }
 
@@ -1543,7 +1547,7 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
           tag = *slot;
           Render_gPacketPtr = (u_char *)prim + 0xc;
           *slot = tag & 0xff000000 | pkt24;
-          *(u_long *)((u_char *)prim + 4) = (*(u_long *)&starColors[n]);
+          *(u_long *)((u_char *)prim + 4) = starColors[n];
           *((u_char *)prim + 3) = 2;
           *((u_char *)prim + 7) = 0x68;
           *(u_long *)((u_char *)prim + 8) = *(u_long *)&scnt;
@@ -1740,7 +1744,8 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
 {
   coorddef trans;
   int fxOverlapPercentage;
-  long hrz_projchange;
+  int hrz_projchange;
+  int i;
   Draw_HorizonCache *hsd;
 
   /* PSX scratchpad base (0x1F800000). Held in ONE local for the WHOLE function (not a
@@ -1866,10 +1871,9 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
   {
     /* SYM block line=107/114/115: mpts[4] -- reuses the stack space freed by updown/temp2d
        above (both blocks are DISJOINT in the oracle's frame layout). */
-    int iVar17;
     DVECTOR mpts [4];
 
-    iVar17 = 0;
+    i = 0;
     if (TrackSpec_gSpec.horizonstate != 0) {
       /* SYM block line=142: right/prim/pmx -- nested one level deeper again. */
       DVECTOR right;
@@ -1886,7 +1890,7 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
          counter increment in its delay slot) -- a `for` rotates to a bottom-tested
          do-while (slti/bnez), which the oracle does not have. */
       while (true) {
-        if (!(iVar17 < 0x10)) break;
+        if (!(i < 0x10)) break;
         if ((15999 < *(int *)((int)hsd + iVar15 + 0x124)) || (15999 < *(int *)((int)hsd + iVar18 + 0x124))) {
           mpts[0] = *(DVECTOR *)((int)hsd + iVar15 + 0x9c);          /* posB[k] */
           mpts[1] = *(DVECTOR *)((int)hsd + iVar15 + 0xe0);          /* posC[k] */
@@ -1910,7 +1914,7 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                          (DVECTOR *)(((int)hsd + 0xe0) + iVar15),&fxOverlapPercentage,1,0);
               iVar6 = Draw_gViewOtSize;
               puVar14 = *(u_int **)((int)gpPmx + iVar15);
-              if (Hrz_gTrackSpec->ringPMX[iVar17] != '\x10') {
+              if (Hrz_gTrackSpec->ringPMX[i] != '\x10') {
                 p = (u_char *)Render_gPacketPtr;
                 Render_gPacketPtr = p + 0x34;
                 prim = (POLY_GT4 *)p;
@@ -1939,7 +1943,7 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                 /* MATCH: arm-swap (catalog §A) -- m2c shows the branch condition as the
                    DIRECT ">=8" form (fall-through arm is >=8, not <8); the inverted-and-swap
                    compiles with the SAME polarity/inline-arm layout the oracle uses. */
-                if (8 <= (u_char)Hrz_gTrackSpec->ringPMX[iVar17]) {
+                if (8 <= (u_char)Hrz_gTrackSpec->ringPMX[i]) {
                   /* MATCH: WORD copy -- a DVECTOR struct assignment emits the align-1
                      lwl/lwr+swl/swr quad; the oracle does one lw/sw pair. */
                   *(u_int *)(p + 8) = *(u_int *)&right;
@@ -1961,7 +1965,7 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
         }
         iVar15 = iVar15 + 4;
         iVar18 = iVar18 + 4;
-        iVar17 = iVar17 + 1;
+        i = i + 1;
       }
     }
   }

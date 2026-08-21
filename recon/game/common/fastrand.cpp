@@ -26,19 +26,23 @@ void FastRandom_CleanUp(void)
 void FastRandom_StartUp(u_int seeder)
 
 {
+  u_int a;
+  u_int b;
   int seedIterations;
-  int iVar1;
+  int i;
 
-  randSeed = 0x75bcd15;
-  fastRandom = 0x3ade68b1;
-  iVar1 = 0;
+  a = 0x75bcd15;
+  b = 0x3ade68b1;
+  randSeed = a;
+  fastRandom = b;
+  i = 0;
   seedIterations = (int)(seeder % 500);
   if (0 < seedIterations) {
     do {
       randtemp = fastRandom * 0x75bcd15;
-      iVar1 = iVar1 + 1;
+      i = i + 1;
       fastRandom = randtemp & 0xffff;
-    } while (iVar1 < seedIterations);
+    } while (i < seedIterations);
   }
   return;
 }

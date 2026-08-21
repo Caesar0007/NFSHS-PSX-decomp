@@ -29,7 +29,7 @@ extern int   AIWorld_IsDriveableLane(int slice, int lane);
 extern int   AIWorld_IsDriveableLaneInSliceRange(int slice, int lookAhead, int rsControl, int dir);
 extern void  Cars_DoGravityEffectsOnAcc(Car_tObj *car, int n);
 extern int   Udff_GetInt(Udff_tInfo *handle);
-extern void *BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
+extern bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
 
 /* ---- physics.obj-owned state (SYM Globals) ---- */
 extern int      roadSurfaceFrictionCoeff[10];
@@ -39,7 +39,7 @@ extern int      gripLossTable[3];
 extern int      gripLossTableWet[3];
 extern coorddef gravity_ch;
 extern int      gBrakeRatio, gGasRatio, gSteerRatio;
-extern int      currentWallType, exceedRedline;
+extern int      exceedRedline;
 extern int      roadMult, frontMult, rearMult, leftMult, rightMult;
 extern int      slippery, steeringControl, powerControl;
 /* blip/bblip init source tables @ 0x80056370/0x80056390 (materialized in physics.cpp; image-verified) */

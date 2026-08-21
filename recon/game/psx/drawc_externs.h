@@ -16,7 +16,7 @@ extern long Night_gWeatherColor[2];   /* @0x8013da88 (bss=0) -- per-type RGB tin
 /* ---- PsyQ libgte / libgpu (seed; extend as compile demands) ---- */
 
 /* ---- game externs (harvested from sealed modules + usage-typed; int=TODO refine) ---- */
-extern void *BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
+extern bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
 extern void CarIO_UpdateCarTextureData(char *, Car_tObj *, int);
 extern Draw_tPixMap *CarIO_carPixMap;
 extern Car_tObj * Cars_gHumanRaceCarList[2];

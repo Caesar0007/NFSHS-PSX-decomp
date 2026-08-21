@@ -8,8 +8,8 @@
 /* ---- vtables: AIHigh_Traffic (this obj) + AIState_Idle (aistate.obj) ---- */
 extern __vtbl_ptr_type AIHigh_Player_vtable[], AIHigh_BasicPerp_vtable[], AIState_Idle_vtable[];
 
-int Speech_Dispatch(void) asm("Dispatch__6Speech");             /* speech.obj flat (was Dispatch__6Speech; cast result to Speaker*) */
-int Speech_Mobile(Car_tObj *carObj) asm("Mobile__6SpeechP8Car_tObj");   /* speech.obj flat (was Mobile__6SpeechP8Car_tObj; cast result to Speaker*) */
+Speaker *Speech_Dispatch(void) asm("Dispatch__6Speech");
+Speaker *Speech_Mobile(Car_tObj *carObj) asm("Mobile__6SpeechP8Car_tObj");
 extern AIHigh_Base *highLevelAIObjs[];
 extern AITrigger_TriggerManager *triggerManagerCops;
 extern Car_tObj      *Cars_gRaceCarList[];      /* 0x8010fa00 */
@@ -28,7 +28,7 @@ extern int               Cars_gNumRaceCars;
 extern int            gNumSlices;
 extern int       Cars_gNumHumanRaceCars;
 extern int   Cars_gNumAIRaceCars;
-extern int AICop_gRoadBlockState;
+extern AICop_RoadBlockState AICop_gRoadBlockState;
 extern int AICop_numArrestedHumans;
 extern int AITune_gRoughLapTime;
 extern u_int               fastRandom, randSeed, randtemp;   /* fastrand.obj PRNG state */

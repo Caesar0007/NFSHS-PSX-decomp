@@ -29,7 +29,7 @@ void FEInput_VerifyControllerValues(int controller)
 /* MATCH: PASS (159 insns), improved from 38 diffs @147/159.
    The SLD fixes the negCon source order as twist-high, twist-low, buttonII, buttonI
    (lines 122/125/129/132); restoring that order moves every case block into retail
-   order.  The compiler-eliminated `result` pseudo (SYM-CODEGEN-CARRIER: result) and
+   order.  The compiler-eliminated `result` pseudo and
    the shared comparison funnels
    preserve retail's branch normalisers instead of folding them to xori/sltu.
    `return_one` gives buttonI and the final PAD-state test the shared constant target;
@@ -45,6 +45,9 @@ int FEInput_GetNoDebounceKey(int key,int controller)
 {
   char *analogs;
   int result;
+
+  /* SYM-CODEGEN-CARRIER: result -- absent from the optimized SYM local list,
+     but required by the byte-exact shared comparison/return funnels below. */
 
   PAD_update();
   if (gPadinfo.buf[controller * 4].nopad != '\0') {

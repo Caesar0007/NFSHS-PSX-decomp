@@ -98,7 +98,7 @@ extern Sim_tSimGlobalVar simGlobal;
 // [owned->defined in draww.cpp] extern int trk0[9][2];
 // [owned->defined in draww.cpp] extern int trk4[10][2];
 extern void Anim_GetRotPos(Trk_AnimateInst *, int, int, coorddef *, matrixtdef *);
-extern int  BWorld_IsSliceInBuildList(int);
+extern bool BWorld_IsSliceInBuildList(int);
 extern void Flare_Halo2(DRender_tView *, int, int, coorddef *, coorddef *, Draw_FlareCache *);
 extern void Math_fasttransmult(matrixtdef *, matrixtdef *, matrixtdef *);
 extern ObjectAnim *Object_GetAnim(Trk_SimObject *);

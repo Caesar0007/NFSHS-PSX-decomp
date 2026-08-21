@@ -51,22 +51,13 @@ void ___12AIState_Base(AIState_Base *self, int __in_chrg);   /* :24 */
 // dup: void ___12AIState_Base(AIState_Base *self, int __in_chrg);   /* :24 */
 // dup: void ___12AIState_Base(AIState_Base *self, int __in_chrg);   /* :24 */
 // dup: void ___12AIState_Base(AIState_Base *self, int __in_chrg);   /* :24 */
-int TestForRelease__12AIState_Base(AIState_Base *self);   /* :25 */
-// dup: int TestForRelease__12AIState_Base(AIState_Base *self);   /* :25 */
-// dup: int TestForRelease__12AIState_Base(AIState_Base *self);   /* :25 */
-// dup: int TestForRelease__12AIState_Base(AIState_Base *self);   /* :25 */
 void ___12AIState_None(AIState_None *self, int __in_chrg);   /* :34 */
-void Execute__12AIState_None(AIState_None *self);   /* :35 */
 void ___14AIState_Normal(AIState_Normal *self, int __in_chrg);   /* :45 */
 void ___12AIState_Idle(AIState_Idle *self, int __in_chrg);   /* :58 */
 void ___17AIState_NonActive(AIState_NonActive *self, int __in_chrg);   /* :170 */
 // dup: void ___17AIState_NonActive(AIState_NonActive *self, int __in_chrg);   /* :170 */
 // dup: void ___17AIState_NonActive(AIState_NonActive *self, int __in_chrg);   /* :170 */
-void Execute__17AIState_NonActive(AIState_NonActive *self);   /* :174 */
-// dup: void Execute__17AIState_NonActive(AIState_NonActive *self);   /* :174 */
-// dup: void Execute__17AIState_NonActive(AIState_NonActive *self);   /* :174 */
 void ___21AIState_RovingTraffic(AIState_RovingTraffic *self, int __in_chrg);   /* :204 */
-int TestForRelease__21AIState_RovingTraffic(AIState_RovingTraffic *self);   /* :210 */
 void ___17AIState_GotoSlice(AIState_GotoSlice *self, int __in_chrg);   /* :238 */
 void ___14AIState_Cruise(AIState_Cruise *self, int __in_chrg);   /* :262 */
 

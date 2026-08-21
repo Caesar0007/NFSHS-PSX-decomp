@@ -44,7 +44,7 @@ void AI_CalculateLaneSpeeds(Car_tObj *carObj);
 void AI_CalcMeritsBasedOnSpeed(Car_tObj *carObj);
 void AI_CheckForClearLanes(Car_tObj *carObj);
 void AI_CalcBestLineMerits(Car_tObj *carObj);
-void AI_AddCollidableObjects(Car_tObj *carObj,Group *groupSimObjs);
+static void AI_AddCollidableObjects(Car_tObj *carObj,Group *groupSimObjs);
 void AI_AvoidObjects(Car_tObj *carObj);
 void AI_AvoidSpikeBelt(Car_tObj *carObj);
 void AI_SubmitObstacle(Car_tObj *carObj,int importance,int leftLatPosition,int rightLatPosition,int slice);
@@ -321,17 +321,15 @@ LAB_80057f34:
 void AI_DoReactionsAndBehavior(Car_tObj *carObj)
 {
   Car_tObj *otherCarObj;
-  int iVar2;
-  Car_tObj **ppCVar1;
+  int t;
 
   AI_DoReactions(carObj);
-  iVar2 = 0;
-  ppCVar1 = Cars_gList;
+  t = 0;
   while (1) {
-    if (Cars_gNumCars <= iVar2) {
+    if (Cars_gNumCars <= t) {
       break;
     }
-    otherCarObj = *ppCVar1;
+    otherCarObj = Cars_gList[t];
     if (((carObj != otherCarObj) && ((otherCarObj->N).active != '\0')) &&
         ((otherCarObj->carFlags & 4U) != 0)) {
       AI_CheckForPlayerActions(carObj,otherCarObj);
@@ -339,8 +337,7 @@ void AI_DoReactionsAndBehavior(Car_tObj *carObj)
         AI_OpponentBlockPlayer(carObj,otherCarObj);
       }
     }
-    ppCVar1 = ppCVar1 + 1;
-    iVar2 = iVar2 + 1;
+    t = t + 1;
   }
   return;
 }
@@ -521,20 +518,24 @@ void AI_HandleChangeInNumLanes(Car_tObj *carObj)
 {
   int lookAheadSlice;
   int absLaneLookAhead;
+  int lookAhead;
   int laneIndex;
-  int adjLaneIndex;
-  u_char bVar1;
+  /* SYM-CODEGEN-CARRIER: laneCount -- retail names only the four int locals above.  This
+   * byte cache recreates the compiler web needed by the authoritative PASS;
+   * spelling both laneCount reads directly removes one instruction and
+   * recolors lookAhead/laneIndex. */
+  u_char laneCount;
 
   absLaneLookAhead = carObj->currentSpeed;
   if (absLaneLookAhead < 0) {
     absLaneLookAhead = -absLaneLookAhead;
   }
   laneIndex = fixedmult(absLaneLookAhead,0x6aaa);
-  adjLaneIndex = laneIndex;
+  lookAhead = laneIndex;
   if (laneIndex < 0) {
-    adjLaneIndex = laneIndex + 0xffff;
+    lookAhead = laneIndex + 0xffff;
   }
-  laneIndex = adjLaneIndex >> 0x10;
+  laneIndex = lookAhead >> 0x10;
   if (laneIndex < 5) {
     laneIndex = 5;
   }
@@ -553,14 +554,15 @@ void AI_HandleChangeInNumLanes(Car_tObj *carObj)
     }
   }
 LAB_800588a4:
-  bVar1 = BWorldSm_slices[lookAheadSlice].laneCount;
+  laneCount = BWorldSm_slices[lookAheadSlice].laneCount;
   laneIndex = carObj->laneIndex;
-  if ((laneIndex < (int)(7 - (u_int)(bVar1 >> 4))) || ((int)((bVar1 & 0xf) + 6) < laneIndex)) {
-    bVar1 = *(u_char *)((carObj->N).simRoadInfo.slice * 0x20 + (char *)BWorldSm_slices + 0x1d);
-    if (laneIndex < (int)(7 - (u_int)(bVar1 >> 4))) {
+  if ((laneIndex < (int)(7 - (u_int)(laneCount >> 4))) ||
+      ((int)((laneCount & 0xf) + 6) < laneIndex)) {
+    laneCount = BWorldSm_slices[(carObj->N).simRoadInfo.slice].laneCount;
+    if (laneIndex < (int)(7 - (u_int)(laneCount >> 4))) {
       return;
     }
-    if ((int)((bVar1 & 0xf) + 6) < laneIndex) {
+    if ((int)((laneCount & 0xf) + 6) < laneIndex) {
       return;
     }
     if (laneIndex < 7) {
@@ -664,9 +666,9 @@ void AI_CalculateLaneSpeeds(Car_tObj *carObj)
   int inverseCollisionTime;
   int inverseAheadCollisionTime;
   u_int carObjLaneShift;
-  u_int carObjLeftLaneBits;
-  u_int carObjThisLaneBits;
-  u_int carObjRightLaneBits;
+  int carObjLeftLaneBits;
+  int carObjThisLaneBits;
+  int carObjRightLaneBits;
   int maxDistanceToCheck;
   int collisionSpeed;
   int aheadCollisionSpeed;
@@ -974,7 +976,7 @@ void AI_CalcBestLineMerits(Car_tObj *carObj)
 }
 
 /* ---- AI_AddCollidableObjects__FP8Car_tObjP5Group  [@0x8005972c] ---- */
-void AI_AddCollidableObjects(Car_tObj *carObj,Group *groupSimObjs)
+static void AI_AddCollidableObjects(Car_tObj *carObj,Group *groupSimObjs)
 {
   Trk_SimObject*simObjs;
   static BWorldSm_Pos spos;
@@ -1056,8 +1058,8 @@ void AI_AvoidSpikeBelt(Car_tObj *carObj)
 /* ---- AI_SubmitObstacle__FP8Car_tObjiiii  [@0x800599e4] ---- */
 void AI_SubmitObstacle(Car_tObj *carObj,int importance,int leftLatPosition,int rightLatPosition,int slice)
 {
-  u_int leftEdgeIndex;
-  u_int rightEdgeIndex;
+  int leftEdgeIndex;
+  int rightEdgeIndex;
   int observations[3];
   int leftDistance;
   int rightDistance;
@@ -1066,7 +1068,7 @@ void AI_SubmitObstacle(Car_tObj *carObj,int importance,int leftLatPosition,int r
   memset((u_char *)observations,'\0',0xc);
   leftEdgeIndex = AIWorld_LaneIndex(slice,leftLatPosition);
   rightEdgeIndex = AIWorld_LaneIndex(slice,rightLatPosition);
-  if ((rightEdgeIndex < 0xe) && (leftEdgeIndex < 0xe)) {
+  if (((u_int)rightEdgeIndex < 0xe) && ((u_int)leftEdgeIndex < 0xe)) {
     edgeIndex = carObj->laneIndex + -1;
     if (((int)leftEdgeIndex <= edgeIndex) && (edgeIndex <= (int)rightEdgeIndex)) {
       observations[0] = importance;

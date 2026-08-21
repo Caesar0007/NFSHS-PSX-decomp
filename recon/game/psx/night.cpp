@@ -27,7 +27,8 @@ CVECTOR      Night_gAdditiveHeadlightColor[16];   /* @0x80120dbc  (bss(zero)) */
 u_char       (*Night_gPlayerLightingTable)[256][16] = 0;   /* @0x8013d9e4 */
 u_char       (*Night_gCopLightingTableRed)[256][8] = 0;   /* @0x8013d9e8 */
 u_char       (*Night_gCopLightingTableBlue)[256][8] = 0;   /* @0x8013d9ec */
-/* Night_gWeatherLightingTable[2] is modelled as its TWO retail per-element gp-rel symbols
+/* SYM-CARRIER: Night_gWeatherLightingTable
+   Night_gWeatherLightingTable[2] is modelled as its TWO retail per-element gp-rel symbols
    (StatsTimer/overlays.cpp model, catalog sec.E dual-model + wave-13 "unsized-array asm-label
    view"): the oracle reaches the CONSTANT-index sites (Night_KillNightDriving [0] and [1])
    through a one-instruction %gp_rel(Night_gWeatherLightingTable) / %gp_rel(D_8013D9F4), which
@@ -49,7 +50,7 @@ u_char       (*D_8013D9F4)[256] = 0;   /* @0x8013d9f4  = [1] retail per-element 
 extern u_char (*Night_gWeatherLightingTable_arr[2])[256] asm("Night_gWeatherLightingTable"); /* array VIEW -- MUST be sized [2] */
 char         CopCarTypeLights[6] = { 0, 0, 1, 0, 1, 1 };   /* @0x8013d9f8 */
 char         lightningInit = 1;   /* @0x8013D9FE  SYM: STAT CHAR; abuts CopCarTypeLights (chars pack, no pad) */
-int          gNight_renderNight;   /* @0x8013da28  (bss(zero)) */
+bool         gNight_renderNight;   /* @0x8013da28  (bss(zero)); SYM BOOL */
 int          Night_gXDist;   /* @0x8013da2c  (bss(zero)) */
 int          Night_gZNear;   /* @0x8013da30  (bss(zero)) */
 int          Night_gZDist;   /* @0x8013da34  (bss(zero)) */
@@ -58,7 +59,8 @@ int          Night_gZDistShift;   /* @0x8013da3c  (bss(zero)) */
 char         *Night_gNightTbl;   /* @0x8013da40  (bss(zero)) */
 int          Night_gLightningType;   /* @0x8013da44  (bss(zero)) */
 u_char       (*Night_gCurrentNightColor)[256][16];   /* @0x8013da48  (bss(zero)) */
-/* Night_gCopColor[2]: same per-element gp-rel dual-model as Night_gWeatherLightingTable above --
+/* SYM-CARRIER: Night_gCopColor
+   Night_gCopColor[2]: same per-element gp-rel dual-model as Night_gWeatherLightingTable above --
    Night_SetCopColor stores both elements through %gp_rel(Night_gCopColor)/%gp_rel(D_8013DA50),
    while draww.cpp's Night_NightCopCalc indexes the base at RUNTIME via %hi/%lo(Night_gCopColor)
    (that TU keeps its own `extern u_char (*Night_gCopColor[2])[256][8];` array decl).
@@ -85,7 +87,8 @@ int          Night_gFlashAzimuth;   /* @0x8013da74  (bss(zero)) */
 char         Night_gShowForks;   /* @0x8013da78  (bss(zero)) */
 int          Night_gFlashIntensity;   /* @0x8013da7c  (bss(zero)) */
 long         Night_gPlayerHeadLightColor[2];   /* @0x8013da80  (bss(zero)) */
-/* Night_gWeatherColor[2]: same per-element gp-rel dual-model -- Night_InitWeatherTables stores
+/* SYM-CARRIER: Night_gWeatherColor
+   Night_gWeatherColor[2]: same per-element gp-rel dual-model -- Night_InitWeatherTables stores
    both words through %gp_rel(Night_gWeatherColor)/%gp_rel(D_8013DA8C), while
    Night_SetWeatherColors (and drawc.cpp's DrawC_NightHeadlight) walk the base absolutely.
    KEEP THE TWO .comm SYMBOLS ADJACENT (declaration order == .sbss order). */
@@ -449,7 +452,7 @@ void Night_DoLightningEffect(DRender_tView *Vi)
 
 {
   u_int r;
-  void *tunnel;
+  BOOL tunnel;
   
   if (Night_gLightning != 0) {
     AudioCmn_PlayThunder(Night_gFlashIntensity,Night_gFlashAzimuth);
@@ -466,7 +469,7 @@ void Night_DoLightningEffect(DRender_tView *Vi)
     /* branched if/else, NOT `= (tunnel == 0)`: the oracle emits
        `beqz $v0,.L; addiu $v0,zero,1` + two separate `sb` stores with a `j` over the
        else arm; the boolean-expression form folds to a single sltiu. */
-    if (tunnel != (void *)0x0) {
+    if (tunnel != 0) {
       Night_gDrawLightning = 0;
     }
     else {
@@ -521,7 +524,7 @@ typedef struct { int w[2]; } NightCopTablePair;
  * which fills the load-delay slot (37 vs our 38 insns).  Tried and re-gated: moving the
  * store after `col2 = ...` (35 insns, 32 diffs -- gcc cross-merges the two stores),
  * hoisting both col1/col2 reads first (same 32), dropping the carTable temp (5, tie),
- * carTable typed `int` per the SYM (5, tie), carTable block-scoped (5, tie), a
+ * carTable block-scoped (5, tie), a
  * `char *pair` local for the two country-table bytes (20, worse), flat single-scope
  * decls (5, tie).  Also survives -G8 and all four wired per-TU codegen flags. */
 void Night_SetCopColor(GameSetup_tCarData *carinfo)
@@ -529,7 +532,9 @@ void Night_SetCopColor(GameSetup_tCarData *carinfo)
 {
   int cartype;
   int country;
-  u_char (*carTable)[256][8];
+  /* SYM's INT carrier is confirmed by both retail allocation and the split m2c
+     output (a 32-bit temp); pointer casts occur only at the table boundaries. */
+  int carTable;
 
   country = carinfo->Country;
   cartype = Night_gCopCarTypeColorIdx[carinfo->carType];
@@ -562,9 +567,9 @@ void Night_SetCopColor(GameSetup_tCarData *carinfo)
      * copColors (35 insns); one reused `col` variable (36); a `u_char *pair` local for the
      * two table bytes (35); store-before-col2 (38); both-cols-first (35). */
     col1 = (u_char)Night_gCopCountryLightTbl[cartype][country][0];
-    carTable = copColors[col1];
+    carTable = (int)copColors[col1];
     col2 = (u_char)Night_gCopCountryLightTbl[cartype][country][1];
-    Night_gCopColor_v[0] = carTable;
+    Night_gCopColor_v[0] = (u_char (*)[256][8])carTable;
     Night_gCopColor_v[1] = copColors[col2];
   }
   return;

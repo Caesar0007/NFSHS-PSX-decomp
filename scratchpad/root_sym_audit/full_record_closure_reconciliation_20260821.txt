@@ -1,0 +1,14 @@
+# Complete SYM record-closure reconciliation
+
+- Raw decoded records: 340483
+- Low opcode exact ledgers (0x01/0x02/0x06): 5002
+- SLD/file-span per-record ledger: 79569
+- Function start/end exact ledger: 5162
+- Lexical block records represented by 11206 paired rows: 22412
+- Definition per-record ledger: 228338
+- Reconciled total: 340483/340483
+- Unaccounted records: 0
+
+The arithmetic is exhaustive across all 15 decoded opcode classes.  Exact
+audit evidence and semantic-review dispositions remain distinct; reconciliation
+means no record was omitted, not that every REVIEW row is already source-restored.

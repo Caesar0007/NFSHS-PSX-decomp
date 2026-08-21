@@ -23,7 +23,19 @@ extern int D_8011E0B0[];   /* == &simGlobal.gameTicks (distinct alias symbol the
 /* ---- aistate.obj-owned globals (.bss zero) ---- */
 /* @0x8005516c jtbl: gcc now emits its own jump table for HighExecute's switch (11 cases,
  * bodies laid out in oracle VA order 0,1,2,4,3,5,{6,7,8,10,default},9) — placeholder removed. */
-tCopMurderThresholds AIHigh_Cop_AggressionData[3] = { {10, 655360, 851968, 512, 512}, {8, 917504, 983040, 768, 512}, {4, 1179648, 1179648, 1152, 1024} };   /* @0x8010cea4 */
+/* SYM tag ._144 is anonymous: the five named fields belong to this global's
+   inline struct, not to a source-level tCopMurderThresholds type. */
+struct {
+  int ticksInChaseRegionForMurder;
+  int minLatMetersDistanceForMurder;
+  int minLongMetersDistanceForMurder;
+  int murderTicks;
+  int nitrousTicks;
+} AIHigh_Cop_AggressionData[3] = {
+  {10, 655360, 851968, 512, 512},
+  {8, 917504, 983040, 768, 512},
+  {4, 1179648, 1179648, 1152, 1024}
+};   /* @0x8010cea4 */
 int          AICop_skillDelay[3] = { 3276, 6553, 65536 };   /* @0x8010cee0 */
 coorddef     AIH_Cop_chasePositions[3][6] = { { {0, 0, 524288}, {-393216, 0, 524288}, {393216, 0, 0}, {0, 0, -655360}, {0, 0, -655360}, {0, 0, -655360} }, { {0, 0, 327680}, {-262144, 0, 327680}, {262144, 0, 327680}, {0, 0, -327680}, {0, 0, -327680}, {0, 0, -327680} }, { {0, 0, 327680}, {-262144, 0, 327680}, {262144, 0, 327680}, {0, 0, -327680}, {0, 0, -327680}, {0, 0, -327680} } };   /* @0x8010ceec */
 int          NitroDistanceMeters[2][2] = { 3932160, 1638400, 3932160, 1638400 };   /* @0x8010cfc4 */
@@ -68,33 +80,29 @@ void AIHigh_Cop::SetTuningLevers()
 
 
 {
-  Car_tObj *pCVar1;
-
-  int iVar2;
+  int carTypeIndex;
 
 
 
-  pCVar1 = this->carObj_;
-
-  iVar2 = pCVar1->carInfo->carType;
+  carTypeIndex = this->carObj_->carInfo->carType;
 
   if (this->type_ == 1) {
 
-    pCVar1->copTopSpeed = copTuningInfo[iVar2 + -0x16].superCopTopSpeedCap;
+    this->carObj_->copTopSpeed = copTuningInfo[carTypeIndex + -0x16].superCopTopSpeedCap;
 
     (this->carObj_)->copAccMult =
 
-         copTuningInfo[iVar2 + -0x16].superCopAccMultiplier;
+         copTuningInfo[carTypeIndex + -0x16].superCopAccMultiplier;
 
     return;
 
   }
 
-  pCVar1->copTopSpeed = copTuningInfo[iVar2 + -0x16].regularCopTopSpeedCap;
+  this->carObj_->copTopSpeed = copTuningInfo[carTypeIndex + -0x16].regularCopTopSpeedCap;
 
   (this->carObj_)->copAccMult =
 
-       copTuningInfo[iVar2 + -0x16].regularCopAccMultiplier;
+       copTuningInfo[carTypeIndex + -0x16].regularCopAccMultiplier;
 
   return;
 
@@ -730,6 +738,8 @@ void AIHigh_Cop::HighExecute()
 
       if (needy) {
 
+        /* SYM-OPTIMIZED: slowDownEndTime -- the inlined AIState_Chase setter's
+           parameter is the gameTicks-plus-delay value stored directly below. */
         chaseState->slowDownEndTime_ = simGlobal.gameTicks + 0x3c0;
 
       }
@@ -1139,7 +1149,7 @@ LAB_80064a0c:
 
           int left;
 
-          int rightLatPos;
+          int right;
 
           /* W61-A12: test INVERTED (was `skill == 0` first).  Retail puts the
              0xb333 arm in its own block AFTER the else arm and reaches it by the
@@ -1169,27 +1179,33 @@ LAB_80064a0c:
           left = fixedmult((*(u_char *)(this->requestSpikeBeltAtSlice_ * 0x20 + (int)BWorldSm_slices + 0x1e) << 15) *
                              (*(u_char *)(this->requestSpikeBeltAtSlice_ * 0x20 + (int)BWorldSm_slices + 0x1d) >> 4),size);
 
-          rightLatPos = fixedmult((*(u_char *)(this->requestSpikeBeltAtSlice_ * 0x20 + (int)BWorldSm_slices + 0x1f) << 15) *
+          right = fixedmult((*(u_char *)(this->requestSpikeBeltAtSlice_ * 0x20 + (int)BWorldSm_slices + 0x1f) << 15) *
                              (*(u_char *)(this->requestSpikeBeltAtSlice_ * 0x20 + (int)BWorldSm_slices + 0x1d) & 0xf),size);
 
           AICop_spikeBelt.leftLatPos_ = -left;
 
-          AICop_spikeBelt.rightLatPos_ = rightLatPos;
+          AICop_spikeBelt.rightLatPos_ = right;
 
           AICop_spikeBelt.slice_ = this->requestSpikeBeltAtSlice_;
 
           AICop_spikeBelt.active_ = 1;
 
+          /* SYM-OPTIMIZED: timeNow -- the inlined spike-belt freshen operation
+             names this direct gameTicks value; it has no separate caller slot. */
           AICop_spikeBelt.freshenTime_ = D_8011E0B0[0];
 
+          /* SYM-OPTIMIZED: slice -- BWorld_SetSpikeBelt's inlined slice
+             parameter aliases requestSpikeBeltAtSlice_ at this call site.
+             SYM-OPTIMIZED: rightLatPos -- its inlined third parameter aliases
+             the caller's exact `right` local in the sum below. */
           BWorld_SetSpikeBelt(this->requestSpikeBeltAtSlice_,-left,
-                     left + rightLatPos);
+                     left + right);
 
           requestSlice = this->requestSpikeBeltAtSlice_;
 
         }
 
-        AICop_gRoadBlockState = 1;
+        AICop_gRoadBlockState = kAICop_RoadBlockState_WaitingForPerp;
 
         if ((requestSlice != -1) && (AICop_spikeBelt.slice_ == requestSlice)) {
 
@@ -1510,10 +1526,12 @@ LAB_80064d34:;
 
       {
         Car_tObj *thisPlayerObj;
+        AIHigh_Player *thisPlayer;
 
         thisPlayerObj = Cars_gRaceCarList[hLoop];
+        thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisPlayerObj->carIndex];
 
-        if (highLevelAIObjs[thisPlayerObj->carIndex][5].carObj_ != (Car_tObj *)0x0) {
+        if (thisPlayer->basicPerpInfo_.crime_ != 0) {
 
           ((AIState_Offroad *)this->state_)->UnleashIfInRange(thisPlayerObj);
 
@@ -1679,6 +1697,8 @@ int AIHigh_Cop::CheckForNeedyPlayers()
 
 
 {
+  /* SYM-OPTIMIZED: thisPlayer -- retail keeps the named AIHigh_Player value in
+   * the indexed highLevelAIObjs expression; no distinct source carrier remains. */
   int needy;
 
   int hLoop;
@@ -1861,32 +1881,22 @@ int AIHigh_Cop::CheckForNewTarget()
 
 {
   bool bVar1;
-
-  int iVar2;
-
   blockadeMode_t bVar3;
 
-  int iVar4;
-
-  AIHigh_Player *pAVar5;
-
-  int iVar7;
-
-  AIHigh_Player *target;
-
-  int iVar8;
-
-  AIHigh_Player *pAVar9;
+  AIHigh_Player *newTarget;
+  int newTargetDistance;
+  int playerLoop;
+  AIHigh_Player *old;
 
   
 
-  target = (AIHigh_Player *)0x0;
+  newTarget = (AIHigh_Player *)0x0;
 
-  iVar8 = 0x27100000;
+  newTargetDistance = 0x27100000;
 
   bVar3 = this->blockade_.mode;
 
-  pAVar9 = this->perpTarget_;
+  old = this->perpTarget_;
 
   bVar1 = false;
 
@@ -1902,91 +1912,109 @@ int AIHigh_Cop::CheckForNewTarget()
 
   }
 
-  iVar7 = 0;
+  playerLoop = 0;
 
   while (true) {
 
-    if (Cars_gNumRaceCars <= iVar7) break;
+    int thisCarIndex;
+    AIHigh_Player *thisPlayer;
+    int needs;
+    int got;
 
-    pAVar5 = (AIHigh_Player *)highLevelAIObjs[Cars_gRaceCarList[iVar7]->carIndex];
+    if (Cars_gNumRaceCars <= playerLoop) break;
 
-    iVar4 = 0;
+    thisCarIndex = Cars_gRaceCarList[playerLoop]->carIndex;
+    thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisCarIndex];
 
-    if ((pAVar5)->basicPerpInfo_.crime_ != 0) {
+    needs = 0;
 
-      iVar4 = ((pAVar5->perpChaseInfo_).chaseLevel_)->copChasers[this->type_];
+    if (thisPlayer->basicPerpInfo_.crime_ != 0) {
 
-    }
-
-    iVar2 = (pAVar5)->basicPerpInfo_.copsAssigned_[this->type_];
-
-    if ((this->perpTarget_ != (AIHigh_Player *)0x0) && (this->perpTarget_ == pAVar5)) {
-
-      iVar2 = iVar2 + -1;
+      needs = thisPlayer->perpChaseInfo_.chaseLevel_->copChasers[this->type_];
 
     }
 
-    if (iVar2 < iVar4) {
+    {
+      copType type = (copType)this->type_;
+      got = thisPlayer->basicPerpInfo_.copsAssigned_[type];
+    }
 
-      iVar4 = AIWorld_ApxSplineDistance(this->carObj_,
+    if ((this->perpTarget_ != (AIHigh_Player *)0x0) &&
+        (this->perpTarget_ == thisPlayer)) {
 
-                         (pAVar5)->carObj_);
+      got = got + -1;
 
-      iVar4 = __builtin_abs(iVar4);
+    }
 
-      if (iVar4 < iVar8) {
+    if (got < needs) {
 
-        iVar8 = iVar4;
+      int copToTargetDistanceMeters;
 
-        target = pAVar5;
+      copToTargetDistanceMeters = AIWorld_ApxSplineDistance(this->carObj_,
+
+                         thisPlayer->carObj_);
+
+      copToTargetDistanceMeters = __builtin_abs(copToTargetDistanceMeters);
+
+      if (copToTargetDistanceMeters < newTargetDistance) {
+
+        newTargetDistance = copToTargetDistanceMeters;
+
+        newTarget = thisPlayer;
 
       }
 
     }
 
-    iVar7 = iVar7 + 1;
+    playerLoop = playerLoop + 1;
 
   }
 
-  iVar7 = 0;
+  playerLoop = 0;
 
-  if (target == (AIHigh_Player *)0x0) {
+  if (newTarget == (AIHigh_Player *)0x0) {
 
     while (true) {
 
-      if (Cars_gNumRaceCars <= iVar7) break;
+      int thisCarIndex;
+      AIHigh_Player *thisPlayer;
+      int copToTargetDistanceMeters;
 
-      pAVar5 = (AIHigh_Player *)highLevelAIObjs[Cars_gRaceCarList[iVar7]->carIndex];
+      if (Cars_gNumRaceCars <= playerLoop) break;
 
-      iVar4 = AIWorld_ApxSplineDistance(this->carObj_,
+      thisCarIndex = Cars_gRaceCarList[playerLoop]->carIndex;
+      thisPlayer = (AIHigh_Player *)highLevelAIObjs[thisCarIndex];
 
-                         (pAVar5)->carObj_);
+      copToTargetDistanceMeters = AIWorld_ApxSplineDistance(this->carObj_,
 
-      iVar4 = __builtin_abs(iVar4);
+                         thisPlayer->carObj_);
 
-      if ((iVar4 < iVar8) && ((pAVar5)->basicPerpInfo_.crime_ != 0)) {
+      copToTargetDistanceMeters = __builtin_abs(copToTargetDistanceMeters);
 
-        iVar8 = iVar4;
+      if ((copToTargetDistanceMeters < newTargetDistance) &&
+          (thisPlayer->basicPerpInfo_.crime_ != 0)) {
 
-        target = pAVar5;
+        newTargetDistance = copToTargetDistanceMeters;
+
+        newTarget = thisPlayer;
 
       }
 
-      iVar7 = iVar7 + 1;
+      playerLoop = playerLoop + 1;
 
     }
 
-    if (target == (AIHigh_Player *)0x0) goto LAB_800657c0;
+    if (newTarget == (AIHigh_Player *)0x0) goto LAB_800657c0;
 
   }
 
-  if (target != pAVar9) {
+  if (newTarget != old) {
 
-    this->AssignToPlayer(target);
+    this->AssignToPlayer(newTarget);
 
     this->aggressionLevel_ =
 
-         ((target->perpChaseInfo_).chaseLevel_)->copAggression[this->type_];
+         ((newTarget->perpChaseInfo_).chaseLevel_)->copAggression[this->type_];
 
     return 1;
 
@@ -1994,7 +2022,8 @@ int AIHigh_Cop::CheckForNewTarget()
 
 LAB_800657c0:
 
-  if ((pAVar9 != (AIHigh_Player *)0x0) && (target == (AIHigh_Player *)0x0)) {
+  if ((old != (AIHigh_Player *)0x0) &&
+      (newTarget == (AIHigh_Player *)0x0)) {
 
     this->AssignToPlayer((AIHigh_Player *)0x0);
 
@@ -2160,7 +2189,7 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
         int endSlice;
         int fRandomChance;
         int crime;
-        int rawType;
+        copType type;
         int typeOffset;
         int *gotPtr;
         AICop_BasicPerpInfo *perpInfo;
@@ -2168,9 +2197,9 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
         thisPlayer = (AIHigh_Player *)highLevelAIObjs[testCar->carIndex];
         perpInfo = &thisPlayer->basicPerpInfo_;
         pLevel = AIHigh_Player_ChaseLevel(thisPlayer);
-        rawType = *(volatile int *)&this->type_;
+        type = *(volatile copType *)&this->type_;
         fRandomChance = thisPlayer->newTriggerProb_;
-        typeOffset = rawType << 2;
+        typeOffset = type << 2;
         gotPtr = (int *)((char *)perpInfo->copsAssigned_ + typeOffset);
         crime = perpInfo->crime_;
         got = *gotPtr;

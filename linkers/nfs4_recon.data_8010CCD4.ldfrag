@@ -20,7 +20,7 @@
     build/recon/game/common/aih_cop.cpp.o(.data);   /* 0x8010cea4..0x8010cfd4  was data_8010CCD4_o03.data.s */
     build/recon/game/common/aicop.cpp.o(.data);   /* 0x8010cfd4..0x8010d560  was data_8010CCD4_o04.data.s */
     build/recon/game/common/aiinit.cpp.o(.data);   /* 0x8010d560..0x8010d5cc  was data_8010CCD4_o05.data.s */
-    build/recon/game/common/func_va_data.cpp.o(.data);   /* 0x8010d5cc..0x8010dc54  was data_8010CCD4_o06.data.s */
+    build/recon/game/common/aiperson.cpp.o(.data);   /* 0x8010d5cc..0x8010dc54  SYM owner: aiperson.obj */
     build/asm/data/data_8010CCD4_r02.data.s.o(.data);
     build/recon/game/common/aiphysic.cpp.o(.data);   /* 0x8010dc74..0x8010dce0  was data_8010CCD4_o07.data.s */
     build/asm/data/data_8010CCD4_r03.data.s.o(.data);
@@ -41,17 +41,49 @@
     build/recon/game/common/copspeak.cpp.o(.data);   /* 0x80111ea4..0x80112730  was data_8010CCD4_o17.data.s */
     build/recon/game/common/dashhud.cpp.o(.data);   /* 0x80112730..0x8011279c  was data_8010CCD4_o18.data.s */
     build/recon/game/common/fei.cpp.o(.data);   /* 0x8011279c..0x80112b2c  was data_8010CCD4_o19.data.s */
-    build/asm/data/data_8010CCD4_r09.data.s.o(.data);
-    build/recon/game/common/gmesetup.cpp.o(.data);   /* 0x801131ec..0x80113c14  was data_8010CCD4_o20.data.s */
+    build/asm/data/data_8010CCD4_r09.data.s.o(.data.r09_pre);
+    /* SYM ownership seam: three fixed-width lookup tables precede GameSetup_gData in gmesetup.obj. */
+    build/recon/game/common/gmesetup.cpp.o(.data);   /* 0x80113044..0x80113c14 */
     build/recon/game/common/input.cpp.o(.data);   /* 0x80113c14..0x8011401c  was data_8010CCD4_o21.data.s */
     build/asm/data/data_8010CCD4_r10.data.s.o(.data);
     build/recon/game/common/nfs3.cpp.o(.data);   /* 0x8011423c..0x80115c48  was data_8010CCD4_o22.data.s  (+2 B FILL(0) align pad) */
-    build/asm/data/data_8010CCD4_r11.data.s.o(.data);
-    build/recon/game/common/object.cpp.o(.data);   /* 0x80115d60..0x80116468  was data_8010CCD4_o23.data.s */
+    build/recon/game/common/object.cpp.o(.data);   /* 0x80115c48..0x80116468  SYM owner: object.obj */
     build/recon/game/common/paths.cpp.o(.data);   /* 0x80116468..0x80116530  was data_8010CCD4_o24.data.s */
-    build/asm/data/data_8010CCD4_r12.data.s.o(.data);
+    /* SYM ownership seam: physics.obj's six initialized tables/state globals. */
+    build/recon/game/common/physics.cpp.o(.data);   /* 0x80116530..0x801165e0 */
     build/recon/game/common/r3dcar.cpp.o(.data);   /* 0x801165e0..0x80116f7c  was data_8010CCD4_o25.data.s */
-    build/asm/data/data_8010CCD4_r13.data.s.o(.data);
+    /* SYM ownership seam: replay.obj's initialized camera-mode list and typed
+     * zero-initialized state replace the contiguous 0x6fd4-byte legacy run. */
+    build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_pre);
+    build/recon/game/common/replay.cpp.o(.data.replay_camera_list);   /* 0x80117008..0x8011702c */
+    build/recon/game/common/replay.cpp.o(.data.replay_interface);   /* 0x8011702c..0x8011704c */
+    build/recon/game/common/replay.cpp.o(.data.replay_camera);   /* 0x8011704c..0x8011706c */
+    build/recon/game/common/replay.cpp.o(.data.replay_control_data);   /* 0x8011706c..0x8011716c */
+    build/recon/game/common/replay.cpp.o(.data.replay_buffer);   /* 0x8011716c..0x8011db98 */
+    build/recon/game/common/replay.cpp.o(.data.replay_compressed);   /* 0x8011db98..0x8011dbb9 */
+    build/recon/game/common/replay.cpp.o(.data.replay_uncompressed);   /* 0x8011dbbc..0x8011dbdc */
+    build/recon/game/common/replay.cpp.o(.data.replay_camera_slots);   /* 0x8011dbdc..0x8011dfdc */
+    /* SYM ownership seam: typed schedule.obj replaces its five-table 192-byte legacy subsection. */
+    build/recon/game/common/schedule.cpp.o(.data);   /* 0x8011dfdc..0x8011e09c  SYM owner: schedule.obj */
+    /* SYM ownership seam: typed sim.obj replaces its contiguous 68-byte data run. */
+    build/recon/game/common/sim.cpp.o(.data);   /* 0x8011e09c..0x8011e0e0  SYM owner: sim.obj */
+    /* SYM ownership seam: typed stats.obj replaces only the 96-byte Stats_racePosition legacy subsection. */
+    build/recon/game/common/stats.cpp.o(.data);   /* 0x8011e0e0..0x8011e140  SYM owner: stats.obj */
+    /* SYM ownership seam: Textsys.obj's six-pointer language table. */
+    build/recon/game/common/textsys.cpp.o(.data);   /* 0x8011e140..0x8011e158  SYM owner: Textsys.obj */
+    /* SYM ownership seam: Track.obj aggregates; explicit order defeats gcc tentative-object sorting. */
+    build/recon/game/common/track.cpp.o(.data.track_initial_art);   /* 0x8011e158..0x8011e170 */
+    build/recon/game/common/track.cpp.o(.data.track_reflection_maps);   /* 0x8011e170..0x8011e1b0 */
+    /* SYM ownership seam: TrgSfx.obj's eight globals, kept in explicit retail order. */
+    build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_t_enviro);   /* 0x8011e1b0..0x8011e1d0 */
+    build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_t_car);   /* 0x8011e1d0..0x8011e1f0 */
+    build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_t_wheel);   /* 0x8011e1f0..0x8011e270 */
+    build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_t_extra);   /* 0x8011e270..0x8011e2f0 */
+    build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_prev_skid);   /* 0x8011e2f0..0x8011e670 */
+    build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_status);   /* 0x8011e670..0x8011e6f0 */
+    build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_save_seg);   /* 0x8011e6f0..0x8011e770 */
+    build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_save_chunk);   /* 0x8011e770..0x8011e7f0 */
+    build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_after_trgsfx);
     build/recon/game/psx/force.cpp.o(.data);   /* 0x8011fc60..0x8011fd70  was data_8010CCD4_o26.data.s */
     build/asm/data/data_8010CCD4_r14.data.s.o(.data);
     build/recon/game/psx/flare.cpp.o(.data);   /* 0x8011fde0..0x801202f8  was data_8010CCD4_o27.data.s */

@@ -25,7 +25,7 @@ void Input_Store(void);
 void Input_Fetch(int humanIndex);
 char Input_Gear(char currentGear,int numGears);
 int Input_Interface(u_long key,int debounce);
-u_int Input_MainExitKey(void);
+int Input_MainExitKey(void);
 
 
 /* ---- Input_StartUp__Fv  [INPUT.CPP:55-77] SLD-VERIFIED ---- */
@@ -121,7 +121,7 @@ void Input_Update(void)
   int left;
   int right;
   char iactive[32];
-  char sharedActive[17];
+  char hactive[17];
   char *activeBase;
 
   Device_Update();
@@ -145,7 +145,7 @@ void Input_Update(void)
   i = 0;
   one = 1;
   menukeys = 0;
-  activeBase = sharedActive;
+  activeBase = hactive;
 
   for (; i < 2; i++) {
     int mode;
@@ -545,7 +545,7 @@ return_zero:
 }
 
 /* ---- Input_MainExitKey__Fv  [INPUT.CPP:543-544] SLD-VERIFIED ---- */
-u_int Input_MainExitKey(void)
+int Input_MainExitKey(void)
 
 {
   return Input_gInterfaceResults[simGlobal.time32Hz & 0x1f] & 1;

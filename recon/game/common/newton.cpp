@@ -6,15 +6,13 @@
 #include "../../nfs4_types.h"
 #include "newton_externs.h"
 
-/* ---- newton.obj file-statics (BSS; SYM STAT tu=newton.obj). dummy_124/dummy_133 are
- *   cfront struct-pass scratch temporaries (not in Globals; coorddef out-params). ---- */
-static int          divTable[50];
-static short        fudgeTable[32];
-static int          swap[4];
-static BWorldSm_Pos testSimRoadInfo;
-static BWorldSm_Pos newtestSimRoadInfo;
-static coorddef     dummy_124;
-static coorddef     dummy_133;
+/* ---- newton.obj-owned BSS. SYM records the five named tables/road records as EXT;
+ * the two coorddef out-parameter scratch objects are function-local statics below. ---- */
+int          divTable[50];
+short        fudgeTable[32];
+int          swap[4];
+BWorldSm_Pos testSimRoadInfo;
+BWorldSm_Pos newtestSimRoadInfo;
 
 static inline int Newton_GetSpikeBelt(int *slice,int *leftLatPos,int *rightLatPos)
 {
@@ -36,7 +34,8 @@ int Newton_CalculateSliceYaw(int slice);
 void Newton_UpdateRoadGeometry(BO_tNewtonObj *n);
 int Newton_FindGroundElevationGeneral(coorddef *point,coorddef *normal,coorddef *pointOnQuad);
 int Newton_FindGroundElevationRough(coorddef *point,coorddef *normal,coorddef *pointOnQuad);
-extern "C" int Newton_FindGroundElevationAndNormalFast__FP13BO_tNewtonObjP8coorddef(int newtonObj,coorddef *normal);
+extern "C" int Newton_FindGroundElevationAndNormalFast(BO_tNewtonObj *newtonObj,coorddef *normal)
+  asm("Newton_FindGroundElevationAndNormalFast__FP13BO_tNewtonObjP8coorddef");
 int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *normal);
 void Newton_LimitCarsToDrivableDist(BO_tNewtonObj *newtonObj);
 int Newton_CalcPerpenHeightOfLowestPointFromGround(BO_tNewtonObj *newtonObj,coorddef *normal,coorddef *samplePoint);
@@ -46,17 +45,33 @@ void Newton_UpdateRoadInfo(BO_tNewtonObj *n);
 void Newton_CopyRoadMatrixToOrientMat(BO_tNewtonObj *n,int backwards);
 void Newton_CopyRoadMatrixToShadowMat(BO_tNewtonObj *n,int backwards);
 void Newton_SetInitialSlicePositionOrientationEtc(BO_tNewtonObj *n,int slice,coorddef *offset,int direction);
-extern "C" void Newton_QDUpdateVel__FP13BO_tNewtonObj(int newtonObj);
-extern "C" void Newton_QDUpdateRot64Hz__FP13BO_tNewtonObj(int newtonObj);
-extern "C" void Newton_QDUpdateRot32Hz__FP13BO_tNewtonObj(int newtonObj);
-extern "C" void Newton_CalculateGroundShadowMatrix__FP13BO_tNewtonObjP8coorddefi(int newtonObj,int *normal,int orientToGround);
-extern "C" void Newton_CalcRealShadowCoordinates__FP8Car_tObji(Car_tObj *carObj,int currentTick);
-extern "C" void Newton_CheckForSpikeBelts__FP13BO_tNewtonObj(BO_tNewtonObj *newtonObj);
-extern "C" void Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef(BO_tNewtonObj *newtonObj,coorddef normal);
-extern "C" void Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(int type,coorddef *vector,BWorldSm_Pos *testSimRoadInfo);
+extern "C" void Newton_InitBaseNewtonObj(BO_tNewtonObj *newtonObj,int index,int mass,int moInertia,int dimX,int dimY,int dimZ)
+  asm("Newton_InitBaseNewtonObj__FP13BO_tNewtonObjiiiiii");
+extern "C" void Newton_QDUpdateVel(BO_tNewtonObj *newtonObj)
+  asm("Newton_QDUpdateVel__FP13BO_tNewtonObj");
+extern "C" int Newton_OptzRotxform(matrixtdef *m,int ax,int ay,int az,int *reOrthoNeeded,int reOrthoLimit,int *cumulatedRot)
+  asm("Newton_OptzRotxform__FP10matrixtdefiiiPiiT4");
+extern "C" void Newton_QDUpdateRot64Hz(BO_tNewtonObj *newtonObj)
+  asm("Newton_QDUpdateRot64Hz__FP13BO_tNewtonObj");
+extern "C" void Newton_QDUpdateRot32Hz(BO_tNewtonObj *newtonObj)
+  asm("Newton_QDUpdateRot32Hz__FP13BO_tNewtonObj");
+extern "C" void Newton_CalculateGroundShadowMatrix(BO_tNewtonObj *newtonObj,coorddef *normal,int orientToGround)
+  asm("Newton_CalculateGroundShadowMatrix__FP13BO_tNewtonObjP8coorddefi");
+extern "C" void Newton_CalcRealShadowCoordinates(Car_tObj *carObj,int currentTick)
+  asm("Newton_CalcRealShadowCoordinates__FP8Car_tObji");
+extern "C" void Newton_CheckForSpikeBelts(BO_tNewtonObj *newtonObj)
+  asm("Newton_CheckForSpikeBelts__FP13BO_tNewtonObj");
+extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,coorddef normal)
+  asm("Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef");
+extern "C" void Newton_GenerateVector(int type,coorddef *vector,BWorldSm_Pos *testSimRoadInfo)
+  asm("Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos");
+extern "C" int Netwon_CheckForBadQuad(BO_tNewtonObj *newtonObj,BWorldSm_Pos *testSimRoadInfo,int wheel)
+  asm("Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi");
 void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj);
-extern "C" void Newton_LimitAngularVelocity__FP13BO_tNewtonObj(int newtonObj);
-extern "C" void Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj(BO_tNewtonObj *newtonObj);
+extern "C" void Newton_LimitAngularVelocity(BO_tNewtonObj *newtonObj)
+  asm("Newton_LimitAngularVelocity__FP13BO_tNewtonObj");
+extern "C" void Newton_ApplyTheLawOfGravity(BO_tNewtonObj *newtonObj)
+  asm("Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj");
 int Newton_CalculateRoadPositionFromSliceAndPosition(int slice,coorddef *position,matrixtdef *matrix);
 int Newton_CalculateRoadPosition(BO_tNewtonObj *newtonObj);
 
@@ -520,7 +535,7 @@ int Newton_FindGroundElevationRough(coorddef *point,coorddef *normal,coorddef *p
 }
 
 /* ---- Newton_FindGroundElevationAndNormalFast__FP13BO_tNewtonObjP8coorddef  [NEWTON.CPP:515-599] SLD-VERIFIED ---- */
-extern "C" int Newton_FindGroundElevationAndNormalFast__FP13BO_tNewtonObjP8coorddef(int newtonObj,coorddef *normal)
+extern "C" int Newton_FindGroundElevationAndNormalFast(BO_tNewtonObj *newtonObj,coorddef *normal)
 
 {
   int elevation;
@@ -530,69 +545,69 @@ extern "C" int Newton_FindGroundElevationAndNormalFast__FP13BO_tNewtonObjP8coord
     int r2;
     int r3;
 
-    r2 = *(int *)(newtonObj + 0x154);
-    r1 = *(int *)(newtonObj + 0x150);
-    r3 = *(int *)(newtonObj + 0x158);
+    r2 = *(int *)((int)newtonObj + 0x154);
+    r1 = *(int *)((int)newtonObj + 0x150);
+    r3 = *(int *)((int)newtonObj + 0x158);
     normal->y = r2;
     normal->x = r1;
     normal->z = r3;
     if (0x199a <= r2) {
       int surfaceType;
       elevation = Newton_FindGroundElevationGeneral(
-          (coorddef *)(newtonObj + 0xa0),normal,
-          (coorddef *)(newtonObj + 0x168));
+          (coorddef *)((int)newtonObj + 0xa0),normal,
+          (coorddef *)((int)newtonObj + 0x168));
       surfaceType = 0;
       {
         int r2;
         int r3;
         int r4;
 
-        r2 = *(int *)(newtonObj + 0xa0);
-        r3 = *(int *)(newtonObj + 0xa8);
+        r2 = *(int *)((int)newtonObj + 0xa0);
+        r3 = *(int *)((int)newtonObj + 0xa8);
         r4 = elevation;
-    *(u_int *)(newtonObj + 0x2ac) = 0;
-    *(u_int *)(newtonObj + 0x2dc) = 0;
-    *(u_int *)(newtonObj + 0x30c) = 0;
-    *(u_int *)(newtonObj + 0x33c) = 0;
-    *(u_int *)(newtonObj + 0x2b0) = 0;
-    *(u_int *)(newtonObj + 0x2e0) = 0;
-    *(u_int *)(newtonObj + 0x310) = 0;
-    *(u_int *)(newtonObj + 0x340) = 0;
-        *(int *)(newtonObj + 0x290) = r4;
-        *(int *)(newtonObj + 0x2c0) = r4;
-        *(int *)(newtonObj + 0x2f0) = r4;
-        *(int *)(newtonObj + 800) = r4;
-        *(int *)(newtonObj + 0x2a4) = r4;
-        *(int *)(newtonObj + 0x2d4) = r4;
-        *(int *)(newtonObj + 0x304) = r4;
-        *(int *)(newtonObj + 0x334) = r4;
-        *(int *)(newtonObj + 0x28c) = r2;
-        *(int *)(newtonObj + 700) = r2;
-        *(int *)(newtonObj + 0x2ec) = r2;
-        *(int *)(newtonObj + 0x31c) = r2;
-        *(int *)(newtonObj + 0x294) = r3;
-        *(int *)(newtonObj + 0x2c4) = r3;
-        *(int *)(newtonObj + 0x2f4) = r3;
-        *(int *)(newtonObj + 0x324) = r3;
+    *(u_int *)((int)newtonObj + 0x2ac) = 0;
+    *(u_int *)((int)newtonObj + 0x2dc) = 0;
+    *(u_int *)((int)newtonObj + 0x30c) = 0;
+    *(u_int *)((int)newtonObj + 0x33c) = 0;
+    *(u_int *)((int)newtonObj + 0x2b0) = 0;
+    *(u_int *)((int)newtonObj + 0x2e0) = 0;
+    *(u_int *)((int)newtonObj + 0x310) = 0;
+    *(u_int *)((int)newtonObj + 0x340) = 0;
+        *(int *)((int)newtonObj + 0x290) = r4;
+        *(int *)((int)newtonObj + 0x2c0) = r4;
+        *(int *)((int)newtonObj + 0x2f0) = r4;
+        *(int *)((int)newtonObj + 800) = r4;
+        *(int *)((int)newtonObj + 0x2a4) = r4;
+        *(int *)((int)newtonObj + 0x2d4) = r4;
+        *(int *)((int)newtonObj + 0x304) = r4;
+        *(int *)((int)newtonObj + 0x334) = r4;
+        *(int *)((int)newtonObj + 0x28c) = r2;
+        *(int *)((int)newtonObj + 700) = r2;
+        *(int *)((int)newtonObj + 0x2ec) = r2;
+        *(int *)((int)newtonObj + 0x31c) = r2;
+        *(int *)((int)newtonObj + 0x294) = r3;
+        *(int *)((int)newtonObj + 0x2c4) = r3;
+        *(int *)((int)newtonObj + 0x2f4) = r3;
+        *(int *)((int)newtonObj + 0x324) = r3;
         r2 = normal->x;
         r3 = normal->y;
         r4 = normal->z;
-    *(u_int *)(newtonObj + 0x2b8) = 1;
-    *(u_int *)(newtonObj + 0x2e8) = 1;
-    *(u_int *)(newtonObj + 0x318) = 1;
-    *(u_int *)(newtonObj + 0x348) = 1;
-        *(int *)(newtonObj + 0x298) = r2;
-        *(int *)(newtonObj + 0x2c8) = r2;
-        *(int *)(newtonObj + 0x2f8) = r2;
-        *(int *)(newtonObj + 0x328) = r2;
-        *(int *)(newtonObj + 0x29c) = r3;
-        *(int *)(newtonObj + 0x2cc) = r3;
-        *(int *)(newtonObj + 0x2fc) = r3;
-        *(int *)(newtonObj + 0x32c) = r3;
-        *(int *)(newtonObj + 0x2a0) = r4;
-        *(int *)(newtonObj + 0x2d0) = r4;
-        *(int *)(newtonObj + 0x300) = r4;
-        *(int *)(newtonObj + 0x330) = r4;
+    *(u_int *)((int)newtonObj + 0x2b8) = 1;
+    *(u_int *)((int)newtonObj + 0x2e8) = 1;
+    *(u_int *)((int)newtonObj + 0x318) = 1;
+    *(u_int *)((int)newtonObj + 0x348) = 1;
+        *(int *)((int)newtonObj + 0x298) = r2;
+        *(int *)((int)newtonObj + 0x2c8) = r2;
+        *(int *)((int)newtonObj + 0x2f8) = r2;
+        *(int *)((int)newtonObj + 0x328) = r2;
+        *(int *)((int)newtonObj + 0x29c) = r3;
+        *(int *)((int)newtonObj + 0x2cc) = r3;
+        *(int *)((int)newtonObj + 0x2fc) = r3;
+        *(int *)((int)newtonObj + 0x32c) = r3;
+        *(int *)((int)newtonObj + 0x2a0) = r4;
+        *(int *)((int)newtonObj + 0x2d0) = r4;
+        *(int *)((int)newtonObj + 0x300) = r4;
+        *(int *)((int)newtonObj + 0x330) = r4;
       }
       (void)surfaceType;
     }
@@ -1225,6 +1240,12 @@ void Newton_CalcDistToClosestPlayerCar(BO_tNewtonObj *n)
       n->simOptz = '\0';
     }
     if (1 < oldOptz) {
+      /* SYM-CARRIER: dummy -- ctags cannot tag a local static carrying asm/section
+         attributes; this is the exact SYM source name and retail static symbol.
+         Reconstructed line numbering changes GCC's generated suffix, so bind it. */
+      static coorddef dummy asm("dummy.124")
+        __attribute__((section(".bss.newton_dummy_124")));
+
       Cars_SetCarUpForHiRezSim((Car_tObj *)n);
       Newton_FindClosestQuad(n);
       Newton_UpdateRoadGeometry(n);
@@ -1232,12 +1253,12 @@ void Newton_CalcDistToClosestPlayerCar(BO_tNewtonObj *n)
       if (stackSpeedUpEnbabledFlag != 0) {
         gWSavePtr = SetSp(gWSavePtr);
         stackSpeedUpEnbabledFlag = 0;
-        n->groundElevation = Newton_FindGroundElevationAndNormal(n,&dummy_124);
+        n->groundElevation = Newton_FindGroundElevationAndNormal(n,&dummy);
         gWSavePtr = SetSp(gWSavePtr);
         stackSpeedUpEnbabledFlag = 1;
       }
       else {
-        n->groundElevation = Newton_FindGroundElevationAndNormal(n,&dummy_124);
+        n->groundElevation = Newton_FindGroundElevationAndNormal(n,&dummy);
       }
       n->groundSurfaceType = 1;
       n->driveSurfaceType = 1;
@@ -1400,14 +1421,20 @@ void Newton_SetInitialSlicePositionOrientationEtc(BO_tNewtonObj *n,int slice,coo
     quadCenterY /= 4;
     n->groundElevation = quadCenterY;
   } else {
+    /* SYM-CARRIER: dummy -- ctags cannot tag a local static carrying asm/section
+       attributes; this is the exact SYM source name and retail static symbol.
+       Reconstructed line numbering changes GCC's generated suffix, so bind it. */
+    static coorddef dummy asm("dummy.133")
+      __attribute__((section(".bss.newton_dummy_133")));
+
     if (stackSpeedUpEnbabledFlag != 0) {
       gWSavePtr = SetSp(gWSavePtr);
       stackSpeedUpEnbabledFlag = 0;
-      n->groundElevation = Newton_FindGroundElevationAndNormal(n,&dummy_133);
+      n->groundElevation = Newton_FindGroundElevationAndNormal(n,&dummy);
       gWSavePtr = SetSp(gWSavePtr);
       stackSpeedUpEnbabledFlag = 1;
     } else {
-      n->groundElevation = Newton_FindGroundElevationAndNormal(n,&dummy_133);
+      n->groundElevation = Newton_FindGroundElevationAndNormal(n,&dummy);
     }
     n->position.y = n->groundElevation + n->dimension.y;
   }
@@ -1436,7 +1463,7 @@ NewtonSetInitSlice_setDriveSurf:
 }
 
 /* ---- Newton_InitBaseNewtonObj__FP13BO_tNewtonObjiiiiii  [NEWTON.CPP:1420-1512] SLD-VERIFIED ---- */
-extern "C" void Newton_InitBaseNewtonObj__FP13BO_tNewtonObjiiiiii(
+extern "C" void Newton_InitBaseNewtonObj(
     BO_tNewtonObj *newtonObj,int index,int mass,int moInertia,
     int dimX,int dimY,int dimZ)
 {
@@ -1513,7 +1540,7 @@ extern "C" void Newton_InitBaseNewtonObj__FP13BO_tNewtonObjiiiiii(
 }
 
 /* ---- Newton_QDUpdateVel__FP13BO_tNewtonObj  [NEWTON.CPP:1516-1558] SLD-VERIFIED ---- */
-extern "C" void Newton_QDUpdateVel__FP13BO_tNewtonObj(int newtonObj)
+extern "C" void Newton_QDUpdateVel(BO_tNewtonObj *newtonObj)
 
 {
   int t1;
@@ -1523,28 +1550,28 @@ extern "C" void Newton_QDUpdateVel__FP13BO_tNewtonObj(int newtonObj)
   int iVar2;
   int iVar3;
   
-  if (*(char *)(newtonObj + 0x91) != '\0') {
+  if (newtonObj->active != '\0') {
     if ((GameSetup_gData.sgge & 4U) != 0) {
-      t1 = *(int *)(newtonObj + 0xac) >> 6;
-      t2 = *(int *)(newtonObj + 0xb0) >> 6;
-      t3 = *(int *)(newtonObj + 0xb4) >> 6;
+      t1 = newtonObj->linearVel.x >> 6;
+      t2 = newtonObj->linearVel.y >> 6;
+      t3 = newtonObj->linearVel.z >> 6;
       iVar1 = fixedmult(t1,0xcccc);
       iVar2 = fixedmult(t3,0xcccc);
-      *(int *)(newtonObj + 0xa0) = *(int *)(newtonObj + 0xa0) + iVar1;
-      *(int *)(newtonObj + 0xa4) = *(int *)(newtonObj + 0xa4) + t2;
-      *(int *)(newtonObj + 0xa8) = *(int *)(newtonObj + 0xa8) + iVar2;
+      newtonObj->position.x = newtonObj->position.x + iVar1;
+      newtonObj->position.y = newtonObj->position.y + t2;
+      newtonObj->position.z = newtonObj->position.z + iVar2;
     }
     else {
-      *(int *)(newtonObj + 0xa0) = *(int *)(newtonObj + 0xa0) + (*(int *)(newtonObj + 0xac) >> 6);
-      *(int *)(newtonObj + 0xa4) = *(int *)(newtonObj + 0xa4) + (*(int *)(newtonObj + 0xb0) >> 6);
-      *(int *)(newtonObj + 0xa8) = *(int *)(newtonObj + 0xa8) + (*(int *)(newtonObj + 0xb4) >> 6);
+      newtonObj->position.x = newtonObj->position.x + (newtonObj->linearVel.x >> 6);
+      newtonObj->position.y = newtonObj->position.y + (newtonObj->linearVel.y >> 6);
+      newtonObj->position.z = newtonObj->position.z + (newtonObj->linearVel.z >> 6);
     }
   }
   return;
 }
 
 /* ---- Newton_OptzRotxform__FP10matrixtdefiiiPiiT4  [NEWTON.CPP:1569-1617] SLD-VERIFIED ---- */
-extern "C" int Newton_OptzRotxform__FP10matrixtdefiiiPiiT4(
+extern "C" int Newton_OptzRotxform(
     matrixtdef *m,int ax,int ay,int az,int *reOrthoNeeded,
     int reOrthoLimit,int *cumulatedRot)
 
@@ -1585,43 +1612,43 @@ extern "C" int Newton_OptzRotxform__FP10matrixtdefiiiPiiT4(
 }
 
 /* ---- Newton_QDUpdateRot64Hz__FP13BO_tNewtonObj  [NEWTON.CPP:1621-1667] SLD-VERIFIED ---- */
-extern "C" void Newton_QDUpdateRot64Hz__FP13BO_tNewtonObj(int newtonObj)
+extern "C" void Newton_QDUpdateRot64Hz(BO_tNewtonObj *newtonObj)
 
 {
   char cVar1;
   int iVar2;
   int iVar3;
   matrixtdef *m1;
-  matrixtdef mStack_50;
+  matrixtdef m;
   coorddef angularVel;
-  int aiStack_18 [2];
+  int reOrthoNeeded;
 
-  if (*(char *)(newtonObj + 0x91) != '\0') {
-    iVar3 = *(int *)(newtonObj + 0x114);
+  if (*(char *)((char *)newtonObj + 0x91) != '\0') {
+    iVar3 = *(int *)((char *)newtonObj + 0x114);
     if (iVar3 < 0) {
       iVar3 = iVar3 + 0x3f;
     }
     angularVel.x = iVar3 >> 6;
-    iVar3 = *(int *)(newtonObj + 0x118);
+    iVar3 = *(int *)((char *)newtonObj + 0x118);
     if (iVar3 < 0) {
       iVar3 = iVar3 + 0x3f;
     }
     angularVel.y = iVar3 >> 6;
-    iVar3 = *(int *)(newtonObj + 0x11c);
+    iVar3 = *(int *)((char *)newtonObj + 0x11c);
     if (iVar3 < 0) {
       iVar3 = iVar3 + 0x3f;
     }
     angularVel.z = iVar3 >> 6;
-    iVar2 = Newton_OptzRotxform__FP10matrixtdefiiiPiiT4(&mStack_50,angularVel.x,angularVel.y,angularVel.z,aiStack_18,0x1000,newtonObj + 0x98);
-    m1 = (matrixtdef *)(newtonObj + 0xf0);
+    iVar2 = Newton_OptzRotxform(&m,angularVel.x,angularVel.y,angularVel.z,&reOrthoNeeded,0x1000,(int *)((char *)newtonObj + 0x98));
+    m1 = (matrixtdef *)((char *)newtonObj + 0xf0);
     if (iVar2 != 0) {
-      Math_fasttransmult(m1,&mStack_50,m1);
-      cVar1 = *(char *)(newtonObj + 0x92) - 1;
-      *(char *)(newtonObj + 0x92) = cVar1;
-      if ((cVar1 == '\0') || (aiStack_18[0] != 0)) {
+      Math_fasttransmult(m1,&m,m1);
+      cVar1 = *(char *)((char *)newtonObj + 0x92) - 1;
+      *(char *)((char *)newtonObj + 0x92) = cVar1;
+      if ((cVar1 == '\0') || (reOrthoNeeded != 0)) {
         reorthogonalize(m1);
-        *(u_char *)(newtonObj + 0x92) = 0x20;
-        *(u_int *)(newtonObj + 0x98) = 0;
+        *(u_char *)((char *)newtonObj + 0x92) = 0x20;
+        *(u_int *)((char *)newtonObj + 0x98) = 0;
       }
     }
   }
@@ -1629,42 +1656,42 @@ extern "C" void Newton_QDUpdateRot64Hz__FP13BO_tNewtonObj(int newtonObj)
 }
 
 /* ---- Newton_QDUpdateRot32Hz__FP13BO_tNewtonObj  [NEWTON.CPP:1670-1722] SLD-VERIFIED ---- */
-extern "C" void Newton_QDUpdateRot32Hz__FP13BO_tNewtonObj(int newtonObj)
+extern "C" void Newton_QDUpdateRot32Hz(BO_tNewtonObj *newtonObj)
 
 {
-  matrixtdef mStack_50;
+  matrixtdef m;
   coorddef angularVel;
-  int aiStack_18 [2];
+  int reOrthoNeeded;
   char cVar1;
   int iVar2;
   int iVar3;
   matrixtdef *m1;
 
-  if ((*(char *)(newtonObj + 0x91) != '\0') && (*(char *)(newtonObj + 0x90) == '\0')) {
-    iVar3 = *(int *)(newtonObj + 0x114);
+  if ((*(char *)((char *)newtonObj + 0x91) != '\0') && (*(char *)((char *)newtonObj + 0x90) == '\0')) {
+    iVar3 = *(int *)((char *)newtonObj + 0x114);
     if (iVar3 < 0) {
       iVar3 = iVar3 + 0xf;
     }
     angularVel.x = iVar3 >> 4;
-    iVar3 = *(int *)(newtonObj + 0x118);
+    iVar3 = *(int *)((char *)newtonObj + 0x118);
     if (iVar3 < 0) {
       iVar3 = iVar3 + 0xf;
     }
     angularVel.y = iVar3 >> 4;
-    iVar3 = *(int *)(newtonObj + 0x11c);
+    iVar3 = *(int *)((char *)newtonObj + 0x11c);
     if (iVar3 < 0) {
       iVar3 = iVar3 + 0xf;
     }
     angularVel.z = iVar3 >> 4;
-    iVar2 = Newton_OptzRotxform__FP10matrixtdefiiiPiiT4(&mStack_50,angularVel.x,angularVel.y,angularVel.z,aiStack_18,0x2000,newtonObj + 0x98);
-    m1 = (matrixtdef *)(newtonObj + 0xf0);
+    iVar2 = Newton_OptzRotxform(&m,angularVel.x,angularVel.y,angularVel.z,&reOrthoNeeded,0x2000,(int *)((char *)newtonObj + 0x98));
+    m1 = (matrixtdef *)((char *)newtonObj + 0xf0);
     if (iVar2 != 0) {
-      Math_fasttransmult(m1,&mStack_50,m1);
-      if ((aiStack_18[0] != 0) ||
-         (cVar1 = *(char *)(newtonObj + 0x92) - 1, *(char *)(newtonObj + 0x92) = cVar1, cVar1 == '\0')) {
+      Math_fasttransmult(m1,&m,m1);
+      if ((reOrthoNeeded != 0) ||
+         (cVar1 = *(char *)((char *)newtonObj + 0x92) - 1, *(char *)((char *)newtonObj + 0x92) = cVar1, cVar1 == '\0')) {
         reorthogonalize(m1);
-        *(u_char *)(newtonObj + 0x92) = 0x40;
-        *(u_int *)(newtonObj + 0x98) = 0;
+        *(u_char *)((char *)newtonObj + 0x92) = 0x40;
+        *(u_int *)((char *)newtonObj + 0x98) = 0;
       }
     }
   }
@@ -1672,22 +1699,23 @@ extern "C" void Newton_QDUpdateRot32Hz__FP13BO_tNewtonObj(int newtonObj)
 }
 
 /* ---- Newton_CalculateGroundShadowMatrix__FP13BO_tNewtonObjP8coorddefi  [NEWTON.CPP:1730-1807] SLD-VERIFIED ---- */
-extern "C" void Newton_CalculateGroundShadowMatrix__FP13BO_tNewtonObjP8coorddefi(int newtonObj,int *normal,int orientToGround)
+extern "C" void Newton_CalculateGroundShadowMatrix(BO_tNewtonObj *newtonObj,coorddef *normal,int orientToGround)
 
 {
-  if (((*(u_int *)(newtonObj + 0x260) & 4) == 0) && (0xe666 < orientToGround)) {
-    *(matrixtdef *)(newtonObj + 0x1c4) = *(matrixtdef *)(newtonObj + 0xf0);
+  if (((((Car_tObj *)newtonObj)->carFlags & 4U) == 0) &&
+      (0xe666 < orientToGround)) {
+    newtonObj->shadowMat = newtonObj->orientMat;
     {
       int r1;
       int r2;
       int r3;
 
-      r1 = *normal;
-      r2 = normal[1];
-      r3 = normal[2];
-      *(int *)(newtonObj + 0x1d0) = r1;
-      *(int *)(newtonObj + 0x1d4) = r2;
-      *(int *)(newtonObj + 0x1d8) = r3;
+      r1 = normal->x;
+      r2 = normal->y;
+      r3 = normal->z;
+      newtonObj->shadowMat.m[3] = r1;
+      newtonObj->shadowMat.m[4] = r2;
+      newtonObj->shadowMat.m[5] = r3;
     }
     return;
   }
@@ -1696,71 +1724,71 @@ extern "C" void Newton_CalculateGroundShadowMatrix__FP13BO_tNewtonObjP8coorddefi
     int r2;
     int r3;
 
-    r1 = *normal;
-    r2 = normal[1];
-    r3 = normal[2];
-    *(int *)(newtonObj + 0x1d0) = r1;
-    *(int *)(newtonObj + 0x1d4) = r2;
-    *(int *)(newtonObj + 0x1d8) = r3;
+    r1 = normal->x;
+    r2 = normal->y;
+    r3 = normal->z;
+    newtonObj->shadowMat.m[3] = r1;
+    newtonObj->shadowMat.m[4] = r2;
+    newtonObj->shadowMat.m[5] = r3;
   }
   if (orientToGround < 0x8000) {
     int dot;
 
-    dot = *(int *)(newtonObj + 0xf0) / 256 * (*normal / 256) +
-          *(int *)(newtonObj + 0xf4) / 256 * (normal[1] / 256) +
-          *(int *)(newtonObj + 0xf8) / 256 * (normal[2] / 256);
+    dot = newtonObj->orientMat.m[0] / 256 * (normal->x / 256) +
+          newtonObj->orientMat.m[1] / 256 * (normal->y / 256) +
+          newtonObj->orientMat.m[2] / 256 * (normal->z / 256);
     if (dot < 0) {
       dot = -dot;
     }
     if (0.5 < (double)dot) {
-      *(int *)(newtonObj + 0x1c4) =
-           fixedmult(*(int *)(newtonObj + 0x1d4),*(int *)(newtonObj + 0x110)) -
-           fixedmult(*(int *)(newtonObj + 0x1d8),*(int *)(newtonObj + 0x10c));
-      *(int *)(newtonObj + 0x1c8) =
-           fixedmult(*(int *)(newtonObj + 0x1d8),*(int *)(newtonObj + 0x108)) -
-           fixedmult(*(int *)(newtonObj + 0x1d0),*(int *)(newtonObj + 0x110));
-      *(int *)(newtonObj + 0x1cc) =
-           fixedmult(*(int *)(newtonObj + 0x1d0),*(int *)(newtonObj + 0x10c)) -
-           fixedmult(*(int *)(newtonObj + 0x1d4),*(int *)(newtonObj + 0x108));
-      Math_NormalizeShortVector((coorddef *)(newtonObj + 0x1c4));
-      *(int *)(newtonObj + 0x1dc) =
-           fixedmult(*(int *)(newtonObj + 0x1c8),*(int *)(newtonObj + 0x1d8)) -
-           fixedmult(*(int *)(newtonObj + 0x1cc),*(int *)(newtonObj + 0x1d4));
-      *(int *)(newtonObj + 0x1e0) =
-           fixedmult(*(int *)(newtonObj + 0x1cc),*(int *)(newtonObj + 0x1d0)) -
-           fixedmult(*(int *)(newtonObj + 0x1c4),*(int *)(newtonObj + 0x1d8));
-      *(int *)(newtonObj + 0x1e4) =
-           fixedmult(*(int *)(newtonObj + 0x1c4),*(int *)(newtonObj + 0x1d4)) -
-           fixedmult(*(int *)(newtonObj + 0x1c8),*(int *)(newtonObj + 0x1d0));
-      Math_NormalizeShortVector((coorddef *)(newtonObj + 0x1dc));
+      newtonObj->shadowMat.m[0] =
+           fixedmult(newtonObj->shadowMat.m[4],newtonObj->orientMat.m[8]) -
+           fixedmult(newtonObj->shadowMat.m[5],newtonObj->orientMat.m[7]);
+      newtonObj->shadowMat.m[1] =
+           fixedmult(newtonObj->shadowMat.m[5],newtonObj->orientMat.m[6]) -
+           fixedmult(newtonObj->shadowMat.m[3],newtonObj->orientMat.m[8]);
+      newtonObj->shadowMat.m[2] =
+           fixedmult(newtonObj->shadowMat.m[3],newtonObj->orientMat.m[7]) -
+           fixedmult(newtonObj->shadowMat.m[4],newtonObj->orientMat.m[6]);
+      Math_NormalizeShortVector((coorddef *)&newtonObj->shadowMat.m[0]);
+      newtonObj->shadowMat.m[6] =
+           fixedmult(newtonObj->shadowMat.m[1],newtonObj->shadowMat.m[5]) -
+           fixedmult(newtonObj->shadowMat.m[2],newtonObj->shadowMat.m[4]);
+      newtonObj->shadowMat.m[7] =
+           fixedmult(newtonObj->shadowMat.m[2],newtonObj->shadowMat.m[3]) -
+           fixedmult(newtonObj->shadowMat.m[0],newtonObj->shadowMat.m[5]);
+      newtonObj->shadowMat.m[8] =
+           fixedmult(newtonObj->shadowMat.m[0],newtonObj->shadowMat.m[4]) -
+           fixedmult(newtonObj->shadowMat.m[1],newtonObj->shadowMat.m[3]);
+      Math_NormalizeShortVector((coorddef *)&newtonObj->shadowMat.m[6]);
       return;
     }
   }
-  *(int *)(newtonObj + 0x1dc) =
-       fixedmult(*(int *)(newtonObj + 0xf4),*(int *)(newtonObj + 0x1d8)) -
-       fixedmult(*(int *)(newtonObj + 0xf8),*(int *)(newtonObj + 0x1d4));
-  *(int *)(newtonObj + 0x1e0) =
-       fixedmult(*(int *)(newtonObj + 0xf8),*(int *)(newtonObj + 0x1d0)) -
-       fixedmult(*(int *)(newtonObj + 0xf0),*(int *)(newtonObj + 0x1d8));
-  *(int *)(newtonObj + 0x1e4) =
-       fixedmult(*(int *)(newtonObj + 0xf0),*(int *)(newtonObj + 0x1d4)) -
-       fixedmult(*(int *)(newtonObj + 0xf4),*(int *)(newtonObj + 0x1d0));
-  Math_NormalizeShortVector((coorddef *)(newtonObj + 0x1dc));
-  *(int *)(newtonObj + 0x1c4) =
-       fixedmult(*(int *)(newtonObj + 0x1d4),*(int *)(newtonObj + 0x1e4)) -
-       fixedmult(*(int *)(newtonObj + 0x1d8),*(int *)(newtonObj + 0x1e0));
-  *(int *)(newtonObj + 0x1c8) =
-       fixedmult(*(int *)(newtonObj + 0x1d8),*(int *)(newtonObj + 0x1dc)) -
-       fixedmult(*(int *)(newtonObj + 0x1d0),*(int *)(newtonObj + 0x1e4));
-  *(int *)(newtonObj + 0x1cc) =
-       fixedmult(*(int *)(newtonObj + 0x1d0),*(int *)(newtonObj + 0x1e0)) -
-       fixedmult(*(int *)(newtonObj + 0x1d4),*(int *)(newtonObj + 0x1dc));
-  Math_NormalizeShortVector((coorddef *)(newtonObj + 0x1c4));
+  newtonObj->shadowMat.m[6] =
+       fixedmult(newtonObj->orientMat.m[1],newtonObj->shadowMat.m[5]) -
+       fixedmult(newtonObj->orientMat.m[2],newtonObj->shadowMat.m[4]);
+  newtonObj->shadowMat.m[7] =
+       fixedmult(newtonObj->orientMat.m[2],newtonObj->shadowMat.m[3]) -
+       fixedmult(newtonObj->orientMat.m[0],newtonObj->shadowMat.m[5]);
+  newtonObj->shadowMat.m[8] =
+       fixedmult(newtonObj->orientMat.m[0],newtonObj->shadowMat.m[4]) -
+       fixedmult(newtonObj->orientMat.m[1],newtonObj->shadowMat.m[3]);
+  Math_NormalizeShortVector((coorddef *)&newtonObj->shadowMat.m[6]);
+  newtonObj->shadowMat.m[0] =
+       fixedmult(newtonObj->shadowMat.m[4],newtonObj->shadowMat.m[8]) -
+       fixedmult(newtonObj->shadowMat.m[5],newtonObj->shadowMat.m[7]);
+  newtonObj->shadowMat.m[1] =
+       fixedmult(newtonObj->shadowMat.m[5],newtonObj->shadowMat.m[6]) -
+       fixedmult(newtonObj->shadowMat.m[3],newtonObj->shadowMat.m[8]);
+  newtonObj->shadowMat.m[2] =
+       fixedmult(newtonObj->shadowMat.m[3],newtonObj->shadowMat.m[7]) -
+       fixedmult(newtonObj->shadowMat.m[4],newtonObj->shadowMat.m[6]);
+  Math_NormalizeShortVector((coorddef *)&newtonObj->shadowMat.m[0]);
   return;
 }
 
 /* ---- Newton_CalcRealShadowCoordinates__FP8Car_tObji  [NEWTON.CPP:1830-1880] SLD-VERIFIED ---- */
-extern "C" void Newton_CalcRealShadowCoordinates__FP8Car_tObji(Car_tObj *carObj,int currentTick)
+extern "C" void Newton_CalcRealShadowCoordinates(Car_tObj *carObj,int currentTick)
 
 {
   coorddef lengthVector;
@@ -1841,7 +1869,7 @@ extern "C" void Newton_CalcRealShadowCoordinates__FP8Car_tObji(Car_tObj *carObj,
 }
 
 /* ---- Newton_CheckForSpikeBelts__FP13BO_tNewtonObj  [NEWTON.CPP:1885-1916] SLD-VERIFIED ---- */
-extern "C" void Newton_CheckForSpikeBelts__FP13BO_tNewtonObj(BO_tNewtonObj *newtonObj)
+extern "C" void Newton_CheckForSpikeBelts(BO_tNewtonObj *newtonObj)
 
 {
   int slice;
@@ -1865,7 +1893,7 @@ extern "C" void Newton_CheckForSpikeBelts__FP13BO_tNewtonObj(BO_tNewtonObj *newt
 }
 
 /* ---- Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef  [NEWTON.CPP:1922-1956] SLD-VERIFIED ---- */
-extern "C" void Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef(BO_tNewtonObj *newtonObj,coorddef normal)
+extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,coorddef normal)
 
 {
   coorddef barrierVec;
@@ -2043,7 +2071,7 @@ extern "C" void Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coordd
 }
 
 /* ---- Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos  [NEWTON.CPP:2107-2140] SLD-VERIFIED ---- */
-extern "C" void Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(int type,coorddef *vector,BWorldSm_Pos *testSimRoadInfo)
+extern "C" void Newton_GenerateVector(int type,coorddef *vector,BWorldSm_Pos *testSimRoadInfo)
 
 {
   coorddef fwdVec;
@@ -2083,8 +2111,8 @@ extern "C" void Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(int type,coor
 }
 
 /* ---- Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi  [NEWTON.CPP:2144-2157] SLD-VERIFIED ---- */
-extern "C" u_int
-Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi(int newtonObj,int testSimRoadInfo,int wheel)
+extern "C" int
+Netwon_CheckForBadQuad(BO_tNewtonObj *newtonObj,BWorldSm_Pos *testSimRoadInfo,int wheel)
 
 {
   int bad;
@@ -2094,8 +2122,9 @@ Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi(int newtonObj,int test
   int *quad;
 
   uVar1 = 0;
-  if (((*(u_char **)(testSimRoadInfo + 0x78) != (u_char *)0x0) && ((**(u_char **)(testSimRoadInfo + 0x78) & 0xf) == 0)) ||
-     (quad = (int *)(newtonObj + wheel * 0x30),
+  if (((testSimRoadInfo->simQuad != (Trk_NewSimQuad *)0x0) &&
+       ((testSimRoadInfo->simQuad->surface & 0xf) == 0)) ||
+     (quad = (int *)((int)newtonObj + wheel * 0x30),
       0x20000 < quad[0xa9] - quad[0xa4])) {
     uVar1 = 1;
   }
@@ -2238,14 +2267,14 @@ void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
     BWorldSm_FindClosestQuadRez(&testPoint,&testSimRoadInfo,1)
     ;
     if ((signed char)testSimRoadInfo.offEdge != 0) {
-      Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(
+      Newton_GenerateVector(
           (signed char)testSimRoadInfo.offEdge,&normal,&newtonObj->simRoadInfo);
       normal.y = 0;
       Math_NormalizeShortVector(&normal);
       collision_type = 1;
     }
     else {
-      iVar12 = Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi(newtonObj,&testSimRoadInfo,i);
+      iVar12 = Netwon_CheckForBadQuad(newtonObj,&testSimRoadInfo,i);
       if (iVar12 != 0) {
         coorddef newTestPoint;
         int check;
@@ -2256,43 +2285,43 @@ void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
                                      &testSimRoadInfo,(u_int *)&newHeight);
         collision_type = 2;
         if (check == 1) {
-          Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(
+          Newton_GenerateVector(
               1,&normal,&newtonObj->simRoadInfo);
         }
         else if (check == 2) {
-          Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(
+          Newton_GenerateVector(
               2,&normal,&newtonObj->simRoadInfo);
         }
         else if (check == 4) {
-          Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(
+          Newton_GenerateVector(
               4,&normal,&newtonObj->simRoadInfo);
         }
         else if (check == 8) {
-          Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(
+          Newton_GenerateVector(
               8,&normal,&newtonObj->simRoadInfo);
         }
         if ((check & 3) != 0) {
           if ((check & 1) != 0) {
-            Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(
+            Newton_GenerateVector(
                 1,&normal,&newtonObj->simRoadInfo);
           }
           else if ((check & 2) != 0) {
-            Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(
+            Newton_GenerateVector(
                 2,&normal,&newtonObj->simRoadInfo);
           }
           newTestPoint.x = newTestPoint.x + normal.x;
           newTestPoint.y = newTestPoint.y + normal.y;
           newTestPoint.z = newTestPoint.z + normal.z;
           BWorldSm_FindClosestQuadRez(&newTestPoint,&newtestSimRoadInfo,1);
-          iVar12 = Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi(newtonObj,&newtestSimRoadInfo,i);
+          iVar12 = Netwon_CheckForBadQuad(newtonObj,&newtestSimRoadInfo,i);
           if (iVar12 != 0) {
             if ((check & 0xc) != 0) {
               if ((check & 4) != 0) {
-                Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(
+                Newton_GenerateVector(
                     4,&normal,&newtonObj->simRoadInfo);
               }
               else if ((check & 8) != 0) {
-                Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos(
+                Newton_GenerateVector(
                     8,&normal,&newtonObj->simRoadInfo);
               }
               newtestSimRoadInfo = testSimRoadInfo;
@@ -2301,7 +2330,7 @@ void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
               newTestPoint.y = newTestPoint.y + normal.y;
               newTestPoint.z = newTestPoint.z + normal.z;
               BWorldSm_FindClosestQuadRez(&newTestPoint,&newtestSimRoadInfo,1);
-              iVar12 = Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi(newtonObj,&newtestSimRoadInfo,i);
+              iVar12 = Netwon_CheckForBadQuad(newtonObj,&newtestSimRoadInfo,i);
               if (iVar12 != 0) {
                 int j;
                 coorddef temp;
@@ -2380,7 +2409,7 @@ NewtonTestUndrv_loop2:
     if (collision_type != 0) {
       int impulse;
       int zone;
-      Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef(newtonObj,normal);
+      Newton_DoPostBarrierCollisionHandling(newtonObj,normal);
       (newtonObj->collision).collisionPoint =
           *(coorddef *)((char *)pBVar13 + 0x28c);
       AIPhysic_ProcessBarrierCollision((Car_tObj *)newtonObj);
@@ -2408,31 +2437,31 @@ NewtonTestUndrv_loop2:
 }
 
 /* ---- Newton_LimitAngularVelocity__FP13BO_tNewtonObj  [NEWTON.CPP:2440-2456] SLD-VERIFIED ---- */
-extern "C" void Newton_LimitAngularVelocity__FP13BO_tNewtonObj(int newtonObj)
+extern "C" void Newton_LimitAngularVelocity(BO_tNewtonObj *newtonObj)
 
 {
   u_int uVar1;
   
   uVar1 = 0x18000;
-  if ((0x18000 < *(int *)(newtonObj + 0x114)) ||
-     (uVar1 = 0xfffe8000, *(int *)(newtonObj + 0x114) < -0x18000)) {
-    *(u_int *)(newtonObj + 0x114) = uVar1;
+  if ((0x18000 < newtonObj->angularVel.x) ||
+     (uVar1 = 0xfffe8000, newtonObj->angularVel.x < -0x18000)) {
+    newtonObj->angularVel.x = uVar1;
   }
   uVar1 = 0x18000;
-  if ((0x18000 < *(int *)(newtonObj + 0x118)) ||
-     (uVar1 = 0xfffe8000, *(int *)(newtonObj + 0x118) < -0x18000)) {
-    *(u_int *)(newtonObj + 0x118) = uVar1;
+  if ((0x18000 < newtonObj->angularVel.y) ||
+     (uVar1 = 0xfffe8000, newtonObj->angularVel.y < -0x18000)) {
+    newtonObj->angularVel.y = uVar1;
   }
   uVar1 = 0x18000;
-  if ((0x18000 < *(int *)(newtonObj + 0x11c)) ||
-     (uVar1 = 0xfffe8000, *(int *)(newtonObj + 0x11c) < -0x18000)) {
-    *(u_int *)(newtonObj + 0x11c) = uVar1;
+  if ((0x18000 < newtonObj->angularVel.z) ||
+     (uVar1 = 0xfffe8000, newtonObj->angularVel.z < -0x18000)) {
+    newtonObj->angularVel.z = uVar1;
   }
   return;
 }
 
 /* ---- Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj  [NEWTON.CPP:2466-2733] SLD-VERIFIED ---- */
-extern "C" void Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj(BO_tNewtonObj *newtonObj)
+extern "C" void Newton_ApplyTheLawOfGravity(BO_tNewtonObj *newtonObj)
 {
   int elevationOfGround;
   int objAltitude;
@@ -2454,8 +2483,8 @@ extern "C" void Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj(BO_tNewtonObj *ne
       newtonObj->linearVel.y = 0;
       newtonObj->flightTime = 0;
       elevationOfGround =
-          Newton_FindGroundElevationAndNormalFast__FP13BO_tNewtonObjP8coorddef(
-              (int)newtonObj,&normal);
+          Newton_FindGroundElevationAndNormalFast(
+              newtonObj,&normal);
       newtonObj->position.y = elevationOfGround + newtonObj->dimension.y;
     } else {
       elevationOfGround = Newton_FindGroundElevationAndNormal(newtonObj,&normal);
@@ -2470,8 +2499,8 @@ extern "C" void Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj(BO_tNewtonObj *ne
           fixedmult(newtonObj->orientMat.m[3],normal.x) +
           fixedmult(newtonObj->orientMat.m[4],normal.y) +
           fixedmult(newtonObj->orientMat.m[5],normal.z);
-      Newton_CalculateGroundShadowMatrix__FP13BO_tNewtonObjP8coorddefi(
-          (int)newtonObj,(int *)&shadowNormal,newtonObj->orientationToGround.y);
+      Newton_CalculateGroundShadowMatrix(
+          newtonObj,&shadowNormal,newtonObj->orientationToGround.y);
 
       newtonObj->speedXZ =
           Math_BetterDist(__builtin_abs(newtonObj->linearVel.x),
@@ -2533,9 +2562,9 @@ extern "C" void Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj(BO_tNewtonObj *ne
               }
             }
           }
-          Newton_LimitAngularVelocity__FP13BO_tNewtonObj((int)newtonObj);
+          Newton_LimitAngularVelocity(newtonObj);
         } else {
-          Newton_CheckForSpikeBelts__FP13BO_tNewtonObj(newtonObj);
+          Newton_CheckForSpikeBelts(newtonObj);
         }
 
         if (objAltitude < 0xa3d) {

@@ -20,7 +20,7 @@ extern int A_NewBestLap[] __asm__("NewBestLap");
 #define NewBestLap  A_NewBestLap[0]
 
 /* ---- StatChk_IsRecordLapTime  (statchk.cpp:50) ---- */
-void * StatChk_IsRecordLapTime(Car_tStats *dummyCars,short nNumCars,short *nBestCarIndex)
+bool StatChk_IsRecordLapTime(Car_tStats *dummyCars,short nNumCars,short *nBestCarIndex)
 
 {
   short bBestLapFlag;
@@ -37,7 +37,7 @@ void * StatChk_IsRecordLapTime(Car_tStats *dummyCars,short nNumCars,short *nBest
   bBestLapFlag = 0;
   bCheckLapRecords = Stattool_CheckForHumanCar(dummyCars);
   if (bCheckLapRecords != 1) {
-    return (void *)0x0;
+    return 0;
   }
     nBestLapTimes = (int *)reservememadr("ranklap",nNumCars * sizeof(int),0x10);
     nRankBestLapTimes = (short *)reservememadr("rankbst",nNumCars * sizeof(short),0x10);
@@ -76,7 +76,7 @@ InvalidCar:
     purgememadr(nBestLapTimes);
     purgememadr(nRankBestLapTimes);
     purgememadr(TrackRecords);
-    return (void *)0x0;
+    return 0;
 CheckRecord:
       nBestCarIndexTemp = nRankBestLapTimes[nNewRecordHolder];
       Stattool_GetRecords(Front_GetTrackRaced(),TrackRecords);
@@ -90,7 +90,7 @@ CheckRecord:
 PurgeRest:
     purgememadr(nRankBestLapTimes);
     purgememadr(TrackRecords);
-    return (void *)(uint)(ushort)bBestLapFlag;
+    return (u_short)bBestLapFlag;
 }
 
 /* ---- StatChk_SaveRecordLapTime  (statchk.cpp:227) ---- */
@@ -395,8 +395,8 @@ short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
 void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
 
 {
-  BOOL bTopTenFlag;
-  BOOL bDoRecordCheck;
+  bool bTopTenFlag;
+  bool bDoRecordCheck;
   short nLapIndicator;
   short nPlace;
   int nTopTenSort [8];

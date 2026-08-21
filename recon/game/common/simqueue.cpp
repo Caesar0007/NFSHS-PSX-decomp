@@ -19,17 +19,14 @@ int gSimQueue_Ticker     = -1;
 int gSimQueue_BlockSelf  = 1;
 int gSimQueue_BlockOther = 1;
 
-/* W65-A6 DATA-MAT: `inputQueue` (15 reloc sites) was extern-only tree-wide, and simqueue.obj is
- * both its only referencer and its retail owner -- the SYM records it as
- * `$8013e0f4 6 inputQueue`, record type 6 = STATIC, a file-static of this object.
- * Genuine BSS (0x8013E0F4 > t_addr+t_size 0x8013E000 => no file bytes, pure zero-init), size
- * 524 = the SYM VA delta to the next symbol (`strspc.42` @0x8013E300).
- * DEVICE = file-scope asm `.section .bss` with NO `.globl`, so retail's STATIC binding is
- * reproduced exactly while the assembler still resolves this TU's references; the C view stays
- * the `extern sim_queue inputQueue;` in simqueue_externs.h, so codegen is untouched
- * (7/8 PASS unchanged, the residual pre-existing).
- * Receipts: scratchpad/w65a6/RECEIPTS.md */
-__asm__("\t.section\t.bss\n\t.align\t2\ninputQueue:\n\t.space\t524\n\t.text");
+/* simqueue.obj file-static storage from SYM.  Named BSS sections isolate the
+ * two large objects around the gp-relative maxTicksPerFrame word while keeping
+ * all three as natural zero-initialized statics. */
+static Input_tResults output[2]
+    __attribute__((section(".bss.simqueue_output")));
+static int maxTicksPerFrame;
+static sim_queue inputQueue
+    __attribute__((section(".bss.simqueue_input_queue")));
 /* gSimQueue_Ticker is defined with its siblings at the top of this TU (W65-A8). */
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
@@ -39,8 +36,8 @@ void SimQueue_CleanUp(void);
 int SimQueue_Put(int pIndex,Input_tResults *val);
 void SimQueue_SetCurrentInput(int time);
 void SimQueue_GetCurrentInput(int pIndex,Input_tResults *out);
-void SimQueue_SetLag(void);
-int SimQueue_IsBlocking(int pIndex);
+static void SimQueue_SetLag(void);
+static int SimQueue_IsBlocking(int pIndex);
 
 
 /* ---- SimQueue_StartUp__Fv  [SIMQUEUE.CPP:93-101] SLD-VERIFIED ---- */
@@ -108,16 +105,16 @@ void SimQueue_CleanUp(void)
 int SimQueue_Put(int pIndex,Input_tResults *val)
 
 {
-  u_int uVar6;
+  int tail;
   int iVar4;
   u_char *entry;
 
-  uVar6 = inputQueue.TailTime[pIndex] & 0x1f;
+  tail = inputQueue.TailTime[pIndex] & 0x1f;
   iVar4 = SimQueue_IsBlocking(pIndex);
   if (iVar4 != 0) {
     return 0;
   }
-  entry = (u_char *)&inputQueue + (uVar6 * 4 + pIndex * 0x80);
+  entry = (u_char *)&inputQueue + (tail * 4 + pIndex * 0x80);
   if (*(int *)(entry + 0x100) != kINVALID) {
     return 0;
   }
@@ -206,7 +203,7 @@ void SimQueue_GetCurrentInput(int pIndex,Input_tResults *out)
 }
 
 /* ---- SimQueue_SetLag__Fv  [SIMQUEUE.CPP:326-407] SLD-VERIFIED ---- */
-void SimQueue_SetLag(void)
+static void SimQueue_SetLag(void)
 
 {
   if (GameSetup_gData.commMode == 0) {
@@ -219,7 +216,7 @@ void SimQueue_SetLag(void)
 }
 
 /* ---- SimQueue_IsBlocking__Fi  [SIMQUEUE.CPP:382-407] SLD-VERIFIED ---- */
-int SimQueue_IsBlocking(int pIndex)
+static int SimQueue_IsBlocking(int pIndex)
 
 {
   /* Retail keeps two physical zero-return blocks: the nonzero-index fast path
@@ -239,6 +236,3 @@ return_zero:
 }
 
 /* end of simqueue.cpp */
-
-/* owning-TU def (extern-declared, never defined; link-harness) */
-int maxTicksPerFrame;

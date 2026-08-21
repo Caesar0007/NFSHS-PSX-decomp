@@ -972,13 +972,13 @@ void tTournamentManager::GetTrophyName(tTourneyInfo *tourn,tTrophySize size,char
 
 /* ---- tTournamentManager::ValidCar  [FETOURN.CPP:1063-1102] ---- */
 
-void * tTournamentManager::ValidCar(tCarInfo &carInfo)
+bool tTournamentManager::ValidCar(tCarInfo &carInfo)
 
 {
   u_char oppClass;
   tTournamentDefinition *definition;
   tTourneyInfo *tourney;
-  BOOL result;
+  bool result;
 
   definition = this->fDefinition;
   tourney = &definition->fTournaments
@@ -1020,7 +1020,7 @@ void * tTournamentManager::ValidCar(tCarInfo &carInfo)
       result = 0;
     }
   }
-  return (void *)result;
+  return result;
 }
 
 
@@ -1050,7 +1050,7 @@ tListIteratorTournament::~tListIteratorTournament()
 
 /* ---- tListIteratorTournament::Value  [FETOURN.CPP:1119-1120] ---- */
 
-int tListIteratorTournament::Value(tPlayer)
+char tListIteratorTournament::Value(tPlayer)
 
 {
   return (uint)(byte)*this->fValue;
@@ -1060,7 +1060,7 @@ int tListIteratorTournament::Value(tPlayer)
 
 /* ---- tListIteratorTournament::TextValue  [FETOURN.CPP:1124-1130] ---- */
 
-int tListIteratorTournament::TextValue(tPlayer player_id)
+short tListIteratorTournament::TextValue(tPlayer player_id)
 
 {
   short tournIndex;
@@ -1132,7 +1132,7 @@ void tListIteratorTournament::Decrement(tPlayer arg1)
 
 /* ---- tListIteratorTournament::ValidTournament  [FETOURN.CPP:1162] ---- */
 
-void * tListIteratorTournament::ValidTournament(char tourn)
+bool tListIteratorTournament::ValidTournament(char tourn)
 
 {
   u_short flags;
@@ -1140,7 +1140,7 @@ void * tListIteratorTournament::ValidTournament(char tourn)
   tTourneyInfo *currentTourn;
   tTournamentDefinition *definition;
   tTournamentManager *tournamentManager;
-  BOOL result;
+  bool result;
 
   tournamentManager = this->fTournamentManager;
   definition = tournamentManager->fDefinition;
@@ -1157,7 +1157,7 @@ void * tListIteratorTournament::ValidTournament(char tourn)
      ('\x01' < (signed char)tournamentManager->fBestPlacement[currentTourn->fRequiredTournamentID])) {
     result = 0;
   }
-  return (void *)result;
+  return result;
 }
 
 

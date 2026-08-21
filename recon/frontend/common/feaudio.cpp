@@ -8,8 +8,6 @@
 int FEAudio_StartLoadPatch(SPEECHINFO *info)
 
 {
-  int iVar1;
-  char *pcVar2;
   int offset;
   int length;
   
@@ -25,12 +23,10 @@ int FEAudio_StartLoadPatch(SPEECHINFO *info)
     purgememadr(info->sSpeechData);
     info->sSpeechData = (char *)0x0;
   }
-  pcVar2 = FeAudio_StartBigfileRead("",offset,length,&info->vivHandle);
-  info->sSpeechData = pcVar2;
-  iVar1 = 1;
+  info->sSpeechData = FeAudio_StartBigfileRead("",offset,length,&info->vivHandle);
   info->areLoading = '\x01';
   info->playNextOne = '\0';
-  return iVar1;
+  return 1;
 }
 
 
@@ -40,33 +36,27 @@ int FEAudio_StartLoadPatch(SPEECHINFO *info)
 void Feaudio_StartPatch(SPEECHINFO *info)
 
 {
-  int iVar1;
-  char *pcVar2;
   SNDPLAYOPTS playopts;
   
   if (info->sSpeechData != (char *)0x0) {
-    iVar1 = SNDbankadd(&info->nHandle,info->sSpeechData);
-    if (iVar1 == 7) {
-      iVar1 = SNDbankheadersize(info->nHandle);
-      pcVar2 = reservememadr((char *)(bigBuf + 0x104),iVar1,0x10);
-      info->pBankHeader = pcVar2;
-      SNDbankheadercopy(pcVar2,info->nHandle);
+    if (SNDbankadd(&info->nHandle,info->sSpeechData) == 7) {
+      info->pBankHeader = reservememadr((char *)(bigBuf + 0x104),
+                                       SNDbankheadersize(info->nHandle),0x10);
+      SNDbankheadercopy(info->pBankHeader,info->nHandle);
       if (info->sSpeechData != (char *)0x0) {
         purgememadr(info->sSpeechData);
         info->sSpeechData = (char *)0x0;
       }
     }
     else {
-      pcVar2 = info->sSpeechData;
+      info->lastSpeechData = info->sSpeechData;
       info->sSpeechData = (char *)0x0;
-      info->lastSpeechData = pcVar2;
     }
     SNDplaysetdef(&playopts);
     playopts.bhandle = (char)info->nHandle;
     playopts.patnum = 0;
     playopts.vol = (char)commentaryActualLevel;
-    iVar1 = SNDplay(&playopts);
-    info->nSoundHandle = iVar1;
+    info->nSoundHandle = SNDplay(&playopts);
     info->soundIsPlaying = '\x01';
     if (info->multiplay != 0) {
       if ((u_char)info->name[2] < 0x7a) {
@@ -90,22 +80,14 @@ void Feaudio_StartPatch(SPEECHINFO *info)
 void FeAudio_systemtask(int x)
 
 {
-  int ti1;
-  int rd_status;
-  u_int snd_over;
-  int tu3;
-  int i;
-  int iVar1;
-  u_int tu1;
-  
   systemtask(x);
   if ((ginfo.areLoading != '\0') &&
-     (rd_status = getasyncreadstatus(ginfo.vivHandle), rd_status != 0)) {
+     (getasyncreadstatus(ginfo.vivHandle) != 0)) {
     ginfo.areLoading = '\0';
     ginfo.playNextOne = '\x01';
   }
   if ((ginfo.soundIsPlaying != '\0') &&
-     (snd_over = SNDover(ginfo.nSoundHandle), snd_over != 0)) {
+     (SNDover(ginfo.nSoundHandle) != 0)) {
     SNDautovol((void *)ginfo.nSoundHandle,0,-1);
     SNDbankremove(ginfo.nHandle);
     if (ginfo.lastSpeechData != (char *)0x0) {
@@ -117,7 +99,7 @@ void FeAudio_systemtask(int x)
       ginfo.pBankHeader = (char *)0x0;
     }
     if (ginfo.areLoading != '\0') {
-      while (i = getasyncreadstatus(ginfo.vivHandle), i == 0) {
+      while (getasyncreadstatus(ginfo.vivHandle) == 0) {
         systemtask(0);
       }
       ginfo.areLoading = '\0';
@@ -132,7 +114,7 @@ void FeAudio_systemtask(int x)
   if (gStopCommentaryNow != 0) {
     gCurrentVIV = -1;
     if (ginfo.areLoading != '\0') {
-      while (iVar1 = getasyncreadstatus(ginfo.vivHandle), iVar1 == 0) {
+      while (getasyncreadstatus(ginfo.vivHandle) == 0) {
         systemtask(0);
       }
     }
@@ -172,8 +154,6 @@ void FeAudio_systemtask(int x)
 short FeAudio_AsyncPlayCommentary(char *name)
 
 {
-  int ok;
-  
   commentaryActualLevel = gMasterFENarrationLevel * 0x6e >> 7;
   if (0x5a < commentaryActualLevel) {
     commentaryActualLevel = 0x5a;
@@ -190,8 +170,7 @@ short FeAudio_AsyncPlayCommentary(char *name)
   ginfo.lastSpeechData = (char *)0x0;
   ginfo.vivHandle = 0;
   gCurrentVIV = -1;
-  ok = FEAudio_StartLoadPatch(&ginfo);
-  if (ok != 0) {
+  if (FEAudio_StartLoadPatch(&ginfo) != 0) {
     AudioMus_Volume(gMasterMusicLevel * 0x23 >> 7);
   }
   return 1;
@@ -226,7 +205,6 @@ char * FeAudio_StartBigfileRead(char *fname,int offset,int length,int *vivHandle
 
 {
   char *streamBuffer;
-  int iVar1;
 
   if (length == 0) {
     return (char *)0x0;
@@ -236,8 +214,7 @@ char * FeAudio_StartBigfileRead(char *fname,int offset,int length,int *vivHandle
     return (char *)0x0;
   }
   setasyncfile(fname);
-  iVar1 = asyncloadsegment((char *)offset,streamBuffer,length);
-  *vivHandle = iVar1;
+  *vivHandle = asyncloadsegment((char *)offset,streamBuffer,length);
   return streamBuffer;
 }
 
@@ -286,6 +263,16 @@ void FeAudio_LocateBigfile(LUMPYHEAD *bigfileHeader,char *name,int *offset,int *
 LUMPYHEAD * FeAudio_InitViv(char *fname)
 
 {
+  /* SYM-CODEGEN-CARRIER: byteMask
+   * SYM-CODEGEN-CARRIER: header
+   * SYM-CODEGEN-CARRIER: headerLength
+   * SYM-CODEGEN-CARRIER: headerNum
+   * SYM-CODEGEN-CARRIER: headerType
+   * SYM-CODEGEN-CARRIER: lumpyName
+   * SYM-CODEGEN-CARRIER: swappedResult
+   * SYM-CODEGEN-CARRIER: swappedType
+   * These optimized address/byte-swap carriers are measured in the receipt
+   * below; m2c observes their register values but SYM retains no declarations. */
   int vivHandle;
   LUMPYHEAD lumpHead;
   LUMPYHEAD *bigfileHeader;
@@ -569,6 +556,9 @@ char *allLanguages[6] = {"zEngl","zGerm","zFren","zSpan","zItal","zSwed"}; /* @0
 void FeAudio_InitCommentary(int language,int arg1)
 
 {
+  /* SYM-CODEGEN-CARRIER: arg1 -- the `__Fii` mangling proves two source
+     arguments. SYM/m2c expose only `language` because the trailing int is
+     unused and therefore has no surviving parameter record or machine use. */
   strcpy(ginfo.name,"000");
   ginfo.nHandle = 0;
   ginfo.multiplay = 1;

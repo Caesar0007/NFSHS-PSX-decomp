@@ -29,7 +29,7 @@ copLevel_t   fourLapCopGame1H1AI[5] = { { {1, 0}, 0, {0, 0}, 0, {0, 0}, 16, 4587
 copGame_t    copGame[6] = { {4, twoLapCopGame}, {5, fourLapCopGame}, {4, twoLapCopGameSplit}, {4, fourLapCopGameSplit}, {4, twoLapCopGame1H1AI}, {5, fourLapCopGame1H1AI} };   /* @0x8010d51c */
 AICop_spikeBelt_t AICop_spikeBelt;   /* @0x8010d54c  (bss(zero)) */
 void         *AICop_rawTriggers;   /* @0x8013c570  (bss(zero)) */
-int          AICop_gRoadBlockState;   /* @0x8013c574  (bss(zero)) */
+AICop_RoadBlockState AICop_gRoadBlockState;   /* @0x8013c574  (bss(zero)) */
 int          AICop_numArrestedHumans;   /* @0x8013c578  (bss(zero)) */
 
 
@@ -43,12 +43,12 @@ int AICop_NoCopsInArea(int slice,int sliceDistance);
 /* ---- AICop_StartUp__Fv  [@0x800669ac] ---- */
 void AICop_StartUp(void)
 {
-  char acStack_70 [104];
+  char filename[100];
 
   if (GameSetup_gData.cops != 0) {
     triggerManagerCops = (AITrigger_TriggerManager *)operator new(0x34c);
-    sprintf(acStack_70,"%sTr%02d.cop",Paths_Paths[22],GameSetup_gData.track);
-    AICop_rawTriggers = (u_char *)loadfileadrz(acStack_70,(void *)0x0);
+    sprintf(filename,"%sTr%02d.cop",Paths_Paths[22],GameSetup_gData.track);
+    AICop_rawTriggers = (u_char *)loadfileadrz(filename,(void *)0x0);
     if (AICop_rawTriggers != (u_char *)0x0) {
       triggerManagerCops->Init((char *)AICop_rawTriggers);
     }
@@ -58,7 +58,7 @@ void AICop_StartUp(void)
   }
   AICop_spikeBelt.active_ = 0;
   AICop_numArrestedHumans = 0;
-  AICop_gRoadBlockState = 0;
+  AICop_gRoadBlockState = kAICop_RoadBlockState_None;
   return;
 }
 
@@ -70,7 +70,7 @@ void AICop_Restart(void)
   }
   AICop_spikeBelt.active_ = 0;
   AICop_numArrestedHumans = 0;
-  AICop_gRoadBlockState = 0;
+  AICop_gRoadBlockState = kAICop_RoadBlockState_None;
   return;
 }
 

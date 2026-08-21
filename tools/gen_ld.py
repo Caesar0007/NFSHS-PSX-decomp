@@ -177,8 +177,13 @@ def check_nfs4ld():
             npieces += 1
             m = re.search(r"_([rjo])(\d\d)\.", p.name)
             letter, num = m.group(1), int(m.group(2))
+            # SYM ownership seams may split one broad residual into named
+            # input subsections (for example .data.r13_pre / _post) so a
+            # typed owning TU can replace only the exact retail byte run.
+            # Accept dotted section names here; the old `\.\w+` silently
+            # ignored those linker rows and weakened this verification gate.
             for r in re.finditer(re.escape(f"build/asm/data/{p.name}.o(")
-                                 + r"(\.\w+)\)", ld):
+                                 + r"(\.[\w.]+)\)", ld):
                 refs[(stem, r.group(1))].append((r.start(), letter, num))
             seen = ld.count(f"build/asm/data/{p.name}.o(")
             if seen == 0:
@@ -444,6 +449,46 @@ def main():
     A("    {")
     L.extend(sdata_lines)
     L.extend(extra_sdata)
+    A("    }")
+    A("")
+    # SYM-backed tail layout exception (2026-08-21): the retail linker places
+    # a second initialized-data run immediately after the primary .sdata run.
+    # Keeping this explicit prevents the generic catch-all from relocating
+    # simqueue.obj's STAT output/maxTicks objects and its BSS queue. Protected
+    # tooling backup: scratchpad/root_sym_audit/simqueue_static_ownership_20260821/
+    # gen_ld.py.before_tail_layout_20260821.bak.
+    A("    /* SYM tail-data seam: simqueue.obj file-static output and maxTicksPerFrame. */")
+    A("    .tail_data 0x8013dd7c : SUBALIGN(4)")
+    A("    {")
+    A("        build/asm/data/tail.data.s.o(.data.tail_pre_simqueue);")
+    A("        build/recon/game/common/simqueue.cpp.o(.bss.simqueue_output);")
+    A("        build/recon/game/common/simqueue.cpp.o(.sbss);")
+    A("        build/asm/data/tail.data.s.o(.data.tail_after_simqueue);")
+    A("    }")
+    A("")
+    # SYM-backed Newton BSS ownership seam (2026-08-21): the two function-local
+    # static coorddef scratch objects start at 0x8013e0d8/0x8013e0e8. Their
+    # 12-byte payloads retain the retail 4-byte inter-object alignment hole.
+    # Without this anchor the generic .bss catch-all appends them after unrelated
+    # recon objects. Protected-tooling backup:
+    # scratchpad/root_sym_audit/newton_bss_ownership_20260821/
+    # gen_ld.py.before_newton_bss_seam.bak.
+    A("    /* SYM BSS seam: newton.obj function-local static dummy.124. */")
+    A("    .newton_bss_124 0x8013e0d8 : SUBALIGN(4)")
+    A("    {")
+    A("        build/recon/game/common/newton.cpp.o(.bss.newton_dummy_124);")
+    A("    }")
+    A("")
+    A("    /* SYM BSS seam: newton.obj function-local static dummy.133. */")
+    A("    .newton_bss_133 0x8013e0e8 : SUBALIGN(4)")
+    A("    {")
+    A("        build/recon/game/common/newton.cpp.o(.bss.newton_dummy_133);")
+    A("    }")
+    A("")
+    A("    /* SYM BSS anchor: simqueue.obj's 524-byte file-static queue. */")
+    A("    .simqueue_bss 0x8013e0f4 : SUBALIGN(4)")
+    A("    {")
+    A("        build/recon/game/common/simqueue.cpp.o(.bss.simqueue_input_queue);")
     A("    }")
     A("")
     A("    .rodata_rest : SUBALIGN(4) { *(.rodata); *(.rodata.*); }")

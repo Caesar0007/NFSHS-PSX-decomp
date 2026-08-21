@@ -1,0 +1,14 @@
+=== BULK VERIFY ===
+modules: 1  compile-fail: 0
+functions with oracle: 5
+  BYTE-MATCH (0 diff): 4
+  near-miss (<=15):    1
+  far (>15):           0
+=== 4 FREE byte-matches from verbatim import ===
+  + PAD_convert
+  + PAD_restore
+  + PAD_state
+  + padinit
+=== near-misses (<=15 diffs), all ===
+   2 PAD_update
+=== far residuals (>15 diffs), largest 60 ===

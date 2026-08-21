@@ -365,20 +365,20 @@ void read(char **handle,void *buf,int bytes)
 
 {
   char *source;
-  int new_var;
+  char *dest;
   int i;
   char c;
 
   source = *handle;
+  dest = (char *)buf;
   i = 0;
-  new_var = 0;
-  if (new_var < bytes) {
+  if (i < bytes) {
     do {
       c = *source;
       source = source + 1;
       i = i + 1;
-      *(char *)buf = c;
-      buf = (char *)buf + 1;
+      *dest = c;
+      dest = dest + 1;
     } while (i < bytes);
   }
   *handle = source;

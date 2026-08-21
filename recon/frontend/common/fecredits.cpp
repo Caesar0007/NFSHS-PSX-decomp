@@ -35,16 +35,12 @@ void tCreditManager::Setup()
 
 
 /* ---- tCreditManager::Init  [FECREDITS.CPP:57-99] ---- */
-int tCreditManager::Init(int arg1)
+void tCreditManager::Init(int arg1)
 
 {
-  uint uVar1;
-  int reserve_offset;
-  tCredit *loadAddr;
   char filename [80];
   
-  uVar1 = this->fCreditsInitialized;
-  if (uVar1 == 0) {
+  if (this->fCreditsInitialized == 0) {
     if (this->fRequestDeInit != 0) {
       this->fRequestDeInit = 0;
     }
@@ -57,16 +53,12 @@ int tCreditManager::Init(int arg1)
     this->fRequestDeInit = 0;
     this->fCurrCredit = 0;
     sprintf(filename,"%szcred%d.dat",Paths_Paths[0x25],(uint)(byte)frontEnd.language);
-    reserve_offset = filesize(filename);
-    loadAddr = reservememadr("records",reserve_offset,0);
-    this->CreditBuffer = loadAddr;
-    loadfileatadrz(filename,loadAddr);
-    uVar1 = filesize(filename);
+    this->CreditBuffer = reservememadr("records",filesize(filename),0);
+    loadfileatadrz(filename,this->CreditBuffer);
+    this->fNumCredits = (u_int)filesize(filename) / 0x144;
     this->fCreditsInitialized = 1;
-    uVar1 = uVar1 / 0x144;
-    this->fNumCredits = uVar1;
   }
-  return uVar1;
+  return;
 }
 
 
@@ -185,7 +177,7 @@ void tCreditManager::SetupCurrCredit()
   int iVar3;
   int iVar4;
   int iVar5;
-  void *pvVar3;
+  bool pvVar3;
 
   if (((0xc < ticks - FECredits_lastFadeTick) && (this->fTextFade == 0)) &&
      (bVar1 = false, this->fCurrCredit == this->fShowCreditNum)) {
@@ -249,7 +241,7 @@ void tCreditManager::SetupCurrCredit()
     }
   }
   if (((this->StartedLines == 0) && (this->StartedTransition != 0)) &&
-     (pvVar3 = screenMain->DoneLoadingBackground(), pvVar3 != (void *)0x0)
+     (pvVar3 = screenMain->DoneLoadingBackground(), pvVar3)
      ) {
     this->fLineTicks = ticks;
     this->StartedLines = 1;

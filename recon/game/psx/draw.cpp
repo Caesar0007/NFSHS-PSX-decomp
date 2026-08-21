@@ -15,13 +15,15 @@
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
 int Draw_gDoVSync;
-int Draw_gMaxPrim;
+char *Draw_gMaxPrim;
 int Draw_gMidGroundOtz;
 int Draw_gNumView;
 int Draw_gViewOtSize;
 int gFlip;
 int gLoop;
 int gTotalMem;
+/* SYM: Draw.obj file-static callback pointer (opcode 6 / STAT PTR FCN VOID). */
+static fn_void *Draw_gSyncCallback;
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 int Draw_SetView(int x0,int y0,int x1,int y1,int w,int h,int dtd,int isbg,int otsize);
@@ -403,7 +405,7 @@ void Draw_StartRenderingView(int viewid)
      the already-live `view` pointer, `lw v1,0x4($a2)`).  De Morgan + the
      `view->` spelling together = PASS 46/46. */
   if ((viewid != Draw_gPlayer1View) && (viewid != Draw_gPlayer2View)) {
-    sd->head.cprim.MPrimPtr = (char *)Draw_gMaxPrim;
+    sd->head.cprim.MPrimPtr = Draw_gMaxPrim;
   }
   else {
     sd->head.cprim.MPrimPtr = sd->head.cprim.PrimPtr + view->membudget;
@@ -710,6 +712,3 @@ void Draw_InitLibRender(void)
 }
 
 /* end of draw.cpp */
-
-/* owning-TU def (extern-declared, never defined; link-harness) */
-fn_void *Draw_gSyncCallback;

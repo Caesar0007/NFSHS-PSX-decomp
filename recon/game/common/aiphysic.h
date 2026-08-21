@@ -6,7 +6,7 @@
 void AIPhysic_StopCar__FP8Car_tObjii(Car_tObj *carObj, int velScale, int rotScale);   /* :120 */
 void AIPhysic_RevEngine__FP8Car_tObj(Car_tObj *carObj);   /* :137 */
 void AIPhysic_HandleShifting__FP8Car_tObj(Car_tObj *carObj);   /* :168 */
-int AIPhysic_CalculateGear__FP8Car_tObj(Car_tObj *carObj);   /* :214 */
+Gear_t AIPhysic_CalculateGear__FP8Car_tObj(Car_tObj *carObj);   /* :214 */
 int AIPhysic_GearInvSpeedRange__FP8Car_tObj6Gear_t(Car_tObj *carObj, int gear);   /* :262 */
 int AIPhysic_GearTopSpeed__FP8Car_tObj6Gear_t(Car_tObj *carObj, int gear);   /* :283 */
 int AIPhysic_GearBottomSpeed__FP8Car_tObj6Gear_t(Car_tObj *carObj, int gear);   /* :303 */

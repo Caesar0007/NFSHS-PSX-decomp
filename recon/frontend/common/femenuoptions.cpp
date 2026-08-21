@@ -175,7 +175,7 @@ void tMenuItemGoToMenuButtonFade::TransitionOn()
 
 /* ---- tMenuItemGoToMenuButtonFade::TransitionIsFinished  [FEMENUOPTIONS.CPP:183-191] SLD-VERIFIED ---- */
 
-void * tMenuItemGoToMenuButtonFade::TransitionIsFinished()
+bool tMenuItemGoToMenuButtonFade::TransitionIsFinished()
 
 {
   this->fInTransition = 0;
@@ -191,7 +191,7 @@ void * tMenuItemGoToMenuButtonFade::TransitionIsFinished()
     }
   }
 done:
-  return (void *)(this->fInTransition ^ 1);
+  return !this->fInTransition;
 }
 
 
@@ -265,7 +265,7 @@ void tMenuItemLeftRightFade::TransitionOn()
 
 /* ---- tMenuItemLeftRightFade::TransitionIsFinished  [FEMENUOPTIONS.CPP:231-241] SLD-VERIFIED ---- */
 
-void * tMenuItemLeftRightFade::TransitionIsFinished()
+bool tMenuItemLeftRightFade::TransitionIsFinished()
 
 {
   /* MATCH: plain if/else-if chain of &&-guards.  The `fFadeDir` reload the oracle
@@ -282,7 +282,7 @@ void * tMenuItemLeftRightFade::TransitionIsFinished()
   } else {
     this->fInTransition = 1;
   }
-  return (void *)(this->fInTransition ^ 1);
+  return !this->fInTransition;
 }
 
 
@@ -406,7 +406,7 @@ void tOptionsMenu::TransitionOn()
 
 /* ---- tOptionsMenu::TransitionIsFinished  [FEMENUOPTIONS.CPP:325-358] SLD-VERIFIED ---- */
 
-void * tOptionsMenu::TransitionIsFinished()
+bool tOptionsMenu::TransitionIsFinished()
 
 {
   /* SYM 8c block: the ONLY local is `short i` (REG $s0); the fn returns BOOL.  The
@@ -444,7 +444,7 @@ void * tOptionsMenu::TransitionIsFinished()
           (int)(*FEApp->fCurrentScreen[0]->_vf)[8].delta)) {
     this->fInMenuTransition = 1;
   }
-  return (void *)(this->fInMenuTransition ^ 1);
+  return !this->fInMenuTransition;
 }
 
 
@@ -833,7 +833,7 @@ void tMenuItemSlidingMenu::TransitionOn()
 
 /* ---- tMenuItemSlidingMenu::TransitionIsFinished  [FEMENUOPTIONS.CPP:661-676] SLD-VERIFIED ---- */
 
-void * tMenuItemSlidingMenu::TransitionIsFinished()
+bool tMenuItemSlidingMenu::TransitionIsFinished()
 
 {
   /* MATCH: plain if/else-if chain (same shape as tMenuItemLeftRightFade's).  The
@@ -851,7 +851,7 @@ void * tMenuItemSlidingMenu::TransitionIsFinished()
   } else {
     this->fInTransition = 1;
   }
-  return (void *)(this->fInTransition ^ 1);
+  return !this->fInTransition;
 }
 
 
@@ -1227,7 +1227,7 @@ void tMenuItemSlidingMenu::SetMenu(bool bothmenus,tInsideBoxMenu *menu)
 
 /* ---- tMenuItemSlidingActivated::UpdatefOpenHeight  [FEMENUOPTIONS.CPP:925-931] SLD-VERIFIED ---- */
 
-int tMenuItemSlidingActivated::UpdatefOpenHeight(bool arg1)
+void tMenuItemSlidingActivated::UpdatefOpenHeight(bool arg1)
 
 {
   int iVar2;
@@ -1302,7 +1302,7 @@ void tMenuItemSlidingActivated::TransitionOn()
 
 /* ---- tMenuItemSlidingActivated::TransitionIsFinished  [FEMENUOPTIONS.CPP:964-979] SLD-VERIFIED ---- */
 
-void * tMenuItemSlidingActivated::TransitionIsFinished()
+bool tMenuItemSlidingActivated::TransitionIsFinished()
 
 {
   /* MATCH: same if/else-if chain as tMenuItemSlidingMenu::TransitionIsFinished. */
@@ -1318,7 +1318,7 @@ void * tMenuItemSlidingActivated::TransitionIsFinished()
   } else {
     this->fInTransition = 1;
   }
-  return (void *)(this->fInTransition ^ 1);
+  return !this->fInTransition;
 }
 
 
@@ -1447,7 +1447,7 @@ void tMenuItemLeftRightFade::MyLeftRightDraw(int x,int y)
 
 /* ---- tMenuItemDisplayLeftRightChoice::Draw  [FEMENUOPTIONS.CPP:1085-1102] SLD-VERIFIED ---- */
 
-int tMenuItemDisplayLeftRightChoice::Draw(int offx,int offy,bool selected)
+void tMenuItemDisplayLeftRightChoice::Draw(int offx,int offy,bool selected)
 
 {
   /* SYM 8c block: params this($s3)/offx($s0)/offy($s2) and the ONE named local
@@ -1503,7 +1503,7 @@ void tMenuItemOnOffLeftRightChoice::TransitionOn()
 
 /* ---- tMenuItemOnOffLeftRightChoice::Draw  [FEMENUOPTIONS.CPP:1111-1140] SLD-VERIFIED ---- */
 
-int tMenuItemOnOffLeftRightChoice::Draw(int offx,int offy,bool selected)
+void tMenuItemOnOffLeftRightChoice::Draw(int offx,int offy,bool selected)
 
 {
   /* MATCH (same family as tMenuItemDisplayLeftRightChoice::Draw): no return
@@ -1575,7 +1575,7 @@ tMenuItemLeftRightAudioSlider::~tMenuItemLeftRightAudioSlider()
 
 /* ---- tMenuItemLeftRightAudioSlider::Draw  [FEMENUOPTIONS.CPP:1167-1201] SLD-VERIFIED ---- */
 
-int tMenuItemLeftRightAudioSlider::Draw(int ox,int oy,bool selected)
+void tMenuItemLeftRightAudioSlider::Draw(int ox,int oy,bool selected)
 
 {
   u_short uVar1;
@@ -1698,7 +1698,7 @@ void tMenuItemLeftRightAudioSlider::TransitionOn()
 
 /* ---- tMenuItemLeftRightAudioSlider::TransitionIsFinished  [FEMENUOPTIONS.CPP:1223-1231] SLD-VERIFIED ---- */
 
-void * tMenuItemLeftRightAudioSlider::TransitionIsFinished()
+bool tMenuItemLeftRightAudioSlider::TransitionIsFinished()
 
 {
   this->fInTransition = 0;
@@ -1708,7 +1708,7 @@ void * tMenuItemLeftRightAudioSlider::TransitionIsFinished()
   if ((0 < this->fFadeDir) && (this->fFadeVal < 0x80)) {
     this->fInTransition = 1;
   }
-  return (void *)(this->fInTransition ^ 1);
+  return !this->fInTransition;
 }
 
 
@@ -1984,7 +1984,7 @@ void tInsideBoxSongMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
 
 /* ---- tMenuItemControllerLeftRightChoice::Draw  [FEMENUOPTIONS.CPP:1423-1459] SLD-VERIFIED ---- */
 
-int tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool selected)
+void tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool selected)
 
 {
   /* MATCH: (a) BASE-ANCHOR — retail holds `&gHelpShapes[0x1e]` in one saved reg
@@ -2069,7 +2069,7 @@ tInsideBoxLeftRightSlider::~tInsideBoxLeftRightSlider()
 
 /* ---- tInsideBoxLeftRightSlider::Draw  [FEMENUOPTIONS.CPP:1480-1493] SLD-VERIFIED ---- */
 
-int tInsideBoxLeftRightSlider::Draw(int x,int y,int w,bool selected)
+void tInsideBoxLeftRightSlider::Draw(int x,int y,int w,bool selected)
 
 {
   /* MATCH: no `fSelFade`/`col` return funnel — retail's Draw drops its result
@@ -2138,7 +2138,7 @@ tInsideBoxTwoWaySlider::~tInsideBoxTwoWaySlider()
 
 /* ---- tInsideBoxTwoWaySlider::ProcessInput  [FEMENUOPTIONS.CPP:1512-1536] SLD-VERIFIED ---- */
 
-int tInsideBoxTwoWaySlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
+void tInsideBoxTwoWaySlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
               tMenuCommand &command)
 
 {
@@ -2161,20 +2161,20 @@ int tInsideBoxTwoWaySlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyva
   }
   if (this->fActive != 0) {
     keyval = kInput_KeyType_AlreadyProcessed;
-    return 1;
+    return;
   }
   if ((keyval != kInput_KeyType_Left) && (keyval != kInput_KeyType_Right)) {
-    return 0x1000;
+    return;
   }
   keyval = kInput_KeyType_AlreadyProcessed;
-  return 1;
+  return;
 }
 
 
 
 /* ---- tInsideBoxTwoWaySlider::Draw  [FEMENUOPTIONS.CPP:1543-1573] SLD-VERIFIED ---- */
 
-int tInsideBoxTwoWaySlider::Draw(int x,int y,int w,bool selected)
+void tInsideBoxTwoWaySlider::Draw(int x,int y,int w,bool selected)
 
 {
   short sVar1;
@@ -2244,7 +2244,7 @@ int tInsideBoxTwoWaySlider::Draw(int x,int y,int w,bool selected)
 
 /* MATCH: PASS (23 insns).  The five-line SLD span and NFS2's ABS/MAX
    definitions recover two initializer macro expansions followed by MAX. */
-int GetCurrentStickRange(int player)
+char GetCurrentStickRange(int player)
 
 {
   int range1 = ((0x80 - (int)gPadinfo.buf[player * 4].data.negcon.twist) > 0) ?
@@ -2261,7 +2261,7 @@ int GetCurrentStickRange(int player)
 /* ---- GetCurrentStickRange2  [FEMENUOPTIONS.CPP:1586-1590] SLD-VERIFIED ---- */
 
 /* MATCH: PASS (23 insns).  Twin ABS/MAX expansion for the second axis pair. */
-int GetCurrentStickRange2(int player)
+char GetCurrentStickRange2(int player)
 
 {
   int range1 = ((0x80 - (int)gPadinfo.buf[player * 4].data.negcon.buttonII) > 0) ?
@@ -2293,9 +2293,9 @@ void tInsideBoxTwoWaySlider::Calibrate()
      FEApp symbol-address scratch remains a v1-vs-v0 allocation tie. */
   screen = *(tScreenControllerConfig * volatile *)&screenControllerConfig[0];
   app = *(tFEApplication * volatile *)&FEApp;
-  /* MATCH: GetCurrentStickRange{,2} return INT (their oracles carry no mask) and
-     the CALLER narrows — `range = (u_char)GetCurrentStickRange(...)` is the
-     oracle's `andi a1,v0,255` right after each jal. */
+  /* MATCH: SYM declares GetCurrentStickRange{,2} as CHAR; their nonnegative
+     ABS/MAX expressions need no callee-side mask, and the caller's explicit
+     u_char cast yields the oracle's `andi a1,v0,255` after each jal. */
   padBase = &gPadinfo;
   player = (u_char)app->fInputPlayer;
   padInfo = (tPadModuleState *)((char *)padBase + player * 0x20);
@@ -2651,7 +2651,7 @@ int SpecialCharacter(char current)
 
 /* ---- tUserNameMenuItem::Draw  [FEMENUOPTIONS.CPP:1874-1966] SLD-VERIFIED ---- */
 
-int tUserNameMenuItem::Draw(bool selected)
+void tUserNameMenuItem::Draw(bool selected)
 
 {
   /* MATCH (2026-08-14): IDA/SLD show that lowercase, digit, and fallback
@@ -2893,7 +2893,10 @@ void tUserNameMenuItem::TransitionOn()
 
   {
     short NumberOfRows [6] = { 7, 9, 9, 9, 8, 9 };   /* @0x80010A00 */
-    short *dst = menu_kUserNameRowsA;   /* MATCH: hoist the store-addr lui before the frontEnd.language lbu */
+    /* SYM-CODEGEN-CARRIER: dst
+       Hoists the store-address lui before the frontEnd.language lbu; the
+       compiler-generated address pseudo is absent from the SYM local list. */
+    short *dst = menu_kUserNameRowsA;
 
     dst[0] = NumberOfRows[(u_char)frontEnd.language];
   }
@@ -2931,7 +2934,7 @@ void tUserNameMenuItem::TransitionOn()
 
 /* ---- tUserNameMenuItem::TransitionIsFinished  [FEMENUOPTIONS.CPP:2018-2028] SLD-VERIFIED ---- */
 
-void * tUserNameMenuItem::TransitionIsFinished()
+bool tUserNameMenuItem::TransitionIsFinished()
 
 {
   this->fInTransition = 0;
@@ -2951,7 +2954,7 @@ void * tUserNameMenuItem::TransitionIsFinished()
     }
   }
 done:
-  return (void *)(this->fInTransition ^ 1);
+  return !this->fInTransition;
 }
 
 
@@ -2982,7 +2985,7 @@ void tUserNameMenuItem::UpdateTransition(bool selected)
 
 /* ---- tMemoryCardMenuItem::Draw  [FEMENUOPTIONS.CPP:2048-2085] SLD-VERIFIED ---- */
 
-int tMemoryCardMenuItem::Draw(bool selected)
+void tMemoryCardMenuItem::Draw(bool selected)
 
 {
   /* SYM 8c local list (the allocation budget, 06A): fEnableFade $10=s0,

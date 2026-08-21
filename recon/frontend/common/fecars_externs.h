@@ -19,7 +19,7 @@ extern char  gCarSelected[2][50];              /* 0x80051544  ARY ARY CHAR dims 
 extern char  bigBuf[];                         /* 0x80010000  shared big load/scratch buffer */
 
 /* free functions (canonical sibling decls) */
-int       FECheat_IsCheatEnabled(tCheatCode);
+bool      FECheat_IsCheatEnabled(tCheatCode);
 extern char *Paths_Paths[];
 
 /* class vtables (FECars.obj-defined iterator subclasses) */

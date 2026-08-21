@@ -48,7 +48,7 @@ extern CVECTOR       *Chunk_lightTable;          /* 0x8013c818  (was stale tComp
                                                      the real 4-byte CVECTOR* owner def in chunk.cpp;
                                                      wrong-stride bug, this fn indexes Chunk_lightTable[i]) */
 extern int            Chunk_numLight;            /* 0x8013d4ec */
-extern int             Weather_gType;            /* 0x8013dbec  enum Weather_tState */
+extern Weather_tState  Weather_gType;            /* 0x8013dbec */
 extern int             D_80113228[];             /* @0x80113228 == &GameSetup_gData.track; distinct
                                                      alias symbol the oracle addresses directly (unsized
                                                      array shape, §3.12#5) -- same global used this way
@@ -62,7 +62,7 @@ extern void  AudioCmn_PlayThunder(int intensity, int azimuth);
 extern void  Hrz_LightningFlicker(int on);
 extern void  Hrz_SetLightingPosInSky(DRender_tView *Vi);
 extern void  Hrz_CalculateLightning(void);
-extern void *BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
+extern bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
 extern int   Camera_GetMode(int player);
 
 /* ---- this module (forward decls for intra-TU calls) ---- */

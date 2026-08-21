@@ -3,6 +3,8 @@
 #include "../../nfs4_types.h"
 #include "../../lib/libfns.h"
 
+/* new.obj-owned allocator state (SYM EXT PTR CHAR @0x8013d26c). */
+char *New_cplusplus_heap;
 
 
 /* ---- __builtin_new  [NEW.CPP:16-27] SLD-VERIFIED ---- */

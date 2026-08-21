@@ -822,7 +822,7 @@ void CopSpeak_PlayNextRequest(void)
 
 {
   int iVar3;
-  int iVar4;
+  int handle;
   int next;
   CopSpeak_tRequest *r;
 
@@ -834,16 +834,16 @@ void CopSpeak_PlayNextRequest(void)
         return;
       }
       CopSpeak_gCurrent = *r;
-      iVar4 = r->phrase;
-      if (iVar4 == -1) {
-        iVar4 = r->offset;
-        iVar4 = AudioCmn_GetAsyncSfx(*(signed char *)&r->bank,iVar4 + 0x4000,true);
+      handle = r->phrase;
+      if (handle == -1) {
+        handle = r->offset;
+        handle = AudioCmn_GetAsyncSfx(*(signed char *)&r->bank,handle + 0x4000,true);
       }
       else {
-        iVar4 = AudioCmn_GetAsyncSfx(*(signed char *)&r->bank,iVar4,true);
+        handle = AudioCmn_GetAsyncSfx(*(signed char *)&r->bank,handle,true);
       }
-      if ((-1 < iVar4) || (*(signed char *)&r->bank == '\x03')) {
-        CopSpeak_gSpchHandle = CopSpeak_Play(r,iVar4);
+      if ((-1 < handle) || (*(signed char *)&r->bank == '\x03')) {
+        CopSpeak_gSpchHandle = CopSpeak_Play(r,handle);
       }
     }
     CopSpeak_InitRequest(r);
@@ -972,23 +972,23 @@ int CopSpeak_SfxQueued(void)
 
 {
   int iVar1;
-  int iVar2;
-  int iVar3;
+  int chkQ;
+  int count;
   CopSpeak_tRequest *pEntry;
 
-  iVar3 = 0;
-  iVar2 = CopSpeak_gQueuePlay;
-  while (iVar1 = iVar2, iVar1 != CopSpeak_gQueueHead) {
+  count = 0;
+  chkQ = CopSpeak_gQueuePlay;
+  while (iVar1 = chkQ, iVar1 != CopSpeak_gQueueHead) {
     pEntry = CopSpeak_gQueue + iVar1;
     if ((0 <= *(signed char *)&pEntry->bank) && (pEntry->sfx != '\0')) {
-      iVar3 = iVar3 + 1;
+      count = count + 1;
     }
-    iVar2 = 0;
+    chkQ = 0;
     if (iVar1 < 0x3f) {
-      iVar2 = iVar1 + 1;
+      chkQ = iVar1 + 1;
     }
   }
-  return iVar3;
+  return count;
 }
 
 /* ---- CopSpeak_ShowQueue__Fv  [COPSPEAK.CPP:1377-1404] SLD-VERIFIED ---- */

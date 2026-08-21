@@ -443,11 +443,12 @@ void tScreenPinkSlipStandings::DrawBackground()
 
 
 /* ---- tScreenPinkSlipStandings::ProcessInput  [SCREENPOST.CPP:80-80] ---- */
-int tScreenPinkSlipStandings::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
+void tScreenPinkSlipStandings::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
                tMenuCommand &command)
 
 {
-  return tScreen_ProcessInput((tScreen *)this,fromPlayer,keyval,command);
+  tScreen_ProcessInput((tScreen *)this,fromPlayer,keyval,command);
+  return;
 }
 
 

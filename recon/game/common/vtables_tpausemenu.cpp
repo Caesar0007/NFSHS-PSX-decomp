@@ -33,7 +33,7 @@ __vtbl_ptr_type tInsideBoxControllerLeftRightSlider_vtable[11] = {   /* @0x80010
   {0, 0, (int (*)(...))&tMenuItemLeftRightSlider::DebounceKeys},    /* @0x80010a20  DebounceKeys__24tMenuItemLeftRightSlider */
   {0, 0, (int (*)(...))&tInsideBoxControllerLeftRightSlider::ProcessInput},    /* @0x80010a28  ProcessInput__35tInsideBoxControllerLeftRightSlider7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenuItemLeftRightSlider::Draw},    /* @0x80010a30  Draw__24tMenuItemLeftRightSliderb */
-  {0, 0, (int (*)(...))(int (tMenuItem::*)(int, int, bool))&tMenuItem::Draw},    /* @0x80010a38  Draw__9tMenuItemiib [overload] */
+  {0, 0, (int (*)(...))(void (tMenuItem::*)(int, int, bool))&tMenuItem::Draw},    /* @0x80010a38  Draw__9tMenuItemiib [overload] */
   {0, 0, (int (*)(...))&tInsideBoxLeftRightSlider::Draw},    /* @0x80010a40  Draw__25tInsideBoxLeftRightSlideriiib */
   {0, 0, (int (*)(...))&tMenuItem::TransitionOff},    /* @0x80010a48  TransitionOff__9tMenuItem */
   {0, 0, (int (*)(...))&tMenuItem::TransitionOn},    /* @0x80010a50  TransitionOn__9tMenuItem */
@@ -46,7 +46,7 @@ __vtbl_ptr_type tInsideBoxLeftRightSlider_vtable[11] = {   /* @0x80010bc8 */
   {0, 0, (int (*)(...))&tMenuItemLeftRightSlider::DebounceKeys},    /* @0x80010bd8  DebounceKeys__24tMenuItemLeftRightSlider */
   {0, 0, (int (*)(...))&tMenuItemLeftRightSlider::ProcessInput},    /* @0x80010be0  ProcessInput__24tMenuItemLeftRightSlider7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenuItemLeftRightSlider::Draw},    /* @0x80010be8  Draw__24tMenuItemLeftRightSliderb */
-  {0, 0, (int (*)(...))(int (tMenuItem::*)(int, int, bool))&tMenuItem::Draw},    /* @0x80010bf0  Draw__9tMenuItemiib [overload] */
+  {0, 0, (int (*)(...))(void (tMenuItem::*)(int, int, bool))&tMenuItem::Draw},    /* @0x80010bf0  Draw__9tMenuItemiib [overload] */
   {0, 0, (int (*)(...))&tInsideBoxLeftRightSlider::Draw},    /* @0x80010bf8  Draw__25tInsideBoxLeftRightSlideriiib */
   {0, 0, (int (*)(...))&tMenuItem::TransitionOff},    /* @0x80010c00  TransitionOff__9tMenuItem */
   {0, 0, (int (*)(...))&tMenuItem::TransitionOn},    /* @0x80010c08  TransitionOn__9tMenuItem */
@@ -88,7 +88,7 @@ __vtbl_ptr_type tInsideBoxTwoWaySlider_vtable[11] = {   /* @0x80010b70 */
   {0, 0, (int (*)(...))&tMenuItemLeftRightSlider::DebounceKeys},    /* @0x80010b80  DebounceKeys__24tMenuItemLeftRightSlider */
   {0, 0, (int (*)(...))&tInsideBoxTwoWaySlider::ProcessInput},    /* @0x80010b88  ProcessInput__22tInsideBoxTwoWaySlider7tPlayerR13tInputKeyTypeR12tMenuCommand */
   {0, 0, (int (*)(...))&tMenuItemLeftRightSlider::Draw},    /* @0x80010b90  Draw__24tMenuItemLeftRightSliderb */
-  {0, 0, (int (*)(...))(int (tMenuItem::*)(int, int, bool))&tMenuItem::Draw},    /* @0x80010b98  Draw__9tMenuItemiib [overload] */
+  {0, 0, (int (*)(...))(void (tMenuItem::*)(int, int, bool))&tMenuItem::Draw},    /* @0x80010b98  Draw__9tMenuItemiib [overload] */
   {0, 0, (int (*)(...))&tInsideBoxTwoWaySlider::Draw},    /* @0x80010ba0  Draw__22tInsideBoxTwoWaySlideriiib */
   {0, 0, (int (*)(...))&tMenuItem::TransitionOff},    /* @0x80010ba8  TransitionOff__9tMenuItem */
   {0, 0, (int (*)(...))&tMenuItem::TransitionOn},    /* @0x80010bb0  TransitionOn__9tMenuItem */

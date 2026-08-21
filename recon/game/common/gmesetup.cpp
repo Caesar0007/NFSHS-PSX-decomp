@@ -14,6 +14,28 @@
 #include "../../nfs4_types.h"
 #include "gmesetup_externs.h"
 
+/* SYM-owned lookup names at 0x80113044..0x801131ec.  The fixed row widths
+ * (including each row's terminating/padding NULs) are part of the retail
+ * layout; declaration order places them immediately before GameSetup_gData. */
+char GameSetup_gCarNames[51][5] = {
+    "MSLK", "BMWZ", "HSVT", "FORD", "CMRO", "TRAM", "ADB7", "JXKR",
+    "BMWM", "CORV", "F550", "P993", "F375", "DIAB", "MCLK", "MCF1",
+    "X993", "X375", "XCF1", "BNS1", "BNS2", "BNS2", "CCPR", "CHSV",
+    "CBMW", "CCOV", "CCMR", "CDBL", "CHOP", "GUAT", "BMW5", "MERC",
+    "WOLW", "SBUS", "SAND", "RIAT", "ARMY", "COMC", "TON1", "TON2",
+    "VAN",  "BEEP", "PKUP", "PKUP", "F500", "CUCA", "TAXI", "TBUS",
+    "LOGT", "CBUS", "BAD!"
+};
+char GameSetup_gTrackNames[12][4] = {
+    "ALP", "HWY", "CST", "FRN", "PAR", "HIL",
+    "GER", "ENG", "GT1", "GT2", "GT3", "BAD"
+};
+char GameSetup_gPersonalityNames[15][8] = {
+    "Nemesis", "Bullit", "Frost", "Ranger", "Chump",
+    "Snake", "Razor", "Thunder", "Roadhog", "Clutch",
+    "Scooter", "WndrBoy", "Flash", "KikBut", "Laser"
+};
+
 /* ---- gmesetup.obj OWNED global (EXT) ---- */
 GameSetup_tData GameSetup_gData;
 

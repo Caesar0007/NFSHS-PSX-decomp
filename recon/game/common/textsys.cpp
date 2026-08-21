@@ -5,9 +5,23 @@
 #include "../../nfs4_types.h"
 #include "textsys_externs.h"
 
-/* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
- * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
- * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
+/* Textsys.obj-owned initialized data.  SYM identifies langFileName as
+ * `char *[6]` at 0x8011E140; the initializer is independently preserved by
+ * the matched NFS2 PC-beta Textsys source.  The D_* names anchor the existing
+ * byte-exact residual literals until Textsys.obj's complete rodata run is
+ * migrated without disturbing the PASS LoadInGame scheduling. */
+extern char D_800565F0[];
+extern char D_800565FC[];
+extern char D_80056608[];
+extern char D_80056614[];
+extern char D_80056620[];
+extern char D_8005662C[];
+char *langFileName[6] = {
+  D_800565F0, D_800565FC, D_80056608,
+  D_80056614, D_80056620, D_8005662C
+};
+
+/* gp-rel pointer owned by Textsys.obj. */
 char *wordFile;
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */

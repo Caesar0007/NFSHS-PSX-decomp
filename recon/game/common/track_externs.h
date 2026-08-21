@@ -24,7 +24,7 @@ extern Trk_ObjectDef ** Track_gObjDefs;
 extern char       *Paths_Paths[];
 extern coorddef * Chunk_chunkCenters;
 extern int            Chunk_numLight;            /* 0x8013d4ec */
-extern short ** Track_gInViewList;
+extern short (*Track_gInViewList)[32];
 extern void  TextureProcess_Init(void);                    /* sibling TextureProcess.obj */
 extern void  Texture_CloneUVPmx(Draw_tPixMap *dst, int flag, Draw_tPixMap *src);
 extern void Texture_LoadPmx(char *, char *, int, int, int, int, int, Draw_tPixMap *);
@@ -59,11 +59,9 @@ extern SimpleMem              *Track_mem;             /* ->heap/freeMem */
 extern Group                  *gPersistObjDef;        /* ->m_num_elements */
 extern Group                  *gObjDefOffsetsGroup;   /* = Group* (indexed) */
 extern Draw_tPixMap           *gSpikeBeltPixmap;      /* ->clut */
-extern Track_MipMap           *gTempMipMapInfo;       /* ->code */
-extern Track_MultiPalette     *gTempMultiPalInfo;     /* ->charcode */
 extern SaveSurface            *Track_gSaveSurface;    /* ctor returns SaveSurface* */
 extern int   Track_gControllerCount;
-extern int  *Track_gInViewCount;     /* = Alloc(...), indexed */
+extern u_char *Track_gInViewCount;     /* = Alloc(...), indexed */
 extern int   gtrackNumber;
 extern int   wordFile_psh_snow;        /* (int)cast usage -- refine */
 

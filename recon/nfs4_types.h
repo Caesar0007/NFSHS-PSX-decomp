@@ -245,7 +245,6 @@ typedef struct AIHigh_BTC_AIPerp AIHigh_BTC_AIPerp;
 typedef struct AITrigger_TriggerManager AITrigger_TriggerManager;
 typedef struct AIHigh_Human AIHigh_Human;
 typedef struct AIHigh_Opponent AIHigh_Opponent;
-typedef struct tCopMurderThresholds tCopMurderThresholds;
 typedef struct AIState_Idle AIState_Idle;
 typedef struct AICop_spikeBelt_t AICop_spikeBelt_t;
 typedef struct Udff_tInfo Udff_tInfo;
@@ -2259,12 +2258,15 @@ struct SPCHNFSType_REVINTRO {   /* 4 bytes */
 struct CarBank {   /* 12 bytes */
     int                fFull, fMake, fModel;   /* +0x0 */
     CarBank() : fFull(-1), fMake(-1), fModel(-1) {}
+    bool Check(char *name, int id, CarBankName *bankname)
+      asm("Check__Q26Speech7CarBankPciPQ26Speech11CarBankName");
 };
 
 struct LocationBank {   /* 16 bytes */
     int                fStartSlice, fEndSlice, fBankId;   /* +0x0 */
     char               *fName;   /* +0xC */
     LocationBank() : fBankId(-1) {}
+    int Distance(int slice) asm("Distance__Q26Speech12LocationBanki");
 };
 
 struct CallSignBank {   /* 68 bytes */
@@ -2298,9 +2300,46 @@ struct Speaker {   /* 80 bytes */
     SPCHNFSType_PURS_UPDT fUpdate;   /* +0x28 */
     SPCHNFSType_ARREST fArrest;   /* +0x2C */
     int                fCar, fLocation, fFrom, fTo, fWing;   /* +0x30 */
-    BOOL               fHavePerp;   /* +0x44 */
+    bool               fHavePerp;   /* +0x44 */
     Speaker            *fSub;   /* +0x48 */
     __vtbl_ptr_type      (*_vf)[31];   /* +0x4C */
+    /* SYM records these as Speech::Speaker members.  The reconstruction keeps
+       the flattened layout type, so explicit aliases preserve the retail Q2
+       nested-class linkage while restoring the demangled source interface. */
+    void Report(Car_tObj *cop) asm("Report__Q26Speech7SpeakerP8Car_tObj");
+    void Deny() asm("Deny__Q26Speech7Speaker");
+    void Grant() asm("Grant__Q26Speech7Speaker");
+    void Ready(Car_tObj *wing) asm("Ready__Q26Speech7SpeakerP8Car_tObj");
+    void Engage(Car_tObj *perp) asm("Engage__Q26Speech7SpeakerP8Car_tObj");
+    void Lose() asm("Lose__Q26Speech7Speaker");
+    void Accident(int slice) asm("Accident__Q26Speech7Speakeri");
+    void Catch(int ticket) asm("Catch__Q26Speech7Speakeri");
+    void RoadBlock() asm("RoadBlock__Q26Speech7Speaker");
+    void SpikeBelt() asm("SpikeBelt__Q26Speech7Speaker");
+    void Backup() asm("Backup__Q26Speech7Speaker");
+    void ReportBlockade() asm("ReportBlockade__Q26Speech7Speaker");
+    void Roger() asm("Roger__Q26Speech7Speaker");
+    void Bullhorn() asm("Bullhorn__Q26Speech7Speaker");
+    void Purge() asm("Purge__Q26Speech7Speaker");
+    void SetCar(Car_tObj *car) asm("SetCar__Q26Speech7SpeakerP8Car_tObj");
+    void FindLocation(Car_tObj *car) asm("FindLocation__Q26Speech7SpeakerP8Car_tObj");
+    int CalcMph(Car_tObj *perp) asm("CalcMph__Q26Speech7SpeakerP8Car_tObj");
+    void Promote() asm("Promote__Q26Speech7Speaker");
+    void Status() asm("Status__Q26Speech7Speaker");
+    int Unit() asm("Unit__Q26Speech7Speaker");
+    bool KnownPerp(Car_tObj *car) asm("KnownPerp__Q26Speech7SpeakerP8Car_tObj");
+    void ClearPerp(Car_tObj *car) asm("ClearPerp__Q26Speech7SpeakerP8Car_tObj");
+    bool IsSuper() asm("IsSuper__Q26Speech7Speaker");
+    int StatusCount() asm("StatusCount__Q26Speech7Speaker");
+    Speaker *StatusSub() asm("StatusSub__Q26Speech7Speaker");
+    void PurgeStatusSub() asm("PurgeStatusSub__Q26Speech7Speaker");
+    int DistToPerp() asm("DistToPerp__Q26Speech7Speaker");
+    Car_tObj *CarObj() asm("CarObj__Q26Speech7Speaker");
+    void ReActivate() asm("ReActivate__Q26Speech7Speaker");
+    Car_tObj *Perp() asm("Perp__Q26Speech7Speaker");
+    CarBank *GetCarBank(int carIndex) asm("GetCarBank__Q26Speech7Speakeri");
+    LocationBank *FindClosestLocationTo(int slice) asm("FindClosestLocationTo__Q26Speech7Speakeri");
+    CallSignBank *CallSign() asm("CallSign__Q26Speech7Speaker");
 };
 
 struct Trk_SFX {   /* 16 bytes */
@@ -2498,10 +2537,6 @@ struct AIHigh_Opponent : public AIHigh_Player {   /* 192 bytes */
     int DoProvokedAttack();
 };
 
-struct tCopMurderThresholds {   /* 20 bytes */
-    int                ticksInChaseRegionForMurder, minLatMetersDistanceForMurder, minLongMetersDistanceForMurder, murderTicks, nitrousTicks;   /* +0x0 */
-};
-
 struct AIState_Idle : public AIState_Base {   /* 16 bytes */
     int                roadPosition_, idleInPlaceFlag_;   /* +0x8 */
     AIState_Idle() {}
@@ -2542,7 +2577,7 @@ struct AIDataRecord_CarTracking_t : public AIDataRecord_t {   /* 88 bytes; real 
         AIDataRecord_CurveSpeedTable_t comment (composition -> gcc deleting-dtor mismatch). */
     AIDataRecord_CarTracking_t() {}
     ~AIDataRecord_CarTracking_t();
-    int Get(int i);
+    int Get(int slice);
 };
 
 struct AISpeeds_tLeaderBoard {   /* 16 bytes */
@@ -2722,7 +2757,7 @@ struct tMenu {   /* 108 bytes */
     unsigned int       fFlags;   /* +0x0 */
     short              fTitle;   /* +0x4 */
     int                fCurrentItem;   /* +0x8 */
-    BOOL               fNeverAnyEnabled;   /* +0xC */
+    bool               fNeverAnyEnabled;   /* +0xC */
     tMenuItem          *fItemList[16];   /* +0x10 */
     tScreen            *fScreen;   /* +0x50 */
     tMenu              *fNextMenu, *fChildMenu, *fOptionsMenu;   /* +0x54 */
@@ -2741,8 +2776,8 @@ struct tMenu {   /* 108 bytes */
     void UpdateTransition();
     void TransitionOff();
     void TransitionOn();
-    void *TransitionIsFinished();
-    void *IsSubMenu();
+    bool TransitionIsFinished();  /* SYM: FCN bool (four-byte int) */
+    bool IsSubMenu();              /* SYM: FCN bool (four-byte int) */
     long DebounceKeys();
 
 };
@@ -2756,9 +2791,9 @@ struct tListIterator {   /* 16 bytes */
     tListIterator() {}
     tListIterator(short *selection, char *valPtr);
     ~tListIterator();
-    int Value(tPlayer player);
-    int TextValue(tPlayer player);
-    int Increment(tPlayer player);
+    char Value(tPlayer player);       /* SYM: FCN CHAR */
+    short TextValue(tPlayer player);  /* SYM: FCN SHORT */
+    void Increment(tPlayer player);   /* SYM: FCN VOID */
     void Decrement(tPlayer player);   /* SYM: FCN VOID */
 
 };
@@ -2768,8 +2803,8 @@ struct tListIteratorRange : public tListIterator {   /* 16 bytes */
     /* reconstructed FEMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     tListIteratorRange(char minValue, char maxValue, char *valPtr);
     ~tListIteratorRange();
-    int Value(tPlayer player);
-    int TextValue(tPlayer player);
+    char Value(tPlayer player);       /* SYM: FCN CHAR */
+    short TextValue(tPlayer player);  /* SYM: FCN SHORT */
     void Increment(tPlayer player);
     void Decrement(tPlayer player);
 
@@ -2788,10 +2823,10 @@ struct tMenuItem {   /* 28 bytes */
     long DebounceKeys();
     void ProcessInput(tPlayer fromPlayer, tInputKeyType &keyval, tMenuCommand &command);
     void UpdateTransition(bool selected);
-    void *TransitionIsFinished();
+    bool TransitionIsFinished();  /* SYM: FCN bool (four-byte int) */
     void UpdateSelFade(bool selected);
-    int Draw(int x, int y, bool selected);
-    int Draw(int x, int y, int w, bool selected);
+    void Draw(int x, int y, bool selected);         /* SYM: FCN VOID */
+    void Draw(int x, int y, int w, bool selected);  /* SYM: FCN VOID */
     void TransitionOn();    /* @0x80025aa8  empty base virtual (overridden by tMenu); surfaced by #75 vtable mat */
     void TransitionOff();   /* @0x80025ab0  empty base virtual (overridden by tMenu); surfaced by #75 vtable mat */
 
@@ -2868,9 +2903,9 @@ struct tCarManager {   /* 908 bytes */
     short GetNumPinkSlipsCars(short playerNum);
     short GetClassList(tCarClassType carClass,short numElements,tCarModels *models);
     void InitializeIngameCarList();
-    bool IsCarAnAddedModel(tCarModels &model,char &color);   /* W58-A1: `void*` was a recon artifact -- the body returns 0/1 and every front.cpp caller's oracle tests it as a bool (xori 1; beqz) */
+    bool IsCarAnAddedModel(tCarModels &model,char &color);   /* SYM BOOL is PsyQ's native C++ boolean debug code; the body returns 0/1. */
     void AddCarToIngameList(tCarModels &model,char &color);
-    int FindSimilarCar(tCarModels &model,char &color,short arg3,tCarModels *arg4);
+    bool FindSimilarCar(tCarModels &model,char &color,short arg3,tCarModels *arg4);  /* SYM: FCN bool */
 
 };
 
@@ -2908,10 +2943,10 @@ struct tfrontEnd {   /* 1104 bytes */
     char               playerNameList[2][8], allUpperCasedPlayerNameList[2][8], licensePlate[2][8];   /* +0x364 */
     char               headstart, numBTracksActivated, checkPointType;   /* +0x394 */
     char               checkPointDisplay[2], defaultedPlayerName[2];   /* +0x397 */
-    BOOL               FEPlayList[40];   /* +0x39C */
+    bool               FEPlayList[40];   /* +0x39C */
     u_long             gPinkSlipsNoCheat[2];   /* +0x43C */
-    BOOL               GotAPlayList;   /* +0x444 */
-    BOOL               AnalogOn[2];   /* +0x448 */
+    bool               GotAPlayList;   /* +0x444 */
+    bool               AnalogOn[2];   /* +0x448 */
 };
 
 struct CopSpeak_tRequest {   /* 32 bytes */
@@ -3224,7 +3259,7 @@ struct SerializedGroup {   /* 16 bytes */
     SerializedGroup *LocateNextGroupType(int type);
     SerializedGroup *LocateGroupType(int type, int index);
     SerializedGroup *LocateGroupNum(int index);
-    void            *LocateCreateGroupType(int type, SimpleMem *mem, int index);
+    Group           *LocateCreateGroupType(int type, SimpleMem *mem, int index);
     Group           *CreateLiteGroup(SerializedGroup *source, SimpleMem *mem);
     Group           *CreateLiteGroupDataSize(SerializedGroup *source, SimpleMem *mem, int dataSize);
 };
@@ -3264,6 +3299,7 @@ struct SPCHNFSType_VOICE {   /* 4 bytes */
 
 struct CarBankName {   /* 12 bytes */
     char               *fFull, *fMake, *fModel;   /* +0x0 */
+    void SetCar(int carIndex) asm("SetCar__Q26Speech11CarBankNamei");
 };
 
 struct Speech {   /* 932 bytes */
@@ -3271,13 +3307,40 @@ struct Speech {   /* 932 bytes */
     tLocationBankPair  fLocationBank;   /* +0xD8 */
     tCallSignBankPair  fCallSignBank;   /* +0x2D8 */
     int                fLocationCount;   /* +0x360 */
-    BOOL               fFileOpen;   /* +0x364 */
+    bool               fFileOpen;   /* +0x364 */
     int                fFileHandle;   /* +0x368 */
     long               *fBankOffset;   /* +0x36C */
     int                fBankCount, fBlpClpBank, fStaticBank, fCarCount, fCopCount, fSuperCount, fMultiplePerps;   /* +0x370 */
     Car_tObj           *fSpeakerCar;   /* +0x38C */
     MobileSpeaker      *fMobile[4];   /* +0x390 */
     DispatchSpeaker    *fDispatch;   /* +0x3A0 */
+    bool CheckCarBank(CarBank *carbank, char *name, int id, CarBankName *bankname)
+      asm("CheckCarBank__6SpeechPQ26Speech7CarBankPciPQ26Speech11CarBankName");
+    void CountLocations();
+    bool CheckLocationBank(LocationBank *locationbank, char *name, int id)
+      asm("CheckLocationBank__6SpeechPQ26Speech12LocationBankPci");
+    bool CheckCallSignBank(CallSignBank *bank, char *name, int id)
+      asm("CheckCallSignBank__6SpeechPQ26Speech12CallSignBankPci");
+    bool CheckMultiBank(char *name, int id, CarBankName *bn)
+      asm("CheckMultiBank__6SpeechPciPQ26Speech11CarBankName");
+    int BankPatch(long bank, Car_tObj *car);
+    /* The parameter structs are currently flattened global surrogates for the
+       retail nested Speech::* types; bind their exact GCC-v2 linkage names. */
+    LocationBank *FindClosestLocationTo(LocationBank *bank, int slice)
+      asm("FindClosestLocationTo__6SpeechPQ26Speech12LocationBanki");
+    int CalculateBankSize(char *header, CarBankName *bn, long *hoffset, long *hsize)
+      asm("CalculateBankSize__6SpeechPcPQ26Speech11CarBankNamePlT3");
+    void LoadBankHeaders(char *header, CarBankName *bn, long hoffset, long hsize)
+      asm("LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell");
+    void SetDelayedStatus(Speaker *sub, int delay)
+      asm("SetDelayedStatus__6SpeechPQ26Speech7Speakeri");
+    int PickVoice(Car_tObj *carObj);
+    Speaker *FindMobile(Car_tObj *carObj);
+    static void Reset();
+    static long SubmitRequest(long bank, long localoffset, long size);
+    static Speaker *Dispatch();
+    static int GetVoice(Car_tObj *carObj);
+    static Speaker *Mobile(Car_tObj *carObj);
     Speech();
     ~Speech();
 };
@@ -3288,6 +3351,37 @@ struct MobileSpeaker {   /* 104 bytes */
     SPCHNFSType_vs_KMH_MPH fSpeedType;   /* +0x54 */
     int                fSpeed, fUnit;   /* +0x58 */
     Car_tObj           *fCarObj, *fPerp;   /* +0x60 */
+    Car_tObj *Perp() asm("Perp__Q26Speech13MobileSpeaker");
+    int Unit() asm("Unit__Q26Speech13MobileSpeaker");
+    CallSignBank *CallSign() asm("CallSign__Q26Speech13MobileSpeaker");
+    LocationBank *FindClosestLocationTo(int slice)
+      asm("FindClosestLocationTo__Q26Speech13MobileSpeakeri");
+    CarBank *GetCarBank(int carIndex)
+      asm("GetCarBank__Q26Speech13MobileSpeakeri");
+    Car_tObj *CarObj() asm("CarObj__Q26Speech13MobileSpeaker");
+    bool IsSuper() asm("IsSuper__Q26Speech13MobileSpeaker");
+    void ReActivate() asm("ReActivate__Q26Speech13MobileSpeaker");
+    int DistToPerp() asm("DistToPerp__Q26Speech13MobileSpeaker");
+    void Accident(int slice) asm("Accident__Q26Speech13MobileSpeakeri");
+    void Bullhorn() asm("Bullhorn__Q26Speech13MobileSpeaker");
+    void SetSpeed(Car_tObj *perp)
+      asm("SetSpeed__Q26Speech13MobileSpeakerP8Car_tObj");
+    void Activate(Car_tObj *carObj)
+      asm("Activate__Q26Speech13MobileSpeakerP8Car_tObj");
+    void RoadBlock() asm("RoadBlock__Q26Speech13MobileSpeaker");
+    void SpikeBelt() asm("SpikeBelt__Q26Speech13MobileSpeaker");
+    void Backup() asm("Backup__Q26Speech13MobileSpeaker");
+    void Report(Car_tObj *perp)
+      asm("Report__Q26Speech13MobileSpeakerP8Car_tObj");
+    void ReportBlockade()
+      asm("ReportBlockade__Q26Speech13MobileSpeaker");
+    void Roger() asm("Roger__Q26Speech13MobileSpeaker");
+    void Purge() asm("Purge__Q26Speech13MobileSpeaker");
+    void Catch(int ticket) asm("Catch__Q26Speech13MobileSpeakeri");
+    void Lose() asm("Lose__Q26Speech13MobileSpeaker");
+    void Status() asm("Status__Q26Speech13MobileSpeaker");
+    void Engage(Car_tObj *perp)
+      asm("Engage__Q26Speech13MobileSpeakerP8Car_tObj");
 };
 
 struct DispatchSpeaker {   /* 100 bytes */
@@ -3296,6 +3390,32 @@ struct DispatchSpeaker {   /* 100 bytes */
     Speaker            *fStatusSub;   /* +0x54 */
     int                fUpdateCount;   /* +0x58 */
     Car_tObj           *fPerp[2];   /* +0x5C */
+    CallSignBank *CallSign() asm("CallSign__Q26Speech15DispatchSpeaker");
+    LocationBank *FindClosestLocationTo(int slice)
+      asm("FindClosestLocationTo__Q26Speech15DispatchSpeakeri");
+    CarBank *GetCarBank(int carIndex)
+      asm("GetCarBank__Q26Speech15DispatchSpeakeri");
+    void PurgeStatusSub() asm("PurgeStatusSub__Q26Speech15DispatchSpeaker");
+    Speaker *StatusSub() asm("StatusSub__Q26Speech15DispatchSpeaker");
+    int StatusCount() asm("StatusCount__Q26Speech15DispatchSpeaker");
+    void ClearPerp(Car_tObj *car)
+      asm("ClearPerp__Q26Speech15DispatchSpeakerP8Car_tObj");
+    bool KnownPerp(Car_tObj *car)
+      asm("KnownPerp__Q26Speech15DispatchSpeakerP8Car_tObj");
+    void Accident(int slice) asm("Accident__Q26Speech15DispatchSpeakeri");
+    void Grant() asm("Grant__Q26Speech15DispatchSpeaker");
+    void Ready(Car_tObj *carObj)
+      asm("Ready__Q26Speech15DispatchSpeakerP8Car_tObj");
+    void AddPerp(Car_tObj *car)
+      asm("AddPerp__Q26Speech15DispatchSpeakerP8Car_tObj");
+    void Activate(int seedupdatecount)
+      asm("Activate__Q26Speech15DispatchSpeakeri");
+    void Deny() asm("Deny__Q26Speech15DispatchSpeaker");
+    void Roger() asm("Roger__Q26Speech15DispatchSpeaker");
+    void StatusReply() asm("StatusReply__Q26Speech15DispatchSpeaker");
+    void Status() asm("Status__Q26Speech15DispatchSpeaker");
+    void Report(Car_tObj *perp)
+      asm("Report__Q26Speech15DispatchSpeakerP8Car_tObj");
 };
 
 struct Speech_tCarDescription {   /* 16 bytes */
@@ -3371,7 +3491,7 @@ struct tPMenuCommand {   /* 8 bytes */
 
 struct tPMenu {   /* 84 bytes */
     int                fCurrentItem;   /* +0x0 */
-    BOOL               fHighlight;   /* +0x4 */
+    bool               fHighlight;   /* +0x4 */
     tPMenuItem         *fItemList[16];   /* +0x8 */
     tPMenu             *fNextMenu;   /* +0x48 */
     int                fNumItems;   /* +0x4C */
@@ -3382,7 +3502,7 @@ struct tPMenu {   /* 84 bytes */
     tPMenu(tPMenuItem *firstItem, ...);
     ~tPMenu();
     void Initialize();
-    void *Debounce();
+    bool Debounce();
     void CheckForDisabled();
     void ProcessInput(tInputKeyType &keyval, tPMenuCommand &command);
     void Draw();
@@ -3398,10 +3518,10 @@ struct tPListIterator {   /* 12 bytes */
     tPListIterator() {}
     tPListIterator(short *selection, int *valPtr);
     ~tPListIterator();
-    int Value(tPlayer player);
-    int TextValue(tPlayer player);
-    int Increment(tPlayer player);
-    int Decrement(tPlayer player);
+    char Value(tPlayer player);
+    short TextValue(tPlayer player);
+    void Increment(tPlayer player);
+    void Decrement(tPlayer player);
 };
 
 struct tPListIteratorIndexed : public tPListIterator {   /* 16 bytes; §3.23 real inheritance (base @+0x0, non-polymorphic) */
@@ -3409,10 +3529,10 @@ struct tPListIteratorIndexed : public tPListIterator {   /* 16 bytes; §3.23 rea
     /* reconstructed PauseMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     tPListIteratorIndexed(short *selection, int *valPtr, char *index);
     ~tPListIteratorIndexed();
-    int Value(tPlayer player);
-    int TextValue(tPlayer player);
-    int Increment(tPlayer player);
-    int Decrement(tPlayer player);
+    char Value(tPlayer player);
+    short TextValue(tPlayer player);
+    void Increment(tPlayer player);
+    void Decrement(tPlayer player);
 };
 
 struct tPMenuItem {   /* 12 bytes */
@@ -3422,10 +3542,10 @@ struct tPMenuItem {   /* 12 bytes */
     tPMenuItem(unsigned int textDescription);
     ~tPMenuItem();
     tPMenu *NextMenu();
-    void *Debounce();
+    bool Debounce();
     void ProcessInput(tInputKeyType &keyval, tPMenuCommand &command);
-    void *IsEnabled();
-    void *IsDisabled();
+    bool IsEnabled();
+    bool IsDisabled();
 };
 
 struct tPMenuItemNonInteractiveText : public tPMenuItem {   /* 12 bytes */
@@ -3433,7 +3553,7 @@ struct tPMenuItemNonInteractiveText : public tPMenuItem {   /* 12 bytes */
     tPMenuItemNonInteractiveText(unsigned int textDescription);
     ~tPMenuItemNonInteractiveText();
     void Draw(bool selected);
-    void *IsNavigable();
+    bool IsNavigable();
 };
 
 struct tPMenuItemInteractive : public tPMenuItem {   /* 12 bytes */
@@ -3441,7 +3561,7 @@ struct tPMenuItemInteractive : public tPMenuItem {   /* 12 bytes */
     tPMenuItemInteractive(unsigned int textDescription);
     ~tPMenuItemInteractive();
     void Draw(bool selected);
-    void *IsNavigable();
+    bool IsNavigable();
 };
 
 struct tPMenuItemLeftRightChoice : public tPMenuItemInteractive {   /* 16 bytes */
@@ -3449,7 +3569,7 @@ struct tPMenuItemLeftRightChoice : public tPMenuItemInteractive {   /* 16 bytes 
     /* reconstructed PauseMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     tPMenuItemLeftRightChoice(unsigned int textDescription, tPListIterator *dataPtr);
     ~tPMenuItemLeftRightChoice();
-    int ProcessInput(tInputKeyType &keyval, tPMenuCommand &menu_cmd);
+    void ProcessInput(tInputKeyType &keyval, tPMenuCommand &menu_cmd);
     void Draw(bool selected);
 };
 
@@ -3459,7 +3579,7 @@ struct tPMenuItemLeftRightSlider : public tPMenuItemInteractive {   /* 20 bytes 
     /* reconstructed PauseMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     tPMenuItemLeftRightSlider(unsigned int textDescription, int *dataPtr, char maxVal);
     ~tPMenuItemLeftRightSlider();
-    void *Debounce();
+    bool Debounce();
     void ProcessInput(tInputKeyType &keyval, tPMenuCommand &menu_command);
     void Draw(bool selected);
 };
@@ -3527,9 +3647,9 @@ struct tListIteratorIndexed : public tListIterator {   /* 20 bytes */
     /* reconstructed FEMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     tListIteratorIndexed(short *selection, char *valPtr, char *index);
     ~tListIteratorIndexed();
-    int Value(tPlayer player);
-    int TextValue(tPlayer player);
-    int Increment(tPlayer player);
+    char Value(tPlayer player);       /* SYM: FCN CHAR */
+    short TextValue(tPlayer player);  /* SYM: FCN SHORT */
+    void Increment(tPlayer player);   /* SYM: FCN VOID */
     void Decrement(tPlayer player);   /* SYM: FCN VOID */
 
 };
@@ -3540,13 +3660,13 @@ struct tShapeInformation {   /* 40 bytes */
     unsigned int       async_handle;   /* +0xC */
     u_short            fNumShapes, fFlags;   /* +0x10 */
     char               fFilename[16];   /* +0x14 */
-    BOOL               fLoadCancelled;   /* +0x24 */
+    bool               fLoadCancelled;   /* +0x24 */
 };
 
 struct tScreen {   /* 100 bytes */
     tShapeInformation  fPermShapes, fSwapShapes;   /* +0x0 */
     int                fTransitionTicks;   /* +0x50 */
-    BOOL               fTransitionOff;   /* +0x54 */
+    bool               fTransitionOff;   /* +0x54 */
     int                fInternalScreenFadeVal;   /* +0x58 */
     short              fScreenFadeVal;   /* +0x5C */
     __vtbl_ptr_type      (*_vf)[10];   /* +0x60 */
@@ -3558,7 +3678,7 @@ struct tScreen {   /* 100 bytes */
     void DrawBackgroundImage(int startShape, int numShapes, tTexture_ShapeInfo *shapes, int flip_axis);
     void AsyncLoadPermanentShapeFile(char *fileName);
     void AsyncLoadSwapShapeFile(char *fileName);
-    void *IsShapeFileLoaded(tShapeInformation &shapes);
+    bool IsShapeFileLoaded(tShapeInformation &shapes);  /* SYM: FCN bool */
     void UploadPermanentShapes(int numPermanentShapes);
     void UploadSwapShapes(int numSwapShapes);
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
@@ -3571,10 +3691,10 @@ struct tScreen {   /* 100 bytes */
     void FreeShapes(tShapeInformation &data);
     void UploadShapes(tShapeInformation &data, short x, short y, short numShapes, short index);
     void PreLoad();
-    int  TransitionOff(tScreen_TransitionType type, tMenu *menu);
-    int  TransitionOn(tScreen_TransitionType type, tMenu *menu);
+    void TransitionOff(tScreen_TransitionType type, tMenu *menu);  /* SYM: FCN VOID */
+    void TransitionOn(tScreen_TransitionType type, tMenu *menu);   /* SYM: FCN VOID */
     void UpdateTransition();
-    int  TransitionIsFinished();
+    bool TransitionIsFinished();  /* SYM: FCN bool (four-byte int) */
     void ProcessInput(tPlayer fromPlayer, tInputKeyType &keyval, tMenuCommand &command);
     void DrawForeground();
     void DrawBackground();
@@ -3602,7 +3722,7 @@ struct tTrackInformation {   /* 48 bytes */
 struct tTrackManager {   /* 136 bytes */
     u_long             fNumTracks;   /* +0x0 */
     tTrackInformation  *fTracks;   /* +0x4 */
-    BOOL               fAvailableTracks[16], fViewableTracks[16];   /* +0x8 */
+    bool               fAvailableTracks[16], fViewableTracks[16];   /* +0x8; SYM ARY BOOL (native C++ bool, 4 bytes here) */
     /* reconstructed member fns (FECheats.obj cross-refs; ABI-neutral) */
     void SetClassAvailable(tTrackClassType cls, bool avail);
 
@@ -3655,14 +3775,14 @@ struct tAwardInformation {   /* 68 bytes */
     char               fActivateTrack;   /* +0xA */
     int                fActivateCarClass, fActivateCar, fActivateTrackClass;   /* +0xC */
     long               fActivateCheat;   /* +0x18 */
-    BOOL               fAwardCar, fAwardCarGarageFull;   /* +0x1C */
+    bool               fAwardCar, fAwardCarGarageFull;   /* +0x1C */
     long               fAwardCarBonusMoney;   /* +0x24 */
     int                fAwardCarModel;   /* +0x28 */
     char               fAwardCarColor, fAwardCarUpgrades;   /* +0x2C */
-    BOOL               fCompletedTier;   /* +0x30 */
+    bool               fCompletedTier;   /* +0x30 */
     short              fCompletedText;   /* +0x34 */
     int                fCompletedCar;   /* +0x38 */
-    BOOL               fCompletedGarageFull;   /* +0x3C */
+    bool               fCompletedGarageFull;   /* +0x3C */
     long               fCompletedBonusMoney;   /* +0x40 */
 };
 
@@ -3670,7 +3790,7 @@ struct tCompetitor {   /* 16 bytes */
     int                fPersonality;   /* +0x0 */
     u_char             fVariation;   /* +0x4 */
     signed char        fIsPlayerCar;   /* +0x5 */
-    BOOL               fEliminated;   /* +0x8 */
+    bool               fEliminated;   /* +0x8 */
     u_short            fPoints;   /* +0xC */
     u_char             fPosition;   /* +0xE */
 };
@@ -3719,7 +3839,7 @@ struct tTournamentManager {   /* 644 bytes */
     short  PlayerRanking(short);
     void   CalcTierFinishPrize();
     void   GetTrophyName(tTourneyInfo *, tTrophySize, char *, int);
-    void  *ValidCar(tCarInfo &);
+    bool ValidCar(tCarInfo &);  /* SYM: FCN bool (four-byte int) */
 };
 
 struct tMissionTierInfo {   /* 4 bytes */
@@ -3768,10 +3888,10 @@ struct tActiveLine {   /* 12 bytes */
 
 struct tDialogBase : public tScreen {   /* 144 bytes */
     short              specificPlayer, left, top, width, height, reservedheight;   /* +0x64 */
-    BOOL               currentlyOn;   /* +0x70 */
+    bool               currentlyOn;   /* +0x70 */
     long               startTicks, timeOutTicks;   /* +0x74 */
     short              OffsetX, OffsetY, MaxW, MaxH;   /* +0x7C */
-    BOOL               fFullyOpen;   /* +0x84 */
+    bool               fFullyOpen;   /* +0x84 */
     short              fDefault, ReturnValue;   /* +0x88 */
     int                fFadeText;   /* +0x8C */
     tDialogBase();
@@ -3783,7 +3903,7 @@ struct tDialogBase : public tScreen {   /* 144 bytes */
     void InitializeClass();
     static void DrawAllDialogs();
     void HideAllDialogs();
-    static int GetTopMostDialog();
+    static tDialogBase *GetTopMostDialog();  /* SYM: FCN PTR tDialogBase */
     void Hide();
     void Draw();
     void ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command);
@@ -3799,7 +3919,7 @@ struct tDialogBase : public tScreen {   /* 144 bytes */
 
 struct tDialogMessageString : public tDialogBase {   /* 152 bytes */
     char               *string;   /* +0x90 */
-    BOOL               Centerit;   /* +0x94 */
+    bool               Centerit;   /* +0x94 */
     tDialogMessageString();
     /* FEDialog methods */
     void CalculateDimensions();
@@ -3810,7 +3930,7 @@ struct tDialogMessageString : public tDialogBase {   /* 152 bytes */
 };
 
 struct tDialogInteractive : public tDialogMessageString {   /* 160 bytes */
-    BOOL               ReadyToReturnValue, fCurrentlyRunning;   /* +0x98 */
+    bool               ReadyToReturnValue, fCurrentlyRunning;   /* +0x98 */
     /* FEDialog methods */
     short Run();
 
@@ -3836,13 +3956,13 @@ struct tCredit {   /* 324 bytes */
 struct tCreditManager {   /* 56 bytes */
     tCredit            *CreditBuffer;   /* +0x0 */
     int                fTVFade, fTextFade, fTextFadeDir;   /* +0x4 */
-    BOOL               fCreditsInitialized, fRequestDeInit;   /* +0x10 */
+    bool               fCreditsInitialized, fRequestDeInit;   /* +0x10 */
     int                fNumCredits, fShowCreditNum, fCurrCredit;   /* +0x18 */
-    BOOL               StartedTransition, StartedLines, StartedTextFade;   /* +0x24 */
+    bool               StartedTransition, StartedLines, StartedTextFade;   /* +0x24 */
     int                fLineTicks, fStartTicks;   /* +0x30 */
     /* methods (non-virtual decls; storage-neutral) — FECredits.obj */
     void Setup();
-    int  Init(int arg1);
+    void Init(int arg1);  /* SYM: FCN VOID */
     void DeInit();
     void RealDeInit();
     void Draw(bool selected);
@@ -4351,7 +4471,7 @@ struct tSmallCoordXY {   /* 4 bytes */
 struct tBTCPerpInfo {   /* 16 bytes */
     char               name[8];   /* +0x0 */
     int                time;   /* +0x8 */
-    BOOL               caught;   /* +0xC */
+    bool               caught;   /* +0xC */
 };
 
 struct tCompRGB {   /* 3 bytes */
@@ -4448,7 +4568,7 @@ struct tListIteratorRangeIndexed : public tListIteratorRange {   /* 20 bytes */
     /* reconstructed FEMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     tListIteratorRangeIndexed(char minValue, char maxValue, char *valPtr, char *index);
     ~tListIteratorRangeIndexed();
-    int Value(tPlayer player);
+    char Value(tPlayer player);       /* SYM: FCN CHAR */
     void Increment(tPlayer player);
     void Decrement(tPlayer player);
 
@@ -4460,7 +4580,7 @@ struct tMenuItemLeftRightChoice : public tMenuItemInteractive {   /* 32 bytes */
     /* reconstructed FEMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     tMenuItemLeftRightChoice(unsigned int textDescription, tListIterator *dataPtr);
     ~tMenuItemLeftRightChoice();
-    int ProcessInput(tPlayer fromPlayer, tInputKeyType &keyval, tMenuCommand &command);
+    void ProcessInput(tPlayer fromPlayer, tInputKeyType &keyval, tMenuCommand &command);  /* SYM: FCN VOID */
     void Draw(bool selected);
 
 };
@@ -4473,7 +4593,7 @@ struct tMenuItemLeftRightSlider : public tMenuItemInteractive {   /* 40 bytes */
     tMenuItemLeftRightSlider(unsigned int textDescription, tListIterator *dataPtr);
     ~tMenuItemLeftRightSlider();
     long DebounceKeys();
-    int ProcessInput(tPlayer fromPlayer, tInputKeyType &keyval, tMenuCommand &command);
+    void ProcessInput(tPlayer fromPlayer, tInputKeyType &keyval, tMenuCommand &command);  /* SYM: FCN VOID */
     void Draw(bool selected);
     void SetDimensions(short x, short y, short width, short height);
 
@@ -4485,7 +4605,7 @@ struct tMenuItemGoToMenuButton : public tMenuItemInteractive {   /* 32 bytes */
     /* reconstructed FEMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     tMenuItemGoToMenuButton(unsigned int textDescription, tMenu *newMenu, void (*OnButtonPress)(tMenuCommand&));
     ~tMenuItemGoToMenuButton();
-    int ProcessInput(tPlayer fromPlayer, tInputKeyType &keyval, tMenuCommand &command);
+    void ProcessInput(tPlayer fromPlayer, tInputKeyType &keyval, tMenuCommand &command);  /* SYM: FCN VOID */
 
 };
 
@@ -4538,10 +4658,10 @@ struct tFEApplication {   /* 896 bytes */
     short              fYOffset;   /* +0x154 */
     tDialogHelp        helpPopup;   /* +0x158 */
     char               fPlayer, fInputPlayer;   /* +0x22C */
-    BOOL               waitingForOtherPlayer[2];   /* +0x230 */
+    bool               waitingForOtherPlayer[2];   /* +0x230 */
     tDialogMessageStringWithTimeout MemCardDialog;   /* +0x238 */
     tDialogNoInputMessage NoInputMemCardDialog;   /* +0x2D0 */
-    BOOL               gotName[2], needName[2];   /* +0x368 */
+    bool               gotName[2], needName[2];   /* +0x368 */
     int                speechToPlay[2];   /* +0x378 */
     void Redraw();   /* FEDialog */
     /* FEApp methods */
@@ -4571,7 +4691,7 @@ struct tMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuButton {   /* 44 by
     void Draw(int x,int y,bool selected);
     void TransitionOn();
     void TransitionOff();
-    void * TransitionIsFinished();
+    bool TransitionIsFinished();  /* SYM: FCN bool (four-byte int) */
     void UpdateTransition(bool selected);
     void Draw(bool selected);
 
@@ -4586,7 +4706,7 @@ struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {   /* 40 
     void Draw(int x,int y,bool selected);
     void TransitionOn();
     void TransitionOff();
-    void * TransitionIsFinished();
+    bool TransitionIsFinished();  /* SYM: FCN bool (four-byte int) */
     void UpdateTransition(bool selected);
 
 };
@@ -4595,7 +4715,7 @@ extern __vtbl_ptr_type tMenuItemOptionsLeftRightChoice_vtable[], tMenuItemOption
 struct tBlankMenuItemNFS4LeftRightChoice : public tMenuItemNFS4LeftRightChoice {   /* 40 bytes */
     tBlankMenuItemNFS4LeftRightChoice() {}   /* default ctor (members not init-listed elsewhere) */
     tBlankMenuItemNFS4LeftRightChoice(unsigned int t, tListIterator *d, int ff, int nf) : tMenuItemNFS4LeftRightChoice(t, d, ff, nf) { *(void **)&_vf = (void *)&tBlankMenuItemNFS4LeftRightChoice_vtable; }   /* inline fwd ctor */
-    void *TransitionIsFinished();
+    bool TransitionIsFinished();
     void Draw(int, int, bool);   /* w64 unlock (A19 2.4): char form was undefined */
 };
 
@@ -4619,7 +4739,7 @@ struct tMenuItemOptionsTwoItemChoice : public tMenuItemLeftRightChoice {   /* 36
 
 struct tMenuNFS4 : public tMenu {   /* 124 bytes */
     tMenuNFS4() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    BOOL               fInItemTransition, fInMenuTransition;   /* +0x6C */
+    bool               fInItemTransition, fInMenuTransition;   /* +0x6C */
     short              fTransitionVal;   /* +0x74 */
     signed char        fTransitionDirection;   /* +0x76  (W56-A2: char->signed char; oracle reads it `lb`/`<0` guards — every consumer already casts `*(signed char*)&`, so this makes those casts redundant) */
     char               fLastItem, fNumItems;   /* +0x77 (unsigned: read plain as counters) */
@@ -4631,7 +4751,7 @@ struct tMenuNFS4 : public tMenu {   /* 124 bytes */
     void ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command);
     void TransitionOff();
     void TransitionOn();
-    void * TransitionIsFinished();
+    bool TransitionIsFinished();  /* SYM: FCN bool (four-byte int) */
     void UpdateTransition();
     void DrawItem(int item);
     void Draw();
@@ -4667,7 +4787,7 @@ struct tMenuBlank : public tMenuNFS4 {   /* 124 bytes */
     long DebounceKeys();
     void TransitionOff();
     void TransitionOn();
-    void * TransitionIsFinished();
+    bool TransitionIsFinished();  /* SYM: FCN bool (four-byte int) */
     void UpdateTransition();
 
 };
@@ -4682,23 +4802,23 @@ struct tMenuOptions : public tMenuNFS4 {   /* 132 bytes */
     void Draw();
     void TransitionOff();
     void TransitionOn();
-    void * TransitionIsFinished();
+    bool TransitionIsFinished();  /* SYM: FCN bool (four-byte int) */
     void ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command);
-    void * IsSubMenu();
+    bool IsSubMenu();              /* SYM: FCN bool (four-byte int) */
 
 };
 
 struct tMenuItemLeftRightFade : public tMenuItemLeftRightChoice {   /* 44 bytes */
     tMenuItemLeftRightFade() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
     short              fFadeVal, fFadeDir;   /* +0x20 */
-    BOOL               fInTransition;   /* +0x24 */
+    bool               fInTransition;   /* +0x24 */
     int                flareextra;   /* +0x28 */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
     tMenuItemLeftRightFade(unsigned int, tListIterator *);
     void TransitionOff();
     void TransitionOn();
-    void * TransitionIsFinished();
+    bool TransitionIsFinished();  /* SYM: FCN bool (four-byte int) */
     void UpdateTransition(bool);
     void MyLeftRightDraw(int, int);
 
@@ -4706,7 +4826,7 @@ struct tMenuItemLeftRightFade : public tMenuItemLeftRightChoice {   /* 44 bytes 
 
 struct tOptionsMenu : public tMenu {   /* 128 bytes */
     tOptionsMenu() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    BOOL               fInMenuTransition;   /* +0x6C */
+    bool               fInMenuTransition;   /* +0x6C */
     signed char        fTransitionDirection;   /* +0x70  (W56-A2: char->signed char; oracle `lb`/`<0`; all reads already `*(signed char*)&`) */
     short              fPrevItem;   /* +0x72 */
     int                fScreenFade, fFirstFrame, fNumFrames;   /* +0x74 */
@@ -4717,7 +4837,7 @@ struct tOptionsMenu : public tMenu {   /* 128 bytes */
     long DebounceKeys();
     void TransitionOff();
     void TransitionOn();
-    void * TransitionIsFinished();
+    bool TransitionIsFinished();  /* SYM: FCN bool (four-byte int) */
     void UpdateTransition();
     void Draw();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
@@ -4740,9 +4860,9 @@ struct tMenuItemSlidingMenu : public tMenuItem {   /* 68 bytes */
     tMenuItemSlidingMenu() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
     tInsideBoxMenu     *currMenu, *nextMenu;   /* +0x1C */
     short              fWidth, fHeight, fOpenHeight, fSlideOffset, fFadeVal, fFadeDir;   /* +0x24 */
-    BOOL               fInTransition, fTransitioningOut, fClosing;   /* +0x30 */
+    bool               fInTransition, fTransitioningOut, fClosing;   /* +0x30 */
     short              fDiffX, fDiffY;   /* +0x3C */
-    BOOL               fFillback;   /* +0x40 */
+    bool               fFillback;   /* +0x40 */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
     tMenuItemSlidingMenu(unsigned int, short, short, int, int, bool)
@@ -4750,7 +4870,7 @@ struct tMenuItemSlidingMenu : public tMenuItem {   /* 68 bytes */
     ~tMenuItemSlidingMenu();
     void TransitionOff();
     void TransitionOn();
-    void * TransitionIsFinished();
+    bool TransitionIsFinished();  /* SYM: FCN bool (four-byte int) */
     void UpdateTransition(bool);
     long DebounceKeys();
     void Draw(bool);
@@ -4764,13 +4884,13 @@ struct tMenuItemSlidingMenu : public tMenuItem {   /* 68 bytes */
 struct tMenuItemSlidingActivated : public tMenuItemSlidingMenu {   /* 72 bytes */
     tMenuItemSlidingActivated() {}   /* default ctor (members not init-listed elsewhere) */
     tMenuItemSlidingActivated(unsigned int a, short b, short c, short d, short e, bool f) : tMenuItemSlidingMenu(a, b, c, d, e, f) { *(void **)&_vf = (void *)&tMenuItemSlidingActivated_vtable; }   /* inline fwd ctor */
-    BOOL               fActive;   /* +0x44 */
+    bool               fActive;   /* +0x44 */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
-    int UpdatefOpenHeight(bool);
+    void UpdatefOpenHeight(bool);  /* SYM: FCN VOID */
     void TransitionOff();
     void TransitionOn();
-    void * TransitionIsFinished();
+    bool TransitionIsFinished();  /* SYM: FCN bool (four-byte int) */
     void UpdateTransition(bool);
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 
@@ -4781,7 +4901,7 @@ struct tMenuItemDisplayLeftRightChoice : public tMenuItemLeftRightFade {   /* 44
     tMenuItemDisplayLeftRightChoice(unsigned int t, tListIterator *d) : tMenuItemLeftRightFade(t, d) { *(void **)&_vf = (void *)&tMenuItemDisplayLeftRightChoice_vtable; }   /* inline fwd ctor */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
-    int Draw(int, int, bool);
+    void Draw(int, int, bool);  /* SYM: FCN VOID */
 
 };
 
@@ -4792,25 +4912,25 @@ struct tMenuItemOnOffLeftRightChoice : public tMenuItemLeftRightFade {   /* 48 b
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
     void TransitionOn();
-    int Draw(int, int, bool);
+    void Draw(int, int, bool);  /* SYM: FCN VOID */
 
 };
 
 struct tMenuItemLeftRightAudioSlider : public tMenuItemLeftRightSlider {   /* 56 bytes */
     tMenuItemLeftRightAudioSlider() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
     short              fFadeVal, fFadeDir;   /* +0x28 */
-    BOOL               fInTransition;   /* +0x2C */
+    bool               fInTransition;   /* +0x2C */
     short              fAudioArt;   /* +0x30 */
     int                flareextra;   /* +0x34 */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
     tMenuItemLeftRightAudioSlider(unsigned int, tListIterator *, int);
     ~tMenuItemLeftRightAudioSlider();
-    int Draw(int, int, bool);
+    void Draw(int, int, bool);  /* SYM: FCN VOID */
     int Percentage();
     void TransitionOff();
     void TransitionOn();
-    void * TransitionIsFinished();
+    bool TransitionIsFinished();  /* SYM: FCN bool (four-byte int) */
     void UpdateTransition(bool);
 
 };
@@ -4834,7 +4954,7 @@ struct tMenuItemControllerLeftRightChoice : public tMenuItemLeftRightFade {   /*
     tMenuItemControllerLeftRightChoice(unsigned int t, tListIterator *d) : tMenuItemLeftRightFade(t, d) { *(void **)&_vf = (void *)&tMenuItemControllerLeftRightChoice_vtable; }   /* inline fwd ctor */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
-    int Draw(int, int, bool);
+    void Draw(int, int, bool);  /* SYM: FCN VOID */
 
 };
 
@@ -4844,20 +4964,20 @@ struct tInsideBoxLeftRightSlider : public tMenuItemLeftRightSlider {   /* 40 byt
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
     tInsideBoxLeftRightSlider(unsigned int, tListIterator *);
     ~tInsideBoxLeftRightSlider();
-    int Draw(int, int, int, bool);
+    void Draw(int, int, int, bool);  /* SYM: FCN VOID */
 
 };
 
 struct tInsideBoxTwoWaySlider : public tMenuItemLeftRightSlider {   /* 48 bytes */
     tInsideBoxTwoWaySlider() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
     short              fType;   /* +0x28 */
-    BOOL               fActive;   /* +0x2C */
+    bool               fActive;   /* +0x2C */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
     tInsideBoxTwoWaySlider(unsigned int, tListIterator *, int);
     ~tInsideBoxTwoWaySlider();
-    int ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    int Draw(int, int, int, bool);
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);  /* SYM: FCN VOID */
+    void Draw(int, int, int, bool);  /* SYM: FCN VOID */
     void Calibrate();
 
 };
@@ -4868,15 +4988,15 @@ struct tUserNameMenuItem : public tMenuItem {   /* 140 bytes */
     short              fMaxStringLength, fCurrentColumn, fCurrentRow;   /* +0x20 */
     char               fRowList[10][9];   /* +0x26 */
     short              fPlayer, fFadeVal, fFadeDir;   /* +0x80 */
-    BOOL               fInTransition;   /* +0x88 */
+    bool               fInTransition;   /* +0x88 */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
     tUserNameMenuItem(unsigned int);
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);  /* SYM: FCN VOID */
-    int Draw(bool);
+    void Draw(bool);  /* SYM: FCN VOID */
     void TransitionOff();
     void TransitionOn();
-    void * TransitionIsFinished();
+    bool TransitionIsFinished();  /* SYM: FCN bool (four-byte int) */
     void UpdateTransition(bool);
 
 };
@@ -4885,13 +5005,13 @@ struct tMenuItemGoToMenuButtonFade : public tMenuItemGoToMenuButton {   /* 44 by
     tMenuItemGoToMenuButtonFade() {}   /* default ctor */
     tMenuItemGoToMenuButtonFade(unsigned int t, tMenu *mn, void (*f)(tMenuCommand&)) : tMenuItemGoToMenuButton(t, mn, f) {}   /* inline fwd ctor */
     short              fFadeVal, fFadeDir;   /* +0x20 */
-    BOOL               fInTransition;   /* +0x24 */
+    bool               fInTransition;   /* +0x24 */
     signed short       fEnableVal;   /* +0x28  MATCH W57: oracle reads `lh` (08C signed-short class, A3 receipt) */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
     void TransitionOff();
     void TransitionOn();
-    void * TransitionIsFinished();
+    bool TransitionIsFinished();  /* SYM: FCN bool (four-byte int) */
     void UpdateTransition(bool);
 
 };
@@ -4901,14 +5021,14 @@ struct tMemoryCardMenuItem : public tMenuItemGoToMenuButtonFade {   /* 44 bytes 
     tMemoryCardMenuItem(unsigned int t, tMenu *m, void (*f)(tMenuCommand&)) : tMenuItemGoToMenuButtonFade(t, m, f) { *(void **)&_vf = (void *)&tMemoryCardMenuItem_vtable; }   /* inline fwd ctor */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
-    int Draw(bool);
+    void Draw(bool);  /* SYM: FCN VOID */
 
 };
 
 struct tBlankMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuNFS4Button {   /* 44 bytes */
     tBlankMenuItemGoToMenuNFS4Button() {}   /* default ctor (members not init-listed elsewhere) */
     tBlankMenuItemGoToMenuNFS4Button(unsigned int t, tMenu *m, void (*f)(tMenuCommand&), int ff, int nf) : tMenuItemGoToMenuNFS4Button(t, m, f, ff, nf) { *(void **)&_vf = (void *)&tBlankMenuItemGoToMenuNFS4Button_vtable; }   /* inline fwd ctor */
-    void *TransitionIsFinished();
+    bool TransitionIsFinished();
     /* w64 unlock (A19 2.4): the int/char spellings were the overloads NOTHING
      * defines -- vtable slots relocated against phantoms (runtime NULL dispatch). */
     void Draw(int, int, bool);
@@ -4943,7 +5063,7 @@ struct tListIteratorCar : public tListIterator {   /* 28 bytes */
     void AdjustPosition(tPlayer atIndex,short direction);
     void Increment(tPlayer atIndex);
     void Decrement(tPlayer atIndex);
-    void * ValidCar(tPlayer atIndex,char carNumber);
+    bool ValidCar(tPlayer atIndex,char carNumber);  /* SYM: FCN bool */
 
 };
 
@@ -4956,8 +5076,8 @@ struct tListIteratorCarColor : public tListIterator {   /* 32 bytes */
     tListIteratorCarColor(char *value,char *player,char *playerCar,int indexSize, tCarManager *carManager);
     ~tListIteratorCarColor();
     char Value(tPlayer arg1);
-    int TextValue(tPlayer arg1);
-    int Increment(tPlayer arg1);
+    short TextValue(tPlayer arg1);  /* SYM: FCN SHORT */
+    void Increment(tPlayer arg1);   /* SYM: FCN VOID */
     void Decrement(tPlayer arg1);
 
 };
@@ -4975,7 +5095,7 @@ struct tListIteratorTrack : public tListIteratorIndexed {   /* 24 bytes */
     short TextValue(tPlayer atIndex);
     void Increment(tPlayer atIndex);
     void Decrement(tPlayer atIndex);
-    void *ValidTrack(char track);
+    bool ValidTrack(char track);  /* SYM: FCN BOOL (native C++ bool) */
 
 };
 
@@ -4993,11 +5113,11 @@ struct tListIteratorTournament : public tListIterator {   /* 20 bytes */
     tListIteratorTournament() {}
     tListIteratorTournament(char *valPtr, tTournamentManager *tournManager);
     ~tListIteratorTournament();
-    int   Value(tPlayer);
-    int   TextValue(tPlayer);
+    char  Value(tPlayer);      /* SYM: FCN CHAR */
+    short TextValue(tPlayer);  /* SYM: FCN SHORT */
     void  Increment(tPlayer);
     void  Decrement(tPlayer);
-    void *ValidTournament(char);
+    bool ValidTournament(char);  /* SYM: FCN bool */
 };
 
 struct tTVConfig {   /* 48 bytes */
@@ -5047,7 +5167,7 @@ struct FE3d_zObj {   /* 32 bytes */
 struct tScreenUserName : public tScreen {   /* 204 bytes */
     tOptionsMenu       *callingMenu;   /* +0x64 */
     short              fTextFade;   /* +0x68 */
-    BOOL               fInTransition;   /* +0x6C */
+    bool               fInTransition;   /* +0x6C */
     char               fRowList[10][9];   /* +0x70 */
     tScreenUserName();
     /* reconstructed member fns (non-virtual decls; ABI-neutral) */
@@ -5061,7 +5181,7 @@ struct tScreenUserName : public tScreen {   /* 204 bytes */
 struct tScreenTournamentStandings : public tScreen {   /* 148 bytes */
     long               moneyFinal, moneyAwarded, moneyDamage, moneyBonus;   /* +0x64 */
     int                starttick;   /* +0x74 */
-    BOOL               gotmoney, gotbonus, gotbilled, fDrawMoney, fCountedDown, fStartCountdownNOW;   /* +0x78 */
+    bool               gotmoney, gotbonus, gotbilled, fDrawMoney, fCountedDown, fStartCountdownNOW;   /* +0x78 */
     int                fCountSpeed;   /* +0x90 */
     /* --- reconstructed member fns (ScreenPost.obj; non-virtual, ABI-neutral) --- */
     tScreenTournamentStandings();
@@ -5154,18 +5274,18 @@ struct tScreenControllerConfig : public tScreen {   /* 380 bytes */
     short              fFade[2], fFadeController[2];   /* +0x70 */
     int                fStartTick;   /* +0x78 */
     short              fGotTick, fAnim, fAnimFrame, fAnimStart, fAnimStop, fAnimStep, fAnimController, fSwap, fAnimFade, fAnimFadeStart, fAnimFadeStop, fAnimFadeFrame, fAnimFadeController, CurrentlyLoadedArt, negconChoice;   /* +0x7C */
-    BOOL               fTransitionedIn, fTransitioningIn, fTransitioningOut;   /* +0x9C */
+    bool               fTransitionedIn, fTransitioningIn, fTransitioningOut;   /* +0x9C */
     short              fArrowFade, fArrowFadeDir, fTextTypeOn;   /* +0xA8 */
-    BOOL               fFadeTextOut;   /* +0xB0 */
+    bool               fFadeTextOut;   /* +0xB0 */
     short              mult;   /* +0xB4 */
     short              negconPad;   /* +0xB6: alignment formerly supplied by tDialogYesNo */
     /* Raw storage lets the reconstructed constructor reproduce the original
        compiler-generated order: derived vptr first, then member ctor. */
     char               negconPopUp[sizeof(tDialogYesNo)];   /* +0xB8 */
     int                fTimeOutStartTick;   /* +0x160 */
-    BOOL               SuperFastFadeOut, fPlayedInSound;   /* +0x164 */
+    bool               SuperFastFadeOut, fPlayedInSound;   /* +0x164 */
     short              fShakingItem;   /* +0x16C */
-    BOOL               fResetShakeTimeOut;   /* +0x170 */
+    bool               fResetShakeTimeOut;   /* +0x170 */
     char               fCurrentController;   /* +0x174 */
     int                player;   /* +0x178 */
     /* --- reconstructed member fns (ScreenController.obj; non-virtual, ABI-neutral) --- */
@@ -5233,9 +5353,9 @@ struct tListIteratorDoubleIndexed : public tListIterator {   /* 28 bytes */
     char               *fIndex2;   /* +0x18 */
     /* reconstructed FEMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     ~tListIteratorDoubleIndexed();
-    int Value(tPlayer player);
-    int TextValue(tPlayer player);
-    int Increment(tPlayer player);
+    char Value(tPlayer player);       /* SYM: FCN CHAR */
+    short TextValue(tPlayer player);  /* SYM: FCN SHORT */
+    void Increment(tPlayer player);   /* SYM: FCN VOID */
     void Decrement(tPlayer player);   /* SYM: FCN VOID */
 
 };
@@ -5258,11 +5378,11 @@ struct tScreenMain : public tScreen {   /* 1464 bytes */
     tTVConfig          tvConfigs[16];   /* +0x7C */
     int                tvStates[16];   /* +0x37C */
     tVideoTransition   tvTransitions[16];   /* +0x3BC */
-    BOOL               fTVsInitialized;   /* +0x53C */
+    bool               fTVsInitialized;   /* +0x53C */
     char               fTransitionDirection;   /* +0x540 */
-    BOOL               fAnimationUploaded;   /* +0x544 */
+    bool               fAnimationUploaded;   /* +0x544 */
     short              fPreviousAnim, fWarningFade, fPreviousMovie, fCurrentMovie;   /* +0x548 */
-    BOOL               bVideoAborted;   /* +0x550 */
+    bool               bVideoAborted;   /* +0x550 */
     u_long             fMovieTicks;   /* +0x554 */
     tShapeInformation  fVideoShapes[2];   /* +0x558 */
     int                fCurrentSlot;   /* +0x5A8 */
@@ -5271,7 +5391,7 @@ struct tScreenMain : public tScreen {   /* 1464 bytes */
     tScreenMain();
     /* methods (non-virtual decls; storage-neutral) — ScreenMain.obj */
     void SwapBackground(int num);
-    int  DoneLoadingBackground();
+    bool DoneLoadingBackground();  /* SYM: FCN bool (four-byte int) */
     void SetState(tScreenMainState state);
     void InitDynamicImages();
     void ProcessInput(tPlayer fromPlayer, tInputKeyType &keyval, tMenuCommand &command);
@@ -5302,7 +5422,7 @@ struct tVideoWall {   /* 56 bytes */
     short              fTransitionDirection, fFlipAxis, fOffsetX, fOffsetY, fAvailableTextID, fAvailable, fAvailableBright, fValid, fAvailableX, fAvailableY;   /* +0x14 */
     tTexture_ShapeInfo *fIconShapes;   /* +0x28 */
     short              fIcon, fIconFrames, fIconX, fIconY;   /* +0x2C */
-    BOOL               fUpdated;   /* +0x34 */
+    bool               fUpdated;   /* +0x34 */
     /* methods (non-virtual decls; storage-neutral) — FEVideoWall.obj */
     void Initialize(tTVConfig *tvs, tTexture_ShapeInfo *shapes, short firstTV, short numTVs, short *tvOrdering, short flip_axis);
     void UpdateImages();
@@ -5331,9 +5451,9 @@ struct tScreenCarSelect : public tScreen {   /* 928 bytes */
     tVideoWall         fVideoWall[2];   /* +0x304 */
     short              fBrightness[2], fDestBrightness[2];   /* +0x374 */
     long               fFadeTicks[2];   /* +0x37C */
-    BOOL               fTVsInitialized, fInShowroom;   /* +0x384 */
+    bool               fTVsInitialized, fInShowroom;   /* +0x384 */
     u_long             fShowroomTicks, fSpeechTicks;   /* +0x38C */
-    BOOL               fSpeechPlayed;   /* +0x394 */
+    bool               fSpeechPlayed;   /* +0x394 */
     int                fSplineInterval;   /* +0x398 */
     u_long             fCameraRotation;   /* +0x39C */
     /* --- reconstructed member fns (ScreenCarSelect.obj; non-virtual, ABI-neutral) --- */
@@ -5349,9 +5469,9 @@ struct tScreenCarSelect : public tScreen {   /* 928 bytes */
     void FreeAsyncBuffer();
     void InitializeVideoWall();
     void Initialize();
-    int ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);  /* returns menu-cmd value */
+    void ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);  /* SYM: FCN VOID */
     void DrawVideoWall(short s);
-    int GetCar(tCarInfo &car);
+    bool GetCar(tCarInfo &car);  /* SYM: FCN bool (four-byte int) */
     void SetBrightness(short a, short b);
     void UpdateBrightness(short s);
     void DrawBackground();
@@ -5361,7 +5481,7 @@ struct tScreenCarSelect : public tScreen {   /* 928 bytes */
 
 struct tScreenCarSelectDuel : public tScreenCarSelect {   /* 976 bytes */
     short              fPreviousOpponent;   /* +0x3A0 */
-    BOOL               fOpponentTVsInitialized;   /* +0x3A4 */
+    bool               fOpponentTVsInitialized;   /* +0x3A4 */
     tShapeInformation  fOpponentShapes;   /* +0x3A8 */
     tScreenCarSelectDuel();
     /* --- reconstructed member fns (Duel) --- */
@@ -5388,7 +5508,7 @@ struct tScreenCarSelectTwoPlayer : public tScreenCarSelect {   /* 1080 bytes */
      * tScreenControllerConfig dtor comment above for the full rationale. Standalone
      * ___25tScreenCarSelectTwoPlayer hand-transcribed verbatim in screencarselect.cpp. */
     ~tScreenCarSelectTwoPlayer() { }
-    int GetCar(tCarInfo &car);
+    bool GetCar(tCarInfo &car);  /* SYM: FCN bool (four-byte int) */
     void DrawVideoWall(short s);
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
     void UpdateVideoWall(tCarInfo &car);
@@ -5406,21 +5526,21 @@ struct tScreenPinkSlipsCarSelect : public tScreenCarSelectTwoPlayer {   /* 1100 
     int                waitfordialog;   /* +0x438 */
     CARDINFO_def       *pCI;   /* +0x43C */
     int                fStartCheckTick;   /* +0x440 */
-    BOOL               fCardFailed, fExitingScreen;   /* +0x444 */
+    bool               fCardFailed, fExitingScreen;   /* +0x444 */
     tScreenPinkSlipsCarSelect();
     /* --- reconstructed member fns (PinkSlips) --- */
     /* MATCH 2026-07-11 (dtor-surgery): INLINE-in-class, empty body -- see the
      * tScreenControllerConfig dtor comment above for the full rationale. Standalone
      * ___25tScreenPinkSlipsCarSelect hand-transcribed verbatim in screencarselect.cpp. */
     ~tScreenPinkSlipsCarSelect() { }
-    int GetCar(tCarInfo &car);
+    bool GetCar(tCarInfo &car);  /* SYM: FCN bool (four-byte int) */
     void DrawBackground();
     void DoMemCardStuff();
     void DrawForeground();
     void Initialize();
     void Cleanup();
     void SetDialog();
-    int ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);  /* returns menu-cmd value */
+    void ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);  /* SYM: FCN VOID */
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
 };
 
@@ -5432,7 +5552,7 @@ struct tScreenTournSelect : public tScreen {   /* 712 bytes */
     u_long             fStartTicks, fTVTicks;   /* +0x2B0 */
     short              fTransitionDirection;   /* +0x2B8 */
     char               fPreviousTrophy;   /* +0x2BA */
-    BOOL               fTVsInitialized;   /* +0x2BC */
+    bool               fTVsInitialized;   /* +0x2BC */
     int                PreCalculatedTournamentY, fPrevi;   /* +0x2C0 */
     /* --- reconstructed member fns (ScreenTournSelect.obj; non-virtual, ABI-neutral) --- */
     tScreenTournSelect();
@@ -5449,7 +5569,7 @@ struct tScreenTournSelect : public tScreen {   /* 712 bytes */
 struct tScreenPinkSlipStandings : public tScreenTournamentStandings3item {   /* 148 bytes */
     tScreenPinkSlipStandings();
     void DrawBackground();
-    int ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);  /* returns menu-cmd value */
+    void ProcessInput(tPlayer fromPlayer, tInputKeyType &keyval, tMenuCommand &command);  /* SYM: FCN VOID */
 };
 
 struct tScreenTrophyRoom : public tScreen {   /* 344 bytes */
@@ -5457,9 +5577,9 @@ struct tScreenTrophyRoom : public tScreen {   /* 344 bytes */
     short              fNumTrophies;   /* +0x8C */
     int                startTicks;   /* +0x90 */
     short              fShapeCount;   /* +0x94 */
-    BOOL               fLoadingTrophy;   /* +0x98 */
+    bool               fLoadingTrophy;   /* +0x98 */
     char               fPreviousTrophy, fDoUpdate;   /* +0x9C */
-    BOOL               fClearScreen;   /* +0xA0 */
+    bool               fClearScreen;   /* +0xA0 */
     char               fBrightness;   /* +0xA4 */
     u_long             fStartTicks;   /* +0xA8 */
     short              fTextInfo[16];   /* +0xAC */
@@ -5522,15 +5642,15 @@ struct tScreenMemcard : public tScreen {   /* 1444 bytes */
     MCRDFILE_def       fMemFile[15];   /* +0x280 */
     u_short            fMemIconClutId[15];   /* +0x514 */
     short              fFadeIcon[15];   /* +0x532 */
-    BOOL               fReadyToGetNewIcons, fInitedMemCard;   /* +0x550 */
+    bool               fReadyToGetNewIcons, fInitedMemCard;   /* +0x550 */
     char               fMemCardMessage[40];   /* +0x558 */
     int                fMemCardMessageTextSys, message;   /* +0x580 */
     short              memcardanimframe, count, cursorPosition;   /* +0x588 */
     int                checkingstart;   /* +0x590 */
-    BOOL               fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons;   /* +0x594 */
+    bool               fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons;   /* +0x594 */
     int                fScreenFadeReadyTick;   /* +0x598 */
     short              player;   /* +0x59C */
-    BOOL               fGetNewIcons;   /* +0x5A0 */
+    bool               fGetNewIcons;   /* +0x5A0 */
     /* --- reconstructed member fns (ScreenMemcard.obj; non-virtual, ABI-neutral) --- */
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
     void DrawIcon(shapetbl *icon, int x, int y, int destwidth, int destheight, short fFade);
@@ -5552,19 +5672,19 @@ struct tScreenCongrats : public tScreen {   /* 388 bytes */
     int                congratsMessage, trophy, smallSpinningThing, fNumSpinShapes, fNumSmallSpinShapes, fCarPlayer;   /* +0x64 */
     long               TotalCash, CashAwarded;   /* +0x7C */
     int                framenum, starttick;   /* +0x84 */
-    BOOL               InExtraSpin;   /* +0x8C */
+    bool               InExtraSpin;   /* +0x8C */
     int                InExtraSpinTick;   /* +0x90 */
     tCarInfo           fCarInfo;   /* +0x94 */
-    BOOL               fGotCar;   /* +0x160 */
+    bool               fGotCar;   /* +0x160 */
     int                fEnterTick;   /* +0x164 */
-    BOOL               fCountedDown, fStartCountdownNOW;   /* +0x168 */
+    bool               fCountedDown, fStartCountdownNOW;   /* +0x168 */
     int                fCountSpeed, fSpeechToPlay;   /* +0x170 */
     short              fCarX, fCarY;   /* +0x178 */
     float              fCarCX, fCarCY;   /* +0x17C */
     /* reconstructed member fns (non-virtual decls; ABI-neutral) */
     void Cleanup();
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
-    int GetCar(tCarInfo &car);
+    bool GetCar(tCarInfo &car);  /* SYM: FCN bool (four-byte int) */
     void DrawBackground();
     void DrawForeground();
     void CalculatePrizes();
@@ -5577,7 +5697,7 @@ struct tScreenTournamentTrophy : public tScreenCongrats {   /* 392 bytes */
     char               fDoUpdate;   /* +0x186 */
     tScreenTournamentTrophy();
     void ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);
-    int GetCar(tCarInfo &car);
+    bool GetCar(tCarInfo &car);  /* SYM: FCN bool (four-byte int) */
     void DrawCongratsMessage();
     void CalculatePrizes();
 };
@@ -5586,7 +5706,7 @@ struct tScreenPinkSlipCongrats : public tScreenCongrats {   /* 392 bytes */
     short              fWinner;   /* +0x184 */
     tScreenPinkSlipCongrats();
     void DrawCongratsMessage();
-    int GetCar(tCarInfo &car);
+    bool GetCar(tCarInfo &car);  /* SYM: FCN bool (four-byte int) */
     void CalculatePrizes();
     void Initialize();
     void Cleanup();
@@ -5594,14 +5714,14 @@ struct tScreenPinkSlipCongrats : public tScreenCongrats {   /* 392 bytes */
 
 struct tScreenBeTheCopCongrats : public tScreenCongrats {   /* 388 bytes */
     tScreenBeTheCopCongrats();
-    int GetCar(tCarInfo &car);
+    bool GetCar(tCarInfo &car);  /* SYM: FCN bool (four-byte int) */
     void CalculatePrizes();
     void DrawCongratsMessage();
 };
 
 struct tScreenTournamentCongrats : public tScreenCongrats {   /* 388 bytes */
     tScreenTournamentCongrats();
-    int GetCar(tCarInfo &car);
+    bool GetCar(tCarInfo &car);  /* SYM: FCN bool (four-byte int) */
     void CalculatePrizes();
     void DrawCongratsMessage();
 };
@@ -5609,7 +5729,7 @@ struct tScreenTournamentCongrats : public tScreenCongrats {   /* 388 bytes */
 struct tScreenTrackRecords : public tScreen {   /* 116 bytes */
     tRecordBuffer      *TrackRecords;   /* +0x64 */
     int                flare_intensity, flareextra;   /* +0x68 */
-    BOOL               fReadNewData;   /* +0x70 */
+    bool               fReadNewData;   /* +0x70 */
     tScreenTrackRecords();
     /* --- reconstructed member fns (ScreenTrackRecords.obj; non-virtual, ABI-neutral) --- */
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
@@ -5624,10 +5744,10 @@ struct tScreenTrackSelect : public tScreen {   /* 672 bytes */
     int                hVideo, fFrame;   /* +0x64 */
     short              fPreviousTrack, fMovieTrack, fBrightness, fDestBrightness, fStartBrightness;   /* +0x6C */
     u_long             fStartTicks;   /* +0x78 */
-    BOOL               fTicksSet;   /* +0x7C */
+    bool               fTicksSet;   /* +0x7C */
     tTVConfig          tvConfigs[10];   /* +0x80 */
     tVideoWall         fVideoWall;   /* +0x260 */
-    BOOL               fTVsInitialized;   /* +0x298 */
+    bool               fTVsInitialized;   /* +0x298 */
     u_long             fVideoTicks;   /* +0x29C */
     tScreenTrackSelect();
     /* --- reconstructed member fns (ScreenTracks.obj; non-virtual, ABI-neutral) --- */
@@ -5662,7 +5782,7 @@ struct tScreenPinkSlips : public tScreen {   /* 712 bytes */
     char               fTransitionDirection;   /* +0x80 */
     tTVConfig          fTrackTVs[8];   /* +0x84 */
     tTVConfig          fImageTVs[4];   /* +0x204 */
-    BOOL               fTVsInitialized;   /* +0x2C4 */
+    bool               fTVsInitialized;   /* +0x2C4 */
     tScreenPinkSlips();
     /* methods (non-virtual decls; storage-neutral) — ScreenPinkSlips.obj */
     void DrawBackground();

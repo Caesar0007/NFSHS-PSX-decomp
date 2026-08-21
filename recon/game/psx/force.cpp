@@ -339,19 +339,19 @@ ForceUpd_audioRevLoop:
 void Force_StartUp(void)
 
 {
-  Force_tGlobal *force_walk;
+  Force_tGlobal *f;
 
-  force_walk = Force_g;
-  if (force_walk < Force_g + 2) {
+  f = Force_g;
+  if (f < Force_g + 2) {
     do {
-      force_walk->active = '\0';
-      force_walk->high = '\0';
-      force_walk->low = '\0';
-      force_walk->time = '\0';
-      force_walk->actuator[0] = '\0';
-      force_walk->actuator[1] = '\0';
-      force_walk = force_walk + 1;
-    } while (force_walk < Force_g + 2);
+      f->active = '\0';
+      f->high = '\0';
+      f->low = '\0';
+      f->time = '\0';
+      f->actuator[0] = '\0';
+      f->actuator[1] = '\0';
+      f = f + 1;
+    } while (f < Force_g + 2);
   }
   VSyncCallback(Force_Vbl);
   Sched_AddFunction(simGlobal.schedule32Hz,Force_Update,Cars_gHumanRaceCarList[0],0x32);
@@ -375,15 +375,15 @@ void Force_StartUp(void)
 void Force_Disable(void)
 
 {
-  Force_tGlobal *pFVar2;
+  Force_tGlobal *f;
 
-  pFVar2 = Force_g;
-  if (pFVar2 < Force_g + 2) {
+  f = Force_g;
+  if (f < Force_g + 2) {
     do {
-      pFVar2->actuator[0] = '\0';
-      pFVar2->actuator[1] = '\0';
-      pFVar2 = pFVar2 + 1;
-    } while (pFVar2 < Force_g + 2);
+      f->actuator[0] = '\0';
+      f->actuator[1] = '\0';
+      f = f + 1;
+    } while (f < Force_g + 2);
   }
   PadSetActAlign(0,Force_gOffAlign);
   PadSetActAlign(4,Force_gOffAlign);
@@ -401,45 +401,46 @@ void Force_Disable(void)
  *       They are the COMMUTATIVE-addu / sll-vs-base SCHEDULING tie-break (methodology
  *       Sec.5.0c): the oracle computes the scaled index FIRST -- `sll $v0,$a0,3` sits in
  *       the guard's `beqz` delay slot -- then materializes the Force_g base into $v1 and
- *       does `addu $v0,$v0,$v1` (scaled index = addu operand 1).  A plain `Force_g[carIndex]`
+ *       does `addu $v0,$v0,$v1` (scaled index = addu operand 1).  A plain `Force_g[...]`
  *       subscript makes gcc emit `addu rd,BASE,scaled` and materialize the base first,
  *       which cascades the whole $v0/$v1 pair.  Writing the address as an explicit
- *       int-cast with the INDEX TERM FIRST, `(carIndex << 3) + (int)Force_g`, puts the
+ *       int-cast with the INDEX TERM FIRST, `(car->carIndex << 3) + (int)Force_g`, puts the
  *       just-computed shift in addu operand 1 and frees the schedule => byte-exact.
  * Falsified on the way (do not re-try): the single `&&` boolean form (IDA renders this fn
  * as `v1 < 2 && LOBYTE(...) == 1`) REGRESSES 14 -> 20; `u_int` vs `int` for the local is
  * neutral; the dead-param-reuse hack `car = (Car_tObj *)car->carIndex;` also reaches PASS
- * but is not needed once the addu operand order is right, so the honest `int carIndex`
- * local is kept.  IDA (`sub_800CB158`) confirms the index value lives in $a0. */
+ * but is not needed once the addu operand order is right.  The named result pointer is
+ * SYM's `Force_tGlobal *f` in $v0; GCC CSEs the repeated field read so the index remains
+ * in $a0 exactly as IDA (`sub_800CB158`) shows. */
 int Force_IsForceOn(Car_tObj *car)
 
 {
-  int carIndex;
+  Force_tGlobal *f;
 
   if (1 < Replay_ReplayMode) {
     return 0;
   }
-  carIndex = car->carIndex;
-  if ((u_int)carIndex >= 2) {
+  if ((u_int)car->carIndex >= 2) {
     return 0;
   }
-  return ((Force_tGlobal *)((carIndex << 3) + (int)Force_g))->active == 1;
+  f = (Force_tGlobal *)((car->carIndex << 3) + (int)Force_g);
+  return f->active == 1;
 }
 
 /* ---- Force_Pause__Fv  [FORCE.CPP:279-285] SLD-VERIFIED ---- */
 void Force_Pause(void)
 
 {
-  Force_tGlobal *pFVar2;
+  Force_tGlobal *f;
 
-  pFVar2 = Force_g;
-  if (pFVar2 < Force_g + 2) {
+  f = Force_g;
+  if (f < Force_g + 2) {
     do {
-      pFVar2->high = '\0';
-      pFVar2->low = '\0';
-      pFVar2->time = '\0';
-      pFVar2 = pFVar2 + 1;
-    } while (pFVar2 < Force_g + 2);
+      f->high = '\0';
+      f->low = '\0';
+      f->time = '\0';
+      f = f + 1;
+    } while (f < Force_g + 2);
   }
   return;
 }

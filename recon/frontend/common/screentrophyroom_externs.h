@@ -23,7 +23,7 @@ void tScreen_dtor(tScreen *s);
 
 /* --- tScreen helpers (base passed explicitly) --- */
 void  DrawBackgroundImage(tScreen *s, int startShape, int numShapes, tTexture_ShapeInfo *shapes, int flip) asm("DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi");
-void *IsShapeFileLoaded(tScreen *s, tShapeInformation *shp) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
+bool IsShapeFileLoaded(tScreen *s, tShapeInformation *shp) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
 void  UploadSwapShapes(tScreen *s, int n) asm("UploadSwapShapes__7tScreeni");
 void  InitializeShapes(tScreen *s, tShapeInformation *shp, int n) asm("InitializeShapes__7tScreenR17tShapeInformationUi");
 void  AsyncLoadShapeFile(tScreen *s, char *name, tShapeInformation *shp) asm("AsyncLoadShapeFile__7tScreenPcR17tShapeInformation");

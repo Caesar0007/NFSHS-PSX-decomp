@@ -26,7 +26,7 @@ extern char         gFE_Cheats[];
 extern int          gPSXMemCardFull[];
 extern int          colourChosen[8];
 extern tAllScreens *gAllScreens[];
-extern BOOL         memCardReadOK[];
+extern bool         memCardReadOK[];
 
 /* ===== auto-generated stubs ===== */
 /* W58-A1 (08A phantom fix): the entry points below were free `Type f(...)` decls,
@@ -49,7 +49,7 @@ int CarIO_CleanUpLicense(int);
 int CarIO_CreateLicense(char *, int, int);
 int Controller_SetRamp(void);
 int DeInit_Memcard(void);
-int FECheat_IsCheatEnabled(tCheatCode);   /* W58-A1: FECheat_IsCheatEnabled__F10tCheatCode (was `(...)` -> __Fe phantom) */
+bool FECheat_IsCheatEnabled(tCheatCode);   /* W58-A1: typed SYM FCN bool; was `(...)` -> __Fe phantom */
 int FeAudio_DeInitCommentary(void);
 int FeAudio_InitCommentary(int, int);
 int FeTools_deinit(void);
@@ -94,7 +94,7 @@ extern Car_tStats Cars_gNewCarStatsList[];   /* was stale pointer; owner cars.cp
 extern int CountryMeasurement[16];
 extern tCreditManager CreditManager;   /* W58-A1: real type -- Setup__14tCreditManager */
 extern GameSetup_tData GameSetup_gData;
-extern int MEMCARDFRONTENDISINITTED[];
+extern bool MEMCARDFRONTENDISINITTED;  /* SYM BOOL; CC1PLPSX bool is 4 bytes */
 /* TRUE TYPE = the array object (was a bare `int`; W62-A17).  Owner def:
    game/common/nfs3.cpp `tRecordBuffer Stats_gTrackRecords[187];` @0x80114d94; every
    oracle reference is an ADDRESS materialization (`addiu`), never a load. */
@@ -116,7 +116,7 @@ extern int gPSXMemCardFull[];
 extern tPadModuleState gPadinfo;
 extern int gUseFrontend;
 extern int mappings[3][13][3];
-extern BOOL memCardReadOK[];
+extern bool memCardReadOK[];
 extern tMissionManager missionManager;   /* W58-A1: real type -- ..__15tMissionManager */
 extern tCarModels regularCopModels[7][5];
 extern tScreenAudio *screenAudio;

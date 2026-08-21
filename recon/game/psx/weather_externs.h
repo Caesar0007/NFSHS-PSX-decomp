@@ -25,7 +25,7 @@ extern CWeatherSpec     *Weather_gTrackSpec;                   /* 0x8013dbc4 */
  * storage is modeled there as per-element tentative defs + unsized asm-label array views.
  * Declared in recon/game/psx/weather.cpp, NOT here. */
 extern long              Weather_gLastTimeProcessed;           /* 0x8013dbe8 */
-extern int               Weather_gType;                        /* 0x8013dbec  enum Weather_tState */
+extern Weather_tState    Weather_gType;                        /* 0x8013dbec */
 extern int               Weather_gDensityGoalState;            /* 0x8013dbf0 */
 extern int               Weather_gIntensityGoalState;          /* 0x8013dbf4 */
 extern int               Weather_gDensityChangeFactor;         /* 0x8013dbf8 */
@@ -54,12 +54,12 @@ extern void  Math_NormalizeVector(coorddef *v);         /* game math (mangled __
                    /* 16.16 fixed-point multiply */
 extern void  Math_fasttransmult(matrixtdef *a, matrixtdef *b, matrixtdef *out);  /* __FP10matrixtdefN20 */
 extern int   Camera_GetMode(int player);                /* __Fi */
-extern void *BWorldSm_TunnelFlagSm(void *slicePos) asm("BWorldSm_TunnelFlagSm__FP12BWorldSm_Pos");     /* __FP12BWorldSm_Pos -> void* */
+extern bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *slicePos) asm("BWorldSm_TunnelFlagSm__FP12BWorldSm_Pos");
    /* PsyQ libgpu */
 
 /* render packet/palette write cursors + per-player weather pixmaps + look-behind input */
 extern Draw_tPixMap *gWeatherPixmap[3];            /* 0x80112b7c  snow/rain sprites */
 extern int          Input_gLookBehind[2];          /* 0x8013d230 */
-extern int          timechange;                    /* 0x8013de4c */
+// [owned->file-static in weather.cpp] int timechange; /* 0x8013de4c */
 
 #endif /* WEATHER_EXTERNS_H */

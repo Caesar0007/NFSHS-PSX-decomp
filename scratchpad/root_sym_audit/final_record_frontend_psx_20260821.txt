@@ -1,0 +1,279 @@
+# SYM-to-source declaration audit
+
+Target: `C:\Temp\nfs4-decomp\recon\frontend\psx`
+Trusted SYM: `C:\Temp\claud\dumpsym_clean\dumpsym_src\nfs4-f-v3.txt`
+
+This is a review queue, not an auto-fix list. Missing retail names are
+strong evidence; extra source names can be matching carriers or decompiler
+temporaries and must be tested against the function oracle before removal.
+GCC-v2-mangled function/EXT names are used only as linkage keys; source
+functions are mapped to their demangled C++ names and class scopes.
+
+## Summary
+
+- SYM functions in target TUs: 85
+- Mapped to reconstructed definitions: 85 (84 demangled class/name maps)
+- Source definitions still using mangled linkage identifiers: 0
+- Explicit deleting-destructor ABI carriers: 0
+- Explicit cross-TU ownership closures: 1
+- Declaration-clean mapped functions: 31
+- Missing SYM names: 0
+- Extra source-local names: 138
+- Type-comparison findings: 0
+- Recognized ABI/debug-equivalent type encodings: 7
+  (generic-function-pointer=2, promoted-stack-argument=1, reference-as-pointer=4)
+- Function storage-class findings: 0
+- Compiler-generated aggregate functions without source bodies: 0
+- Explicit oracle-receipted carrier mappings: 0
+- Explicit source-only codegen carriers: 1
+- Explicit oracle-proven function type overrides: 1
+- Functions needing mapping review: 0
+- SYM object-owned data records in target TUs: 46
+- Mapped source global definitions: 28
+- Blob-backed object globals: 18
+- Missing/extra global definitions: 0/0
+- Global storage-class findings: 0
+- Explicit oracle-proven global storage overrides: 0
+- Global type findings: 0
+- Recognized global debug-equivalent types: 0
+  (none)
+- Explicit measured global array carriers: 2
+- Explicit oracle-proven global type overrides: 0
+
+## Review queue
+
+### `DrawShape_SubtractNFS4RectEdges__FR4RECT` (0x8004be00, drawshp.cpp:23, map=exact)
+
+- Extra source locals: `linkW2`, `linkWord`, `m24`, `prevPrim`
+
+### `Movie_SetDecodeOffset__Fssss` (0x8004c8b0, movie.cpp:169, map=exact)
+
+- Extra source locals: `mh`, `mw`, `r0`, `r1`
+
+### `Movie_Load__Fc` (0x8004c984, movie.cpp:205, map=exact)
+
+- Extra source locals: `d`, `found`, `lp`
+
+### `Movie_NextFrame__Fv` (0x8004cb30, movie.cpp:257, map=exact)
+
+- Extra source locals: `d`, `deadfrm`, `ret`, `xstep`
+
+### `Movie_Finished__Fv` (0x8004cc84, movie.cpp:319, map=exact)
+
+- Extra source locals: `finished`
+
+### `Movie_Play__Fc` (0x8004cce4, movie.cpp:335, map=exact)
+
+- Extra source locals: `deadfrm`, `dispRect`, `finished`, `frame_ret`
+
+### `play_movie__Fc` (0x8004cef4, movie.cpp:414, map=exact)
+
+- Extra source locals: `ret`
+
+### `strSetDefDecEnv__FP6DECENV` (0x8004cf14, movie.cpp:426, map=exact)
+
+- Extra source locals: `bottom`, `img`, `mh`, `top`, `vb0`, `vb1`
+
+### `strCallback__Fv` (0x8004d038, movie.cpp:489, map=exact)
+
+- Extra source locals: `deadfrm`, `hstep`, `nextRect`, `rectid`, `rem`, `rw`, `vh`
+
+### `strNextVlc__FP6DECENV` (0x8004d334, movie.cpp:556, map=exact)
+
+- Extra source locals: `r`, `vid`
+
+### `strNext__FP6DECENV` (0x8004d3d4, movie.cpp:585, map=exact)
+
+- Extra source locals: `bottom`, `mh`, `st`, `wp`, `ws`, `wt`
+
+### `strSync__FP6DECENVi` (0x8004d5dc, movie.cpp:665, map=exact)
+
+- Extra source locals: `arg1`, `nextRect`, `one`, `viewOff`
+
+### `strKickCD__FP6CdlLOC` (0x8004d68c, movie.cpp:701, map=exact)
+
+- Extra source locals: `status`
+
+### `FeDraw_SetABRMode__Fi` (0x8004d6d8, mmeffect.cpp:20, map=exact)
+
+- Extra source locals: `linkWord`
+
+### `InitializeSpinningCars__Fv` (0x8004d850, psxfront.cpp:59, map=exact)
+
+- Extra source locals: `carObj`
+
+### `CleanupSpinningCarsMenu__Fv` (0x8004dac4, psxfront.cpp:147, map=exact)
+
+- Extra source locals: `carObj`, `ppCar`
+
+### `DoTitleScreen__Fv` (0x8004db34, psxfront.cpp:173, map=exact)
+
+- Extra source locals: `shape`
+
+### `PSX_AllocShapes__Fv` (0x8004dcc8, psxfront.cpp:236, map=exact)
+
+- Extra source locals: `slot`
+
+### `AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended` (0x8004df38, psxfront.cpp:318, map=exact)
+
+- Extra source locals: `rawB`, `rawT`
+
+### `DrawGouraudShape__FP18tTexture_ShapeInfoiiiPii` (0x8004e264, psxfront.cpp:479, map=exact)
+
+- Extra source locals: `addr24`, `addwm1`, `c3`, `ibp`, `pal`, `texX`, `vb`, `vraw`, `wsel`
+
+### `DrawFlatShape__FP18tTexture_ShapeInfoiiiPii` (0x8004e638, psxfront.cpp:900, map=exact)
+
+- Extra source locals: `c0`
+
+### `DrawShapeExtended__FiiiiiiP18tDrawShapeExtended` (0x8004e678, psxfront.cpp:919, map=exact)
+
+- Extra source locals: `bright`
+
+### `ScaleGouraudShape__FP18tTexture_ShapeInfoiiiiiPii` (0x8004e77c, psxfront.cpp:1004, map=exact)
+
+- Extra source locals: `one`, `pal`, `sh_`, `sw`, `xm1`
+
+### `ScaleFlatShape__FP18tTexture_ShapeInfoiiiiiPii` (0x8004ea38, psxfront.cpp:1108, map=exact)
+
+- Extra source locals: `c0`
+
+### `ScaleShapeExtended__FiiiiiiP18tDrawShapeExtended` (0x8004ea88, psxfront.cpp:1125, map=exact)
+
+- Extra source locals: `bright`
+
+### `LoadAllHelpShapes__Fv` (0x8004ebb4, psxfront.cpp:1160, map=exact)
+
+- Extra source locals: `f`, `index`
+
+### `PSXDrawSquare__Fiiiii` (0x8004ec44, psxfront.cpp:1186, map=exact)
+
+- Extra source locals: `link`
+
+### `PSXDrawGouraudSquare__Fiiiiiiii` (0x8004ecdc, psxfront.cpp:1226, map=exact)
+
+- Extra source locals: `otWord`, `prevPrim`
+
+### `PSXDrawTransGouraudSquare__Fiiiiiiiii` (0x8004edcc, psxfront.cpp:1266, map=exact)
+
+- Extra source locals: `prevPrim`
+
+### `PSXDrawTransSquare__Fiiiiis` (0x8004eed0, psxfront.cpp:1308, map=exact)
+
+- Extra source locals: `prevPrim`
+
+### `FontUpsideDownBlit__FiiPviiP12charactertbli` (0x8004efb4, psxfront.cpp:1352, map=exact)
+
+- Extra source locals: `bottom`, `pal`, `right`
+
+### `MCRD_init` (0x8004f3e0, memcard.c:204, map=exact)
+
+- Extra source locals: `card`
+
+### `iMCRD_InitCard` (0x8004f480, memcard.c:232, map=exact)
+
+- Extra source locals: `ret`
+
+### `iMCRD_DoFileLoad` (0x8004f7a4, memcard.c:363, map=exact)
+
+- Extra source locals: `attr`, `attr2`, `ch`, `src`
+
+### `MCRD_savefile` (0x8004fa4c, memcard.c:490, map=exact)
+
+- Extra source locals: `clut`, `len`, `sjis`
+
+### `iMCRD_DoFileWrite` (0x8004fc88, memcard.c:574, map=exact)
+
+- Extra source locals: `err`, `err_state`, `sync`, `sync_done`
+
+### `iMCRD_DoFileDelete` (0x8004fdec, memcard.c:638, map=exact)
+
+- Extra source locals: `del_res`, `pcard`, `ret_state`
+
+### `MCRD_handlecardevents` (0x8004fe80, memcard.c:666, map=exact)
+
+- Extra source locals: `g`, `idx`, `t`
+
+### `MCRD_fileexists` (0x800501cc, memcard.c:988, map=exact)
+
+- Extra source locals: `cmp`, `pCard`, `s1`
+
+### `garyMemCardGrabBlocks` (0x800502bc, memcard.c:1033, map=exact)
+
+- Extra source locals: `dir`, `size`
+
+### `iMCRD_LoadCard` (0x80050344, memcard.c:1062, map=exact)
+
+- Extra source locals: `dir`, `i_or_size`, `opResult`, `pcard`, `ret_state`, `size`
+
+### `iMCRD_FormatCard` (0x80050440, memcard.c:1115, map=exact)
+
+- Extra source locals: `fmtRes`
+
+### `iMCRD_HandleError` (0x800504cc, memcard.c:1154, map=exact)
+
+- Extra source locals: `failed`, `gmi`, `scratch_i`, `tmp_int`
+
+### `ascii2sjis` (0x800506f0, memcard.c:1376, map=exact)
+
+- Extra source locals: `base`, `pk`
+
+### `sjis2ascii` (0x80050810, memcard.c:1458, map=exact)
+
+- Extra source locals: `kind`
+
+### `initmdec` (0x800508c0, mdec.cpp:16, map=exact)
+
+- Extra source locals: `area`, `buf`, `bufsize`, `stride`, `stripsize`
+
+### `mdec` (0x80050aec, mdec.cpp:102, map=exact)
+
+- Extra source locals: `mode`
+
+### `MDECCompleteHandler__Fv` (0x80050c20, mdec.cpp:158, map=exact)
+
+- Extra source locals: `drawsync`, `nextx`
+
+### `VIDEO_create__Fiiiii` (0x80050cc8, video.cpp:29, map=exact)
+
+- Extra source locals: `hzp`, `mem`, `status`
+
+### `VIDEO_spoolfile__FiPc` (0x80050e98, video.cpp:90, map=exact)
+
+- Extra source locals: `requestid`
+
+### `VIDEO_startplayback__Fi` (0x80050ef4, video.cpp:106, map=exact)
+
+- Extra source locals: `buffered`
+
+### `VIDEO_updateframexy__Fiii` (0x80051040, video.cpp:167, map=exact)
+
+- Extra source locals: `endofstream`, `result`
+
+### `videoupdatetime__FP11VIDEOSTRUCT` (0x80051180, video.cpp:225, map=exact)
+
+- Extra source locals: `acc`
+
+### `videodecode__FP11VIDEOSTRUCTP14STREAMCHUNKHDRii` (0x800511b0, video.cpp:240, map=exact)
+
+- Extra source locals: `done`
+
+## Explicit SYM carrier/optimization mappings
+
+
+## Explicit source-only codegen carriers
+
+- `FontUpsideDownBlit__FiiPviiP12charactertbli`: `arg6`
+
+## Explicit oracle-proven function type overrides
+
+- `DrawGouraudShape__FP18tTexture_ShapeInfoiiiPii`: `prim`
+
+## Object-owned global/storage review
+
+- `mdec.cpp` blob-backed definitions: `gMDECinfo`, `g_mdecdrawsyncfailed`
+- `memcard.c` blob-backed definitions: `gMemCardInfo`
+- `movie.cpp` blob-backed definitions: `download`, `fp`, `gPlayerNum`, `movie24bit`, `movieframes`, `movieheight`, `movienames`, `moviewidth`, `skip_all`, `user_exit`
+- `psxfront.cpp` blob-backed definitions: `creditShapeFile`, `gCarObj`, `gFadeBrightness`, `gHelpShapes`, `titleScreenDisplayed`
+- No ownership, storage-class, or type findings.
+

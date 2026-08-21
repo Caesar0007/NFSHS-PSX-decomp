@@ -1,0 +1,25 @@
+# High-volume SYM semantic-ledger summary
+
+- SLD/file-span rows emitted: 79569
+- PASS-function SLD rows: 66348
+- NEAR-function SLD rows: 3165
+- FAR-function SLD rows: 5481
+- Non-function SLD rows: 4575
+- Unclassified SLD rows: 0
+- Lexical block pairs emitted: 11206
+- Lexical block structural issues: 0
+- Definition rows emitted: 228338
+
+## Definition dispositions
+
+- `OBJECT_BOUNDARY_DECODED`: 1038
+- `CANONICAL_TYPE_SOURCE_REVIEW`: 210355
+- `OBJECT_DATA_OR_LINKAGE_AUDITED`: 3668
+- `FUNCTION_DECL_AUDITED`: 13218
+- `DEFINITION_SOURCE_REVIEW`: 54
+- `LABEL_SOURCE_REVIEW`: 5
+
+The TSV ledgers preserve one row per decoded record (or one row per paired
+block) and explicitly retain semantic-review status.  Structural decoding or
+a byte-matched enclosing function is not presented as proof of original brace,
+typedef, tag, or member spelling.

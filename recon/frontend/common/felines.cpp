@@ -26,7 +26,6 @@ void PSXTransDrawBrightEndLine(int col,int x,int y,int w,int h,int side,int fade
 
 {
   int BrightCol;
-  int scaled;
   int endbit;
   int hh;
   int ww;
@@ -37,12 +36,8 @@ void PSXTransDrawBrightEndLine(int col,int x,int y,int w,int h,int side,int fade
   BrightCol = CalcFadeVal(col,0xffffff,0x40);
   if (fade != 0) {
     if ((uint)side < 2) {
-      scaled = h * (0x80 - fade);
-      if (scaled < 0) {
-        scaled = scaled + 0x7f;
-      }
-      hh = scaled >> 7;
-      endbit = scaled >> 10;
+      hh = h * (0x80 - fade) / 0x80;
+      endbit = hh >> 3;
       ww = w;
       if (8 < endbit) {
         endbit = 8;
@@ -58,12 +53,8 @@ void PSXTransDrawBrightEndLine(int col,int x,int y,int w,int h,int side,int fade
       }
     }
     else {
-      scaled = w * (0x80 - fade);
-      if (scaled < 0) {
-        scaled = scaled + 0x7f;
-      }
-      ww = scaled >> 7;
-      endbit = scaled >> 10;
+      ww = w * (0x80 - fade) / 0x80;
+      endbit = ww >> 3;
       hh = h;
       if (8 < endbit) {
         endbit = 8;

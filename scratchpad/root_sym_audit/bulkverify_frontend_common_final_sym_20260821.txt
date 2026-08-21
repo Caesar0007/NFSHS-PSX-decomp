@@ -1,0 +1,80 @@
+=== BULK VERIFY ===
+modules: 49  compile-fail: 0
+functions with oracle: 839
+  BYTE-MATCH (0 diff): 828
+  near-miss (<=15):    4
+  far (>15):           7
+=== 828 FREE byte-matches from verbatim import ===
+  + ActualDrawController__23tScreenControllerConfigiiiii
+  + AddCarToIngameList__11tCarManagerR10tCarModelsRc
+  + AddItem__11tDialogHelpss
+  + AddToPinkSlipsList__11tCarManagersss
+  + AddUpgradesToPinkSlipsList__11tCarManagersss
+  + AdjustPosition__16tListIteratorCar7tPlayers
+  + AdvanceToNextTrack__18tTournamentManager
+  + AllocateAsyncBuffer__16tScreenCarSelect
+  + AllocateAsyncBuffer__20tScreenCarSelectDuel
+  + AllocateAsyncBuffer__25tScreenCarSelectTwoPlayer
+  + AnimKeyPoints__23tScreenControllerConfigbT1
+  + AskTheUserToSaveTheGame__Fv
+  + AsyncLoadPermanentShapeFile__7tScreenPc
+  + AsyncLoadShapeFile__7tScreenPcR17tShapeInformation
+  + AsyncLoadSwapShapeFile__7tScreenPc
+  + BringThatBeatBack__Fv
+  + CalcAnimFrame__23tScreenControllerConfigi
+  + CalcFadeVal__Fii
+  + CalcFadeVal__Fiii
+  + CalcFadeVal__Fiiii
+  + CalcOnOffFade__F13tMenuTextTypesssRiT4
+  + CalcPulsateYellow__Fv
+  + CalcSplinePosition__16tScreenCarSelectiiiiUlRiN46
+  + CalcTextFadeSelToHi__F13tMenuTextTypess
+  + CalcTextFadeUnselToSel__F13tMenuTextTypess
+  + CalcTierFinishPrize__18tTournamentManager
+  + CalcTrackFinishDamageBill__18tTournamentManagerbRlT2
+  + CalcUsedPrice__11tCarManagers
+  + CalculateDimensions__11tDialogHelp
+  + CalculateDimensions__12tDialogYesNo
+  + CalculateDimensions__20tDialogMessageString
+  + CalculatePrizes__15tScreenCongrats
+  + CalculatePrizes__23tScreenBeTheCopCongrats
+  + CalculatePrizes__23tScreenPinkSlipCongrats
+  + CalculatePrizes__23tScreenTournamentTrophy
+  + CalculatePrizes__25tScreenTournamentCongrats
+  + Calibrate__22tInsideBoxTwoWaySlider
+  + CancelAsyncLoad__7tScreenR17tShapeInformation
+  + CheapestCarStockPrice__11tCarManager
+  + CheckConfigs__23tScreenControllerConfig
+  + CheckForCheats__FPc
+  + ChecksumData__FP12tMemCardData
+  + Cleanup__11tScreenMain
+  + Cleanup__12tScreenAudio
+  + Cleanup__14tScreenMemcard
+  + Cleanup__15tScreenCongrats
+  + Cleanup__16tScreenCarSelect
+  + Cleanup__16tScreenPinkSlips
+  + Cleanup__17tScreenTrophyRoom
+  + Cleanup__18tScreenTournSelect
+  + Cleanup__18tScreenTrackSelect
+  + Cleanup__19tScreenTrackRecords
+  + Cleanup__20tScreenCarSelectDuel
+  + Cleanup__23tScreenControllerConfig
+  + Cleanup__23tScreenPinkSlipCongrats
+  + Cleanup__25tScreenCarSelectTwoPlayer
+  + Cleanup__25tScreenPinkSlipsCarSelect
+  + Cleanup__26tScreenTournamentStandings
+  + Cleanup__7tScreen
+  + ClearActuators__23tScreenControllerConfig
+=== near-misses (<=15 diffs), all ===
+   2 DrawBackground__14tScreenMemcard
+   7 FeAudio_InitViv__FPc
+   8 Draw__17tUserNameMenuItemb
+  10 Redraw__14tFEApplication
+=== far residuals (>15 diffs), largest 60 ===
+  3473 __15tGlobalMenuDefs (femenudefs.cpp: ours 3182 / oracle 3207)
+   168 DrawSlider__FsssssssssbT9ss (femenu.cpp: ours 374 / oracle 366)
+    89 DrawBackground__15tScreenUserName (screenusername.cpp: ours 391 / oracle 394)
+    77 DrawTV__FR9tTVConfig (fetv.cpp: ours 822 / oracle 815)
+    56 DrawBackground__26tScreenTournamentStandings (screenpost.cpp: ours 559 / oracle 561)
+    33 StatChk_SaveTopTime__FP10Car_tStatss (statchk.cpp: ours 417 / oracle 416)
+    18 GetPSXPadValue__Fii (front.cpp: ours 222 / oracle 222)

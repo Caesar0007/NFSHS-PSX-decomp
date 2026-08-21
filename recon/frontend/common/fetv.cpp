@@ -65,6 +65,9 @@ void DrawTVLines(tTVConfig &tv)
   if ((tv.flags & 0x20) != 0) {
     x = (short)((u_short)tv.x + 4 & 0xfffc);
     if ((int)x < (int)tv.x + (int)tv.w) {
+      /* SYM-CODEGEN-CARRIER: abe -- absent from SYM, but keeping the constant
+         in a loop-live short reproduces retail's s2 save and 213-insn body;
+         an inline literal compiles five instructions short with 21 diffs. */
       short abe = 1;
       do {
         PSXDrawTransSquare(0xa0a0a,(int)x,(int)tv.y,1,(int)tv.h,abe);
@@ -145,7 +148,7 @@ void DrawTV(tTVConfig &tv)
   short fadeBottom;
   u_long tint;
   short bright;
-  BOOL do_tint = 1;
+  bool do_tint = 1;
 
   bright = tv.destBrightness;
   tint = tv.tint;

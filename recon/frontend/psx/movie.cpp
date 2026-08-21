@@ -5,6 +5,17 @@
  */
 #include "movie.h"
 
+/* Movie.obj STAT helpers.  strInit's reconstructed pointer callback signature is
+ * codegen-correct but does not reproduce PsyQ's exact GCC-v2 spelling by itself. */
+static void strSetDefDecEnv(DECENV *dec);
+static void strInit(CdlLOC *loc,int frame_size,fn_void *callback,fn_void *endcallback)
+  asm("strInit__FP6CdlLOCiPFe_vT2");
+static void strCallback(void);
+static int strNextVlc(DECENV *dec);
+static u_long *strNext(DECENV *dec);
+static void strSync(DECENV *dec,int arg1);
+static void strKickCD(CdlLOC *loc);
+
 /* ---- Movie.obj STAT (file-local) globals ---- */
 /* MATCH: every one of these statics is reached ABSOLUTELY (lui %hi / %lo) in the oracle,
  * never gp-relative -- force them out of .sdata/.sbss with an explicit .bss section
@@ -20,7 +31,7 @@ extern short   user_exit_v[] asm("user_exit");
 static short     PPWTop_d asm("PPWTop") __attribute__((section(".bss")));    /* 0x80052cfc */
 static short     PPWBottom_d asm("PPWBottom") __attribute__((section(".bss"))); /* 0x80052cfe */
 static short     gMode_d asm("gMode") __attribute__((section(".bss")));     /* 0x80052d00 */
-static int     gIsRGB24_d asm("gIsRGB24") __attribute__((section(".bss")));  /* 0x80052d04 (.bss=absolute, oracle %hi/%lo not gp-rel) */
+static bool    gIsRGB24_d asm("gIsRGB24") __attribute__((section(".bss")));  /* 0x80052d04; SYM BOOL.  Accesses use the int-shaped unsized carrier below. */
 static short     gMovieHeight_d asm("gMovieHeight") __attribute__((section(".bss")));/* 0x80052d08 */
 static short     gMovieWidth_d asm("gMovieWidth") __attribute__((section(".bss")));/* 0x80052d0a */
 static u_long  gMovieFrame_d asm("gMovieFrame") __attribute__((section(".bss")));/* 0x80052d0c */
@@ -52,8 +63,8 @@ extern u_long  gEndFrame_v[]   asm("gEndFrame");
  * what retail's aspsx build shows everywhere in this TU.  (catalog E/§3.12 #5.)
  * MATCH: four INDEPENDENT statics -- the oracle gives each its own %hi/%lo pair
  * (D_80052D14/18/1C/20); an array made gcc hoist one base + use displacements. */
-static int     bMovieLoaded_d asm("bMovieLoaded") __attribute__((section(".bss"))); /* 0x80052d14 */
-static int     bStopMovie_d   asm("bStopMovie") __attribute__((section(".bss")));   /* 0x80052d18 */
+static bool    bMovieLoaded_d asm("bMovieLoaded") __attribute__((section(".bss"))); /* 0x80052d14; SYM BOOL */
+static bool    bStopMovie_d   asm("bStopMovie") __attribute__((section(".bss")));   /* 0x80052d18; SYM BOOL */
 static int     bRewindMovie_d asm("bRewindMovie") __attribute__((section(".bss"))); /* 0x80052d1c */
 static int     isFirstSlice_d asm("isFirstSlice") __attribute__((section(".bss"))); /* 0x80052d20 */
 /* MATCH: unsized-array views onto the same four symbols -- the scalar form emits the
@@ -233,7 +244,7 @@ void Movie_Load(char movie)
     lp->second = file.pos.second;
     lp->sector = file.pos.sector;
     strSetDefDecEnv(d);
-    strInit__FP6CdlLOCiPFe_vT2(lp,0xfffffff,strCallback,(fn_void *)0x0);
+    strInit(lp,0xfffffff,strCallback,(fn_void *)0x0);
     strNextVlc(d);
     bMovieLoaded = 1;
   }
@@ -305,7 +316,7 @@ void Movie_Stop(void)
 /* lines 315-319: (static data / macros / comments - no emitted code) */
 
 /* ---- Movie_Finished  (movie.cpp:320, code lines 320-321) ---- */
-int Movie_Finished(void)
+bool Movie_Finished(void)
 
 {
   int finished;
@@ -327,7 +338,7 @@ int Movie_Play(char movie)
   bool dispRect;
   int finished;
   int frame_ret;
-  uint joyval;
+  int joyval;
   DISPENV disp;
   DRAWENV draw;
   /* MATCH: SYM fsize=184 (disp@-0xA0, draw@-0x88, 3 saved regs) -- 16 bytes of
@@ -412,7 +423,7 @@ int play_movie(char movie)
 /* lines 413-419: (static data / macros / comments - no emitted code) */
 
 /* ---- strSetDefDecEnv  (movie.cpp:420, code lines 420-428) ---- */
-void strSetDefDecEnv(DECENV *dec)
+static void strSetDefDecEnv(DECENV *dec)
 
 {
   short mh;
@@ -458,7 +469,7 @@ void strSetDefDecEnv(DECENV *dec)
 /* lines 429-432: (static data / macros / comments - no emitted code) */
 
 /* ---- strInit__FP6CdlLOCiPFe_vT2  (movie.cpp:433, code lines 433-445) ---- */
-extern "C" void strInit__FP6CdlLOCiPFe_vT2(CdlLOC *loc,int frame_size,fn_void *callback,fn_void *endcallback)
+static void strInit(CdlLOC *loc,int frame_size,fn_void *callback,fn_void *endcallback)
 
 {
   
@@ -475,7 +486,7 @@ extern "C" void strInit__FP6CdlLOCiPFe_vT2(CdlLOC *loc,int frame_size,fn_void *c
 /* lines 446-449: (static data / macros / comments - no emitted code) */
 
 /* ---- strCallback  (movie.cpp:450, code lines 450-488) ---- */
-void strCallback(void)
+static void strCallback(void)
 
 {
   int rw;
@@ -542,7 +553,7 @@ strCallback_inlinedJoin:
 /* lines 489-492: (static data / macros / comments - no emitted code) */
 
 /* ---- strNextVlc  (movie.cpp:493, code lines 493-518) ---- */
-int strNextVlc(DECENV *dec)
+static int strNextVlc(DECENV *dec)
 
 {
   u_long *next;
@@ -571,7 +582,7 @@ found:
 /* lines 519-536: (static data / macros / comments - no emitted code) */
 
 /* ---- strNext  (movie.cpp:537, code lines 537-600) ---- */
-u_long * strNext(DECENV *dec)
+static u_long * strNext(DECENV *dec)
 
 {
   u_long st;
@@ -651,7 +662,7 @@ framedone:
 /* lines 601-603: (static data / macros / comments - no emitted code) */
 
 /* ---- strSync  (movie.cpp:604, code lines 604-621) ---- */
-void strSync(DECENV *dec,int arg1)
+static void strSync(DECENV *dec,int arg1)
 
 {
   int viewOff;
@@ -687,7 +698,7 @@ void strSync(DECENV *dec,int arg1)
 /* lines 622-626: (static data / macros / comments - no emitted code) */
 
 /* ---- strKickCD  (movie.cpp:627, code lines 627-629) ---- */
-void strKickCD(CdlLOC *loc)
+static void strKickCD(CdlLOC *loc)
 
 {
   int status;

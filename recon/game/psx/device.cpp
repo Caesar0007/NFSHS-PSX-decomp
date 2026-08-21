@@ -23,7 +23,7 @@ int Device_gPaused;
  * sees through device_externs.h, so Device_StartUp/Device_Update never actually
  * cleared the arrays.  Real arrays restored. */
 int Device_gToggleTime[2];
-u_long Device_gPrev[2];
+int Device_gPrev[2];
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 int Device_VerifyType(int port);

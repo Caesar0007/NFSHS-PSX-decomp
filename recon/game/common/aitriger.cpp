@@ -99,14 +99,14 @@ LAB_80072a14:
 trigger_t *
 AITrigger_TriggerManager::GetNextTrigger(int car)
 {
-  int iVar1;
+  int triggerNum;
 
   if (this->numTriggers_ == 0) {
     return (trigger_t *)0x0;
   }
-  iVar1 = this->lastTriggerChecked_[car] + 1;
-  this->lastTriggerChecked_[car] = iVar1;
-  if (iVar1 == this->numTriggers_) {
+  triggerNum = this->lastTriggerChecked_[car] + 1;
+  this->lastTriggerChecked_[car] = triggerNum;
+  if (triggerNum == this->numTriggers_) {
     this->lastTriggerChecked_[car] = 0;
   }
   if (this->lastTriggerChecked_[car] >= this->numTriggers_) {
@@ -119,14 +119,14 @@ AITrigger_TriggerManager::GetNextTrigger(int car)
 trigger_t *
 AITrigger_TriggerManager::GetPrevTrigger(int car)
 {
-  int iVar1;
+  int triggerNum;
 
   if (this->numTriggers_ == 0) {
     return (trigger_t *)0x0;
   }
-  iVar1 = this->lastTriggerChecked_[car] + -1;
-  this->lastTriggerChecked_[car] = iVar1;
-  if (iVar1 == -1) {
+  triggerNum = this->lastTriggerChecked_[car] + -1;
+  this->lastTriggerChecked_[car] = triggerNum;
+  if (triggerNum == -1) {
     this->lastTriggerChecked_[car] = this->numTriggers_ + -1;
   }
   if (this->lastTriggerChecked_[car] >= this->numTriggers_) {

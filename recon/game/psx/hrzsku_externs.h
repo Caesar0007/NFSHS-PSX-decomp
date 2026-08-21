@@ -46,7 +46,7 @@ extern CTrackSpec     TrackSpec_gSpec;           /* 0x8012327c */
 // [owned->defined in hrzsku.cpp] extern CHorizonSpec  *Hrz_gTrackSpec;            /* horizon spec (angle/height/frontColor/ringPMX) */
 // [owned->defined in hrzsku.cpp] extern CSkySpec      *Sky_gTrackSpec;            /* sky spec (numStars/frontcolors/...) */
 extern void           trap(int c);
-// [owned->defined in hrzsku.cpp] extern CVECTOR       *starColors;        /* reservememadr'd */
+// [owned->defined in hrzsku.cpp] static u_long        *starColors;        /* SYM PTR ULONG */
 // [owned->defined in hrzsku.cpp] extern SVECTOR       *starPosInSky;
 // [owned->defined in hrzsku.cpp] extern SVECTOR        sunPosInSky, moonPosInSky;   /* SVECTOR values */
 // [owned->defined in hrzsku.cpp] extern int            gfxPmxHeightPercentage[];

@@ -1,0 +1,189 @@
+# SYM opcode-1 linker/section audit
+
+- Records: 127
+- Exact independent NFS4.MAP name/address matches: 127/127
+- Missing from NFS4.MAP: 0
+- Address conflicts with NFS4.MAP: 0
+- Complete obj/org/size families: 25
+- Family arithmetic failures: 0
+- Exact optional configs/symbol_addrs.txt carriers: 10/127
+- Conflicting config carriers: 0
+- Retail MAP sections: 10
+- CPE load commands: 3478
+- CPE load span: 0x80010000-0x8013dd7c
+- PS-X EXE header: pc=0x800e402c, gp=0x00000000, load=0x80010000, padded_size=0x12e000, end=0x8013e000
+
+The MAP is the primary closure witness.  The CPE is not used as a
+byte oracle: it contains an initial zero-fill plus later object loads
+and does not reproduce the packaged executable by simple concatenation.
+
+## Retail MAP section table
+
+- `.sbss`: 0x8013dd7c-0x8013dee0, size 0x164 (exact)
+- `.bss`: 0x8013dee0-0x80148b04, size 0xac24 (exact)
+- `front.rdata`: 0x80010000-0x800128f0, size 0x28f0 (exact)
+- `front.text`: 0x800128f0-0x80051260, size 0x3e970 (exact)
+- `front.data`: 0x80051260-0x80052b38, size 0x18d8 (exact)
+- `front.bss`: 0x80052b38-0x80054548, size 0x1a10 (exact)
+- `.rdata`: 0x80010000-0x8005797c, size 0x4797c (exact)
+- `.text`: 0x8005797c-0x8010ccd4, size 0xb5358 (exact)
+- `.data`: 0x8010ccd4-0x8013c54c, size 0x2f878 (exact)
+- `.sdata`: 0x8013c54c-0x8013dd7c, size 0x1830 (exact)
+
+## Obj/org/size families
+
+- `_text`: 0x80010000-0x8013dd7c, size 0x12dd7c (exact)
+- `_bss`: 0x8013dd7c-0x80148b04, size 0xad88 (exact)
+- `_last`: 0x80148b04-0x80148b04, size 0x0 (exact)
+- `_front`: 0x80010000-0x80054548, size 0x44548 (exact)
+- `__rdata`: 0x80010000-0x8005797c, size 0x4797c (exact)
+- `__text`: 0x8005797c-0x8010ccd4, size 0xb5358 (exact)
+- `__data`: 0x8010ccd4-0x8013c54c, size 0x2f878 (exact)
+- `__sdata`: 0x8013c54c-0x8013dd7c, size 0x1830 (exact)
+- `__ctors`: 0x8013dd7c-0x8013dd7c, size 0x0 (exact)
+- `__dtors`: 0x8013dd7c-0x8013dd7c, size 0x0 (exact)
+- `_textpsx_rdata`: 0x8013dd7c-0x8013dd7c, size 0x0 (exact)
+- `_textpsx_text`: 0x8013dd7c-0x8013dd7c, size 0x0 (exact)
+- `_textpsx_data`: 0x8013dd7c-0x8013dd7c, size 0x0 (exact)
+- `_textpsx_sdata`: 0x8013dd7c-0x8013dd7c, size 0x0 (exact)
+- `__sbss`: 0x8013dd7c-0x8013dee0, size 0x164 (exact)
+- `__bss`: 0x8013dee0-0x80148b04, size 0xac24 (exact)
+- `__last`: 0x80148b04-0x80148b04, size 0x0 (exact)
+- `_front_rdata`: 0x80010000-0x800128f0, size 0x28f0 (exact)
+- `_front_text`: 0x800128f0-0x80051260, size 0x3e970 (exact)
+- `_front_data`: 0x80051260-0x80052b38, size 0x18d8 (exact)
+- `_front_sdata`: 0x80052b38-0x80052b38, size 0x0 (exact)
+- `_front_sbss`: 0x80052b38-0x80052b38, size 0x0 (exact)
+- `_front_bss`: 0x80052b38-0x80054548, size 0x1a10 (exact)
+- `_front_ctors`: 0x80054548-0x80054548, size 0x0 (exact)
+- `_front_dtors`: 0x80054548-0x80054548, size 0x0 (exact)
+
+## Per-record ledger
+
+- `__SN_GP_BASE` = 0x8013c54c: MAP exact; config not carried (optional linker-only symbol); global-pointer base
+- `_text_obj` = 0x80010000: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_text_objend` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_text_org` = 0x80010000: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_text_orgend` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_text_size` = 0x0012dd7c: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `_bss_obj` = 0x8013dd7c: MAP exact; config exact; boundary
+- `_bss_objend` = 0x80148b04: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_bss_org` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_bss_orgend` = 0x80148b04: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_bss_size` = 0x0000ad88: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `_last_obj` = 0x80148b04: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_last_objend` = 0x80148b04: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_last_org` = 0x80148b04: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_last_orgend` = 0x80148b04: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_last_size` = 0x00000000: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `_front_obj` = 0x80010000: MAP exact; config exact; boundary
+- `_front_objend` = 0x80054548: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_org` = 0x80010000: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_orgend` = 0x80054548: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_size` = 0x00044548: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `__rdata_obj` = 0x80010000: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__rdata_objend` = 0x8005797c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__rdata_org` = 0x80010000: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__rdata_orgend` = 0x8005797c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__rdata_size` = 0x0004797c: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `__text_obj` = 0x8005797c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__text_objend` = 0x8010ccd4: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__text_org` = 0x8005797c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__text_orgend` = 0x8010ccd4: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__text_size` = 0x000b5358: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `__data_obj` = 0x8010ccd4: MAP exact; config exact; boundary
+- `__data_objend` = 0x8013c54c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__data_org` = 0x8010ccd4: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__data_orgend` = 0x8013c54c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__data_size` = 0x0002f878: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `__sdata_obj` = 0x8013c54c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__sdata_objend` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__sdata_org` = 0x8013c54c: MAP exact; config exact; boundary
+- `__sdata_orgend` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__sdata_size` = 0x00001830: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `__ctors_obj` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__ctors_objend` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__ctors_org` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__ctors_orgend` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__ctors_size` = 0x00000000: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `__dtors_obj` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__dtors_objend` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__dtors_org` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__dtors_orgend` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__dtors_size` = 0x00000000: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `_textpsx_rdata_obj` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_textpsx_rdata_objend` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_textpsx_rdata_org` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_textpsx_rdata_orgend` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_textpsx_rdata_size` = 0x00000000: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `_textpsx_text_obj` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_textpsx_text_objend` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_textpsx_text_org` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_textpsx_text_orgend` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_textpsx_text_size` = 0x00000000: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `_textpsx_data_obj` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_textpsx_data_objend` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_textpsx_data_org` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_textpsx_data_orgend` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_textpsx_data_size` = 0x00000000: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `_textpsx_sdata_obj` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_textpsx_sdata_objend` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_textpsx_sdata_org` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_textpsx_sdata_orgend` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_textpsx_sdata_size` = 0x00000000: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `__sbss_obj` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__sbss_objend` = 0x8013dee0: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__sbss_org` = 0x8013dd7c: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__sbss_orgend` = 0x8013dee0: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__sbss_size` = 0x00000164: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `__bss_obj` = 0x8013dee0: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__bss_objend` = 0x80148b04: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__bss_org` = 0x8013dee0: MAP exact; config exact; boundary
+- `__bss_orgend` = 0x80148b04: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__bss_size` = 0x0000ac24: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `__last_obj` = 0x80148b04: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__last_objend` = 0x80148b04: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__last_org` = 0x80148b04: MAP exact; config exact; boundary
+- `__last_orgend` = 0x80148b04: MAP exact; config not carried (optional linker-only symbol); boundary
+- `__last_size` = 0x00000000: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `_front_rdata_obj` = 0x80010000: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_rdata_objend` = 0x800128f0: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_rdata_org` = 0x80010000: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_rdata_orgend` = 0x800128f0: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_rdata_size` = 0x000028f0: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `_front_text_obj` = 0x800128f0: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_text_objend` = 0x80051260: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_text_org` = 0x800128f0: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_text_orgend` = 0x80051260: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_text_size` = 0x0003e970: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `_front_data_obj` = 0x80051260: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_data_objend` = 0x80052b38: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_data_org` = 0x80051260: MAP exact; config exact; boundary
+- `_front_data_orgend` = 0x80052b38: MAP exact; config exact; boundary
+- `_front_data_size` = 0x000018d8: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `_front_sdata_obj` = 0x80052b38: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_sdata_objend` = 0x80052b38: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_sdata_org` = 0x80052b38: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_sdata_orgend` = 0x80052b38: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_sdata_size` = 0x00000000: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `_front_sbss_obj` = 0x80052b38: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_sbss_objend` = 0x80052b38: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_sbss_org` = 0x80052b38: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_sbss_orgend` = 0x80052b38: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_sbss_size` = 0x00000000: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `_front_bss_obj` = 0x80052b38: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_bss_objend` = 0x80054548: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_bss_org` = 0x80052b38: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_bss_orgend` = 0x80054548: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_bss_size` = 0x00001a10: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `_front_ctors_obj` = 0x80054548: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_ctors_objend` = 0x80054548: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_ctors_org` = 0x80054548: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_ctors_orgend` = 0x80054548: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_ctors_size` = 0x00000000: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `_front_dtors_obj` = 0x80054548: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_dtors_objend` = 0x80054548: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_dtors_org` = 0x80054548: MAP exact; config not carried (optional linker-only symbol); boundary
+- `_front_dtors_orgend` = 0x80054548: MAP exact; config exact; boundary
+- `_front_dtors_size` = 0x00000000: MAP exact; config not carried (optional linker-only symbol); size; family exact
+- `__SN_ENTRY_POINT` = 0x800e402c: MAP exact; config exact; entry point

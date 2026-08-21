@@ -1,0 +1,98 @@
+=== BULK VERIFY ===
+modules: 35  compile-fail: 0
+functions with oracle: 395
+  BYTE-MATCH (0 diff): 366
+  near-miss (<=15):    5
+  far (>15):           24
+=== 366 FREE byte-matches from verbatim import ===
+  + AllocatePrimitivesBuffer__Fv
+  + AudioCmn_AddBank__FPciT0i
+  + AudioCmn_LoadBank__FPci
+  + Audio_CleanUp__Fv
+  + Audio_DeInitDriver__Fv
+  + Audio_FECleanUp__Fv
+  + Audio_InitDriver__Fii
+  + BigBTCTime__Fi
+  + CV_ColorTracks__Fiii
+  + CV_InitColorVertices__Fv
+  + CV_ProcessWorldColors_FINAL__FiP7CVECTORs
+  + CalcOneSegment__FP16Skidmark_SegmentP8coorddefN21i
+  + CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i
+  + CameraLookAt__FP10matrixtdefP8coorddef
+  + CarIO_CleanUpLicense__Fi
+  + CarIO_CleanUp__Fv
+  + CarIO_CopyFromShape__FPsT0iiii
+  + CarIO_CopyToShape__FPsT0i
+  + CarIO_LicenseCheck__FiPiT1P8Car_tObji
+  + CarIO_ReStart__Fv
+  + CarIO_ReleaseCarCluts__FP8Car_tObj
+  + CarIO_StartUp__Fv
+  + CarIO_UpdateCarTextureData__FPcP8Car_tObji
+  + ChangeTPage__FPUsi
+  + ClearPlatformPrimitivesBuffer__Fv
+  + ClearPrimitivesBuffer__Fv
+  + DepthCue_Init__Fv
+  + Device_Analog__FUl
+  + Device_Fail__Fi
+  + Device_Null__FUl
+  + Device_PSXPadMulti__FUl
+  + Device_PSXPad__FUl
+  + Device_ReadPad__FiUl
+  + Device_SetHardCodedKeys__Fv
+  + Device_StartUp__Fv
+  + Device_Update__Fv
+  + Device_VerifyType__Fi
+  + DrawC_BuildRenderingData__Fv
+  + DrawC_DividePrim__FP7COORD16N20PUsN23P12Draw_tPixMapP13Draw_CarCache
+  + DrawC_DivideShadowPrim__FP7COORD16N30PUsN34P12Draw_tPixMapP13Draw_CarCache
+  + DrawC_KillRenderingData__Fv
+  + DrawC_MenuColorData__FiP8Car_tObji
+  + DrawC_NightHeadlight__FP8Car_tObj
+  + DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer_zObjiiiP13Draw_CarCache
+  + DrawC_PrimMenu__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache
+  + DrawC_PrimStop__FP8Car_tObjP13Draw_CarCache
+  + DrawC_ReadLightingData__Fv
+  + DrawC_ReadeMapData__Fv
+  + DrawC_SetEnviroment__Fv
+  + DrawC_ShadowPrimClip__FP12Draw_tVertexP13Draw_CarCache
+  + DrawC_ShadowPrim__FP12Draw_tVertexP13Draw_CarCache
+  + DrawC_ShowroomPrims__FP10matrixtdefP8coorddefP13Draw_CarCache
+  + DrawC_SpotPrims__FP10matrixtdefP8coorddefP13Draw_CarCache
+  + DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi
+  + DrawObjectTransform__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefis
+  + DrawW_AddSubdividPrimGT3__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache
+  + DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache
+  + DrawW_BuildChunkCenterLineFacets__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16
+  + DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo
+  + DrawW_CalcSubdivision__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31
+=== near-misses (<=15 diffs), all ===
+   4 Weather_DoWeather__FP13DRender_tView
+   6 DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo
+   8 DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache
+   8 DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss
+  13 Hud_RenderTacView__Fv
+=== far residuals (>15 diffs), largest 60 ===
+   384 DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache (drawc.cpp: ours 1885 / oracle 1877)
+   370 Hrz_BuildSky__Fv (hrzsku.cpp: ours 458 / oracle 458)
+   274 Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark (draww.cpp: ours 355 / oracle 353)
+   200 Hud_BuildNumbers__Fi (hud.cpp: ours 758 / oracle 758)
+   168 InGame_GetPSXPadValue__Fii (psxcontroller.cpp: ours 243 / oracle 233)
+   166 DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache (drawc.cpp: ours 1395 / oracle 1389)
+   118 Hrz_BuildHorizon__FP13DRender_tView (hrzsku.cpp: ours 471 / oracle 473)
+   116 Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle (sfx.cpp: ours 938 / oracle 938)
+   105 DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi (draww.cpp: ours 189 / oracle 200)
+   101 DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache (draww.cpp: ours 506 / oracle 507)
+    94 RaceStatistics__Fv (overlays.cpp: ours 471 / oracle 475)
+    86 DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry (draww.cpp: ours 361 / oracle 359)
+    66 DrawW_BuildSpikeBelt__FP13DRender_tViewiP11Draw_DCache (draww.cpp: ours 268 / oracle 268)
+    62 HrzSetPsxMatrix__FP10matrixtdef (hrzsku.cpp: ours 52 / oracle 56)
+    59 Night_AdditiveNightCalc__FP6VECTORP7CVECTOR (night.cpp: ours 65 / oracle 64)
+    54 Hud_BuildMapMarkers__Fi (hud.cpp: ours 310 / oracle 308)
+    54 Hud_BuildCdPlayer__Fii (hud.cpp: ours 475 / oracle 475)
+    30 CarIO_CreateLicense__FPcii (cario.cpp: ours 229 / oracle 229)
+    30 DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry (draww.cpp: ours 222 / oracle 222)
+    26 Night_CreateNightTableElement__FiliPUc (night.cpp: ours 113 / oracle 113)
+    24 Hud_BTCStats__Fsb (overlays.cpp: ours 473 / oracle 473)
+    21 Hud_BuildTimeSprites__FP4SPRTPcii (hud.cpp: ours 78 / oracle 77)
+    20 Hud_BuildTach__Fi (hud.cpp: ours 269 / oracle 269)
+    19 CarIO_ReadInCarTextureData__FPcP8Car_tObjii (cario.cpp: ours 492 / oracle 491)

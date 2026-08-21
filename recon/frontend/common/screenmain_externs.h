@@ -31,7 +31,7 @@ static char  gNameBuffer[32];                        /* STAT @0x80052BB0 */
 static char  gPermBuffer[32];                         /* STAT @0x80052BD0 */
 
 /* ===== free helpers (member fns rendered free by Ghidra; tScreen* first arg where applicable) ===== */
-void *IsShapeFileLoaded(tScreen*, tShapeInformation*) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
+bool IsShapeFileLoaded(tScreen*, tShapeInformation*) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
 void  UploadShapes(tScreen*, tShapeInformation*, short, short, int, int) asm("UploadShapes__7tScreenR17tShapeInformationssss");
 void  UploadSwapShapes(tScreen*, int) asm("UploadSwapShapes__7tScreeni");
 void  AsyncLoadSwapShapeFile(tScreen*, char*) asm("AsyncLoadSwapShapeFile__7tScreenPc");

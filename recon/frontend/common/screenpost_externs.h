@@ -29,7 +29,7 @@ extern Car_tObj *gCarObj[2];
 char *PlayerName(int);
 /* TRUE TYPE = 4-byte BOOL (was `char`; W62-A17) -- SYM `class EXT type BOOL` @0x80051a7c,
    oracle census 7 lw / 8 sw, zero byte ops; next symbol at +4. */
-extern BOOL               CURRENTLYUSINGMEMCARD;
+extern bool               CURRENTLYUSINGMEMCARD;
 extern GameSetup_tData GameSetup_gData;
 extern tCarManager carManager;
 void DrawC_MenuColorData(int, Car_tObj *, int);
@@ -56,7 +56,7 @@ void tScreenCarSelectDuel_dtor(tScreenCarSelectDuel*); void tScreenPinkSlipsCarS
 
 /* ===== tScreen helpers (free-fn form) ===== */
 void  DrawBackgroundImage(tScreen*, int, int, tTexture_ShapeInfo*, int) __asm__("DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi");  /* w64 unlock: member form (A19 2.4) */
-void *IsShapeFileLoaded(tScreen*, tShapeInformation*);
+bool IsShapeFileLoaded(tScreen*, tShapeInformation*);
 void  UploadShapes(...);
 void  FreeShapes(tScreen*, tShapeInformation*);
 void  InitializeShapes(tScreen*, tShapeInformation*, int);
@@ -84,7 +84,7 @@ void  FETextRender_FullTextRGB(char *, short, short, int, char, short);
 void  FETextRender_MenuTextPositionedJustify(short, short, short, short, tMenuTextState, tMenuTextType);
 void FETextRender_WordWrap(...);
 void  FeAudio_AsyncPlaySpeech(int, int);
-void *FECheat_IsCheatEnabled(...);
+bool FECheat_IsCheatEnabled(tCheatCode);
 int  GetNumPinkSlipsCars(...);
 void*  GetStockCar(...);   /* W58-A1: GetTrack is a tTrackManager member (free decl mangled to the unlinkable GetTrack__FP13tTrackManagersPv) */
 tTrackInformation *GetTrackByID(tTrackManager*, short); void GetTrackToRace(tTournamentManager*, void*);

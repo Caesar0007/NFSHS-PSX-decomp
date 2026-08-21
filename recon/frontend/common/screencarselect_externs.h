@@ -23,7 +23,7 @@ extern u_long             gCameraRotation;
 extern DRender_tView gCView;   /* W58-A1: real type (render.cpp @0x80116F7C); was mistyped int* */
 extern Car_tObj *gCarObj[2];
 char *PlayerName(int);
-extern BOOL               CURRENTLYUSINGMEMCARD;
+extern bool               CURRENTLYUSINGMEMCARD;
 extern GameSetup_tData GameSetup_gData;
 extern tCarManager carManager;
 void DrawC_MenuColorData(int, Car_tObj *, int);
@@ -97,7 +97,7 @@ void tScreenCarSelectDuel_dtor(tScreenCarSelectDuel*); void tScreenPinkSlipsCarS
 
 /* ===== tScreen helpers (free-fn form) ===== */
 void  DrawBackgroundImage(tScreen*, int, int, tTexture_ShapeInfo*, int) asm("DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi");
-void *IsShapeFileLoaded(tScreen*, tShapeInformation*) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
+bool IsShapeFileLoaded(tScreen*, tShapeInformation*) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
 /* W58-A1 (08A phantom fix): the tScreen / tCarManager / tTrackManager / tVideoWall /
  * tDialogBase / tFEApplication entry points below were free `(...)`- or `(void*)`-typed
  * decls that mangled every call site to a symbol the link can never resolve
@@ -134,7 +134,7 @@ void  FETextRender_MenuTextPositionedJustify(short, short, short, short, tMenuTe
 void FETextRender_WordWrap(short index, RECT &r, tMenuTextState textState,
                            tMenuTextType textType);
 void  FeAudio_AsyncPlaySpeech(int, int);
-void *FECheat_IsCheatEnabled(tCheatCode);   /* W58-A1: FECheat_IsCheatEnabled__F10tCheatCode */
+bool FECheat_IsCheatEnabled(tCheatCode);   /* W58-A1: typed SYM FCN bool */
 /* W58-A1: GetTrackByID / GetTrackToRace are tTrackManager / tTournamentManager members. */
 short LoadGame(short, bool, bool);
 extern "C" int MCRD_handlecardevents(int);

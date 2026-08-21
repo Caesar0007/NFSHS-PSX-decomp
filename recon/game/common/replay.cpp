@@ -5,6 +5,28 @@
 #include "../../nfs4_types.h"
 #include "replay_externs.h"
 
+/* SYM assigns replay.obj one contiguous main-data run at
+ * 0x80117008..0x8011dfdc.  Named sections preserve that exact order while
+ * keeping the objects as typed source definitions rather than legacy bytes. */
+int ReplayCameraList[9]
+    __attribute__((section(".data.replay_camera_list"))) = {
+        0x13, 0x0a, 0x0b, 0x08, 0x09, 0x06, 0x04, 0x0f, 0
+    };
+tReplayInterface Replay_ReplayInterface
+    __attribute__((section(".data.replay_interface")));
+tReplayCameraModes Replay_ReplayCamera[2]
+    __attribute__((section(".data.replay_camera")));
+tControllerData controlData[2]
+    __attribute__((section(".data.replay_control_data")));
+tReplayBuffer Replay_ReplayBuffer
+    __attribute__((section(".data.replay_buffer")));
+char compressed_data[33]
+    __attribute__((section(".data.replay_compressed")));
+char uncompressed_data[32]
+    __attribute__((section(".data.replay_uncompressed")));
+Camera_tCamSlot gReplayCameraSlots[32]
+    __attribute__((section(".data.replay_camera_slots")));
+
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
@@ -13,6 +35,12 @@ int Replay_ReplayMode;
 int Replay_ReplayStorePtr;
 int Replay_Size;
 int numValidCams;
+
+/* SYM places this eight-byte array immediately after replay.obj's five
+ * gp-relative scalars.  The source still accesses it absolutely under -G4;
+ * the named small-data section restores ownership without changing codegen. */
+int Replay_ReplayCounter[2]
+    __attribute__((section(".sdata.replay_counter")));
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 char * Replay_Compress(char *uncompressed_data);

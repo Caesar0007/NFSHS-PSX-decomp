@@ -26,7 +26,7 @@ int          gBankNumLookupTable[71] = { 0, 2, 0, 2, 0, 2, 3, 3, 3, 3, 3, 3, 3, 
 int          falseLapTrigNumsForward[10][2] = { 4, 7, 4, 7, 4, 7, -1, -1, 4, 7, 4, 9, 4, 9, -1, -1, -1, -1, 4, 9 };   /* @0x8010e5ec */
 int          falseLapTrigNumsBackward[10][2] = { 4, 5, 4, 5, -1, -1, -1, -1, 4, 5, 4, 5, 4, 5, -1, -1, -1, -1, 4, 5 };   /* @0x8010e63c */
 char         Xfade[129] = { 0, 3, 7, 10, 13, 16, 19, 22, 24, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 46, 48, 50, 51, 53, 54, 55, 57, 58, 60, 61, 62, 63, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 84, 85, 86, 87, 88, 88, 89, 90, 91, 91, 92, 93, 94, 94, 95, 96, 96, 97, 98, 98, 99, 100, 100, 101, 101, 102, 103, 103, 104, 104, 105, 106, 106, 107, 107, 108, 108, 109, 109, 110, 110, 111, 111, 112, 112, 113, 113, 114, 114, 115, 115, 116, 116, 117, 117, 118, 118, 119, 119, 119, 120, 120, 121, 121, 122, 122, 122, 123, 123, 124, 124, 125, 125, 125, 126, 127, 127 };   /* @0x8010e68c */
-char         SkidInitMaxFreq[71] = { 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };   /* @0x8010e710 */
+static char  SkidInitMaxFreq[71] = { 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };   /* @0x8010e710 */
 /* SYM STAT, file scope: immediately follows SkidInitMaxFreq at 0x8010e758. */
 static char compareTimes[25] = {
   30, 12, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5, -6, -7, -8, -9,
@@ -283,15 +283,15 @@ void AudioCmn_UpdateThunder(void)
 /* ---- AudioCmn_InitAsyncSfx__Fv  [@0x8007657c] ---- */
 void AudioCmn_InitAsyncSfx(void)
 {
-  int iVar3;
+  int i;
 
-  iVar3 = 0;
+  i = 0;
   while (1) {
-    if (0x20 <= iVar3) break;
-    AudioCmn_gSfxSlot[iVar3].patch = -1;
-    AudioCmn_gSfxSlot[iVar3].handle = -1;
-    AudioCmn_gSfxSlot[iVar3].header = (char *)0x0;
-    iVar3 = iVar3 + 1;
+    if (0x20 <= i) break;
+    AudioCmn_gSfxSlot[i].patch = -1;
+    AudioCmn_gSfxSlot[i].handle = -1;
+    AudioCmn_gSfxSlot[i].header = (char *)0x0;
+    i = i + 1;
   }
   return;
 }
@@ -582,11 +582,7 @@ void AudioCmn_Reset(void)
 
 {
 
-  int ready;
-
-  int  i, t, t0, b, th, patch;
-
-  int  unused[2];   /* auStack_28[8] : SNDmemlargestunused scratch */
+  int i;
 
 
 
@@ -629,37 +625,44 @@ void AudioCmn_Reset(void)
          One shared fn-scope `i` pins all three to the same register.  `goodtogo` is
          $s1 (our `ready`), which only frees up once the inner i's move out. */
   if (0 < gMasterAmbientLevel) {
-    ready = false;
-    t0 = gettick() + 0x280;
+    int ticks;
+    int goodtogo;
+
+    goodtogo = false;
+    ticks = gettick() + 0x280;
     while (1) {
-      if (ready) break;
-      if (gettick() >= t0) break;
-      ready = true;
+      int check;
+
+      if (goodtogo) break;
+      if (gettick() >= ticks) break;
+      goodtogo = true;
       CopSpeak_Server();
       systemtask(0);
-      if (0x8000 < SNDmemlargestunused(unused)) {
+      if (0x8000 < SNDmemlargestunused(&check)) {
         if (GameSetup_gData.raceType == RaceType_HotPursuit) {
           int i;
           for (i = 0; i < 4; i++) {
             if (AudioCmn_GetAsyncSfx(2, i + 0x2f, false) == -1)
-              ready = false;
+              goodtogo = false;
           }
         }
         if (GameSetup_gData.Weather == 1 &&
             AudioCmn_GetAsyncSfx(1, 0, false) == -1)
-          ready = false;
+          goodtogo = false;
         {
           int i;
           i = 0;
           while (1) {
             if (i >= GameSetup_gData.numCars) break;
             if (GameSetup_gData.carInfo[i].carClass == 2) {
+              int patch;
+
               patch = CopSpeak_GetEnginePatch(GameSetup_gData.carInfo[i].carType, 0);
               if (-1 < patch && AudioCmn_GetAsyncSfx(1, patch, false) == -1)
-                ready = false;
+                goodtogo = false;
               patch = CopSpeak_GetEnginePatch(GameSetup_gData.carInfo[i].carType, 1);
               if (-1 < patch && AudioCmn_GetAsyncSfx(1, patch, false) == -1)
-                ready = false;
+                goodtogo = false;
             }
             i++;
           }
@@ -893,6 +896,12 @@ int AudioCmn_GetTimePhrase(int time)
  * a local-alloc/06E instrument, exactly as routed above. */
 void AudioCmn_CheckState(Car_tObj *car)
 {
+  /* SYM-CODEGEN-CARRIER: lap
+   * SYM-CODEGEN-CARRIER: lapOffset
+   * SYM-CODEGEN-CARRIER: sim
+   * SYM-CODEGEN-CARRIER: tailOffset
+   * These measured carriers preserve the retail shared-index/address schedule;
+   * the optimized SYM stream retains no declarations for them. */
   char carnum;
   int carspeed;
 
@@ -1091,11 +1100,11 @@ LAB_800774e0:
 /* ---- AudioCmn_LoadFESamples__Fv  [@0x80077738] ---- */
 void AudioCmn_LoadFESamples(void)
 {
-  char acStack_70 [104];
+  char filename[100];
 
-  strcpy(acStack_70, Paths_Paths[0x1c]);
-  strcat(acStack_70, D_8013C684);   /* "fesfx" */
-  AudioCmn_LoadBank(acStack_70,0);
+  strcpy(filename, Paths_Paths[0x1c]);
+  strcat(filename, D_8013C684);   /* "fesfx" */
+  AudioCmn_LoadBank(filename,0);
   return;
 }
 

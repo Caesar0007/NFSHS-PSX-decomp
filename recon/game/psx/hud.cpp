@@ -114,8 +114,8 @@
  * tentative definitions to .data/.sdata.  Build wiring is intentionally kept
  * out of this source file. */
 tSmallCoordXY Hud_gElementPositions[2][19] = { { {22, 54}, {159, 19}, {8, 19}, {18, 35}, {8, 204}, {221, 24}, {23, -2}, {21, -2}, {23, -3}, {2, -4}, {7, 50}, {4, 18}, {-41, 0}, {90, 212}, {253, 162}, {8, 196}, {218, 20}, {160, 97}, {160, 97} }, { {22, 56}, {252, 17}, {8, 17}, {26, 30}, {8, 101}, {128, 18}, {23, -2}, {21, -2}, {23, -3}, {2, -1}, {7, 52}, {4, 18}, {-42, 0}, {90, 105}, {259, 60}, {8, 72}, {215, 22}, {160, 99}, {160, 42} } };   /* @0x80120924 */
-u_long       day_needle[30] = { 657850u, 16053492u, 657850u, 657850u, 657850u, 236260u, 657850u, 657850u, 657850u, 657850u, 526344u, 657850u, 16053492u, 43184u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 43184u, 657850u, 0, 0, 0 };   /* @0x801209bc */
-u_long       night_needle[30] = { 657850u, 1147055u, 4168420u, 657850u, 657850u, 236260u, 657850u, 657850u, 657850u, 657850u, 526344u, 4110581u, 2648104u, 43184u, 657850u, 657850u, 4110581u, 4168420u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 4110581u, 43184u, 657850u, 0, 0, 0 };   /* @0x80120a34 */
+static u_long day_needle[30] = { 657850u, 16053492u, 657850u, 657850u, 657850u, 236260u, 657850u, 657850u, 657850u, 657850u, 526344u, 657850u, 16053492u, 43184u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 43184u, 657850u, 0, 0, 0 };   /* @0x801209bc */
+static u_long night_needle[30] = { 657850u, 1147055u, 4168420u, 657850u, 657850u, 236260u, 657850u, 657850u, 657850u, 657850u, 526344u, 4110581u, 2648104u, 43184u, 657850u, 657850u, 4110581u, 4168420u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 4110581u, 43184u, 657850u, 0, 0, 0 };   /* @0x80120a34 */
 u_long       Hud_Character[5] = { 4347332u, 4337928u, 15776284u, 7617052u, 0 };   /* @0x80120aac */
 float        fMapScaleX[11] = { 39.5f, 50.0f, 44.0f, 43.5f, 39.5f, 52.599998474121094f, 43.400001525878906f, 33.5f, 35.599998474121094f, 29.799999237060547f, 38.0f };   /* @0x80120ac0 */
 float        fMapScaleY[11] = { 40.79999923706055f, 50.0f, 46.099998474121094f, 45.29999923706055f, 36.70000076293945f, 51.20000076293945f, 42.400001525878906f, 32.5f, 37.29999923706055f, 27.399999618530273f, 37.900001525878906f };   /* @0x80120aec */
@@ -126,18 +126,18 @@ CVECTOR      Hud_gMarkerColor[12];   /* @0x80120b60  (bss(zero)) */
 CVECTOR      Hud_gCopMarkerColor[12];   /* @0x80120b90  (bss(zero)) */
 char         HudminChar[6] = { 58, 58, 39, 39, 39, 46 };   /* @0x8013d89c */
 char         HudsecChar[6] = { 46, 58, 34, 34, 34, 44 };   /* @0x8013d8a4 */
-int          BTC_playedsoundalready = 0;   /* @0x8013d8ac */
+static bool  BTC_playedsoundalready = false;   /* @0x8013d8ac; SYM BOOL */
 char         Hud_gWingmanInterface[2] = {0};   /* @0x8013d8b0 */
 char         Hud_gWingmanFlashIcon[2] = {0};   /* @0x8013d8b4 */
 int          Hud_gWingmanFlashTicks[2] = {0};   /* @0x8013d8b8 */
 int          Hud_gDebugInfo = 1;   /* @0x8013d8c0 */
-int          HudBustedOverlay;   /* @0x8013d928  (bss(zero)) */
+bool         HudBustedOverlay;   /* @0x8013d928  (bss(zero)); SYM BOOL */
 int          Hud_gCdActive;   /* @0x8013d92c  (bss(zero)) */
 int          Hud_ActivateCDPlayer;   /* @0x8013d930  (bss(zero)) */
 int          BTC_Countdown;   /* @0x8013d934  (bss(zero)) */
 int          FinalBTC_Countdown;   /* @0x8013d938  (bss(zero)) */
-int          Hud_BeTheCop;   /* @0x8013d93c  (bss(zero)) */
-int          Hud_kTurnSongOffNext;   /* @0x8013d940  (bss(zero)) */
+bool         Hud_BeTheCop;   /* @0x8013d93c  (bss(zero)); SYM BOOL */
+bool         Hud_kTurnSongOffNext;   /* @0x8013d940  (bss(zero)); SYM BOOL */
 short        HudBustedOverlayPlayer;   /* @0x8013d944  (bss(zero)) */
 int          mapMarkerMCos;   /* @0x8013d948  (bss(zero)) */
 int          mapMarkerMSin;   /* @0x8013d94c  (bss(zero)) */
@@ -164,16 +164,16 @@ int          gMapOffX;   /* @0x8013d97c  (bss(zero)) */
 int          gMapOffY;   /* @0x8013d980  (bss(zero)) */
 int          Hud_gCdLastTick;   /* @0x8013d984  (bss(zero)) */
 int          Hud_gCdScrollTitle;   /* @0x8013d988  (bss(zero)) */
-tSmallCoordXY *g1Player;   /* @0x8013de04  (bss(zero)) */
-SPRT         *gSprite0;   /* @0x8013de08  (bss(zero)) */
-SPRT         *gSprite1;   /* @0x8013de0c  (bss(zero)) */
-char         currentSpriteTransparent;   /* @0x8013de10  (bss(zero)) */
-int          currentSpriteColor;   /* @0x8013de14  (bss(zero)) */
-int          HudSplitTimeDiff1[2];   /* @0x8013de18  (bss(zero)) */
-int          HudSplitTimeDiff2[2];   /* @0x8013de20  (bss(zero)) */
-int          BTC_BonusTime;   /* @0x8013de28  (bss(zero)) */
-int          BTC_BonusTimeTick;   /* @0x8013de2c  (bss(zero)) */
-int          BTC_UserHasControl;   /* @0x8013de30  (bss(zero)) */
+static tSmallCoordXY *g1Player;   /* @0x8013de04  (bss(zero)) */
+static SPRT *gSprite0;   /* @0x8013de08  (bss(zero)) */
+static SPRT *gSprite1;   /* @0x8013de0c  (bss(zero)) */
+static char currentSpriteTransparent;   /* @0x8013de10  (bss(zero)) */
+static long currentSpriteColor;   /* @0x8013de14  (bss(zero)) */
+static int HudSplitTimeDiff1[2];   /* @0x8013de18  (bss(zero)) */
+static int HudSplitTimeDiff2[2];   /* @0x8013de20  (bss(zero)) */
+static int BTC_BonusTime;   /* @0x8013de28  (bss(zero)) */
+static int BTC_BonusTimeTick;   /* @0x8013de2c  (bss(zero)) */
+static bool BTC_UserHasControl;   /* @0x8013de30  (bss(zero)); SYM BOOL */
 /* PerpOverlayOn[2] @0x8013de38 (bss(zero)). LANDED (Hud_Reset__Fv 8->2 diffs, insn count exact
  * 22/22): the oracle reaches this array's CONSTANT-index [0]/[1] clears in Hud_Reset as two
  * INDEPENDENT %gp_rel(D_8013DE38)/%gp_rel(D_8013DE3C) 4-byte scalars (each <=G4 -> gp-rel; both
@@ -195,15 +195,15 @@ int          BTC_UserHasControl;   /* @0x8013de30  (bss(zero)) */
  * Hud_RenderHudView could show a stale busted-overlay message. Flagged as a real behavior
  * change, not silently accepted; a full fix needs a link-level aliasing pass (out of scope for
  * a single-diff codegen lever, and out of scope for this pass' file-only mandate). */
-int          PerpOverlayOn[2];   /* @0x8013de38  (bss(zero)) */
-int          PerpOverlayMessage[2];   /* @0x8013de40  (bss(zero)) */
-int          Hud_gShowedCDPlayer;   /* @0x8013de48  (bss(zero)) */
-DR_MODE      gTPage0[2][4];   /* @0x8013e390  (bss?) */
-DR_MODE      gTPage1[2][4];   /* @0x8013e3f0  (bss?) */
-POLY_F4      gHudF4[14];   /* @0x8013e450  (bss?) */
-POLY_FT4     gHudFT4[10];   /* @0x8013e5a0  (bss?) */
-POLY_G4      gHudG4[8];   /* @0x8013e730  (bss?) */
-char         BTC_CurrentPerpName[10];   /* @0x8013e850  (bss?) */
+static bool PerpOverlayOn[2];   /* @0x8013de38  (bss(zero)); SYM BOOL[2] */
+static int PerpOverlayMessage[2];   /* @0x8013de40  (bss(zero)) */
+static bool Hud_gShowedCDPlayer;   /* @0x8013de48  (bss(zero)); SYM BOOL */
+static DR_MODE gTPage0[2][4];   /* @0x8013e390  (bss?) */
+static DR_MODE gTPage1[2][4];   /* @0x8013e3f0  (bss?) */
+static POLY_F4 gHudF4[14];   /* @0x8013e450  (bss?) */
+static POLY_FT4 gHudFT4[10];   /* @0x8013e5a0  (bss?) */
+static POLY_G4 gHudG4[8];   /* @0x8013e730  (bss?) */
+static char BTC_CurrentPerpName[10];   /* @0x8013e850  (bss?) */
 
 /* PsyQ libgpu P_TAG head-word shape (addr:24|len:8) -- the original tag-link code is the
  * SDK addPrim()/setaddr()/getaddr() macro family operating on this bitfield. */
@@ -228,7 +228,7 @@ void Hud_BuildF4o(POLY_F4 *prim,int trans,int x,int y,int w,int h,u_long color,s
 void Hud_FBuildGT4(HudPmx_tShape *shape, int x, int y, u_long col1);
 void Hud_FBuildFT4(HudPmx_tShape *shape, int x, int y, u_long col1);
 void Hud_FBuildF4(int transparent, int x, int y, int w, int h, u_long col1, char x0off, char x1off);
-void uppercase(char *string);
+static void uppercase(char *string);
 void Hud_Kill(void);
 void Hud_Init0(void);
 void Hud_InitMapFrame(int i,int mode);
@@ -236,7 +236,7 @@ void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y);
 void Hud_Init(void);
 void Hud_InitTables(void);
 void Hud_BuildETimeString(SPRT *sprt,int time);
-void * Hud_BuildDistanceString(SPRT *sprt,int player);
+bool Hud_BuildDistanceString(SPRT *sprt,int player);
 void Hud_BuildTimeString(SPRT *sprt,int time);
 void Hud_BuildTach(int player);
 int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth);
@@ -396,15 +396,15 @@ void Hud_BuildSprite2(SPRT *sprt,int shapeIdx,int x,int y)
 void Hud_FBuildSprite(int shapeIdx,int x,int y,u_long color,int trans)
 
 {
-  u_char *prim;
+  SPRT *prim;
   u_char *prev_pkt;
 
-  prim = Render_gPacketPtr;
+  prim = (SPRT *)Render_gPacketPtr;
   prev_pkt = Render_gPalettePtr;
   ((Hud_PTag *)prim)->addr = ((Hud_PTag *)prev_pkt)->addr;
-  Render_gPacketPtr = prim + 0x14;
+  Render_gPacketPtr = (u_char *)prim + 0x14;
   ((Hud_PTag *)prev_pkt)->addr = (u_int)prim;
-  Hud_BuildSprite((SPRT *)prim,shapeIdx,x,y,color,trans);
+  Hud_BuildSprite(prim,shapeIdx,x,y,color,trans);
   return;
 }
 
@@ -699,23 +699,23 @@ void Hud_FBuildF4(int transparent, int x, int y, int w, int h, u_long col1, char
 }
 
 /* ---- uppercase__FPc  [HUD.CPP:790-795] SLD-VERIFIED ---- */
-void uppercase(char *string)
+static void uppercase(char *string)
 
 {
-  u_int uVar1;
+  int len;
   int n;
   u_char *pbVar2;
 
-  uVar1 = strlen(string);
+  len = strlen(string);
   n = 0;
-  if (0 < (int)uVar1) {
+  if (0 < len) {
     do {
       pbVar2 = (u_char *)(string + n);
       if ((u_int)(*pbVar2 - 0x61) < 0x1au) {
         *pbVar2 = *pbVar2 + (u_char)0xe0;
       }
       n = n + 1;
-    } while (n < (int)uVar1);
+    } while (n < len);
   }
   return;
 }
@@ -1427,7 +1427,7 @@ void Hud_BuildETimeString(SPRT *sprt,int time)
 }
 
 /* ---- Hud_BuildDistanceString__FP4SPRTi  [HUD.CPP:1253-1269] SLD-VERIFIED ---- */
-void * Hud_BuildDistanceString(SPRT *sprt,int player)
+bool Hud_BuildDistanceString(SPRT *sprt,int player)
 
 {
   int slices;
@@ -1439,7 +1439,7 @@ void * Hud_BuildDistanceString(SPRT *sprt,int player)
     slices = (slices * 1000) / 0x647;
   }
   if (9999 < slices) {
-    return (void *)0x0;
+    return 0;
   }
   *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[slices / 1000];
   sprt = sprt + 2;
@@ -1448,7 +1448,7 @@ void * Hud_BuildDistanceString(SPRT *sprt,int player)
   *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[(slices % 100) / 10];
   sprt = sprt + 1;
   *(int *)&sprt->u0 = *(int *)&HudPmx_gHudNumberUV[slices % 10];
-  return (void *)0x1;
+  return 1;
 }
 
 /* ---- Hud_BuildTimeString__FP4SPRTi  [HUD.CPP:1273-1288] SLD-VERIFIED ---- */
@@ -1604,8 +1604,8 @@ void Hud_BuildTach(int player)
   int carType;
   u_long color;
   int tachNeedle_p;
-  u_char *prim;
-  u_char *prim2;
+  POLY_F3 *prim;
+  POLY_F3 *prim2;
   void *tp9;
   u_char *tp3;
   short ts3;
@@ -1667,14 +1667,14 @@ void Hud_BuildTach(int player)
   {
     u_char *pal;
 
-    prim = Render_gPacketPtr;
+    prim = (POLY_F3 *)Render_gPacketPtr;
     pal = Render_gPalettePtr;
-    tp9 = (void *)(prim + 0x14);
+    tp9 = (void *)((u_char *)prim + 0x14);
     ((Hud_PTag *)prim)->addr = ((Hud_PTag *)pal)->addr;
-    Render_gPacketPtr = prim + 0x14;
+    Render_gPacketPtr = (u_char *)prim + 0x14;
     ((Hud_PTag *)pal)->addr = (u_int)prim;
     ((Hud_PTag *)tp9)->addr = ((Hud_PTag *)pal)->addr;
-    Render_gPacketPtr = prim + 0x24;
+    Render_gPacketPtr = (u_char *)prim + 0x24;
     ((Hud_PTag *)pal)->addr = (u_int)tp9;
     /* MATCH (w63-a1): 30 -> 22 (count EXACT 269/269) by STATEMENT ORDER of this tp9
      * vertex block alone -- the colour word is written FIRST (retail SLD 1418 issues its
@@ -1695,31 +1695,31 @@ void Hud_BuildTach(int player)
     *(short *)((u_char *)tp9 + 10) = 0xe - (short)y;
     *(short *)((u_char *)tp9 + 0xe) = (short)sin1;
     *(u_short *)((u_char *)tp9 + 0xc) = (u_short)cos1;
-    prim2 = Render_gPacketPtr;
+    prim2 = (POLY_F3 *)Render_gPacketPtr;
     {
     u_char *pal2 = Render_gPalettePtr;
     ((Hud_PTag *)prim2)->addr = ((Hud_PTag *)pal2)->addr;
-    Render_gPacketPtr = prim2 + 0x14;
+    Render_gPacketPtr = (u_char *)prim2 + 0x14;
     ((Hud_PTag *)pal2)->addr = (u_int)prim2;
     }
   }
-  Hud_BuildF3((POLY_F3 *)prim,HudPmx_gShapes + 0x82,cos1,sin1,color);
-  Hud_BuildF3((POLY_F3 *)prim2,HudPmx_gShapes + 0x82,cos1,sin1,0);
-  prim[7] = prim[7] & 0xfd;
+  Hud_BuildF3(prim,HudPmx_gShapes + 0x82,cos1,sin1,color);
+  Hud_BuildF3(prim2,HudPmx_gShapes + 0x82,cos1,sin1,0);
+  ((u_char *)prim)[7] = ((u_char *)prim)[7] & 0xfd;
   fixedsincos(fangle + -0x200,&sin,&cos);
   ts3 = 0xe - (short)fixedmult(cos,0x20);
-  ((POLY_F3 *)prim)->x1 = ts3;
-  ((POLY_F3 *)prim2)->x1 = ts3;
+  prim->x1 = ts3;
+  prim2->x1 = ts3;
   ts4 = 0xe - (short)fixedmult(sin,0x20);
-  ((POLY_F3 *)prim)->y1 = ts4;
-  ((POLY_F3 *)prim2)->y1 = ts4;
+  prim->y1 = ts4;
+  prim2->y1 = ts4;
   fixedsincos(fangle + 0x200,&sin,&cos);
   ts1 = 0xe - (short)fixedmult(cos,0x20);
-  ((POLY_F3 *)prim)->x2 = ts1;
-  ((POLY_F3 *)prim2)->x2 = ts1;
+  prim->x2 = ts1;
+  prim2->x2 = ts1;
   ts1 = 0xe - (short)fixedmult(sin,0x20);
-  ((POLY_F3 *)prim)->y2 = ts1;
-  ((POLY_F3 *)prim2)->y2 = ts1;
+  prim->y2 = ts1;
+  prim2->y2 = ts1;
   /* MATCH (w50-a1): 43 -> 41 by STATEMENT ORDER alone in the "+2" tail (cluster (2) of the
    * w46 receipt: retail interleaves the re-reads with the stores, we batch them).  Measured
    * orders, tp3 first unless noted: [0xe,10,0x12] 41 · [10,0xe,0x12] 43 · [10,0x12,0xe] 43
@@ -1746,8 +1746,8 @@ void Hud_BuildTach(int player)
    * + `((POLY_F3 *)tp9)->code = 3` (32); + the tp9 rgb word via `&->r0` (32);
    * `prim[7] &= 0xfd` as `->code` (neutral); the y2 tail as a re-read RMW (75/270). */
   tp3 = Render_gPalettePtr;
-  ((POLY_F3 *)prim2)->y1 = ((POLY_F3 *)prim2)->y1 + 2;
-  ((POLY_F3 *)prim2)->y0 = ((POLY_F3 *)prim2)->y0 + 2;
+  prim2->y1 = prim2->y1 + 2;
+  prim2->y0 = prim2->y0 + 2;
   /* MATCH (w63-a1): 22 -> 20 (count EXACT 269/269).  Retail COPIES ts1 into a fresh
    * caller-saved reg before adding 2 (`addu v1,s1,zero` @0x800d4220 then `addiu v1,v1,2`
    * @0x800d4240) where we mutate ts1's own home in place (`addiu s1,s1,2`).  A zero-insn
@@ -1758,7 +1758,7 @@ void Hud_BuildTach(int player)
    * A second operand buys nothing (20).  FALSIFIED: identity fence on ts1 (83 @270 -- it
    * adds a def+use and costs an insn); an explicit `ts2 = ts1;` copy variable (22, cse
    * propagates it away); a block-local `short t = ts1;` at the +2 site (22). */
-  ((POLY_F3 *)prim2)->y2 = ts1 + 2;
+  prim2->y2 = ts1 + 2;
   __asm__ ("" : : "r"(ts1));
   ((Hud_PTag *)&gSprt1[2])->addr = ((Hud_PTag *)tp3)->addr;
   ((Hud_PTag *)tp3)->addr = (u_int)(gSprt1 + 2);

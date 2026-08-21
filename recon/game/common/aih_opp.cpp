@@ -410,10 +410,12 @@ void AIHigh_Opponent::HighExecute()
     break;
 
   case STATE_NONE:
-    SetState(
-      (AIState_Base *)new((AIState_Normal *)operator new(8))
-        AIState_Normal(carObj_),
-      STATE_NORMAL);
+    {
+      AIState_Base *newState =
+        (AIState_Base *)new((AIState_Normal *)operator new(8))
+          AIState_Normal(carObj_);
+      SetState(newState,STATE_NORMAL);
+    }
     return;
 
   case STATE_NORMAL:

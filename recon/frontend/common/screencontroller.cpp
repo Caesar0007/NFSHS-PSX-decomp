@@ -104,6 +104,8 @@ void Controller_SetRamp(void)
      fuses the sign-extend into the address (sra ..,15). */
   i = 0;
   while (1) {
+    /* SYM-CODEGEN-CARRIER: one -- the receipt below proves this zero-insn
+       identity-fence carrier is required for retail's per-iteration `li 1`. */
     int one;
 
     if (i >= 2) break;
@@ -152,6 +154,9 @@ short tScreenControllerConfig::AnimKeyPoints(bool forward,bool pt)
 {
   short result;
 
+  /* SYM-CODEGEN-CARRIER: result -- SYM has no named local, but this explicit
+     shared return funnel is required for the retail 25-instruction layout;
+     direct returns compile three instructions short and produce 23 diffs. */
   if (this->fCurrentController == '\x02') {
     if (forward != 0) {
       result = 0x14;
@@ -1008,10 +1013,13 @@ void tScreenControllerConfig::HorzVertLine(short *ArrowLoc,bool type)
 void tScreenControllerConfig::DrawArrow(short *ArrowLoc)
 
 {
-  /* MATCH: SLD 1593 covers the entire clamp on one source line.  This is EA's
+  /* SYM-CODEGEN-CARRIER: clampVal
+     MATCH: SLD 1593 covers the entire clamp on one source line.  This is EA's
      duplicated MIN(MAX(field, 0), 0x40) macro expansion, not a simplified
      hand-written branch tree; keeping the field expression duplicated gives
-     retail's v1 raw value / a0 sign test / v0 clamp handout. */
+     retail's v1 raw value / a0 sign test / v0 clamp handout.  The named C
+     carrier represents that compiler-created COND_EXPR destination, so it is
+     correctly absent from the SYM local list. */
   short clampVal;
   this->mult = 0;
   settrans(1);

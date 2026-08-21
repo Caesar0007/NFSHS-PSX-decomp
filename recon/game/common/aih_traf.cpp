@@ -220,19 +220,21 @@ void AIHigh_Traffic::HighExecute()
           release = forcePurgatory_ == 0;
         }
         if (release != 0) {
-          trigger_t *trigger = CheckForNewTriggers();
+          trigger_t *pNewTrigger = CheckForNewTriggers();
 
-          if (trigger != (trigger_t *)0x0) {
-            triggerManagerTraffic->DescribeTrigger(trigger);
-            if (*(int *)trigger == 5) {
+          if (pNewTrigger != (trigger_t *)0x0) {
+            /* SYM-OPTIMIZED: trigger -- DescribeTrigger's inlined parameter
+               aliases pNewTrigger in $s0; it has no independent source value. */
+            triggerManagerTraffic->DescribeTrigger(pNewTrigger);
+            if (*(int *)pNewTrigger == 5) {
               SetState(
                 (AIState_Base *)new((AIState_RovingTraffic *)operator new(0x18))
-                  AIState_RovingTraffic(carObj_,trigger),
+                  AIState_RovingTraffic(carObj_,pNewTrigger),
                 STATE_ROVING_TRAFFIC);
               AILife_ReencarnateTrafficByPosition
-                (carObj_,*(int *)((char *)trigger + 4),1,
-                 *(coorddef **)((char *)trigger + 0x3c),
-                 (matrixtdef *)((char *)trigger + 0xc));
+                (carObj_,*(int *)((char *)pNewTrigger + 4),1,
+                 *(coorddef **)((char *)pNewTrigger + 0x3c),
+                 (matrixtdef *)((char *)pNewTrigger + 0xc));
             }
           }
           else {
@@ -459,14 +461,15 @@ trigger_t * AIHigh_Traffic::CheckForNewTriggers()
       }
 
       {
+        int newSlice = thisSlice;
         int temp = thisPlayer->lastTrafficTriggerCheckSlice_;
-        thisPlayer->lastTrafficTriggerCheckSlice_ = thisSlice;
-        if (temp < thisSlice) {
+        thisPlayer->lastTrafficTriggerCheckSlice_ = newSlice;
+        if (temp < newSlice) {
           startSlice = temp;
-          endSlice = thisSlice;
+          endSlice = newSlice;
         }
         else {
-          startSlice = thisSlice;
+          startSlice = newSlice;
           endSlice = temp;
         }
       }

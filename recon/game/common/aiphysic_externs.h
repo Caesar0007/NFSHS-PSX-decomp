@@ -34,7 +34,7 @@ extern int randSeed;           /* @0x8013D104 */
 void   AIPhysic_StopCar(Car_tObj *carObj, int velScale, int rotScale);
 void   AIPhysic_RevEngine(Car_tObj *carObj);
 void   AIPhysic_HandleShifting(Car_tObj *carObj);
-int    AIPhysic_CalculateGear(Car_tObj *carObj);
+Gear_t AIPhysic_CalculateGear(Car_tObj *carObj);
 int    AIPhysic_GearInvSpeedRange(Car_tObj *carObj, Gear_t gear);
 int    AIPhysic_GearTopSpeed(Car_tObj *carObj, Gear_t gear);
 int    AIPhysic_GearBottomSpeed(Car_tObj *carObj, Gear_t gear);

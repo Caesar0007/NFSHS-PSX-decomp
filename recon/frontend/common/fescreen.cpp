@@ -173,12 +173,12 @@ void tScreen::AsyncLoadSwapShapeFile(char *fileName)
 
 /* ---- tScreen::IsShapeFileLoaded  [FESCREEN.CPP:218-270] SLD-VERIFIED ---- */
 
-void * tScreen::IsShapeFileLoaded(tShapeInformation &shapes)
+bool tScreen::IsShapeFileLoaded(tShapeInformation &shapes)
 
 {
   int async_status;
   char *bogus;
-  BOOL result;
+  bool result;
 
   /* MATCH: ONE result var (retail's $s1, set to 1 in the entry branch's delay
      slot) with a single return -- the per-arm `pvVar3 = 0` funnel Ghidra
@@ -236,7 +236,7 @@ void * tScreen::IsShapeFileLoaded(tShapeInformation &shapes)
       result = 0;
     }
     }
-  return (void *)result;
+  return result;
 }
 
 
@@ -326,7 +326,7 @@ void tScreen::Initialize()
      reuses $s0. `BOOL` is the retail spelling and aliases `int`; the explicit
      cast from the currently misdeclared `void *` return preserves retail's raw
      move exactly. */
-  BOOL shapesLoaded;
+  bool shapesLoaded;
   short numPermShapes;
   short numSwapShapes;
   char *permFileName;
@@ -339,13 +339,13 @@ void tScreen::Initialize()
              &numSwapShapes,&permFileName,&swapFileName);
   do {
     FeAudio_systemtask(0);
-    shapesLoaded = (int)this->IsShapeFileLoaded(this->fPermShapes);   /* 363 */
+    shapesLoaded = this->IsShapeFileLoaded(this->fPermShapes);        /* 363 */
     if ((this->fPermShapes).fFile != (char *)0x0) {                   /* 364 */
       this->UploadPermanentShapes((int)numPermShapes);                /* 365 */
     }
     /* SLD line 367 is ONE statement -- retail's `&&` funnel ($v1 default 0, the
        call, sltu into $v1) whose result is copied back into $s0 at 368. */
-    shapesLoaded = shapesLoaded && this->IsShapeFileLoaded(this->fSwapShapes) != (void *)0x0;
+    shapesLoaded = shapesLoaded && this->IsShapeFileLoaded(this->fSwapShapes) != 0;
     if ((this->fSwapShapes).fFile != (char *)0x0) {                   /* 368 */
       this->UploadSwapShapes((int)numSwapShapes);                     /* 369 */
     }
@@ -600,7 +600,7 @@ void tScreen::PreLoad()
 
 /* ---- tScreen::TransitionOff  [FESCREEN.CPP:621-625] SLD-VERIFIED ---- */
 
-int tScreen::TransitionOff(tScreen_TransitionType type,tMenu *arg2)
+void tScreen::TransitionOff(tScreen_TransitionType type,tMenu *arg2)
 
 {
   int iVar1;
@@ -610,14 +610,14 @@ int tScreen::TransitionOff(tScreen_TransitionType type,tMenu *arg2)
   this->fInternalScreenFadeVal = 0;
   this->fTransitionOff = 1;
   this->fTransitionTicks = iVar1;
-  return 1;
+  return;
 }
 
 
 
 /* ---- tScreen::TransitionOn  [FESCREEN.CPP:629-633] SLD-VERIFIED ---- */
 
-int tScreen::TransitionOn(tScreen_TransitionType type,tMenu *arg2)
+void tScreen::TransitionOn(tScreen_TransitionType type,tMenu *arg2)
 
 {
   int iVar1;
@@ -627,7 +627,7 @@ int tScreen::TransitionOn(tScreen_TransitionType type,tMenu *arg2)
   this->fInternalScreenFadeVal = 0x80;
   this->fTransitionOff = 0;
   this->fTransitionTicks = iVar1;
-  return 0x80;
+  return;
 }
 
 
@@ -676,7 +676,7 @@ void tScreen::UpdateTransition()
 
 /* ---- tScreen::TransitionIsFinished  [FESCREEN.CPP:651-652] SLD-VERIFIED ---- */
 
-int tScreen::TransitionIsFinished()
+bool tScreen::TransitionIsFinished()
 
 {
   return ((this->fInternalScreenFadeVal + 0x18U < 0xa7) ^ 1);

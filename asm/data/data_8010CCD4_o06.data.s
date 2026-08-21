@@ -3,7 +3,7 @@
  * W64-A18  BLOB-vs-TU OWNERSHIP SWEEP -- SPLAT-LANE FILLER ONLY
  *
  * This segment's data is OWNED by
- *     build/recon/game/common/func_va_data.cpp.o
+ *     build/recon/game/common/aiperson.cpp.o
  * (section .data, retail 0x8010d5cc..0x8010dc54), whose own bytes were
  * proved byte-identical to retail before the cut (ownmap2 E1-E5, with
  * R_MIPS_32 relocations RESOLVED against the retail VA map).

@@ -8,7 +8,11 @@
 
 /* ---- clock.obj-owned globals (.bss zero) ---- */
 Clock_tGameClock clock_realTime;   /* @0x80110c24  (bss(zero)) */
-int          clock_InterruptStarted;   /* @0x8013c820  (bss(zero)) */
+/* Explicit zero initialization is source-significant here: GCC 2.8.1 emits
+ * this file-static word in .sdata, matching the SYM/retail slot at 0x8013c820;
+ * a tentative definition instead falls into .sbss and shifts every later
+ * small-data owner by four bytes. */
+static int   clock_InterruptStarted = 0;   /* @0x8013c820  (SYM STAT) */
 int          stopClock;   /* @0x8013c824  (bss(zero)) */
 int          generic128HzClock;   /* @0x8013c828  (bss(zero)) */
 

@@ -4,6 +4,11 @@
  */
 #include "front.h"
 
+/* The public declaration is the honest C++ bool.  This TU's retail code uses
+   an array-shaped RTL address carrier for its word stores, so keep that
+   codegen-only view local instead of falsifying the shared declaration. */
+extern int MEMCARDFRONTENDISINITTED_words[] asm("MEMCARDFRONTENDISINITTED");
+
 /* ---- Front.obj-OWNED globals -- DEFINED here (self-contained; .data=real EXE bytes, .bss=zero) ---- */
 /* overRide + ComingIntoTheFrontEndTheVeryFirstTime lead Front.obj's run at
    0x800517e8, BEFORE the two initialised cop-model tables -- a tentative
@@ -20,7 +25,7 @@ int          colourChosen[8];   /* @0x80051914  (bss(zero)) */
 tAllScreens  *gAllScreens[1];   /* @0x80051934; SYM-CARRIER: gAllScreens -- PTR STRUCT, 4 B.
                                    The [0] form emitted NOTHING and let the dead
                                    _usePlayerUpgrades occupy retail's 4 bytes. */
-BOOL         memCardReadOK[1];   /* @0x80051938; SYM-CARRIER: memCardReadOK -- BOOL[1] forces retail value-load addressing */
+bool         memCardReadOK[1];   /* @0x80051938; SYM-CARRIER: memCardReadOK -- SYM BOOL[1] */
 tCarInLineup CarLineup[9];   /* @0x8005193c  (bss(zero)) */
 char         picked[11];   /* @0x80051960  (bss(zero)) */
 
@@ -759,7 +764,7 @@ int LoadConfig(void)
 void Front_InitialMemCardCheck(void)
 
 {
-  MEMCARDFRONTENDISINITTED[0] = 0;
+  MEMCARDFRONTENDISINITTED_words[0] = 0;
   gPSXMemCardFull[0] = 0;
   memCardReadOK[0] = 0;
   Stattool_GetAllDefaultRecords((tRecordBuffer *)&Stats_gTrackRecords,false);
@@ -789,7 +794,7 @@ void Front_SecondaryMemCardCheck(void)
   int i;
   int j;
 
-  MEMCARDFRONTENDISINITTED[0] = 0;
+  MEMCARDFRONTENDISINITTED_words[0] = 0;
   Init_Memcard(false,0);
   j = 0;
   /* MATCH: loop-top guard (j<2) with the RARE exit/cleanup pushed OUT-OF-LINE after
@@ -813,7 +818,7 @@ void Front_SecondaryMemCardCheck(void)
   }
   DeInit_Memcard();
   SetPads();
-  MEMCARDFRONTENDISINITTED[0] = 1;
+  MEMCARDFRONTENDISINITTED_words[0] = 1;
 }
 
 
@@ -1336,7 +1341,7 @@ static void Front_InitOpponentCars(tFEStream &streamData)
     tCarModels carModel;
     char carColor;
     tCarClassType opponentClass;
-    BOOL usePlayerUpgrades;
+    bool usePlayerUpgrades;
     tTourneyInfo *tourn;
 
     usePlayerUpgrades = 0;
@@ -1412,8 +1417,8 @@ static void Front_InitOpponentCars(tFEStream &streamData)
         streamData.carLineup[i + 1].carUpgrades = tourn->fOpponentUpgrades[i];
       }
       if ((frontEnd.raceType == RaceType_Tournament) && (frontEnd.tier == '\0')) {
-        void *pvVar5 = FECheat_IsCheatEnabled(cheat_FinishedTournament);
-        if ((pvVar5 != (void *)0x0) && (frontEnd.opponentUpgrades != '\0')) {
+        BOOL pvVar5 = FECheat_IsCheatEnabled(cheat_FinishedTournament);
+        if ((pvVar5 != 0) && (frontEnd.opponentUpgrades != '\0')) {
           streamData.carLineup[i + 1].carUpgrades = tourn->fOpponentUpgrades[i];
         }
         else {
@@ -2444,10 +2449,10 @@ track_value_ready:
    but has no surviving SYM debug entry. Detailed gate: PASS 35/35;
    Front_BuildStream remains PASS 1000/1000. */
 
-BOOL Front_EnableLocalSpeech(void)
+bool Front_EnableLocalSpeech(void)
 
 {
-  BOOL result;
+  bool result;
   tTrackInformation trackInfo;
   int lang;
 
@@ -3012,10 +3017,10 @@ short Front_GetTrackRaced(void)
    
    Toolchain: PsyQ SDK 4.3 (May 1998), GCC 2.7.2, ASPSX 2.77, PSYLINK 2.73.Build date: 1999-02-22.See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md. */
 
-void * PlayerNameExist(int player)
+bool PlayerNameExist(int player)
 
 {
-  return (void *)(uint)(strlen(frontEnd.playerNameList[player]) != 0);
+  return strlen(frontEnd.playerNameList[player]) != 0;
 }
 
 

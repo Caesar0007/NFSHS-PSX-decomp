@@ -56,12 +56,14 @@ void Fe3D_InitShowroom(void)
 
 {
   int iVar1;
-  int angle_sin;
-  int angle_cos;
+  long angle_sin;
+  long angle_cos;
   short sVar4;
+  /* SYM-TYPE-OVERRIDE: iPlus -- short changes the arithmetic extension path
+   * and regresses the exact 107-instruction body by 8 diffs. */
   int iPlus;
   COORD16 *pCVar6;
-  int angle;
+  long angle;
   int i;
   
   angle = 0;

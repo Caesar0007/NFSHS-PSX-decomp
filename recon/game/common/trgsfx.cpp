@@ -13,6 +13,27 @@
 int gTAddCSmoke;
 int gTAddCarWheelDelay;
 
+/* SYM assigns this contiguous 0x640-byte zero-initialized run to TrgSfx.obj
+ * (0x8011e1b0..0x8011e7f0).  Keep each object in a named section so the
+ * reconstruction linker can preserve SYM order without exposing the run to
+ * gcc 2.8.1's tentative-object sorting. */
+int gTEnviroEffect[8]
+    __attribute__((section(".data.trgsfx_t_enviro")));
+int gTAddCarSfx[8]
+    __attribute__((section(".data.trgsfx_t_car")));
+int gTAddCarWheelSfx[8][4]
+    __attribute__((section(".data.trgsfx_t_wheel")));
+int gTAddCarExtraSfx[8][4]
+    __attribute__((section(".data.trgsfx_t_extra")));
+tSkid gPrevSkidSm[8][4]
+    __attribute__((section(".data.trgsfx_prev_skid")));
+int gStatusSm[8][4]
+    __attribute__((section(".data.trgsfx_status")));
+Skidmark_Segment *gSaveSeg[8][4]
+    __attribute__((section(".data.trgsfx_save_seg")));
+int gSaveChunk[8][4]
+    __attribute__((section(".data.trgsfx_save_chunk")));
+
 
 /* ---- TrgSfx_AddEnviroEffect__FiiP8coorddefT2  [TRGSFX.CPP:45-53] SLD-VERIFIED ---- */
 void TrgSfx_AddEnviroEffect(int obj,int type,coorddef *emitterpt,coorddef *vec)
@@ -58,7 +79,7 @@ void TrgSfx_AddCarWheelSfx(int car,int wheel,coorddef *skidpt,int type,coorddef 
 }
 
 /* ---- TrgSfx_AddCarExtraCheck__Fii  [TRGSFX.CPP:93-97] SLD-VERIFIED ---- */
-int TrgSfx_AddCarExtraCheck(int car,int wheel)
+bool TrgSfx_AddCarExtraCheck(int car,int wheel)
 
 {
   int c;

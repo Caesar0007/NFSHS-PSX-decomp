@@ -472,7 +472,7 @@ int AudioTrk_PreLoad(void)
   int vz;
   int tick;
   bool loaded;
-  int check[2];
+  int check;
   int numelems;
 
   if ((gGameAudioList == (CAudioList *)0x0) || (gMasterAmbientLevel == 0)) {
@@ -490,7 +490,7 @@ int AudioTrk_PreLoad(void)
     room = false;
     if (!loaded) {
       if (gettick() < tick) {
-        room = 0x8000 < SNDmemlargestunused(check);
+        room = 0x8000 < SNDmemlargestunused(&check);
       }
     }
     loaded = true;
@@ -537,18 +537,18 @@ int AudioTrk_PreLoad(void)
 /* ---- AudioTrk_CleanUp__Fv  [@0x8007d52c] ---- */
 void AudioTrk_CleanUp(void)
 {
-  int iVar1;
+  int i;
 
   AudioTrk_Reset();
-  iVar1 = 0;
+  i = 0;
   if (AudioTrk_g != (AudioTrk_tGlobals *)0x0) {
     do {
-      if (AudioTrk_g->chan[iVar1].handle != -1) {
-        freeVoiceChannel(iVar1 + 0x37);
-        AudioTrk_g->chan[iVar1].handle = -1;
+      if (AudioTrk_g->chan[i].handle != -1) {
+        freeVoiceChannel(i + 0x37);
+        AudioTrk_g->chan[i].handle = -1;
       }
-      iVar1 = iVar1 + 1;
-    } while (iVar1 < 0x10);
+      i = i + 1;
+    } while (i < 0x10);
     purgememadr(AudioTrk_g);
     AudioTrk_g = (AudioTrk_tGlobals *)0x0;
   }

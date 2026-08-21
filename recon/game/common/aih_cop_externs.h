@@ -9,7 +9,7 @@
 extern __vtbl_ptr_type AIHigh_Cop_vtable[], AIState_Idle_vtable[];
 
 extern "C" CARDINFO_def *MCRD_getcard(int);
-int Speech_Mobile(Car_tObj *carObj) asm("Mobile__6SpeechP8Car_tObj");   /* speech.obj flat (was Mobile__6SpeechP8Car_tObj; cast result to Speaker*) */
+Speaker *Speech_Mobile(Car_tObj *carObj) asm("Mobile__6SpeechP8Car_tObj");
 extern AICop_spikeBelt_t AICop_spikeBelt;
 extern AIHigh_Base *highLevelAIObjs[];
 extern AITrigger_TriggerManager *triggerManagerCops;
@@ -27,7 +27,7 @@ extern int            Cars_gNumCars;
 extern int            gNumSlices;
 extern int       Cars_gNumHumanRaceCars;
 extern int AICop_NoCopsInArea(int slice,int sliceDistance);
-extern int AICop_gRoadBlockState;
+extern AICop_RoadBlockState AICop_gRoadBlockState;
 extern int AILife_EvaluateLife(Car_tObj *carObj);
 extern int AITune_gRoughLapTime;
 extern u_int               fastRandom, randSeed, randtemp;   /* fastrand.obj PRNG state */

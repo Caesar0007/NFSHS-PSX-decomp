@@ -5,7 +5,7 @@
 #include "statchk_externs.h"
 
 /* STATCHK.CPP is C++ (cfront-mangled) -> normal C++ linkage. */
-void * StatChk_IsRecordLapTime(Car_tStats *dummyCars,short nNumCars,short *nBestCarIndex);
+bool StatChk_IsRecordLapTime(Car_tStats *dummyCars,short nNumCars,short *nBestCarIndex);
 void StatChk_SaveRecordLapTime(Car_tStats *dummyCars,short nNumCars,short nBestCarIndex);
 short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars);
 void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars);

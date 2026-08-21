@@ -348,14 +348,14 @@ long SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_STS(SPCHNFSType_VOICE *VOICE,SPCHNFSTyp
 long SPCHNFS_C_C_IDLE_WINGMAN_DISAPPEARS(SPCHNFSType_VOICE *VOICE)
 
 {
-  int iVar2;
+  long i;
   long parms [12];
 
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x165;
   parms[1] = VOICE->flags;
   return SPCH_AddEvent(parms);

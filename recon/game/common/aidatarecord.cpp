@@ -11,9 +11,9 @@
 /* ---- aidatarecord.obj-owned globals (.bss zero) ---- */
 AIDataRecord_BestLine_t *AIDataRecord_BestLine;   /* @0x8013c5a0 */
 AIDataRecord_TrackCurve_t *AIDataRecord_TrackCurve;   /* @0x8013c5a4 */
-int          AIDataRecord_WhichRecord;   /* @0x8013c5a8 */
-int          AIDataRecord_RecordMethod;   /* @0x8013c5ac */
-AIDataRecord_t *recordCollection[24];   /* @0x8013df64 */
+AIDataRecord_WhichRecord_t AIDataRecord_WhichRecord;   /* @0x8013c5a8 */
+AIDataRecord_RecordMethod_t AIDataRecord_RecordMethod;   /* @0x8013c5ac */
+static AIDataRecord_t *recordCollection[24];   /* @0x8013df64; SYM STAT */
 
 
 /* ---- __14AIDataRecord_t26AIDataRecord_WhichRecord_tPc  AIDataRecord_t::ctor ---- */
@@ -86,8 +86,8 @@ void AIDataRecord_t::StartUp1(void)
 
   iVar2 = 0x17;
   ppAVar1 = recordCollection + iVar2;
-  AIDataRecord_WhichRecord = 0;
-  AIDataRecord_RecordMethod = 0;
+  AIDataRecord_WhichRecord = NORECORD_R;
+  AIDataRecord_RecordMethod = NORMAL_M;
   do {
     *ppAVar1 = (AIDataRecord_t *)0x0;
     iVar2 = iVar2 + -1;
@@ -309,20 +309,20 @@ void AIDataRecord_CurveSpeedTable_t::Upgrade(int handlingUpgrade)
   int round;   /* 0xffff hoisted across the loop (pin-free per the no-asm-pin rule) */
   char *pcVar1;
   int iVar1;
-  int curve;
+  int curveLoop;
 
-  curve = 0;
+  curveLoop = 0;
   round = 0xffff;
  loopTop:
-  if (curve < this->numElements_) {
-    iVar1 = this->Get(curve);
+  if (curveLoop < this->numElements_) {
+    iVar1 = this->Get(curveLoop);
     iVar1 = fixedmult(iVar1,handlingUpgrade);
-    pcVar1 = this->dataBuffer_ + curve;
+    pcVar1 = this->dataBuffer_ + curveLoop;
     if (iVar1 < 0) {
       iVar1 = iVar1 + round;
     }
     *pcVar1 = (char)(iVar1 >> 0x10);
-    curve = curve + 1;
+    curveLoop = curveLoop + 1;
     goto loopTop;
   }
   return;
@@ -330,7 +330,7 @@ void AIDataRecord_CurveSpeedTable_t::Upgrade(int handlingUpgrade)
 
 /* ---- Get__26AIDataRecord_CarTracking_ti  [@0x8006d50c] ---- */
 /* Trivial stub: always returns 0 (record-method not implemented/used). */
-int AIDataRecord_CarTracking_t::Get(int i)
+int AIDataRecord_CarTracking_t::Get(int slice)
 {
   return 0;
 }

@@ -281,7 +281,7 @@ SECTIONS
     .t0011 0x80023dd0 : SUBALIGN(4) { build/recon/frontend/common/femenu.cpp.o(.text); }
     .t0012 0x800268f0 : SUBALIGN(4) { build/recon/frontend/common/fetools.cpp.o(.text); }
     .t0013 0x80026e58 : SUBALIGN(4) { build/recon/frontend/common/front.cpp.o(.text); }
-    .t0014 0x8002c0e0 : SUBALIGN(4) { build/recon/frontend/common/femenudefs.cpp.o(.text); }
+    .t0014 0x8002c0dc : SUBALIGN(4) { build/recon/frontend/common/_nmbase.cpp.o(.text); }
     .t0015 0x80032228 : SUBALIGN(4) { build/recon/frontend/common/fetourn.cpp.o(.text); }
     .t0016 0x80034060 : SUBALIGN(4) { build/recon/frontend/common/femission.cpp.o(.text); }
     .t0017 0x800342a0 : SUBALIGN(4) { build/recon/frontend/common/fememcard.cpp.o(.text); }
@@ -720,7 +720,7 @@ SECTIONS
         build/recon/game/common/aih_cop.cpp.o(.data);   /* 0x8010cea4..0x8010cfd4  was data_8010CCD4_o03.data.s */
         build/recon/game/common/aicop.cpp.o(.data);   /* 0x8010cfd4..0x8010d560  was data_8010CCD4_o04.data.s */
         build/recon/game/common/aiinit.cpp.o(.data);   /* 0x8010d560..0x8010d5cc  was data_8010CCD4_o05.data.s */
-        build/recon/game/common/func_va_data.cpp.o(.data);   /* 0x8010d5cc..0x8010dc54  was data_8010CCD4_o06.data.s */
+        build/recon/game/common/aiperson.cpp.o(.data);   /* 0x8010d5cc..0x8010dc54  SYM owner: aiperson.obj */
         build/asm/data/data_8010CCD4_r02.data.s.o(.data);
         build/recon/game/common/aiphysic.cpp.o(.data);   /* 0x8010dc74..0x8010dce0  was data_8010CCD4_o07.data.s */
         build/asm/data/data_8010CCD4_r03.data.s.o(.data);
@@ -741,17 +741,39 @@ SECTIONS
         build/recon/game/common/copspeak.cpp.o(.data);   /* 0x80111ea4..0x80112730  was data_8010CCD4_o17.data.s */
         build/recon/game/common/dashhud.cpp.o(.data);   /* 0x80112730..0x8011279c  was data_8010CCD4_o18.data.s */
         build/recon/game/common/fei.cpp.o(.data);   /* 0x8011279c..0x80112b2c  was data_8010CCD4_o19.data.s */
-        build/asm/data/data_8010CCD4_r09.data.s.o(.data);
-        build/recon/game/common/gmesetup.cpp.o(.data);   /* 0x801131ec..0x80113c14  was data_8010CCD4_o20.data.s */
+        build/asm/data/data_8010CCD4_r09.data.s.o(.data.r09_pre);
+        build/recon/game/common/gmesetup.cpp.o(.data);   /* 0x80113044..0x80113c14 */
         build/recon/game/common/input.cpp.o(.data);   /* 0x80113c14..0x8011401c  was data_8010CCD4_o21.data.s */
         build/asm/data/data_8010CCD4_r10.data.s.o(.data);
         build/recon/game/common/nfs3.cpp.o(.data);   /* 0x8011423c..0x80115c48  was data_8010CCD4_o22.data.s  (+2 B FILL(0) align pad) */
-        build/asm/data/data_8010CCD4_r11.data.s.o(.data);
-        build/recon/game/common/object.cpp.o(.data);   /* 0x80115d60..0x80116468  was data_8010CCD4_o23.data.s */
+        build/recon/game/common/object.cpp.o(.data);   /* 0x80115c48..0x80116468  SYM owner: object.obj */
         build/recon/game/common/paths.cpp.o(.data);   /* 0x80116468..0x80116530  was data_8010CCD4_o24.data.s */
-        build/asm/data/data_8010CCD4_r12.data.s.o(.data);
+        build/recon/game/common/physics.cpp.o(.data);   /* 0x80116530..0x801165e0 */
         build/recon/game/common/r3dcar.cpp.o(.data);   /* 0x801165e0..0x80116f7c  was data_8010CCD4_o25.data.s */
-        build/asm/data/data_8010CCD4_r13.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_pre);
+        build/recon/game/common/replay.cpp.o(.data.replay_camera_list);   /* 0x80117008..0x8011702c */
+        build/recon/game/common/replay.cpp.o(.data.replay_interface);   /* 0x8011702c..0x8011704c */
+        build/recon/game/common/replay.cpp.o(.data.replay_camera);   /* 0x8011704c..0x8011706c */
+        build/recon/game/common/replay.cpp.o(.data.replay_control_data);   /* 0x8011706c..0x8011716c */
+        build/recon/game/common/replay.cpp.o(.data.replay_buffer);   /* 0x8011716c..0x8011db98 */
+        build/recon/game/common/replay.cpp.o(.data.replay_compressed);   /* 0x8011db98..0x8011dbb9 */
+        build/recon/game/common/replay.cpp.o(.data.replay_uncompressed);   /* 0x8011dbbc..0x8011dbdc */
+        build/recon/game/common/replay.cpp.o(.data.replay_camera_slots);   /* 0x8011dbdc..0x8011dfdc */
+        build/recon/game/common/schedule.cpp.o(.data);   /* 0x8011dfdc..0x8011e09c  SYM owner: schedule.obj */
+        build/recon/game/common/sim.cpp.o(.data);   /* 0x8011e09c..0x8011e0e0  SYM owner: sim.obj */
+        build/recon/game/common/stats.cpp.o(.data);   /* 0x8011e0e0..0x8011e140  SYM owner: stats.obj */
+        build/recon/game/common/textsys.cpp.o(.data);   /* 0x8011e140..0x8011e158  SYM owner: Textsys.obj */
+        build/recon/game/common/track.cpp.o(.data.track_initial_art);   /* 0x8011e158..0x8011e170 */
+        build/recon/game/common/track.cpp.o(.data.track_reflection_maps);   /* 0x8011e170..0x8011e1b0 */
+        build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_t_enviro);   /* 0x8011e1b0..0x8011e1d0 */
+        build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_t_car);   /* 0x8011e1d0..0x8011e1f0 */
+        build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_t_wheel);   /* 0x8011e1f0..0x8011e270 */
+        build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_t_extra);   /* 0x8011e270..0x8011e2f0 */
+        build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_prev_skid);   /* 0x8011e2f0..0x8011e670 */
+        build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_status);   /* 0x8011e670..0x8011e6f0 */
+        build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_save_seg);   /* 0x8011e6f0..0x8011e770 */
+        build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_save_chunk);   /* 0x8011e770..0x8011e7f0 */
+        build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_after_trgsfx);
         build/recon/game/psx/force.cpp.o(.data);   /* 0x8011fc60..0x8011fd70  was data_8010CCD4_o26.data.s */
         build/asm/data/data_8010CCD4_r14.data.s.o(.data);
         build/recon/game/psx/flare.cpp.o(.data);   /* 0x8011fde0..0x801202f8  was data_8010CCD4_o27.data.s */
@@ -785,6 +807,7 @@ SECTIONS
         build/asm/data/data_8010CCD4_r21.data.s.o(.data);
         build/recon/eaclib/psx/sndpsxz/sclcptch.c.o(.data);
         build/recon/eaclib/psx/sndpsxz/sdfx.c.o(.data);
+        build/recon/frontend/common/_nmbase.cpp.o(.data);
         build/recon/frontend/common/feapp.cpp.o(.data);
         build/recon/frontend/common/feaudio.cpp.o(.data);
         build/recon/frontend/common/fecars.cpp.o(.data);
@@ -824,9 +847,10 @@ SECTIONS
         build/recon/game/common/aispeeds.cpp.o(.data);
         build/recon/game/common/audiocmn.cpp.o(.data);
         build/recon/game/common/collide.cpp.o(.data);
+        build/recon/game/common/func_va_data.cpp.o(.data);
+        build/recon/game/common/newton.cpp.o(.data);
         build/recon/game/common/render.cpp.o(.data);
         build/recon/game/common/speech.cpp.o(.data);
-        build/recon/game/common/track.cpp.o(.data);
         build/recon/game/common/vtables_aidatarecord.cpp.o(.data);
         build/recon/game/common/vtables_aihigh.cpp.o(.data);
         build/recon/game/common/vtables_aistate.cpp.o(.data);
@@ -880,7 +904,7 @@ SECTIONS
         build/recon/game/common/audedit.cpp.o(.sdata);   /* 0x8013c72c..0x8013c734  was sdata_8013C54C_o11.sdata.s */
         build/asm/data/sdata_8013C54C_r07.sdata.s.o(.sdata);
         build/recon/game/common/audiotrk.cpp.o(.sdata);   /* 0x8013c754..0x8013c758  was sdata_8013C54C_o12.sdata.s */
-        build/asm/data/sdata_8013C54C_r08.sdata.s.o(.sdata);
+        build/recon/game/common/bworld.cpp.o(.sdata);
         build/recon/game/common/bworldSm.cpp.o(.sdata);   /* 0x8013c7bc..0x8013c7dc  was sdata_8013C54C_o13.sdata.s */
         build/recon/game/common/camera.cpp.o(.sdata);   /* 0x8013c7dc..0x8013c7e0  was sdata_8013C54C_o14.sdata.s */
         build/recon/game/common/cars.cpp.o(.sdata);   /* 0x8013c7e0..0x8013c818  was sdata_8013C54C_o15.sdata.s */
@@ -890,17 +914,20 @@ SECTIONS
         build/recon/game/common/fastrand.cpp.o(.sdata);   /* 0x8013d0fc..0x8013d10c  was sdata_8013C54C_o18.sdata.s */
         build/recon/game/common/genericpmx.cpp.o(.sdata);   /* 0x8013d10c..0x8013d220  was sdata_8013C54C_o19.sdata.s */
         build/recon/game/common/input.cpp.o(.sdata);   /* 0x8013d220..0x8013d240  was sdata_8013C54C_o20.sdata.s */
-        build/asm/data/sdata_8013C54C_r10.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r10.sdata.s.o(.sdata.r10_pre_new);
+        build/recon/game/common/new.cpp.o(.sdata);   /* 0x8013d26c..0x8013d270 */
+        build/asm/data/sdata_8013C54C_r10.sdata.s.o(.sdata.r10_after_new);
         build/recon/game/common/object.cpp.o(.sdata);   /* 0x8013d2c8..0x8013d2e0  was sdata_8013C54C_o21.sdata.s */
-        build/asm/data/sdata_8013C54C_r11.sdata.s.o(.sdata);
-        build/recon/game/common/paths.cpp.o(.sdata);   /* 0x8013d2e8..0x8013d2ec  was sdata_8013C54C_o22.sdata.s */
-        build/asm/data/sdata_8013C54C_r12.sdata.s.o(.sdata);
+        build/recon/game/common/paths.cpp.o(.sdata);   /* 0x8013d2e0..0x8013d2ec  SYM owner: paths.obj */
+        build/recon/game/common/pausemenu.cpp.o(.sdata);   /* 0x8013d2ec..0x8013d2f0  SYM owner: PauseMenu.obj */
         build/recon/game/common/physics.cpp.o(.sdata);   /* 0x8013d2f0..0x8013d324  was sdata_8013C54C_o23.sdata.s */
         build/asm/data/sdata_8013C54C_r13.sdata.s.o(.sdata);
         build/recon/game/common/replay.cpp.o(.sdata);   /* 0x8013d3ec..0x8013d400  was sdata_8013C54C_o24.sdata.s */
-        build/asm/data/sdata_8013C54C_r14.sdata.s.o(.sdata);
+        build/recon/game/common/replay.cpp.o(.sdata.replay_counter);   /* 0x8013d400..0x8013d408 */
         build/recon/game/common/scene.cpp.o(.sdata);   /* 0x8013d408..0x8013d40c  was sdata_8013C54C_o25.sdata.s */
-        build/asm/data/sdata_8013C54C_r15.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r15.sdata.s.o(.sdata.r15_pre_simqueue);
+        build/recon/game/common/simqueue.cpp.o(.sdata);   /* 0x8013d434..0x8013d440 */
+        build/asm/data/sdata_8013C54C_r15.sdata.s.o(.sdata.r15_after_simqueue);
         build/recon/game/common/souffle.cpp.o(.sdata);   /* 0x8013d448..0x8013d458  was sdata_8013C54C_o26.sdata.s */
         build/asm/data/sdata_8013C54C_r16.sdata.s.o(.sdata);
         build/recon/game/common/trgsfx.cpp.o(.sdata);   /* 0x8013d4f0..0x8013d4f8  was sdata_8013C54C_o27.sdata.s */
@@ -934,17 +961,12 @@ SECTIONS
         build/recon/frontend/psx/psxfront.cpp.o(.sdata);
         build/recon/game/common/aih_play.cpp.o(.sdata);
         build/recon/game/common/aispeeds.cpp.o(.sdata);
-        build/recon/game/common/aistate.cpp.o(.sdata);
         build/recon/game/common/audiocmn.cpp.o(.sdata);
         build/recon/game/common/audioeng.cpp.o(.sdata);
         build/recon/game/common/collide.cpp.o(.sdata);
         build/recon/game/common/mpause.cpp.o(.sdata);
         build/recon/game/common/render.cpp.o(.sdata);
-        build/recon/game/common/sim.cpp.o(.sdata);
-        build/recon/game/common/simqueue.cpp.o(.sdata);
         build/recon/game/common/speech.cpp.o(.sdata);
-        build/recon/game/common/textsys.cpp.o(.sdata);
-        build/recon/game/common/track.cpp.o(.sdata);
         build/recon/game/psx/cario.cpp.o(.sdata);
         build/recon/game/psx/device.cpp.o(.sdata);
         build/recon/game/psx/draw.cpp.o(.sdata);
@@ -961,6 +983,33 @@ SECTIONS
         build/recon/game/psx/weather.cpp.o(.sdata);
         build/recon/syslib/psx/libapi/COUNTER_data.c.o(.sdata);
         build/recon/syslib/psx/libpad/PAD.c.o(.sdata);
+    }
+
+    /* SYM tail-data seam: simqueue.obj file-static output and maxTicksPerFrame. */
+    .tail_data 0x8013dd7c : SUBALIGN(4)
+    {
+        build/asm/data/tail.data.s.o(.data.tail_pre_simqueue);
+        build/recon/game/common/simqueue.cpp.o(.bss.simqueue_output);
+        build/recon/game/common/simqueue.cpp.o(.sbss);
+        build/asm/data/tail.data.s.o(.data.tail_after_simqueue);
+    }
+
+    /* SYM BSS seam: newton.obj function-local static dummy.124. */
+    .newton_bss_124 0x8013e0d8 : SUBALIGN(4)
+    {
+        build/recon/game/common/newton.cpp.o(.bss.newton_dummy_124);
+    }
+
+    /* SYM BSS seam: newton.obj function-local static dummy.133. */
+    .newton_bss_133 0x8013e0e8 : SUBALIGN(4)
+    {
+        build/recon/game/common/newton.cpp.o(.bss.newton_dummy_133);
+    }
+
+    /* SYM BSS anchor: simqueue.obj's 524-byte file-static queue. */
+    .simqueue_bss 0x8013e0f4 : SUBALIGN(4)
+    {
+        build/recon/game/common/simqueue.cpp.o(.bss.simqueue_input_queue);
     }
 
     .rodata_rest : SUBALIGN(4) { *(.rodata); *(.rodata.*); }

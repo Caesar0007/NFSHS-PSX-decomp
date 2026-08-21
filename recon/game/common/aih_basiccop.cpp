@@ -108,7 +108,7 @@ void AIHigh_BasicCop::CheckSpikeBelt()
 
   }
 
-  if ((AICop_gRoadBlockState == 2) &&
+  if ((AICop_gRoadBlockState == kAICop_RoadBlockState_PerpPassed) &&
 
      (pCVar1 = AILife_IsSliceInAnyVisibleArea(Object_customSliceNum),
 
@@ -116,7 +116,7 @@ void AIHigh_BasicCop::CheckSpikeBelt()
 
     Object_ClearCustomObjects();
 
-    AICop_gRoadBlockState = 0;
+    AICop_gRoadBlockState = kAICop_RoadBlockState_None;
 
   }
 
@@ -190,7 +190,7 @@ int AIHigh_BasicCop::ShouldIPerformCutOffBlock(int chancePerSecond,Car_tObj *tar
 
 /* ---- Blockade_AddRoadFlare__FP8coorddef  Blockade_AddRoadFlare  [AIH_BASICCOP.CPP:119-193] SLD-VERIFIED ---- */
 
-void Blockade_AddRoadFlare(coorddef *pos)
+static void Blockade_AddRoadFlare(coorddef *pos)
 
 
 
@@ -238,7 +238,7 @@ void Blockade_AddRoadFlare(coorddef *pos)
 
 /* ---- Blockade_AddObject__FiP8coorddefi  Blockade_AddObject  [AIH_BASICCOP.CPP:134-193] SLD-VERIFIED ---- */
 
-void Blockade_AddObject(int slice,coorddef *pos,int objectID)
+static void Blockade_AddObject(int slice,coorddef *pos,int objectID)
 
 
 
@@ -307,7 +307,7 @@ void Blockade_AddObject(int slice,coorddef *pos,int objectID)
 
 /* ---- PlacePointOnRoad__FiP8coorddef  PlacePointOnRoad  [AIH_BASICCOP.CPP:165-193] SLD-VERIFIED ---- */
 
-void PlacePointOnRoad(int slice,coorddef *offset)
+static void PlacePointOnRoad(int slice,coorddef *offset)
 
 
 
@@ -601,7 +601,7 @@ void AIHigh_BasicCop::HandleBlockadeSpeech()
 
             (this->blockade_).blockadeSpeechFlags = 0;
 
-            AICop_gRoadBlockState = 2;
+            AICop_gRoadBlockState = kAICop_RoadBlockState_PerpPassed;
 
           }
 

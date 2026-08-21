@@ -24,13 +24,13 @@ void Cars_SortCars(void);
 
 /* ---- clock.obj-owned globals (.bss zero) ---- */
 int          Cars_topSpeedCap[22] = { 4107141, 3932160, 4653056, 4587520, 4660264, 4631429, 4805754, 4514775, 4543610, 5097390, 5388369, 5417861, 5796003, 6087639, 5825495, 6552944, 7274496, 7274496, 7274496, 7274496, 7274496, 7274496 };   /* @0x8010f828 */
-int          Cars_kSmokingSurface[16] = { 0, 0, 655360, 0, 0, 1310720, 0, 0, 0, 655360, 0, 0, 1310720, 1310720, 0, 655360 };   /* @0x8010f880 */
+static int   Cars_kSmokingSurface[16] = { 0, 0, 655360, 0, 0, 1310720, 0, 0, 0, 655360, 0, 0, 1310720, 1310720, 0, 655360 };   /* @0x8010f880; SYM STAT */
 int          Cars_kSkidMarkSurface[16] = { 0, 1, 2, 2, 1, 2, 0, 1, 0, 2, 1, 1, 1, 2, 0, 2 };   /* @0x8010f8c0 */
-int          Cars_kConvertFromRoadToSfxType[16] = { 0, 1, 7, 8, 1, 6, 0, 1, 0, 9, 1, 1, 1, 6, 0, 9 };   /* @0x8010f900 */
-int          Cars_kAudioRoadSurfaceInterface[16] = { 0, 0, 3, 12, 0, 3, 0, 0, 11, 11, 0, 0, 3, 3, 3, 11 };   /* @0x8010f940 */
-int          Cars_kSFXWallSurfaceInterface[8] = { 0, 4, 4, 6, 4, 8, 0, 6 };   /* @0x8010f980 */
-int          Cars_kAudioWallSurfaceInterface[8] = { 4, 4, 4, 13, 4, 14, 13, 13 };   /* @0x8010f9a0 */
-int          Cars_kAudioCollisoinTypeInterface[7] = { 1, 2, 2, 2, 1, 1, 1 };   /* @0x8010f9c0 */
+static int   Cars_kConvertFromRoadToSfxType[16] = { 0, 1, 7, 8, 1, 6, 0, 1, 0, 9, 1, 1, 1, 6, 0, 9 };   /* @0x8010f900; SYM STAT */
+static int   Cars_kAudioRoadSurfaceInterface[16] = { 0, 0, 3, 12, 0, 3, 0, 0, 11, 11, 0, 0, 3, 3, 3, 11 };   /* @0x8010f940; SYM STAT */
+static int   Cars_kSFXWallSurfaceInterface[8] = { 0, 4, 4, 6, 4, 8, 0, 6 };   /* @0x8010f980; SYM STAT */
+static int   Cars_kAudioWallSurfaceInterface[8] = { 4, 4, 4, 13, 4, 14, 13, 13 };   /* @0x8010f9a0; SYM STAT */
+static int   Cars_kAudioCollisoinTypeInterface[7] = { 1, 2, 2, 2, 1, 1, 1 };   /* @0x8010f9c0; SYM STAT */
 Car_tObj     *Cars_gList[9];   /* @0x8010f9dc  (bss(zero)) */
 Car_tObj     *Cars_gRaceCarList[9];   /* @0x8010fa00  (bss(zero)) */
 Car_tObj     *Cars_gAICarList[9];   /* @0x8010fa24  (bss(zero)) */
@@ -206,9 +206,9 @@ void Cars_InitStats(Car_tObj *carObj)
      offsets, no shared base). The time[]/topSpeed[] loop is array-indexed (not a
      pointer-walk pCVar1) -- a pointer-walk gave pCVar1 its own independent anchor. */
   Car_tStats *stats;
-  int iVar2;
+  int lapLoop;
 
-  iVar2 = 0;
+  lapLoop = 0;
   stats = &carObj->stats;
   stats->sliceTotal = 0;
   stats->sliceTime = 0;
@@ -217,10 +217,10 @@ void Cars_InitStats(Car_tObj *carObj)
   stats->lap = 0;
   stats->lapTime = 0x200;
   do {
-    stats->time[iVar2] = 0;
-    stats->topSpeed[iVar2] = 0;
-    iVar2 = iVar2 + 1;
-  } while (iVar2 < 4);
+    stats->time[lapLoop] = 0;
+    stats->topSpeed[lapLoop] = 0;
+    lapLoop = lapLoop + 1;
+  } while (lapLoop < 4);
   stats->position = 0;
   stats->fatalCrashes = 0;
   stats->finishType = 0;
@@ -388,7 +388,7 @@ void Cars_ResetCollidedCars(Car_tObj *carObj,int forceReset,int forceParkAtSide)
   coorddef offset;
   int resetCounter;
   int direction;
-  
+
   memset((u_char *)&offset,'\0',0xc);
   direction = carObj->desiredDirection;
   (carObj->collision).smoking = 0;
@@ -904,7 +904,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
   speed = *(short *)((int)&(carObj->N).speedXZ + 2);
   wetRoad = 0;
   if (GameSetup_gData.Weather != 0) {
-    wetRoad = BWorldSm_TunnelFlagSm(&(carObj->N).simRoadInfo) != (void *)0x1;
+    wetRoad = BWorldSm_TunnelFlagSm(&(carObj->N).simRoadInfo) != 1;
   }
   roadSurface = (carObj->N).driveSurfaceType;
   if (((carObj->N).distToPlayer < 0x3c0000) && ((carObj->N).objAltitude < 0x6666)) {
@@ -982,7 +982,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
     {
       coorddef wheelFrontX;
       coorddef wheelFrontZ;
-      
+
       wheelFrontX.x = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[0] / 256;
       wheelFrontX.y = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[1] / 256;
       wheelFrontX.z = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[2] / 256;
@@ -1015,7 +1015,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
       {
         coorddef wheelFrontX;
         coorddef wheelFrontZ;
-        
+
         wheelFrontX.x = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[0] / 256;
         wheelFrontX.y = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[1] / 256;
         wheelFrontX.z = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[2] / 256;
@@ -1049,7 +1049,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
       {
         coorddef wheelFrontX;
         coorddef wheelFrontZ;
-        
+
         wheelFrontX.x = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[0] / 256;
         wheelFrontX.y = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[1] / 256;
         wheelFrontX.z = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[2] / 256;
@@ -1078,7 +1078,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
     {
       coorddef wheelFrontX;
       coorddef wheelFrontZ;
-      
+
       wheelFrontX.x = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[0] / 256;
       wheelFrontX.y = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[1] / 256;
       wheelFrontX.z = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[2] / 256;
@@ -1111,7 +1111,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
       {
         coorddef wheelFrontX;
         coorddef wheelFrontZ;
-        
+
         wheelFrontX.x = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[0] / 256;
         wheelFrontX.y = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[1] / 256;
         wheelFrontX.z = (carObj->N).wheelFrontX / 256 * (carObj->N).orientMat.m[2] / 256;
@@ -1145,7 +1145,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
       {
         coorddef wheelFrontX;
         coorddef wheelFrontZ;
-        
+
         wheelFrontX.x = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[0] / 256;
         wheelFrontX.y = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[1] / 256;
         wheelFrontX.z = ((carObj->N).wheelFrontX + rndOffset) / 256 * (carObj->N).orientMat.m[2] / 256;
@@ -1174,7 +1174,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
     {
       coorddef wheelBackX;
       coorddef wheelBackZ;
-      
+
       wheelBackX.x = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[0] / 256;
       wheelBackX.y = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[1] / 256;
       wheelBackX.z = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[2] / 256;
@@ -1207,7 +1207,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
       {
         coorddef wheelBackX;
         coorddef wheelBackZ;
-        
+
         wheelBackX.x = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[0] / 256;
         wheelBackX.y = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[1] / 256;
         wheelBackX.z = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[2] / 256;
@@ -1241,7 +1241,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
       {
         coorddef wheelBackX;
         coorddef wheelBackZ;
-        
+
         wheelBackX.x = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[0] / 256;
         wheelBackX.y = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[1] / 256;
         wheelBackX.z = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[2] / 256;
@@ -1270,7 +1270,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
     {
       coorddef wheelBackX;
       coorddef wheelBackZ;
-      
+
       wheelBackX.x = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[0] / 256;
       wheelBackX.y = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[1] / 256;
       wheelBackX.z = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[2] / 256;
@@ -1303,7 +1303,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
       {
         coorddef wheelBackX;
         coorddef wheelBackZ;
-        
+
         wheelBackX.x = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[0] / 256;
         wheelBackX.y = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[1] / 256;
         wheelBackX.z = (carObj->N).wheelBackX / 256 * (carObj->N).orientMat.m[2] / 256;
@@ -1337,7 +1337,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
       {
         coorddef wheelBackX;
         coorddef wheelBackZ;
-        
+
         wheelBackX.x = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[0] / 256;
         wheelBackX.y = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[1] / 256;
         wheelBackX.z = ((carObj->N).wheelBackX + rndOffset) / 256 * (carObj->N).orientMat.m[2] / 256;
@@ -1426,8 +1426,8 @@ void Car_DoSkiddingStuff(Car_tObj *carObj)
   }
   else {
     int audioSurface = Cars_kAudioRoadSurfaceInterface[(carObj->N).driveSurfaceType];
-    int speedXZ = (carObj->N).speedXZ;
-    if (((carObj->N).objAltitude < 0x3333) && (0x20000 < speedXZ)) {
+    int speed = (carObj->N).speedXZ;
+    if (((carObj->N).objAltitude < 0x3333) && (0x20000 < speed)) {
       Cars_SetAudioCalls(carObj,4,0x14,1,audioSurface,0xa0000,0);
       uVar1 = carObj->oldAudioSkidState | 4;
     }
@@ -1547,7 +1547,7 @@ void Cars_CalculateStartingGridOffset(Car_tObj *carObj,int *slice,coorddef *offs
   int startingPosition;
   int carOnRight;
   int negDir;
-  
+
   negDir = -1;
   if (GameSetup_gData.reverseTrack != 0) {
     negDir = 1;
@@ -1618,8 +1618,8 @@ void Cars_IniCarObjects(Car_tObj *carObj,int index)
   int k;
   int carType;
   int carMass;
-  coorddef cStack_28;
-  int local_18 [2];
+  coorddef offset;
+  int startSlice;
 
   Cars_InitStats(carObj);
   carObj->swapCar = (Car_tObj *)0x0;
@@ -1651,18 +1651,18 @@ MASS_DONE:
     Newton_InitBaseNewtonObj((u_int *)&carObj->N,index | 0x100,carMass,carMass,(carObj->N).dimension.x,(carObj->N).dimension.y,
                (carObj->N).dimension.z);
   }
-  Cars_CalculateStartingGridOffset(carObj,local_18,&cStack_28);
-  if (gNumSlices / 2 < local_18[0]) {
-    (carObj->stats).extractSlice = gNumSlices - local_18[0];
+  Cars_CalculateStartingGridOffset(carObj,&startSlice,&offset);
+  if (gNumSlices / 2 < startSlice) {
+    (carObj->stats).extractSlice = gNumSlices - startSlice;
   }
   else {
-    (carObj->stats).extractSlice = local_18[0];
+    (carObj->stats).extractSlice = startSlice;
   }
   if (GameSetup_gData.reverseTrack) {
-    Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,local_18[0],&cStack_28,-1);
+    Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,startSlice,&offset,-1);
   }
   else {
-    Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,local_18[0],&cStack_28,1);
+    Newton_SetInitialSlicePositionOrientationEtc(&carObj->N,startSlice,&offset,1);
   }
   carObj->unlap = 1;
   carObj->lap = 0;
@@ -1790,67 +1790,67 @@ void Cars_InitCar(Car_tObj *carObj,int index)
      (locatbig.cpp:178 `char *locatebig(void*,char*)`; oracle 0x8008A2AC sets up ONLY a0/a1
      before the jal, no a2) -- dropped the bogus 3rd "0" arg (was a stale/wrong "$a2 dropped
      by Ghidra" comment; the SAME bug exists in anim.cpp:81's locatebig call, out of scope
-     here). The ex-"genuine allocator floor" (12 diffs, mem_00/handle_00 swapped between
+     here). The ex-"genuine allocator floor" (12 diffs, file1/handle swapped between
      $s3/$s4) is SOLVED (W54-A13) and was never a floor -- it is a pure allocno-PRIORITY
      tie, readable straight off allocsim/reqdelta:
-        p87(mem_00)  refs=4 live=141 -> pri 0.0567   (got $s4)
-        p88(handle_00) refs=4 live=129 -> pri 0.0620 (got $s3)
-     mem_00 spans handle_00's whole range, so NO live-length dial can flip it (reqdelta's
+        p87(file1) refs=4 live=141 -> pri 0.0567   (got $s4)
+        p88(handle) refs=4 live=129 -> pri 0.0620 (got $s3)
+     file1 spans handle's whole range, so NO live-length dial can flip it (reqdelta's
      other two candidates both need a 12-insn swing that the fixed call order forbids).
-     The only 1-step dial is refs 4->5 on mem_00: a zero-insn READ-ONLY fence (05C) below.
-     floor_log2(5)*5/141 = 0.0709 > 0.0620 -> mem_00 takes $s3, handle_00 $s4 = retail.
+     The only 1-step dial is refs 4->5 on file1: a zero-insn READ-ONLY fence (05C) below.
+     floor_log2(5)*5/141 = 0.0709 > 0.0620 -> file1 takes $s3, handle $s4 = retail.
      With the regs corrected the two `= 0` prologue inits then had to swap back to
-     source order mem_00-then-handle_00 (the emission order of the `addu sN,s2,zero`
+     source order file1-then-handle (the emission order of the `addu sN,s2,zero`
      copies IS the source statement order).  196/196 PASS.
-     Falsified: identity fence `"+r"(mem_00)` (22 diffs -- it also moves the def). */
+     Falsified: identity fence `"+r"(file1)` (22 diffs -- it also moves the def). */
   int iVar1;
   char *mem;
   Car_tSpecs *pCVar2;
   Udff_tInfo *handle;
-  void *pThis;
-  char *mem_00;
-  Udff_tInfo *handle_00;
-  char acStack_108 [104];
-  char acStack_a0 [104];
-  char acStack_38 [24];
-  
-  pThis = 0x0;
-  mem_00 = (char *)0x0;
-  handle_00 = (Udff_tInfo *)0x0;
+  Udff_tInfo *handle2;
+  char *file2;
+  char *file1;
+  char carFile[100];
+  char specsFile[100];
+  char name[20];
+
+  file2 = (char *)0x0;
+  file1 = (char *)0x0;
   handle = (Udff_tInfo *)0x0;
+  handle2 = (Udff_tInfo *)0x0;
   if (index < GameSetup_gData.numCars) {
     iVar1 = AIInit_IsNonStandardCarFile(carObj->carInfo->carType);
     if (iVar1 != 0) {
-      sprintf(acStack_108,"%s%s.qda",Paths_Paths[4],(char *)carObj + 0x240);
+      sprintf(carFile,"%s%s.qda",Paths_Paths[4],(char *)carObj + 0x240);
     }
     else {
-      sprintf(acStack_108,"%sSTDR.qda",Paths_Paths[4]);
+      sprintf(carFile,"%sSTDR.qda",Paths_Paths[4]);
     }
-    mem_00 = (char *)loadpackadr(acStack_108,(void *)0x10);
-    /* MATCH: zero-insn read-only fence = +1 REF on mem_00 (allocno-priority dial, see the
-       header note) -> mem_00 wins $s3 over handle_00.  Do NOT delete: it emits no code. */
-    __asm__("" : : "r"(mem_00));
-    handle_00 = Udff_Opena((char *)0x0,mem_00,1);
+    file1 = (char *)loadpackadr(carFile,(void *)0x10);
+    /* MATCH: zero-insn read-only fence = +1 REF on file1 (allocno-priority dial, see the
+       header note) -> file1 wins $s3 over handle.  Do NOT delete: it emits no code. */
+    __asm__("" : : "r"(file1));
+    handle = Udff_Opena((char *)0x0,file1,1);
     if (carObj->carInfo->carType < 0x1d) {
-      sprintf(acStack_38,"p%s.dat",GameSetup_gCarNames[0] + carObj->carInfo->carType * 5);
+      sprintf(name,"p%s.dat",GameSetup_gCarNames[0] + carObj->carInfo->carType * 5);
     }
     else {
-      sprintf(acStack_38,"ptram.dat");
+      sprintf(name,"ptram.dat");
     }
-    sprintf(acStack_a0,"%sdusty.viv",Paths_Paths[3]);
-    pThis = loadfileadrz(acStack_a0,(void *)0x10);
+    sprintf(specsFile,"%sdusty.viv",Paths_Paths[3]);
+    file2 = (char *)loadfileadrz(specsFile,(void *)0x10);
     /* BUG FIX: locatebig is the REAL 2-arg fn (locatbig.cpp:178, char *locatebig(void*,char*));
        oracle 0x8008A2AC `jal locatebig` sets up ONLY a0/a1 (no a2) -- the old 3rd "0" arg + its
        "$a2 dropped by Ghidra" comment was wrong (Ghidra didn't drop anything; there IS no 3rd
        arg). Confirmed by other correctly-2-arg call sites (r3dcar.cpp locatebig(bigfile,name)). */
-    mem = (char *)locatebig(pThis, acStack_38);
-    handle = Udff_Opena((char *)0x0,mem,0);
+    mem = (char *)locatebig(file2,name);
+    handle2 = Udff_Opena((char *)0x0,mem,0);
     if (index < GameSetup_gData.numCars) {
-      AIInit_InitAICar(carObj,handle_00);
+      AIInit_InitAICar(carObj,handle);
       AIInit_RestartAICar(carObj);
       pCVar2 = reservememadr("carSpecs",0x1d0,0);
       carObj->specs = pCVar2;
-      Physics_InitCarSpecs(carObj,handle);
+      Physics_InitCarSpecs(carObj,handle2);
       if ((carObj->carFlags & 4U) != 0) {
         Physics_CalculateDerivedCarSpecs(carObj);
       }
@@ -1885,10 +1885,10 @@ void Cars_InitCar(Car_tObj *carObj,int index)
   }
   R3DCar_Instantiate3DCar(carObj,index);
   if (index < GameSetup_gData.numCars) {
-    Udff_Close(handle_00);
     Udff_Close(handle);
-    purgememadr(pThis);
-    purgememadr(mem_00);
+    Udff_Close(handle2);
+    purgememadr(file2);
+    purgememadr(file1);
   }
   return;
 }
@@ -1953,7 +1953,7 @@ void Cars_Initialize(char *mem,int size)
 {
   int i;
   int iVar1;
-  
+
   iVar1 = 0;
   if (0 < size) {
     do {
@@ -2127,7 +2127,7 @@ void Cars_FindCurrentLap(Car_tObj *carObj)
   int roadSlice;
   u_int uVar1;
   u_int uVar2;
-  
+
   if (GameSetup_gData.reverseTrack != 0) {
     uVar2 = (gNumSlices - (carObj->N).simRoadInfo.slice) - 1;
   }
@@ -2209,7 +2209,7 @@ int Cars_CalculateRoadSpan(Car_tObj *carObj)
 int Cars_CalculateRoadPosition(Car_tObj *carObj)
 {
   int iVar1;
-  
+
   iVar1 = Newton_CalculateRoadPosition(&carObj->N);
   return iVar1;
 }
@@ -2235,7 +2235,7 @@ void Cars_Randomize(void)
   int rLoop;
   int iVar1;
   int iVar2;
-  
+
   if (Cars_gNumAICars != 0) {
     iVar2 = (int)((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x574)) & 0x300) >> 8;
     iVar1 = 0;
@@ -2358,4 +2358,4 @@ void Cars_SortCars(void)
     }
   } while (swapped != 0);
 }
-
+

@@ -8,12 +8,12 @@
 
 /* ---- clock.obj-owned globals (.bss zero) ---- */
 camera_info  Camera_gInfo[2];   /* @0x8010f2ac  (bss(zero)) */
-int          gTunnelCamHeight[13] = { 373555, 321126, 340787, 242483, 321126, 373555, 255590, 176947, 288358, 268697, 268697, 0, 0 };   /* @0x8010f4cc */
-int          gSplitCameras[3] = { 0, 2, 5 };   /* @0x8010f500 */
-char         gAnimMode[13] = { 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 };   /* @0x8010f50c */
-char         gAnimCams[13][4] = { 2, 6, 0, 0, 1, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 1, 6, 0, 0, 1, 6, 0, 0 };   /* @0x8010f51c */
+static int          gTunnelCamHeight[13] = { 373555, 321126, 340787, 242483, 321126, 373555, 255590, 176947, 288358, 268697, 268697, 0, 0 };   /* @0x8010f4cc */
+static int          gSplitCameras[3] = { 0, 2, 5 };   /* @0x8010f500 */
+static char         gAnimMode[13] = { 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 };   /* @0x8010f50c */
+static char         gAnimCams[13][4] = { 2, 6, 0, 0, 1, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 1, 6, 0, 0, 1, 6, 0, 0 };   /* @0x8010f51c */
 camera_flags Camera_gFlags[19] = { {0, 2, 2, 2, 2, 2, 2}, {0, 16, 16, 16, 16, 16, 16}, {0, 45, 45, 45, 45, 45, 45}, {0, 45, 45, 45, 45, 45, 45}, {0, 45, 45, 45, 45, 45, 45}, {0, 45, 45, 45, 45, 45, 45}, {0, 45, 45, 45, 45, 45, 45}, {0, 45, 45, 45, 45, 45, 45}, {-114688, 60, 60, 60, 60, 60, 60}, {0, 56, 56, 56, 56, 56, 56}, {0, 60, 60, 60, 60, 60, 60}, {0, 20, 20, 20, 20, 20, 20}, {0, 20, 20, 20, 20, 20, 20}, {0, 20, 20, 20, 20, 20, 20}, {0, 16, 16, 16, 16, 16, 16}, {0, 18, 18, 18, 18, 18, 18}, {0, 24, 24, 24, 24, 24, 24}, {0, 20, 20, 20, 20, 20, 20}, {0, 20, 20, 20, 20, 20, 20} };   /* @0x8010f550 */
-coorddef     gDriverCam[28] = { {-23592, 26869, -17039}, {-23592, 26869, -17039}, {25559, 30801, 15728}, {23592, 26869, 11796}, {-23592, 26869, 0}, {-23592, 26869, 0}, {-23592, 26869, 0}, {-23592, 26869, 0}, {-23592, 26869, 15728}, {-19660, 26869, -4587}, {-23592, 22937, -8519}, {-19660, 26869, -8519}, {-23592, 22937, 11796}, {-23592, 26869, 28180}, {-19660, 22937, -3276}, {0, 19005, 32112}, {-19660, 26869, -8519}, {25559, 30801, 15728}, {-19660, 26869, -4587}, {-23592, 26869, 11796}, {-15728, 22937, 0}, {-15728, 22937, 0}, {-23592, 26869, 28180}, {25559, 30801, 15728}, {-23592, 26869, 15728}, {-19660, 26869, -4587}, {-19660, 26869, -8519}, {-23592, 26869, 28180} };   /* @0x8010f680 */
+static coorddef     gDriverCam[28] = { {-23592, 26869, -17039}, {-23592, 26869, -17039}, {25559, 30801, 15728}, {23592, 26869, 11796}, {-23592, 26869, 0}, {-23592, 26869, 0}, {-23592, 26869, 0}, {-23592, 26869, 0}, {-23592, 26869, 15728}, {-19660, 26869, -4587}, {-23592, 22937, -8519}, {-19660, 26869, -8519}, {-23592, 22937, 11796}, {-23592, 26869, 28180}, {-19660, 22937, -3276}, {0, 19005, 32112}, {-19660, 26869, -8519}, {25559, 30801, 15728}, {-19660, 26869, -4587}, {-23592, 26869, 11796}, {-15728, 22937, 0}, {-15728, 22937, 0}, {-23592, 26869, 28180}, {25559, 30801, 15728}, {-23592, 26869, 15728}, {-19660, 26869, -4587}, {-19660, 26869, -8519}, {-23592, 26869, 28180} };   /* @0x8010f680 */
 int          camSpeedTable[7] = { 64225, 60948, 56360, 52428, 47841, 43253, 39321 };   /* @0x8010f7d0 */
 coorddef     feeler3[3] = { {0, 0, 137625}, {-117964, 0, -72089}, {117964, 0, -72089} };   /* @0x8010f7ec */
 int          Camera_gCopDist[6];   /* @0x8010f810  (bss(zero)) */
@@ -22,7 +22,7 @@ long Camera_gGeomScreen = 190;  /* @0x8013c7dc scalar -- confirmed by oracle: ev
    TU's extern decl (cars_externs.h, hrzsku_externs.h, trsproj_externs.h) already declares it `long`
    scalar, not an array. The stray "[2]"/"[1]=0" writes were a prior session's mis-guess from the SYM's
    size-0 + the next-symbol (frontLimit@+8) gap; frontLimit is link-layout-adjacent, not Camera_gGeomScreen[1]. */
-coorddef     gCop1Target[2];   /* @0x8013dff0  (bss?) */
+static coorddef     gCop1Target[2];   /* @0x8013dff0  (bss?) */
 
 
 /* ---- intra-TU forward declarations ---- */
@@ -120,12 +120,12 @@ void Camera_LookBack(matrixtdef *src,matrixtdef *tgt)
 void Camera_TunnelLimit(int player,int *armheight)
 {
   bool bVar1;
-  void *pvVar2;
+  BOOL pvVar2;
 
   bVar1 = false;
   pvVar2 = BWorldSm_TunnelFlagSm(&Camera_gInfo[player].slicePos);
-  if ((pvVar2 != (void *)0x0) ||
-     (pvVar2 = BWorldSm_TunnelFlagSm(&(Camera_gInfo[player].anchor)->simRoadInfo), pvVar2 != (void *)0x0)) {
+  if ((pvVar2 != 0) ||
+     (pvVar2 = BWorldSm_TunnelFlagSm(&(Camera_gInfo[player].anchor)->simRoadInfo), pvVar2 != 0)) {
     bVar1 = true;
   }
   if (bVar1) {
@@ -1015,7 +1015,7 @@ void Camera_UpdateFinishCam(int player)
 void Camera_UpdateBlimpCam(int player)
 {
   coorddef arm;
-  coorddef delta;
+  coorddef oldarm;
   short sVar1;
   BO_tNewtonObj *pBVar2;
   int iVar3;
@@ -1023,19 +1023,19 @@ void Camera_UpdateBlimpCam(int player)
   sVar1 = Camera_gInfo[player].mode;
   arm = Camera_gFlags[sVar1].arm;
   Camera_TunnelLimit(player,&arm.y);
-  delta.x = Camera_gInfo[player].position.x - Camera_gInfo[player].anchor->position.x;
-  delta.y = Camera_gInfo[player].position.y - Camera_gInfo[player].anchor->position.y;
-  delta.z = Camera_gInfo[player].position.z - Camera_gInfo[player].anchor->position.z;
-  iVar3 = fixedmult(arm.x - delta.x,0x1999);
-  delta.x = delta.x + iVar3;
-  iVar3 = fixedmult(arm.y - delta.y,0x1999);
-  delta.y = delta.y + iVar3;
-  iVar3 = fixedmult(arm.z - delta.z,0x1999);
-  delta.z = delta.z + iVar3;
-  Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + delta.x;
+  oldarm.x = Camera_gInfo[player].position.x - Camera_gInfo[player].anchor->position.x;
+  oldarm.y = Camera_gInfo[player].position.y - Camera_gInfo[player].anchor->position.y;
+  oldarm.z = Camera_gInfo[player].position.z - Camera_gInfo[player].anchor->position.z;
+  iVar3 = fixedmult(arm.x - oldarm.x,0x1999);
+  oldarm.x = oldarm.x + iVar3;
+  iVar3 = fixedmult(arm.y - oldarm.y,0x1999);
+  oldarm.y = oldarm.y + iVar3;
+  iVar3 = fixedmult(arm.z - oldarm.z,0x1999);
+  oldarm.z = oldarm.z + iVar3;
+  Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + oldarm.x;
   pBVar2 = Camera_gInfo[player].anchor;
-  Camera_gInfo[player].position.y = pBVar2->position.y + delta.y;
-  Camera_gInfo[player].position.z = pBVar2->position.z + delta.z;
+  Camera_gInfo[player].position.y = pBVar2->position.y + oldarm.y;
+  Camera_gInfo[player].position.z = pBVar2->position.z + oldarm.z;
   return;
 }
 
@@ -1440,28 +1440,28 @@ void Camera_UpdateCopCam1(int player)
 /* ---- Camera_UpdateCopCam2__Fi  [@0x800831a8] ---- */
 void Camera_UpdateCopCam2(int player)
 {
-  coorddef local_18;
+  coorddef dirVec;
   int tx, ty, tz;
 
   tx = Camera_gInfo[player].target->position.x - Camera_gInfo[player].anchor->position.x;
   if (tx < 0) {
     tx = tx + 3;
   }
-  local_18.x = tx >> 2;
+  dirVec.x = tx >> 2;
   ty = Camera_gInfo[player].target->position.y - Camera_gInfo[player].anchor->position.y;
   if (ty < 0) {
     ty = ty + 3;
   }
-  local_18.y = ty >> 2;
+  dirVec.y = ty >> 2;
   tz = Camera_gInfo[player].target->position.z - Camera_gInfo[player].anchor->position.z;
   if (tz < 0) {
     tz = tz + 3;
   }
-  local_18.z = tz >> 2;
-  Math_NormalizeVector(&local_18);
-  Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + local_18.x * -2;
+  dirVec.z = tz >> 2;
+  Math_NormalizeVector(&dirVec);
+  Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + dirVec.x * -2;
   Camera_gInfo[player].position.y = Camera_gInfo[player].anchor->position.y + 0x13333;
-  Camera_gInfo[player].position.z = Camera_gInfo[player].anchor->position.z + local_18.z * -2;
+  Camera_gInfo[player].position.z = Camera_gInfo[player].anchor->position.z + dirVec.z * -2;
   return;
 }
 
@@ -1833,18 +1833,20 @@ void Camera_Kill(void)
 /* ---- Camera_PitchAndRoll__Fi  [@0x80083c74] ---- */
 void Camera_PitchAndRoll(int player)
 {
-  int iVar1;
-  matrixtdef mStack_90;
-  matrixtdef mStack_68;
-  matrixtdef mStack_40;
+  matrixtdef m1;
+  matrixtdef m2;
+  matrixtdef m3;
+  Car_tObj *anchor;
+  int pitch;
   
-  iVar1 = Camera_gInfo[player].anchor[3].objAltitude;
-  iVar1 = iVar1 << 1;   /* MATCH: separate stmt -> sll lands in fixedxformz's jal delay slot */
-  fixedxformz((int)&mStack_90,(int *)Camera_gInfo[player].anchor[3].collision.collided);
-  fixedxformx((int)&mStack_68,
-             (int *)(iVar1 | Camera_gInfo[player].pitch));
-  Math_fasttransmult(&mStack_90,&mStack_68,&mStack_40);
-  Math_fasttransmult(&mStack_40,&Camera_gInfo[player].rotation,&Camera_gInfo[player].rotation);
+  anchor = (Car_tObj *)Camera_gInfo[player].anchor;
+  pitch = anchor->render.bodyPitch;
+  pitch = pitch << 1;   /* MATCH: separate stmt -> sll lands in fixedxformz's jal delay slot */
+  fixedxformz((int)&m1,(int *)anchor->render.bodyRoll);
+  fixedxformx((int)&m2,
+             (int *)(pitch | Camera_gInfo[player].pitch));
+  Math_fasttransmult(&m1,&m2,&m3);
+  Math_fasttransmult(&m3,&Camera_gInfo[player].rotation,&Camera_gInfo[player].rotation);
   return;
 }
 
@@ -2068,15 +2070,15 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
 /* ---- Camera_SetAboveGround__FiP8coorddef  [@0x8008480c] ---- */
 void Camera_SetAboveGround(int player,coorddef *pos)
 {
-  coorddef *pcVar1;
-  int iVar2;
-  coorddef local_20;
+  BWorldSm_Pos *slicePos;
+  coorddef quadnormal;
+  int elevation;
 
-  pcVar1 = BWorldSm_UNormal(&Camera_gInfo[player].slicePos);
-  local_20 = *pcVar1;
-  iVar2 = Newton_FindGroundElevationGeneral(pos,&local_20,Camera_gInfo[player].slicePos.quadPts);
-  if (pos->y < iVar2 + 0x10000) {
-    pos->y = iVar2 + 0x10000;
+  slicePos = &Camera_gInfo[player].slicePos;
+  quadnormal = *(coorddef *)BWorldSm_UNormal(slicePos);
+  elevation = Newton_FindGroundElevationGeneral(pos,&quadnormal,slicePos->quadPts);
+  if (pos->y < elevation + 0x10000) {
+    pos->y = elevation + 0x10000;
   }
   return;
 }

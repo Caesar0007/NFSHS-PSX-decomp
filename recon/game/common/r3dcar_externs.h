@@ -80,8 +80,8 @@ extern void  TrsProj_TransformProjectVertex(matrixtdef *m, coorddef *t, int n, c
 // [owned->defined in r3dcar.cpp] extern void              *R3DCar_InsertCarFacet_jt[];        /* visibility-switch jump table */
 // [owned->defined in r3dcar.cpp] extern int                R3DCar_InMenu;
 // [owned->defined in r3dcar.cpp] extern int                R3DCar_aSyncLoading;
-// [owned->defined in r3dcar.cpp] extern void              *R3DCar_orientMat;
-// [owned->defined in r3dcar.cpp] extern void              *R3DCar_position;
+// [owned->defined in r3dcar.cpp] extern matrixtdef        *R3DCar_orientMat;
+// [owned->defined in r3dcar.cpp] extern coorddef          *R3DCar_position;
 // [owned->defined in r3dcar.cpp] extern int                R3DCar_shadowFlag;
 // [owned->defined in r3dcar.cpp] extern CVECTOR            R3DCar_shadowColour;
 // [owned->defined in r3dcar.cpp] extern CVECTOR            R3DCar_eMapColour;

@@ -5,11 +5,19 @@
 #include "psxfront.h"
 #include "psxfront_externs.h"
 
+/* PSXFront.obj STAT helper.  Keep the recovered source name while preserving
+ * the exact retail linkage label for the pointer-form reconstruction. */
+static void AdjustShapeDrawing(tTexture_ShapeInfo *tShp,int *x,int *y,int *flags,
+                               int bright,int *color,tDrawShapeExtended *extra)
+  asm("AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended");
+
 /* ---- PSXFront.obj STAT (file-local) globals ---- */
-static char     *STR_FRMT[2];                       /* 0x80052a54 (sized>G4 -> .bss/absolute, not
+static char     *STR_FRMT[2];                       /* SYM-CARRIER: STR_FRMT; 0x80052a54 (sized>G4 -> .bss/absolute, not
                                                        .sbss/gp-rel -- same device as rendering3DEnvInit__) */
 static u_short   ofs[2];                            /* 0x80052a5c */
-static char      rendering3DEnvInit__[8];           /* 0x80052a60 (sized>G4 -> .bss/absolute, not .sbss/gp-rel) */
+static char      rendering3DEnvInit__[8] asm("rendering3DEnvironmentInitialized");
+                                                    /* SYM-CARRIER: rendering3DEnvironmentInitialized;
+                                                       0x80052a60 (sized>G4 -> .bss/absolute, not .sbss/gp-rel) */
 #define rendering3DEnvironmentInitialized rendering3DEnvInit__[0]
 
 /* lines 1-96: file header, #includes, static data, macros (no symbols emitted) */
@@ -307,7 +315,7 @@ void Init_PSX_FrontEnd(void)
 /* lines 784-838: (static data / macros / comments - no emitted code) */
 
 /* ---- AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended  (psxfront.cpp:839, code lines 839-922) ---- */
-extern "C" void AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended(tTexture_ShapeInfo *tShp,int *x,int *y,int *flags,int bright,int *color,
+static void AdjustShapeDrawing(tTexture_ShapeInfo *tShp,int *x,int *y,int *flags,int bright,int *color,
                tDrawShapeExtended *extra)
 
 {
@@ -468,7 +476,7 @@ typedef struct { unsigned addr : 24, len : 8; } PSXFront_PTag;
  *   scratch copy and re-dump -dL to find the exact life cut, then aim each constant at it.
  */
 /* GPU packet: builds POLY_GT4 (stride 0x34, code 0x3c); prim=u_char* build cursor, prevPrim=u_char* link word */
-void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,int abr)
+static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,int abr)
 
 {
   /* SYM 8c block: prim(POLY_GT4* $s0) width(AUTO -0x58) height($v1) u($s2) v($t4) vh(AUTO -0x50)
@@ -476,6 +484,9 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
    * Params: shp=$s4 flags=$t6 x=$t2 y=$s7 color=$t5.  The old recon carried ~35 fabricated locals
    * and, critically, a NEVER-ASSIGNED `xoff` in the vertex-X math where the real `x` param belongs
    * (oracle $t2 = the x REGPARM copy) -- x was silently dropped from every emitted quad. w42-a7. */
+  /* SYM-TYPE-OVERRIDE: prim -- SYM records POLY_GT4*, but the byte-cursor
+   * spelling is load-bearing: a typed pointer plus explicit byte casts changes
+   * GCC's MEM_IN_STRUCT/alias edges and regresses the detailed gate 7 -> 89. */
   u_char  *prim;
   short    width;
   short    height;
@@ -484,7 +495,7 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
   short    vh;
   short    bpp;
   short    i;
-  int      w;
+  short    w;
   short    w1;
   int      vraw;    /* MATCH (W61-A18, 20 -> 16 count-EXACT 245/245): vraw is INT,
                      * not u_char.  A u_char vraw makes `v = vraw` a MASKED copy
@@ -886,7 +897,7 @@ void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,i
 /* lines 986-990: (static data / macros / comments - no emitted code) */
 
 /* ---- DrawFlatShape  (psxfront.cpp:991, code lines 991-994) ---- */
-void DrawFlatShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,int abr)
+static void DrawFlatShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,int abr)
 
 {
   int c0;
@@ -926,7 +937,7 @@ void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSha
   if ((flags & 0x200) != 0) {
     tShp = extra->custom_shapes + index;
   }
-  AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended(tShp,&x,&y,&flags,bright * 0x10000 >> 0x10,color,extra);
+  AdjustShapeDrawing(tShp,&x,&y,&flags,bright * 0x10000 >> 0x10,color,extra);
   /* retail polarity: the GOURAUD arm is the fall-through (`beqz v0` jumps to the flat arm) --
      brcensus beqz 2v3 / bnez 1v0 on BOTH twins was this one flip. w42-a7 */
   if ((flags & 0xc0U) != 0) {
@@ -990,7 +1001,7 @@ void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSha
  *     a 4th mask ref.  Field-reads-before-prim/pal statement order: NEUTRAL (60).
  */
 /* GPU packet: builds POLY_GT4 (stride 0x34, SetPolyGT4); prim=u_char* build cursor, prevPrim=u_char* link word */
-void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,int scaley,int *color,
+static void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,int scaley,int *color,
                int abr)
 
 {
@@ -998,7 +1009,7 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
    * @sp+0x10) + the color/abr REG copies -- 9 locals, not the 28 the old recon declared.
    * x($s6) and y($s5) are the REGPARMs, MUTATED IN PLACE by the flip arms; width/height likewise
    * (`negu $s2,$s2`).  The bpp divide is SIGNED (div + break 7 + break 6). w42-a7 */
-  u_char  *prim;
+  POLY_GT4 *prim;
   short    width;
   short    height;
   short    bpp;
@@ -1017,24 +1028,24 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
                      the straight-line-emitter purge rule does NOT apply here (w43 loop-vs-
                      straight-line row): the oracle caches.  176 -> 175 = COUNT-EXACT. */
 
-  prim = Render_gPacketPtr;
+  prim = (POLY_GT4 *)Render_gPacketPtr;
   pal = (uint *)Render_gPalettePtr;
   width = shp->width;
   height = shp->height;
   bpp = (byte)shp->depth;
   /* EA-1998 addPrim(): P_TAG bitfield setaddr pair, bump between (house idiom). */
   ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)pal)->addr;
-  Render_gPacketPtr = prim + 0x34;
+  Render_gPacketPtr = (u_char *)prim + 0x34;
   ((PSXFront_PTag *)pal)->addr = (uint)prim;
-  *(int *)(prim + 4) = color[0];
-  *(int *)(prim + 0x10) = color[1];
-  *(int *)(prim + 0x1c) = color[2];
-  *(int *)(prim + 0x28) = color[3];
-  SetPolyGT4((POLY_GT4 *)prim);
-  SetSemiTrans(prim,flags & 1);
+  *(int *)((u_char *)prim + 4) = color[0];
+  *(int *)((u_char *)prim + 0x10) = color[1];
+  *(int *)((u_char *)prim + 0x1c) = color[2];
+  *(int *)((u_char *)prim + 0x28) = color[3];
+  SetPolyGT4(prim);
+  SetSemiTrans((u_char *)prim,flags & 1);
   one = 1;
-  *(short *)(prim + 0xe) = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
-  *(ushort *)(prim + 0x1a) =
+  *(short *)((u_char *)prim + 0xe) = GetClut((shp->clutID & 0x3fU) << 4,shp->clutID >> 6);
+  *(ushort *)((u_char *)prim + 0x1a) =
        ((byte)shp->type & 3) << 7 | (abr & 3U) << 5 |
        (shp->shapey & 0x100) >> 4 |
        ((ushort)shp->shapex & 0x3c0U) >> 6 | ((ushort)shp->shapey & 0x200) << 2;
@@ -1046,16 +1057,16 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
     y = y + fixedmult(scaley,height);
     height = -height;
   }
-  *(short *)(prim + 8) = x;
-  *(short *)(prim + 10) = y;
-  *(short *)(prim + 0x14) = (x - one) + fixedmult(scalex,width);
-  *(short *)(prim + 0x16) = y;
-  *(short *)(prim + 0x20) = x;
-  *(short *)(prim + 0x22) = y + fixedmult(scaley,height);
+  *(short *)((u_char *)prim + 8) = x;
+  *(short *)((u_char *)prim + 10) = y;
+  *(short *)((u_char *)prim + 0x14) = (x - one) + fixedmult(scalex,width);
+  *(short *)((u_char *)prim + 0x16) = y;
+  *(short *)((u_char *)prim + 0x20) = x;
+  *(short *)((u_char *)prim + 0x22) = y + fixedmult(scaley,height);
   xm1 = x - one;
   xm1 = xm1 + fixedmult(scalex,width);
-  *(short *)(prim + 0x2c) = xm1;
-  *(short *)(prim + 0x2e) = y + fixedmult(scaley,height);
+  *(short *)((u_char *)prim + 0x2c) = xm1;
+  *(short *)((u_char *)prim + 0x2e) = y + fixedmult(scaley,height);
   {
     /* w44-a1 MATCH: retail BATCHES the two byte field reads (`lbu a2,0x10(s4)` = width,
        `lbu a0,0x12(s4)` = height) ahead of the u/v flip guards so `vh = v + height` can be an
@@ -1075,17 +1086,17 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
     if ((flags & 2U) != 0) {
       v = (byte)shp->shapey - one;
     }
-    prim[0xd] = v;
-    prim[0x19] = v;
+    ((u_char *)prim)[0xd] = v;
+    ((u_char *)prim)[0x19] = v;
     vh = v + sh_;
-    prim[0xc] = u;
+    ((u_char *)prim)[0xc] = u;
     do {   /* permuter r2 find (score 230->175): depth dial on the sb tail -- doubles
             * the loop-weighted refs of u/uw/vh for the caller-save contest */
-      prim[0x18] = uw;
-      prim[0x24] = u;
-      prim[0x25] = vh;
-      prim[0x30] = uw;
-      prim[0x31] = vh;
+      ((u_char *)prim)[0x18] = uw;
+      ((u_char *)prim)[0x24] = u;
+      ((u_char *)prim)[0x25] = vh;
+      ((u_char *)prim)[0x30] = uw;
+      ((u_char *)prim)[0x31] = vh;
     } while (0);
   }
   return;
@@ -1094,7 +1105,7 @@ void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,
 /* lines 1139-1142: (static data / macros / comments - no emitted code) */
 
 /* ---- ScaleFlatShape  (psxfront.cpp:1143, code lines 1143-1146) ---- */
-void ScaleFlatShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,int scaley,int *color,
+static void ScaleFlatShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int scalex,int scaley,int *color,
                int abr)
 
 {
@@ -1133,7 +1144,7 @@ void ScaleShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSh
   if ((flags & 0x200) != 0) {
     tShp = extra->custom_shapes + index;
   }
-  AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended(tShp,&x,&y,&flags,bright * 0x10000 >> 0x10,color,extra);
+  AdjustShapeDrawing(tShp,&x,&y,&flags,bright * 0x10000 >> 0x10,color,extra);
   if ((flags & 0xc0U) != 0) {
     ScaleGouraudShape(tShp,flags,x,y,scalex,scaley,color,abr);
   }
@@ -1341,6 +1352,10 @@ void PSXDrawTransSquare(int col,int x,int y,int w,int h,short opacity)
 void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int arg6)
 
 {
+  /* SYM-CODEGEN-CARRIER: arg6 -- the seven-argument ABI is authoritative: the mangled
+   * name ends in `...P12charactertbli`, and Font's callback typedef has the same
+   * trailing int. SYM omits a parameter record because that source slot was
+   * unused; the six-argument m2c prototype likewise reflects only observed loads. */
   /* SYM 8c block: prim (POLY_FT4*), width, height, dv -- all INT -- plus the v/ch REG copies.
    * 🔴 ch->yoffset is read with `lb` in retail (SIGNED) -- this build's plain `char` is unsigned,
    * so it needs an explicit (signed char); and retail never doubles it: the top-Y is built as

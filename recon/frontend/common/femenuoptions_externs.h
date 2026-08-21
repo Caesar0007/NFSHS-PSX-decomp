@@ -41,7 +41,7 @@ int  CalcTextFadeSelToHi(tMenuTextType, short, short);  int CalcTextFadeUnselToS
 void DrawSlider(short,short,short,short,short,short,short,short,short,bool,bool,short,short);
 void AudioMus_SysStartUp(int, int, char *);  void AudioMus_SysCleanUp(void);  void AudioMus_StopSong(int);  void AudioMus_PlaySong(char *);
 int AudioMus_GetSongList(char *, int);  void AudioMus_Volume(int);
-BOOL FECheat_ActivateCheat(char*);  void s_lower(char*);  void s_upper(char*);
+bool FECheat_ActivateCheat(char*);  void s_lower(char*);  void s_upper(char*);
 void FeTools_DrawPSXButton(u_char,u_short,int,int);
 void Font_TextColor(int);  void Font_TextTint(int);  void Font_TextXY(char*,int,int);
 void DrawShapeFlat(int,int,int,int,int);
@@ -52,7 +52,7 @@ void *Draw_GetDRAWENV(int,int);
 int  TextSys_WordFlags(int);
 void Stattool_SamNelsonsUpperLowerStringConverterForRecords(char*);
 void FeMenuOptions_drawLeftFlareOut(int,int,int);  void FeAudio_AsyncPlaySpeech(int, int);
-BOOL FECheat_ActivateBonusByCode(char*);
+bool FECheat_ActivateBonusByCode(char*);
 /* W58-A1 (08A phantom fix): CalcOnOffFade__F13tMenuTextTypesssRiT4 -- (tMenuTextType,
  * short,short,short,int&,int&); T4 = a repeat of param 4 (0-based) = int&.  The old
  * `(...)` decl mangled both call sites as CalcOnOffFade__Fe (never links). */

@@ -4,11 +4,13 @@
  */
 #include "../../nfs4_types.h"
 
-/* EXT data owned by paths.obj */
+/* EXT data owned by paths.obj.  SYM records burnPath/fePath as actual arrays,
+   not standalone character aliases.  Definition order is the retail .sdata
+   order at 0x8013D2E0..0x8013D2EC. */
 char *Paths_Paths[50];   /* @0x80116468 */
+char burnPath[2] = "z"; /* @0x8013d2e0 */
+char fePath[1] = "";    /* @0x8013d2e4 */
 char *Paths_File;        /* @0x8013d2e8 */
-extern char burnPath;    /* @0x8013d2e0 .sdata  .asciz "z"  */
-extern char fePath;      /* @0x8013d2e4 .sdata  "" (4 zero bytes) */
 
 
 /* ---- Paths_StartUp  [PATHS.CPP:47-101] SLD-VERIFIED ---- */
@@ -21,14 +23,14 @@ void Paths_StartUp(void)
   char **pathTable;
   int deadfrm[5];  /* MATCH: unused frame filler — SYM shows scan as class AUTO @-8 (0x18 frame in the oracle); 20 dead bytes reproduce it */
 
-  scan = &burnPath;
+  scan = burnPath;
   dirCounter = 0x31;
   do {
     Paths_Paths[dirCounter] = scan;
     dirCounter = dirCounter + -1;
   } while (-1 < dirCounter);
   pathTable = Paths_Paths;
-  frontPath = &fePath;
+  frontPath = fePath;
   pathTable[0x24] = frontPath;
   pathTable[0x20] = frontPath;
   return;

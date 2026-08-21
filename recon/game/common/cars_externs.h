@@ -25,13 +25,13 @@ extern int   BWorldSm_FindClosestQuadRez(coorddef *c, BWorldSm_Pos *pos, int rez
 extern int Newton_CalculateRoadPosition(BO_tNewtonObj *newtonObj);
 extern int SceneLoaded;
 extern int Scene_BuildCustomSceneList(void);
-extern int TrgSfx_AddCarExtraCheck(int car,int wheel);
+extern bool TrgSfx_AddCarExtraCheck(int car,int wheel);
 extern long           Camera_gGeomScreen;
 extern tfrontEnd         frontEnd;
 extern u_int               fastRandom, randSeed, randtemp;   /* fastrand.obj PRNG state */
 extern void  Physics_FixEngineRpm(Car_tObj *car);
 extern void  Sched_AddFunction(Sched_tSchedule *s, void (*fn)(void *), void *arg, int hz);
-extern void *BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
+extern bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
 extern void Collide_CheckMeForCollisions(BO_tNewtonObj *newObj);
 extern void Force_StartUp(void);
 extern void Force_Update(Car_tObj *car);
@@ -39,7 +39,7 @@ extern void Newton_ApplyTheLawOfGravity(Car_tObj *newtonObj) asm("Newton_ApplyTh
 extern void Newton_InitBaseNewtonObj(u_int *newtonObj,u_int index,int mass,u_int moInertia,int dimX, int dimY,int dimZ) asm("Newton_InitBaseNewtonObj__FP13BO_tNewtonObjiiiiii");
 extern void Newton_QDUpdateRot32Hz(int newtonObj) asm("Newton_QDUpdateRot32Hz__FP13BO_tNewtonObj");
 extern void Newton_QDUpdateRot64Hz(int newtonObj) asm("Newton_QDUpdateRot64Hz__FP13BO_tNewtonObj");
-extern void Newton_QDUpdateVel(int newtonObj) asm("Newton_QDUpdateVel__FP13BO_tNewtonObj");
+extern void Newton_QDUpdateVel(BO_tNewtonObj *newtonObj) asm("Newton_QDUpdateVel__FP13BO_tNewtonObj");
 extern void Newton_SetInitialSlicePositionOrientationEtc(BO_tNewtonObj *n,int slice,coorddef *offset,int direction);
 extern void Newton_UpdateRoadInfo(BO_tNewtonObj *n);
 extern void Object_ClearCustomObjects(void);

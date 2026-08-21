@@ -280,16 +280,16 @@ AnimScript::AnimScript(int num,int numParts)
 {
   Trk_AnimateInst **ppTVar1;
   int iVar2;
-  int iVar4;
+  int i;
 
   ppTVar1 = __builtin_vec_new(numParts << 2);
-  iVar4 = 0;
+  i = 0;
   this->inst = ppTVar1;
   if (0 < numParts) {
     do {
-      this->inst[iVar4] = animScripts[num + iVar4];
-      iVar4 = iVar4 + 1;
-    } while (iVar4 < numParts);
+      this->inst[i] = animScripts[num + i];
+      i = i + 1;
+    } while (i < numParts);
   }
   iVar2 = simGlobal.gameTicks;
   this->flags = 6;
@@ -300,27 +300,27 @@ AnimScript::AnimScript(int num,int numParts)
 /* ---- AnimScript::AnimScript  [@0x80074468] ---- */
 AnimScript::AnimScript(Group *instanceGroup,int type,int boomIndex,int numParts)
 {
-  int iVar1;
+  int i;
   Trk_AnimateInst **ppTVar2;
   int iVar3;
-  Trk_AnimateInst *pTVar4;
-  int iVar5;
+  Trk_AnimateBoomInst *objInstance;
+  int numElems;
 
-  pTVar4 = (Trk_AnimateInst *)(instanceGroup + 1);
-  iVar5 = instanceGroup->m_num_elements;
+  objInstance = (Trk_AnimateBoomInst *)(instanceGroup + 1);
+  numElems = instanceGroup->m_num_elements;
   ppTVar2 = __builtin_vec_new(numParts << 2);
   this->inst = ppTVar2;
-  iVar1 = 0;
-  iVar5 = iVar5 - 1;
-  if (iVar5 != -1) {
+  i = 0;
+  numElems = numElems - 1;
+  if (numElems != -1) {
     do {
-      if (((u_int)pTVar4->type == type) && ((u_int)*(u_char *)((int)&pTVar4[1].size + 1) == boomIndex)) {
-        this->inst[iVar1] = pTVar4;
-        iVar1 = iVar1 + 1;
+      if (((u_int)objInstance->type == type) && ((u_int)objInstance->boomIndex == boomIndex)) {
+        this->inst[i] = (Trk_AnimateInst *)objInstance;
+        i = i + 1;
       }
-      pTVar4 = (Trk_AnimateInst *)((int)&pTVar4->size + (int)pTVar4->size);
-      iVar5 = iVar5 - 1;
-    } while (iVar5 != -1);
+      objInstance = (Trk_AnimateBoomInst *)((int)&objInstance->size + (int)objInstance->size);
+      numElems = numElems - 1;
+    } while (numElems != -1);
   }
   iVar3 = simGlobal.gameTicks;
   this->flags = 6;

@@ -53,28 +53,40 @@ dlabel D_800565A4
     /* 53696D706C654D656D000000 */
 .align 2
 .align 2
+dlabel D_800565F0
     /* 46DF0 800565F0 */ .asciz "text.eng"
     /* 746578742E656E6700000000 */
+enddlabel D_800565F0
 .align 2
 .align 2
+dlabel D_800565FC
     /* 46DFC 800565FC */ .asciz "text.ger"
     /* 746578742E67657200000000 */
+enddlabel D_800565FC
 .align 2
 .align 2
+dlabel D_80056608
     /* 46E08 80056608 */ .asciz "text.fre"
     /* 746578742E66726500000000 */
+enddlabel D_80056608
 .align 2
 .align 2
+dlabel D_80056614
     /* 46E14 80056614 */ .asciz "text.spa"
     /* 746578742E73706100000000 */
+enddlabel D_80056614
 .align 2
 .align 2
+dlabel D_80056620
     /* 46E20 80056620 */ .asciz "text.ita"
     /* 746578742E69746100000000 */
+enddlabel D_80056620
 .align 2
 .align 2
+dlabel D_8005662C
     /* 46E2C 8005662C */ .asciz "text.swe"
     /* 746578742E73776500000000 */
+enddlabel D_8005662C
 .align 2
 .align 2
     /* 46E38 80056638 */ .asciz "SimpleMem"

@@ -185,8 +185,8 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
 
 {
   POLY_FT4 *prim;
-  u_long l0;
-  u_long v0f,v1f,v2f,v3f;
+  u_long addr24; /* SYM-CODEGEN-CARRIER: addr24 -- keeps the PASS OT-link qty split */
+  u_long l0,l1,l2,l3;
   u_short tpage;
 
   if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
@@ -211,14 +211,14 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
     sd->otz = (sd->otz >> 1) + offset;
     if ((-1 < sd->otz) && (sd->otz <= Draw_gViewOtSize + -3)) {
       *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
-      v0f = *(u_int *)&pmx->u0;
-      v1f = *(u_int *)&pmx->u1;
-      v2f = *(u_int *)&pmx->u2;
-      v3f = *(u_int *)&pmx->u3;
-      *(u_int *)&prim->u0 = v0f;
-      *(u_int *)&prim->u1 = v1f;
-      *(u_int *)&prim->u2 = v2f;
-      *(u_int *)&prim->u3 = v3f;
+      l0 = *(u_int *)&pmx->u0;
+      l1 = *(u_int *)&pmx->u1;
+      l2 = *(u_int *)&pmx->u2;
+      l3 = *(u_int *)&pmx->u3;
+      *(u_int *)&prim->u0 = l0;
+      *(u_int *)&prim->u1 = l1;
+      *(u_int *)&prim->u2 = l2;
+      *(u_int *)&prim->u3 = l3;
       tpage = pmx->tpage;
       if ((mode & 1U) != 0) {
         ChangeTPage(&tpage,2);
@@ -345,9 +345,9 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
        * (the same joint-sweep law that cracked CarIO_CopyToShape this wave). */
       { u_int *ot2 = (u_int *)(sd->otz * 4 + (int)Render_gPalettePtr);
       u_int w = *ot2;
-      l0 = (u_int)prim & 0xffffff;
+      addr24 = (u_int)prim & 0xffffff;
       Render_gPacketPtr = (u_char *)prim + 0x28;
-      *ot2 = w & 0xff000000 | l0; }
+      *ot2 = w & 0xff000000 | addr24; }
     }
   }
   return;
@@ -749,6 +749,22 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
 {
   sfxsouffle dSouffle;
   Sfx_tCache *sd;
+
+  /* The retail SYM emits these names for the two static-inline helper expansions
+     below. Their declarations remain in those helpers so cc1plus preserves the
+     exact inline frame and register lifetimes recorded by the oracle. */
+  /* SYM-CARRIER: check */
+  /* SYM-CARRIER: dest */
+  /* SYM-CARRIER: invertedm */
+  /* SYM-CARRIER: l0 */
+  /* SYM-CARRIER: l1 */
+  /* SYM-CARRIER: l2 */
+  /* SYM-CARRIER: l3 */
+  /* SYM-CARRIER: pmx */
+  /* SYM-CARRIER: pt */
+  /* SYM-CARRIER: ptrans */
+  /* SYM-CARRIER: scale */
+  /* SYM-CARRIER: tpage */
 
   sd = (Sfx_tCache *)0x1f800000;   /* oracle: literal scratchpad address, not %hi/%lo(Sfx_gCache) */
   switch((u_char)is->type) {

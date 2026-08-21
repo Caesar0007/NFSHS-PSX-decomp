@@ -9,8 +9,8 @@
 extern __vtbl_ptr_type AIHigh_BTC_Perp_vtable[], AIHigh_BTC_HumanPerp_vtable[], AIHigh_BTC_AIPerp_vtable[], AIState_NonActive_vtable[], AIState_Base_vtable[];
 
 extern "C" CARDINFO_def *MCRD_getcard(int);
-int Speech_Dispatch(void) asm("Dispatch__6Speech");                /* speech.obj flat (was Dispatch__6Speech; Speech::Dispatch is static->flat) */
-int Speech_Mobile(Car_tObj *carObj) asm("Mobile__6SpeechP8Car_tObj");      /* speech.obj flat (was Mobile__6SpeechP8Car_tObj; cast result to Speaker*) */
+Speaker *Speech_Dispatch(void) asm("Dispatch__6Speech");
+Speaker *Speech_Mobile(Car_tObj *carObj) asm("Mobile__6SpeechP8Car_tObj");
 extern AIHigh_Base *highLevelAIObjs[];
 extern AITune_BTC_t AITune_BTC[];
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
@@ -22,7 +22,7 @@ extern camera_info       Camera_gInfo[2];            /* camera.obj */
 extern int            Cars_gNumCars;
 extern int            gNumSlices;
 extern int       Cars_gNumHumanRaceCars;
-extern int AICop_gRoadBlockState;
+extern AICop_RoadBlockState AICop_gRoadBlockState;
 extern int Hud_InitMap(void);
 extern u_int               fastRandom, randSeed, randtemp;   /* fastrand.obj PRNG state */
 extern void  Camera_Update(void);

@@ -12,7 +12,6 @@ void * __11AIHigh_BaseP8Car_tObj(AIHigh_Base *self, Car_tObj *carObj);   /* :158
 void ___11AIHigh_Base(AIHigh_Base *self, int __in_chrg);   /* :169 */
 
 /* ---- header-defined (inline / class) functions ---- */
-void HighExecute__11AIHigh_None(AIHigh_None *self);   /* :132 */
 void ___11AIHigh_None(AIHigh_None *self, int __in_chrg);   /* :134 */
 void ___16AIHigh_BasicPerp(AIHigh_BasicPerp *self, int __in_chrg);   /* :164 */
 void ___13AIHigh_Player(AIHigh_Player *self, int __in_chrg);   /* :202 */

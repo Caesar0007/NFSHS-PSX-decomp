@@ -5,11 +5,8 @@
 /* ---- harvested + SYM ---- */
 extern GameSetup_tData   GameSetup_gData;
 
-extern sim_queue       inputQueue;          /* Validity/Buffer/TailTime */
-extern Input_tResults  output[2] __asm__("D_8013DDC8");           /* per-player current input */
 extern int   gSimQueue_BlockOther;
 extern int   gSimQueue_BlockSelf;
 extern int   gSimQueue_Ticker;
-extern int   maxTicksPerFrame;
 
 #endif

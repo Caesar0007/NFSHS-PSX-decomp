@@ -24,9 +24,8 @@ extern int gFlip;  extern int Draw_gPlayer1View;
 extern short          Render_gPacketLenLo, Render_gPacketLenHi;
 
 /* ---- SYM Globals (type+dims) + free fns ---- */
-extern int Draw_gMaxPrim;
+extern char *Draw_gMaxPrim;
 extern int Draw_gNumView;
-extern fn_void *Draw_gSyncCallback;  /* void(*)(void) drawsync cb */
 extern int gLoop;
 extern int gTotalMem;
 extern void *Platform_ReserveMemory(int, char *);

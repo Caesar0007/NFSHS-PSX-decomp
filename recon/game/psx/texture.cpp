@@ -439,13 +439,8 @@ void Texture_Vramcf(shapetbl *shp,int x,int y,int clutx,int cluty)
 {
   char*s;
   int rowbytes;
-  u_short height;
-  int h;                 /* MATCH: the sign-extended height lands in a SECOND
-                          * variable born exactly where `height` dies (its last
-                          * use is the &1 test) -- gcc reuses height's register
-                          * for it (oracle: sll/sra back into $s2, and every
-                          * later use incl. the restore takes the extended
-                          * value).  One `short height` keeps the raw lhu alive. */
+  int height;
+  int h;
   int rowall;
   int off;
   short ybot;
@@ -459,7 +454,7 @@ void Texture_Vramcf(shapetbl *shp,int x,int y,int clutx,int cluty)
    * the two-blit path is the FALL-THROUGH, with a SECOND textual Vramf call laid
    * out after it -- an `if (simple) {...} else {...}` inverts both. */
   if ((rowbytes & 2) != 0) {
-    height = shp->height;
+    height = (u_short)shp->height;
     if ((height & 1) == 0) {
       h = (short)height;
       off = (h + -1) * rowbytes;
@@ -492,7 +487,7 @@ void Texture_Vramcf(shapetbl *shp,int x,int y,int clutx,int cluty)
 int Texture_GetTranslucencyMode(shapetbl *shp)
 
 {
-  u_int abr;
+  u_short abr;
 
   /* MATCH (w40-a10, 4 -> PASS): `return 0` must be the loop's POST-EXIT
    * fall-through (`if (shp == 0) break;` + a trailing `return 0;`), NOT an

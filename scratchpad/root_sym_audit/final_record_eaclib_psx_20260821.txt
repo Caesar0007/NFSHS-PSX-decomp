@@ -1,0 +1,65 @@
+# SYM-to-source declaration audit
+
+Target: `C:\Temp\nfs4-decomp\recon\eaclib\psx`
+Trusted SYM: `C:\Temp\claud\dumpsym_clean\dumpsym_src\nfs4-f-v3.txt`
+
+This is a review queue, not an auto-fix list. Missing retail names are
+strong evidence; extra source names can be matching carriers or decompiler
+temporaries and must be tested against the function oracle before removal.
+GCC-v2-mangled function/EXT names are used only as linkage keys; source
+functions are mapped to their demangled C++ names and class scopes.
+
+## Summary
+
+- SYM functions in target TUs: 5
+- Mapped to reconstructed definitions: 5 (5 demangled class/name maps)
+- Source definitions still using mangled linkage identifiers: 0
+- Explicit deleting-destructor ABI carriers: 0
+- Explicit cross-TU ownership closures: 0
+- Declaration-clean mapped functions: 3
+- Missing SYM names: 0
+- Extra source-local names: 5
+- Type-comparison findings: 0
+- Recognized ABI/debug-equivalent type encodings: 0
+  ()
+- Function storage-class findings: 0
+- Compiler-generated aggregate functions without source bodies: 0
+- Explicit oracle-receipted carrier mappings: 0
+- Explicit source-only codegen carriers: 0
+- Explicit oracle-proven function type overrides: 0
+- Functions needing mapping review: 0
+- SYM object-owned data records in target TUs: 2
+- Mapped source global definitions: 2
+- Blob-backed object globals: 0
+- Missing/extra global definitions: 0/0
+- Global storage-class findings: 0
+- Explicit oracle-proven global storage overrides: 0
+- Global type findings: 0
+- Recognized global debug-equivalent types: 1
+  (anonymous-struct-tag=1)
+- Explicit measured global array carriers: 0
+- Explicit oracle-proven global type overrides: 0
+
+## Review queue
+
+### `PAD_state` (0x800e41ac, pad.c:215, map=exact)
+
+- Extra source locals: `buttons`
+
+### `PAD_update` (0x800e4210, pad.c:415, map=exact)
+
+- Extra source locals: `active`, `btnOff`, `debCount`, `off`
+
+## Explicit SYM carrier/optimization mappings
+
+
+## Explicit source-only codegen carriers
+
+
+## Explicit oracle-proven function type overrides
+
+
+## Object-owned global/storage review
+
+- No ownership, storage-class, or type findings.
+

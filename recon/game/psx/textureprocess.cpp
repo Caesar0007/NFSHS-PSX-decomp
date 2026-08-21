@@ -10,6 +10,8 @@
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
 BWorldSm_Pos *fogslicePos;
 FogKey *Fog_gHeadKey;
+/* SYM-CARRIER: Fog_gCurrentKey -- the SYM array is represented by the two
+ * adjacent retail element labels; Fog_gCurrentKeyArr is the indexed view. */
 FogKey *Fog_gCurrentKey;
 FogKey *D_8013DB84;
 TP_ZPaletteSystem TP_gZPaletteSystem;
@@ -17,7 +19,7 @@ int Fog_gNumKeys;
 int gZDepth;
 
 /* Fog_MakeTrackPathName function-local static string buffer (SYM STAT fogstrspc) */
-static char fogstrspc[256];
+static char fogstrspc[64];
 
 
 /* ---- TextureProcess_TransColorCheck__FPci  [TEXTUREPROCESS.CPP:47-62] SLD-VERIFIED ---- */
@@ -266,6 +268,7 @@ void Fog_Update(int player)
 {
   int currentslice;
   FogKey *key;
+  FogKey *nextkey;
   int nextslice;
   int diffslice;
   int diffdistance;
@@ -276,38 +279,21 @@ void Fog_Update(int player)
   if (Fog_gNumKeys != 1) {
     BWorldSm_FindClosestQuadRez(&gCView.cview.translation,fogslicePos + player,1);
     currentslice = fogslicePos[player].slice;
-    /* MATCH (w40-a10, 4 -> PASS): the slot ADDRESS must be its own named
-     * pointer local.  Written as two separate `Fog_gCurrentKeyArr[player]`
-     * expressions, cse still shares the address but the `lui/addiu %hi/%lo`
-     * pair belongs to the CALL-ARGUMENT statement, so sched1 gives it the
-     * longer path-to-jal priority (lui->addiu->addu->lw->jal = 4) and hoists
-     * it ABOVE the `lh $s1,0($s0)` / `sll $s0,$s2,2` pair (priority 2/3).
-     * Binding the address to `slot` in its own statement moves the
-     * materialization into that statement's luid slot, restoring retail's
-     * lh / sll / lui / addiu / addu / lw order. */
     {
       FogKey **slot = &Fog_gCurrentKeyArr[player];
       key = Fog_FindKey(currentslice,*slot);
       *slot = key;
     }
-    /* MATCH: NO cached `nextkey` local -- the oracle re-reads key->next (and
-     * key->slice / key->distance) at each use; only `nextslice` is a real
-     * variable (it is mutated by += numslices).  The interpolating arm is the
+    /* SYM and split-m2c agree on a named `nextkey` pointer in $v0.  Its source
+     * lifetime ends after the initial slice/distance reads; the interpolation
+     * arm intentionally spells `key->next` again, reproducing retail's later
+     * reload.  `nextslice` is mutated by += numslices.  The interpolating arm is the
      * FALL-THROUGH (oracle `beq key->distance,next->distance` branches away to
      * the plain-copy arm).
-     * MATCH (w39-a10, 15 -> 4): the two `TrackSpec_gSpec.fogspec.start = ...`
-     * stores DO funnel through a shared `start` local -- retail's else arm is
-     * literally empty (`beq $a1,$v1,.L800E0EA8` jumps straight at the single
-     * `sw $a1,%lo(D_80123294)($v0)` with the `lui` in its delay slot, $a1
-     * already holding key->distance from the compare).  With two separate store
-     * statements our build cannot cross-jump them: the if-arm stores $a1 via a
-     * `lui $v1` rematerialised in the mflo delay slot while the else arm stores
-     * $a0 via the beq-slot `lui $v0`.  (The w38 note claiming the funnel costs
-     * 36 diffs was measured on an older body and is WRONG -- re-verified.)
-     * (w39's "residual 4 = scheduling tie" note is now CLOSED -- see the
-     * slot-pointer MATCH note below.) */
-    nextslice = key->next->slice;
-    if (key->distance != key->next->distance) {
+     * The two stores below are the source-level arms; gcc cross-jumps their
+     * common destination exactly as seen in retail. */
+    nextslice = (nextkey = key->next)->slice;
+    if (key->distance != nextkey->distance) {
       if (nextslice < key->slice) {
         numslices = gNumSlices;
         nextslice = nextslice + numslices;
@@ -341,8 +327,8 @@ int Fog_ReadFogKeys(void)
 {
   char *strspc;
   int i;
-  u_int *readmem;
-  u_int numkeys;
+  int *readmem;
+  int numkeys;
 
   /* 🔴 CORRECTNESS (raw oracle @0x800E0F18): the three selector tests were
    * INVERTED in the previous reconstruction (`bnez` where the oracle has
@@ -370,12 +356,12 @@ int Fog_ReadFogKeys(void)
   }
   strspc = Fog_MakeTrackPathName(".fog");
 haveext:
-  readmem = (u_int *)loadfileadr(strspc,0);
-  if (readmem == (u_int *)0x0) {
+  readmem = (int *)loadfileadr(strspc,0);
+  if (readmem == (int *)0x0) {
     return 0;
   }
   numkeys = *readmem;
-  if (0x1f < numkeys) {
+  if (0x1f < (u_int)numkeys) {
     return 0;
   }
   i = 0;

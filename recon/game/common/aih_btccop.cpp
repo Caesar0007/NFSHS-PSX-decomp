@@ -428,7 +428,7 @@ AIHigh_BTC_HumanCop::AIHigh_BTC_HumanCop(Car_tObj *carObj,int copIndex)
 
     if (((randtemp & 0xffff00) >> 8) * 1000 >> 0x10 < 0x2ee) {
 
-      startMovement = (u_int)(AIHigh_CopGameType != 4);
+      startMovement = (u_int)(AIHigh_CopGameType != COP_GAME_BTC_1HC1HP);
 
     }
 
@@ -454,7 +454,7 @@ AIHigh_BTC_HumanCop::AIHigh_BTC_HumanCop(Car_tObj *carObj,int copIndex)
 
     }
 
-    if ((0x5eb8 < bend) && (AIHigh_CopGameType != 4)) {
+    if ((0x5eb8 < bend) && (AIHigh_CopGameType != COP_GAME_BTC_1HC1HP)) {
 
       startMovement = 1;
 
@@ -675,13 +675,13 @@ void AIHigh_BTC_HumanCop::FreezeAndEndChase()
 
     if (((randtemp & 0xffff00) >> 8) * 1000 >> 0x10 < 0x2ee) {
 
-      movement = (u_int)(AIHigh_CopGameType != 4);
+      movement = (u_int)(AIHigh_CopGameType != COP_GAME_BTC_1HC1HP);
 
     }
 
     iVar1 = AIDataRecord_TrackCurve->Get((int)((this->carObj_)->N).simRoadInfo.slice);
 
-    if ((0x41 < iVar1) && (AIHigh_CopGameType != 4)) {
+    if ((0x41 < iVar1) && (AIHigh_CopGameType != COP_GAME_BTC_1HC1HP)) {
 
       movement = 1;
 
@@ -871,9 +871,9 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
   GameSetup_gData.perpArrests = GameSetup_gData.perpArrests + 1;
 
-  if ((((u_int)(AIHigh_CopGameType - 2) < 2) && (this->currentStage_ >= GameSetup_gData.numPerps)) ||
+  if ((((u_int)(AIHigh_CopGameType - COP_GAME_BTC_1HC) < 2) && (this->currentStage_ >= GameSetup_gData.numPerps)) ||
 
-     ((AIHigh_CopGameType == 4 && (2 < this->currentStage_)))) {
+     ((AIHigh_CopGameType == COP_GAME_BTC_1HC1HP && (2 < this->currentStage_)))) {
 
     simVar.endSimGame = 1;
 
@@ -897,7 +897,7 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
   (this->carObj_)->direction = direction;
 
-  AICop_gRoadBlockState = 0;
+  AICop_gRoadBlockState = kAICop_RoadBlockState_None;
 
   throwAway = 0;
 
@@ -909,7 +909,7 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
      (per-arm `lw a2,0x1C(sp)` + `sw ..,0x10/0x14(sp)` stack args, SLD 542/551) and only
      cross-jump-merges the `lw a0; jal; addu a3` triple at .L8005D8CC -- the single shared
      call + goto form hoisted the last two args into callee-saved regs and lost 7 insns. */
-  if (AIHigh_CopGameType == 4) {
+  if (AIHigh_CopGameType == COP_GAME_BTC_1HC1HP) {
 
     AILife_PlaceCarAtLocation(this->carObj_,copSlice,throwAway,direction,0,0);
 
@@ -1027,7 +1027,7 @@ LAB_8005d8d8:
 
   }
 
-  if (AIHigh_CopGameType == 4) {
+  if (AIHigh_CopGameType == COP_GAME_BTC_1HC1HP) {
 
     /* W57-A11: the `<< 5` lives in EACH arm (oracle `sll s0,v0,5` twice) -- a shared
        post-if shift makes the load land directly in nextStageTime's reg. */
@@ -1697,7 +1697,7 @@ void AIHigh_BTC_HumanCop::HighExecute()
 
   }
 
-  if (AIHigh_CopGameType == 2) {
+  if (AIHigh_CopGameType == COP_GAME_BTC_1HC) {
 
     if (0x281 <= simGlobal.gameTicks - _19AIHigh_BTC_HumanCop_lastInputRequestTick_) {
 
@@ -2812,7 +2812,8 @@ void AIHigh_BTC_Wingman::HighExecute()
       this->GetCheckChasePosition(&newPos);
       if ((this->spikeBeltPlaced_ != 0) &&
           (AICop_spikeBelt.slice_ == this->spikeBeltSlice_)) {
-        AICop_spikeBelt.freshenTime_ = simGlobal.gameTicks;
+        int timeNow = simGlobal.gameTicks;
+        AICop_spikeBelt.freshenTime_ = timeNow;
       }
 
       rbDistanceMeters = AIWorld_ApxSplineDistance(
@@ -3588,7 +3589,7 @@ LAB_8005f268:
 
   this->blockade_.slice = iVar7;
 
-  AICop_gRoadBlockState = 1;
+  AICop_gRoadBlockState = kAICop_RoadBlockState_WaitingForPerp;
 
   fastRandom = randtemp & 0xffff;
 

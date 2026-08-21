@@ -14,6 +14,35 @@
 #define PHY_MIN(a,b) ((a) < (b) ? (a) : (b))
 #define PHY_MAX(a,b) ((a) > (b) ? (a) : (b))
 
+/* physics.obj small-data globals in exact SYM order.  The explicit zero on the
+ * file-static currentWallType is source-significant: it keeps that word in
+ * .sdata at 0x8013d2fc instead of .sbss. */
+int gBrakeRatio = 0, gGasRatio = 0, gSteerRatio = 0;
+static int currentWallType = 0;
+int exceedRedline = 0;
+int roadMult = 0, frontMult = 0, rearMult = 0, leftMult = 0, rightMult = 0;
+int slippery = 0, steeringControl = 0, powerControl = 0;
+
+/* physics.obj initialized-data run from the SYM, 0x80116530..0x801165e0.
+ * The declaration order and dimensions are the retail debug records; values
+ * are transcribed from the same-address executable payload. */
+int roadSurfaceFrictionCoeff[10] = {
+  0x11999, 0x10ccc, 0x10000, 0xf333, 0xe666,
+  0xd999, 0xcccc, 0xc000, 0xb333, 0x8000
+};
+int ReverseRoadSurfaceFrictionCoeff[10] = {
+  0xe8f5, 0xf333, 0x10000, 0x10d91, 0x11c28,
+  0x12d0e, 0x14000, 0x1547a, 0x16e14, 0x20000
+};
+char roadSurfaceIndex[3][20] = {
+  {7, 3, 3, 3, 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 5, 3, 5, 5, 5, 5},
+  {7, 2, 4, 4, 2, 4, 5, 2, 2, 4, 2, 3, 3, 4, 5, 4, 5, 5, 5, 5},
+  {7, 0, 2, 2, 1, 3, 3, 1, 0, 3, 0, 1, 1, 3, 5, 5, 5, 5, 5, 5}
+};
+int gripLossTable[3] = {0x20, 8, 8};
+int gripLossTableWet[3] = {0x10, 6, 4};
+coorddef gravity_ch = {0, 0, 0};
+
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void Physics_InitCarSpecs(Car_tObj *carObj,Udff_tInfo *handle);
 void Physics_CalculateDerivedCarSpecs(Car_tObj *carObj);
@@ -827,8 +856,12 @@ void Physics_RampCarControlValues(Car_tObj *carObj)
     goto RampCtrl_earlyBrake;
   }
   {
-    int inc;
+    char inc;
 
+    /* SYM-CODEGEN-CARRIER: incValue -- SYM proves `inc` is CHAR, while retail
+       applies an unsigned-byte promotion independently in each sign arm.  The
+       scoped int carrier represents that promotion; the empty input fence in
+       the negative arm preserves retail's mask-before-negu schedule. */
     if (carObj->carInfo->RampGas != 0) {
       inc = 0x24;
     }
@@ -838,17 +871,18 @@ void Physics_RampCarControlValues(Car_tObj *carObj)
     __asm__("" : "=r"(inc) : "0"(inc));
     diff = (carObj->control).desiredGasLevel - (carObj->control).gasLevel;
     if (diff >= 0) {
-      inc &= 0xff;
+      int incValue = (u_char)inc;
       (carObj->control).gasLevel =
-          diff < inc ? (carObj->control).gasLevel + diff
-                     : (carObj->control).gasLevel + inc;
+          diff < incValue ? (carObj->control).gasLevel + diff
+                          : (carObj->control).gasLevel + incValue;
     }
     else {
-      inc &= 0xff;
+      int incValue = (u_char)inc;
+      __asm__("" : : "r"(incValue));
       diff = -diff;
       (carObj->control).gasLevel =
-          diff < inc ? (carObj->control).gasLevel - diff
-                     : (carObj->control).gasLevel - inc;
+          diff < incValue ? (carObj->control).gasLevel - diff
+                          : (carObj->control).gasLevel - incValue;
     }
     /* MATCH: PASS 502/502.  Retail keeps `inc` in a0, masks it independently
        in both sign arms, and computes the two complete gas-value candidates
@@ -2185,7 +2219,7 @@ void Physics_Real(Car_tObj *carObj)
   int iVar11;
   int damp;
   int rotationalAccCap;
-  Car_tSpecs *pCVar12;
+  Car_tSpecs *specs;
   u_int uVar13;
   Physics_tWheelAccStruct frontWheel;
   Physics_tWheelAccStruct rearWheel;
@@ -2197,7 +2231,7 @@ void Physics_Real(Car_tObj *carObj)
   (carObj->linearAcc_ch).x = 0;
   (carObj->linearAcc_ch).y = 0;
   (carObj->linearAcc_ch).z = 0;
-  pCVar12 = carObj->specs;
+  specs = carObj->specs;
   steeringControl = 1;
   powerControl = 1;
   if ((GameSetup_gData.Weather != 0) &&
@@ -2250,7 +2284,7 @@ void Physics_Real(Car_tObj *carObj)
   carAccCap_ch.y = ((carObj->linearVel_ch).y * -0x20) / 2;
   carAccCap_ch.z = ((carObj->linearVel_ch).z * -0x20) / 2;
   rotationalAccCap =
-      -fixedmult((carObj->N).angularVel.y << 5,pCVar12->alphaToAccRotInertia) / 2;
+      -fixedmult((carObj->N).angularVel.y << 5,specs->alphaToAccRotInertia) / 2;
   temp.x = 0;
   temp.y = -0xa0000;
   temp.z = 0;
@@ -2282,7 +2316,7 @@ void Physics_Real(Car_tObj *carObj)
     tempSteer = -0x7f;
   }
   frontWheel.steeringAngle =
-      tempSteer * pCVar12->maxSteeringAcc / 0x80;
+      tempSteer * specs->maxSteeringAcc / 0x80;
   {
     int damage;
     int damageMult;
@@ -2403,7 +2437,7 @@ void Physics_Real(Car_tObj *carObj)
   rearWheel.frontTire = 0;
   driveAcc = Physics_CalculateCarAcceleration(carObj);
   frontWheel.acc =
-      (driveAcc / 0x100) * (pCVar12->frontDriveRatio / 0x100);
+      (driveAcc / 0x100) * (specs->frontDriveRatio / 0x100);
   rearWheel.acc = driveAcc - frontWheel.acc;
   if ((steeringControl == 0) && (powerControl == 0)) {
     carObj->frontSkid = 0;
@@ -2412,7 +2446,7 @@ void Physics_Real(Car_tObj *carObj)
   }
   carObj->crash = 0;
   brakeAcc =
-      (gBrakeRatio / 0x100) * (pCVar12->maxBrakeAcc / 0x100);
+      (gBrakeRatio / 0x100) * (specs->maxBrakeAcc / 0x100);
   {
     int brakeCap = __builtin_abs((carObj->linearVel_ch).z) << 5;
     __asm__("" : "=r"(brakeCap) : "0"(brakeCap));
@@ -2435,10 +2469,10 @@ void Physics_Real(Car_tObj *carObj)
   if (0 < (carObj->linearVel_ch).z) {
     brakeAcc = -brakeAcc;
   }
-  frontBrake = fixedmult(brakeAcc,pCVar12->frontBrakeRatio);
+  frontBrake = fixedmult(brakeAcc,specs->frontBrakeRatio);
   frontWheel.acc = frontWheel.acc + frontBrake;
   rearWheel.acc = rearWheel.acc + (brakeAcc - frontBrake);
-  roadGrip = fixedmult(-gravity_ch.y,pCVar12->lateralGripMult);
+  roadGrip = fixedmult(-gravity_ch.y,specs->lateralGripMult);
   Physics_CalculateRoadGripModifiers(carObj);
   roadGrip = (roadGrip / 0x100) * (roadMult / 0x100);
   if (roadGrip < 0) {
@@ -2446,11 +2480,11 @@ void Physics_Real(Car_tObj *carObj)
   }
   if (slippery != 0) {
     frontGrip =
-        fixedmult(roadGrip,pCVar12->frontGripBias + 0x28f);
+        fixedmult(roadGrip,specs->frontGripBias + 0x28f);
   }
   else {
     frontGrip =
-        fixedmult(roadGrip,pCVar12->frontGripBias);
+        fixedmult(roadGrip,specs->frontGripBias);
   }
   {
     int damage;
@@ -2490,7 +2524,7 @@ void Physics_Real(Car_tObj *carObj)
   (carObj->linearAcc_ch).z = frontWheel.finalAcc.z + rearWheel.finalAcc.z;
   (carObj->linearAcc_ch).x = frontWheel.finalAcc.x + rearWheel.finalAcc.x;
   (carObj->linearAcc_ch).z =
-      fixedmult((carObj->linearAcc_ch).z,pCVar12->lateralGripMultInv);
+      fixedmult((carObj->linearAcc_ch).z,specs->lateralGripMultInv);
   if (((GameSetup_gData.sgge == 0x80) &&
        (0 < (carObj->linearAcc_ch).z)) &&
       ((carObj->control).horn != '\0')) {
@@ -2509,20 +2543,24 @@ void Physics_Real(Car_tObj *carObj)
   (carObj->linearAcc_ch).y = 0;
   ratio = -fixedmult(gravity_ch.z,0x1999);
   carObj->gTransferRight =
-      -fixedmult((carObj->linearAcc_ch).x / 8,pCVar12->gTransferFactor);
+      -fixedmult((carObj->linearAcc_ch).x / 8,specs->gTransferFactor);
   carObj->gTransferFront =
-      fixedmult((carObj->linearAcc_ch).z,pCVar12->gTransferFactor) + ratio;
-  ratio = fixedmult(frontWheel.finalAcc.x - rearWheel.finalAcc.x,
-                    pCVar12->accToAlphaRotInertia);
+      fixedmult((carObj->linearAcc_ch).z,specs->gTransferFactor) + ratio;
   {
-    int wheelMult = leftMult - rightMult;
+    int Xcomponent =
+        fixedmult(frontWheel.finalAcc.x - rearWheel.finalAcc.x,
+                  specs->accToAlphaRotInertia);
+    {
+      int wheelMult = leftMult - rightMult;
 
-    ratio += fixedmult(fixedmult(frontWheel.finalAcc.z + rearWheel.finalAcc.z,
-                                 wheelMult),
-                       pCVar12->accToAlphaRotInertia) *
-             2;
+      Xcomponent += fixedmult(
+                        fixedmult(frontWheel.finalAcc.z + rearWheel.finalAcc.z,
+                                  wheelMult),
+                        specs->accToAlphaRotInertia) *
+                    2;
+    }
+    finalAngularAcc_ch.y = Xcomponent;
   }
-  finalAngularAcc_ch.y = ratio;
   if ((((carObj->N).angularVel.y > 0) && (finalAngularAcc_ch.y > 0)) ||
       (((carObj->N).angularVel.y < 0) && (finalAngularAcc_ch.y < 0))) {
     if (((carObj->control).handBrake != '\0') &&
@@ -2586,7 +2624,7 @@ void Physics_Real(Car_tObj *carObj)
     if (carObj->desiredSpeed < 0x471c7) {
       desiredRpm =
           fixedmult(0x188000,
-                    pCVar12->velToRpmRatio[
+                    specs->velToRpmRatio[
                         ((u_char)(carObj->control).gear < 2)
                             ? 2 : (u_char)(carObj->control).gear]) /
           0x10000;
@@ -2594,20 +2632,20 @@ void Physics_Real(Car_tObj *carObj)
     else {
       desiredRpm =
           fixedmult(carObj->desiredSpeed,
-                    pCVar12->velToRpmRatio[
+                    specs->velToRpmRatio[
                         ((u_char)(carObj->control).gear < 2)
                             ? 2 : (u_char)(carObj->control).gear]) /
           0x10000;
     }
     int adjustedRpm =
         fixedmult((carObj->linearVel_ch).z,
-                  pCVar12->velToRpmRatio[
+                  specs->velToRpmRatio[
                       ((u_char)(carObj->control).gear < 2)
                           ? 2 : (u_char)(carObj->control).gear]);
     if (adjustedRpm < 0) {
       adjustedRpm += 0xffff;
     }
-    tempGas = (desiredRpm << 8) / pCVar12->redline;
+    tempGas = (desiredRpm << 8) / specs->redline;
     __asm__("" : "=r"(tempGas) : "0"(tempGas));
     diffRpm = desiredRpm - (adjustedRpm >> 16);
     if (diffRpm >= 0xc9) {
@@ -2630,7 +2668,7 @@ void Physics_Real(Car_tObj *carObj)
       }
       if (diffRpm < 0) {
         u_int brakeLevel =
-            __builtin_abs(diffRpm << 9) / pCVar12->redline;
+            __builtin_abs(diffRpm << 9) / specs->redline;
         if (0xff < (int)brakeLevel) {
           brakeLevel = 0xff;
         }
@@ -2796,19 +2834,3 @@ void Physics_SimCar(Car_tObj *carObj)
 }
 
 /* end of physics.cpp */
-
-/* owning-TU def (extern-declared, never defined; link-harness) */
-int currentWallType;
-
-/* owning-TU defs for the rest of physics.obj's scalar globals (SYM class EXT, contiguous
- * 0x8013d2f0..0x8013d320 block right after currentWallType/exceedRedline) -- these were left
- * pure `extern` in physics_externs.h (never defined anywhere in-tree), which denies the
- * compiler the size info needed for -G4 .sbss gp-relative placement: every access oracle takes
- * as a single `lw/sw r,off(gp)` compiled to a 2-insn lui/lw|sw absolute-address pair instead.
- * Materializing the tentative defs here (physics.cpp is the true SYM owner) restores gp-rel
- * codegen tree-wide for every fn touching them (CalculateRoadGripModifiers, CalculateCarAcceleration,
- * AutoShift, DoBarrierCheck, RampCarControlValues, ...). */
-int gBrakeRatio, gGasRatio, gSteerRatio;
-int exceedRedline;
-int roadMult, frontMult, rearMult, leftMult, rightMult;
-int slippery, steeringControl, powerControl;

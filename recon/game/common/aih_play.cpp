@@ -682,6 +682,9 @@ void AIHigh_Player::CheckForNewLevel(int force)
 
         AICop_PerpChaseInfo *p = pi;
 
+        /* SYM-OPTIMIZED: level -- SetChaseLevel's inlined parameter aliases
+           chaseLevel in $s0; it has no independent source storage here. */
+
         int lapTicks;
 
         p->chaseLevelIndex_ = chaseLevel;
@@ -849,9 +852,9 @@ LAB_pullover_evade:
 
 LAB_800625d0:
 
-  if (AICop_gRoadBlockState != 0) {
+  if (AICop_gRoadBlockState != kAICop_RoadBlockState_None) {
 
-    AICop_gRoadBlockState = 2;
+    AICop_gRoadBlockState = kAICop_RoadBlockState_PerpPassed;
 
   }
 
@@ -1413,7 +1416,7 @@ LAB_80062f48:
     else {
       this->numBusts_ = this->numBusts_ + 1;
       (this->carObj_->stats).numFines = (this->carObj_->stats).numFines + 1;
-      int numArrestsIndex;
+      int lapIndex;
       iVar5 = GameSetup_gData.numLaps;
       /* w54-a12 (27 -> PASS 307/307): the ternary must land in a NAMED index variable and
        * the subscript must use that variable -- a ternary written INSIDE the subscript lets
@@ -1422,8 +1425,8 @@ LAB_80062f48:
        * written numBusts_-FIRST (`numBusts_ >= table[i]`, catalog 05H "compare-operand order
        * IS load order"): that is what puts retail's `lw numBusts` before `lw table[i]` and
        * settles the idx/base v1-vs-v0 coloring. Do not "simplify" either back. */
-      numArrestsIndex = iVar5 == 2 ? 0 : (iVar5 == 4 ? 1 : 2);
-      if ((this->numBusts_ >= AIHigh_Player_kNumArrestsByLap[numArrestsIndex]) ||
+      lapIndex = iVar5 == 2 ? 0 : (iVar5 == 4 ? 1 : 2);
+      if ((this->numBusts_ >= AIHigh_Player_kNumArrestsByLap[lapIndex]) ||
           (AICop_IsLastChaseLevel(&this->perpChaseInfo_) &&
            Cars_gNumHumanRaceCars == 1)) {
         this->pullOverMode_ = 3;

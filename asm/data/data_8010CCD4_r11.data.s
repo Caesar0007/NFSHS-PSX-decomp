@@ -1,7 +1,6 @@
 .include "macro.inc"
-/* W64-A18: residual segment of data_8010CCD4 -- labels no recon TU defines
- * (or a record tail a recon TU's section stops short of).
- * Linked by BOTH lanes. */
+/* Legacy splat-lane filler.  The reconstruction lane now gets this exact
+ * typed AnimDef table from object.cpp, its SYM-owning translation unit. */
 
 .section .data, "wa"
 

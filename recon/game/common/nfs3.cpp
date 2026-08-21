@@ -27,7 +27,7 @@ int          gUseFrontend = 1;   /* @0x8013d274 */
 u_long       gFECheats = 0;   /* @0x8013d278 */
 u_long       gFEBonus = 0;   /* @0x8013d27c */
 int          gFEBigHandle = 0;   /* @0x8013d280 */
-int          MEMCARDFRONTENDISINITTED = 0;   /* @0x8013d284 */
+bool         MEMCARDFRONTENDISINITTED = false;   /* @0x8013d284; SYM BOOL, 4-byte C++ bool */
 char         gCheckTotalTime = 1;   /* @0x8013d288 */
 char         gCheckLapTime = 1;   /* @0x8013d289 */
 char         gUpdateTournamentInfoFlag = 1;   /* @0x8013d28a */
@@ -108,7 +108,7 @@ void Nfs2_ResetGame(void)
 /* ---- NFS4_LoadPerps  [NFS3.CPP:247-348] SLD-VERIFIED ---- */
 
 
-void NFS4_LoadPerps(void)
+static void NFS4_LoadPerps(void)
 
 {
   char *buffer;
@@ -329,19 +329,19 @@ void LoadOverlay(void)
 void NFS4_LoadingIcon(void)
 
 {
-  void *ldfile;
-  void *shp;
+  char *ldfile;
+  shapetbl *shp;
   int lang;
   char fname [80];
   RECT r;
 
   sprintf(fname,"%sldic.psh",Paths_Paths[0x25]);
-  ldfile = loadfileadr(fname,0);
+  ldfile = (char *)loadfileadr(fname,0);
   lang = (int)(u_char)frontEnd.language;
   if (5 < lang) {
     lang = 0;
   }
-  shp = shapepointer(ldfile,lang);
+  shp = (shapetbl *)shapepointer(ldfile,lang);
   r.w = 0x400;
   r.x = 0;
   r.y = 0;
@@ -351,7 +351,7 @@ void NFS4_LoadingIcon(void)
   initlinkmode(0,100,0);   /* oracle 0x94650: a2=0 (dropped 3rd arg) */
   Draw_DirectSetEnvironment(0,0,0x200,0xf0,1,1,1,0,0,0);
   settrans(0);
-  movfxya(shp,0x1e2 - *(short *)((int)shp + 4),0xd2);
+  movfxya(shp,0x1e2 - shp->width,0xd2);
   DrawSync(0);
   purgememadr(ldfile);
   initlinkmode(0,1,1);   /* oracle 0x946c0: a2=1 (dropped 3rd arg) */
@@ -367,8 +367,8 @@ void NFS3_CheckForFileOperations(void)
 
 {
   /* MATCH: retail walks the eaclib FileMgr's op-slot array (+0x18) up to the handle array
-   * (+0x1C) through ONE %hi/%lo(gFileDevice) base -- a base-anchor pointer local, not two
-   * separate small globals (the invented gFileMem/gFileHandleTable were gp-rel scalars).
+   * (+0x1C) through ONE CSE'd %hi/%lo(gFileDevice) base. Direct gFileMgr field expressions
+   * preserve that shape without a non-SYM pointer local or two invented small globals.
    *
    * W59-A4 NAMED ANGLE for the residual 9 (ours 20 / oracle 21), fully decoded:
    * retail's two zeroed asm operands land in $a2 and $a0 (`addu a2,zero,zero;
@@ -488,11 +488,10 @@ void NFS3_CheckForFileOperations(void)
    *   moves the loop-carried bound off $a0 WITHOUT naming a hard register --
    *   i.e. a third simultaneously-live value in the loop that legitimately takes
    *   $a0 (retail's own reason), or a reload-side spill-order dial. */
-  FileMgr *mgr = &gFileMgr;
-  int *piVar1;
+  int *p;
 
-  for (piVar1 = (int *)mgr->oparray; piVar1 < (int *)mgr->handlearray; piVar1 = piVar1 + 1) {
-    if (*piVar1 != 0) {
+  for (p = (int *)gFileMgr.oparray; p < (int *)gFileMgr.handlearray; p = p + 1) {
+    if (*p != 0) {
 #if defined(__mips__)
       /* MATCH: trap() is INLINE in retail -- `break 0x666` (objdump: break 1,614) plus two
        * zeroed register args; no jal, so the function stays a leaf (no frame, no $ra save). */

@@ -8,7 +8,7 @@
 /* ---- vtable: AIHigh_BasicCop (this obj) ---- */
 extern __vtbl_ptr_type AIHigh_BasicCop_vtable[];
 
-int Speech_Mobile(Car_tObj *carObj) asm("Mobile__6SpeechP8Car_tObj");   /* speech.obj flat free fn (was mangled Mobile__6SpeechP8Car_tObj; Speech::Mobile is a static, reconstructed flat) */
+Speaker *Speech_Mobile(Car_tObj *carObj) asm("Mobile__6SpeechP8Car_tObj");
 extern AICop_spikeBelt_t AICop_spikeBelt;
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj * AILife_IsSliceInAnyVisibleArea(int slice);
@@ -18,7 +18,7 @@ extern Trk_NewSlice  *BWorldSm_slices;
 extern int                 Object_customSliceNum;    /* 0x8013d2d4 */
 extern int   BWorldSm_FindClosestQuadRez(coorddef *c, BWorldSm_Pos *pos, int rez);
 extern int   Cars_topSpeedCap[22];              /* [carType] */
-extern int AICop_gRoadBlockState;
+extern AICop_RoadBlockState AICop_gRoadBlockState;
 extern int GetPlaneY(const coorddef *norm,const coorddef *pointOnPlane,const coorddef *testPoint);
 extern int Object_FindDefWithThisID(int ID);
 extern int Object_GetObjDefID(int index);

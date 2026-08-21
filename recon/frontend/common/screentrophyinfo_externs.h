@@ -36,7 +36,7 @@ void  DrawShapeExtended(int a, int b, int c, int d, int e, int f, tDrawShapeExte
 void  GetTrophyName(tTournamentManager *tm, tTourneyInfo *ti, tTrophySize sz, char *buf, int n) asm("GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci");
 
 /* --- tScreen helpers (base passed explicitly) --- */
-BOOL IsShapeFileLoaded(tScreen *s, tShapeInformation *shp) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
+bool IsShapeFileLoaded(tScreen *s, tShapeInformation *shp) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
 void UploadSwapShapes(tScreen *s, int n) asm("UploadSwapShapes__7tScreeni");
 
 #endif

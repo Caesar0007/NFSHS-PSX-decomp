@@ -1,0 +1,34 @@
+# Reconstructed vtable slot audit
+
+- Tables parsed: 132
+- SYM-described tables parsed: 115/115
+- Slots parsed: 1154
+- Slots belonging to SYM-described tables: 1064
+- Structural/target issues: 0
+- Retail targets absent from config map: 0
+
+## Issues
+
+
+## Unmapped retail targets
+
+
+## Reconstructed tables without opcode-2 `_vt.*` records
+
+- recon\game\common\aihigh.cpp:22 AIHigh_kVtbl_80054dcc[4] @ 0x80054dcc
+- recon\game\common\aihigh.cpp:28 AIHigh_None_vtable[3] @ 0x80054dec
+- recon\game\common\vtables_aidatarecord.cpp:20 AIDataRecord_CarTracking_t_vtable[4] @ 0x8005542c
+- recon\game\common\vtables_aidatarecord.cpp:26 AIDataRecord_CurveSpeedTable_t_vtable[3] @ 0x8005544c
+- recon\game\common\vtables_aidatarecord.cpp:31 AIDataRecord_TrackCurve_t_vtable[3] @ 0x80055464
+- recon\game\common\vtables_aidatarecord.cpp:36 AIDataRecord_BestLine_t_vtable[3] @ 0x8005547c
+- recon\game\common\vtables_aihigh.cpp:38 AIHigh_BasicCop_vtable[3] @ 0x80054e9c
+- recon\game\common\vtables_aihigh.cpp:68 AIHigh_BTC_Perp_vtable[3] @ 0x80054fe0
+- recon\game\common\vtables_aihigh.cpp:73 AIHigh_Player_vtable[3] @ 0x80055098
+- recon\game\common\vtables_aistate.cpp:33 AIState_None_vtable[4] @ 0x80054e1c
+- recon\game\common\vtables_aistate.cpp:69 AIState_NonActive_vtable[4] @ 0x800555a0
+- recon\game\common\vtables_aistate.cpp:99 AIState_Base_vtable[4] @ 0x80055640
+- recon\game\common\vtables_object.cpp:13 ObjectAnim_vtable[3] @ 0x800560e8
+- recon\game\common\vtables_tdialog.cpp:53 tDialogInteractive_vtable[12] @ 0x800103d0
+- recon\game\common\vtables_tdialog.cpp:84 tDialogMessageStringWithTimeout_vtable[12] @ 0x80010098
+- recon\game\common\vtables_tmenu.cpp:55 tBlankMenuItemGoToMenuNFS4Button_vtable[11] @ 0x800114d8
+- recon\game\common\vtables_tmenu.cpp:68 tBlankMenuItemNFS4LeftRightChoice_vtable[11] @ 0x80011530

@@ -139,36 +139,36 @@ void AIPhysic_HandleShifting(Car_tObj *carObj)
  * `int limit`). Re-verified in-tree (CC1PLPSX+maspsx): PASS 65/65. Pin-free → HARD RULE §3.13.
  * (cross-ref §3.14 SH `@hack Needs to be int for ABS to match`; same class as the
  * SimplePhysics_LatVel clamp-abs residual → __builtin_abs candidate there too.) */
-int AIPhysic_CalculateGear(Car_tObj *car)
+Gear_t AIPhysic_CalculateGear(Car_tObj *carObj)
 {
-    int speed = car->currentSpeed;
-    int absSpeed = __builtin_abs(speed);
-    int gear = car->control.gear;
-    int tooLow;
-    if (absSpeed <= 0x1FFFF) {
+    int rawSpeed = carObj->currentSpeed;
+    int speed = __builtin_abs(rawSpeed);
+    Gear_t gear = (Gear_t)carObj->control.gear;
+    int hi;
+    if (speed <= 0x1FFFF) {
         gear = 1;
         goto end;
     }
-    if (car->driveDirection == -1) {
+    if (carObj->driveDirection == -1) {
         gear = 0;
         goto end;
     }
     for (;;) {
         int found = 0;
-        tooLow = AIPhysic_GearTopSpeed(car, (Gear_t)gear) < absSpeed;
-        if (tooLow || absSpeed < AIPhysic_GearBottomSpeed(car, (Gear_t)gear))
+        hi = AIPhysic_GearTopSpeed(carObj, gear) < speed;
+        if (hi || speed < AIPhysic_GearBottomSpeed(carObj, gear))
             found = 1;
         if (!found)
             return gear;
-        if (tooLow) {
-            speed = AIPhysic_GearTopSpeed(car, (Gear_t)(gear + 1));
-            if (speed == 0)
+        if (hi) {
+            rawSpeed = AIPhysic_GearTopSpeed(carObj, (Gear_t)(gear + 1));
+            if (rawSpeed == 0)
                 return gear;
-            car->aiShiftTimer = car->aiShiftDuration;
-            gear = gear + 1;
+            carObj->aiShiftTimer = carObj->aiShiftDuration;
+            gear = (Gear_t)(gear + 1);
         } else {
-            car->aiShiftTimer = car->aiShiftDuration;
-            gear = gear - 1;
+            carObj->aiShiftTimer = carObj->aiShiftDuration;
+            gear = (Gear_t)(gear - 1);
         }
     }
 end:
@@ -176,24 +176,28 @@ end:
 }
 
 /* ---- AIPhysic_GearInvSpeedRange__FP8Car_tObj6Gear_t ---- */
-int AIPhysic_GearInvSpeedRange(Car_tObj *car, Gear_t gear)
+int AIPhysic_GearInvSpeedRange(Car_tObj *carObj, Gear_t gear)
 {
-    if (gear < 2) return AIPhysic_GearInvSpeedRange(car, (Gear_t)2);
-    return car->invTopSpeeds[gear - 2];
+    int convertedGear;
+    if (gear < 2) return AIPhysic_GearInvSpeedRange(carObj, (Gear_t)2);
+    convertedGear = gear - 2;
+    return carObj->invTopSpeeds[convertedGear];
 }
 
 /* ---- AIPhysic_GearTopSpeed__FP8Car_tObj6Gear_t  (clamp via tail-recursion -> gcc `j self`) ---- */
-int AIPhysic_GearTopSpeed(Car_tObj *car, Gear_t gear)
+int AIPhysic_GearTopSpeed(Car_tObj *carObj, Gear_t gear)
 {
-    if (gear < 2) return AIPhysic_GearTopSpeed(car, (Gear_t)2);
-    return car->topSpeeds[gear - 2];
+    int convertedGear;
+    if (gear < 2) return AIPhysic_GearTopSpeed(carObj, (Gear_t)2);
+    convertedGear = gear - 2;
+    return carObj->topSpeeds[convertedGear];
 }
 
 /* ---- AIPhysic_GearBottomSpeed__FP8Car_tObj6Gear_t ---- */
-int AIPhysic_GearBottomSpeed(Car_tObj *car, Gear_t gear)
+int AIPhysic_GearBottomSpeed(Car_tObj *carObj, Gear_t gear)
 {
     if (gear < 3) return 0;
-    return car->topSpeeds[gear - 3];
+    return carObj->topSpeeds[gear - 3];
 }
 
 /* ---- AIPhysic_CalcAcceleration__FP8Car_tObji ---- */
@@ -280,23 +284,22 @@ ret0:
 }
 
 /* ---- AIPhysic_ModifyAccelerationAccordingToScript__FP8Car_tObji ---- */
-int AIPhysic_ModifyAccelerationAccordingToScript(Car_tObj *car, int accel)
+int AIPhysic_ModifyAccelerationAccordingToScript(Car_tObj *carObj, int acc)
 {
-    int result = accel;
-    if (AIScript_DoReAction(&car->script, (AIScript_tAIReaction)4) != -1) {
-        result = ((accel / 256) * 3) << 7;
+    if (AIScript_DoReAction(&carObj->script, (AIScript_tAIReaction)4) != -1) {
+        acc = ((acc / 256) * 3) << 7;
     }
-    return result;
+    return acc;
 }
 
 /* ---- AIPhysic_CalcDeceleration__FP8Car_tObj  (the bgez/+0xFF/sra-8 = gcc-2.x signed /256) ---- */
-int AIPhysic_CalcDeceleration(Car_tObj *car)
+int AIPhysic_CalcDeceleration(Car_tObj *carObj)
 {
-    int v1 = *(int *)((char *)car->brakeInfo + 0x80);
-    if (0x10000 < car->aiGlue) {
-        v1 = (v1 / 256) * (car->aiGlue / 256);
+    int d = *(int *)((char *)carObj->brakeInfo + 0x80);
+    if (0x10000 < carObj->aiGlue) {
+        d = (d / 256) * (carObj->aiGlue / 256);
     }
-    return v1;
+    return d;
 }
 
 /* ---- AIPhysic_CheckDesiredDirection__FP8Car_tObj  (oracle keeps a dead carFlags&0x20-gated
@@ -346,21 +349,21 @@ void AIPhysic_CheckDesiredDirection(Car_tObj *carObj)
 }
 
 /* ---- AIPhysic_HandleSignalling__FP8Car_tObj  (turn-signal flags in halfwords 0x8B8/0x8BA) ---- */
-void AIPhysic_HandleSignalling(Car_tObj *car)
+void AIPhysic_HandleSignalling(Car_tObj *carObj)
 {
-    int pos, target;
-    if (!(car->carFlags & 0x10)) return;
-    pos    = car->desiredLatPos;
-    target = car->roadPosition;
-    if (pos < target - 0x40000) {
-        car->render.signalLight[0] = (short)(*(unsigned short *)&car->render.signalLight[0] | 0x80);
-        car->render.signalLight[1] = 0;
-    } else if (target + 0x40000 < pos) {
-        car->render.signalLight[1] = (short)(*(unsigned short *)&car->render.signalLight[1] | 0x80);
-        car->render.signalLight[0] = 0;
+    int lPos, lDes;
+    if (!(carObj->carFlags & 0x10)) return;
+    lPos = carObj->desiredLatPos;
+    lDes = carObj->roadPosition;
+    if (lPos < lDes - 0x40000) {
+        carObj->render.signalLight[0] = (short)(*(unsigned short *)&carObj->render.signalLight[0] | 0x80);
+        carObj->render.signalLight[1] = 0;
+    } else if (lDes + 0x40000 < lPos) {
+        carObj->render.signalLight[1] = (short)(*(unsigned short *)&carObj->render.signalLight[1] | 0x80);
+        carObj->render.signalLight[0] = 0;
     } else {
-        car->render.signalLight[0] = 0;
-        car->render.signalLight[1] = 0;
+        carObj->render.signalLight[0] = 0;
+        carObj->render.signalLight[1] = 0;
     }
 }
 
@@ -373,22 +376,22 @@ void AIPhysic_HandleSignalling(Car_tObj *car)
  * to force the 4-live-value peak that puts car in $a3. (3) the final `((r>>8)&0xFFFF) & info->0x34`:
  * gcc-2.7.2 narrows the `&0xFFFF` into a HALFWORD load (`lhu`, dropping the andi) — write the random
  * as `(unsigned short)(r>>8)` to anchor the andi on the random + keep the full `lw` of info->0x34. */
-void AIPhysic_HandleWipeoutTimer(Car_tObj *car)
+void AIPhysic_HandleWipeoutTimer(Car_tObj *carObj)
 {
     int limit, base;
     unsigned int r;
     char *info;
-    if ((car->carFlags & 8) == 0)
+    if ((carObj->carFlags & 8) == 0)
         return;
     limit = D_8011E0B0[0];
-    if (!(car->wipeOutStartTick < limit))
+    if (!(carObj->wipeOutStartTick < limit))
         return;
     r = (unsigned int)(fastRandom * randSeed);
-    info = (char *)car->personality;
+    info = (char *)carObj->personality;
     base = limit + *(int *)(info + 0x30);
     randtemp = r;
     fastRandom = r & 0xFFFF;
-    car->wipeOutStartTick =
+    carObj->wipeOutStartTick =
         base + (int)((unsigned int)(unsigned short)(r >> 8) & (unsigned int)*(int *)(info + 0x34));
 }
 
@@ -470,36 +473,36 @@ stopSlow:
 }
 
 /* ---- AIPhysic_CheckForBadPosition__FP8Car_tObj  (two OR-flags → reset on bad) ---- */
-void AIPhysic_CheckForBadPosition(Car_tObj *car)
+void AIPhysic_CheckForBadPosition(Car_tObj *carObj)
 {
-    int bad1 = 0;
-    int bad2 = 0;
+    int badSpeed = 0;
+    int badRoadPos = 0;
     Trk_NewSlice *slice;
     int pos;
-    if (0x730000 < car->N.linearVel.z ||
-        0x730000 < car->N.linearVel.x ||
-        (0x730000 < car->N.speedXZ &&
-         car->N.simOptz == 0))
-        bad1 = 1;
-    slice = (Trk_NewSlice *)((*(short *)((char *)car + 8) << 5) + (int)BWorldSm_slices);
-    pos = car->roadPosition;
+    if (0x730000 < carObj->N.linearVel.z ||
+        0x730000 < carObj->N.linearVel.x ||
+        (0x730000 < carObj->N.speedXZ &&
+         carObj->N.simOptz == 0))
+        badSpeed = 1;
+    slice = (Trk_NewSlice *)((*(short *)((char *)carObj + 8) << 5) + (int)BWorldSm_slices);
+    pos = carObj->roadPosition;
     if (pos < (int)0xFFDD0000 - (*(short *)((char *)slice + 0x18) << 8) ||
         (*(short *)((char *)slice + 0x1A) << 8) + 0x230000 < pos)
-        bad2 = 1;
-    if (bad1 || bad2)
-        Cars_ResetCollidedCars(car, 1, 0);
+        badRoadPos = 1;
+    if (badSpeed || badRoadPos)
+        Cars_ResetCollidedCars(carObj, 1, 0);
 }
 
 /* ---- AIPhysics_UseCoolPhysics__FP8Car_tObj  (note the 'AIPhysicS' prefix) ----
  * Shared-tail structure: every condition branches TO a return block (ret1 = fall-through
  * default, laid out before ret0). The `goto`-to-shared-tail form reproduces gcc's exact
  * block order + branch polarity (the `||` form lays return 0 first → wrong order). */
-int AIPhysics_UseCoolPhysics(Car_tObj *car)
+int AIPhysics_UseCoolPhysics(Car_tObj *carObj)
 {
-    int flags = car->carFlags;
+    int flags = carObj->carFlags;
     unsigned char b;
     if (flags & 0x800) goto ret1;
-    b = car->N.simOptz;
+    b = carObj->N.simOptz;
     if (b == 0) goto ret1;
     if (!(flags & 0x20)) goto ret0;
     if (b >= 2) goto ret0;
@@ -704,54 +707,54 @@ void AIPhysic_SimplePhysics_LongVel(Car_tObj *carObj)
  * residual was the clamp-abs coalescing (a hand-rolled `absV=v; if(v<0)absV=-absV;` collapses
  * the copy); __builtin_abs forces the oracle's keep-v-then-copy-then-negate form. NOT a
  * permuter/decomp.me wall after all — it was the abs-idiom (cross-ref CalculateGear note). */
-void AIPhysic_SimplePhysics_LatVel(Car_tObj *car)
+void AIPhysic_SimplePhysics_LatVel(Car_tObj *carObj)
 {
-    int s0;
-    if (0x30000 < car->speed)
-        s0 = car->rampDesiredLatPos - car->roadPosition;
+    int off;
+    if (0x30000 < carObj->speed)
+        off = carObj->rampDesiredLatPos - carObj->roadPosition;
     else
-        s0 = 0;
-    if (0x190000 < car->speed) {
-        coorddef vals;
-        vals = *(coorddef *)&car->N.roadMatrix;
-        vals.x = fixedmult(s0, vals.x);
-        vals.y = fixedmult(s0, vals.y);
-        vals.z = fixedmult(s0, vals.z);
-        car->N.position.x += vals.x;
-        car->N.position.y += vals.y;
-        car->N.position.z += vals.z;
-        car->laneChangeSpeed = 0;
+        off = 0;
+    if (0x190000 < carObj->speed) {
+        coorddef right;
+        right = *(coorddef *)&carObj->N.roadMatrix;
+        right.x = fixedmult(off, right.x);
+        right.y = fixedmult(off, right.y);
+        right.z = fixedmult(off, right.z);
+        carObj->N.position.x += right.x;
+        carObj->N.position.y += right.y;
+        carObj->N.position.z += right.z;
+        carObj->laneChangeSpeed = 0;
     } else {
-        int v = car->currentSpeed;
-        int absV = __builtin_abs(v);
-        car->laneChangeSpeed = s0;
-        if (s0 < -absV)
-            car->laneChangeSpeed = -absV;
-        else if (absV < s0)
-            car->laneChangeSpeed = absV;
+        int carSpeed = carObj->currentSpeed;
+        int absV = __builtin_abs(carSpeed);
+        carObj->laneChangeSpeed = off;
+        if (off < -absV)
+            carObj->laneChangeSpeed = -absV;
+        else if (absV < off)
+            carObj->laneChangeSpeed = absV;
     }
 }
 
 /* ---- AIPhysic_CoolPhysics__FP8Car_tObj  (per-frame physics sequencer) ---- */
-void AIPhysic_CoolPhysics(Car_tObj *car)
+void AIPhysic_CoolPhysics(Car_tObj *carObj)
 {
-    car->AIFlags |= 0x10;
-    AIPhysic_HandleDirection(car);
-    if (car->direction * car->currentSpeed < 0) {
-        if (car->driveDirection != -1) {
-            car->rampDesiredLatPos = 0;
+    carObj->AIFlags |= 0x10;
+    AIPhysic_HandleDirection(carObj);
+    if (carObj->direction * carObj->currentSpeed < 0) {
+        if (carObj->driveDirection != -1) {
+            carObj->rampDesiredLatPos = 0;
         }
     }
-    if (AIPhysic_HitWallCheck(car)) {
-        AIPhysic_ChangeDirection(car, 0x40);
+    if (AIPhysic_HitWallCheck(carObj)) {
+        AIPhysic_ChangeDirection(carObj, 0x40);
     }
-    AIPhysic_Preperation(car);
-    if (AIPhysic_CheckIfOutOfControl(car)) {
-        AIPhysic_OutOfControlPhysics(car);
+    AIPhysic_Preperation(carObj);
+    if (AIPhysic_CheckIfOutOfControl(carObj)) {
+        AIPhysic_OutOfControlPhysics(carObj);
     } else {
-        AIPhysic_InControlPhysics(car);
+        AIPhysic_InControlPhysics(carObj);
     }
-    AIPhysic_FinishUp(car);
+    AIPhysic_FinishUp(carObj);
 }
 
 /* ---- AIPhysic_HandleDirection__FP8Car_tObj  (register-only; D_8011E0B0 == &simGlobal[1]) ----
@@ -760,31 +763,31 @@ void AIPhysic_CoolPhysics(Car_tObj *car)
  * declaring D_8011E0B0 as an UNSIZED ARRAY (`extern int D_8011E0B0[]`, access `[0] - 0x18`) changed
  * the address-materialization so gcc duplicates the `%hi` into the `bgtz` delay slot exactly as the
  * oracle (§3.12#5; same lever that fixed HandleWipeoutTimer). D_8011E0B0 == &simGlobal[1]. */
-void AIPhysic_HandleDirection(Car_tObj *car)
+void AIPhysic_HandleDirection(Car_tObj *carObj)
 {
     int x718;
     int x574;
-    if (car->driveDirection != -1)
+    if (carObj->driveDirection != -1)
         return;
-    x718 = car->rampDesiredLatPos;
-    x574 = car->roadPosition;
-    if (x574 < x718 - 0xA0000 && car->lateralVelocity > 0)
+    x718 = carObj->rampDesiredLatPos;
+    x574 = carObj->roadPosition;
+    if (x574 < x718 - 0xA0000 && carObj->lateralVelocity > 0)
         goto setRamp;
-    if (x718 + 0xA0000 < x574 && car->lateralVelocity < 0)
+    if (x718 + 0xA0000 < x574 && carObj->lateralVelocity < 0)
         goto setRamp;
     goto afterRamp;
 setRamp:
-    car->driveDirectionTimer = D_8011E0B0[0] - 0x18;
+    carObj->driveDirectionTimer = D_8011E0B0[0] - 0x18;
 afterRamp:
-    if (car->driveDirectionReverseTime < simGlobal[1] - car->driveDirectionTimer) {
-        car->driveDirection = 1;
-        car->driveDirectionTimer = simGlobal[1];
+    if (carObj->driveDirectionReverseTime < simGlobal[1] - carObj->driveDirectionTimer) {
+        carObj->driveDirection = 1;
+        carObj->driveDirectionTimer = simGlobal[1];
     }
-    if (0x140000 < car->desiredSpeed)
-        car->desiredSpeed = 0x140000;
-    if (0x140000 < -car->desiredSpeed)
-        car->desiredSpeed = (int)0xFFEC0000;
-    car->rampDesiredLatPos = 0;
+    if (0x140000 < carObj->desiredSpeed)
+        carObj->desiredSpeed = 0x140000;
+    if (0x140000 < -carObj->desiredSpeed)
+        carObj->desiredSpeed = (int)0xFFEC0000;
+    carObj->rampDesiredLatPos = 0;
 }
 
 /* ---- AIPhysic_Preperation__FP8Car_tObj ---- */
@@ -847,21 +850,21 @@ void AIPhysic_Preperation(Car_tObj *carObj)
 }
 
 /* ---- AIPhysic_CalculateRoadPosition__FP8coorddefi  (leaf: dot(pos-sliceCenter, sliceRight)/256^2) ---- */
-int AIPhysic_CalculateRoadPosition(coorddef *pos, int sliceIdx)
+int AIPhysic_CalculateRoadPosition(coorddef *pos, int slice)
 {
-    coorddef org;
-    coorddef delta;
-    coorddef nrm;
-    org = *(coorddef *)BWorldSm_slices[sliceIdx].center;
-    delta.x = pos->x - org.x;
-    delta.y = pos->y - org.y;
-    delta.z = pos->z - org.z;
-    nrm.x = (signed char)BWorldSm_slices[sliceIdx].right[0] << 9;
-    nrm.y = (signed char)BWorldSm_slices[sliceIdx].right[1] << 9;
-    nrm.z = (signed char)BWorldSm_slices[sliceIdx].right[2] << 9;
-    return (nrm.x / 256) * (delta.x / 256) +
-           (nrm.y / 256) * (delta.y / 256) +
-           (nrm.z / 256) * (delta.z / 256);
+    coorddef centerBack;
+    coorddef carRelative;
+    coorddef right;
+    centerBack = *(coorddef *)BWorldSm_slices[slice].center;
+    carRelative.x = pos->x - centerBack.x;
+    carRelative.y = pos->y - centerBack.y;
+    carRelative.z = pos->z - centerBack.z;
+    right.x = (signed char)BWorldSm_slices[slice].right[0] << 9;
+    right.y = (signed char)BWorldSm_slices[slice].right[1] << 9;
+    right.z = (signed char)BWorldSm_slices[slice].right[2] << 9;
+    return (right.x / 256) * (carRelative.x / 256) +
+           (right.y / 256) * (carRelative.y / 256) +
+           (right.z / 256) * (carRelative.z / 256);
 }
 
 /* ---- AIPhysic_GetDesiredVector__FP8Car_tObj ---- */
@@ -995,12 +998,12 @@ void AIPhysic_GetDesiredVector(Car_tObj *carObj)
 }
 
 /* ---- AIPhysic_TargetedGetDesiredVector__FP8Car_tObj  (desiredVector = targetPos - position) ---- */
-void AIPhysic_TargetedGetDesiredVector(Car_tObj *car)
+void AIPhysic_TargetedGetDesiredVector(Car_tObj *carObj)
 {
-    car->desiredVector.x = car->targetPos.x - car->N.position.x;
-    car->desiredVector.y = car->targetPos.y - car->N.position.y;
-    car->desiredVector.z = car->targetPos.z - car->N.position.z;
-    car->rampDesiredLatPos = car->targetLatPos;
+    carObj->desiredVector.x = carObj->targetPos.x - carObj->N.position.x;
+    carObj->desiredVector.y = carObj->targetPos.y - carObj->N.position.y;
+    carObj->desiredVector.z = carObj->targetPos.z - carObj->N.position.z;
+    carObj->rampDesiredLatPos = carObj->targetLatPos;
 }
 
 /* ---- AIPhysic_CheckIfOutOfControl__FP8Car_tObj ---- */
@@ -1065,6 +1068,10 @@ ret0:
 /* ---- AIPhysic_OutOfControlPhysics__FP8Car_tObj ---- */
 void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
 {
+  /* SYM-CODEGEN-CARRIER: cfg
+   * SYM-CODEGEN-CARRIER: r
+   * Both are measured source carriers: removing cfg regresses 5->9, while r
+   * preserves the repeated clamp-result shape without adding retail storage. */
   /* Rule-8 rewrite w13-a4: SYM 8c block @0x8006B400 (fsize 0x30, mask $803f0000, carObj REGPARM $s1).
    * Oracle holds &AIPhysicConfig in $s0 across the head calls (cluster 1: latvelcalc_lookahead,
    * dangle/max_dav, max_dlvel, vel_limit_range, lat/ang factors) -> block-local cfg pointer;
@@ -1317,14 +1324,14 @@ LAB_8006b908:
  * can't restructure a sum-expr into +=-accumulation or change scalar→array access. Re-derive the
  * SYM's variable/type structure first. CANONICAL 100% scratch: https://decomp.me/scratch/JS0Q0
  * (Caesar0007 spotted the array + the missing decl; Mc-muffin / Ethanol @ Discord, github.com/Mc-muffin, cracked the last-stage clamp form.) */
-int AIPhysic_GetRearEndDamageFactor(Car_tObj *car)
+int AIPhysic_GetRearEndDamageFactor(Car_tObj *carObj)
 {
     int totalDamage;
     int result;
-    totalDamage = car->N.damage[4];
-    totalDamage += car->N.damage[5];
-    totalDamage += car->N.damage[6];
-    totalDamage += car->N.damage[9];
+    totalDamage = carObj->N.damage[4];
+    totalDamage += carObj->N.damage[5];
+    totalDamage += carObj->N.damage[6];
+    totalDamage += carObj->N.damage[9];
     totalDamage = fixedmult(totalDamage, 0x147);
     if (totalDamage <= 0x10000)
         result = totalDamage;
@@ -1709,46 +1716,48 @@ void AIPhysic_CalculateRampedDesiredLatPos(Car_tObj *carObj,eRampType rampType)
  * not proven unmatchable — re-express the LOGIC (a 2-branch select IS a `&&`/`||`; an if-body can be
  * the fall-through OR the branch-target). The permuter can't discover `&&`↔if/else or branch-polarity
  * reshapes; only re-deriving the boolean structure does. (Cf. GetRearEnd: same lesson via array+=.) */
-int AIPhysic_HitWallCheck(Car_tObj *car)
+int AIPhysic_HitWallCheck(Car_tObj *carObj)
 {
     int onRoad;
-    onRoad = (car->laneIndex >= 7 - (BWorldSm_slices[*(short *)((char *)car + 8)].laneCount >> 4)) &&
-             ((int)(BWorldSm_slices[*(short *)((char *)car + 8)].laneCount & 0xF) + 6 >= car->laneIndex);
+    onRoad = (carObj->laneIndex >= 7 - (BWorldSm_slices[*(short *)((char *)carObj + 8)].laneCount >> 4)) &&
+             ((int)(BWorldSm_slices[*(short *)((char *)carObj + 8)].laneCount & 0xF) + 6 >= carObj->laneIndex);
     if (onRoad) return 0;
-    if (car->driveDirection == -1) {
-        car->timeOffRoad += AIPhysic_elapsedTime;
+    if (carObj->driveDirection == -1) {
+        carObj->timeOffRoad += AIPhysic_elapsedTime;
     } else {
-        car->timeOffRoad = 0;
+        carObj->timeOffRoad = 0;
     }
-    if (car->timeOffRoad >= 9) {
+    if (carObj->timeOffRoad >= 9) {
         return 1;
     }
-    return !(0xD999 < car->N.roadMatrix.m[4]);
+    return !(0xD999 < carObj->N.roadMatrix.m[4]);
 }
 
 /* ---- AIPhysic_ProcessBarrierCollision__FP8Car_tObj  [MATCHED 100% via __builtin_abs] ----
  * Was a "v0/v1 + 0x9FFFF constant-hoist" near-miss; the hoist was DOWNSTREAM of the abs idiom
  * (hand-rolled `if(v<0)v=-v` vs oracle's inline `bgez;negu`). __builtin_abs collapsed it. */
-void AIPhysic_ProcessBarrierCollision(Car_tObj *car)
+void AIPhysic_ProcessBarrierCollision(Car_tObj *carObj)
 {
     int v;
-    if (car->carFlags & 4) return;
-    v = car->currentSpeed;
+    if (carObj->carFlags & 4) return;
+    v = carObj->currentSpeed;
     v = __builtin_abs(v);
     if (0x9FFFF < v) return;
-    AIPhysic_ChangeDirection(car, 0x60);
+    AIPhysic_ChangeDirection(carObj, 0x60);
 }
 
 /* ---- AIPhysic_ProcessCollision__FP8Car_tObj  [MATCHED 100% via __builtin_abs, as ProcessBarrier] ---- */
-void AIPhysic_ProcessCollision(Car_tObj *car)
+void AIPhysic_ProcessCollision(Car_tObj *carObj)
 {
+    /* SYM-OPTIMIZED: reverseTime -- the named $a1 value is the conditional
+     * call argument below and has no separate source storage. */
     int v;
-    if (0xD999 < car->N.collision.impulse) {
-        if (car->N.collision.otherObj != 0) {
-            v = car->currentSpeed;
+    if (0xD999 < carObj->N.collision.impulse) {
+        if (carObj->N.collision.otherObj != 0) {
+            v = carObj->currentSpeed;
             v = __builtin_abs(v);
             if (!(0x9FFFF < v)) {
-                AIPhysic_ChangeDirection(car, (car->carFlags & 0x10) ? 0xA0 : 0x60);
+                AIPhysic_ChangeDirection(carObj, (carObj->carFlags & 0x10) ? 0xA0 : 0x60);
             }
         }
     }
@@ -1764,34 +1773,34 @@ void AIPhysic_ProcessCollision(Car_tObj *car)
  * once) → gcc rematerializes `&simGlobal` per block, both flowing into the shared action via a3
  * (a declared-init pointer gets GCSE-hoisted to ONE materialization — wrong); (5) read `sg[1]` into
  * a temp AFTER the newDir store so the `dir` store fills its load-delay slot (kills the lone nop). */
-void AIPhysic_ChangeDirection(Car_tObj *car, int dir)
+void AIPhysic_ChangeDirection(Car_tObj *carObj, int time)
 {
     int newDir;
     int *sg;
-    if (car->driveDirection == -1) {
+    if (carObj->driveDirection == -1) {
         sg = simGlobal;
-        if (sg[1] - car->driveDirectionTimer > car->driveDirectionReverseTime / 2) {
+        if (sg[1] - carObj->driveDirectionTimer > carObj->driveDirectionReverseTime / 2) {
             newDir = 1;
             goto action;
         }
     }
-    if (car->driveDirection != 1)
+    if (carObj->driveDirection != 1)
         return;
     sg = simGlobal;
-    if (!(sg[1] - car->driveDirectionTimer > car->driveDirectionReverseTime / 2))
+    if (!(sg[1] - carObj->driveDirectionTimer > carObj->driveDirectionReverseTime / 2))
         return;
     {
-        int v = car->currentSpeed;
+        int v = carObj->currentSpeed;
         if (__builtin_abs(v) > 0x13FFFF)
             return;
     }
     newDir = -1;
 action:
-    car->driveDirection = newDir;
+    carObj->driveDirection = newDir;
     {
         int rampPos = sg[1];
-        car->driveDirectionReverseTime = dir;
-        car->driveDirectionTimer = rampPos;
+        carObj->driveDirectionReverseTime = time;
+        carObj->driveDirectionTimer = rampPos;
     }
 }
 
@@ -1860,10 +1869,10 @@ void AIPhysic_CleanUp(void) { return; }
 void AIPhysic_Reset(void)   { return; }
 
 /* ---- AIPhysic_ResetCar__FP8Car_tObj ---- */
-void AIPhysic_ResetCar(Car_tObj *car)
+void AIPhysic_ResetCar(Car_tObj *carObj)
 {
-    car->pullOver = 0;
-    car->blowout = 0;
+    carObj->pullOver = 0;
+    carObj->blowout = 0;
 }
 
 /* ---- AIPhysic_InitCar__FP8Car_tObj  (SYM: inlined AIPhysic_BrakeInfo ctor -- block-scoped
@@ -1875,8 +1884,9 @@ void AIPhysic_InitCar(Car_tObj *carObj)
 
   carFlags = carObj->carFlags;
   if ((carFlags & 2) != 0) {
-    /* SYM: 'd' (block @cc94) and 'deceleration' (ctor block) share REG $16=s0 via
-       block scoping -- modeled as ONE variable (repurposed, codegen-identical) */
+    /* SYM-OPTIMIZED: d -- `d` (block @cc94) and `deceleration` (inlined ctor
+       block) share REG $16=s0; the exact reconstruction models their optimized,
+       repurposed value as the single `deceleration` source variable below. */
     {
       AIPhysic_BrakeInfo *this_;
       int deceleration;
@@ -1919,12 +1929,12 @@ void AIPhysic_InitCar(Car_tObj *carObj)
   return;
 }
 /* ---- AIPhysic_DeInitCar__FP8Car_tObj ---- */
-void AIPhysic_DeInitCar(Car_tObj *car)
+void AIPhysic_DeInitCar(Car_tObj *carObj)
 {
-    if (car->carFlags & 2) {
-        if (car->brakeInfo != (AIPhysic_BrakeInfo *)0) {
-            delete car->brakeInfo;
-            car->brakeInfo = (AIPhysic_BrakeInfo *)0;
+    if (carObj->carFlags & 2) {
+        if (carObj->brakeInfo != (AIPhysic_BrakeInfo *)0) {
+            delete carObj->brakeInfo;
+            carObj->brakeInfo = (AIPhysic_BrakeInfo *)0;
         }
     }
 }

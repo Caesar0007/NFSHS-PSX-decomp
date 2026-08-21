@@ -1,0 +1,157 @@
+# Trusted NFS4 SYM record manifest
+
+- Source: `C:\Temp\claud\dumpsym_clean\dumpsym_src\nfs4-f-v3.txt`
+- Decoded records: 340483
+- Distinct opcodes: 15
+
+## Opcode census
+
+- `0x1`: 127
+- `0x2`: 4503
+- `0x6`: 372
+- `0x80`: 19891
+- `0x82`: 51916
+- `0x84`: 56
+- `0x86`: 7276
+- `0x88`: 215
+- `0x8a`: 215
+- `0x8c`: 2581
+- `0x8e`: 2581
+- `0x90`: 11206
+- `0x92`: 11206
+- `0x94`: 140022
+- `0x96`: 88316
+
+## Balanced structural pairs
+
+- SLD file spans: 215 start / 215 end
+- functions: 2581 start / 2581 end
+- lexical blocks: 11206 start / 11206 end
+
+## Definition classes (`0x94` + `0x96`)
+
+- `MOS`: 125966
+- `TPDEF`: 40875
+- `EOS`: 14561
+- `STRTAG`: 13041
+- `MOE`: 11454
+- `REG`: 7098
+- `REGPARM`: 4099
+- `EXT`: 3390
+- `FIELD`: 2218
+- `AUTO`: 1476
+- `ENTAG`: 1348
+- `FILE`: 1038
+- `MOU`: 720
+- `ARG`: 545
+- `STAT`: 332
+- `UNTAG`: 172
+- `LABEL`: 5
+
+## Definition type encodings (`0x94` + `0x96`)
+
+- `STRUCT`: 57972
+- `INT`: 53599
+- `NULL`: 15604
+- `UCHAR`: 14283
+- `SHORT`: 13232
+- `MOE`: 11454
+- `PTR STRUCT`: 9830
+- `CHAR`: 8124
+- `ENUM`: 4480
+- `USHORT`: 4233
+- `ARY INT`: 4226
+- `ARY CHAR`: 3777
+- `LONG`: 3248
+- `FCN VOID`: 2351
+- `PTR CHAR`: 2319
+- `ULONG`: 2283
+- `PTR FCN VOID`: 2009
+- `UINT`: 1975
+- `ARY STRUCT`: 1564
+- `PTR VOID`: 1303
+- `ARY UCHAR`: 1236
+- `BOOL`: 1131
+- `ARY SHORT`: 1064
+- `FCN INT`: 980
+- `ARY ARY CHAR`: 633
+- `PTR ULONG`: 600
+- `ARY ULONG`: 575
+- `ARY LONG`: 469
+- `PTR ARY STRUCT`: 449
+- `UNION`: 434
+- `ARY PTR STRUCT`: 291
+- `VOID`: 273
+- `PTR LONG`: 188
+- `ARY BOOL`: 187
+- `ARY USHORT`: 171
+- `ARY ARY UCHAR`: 161
+- `PTR SHORT`: 161
+- `ARY ARY SHORT`: 151
+- `FCN PTR STRUCT`: 150
+- `PTR INT`: 149
+- `PTR ARY SHORT`: 117
+- `PTR FCN INT`: 115
+- `ARY ARY STRUCT`: 108
+- `FCN LONG`: 73
+- `FCN BOOL`: 72
+- `PTR PTR CHAR`: 68
+- `ARY ARY INT`: 56
+- `PTR FCN LONG`: 44
+- `PTR ENUM`: 42
+- `ARY PTR CHAR`: 37
+- `FCN SHORT`: 34
+- `PTR PTR STRUCT`: 25
+- `PTR UCHAR`: 23
+- `ARY ARY USHORT`: 20
+- `FCN PTR CHAR`: 18
+- `ARY ENUM`: 18
+- `PTR USHORT`: 16
+- `FCN CHAR`: 15
+- `FLOAT`: 13
+- `PTR UNION`: 12
+- `ARY ARY PTR STRUCT`: 12
+- `PTR FCN PTR CHAR`: 11
+- `FCN PTR INT`: 10
+- `FCN ENUM`: 8
+- `PTR ARY ARY UCHAR`: 6
+- `FCN PTR UNION`: 5
+- `FCN PTR VOID`: 4
+- `PTR ARY INT`: 4
+- `ARY ARY ENUM`: 4
+- `ARY PTR UNION`: 2
+- `ARY UINT`: 2
+- `ARY PTR ULONG`: 2
+- `ARY FLOAT`: 2
+- `ARY PTR ARY ARY UCHAR`: 2
+- `ARY ARY ARY CHAR`: 2
+- `FCN UINT`: 2
+- `FCN USHORT`: 2
+- `ARY ARY ARY SHORT`: 1
+- `ARY ARY PTR ULONG`: 1
+- `FCN STRUCT`: 1
+- `PTR ARY PTR STRUCT`: 1
+- `ARY ARY ARY USHORT`: 1
+- `ARY PTR ARY UCHAR`: 1
+- `ARY ARY ARY INT`: 1
+- `FCN PTR SHORT`: 1
+- `PTR ARY ARY INT`: 1
+- `ARY ARY ARY ARY CHAR`: 1
+- `PTR ARY ARY ARY CHAR`: 1
+- `FCN PTR ULONG`: 1
+- `FCN UCHAR`: 1
+
+## Function attribution
+
+- Function-start records: 2581
+- Distinct owner paths: 178
+- Header-attributed function records: 122
+- Non-header-attributed function records: 2459
+
+## Generic low-opcode symbols
+
+- `0x1`: 127
+- `0x2`: 4503
+- `0x6`: 372
+- `0x8`: 0
+- `0x2` `_vt.*` records: 115

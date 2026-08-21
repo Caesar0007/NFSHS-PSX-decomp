@@ -25,7 +25,7 @@ extern int CopSpeak_Request(CopSpeak_tRequest *r);
 extern int CopSpeak_SfxQueued(void);
 extern int Weather_GetNumParticles(int player);
 extern tReplayInterface Replay_ReplayInterface;
-extern void *BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
+extern bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
 extern void AudioEng_Resume(void);
 extern void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int dir);
 extern void AudioEng_StartServer(void);

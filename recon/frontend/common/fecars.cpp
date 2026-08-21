@@ -996,7 +996,7 @@ void tCarManager::AddCarToIngameList(tCarModels &model,char &color)
    hoists the inner-entry predicate once across the outer loop and recreates the
    saved short copies, boolean, global base, and complete retail register band. */
 
-int tCarManager::FindSimilarCar(tCarModels &model,char &color,short arg3,tCarModels *arg4)
+bool tCarManager::FindSimilarCar(tCarModels &model,char &color,short arg3,tCarModels *arg4)
 
 {
   u_char bVar1;
@@ -1275,12 +1275,12 @@ void tListIteratorCar::Decrement(tPlayer atIndex)
 
 /* ---- tListIteratorCar::ValidCar  [FECARS.CPP:1072-1168] SLD-VERIFIED ---- */
 
-void * tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
+bool tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
 
 {
   short i;
   short k;
-  BOOL result;
+  bool result;
   short carID;
   /* SYM-CODEGEN-CARRIER: carClass -- widening the enum field to int preserves
      retail's signed slti/bltz class dispatch; direct field tests collapse to
@@ -1305,7 +1305,7 @@ void * tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
       if ((signed char)this->fCarManager->fPinkSlipsCars[i][(u_char)carNumber].fCarID >= 0) {
         result = 1;
       }
-      return (void *)result;
+      return result;
     }
     if ((this->fCarListFilter & 0x42U) == 0) {
       goto ValidCar_returnResult;
@@ -1316,17 +1316,17 @@ void * tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
     }
     carInfo = this->fCarManager->GetCarFromID(carID);
     if ((frontEnd.raceType == RaceType_HotPursuit) && (carInfo->fPursuitAvailable == 0)) {
-      return (void *)0;
+      return 0;
     }
     if (!result) {
       goto ValidCar_returnResult;
     }
     if ((this->fCarListFilter & 0x40U) == 0) {
-      return (void *)result;
+      return result;
     }
     this->fCarManager->GetGarageCar((short)((u_char)carNumber +
                                             (u_short)this->fCarManager->fNumCars),garageCar,0);
-    result = (BOOL)(u_int)tournamentManager.ValidCar(garageCar);
+    result = tournamentManager.ValidCar(garageCar);
     /* MATCH: the common result tail lets gcc cross-jump this call with the
        stock-car tournament call below. */
     goto ValidCar_returnResult;
@@ -1340,7 +1340,7 @@ void * tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
   }
   if ((frontEnd.raceType == RaceType_HotPursuit) &&
       (this->fCarManager->fCars[(u_char)carNumber].fPursuitAvailable == 0)) {
-    return (void *)0;
+    return 0;
   }
   /* MATCH: retail re-derives the base-car address here and lowers the three
      class arms as an out-of-line dispatch; caching carInfo keeps the wrong CFG. */
@@ -1392,15 +1392,15 @@ ValidCar_classDone:
     goto ValidCar_returnResult;
   }
   if ((this->fCarListFilter & 1U) == 0) {
-    return (void *)result;
+    return result;
   }
   if (frontEnd.raceType != RaceType_Tournament) {
-    return (void *)result;
+    return result;
   }
-  result = (BOOL)(u_int)tournamentManager.ValidCar(
+  result = tournamentManager.ValidCar(
       this->fCarManager->fCars[(u_char)carNumber]);
 ValidCar_returnResult:
-  return (void *)result;
+  return result;
 }
 
 
@@ -1452,7 +1452,7 @@ char tListIteratorCarColor::Value(tPlayer)
 
 /* ---- tListIteratorCarColor::TextValue  [FECARS.CPP:1200-1201] SLD-VERIFIED ---- */
 
-int tListIteratorCarColor::TextValue(tPlayer)
+short tListIteratorCarColor::TextValue(tPlayer)
 
 {
   return 0;
@@ -1472,15 +1472,14 @@ int tListIteratorCarColor::TextValue(tPlayer)
    embedded-assignment 4 (no change), early-return-var polarity 15@39.
    🏆 SEALED W54-A3 (2026-08-09) 4 -> PASS 38/38: the residual TWO coalescing copies
    (`addu v1,v0,zero` in the bnez slot + `addu v0,v1,zero` in the jr slot) were RETURN-VALUE
-   STAGING, not an allocator tie.  Retail's body has NO `return` statement at all -- an
-   int-declared virtual override that FALLS OFF THE END, so $v0 holds the slt result
-   incidentally and both delay slots stay `nop`.  Deleting `return notWrapped;` (keeping the
-   int return type the vtable needs) removes both copies -> byte-exact.
+   STAGING, not an allocator tie.  Retail's body has NO `return` statement and SYM declares
+   the method VOID, so $v0 merely holds the slt result incidentally and both delay slots stay
+   `nop`.  Deleting `return notWrapped;` removes both copies -> byte-exact.
    LAW: an "ours has 2 extra moves funnelling a value to $v0" residual on a fn whose returned
    value is ALREADY in $v0 = a MISSING-RETURN retail body, not a coalescing wall.
  */
 
-int tListIteratorCarColor::Increment(tPlayer)
+void tListIteratorCarColor::Increment(tPlayer)
 
 {
   tCarInfo *carInfo;
@@ -1488,8 +1487,8 @@ int tListIteratorCarColor::Increment(tPlayer)
   /* SYM-CODEGEN-CARRIER: notWrapped
    * SYM-CODEGEN-CARRIER: fNumColors
    * These source-only staging values are required by the sealed PASS receipt
-   * above: the named value-load feeds retail's signed slt, while falling off
-   * the int-returning body avoids two non-retail return-value copies. */
+   * above: the named value-load feeds retail's signed slt, while the SYM-void
+   * body avoids two non-retail return-value copies. */
   int notWrapped;
   int fNumColors;
 

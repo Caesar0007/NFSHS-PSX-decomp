@@ -7,7 +7,7 @@
 
 
 /* ---- intra-TU forward declarations ---- */
-void AIScript_Assign(AIScript_t *aiscriptt,AIScript_tReactionDetails (*arg2) [7]);
+void AIScript_Assign(AIScript_t *script,AIScript_tReactionDetails (*data) [7]);
 void AIScript_ClearLastReactionIndex(AIScript_t *script);
 void AIScript_Startup(AIScript_t *script);
 void AIScript_Cleanup(void);
@@ -17,27 +17,27 @@ int AIScript_GetReactionTicksLeft(AIScript_t *script);
 
 
 /* ---- AIScript_Assign__FP10AIScript_tPA7_25AIScript_tReactionDetails  [@0x8006f6f8] ---- */
-void AIScript_Assign(AIScript_t *aiscriptt,AIScript_tReactionDetails (*arg2) [7])
+void AIScript_Assign(AIScript_t *script,AIScript_tReactionDetails (*data) [7])
 {
-  aiscriptt->data = arg2;
+  script->data = data;
   return;
 }
 
 /* ---- AIScript_ClearLastReactionIndex__FP10AIScript_t  [@0x8006f700] ---- */
 void AIScript_ClearLastReactionIndex(AIScript_t *script)
 {
-  int iVar1;
+  int initLoop;
   AIScript_tAIReaction *pAVar2;
   int neg1;
 
   neg1 = -1;
-  iVar1 = 6;
+  initLoop = 6;
   pAVar2 = (AIScript_tAIReaction *)&script->reactionTicksLeft;
   do {
     pAVar2[8] = neg1;
-    iVar1 = iVar1 + -1;
+    initLoop = initLoop + -1;
     pAVar2 = pAVar2 + -1;
-  } while (-1 < iVar1);
+  } while (-1 < initLoop);
   return;
 }
 
@@ -85,7 +85,7 @@ void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
   AIScript_tReactionDetails *new_var2;   /* *scriptData hoisted once -> lets gcc color the table base + offset like the oracle */
   unsigned int new_var;
   int iVar2;
-  int newReaction;
+  AIScript_tAIReaction newReaction;
   int newTime;
 
   scriptData = script->data;

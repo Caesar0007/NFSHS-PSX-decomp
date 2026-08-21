@@ -257,10 +257,10 @@ void tMenuItemGoToMenuNFS4Button::TransitionOff()
 
 /* ---- tMenuItemGoToMenuNFS4Button::TransitionIsFinished  [FEMENUEXTENDED.CPP:227-228] SLD-VERIFIED ---- */
 
-void * tMenuItemGoToMenuNFS4Button::TransitionIsFinished()
+bool tMenuItemGoToMenuNFS4Button::TransitionIsFinished()
 
 {
-  return (void *)(u_int)(this->fTransitionSpeed == 0);
+  return this->fTransitionSpeed == 0;
 }
 
 
@@ -439,10 +439,10 @@ void tMenuItemNFS4LeftRightChoice::TransitionOff()
 
 /* ---- tMenuItemNFS4LeftRightChoice::TransitionIsFinished  [FEMENUEXTENDED.CPP:318-319] SLD-VERIFIED ---- */
 
-void * tMenuItemNFS4LeftRightChoice::TransitionIsFinished()
+bool tMenuItemNFS4LeftRightChoice::TransitionIsFinished()
 
 {
-  return (void *)(u_int)(this->fTransitionSpeed == 0);
+  return this->fTransitionSpeed == 0;
 }
 
 
@@ -765,14 +765,14 @@ void tMenuNFS4::TransitionOn()
 
 /* ---- tMenuNFS4::TransitionIsFinished  [FEMENUEXTENDED.CPP:504-511] SLD-VERIFIED ---- */
 
-void * tMenuNFS4::TransitionIsFinished()
+bool tMenuNFS4::TransitionIsFinished()
 
 {
   tMenuItem *ptVar1;
   int iVar2;
   u_int uVar3;
   int iVar4;
-  BOOL result;
+  bool result;
   short i;
 
   result = 1;
@@ -792,7 +792,7 @@ void * tMenuNFS4::TransitionIsFinished()
     i = i + 1;
     ptVar1 = this->fItemList[i];
   }
-  return (void *)result;
+  return result;
 }
 
 
@@ -1093,16 +1093,16 @@ void tMenuBlank::TransitionOn()
 
 /* ---- tMenuBlank::TransitionIsFinished  [FEMENUEXTENDED.CPP:742-751] SLD-VERIFIED ---- */
 
-void * tMenuBlank::TransitionIsFinished()
+bool tMenuBlank::TransitionIsFinished()
 
 {
   if (0 < *(signed char *)&this->fTransitionDirection) {
-    this->fInMenuTransition = (u_int)(int)this->fTransitionVal >> 0x1f;
+    *(int *)&this->fInMenuTransition = (u_int)(int)this->fTransitionVal >> 0x1f;
   }
   else {
     this->fInMenuTransition = this->fTransitionVal < -0x6f ^ 1;
   }
-  return (void *)(*(volatile BOOL *)&this->fInMenuTransition ^ 1);
+  return !this->fInMenuTransition;
 }
 
 
@@ -1272,11 +1272,11 @@ TransitionOn_itemsDone:
 
 /* ---- tMenuOptions::TransitionIsFinished  [FEMENUEXTENDED.CPP:878-880] SLD-VERIFIED ---- */
 
-void * tMenuOptions::TransitionIsFinished()
+bool tMenuOptions::TransitionIsFinished()
 
 {
   this->fInMenuTransition = (u_int)(ticks[0] - this->fMenuEnterTicks < 0x20);
-  return (void *)(this->fInMenuTransition ^ 1);
+  return !this->fInMenuTransition;
 }
 
 
@@ -1297,10 +1297,10 @@ void tMenuOptions::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCo
 
 /* ---- tMenuOptions::IsSubMenu  [FEMENUEXTENDED.CPP:893-894] SLD-VERIFIED ---- */
 
-void * tMenuOptions::IsSubMenu()
+bool tMenuOptions::IsSubMenu()
 
 {
-  return (void *)0x1;
+  return 1;
 }
 
 

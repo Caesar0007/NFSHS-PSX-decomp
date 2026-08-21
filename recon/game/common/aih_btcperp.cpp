@@ -249,30 +249,33 @@ int AIHigh_BTC_Perp::CheckForControlsPressed()
 
 
 {
-  int iVar1;
-
-  Car_tControl *ctrl;
+  int pressed;
 
 
 
-  iVar1 = 0;
+  pressed = 0;
 
-  if ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0) && ((ctrl = &Cars_gHumanRaceCarList[0]->control, *(u_short *)ctrl) != 0 || ctrl->handBrake == '\x01')) {
+  if (((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0) {
+    Car_tControl *control = &Cars_gHumanRaceCarList[0]->control;
+    if (*(u_short *)control != 0 || control->handBrake == '\x01') {
 
-    iVar1 = 1;
+      pressed = 1;
 
+    }
   }
 
   /* H20: player-2 check must read Cars_gHumanRaceCarList[1] (oracle 0x8005FA10 base 0x8010FA4C = list+4), not [0] */
-  if (((Cars_gNumHumanRaceCars == 2) && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)) &&
+  if ((Cars_gNumHumanRaceCars == 2) &&
+      (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)) {
+    Car_tControl *control = &Cars_gHumanRaceCarList[1]->control;
+    if (*(u_short *)control != 0 || control->handBrake == '\x01') {
 
-     ((ctrl = &Cars_gHumanRaceCarList[1]->control, *(u_short *)ctrl) != 0 || ctrl->handBrake == '\x01')) {
+      pressed = 1;
 
-    iVar1 = 1;
-
+    }
   }
 
-  return iVar1;
+  return pressed;
 
 }
 
@@ -1635,7 +1638,10 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
   int placementDistance;
   int placementSide;
   int placementDirection;
-  cruiseMode_t placementSpeed;
+  enum {
+    PLACEMENTSPEED_SLOW,
+    PLACEMENTSPEED_FAST
+  } placementSpeed;
   int randPlacement;
   int humanDirection;
   int humanMovement;
@@ -1701,7 +1707,7 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   humanDirection = chaserCop->initialDirection_;
 
-  AICop_gRoadBlockState = 0;
+  AICop_gRoadBlockState = kAICop_RoadBlockState_None;
 
   fastRandom = randtemp & 0xffff;
 
@@ -1715,7 +1721,7 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
     placementDirection = 0;
 
-    placementSpeed = (cruiseMode_t)1;
+    placementSpeed = PLACEMENTSPEED_FAST;
 
     humanCopCarObj->desiredSpeed = 0xd5555;
 
@@ -1747,7 +1753,7 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
       placementDirection = 0;
 
-      placementSpeed = (cruiseMode_t)1;
+      placementSpeed = PLACEMENTSPEED_FAST;
 
       humanCopCarObj->desiredSpeed = 0x2c71c7;
 
@@ -1766,7 +1772,7 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
       __asm__("" : "=r"(placementSide) : "0"(placementSide));
       placementDirection = placementSide;
 
-      placementSpeed = (cruiseMode_t)0;
+      placementSpeed = PLACEMENTSPEED_SLOW;
 
       humanCopCarObj->desiredSpeed = 0x2c71c7;
 
@@ -1807,7 +1813,7 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
                (int)(this->GetCarObj()->N).simRoadInfo.slice,newLatPos,
                this->GetCarObj()->direction,
-               placementSpeed == (cruiseMode_t)1 ? 0x1f1c71 : 0x11c71c,0);
+               placementSpeed == PLACEMENTSPEED_FAST ? 0x1f1c71 : 0x11c71c,0);
   }
 
   Camera_Update();
@@ -1847,7 +1853,7 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   this->creationTime_ = simGlobal.gameTicks;
 
-  if (placementSpeed == (cruiseMode_t)1) {
+  if (placementSpeed == PLACEMENTSPEED_FAST) {
 
     AIState_Base *newState;
 
@@ -1868,7 +1874,7 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
     this->stateType_ = 2;
 
-    this->perpMode_ = placementSpeed;
+    this->perpMode_ = (cruiseMode_t)placementSpeed;
 
   }
 

@@ -8,7 +8,7 @@
  */
 #include "aidebug.h"
 
-int  grabValue;   /* @0x8013d4f8  EXT BOOL (.bss, 4-byte boolean) -- AI-debug grab toggle */
+bool grabValue;   /* @0x8013d4f8  SYM BOOL; CC1PLPSX stores C++ bool in 4 bytes */
 static int gAIDebug_PosX;   /* @0x8013dddc  STAT INT (.bss) -- AI-debug overlay X */
 static int gAIDebug_PosY;   /* @0x8013dde0  STAT INT (.bss) -- AI-debug overlay Y */
 /* end of aidebug.cpp */

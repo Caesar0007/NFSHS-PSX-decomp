@@ -262,7 +262,7 @@ PER_TU_FLAGS = {
     # draww (1 conv/2 regr); G5/G6/G7 ladder identical to G4 on all three mixed TUs
     # (the sensitive symbols are exactly 8 bytes -- their oracles MIX gp-rel and
     # absolute 8-byte refs, so no single -G value fits).  INERT (no gate delta, left
-    # at default): aih_play, dashhud, mpause, render, hrzsku, overlays,
+    # at default): aih_play, dashhud, mpause, hrzsku, overlays,
     # psxcontroller, textureprocess.  Receipts: scratch/w47_a7_census.md S7.
     # w63-a19: -G IDENTITY TELLS from the data-ownership sweep (E5): 8-byte
     # sdata objects only reachable at -G8 ("aiwther" literal; mpause short[4]
@@ -275,6 +275,12 @@ PER_TU_FLAGS = {
     "recon/game/common/input.cpp":          {"g_value": "8"},
     "recon/game/common/hudpmx.cpp":         {"g_value": "8"},
     "recon/game/common/nfs3.cpp":           {"g_value": "8"},
+    # 2026-08-20 SYM restoration: render.obj owns `RECT gPauseMenuRect` (8 bytes),
+    # not four independent shorts.  Under -G4 the honest object is not gp-eligible
+    # and Render_Render regresses 28 diffs; -G8 restores the retail gp-relative
+    # field accesses and PASS 80/80.  RPause's separate scalar symbol views remain
+    # zero-storage aliases and RPause_CopyBackToFrontBuffer remains PASS 48/48.
+    "recon/game/common/render.cpp":          {"g_value": "8"},
     "recon/game/psx/weather.cpp":           {"g_value": "8"},
     # (r3dcar's g_value 8 lives on its existing jtbl_at_fusion entry below --
     # PER_TU_FLAGS is a dict literal, a duplicate key would silently discard

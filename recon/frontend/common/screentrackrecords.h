@@ -6,7 +6,7 @@
 void GetShapeInfo__19tScreenTrackRecordsRsT1PPcT3(tScreenTrackRecords *self, short *numPermShapes, short *numSwapShapes, char **permFileName, char **swapFileName);   /* :67 */
 void Initialize__19tScreenTrackRecords(tScreenTrackRecords *self);   /* :78 */
 void Cleanup__19tScreenTrackRecords(tScreenTrackRecords *self);   /* :97 */
-void DrawOneRecord__19tScreenTrackRecordsibi(tScreenTrackRecords *self, int index, BOOL newrecord, int y);   /* :113 */
+void DrawOneRecord__19tScreenTrackRecordsibi(tScreenTrackRecords *self, int index, bool newrecord, int y);   /* :113 */
 void DrawRecords__19tScreenTrackRecordss(tScreenTrackRecords *self, short maxitem);   /* :161 */
 void DrawBackground__19tScreenTrackRecords(tScreenTrackRecords *self);   /* :210 */
 

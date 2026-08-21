@@ -66,16 +66,16 @@ void Audio_DeInitDriver(void)
 void Audio_CleanUp(void)
 
 {
-  int iVar1;
+  int i;
 
-  iVar1 = 0;
+  i = 0;
   do {
-    if (gSndBnk[iVar1].pdata != (char *)0x0) {
-      purgememadr(gSndBnk[iVar1].pdata);
-      gSndBnk[iVar1].pdata = (char *)0x0;
+    if (gSndBnk[i].pdata != (char *)0x0) {
+      purgememadr(gSndBnk[i].pdata);
+      gSndBnk[i].pdata = (char *)0x0;
     }
-    iVar1 = iVar1 + 1;
-  } while (iVar1 < 7);
+    i = i + 1;
+  } while (i < 7);
   return;
 }
 
@@ -95,14 +95,14 @@ void Audio_FECleanUp(void)
 int AudioCmn_AddBank(char *filename,int size,char *pdata,int BankNum)
 
 {
-  int iVar2;
+  int check;
   char *ptemp;
-  char *destBuf;
+  char *p;
   int bhandle;
 
   ptemp = filename;
   bhandle = -1;
-  destBuf = (char *)0x0;
+  p = (char *)0x0;
   /* MATCH: the original mutates the filename PARAM in place as the pool name (param home
      reg s0) and walks a FRESH temp (ptemp, v1) -- not the inverse. WHILE loop (not
      if+do-while: the rotated guard re-loads *ptemp in the preheader = the oracle's double
@@ -114,19 +114,19 @@ int AudioCmn_AddBank(char *filename,int size,char *pdata,int BankNum)
     }
     ptemp = ptemp + 1;
   }
-  iVar2 = SNDbankadd(&bhandle,pdata);
-  if (iVar2 == 7) {
-    iVar2 = SNDbankheadersize(bhandle);
-    destBuf = reservememadr(filename,iVar2,0);
-    SNDbankheadercopy(destBuf,bhandle);
-    iVar2 = SNDbankheadersize(bhandle);
-    size = size - iVar2;
+  check = SNDbankadd(&bhandle,pdata);
+  if (check == 7) {
+    check = SNDbankheadersize(bhandle);
+    p = reservememadr(filename,check,0);
+    SNDbankheadercopy(p,bhandle);
+    check = SNDbankheadersize(bhandle);
+    size = size - check;
   }
   else {
-    AudioClc_SndError(iVar2);
+    AudioClc_SndError(check);
   }
   purgememadr(pdata);
-  gSndBnk[BankNum].pdata = destBuf;
+  gSndBnk[BankNum].pdata = p;
   gSndBnk[BankNum].bnkID = bhandle;
   return size;
 }
@@ -135,18 +135,18 @@ int AudioCmn_AddBank(char *filename,int size,char *pdata,int BankNum)
 int AudioCmn_LoadBank(char *filename,int BankNum)
 
 {
-  char *pdata_00;
+  char *pdata;
   int iVar1;
   char bankdata [80];
 
   strcpy(bankdata,filename);
   strcat(bankdata,".bnk");
-  pdata_00 = (char *)loadfileadrz(bankdata,(void *)0x10);
-  if (pdata_00 == (char *)0x0) {
+  pdata = (char *)loadfileadrz(bankdata,(void *)0x10);
+  if (pdata == (char *)0x0) {
     return 0;
   }
   iVar1 = filesize(bankdata);
-  return AudioCmn_AddBank(filename,iVar1,pdata_00,BankNum);
+  return AudioCmn_AddBank(filename,iVar1,pdata,BankNum);
 }
 
 /* end of audio.cpp */

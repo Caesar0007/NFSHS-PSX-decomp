@@ -18,7 +18,7 @@ extern int   Replay_ReplayMode;           /* replay.obj */
 extern char  Device_gPausePortIndex;      /* device.obj */
 extern SndBnk_t gSndBnk[];                /* audiocmn.obj */
 extern int   ticks;                       /* sys frame counter (EXT 0x8013dcac) */
-extern int   ChangedEnabling;             /* PauseMenu.obj (EXT 0x8013d2ec) */
+extern bool  ChangedEnabling;             /* PauseMenu.obj (SYM EXT BOOL 0x8013d2ec) */
 extern GameSetup_tData GameSetup_gData;   /* gamesetup.obj */
 
 /* ---- cross-TU functions (audio) ---- */
@@ -30,7 +30,7 @@ extern int   AudioCmn_MusicLevel(int masterLevel);                  /* audiocmn.
 extern int   AudioCmn_PlaySound(int bnkID, int a, int b, int c, int d);   /* audiocmn.obj */
 
 /* ---- cross-TU functions (input / system) ---- */
-extern int   Debounce(void *menu) asm("Debounce__6tPMenu");
+extern bool  Debounce(void *menu) asm("Debounce__6tPMenu");
 extern int   Input_Interface(int key, int debounce) asm("Input_Interface__FUli");
 extern void  InGame_ResetPSXController(u_int port, int config) asm("InGame_ResetPSXController__Fii");
                                     /* libgpu */

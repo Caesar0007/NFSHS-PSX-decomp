@@ -1,0 +1,239 @@
+# SYM vtable audit
+
+- SYM opcode-2 vtable records: 115
+- Unique vtable VAs: 115
+- VAs with reconstructed array definitions: 115
+- VAs present in configs/symbol_addrs.txt: 115
+
+## Records
+
+- `_vt.11AIHigh_Base` @ 0x80054e04; config `_vt_11AIHigh_Base`; source recon\game\common\vtables_aihigh.cpp:28 AIHigh_Base_vtable[3]
+  - raw slots: `0:00000000/00000000 1:00000000/800e4354 2:00000000/8005b3c4`
+- `_vt.16AIHigh_BasicPerp` @ 0x80054e6c; config `_vt_16AIHigh_BasicPerp`; source recon\game\common\vtables_aihigh.cpp:33 AIHigh_BasicPerp_vtable[3]
+  - raw slots: `0:00000000/00000000 1:00000000/800e4354 2:00000000/8005c13c`
+- `_vt.18AIHigh_BTC_Wingman` @ 0x80054ec4; config `_vt_18AIHigh_BTC_Wingman`; source recon\game\common\vtables_aihigh.cpp:43 AIHigh_BTC_Wingman_vtable[3]
+  - raw slots: `0:00000000/00000000 1:00000000/8005e33c 2:00000000/8005f5c4`
+- `_vt.19AIHigh_BTC_HumanCop` @ 0x80054ee4; config `_vt_19AIHigh_BTC_HumanCop`; source recon\game\common\vtables_aihigh.cpp:48 AIHigh_BTC_HumanCop_vtable[3]
+  - raw slots: `0:00000000/00000000 1:00000000/8005e0ac 2:00000000/8005f5e4`
+- `_vt.14AIHigh_BTC_Cop` @ 0x80054f04; config `_vt_14AIHigh_BTC_Cop`; source recon\game\common\vtables_aihigh.cpp:53 AIHigh_BTC_Cop_vtable[3]
+  - raw slots: `0:00000000/00000000 1:00000000/800e4354 2:00000000/8005f604`
+- `_vt.17AIHigh_BTC_AIPerp` @ 0x80054fa0; config `_vt_17AIHigh_BTC_AIPerp`; source recon\game\common\vtables_aihigh.cpp:58 AIHigh_BTC_AIPerp_vtable[3]
+  - raw slots: `0:00000000/00000000 1:00000000/800608b4 2:00000000/8006037c`
+- `_vt.20AIHigh_BTC_HumanPerp` @ 0x80054fc0; config `_vt_20AIHigh_BTC_HumanPerp`; source recon\game\common\vtables_aihigh.cpp:63 AIHigh_BTC_HumanPerp_vtable[3]
+  - raw slots: `0:00000000/00000000 1:00000000/8006029c 2:00000000/80061320`
+- `_vt.12AIHigh_Human` @ 0x800550c8; config `_vt_12AIHigh_Human`; source recon\game\common\vtables_aihigh.cpp:78 AIHigh_Human_vtable[3]
+  - raw slots: `0:00000000/00000000 1:00000000/80063270 2:00000000/800632e0`
+- `_vt.15AIHigh_Opponent` @ 0x800550f8; config `_vt_15AIHigh_Opponent`; source recon\game\common\vtables_aihigh.cpp:83 AIHigh_Opponent_vtable[3]
+  - raw slots: `0:00000000/00000000 1:00000000/800637bc 2:00000000/80063bd8`
+- `_vt.10AIHigh_Cop` @ 0x80055154; config `_vt_10AIHigh_Cop`; source recon\game\common\vtables_aihigh.cpp:88 AIHigh_Cop_vtable[3]
+  - raw slots: `0:00000000/00000000 1:00000000/80063cc4 2:00000000/80065c6c`
+- `_vt.14AIHigh_Traffic` @ 0x800551b0; config `_vt_14AIHigh_Traffic`; source recon\game\common\vtables_aihigh.cpp:93 AIHigh_Traffic_vtable[3]
+  - raw slots: `0:00000000/00000000 1:00000000/80065e6c 2:00000000/8006698c`
+- `_vt.23AIDataRecord_AccTable_t` @ 0x80055494; config `_vt_23AIDataRecord_AccTable_t`; source recon\game\common\vtables_aidatarecord.cpp:41 AIDataRecord_AccTable_t_vtable[3]
+  - raw slots: `0:00000000/00000000 1:00000000/8006d594 2:00000000/8006d20c`
+- `_vt.14AIDataRecord_t` @ 0x800554ac; config `_vt_14AIDataRecord_t`; source recon\game\common\vtables_aidatarecord.cpp:46 AIDataRecord_t_vtable[3]
+  - raw slots: `0:00000000/00000000 1:00000000/8006ce6c 2:00000000/8006d08c`
+- `_vt.14AIState_Cruise` @ 0x80055500; config `_vt_14AIState_Cruise`; source recon\game\common\vtables_aistate.cpp:39 AIState_Cruise_vtable[4]
+  - raw slots: `0:00000000/00000000 1:00000000/80072588 2:00000000/8007265c 3:00000000/80072830`
+- `_vt.17AIState_GotoSlice` @ 0x80055520; config `_vt_17AIState_GotoSlice`; source recon\game\common\vtables_aistate.cpp:45 AIState_GotoSlice_vtable[4]
+  - raw slots: `0:00000000/00000000 1:00000000/800723c0 2:00000000/80072690 3:00000000/80072830`
+- `_vt.14AIState_Donuts` @ 0x80055540; config `_vt_14AIState_Donuts`; source recon\game\common\vtables_aistate.cpp:51 AIState_Donuts_vtable[4]
+  - raw slots: `0:00000000/00000000 1:00000000/80071e70 2:00000000/80071e0c 3:00000000/80072830`
+- `_vt.21AIState_RovingTraffic` @ 0x80055560; config `_vt_21AIState_RovingTraffic`; source recon\game\common\vtables_aistate.cpp:57 AIState_RovingTraffic_vtable[4]
+  - raw slots: `0:00000000/00000000 1:00000000/80071a68 2:00000000/800726dc 3:00000000/800726c4`
+- `_vt.17AIState_Purgatory` @ 0x80055580; config `_vt_17AIState_Purgatory`; source recon\game\common\vtables_aistate.cpp:63 AIState_Purgatory_vtable[4]
+  - raw slots: `0:00000000/00000000 1:00000000/800717d8 2:00000000/8007163c 3:00000000/8007175c`
+- `_vt.15AIState_Offroad` @ 0x800555c0; config `_vt_15AIState_Offroad`; source recon\game\common\vtables_aistate.cpp:75 AIState_Offroad_vtable[4]
+  - raw slots: `0:00000000/00000000 1:00000000/800712e0 2:00000000/800710ac 3:00000000/80072830`
+- `_vt.13AIState_Chase` @ 0x800555e0; config `_vt_13AIState_Chase`; source recon\game\common\vtables_aistate.cpp:81 AIState_Chase_vtable[4]
+  - raw slots: `0:00000000/00000000 1:00000000/8007015c 2:00000000/8006fd04 3:00000000/80072830`
+- `_vt.12AIState_Idle` @ 0x80055600; config `_vt_12AIState_Idle`; source recon\game\common\vtables_aistate.cpp:87 AIState_Idle_vtable[4]
+  - raw slots: `0:00000000/00000000 1:00000000/8006fb34 2:00000000/800727a4 3:00000000/80072830`
+- `_vt.14AIState_Normal` @ 0x80055620; config `_vt_14AIState_Normal`; source recon\game\common\vtables_aistate.cpp:93 AIState_Normal_vtable[4]
+  - raw slots: `0:00000000/00000000 1:00000000/8006fa8c 2:00000000/800727fc 3:00000000/80072830`
+- `_vt.Q26Speech13MobileSpeaker` @ 0x80055bd4; config `_vt_Q26Speech13MobileSpeaker`; source recon\game\common\speech.cpp:4048 MobileSpeaker_vtable[31]
+  - raw slots: `0:00000000/00000000 1:00000000/80097bfc 2:00000000/80096b88 3:00000000/80095d1c 4:00000000/80095d24 5:00000000/80095d2c 6:00000000/80097ce8 7:00000000/80098434 8:00000000/80098788 9:00000000/80098790 10:00000000/80098a4c 11:00000000/80098b60 12:00000000/80098c74 13:00000000/8009916c 14:00000000/80098d6c 15:00000000/80098ee4 16:00000000/80098f18 17:00000000/80099274 18:00000000/800993c4 19:00000000/800993bc 20:00000000/800992d8 21:00000000/800993ac 22:00000000/800993a4 23:00000000/8009939c 24:00000000/80097a18 25:00000000/800992cc 26:00000000/8009770c 27:00000000/80099268 28:00000000/800992b4 29:00000000/8009928c 30:00000000/80099280`
+- `_vt.Q26Speech15DispatchSpeaker` @ 0x80055ccc; config `_vt_Q26Speech15DispatchSpeaker`; source recon\game\common\speech.cpp:4081 DispatchSpeaker_vtable[31]
+  - raw slots: `0:00000000/00000000 1:00000000/800971b0 2:00000000/800965d0 3:00000000/80097358 4:00000000/8009744c 5:00000000/800974b0 6:00000000/80095d34 7:00000000/80095d3c 8:00000000/80097350 9:00000000/80095d4c 10:00000000/80095d54 11:00000000/80095d5c 12:00000000/80095d64 13:00000000/80095d6c 14:00000000/80095f28 15:00000000/80095d7c 16:00000000/80095d84 17:00000000/800993cc 18:00000000/80097150 19:00000000/80097120 20:00000000/800993b4 21:00000000/80099358 22:00000000/8009934c 23:00000000/80099344 24:00000000/80099394 25:00000000/8009938c 26:00000000/80099384 27:00000000/8009937c 28:00000000/80099328 29:00000000/80099300 30:00000000/800992f4`
+- `_vt.Q26Speech7Speaker` @ 0x80055dc4; config `_vt_Q26Speech7Speaker`; source recon\game\common\speech.cpp:4114 Speaker_vtable[31]
+  - raw slots: `0:00000000/00000000 1:00000000/80095d14 2:00000000/800993d4 3:00000000/80095d1c 4:00000000/80095d24 5:00000000/80095d2c 6:00000000/80095d34 7:00000000/80095d3c 8:00000000/80095d44 9:00000000/80095d4c 10:00000000/80095d54 11:00000000/80095d5c 12:00000000/80095d64 13:00000000/80095d6c 14:00000000/80095d74 15:00000000/80095d7c 16:00000000/80095d84 17:00000000/800993cc 18:00000000/800993c4 19:00000000/800993bc 20:00000000/800993b4 21:00000000/800993ac 22:00000000/800993a4 23:00000000/8009939c 24:00000000/80099394 25:00000000/8009938c 26:00000000/80099384 27:00000000/8009937c 28:00000000/80099374 29:00000000/8009936c 30:00000000/80099364`
+- `_vt.14ObjectSignAnim` @ 0x80056088; config `_vt_14ObjectSignAnim`; source recon\game\common\vtables_object.cpp:23 ObjectSignAnim_vtable[3]
+  - raw slots: `0:00000000/00000000 1:00000000/800a6c10 2:00000000/800a6a38`
+- `_vt.22ObjectFinishedSignAnim` @ 0x800560a0; config `_vt_22ObjectFinishedSignAnim`; source recon\game\common\vtables_object.cpp:33 ObjectFinishedSignAnim_vtable[3]
+  - raw slots: `0:00000000/00000000 1:00000000/800a6cc4 2:00000000/800a671c`
+- `_vt.15ObjectMultiAnim` @ 0x800560b8; config `_vt_15ObjectMultiAnim`; source recon\game\common\vtables_object.cpp:18 ObjectMultiAnim_vtable[3]
+  - raw slots: `0:00000000/00000000 1:00000000/800a6cf8 2:00000000/800a62f8`
+- `_vt.23ObjectFinishedMultiAnim` @ 0x800560d0; config `_vt_23ObjectFinishedMultiAnim`; source recon\game\common\vtables_object.cpp:28 ObjectFinishedMultiAnim_vtable[3]
+  - raw slots: `0:00000000/00000000 1:00000000/800a6dac 2:00000000/800a61f8`
+- `_vt.6tPMenu` @ 0x8005611c; config `_vt_6tPMenu`; source recon\game\common\vtables_tpausemenu.cpp:186 tPMenu_vtable[5]
+  - raw slots: `0:00000000/00000000 1:00000000/800a8014 2:00000000/800a8048 3:00000000/800a829c 4:00000000/800a8510`
+- `_vt.23tPMenuItemCommandButton` @ 0x80056144; config `_vt_23tPMenuItemCommandButton`; source recon\game\common\vtables_tpausemenu.cpp:114 tPMenuItemCommandButton_vtable[7]
+  - raw slots: `0:00000000/00000000 1:00000000/800a7ef4 2:00000000/800a7438 3:00000000/800a7440 4:00000000/800a7f1c 5:00000000/800a8698 6:00000000/800a7530`
+- `_vt.24tPMenuItemGoToMenuButton` @ 0x8005617c; config `_vt_24tPMenuItemGoToMenuButton`; source recon\game\common\vtables_tpausemenu.cpp:123 tPMenuItemGoToMenuButton_vtable[7]
+  - raw slots: `0:00000000/00000000 1:00000000/800a7dc8 2:00000000/800a7df0 3:00000000/800a7440 4:00000000/800a7dfc 5:00000000/800a8698 6:00000000/800a7530`
+- `_vt.32tPMenuItemLeftRightSliderIndexed` @ 0x800561b4; config `_vt_32tPMenuItemLeftRightSliderIndexed`; source recon\game\common\vtables_tpausemenu.cpp:150 tPMenuItemLeftRightSliderIndexed_vtable[7]
+  - raw slots: `0:00000000/00000000 1:00000000/800a7cb4 2:00000000/800a7438 3:00000000/800a78a4 4:00000000/800a7cdc 5:00000000/800a8698 6:00000000/800a7d28`
+- `_vt.25tPMenuItemLeftRightSlider` @ 0x800561ec; config `_vt_25tPMenuItemLeftRightSlider`; source recon\game\common\vtables_tpausemenu.cpp:159 tPMenuItemLeftRightSlider_vtable[7]
+  - raw slots: `0:00000000/00000000 1:00000000/800a787c 2:00000000/800a7438 3:00000000/800a78a4 4:00000000/800a78ac 5:00000000/800a8698 6:00000000/800a79c8`
+- `_vt.25tPMenuItemLeftRightChoice` @ 0x80056224; config `_vt_25tPMenuItemLeftRightChoice`; source recon\game\common\vtables_tpausemenu.cpp:141 tPMenuItemLeftRightChoice_vtable[7]
+  - raw slots: `0:00000000/00000000 1:00000000/800a759c 2:00000000/800a7438 3:00000000/800a7440 4:00000000/800a75c4 5:00000000/800a8698 6:00000000/800a7650`
+- `_vt.21tPMenuItemInteractive` @ 0x8005625c; config `_vt_21tPMenuItemInteractive`; source recon\game\common\vtables_tpausemenu.cpp:132 tPMenuItemInteractive_vtable[7]
+  - raw slots: `0:00000000/00000000 1:00000000/800a7508 2:00000000/800a7438 3:00000000/800a7440 4:00000000/800a7448 5:00000000/800a8698 6:00000000/800a7530`
+- `_vt.28tPMenuItemNonInteractiveText` @ 0x80056294; config `_vt_28tPMenuItemNonInteractiveText`; source recon\game\common\vtables_tpausemenu.cpp:168 tPMenuItemNonInteractiveText_vtable[7]
+  - raw slots: `0:00000000/00000000 1:00000000/800a7484 2:00000000/800a7438 3:00000000/800a7440 4:00000000/800a7448 5:00000000/800a86a0 6:00000000/800a74ac`
+- `_vt.10tPMenuItem` @ 0x800562cc; config `_vt_10tPMenuItem`; source recon\game\common\vtables_tpausemenu.cpp:177 tPMenuItem_vtable[7]
+  - raw slots: `0:00000000/00000000 1:00000000/800a7404 2:00000000/800a7438 3:00000000/800a7440 4:00000000/800a7448 5:00000000/800e4354 6:00000000/800e4354`
+- `_vt.21tPListIteratorIndexed` @ 0x80056304; config `_vt_21tPListIteratorIndexed`; source recon\game\common\vtables_tpausemenu.cpp:98 tPListIteratorIndexed_vtable[6]
+  - raw slots: `0:00000000/00000000 1:00000000/800a71f4 2:00000000/800a721c 3:00000000/800a7240 4:00000000/800a7290 5:00000000/800a731c`
+- `_vt.14tPListIterator` @ 0x80056334; config `_vt_14tPListIterator`; source recon\game\common\vtables_tpausemenu.cpp:106 tPListIterator_vtable[6]
+  - raw slots: `0:00000000/00000000 1:00000000/800a700c 2:00000000/800a7040 3:00000000/800a7054 4:00000000/800a70a4 5:00000000/800a7110`
+- `_vt.21tListIteratorCarColor` @ 0x800101d8; config `_vt_21tListIteratorCarColor`; source recon\game\common\vtables_tlist.cpp:25 tListIteratorCarColor_vtable[6]
+  - raw slots: `0:00000000/00000000 1:00000000/80018520 2:00000000/80018548 3:00000000/800185a8 4:00000000/800185b0 5:00000000/80018648`
+- `_vt.16tListIteratorCar` @ 0x80010208; config `_vt_16tListIteratorCar`; source recon\game\common\vtables_tlist.cpp:33 tListIteratorCar_vtable[6]
+  - raw slots: `0:00000000/00000000 1:00000000/80017928 2:00000000/80017950 3:00000000/8001797c 4:00000000/80018094 5:00000000/800180b4`
+- `_vt.15tDialogYesNoTri` @ 0x800102b0; config `_vt_15tDialogYesNoTri`; source recon\game\common\vtables_tdialog.cpp:140 tDialogYesNoTri_vtable[12]
+  - raw slots: `0:00000000/00000000 1:00000000/80026008 2:00000000/800268e8 3:00000000/800268e0 4:00000000/80019ec4 5:00000000/80026780 6:00000000/800260ac 7:00000000/800261a0 8:00000000/800268c0 9:00000000/80019e7c 10:00000000/800199d4 11:00000000/80019b44`
+- `_vt.15tDialogYesNoMem` @ 0x80010310; config `_vt_15tDialogYesNoMem`; source recon\game\common\vtables_tdialog.cpp:154 tDialogYesNoMem_vtable[12]
+  - raw slots: `0:00000000/00000000 1:00000000/80026008 2:00000000/800268e8 3:00000000/800268e0 4:00000000/80019ee4 5:00000000/80026780 6:00000000/800260ac 7:00000000/800261a0 8:00000000/800268c0 9:00000000/80019d98 10:00000000/800199d4 11:00000000/80019b44`
+- `_vt.12tDialogYesNo` @ 0x80010370; config `_vt_12tDialogYesNo`; source recon\game\common\vtables_tdialog.cpp:126 tDialogYesNo_vtable[12]
+  - raw slots: `0:00000000/00000000 1:00000000/80026008 2:00000000/800268e8 3:00000000/800268e0 4:00000000/80019f04 5:00000000/80026780 6:00000000/800260ac 7:00000000/800261a0 8:00000000/800268c0 9:00000000/80019ccc 10:00000000/800199d4 11:00000000/80019b44`
+- `_vt.21tDialogNoInputMessage` @ 0x80010430; config `_vt_21tDialogNoInputMessage`; source recon\game\common\vtables_tdialog.cpp:98 tDialogNoInputMessage_vtable[12]
+  - raw slots: `0:00000000/00000000 1:00000000/80026008 2:00000000/800268e8 3:00000000/800268e0 4:00000000/80019f44 5:00000000/80026780 6:00000000/800260ac 7:00000000/800261a0 8:00000000/800268c0 9:00000000/80019ebc 10:00000000/80019418 11:00000000/8001962c`
+- `_vt.17tDialogBackUpOnly` @ 0x80010490; config `_vt_17tDialogBackUpOnly`; source recon\game\common\vtables_tdialog.cpp:112 tDialogBackUpOnly_vtable[12]
+  - raw slots: `0:00000000/00000000 1:00000000/80026008 2:00000000/800268e8 3:00000000/800268e0 4:00000000/80019f64 5:00000000/80026780 6:00000000/800260ac 7:00000000/800261a0 8:00000000/800268c0 9:00000000/80019790 10:00000000/80019418 11:00000000/8001962c`
+- `_vt.20tDialogMessageString` @ 0x800104f0; config `_vt_20tDialogMessageString`; source recon\game\common\vtables_tdialog.cpp:67 tDialogMessageString_vtable[12]
+  - raw slots: `0:00000000/00000000 1:00000000/80026008 2:00000000/800268e8 3:00000000/800268e0 4:00000000/80019f84 5:00000000/80026780 6:00000000/800260ac 7:00000000/800261a0 8:00000000/800268c0 9:00000000/80018ac8 10:00000000/80019418 11:00000000/8001962c`
+- `_vt.11tDialogHelp` @ 0x80010550; config `_vt_11tDialogHelp`; source recon\game\common\vtables_tdialog.cpp:39 tDialogHelp_vtable[12]
+  - raw slots: `0:00000000/00000000 1:00000000/80026008 2:00000000/800268e8 3:00000000/800268e0 4:00000000/80019fa4 5:00000000/80026780 6:00000000/800260ac 7:00000000/800261a0 8:00000000/800268c0 9:00000000/80018ac8 10:00000000/80018b90 11:00000000/8001912c`
+- `_vt.11tDialogBase` @ 0x800105b0; config `_vt_11tDialogBase`; source recon\game\common\vtables_tdialog.cpp:25 tDialogBase_vtable[12]
+  - raw slots: `0:00000000/00000000 1:00000000/80026008 2:00000000/800268e8 3:00000000/800268e0 4:00000000/80019fc4 5:00000000/80026780 6:00000000/800260ac 7:00000000/800261a0 8:00000000/800268c0 9:00000000/80018ac8 10:00000000/800e4354 11:00000000/800189b8`
+- `_vt.12tMenuOptions` @ 0x80010620; config `_vt_12tMenuOptions`; source recon\game\common\vtables_tmenu.cpp:373 tMenuOptions_vtable[12]
+  - raw slots: `0:00000000/00000000 1:00000000/8001bac4 2:00000000/8001b180 3:00000000/8001bebc 4:00000000/80025a5c 5:00000000/8001bdc4 6:00000000/8001be00 7:00000000/8001be98 8:00000000/8001bef0 9:00000000/8001baec 10:00000000/8001b400 11:00000000/8001b494`
+- `_vt.10tMenuBlank` @ 0x80010680; config `_vt_10tMenuBlank`; source recon\game\common\vtables_tmenu.cpp:94 tMenuBlank_vtable[12]
+  - raw slots: `0:00000000/00000000 1:00000000/8001b8fc 2:00000000/8001b9cc 3:00000000/8001b988 4:00000000/8001b9d4 5:00000000/8001b9dc 6:00000000/8001b9f8 7:00000000/8001ba10 8:00000000/80025a54 9:00000000/8001b924 10:00000000/8001bef8 11:00000000/8001b494`
+- `_vt.15tMenuNFS4Bottom` @ 0x800106e0; config `_vt_15tMenuNFS4Bottom`; source recon\game\common\vtables_tmenu.cpp:331 tMenuNFS4Bottom_vtable[12]
+  - raw slots: `0:00000000/00000000 1:00000000/8001b7b0 2:00000000/8001b180 3:00000000/8001b230 4:00000000/80025a5c 5:00000000/8001b250 6:00000000/8001b2d8 7:00000000/8001b360 8:00000000/80025a54 9:00000000/8001b7d8 10:00000000/8001b400 11:00000000/8001b494`
+- `_vt.18tMenuNFS4TwoPlayer` @ 0x80010740; config `_vt_18tMenuNFS4TwoPlayer`; source recon\game\common\vtables_tmenu.cpp:345 tMenuNFS4TwoPlayer_vtable[12]
+  - raw slots: `0:00000000/00000000 1:00000000/8001b6a8 2:00000000/8001b180 3:00000000/8001b230 4:00000000/80025a5c 5:00000000/8001b250 6:00000000/8001b2d8 7:00000000/8001b360 8:00000000/80025a54 9:00000000/8001b4f4 10:00000000/8001b400 11:00000000/8001b6d0`
+- `_vt.9tMenuNFS4` @ 0x800107a0; config `_vt_9tMenuNFS4`; source recon\game\common\vtables_tmenu.cpp:359 tMenuNFS4_vtable[12]
+  - raw slots: `0:00000000/00000000 1:00000000/8001b158 2:00000000/8001b180 3:00000000/8001b230 4:00000000/80025a5c 5:00000000/8001b250 6:00000000/8001b2d8 7:00000000/8001b360 8:00000000/80025a54 9:00000000/8001b4f4 10:00000000/8001b400 11:00000000/8001b494`
+- `_vt.29tMenuItemOptionsTwoItemChoice` @ 0x80010800; config `_vt_29tMenuItemOptionsTwoItemChoice`; source recon\game\common\vtables_tmenu.cpp:277 tMenuItemOptionsTwoItemChoice_vtable[11]
+  - raw slots: `0:00000000/00000000 1:00000000/8001bf00 2:00000000/80024798 3:00000000/8002497c 4:00000000/80024a2c 5:00000000/8001ae14 6:00000000/80024864 7:00000000/80025ab0 8:00000000/8001adb8 9:00000000/800247c8 10:00000000/800247a8`
+- `_vt.31tMenuItemOptionsLeftRightChoice` @ 0x80010858; config `_vt_31tMenuItemOptionsLeftRightChoice`; source recon\game\common\vtables_tmenu.cpp:264 tMenuItemOptionsLeftRightChoice_vtable[11]
+  - raw slots: `0:00000000/00000000 1:00000000/8001bf20 2:00000000/80024798 3:00000000/8002497c 4:00000000/80024a2c 5:00000000/8001abe0 6:00000000/80024864 7:00000000/80025ab0 8:00000000/80025aa8 9:00000000/800247c8 10:00000000/800247a8`
+- `_vt.28tMenuItemNFS4LeftRightChoice` @ 0x800108b0; config `_vt_28tMenuItemNFS4LeftRightChoice`; source recon\game\common\vtables_tmenu.cpp:238 tMenuItemNFS4LeftRightChoice_vtable[11]
+  - raw slots: `0:00000000/00000000 1:00000000/8001a8a0 2:00000000/80024798 3:00000000/8002497c 4:00000000/80024a2c 5:00000000/8001a8c8 6:00000000/80024864 7:00000000/8001ab6c 8:00000000/8001ab5c 9:00000000/8001ab78 10:00000000/8001ab84`
+- `_vt.27tMenuItemGoToMenuNFS4Button` @ 0x80010908; config `_vt_27tMenuItemGoToMenuNFS4Button`; source recon\game\common\vtables_tmenu.cpp:160 tMenuItemGoToMenuNFS4Button_vtable[11]
+  - raw slots: `0:00000000/00000000 1:00000000/8001a514 2:00000000/80024798 3:00000000/800253a4 4:00000000/8001bf40 5:00000000/8001a53c 6:00000000/80024864 7:00000000/8001a7c8 8:00000000/8001a7b8 9:00000000/8001a7d4 10:00000000/8001a7e0`
+- `_vt.35tInsideBoxControllerLeftRightSlider` @ 0x80010a10; config `_vt_35tInsideBoxControllerLeftRightSlider`; source recon\game\common\vtables_tpausemenu.cpp:30 tInsideBoxControllerLeftRightSlider_vtable[11]
+  - raw slots: `0:00000000/00000000 1:00000000/80020bb8 2:00000000/80024b7c 3:00000000/80020af4 4:00000000/800251e4 5:00000000/80024828 6:00000000/8001f2f0 7:00000000/80025ab0 8:00000000/80025aa8 9:00000000/800247c8 10:00000000/800247a8`
+- `_vt.19tMemoryCardMenuItem` @ 0x80010a68; config `_vt_19tMemoryCardMenuItem`; source recon\game\common\vtables_tmenu.cpp:81 tMemoryCardMenuItem_vtable[11]
+  - raw slots: `0:00000000/00000000 1:00000000/80020bd8 2:00000000/80024798 3:00000000/800253a4 4:00000000/8002089c 5:00000000/80024828 6:00000000/80024864 7:00000000/8001c25c 8:00000000/8001c268 9:00000000/8001c284 10:00000000/8001c2dc`
+- `_vt.27tMenuItemGoToMenuButtonFade` @ 0x80010ac0; config `_vt_27tMenuItemGoToMenuButtonFade`; source recon\game\common\vtables_tmenu.cpp:134 tMenuItemGoToMenuButtonFade_vtable[11]
+  - raw slots: `0:00000000/00000000 1:00000000/80020bf8 2:00000000/80024798 3:00000000/800253a4 4:00000000/800e4354 5:00000000/80024828 6:00000000/80024864 7:00000000/8001c25c 8:00000000/8001c268 9:00000000/8001c284 10:00000000/8001c2dc`
+- `_vt.17tUserNameMenuItem` @ 0x80010b18; config `_vt_17tUserNameMenuItem`; source recon\game\common\vtables_tmenu.cpp:413 tUserNameMenuItem_vtable[11]
+  - raw slots: `0:00000000/00000000 1:00000000/80020c18 2:00000000/80024798 3:00000000/8001fd2c 4:00000000/8002017c 5:00000000/80024828 6:00000000/80024864 7:00000000/80020574 8:00000000/80020580 9:00000000/800207b4 10:00000000/80020820`
+- `_vt.22tInsideBoxTwoWaySlider` @ 0x80010b70; config `_vt_22tInsideBoxTwoWaySlider`; source recon\game\common\vtables_tpausemenu.cpp:85 tInsideBoxTwoWaySlider_vtable[11]
+  - raw slots: `0:00000000/00000000 1:00000000/8001f4c8 2:00000000/80024b7c 3:00000000/8001f4f0 4:00000000/800251e4 5:00000000/80024828 6:00000000/8001f5a0 7:00000000/80025ab0 8:00000000/80025aa8 9:00000000/800247c8 10:00000000/800247a8`
+- `_vt.25tInsideBoxLeftRightSlider` @ 0x80010bc8; config `_vt_25tInsideBoxLeftRightSlider`; source recon\game\common\vtables_tpausemenu.cpp:43 tInsideBoxLeftRightSlider_vtable[11]
+  - raw slots: `0:00000000/00000000 1:00000000/8001f2c8 2:00000000/80024b7c 3:00000000/80024b84 4:00000000/800251e4 5:00000000/80024828 6:00000000/8001f2f0 7:00000000/80025ab0 8:00000000/80025aa8 9:00000000/800247c8 10:00000000/800247a8`
+- `_vt.34tMenuItemControllerLeftRightChoice` @ 0x80010c20; config `_vt_34tMenuItemControllerLeftRightChoice`; source recon\game\common\vtables_tmenu.cpp:108 tMenuItemControllerLeftRightChoice_vtable[11]
+  - raw slots: `0:00000000/00000000 1:00000000/80020c38 2:00000000/80024798 3:00000000/8002497c 4:00000000/80024a2c 5:00000000/8001f084 6:00000000/80024864 7:00000000/8001c394 8:00000000/8001c3ac 9:00000000/8001c3d0 10:00000000/8001c438`
+- `_vt.18tInsideBoxSongMenu` @ 0x80010c78; config `_vt_18tInsideBoxSongMenu`; source recon\game\common\vtables_tpausemenu.cpp:70 tInsideBoxSongMenu_vtable[13]
+  - raw slots: `0:00000000/00000000 1:00000000/8001e9b0 2:00000000/800254e4 3:00000000/8001ee7c 4:00000000/8001ee74 5:00000000/80025a3c 6:00000000/80025a44 7:00000000/80025a4c 8:00000000/80025a54 9:00000000/800258fc 10:00000000/800259a8 11:00000000/8001e9d8 12:00000000/8001ec48`
+- `_vt.29tMenuItemLeftRightAudioSlider` @ 0x80010ce0; config `_vt_29tMenuItemLeftRightAudioSlider`; source recon\game\common\vtables_tmenu.cpp:186 tMenuItemLeftRightAudioSlider_vtable[11]
+  - raw slots: `0:00000000/00000000 1:00000000/8001e548 2:00000000/80024b7c 3:00000000/80024b84 4:00000000/800251e4 5:00000000/8001e570 6:00000000/80024864 7:00000000/8001e850 8:00000000/8001e860 9:00000000/8001e878 10:00000000/8001e8d4`
+- `_vt.29tMenuItemOnOffLeftRightChoice` @ 0x80010d38; config `_vt_29tMenuItemOnOffLeftRightChoice`; source recon\game\common\vtables_tmenu.cpp:251 tMenuItemOnOffLeftRightChoice_vtable[11]
+  - raw slots: `0:00000000/00000000 1:00000000/80020c58 2:00000000/80024798 3:00000000/8002497c 4:00000000/80024a2c 5:00000000/8001e384 6:00000000/80024864 7:00000000/8001c394 8:00000000/8001e320 9:00000000/8001c3d0 10:00000000/8001c438`
+- `_vt.31tMenuItemDisplayLeftRightChoice` @ 0x80010d90; config `_vt_31tMenuItemDisplayLeftRightChoice`; source recon\game\common\vtables_tmenu.cpp:121 tMenuItemDisplayLeftRightChoice_vtable[11]
+  - raw slots: `0:00000000/00000000 1:00000000/80020c78 2:00000000/80024798 3:00000000/8002497c 4:00000000/80024a2c 5:00000000/8001e230 6:00000000/80024864 7:00000000/8001c394 8:00000000/8001c3ac 9:00000000/8001c3d0 10:00000000/8001c438`
+- `_vt.25tMenuItemSlidingActivated` @ 0x80010de8; config `_vt_25tMenuItemSlidingActivated`; source recon\game\common\vtables_tmenu.cpp:290 tMenuItemSlidingActivated_vtable[12]
+  - raw slots: `0:00000000/00000000 1:00000000/80020c98 2:00000000/8001d398 3:00000000/8001df44 4:00000000/8001d3e0 5:00000000/8001d63c 6:00000000/80024864 7:00000000/8001ddd4 8:00000000/8001de00 9:00000000/8001de40 10:00000000/8001dec8 11:00000000/8001dd6c`
+- `_vt.20tMenuItemSlidingMenu` @ 0x80010e48; config `_vt_20tMenuItemSlidingMenu`; source recon\game\common\vtables_tmenu.cpp:304 tMenuItemSlidingMenu_vtable[12]
+  - raw slots: `0:00000000/00000000 1:00000000/8001d208 2:00000000/8001d398 3:00000000/8001dc80 4:00000000/8001d3e0 5:00000000/8001d63c 6:00000000/80024864 7:00000000/8001d230 8:00000000/8001d25c 9:00000000/8001d294 10:00000000/8001d31c 11:00000000/8001d41c`
+- `_vt.14tInsideBoxMenu` @ 0x80010ea8; config `_vt_14tInsideBoxMenu`; source recon\game\common\vtables_tpausemenu.cpp:56 tInsideBoxMenu_vtable[12]
+  - raw slots: `0:00000000/00000000 1:00000000/8001ce04 2:00000000/800254e4 3:00000000/8001ce2c 4:00000000/80025a5c 5:00000000/80025a3c 6:00000000/80025a44 7:00000000/80025a4c 8:00000000/80025a54 9:00000000/800258fc 10:00000000/800259a8 11:00000000/8001cefc`
+- `_vt.12tOptionsMenu` @ 0x80010f08; config `_vt_12tOptionsMenu`; source recon\game\common\vtables_tmenu.cpp:400 tOptionsMenu_vtable[11]
+  - raw slots: `0:00000000/00000000 1:00000000/8001c544 2:00000000/800254e4 3:00000000/8001cd08 4:00000000/8001c56c 5:00000000/8001c5d8 6:00000000/8001c670 7:00000000/8001c70c 8:00000000/80025a54 9:00000000/8001cb04 10:00000000/8001c854`
+- `_vt.22tMenuItemLeftRightFade` @ 0x80010f60; config `_vt_22tMenuItemLeftRightFade`; source recon\game\common\vtables_tmenu.cpp:212 tMenuItemLeftRightFade_vtable[11]
+  - raw slots: `0:00000000/00000000 1:00000000/80020cb8 2:00000000/80024798 3:00000000/8002497c 4:00000000/80024a2c 5:00000000/80024828 6:00000000/80024864 7:00000000/8001c394 8:00000000/8001c3ac 9:00000000/8001c3d0 10:00000000/8001c438`
+- `_vt.18tListIteratorTrack` @ 0x80010fe8; config `_vt_18tListIteratorTrack`; source recon\game\common\vtables_tlist.cpp:89 tListIteratorTrack_vtable[6]
+  - raw slots: `0:00000000/00000000 1:00000000/80021dac 2:00000000/80023fcc 3:00000000/80021dd4 4:00000000/80021e14 5:00000000/80021ec0`
+- `_vt.5tMenu` @ 0x800110c8; config `_vt_5tMenu`; source recon\game\common\vtables_tmenu.cpp:387 tMenu_vtable[11]
+  - raw slots: `0:00000000/00000000 1:00000000/800254b0 2:00000000/800254e4 3:00000000/80025578 4:00000000/80025a5c 5:00000000/80025a3c 6:00000000/80025a44 7:00000000/80025a4c 8:00000000/80025a54 9:00000000/800258fc 10:00000000/800259a8`
+- `_vt.23tMenuItemGoToMenuButton` @ 0x80011120; config `_vt_23tMenuItemGoToMenuButton`; source recon\game\common\vtables_tmenu.cpp:147 tMenuItemGoToMenuButton_vtable[11]
+  - raw slots: `0:00000000/00000000 1:00000000/8002537c 2:00000000/80024798 3:00000000/800253a4 4:00000000/800e4354 5:00000000/80024828 6:00000000/80024864 7:00000000/80025ab0 8:00000000/80025aa8 9:00000000/800247c8 10:00000000/800247a8`
+- `_vt.24tMenuItemLeftRightSlider` @ 0x80011178; config `_vt_24tMenuItemLeftRightSlider`; source recon\game\common\vtables_tmenu.cpp:225 tMenuItemLeftRightSlider_vtable[11]
+  - raw slots: `0:00000000/00000000 1:00000000/80024b54 2:00000000/80024b7c 3:00000000/80024b84 4:00000000/800251e4 5:00000000/80024828 6:00000000/80024864 7:00000000/80025ab0 8:00000000/80025aa8 9:00000000/800247c8 10:00000000/800247a8`
+- `_vt.24tMenuItemLeftRightChoice` @ 0x800111d0; config `_vt_24tMenuItemLeftRightChoice`; source recon\game\common\vtables_tmenu.cpp:199 tMenuItemLeftRightChoice_vtable[11]
+  - raw slots: `0:00000000/00000000 1:00000000/80024954 2:00000000/80024798 3:00000000/8002497c 4:00000000/80024a2c 5:00000000/80024828 6:00000000/80024864 7:00000000/80025ab0 8:00000000/80025aa8 9:00000000/800247c8 10:00000000/800247a8`
+- `_vt.20tMenuItemInteractive` @ 0x80011228; config `_vt_20tMenuItemInteractive`; source recon\game\common\vtables_tmenu.cpp:173 tMenuItemInteractive_vtable[11]
+  - raw slots: `0:00000000/00000000 1:00000000/800248dc 2:00000000/80024798 3:00000000/800247a0 4:00000000/800e4354 5:00000000/80024828 6:00000000/80024864 7:00000000/80025ab0 8:00000000/80025aa8 9:00000000/800247c8 10:00000000/800247a8`
+- `_vt.9tMenuItem` @ 0x80011280; config `_vt_9tMenuItem`; source recon\game\common\vtables_tmenu.cpp:318 tMenuItem_vtable[11]
+  - raw slots: `0:00000000/00000000 1:00000000/80024764 2:00000000/80024798 3:00000000/800247a0 4:00000000/800e4354 5:00000000/80024828 6:00000000/80024864 7:00000000/80025ab0 8:00000000/80025aa8 9:00000000/800247c8 10:00000000/800247a8`
+- `_vt.25tListIteratorRangeIndexed` @ 0x800112d8; config `_vt_25tListIteratorRangeIndexed`; source recon\game\common\vtables_tlist.cpp:65 tListIteratorRangeIndexed_vtable[6]
+  - raw slots: `0:00000000/00000000 1:00000000/80024670 2:00000000/80024698 3:00000000/800245cc 4:00000000/800246bc 5:00000000/800246f8`
+- `_vt.18tListIteratorRange` @ 0x80011308; config `_vt_18tListIteratorRange`; source recon\game\common\vtables_tlist.cpp:73 tListIteratorRange_vtable[6]
+  - raw slots: `0:00000000/00000000 1:00000000/80024590 2:00000000/800245b8 3:00000000/800245cc 4:00000000/800245d4 5:00000000/800245fc`
+- `_vt.24tListIteratorMultiPlayer` @ 0x80011338; config `_vt_24tListIteratorMultiPlayer`; source recon\game\common\vtables_tlist.cpp:57 tListIteratorMultiPlayer_vtable[6]
+  - raw slots: `0:00000000/00000000 1:00000000/80024390 2:00000000/800243b8 3:00000000/800243e0 4:00000000/80024430 5:00000000/80024494`
+- `_vt.26tListIteratorDoubleIndexed` @ 0x80011368; config `_vt_26tListIteratorDoubleIndexed`; source recon\game\common\vtables_tlist.cpp:41 tListIteratorDoubleIndexed_vtable[6]
+  - raw slots: `0:00000000/00000000 1:00000000/80024154 2:00000000/8002417c 3:00000000/800241b8 4:00000000/80024208 5:00000000/800242a4`
+- `_vt.20tListIteratorIndexed` @ 0x80011398; config `_vt_20tListIteratorIndexed`; source recon\game\common\vtables_tlist.cpp:49 tListIteratorIndexed_vtable[6]
+  - raw slots: `0:00000000/00000000 1:00000000/80023fa4 2:00000000/80023fcc 3:00000000/80023ff0 4:00000000/80024040 5:00000000/800240a8`
+- `_vt.13tListIterator` @ 0x800113c8; config `_vt_13tListIterator`; source recon\game\common\vtables_tlist.cpp:97 tListIterator_vtable[6]
+  - raw slots: `0:00000000/00000000 1:00000000/80023df4 2:00000000/80023e28 3:00000000/80023e3c 4:00000000/80023e8c 5:00000000/80023ed8`
+- `_vt.7tScreen` @ 0x80011418; config `_vt_7tScreen`; source recon\game\common\vtables_tscreen.cpp:32 tScreen_vtable[10]
+  - raw slots: `0:00000000/00000000 1:00000000/80026008 2:00000000/800268e8 3:00000000/800268e0 4:00000000/80026078 5:00000000/80026780 6:00000000/800260ac 7:00000000/800261a0 8:00000000/800268c0 9:00000000/800268d8`
+- `_vt.23tListIteratorTournament` @ 0x80011670; config `_vt_23tListIteratorTournament`; source recon\game\common\vtables_tlist.cpp:81 tListIteratorTournament_vtable[6]
+  - raw slots: `0:00000000/00000000 1:00000000/80033dec 2:00000000/80033e14 3:00000000/80033e28 4:00000000/80033e80 5:00000000/80033f20`
+- `_vt.11tScreenMain` @ 0x800118b0; config `_vt_11tScreenMain`; source recon\game\common\vtables_tscreen.cpp:44 tScreenMain_vtable[10]
+  - raw slots: `0:00000000/00000000 1:00000000/80038698 2:00000000/800379c0 3:00000000/800268e0 4:00000000/80038b44 5:00000000/800386c8 6:00000000/800388d4 7:00000000/80038ad8 8:00000000/800268c0 9:00000000/80037798`
+- `_vt.16tScreenPinkSlips` @ 0x80011930; config `_vt_16tScreenPinkSlips`; source recon\game\common\vtables_tscreen.cpp:128 tScreenPinkSlips_vtable[10]
+  - raw slots: `0:00000000/00000000 1:00000000/80039118 2:00000000/80038b68 3:00000000/800268e0 4:00000000/800397cc 5:00000000/80026780 6:00000000/800391d8 7:00000000/80039320 8:00000000/800268c0 9:00000000/80039690`
+- `_vt.24tScreenPinkSlipStandings` @ 0x800119a8; config `_vt_24tScreenPinkSlipStandings`; source recon\game\common\vtables_tscreen.cpp:160 tScreenPinkSlipStandings_vtable[10]
+  - raw slots: `0:00000000/00000000 1:00000000/80039b30 2:00000000/8003a448 3:00000000/800268e0 4:00000000/8003a88c 5:00000000/80026780 6:00000000/80039960 7:00000000/80039aec 8:00000000/800268c0 9:00000000/8003a86c`
+- `_vt.31tScreenTournamentStandings3item` @ 0x800119f8; config `_vt_31tScreenTournamentStandings3item`; source recon\game\common\vtables_tscreen.cpp:256 tScreenTournamentStandings3item_vtable[10]
+  - raw slots: `0:00000000/00000000 1:00000000/80039b30 2:00000000/80039b84 3:00000000/800268e0 4:00000000/8003a8ac 5:00000000/80026780 6:00000000/80039960 7:00000000/80039aec 8:00000000/800268c0 9:00000000/80039b54`
+- `_vt.26tScreenTournamentStandings` @ 0x80011a48; config `_vt_26tScreenTournamentStandings`; source recon\game\common\vtables_tscreen2.cpp:103 tScreenTournamentStandings_vtable[10]
+  - raw slots: `0:00000000/00000000 1:00000000/80039b0c 2:00000000/80039b84 3:00000000/800268e0 4:00000000/8003a8cc 5:00000000/80026780 6:00000000/80039960 7:00000000/80039aec 8:00000000/800268c0 9:00000000/80039b54`
+- `_vt.25tScreenPinkSlipsCarSelect` @ 0x80011b60; config `_vt_25tScreenPinkSlipsCarSelect`; source recon\game\common\vtables_tscreen.cpp:140 tScreenPinkSlipsCarSelect_vtable[18]
+  - raw slots: `0:00000000/00000000 1:00000000/8003f638 2:00000000/8003eed0 3:00000000/8003f22c 4:00000000/8003f6d0 5:00000000/80026780 6:00000000/8003f24c 7:00000000/8003f2ac 8:00000000/800268c0 9:00000000/8003f590 10:00000000/8003e190 11:00000000/8003ed44 12:00000000/8003e3c8 13:00000000/8003ee40 14:00000000/8003ed10 15:00000000/8003bca8 16:00000000/8003e49c 17:00000000/8003f300`
+- `_vt.25tScreenCarSelectTwoPlayer` @ 0x80011bf0; config `_vt_25tScreenCarSelectTwoPlayer`; source recon\game\common\vtables_tscreen.cpp:221 tScreenCarSelectTwoPlayer_vtable[18]
+  - raw slots: `0:00000000/00000000 1:00000000/8003e330 2:00000000/8003e4bc 3:00000000/8003ea14 4:00000000/8003f714 5:00000000/80026780 6:00000000/8003edc0 7:00000000/8003ee10 8:00000000/800268c0 9:00000000/8003bf90 10:00000000/8003e190 11:00000000/8003ed44 12:00000000/8003e3c8 13:00000000/8003e040 14:00000000/8003ed10 15:00000000/8003bca8 16:00000000/8003e49c 17:00000000/8003ec50`
+- `_vt.20tScreenCarSelectDuel` @ 0x80011c80; config `_vt_20tScreenCarSelectDuel`; source recon\game\common\vtables_tscreen.cpp:202 tScreenCarSelectDuel_vtable[17]
+  - raw slots: `0:00000000/00000000 1:00000000/8003d5e0 2:00000000/8003d7f0 3:00000000/8003de68 4:00000000/8003f758 5:00000000/8003d08c 6:00000000/8003d304 7:00000000/8003d334 8:00000000/800268c0 9:00000000/8003bf90 10:00000000/8003d364 11:00000000/8003d1e8 12:00000000/8003d69c 13:00000000/8003c224 14:00000000/8003d1b4 15:00000000/8003d1bc 16:00000000/8003d4bc`
+- `_vt.16tScreenCarSelect` @ 0x80011d08; config `_vt_16tScreenCarSelect`; source recon\game\common\vtables_tscreen2.cpp:34 tScreenCarSelect_vtable[16]
+  - raw slots: `0:00000000/00000000 1:00000000/8003bae0 2:00000000/8003c53c 3:00000000/8003c7d8 4:00000000/8003ac90 5:00000000/80026780 6:00000000/8003bd88 7:00000000/8003acb8 8:00000000/800268c0 9:00000000/8003bf90 10:00000000/8003c118 11:00000000/8003bcd0 12:00000000/8003bba4 13:00000000/8003c224 14:00000000/8003bc74 15:00000000/8003bca8`
+- `_vt.18tScreenTournSelect` @ 0x80011db0; config `_vt_18tScreenTournSelect`; source recon\game\common\vtables_tscreen2.cpp:91 tScreenTournSelect_vtable[10]
+  - raw slots: `0:00000000/00000000 1:00000000/8003f7d4 2:00000000/8003fe5c 3:00000000/800404d8 4:00000000/8003f7ac 5:00000000/80026780 6:00000000/8003f8a0 7:00000000/8003fae8 8:00000000/800268c0 9:00000000/800268d8`
+- `_vt.17tScreenTrophyRoom` @ 0x80011e28; config `_vt_17tScreenTrophyRoom`; source recon\game\common\vtables_tscreen2.cpp:115 tScreenTrophyRoom_vtable[10]
+  - raw slots: `0:00000000/00000000 1:00000000/800405d8 2:00000000/80040b18 3:00000000/800268e0 4:00000000/800405b0 5:00000000/800408a8 6:00000000/80040910 7:00000000/80040ae8 8:00000000/800268c0 9:00000000/80040698`
+- `_vt.17tScreenTrophyInfo` @ 0x80011e90; config `_vt_17tScreenTrophyInfo`; source recon\game\common\vtables_tscreen.cpp:116 tScreenTrophyInfo_vtable[10]
+  - raw slots: `0:00000000/00000000 1:00000000/80041008 2:00000000/80041138 3:00000000/800268e0 4:00000000/800415e0 5:00000000/80026780 6:00000000/800260ac 7:00000000/800261a0 8:00000000/800268c0 9:00000000/800268d8`
+- `_vt.18tScreenTrackSelect` @ 0x80011f08; config `_vt_18tScreenTrackSelect`; source recon\game\common\vtables_tscreen.cpp:92 tScreenTrackSelect_vtable[10]
+  - raw slots: `0:00000000/00000000 1:00000000/80041aac 2:00000000/80041600 3:00000000/800268e0 4:00000000/800421d4 5:00000000/80026780 6:00000000/80041b6c 7:00000000/80041d28 8:00000000/800268c0 9:00000000/8004200c`
+- `_vt.16tScreenTrackInfo` @ 0x80011f78; config `_vt_16tScreenTrackInfo`; source recon\game\common\vtables_tscreen.cpp:68 tScreenTrackInfo_vtable[10]
+  - raw slots: `0:00000000/00000000 1:00000000/800421f8 2:00000000/80042298 3:00000000/800268e0 4:00000000/80042628 5:00000000/80026780 6:00000000/80042520 7:00000000/800261a0 8:00000000/800268c0 9:00000000/8004258c`
+- `_vt.19tScreenTrackRecords` @ 0x80011ff0; config `_vt_19tScreenTrackRecords`; source recon\game\common\vtables_tscreen.cpp:80 tScreenTrackRecords_vtable[10]
+  - raw slots: `0:00000000/00000000 1:00000000/80042648 2:00000000/80042b48 3:00000000/800268e0 4:00000000/800430f8 5:00000000/80026780 6:00000000/8004266c 7:00000000/800426c4 8:00000000/800268c0 9:00000000/800268d8`
+- `_vt.23tScreenControllerConfig` @ 0x80012078; config `_vt_23tScreenControllerConfig`; source recon\game\common\vtables_tscreen2.cpp:67 tScreenControllerConfig_vtable[10]
+  - raw slots: `0:00000000/00000000 1:00000000/800456cc 2:00000000/80044e40 3:00000000/80045064 4:00000000/8004590c 5:00000000/80026780 6:00000000/800456fc 7:00000000/80045820 8:00000000/800268c0 9:00000000/800268d8`
+- `_vt.14tScreenDisplay` @ 0x800120d0; config `_vt_14tScreenDisplay`; source recon\game\common\vtables_tscreen.cpp:56 tScreenDisplay_vtable[10]
+  - raw slots: `0:00000000/00000000 1:00000000/800459dc 2:00000000/80045950 3:00000000/800268e0 4:00000000/80045a04 5:00000000/80026780 6:00000000/800260ac 7:00000000/800261a0 8:00000000/800268c0 9:00000000/800268d8`
+- `_vt.12tScreenAudio` @ 0x80012158; config `_vt_12tScreenAudio`; source recon\game\common\vtables_tscreen2.cpp:22 tScreenAudio_vtable[10]
+  - raw slots: `0:00000000/00000000 1:00000000/80046140 2:00000000/80045ed8 3:00000000/80045dc8 4:00000000/800462fc 5:00000000/80026780 6:00000000/800461a4 7:00000000/80046204 8:00000000/800268c0 9:00000000/800268d8`
+- `_vt.14tScreenMemcard` @ 0x80012228; config `_vt_14tScreenMemcard`; source recon\game\common\vtables_tscreen2.cpp:79 tScreenMemcard_vtable[10]
+  - raw slots: `0:00000000/00000000 1:00000000/80046320 2:00000000/80047470 3:00000000/80047ad8 4:00000000/80047e3c 5:00000000/80026780 6:00000000/80047c30 7:00000000/80047dd8 8:00000000/800268c0 9:00000000/800268d8`
+- `_vt.25tScreenTournamentCongrats` @ 0x800122a8; config `_vt_25tScreenTournamentCongrats`; source recon\game\common\vtables_tscreen.cpp:241 tScreenTournamentCongrats_vtable[13]
+  - raw slots: `0:00000000/00000000 1:00000000/80047e8c 2:00000000/8004813c 3:00000000/800489b0 4:00000000/800497a0 5:00000000/80026780 6:00000000/80048a2c 7:00000000/80047e60 8:00000000/800268c0 9:00000000/80048af0 10:00000000/8004963c 11:00000000/800496d4 12:00000000/800495e8`
+- `_vt.23tScreenBeTheCopCongrats` @ 0x80012310; config `_vt_23tScreenBeTheCopCongrats`; source recon\game\common\vtables_tscreen.cpp:187 tScreenBeTheCopCongrats_vtable[13]
+  - raw slots: `0:00000000/00000000 1:00000000/80047e8c 2:00000000/8004813c 3:00000000/800489b0 4:00000000/800497c0 5:00000000/80026780 6:00000000/80048a2c 7:00000000/80047e60 8:00000000/800268c0 9:00000000/80048af0 10:00000000/800494dc 11:00000000/8004952c 12:00000000/8004947c`
+- `_vt.23tScreenPinkSlipCongrats` @ 0x80012378; config `_vt_23tScreenPinkSlipCongrats`; source recon\game\common\vtables_tscreen.cpp:172 tScreenPinkSlipCongrats_vtable[13]
+  - raw slots: `0:00000000/00000000 1:00000000/80047e8c 2:00000000/8004813c 3:00000000/800489b0 4:00000000/800497e0 5:00000000/80026780 6:00000000/80048dec 7:00000000/80048e44 8:00000000/800268c0 9:00000000/80048af0 10:00000000/80048cdc 11:00000000/80048b48 12:00000000/80048c64`
+- `_vt.23tScreenTournamentTrophy` @ 0x800123e0; config `_vt_23tScreenTournamentTrophy`; source recon\game\common\vtables_tscreen.cpp:268 tScreenTournamentTrophy_vtable[13]
+  - raw slots: `0:00000000/00000000 1:00000000/80047e8c 2:00000000/8004813c 3:00000000/800489b0 4:00000000/80049800 5:00000000/80026780 6:00000000/80048a2c 7:00000000/80047e60 8:00000000/800268c0 9:00000000/80048e70 10:00000000/8004923c 11:00000000/80048f64 12:00000000/80048eb8`
+- `_vt.15tScreenCongrats` @ 0x80012448; config `_vt_15tScreenCongrats`; source recon\game\common\vtables_tscreen2.cpp:52 tScreenCongrats_vtable[13]
+  - raw slots: `0:00000000/00000000 1:00000000/80047e8c 2:00000000/8004813c 3:00000000/800489b0 4:00000000/80049820 5:00000000/80026780 6:00000000/80048a2c 7:00000000/80047e60 8:00000000/800268c0 9:00000000/80048af0 10:00000000/800489b8 11:00000000/800e4354 12:00000000/800480e4`
+- `_vt.15tScreenUserName` @ 0x800126e8; config `_vt_15tScreenUserName`; source recon\game\common\vtables_tscreen.cpp:104 tScreenUserName_vtable[10]
+  - raw slots: `0:00000000/00000000 1:00000000/8004b048 2:00000000/8004b1ac 3:00000000/800268e0 4:00000000/8004b7d4 5:00000000/80026780 6:00000000/8004af88 7:00000000/800261a0 8:00000000/800268c0 9:00000000/800268d8`

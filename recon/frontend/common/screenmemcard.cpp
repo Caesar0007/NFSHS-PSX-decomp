@@ -235,7 +235,7 @@ void tScreenMemcard::LoadIcon(int filenum)
         case 0x17:
           done = true;
           {
-            int pulled = done;
+            bool pulled = done;
             __asm__("" : "=r"(pulled) : "0"(pulled));
             this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = pulled;
           }
@@ -689,7 +689,7 @@ void tScreenMemcard::SetEnablings()
            (menuDefs[0]->itemSaveGame).fFlags | 1;
     }
   }
-  if (FECheat_IsTheUserACryBabyCheater() != (void *)0x0) {
+  if (FECheat_IsTheUserACryBabyCheater() != 0) {
     (menuDefs[0]->itemSaveGame).fFlags =
          (menuDefs[0]->itemSaveGame).fFlags | 1;
   }

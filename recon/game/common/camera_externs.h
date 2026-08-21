@@ -26,7 +26,7 @@ extern int Newton_FindGroundElevationGeneral(coorddef *point,coorddef *normal,co
 extern tReplayCameraModes Replay_ReplayCamera[2];    /* 0x8011704c */
 extern tReplayInterface Replay_ReplayInterface;
 extern void  Math_fasttransmult(matrixtdef *a, matrixtdef *b, matrixtdef *out);
-extern void *BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
+extern bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
 extern void *BWorldSm_UNormal(BWorldSm_Pos *pos);
 extern void Replay_ReplayFindClosestCamera(int player,int slice);
 extern void TrsProj_SetProjection(int cx,int cy,int w,int h);

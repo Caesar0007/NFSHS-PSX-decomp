@@ -6,6 +6,16 @@
 #include "track_externs.h"
 #include "new.h"
 
+/* Track.obj-owned aggregate data.  SYM gives the exact types and contiguous
+ * 0x8011E158..0x8011E1B0 extent; both aggregates are zero-initialized.
+ * Separate named sections keep this run apart from Track's already
+ * reconstructed dashboard pointer tables in ordinary .data and let the
+ * linker retain the SYM order despite gcc's tentative-object sorting. */
+Track_tArtresource gInitialArt
+    __attribute__((section(".data.track_initial_art")));
+Draw_tPixMap Track_gReflectionMaps[4]
+    __attribute__((section(".data.track_reflection_maps")));
+
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
@@ -21,14 +31,15 @@ TrackHeader *Track_header;
 Track_tMaterial *Track_materials;
 Track_tMaterialController *Track_gMatController;
 Trk_ObjectDef **Track_gObjDefs;
-int *Track_gInViewCount;
+u_char *Track_gInViewCount;
 int Chunk_numLight;
 int Track_gControllerCount;
 int gtrackNumber;
-short **Track_gInViewList;
+short (*Track_gInViewList)[32];
 
-/* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
-Track_MipMap *gTempMipMapInfo; Track_MultiPalette *gTempMultiPalInfo;
+/* ---- owning-TU file-statics (BSS; SYM STAT) ---- */
+static Track_MipMap *gTempMipMapInfo;
+static Track_MultiPalette *gTempMultiPalInfo;
 
 /* track.obj car-dashboard shape/tach name-prefix tables @0x80055A54 (contiguous; 58 char*,
  *   't'=day shapes / 'n'=night, decoded byte-exact from nfs4-f.exe via IDA NFS4.EXE.i64).
@@ -392,9 +403,9 @@ int Track_GetProperMultiPalShapeIndex(int shapeindex,int paletteindex)
 
 {
   Track_MultiPalette *pTVar1;
-  int iVar2;
+  int t;
 
-  iVar2 = 0;
+  t = 0;
   pTVar1 = gTempMultiPalInfo;
 TrkGetPal_loopTest:
   if (pTVar1->origshapeindex == shapeindex) {
@@ -402,9 +413,9 @@ TrkGetPal_loopTest:
       return (int)pTVar1->actualshapeindex;
     }
   }
-  iVar2 = iVar2 + 1;
+  t = t + 1;
   pTVar1 = pTVar1 + 1;
-  if (0x7f < iVar2) {
+  if (0x7f < t) {
     return shapeindex;
   }
   goto TrkGetPal_loopTest;
@@ -485,21 +496,21 @@ void Track_AssociateSingleMaterial(Trk_Material *inputMat,Track_tMaterial *outpu
 
 {
   int shapeIndex;
-  int anim_iter;
+  int animCount;
   Draw_tPixMap originalPmx;
 
   outputMat->flag = inputMat->flag;
-  anim_iter = 0;
+  animCount = 0;
 TrkAssoc_loopTest:
-  if (anim_iter < 1 || (anim_iter < (int)(u_int)(u_char)inputMat->textureCount)) {
+  if (animCount < 1 || (animCount < (int)(u_int)(u_char)inputMat->textureCount)) {
     if ((inputMat->uvFlag & 0x5e) != 0) {
       shapeIndex = (int)inputMat->shapeIndex;
       if ((inputMat->flag & 2) != 0) {
         shapeIndex = Track_GetProperMultiPalShapeIndex(shapeIndex,(u_int)inputMat->interval);
       }
-      originalPmx = art->pPmx[shapeIndex + anim_iter];
+      originalPmx = art->pPmx[shapeIndex + animCount];
       Track_ProcessFlipAndUVFlags((u_int)inputMat->uvFlag,&originalPmx,art->pPmx + art->pmxCount);
-      if (anim_iter == 0) {
+      if (animCount == 0) {
         outputMat->pmxIndex = (short)art->pmxCount;
       }
       art->pmxCount = art->pmxCount + 1;
@@ -509,11 +520,11 @@ TrkAssoc_loopTest:
       if ((inputMat->flag & 2) != 0) {
         shapeIndex = Track_GetProperMultiPalShapeIndex(shapeIndex,(u_int)inputMat->interval);
       }
-      if (anim_iter == 0) {
+      if (animCount == 0) {
         outputMat->pmxIndex = (short)shapeIndex;
       }
     }
-    anim_iter = anim_iter + 1;
+    animCount = animCount + 1;
     goto TrkAssoc_loopTest;
   }
   return;
@@ -840,9 +851,9 @@ void Track_Init(char *tempName)
   SerializedGroup * trackGroup;
   SerializedGroup * chunkGroup;
   int trackFileSize;
+  int size;
   SerializedGroup * group;
   Group *pThis;
-  int loadResult;
   SimpleMem *this_00;
   void *loadBuf;
   int scratchAlloc;
@@ -867,7 +878,6 @@ void Track_Init(char *tempName)
   int count;
   int iVar44_field;
   Chunk *chunkDat;
-  int chunkCount;
   int i;
   int groupOffset;
   int matOffset;
@@ -901,25 +911,25 @@ void Track_Init(char *tempName)
   Track_gSaveSurface = (SaveSurface *)0x0;
   Track_gObjDefs = (Trk_ObjectDef **)0x0;
   sprintf(trackName,"%s",tempName);
-  loadResult = filesize(tempName);
+  trackFileSize = filesize(tempName);
   uVar6 = 0x404;
   Chunk_lightTable = reservememadr("lighttbl",0x404,0);
   TextureProcess_Init();
-  chunkCount = loadResult + 0x9080;
+  size = trackFileSize + 0x9080;
   InitArtResources();
   TexturesLoadInitial();
   this_00 = __builtin_new(sizeof(SimpleMem));
-  loadBuf = reservememadr("Track_mem",chunkCount,0);
+  loadBuf = reservememadr("Track_mem",size,0);
   this_00->heap = loadBuf;
   this_00->freeMem = loadBuf;
   /* MATCH: retail re-READS the just-stored heap field; cse turns the load into a register
    * copy of the stored value (addu v1,v0,zero) and the freeMem store rides the branch slot. */
   if (this_00->heap == (void *)0x0) {
-    chunkCount = 0;
+    size = 0;
   }
-  this_00->freeMemSize = chunkCount;
+  this_00->freeMemSize = size;
   Track_mem = this_00;
-  scratchAlloc = (int)(this_00)->FeignAlloc(loadResult);
+  scratchAlloc = (int)(this_00)->FeignAlloc(trackFileSize);
   rootSerGroup = loadfileatadr(trackName,(void *)(scratchAlloc + 0x9080));
   groupBase = (int)((SerializedGroup *)rootSerGroup)->LocateCreateGroupType(0x1f,Track_mem,0);
   Track_header = (TrackHeader *)(groupBase + 4);
@@ -935,8 +945,8 @@ void Track_Init(char *tempName)
   }
   instSubGrp = (int)((SerializedGroup *)rootSerGroup)->LocateGroupType(0x23,0);
   Chunk_numLight = *(int *)(instSubGrp + 4) - 0x10U >> 2;
-  Track_gInViewList = (Track_mem)->Alloc(Track_header->chunkCount * 0x48,0);
-  Track_gInViewCount = (Track_mem)->Alloc(Track_header->chunkCount,0);
+  Track_gInViewList = (short (*)[32])(Track_mem)->Alloc(Track_header->chunkCount * 0x48,0);
+  Track_gInViewCount = (u_char *)(Track_mem)->Alloc(Track_header->chunkCount,0);
   Track_chunkList = (Track_mem)->Alloc(Track_header->chunkCount * 0x70,0);
   Chunk_Init();
   persistentGroup = ((SerializedGroup *)rootSerGroup)->LocateGroupType(0x21,0);

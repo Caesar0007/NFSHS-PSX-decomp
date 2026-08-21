@@ -9,7 +9,7 @@
 extern void trap(int code);   /* gcc MIPS div/overflow break helper */
 
 /* ---- cross-TU globals ---- */
-extern int              gMPauseUpdateNextTime;        /* mpause.obj */
+extern bool             gMPauseUpdateNextTime;        /* mpause.obj; SYM BOOL */
 extern GameSetup_tData  GameSetup_gData;              /* gamesetup.obj */
 extern HudPmx_tShape    HudPmx_gShapes[];             /* hud.obj */
 

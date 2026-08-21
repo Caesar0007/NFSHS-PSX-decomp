@@ -5,12 +5,17 @@
 #ifndef REPLAY_EXTERNS_H
 #define REPLAY_EXTERNS_H
 
-/* ---- replay state globals ---- */
-extern tReplayBuffer      Replay_ReplayBuffer;       /* 0x8011716c (27180B; .buffer[24576] @0xA2C) */
+/* ---- replay state globals ----
+ * Main-data declarations follow replay.obj's exact SYM/retail VA order. */
+extern int                ReplayCameraList[9];       /* 0x80117008 */
 extern tReplayInterface   Replay_ReplayInterface;    /* 0x8011702c */
 extern tReplayCameraModes Replay_ReplayCamera[2];    /* 0x8011704c */
-extern tControllerData    controlData[];             /* 0x8011706c (256B) */
-extern int                Replay_ReplayCounter[2];   /* 0x8013d400 */
+extern tControllerData    controlData[2];            /* 0x8011706c (256B) */
+extern tReplayBuffer      Replay_ReplayBuffer;       /* 0x8011716c (27180B; .buffer[24576] @0xA2C) */
+extern char               compressed_data[33];       /* 0x8011db98 */
+extern char               uncompressed_data[32];     /* 0x8011dbbc */
+extern Camera_tCamSlot    gReplayCameraSlots[32];    /* 0x8011dbdc (1024B) */
+
 /* W65-A8 ORDER IS LOAD-BEARING (16E + the first-declaration refinement):
  * a TU-owned tentative definition is emitted in the order its identifier is
  * FIRST DECLARED -- which is HERE, not at the definition in the .cpp.  These
@@ -21,12 +26,9 @@ extern int                numValidCams;              /* 0x8013d3f0 */
 extern int                Replay_ReplayMode;         /* 0x8013d3f4 */
 extern int                Replay_ReplayStorePtr;     /* 0x8013d3f8 */
 extern int                Replay_ReplayGetPtr;       /* 0x8013d3fc */
-extern int                ReplayCameraList[];        /* 0x80117008 (int[9]) */
-extern char               compressed_data[33];       /* 0x8011db98 */
-extern char               uncompressed_data[32];     /* 0x8011dbbc */
+extern int                Replay_ReplayCounter[2];   /* 0x8013d400 */
 
 /* ---- camera + slices ---- */
-extern Camera_tCamSlot    gReplayCameraSlots[];      /* 0x8011dbdc (1024B) */
 extern camera_info        Camera_gInfo[];            /* 0x8010f2ac (544B) */
 extern int                gNumSlices;                /* 0x8013c7c8 */
 

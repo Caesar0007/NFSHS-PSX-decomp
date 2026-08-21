@@ -162,13 +162,13 @@ LAB_80073218:
 /* ---- AIWorld_SplineDistance__FP8Car_tObjT0  [@0x80073224] ---- */
 int AIWorld_SplineDistance(Car_tObj *carObj,Car_tObj *otherCarObj)
 {
-  int iVar1;
+  int distance;
 
-  iVar1 = AIWorld_ApxSplineDistance(carObj,otherCarObj);
-  if (iVar1 + 0xc0000U < 0x180001) {
+  distance = AIWorld_ApxSplineDistance(carObj,otherCarObj);
+  if (distance + 0xc0000U < 0x180001) {
     return AIWorld_ZSplineDistance(carObj,otherCarObj);
   }
-  return iVar1;
+  return distance;
 }
 
 /* ---- AIWorld_SplineDistance__FP8Car_tObjiP8coorddef  [@0x8007327c] ---- */
@@ -334,12 +334,9 @@ int AIWorld_LaneIndex(int slice,int position)
 /* ---- AIWorld_CalculateLaneInfo__FP8Car_tObj  [@0x80073594] ---- */
 void AIWorld_CalculateLaneInfo(Car_tObj *carObj)
 {
-  u_int rightEdgeIndex;   /* SYM: REG -- u_int: the <0xe clamp test is UNSIGNED (sltiu) */
-  u_int leftEdgeIndex;     /* SYM: REG */
-  u_int laneLoop;            /* SYM: REG -- loop induction var, separate from leftEdgeIndex.
-                                 The LOOP compare itself is SIGNED (oracle `slt`, not `sltu`) --
-                                 explicit (int) casts on both sides reproduce that mixed
-                                 unsigned-clamp/signed-loop idiom. */
+  int rightEdgeIndex;   /* SYM: REG INT; clamp expression is explicitly unsigned (`sltiu`). */
+  int leftEdgeIndex;    /* SYM: REG INT */
+  int laneLoop;         /* SYM: REG INT; loop comparison remains signed (`slt`). */
   int iVar2;
 
   carObj->carInLane = 0;
@@ -355,7 +352,7 @@ void AIWorld_CalculateLaneInfo(Car_tObj *carObj)
                        (carObj->roadPosition - carObj->roadSpan) + 0x8000);
     rightEdgeIndex = AIWorld_LaneIndex((int)(carObj->N).simRoadInfo.slice,
                        carObj->roadPosition + carObj->roadSpan + -0x8000);
-    if ((rightEdgeIndex < 0xe) && (leftEdgeIndex < 0xe)) {
+    if (((u_int)rightEdgeIndex < 0xe) && ((u_int)leftEdgeIndex < 0xe)) {
       for (laneLoop = leftEdgeIndex; (int)laneLoop <= (int)rightEdgeIndex; laneLoop = laneLoop + 1) {
         carObj->carInLane = carObj->carInLane | 1 << laneLoop;
       }
@@ -501,7 +498,7 @@ int AIWorld_CalcLateralVelocity(Car_tObj *carObj)
 void AIWorld_FindBarrierLessLaneAndPosition(Car_tObj *carObj,int *goodLane,int *goodPosition)
 {
   int roadSide;    /* SYM: REG -- direction*driveSide, rewired from anonymous iVar2 */
-  u_int laneWidth;   /* SYM: REG -- materialized PRE-SHIFTED (byte<<15) right where the byte is
+  int laneWidth;   /* SYM: REG INT -- materialized PRE-SHIFTED (byte<<15) right where the byte is
                          read (oracle: `sll s1,v0,15` right after each branch's `lbu`), not kept
                          raw and multiplied later -- lets the shifted value be reused directly
                          by the loop-trailing multiply/shift below without re-deriving it. */
@@ -523,6 +520,6 @@ void AIWorld_FindBarrierLessLaneAndPosition(Car_tObj *carObj,int *goodLane,int *
     if (iVar3 != 0) break;
     *goodLane = *goodLane + roadSide;
   }
-  *goodPosition = roadSide * (laneWidth * laneLoop + (laneWidth >> 1));
+  *goodPosition = roadSide * (laneWidth * laneLoop + ((u_int)laneWidth >> 1));
   return;
 }

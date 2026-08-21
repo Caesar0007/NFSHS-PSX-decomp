@@ -32,7 +32,7 @@ extern char  D_80055374[];   /* "%sbtcglue.bin" */
 extern char  D_80055384[];   /* "%shhglue.bin"  */
 extern char  D_80055394[];   /* "%sglue.bin"    */
 
-/* ---- aiperson.obj-owned globals (defined in func_va_data.cpp at data-mat time) ---- */
+/* ---- aiperson.obj-owned globals (defined in aiperson.cpp, per SYM) ---- */
 extern int          AIPerson_blockMaxDistance[4];        /* @0x8010d5cc */
 extern int          AIPerson_blockMinDistance[4];        /* @0x8010d5dc */
 extern int          AIPerson_oncomingLookAhead[4];       /* @0x8010d5ec */

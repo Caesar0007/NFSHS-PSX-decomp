@@ -69,7 +69,7 @@ void Clock_SystemCleanUp(void);
 int  Init_Memcard(bool, bool);
 int  DeInit_Memcard(void);
 int  StatChk_ClearNewRecords(void);
-void *StatChk_IsRecordLapTime(Car_tStats *, short, short *);
+bool StatChk_IsRecordLapTime(Car_tStats *, short, short *);  /* SYM: FCN bool */
 short StatChk_IsTopTime(Car_tStats *, short);
 int  SavePinkSlipsCarsWithErrorDialogs(short, short, short);
 char *PlayerName(int);

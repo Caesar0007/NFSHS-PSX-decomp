@@ -326,6 +326,10 @@ void tScreenAudio::Cleanup()
   gMasterAmbientLevel = (int)(byte)frontEnd.ambientVolume;
   AudioMus_Volume((int)(byte)frontEnd.musicVolume * 0x23 >> 6);
   this->tScreen::Cleanup();
+  /* SYM-CODEGEN-CARRIER: info
+   * The SYM has no named local here, but retail materializes &ginfo once in
+   * $s0 for the line-339 wait loop. Direct while/goto spellings cost 5/11+
+   * diffs; this anonymous-address carrier preserves the exact 62-word body. */
   SPEECHINFO *info = &ginfo;
 L_wait:
   if ((*(u_short *)&info->areLoading) != 0) {

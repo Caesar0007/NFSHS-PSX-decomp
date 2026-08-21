@@ -36,14 +36,14 @@ extern int            gNumSlices;
 extern int    Skid_gCtrlScratch_94, Skid_gCtrlScratch_98, Skid_gScratchPos1, Skid_gScratchPos2;
 extern CTrackSpec     TrackSpec_gSpec;           /* 0x8012327c */
 extern int   BWorldSm_FindClosestQuadRez(coorddef *c, BWorldSm_Pos *pos, int rez);
-extern int  *Track_gInViewCount;     /* = Alloc(...), indexed */
+extern u_char *Track_gInViewCount;     /* = Alloc(...), indexed */
 extern int Loading_UpdateLoadingScreen(int);
 extern int Night_gLightningType;
 extern int Night_gXDistShift;
 extern int Night_gZDistShift;
 extern int Night_gZNear;
 extern int gNight_renderNight;
-extern short ** Track_gInViewList;
+extern short (*Track_gInViewList)[32];
 extern u_long              gWSavePtr;
 extern void  Math_fasttransmult(matrixtdef *a, matrixtdef *b, matrixtdef *out);
 extern void BWorldSm_Restart(void);

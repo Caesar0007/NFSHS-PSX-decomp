@@ -30,8 +30,8 @@ speedData_t  *AISpeeds_TrackSpeeds[11] = {   /* @0x8010dd78 : image ptrs 0x8013c
 };
 AISpeeds_tLeaderBoard leaderBoard;   /* @0x8010dda4  (bss(zero)) */
 AISpeeds_tSlotInfo CaravanInfo[6];   /* @0x8010ddb4  (bss(zero)) */
-int          *AISpeeds_WeatherMultFactors;   /* @0x8013c5b0  (bss(zero)) */
-int          AISpeeds_trackAndNightMult;   /* @0x8013c5b4  (bss(zero)) */
+static int   *AISpeeds_WeatherMultFactors;   /* @0x8013c5b0  (bss(zero); SYM STAT) */
+static int   AISpeeds_trackAndNightMult;   /* @0x8013c5b4  (bss(zero); SYM STAT) */
 speedData_t  Track0Speeds[1] = { {10000u, 7395u} };   /* @0x8013c5b8 */
 speedData_t  Track1Speeds[1] = { {10000u, 7395u} };   /* @0x8013c5bc */
 speedData_t  Track4Speeds[1] = { {10000u, 5688u} };   /* @0x8013c5c0 */
@@ -90,7 +90,7 @@ void AISpeeds_ReadTuningInfo(void)
   /* SYM names this induction variable `curveLoop` in $a1. The direct
    * multiplication is important: retail strength-reduces it to the running
    * $v1 accumulator visible in the oracle. */
-  int iVar3;
+  int curveLoop;
   int slotLoop;
 
   sprintf(filename,"%stuning.bin",Paths_Paths[2]);
@@ -159,9 +159,9 @@ void AISpeeds_ReadTuningInfo(void)
     }
   }
   weatherRamp = Udff_GetInt(handle);
-  for (iVar3 = 0; iVar3 < 0x41; iVar3 = iVar3 + 1) {
-    AISpeeds_WeatherMultFactors[iVar3] =
-        0x10000 - (weatherRamp * iVar3) / 0x40;
+  for (curveLoop = 0; curveLoop < 0x41; curveLoop = curveLoop + 1) {
+    AISpeeds_WeatherMultFactors[curveLoop] =
+        0x10000 - (weatherRamp * curveLoop) / 0x40;
   }
   Udff_GetBuffer(handle,(char *)&engineUpgrade,0x10);
   Udff_GetBuffer(handle,(char *)&suspensionUpgrade,0x10);
@@ -563,7 +563,7 @@ int AISpeeds_GetCaravanFactor(Car_tObj *carObj)
   int direction;
   int followBehindDist;
   int halfMaintainTime;
-  u_int slot;   /* SYM name: slot */
+  int slot;   /* SYM: REG INT slot */
 
   slot = carObj->AISlot;
   nextAICar = AISpeeds_GetNextAICar(carObj);
@@ -652,7 +652,7 @@ LAB_8006e444:
   }
   if (((((int)slot < Cars_gNumAIRaceCars + -1) && (carObj->fallBehindCar == (Car_tObj *)0x0)) &&
       ((int)(u_int)(carObj->N).totalSlice < GameSetup_gData.numLaps * gNumSlices + -0x14d)) &&
-     ((1 < slot || (leaderBoard.leadRacer != Cars_gHumanRaceCarList[0])))) {
+     ((1U < (u_int)slot || (leaderBoard.leadRacer != Cars_gHumanRaceCarList[0])))) {
     /* H36 (wave-21 real bug): oracle @0x8006e5b4-0x8006e638 continues past the fastRandom
      * re-seed with a stochastic "pick up a fall-behind car" roll gated by
      * CaravanInfo[slot].fallBackRandomTime_TickPercent * AI_elapsedTime, then calls
@@ -1240,49 +1240,49 @@ int AISpeeds_CalcHumanTopSpeed(Car_tObj *carObj)
  *  and maps through the car's curve-speed table. Unrolled exactly as in the binary. */
 int AISpeeds_CalcHumanCurveSpeed(Car_tObj *carObj)
 {
-  int slice = (int)carObj->N.simRoadInfo.slice;
-  int idx, off, c, best;
+  int sliceHere = (int)carObj->N.simRoadInfo.slice;
+  int sliceAhead, off, curveAhead, tightestCurve;
 
-  idx = slice;
-  if (gNumSlices <= idx) idx = slice - gNumSlices;
-  best = AIDataRecord_TrackCurve->Get(idx);
+  sliceAhead = sliceHere;
+  if (gNumSlices <= sliceAhead) sliceAhead = sliceHere - gNumSlices;
+  tightestCurve = AIDataRecord_TrackCurve->Get(sliceAhead);
 
   off = carObj->direction * 4;
-  idx = slice + off;
-  if (0 <= off) { if (gNumSlices <= idx) idx -= gNumSlices; }
-  else if (idx < 0) idx += gNumSlices;
-  c = AIDataRecord_TrackCurve->Get(idx); if (best < c) best = c;
+  sliceAhead = sliceHere + off;
+  if (0 <= off) { if (gNumSlices <= sliceAhead) sliceAhead -= gNumSlices; }
+  else if (sliceAhead < 0) sliceAhead += gNumSlices;
+  curveAhead = AIDataRecord_TrackCurve->Get(sliceAhead); if (tightestCurve < curveAhead) tightestCurve = curveAhead;
 
   off = carObj->direction * 8;
-  idx = slice + off;
-  if (0 <= off) { if (gNumSlices <= idx) idx -= gNumSlices; }
-  else if (idx < 0) idx += gNumSlices;
-  c = AIDataRecord_TrackCurve->Get(idx); if (best < c) best = c;
+  sliceAhead = sliceHere + off;
+  if (0 <= off) { if (gNumSlices <= sliceAhead) sliceAhead -= gNumSlices; }
+  else if (sliceAhead < 0) sliceAhead += gNumSlices;
+  curveAhead = AIDataRecord_TrackCurve->Get(sliceAhead); if (tightestCurve < curveAhead) tightestCurve = curveAhead;
 
   off = carObj->direction * 0xc;
-  idx = slice + off;
-  if (0 <= off) { if (gNumSlices <= idx) idx -= gNumSlices; }
-  else if (idx < 0) idx += gNumSlices;
-  c = AIDataRecord_TrackCurve->Get(idx); if (best < c) best = c;
+  sliceAhead = sliceHere + off;
+  if (0 <= off) { if (gNumSlices <= sliceAhead) sliceAhead -= gNumSlices; }
+  else if (sliceAhead < 0) sliceAhead += gNumSlices;
+  curveAhead = AIDataRecord_TrackCurve->Get(sliceAhead); if (tightestCurve < curveAhead) tightestCurve = curveAhead;
 
   off = carObj->direction * 0x10;
-  idx = slice + off;
-  if (0 <= off) { if (gNumSlices <= idx) idx -= gNumSlices; }
-  else if (idx < 0) idx += gNumSlices;
-  c = AIDataRecord_TrackCurve->Get(idx); if (best < c) best = c;
+  sliceAhead = sliceHere + off;
+  if (0 <= off) { if (gNumSlices <= sliceAhead) sliceAhead -= gNumSlices; }
+  else if (sliceAhead < 0) sliceAhead += gNumSlices;
+  curveAhead = AIDataRecord_TrackCurve->Get(sliceAhead); if (tightestCurve < curveAhead) tightestCurve = curveAhead;
 
   off = carObj->direction * 0x14;
-  idx = slice + off;
-  if (0 <= off) { if (gNumSlices <= idx) idx -= gNumSlices; }
-  else if (idx < 0) idx += gNumSlices;
-  c = AIDataRecord_TrackCurve->Get(idx); if (best < c) best = c;
+  sliceAhead = sliceHere + off;
+  if (0 <= off) { if (gNumSlices <= sliceAhead) sliceAhead -= gNumSlices; }
+  else if (sliceAhead < 0) sliceAhead += gNumSlices;
+  curveAhead = AIDataRecord_TrackCurve->Get(sliceAhead); if (tightestCurve < curveAhead) tightestCurve = curveAhead;
 
-  /* Keep the product temporary separate, then reuse `best` for the quotient:
+  /* Keep the product temporary separate, then reuse `tightestCurve` for the quotient:
    * this is the oracle's a1 -> s0 handoff and gives an exact 183/183 match. */
-  int scaled = best * 0x1a666;
+  int scaled = tightestCurve * 0x1a666;
   if (scaled < 0) scaled = scaled + 0xffff;
-  best = scaled >> 0x10;
-  if (0xff < best) best = 0xff;
-  return carObj->curveSpeedTable->Get(best);
+  tightestCurve = scaled >> 0x10;
+  if (0xff < tightestCurve) tightestCurve = 0xff;
+  return carObj->curveSpeedTable->Get(tightestCurve);
 }
 

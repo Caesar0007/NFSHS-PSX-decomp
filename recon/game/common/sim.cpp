@@ -5,6 +5,12 @@
 #include "../../nfs4_types.h"
 #include "sim_externs.h"
 
+/* sim.obj-owned initialized/aggregate data in retail address order.
+ * SYM places this exact 68-byte run at 0x8011E09C..0x8011E0E0. */
+int counter[4] = { 320, 384, 448, 512 };
+Sim_tSimGlobalVar simGlobal;
+Sim_tSimSystemVar simVar;
+
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
@@ -35,7 +41,7 @@ void Sim_Restart(void);
 void Sim_CleanUp(void);
 void Sim_FadeInSFX(void);
 void Sim_ProcessSimSchedules(void);
-void Sim_ProcessPause(void);
+static void Sim_ProcessPause(void);
 void Sim_CheckForPause(int checkInput);
 void Sim_MainGameLoop(void);
 
@@ -230,7 +236,7 @@ countdown_index_ready:
 }
 
 /* ---- Sim_ProcessPause__Fv  [SIM.CPP:467-531] SLD-VERIFIED ---- */
-void Sim_ProcessPause(void)
+static void Sim_ProcessPause(void)
 
 {
   int iVar1;

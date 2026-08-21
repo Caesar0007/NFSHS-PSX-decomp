@@ -97,7 +97,7 @@ void tScreenCongrats::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
 }
 
 /* ---- tScreenCongrats::GetCar  (screencongrats.cpp:121) ---- */
-int tScreenCongrats::GetCar(tCarInfo &carInfo)
+bool tScreenCongrats::GetCar(tCarInfo &carInfo)
 
 {
   
@@ -363,10 +363,9 @@ void tScreenCongrats::Initialize()
   vtbl = this->_vf;
   (*vtbl[1][0].pfn)((char *)this + vtbl[1][0].delta);
   vtbl = this->_vf;
-  tick = (*vtbl[1][2].pfn)
+  this->fGotCar = (*(bool (*)(...))vtbl[1][2].pfn)
                     ((char *)this + vtbl[1][2].delta,
                      &this->fCarInfo);
-  this->fGotCar = tick;
   /* MATCH: use the field directly in the comparison and division. GCC CSEs the
      load later, after lowering signed /64 to retail's bgez/addiu/sra sequence;
      a cached local lets its value-range pass incorrectly remove that sequence. */
@@ -440,7 +439,7 @@ void tScreenPinkSlipCongrats::DrawCongratsMessage()
 }
 
 /* ---- tScreenPinkSlipCongrats::GetCar  (screencongrats.cpp:456) ---- */
-int tScreenPinkSlipCongrats::GetCar(tCarInfo &carInfo)
+bool tScreenPinkSlipCongrats::GetCar(tCarInfo &carInfo)
 
 {
 
@@ -556,7 +555,7 @@ void tScreenTournamentTrophy::ProcessInput(tPlayer p,tInputKeyType &keyval,tMenu
 }
 
 /* ---- tScreenTournamentTrophy::GetCar  (screencongrats.cpp:531) ---- */
-int tScreenTournamentTrophy::GetCar(tCarInfo &carInfo)
+bool tScreenTournamentTrophy::GetCar(tCarInfo &carInfo)
 
 {
   tCarInfo *srcCar;
@@ -792,7 +791,7 @@ prizes_done:
 }
 
 /* ---- tScreenBeTheCopCongrats::GetCar  (screencongrats.cpp:746) ---- */
-int tScreenBeTheCopCongrats::GetCar(tCarInfo &carInfo)
+bool tScreenBeTheCopCongrats::GetCar(tCarInfo &carInfo)
 
 {
   tCarInfo *srcCar;
@@ -858,7 +857,7 @@ void tScreenBeTheCopCongrats::DrawCongratsMessage()
 }
 
 /* ---- tScreenTournamentCongrats::GetCar  (screencongrats.cpp:796) ---- */
-int tScreenTournamentCongrats::GetCar(tCarInfo &carInfo)
+bool tScreenTournamentCongrats::GetCar(tCarInfo &carInfo)
 
 {
   tCarInfo *srcCar;

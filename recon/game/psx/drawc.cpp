@@ -2637,7 +2637,7 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
                int envmap,Draw_CarCache *sd)
 
 {
-  u_int facetIdx;
+  int i;
   COORD16 *Nvertice;
   u_char *u2;
   int vt2_00;
@@ -2721,41 +2721,42 @@ gte_stlvnl((char *)sd + 0x9c);
 gte_SetRotMatrix(((char *)sd + 0x14));
 gte_SetTransMatrix(((char *)sd + 0x14));
   /* SYM block-scope rebuild: SYM's {vt,tV} block (va 0x800c16bc-0x800c1840)
-   * wraps a nested {x,y,z}/{t1,t2,t3} loop block chain -- fresh block-scoped
-   * locals here (psVar8 shadows the outer/later-reused function-scope one;
-   * tV_dst/vertex_p/vertCounter/psVar22/vert_y/vert_z/vy_word/vz_word are
-   * ONLY used in this loop, so they move down entirely). */
+   * wraps nested {x,y,z}/{t1,t2,t3} blocks.  Typed 6-byte/8-byte walkers replace
+   * the raw integer and short cursors, while the named triples preserve retail's
+   * load/store batching.  This reduced the authoritative residual 420 -> 384. */
   {
-    short *psVar8 = &sd->tV[0].vt.z;
-    int tV_dst = (int)sd->tV;
-    int vertex_p = (int)obj->vertex;
-    int vertCounter = (int)obj->numVertex;
-    short *psVar22 = (short *)(vertex_p + 4);
+    COORD16 *vt = obj->vertex;
+    PCOORD16 *tV = (PCOORD16 *)sd->tV;
+    i = (int)obj->numVertex;
     while( true ) {
-      vertCounter = vertCounter - 1;
-      if (vertCounter == -1) break;
-      short vert_y = psVar22[-1];
-      short vert_z = *psVar22;
-      (((Draw_CarVertex *)tV_dst)->vt).x = *(short *)vertex_p;
-      psVar8[-1] = vert_y;
-      *psVar8 = vert_z;
+      i = i - 1;
+      if (i == -1) break;
+      {
+        short t1 = vt->x;
+        short t2 = vt->y;
+        short t3 = vt->z;
+        tV->x = t1;
+        tV->y = t2;
+        tV->z = t3;
+      }
 gte_ldv0((char *)sd + 0xd0);
       gte_rt();
 gte_stlvnl((char *)sd + 0x9c);
-      psVar22 = psVar22 + 3;
-      int vy_word = (sd->tv).vy;
-      int vz_word = (sd->tv).vz;
-      vertex_p = vertex_p + 6;
-      *(short *)tV_dst = (short)(sd->tv).vx;
-      psVar8[-1] = (short)vy_word;
-      *psVar8 = (short)vz_word;
-      psVar8 = psVar8 + 4;
-      tV_dst = tV_dst + 8;
+      {
+        int x = (sd->tv).vx;
+        int y = (sd->tv).vy;
+        int z = (sd->tv).vz;
+        tV->x = (short)x;
+        tV->y = (short)y;
+        tV->z = (short)z;
+      }
+      vt = vt + 1;
+      tV = tV + 1;
     }
   }
 gte_SetRotMatrix(&DrawC_gScreenMat);
 gte_SetTransMatrix(&DrawC_gScreenMat);
-  facetIdx = (u_int)obj->numFacet;
+  i = (int)obj->numFacet;
   /* dispatch = real switch(envmap&9), case bodies in oracle VA order
    * (case 0 @0x800C18E0, 1 @0x800C2000, 8 @0x800C25BC, 9 @0x800C2AA0) */
   switch (envmap & 9) {
@@ -2766,21 +2767,21 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
          * names redeclared per case block (wave-9 same-identifier lever);
          * loop rebuilt as while+continue chains per the oracle's slot-filled
          * -1/+1 counter compensation (raw 0x800C18F4..0x800C1CB0). */
-        u_int *prim;
-        int facet;
+        POLY_FT3 *prim;
+        Transformer_zFacet *facet;
         int id0;
         int id1;
         int id2;
         int otzSum;
         while( true ) {
-          facetIdx = facetIdx - 1;
-          if (facetIdx == 0xffffffff) {
+          i = i - 1;
+          if (i == -1) {
             return;
           }
-          facet = (int)(obj->facet + facetIdx);
-          id2 = *(u_char *)(facet + 5);
-          id0 = *(u_char *)(facet + 3);
-          id1 = *(u_char *)(facet + 4);
+          facet = obj->facet + i;
+          id2 = facet->vertexId2;
+          id0 = facet->vertexId0;
+          id1 = facet->vertexId1;
           if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) continue;
           /* SYM 3.8b: id0-2 morph index->address in place (oracle sll aN,aN,3) */
           do { id2 = id2 * 8; } while (0);
@@ -2837,48 +2838,48 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
             long xy2 = *(long *)&sd->dvx2;
             long xy0 = *(long *)&sd->dvx0;
             long xy1 = *(long *)&sd->dvx1;
-            prim[6] = xy2;
-            prim[2] = xy0;
-            prim[4] = xy1;
+            *(u_int *)&prim->x2 = xy2;
+            *(u_int *)&prim->x0 = xy0;
+            *(u_int *)&prim->x1 = xy1;
           }
           {
             u_long color = sd->color;
             u_char code = 0x24;
-            if ((*(u_short *)facet & 1) != 0) {
+            if (((u_short)facet->flag & 1) != 0) {
               code = 0x26;
             }
-            prim[1] = color;
-            *(u_char *)((int)prim + 7) = code;
+            *(u_int *)&prim->r0 = color;
+            prim->code = code;
           }
-          if (((envmap & 2U) != 0) && ((*(u_short *)facet & 1) == 0)) {
+          if (((envmap & 2U) != 0) && (((u_short)facet->flag & 1) == 0)) {
             /* SYM block line=189 {pmx {u0..v2,u,v,clut,tpage}} */
-            Draw_tPixMap *pmx = sd->pmxStart + *(u_char *)(facet + 2);
+            Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex;
             u_char u = sd->offsetU0;
             u_char v = sd->offsetV0;
             u_short clut = pmx->clut;
             u_short tpage = pmx->tpage;
-            *(u_short *)((int)prim + 0xe) = clut;
-            *(u_short *)((int)prim + 0x16) = tpage;
+            prim->clut = clut;
+            prim->tpage = tpage;
             {
-              u_char u0 = *(u_char *)(facet + 6) + u;
-              u_char u1 = *(u_char *)(facet + 8) + u;
-              u_char u2 = *(u_char *)(facet + 10) + u;
-              *(u_char *)(prim + 3) = u0;
-              *(u_char *)(prim + 5) = u1;
-              *(u_char *)(prim + 7) = u2;
+              u_char u0 = facet->uv0.u + u;
+              u_char u1 = facet->uv1.u + u;
+              u_char u2 = facet->uv2.u + u;
+              prim->u0 = u0;
+              prim->u1 = u1;
+              prim->u2 = u2;
             }
             {
-              u_char v0 = *(u_char *)(facet + 7) + v;
-              u_char v1 = *(u_char *)(facet + 9) + v;
-              u_char v2 = *(u_char *)(facet + 11) + v;
-              *(u_char *)((int)prim + 0xd) = v0;
-              *(u_char *)((int)prim + 0x15) = v1;
-              *(u_char *)((int)prim + 0x1d) = v2;
+              u_char v0 = facet->uv0.v + v;
+              u_char v1 = facet->uv1.v + v;
+              u_char v2 = facet->uv2.v + v;
+              prim->v0 = v0;
+              prim->v1 = v1;
+              prim->v2 = v2;
             }
           }
           else {
             /* SYM block line=194 {pmx {offsetU,offsetV {u0..v2,clut,tpage}}} */
-            Draw_tPixMap *pmx = sd->pmxStart + *(u_char *)(facet + 2);
+            Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex;
             if ((*(u_short *)((int)pmx + 0xe) & 0x7f) != 0) {
               u_char offsetU = sd->offsetU1;
               u_char offsetV = sd->offsetV1;
@@ -2889,24 +2890,24 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
               {
                 u_short clut = pmx->clut;
                 u_short tpage = pmx->tpage;
-                *(u_short *)((int)prim + 0xe) = clut;
-                *(u_short *)((int)prim + 0x16) = tpage;
+                prim->clut = clut;
+                prim->tpage = tpage;
               }
               {
-                u_char u0 = *(u_char *)(facet + 6) + offsetU;
-                u_char u1 = *(u_char *)(facet + 8) + offsetU;
-                u_char u2 = *(u_char *)(facet + 10) + offsetU;
-                *(u_char *)(prim + 3) = u0;
-                *(u_char *)(prim + 5) = u1;
-                *(u_char *)(prim + 7) = u2;
+                u_char u0 = facet->uv0.u + offsetU;
+                u_char u1 = facet->uv1.u + offsetU;
+                u_char u2 = facet->uv2.u + offsetU;
+                prim->u0 = u0;
+                prim->u1 = u1;
+                prim->u2 = u2;
               }
               {
-                u_char v0 = *(u_char *)(facet + 7) + offsetV;
-                u_char v1 = *(u_char *)(facet + 9) + offsetV;
-                u_char v2 = *(u_char *)(facet + 11) + offsetV;
-                *(u_char *)((int)prim + 0xd) = v0;
-                *(u_char *)((int)prim + 0x15) = v1;
-                *(u_char *)((int)prim + 0x1d) = v2;
+                u_char v0 = facet->uv0.v + offsetV;
+                u_char v1 = facet->uv1.v + offsetV;
+                u_char v2 = facet->uv2.v + offsetV;
+                prim->v0 = v0;
+                prim->v1 = v1;
+                prim->v2 = v2;
               }
             }
             else {
@@ -2916,14 +2917,14 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
               u_short uv0;
               u_short uv1;
               u_short uv2;
-              *(u_short *)((int)prim + 0xe) = clut;
-              *(u_short *)((int)prim + 0x16) = tpage;
-              uv0 = *(u_short *)(facet + 6);
-              uv1 = *(u_short *)(facet + 8);
-              uv2 = *(u_short *)(facet + 10);
-              *(u_short *)(prim + 3) = uv0;
-              *(u_short *)(prim + 5) = uv1;
-              *(u_short *)(prim + 7) = uv2;
+              prim->clut = clut;
+              prim->tpage = tpage;
+              uv0 = *(u_short *)&facet->uv0;
+              uv1 = *(u_short *)&facet->uv1;
+              uv2 = *(u_short *)&facet->uv2;
+              *(u_short *)&prim->u0 = uv0;
+              *(u_short *)&prim->u1 = uv1;
+              *(u_short *)&prim->u2 = uv2;
             }
           }
         }
@@ -2934,39 +2935,39 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
       vt2_00 = (int)&sd->vt4;
       u2 = &sd->u4;
       while( true ) {
-        facetIdx = facetIdx - 1;
-        if (facetIdx == 0xffffffff) break;
+        i = i - 1;
+        if (i == -1) break;
         {
         /* SYM block line=218 {facet,id0,id1,id2,pmx} -- literal repeated SYM
          * names redeclared per case block (wave-9 same-identifier lever) */
-        int facet = (int)(obj->facet + facetIdx);
-        int id0 = *(u_char *)(facet + 3);
-        int id1 = *(u_char *)(facet + 4);
-        int id2 = *(u_char *)(facet + 5);
-        Draw_tPixMap *pmx = sd->pmxStart + *(u_char *)(facet + 2);
+        Transformer_zFacet *facet = obj->facet + i;
+        int id0 = facet->vertexId0;
+        int id1 = facet->vertexId1;
+        int id2 = facet->vertexId2;
+        Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex;
         {
-          u_short *z = (u_short *)(sd->tV + id0);
-          u_short t1 = z[0];
-          u_short t2 = z[1];
-          u_short t3 = z[2];
+          short *z = (short *)(sd->tV + id0);
+          short t1 = z[0];
+          short t2 = z[1];
+          short t3 = z[2];
           (sd->vt0).x = t1;
           (sd->vt0).y = t2;
           (sd->vt0).z = t3;
         }
         {
-          u_short *z = (u_short *)(sd->tV + id1);
-          u_short t1 = z[0];
-          u_short t2 = z[1];
-          u_short t3 = z[2];
+          short *z = (short *)(sd->tV + id1);
+          short t1 = z[0];
+          short t2 = z[1];
+          short t3 = z[2];
           (sd->vt1).x = t1;
           (sd->vt1).y = t2;
           (sd->vt1).z = t3;
         }
         {
-          u_short *z = (u_short *)(sd->tV + id2);
-          u_short t1 = z[0];
-          u_short t2 = z[1];
-          u_short t3 = z[2];
+          short *z = (short *)(sd->tV + id2);
+          short t1 = z[0];
+          short t2 = z[1];
+          short t3 = z[2];
           (sd->vt2).x = t1;
           (sd->vt2).y = t2;
           (sd->vt2).z = t3;
@@ -2981,9 +2982,9 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         (sd->vt5).y = (short)((sd->vt2).y + (sd->vt0).y + 1 >> 1);
         (sd->vt5).z = (short)((sd->vt2).z + (sd->vt0).z + 1 >> 1);
         {
-          u_short uv0 = *(u_short *)(facet + 6);
-          u_short uv1 = *(u_short *)(facet + 8);
-          u_short uv2 = *(u_short *)(facet + 10);
+          u_short uv0 = *(u_short *)&facet->uv0;
+          u_short uv1 = *(u_short *)&facet->uv1;
+          u_short uv2 = *(u_short *)&facet->uv2;
           *(u_short *)&sd->u0 = uv0;
           *(u_short *)&sd->u1 = uv1;
           *(u_short *)&sd->u2 = uv2;
@@ -3020,21 +3021,21 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     /* SYM block line=279 {prim,facet,id0,id1,id2} -- literal repeated SYM
      * names redeclared per case block (wave-9 same-identifier lever);
      * loop rebuilt as while+continue chains per the oracle (0x800C2014..). */
-    u_int *prim;
-    int facet;
+    POLY_FT3 *prim;
+    Transformer_zFacet *facet;
     int id0;
     int id1;
     int id2;
     int otzSum;
     while( true ) {
-      facetIdx = facetIdx - 1;
-      if (facetIdx == 0xffffffff) {
+      i = i - 1;
+      if (i == -1) {
         return;
       }
-      facet = (int)(obj->facet + facetIdx);
-      id2 = *(u_char *)(facet + 5);
-      id0 = *(u_char *)(facet + 3);
-      id1 = *(u_char *)(facet + 4);
+      facet = obj->facet + i;
+      id2 = facet->vertexId2;
+      id0 = facet->vertexId0;
+      id1 = facet->vertexId1;
       if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) continue;
       /* SYM 3.8b: id0-2 morph index->address in place (oracle sll aN,aN,3) */
       id2 = id2 * 8; id2 = id2 + (int)sd;
@@ -3084,30 +3085,30 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
       sd->otz = otzSum;
       if (otzSum < 0) continue;
       if (sd->sub_otSize < otzSum) continue;
-      if (((*(u_short *)facet & 0x3f3) != 0) && (*(int *)&sd->ePmx1 != 0)) {
+      if ((((u_short)facet->flag & 0x3f3) != 0) && (*(int *)&sd->ePmx1 != 0)) {
         {
-          u_short *z = (u_short *)&Nvertice[*(u_char *)(facet + 3)];
-          u_short t1 = z[0];
-          u_short t2 = z[1];
-          u_short t3 = z[2];
+          short *z = (short *)&Nvertice[facet->vertexId0];
+          short t1 = z[0];
+          short t2 = z[1];
+          short t3 = z[2];
           (sd->vt0).x = t1;
           (sd->vt0).y = t2;
           (sd->vt0).z = t3;
         }
         {
-          u_short *z = (u_short *)&Nvertice[*(u_char *)(facet + 4)];
-          u_short t1 = z[0];
-          u_short t2 = z[1];
-          u_short t3 = z[2];
+          short *z = (short *)&Nvertice[facet->vertexId1];
+          short t1 = z[0];
+          short t2 = z[1];
+          short t3 = z[2];
           (sd->vt1).x = t1;
           (sd->vt1).y = t2;
           (sd->vt1).z = t3;
         }
         {
-          u_short *z = (u_short *)&Nvertice[*(u_char *)(facet + 5)];
-          u_short t1 = z[0];
-          u_short t2 = z[1];
-          u_short t3 = z[2];
+          short *z = (short *)&Nvertice[facet->vertexId2];
+          short t1 = z[0];
+          short t2 = z[1];
+          short t3 = z[2];
           (sd->vt2).x = t1;
           (sd->vt2).y = t2;
           (sd->vt2).z = t3;
@@ -3119,17 +3120,17 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           long xy0 = *(long *)&sd->dvx0;
           long xy1 = *(long *)&sd->dvx1;
           long xy2 = *(long *)&sd->dvx2;
-          prim[2] = xy0;
-          prim[4] = xy1;
-          prim[6] = xy2;
+          *(u_int *)&prim->x0 = xy0;
+          *(u_int *)&prim->x1 = xy1;
+          *(u_int *)&prim->x2 = xy2;
         }
-        prim[1] = sd->eColor0;
-        *(u_char *)((int)prim + 7) = 0x26;
+        *(u_int *)&prim->r0 = sd->eColor0;
+        prim->code = 0x26;
         {
           u_short clut = (sd->ePmx1).clut;
           u_short tpage = (sd->ePmx1).tpage;
-          *(u_short *)((int)prim + 0xe) = clut;
-          *(u_short *)((int)prim + 0x16) = tpage;
+          prim->clut = clut;
+          prim->tpage = tpage;
         }
         DRAWC_UVTINT_VT(sd, prim);
       }
@@ -3139,17 +3140,17 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           long xy0 = *(long *)&sd->dvx0;
           long xy1 = *(long *)&sd->dvx1;
           long xy2 = *(long *)&sd->dvx2;
-          prim[2] = xy0;
-          prim[4] = xy1;
-          prim[6] = xy2;
+          *(u_int *)&prim->x0 = xy0;
+          *(u_int *)&prim->x1 = xy1;
+          *(u_int *)&prim->x2 = xy2;
         }
-        prim[1] = sd->eColor0;
-        *(u_char *)((int)prim + 7) = 0x26;
+        *(u_int *)&prim->r0 = sd->eColor0;
+        prim->code = 0x26;
         {
           u_short clut = (sd->ePmx0).clut;
           u_short tpage = (sd->ePmx0).tpage;
-          *(u_short *)((int)prim + 0xe) = clut;
-          *(u_short *)((int)prim + 0x16) = tpage;
+          prim->clut = clut;
+          prim->tpage = tpage;
         }
         {
           u_char u = (sd->ePmx0).u0 + 0x40;
@@ -3163,27 +3164,27 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         long xy0 = *(long *)&sd->dvx0;
         long xy1 = *(long *)&sd->dvx1;
         long xy2 = *(long *)&sd->dvx2;
-        prim[2] = xy0;
-        prim[4] = xy1;
-        prim[6] = xy2;
+        *(u_int *)&prim->x0 = xy0;
+        *(u_int *)&prim->x1 = xy1;
+        *(u_int *)&prim->x2 = xy2;
       }
-      prim[1] = sd->color;
-      *(u_char *)((int)prim + 7) = 0x24;
+      *(u_int *)&prim->r0 = sd->color;
+      prim->code = 0x24;
       {
-        Draw_tPixMap *pmx = sd->pmxStart + *(u_char *)(facet + 2);
+        Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex;
         u_short clut = pmx->clut;
         u_short tpage = pmx->tpage;
         u_short uv0;
         u_short uv1;
         u_short uv2;
-        *(u_short *)((int)prim + 0xe) = clut;
-        *(u_short *)((int)prim + 0x16) = tpage;
-        uv0 = *(u_short *)(facet + 6);
-        uv1 = *(u_short *)(facet + 8);
-        uv2 = *(u_short *)(facet + 10);
-        *(u_short *)(prim + 3) = uv0;
-        *(u_short *)(prim + 5) = uv1;
-        *(u_short *)(prim + 7) = uv2;
+        prim->clut = clut;
+        prim->tpage = tpage;
+        uv0 = *(u_short *)&facet->uv0;
+        uv1 = *(u_short *)&facet->uv1;
+        uv2 = *(u_short *)&facet->uv2;
+        *(u_short *)&prim->u0 = uv0;
+        *(u_short *)&prim->u1 = uv1;
+        *(u_short *)&prim->u2 = uv2;
       }
     }
   }
@@ -3191,11 +3192,11 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     /* SYM block line=449 {prim,overlayFlag,facetFlag,facet,id0,id1,id2} --
      * literal repeated SYM names redeclared per case (wave-9 lever); loop
      * rebuilt as while+continue chains per the oracle (0x800C25D0..). */
-    u_int *prim;
+    POLY_FT3 *prim;
     int overlayFlag;
     int overlayRaw;
     short facetFlag;
-    int facet;
+    Transformer_zFacet *facet;
     int id0;
     int id1;
     int id2;
@@ -3203,14 +3204,14 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     int sd_otz;
     int otzSum;
     while( true ) {
-      facetIdx = facetIdx - 1;
-      if (facetIdx == 0xffffffff) {
+      i = i - 1;
+      if (i == -1) {
         return;
       }
-      facet = (int)(obj->facet + facetIdx);
-      id2 = *(u_char *)(facet + 5);
-      id0 = *(u_char *)(facet + 3);
-      id1 = *(u_char *)(facet + 4);
+      facet = obj->facet + i;
+      id2 = facet->vertexId2;
+      id0 = facet->vertexId0;
+      id1 = facet->vertexId1;
       if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) continue;
       /* SYM 3.8b: id0-2 morph index->address in place (oracle sll aN,aN,3) */
       do { id2 = id2 * 8; } while (0);
@@ -3260,7 +3261,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
       gte_stOTZm(sd->otz);
       /* raw<<16 kept live: the facetFlag<0 rescale is sra 24 of the SAME shifted
        * value (oracle lhu; sll 16; sra 16 ... sra 24 -- single table read) */
-      overlayRaw = (int)((u_int)(u_short)DrawC_gOverlay[*(u_char *)(facet + 2)] << 0x10);
+      overlayRaw = (int)((u_int)(u_short)DrawC_gOverlay[facet->textureIndex] << 0x10);
       overlayFlag = overlayRaw >> 0x10;
       if (overlayFlag != 0) {
         facetFlag = *(short *)facet;
@@ -3296,22 +3297,22 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         sd->otz = otzSum;
         if (otzSum < 0) continue;
         if (sd->sub_otSize < otzSum) continue;
-        facet_flag = *(u_short *)facet & 0xfff;
+        facet_flag = (u_short)facet->flag & 0xfff;
       }
       if ((overlayFlag & 3) != 0) {
         /* SYM block line=550 {index,which,facetOverlay} -- FT3B overlay variant */
-        int index = *(u_char *)(facet + 2);
+        int index = facet->textureIndex;
         int which = (overlayFlag & 3) - 1;
         Transformer_zOverlay *facetOverlay = overlay + index * 3 + which;
-        prim = (u_int *)(sd->head).cprim.PrimPtr;
+        prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr;
         DRAWC_OTLINK_FT3B(sd, prim);
         {
           long xy0 = *(long *)&sd->dvx0;
           long xy1 = *(long *)&sd->dvx1;
           long xy2 = *(long *)&sd->dvx2;
-          prim[2] = xy0;
-          prim[4] = xy1;
-          prim[6] = xy2;
+          *(u_int *)&prim->x0 = xy0;
+          *(u_int *)&prim->x1 = xy1;
+          *(u_int *)&prim->x2 = xy2;
         }
         {
           u_long color = 0x808080;
@@ -3322,32 +3323,32 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           if ((facet_flag & 1) != 0) {
             code = 0x26;
           }
-          prim[1] = color;
-          *(u_char *)((int)prim + 7) = code;
+          *(u_int *)&prim->r0 = color;
+          prim->code = code;
         }
         {
-          Draw_tPixMap *pmx = sd->pmxStart + (*(u_char *)(facet + 2) + facetOverlay->offset);
+          Draw_tPixMap *pmx = sd->pmxStart + (facet->textureIndex + facetOverlay->offset);
           u_char u = facetOverlay->u;
           u_char v = facetOverlay->v;
           u_short clut = pmx->clut;
           u_short tpage = pmx->tpage;
-          *(u_short *)((int)prim + 0xe) = clut;
-          *(u_short *)((int)prim + 0x16) = tpage;
+          prim->clut = clut;
+          prim->tpage = tpage;
           {
-            u_char u0 = *(u_char *)(facet + 6) + u;
-            u_char u1 = *(u_char *)(facet + 8) + u;
-            u_char u2 = *(u_char *)(facet + 10) + u;
-            *(u_char *)(prim + 3) = u0;
-            *(u_char *)(prim + 5) = u1;
-            *(u_char *)(prim + 7) = u2;
+            u_char u0 = facet->uv0.u + u;
+            u_char u1 = facet->uv1.u + u;
+            u_char u2 = facet->uv2.u + u;
+            prim->u0 = u0;
+            prim->u1 = u1;
+            prim->u2 = u2;
           }
           {
-            u_char v0 = *(u_char *)(facet + 7) + v;
-            u_char v1 = *(u_char *)(facet + 9) + v;
-            u_char v2 = *(u_char *)(facet + 11) + v;
-            *(u_char *)((int)prim + 0xd) = v0;
-            *(u_char *)((int)prim + 0x15) = v1;
-            *(u_char *)((int)prim + 0x1d) = v2;
+            u_char v0 = facet->uv0.v + v;
+            u_char v1 = facet->uv1.v + v;
+            u_char v2 = facet->uv2.v + v;
+            prim->v0 = v0;
+            prim->v1 = v1;
+            prim->v2 = v2;
           }
         }
       }
@@ -3357,9 +3358,9 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           long xy0 = *(long *)&sd->dvx0;
           long xy1 = *(long *)&sd->dvx1;
           long xy2 = *(long *)&sd->dvx2;
-          prim[2] = xy0;
-          prim[4] = xy1;
-          prim[6] = xy2;
+          *(u_int *)&prim->x0 = xy0;
+          *(u_int *)&prim->x1 = xy1;
+          *(u_int *)&prim->x2 = xy2;
         }
         {
           u_long color = 0x808080;
@@ -3370,24 +3371,24 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           if ((facet_flag & 1) != 0) {
             code = 0x26;
           }
-          prim[1] = color;
-          *(u_char *)((int)prim + 7) = code;
+          *(u_int *)&prim->r0 = color;
+          prim->code = code;
         }
         {
-          Draw_tPixMap *pmx = sd->pmxStart + *(u_char *)(facet + 2);
+          Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex;
           u_short clut = pmx->clut;
           u_short tpage = pmx->tpage;
           u_short uv0;
           u_short uv1;
           u_short uv2;
-          *(u_short *)((int)prim + 0xe) = clut;
-          *(u_short *)((int)prim + 0x16) = tpage;
-          uv0 = *(u_short *)(facet + 6);
-          uv1 = *(u_short *)(facet + 8);
-          uv2 = *(u_short *)(facet + 10);
-          *(u_short *)(prim + 3) = uv0;
-          *(u_short *)(prim + 5) = uv1;
-          *(u_short *)(prim + 7) = uv2;
+          prim->clut = clut;
+          prim->tpage = tpage;
+          uv0 = *(u_short *)&facet->uv0;
+          uv1 = *(u_short *)&facet->uv1;
+          uv2 = *(u_short *)&facet->uv2;
+          *(u_short *)&prim->u0 = uv0;
+          *(u_short *)&prim->u1 = uv1;
+          *(u_short *)&prim->u2 = uv2;
         }
       }
     }
@@ -3396,11 +3397,11 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     /* SYM block line=609 {prim,overlayFlag,facetFlag,facet,id0,id1,id2} --
      * literal repeated SYM names redeclared per case (wave-9 lever); loop
      * rebuilt as while+continue chains per the oracle (0x800C2AB4..). */
-    u_int *prim;
+    POLY_FT3 *prim;
     int overlayFlag;
     int overlayRaw;
     short facetFlag;
-    int facet;
+    Transformer_zFacet *facet;
     int id0;
     int id1;
     int id2;
@@ -3408,14 +3409,14 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     int sd_otz;
     int otzSum;
     while( true ) {
-      facetIdx = facetIdx - 1;
-      if (facetIdx == 0xffffffff) {
+      i = i - 1;
+      if (i == -1) {
         return;
       }
-      facet = (int)(obj->facet + facetIdx);
-      id2 = *(u_char *)(facet + 5);
-      id0 = *(u_char *)(facet + 3);
-      id1 = *(u_char *)(facet + 4);
+      facet = obj->facet + i;
+      id2 = facet->vertexId2;
+      id0 = facet->vertexId0;
+      id1 = facet->vertexId1;
       if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) continue;
       /* SYM 3.8b: id0-2 morph index->address in place (oracle sll aN,aN,3) */
       id2 = id2 * 8; id2 = id2 + (int)sd;
@@ -3463,7 +3464,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
       gte_stOTZm(sd->otz);
       /* raw<<16 kept live: the facetFlag<0 rescale is sra 24 of the SAME shifted
        * value (oracle lhu; sll 16; sra 16 ... sra 24 -- single table read) */
-      overlayRaw = (int)((u_int)(u_short)DrawC_gOverlay[*(u_char *)(facet + 2)] << 0x10);
+      overlayRaw = (int)((u_int)(u_short)DrawC_gOverlay[facet->textureIndex] << 0x10);
       overlayFlag = overlayRaw >> 0x10;
       if (overlayFlag != 0) {
         facetFlag = *(short *)facet;
@@ -3496,35 +3497,35 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         sd->otz = otzSum;
         if (otzSum < 0) continue;
         if (sd->sub_otSize < otzSum) continue;
-        facet_flag = *(u_short *)facet & 0xfff;
+        facet_flag = (u_short)facet->flag & 0xfff;
       }
       if ((envmap & 0x20U) != 0) {
         if ((facet_flag & 1) != 0) continue;
       }
       if (((facet_flag & 0x3f3) != 0) && (*(int *)&sd->ePmx1 != 0)) {
         {
-          u_short *z = (u_short *)&Nvertice[*(u_char *)(facet + 3)];
-          u_short t1 = z[0];
-          u_short t2 = z[1];
-          u_short t3 = z[2];
+          short *z = (short *)&Nvertice[facet->vertexId0];
+          short t1 = z[0];
+          short t2 = z[1];
+          short t3 = z[2];
           (sd->vt0).x = t1;
           (sd->vt0).y = t2;
           (sd->vt0).z = t3;
         }
         {
-          u_short *z = (u_short *)&Nvertice[*(u_char *)(facet + 4)];
-          u_short t1 = z[0];
-          u_short t2 = z[1];
-          u_short t3 = z[2];
+          short *z = (short *)&Nvertice[facet->vertexId1];
+          short t1 = z[0];
+          short t2 = z[1];
+          short t3 = z[2];
           (sd->vt1).x = t1;
           (sd->vt1).y = t2;
           (sd->vt1).z = t3;
         }
         {
-          u_short *z = (u_short *)&Nvertice[*(u_char *)(facet + 5)];
-          u_short t1 = z[0];
-          u_short t2 = z[1];
-          u_short t3 = z[2];
+          short *z = (short *)&Nvertice[facet->vertexId2];
+          short t1 = z[0];
+          short t2 = z[1];
+          short t3 = z[2];
           (sd->vt2).x = t1;
           (sd->vt2).y = t2;
           (sd->vt2).z = t3;
@@ -3536,17 +3537,17 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           long xy0 = *(long *)&sd->dvx0;
           long xy1 = *(long *)&sd->dvx1;
           long xy2 = *(long *)&sd->dvx2;
-          prim[2] = xy0;
-          prim[4] = xy1;
-          prim[6] = xy2;
+          *(u_int *)&prim->x0 = xy0;
+          *(u_int *)&prim->x1 = xy1;
+          *(u_int *)&prim->x2 = xy2;
         }
-        prim[1] = sd->eColor0;
-        *(u_char *)((int)prim + 7) = 0x26;
+        *(u_int *)&prim->r0 = sd->eColor0;
+        prim->code = 0x26;
         {
           u_short clut = (sd->ePmx1).clut;
           u_short tpage = (sd->ePmx1).tpage;
-          *(u_short *)((int)prim + 0xe) = clut;
-          *(u_short *)((int)prim + 0x16) = tpage;
+          prim->clut = clut;
+          prim->tpage = tpage;
         }
         DRAWC_UVTINT_VT(sd, prim);
       }
@@ -3556,25 +3557,25 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           long xy0 = *(long *)&sd->dvx0;
           long xy1 = *(long *)&sd->dvx1;
           long xy2 = *(long *)&sd->dvx2;
-          prim[2] = xy0;
-          prim[4] = xy1;
-          prim[6] = xy2;
+          *(u_int *)&prim->x0 = xy0;
+          *(u_int *)&prim->x1 = xy1;
+          *(u_int *)&prim->x2 = xy2;
         }
         if ((overlayFlag & 1) != 0) {
-          prim[1] = sd->eColor2;
+          *(u_int *)&prim->r0 = sd->eColor2;
         }
         else if ((facet_flag & 4) != 0) {
-          prim[1] = sd->eColor1;
+          *(u_int *)&prim->r0 = sd->eColor1;
         }
         else {
-          prim[1] = sd->eColor0;
+          *(u_int *)&prim->r0 = sd->eColor0;
         }
-        *(u_char *)((int)prim + 7) = 0x26;
+        prim->code = 0x26;
         {
           u_short clut = (sd->ePmx0).clut;
           u_short tpage = (sd->ePmx0).tpage;
-          *(u_short *)((int)prim + 0xe) = clut;
-          *(u_short *)((int)prim + 0x16) = tpage;
+          prim->clut = clut;
+          prim->tpage = tpage;
         }
         {
           u_char u = (sd->ePmx0).u0 + 0x40;
@@ -3585,18 +3586,18 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
       }
       if ((overlayFlag & 3) != 0) {
         /* SYM block {index,which,facetOverlay} -- FT3B overlay variant */
-        int index = *(u_char *)(facet + 2);
+        int index = facet->textureIndex;
         int which = (overlayFlag & 3) - 1;
         Transformer_zOverlay *facetOverlay = overlay + index * 3 + which;
-        prim = (u_int *)(sd->head).cprim.PrimPtr;
+        prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr;
         DRAWC_OTLINK_FT3B(sd, prim);
         {
           long xy0 = *(long *)&sd->dvx0;
           long xy1 = *(long *)&sd->dvx1;
           long xy2 = *(long *)&sd->dvx2;
-          prim[2] = xy0;
-          prim[4] = xy1;
-          prim[6] = xy2;
+          *(u_int *)&prim->x0 = xy0;
+          *(u_int *)&prim->x1 = xy1;
+          *(u_int *)&prim->x2 = xy2;
         }
         {
           u_long color = sd->color;
@@ -3604,35 +3605,35 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           if ((facet_flag & 1) != 0) {
             code = 0x26;
           }
-          prim[1] = color;
-          *(u_char *)((int)prim + 7) = code;
+          *(u_int *)&prim->r0 = color;
+          prim->code = code;
           if ((facet_flag & 1) != 0) {
-            *(u_char *)((int)prim + 7) = code | 2;
+            prim->code = code | 2;
           }
         }
         {
-          Draw_tPixMap *pmx = sd->pmxStart + (*(u_char *)(facet + 2) + facetOverlay->offset);
+          Draw_tPixMap *pmx = sd->pmxStart + (facet->textureIndex + facetOverlay->offset);
           u_char u = facetOverlay->u;
           u_char v = facetOverlay->v;
           u_short clut = pmx->clut;
           u_short tpage = pmx->tpage;
-          *(u_short *)((int)prim + 0xe) = clut;
-          *(u_short *)((int)prim + 0x16) = tpage;
+          prim->clut = clut;
+          prim->tpage = tpage;
           {
-            u_char u0 = *(u_char *)(facet + 6) + u;
-            u_char u1 = *(u_char *)(facet + 8) + u;
-            u_char u2 = *(u_char *)(facet + 10) + u;
-            *(u_char *)(prim + 3) = u0;
-            *(u_char *)(prim + 5) = u1;
-            *(u_char *)(prim + 7) = u2;
+            u_char u0 = facet->uv0.u + u;
+            u_char u1 = facet->uv1.u + u;
+            u_char u2 = facet->uv2.u + u;
+            prim->u0 = u0;
+            prim->u1 = u1;
+            prim->u2 = u2;
           }
           {
-            u_char v0 = *(u_char *)(facet + 7) + v;
-            u_char v1 = *(u_char *)(facet + 9) + v;
-            u_char v2 = *(u_char *)(facet + 11) + v;
-            *(u_char *)((int)prim + 0xd) = v0;
-            *(u_char *)((int)prim + 0x15) = v1;
-            *(u_char *)((int)prim + 0x1d) = v2;
+            u_char v0 = facet->uv0.v + v;
+            u_char v1 = facet->uv1.v + v;
+            u_char v2 = facet->uv2.v + v;
+            prim->v0 = v0;
+            prim->v1 = v1;
+            prim->v2 = v2;
           }
         }
       }
@@ -3642,9 +3643,9 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           long xy0 = *(long *)&sd->dvx0;
           long xy1 = *(long *)&sd->dvx1;
           long xy2 = *(long *)&sd->dvx2;
-          prim[2] = xy0;
-          prim[4] = xy1;
-          prim[6] = xy2;
+          *(u_int *)&prim->x0 = xy0;
+          *(u_int *)&prim->x1 = xy1;
+          *(u_int *)&prim->x2 = xy2;
         }
         {
           u_long color = sd->color;
@@ -3652,24 +3653,24 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           if ((facet_flag & 1) != 0) {
             code = 0x26;
           }
-          prim[1] = color;
-          *(u_char *)((int)prim + 7) = code;
+          *(u_int *)&prim->r0 = color;
+          prim->code = code;
         }
         {
-          Draw_tPixMap *pmx = sd->pmxStart + *(u_char *)(facet + 2);
+          Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex;
           u_short clut = pmx->clut;
           u_short tpage = pmx->tpage;
           u_short uv0;
           u_short uv1;
           u_short uv2;
-          *(u_short *)((int)prim + 0xe) = clut;
-          *(u_short *)((int)prim + 0x16) = tpage;
-          uv0 = *(u_short *)(facet + 6);
-          uv1 = *(u_short *)(facet + 8);
-          uv2 = *(u_short *)(facet + 10);
-          *(u_short *)(prim + 3) = uv0;
-          *(u_short *)(prim + 5) = uv1;
-          *(u_short *)(prim + 7) = uv2;
+          prim->clut = clut;
+          prim->tpage = tpage;
+          uv0 = *(u_short *)&facet->uv0;
+          uv1 = *(u_short *)&facet->uv1;
+          uv2 = *(u_short *)&facet->uv2;
+          *(u_short *)&prim->u0 = uv0;
+          *(u_short *)&prim->u1 = uv1;
+          *(u_short *)&prim->u2 = uv2;
         }
       }
     }
@@ -3727,6 +3728,9 @@ void DrawC_PrimMenu(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
      * `i =`, before the two gte_Set macros, and spelling it `(char *)sd + 215`
      * -- source position inside the preheader is a no-op against loop.c's
      * hoists.  Storing `.v` before `.u` = 6. */
+    /* SYM-TYPE-OVERRIDE: tV -- SYM exposes the layout-compatible PCOORD16
+       debug view, but the real Draw_CarVertex walker is required for the
+       loop.c-eliminated stride-8 giv that seals this function at PASS480. */
     Draw_CarVertex *tV;
 
     vt = Nvertice;
@@ -3841,6 +3845,9 @@ gte_SetTransMatrix(((char *)sd + 0x14));
    * strength reduction creates the t9 giv (i*12, decremented alongside the counter) */
   for (;;) {
     POLY_FT3 *prim;
+    /* SYM-TYPE-OVERRIDE: facetFlag -- the debug record says short, but using
+       short changes the frame and register allocation (PASS480 -> 113 diffs).
+       The widened masked value below is the measured retail codegen carrier. */
     u_int facetFlag;   /* SYM $t3 = flag & 0xfff (the MASKED value), not the raw field */
     u_short rawFlag;
     int overlayFlag;
@@ -4237,7 +4244,7 @@ void DrawC_PrimHalo(matrixtdef *m,coorddef *t,Transformer_zObj *obj,int type,int
     u_short id1;
     u_short id2;
     int bfct;
-    u_int overlayFlag;
+    int overlayFlag;
     u_long *copyLastPrim;
     {
         {
@@ -4281,31 +4288,31 @@ void DrawC_PrimHalo(matrixtdef *m,coorddef *t,Transformer_zObj *obj,int type,int
 gte_SetRotMatrix(((char *)sd + 0x14));
 gte_SetTransMatrix(((char *)sd + 0x14));
           {
-            COORD16 *z; short t1,t2,t3;
-            z = vertice + id0;
-            t1 = z->x;
-            t2 = z->y;
-            t3 = z->z;
+            short *z; short t1,t2,t3;
+            z = (short *)(vertice + id0);
+            t1 = z[0];
+            t2 = z[1];
+            t3 = z[2];
             (sd->vt0).x = t1;
             (sd->vt0).y = t2;
             (sd->vt0).z = t3;
           }
           {
-            COORD16 *z; short t1,t2,t3;
-            z = vertice + id1;
-            t1 = z->x;
-            t2 = z->y;
-            t3 = z->z;
+            short *z; short t1,t2,t3;
+            z = (short *)(vertice + id1);
+            t1 = z[0];
+            t2 = z[1];
+            t3 = z[2];
             (sd->vt1).x = t1;
             (sd->vt1).y = t2;
             (sd->vt1).z = t3;
           }
           {
-            COORD16 *z; short t1,t2,t3;
-            z = vertice + id2;
-            t1 = z->x;
-            t2 = z->y;
-            t3 = z->z;
+            short *z; short t1,t2,t3;
+            z = (short *)(vertice + id2);
+            t1 = z[0];
+            t2 = z[1];
+            t3 = z[2];
             (sd->vt2).x = t1;
             (sd->vt2).y = t2;
             (sd->vt2).z = t3;
@@ -5084,10 +5091,10 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         (sd->vt0).z = t3;
       }
       {
-        COORD16 *z = Fe3D_lightsVertex + iPlus;
-        short t1 = z->x;
-        short t2 = z->y;
-        short t3 = z->z;
+        short *z = (short *)(Fe3D_lightsVertex + iPlus);
+        short t1 = z[0];
+        short t2 = z[1];
+        short t3 = z[2];
         (sd->vt1).x = t1;
         (sd->vt1).y = t2;
         (sd->vt1).z = t3;
@@ -5102,10 +5109,10 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         (sd->vt2).z = t3;
       }
       {
-        COORD16 *z = &Fe3D_lightsVertex[iPlus + 1];
-        short t1 = z->x;
-        short t2 = z->y;
-        short t3 = z->z;
+        short *z = (short *)&Fe3D_lightsVertex[iPlus + 1];
+        short t1 = z[0];
+        short t2 = z[1];
+        short t3 = z[2];
         (sd->vt3).x = t1;
         (sd->vt3).y = t2;
         (sd->vt3).z = t3;

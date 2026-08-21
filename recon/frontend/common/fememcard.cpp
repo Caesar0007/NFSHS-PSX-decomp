@@ -25,9 +25,9 @@
    than dest-as-temp (lui a0; lw a0,(a0)); §3.15-CORRECTION. */
 int          CURRENTPLAYER[1] = { 0 };   /* @0x80051a68; SYM-CARRIER: CURRENTPLAYER */
 char         productCode[11] = { 83, 76, 85, 83, 45, 48, 48, 56, 50, 54, 0 };   /* @0x80051a6c */
-BOOL         nomessage = 0;   /* @0x80051a78  SYM BOOL (4 B) */
-BOOL         CURRENTLYUSINGMEMCARD = 0;   /* @0x80051a7c  SYM BOOL */
-BOOL         MEMCARD_INITIALIZED = 0;     /* @0x80051a80  SYM BOOL */
+bool         nomessage = false;   /* @0x80051a78  SYM BOOL (4 B) */
+bool         CURRENTLYUSINGMEMCARD = false;   /* @0x80051a7c  SYM BOOL */
+bool         MEMCARD_INITIALIZED = false;     /* @0x80051a80  SYM BOOL */
 int          textSysMemCardFail_Index[7] = { 0, 677, 685, 675, 811, 671, 669 };   /* @0x80051a84 */
 
 /* [HEADER WISH -- TU-local TRUE-TYPE redeclarations via asm labels; the shared headers declare
@@ -386,9 +386,9 @@ void DeInit_Memcard(void)
   padrestorestarttick = ticks_arr[0];
   do { } while (ticks_arr[0] - padrestorestarttick < 0xc0);
   padinit();
-  /* W62-A17: the `*(int*)&` header-wish workaround is retired -- fememcard_externs.h now
-     declares MEMCARDFRONTENDISINITTED with its true 4-byte type. */
-  if (MEMCARDFRONTENDISINITTED != 0) {
+  /* Keep the word-shaped codegen carrier TU-local; the shared declaration now
+     records the honest C++ bool type. */
+  if (MEMCARDFRONTENDISINITTED_word != 0) {
     UpdateMusic(FEApp[0]);
   }
   return;
@@ -399,10 +399,6 @@ void DeInit_Memcard(void)
 void Init_MemcardFile(MCRDFILE_def &memCardFile,short cardnum,bool notitle)
 
 {
-  void *pvVar1;
-  char *pcVar2;
-  char *pcVar3;
-  
   blockclear(&memCardFile,0x2c);
   memCardFile.name = "NFS4";
   /* [branch-polarity fix] oracle's beqz skips the (rare) notitle==true case out-of-line and
@@ -412,15 +408,11 @@ void Init_MemcardFile(MCRDFILE_def &memCardFile,short cardnum,bool notitle)
     TITLE[0] = '\0';
   }
   else {
-    pvVar1 = PlayerNameExist((uint)(cardnum == 5));
-    if (pvVar1 != (void *)0x0) {
-      pcVar2 = TextSys_Word(0x278);
-      pcVar3 = PlayerName((uint)(cardnum == 5));
-      sprintf(TITLE,"%s%s",pcVar2,pcVar3);
+    if (PlayerNameExist((uint)(cardnum == 5))) {
+      sprintf(TITLE,"%s%s",TextSys_Word(0x278),PlayerName((uint)(cardnum == 5)));
     }
     else {
-      pcVar2 = TextSys_Word(0x279);
-      sprintf(TITLE,pcVar2);
+      sprintf(TITLE,TextSys_Word(0x279));
     }
   }
   memCardFile.title = TITLE;
@@ -441,7 +433,7 @@ void Init_MemcardFile(MCRDFILE_def &memCardFile,short cardnum,bool notitle)
    inline dialog constructor chain makes the implicit ctor and following field stores
    share one address pseudo, producing the retail s0 staging across `jal __7tScreen`. */
 
-void * SaveGame(short player)
+bool SaveGame(short player)
 
 {
   /* SYM reg map: finished=s3(BOOL) event=s0 returnvalue=s6(BOOL) returnmessage=s2
@@ -577,7 +569,7 @@ void * SaveGame(short player)
   Redraw(FEApp[0]);
   CURRENTLYUSINGMEMCARD_arr[0] = 0;
   /* [phantom-dtor drop] implicit ___7tScreen(&WarningDialog,2) at scope exit */
-  return (void *)returnvalue;
+  return returnvalue;
 }
 
 

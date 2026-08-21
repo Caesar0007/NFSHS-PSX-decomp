@@ -171,7 +171,7 @@ void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
   long value;
   short text;
   int moneyColor;
-  BOOL validCar;
+  bool validCar;
   short i;
   short j;
   short fade;
@@ -186,7 +186,7 @@ void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
     return;
   }
   vtbl = this->_vf;
-  validCar = (*vtbl[1][3].pfn)
+  validCar = (*(bool (*)(...))vtbl[1][3].pfn)
                ((char *)this + vtbl[1][3].delta,&carInfo);
   if (overlay->direction != 0) {
     fade = overlay->transition + overlay->delta * overlay->direction;
@@ -728,13 +728,13 @@ void tScreenCarSelect::Initialize()
 
 
 /* ---- tScreenCarSelect::ProcessInput  [SCREENCARSELECT.CPP:764-810] ---- */
-int tScreenCarSelect::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &
+void tScreenCarSelect::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &
               )
 
 {
   short state2;
   __vtbl_ptr_type (*vtbl) [10];
-  BOOL validCar;
+  bool validCar;
   tInputKeyType tVar4;
   tMenuItem *item;
   tMenuItemOptionsLeftRightChoice *lrItem;
@@ -744,7 +744,7 @@ int tScreenCarSelect::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &
   if (tVar4 == kInput_KeyType_Square) {
     vtbl = this->_vf;
     item = (tMenuItem *)(int)vtbl[1][3].delta;
-    validCar = (*vtbl[1][3].pfn)((int)(tScreen *)this + (int)&item->fFlags,&carInfo);
+    validCar = (*(bool (*)(...))vtbl[1][3].pfn)((int)(tScreen *)this + (int)&item->fFlags,&carInfo);
     if (FEApp->fPlayer == '\0') {
       lrItem = &menuDefs->itemABS;
     }
@@ -767,7 +767,7 @@ int tScreenCarSelect::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &
     tVar4 = keyval;
   }
   if (tVar4 != kInput_KeyType_Triangle) {
-    return 5;
+    return;
   }
   state2 = this->fState;
   /* MATCH: NONE of the three SetState arms stages a return value -- the oracle has
@@ -794,7 +794,7 @@ int tScreenCarSelect::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &
   goto gamemode;
 ge6:
   if (state2 == 6) goto st6;
-  return 6;
+  return;
 st5:
   this->SetState(0);
   goto done;
@@ -831,13 +831,13 @@ done:
 void tScreenCarSelect::DrawVideoWall(short y)
 
 {
-  BOOL validCar;
+  bool validCar;
   __vtbl_ptr_type (*vtbl) [10];
   tVideoWall *this_00;
   tCarInfo carInfo;
   
   vtbl = this->_vf;
-  validCar = (*vtbl[1][3].pfn)
+  validCar = (*(bool (*)(...))vtbl[1][3].pfn)
                     (this->fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
   ::DrawBackgroundImage((tScreen *)this,0,0x1c,this->fPermShapes.fShapes,0x96);
   this->DrawOverlay(this->fCurrentOverlays[0]);
@@ -876,7 +876,7 @@ void tScreenCarSelect::DrawVideoWall(short y)
    `li v0,1` only at the shared success tail; rewritten with explicit 0/1 returns throughout. */
 extern byte D_8011472A, D_80114604, D_80114723, D_80114729;
 
-int tScreenCarSelect::GetCar(tCarInfo &carInfo)
+bool tScreenCarSelect::GetCar(tCarInfo &carInfo)
 
 {
   uchar uVar1;
@@ -1094,12 +1094,12 @@ void tScreenCarSelect::DrawForeground()
   short bShowStats;
   tMenuItem *currentItem;
   tMenuItem *currentItemValue;
-  BOOL validCar;
-  BOOL validCarValue;
+  bool validCar;
+  bool validCarValue;
   int overlayDirection;
   
   currentItemValue = FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem];
-  validCarValue = (*(*this->_vf)[13].pfn)
+  validCarValue = (*(bool (*)(...))(*this->_vf)[13].pfn)
                     (this->fPermShapes.fFilename + -0x14 + (*this->_vf)[13].delta,&carInfo);
   __asm__("" : "=r"(currentItemValue) : "0"(currentItemValue));
   currentItem = currentItemValue;
@@ -1114,7 +1114,7 @@ void tScreenCarSelect::DrawForeground()
          (menuDefs->itemUpgradeCar).fFlags &
          0xfffffffe;
     if (((frontEnd.raceType == RaceType_Tournament) && (frontEnd.tier == '\0')) &&
-       (FECheat_IsCheatEnabled(cheat_FinishedTournament) != (void *)0x0)) {
+       (FECheat_IsCheatEnabled(cheat_FinishedTournament) != 0)) {
       (menuDefs->itemOpponentUpgrades).
       fFlags = (menuDefs->itemOpponentUpgrades).fFlags & 0xfffffffe;
     }
@@ -1448,14 +1448,14 @@ void tScreenCarSelectDuel::Cleanup()
 void tScreenCarSelectDuel::DrawVideoWall(short y)
 
 {
-  BOOL validCar;
+  bool validCar;
   __vtbl_ptr_type (*vtbl) [10];
   tVideoWall *vw;
   short i;
   tCarInfo carInfo;
 
   vtbl = this->_vf;
-  validCar = (*vtbl[1][3].pfn)
+  validCar = (*(bool (*)(...))vtbl[1][3].pfn)
                     (this->fPermShapes.fFilename + -0x14 +
                      vtbl[1][3].delta,&carInfo);
   i = 0;
@@ -1628,7 +1628,7 @@ void tScreenCarSelectDuel::DrawBackground()
   int screenVtbl2;
   __vtbl_ptr_type (*vtbl) [10];
   short sVar2;
-  BOOL validCar;
+  bool validCar;
   RECT r;
   tCarInfo carInfo;
   RECT temp;
@@ -1704,7 +1704,7 @@ void tScreenCarSelectDuel::DrawBackground()
   SetDrawArea(daprim,&temp);
   PSXDrawSquare(0,0,screenheight / 2,0x200,screenheight / 2);
   screenVtbl2 = (int)this->_vf;
-  validCar = (**(code **)(screenVtbl2 + 0x6c))
+  validCar = (*(bool (*)(...))(*(code **)(screenVtbl2 + 0x6c)))
                   ((char *)this + *(short *)(screenVtbl2 + 0x68),&carInfo);
   if (validCar != 0) {
     r.y = 0x19;
@@ -1782,11 +1782,11 @@ void tScreenCarSelectDuel::DrawForeground()
   short i;
   short j;
   short y;
-  BOOL validCar;
+  bool validCar;
   
   y = 0x2d;
   vtbl = this->_vf;
-  validCar = (*vtbl[1][3].pfn)
+  validCar = (*(bool (*)(...))vtbl[1][3].pfn)
                     ((char *)this + vtbl[1][3].delta,&carInfo);
   i = 0;
   while (i < 2) {
@@ -1845,7 +1845,7 @@ void tScreenCarSelectDuel::DrawForeground()
    (reset to 0 when the first GetNumOwnedCars(player) call returns <=0) is threaded through the
    second GetNumOwnedCars call + GetGarageCar's 3rd (playerNum) arg -- oracle keeps them in two
    distinct registers (s5 vs s0/s3), so keep them as two distinct C locals. */
-int tScreenCarSelectTwoPlayer::GetCar(tCarInfo &carInfo)
+bool tScreenCarSelectTwoPlayer::GetCar(tCarInfo &carInfo)
 
 {
   /* MATCH 2026-08-11 (59 -> PASS, 84/84).  SYM 8c @0x8003e040 gives fsize 48,
@@ -1897,7 +1897,7 @@ int tScreenCarSelectTwoPlayer::GetCar(tCarInfo &carInfo)
 void tScreenCarSelectTwoPlayer::DrawVideoWall(short y)
 
 {
-  BOOL validCar;
+  bool validCar;
   __vtbl_ptr_type (*vtbl) [10];
   short sVar2;
   int offset;
@@ -1905,7 +1905,7 @@ void tScreenCarSelectTwoPlayer::DrawVideoWall(short y)
   tCarInfo carInfo;
 
   vtbl = this->_vf;
-  validCar = (*vtbl[1][3].pfn)
+  validCar = (*(bool (*)(...))vtbl[1][3].pfn)
                     (this->fPermShapes.fFilename + -0x14 +
                      vtbl[1][3].delta,&carInfo);
   i = 0;
@@ -2184,8 +2184,7 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
   tCarInfo carInfo;
   short j;
   short yOffset;
-  BOOL gotcar;   /* SYM BOOL == int: the oracle just copies $v0 (`addu $s4,$v0,$zero`);
-                    a C++ `bool` normalizes it with an extra `sltu`. */
+  bool gotcar;   /* SYM BOOL is native C++ bool; the oracle copies the normalized `$v0`. */
   /* MATCH: the SYM 8c block does NOT list a function-scope `ci`/carInfo-pointer --
      it names a PTR STRUCT tCarInfo "carInfo" (shadowing the AUTO struct) scoped to
      the innermost block starting @0x8003EB60, i.e. declared FRESH inside the
@@ -2200,7 +2199,7 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
   if (FEAppA[0]->fPlayer == '\x01') {
     yOffset = 0x96;
   }
-  gotcar = (**(code **)(*(int *)((int)this + 0x60) + 0x6c))
+  gotcar = (*(bool (*)(...))(*(code **)(*(int *)((int)this + 0x60) + 0x6c)))
                      ((int)this + *(short *)(*(int *)((int)this + 0x60) + 0x68),&carInfo);
   if (FEAppA[0]->fPlayer == '\0') {
     (menuDefs->itemColorP1).fFlags =
@@ -2401,7 +2400,7 @@ void tScreenCarSelectTwoPlayer::Cleanup()
    3-arg(short,tCarInfo&,short) signature instead of the bogus 4-arg free-fn shape (which was
    materializing carInfo by VALUE into a huge stack frame -- also a correctness bug: `carInfo`
    was being copied instead of passed by the caller's reference). */
-int tScreenPinkSlipsCarSelect::GetCar(tCarInfo &carInfo)
+bool tScreenPinkSlipsCarSelect::GetCar(tCarInfo &carInfo)
 
 {
   ushort garageNumber;
@@ -2752,7 +2751,7 @@ switchD_8003f3b4_default:
 
 
 /* ---- tScreenPinkSlipsCarSelect::ProcessInput  [SCREENCARSELECT.CPP:2190-2200] ---- */
-int tScreenPinkSlipsCarSelect::ProcessInput(tPlayer,tInputKeyType &keyval,
+void tScreenPinkSlipsCarSelect::ProcessInput(tPlayer,tInputKeyType &keyval,
               tMenuCommand &)
 
 {
@@ -2763,7 +2762,7 @@ int tScreenPinkSlipsCarSelect::ProcessInput(tPlayer,tInputKeyType &keyval,
       keyval = kInput_KeyType_AlreadyProcessed;
     }
     if (keyval != kInput_KeyType_Triangle) {
-      return 0x10;
+      return;
     }
   }
   if ((PinkSlipsScreenState[0] != CardLoadedFine) ||

@@ -11,7 +11,7 @@ extern int             gLowMemory;      /* 0x8013dab0  arena low/base addr */
 extern int             gHighMemory;     /* 0x8013dab4  arena high addr */
 extern int             gCurrentMemory;  /* 0x8013dab8  bump cursor */
 extern int             gSysStartUp;     /* 0x8013da9c  init flag (+4 = cwd path buf) */
-extern char           *gDctXtraMem;     /* 0x8013daac  DCT scratch bump cursor */
+// [owned->file-static in platform.cpp] char *gDctXtraMem; /* 0x8013daac */
 extern int             disablecd;       /* 0x8013dc58 */
 extern tNfsSystemInfo  nfs_sysInfo;     /* 0x8013d2b4 */
 

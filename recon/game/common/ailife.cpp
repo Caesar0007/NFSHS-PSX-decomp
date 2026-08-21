@@ -515,10 +515,10 @@ Car_tObj * AILife_IsTrafficCarInAnyLiveArea(Car_tObj *traffic)
 {
   int iVar1;
   Car_tObj **ppCVar2;
-  int iVar3;
+  int racerLoop;
   coorddef *tPos;
   
-  iVar3 = 0;
+  racerLoop = 0;
   tPos = &(traffic->N).position;
   if (0 < Cars_gNumLifeBasisCars) {
     ppCVar2 = Cars_gLifeBasisCarList;
@@ -527,9 +527,9 @@ Car_tObj * AILife_IsTrafficCarInAnyLiveArea(Car_tObj *traffic)
       if (iVar1 != 0) {
         return *ppCVar2;
       }
-      iVar3 = iVar3 + 1;
+      racerLoop = racerLoop + 1;
       ppCVar2 = ppCVar2 + 1;
-    } while (iVar3 < Cars_gNumLifeBasisCars);
+    } while (racerLoop < Cars_gNumLifeBasisCars);
   }
   return (Car_tObj *)0x0;
 }
@@ -625,9 +625,9 @@ Car_tObj * AILife_IsPositionInAnyVisibleArea(coorddef *pos)
 {
   int iVar1;
   Car_tObj **ppCVar2;
-  int iVar3;
+  int racerLoop;
 
-  iVar3 = 0;
+  racerLoop = 0;
   if (0 < Cars_gNumHumanRaceCars) {
     ppCVar2 = Cars_gHumanRaceCarList;
     do {
@@ -635,9 +635,9 @@ Car_tObj * AILife_IsPositionInAnyVisibleArea(coorddef *pos)
       if (iVar1 != 0) {
         return *ppCVar2;
       }
-      iVar3 = iVar3 + 1;
+      racerLoop = racerLoop + 1;
       ppCVar2 = ppCVar2 + 1;
-    } while (iVar3 < Cars_gNumHumanRaceCars);
+    } while (racerLoop < Cars_gNumHumanRaceCars);
   }
   return (Car_tObj *)0x0;
 }

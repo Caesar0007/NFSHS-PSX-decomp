@@ -13,7 +13,7 @@ void SetupBuildMatrices__FP13DRender_tViewP11Draw_DCache(DRender_tView *Vi, Draw
 int BWorld_CheckChunkVisible__FP12BWorldSm_PosT0(BWorldSm_Pos *slicePosSource, BWorldSm_Pos *slicePosTest);   /* :590 */
 int GetRezIndex__Fi(int dist);   /* :657 */
 int SetupChunkBuildList__FP13DRender_tView(DRender_tView *Vi);   /* :676 */
-BOOL BWorld_IsSliceInBuildList__Fi(int slice);   /* :847 */
+bool BWorld_IsSliceInBuildList__Fi(int slice);   /* :847 */
 void BWorld_OnyxBuildFacets__FP13DRender_tView(DRender_tView *Vi);   /* :906 */
 char * BWAllocMem__Fl(long size);   /* :1107 */
 void BWorld_InitContexts__Fv(void);   /* :1146 */

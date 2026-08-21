@@ -120,7 +120,7 @@ void tScreenMain::SwapBackground(int num)
 
 
 /* ---- tScreenMain::DoneLoadingBackground  [SCREENMAIN.CPP:270-276] ---- */
-int tScreenMain::DoneLoadingBackground()
+bool tScreenMain::DoneLoadingBackground()
 
 {
   /* MATCH: the whole body is ONE retail source line (SLD 274) -- a single
@@ -844,16 +844,16 @@ void tScreenMain::Initialize()
      one register over disjoint ranges; mask $800f0000 = ra + s0..s3, i.e. FOUR
      saved regs.  loaded / pv / all_loaded / iVar2 / scratch / iVar3 were Ghidra
      inventions and bought a fifth saved register ($s4). */
-  /* SYM types it BOOL, which in this codebase aliases a 4-byte int. The first
-     assignment remains a raw pointer-result copy (`addu s0,v0,zero`); only the
-     `&&` below normalizes (`sltu`). */
-  BOOL shapesLoaded;
+  /* SYM types it native C++ bool (four bytes in CC1PLPSX).  A call whose
+     prototype also returns bool copies directly into the local; the `&&`
+     below performs the only required normalization. */
+  bool shapesLoaded;
   short i;
 
   this->tScreen::Initialize();
   do {
     FeAudio_systemtask(0);
-    shapesLoaded = (int)::IsShapeFileLoaded((tScreen *)this,this->fVideoShapes);
+    shapesLoaded = ::IsShapeFileLoaded((tScreen *)this,this->fVideoShapes);
     if (this->fVideoShapes[0].fFile != (char *)0x0) {
       ::UploadShapes((tScreen *)this,this->fVideoShapes,0,0,0x10,0);
     }
@@ -862,7 +862,7 @@ void tScreenMain::Initialize()
        `addu s0,v1,zero` copy into `shapesLoaded`; the `flag = false; if (...)
        flag = ...;` form writes $s0 directly in both arms (no phi copy). */
     shapesLoaded = shapesLoaded &&
-                   (::IsShapeFileLoaded((tScreen *)this,this->fVideoShapes + 1) != (void *)0x0);
+                   (::IsShapeFileLoaded((tScreen *)this,this->fVideoShapes + 1) != 0);
     if (this->fVideoShapes[1].fFile != (char *)0x0) {
       ::UploadShapes((tScreen *)this,this->fVideoShapes + 1,0xa6,0,0x10,0);
     }

@@ -33,16 +33,6 @@ typedef struct PAD_COMMON {           /* 8 bytes */
     tPadVariantData data;             /* +0x2 */
 } PAD_COMMON;
 
-typedef struct tActiveTime {          /* 2 bytes */
-    u_char bActive, time;             /* +0x0 */
-} tActiveTime;
-
-typedef struct tPadModuleState {      /* 84 bytes */
-    int         initialized;          /* +0x0 */
-    PAD_COMMON  buf[8];               /* +0x4 */
-    tActiveTime state[8];             /* +0x44 */
-} tPadModuleState;
-
 /* ---- pad.obj data globals (eaclib/psx, from canonical Globals) ----
  * W65-A6 DATA-MAT: these were `extern`-only tree-wide (never defined), i.e. 115+6
  * reloc-referenced undefined symbols at link.  Retail has them in .bss (VA >
@@ -58,7 +48,13 @@ typedef struct tPadModuleState {      /* 84 bytes */
  * fire) -- pad.c re-gates identically (see scratchpad/w65a6/RECEIPTS.md).
  * Declaration order IS emission order (catalog 16E), so they are declared in
  * retail VA order.  */
-tPadModuleState gPadinfo;             /* @0x8013e89c  module state (84 B) [BSS] */
+struct {                              /* SYM tag .63fake, 84 bytes */
+    int initialized;                  /* +0x0 */
+    PAD_COMMON buf[8];                /* +0x4 */
+    struct {                          /* SYM tag .62fake, 2 bytes */
+        u_char bActive, time;         /* +0x0 */
+    } state[8];                       /* +0x44 */
+} gPadinfo;                           /* @0x8013e89c [BSS] */
 PAD_COMMON      Padglobal[2];         /* @0x8013e8f0  per-port pad buffers [BSS] */
 
 /* ---- PsyQ libpad (direct mode) ---- */

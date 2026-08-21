@@ -893,7 +893,59 @@ int AudioCmn_GetTimePhrase(int time)
  * form that buys retail's REGISTER costs the load-delay nop, and every form that
  * keeps the COUNT leaves the split scratch.  The wanted device is one that stops
  * the {high, lo_sum} split WITHOUT being an RTL insn (i.e. not an asm at all) --
- * a local-alloc/06E instrument, exactly as routed above. */
+ * a local-alloc/06E instrument, exactly as routed above.
+ *
+ * ===== W71-A22 (2026-08-21): MECHANISM PROVEN FROM THE RTL, AND A PASS RECIPE.
+ * (a) THE MECHANISM IS NO LONGER A GUESS.  Reading `-dl`/`-dg` on this exact TU
+ *     (CC1PLPSX -O2 -G4, .lreg/.greg): at $L797 the pair is
+ *         (insn 605) (set (reg 246) (high (symbol_ref "bestLapTime")))
+ *         (insn 608) (set (reg 247) (mem (plus (reg 80) 596)))   <- sched1 moved
+ *         (insn 606) (set (reg 245) (lo_sum (reg 246) sym))
+ *     and reg 245 IS IN THE GLOBAL LIST (`;; 26 regs to allocate: ... 245 ...`)
+ *     because it is ALSO used by the STORE block (insn 637, `addu 258,257,245`).
+ *     gcc-2.8.1 local-alloc.c:1866 refuses the {high,lo_sum} tie on exactly that
+ *     test -- `|| (sreg >= FIRST_PSEUDO_REGISTER && reg_qty[sreg] == -1)` -- and
+ *     reg_qty[245] == -1 comes from local-alloc.c:470-477 (REG_BASIC_BLOCK < 0).
+ *     So the split scratch is NOT a scheduling artifact and NOT the W62 "high
+ *     hoisted into the predecessor's delay slot" reading (the high is the first
+ *     insn of $L797's own block): it is combine_regs refusing a GLOBAL dest.
+ *     Retail shares $a1 across the same two blocks AND ties -- i.e. retail's high
+ *     was itself a global allocno (set_preference then hands lo_sum the high's
+ *     home), which no C spelling can request.
+ * (b) CONSEQUENCE: the ONLY source device that makes the lo_sum block-local is an
+ *     opacity launder right after the decl -- and that pins the `la` at the block
+ *     head, one slot ABOVE retail's carIndex `lw`, costing the load-delay nop.
+ *     12E in the flesh, re-confirmed in this basin: register XOR count.
+ * (c) 🏆 PASS RECIPE (PROBE-VERIFIED THIS WAVE, PASS 415/415) = the two halves
+ *     landed TOGETHER (18A coupled-landing rule).  NOT landed here because the
+ *     second half is a tools/build.py edit and this belt may not touch build.py:
+ *       [source half]  else { int *bl = bestLapTime;
+ *                             __asm__ ("" : "=r" (bl) : "0" (bl));
+ *                             if (bl[car->carIndex] <= carspeed) goto LAB_800774e0;
+ *                             r.phrase = 0;
+ *                             bl[car->carIndex] = (car->stats).time[(car->stats).lap + -1];
+ *                             CopSpeak_Request(&r); }
+ *       [build half]   ONE extra PER_FN_TEXT_MOVES row appended to this fn's
+ *                      existing list (the simGlobal+4 slot row stays FIRST):
+ *         {"take": r"\tlw\t\$2,596\(\$18\)\n(?=\t#nop\n\tsll\t\$2,\$2,2\n\taddu\t\$2,\$2,\$5\n)",
+ *          "after": r"\$L\d+:\n(?=\tlui\t\$5,%hi\(bestLapTime\)[^\n]*\n\taddiu\t\$5,\$5,%lo\(bestLapTime\)[^\n]*\n[^\n]*#APP\n)"}
+ *       The row relocates ONE non-branch line (the carIndex load) above the la
+ *       pair, exactly retail's order; maspsx then fills the load-delay slot with
+ *       the `lui` instead of a nop (it SKIPS cc1's `#nop` placeholder,
+ *       maspsx/__init__.py:266), so the count returns to 415.  No branch line and
+ *       no delay slot is touched => no brdist pairing needed (17C).
+ *       Measured: source half alone 3@416; source half + row PASS 415/415.
+ * (d) NEW FALSIFICATIONS (all real gate runs, this basin, none beats 4@415 without
+ *     the build half):  ci-local declared BEFORE the laundered ptr 3@416;
+ *     ci-local AFTER the launder 3@416; ci-local laundered too 27@414;
+ *     `"r"(ci)` as a 2nd fence operand 3@416 (and 4@417 without the ci local);
+ *     dual-output launder of bl+ci 5@416; read-only fence on car->carIndex 3@416;
+ *     `*(volatile int *)&car->carIndex` 3@416; laundering the LOADED VALUE
+ *     (`int bt = bestLapTime[..]`) 12@415; laundering the ELEMENT pointer
+ *     (`&bestLapTime[ci]`) 4@415; 20B clobber-only fence `"$3"` on carspeed
+ *     12@415 (the high is BORN after the fence, so the clobber never enters its
+ *     [birth,death) window -- find_free_reg only ORs regs_live_at over that
+ *     window, local-alloc.c find_free_reg).                                   */
 void AudioCmn_CheckState(Car_tObj *car)
 {
   /* SYM-CODEGEN-CARRIER: lap
@@ -1001,9 +1053,16 @@ void AudioCmn_CheckState(Car_tObj *car)
       CopSpeak_Request(&r);
     }
     else {
-      if (bestLapTime[car->carIndex] <= carspeed) goto LAB_800774e0;
+      /* W71 consolidation: the (c) PASS-recipe SOURCE HALF landed together with
+       * its build.py PER_FN_TEXT_MOVES row (18A coupled landing; receipt above).
+       * The laundered arm-local `bl` makes the lo_sum block-local (self-temp la,
+       * retail's registers); the build row then restores retail's carIndex-load-
+       * first order so maspsx fills the load-delay slot with the lui. */
+      int *bl = bestLapTime;
+      __asm__ ("" : "=r" (bl) : "0" (bl));
+      if (bl[car->carIndex] <= carspeed) goto LAB_800774e0;
       r.phrase = 0;
-      bestLapTime[car->carIndex] = (car->stats).time[(car->stats).lap + -1];
+      bl[car->carIndex] = (car->stats).time[(car->stats).lap + -1];
       CopSpeak_Request(&r);
     }
 LAB_800774e0:

@@ -198,7 +198,70 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
      * ub-side guard `(ub.w.hi & 0x7FFFFFFF)`; the only untried device is one that keeps the
      * GUARD's mask in $t3 (it already is) while denying cse the value for the ARM -- i.e. a
      * per-arm constant that is not an allocno at all, which on this lane means TEXT_MOVES.
-     * NOT a floor. */
+     * NOT a floor.
+     *
+     * 🏆 W71-A12 (2026-08-21) -- RE-GATED at 16 (ours 182 / oracle 184, 2 insns SHORT),
+     * LANDED 16 -> 12 and the stream is now COUNT-EXACT 184/184.  ONE device, in the
+     * `exp < 0` arm (see the void fence in the body):
+     *
+     *   🔑 THE CROSS-JUMP UN-MERGER, and the SCHED1 mechanism behind it (new law):
+     *   the two arms of `if (exp >= 0) ... else ...` BOTH end with the same
+     *   `_add_mant_d(qp, q[0], q[1], t[0], t[1])`.  Retail keeps TWO `jal`s (arm1 does
+     *   `jal; [slot exp+=1]; j Ljoin; [slot addiu a0,sp,24]`); ours had ONE -- arm1
+     *   `j`-ed straight into arm2's call, which is exactly the 2 missing instructions.
+     *   WHY OURS MERGED AND RETAIL DID NOT: jump.c's cross_jump merges the longest
+     *   common SUFFIX, and it runs (with JUMP_CROSS_JUMP) only in the post-reload
+     *   jump2 -- i.e. AFTER sched1.  Retail's arm2 still had `exp = 0` sitting between
+     *   its `jal` and the join at that point, so the suffixes differed by one insn and
+     *   nothing merged.  OUR sched1 HOISTS `exp = 0` (a callee-saved `$s1` set with no
+     *   dependence on the call) ABOVE the `jal`, which makes arm2's suffix start at the
+     *   `jal` -- identical to arm1's -- and cross_jump then eats arm1's call.
+     *   CURE = a zero-insn 06B VOID FENCE `__asm__ __volatile__("" : : "i"(0));`
+     *   placed AFTER `exp = 0;` in the else arm.  It is a scheduling barrier, so
+     *   `exp = 0` can no longer leave the post-call region, the two suffixes differ
+     *   again, and arm1 gets its own `jal` back.  16 -> 12, 182 -> 184 insns.
+     *   ⚠️ PLACEMENT IS THE WHOLE DIAL (all measured this wave, whole-fn gate):
+     *     fence BETWEEN the call and `exp = 0`, `n += 1` left before the call .... 12 (184)
+     *     fence AFTER `exp = 0`, `n += 1` moved after the fence ................... 12 (184)  <- LANDED
+     *     fence AFTER `exp = 0`, `n += 1` left before the call .................... 12 (184)
+     *     fence between call and `exp = 0`, `n += 1` after both ................... 15 (185)
+     *     fence LAST (`exp = 0; n += 1; fence;`) .................................. 14 (184)
+     *     `n += 1` moved after the call with NO fence ............................. 18 (182)
+     *   The landed form additionally puts `n += 1` where retail has it (after the
+     *   call, feeding the join's `sw $s0,0x10($sp)`), which is the ADDDF3-W61 law
+     *   "reorg fills a call delay slot from EITHER side" applied here: with `n += 1`
+     *   moved past the fence, reorg's forward scan finds `exp = 0` first and puts
+     *   retail's `addu $s1,$zero,$zero` in the `jal` slot instead of our old
+     *   `addiu $s0,$s0,1`.
+     *   GENERAL FORM OF THE LAW (candidate catalog row): *ours is N insns SHORT and a
+     *   `j` appears where retail has a `jal`* => cross_jump merged an arm's call; look
+     *   for a post-call statement that sched1 hoisted above the call, and pin it with a
+     *   void fence.  This is the INVERSE of the MULDF3-W55 finding (there the cure was
+     *   to write a shared call INSIDE each arm); here the call is already per-arm and
+     *   the merge happens later, in jump2.
+     *
+     * RESIDUAL (12, count EXACT 184/184) -- three rows, two classes:
+     *   (a) the div-by-zero arm, 4 rows (unchanged): ours `lui $v0,0x7FFF` [shared with
+     *       the guard] + `ori` in the `beqz` slot + `li $v0,-1` + `addu $s3,$v0,$zero`,
+     *       retail `bnez` + `li $s3,-1` in the slot + a FRESH `lui $s3,0x7FFF; ori`.
+     *       🔑 W71 EXPLANATION (this closes the W62 "only untried device" line): the
+     *       0x7FFFFFFF here is cse-SHARED with the `(ub.w.hi & 0x7FFFFFFF)` guard mask,
+     *       and an identity fence CANNOT break that -- a `"=r"(x) : "0"(x)` fence
+     *       LAUNDERS a value, it does not RE-MATERIALIZE it (the "0" constraint ties the
+     *       output to the input register, so cse forwards the guard's `lui` straight
+     *       into the fence).  Independently re-derived and measured on ADDDF3's twin row
+     *       this wave (see ADDDF3.c W71-A12); the MULDF3 `signmask` device only worked
+     *       there because MULDF3's other sign test is spelled `acc[1] < 0` (`bgez`) and
+     *       materializes no constant for cse to share.  NEW falsification here:
+     *       `ur.w.hi = (sign == 0) ? 0x7FFFFFFF : -1;` (the branch-polarity flip that
+     *       matches retail's `bnez`) = 13 at 185 insns -- gcc canonicalises the test
+     *       back and adds an insn.  Live routes unchanged: a cse-table instrument read,
+     *       or TEXT_MOVES.
+     *   (b) two scheduling rows around the join's `addiu $a0,$sp,24`: arm1's `j` delay
+     *       slot is a `nop` for us where retail target-steals the join's a0 setup, and
+     *       in arm2 that same setup lands after `n += 1` instead of before it.  Both are
+     *       reorg/sched2 position rows on ONE instruction -- a TEXT_MOVES candidate.
+     *   NOT a floor. */
     ua.d = a;
     ub.d = b;
     exp = ((ua.w.hi >> 20) & 0x7FF) - ((ub.w.hi >> 20) & 0x7FF) + 1022;
@@ -250,9 +313,18 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
                 n = -exp;
                 t[1] = 0;
                 t[0] = 1 << n;
-                n += 1;
                 _add_mant_d(qp, q[0], q[1], t[0], t[1]);
                 exp = 0;
+                /* W71-A12 CROSS-JUMP UN-MERGER -- DO NOT DELETE, DO NOT MOVE.
+                 * Zero insns.  Without it sched1 hoists `exp = 0` above the jal,
+                 * which makes this arm's instruction SUFFIX identical to the
+                 * `exp >= 0` arm's, and jump2's cross_jump then deletes THAT arm's
+                 * own `jal _add_mant_d` (ours 182 vs retail 184).  The barrier pins
+                 * `exp = 0` after the call, the suffixes differ, both arms keep
+                 * their call -- and reorg then puts `exp = 0` in the jal's delay
+                 * slot exactly like retail.  Placement table in the receipt above. */
+                __asm__ __volatile__("" : : "i"(0));
+                n += 1;
             }
             __asm__("" : : "r"(n));   /* 05C ref-fence: see receipt */
             _dbl_shift_us((unsigned int *)q, 1, q[0], q[1], n);

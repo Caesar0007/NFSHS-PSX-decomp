@@ -353,7 +353,42 @@ extern void _padStopCom(void)
  *      not two stores -- retail's `beqz $v0 / addiu $v1,0x1003` + a single `sh $v1,0xA($a0)`.
  *  (5) each `_padWaitRXready()` is followed by a DISCARDED `JOY_DATA8` read (`lbu $v0,0($v0)`),
  *      and the I_STAT ack spins are top-tested `while ((I_STAT & 0x80) == 0) { if (chkRC2wait())
- *      return 0; }`, not do/while with the test in the body. */
+ *      return 0; }`, not do/while with the test in the body.
+ * MATCH (A14/w71, 20 @207 -> 15 @206) -- residual cluster [4] (the w64 note's "two extra `nop`s,
+ *   the wrapper's LOOP_BEG/END notes are a scheduling barrier ... a non-barrier +1-ref device on
+ *   the HImode ctrl constant would erase it") is CLOSED, but the cure was not a fence: it is a
+ *   NAMED CHANNEL LOCAL read BEFORE the depth wrapper (`int ch = _padSioChan;` outside, the
+ *   ternary inside).  The wrapper's barrier is only a problem because the `lw _padSioChan` sits
+ *   INSIDE it -- hoisting the load out of the wrapper is 13B's "hoist every load the fence must
+ *   not block ABOVE it" applied to a do{}while(0), and it fixes BOTH halves at once: the two
+ *   loads now issue in retail's order (`lw _padSioChan` then `lw _padSioRegs`, so the second pair
+ *   fills the first's load-delay slot) and both surplus nops go.  20 -> 15, and the head is now
+ *   byte-exact through the `li $v1,12291`.  MEASURED alternatives: no wrapper at all 25 @206;
+ *   chan-local WITHOUT the wrapper 25 @206 (so the wrapper is still load-bearing -- keep BOTH);
+ *   a named ctrl-constant local + identity launder 25 @208; wrapper + launder 25 @208; a $a0
+ *   clobber-launder on `ch` 18 @209.
+ *   RESIDUAL 15 @206/205, THREE clusters (the w64 decomposition, minus the head):
+ *   [2] the `sll $v0,$v0,2` of the cast index lands AFTER the `sh $v1,0xA($a0)` in ours, before
+ *       it in retail -- sched1 position, downstream of cluster 2.
+ *   [7] cluster 2, the `&_padFixResult` materialization: retail `lui $v1; addiu $v1` split into
+ *       the `lw`'s load-delay slot and the `bltz`'s branch slot, then `addu $s1,$v1,$zero`; ours
+ *       two `nop`s then `lui $s1; addiu $s1` direct (the +1 net insn).  Cause is unchanged from
+ *       w64 (4): the cast first-read that kills the phantom frame also kills the block-0 `la`
+ *       pseudo the loop preheader reused, so loop.c mints its own single-block one and there is
+ *       no copy for combine_regs to refuse.  RE-SWEPT at this basin (04Z) and all falsified:
+ *       `int *fb = _padFixResult;` carrying the first read only / the loop only / both, each
+ *       plain and identity-laundered and read-only-fenced (51 / 46 / 22 / 60 / 20 @203-205), and
+ *       four first-read spellings -- `*(volatile int *)&_padFixResult[ch]` 19, `*(volatile int *)
+ *       ((ch<<2)+(int)_padFixResult)` 15 (byte-identical to the cast), `*(volatile int *)
+ *       (_padFixResult+ch)` 19, plain subscript 28 (the phantom frame returns).
+ *   [6] cluster 3, the tail `lbu $v0,54($s0)` vs retail `lbu $v1` -- retail's `li $v0,1` from the
+ *       first guard's delay slot stays LIVE across the second load, so the byte pseudo must take
+ *       $v1.  RE-SWEPT: hoisting the laundered `one` above BOTH tests and returning it at both
+ *       exits 22 @207; above both but with a literal `return 1` at the first exit 20 @207; a
+ *       named byte temp with a `"$2"` clobber-launder 15 @208 (the 20B device DOES move the byte
+ *       off $v0 but pays 2 insns); a read-only fence on the byte 25; `one` hoisted + byte temp
+ *       22.  The 20B clobber is the right instrument and the open question is a spelling of it
+ *       that does not cost the two insns. */
 extern int _padInitSioMode(unsigned char *info)
 {
     JOY_CTRL = 0x40;
@@ -365,10 +400,18 @@ extern int _padInitSioMode(unsigned char *info)
        phony loop) but flow.c weights refs by loop depth, which lifts the HImode ctrl
        constant's allocno over the _padSioRegs value's and hands it retail's $v1.  Both
        pseudos tie at pri .5000 without it and the tie is broken by allocno NUMBER.  DO NOT
-       unwrap: it is worth 11 diff lines.  See the header note (5). */
-    do {
-        JOY_CTRL = (_padSioChan != 0) ? 0x3003 : 0x1003;
-    } while (0);
+       unwrap: it is worth 11 diff lines.  See the header note (5).
+       MATCH (A14/w71): the channel read is HOISTED OUT of the wrapper into `ch`.  The wrapper is
+       a sched barrier, so a `lw _padSioChan` inside it cannot pair with the `lw _padSioRegs`
+       that follows; outside, the two loads issue in retail's order and fill each other's
+       load-delay slots (13B "hoist every load the fence must not block above it").  Keep BOTH
+       the wrapper and the hoist -- either alone measures 25. */
+    {
+        int ch = _padSioChan;
+        do {
+            JOY_CTRL = (ch != 0) ? 0x3003 : 0x1003;
+        } while (0);
+    }
 
     /* drain any queued auto-mode recv fix-ups for this channel */
     {

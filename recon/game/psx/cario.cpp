@@ -506,7 +506,28 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
  * one diff by ADDING an instruction, which fails the count-exact bar.  ⇒ the "18-insn early
  * arg block" is a compiler-side (expand_call) identity, not a statement-shape defect; it
  * belongs with trackspec's TrackSpec_SetDefault exhibit in the per-object identity file,
- * and this note closes the source lane on it. */
+ * and this note closes the source lane on it.
+ * ===== W71-A7 (2026-08-21): 30 STAYS @229/229.  The w64-a14 residual localisation is
+ * re-confirmed and the ADDRESS-LOCAL axis (untried before -- w64 only moved the q1/q2
+ * VALUE pair) is now falsified too.  Everything re-gated from the 30 basin:
+ *   head-block `reload & 0x10` arm: chained `carPixMapCount = ...textureStartIndex =
+ *     CarIO_carPixMapCount;` 169 . the two statements swapped 169 (so the CSE order in
+ *     that arm is load-bearing and already right).
+ *   `i = 0` STATEMENT POSITION (the `addu s2,zero,zero` that retail emits 8 slots later):
+ *     before clutPlate2 / after clutPlate1 / after thePlate / last = ALL exactly 30.
+ *     The insn is the loop's induction init, placed by the loop preheader, so no
+ *     statement position reaches it.  Loop FORM: `for(i=0;i<4;i++)` 37 @230,
+ *     `while(1){...;if(i>=4)break;}` 30 -- neither moves it either.
+ *   ADDRESS-POINTER locals `shapetbl **pp1/**pp2 = &CarIO_PlateN[player];` (the shape
+ *     that would give retail's t0/t1 held across the RMW + the width re-reads): for the
+ *     RMW only 30 . for RMW + both re-reads 30 . reads21 variant 30 . re-reads only 30 --
+ *     cse folds every one back onto the single address computation.  With a w47 opacity
+ *     fence to DEFEAT that fold (count stays exact 229): fence on pp1 38, on pp2 36, on
+ *     both 32 -- the address does survive as a pseudo, but it is materialised in the
+ *     wrong place and costs diffs.  Named `u_int flags = 0x11800` 30; opacity fence on
+ *     q1 38 / on q2 34; RMW order re-sweep reads21/stores21 36, stores12 34.
+ *   => nothing new to try from source here; consistent with the w53/w44 expand_call-luid
+ *   verdict.  Next taker: the per-object identity lane or the permuter. */
 void CarIO_CreateLicense(char *text,int carType,int player)
 
 {
@@ -927,7 +948,19 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
    *     (hard_reg_n_uses), which only the "r"-on-a-memory-homed-local form emits.
    * ⇒ report to the lab: the 14C spill-pool ref dial and the A2 live extender are
    * ORTHOGONAL instruments; do not substitute one for the other, and this fn is a
-   * clean negative witness for the live axis. */
+   * clean negative witness for the live axis.
+   * ===== W71-A7 (2026-08-21): 19 STAYS @492/491.  The DEVICE-FORM axis (the one the
+   * w63 "r"/"g"/"m" sweep left open -- volatile-vs-not) is now closed too, re-gated
+   * from the 19 basin: the NON-volatile W69 identity launder
+   * `__asm__("" : "=r"(carPixMapCount) : "0"(carPixMapCount))` = 21 (worse, and it does
+   * not shed the +1 insn); a non-volatile launder on carType carrying "m"(carPixMapCount)
+   * = 677 @504; the volatile fence with BOTH "r" and "m" on carPixMapCount = 623 @500
+   * (the frame-reshape the w63 note predicts for any real MEM operand); "r" on
+   * carPixMapCount PLUS "r" on carType = 188 @493.  So the landed form really is the
+   * unique one, and its +1 `lw` is structural to the instrument.  The head-block arm
+   * itself was also re-probed: chained assignment 169, statements swapped 169 -- the
+   * spill-pool pick in that arm is NOT reachable by re-spelling the CSE.  Route unchanged
+   * (reduce the whole-body $v0 population, or the permuter). */
   __asm__("" : : "r"(carPixMapCount));
   if ((reload & 8U) != 0) {
     if (((carObj->render).inside & 1U) != 0) {

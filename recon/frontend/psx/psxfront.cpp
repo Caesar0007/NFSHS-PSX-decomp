@@ -737,15 +737,11 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
    *   is count-EXACT 245/245 at 34 -- parked as a second basin for a future round. */
   if ((flags & 2) != 0) {
     v = vraw - 1;
-    vb = v;
-  }
-  else {
-    vb = v;
   }
   /* vraw's outliving consumer (see decl note) + the W61-A18 v ref-step: the "r"(v)
      operand is a ZERO-INSN out-of-loop +1 ref that keeps v above the colour pointer
      in allocno_compare so v holds $t4 and colour holds $t5, as retail does. */
-  __asm__ volatile("" : : "r"(vraw), "r"(v));
+  __asm__ volatile("" : : "r"(vraw));
   /* PROBE FALSIFIED (2026-08-02): an identical `vh = shp->height;` 2nd def in the
    * flags&2 arm is CSE-DELETED before local-alloc (160 unchanged) -- breaking the
    * single-set REG_EQUIV needs a def cse cannot merge (volatile view / different
@@ -844,7 +840,7 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
      * tools/prio.py, and by a10's validated allocator replica, which answered
      * `--solve 82=t2,167=t3,90=t4`  ->  `p90 refs 9 -> 7 (|d|=2)` -- a single-pseudo,
      * single-dial requirement.  103 -> 83. */
-    prim[0x19] = prim[0xd];
+    prim[0x19] = v;
     /* MATCH W64-A17 (11 -> 7, count still 246/245): the vertex-2/3 V pair is
        written BEFORE the U pair.  With the U stores first, sched hoists
        `prim[0x30] = u + w1` up between the 0x18 store and the 0x19 read-back
@@ -856,9 +852,32 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
        read-back 47 @248.  From THIS basin: 0x30-before-0x24 7 (neutral),
        fence after the read-back 9, interleaved 0x25/0x24/0x31/0x30 114 @245,
        `prim[0x24]=prim[0xc]` read-back 42 @247, `prim[0x19]=v` direct 32 @245. */
+    prim[0x24] = u;
+    /* 🏆 MATCH (W71-A18, 7 -> PASS 245/245).  THREE coupled edits, none of which
+     * gates alone -- land them together or not at all:
+     *  (1) `prim[0x19] = v;` DIRECT (the w45 `prim[0x19] = prim[0xd]` store-read-back
+     *      is retired): the read-back's forwarded value is a pseudo whose source (v)
+     *      does NOT die at the copy, so combine_regs refuses to tie it and the copy
+     *      SURVIVES as retail's missing `addu a0,t4,zero` (+1 insn, 246/245).
+     *  (2) ONE `vb = v;` (not the w46 cross-jumped duplicate in both flags&2 arms) and
+     *      the fence back to a single "r"(vraw) operand: the direct store re-pays v the
+     *      two loop-weighted refs the read-back had deleted, so the duplicate + the
+     *      "r"(v) operand now OVER-dial it and the old t2/t3/t4 3-cycle returns (32).
+     *  (3) `vb = v;` written INSIDE the loop at its use site, and `prim[0x24] = u;`
+     *      moved ahead of the 0x25/0x31 pair.  The in-loop copy is loop-INVARIANT, so
+     *      loop.c hoists it into the preheader in ORDER OF APPEARANCE -- i.e. AFTER the
+     *      0xFF000000/0xFFFFFF mask constants that appear earlier in the body -- which
+     *      is exactly retail's `lui t3,255; ori; sb t4,32(sp)` order.  A pre-loop
+     *      `vb = v;` is emitted BEFORE the hoists (source order) and no statement-position
+     *      or fence dial can sink it (measured: before/after `i = 0;` both 2, i=0 hoisted
+     *      above the arm 4).  The 0x24-first order stops sched from sinking the 0x19
+     *      store past the vh/vb reloads.
+     * Falsified from the 4-diff basin: full ascending 0x24/0x25/0x30/0x31 (129, frame
+     * drops to 96 -- vb leaves memory); dropping `vb` and storing `vh + v` directly
+     * (124 @243, frame 96). */
+    vb = v;
     prim[0x25] = vh + vb;
     prim[0x31] = vh + vb;
-    prim[0x24] = u;
     prim[0x30] = u + w1;
     if (w1 <= 0) {
       w1 = 1;
@@ -1692,7 +1711,19 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    *   dv-split).  => RMW2's read temp is anonymous and source-unreachable;
    *   its $v0 ownership follows the tint's early death, which is the closed
    *   tint half.  Route unchanged: the #E' instrumented-cc1 trace.
-   *   Harness: scratchpad/w67a8/font_v1.json + probe.py. */
+   *   Harness: scratchpad/w67a8/font_v1.json + probe.py.
+   * W71-A18 (2026-08-21, re-gated baseline 20 @ 82/82): the TINT-LATE family
+   *   re-priced FROM THIS BASIN (04Z; the 108-134 numbers above were measured
+   *   at 24/28).  It has NOT moved: tint statement after the len/code pair
+   *   112, after the clut store 112, after the tpage word 114, between the two
+   *   addPrim halves 116, and an arg6-carrier form (load early, store late)
+   *   148 @78.  The 112 basin stays count-EXACT with a whole-body rotation --
+   *   it is the STRUCTURALLY-TRUE order (retail's tint load sits in RMW2's
+   *   `lw` delay slot and its store lands after RMW2's store), so this
+   *   20-basin body remains the closer-scoring lookalike.  Residual unchanged:
+   *   the tint/RMW2 $v0-$v1 role swap; route unchanged (#E' instrumented-cc1
+   *   sched/find_free_reg trace).
+   *   Harness: scratchpad/A18/font_v1.json + probe.py. */
   POLY_FT4      *prim;
   PSXFront_PTag *pal;
   int            width;

@@ -881,7 +881,64 @@ void tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &ke
        re-read of `factor` IS the retail shape.
    So the two open items are (1) delete our only SImode use of fSelFade [the count
    gap] and (2) re-price the myDarkBlue/fFadeVal rotation as a global-allocno tie.
-   Frame/declaration dials are spent on this function. */
+   Frame/declaration dials are spent on this function.
+
+   W71-A17 2026-08-21 -- 168 -> 161 @373/366 (three landings, each gated, whole-TU
+   72/73 held).  All three came from reading the ORACLE'S BLOCK SHAPE rather than
+   dialling the allocator:
+     (1) FORWARD ARM SHAPE.  Retail's forward fade block is NOT the nested
+         `CalcFadeVal(CalcFadeVal(...),fFadeVal)` the W63 note installed; both arms
+         are the SAME shape -- a per-arm Col then ONE shared 2-arg call:
+           @0x80024DD4 lw t2,0x38(sp); beqz t2,.L80024EF0 [ds: addu v0,fp,zero]
+           ... jal CalcFadeVal__Fiii ... j .L80024F00 [ds: addu a0,v0,zero]
+           .L80024EF0: j .L80024F00 [ds: addu a0,v0,zero]
+           .L80024F00: jal CalcFadeVal__Fii
+         i.e. `Col = myDarkBlue; if (fSelFade) Col = CalcFadeVal3(...);
+               Col = CalcFadeVal(Col,fFadeVal);`  (the reverse arm's .L80025154 is
+         the same tree with the myDarkBlue copy in its own block).  Nested form 168,
+         if/else form 169, DEFAULT-THEN-OVERRIDE form 168 (fwd) then 167 (both arms).
+     (2) THE PACKET-SLOT ADDRESS: a FUNCTION-SCOPE `u_char **pslot;` assigned at the
+         top of each loop body (`pslot = (u_char **)0x1f800004;`) instead of the bare
+         `Render_gPacketPtr` macro -- 167 -> 161.  With the macro, loop.c hoists the
+         address AND reload SPILLS it to 52(sp) (`lui t2/ori t2,t2,4` + `sw t2,52(sp)`
+         + two `lw t2,52(sp)` per iteration); with the named local the hoist lands in
+         a callee-saved reg instead (s4), killing the spill/reload pair.
+         *** THE NAMED REMAINING BLOCKER (one fact, both loops) ***
+         Retail does NOT hoist it at all: `lui a1,0x1F80` sits in the BACK-EDGE delay
+         slot (@0x80024F54) with `ori a1,a1,4` as the loop-top insn (@0x80024D28) --
+         a per-iteration rematerialisation in a CALLER-saved reg (its live range never
+         crosses a call).  That frees retail's $s4 for `factor`, which is why retail
+         reads the shift count as `srav a3,a3,s4` where we pay `lhu t2,40(sp); addu
+         v0,t2,zero` -- and why the whole saved-register band is rotated by one
+         (ours s4=pslot,s5=0xFFFFFF,s6=myDarkBlue,fp=fSelFade vs retail
+         s4=factor,s5=0xFFFFFF,s6=fFadeVal,s7=rectwidth,fp=myDarkBlue).
+         => the wanted device is a SELECTIVE anti-LICM for THIS movable only: retail's
+         loop.c still hoists 0xFFFFFF (preheader `lui s5;ori s5`) while declining
+         0xFF000000 (in-loop `lui t2,65280`), so a blanket LICM kill is wrong.
+         FALSIFIED here (each re-gated from 161, all reverted):
+           block-scope pslot inside the loop body   260 @368 (the decl plants
+             NOTE_INSN_BLOCK_BEG -> jump.c:2296 re-rotates the loop and every stack
+             parm flips to lw+sll/sra);
+           identity launder `__asm__("" : "+r"(pslot))` in-loop  467 @371;
+           second (redundant) `pslot = ...` before the store    161 (cse deletes it);
+           `u_char * volatile *pslot`                            161 (inert);
+           read via the macro + write via pslot, and vice versa  161 (cse unifies);
+           label+goto forward loop (full anti-LICM)             403 @369 -- and the
+             address is STILL commoned into s3 by cse, so the goto only costs the
+             parm-read modes;
+           read-only fence on `factor` at the loop top (ref-step promote, both loops)
+             163 @375; the same fence inside the `x1 < fX+width` arm 164 @374;
+           read-only fence on `pslot` at the END of both loop bodies (live-range
+             DEMOTE direction) 179 @373.
+     (3) OR-CHAIN ORDER, FALSIFIED (do not retry): retail's stitch combines
+         `or a1,a1,v1` (blue|green) then `or a1,a1,a3` (|red) while its three divides
+         issue red,green,blue.  Re-spelling the OR as blue|green|red gates 311 and as
+         red|(green|blue) gates 267 -- the divide order follows the source and
+         dominates; the OR association is downstream noise, not the dial.
+   Residual census at 161 (tools/opcen.py): lw 35v31, nop 26v23, sw 24v23, lhu 13v12,
+   bnez 13v12, j 3v5, beqz 5v6 -- i.e. +7 insns, all traceable to the s4 occupancy
+   above plus the forward loop's back-edge shape (retail `beqz OUT; nop; j TOP [ds:
+   lui a1]`, ours `bnez TOP`). */
 
 /* WARNING: Unable to use type for symbol pkt2 */
 /* WARNING: Unable to use type for symbol pkt */
@@ -911,6 +968,7 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
 
 {
   POLY_F4 *prim;
+  u_char **pslot;
   short x1;
   short width;
   short factor;
@@ -923,9 +981,10 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
   if (!reverse) {
     x1 = fX;
     while (x1 < fX + fWidth) {
-      prim = (POLY_F4 *)Render_gPacketPtr;
+      pslot = (u_char **)0x1f800004;
+      prim = (POLY_F4 *)*pslot;
       ((tFEMenuPrimTag *)prim)->addr = ((tFEMenuPrimTag *)Render_gPalettePtr)->addr;
-      Render_gPacketPtr = (u_char *)prim + 0x18;
+      *pslot = (u_char *)prim + 0x18;
       ((tFEMenuPrimTag *)Render_gPalettePtr)->addr = (u_int)prim;
       prim->x0 = x1;
       prim->y0 = fY;
@@ -939,16 +998,14 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
       if (!shadow) {
         /* MATCH: duplicated fade call sites cross-jump to retail's shared tail. */
         if (x1 < fX + width) {
+          Col = myDarkBlue;
           if (fSelFade) {
-            Col = CalcFadeVal(CalcFadeVal(myDarkBlue,
+            Col = CalcFadeVal(myDarkBlue,
                     (short)((((x1 - fX) * 0xbe) / fWidth) >> factor) |
                     (((((x1 - fX) * 0x7c) / fWidth + 0x42) >> factor) << 16) >> 8 |
-                    ((((x1 - fX) * -0xd2) / fWidth + 0xd2) >> factor) << 16,fSelFade),
-                fFadeVal);
+                    ((((x1 - fX) * -0xd2) / fWidth + 0xd2) >> factor) << 16,fSelFade);
           }
-          else {
-            Col = CalcFadeVal(myDarkBlue,fFadeVal);
-          }
+          Col = CalcFadeVal(Col,fFadeVal);
         }
         else {
           Col = CalcFadeVal(0x280f00,fFadeVal);
@@ -967,9 +1024,10 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
     x1 = fX + fWidth - 1;
     __asm__("" : : "r"(reverseSelFade));
     while (fX <= x1) {
-      prim = (POLY_F4 *)Render_gPacketPtr;
+      pslot = (u_char **)0x1f800004;
+      prim = (POLY_F4 *)*pslot;
       ((tFEMenuPrimTag *)prim)->addr = ((tFEMenuPrimTag *)Render_gPalettePtr)->addr;
-      Render_gPacketPtr = (u_char *)prim + 0x18;
+      *pslot = (u_char *)prim + 0x18;
       ((tFEMenuPrimTag *)Render_gPalettePtr)->addr = (u_int)prim;
       prim->x0 = x1;
       prim->y0 = fY;
@@ -983,14 +1041,12 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
       if (!shadow) {
         /* MATCH: duplicated fade call sites cross-jump to retail's shared tail. */
         if (x1 >= fX + fWidth - width) {
+          Col = myDarkBlue;
           if (reverseSelFade) {
             Col = CalcFadeVal(myDarkBlue,
                 (short)((((fX + fWidth - x1) * 0xbe) / fWidth) >> factor) |
                 (((((fX + fWidth - x1) * 0x7c) / fWidth + 0x42) >> factor) << 16) >> 8 |
                 ((((fX + fWidth - x1) * -0xd2) / fWidth + 0xd2) >> factor) << 16,reverseSelFade);
-          }
-          else {
-            Col = myDarkBlue;
           }
           Col = CalcFadeVal(Col,fFadeVal);
         }

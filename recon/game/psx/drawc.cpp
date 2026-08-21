@@ -1162,7 +1162,27 @@ DrawCPrimStart_camRotMatrix:
        first term into its own block-local `za` = 8 (bit-identical); operand
        swap (array term first) = 18.  Same class as the DrawC_NightHeadlight
        w61-a15 residual (dependence-graph-forced priority) => PER_FN_TEXT_MOVES
-       is the instrument, not a source dial. */
+       is the instrument, not a source dial.
+       ===== w71-a3 (base 8 @976): NEW NAMED ANGLE -- the ORDER half IS source-
+       reachable; only the register pair is left.  Splitting the ARRAY INDEX into
+       its own statement AHEAD of the sum -- `u_int ev = (sd->ePmx1).v0 >> 6;`
+       then `... + (int)DrawC_gEnvMapOffset[ev]` -- gives the index a LOWER luid
+       than the table address, so sched1 fills the `lh`'s load-delay slot with the
+       ePmx1.v0 `lbu` (retail's fill) and emits the `lui/addiu` pair LAST, exactly
+       like the oracle.  Result 20 @976 EXACT and the residual is then a PURE
+       $v1<->$a0 swap over 20 lines with the ORDER identical (ours shift/addr in
+       $v1 + positionXZ in $a0; retail shift/addr $a0 + positionXZ $v1) -- i.e.
+       one local-alloc handout, the 06E qtytrace class.  Higher LCS than the 8 so
+       NOT landed, but it is the correct structural base to re-attack from once a
+       qty instrument exists; the 8-diff form hides an ordering defect.
+       ALSO FALSIFIED at that split basin (all count-exact 976): `int ev = v0;` +
+       `ev >> 6` = 10 (2 of them a real srl-vs-sra signedness bug -- ev must be
+       u_int); `u_int ev = v0;` + `ev >> 6` = 8 bit-identical to base (cse folds
+       it back, so the shift MUST be inside the split statement); hoisting a `pz`
+       local for positionXZ, or an `envShift` local ahead of both = 20
+       bit-identical (cse canonicalises, statement position is inert here);
+       read-only fence `("" : : "r"(pz))` before the sum = 18 (the barrier moves
+       the whole block, wrong axis). */
     sd->eAddZ = ((int)(carObj->N).positionXZ >> shadowAbsOffs + 3 & 0x3fU) +
                 (int)DrawC_gEnvMapOffset[(sd->ePmx1).v0 >> 6];
     if (((GameSetup_gData.Weather != 0) &&
@@ -1294,6 +1314,66 @@ void DrawC_PrimStop(Car_tObj *carObj,Draw_CarCache *sd)
  *    measures 1391 insns -- 4 CLOSER to the oracle's 1389 -- but 256 diffs, so the
  *    LCS realignment cost dwarfs it and it was NOT landed.  Keep the SHORT (the SYM
  *    says SHORT); the reload wants a narrowing-blocker at the USE, not a type change.
+ * ===== w71-a3: 166 -> 118, count 1395 -> 1393 (oracle 1389).  THREE landings. =====
+ *  (1) IN-PLACE COMPOSITE SHIFT on `overlayRaw` -- the biggest lever here (152 -> 118
+ *      on Prim, and the same edit is ~-19 on PrimClip's two twins).  The fused
+ *      `overlayRaw = (int)((u_int)(u_short)DrawC_gOverlay[..] << 0x10);` makes cc1
+ *      born a FRESH pseudo for the shift result, so combine_regs never ties it to the
+ *      loaded value and we emit `sll a2,v0,16` where retail has the in-place
+ *      `sll v0,v0,16`.  Split it into `overlayRaw = (u_short)DrawC_gOverlay[..];
+ *      overlayRaw = overlayRaw << 0x10;` -- the dest is now a real INPUT operand of
+ *      the shift (the W41 composite-RMW law) and cc1 emits the in-place pair, which
+ *      also un-rotates the whole `sra a1,..,16` / `sra a1,..,24` chain downstream.
+ *      Landed at BOTH Prim sites and both PrimClip sites.
+ *  (2) SYM `code` LOCAL at the prim-code stores (166 -> 162).  symblk shows
+ *      `REG code $NN UCHAR` paired with `REG color ULONG` in EVERY prim-emission
+ *      block (about ten of them); the literal `*(u_char *)((int)prim + 7) = 0x24;`
+ *      form re-materialises `li v0,36` inside the loop while retail's named local is
+ *      LICM-hoisted into a register held across the whole case (`li t3,36` /
+ *      `li s4,36` in the preheader).  Two of the four sites lose their `li` outright.
+ *  (3) PARENTHESISE THE INT SUM in the overlay address (162 -> 152, -2 insns):
+ *      `overlay + (index * 3 + which)` not `overlay + index * 3 + which`.  C's
+ *      pointer_int_sum rebuilds ptr-first and emits `addu v0,s6,v0; addu a2,v0,a0`
+ *      (3 insns); grouping the int sum first gives retail's `addu v0,v0,a0;
+ *      addu a2,s6,v0` (2).  The already-parenthesised sibling at the tail of this TU
+ *      was the tell.  Landed at both Prim sites and both PrimClip sites.
+ * FALSIFIED at the 118 basin (each re-measured here, none inherited):
+ *  - `int facetFlag` (the w70-a1 angle, re-tested per law 04Z): 242 @ 1389 EXACT.
+ *    It really does kill both `lhu` reloads AND reaches the oracle's instruction
+ *    count -- but it drops register pressure enough that gcc abandons retail's
+ *    callee-saved $s7 %hi base hoist (frame 56 -> 48, `sw s7,44(sp)` gone), which
+ *    re-colours the whole body.  ==> the count-exact target needs the reload killed
+ *    WITHOUT freeing a saved register; that is the named next angle.
+ *  - identity launder on facetFlag (`("" : "=r"(f) : "0"(f))`) to block the HImode
+ *    re-narrow: 120 @1397 -- a short in "=r" is NOT zero-insn, it pays the mode
+ *    conversion at each of the two sites.
+ *  - cse double-eval form for facet_flag (drop the `ff` temp, write
+ *    `facet_flag = facetFlag & 0xfff;` plus a second literal `(facetFlag & 0xfff)`
+ *    at the use, chasing retail's `andi v1; addu t1,v1,zero; srl v0,v1,4`):
+ *    122 @1397 -- cc1 emits both ANDs for real, it does not fold one into a copy.
+ *  - the PrimClip id-morph SPLIT (`idN = idN * 8; idN = idN + (int)sd;`) re-probed
+ *    at this basin per 04Z: 306 (it was 342 at the 162 basin) -- still far worse, so
+ *    the w55-a9 "site-scoped, do not port" verdict stands for Prim.
+ *  - statement-order swap of `i = obj->numVertex` and `envmapUV_dst = sd->tV`:
+ *    118 bit-identical (cse canonicalises; position is inert in that head).
+ *  - dropping the `color` local at the one 0x26 site whose `li` did not hoist: 118.
+ *  - moving the case-9 locals (prim/overlayFlag/facetFlag/facet/id0-2) from case
+ *    scope into the while-body block, which is where symblk puts them
+ *    (Block start $800c0c68): 118 bit-identical -- SYM-faithful but gate-neutral,
+ *    reverted to keep the diff minimal (16A: the decl dial is inert for pseudos
+ *    local-alloc already treats as block-local).
+ * RESIDUAL 118, largest classes (chunkdiff, ours vs oracle):
+ *   - the +4 insn excess = two `lhu` facetFlag reloads, one un-hoisted `li v0,38`,
+ *     and one load-delay `nop` at the 2nd overlayRaw site (ours `lhu v1,0(v0)`
+ *     where retail loads in place `lhu v0,0(v0)` off its own address register).
+ *   - the head $t0/$t1/$t2 THREE-WAY ROTATION (about 14 diffs, blocks 1-10): SYM
+ *     says `i` = $t2 and `tV` = $t0; ours puts `i` in $t0 and pushes both hoisted
+ *     gte-macro addresses one slot up.  Retail serves the two loop-invariant
+ *     addresses BEFORE `i` -- a priority dial, not a shape defect.
+ *   - the id0/id1/id2 `sll v0,tN,3` scratch (6 diffs) -- see the falsification above.
+ *   - retail's %hi base for DrawC_gOverlay lives in callee-saved $s7 with the %lo
+ *     addiu re-emitted at each use; ours materialises the whole address into $s4
+ *     once.  Storage-shape / -G class (catalog 15E menu), untried here.
  */
 void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOverlay *overlay,
                int envmap,Draw_CarCache *sd)
@@ -1616,8 +1696,12 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         if (sd->sub_otSize < otzSum) continue;
         DRAWC_OTLINK_FT3(sd, prim);
         gte_stsxy3_ft3(prim);
-        prim[1] = sd->color;
-        *(u_char *)((int)prim + 7) = 0x24;
+        {
+          u_long color = sd->color;
+          u_char code = 0x24;
+          prim[1] = color;
+          *(u_char *)((int)prim + 7) = code;
+        }
         {
           Draw_tPixMap *pmx = sd->pmxStart + *(u_char *)(facet + 2);
           if ((*(u_short *)((int)pmx + 0xe) & 0x7f) != 0) {
@@ -2020,8 +2104,12 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         prim[4] = xy1;
         prim[6] = xy2;
       }
-      prim[1] = sd->color;
-      *(u_char *)((int)prim + 7) = 0x24;
+      {
+        u_long color = sd->color;
+        u_char code = 0x24;
+        prim[1] = color;
+        *(u_char *)((int)prim + 7) = code;
+      }
       {
         Draw_tPixMap *pmx = sd->pmxStart + *(u_char *)(facet + 2);
         u_short clut = pmx->clut;
@@ -2092,7 +2180,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       gte_stOTZm(sd->otz);
       /* raw<<16 kept live: the facetFlag<0 rescale is sra 24 of the SAME shifted
        * value (oracle lhu; sll 16; sra 16 ... sra 24 -- single table read) */
-      overlayRaw = (int)((u_int)(u_short)DrawC_gOverlay[*(u_char *)(facet + 2)] << 0x10);
+      overlayRaw = (u_short)DrawC_gOverlay[*(u_char *)(facet + 2)]; overlayRaw = overlayRaw << 0x10;
       overlayFlag = overlayRaw >> 0x10;
       if (overlayFlag != 0) {
         facetFlag = *(short *)facet;
@@ -2134,7 +2222,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         /* SYM block {index,which,facetOverlay} -- FT3B overlay variant */
         int index = *(u_char *)(facet + 2);
         int which = (overlayFlag & 3) - 1;
-        Transformer_zOverlay *facetOverlay = overlay + index * 3 + which;
+        Transformer_zOverlay *facetOverlay = overlay + (index * 3 + which);
         prim = (u_int *)(sd->head).cprim.PrimPtr;
         DRAWC_OTLINK_FT3B(sd, prim);
         gte_stsxy3_ft3(prim);
@@ -2263,7 +2351,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       gte_stOTZm(sd->otz);
       /* raw<<16 kept live: the facetFlag<0 rescale is sra 24 of the SAME shifted
        * value (oracle lhu; sll 16; sra 16 ... sra 24 -- single table read) */
-      overlayRaw = (int)((u_int)(u_short)DrawC_gOverlay[*(u_char *)(facet + 2)] << 0x10);
+      overlayRaw = (u_short)DrawC_gOverlay[*(u_char *)(facet + 2)]; overlayRaw = overlayRaw << 0x10;
       overlayFlag = overlayRaw >> 0x10;
       if (overlayFlag != 0) {
         facetFlag = *(short *)facet;
@@ -2337,8 +2425,12 @@ gte_SetTransMatrix(((char *)sd + 0x14));
           prim[4] = xy1;
           prim[6] = xy2;
         }
-        prim[1] = sd->eColor0;
-        *(u_char *)((int)prim + 7) = 0x26;
+        {
+          u_long color = sd->eColor0;
+          u_char code = 0x26;
+          prim[1] = color;
+          *(u_char *)((int)prim + 7) = code;
+        }
         {
           u_short clut = (sd->ePmx1).clut;
           u_short tpage = (sd->ePmx1).tpage;
@@ -2357,16 +2449,19 @@ gte_SetTransMatrix(((char *)sd + 0x14));
           prim[4] = xy1;
           prim[6] = xy2;
         }
-        if ((overlayFlag & 1) != 0) {
-          prim[1] = sd->eColor2;
+        {
+          u_char code = 0x26;
+          if ((overlayFlag & 1) != 0) {
+            prim[1] = sd->eColor2;
+          }
+          else if ((facet_flag & 4) != 0) {
+            prim[1] = sd->eColor1;
+          }
+          else {
+            prim[1] = sd->eColor0;
+          }
+          *(u_char *)((int)prim + 7) = code;
         }
-        else if ((facet_flag & 4) != 0) {
-          prim[1] = sd->eColor1;
-        }
-        else {
-          prim[1] = sd->eColor0;
-        }
-        *(u_char *)((int)prim + 7) = 0x26;
         {
           u_short clut = (sd->ePmx0).clut;
           u_short tpage = (sd->ePmx0).tpage;
@@ -2384,7 +2479,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         /* SYM block {index,which,facetOverlay} -- FT3B overlay variant */
         int index = *(u_char *)(facet + 2);
         int which = (overlayFlag & 3) - 1;
-        Transformer_zOverlay *facetOverlay = overlay + index * 3 + which;
+        Transformer_zOverlay *facetOverlay = overlay + (index * 3 + which);
         prim = (u_int *)(sd->head).cprim.PrimPtr;
         DRAWC_OTLINK_FT3B(sd, prim);
         {
@@ -2632,6 +2727,31 @@ gte_ldv3(vt0,vt1,vt2);
  * FALSIFIED at the 428 basin: moving the three index `lbu`s BELOW the
  * `MPrimPtr <= PrimPtr` guard = 470 @1875 (it is the COUNT dial -- it takes
  * ours from +10 to -2 -- but costs 42 LCS; per-site 437..439 @1884).
+ * ===== w71-a3: 384 -> 325, count 1883 -> 1882 (oracle 1877) =====
+ * (the 428 above is a stale intermediate; this belt re-gated the baseline at 384.)
+ * Three landings, all TRANSFERRED from DrawC_Prim's w71-a3 block (read it first --
+ * the mechanisms and the falsification list live there):
+ *  (1) IN-PLACE COMPOSITE SHIFT on `overlayRaw` at both clip sites
+ *      (`overlayRaw = (u_short)DrawC_gOverlay[facet->textureIndex];
+ *        overlayRaw = overlayRaw << 0x10;`).
+ *  (2) PARENTHESISED INT SUM in the overlay address at both sites
+ *      (`overlay + (index * 3 + which)`).
+ *      (1)+(2) together: 384 -> 344.
+ *  (3) the SYM `code`/`color` UCHAR/ULONG local pair at the four remaining LITERAL
+ *      `prim->code = 0x24;` / `= 0x26;` stores (the two sites at DRAWC.CPP:3334/3382
+ *      already carried the identity-then-tweak `code = 0x24; ... code = 0x26;` form
+ *      and were left alone): 344 -> 325 @1882.
+ * FALSIFIED here at the 325 basin:
+ *  - the same `code` local wrapped around the THREE-ARM colour select
+ *    (`if (overlayFlag & 1) ... else if (facet_flag & 4) ... else ...` followed by
+ *    `prim->code = 0x26;`): 348 @1883.  Introducing the block there defeats the
+ *    cross_jump merge of the three arms' stores -- leave that one site literal.
+ * RESIDUAL 325 -- the class list above (z-block $t4/$t5/$t6, id rotation at the two
+ * un-dialed sites, xy0/xy1/xy2 load order, prologue callee-saved rotation) is
+ * UNCHANGED by this belt and stays the standing agenda.  Note the z-block wants
+ * $t4/$t5/$t6 = the FIRST THREE FREE registers only if $v0..$t3 are all blocked at
+ * that point (13A numeric-scan triage), so the honest question there is how many
+ * values retail keeps live across the block -- not whether to write a template.
  * ---- DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache  [DRAWC.CPP:2647-3495] SLD-VERIFIED ---- */
 void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOverlay *overlay,
                int envmap,Draw_CarCache *sd)
@@ -3124,8 +3244,12 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           *(u_int *)&prim->x1 = xy1;
           *(u_int *)&prim->x2 = xy2;
         }
-        *(u_int *)&prim->r0 = sd->eColor0;
-        prim->code = 0x26;
+        {
+          u_long color = sd->eColor0;
+          u_char code = 0x26;
+          *(u_int *)&prim->r0 = color;
+          prim->code = code;
+        }
         {
           u_short clut = (sd->ePmx1).clut;
           u_short tpage = (sd->ePmx1).tpage;
@@ -3144,8 +3268,12 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           *(u_int *)&prim->x1 = xy1;
           *(u_int *)&prim->x2 = xy2;
         }
-        *(u_int *)&prim->r0 = sd->eColor0;
-        prim->code = 0x26;
+        {
+          u_long color = sd->eColor0;
+          u_char code = 0x26;
+          *(u_int *)&prim->r0 = color;
+          prim->code = code;
+        }
         {
           u_short clut = (sd->ePmx0).clut;
           u_short tpage = (sd->ePmx0).tpage;
@@ -3168,8 +3296,12 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         *(u_int *)&prim->x1 = xy1;
         *(u_int *)&prim->x2 = xy2;
       }
-      *(u_int *)&prim->r0 = sd->color;
-      prim->code = 0x24;
+      {
+        u_long color = sd->color;
+        u_char code = 0x24;
+        *(u_int *)&prim->r0 = color;
+        prim->code = code;
+      }
       {
         Draw_tPixMap *pmx = sd->pmxStart + facet->textureIndex;
         u_short clut = pmx->clut;
@@ -3261,7 +3393,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
       gte_stOTZm(sd->otz);
       /* raw<<16 kept live: the facetFlag<0 rescale is sra 24 of the SAME shifted
        * value (oracle lhu; sll 16; sra 16 ... sra 24 -- single table read) */
-      overlayRaw = (int)((u_int)(u_short)DrawC_gOverlay[facet->textureIndex] << 0x10);
+      overlayRaw = (u_short)DrawC_gOverlay[facet->textureIndex]; overlayRaw = overlayRaw << 0x10;
       overlayFlag = overlayRaw >> 0x10;
       if (overlayFlag != 0) {
         facetFlag = *(short *)facet;
@@ -3303,7 +3435,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         /* SYM block line=550 {index,which,facetOverlay} -- FT3B overlay variant */
         int index = facet->textureIndex;
         int which = (overlayFlag & 3) - 1;
-        Transformer_zOverlay *facetOverlay = overlay + index * 3 + which;
+        Transformer_zOverlay *facetOverlay = overlay + (index * 3 + which);
         prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr;
         DRAWC_OTLINK_FT3B(sd, prim);
         {
@@ -3464,7 +3596,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
       gte_stOTZm(sd->otz);
       /* raw<<16 kept live: the facetFlag<0 rescale is sra 24 of the SAME shifted
        * value (oracle lhu; sll 16; sra 16 ... sra 24 -- single table read) */
-      overlayRaw = (int)((u_int)(u_short)DrawC_gOverlay[facet->textureIndex] << 0x10);
+      overlayRaw = (u_short)DrawC_gOverlay[facet->textureIndex]; overlayRaw = overlayRaw << 0x10;
       overlayFlag = overlayRaw >> 0x10;
       if (overlayFlag != 0) {
         facetFlag = *(short *)facet;
@@ -3541,8 +3673,12 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           *(u_int *)&prim->x1 = xy1;
           *(u_int *)&prim->x2 = xy2;
         }
-        *(u_int *)&prim->r0 = sd->eColor0;
-        prim->code = 0x26;
+        {
+          u_long color = sd->eColor0;
+          u_char code = 0x26;
+          *(u_int *)&prim->r0 = color;
+          prim->code = code;
+        }
         {
           u_short clut = (sd->ePmx1).clut;
           u_short tpage = (sd->ePmx1).tpage;
@@ -3588,7 +3724,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         /* SYM block {index,which,facetOverlay} -- FT3B overlay variant */
         int index = facet->textureIndex;
         int which = (overlayFlag & 3) - 1;
-        Transformer_zOverlay *facetOverlay = overlay + index * 3 + which;
+        Transformer_zOverlay *facetOverlay = overlay + (index * 3 + which);
         prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr;
         DRAWC_OTLINK_FT3B(sd, prim);
         {

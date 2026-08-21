@@ -347,7 +347,31 @@ void RaceSummary(void)
  *   t1 basin (p259 s2 refs=8 live=68, p81 s1 refs=17 live=69, p80 s7 refs=13 live=295)
  *   rather than on the constants; (2) an opacity fence placed on a CONSUMER (the "0"
  *   constraint kills a copy-preference outright -- catalog w49 row) to redirect the
- *   preference edge.  Repro kit: scratch/w50_a10/rst.py (applies V=t1, gates, restores). */
+ *   preference edge.  Repro kit: scratch/w50_a10/rst.py (applies V=t1, gates, restores).
+ * ---- W71-A6 (2026-08-21): 94 KEPT @471/475.  Two contributions, both negative on the
+ * gate but they NARROW the problem and name a transferable sibling cure.
+ * (1) FALSIFIED -- the W71 INDEX-TERM-FIRST ADDRESS lever (which landed
+ *     InGame_GetPSXPadValue 168->126 and Hud_BTCStats' cluster (d) 24->15) does NOT
+ *     reach this fn's repeated `lui t1; addiu t1; addu v0,v0,t1` sites.  The two
+ *     `Cars_gRaceCarList[i]` accesses rewritten as
+ *     `*(Car_tObj **)(((int)i << 2) + (int)Cars_gRaceCarList)` = 96, base-first = 96,
+ *     the MULT spelling = 94 (bit-identical).  The direction is INVERTED here: retail
+ *     emits the BASE PAIR FIRST and the `sll` second (side_by_side lines 316/390/432),
+ *     i.e. the natural ARRAY_REF form is already the right shape and the residual at
+ *     those sites is only the SCRATCH REGISTER (ours t1, retail v0/v1) -- downstream of
+ *     the head band rotation w63/w64 price, not of the access spelling.
+ * (2) 🔑 THE PER-PLAYER BAR HEIGHT CARRIES Hud_BTCStats' EXACT FOLD DEFECT.  sbs lines
+ *     163-174: retail computes `subu v1,s3,t1` (yoff), `lw t1,120(sp)` (barH),
+ *     `addiu v1,v1,19`, `subu v1,t1,v1` = `barH - (yoff + 0x13)`; ours folds it to
+ *     `addiu v1,t1,-19; subu v1,v1,t0` = `(barH - 19) - yoff`.  Same `A - (B + CST)`
+ *     reassociation, same 2-insn-for-2-insn shape, and `barH` is already the hoisted
+ *     int minuend that Hud_BTCStats needed.  Hud_BTCStats is now at 6 diffs whose
+ *     ENTIRE residual is that one fold, so it is the cheap laboratory -- whatever fold
+ *     escape seals it there transfers straight here.  Do the 6-diff fn first.
+ * The w64 `ip` basin was re-verified this wave (`python scratchpad/w64a13/apply.py
+ * rprobe5 ip` -> 106 @475/475, census `addiu 69v70 nop 24v23`); its named dial (+4 RTL
+ * insns inside p95's live range at zero refs) is unchanged and still needs the w60-12E
+ * instrument, not a spelling. */
 void RaceStatistics(void)
 
 {
@@ -783,6 +807,63 @@ void RaceStatistics(void)
  * -- the target is retail's single int temp reused by three call sites and by yoff, with
  * NO source local (cse must mint it).  Everything else in that basin is register roles
  * (ours s1=SIZE_H/s0=yoff, retail s2=SIZE_H/s1=yoff) plus one nop/lhu rotation. */
+/* ===== W71-A6 (2026-08-21): 24 -> 6 @473/473, OPCODE MULTISET NOW IDENTICAL. =====
+ * TWO independent landings; clusters (d) and (e) are GONE and the whole residual is the
+ * ONE fold w63-a13's census bounded it to.
+ * (1) CLUSTER (d) SOLVED -- the StatsTimer base scratch pick (24 -> 15 @474).
+ *     Retail SELF-temps the address into its dest (`lui v1; addiu v1; addu v1,s2,v1`),
+ *     ours picked a separate `t0`.  w50-a10 falsified the §3.12 #5 sized-vs-unsized
+ *     DECLARATION axis here and filed it as a reload tie -- that verdict is REFUTED by
+ *     the ACCESS-SPELLING axis it never tried.  Write the guard's load as an explicit
+ *     index-term-first byte address:
+ *         *(int *)((player << 2) + (int)&StatsTimer)     [both guard sites]
+ *     instead of `StatsTimer_arr[player]`.  Same lever as W71-A6's psxcontroller
+ *     InGame_GetPSXPadValue landing (methodology 3.12-fusion / W60-A6 Hud_BuildNumbers0):
+ *     the SHIFT spelling keeps fold from rebuilding an ARRAY_REF, and the address then
+ *     materializes into its own dest.  MEASURED: `(&StatsTimer)[player]` 17 @474 .
+ *     `player * 4 + (int)&StatsTimer` 17 @474 (the MULT form is folded back) .
+ *     `(int)&StatsTimer + (player << 2)` 15 @474 (bit-identical to index-first --
+ *     fold canonicalizes the operand order, so it is MULT-vs-SHIFT that is the dial) .
+ *     `(player << 2) + (int)StatsTimer_arr` 24 (neutral -- the array VIEW re-folds) .
+ *     per-site: site0 alone 18 @473, site1 alone 21 @474, BOTH 15 @474.
+ * (2) CLUSTER (b) 15 -> 6, and the s1/s2 ROLE SWAP IS SOLVED -- hoist the MINUEND.
+ *     `int sizeH = HUD_STATS_SIZE_H;` as a statement before the loop, plus the SINK
+ *     spelling of the subtrahend (`sizeH - ((startY+0xf) - POS_Y + (postgame?8:0))`).
+ *     The two halves are NOT separable and neither had been measured together:
+ *     the sink spelling alone is 18 @473 (w50 measured it as `SIZE_H - (yoff + t)` 27),
+ *     the sizeH local alone was only ever probed inside the two-arm shape (24 @475),
+ *     TOGETHER they are 6 @473 with `sra s2` (sizeH) emitted BEFORE `subu s1,s0,v0`
+ *     (yoff) exactly like retail -- i.e. the "which operand does gcc expand first"
+ *     question the whole w44..w64 stack read as an allocator tie is decided by WHICH
+ *     operand is a plain pseudo.  yoff must stay INLINE (a `yoff` local re-enters the
+ *     +1 addiu/+1 addu `startY+0xf` basin: 24 @475).
+ * RESIDUAL 6 @473, opcode multiset IDENTICAL to the oracle -- purely the fold direction
+ * in the postgame arm: ours `addiu v0,s2,-8; subu v0,v0,s1` = `(sizeH - 8) - yoff`,
+ * retail `addiu v0,s1,8; subu v0,s2,v0` = `sizeH - (yoff + 8)`.  Register ROLES now
+ * match retail (s1 = yoff, s2 = sizeH), so this is the LAST fact in the function.
+ * FALSIFIED FROM THE 6 BASIN (all re-gated here; every one either 6 bit-identical or
+ * worse): `(postgame != 0) << 3` and `(postgame != 0) * 8` addends 6 (bit-identical --
+ * postgame is a bool so gcc rebuilds the same COND_EXPR) . addend-first 6 . no inner
+ * parens 6 . unary-minus re-sign `-(yoff + t - sizeH)` 6 . `(int)` casts 6 .
+ * `- (postgame ? -8 : 0)` 6 . two-arm ternary 28 @475 . ternary-over-the-subtrahend
+ * 28 @475 . both-arms-PLUS `postgame ? yoff+8 : yoff+0` 28 @475 . the w49 in-paren
+ * spelling 17 @474 . `sizeH - yoff - (postgame?8:0)` 24 . 14C embedded assignment on
+ * the OUTER addend 25 @472 and on sizeH 6 (bit-identical) . opacity fence on sizeH
+ * outside the loop 16 @473 / inside it 14 @473 / on a yoff local 51 @476 .
+ * fold-escape `(postgame?8:0) - POS_Y + (startY+0xf)` 23 @474 . showtimeleft-term-first
+ * 27 @472 . hoisting `startY = startY + 0xf;` ABOVE the first Hud_FBuildF4 (so all three
+ * call sites read plain `startY`, semantically identical, and retail's in-place
+ * `addiu s0,s0,15` mints) 23 @470 -- 3 insns SHORT, and it makes every two-arm variant
+ * much worse (51 @470).
+ * NEXT TAKER: the target is a fold ESCAPE for `A - (B + CST)` that keeps BOTH the
+ * constant and the two-insn shape.  gcc-2.8 fold distributes the outer MINUS over the
+ * `postgame ? 8 : 0` COND_EXPR FIRST (both arms constant) and only then reassociates
+ * `A - (B + 8)` into `(A - 8) - B`; so the device must make ONE arm of the ternary
+ * non-constant WITHOUT costing an `addu` in that arm -- e.g. a second constant local
+ * whose value cse cannot prove (the fenced NAMED-CONSTANT dial, catalog 09G) used as
+ * the `8`.  Sibling: RaceStatistics' per-player bar height carries the IDENTICAL fold
+ * (`barH - (yoff + 0x13)` -> `(barH - 19) - yoff`, sbs lines 163-174), so a cure here
+ * transfers there. */
 /* HIDDEN-PHANTOM FIX (w14-a2): oracle mangles __Fsb (short,bool) -- 2nd param was `int`, mangling
  * __Fsi, a NAME MISMATCH invisible to the gate (same class as the AudioCmn_GetAsyncSfx precedent).
  * SYM confirms `class ARG type BOOL name postgame`. */
@@ -805,6 +886,7 @@ void Hud_BTCStats(short player,bool postgame)
   short HUD_STATS_TITLE_START_X;
   short HUD_STATS_TITLE_START_Y;
   short HUD_STATS_TEXT_START_Y;
+  int sizeH;
 
   chasinghuman = 0;
   showname = 0;
@@ -922,9 +1004,14 @@ void Hud_BTCStats(short player,bool postgame)
    * the dial may be that SECOND call site's spelling (make cse mint yoff THERE first),
    * not this one's; and per the w44 ternary-fold boundary the only other route is to
    * make the addend non-constant, which here would delete retail's own `beqz`. */
+  /* MATCH (W71-A6): `sizeH` is the HOISTED MINUEND -- do NOT inline it back into the
+     expression below.  Making the minuend a plain pseudo is what makes gcc expand it
+     BEFORE the subtrahend, which is what gives retail's s1=yoff / s2=sizeH roles.
+     Pairs with the SINK spelling of the subtrahend below; neither works alone. */
+  sizeH = HUD_STATS_SIZE_H;
   for (i = 1; i < 4; i = i + 1) {
     Hud_FBuildF4(0,col[i] - 2,startY + 0xf,1,
-                 HUD_STATS_SIZE_H - ((startY + 0xf + (postgame ? 8 : 0)) - HUD_STATS_POS_Y) -
+                 sizeH - (((startY + 0xf) - HUD_STATS_POS_Y) + (postgame ? 8 : 0)) -
                  (showtimeleft ? 0x10 : 0),0,'\0','\0');
   }
   if (showtimeleft) {
@@ -936,8 +1023,14 @@ void Hud_BTCStats(short player,bool postgame)
      no separate dataY local (SYM lists only i/col/startY/string/chasinghuman/showname/
      PLAYERWIDTH/showtimeleft/HUD_STATS_*). */
   startY = startY + 0xf;
+  /* MATCH (W71-A6): both StatsTimer guards are spelled as an INDEX-TERM-FIRST byte
+     address (`(player << 2) + (int)&StatsTimer`) and NOT as `StatsTimer_arr[player]`.
+     The `<<` keeps fold from rebuilding an ARRAY_REF, which is what makes gcc
+     self-temp the address into its own dest like retail (`lui v1; addiu v1;
+     addu v1,s2,v1`) instead of picking a separate `t0` scratch.  The MULT spelling
+     `player * 4 + ...` folds back and loses it. */
   for (i = 0; i < Hud_NextPerp[player]; i = i + 1) {
-    if (StatsTimer_arr[player] > (int)i * 2 + 4) {
+    if (*(int *)((player << 2) + (int)&StatsTimer) > (int)i * 2 + 4) {
       Font_TextColor(4);
       sprintf(string,"%d",(int)i + 1);
       Font_TextXY(string,col[0],startY + (int)i * 0xc);
@@ -951,7 +1044,7 @@ void Hud_BTCStats(short player,bool postgame)
                   startY + (int)i * 0xc);
     }
   }
-  if (showtimeleft && (StatsTimer_arr[player] > (int)i * 2 + 4)) {
+  if (showtimeleft && (*(int *)((player << 2) + (int)&StatsTimer) > (int)i * 2 + 4)) {
     Font_TextColor(3);
     Hud_ParseTime(FinalBTC_Countdown,string);
     Font_TextXY(TextSys_Word(0x4d),col[0],startY + (int)i * 0xc + 2);

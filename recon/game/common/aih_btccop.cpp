@@ -2518,7 +2518,20 @@ stateExecuteAndReturn:
    (p198 block 23, p212 block 27) -- `--why 198` shows those CROSS A CALL, so the
    whole caller-saved bank is excluded from their window by construction and $a2 was
    never reachable for them.  The offset pseudo to chase is the 2-ref one BORN at the
-   memset return and DYING at the `addu a2,v0,zero`. */
+   memset return and DYING at the `addu a2,v0,zero`.
+   W71-A19 re-gated 4 @675/675 and CLOSED the 12A/20B PREFERENCE-KILLER angle on it --
+   the one device invented since w64 that is aimed exactly at this ask (deny local-alloc's
+   $v0 copy-preference on the memset-return pseudo at ZERO insns, non-volatile so it is
+   not a sched barrier).  Applied to BOTH failing arms, each re-gated from 4:
+     __asm__("" : "=r"(offset) : "0"(offset) : "$2")        -> 8 @675
+     ... : "$2","$3"                                         -> 8 @675
+     ... : "v0"   (ABI spelling of the same clobber)          -> 8 @675
+     identity launder with NO clobber                          -> 8 @675
+     read-only fence  __asm__("" : : "r"(offset))            -> 4 @675 (inert)
+   So the clobber DOES move the pseudo off $v0 but never onto $a2 -- consistent with the
+   w63 reading that this is a local-alloc QTY handout outside allocsim/reqdelta's model,
+   and with the 20B LIMIT (the killer cannot beat an availability/eviction constraint).
+   The qtytrace/copypref lane named in w64 is still the only untried lens. */
 void AIHigh_BTC_Wingman::HighExecute()
 {
   ((AIHigh_BasicCop *)this)->CheckSpikeBelt();

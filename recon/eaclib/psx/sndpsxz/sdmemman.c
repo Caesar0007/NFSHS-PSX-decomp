@@ -478,7 +478,36 @@ extern int iSNDpsxmalloc(int size)
      * NEXT ANGLE (named, untried in THIS basin): allocsim MATCH check + `reqdelta --want` on the
      * scan/commit address pseudos -- the whole residual is now ONE consistent v0/v1/a2 rotation at
      * count parity, which is exactly the priced-dial shape (methodology 4.3), and every prior
-     * spelling sweep in this file was run against a basin that was 7 insns SHORT. */
+     * spelling sweep in this file was run against a basin that was 7 insns SHORT.
+     *
+     * 🟢 W71-A15 2026-08-21 -- 26 -> 12, STILL COUNT-EXACT 127/127.  Clusters (i) and (iv) are
+     * GONE: the whole commit block is byte-exact (the three-part recipe is receipted at the
+     * `commit:` label below -- identity launder + depth-3 ref inflator + read position).  The
+     * mechanism is combine_regs' output-to-dying-input tie, which is the SAME mechanism the
+     * file's other residuals show, so the surviving 12 is now ONE question in TWO places:
+     *   (ii) scan / idx!=0 arm  : ours `addu v1,s3,v0` + its two lhu bases;
+     *                             retail `addu a2,v0,s3` + `lhu ?,0/2(a2)`   (3 lines)
+     *   (iii) scan_done         : ours `sll a2,s0,2` / `addiu v0,v1,0` / `addu a2,a2,v0`;
+     *                             retail `sll v0,s0,2` / `addiu v1,v1,0` / `addu a2,v0,v1`
+     *                             (4 lines; note retail's pv is the SELF-temp `addiu v1,v1`
+     *                             while ours splits high/lo_sum across $v1/$v0)
+     * 🔴 THE LAUNDER DOES NOT TRANSFER TO scan_done, AND THE REASON IS STRUCTURAL, NOT A TIE:
+     * scan_done ends in `j` to the SHARED iSNDpsxmemconstrain call, and ANY `__asm__` placed in
+     * that block (launder on `off` before the add 28@125, after the add 37@124, launder on `pv`
+     * 30@125) costs TWO INSTRUCTIONS -- the barrier lets cross_jump merge scan_done's
+     * `addiu $a0,$sp,16 / addiu $a1,$sp,20` pair into the shared block, which retail duplicates.
+     * So scan_done needs a NON-ASM device (or the arm-merge work named in the W50 note).
+     * FALSIFIED IN THE 12-DIFF BASIN (all re-measured here per 04Z; none < 12):
+     *   scan_done: index-first int sum 12 (neutral) | `off` typed `int` 12 (neutral) |
+     *     `prev = &pv[idx*2]` 28@125 | `off` assigned after `pv` 28@125 | depth-2/3 inflator on
+     *     the `pv[0]` read 30@129 | depth-2 inflator on the `prev` statement 36@125 |
+     *     pv[0] hoisted before the block read 21@128 | pv-wrapper depth ladder 0/1/2/3/4/5 =
+     *     40@125 / 32 / 14 / 14 / 14 / 14 (>=2 saturates; the W58 depth-3 is kept) |
+     *     `D_80147E34` sized [1]/[2] 21@128, [4] 12, `&D_80147E34[0]` 12.
+     *   scan arm: depth-2/3 wrapper on the `prev` decl 23@124 | depth-2/3 wrapper on the
+     *     `block` sum 27@126 | two named half-temps for prev[0]/prev[1] 12 | `prev` declared
+     *     first 12 | entry read hoisted above the block sum 12 | index-first int sum 18.
+     *   commit: read-position and inflator-depth ladders are in the `commit:` receipt. */
     unsigned char *base = sndpd;
     unsigned char *pd;
     unsigned int blk, src;
@@ -588,13 +617,49 @@ commit:
         unsigned char *table = sndpd + 0x520;
         unsigned short commit_block;
         unsigned char *commit_base;
+        /* ============================================================================
+         * MATCH (w71-a15, 2026-08-21): 26 -> 12, COUNT-EXACT 127/127, WHOLE COMMIT BLOCK
+         * NOW BYTE-EXACT.  Three cooperating pieces; each was measured alone and in the
+         * pair, and NONE of them lands without the other two (13F lever-order law).
+         *
+         * (1) IDENTITY LAUNDER ON `entry_off`, PLACED AFTER THE ENTRY ADD (26 -> 24).
+         *     Retail forms the entry pointer into a FRESH register (`addu a1,v1,a0`);
+         *     ours tied the sum's dest to the dying byte-offset pseudo (`addu v0,v0,a0`)
+         *     because local-alloc's combine_regs (local-alloc.c:1866) ties an output to
+         *     an input that dies in the same insn.  The zero-insn launder makes the
+         *     pseudo die TWICE (once as the asm's input, once at the add), so
+         *     combine_regs refuses the tie.  🔴 IT MUST HAVE A LATER USE or the asm is
+         *     dead and deleted -- `commit_base`'s `- entry_off + entry_off` supplies it.
+         *     Same lever falsified in scan_done, where `off` has no later use (below).
+         *
+         * (2) DEPTH-3 `do{}while(0)` REF INFLATOR ON THE local_block READ (24 -> 14).
+         *     With (1) the sum is fresh but the block's two short-lived quantities were
+         *     still SWAPPED (ours entry_off=$v0/local_block=$v1, retail the reverse).
+         *     They do not overlap, so this is a SERVING-ORDER question:
+         *     QTY_CMP_PRI = floor_log2(refs)*refs*size/live, and the launder itself
+         *     handed entry_off two extra refs.  flow.c weights refs by loop depth and
+         *     loop.c strips the phony loop, so the wrapper is zero-insn.  Depth ladder
+         *     measured in this basin: 1 -> 26, 2 -> 24, 3 -> 14, 4 -> 14 (3 = cheapest).
+         *
+         * (3) THE READ'S POSITION: BETWEEN THE ENTRY ADD AND THE LAUNDER (14 -> 12).
+         *     Statement position is the sched1 luid dial and it is NOT free to choose:
+         *     read before the add 14 | read between add and launder 12 (kept) |
+         *     read after the launder 24 | read after `commit_base` (its old home) 26.
+         *     At 14 the registers were already retail's but the `addu a1` / `lhu v0`
+         *     pair issued in the wrong order; moving the read one statement later fixes
+         *     the order without disturbing the handout.
+         *
+         * ALSO CLOSED HERE: the two former net-zero `entry_off++/--` and
+         * `commit_block++/--` "reference dials" (W61/W62 fork-corpus receipts) are DEAD
+         * CODE in this repo's gate -- 26 with and without them, i.e. exactly the W64-16A
+         * net-zero-pair adjudication.  Both removed; entry_off's is replaced by (1).
+         * ============================================================================ */
         entry = (unsigned short *)(table + entry_off);
+        do { do { do { commit_block = (unsigned short)local_block; } while (0); } while (0); } while (0);
+        __asm__("" : "=r"(entry_off) : "0"(entry_off));
         commit_base = (unsigned char *)
             ((unsigned int)table - entry_off - 0x520 + entry_off);
-        commit_block = (unsigned short)local_block;
         entry[1] = (short)size;
-        do { commit_block++; commit_block--; } while (0);
-        do { entry_off++; entry_off--; } while (0);
         entry[0] = commit_block;
         {
             /* MATCH (w61-a19, 40 -> 26 at COUNT-EXACT 127/127): retail computes the RETURN VALUE

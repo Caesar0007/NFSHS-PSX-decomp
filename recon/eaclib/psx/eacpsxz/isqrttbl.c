@@ -1,6 +1,39 @@
 /* eaclib/psx/eacpsxz/isqrttbl.c -- data-only EACPSXZ archive member.
  * SYM: ..\eaclib\psx\eacpsxz.lib(isqrttbl.obj), paired FILE records with
- * no function/SLD records.  The table is consumed by isqrt.obj. */
+ * no function/SLD records.  The table is consumed by isqrt.obj.
+ *
+ * 🔴 W71-A15 2026-08-21 -- SRC-LANE MIS-ATTRIBUTION, NOT A RECONSTRUCTION GAP.
+ * MATCH_PROGRESS lists `remapshiftjiscode` @0x801069C4 and `decodeshiftjis`
+ * @0x801069EC against THIS unit at 0.00%, because
+ * `src/eaclib/psx/eacpsxz/isqrttbl.c` carries their two INCLUDE_ASM lines --
+ * so the objdiff target object for unit eaclib/psx/eacpsxz/isqrttbl contains
+ * two functions this data-only recon TU can never define, and every fn in it
+ * reads 0%.  BOTH FUNCTIONS ARE ALREADY RECONSTRUCTED AND GATE-PASS in their
+ * real owner, recon/eaclib/psx/eacpsxz/textcode.c:
+ *     verify_asm recon/eaclib/psx/eacpsxz/textcode.c \
+ *                decodeansi,remapshiftjiscode,decodeshiftjis
+ *   -> decodeansi PASS (6) | remapshiftjiscode PASS (10) | decodeshiftjis PASS (26)
+ * ⚠️ DO NOT "fix" this by copying the bodies here -- that would multiply-define
+ * both symbols against textcode.o (the W64/W65 link-debt class).
+ *
+ * OWNERSHIP PROOF (two independent legs, both decisive):
+ *  1. .data ADJACENCY.  textcode.obj's ASCII->full-width Shift-JIS table
+ *     D_8013BD50 is 0x60 u16 entries = 0xC0 bytes, i.e. [0x8013BD50,0x8013BE10)
+ *     -- and 0x8013BE10 is EXACTLY `isqrttbl` (this file's 256-byte table).
+ *     So in .data textcode.obj is immediately followed by isqrttbl.obj, which
+ *     is the same order the paired SYM FILE records list them in.
+ *  2. isqrttbl.obj CONTRIBUTES NO TEXT (its SYM block is the table alone), and
+ *     in .text the whole run [0x801069AC, 0x80106A54) -- decodeansi,
+ *     remapshiftjiscode, decodeshiftjis -- sits between ResetEntryInt
+ *     (libapi A24.OBJ, obj-annotated in disasm-v4) and _err_math (libmath
+ *     FERR.obj).  With isqrttbl.obj text-less, that run is textcode.obj's.
+ *
+ * REQUIRED SHARED CHANGE (outside this agent's remit; src/ + expected/ are
+ * orchestrator-owned): move the two INCLUDE_ASM lines from
+ * src/eaclib/psx/eacpsxz/isqrttbl.c to src/eaclib/psx/eacpsxz/textcode.c,
+ * regenerate the expected objects (`build.py --out expected --no-link`), and
+ * drop the two stale MATCH_PROGRESS rows.  After that the textcode unit reads
+ * 3/3 and this unit becomes a pure data unit again. */
 unsigned char isqrttbl[256] = {
     0x10,0x16,0x1b,0x20,0x23,0x27,0x2a,0x2d,0x30,0x32,0x35,0x37,0x39,0x3b,0x3d,0x40,
     0x41,0x43,0x45,0x47,0x49,0x4b,0x4c,0x4e,0x50,0x51,0x53,0x54,0x56,0x57,0x59,0x5a,

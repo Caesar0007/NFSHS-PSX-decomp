@@ -100,6 +100,76 @@ int           _err_math(int errnum, int code);
  *   kept the constant.  The reachable lever is therefore an instrument question
  *   (dump cse's table on the 970404 rung and find which source shape stops the
  *   value being RECORDED), or a rung not on our ladder.  Not a floor.
+ *
+ * W71-A12 (2026-08-21) -- RE-GATED at 8 (221/221; the w63/w64 TEXT_MOVES rows had
+ * already taken 12 -> 8).  ONE landing + one wiring spec + two new falsifications.
+ *
+ * LANDED (source): row (b) -- the 05E VOLATILE VIEW ON THE READ, the device the
+ * W61-A9 receipt had NOT tried here (it tried `rp` pointer locals instead):
+ *     `_add_mant_d(A, A[0], A[1], *(volatile int *)&rnd[0], rnd[1]);`
+ * That converts `addu $a3,$v1,$zero` into retail's `lw $a3,0x28($sp)`, i.e. it turns
+ * a VALUE row (cse store-to-load forwarding, source-unreachable per the W61 cse
+ * cost-model analysis) into a pure 11B arg-EMISSION-ORDER row -- which IS mechanically
+ * fixable.  Diff-neutral on its own (8), and it is what the wiring spec below needs.
+ * Only rnd[0] takes the volatile view; rnd[1] is the stack (5th) arg and retail
+ * register-forwards it too -- same rule as MULDF3/_mul_mant_d.
+ *
+ * 🔧 ORCHESTRATOR WIRING SPEC (probe-verified 2x, 8 -> 6, count stays 221/221):
+ *   in tools/build.py PER_FN_TEXT_MOVES["recon/syslib/psx/libmath/ADDDF3.c"]["__adddf3"],
+ *   DUPLICATE the existing row 0 (the generic 11B `lw $7` row) and INSERT the copy at
+ *   index 1 (i.e. rows = [row0, row0-copy, row1]).  Row 0 currently fires at the first
+ *   `_add_mant_d` (arg4 = B[0], `lw $7,32($sp)`); the copy fires at the rounding
+ *   `_add_mant_d` (arg4 = rnd[0], `lw $7,40($sp)`), which the volatile view above just
+ *   created.  The row's regex already tolerates the `#.set volatile` wrapper maspsx
+ *   emits around it (verified against build/.../ADDDF3.c.s lines 303-311).  No branch
+ *   word is touched (the moved line is a `lw`).  Probe harness:
+ *   `python scratchpad/A12_w71/tmprobe.py recon/syslib/psx/libmath/ADDDF3.c __adddf3
+ *    "recon/syslib/psx/libmath/ADDDF3.c" __adddf3 0 1`  (loads build.py from source,
+ *   mutates PER_FN_TEXT_MOVES in memory, then execs verify_asm against it -- it never
+ *   writes to tools/).
+ *
+ * 🔑 NEW ANGLE ON ROW (a), the two `addu $v0,$a1,$zero` vs `li $v0,1` -- HALF-CRACKED,
+ * and the half that is left is a TEXT_MOVES row, not a cse question.  The W61 receipt
+ * filed "named `int one = 1;` 12 (inert -- constant-propagated)"; the fix for that is
+ * an IDENTITY FENCE on the named constant, which makes it OPAQUE so cse cannot equate
+ * it with the `1` already sitting in $a1:
+ *     if (A[1] & 0x40000000) {
+ *         int one; one = 1; __asm__("" : "=r"(one) : "0"(one));
+ *         _dbl_shift((unsigned int *)A, 1, A[0], A[1], one);
+ *         ae += 1;
+ *     }
+ * MEASURED: both `addu $v0,$a1,$zero` rows DISAPPEAR -- we emit retail's `li $v0,1` at
+ * both sites -- but the whole-fn score goes 8 -> 12, because the opaque `li $2,1` is
+ * emitted BEFORE the argument setup and reorg then steals IT for the `beq $2,$0,$L17`
+ * delay slot instead of retail's `addu $4,$sp,24`.  Ours becomes
+ *   `beq; li $2,1 [slot]; addu $4,$sp,24; li $5,1; sw $2,16($sp)`
+ * against retail's
+ *   `beq; addu $4,$sp,24 [slot]; li $5,1; li $2,1; sw $2,16($sp)`
+ * i.e. a ONE-LINE relocation at each of the two sites (take the `li $2,1`, put it after
+ * `li $5,1`; the freed slot then re-fills with `addu $4,$sp,24`).  ALSO FALSIFIED here:
+ * the same constant written as a GCC statement-expression argument
+ * `({ int one; one = 1; __asm__("" : "=r"(one) : "0"(one)); one; })` -- identical 12,
+ * because expand_call PRECOMPUTES an argument with side effects, so the `li` still
+ * lands ahead of the arg-store loop.  ==> row (a) is reachable as
+ * [identity-fenced `one` in-source] + [2 TEXT_MOVES rows], total residual would be the
+ * single row (c).  Not landed in this wave: it trades 4 gate-visible diffs for 2
+ * unprobed TEXT_MOVES rows, and the wave budget went to _mul_mant_d (now PASS).
+ *
+ * ROW (c) `addu $s0,$v1,$zero` vs `lui $s0,57344` -- TWO MORE FALSIFICATIONS (both
+ * whole-fn gated at 8, i.e. inert): the 05H/07A BARE-CONSTANT device that cracked
+ * MULDF3's `lui $s0,0x8000` does NOT transfer here.  Tried: an explicit peel
+ * `if ((A[1] & 0xE0000000) == 0) { normMask = 0xE0000000; <identity fence>; do {...}
+ * while (((unsigned)A[1] & normMask) == 0); }` with ONE fence, and the same with THREE
+ * fences (the exact MULDF3 recipe).  WHY IT CANNOT WORK HERE (the law refinement): an
+ * identity fence LAUNDERS a value, it does not RE-MATERIALIZE it -- the `"0"` constraint
+ * ties the output to the input register, so cse still forwards the peeled test's
+ * `lui $v1,57344` INTO the fence and we get the same `addu $s0,$v1,$zero`.  MULDF3's
+ * signmask worked because its OTHER sign test was spelled `acc[1] < 0` (`bgez`) and
+ * therefore materialized NO constant for cse to forward from.  Here BOTH the peeled
+ * test and the loop test need the same 32-bit constant, so any spelling gives cse a
+ * partner.  The reachable levers are unchanged from W61: a cse-table instrument read on
+ * the 970404 rung, or a TEXT_MOVES/rung answer.  NOT a floor.
+ *
  * ---- shape notes ----
  * Same 05B soft-float PAIR shape + oracle re-derivation as DIVDF3.c/MULDF3.c.
  * Oracle tells (frame 0x60): a -> $s2:$s3, b -> $s0:$s1 (BOTH DFmode pairs land
@@ -182,7 +252,7 @@ double __adddf3(double a, double b)   /* @0x800F5A54 */
     rnd[1] = 0;
     if ((A[0] & 0x200) != 0) k = 256;
     rnd[0] = k;
-    _add_mant_d(A, A[0], A[1], rnd[0], rnd[1]);
+    _add_mant_d(A, A[0], A[1], *(volatile int *)&rnd[0], rnd[1]);
     if (A[1] & 0x40000000) {
         _dbl_shift((unsigned int *)A, 1, A[0], A[1], 1);
         ae += 1;

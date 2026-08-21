@@ -119,7 +119,17 @@ extern int SetIntrMask(int mask)   /* @0x800F2950 */
  * consecutive one-block address qtys where retail's second one skips the free low regs =
  * the local-alloc QTY handout (06E gap).  FALSIFIED: a local `IntrHooks *h` for the dma
  * store (20), naming both call results in temps (6, inert), a void fence between the two
- * stores (6, inert), `(&g_hooks_ptr[0])->` index form on both (6, inert); ladder as above. */
+ * stores (6, inert), `(&g_hooks_ptr[0])->` index form on both (6, inert); ladder as above.
+ * W71-A10 (2026-08-21) RE-GATED 6 @54/54; the W63-A8 diagnosis re-measured and CONFIRMED
+ * (qty272: block-4 qtys 84/86/87/89/91 ALL tie at refs2 live4 pri5000, so the handout falls
+ * through to the qty NUMBER tie-break and 91 reuses $v1 only because 89 is already dead).
+ * FALSIFIED this pass (all gated, all reverted): the first hooks pointer hoisted into a
+ * named `h1` assigned BEFORE `g_intr.inited = 1` (20 @56 -- h1 then crosses the jal and is
+ * forced to an s-reg), a named `dm` temp for the startIntrDMA result (6, inert),
+ * `g_hooks_ptr[0].dma_setter` (6, inert), `(&g_hooks_ptr[0])->` re-test (6, inert).  The
+ * W63-A8 intruder angle is unchanged and still needs a value BORN AFTER `jal startIntrDMA`
+ * and DEAD BEFORE its store; no zero-insn C form for one exists (the 0-insn void-tail
+ * fence carries no register, and an `"r"` fence needs a live value -- the missing thing). */
 extern IntrState *_initIntr(void)       /* @0x800F2968 */
 {
     if (g_intr.inited != 0)
@@ -297,7 +307,55 @@ extern void _intrhand(void)            /* @0x800F2A40 */
      *    in $s1 -- both already reproduced by this body; residual = pure handout, certified.
      *  - xenogears WIP trapIntr shape (their commented-out body; v1.76-era, never matched
      *    even there) gated AS-IS per 04T: 51 @117 -- FALSIFIED, count-over, worse than every
-     *    sotn cell above.  The corpus axis stays retired at BOTH neighboring revisions. */
+     *    sotn cell above.  The corpus axis stays retired at BOTH neighboring revisions.
+     * W71-A10 (2026-08-21) 30 -> 24, COUNT STILL EXACT 116/116.  THE PEND RESIDUAL IS
+     * SOURCE-REACHABLE AFTER ALL, AND THE W63-A8 READING OF THE TARGET WAS WRONG.
+     *  (1) RE-STATEMENT OF THE TARGET (measured with qty272.py on the shipped body, NOT
+     *      inferred from the oracle's post-sched order).  The I_STAT pointer is ALREADY
+     *      $a0 in both builds -- it never had to move.  Block 2's three long qtys are
+     *      88 ptr live10 -> $a0, 90 HImode live8 -> $v0, 89 ptr live6 -> $v1, and the
+     *      priority ladder (pri = refs*10000/live: 2000 / 2500 / 3333) hands out
+     *      $a0 / $v0 / $v1 in exactly that order in BOTH builds.  So the whole residual is
+     *      a TWO-element LIVE-LENGTH swap: retail's `enabled` is the live-6 qty ($v1) and
+     *      its I_MASK pointer the live-8 one ($v0); ours has them the other way round.
+     *      W63-A8's "3-way permutation, the two pointers must trade" is FALSIFIED --
+     *      it read the birth order off the oracle's post-sched2 stream instead of the
+     *      lreg dump, and the I_STAT pointer is not in play at all.
+     *  (2) THE DIAL IS THE PRE-SCHED1 BIRTH ORDER, AND NAMED LOCALS EXPOSE IT.  With all
+     *      three operands read into function-scope locals BEFORE the `state[1] = 1` store,
+     *      the block's pseudo birth order becomes source-controlled and the AND tree stops
+     *      being re-associated by fold (with the operands as plain pseudos the emitted tree
+     *      is EXACTLY the source tree -- see (4)).  Shipped form: `mp; sp; en;` then
+     *      `pend = en & (*sp & *mp)`, at BOTH sites.  This is the same lever class as the
+     *      `int *tp` timeout anchor W62-A7 landed 12 lines below (hold the address in a
+     *      named local), not a fence and not a pin.
+     *  (3) FULL SWEEP RECEIPTS (every cell gated; 12 AND-spellings x hoist-set x scope):
+     *        no hoist        : 30 best (MA&(EN&ST) and ST&(EN&MA) tie; 32/36/42 elsewhere)
+     *        en only         : 28 best   sp+mp only (no en) : 32   mp+en (no sp) : 28
+     *        sp+en           : 26 best (and this is where the emitted TREE first equals
+     *                          retail's MA&(EN&ST), with only the two homes left wrong)
+     *        mp+sp+en        : 24  <-- SHIPPED.  All 6 birth orders x 12 trees swept:
+     *                          a hard plateau at 24 for every EN-outer tree, 40/46 for the
+     *                          rest; store-position sweep adds nothing.
+     *      FALSIFIED THIS PASS (all gated, all reverted): per-site copies of the temps
+     *      (en1/en2, sp1/sp2, mp1/mp2 -- 30 best, and 30 even with only en/sp split), BLOCK
+     *      scopes for the temps (36-38, i.e. the catalog's "scoping only ADDS slots" law
+     *      holds here), `int`/`long` for en (26), `int`/`u_int` for pend (24, inert),
+     *      closing-test rewrites on the 24 basin (reuse sp/mp there 40, MA&ST swap 26),
+     *      and the TU flag axis: -mno-split-addresses does not exist in this lane at all
+     *      (CC1PSX 2.7.2 rejects it), -fno-schedule-insns 34 @118, -fno-strength-reduce 30.
+     *  (4) STANDING NOTE CORRECTED: W62-A7's "fold CANONICALISES the commutative operands,
+     *      so the tree spelling cannot reorder the two pointer materialisations AT ALL" is
+     *      true ONLY while the operands are still MEM-off-SYMBOL expressions.  Once they are
+     *      pseudos the tree is verbatim, which is what makes (2) work.
+     *  RESIDUAL 24, three clusters, all the same two-element handout: `en` takes $a0 (it is
+     *  a GLOBAL allocno -- used at both pend sites -- so global.c, not local-alloc, homes it)
+     *  where retail has $v1; the I_MASK pointer takes $v1 where retail has $v0; and the
+     *  closing test's two `lhu` are in the opposite pair (4 of the 24, untouched by every
+     *  spelling and killed outright only by the 2.6.3 rung, W63-A8 (2)).  NAMED NEXT ANGLE:
+     *  `en` must become a BLOCK-LOCAL qty at each site WITHOUT paying the extra frame slot a
+     *  C block scope costs -- i.e. the 06E local-alloc handout again, but now with a
+     *  two-element target and a live-length dial that is known to work. */
     unsigned short *state;
     unsigned short s0;
     long pend;
@@ -307,6 +365,15 @@ extern void _intrhand(void)            /* @0x800F2A40 */
     long one;
     int *p;
     int *base;
+    /* W71-A10 (2026-08-21) 30 -> 24, count still EXACT 116/116.  THE PEND BLOCK'S THREE
+     * OPERAND ANCHORS.  See the "W71-A10" note below for the receipt; these three are the
+     * same lever class as the `int *tp` timeout anchor that W62-A7 landed in this function
+     * (hold the address / the value in a named local so the block's pseudo BIRTH ORDER is
+     * source-controlled), not fences and not pins.  They MUST stay function-scope and
+     * SHARED between the two pend sites: per-site copies score 30, block scopes 36-38. */
+    unsigned short en;                  /* the enabled-IRQ mask, read once per pend site  */
+    volatile unsigned short *sp;        /* I_STAT anchor                                   */
+    volatile unsigned short *mp;        /* I_MASK anchor                                   */
 
     state = (unsigned short *)&g_intr;
     __asm__("" : "=r"(state) : "0"(state));  /* zero-insn opacity fence: keep the base a REGISTER */
@@ -314,8 +381,11 @@ extern void _intrhand(void)            /* @0x800F2A40 */
         printf("unexpected interrupt(%04x)\n", I_STAT);
         ReturnFromException();
     }
+    mp = g_imask_ptr;
+    sp = g_istat_ptr;
+    en = state[0x18];
     state[1] = 1;
-    pend = I_MASK & (state[0x18] & I_STAT);
+    pend = en & (*sp & *mp);
     s0 = (unsigned short)pend;
     if (pend != 0) {
         one = 1;
@@ -335,7 +405,10 @@ extern void _intrhand(void)            /* @0x800F2A40 */
                     i++;
                 }
             }
-            pend = I_MASK & (g_intr.enabled & I_STAT);
+            mp = g_imask_ptr;
+            sp = g_istat_ptr;
+            en = g_intr.enabled;
+            pend = en & (*sp & *mp);
             s0 = (unsigned short)pend;
         } while (pend != 0);
     }
@@ -421,7 +494,38 @@ extern int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C10 */
      *   basin, param web s1->s2 shifted); 2.95.2 = 77; 2.8.x|-mno-split-addresses 75 @85;
      *   2.8.0 nosplit+no-sched 83 @83.  NAMED NEXT ANGLE: re-derive the source inside
      *   the 2.8.x count-exact basin (w63a8 PADCMD precedent), or a non-asm anti-fold
-     *   for `(plus (plus base -4) 48)` upstream of cse1 (unchanged from w64a8). */
+     *   for `(plus (plus base -4) 48)` upstream of cse1 (unchanged from w64a8).
+     * W71-A10 (2026-08-21) THE 2-INSN OVERAGE IS NAMED, BY EXPERIMENT: it is cse
+     * BASIC-BLOCK COLDNESS, and retail had BOTH arms warm.  Still 12 @84; no source form
+     * found, but the mechanism is now a receipt instead of a guess.
+     *  - THE DIAGNOSTIC (cheap, reproducible): SWAP THE ARMS in source
+     *    (`if (handler == 0) {disable} else {enable}`).  The two absolute accesses MOVE
+     *    WITH THE ARM: the now-fall-through DISABLE arm emits retail's exact
+     *    `lhu $v1,44($a1)` / `sh $v1,44($a1)` and the now-branch-target ENABLE arm goes
+     *    absolute (`lui;lhu` + `lui $at;sh`).  Score 22 @84 -- the overage is UNCHANGED,
+     *    it just relocated.  => our cc1's cse warms exactly ONE arm (the fall-through path
+     *    it walks), and the cold arm has no base register in its table, so `g_intr.enabled`
+     *    is materialized absolutely (+1 insn on the load, +1 on the `$at` store).
+     *  - RETAIL HAS BOTH: enable arm `0x30($a2)` where `$a2 = addiu $a2,$a1,-4` (= &g_intr,
+     *    computed in the DOMINATING block and stolen into the `beqz $v0` delay slot), and
+     *    disable arm `0x2C($a1)` off the cb-array base.  Two different bases for the SAME
+     *    field in the two arms is the fingerprint of a cse table that survived into the
+     *    branch-target block -- a PASS-level (compiler-version) property, which is exactly
+     *    why the 2.8.x rungs are the only COUNT-EXACT ones (04Z, above).  It also explains
+     *    the delay-slot diff: ours has nothing to put there so reorg re-stages the return
+     *    value (`addu $v0,$s4,$zero`), retail parks the second base there.
+     *  - FALSIFIED THIS PASS (all gated, all reverted, all trying to give the cold arm a
+     *    base): fn-scope `IntrState *ctl = &g_intr;` used in both arms, assigned at the top
+     *    of the if-body 31 @87 * the same but whole-function (`ctl->cb[idx]`, `ctl->inited`,
+     *    `ctl->enabled`) 36 @86 * `unsigned short *en = &g_intr.enabled;` before the arms,
+     *    `*en |= / *en &=` 36 @84 * the if/else split into two sequential `if`s so the
+     *    disable arm becomes fall-through-reachable 31 @87.  ROOT CAUSE OF ALL FOUR: cse
+     *    NEVER rewrites a SET whose source is a symbolic ADDRESS into `addiu reg,base,off`
+     *    (find_best_addr only fires inside a MEM), so every explicit pointer local pays its
+     *    own 2-insn `la` AND steals the cb anchor, which recolors the head.  Retail's
+     *    `addiu $a2,$a1,-4` therefore is NOT a source-level pointer variable.
+     *  - Also re-confirmed here: -mno-split-addresses (the w48 syslib identity) DOES NOT
+     *    EXIST in this lane -- CC1PSX 2.7.2 rejects the option outright. */
     int oldCallback;
     unsigned short nMask;
     int nNewMask;

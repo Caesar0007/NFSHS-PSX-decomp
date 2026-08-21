@@ -422,6 +422,41 @@ void Front_ResetPSXAnalogs(int player)
    whole-function fold's basin change: a cse/expression-identity device that
    keeps the `1` out of the tag constant, not a spelling and not an allocator
    dial.  Harnesses: scratchpad/w62a15/pad{,2,3,4,5}.py. */
+
+/* W71-A6 (2026-08-21, base 18 @222/222 UNCHANGED) -- THE VARIABLE-IDENTITY AXIS IS NOW
+   CLOSED WITH A POSITIVE CONTROL, and the fence/clobber devices are priced out.
+   The 18 is exactly 3 sites x 6 lines: `or a0,X,Y; j; ori v0,a0,1` (ours) vs
+   `or X,X,Y; j; ori v0,X,1` (retail), X = a2 at G1 and a1 at G2/G4.
+   (a) PER-GROUP LOCALS ARE BYTE-NEUTRAL (the control the w62 receipt never ran).
+       Renaming newControl to a distinct fn-scope `g1`/`g2`/`g4` in the three
+       merged-tail groups -- singly or all three -- reproduces the 18 BIT-IDENTICALLY.
+       That is direct proof of the w62 reading: the renamed pseudos are still GLOBAL
+       allocnos (referenced in 3 / 3 / 2 blocks each) and they do not CONFLICT with
+       newControl (the arms are disjoint), so find_reg hands every one of them the same
+       lowest free preference $a0.  Variable IDENTITY is not the dial; allocno CLASS
+       (global vs block-local qty) is.
+   (b) PER-ARM locals are the far basin, confirming (a) from the other side: fn-scope
+       per-arm 308 @222; restricted to the 8 arms of G1/G2/G4, 206 @222.
+   (c) THE 20A/20B PREFERENCE-KILLERS CANNOT BE USED HERE -- a BOUNDARY receipt for that
+       device family.  On the per-group base the non-volatile identity launder
+       `__asm__("" : "=r"(g1) : "0"(g1) : "$4")` = 68 @234, and the SAME 68 @234 with
+       clobber "$5", "$6", or NO clobber at all: the +12 insns are the launder's own
+       copies = exactly the catalog's "fails on CROSS-BLOCK pseudos (forces a real
+       copy)" boundary, and a group local is cross-block by construction.  The
+       clobber-only 20A form `__asm__ volatile("" : : : "$4")` inside the live range:
+       g1 68 @234, g2 72 @236, g4 29 @229, all three 109 @255, and on the plain shared
+       newControl at every arm 113 @263.  (⚠️ cc1plus rejects the `:::` spelling -- it
+       parses `::` as the scope operator; write `: : : "$4"`.)
+   (d) Also falsified: the FULL incremental decomposition (`newControl = t0;
+       newControl |= t1; ...` at every arm -- the shape that would make each `or` write
+       newControl's own home) 210 @214, 8 insns SHORT: cse collapses the chain.
+   => the standing next instrument is unchanged but better bounded: the cure must turn
+   the 8 arms of G1/G2/G4 into BLOCK-LOCAL qtys WITHOUT the per-arm-local basin change
+   -- a cse/expression-identity device, not a rename and not a fence.
+   🔗 CROSS-TU: psxcontroller.cpp's InGame_GetPSXPadValue (the in-game twin) carries the
+   IDENTICAL defect, and there it ALSO blocks two cross_jump tail merges (retail's
+   .L800DCC68 and .L800DCCF4), so it is worth ~6 insns / ~40 diffs on that side.
+   Whoever cracks one seals both. */
 int GetPSXPadValue(int value,int player)
 
 {

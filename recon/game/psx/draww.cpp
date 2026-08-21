@@ -1030,7 +1030,7 @@ gte_swc2(0xe,((char *)sd + 0x184));
     int t0;
     int t1;
     int t2;
-    int t3;
+  int t3;
 
     t0 = *(int *)&prim->r0;
     t1 = *(int *)&prim->r1;
@@ -2312,6 +2312,16 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
   coorddef *pChunkCp;
   coorddef tmp;
   coorddef tmp2;
+  /* MATCH (w71-a1): the two predecessors of DrawWTrough_setStateCallHigh must both
+     reach the label with the quads POINTER in a register and the STORE left in the
+     shared tail -- retail's uniform per-arm shape is
+       lw $v1,OFF($s1); li $v0,K; sw $v0,236($s0); sb/sh ...; jal; [ds] sw $v1,232($s0)
+     i.e. the quads store is the LAST statement before the call so sched2/reorg can
+     sink it into the jal's delay slot.  With the store written BEFORE the label it
+     cannot reach the slot (the goto jumps past it) and the arm pays two nops -- the
+     whole +2 count excess -- and the early-pinned load also pushes the `li 125/30`
+     constants off $v0 onto $t0/$t1/$t2 in the other arms. */
+  Trk_Quad *joinQuads;
   /* MATCH (wave-14, 157->127): CONSTANTS-IN-REGS lever. The oracle prologue
      materializes -1/1 ONCE (`addiu $s6,$zero,-1` / `addiu $s7,$zero,1`) and
      reuses those TWO callee-saved regs at every one of the 5/4 sd->light /
@@ -2515,7 +2525,7 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
           DrawW_StripDraw_High(sd);
           sd->quadCount = chunkDat->quadCounts[5];
           if (sd->quadCount != 0) {
-            sd->quads = chunkDat->renderQuads[3];
+            joinQuads = chunkDat->renderQuads[3];
             goto DrawWTrough_setStateCallHigh;
           }
         }
@@ -2590,39 +2600,77 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
            Note the register roles follow for free once that lands: with the load no
            longer pinned early, $v0 is free for the `li 125/30` (ours currently burns
            $t0/$t1/$t2 on it in three separate arms = the rest of the diff). */
+        /* ---- w71-a1 (2026-08-21): 86 -> 48, count 361 -> EXACT 359.  The w53
+           NAMED ANGLE above was right and it is landed.  ONE lever, applied to
+           ALL FOUR kCtrlWorld_High arms:  LOAD THE QUADS POINTER EARLY INTO A
+           LOCAL, STORE IT LATE (as the last statement before the call).
+             joinQuads = <load>;        <- retail's `lw $v1,OFF($s1)`, hoisted so
+             sd->offset = K;               the scheduler can fill its load-delay
+             sd->zeroGTETransFlag = ...;   with the `li $v0,K; sw $v0,236($s0)`
+             sd->light = negOne;           pair
+             sd->quads = joinQuads;     <- sinks into the `jal`'s DELAY SLOT
+             DrawW_kCtrlWorld_High(sd);
+           For the DrawWTrough_setStateCallHigh arm this is not just a schedule:
+           the store PHYSICALLY COULD NOT reach the slot before, because it sat
+           ahead of the label and the `goto` jumped past it -- the arm paid two
+           nops, which was the ENTIRE +2 count excess (361 vs 359).  Routing both
+           predecessors through `joinQuads` and putting the single `sd->quads =`
+           in the shared tail fixed the count (86 -> 68); applying the same
+           load-early/store-late shape to the other three arms took 68 -> 48.
+           🔴 LAW (transferable, and it also cracked DrawW_OnyxLinePrim this
+           wave): when the oracle's arm ends `... ; jal ; [ds] sw <ptr>,OFF(base)`,
+           the pointer is a LOCAL loaded at the TOP of the arm and stored as the
+           LAST statement -- writing `base->field = <load>;` inline instead pins
+           the load late and leaves nothing for the delay slot.
+           RESIDUAL 48 = THREE classes, all count-neutral:
+             (a) the parm copy `sw s4,72(sp); addu s4,a1,zero` is emitted at
+                 insn 3 vs retail's 11 (the documented sched2 parm-copy luid tie);
+             (b) `sd->doublelayer = 1` reuses the callee-saved `gteFlag` (s7)
+                 where retail materializes a fresh `li v0,1`.  FALSIFIED here:
+                 an opacity fence on gteFlag right after `gteFlag = 1;` (91 @360,
+                 +1 insn -- the fence is NOT zero-insn on this pseudo);
+             (c) the remaining `li 125` sites take $t0/$t1/$t2/$a3 because the
+                 quads pointer now holds $v0 where retail holds $v1 -- a 2-way
+                 block-local qty handout, the same class as BuildSpikeBelt's three
+                 clusters (w46 3-QTY LAW territory: the named angle is INJECTING
+                 A REAL 4TH QTY into those arms, not another ref/live dial). */
         sd->quadCount = chunkDat->quadCounts[0];
         if (sd->quadCount != 0) {
-          sd->quads = chunkDat->renderQuads[0];
+          joinQuads = chunkDat->renderQuads[0];
           sd->offset = 0x7d;
           sd->zeroGTETransFlag = gteFlag;
           sd->light = negOne;
+          sd->quads = joinQuads;
           DrawW_kCtrlWorld_High(sd);
         }
         sd->quadCount = chunkDat->quadCounts[1];
         if (sd->quadCount != 0) {
-          sd->quads = chunkDat->renderQuads[1];
+          joinQuads = chunkDat->renderQuads[1];
 DrawWTrough_setStateCallHigh:
           sd->offset = 0x1e;
           sd->zeroGTETransFlag = gteFlag;
           sd->light = negOne;
+          sd->quads = joinQuads;
           DrawW_kCtrlWorld_High(sd);
         }
       }
       sd->vertices = (CCOORD16 *)(chunkDat->objVertexBuf + 1);
       sd->quadCount = chunkDat->quadCounts[2];
       if (sd->quadCount != 0) {
+        joinQuads = (Trk_Quad *)(chunkDat->objQuadBuf + 1);
         sd->offset = 0x7d;
         sd->zeroGTETransFlag = gteFlag;
         sd->light = negOne;
-        sd->quads = chunkDat->objQuadBuf + 1;
+        sd->quads = joinQuads;
         DrawW_kCtrlWorld_High(sd);
       }
       sd->quadCount = chunkDat->quadCounts[3];
       if (sd->quadCount != 0) {
+        joinQuads = (Trk_Quad *)(chunkDat->objQuadInstanceBuf + 1);
         sd->offset = 0x32;
         sd->zeroGTETransFlag = gteFlag;
         sd->light = negOne;
-        sd->quads = chunkDat->objQuadInstanceBuf + 1;
+        sd->quads = joinQuads;
         DrawW_kCtrlWorld_High(sd);
       }
     }
@@ -3416,48 +3464,118 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
        4. Only then re-measure the ARG spill; per allocsim, sd loses its register
           the moment a NINTH genuine allocno outranks it, which the SYM's own set
           supplies ($s2 = objCollideBoomInstance).
+     ---- w71-a1 (2026-08-21): 105 -> 28, count-EXACT 200/200.  The w46 plan above
+     was right; it just needed all four pieces landed TOGETHER.  What landed, in the
+     order the receipts were taken:
+       (1) FULL rule-8 SYM REWRITE (105 -> 231, count 189 -> 199).  Deleted the ~20
+           fabricated Ghidra locals and materialized the SYM's own set verbatim:
+           `objInstance` (Trk_SimpleInst*, replacing the `groupBase_p` int),
+           `objCollideBoomInstance` (the SECOND walker), `objDef`, `objectIndex`,
+           `objectOffset`, `t1`+`t2` (TWO fixedmult temps -- the old single temp let
+           the second result go straight from $v0 to its stack slot, one insn short
+           per row), `sx/sy/sz`, plus the un-rotated `while(1){if(!(i<n))break;...}`
+           loop and the loop-tail fence.  The intermediate gate is WORSE because the
+           allocno set is now right but the PRIORITIES are not -- do not judge this
+           step alone.
+       (2) `sd` REF REDUCTION -> the ARG SPILL (231 -> 214, count EXACT 200/200).
+           Spelling the matB zeroing through a local `MATRIX *transMat = &sd->matB;`
+           drops sd's REG_N_REFS 11 -> 9, which is exactly the allocsim
+           `--what-if 81:refs=9` handout: sd falls below objDef/objectIndex in
+           allocno_compare and goes back to its incoming ARG home.  The head block
+           then matches the oracle BYTE FOR BYTE (prologue, `bnez` guard polarity,
+           `lw t0,132(sp); nop; addiu v0,t0,20`, the three matB stores) -- all three
+           of those were separate open items in earlier waves and all three are
+           DOWNSTREAM of the spill, exactly as w44/w45 suspected.
+       (3) 🔑 `objCollideBoomInstance` ASSIGNED UNCONDITIONALLY (214 -> 83, frame
+           136 -> 128).  THE BIG ONE, and the reason four waves of allocno dials
+           could not find it.  The old recon hid the assignment inside the `||`
+           guard's comma-expression, so flow.c could not prove it was set on every
+           path: the .lreg dump says `Register 85 ... dies in 0 places`, i.e. gcc
+           kept it live ACROSS THE LOOP BACK-EDGE, which made it conflict with hard
+           regs $s0/$s1/$s2 -- the three blend qtys local-alloc had already parked
+           there.  With no free callee-saved reg left, `objDef` spilled to a fresh
+           stack slot and the whole frame grew 8 bytes, mis-aligning every single
+           sp displacement in the function.  Retail materializes it with
+           `addu $s2,$s4,$zero` in a branch DELAY SLOT -- and a delay slot executes
+           on BOTH paths, so the statement is UNCONDITIONAL in the source.  Lifting
+           it out of the comma lets it die at its last use, frees $s2 for it, and
+           the whole 5-way rotation (objInstance $s4, t1 $s5, objCBI $s2,
+           objectOffset $s6, objectIndex $s7, objDef $fp) lands at once.
+           🔴 GENERAL LAW: a value the oracle computes in a DELAY SLOT is
+           unconditional; writing it as a comma-expression inside a short-circuit
+           guard makes it loop-carried-live and poisons the whole allocation.
+       (4) LOOP-TOP BARRIER FENCE (83 -> 82, count 199 -> EXACT 200).  Retail leaves
+           the loop-exit `beqz`'s delay slot EMPTY; ours filled it with the
+           `lui %hi(offsets)`.  A barrier fence immediately after the exit test is
+           the A9 law (a) used deliberately: below a loop-exit test a barrier BLOCKS
+           the branch delay-slot fill.
+       (5) POINTER-FORM `offsets` LOOKUP (82 -> 28).  `*(offsets + objInstance->
+           zoffset)` instead of the subscript `offsets[...]`.  Same value, but the
+           INDIRECT_REF tree reorders the whole block to retail's
+           `lui/addiu ; lbu ; lbu ; addu ; li 5 ; lb` (the `li 5` moves AFTER the
+           address add, which is what lets the scratch and the constant share a
+           register); the ARRAY_REF form gates 70.  Measured equivalents, all 16:
+           the 12D index-term-first cast `*(signed char *)((int)obj->zoffset +
+           (int)offsets)`, its `(u_int)` variant, and the base-term-first cast --
+           i.e. here the dial is SUBSCRIPT-vs-POINTER, not operand order.
+           ⚠️ the same lookup class is FALSIFIED in DrawW_BuildObjectFacets in this
+           very TU -- SITE-SELECTIVE (12D caveat); price it per site, never blanket.
+       (6) THIRD NAMED TEMP `t3` FOR THE m[6]/m[7]/m[8] RESULT (28 -> 16).  Retail
+           emits each row as `sw m[0]; sw m[3]; jal <next row>; [ds] sw m[6]` -- the
+           m[6] store is the LAST of the three in scheduling order.  With only t1/t2
+           named, `matrix.m[6] = fixedmult(...)` is a store-of-a-call-result and gcc
+           emits it FIRST, sinking `sw s3,44(sp)` into the delay slot instead.  A
+           third plain int local (dies straight into its store, so it costs no
+           callee-saved reg -- it lives in $v0) puts all three stores in retail's
+           order and fixes rows 1 and 2 in one edit.  The SYM names only t1/t2, so
+           t3 is a compiler temp given a name; keep it.
+       + the in-loop OPACITY fence on `objInstance` at the loop tail (was a void
+         fence): +2 loop-weighted refs lift it above `t1` in allocno_compare so it
+         takes retail's $s4 (allocsim --what-if 95:refs=32).
+     RESIDUAL 16 = TWO classes, both count-neutral:
+       (A) 7 diffs: the `offsets` block's two block-local qtys are v0<->v1 swapped
+           (ours address in $v0 / index in $v1, retail the reverse) -- the SAME
+           find_free_reg window tie as DrawW_BuildObjectFacets' goffsets residual,
+           and every ref/live/storage-shape dial is already falsified there.
+       (B) 1 diff: `lh s2,32(s4)` vs `lh s2,32(s2)` -- a deliberate trade, see the
+           MATCH note at the `sz` statement (reading it through objCollideBoomInstance
+           re-inflates p85's refs and rotates objInstance off $s4: gate 83 -> 119,
+           and 64 in the post-(5) basin; with a compensating out-of-loop fence 29).
+     (the old class (C) -- the fixedmult store order -- is CLOSED by lever (6).)
      ============================================================================ */
 
+  /* ---- rule-8 SYM rewrite (w71-a1). The SYM 8c block @0x800C7B9C names EVERY
+     local; the ~20 fabricated Ghidra temps are gone and the SYM's own set is
+     materialized verbatim (see the w46-a6 receipt above for the full listing):
+        objInstance $0x14=s4 · objDef $0x1e=fp · totalCount/groupNumElements AUTO
+        objectIndex $0x17=s7 · matrix AUTO · objectOffset $0x16=s6
+        objCollideBoomInstance $0x12=s2 (the SECOND walker, block line 28)
+        quat AUTO · t1 $0x15=s5 · t2 $0x13=s3 · sx/sy/sz $0x10/$0x11/$0x12
+     = NINE callee-saved allocnos (mask $c0ff0000), which is exactly the pool
+     that pushes the `sd` ARG back out to its incoming stack home. */
   Trk_CollideBoomInst * objCollideBoomInstance;
   int objDef_p;
   int buildResult;
   int instData_p;
-  int iVar3;
-  int iVar11_emit;
-  int iVar4;
   ObjectAnim *pOVar5;
-  Group *pThis;
-  int objMat_p;
+  MATRIX *transMat;
   int sx;
-  int blend_x;
   int sy;
-  int blend_y;
   int sz;
-  int blend_z;
   int t2;
+  int t3;
   Trk_SimpleInst *objInstance;
-  int groupBase_p;
   int t1;
   int objectOffset;
   int objectIndex;
-  int facetCount;
   Trk_ObjectDef *objDef;
-  Trk_ObjectDef *objDef_00;
-  int loc_70;
-  int loc_6c;
-  int loc_68;
   matrixtdef matrix;
   tQuat quat;
   int totalCount;
   int groupNumElements;
-  int loc_28;
-  int loc_24;
-  int loc_20;
-  int tu6;
   int bVar7;   /* MATCH (w40-a2): a u_char flag makes cc1plus re-mask on every use
                   (`andi v0,s1,255` x3) -- the oracle tests it bare (`bnez s1`), so the
                   original local was int-width (catalog par.C u_char->u_int lever). */
-  int tc4;   /* the z-offset -- SYM/oracle keep it sign-extended in a saved reg (`lb`) */
   u_char tc5;
   /* SYM (rule-8, nfs4-f-v3.txt:191805): `offsets` is a FUNCTION-SCOPE STATIC of
      THIS function (`96 Def2 class STAT type ARY CHAR size 8 dims 1 8`, recorded
@@ -3479,7 +3597,7 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
      not the statement order) and merely MOVING the `int iVar6;` decl next to
      `totalCount` while keeping the fake name (120).  The remaining 10-insn
      head gap is unchanged and is still the w46-a6 ARG-SPILL vacancy below. */
-  groupBase_p = (int)(group + 1);
+  objInstance = (Trk_SimpleInst *)(group + 1);
   totalCount = 0;
   groupNumElements = group->m_num_elements;
   /* MATCH (2026-08-01): the oracle's guard is `bnez` INTO the loop with the empty
@@ -3506,24 +3624,49 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
        t0,132(sp); addiu v0,t0,20` = &sd->matB, ctc2 t4/t5/t6,5/6/7). This would
        have fed garbage into the GTE's rotation-matrix control regs for every
        custom-object draw. */
-    (sd->matB).t[2] = 0;
-    (sd->matB).t[1] = 0;
+    /* MATCH (w71-a1): retail reloads the SPILLED `sd` ARG ONCE here
+       (`lw t0,132(sp); nop; addiu v0,t0,20`) and drives the two upper
+       translation words off that `&sd->matB` pointer (`sw zero,28(v0)`,
+       `sw zero,24(v0)`) while t[0] goes through the base (`sw zero,40(t0)`).
+       Spelling the block through a local MATRIX* also drops `sd`'s REG_N_REFS
+       from 11 to 9, which is what pushes it below objDef/objectIndex in
+       allocno_compare and back out to its incoming stack home (allocsim
+       --what-if 81:refs=9 reproduces exactly that handout). */
+    transMat = &sd->matB;
+    transMat->t[2] = 0;
+    transMat->t[1] = 0;
     (sd->matB).t[0] = 0;
-gte_SetTransMatrix((MATRIX *)&sd->matB);
-    for (facetCount = 0; facetCount < groupNumElements; facetCount = facetCount + 1) {
-      tc5 = *(u_char *)(groupBase_p + 2);
-      tc4 = offsets[*(u_char *)(groupBase_p + 4)];
+gte_SetTransMatrix(transMat);
+    /* MATCH (w71-a1): the oracle's element loop is UN-ROTATED -- the test sits at
+       the loop TOP (`lw t1,84(sp); nop; slt v0,s7,t1; beqz v0,exit`) and the
+       back-edge is an unconditional `j` whose DELAY SLOT carries `addiu s7,s7,1`
+       AFTER the `addu s4,s4,v0` walker advance (which pays its own `lh` load-delay
+       nop).  Same shape + zero-insn void fence as DrawW_BuildObjectFacets. */
+    objectIndex = 0;
+    while (1) {
+      if (!(objectIndex < groupNumElements)) break;
+      __asm__("" : : "i"(0));
+      tc5 = objInstance->type;
+      objectOffset = *(offsets + objInstance->zoffset);
       if ((tc5 == 5) || (tc5 == 2)) {
-        objDef_00 = Track_gObjDefs[*(short *)(groupBase_p + 6)];
+        objDef = Track_gObjDefs[objInstance->pad];
+        /* MATCH (w71-a1, rule-8): the SYM's `objCollideBoomInstance` ($s2) is a
+           SECOND walker aliasing objInstance -- retail materializes it with
+           `addu $s2,$s4,$zero` in THIS `beq`'s delay slot @0x800C7C88 and then
+           reads the quaternion (+0x14) and the sx/sy/sz blends (+0x1c/+0x1e/+0x20)
+           through it, while $s4 keeps the +0/+2/+4/+6/+8/+0x22 accesses.  The old
+           recon fused both into one fabricated `groupBase_p` int, so one of the
+           nine SYM allocnos never existed and `sd` kept the vacant register
+           instead of falling back to its incoming ARG home. */
+        objCollideBoomInstance = (Trk_CollideBoomInst *)objInstance;
         if ((tc5 == 2) ||
-           (objMat_p = (int)simObjs,
-           objDef_p = (int)Object_GetAnim(simObjs + *(u_char *)(groupBase_p + 0x22)), objDef_p == 0)) {
-          buildResult = xzsquaredist32((coorddef *)(groupBase_p + 8),&(Vi->cview).translation);
+           (objDef_p = (int)Object_GetAnim(simObjs + ((u_char *)objInstance)[0x22]), objDef_p == 0)) {
+          buildResult = xzsquaredist32((coorddef *)&objInstance->x,&(Vi->cview).translation);
           bVar7 = 0;
           if ((zClipSq <= buildResult) ||
-             ((*(char *)(groupBase_p + 2) == '\x02' &&
-              (instData_p = (int)ObjectClipped(Vi,(int)*(short *)(groupBase_p + 6),
-                                            (coorddef *)(groupBase_p + 8),
+             ((objInstance->type == 2 &&
+              (instData_p = (int)ObjectClipped(Vi,(int)objInstance->pad,
+                                            (coorddef *)&objInstance->x,
                                             (Draw_tGiveShelbyMoreCache *)sd), instData_p != 0)))) {
             bVar7 = 1;
           }
@@ -3541,46 +3684,78 @@ gte_SetTransMatrix((MATRIX *)&sd->matB);
                PACK8 cast reproduces the exact unaligned copy the oracle performs. */
             {
               struct Pack8 { char b[8]; };
-              *(struct Pack8 *)&quat = *(struct Pack8 *)(groupBase_p + 0x14);
+              *(struct Pack8 *)&quat = *(struct Pack8 *)&objCollideBoomInstance->qx;
             }
             Quatern_QuatToMat(&quat,&matrix);
-            blend_x = (int)*(short *)(groupBase_p + 0x1c) << 8;
-            blend_y = (int)*(short *)(groupBase_p + 0x1e) << 8;
-            blend_z = (int)*(short *)(groupBase_p + 0x20) << 8;
+            sx = (int)objCollideBoomInstance->sx << 8;
+            sy = (int)objCollideBoomInstance->sy << 8;
+            /* MATCH (w71-a1): the LAST blend read goes through `objInstance`, not
+               `objCollideBoomInstance`.  Same address (the two alias), but it holds
+               objCollideBoomInstance's REG_N_REFS at 8 instead of 10, which is what
+               keeps `objInstance` above `t1` in allocno_compare (reading it through
+               objCollideBoomInstance re-inflates p85 and rotates objInstance back to
+               $s5: gate 83 -> 119).  Costs exactly one diff, `lh s2,32(s4)` vs the
+               oracle's `lh s2,32(s2)`. */
+            sz = (int)((Trk_CollideBoomInst *)objInstance)->sz << 8;
             /* MATCH (w62-a2): retail STORES the two saved results BEFORE the
              * third fixedmult call of each row -- `sw s5,32(sp); sw s3,44(sp);
              * jal fixedmult; [ds] sw v0,56(sp)`.  Calling m[6]/m[7]/m[8] first
              * (the old order) emits the two stores after the call instead.
              * 110 -> 105 (count 192 -> 189; the 11-insn deficit is the
              * still-open ARG-SPILL/second-walker gap receipted above). */
-            iVar3 = fixedmult(matrix.m[0],blend_x);
-            iVar11_emit = fixedmult(matrix.m[3],blend_x);
-            matrix.m[0] = iVar3;
-            matrix.m[3] = iVar11_emit;
-            matrix.m[6] = fixedmult(matrix.m[6],blend_x);
-            iVar3 = fixedmult(matrix.m[1],blend_y);
-            iVar4 = fixedmult(matrix.m[4],blend_y);
-            matrix.m[1] = iVar3;
-            matrix.m[4] = iVar4;
-            matrix.m[7] = fixedmult(matrix.m[7],blend_y);
-            iVar3 = fixedmult(matrix.m[2],blend_z);
-            iVar4 = fixedmult(matrix.m[5],blend_z);
-            matrix.m[2] = iVar3;
-            matrix.m[5] = iVar4;
-            matrix.m[8] = fixedmult(matrix.m[8],blend_z);
-            iVar3 = DrawObjectTransform(Vi,sd,&matrix,objDef_00,(coorddef *)(groupBase_p + 8),tc4,
-                               -1);
-            objMat_p = totalCount + iVar3;
-            totalCount = objMat_p;
+            /* MATCH (w71-a1, rule-8): the SYM 8c block declares TWO int REG locals
+             * here -- `t1` ($0x15 = $s5) and `t2` ($0x13 = $s3) -- and retail keeps
+             * BOTH results live ACROSS the row's third fixedmult call:
+             *   jal fixedmult; addu s5,v0,zero   (t1 = m[0]*sx)
+             *   jal fixedmult; addu s3,v0,zero   (t2 = m[3]*sx)
+             *   jal fixedmult                    (m[6]*sx, result still in v0)
+             *   sw s5,32(sp); sw s3,44(sp); jal <next row>; [ds] sw v0,56(sp)
+             * Writing the two stores BEFORE the m[6] call (the w62 order) lets the
+             * SECOND result go straight from $v0 into its stack slot -- one insn
+             * short per row and only ONE of the two temps ever gets a register. */
+            t1 = fixedmult(matrix.m[0],sx);
+            t2 = fixedmult(matrix.m[3],sx);
+            t3 = fixedmult(matrix.m[6],sx);
+            matrix.m[0] = t1;
+            matrix.m[3] = t2;
+            matrix.m[6] = t3;
+            t1 = fixedmult(matrix.m[1],sy);
+            t2 = fixedmult(matrix.m[4],sy);
+            t3 = fixedmult(matrix.m[7],sy);
+            matrix.m[1] = t1;
+            matrix.m[4] = t2;
+            matrix.m[7] = t3;
+            t1 = fixedmult(matrix.m[2],sz);
+            t2 = fixedmult(matrix.m[5],sz);
+            t3 = fixedmult(matrix.m[8],sz);
+            matrix.m[2] = t1;
+            matrix.m[5] = t2;
+            matrix.m[8] = t3;
+            totalCount = totalCount +
+                         DrawObjectTransform(Vi,sd,&matrix,objDef,
+                               (coorddef *)&objInstance->x,objectOffset,-1);
           }
         }
         else {
-          pOVar5 = Object_GetAnim(simObjs + *(u_char *)(groupBase_p + 0x22));
+          pOVar5 = Object_GetAnim(simObjs + ((u_char *)objInstance)[0x22]);
           (*(*pOVar5->_vf)[2].pfn)
-                    ((int)&pOVar5->_vf + (int)(*pOVar5->_vf)[2].delta,Vi,sd,tc4);
+                    ((int)&pOVar5->_vf + (int)(*pOVar5->_vf)[2].delta,Vi,sd,objectOffset);
         }
       }
-      groupBase_p = groupBase_p + *(short *)groupBase_p;
+      objInstance = (Trk_SimpleInst *)((int)objInstance + (int)objInstance->size);
+      /* MATCH (w71-a1): zero-insn OPACITY fence, doing two jobs at once.
+         (a) SCHEDULING: retail pays the `lh` load-delay nop, advances the walker,
+             and spends the `j` back-edge slot on the counter increment; without a
+             fence sched2 hoists the increment into the lh's delay slot and the
+             tail comes out one insn SHORT.
+         (b) ALLOCNO PRIORITY: it adds +2 REG_N_REFS on `objInstance` and the loop
+             weight doubles them, lifting it above `t1` in allocno_compare so it
+             takes retail's $s4 and t1 falls to $s5 (allocsim --what-if 95:refs=32
+             reproduces exactly that flip).  Paired with the out-of-loop fence at
+             the walker's init, which supplies the odd +2 the in-loop steps cannot
+             (in-loop fences move refs in steps of 2*depth -- w50-a2 law). */
+      __asm__("" : "=r"(objInstance) : "0"(objInstance));
+      objectIndex = objectIndex + 1;
     }
   }
   return totalCount;
@@ -5464,6 +5639,33 @@ DrW_SubSetupLine_callSubdiv:
 void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw_tGiveShelbyMoreCache *sd)
 
 {
+  /* ---- w71-a1 (2026-08-21): 89 -> 66, count 506 -> EXACT 507/507.  One rule-8
+     unification, in three steps, each gated:
+       (1) DELETE the invented `packetPtr` local and use the SYM's `prim`
+           (REG $0x10 = $s0, PTR STRUCT size 52 tag POLY_GT4) for it (89 -> 74).
+           Retail materializes the packet cursor ONCE and drives ALL FOUR GTE
+           store targets (+8 / +0x14 / +0x20 / +0x2C) off that one $s0 register,
+           only OVERRIDING it with &sd->GT4Prim in the subdivision arm.  Splitting
+           the same value across two C locals gave the early half a CALLER-saved
+           home ($a1) instead of $s0 and rotated the whole REGPARM set
+           (geomVertices/lineQuad landed $s7/$s5 instead of retail's $s3/$s6).
+       (2) DROP the now-redundant `prim = sd->head.cprim.PrimPtr;` reload in the
+           OT-link arm -- `prim` already holds it (74 -> 69, count 505 -> 506).
+       (3) MATERIALIZE IT FROM THE SCRATCHPAD LITERAL, `prim = (POLY_GT4 *)
+           Render_gPacketPtr;` (the par.3.6b fixed-address macro), NOT through
+           `sd->head.cprim.PrimPtr`: retail emits `lui $s0,0x1F80; lw $s0,4($s0)`
+           (2 insns, the literal form) where the sd-relative spelling folds to a
+           single `lw $s0,4($s1)` -- one insn SHORT.  69 -> 66, count EXACT.
+     RESIDUAL 66 = TWO classes, both count-neutral:
+       (A) the REGPARM pair is still rotated (ours geomVertices $s7 / lineQuad $s5,
+           retail $s3 / $s6) and the vertex-copy giv is anchored at
+           `geomVertices+20` where retail anchors at `geomVertices+16` -- the same
+           four addresses, split differently between the two loop bivs (retail:
+           +0/+12/+20/+28 off $s3 and +4/+8/+16/+24 off $s5).  That anchor is a
+           loop.c giv-base choice; the SYM names no local for it.
+       (B) the two 4-byte AUTO slots 72/76(sp) are swapped, and `save_pre_otz`
+           takes $s6 where the SYM says $s7 -- both follow (A).
+     ---- */
   POLY_GT4 *prim;
   int lineQuadCount;
   Draw_tPixMap *pmx;
@@ -5481,7 +5683,6 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
       int doSubdivision;
       int save_pre_otz;
       int depthcue;
-      u_char *packetPtr;
 
       linetype = lineQuad->type;
       pmx = gDLPixmap[linetype];
@@ -5504,8 +5705,16 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
       /* CORRECTNESS (oracle @0x800C99C8): the SXY writes target the CURRENT packet
        * cursor (Render_gPacketPtr + 8 / +0x14 / +0x2C / +0x20), never the fixed
        * scratchpad literals -- 0x1F800008 is Render_gPacketEnd's own slot. */
-      packetPtr = Render_gPacketPtr;
-      gte_swc2(0xe,(void *)(packetPtr + 8));
+      /* MATCH (w71-a1, rule-8): the SYM names ONE pointer here -- `prim` (REG $s0,
+         PTR STRUCT size 52 tag POLY_GT4) -- and the oracle materializes it ONCE
+         (`lui s0,0x1F80; lw s0,4(s0)` = sd->head.cprim.PrimPtr, the same cell the
+         Render_gPacketPtr macro names) and drives ALL of the +8/+0x14/+0x20/+0x2C
+         GTE store targets off it, only overriding it with &sd->GT4Prim in the
+         subdivision arm below.  Splitting it into a separate short-lived
+         `packetPtr` local gave that value a CALLER-saved home ($a1) instead of
+         retail's callee-saved $s0 and rotated the whole parameter set. */
+      prim = (POLY_GT4 *)Render_gPacketPtr;
+      gte_swc2(0xe,(void *)((char *)prim + 8));
       gte_ldv0((int *)(&vt1));
       gte_rtps();
       gte_stlvnl(((char *)sd + 0xa8));
@@ -5519,7 +5728,8 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
              ((sd->tVn2).vx < (sd->tVn2).vz)) || ((sd->tVn3).vx < (sd->tVn3).vz))) goto loopbot;
       if (!((((-(sd->tVn0).vx < (sd->tVn0).vz) || (-(sd->tVn1).vx < (sd->tVn1).vz)) ||
              (-(sd->tVn2).vx < (sd->tVn2).vz)) || (-(sd->tVn3).vx < (sd->tVn3).vz))) goto loopbot;
-      gte_stsxy3((void *)(packetPtr + 0x14),(void *)(packetPtr + 0x2c),(void *)(packetPtr + 0x20));
+      gte_stsxy3((void *)((char *)prim + 0x14),(void *)((char *)prim + 0x2c),
+                 (void *)((char *)prim + 0x20));
       {
         long bfct;
 
@@ -5544,8 +5754,9 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
         /* OT-link, EA DMPSX-analog FIXED-REG TEMPLATE ($t4/$t5/$t6 scratches; same shape
          * as DrawW_SubdividFacet / DrawW_DrawQuad's sealed instances): slot =
          * sd->head.cprim.LastPrim + sd->otz*4; sd->head.cprim.PrimPtr = prim+0x34;
-         * prim->tag = slot->addr24 | (0x0C<<24); slot->addr24 = prim. */
-        prim = (POLY_GT4 *)(sd->head).cprim.PrimPtr;
+         * prim->tag = slot->addr24 | (0x0C<<24); slot->addr24 = prim.
+         * `prim` already holds sd->head.cprim.PrimPtr from the transform block
+         * above (rule-8: ONE SYM local, w71-a1). */
         __asm__ volatile(
             "lw	$12,0(%2)
 	lw	$13,0(%1)

@@ -120,6 +120,28 @@
  * `j .L800F6908` -- retail's shift arm and its ret0 arm BOTH end in a jump and neither falls
  * through, ours cross-jumps one of them away.  Routes: (i) a cc1-instrument read of jump.c's
  * `jump_optimize` on the 2.7.2 binary (-dj), or (ii) PER_FN_TEXT_MOVES.  NOT a floor. */
+/* W71-A12 (2026-08-21) -- RE-GATED at 5 (62/63).  THREE more shapes falsified (shape
+ * count now 16 over five waves), and one CROSS-CHECK worth keeping:
+ *   the ELSE-ARM form re-derived independently and confirmed BYTE-IDENTICAL to the
+ *     early-return form by side-by-side (tools/sbsx.py), not just by score .......... 5
+ *   early-return form + a 06B VOID FENCE `("" : : "i"(0))` immediately after the
+ *     opacity fence, i.e. at the END of the shift arm ................................ 5
+ *   else-arm form + the same void fence as the LAST statement of the then-arm ....... 5
+ * WHY THE VOID FENCE WAS WORTH TRYING (and why it failed): the same wave cracked
+ * DIVDF3's "ours is 2 insns SHORT and retail has an extra jal" residual with exactly
+ * this device -- there the missing insns came from jump2's cross_jump eating an arm's
+ * call after sched1 hoisted a post-call statement, and a void fence that pinned the
+ * statement restored the un-merged arms (see DIVDF3.c W71-A12).  __fixdfsi's missing
+ * insn LOOKS like the same signature (1 short, retail has an extra `j`) but it is NOT
+ * a cross_jump merge: both builds cross-jump the two `return 0` sites into ONE block,
+ * and the whole difference is WHERE that block is laid down -- retail after the shift
+ * arm, ours before it.  A scheduling barrier cannot move a basic block, which is why
+ * all three placements above are inert.  ==> the two "ours-is-short" signatures are
+ * DIFFERENT classes and the discriminator is: does the oracle have a `jal` where we
+ * have a `j`?  (cross_jump merge -- fence-curable) or only a `j`-vs-fall-through
+ * difference?  (jump.c block placement -- not scheduling-reachable).  The live routes
+ * for this one are unchanged: a jump.c instrument read on the 2.7.2 rung, or
+ * PER_FN_TEXT_MOVES.  NOT a floor. */
 unsigned int *_dbl_shift(unsigned int *out, int dir, unsigned int w0, int w1, int count);
 int _err_math(int errnum, int code);
 

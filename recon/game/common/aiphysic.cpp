@@ -1116,7 +1116,18 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
    *        insns ends up adjacent to the jal.
    * Reading: both candidates write CALLEE-SAVED regs, so sched2 may move either across the
    * CALL_INSN, and the pick is a ready-list tie at equal (zero) in-block priority.  qtytrace
-   * / a sched2 trace remains the only open lens; source shape is exhausted. */
+   * / a sched2 trace remains the only open lens; source shape is exhausted.
+   * W71-A19 re-gated 5 @413/412 and closed the LUID axis with the mechanism named:
+   * both candidates are POST-CALL insns in our stream (`addu s4,zero,zero` and the
+   * `addiu s0,s0,%lo` whose %hi is CSE-shared with the call ARGUMENT's), and reorg's
+   * backward scan takes whichever sched2 issued first.  Under 14C's descending-luid tie
+   * that is the LATER source statement, so the theory-driven fix is to give `uTurn = 0`
+   * the larger luid.  Measured (each re-gated from 5): cfg between drag and uTurn 9;
+   * cfg first 9; cfg immediately before the call 9; uTurn moved AFTER the call 5;
+   * uTurn LAST (after cfg, both post-call) 5; uTurn FIRST 5.  Every cfg-before-call
+   * order costs the shared %hi (+1 insn, the 9-basin); every uTurn move is byte-inert.
+   * => sched2 is NOT breaking this tie on luid here, and the statement axis is now
+   * closed in both directions.  Next lens unchanged: a -dR (sched2) trace. */
   int desiredAngVel;
   int desiredLatVel;
   int currentAngAcc;

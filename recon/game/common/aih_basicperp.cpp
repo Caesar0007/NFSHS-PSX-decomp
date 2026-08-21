@@ -587,7 +587,17 @@ int AIHigh_BasicPerp::CheckChaserPosition(int copIndex,int carIndex)
          block-local iff REG_BASIC_BLOCK >= 0 AND REG_N_DEATHS == 1).  That is exactly
          the bit this fn turns on: `pos` fails it, so combine_regs (:1866) refuses to tie
          the opaque copy and it stays a real `addu`.  Run copypref on this TU and read
-         `pos`'s line before spending another spelling wave. */
+         `pos`'s line before spending another spelling wave.
+         W71-A19 re-gated (2 @85/87, unchanged) and adds the MECHANISM CITATION the
+         receipt was missing, which also explains why the whole value-fence family is
+         structurally capped here: cse's range record is per-QUANTITY, and local-alloc.c
+         :1866 combine_regs REFUSES to tie a copy whose SOURCE is a global allocno --
+         `pos` is loop-carried, hence global by construction, hence EVERY copy of it
+         (fresh block-local or not) survives as a real `addu`.  That is a closed form of
+         the w60/w61/w63/w64 measurements (11-19 diffs @86-88 in every spelling), not a
+         new falsification -- the only reachable cure is to make the guard test a
+         quantity cse never range-recorded, which no source spelling of `pos` can be.
+         The qtytrace/copypref lane remains the named next lens. */
             if (pos < 1) break;
 
       if (nextCopIndex != -1) {

@@ -121,7 +121,61 @@ DrawHorizontalLine_draw:
    source string has alignment 1, our string constant is 2-aligned;
    (b) the funnel register is v0 for us and a0/a3 for retail, and retail's
    normal arm needs no copy in clamp 1 because the funnel reg already holds
-   the computed value (dead-pseudo staging, 12D).  */
+   the computed value (dead-pseudo staging, 12D).
+   ==== W71-A18 (2026-08-21): 89 -> 68, count 391 -> 392 (oracle 394).
+   CLAMPS 2 AND 3 NOW BYTE-MATCH (registers included); only clamp 1 and the
+   scratch-register rotation remain.  Three coupled arm-shape corrections,
+   each re-gated and landed in this order:
+    (1) 89 -> 88 (391 -> 394, COUNT EXACT): clamp 3's ZERO arm stores the
+        literal directly (`this->fTextFade = 0;` + a `goto` past the funnel
+        store) instead of funnelling.  Retail's oracle carries TWO stores to
+        `104(this)` -- `sh a0,104(t0)` shared by the high+normal arms (they
+        cross-jump) and a separate `lw t1,112(sp); nop; sh zero,104(t1)` for
+        the zero arm -- and a full funnel can only ever emit ONE, which is
+        why we were three insns short.  cross_jump merges the two REGISTER
+        stores; the literal-zero store has nothing to merge with.
+    (2) 88 -> 75: clamp 2 rewritten DEFAULT-FIRST (`gridposv = 0;` before the
+        `<= 0` test, `gridposv = fade >> 2;` before the `< 0x81` test, high
+        as the fall-through, no `goto`).  Retail's clamp 2 has BOTH arm
+        values in BRANCH DELAY SLOTS (`addu a3,zero,zero` in the blez slot,
+        `addu a3,a0,zero` in the bnez slot) -- the catalog's PRE-SET-THE-
+        DEFAULT-BEFORE-THE-TEST shape: the value assigned before a test runs
+        on both paths and the fall-through overwrites it.  With the arms
+        written as out-of-line blocks the zero arm needs its own block plus a
+        `j`, which is what we had.  Clamp 2 is now byte-identical, $a3
+        included.
+    (3) 75 -> 68: clamp 3's ZERO block moved AFTER the funnel store (retail's
+        physical block order is high -> normal -> Done-store -> zero-block),
+        i.e. `... Done: this->fTextFade = textfadev; goto Skip; Zero:
+        this->fTextFade = 0; Skip:`.
+   FALSIFIED from the 68 basin (all re-gated; 04Z basin-relativity honoured --
+   these were re-measured here, not inherited): clamp 1 compute-first (the
+   shape that would delete its funnel copy) 132, with an int test-temp 132,
+   default-first 79; clamp 3 default-first + zero-last 73.  From the 88/89
+   basins: clamp1+2 compute-first 129, all-three 130.
+   RESIDUAL 68 = (a) clamp 1's funnel copy `addu v0,a0,zero` where retail's
+   funnel IS the computed value's own pseudo ($a0, empty delay slot) -- every
+   compute-first spelling costs far more than the one insn it saves;
+   (b) the strcpy alignment (below); (c) a whole-body scratch-register
+   rotation, ours always $t0 where retail rotates $t1/$t2/$t3 for the same
+   `lhu 56(sp)` / `lhu 48(sp)` / `lw 112(sp)` reloads -- local-alloc QTY
+   territory (methodology 4.6), not an allocno-table question.
+   🔑 (b) IS NOW UNDERSTOOD AND REPRODUCIBLE, just not at a better score:
+   gcc-2.8 expands `strcpy(dst,lit)` as a block move at MIN(dst,src)
+   alignment; ours resolves to 2 (halfword `lhu/sh`), retail's to 1.  A
+   2-byte struct copy (`struct Pack2 { char b[2]; }; *(Pack2*)output =
+   *(Pack2*)(char*)" ";`) forces align 1 and emits retail's EXACT shape --
+   `addiu t1,v0,0; lb; lb; sb 32(sp); sb 33(sp)`, count 394/394 -- but gates
+   74 because the copy's three scratch registers rotate (ours t1/t2/t3 vs
+   retail t2/t3/t0; retail additionally carries a DEAD `lw t2,112(sp)` reload
+   ahead of the copy that ours places later).  Kept the natural `strcpy`
+   spelling at 68; the Pack2 form is the structurally-true basin for a future
+   pass that can also land the reload position.  Falsified for (b): memcpy,
+   `char output[3]`, elementwise stores, `__attribute__((aligned(1)))`,
+   `&output[0]` / `output + 0` / `output + (i - i)` dest spellings -- all
+   exactly 88 in that basin (the alignment comes from neither the dest
+   spelling nor the copy call).
+   Harness: scratchpad/A18/user_v{1..9}.json + probe.py. */
 /* ---- tScreenUserName::DrawBackground  (screenusername.cpp:80) ---- */
 void tScreenUserName::DrawBackground()
 
@@ -155,17 +209,13 @@ DrawBgUser_fadeboxNormal:
   fadeboxv = (fade >> 1) - 0x80;
 DrawBgUser_fadeboxDone:
   fadebox = fadeboxv;
-  if ((short)(fade >> 2) < 0x80) {
-    if ((short)(fade >> 2) <= 0) goto DrawBgUser_gridposZero;
-  }
-  if ((short)(fade >> 2) < 0x81) goto DrawBgUser_gridposNormal;
-  gridposv = 0x80;
-  goto DrawBgUser_gridposDone;
-DrawBgUser_gridposZero:
   gridposv = 0;
-  goto DrawBgUser_gridposDone;
-DrawBgUser_gridposNormal:
+  if ((short)(fade >> 2) < 0x80) {
+    if ((short)(fade >> 2) <= 0) goto DrawBgUser_gridposDone;
+  }
   gridposv = fade >> 2;
+  if ((short)(fade >> 2) < 0x81) goto DrawBgUser_gridposDone;
+  gridposv = 0x80;
 DrawBgUser_gridposDone:
   gridpos = gridposv;
   if (fade < 0x80) {
@@ -174,13 +224,14 @@ DrawBgUser_gridposDone:
   if (fade < 0x81) goto DrawBgUser_textFadeNormal;
   textfadev = 0x80;
   goto DrawBgUser_textFadeDone;
-DrawBgUser_textFadeZero:
-  textfadev = 0;
-  goto DrawBgUser_textFadeDone;
 DrawBgUser_textFadeNormal:
   textfadev = fade;
 DrawBgUser_textFadeDone:
   this->fTextFade = textfadev;
+  goto DrawBgUser_textFadeSkip;
+DrawBgUser_textFadeZero:
+  this->fTextFade = 0;
+DrawBgUser_textFadeSkip:
   gray = 0x80808;
   SubtractiveBox(0xf0,0x2a,0xc2,0x55,gray,gray,0,0);
   SubtractiveBox(0xf0,0x7f,0xc2,0x55,0,0,gray,gray);

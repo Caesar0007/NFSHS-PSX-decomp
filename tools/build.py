@@ -1267,6 +1267,18 @@ PER_FN_TEXT_MOVES = {
             {"take": r"\tla\t\$2,D_8013C224\n(?= \#APP\n \#NO_APP\n\tla\t\$4,D_8014899C\n)",
              "after": r"\tla\t\$4,D_8014899C\n"},
         ],
+        # W71-A9 spec (scratchpad/A9_TEXT_MOVES_cd_init.md, orchestrator-wired):
+        # CD_init_80108140 9 -> 5. R1 cluster = the CD_cw(CdlNop) arg constants
+        # emitted four slots late; retail issues them at the head of the
+        # `while (CDREG3 & 7)` exit block, before the la. Numeric-register
+        # anchors re-derived from the pipeline .s (the W63-A5 ABI-name spec
+        # never fired -- 15D anchor law); lookahead pins the unique sb $0,2($3)
+        # (the sibling CD_init block has no li/addu pair). Both anchors
+        # assert-unique against the current .s.
+        "CD_init_80108140": [
+            {"take": r"\tli\t\$4,0x00000001[^\n]*\n\taddu\t\$5,\$0,\$0\n(?=\t#\.set\tvolatile\n\tsb\t\$0,2\(\$3\)\n)",
+             "after": r"\tbne\t\$2,\$0,\$L\d+\n\$L\d+:\n(?=\tla\t\$3,D_8013C224\n \#APP\n \#NO_APP\n)"},
+        ],
     },
     # w61-a4 (probe-verified 2x): FntFlush 6 -> 2 count-exact 199/199 -- the
     # W52/W53/W55-fought (a) half was a pure relocation: retail emits the
@@ -1454,6 +1466,12 @@ PER_FN_TEXT_MOVES = {
     "recon/syslib/psx/libmath/ADDDF3.c": {
         "__adddf3": [
             {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
+            # W71-A12 (probe-verified 2x, orchestrator-wired): __adddf3 8 -> 6.
+            # Duplicate of row 0 -- fires at the ROUNDING _add_mant_d call, whose
+            # `lw $a3,0x28($sp)` was created this wave by the 05E volatile view on
+            # rnd[0] (converting an unreachable cse VALUE row into a mechanically-
+            # fixable POSITION row). Regex already tolerates the #.set volatile wrap.
+            {"take": "(?<=\\tlw\\t\\$6,\\d\\d\\(\\$sp\\)\\n)(?:\\t#\\.set\\tvolatile\\n)?\\tlw\\t\\$7,\\d+\\(\\$sp\\)\\n(?:\\t#\\.set\\tnovolatile\\n)?(?=(?:[^\\n]*\\n){0,4}\\tjal\\t_add_mant_d\\n)", "after": "\\tsw\\t\\$\\d+,16\\(\\$sp\\)\\n(?=\\tlw\\t\\$5,\\d+\\(\\$sp\\)\\n\\tlw\\t\\$6,\\d+\\(\\$sp\\)\\n(?:[^\\n]*\\n){0,6}?\\tjal\\t_add_mant_d\\n)"},
             {"take": "\\tsw\\t\\$0,48\\(\\$sp\\)\\n", "after": "\\tsubu\\t\\$sp,\\$sp,96\\n"},
         ],
     },
@@ -1531,6 +1549,15 @@ PER_FN_TEXT_MOVES = {
         # intruder-eviction landing (site-1 GEnv_drv reload one slot earlier).
         "PutDispEnv": [
             {"take": r"\tlw\t\$5,GEnv_drv\n", "after": r"\tlhu\t\$4,0\(\$17\)\n"},
+            # W71-A11 spec, orchestrator-wired (anchors re-derived from the
+            # pipeline .s -- the spec's `lui $2,1536/1792` spelling never fires,
+            # cc1 emits `li $2,100663296/117440512`; 15D anchor law again):
+            # PutDispEnv 8 -> PASS. Sites 2/3: both remaining `lw $5,GEnv_drv`
+            # macro pairs are emitted two slots early (pure sched2 rotation;
+            # source position inert across seven placements). The sll width
+            # lookaheads (12 vs 10) pin each site; site 1 is row 1's.
+            {"take": r"\tlw\t\$5,GEnv_drv\n(?=\tsll\t\$3,\$3,12\n)", "after": r"\tli\t\$2,100663296[^\n]*\n"},
+            {"take": r"\tlw\t\$5,GEnv_drv\n(?=\tsll\t\$3,\$3,10\n)", "after": r"\tli\t\$2,117440512[^\n]*\n"},
         ],
         "_clearOTagR_dma": [
             {"take": r"\taddu\t\$2,\$16,\$0\n(?=\$L\d+:\n\tlw\t\$31,24)",
@@ -1604,6 +1631,13 @@ PER_FN_TEXT_MOVES = {
             {"take": r"\tlui\t\$5,%hi\(simGlobal\+4\)[^\n]*\n",
              "after": r"\tbeq\t\$2,\$0,\$L\d+\n(?=\tandi\t\$3,\$20,0x00ff\n)",
              "slot": True},
+            # W71-A22 (probe-verified PASS 415/415, orchestrator-wired; coupled
+            # with the arm-local `bl` launder in audiocmn.cpp -- source half alone
+            # = 3@416, row alone does not fire on the unfenced .s). Relocates the
+            # carIndex reload above the bestLapTime la pair; maspsx then fills the
+            # load-delay slot with the lui instead of a nop.
+            {"take": r"\tlw\t\$2,596\(\$18\)\n(?=\t#nop\n\tsll\t\$2,\$2,2\n\taddu\t\$2,\$2,\$5\n)",
+             "after": r"\$L\d+:\n(?=\tlui\t\$5,%hi\(bestLapTime\)[^\n]*\n\taddiu\t\$5,\$5,%lo\(bestLapTime\)[^\n]*\n[^\n]*#APP\n)"},
         ],
     },
     # w60-a9 (probe-verified, uses drop_after): TailCam 2 -> PASS 402/402.
@@ -1640,11 +1674,9 @@ PER_FN_TEXT_MOVES = {
         "Physics_CalculateCarAcceleration__FP8Car_tObj": [
             {"_note": "brdist (25,71,72) -> 0. Retail's .L800AAE34 is the load-delay NOP after the shared `lw $v0,0x468($s1)` reload (the j's delay slot already stored the value, so retail skips both the store and the reload); our $L987 sits in front of the lw. Anchors carry a fixed-length lookbehind because the same `lw/#nop/bgez` triple occurs twice in this fn. maspsx's label-hoist (it emits a label immediately before a nop it inserts) lands the label exactly on retail's nop -- verified, and NO extra nop is emitted. TU 21/22 PASS 2x (Physics_Real FAIL 4 = pre-existing).", "take": "(?<=\\tsw\\t\\$2,1128\\(\\$17\\)\\n)\\$L\\d+:\\n(?=\\tlw\\t\\$2,1128\\(\\$17\\)\\n\\t#nop\\n\\tbgez\\t\\$2,\\$L\\d+\\n)", "after": "(?<=\\tsw\\t\\$2,1128\\(\\$17\\)\\n)\\tlw\\t\\$2,1128\\(\\$17\\)\\n(?=\\t#nop\\n\\tbgez\\t\\$2,\\$L\\d+\\n)"},
         ],
-        # w64-a11 (probed 2x; cross-validated vs a source experiment that
-        # reproduces the load order but pays the seat): Physics_Real 6 -> 4.
-        "Physics_Real__FP8Car_tObj": [
-            {"take": "\tlw\t\\$3,leftMult\n(?=\tlw\t\\$2,52\\(\\$sp\\)\n)", "after": "\tlw\t\\$4,100\\(\\$sp\\)\n(?=\tlw\t\\$5,rightMult\n)"},
-        ],
+        # w64-a11 row for Physics_Real DELETED in W71 consolidation: the fn is
+        # SEALED from source (W71-A20, 20B availability devices) and the row's
+        # anchor (`lw $2,52($sp)`; the seat is now $6) no longer fires -- dead.
         "Physics_DoBarrierCheck__FP8Car_tObj": [
             {"take": r"\tmflo\t\$10\n(?=\t#nop\n\tlw\t\$4,268\(\$17\)\n)",
              "after": r"\tmove\t\$5,\$3\n(?=\taddu\t\$18,\$2,\$10\n)"},

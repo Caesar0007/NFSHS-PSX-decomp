@@ -172,7 +172,20 @@ int SimQueue_Put(int pIndex,Input_tResults *val)
  *   array form through a PLAIN base local ................................... 48 @48
  * The last row is the interesting one: it is count-EXACT but rotates the whole
  * function, i.e. a genuinely different basin exists at 48/48 -- worth a permuter
- * re-seed rather than more hand spellings. */
+ * re-seed rather than more hand spellings.
+ * W71-A21 -- three more axes measured, all inert or worse (real gate runs):
+ *   BLOCK-LOCAL loop counters (the 13A device that landed r3dcar this wave):
+ *     one block-local `pIndex` per loop ............................ 28 @48
+ *     block-local only for the FIRST loop .......................... 28 @48
+ *     block-local `Input_tResults *dst = output;` + dst[pIndex] ..... 48 @48
+ *   SECTION-ATTRIBUTE shape of the two file statics (the `.bss.simqueue_*`
+ *   named sections are a recon invention, so they were a live suspect for the
+ *   address-materialization form): dropping BOTH, or either one alone, is
+ *   BYTE-NEUTRAL -- 4 diffs and 7/8 TU PASS in all three cases.  So the
+ *   self-vs-separate %hi temp is NOT a section/relocation question.
+ * The 28 @48 rows are a THIRD count-exact basin (distinct from the 48 @48 one
+ * above), so there are now at least three; the permuter re-seed is the priced
+ * next step and it now has three seeds to start from, not one. */
 void SimQueue_SetCurrentInput(int time)
 
 {

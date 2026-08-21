@@ -198,7 +198,21 @@ extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
  *   the named angle is unchanged and precise: manufacture a SHORT-LIVED value between the
  *   spill and the call that the allocator must put in $a2 -- the 14C intruder-eviction
  *   device -- and the inheritance is invalidated for free.  There is no such value in the
- *   source today, and a hard-register clobber fence is pin-adjacent (user sign-off). */
+ *   source today, and a hard-register clobber fence is pin-adjacent (user sign-off).
+ *
+ *   W71-A10 (2026-08-21) -- RE-GATED 2 @199/199 (twice), and the W64-A3 mechanism note
+ *   above is re-confirmed: nothing in the field-load block can be turned into a
+ *   short-lived $a2 value from source.  FALSIFIED this pass (all gated, all reverted):
+ *   split-load for `boty` (`boty = fs->tile.h; boty = cury + (short)boty;`) 2, inert *
+ *   `boty` computed BEFORE `rightx` 13 @198 (it eats the TermPrim delay-slot `addu
+ *   $s7,$s1,$v0` -- the W52 lever (2) is order-sensitive, do not reorder that pair) *
+ *   `dr = &_fnt[id].draw_mode;` instead of `&fs->draw_mode` 13 @200 (re-derives the array
+ *   address) * `dr` assigned after `p = fs->primbuf;` 2, inert * removing the blank line
+ *   before `TermPrim(dr)` (i.e. no statement-group change at all) 2, inert.
+ *   The window between the `dr` spill and the call contains ONLY the eight long-lived
+ *   field loads (all callee-saved, no reloads), so there is no reload for $a2 to collide
+ *   with; the two short-lived values that DO exist there (`fs->tile.w`, `fs->tile.h`)
+ *   already take $v0/$v1 in BOTH builds.  The angle stays exactly as W64-A3 named it. */
 extern u_long *FntFlush(int id)
 {
     DR_MODE  *dr;

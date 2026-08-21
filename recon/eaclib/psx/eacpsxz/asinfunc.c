@@ -172,6 +172,33 @@ extern int intarcsin(int x)   /* @0x800EACD8 */
      *     So the single QTY_CMP_PRI question is now reachable from BOTH sides (6 = right pair,
      *     wrong split; 16 = right split, swapped pair) -- that pair of basins is the material for
      *     the qtytrace pass, not another subscript spelling. */
+    /* W71-A15 2026-08-21 -- RE-GATED at 2 @48/48 (baseline confirmed); the w47-a5/w50-a9
+     * FENCE BASIN re-derived here and re-measured at 6 @48/48, so both basins reproduce.
+     * The W61-A19 combine_regs bound is CONFIRMED and now has a same-wave twin: the exact
+     * same mechanism (local-alloc.c:1866 tying an output to an input that dies in the same
+     * insn) was CRACKED this wave in sndpsxz/sdmemman.c iSNDpsxmalloc by an identity launder
+     * -- but ONLY because the laundered pseudo had a LATER USE there.  That is precisely the
+     * ingredient this site cannot supply, which is why every launder variant below stalls at
+     * the same 6.  Read the two receipts together before re-opening this one.
+     * NEW FALSIFICATIONS (04Z re-measurement; the first two in the 2-diff basin, the rest in
+     * the 6-diff fence basin, none < its basin's floor):
+     *   2-diff basin: `pt` assigned in BOTH arms of the 0x1FF test so the element-address
+     *     pseudo spans blocks (the reg_qty<0 route the W61 bound names) ............ 2 @48/48
+     *     -- inert because the 0x1FF arm's `&asintbl[0x1FF]` is a CONSTANT address that
+     *     const-props away, so the pseudo never actually becomes multi-block;
+     *   2-diff basin: `extern unsigned char asintbl[];` (UNSIZED, the plain declaration
+     *     rather than the asm-label view the w50 note tested) ..................... 2 @48/48
+     *   6-diff fence basin, all 6 @48/48: unsized `asintbl[]` on top of the fence; a named
+     *     `base` temp with `qt` RE-COMPUTED off it (`qt = base + idx`, giving the la a
+     *     second use so it should die twice); the same with `qt = &asintbl[idx]` recomputed
+     *     off the array; an identity launder on `base` BEFORE the sum; that launder
+     *     combined with the recompute.  Worse: the recompute WITHOUT the qt fence 25 @47
+     *     (the copy is coalesced away again); `t1 = base[idx + 1]` 26 @48.
+     * So in the fence basin the residual is unchanged and precisely stated: the la pseudo
+     * is SELF-temped into $v1 and the sum's dest is TIED to it, where retail separates them
+     * ($v0 for the la, $v1 for the sum, and the copy then REUSES the la's dead $v0).  It is
+     * the same tie as the 2-diff basin's, one level up.  ANGLE UNCHANGED: qtytrace/-dl the
+     * la and sum qtys in the fence basin.  Do NOT re-spell the subscript or the fence. */
     /* W61-A19 2026-08-15 -- RE-GATED at 2 @48/48; the residual is confirmed to be ONE line
      * (ours `addu v0,a1,v0` re-emitting the address vs retail `addu v0,v1,zero` copying it), and
      * the w50-a9 "the base materialisation register is the only residual" reading applies to the

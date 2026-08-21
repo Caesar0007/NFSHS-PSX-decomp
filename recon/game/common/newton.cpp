@@ -2055,7 +2055,19 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
      So named locals reproduce retail's DATAFLOW but not its codegen: every
      spelling that makes the copy explicit gets it copy-propagated.  The copy must
      be bought by the DESTINATION (14D split-the-divide-onto-the-same-variable),
-     not by naming the source. */
+     not by naming the source.
+     W71-A20 -- THE 'm'-CONSTRAINT FENCE (catalog 16B) IS INERT HERE, and the
+     REASON is a reusable boundary: `__asm__("" : : "m"(normal.x))` etc. measured
+     71 @105 in THIRTEEN placements/counts (x/y/z x n=1..4 at the top of the fn,
+     all three together, after barrierVec.x, after barrierVec.z) -- byte-identical
+     to the control every time.  The device only dials a SYMBOL-address allocno
+     (it is legitimised onto an existing %hi/%lo pseudo, which is where its zero
+     instruction cost comes from); a by-value parameter component lives in a
+     FRAME-RELATIVE MEM that is always addressable off $sp, so there is no address
+     pseudo to give a reference to.  (Same wave it took
+     Newton_TestForUndrivableSurfaces 70 -> 36 on the module-scope
+     `testSimRoadInfo`.)  So the 'm' fence is NOT a candidate for this fn's
+     parm-copy residual; the named angle stays 14D's destination-bought copy. */
   islandMatrix.m[0] = normal.x;
   islandMatrix.m[1] = normal.y;
   islandMatrix.m[2] = normal.z;
@@ -2240,8 +2252,9 @@ void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
   coorddef *quadPt;
   
   collision_type = 0;
-  /* w59-a2: 4-operand read-only fence = allocno priority dial (SYM $0x16 = $s6). */
-  __asm__("" : : "r"(collision_type), "r"(collision_type), "r"(collision_type), "r"(collision_type));
+  /* W71-A20: the w59-a2 4-operand read-only fence on `collision_type` is GONE --
+     see the m-fence receipt at the loop head below.  Removing it ALONE is worse
+     (80); it is only correct jointly with the 'm' fence (11D joint-dial law). */
   newHeight = 0;
   cautionaryCenter = newtonObj->roadCenterPoint;
   memset((u_char *)&speedVec,'\0',0xc);
@@ -2266,6 +2279,79 @@ void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
     testPoint.z = testPoint.z + speedVec.z;
     BWorldSm_FindClosestQuadRez(&testPoint,&testSimRoadInfo,1)
     ;
+    /* MATCH (W71-A20): 70 -> 36.  THE 'm'-CONSTRAINT FENCE (catalog 16B) IS THE
+       DEVICE THE w59..w64 RECEIPTS WERE LOOKING FOR, and it only works JOINTLY with
+       DELETING the old read-only fence on `collision_type` (11D: a per-axis minimum
+       is not a joint minimum).  Full 6x7 grid, every cell a real gate run
+       (m = "m"(testSimRoadInfo) operands here, c = "r"(collision_type) operands at
+       the top of the fn; the shipped w64 basin is m0/c4 = 70):
+              c0   c1   c2   c3   c4   c5   c6
+         m0   80   82   74   74   70   70   70
+         m1   54   58   82   82   78   78   78
+         m2   36   40   62   62   66   82   82
+         m3   36   40   62   62   66   66   82
+         m4   36   40   62   62   66   66   66
+         m5   36   40   62   62   66   66   66
+       WHY IT WORKS WHERE `"r"(&testSimRoadInfo)` FAILED (the w59-a2 falsification,
+       137/141/125/149): an `&global` read-only fence is NOT zero-insn -- it emits
+       the lui/addiu pair -- whereas an "m" operand is legitimised onto the address
+       pseudo gcc ALREADY has, so it buys +refs on the &testSimRoadInfo allocno at
+       ZERO instructions (count unchanged 468 through the whole grid).  It is the
+       "raise the RIVAL rather than lower collision_type" angle the w59-a2 receipt
+       named, with the right constraint letter.  RESULT: the entire $s3<->$s6 seat
+       swap that four waves called the residual is GONE; the callee-saved band now
+       matches the SYM (collision_type $s6, i $s2, check $s0, j $a3).
+       SATURATION/POSITION (all gated): n=2,3,4,8 all 36 (n>=12 ICEs cc1plus);
+       n=1 54; fence BEFORE the FindClosestQuadRez call 53 @469; an extra fence at
+       the else-arm CheckForBadQuad 36 (inert); `&testSimRoadInfo.quadPts[0]` /
+       a cast instead of the array decay 36 (inert -- cse canonicalises them).
+       RESIDUAL 36, four classes:
+        (1) 6 diffs -- emission order of `addiu s4,s1,8` / `addu s5,s1,zero` /
+            `sw zero,132(sp)`, plus ours computes s4 off pBVar13 (s5) where retail
+            computes it off the REGPARM s1 (cse merged the two equal pointers our
+            way).  All six permutations of the `i=0; local_2c=0; pBVar13=newtonObj;`
+            init block gated: ilp 36 (shipped) | ipl 40 | lip 38 | lpi 38 | pil 38 |
+            pli 38.
+        (2) 8 diffs -- 2 sites of the SELF-vs-SEPARATE %hi temp on
+            `la $a2,&testSimRoadInfo.quadPts` (retail `lui a2; addiu a2,a2`, ours
+            `lui v0; addiu a2,v0`).  The classic 3.15 reload tie-break; the w43
+            array-decay-vs-&element discriminator is inert here.
+        (3)+(4) 20 diffs -- ALL DOWNSTREAM OF THE MISSING BRANCH (below): retail's
+            `$t3` is taken by the abort flag, so its struct copy uses t4/t5/t1 and
+            its 132(sp) counter uses t3, where ours uses t3/t4/t5 and t2.
+       ---- THE MISSING BRANCH: NEW MECHANISM, PARTLY SOLVED ----
+       The w64-a11 receipt's four natural spellings all FOLDED because the def and
+       the test sat in the SAME cse extended basic block.  The reason retail's does
+       not fold is now identified from the oracle's CFG: `.L800A34F0` (the
+       `beqz $s6` = our `if (collision_type != 0)`) is a JOIN -- reached by
+       `j .L800A34F0` @0x800A3050 and `beqz $v0,.L800A34F0` @0x800A3068 as well as
+       by fall-through -- and gcc-2.8 has NO cross-block constant propagation (no
+       gcse/cprop), so a def placed BEFORE the join is unreachable by cse at the
+       test.  PROVEN: a plain `int hitBarrier;` assigned 0 as the LAST statement of
+       the deep arm and tested as the first statement of the collision_type block
+       KEEPS the compare -- 471 insns (the branch is present) -- with NO launder and
+       NO scaffolding.  This is the first natural form to survive the fold.
+       WHAT IS STILL WRONG WITH IT: it is +3 insns, not retail's +2, and it lands in
+       a callee-saved reg ($s0) instead of retail's $t3.  Both follow from the same
+       fact: our def sits in the ARM (so the pseudo is live-out of every join
+       predecessor -> live across calls -> callee-saved, AND it is in a different
+       basic block from the branch so reorg's backward scan cannot steal it into the
+       `beqz` delay slot).  Retail's `addu $t3,$zero,$zero` has a 2-insn live range,
+       i.e. pre-reorg its def was the FIRST INSN OF THE FALL-THROUGH BLOCK -- inside
+       the collision_type body -- which is exactly the position where cse DOES fold a
+       plain local.  Gated in this basin: def after Math_NormalizeShortVector 39
+       @471 | def before it 41 @471 | def inside the block 36 @468 (folds).
+       => the tested value is set INSIDE the block yet is not cse-provable there.
+       The SYM says what it is: TWO `Block start`s at the SAME VA 0x800A34F8
+       (rel lines 162 and 167) plus a third at 0x800A3500 (rel 168) = gcc-2.8's
+       BLOCK(parms)>BLOCK(body) signature of an INLINED CALLEE (w40/w41 law), whose
+       parameters were all constant-propagated (no SYM records, but they still own
+       stack slots -- note `local_2c` at sp+132 has NO SYM AUTO record either).  So
+       the source is `if (<inlined predicate>(...)) return;` and the `addu t3,0,0`
+       is that inline's joined return value.  NEXT: reconstruct the inlined helper
+       (a `static __inline__` predicate whose arms join on a 0 result) rather than
+       hunting for a plain local.  NOT a floor. */
+    __asm__("" : : "m"(testSimRoadInfo), "m"(testSimRoadInfo));
     if ((signed char)testSimRoadInfo.offEdge != 0) {
       Newton_GenerateVector(
           (signed char)testSimRoadInfo.offEdge,&normal,&newtonObj->simRoadInfo);

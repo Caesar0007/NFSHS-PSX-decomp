@@ -120,6 +120,36 @@ extern void *firstfile(char *name, void *dir)
      * asm operand is not counted (candidate: the operand is a copy cse folds back into `name`,
      * so the ref lands on p73/name, not on p77).  That is a 1-run instrument question, not a
      * spelling sweep. */
+    /* 🔑 W71-A13 RE-GATE (5 @104/103) + THE MECHANISM OF RESIDUAL (1), read off the -dg RTL.
+     * The whole residual is ONE row: ours `lui $v0,%hi; addiu $a0,$v0,%lo` ABOVE the callee-save
+     * store group and a `nop` after `lb $v0,0($s2)`; retail `lb`, then `lui $a0,%hi; addiu
+     * $a0,$a0,%lo` (self-temp) filling that load's delay.
+     * -dg shows the split-address pair as TWO insns before the lb:
+     *     (insn 12 (set (reg 2 v0) (high (symbol_ref "_first_devname"))))
+     *     (insn 13 (set (reg/v 4 a0) (lo_sum (reg 2 v0) (symbol_ref ...))))
+     *     (insn 247 (set (reg 2 v0) (sign_extend (mem (reg 18 s2)))))   <- the lb
+     * i.e. the ORDER is already fixed before reload, and the `high` pseudo is a separate qty
+     * (that is also why the pair is split-temp `$v0`->`$a0` instead of retail's self-temp).
+     * ⚠️ `-mno-split-addresses` does NOT fix it (I checked the raw .s, contradicting a plausible
+     * reading of the w59 note): the single `la $4,_first_devname` macro is STILL emitted above
+     * the lb, the `#nop` stays, and the flag costs `_first_patch` its PASS -- whole-TU probe
+     * (in-memory PER_TU hook) firstfile 11 @106/103, _first_patch PASS -> 3.
+     * FALSIFIED THIS WAVE (all whole-TU gated, restored):
+     *   swap the two inits (the count-EXACT 103/103 basin) ............... 18
+     *     + read-only fence on `scan` right after its def ................ 18 (inert)
+     *     + read-only fence on `scan` INSIDE the loop body ............... 18 (inert)
+     *     + read-only fence on `scan` AFTER the `p` init ................. 8  @105  <- best swap-
+     *       basin dial found (the p/scan coloring flips) but 2 insns LONG, so still > 5
+     *   index-form prefix copy (`_first_devname[n]`, pointer only at the end) ... 31
+     *   index-form with `p` dropped entirely ............................. 31
+     *   peeled `if (*scan > ':') do {...} while (...)` .................... 18
+     *   `"m"(*_first_devname)` fence after the p init 5 (inert) / before it 6
+     *   read-only fence on `p` right after its def ....................... 5  (inert)
+     *   read-only fence on `name` after both inits ....................... 8
+     * NAMED ANGLE (unchanged in kind, sharper): the lever must move insn 12/13 BELOW the lb in
+     * sched1's order without adding a pseudo; the only two handles left are a per-fn scheduler
+     * flag/rung (build-side) and an instrument read of sched1's ready list (`-dS`) to find which
+     * priority input puts the `high` ahead of the load chain. */
     /* extract the device prefix (characters before ':') into _first_devname */
     p = _first_devname;
     scan = (signed char *)name;

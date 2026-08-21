@@ -1040,6 +1040,54 @@ void Hrz_LightningFlicker(int on)
  * row K's), and every source device for that is now falsified across w41/w50/w60/w63/w64.
  * NEXT TAKER: instrumented-cc1 [find_free_reg] on the 56/56 base, or the permuter -- do
  * NOT spend another wave on spellings, and do NOT reach for allocsim/reqdelta here. */
+/* ===== 🔴 w71-A4 (2026-08-21): THE BASIN ABOVE WAS THE WRONG ONE.  The shipped THREE
+ * t-blocks contradict the SYM and cost the four `lw NN(sp)` reloads; this pass replaces
+ * them with the ONE t-block the SYM records, which is COUNT-EXACT and OPCODE-CENSUS-EXACT.
+ *   shipped 3-t-block form   62 diffs @ 52/56   (4 insns SHORT, `lw 14 v 18`)
+ *   SYM 1-t-block form       72 diffs @ 56/56   (rove_op.py: NO opcode row at all) <- LANDED
+ * WHY THE 1-BLOCK FORM IS RETAIL'S (two independent proofs, neither used by the earlier
+ * passes): (a) `symblk.py` @40e990 shows exactly FOUR sibling blocks -- ONE {t1,t2,t3}
+ * (t1=$t1,t2=$t0,t3=$t2) and THREE {r0,r1,r2}; three sibling t-blocks would emit THREE
+ * `90 Block start` records, and they do not exist.  (b) `sldall.py` gives the retail
+ * STATEMENT MAP, gap-free: 994-1011 = eighteen one-per-line statements (t1/t2/t3 loaded
+ * then stored, RE-USING the same three names per row) and then exactly THREE lines --
+ * 1013/1014/1015 -- each of which emits a whole mpsx ROW (r0/r1/r2 loaded, shifted and
+ * `sh`-stored: line 1013 -> sp+0/2/4, 1014 -> 6/8/10, 1015 -> 12/14/16).  The reloads are
+ * the direct consequence: with one t-block the row-2/row-3 `t` values are re-set (a
+ * REG_DEP_OUTPUT chain), so cse can no longer forward temp.m[0]/[2]/[3]/[5] and the
+ * oracle's `lw 32/40/44/52(sp)` reappear -- all four, in the right places.
+ * THE 72 DECOMPOSES INTO TWO NAMED, MEASURED HALVES (the reason to prefer this basin):
+ *  (1) 32 diffs = the THREE GLOBAL ALLOCNOS (the t's).  `-dg` now prints them (the w64
+ *      "this function has NO global allocnos" receipt was measured on the 3-block form and
+ *      does NOT hold here): `;; 3 regs to allocate: 82 81 83`, each conflicting with hard
+ *      regs 2 3 4 5 29, so find_reg's ascending scan hands out 6/7/8; retail's conflict set
+ *      also contains 6 and 7, so the same scan hands out 8/9/10 = SYM's $t1/$t0/$t2 in the
+ *      same 82,81,83 priority order.  PROVEN by a diagnostic clobber INSIDE the t live
+ *      range (`__asm__("" : : : "$6","$7")` between `t3 = m->m[2];` and `temp.m[0] = t1;`):
+ *      72 -> 40, and insns 0-11 + 44-55 then match the oracle BYTE-FOR-BYTE.  Placement is
+ *      load-bearing exactly as w69-20B says: the same clobber at fn top, or in the dead gap
+ *      between two rows, is INERT (72) -- the t pseudos die at each row's store.
+ *      NOT SHIPPED: it is scaffolding for a symptom.  $6/$7 are occupied in retail because
+ *      retail's NINE r-values occupy $v0,$v1,$a0,$a1,$a2,$a3 (SYM: {v1,a0,v0} {a1,v0,v1}
+ *      {a2,a3,v0}); ours occupy only $v0,$v1,$a1.  Fix (2) and (1) falls out for free.
+ *  (2) 40 diffs = the r-value SCHEDULE.  Retail issues the four reloads EARLY (sp+32 and
+ *      sp+40 at clocks 12/13, sp+44 and sp+52 at 23/24), holds six shifted values live and
+ *      batches the `sh` stores at 26-29/36/40-43; ours computes each r just-in-time next to
+ *      its own `sh`, so every r-qty is 2 insns long, they all share $v0/$v1, and post-RA
+ *      anti-deps then freeze the order (`-fno-schedule-insns2` is a NO-OP here, 72 both
+ *      ways -- the order is sched1's).  The lreg dump shows all four reloads with a SINGLE
+ *      dependence (their defining store) and no anti-dep on anything else, i.e. they are
+ *      free to rise; sched1 simply declines.
+ * FALSIFIED THIS PASS (all re-gated on the 56/56 base, ALL BYTE-IDENTICAL at 72 unless
+ * noted -- the r-block spelling axis is CLOSED): shift-then-store vs store-then-shift
+ * interleave; `r = temp.m[k]` with the `>>4` moved into the mpsx store; cast-int deref
+ * `*(int *)((char *)&temp + K)` for the reads; `int *mm = (int *)m` for the m-loads;
+ * `short *pm = (short *)&mpsx` for the stores; both pointer views together; a $6/$7
+ * clobber at fn top or in a dead t-gap; the identity-launder form of it (71 @57, +1 insn).
+ * NEXT TAKER: this is now ONE named phenomenon -- make sched1 hoist the four reloads (the
+ * 6-live-value shape), and the allocno half (1) resolves itself.  Instrument: the .lreg
+ * dump's post-sched1 insn ORDER (tools/rtl_dump.py -dl), not allocsim.  Harness:
+ * scratchpad/A4/A4_probe.py + A4_gen.py (variant files v_*.txt, always restores). */
 void HrzSetPsxMatrix(matrixtdef *m)
 {
   MATRIX mpsx;
@@ -1053,6 +1101,8 @@ void HrzSetPsxMatrix(matrixtdef *m)
    * {$a2,$a3,$v0}=m[2][0..2].  So the shift/store half is grouped BY mpsx ROW
    * (temp.m[k], temp.m[k+3], temp.m[k+6]), not by temp index. */
   {
+    /* w71-A4: ONE block, the three names RE-USED per row -- SYM @40e990 records exactly
+       one {t1,t2,t3} Block start, and the SLD maps 994..1011 one statement per line. */
     int t1;
     int t2;
     int t3;
@@ -1063,18 +1113,12 @@ void HrzSetPsxMatrix(matrixtdef *m)
     temp.m[0] = t1;
     temp.m[1] = -t2;
     temp.m[2] = t3;
-  }
-  {
-    int t1, t2, t3;                 /* w40-a8: per-ROW block (see note above) */
     t1 = m->m[3];
     t2 = m->m[4];
     t3 = m->m[5];
     temp.m[3] = t1;
     temp.m[4] = -t2;
     temp.m[5] = t3;
-  }
-  {
-    int t1, t2, t3;
     t1 = m->m[6];
     t2 = m->m[7];
     t3 = m->m[8];
@@ -1247,7 +1291,37 @@ void Hrz_BuildSky(void)
      retail's `temp` is SYM REG $9 = $t1, ours lands in $t0, so retail has $t1 already
      occupied when the invariants are handed out and every one of them shifts up a slot
      (retail $t3/$s0/$t2/$t6/$t7/$t9/$t8/$t5 vs ours $t2/$t7/$t1/$t5/$t6/$t8/$s0/$t4).
-     ⇒ the next dial is whatever retail parks in $t0 ahead of `temp`, NOT the invariants. */
+     ⇒ the next dial is whatever retail parks in $t0 ahead of `temp`, NOT the invariants.
+     ===== w71-A4 (2026-08-21): 370 STAYS @458/458.  The "what parks in $t0" question is
+     ANSWERED and the reorg half of the head divergence is SOLVED-BUT-NOT-LANDED.
+     (a) WHERE THE DIFF STARTS (sbs): insns 0..129 are byte-identical; the first divergence
+         is the `TrackSpec_gSpec.skyspec.flags & 4` guard's DELAY SLOT.  Retail's slot holds
+         `addu t4,zero,zero` (= `i = 0`) and the SAME insn appears again at the preheader --
+         the reorg EAGER STEAL + retarget signature (w47 12F/a2 MatchSample): the branch
+         skips the Flare_Sun block and lands one insn PAST the preheader's first insn, so
+         the fall-through path keeps its own copy.  OURS fills that slot by a SIMPLE
+         BACKWARD FILL with the `addiu s3,v1,0` half of `hp = gHorizonPixmap;` (its `lui`
+         sits above the branch) -- because that assignment is written ABOVE the guard, so a
+         candidate exists and fill_simple_delay_slots never reaches the eager steal.
+     (b) MEASURED (all re-gated, ours/oracle insns; harness scratchpad/A4/A4_probe.py):
+           base (shipped)                                  370 @458
+           `i = 0;` moved above `spec = ...`               370 @458  BIT-IDENTICAL
+           hp assignment moved below the guard, i=0 first  367 @459
+           i=0 first, THEN hp, THEN spec                   369 @457  <- steal CORRECT
+           the same + spec inlined (no `spec` local)       372 @458  <- steal CORRECT
+           spec inlined only / hp dropped only / both      373 @459 / 367 @459 / 386 @458
+         None is a net win, so nothing landed; but the `i=0`-first + hp-after ordering DOES
+         reproduce retail's stolen+duplicated `addu tN,zero,zero` pair exactly.
+     (c) THE DOMINANT RESIDUAL IS A ONE-SLOT SHIFT OF THE WHOLE t-BAND (SYM: i=$t4,
+         temp=$t1; ours i=$t3, temp=$t0), and retail's $t0 is now identified from the
+         oracle itself: `800D0E60 lw $t0,%gp_rel(Sky_gTrackSpec)($gp)`, a BLOCK-LOCAL cse
+         temp born at a branch target INSIDE the loop and live to 800D0FF0 (->type,
+         ->flags, ->frontcolors[0]); local_alloc serves it before the fn-scope pseudos.
+         🔑 With `spec` inlined our build emits that load AT THE IDENTICAL POSITION but
+         local_alloc gives it $a3 (side_by_side line 273: ours `lw a3,0(gp)` / oracle
+         `lw t0,0(gp)`), i.e. $a3 is still FREE across that range in ours and was NOT in
+         retail.  => the open dial is "what occupies $a0-$a3 across .L800D0E60 in retail",
+         NOT the spec caching and NOT the invariant list; that half is settled. */
   Draw_tPixMap **hp;
   CSkySpec *spec;
 
@@ -1739,6 +1813,29 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
  * same-address spelling tried above is equated by cse at tree level, so the device has to
  * make the two addresses structurally different rtx (or come from the RTL layer).
  * Harness: scratchpad/w64a13/bhprobe{,2,3}.py. */
+/* ---- w71-A4 (2026-08-21): 118 STAYS @471/473; the OPCODE CENSUS names the second half of
+ * the shortfall and the w64 "neutral" reading is now MECHANISED (no code change this pass).
+ * `tools/rove_op.py` on this TU reports exactly one row: `sra 1v2  sll 5v6  lh 27v26
+ * lhu 12v13` -- ONE missing sign-extension PAIR and one lh-for-lhu, i.e. a SINGLE site.
+ * The oracle uses the SAME shape at BOTH clip reads (800D16E0 and 800D177C):
+ *     lui $v0,0x1F80 ; lhu $v0,0x10/0x12($v0) ; sll $v0,$v0,16 ; sra $a0,$v0,16
+ * -- an UNFUSED sign extension, then 4 `slt` against $a0.  Ours emits the FUSED `lh` at the
+ * w64-landed clipW literal.  WHY w64's `(short)*(u_short *)0x1f800010` measured EXACTLY
+ * neutral: `(short)(u_short)MEM` is folded at TREE level (fold_convert collapses the
+ * double conversion), so combine never even sees a candidate -- NO SPELLING OF A SINGLE
+ * EXPRESSION can keep the extend separate.  The value has to pass through a real `int`
+ * VARIABLE whose zero-extended pseudo still exists at combine time, and the pseudo must not
+ * die into the extend, i.e. the documented zero-insn identity launder:
+ *     int cw = *(u_short *)0x1f800010;  __asm__("" : "=r"(cw) : "0"(cw));  ... (short)cw ...
+ * ⚠️ IT MUST BE DECLARED INSIDE CLAUSE 2, not before the `if` -- the oracle's read sits at
+ * .L800D16E0, the TARGET clause-1's OR-chain jumps to, so a pre-if local (which is what the
+ * MATCH note above already warns about) hoists it above clause 1 and is wrong both for the
+ * bytes and for the behaviour.  That means splitting the flat 4-clause `&&` into nested
+ * ifs so the declaration has a block -- the named, un-attempted next step (cost: one
+ * re-indent of the ring-segment body; risk: the w64 "flat-&&-vs-nested-if is a real CFG bug
+ * class" caveat, so gate the branch words with tools/brdist.py after).  Expected: +2 insns
+ * (count 473 EXACT) at the clipW site; the clipH `lui` and the mask-movable rank are
+ * independent and stay open. */
 void Hrz_BuildHorizon(DRender_tView *Vi)
 
 {

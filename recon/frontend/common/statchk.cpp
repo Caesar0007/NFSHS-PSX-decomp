@@ -391,7 +391,38 @@ short StatChk_IsTopTime(Car_tStats *dummyCars,short nNumCars)
  * fence kept 33 (inert); laundering uBulkSz instead of uBulkUnit 57 @417.
  * => the wrapper buys only the count half (59-111 basins); the 12E
  * certificate now stands on a second instrument family.
- * Harness: scratchpad/w67a8/stt_v{1,2}.json + probe.py. */
+ * Harness: scratchpad/w67a8/stt_v{1,2}.json + probe.py.
+ *
+ * 🏆 W71-A18 (2026-08-21): 33 -> PASS 416/416, ALL THREE FENCES DELETED.
+ * The "third opacity mechanism" the W62/W64 certificates named as an
+ * instrumented-cc1 job was reachable from source after all, and it is the
+ * ordinary 1998 shape: ONE record-size variable for the whole function.
+ *   - `uRecSz = sizeof(tRecordBuffer);` is assigned ONCE, BEFORE the
+ *     topPlacements zero-loop, and feeds every size site (uRecSz*18,
+ *     uRecSz*8 twice, and the per-record copy size).  gcc-2.8's cse is
+ *     BASIC-BLOCK-LOCAL, so with the loop between def and uses the constant
+ *     can never be folded into the multiply expansions -- retail's
+ *     `li 20; sll,3; addu; sll,1` (*18) and `li 20; sll,3` (*8) shift chains
+ *     come out for free, with ZERO asm (the W62 cross-BB device, which was
+ *     parked because a SHORT-lived hoisted pseudo takes $a1).
+ *   - The reason it now works is the LIVE RANGE: one variable used at all
+ *     three sites is CALL-CROSSING across the whole outer per-car loop, so
+ *     it needs a callee-saved home; with mask $c0ff0000 the s-pool is full,
+ *     it loses allocation, and reload REMATERIALIZES its REG_EQUIV constant
+ *     at each use -- which is exactly retail's three independent `li 20`s in
+ *     three different scratch registers (t0 / t1 / t0), including the late
+ *     `addu a2,t0,zero` at the memcpy site that fence-3 used to buy at +1
+ *     instruction.  The old three-short-lived-variables shape could never
+ *     produce it: each got its own caller-saved register, and every device
+ *     that made one opaque cost the instruction the 12E certificate priced.
+ *   - The whole 12E "count XOR registers" certificate is therefore RETIRED
+ *     for this function: the correct source shape buys BOTH.
+ * Re-gated variants: the same single variable defined AFTER the loop (same
+ * BB as its first use) = 87 @413 -- cse folds it and three insns vanish;
+ * single variable + the old fence-1 kept = 187 @421.  Post-seal cleanup
+ * (all re-gated PASS): uBulkUnit/uBulkSz/uCopySz decls dropped and both
+ * derived sizes spelled inline (`uRecSz * 8`, `uRecSz`).
+ * Harness: scratchpad/A18/stt_v1.json + stt_clean2.json + probe.py. */
 void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
 
 {
@@ -403,9 +434,6 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
   short nTopTenIndex [8];
   int nCheckTotalTime;
   unsigned int uRecSz;
-  unsigned int uCopySz;
-  unsigned int uBulkUnit;
-  unsigned int uBulkSz;
   int copyDst;
   short k;
   short nCar;
@@ -417,6 +445,7 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
   tCarInfo *carInfo;
   int topPlacements [2];
 
+  uRecSz = sizeof(tRecordBuffer);
   bDoRecordCheck = false;
   bTopTenFlag = false;
   nPlace = 0;
@@ -424,8 +453,6 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
     topPlacements[k] = 0;
   }
 
-  uRecSz = sizeof(tRecordBuffer);
-  __asm__("" : "=r"(uRecSz) : "0"(uRecSz), "r"(nNumCars));
   RecordHolders = (tRecordBuffer *)reservememadr("toprcrds",uRecSz * 18,0x10);
   nCarTotalTimes = (int *)reservememadr("carttime",nNumCars * sizeof(int),0x10);
   nRankCarTotalTimes = (short *)reservememadr("carttrnk",nNumCars * sizeof(short),0x10);
@@ -492,20 +519,13 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
             }
             carInfo = (tCarInfo *)strcpy(DummyRaceResult.sName,
                                         PlayerName((int)nRankCarTotalTimes[nCar]));
-            uBulkUnit = sizeof(tRecordBuffer);
-            __asm__("" : "=r"(uBulkUnit) : "0"(uBulkUnit), "r"(carInfo));
-            uBulkSz = uBulkUnit * 8;
-            __asm__("" : : "r"(uBulkUnit));
             RecordHolders[nLapIndicator + 7] = DummyRaceResult;
-            memcpy_call(buffer,&RecordHolders[nLapIndicator],uBulkSz);
+            memcpy_call(buffer,&RecordHolders[nLapIndicator],uRecSz * 8);
             for (k = 0; k < 8; k = k + 1) {
-              uCopySz = sizeof(tRecordBuffer);
-              __asm__("" : "=r"(uCopySz) : "0"(uCopySz), "r"((int)nTopTenIndex[k]));
               copyDst = (nLapIndicator + k) * (int)sizeof(tRecordBuffer);
               copyDst = copyDst + (int)RecordHolders;
-              __asm__("" : "=r"(uCopySz) : "0"(uCopySz));
               memcpy_call((tRecordBuffer *)copyDst,
-                          buffer + nTopTenIndex[k] * uCopySz,uCopySz);
+                          buffer + nTopTenIndex[k] * uRecSz,uRecSz);
             }
           }
         }

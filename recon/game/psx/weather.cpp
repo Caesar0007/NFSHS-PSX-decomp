@@ -67,6 +67,25 @@ extern SVECTOR            *Weather_gPServerA[]         asm("Weather_gPServer");
 extern DVECTOR            *Weather_gPrevPServerA[]     asm("Weather_gPrevPServer");
 extern char               *Weather_gDrawnServerA[]     asm("Weather_gDrawnServer");
 
+/* ---- W71-A5: a 4-BYTE SCALAR VIEW of GameSetup_gData, used ONLY by
+ * Weather_DoWeather to read `.commMode` (@ +0xC = word 3).  This is the 15E
+ * storage-shape menu form 1 (the POSITION-PINNED assembler-macro read) applied to a
+ * STRUCT FIELD, which the w64/w67 receipts in that function had filed unreachable:
+ * `GameSetup_gData.commMode` goes through the 2600-byte object, so cc1 pre-SPLITS the
+ * address into a schedulable `lui`/`lo_sum` pair, sched1 hoists the `lui` into the
+ * prologue address group, its live range then spans the three server-array bases and
+ * local-alloc cannot combine it with the load's destination -- our `lui $a3` + `lw
+ * $v0,0($a3)` against retail's SELF-TEMP `lui $v0` ... `lw $v0,0($v0)`.  A 4-byte
+ * scalar view is AT/UNDER -G, so cc1 emits the one-line `lw $r,SYM` assembler macro
+ * instead (catalog 14D "-G-THRESHOLD GATE-GLOBAL LEVER"); maspsx expands it to
+ * `lui $v0,%hi; lw $v0,%lo($v0)` = retail's register exactly.  4 -> 2 diffs, count
+ * still EXACT 197/197.  (w67-a7's `__asm__("GameSetup_gData+12")` label route stays
+ * dead -- cc1 emits `.extern GameSetup_gData+12,4` and GNU-as rejects the expression;
+ * the offset has to live in the C subscript, not in the asm label.  An ARRAY view
+ * -- unsized, [1], [4] or [16] -- measures 4, i.e. UNCHANGED: only the SCALAR
+ * declaration reaches the macro form.) */
+extern int                 GameSetup_gDataWord0        asm("GameSetup_gData");
+
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
@@ -1668,8 +1687,32 @@ void Weather_DoWeather(DRender_tView *Vi)
    * the directive (junk at end of line).  An offset-free array view keeps the split
    * (schedulable) form, so the macro route needs a symbol AT the field address, which
    * does not exist.  Cluster (A) stays the named sched1-hoist angle. */
+  /* ===== W71-A5 (2026-08-21): CLUSTER (A) IS 4 -> 2, count still EXACT 197/197.
+   * The w67-a7 verdict ("the macro-form device is UNREACHABLE for a struct FIELD on
+   * this lane") was right about the ASM-LABEL route and wrong about the class: the
+   * offset belongs in the C SUBSCRIPT, not in the label.  A 4-byte SCALAR view
+   * `extern int GameSetup_gDataWord0 asm("GameSetup_gData")` read as
+   * `(&GameSetup_gDataWord0)[3]` is at/under -G, so cc1 emits the one-line
+   * position-pinned `lw $r,SYM+12` assembler macro; maspsx expands it to retail's
+   * SELF-TEMP `lui $v0 / lw $v0,%lo($v0)` and the $a3-scratch diff pair is gone.
+   * See the declaration's own MATCH block at the top of this file for the full
+   * mechanism and the falsified array-view ladder (unsized/[1]/[4]/[16] = 4, i.e.
+   * only the SCALAR declaration reaches the macro form).
+   * RE-SWEPT from the new basin (04Z), all 64 cells of the cm/one/fence position
+   * cube: the shipped arrangement (cm read FIRST, `one` + the `player` fence after
+   * the three array reads) is still the unique count-exact optimum; the only cell
+   * that beats it is cm-last/fence-last at 3 diffs but 198 insns -- rejected on
+   * count, exactly as in the w63 table.
+   * RESIDUAL 2, and it is now a PURE POSITION diff of ONE instruction: the macro is
+   * UNSCHEDULABLE, so its two halves come out adjacent (`lui $v0` then `lw $v0`),
+   * where retail issues the `lw` two slots later (after `lw $s6` / `lw $s7`).  Retail
+   * therefore used cc1's SPLIT form with the pair NOT hoisted -- i.e. the split form
+   * with a late-born HIGH pseudo, which local-alloc then gives the same low register.
+   * NAMED NEXT ANGLE (out of source reach): PER_FN_POST_MASPSX_MOVES (the mechanism
+   * 13E/19A already spec'd for _padInitDirSeq) -- TEXT_MOVES runs PRE-maspsx and can
+   * only move the single macro LINE, which drags the `lui` down with it. */
   player = Vi->player;
-  int cm = GameSetup_gData.commMode;
+  int cm = (&GameSetup_gDataWord0)[3];   /* == GameSetup_gData.commMode, @ +0xC */
   wpt = Weather_gPServerA[player];
   wprevpt = Weather_gPrevPServerA[player];
   wd = Weather_gDrawnServerA[player];

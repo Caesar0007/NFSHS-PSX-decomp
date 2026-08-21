@@ -183,7 +183,43 @@ extern void _read_sync(void)
  * Per-fn `-mno-split-addresses` (the mechanism that seals CdRead) is decisively WRONG
  * here: 47 @162 (and _read_issue 32 @126, _read_data_int PASS -> 3, CdReadSync
  * PASS -> 2), so the two split `lui/addiu` pairs are not reachable that way.
- * retail carries `li $v0,1`. */
+ * retail carries `li $v0,1`.
+ *
+ * W71-A8: 15 -> 9 @156/157 (count was EXACT 157/157 after the first landing).  TWO
+ * landings, both re-priced in a basin the earlier waves never reached:
+ *  (1) 🔴 CORRECTNESS + MATCH, -3: the `_cdr.w24 = 1` store is UNCONDITIONAL.  The oracle
+ *      carries `sw $v0,0x24($s0)` in the `beqz $v1,.L80108B10` DELAY SLOT (80108AF0), so
+ *      it runs whether or not a user CdReadCallback is installed -- exactly the w48-a6
+ *      class already fixed in `_read_data_int`, still live HERE.  The old shape put the
+ *      store inside `if (CD_cbread != 0) { ... }`, i.e. a callback-less read never set the
+ *      "read in progress" word that CdReadSync polls.  Fixed by lifting the store out of
+ *      the guard, loading the callback into a local FIRST (so its load is not sunk under
+ *      the store's alias) and writing w24 through a NON-VOLATILE cast (3.25-3c) so reorg
+ *      may slot-fill it.  15 -> 12, and the +1 instruction surplus disappeared.
+ *  (2) `g->w20++` written through a NON-VOLATILE lvalue cast, -3 (12 -> 9).  This is the
+ *      SAME site w62-a6 measured at 25 and filed as "the lever is strictly site-selective";
+ *      it is site-selective AND BASIN-RELATIVE -- from the post-(1) basin it is the win,
+ *      while its neighbours still are not (w14 18, w08 31, w14+w20 17).
+ * RESIDUAL 9, named and priced in THIS basin (all measured, all reverted):
+ *  (a) 8 of the 9 are the TWO SPLIT-ADDRESS `lui/addiu` pairs (head `&_cdr` in $v1, tail
+ *      `&_cdr` in $s0): retail self-temps (`lui $r; addiu $r,$r`), cc1 puts the HIGH in its
+ *      own short-lived pseudo (`lui $v0; addiu $v1,$v0` / `lui $v1; addiu $s0,$v1`).  Head
+ *      anchors re-swept in this basin: volatile-struct+fence 19, word-indexed `int *`+fence
+ *      19, non-volatile struct+fence 18, `char *`+fence 16, volatile struct WITHOUT a fence
+ *      9 (INERT -- the natural CSE already produces the same pair).  So this is a pure
+ *      local-alloc combine_regs tie on the HIGH pseudo, not a shape question.
+ *  (b) 1 diff: the `beqz` guarding the DMA `CdGetSector2` arm -- retail leaves the slot
+ *      `nop`, ours steals the arm's leading `lui %hi(_cdr+8)`.  Fence sweep re-run here:
+ *      a barrier at the arm head 11, before the `if` 9 (inert).  13B says a fence can only
+ *      BLOCK a steal; it does not, because the stolen half is a SPLIT address (under the
+ *      nosplit/`la`-macro form it would be a 2-word macro reorg could not slot at all --
+ *      which is exactly what retail looks like, and is why (a) and (b) are ONE cause).
+ *  PER-FN LADDER RE-RUN AT THIS BASIN (12G law): 2.8.1 (wired) 9 - 2.8.0 18 - 2.7.2-970404
+ *  23 - 2.95.2 48 - 2.91.66 63 - 2.7.2 73 - 2.6.3 89.  Whole-TU `no_split_addresses` 37
+ *  (and it breaks CdReadSync/_read_data_int); per-fn nosplit 44; per-fn -fforce-addr 18.
+ *  The wired 2.8.1 splice stands.  ⚠️ NOTE the per-fn splice tables OVERWRITE each other:
+ *  _apply_fn_splice (nosplit/faddr) runs AFTER _apply_cc1_ver_splice and re-splices from a
+ *  DEFAULT-cc1 compile, so "2.8.1 + -mno-split-addresses" is not expressible today. */
 extern void _read_int(int intr, int code)
 {
     _cdr.w34 = code;                                /* remember intr arg for the user cb */
@@ -241,7 +277,13 @@ extern void _read_int(int intr, int code)
                     __asm__("" : "=r"(g) : "0"(g));
                     g->w08 = (u_char *)(cur[0] + cur[2] * 4);  /* cursor += sector bytes */
                     g->w14--;                                   /* one fewer remaining */
-                    g->w20++;                                   /* next expected sector */
+                    /* W71-A8: 12 -> 9.  The 3.25-3c NON-VOLATILE-CAST-ON-THE-STORE
+                     * lever, RE-PRICED in the post-w24 basin (w62-a6 measured it at 25
+                     * from the 15-diff basin -- falsifications are basin-relative).
+                     * Retail carries this store in the arm's `j` delay slot; a volatile
+                     * MEM is unreachable to reorg.  Still SITE-SELECTIVE in this basin:
+                     * w14 18, w08 31, w14+w20 17 -- only w20 alone is the win. */
+                    *(int *)&g->w20 = g->w20 + 1;               /* next expected sector */
                 }
             }
         }
@@ -270,9 +312,19 @@ extern void _read_int(int intr, int code)
         CdDataCallback(_cdr.w30);                    /* restore data cb */
     CdSyncCallback((int)_read_sync);                /* install completion sync handler */
     CdControlF(9, 0);                               /* CdlPause */
-    if (CD_cbread != 0) {
-        _cdr.w24 = 1;
-        ((CdlCB)CD_cbread)(_cdr.w14 == 0 ? 2 : 5, code);
+    {
+        /* CORRECTNESS (W71-A8, the same w48-a6 class already fixed in _read_data_int
+         * below): the oracle's `sw $v0,0x24($s0)` sits in the `beqz $v1` DELAY SLOT,
+         * so `reading = 1` executes on BOTH paths -- it is NOT inside the CD_cbread
+         * guard (methodology 3.1).  The old shape stored w24 only when a user
+         * CdReadCallback was installed, so a callback-less read never cleared the
+         * flag path CdReadSync polls.  MATCH: load the callback BEFORE the store
+         * (the store's fence/alias would otherwise sink the load) and write w24
+         * through a NON-VOLATILE lvalue cast so reorg may slot-fill it (3.25-3c). */
+        CdlCB cb = (CdlCB)CD_cbread;
+        *(int *)&_cdr.w24 = 1;
+        if (cb != 0)
+            cb(_cdr.w14 == 0 ? 2 : 5, code);
     }
 }
 
@@ -352,7 +404,29 @@ extern void _read_data_int(void)
  * carries `lw $v0,4($s0)` in the call's own slot, where ours fills the beqz slot by the
  * simple backward scan and nops the call slot (6 diffs).  Per 13B a fence can only BLOCK
  * a steal, never supply one, so this half needs a filler hoisted into reorg's scan range
- * or a TEXT_MOVES row, not another barrier. */
+ * or a TEXT_MOVES row, not another barrier.
+ *
+ * 🏆 W71-A8: 8 -> 3 @121/122 with a ONE-STATEMENT REORDER, and w64's "(b) 6 diffs" reading
+ * was a MIS-DIAGNOSIS -- it is not a reorg/TEXT_MOVES problem at all, it is SOURCE ORDER.
+ * Retail carries `sw $v0,0x8($s0)` (w08 = w04, "cursor = buffer") in `jal CdControlF`'s OWN
+ * delay slot (80108DA4/DA8), and a delay-slot insn executes BEFORE the call -- so the store
+ * PRECEDES CdControlF in the original, while our recon had it after.  A delay slot is
+ * SEMANTICS (methodology 3.1): reorg fills a call's slot by scanning BACKWARD only, so no
+ * fence, splice or TEXT_MOVES row could ever have supplied it from a statement written
+ * after the call.  FIX = move `w08 = w04` above `CdControlF(6, 0)` and write it through a
+ * NON-VOLATILE lvalue cast so reorg may slot-fill it (3.25-3c).
+ * CORPUS CONFIRMATION (the psyz/sotn "first stop" rule): sotn-decomp's fully-matched
+ * `src/main/psxsdk/libcd/cdread.c::cd_read_retry` -- our `_read_issue`'s twin -- has exactly
+ * `D_80032DBC.unk8 = D_80032DBC.unk4;` THEN `CdControlF(CdlReadN, NULL);`.
+ * RESIDUAL 3, both halves the SAME retail-cc1 identity (constants are rematerialized where
+ * our cc1 shares a live copy -- 3.25-3b "old-gcc no-copy-prop"): (a) 2 diffs, the third
+ * argument of `CdControl(9,0,0)` (ours `addu $a2,$a1,$zero`, retail `addu $a2,$zero,$zero`,
+ * the 11B cse-shared-live-zero class -- see CdRead's identical residual); (b) 1 diff, retail
+ * DUPLICATES `addiu $a0,$zero,6` into the preceding `beqz`'s delay slot AND after the
+ * CdDataCallback call, ours emits it once at the merge point.
+ * RE-SWEPT AT THIS BASIN and falsified: an opaque named zero on the SECOND CdControl
+ * argument (`int z2=0` + identity fence) 7, on the third 8, on both 9; per-fn ladder
+ * 2.8.1 (wired) 3 - 2.8.0 7 - 2.7.2-970404 21 - 2.6.3 35 - 2.7.2 38 - 2.91.66 41. */
 extern int _read_issue(int retry)
 {
     /* W62-A6: 22 -> 15.  TWO OPPOSITE delay-slot devices, both from the same law
@@ -450,8 +524,12 @@ extern int _read_issue(int retry)
     CdReadyCallback((int)_read_int);
     if (CD_read_dma_mode & 1)
         CdDataCallback((int)_read_data_int);
+    /* MATCH (W71-A8): this store PRECEDES CdControlF -- retail carries it in that call's
+     * delay slot (`jal CdControlF; sw $v0,0x8($s0)`), which executes BEFORE the call
+     * (3.1); the sotn twin `cd_read_retry` has the same source order.  NON-VOLATILE cast
+     * so reorg is allowed to slot-fill it (3.25-3c). */
+    *(u_char **)&g->w08 = g->w04;                            /* cursor = buffer */
     CdControlF(6, 0);                                        /* CdlReadN */
-    g->w08 = g->w04;                                        /* cursor = buffer */
     *(int *)&g->w14 = g->w00;                                        /* remaining = sectors */
     g->w18 = VSync(-1);
     return g->w14;
@@ -622,7 +700,18 @@ extern int CdRead(int sectors, u_long *buf, int mode)
      * each region's fields by displacement off its own anchor.  That is exactly the 9 instructions
      * ours was SHORT.  Each anchor is pinned with the w49 zero-instruction identity fence, without
      * which cse collapses them all back into one hoisted base (the shape this file's own header
-     * calls the "BASE-POINTER-ANCHOR granularity floor" -- retired here as it was for CdReadSync). */
+     * calls the "BASE-POINTER-ANCHOR granularity floor" -- retired here as it was for CdReadSync).
+     *
+     * W71-A8 re-gate: 2 @103/103, residual class (d) UNCHANGED and re-swept in this basin --
+     * an opaque named zero on CdControlB's SECOND argument (`int z2 = 0` + identity fence,
+     * the untried half of w63's probe) 2 (INERT), on the THIRD 6, on BOTH 6.  Per-fn ladder
+     * with the nosplit splice dropped: plain 28 / 2.6.3 13 / 2.7.2 18 / 2.8.1 34 /
+     * -fforce-addr 34 -- the wired 2.8.0 + per-fn `-mno-split-addresses` stays, and note the
+     * ver splice CANNOT be stacked on it (_apply_fn_splice runs after _apply_cc1_ver_splice
+     * and re-splices the region from a default-cc1 compile).  The remaining `addu $a2,$a1,
+     * $zero` is cc1-2.8.0's cse choosing the live `$a1` zero over rematerializing `$zero`;
+     * the emitted `.s` already carries `move $6,$5`, so it is a COMPILER-side identity
+     * (3.25-3b), not an assembler or source question. */
     volatile int *busy = &_cdr.w24;
     volatile CdrEnv *g;
     volatile CdrEnv *e;

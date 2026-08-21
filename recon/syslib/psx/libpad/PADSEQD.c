@@ -72,7 +72,35 @@ extern int      _dirCheck(unsigned char *info);
  *      return and _padFuncRecvAuto is NEVER WRITTEN.  A semantically dead function that the
  *      gate scores 2/13.  Do NOT wire this row; it is a textbook case of the gate being
  *      blind in both directions (w46 hazard).  The POST-maspsx rule spec'd above stays the
- *      only route, and it stays orchestrator-owned. */
+ *      only route, and it stays orchestrator-owned.
+ * A14/w71 2026-08-21 -- RE-ATTACKED FROM SOURCE per the no-floors rule; the identity attribution
+ *   STANDS, and here is the move-pair evidence the directive asks for, read off the artifacts
+ *   rather than reasoned:
+ *   OUR cc1 OUTPUT (`build/recon/syslib/psx/libpad/PADSEQD.c.s`, verbatim tail):
+ *       lui  $2,%hi(_dirRecvAuto) # high
+ *       addiu $2,$2,%lo(_dirRecvAuto) # low
+ *       sw   $2,_padFuncRecvAuto        <-- UNSPLIT assembler MACRO, one line
+ *       j    $31
+ *       <blank>                         <-- EMPTY slot, no .set noreorder/nomacro wrapper
+ *   i.e. cc1 hands the slot to the ASSEMBLER and hands it a MACRO to place; gcc's reorg never
+ *   considered the store because a macro cannot go in a delay slot.
+ *   RETAIL WORDS (asm/nonmatchings/main/_padInitDirSeq.s, the vendor object per 19A):
+ *       8010A0D8  lui $at,%hi(_padFuncRecvAuto)
+ *       8010A0DC  jr  $ra
+ *       8010A0E0  sw  $v0,%lo(_padFuncRecvAuto)($at)     <-- the macro's SECOND half, in the slot
+ *   OURS AFTER maspsx (objdump of the gate object): `lui $at; sw $v0,0($at); jr $ra; nop`.
+ *   THE MOVE PAIR is therefore POST-maspsx and one line long: take the expanded
+ *   `sw $r,%lo(SYM)($1)` line, place it in the `j $31` delay slot, drop the appended nop; the
+ *   `lui $1,%hi(SYM)` stays put.  It is NOT expressible pre-maspsx (the w63-a7 (3) measurement
+ *   above is the proof: moving the un-expanded macro line takes BOTH halves past the return and
+ *   silently kills the store).  SOURCE ROUTES RE-CHECKED AND ALL CLOSED: the store's address must
+ *   remain the assembler's `$at` macro form for the words to match, and every C spelling that
+ *   gives gcc a slot-eligible single-insn store first materializes the address into a NAMED
+ *   register (`la` = 2 insns + `sw` = 3 words vs retail's 3, but with the wrong register and an
+ *   extra word overall) -- so no source form can produce `$at` + a 13-word body.
+ *   REQUIRED SHARED CHANGE (report, not made -- tools/ is out of scope for this belt):
+ *   PER_FN_POST_MASPSX_MOVES as spec'd by w61-a5, or equivalently the maspsx GNU-as-reorder-fill
+ *   option (w48-a6/a10 spec).  Either one lands this function at PASS 13/13. */
 extern void _padInitDirSeq(void)
 {
     _padFuncSendAuto = _dirSendAuto;

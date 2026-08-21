@@ -936,10 +936,42 @@ void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y)
   langMin = minSep[GameSetup_gData.userSetting.language];
   langSec = secSep[GameSetup_gData.userSetting.language];
   c = (u_char)*str;
+  /* MATCH (w71-a2), half 1 of 2 -- THE AVAILABILITY DIAL.  The w46/w50 receipts proved the
+   * ref/live PRIORITY dials cannot reach retail's handout (0x4D=$s7, y=$fp, 0x53=nowhere):
+   * `y` needs a rank strictly between the two hoisted constants and there is no ref count
+   * between 3 and 4.  The 20B device (W69) dials AVAILABILITY instead of priority: a
+   * zero-insn read-only fence gives `y` +1 ref (out-of-loop = exactly +1) so it out-ranks
+   * both constants and is allocated FIRST, and the `s7` CLOBBER denies it $s7, so the
+   * ascending find_free_reg scan hands it $fp -- retail's register -- and the frame SPILL
+   * of the 4th param (`sw a3,84(sp)` / `lw a3,84(sp)`) disappears.  21 -> 15 on its own.
+   * Measured: fence with no clobber 21 (the w50 number, reconfirmed) . identity-launder
+   * form `("" : "=r"(y) : "0"(y) : "s7")` 25 (+2 refs overshoots) . clobber "fp" 27 .
+   * clobber "s7","s6" / "s7","s5" 26 . "s7","s5","s6" 71. */
+  __asm__("" : : "r"(y) : "$23");   /* $23 = $s7 */
   while (c != 0) {
-    if (c == 0x4d) {
+    /* MATCH (w71-a2), half 2 of 2.  With half 1 in place both compare constants are still
+     * hoisted and 0x53 wins $s7 because its `li` is emitted SECOND in the preheader (live
+     * 40 vs 42 -- LICM preheader order IS source order, so the FIRST test's constant has
+     * the LONGER range and the LOWER priority).  Retail hoists 0x4D and rematerialises
+     * 0x53 into a caller-saved temp in the first `bne`'s delay slot.  The depth wrapper is
+     * the w44 zero-insn ref inflator (loop.c strips the phony loop; flow.c still weights
+     * the wrapped ref by depth) and lifts 0x4D over 0x53: ours becomes `li s7,77` hoisted
+     * + `li t0,83` rematerialised + NO nop = COUNT-EXACT 77/77, retail's exact shape.
+     * 15 @78 -> 18 @77.  ⚠️ The LCS is non-monotone across this pair -- the 15 basin
+     * carries BOTH constants in registers plus an unfilled `bne` delay slot (78 insns);
+     * this one reproduces retail's constant handling exactly, so it is the kept state
+     * (standing rule: judge on insn count + structure, not the LCS).
+     * Measured: wrapper on the S-test instead 15 @78 . both wrapped 20 @79 . `else if`
+     * 16 @79 . nested depth-2 wrapper 18 @77 (flat in n) . swapping the two tests 15 @78
+     * (it moves the hoist to 0x4D but also inverts the emitted test order) . swapping the
+     * langMin/langSec assignments 18 (inert).
+     * RESIDUAL 18, three items, all pure allocation/position: the prologue emits
+     * `sw s3,44(sp)`/`addu s3,a0,zero`/`addu fp,a3,zero` before retail does; langMin and
+     * langSec hold $s5/$s6 where retail has $s6/$s5; and the rematerialised 0x53 lands in
+     * $t0 where retail uses $v0. */
+    do { if (c == 0x4d) {
       c = langMin;
-    }
+    } } while (0);
     if (c == 0x53) {
       c = langSec;
     }
@@ -1693,8 +1725,19 @@ void Hud_BuildTach(int player)
     *(u_long *)((u_char *)tp9 + 4) = color + 0x484848 | 0x42000000;
     *(short *)((u_char *)tp9 + 8) = 0xe - (short)x;
     *(short *)((u_char *)tp9 + 10) = 0xe - (short)y;
-    *(short *)((u_char *)tp9 + 0xe) = (short)sin1;
+    /* MATCH (w71-a2): 20 -> 17.  The w46 residual cluster (1) ("a 4-5 insn block issues 2
+     * slots later for us and duplicates `sh s6,14(t0)` into it") is a STATEMENT-ORDER item,
+     * not a fence item: `cos1` is a SYM AUTO (stack -0x34) so its use emits `lhu t4,36(sp)`
+     * whose load-delay slot retail fills with the sin1 `sh`.  With the sin1 store written
+     * FIRST, gcc emits it before the reload and pays a `nop`; writing the cos1 store first
+     * makes the reload issue first and the sin1 store falls into its delay slot = retail's
+     * `lhu t4,36(sp); sh s6,14(t0); sh t4,12(t0)`.  ⚠️ ours is now 268 vs oracle 269 -- the
+     * one remaining insn is retail's `addu v1,s1,zero` COPY of ts1 before the `+2` in the
+     * y2 tail (we fold it to a single `addiu v0,s1,2`).  MEASURED count-exact alternative:
+     * a block-local `short t2 = ts1;` + identity launder at the y2 site mints the copy
+     * (269/269, sbsx 17) but gates 20 -- recorded, not landed. */
     *(u_short *)((u_char *)tp9 + 0xc) = (u_short)cos1;
+    *(short *)((u_char *)tp9 + 0xe) = (short)sin1;
     prim2 = (POLY_F3 *)Render_gPacketPtr;
     {
     u_char *pal2 = Render_gPalettePtr;
@@ -2484,6 +2527,51 @@ void Hud_BuildNumbers0(int player)
  *   Count `next_qty` for the speed block BEFORE using any ref/live dial there -- if it is 3,
  *   the dial is BIRTH ORDER, or crossing the 3<->4 quantity boundary by adding/fusing one
  *   block-local temp. */
+/* ===== w71-a2: 200 -> 188, count still EXACT 758/758 =====
+ * LANDED: the `x` fold split (see the MATCH block at the x statement).  The 4-cycle below is
+ * unchanged and is now the whole residual.
+ * 🔴 THE w46 PSEUDO MAP IS RE-READ AND TWO LABELS WERE WRONG.  tools/pseudoid.py on the
+ * current -dl dump gives the DEFINING RTL insn for each pseudo, and tools/symblk.py gives
+ * the SYM 8c ground truth (fsize 80, mask 0xc0ff0000):
+ *   SYM: player $s2 | i $fp | pSprt $s5 | HudF4 $s1 | HudG4 $s0 | splitY $s6 |
+ *        speed $t1(!) | hun $s0 | ten $s6 | x $s2 | y AUTO sp+24 | w1 $s3 | w2 $s4 |
+ *        w3 AUTO sp+28 | w7 $s7 | color2 AUTO sp+32 | prim $s1 | SpeedColor AUTO sp+36
+ *   p624 = (plus (reg 647) 1)          = w1   (w46 called this "p620/w1" -- same VALUE, new number)
+ *   p625 = (ashiftrt (reg 655) 1)      = w2
+ *   p626 = (minus p624 p625)           = w3    (AUTO, correct)
+ *   p627 = (ashiftrt (reg 661) 1)      = w7
+ *   p620 = (minus ...) refs 8 live 85  = hun   (NOT w1 -- the w46 receipt's label)
+ *   p621 = (minus ...) refs 7 live 51  = ten
+ *   p622 = x | p623 = y (AUTO) | p628/p630 = color2/SpeedColor (AUTO) | p629 = prim
+ *   p85  = (const_int 0) refs 3 live 512 = splitY | p82 = pSprt | p81 = i | p80 = player
+ * OURS vs RETAIL (prio.py on scratch/rtl/hud.i.{greg,lreg}):
+ *   ours   s0=w2   s1=prim s2=x s3=hun s4={ten,splitY} s5=pSprt s6=w1  s7=w7
+ *   retail s0=hun  s1=prim s2=x s3=w1  s4={w2,speed-raw} s5=pSprt s6={ten,splitY} s7=w7
+ *   => a 4-cycle hun s3->s0, w2 s0->s4, ten s4->s6, w1 s6->s3 (splitY rides ten).
+ * The handout follows directly from the ascending find_free_reg scan over the PRIORITY order
+ *   ours: w2 .5000(rank19) > hun .2824(27) > ten .2745(28) > pSprt .2612(30) > w1 .2000(33)
+ *   retail needs: hun > w1 > w2 > pSprt > ten, i.e. w1 and w2 must both land in
+ *   (.2612,.2824) and ten must fall below .2612.  For w1 (refs 6 / live 60) that is
+ *   live 43..45 -- exactly the w46 required delta, re-derived in this basin.
+ * FALSIFIED w71-a2 (all count-exact 758/758 unless noted): moving hun+ten up to just after
+ *   `speed = ...` 236 . moving hun+ten above the packet block 188 (inert) . moving the
+ *   w1/w2/w7/w3 group below the packet block 384 . moving that group AND x/y below it 422 .
+ *   dropping the `do{}while(0)` wrapper on `x = x - w2` 236 . nesting that wrapper 2x/3x
+ *   188 (INERT -- loop.c strips the extra phony loops, the depth dial does not stack here) .
+ *   read-only fences on w2 after `w3 = w1 - w2` x1/x2 421 @759.
+ * 🔴 THE 20B AVAILABILITY DIAL IS NOT REACHABLE HERE (measured, with the mechanism): the
+ *   zero-insn hard-reg clobber `__asm__("" : "=r"(v) : "0"(v) : "sN")` denies $sN to EVERY
+ *   allocno live at that insn, and every point inside w2's / ten's range also has HudG4 ($s0)
+ *   or w2 ($s4) live, so the clobber always hits a pseudo that WANTS the register.  Probed on
+ *   splitY at the only clean point (after its init): "$20"/"s4" 232, "$19" 232, "s6" 300, and
+ *   with the clobber carried on i/pSprt/HudG4 instead 232/300/300/232 -- the identity
+ *   launder's +2 refs dominate and nothing reaches 188.  (Contrast Hud_BuildTimeSprites,
+ *   where the same device WORKS because the rivals are not yet born at the fence.)
+ * NEXT ANGLE (unchanged from w46, now with correct labels): w1 (p624) live 60 -> 43..45 is
+ *   the single named dial; its range runs from `w1 = HudPmx_gShapes[0x2c].width + 1` to the
+ *   `x = x - w1` else-arm, and the four statement-position moves above all overshoot.  The
+ *   remaining shape to try is one where the else arm does NOT read w1 (e.g. the three arms
+ *   subtract a value the SYM does not name), or a permuter run from this basin. */
 void Hud_BuildNumbers(int player)
 
 {
@@ -2649,7 +2737,23 @@ void Hud_BuildNumbers(int player)
     w2 = w1 + HudPmx_gShapes[0x2d].width >> 1;
     w7 = w1 + HudPmx_gShapes[0x33].width >> 1;
     w3 = w1 - w2;
-    x = ((int)g1Player[1].x + (int)g1Player[0xc].x + 4) + w1 * 2;
+    /* MATCH (w71-a2): the fold reassociates `(A + B + 4) + w1*2` into `(A+B) + (w1*2+4)`
+     * (`sll v0,w1,1; addiu v0,v0,4; addu s2,v1,v0`), where retail keeps the `+4` on the
+     * A+B term and adds the doubled width LAST with the shift first in the addu
+     * (`addu s2,a1,v0; addiu v1,s2,4; sll v0,w1,1; addu s2,v0,v1`).  fold is
+     * STATEMENT-granular, so the two-statement form with the `+ 4` in the SECOND
+     * statement is the only spelling that reaches it (200 -> 196; `x = A+B+4;` then
+     * `x = w1*2 + x;` = 252, three-statement `x=A+B; x=x+4; x=w1*2+x;` = 210).  But fold
+     * STILL reassociates `w1*2 + (x + 4)` into `(w1*2 + 4) + x` inside the second statement
+     * -- the constant only survives on the A+B term when the `x + 4` is a SEPARATE
+     * block-local temp fold cannot see through: 196 -> 188 (count 758/758 throughout).
+     * Measured: `xt + w1*2` (operand order) 190 . fn-scope `xt` 188 (same) . `4 + x` 196 .
+     * `x = w1*2 + (A+B+4)` 228. */
+    x = (int)g1Player[1].x + (int)g1Player[0xc].x;
+    {
+      int xt = x + 4;
+      x = w1 * 2 + xt;
+    }
     y = (int)g1Player[1].y + (int)g1Player[0xc].y + splitY;
     prim = (POLY_GT4 *)Render_gPacketPtr;
     Render_gPacketPtr = Render_gPacketPtr + 0x34;
@@ -2853,6 +2957,42 @@ void Hud_InitMap(void)
  * `mapy` an allocno are now measured negative (distinct address rtx, plain use fence,
  * single identity fence, N-stacked identity fences, per-loop storage split).
  * The $fp item stands; the open side is the CSE, not the occupant. */
+/* ===== w71-a2: 54 STAYS.  The 20B AVAILABILITY DIAL (6th way) is now measured too, and a
+ * NEW mechanism is named for the +2 insns.
+ * (e) THE zero-insn HARD-REG CLOBBER `__asm__(... : "fp")` -- the first device that dials
+ *   AVAILABILITY instead of priority, i.e. exactly the "attack the $fp OCCUPANT" angle from
+ *   the other side (deny the cursor address $fp rather than give mapy an allocno).  ALL
+ *   PLACEMENTS MEASURED WORSE: clobber added to the cop-loop launder 308 @312, to the race
+ *   loop's 62, to both 316 @312; a separate read-only fence + "fp" clobber BEFORE the first
+ *   loop (the only point where no loop-body pseudo is born) 108 with `i` as carrier, 76 with
+ *   `mapy`, 192 with "fp","s7".  Note ours stays 310 insns in every case => the prologue
+ *   `lui fp,0x1f80; ori fp,fp,4` pair is NOT removed by denying $fp: the address pseudo is
+ *   not live at the pre-loop point, so the clobber never conflicts with it and only
+ *   re-colours the loop band.  The 6th way is CLOSED.
+ * 🔴 NEW: THE +2 INSNS ARE THE IDENTITY LAUNDER'S ALIAS PRICE, and the mechanism is named.
+ *   sbsx shows the residual concentrated at the two `*pktcell = sprt + 0x14` cursor bumps:
+ *     retail  lw v0,0(sN); nop; lw v1,1392(v0); addiu v0,a2,20; andi v1,v1,2; beqz v1;
+ *             [ds] sw v0,0(a1)
+ *     ours    addiu v0,a2,20; sw v0,0(a1); lw v0,0(sN); nop; lw v0,1392(v0); nop;
+ *             andi v0,v0,2; beqz v0
+ *   i.e. retail HOISTS the AIFlags/carFlags load above the cursor store and fills the load
+ *   delay + the branch slot with the split bump.  The w53 LEVER 1 (COMPONENT_REF on the flag
+ *   read) bought exactly that -- and the w64 identity launder on `pktcell` TOOK IT BACK: an
+ *   opaque pointer makes `*pktcell = ...` a VARYING NON-STRUCT mem, so
+ *   fixed_scalar_and_varying_struct_p (sched.c:846-56) can no longer prove independence from
+ *   the varying-struct load and the load stays pinned BELOW the store.  (Before the launder
+ *   the store's address was the literal 0x1F800004 = a FIXED scalar, which is why w53
+ *   worked.)  This is the catalog 07B "fenced-anchor PRICE" row.
+ *   FALSIFIED cures (the launder and the fixed-address store are mutually exclusive here):
+ *   hoisting the flag read into a local before the bump 69 @311 (the local costs an insn);
+ *   storing through the `Render_gPacketPtr` macro in the cop loop only 62, in both loops
+ *   (with the race launder moved before its read) 64 -- the macro restores the shared
+ *   literal and the cross-loop CSE with it.
+ *   NAMED ANGLE: a device that keeps the two loops' address pseudos un-equatable at cse time
+ *   WITHOUT making the pointer opaque to alias analysis -- e.g. an `m`-constraint fence
+ *   (w64 16B: `asm("" :: "m"(...))` extends the ADDRESS's live range, not the value's) on
+ *   one loop's cell, or two structurally different fixed-address SHAPES (the w46 storage-
+ *   shape angle, still unexecuted because 0x1F800004 has no linker symbol to asm-label). */
 void Hud_BuildMapMarkers(int player)
 
 {
@@ -3264,6 +3404,26 @@ void Hud_InitCdPlayer(void)
  *   -- each dies in place, the else arm has nothing live to reuse, and gcc must re-load.
  *   That is the exact inverse of the failed "make gcc drop the live byte" attempts, which all
  *   tried to shorten ONE pseudo's range instead of splitting it. */
+/* ===== w71-a2: 54 STAYS (count EXACT 475/475).  Residual re-localised with tools/sbsx.py
+ * into FOUR independent clusters, so a future pass can take them one at a time:
+ *  (1) the ||-flag head: ours emits `addu s0,zero,zero` TWICE (plus two `nop`s) where retail
+ *      emits it once, and `slt v0,v1,v0`/`beqz v0` where retail uses $v1 -- the anonymous
+ *      0/1 flag's qty.
+ *  (2) the scroll-copy loop entry: ours `addu a0,s1,zero; addiu a3,s1,63; ...; addiu t0,v0,0;
+ *      slt v0,a0,a3` vs retail `addiu a3,v0,0; addu a0,s1,zero; addiu t0,s1,63; slt v0,a0,t0`
+ *      -- a t0<->a3 ROLE SWAP: retail materialises the LICM-hoisted `&HudPmx_gShapes` base
+ *      FIRST (into $a3) and the `title + 0x3f` bound SECOND (into $t0); we do the reverse.
+ *      LICM preheader order = RTL-generation order = SOURCE order (catalog 15C), and the
+ *      bound is generated by the loop's own top test while the shape base comes from the
+ *      body, so the source shape that flips it must make the shape address appear FIRST.
+ *  (3) the width chain `addiu v1,v0,110`/`addiu v1,v0,67` + `sll/addu/sll/addu/lh` -- ours
+ *      runs it through $v1, retail through $v0; downstream of (2).
+ *  (4) the two Hud_BuildString x-args (the w51 fold cluster).  RE-PROBED in this basin with
+ *      the BLOCK-SCOPED temp that cracked Hud_BuildNumbers' identical fold
+ *      (`{ int dxk = dx + 10; Hud_BuildString(..., (x + dxk) - (...), ...); }`):
+ *      first site only 58, second only 60, both 64 -- ALL WORSE, so the w51 verdict holds in
+ *      the 54 basin too and the extra pseudo is genuinely what costs.  The named angle is
+ *      unchanged: a shape where `dx + K` already exists for another reason. */
 void Hud_BuildCdPlayer(int type,int arg1)
 
 {

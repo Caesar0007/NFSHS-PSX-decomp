@@ -377,7 +377,27 @@ extern void _padLoadActInfo_snd(unsigned char *info)
  *   declaring `_actcur` as a sized `*_actcur[1]` with the anchor by array decay (14), the same
  *   with `&_actcur[0]` (14), and a `(unsigned char **)&_actcur` cast anchor on the scalar (14) --
  *   all three byte-identical.  The `section(".bss")` attribute already fixes the storage shape,
- *   so the declaration-shape family is CLOSED for this symbol. */
+ *   so the declaration-shape family is CLOSED for this symbol.
+ * A14/w71 2026-08-21 -- re-gated 14 @155/157 on the wired 970404 rung; the w62 SPLIT-ADDRESSES
+ *   diagnosis reproduces exactly and NOTHING was landed.  The residual decomposes as [4] the
+ *   `li $a0,3` load-delay placement (ours fills the `lw $v0,0x3c($a1)` slot with it, retail nops
+ *   the slot and emits the `li` after the `lbu`), [6] the `_actcur` store reaching through
+ *   retail's `$at` macro vs our `lui $v0` (with retail's `j` slot carrying a DUPLICATED
+ *   `addiu $a0,$a0,-1` we lack), [4] the `la $a3,_actcur` preheader anchor (retail
+ *   `nop; lui $a3; addiu $a3,$a3` vs ours `lui $v0` in the branch slot + `addiu $a3,$v0`).
+ *   Clusters 2 and 3 are ONE fact -- ASPSX refuses to place a multi-word macro in a delay slot,
+ *   our lane splits both macros and spends the freed slots -- and that is why we run 2 SHORT.
+ *   RE-SWEPT for cluster 1 at this basin (04Z), all measured: four positions of `cnt = 3;`
+ *   (top / after the first store / after both stores / with a void barrier ahead of it) are ALL
+ *   14 and byte-identical -- statement position is not the dial.  Seven fence spellings around
+ *   the `v` load (read-only on `v`, read-only after `cnt`, a void barrier after the cnt fence, a
+ *   2-operand read-only on `v`+`cnt`, a doubled cnt fence, and two orderings of the pair) ALL
+ *   land on the SAME object: 13 @156 -- the `li $a0,3` moves ABOVE the `lw` instead of below the
+ *   `lbu`, buying one diff by paying a nop.  NOT LANDED: it is a one-line diff bought by an
+ *   unexplained asm whose only effect is to add an instruction (the "no scaffolding" rule), and
+ *   it does not touch the real cluster.  The mechanism gap is unchanged and is the ONLY route:
+ *   a per-fn ver-splice that ALSO carries `-mno-split-addresses` (the 272 twin of 12G's
+ *   PER_FN_NO_SPLIT_ADDRESSES + version-splice composition) -- shared build change, reported. */
 extern int _padLoadActInfo_rcv(unsigned char *info)
 {
     switch (info[0x46]) {

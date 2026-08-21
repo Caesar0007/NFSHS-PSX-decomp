@@ -615,6 +615,27 @@ PMLeftRtSlide_playSound:
  * giv, is the real blocker: a local-alloc/QTY question (06E instrument gap).
  * Do NOT re-run the plain "separate offset local" experiment; it is receipted
  * twice now.  Next move is qtytrace on the 83-basin to name the spilled pseudo.
+ *
+ * ✅ W71-A22 (2026-08-21): **SEALED, PASS 169/169** -- and everything above is
+ * now HISTORY, kept only as the falsification trail.  Both prior notes were
+ * chasing the giv from the WRONG SIDE: the real defect was that `xpos` was
+ * computed INSIDE the `if` (retail computes it unconditionally -- its
+ * `addu $fp,$s6,$s7` is the `beqz` DELAY-SLOT insn, so it runs on both paths).
+ * Hoisting it out of the guard AND spelling it as a block-local
+ * `int off = i*5 + 66; xpos = x + off;` gives loop.c the `mult 5 add 66` giv
+ * (= retail's `li $s7,66` / `addiu $s7,$s7,5`) with NO frame growth and NO
+ * fence -- the 83-basin's extra spill was an artifact of the `step` local
+ * competing with a still-conditional xpos.  The i*5 fence is retired with it,
+ * so only TWO empty allocation fences remain in this function (the header
+ * sentence above says three; it is stale as of this seal).
+ * SEQUENCE MEASURED THIS WAVE (each a real gate run): conditional xpos +
+ * step local 81-83; conditional xpos, i*5 fence dropped 81; `off` local while
+ * still conditional 77 (frame 88 -- the 0xFF000000 bitfield mask then LICMs
+ * into $fp and evicts xpos to the stack); unconditional flat
+ * `x + (i*5+66)` 98 @169; unconditional `(i*5+66) + x` 5 @170 (fold
+ * reassociates to `i*5 + (x+66)`); unconditional two-statement
+ * `xpos = i*5+66; xpos += x;` 106; unconditional `off` local with `off + x`
+ * 2 @169; with `x + off` **PASS**.
  */
 
 void tPMenuItemLeftRightSlider::Draw(bool selected)
@@ -634,10 +655,28 @@ void tPMenuItemLeftRightSlider::Draw(bool selected)
   i = 0;
   while (i < 15) {
     col = 0x323232;
+    /* 🔴 CORRECTNESS + MATCH (W71-A22): retail computes xpos UNCONDITIONALLY --
+       its `addu $fp,$s6,$s7` @800A7AB8 sits in the `beqz $v0,.L800A7AD4` DELAY
+       SLOT, so it runs on BOTH paths (methodology S3.1).  The old shape computed
+       it only inside the `if`, so every UNFILLED slider segment (the arm the
+       guard skips) was drawn at the LAST FILLED segment's x instead of its own --
+       and on i==0-false it read an uninitialised xpos.  Hud_FBuildF4 below uses
+       xpos every iteration, so this was visible in the pause-menu slider.
+       MATCH: the `off` BLOCK-LOCAL is what makes loop.c reduce the giv with
+       `add 66` (= retail's `li $s7,66` + `addiu $s7,$s7,5`); a flat
+       `xpos = (i*5+66) + x;` lets fold reassociate to `i*5 + (x+66)` -- giv
+       add 0 + an in-loop `addiu v1,s6,66` (5 diffs), and the two-statement
+       `xpos = i*5+66; xpos += x;` form loses the whole band (106).  -dL receipt:
+       `Insn 109: giv ... mult 5 add 66 ... reduced` vs the old basin's
+       `mult 5 add 0`.  `x + off` (not `off + x`) is load-bearing: it emits
+       retail's `addu $fp,$s6,$s7` operand order (`off + x` = 2 diffs).
+       This also RETIRES the old `__asm__("" : : "r"(i * 5))` allocation fence --
+       the giv now supplies those refs by itself. */
+    {
+      int off = i * 5 + 66;
+      xpos = x + off;
+    }
     if (i < (*this->fData * 15) / (u_char)this->fMaxVal) {
-      xpos = i * 5 + 66;
-      __asm__("" : : "r"(i * 5));
-      xpos += x;
       col = 0x808080;
       if (selected != 0) {
         col = 0xbebe;

@@ -582,7 +582,65 @@ void Stats_ExtrapolateOpponentTimes(int type)
    remaining question is only `p101 live 31 -> 29` and `p103 below p130`, with p285
    restored above p104 -- i.e. re-run statscells.py ON THE (1) DUMP (the cell table is
    basin-relative, 04Z) and look for a fence POSITION whose measured re-timing lands
-   that cell.  Do NOT go back to DesiredSpeed: its cell really is closed. */
+   that cell.  Do NOT go back to DesiredSpeed: its cell really is closed.
+
+   ===== W71-A22 (2026-08-21).  Re-gated 44 @232/232.  Fresh -dl/-dg dump: the
+   numbering is UNCHANGED from W64-A15 (p285=s3 19/78, p101=s4 9/28, p103=s5 13/41,
+   p104=s6 13/41, p130=s7 5/11) and allocsim still MATCHes.  reqdelta on the full
+   want `p104=s4,p101=s5,p130=s6,p103=s7`: no single-pseudo dial at +-40 and no
+   same-pseudo refs+live pair -- W64-A15's two-PSEUDO cell table stands.
+   THE CELL ARITHMETIC, written out so nobody re-derives it:
+     p101 live 28->29 -> pri 27/29 = 0.9310 ; p103 refs 13->12 -> pri 36/41 = 0.8780
+     gives the order p285 .9743 > p104 .9512 > p101 .9310 > p130 .9090 > p103 .8780
+     = s3 s4 s5 s6 s7 = EXACTLY retail's band.
+   🔴 LAW CORRECTION (gcc source, not inference) -- the W62 premise
+   "every ref this function can buy is worth TWO (loop depth)" is FALSE HERE:
+   flow.c:1969/2218/2404/2616 do `REG_N_REFS (regno) += loop_depth`, and
+   find_basic_blocks starts `depth = 1` (flow.c:402), so a ref costs
+   1 outside any loop, 2 in the i-loop, and **3 in the inner j-loop**.  A +-1 ref
+   delta on p103 IS therefore constructible -- trade ONE j-loop (depth-3) ref for
+   ONE i-loop (depth-2) ref.  MEASURED construction: assign DesiredSlice ONCE in
+   the j-loop through a temp (-3) + a read-only fence operand on DesiredSlice at
+   i-loop level (+2) = refs 12.  It reaches the ref cell and STILL fails, because
+   the temp-min form drops the insn count to 230 (SA/SB 76@230, SC/SD 92@230).
+   So the blocker is not the ref arithmetic; it is that no spelling holds 232
+   while giving DesiredSlice one fewer weighted ref.
+   🏆 NEW BEST BASIN, NAMED AND MEASURED (not landed -- see why):
+     a ZERO-OPERAND fence placed IMMEDIATELY AFTER the second-min statement,
+     `__asm__("" : : "i"(0));`, gates **25 @233** and pulls p285/p101/p104 onto
+     retail's s3/s4/s5 -- 19 of the 44 diffs gone in one line.  An identity
+     launder on DesiredComparison at the same point measures IDENTICALLY (25@233),
+     so the effect is NOT the barrier property (20B): it is the extra RTL insn's
+     re-timing of the band.
+     RESIDUAL IN THE 25-BASIN = exactly three things: (a) DesiredSlice s6 vs
+     retail s7 swapped with the jj carrier; (b) retail's carrier holds `j << 2`
+     (`sll s6,s1,2`) where ours holds `j`; (c) the +1 insn is the second min's
+     `beqz` DELAY-SLOT NOP -- retail fills it with the DEFAULT store of an
+     override (`bnez ...; addu s7,a1,zero` then `addu s7,v1,zero`).
+     🔴 NOT LANDED: 233 vs the oracle's 232.  Count-exactness is the stronger
+     invariant (the project rejects lower-diff/count-inexact forms), and the
+     baseline is count-EXACT.  The 25-basin's remaining ask is precise: keep this
+     allocation AND get the min's default store into the branch slot without
+     losing the two stores.
+   FALSIFIED THIS WAVE (every one a real gate run, all restored):
+     temp-min (assign DesiredSlice once) 76@230; the same with a sliceTot temp
+     76@230; either + an i-loop DesiredSlice fence 92@230; that fence alone
+     62@232; a read-only fence on PlayerSlice right after PlayerPosition's def
+     125@233; all three together 77@231.
+     Retail-shaped OVERRIDE for the second min, four spellings (temp/plain/
+     `>=`/`<=`), each with AND without the 25-basin fence: 115@229 without,
+     81@231 with -- gcc merges the two stores in every one, so the override
+     cannot be reached from source in either basin.  Swapped-operand ternary
+     (`sliceTotal < trackSlices ? sliceTotal : trackSlices`) 81@231.
+     Foreign-operand fence POSITION sweep (operand `trackSlices`, 6 positions):
+     j-loop head 45@233, after-min 25@233, before-break 56@232, after-j++ 47@233,
+     after-the-j-block 62@232, after `DesiredSlice = 0` 64@232.
+     OPERAND sweep at the winning after-min position: i 105@231, j 55@233,
+     jj 71@233, PlayerSlice 104@234, DesiredComparison 25@233, PlayerPosition
+     63@233, DesiredSlice 63@233, `"i"(0)` 25@233.
+     In the 25-basin: SCALED carrier `jj = j << 2` + cast-int address, index-first
+     151@233 and base-first 151@233; dropping the carrier entirely 81@227;
+     a second fence 140@234. */
 void Stats_TrackEndGame(void)
 
 {

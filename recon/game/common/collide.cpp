@@ -1096,7 +1096,18 @@ vhalf:   /* VERTEX!=0 : o0 orientMat, if(0<xRange) negation */
            the one edit that keeps the z multiply in the pre-abs block (a named
            product local whose ONLY use is after the abs blocks, without adding a
            block scope -- the block scopes above cost 10-14 insns of frame).
-           NOT a floor. */
+           NOT a floor.
+           W71-A20 -- two data points, no landing.  (1) The absfirst basin is
+           CONFIRMED and is PER-SITE additive: applying it to the `zRange < 0` TWIN
+           ONLY gates 29 @764 (exactly ONE of the two missing `nop`s restored, +15
+           diffs), which reproduces and explains the w64-a15 "both sites = 44 @765".
+           (2) The 'm'-CONSTRAINT FENCE (catalog 16B) -- the device that took
+           Newton_TestForUndrivableSurfaces 70 -> 36 this wave -- is CATASTROPHIC on
+           this fn's module globals: `__asm__("" : : "m"(findClosestSideDave) xN)`
+           or `"m"(pNormal)` placed before `obj0 = o0;` gates 255 @764 at every
+           count n=1..4 (it ADDS an instruction and re-colors the whole body).  The
+           w56/w13 receipt above is right that this fn's globals are already at
+           their retail seats (o0/o1/normal = s1/s2/s0); do not dial them. */
         if (dotx < 0) {
           dotx = -dotx;
         }
@@ -1448,7 +1459,49 @@ int Collide_TestObjectVertices(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef *p,c
                our RTL even contains the two copies before local-alloc (the W59-11A
                CalcWheelLockAcc lesson -- if cse folds them at expand, no source
                spelling downstream can matter and the cure is an opacity fence on the
-               SOURCE, hoisted above every load it must not block). */
+               SOURCE, hoisted above every load it must not block).
+
+               W71-A20 (2026-08-21) -- THE NEXT ANGLE WAS RIGHT AND IT WORKS: the
+               PAIR read-only fence placed BEFORE the whole statement,
+                   asm volatile("" : : "r"(relativePosition.x), "r"(relativePosition.z));
+                   maxrp = relativePosition.x;  maxrp /= 256;
+                   maxrp = maxrp*maxrp + (relativePosition.z/256)*(relativePosition.z/256);
+               reproduces retail's EXACT 10-instruction shape for the first time --
+               `lw ?,48; lw ?,56; addu v0,?,zero; bgez v0; addu ?,v0,zero;
+                addiu ?,v0,255; sra v0,?,8; mult v0,v0; <z>; mflo a1` -- the two
+               ADJACENT loads (no load-delay nop), the x copy, and the divide-in-place
+               all land.  The anonymous asm read IS the missing first evaluation: cse
+               then turns `maxrp = relativePosition.x` into retail's `addu v0,a0,zero`
+               instead of a second load.  It gates 16 @1164 (NOT landed -- honest-count
+               rule, control is 8), and the whole residual is now only SEATS plus one
+               z re-load:
+                   ours  lw s7,48 / lw t8,56 / addu v0,s7 / addu a0,v0 / sra v0,a0
+                                                                 / lw v1,56(sp)
+                   retail lw a0,48 / lw a2,56 / addu v0,a0 / addu v1,v0 / sra v0,v1
+                                                                 / addu v1,a2,zero
+               i.e. our two fenced pseudos are seated in CALLEE-SAVED s7/t8 where
+               retail uses caller-saved a0/a2, the divide temp is a0-vs-v1, and the
+               z value is RE-LOADED because the z use sits in a different extended BB
+               (past the bgez) so cse has lost the mem<->pseudo equivalence -- retail's
+               `addu v1,a2,zero` is a live-pseudo copy, not a cse substitution.
+               FALSIFIED from that basin (all real gate runs): reusing dead `maxrv`
+               as the z carrier -- before the x read 51 @1165 | after the x divide
+               51 @1165 | with the square split out 18 @1164 | inline `maxrv =
+               relativePosition.z / 256` 55 @1165; the same maxrv-carrier forms with
+               NO fence 49/50/28; identity-launder (`"=r"(x) : "0"(x)`) on named
+               rpx/rpz copies 22-23 @1162-1163 (the copies fold, 2 SHORT); a single
+               2-operand identity launder 22 @1162; block-local rpx/rpz + the
+               divide-in-place split 45-49; plain symmetric expression 15 @1163;
+               plain + void fence either side 15 @1163; the pair fence AFTER the
+               divide 9 @1165.
+               NEXT: from the PAIR-FENCE basin the problem is now purely
+               find_free_reg availability (catalog 16B) -- price the s7/t8-vs-a0/a2
+               seats with -dl/allocsim and try the 20B preference-killer
+               (`__asm__("" : "=r"(x) : "0"(x) : "$N")`) on each fenced pseudo, which
+               is exactly the device that sealed Physics_Real this wave.  The z
+               re-load needs a live pseudo across the bgez, i.e. the SAME launder in
+               its output-bearing (non-volatile) form so the value survives the BB
+               boundary.  NOT a floor. */
             maxrp = relativePosition.x;
             maxrp /= 256;
             asm volatile("" : : "r"(relativePosition.x));

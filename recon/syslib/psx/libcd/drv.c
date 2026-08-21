@@ -885,11 +885,25 @@ extern int CD_cw(unsigned char com, unsigned char *param, unsigned char *result,
      * the last preamble statement 75 (INERT) · identity fence on `ip` 94 · a separate
      * loop counter `j` for the parameter loop 93 · dropping the store-flag breaker 86. */
     ALARM.deadline = VSync(-1) + 0x3c0;
-    cmdNames = CD_comstr;
     ALARM.counter = 0;
     ALARM.name = "CD_cw";
     while (Intr.sync == 0) {
         int alarm;
+        /* MATCH (W71-A9, 18 -> 4): the command-name base is assigned INSIDE the loop.
+         * Retail materialises it in the loop PREHEADER (`lui s5; addiu s5` AFTER the
+         * entry `bnez`); a preheader source statement (`cmdNames = CD_comstr;` written
+         * before the `while`) lands in the ENTRY block instead, which is where our whole
+         * 14-diff ALARM-block "emission order" cluster came from -- with the la in the
+         * entry block, sched1 also re-lays the four ALARM stores/loads around it.
+         * Written in the loop body it is a loop-INVARIANT with n_times_set == 1, so
+         * loop.c builds a movable and hoists it to exactly retail's slot; the ALARM
+         * block then falls into retail's order for free.  (The w61-a7 note above --
+         * "the shared get_alarm() copy gives cse no common subexpression so no invariant
+         * pseudo exists to hoist" -- had the right mechanism and the wrong cure: the
+         * pseudo has to be BORN IN THE LOOP, not merely local to this function.)
+         * Measured: here 4 · assigned in BOTH places 22 · as the last preamble statement
+         * 18 (inert, the w61-a7 reading) · plus a read-only fence on it 14. */
+        cmdNames = CD_comstr;
         if (ALARM.deadline < VSync(-1) || _spin_bump() > 0x3c0000) {
             int syncIdx;
             char *readyName;
@@ -1083,7 +1097,9 @@ extern int CD_init_80108140(void)
     __asm__("" : "=r"(state) : "0"(state));   /* keep the anchor un-foldable (see CD_flush) */
     state[2] = 0;                             /* Intr.c     = 0 */
     c = state[2];                             /* volatile RELOAD */
-    __asm__("" : "=r"(c) : "0"(c));           /* ref-step PROMOTE: c -> $v0 */
+    /* W71-A9: the `c` identity fence recorded here was already flagged INERT in W64-A5 and
+     * is re-confirmed inert in this basin (9 with and without) -- removed as scaffolding.
+     * The `state` identity fence above IS load-bearing (9 -> 18 without it). */
     state[1] = c;                             /* Intr.ready = Intr.c */
     reg = D_8013C20C;
     state[0] = 2;                             /* Intr.sync  = 2 */
@@ -1096,8 +1112,25 @@ extern int CD_init_80108140(void)
         CD_cw(1, 0, 0, 0);
     if (CD_cw(0xa, 0, 0, 0))                 /* CdlReset */
         return -1;
+    /* MATCH (W71-A9, 10 -> 9 and the R2 THREAD CHOICE SOLVED): the two error exits are
+     * ASYMMETRIC IN RETAIL and the source has to be asymmetric too.  Retail's CdlReset
+     * `bnez` eager-steals `li $v0,-1` from its TARGET thread (ours matches there), but
+     * the CdlDemute `bnez` takes `addu $a0,$zero,$zero` from the FALL-THROUGH thread --
+     * the W64-A5 "sharpened angle" that was filed as needing a reorg trace.  The cure is
+     * the 16C CFG dial: route ONLY this arm to a shared `err:` block whose head carries a
+     * zero-insn void fence.  reorg's `stop_search_p` returns 1 at ANY asm (reorg.c:685),
+     * so the target thread yields no candidate, reorg falls back to the fall-through, and
+     * the arg setup lands in the slot exactly as retail has it.  The branch polarity and
+     * the `li $v0,-1`-in-the-`bne`-slot tail come with it (ours 120 -> 119 @ oracle 120).
+     * Measured: this asymmetric form 9 · ALL THREE exits routed to `err:` 10 (the reset
+     * arm must keep its own stealable `return -1`) · `goto err` with NO fence at the
+     * label 12 · the fence doubled 9 (inert) · re-priced in this basin and still inert:
+     * a named `sr_` CD_sync result with an identity launder 9, with a read-only fence 9
+     * (confirming the W64-A5 mechanism note -- the copy is a hard-reg suggestion, not a
+     * combine_regs tie).  The old STORE-FLAG BREAKER fence in the CD_sync arm is now
+     * INERT (9 with and without) and has been dropped as scaffolding. */
     if (CD_cw(0xc, 0, 0, 0))                 /* CdlDemute */
-        return -1;
+        goto err;
     /* MATCH (w55-a5): STORE-FLAG BREAKER, the CD_cw device (drv.c:560) applied to
      * both arms.  jump.c's `-(cond)` fold turns this guard into `xori;sltu;negu`
      * (3 insns, no branch) unless each arm is more than a single set; a zero-insn
@@ -1156,11 +1189,13 @@ extern int CD_init_80108140(void)
      * target thread yield nothing (or its rarity differ) -- a `-dj`/reorg trace on the two
      * `return -1` predecessors, NOT another source spelling. */
     if (CD_sync(0, 0) != 2) {
-        __asm__("" : : "i"(0));
-        return -1;
+        goto err;
     }
     __asm__("" : : "i"(0));
     return 0;
+err:
+    __asm__("" : : "i"(0));   /* reorg stop_search_p barrier -- see the CdlDemute note */
+    return -1;
 }
 
 /* @0x80108320 : CD_datasync -- wait for the CD DMA (channel 3) to finish (mode 0 = block). */

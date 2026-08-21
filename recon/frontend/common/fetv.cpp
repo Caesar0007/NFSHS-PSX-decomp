@@ -132,7 +132,47 @@ void DrawTVLines(tTVConfig &tv)
    swaps.  Controls: direct first-reflection reuse = 120; staging that tag =
    135; staging the second reflection tag = 144; all reverted.  Remaining 77
    is concentrated in first-reflection packet scheduling and the second-arm
-   reflection color/packet schedule plus two tv.v/tv.vh load-order swaps. */
+   reflection color/packet schedule plus two tv.v/tv.vh load-order swaps.
+
+   W71-A17 2026-08-21 -- 77 -> 2 @815/815 (COUNT-EXACT).  The whole 77 was ONE
+   repeated source-shape defect, not an allocator problem: three of the four
+   packet blocks reached the scratchpad through the RAW MACROS
+   (`*(u_int *)*packetPtrSlot`, `*(u_int *)Render_gPalettePtr`) instead of through
+   the primitive pointer and a CACHED palette pointer.  Because the packet-cursor
+   store `*packetPtrSlot = ...` may-alias the palette cell, every macro spelling
+   forced a fresh `lui 0x1F80 / lw` per use (+2 lui, +4 lw, +1 nop = the entire
+   822-vs-815 surplus).  Retail's shape, read straight off the oracle
+   (@0x800228D0 and @0x80022588), is ONE `lw sN,0(s7)` for the primitive + ONE
+   `lui a0,0x1F80; lw a0,0(a0)` for the palette POINTER, then displacement-0
+   accesses through both, with the palette VALUE re-read (`lw v0,0(a0)` twice) but
+   the POINTER cached.  Landing sequence (each gated):
+     first reflection  (cached rpal + `(u_char*)reflection + 0x34`)   77 -> 97 @818
+     second reflection (cached palette2 + `(u_char*)texture + 0x34`)  97 -> 69 @816
+     second arm's first block (cached palette)                        69 -> 62 @815
+     first reflection gets its OWN palette local `rpal`/`rtag`
+       (retail uses a0 there and a1 in the sibling block => TWO pseudos,
+        not one two-block global allocno)                             62 -> 12
+     `tv.vh - 1 + tv.v` -> `tv.v - 1 + tv.vh` (2nd-arm reflection v2/v3)
+                                                                      12 -> 4
+     2nd arm: `tagMask` declared AFTER the palette read + the fence reduced to
+       `"r"(rgbMask),"r"(rgbMask)` (mirrors the first arm) so the palette
+       ADDRESS `lui s7,0x1F80` is emitted before `lui s5,0xFF000000`  4 -> 2
+   ⚠️ THE ORDER OF THE FIRST THREE STEPS IS LCS-NON-MONOTONE (77 -> 97 -> 69 -> 62
+   while the insn count fell 822 -> 818 -> 816 -> 815 monotonically).  Judge these
+   on `tools/opcen.py` count parity, never on the gate's diff number alone.
+   RESIDUAL 2: `lw s0,0(s7)` (the first reflection's `*packetPtrSlot` read) issues
+   ONE slot after the `lw t4,36(sp)` fadeBottom spill-reload; retail issues it
+   before.  Every source position for that read was measured and is WORSE:
+   at the `if ((tv.flags & 4))` block head 5 @814; before the fadeBottom clamp
+   4 @815; a void fence `__asm__("" : : "i"(0))` in front of the block 5 @816;
+   `rpal` assigned after `reflection` (both spellings) exactly inert.  The
+   competing insn is a RELOAD, so it has no source statement to reorder against
+   -- sched1 ready-list tie, permuter/instrument territory.
+   ALSO FALSIFIED at 3 different basins (do not retry): the `noise->shapey - 1 +
+   noise->height` operand swap for the FIRST arm's reflection v2/v3 (77->85,
+   62->70, 12->20) and its block-local u_char-temp form (77->81, 12->24) -- that
+   pair's load order is already retail's; the tv.v/tv.vh pair above is the one
+   that was inverted. */
 
 void DrawTV(tTVConfig &tv)
 
@@ -284,12 +324,14 @@ void DrawTV(tTVConfig &tv)
         if (fadeBottom > 0x80) {
           fadeBottom = 0x80;
         }
+        u_int *rpal = (u_int *)Render_gPalettePtr;
+        u_int rtag;
         reflection = (POLY_GT4 *)*packetPtrSlot;
-        *(u_int *)*packetPtrSlot =
-             *(u_int *)*packetPtrSlot & 0xff000000 | *(u_int *)Render_gPalettePtr & rgbMask;
-        *packetPtrSlot = *packetPtrSlot + 0x34;
-        *(u_int *)Render_gPalettePtr =
-             *(u_int *)Render_gPalettePtr & 0xff000000 | (u_int)reflection & rgbMask;
+        *(u_int *)reflection =
+             *(u_int *)reflection & 0xff000000 | *rpal & rgbMask;
+        rtag = *rpal;
+        *packetPtrSlot = (u_char *)reflection + 0x34;
+        *rpal = rtag & 0xff000000 | (u_int)reflection & rgbMask;
         *(u_int *)&reflection->r0 = *(u_int *)&reflection->r1 =
              (((0x80 - bright) * (0x80 - fadeTop) / 0x80) << 0x10) |
              (((0x80 - bright) * (0x80 - fadeTop) / 0x80) << 8) |
@@ -335,16 +377,15 @@ void DrawTV(tTVConfig &tv)
       u_char **packetPtrSlot = (u_char **)0x1f800004;
       u_int paletteTag;
       u_int rgbMask = 0xffffff;
-      u_int tagMask = 0xff000000;
-      __asm__("" : : "r"(rgbMask), "r"(tagMask));
+      __asm__("" : : "r"(rgbMask), "r"(rgbMask));
 
+      u_int *palette = (u_int *)Render_gPalettePtr;
+      u_int tagMask = 0xff000000;
       texture = (POLY_FT4 *)*packetPtrSlot;
-      *(u_int *)*packetPtrSlot =
-           *(u_int *)*packetPtrSlot & tagMask | *(u_int *)Render_gPalettePtr & rgbMask;
-      paletteTag = *(u_int *)Render_gPalettePtr;
+      *(u_int *)texture = *(u_int *)texture & tagMask | *palette & rgbMask;
+      paletteTag = *palette;
       *packetPtrSlot = (u_char *)texture + 0x28;
-      *(u_int *)Render_gPalettePtr =
-           paletteTag & tagMask | (u_int)texture & rgbMask;
+      *palette = paletteTag & tagMask | (u_int)texture & rgbMask;
       *(u_int *)&texture->r0 = tint;
       SetPolyFT4(texture);
       SetSemiTrans(texture,0);
@@ -384,12 +425,13 @@ void DrawTV(tTVConfig &tv)
         if (fadeBottom > 0x80) {
           fadeBottom = 0x80;
         }
+        u_int *palette2 = (u_int *)Render_gPalettePtr;
+        u_int paletteTag2;
         texture = (POLY_FT4 *)*packetPtrSlot;
-        *(u_int *)*packetPtrSlot =
-             *(u_int *)*packetPtrSlot & tagMask | *(u_int *)Render_gPalettePtr & rgbMask;
+        *(u_int *)texture = *(u_int *)texture & tagMask | *palette2 & rgbMask;
+        paletteTag2 = *palette2;
         *packetPtrSlot = (u_char *)texture + 0x34;
-        *(u_int *)Render_gPalettePtr =
-             *(u_int *)Render_gPalettePtr & tagMask | (u_int)texture & rgbMask;
+        *palette2 = paletteTag2 & tagMask | (u_int)texture & rgbMask;
         ((u_char *)texture)[3] = 0xc;
         *(u_int *)&((POLY_GT4 *)texture)->r0 = *(u_int *)&((POLY_GT4 *)texture)->r1 =
              (((tint >> 16 & 0xff) * (0x80 - fadeTop) >> 7) << 16) |
@@ -414,9 +456,9 @@ void DrawTV(tTVConfig &tv)
         ((POLY_GT4 *)texture)->u1 = tv.u + tv.uw;
         ((POLY_GT4 *)texture)->v1 = tv.v - 1;
         ((POLY_GT4 *)texture)->u2 = tv.u;
-        ((POLY_GT4 *)texture)->v2 = tv.vh - 1 + tv.v;
+        ((POLY_GT4 *)texture)->v2 = tv.v - 1 + tv.vh;
         ((POLY_GT4 *)texture)->u3 = tv.u + tv.uw;
-        ((POLY_GT4 *)texture)->v3 = tv.vh - 1 + tv.v;
+        ((POLY_GT4 *)texture)->v3 = tv.v - 1 + tv.vh;
         ((POLY_GT4 *)texture)->tpage = tv.tpage;
         ((POLY_GT4 *)texture)->clut = tv.clut;
       }

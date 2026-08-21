@@ -62,9 +62,39 @@
  *   Not wired by me -- it is the count-parity rule's call.
  * No new source spellings were probed: w59-a13 (4 pointer forms), w60-a5 and w61-a9 (8 more)
  * cover the format-pointer, flag-constant and case-'c' rows, and all are post-RTL. */
+/* 🔑 W71-A13 RE-GATE (44 @545/545 after the w63-a9 nosplit wiring) + THE TEMPLATE-COPY ROW'S
+ * ROOT CAUSE, NAMED FROM THE RTL (it is NOT a local-alloc QTY question, as w61-a9/w62-a8 assumed).
+ * `info = D_8012348C;` expands to ONE insn:
+ *     (insn 72 (parallel [(set (mem/s:BLK (plus (reg fp) 528)) (mem/s:BLK (symbol_ref D_8012348C)))
+ *                         (clobber (scratch:SI)) x4 ...]) {movstrsi_internal})
+ * so its four registers are RELOAD SCRATCHES, handed out from reload's SPILL POOL
+ * (`order_regs_for_reload`, ascending `hard_reg_n_uses`), never by local_alloc.  Ours takes
+ * $t0/$t1/$t2 + $t3 (address), retail takes $v0/$v1/$a0 + $a1 -- the SAME relative pattern
+ * (3 word scratches then the address), shifted by six registers.  The -dg dump proves $2..$7 are
+ * NOT live across the copy (the block's live set is pseudos 80/82/85/107/110/113, homed
+ * $s4/$s3/$s2/$s7/$s6/$s5), so the shift is purely the POOL ORDER: in our build $2..$7 carry the
+ * function's local qtys (dispositions: dozens of `in 2` / `in 3`) so they sort LAST, while
+ * $t0-$t3 are untouched and sort FIRST.  ⇒ this row and the `addiu $a3,$a2,1`/`lb $a1,1($a3)`
+ * format-pointer row (which is the same story one level down -- ours keeps `f+1` in $a3, retail
+ * in a dying $v0 and re-offsets `2($a2)`) are ONE whole-function allocation-PROFILE property.
+ * Not a spelling; the named instrument is the 06E local-alloc/spill-pool trace.
+ * FALSIFIED THIS WAVE (all whole-TU gated, restored):
+ *   the '%' constant: a named `pct` re-assigned at BOTH compare sites (the w54 anti-hoist row),
+ *     with and without an identity launder, and at the head only ......... 44 (all inert)
+ *     -- and the reason is worth recording: our build ALREADY rematerializes `li $2,37` three
+ *     times exactly like retail (preheader, the `%`-default arm, and the back-edge delay slot),
+ *     so the '%' literal was never what occupies $2 at the copy.
+ *   the template copy spelled as explicit words (`w0=src[0];..; dst[0]=w0;..`, grouped
+ *     load-3/store-3 AND naive interleaved) ............................. 53 both -- it stops
+ *     being a movstrsi and grows an `addiu $v0,$sp,528` destination address.
+ *   the copy through a 3-int view type (`*(pi3 *)&info = *(const pi3 *)&D_8012348C`) ... 44
+ *     (inert -- still movstrsi, which confirms the movstrsi form itself is right).
+ *   flagZero: dropped entirely (plain '0' literals) 185 | plain `int` instead of `register` 44
+ *     (inert) | identity-laundered 44 (inert) | assigned inside the '%' branch 174.
+ *     ⇒ the `li $s3,48` emission-order row is downstream of the same pool/profile question. */
 /* PRIOR MATCH (w51-a8, 2026-08-09) -- RAGE-RACER VENDOR SIBLING AUDITED; our body is already
  * the right shape, so NO transplant was landed (kept at 174 diffs, 547-vs-545 insns).
- * Reference: C:\Tempage-racer-decomp\src\main\PAL\lib\libc\sprintf.c (a full
+ * Reference: C:/Temp/rage-racer-decomp\src\main\PAL\lib\libc\sprintf.c (a full
  * byte-matched PsyQ libc sprintf, gcc-2.6.3 -O2 -G0 -funsigned-char).  Findings:
  *  - CONFIRMED IDENTICAL by construction (RR arrives at the same code we already emit):
  *    the 3-word struct copy of the default spec; the spec living just ABOVE the 0x200

@@ -487,7 +487,18 @@ void NFS3_CheckForFileOperations(void)
    *   ROUTE UNCHANGED AND NOW SHARPER: the only remaining instrument is one that
    *   moves the loop-carried bound off $a0 WITHOUT naming a hard register --
    *   i.e. a third simultaneously-live value in the loop that legitimately takes
-   *   $a0 (retail's own reason), or a reload-side spill-order dial. */
+   *   $a0 (retail's own reason), or a reload-side spill-order dial.
+   *
+   * W71-A7 (2026-08-21) -- 8 STAYS @21/21.  The named route was attacked directly by
+   * ADDING A THIRD ASM OPERAND (a real register-resident value, so it needs no spill
+   * reg of its own and cannot be the "three r(0) operands" row already falsified):
+   *     third operand "r"(p)   (the walker)          8 diffs 21/21  -- INERT
+   *     third operand "r"(gFileMgr.handlearray)     18 diffs 23/21  -- +2 insns
+   * A register-resident third operand does not enter the reload spill decision at all,
+   * so it cannot move allocnos 83/86 apart; a memory-resident one pays real
+   * instructions.  ⇒ the "third simultaneously-live value" route has to come from a
+   * value the LOOP genuinely needs (not from an asm operand), or from the reload-side
+   * instrument.  The W69 mutual-exclusion certificate stands; natural body kept. */
   int *p;
 
   for (p = (int *)gFileMgr.oparray; p < (int *)gFileMgr.handlearray; p = p + 1) {

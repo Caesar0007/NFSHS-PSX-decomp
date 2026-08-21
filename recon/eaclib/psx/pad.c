@@ -411,7 +411,31 @@ fs4\EACLIB\PSX\PAD.C is the ONLY
    the giv route is closed from C in this basin.  NOT expressible as TEXT_MOVES
    either: moving our a3 line after the a2 line leaves the same 2 diffs (the
    line's CONTENT is wrong, and TEXT_MOVES re-inserts the text it took).
-   Route: instrumented-cc1 (why loop.c declines the i*8 giv here), or accept. */
+   Route: instrumented-cc1 (why loop.c declines the i*8 giv here), or accept.
+
+   W71-A15 2026-08-21 RE-GATE 2, COUNT-EXACT 66/66 (baseline confirmed).  The
+   residual is exactly item 2 and the W63 diagnosis is SHARPENED with the
+   mechanism that cracked sdmemman.c's twin residual this wave:
+   ours' `addu $a3,$t0,$zero` is a cse CONSTANT-SHARING substitution (the const
+   0 replaced by the live register holding 0) whose resulting COPY then SURVIVES
+   local-alloc -- `i` is a loop counter spanning blocks, so reg_qty[i] < 0 and
+   combine_regs (local-alloc.c:1866) refuses to tie the copy away.  Retail has
+   no copy because its `btnOff` init is a loop.c GIV init created AFTER cse, so
+   no live 0 was in scope.  ⇒ the two halves (the substitution and the copy's
+   survival) are one fact, and the ONLY zero-insn instrument that breaks a cse
+   value-equivalence is the identity launder -- which W63 already measured at
+   21 @71 here (the asm costs 5 real insns in this preheader, and it also risks
+   silently unmatching the PER_FN_TEXT_MOVES anchors below).
+   NEW FALSIFICATIONS, all re-measured in THIS basin (04Z), none < 2:
+     `for (btnOff = 0, i = 0; ...)` init order swapped ................. 10 @66
+     `btnOff = 0;` hoisted above the loop, `i = 0` in the header ....... 10 @66
+     `i = 0;` hoisted above the loop, `btnOff = 0` in the header ......... 2 @66
+     `for (i = 0, btnOff = i; ...)` (init from the counter itself) ....... 2 @66
+     `btnOff` declared `unsigned int` .................................... 2 @66
+   The two 10-diff rows are the informative ones: making btnOff's zero the
+   FIRST one materialised does NOT free the pair, it just moves the copy onto
+   `i` and costs 8 more diffs -- confirming the copy is forced by cse having
+   ANY live zero at that point, not by which variable owns it. */
 void PAD_update(void)
 {
   int i;

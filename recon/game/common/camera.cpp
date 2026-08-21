@@ -1147,7 +1147,41 @@ void Camera_SetSplineCam(int player)
  * block 171 @352 | after the linearVel if 171 @352 | two operands 187 @352 |
  * the same on sliceDist 163 @350.  Buying calls_crossed with a fence costs real
  * insns (the value must survive the call), so the calls dial needs a SOURCE use
- * of numSlice after the calls, not a fence -- that is the next named angle. */
+ * of numSlice after the calls, not a fence -- that is the next named angle.
+ *
+ * W71-A21 LANDED 13 -> 8 @349/351.  Clusters 1 and 2 are GONE (the earlier waves
+ * closed them); the whole residual is now cluster 3 alone, the +72/-72 object.
+ * THE LEVER THAT LANDED = the splineVel/nextSlice STATEMENT ORDER SWAP in the
+ * second inner block (see the MATCH note there): the anonymous global read must
+ * PRECEDE the named-cursor assignment, which recovers retail's `addu v1,a1,zero`
+ * copy AND the `lui/lw` before `lh ,140(s2)`.
+ * CLUSTER 3 RE-PRICED FROM THE 8-BASIN -- the +72 object IS reachable, and it IS
+ * the rotation row, but only with the SYMBOL-CONSTANT spelling, and it costs a
+ * head recolor:
+ *   `int *rotRow = (int *)((int)&Camera_gInfo[0].rotation.m[6] + player*272);`
+ *   + rotRow[0..2]  ......................................... 32 @351 (COUNT EXACT)
+ *      -> reproduces retail EXACTLY here: `lui v1,%hi(Camera_gInfo+72); addiu v1;
+ *         addu s1,v0,v1; addiu v1,v1,-72; addu s3,v0,v1; lw a0,0/4/8(s1)`.
+ *         The residual is ONE contiguous head block: {player<<4} ours $v1 vs
+ *         retail $a0, {numSlice+1 carrier `d`} ours $a0 vs retail $v1, and the
+ *         symbol reg ours $v0 vs retail $v1 -- i.e. the extra `rotRow` pseudo
+ *         re-colors the guard head (the catalog's any-new-pseudo-recolors-head
+ *         trap), NOT a structural miss.
+ *   `int *rotRow = &Camera_gInfo[0].rotation.m[6] + player*68;` ....... 32 @351 (same)
+ *   `int *rotRow = &Camera_gInfo[player].rotation.m[6];` ..... 41 @352 / 46 @351
+ *      -> WRONG constant: gcc folds this to `&(...).rotation` (+48) and then a
+ *         SEPARATE +24, so it emits `addiu v0,v0,-48` + a walking `addiu s1,s1,24`.
+ *         This is why W62-A11's "the +72/-72 object is NOT the rotation matrix"
+ *         reading was wrong -- it IS the rotation row; the ARRAY_REF just does not
+ *         fold into the symbol constant, only a `&arr[0].f.m[k] + i*sizeof` does.
+ *   inline (macro/no named variable, so the temp stays anonymous like retail's
+ *   un-SYM'd $s1) ................................... 173 @352  (far worse)
+ *   d-block reshapes from the 32-basin: `int d = numSlice+1; if (d>=9) d = 8;` 34,
+ *   explicit if/else 32 -- neither moves the head pair.
+ * => NAMED ANGLE: cluster 3 is now a 3-pseudo HEAD COLORING problem in the 32-basin
+ * ({player<<4}=$a0, {d}=$v1, {sym}=$v1), not an address-shape problem.  Price it
+ * with tools/reqdelta.py / the -dl qty trace on those three allocnos from the
+ * 32-basin source; do NOT re-sweep rotRow address spellings (exhausted above). */
 void Camera_UpdateSplineCam(int player)
 {
   Car_tObj *anchor;
@@ -1264,10 +1298,21 @@ void Camera_UpdateSplineCam(int player)
          case-2 generator), leaving the named cursor in $a1 for the `+= n`
          mutation below.  And the `slice + 1` step is an ANONYMOUS temp in
          retail ($v1, caller-saved): reusing the SYM's `numSlice` for it merged
-         two disjoint live ranges into one callee-saved global allocno. */
-      nextSlice = BWorldSm_slices;
+         two disjoint live ranges into one callee-saved global allocno.
+         MATCH (W71-A21, 13 -> 8): and the ANONYMOUS read must come FIRST, the
+         named cursor assignment SECOND.  With `nextSlice = BWorldSm_slices;`
+         written above the splineVel read, gcc coalesced the two into one pseudo
+         and emitted NO copy (ours was 1 insn short, and it also scheduled the
+         `lh ,140(s2)` slice load AHEAD of the global's `lui/lw`).  Swapping the
+         two statements makes the pointer load land straight in the cursor's $a1
+         and forces retail's `addu v1,a1,zero` copy for the indexed read, with the
+         `lh` back after the load pair.  MEASURED alternatives, all worse:
+         reading splineVel through `nextSlice[...]` 13 @348 | a separate
+         `sliceBase` local for the read 13 @348 | moving `nextSliceIdx` above the
+         splineVel read 16 @347. */
       splineVel = *(coorddef *)BWorldSm_slices[
           Camera_gInfo[player].slicePos.slice].center;
+      nextSlice = BWorldSm_slices;
       nextSliceIdx = Camera_gInfo[player].slicePos.slice + 1;
       if (nextSliceIdx < gNumSlices) {
         nextSlice += nextSliceIdx;

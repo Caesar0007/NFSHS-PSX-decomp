@@ -2551,11 +2551,54 @@ void Physics_Real(Car_tObj *carObj)
         fixedmult(frontWheel.finalAcc.x - rearWheel.finalAcc.x,
                   specs->accToAlphaRotInertia);
     {
-      int wheelMult = leftMult - rightMult;
+      /* RECEIPT (W71-A20): cluster (b) SEALED -- Physics_Real 4 -> PASS 1272/1272,
+         the whole TU 22/22.  The residual was NOT a source-shape question (the
+         w62-a11 sweep above is right that shapes are exhausted: control 4 |
+         named sum local 4 | inner product named 4 | `<< 1` 4 | (int) cast 4 |
+         fully inlined `leftMult - rightMult` 10 | decl-order swap 10 | swapped
+         `.z` addends 6) -- it was pure HARD-REGISTER AVAILABILITY (catalog 16B:
+         local-alloc's scan sees hard regs only, so no ref/live/priority dial can
+         reach a seat the ascending scan hands out first).  Retail's seats here are
+         front-z = $a2 and leftMult = $v1, i.e. BOTH one-to-three slots ABOVE what
+         the plain ascending scan gives us ($v0 / $v1).
+         CURE = the 20B PREFERENCE-KILLER in its non-volatile form
+         `__asm__("" : "=r"(x) : "0"(x) : "$N")` -- a ZERO-INSN hard-reg conflict
+         that is not a sched barrier (the "0"-tied output drops the implicit
+         volatility).  It must sit INSIDE the target pseudo's live range, which is
+         why each value needs its own named local: the earlier attempts that placed
+         the same clobber before the loads measured exactly INERT (V4/V5: 10 = the
+         un-fenced basin).  Ladder, all gated: fz clobber "$2" 10 | "$2","$3" 4
+         (front-z reaches $a2, leftMult left in $v0) | + an lm fence "$2" 4 (leftMult
+         reaches $v1, front-z drops to $a1) | fz "$2","$3","$5" + lm "$2" 2 (every
+         register now retail's; sole residual = `lw a0,100(sp)` issued one slot late).
+         The last slot is a sched2 ready-list tie and fell to the do{}while(0) DEPTH
+         REF DIAL on the sum statement (flow.c weights refs by loop depth; loop.c
+         strips the phony loop, so it costs 0 insns and 0 structure here -- count
+         stayed 1272 through the whole ladder).
+         FALSIFIED in this basin (do not retry): void/read-only barrier fences
+         between the two groups (7 @1273 -- any volatile asm buys a load-delay nop);
+         a single 2-operand fence carrying both values 10-12 (16A: operand order
+         inside one asm is not a dial); lm clobber "$2","$6" 15@1271; dropping the
+         lm fence 4; `rearWheel + fz` operand swap 4; a named `rm` local 2 (neutral);
+         `rz`/loads-first/wheelMult-first orderings all 2.  The stale
+         PER_FN_TEXT_MOVES row for this fn in tools/build.py (it moved
+         `lw $3,leftMult` past `lw $4,100($sp)`) NO LONGER FIRES -- its anchor
+         lookahead names `lw $2,52($sp)` and the seat is now `$6`; it is dead and
+         can be deleted by whoever owns tools/build.py. */
+      int wheelMult;
+      int fz;
+      int sumZ;
+      int lm;
 
-      Xcomponent += fixedmult(
-                        fixedmult(frontWheel.finalAcc.z + rearWheel.finalAcc.z,
-                                  wheelMult),
+      fz = frontWheel.finalAcc.z;
+      __asm__("" : "=r"(fz) : "0"(fz) : "$2", "$3", "$5"); /* seat front-z in $a2 */
+      do {
+        sumZ = fz + rearWheel.finalAcc.z;               /* depth ref dial: issue order */
+      } while (0);
+      lm = leftMult;
+      __asm__("" : "=r"(lm) : "0"(lm) : "$2");          /* seat leftMult in $v1 */
+      wheelMult = lm - rightMult;
+      Xcomponent += fixedmult(fixedmult(sumZ, wheelMult),
                         specs->accToAlphaRotInertia) *
                     2;
     }

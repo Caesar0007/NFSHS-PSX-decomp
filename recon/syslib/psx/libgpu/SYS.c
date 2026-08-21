@@ -938,11 +938,35 @@ extern void *PutDispEnv(void *env)
                 i9 = 3;
         }
         {
+            /* 🟢 W71-A11 -- THE OVERSCAN ROTATION CRACKED (18 -> 8), and it is a LEVER
+             * PAIR: neither half works alone (04Z/05H).  Retail loads `.base` FIRST into
+             * $v1 (`lhu $v1,%lo(D_80123770)($v1)`) and `.end` SECOND into $v0 via the $at
+             * macro, so `subu $v0,$v0,$v1` runs end-minus-base in the just-loaded register
+             * and `addu $a0,$v1,$a3` builds h_start off the surviving base.  A named
+             * `base` local read before the subtraction reproduces exactly that order --
+             * but ALONE it costs an instruction (21 diffs at 319/318, which is why W62-A3
+             * filed it "109 (+1 insn)" and stopped).  The extra insn is reorg: with the
+             * loads reordered, reorg EAGER-STEALS the `h_end = h_start + span` add into
+             * the delay slot of the FOLLOWING `beqz $v0` (retail keeps it at the join
+             * label `.L800EE118` and nop-fills that branch).  A zero-instruction VOID-TAIL
+             * fence after the add stops reorg's backward scan at that point (w48-a1's
+             * `__asm__("" : : "i"(0))` -- the flavour usable where no live value exists),
+             * and the pair lands count-exact:
+             *     base local alone            21  (319 insns, +1)
+             *     void-tail fence alone       18  (inert)
+             *     base local + void-tail      8   (318/318)
+             * Re-falsified in THIS basin (04Z -- the W62-A3 list was measured at 42):
+             * h_start statement first 21 (+1), `-(base - end)` 18 (inert), in-place
+             * mutation of the base carrier 21 (-1 insn), a do/while(0) ref dial on the
+             * base read 154, a ref dial on the whole span statement 41, one on the
+             * h_start statement 42. */
             int idx = eb[0x12] * 5 + i9;
-            int span = (int)_disp_overscan[idx].end - (int)_disp_overscan[idx].base;
-            h_start = (int)_disp_overscan[idx].base + (int)ES(4) * (int)_disp_mult[i9];
+            int base = (int)_disp_overscan[idx].base;
+            int span = (int)_disp_overscan[idx].end - base;
+            h_start = base + (int)ES(4) * (int)_disp_mult[i9];
             if (ES(6) != 0) span = span * ES(6) >> 8;
             h_end = h_start + span;
+            __asm__("" : : "i"(0));      /* void-tail: deny reorg the h_end add */
         }
         /* MATCH (W55-A8): the PAL arm is the FALL-THROUGH -- the oracle's `beqz $v0` on
          * eb[0x12] jumps AWAY to the NTSC (500/3250) clamps with the PAL bound `slti
@@ -994,18 +1018,68 @@ extern void *PutDispEnv(void *env)
          *    Gated on OUR 4.3 revision: named-k triple = 42, literal-k `hi|(lo|0x6000000u)`
          *    = 176 -- BOTH FALSIFIED (the RR shape does not survive the revision/toolchain
          *    gap; the shipped comma-expr form stays the best basin at 38). */
+        /* 🟢 W71-A11 -- SITES 2 AND 3 CRACKED (38 -> 18, then the overscan block below
+         * 18 -> 8; count-exact 318/318 throughout).  The W62-A3 verdict above ("the
+         * priorities are identical on both sides, so no local dial separates them") was
+         * measured only against the COMMA-STAGED form, and it was the comma staging that
+         * hid the dial.  What the local-alloc dumps actually say (scratchpad/A11 -dl on
+         * the wired 2.8.1/-mno-split lane, function block 82):
+         *     reg 321 (K = 0x7000000)      used 2 times across 6 insns
+         *     reg 319 (v_end & 0x3ff)      used 2 times across 2 insns   <- dies at the sll
+         *     reg 317 (hi = 319 << 10)     used 2 times across 7 insns
+         * 319 dies into 317, so local-alloc's combine_regs TIES them into ONE qty of
+         * refs 4 / life 8 => QTY_CMP_PRI = flr2(4)*4/8 = 1.00, against K's flr2(2)*2/6 =
+         * 0.33.  hi therefore reaches find_free_reg first and takes the numeric-scan
+         * first-free $v0; retail has K in $v0, hi in $v1 and the fn-ptr reload inheriting
+         * $v0.  The dial is K's REF COUNT, and the 12C/w44 zero-instruction inflator
+         * reaches it: a `do { lo = ...; } while (0)` DEPTH WRAPPER around the K-bearing
+         * statement doubles K's loop-weighted refs 2 -> 4, lifting pri(K) to
+         * flr2(4)*4/6 = 1.33 > 1.00.  K takes $v0, hi falls to $v1, the fn-ptr inherits
+         * $v0 -- every register at both sites now matches retail.
+         * ⚠️ BOTH HALVES ARE REQUIRED and the wrapper only works on the STATEMENT form:
+         *   wrapper + `hi | lo`            : 28 (site 3 alone) / 18 (both sites)
+         *   wrapper + `lo | hi`            : 30 / --      (order must be op0 = hi, since
+         *                                    RTL ior operand order is source order and
+         *                                    retail's `or $a0,$v1,$a0` has op0 = hi)
+         *   statement form, NO wrapper     : 40 (worse than the 38 comma baseline)
+         *   comma form + a wrapper on `lo` : 44/42  (the wrapper must contain the
+         *                                    ASSIGNMENT, not sit beside the expression)
+         *   depth 2 (nested do-while)      : 28 -- identical to depth 1, so one level is
+         *                                    already past the flr2 step; do not nest.
+         * FALSIFIED on top of the landing (all gate-measured, all reverted): an opacity
+         * fence breaking the 319/317 combine (`ve = v_end & 0x3ff; asm(""="r"(ve):"0"(ve));
+         * hi = ve << 10`) 40 -- it does NOT break the tie; hoisting `hi` out of the comma
+         * list without the wrapper 40; `gpu` assigned after `hi` 8 (inert), after the
+         * wrapper 24 (+2 insns, measured in the 18-basin), inside the wrapper 166, declared last 8 (inert),
+         * inlined at the call 14 (+2 insns); an opacity fence on `gpu` 122; wrapping `hi`
+         * too 8 (inert); `lo` statement before `hi` 102; the call inside the wrapper 8
+         * (inert).
+         * RESIDUAL 8 = ONE class, ZERO register diffs: at each of the two sites our
+         * `lw $5,GEnv_drv` macro pair (`lui $a1,0; lw $a1,0($a1)`) is emitted TWO slots
+         * early -- ours after the `sll` that builds `hi`, retail after the `lui $v0,K`.
+         * Source position is inert on it (all seven placements above), i.e. it is a pure
+         * sched2 emission-order rotation of a 2-word macro = the PER_FN_TEXT_MOVES class,
+         * exactly like the site-1 row this file already carries.  ORCHESTRATOR WIRING
+         * ASK (2 more rows on the existing SYS.c/"PutDispEnv" entry; note the file's site-1
+         * row consumes the FIRST `lw $5,GEnv_drv` match, so these must target the 2nd/3rd):
+         *     {"take": r"\tlw\t\$5,GEnv_drv\n", "after": r"\tlui\t\$2,1536\n"},
+         *     {"take": r"\tlw\t\$5,GEnv_drv\n", "after": r"\tlui\t\$2,1792\n"},
+         * (anchors label-agnostic; `lui $2,1536` / `lui $2,1792` are each UNIQUE in the
+         * region -- they are the 0x6000000 / 0x7000000 command constants.) */
         { const GpuTbl *gpu = GEnv_drv;
         u_long hi;
         u_long lo;
-        gpu->send_gp1((hi = (u_long)(h_end & 0xfff) << 12,
-                       lo = (u_long)(h_start & 0xfff) | 0x6000000u,
-                       lo | hi)); }
+        hi = (u_long)(h_end & 0xfff) << 12;
+        /* the do/while(0) is a REF DIAL, not a loop -- see the block comment above.
+         * Removing it silently costs 10 diffs. */
+        do { lo = (u_long)(h_start & 0xfff) | 0x6000000u; } while (0);
+        gpu->send_gp1(hi | lo); }
         { const GpuTbl *gpu = GEnv_drv;
         u_long hi;
         u_long lo;
-        gpu->send_gp1((hi = (u_long)(v_end & 0x3ff) << 10,
-                       lo = (u_long)(v_start & 0x3ff) | 0x7000000u,
-                       lo | hi)); }
+        hi = (u_long)(v_end & 0x3ff) << 10;
+        do { lo = (u_long)(v_start & 0x3ff) | 0x7000000u; } while (0);
+        gpu->send_gp1(hi | lo); }
     }
 done:
     _memcpy(GEnv.dispenv, eb, 0x14);
@@ -1641,13 +1715,32 @@ extern int _dws(RECT *rect, u_long *data)
     *GPU_GP0 = var_s4 ? 0xb0000000u : 0xa0000000u;
     *GPU_GP0 = *(u_long *)saved;
     *GPU_GP0 = *((u_long *)saved + 1);
-    var_s0--;
-    if (var_s0 != -1) {
-        do {
-            *GPU_GP0 = *data;
-            data++;
-            var_s0--;
-        } while (var_s0 != -1);
+    /* 🟢 W71-A11 (8 -> 6, count-exact 143/143) -- HALF OF RESIDUAL CLASS (a) IS NOT THE
+     * 3.25-3b no-copy-prop identity after all; it is cse CONSTANT SHARING, and the 09L/W47
+     * opacity fence breaks it.  The peel test and the loop-back test both spell the literal
+     * `-1`, so cse gives them ONE pseudo: retail materializes `li $a0,-1` fresh for the
+     * loop-back compare while we emitted `addu $a0,$v0,$zero` off the peel test's `li
+     * $v0,-1`.  Naming the PEEL sentinel and laundering it (zero insns -- the value is
+     * register-resident) leaves cse with no equivalence to substitute, so the loop's `-1`
+     * is re-materialized exactly like retail.  The fence must sit on the FIRST occurrence;
+     * on `readyMask` (the second occurrence of the 0x04000000 mask) it costs 44 (50).
+     * The sibling constant `lui $s3,1024` did NOT fall to the same treatment -- measured on
+     * top of this landing and all reverted: a named+fenced `guardMask` for the guard test 12
+     * (14 measured before the peel landed), the same un-fenced 6 (inert), one shared `readyMask` for
+     * guard and loop 39 (-1 insn), an identity fence on `readyMask` 50, a void-tail fence
+     * before its assignment 6 (inert), a do/while(0) ref dial on it 36.  That one stays in
+     * class (a). */
+    {
+        int peel = -1;
+        __asm__("" : "=r"(peel) : "0"(peel));    /* cse constant-sharing breaker */
+        var_s0--;
+        if (var_s0 != peel) {
+            do {
+                *GPU_GP0 = *data;
+                data++;
+                var_s0--;
+            } while (var_s0 != -1);
+        }
     }
     if (size) {
         *GPU_GP1 = 0x04000002;
@@ -1712,13 +1805,22 @@ extern int _drs(RECT *rect, u_long *data)
                 return -1;
         } while ((*GPU_GP1 & sendMask) == 0);
     }
-    var_s0--;
-    if (var_s0 != -1) {
-        do {
-            *data = *GPU_GP0;
-            var_s0--;
-            data++;
-        } while (var_s0 != -1);
+    /* 🟢 W71-A11 (10 -> 8, count-exact 160/160): the same cse constant-sharing breaker as
+     * _dws above -- see its block for the mechanism and the falsification list.  Applying
+     * the equivalent fence to the SECOND spin's guard (`sendGuard = 0x08000000`) costs an
+     * instruction (9 at 161/160) and was reverted, so `lui $s3,1024` / `lui $s1,2048` both
+     * stay in class (a). */
+    {
+        int peel = -1;
+        __asm__("" : "=r"(peel) : "0"(peel));    /* cse constant-sharing breaker */
+        var_s0--;
+        if (var_s0 != peel) {
+            do {
+                *data = *GPU_GP0;
+                var_s0--;
+                data++;
+            } while (var_s0 != -1);
+        }
     }
     if (size) {
         *GPU_GP1 = 0x04000003;
@@ -1886,7 +1988,40 @@ extern int _gpu_que_drain(void)
      * and it does not.  The 5 corpora added mid-W64 (mgs_reversing, KAIN2, TOMB5,
      * VandalHearts-PcPort, vh) carry NO Sony libgpu source at all -- TOMB5/EMULATOR and
      * VandalHearts platform/pc are PC re-implementations (SDL/OpenGL rasterisers), mgs's
-     * libdg is Konami glue over `#include <libgpu.h>`.  Recorded so nobody re-mines. */
+     * libdg is Konami glue over `#include <libgpu.h>`.  Recorded so nobody re-mines.
+     * W71-A11 -- THE RESIDUAL 14 READ OFF THE RTL, and a THIRD axis closed.  The .lreg dump
+     * (scratchpad/A11) shows the dispatch block as three IDENTICAL `*96` chains, one per
+     * volatile `_qout` reload, each with its own anonymous temps:
+     *     121 reg109 = _qout   ->  124/126/127 chain -> 168 (reg a1) = _que+8[113]   (extra)
+     *     136 reg116 = _qout   ->  139/141/142 chain -> 166 (reg a0) = _que+4[120]   (arg)
+     *     151 reg123 = _qout   ->  154/156/157 chain -> 163 reg108   = _que[127]     (func)
+     * `reg127` (the func index) DIES exactly where `reg108` (the func value) is born, and
+     * both carry refs 4 / life 2 -- an exact QTY_CMP_PRI tie -- so local-alloc hands them
+     * the SAME first-free $v0, and the ASSEMBLER must then route `lw $v0,_que($v0)` through
+     * the `$at` macro (3 of the 14).  Retail's func index is born at insn 66 and lives to
+     * 84, spanning BOTH other chains' use of $v0, so it is forced to $v1 and the dest gets
+     * $v0 with no macro.  The lever therefore has to make the func index chain live EARLY;
+     * every source form that asks for it was measured and gcc sinks the arithmetic to its
+     * use every time (the volatile LOAD moves, the `*96` does not):
+     *   `GpuQue *fslot = &_que.plain[_qout];` hoisted first / last / mid   16 / 16 / 16
+     *   the same with an identity fence on fslot 26, with a read-only fence 18 (+2 insns)
+     *   `int fidx = _qout * 96;` hoisted 16, fenced 16, split as `_qout * 3` + `<< 5` 19
+     *   `int fidx = _qout * 3` + `<< 5` 19 (151 insns, -1)
+     *   a do/while(0) ref dial on the func read 40, on arg 31 (+1 insn), on extra 34
+     *   the arg slot pointer hoisted instead (control) 14 (inert)
+     * ADDRESS-SPELLING axis, also closed (the 09I cast-int-subscript family): index-term-
+     * first `*(QueFunc *)((_qout * 96) + (int)_que.plain)` 27 (155 insns), the same on all
+     * three accesses 47 (159), a block-scoped `GpuQue *p = &_que.plain[_qout]` for the func
+     * read only 14 (inert), reading `func` through the VOLATILE `_que.shared[]` view 14
+     * (inert), reading `extra`/`arg` through it instead 28 (154).
+     * The DECLARATION-ORDER axis is now closed too (w41's "pseudo numbers follow FIRST-USE
+     * order" at full strength): all six decl permutations at the retail read order measure
+     * 24 EXACTLY, i.e. decl order is bit-for-bit inert here.  Read order re-measured in this
+     * basin and unchanged from W64-A3: eaf 14 (shipped) | efa 16 | fea 16 | aef 22 |
+     * afe 25 (-1 insn) | fae 24 -- and `fae` IS retail's order (its three reloads feed
+     * func/arg/extra in that order, and volatile reads cannot be re-ordered), which is the
+     * cleanest proof yet that the residual is the local-alloc handout and NOT the source
+     * read order.  06E instrument gap; do not re-grind spellings. */
     u_long dma_busy = 0x01000000;
 
     if ((*D2_CHCR & dma_busy) != 0)

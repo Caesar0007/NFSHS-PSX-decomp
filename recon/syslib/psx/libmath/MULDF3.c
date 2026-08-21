@@ -297,12 +297,57 @@ double __muldf3(double a, double b)   /* @0x800F62E4 */
  * Residual (14) otherwise unchanged: the 11B arg-emission order at both `_add_mant_d` sites
  * plus the `addiu $a0,$sp,0x18` pick.  TEXT_MOVES rows filed in
  * scratchpad/w62a8/text_moves_probe.json.  NOT a floor. */
+/* 🏆 W71-A12 (2026-08-21) -- _mul_mant_d BYTE-PASS 59/59, 8 -> 0.  Re-gated baseline 8
+ * (the w63/w64 TEXT_MOVES rows had already closed the 11B arg-order class; the whole
+ * residual was the four-insn tail).  TWO devices, BOTH required (each alone = 8):
+ *
+ *  (1) 🔑 THE DImode COPY (new law candidate -- "a two-word tail copy that retail spells
+ *      lw/lw/sw/sw with an EVEN-ODD register pair is a 64-BIT-TYPE assignment, not two
+ *      int stores"):  `*(long long *)out = *(long long *)sh;`  replaces the
+ *      `lo/hi` volatile-view temps + `out[0]=lo; out[1]=hi;` pair.  ONE RTL insn per
+ *      direction (movdi_internal, split into two lw / two sw at final) buys THREE things
+ *      at once that no int spelling reaches:
+ *        (a) the loads are a DImode REGISTER PAIR -> HARD_REGNO_MODE_OK forces an EVEN
+ *            start -> retail's exact `$v0,$v1`.  (The struct-assignment spelling
+ *            `*(struct{int,int}*)out = *(struct{int,int}*)sh` produces the same INSN ORDER
+ *            but goes through mips `movstrsi_internal` with four `=&d` SCRATCH clobbers,
+ *            and reload hands scratches out of the LEAST-used spill regs -> `$t0,$t1`.
+ *            Measured: struct form = 8 diffs, all four tail rows, unfixable from source.)
+ *        (b) cse cannot forward the just-stored `sh[1]` through a DImode read, so the
+ *            VALUE-RELOAD (05E) appears WITHOUT any `volatile` view -- and without
+ *            volatile the two loads stay adjacent instead of one being hoisted above
+ *            `sw sh[1]` (that hoist was 1 of the 4 baseline rows).
+ *        (c) `out` drops from 4 refs to 3 (one MEM base use instead of two), which is
+ *            what keeps local-alloc's handout at retail's `xlo->$s2 / out->$s3`.  With the
+ *            int spelling + fence `out` has 4 refs and the pair SWAPS to `out->$s2`,
+ *            which additionally breaks the wired TEXT_MOVES row (it keys on `move $19,$4`)
+ *            and costs 11 rows / 20 diffs.  Measured lreg: 2 refs (baseline) -> $s3,
+ *            3 refs (DImode / struct) -> $s3, 4 refs (int stores + fence) -> $s2.
+ *
+ *  (2) the 06B VOID-TAIL FENCE `__asm__ __volatile__("" : : "i"(0));` between the copy and
+ *      `return out;`.  Without it sched1 hoists the return copy `(set (reg 2) (reg out))`
+ *      above the tail, and the store base then becomes `$v0` (retail keeps `$s3` and copies
+ *      to `$v0` LAST) -- exactly the w62-a8 "position row" that the 13B identity launder
+ *      could not reach.  DO NOT DELETE: removing it alone re-opens the fn at 8 diffs
+ *      (measured this wave).
+ *
+ * FALSIFIED this wave (whole-TU gated, __muldf3 stayed PASS throughout):
+ *   struct-pair assignment + fence ............................. 8  (movstrsi scratch regs)
+ *   struct-pair assignment, no fence ........................... 16
+ *   volatile lo/hi temps + fence ............................... 20 (s2/s3 swap + TEXT_MOVES miss)
+ *   volatile temps + fence + block-local `int *o = out` ........ 20
+ *   volatile temps + fence + read-only ref fence on `xlo` ...... 86 (an operand-less asm is
+ *                                                                    implicitly volatile ->
+ *                                                                    it is a BARRIER, and one
+ *                                                                    placed mid-body wrecks
+ *                                                                    the whole schedule)
+ * The DImode-copy device is a general candidate for every remaining libmath/soft-float tail
+ * that moves a two-word value: DIVDF3/ADDDF3 carry the same `int[2]` idiom. */
 int *_mul_mant_d(int *out, unsigned int x, unsigned int y)
 {
     int sh[2];       /* 0x18 */
     int add[2];      /* 0x20 */
     unsigned int xlo, ylo, p;
-    int lo, hi;
 
     xlo = x & 0xFFFF;
     ylo = y & 0xFFFF;
@@ -319,9 +364,7 @@ int *_mul_mant_d(int *out, unsigned int x, unsigned int y)
     add[0] = p << 16;
     _add_mant_d(sh, sh[0], sh[1], *(volatile int *)&add[0], add[1]);
     sh[1] += x * y;
-    lo = *(volatile int *)&sh[0];
-    hi = *(volatile int *)&sh[1];
-    out[0] = lo;
-    out[1] = hi;
+    *(long long *)out = *(long long *)sh;
+    __asm__ __volatile__("" : : "i"(0));   /* 06B void-tail fence -- REQUIRED, see receipt */
     return out;
 }

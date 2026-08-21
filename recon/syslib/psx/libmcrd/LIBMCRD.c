@@ -1446,6 +1446,32 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
      *    `move $s5,$zero` in the blez slot, `addiu $t0,$sp,80` + `sw $t0,96($sp)` in the
      *    preheader and `lw $t0,96($sp); nop` in the copy loop.  Two independent Sony builds
      *    agree, so the hoist+spill is structural, not noise. */
+    /* 🔑 W71-A13 -- THE W64-A4 BLOCKER IS BEATABLE: THE GOTO-LOOP CURE PAIRED WITH AN
+     * `"m"`-CONSTRAINT FENCE ON `files` LANDS THE WHOLE (a)+(b) CLASS, FRAME-EXACT, AT 37 (vs
+     * the kept 36).  W64-A4 measured the goto-loop cure ALONE at 85 because the second reload
+     * spill slot cost +8 of frame (8-aligned/8-wide spills on this lane).  Take the spill away
+     * instead: `__asm__("" : : "m"(files));` at the top forces the 4th parameter to its INCOMING
+     * ARG HOME (`sw $a3,156($sp)`, the caller's slot -- no frame growth at all), which frees the
+     * one 8-aligned reload slot for the movstrsi end pointer.  MEASURED (whole-TU gated):
+     *     m-fence on `files` alone .............................. 83
+     *     goto-loop retry alone (the w64 cure) .................. 85   (w64 measured 85 too)
+     *     BOTH .................................................. 37  @155/152, frame 144 = retail
+     * and in the paired basin every (a)/(b) row is GONE: `addiu $t0,$sp,80` + its spill are in
+     * the preheader, the copy loop reloads it, and the `$t0`/`$t1` swap on the `max` reload
+     * evaporates -- exactly what w64-a4 predicted.  WHAT IS LEFT (37): (i) the param home
+     * `156($sp)` vs retail's reload slot `92($sp)` (3), (ii) a NEW two-allocno band swap --
+     * qty272 on that basin prices it EXACTLY: pseudo 98 = the compiler's own `mc` cse base
+     * (refs 11 / live 100 / pri 0.3300 -> $s4) sits one rank BELOW pseudo 127 = the strength-
+     * reduced `dir` byte-offset giv (refs 7 / live 37 / pri 0.3783 -> $s3); retail is the other
+     * way round.  The flip needs 98 at refs 13 (0.39) or 127 at refs 6 (0.324) -- but BOTH are
+     * compiler-created pseudos with no C name, and every handle tried is inert or worse.
+     * FALSIFIED in the paired basin (all whole-TU gated): a memory-homed local COPY of `files`
+     * ((void)&-addressable 52, "m"-fenced 50) instead of the param fence -- the local lands at a
+     * 4-aligned expand-time slot but then the param ALSO spills; read-only fence on `stored` in
+     * the store block 43; 2-operand `dir` fence 37 (inert); plain `mc.chan` read instead of the
+     * fenced `pc` block 41; `"m"(mc.cmd)` ref-dials on the cse base 53 / 53 / 37 (in-loop inert).
+     * NOT LANDED (37 > 36) -- but this is the first form that is STRUCTURALLY retail's, so it is
+     * the right base to re-dial from once the band pair has an instrument (06E). */
     /* W62-A8: PARM-SPILL PIN on `dir` (13B/w61-a3 §2).  Without it assign_parms` copy
      * `addu $s6,$a2,$zero` sinks into the busy-guard`s `beqz` delay slot; retail keeps it in
      * the prologue group and lets reorg fill that slot from the fall-through thread with the
@@ -1634,6 +1660,25 @@ extern int MemCardCallback(int func)
  * Create 12 = the same 4 + the `li $a1,1` open()-arg position (2) + the `p[0]`-load-above-
  * the-`_mc_save_cb`-store schedule that CreateFile's opaque base costs (DeleteFile's plain
  * base is free of it).  All named, none a floor. */
+/* 🔑 W71-A13 -- THE TWO DEAD SNAPSHOT LOADS, PRICED (they are the last 2 diffs of BOTH callers).
+ * Retail's inlined copy keeps `lw $v0,0($s0); lw $v0,4($s0)` (SAME dest, both dead: `cmds` and
+ * `result` are compile-time constants at both call sites, so the non-blocking arm is gone).  A
+ * plain C read is deleted by flow.c's dead-insn pass, so retail's globals were VOLATILE in the
+ * SDK source (methodology 3.12 #13 -- the block is mutated by the VSync pump).  Making just these
+ * two reads volatile REPRODUCES the loads and makes BOTH callers count-EXACT, but ours then puts
+ * the second one in `$v1` where retail reuses `$v0` (both are dead-on-arrival, so the qty pair
+ * does not conflict and gcc still hands out two registers).  Net +1 diff each -- NOT landed.
+ * MEASURED (whole-TU gated, W71-A13, on the post-R1 basin):
+ *   plain (kept) ............................... Delete  5 @110/111  Create  6 @128/130
+ *   both reads volatile ........................ Delete  6 @111/111  Create  7 @130/130
+ *   bare `(void)*(volatile int *)&base[N];` x2 . Delete  6           Create  7
+ *   only base[1] volatile ...................... Delete  7           Create  8
+ *   ONE shared dead temp for both reads ........ Delete  8           Create 15
+ *   read-only fence on cmd+rslt after the reads  Delete 11           Create 18
+ *   identity launder on cmd+rslt ............... inert (the launder itself is dead-deleted)
+ * NAMED ANGLE: a device that makes the SECOND dead load reuse the FIRST one's register (retail's
+ * `$v0` twice).  Both qtys die at their own insn, so this is a local-alloc handout question --
+ * the 06E instrument gap, not a spelling. */
 static __inline__ long MemCardSyncAt(long mode, int *cmds, int *result, int *base)
 {
     int rslt;
@@ -1808,6 +1853,7 @@ extern long MemCardCreateFile(long chan, char *file, long blocks)
     int  retry;
     int  rslt;
     int *p;
+    int  cmd0;
     /* MATCH (w52-a6): ONE anchor at &_mc_cmd ($s2 in retail) serves cmd/rslt/done/chan --
      * the oracle reaches _mc_chan as `lw $a2,0xC($s2)`, not with its own %hi/%lo pair. */
     /* W61-A3 68 -> 30: the MemCardDeleteFile recipe ported (read that receipt for the laws).
@@ -1860,7 +1906,32 @@ nocard:
         if (fd >= 0)
             goto created;
         /* create failed: re-accept card and inspect the result */
-        _mc_save_cb = (int (*)(int, int))MemCardCallback(0);
+        /* 🏆 MATCH (W71-A13, 12 -> 6): READ p[0] BEFORE THE _mc_save_cb STORE, EXPLICITLY.
+         * Retail's order is `jal MemCardCallback; lw $v1,0($s0); lui $at; blez $v1; sw $v0,%lo(..)($at)`
+         * -- the command load is HOISTED ABOVE the callback store and the store fills the blez's
+         * delay slot.  Ours could not reproduce that by scheduling: this function's base is
+         * OPACITY-FENCED (it needs the fence for its saved-reg band, see the receipt above), so
+         * `*p` MAY-ALIAS the `_mc_save_cb` store and sched1 is forbidden to move the load across it.
+         * MemCardDeleteFile gets the same shape for free because its base is a plain address
+         * expression (provably independent) -- that asymmetry was the standing 6-diff row.
+         * THE CURE IS SOURCE-LEVEL, NOT A DIAL: write the load BEFORE the store in C (name the
+         * callback result, read p[0], then store).  Order is then a data fact, not an alias
+         * question, and the opaque base costs nothing.  LAW (belt-wide): when a fence's ALIAS
+         * side-effect blocks a hoist the oracle performs, do the hoist in the SOURCE -- do not
+         * trade the fence away (dropping it here measured 39 -> 68 in the w61 basin).
+         * FALSIFIED on THIS basin (all whole-TU gated, 04Z re-probes of the w64 list):
+         *   block-scoped cmd0 instead of fn-scope ............ 6 (identical -- fn-scope kept)
+         *   the same explicit hoist applied to DeleteFile too . inert (5, its base is plain)
+         *   named `oflag = 1;` before the RMW / after `retry = 0` (for the `li $a1,1` row)  6, inert
+         *   the same laundered (identity fence on oflag) ...... 16  (cse const-props a plain
+         *                                                       named constant straight back;
+         *                                                       the fence's barrier costs 10)
+         *   volatile snapshot reads in MemCardSyncAt (for the two dead `lw`s)  7 / Delete 6 */
+        {
+            int prevcb = (int)MemCardCallback(0);
+            cmd0 = p[0];
+            _mc_save_cb = (int (*)(int, int))prevcb;
+        }
         /* MATCH (w52-a6): retail's guard is `blez $v1` -- the PRINTF is the FALL-THROUGH arm and
          * the command-latch block is the out-of-line branch target, i.e. the test is written the
          * other way round from the natural `if (cmd < 1)`.  The latch reaches cmd/rslt/done through
@@ -1873,7 +1944,7 @@ nocard:
          * insns) -- cse already shares the literal and the named local rotates the saved-reg
          * band the wrong way.  NAMED ANGLE: the residual on both fns is exactly that saved-reg
          * rotation (retail chan=$s2/file=$s0/base=$s3->$s0; ours chan=$s3/file=$s2/base=$s0). */
-        if (p[0] > 0) {
+        if (cmd0 > 0) {
             printf("Access Denied. : event multiple open\n");
         } else {
             p[0] = 2;
@@ -1960,6 +2031,29 @@ extern long MemCardDeleteFile(long chan, char *file)
      * the loop (29, inert); MemCardSync`s base fence dropped (42) or made non-volatile
      * (identical); a shared `static __inline__ int *mc_anchor(void)` so both fences share ONE
      * source line (48 -- see MemCardSync). */
+    /* 🔑 W71-A13 -- THE `p[3]` FOLD IS A LANE PROPERTY, MECHANISM NAMED (re-gated at 5 @110/111).
+     * The residual is exactly two rows:
+     *   (a) `_mc_present |= 1 << p[3]`: ours `lui $a0,%hi(mc+12); lw $a0,%lo(..)($a0)` (2 insns),
+     *       retail `lw $a0,0xC($s0)` (1) -- 3 diffs.
+     *   (b) retail`s two DEAD snapshot loads `lw $v0,0($s0); lw $v0,4($s0)` inside the inlined
+     *       MemCardSyncAt (see that fn`s receipt) -- 2 diffs, and they are why ours is 1 SHORT.
+     * MECHANISM of (a) (read off the cc1 `.s`, not guessed): cse folds a MEM whose address is
+     * `(plus (reg-with-a-known-constant-equivalent) (const_int N))` -- simplify_binary_operation
+     * turns it into a CONSTANT address and validate_change accepts it because on the cc1_272 lane
+     * a bare symbolic address IS a legitimate MIPS address (the `lw $r,sym+N` assembler macro;
+     * gcc-2.7.2 has no -msplit-addresses).  An OFFSET-0 load has no PLUS to simplify, which is why
+     * `p[0]` (`lw $v1,0($s0)`) and every non-zero-offset STORE stay base-relative.  Retail`s
+     * base-relative `lw $a0,0xC($s0)` therefore requires the fold to be REJECTED, i.e. a build
+     * where a symbolic address is NOT legitimate = -msplit-addresses = the 2.8 lane.
+     * MEASURED (in-memory PER_TU hook, no build.py edit): whole-TU cc1_272:false (2.8 lane) gives
+     * DeleteFile 38 @111/111 and CreateFile 71 -- the lane swap fixes THIS row and loses the TU,
+     * so it is an orchestrator-level per-fn wiring question (PER_FN_CC1_VER_SPLICE), not source.
+     * FALSIFIED HERE (all whole-TU gated, this basin): `*(volatile int *)&p[3]` 5 (inert -- cse
+     * folds the ADDRESS before volatility matters); `((McState *)p)->chan` 5 (inert); `mc.chan`
+     * 5 (inert); `_mc_present |= 1 << base[3]` before `p = base` 5 (inert); identity fence on
+     * `p` 21; block-local fenced `pc` copy of p 29; fenced `pc` taken from `base` 17.  The only
+     * device that reaches it (an opaque pointer, as MemCardCreateFile uses) costs more than the
+     * row: it makes `*p` may-alias `_mc_save_cb` and loses the load hoist -- see CreateFile. */
 
     int *base = &mc.cmd;
     __asm__("" : : "r"(file), "r"(file));

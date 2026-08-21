@@ -585,7 +585,7 @@ MX_GoToCar_oppFilterSetup:
    four independent setup operations are restored to retail order by the scoped build recipe.
    MATCH: 26/26. */
 
-static void MenuExtended_GoToDealer(tMenuCommand &command)
+void MenuExtended_GoToDealer(tMenuCommand &command)
 
 {
   int cmdType;
@@ -625,7 +625,7 @@ static void MenuExtended_GoToDealer(tMenuCommand &command)
    live-range lever and scoped retail-order recipe as the twin GoToDealer above.
    MATCH: 26/26. */
 
-static void MenuExtended_GoToSeller(tMenuCommand &command)
+void MenuExtended_GoToSeller(tMenuCommand &command)
 
 {
   int cmdType;
@@ -654,7 +654,7 @@ static void MenuExtended_GoToSeller(tMenuCommand &command)
    
    [ghidra-meta] section: front.text */
 
-static void MenuExtended_GoToUpgrades(tMenuCommand &command)
+void MenuExtended_GoToUpgrades(tMenuCommand &command)
 
 {
   tGlobalMenuDefs *ptVar1;
@@ -2720,7 +2720,77 @@ winCase:
    highest-value remaining action is the SHARED-HEADER diff recommended above
    (move the tInsideBoxControllerLeftRightSlider vptr store into its own ctor in
    nfs4_types.h); it is deliberately NOT applied here -- a shared-header edit
-   mid-wave forces a full-tree re-gate and would collide with concurrent belts. */
+   mid-wave forces a full-tree re-gate and would collide with concurrent belts.
+
+   [W71-A16 2026-08-21] !!! EVERYTHING ABOVE THAT CALLS THIS FN "ALLOCATOR-BOUND"
+   WAS WRONG.  The residual was NOT coloring -- FOUR ARGUMENTS WERE SEMANTICALLY
+   WRONG, and each wrong argument destroyed a compiler ADDRESS-CSE ANCHOR that
+   retail derives dozens of later frontEnd field addresses from.  Baseline 3473
+   (3182/3207) -> 1840 (3199/3207), TU 65/66 PASS throughout, ZERO regressions.
+   THE INSTRUMENT that found them (reusable, ~40 lines, scratchpad/A16_*.py):
+   diff the ORDERED %hi(SYM) reloc sequence of our object (objdump -dr via
+   tools/ourdis.py, R_MIPS_HI16 lines) against the oracle's %hi(...) sequence,
+   then re-window it PER `jal` so every ctor call gets its own symbol multiset.
+   verify_asm is reloc-NAME lenient and LO16-zeroing, so a wrong argument that
+   still resolves to *some* symbol is INVISIBLE to the gate -- only the symbol
+   COUNT/identity audit sees it.  Run this audit on ANY data-driven ctor before
+   touching the allocator.
+   THE FOUR BUGS (oracle addresses; frontEnd = 0x80114600):
+     * iteratorTournament  arg1 was `(char *)&menuHotPursuit` (a this-relative
+       member!) -- retail passes `&frontEnd.tournament`   (D_80114720 = fE+0x120)
+     * iteratorSpecialEvent arg1 was `(char *)&menuTournament`
+       -- retail passes `&frontEnd.specialevent`          (D_80114720 + 1)
+     * iteratorColor       arg1 was `(char *)&iteratorCar1`
+       -- retail passes `frontEnd.carColors[0]`           (D_80114660 = fE+0x60)
+     * iteratorDealerColor arg1 was `(char *)&iteratorDealerCar` -- same fix.
+   WHY ONE OF THEM WAS WORTH ~1500 DIFFS: gcc-2.8 CSEs a struct-address into ONE
+   `lui/addiu` ANCHOR and reaches every other field of that struct with a single
+   `addiu rD,anchor,delta` (delta may be NEGATIVE).  Retail's anchor is
+   frontEnd+0x120, established by the FIRST frontEnd address in the function --
+   the iteratorTournament argument.  With that argument wrong we anchored
+   elsewhere, so all ~55 later frontEnd field materializations used different
+   deltas.  Post-fix our anchor deltas are byte-identical to retail's
+   (-0xFD/-0xF3/-0xEE/-0xE9/-0x10A/-0x105 ...) and `%hi(frontEnd)` count is
+   55 == 55.  Also fixed (§3.12 #12, gate-invisible because the LO16 addend is
+   normalized away): MenuExtended_GoToDealer / _GoToSeller / _GoToUpgrades had
+   their address taken but were `static`, emitting `.text`-section relocs where
+   retail has global-symbol relocs; `static` dropped, retail linkage restored.
+   FRAME: with the arg fixes the natural spill area GREW, so the pad optimum moved
+   52/56 -> 25..32 (all give 1840; 33 -> 2518, 0 -> 1974).  It is now 32.  Our
+   spills sit at 104..596 vs retail 72..592 -- a 32-byte (8-slot) deficit, i.e.
+   retail still spills 8 more pseudos than we do.  Costed offline: re-siting the
+   spills alone is worth ~440 of the remaining ~1740 LCS units.
+   REMAINING 1840, decomposed offline (LCS units, base 1740):
+     ~440  spill-slot NUMBERING  (the 32-byte pad offset; needs 8 real spills)
+     ~930  register naming, almost all a t0<->t1 PHASE that is now correct for
+           insns 0..1085 and flips only 32 times (was 60+); s2, s3, s0 and the a/v regs now
+           match EXACTLY (s3 121==121, s2 5==5) -- the old "s2<->s3 rotation"
+           receipt is DEAD, it was a symptom of the anchor bug.
+     ~274  genuine structure, in 98 runs of 1-3 insns.
+   THE THREE SURVIVING STRUCTURAL SHAPES (all allocator-side, none spellable from
+   an initializer list -- documented so the next wave does not re-derive them):
+     1. fp TIE-BREAK: ours parks `this+0x20D8` (&menuCarOptions) in $fp and needs
+        no spill; retail parks `this+0x12E8` (&itemGarageCar) and SPILLS the other
+        (`sw t0,268(sp)` + reloads).  Reference counts and offsets are identical
+        on both sides, so this is a pure global_alloc priority tie-break.
+     2. %hi(FEApp) HOIST: retail keeps `%hi(FEApp)` in $s0 across the last six
+        tListIteratorRangeIndexed ctors and re-does only `lw v0,%lo(FEApp)($s0)`;
+        we emit a fresh `lui` each time (+6 lui = the whole `lui` delta 244 vs
+        238).  Same family as catalog §A row 41 but the anchor is compiler-made.
+     3. TAIL POINTER-REUSE: retail writes menuMemory/menuUserName VertHelp through
+        SPILLED member pointers (`lw t1,0x234(sp); nop; sh zero,0x64(t1)` -- both
+        oracle `nop`s live here) where we use `sh zero,12560(this)`.  Our tail
+        statement ORDER already matches retail; gcc merely sinks our
+        `ori v1,v1,64; sw v1,0x35AC` to the epilogue.  Three tail reorderings were
+        measured (compound |=, flags-first, split temp) -- all 1840 or worse.
+   FALSIFIED THIS WAVE (do not retry): pad sizes 0..96 in steps of 4 plus 25..35
+   (32 is optimal); `int` pad instead of `char`; the `__asm__` frame anchor moved
+   to the top of the body; the three `child` blocks flattened to direct stores;
+   the three tail reorderings above.
+   NEXT: (a) the shared-header tInsideBoxControllerLeftRightSlider vptr diff still
+   stands (see above, still not applied); (b) the only lever left with real mass is
+   making gcc spill 8 more pseudos so the pad can go to 0 and the whole spill area
+   re-sites -- that is a register-pressure question, not a source-text one. */
 
 
 /* [2026-08-10] Retail constructs every iterator in declaration order between its
@@ -2756,11 +2826,11 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemHotPursuitSolo(0x6c, (tMenu*)&menuSkillLevel, (void (*)(tMenuCommand&))MenuExtended_SetHPSoloRace, 0x6e, 10)   /* +0x5D4 tMenuItemGoToMenuNFS4Button */
  , itemHotPursuitDuel(0x6d, (tMenu*)&menuSkillLevel, (void (*)(tMenuCommand&))MenuExtended_SetHPDuelRace, 0x78, 10)   /* +0x600 tMenuItemGoToMenuNFS4Button */
  , menuHotPursuit(0x1004, (tScreen *)screenMain[0], (tMenu *)0x0, (tMenu *)0x0, 0, 0xb6, (tMenuItem *)&itemHotPursuitSolo, &itemHotPursuitDuel, 0)   /* +0x62C tMenuNFS4 */
- , iteratorTournament((char *)&menuHotPursuit, &tournamentManager)   /* +0x6A8 tListIteratorTournament */
+ , iteratorTournament(&frontEnd.tournament, &tournamentManager)   /* +0x6A8 tListIteratorTournament */
  , itemTournamentContinue(0x5a, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToTournTrackInfo, 0x22, 10)   /* +0x6BC tMenuItemGoToMenuNFS4Button */
  , itemTournamentSelect(0x94, (tListIterator *)&iteratorTournament, 0x2c, 10)   /* +0x6E8 tMenuItemNFS4LeftRightChoice */
  , menuTournament(0x1000, (tScreen *)screenTournSelect, (tMenu *)0x0, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToTournTrackInfo, 0x65, (tMenuItem *)&itemTournamentContinue, &itemTournamentSelect, 0)   /* +0x710 tMenuNFS4 */
- , iteratorSpecialEvent((char *)&menuTournament, &tournamentManager)   /* +0x78C tListIteratorTournament */
+ , iteratorSpecialEvent(&frontEnd.specialevent, &tournamentManager)   /* +0x78C tListIteratorTournament */
  , itemSpecialEventContinue(0x5a, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToSpecialEventTrackInfo, 0x22, 10)   /* +0x7A0 tMenuItemGoToMenuNFS4Button */
  , itemSpecialEventSelect(0x69, (tListIterator *)&iteratorSpecialEvent, 0x36, 10)   /* +0x7CC tMenuItemNFS4LeftRightChoice */
  , menuSpecialEvent(0x1000, (tScreen *)screenTournSelect, (tMenu *)0x0, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToSpecialEventTrackInfo, 100, (tMenuItem *)&itemSpecialEventContinue, &itemSpecialEventSelect, 0)   /* +0x7F4 tMenuNFS4 */
@@ -2807,7 +2877,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemTrackInfoContinue(0x5a, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToGarage, 0x21, 10)   /* +0x10C4 tMenuItemGoToMenuNFS4Button */
  , menuTrackInfo(0x1004, (tScreen *)screenTrackInfo, (tMenu *)0x0, (tMenu *)0x0, 0, 0xf9, (tMenuItem *)&itemTrackInfoContinue, 0)   /* +0x10F0 tMenuNFS4 */
  , iteratorCar1(frontEnd.playerCar, &carManager)   /* +0x116C tListIteratorCar */
- , iteratorColor((char *)&iteratorCar1, &FEApp->fPlayer, frontEnd.playerCar, 0x30, &carManager)   /* +0x1188 tListIteratorCarColor */
+ , iteratorColor(frontEnd.carColors[0], &FEApp->fPlayer, frontEnd.playerCar, 0x30, &carManager)   /* +0x1188 tListIteratorCarColor */
  , itemCarSelectRace(0xbd, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0x80, 10)   /* +0x11A8 tMenuItemGoToMenuNFS4Button */
  , itemCar(0x92, (tListIterator *)&iteratorCar1, 0x1c, 10)   /* +0x11D4 tMenuItemNFS4LeftRightChoice */
  , itemColor(0x120, (tListIterator *)&iteratorColor, 0x26, 10)   /* +0x11FC tMenuItemNFS4LeftRightChoice */
@@ -2852,7 +2922,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemGoToSellCar(0x79, (tMenu*)&menuCarSeller, MenuExtended_GoToSeller, 0x4e, 10)   /* +0x1BBC tMenuItemGoToMenuNFS4Button */
  , menuGoToCarDealer(0x1200, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)0x0, 0, 0x90, (tMenuItem *)&itemGoToBuyCar, &itemGoToSellCar, 0)   /* +0x1BE8 tMenuNFS4 */
  , iteratorDealerCar(&frontEnd.dealerCar, &carManager)   /* +0x1C64 tListIteratorCar */
- , iteratorDealerColor((char *)&iteratorDealerCar, &FEApp->fPlayer, &frontEnd.dealerCar, 0x30, &carManager)   /* +0x1C80 tListIteratorCarColor */
+ , iteratorDealerColor(frontEnd.carColors[0], &FEApp->fPlayer, &frontEnd.dealerCar, 0x30, &carManager)   /* +0x1C80 tListIteratorCarColor */
  , itemDealerCar(0x92, (tListIterator *)&iteratorDealerCar, 0x1c, 10)   /* +0x1CA0 tMenuItemNFS4LeftRightChoice */
  , itemDealerColor(0x120, (tListIterator *)&iteratorDealerColor, 0x26, 10)   /* +0x1CC8 tMenuItemNFS4LeftRightChoice */
  , itemBuyCar(0x75, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_BuyCar, 0x58, 10)   /* +0x1CF0 tMenuItemGoToMenuNFS4Button */
@@ -2980,7 +3050,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemMemContinue(0x28a, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_TransitionFromPostGameToMainMenu)   /* +0x3A6C tMemoryCardMenuItem */
  , menuPostGameSave(0x1040, (tScreen *)screenMemcard, (tMenu *)0x0, (tMenu *)0x0, 0, -1, 0x2e, 10, (tMenuItem *)&itemMemContinue, &itemSaveGame, 0)   /* +0x3A98 tOptionsMenu */
 {
-  char compilerFramePad[56];
+  char compilerFramePad[32];
 
   {
     tMenu *child = (tMenu *)&menuPlayerTwoCarSelect;

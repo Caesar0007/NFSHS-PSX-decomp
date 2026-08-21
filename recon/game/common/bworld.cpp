@@ -565,7 +565,34 @@ int SetupChunkBuildList(DRender_tView *Vi)
        device cannot buy priority at zero bytes.  The sched2-priority route
        therefore needs a dependent that the SOURCE genuinely has (a real use of
        viewList inside this block), not a synthetic one -- or the reload/ready-
-       list instrument.  Still NOT a floor; the axis is just narrower. */
+       list instrument.  Still NOT a floor; the axis is just narrower.
+
+       W71-A21 -- the SOURCE-genuine-dependent hunt is also falsified, and the
+       ready-list rule is now NAMED EXACTLY.  Gated (each a real run, all 7 @202):
+         `buildList = ...` moved AFTER both statements ................ 7 @202
+         `buildList = ...` moved BETWEEN the two statements ........... 7 @202
+         a `short (*viewRows)[32]` row-pointer local, viewRows[cc] ..... 7 @202
+         count statement first / viewList second ...................... 7 @202
+         INDEX form in the loop (`viewList[viewInd]`, no `viewList++`) . 7 @202
+       WHY none of them can work, from gcc-2.8 sched.c rank_for_schedule: after
+       `sll a0,a1,6` is issued, BOTH addus are ready.  rank_for_schedule compares
+       INSN_PRIORITY first, and only on a TIE falls through to the "class" test
+       (data-dependent-on-last-scheduled ranks BELOW independent) and then to
+       INSN_LUID.  `addu s3` is data-dependent on the just-issued `sll a0`, so on
+       a tie it would LOSE -- yet retail issues it first.  => retail's
+       INSN_PRIORITY(addu s3) was STRICTLY GREATER than INSN_PRIORITY(addu v0),
+       i.e. retail's `addu s3` had a dependent chain of length >= 4 inside this
+       block, while ours (and every spelling above) has ZERO in-block dependents
+       (viewList is used only after the loop-entry `beqz`).  No re-ordering, no
+       fence, and no pointer-shape change can create a successor that is not
+       there.  NEXT NAMED ANGLE (unchanged in kind, sharper in aim): find the
+       block CONTENT difference that gives s3 an in-block successor -- read the
+       -dR sched2 dependency dump (tools/rtl_dump.py) for this block and look for
+       an insn retail has here that ours emits elsewhere; alternatively price a
+       per-unit `-fno-schedule-insns2` (it reproduces retail's order for THIS
+       block, but whole-TU it costs 44 @205, so it would need per-function
+       granularity that the build system does not yet have -- same family as
+       methodology 3.25 3b's delayed-branch identity). */
     viewList =
         ((short (*)[32])Track_gInViewList)[gCurrContext->currentChunk];
     totalVisChunks =

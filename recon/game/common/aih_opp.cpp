@@ -32,7 +32,7 @@ void AIHigh_Opponent::CheckForWipeOut()
   int hLoop;
   Car_tObj*thisPlayerObj;
   AIHigh_Player*thisPlayer;
-  int playFines;
+  int numRacers;   /* SYM-ABSENT loop-bound carrier -- NOT the SYM's playFines (see receipt) */
 
   bool bVar1;
 
@@ -129,6 +129,49 @@ void AIHigh_Opponent::CheckForWipeOut()
          = 64 @120; reading the global directly in the for-condition = 67 @121.
          Also re-measured in THIS basin: new_var after the if-block (the w63 "wipe52")
          = 52 @120 count-exact, new_var after `pInfo =` = 52, inside the guard = 61/61/55.
+         ==== W71-A19: THE x1 BASIN IS NOW COUNT-EXACT (54 @120/120) AND ITS RESIDUAL IS A
+         QUANTIFIED HARDNESS CERTIFICATE.  Baseline re-gated 50 @118/120.
+         (1) THE MISSING 2 INSNS IN x1 WERE ONE REORG FILL, AND IT IS SOURCE-REACHABLE:
+             retail puts `hLoop = 0` (addu $a3,$zero,$zero) in the guard's `beq` DELAY SLOT
+             (oracle idx 68).  Ours nop-filled it because the for-init was emitted AFTER the
+             pre-loop bound load, out of fill_simple_delay_slots' backward-scan reach (13B:
+             "a fence can only BLOCK slot theft, never SUPPLY it -- the filler must be hoisted
+             into reorg's scan range").  Writing `hLoop = 0;` as the FIRST statement inside
+             the guarded block (SYM-faithful: the 8c `hLoop` block starts @0x8006341c, inside
+             the guard) + `for (; hLoop < numRacers; ...)` gives x1 54 @120/120 EXACT.
+             (Above the guard = identical 54; after the bound load = 55 @121.)
+         (2) THE 54-BASIN RESIDUAL IS EXACTLY THREE CLUSTERS, side-by-side-verified 1:1:
+             (a) the $t 3-cycle (ours this=t1 randVal=t2 29ae=t0 vs retail t0/t1/t2),
+             (b) preheader ORDER (ours emits the bound load 1st, retail 5th among the loop.c
+                 hoists, and retail keeps the Cars_gHumanRaceCarList lui/addiu adjacent),
+             (c) a $v0/$v1 swap on the carIndex/field1380 pair at the loop head.
+         (3) (a) IS PRICED AND UNREACHABLE IN THE PRIORITY MODEL.  allocsim MATCHes 17/17;
+             pseudoid: p80=this(refs13/live204), p83=randVal(6/65), p159=29ae(5/41).
+             reqdelta AND dialsearch (depth 3 over {p80,p83,p159} and depth 2 over a 6-pseudo
+             pool) both return a SINGLE minimal solution: p159 live 41 -> 55, |d|=14.  p159 is
+             the loop.c-hoisted 29*ae; its def is the LAST insn of the preheader in BOTH builds,
+             so +14 live means moving the def 14 insns earlier = above the guard = out of the
+             preheader = a different insn stream.  Hand-enumerated alternatives all fail on the
+             floor_log2 steps: p80 refs 13->16 alone lands this=$t0 but leaves randVal/29ae
+             swapped (p83 cannot be priced into (.2439,.3137): refs<=7 caps at .2154 and refs 8
+             jumps to .369), and p159 refs 5->4 is unreachable (1 out-of-loop def + 2 in-loop
+             uses = 5 by construction).  => PRIORITY MODEL EXHAUSTED (09K): the next lens is the
+             conflict/preference graph (find_free_reg windows), not any refs/live dial.
+         (4) (b) IS A -dL BUDGET FACT, NOT A SPELLING.  With the bound read directly in the
+             for-condition the .loop dump says `Insn 177: regno 132 (life 1), savings 1 not
+             desirable` -- move_movables' `threshold*savings*lifetime >= insn_count` with
+             threshold=(no call)2*(3+n_non_fixed_regs)~56 vs insn_count 59.  It is a razor:
+             shrinking the loop below the threshold DOES hoist it (computing perTickProb once
+             at the loop top instead of in both arms -> 120 insns again, but 78 diffs because
+             retail duplicates `sll a0,t2,2` into both delay slots).  So retail's bound movable
+             had lifetime>=2 or savings>=2; ours is life 1 / savings 1 because the load feeds
+             the `slt` immediately.  ANGLE: give that load a second in-loop consumer or a
+             1-insn separation from its compare, WITHOUT growing the loop.
+         FALSIFIED this wave (each re-gated, on x1+i0 = 54): SYM-name-faithful loop head with
+         the bound read from the global 67 @121; same keeping the carrier 63-64 @123-124;
+         inlining the abs load at the compare site 64 @120; inlining `state` 63 @123; swapping
+         the field1380/tableEntry declaration order INERT (54).  x1 basin file:
+         scratchpad/A19/v_wipe*.py (A19_gate.py harness).
          ==== */
       /* ---- W62-A10 (51 diffs, ours 121 / oracle 120) -- SUPERSEDED by the block above;
          kept for its falsification list.  The residual is now ONE
@@ -174,16 +217,18 @@ void AIHigh_Opponent::CheckForWipeOut()
       }
       pInfo = &this->perpChaseInfo_;
       if (pInfo->bestChaseLevelIndex_ != (pInfo->copGameInfo_)->numLevels + -1) {
-        playFines = Cars_gNumHumanRaceCars;            /* w63-a12 REF-STEP dial (SYM-declared local
-                                       re-used as the loop-bound carrier) */
-        __asm__("" : : "r"(playFines));                /* +1 out-of-loop ref, 0 insns: floor_log2
+        numRacers = Cars_gNumHumanRaceCars;            /* w63-a12 REF-STEP dial carrier.  A19: RENAMED
+                                       off `playFines`, which the SYM 8c block @0x80063450 declares as a
+                                       LOOP-BODY INT REG $3($v1) = thisPlayerObj->fines (+932); the old
+                                       spelling squatted on a real SYM local.  Diff-neutral rename. */
+        __asm__("" : : "r"(numRacers));                /* +1 out-of-loop ref, 0 insns: floor_log2
                                        3->4 lifts the bound's allocno over the simGlobal-base copy,
                                        reproducing retail's $t3/$t4 (reqdelta-priced) */
-        for (hLoop = 0; hLoop < playFines; hLoop = hLoop + 1) {   /* 0x80063450 */
+        for (hLoop = 0; hLoop < numRacers; hLoop = hLoop + 1) {   /* 0x80063450 */
           Car_tObj    *carObj_h     = Cars_gHumanRaceCarList[hLoop];           /* 0x8006345C */
           int          field1380    = *(int *)((char *)carObj_h + 1380);       /* 0x80063468 */
           AIHigh_Base *tableEntry   = highLevelAIObjs[*(int *)((char *)carObj_h + 596)]; /* carIndex, 0x80063464-84 */
-          int          oppFines_v1  = *(int *)((char *)carObj_h + 932);        /* 0x80063488 */
+          int          playFines    = *(int *)((char *)carObj_h + 932);        /* SYM REG $3=$v1, 0x80063488 */
           int          state        = *(int *)((char *)tableEntry + 148);      /* 0x8006348C */
           if (0xd5554 < ((field1380 < 0) ? -field1380 : field1380)) {          /* 0x80063480/90: permuter-found
                                             double-roll -- oracle RE-DERIVES the ternary at the compare site
@@ -200,7 +245,7 @@ void AIHigh_Opponent::CheckForWipeOut()
               perTickProb = new_var * 4;
               if (randVal < perTickProb)           /* 0x800634B8 */
                 this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0xC0;    /* 0x800634C4-D0 */
-            } else if (2 <= oppFines_v1 - oppFines) {                          /* 0x800634A8-B0 (skip if <2) */
+            } else if (2 <= playFines - oppFines) {                          /* 0x800634A8-B0 (skip if <2) */
               perTickProb = new_var * 4;
               if (randVal < perTickProb)          /* $t2<<2, 0x800634B4-BC */
                 this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0xC0;    /* 0x800634C4-D0 */

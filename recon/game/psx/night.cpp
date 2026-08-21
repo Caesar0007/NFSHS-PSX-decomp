@@ -348,6 +348,58 @@ void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char 
      closed, the only remaining axis is which bytes cse chooses to forward -- a cse/expand
      question for the instrumented lane, not a spelling sweep. */
   __asm__("" : : "r"(sourceB), "r"(sourceB));
+  /* ---- W71-A5 (2026-08-21): 26 STAYS @113/113.  The residual is now BOUNDED to a
+     single mechanical fact and the bound is worth writing down, because the same wave
+     cracked its TWIN (Night_AdditiveNightCalc, 59 -> PASS) with exactly the analogous
+     move and it does NOT transfer here.
+     THE FACT: ours and retail's pack blocks are STRUCTURALLY IDENTICAL, instruction for
+     instruction, and differ ONLY in WHICH component byte is reloaded.  Both build
+     [store X] [store g] [store Y] then forward g and Y with `andi ..,255` and RELOAD X
+     with `lbu`.  Retail has X=.r (stored FIRST) / Y=.b; ours has X=.b / Y=.r.  The
+     reloaded one is always the FIRST-stored, because its value register is clobbered by
+     the SECOND store's `and` -- so the reload identity is a pure function of the STORE
+     ORDER, and store order r-first is the 56-diff basin (it rotates b15/sourceG and the
+     prologue parm spill upstream).  The two halves are therefore COUPLED and the coupling
+     is the whole 26.
+     RE-MEASURED THIS WAVE (all count-exact 113/113 unless noted, all from the shipped
+     basin, extending the w50/w63 tables to the FULL cross-product):
+       . store order x read-back, ALL 6 orders x ALL 8 read-back subsets (48 cells):
+         every order that stores .r LAST plus a read-back of .r = 26; everything else
+         46 / 54 / 56 / 58 / 66.  SATURATED in both directions, third confirmation.
+       . VOLATILE-STORE forwarding dial (the 05E/14D device, aimed straight at "make .r
+         reload"): `*(volatile u_char *)&newColor.r/.g/.b` x 3 orders x 5 read-back sets
+         (75 cells) -- volatile on .b is BIT-IDENTICAL to none, volatile on .r or .g
+         costs +2, and none of them changes which byte cse forwards.
+       . early read-back of the FIRST-stored byte (so its register survives the second
+         store) -- `newB = newColor.b;` between the .b and .g stores, with and without a
+         ref fence on newB, and the `int mb = newB & ~7;` named-temp form: 55/59/61/78
+         and +3 REAL INSNS (116/113) in every shape that actually keeps the value live.
+       . declaration order of newR/newG/newB, all 6 permutations, both basins: provable
+         no-op (bit-identical) -- pseudos here are numbered by FIRST USE, re-confirming
+         the w41-a7 receipt against the w64-16A "decl order = pseudo number" law (that
+         law's PRE-GATE does not hold here).
+       . the rgb basin attacked with the ref-step dial that sealed AdditiveNightCalc:
+         read-only fences of 1/2/3/4/6/8 operands on b15, sourceG, sourceR and chg
+         (24 cells) -- 56 -> 58/62/64/66/68/78, i.e. every operand count moves it AWAY.
+     🔴 WHY THE AdditiveNightCalc CURE DOES NOT TRANSFER, stated precisely (this is the
+     useful part): there the blocker was the same SHAPE -- a block-local qty parked in the
+     wanted hard register poisoning a long-lived pseudo's conflict set -- and the cure was
+     to fold the offending BYTE LOAD into an existing global pseudo (`newR = color->r;`),
+     which deleted the local qty outright.  Here the offending local qty is NOT a source
+     read: it is the cse-created reload inside gcc's BY-VALUE CVECTOR argument assembly
+     for `Night_FindClosestColor(newColor, ...)`.  There is no C handle on it -- a source
+     read-back cannot merge with it (measured above, it costs a separate insn) -- so the
+     fold is unavailable.  reqdelta on the rgb-basin dump confirms the arithmetic side is
+     closed too: the wanted handout {p85=a1,p90=a3,p92=a1,p93=a0} has NO single-dial and
+     NO same-pseudo two-dial solution within +-40 on refs/live/calls, because p93 (newB)
+     carries a HARD conflict with $a0 in that basin (`;; 93 conflicts: ... 2 3 4 29`) --
+     one of the pack block's own local qtys owns $a0 there, so no priority dial can ever
+     reach it.
+     ⇒ NAMED ANGLE (unchanged in kind, now quantified): this is a local-alloc QTY handout
+     inside compiler-generated argument assembly = the AGENT_GUIDE 4.6 / catalog 06E
+     instrument gap.  It needs tools/qtytrace.py against the instrumented cc1 ("which
+     source change moves the arg-assembly reload off $a0 / makes cse forward .b instead of
+     .r"), NOT another spelling sweep -- the spelling axis is now saturated three ways. */
   if (0xff < newB) newB = 0xff;
   /* `& ~7` (a register-held -8, oracle `addiu $v1,$zero,-0x8` + three `and`), NOT
      `& 0xf8` (which is a 16-bit unsigned immediate -> andi). */
@@ -1277,7 +1329,19 @@ void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
   int znear;
   int zfar;
 
+  /* MATCH (W71-A5): the 7-OPERAND read-only fence is a priced floor_log2 REF STEP,
+     not scaffolding-by-taste.  With the tail fixed, `color` (p81) is a global allocno
+     at 10 refs / 62 live = pri 0.484 and is allocated FIFTH -- after xdist (p93,
+     4 refs / 9 = 0.889) and zfar (p85, 0.5), both of which then take $a1 (find_reg's
+     pass 1 ignores regs_someone_prefers, so colour's $a1 copy-preference cannot save
+     it).  Each read-only fence OPERAND buys exactly +1 REG_N_REF at zero instructions
+     (catalog 05C), and colour needs 16 refs to cross the flr2 step that beats 0.889
+     (4*16/62 = 1.03 > 0.889); 16 - (10 - 1) = 7 operands.  MEASURED: 1..6 operands =
+     31 diffs, SEVEN = PASS 64/64, 8 and 10 also PASS -- take the cheapest.  Allocated
+     third, colour takes $a1, xdist/zfar shift to $a2 and newB follows. */
   __asm__("" : "=r"(color) : "0"(color));
+  __asm__("" : : "r"(color), "r"(color), "r"(color), "r"(color), "r"(color),
+                 "r"(color), "r"(color));
   z = v->vz;
   znear = Night_gZNear;
   zfar = znear + (1 << (Night_gZDistShift + 6));
@@ -1296,14 +1360,32 @@ void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
 
       /* `x` is mutated IN PLACE: the oracle's `addu $a0,$a0,$a2` reuses x's own
          register for the sum (catalog in-place-mutation lever); the two-operand
-         form inside the index expression picks a fresh destination. (77 -> 71) */
+         form inside the index expression picks a fresh destination. (77 -> 71)
+         W71-A5: `z` is mutated in place the SAME way and the four scalar steps are
+         written in the ORACLE'S ISSUE ORDER (subu/srav on z, then addu/srav on x,
+         then the sll+addu of the index).  59 -> 53 and it is what puts z in $v1. */
+      z = z - znear;
+      z = z >> Night_gZDistShift;
       x = x + xdist;
-      index = (((z - znear) >> Night_gZDistShift) << 6) + (x >> Night_gXDistShift);
+      x = x >> Night_gXDistShift;
+      index = (z << 6) + x;
       addColor = *(long *)&Night_gAdditiveHeadlightColor[(u_char)Night_gNightTbl[index]];
       lookup = (int)addColor;
-      newR = (short)(color->r + (lookup & 0xff));
-      newG = (short)(color->g + ((lookup & 0xff00) >> 8));
-      newB = (short)(color->b + (((u_int)lookup >> 0x10) & 0xff));
+      /* W71-A5 (51 -> 31): the loaded colour byte is assigned INTO its own newX
+         variable first, so the byte load and the clamp result are ONE pseudo
+         (retail's `lbu $a3,0($a1)` loads straight into newR's home and only the
+         SUM lives in a local temp).  Written as `newX = (short)(color->x + ...)`
+         the byte load is a separate BLOCK-LOCAL quantity: local-alloc then needs a
+         4th register in the tail block and hands it $a1 -- which put hard reg 5
+         into `color`'s conflict set (`;; 81 conflicts: ... 5`) and made $a1
+         UNREACHABLE for colour under any priority dial.  With the loads folded into
+         newR/newG/newB the conflict disappears. */
+      newR = color->r;
+      newG = color->g;
+      newB = color->b;
+      newR = (short)(newR + (lookup & 0xff));
+      newG = (short)(newG + ((lookup & 0xff00) >> 8));
+      newB = (short)(newB + (((u_int)lookup >> 0x10) & 0xff));
       if (0xff < newR) newR = 0xff;
       if (0xff < newG) newG = 0xff;
       if (0xff < newB) newB = 0xff;

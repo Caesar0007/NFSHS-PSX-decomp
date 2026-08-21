@@ -183,14 +183,37 @@ loop:
         goto loop;
 }
 
-/* a 2-byte-aligned 4-byte payload: forces gcc to emit unaligned word ops (lwl/lwr, swl/swr)
- * for the sub-header copy, matching the oracle (the original copied a CdlLOC struct field
- * out of a u_short*-typed ring slot). */
-struct _ds_loc { short lo, hi; };
+/* 🏆 W71-A8 (9 -> PASS 35/35): this is a `CdlLOC` -- FOUR u_char fields, ALIGN 1 -- not the
+ * `{short lo, hi;}` (align 2) the recon carried.  THE ALIGNMENT IS THE WHOLE MATCH, and the
+ * mechanism is structural, not a coloring dial:
+ *   align 2 (size 4, STRICT_ALIGNMENT) still lets `*dst = *src` lower to a plain unaligned
+ *   SImode move whose MEM keeps the SYMBOL_REF address -- cc1 emits `swl $5,_ds_word0+3` /
+ *   `swr $5,_ds_word0` and GNU as expands each into its own `lui $at` macro (4 insns, no
+ *   anchor, and the `lui` also steals the lwr's load-delay slot => 34 insns, 1 SHORT).
+ *   align 1 makes the type BLKmode, so the assignment goes through emit_block_move ->
+ *   mips.c expand_block_move, which `copy_addr_to_reg`s BOTH addresses.  The destination
+ *   address is a bare symbol, so that copy survives as retail's `lui $a2,%hi; addiu $a2,%lo`
+ *   ANCHOR (`swl $v0,3($a2)`, `swr $v0,0($a2)`), the source address folds back to the
+ *   already-live slot base (`lwl $v0,0x1F($v1)`), and the freed load-delay slot becomes
+ *   retail's `nop` -- 35/35 byte-exact, INCLUDING the $a2 home.
+ * This RETIRES the W63/W64-A6 "$a0-is-the-first-free-register hardness certificate" below:
+ * the anchor never was an allocation problem -- the block-move expander mints its address
+ * register at expand time, before local-alloc's numeric scan ever runs.  The W64 qty272
+ * measurement was correct about the FENCED basin; the fenced basin was simply the wrong
+ * shape.  SOURCE: sotn-decomp `src/main/psxsdk/libcd/c_004.c` (fully matched) writes the
+ * destination as `static CdlLOC fp_2; ... fp_2 = ptr->loc;` -- the corpus twin the earlier
+ * waves mined for CONTROL FLOW but not for the destination's TYPE. */
+struct _ds_loc { u_char minute, second, sector, track; };
 
 /* @0x80108798 (C_004) : a sector finished decoding -- mark its slot ready and notify StFunc1. */
 extern void data_ready_callback(void)
 {
+    /* ✅ W71-A8: PASS 35/35.  The fix was the DESTINATION TYPE'S ALIGNMENT (see the
+     * `struct _ds_loc` receipt above), not any register/fence/priority dial.  Everything
+     * below this line is the HISTORICAL record of the W55/W61/W63/W64 grind on the wrong
+     * basin -- kept because its measurements are still valid negatives for the
+     * fenced-anchor shape, but the "$a0 vs $a2 is an availability hardness certificate"
+     * verdict is RETIRED: the block-move expander picks that register at expand time. */
     /* W63-A6: re-gated at 9 @34/35 (unchanged) and TWO more axes closed.
      *  (1) VOID-BARRIER POSITION: a mechanical sweep inserting a zero-insn
      *      `__asm__("" : : "i"(0))` before every statement in the body

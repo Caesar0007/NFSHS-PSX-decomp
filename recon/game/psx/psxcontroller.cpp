@@ -415,6 +415,8 @@ void InGame_ResetPSXController(int player,int config)
  *  in the prologue with `addu s0,a0` deferred into the jal delay slot; ours the mirror).
  *  That is an assign_parms emission-order question (catalog: NARROW-PARAM lever / parm-copy
  *  sink), not a switch-shape one, and every case body's register roles hang off it. */
+/* A6/W71 index-term-first address spelling -- see the receipt above. */
+#define INGAME_CD (((GameSetup_tData *)((player << 2) + (int)&GameSetup_gData))->controllerData)
 int InGame_GetPSXPadValue(int value,int player)
 
 {
@@ -507,7 +509,61 @@ int InGame_GetPSXPadValue(int value,int player)
      `po` hoisted before the switch 225 @230 (3 SHORT) . `po` at the top after
      PAD_update 225 @230 . the in-place mutation form 210 @233 COUNT-EXACT .
      OR-tree operand order: `player << 0x1e` moved LAST 306 @259, moved SECOND
-     198 @243 (the twin's tag-second rule does NOT extend to the player term). */
+     198 @243 (the twin's tag-second rule does NOT extend to the player term).
+     ===== W71-A6 (2026-08-21): 168 -> 114 @239 vs 233.  TWO ADDITIVE LANDINGS. =====
+     (1) INDEX-TERM-FIRST ADDRESS SPELLING (methodology 3.12-fusion / W60-A6
+         Hud_BuildNumbers0 refutation), applied through the INGAME_CD macro:
+         `((GameSetup_tData *)((player << 2) + (int)&GameSetup_gData))->controllerData.F[0]`
+         instead of `GameSetup_gData.controllerData.F[player]`.  168 -> 126 @241.
+         WHY IT WORKS -- this is the w64-a14 "+10 count gap" item solved WITHOUT the
+         fn-scope `po` hoist that cost 210: spelling the index term FIRST makes the
+         arm block OPEN with `sll aN,s1,2`, which is exactly the insn retail's reorg
+         STEALS into the dispatch `beq`'s delay slot (retail: `beq s0,v0,.Larm;
+         sll a1,s1,2`).  The stolen copy is then live across the fall-through path,
+         so several arms REUSE one scaled index -- retail has only 9 `sll ?,s1,2`
+         for 12 index-using arms.  With the natural `F[player]` spelling gcc emits
+         `lui/addiu` first and the sll last, so nothing is stealable and every arm
+         pays its own sll.
+         🔴 THE SHIFT SPELLING IS LOAD-BEARING: `player * 4` is folded straight back
+         into an ARRAY_REF by fold() and measures 168 (identical to the old base);
+         only `player << 2` survives.  `(int)&GameSetup_gData + (player << 2)`
+         (base written first) is byte-identical to the index-first form -- fold
+         canonicalizes the operand order, so it is the MULT-vs-SHIFT that is the
+         dial, not the textual side.
+     (2) TWO-STAGE COMPOUND on the 0x53/0x200000 arm (the same device already on
+         0x23/0x200000): `newControl = tag|hi; return (newControl |= lo) | 1;`
+         126 -> 114 @239.  Re-swept ALL 10 remaining `return newControl | 1;` arms
+         from the 126 basin -- arm1 (0x53/0x200000) is the unique winner (114); the
+         others land 131/150/131/146/137/160/135/142/143 -- and re-swept AGAIN from
+         the 114 basin: no second compound helps (119..160).
+     04Z re-sweeps done from EVERY new basin (both are basin-relative):
+       - fence set: from 126, singletons {}=154 {0}=169 {1}=154 {2}=169 {3}=153
+         {4}=179 {5}=152 {6}=179 {7}=144 {8}=126 {9}=160 {10}=160, pairs {8,x}
+         126..145 -> {8} unique optimum; from 114 (indices shift by one after the
+         arm-1 compound) {}=142 and singletons 114..167 -> the SAME arm
+         (0x23/0x800000) is still the unique optimum, pairs {7,x} 119..143.
+       - OR-term order re-measured in the 126 basin: player-term LAST 272 @255,
+         SECOND 143 @240, tag-first byte-identical (126) -- the w64 verdict holds
+         across the basin move.
+     FALSIFIED THIS WAVE (all from the 126/114 bases): a fn-scope
+     `GameSetup_tData *gp` assigned once after PAD_update 296 @197 (cse collapses
+     all 12 address materializations into one saved reg -- the same failure mode as
+     w64's `po`); a BLOCK-SCOPE `GameSetup_tData *gp` declared per arm 155 @240
+     (a fresh pseudo per arm, but the decl-init is emitted BEFORE the `player<<30`
+     chain-start and steals the arm's a0, inverting every arm's register roles);
+     the SYM's `c` local (`c = value; switch (c)`) at three positions 233/233/133.
+     RESIDUAL 114 @239 (+6): opcode census `or 17v16  sll 49v46  subu 7v5`.
+     Named: (i) 3 arms still pay their own `sll ?,s1,2` (reorg declines the steal
+     where the dispatch slot is already filled from the fall-through `j` block);
+     (ii) the 0x23/0x800000 tail is still un-merged with 0x53/0x800000 (retail's
+     .L800DCC68), which is the SAME last-`or`-dest defect front.cpp's 18-diff twin
+     is stuck on: our chain accumulates in $a1 and the final `or` writes
+     newControl's global home $a0 (`or a0,a1,v0`), retail accumulates IN newControl's
+     own register from the first term (`sll a0,s1,30; or a0,a0,v1; or a0,a0,v0`) so
+     its tails are byte-identical and cross_jump merges them.  ⇒ the twin's
+     "keep the 1 out of the tag constant / cse-identity device" angle is the shared
+     next instrument for BOTH functions; it is worth ~6 insns and ~40 diffs here.
+     (iii) prologue parm-copy order still mirrored (retail copies PLAYER first). */
   if (gPadinfo.buf[player * 4].nopad != '\0') {
     goto InGame_GetPSXPadValue_noPad;
   }
@@ -524,49 +580,48 @@ InGame_GetPSXPadValue_gotType:
     switch (value) {
     case 0x800000:
       newControl = player << 0x1e |
-                   (0x80 - GameSetup_gData.controllerData.J1MIN[player]) * 0x10000 |
-                   (0x80 - GameSetup_gData.controllerData.J1MAX[player]) * 0x100 ;
+                   (0x80 - INGAME_CD.J1MIN[0]) * 0x10000 |
+                   (0x80 - INGAME_CD.J1MAX[0]) * 0x100 ;
       return newControl | 1;
     case 0x200000:
       newControl = player << 0x1e |
-                   (GameSetup_gData.controllerData.J1MIN[player] + 0x80) * 0x10000 |
-                   (GameSetup_gData.controllerData.J1MAX[player] + 0x80) * 0x100 ;
-      return newControl | 1;
+                   (INGAME_CD.J1MIN[0] + 0x80) * 0x10000;
+      return (newControl |= (INGAME_CD.J1MAX[0] + 0x80) * 0x100) | 1;
     case 0x100000:
       newControl = player << 0x1e |
                    0x1000000 |
-                   (0x80 - GameSetup_gData.controllerData.J1MIN[player]) * 0x10000 |
-                   (0x80 - GameSetup_gData.controllerData.J1MAX[player]) * 0x100 ;
+                   (0x80 - INGAME_CD.J1MIN[0]) * 0x10000 |
+                   (0x80 - INGAME_CD.J1MAX[0]) * 0x100 ;
       return newControl | 1;
     case 0x400000:
       newControl = player << 0x1e |
                    0x1000000 |
-                   (GameSetup_gData.controllerData.J1MIN[player] + 0x80) * 0x10000 |
-                   (GameSetup_gData.controllerData.J1MAX[player] + 0x80) * 0x100 ;
+                   (INGAME_CD.J1MIN[0] + 0x80) * 0x10000 |
+                   (INGAME_CD.J1MAX[0] + 0x80) * 0x100 ;
       return newControl | 1;
     case -0x80000000:
       newControl = player << 0x1e |
                    0x2000000 |
-                   (0x80 - GameSetup_gData.controllerData.J2MIN[player]) * 0x10000 |
-                   (0x80 - GameSetup_gData.controllerData.J2MAX[player]) * 0x100 ;
+                   (0x80 - INGAME_CD.J2MIN[0]) * 0x10000 |
+                   (0x80 - INGAME_CD.J2MAX[0]) * 0x100 ;
       return newControl | 1;
     case 0x20000000:
       newControl = player << 0x1e |
                    0x2000000 |
-                   (GameSetup_gData.controllerData.J2MIN[player] + 0x80) * 0x10000 |
-                   (GameSetup_gData.controllerData.J2MAX[player] + 0x80) * 0x100 ;
+                   (INGAME_CD.J2MIN[0] + 0x80) * 0x10000 |
+                   (INGAME_CD.J2MAX[0] + 0x80) * 0x100 ;
       return newControl | 1;
     case 0x10000000:
       newControl = player << 0x1e |
                    0x3000000 |
-                   (0x80 - GameSetup_gData.controllerData.J2MIN[player]) * 0x10000 |
-                   (0x80 - GameSetup_gData.controllerData.J2MAX[player]) * 0x100 ;
+                   (0x80 - INGAME_CD.J2MIN[0]) * 0x10000 |
+                   (0x80 - INGAME_CD.J2MAX[0]) * 0x100 ;
       return newControl | 1;
     case 0x40000000:
       newControl = player << 0x1e |
                    0x3000000 |
-                   (GameSetup_gData.controllerData.J2MIN[player] + 0x80) * 0x10000 |
-                   (GameSetup_gData.controllerData.J2MAX[player] + 0x80) * 0x100 ;
+                   (INGAME_CD.J2MIN[0] + 0x80) * 0x10000 |
+                   (INGAME_CD.J2MAX[0] + 0x80) * 0x100 ;
       return newControl | 1;
     }
     break;
@@ -574,8 +629,8 @@ InGame_GetPSXPadValue_gotType:
     switch (value) {
     case 0x800000:
       newControl = player << 0x1e |
-                   (0x80 - GameSetup_gData.controllerData.deadSpot[player]) * 0x10000 |
-                   (0x80 - GameSetup_gData.controllerData.steeringRange[player]) * 0x100 ;
+                   (0x80 - INGAME_CD.deadSpot[0]) * 0x10000 |
+                   (0x80 - INGAME_CD.steeringRange[0]) * 0x100 ;
       __asm__ volatile("" : : "r"(newControl));
       /* w46-a8 DE-MERGE FENCE (zero insns, §2b.5 -- NOT a register pin).  The w45 `| 1`-
          on-the-return lever made gcc's jump2 cross-jump the case tails like retail, but it
@@ -589,18 +644,18 @@ InGame_GetPSXPadValue_gotType:
       return newControl | 1;
     case 0x200000:
       newControl = player << 0x1e |
-                   (GameSetup_gData.controllerData.deadSpot[player] + 0x80) * 0x10000 ;
+                   (INGAME_CD.deadSpot[0] + 0x80) * 0x10000 ;
       return (newControl |=
-              (GameSetup_gData.controllerData.steeringRange[player] + 0x80) * 0x100) | 1;
+              (INGAME_CD.steeringRange[0] + 0x80) * 0x100) | 1;
     case 0x4000:
       newControl = player << 0x1e |
                    0x1000000 |
-                   GameSetup_gData.controllerData.ImaxRange[player] * 0x100 ;
+                   INGAME_CD.ImaxRange[0] * 0x100 ;
       return newControl | 1;
     case 0x8000:
       newControl = player << 0x1e |
                    0x2000000 |
-                   GameSetup_gData.controllerData.IImaxRange[player] * 0x100 ;
+                   INGAME_CD.IImaxRange[0] * 0x100 ;
       return newControl | 1;
     case 0x400:
       newControl = player << 0x1e | 0x30aff01;
@@ -611,6 +666,7 @@ InGame_GetPSXPadValue_gotType:
   newControl = player << 0x1a | value << 8 | 2;
   return newControl;
 }
+#undef INGAME_CD
 
 /* ---- InGame_GetDevice__Fi  [PSXCONTROLLER.CPP:338-339] SLD-VERIFIED ---- */
 int InGame_GetDevice(int control)

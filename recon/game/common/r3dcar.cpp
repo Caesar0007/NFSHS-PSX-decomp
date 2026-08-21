@@ -1965,8 +1965,20 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
   pGVar14 = carObj->carInfo;
   carType = pGVar14->carType;
   R3DCar_rightHandDrive = rightHandDrive;
-  iVar8 = carType - 0x16;
-  cop_flag = (u_int)iVar8 < 6;
+  /* MATCH (W71-A21, 12 -> 8): BLOCK-LOCAL COP-INDEX CARRIER, at BOTH sites.
+     Retail keeps `carType-22` in a caller-saved temp and only the sltiu result in
+     $s4 (`addiu v0,s3,-22; sltiu s4,v0,6` here, `addiu v1,s3,-22; sltiu s4,v1,6`
+     at the sceneCounterJoin site).  The direct expression `(u_int)(carType-0x16)<6`
+     lets gcc reuse the DEST ($s4) as the subtraction scratch; a FUNCTION-scope
+     named temp (or reusing `iVar8`) fixes the site but lengthens that pseudo's
+     live range and flips the carInfo pointer / temp pair $v0<->$v1 at the other
+     site (18 diffs).  A block-local carrier at EACH site is a fresh short pseudo
+     per site, so both sites get their own caller-saved scratch with no
+     cross-site interference. */
+  {
+    int copIndex0 = carType - 0x16;
+    cop_flag = (u_int)copIndex0 < 6;
+  }
   if (cop_flag == 0) {
     pGVar14->Country = 0;
   }
@@ -2012,7 +2024,29 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
      The two halves stay anti-correlated.  NEXT (untried, instrument-level): read the
      -dl/-dg dump for this block and check whether the gFlip load and the row address
      are one combined {high,lo_sum} qty (local-alloc.c:1973 SUMS their refs) -- if so
-     the axis is a qty-structure question, not a spelling one. */
+     the axis is a qty-structure question, not a spelling one.
+
+     W71-A21 RE-PRICED THIS CLUSTER FROM THE NEW 6-DIFF BASIN (after the block-local
+     cop-index carriers and the `slotOff` index-sum landed, both below).  The sum
+     grouping IS reachable now, but it TRADES against a $v0<->$v1 rename of the two
+     index values -- exactly two states, and the kept row-pointer form beats both:
+       kept `subOtRow = subOtStart[gFlip]; subOtRow[iVar9]` .............. 6 @1054
+       `int subOtOff = iVar9*4 + gFlip*8; *(u_long **)(subOtOff+(int)subOtStart)`
+                                                                        .. 16 @1054
+         -> retail's GROUPING and retail's accumulator role exactly, but gFlip lands
+            in $v1 / iVar9 in $v0: a whole-cluster v0<->v1 rename (incl. the lui/lw)
+       `int subOtOff = gFlip*8 + iVar9*4; ...` ........................... 8 @1054
+         -> retail's HARD REGS (gFlip $v0, iVar9 $v1) but the accumulator coalesces
+            with operand-0 (gFlip) instead of retail's operand-0 (iVar9), and the
+            two `sll`s swap emission order
+     ALSO MEASURED (all inert or worse): `(iVar9<<2)+(gFlip<<3)` 16 | a `flipOff`
+     temp before the sum 22 | `subOtOff = iVar9*4; subOtOff = subOtOff + gFlip*8;` 16
+     | `subOtOff = gFlip*8; subOtOff = iVar9*4 + subOtOff;` 8 | `(uVar20!=0)*4+..` 30.
+     NOTE the load position is NO LONGER the trade (W63/W64's anti-correlation): from
+     this basin the gFlip load stays batched before `lw a0,0(s1)` in every spelling.
+     NAMED ANGLE: which of the two index pseudos wins $v0 in local-alloc when the
+     sum's operand 0 is iVar9 -- price it with tools/reqdelta.py on those two
+     allocnos.  The sum-SPELLING axis is now exhausted twice over; do not re-sweep. */
   u_long **subOtRow = subOtStart[gFlip];
   iVar11 = ((carObj->N).objID & 0xfU) * 0x200;
   (carObj->render).sub_ot =
@@ -2151,13 +2185,23 @@ R_ICFtMenu_bigFileCheck:
     if (((carObj->render).inside & 1U) != 0) {
       strcat(workFile,"h");
     }
-    /* MATCH (W54-A13): SPLIT the two index terms into two statements.  The fused
-       `base + cf*50 + carType` reassociates (both `addu`s pick the wrong operand pair);
-       splitting keeps the oracle's pair.  WARNING: do NOT parenthesise the index sum
-       instead (`base + (cf*50 + carType)`) -- cse then hoists the sum, -5 insns/133 diffs. */
+    /* MATCH (W71-A21, 8 -> 6): NAMED INT TEMP for the INDEX SUM, base added LAST.
+       Retail groups the two scaled index terms first (`addu v1,s6,v1` =
+       carType*4 + countryFlag*200) and only then adds the LoadedScenePointer base
+       (`addu s0,v1,v0`); the older pointer-typed two-statement form
+       (`p = base + cf*50; p = p + carType;`) absorbed the base into the FIRST addu.
+       The lever is that the index sum must live in ITS OWN int pseudo -- carrying
+       it in `ppTVar21` itself (`ppTVar21 = (T**)(carType*4 + cf*200); ppTVar21 =
+       (T**)((int)ppTVar21 + (int)base);`) reproduces retail's GROUPING but makes
+       the intermediate coalesce into $s0 and re-colors the whole cf*200 chain
+       v1 -> v0 (20 diffs).  A distinct `slotOff` gives the intermediate $v1 = retail.
+       (W63-A14's "index-first cast is a net loss" verdict was measured from the
+       older 12-diff basin, where the cop-index sites still fought over $s4.)
+       WARNING: do NOT parenthesise the index sum into the pointer expression
+       (`base + (cf*50 + carType)`) -- cse then hoists the sum, -5 insns/133 diffs. */
     Transformer_zScene **loadedSceneBase = &R3DCar_LoadedScenePointer[0][0];
-    ppTVar21 = loadedSceneBase + countryFlag * 50;
-    ppTVar21 = ppTVar21 + carType;
+    int slotOff = carType * 4 + countryFlag * 200;
+    ppTVar21 = (Transformer_zScene **)(slotOff + (int)loadedSceneBase);
     if (*ppTVar21 != (Transformer_zScene *)0x0) {
       purgememadr(*ppTVar21);
       *ppTVar21 = (Transformer_zScene *)0x0;
@@ -2177,10 +2221,17 @@ R_ICFtMenu_bigFileCheck:
 R_ICFtMenu_sceneCounterJoin:
   carType = (int)(carObj->render).currentCarType;
   countryFlag = (int)((u_char)(carObj->render).currentCountry >> 7);
-  /* NEAR-MISS (W56-A14): oracle `addiu v1,s3,-22; sltiu s4,v1,6` keeps carType-22 in a
-     caller-saved temp; ours reuses s4(cop_flag) as scratch. FALSIFIED: named `iVar8=carType-0x16`
-     here -> 18 (cascades). Don't-reuse-dest coloring residual, permuter-class. */
-  cop_flag = carType - 0x16U < 6;
+  /* MATCH (W71-A21): oracle `addiu v1,s3,-22; sltiu s4,v1,6` keeps carType-22 in a
+     caller-saved temp; the direct expression reused s4(cop_flag) as scratch.  A named
+     carrier fixes it -- but ONLY once the FIRST site (near the top of the fn) also
+     carries its subtraction in a BLOCK-LOCAL temp.  With the first site written as the
+     direct expression, or as an assignment to the function-scope `iVar8`, naming the
+     temp here flips the carInfo-pointer/temp pair $v0<->$v1 at the first site (18 diffs)
+     -- which is the W56-A14 "cascades" reading.  Block-local at both sites: 12 -> 8. */
+  {
+    int copIndex1 = carType - 0x16;
+    cop_flag = (u_int)copIndex1 < 6;
+  }
   if (((R3DCar_InMenu & 0x80U) == 0) && (carType < 0)) {
     (carObj->render).detail = -1;
   }

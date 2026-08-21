@@ -116,6 +116,40 @@ void AIHigh_Cop::SetTuningLevers()
 
 
 /* ---- HighExecute__10AIHigh_Cop  AIHigh_Cop::HighExecute  [AIH_COP.CPP:147-816] SLD-VERIFIED ---- */
+/* ==== W71-A19: 69 -> 41 diffs (ours 1461 / oracle 1460).  TWO landings, both cited
+   at their sites: (1) the perpTarget_ address-CSE break in the roadblock-release test
+   (69->55, the fn's only >=6-insn mismatched run), (2) the AICop_spikeBelt store order
+   giving this->requestSpikeBeltAtSlice_ retail's early luid (55->41).
+   RESIDUAL 41 = 16 mismatched insns in 10 runs, NONE longer than 3, and the fn is now
+   only +1 insn (the wrongWay island's unfilled load-delay nop).  The five sites, all
+   SLD-anchored (tools/sldall.py):
+     A ours[215:222] SLD 303  wrongWay: ours loads roadblock.dir BEFORE the reverseTrack
+       global (leaving its load-delay slot nop'd) where retail loads the global first and
+       fills the slot with the dir load.  RE-FALSIFIED IN THIS BASIN (each re-gated from
+       55): if/else, inverted if/else, ternary, if/else + a shared dir local (all 55 but
+       +4 insns), a global-into-local read first (55, byte-identical), volatile on the
+       reverseTrack read (55), volatile on either dir read (55 @+2), a void-tail fence
+       above the pair (58), a read-only fence on the global between them (57).
+     B ours[362:367] SLD 369  the INNER (mode==1)||(mode==4): retail re-materializes
+       `li v0,4` INTO the first beq's delay slot and loads mode into $v1; ours reuses the
+       outer test's callee-saved $s2 and nops the slot.  The two halves are COUPLED --
+       our inner mode read takes $v0, so $v0 is not free for a fresh 4.  Re-falsified
+       here: spelling the inner test as a direct this->blockade_.mode re-read = 53.
+     C ours[894:900] SLD 615  `(this->carObj_)->AIFlags | 2`: retail pointer->$v1 /
+       value->$v0 (reusing the two regs the preceding mode==2 test just killed), ours the
+       reverse.  INERT here (all 41): compound `|=`, operand flip `2 | x`, a named
+       block-scoped `Car_tObj *co`, an unsigned-typed RMW.
+     D ours[1084:1086]  the 0x471c7 compare's DEST reg ($v0 ours / $v1 retail).
+       `speed > 0x471c7` is byte-identical (canonicalised).
+     E ours[1126]  one compare-operand order on the chaseLevelIndex_ test; flipping the
+       source operands is WORSE (61) -- do not retry.
+   READING: C and D (and B's second half) are all the SAME shape -- a two-qty block where
+   retail hands $v0 to the value and $v1 to the pointer/base and ours does the reverse.
+   That is local_alloc, not global_alloc: the next lens is the 14C 3-QTY LADDER LAW
+   (local-alloc.c:1638-52 -- blocks with next_qty<=3 skip the qsort and compare RAW QTY
+   NUMBERS, so no ref/live dial can reorder them; the only dial is crossing the 3<->4
+   boundary with a DISTINCT extra qty).  Run tools/copypref.py / qtyprio.py on these
+   three blocks before spending another spelling wave. ==== */
 /* NEAR-MISS 69 diffs, ours 1457 / oracle 1460 (W64-A12 re-gated; w63-a12 landed 77->69
    with the fenced boolean + the 09I volatile-on-the-test-read, both halves ablated and
    both load-bearing).  ONE named residual is now isolated and its cheapest angle is
@@ -1182,11 +1216,20 @@ LAB_80064a0c:
           right = fixedmult((*(u_char *)(this->requestSpikeBeltAtSlice_ * 0x20 + (int)BWorldSm_slices + 0x1f) << 15) *
                              (*(u_char *)(this->requestSpikeBeltAtSlice_ * 0x20 + (int)BWorldSm_slices + 0x1d) & 0xf),size);
 
+          /* MATCH (W71-A19, 55->41): retail loads this->requestSpikeBeltAtSlice_
+             EARLY in this store block (oracle idx 948 `lw t0,0x64(s1)`, right after
+             the &AICop_spikeBelt addiu and BEFORE the D_8011E0B0 %hi) -- sched1's
+             ready-list tie follows source luid order (16C).  Writing the slice_
+             store FIRST gives that load the earlier luid; gcc reschedules the four
+             STORES back to retail's 8/12/0/4/16 order for free, and the whole
+             t0/a3/a2 band falls in with it.  (An invented `int reqSlice` read at
+             the top of the block measures the same 41 -- prefer the store order,
+             the SYM lists no such local.) */
+          AICop_spikeBelt.slice_ = this->requestSpikeBeltAtSlice_;
+
           AICop_spikeBelt.leftLatPos_ = -left;
 
           AICop_spikeBelt.rightLatPos_ = right;
-
-          AICop_spikeBelt.slice_ = this->requestSpikeBeltAtSlice_;
 
           AICop_spikeBelt.active_ = 1;
 
@@ -1310,8 +1353,21 @@ LAB_80064d34:;
 
           if (((0x471c7 < speed) &&
 
-              (timeToRB = fixeddiv(rbDistanceMeters,((this->perpTarget_)->carObj_)
-                                         ->currentSpeed), 0 < timeToRB)) &&
+              /* MATCH (W71-A19, 69->55): retail RE-DERIVES the whole chain here
+                 (oracle 0x80064DBC-DCC `lw v0,0x58(s1); lw v0,0(v0); lw a1,0x564(v0)`)
+                 while our cse keeps the carObj_ pointer live across the abs branch and
+                 re-loads only the field (`lw a1,1380(a1)`) -- 4 insns short + a band
+                 shift.  A volatile view on the perpTarget_ READ defeats the ADDRESS-CSE
+                 (w22-a10 / 05E) and restores retail's fresh chain.  Measured, each
+                 re-gated from 69: volatile on carObj_ alone 67; on the field alone 69
+                 (inert); on perpTarget_ 55; on both links 55; both reads volatile 55.
+                 Non-volatile alternatives are strictly worse: identity-launder of a
+                 fresh `AIHigh_Player *pt` copy 65 (in- or out-of-chain), read-only
+                 fence on `this` 69 (inert), nested-ifs / block-scoped pointer locals
+                 for either read 69 (all inert). */
+              (timeToRB = fixeddiv(rbDistanceMeters,
+                   (*(AIHigh_Player *volatile *)&this->perpTarget_)->carObj_->currentSpeed),
+                   0 < timeToRB)) &&
 
              (timeToRB < this->blockade_.releaseTime)) {
 

@@ -200,7 +200,31 @@ void tScreenTournamentStandings::ProcessInput(tPlayer,tInputKeyType &keyval,
    us at five call sites (local-alloc numeric scan); (b) an s4/s5 rotation around
    the ticks[0] address and late constant one; (c) one duplicate manager-base
    copy in the prologue.  FALSIFIED at 56: named definition pointer is neutral;
-   an input-priced textType local is 57/558; plain money literals are 217/548. */
+   an input-priced textType local is 57/558; plain money literals are 217/548.
+   ==== W71-A18 (2026-08-21): 56 -> 35 (562/561).  THE `one` LOCAL IS RETIRED. ====
+   The W61 "plain money literals 180 (212)" falsification was BASIN-RELATIVE and
+   is now dead: re-measured from the 56 basin, spelling ALL SIX of the three
+   money rows' trailing args as plain `1` literals (`self->gotmoney ? 1 : 0, 1`)
+   gates 35, and the (b) s4/s5-rotation half of the residual goes with it --
+   retail keeps a cse-shared `1` in $s4 for the justify args AND materializes a
+   FRESH `li v0,1` for each ternary arm, which only the literal spelling
+   produces (the named `one` local makes both uses one pseudo, so ours passed
+   $s4 for both).  Splitting the two roles was measured: literal ternary + named
+   justify 67, named ternary + literal justify 61, both literal 35.
+   RESIDUAL 35 = (a) the textType constant `11` in $v0/$v1 vs retail's $t1 at
+   six call sites, plus (c) the +1 prologue `addiu v0,t1,0` (a SECOND
+   `%lo(tournamentManager)` lo_sum off the shared `%hi`; retail reuses one base
+   for the 4/24/8/16 field reads).  (a) is a local-alloc numeric-scan question:
+   retail's shared `2` (state AND justify at the same call) is born BEFORE the
+   textType constant and holds $v0 across both stores, so the 11 scans on to
+   $t1; ours serializes (li 11, sw, li 2, sw) and reuses $v0.  (c) is NOT
+   source-shapeable: re-gated neutral at 35 are a `tTournamentManager *tm`
+   alias for every pre-loop field read, a hoisted `fDefinition` pointer, a
+   hoisted `fTier`, an index temp, and hoisting the `fNumRacers` read to be the
+   FIRST manager access; operand-order variants are worse (tier-last 39,
+   fTournament-first 49).  Route for both halves: the local-alloc QTY
+   instrument (methodology 4.6) -- neither is an allocno-table question.
+   Harness: scratchpad/A18/post_v{1,2,3,4}.json + probe.py. */
 /* ---- tScreenTournamentStandings::DrawBackground  [SCREENPOST.CPP:164-312] ---- */
 void tScreenTournamentStandings::DrawBackground()
 
@@ -297,9 +321,6 @@ void tScreenTournamentStandings::DrawBackground()
   DrawShapeExtended(0x27,0x400,0,-1,self->fScreenFadeVal,0,&drawflags);
   PSXDrawBrightEndLine(0x232323,TextSys_WordX(0x2f6) - 0x96,TextSys_WordY(0x2fd) + 10,
                        300,1,3,fadeline,0x1e);
-  /* Shared by the three money-state/justify pairs; this gives retail's late
-     s4 constant and leaves colf/colb in s3/s2. */
-  int one = 1;
   colf = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][5]],fade);
   colb = CalcFadeVal(0x232323,fade);
   if ((1000 < ticks[0] - self->starttick) || (self->fStartCountdownNOW != 0)) {
@@ -325,15 +346,15 @@ void tScreenTournamentStandings::DrawBackground()
     FETextRender_FullTextFade(fade,TextSys_Word(0x312),(short)TextSys_WordX(0x2fa),
                              (short)TextSys_WordY(0x312),
                              textType_TrackRecords,
-                             self->gotmoney ? one : 0,one);
+                             self->gotmoney ? 1 : 0,1);
     DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x312),6,self->moneyAwarded,colf,colb);
     FETextRender_FullTextFade(fade,TextSys_Word(0x313),(short)TextSys_WordX(0x2fa),
                              (short)TextSys_WordY(0x313),
-                             textType_TrackRecords,self->gotbilled ? one : 0,one);
+                             textType_TrackRecords,self->gotbilled ? 1 : 0,1);
     DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x313),6,self->moneyDamage,colf,colb);
     FETextRender_FullTextFade(fade,TextSys_Word(0x314),(short)TextSys_WordX(0x2fa),
                              (short)TextSys_WordY(0x314),
-                             textType_TrackRecords,self->gotbonus ? one : 0,one);
+                             textType_TrackRecords,self->gotbonus ? 1 : 0,1);
     DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x314),6,self->moneyBonus,colf,colb);
   }
   FETextRender_FullTextFade(fade,TextSys_Word(0x315),(short)TextSys_WordX(0x2fa),(short)TextSys_WordY(0x315),

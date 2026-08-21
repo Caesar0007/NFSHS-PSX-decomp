@@ -378,7 +378,13 @@ static inline int Sfx_BuildSparkFacet(DRender_tView *Vi,Souffle_tISouffle *is,sf
     /* the clamped endpoint is measured from is->trans.vx, NOT from ptrans.vx --
        oracle `lhu $v1,0x30($s2)` feeds both `addiu $v0,$v1,0x20` and
        `addiu $v0,$v1,-0x20` before `sh $v0,0x58($sp)`. */
-    ptrans.vx = (is->trans.vx < ptrans.vx) ? is->trans.vx + 0x20 : is->trans.vx + -0x20;
+    /* MATCH (W71-A7, 116 -> 114, count stays EXACT 938/938): OPERAND ORDER of the
+       select's guard decides which of the two `lh`s is emitted first.  Retail loads
+       ptrans.vx (88(sp)) BEFORE is->trans.vx (48(s2)); the natural
+       `is->trans.vx < ptrans.vx` spelling emits them the other way round.  The Yoda
+       form `ptrans.vx > is->trans.vx` is the same comparison with the same `slt
+       v0,v0,v1` and the same registers -- only the two load slots swap. */
+    ptrans.vx = (ptrans.vx > is->trans.vx) ? is->trans.vx + 0x20 : is->trans.vx + -0x20;
   }
   dSouffle->v0.vx = is->trans.vx;
   dSouffle->v0.vy = is->trans.vy + 0x20;
@@ -511,14 +517,60 @@ static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,
            tail: adding retail's `prim = (POLY_FT4*)Render_gPacketPtr;` RE-READ in front
            of its tag RMW (retail `lw t0,0(t1)` @row 909, one pointer for tag+bump+link)
            = 116 -> 150 @942 -- it breaks the cross-jump that currently holds the count
-           exact, i.e. the w41-a9 "+2 and +2 or" overage returns. */
+           exact, i.e. the w41-a9 "+2 and +2 or" overage returns.
+           ==== W71-A7 (2026-08-21): 116 -> 44.  THE CROSS-JUMP BLOCKER IS SOLVED, and
+           with it the whole "site-2 ordering angle CANNOT be attacked from this call
+           site" verdict above is RETIRED.  Three findings, in order:
+           (1) THE DE-MERGER THAT WORKS IS A **MEMORY**-OPERAND FENCE, NOT A VALUE ONE.
+               w50-A3 falsified `__asm__("" : : "r"(link))` as a de-merger and concluded
+               "the de-merge has to come from the ALLOCATION side".  That was the wrong
+               operand CLASS.  This helper is inlined twice, and the two inline instances
+               own DIFFERENT stack slots for their own locals (SYM: case-10 dest@120 /
+               case-8 dest@112).  So a zero-EMITTED-BYTE, NON-volatile identity launder
+               carrying an "m" operand on one of those locals --
+                   __asm__("" : "=r"(w) : "0"(w), "m"(dest[0]));
+               -- is ONE asm in the source but TWO textually DIFFERENT insns after
+               inlining (`120(sp)` vs `112(sp)`), which is exactly what post-RA
+               cross_jump compares.  The 20-insn tail swallow stops dead.  Any
+               instance-local memory operand works identically (dest[0], dest[3], pt[0],
+               pt[1], check, color -- all measured 63 @943 at the time); a REGISTER
+               operand does not, because both instances end up in the same hard reg.
+           (2) WITH THE MERGE BLOCKED, THE w60 AdditivePrim JOINT DIAL PAIR TRANSFERS
+               HERE VERBATIM (it never could before -- every earlier attempt measured
+               only the collapse): an INT-TYPED index-first OT address
+               (`sd->otz * 4 + (int)Render_gPalettePtr`) plus the `w` temp that moves
+               the OT-word READ above the packet-cursor STORE.  Both ribbon tails now
+               reproduce retail's `lw a0,20(s3); addiu v1,s0,40; sll; addu a0,a0,a2;
+               lw v0,0(a0); sw v1,4(at)` order AND its four-constant register rotation
+               (a1=0xffffff, a2=palette, a3=0xff000000) exactly.
+           (3) the case-13/14 tail then also takes the same treatment (see its own note).
+           MEASURED (from the 116 basin, all re-gated): reshape alone 86 @918 (the
+           documented swallow) . reshape + m-fence 63 @943 . + the case-13/14 reshape
+           with retail's `prim` re-read 44 @944 (LANDED).  Placement sweep for the fence
+           (basin 114): on `prim` before the tag RMW 100 @922 . on `ot2` after its init
+           105 @939 . on `prim` before the bump 74 @940 . on `w` BEFORE the bump 94 @940
+           . on `w` AFTER the bump 63 @943 (kept) . volatile m-only after the bump 69
+           @943 . on `ot2` after the bump 93 @943.  Falsified from the 44 basin: split
+           `nxt` bump temp 44 (inert) / with the store below the fence 66 @940.
+           RESIDUAL 44 @944 (+6), fully decoded, TWO items only:
+            (a) +2 nops -- retail fills the `lw a0,20(s3)` load-delay slot with the
+                cursor bump `addiu v1,s0,40`; ours emits the bump 4 slots later.
+            (b) +4 -- the three arms' shared 3-insn tail (`and v0,v0,a3; or v0,v0,a1;
+                sw v0,0(a0)`, retail's .L800DE610) only merges its LAST insn for us,
+                because the case-13/14 arm still colors that `or` with $a2 where the two
+                ribbon arms use $a1 (see the a1<->a2 note at the case-13/14 tail).  Fix
+                that swap and the 3-way merge completes, taking the count to 940 and
+                removing (b) entirely -- that is the single highest-value next step. */
         prim = (POLY_FT4 *)Render_gPacketPtr;
         prim->tag = prim->tag & 0xff000000 |
                     *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
-        Render_gPacketPtr = (u_char *)prim + 0x28;
-        *(u_int *)(Render_gPalettePtr + sd->otz * 4) =
-             *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 |
-             (u_int)prim & 0xffffff;
+        {
+          u_int *ot2 = (u_int *)(sd->otz * 4 + (int)Render_gPalettePtr);
+          u_int w = *ot2;
+          Render_gPacketPtr = (u_char *)prim + 0x28;
+          __asm__("" : "=r"(w) : "0"(w), "m"(dest[0]));
+          *ot2 = w & 0xff000000 | (u_int)prim & 0xffffff;
+        }
       }
     }
   }
@@ -958,12 +1010,37 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
           *(u_int *)&prim->u1 = p1f;
           *(u_int *)&prim->u2 = p2f;
           *(u_int *)&prim->u3 = p3f;
+          /* MATCH (W71-A7): the case-13/14 OT tail, now retail-SHAPED.  Two changes,
+             and NEITHER works without the ribbon helper's cross-jump de-merger (see the
+             long W71-A7 note there) -- on their own each one just triggers the ~19-insn
+             tail swallow (reshape alone 115 @919, reshape + re-read 96 @918):
+              (1) retail's `prim` RE-READ from the packet cursor in front of the tag RMW
+                  (`lw t0,0(t1)`), so ONE pointer serves tag + bump + link.  w53-a2
+                  recorded this as "150 @942, breaks the cross-jump" -- true in that
+                  basin, false in this one.
+              (2) the w60 AdditivePrim joint dial pair: int-typed index-first OT address
+                  + the `w` temp that lifts the OT-word READ above the cursor STORE.
+             The block is now INSTRUCTION-FOR-INSTRUCTION identical to retail; the only
+             residual here is a pure $a1<->$a2 SWAP: retail colors {0xffffff mask, link}
+             $a1 and {pixmap word 2, palette base} $a2, ours has them the other way
+             round.  FALSIFIED from this 44 basin (all 944, i.e. all inert unless noted):
+             named mask local; mask+link fused into one mutated variable 46; block-local
+             `lnk`; the link expression inlined; `link` computed before the tag RMW;
+             pointer-form ot2 90; int-form on the FIRST OT access too; Yoda on both
+             `&`s; OR-operand flip 59; an m-fence here as well; a `"$5"` hard-reg denial
+             on the pixmap temp 55 @945.  This swap is what still costs the 3-way
+             shared-tail merge (+4 insns in the ribbon arms) -- crack it and the fn
+             should land at 940 with only the two delay-slot nops left. */
+          prim = (POLY_FT4 *)Render_gPacketPtr;
           prim->tag = prim->tag & 0xff000000 |
                       *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
-          link = (u_int)Render_gPacketPtr & 0xffffff;
-          Render_gPacketPtr = Render_gPacketPtr + 0x28;
-          *(u_int *)(Render_gPalettePtr + sd->otz * 4) =
-               *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xff000000 | link;
+          {
+            u_int *ot2 = (u_int *)(sd->otz * 4 + (int)Render_gPalettePtr);
+            u_int w = *ot2;
+            link = (u_int)prim & 0xffffff;
+            Render_gPacketPtr = (u_char *)prim + 0x28;
+            *ot2 = w & 0xff000000 | link;
+          }
         }
       }
     }

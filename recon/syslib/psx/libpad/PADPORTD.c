@@ -327,13 +327,56 @@ extern void _pad_reset_state(unsigned char *info)
  *   caller-saved home is block-local (local_alloc, which runs first, parks those in $v0/$v1 and
  *   never reaches $a0).  Sharpened statement of the open angle: the rival must be a GLOBAL
  *   allocno, born in the entry block, not call-crossing, ranked above 4, and conflicting with
- *   `flag` -- allocsim/reqdelta272 pricing job. */
+ *   `flag` -- allocsim/reqdelta272 pricing job.
+ * MATCH (A14/w71, 17 -> 8 @61/61 COUNT-EXACT) -- residual class (a), the parm copy, is CLOSED,
+ *   and the w62/w63/w64 certificate is REFUTED on its own terms: the two exits it priced were
+ *   the only two it knew about, but there is a THIRD -- deny the hard register itself.  The
+ *   device is 20B (W69, StatusReply): an identity launder that ALSO CLOBBERS the hard reg,
+ *   `__asm__("" : "=r"(flag) : "0"(flag) : "$4")`.  Mechanism, in the certificate's own terms:
+ *   the `"0"` tie makes the asm NON-VOLATILE (an output-bearing asm is not implicitly volatile),
+ *   so it is NOT a sched1 barrier -- the w64 "identity fence as the first statement" probe used
+ *   the launder WITHOUT the clobber and therefore only killed the copy-PREFERENCE, which the
+ *   certificate correctly observed is not enough (find_reg's plain ascending scan hands $a0
+ *   anyway).  The `"$4"` clobber is the missing half: reload/local-alloc put an asm-used hard reg
+ *   in `regs_explicitly_used`, so $a0 is excluded from the scan for `flag` outright and retail's
+ *   entry copy `addu $a1,$a0,$zero` MINTS.  Both tests, both `li $a1,65535` and the copy -- 13 of
+ *   the 17 lines -- go in one edit, and the count becomes exact 61/61.
+ *   RESIDUAL 8 @61/61, TWO classes, both position-only (every WORD is now retail's):
+ *   (a') PROLOGUE ORDER, 4 lines: retail emits the loop-invariant materializations in the order
+ *        [`lui/addiu $s1` = &_pad_info] [`li $s3,-9`] [`lui/addiu $s2` = &_padFixResult] (each
+ *        preceded by its own `sw sN`), i.e. the -9 sits BETWEEN the two LICM hoists = it is
+ *        itself a loop.c movable emitted in order of appearance.  Ours emits `li $s3,-9` FIRST
+ *        because the named `noport` is straight-line pre-loop code and LICM inserts its hoists
+ *        after it.  FALSIFIED (A14, all measured): `noport = -9;` assigned INSIDE the loop
+ *        (19 @60 -- loop.c DECLINES the movable, `li $v0,-9` stays in the loop and the 4th saved
+ *        reg + the 0x28 frame go with it); a bare `-9` literal in the loop (19 @60, identical);
+ *        a named `base = _pad_info` declared before `noport` so the base is straight-line too
+ *        (24 @63 -- it rotates the whole s-band); `noport` declared last / declared first /
+ *        split decl+assign (all 8, inert -- declaration position is NOT the dial here); an
+ *        identity launder on `noport` (20).  ANGLE: loop.c declined our -9 movable, so the
+ *        question is 13C's ":1640 budget" -- a zero-insn device that raises the constant's
+ *        savings so it hoists in appearance order.
+ *   (b') the TWO-LOAD LUID TIE, 4 lines (retail `lw _padSioRegs` then `lw _padSioChan`, ours the
+ *        reverse), RE-SWEPT at this basin per 04Z and unchanged: all six orderings of the
+ *        state/JOY/chan trio (chan,state,JOY / chan,JOY,state / state,chan,JOY = 8; state,JOY,chan
+ *        = 10; JOY,chan,state / JOY,state,chan = 13 @62), a discarded `sio = _padSioRegs` read
+ *        before the trio (8), and three fused-increment spellings (`chan = _padSioChan + 1`,
+ *        `_padSioChan = _padSioChan + 1`, chan-load-after-the-stores; all 10).  Sched1 ready-list
+ *        tie, confirmed a second time. */
 extern unsigned char *_pad_failall(int flag)
 {
     unsigned char *ret;
     int noport = -9;
     int chan;
 
+    /* MATCH (A14/w71): 20B preference-killer -- identity launder + a HARD-REG CLOBBER of $a0.
+     * The launder's `"0"` tie drops the implicit volatility (so this is NOT a sched barrier and
+     * costs ZERO instructions); the `"$4"` clobber enters regs_explicitly_used and denies $a0 to
+     * `flag`, which is what mints retail's entry copy `addu $a1,$a0,$zero` and moves both tests
+     * and both `li $a1,65535` onto $a1.  Do NOT drop either half: launder alone = 17 (the w64
+     * falsification), and the clobber is what the five-wave "quantified hardness certificate"
+     * above was missing.  17 -> 8, count-exact 61/61. */
+    __asm__("" : "=r"(flag) : "0"(flag) : "$4");
     do {
         unsigned char *info = _pad_info + _padSioChan * 0xf0;
         if (flag != noport) {
@@ -434,6 +477,38 @@ extern unsigned _pad_shift(unsigned char *info)
  *   together, which is why we are 3 short rather than 1.  Both arms' `addu`s are textually
  *   identical post-reload, so retail's find_cross_jump STOPPED one insn early -- that, not the
  *   direction, is the cheapest thing to explain, and it is a jump.c input question.
+ * MATCH (A14/w71, 5 -> PASS 47/47) -- the five-wave, 18-spelling "do_cross_jump direction is
+ *   source-invariant" verdict was WRONG, and the reason is a placement law worth banking: EVERY
+ *   prior probe put its fence BEFORE the deref (in the arm body, at the `break`, between the
+ *   pointer load and the index), where the fence has no value to hold and the surviving 2-insn
+ *   tail `addu;lbu` is still merge-eligible.  Putting a ONE-OPERAND READ-ONLY FENCE **between the
+ *   `lbu` and the `return`** -- i.e. on the LOADED BYTE, inside the tail itself -- is what makes
+ *   case 0's tail un-mergeable (12C: find_cross_jump refuses a tail containing an asm), so case 0
+ *   keeps its own `lw 40; nop; addu; lbu` copy and jumps to the epilogue exactly like retail,
+ *   while 'M' still merges into the default arm's surviving copy.  Requires the arm to end in an
+ *   inline `return` through a named temp (the `break`+shared-tail form has no tail to fence).
+ *   The identity launder in the same position also PASSes; the void fence `"i"(0)` there does NOT
+ *   (5, byte-identical) -- an operand-less asm has nothing to keep live.  ALSO MEASURED at this
+ *   basin: case 0 fenced + 'M' and default sharing the tail = 10 @43; case 0 laundered + 'M' and
+ *   default sharing = 5 @46.  GENERAL LAW (catalog candidate): to un-merge ONE arm of an N-arm
+ *   cross_jump, the fence must sit INSIDE the tail you want to keep, holding a live value, not
+ *   upstream of it.
+ *   BRANCH-WORD AUDIT (11C/04Q discipline, `tools/brdist.py`): baseline 6 offset diffs -> LANDED
+ *   1, and the survivor is NAMED: branch #8, the 'M' arm's `j`.  Retail's 'M' merges BACKWARD
+ *   into case 0's `lbu` copy (`j .L800FE058`, distance -9); ours merges FORWARD into the DEFAULT
+ *   arm's copy (distance +10).  Semantically identical (both targets are `lbu $v0,0($v0)` on the
+ *   way to the same epilogue) and word-count identical, but the `j`'s absolute target word
+ *   differs, so this is a real production-lane residual behind a green gate -- recorded, not
+ *   hidden.  It is the SAME merge-direction question, one level down: the fence that keeps case
+ *   0's copy alive also makes that copy un-mergeable, so 'M' has nowhere to go but the default's.
+ *   Retail needs no fence at all -- its case-0 and default tails differ in their TERMINATOR
+ *   (`j epilogue` + slot vs fall-through), which is why they never merge there.  MEASURED
+ *   alternatives, all worse on BOTH axes (gate diffs / brdist offset diffs): all three arms
+ *   inline with the default fenced 10 @47 / 4; with case 0 AND default fenced 5 @50 / 6; none
+ *   fenced 10 @43 / 7; case 0 + 'M' as `break` with the default fenced 8 @47 / BRANCH COUNT 11
+ *   vs 10; case-0 inline unfenced + 'M' break + default fenced 8 @47 / count 11 vs 10; case 0
+ *   fenced + 'M' inline + default break 5 @46 / 6.  ANGLE: reproduce retail's terminator
+ *   asymmetry (case 0 ending in `j epilogue`, default falling into it) WITHOUT a fence.
  * OLD (stale, 2.8 basin) note: the 4 extra instructions are jump.c RETURN-THREADING -- this fn is a
  * frameless leaf, so every `return` site gets its own threaded `jr $ra; nop` pair, where retail
  * keeps ONE shared epilogue block reached by `j .L800FE0A8` from all four exits.  Not reachable
@@ -455,9 +530,18 @@ extern int _pad_getbyte(unsigned char *info, int align)
             return 0;
         if (info[0x34] <= idx)
             return 0;
-        buf = *(unsigned char **)(info + 0x28);
-        break;
-    case 'M':                                /* 0x4D align: pad with 0xff */
+        /* MATCH (A14/w71): case 0 carries its OWN copy of the deref tail in retail; a
+         * 1-operand READ-ONLY FENCE on the loaded byte, placed BETWEEN the `lbu` and the
+         * `return`, keeps that value live past the load so do_cross_jump can no longer fold
+         * case 0's `addu;lbu` into the default arm's surviving copy (12C: an asm inside a
+         * candidate tail blocks find_cross_jump).  The 18 prior spellings all put the fence
+         * BEFORE the deref, where it has nothing to hold.  5 -> PASS 47/47. */
+        {
+            int r0 = (*(unsigned char **)(info + 0x28))[idx];
+            __asm__("" : : "r"(r0));
+            return r0;
+        }
+    case 'M':                              /* 0x4D align: pad with 0xff */
         if (info[0x35] <= idx)
             return 0xff;
         buf = *(unsigned char **)(info + 0x2c);

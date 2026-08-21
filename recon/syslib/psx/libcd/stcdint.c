@@ -19,6 +19,11 @@
 
 typedef unsigned char  u_char;
 typedef unsigned short u_short;
+/* W71-A9: the sub-header word is copied into the ring slot by an ALIGN-1 struct
+ * assignment -- retail emits gcc's unaligned movstrsi (`lwl 43(sp)/lwr 40(sp)` +
+ * `swl 31(v0)/swr 28(v0)`), which a plain `*(int *)(slot+0x1C) = loc[0]` (2 insns)
+ * can never produce.  See the cluster-(B) receipt at the store site. */
+typedef struct { char b[4]; } Pack4_;
 
 /* ---- CD/DMA hardware-register pointer table (.data @0x80136A98, materialised from NFS4.EXE) ----
  * Each entry is a 4-byte initialised pointer; under -G4 it would land in .sdata -> gp-relative, but
@@ -158,6 +163,7 @@ extern void StCdInterrupt(void)
     u_char *p;
     int     t0;
     unsigned i;
+    volatile int *dly_;      /* W71-A9: CDROM_DELAY reg ptr, loaded BEFORE the slot copy */
 
     if (StFinalSector == 1)
         return;
@@ -195,9 +201,18 @@ extern void StCdInterrupt(void)
     *_cd_reg3 = 0x80;
     *_cdrom_delay = 0x20943;
     *_com_delay   = 0x1323;
+    /* MATCH (W71-A9, 27 -> 24): the sub-header counter is zeroed BEFORE the StMode guard.
+     * Retail fills the guard `bnez`'s DELAY SLOT with `addu $a0,$zero,$zero` (i = 0), so
+     * that zeroing is UNCONDITIONAL (methodology 3.1) -- writing it inside the guarded
+     * block leaves it behind `p = &loc[0]` in the fall-through thread, reorg's simple
+     * backward scan finds nothing eligible and the slot stays a `nop` (cluster (A) of the
+     * w52-a2 residual list).  Measured: here 24 · `i = 0;` as the first statement INSIDE
+     * the block 25 · `p` assigned inside the loop 24 (inert on top) · hoisting `p` above
+     * the guard as well 77 (the &loc[0] address must NOT leave the guarded block). */
+    i = 0;
     if (StMode == 0) {
         p = (u_char *)&loc[0];                      /* &hdr[4] == loc -> 4 raw sub-header bytes */
-        for (i = 0; i < 4; i++) p[i] = *_cd_reg2;   /* MATCH: INDEX form (oracle `addu v1,a1,a0`) */
+        for (; i < 4; i++) p[i] = *_cd_reg2;        /* MATCH: INDEX form (oracle `addu v1,a1,a0`) */
         for (i = 0; i < 8; i++) (void)*_cd_reg2;    /* drain */
     }
 
@@ -210,8 +225,29 @@ extern void StCdInterrupt(void)
     }
     while (*_d3_chcr & 0x1000000)
         ;
-    *(int *)((char *)_st_slot + 0x1C) = loc[0];     /* stash the sub-header word into the slot */
-    *_cdrom_delay = 0x20843;
+    /* MATCH (W71-A9, 24 -> 7, cluster (B) of the w52-a2 list SOLVED): TWO cooperating
+     * pieces -- neither works alone, which is why five waves of Pack4-only probes
+     * (w52-a2 36->43, w61-a8 "reproduces the lwl/lwr EXACTLY but still scores 43",
+     * W71 first pass 24->31) all read as a net loss:
+     *   (1) the ALIGN-1 struct assignment reproduces retail's unaligned movstrsi
+     *       (`lwl 43(sp)/lwr 40(sp)/nop/swl 31(v0)/swr 28(v0)`, +3 insns of the
+     *       8-insn shortfall) -- the plain `*(int *)` store is 2 insns and no
+     *       spelling of it can grow;
+     *   (2) `_cdrom_delay` must be READ INTO A LOCAL BEFORE the copy.  Retail loads
+     *       BOTH pointers up front (`lw v0,_st_slot; lw v1,_cdrom_delay`) and only
+     *       then runs the copy, storing the delay constant AFTER it (`sw a0,0(v1)`);
+     *       with the deref left inline, cc1 emits the delay pointer load AFTER the
+     *       copy and the copy temp lands in the wrong register, which is exactly the
+     *       "surrounding coloring costs more than it gains" the old receipts recorded.
+     * Measured in this basin: minimal pair 7 · Pack4 alone 31 · the pointer local
+     * alone (no Pack4) 28 · adding `d1_`/`slot_` locals for the constant and the slot
+     * base 7 (inert, so they are NOT part of the lever) · `char b[3]; char c;` as the
+     * pack struct 31 (the trailing named byte re-aligns it to 4).  The old
+     * "NEXT DIAL: get the constant materialized first" reading was wrong -- the
+     * constant is free, the POINTER LOAD is the dial. */
+    dly_ = _cdrom_delay;
+    *(Pack4_ *)((char *)_st_slot + 0x1C) = *(Pack4_ *)&loc[0];  /* sub-header word -> slot+0x1C */
+    *dly_ = 0x20843;
     *_com_delay   = 0x1325;
 
     /* ---- start-frame gating ----------------------------------------------------------------- */
@@ -228,18 +264,37 @@ extern void StCdInterrupt(void)
 
     /* ---- submode / channel filter ----------------------------------------------------------- */
     if (_st_slot[0] != 0x160 || ((_st_slot[1] >> 10) & 0x1F) != CChannel) {
-        if (StEmu_Addr != 0) StEmu_Idx = 0;
-        /* MATCH (w63-a6, 36 -> 27): zero-insn VOID BARRIER at the head of the
-         * channel-mismatch tail.  Found by a mechanical fence-POSITION sweep over
-         * every statement in the function (scratchpad/w63a6/fencesweep.py) -- the
-         * W45 fixpoint law says position is the dial, and only this block moves:
-         * the three adjacent slots (before debug_cause / before _st_slot[0]=0 /
-         * before the return) all measure 27, every other one of the ~90 candidate
-         * positions is 36 or worse.  The barrier stops reorg back-scanning out of
-         * this tail into the preceding filter branch, which is cluster (C) of the
-         * w52-a2 residual list (retail RE-READS _st_slot here instead of reusing
-         * the cached base). */
-        __asm__("" : : "i"(0));
+        /* MATCH (W71-A9, 5 -> 0 -- CLUSTER (C) SOLVED, the function PASSES 583/583):
+         * the emulated-stream arm and the real-drive arm are NOT merged in retail.
+         * Oracle (StCdInterrupt.s @0x800F8200):
+         *      beqz  StEmu_Addr, .L800F8220
+         *      lui   at,%hi(StEmu_Idx)
+         *      j     .L800F8224
+         *       sw   zero,%lo(StEmu_Idx)(at)     <- StEmu_Idx = 0, in the j's slot
+         *  .L800F8220:
+         *      lhu   v0,0(a0)                    <- a DEAD read of _st_slot[0], on the
+         *                                           StEmu_Addr == 0 EDGE ONLY
+         *  .L800F8224:
+         *      lui   v1,%hi(_st_slot); lw v1,...  <- _st_slot RE-LOADED for the store
+         * i.e. the else arm really does read the slot's consumed-flag and throw the
+         * value away.  Modelling it as a VOLATILE read inside an explicit `else`
+         * reproduces all three residual insns at once: the read is undeletable, it
+         * gives the else arm its own one-insn block (so the two arms stop
+         * cross-jumping and the if arm keeps its own `j` + delay-slot store), and it
+         * breaks the cached-base equivalence so the `_st_slot[0] = 0` store reloads
+         * the pointer like retail.  It is also the honest semantics: `_st_slot[0]` is
+         * cleared asynchronously by the ring consumer.
+         * Measured: else-arm + volatile 0 (PASS) · the SAME read hoisted out of the
+         * else, unconditional, 5 · non-volatile in the else arm 6 · read kept in BOTH
+         * places 16 · a laundered `_st_slot` pointer local for the store 8 ·
+         * `*(volatile u_short *)&_st_slot[0] = 0;` on the store instead 5. */
+        if (StEmu_Addr != 0) { StEmu_Idx = 0; }
+        else                 { (void)*(volatile u_short *)&_st_slot[0]; }
+        /* W71-A9: the w63-a6 zero-insn VOID BARRIER that used to sit here (36 -> 27,
+         * found by a whole-body fence-position sweep) is RETIRED -- it was papering
+         * over exactly the un-merged else arm above, and with the real shape in place
+         * it measures INERT (0 with and without).  Removed per floor-hygiene: a
+         * matching device that no longer buys anything is scaffolding. */
         debug_cause = 5;
         _st_slot[0] = 0;
         return;
@@ -261,7 +316,17 @@ extern void StCdInterrupt(void)
     /* ---- first sector of a new frame: range-check + ring-space bookkeeping ------------------- */
     if (_st_slot[2] == 0) {
         Stsector_offset = 0;
-        Stframe_no      = _st_slot[4] & 0xFFFF;
+        /* MATCH (W71-A9, 6 -> 5): retail KEEPS an `andi $v0,$v0,0xFFFF` here that our
+         * cc1 folds away (the `lhu` already proves the range) -- the w52-a2 cluster (D).
+         * A READ-ONLY fence on the loaded value (one ref, zero insns) is enough to
+         * defeat the range proof; W61-A8's identity fence also restores the mask but
+         * lands it 9 insns early and costs +3 (measured again here: launder 10,
+         * read-only fence 6, 2-operand read-only fence 6, a `(unsigned)` cast 7). */
+        {
+            int fn_ = _st_slot[4];
+            __asm__("" : : "r"(fn_));
+            Stframe_no = fn_ & 0xFFFF;
+        }
 
         if (StEndFrame != 0 && (unsigned)Stframe_no >= (unsigned)StEndFrame) {  /* past the end frame */
             Stframe_no      = 0;

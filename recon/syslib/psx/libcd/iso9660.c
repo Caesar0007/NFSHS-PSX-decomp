@@ -208,9 +208,10 @@ extern CdlFILE *CdSearchFile(CdlFILE *fp, char *name)
     char           comp[0x20];
     int            dir;                                     /* current parent dir number */
     int            i, sep, notfound;
+    int            sep2;                                    /* inner-loop copy of `sep` (W71-A9) */
     signed char   *s;                                       /* cursor into `name` */
     signed char   *q;                                       /* cursor into `comp` */
-    signed char    ch;
+    unsigned char  ch;
 
     if (_cd_search_nopen != CD_nopen) {                     /* media changed -> remount */
         if (CD_newmedia() == 0)
@@ -249,14 +250,67 @@ extern CdlFILE *CdSearchFile(CdlFILE *fp, char *name)
          * cursor `s` at the loop head (which is exactly what defeated the const-fold there)
          * costs 3 insns and 58 diffs, with or without the u_char zero test.  Laundering
          * splits a pointer from a SYMBOL, not one MEM from another. */
-        __asm__("" : : "r"(name), "r"(notfound), "r"(notfound));
-        ch = *s;
+        /* W71-A9: the W63-A6 priced ref dial that used to sit here
+         * (`__asm__("" : : "r"(name), "r"(notfound), "r"(notfound));`, 37 -> 19, bought
+         * retail's name=$s3 / notfound=$s4 / sep=$s5 handout) is RETIRED -- in the
+         * post-peel basin it is INERT (7 with and without, diff lists identical, all
+         * three registers still retail-exact), so the loop's real shape was carrying the
+         * allocation all along.  Re-measured with 1, 2, 3 and 5 operands: 1/2/5 all 7,
+         * three `notfound` operands over-dials to 25.  Removed per floor hygiene. */
+        /* MATCH (W71-A9, 19 -> 7): the "RESIDUAL 19 = the inner split loop ALONE" named
+         * angle above is SOLVED.  Retail's loop is
+         *      lb v0,0(s0) / lbu v1,0(s0) / beq v0,s5 (PEELED entry test)
+         *      li a1,0x5C                            (caller-saved copy of the separator)
+         *  L:  beqz v1 / addiu s0,s0,1 / sb v1,0(s1) / lb v0,0(s0) / lbu v1,0(s0)
+         *      bne v0,a1,L / addiu s1,s1,1
+         * i.e. TWO loads of the same byte per iteration (signed for the `!= sep` test,
+         * unsigned for the zero test AND the store), no sign-extend, and an entry peel.
+         * FOUR cooperating pieces -- every earlier wave had at most one, which is why the
+         * whole family read as "cc1-2.7.2 FUSES the lb+lbu pair whatever you spell":
+         *  (1) THE VALUE READ MUST BE VOLATILE (`*(volatile unsigned char *)s`).  cse does
+         *      not merge two reads of one QImode MEM by mode; what it does is keep the
+         *      first loaded REGISTER and rewrite the second read as a sign-extend of it
+         *      (our `sll 24; sra 24`).  A volatile MEM is never recorded in cse's table,
+         *      so both loads survive -- the plain `*(unsigned char *)s` spelling of the
+         *      same shape is 43.  (This is the 05E volatile-on-the-read lever; the reads
+         *      really are of a caller-supplied buffer, so it is honest.)
+         *  (2) THE PEEL MUST BE WRITTEN OUT (`if (*s != sep) { do { ... } while (...); }`).
+         *      jump.c's duplicate_loop_exit_test copies the exit test ahead of the loop,
+         *      but post-reload cross_jump then merges the copy back because both tests are
+         *      rtx-identical -- so no `while` spelling can keep a peel.
+         *  (3) ...UNLESS THE TWO TESTS USE DIFFERENT REGISTERS.  Retail's `li a1,0x5C` IS
+         *      that: a second, caller-saved copy of the separator that keeps the peeled
+         *      `beq v0,s5` and the loop's `bne v0,a1` un-mergeable.  Spelled as its own
+         *      literal `sep2` + a zero-insn read-only fence (the 15B fenced-named-constant
+         *      lever; without the fence cse folds sep2 back onto sep and the peel is lost
+         *      again -- measured 25).
+         *  (4) `++s` BEFORE the store (retail: `addiu s0,s0,1; sb v1,0(s1)`), and `q++` as
+         *      its own trailing statement so it lands in the back-branch's delay slot.
+         * Ladder (each measured on the previous winner): 19 -> 37 (volatile value read
+         * alone, loop body byte-exact but no peel) -> 11 (+ explicit peel + fenced sep2)
+         * -> 9 (+ `++s` first) -> 7 (+ sep2 from a fresh literal instead of a copy of
+         * `sep`, which is what makes it `li a1,92` and not `addu a1,s5,zero`).
+         * `unsigned char ch` and the old `signed char ch` both gate 7; the unsigned
+         * declaration is kept because that is what the `lbu` + zero-test + byte store are.
+         * RESIDUAL 7 = two emission-order items only: retail materialises `dir = 1`
+         * (`li a0,1`) in the block AFTER the `*name != '\\'` test where ours eager-steals
+         * it into that test's delay slot, and it emits `i = 0` before `sep`/`notfound`
+         * where ours emits it after.  Both are TEXT_MOVES class: moving `dir = 1` below
+         * `comp[0] = 0` or below `s = name` is inert (7), and every `i = 0` hoist
+         * (before `sep`, before the `for`, as its own statement) measures 23. */
+        ch = *(volatile unsigned char *)s;
         q = (signed char *)comp;
-        while (*s != sep) {
-            if (!*s)
-                goto out;                                   /* reached the filename */
-            *q++ = ch;
-            ch = *++s;
+        if (*s != sep) {
+            sep2 = '\\';                                    /* retail's `li a1,0x5C` */
+            __asm__("" : : "r"(sep2));                      /* keep it a distinct pseudo */
+            do {
+                if (!ch)
+                    goto out;                               /* reached the filename */
+                ++s;
+                *q = ch;
+                ch = *(volatile unsigned char *)s;
+                q++;
+            } while (*s != sep2);
         }
         if (!*s)
             break;
@@ -355,8 +409,17 @@ extern int CD_newmedia(void)
     int     idx;
     int     r;
 
+    /* MATCH (W71-A9, 6 -> 2): the FIRST cd_read takes the SYMBOL, and `buf` is bound
+     * AFTER the call.  Retail issues the two integer args (`li $a0,1; li $a1,16`) at the
+     * very head of the function, BEFORE the first callee-saved store and before the
+     * `la _cd_secbuf`; with `buf = &_cd_secbuf;` written first, that `la` is a lower-luid
+     * RTL insn and sched2 issues it ahead of the arg constants (ours had them 3 slots
+     * late).  Binding `buf` after the call puts the address materialization where retail
+     * has it and costs nothing: `buf == &_cd_secbuf` either way, and the identity launder
+     * below still owns the pseudo (the allocno demote that gives buf $s0 / r $s1 is
+     * unchanged -- whole-TU re-gate 4/6 -> 5/6, zero PASS->FAIL). */
+    r = cd_read(1, 0x10, (char *)_cd_secbuf);   /* read PVD at LBA 0x10 */
     buf = (u_char *)_cd_secbuf;
-    r = cd_read(1, 0x10, (char *)buf);   /* read PVD at LBA 0x10 */
     /* MATCH (w61-a8): READ-ONLY FENCE on `buf` -- the allocno DEMOTE dial.  32 -> 11
      * diffs.  Lengthening buf's live range past the first cd_read drops its priority
      * so it takes retail's $s0 and `r` takes $s1 (we had them swapped, which shifted

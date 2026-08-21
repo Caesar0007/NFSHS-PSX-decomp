@@ -1,0 +1,2 @@
+source	owner	status	retail_named	named_exact	named_missing	named_mismatch	retail_anonymous	anonymous_covered	retail_typedefs	typedefs_covered	source_extra_named	retail_duplicate_named	source_extra_anonymous	source_extra_typedefs	retail_duplicate_typedefs	source_duplicate_typedefs	detail
+recon/game/common/input.cpp	input.obj	OK	73	73	0	0	2	2	164	129	0	1	0	0	41	12	retail_duplicate_named=BO_tNewtonObjx1; retail_duplicate_typedefs=41; source_duplicate_typedefs=12

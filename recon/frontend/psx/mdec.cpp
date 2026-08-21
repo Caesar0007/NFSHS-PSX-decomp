@@ -21,9 +21,9 @@ int initmdec(int width,int height,int bpp,int memtype)
   void *buf;
   int stride;
   void *bufsize;
-  MDECSTRUCT *mdec;
+  struct MDECSTRUCT *mdec;
   
-  mdec = (MDECSTRUCT *)reservememadr("MDECstruct",0x2c,memtype);
+  mdec = (struct MDECSTRUCT *)reservememadr("MDECstruct",0x2c,memtype);
   blockclear(mdec,0x2c);
   mdec->id = 0x4345444d;   /* 'MDEC' */
   if (gMDECinfo.numhandles == 0) {
@@ -70,7 +70,7 @@ int initmdec(int width,int height,int bpp,int memtype)
 void restoremdec(int handle)
 
 {
-  MDECSTRUCT *mdec = (MDECSTRUCT *)handle;
+  struct MDECSTRUCT *mdec = (struct MDECSTRUCT *)handle;
   
   gMDECinfo.numhandles = gMDECinfo.numhandles + -1;
   if (gMDECinfo.numhandles == 0) {
@@ -104,7 +104,7 @@ void mdec(int handle,char *src,int x,int y)
 {
   long mode;
   int timeout;
-  MDECSTRUCT *mdec = (MDECSTRUCT *)handle;
+  struct MDECSTRUCT *mdec = (struct MDECSTRUCT *)handle;
   
   timeout = ticks + timerhz * 4;
   /* MATCH: exit-in-the-middle prevents gcc's loop rotation -- the oracle keeps the
@@ -149,7 +149,7 @@ int mdecdone(int handle)
    regresses restoremdec (11) / mdecreset (16) respectively -- retail's setters used the plain
    struct.  (All five earlier shapes -- ptr-temp, ((int*)&g)[1], unsized asm-label views
    int[]/int[2]/int[4]/T[1]/T[], -G0 and -mno-split-addresses -- fold back; measured again.) */
-  return (uint)(((volatile tMdecHandle *)&gMDECinfo)->hDecode != handle);
+  return (u_int)(((volatile __typeof__(gMDECinfo) *)&gMDECinfo)->hDecode != handle);
 }
 
 /* lines 383-387: (static data / macros / comments - no emitted code) */
@@ -160,7 +160,7 @@ void MDECCompleteHandler(void)
 {
   short nextx;
   long drawsync;
-  MDECSTRUCT *mdec = (MDECSTRUCT *)gMDECinfo.hDecode;
+  struct MDECSTRUCT *mdec = (struct MDECSTRUCT *)gMDECinfo.hDecode;
   
   LoadImage
             (&mdec->striprect,mdec->stripbuf);

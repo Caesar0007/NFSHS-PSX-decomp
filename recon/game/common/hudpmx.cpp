@@ -2,7 +2,7 @@
  *   3 free fns: HudPmx_LoadShape (locate+LoadPmx a HUD shape), HudPmx_InitTextures (build the
  *   HUD glyph/icon texture set), HudPmx_Kill. GTE-free.
  */
-#include "../../nfs4_types.h"
+#include "hudpmx_types.h"
 #include "hudpmx_externs.h"
 
 /* ---- HudPmx.obj OWNED globals ($gp state) ---- */
@@ -66,7 +66,7 @@ void HudPmx_InitTextures(void)
   };
   char mapname[5];
 
-  sprintf(mapname,"mp%02d",GameSetup_gData.track);
+  sprintf(mapname,"mp%02d",HudPmx_gameSetupWords[15]);
 
   char *shapes[132] = {
     "cmra","cam0","cam1","cam2","cam3","cam4","cam5","cam6","cam7","cam8",
@@ -107,9 +107,9 @@ void HudPmx_InitTextures(void)
   sprintf(name,"%shud.psh",Paths_Paths[0x1a]);
   gShpfile = (char *)loadfileadr(name,0);
   Texture_ResetPaletteSharing();
-  carType0 = GameSetup_gData.carInfo[0].carType;
-  carType1 = GameSetup_gData.carInfo[1].carType;
-  if (GameSetup_gData.Time != 0) {
+  carType0 = HudPmx_gameSetupWords[245];
+  carType1 = HudPmx_gameSetupWords[290];
+  if (HudPmx_gameSetupWords[21] != 0) {
     if (carType0 < 0x1e) {
       shapes[129] = ntachs[carType0];
     }
@@ -168,7 +168,7 @@ HudPmxInit_shapeLoadLoop:
   HudPmx_LoadShape("a229",&HudPmx_gShapes[103] /* @0x801114a4 */);
   HudPmx_LoadShape("ahyp",&HudPmx_gShapes[72] /* @0x80111238 */);
   HudPmx_LoadShape("acol",&HudPmx_gShapes[73] /* @0x8011124c */);
-  if (DashHUD_gInfo.splitscreen != 0) {
+  if (HudPmx_dashHUDWords[0] != 0) {
     loadShapeXOff = 0x16;
     HudPmx_LoadShape(shapes[131],&HudPmx_gShapes[131] /* @0x801116d4 */);
   }

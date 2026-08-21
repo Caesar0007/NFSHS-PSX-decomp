@@ -2,7 +2,7 @@
  *   10 free fns: Math_DistXZ/Dist3D/BetterDist/ResolveRotatedVector/VectorLength[2]/
  *   NormalizeVector/NormalizeShortVector/QDNormalizeVector/fasttransmult. Full SYM-locals applied.
  */
-#include "../../nfs4_types.h"
+#include "mathnfs_types.h"
 #include "mathnfs_externs.h"
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */

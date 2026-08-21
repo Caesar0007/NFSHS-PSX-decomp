@@ -2,7 +2,7 @@
  *   4 fns: Quatern_VecInterpolate/Interpolate (replay keyframe SLERP) + QuatToMat/MatToQuat.
  *   GTE-free (plain fixed-point + fixedsqrt). Full SYM-locals applied.
  */
-#include "../../nfs4_types.h"
+#include "quatern_types.h"
 #include "quatern_externs.h"
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */

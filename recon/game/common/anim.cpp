@@ -4,7 +4,7 @@
  *   (20 B, declared in nfs4_types.h). Faithful C++: `new AnimScript(..)`, obj->Method(..).
  *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++.
  */
-#include "../../nfs4_types.h"
+#include "anim_types.h"
 #include "anim_externs.h"
 
 
@@ -269,7 +269,7 @@ AnimScript::AnimScript(int num)
   ppTVar2 = __builtin_vec_new(4);
   this->inst = ppTVar2;
   *ppTVar2 = animScripts[num];
-  iVar1 = simGlobal.gameTicks;
+  iVar1 = Anim_simGlobalWords[1];
   this->flags = 6;
   this->baseTicks = iVar1;
   return;
@@ -291,7 +291,7 @@ AnimScript::AnimScript(int num,int numParts)
       i = i + 1;
     } while (i < numParts);
   }
-  iVar2 = simGlobal.gameTicks;
+  iVar2 = Anim_simGlobalWords[1];
   this->flags = 6;
   this->baseTicks = iVar2;
   return;
@@ -322,7 +322,7 @@ AnimScript::AnimScript(Group *instanceGroup,int type,int boomIndex,int numParts)
       numElems = numElems - 1;
     } while (numElems != -1);
   }
-  iVar3 = simGlobal.gameTicks;
+  iVar3 = Anim_simGlobalWords[1];
   this->flags = 6;
   this->baseTicks = iVar3;
   return;
@@ -342,7 +342,7 @@ void AnimScript::GetAnimFrameInfo(int *frame,int *numFrames)
   int interval;
   int ticks;
 
-  ticks = simGlobal.gameTicks - this->baseTicks;
+  ticks = Anim_simGlobalWords[1] - this->baseTicks;
   animInst = *this->inst;
   if ((u_int)((u_short)animInst->interval - 1) < 400) {
     interval = (int)animInst->interval;
@@ -372,7 +372,7 @@ int AnimScript::GetTimedAnimPosRot(int index,coorddef *pt,matrixtdef *mat)
   if (this->GetStatus() != 1) {
     return -1;
   }
-  int ticks = simGlobal.gameTicks - this->baseTicks;
+  int ticks = Anim_simGlobalWords[1] - this->baseTicks;
   if (Anim_GetRotPos(this->inst[index],this->flags,ticks,pt,mat) == 0) {
     this->baseTicks = -1;
     this->inst[index] = (Trk_AnimateInst *)0x0;

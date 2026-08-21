@@ -2,7 +2,7 @@
  *   8 free fns: Input_StartUp/WingCommandMode/Update/Store/Fetch/Gear/Interface/MainExitKey.
  *   Full SYM-locals applied. Device fn-ptr dispatch via Device_gDeviceList[].devicefunc.
  */
-#include "../../nfs4_types.h"
+#include "input_types.h"
 #include "input_externs.h"
 
 /* ---- input.obj OWNED globals (EXT; SYM names already resolved by Ghidra; Globals.jsonl) ---- */
@@ -153,7 +153,7 @@ void Input_Update(void)
     mode = 0;
     for (j = 0; j < 2; j++) {
       if ((*h != 0) &&
-          ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) >= 65)) {
+          (((Input_tDeviceCall *)Input_DeviceRows[*h & 0xff].PrimPtr)(*h >> 8) >= 65)) {
         mode = j + 1;
       }
       h++;
@@ -161,19 +161,19 @@ void Input_Update(void)
     Input_gMode[i] = mode;
 
     if (mode == 0) {
-      left = (*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8);
+      left = ((Input_tDeviceCall *)Input_DeviceRows[*h & 0xff].PrimPtr)(*h >> 8);
       h++;
-      right = (*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8);
+      right = ((Input_tDeviceCall *)Input_DeviceRows[*h & 0xff].PrimPtr)(*h >> 8);
       h++;
       r->steering = (char)((right - left) / 2);
-      r->gas = (*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8);
+      r->gas = ((Input_tDeviceCall *)Input_DeviceRows[*h & 0xff].PrimPtr)(*h >> 8);
       h++;
-      r->brake = (*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8);
+      r->brake = ((Input_tDeviceCall *)Input_DeviceRows[*h & 0xff].PrimPtr)(*h >> 8);
       h++;
 
       for (j = 0; j < 2; j++) {
         if ((*h != 0) &&
-            ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) >= 65)) {
+            (((Input_tDeviceCall *)Input_DeviceRows[*h & 0xff].PrimPtr)(*h >> 8) >= 65)) {
           r->flags |= (one << j);
         } else {
           r->flags &= ~(one << j);
@@ -208,7 +208,7 @@ void Input_Update(void)
         }
       {
         if (*h != 0) {
-          if ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) >= 65) {
+          if (((Input_tDeviceCall *)Input_DeviceRows[*h & 0xff].PrimPtr)(*h >> 8) >= 65) {
             Input_gPressTime[i][j]++;
             if (Input_gPressTime[i][j] >= 6) {
               if ((Input_gDBFlags[i] & (one << j)) == 0) {
@@ -234,7 +234,7 @@ void Input_Update(void)
 
       for (j = 0; j < 17; j++) {
         if (*h != 0) {
-          if ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) >= 65) {
+          if (((Input_tDeviceCall *)Input_DeviceRows[*h & 0xff].PrimPtr)(*h >> 8) >= 65) {
             if ((activeBase[j] != 0) && ((Input_gDBFlags[i] & (one << j)) == 0)) {
               acc = j + 1;
               Input_gDBFlags[i] |= (one << j);
@@ -263,7 +263,7 @@ void Input_Update(void)
           dbFlags = &Input_gDBFlags[i];
           for (k = 0; k < 17; k++) {
             if (*h != 0) {
-              if ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) >= 65) {
+              if (((Input_tDeviceCall *)Input_DeviceRows[*h & 0xff].PrimPtr)(*h >> 8) >= 65) {
                 *dbFlags |= (one << k);
               } else {
                 *dbFlags &= ~(one << k);
@@ -303,26 +303,26 @@ void Input_Update(void)
         }
       }
 
-      left = (*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8);
+      left = ((Input_tDeviceCall *)Input_DeviceRows[*h & 0xff].PrimPtr)(*h >> 8);
       h++;
-      right = (*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8);
+      right = ((Input_tDeviceCall *)Input_DeviceRows[*h & 0xff].PrimPtr)(*h >> 8);
       h++;
       if ((active[0] != 0) && (active[1] != 0)) {
         r->steering = (char)((right - left) / 2);
       }
       if (active[2] != 0) {
-        r->gas = (*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8);
+        r->gas = ((Input_tDeviceCall *)Input_DeviceRows[*h & 0xff].PrimPtr)(*h >> 8);
       }
       h++;
       if (active[3] != 0) {
-        r->brake = (*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8);
+        r->brake = ((Input_tDeviceCall *)Input_DeviceRows[*h & 0xff].PrimPtr)(*h >> 8);
       }
       h++;
 
       for (j = 0; j < 2; j++) {
         if (active[j + 4] != 0) {
           if ((*h != 0) &&
-              ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) >= 65)) {
+              (((Input_tDeviceCall *)Input_DeviceRows[*h & 0xff].PrimPtr)(*h >> 8) >= 65)) {
             r->flags |= (one << j);
           } else {
             r->flags &= ~(one << j);
@@ -352,7 +352,7 @@ void Input_Update(void)
           }
           if (*h != 0) {
             if ((active[j + 6] != 0) &&
-                ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) >= 65)) {
+                (((Input_tDeviceCall *)Input_DeviceRows[*h & 0xff].PrimPtr)(*h >> 8) >= 65)) {
               Input_gPressTime[i][j]++;
               if (Input_gPressTime[i][j] >= 6) {
                 if ((Input_gDBFlags[i] & (one << j)) == 0) {
@@ -379,7 +379,7 @@ secondHeldDone:
         for (j = 0; j < 17; j++) {
           if (*h != 0) {
             if ((active[j + 23] != 0) &&
-                ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) >= 65)) {
+                (((Input_tDeviceCall *)Input_DeviceRows[*h & 0xff].PrimPtr)(*h >> 8) >= 65)) {
               if (((Input_gDBFlags[i] & (one << j)) == 0) && (activeBase[j] != 0)) {
                 acc = j + 1;
                 Input_gDBFlags[i] |= (one << j);
@@ -403,7 +403,7 @@ secondHeldDone:
       h += (mode - 1) * 17;
       for (j = 0; j < 17; j++) {
         if (*h != 0) {
-          if ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) >= 65) {
+          if (((Input_tDeviceCall *)Input_DeviceRows[*h & 0xff].PrimPtr)(*h >> 8) >= 65) {
             if ((Input_gDBFlags[i] & (one << j)) == 0) {
               acc = j + 1;
               Input_gDBFlags[i] |= (one << j);
@@ -437,7 +437,7 @@ secondHeldDone:
     }
 
     r++;
-    if (GameSetup_gData.numPlayerRaceCars == one) {
+    if (Input_numPlayerRaceCars == one) {
       h += 76;
       i++;
     }
@@ -462,7 +462,7 @@ secondHeldDone:
     __asm__("" : "=r"(addressBlocker5));
     for (; i < 32; i++) {
       if ((interfaceActive[i] != 0) && (*h != 0) &&
-          ((*(int (*)(...))Device_gDeviceList[*h & 0xff].devicefunc)(*h >> 8) >= 65)) {
+          (((Input_tDeviceCall *)Input_DeviceRows[*h & 0xff].PrimPtr)(*h >> 8) >= 65)) {
         menukeys |= (left << i);
       }
       h++;
@@ -484,13 +484,13 @@ void Input_Store(void)
 
 {
   if (gSimQueue_BlockSelf == 0) {
-    if (1 < GameSetup_gData.numPlayerRaceCars) {
+    if (1 < Input_numPlayerRaceCars) {
       if (SimQueue_Put(0,Input_gResults)) {
         SimQueue_Put(1,&Input_gResults[1]);
       }
     }
-    else if (GameSetup_gData.commMode == 0) {
-      SimQueue_Put(GameSetup_gData.localCar,Input_gResults);
+    else if (Input_commMode == 0) {
+      SimQueue_Put(Input_localCar,Input_gResults);
     }
   }
   return;
@@ -530,14 +530,14 @@ int Input_Interface(u_long key,int debounce)
   if (debounce == 0) {
     goto no_debounce;
   }
-  if ((Input_gInterfaceResults[simGlobal.time32Hz & 0x1f] & 1 << key &
-       ~Input_gInterfaceResults[simGlobal.time32Hz - 1U & 0x1f]) == 0) {
+  if ((Input_gInterfaceResults[Input_time32Hz & 0x1f] & 1 << key &
+       ~Input_gInterfaceResults[Input_time32Hz - 1U & 0x1f]) == 0) {
     goto return_zero;
   }
   return 1;
 
 no_debounce:
-  if ((Input_gInterfaceResults[simGlobal.time32Hz & 0x1f] & 1 << key) != 0) {
+  if ((Input_gInterfaceResults[Input_time32Hz & 0x1f] & 1 << key) != 0) {
     return 1;
   }
 return_zero:
@@ -548,7 +548,7 @@ return_zero:
 int Input_MainExitKey(void)
 
 {
-  return Input_gInterfaceResults[simGlobal.time32Hz & 0x1f] & 1;
+  return Input_gInterfaceResults[Input_time32Hz & 0x1f] & 1;
 }
 
 /* end of input.cpp */

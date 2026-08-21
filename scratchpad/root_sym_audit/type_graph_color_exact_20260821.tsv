@@ -1,0 +1,2 @@
+source	owner	status	retail_named	named_exact	named_missing	named_mismatch	retail_anonymous	anonymous_covered	retail_typedefs	typedefs_covered	source_extra_named	retail_duplicate_named	source_extra_anonymous	source_extra_typedefs	retail_duplicate_typedefs	source_duplicate_typedefs	detail
+recon/game/common/color.cpp	color.obj	OK	71	71	0	0	2	2	160	126	0	1	0	0	40	9	retail_duplicate_named=BO_tNewtonObjx1; retail_duplicate_typedefs=40; source_duplicate_typedefs=9

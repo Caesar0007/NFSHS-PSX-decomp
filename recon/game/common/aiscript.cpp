@@ -2,8 +2,7 @@
  *   Player-action submission + reaction-table processing. SYM-v3 locals; vs disasm-v2.txt.
  *   NOT original source; SYM-faithful, recompilable C++.
  */
-#include "../../nfs4_types.h"
-#include "aiscript_externs.h"
+#include "aiscript_types.h"
 
 
 /* ---- intra-TU forward declarations ---- */
@@ -107,13 +106,13 @@ void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
       if (go != 0) {
         iVar2 = script->reactionIndex + 1;
         if ((iVar2 < 4) &&
-           ((newReaction = one << (u_char)new_var2[script->actionIndex].reaction[iVar2]) != two)) {
+           ((newReaction = one << (unsigned char)new_var2[script->actionIndex].reaction[iVar2]) != two)) {
           script->reactionIndex = iVar2;
           do { *lastReactionIndex = *lastReactionIndex + 1; } while (0);  /* block scope nudges gcc's store scheduling to match */
         }
-        newReaction = one << (u_char)new_var2[script->actionIndex].reaction[script->reactionIndex];
+        newReaction = one << (unsigned char)new_var2[script->actionIndex].reaction[script->reactionIndex];
         script->reaction = script->reaction | newReaction;
-        newTime = (u_char)new_var2[script->actionIndex].halfSeconds[script->reactionIndex];
+        newTime = (unsigned char)new_var2[script->actionIndex].halfSeconds[script->reactionIndex];
         if (newTime != 0) {
           script->reactionTicksLeft = newTime << 4;
           go = 0;

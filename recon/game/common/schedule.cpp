@@ -2,7 +2,7 @@
  *   6 fns: Sched_ExecuteCheck/CreateNewSchedule/CleanUpSchedule/AddFunction/DeleteFunction/Execute.
  *   GTE-free. Full SYM-locals applied.
  */
-#include "../../nfs4_types.h"
+#include "schedule_types.h"
 #include "schedule_externs.h"
 
 /* schedule.obj-owned stagger tables, in SYM/retail .data order.
@@ -20,8 +20,8 @@ char Sched_gExecuteInfo[4][20] = {
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void Sched_CleanUpSchedule(Sched_tSchedule *schedule);
-void Sched_AddFunction(Sched_tSchedule *schedule,fn_void *function,void *var1,int priority);
-void Sched_DeleteFunction(Sched_tSchedule *schedule,fn_void *function,void *var1);
+void Sched_AddFunction(Sched_tSchedule *schedule,Sched_tFunctionPt function,void *var1,int priority);
+void Sched_DeleteFunction(Sched_tSchedule *schedule,Sched_tFunctionPt function,void *var1);
 void Sched_Execute(Sched_tSchedule *schedule);
 
 
@@ -35,7 +35,7 @@ int Sched_ExecuteCheck(int staggered,int module,int distance,int carId,int *time
   int distanceIndex;
   int distanceTemp;
 
-  if (0xf < simGlobal.gameTicks) {
+  if (0xf < Sched_simGlobalWords[1]) {
     if (distance < 0) {
       distance = distance + 0xf;
     }
@@ -56,7 +56,7 @@ int Sched_ExecuteCheck(int staggered,int module,int distance,int carId,int *time
     *iTime = Sched_ExecuteiTimes[index];
     *elapsedTime = Sched_ExecuteElapsedTimes[index];
     mask = Sched_ExecuteMasks[index];
-    return (u_int)((simGlobal.gameTicks / 2 + carId * staggered & mask) == mask);
+    return (u_int)((Sched_simGlobalWords[1] / 2 + carId * staggered & mask) == mask);
   }
   *time = Sched_ExecuteTimes[6];
   *iTime = Sched_ExecuteiTimes[6];
@@ -93,7 +93,7 @@ void Sched_CleanUpSchedule(Sched_tSchedule *schedule)
 }
 
 /* ---- Sched_AddFunction__FP15Sched_tSchedulePFPv_vPvi  [SCHEDULE.CPP:123-155] SLD-VERIFIED ---- */
-void Sched_AddFunction(Sched_tSchedule *schedule,fn_void *function,void *var1,int priority)
+void Sched_AddFunction(Sched_tSchedule *schedule,Sched_tFunctionPt function,void *var1,int priority)
 
 {
   int i;
@@ -126,7 +126,7 @@ void Sched_AddFunction(Sched_tSchedule *schedule,fn_void *function,void *var1,in
 }
 
 /* ---- Sched_DeleteFunction__FP15Sched_tSchedulePFPv_vPv  [SCHEDULE.CPP:160-183] SLD-VERIFIED ---- */
-void Sched_DeleteFunction(Sched_tSchedule *schedule,fn_void *function,void *var1)
+void Sched_DeleteFunction(Sched_tSchedule *schedule,Sched_tFunctionPt function,void *var1)
 
 {
   int count;
@@ -180,7 +180,7 @@ void Sched_Execute(Sched_tSchedule *schedule)
     do {
       ppuVar1 = schedule->func[iVar2].function;
       if (ppuVar1 != (void *)0x0) {
-        (*(fn_void *)ppuVar1)(schedule->func[iVar2].var1);
+        ((Sched_tFunctionPt)ppuVar1)(schedule->func[iVar2].var1);
       }
       iVar2 = iVar2 + 1;
     } while (iVar2 < schedule->numFunctions);

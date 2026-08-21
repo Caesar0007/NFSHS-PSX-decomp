@@ -4,7 +4,7 @@
  *   CreateLiteGroupDataSize. `this` lands in $a0 exactly like the old explicit `this_` arg, so
  *   the bodies are byte-identical to the flattened free-fn form. Full SYM-locals applied. GTE-free.
  */
-#include "../../nfs4_types.h"
+#include "group_types.h"
 #include "group_externs.h"
 
 

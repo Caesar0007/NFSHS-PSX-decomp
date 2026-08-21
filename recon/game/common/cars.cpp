@@ -1857,31 +1857,31 @@ void Cars_InitCar(Car_tObj *carObj,int index)
     }
   }
   carObj->funcUpdateRoadInfo =
-       (u_char **)Newton_UpdateRoadInfo;
-  carObj->funcReplay = (u_char **)Replay_DoReplay;
-  carObj->funcControl = (u_char **)Control_Human;
-  carObj->funcStats = (u_char **)Stats_TrackStats;
-  carObj->funcHandlingPhysics = (u_char **)Physics_SimCar;
+       (Sched_tFunctionPt)Newton_UpdateRoadInfo;
+  carObj->funcReplay = (Sched_tFunctionPt)Replay_DoReplay;
+  carObj->funcControl = (Sched_tFunctionPt)Control_Human;
+  carObj->funcStats = (Sched_tFunctionPt)Stats_TrackStats;
+  carObj->funcHandlingPhysics = (Sched_tFunctionPt)Physics_SimCar;
   carObj->funcGravityPhysics =
-       (u_char **)Newton_ApplyTheLawOfGravity;
+       (Sched_tFunctionPt)Newton_ApplyTheLawOfGravity;
   carObj->funcQDPhysicsUpdateVel =
-       (u_char **)Newton_QDUpdateVel;
+       (Sched_tFunctionPt)Newton_QDUpdateVel;
   carObj->funcQDPhysicsUpdateRot =
-       (u_char **)Newton_QDUpdateRot64Hz;
+       (Sched_tFunctionPt)Newton_QDUpdateRot64Hz;
   carObj->funcTestMeForCollisions =
-       (u_char **)Collide_CheckMeForCollisions;
-  carObj->funcDoPostCollisionStuff = (u_char **)Car_DoPostCollisionStuff;
+       (Sched_tFunctionPt)Collide_CheckMeForCollisions;
+  carObj->funcDoPostCollisionStuff = (Sched_tFunctionPt)Car_DoPostCollisionStuff;
   if ((carObj->carFlags & 2U) != 0) {
-    carObj->funcControl = (u_char **)Control_AI;
+    carObj->funcControl = (Sched_tFunctionPt)Control_AI;
     carObj->funcHandlingPhysics =
-         (u_char **)AIPhysic_Main;
-    carObj->funcReplay = (u_char **)0x0;
+         (Sched_tFunctionPt)AIPhysic_Main;
+    carObj->funcReplay = (Sched_tFunctionPt)0x0;
     carObj->funcQDPhysicsUpdateRot =
-         (u_char **)Newton_QDUpdateRot32Hz;
+         (Sched_tFunctionPt)Newton_QDUpdateRot32Hz;
   }
   if ((((carObj->carFlags & 4U) != 0) && (GameSetup_gData.catchupLogic != 0)) &&
      (0 < GameSetup_gData.commMode)) {
-    carObj->funcQDPhysicsUpdateVel = (u_char **)Cars_QDUpdateVelGlue;
+    carObj->funcQDPhysicsUpdateVel = (Sched_tFunctionPt)Cars_QDUpdateVelGlue;
   }
   R3DCar_Instantiate3DCar(carObj,index);
   if (index < GameSetup_gData.numCars) {

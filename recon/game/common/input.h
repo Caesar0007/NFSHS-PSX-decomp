@@ -1,7 +1,7 @@
 /* game/common/input.h — reconstructed from game/common/input.cpp (8 fns) */
 #ifndef _GAME_COMMON_INPUT_H_
 #define _GAME_COMMON_INPUT_H_
-#include "../../nfs4_types.h"
+#include "input_types.h"
 
 int * Input_StartUp__Fv(void);   /* :55 */
 int Input_WingCommandMode__Fi(int player);   /* :84 */

@@ -2,7 +2,7 @@
  *   1 fn: Paths_StartUp -- fills Paths_Paths[0..0x31] with burnPath, then sets [0x24]/[0x20] = fePath.
  *   Owns globals Paths_Paths[50] + Paths_File (EXT, referenced by FE modules).
  */
-#include "../../nfs4_types.h"
+#include "game_common_min_types.h"
 
 /* EXT data owned by paths.obj.  SYM records burnPath/fePath as actual arrays,
    not standalone character aliases.  Definition order is the retail .sdata

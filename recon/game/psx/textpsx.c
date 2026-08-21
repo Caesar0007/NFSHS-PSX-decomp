@@ -6,6 +6,8 @@
  *   font working-state word). currentfont = external font-state blob (raw-offset access).
  */
 
+#include "textpsx_types.h"
+
 /* currentfont: active-font working-state blob @ 0x80135ba0 (spans 696B to Font@0x80135e58).
  * Defined in a sibling font TU; this TU only touches the word field at +0x94 and the
  * text-draw fn-ptr field at +0x148, both by raw offset (no named struct in this TU's SYM). */

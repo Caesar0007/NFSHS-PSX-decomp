@@ -2,7 +2,7 @@
  *   4 fns: Udff_Opena, Udff_Close, Udff_GetInt, Udff_GetBuffer.
  *   GTE-free. Full SYM-locals applied.
  */
-#include "../../nfs4_types.h"
+#include "udff_types.h"
 #include "udff_externs.h"
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */

@@ -1,0 +1,88 @@
+=== BULK VERIFY ===
+modules: 92  compile-fail: 0
+functions with oracle: 1258
+  BYTE-MATCH (0 diff): 1239
+  near-miss (<=15):    14
+  far (>15):           5
+=== 1239 FREE byte-matches from verbatim import ===
+  + AICop_CleanUp__Fv
+  + AICop_NoCopsInArea__Fii
+  + AICop_Restart__Fv
+  + AICop_StartUp__Fv
+  + AIHigh_CleanUp__Fv
+  + AIHigh_Execute__Fv
+  + AIHigh_Restart1__Fv
+  + AIHigh_Restart2__Fv
+  + AIHigh_StartUp__Fv
+  + AIInit_CleanUp1__Fv
+  + AIInit_CleanUp2__Fv
+  + AIInit_ClearAICar__FP8Car_tObj
+  + AIInit_DeInitAICar2__FP8Car_tObj
+  + AIInit_DeInitAICar__FP8Car_tObj
+  + AIInit_InitAICar2__FP8Car_tObj
+  + AIInit_InitAICar__FP8Car_tObjP10Udff_tInfo
+  + AIInit_IsNonStandardCarFile__Fi
+  + AIInit_LoadConfigs__Fv
+  + AIInit_LoadPhysicsConfig__FP10Udff_tInfo
+  + AIInit_Reset1__Fv
+  + AIInit_Reset2__Fv
+  + AIInit_RestartAICar__FP8Car_tObj
+  + AIInit_StartUp1__Fv
+  + AIInit_StartUp2__Fv
+  + AILife_Debug__FPce
+  + AILife_EvaluateLife__FP8Car_tObj
+  + AILife_IsCarInAnyVisibleArea__FP8Car_tObj
+  + AILife_IsCoordInThisLiveArea__FP8coorddefP8Car_tObj
+  + AILife_IsCoordInThisVisibleArea__FP8coorddefP8Car_tObj
+  + AILife_IsPositionInAnyVisibleArea__FP8coorddef
+  + AILife_IsSliceCloseToAnyCopCar__Fi
+  + AILife_IsSliceInAnyVisibleArea__Fi
+  + AILife_IsTrafficCarInAnyLiveArea__FP8Car_tObj
+  + AILife_PlaceCarAtLocation__FP8Car_tObji
+  + AILife_PlaceCarAtLocation__FP8Car_tObjiiiii
+  + AILife_RCPickDesiredLatPosition__FP8Car_tObj
+  + AILife_RCPickSliceAndDirection__FP8Car_tObj
+  + AILife_RCSetSpeeds__FP8Car_tObj
+  + AILife_ReencarnateCopByLatPosAndRotation__FP8Car_tObjiiii
+  + AILife_ReencarnateCopByPosition__FP8Car_tObjiiP8coorddefP10matrixtdef
+  + AILife_ReencarnateCopBySlice__FP8Car_tObjiiii
+  + AILife_ReencarnateTrafficByPosition__FP8Car_tObjiiP8coorddefP10matrixtdef
+  + AILife_ReencarnateTraffic__FP8Car_tObj
+  + AILife_SetInitialSlicePositionOrientationEtc__FP8Car_tObj
+  + AIPerson_Cleanup__Fv
+  + AIPerson_LoadGlue__FP10Udff_tInfo
+  + AIPerson_LoadGridAndSetPersonalityIndexes__Fv
+  + AIPerson_LoadPersonalityData__FP10Udff_tInfo
+  + AIPerson_LoadScriptData__FP10Udff_tInfo
+  + AIPerson_SetPersonalityPointers__Fv
+  + AIPerson_SetPersonality__FP8Car_tObji
+  + AIPerson_Startup__Fv
+  + AIPhysic_CalcAcceleration__FP8Car_tObji
+  + AIPhysic_CalcDeceleration__FP8Car_tObj
+  + AIPhysic_CalculateGear__FP8Car_tObj
+  + AIPhysic_CalculateRampedDesiredLatPos__FP8Car_tObj9eRampType
+  + AIPhysic_CalculateRoadPosition__FP8coorddefi
+  + AIPhysic_ChangeDirection__FP8Car_tObji
+  + AIPhysic_CheckDesiredDirection__FP8Car_tObj
+  + AIPhysic_CheckForBadPosition__FP8Car_tObj
+=== near-misses (<=15 diffs), all ===
+   2 CheckChaserPosition__16AIHigh_BasicPerpii
+   4 HighExecute__18AIHigh_BTC_Wingman
+   4 AudioCmn_CheckState__FP8Car_tObj
+   4 Physics_Real__FP8Car_tObj
+   4 SimQueue_SetCurrentInput__Fi
+   5 ___15AIHigh_BTC_Perp_80061348
+   5 AIPhysic_OutOfControlPhysics__FP8Car_tObj
+   7 SetupChunkBuildList__FP13DRender_tView
+   8 Collide_TestObjectVertices__FP13BO_tNewtonObjT0P8coorddefT2
+   8 NFS3_CheckForFileOperations__Fv
+   8 Draw__25tPMenuItemLeftRightSliderb
+  12 R3DCar_InsertCarFacetMenu__FP8Car_tObjP13DRender_tView
+  13 Camera_UpdateSplineCam__Fi
+  14 Collide_DoActualObjectCollisionCheck__FP13BO_tNewtonObjT0P8coorddefT2
+=== far residuals (>15 diffs), largest 60 ===
+    71 Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef (newton.cpp: ours 105 / oracle 106)
+    70 Newton_TestForUndrivableSurfaces__FP13BO_tNewtonObj (newton.cpp: ours 468 / oracle 470)
+    69 HighExecute__10AIHigh_Cop (aih_cop.cpp: ours 1457 / oracle 1460)
+    50 CheckForWipeOut__15AIHigh_Opponent (aih_opp.cpp: ours 118 / oracle 120)
+    44 Stats_TrackEndGame__Fv (stats.cpp: ours 232 / oracle 232)

@@ -14,34 +14,97 @@
 
 /* ---- base scalar typedefs (self-contained C lane) ---- */
 typedef unsigned char  u_char;
-typedef unsigned char  uchar;
-typedef unsigned char  byte;
 typedef unsigned short u_short;
 typedef unsigned short ushort;
 typedef unsigned int   u_int;
-typedef unsigned int   uint;
 typedef unsigned long  u_long;
 
-/* ---- local mirrors of the shared memcard types (nfs4_types.h) ---- */
-typedef struct RECT {                 /* 8 bytes (PsyQ) */
+/* ---- exact memcard.obj SYM type preamble ----
+ * MEMCARD.C was compiled through EA's reduced PSX platform headers, not the
+ * stock all-types PsyQ headers: the retail object emits precisely these named
+ * kernel/GTE/GPU types before the EA shape, stream and memory-card records.
+ * Keep tag and typedef names distinct where the SYM does (for example,
+ * `struct MCRDFILE_def` is typedef'd as `MCRDFILE`, not MCRDFILE_def). */
+struct TCB {                         /* 192 bytes (PsyQ kernel) */
+    long   status, mode;
+    u_long reg[40];
+    long   system[6];
+};
+
+struct EXEC {                        /* 60 bytes (PsyQ kernel) */
+    u_long pc0, gp0, t_addr, t_size, d_addr, d_size;
+    u_long b_addr, b_size, s_addr, s_size, sp, fp, gp, ret, base;
+};
+
+struct DIRENTRY {                    /* 40 bytes (PsyQ kernel) */
+    char             name[20];
+    long             attr, size;
+    struct DIRENTRY *next;
+    long             head;
+    char             system[4];
+};
+
+typedef struct VECTOR {              /* 16 bytes (PsyQ libgte) */
+    long vx, vy, vz, pad;
+} VECTOR;
+
+typedef struct SVECTOR {             /* 8 bytes (PsyQ libgte) */
+    short vx, vy, vz, pad;
+} SVECTOR;
+
+typedef struct CVECTOR {             /* 4 bytes (PsyQ libgte) */
+    u_char r, g, b, cd;
+} CVECTOR;
+
+typedef struct DVECTOR {             /* 4 bytes (PsyQ libgte) */
+    short vx, vy;
+} DVECTOR;
+
+typedef struct RVECTOR {             /* 24 bytes (PsyQ libgte) */
+    SVECTOR v;
+    u_char  uv[2];
+    u_short pad;
+    CVECTOR c;
+    DVECTOR sxy;
+    u_long  sz;
+} RVECTOR;
+
+typedef struct CRVECTOR3 {           /* 88 bytes (PsyQ libgte) */
+    RVECTOR r01, r12, r20;
+    RVECTOR *r0, *r1, *r2;
+    u_long  *rtn;
+} CRVECTOR3;
+
+typedef struct CRVECTOR4 {           /* 140 bytes (PsyQ libgte) */
+    RVECTOR r01, r02, r31, r32, rc;
+    RVECTOR *r0, *r1, *r2, *r3;
+    u_long  *rtn;
+} CRVECTOR4;
+
+typedef struct RECT {                /* 8 bytes (PsyQ libgpu) */
     short x, y, w, h;
 } RECT;
 
-typedef enum {                        /* 4 bytes */
-    N_AMERICA = 0,
-    JAPAN = 1,
-    EUROPE = 2
-} PRODUCTLOC;
+typedef struct DR_ENV {              /* 64 bytes (PsyQ libgpu) */
+    u_long tag;
+    u_long code[15];
+} DR_ENV;
 
-typedef enum {                        /* 4 bytes */
-    NONE = 0,
-    LOAD_CARD = 1,
-    WRITE_FILE = 2,
-    LOAD_FILE = 3,
-    DELETE_FILE = 4
-} MANAGERTASK;
+typedef struct DRAWENV {             /* 92 bytes (PsyQ libgpu) */
+    RECT    clip;
+    short   ofs[2];
+    RECT    tw;
+    u_short tpage;
+    u_char  dtd, dfe, isbg, r0, g0, b0;
+    DR_ENV  dr_env;
+} DRAWENV;
 
-typedef struct shapetbl {             /* 20 bytes (EA shape) */
+typedef struct DISPENV {             /* 20 bytes (PsyQ libgpu) */
+    RECT   disp, screen;
+    u_char isinter, isrgb24, pad0, pad1;
+} DISPENV;
+
+typedef struct shapetbl {            /* 20 bytes (EA shape) */
     unsigned int type : 8;            /* +0x0 */
     int          next : 24;           /* +0x1 */
     short        width, height, centerx, centery;   /* +0x4 */
@@ -53,29 +116,69 @@ typedef struct shapetbl {             /* 20 bytes (EA shape) */
     int          shapey : 12;         /* +0xE */
     unsigned int mipmaps : 4;
     char         data;                /* +0x10 */
-} shapetbl;
+} SHAPE;
 
-typedef struct DIRENTRY {             /* 40 bytes (PsyQ kernel) */
-    char             name[20];        /* +0x0 */
-    long             attr, size;      /* +0x14 */
-    struct DIRENTRY *next;            /* +0x1C */
-    long             head;            /* +0x20 */
-    char             system[4];       /* +0x24 */
-} DIRENTRY;
+typedef struct cdstreamstruct {      /* 152 bytes (EA CD stream) */
+    long id;
+    char *start, *end, *write, *header, *get, *release;
+    int  handle, state, control, status, abort, datahascrc;
+    int  crcerrors, crcretries, buffersize;
+    long blocksize;
+    int  readsize, chunksize, relocationsize;
+    long fileoffset;
+    int  fileend;
+    long filesize;
+    int  dataoffset, seekposition, seekoffset, idtype, idmask;
+    struct cdstreamstruct *nextstream;
+    void *emptyblock, *head, *tail, *block;
+    int  timer, blocktime, streamfull, getable, releaseable;
+} CDSTREAM;
 
-typedef struct CARDINFO_def {         /* 616 bytes */
+typedef enum PRODUCTLOC {            /* 4 bytes */
+    N_AMERICA = 0,
+    JAPAN = 1,
+    EUROPE = 2
+} PRODUCTLOC;
+
+typedef struct MCRDOPTS_def {        /* 36 bytes */
+    PRODUCTLOC productLocation;       /* +0x0 */
+    char       *productCode;          /* +0x4 */
+    int        bMoveIconsToVram;      /* +0x8 */
+    RECT       VramIconArea;          /* +0xC */
+    int        (*ConfirmFormatProc)(void), (*ConfirmOverwriteProc)(void);   /* +0x14 */
+    void       (*LoadingDataProc)(void), (*SavingDataProc)(void);   /* +0x1C */
+} MCRDOPTS;
+
+typedef struct CARDINFO_def {        /* 616 bytes */
     int      status, lasterror, numfiles, freeblocks;   /* +0x0 */
-    DIRENTRY dir[15];                 /* +0x10 */
-} CARDINFO_def;
+    struct DIRENTRY dir[15];          /* +0x10 */
+} CARDINFO;
+
+typedef struct MCRDFILE_def {        /* 44 bytes */
+    char         *name, *title;       /* +0x0 */
+    int          size, offset;        /* +0x8 */
+    unsigned int flags;               /* +0x10 */
+    void         *pData;              /* +0x14 */
+    SHAPE        *icon[3];            /* +0x18 */
+    u_char       *numicons, *numblocks;   /* +0x24 */
+} MCRDFILE;
+
+typedef enum MANAGERTASK {           /* 4 bytes */
+    NONE = 0,
+    LOAD_CARD = 1,
+    WRITE_FILE = 2,
+    LOAD_FILE = 3,
+    DELETE_FILE = 4
+} MANAGERTASK;
 
 typedef struct MCRDFILEHEADER_def {   /* 512 bytes */
     u_char  magicnumber[2];           /* +0x0 */
     u_char  type, nslots;             /* +0x2 */
-    short   title[32];                /* +0x4 (SJIS codes; retail reads them with lh) */
+    u_short title[32];                /* +0x4 (SYM: ARY USHORT title[32]) */
     u_char  unused[28];               /* +0x44 */
     u_char  iconclut[32];             /* +0x60 */
     u_char  icon1[128], icon2[128], icon3[128];   /* +0x80 */
-} MCRDFILEHEADER_def;
+} MCRDFILEHEADER;
 
 typedef struct MCRDFILEINFO_def {     /* 572 bytes */
     int                cardnum;       /* +0x0 */
@@ -83,45 +186,54 @@ typedef struct MCRDFILEINFO_def {     /* 572 bytes */
     char               *title;        /* +0x1C */
     int                size, offset;  /* +0x20 */
     unsigned int       flags;         /* +0x28 */
-    MCRDFILEHEADER_def header;        /* +0x2C */
+    MCRDFILEHEADER     header;        /* +0x2C */
     void               *pData;        /* +0x22C */
-    shapetbl           *icon[3];      /* +0x230 */
-} MCRDFILEINFO_def;
-
-typedef struct MCRDFILE_def {         /* 44 bytes */
-    char         *name, *title;       /* +0x0 */
-    int          size, offset;        /* +0x8 */
-    unsigned int flags;               /* +0x10 */
-    void         *pData;              /* +0x14 */
-    shapetbl     *icon[3];            /* +0x18 */
-    u_char       *numicons, *numblocks;   /* +0x24 */
-} MCRDFILE_def;
-
-typedef struct MCRDOPTS_def {         /* 36 bytes */
-    PRODUCTLOC productLocation;       /* +0x0 */
-    char       *productCode;          /* +0x4 */
-    int        bMoveIconsToVram;      /* +0x8 */
-    RECT       VramIconArea;          /* +0xC */
-    void       *ConfirmFormatProc, *ConfirmOverwriteProc, *LoadingDataProc, *SavingDataProc;   /* +0x14 */
-} MCRDOPTS_def;
+    SHAPE              *icon[3];      /* +0x230 */
+} MCRDFILEINFO;
 
 typedef struct fMemCardInfo_def {     /* 6108 bytes */
     PRODUCTLOC         productLocation;   /* +0x0 */
     char               productCode[16];   /* +0x4 */
     int                bMoveIconsToVram;  /* +0x14 */
     RECT               VramIconArea;      /* +0x18 */
-    void               *ConfirmFormatProc, *ConfirmOverwriteProc, *LoadingDataProc, *SavingDataProc;   /* +0x20 */
+    int                (*ConfirmFormatProc)(void), (*ConfirmOverwriteProc)(void);   /* +0x20 */
+    void               (*LoadingDataProc)(void), (*SavingDataProc)(void);   /* +0x28 */
     MANAGERTASK        task;              /* +0x30 */
     int                bReady, fMultitap; /* +0x34 */
     long               channel;           /* +0x3C */
     int                existencecheckticks[8];   /* +0x40 */
-    MCRDFILEHEADER_def header;            /* +0x60 */
-    MCRDFILEINFO_def   fileinfo;          /* +0x260 */
-    CARDINFO_def       card[8];           /* +0x49C */
-} fMemCardInfo_def;
+    MCRDFILEHEADER     header;            /* +0x60 */
+    MCRDFILEINFO       fileinfo;          /* +0x260 */
+    CARDINFO           card[8];           /* +0x49C */
+} fMemCardInfo;
+
+typedef unsigned int size_t;
+typedef void (*MemCB)(void);
+/* PsyQ SYS/TYPES.H body; its private tag block is filtered from retail SYM. */
+struct _physadr { int r[1]; };
+typedef struct _physadr *physadr;
+typedef long daddr_t;
+typedef char *caddr_t;
+typedef long *qaddr_t;
+typedef u_long ino_t;
+typedef long swblk_t;
+typedef long time_t;
+typedef short dev_t;
+typedef long off_t;
+typedef u_short uid_t;
+typedef u_short gid_t;
+typedef u_long wchar_t;
+typedef void (*VOIDFN)();
+typedef int FILEOP;
+typedef void FILE_CALLBACK();
+typedef int FILE_ATOM();
+typedef void THREADPROC();
+typedef void THREAD2PROC();
+typedef int SYSTEMTASK();
+typedef int THREAD;
 
 /* ---- memcard.obj data global ---- */
-extern fMemCardInfo_def gMemCardInfo;    /* 0x80052d68  (6108 B) */
+extern fMemCardInfo gMemCardInfo;        /* 0x80052d68  (6108 B) */
 extern int timerhz;
 
 /* ---- externs (libmcrd/libgs/eaclib/libetc/libc/sibling) ---- */
@@ -139,8 +251,8 @@ extern long MemCardWriteFile(long chan, char *name, void *buf, long offset, long
 extern long MemCardCreateFile(long chan, char *name, long nslots);
 extern long MemCardDeleteFile(long chan, char *name);
 extern long MemCardFormat(long chan);
-extern long MemCardGetDirentry(long chan, char *pat, DIRENTRY *dir, int *count, long a, long b);
-extern u_char *getshapeclut(shapetbl *shape);   /* libgs shape CLUT (1 arg: oracle @0x800F6C3C never reads $a1) */
+extern long MemCardGetDirentry(long chan, char *pat, struct DIRENTRY *dir, int *count, long a, long b);
+extern u_char *getshapeclut(SHAPE *shape);   /* libgs shape CLUT (1 arg: oracle @0x800F6C3C never reads $a1) */
 extern void blockclear(void *dst, int size);             /* eaclib */
 extern void blockmove(void *src, void *dst, int size);
 extern int  addtimer(void (*proc)(void));
@@ -153,17 +265,17 @@ extern char *strcat(char *dst, char *src);
 extern char *strncpy(char *dst, char *src, int n);
 extern unsigned int strlen(char *s);
 extern int  strcmp(char *a, char *b);
-extern CARDINFO_def *MCRD_getcard(int card);             /* sibling memcard TU */
+extern CARDINFO *MCRD_getcard(int card);                 /* sibling memcard TU */
 
 /* ---- this TU's fns (fwd decls; intra-TU calls before definitions) ---- */
 void MCRD_init(int fMultitap);
 int  iMCRD_InitCard(int card);
 void MCRD_restore(void);
-void MCRD_getopts(MCRDOPTS_def *pOPT);
-void MCRD_setopts(MCRDOPTS_def *pOPT);
-void MCRD_loadfile(int card, MCRDFILE_def *pFILE, int bNameHasProductCode);
+void MCRD_getopts(MCRDOPTS *pOPT);
+void MCRD_setopts(MCRDOPTS *pOPT);
+void MCRD_loadfile(int card, MCRDFILE *pFILE, int bNameHasProductCode);
 int  iMCRD_DoFileLoad(int card);
-int  MCRD_savefile(int card, MCRDFILE_def *pFILE);
+int  MCRD_savefile(int card, MCRDFILE *pFILE);
 int  iMCRD_DoFileWrite(int card);
 int  iMCRD_DoFileDelete(int card);
 int  MCRD_handlecardevents(int card);
@@ -208,12 +320,12 @@ void MCRD_init(int fMultitap)
   int card;
   
   blockclear(&gMemCardInfo,0x17dc);
-  gMemCardInfo.ConfirmOverwriteProc = (void *)iMCRD_DefaultCBProc1;
-  gMemCardInfo.ConfirmFormatProc = (void *)iMCRD_DefaultCBProc1;
+  gMemCardInfo.ConfirmOverwriteProc = iMCRD_DefaultCBProc1;
+  gMemCardInfo.ConfirmFormatProc = iMCRD_DefaultCBProc1;
   gMemCardInfo.task = NONE;
   gMemCardInfo.fMultitap = fMultitap;
-  gMemCardInfo.SavingDataProc = (void *)asyncidle;
-  gMemCardInfo.LoadingDataProc = (void *)asyncidle;
+  gMemCardInfo.SavingDataProc = (void (*)(void))asyncidle;
+  gMemCardInfo.LoadingDataProc = (void (*)(void))asyncidle;
   MemCardInit(1);
   card = 1;
   do {
@@ -232,11 +344,11 @@ void MCRD_init(int fMultitap)
 int iMCRD_InitCard(int card)
 
 {
-  CARDINFO_def *pCI;
+  CARDINFO *pCI;
   int ret;
   
   pCI = MCRD_getcard(card);
-  if (pCI == (CARDINFO_def *)0x0) {
+  if (pCI == (CARDINFO *)0x0) {
     ret = -1;
   }
   else {
@@ -266,7 +378,7 @@ void MCRD_restore(void)
 /* lines 179-214: (static data / macros / comments - no emitted code) */
 
 /* ---- MCRD_getopts  (memcard.c:215, code lines 215-223) ---- */
-void MCRD_getopts(MCRDOPTS_def *pOPT)
+void MCRD_getopts(MCRDOPTS *pOPT)
 {
   pOPT->productLocation = gMemCardInfo.productLocation;
   pOPT->productCode = (char *)0x0;
@@ -281,7 +393,7 @@ void MCRD_getopts(MCRDOPTS_def *pOPT)
 /* lines 224-279: (static data / macros / comments - no emitted code) */
 
 /* ---- MCRD_setopts  (memcard.c:280, code lines 280-343) ---- */
-void MCRD_setopts(MCRDOPTS_def *pOPT)
+void MCRD_setopts(MCRDOPTS *pOPT)
 
 {
   /* MATCH: the productCode!=NULL body is the IF-ARM (the oracle's beqz pushes the
@@ -326,10 +438,10 @@ void MCRD_setopts(MCRDOPTS_def *pOPT)
 /* lines 344-396: (static data / macros / comments - no emitted code) */
 
 /* ---- MCRD_loadfile  (memcard.c:397, code lines 397-432) ---- */
-void MCRD_loadfile(int card,MCRDFILE_def *pFILE,int bNameHasProductCode)
+void MCRD_loadfile(int card,MCRDFILE *pFILE,int bNameHasProductCode)
 
 {
-  MCRDFILEINFO_def *pMFI;
+  MCRDFILEINFO *pMFI;
   
   /* MATCH: everything goes through the fileinfo POINTER - the oracle anchors one
    * saved reg on &gMemCardInfo.fileinfo (small displacements, productCode at -0x25C
@@ -367,12 +479,12 @@ int iMCRD_DoFileLoad(int card)
   long res;
   int i;
   int error;
-  MCRDFILEINFO_def *pMFI;
-  shapetbl *s;
-  uchar ch;
-  uchar *src;
-  uint attr;
-  uint attr2;
+  MCRDFILEINFO *pMFI;
+  SHAPE *s;
+  u_char ch;
+  u_char *src;
+  u_int attr;
+  u_int attr2;
 
   /* MATCH: SYM (8c @0x8004f7a4) lists exactly SIX locals - cmd/res AUTO -0x30/-0x2C,
    * i REG $17($s1), error REG $2($v0), pMFI REG $18($s2), s REG $16($s0).  ONE index
@@ -383,12 +495,12 @@ int iMCRD_DoFileLoad(int card)
    * The shape header's x/y clears are two BITFIELD assignments (0xF000FFFF then
    * 0xFFFFF000 off ONE lw/sw) - a single folded 0xF000F000 mask is a recon bug. */
   pMFI = &gMemCardInfo.fileinfo;
-  if ((pMFI->title != (char *)0x0) || (pMFI->icon[0] != (shapetbl *)0x0)) {
+  if ((pMFI->title != (char *)0x0) || (pMFI->icon[0] != (SHAPE *)0x0)) {
     res = MemCardReadFile
                     (gMemCardInfo.channel,pMFI->name,
                      (u_long *)&pMFI->header,0,0x200);
     while (MemCardSync(1,&cmd,&res) == 0) {
-      ((int(*)(void))gMemCardInfo.LoadingDataProc)();
+      gMemCardInfo.LoadingDataProc();
       VSync(0);
     }
     error = iMCRD_HandleError(3,res,card);
@@ -410,7 +522,7 @@ int iMCRD_DoFileLoad(int card)
      * the load out into the preheader (the oracle's loop label sits ON it). */
     while (i < 3) {
       s = pMFI->icon[i];
-      if (s == (shapetbl *)0x0) break;
+      if (s == (SHAPE *)0x0) break;
       src = pMFI->header.icon1;
       if (i != 0) {
         if (i == 1) {
@@ -450,7 +562,7 @@ int iMCRD_DoFileLoad(int card)
        * loop.c DECLINES to strength-reduce icon[i] into a walking pointer
        * (retail recomputes `sll i,2; addu` per iteration).  A `hdr` temp folds
        * the read away, drops the loop to 62 and costs a 9th callee-saved reg. */
-      s = (shapetbl *)((int)s + s->next);
+      s = (SHAPE *)((int)s + s->next);
       blockmove(pMFI->header.iconclut,&s->data,0x20);
       attr2 = cluttype(0x10);
       s->type = attr2;
@@ -487,15 +599,15 @@ int iMCRD_DoFileLoad(int card)
 /* lines 526-662: (static data / macros / comments - no emitted code) */
 
 /* ---- MCRD_savefile  (memcard.c:663, code lines 663-748) ---- */
-int MCRD_savefile(int card,MCRDFILE_def *pFILE)
+int MCRD_savefile(int card,MCRDFILE *pFILE)
 
 {
   u_short sjis;
-  uint len;
-  uchar *clut;
+  u_int len;
+  u_char *clut;
   int i;
   int nIcons;
-  MCRDFILEINFO_def *pMFI;
+  MCRDFILEINFO *pMFI;
 
   /* MATCH: pMFI is the function's base anchor (retail keeps &gMemCardInfo.fileinfo
    * in a saved reg; productCode is reached at -0x25C off it).  Also: getshapeclut
@@ -518,7 +630,7 @@ int MCRD_savefile(int card,MCRDFILE_def *pFILE)
     if ((pFILE->flags & 0x200) != 0) {
       nIcons = 0;
       do {
-        if (pFILE->icon[i] != (shapetbl *)0x0) {
+        if (pFILE->icon[i] != (SHAPE *)0x0) {
           nIcons = nIcons + 1;
         }
         i = i + 1;
@@ -529,7 +641,7 @@ int MCRD_savefile(int card,MCRDFILE_def *pFILE)
       pMFI->header.type = (char)nIcons + 16;
       /* MATCH: a plain signed divide - retail's bgez/addiu 0x3FFF/sra 13 is gcc's
        * own /0x2000 guard, not a hand-written rounding branch. */
-      pMFI->header.nslots = (uchar)((pFILE->size + 0x2000) / 0x2000);
+      pMFI->header.nslots = (u_char)((pFILE->size + 0x2000) / 0x2000);
       if (pFILE->title == (char *)0x0) {
         return -1;
       }
@@ -579,7 +691,7 @@ int iMCRD_DoFileWrite(int card)
   long sync_done;
   int err;
   long sync;
-  MCRDFILEINFO_def *pMFI;
+  MCRDFILEINFO *pMFI;
   long cmd;
   long res;
   
@@ -591,7 +703,7 @@ int iMCRD_DoFileWrite(int card)
   if ((pMFI->flags & 0x200) != 0) {
     res = MemCardCreateFile
                     (gMemCardInfo.channel,pMFI->name,
-                     (uint)pMFI->header.nslots);
+                     (u_int)pMFI->header.nslots);
     err_state = iMCRD_HandleError(2,res,card);
     if (err_state != 0) {
       return err_state;
@@ -639,8 +751,8 @@ int iMCRD_DoFileDelete(int card)
 
 {
   long del_res;
-  CARDINFO_def *pcard;
-  MCRDFILEINFO_def *pMFI;
+  CARDINFO *pcard;
+  MCRDFILEINFO *pMFI;
   int retval;
   int ret_state;
   
@@ -671,7 +783,7 @@ int MCRD_handlecardevents(int card)
    *   pCI    PTR CARDINFO  $12 = $s2      ret    INT           $03 = $v1
    *   cmd/res ULONG AUTO   sp-0x18 / sp-0x14
    * `ret` is the MemCardSync return; `status` is the value the funnel returns. */
-  CARDINFO_def *pCI;
+  CARDINFO *pCI;
   int ret;
   int status;
   u_long cmd;
@@ -863,8 +975,8 @@ int MCRD_handlecardevents(int card)
          * &array[idx] pointer, and do not drop either hoist. */
         status = 2;
         { int idx = card + -1;
-          fMemCardInfo_def *g =
-              (fMemCardInfo_def *)((char *)&gMemCardInfo + idx * 4);
+          fMemCardInfo *g =
+              (fMemCardInfo *)((char *)&gMemCardInfo + idx * 4);
           int t = timerhz;
         gMemCardInfo.bReady = cmd;
           do { do {
@@ -988,11 +1100,11 @@ MCRDhandleCard_end:
 int MCRD_fileexists(int card,char *name)
 
 {
-  CARDINFO_def *pCard;
+  CARDINFO *pCard;
   int cmp;
   int i;
-  DIRENTRY *pDir;
-  DIRENTRY *s1;
+  struct DIRENTRY *pDir;
+  struct DIRENTRY *s1;
   char fullname [24];
   
   pCard = MCRD_getcard(card);
@@ -1009,6 +1121,14 @@ int MCRD_fileexists(int card,char *name)
     s1 = s1 + 1;
   } while (i < 0xf);
   return -1;
+}
+
+/* ---- MCRD_getcard  (memcard.c:1364, code lines 1364-1377) ---- */
+CARDINFO *MCRD_getcard(int card)
+{
+  card = card - 1;
+  gMemCardInfo.channel = ((card & 4) << 2) | (card & 3);
+  return &gMemCardInfo.card[card];
 }
 
 /* lines 1378-1535: (static data / macros / comments - no emitted code) */
@@ -1033,11 +1153,11 @@ static void iMCRD_timersub(void)
 int garyMemCardGrabBlocks(int card,int filenum)
 
 {
-  CARDINFO_def *pCI;
+  CARDINFO *pCI;
   int i;
   int size;
-  DIRENTRY *pDir;
-  DIRENTRY *dir;
+  struct DIRENTRY *pDir;
+  struct DIRENTRY *dir;
   
   pCI = MCRD_getcard(card);
   dir = pCI->dir;
@@ -1063,15 +1183,15 @@ int iMCRD_LoadCard(int card)
 
 {
   int error;
-  CARDINFO_def *pcard;
+  CARDINFO *pcard;
   int i_or_size;
   int ret_state;
   long opResult;
   int size;
   int slot;
-  DIRENTRY *pDir;
-  DIRENTRY *dir;
-  CARDINFO_def *pCI;
+  struct DIRENTRY *pDir;
+  struct DIRENTRY *dir;
+  CARDINFO *pCI;
   
   pcard = MCRD_getcard(card);
   dir = pcard->dir;
@@ -1115,7 +1235,7 @@ int iMCRD_LoadCard(int card)
 int iMCRD_FormatCard(int card)
 
 {
-  CARDINFO_def *pCI;
+  CARDINFO *pCI;
   long fmtRes;
   int result;
   
@@ -1156,8 +1276,8 @@ int iMCRD_HandleError(int func,int opResult,int card)
 {
   int scratch_i;
   int tmp_int;
-  CARDINFO_def *pCI;
-  fMemCardInfo_def *gmi;
+  CARDINFO *pCI;
+  fMemCardInfo *gmi;
   int code;
 
   /* MATCH: SYM (8c @0x800504cc) lists FOUR locals - code REG $20($s4), pCI REG $17($s1),
@@ -1262,7 +1382,7 @@ int iMCRD_HandleError(int func,int opResult,int card)
     }
   case 4:
     if (func == 2) {
-      if (((int(*)(void))gMemCardInfo.ConfirmFormatProc)() != 0) {
+      if (gMemCardInfo.ConfirmFormatProc() != 0) {
         /* MATCH: SYM nested block - numberoftries/result live only here. */
         int numberoftries;
         int result;
@@ -1326,7 +1446,7 @@ iMCRDError_formatOK:
     break;
   case 6:
     gmi = &gMemCardInfo;
-    if (((int(*)(void))gmi->ConfirmOverwriteProc)() != 0) {
+    if (gmi->ConfirmOverwriteProc() != 0) {
       MemCardDeleteFile(gmi->channel,gmi->fileinfo.name);
       gmi->task = WRITE_FILE;
       return 0x15;
@@ -1382,27 +1502,27 @@ static short ascii2sjis(u_char ascii_code)
   u_short sjis_code;
   u_char stmp;
   u_char stmp2;
-  uint base;
+  u_int base;
   u_short *pk;
 
   stmp = 0;
   stmp2 = stmp;                 /* MATCH: oracle's addu a1,v1,zero = stmp2 inits from stmp's zero */
-  if ((byte)(ascii_code - 0x20) < 0x10) {
+  if ((u_char)(ascii_code - 0x20) < 0x10) {
     stmp2 = 1;
   }
-  else if (9 < (byte)(ascii_code - 0x30)) {
-    if ((byte)(ascii_code - 0x3a) < 7) {
+  else if (9 < (u_char)(ascii_code - 0x30)) {
+    if ((u_char)(ascii_code - 0x3a) < 7) {
       stmp2 = 0xb;
     }
     /* MATCH: negative literals (-0x41/-0x5b/-0x61/-0x7b), NOT the algebraically-equal
      * +0xbf/+0xa5/+0x9f/+0x85 - the oracle's addiu immediates are the signed forms. */
-    else if ((byte)(ascii_code - 0x41) < 0x1a) {
+    else if ((u_char)(ascii_code - 0x41) < 0x1a) {
       stmp = 1;
     }
-    else if ((byte)(ascii_code - 0x5b) < 6) {
+    else if ((u_char)(ascii_code - 0x5b) < 6) {
       stmp2 = 0x25;
     }
-    else if ((byte)(ascii_code - 0x61) < 0x1a) {
+    else if ((u_char)(ascii_code - 0x61) < 0x1a) {
       stmp = 2;
     }
     /* MATCH: the last two arms are a FLAT continuation of the same else-if chain.
@@ -1410,7 +1530,7 @@ static short ascii2sjis(u_char ascii_code)
      * gcc sink the stmp=2 arm to just before the merge (its `j` then dies, ours 71
      * vs 72) and inverts the 0x61 guard to bnez; the flat chain keeps the stmp=2
      * arm out-of-line with its own `j` = the oracle's beqz + j/li v1,2 pair. */
-    else if ((byte)(ascii_code - 0x7b) < 4) {
+    else if ((u_char)(ascii_code - 0x7b) < 4) {
       stmp2 = 0x3f;
     }
     else {
@@ -1440,7 +1560,7 @@ static short ascii2sjis(u_char ascii_code)
     pk = ascii_k_table;
     base = stmp2;
     base = base + 0x1f;
-    sjis_code = pk[(uint)ascii_code - base];
+    sjis_code = pk[(u_int)ascii_code - base];
   }
   else {
     sjis_code = (ascii_table[stmp][0] + ascii_code) - ascii_table[stmp][1];
@@ -1480,11 +1600,11 @@ static u_char sjis2ascii(short sjis_code)
     return sjis_k_table[(bottom & 0xff) - 0x40];
   }
   if ((sjis_code & 0xffU) == 0x82) {
-    if (9U < (uint)(idx - 0x4f)) {
-      if ((uint)(idx - 0x60) < 0x1aU) {
+    if (9U < (u_int)(idx - 0x4f)) {
+      if ((u_int)(idx - 0x60) < 0x1aU) {
         kind = 1;
       }
-      else if ((uint)(idx + 0x7f & 0xff) < 0x1aU) {
+      else if ((u_int)(idx + 0x7f & 0xff) < 0x1aU) {
         kind = 2;
       }
     }

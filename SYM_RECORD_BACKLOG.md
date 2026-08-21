@@ -36,6 +36,17 @@ they are not silently collapsed into a smaller denominator.
   exact source/binary audit evidence, a paired structural ledger entry, or an
   explicit per-record semantic-review row.  Nothing is silently dropped from
   the denominator.
+- A strict compiler-emitted type-graph comparison now distinguishes retail
+  subset coverage from actual per-object source visibility.  Twenty-eight owners are
+  semantically exact: `memcard.obj`, `mdec.obj`, `video.obj`, `FETexture.obj`,
+  `textpix.obj`, `textpsx.obj`, `unpack.obj`, `fastrand.obj`, and
+  `aiscript.obj`, `new.obj`, `paths.obj`, `textsys.obj`, `simplemem.obj`,
+  `MathNfs.obj`, `quatern.obj`, `udff.obj`, `Group.obj`, `schedule.obj`,
+  `HudPmx.obj`, `genericpmx.obj`, `anim.obj`, `spchevnt.obj`, `color.obj`,
+  `clock.obj`, `MinFront.obj`, `input.obj`, `aidelaycar.obj`, and `AIWORLD.obj`.
+  The remaining mapped C++
+  units still expose reconstruction-only declarations through the monolithic
+  `nfs4_types.h` include graph and therefore are not yet source-exact.
 - Native C++ `bool` has been restored where the SYM emits `BOOL`, including
   member fields and frontend/common functions.  The project compatibility
   typedef `BOOL` remains available for records that really use the C-style
@@ -44,11 +55,12 @@ they are not silently collapsed into a smaller denominator.
   The shared-header rebuild exposed two stale vtable source casts; correcting
   their return type removed both compile failures without changing any slot.
 - The remaining restoration work is explicitly classified below.  The largest
-  review class is canonical struct/union/enum/member-layout comparison: the SYM
-  repeats those definitions per translation unit, and only the members touched
-  by the function/global audits plus the full native-bool member subset have
-  been semantically reconciled so far.  Every remaining row is retained in the
-  generated ledgers rather than being presented as already corrected.
+  review class is per-object header/type visibility: the SYM repeats included
+  definitions per translation unit, while the reconstruction still routes most
+  C++ objects through one monolithic header.  Every retail named/anonymous type
+  is covered in the mapped C++ units, but strict equality also requires removal
+  of source-only declarations and restoration of each owner's typedef variants.
+  Every remaining row is retained rather than presented as already corrected.
 
 ## Complete record census
 
@@ -207,13 +219,90 @@ The current source audits reflect these evidence-backed corrections:
   and `gCurrentBlitter` are now `static` in their owning `draw.cpp` and
   `font.cpp` translation units, and their cross-TU `extern` declarations were
   removed.  All six functions that read or write them remain byte-exact.
+- `memcard.obj`, `mdec.obj`, `video.obj`, and `FETexture.obj` now compile through
+  owner-sized type headers instead of the monolithic game graph.  Their strict
+  named, anonymous, and typedef semantics are exact; retail-only duplicate debug
+  rows are retained as audit evidence rather than reproduced as illegal duplicate
+  C declarations.
+- The missing game/PSX C-unit include graphs are restored.  `unpack.obj` is exact
+  at 13/13 named types and 39/39 typedefs; `textpix.obj` at 15/15 and 46/46;
+  `textpsx.obj` at 17/17 and 53/53.  Their retail-specific `wchar_t` is
+  `unsigned long`, while the exact frontend C++ owners retain the distinct
+  `unsigned char` PsyQ variant.
+- Two smallest game/common owners are isolated too.  `fastrand.obj` has the
+  retail-empty 0/0/0 graph after removing unused global headers and spelling
+  its built-in unsigned type directly.  `aiscript.obj` is exact at 4/4 named
+  types with all enum/struct/array typedef semantics represented.  All ten
+  functions across the two objects remain byte-exact.
+- `new.obj` and `paths.obj` now share an owner-exact minimal game/common graph:
+  21/21 named types, 2/2 anonymous types, and 60/60 typedef semantics in each
+  object.  All four allocator wrappers and `Paths_StartUp` remain byte-exact.
+- Four leaf game/common objects are isolated from the monolithic header too:
+  `textsys.obj` is exact at 22/22 named, 2/2 anonymous, and 67/67 typedef rows;
+  `simplemem.obj` at 22/22, 2/2, and all typedef semantics; `MathNfs.obj` at
+  22/22, 2/2, and all typedef semantics; and `quatern.obj` at 23/23, 2/2, and
+  all typedef semantics.  Their 25 functions remain byte-exact.
+- `udff.obj` is exact at 23/23 named types, 2/2 anonymous types, and every
+  typedef semantic; its four reader functions remain byte-exact.
+- `Group.obj` is exact at 27/27 named types, 2/2 anonymous types, and every
+  typedef semantic; all six `SerializedGroup` methods remain byte-exact.
+- `schedule.obj` is exact at 27/27 named types, 2/2 anonymous types, and every
+  typedef semantic.  Its SYM references `simGlobal` by tag without emitting the
+  owner-only `Sim_tSimGlobalVar` body; the source now preserves that boundary
+  with an incomplete external tag and a symbol alias for the proven word-1
+  `gameTicks` field.  All six scheduler functions remain byte-exact.
+- `HudPmx.obj` and `genericpmx.obj` now use shared owner-sized draw and
+  GameSetup-component headers while retaining incomplete/aliased access to the
+  large globals whose bodies their SYM objects do not emit.  They are exact at
+  39/39 and 43/43 named types respectively, both anonymous graphs are exact,
+  and every typedef semantic is represented.  All four functions—including
+  the 661- and 593-instruction texture initializers—remain byte-exact.
+- `anim.obj` is exact at 59/59 named types, 2/2 anonymous types, and every
+  typedef semantic.  This restores its animation, track, kernel, scheduler,
+  draw, and GameSetup include surface and corrects `tPA32` from an array of
+  pointers to the retail pointer-to-array form.  All 18 functions remain
+  byte-exact.
+- `spchevnt.obj` has the retail-empty 0/0/0 graph after replacing 14
+  reconstruction-only one-word wrapper structs and the extra `u_long` typedef
+  with preprocessing-only semantic aliases.  Direct word access preserves the
+  proven event ABI, and all 53 speech-event builders remain byte-exact.
+- `color.obj` is exact at 71/71 named types, 2/2 anonymous types, and every
+  typedef semantic after replacing the monolithic graph with its actual draw,
+  Transformer, track, Newton, GameSetup, AI/speech, and car include surface.
+  Its `Udff_tHandle` correctly retains an incomplete `Udff_tInfo` tag: the
+  linked SYM resolves the owner-proven 12-byte referent size even though
+  `color.obj` emits no body.  Both color/parser functions remain byte-exact.
+- `clock.obj` and `MinFront.obj` now layer their actual one-record deltas over
+  the exact color graph instead of including the monolithic game header.
+  `clock.obj` is exact at 72/72 named and 2/2 anonymous types with its
+  `Clock_tGameClock` body and `Input_tDeviceCall` typedef restored; all three
+  timer functions remain byte-exact.  `MinFront.obj` is exact at the same
+  72/72 and 2/2 counts with its `forceFocus_t` enum and device-call typedef;
+  `MinFront_ParseOptions` remains byte-exact.
+- `input.obj` is exact at 73/73 named types, 2/2 anonymous types, and every
+  typedef semantic after replacing the monolithic graph with the exact color
+  surface plus `Input_tResults`, `Sched_tSchedule`, and `Input_tDeviceCall`.
+  The SYM omits the private 12-byte device-row body, so its source spelling is
+  not uniquely recoverable; the reconstruction uses a documented existing
+  three-word carrier and proven raw offsets for the similarly omitted
+  `simGlobal`/`GameSetup_gData` bodies.  All eight input functions remain
+  byte-exact, including the 868-instruction `Input_Update`.
+- `aidelaycar.obj` is exact at 73/73 named types, 2/2 anonymous types, and
+  every unique typedef semantic.  Its exact owner surface is the shared color
+  graph plus `Sched_tSchedule`, `CarLogic_tObservations`, and the 60-byte
+  `AIDelayCar` class.  All three methods remain byte-exact.
+- `AIWORLD.obj` is exact at 72/72 named types, 2/2 anonymous types, and every
+  unique typedef semantic.  Its slice pointer now follows the owner SYM's
+  intentionally opaque declaration: the nine accesses use the proven 32-byte
+  retail ABI directly instead of leaking a reconstruction-only `Trk_NewSlice`
+  body.  All 22 AI-world functions remain byte-exact.
 
 ## No-regression receipts
 
 | Scope | Modules | Compile failures | Functions with oracle | PASS | Near | Far |
 |---|---:|---:|---:|---:|---:|---:|
-| `frontend/common` | 49 | 0 | 839 | 828 | 4 | 7 |
-| `frontend/psx` | 14 | 0 | 84 | 82 | 1 | 1 |
+| `frontend/common` | 49 | 0 | 838 | 827 | 4 | 7 |
+| `frontend/psx` | 14 | 0 | 85 | 83 | 1 | 1 |
 | `game/common` | 92 | 0 | 1,258 | 1,239 | 14 | 5 |
 | `game/psx` | 35 | 0 | 395 | 366 | 5 | 24 |
 | `eaclib/psx` | 1 | 0 | 5 | 4 | 1 | 0 |
@@ -222,9 +311,9 @@ The current source audits reflect these evidence-backed corrections:
 Receipts:
 
 - [`bulkverify_frontend_common_final_sym_20260821.txt`](scratchpad/root_sym_audit/bulkverify_frontend_common_final_sym_20260821.txt)
-- [`bulkverify_frontend_psx_final_sym_20260821.txt`](scratchpad/root_sym_audit/bulkverify_frontend_psx_final_sym_20260821.txt)
-- [`bulkverify_game_common_final_sym_20260821.txt`](scratchpad/root_sym_audit/bulkverify_game_common_final_sym_20260821.txt)
-- [`bulkverify_game_psx_after_local_static_fix_20260821.txt`](scratchpad/root_sym_audit/bulkverify_game_psx_after_local_static_fix_20260821.txt)
+- [`bulkverify_frontend_psx_after_type_isolation_20260821.txt`](scratchpad/root_sym_audit/bulkverify_frontend_psx_after_type_isolation_20260821.txt)
+- [`bulkverify_game_common_after_type_isolation_20260821.txt`](scratchpad/root_sym_audit/bulkverify_game_common_after_type_isolation_20260821.txt)
+- [`bulkverify_game_psx_after_c_type_restoration_20260821.txt`](scratchpad/root_sym_audit/bulkverify_game_psx_after_c_type_restoration_20260821.txt)
 - [`bulkverify_eaclib_psx_final_sym_20260821.txt`](scratchpad/root_sym_audit/bulkverify_eaclib_psx_final_sym_20260821.txt)
 
 `tools/audit_vtable_indexing.py` passes, and `git diff --check` reports no
@@ -320,15 +409,66 @@ the textual brace form that generated them.
 
 ### T1 — Canonical types, members, enums, and typedefs
 
-The function/global audits compare the type records they can reliably bind to
-source declarations, and the complete native-`BOOL` member subset has been
-applied.  Every definition record is now present in the definition ledger.
-The dispositions are 13,218 function-declaration rows audited, 3,668
-object-data/linkage rows audited, 1,038 object boundaries decoded, 210,355
-canonical type/member/enum/typedef rows retained for source review, 54 other
-definition rows retained for review, and 5 label rows retained for review.
-A semantic canonicalization of repeated `STRTAG`, `UNTAG`, `ENTAG`, `MOS`,
-`MOU`, `FIELD`, `MOE`, `TPDEF`, and `EOS` rows remains future restoration work.
+Every definition record remains present in the definition ledger.  In addition,
+each reconstructed TU is now compiled with the original compiler's full-debug
+mode and its emitted `.def` graph is compared with the owning retail object.
+The comparison checks tag kind, size, member order/type/offset, bit fields,
+array dimensions, anonymous types, and typedef semantics.  Exact duplicate
+retail tag/typedef rows are counted but canonicalized semantically because
+repeating the corresponding C declaration would be invalid source.
+
+Current strict results:
+
+- `frontend/psx`: 4 exact (`memcard`, `mdec`, `video`, `fetexture`) and 4 DIFF
+  (`drawshp`, `mmeffect`, `movie`, `psxfront`);
+- `game/psx`: 3 exact (`textpix`, `textpsx`, `unpack`), 24 DIFF, and one owner
+  ambiguity for game `font.obj` versus the vendor `libgpu/FONT.obj`;
+- `frontend/common`: 41 mapped units remain DIFF and the now-empty artificial
+  `mcrd.cpp` unit needs its objdiff ownership removed or reassigned;
+- `game/common`: 21 exact (`aidelaycar`, `aiscript`, `aiworld`, `anim`, `clock`, `color`,
+  `fastrand`, `genericpmx`, `group`, `hudpmx`, `input`, `mathnfs`, `minfront`, `new`,
+  `paths`, `quatern`, `schedule`, `simplemem`, `spchevnt`, `textsys`, `udff`)
+  and 54 DIFF.
+
+The mapped C++ units cover all retail named and anonymous type bodies, but are
+not source-exact while they expose unrelated monolithic-header declarations or
+miss owner-specific typedef variants.  The three C units that previously had
+genuine missing retail type sets are now exact.
+
+Strict evidence:
+
+- [`type_graph_frontend_psx_strict_after_round_20260821.tsv`](scratchpad/root_sym_audit/type_graph_frontend_psx_strict_after_round_20260821.tsv)
+- [`type_graph_game_psx_strict_after_c_units_20260821.tsv`](scratchpad/root_sym_audit/type_graph_game_psx_strict_after_c_units_20260821.tsv)
+- [`type_graph_frontend_common_strict_20260821.tsv`](scratchpad/root_sym_audit/type_graph_frontend_common_strict_20260821.tsv)
+- [`type_graph_game_common_strict_after_aiworld_20260821.tsv`](scratchpad/root_sym_audit/type_graph_game_common_strict_after_aiworld_20260821.tsv)
+- exact owner receipts: [`memcard`](scratchpad/root_sym_audit/type_graph_memcard_semantic_exact_20260821.tsv),
+  [`mdec`](scratchpad/root_sym_audit/type_graph_mdec_semantic_exact_20260821.tsv),
+  [`video`](scratchpad/root_sym_audit/type_graph_video_isolated_20260821.tsv),
+  [`fetexture`](scratchpad/root_sym_audit/type_graph_fetexture_after_wchar_variant_20260821.tsv),
+  [`textpix`](scratchpad/root_sym_audit/type_graph_textpix_exact_20260821.tsv),
+  [`textpsx`](scratchpad/root_sym_audit/type_graph_textpsx_exact_20260821.tsv),
+  [`unpack`](scratchpad/root_sym_audit/type_graph_unpack_exact_20260821.tsv),
+  [`fastrand`](scratchpad/root_sym_audit/type_graph_fastrand_exact_20260821.tsv),
+  [`aiscript`](scratchpad/root_sym_audit/type_graph_aiscript_exact_20260821.tsv),
+  [`new`](scratchpad/root_sym_audit/type_graph_new_exact_20260821.tsv), and
+  [`paths`](scratchpad/root_sym_audit/type_graph_paths_exact_20260821.tsv),
+  [`textsys`](scratchpad/root_sym_audit/type_graph_textsys_exact_20260821.tsv),
+  [`simplemem`](scratchpad/root_sym_audit/type_graph_simplemem_exact_20260821.tsv),
+  [`mathnfs`](scratchpad/root_sym_audit/type_graph_mathnfs_exact_20260821.tsv), and
+  [`quatern`](scratchpad/root_sym_audit/type_graph_quatern_exact_20260821.tsv), and
+  [`udff`](scratchpad/root_sym_audit/type_graph_udff_exact_20260821.tsv),
+  [`group`](scratchpad/root_sym_audit/type_graph_group_exact_20260821.tsv), and
+  [`schedule`](scratchpad/root_sym_audit/type_graph_schedule_exact_20260821.tsv),
+  [`hudpmx`](scratchpad/root_sym_audit/type_graph_hudpmx_exact_20260821.tsv), and
+  [`genericpmx`](scratchpad/root_sym_audit/type_graph_genericpmx_exact_20260821.tsv), and
+  [`anim`](scratchpad/root_sym_audit/type_graph_anim_exact_20260821.tsv), and
+  [`spchevnt`](scratchpad/root_sym_audit/type_graph_spchevnt_exact_20260821.tsv), and
+  [`color`](scratchpad/root_sym_audit/type_graph_color_exact_20260821.tsv),
+  [`clock`](scratchpad/root_sym_audit/type_graph_clock_exact_20260821.tsv), and
+  [`minfront`](scratchpad/root_sym_audit/type_graph_minfront_exact_20260821.tsv), and
+  [`input`](scratchpad/root_sym_audit/type_graph_input_exact_20260821.tsv), and
+  [`aidelaycar`](scratchpad/root_sym_audit/type_graph_aidelaycar_exact_20260821.tsv), and
+  [`aiworld`](scratchpad/root_sym_audit/type_graph_aiworld_exact_20260821.tsv).
 
 Required closure:
 
@@ -435,13 +575,14 @@ raw address correspondence alone does not make the name authoritative.
 
 ## Closure rule
 
-The exhaustive audit/backlog goal is now closed: S1, S2, and T1 have generated
-per-record review ledgers; G1 and G2 have per-record scope-report queues; V2 has
-an explicit table-by-table provenance queue; and all other opcode classes have
-exact record-level audits.  This does **not** mean every future semantic-review
-row is already restored in source.  It means every decoded SYM record is either
-applied and gated, proved by independent retail evidence, or durably queued
-with its unresolved status visible.
+The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have
+generated per-record review ledgers; G1 and G2 have per-record scope-report
+queues; V2 has an explicit table-by-table provenance queue; and all other opcode
+classes have exact record-level audits.  The user's larger goal—fully SYM-exact,
+fully source-restored code—is **not closed**.  The strict T1 results above prove
+that most translation units still have non-retail source-visible type graphs,
+and S1/S2/G1/G2/V2 retain semantic or provenance work.  Census closure means
+nothing is hidden from the queue, not that queued information is already source.
 
 Future corrections must preserve the same rule: a lower diff is not permission
 to contradict reliable SYM information, and a SYM-looking name is not sufficient

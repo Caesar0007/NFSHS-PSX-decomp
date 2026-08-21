@@ -71,7 +71,7 @@ void FETexture_LoadPmxAtOffset(char *f,int index,tTexture_ShapeInfo *dest,int yo
     dest->shapex = unpacked->shapex;
     dest->shapey = unpacked->shapey;
     dest->depth = shapedepth(unpacked);
-    dest->tpage = ((byte)dest->type & 3) << 7 | (short)(dest->shapey & 0x100U) >> 4 |
+    dest->tpage = ((u_char)dest->type & 3) << 7 | (short)(dest->shapey & 0x100U) >> 4 |
                   (ushort)(((ushort)dest->shapex & 0x3ff) >> 6) | (dest->shapey & 0x200U) << 2;
     dest->clut = GetClut((dest->clutID & 0x3fU) << 4,dest->clutID >> 6);
     if ((yoffset != 0) || (xoffset != 0)) {

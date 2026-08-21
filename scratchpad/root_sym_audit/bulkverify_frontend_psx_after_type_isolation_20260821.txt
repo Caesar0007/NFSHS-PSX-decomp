@@ -1,0 +1,71 @@
+=== BULK VERIFY ===
+modules: 14  compile-fail: 0
+functions with oracle: 85
+  BYTE-MATCH (0 diff): 83
+  near-miss (<=15):    1
+  far (>15):           1
+=== 83 FREE byte-matches from verbatim import ===
+  + AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended
+  + CleanupSpinningCarsMenu__Fv
+  + CleanupSpinningCars__Fv
+  + DoLanguageScreen__Fv
+  + DoTitleScreen__Fv
+  + DrawFlatShape__FP18tTexture_ShapeInfoiiiPii
+  + DrawShapeExtended__FiiiiiiP18tDrawShapeExtended
+  + DrawShape_NFS4Rectangle__FR4RECT
+  + DrawShape_NFS4RoundRectangle__FiR4RECTs
+  + DrawShape_NFS4TransRectangle__FR4RECTs
+  + DrawShape_SubtractNFS4RectEdges__FR4RECT
+  + FETexture_LoadPmxAtOffset__FPciP18tTexture_ShapeInfoii
+  + FETexture_LoadPmx__FPciP18tTexture_ShapeInfo
+  + FeDraw_SetABRMode__Fi
+  + Init_PSX_FrontEnd__Fv
+  + Init_RenderingEnvironment__Fv
+  + InitializeSpinningCars__Fv
+  + LoadAllHelpShapes__Fv
+  + MCRD_fileexists
+  + MCRD_getcard
+  + MCRD_getopts
+  + MCRD_handlecardevents
+  + MCRD_init
+  + MCRD_loadfile
+  + MCRD_restore
+  + MCRD_savefile
+  + MCRD_setopts
+  + MDECCompleteHandler__Fv
+  + Movie_DeInit__Fv
+  + Movie_DownloadFrame__Fv
+  + Movie_Finished__Fv
+  + Movie_Init__Fc
+  + Movie_Load__Fc
+  + Movie_NextFrame__Fv
+  + Movie_Play__Fc
+  + Movie_SetDecodeOffset__Fssss
+  + Movie_Stop__Fv
+  + PSXDrawGouraudSquare__Fiiiiiiii
+  + PSXDrawSquare__Fiiiii
+  + PSXDrawTransGouraudSquare__Fiiiiiiiii
+  + PSXDrawTransSquare__Fiiiiis
+  + PSXExitFrontend__Fv
+  + PSXFront_AllocateDrawMemory__Fv
+  + PSXFront_FreeDrawMemory__Fv
+  + PSX_AllocShapes__Fv
+  + Quick_DD__Fiii
+  + ScaleFlatShape__FP18tTexture_ShapeInfoiiiiiPii
+  + ScaleGouraudShape__FP18tTexture_ShapeInfoiiiiiPii
+  + ScaleShapeExtended__FiiiiiiP18tDrawShapeExtended
+  + VIDEO_abortplayback__Fi
+  + VIDEO_create__Fiiiii
+  + VIDEO_destroy__Fi
+  + VIDEO_spoolfile__FiPc
+  + VIDEO_startplayback__Fi
+  + VIDEO_state__Fi
+  + VIDEO_updateframexy__Fiii
+  + ascii2sjis
+  + garyMemCardGrabBlocks
+  + iMCRD_DefaultCBProc1
+  + iMCRD_DoFileDelete
+=== near-misses (<=15 diffs), all ===
+   7 DrawGouraudShape__FP18tTexture_ShapeInfoiiiPii
+=== far residuals (>15 diffs), largest 60 ===
+    20 FontUpsideDownBlit__FiiPviiP12charactertbli (psxfront.cpp: ours 82 / oracle 82)

@@ -3,7 +3,7 @@
  *   (chunk visibility, build lists, spike belt, glare effects, render contexts). Self-contained.
  *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++.
  */
-#include "../../nfs4_types.h"
+#include "aiworld_types.h"
 #include "AIWORLD_externs.h"
 
 
@@ -311,11 +311,11 @@ int AIWorld_LaneIndex(int slice,int position)
   int iVar2;
 
   if (position < 0) {
-    laneWidth = (int)BWorldSm_slices[slice].avgPavedWidthLf * 0x8000;
+    laneWidth = (int)*(u_char *)(BWorldSm_slices + slice * 32 + 30) * 0x8000;
     li = 6;
   }
   else {
-    laneWidth = (int)BWorldSm_slices[slice].avgPavedWidthRt * 0x8000;
+    laneWidth = (int)*(u_char *)(BWorldSm_slices + slice * 32 + 31) * 0x8000;
     li = 7;
   }
   iVar2 = fixedmult(position,inverseLaneWidthTable[laneWidth / 0x4000]);
@@ -422,10 +422,10 @@ int AIWorld_CalcRoadBend(Car_tObj *carObj,int lookAhead)
       nextSlice = nextSlice + gNumSlices;
     }
   }
-  bend = AIWorld_FIX8((int)(signed char)BWorldSm_slices[nextSlice].forward[0] << 9) *
-         AIWorld_FIX8((int)(signed char)BWorldSm_slices[thisSlice].right[0] << 9);
-  return bend + AIWorld_FIX8((int)(signed char)BWorldSm_slices[nextSlice].forward[2] << 9) *
-         AIWorld_FIX8((int)(signed char)BWorldSm_slices[thisSlice].right[2] << 9);
+  bend = AIWorld_FIX8((int)*(signed char *)(BWorldSm_slices + nextSlice * 32 + 15) << 9) *
+         AIWorld_FIX8((int)*(signed char *)(BWorldSm_slices + thisSlice * 32 + 18) << 9);
+  return bend + AIWorld_FIX8((int)*(signed char *)(BWorldSm_slices + nextSlice * 32 + 17) << 9) *
+         AIWorld_FIX8((int)*(signed char *)(BWorldSm_slices + thisSlice * 32 + 20) << 9);
 }
 
 /* ---- AIWorld_CalcFutureLateralVel__FP8Car_tObji  [@0x800737bc] ---- */
@@ -453,9 +453,9 @@ int AIWorld_CalcFutureLateralVel(Car_tObj *carObj,int slicesAhead)
   else if (futureSlice < 0) {
     futureSlice = futureSlice + gNumSlices;
   }
-  right.x = (int)(signed char)BWorldSm_slices[futureSlice].right[0] << 9;
-  right.y = (int)(signed char)BWorldSm_slices[futureSlice].right[1] << 9;
-  right.z = (int)(signed char)BWorldSm_slices[futureSlice].right[2] << 9;
+  right.x = (int)*(signed char *)(BWorldSm_slices + futureSlice * 32 + 18) << 9;
+  right.y = (int)*(signed char *)(BWorldSm_slices + futureSlice * 32 + 19) << 9;
+  right.z = (int)*(signed char *)(BWorldSm_slices + futureSlice * 32 + 20) << 9;
   return fixedmult((carObj->N).linearVel.x,right.x) +
          fixedmult((carObj->N).linearVel.y,right.y) +
          fixedmult((carObj->N).linearVel.z,right.z);

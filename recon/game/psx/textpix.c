@@ -6,25 +6,15 @@
  *   -> glyph block, advance byte at charactertbl+8); textpixels(string) = textnpixels(string, 0x100).
  */
 
-/* glyph-info record (matches nfs4_types.h charactertbl, 11 bytes) */
-typedef struct charactertbl {
-    unsigned char index[2];              /* +0x0 */
-    unsigned char width, height;         /* +0x2 */
-    unsigned char u[2], v[2];            /* +0x4 */
-    char          advance, xoffset, yoffset;   /* +0x8 */
-} charactertbl;
-
-/* SJIS/ANSI code-point reader: reads the next glyph code from *str and advances *str.
- * The active decoder is selected by setfont and stored in the currentfont fn-ptr slot. */
-typedef int (*FontDecoder)(char **str);
+#include "font_types.h"
 
 extern unsigned char currentfont[];      /* font-state blob @ 0x80135ba0 */
-extern charactertbl *getcharacter(int code);   /* eaclib EACPSXZ glyph-info lookup */
+extern FONTFILECHAR *getcharacter(int code);   /* eaclib EACPSXZ glyph-info lookup */
 
 /* ---- textnpixels  [TEXTPIX.C:61-98] SLD-VERIFIED ---- */
 int textnpixels(char *str, int n)
 {
-  charactertbl *ch;
+  FONTFILECHAR *ch;
   int code;
   int stringlen;
   int i;
@@ -36,7 +26,7 @@ int textnpixels(char *str, int n)
   if (0 < n) {
     fontbase = currentfont;
     do {
-      code = (*(FontDecoder *)(fontbase + 0xa0))(&str);
+      code = (*(getcode *)(fontbase + 0xa0))(&str);
       if (code == 0) {
         return stringlen;
       }

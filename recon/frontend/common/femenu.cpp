@@ -1073,7 +1073,7 @@ tMenuItemGoToMenuButton::tMenuItemGoToMenuButton(u_int textDescription,tMenu *ne
   
   *(void **)&(this->_vf) = (void *)tMenuItemGoToMenuButton_vtable;
   this->fNewMenu = newMenu;
-  this->fOnButtonPress = (void *)OnButtonPress;
+  this->fOnButtonPress = OnButtonPress;
   return;
 }
 
@@ -1119,8 +1119,8 @@ void tMenuItemGoToMenuButton::ProcessInput(tPlayer fromPlayer,tInputKeyType &key
     }
     command.nextMenu = this->fNewMenu;
   }
-  if (this->fOnButtonPress != (void *)0x0) {
-    ((void(*)(tMenuCommand&))this->fOnButtonPress)(command);
+  if (this->fOnButtonPress != 0x0) {
+    (*this->fOnButtonPress)(command);
   }
   keyval = kInput_KeyType_AlreadyProcessed;
   return;
@@ -1166,7 +1166,7 @@ tMenu::tMenu(u_int flags,tScreen *screenHandler,tMenu *nextMenu,tMenu *optionsMe
   this->fNeverAnyEnabled = 0;
   this->fChildMenu = (tMenu *)0x0;
   this->fOptionsMenu = optionsMenu;
-  this->fOnButtonPress = (void *)OnButtonPress;
+  this->fOnButtonPress = OnButtonPress;
   this->fTitle = title;
   return;
 }
@@ -1278,8 +1278,8 @@ void tMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &
       break;
 
     case kInput_KeyType_Start:
-      if (this->fOnButtonPress != (void *)0x0) {
-        ((void(*)(tMenuCommand&))this->fOnButtonPress)(command);
+      if (this->fOnButtonPress != 0x0) {
+        (*this->fOnButtonPress)(command);
         keyval = kInput_KeyType_AlreadyProcessed;
       }
       else if ((this->fFlags & 1) != 0) {

@@ -30,7 +30,7 @@ int VIDEO_create(int width,int height,int fps,int streambuffersize,int memtype)
 
 {
   int status;
-  VIDEOSTRUCT *vid;
+  struct VIDEOSTRUCT *vid;
   void *mem;
   int handle;
   SNDPLAYOPTS playopts;
@@ -42,7 +42,7 @@ int VIDEO_create(int width,int height,int fps,int streambuffersize,int memtype)
   while (status = getasyncreadstatus(handle), status == 0) {
     systemtask(0);
   }
-  vid = (VIDEOSTRUCT *)reservememadr("Videostruct",0x40,memtype);
+  vid = (struct VIDEOSTRUCT *)reservememadr("Videostruct",0x40,memtype);
   blockclear(vid,0x40);
   vid->id = 0x57444956;   /* 'VIDW' */
   vid->bufferwidth = width;
@@ -134,15 +134,15 @@ void VIDEO_abortplayback(int handle)
 /* lines 196-197: (static data / macros / comments - no emitted code) */
 
 /* ---- VIDEO_state  (video.cpp:198, code lines 198-247) ---- */
-VIDEOSTATE VIDEO_state(int handle)
+enum VIDEOSTATE VIDEO_state(int handle)
 
 {
-  VIDEOSTRUCT *vid;
+  struct VIDEOSTRUCT *vid;
   SNDREQUESTSTATUS srs;
-  vid = (VIDEOSTRUCT *)handle;
+  vid = (struct VIDEOSTRUCT *)handle;
   
   if (vid->id != 0x57444956   /* 'VIDW' */) {
-    return (VIDEOSTATE)0;
+    return (enum VIDEOSTATE)0;
   }
   if (vid->state == VIDEOSTATE_SPOOLING) {
     if (STREAM_state(vid->videotap) == 2) {
@@ -158,7 +158,7 @@ VIDEOSTATE VIDEO_state(int handle)
   {
     vid->state = VIDEOSTATE_IDLE;
   }
-  return (VIDEOSTATE)vid->state;
+  return (enum VIDEOSTATE)vid->state;
 }
 
 /* lines 248-256: (static data / macros / comments - no emitted code) */
@@ -169,12 +169,12 @@ int VIDEO_updateframexy(int handle,int x,int y)
 {
   int result;
   int endofstream;
-  STREAMCHUNKHDR *chunk;
-  VIDEOSTRUCT *vid;
+  struct STREAMCHUNKHDR *chunk;
+  struct VIDEOSTRUCT *vid;
   int dropped;
   int currenttime;
   SNDREQUESTSTATUS audiostatus;
-  vid = (VIDEOSTRUCT *)handle;
+  vid = (struct VIDEOSTRUCT *)handle;
   
   if (vid->id == 0x57444956   /* 'VIDW' */) {
     if (vid->state != VIDEOSTATE_PLAYING) {
@@ -190,7 +190,7 @@ int VIDEO_updateframexy(int handle,int x,int y)
     }
     while (endofstream == 0) {
       chunk = STREAM_get(vid->videotap);
-      if (chunk == (STREAMCHUNKHDR *)0x0) {
+      if (chunk == (struct STREAMCHUNKHDR *)0x0) {
         return 0;
       }
       videoupdatetime(vid);
@@ -222,7 +222,7 @@ VIDEOupdateFrame_incCounter:
 /* lines 336-368: (static data / macros / comments - no emitted code) */
 
 /* ---- videoupdatetime  (video.cpp:369, code lines 369-371) ---- */
-void videoupdatetime(VIDEOSTRUCT *vid)
+void videoupdatetime(struct VIDEOSTRUCT *vid)
 
 {
   int acc;
@@ -230,14 +230,14 @@ void videoupdatetime(VIDEOSTRUCT *vid)
   acc = vid->displaytimefrac + vid->displaytimeincr;
   vid->displaytimefrac = acc;
   vid->displaytime = vid->displaytime + (acc >> 0x10);
-  vid->displaytimefrac = (uint)(ushort)vid->displaytimefrac;
+  vid->displaytimefrac = (u_int)(ushort)vid->displaytimefrac;
   return;
 }
 
 /* lines 372-374: (static data / macros / comments - no emitted code) */
 
 /* ---- videodecode  (video.cpp:375, code lines 375-423) ---- */
-int videodecode(VIDEOSTRUCT *vid,STREAMCHUNKHDR *chunk,int x,int y)
+int videodecode(struct VIDEOSTRUCT *vid,struct STREAMCHUNKHDR *chunk,int x,int y)
 
 {
   int done;

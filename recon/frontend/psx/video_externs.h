@@ -3,8 +3,7 @@
  * translation unit compiles standalone as C++. Signatures inferred from call sites. */
 #ifndef _FRONTEND_PSX_VIDEO_EXTERNS_H_
 #define _FRONTEND_PSX_VIDEO_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "video_types.h"
 
 /* --- globals --- */
 extern char *Paths_Paths[];
@@ -27,8 +26,8 @@ long  STREAM_queuefile(long, char *, int, int);
 int   STREAM_bufferusage(long);
 int   STREAM_state(long);
 int   STREAM_isendofstream(long);
-STREAMCHUNKHDR *STREAM_get(long);
-void  STREAM_release(long, STREAMCHUNKHDR *);
+struct STREAMCHUNKHDR *STREAM_get(long);
+void  STREAM_release(long, struct STREAMCHUNKHDR *);
 void  STREAM_kill(long);
 void  STREAM_destroy(long);
 }

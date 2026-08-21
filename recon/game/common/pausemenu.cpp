@@ -742,7 +742,7 @@ tPMenuItemGoToMenuButton::tPMenuItemGoToMenuButton(u_int textDescription,tPMenu 
   this->_vf =
        (__vtbl_ptr_type (*) [7])tPMenuItemGoToMenuButton_vtable;
   this->fNewMenu = newMenu;
-  this->fOnButtonPress = (u_char **)OnButtonPress;
+  this->fOnButtonPress = OnButtonPress;
   return;
 }
 
@@ -794,8 +794,8 @@ void tPMenuItemGoToMenuButton::ProcessInput(tInputKeyType &keyval,tPMenuCommand 
                           (int)(*pa_Var1)[2].delta);
       command.nextMenu = ptVar3;
     }
-    if (this->fOnButtonPress != (u_char **)0x0) {
-      (*(void (*)(tPMenuCommand&))this->fOnButtonPress)(command);
+    if (this->fOnButtonPress != 0x0) {
+      (*this->fOnButtonPress)(command);
     }
     keyval = kInput_KeyType_AlreadyProcessed;
   }

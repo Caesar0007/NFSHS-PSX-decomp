@@ -3,7 +3,7 @@
  *   a basis car at a delay/offset. No base, no vtable (60-byte POD-ish). Faithful C++ (option A).
  *   NOT original; SYM-faithful, recompilable. vs disasm-v2.
  */
-#include "../../nfs4_types.h"
+#include "aidelaycar_types.h"
 #include "aidelaycar_externs.h"
 
 

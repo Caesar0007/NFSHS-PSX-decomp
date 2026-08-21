@@ -1187,6 +1187,23 @@ PER_FN_RA_SINK = {
 #  "slot": True wraps anchor+moved in .set noreorder (branch delay fill),
 #  "drop_nop": True deletes one #nop/nop line following the anchor}.
 PER_FN_TEXT_MOVES = {
+    # SYM/source-restoration ABI bridge (2026-08-21): retail declares
+    # tScreenControllerConfig::negconPopUp as a real tDialogYesNo member.  With
+    # the reconstruction's explicit old-ABI `_vf` carrier, the natural member
+    # plus a self-initializer reproduces retail's base-ctor -> derived-vptr ->
+    # member-ctor order, but cc1 leaves one dead `lhu mult` from that
+    # self-initializer.  Move the adjacent %lo line over it and delete only the
+    # proven dead load.  Detailed gate: 1 diff / 21 insns -> PASS 20/20; the
+    # destructor and all dependent frontend functions are regression-gated.
+    "recon/frontend/common/screencontroller.cpp": {
+        "__23tScreenControllerConfig": [
+            {
+                "take": r"\taddiu\t\$2,\$2,%lo\(tScreenControllerConfig_vtable\)[^\n]*\n",
+                "after": r"\tlui\t\$2,%hi\(tScreenControllerConfig_vtable\)[^\n]*\n",
+                "drop_after": r"\tlhu\t\$3,180\(\$16\)\n",
+            },
+        ],
+    },
     # w66-a1 (probe-verified 2x, objdump 15D word proof): Sim_MainGameLoop__Fv
     # FAIL 6 (ours 319 / oracle 321) -> PASS 321/321, production REAL 50 -> 0,
     # calltarget_audit 2 -> 0.  Pure BASIC-BLOCK PLACEMENT: with A = the shared

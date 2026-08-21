@@ -2,7 +2,7 @@
  *   3 SimpleMem methods [Alloc, FeignAlloc, ResizeToFit] as real members -> oracle
  *   method mangling __9SimpleMem...; this lands in $a0 like the old explicit pThis. GTE-free.
  */
-#include "../../nfs4_types.h"
+#include "simplemem_types.h"
 #include "simplemem_externs.h"
 
 

@@ -1,7 +1,11 @@
 /* game/common/new.cpp -- RECONSTRUCTED (GCC 2.x operator new/delete runtime wrappers; C++ TU,
  *   4 fns -> eaclib EACPSXZ reservememadr / purgememadr). */
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "game_common_min_types.h"
+
+extern "C" {
+void *reservememadr(char *name, int size, int memory_class);
+int purgememadr(void *ptr);
+}
 
 /* new.obj-owned allocator state (SYM EXT PTR CHAR @0x8013d26c). */
 char *New_cplusplus_heap;

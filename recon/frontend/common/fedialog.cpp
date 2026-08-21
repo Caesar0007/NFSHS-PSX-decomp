@@ -288,7 +288,7 @@ void tDialogHelp::CalculateDimensions()
 
       canContinue = false;
       if (((menu->fNextMenu != (tMenu *)0x0) || ((menu->fFlags & 0x400) != 0)) ||
-          (menu->fOnButtonPress != (void *)0x0)) {
+          (menu->fOnButtonPress != 0x0)) {
         canContinue = true;
       }
       if ((!canContinue) && ((menu->fFlags & 4) == 0)) {

@@ -357,10 +357,10 @@ void Init_Memcard(bool redraw,bool pinkslips)
   mcrdopts.VramIconArea.y = 0x100;
   mcrdopts.VramIconArea.w = 0x20;
   mcrdopts.VramIconArea.h = 0x60;
-  mcrdopts.ConfirmFormatProc = (void *)FormatConfirm;
-  mcrdopts.ConfirmOverwriteProc = (void *)(pinkslips ? OverwriteAlwaysYes : OverwriteConfirm);
-  mcrdopts.LoadingDataProc = (void *)(redraw ? LoadingRedrawProc : LoadingProc);
-  *(void * volatile *)&mcrdopts.SavingDataProc = (void *)SavingProc;
+  mcrdopts.ConfirmFormatProc = FormatConfirm;
+  mcrdopts.ConfirmOverwriteProc = pinkslips ? OverwriteAlwaysYes : OverwriteConfirm;
+  mcrdopts.LoadingDataProc = redraw ? LoadingRedrawProc : LoadingProc;
+  *(void (** volatile)(void))&mcrdopts.SavingDataProc = SavingProc;
   MCRD_setopts(&mcrdopts);
   addtimer(Clock_MasterInterruptHandler);
   timedwait(0x14);

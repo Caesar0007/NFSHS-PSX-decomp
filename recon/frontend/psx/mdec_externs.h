@@ -2,8 +2,7 @@
  * referenced by MDEC.CPP. NOT an original header; added for standalone C++ compile. */
 #ifndef _FRONTEND_PSX_MDEC_EXTERNS_H_
 #define _FRONTEND_PSX_MDEC_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "mdec_types.h"
 
 extern int timerhz;
 /* MATCH: unsized asm-label view of `ticks` -- a bare scalar extern compiles to the

@@ -119,7 +119,6 @@ typedef struct PAD_NEGCON PAD_NEGCON;
 typedef struct PAD_ANALOG PAD_ANALOG;
 typedef struct PAD_MOUSE PAD_MOUSE;
 typedef struct PAD_COMMON PAD_COMMON;
-typedef struct tActiveTime tActiveTime;
 typedef struct Draw_tPixMap Draw_tPixMap;
 typedef struct DRender_tCalcView DRender_tCalcView;
 typedef struct Draw_SVertex Draw_SVertex;
@@ -195,7 +194,6 @@ typedef struct AIState_Normal AIState_Normal;
 typedef struct AIState_NonActive AIState_NonActive;
 typedef struct AIHigh_Base AIHigh_Base;
 typedef struct AIHigh_None AIHigh_None;
-typedef struct tCopCarPair tCopCarPair;
 typedef struct AIHigh_BasicPerp AIHigh_BasicPerp;
 typedef struct AIHigh_Player AIHigh_Player;
 typedef struct AIHigh_BTC_Perp AIHigh_BTC_Perp;
@@ -219,9 +217,6 @@ typedef struct SPCHNFSType_REVINTRO SPCHNFSType_REVINTRO;
 typedef struct CarBank CarBank;
 typedef struct LocationBank LocationBank;
 typedef struct CallSignBank CallSignBank;
-typedef struct tCarBankPair tCarBankPair;
-typedef struct tLocationBankPair tLocationBankPair;
-typedef struct tCallSignBankPair tCallSignBankPair;
 typedef struct Speaker Speaker;
 typedef struct Trk_SFX Trk_SFX;
 typedef struct FLARE_PIECE_DEF FLARE_PIECE_DEF;
@@ -611,7 +606,6 @@ typedef struct DR_OFFSET DR_OFFSET;
 #endif
 typedef struct fMemCardInfo_def fMemCardInfo_def;
 typedef struct MDECSTRUCT MDECSTRUCT;
-typedef struct tMdecHandle tMdecHandle;
 typedef struct windowtbl windowtbl;
 typedef struct STREAMCHUNKHDR STREAMCHUNKHDR;
 typedef struct VIDEOSTRUCT VIDEOSTRUCT;
@@ -620,9 +614,7 @@ typedef struct scoorddef scoorddef;
 typedef struct RPOINT RPOINT;
 typedef struct PSXCDFILEINFO_def PSXCDFILEINFO_def;
 typedef struct tPadModuleState tPadModuleState;
-typedef union tPadVariantData tPadVariantData;
 typedef union trigger_t trigger_t;
-typedef union tPadStdAnalog_u tPadStdAnalog_u;
 /* __vtbl_ptr_type = the GENUINE GCC 2.7.2 vtable-entry type emitted by the original toolchain
    (PsyQ 4.3 / GCC 2.7.2 "old ABI"). The SYM writes it verbatim as a STRUCT tag on all 336 .vf refs;
    it is the compiler's own builtin there, NOT something we invented. GCC 2.7.2's old-ABI layout is the
@@ -640,12 +632,12 @@ typedef struct __nfs4_vtbl_ptr_t { short delta; short index; int (*pfn)(...); } 
 
 /* ============ ENUMS ============ */
 
-typedef enum {   /* 4 bytes */
+typedef enum Udff_tAccessType {   /* 4 bytes */
     UDFF_FILE = 0,
     UDFF_MEMORY = 1
 } Udff_tAccessType;
 
-typedef enum {   /* 4 bytes */
+typedef enum AIScript_tPlayAction {   /* 4 bytes */
     AISCRIPT_PLAYACTION_COLLISION = 0,
     AISCRIPT_PLAYACTION_OPP_WIZZED_BY = 1,
     AISCRIPT_PLAYACTION_HUMAN_BLOCK_OPP = 2,
@@ -656,7 +648,7 @@ typedef enum {   /* 4 bytes */
     AISCRIPT_PLAYACTION_SENTINAL = 7
 } AIScript_tPlayAction;
 
-typedef enum {   /* 4 bytes */
+typedef enum AIScript_tAIReaction {   /* 4 bytes */
     AISCRIPT_AIREACTION_INIT = 1,
     AISCRIPT_AIREACTION_END = 2,
     AISCRIPT_AIREACTION_SPEED_BURST = 4,
@@ -676,7 +668,7 @@ typedef enum {   /* 4 bytes */
     AISCRIPT_AIREACTION_TEST4 = 65536
 } AIScript_tAIReaction;
 
-typedef enum {   /* 4 bytes */
+typedef enum speechModeType {   /* 4 bytes */
     SPEECH_MODE_NONE = 0,
     SPEECH_MODE_PURSUIT = 1,
     SPEECH_MODE_PURSUIT_WRONG_SIDE = 2,
@@ -691,39 +683,39 @@ typedef enum {   /* 4 bytes */
     SPEECH_MODE_SENTINAL = 11
 } speechModeType;
 
-typedef enum {   /* 4 bytes */
+typedef enum speechIntensityType {   /* 4 bytes */
     SPEECH_INTENSITY_LOW = 0,
     SPEECH_INTENSITY_MED = 1,
     SPEECH_INTENSITY_HIGH = 2,
     SPEECH_INTENSITY_SENTINAL = 3
 } speechIntensityType;
 
-typedef enum {   /* 4 bytes */
+typedef enum speechSourceType {   /* 4 bytes */
     SPEECH_SOURCE_REGULAR_COP = 0,
     SPEECH_SOURCE_SUPER_COP = 1,
     SPEECH_SOURCE_ROADBLOCK = 2,
     SPEECH_SOURCE_SENTINAL = 3
 } speechSourceType;
 
-typedef enum {   /* 4 bytes */
+typedef enum donutMode_t {   /* 4 bytes */
     DONUTMODE_NONE = 0,
     DONUTMODE_GOCENTER = 1,
     DONUTMODE_DONUT = 2,
     DONUTMODE_BURNOUT = 3
 } donutMode_t;
 
-typedef enum {   /* 4 bytes */
+typedef enum AIDataRecord_RecordMethod_t {   /* 4 bytes */
     NORMAL_M = 0,
     RECORD_M = 1,
     TEST_M = 2
 } AIDataRecord_RecordMethod_t;
 
-typedef enum {   /* 4 bytes */
+typedef enum copType {   /* 4 bytes */
     COP_REGULAR = 0,
     COP_SUPER = 1
 } copType;
 
-typedef enum {   /* 4 bytes */
+typedef enum crimeType {   /* 4 bytes */
     CRIME_NONE = 0,
     CRIME_SPEEDER = 1,
     CRIME_WRONGSIDE = 2,
@@ -731,13 +723,13 @@ typedef enum {   /* 4 bytes */
     CRIME_SMASHCOP = 4
 } crimeType;
 
-typedef enum {   /* 4 bytes */
+typedef enum cruiseMode_t {   /* 4 bytes */
     CRUISE_ATSETSPEED = 0,
     CRUISE_ATFACTOR = 1,
     CRUISE_ATTRAFFICSPEED = 2
 } cruiseMode_t;
 
-typedef enum {   /* 4 bytes */
+typedef enum stateType_t {   /* 4 bytes */
     STATE_NONE = 0,
     STATE_PURGATORY = 1,
     STATE_NORMAL = 2,
@@ -751,7 +743,7 @@ typedef enum {   /* 4 bytes */
     STATE_CRUISE = 10
 } stateType_t;
 
-typedef enum {   /* 4 bytes */
+typedef enum AIHigh_CopGameType_t {   /* 4 bytes */
     COP_GAME_NO = 0,
     COP_GAME_PURSUIT = 1,
     COP_GAME_BTC_1HC = 2,
@@ -759,7 +751,7 @@ typedef enum {   /* 4 bytes */
     COP_GAME_BTC_1HC1HP = 4
 } AIHigh_CopGameType_t;
 
-typedef enum {   /* 4 bytes */
+typedef enum Wingman_Role {   /* 4 bytes */
     ROLE_IDLE = 0,
     ROLE_WINGMAN = 1,
     ROLE_BLOCKADER = 2,
@@ -773,7 +765,7 @@ typedef enum {   /* 4 bytes */
     PULLOVER_EOG = 3
 } tPullOverMode;
 
-typedef enum {   /* 4 bytes */
+typedef enum AIHigh_tAttackMode {   /* 4 bytes */
     NO_ATTACK = 0,
     REAR_END = 1,
     SCRIPT_ATTACK = 2,
@@ -789,7 +781,7 @@ typedef enum {   /* 4 bytes */
     PERPMODE_CHASEON = 5
 } tPerpMode;
 
-typedef enum {   /* 4 bytes */
+typedef enum blockadeMode_t {   /* 4 bytes */
     BLOCKADEMODE_NONE = 0,
     BLOCKADEMODE_SETUP = 1,
     BLOCKADEMODE_WAITING = 2,
@@ -797,7 +789,7 @@ typedef enum {   /* 4 bytes */
     BLOCKADEMODE_SETUP_FOR_OTHER = 4
 } blockadeMode_t;
 
-typedef enum {   /* 4 bytes */
+typedef enum AIHigh_tDriveAwayMode {   /* 4 bytes */
     DRIVEAWAY_NONE = 0,
     DRIVEAWAY_RESET = 1,
     DRIVEAWAY_NORESET = 2
@@ -820,7 +812,7 @@ typedef enum {   /* 4 bytes */
     WINGMAN_BLOCKADER_ACTIVE = 5
 } tWingmanStatus;
 
-typedef enum {   /* 4 bytes */
+typedef enum forceFocus_t {   /* 4 bytes */
     FOCUS_NORMAL = 0,
     FOCUS_AI = 1,
     FOCUS_COPANDAI = 2
@@ -831,13 +823,13 @@ typedef enum {   /* 4 bytes */
     PLACEMENTSPEED_FAST = 1
 } tPlacementSpeed;
 
-typedef enum {   /* 4 bytes */
+typedef enum AICop_RoadBlockState {   /* 4 bytes */
     kAICop_RoadBlockState_None = 0,
     kAICop_RoadBlockState_WaitingForPerp = 1,
     kAICop_RoadBlockState_PerpPassed = 2
 } AICop_RoadBlockState;
 
-typedef enum {   /* 4 bytes */
+typedef enum Gear_t {   /* 4 bytes */
     GEAR_REVERSE = 0,
     GEAR_NEUTRAL = 1,
     GEAR_FIRST = 2,
@@ -849,12 +841,12 @@ typedef enum {   /* 4 bytes */
     GEAR_SEVENTH = 8
 } Gear_t;
 
-typedef enum {   /* 4 bytes */
+typedef enum eRampType {   /* 4 bytes */
     kRampType_Interpolate = 0,
     kRampType_NoInterpolate = 1
 } eRampType;
 
-typedef enum {   /* 4 bytes */
+typedef enum AIDataRecord_WhichRecord_t {   /* 4 bytes */
     NORECORD_R = 0,
     RACER_SPEED_R = 1,
     TRAFFIC_SPEED_R = 2,
@@ -866,7 +858,7 @@ typedef enum {   /* 4 bytes */
     CAR_TRACKING_R = 8
 } AIDataRecord_WhichRecord_t;
 
-typedef enum {   /* 4 bytes */
+typedef enum triggerType {   /* 4 bytes */
     TRIGGER_NONE = 0,
     TRIGGER_COP_SIMPLE = 1,
     TRIGGER_COP_ROADBLOCK = 2,
@@ -876,7 +868,7 @@ typedef enum {   /* 4 bytes */
     TRIGGER_NUM_TRIGGER_TYPES = 6
 } triggerType;
 
-typedef enum {   /* 4 bytes */
+typedef enum s_type {   /* 4 bytes */
     kAsphalt = 0,
     kCarBody = 1,
     kTires = 2,
@@ -898,7 +890,7 @@ typedef enum {   /* 4 bytes */
     kRainTireOnAsphalt = 18
 } s_type;
 
-typedef enum {   /* 4 bytes */
+typedef enum tMenuCommandType {   /* 4 bytes */
     kMenu_Command_None = 0,
     kMenu_Command_GoToMenu = 1,
     kMenu_Command_GoToMenuOneWay = 2,
@@ -911,7 +903,12 @@ typedef enum {   /* 4 bytes */
     kMenu_Command_ClearRecords = 9
 } tMenuCommandType;
 
-typedef enum {   /* 4 bytes */
+struct tMenuCommand {   /* 8 bytes */
+    tMenuCommandType   type;   /* +0x0 */
+    tMenu              *nextMenu;   /* +0x4; tMenu is incomplete here in retail SYM */
+};
+
+typedef enum tCarModels {   /* 4 bytes */
     cm_MercedesSLK = 0,
     cm_BMWZ3 = 1,
     cm_HoldenHSVT = 2,
@@ -965,13 +962,13 @@ typedef enum {   /* 4 bytes */
     cm_NumCarModels = 50
 } tCarModels;
 
-typedef enum {   /* 4 bytes */
+typedef enum tCarNameLength {   /* 4 bytes */
     cnl_Medium = 0,
     cnl_Short = 1,
     cnl_Long = 2
 } tCarNameLength;
 
-typedef enum {   /* 4 bytes */
+typedef enum tPersonalities {   /* 4 bytes */
     kPersonalityNemesis = 0,
     kPersonalityBlurrr = 1,
     kPersonalityZippy = 2,
@@ -984,7 +981,7 @@ typedef enum {   /* 4 bytes */
     kPersonalityNUM = 9
 } tPersonalities;
 
-typedef enum {   /* 4 bytes */
+typedef enum tPMenuCommandType {   /* 4 bytes */
     kMPause_NoEvent = 0,
     kMPause_Continue = 1,
     kMPause_Restart = 2,
@@ -996,7 +993,7 @@ typedef enum {   /* 4 bytes */
     kMPause_CommandConfirmationFlag = 256
 } tPMenuCommandType;
 
-typedef enum {   /* 4 bytes */
+typedef enum tInputKeyType {   /* 4 bytes */
     kInput_KeyType_NoKey = 0,
     kInput_KeyType_AlreadyProcessed = 1,
     kInput_KeyType_Cross = 2,
@@ -1015,7 +1012,7 @@ typedef enum {   /* 4 bytes */
     kInput_KeyType_Select = 16384
 } tInputKeyType;
 
-typedef enum {   /* 4 bytes */
+typedef enum tCarClassType {   /* 4 bytes */
     cct_Roadster = 0,
     cct_PonyCar = 1,
     cct_SaloonCar = 2,
@@ -1030,7 +1027,7 @@ typedef enum {   /* 4 bytes */
     cct_NumCarClasses = 11
 } tCarClassType;
 
-typedef enum {   /* 4 bytes */
+typedef enum tTrackClassType {   /* 4 bytes */
     tct_Beginner = 0,
     tct_Intermediate = 1,
     tct_Expert = 2,
@@ -1038,32 +1035,32 @@ typedef enum {   /* 4 bytes */
     tct_Bonus = 4
 } tTrackClassType;
 
-typedef enum {   /* 4 bytes */
+typedef enum VALIDITY {   /* 4 bytes */
     kINVALID = 0,
     kVALID = 1,
     kPREDICTED = 2,
     kRESIM = 3
 } VALIDITY;
 
-typedef enum {   /* 4 bytes */
+typedef enum Weather_tState {   /* 4 bytes */
     Weather_kSnow = 0,
     Weather_kRain = 1
 } Weather_tState;
 
-typedef enum {   /* 4 bytes */
+typedef enum tAppCommand {   /* 4 bytes */
     kApp_Command_StartRace = 0,
     kApp_Command_ReStartRace = 1,
     kApp_Command_StartReplay = 2
 } tAppCommand;
 
-typedef enum {   /* 4 bytes */
+typedef enum tTVState {   /* 4 bytes */
     tv_StateOff = 0,
     tv_StateOn = 1,
     tv_TransitionOn = 2,
     tv_TransitionOff = 3
 } tTVState;
 
-typedef enum {   /* 4 bytes */
+typedef enum tScreenMainState {   /* 4 bytes */
     kScreenMain_Off = 0,
     kScreenMain_StaticImage = 1,
     kScreenMain_DynamicImage = 2,
@@ -1071,13 +1068,13 @@ typedef enum {   /* 4 bytes */
     kScreenMain_Credits = 4
 } tScreenMainState;
 
-typedef enum {   /* 4 bytes */
+typedef enum tPlayer {   /* 4 bytes */
     kPlayerBoth = -1,
     kPlayerOne = 0,
     kPlayerTwo = 1
 } tPlayer;
 
-typedef enum {   /* 4 bytes */
+typedef enum tCarListType {   /* 4 bytes */
     clt_Stock = 1,
     clt_GarageCar = 2,
     clt_Cop = 4,
@@ -1088,13 +1085,13 @@ typedef enum {   /* 4 bytes */
     clt_Dealer = 128
 } tCarListType;
 
-typedef enum {   /* 4 bytes */
+typedef enum PRODUCTLOC {   /* 4 bytes */
     N_AMERICA = 0,
     JAPAN = 1,
     EUROPE = 2
 } PRODUCTLOC;
 
-typedef enum {   /* 4 bytes */
+typedef enum MANAGERTASK {   /* 4 bytes */
     NONE = 0,
     LOAD_CARD = 1,
     WRITE_FILE = 2,
@@ -1102,7 +1099,7 @@ typedef enum {   /* 4 bytes */
     DELETE_FILE = 4
 } MANAGERTASK;
 
-typedef enum {   /* 4 bytes */
+typedef enum tMenuTextType {   /* 4 bytes */
     textType_Title = 0,
     textType_FlybyHelp = 1,
     textType_BorderInfo = 2,
@@ -1121,14 +1118,14 @@ typedef enum {   /* 4 bytes */
     textType_Default = 14
 } tMenuTextType;
 
-typedef enum {   /* 4 bytes */
+typedef enum tMenuTextState {   /* 4 bytes */
     textState_Unselected = 0,
     textState_Selected = 1,
     textState_Hilighted = 2,
     textState_NumStates = 3
 } tMenuTextState;
 
-typedef enum {   /* 4 bytes */
+typedef enum tCheatCode {   /* 4 bytes */
     cheat_Roadster = 0,
     cheat_Pony = 1,
     cheat_Saloon = 2,
@@ -1163,19 +1160,19 @@ typedef enum {   /* 4 bytes */
     cheat_NumCheats = 31
 } tCheatCode;
 
-typedef enum {   /* 4 bytes */
+typedef enum tScreen_TransitionType {   /* 4 bytes */
     kScreen_TransitionTypeItem = 0,
     kScreen_TransitionTypeMenu = 1,
     kScreen_TransitionTypeScreen = 2
 } tScreen_TransitionType;
 
-typedef enum {   /* 4 bytes */
+typedef enum tFront_ProcessingType {   /* 4 bytes */
     kFront_InitialLoad = 0,
     kFront_QuitToGameSetup = 1,
     kFront_QuitToPostGame = 2
 } tFront_ProcessingType;
 
-typedef enum {   /* 4 bytes */
+typedef enum tTrophyClass {   /* 4 bytes */
     kTrophyGold = 0,
     kTrophySilver = 1,
     kTrophyBronze = 2,
@@ -1183,24 +1180,24 @@ typedef enum {   /* 4 bytes */
     kTrophyNone = 4
 } tTrophyClass;
 
-typedef enum {   /* 4 bytes */
+typedef enum tSmallSpinningThing {   /* 4 bytes */
     kSpinningNone = 0,
     kSpinningGold = 1,
     kSpinningMemCard = 2
 } tSmallSpinningThing;
 
-typedef enum {   /* 4 bytes */
+typedef enum tScreenCongratsMessage {   /* 4 bytes */
     kScreenCongrats_Congrats = 0,
     kScreenCongrats_Eliminated = 1
 } tScreenCongratsMessage;
 
-typedef enum {   /* 4 bytes */
+typedef enum tTrophySize {   /* 4 bytes */
     ts_Small = 0,
     ts_Medium = 1,
     ts_Large = 2
 } tTrophySize;
 
-typedef enum {   /* 4 bytes */
+typedef enum PinkSlipsErrorCode {   /* 4 bytes */
     PinkSlipsNoError = 0,
     PinkSlipsError_NotOriginalCard = 1,
     PinkSlipsError_LoadFailed = 2,
@@ -1211,7 +1208,7 @@ typedef enum {   /* 4 bytes */
     numPinkSlipsErrors = 7
 } PinkSlipsErrorCode;
 
-typedef enum {   /* 4 bytes */
+typedef enum tCarStatType {   /* 4 bytes */
     cst_Acceleration = 0,
     cst_Brake = 1,
     cst_Speed = 2,
@@ -1219,7 +1216,7 @@ typedef enum {   /* 4 bytes */
     cst_Overall = 4
 } tCarStatType;
 
-typedef enum {   /* 4 bytes */
+typedef enum PinkSlipsCarSelectState {   /* 4 bytes */
     NoCardInserted = 0,
     CardFailed = 1,
     CardFailedNotFound = 2,
@@ -1231,7 +1228,7 @@ typedef enum {   /* 4 bytes */
     CardCurrentlyLoading = 8
 } PinkSlipsCarSelectState;
 
-typedef enum {   /* 4 bytes */
+typedef enum VIDEOSTATE {   /* 4 bytes */
     VIDEOSTATE_IDLE = 0,
     VIDEOSTATE_SPOOLING = 1,
     VIDEOSTATE_READY = 2,
@@ -1290,13 +1287,6 @@ struct PAD_PSX {   /* 6 bytes */
     u_short            unused[2];   /* +0x2 */
 };
 
-union tPadVariantData {   /* 6 bytes */
-    PAD_PSX            standard;
-    PAD_NEGCON         negcon;
-    PAD_MOUSE          mouse;
-    PAD_ANALOG         analog;
-};
-
 struct trigger_anyTrigger_t {   /* 8 bytes */
     int                type, slice;   /* +0x0 */
 };
@@ -1330,6 +1320,11 @@ struct trigger_trafficAccident_t {   /* 56 bytes */
     matrixtdef         orientation;   /* +0x14 */
 };
 
+struct trigger_pathPosition_t {   /* 20 bytes */
+    coorddef           position;   /* +0x0 */
+    int                targetSpeed, waitTime;   /* +0xC */
+};
+
 struct trigger_trafficPath_t {   /* 64 bytes */
     int                type, slice, dir;   /* +0x0 */
     matrixtdef         orientation;   /* +0xC */
@@ -1344,11 +1339,6 @@ union trigger_t {   /* 72 bytes */
     trigger_offroad_t  offroad;
     trigger_trafficAccident_t trafficAccident;
     trigger_trafficPath_t trafficPath;
-};
-
-union tPadStdAnalog_u {   /* 6 bytes */
-    PAD_PSX            standard;
-    PAD_ANALOG         analog;
 };
 
 #ifndef NFS4_PSYQ_HEADERS
@@ -1506,11 +1496,12 @@ struct CCOORD16 {   /* 8 bytes */
 
 struct PAD_COMMON {   /* 8 bytes */
     u_char             nopad, ID;   /* +0x0 */
-    tPadVariantData    data;   /* +0x2 */
-};
-
-struct tActiveTime {   /* 2 bytes */
-    char               bActive, time;   /* +0x0 */
+    union {   /* retail SYM: anonymous 6-byte union */
+        PAD_PSX        standard;
+        PAD_NEGCON     negcon;
+        PAD_MOUSE      mouse;
+        PAD_ANALOG     analog;
+    } data;   /* +0x2 */
 };
 
 struct Draw_tPixMap {   /* 16 bytes */
@@ -1696,9 +1687,12 @@ struct GameSetup_tControllerData {   /* 88 bytes */
     int                controllerConfig[2], deadSpot[2], steeringRange[2], IImaxRange[2], ImaxRange[2], J1MIN[2], J1MAX[2], J2MIN[2], J2MAX[2], shockMode[2], shockImpact[2];   /* +0x0 */
 };
 
+typedef void (*Sched_tFunctionPt)(void *);
+
 struct Sched_tFunctionSchedule {   /* 16 bytes */
     int                priority;   /* +0x0 */
-    void               *function, *var1, *var2;   /* +0x4 */
+    Sched_tFunctionPt  function;   /* +0x4 */
+    void               *var1, *var2;   /* +0x8 */
 };
 
 struct Sched_tSchedule {   /* 24 bytes */
@@ -1740,14 +1734,22 @@ struct AIScript_tReactionDetails {   /* 8 bytes */
 };
 
 struct AIScript_t {   /* 64 bytes */
-    int                detectAction, detectHumCarIndex, actionIndex, actionHumCarIndex, reactionIndex, reaction, reactionTicksLeft;   /* +0x0 */
+    AIScript_tPlayAction detectAction;   /* +0x0 */
+    int                detectHumCarIndex;   /* +0x4 */
+    AIScript_tPlayAction actionIndex;   /* +0x8 */
+    int                actionHumCarIndex, reactionIndex;   /* +0xC */
+    AIScript_tAIReaction reaction;   /* +0x14 */
+    int                reactionTicksLeft;   /* +0x18 */
     AIScript_tReactionDetails (*data)[7];   /* +0x1C */
     int                lastReactionIndex[7];   /* +0x20 */
     int                lastActionTime;   /* +0x3C */
 };
 
 struct AISpeechInfo_t {   /* 24 bytes */
-    int                speechMode, speechIntensity, speechSource, playerCarIndex, copCarIndex, warningNumber;   /* +0x0 */
+    speechModeType     speechMode;   /* +0x0 */
+    speechIntensityType speechIntensity;   /* +0x4 */
+    speechSourceType   speechSource;   /* +0x8 */
+    int                playerCarIndex, copCarIndex, warningNumber;   /* +0xC */
 };
 
 struct Car_tStats {   /* 160 bytes */
@@ -1823,7 +1825,7 @@ struct Car_tObj {   /* 2268 bytes */
     int                flywheelRpm, wheelSpin, frontWheelSpin, wheelLock, slide, gTransferFront, gTransferRight, frontSkid, rearSkid, oldSkidState;   /* +0x468 */
     coorddef           oldSkidPoint[4];   /* +0x490 */
     int                oldAudioSkidState;   /* +0x4C0 */
-    void               *funcUpdateRoadInfo, *funcReplay, *funcControl, *funcStats, *funcHandlingPhysics, *funcGravityPhysics, *funcQDPhysicsUpdateVel, *funcQDPhysicsUpdateRot, *funcTestMeForCollisions, *funcDoPostCollisionStuff;   /* +0x4C4 */
+    Sched_tFunctionPt  funcUpdateRoadInfo, funcReplay, funcControl, funcStats, funcHandlingPhysics, funcGravityPhysics, funcQDPhysicsUpdateVel, funcQDPhysicsUpdateRot, funcTestMeForCollisions, funcDoPostCollisionStuff;   /* +0x4C4 */
     int                personalityIndex;   /* +0x4EC */
     AIPerson_t         *personality;   /* +0x4F0 */
     AIScript_t         script;   /* +0x4F4 */
@@ -1842,7 +1844,9 @@ struct Car_tObj {   /* 2268 bytes */
     coorddef           angularAcc_ch;   /* +0x6E0 */
     int                driveDirectionReverseTime, driveDirection, driveDirectionTimer, aCar, aDesired, aCarWRTRoad, lateralVelocity;   /* +0x6EC */
     coorddef           targetPos;   /* +0x708 */
-    int                targetLatPos, rampDesiredLatPos, preferredLateralPosition, preferredLateralPositionPower, timeOffRoad, max_clacc, max_aa, aiGlue, drag, slackProb, accNitrous, speedNitrous, wipeOutStartTick, wipeOutEndTick, btcGlueModifier, donutMode, AIFishtailEndTick, lookAheadSlice, forceNoSimOptz, gripFactor;   /* +0x714 */
+    int                targetLatPos, rampDesiredLatPos, preferredLateralPosition, preferredLateralPositionPower, timeOffRoad, max_clacc, max_aa, aiGlue, drag, slackProb, accNitrous, speedNitrous, wipeOutStartTick, wipeOutEndTick, btcGlueModifier;   /* +0x714 */
+    donutMode_t        donutMode;   /* +0x750 */
+    int                AIFishtailEndTick, lookAheadSlice, forceNoSimOptz, gripFactor;   /* +0x754 */
     Car_tObj           *fallBehindCar, *nextAIRacer;   /* +0x764 */
     int                caravanFollowBehindDistanceMeters, caravanTimer, AISlot, damageMult, topSpeedUpgradeMult, accUpgradeMult, extraWallCollisionAllowance;   /* +0x76C */
     Cars_tCollisionInfo collision;   /* +0x788 */
@@ -1856,7 +1860,7 @@ struct AIDataRecord_t {   /* 88 bytes */
     int                numElements_, bSize_;   /* +0x0 */
     char               name_[64];   /* +0x8 */
     char               *dataBuffer_, *preAllocatedBuffer_;   /* +0x48 */
-    int                recordMethod_;   /* +0x50 */
+    AIDataRecord_RecordMethod_t recordMethod_;   /* +0x50 */
     __vtbl_ptr_type      (*_vf)[3];   /* +0x54 */
     AIDataRecord_t() {}
     AIDataRecord_t(AIDataRecord_WhichRecord_t which, char *name);
@@ -1996,7 +2000,7 @@ struct copGame_t {   /* 8 bytes */
 
 struct AICop_BasicPerpInfo {   /* 12 bytes */
     int                copsAssigned_[2];   /* +0x0 */
-    int                crime_;   /* +0x8 */
+    crimeType          crime_;   /* +0x8 */
 };
 
 struct AICop_PerpChaseInfo {   /* 36 bytes */
@@ -2005,11 +2009,6 @@ struct AICop_PerpChaseInfo {   /* 36 bytes */
     int                chaseLevelIndex_, bestChaseLevelIndex_;   /* +0x8 */
     copLevel_t         *chaseLevel_;   /* +0x10 */
     int                totalEngagementPercent_, blockadeDone_, engagementPercentIncreasePerTick_, copFreeTicks_;   /* +0x14 */
-};
-
-struct trigger_pathPosition_t {   /* 20 bytes */
-    coorddef           position;   /* +0x0 */
-    int                targetSpeed, waitTime;   /* +0xC */
 };
 
 struct AIState_Base {   /* 8 bytes */
@@ -2054,7 +2053,8 @@ struct AIState_NonActive : public AIState_Base {   /* 8 bytes */
 struct AIHigh_Base {   /* 24 bytes */
     Car_tObj           *carObj_;   /* +0x0 */
     AIState_Base       *state_;   /* +0x4 */
-    int                stateType_, schedulingOff_, lastTrafficTriggerCheckSlice_;   /* +0x8 */
+    stateType_t        stateType_;   /* +0x8 */
+    int                schedulingOff_, lastTrafficTriggerCheckSlice_;   /* +0xC */
     __vtbl_ptr_type      (*_vf)[3];   /* +0x14 */
     AIHigh_Base() {}
     AIHigh_Base(Car_tObj *carObj);
@@ -2080,13 +2080,11 @@ struct AIHigh_None : public AIHigh_Base {   /* 24 bytes */
     void HighExecute();
 };
 
-struct tCopCarPair {   /* 8 bytes */
-    int                copIndex, carIndex;   /* +0x0 */
-};
-
 struct AIHigh_BasicPerp : public AIHigh_Base {   /* 124 bytes */
-    int                pullOverMode_;   /* +0x18 */
-    tCopCarPair        positionVSCopList_[6];   /* +0x1C */
+    tPullOverMode      pullOverMode_;   /* +0x18 */
+    struct {
+        int            copIndex, carIndex;
+    } positionVSCopList_[6];   /* +0x1C */
     int                copVSPositionList_[6];   /* +0x4C */
     int                beatingTicksLeft_, lastPullOverTime_;   /* +0x64 */
     Car_tObj           *lastArrestingCop_;   /* +0x6C */
@@ -2135,16 +2133,17 @@ struct AIHigh_BTC_Perp : public AIHigh_BasicPerp {   /* 136 bytes */
 };
 
 struct blockade_t {   /* 52 bytes */
-    int                mode;   /* +0x0 */
+    blockadeMode_t     mode;   /* +0x0 */
     AIHigh_Player      *target;   /* +0x4 */
     int                flags, chaseLevel, requestSpikeBeltAtSlice, slice, direction, latPos, rotation, reverse, releaseTime, initialPlayerDistanceMetersInt;   /* +0x8 */
     short              blockadeSpeechFlags;   /* +0x30 */
 };
 
 struct AIHigh_BasicCop : public AIHigh_Base {   /* 88 bytes */
-    int                type_, copIndex_;   /* +0x18 */
+    copType            type_;   /* +0x18 */
+    int                copIndex_;   /* +0x1C */
     blockade_t         blockade_;   /* +0x20 */
-    int                driveAway_;   /* +0x54 */
+    AIHigh_tDriveAwayMode driveAway_;   /* +0x54 */
     AIHigh_BasicCop() {}
     AIHigh_BasicCop(Car_tObj *carObj, int idx);
     void CheckSpikeBelt();
@@ -2155,7 +2154,8 @@ struct AIHigh_BasicCop : public AIHigh_Base {   /* 88 bytes */
 
 struct AIHigh_BTC_Cop : public AIHigh_BasicCop {   /* 100 bytes */
     AIHigh_BTC_Perp    *perpTarget_;   /* +0x58 */
-    int                chaseIndex_, freezeMode_;   /* +0x5C */
+    int                chaseIndex_;   /* +0x5C */
+    tFreezeMode        freezeMode_;   /* +0x60 */
     AIHigh_BTC_Cop() {}
     AIHigh_BTC_Cop(Car_tObj *carObj, int copIndex);
     void AssignToPlayer(AIHigh_BTC_Perp *target);
@@ -2169,7 +2169,9 @@ struct AIHigh_BTC_Cop : public AIHigh_BasicCop {   /* 100 bytes */
 };
 
 struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {   /* 140 bytes */
-    int                currentStage_, stageRepeatCount_, stageTimeMultiplier_, timeLeft_, chaseStartTime_, wingmanStatus_, needPerp_, initialDirection_, initialMovement_, requestedDesiredSpeed_;   /* +0x64 */
+    int                currentStage_, stageRepeatCount_, stageTimeMultiplier_, timeLeft_, chaseStartTime_;   /* +0x64 */
+    tWingmanStatus     wingmanStatus_;   /* +0x78 */
+    int                needPerp_, initialDirection_, initialMovement_, requestedDesiredSpeed_;   /* +0x7C */
     AIHigh_BTC_HumanCop() {}
     AIHigh_BTC_HumanCop(Car_tObj *carObj, int copIndex);
     ~AIHigh_BTC_HumanCop();
@@ -2272,18 +2274,6 @@ struct LocationBank {   /* 16 bytes */
 struct CallSignBank {   /* 68 bytes */
     int                fAllUnits, fDispatch;   /* +0x0 */
     int                fMobile[15];   /* +0x8 */
-};
-
-struct tCarBankPair {   /* 216 bytes */
-    CarBank            Mobile[9], Dispatch[9];   /* +0x0 */
-};
-
-struct tLocationBankPair {   /* 512 bytes */
-    LocationBank       Mobile[16], Dispatch[16];   /* +0x0 */
-};
-
-struct tCallSignBankPair {   /* 136 bytes */
-    CallSignBank       Mobile, Dispatch;   /* +0x0 */
 };
 
 struct Speaker {   /* 80 bytes */
@@ -2425,7 +2415,7 @@ struct AIState_GotoSlice : public AIState_Normal {   /* 16 bytes */
 };
 
 struct AIHigh_BTC_Wingman : public AIHigh_BTC_Cop {   /* 124 bytes */
-    int                currentRole_, newRole_;   /* +0x64 */
+    Wingman_Role       currentRole_, newRole_;   /* +0x64 */
     AIHigh_BTC_HumanCop *newHumanBoss_;   /* +0x6C */
     int                spikeBeltPlaced_, spikeBeltSlice_, spikeBeltInterceptReleaseTime_;   /* +0x70 */
     AIHigh_BTC_Wingman() {}
@@ -2488,7 +2478,8 @@ struct AIHigh_BTC_HumanPerp : public AIHigh_BTC_Perp {   /* 136 bytes */
 };
 
 struct AIHigh_BTC_AIPerp : public AIHigh_BTC_Perp {   /* 172 bytes */
-    int                perpMode_, creationTime_, madeContactTime_, timeUntilContact_, escapeDuration_, originalMass_, originalMassInv_;   /* +0x88 */
+    tPerpMode          perpMode_;   /* +0x88 */
+    int                creationTime_, madeContactTime_, timeUntilContact_, escapeDuration_, originalMass_, originalMassInv_;   /* +0x8C */
     Car_tObj           *closestCopCarObj_;   /* +0xA4 */
     int                closestCopCarDistanceMeters_;   /* +0xA8 */
     AIHigh_BTC_AIPerp() {}
@@ -2526,7 +2517,7 @@ struct AIHigh_Human : public AIHigh_Player {   /* 176 bytes */
 };
 
 struct AIHigh_Opponent : public AIHigh_Player {   /* 192 bytes */
-    int                attackMode_;   /* +0xB0 */
+    AIHigh_tAttackMode attackMode_;   /* +0xB0 */
     Car_tObj           *lastHumanHitter_;   /* +0xB4 */
     int                hitCount_, attackTicksLeft_;   /* +0xB8 */
     AIHigh_Opponent() {}
@@ -2550,7 +2541,8 @@ struct AICop_spikeBelt_t {   /* 20 bytes */
 };
 
 struct Udff_tInfo {   /* 12 bytes */
-    int                type, handle;   /* +0x0 */
+    Udff_tAccessType   type;   /* +0x0 */
+    int                handle;   /* +0x4 */
     char               *memPtr;   /* +0x8 */
 };
 
@@ -2634,14 +2626,16 @@ struct AIState_RovingTraffic : public AIState_Base {   /* 24 bytes */
 };
 
 struct AIState_Donuts : public AIState_Base {   /* 16 bytes */
-    int                donutLookForward_, donutMode_;   /* +0x8 */
+    int                donutLookForward_;   /* +0x8 */
+    donutMode_t        donutMode_;   /* +0xC */
     AIState_Donuts() {}
     /* ~AIState_Donuts(): see AIState_Normal comment -- extern "C" ___14AIState_Donuts free fn. */
     void Execute();
 };
 
 struct AIState_Cruise : public AIState_Normal {   /* 20 bytes */
-    int                cruiseMode_, cruiseSpeed_, cruiseFactor_;   /* +0x8 */
+    cruiseMode_t       cruiseMode_;   /* +0x8 */
+    int                cruiseSpeed_, cruiseFactor_;   /* +0xC */
     AIState_Cruise() {}
     AIState_Cruise(Car_tObj *carObj, cruiseMode_t mode, int a);
     /* ~AIState_Cruise(): see AIState_Normal comment -- extern "C" ___14AIState_Cruise free fn. */
@@ -2696,7 +2690,7 @@ struct SNDSYSSET {   /* 44 bytes */
 };
 
 struct SNDSYSVEC {   /* 4 bytes */
-    void               *issurfacelocked;   /* +0x0 */
+    int                (*issurfacelocked)(void);   /* +0x0 */
 };
 
 struct SNDSAMPLEFORMAT {   /* 4 bytes */
@@ -2753,35 +2747,6 @@ struct tTexture_ShapeInfo {   /* 32 bytes */
     u_short            tpage, clut;   /* +0x1C */
 };
 
-struct tMenu {   /* 108 bytes */
-    unsigned int       fFlags;   /* +0x0 */
-    short              fTitle;   /* +0x4 */
-    int                fCurrentItem;   /* +0x8 */
-    bool               fNeverAnyEnabled;   /* +0xC */
-    tMenuItem          *fItemList[16];   /* +0x10 */
-    tScreen            *fScreen;   /* +0x50 */
-    tMenu              *fNextMenu, *fChildMenu, *fOptionsMenu;   /* +0x54 */
-    void               *fOnButtonPress;   /* +0x60 */
-    short              VertHelp;   /* +0x64 */
-    __vtbl_ptr_type      (*_vf)[11];   /* +0x68 */
-    /* reconstructed FEMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
-    tMenu() {}
-    void tMenuConstructor(tMenuItem *firstItem, void *ap);
-    tMenu(unsigned int flags, tScreen *screenHandler, tMenu *nextMenu, tMenu *optionsMenu, void (*OnButtonPress)(tMenuCommand&), short title);
-    ~tMenu();
-    void Initialize();
-    void ProcessInput(tPlayer fromPlayer, tInputKeyType &keyval, tMenuCommand &command);
-    short GetNumberEnabledItems();
-    void Draw();
-    void UpdateTransition();
-    void TransitionOff();
-    void TransitionOn();
-    bool TransitionIsFinished();  /* SYM: FCN bool (four-byte int) */
-    bool IsSubMenu();              /* SYM: FCN bool (four-byte int) */
-    long DebounceKeys();
-
-};
-
 struct tListIterator {   /* 16 bytes */
     short              *fSelectionList;   /* +0x0 */
     char               *fValue;   /* +0x4 */
@@ -2829,6 +2794,35 @@ struct tMenuItem {   /* 28 bytes */
     void Draw(int x, int y, int w, bool selected);  /* SYM: FCN VOID */
     void TransitionOn();    /* @0x80025aa8  empty base virtual (overridden by tMenu); surfaced by #75 vtable mat */
     void TransitionOff();   /* @0x80025ab0  empty base virtual (overridden by tMenu); surfaced by #75 vtable mat */
+
+};
+
+struct tMenu {   /* 108 bytes */
+    unsigned int       fFlags;   /* +0x0 */
+    short              fTitle;   /* +0x4 */
+    int                fCurrentItem;   /* +0x8 */
+    bool               fNeverAnyEnabled;   /* +0xC */
+    tMenuItem          *fItemList[16];   /* +0x10 */
+    tScreen            *fScreen;   /* +0x50 */
+    tMenu              *fNextMenu, *fChildMenu, *fOptionsMenu;   /* +0x54 */
+    void               (*fOnButtonPress)(tMenuCommand&);   /* +0x60 */
+    short              VertHelp;   /* +0x64 */
+    __vtbl_ptr_type      (*_vf)[11];   /* +0x68 */
+    /* reconstructed FEMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
+    tMenu() {}
+    void tMenuConstructor(tMenuItem *firstItem, void *ap);
+    tMenu(unsigned int flags, tScreen *screenHandler, tMenu *nextMenu, tMenu *optionsMenu, void (*OnButtonPress)(tMenuCommand&), short title);
+    ~tMenu();
+    void Initialize();
+    void ProcessInput(tPlayer fromPlayer, tInputKeyType &keyval, tMenuCommand &command);
+    short GetNumberEnabledItems();
+    void Draw();
+    void UpdateTransition();
+    void TransitionOff();
+    void TransitionOn();
+    bool TransitionIsFinished();  /* SYM: FCN bool (four-byte int) */
+    bool IsSubMenu();              /* SYM: FCN bool (four-byte int) */
+    long DebounceKeys();
 
 };
 
@@ -3213,7 +3207,7 @@ struct camera_info {   /* 272 bytes */
     char               animNum;   /* +0x7C */
     signed char        animHandle;   /* +0x7D */
     char               splineMode;   /* +0x7E */
-    int                forceFocus;   /* +0x80 */
+    forceFocus_t       forceFocus;   /* +0x80 */
     signed char        focusOnAICar;   /* +0x84 */
     int                POInhibitor;   /* +0x88 */
     BWorldSm_Pos       slicePos;   /* +0x8C */
@@ -3303,9 +3297,15 @@ struct CarBankName {   /* 12 bytes */
 };
 
 struct Speech {   /* 932 bytes */
-    tCarBankPair       fCarBank;   /* +0x0 */
-    tLocationBankPair  fLocationBank;   /* +0xD8 */
-    tCallSignBankPair  fCallSignBank;   /* +0x2D8 */
+    struct {
+        CarBank        Mobile[9], Dispatch[9];
+    } fCarBank;   /* +0x0 */
+    struct {
+        LocationBank   Mobile[16], Dispatch[16];
+    } fLocationBank;   /* +0xD8 */
+    struct {
+        CallSignBank   Mobile, Dispatch;
+    } fCallSignBank;   /* +0x2D8 */
     int                fLocationCount;   /* +0x360 */
     bool               fFileOpen;   /* +0x364 */
     int                fFileHandle;   /* +0x368 */
@@ -3485,29 +3485,8 @@ struct Input_tResults {   /* 4 bytes */
 };
 
 struct tPMenuCommand {   /* 8 bytes */
-    int                type;   /* +0x0 */
+    tPMenuCommandType  type;   /* +0x0 */
     tPMenu             *nextMenu;   /* +0x4 */
-};
-
-struct tPMenu {   /* 84 bytes */
-    int                fCurrentItem;   /* +0x0 */
-    bool               fHighlight;   /* +0x4 */
-    tPMenuItem         *fItemList[16];   /* +0x8 */
-    tPMenu             *fNextMenu;   /* +0x48 */
-    int                fNumItems;   /* +0x4C */
-    __vtbl_ptr_type      (*_vf)[5];   /* +0x50 */
-    /* reconstructed PauseMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
-    tPMenu() {}
-    void tPMenuConstructor(tPMenuItem *firstItem, void *ap);
-    tPMenu(tPMenuItem *firstItem, ...);
-    ~tPMenu();
-    void Initialize();
-    bool Debounce();
-    void CheckForDisabled();
-    void ProcessInput(tInputKeyType &keyval, tPMenuCommand &command);
-    void Draw();
-    int NumEnabledItems();
-    int ItemEnabledNum(int num);
 };
 
 struct tPListIterator {   /* 12 bytes */
@@ -3595,7 +3574,7 @@ struct tPMenuItemLeftRightSliderIndexed : public tPMenuItemLeftRightSlider {   /
 
 struct tPMenuItemGoToMenuButton : public tPMenuItemInteractive {   /* 20 bytes */
     tPMenu             *fNewMenu;   /* +0xC */
-    void               *fOnButtonPress;   /* +0x10 */
+    void               (*fOnButtonPress)(tPMenuCommand&);   /* +0x10 */
     /* reconstructed PauseMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     tPMenuItemGoToMenuButton(unsigned int textDescription, tPMenu *newMenu, void (*OnButtonPress)(tPMenuCommand&));
     ~tPMenuItemGoToMenuButton();
@@ -3604,11 +3583,32 @@ struct tPMenuItemGoToMenuButton : public tPMenuItemInteractive {   /* 20 bytes *
 };
 
 struct tPMenuItemCommandButton : public tPMenuItemInteractive {   /* 16 bytes */
-    int                fCommand;   /* +0xC */
+    tPMenuCommandType  fCommand;   /* +0xC */
     /* reconstructed PauseMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     tPMenuItemCommandButton(unsigned int textDescription, tPMenuCommandType command);
     ~tPMenuItemCommandButton();
     void ProcessInput(tInputKeyType &keyval, tPMenuCommand &command);
+};
+
+struct tPMenu {   /* 84 bytes */
+    int                fCurrentItem;   /* +0x0 */
+    bool               fHighlight;   /* +0x4 */
+    tPMenuItem         *fItemList[16];   /* +0x8 */
+    tPMenu             *fNextMenu;   /* +0x48 */
+    int                fNumItems;   /* +0x4C */
+    __vtbl_ptr_type      (*_vf)[5];   /* +0x50 */
+    /* reconstructed PauseMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
+    tPMenu() {}
+    void tPMenuConstructor(tPMenuItem *firstItem, void *ap);
+    tPMenu(tPMenuItem *firstItem, ...);
+    ~tPMenu();
+    void Initialize();
+    bool Debounce();
+    void CheckForDisabled();
+    void ProcessInput(tInputKeyType &keyval, tPMenuCommand &command);
+    void Draw();
+    int NumEnabledItems();
+    int ItemEnabledNum(int num);
 };
 
 struct tPauseMenuDefs {   /* 856 bytes */
@@ -3702,9 +3702,9 @@ struct tScreen {   /* 100 bytes */
 
 struct tCarLineup {   /* 20 bytes */
     bool               isPlayerCar;   /* +0x0 */
-    int                personality;   /* +0x4 */
+    tPersonalities     personality;   /* +0x4 */
     char               position;   /* +0x8 */
-    int                carModel;   /* +0xC */
+    tCarModels         carModel;   /* +0xC */
     char               carColor, carUpgrades;   /* +0x10 */
 };
 
@@ -3773,21 +3773,23 @@ struct tAwardInformation {   /* 68 bytes */
     long               fMoney, fTournMoney;   /* +0x0 */
     u_short            fActivateFlags;   /* +0x8 */
     char               fActivateTrack;   /* +0xA */
-    int                fActivateCarClass, fActivateCar, fActivateTrackClass;   /* +0xC */
+    tCarClassType      fActivateCarClass;   /* +0xC */
+    tCarModels         fActivateCar;   /* +0x10 */
+    tTrackClassType    fActivateTrackClass;   /* +0x14 */
     long               fActivateCheat;   /* +0x18 */
     bool               fAwardCar, fAwardCarGarageFull;   /* +0x1C */
     long               fAwardCarBonusMoney;   /* +0x24 */
-    int                fAwardCarModel;   /* +0x28 */
+    tCarModels         fAwardCarModel;   /* +0x28 */
     char               fAwardCarColor, fAwardCarUpgrades;   /* +0x2C */
     bool               fCompletedTier;   /* +0x30 */
     short              fCompletedText;   /* +0x34 */
-    int                fCompletedCar;   /* +0x38 */
+    tCarModels         fCompletedCar;   /* +0x38 */
     bool               fCompletedGarageFull;   /* +0x3C */
     long               fCompletedBonusMoney;   /* +0x40 */
 };
 
 struct tCompetitor {   /* 16 bytes */
-    int                fPersonality;   /* +0x0 */
+    tPersonalities     fPersonality;   /* +0x0 */
     u_char             fVariation;   /* +0x4 */
     signed char        fIsPlayerCar;   /* +0x5 */
     bool               fEliminated;   /* +0x8 */
@@ -3970,10 +3972,12 @@ struct tCreditManager {   /* 56 bytes */
     void DrawCurrCredit();
 };
 
+#ifndef NFS4_DELAY_TRECORDBUFFER_DEFINITION
 struct tRecordBuffer {   /* 20 bytes */
     char               sName[8];   /* +0x0 */
     int                nCar, nTime, nBestLap;   /* +0x8 */
 };
+#endif
 
 struct ObjectMultiAnim {   /* 48 bytes */
     ObjectAnim         _base_ObjectAnim;   /* +0x0 */
@@ -4137,7 +4141,7 @@ struct Sim_tSimSystemVar {   /* 28 bytes */
 
 struct sim_queue {   /* 524 bytes */
     Input_tResults     Buffer[2][32];   /* +0x0 */
-    int                Validity[2][32];   /* +0x100 */
+    VALIDITY           Validity[2][32];   /* +0x100 */
     int                HeadTime;   /* +0x200 */
     int                TailTime[2];   /* +0x204 */
 };
@@ -4239,7 +4243,8 @@ struct CarIO_textureInfo {   /* 12 bytes */
 
 struct Input_tDeviceList {   /* 12 bytes */
     char               *devicename;   /* +0x0 */
-    void               *devicefunc, *startupfunc;   /* +0x4 */
+    int                (*devicefunc)(u_long);   /* +0x4 */
+    int                (*startupfunc)(int);   /* +0x8 */
 };
 
 struct dflip {   /* 24 bytes */
@@ -4557,11 +4562,6 @@ struct DR_AREA {   /* 12 bytes (PsyQ libgpu) */
 };
 #endif
 
-struct tMenuCommand {   /* 8 bytes */
-    int                type;   /* +0x0 */
-    tMenu              *nextMenu;   /* +0x4 */
-};
-
 struct tListIteratorRangeIndexed : public tListIteratorRange {   /* 20 bytes */
     tListIteratorRangeIndexed() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
     char               *fIndex;   /* +0x10 */
@@ -4601,7 +4601,7 @@ struct tMenuItemLeftRightSlider : public tMenuItemInteractive {   /* 40 bytes */
 
 struct tMenuItemGoToMenuButton : public tMenuItemInteractive {   /* 32 bytes */
     tMenuItemGoToMenuButton() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
-    void               *fOnButtonPress;   /* +0x1C */
+    void               (*fOnButtonPress)(tMenuCommand&);   /* +0x1C */
     /* reconstructed FEMenu member fns (non-virtual decls; manual _vf vtable -> ABI-neutral) */
     tMenuItemGoToMenuButton(unsigned int textDescription, tMenu *newMenu, void (*OnButtonPress)(tMenuCommand&));
     ~tMenuItemGoToMenuButton();
@@ -4654,7 +4654,8 @@ struct tFEApplication {   /* 896 bytes */
     tMenu              *fParentMenu[2];   /* +0x24 */
     tDialogMessageString messagePopup;   /* +0x2C */
     tMenu              *backList[2][16];   /* +0xC4 */
-    int                backDepth[2], fLastKeyPressed[2];   /* +0x144 */
+    int                backDepth[2];   /* +0x144 */
+    tInputKeyType      fLastKeyPressed[2];   /* +0x14C */
     short              fYOffset;   /* +0x154 */
     tDialogHelp        helpPopup;   /* +0x158 */
     char               fPlayer, fInputPlayer;   /* +0x22C */
@@ -5054,7 +5055,7 @@ struct tListIteratorCar : public tListIterator {   /* 28 bytes */
     tListIteratorCar() {}   /* default ctor: embedded+body-init by tGlobalMenuDefs (FEMenuDefs) */
     int                fCarListFilter;   /* +0x10 */
     tCarManager        *fCarManager;   /* +0x14 */
-    int                fNameLength;   /* +0x18 */
+    tCarNameLength     fNameLength;   /* +0x18 */
     /* FECars methods */
     tListIteratorCar(char *valPtr,tCarManager *carManager);
     ~tListIteratorCar();
@@ -5121,7 +5122,7 @@ struct tListIteratorTournament : public tListIterator {   /* 20 bytes */
 };
 
 struct tTVConfig {   /* 48 bytes */
-    int                state;   /* +0x0 */
+    tTVState           state;   /* +0x0 */
     short              transition;   /* +0x4 */
     u_short            destBrightness, flags;   /* +0x6 */
     short              fxWide, fxThin;   /* +0xA */
@@ -5132,7 +5133,7 @@ struct tTVConfig {   /* 48 bytes */
 };
 
 struct tVideoTransition {   /* 24 bytes */
-    int                state;   /* +0x0 */
+    tScreenMainState   state;   /* +0x0 */
     u_short            flags;   /* +0x4 */
     u_char             u, v, uw, vh;   /* +0x6 */
     u_short            clut, tpage;   /* +0xA */
@@ -5278,10 +5279,7 @@ struct tScreenControllerConfig : public tScreen {   /* 380 bytes */
     short              fArrowFade, fArrowFadeDir, fTextTypeOn;   /* +0xA8 */
     bool               fFadeTextOut;   /* +0xB0 */
     short              mult;   /* +0xB4 */
-    short              negconPad;   /* +0xB6: alignment formerly supplied by tDialogYesNo */
-    /* Raw storage lets the reconstructed constructor reproduce the original
-       compiler-generated order: derived vptr first, then member ctor. */
-    char               negconPopUp[sizeof(tDialogYesNo)];   /* +0xB8 */
+    tDialogYesNo       negconPopUp;   /* +0xB8 */
     int                fTimeOutStartTick;   /* +0x160 */
     bool               SuperFastFadeOut, fPlayedInSound;   /* +0x164 */
     short              fShakingItem;   /* +0x16C */
@@ -5320,12 +5318,21 @@ struct tScreenControllerConfig : public tScreen {   /* 380 bytes */
      * materialized vtable's dtor slot) is hand-transcribed verbatim as a file-scope __asm__ in
      * screencontroller.cpp (byte-identical to what this inline body used to compile to
      * out-of-line, before the surgery -- see that file for the proof/detail). */
-    ~tScreenControllerConfig() { ((tDialogYesNo *)negconPopUp)->~tDialogYesNo(); }
+    ~tScreenControllerConfig() {}
 };
 
 struct tCheat {   /* 12 bytes */
     u_char             name[8];   /* +0x0 */
-    int                cheat;   /* +0x8 */
+    tCheatCode         cheat;   /* +0x8 */
+};
+
+struct tItemButton {   /* 20 bytes */
+    short              type, text;   /* +0x0 */
+    tOldMenu           *nextMenu;   /* +0x4; tOldMenu is incomplete here in retail SYM */
+    char               *value;   /* +0x8 */
+    short              *selection;   /* +0xC */
+    char               defaultvalue;   /* +0x10 */
+    u_char             flags, cases;   /* +0x11 */
 };
 
 struct tOldMenu {   /* 80 bytes */
@@ -5334,17 +5341,9 @@ struct tOldMenu {   /* 80 bytes */
     tItemButton        *item[16];   /* +0x10 */
 };
 
-struct tItemButton {   /* 20 bytes */
-    short              type, text;   /* +0x0 */
-    tOldMenu           *nextMenu;   /* +0x4 */
-    char               *value;   /* +0x8 */
-    short              *selection;   /* +0xC */
-    char               defaultvalue;   /* +0x10 */
-    u_char             flags, cases;   /* +0x11 */
-};
-
 struct tPSXToFEMapping {   /* 8 bytes */
-    int                PSXKey, FEKey;   /* +0x0 */
+    int                PSXKey;   /* +0x0 */
+    tInputKeyType      FEKey;   /* +0x4 */
 };
 
 struct tListIteratorDoubleIndexed : public tListIterator {   /* 28 bytes */
@@ -5374,9 +5373,9 @@ struct tScreenMain : public tScreen {   /* 1464 bytes */
     int                hVideo, fFrame;   /* +0x64 */
     u_long             fStartTicks, fAnimTicks;   /* +0x6C */
     short              fAnimLocation;   /* +0x74 */
-    int                fState;   /* +0x78 */
+    tScreenMainState   fState;   /* +0x78 */
     tTVConfig          tvConfigs[16];   /* +0x7C */
-    int                tvStates[16];   /* +0x37C */
+    tScreenMainState   tvStates[16];   /* +0x37C */
     tVideoTransition   tvTransitions[16];   /* +0x3BC */
     bool               fTVsInitialized;   /* +0x53C */
     char               fTransitionDirection;   /* +0x540 */
@@ -5669,7 +5668,10 @@ struct tScreenMemcard : public tScreen {   /* 1444 bytes */
 };
 
 struct tScreenCongrats : public tScreen {   /* 388 bytes */
-    int                congratsMessage, trophy, smallSpinningThing, fNumSpinShapes, fNumSmallSpinShapes, fCarPlayer;   /* +0x64 */
+    tScreenCongratsMessage congratsMessage;   /* +0x64 */
+    tTrophyClass       trophy;   /* +0x68 */
+    tSmallSpinningThing smallSpinningThing;   /* +0x6C */
+    int                fNumSpinShapes, fNumSmallSpinShapes, fCarPlayer;   /* +0x70 */
     long               TotalCash, CashAwarded;   /* +0x7C */
     int                framenum, starttick;   /* +0x84 */
     bool               InExtraSpin;   /* +0x8C */
@@ -5739,6 +5741,16 @@ struct tScreenTrackRecords : public tScreen {   /* 116 bytes */
     void DrawRecords(short maxitem);
     void DrawBackground();
 };
+
+#ifdef NFS4_DELAY_TRECORDBUFFER_DEFINITION
+/* ScreenTrackRecords.obj's SYM emits tScreenTrackRecords while tRecordBuffer
+   is still incomplete, then completes tRecordBuffer later in the include
+   graph.  Other frontend objects see the normal earlier definition. */
+struct tRecordBuffer {   /* 20 bytes */
+    char               sName[8];   /* +0x0 */
+    int                nCar, nTime, nBestLap;   /* +0x8 */
+};
+#endif
 
 struct tScreenTrackSelect : public tScreen {   /* 672 bytes */
     int                hVideo, fFrame;   /* +0x64 */
@@ -5822,7 +5834,7 @@ struct tAllScreens {   /* 15320 bytes */
 };
 
 struct tPerpModelList {   /* 8 bytes */
-    int                carModel;   /* +0x0 */
+    tCarModels         carModel;   /* +0x0 */
     char               carColor;   /* +0x4 */
 };
 
@@ -5832,7 +5844,7 @@ struct tFEStream {   /* 744 bytes */
     short              numOpponents;   /* +0x1A0 */
     tCarLineup         carLineup[6];   /* +0x1A4 */
     short              numCops, numSuperCops;   /* +0x21C */
-    int                copCars[6];   /* +0x220 */
+    tCarModels         copCars[6];   /* +0x220 */
     short              copCountry[6];   /* +0x238 */
     short              numTraffic;   /* +0x244 */
     short              trafficCars[6];   /* +0x246 */
@@ -6025,7 +6037,8 @@ struct MCRDOPTS_def {   /* 36 bytes */
     char               *productCode;   /* +0x4 */
     int                bMoveIconsToVram;   /* +0x8 */
     RECT               VramIconArea;   /* +0xC */
-    void               *ConfirmFormatProc, *ConfirmOverwriteProc, *LoadingDataProc, *SavingDataProc;   /* +0x14 */
+    int                (*ConfirmFormatProc)(void), (*ConfirmOverwriteProc)(void);   /* +0x14 */
+    void               (*LoadingDataProc)(void), (*SavingDataProc)(void);   /* +0x1C */
 };
 
 struct tVideoWallConfig {   /* 20 bytes */
@@ -6080,7 +6093,8 @@ struct fMemCardInfo_def {   /* 6108 bytes */
     char               productCode[16];   /* +0x4 */
     int                bMoveIconsToVram;   /* +0x14 */
     RECT               VramIconArea;   /* +0x18 */
-    void               *ConfirmFormatProc, *ConfirmOverwriteProc, *LoadingDataProc, *SavingDataProc;   /* +0x20 */
+    int                (*ConfirmFormatProc)(void), (*ConfirmOverwriteProc)(void);   /* +0x20 */
+    void               (*LoadingDataProc)(void), (*SavingDataProc)(void);   /* +0x28 */
     MANAGERTASK        task;   /* +0x30  (SYM ENUM MANAGERTASK) */
     int                bReady, fMultitap;   /* +0x34 */
     long               channel;   /* +0x3C */
@@ -6095,10 +6109,6 @@ struct MDECSTRUCT {   /* 44 bytes */
     RECT               framerect, striprect;   /* +0x10 */
     int                striprectsize;   /* +0x20 */
     u_long             *stripbuf, *vlcbuf;   /* +0x24 */
-};
-
-struct tMdecHandle {   /* 8 bytes */
-    int                numhandles, hDecode;   /* +0x0 */
 };
 
 struct windowtbl {   /* 156 bytes */
@@ -6150,7 +6160,9 @@ struct PSXCDFILEINFO_def {   /* 20 bytes */
 struct tPadModuleState {   /* 84 bytes */
     int                initialized;   /* +0x0 */
     PAD_COMMON         buf[8];   /* +0x4 */
-    tActiveTime        state[8];   /* +0x44 */
+    struct {
+        char           bActive, time;
+    } state[8];   /* +0x44; retail SYM anonymous two-byte element type */
 };
 
 /* ============ TYPEDEFS (aliases / fn-pointers / scalars / arrays) ============ */
@@ -6164,7 +6176,12 @@ typedef COORD16 Transformer_zVertex;
 typedef void *va_list;
 typedef unsigned int u_int;
 #ifndef NFS4_PSYQ_HEADERS
-typedef void *physadr;
+/* PsyQ SYS/TYPES.H defines the private one-word referent.  The retail SYM
+ * retains its 4-byte PTR STRUCT typedef in every TU but filters the `_physadr`
+ * tag block itself, so the header definition is source evidence rather than
+ * an extra game type. */
+struct _physadr { int r[1]; };
+typedef struct _physadr *physadr;
 #endif
 typedef long daddr_t;
 typedef char *caddr_t;
@@ -6176,7 +6193,9 @@ typedef short dev_t;
 typedef long off_t;
 typedef u_short uid_t;
 typedef u_short gid_t;
-typedef u_char nfs4_wchar_t;
+/* PsyQ's C++ headers spell this typedef `wchar_t` (UCHAR in every retail TU).
+ * CC1PLPSX predates native wchar_t and accepts the original spelling. */
+typedef u_char wchar_t;
 typedef void (*VOIDFN)();
 typedef int FILEOP;
 typedef void FILE_CALLBACK();
@@ -6196,7 +6215,6 @@ typedef int fixed248;
 typedef void Trk_Chunk;
 typedef void *lpTrk_Chunk;
 typedef short *tPA32[32];
-typedef void (*Sched_tFunctionPt)();
 typedef Udff_tInfo *Udff_tHandle;
 typedef int AIPerson_tGlueTable[21];
 typedef AIScript_tReactionDetails AIScript_tScriptData[7];

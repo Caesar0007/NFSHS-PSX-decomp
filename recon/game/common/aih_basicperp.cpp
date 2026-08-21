@@ -473,23 +473,17 @@ int AIHigh_BasicPerp::AddChaser(int copIndex,int carIndex,copType type)
 
   int *piVar2;
 
-  tCopCarPair *pPVar3;
-
-
-
   piVar2 = this->basicPerpInfo_.copsAssigned_;
 
   piVar2 = piVar2 + type;
 
   *piVar2 = *piVar2 + 1;
 
-  pPVar3 = (tCopCarPair *)&this->positionVSCopList_[1].carIndex;
-
   pos = 5;
 
-  *(int *)((char *)pPVar3 + 0x1C) = copIndex;
+  this->positionVSCopList_[pos].copIndex = copIndex;
 
-  *(int *)((char *)pPVar3 + 0x20) = carIndex;
+  this->positionVSCopList_[pos].carIndex = carIndex;
 
   this->copVSPositionList_[copIndex] = pos;
 

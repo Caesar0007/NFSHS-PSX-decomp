@@ -2,7 +2,7 @@
  *   8 fns: TextSys_LoadWordsGeneric/LoadInGame/LoadWords, Word/WordFlags/WordX/WordY, UnloadWords.
  *   GTE-free. Full SYM-locals applied.
  */
-#include "../../nfs4_types.h"
+#include "textsys_types.h"
 #include "textsys_externs.h"
 
 /* Textsys.obj-owned initialized data.  SYM identifies langFileName as

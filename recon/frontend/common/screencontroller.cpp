@@ -337,7 +337,7 @@ void tScreenControllerConfig::SetCurrentController(bool firsttime)
   tDialogYesNo *dialog;
 
   fSetMenu = (tInsideBoxMenu *)0x0;
-  dialog = (tDialogYesNo *)this->negconPopUp;
+  dialog = &this->negconPopUp;
   dialog->string = TextSys_Word(0x20b);
   dialog->yesnowords[0] = 0x20c;
   dialog->yesnowords[1] = 0x20d;
@@ -1279,7 +1279,7 @@ void tScreenControllerConfig::DrawForeground()
          i++) {
       int TextIndex = (byte)this->fTextController - 1;
       bool flag = false;
-      tDialogYesNo *dialog = (tDialogYesNo *)this->negconPopUp;
+      tDialogYesNo *dialog = &this->negconPopUp;
 
       if (dialog->currentlyOn == 0) {
         flag = dialog->fCurrentlyRunning == 0;
@@ -1379,11 +1379,9 @@ void tScreenControllerConfig::Cleanup()
 
 /* ---- tScreenControllerConfig::tScreenControllerConfig  (screencontroller.cpp:1889) ---- */
 tScreenControllerConfig::tScreenControllerConfig()
-  /* base tScreen is implicit; negconPopUp is explicitly constructed below so
-     the derived vptr store can precede its constructor, as in retail. */
+  : mult((this->_vf = (__vtbl_ptr_type (*)[10])tScreenControllerConfig_vtable,
+          this->mult))
 {
-  this->_vf = (__vtbl_ptr_type (*)[10])tScreenControllerConfig_vtable;   /* vptr @0x60 */
-  new ((tDialogYesNo *)this->negconPopUp) tDialogYesNo();
   this->fGotTick = 0;
   this->fAnim = 0;
   this->fFade[1] = 0;

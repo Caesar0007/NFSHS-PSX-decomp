@@ -1,7 +1,7 @@
 /* game/common/aiworld.h — reconstructed from game/common/aiworld.cpp (22 fns) */
 #ifndef _GAME_COMMON_AIWORLD_H_
 #define _GAME_COMMON_AIWORLD_H_
-#include "../../nfs4_types.h"
+#include "aiworld_types.h"
 
 int AIWorld_ZSplineDistance__FP8Car_tObjT0(Car_tObj *carObj, Car_tObj *otherCarObj);   /* :29 */
 int AIWorld_ZSplineDistance__FP8coorddefT0P10matrixtdef(coorddef *pos1, coorddef *pos2, matrixtdef *roadMatrix);   /* :38 */

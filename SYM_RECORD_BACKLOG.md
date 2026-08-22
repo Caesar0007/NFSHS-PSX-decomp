@@ -37,7 +37,7 @@ they are not silently collapsed into a smaller denominator.
   explicit per-record semantic-review row.  Nothing is silently dropped from
   the denominator.
 - A strict compiler-emitted type-graph comparison now distinguishes retail
-  subset coverage from actual per-object source visibility.  Sixty-two owners are
+  subset coverage from actual per-object source visibility.  Sixty-three owners are
   semantically exact: `memcard.obj`, `mdec.obj`, `video.obj`, `FETexture.obj`,
   `textpix.obj`, `textpsx.obj`, `unpack.obj`, `fastrand.obj`, and
   `aiscript.obj`, `new.obj`, `paths.obj`, `textsys.obj`, `simplemem.obj`,
@@ -51,7 +51,7 @@ they are not silently collapsed into a smaller denominator.
   `audiomus.obj`, `audioeng.obj`, `audiotrk.obj`, `AIINIT.obj`, and
   `AIPHYSIC.obj`, `gmesetup.obj`, `AI.obj`, `aistate.obj`, `mpause.obj`, and
   `newton.obj`, `camera.obj`, `TrackSpec.obj`, `loading.obj`, `texture.obj`, and
-  `Draw.obj`, and `Sfx.obj`.
+  `Draw.obj`, `Sfx.obj`, and `TrsProj.obj`.
   The remaining mapped C++
   units still expose reconstruction-only declarations through the monolithic
   `nfs4_types.h` include graph and therefore are not yet source-exact.
@@ -537,7 +537,7 @@ Current strict results:
 
 - `frontend/psx`: 4 exact (`memcard`, `mdec`, `video`, `fetexture`) and 4 DIFF
   (`drawshp`, `mmeffect`, `movie`, `psxfront`);
-- `game/psx`: 8 exact (`textpix`, `textpsx`, `unpack`, `trackspec`, `loading`, `texture`, `draw`, `sfx`), 19 DIFF, and one owner
+- `game/psx`: 9 exact (`textpix`, `textpsx`, `unpack`, `trackspec`, `loading`, `texture`, `draw`, `sfx`, `trsproj`), 18 DIFF, and one owner
   ambiguity for game `font.obj` versus the vendor `libgpu/FONT.obj`;
 - `frontend/common`: 41 mapped units remain DIFF and the now-empty artificial
   `mcrd.cpp` unit needs its objdiff ownership removed or reassigned;
@@ -596,7 +596,7 @@ prechecked loop in `Camera_OpponentLookBehind` restores the original 245-word
 shape.  `Camera_NextMode` needs one documented post-cc1 scheduling relocation;
 it moves, but does not add/remove/rewrite, the existing signed-%3 correction.
 The final graph is 92/92 named and 2/2 anonymous with no extra type/typedef, all
-38 camera functions remain PASS, and the vtable audit is clean across 912 files.
+38 camera functions remain PASS, and the vtable audit is clean across 913 files.
 
 `TrackSpec.obj` is now strict-exact through an owner-specific type header.  Its
 externally owned `GameSetup_tData` is represented by an exact-symbol word view
@@ -635,6 +635,12 @@ mask/or operation, eliminating the extra anonymous tag and typedef.  The final
 graph is 45/45 named and 2/2 anonymous with no extra typedef semantics, and all
 seven Sfx functions remain PASS, including the 938-instruction
 `Sfx_BuildSouffleFacet`.
+
+`TrsProj.obj` is now strict-exact through an owner-specific projection/physics
+type surface assembled from the SYM records.  Its only
+`GameSetup_tData::commMode` access uses the exact `GameSetup_gData` symbol at
+word offset 3.  The final graph is 50/50 named and 2/2 anonymous with no extra
+typedef semantics, and all 11 TrsProj functions remain PASS.
 
 The mapped C++ units cover all retail named and anonymous type bodies, but are
 not source-exact while they expose unrelated monolithic-header declarations or
@@ -729,7 +735,8 @@ Strict evidence:
   [`loading`](scratchpad/root_sym_audit/type_graph_loading_final_20260823.tsv), and
   [`texture`](scratchpad/root_sym_audit/type_graph_texture_final_20260823.tsv), and
   [`draw`](scratchpad/root_sym_audit/type_graph_draw_final_20260823.tsv), and
-  [`sfx`](scratchpad/root_sym_audit/type_graph_sfx_final_20260823.tsv).
+  [`sfx`](scratchpad/root_sym_audit/type_graph_sfx_final_20260823.tsv), and
+  [`trsproj`](scratchpad/root_sym_audit/type_graph_trsproj_final_20260823.tsv).
 
 Required closure:
 

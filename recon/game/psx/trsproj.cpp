@@ -3,7 +3,7 @@
  *   load (SetPsxMatrix/SetPsxTrans), and point/vertex transform (TransPt/TransPtN16/
  *   TransformProjectVertex). GTE COP2 ops via PsyQ libgte macros (trsproj_externs.h).
  */
-#include "../../nfs4_types.h"
+#include "trsproj_types.h"
 #include "trsproj_externs.h"
 
 /* ---- TrsProj.obj-OWNED global -- DEFINED here (self-contained). .data init = 10 (0x0a)
@@ -51,7 +51,7 @@ void TrsProj_SetMenuProjection(int cx,int cy,int w,int h)
 void TrsProj_SetViewTrsProjEnviro(DRender_tView *Vi)
 
 {
-  if (GameSetup_gData.commMode == 1) {
+  if (TrsProj_GameSetupWords[3] == 1) {
     TrsProj_SetProjection(0,0,0x140,0x78);
   }
   else {

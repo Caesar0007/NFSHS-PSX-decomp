@@ -3,7 +3,7 @@
  *   Force_Disable, Force_IsForceOn, Force_Pause, Force_UnPause, Force_HitSign, Force_HitWall.
  *   Full SYM-locals applied.
  */
-#include "../../nfs4_types.h"
+#include "force_types.h"
 #include "force_externs.h"
 
 /* ---- Force.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
@@ -197,6 +197,7 @@ void Force_Update(Car_tObj *car)
   Force_tGlobal *f;
   int skids;
   int impacts;
+  GameSetup_tControllerData *controller;
   int impactmultiplier;
   int v0;
   int v1;
@@ -215,8 +216,9 @@ void Force_Update(Car_tObj *car)
     f->time = '\0';
     return;
   }
-  skids = GameSetup_gData.controllerData.shockMode[uVar3];
-  impacts = GameSetup_gData.controllerData.shockImpact[uVar3];
+  controller = (GameSetup_tControllerData *)Force_GameSetupWords;
+  skids = *(int *)((char *)&controller->shockMode[uVar3] + 96);
+  impacts = *(int *)((char *)&controller->shockImpact[uVar3] + 96);
   if (skids != 0) {
     frontmultiplier = (skids + 0x10) * 0x2da6;
   }
@@ -354,9 +356,9 @@ void Force_StartUp(void)
     } while (f < Force_g + 2);
   }
   VSyncCallback(Force_Vbl);
-  Sched_AddFunction(simGlobal.schedule32Hz,Force_Update,Cars_gHumanRaceCarList[0],0x32);
-  if (GameSetup_gData.commMode == 1) {
-    Sched_AddFunction(simGlobal.schedule32Hz,Force_Update,Cars_gHumanRaceCarList[1],0x32);
+  Sched_AddFunction((Sched_tSchedule *)Force_SimWords[4],Force_Update,Cars_gHumanRaceCarList[0],0x32);
+  if (Force_GameSetupWords[3] == 1) {
+    Sched_AddFunction((Sched_tSchedule *)Force_SimWords[4],Force_Update,Cars_gHumanRaceCarList[1],0x32);
   }
   return;
 }

@@ -1,4 +1,3 @@
-#include "../../lib/libfns.h"
 /* force_externs.h -- extern decls for game/psx/force.cpp (NFS4 PSX force-feedback / rumble).
  * Types from ../../nfs4_types.h (Force_tGlobal, Car_tObj, Sim_tSimGlobalVar, Sched_tSchedule, GameSetup_tData). */
 #ifndef FORCE_EXTERNS_H
@@ -14,8 +13,8 @@ extern long              colourRGB[16];       /* 0x8011fd70  array-end sentinel 
 // [owned->defined in force.cpp] extern long              Force_gVblHandle;    /* 0x8013d850 */
 
 /* ---- shared game globals ---- */
-extern Sim_tSimGlobalVar simGlobal;           /* 0x8011e0ac */
-extern GameSetup_tData   GameSetup_gData;     /* 0x801131ec */
+extern int               Force_SimWords[] asm("simGlobal");
+extern int               Force_GameSetupWords[] asm("GameSetup_gData");
 extern Car_tObj         *Cars_gHumanRaceCarList[9]; /* 0x8010fa48 (36 bytes) */
 extern int               Replay_ReplayMode;   /* 0x8013d3f4 */
 
@@ -23,5 +22,11 @@ extern int               Replay_ReplayMode;   /* 0x8013d3f4 */
 
 /* ---- game scheduler + eaclib fixed-point ---- */
 extern void  Sched_AddFunction(Sched_tSchedule *s, void (*fn)(void *), void *arg, int hz);
+extern "C" void VSyncCallback(...);
+extern "C" int PadGetState(...);
+extern "C" void PadSetAct(...);
+extern "C" int PadSetActAlign(...);
+extern "C" int fixeddiv(...);
+extern "C" int fixedmult(...);
 
 #endif

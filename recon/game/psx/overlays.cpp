@@ -421,6 +421,14 @@ void RaceStatistics(void)
   int halfH;
   int titleX;
   int titleY;
+  /* W74-A12: the three head carriers (see the MATCH block at their assignments).
+     `one` and `pitch` are the two named constants retail held in locals (w63/w64
+     reading); `nh` is the numHumanRaceCars read hoisted ABOVE the `one` fence so
+     sched1 can still issue its load before the SIZE_H arithmetic, exactly like
+     retail (oracle insns 17-18 sit between the numLaps load and `addiu a0,a2,1`). */
+  int one;
+  int pitch;
+  int nh;
   /* W72-A13: the two fold-escape carriers of the per-player loop head; see the MATCH
      block at their assignments.  They are compiler-visible VAR_DECLs on purpose -- an
      integer literal there is TREE_CONSTANT and fold rewrites the subtraction. */
@@ -428,6 +436,56 @@ void RaceStatistics(void)
   int rowInset;
 
   HUD_STATS_SIZE_H = (GameSetup_gData.numLaps + 1) * 0xc + 0x28;
+  /* ===== MATCH (W74-A12, 2026-08-22/23): 77 -> 71 @474/475.  THE HEAD CLUSTER IS
+     PARTLY SOLVED and the w49/w63/w64 "named constants" reading is VINDICATED -- what
+     every earlier wave was missing is that the SET is `one` + `pitch` (NOT pitch alone,
+     and NOT pitch+centre), and that the pitch fence belongs BELOW the numLaps==1 arm,
+     not next to the assignment.  Measured ladder, all re-gated from the post-fold 77
+     basin (04Z/21E-1: the W72 fold landing changed the basin, so the whole w41..w64
+     head ledger had to be re-priced -- and it did move):
+        rows alone .................................... 81 @472   (w72 agreed)
+        pitch+fence alone ............................. 85 @476   (w72 agreed)
+        `one` alone (declared+fenced, unused) ......... 81 @472
+        pitch+fence + one ............................. 74 @475  <- COUNT-EXACT, new basin
+        ... + `nh` (the numHuman read hoisted above) .. 73 @474
+        ... + pitch fence sunk below the numLaps arm .. 71 @474  <== LANDED
+     WHAT IT BUYS (side_by_side, not the LCS number): retail's `li $a1,150` + REAL
+     `mult $v1,$a1` + `mflo $s3` all appear with RETAIL'S REGISTERS, the entire POS_X
+     chain (`sll v0,v1,2 / addu / sll v1,v0,4 / subu v1,v1,v0 / subu s4,s7,v1`) becomes
+     byte-exact, and the s1/s3/fp head band rotation that w41..w64 chased for six waves
+     COLLAPSES to a single fp<->s1 pair (4 diffs).  The `sll v0,s1,17` synthesized-
+     SIZE_W reload is gone -- it is now retail's `sll v0,s3,16` off the mflo register.
+     WHY THE FENCE POSITION MATTERS (the transferable law): the read-only fence is
+     output-less, hence implicitly volatile, hence a sched1 BARRIER (catalog 22B-5).
+     Next to the assignment it fences the numHuman load out of the head block; sunk into
+     the block AFTER the `numLaps == 1` test it is in a DIFFERENT basic block, so block 0
+     schedules freely while `pitch`'s live range still spans the mult.  Ladder of fence
+     positions (all from the 73 basin): at the assignment 73 . below SIZE_W 77 . below
+     POS_X 74 . below the numLaps arm 71 . below the raceType arm 71 . below sizeH16 80 .
+     below posy 75 . below titleX 88 @473.
+     RE-PRICED AND STILL NET LOSSES IN THIS BASIN (do not re-fight): `rows` on top
+     (73, all 5 decl/assignment positions) . the w64 in-place-titleX `ip` (97 @474) and
+     ip+rows (95) and ip+cx (86) . a named `cx`=160 (82; 76 without its fence) . routing
+     `one` into the numLaps==1 test (71, bit-identical) or the raceType tests (90) .
+     a 2-operand fence on `one` (83) or on `pitch` (71, bit-identical) . the tied
+     identity launder on `pitch` (84) or on `one` (86 @477) . dropping either fence
+     (nofp 83 @474, nofo 85 @476) . one joint 2-operand fence (84) . `pitch`/`one`
+     assigned at the top of the function (84 / 106) . a named `laps` local (71,
+     bit-identical) . the col1 explicit temp that reproduces retail's `addiu v1,s4,10;
+     addu s6,v1,zero` (87 alone, 102 with pitch).
+     STATEMENT ORDER re-priced too (the w49 permutation table, now with the carriers):
+     A=SIZE_H B=SIZE_W C=POS_X -- ABC 74 . CBA 76 . CAB/ACB 89 . BCA/BAC 111.  The
+     retail SLD order (CBA) is still NOT the best spelling here.
+     REMAINING (the whole 71, in size order): (1) ~14 diffs = the four
+     `Cars_gHumanRaceCarList` address materializations, ours `lui/addiu $t1` (the
+     function-wide reload spill scratch, W72-A13's order_regs_for_reload law) where
+     retail uses ALLOCATED $v0/$v1 pseudos emitted BEFORE the index `sll` -- the access
+     SPELLING axis is now CLOSED, see the note at the loop head; (2) 5 diffs = retail's
+     prologue interleave `li a1,150 / sw s7 / li s7,160 / sw s2 / li s2,1` at insns 3-7,
+     i.e. sched2 pairing each `sw sN` with the `li sN` that overwrites it -- ours emits
+     all ten saves first; (3) 4 diffs = the fp<->s1 pair; (4) 2 diffs = `li t1,52` vs
+     retail's kept `addiu a0,a0,28` (the `rows` lever, which costs 2 elsewhere here);
+     (5) 2 diffs = the col1 copy. */
   /* w40-a4 OPEN (mult 0 vs 1): the oracle hoists `li $a1,0x96` to insn 4 and does a REAL
      `mult $v1,$a1` @0x800DA020; ours synth_mult's 150 as (n*75)<<1 and then CSEs the n*75
      into POS_X below.  A named `int pitch = 0x96;` local DOES produce the mult (RTL: a
@@ -521,8 +579,12 @@ void RaceStatistics(void)
    *     in the birth position -- pin the `li 160` into the prologue group and the live
    *     dial comes for free.  Do NOT re-probe spellings of the three constants; that axis
    *     is closed in both waves. */
-  HUD_STATS_SIZE_W = Cars_gNumHumanRaceCars * 0x96;
-  HUD_STATS_POS_X = 0xa0 - Cars_gNumHumanRaceCars * 0x4b;
+  nh = Cars_gNumHumanRaceCars;
+  one = 1;
+  __asm__ volatile("" : : "r"(one));
+  pitch = 0x96;
+  HUD_STATS_SIZE_W = nh * pitch;
+  HUD_STATS_POS_X = 0xa0 - nh * 0x4b;
   /* the numLaps==1 arm RE-COMPUTES `(numLaps+1)*0xc + 0x1c` (oracle @0x800DA044
      `addiu $a0,$a0,0x1C` off the SAME (numLaps+1)*12 product) -- it is not the folded
      constant 0x34 that the old spelling used.
@@ -535,6 +597,13 @@ void RaceStatistics(void)
   if (GameSetup_gData.numLaps == 1) {
     HUD_STATS_SIZE_H = (GameSetup_gData.numLaps + 1) * 0xc + 0x1c;
   }
+  /* W74-A12: the `pitch` availability fence lives HERE, one basic block below its
+     assignment -- see the MATCH block above.  It is zero-insn and pin-free; it exists
+     so `pitch` is still a live pseudo at the `mult` (giving retail's `li $a1,150` +
+     `mult $v1,$a1`) WITHOUT its implicit-volatile barrier landing inside block 0, where
+     it would fence the `Cars_gNumHumanRaceCars` load out of the head schedule.  Moving
+     it up to the assignment costs 2 diffs; deleting it costs 12. */
+  __asm__ volatile("" : : "r"(pitch));
   if (GameSetup_gData.raceType == RaceType_HotPursuit) {
     HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 0x1b;
   }

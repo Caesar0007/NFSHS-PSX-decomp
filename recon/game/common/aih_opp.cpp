@@ -218,7 +218,55 @@ void AIHigh_Opponent::CheckForWipeOut()
          NEXT LENS unchanged from W71(4): the -dL move_movables budget for the bound load
          (`life 1, savings 1, not desirable`) -- it must become a hoisted movable to land
          5th, which needs lifetime>=2 without growing the loop.  Harness/tables:
-         scratchpad/W72_A11/{A11_dump.py,A11_apply.py,v_wipe_[abcdef].py}. */
+         scratchpad/W72_A11/{A11_dump.py,A11_apply.py,v_wipe_[abcdef].py}.
+         ==== W74-A11: LANDED 15 -> 9.  W71's cluster (b) IS CLOSED and the whole $a/$t
+         band is now retail-exact side-by-side; the residual is ONE cluster (the loop-head
+         schedule) instead of three.  Three coupled edits, all cited at their sites:
+         (1) THE BOUND LOAD IS NOW A loop.c MOVABLE (21B-3 executed).  W72 named the lens
+             correctly but priced it as unreachable; the pricing was wrong because it read
+             move_movables' budget as needing `savings>=2 OR lifetime>=2` and then hunted
+             for a second in-loop consumer.  loop.c:600 copies n_times_SET into
+             n_times_used and :795 sets m->savings from it, so savings == 1 for EVERY
+             movable BY CONSTRUCTION (a reg set twice is not a movable at all) -- LIFETIME
+             is the only dial, and :793 computes it from REGNO_FIRST_UID/REGNO_LAST_UID,
+             i.e. the FUNCTION-WIDE luid span, not the in-loop distance.  So the bound does
+             not need a second in-loop use: assigning it through `numRacers`, which the
+             zero-insn fences already reference on both sides of the loop, spans the whole
+             loop and clears `threshold*savings*lifetime >= insn_count` with the loop
+             unchanged.  Reading the bound STRAIGHT from the global in the condition is the
+             W72-measured 30 @122 (life 1, "not desirable", load stays in the loop) -- the
+             carrier is the whole difference.  Preheader is now byte-exact: list base,
+             sim base, the 29*ae chain, then `lui t3;lw t3` LAST, exactly retail.
+         (2) hlai AS A REAL PRE-LOOP LOCAL.  With (1) alone the residual was a t5/t6 swap
+             whose cause the -dl/-dg dump names exactly: p85 (oppFines) and p142 (the
+             loop.c-hoisted highLevelAIObjs address) BOTH price .0300 (refs 3 / live 100),
+             an EXACT tie, and 16A's tie-break is the allocno NUMBER -- the compiler-created
+             p142 can never win it.  A depth wrapper on the array read would buy the ref
+             (3->4 = .08) but costs +2 insns here (every in-loop wrapper breaks the two
+             branch delay-slot fills).  Making the base a SOURCE local emits the identical
+             first-preheader `lui;addiu` while giving it an early pseudo number and a
+             fence-dialable ref count.
+         (3) numRacers refs 5 -> 6 (the post-loop fence's SECOND operand).  With (2) the
+             swap moved to numRacers vs the sim-base copy (p90 .1031 vs p164 .1020 -- a
+             second near-tie); one floor_log2 step (.1237) settles it.  ONE operand there
+             loses $t3; two is the measured minimum.
+         RESIDUAL 9 = the loop head ONLY, and it is exactly the W72 description: retail
+         fills the `lw a0,0(a2)` load-delay slot with the 0xd5554 low half
+         (`ori a1,a1,21844`) and completes the highLevelAIObjs address (`lw v0,596(a0)`,
+         `sll`, `addu`) BEFORE the abs branch; ours nops the slot and issues that whole
+         chain in the merge block after `negu`.  That nop is the 121st insn.  This is a
+         cross-BLOCK placement question (retail's 596 chain is in the pre-branch block,
+         ours in the post-branch one), NOT a within-block scheduler tie.
+         FALSIFIED in the 9-basin (each re-gated): carIndex read hoisted above field1380
+         19; carIndex read between field1380 and tableEntry 9 (inert); a `slot` pointer
+         local for the array element 9 (inert).  FALSIFIED on the way to it (re-gated from
+         15, i.e. 04Z-refreshed against the W72 lists): statement-order swaps
+         596-first 25 / 596+state-first 27 / 596+fines-first 25; a do-while depth wrapper
+         on the tableEntry read 103 @123 (the wrapper itself is +2 insns here, unlike the
+         carObj_h one); the same via a statement-expression 103 @123; folding the
+         tableEntry read into the existing carObj_h wrapper 27 @123; splitting the
+         tableEntry decl from its initializer alone INERT.  Harness:
+         scratchpad/W74_A11_{gate,sbs,wipe}.py. */
       /* ==== */
       /* ---- W62-A10 (51 diffs, ours 121 / oracle 120) -- SUPERSEDED by the block above;
          kept for its falsification list.  The residual is now ONE
@@ -264,10 +312,12 @@ void AIHigh_Opponent::CheckForWipeOut()
       hLoop = 0;
       pInfo = &this->perpChaseInfo_;
       if (pInfo->bestChaseLevelIndex_ != (pInfo->copGameInfo_)->numLevels + -1) {
-        numRacers = Cars_gNumHumanRaceCars;            /* w63-a12 REF-STEP dial carrier.  A19: RENAMED
-                                       off `playFines`, which the SYM 8c block @0x80063450 declares as a
-                                       LOOP-BODY INT REG $3($v1) = thisPlayerObj->fines (+932); the old
-                                       spelling squatted on a real SYM local.  Diff-neutral rename. */
+        AIHigh_Base **hlai = highLevelAIObjs;   /* 🔴 W74-A11: the array BASE as a real pre-loop
+                                       local, NOT a loop.c hoist.  Both spellings emit the same
+                                       `lui;addiu` as the FIRST preheader insn, but a source local is
+                                       an early-numbered pseudo that a zero-insn fence can dial; the
+                                       hoisted one tied EXACTLY with oppFines (both .0300) and lost
+                                       $t5 on the allocno-number tie-break (16A). */
         /* 🔴 W72-A11 REF-STEP DIAL -- ZERO INSNS, DO NOT "SIMPLIFY".  These two read-only
            fences carry the whole five-pseudo ranking that gives retail's $a2/$a3/$t0..$t3
            band (receipt above): each operand = +1 out-of-loop REG_N_REFS, and the
@@ -278,8 +328,20 @@ void AIHigh_Opponent::CheckForWipeOut()
              hLoop     x1  refs  7->8  (.4211, keeps $a3 ahead of this/randVal)
            gcc-2.8 caps an asm at 10 operands, hence two adjacent statements. */
         __asm__("" : : "r"(numRacers),"r"(this),"r"(this),"r"(this),"r"(this),"r"(this),"r"(this),"r"(this));
-        __asm__("" : : "r"(randVal),"r"(randVal),"r"(hLoop));
-        for (; hLoop < numRacers; hLoop = hLoop + 1) {   /* 0x80063450 */
+        __asm__("" : : "r"(randVal),"r"(randVal),"r"(hLoop),"r"(hlai));
+        /* 🔴 W74-A11 BORN-IN-THE-LOOP (21B-3).  The bound READ lives in the loop condition, so
+           loop.c builds a MOVABLE for it and move_movables emits it LAST among the hoists --
+           retail's preheader order (`lui t3;lw t3` 6th, after the list base, the sim base and
+           the 29*ae chain).  Written as a pre-loop statement it is an ENTRY-BLOCK insn and can
+           only land FIRST, which was the whole W71/W72 cluster (b).
+           The budget: move_movables needs threshold*savings*lifetime >= insn_count and
+           savings == n_times_set == 1 for ANY movable (loop.c:600/795), so LIFETIME is the only
+           dial -- and it is the FUNCTION-WIDE luid span (REGNO_FIRST/LAST_UID).  Read straight
+           from the global the load feeds its `slt` immediately => life 1, "not desirable"
+           (measured: 30 @122, the load stays in the loop).  Assigning through `numRacers`, which
+           the zero-insn fences reference on BOTH sides of the loop, spans the whole loop => the
+           movable clears the budget with the loop unchanged. */
+        for (; hLoop < (numRacers = Cars_gNumHumanRaceCars); hLoop = hLoop + 1) {   /* 0x80063450 */
           Car_tObj    *carObj_h;
           /* 🔴 W72-A11: the do{}while(0) is a ZERO-INSN REF DIAL, not a stray brace.
              flow.c weights a reference by 1 + loop_depth, so wrapping this ONE use lifts
@@ -291,7 +353,7 @@ void AIHigh_Opponent::CheckForWipeOut()
              both branch delay-slot fills).  Unwrapping it costs ~40 diffs. */
           do { carObj_h = Cars_gHumanRaceCarList[hLoop]; } while (0);       /* 0x8006345C */
           int          field1380    = *(int *)((char *)carObj_h + 1380);       /* 0x80063468 */
-          AIHigh_Base *tableEntry   = highLevelAIObjs[*(int *)((char *)carObj_h + 596)]; /* carIndex, 0x80063464-84 */
+          AIHigh_Base *tableEntry   = hlai[*(int *)((char *)carObj_h + 596)]; /* carIndex, 0x80063464-84 */
           int          playFines    = *(int *)((char *)carObj_h + 932);        /* SYM REG $3=$v1, 0x80063488 */
           int          state        = *(int *)((char *)tableEntry + 148);      /* 0x8006348C */
           if (0xd5554 < ((field1380 < 0) ? -field1380 : field1380)) {          /* 0x80063480/90: permuter-found
@@ -316,6 +378,12 @@ void AIHigh_Opponent::CheckForWipeOut()
             }
           }
         }
+        /* 🔴 W74-A11: the POST-loop half of the numRacers live range (zero insns).  It does two
+           jobs: (1) it is the movable's REGNO_LAST_UID, so the bound load's lifetime spans the
+           loop (see the for-header receipt); (2) the two operands are the ref-step that keeps
+           numRacers in retail's $t3 ahead of the sim-base copy -- refs 5->6 crosses a
+           floor_log2 step (.1020 -> .1237 vs the base's .1020).  One operand loses $t3. */
+        __asm__("" : : "r"(numRacers),"r"(numRacers));
       }
 
     }

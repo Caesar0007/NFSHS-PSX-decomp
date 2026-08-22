@@ -1507,12 +1507,52 @@ int Collide_TestObjectVertices(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef *p,c
                  L1-L6 x-side devices on top of K1 .............. 9-11
                ROUTE (sharp): a shape in which the X carrier's single use lies in a
                DIFFERENT basic block from its load, without moving the loads out of the
-               `if`.  No asm device can do it -- an asm does not split a basic block. */
-            maxrp = relativePosition.x;
+               `if`.  No asm device can do it -- an asm does not split a basic block.
+
+               W74-A10 (2026-08-22) -- SEALED, 0 @1164.  The W72 route was right and its
+               closing premise was the only thing wrong: an asm indeed cannot split a
+               basic block, but it does not have to -- THE /256 IDIOM ALREADY DID.
+               `maxrp /= 256` expands to `bgez; addiu; L: sra`, so every statement after
+               the divide already lives in a different basic block from the carrier's
+               load.  A zero-insn read-only fence placed there,
+                   asm volatile("" : : "r"(rpx));
+               gives the X carrier a second reference in a second block => flow marks it
+               non-local => local-alloc.c:472 leaves reg_qty[rpx] = -1 => combine_regs
+               (:1866 "not local to this block or dies more than once") REFUSES the tie
+               => retail's X copy `addu $v0,$a0,$zero` MINTS, with the load still inside
+               the `if` (no +15 hoist shape).  Combined with the K1 dead-`maxrv` Z carrier
+               (uncoalescible through the other clause of the same test, being a global
+               allocno) BOTH copies mint and the two loads sit adjacent: 8 -> 4 @1164,
+               residual = exactly ONE SEAT (our z carrier $a1 vs retail $a2).
+               The seat fell to a 20B-family clobber on that SAME zero-insn fence:
+               `: "a1"` denies $5 to every allocno LIVE AT THAT INSN (22B-1) -- rpz is
+               live there -- so find_free_reg walks on to $6 = $a2 = retail's seat.
+               MEASURED THIS WAVE (every line a real gate run):
+                 K1 alone .......................................... 9 @1163
+                 K1 + read-only fence on rpx AFTER the divide ...... 4 @1164
+                 same + clobber "a1" ............................... 0 PASS
+                 same + clobber "$5" ............................... 0 PASS (identical)
+                 fence after the `maxrv = rpz` carrier ............. 10 @1164
+                 fence at the end of the statement ................. 10 @1164
+                 pair fence "r"(rpx),"r"(rpz) after the divide ..... 10 @1164
+                 declaration order z-first ......................... 12 @1164
+                 fence on rpx + 20B launder on rpz w/ clobber ...... 15 @1163
+                 fence on rpx + separate clobbering fence on rpz ... 10 @1164
+               LAW: a pseudo whose ONLY problem is "def and use in the same block" can be
+               de-coalesced by ONE zero-insn read-only fence placed past ANY branch the
+               source already emits -- a /256, a clamp, a guard.  Look for an existing
+               block boundary before concluding a copy is unreachable. */
+            int rpx = relativePosition.x, rpz = relativePosition.z;
+
+            maxrp = rpx;
             maxrp /= 256;
-            asm volatile("" : : "r"(relativePosition.x));
-            maxrp = maxrp * maxrp +
-                    (relativePosition.z / 256) * (relativePosition.z / 256);
+            /* MATCH: zero-insn fence in the POST-divide basic block.  It makes rpx
+               multi-block so combine_regs cannot fold retail's X copy, and the "a1"
+               clobber pushes the live z carrier off $5 onto retail's $a2.  Deleting
+               either half costs 4 and 4 diffs respectively. */
+            asm volatile("" : : "r"(rpx) : "a1");
+            maxrv = rpz;   /* dead maxrv IS retail's z carrier (SYM: maxrv = REG $3) */
+            maxrp = maxrp * maxrp + (maxrv / 256) * (maxrv / 256);
             if (maxrp < 0xCCC) {
               int temp;
 

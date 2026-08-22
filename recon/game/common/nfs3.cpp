@@ -552,21 +552,99 @@ void NFS3_CheckForFileOperations(void)
    *            volatile trap asm makes the loop `has_volatile`.
    * ROUTE: get loop.c/cse to leave the in-loop bound read as a COPY placed AFTER the
    * guard branch (jump.c's duplicated-test pseudo + a hoist), with the guard's pseudo
-   * winning the lower register.  Everything else about this function is retail-exact. */
+   * winning the lower register.  Everything else about this function is retail-exact.
+   *
+   * 🏆 W74-A8 (2026-08-22/23) -- 8 -> 2 @21/21, PIN-FREE.  THE W72-A10 ROUTE WAS
+   * WRONG ABOUT WHICH PASS IS AT FAULT; the RTL dumps settle it.
+   * (a) `tools/rtl_dump.py recon/game/common/nfs3.cpp -dj -dl -dg` shows
+   *     jump.c's duplicate_loop_exit_test ALREADY FIRES on the plain `for` body
+   *     (jump dump: guard pseudos 88/89/90/91 duplicated ahead of NOTE_INSN_LOOP_BEG,
+   *     in-loop test keeps 83/84/85/86), and cse+loop DO leave retail's copy:
+   *     .lreg insn 72, in the PREHEADER block 1, is literally
+   *         (set (reg/s:SI 85) (reg:SI 90))   == retail's `addu a1,a0,zero`
+   *     So the two bound pseudos and the uncoalescible copy EXIST in our build too;
+   *     "our cse eats it" was false.
+   * (b) The copy dies in GLOBAL ALLOC, not in cse.  .greg says:
+   *         ;; 3 regs to allocate: 80 90 85
+   *         ;; 85 conflicts: 80 85 2 29        <- 90 ABSENT
+   *         ;; 90 conflicts: 80 90 2 29        <- 85 ABSENT
+   *         ;; Register dispositions: 80 in 3   85 in 4   90 in 4
+   *     Both bounds get $a0, so insn 72 becomes `addu a0,a0,zero` and is deleted --
+   *     which is exactly why the guard's beqz slot was a `nop`.
+   * (c) WHY THEY DO NOT CONFLICT (gcc-2.8.1 global.c:713-724, read not guessed):
+   *     the per-insn order is  mark_reg_clobber  ->  REG_DEAD deaths  ->
+   *     note_stores(mark_reg_store).  For ANY single_set whose source carries the
+   *     REG_DEAD note, the source is removed from allocnos_live BEFORE the dest is
+   *     marked, so a copy NEVER makes its two pseudos conflict.  (This also kills
+   *     the W69 identity-launder attempts: `asm("":"=r"(x):"0"(x))` is one pseudo,
+   *     and even a two-pseudo asm is still a single_set with a dying input.)
+   * (d) THE DIAL, therefore, is to keep the GUARD's pseudo live PAST the copy --
+   *     i.e. a read-only fence on the guard bound placed AFTER the loop:
+   *         g = handlearray; if (p < g) { e = g; do {...} while (p < e); }
+   *         __asm__("" : : "r"(g));
+   *     Zero insns, no hard-register name, no clobber (so the W69 mutual-exclusion
+   *     certificate -- "the only $a0 dial also forbids retail's spill" -- is
+   *     SIDE-STEPPED, not violated: nothing enters regs_explicitly_used).
+   *     RESULT 2 @21/21; insns 0-11 and 13-20 are byte-exact incl. retail's
+   *     `addu a1,a0,zero` in the guard's beqz delay slot and `sltu v0,v1,a1`.
+   * MEASURED THIS WAVE (all re-gated, 21/21 unless noted):
+   *     fence AFTER the loop, inside the guard ............ 2   (== after the if)
+   *     fence AFTER the whole if (this body) ............... 2
+   *     fence in the PREHEADER (between `e = g;` and the do) 8  -- there `g`
+   *        becomes block-local, so local-alloc's combine_regs coalesces the copy
+   *        again; the fence MUST sit after the loop.
+   *     3rd operand `"r"(g)` on the trap asm instead of the fence ......... 2
+   *     bound re-read (`e = handlearray;`) instead of `e = g;` + fence .... 2
+   *     fence operands {g,p} 2 / {g,g} 2 / {g,e} 3 @22 / loop-on-g+fence-e 5 @22
+   *     bound read BEFORE the walker read (`g` then `p`) + fence .......... 2
+   *     plain `for` + named `g` + 3rd trap operand `"r"(g)` ............... 8
+   *     no fence at all, any rotation/2nd-read spelling (7 shapes) ........ 8
+   * RESIDUAL 2 = `-addu a3,a2,zero` / `+addu a0,a2,zero`: the trap asm's two
+   *   `"r"(0)` operands are RELOAD SPILL regs, and reload1.c:3946
+   *   order_regs_for_reload builds potential_reload_regs run[1] from hard regs
+   *   with ZERO pseudo uses, ascending.  Ours now has pseudos in $v0,$v1,$a0,$a1
+   *   -> run[1] = 6,7 -> $a2,$a3.  Retail's pair is $a2,$a0, so in retail
+   *   hard_reg_n_uses[4] == 0, i.e. NO pseudo is allocated to $a0 at all and its
+   *   `lw a0,0x1C(v0)` is a RELOAD of an UNALLOCATED pseudo that kept its
+   *   REG_EQUIV(mem) (22B-8 DEMOTE-OUT-OF-ALLOCATION).  Our guard load cannot keep
+   *   REG_EQUIV: -msplit-addresses gives it an address pseudo (81) that carries
+   *   REG_DEAD on that very insn, and local-alloc.c validate_equiv_mem refuses any
+   *   MEM whose address register dies there (16B).  FALSIFIED attempt at that:
+   *   swapping the two field reads so the base dies on the WALKER's load instead
+   *   (`g` read first) is exactly neutral (2).  NEXT ANGLE: get the guard bound
+   *   demoted out of allocation entirely (a REG_EQUIV-preserving shape, or a
+   *   -mno-split-addresses per-fn splice for this TU) so $a0 re-enters the spill
+   *   pool; everything else in the function is retail-exact. */
   int *p;
+  int *g;
+  int *e;
 
-  for (p = (int *)gFileMgr.oparray; p < (int *)gFileMgr.handlearray; p = p + 1) {
-    if (*p != 0) {
+  p = (int *)gFileMgr.oparray;
+  g = (int *)gFileMgr.handlearray;
+  if (p < g) {
+    e = g;
+    do {
+      if (*p != 0) {
 #if defined(__mips__)
-      /* MATCH: trap() is INLINE in retail -- `break 0x666` (objdump: break 1,614) plus two
-       * zeroed register args; no jal, so the function stays a leaf (no frame, no $ra save). */
-      __asm__ __volatile__("break 0x666
+        /* MATCH: trap() is INLINE in retail -- `break 0x666` (objdump: break 1,614) plus two
+         * zeroed register args; no jal, so the function stays a leaf (no frame, no $ra save). */
+        __asm__ __volatile__("break 0x666
 	nop" : : "r"(0), "r"(0));
 #else
-      trap(0x666);   /* host build: no MIPS break */
+        trap(0x666);   /* host build: no MIPS break */
 #endif
-    }
+      }
+      p = p + 1;
+    } while (p < e);
   }
+#if defined(__mips__)
+  /* MATCH (W74-A8, see (d) above): ZERO-INSN read-only fence.  It keeps the GUARD's
+   * bound pseudo live past the preheader copy `e = g`, which is the only thing that
+   * makes global.c record a conflict between the two bound allocnos -- without it
+   * both take $a0, the copy self-cancels and is deleted, and the guard's beqz delay
+   * slot degenerates to a nop (the 8-diff body).  DO NOT "simplify" this away. */
+  __asm__("" : : "r"(g));
+#endif
   return;
 }
 

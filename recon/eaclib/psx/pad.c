@@ -468,7 +468,73 @@ fs4\EACLIB\PSX\PAD.C is the ONLY
    form): this is one cse value-equivalence decision on a preheader constant.
    The live route is an instrument read (qtytrace/-dl or a cse-table dump on the
    2.8.0 lane), or PER_FN_TEXT_MOVES -- but note TEXT_MOVES cannot fix it either,
-   since the row needs an OPERAND change (`$t0` -> `$zero`), not a relocation. */
+   since the row needs an OPERAND change (`$t0` -> `$zero`), not a relocation.
+
+   🏆🏆 W74-A19 2026-08-23 -- SOLVED.  PAD_update GATES **PASS 66/66** (probe-verified
+   twice, whole-TU zero regression: padinit/PAD_restore/PAD_state/PAD_convert all still
+   PASS).  It needs THREE orchestrator wirings and NO source change; this worker is barred
+   from editing tools/build.py, so the spec is below.  The residual was NEVER a cse
+   value-equivalence question -- every wave since w59 had the pass WRONG.
+
+   🔑 THE MECHANISM, gcc-source-cited (NEW LAW -- see the same-wave ADDDF3.c receipt for
+   the full statement):  `reload_cse_regs` (gcc-2.8.1 reload1.c:7869; called from
+   toplev.c:3501 `if (optimize > 0)`, i.e. NO flag disables it) is a POST-RELOAD,
+   HARD-REGISTER-ONLY CSE.  `reload_cse_simplify_set` (reload1.c:8178) rewrites
+   `(set <hardreg> <CONSTANT>)` into a copy from ANY hard register its table already
+   records as holding that constant -- with NO cost model, no `rtx_cost` test, nothing a
+   pre-reload device can see.  Its table is cleared ONLY at (a) every CODE_LABEL
+   (reload1.c:7898-7906 "Forget all the register values at a code label"), (b) CALL_INSNs
+   for `call_used_regs`, (c) an overwrite of the holding register.
+   HERE: `i = 0` -> `move $t0,$0` is emitted first (the loop-1 back-edge LABEL cleared the
+   table, which is why our $s0/off zero is fine); `btnOff = 0` follows in the SAME
+   label-free preheader run, so reload_cse serves it as `move $a3,$t0`.  Retail has two
+   fresh `addu rX,$zero,$zero`.  ⇒ NO source spelling, fence, launder, ref/live dial,
+   block scope or declaration order can EVER reach this row (they all act on pseudos,
+   before reload) -- which is exactly why the 20+ falsifications above are all inert.
+
+   🔑 THE ESCAPE IS THE COMPILER RUNG, and it is a sharp VERSION FINGERPRINT.  Minimal
+   repro `int a=0,b=0; do{ f(a,b); a++; b+=8; }while(a<8);` over the whole
+   windows-gcc-psx ladder (scratchpad/W74_A19/t4.c):
+     TWO fresh `move rX,$0` (NO substitution): 2.6.0 * 2.6.3 * 2.6.psyq40 * 2.7.2 *
+                                               2.91.66 * 2.95.2
+     SUBSTITUTION `move $17,$16`:               2.7.2-970404 * 2.8.0 * 2.8.1
+   ⇒ "retail re-materializes a constant where we copy it from a live register" is a
+   COMPILER-VERSION TELL: retail's object was NOT built by a 970404/2.8.x cc1 at that
+   site.  PAD_update on the 2.7.2 rung emits retail's `addu $a3,$zero,$zero` verbatim.
+
+   🔴 AND A MECHANISM DEFECT THAT MADE EVERY PRIOR SUB-2.8 MEASUREMENT VACUOUS:
+   `_apply_cc1_ver_splice` (build.py) uniquifies `$L<n>` labels but leaves the alt rung's
+   DEBUG labels alone.  The default lane compiles with `-g1`; a 2.6/2.7 cc1 emits
+   `.loc 1 0` + `LM<n>:` BEFORE the epilogue where 2.8 emits it after `.end`.  `LM<n>` is
+   neither `$L` nor `.L`, so gas keeps it in the symbol table, objdump prints it as a
+   block label, and verify_asm's function block ENDS there -- the spliced PAD_update read
+   as "ours 59 / oracle 66, 9 diffs" with its whole epilogue counted missing.  With the
+   labels stripped it is 66/66 and 2 diffs.  ⇒ EVERY default-lane PER_FN_CC1_VER_SPLICE
+   probe against a sub-2.8 rung, in any wave, must be re-run with the strip.
+
+   🔧 ORCHESTRATOR WIRING SPEC (all three parts are required; each measured):
+     (1) build.py `_apply_cc1_ver_splice`: after `_uniquify_local_labels`, strip
+         `^\t\.loc\t[^\n]*\n` and `^LM\d+:\n` from the spliced region (byte-neutral --
+         they emit no code).  Reference implementation + probe harness:
+         scratchpad/W74_A19/a19_versplice.py (runs tools/vprobe.py's OWN source with only
+         that patch injected, the 12H anti-drift pattern).
+     (2) PER_FN_CC1_VER_SPLICE["recon/eaclib/psx/pad.c"] = {"2.7.2": {"PAD_update"}}
+         (the DEFAULT-lane per-fn cc1 swap: maspsx route kept, only the cc1 binary
+         changes; the TU's existing PER_FN_EPILOGUE_UNFILL + PER_FN_TEXT_MOVES rows all
+         still fire against the 2.7.2 text -- verified in the generated .s).
+     (3) APPEND one row to PER_FN_TEXT_MOVES["recon/eaclib/psx/pad.c"]["PAD_update"]
+         (keep the two existing rows, in order, then):
+            {"take": r"\tmove\t\$7,\$0\n", "after": r"\taddu\t\$6,\$4,-1\n"}
+         Both anchors are unique in the fn.  The take is NOT a branch and there is no
+         `drop_after`, so no brdist pairing is required (17C); the moved `move $7,$0` has
+         no use between the two positions, so it is semantically inert.
+         Rows file used for the probe: scratchpad/W74_A19/pad_rows.json.
+     MEASURED LADDER for PAD_update WITH the (1) strip, per-fn splice, no extra rows:
+       2.7.2 = 2 @66/66 (content correct, one POSITION row) | 2.8.1 = 2 | default = 2
+       (2.6.x / 970404 not needed once 2.7.2 lands).  With row (3): PASS.
+   NOTE for the next reader: the row-(3) position delta is the 2.7.2 rung's own sched2
+   choice, not a second defect -- retail emits `move $t0,$0; la $a0; addu $a2,$a0,-1;
+   move $a3,$0`, the rung emits the two zeros adjacent. */
 void PAD_update(void)
 {
   int i;

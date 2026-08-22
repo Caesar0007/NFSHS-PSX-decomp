@@ -557,6 +557,17 @@ extern unsigned _pad_shift(unsigned char *info)
  *   vs 10; case-0 inline unfenced + 'M' break + default fenced 8 @47 / count 11 vs 10; case 0
  *   fenced + 'M' inline + default break 5 @46 / 6.  ANGLE: reproduce retail's terminator
  *   asymmetry (case 0 ending in `j epilogue`, default falling into it) WITHOUT a fence.
+ *   W74-A20 2026-08-22 -- re-probed that angle from the OTHER arm (make the DEFAULT's tail the
+ *   ineligible one so the surviving copy is case 0's and 'M' has to merge BACKWARD into it).
+ *   Landed control re-gated PASS 47/47 with the single named brdist row.  Five more spellings,
+ *   none reaching both axes: case 0 plain + the A14 byte-fence moved into the DEFAULT tail
+ *   8 @47 / BRANCH COUNT 11 vs 10; case 0 laundered + default byte-fenced 3 @50 / count 11;
+ *   BOTH tails byte-fenced 3 @50 / count 11; case 0 plain + default keeping only its void fence
+ *   5 @44 / 6 offsets; both plain 10 @43 / 7.  The family now stands at 24 spellings across six
+ *   waves: fencing a SECOND tail always costs the extra branch (each un-mergeable arm keeps its
+ *   own exit), so the direction cannot be bought with another fence -- it needs jump.c's
+ *   do_cross_jump pair-selection input, i.e. the mechanism/permuter route the note already
+ *   names.  NOTHING LANDED; this function stays exactly as sealed.
  * OLD (stale, 2.8 basin) note: the 4 extra instructions are jump.c RETURN-THREADING -- this fn is a
  * frameless leaf, so every `return` site gets its own threaded `jr $ra; nop` pair, where retail
  * keeps ONE shared epilogue block reached by `j .L800FE0A8` from all four exits.  Not reachable

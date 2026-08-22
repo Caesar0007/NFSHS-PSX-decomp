@@ -430,7 +430,24 @@ extern void _padStopCom(void)
  *   that combine_movables matched to an earlier one is emitted as a REG-REG COPY at the
  *   preheader) -- the question to price is what source form puts TWO equal address movables in
  *   this loop, or, failing that, a PER_FN_POST_MASPSX/TEXT_MOVES row that relocates the two `la`
- *   halves into the two delay slots (the same mechanism _padInitDirSeq is already gated on). */
+ *   halves into the two delay slots (the same mechanism _padInitDirSeq is already gated on).
+ * 🏆 MATCH (W74-A20 2026-08-22, 7 -> PASS 205/205, TU 11/11 COMPLETE) -- cluster [7] CLOSED FROM
+ *   SOURCE; no post-maspsx mechanism was needed, and the w72 "cse cannot be made to keep them
+ *   apart from C" verdict was WRONG in two ways, both named in the body receipt at the fix read:
+ *     (i) a pointer local whose only real use cse1 folds away is NOT lost -- flow's dead-code
+ *         deletion happens after cse2, so a ZERO-INSN read-only fence (21A-1) on it is enough to
+ *         carry the pseudo to cse2, which then rewrites loop.c's preheader hoist into retail's
+ *         `addu $s1,$v1,$zero`.  The w71 sweep's fences were all attached to `fb`-CARRIED accesses
+ *         (fb used in the loop/guard), which is the ONE shape that makes the two pseudos collapse
+ *         back into one -- the device needs fb used NOWHERE but the fence.
+ *    (ii) the remaining 2 words were never a scheduling floor either: cc1 emits the `la` as one
+ *         assembler MACRO line, so its POSITION relative to the at-macro load -- i.e. the
+ *         DECLARATION ORDER of `fix` and `fb` -- decides whether GNU-as can split its halves into
+ *         the lw's load-delay slot and the bltz's branch slot.  loop.c's `m->match` path (the
+ *         instrument this note asked to price) is a red herring: it emits a copy only for PARTIAL
+ *         (zero-extend) movables (gcc-2.8.1 loop.c:1650); the non-partial matched path REPLACES
+ *         the register instead (loop.c:1945).  The copy retail shows comes from cse2, not loop.c.
+ *   Read the two halves as one device: (a) makes the pseudo exist, (b) makes it free. */
 extern int _padInitSioMode(unsigned char *info)
 {
     int ix;              /* MATCH (W72-A17): the fix-table BYTE index, computed INSIDE the
@@ -472,6 +489,35 @@ extern int _padInitSioMode(unsigned char *info)
            orphan keeps refs=2, regclass ties it to ST_REGS and reload gives it a 4-byte
            stack slot -> the phantom `vars= 8` frame (8 diff lines).  See header (2)/(3). */
         int fix = *(int *)(ix + (int)_padFixResult);
+        int *fb = _padFixResult;   /* MATCH (W74-A20): declared AFTER `fix` -- see below. */
+        /* MATCH (W74-A20, 7 -> PASS 205/205): the TWO-PSEUDO device that closes cluster [7].
+           Retail materializes `&_padFixResult` in BLOCK 0 (its `la` halves scheduled into the
+           `lw`'s load-delay slot and the `bltz`'s branch slot, so they cost NOTHING) and the loop
+           preheader only COPIES it (`addu $s1,$v1,$zero`); ours had one pseudo and let loop.c
+           mint `lui $s1; addiu $s1` in the preheader (+1 insn).  Two independent halves, both
+           required, both zero-instruction:
+             (a) the named pointer `fb` gives block 0 a symbol pseudo.  cse2
+                 (rerun-cse-after-loop) then finds the symbol ALREADY AVAILABLE in `fb`'s reg at
+                 the preheader -- block 0, the bltz fall-through and the preheader are ONE cse
+                 extended block (cse blocks end only at CODE_LABELs, 22A-8) -- and rewrites
+                 loop.c's hoisted `(set Q (symbol_ref))` into `(set Q (reg fb))`.  That IS
+                 retail's copy.  The read-only fence `__asm__("" : : "r"(fb))` (21A-1) is what
+                 keeps the pseudo alive: cse1 folds fb's only real use into the at-macro address,
+                 so without the fence flow deletes the `la` and the whole device evaporates.
+             (b) DECLARATION ORDER: `fb` MUST be declared AFTER `fix`.  cc1 emits `la
+                 $3,_padFixResult` as a single assembler MACRO line where the initializer sits;
+                 declared first it lands BEFORE `lw $2,_padFixResult($2)` and GNU-as (reorder)
+                 has nothing to split into the two delay slots -> the pair costs 2 real words
+                 (6 @207).  Declared after the load, GNU-as splits the macro exactly like retail
+                 (`lui` into the lw's load-delay slot, `addiu` into the bltz's slot).  Same
+                 assembler-macro-split family as PADSEQD's _padInitDirSeq receipt.
+           MEASURED CONTROLS (all at this basin): no fence 7 (la deleted as dead) | 21A-3 identity
+           launder instead of the fence 7 (no later use -> deleted) | fence on the global itself
+           `"r"(_padFixResult)` 7 | `fb` declared BEFORE the read 6 @207 (the macro-order half) |
+           the fence given a `"$2"` clobber 18 | `int *volatile fb` 19.  Fence PLACEMENT is free
+           within the block-0..preheader span: after the decls, inside `if (fix >= 0)`, or in the
+           preheader all PASS; inside/after the loop 14 @209 (fb then lives across the call). */
+        __asm__("" : : "r"(fb));
         if (fix >= 0) {
             if (fix > 0) {
                 do {

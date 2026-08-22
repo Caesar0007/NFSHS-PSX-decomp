@@ -1787,7 +1787,70 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    *   dial": it has one, and unwinding the remaining renames (dv t0, pal t2,
    *   masks t3/t5) one clobber at a time is the concrete next pass.
    *   Harness: scratchpad W72_A8_font.py + W72_A8_trace.py (the instrumented-cc1
-   *   qty/find_free_reg reader, with a lab-fidelity check built in). */
+   *   qty/find_free_reg reader, with a lab-fidelity check built in).
+   * W74-A8 (2026-08-23, re-gated baseline 20 @82/82 -- KEPT).  THE TWO BASINS ARE
+   *   NOW SEPARATED BY A STRUCTURAL FACT, and the true one moved 112 -> 44.
+   *   🔴 (1) THIS 20-BASIN CANNOT REACH PASS -- STORE ORDER, not allocation.
+   *   Retail's three stores are, in emission order: prim+0 (RMW1, insn 32),
+   *   pal+0 (RMW2, 37), prim+4 (the tint, 39).  Ours are prim+4 (28), prim+0 (34),
+   *   pal+0 (39) -- i.e. exactly our SOURCE order, because the tint statement
+   *   precedes addPrim here.  No scheduler pass reorders them: measured by
+   *   respelling the tint store as a real COMPONENT_REF (a local
+   *   `typedef struct { PSXFront_PTag tag; u_long rgbc; } head;` so the MEM gets
+   *   MEM_IN_STRUCT_P and is alias-UNCHAINED from the two link stores, 22C-3) --
+   *   the store did not move: 22 @82/82 (macro) and 22 @82/82 (split view), i.e.
+   *   slightly WORSE.  ⇒ the store sequence follows source statement order here,
+   *   so every remaining diff in this basin (the tint triple at 19/20/28 vs
+   *   retail's 31/34/39, and the RMW2 $v0/$v1 swap that follows) is a consequence
+   *   of a source order retail did not use.  This basin is a LOOKALIKE ceiling.
+   *   (2) THE §21A AVAILABILITY FAMILY IS PRICED AND CLOSED IN THIS BASIN.  A
+   *   device that holds $v0 over RMW2's [52,62) must keep the tint value live past
+   *   its store; every form costs a real insn because the tint's window then
+   *   collides with the higher-priority qtys 15/16 and it loses $v0 outright:
+   *     named tint local, store early (control) ............ 20 @82   (neutral)
+   *     read-only fence "r"(tint) after the addPrim comma ... 63 @83
+   *     the same with 4 operands ........................... 47 @83
+   *     NON-volatile launder `("":"=r"(prim):"0"(prim),"r"(tint))` (an asm WITH an
+   *       output is not a sched1 barrier, 20B) x1/x4/x8 operands 65/51/51 @83
+   *     the same on a `dv` carrier ......................... 83 @79
+   *     + the split view ................................... 51 @83
+   *   All 83 insns: the extension does not buy the register, it buys a spill.
+   *   🏆 (3) THE STORAGE-SHAPE RE-OPEN IS REAL AND IT BELONGS TO THE TINT-LATE
+   *   BASIN.  W72-A8 proved the asm-label view
+   *       extern u_long font_tint_v[] __asm__("font_tint");   ... font_tint_v[0]
+   *   turns cc1's one-insn `lw $2,font_tint` macro into a REAL split
+   *   `lui $2,%hi / lw $2,%lo($2)` pair (mips.c:893 mips_check_split is gated on
+   *   SYMBOL_REF_FLAG = small-data, so a 4-byte scalar extern can never split at
+   *   -G4).  It is neutral HERE (20) -- but retail's two halves sit at 31 and 34
+   *   with two insns between them, which NO maspsx/ASPSX macro expansion can ever
+   *   produce, so the view is a PREREQUISITE for a byte match and only pays in the
+   *   tint-late basin: tint-late macro 112 @82 vs tint-late VIEW 110 @82.
+   *   🏆 (4) THE TINT-LATE BASIN IS NO LONGER A WALL: 112 -> 80 -> 44, ALL COUNT-
+   *   EXACT 82/82 AND PIN-FREE (no clobbers -- the W72 {$8,$2}@clut 72 route is
+   *   superseded).  The mover is `dv` FIRST, ahead of the y-chain and the packet
+   *   alloc (110 -> 80), then a def-use-guarded single-move climb to convergence
+   *   (scratchpad/W74_A8/font_climb.py; 4 rounds, 80 -> 66 -> 56 -> 48 -> 44):
+   *       width height dv y1 y2 y3 prim bump pal add tintV tpage clut bot right uv xy code
+   *   In THAT body EVERY REGISTER MATCHES RETAIL (t0 dv, t1 prim, t2 pal, t3/t5
+   *   masks, t4 yoff, t6 height, t7 width, t8 ytop, s0 v) -- the "whole-body
+   *   rotation" the receipts have described since W71 is GONE.  The residual 44 is
+   *   pure EMISSION ORDER: one 8-insn block (the packet-bump store, RMW1's read,
+   *   the palette-cell load, the y-chain adds) is emitted after the dv chain in
+   *   ours and before it in retail, plus the same tint/RMW2 interleave -- retail
+   *   fills RMW2's load-delay slot with the tint's `lw` (34), ours fills it with
+   *   `addiu v1,t8,5`, a sched2 ready-list choice.
+   *   FALSIFIED in the 44 basin (all re-gated, all count-checked): splitting the
+   *   y-chain so `+5`/ytop land late like retail's 42/46 -- y2+y3 before `bot` 117
+   *   @85, after `uv` 149 @85, y3 alone late 117 @85; `y1` first 46 @82; the
+   *   NATURAL `code` position (right after the tint, retail SLD 1455) 120 @78.
+   *   Other tint positions from the view basin: after `code` 112, after `clut` 112,
+   *   `pal` moved after dv / before prim 110 (both neutral), `dv` before the
+   *   y-chain but after prim 124, `bottom`/`right` hoisted 110.
+   *   ⇒ ROUTE: this 20-diff body stays LANDED only because 44 > 20; the honest
+   *   target is the 44 body.  Its remaining ask is ONE sched2 ready-list tie
+   *   (give the tint's `lw` the RMW2 load-delay slot) plus the 8-insn block order,
+   *   i.e. exactly PER_FN_TEXT_MOVES/sched-trace territory, no longer allocation.
+   *   Harness: scratchpad/W74_A8/{font_probe,font_r1,font_r2,font_climb}.py. */
   POLY_FT4      *prim;
   PSXFront_PTag *pal;
   int            width;

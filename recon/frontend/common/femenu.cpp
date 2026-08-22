@@ -794,6 +794,133 @@ void tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &ke
 
 /* ---- DrawSlider  [FEMENU.CPP:665-761] SLD-VERIFIED ---- */
 
+/* MATCH W74-A5 2026-08-23 -- DrawSlider SEALED: PASS 366/366, pin-free AND
+   device-free (every __asm__ fence this function used to carry is deleted).
+   Trajectory this wave: 161 @373/366 -> 157 -> 89 -> 61 -> 49 -> 33 -> 15 -> 11
+   -> 4 -> 2 -> PASS.  The whole 161 was FIVE source-shape defects, not coloring.
+   The W59/W61/W71/W72 receipts below are superseded and kept only as a record of
+   which angles were measured and refuted; read THIS block first.
+
+   (1) *** THE PACKET-SLOT HOIST -- SOLVED, AND IT IS A COST TEST, NOT ANTI-LICM ***
+   W72-A5 concluded "the anti-LICM IS the un-rotation" and priced un-rotating both
+   loops at 332 @360.  That conclusion was WRONG in its premise and unnecessary in
+   its remedy.  Two corrections, both read out of gcc-2.8.1 loop.c:
+     - scan_loop does NOT set maybe_never at scan_start: the walk is
+       `p = scan_start; while (1) { p = NEXT_INSN (p); if (p == scan_start) break; ... }`
+       (loop.c:625-632), so the loop-top CODE_LABEL is stepped over on entry and
+       only terminates the walk.  In a duplicate_loop_exit_test-CONVERTED loop
+       (jump.c:2286-2465 plants NOTE_INSN_LOOP_VTOP before the ORIGINAL bottom
+       test and deletes the entry jump) scan_start is the body-top label, so
+       maybe_never is 0 for every insn up to the body's first branch.  Retail's
+       forward loop IS converted (`slt $v0,$v1,$a0; beqz $v0,.L800251B4`
+       @0x80024CFC = the duplicated exit test) -- so condition (1) of the
+       three admission tests (loop.c:691-703) DOES hold for retail too and no
+       amount of "selective anti-LICM" was ever the discriminator.
+     - The discriminator is the COST test in move_movables (loop.c:1640):
+           already_moved[regno] || threshold * savings * m->lifetime >= insn_count
+       with threshold = (loop_has_call ? 1 : 2) * (1 + n_non_fixed_regs) = 30,
+       insn_count = 113 (fwd) / 115 (rev), and -- the part the W72 receipt missed --
+       `threshold -= 3` after EVERY successful move (loop.c:1728 and :1913).
+       Solving the whole -dL movable table against that model reproduces all 20
+       forward-loop decisions exactly, so the model is validated, not fitted.
+       savings = n_times_set = 1 for the packet-slot constant => it is declined
+       iff 30 * 1 * lifetime < 113, i.e. **lifetime <= 3**.
+     - m->lifetime is uid_luid[REGNO_LAST_UID] - uid_luid[REGNO_FIRST_UID], and
+       loop.c:404-413 gives a luid to EVERY insn that is not a positive-numbered
+       line NOTE -- NOTE_INSN_DELETED (what each statement boundary leaves behind)
+       therefore COSTS A LUID.  Measured: one shared `pslot` local = life 189/320
+       (function-wide span, both arms) -> moved; two separate locals with the store
+       one statement after the load = life 5 -> still moved (30*5=150>=113); the
+       load and the store in ONE statement (comma operator, one statement note)
+       = **life 3 -> "not desirable" -> no movable at all**, and the -dL row is
+       replaced by `possible biv, const = 528482308` = retail's per-iteration
+       rematerialisation.  Landed form: no pointer local at all --
+         `prim = (POLY_F4 *)Render_gPacketPtr, Render_gPacketPtr = (u_char *)prim + 0x18;`
+       (one statement; the anonymous force_reg pseudo is priced the same way).
+       This is almost certainly EA's "grab a packet" macro, which is why retail has
+       it: a macro is one statement by construction.
+     - COLLATERAL, and it must be paid in the same edit: declining the first
+       movable leaves threshold at 30 instead of 21 for the rest of the chain, so
+       the NEXT marginal movable flips to "moved".  Here that is `fY + fHeight`
+       (life 5, savings 1: 24*5=120 >= 113), which retail computes IN the loop
+       (`lhu $t2,0x10($sp); addu $v0,$s3,$t2`).  Cure = shrink ITS lifetime the
+       same way: emit the y2 and y3 stores ADJACENTLY (`prim->y2`, `prim->y3`,
+       then `prim->x3`), which drops it 5 -> 3 and restores the decline.  The two
+       edits together are worth 161 -> 196 on LCS but 373 -> 368 on count and they
+       are what makes every later lever reachable; judged on count+structure per
+       21E-3, never on the LCS number alone.
+     - Consequence chain, all automatic once the movable dies: the address stops
+       occupying a callee-saved register, `factor` gets retail's $s4 in the forward
+       arm, and the whole {$s4,$s5,$s6,$s7,$fp} band stops being rotated by one.
+     - reorg's `lui $a1,0x1F80` in the back-edge delay slot @0x80024F54 (with the
+       label sitting BETWEEN the lui and the ori) needs no engineering: it is
+       fill_slots_from_thread on a NON-owned thread (the loop top has two
+       predecessors), which COPIES the target's first insn into the slot and
+       retargets the jump past it.  The post-reload large_int split (mips.md) is
+       what makes the lui a separate insn for it to steal.
+
+   (2) THE SImode fSelFade READ (W59-A9's named delta) -- the fix is DELETION.
+   The reverse arm's `reverseSelFade` copy (and every typed variant of it: short,
+   int, fenced, unfenced) is what created the second read of the parameter slot.
+   The SYM says fSelFade carries an ARG record and NO REG/AUTO home, i.e. retail
+   never copied it anywhere: one `lh $a1,0x9C($sp)` feeds the `sltiu` that makes
+   `factor`, the forward preheader spill `sw $a1,0x38($sp)`, and the reverse
+   preheader's `addu $s5,$a1,$zero`.  Using the parameter directly in both arms
+   reproduces that exactly (89 @367/366 with the pslot fix).
+
+   (3) THE OR-CHAIN ASSOCIATION -- refuted twice before, correct now.
+   Retail's tree is `(blue|green)|red` (`or $a1,$a1,$v1` then `or $a1,$a1,$a3`)
+   while the three divides still ISSUE red, green, blue.  Both facts are
+   simultaneously satisfiable because the divides sit in their own guard blocks
+   (order fixed by expand) while the shifts and ORs are one schedulable block:
+   name the red and green terms, then write `blue | green | red` -- the blue
+   divide is the only one expanded inside the OR, so it goes last, and the tree
+   is the one retail has.  The temps must be SEPARATE per arm (shared temps
+   regress 49 -> 137), and they must hold the value BEFORE the width shifts so
+   `(greenVal << 16) >> 8` and `(short)redVal` are emitted at the OR site where
+   sched2 puts them in retail (49 -> 33).  W71's "or-chain order FALSIFIED, do not
+   retry" verdict was measured in the pre-(1) basin; re-pricing after a sibling
+   basin change is 21E-1 and it was worth 28 diffs here.
+
+   (4) `Col` LIVES IN $v0 ONLY IF ITS ZERO IS AN ARM, NOT A PRE-INIT.
+   `Col = 0;` before `if (!shadow)` starts the pseudo's live range in the common
+   path and it colors $a2 (or $a3, or $a1 -- a 20B "$6"-clobber just walks it
+   around the caller-saved file and never reaches $v0).  Writing the test as
+   `if (shadow) { Col = 0; } else { ...fade... }` shortens the range to the arms,
+   Col coalesces with the CalcFadeVal return in $v0, and the two `addu a2,v0,zero`
+   copies plus the `sw a2,4(s0)` all become retail's `$v0` form (33 -> 11).
+   NOTE the arm ORDER is load-bearing: shadow first / fade as the `else` (11),
+   NOT `if (!shadow) {...} else { Col = 0; }` (15) -- the latter leaves the
+   zero-arm block between the fade and the store, costing a `j` that retail
+   reaches by fall-through.
+
+   (5) `Col = myDarkBlue` BELONGS IN THE `else` OF `if (fSelFade)`.
+   With it above the test, our two paths into the shared `CalcFadeVal(Col,fFadeVal)`
+   have identical `addu a0,v0,zero; j <join>` tails and cross_jump merges them;
+   retail keeps BOTH (@0x80024EE8 and @0x80024EF0).  Moving the assignment into
+   the else arm de-merges them for free and, in the reverse arm, also stops reorg
+   from stealing it into the `beqz` delay slot (21B-5: the steal-vs-backward-fill
+   choice is source-position-decidable).  This is the natural way to write it
+   anyway.  A zero-insn `__asm__("" : : "r"(Col))` in that else arm de-merges too
+   (it was the 4-diff step) but is strictly worse source; deleted.
+
+   (6) `while (x1 >= fX)` NOT `while (fX <= x1)` for the reverse loop (2 -> PASS
+   was (5); this was the 11 -> 2 step): the compare's operand order decides
+   whether sched2 emits `sll $v0,$v0,16` before or after `sll $v1,$a3,16` at the
+   loop entry.
+
+   DELETED IN THE PROCESS (all measured, all unnecessary once the above is right):
+   the W59 reverse-arm value identity + its read-only fence, the W71 named
+   `pslot` local, the W63 nested-fade form, and the three tail fences on
+   myDarkBlue/fFadeVal/rectwidth that were worth 89 -> 61 in the intermediate
+   basin.  Dropping any ONE of those three regresses (26/30 diffs) but dropping
+   all THREE is PASS -- a joint cell, so sweep fence sets as sets.
+
+   PROBE HARNESS: scratchpad/W74_A5_probe.py + W74_A5_v{1..22}.py (each variant is
+   a literal substitution list applied to a saved baseline, gated, then reverted).
+   Movable tables come from tools/rtl_dump.py -dL; the cost model above is the
+   ground truth for any future hoist claim in this function. */
+
 /* MATCH W59: 203 -> 169 diffs.  The natural non-volatile fSelFade parameter
    restores retail's direct incoming-slot loads; a reverse-arm value identity
    plus one read-only fence corrects the opening local-alloc handout (260 ->
@@ -1075,12 +1202,15 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
 
 {
   POLY_F4 *prim;
-  u_char **pslot;
   short x1;
   short width;
   short factor;
   int myDarkBlue;
   int Col;
+  int redVal;
+  int greenVal;
+  int redVal2;
+  int greenVal2;
 
   factor = !fSelFade;
   myDarkBlue = 0xc83c1e;
@@ -1088,10 +1218,8 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
   if (!reverse) {
     x1 = fX;
     while (x1 < fX + fWidth) {
-      pslot = (u_char **)0x1f800004;
-      prim = (POLY_F4 *)*pslot;
+      prim = (POLY_F4 *)Render_gPacketPtr, Render_gPacketPtr = (u_char *)prim + 0x18;
       ((tFEMenuPrimTag *)prim)->addr = ((tFEMenuPrimTag *)Render_gPalettePtr)->addr;
-      *pslot = (u_char *)prim + 0x18;
       ((tFEMenuPrimTag *)Render_gPalettePtr)->addr = (u_int)prim;
       prim->x0 = x1;
       prim->y0 = fY;
@@ -1099,18 +1227,23 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
       prim->y1 = fY;
       prim->x2 = x1;
       prim->y2 = fY + fHeight;
-      prim->x3 = x1 + rectwidth;
       prim->y3 = fY + fHeight;
-      Col = 0;
-      if (!shadow) {
+      prim->x3 = x1 + rectwidth;
+      if (shadow) {
+        Col = 0;
+      }
+      else {
         /* MATCH: duplicated fade call sites cross-jump to retail's shared tail. */
         if (x1 < fX + width) {
-          Col = myDarkBlue;
           if (fSelFade) {
+            redVal = (((x1 - fX) * 0xbe) / fWidth) >> factor;
+            greenVal = ((((x1 - fX) * 0x7c) / fWidth) + 0x42) >> factor;
             Col = CalcFadeVal(myDarkBlue,
-                    (short)((((x1 - fX) * 0xbe) / fWidth) >> factor) |
-                    (((((x1 - fX) * 0x7c) / fWidth + 0x42) >> factor) << 16) >> 8 |
-                    ((((x1 - fX) * -0xd2) / fWidth + 0xd2) >> factor) << 16,fSelFade);
+                    ((((x1 - fX) * -0xd2) / fWidth + 0xd2) >> factor) << 16 |
+                    (greenVal << 16) >> 8 | (short)redVal,fSelFade);
+          }
+          else {
+            Col = myDarkBlue;
           }
           Col = CalcFadeVal(Col,fFadeVal);
         }
@@ -1125,16 +1258,10 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
     }
   }
   else {
-    short reverseSelFade;
-
-    reverseSelFade = fSelFade;
     x1 = fX + fWidth - 1;
-    __asm__("" : : "r"(reverseSelFade));
-    while (fX <= x1) {
-      pslot = (u_char **)0x1f800004;
-      prim = (POLY_F4 *)*pslot;
+    while (x1 >= fX) {
+      prim = (POLY_F4 *)Render_gPacketPtr, Render_gPacketPtr = (u_char *)prim + 0x18;
       ((tFEMenuPrimTag *)prim)->addr = ((tFEMenuPrimTag *)Render_gPalettePtr)->addr;
-      *pslot = (u_char *)prim + 0x18;
       ((tFEMenuPrimTag *)Render_gPalettePtr)->addr = (u_int)prim;
       prim->x0 = x1;
       prim->y0 = fY;
@@ -1142,18 +1269,23 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
       prim->y1 = fY;
       prim->x2 = x1;
       prim->y2 = fY + fHeight;
-      prim->x3 = x1 + rectwidth;
       prim->y3 = fY + fHeight;
-      Col = 0;
-      if (!shadow) {
+      prim->x3 = x1 + rectwidth;
+      if (shadow) {
+        Col = 0;
+      }
+      else {
         /* MATCH: duplicated fade call sites cross-jump to retail's shared tail. */
         if (x1 >= fX + fWidth - width) {
-          Col = myDarkBlue;
-          if (reverseSelFade) {
+          if (fSelFade) {
+            redVal2 = (((fX + fWidth - x1) * 0xbe) / fWidth) >> factor;
+            greenVal2 = ((((fX + fWidth - x1) * 0x7c) / fWidth) + 0x42) >> factor;
             Col = CalcFadeVal(myDarkBlue,
-                (short)((((fX + fWidth - x1) * 0xbe) / fWidth) >> factor) |
-                (((((fX + fWidth - x1) * 0x7c) / fWidth + 0x42) >> factor) << 16) >> 8 |
-                ((((fX + fWidth - x1) * -0xd2) / fWidth + 0xd2) >> factor) << 16,reverseSelFade);
+                ((((fX + fWidth - x1) * -0xd2) / fWidth + 0xd2) >> factor) << 16 |
+                (greenVal2 << 16) >> 8 | (short)redVal2,fSelFade);
+          }
+          else {
+            Col = myDarkBlue;
           }
           Col = CalcFadeVal(Col,fFadeVal);
         }
@@ -1167,7 +1299,6 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
       x1 -= rectwidth + rectspace;
     }
   }
-  __asm__("" : : "r"(myDarkBlue));
 }
 
 

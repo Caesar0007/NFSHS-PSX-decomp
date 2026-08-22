@@ -687,7 +687,71 @@ void Stats_ExtrapolateOpponentTimes(int type)
      volatile LOAD into the temp 44 (bit-identical) -- a temp cannot reach it, only a
      volatile at the USE site can.  Read-only fence on the temp after the ternary
      120@234, before it 126@234.  Override spellings re-confirmed: plain 115@229,
-     `>=` 115@229, through a temp 115@229, swapped-operand ternary 115@229. */
+     `>=` 115@229, through a temp 115@229, swapped-operand ternary 115@229.
+
+   🏆 ===== W74-A8 (2026-08-23) -- 44 -> 12, COUNT STILL EXACT 232/232.  THE TWO
+   HALVES W72-A13 SAID "MUST LAND TOGETHER" ARE NOW BOTH LANDED.
+   Half 1 = W72-A13's volatile-view min, kept verbatim (it is what reproduces
+     retail's `bnez / addu s7,a1,zero [slot] / addu s7,v1,zero` two-store shape).
+   Half 2 = THE `jj` IDENTITY LAUNDER IS THE +1 INSN.  W72-A13 named the open half
+     as "get `j << 2` into the loop-guard delay slot"; the RTL says the slot was
+     never free: our launder MATERIALISES `jj = j` as `addu s7,s1,zero`, and that
+     copy is exactly what sits in retail's `sll s6,s1,2` slot.  Delete the carrier
+     and the slot frees itself.
+   THE REPLACEMENT UN-MERGE DEVICE = a ZERO-INSN 'm'-OPERAND FENCE (catalog 21A-5)
+     on the ARRAY ELEMENT, placed inside the `PlayerPosition == 1` arm:
+         __asm__("" : : "m"(Cars_gRaceCarList[j]));
+     It buys refs on the element's ADDRESS (the %hi pseudo) without adding an insn
+     and without a carrier pseudo, so the arm still rematerializes base+scaled-index
+     like retail while the guard slot keeps the `sll`.  This retires the whole
+     W59(f)/W62/W71/W72 "scaled carrier" line of attack (`jj = j << 2` + every
+     cast-int address spelling measured 150-156; they were all paying for a carrier
+     that should not exist).
+   RESULT (re-gated twice): 12 @232/232.  Everything outside a 4-instruction window
+   is byte-exact, INCLUDING retail's `sll s6,s1,2` in the loop-guard slot, the
+   `lui t5,0` in the `beq PlayerPosition==1` slot, the two-store min, and the whole
+   s3/s4/s5/s6/s7 callee-saved band (the W59..W71 "priced 4-way permutation" is
+   GONE -- it was a symptom of the carrier, not an allocator cell).
+   RESIDUAL 12 = 4 instructions, all one cause -- the min's false arm RE-LOADS
+   where retail COPIES a register:
+        ours   lw a0,0(s0) / lw v0,848(a0) / slt v0,a1,v0 / ... / lw s7,848(a0)
+        retail lw v0,0(s0) / lw v1,848(v0) / slt v0,a1,v1 / ... / addu s7,v1,zero
+   The `volatile` at the false-arm use site is what forbids the merge into the
+   target, and it also forbids sharing ONE load with the compare; retail reads
+   sliceTotal ONCE into a caller-saved temp ($v1) that survives the `slt` (which
+   reuses $v0).  The two register renames (a0-vs-v0, v0-vs-v1) are downstream of
+   the base pointer having to stay live for that second load.
+   MEASURED THIS WAVE (every one a real gate run, all restored unless landed):
+     V + 'm'-fence in the arm ......................... 12 @232/232  [LANDED]
+     V + 'm'-fence in the arm, compare-read volatile ... 12 @232/232 (identical)
+     V + laundered POINTER carrier inside the arm ...... 12 @232/232 (equivalent;
+        `Car_tObj **q = &Cars_gRaceCarList[j]; launder(q); q[0]->...`)
+     V + `jj` launder (the old body) ................... 19 @233/232
+     V + laundered pointer carrier at the LOOP TOP ..... 166 @234
+     V + pointer carrier before the min ................ 45 @229
+     V + 'm'-fence at the LOOP TOP ..................... 93 @233
+     V + `jj` launder + 'm'-fence (stacked) ............ 157 @239  (antagonistic)
+     V alone, no un-merge device ....................... 93 @233
+     launder `j` IN PLACE (no carrier, no copy): with V 72 @228, plain 103 @227,
+        after the GetPosition call 195 @227 / 178 @226 -- an in-place launder does
+        NOT un-merge (same pseudo feeds both reads).
+     PLAIN min + 'm'-fence ............................. 76 @226  (6 SHORT: the
+        volatile in the min is also what forces the arm's base rematerialization)
+     temp-min spellings re-priced FROM THIS BASIN (04Z): plain temp + 'm' 81 @227,
+        volatile-read temp + 'm' 81 @227, temp + read-only fence after the ternary
+        81 @227, temp + launder 76 @226, temp + 'm'-fence + fence 70 @228,
+        volatile override 95-99 @223.
+     arm base through a `Car_tObj *volatile *` view: with a plain min 70 @228,
+        with a temp min 70 @228, +fence 63-75 @229, with V 12 @232 (== T4, the
+        volatile base view is then redundant).
+   ROUTE for the last 12: a SINGLE non-volatile read of sliceTotal whose temp does
+   NOT coalesce into DesiredSlice (gcc expands a COND_EXPR arm straight into the
+   target -- W72-A13's mechanism), while still denying the arm's base merge.  Every
+   temp/fence/launder spelling tried loses the 6-insn base rematerialization with
+   it, so the two properties are currently carried by the SAME volatile.  Next
+   instruments: a base un-merge that is independent of the min statement (an 'm'
+   fence that actually reaches the arm's address without the volatile -- measured
+   ineffective alone here), or the 06E local-alloc/qtytrace lane. */
 void Stats_TrackEndGame(void)
 
 {
@@ -731,7 +795,6 @@ void Stats_TrackEndGame(void)
 
         {
           int j;
-          int jj; /* SYM-CODEGEN-CARRIER: jj -- measured register-band dial; see receipt above. */
 
           /* SLD 500/512: TOP test + UNCONDITIONAL `j` back-edge -> exit-in-the-middle
              (a `for` lets gcc prove entry and ROTATE to a bottom test). */
@@ -740,16 +803,27 @@ void Stats_TrackEndGame(void)
             if (j >= Cars_gNumRaceCars) {
               break;
             }
-            jj = j;
-            __asm__("" : "=r"(jj) : "0"(jj));
             if (Stats_GetPosition(Cars_gRaceCarList[j]) == DesiredComparison) {
-              /* SLD 505: ONE statement -- a MIN, so both arms assign from a temp. */
+              /* SLD 505: ONE statement -- a MIN, so both arms assign from a temp.
+                 MATCH (W72-A13 half 1): the FALSE ARM must be read through a
+                 volatile view or gcc expands the COND_EXPR arm straight into the
+                 target (`lw s5,848(v0)` where s5 IS DesiredSlice) and retail's
+                 default store `addu s7,a1,zero` in the `bnez` delay slot never
+                 mints.  With it, retail's two-store min is byte-exact. */
               DesiredSlice = trackSlices < Cars_gRaceCarList[j]->stats.sliceTotal ?
-                             trackSlices : Cars_gRaceCarList[j]->stats.sliceTotal;
+                             trackSlices :
+                             *(volatile int *)&Cars_gRaceCarList[j]->stats.sliceTotal;
 
               if (PlayerPosition == 1) {
+                /* MATCH (W74-A8 half 2): ZERO-INSN 'm'-operand fence -- it buys refs
+                   on the ARRAY ELEMENT's address so this arm rematerializes
+                   base+scaled-index like retail, WITHOUT the old `jj` identity
+                   launder, whose materialised `addu s7,s1,zero` copy was occupying
+                   retail's loop-guard delay slot (`sll s6,s1,2`) and was the +1 insn
+                   that cancelled the min's missing store.  Do not re-add a carrier. */
+                __asm__("" : : "m"(Cars_gRaceCarList[j]));
                 /* SLD 507: ONE statement -- abs()>>16 over the INDEX form. */
-                DesiredSpeed = __builtin_abs(Cars_gRaceCarList[jj]->linearVel_ch.z) >> 16;
+                DesiredSpeed = __builtin_abs(Cars_gRaceCarList[j]->linearVel_ch.z) >> 16;
               }
               else {
                 DesiredSpeed =

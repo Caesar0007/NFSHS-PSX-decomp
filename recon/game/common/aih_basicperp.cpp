@@ -625,7 +625,23 @@ int AIHigh_BasicPerp::CheckChaserPosition(int copIndex,int carIndex)
          STANDING VERDICT unchanged and now stronger: the only thing that restores the
          branch is a value-fence, which mints a real `addu` because combine_regs
          (local-alloc.c:1866) refuses to tie a copy of a loop-carried GLOBAL allocno.
-         Probe file scratchpad/W72_A11/v_ccp{,2}.py. */
+         Probe file scratchpad/W72_A11/v_ccp{,2}.py.
+         W74-A11 re-gated (2 @85/87) and probed the two §22 devices that post-date the
+         certificate.  ONE NEW FACT, worth the row: the 22B(3) MULTI-OUTPUT TIED LAUNDER
+         `("" : "=r"(g_),"=r"(h_) : "0"(g_),"1"(h_))` on (pos, nextCopIndex) at the guard
+         is the FIRST COUNT-EXACT basin this function has ever had -- 36 diffs @ 87/87,
+         i.e. it restores BOTH the `blez` AND its `nop` -- where every single-value fence
+         in six waves lands at 86 (the minted `addu` absorbs one of the two).  Its residual
+         is two laundered copies (`addu a3,s0,zero` / `addu v0,a3,zero`) plus a one-step
+         s4/s5/s6 saved-band rotation, so it is a strictly better-posed base than the
+         2-diff/85 one for anybody who wants to finish this fn: the question becomes "tie
+         or delete two copies + rotate one band", not "invalidate a cse range record".
+         ALSO FALSIFIED here (each re-gated from 2): the single launder plus a 20B hard-reg
+         clobber `: "$16"` 33 @86; the single launder with an operand-less VOID barrier
+         placed BETWEEN the copy and the guard branch 15 @86, and with a "memory" clobber
+         on it 15 @86 -- i.e. the 13B/21B "any asm stops reorg's backward scan" rule does
+         NOT keep the copy out of the blez delay slot here, because the copy is minted by
+         the launder itself and sits BELOW it.  Probe: scratchpad/W74_A11_ccp.py. */
             if (pos < 1) break;
 
       if (nextCopIndex != -1) {

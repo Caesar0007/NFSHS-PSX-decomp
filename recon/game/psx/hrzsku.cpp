@@ -1141,6 +1141,69 @@ void Hrz_LightningFlicker(int on)
  * on frame-relative MEMs per 21A(5), so this needs a genuinely new device), or (c) the
  * instrumented-cc1 [find_free_reg] trace on the 66 form to price the last naming step.
  * Harness: scratchpad/W72_A4/probe.py + gen_hrz{,2,3,4}.py. */
+/* ===== 🏆🏆 W74-A4 (2026-08-23): **SEALED -- PASS 56/56, SCAFFOLDING-FREE**, on the
+ * SYM-faithful ONE-{t1,t2,t3}-block base.  Five waves of "allocator floor" verdicts fall to
+ * ONE token: SPLIT THE LOAD FROM THE SHIFT in each r-block --
+ *     r0 = temp.m[k];  r1 = temp.m[k+3];  r2 = temp.m[k+6];
+ *     r0 = r0 >> 4;    r1 = r1 >> 4;      r2 = r2 >> 4;
+ *     mpsx.m[k][0] = (short)r0; ... (methodology 3.12 #15b, "split the load from the
+ * decrement", applied to a shift).  With the three loads issued as their own statements
+ * sched1 hoists the four `lw NN(sp)` reloads into the t-region exactly like retail, six
+ * shifted values are live at once, local_alloc consumes $a2/$a3, and the t-triple falls to
+ * the SYM's $t1/$t0/$t2 -- i.e. the "32-diff allocno half" resolves ITSELF once the 40-diff
+ * schedule half is fixed, precisely as the w71 receipt predicted.
+ * 🔴 THE SPELLING WAS ON THE w71 FALSIFIED LIST ("`r = temp.m[k]` with the `>>4` moved into
+ * the mpsx store ... no change at all") -- because it was measured in the OLD basin.  Here
+ * it PASSes.  04Z (falsifications are basin-relative) at its strongest so far: the basin
+ * that unlocked it was a DIAGNOSTIC clobber, and once the split landed the clobber was
+ * measured UNNECESSARY and REMOVED (04E: always gate the natural body without the device).
+ * LADDER (all re-gated this pass, count-exact 56/56 throughout):
+ *     SYM-faithful base (w71 shipped)                                   72
+ *     + "$6","$7" clobber inside the t range (diagnostic only)          40
+ *     + load/shift split, ALL THREE r-blocks                            PASS  <- SHIPPED
+ *       (split in block 0 only 30; `(short)(r0 >> 4)` in the store 40)
+ *     + the same split WITHOUT the clobber                              PASS  <- device dropped
+ *     the W72 KEEP recipe (9 names + 6-op fence) + the clobber          42  (retired)
+ * The 66-diff nine-name device is therefore RETIRED, not merely held: the SYM-faithful
+ * structure both scores better and seals.
+ * (Kept for the record -- the clobber mechanism, which is still the right tool when an
+ * allocno half is genuinely stranded: the three t pseudos are GLOBAL allocnos
+ * (REG_N_DEATHS==3, local-alloc.c:471-477), so global.c's ascending scan hands them
+ * whatever local_alloc left; denying $a2/$a3 to the quantities live in the t range adds
+ * exactly retail's two missing conflicts, and PLACEMENT is the dial -- at fn top or in a
+ * dead gap it is inert.)
+ * ===== (the pre-seal analysis of this pass follows) =====
+ * 72 -> 40 @56/56 ON THE SYM-FAITHFUL BASE, AND THE 66 DEVICE IS SUPERSEDED.  The w71 decomposition (32 diffs allocno + 40 diffs schedule) is
+ * confirmed exactly: the ALLOCNO half is a pure AVAILABILITY loss and it is reachable with
+ * the campaign's standard zero-insn device instead of nine SYM-contradicting names.
+ * THE DEVICE (shipped):  __asm__("" : : "i"(0) : "$6","$7");  placed between `t3 = m->m[2];`
+ * and `temp.m[0] = t1;`, i.e. INSIDE the t live range (22B(1): a clobber denies a register
+ * only to quantities live AT THAT INSN -- the same clobber at fn top, or in the dead gap
+ * between two rows, is INERT at 72, re-measured this pass).
+ * WHY IT IS THE RIGHT SHAPE, not a symptom patch: the three t pseudos are GLOBAL allocnos
+ * (one block re-sets each name three times => REG_N_DEATHS==3 => local-alloc.c:471-477
+ * rejects them), so they are handed out by global.c's ASCENDING NUMERIC SCAN over whatever
+ * local_alloc left free.  Retail's r-values occupy $v0,$v1,$a0-$a3 at that point and ours
+ * only $v0,$v1,$a0,$a1, so retail's t-conflict set contains 6 and 7 and ours does not --
+ * the clobber ADDS exactly those two conflicts and nothing else.  Insns 0-11 and 44-55 are
+ * byte-identical after it; the SYM's t-triple ($t1/$t0/$t2) lands verbatim.
+ * MEASURED THIS PASS (all re-gated, count-exact 56/56 unless noted):
+ *     SYM-faithful base (shipped)                                72
+ *     + "$6","$7" clobber inside the t range (void form)         40   <- SHIPPED
+ *     + the same as a non-volatile launder on t1 / t3            69 @57 / 73 @57  (+1 insn)
+ *     + clobber before row 2 / before row 3                      72 / 74
+ *     the W72 KEEP recipe (9 names + 6-op fence) + this clobber  42   <- the 66-device
+ *         basin is now WORSE than the SYM-faithful one; it is retired, not held.
+ * RE-PRICED IN THE NEW BASIN (04Z) and all >= 40: per-row shift/store interleave 40
+ * (BIT-IDENTICAL), a 3-operand read-only fence at each r-block end 76, one at block-0 only
+ * 74, a 1-operand fence in blocks 0+1 50, r-block order 102 permuted 80.
+ * REMAINING = THE 40-DIFF SCHEDULE HALF, unchanged and still the whole story: retail
+ * issues the four `lw NN(sp)` reloads EARLY (clocks 12/13 and 23/24) and holds six shifted
+ * values live; ours computes each r just-in-time.  The opcode census is EXACT (no `lw`
+ * deficit any more), so this is purely sched1 issue position inside one basic block.
+ * NEXT TAKER: the .lreg post-sched1 insn order (tools/rtl_dump.py -dl) or the instrumented
+ * cc1 [sched_pick] trace -- NOT more spellings (that axis is closed in two basins now).
+ * Harness: scratchpad/W74_A4/probe.py + gen_hm{,2}.py (e_hm_p*, e_hm2_q*). */
 void HrzSetPsxMatrix(matrixtdef *m)
 {
   MATRIX mpsx;
@@ -1180,13 +1243,22 @@ void HrzSetPsxMatrix(matrixtdef *m)
     temp.m[8] = t3;
   }
   {
+    /* MATCH (W74-A4, 40 -> PASS): SPLIT THE LOAD FROM THE SHIFT (methodology 3.12 #15b).
+       Three loads as their own statements let sched1 hoist the four `lw NN(sp)` reloads of
+       temp.m[0]/[2]/[3]/[5] up into the t-region the way retail does, so six shifted values
+       are live at once, local_alloc burns $a2/$a3, and the t-triple lands on the SYM's
+       $t1/$t0/$t2 -- the "allocno half" resolves itself.  The fused `r0 = temp.m[0] >> 4;`
+       form is the 5-wave 72-diff near-miss.  Do NOT re-fuse. */
     int r0;
     int r1;
     int r2;
 
-    r0 = temp.m[0] >> 4;
-    r1 = temp.m[3] >> 4;
-    r2 = temp.m[6] >> 4;
+    r0 = temp.m[0];
+    r1 = temp.m[3];
+    r2 = temp.m[6];
+    r0 = r0 >> 4;
+    r1 = r1 >> 4;
+    r2 = r2 >> 4;
     mpsx.m[0][0] = (short)r0;
     mpsx.m[0][1] = (short)r1;
     mpsx.m[0][2] = (short)r2;
@@ -1196,9 +1268,12 @@ void HrzSetPsxMatrix(matrixtdef *m)
     int r1;
     int r2;
 
-    r0 = temp.m[1] >> 4;
-    r1 = temp.m[4] >> 4;
-    r2 = temp.m[7] >> 4;
+    r0 = temp.m[1];
+    r1 = temp.m[4];
+    r2 = temp.m[7];
+    r0 = r0 >> 4;
+    r1 = r1 >> 4;
+    r2 = r2 >> 4;
     mpsx.m[1][0] = (short)r0;
     mpsx.m[1][1] = (short)r1;
     mpsx.m[1][2] = (short)r2;
@@ -1208,9 +1283,12 @@ void HrzSetPsxMatrix(matrixtdef *m)
     int r1;
     int r2;
 
-    r0 = temp.m[2] >> 4;
-    r1 = temp.m[5] >> 4;
-    r2 = temp.m[8] >> 4;
+    r0 = temp.m[2];
+    r1 = temp.m[5];
+    r2 = temp.m[8];
+    r0 = r0 >> 4;
+    r1 = r1 >> 4;
+    r2 = r2 >> 4;
     mpsx.m[2][0] = (short)r0;
     mpsx.m[2][1] = (short)r1;
     mpsx.m[2][2] = (short)r2;
@@ -1417,9 +1495,81 @@ void Hrz_BuildSky(void)
      NEXT TAKER: read the instrumented-cc1 [find_free_reg] trace (C:/Temp/nfs4-instr-cc1
      cc1plus-ecoff) for the block at .L800D0E60 on the `spec`-inlined form and identify the
      value retail keeps in $a3 there; that is the last unknown in this function.
-     Harness: scratchpad/W72_A4/probe.py + gen_sky{,2}.py (e_sk_a..k, e_sk_a2). */
-  Draw_tPixMap **hp;
-  CSkySpec *spec;
+     Harness: scratchpad/W72_A4/probe.py + gen_sky{,2}.py (e_sk_a..k, e_sk_a2).
+     ===== 🏆 W74-A4 (2026-08-23): 370 -> 150 @458/458 COUNT-EXACT (the first 143 insns
+     are BYTE-IDENTICAL, positional mismatches 81/458), AND THE W72 (a) COUNTING PROBLEM
+     IS SOLVED.
+     BOTH scaffolding locals (`hp`, `spec`) are DELETED -- the SYM-faithful head is now the
+     SHIPPED one -- and the whole head + preheader + the `Sky_gTrackSpec` load are
+     BYTE-IDENTICAL to the oracle (insns 0..~150), including retail's exact register band
+     (i=$t4, temp=$t1, the in-loop spec temp=$t0, hp-base=$s3 hoisted by loop.c itself, and
+     the eight invariants $t2/$t3/$t5..$t9).
+     THE DEVICE (the w72 "$a0-$a3 availability" ask, answered): with `spec` INLINED the
+     Sky_gTrackSpec value is a GLOBAL allocno spanning .L800D0E60..800D0FF0; retail's
+     find_reg cannot give it $a3 because the FT4 block's local qty `pmx` already owns $a3,
+     while OUR FT4 block only ever burns $a0/$a1/$a2 -- so ours took $a3 and every hoisted
+     invariant shifted one slot down.  A ZERO-INSN 20B hard-register conflict inside the
+     FT4 block --
+         __asm__("" : "=r"(pmx) : "0"(pmx) : "$7");
+     -- manufactures exactly the missing conflict (22B(2)) and the whole band snaps.
+     MEASURED (all re-gated; harness scratchpad/W74_A4/probe.py + gen_sky{,2..6}.py):
+       shipped (hp+spec cached, RMW1 tag-first)                368 @458
+       hp inlined + spec cached                                367 @459
+       hp cached below the guard + spec cached                 367 @459
+       FAITHFUL head (hp+spec both inlined), no device         384 @458  <- the w72 386
+       FAITHFUL + "$7" clobber in FT4 (void form)              272 @460
+       FAITHFUL + the pmx launder above (non-volatile)         272 @460  <- SHIPPED
+       ... carrier sweep: slot 272 · prim 283 @471 · i 374 · temp inert(384)
+       ... position sweep inside FT4: after pmx / after slot / after RMW2 / after the
+           frontcolors store ALL 272; at the very END of the block = inert (pmx dead).
+       ... "$6","$7" together 384 @462 (over-denial) · clobber in BOTH GT4+FT4 279 @461.
+     🔴 THE PRICE, NAMED: +2 insns, and an opcode census says they are EXACTLY TWO NOPS
+     (ours 60 v oracle 58, every other opcode equal) -- one in the GT4 block, one in the
+     FT4/G4 pair, i.e. two load-delay slots retail fills and we do not.  That is now the
+     WHOLE remaining structural gap; the register band and the head are done.
+     ALSO LANDED (independent, from the shipped basin): the FIRST OT RMW is written
+     TAG-FIRST (`prim->tag & 0xff000000 | slot[-2] & 0xffffff`) in all three prim blocks --
+     retail's `and a2,a2,t6 ; and v0,v0,t2 ; or a2,a2,v0 ; sw a2,0(a1)` has the OR dest on
+     the prim->tag operand in GT4, FT4 AND G4 (oracle-read, not inferred).  370 -> 368 from
+     the GT4 site alone (FT4/G4 sites measured inert).  ⚠️ In the NEW basin the GT4 site
+     re-prices at +4 (268 with it reverted) but that block is LCS-MISALIGNED there, so the
+     4 is noise on an unaligned block and the oracle-evidenced spelling is kept; re-measure
+     if the two nops above ever fall.
+     FALSIFIED THIS PASS (all re-gated): int-typed slot sum `Draw_gViewOtSize * 4 +
+     (int)Render_gPalettePtr` = 295 @469 in the old basin / 207 @471 in the new one (+11/+13
+     insns -- it breaks the scratchpad-address CSE, LCS-only win, REJECTED); GT4 prim-first
+     vs pmx-first, a named `int px = gSkyPixmapIndex[i]` index local, and the GT4 byte-store
+     position (code/len before the last colour store) are ALL BIT-IDENTICAL (statement order
+     is canonicalised here, w63 law, in both basins).
+     FOUR MORE LEVERS LANDED ON TOP (272 -> 150); every one is a w42/w63 "canonicalised"
+     verdict that RE-PRICES in this basin -- 04Z at full strength:
+       (1) 272 -> 229: the GT4 cursor bump moved BETWEEN the first colour LOAD and its STORE
+           (`c0 = <load>; Render_gPacketPtr = prim + 0x34; prim->r0 = c0;`) -- retail emits
+           `lw v1,0(v0); addiu v0,a1,52; sw v0,0(t3); sw v1,4(a1)` and our fused form left
+           the load-delay slot empty.  Kills the first of the two extra nops.
+       (2) 229 -> 228 @458 COUNT-EXACT: the same split in the G4 block (the second nop).
+       (3) 228 -> 208: the RMW1 operand order re-priced PER SITE -- 24-bit-AND-first in GT4
+           and FT4, TAG-FIRST in G4 (all-tag-first 228, all-24-first 212, GT4-only 224,
+           FT4-only 212, this mix 208).  That order is TWO dials at once: the OR's dest
+           register AND which mask constant loop.c hoists first; the head's
+           `lui t2,255 / ori / lui t6,65280` triple only comes out right in this mix.
+       (4) 208 -> 152 -> 150: prim, slot, pmx statement ORDER in the GT4 and FT4 blocks
+           (MATCH notes at both sites).  w42/w63 measured this axis inert -- in the OLD
+           (cached-spec) basin it was; here it is worth 58.
+     REMAINING 150 = FOUR named runs (side_by_side stream index): [143-147] the preheader
+     hoist ORDER of the gHorizonPixmap base vs the 0x1F800004 literal (retail hoists hp
+     first; it is a loop.c first-appearance question, and the GT4 order that produces it
+     costs 58 elsewhere -- measured, not assumed); [277-298] + [343-392] the GT4/FT4 block
+     heads (roles rotate: ours prim=$a0/idx=$a1/slot=$a2 vs retail prim=$a1/idx=$v1/
+     slot=$a0); [396-435] the G4 block, which is a PURE $a0<->$a1 SWAP with every other
+     word identical (prim vs slot-base) -- statement order, a split `ot` temp and slot-first
+     spellings all measured INERT there, so it is a local-alloc qty tie (reqdelta/qtytrace
+     territory, not a spelling one).
+     METRIC NOTE: with the counts equal, judge these with positional mismatches, not the
+     LCS diff count -- scratchpad/W74_A4/posmis.py prints both (the two metrics agreed on
+     every decision this pass).
+     NEXT TAKER: the G4 $a0<->$a1 tie is the cheapest of the three residuals (one qty pair,
+     ~20 lines); the GT4/FT4 head rotation is the same question one block up. */
 
   otz_old = 0x78;
   if (GameSetup_gData.commMode == 1) {
@@ -1517,23 +1667,20 @@ void Hrz_BuildSky(void)
   if ((Sky_gTrackSpec->flags & 0x40U) != 0) {
     Hrz_SetDitheringPrim(0,Draw_gViewOtSize + -2);
   }
-  hp = gHorizonPixmap;
   if ((TrackSpec_gSpec.skyspec.flags & 4U) != 0) {
     pshift = sd->otz;                       /* save (scratchpad +0x94) around the flare */
     Flare_Sun(SUNPOS,(Draw_FlareCache *)sd);
     sd->otz = pshift;
   }
-  /* MATCH (w49-a5 follow-up landed by w50-a5, 377 -> 374 AND the count back to EXACT
-     458/458): the LOOP-INVARIANT Sky_gTrackSpec pointer materialized ONCE here.  The
-     recorded next dial was "find whatever retail parks in $8 ahead of temp" -- the
-     oracle answers it literally at 800D0E60: `lw $t0,%gp_rel(Sky_gTrackSpec)($gp)`, held
-     across 800D0E68..800D0FF0 for ->type, ->flags and ->frontcolors[0].  Ours re-derived
-     it per use, so $t0 was free when `temp` was handed out (retail's temp = SYM REG $9 =
-     $t1) and every hoisted invariant shifted one slot.  POSITION is the dial: before the
-     i-loop 374 @458 exact; after the dither guard 405 @459; decl-with-init 411 @459.
-     (Dropping the `hp` scaffolding local on top gates 371 but at 459 -- count-inexact,
-     so not taken; that pair is the next thing to re-probe together.) */
-  spec = Sky_gTrackSpec;
+  /* 🔴 SUPERSEDED BY W74-A4 -- the `spec = Sky_gTrackSpec;` cache that used to stand here
+     (w49-a5 / w50-a5, 377 -> 374) IS GONE, and so is the `hp = gHorizonPixmap;` cache.
+     Neither is in the SYM (@40ed4b lists exactly pSkyMesh, pSkyZ, i, otz_old, pshift, sd),
+     and the caches were what pushed our band one slot: retail loads Sky_gTrackSpec INSIDE
+     the loop at 800D0E60 (`lw $t0,%gp_rel(Sky_gTrackSpec)($gp)`, held to 800D0FF0 for
+     ->type/->flags/->frontcolors[0]) and loop.c hoists the gHorizonPixmap base into $s3 by
+     itself.  Reading both globals inline + the $a3 conflict device in the FT4 block (see
+     the MATCH note there) reproduces the whole head byte-for-byte.  Detail + the full
+     measurement ladder: the W74-A4 section of the receipt block above the function. */
   i = 0;
   while (true) {
     if (!(i < 0x40)) break;
@@ -1555,19 +1702,39 @@ void Hrz_BuildSky(void)
                 (pSkyMesh[temp].vy      <= (short)*(u_short *)((char *)sd + 0x12))) &&
                ((-1 < pSkyMesh[temp + 17].vy) || (-1 < pSkyMesh[temp + 18].vy) ||
                 (-1 < pSkyMesh[temp + 1].vy)  || (-1 < pSkyMesh[temp].vy)))) {
-            if (spec->type == 1) {
-              if ((spec->flags & 0x20U) != 0) {
+            if (Sky_gTrackSpec->type == 1) {
+              if ((Sky_gTrackSpec->flags & 0x20U) != 0) {
                 POLY_GT4 *prim;
                 Draw_tPixMap *pmx;
 
                 u_int *slot;
-                pmx = hp[gSkyPixmapIndex[i]];
+                u_long c0;
+                /* MATCH (W74-A4, 208 -> 152): prim, slot, pmx IN THIS ORDER.  Statement
+                   order in these prim blocks was recorded "canonicalised" by w42/w63 --
+                   that was measured in the OLD (cached-spec) basin; in the faithful one
+                   it is worth 56 diffs.  (pmx,prim,slot) 208 - (prim,pmx,slot) 210 -
+                   (pmx,slot,prim) 210 - (slot,pmx,prim) 154. */
                 prim = (POLY_GT4 *)Render_gPacketPtr;
                 slot = (u_int *)(Draw_gViewOtSize * 4 + Render_gPalettePtr);
+                pmx = gHorizonPixmap[gSkyPixmapIndex[i]];
+                /* MATCH (W74-A4): 24-bit-AND-FIRST here and in the FT4 block, TAG-FIRST
+                   in the G4 block below.  Retail's OR dest is the prim->tag operand in
+                   all three (`and a2,a2,t6; or a2,a2,v0`), but the operand order also
+                   decides which mask constant loop.c hoists FIRST (it walks movables in
+                   RTL-generation order), and retail's preheader materialises the 2-insn
+                   0xFFFFFF before the 1-insn 0xFF000000.  Measured per site from the
+                   faithful basin: GT4 24-first -4, FT4 24-first -12, G4 tag-first -4
+                   (all-tag-first 228, all-24-first 212, this mix 208). */
                 prim->tag = slot[-2] & 0xffffff | prim->tag & 0xff000000;
                 slot[-2] = slot[-2] & 0xff000000 | (u_int)prim & 0xffffff;
-                *(u_long *)&prim->r0 = *(u_long *)&gSkyColor[temp + 0x11];
+                /* MATCH (W74-A4, 272 -> 229 and one of the two nops): the cursor bump
+                   sits BETWEEN the first colour LOAD and its STORE, exactly as retail
+                   emits it (`lw v1,0(v0); addiu v0,a1,52; sw v0,0(t3); sw v1,4(a1)`).
+                   The fused `prim->r0 = <load>; bump;` form leaves the load-delay slot
+                   empty and costs a nop.  Same split in the G4 block below. */
+                c0 = *(u_long *)&gSkyColor[temp + 0x11];
                 Render_gPacketPtr = (u_char *)prim + 0x34;
+                *(u_long *)&prim->r0 = c0;
                 *(u_long *)&prim->r1 = *(u_long *)&gSkyColor[temp + 0x12];
                 *(u_long *)&prim->r2 = *(u_long *)&gSkyColor[temp];
                 *(u_long *)&prim->r3 = *(u_long *)&gSkyColor[temp + 1];
@@ -1588,14 +1755,24 @@ void Hrz_BuildSky(void)
 
                 u_int *slot;
                 u_int tag;
+                /* MATCH (W74-A4, -2): same prim, slot, pmx order as the GT4 block. */
                 prim = (POLY_FT4 *)Render_gPacketPtr;
-                pmx = hp[gSkyPixmapIndex[i]];
                 slot = (u_int *)(Draw_gViewOtSize * 4 + Render_gPalettePtr);
+                pmx = gHorizonPixmap[gSkyPixmapIndex[i]];
+                /* MATCH (W74-A4, 384 -> 272): ZERO-INSN HARD-REG CONFLICT (catalog 20B /
+                   22B(2)).  The inlined `Sky_gTrackSpec` value is a GLOBAL allocno live
+                   across this block; retail cannot give it $a3 because THIS block's local
+                   qty `pmx` owns $a3, ours could, and that one slot rotated the entire
+                   caller-saved band (i/temp/the 8 hoisted invariants).  Denying $a3 to the
+                   quantities live here reproduces retail's conflict set: the spec value
+                   lands in $t0, `temp` in $t1, `i` in $t4 -- head byte-exact.  DO NOT
+                   DELETE without re-reading the W74-A4 receipt above the function. */
+                __asm__("" : "=r"(pmx) : "0"(pmx) : "$7");
                 prim->tag = slot[-2] & 0xffffff | prim->tag & 0xff000000;
                 tag = slot[-2];
                 Render_gPacketPtr = (u_char *)prim + 0x28;
                 slot[-2] = tag & 0xff000000 | (u_int)prim & 0xffffff;
-                *(u_long *)&prim->r0 = *(u_long *)&spec->frontcolors[0];
+                *(u_long *)&prim->r0 = *(u_long *)&Sky_gTrackSpec->frontcolors[0];
                 *((u_char *)prim + 3) = 9;
                 prim->code = 0x2c;
                 *(u_long *)&prim->u0 = *(u_long *)pmx;
@@ -1612,12 +1789,16 @@ void Hrz_BuildSky(void)
               POLY_G4 *prim;
 
               u_int *slot;
+              u_long c0;
               prim = (POLY_G4 *)Render_gPacketPtr;
               slot = (u_int *)(Draw_gViewOtSize * 4 + Render_gPalettePtr);
-              prim->tag = slot[-2] & 0xffffff | prim->tag & 0xff000000;
+              prim->tag = prim->tag & 0xff000000 | slot[-2] & 0xffffff;
               slot[-2] = slot[-2] & 0xff000000 | (u_int)prim & 0xffffff;
-              *(u_long *)&prim->r0 = *(u_long *)&gSkyColor[temp + 0x11];
+              /* MATCH (W74-A4, 229 -> 228 and the count back to EXACT 458/458): the
+                 colour-load / bump / colour-store split, see the GT4 block above. */
+              c0 = *(u_long *)&gSkyColor[temp + 0x11];
               Render_gPacketPtr = (u_char *)prim + 0x24;
+              *(u_long *)&prim->r0 = c0;
               *(u_long *)&prim->r1 = *(u_long *)&gSkyColor[temp + 0x12];
               *(u_long *)&prim->r2 = *(u_long *)&gSkyColor[temp];
               *(u_long *)&prim->r3 = *(u_long *)&gSkyColor[temp + 1];
@@ -2016,6 +2197,86 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
  *       `addu s2,s4,zero; li s5,4` preheader pair 4 insns early, one `lh v1,40(sp)`.
  * Harness: scratchpad/W72_A4/probe.py + apply.py (edit-list variants e_*.py, always
  * restores; per-step backups hrzsku.cpp.step1..step5). */
+/* ===== 🏆 W74-A4 (2026-08-23): 58 -> 20 @473/473 COUNT-EXACT.  FIVE stacked levers; every
+ * one of the w72 "REMAINING RESIDUAL" items except the clipH `lui` is now closed, and four
+ * of the five are the same two laws (a hard-reg availability device + index-first sums).
+ * LEDGER (verify_asm, all count-exact 473/473):
+ *     w72 baseline                                                        58
+ *   (A) + "$6" clobber after `rowDelta = 0;` (rowDelta $a2 -> $a3)        50
+ *   (B) + FENCED held-address anchor for the packet cursor + late bump    42
+ *   (C) + INT-TYPED index-first OT-slot sum                               34
+ *   (D) + index-first `pSVar12 = (SVECTOR *)(farI * 8 + (int)gRngCoordTop)` 30
+ *   (E) + colour-1 load/store split w/ the bump between + a void fence
+ *         between the two RTPS transforms                                 22
+ *   (F) + `iVar18 = 4;` before `iVar15 = 0;`                              20  <- shipped
+ *
+ * (A) THE w72 RESIDUAL (1) WAS AN AVAILABILITY LOSS AND IT IS SOURCE-REACHABLE.  The w72
+ *     receipt priced the PRIORITY half correctly (the live-range fence puts zval=$a0,
+ *     Zmax=$a1) and then filed the $a2-vs-$a3 half as "needs the [find_free_reg] trace".
+ *     It is just the 20B device: `__asm__("" : : "i"(0) : "$6");` immediately after
+ *     `rowDelta = 0;` denies $a2 to everything live at that insn, so find_reg's ascending
+ *     scan gives rowDelta $a3 like retail.  Carrier/position sweep (all re-gated):
+ *       void form after `rowDelta = 0;`                50   <- SHIPPED
+ *       launder on rowDelta / on zval / on Zmax / farI  50 / 52 / 52 / 56
+ *       inside the loop body (any of 3 carriers)        54
+ *       one statement EARLIER (before `rowDelta = 0;`)  58 (INERT -- rowDelta not born yet)
+ *       "$6","$7" together 154 · "$5" 68  (over/wrong-denial)
+ *     ⚠️ It does NOT supersede the w72 (E) live-range fence -- dropping that fence with the
+ *     clobber in place gates 78 (and 80 without either).  Both are required.
+ * (B) THE PACKET BLOCK (w72 residual (2), 14 lines) IS CLOSED BY THE FENCED HELD-ADDRESS
+ *     ANCHOR (05F / 14D / methodology 3.12 #16).  Retail materialises &Render_gPacketPtr
+ *     ONCE (`lui a2,8064; ori a2,a2,4`), reads the cursor from it, runs both OT RMWs and
+ *     writes the +0x34 bump back THROUGH THE SAME REGISTER at the very end.  Every earlier
+ *     wave moved the bump alone and paid +2 insns (the address re-materialises: w72 142-144,
+ *     re-measured here 118/120) -- because an UNFENCED `u_char **pp = (u_char **)0x1f800004;`
+ *     is const-propagated straight back to the literal (measured: bit-identical to the old
+ *     form).  `__asm__("" : "=r"(pp) : "0"(pp));` keeps it in one register and the late bump
+ *     becomes FREE.  Bump-position sweep on the fenced anchor: after colour-1 42 <- min ·
+ *     after the m24 fence 44 · after `puVar1=` 44 · after colour-2/3 46/46 · after colour-4
+ *     48 · after SetPolyGT4 175 @476.
+ * (C)/(D) TWO INDEX-FIRST INT SUMS (12D law: pointer_int_sum always rebuilds ptr-first;
+ *     only an int-typed sum keeps the scaled index as addu operand 0).  The oracle shows
+ *     `sll a0,a0,2; addu a0,a0,v0` for the OT slot (dest = the Draw_gViewOtSize product)
+ *     and `sll a0,t0,3; addu a0,a0,v0` for `gRngCoordTop + farI` (dest = the farI product).
+ *     Both flips are worth 8 and 4 respectively; the `<< 3` and `* 8` spellings measure
+ *     identical.
+ * (E) TWO SCHEDULING SPLITS.  (i) The colour-1 store split (`c1 = ...; *pp = p + 0x34;
+ *     *puVar1 = c1;`) reproduces retail's `lw v1,0(v0); addiu v0,s0,52; sw v0,0(a2);
+ *     sw v1,4(s0)` exactly -- after it the WHOLE packet block matches byte-for-byte except
+ *     the RMW load order.  (ii) It leaves us 1 insn SHORT (472) because our `sw v0,60(sp)`
+ *     (the temp2d[1] write-back) SINKS past the second transform's movstrsi copy and fills
+ *     the load-delay slot retail nops; a void fence between the two RTPS transforms stops
+ *     the sink, restores the nop AND the position -> 22 @473 count-exact.  The two halves
+ *     are worth 25@472 and 27@474 alone and 22@473 together.
+ * FALSIFIED / RE-PRICED THIS PASS (all re-gated, several were w72 "next steps"):
+ *   - clipH as its own literal `*(short *)0x1f800012` = 101 @472 at the 58 basin and 75
+ *     @472 at the 34 basin (cse merges it with the clipW read and we lose an insn); the
+ *     laundered `ch` twin = 60 @475.  The 2-line `lui` residual STAYS (3rd basin now).
+ *   - RMW1 tag-first (the shape that pays in Hrz_BuildSky) = 58 at the 34 basin, RMW2
+ *     swapped = 68, both = 62.  The 24-bit-AND-first spelling stays here.
+ *   - a named temp for `*(u_int *)p` (to fix the RMW load order) is BIT-IDENTICAL in three
+ *     basins; the laundered form costs +1 insn.  The 4-line load-order residual STAYS.
+ *   - `iVar15 + (int)hsd` / a block-scoped `q2` temp in the `8 <= ringPMX` arm: INERT in
+ *     three basins (fold reassociates it back) -- the `addu v1,s6,s2` line STAYS.
+ *   - the init pair's POSITION (void fence before/after it, decl-with-init, moving it above
+ *     `m24`): all inert at 20 -- only the ORDER of the two inits moves (F).
+ * REMAINING 20, measured POSITIONALLY (scratchpad/W74_A4/posmis.py; posmis=48/473) -- the
+ * LCS count under-weights the biggest one:
+ *   [186-190] the `iVar18/iVar15` init pair vs the two hoisted invariants: a 5-insn
+ *             rotation.  Order of the two inits is a dial (that is lever (F)); their
+ *             POSITION is a sched1 fixpoint -- fences either side, decl-with-init and
+ *             moving them above `m24` all measured inert.
+ *   [243-281] ONE insn: retail fills the clipW `lhu`'s LOAD-DELAY slot with the
+ *             `lh v1,40(sp)` (mpts[0].vx) and we emit a nop, which shifts 39 positions.
+ *             Falsified this pass: a named `m0x` temp after the launder (inert) or before
+ *             it (breaks the count: 17 LCS but posmis 197), and hoisting the `(short)cw`
+ *             cast into its own statement (inert).
+ *   [332-335] the RMW1 load order (*p before *pal in retail) -- see the falsification list.
+ *   [380-380] `addu v1,s6,s2` operand order -- three spellings falsified in three basins.
+ * BRANCH-WORD STATE (tools/brdist.py, run this pass): 2 offset diffs (branch 18: 142 vs
+ * 143, branch 22: 126 vs 127) -- both are the SAME 1-insn shift as the [243-281] run above,
+ * not a control-flow defect; they disappear with it.  HrzSetPsxMatrix (now PASS) is clean.
+ * Harness: scratchpad/W74_A4/probe.py + posmis.py + gen_bh{,2..18}.py (always restores). */
 void Hrz_BuildHorizon(DRender_tView *Vi)
 
 {
@@ -2080,6 +2341,13 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
     Zmax = 0;
     zval = (int *)((int)hsd + 0x124);
     rowDelta = 0;
+    /* MATCH (W74-A4, 58 -> 50): ZERO-INSN HARD-REG CONFLICT (catalog 20B / 22B(2)) --
+       the AVAILABILITY half of the rowDelta residual the w72 receipt could only name.
+       The w72 fence below fixed the PRIORITY order (zval=$a0, Zmax=$a1); this denies $a2
+       to the quantities live here so find_reg's ascending scan gives rowDelta retail's
+       $a3.  BOTH are required (dropping the fence below gates 78).  Position is the dial:
+       one statement earlier (before `rowDelta = 0;`) is INERT at 58. */
+    __asm__("" : : "i"(0) : "$6");
     do {
       if (Zmax < *zval) {
         Zmax = *zval;
@@ -2088,7 +2356,10 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
       rowDelta = rowDelta + 1;
       zval = zval + 1;
     } while (rowDelta < 0x10);
-    pSVar12 = gRngCoordTop + farI;
+    /* MATCH (W74-A4, 34 -> 30): index-first INT sum (12D law) -- the oracle emits
+       `sll a0,t0,3; addu a0,a0,v0` with the farI product as addu operand 0; the natural
+       `gRngCoordTop + farI` is pointer arithmetic and is always rebuilt ptr-first. */
+    pSVar12 = (SVECTOR *)(farI * 8 + (int)gRngCoordTop);
     updown[0].vx = pSVar12->vx;
     shape_short = (short)Hrz_gTrackSpec->yoffset + (short)Hrz_gTrackSpec->height;
     updown[0].vy = shape_short;
@@ -2115,6 +2386,11 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
       gte_rtps();
       gte_stSXY2((DVECTOR *)&s_);
       *(long *)&temp2d[1] = s_;   /* MATCH: word copy (a DVECTOR assign = align-1 lwl/lwr quad) */
+      /* MATCH (W74-A4, part of 25 -> 22 and the count back to EXACT): a zero-insn VOID
+         FENCE stops sched1 SINKING the `sw v0,60(sp)` write-back past the second
+         transform's movstrsi copy.  Retail stores it immediately after its load and pays
+         the load-delay nop; ours filled that slot and came out one insn short. */
+      __asm__("" : : "i"(0));
       p_ = updown[0];
       gte_ldv0(&p_);
       gte_rtps();
@@ -2176,6 +2452,8 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
       POLY_GT4 *prim;
       Draw_tPixMap *pmx;
       u_int *puVar1, *puVar14, *pal;
+      u_char **pp;
+      u_int c1;
       u_char *p;
       int iVar18, iVar15, iVar6;
       (void)pmx;
@@ -2186,8 +2464,12 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
          buys +2 loop-weighted refs and flips the mask/colour-base pair onto retail's
          $s7/$fp.  See the W72-A4 receipt block above the function. */
       u_int m24 = 0xffffff;
-      iVar15 = 0;
+      /* MATCH (W74-A4, 22 -> 20): the two inits in THIS order (iVar18 first) -- a pure
+         sched2 LUID tie-break.  Their POSITION relative to the hoisted invariants is a
+         sched1 fixpoint: fences either side, decl-with-init and moving them above `m24`
+         all measured inert. */
       iVar18 = 4;
+      iVar15 = 0;
       /* MATCH: exit-in-the-middle (top test + unconditional `j` back edge with the
          counter increment in its delay slot) -- a `for` rotates to a bottom-tested
          do-while (slti/bnez), which the oracle does not have. */
@@ -2228,8 +2510,19 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
               iVar6 = Draw_gViewOtSize;
               puVar14 = *(u_int **)((int)gpPmx + iVar15);
               if (Hrz_gTrackSpec->ringPMX[i] != '\x10') {
-                p = (u_char *)Render_gPacketPtr;
-                Render_gPacketPtr = p + 0x34;
+                /* MATCH (W74-A4, 50 -> 42): FENCED HELD-ADDRESS ANCHOR (05F / 14D /
+                   methodology 3.12 #16).  Retail materialises &Render_gPacketPtr ONCE
+                   (`lui a2,8064; ori a2,a2,4`) and writes the +0x34 bump back through
+                   THAT register at the end of the block; every earlier wave moved the
+                   bump alone and paid +2 insns because the address re-materialised.  An
+                   UNFENCED `pp` is const-propagated back to the literal (bit-identical
+                   to the old form, measured); the opacity launder keeps it in a register
+                   so the late bump below is FREE.  Bump-position sweep: after colour-1
+                   42 (min) - after the m24 fence 44 - after colour-2/3 46 - after the
+                   4th 48 - after SetPolyGT4 175 @476. */
+                pp = (u_char **)0x1f800004;
+                __asm__("" : "=r"(pp) : "0"(pp));
+                p = *pp;
                 prim = (POLY_GT4 *)p;
                 /* MATCH (w50-a5): the OT-link RMW pair runs off the ALREADY-LOADED
                    cursor `p` and ONE shared palette-slot pointer `pal`, never a fresh
@@ -2240,7 +2533,10 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                    both for read, write-back and the +0x34 bump; our old form re-read the
                    0x1F800004 literal and recomputed the slot at each of the four sites
                    (+6 insns in this block alone).  214 -> 166 diffs, 477 -> 471 insns. */
-                pal = (u_int *)(Render_gPalettePtr + Draw_gViewOtSize * 4 + -8);
+                /* MATCH (W74-A4, 42 -> 34): INT-TYPED index-first sum (12D law) -- the
+                   oracle's `sll a0,a0,2; addu a0,a0,v0` has the OtSize product as addu
+                   operand 0; a pointer-typed sum is always rebuilt ptr-first. */
+                pal = (u_int *)(Draw_gViewOtSize * 4 + (int)Render_gPalettePtr + -8);
                 /* MATCH (W72-A4, -4): the FIRST RMW's OR operands are SWAPPED (24-bit AND
                    first).  loop.c walks movables in RTL-GENERATION order and spends its
                    budget on the first it accepts, so whichever mask constant is generated
@@ -2254,7 +2550,14 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                    (between the two RMWs -> 106). */
                 __asm__("" : : "r"(m24));
                 puVar1 = (u_int *)(p + 4);
-                *puVar1 = *(u_int *)(&gHrzRingColor[1][0].r + iVar15);
+                /* MATCH (W74-A4): the cursor bump sits BETWEEN the first colour load and
+                   its store, exactly as retail emits it (`lw v1,0(v0); addiu v0,s0,52;
+                   sw v0,0(a2); sw v1,4(s0)`) -- splitting the load out of the store is
+                   what lets the bump land there.  After this the whole packet block is
+                   byte-identical to the oracle bar the two RMW load-order lines. */
+                c1 = *(u_int *)(&gHrzRingColor[1][0].r + iVar15);
+                *pp = p + 0x34;
+                *puVar1 = c1;
                 *(u_int *)(p + 0x10) = *(u_int *)(&gHrzRingColor[1][1].r + iVar15);
                 *(u_int *)(p + 0x1c) = *(u_int *)(&gHrzRingColor[0][0].r + iVar15);
                 *(u_int *)(p + 0x28) = *(u_int *)(&gHrzRingColor[0][1].r + iVar15);

@@ -526,7 +526,58 @@ loop:
  * ALSO RE-CONFIRMED: the else-arm VOLATILE-READ construct that sealed StCdInterrupt this
  * TU does NOT recur here -- the two `if (mode == 1)`/`else` arms already match byte for
  * byte in the current basin (the diff hunks are entirely outside them), so there is no
- * un-merged-arm insn supply to recover. */
+ * un-merged-arm insn supply to recover.
+ *
+ * W74-A14 re-gate: 25 @107/106.  Both named angles executed; both close, and the two
+ * clusters are re-classified again -- this time from the compiler sources.
+ *  (a) THE EXTRA `li $v0,1`, MECHANISM NOW EXACT.  Our .s (build/.../stcdint.c.s) shows
+ *      `.set noreorder / beq $2,$0,$L86 / li $2,0x00000001` with a SECOND `li $2,1`
+ *      emitted just BEFORE `$L86:` -- that is fill_eager_delay_slots taking the TARGET
+ *      thread, copying the target insn (own_target == 0, so copy_rtx) and redirecting the
+ *      branch past it (reorg.c:3455 fill_slots_from_thread + the `new_thread != thread`
+ *      redirect at :3806).  Retail took the FALL-THROUGH thread instead, whose first insn
+ *      is the loop-invariant `li $6,0x10000` that loop.c hoisted into the preheader --
+ *      taking it costs ZERO text, which is why retail is one insn shorter.
+ *      mostly_true_jump (reorg.c:1353) returns 0 for this EQ condition, so fill_eager
+ *      tries fall-through FIRST; ours therefore FAILED on `li $6,0x10000` and fell
+ *      through to the target.  It is not a length problem: large_int (mips.c) returns
+ *      FALSE for 0x10000 because its low 16 bits are zero, so the insn is a 1-word `lui`
+ *      and eligible_for_delay accepts it.  NEXT INSTRUMENT (not blind sweeps): dump the
+ *      RTL at .dbr with the instrumented cc1 and read which of the three
+ *      fill_slots_from_thread guards rejects it (opposite_needed / own_fallthrough /
+ *      eligible_for_delay) -- every source-level dial for this cluster has now been swept
+ *      (w63-a6 whole-body void-barrier sweep, w72-a16 launder sweep, and the general law
+ *      re-confirmed on _read_issue this wave: BLOCKING one thread never buys the other,
+ *      it only buys a `nop`).
+ *  (b) THE BCR/ADDRESS EMISSION ORDER -- the "give BCR a second consumer" angle is now
+ *      FALSIFIED IN PRINCIPLE, not just unmeasured.  Retail itself has exactly two BCR
+ *      insns and exactly ONE consumer (`sw $v0,0($a1)`), so a genuine second consumer does
+ *      not exist to be recovered -- any we add is a real insn.  What retail actually has is
+ *      a different sched1 SUPPLY: it finishes the WHOLE `p` address (`lui $a1;ori $a1;
+ *      sll $v0,$s0,4; addu $a1,$v0,$a1`) BEFORE the `lw $a0,_dpcr`, so the only work left
+ *      for the `lw $a2,0($a0)` load-delay gap is the BCR pair; ours leaves `sll $a1,$s0,4`
+ *      + `addu $a1,$a1,$a2` for that gap and sinks BCR below the stores.  REMOVING THE
+ *      COMPETITOR IS INERT: (scratchpad/W74_A14_dma2.json, all gated + reverted) computing
+ *      `p` only AFTER the DPCR read-modify-write 25, + a named `bcr` hoisted above the
+ *      DPCR block 25, `bcr` hoisted with `p` still before 25 -- all BYTE-IDENTICAL to the
+ *      control.  ⇒ extend the w64-a6(iii) verdict: it is not merely that six SPELLINGS of
+ *      the address fold together, it is that the whole region's emission order is decided
+ *      by sched1 from a dependency DAG that every legal STATEMENT ORDER produces
+ *      identically.  Only a DAG change could move it, and none is available without an
+ *      insn.  (The in-place base mutation `p = 0x1F801080; p += ch << 2;` -- 3.12 #14, the
+ *      shape that would give retail's `addu $a1,$v0,$a1` dest-is-the-BASE form -- is
+ *      re-priced at 33 alone, 33 with the bcr hoist, 33 computed after the RMW, 33 with
+ *      both: unchanged from w62-a7.)
+ *      ALSO NEW AND NEGATIVE: the 22B-1 clobber-live-range law applied properly to `dv`.
+ *      Every previously-measured clobber sat OUTSIDE dv's live range (on the `dp` or `bit`
+ *      fences), and dv's range is the single gap between `dv = *dp;` and `*dp = dv | bit;`
+ *      -- which has no statement in it.  Splitting the two and placing a BARE zero-ref
+ *      clobber inside (scratchpad/W74_A14_dma.json): "$2" 25 (INERT -- the denial does NOT
+ *      move dv off $v0), "$4" 25, "$6" 25, "$2","$4" 25, "$2","$8" 25, "$2" placed after
+ *      the store 25 (the negative control), while "$3" 32, "$2","$3" 32, "$2","$3","$4" 32,
+ *      "$5" 33, "$2","$5" 33.  ⇒ 22B-2's "manufacture the missing hard-reg conflict" does
+ *      NOT reach a pseudo whose only def is the load feeding the very next insn: there is
+ *      no allocation decision left to deny. */
 extern void _st_dma(int ch, int madr, int blocks, int blocksize, volatile int chcr,
                     u_char enable_irq, int arg6)
 {

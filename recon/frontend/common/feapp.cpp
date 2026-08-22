@@ -526,7 +526,74 @@ void tFEApplication::Redraw()
        `addu`, and no C statement boundary exists there -- the same
        "no boundary inside the live range" wall that the InitViv crack got
        around only because its source word spanned three statements.
-       Harness: scratchpad W72_A8_redraw.py. */
+       Harness: scratchpad W72_A8_redraw.py.
+
+       ==== W74-A7 (2026-08-22): base HELD at 10 @393/393; a NEW 5-diff basin
+       is measured and BANKED, and the 14-basin's two residuals are EXPLAINED
+       (they are one mechanism, and it is the address fix's own side effect).
+       ====
+       (1) WHY THE 14-BASIN COSTS (a) AND (b).  Re-derived from the .s, not
+           guessed.  In the 10-basin the packet store is the ASSEMBLER MACRO
+           `sw $2,528482308` (gcc emits one absolute-store insn; as/maspsx
+           expands it to `lui $at ; sw $2,%lo($at)`).  A macro cannot enter a
+           delay slot (.set nomacro), so reorg is forced to take the PALETTE
+           store for the SetDrawArea jal slot -- which is retail's pick -- and
+           the extra pseudo never exists, so fYOffset keeps $a2.  Introducing
+           any `pc` cell turns the store into ONE slot-eligible `sw v0,0(t0)`,
+           reorg steals it (residual b) and the cell's pseudo displaces
+           `addiu a1,sp,56` so fYOffset drops to $a1 (residual a).  (a) and (b)
+           are therefore NOT independent residuals to be attacked separately --
+           they are the price of the cell.
+       (2) THE DEVICE THAT PAYS NEITHER: make the packet store VOLATILE AT A
+           CONSTANT ADDRESS (methodology 3.25/3c, used in the INVERSE direction
+           -- there a volatile MMIO store was cast NON-volatile to let reorg
+           fill a slot with it; here the cast ADDS volatile to keep reorg out):
+               *(u_char *volatile *)0x1f800004 = (u_char *)daprim + 0xc;
+           ONE line, no cell, no fence.  Result 5 @394/393 with the ENTIRE tail
+           byte-exact: `lui t0,8064 / ori t0,t0,4` for the address, retail's
+           `addiu v0,a0,12 ; sw v0,0(t0)` in retail's position, the palette
+           store back in the jal delay slot, `addiu a1,sp,56` early and
+           fYOffset in $a2.  i.e. residuals (a) AND (b) both vanish.
+           BOUNDARY (measured): the volatile must sit on a CONSTANT address.
+           Through a register base it is inert -- a declared `u_char *volatile
+           *pc` cell (read+store) 14, a `*(u_char *volatile *)pc` store 14, a
+           volatile read + `*pc` store 14 -- the .s shows the volatile store
+           still SUNK below the palette store in every pointer-based spelling.
+       (3) RESIDUAL 5 (= +1 insn, the whole reason this is not landed): the
+           READ folded back to the 2-insn absolute macro `lui a0,8064 ; lw
+           a0,4(a0)` and the beqz slot went empty, where retail steals the
+           arm-duplicated `lui t0` into the slot and reads `lw a0,0(t0)` off
+           the store's own address pseudo.  The read and the volatile store
+           cannot share that pseudo: cse will not common a plain MEM's address
+           with a volatile MEM's, and every spelling that forces the read onto
+           a pseudo costs the store its shared base.
+           MEASURED from this basin (all reverted): `pc` cell for the read +
+           volatile-abs store 5 @394 (identical to no cell at all -- the cell
+           is cosmetic, cse const-props it); read as `((u_char **)0x1f800000)[1]`
+           5 @394; join-read + volatile-abs store 58 @395; volatile-abs READ in
+           the arms 70 @395; `pc` laundered opaque (`__asm__("" : "=r"(pc) :
+           "0"(pc))`) + volatile-abs store 10 @399, + volatile store via pc
+           17 @396, + plain `*pc` store 17 @396; `pc` assigned in the arms with
+           the read at the join + volatile-abs store 6 @395.
+       (4) 14-BASIN RE-CONFIRMATIONS + NEW FALSIFICATIONS (W72's simplified
+           recipe reproduced exactly: arm-duplicated `pc`, read via `*pc` in the
+           arms, `*pc` store, NO fence = 14 @393): a `RECT *rp` arm-duplicated
+           companion (the untried half of the "retail's `addiu a1,sp,56` early"
+           angle) 15 @394, +`rp->y` 20 @393, `rp` for ALL four RECT fields
+           68 @399, `rp` alone without `pc` 14 @393; the fYOffset read given a
+           live-range boundary by a STATEMENT-EXPRESSION instead of a statement
+           split (`r.y = base + ({ int yo = this->fYOffset; __asm__(...); yo; })`)
+           41 @392 with the clobber INERT ($5 / $4,$5 / $2,$3,$5 / none all
+           41-53) -- i.e. 22B(10)'s statement-expression does supply the missing
+           C boundary but reproduces the w72 split's basin, so the "no boundary
+           inside the live range" wall is now known to be a BASIN wall, not a
+           syntax one; `r.y` operands swapped 16; a `pal` local + the packet
+           store between the two prim-tag statements 67 @394 (the shared palette
+           load survives with the local, but the basin does not).
+       => STATE: 10 @393 stays shipped (count bar, as with the 14-basin).  The
+       5 @394 basin is the one to land the moment its single residual -- the
+       read sharing the volatile store's address pseudo -- has an instrument.
+       Harness: scratchpad/W74_A7/{probe.py,rd1..rd8.py}. */
     if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
       (this->fCurrentScreen[(u_char)this->fPlayer])->Draw(true);
       daprim = (DR_AREA *)Render_gPacketPtr;

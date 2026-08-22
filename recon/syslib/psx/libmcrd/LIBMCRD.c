@@ -1510,6 +1510,34 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
      *   has a bare `lw $a0,12($s3)` (3 -- the identity fence's own copy; dropping it costs more);
      *   (d) `li $v0,2` vs `li $t0,2` + the chan store through the base vs retail's $at macro (~7).
      *   NOT a floor. */
+    /* 🔑 W74-A15 -- 24 -> 23, and CLASS (a) NOW CARRIES A COMPILER-SOURCE CERTIFICATE.
+     * (i) THE -1 is the tail reload-register dial; its receipt sits at the `files` store below.
+     * (ii) 🔴 CLASS (a) IS A RUNG CONSTANT, NOT A DIAL -- the 4-aligned reload spill slot retail
+     *      uses (92($sp)) is UNREACHABLE on the cc1_272 lane, and this is now read off the
+     *      compiler source rather than inferred from the W64-A4 ladder:
+     *        reload1.c `alter_reg` (2.8.1, lines 2499-2515) computes
+     *            inherent_size = PSEUDO_REGNO_BYTES(i);  total_size = MAX(inherent, reg_max_ref_width[i]);
+     *            x = assign_stack_local(mode, total_size, inherent_size == total_size ? 0 : -1);
+     *        and function.c `assign_stack_local` turns align==0 into GET_MODE_ALIGNMENT(mode)/8
+     *        (= 4 for SImode) but align==-1 into BIGGEST_ALIGNMENT (= 8 on MIPS, doubles) PLUS
+     *        `size = CEIL_ROUND(size, alignment)` (= 8 wide).
+     *      So in 2.8.x the 4-vs-8 choice is gated on ONE thing a source author could in principle
+     *      touch -- whether the spilled pseudo has a PARADOXICAL SUBREG (reg_max_ref_width >
+     *      its own mode size).  `files` is a plain SImode pointer: inherent == total, so 2.8.x
+     *      takes the align==0 path and gives 4/4 (= retail's 88/92/96 map, frame 144, exactly
+     *      what W64-A4 measured on those rungs).  OUR rung gives 8/8 for the SAME pseudo, i.e.
+     *      2.7.2's alter_reg does not have that gate (it passes -1 unconditionally).  ⇒ no
+     *      widening, narrowing, re-typing or fencing of `files` can move the slot: the only
+     *      source-visible input to the decision is already at its 4-byte minimum.
+     * (iii) AND THE RUNG SPLICE IS RE-PRICED ON THIS BASIN (04Z; the W64-A4 ladder was measured
+     *      three basins ago, before the W71 m-fence/goto-loop pair and the W72 depth wrapper):
+     *        PER_FN_CC1_VER_SPLICE_272 for MemCardGetDirentry
+     *          2.7.2-970404 .. 135 @155/152 | 2.8.0 .. 166 @156/152 | 2.8.1 .. 166 @156/152
+     *          2.6.3 ......... rejects the `"m"(files)` constraint outright
+     *      i.e. the rungs that own the 4-aligned map cost 140+ elsewhere on the CURRENT source.
+     *      Class (a) is therefore a QUANTIFIED FLOOR at its present 8 rows (2 for the param-home
+     *      store + 6 for the tail reload) unless somebody re-matches the whole function inside a
+     *      2.8 basin -- the same verdict DeleteFile's 2.8-splice spec already carries. */
     /* W62-A8: PARM-SPILL PIN on `dir` (13B/w61-a3 §2).  Without it assign_parms` copy
      * `addu $s6,$a2,$zero` sinks into the busy-guard`s `beqz` delay slot; retail keeps it in
      * the prologue group and lets reorg fill that slot from the fall-through thread with the
@@ -1601,6 +1629,24 @@ have_entry:
         } while (idx < ofs + max);
     }
 
+    /* W74-A15: 24 -> 23.  The `files` tail is a RELOAD-REGISTER question, not a coloring one --
+     * `files` is param-homed (the "m" fence above), so every use is a reload from memory and
+     * reload1.c's `allocate_reload_reg` hands one out ROUND-ROBIN from the function-global
+     * `last_spill_reg` cursor over `spill_regs` (2.8.1 reload1.c:5083/5185; the ring order is
+     * `order_regs_for_reload`'s ascending-uses sort, measured here as $2,$3,$4,$5,$6,$7,$8...).
+     * A zero-insn clobber placed INSIDE the tail's live range (§22B(1)) removes $2 from the ring
+     * for that reload: ours goes $v0 -> $v1 and, with the reload no longer competing for $v0,
+     * reorg fills the `beqz` load-delay slot with the `sw $s5,0(rN)` exactly like retail (count
+     * 154 -> 153, oracle 152).  MEASURED: clobber at the FN TOP is catastrophic (41 -- an
+     * asm-used hard reg goes into `bad_spill_regs` FUNCTION-WIDE, §20B), at the TAIL it is -1;
+     * "$3" at the tail inert (24); "$8" at the top 57.  Widening the tail clobber walks the ring
+     * one register per added name ($2,$3 -> $a0; +$4,$5,$6 -> $a3; +$7 -> $t0 = retail's reg) but
+     * $2..$7 all-clobbered costs 35 because it then displaces retail's OTHER $t0 users (the max
+     * reload and the movstrsi end pointer) onto $t1 -- retail reuses ONE ring slot for all four,
+     * which a subtractive dial cannot reproduce.  NAMED ANGLE (unclaimed): the ring POSITION is
+     * `order_regs_for_reload`'s ascending `hard_reg_n_uses` sort, so the additive dial is to give
+     * $2 more uses (a pseudo allocated to $2 with more refs), not to forbid it. */
+    __asm__("" : : "i"(0) : "$2");
     if (files != 0)
         *files = stored;
     return 0;
@@ -1734,6 +1780,18 @@ extern int MemCardCallback(int func)
  *   the pair is coming from reload's `potential_reload_regs` (order_regs_for_reload, ascending
  *   over the `uses == 0 && call_used` set) and the cure is a whole-function pool question; if it
  *   does not, they are local-alloc qtys and the cure is inside the block.  One run each. */
+/* 🔑 W74-A15 -- THE §22D(2) DISCRIMINATOR WAS RUN.  VERDICT: LOCAL-ALLOC, NOT THE RELOAD POOL.
+ * On the post-W74 basin (DeleteFile 2 / CreateFile 6) the two reads were made volatile (which
+ * restores retail's two dead loads and makes BOTH callers count-EXACT, at +1 diff each: 3 / 7)
+ * and a zero-insn `__asm__("" : : "i"(0) : "$N")` clobber was dropped right after them:
+ *     no clobber .. 3/7 | "$3" .. 3/7 | "$2" .. 3/7 | "$4" .. 3/7 | "$3","$4" .. 3/7 | "$8" .. 3/7
+ * COMPLETELY INERT in every cell -- the second dead destination does not move.  So the pair is
+ * NOT coming from reload's `potential_reload_regs` walk, and the whole-function pool angle
+ * (order_regs_for_reload's ascending-uses sort) is CLOSED for this row.  They are local-alloc
+ * qtys whose homes are decided inside the block, which -- with the W72 "no C-level naming makes
+ * the two dead destinations share a hard register" result -- means the remaining handle is
+ * local-alloc's own preference/conflict step (12A/find_reg), the same place FIRST.c's p/scan
+ * certificate landed.  Keep the reads PLAIN: volatile buys count-exactness and costs +1. */
 static __inline__ long MemCardSyncAt(long mode, int *cmds, int *result, int *base)
 {
     int rslt;
@@ -2001,6 +2059,49 @@ nocard:
          * ==> no constant-position or fence device reaches it, because the row lives on the
          * assembler/macro side, not the value side.  Route: the same maspsx GNU-as-reorder-mode
          * option that owns the rest of the w48 class-5 family. */
+        /* 🔑 W74-A15 -- W72's ROUTE LINE IS WRONG AND THE REAL BLOCKER IS NAMED + BYTE-PROVEN.
+         * There is NO maspsx in this TU: LIBMCRD.c is wired `cc1_272`, and _compile_c_272 IS
+         * "PsyQ 4.0 CC1PSX + GNU as in default reorder mode, no maspsx".  So the vendor-build
+         * identity route W72 asked for is ALREADY THE LANE, and GNU as ALREADY splits the store
+         * macro across a branch when the slot is empty -- the AT-MACRO-SPLIT is not the missing
+         * piece.  THE MISSING PIECE IS ONE LINE OF cc1's OWN OUTPUT.  Read it (build/recon/
+         * syslib/psx/libmcrd/LIBMCRD.c.s, MemCardCreateFile):
+         *      sw    $3,_mc_present            <- the RMW store, still a MACRO
+         *      .set noreorder / .set nomacro
+         *      jal   open
+         *      li    $5,0x00000001             <- reorg filled the slot ITSELF
+         *      .set macro / .set reorder
+         * gas therefore expands the sw macro WHOLE, before the (already-full) jal.  Retail's
+         * build left that one slot EMPTY, and gas then backward-filled it by SPLITTING the
+         * macro: `lui $at` before the jal, `sw $v1,%lo(_mc_present)($at)` in the slot.
+         * WHY reorg picks `li $5,1`: fill_simple_delay_slots scans back from the call; the sw is
+         * rejected because mark_referenced_resources(CALL, include_delayed_effects=1) sets
+         * res->memory, and every insn between the `li $5,1` and the call belongs to the RMW
+         * chain (each one's result is consumed by the next), so `li $5,1` is the FIRST movable
+         * candidate.  Retail's reorg would make the same choice -- ergo retail's cc1 did not run
+         * the fill for this call.
+         * 🏆 BYTE PROOF that the assembler half needs no work at all: with `-fno-delayed-branch`
+         * spliced onto this ONE function the object comes out
+         *      11e4 addiu a0,sp,16 / 11e8 li a1,1 / ... / 1204 lui at,%hi(_mc_present)
+         *      1208 jal open / 120c sw v1,%lo(_mc_present)(at)
+         * = retail's words exactly, and the 4-diff `li $a1,1` row VANISHES from the gate.
+         * IT IS NOT LANDED because the flag is whole-function: it also unfills three slots cc1
+         * legitimately fills for retail (`addu $s1,$0,$0` in the busy-guard's beqz, `sll $20,
+         * $20,16` in the bltz, `addiu $a0,$sp,16`), so the gate goes 6 -> 12 (@132/130).  Same
+         * measurement on the siblings: DeleteFile 5 -> 9, GetDirentry 24 -> 39.
+         * 🔴 SPEC (build.py, one new mechanism -- the exact analogue of the existing
+         * `_apply_epilogue_unfill_272`, which already un-fills a slot by rewriting cc1's text):
+         *      PER_FN_SLOT_UNFILL_272 = {rel: {fn: [<regex matching the noreorder block>]}}
+         *   applied to the 272 lane's `txt` after the flag/version splices, rewriting
+         *      \t.set\tnoreorder\n\t.set\tnomacro\n\tjal\topen\n(\tli\t\$5,[^\n]*\n)\t.set\tmacro\n\t.set\treorder\n
+         *   into  <the captured filler line> + "\tjal\topen\n"  (reorder mode, empty slot).
+         *   gas then does the rest.  EXPECTED 6 -> 2 (the two dead snapshot loads only).
+         *   The alternative -- `-fno-delayed-branch` + three PER_FN_TEXT_MOVES rows to put the
+         *   other three slots back (the w60-a2 MemCardFormat recipe) -- reaches the same place
+         *   with four table rows instead of one; prefer the unfill.
+         * (Also measured this wave and INERT here: per-fn `-G4` and `-G8` flag splices -- §22A(5)'s
+         * mips_check_split small-data gate is a 2.8-rung property; 2.7.2 has no address
+         * pre-splitting at all, so the -G dial has nothing to gate.  Cross it off for this TU.) */
         {
             int prevcb = (int)MemCardCallback(0);
             cmd0 = p[0];
@@ -2057,7 +2158,7 @@ extern long MemCardDeleteFile(long chan, char *file)
     char devname[32];
     int  retry;
     int  rslt;
-    int *p;
+    McState *p;
     /* w53-a7: NO fence on this base here (unlike CreateFile).  The fence makes the pointer
      * opaque, so gcc can no longer prove it equals the &_mc_cmd the INLINED MemCardSync
      * materializes below -- retail shares ONE register ($s0) across the caller's field stores
@@ -2145,7 +2246,34 @@ extern long MemCardDeleteFile(long chan, char *file)
      *       "needs the 2.8-lane per-fn splice" spec is RETIRED as written; if it is ever revived
      *       it has to come with the band re-dialled in the 2.8 basin, i.e. it is a from-scratch
      *       re-match of the function, not a wiring line. */
-
+    /* 🏆 W74-A15 -- THE `p[3]` FOLD IS CLOSED: 5 -> 2, count 109/111, zero regressions.
+     * The W71/W72 receipts above are right that the cure needs an OPAQUE pointer (only that
+     * defeats cse's known-constant address fold) and right that every prior opaque form cost
+     * MORE than the row -- but they priced the fence against the WRONG second variable.  The
+     * fence's real cost here was never the opacity; it was the ALIAS CHAIN: with `p` opaque and
+     * every access spelled `p[N]` (an int-subscript through a cast pointer), the MEMs carry
+     * MEM_IN_STRUCT_P == 0, so they alias-chain to the scalar `_mc_save_cb` store and sched1
+     * loses retail's `lw $v1,0($s0)`-above-the-store hoist (that is the whole 21-diff identity
+     * fence measurement in the W71 list).
+     * THE FIX = §22C(3) MEM_IN_STRUCT_P ALIAS DIAL, applied TOGETHER with the fence: declare `p`
+     * as the real `McState *` and spell every access as a COMPONENT_REF (`p->cmd`, `p->rslt`,
+     * `p->done`, `p->chan`).  A COMPONENT_REF sets /s on the MEM, which un-chains it from the
+     * scalar, so the hoist survives the fence -- and the fence still defeats the fold, so
+     * `lw $a0,0xC($s0)` comes out base-relative exactly like retail.
+     * MEASURED THIS WAVE (all whole-TU gated, 2x):
+     *   COMPONENT_REFs + identity fence ....... 2 @109/111   <- LANDED
+     *   COMPONENT_REFs, no fence .............. 5  (fold returns)
+     *   COMPONENT_REFs + read-only fence ...... 5  (pc's value still known -> fold returns)
+     *   int* p + identity fence (W71's form) .. 21
+     *   chan read only via a fenced McState* q  29 / via a fenced `&mc.chan` int* .. 17
+     *   chan read via a COMPONENT_REF with the fence still on the int* p ........... 8
+     * ==> 🔴 LAW (belt-wide): an OPACITY FENCE AND THE ACCESS SPELLING ARE ONE DEVICE, not two.
+     * When a fence buys the codegen you want but "costs more elsewhere", check whether the cost
+     * is an ALIAS cost before pricing the fence away -- convert the accesses to COMPONENT_REFs
+     * and re-price.  (Cross-basin cell, §22C(8): each half alone is neutral or worse.)
+     * The 2.8-lane spec above stays RETIRED -- this reaches the row with no wiring at all.
+     * REMAINING 2 = retail's two DEAD snapshot loads inside the inlined MemCardSyncAt; see that
+     * function's receipt (W74-A15 ran the §22D(2) reload-pool discriminator there: INERT). */
     int *base = &mc.cmd;
     __asm__("" : : "r"(file), "r"(file));
 
@@ -2157,8 +2285,11 @@ extern long MemCardDeleteFile(long chan, char *file)
     retry = 0;
     MemCardMakeDevname(chan, devname);
     strcat(devname, file);
-    p = base;
-    _mc_present |= 1 << (p[3]);
+    /* W74-A15: opaque `p` (defeats the cse address fold) + COMPONENT_REF accesses (keeps the
+     * MEM /s so the fence does not alias-chain them to `_mc_save_cb`).  Both halves required. */
+    p = (McState *)base;
+    __asm__("" : "=r"(p) : "0"(p));
+    _mc_present |= 1 << p->chan;
 
     while (1) {
         rslt = erase(devname);          /* retail stores the result in the `rslt` stack slot
@@ -2180,17 +2311,17 @@ extern long MemCardDeleteFile(long chan, char *file)
          * insns) -- cse already shares the literal and the named local rotates the saved-reg
          * band the wrong way.  NAMED ANGLE: the residual on both fns is exactly that saved-reg
          * rotation (retail chan=$s2/file=$s0/base=$s3->$s0; ours chan=$s3/file=$s2/base=$s0). */
-        if (p[0] > 0) {
+        if (p->cmd > 0) {
             printf("Access Denied. : event multiple open\n");
         } else {
-            p[0] = 2;
-            p[1] = 0;
-            p[2] = 0;
+            p->cmd = 2;
+            p->rslt = 0;
+            p->done = 0;
             mc.chan = chan;
             __asm__("" : : "r"(chan), "r"(chan));
             UserFuncOpen((int)MemCardCmd_cb);
         }
-        MemCardSyncAt(0, 0, &rslt, p);
+        MemCardSyncAt(0, 0, &rslt, (int *)p);
         MemCardCallback((int)_mc_save_cb);
 
         if (rslt == 3)

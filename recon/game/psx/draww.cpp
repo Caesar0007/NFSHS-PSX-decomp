@@ -706,7 +706,27 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
          DRAIN question.  NEXT INSTRUMENT (named): -dS/-dR sched dumps on the
          588/588 basin (lab fidelity for THIS fn is IDENTICAL 517/517 per w62-a2,
          so the instrumented cc1plus IS quotable here -- unlike BuildObjectFacets
-         and DoTrough), read the ready-list order at the four sites. */
+         and DoTrough), read the ready-list order at the four sites.
+         ---- w74-a1 (2026-08-23) THE SCHED2 DUMP IS IN; the residual is re-classed
+         from a ready-list DRAIN question to a PRE-SCHED2 CHAIN-ORDER (LUID) one.
+         CC1PLPSX -O2 -G4 -dR, basic block 21 (insns 259..360).  The scheduler runs
+         BACKWARDS (T-1 = the last insn, T-38 = the first) and rank_for_schedule
+         (sched.c:2415) breaks ties by INSN_LUID, lower LUID picked first, i.e.
+         PLACED LATER.  The four residual insns are 268 (`addiu a3,s4,1`),
+         325 (`addiu t8,a3,4` = the new n), 300 (`addiu v0,a3,2`) and 311
+         (`addiu a3,a3,3`).  At T-31 the ready list is `325 (2) 333 (1) 331 (1)
+         264 (2)`; both 325 and 264 (`addu s3,v0,s0`, the v4 address) carry
+         priority 2, so the tie falls through to LUID -- and OURS picks 325,
+         retail picks 264.  Since the insn set, the registers and the dependence
+         lists are identical on both sides, the ONLY input that can differ is the
+         POST-SCHED1 chain order: our sched1 already hoisted 325 above 264.
+         CONSEQUENCE: no sched2-level device can reach this (the tie is decided by
+         data the pass merely reads), and the fence walk's uniform failure is
+         explained -- the dial is sched1's placement of `n = n + 4`, which is why
+         moving that statement inside the block was BYTE-IDENTICAL.  NEXT
+         INSTRUMENT (named): the -dS (sched1) ready lists for the same block, to
+         find what makes 325 rise; anything that keeps it below 264 in the sched1
+         output lands all four insns at once. */
       short q = n + 1;
       v5 = &r_div->v[n];
       v6 = &r_div->v[q];
@@ -2419,6 +2439,43 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
            So the count-exact forms all cost more than the one-short base: the
            breaker needs to be zero-REF as well as zero-insn.
        (c) `sb zero,262(s0)` emission position.
+     ---- w74-a1 (2026-08-23): 11 -> 9, count 358 (still ONE SHORT).
+       CLASS (c) IS CLOSED.  The nightFlags clear is a sched2 LUID dial: written
+       BEFORE `sd->vertices = ...` it lands in the WorldSetUpMatrix jal's shadow
+       two slots early; written AFTER it, gcc emits retail's
+       `lw $v0,108($s1); lbu $a0,228($s0); sb $zero,262($s0)`.  Three positions
+       measured (swap / after pChunkCp / before pChunkCp) -- all 9, so the dial is
+       only `after the vertexBuf load`, not the exact slot.
+       CLASS (b) -- NEW QUANTIFIED READING, the shape IS reachable but costs more:
+         * LITERAL `1` at the four in-loop `sd->zeroGTETransFlag` sites (delete the
+           `gteFlag` variable): loop.c's combine_movables hoists the four literals
+           into ONE preheader pseudo, cse never equates it with the pre-loop
+           doublelayer literal, and retail's missing `li $v0,1` MINTS --
+           COUNT EXACT 359/359, gate 26.  The cost is a HARD one: the hoisted
+           movable is QImode (the field is a u_char), so QTY_CMP_PRI carries
+           size 1 -- p270 refs 9 / live 526 / pri .0513 against buildInd's
+           refs 7 / live 268 / pri .2090 -- and it loses $s7 to buildInd (retail
+           has 1 -> $s7, buildInd -> $fp).  Reaching .2090 needs ~28 refs; the
+           inverse (buildInd live > 1091) is longer than the function.  So the
+           literal shape is count-correct and register-unreachable.
+         * The OPACITY FENCE on `gteFlag` IS the cse constant-sharing breaker
+           (count 359 at every placement) but costs +2 refs, and gteFlag's rank
+           sits exactly ONE step below negOne: baseline refs 10 (the shared
+           doublelayer use IS one of them) pri .226 < negOne .247; fenced refs 11
+           pri .249 > .247, so it jumps 3 ranks and rotates s4/s5/s6/s7.
+           MEASURED THIS WAVE (all count-EXACT 359/359, all reverted): fence after
+           `gteFlag = 1` 54 - after `sd =` 56 - after `chunkCount =` 56 - after the
+           doublelayer store 57 (count 358, too late to break cse) - gteFlag
+           defined FIRST + fence 48/50 - gteFlag 2nd + fence 54 - fence + a
+           read-only fence on negOne (3 placements) 48-58 - fence + a read-only
+           fence on buildList 48 - `sd->doublelayer = 1` moved above `gteFlag = 1`
+           73 @362 - `gteFlag = 1` moved to the loop top 71 @362 / after the
+           return-test 13 @358.
+           ==> THE ASK IS NOW EXACT: a cse constant-sharing breaker worth
+           +1 REF (not +2) on an already-live pseudo.  A read-only fence is +1 ref
+           but per 12E only OUTPUT-BEARING fences invalidate cse's value proofs,
+           so it cannot break the sharing.  This is a second witness for the 13B
+           4-witness device request, in the REF axis rather than the LIVE axis.
      ============================================================================ */
 
   buildInd = 0;
@@ -2447,8 +2504,12 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
       sd->rezInd = (u_char)buildList->geomRez;
       chunkDat = Track_chunkList + sd->chunkInd;
       DrawW_WorldSetUpMatrix(&gWorldMat,&sd->matB);
-      sd->nightFlags = 0;
+      /* MATCH (w74-a1): the nightFlags clear is emitted AFTER the vertexBuf load
+         and the chunkInd byte load in retail (`lw $v0,108($s1); lbu $a0,228($s0);
+         sb $zero,262($s0)`) -- written first it lands in the jal's shadow two
+         slots early.  Statement order is the sched2 luid dial here (11 -> 9). */
       sd->vertices = (CCOORD16 *)(chunkDat->vertexBuf + 1);
+      sd->nightFlags = 0;
       /* MATCH (w45-a5, 114 -> 100): the oracle reads sd->chunkInd for the
          chunk-centre index (`lbu $a0,0xE4($s0)` then the x12 sll/addu/sll
          chain) BEFORE it loads the Track_materials global
@@ -3265,6 +3326,24 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      for BuildSpikeBelt, OnyxLinePrim and Draw_kCtrlSkidmark.  This residual now
      needs either a faithful instrumented build or the 13A UNREACHABILITY TRIAGE
      done by hand (K overlapping local qtys can only occupy the first K free regs).
+     ---- w74-a1 (2026-08-23): the WINDOW half of that verdict is withdrawn; the
+     mechanism is the POST-SCHED1 CHAIN ORDER.  Read off the real compiler
+     (CC1PLPSX -O2 -G4 -dS, this TU): in the post-sched1 chain the goffsets
+     address pair (insn 523 `(high (symbol_ref goffsets))` -> insn 524 `lo_sum`)
+     sits AHEAD of the index byte load (insn 164, `zero_extend (mem/s:QI (plus
+     (reg 83) 4))`).  local-alloc numbers qtys by birth in that chain, and
+     local-alloc.c:1588-1610 sorts a block of <=3 qtys with a HAND-ROLLED
+     comparison over RAW qty numbers whose tie leaves qty_order = birth order --
+     so the earlier-born address qty is served first and takes $v0 by the
+     ascending find_free_reg scan.  Retail's opposite handout means its post-sched1
+     chain had the byte load first (its FINAL code still shows lui/addiu ahead of
+     the lbu -- that is sched2 moving them back, after the allocation was made).
+     This explains every falsification on record here at once: ref/live dials
+     cannot move a tie that is not resolved by priority, the storage-shape menu
+     cannot change birth order, and the 3<->4 qty-boundary probe was aimed at the
+     wrong sort arm (the tie, not the comparator).  NAMED ANGLE: a sched1-visible
+     dial that keeps the address pair BELOW the index load in the pre-allocation
+     chain -- read the -dS ready lists for this block first.
      ============================================================================ */
   totalCount = 0;
   group = gObjInfo->objInstanceBuf;
@@ -3620,6 +3699,26 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
            priority one.  The instrumented cc1plus IS byte-faithful for THIS function
            (w62-a2), so the [find_free_reg] window trace is available and is the
            named next instrument.
+           ---- w74-a1 (2026-08-23): THAT NAMED INSTRUMENT IS NOT AVAILABLE ANY
+           MORE -- the w62-a2 fidelity claim is STALE at this basin.  Re-measured:
+           the instrumented cc1plus-ecoff and the real CC1PLPSX now DIVERGE on this
+           function (both 197 insns, different streams), and they diverge EXACTLY
+           in the `offsets` block -- the lab emits `lui $10 / addiu $10 / li $3,5 /
+           lbu $2,4($20) / lbu $4,2($20) / addu $2,$2,$10 / lb $22,0($2)` (address
+           in $t2, the constant hoisted ahead of both byte loads) where the real
+           compiler emits the base shape.  A [find_free_reg] window read off that
+           trace would describe a DIFFERENT allocation problem.  Re-check fidelity
+           (per FUNCTION, not per TU) before quoting the lab here again.
+           WHAT THE REAL COMPILER SAYS INSTEAD (CC1PLPSX -dS on this TU): the
+           address pair and the index load are BOTH block-local, and in the
+           POST-SCHED1 chain the `high`/`lo_sum` pair sits BEFORE the index byte
+           load, so it takes the lower qty number.  local-alloc.c:1588-1610 orders
+           a <=3-qty block by a hand-rolled comparison that falls back to the RAW
+           qty number when the priorities tie -- which is exactly what every
+           falsified ref/live dial has been telling us.  The dial is therefore the
+           POST-SCHED1 ORDER of those two, not a find_free_reg window and not a
+           priority; same verdict and same class as DrawW_BuildObjectFacets'
+           goffsets residual in this TU.
        (B) 1 diff: `lh s2,32(s4)` vs `lh s2,32(s2)` -- a deliberate trade, see the
            MATCH note at the `sz` statement (reading it through objCollideBoomInstance
            re-inflates p85's refs and rotates objInstance off $s4: gate 83 -> 119,
@@ -5937,6 +6036,34 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
            live dial on p80 alone can reach $s3 -- the anchor must move first.
            NEXT INSTRUMENT: the -dL `giv of insn N not worth while` / combine_givs
            trace on this loop (the 16B razor), not another source spelling.
+           ---- w74-a1 (2026-08-23) THE -dL TRACE IS IN, AND IT CLOSES THE
+           SOURCE-SIDE SEARCH WITH A MECHANISM (CC1PLPSX -O2 -G4 -dL on this TU;
+           the loop dump is quotable, it is the real compiler).  For biv 80
+           (= geomVertices, incremented 16 per iteration at BOTH `+= 2` sites) the
+           dump lists SEVEN address givs -- `dest address src reg 80 ... mult 1
+           add 24 / 28 / 8 / 12 / 4 / 16 / 20` (insns 91/94/105/108/122/133/136) --
+           and then
+               giv at 133 combined with giv at 136
+               giv at 122 combined with giv at 136   ... (all six)
+               giv at 136 reduced to (reg:SI 287)
+           i.e. ALL SEVEN collapse onto the add-20 giv, which is our `+20` anchor.
+           WHY IT IS UNCONDITIONAL: combine_givs walks giv_array in bl->giv order,
+           and bl->giv is built by PREPENDING, so giv_array[0] is the LAST giv in
+           body order -- add 20 here.  combine_givs_p (loop.c) accepts a DEST_ADDR
+           g2 whenever express_from() is a legal address and
+           `ADDRESS_COST(tem) <= ADDRESS_COST(*g2->location)`; on MIPS both sides
+           are reg+const16, so the test is a TIE and every giv combines.  That is
+           why all 24 copy permutations only ever MOVE the anchor (66-88) and never
+           split it, and why the explicit two-base pointer form is byte-identical.
+           Retail's map (biv-direct at +0/+12/+20/+28 and ONE reduced giv at +16
+           carrying +4/+8/+16/+24) needs TWO giv groups, which 2.8.x combine_givs
+           cannot produce from ONE biv.  ==> the remaining named angle is a SECOND
+           REAL BIV (a self-incrementing companion pointer advanced beside
+           geomVertices) so four addresses hang off a different iv class; it is the
+           only construct that yields two anchors, and it must be priced against
+           the +1 insn per advance site (there are two).  Do NOT spend more on copy
+           order, word order, or derived-pointer spellings: the dump proves they
+           all feed one giv class.
        (B) the two 4-byte AUTO slots 72/76(sp) are swapped, and `save_pre_otz`
            takes $s6 where the SYM says $s7 -- both follow (A).
      ---- */
@@ -6473,7 +6600,6 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
      pmxIndex/vertex reads via *(u_short*) where the oracle uses lhu. */
   int i;
   int j;
-  int k;
   CCOORD16 vertex3d [27];
   Trk_Quad quads [16];
   Track_tMaterial material;
@@ -6579,7 +6705,42 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
        one temp + one extra (`t`,`u`)                          72
      Monotone in the number of block pseudos: every added pseudo costs ~+3.  Do
      NOT re-try any grouped-temp spelling; the residual is the 2-way qty handout,
-     as clusters (b)/(c) already say. */
+     as clusters (b)/(c) already say.
+     ---- w74-a1 (2026-08-23): 66 -> 30, count-EXACT 268/268.  CLUSTERS (b) AND (c)
+     ARE BOTH CLOSED, and the standing 3-QTY-LAW angle above is REFUTED.
+       FIRST STEP RUN (the receipt asked for it): the instrumented-cc1 qty trace
+       (tools/qtytrace.py; this function is byte-IDENTICAL in the lab, so the trace
+       is a receipt) says the three copy-loop bodies are blocks 3/5/7 with FIVE and
+       SIX qtys -- the qsort path, NOT local-alloc.c:1588's hand-rolled next_qty<=3
+       arm.  And the two constants of cluster (b) are not block qtys at all: `k`
+       (p85, refs 21 / live 81) and the dest givs (p386 refs 7 / live 23, p382 refs
+       7 / live 25) are GLOBAL allocnos, all three in `;; 26 regs to allocate:`.
+       So neither the 3-QTY LAW nor the qty-count dial ever applied here.
+       (b) THE CURE IS VARIABLE IDENTITY, NOT A DIAL (66 -> 46).  One fn-scope `k`
+       shared by all three copy loops is ONE allocno with 21 refs (pri 4.148) that
+       outranks every per-loop dest giv (2.43) and takes $a2, pushing the givs to
+       $a3; retail has it the other way round.  `k` is ALSO absent from the SYM's
+       local list, i.e. it was a fabricated fn-scope temp.  Giving each loop its own
+       block-local byte cursor splits the allocno three ways and the pair lands:
+       `li $a3,72` and `li $a3,144` now match retail exactly.  Measured: loops 2+3
+       split 46 - all three split 46 - all three split with the `int k;` declaration
+       deleted 46 (LANDED, the most faithful) - loop 2 alone 56 - loop 3 alone 56.
+       (c) ONE REUSED SUBTRAHEND TEMP (46 -> 30).  Retail loads the view
+       translation BEFORE the slice coordinate at every axis (`lw $t4,456(sp);
+       lw $t3,408(sp); lw $v1,8($t4); lw $v0,0($t3)`); ours loaded the minuend
+       first and the two frame reloads came out t4/t3 swapped.  ONE reused block
+       temp for the subtrahend gives retail's order and register pair; three
+       separate temps 44, a `coorddef *vt` pointer local 51 @269.  Same
+       one-reused-pseudo identity as cluster (a)'s `t`.
+       (a) RE-PRICED TWICE at the new basins (21E-1) and the one-reused-temp form
+       stays optimal: three temps shifted in place / three temps interleaved /
+       three sibling blocks all gate 56 at the 46-basin and 40 at the 30-basin.
+     RESIDUAL 30 = cluster (a) (about 20: the fx/fy/fz lb/sra interleave, retail
+     s4/s3/s2 loaded into THREE registers and shifted in place while ours loads one
+     reused pseudo and shifts into three destinations) plus about 10 pure emission
+     positions (`addu $a2,$zero,$zero` three slots late, `li $a3,72` two slots late,
+     `li $a3,144` / `li $a1,1` / `addiu $t0,sp,16` rotated by one).  Both are
+     count-neutral. */
   { int t;
     t = (signed char)BWorldSm_slices[slice].forward[0]; t++; t--; fx = (u_short)(t >> 1);
     t = (signed char)BWorldSm_slices[slice].forward[1]; t++; t--; fy = (u_short)(t >> 1);
@@ -6591,47 +6752,47 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
   vertex3d[0].y = sy - fy;
   vertex3d[0].z = sz - fz;
   vertex3d[0].light = 0;
-  k = 0;
+  { int kk = 0;
   i = 1;
   do {
-    CCOORD16 *p = (CCOORD16 *)((int)vertex3d + k);
+    CCOORD16 *p = (CCOORD16 *)((int)vertex3d + kk);
     vertex3d[i].x = *(u_short *)&p->x + wx;
     vertex3d[i].y = *(u_short *)&p->y + wy;
     vertex3d[i].z = *(u_short *)&p->z + wz;
     vertex3d[i].light = 0;
-    k += 8;
+    kk += 8;
     i++;
-  } while (i < 9);
+  } while (i < 9); }
   vertex3d[9].x = sx;
   vertex3d[9].y = sy + 0x19;
   vertex3d[9].z = sz;
   vertex3d[9].light = 0;
-  k = 0x48;
+  { int kk = 0x48;
   i = 1;
   do {
-    CCOORD16 *p = (CCOORD16 *)((int)vertex3d + k);
+    CCOORD16 *p = (CCOORD16 *)((int)vertex3d + kk);
     vertex3d[i+9].x = *(u_short *)&p->x + wx;
     vertex3d[i+9].y = *(u_short *)&p->y + wy;
     vertex3d[i+9].z = *(u_short *)&p->z + wz;
     vertex3d[i+9].light = 0;
-    k += 8;
+    kk += 8;
     i++;
-  } while (i < 9);
+  } while (i < 9); }
   vertex3d[18].x = sx + fx;
   vertex3d[18].y = sy + fy;
   vertex3d[18].z = sz + fz;
   vertex3d[18].light = 0;
-  k = 0x90;
+  { int kk = 0x90;
   i = 1;
   do {
-    CCOORD16 *p = (CCOORD16 *)((int)vertex3d + k);
+    CCOORD16 *p = (CCOORD16 *)((int)vertex3d + kk);
     vertex3d[i+18].x = *(u_short *)&p->x + wx;
     vertex3d[i+18].y = *(u_short *)&p->y + wy;
     vertex3d[i+18].z = *(u_short *)&p->z + wz;
     vertex3d[i+18].light = 0;
-    k += 8;
+    kk += 8;
     i++;
-  } while (i < 9);
+  } while (i < 9); }
   j = 0;
   do {
     quads[j].aPoints[3] = (u_char)j;
@@ -6652,9 +6813,19 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
   {
     Draw_tGiveShelbyMoreCache *sdG = (Draw_tGiveShelbyMoreCache *)sd;
     sdG->nightFlags = 0;
-    tmp.x = cp->x - (Vi->cview).translation.x;
-    tmp.y = cp->y - (Vi->cview).translation.y;
-    tmp.z = cp->z - (Vi->cview).translation.z;
+    /* MATCH (w74-a1, 46 -> 30 count-exact): retail loads the SUBTRAHEND
+       (the view translation) BEFORE the minuend at every axis --
+       `lw $t4,456(sp); lw $t3,408(sp); lw $v1,8($t4); lw $v0,0($t3)`.
+       ONE REUSED block temp for the subtrahend gives that order (three
+       separate temps 44, a `coorddef *vt` pointer local 51 @269).
+       Same one-reused-pseudo identity as the fx/fy/fz trio above. */
+    { int vt;
+    vt = (Vi->cview).translation.x;
+    tmp.x = cp->x - vt;
+    vt = (Vi->cview).translation.y;
+    tmp.y = cp->y - vt;
+    vt = (Vi->cview).translation.z;
+    tmp.z = cp->z - vt; }
     transform(&tmp.x,gWorldMat.m,&tmp2.x);
     DrawW_WorldSetUpTranslation(&tmp2,&sd->matB);
     sdG->vertices = vertex3d;

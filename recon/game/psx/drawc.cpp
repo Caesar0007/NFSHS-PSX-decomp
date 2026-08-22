@@ -102,7 +102,38 @@ typedef struct {
 #define DRAWC_OTLINK_MODE(sd_, off0_, off1_, off2_) __asm__ volatile( \
     "lw\t$12,4(%0)\n\tlw\t$13,60(%0)\n\tlw\t$14,56(%0)\n\taddiu\t$15,$12,12\n\tsll\t$13,$13,2\n\taddu\t$14,$14,$13\n\tsw\t$15,4(%0)\n\tlw\t$13," off0_ "(%0)\n\tlw\t$15," off1_ "(%0)\n\tlw\t$16," off2_ "(%0)\n\tsw\t$13,0($12)\n\tsw\t$15,4($12)\n\tsw\t$16,8($12)\n\tlwl\t$13,2($14)\n\tsll\t$15,$12,8\n\tswl\t$13,2($12)\n\tswl\t$15,2($14)" \
     : : "r"(sd_) : "$12", "$13", "$14", "$15", "$16", "memory")
-
+/* EA EXPANDER TEMPLATE -- PER-FACET VERTEX-Z COPY (w74-a3, 2026-08-23).
+ * The FOURTH member of this TU's fixed-$t4-$t7 template family (after
+ * DRAWC_OTLINK_FT3/FT3B/MODE and DRAWC_UVTINT_ID/VT).  The same rigid 6-insn
+ * block appears at FOUR DrawC_PrimClip sites -- @800C19B0, @800C20D0,
+ * @800C268C, @800C2B70 -- and NOWHERE else in the game:
+ *     lhu $t4,0xD4(id0) ; lhu $t5,0xD4(id1) ; lhu $t6,0xD4(id2)
+ *     sh  $t4,0xB0(sd)  ; sh  $t5,0xB8(sd)  ; sh  $t6,0xC0(sd)
+ * EVIDENCE (methodology sec.3.25-2 detection matrix, all five tells):
+ *  (1) FIXED-SCRATCH CENSUS: $t4/$t5/$t6 at all four sites while the three
+ *      base registers vary completely ($a2/$a1/$a0, $t1/$t0/$a3, $a2/$a1/$a0,
+ *      $t3/$t2/$t1) -- compiler-fed operands, hand-picked scratches.
+ *  (2) DECISIVE DEAD-REGISTER TEST (the DRAWC_UVTINT_ID argument): $v0/$v1/$a0
+ *      are provably FREE at the lhu instant -- the very next oracle insns are
+ *      `lh $v1,0x10($s1); lh $v0,0xC4($s1); lh $a0,0x12($s1)` -- and our own
+ *      cc1 picks exactly $v0/$v1/$a0 there.  Retail never does.
+ *  (3) SLD: all SIX oracle insns map to ONE retail source line (2783 / 2965 /
+ *      3138 / 3298).  Our 6-statement C block maps to six.
+ *  (4) ZERO load-delay nops in a rigid shape (the three lhu fill each other's
+ *      slots) -- the hand-scheduled signature.
+ *  (5) The SYM names NO z0/z1/z2 locals in those blocks; an expander leaves no
+ *      source-level locals (the same second tell as DRAWC_UVTINT_ID).
+ *  ⚠️ SUPERSEDES the w64-a14/w72-a3 reading of this block as "local_alloc
+ *  post_mark_life serving order": the block was already COUNT- and
+ *  OFFSET-EXACT and differed ONLY in register class -- which IS the fixed-reg
+ *  template signature, not an allocator tie.  Do NOT re-run qty/serving-order
+ *  experiments on it (they were aimed at a compiler that never ran); the
+ *  w72-a3 "anonymous-temp form" and "void-tail fence" receipts for this block
+ *  are retired with it (the 4 fences are now inert and were removed).
+ * EFFECT: DrawC_PrimClip 122 -> 76 at an unchanged, oracle-EXACT 1877 insns. */
+#define DRAWC_VTZ(sd_, i0_, i1_, i2_) __asm__ volatile( \
+    "lhu\t$12,212(%1)\n\tlhu\t$13,212(%2)\n\tlhu\t$14,212(%3)\n\tsh\t$12,176(%0)\n\tsh\t$13,184(%0)\n\tsh\t$14,192(%0)" \
+    : : "r"(sd_), "r"(i0_), "r"(i1_), "r"(i2_) : "$12", "$13", "$14", "memory")
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
@@ -1506,6 +1537,95 @@ void DrawC_PrimStop(Car_tObj *carObj,Draw_CarCache *sd)
  *     see the re-price above.
  *   - the two `lhu` facetFlag reloads (2 insns of the +4 excess) -- the `int
  *     facetFlag` angle, priced above.
+ * ===== w74-a3 (2026-08-23): 84 -> 16, count 1393 -> 1389 = ORACLE-EXACT =====
+ * FOUR landings; the whole w72-a3 residual-84 class list above is retired.
+ *  (1) 🏆 THE `code` LOCAL IS CASE-SCOPE AND SHARED BY BOTH 0x26 BLOCKS
+ *      (84 -> 66, -2 insns).  Retail materialises 0x26 ONCE per case, into a
+ *      CALLEE-SAVED reg (`addiu $s4,$zero,0x26` @800C0028, stolen by reorg into
+ *      the case-9 dispatch's delay slot) and both `sb $s4,7($a3)` stores read
+ *      it.  Ours had a literal `0x26` at each of the two ~25-line identical
+ *      blocks -> two local `li` (`li v0,38` / `li v1,38`).  ⚠️ A BLOCK-LOCAL
+ *      `{ u_char code = 0x26; ... }` at each site is BIT-IDENTICAL to the
+ *      literal (measured): a single-def/single-use local is const-propagated
+ *      away, and update_equiv_regs moves the def to just before its use (22A-8).
+ *      Only ONE decl with TWO uses IN DIFFERENT BASIC BLOCKS keeps the pseudo
+ *      live across them -> a real cross-block allocno -> the callee-saved home.
+ *      => `u_char code = 0x26;` in the case's declaration block, both stores
+ *      `= code`.  `int code` measures the same 66; keep `u_char` (SYM: UCHAR).
+ *      GENERAL LAW: a SHARED constant is a shared VARIABLE, not N local copies.
+ *  (2) 🏆 EXPLICIT `else` ARM FOR THE `code = 0x24` DEFAULT (66 -> 59 -> 52).
+ *      `u_char code = 0x24; if (P) code = 0x26;` hoists the `li 36` far above
+ *      the guard and leaves the `beqz` delay slot EMPTY; the oracle has
+ *      `beqz v0,T; li v1,36 [slot]; li v1,38`.  Writing it as
+ *      `u_char code; if (P) code = 0x26; else code = 0x24;` puts the default in
+ *      the slot (methodology sec.5.0c "EXPLICIT else").  SITE-SCOPED: only the
+ *      two overlay sites (DRAWC.CPP :2362/:2404 here) win, -7 each; the other
+ *      six 0x24 sites in this fn measure exactly neutral, so land per site.
+ *  (3) 🏆 THE facetFlag RELOAD *AND* THE ff->facet_flag COPY ARE ONE TRADE
+ *      (52 -> 36 -> 20).  The w70/w71/w72 receipts priced `int facetFlag` ALONE
+ *      (kills the two `lhu` reloads, count 1388 = one SHORT) and the ff/copy
+ *      device ALONE (adds the oracle's `addu t1,v1,zero`, count 1390 = one
+ *      LONG) and rejected both.  They are HALVES OF THE SAME +-1: landed
+ *      TOGETHER they are count-exact AND both classes vanish.  Per site:
+ *        site1 (:2269 decl): `int facetFlag` + `facet_flag = ff;` followed by
+ *              BOTH launders `("" : "=r"(facet_flag) : "0"(facet_flag))` and
+ *              `("" : "=r"(ff) : "0"(ff))`  ... 4x4 device sweep, R/R and R/P
+ *              tie at the minimum; every P-, Q- and S-form at site1 costs +20.
+ *        site2 (:2440 decl): `int facetFlag` + the single `ff` launder.
+ *      The two launders are the 20B zero-insn non-volatile form (catalog 20B):
+ *      they only stop cse from collapsing `ff` and `facet_flag` into one pseudo,
+ *      which is what deletes retail's `addu` copy.  NOT pins.
+ *  (4) HOIST THE `facetFlag & 0x3f0` GUARD INTO ITS OWN TEMP (`int hi`) so the
+ *      test's `andi` is scheduled BEFORE the ff->facet_flag copy and reorg
+ *      back-fills the copy into the guard's `beqz` delay slot (20 -> 18 -> 16).
+ *      ⚠️ site2 needs the R device for this to pay (Y2 alone = 115).
+ * RE-PRICED AT 16 (law 21E-1, every number measured at this basin):
+ *   - the id0/id1/id2 SPLIT morph (`idN = idN * 8; idN = idN + (int)sd;`) at
+ *     :2459-2461: 206 / 196 / 186 single-leg, 216 all three -- the w72-a3
+ *     STRONG floor verdict SURVIVES three basin changes.  Do not re-run.
+ *   - `int facetFlag` alone at site1 = 47 @1388; the R device alone = 35 @1390
+ *     (both the "one short / one long" halves of landing (3)).
+ * RESIDUAL 16 = TWO classes only, at an oracle-EXACT 1389 insns:
+ *   - the id0/id1/id2 `sll v0,tN,3` shared scratch at the fused site (12 of 16)
+ *     -- ours `sll v0,t9,3; addu t9,v0,s1`, retail in-place `sll t9,t9,3`.
+ *     STRONG floor (see the re-price).  NAMED ANGLE: the only untried route is
+ *     an in-place spelling that adds NO statement and NO pseudo -- e.g. a
+ *     compound-assign chain `id0 *= 8, id0 += (int)sd;` (comma, one statement)
+ *     or the W41 composite-RMW law applied via a 20B tied launder on idN
+ *     between the two halves.  Everything statement-shaped explodes (>=186).
+ *   - 🔴 THE COPY-vs-`beqz` DELAY SLOT at both facetFlag sites (4 of 16), and
+ *     it is a DIRECT COST OF THE LAUNDER DEVICE.  Both streams are otherwise
+ *     IDENTICAL here (`andi v1,a2,4095; andi v0,a2,1008` then the same three
+ *     insns): retail puts `addu t1,v1,zero` in the `beqz v0,T` DELAY SLOT
+ *     (reorg backward-fill from the insn immediately before the branch) and
+ *     `srl v0,v1,4` after; ours emits `addu t1,v1,zero; beqz v0,T` and lets
+ *     reorg steal `srl v0,v1,4` from the target instead.  MECHANISM (catalog
+ *     22B-5): reorg's `stop_search_p` fires on ANY asm, and the zero-insn
+ *     launder RTL sits between the copy and the branch, so the backward scan
+ *     never reaches the copy.  We are trading these 4 for the 20+ that the
+ *     launder buys -- a measured, not assumed, trade.
+ *     FALSIFIED cures (measured at this basin): launder BEFORE the copy
+ *     (`("" : "=r"(ff) : "0"(ff)); facet_flag = ff; ...`) 17 @1390 -- the
+ *     pre-copy launder mints a real move; launder BETWEEN 131/180; moving the
+ *     `ff` launder into the `if (hi)` body 17 @1390.  NAMED ANGLE: the copy
+ *     must survive WITHOUT an asm insn standing between it and the guard --
+ *     i.e. either a PER_FN_TEXT_MOVES row (spec below) or a non-asm
+ *     cse-breaker for the `ff`/`facet_flag` pair.
+ *     PER_FN_TEXT_MOVES ROW SPEC (orchestrator-wireable, 2 rows, one per site;
+ *     they are position-identical so they must both be present and in file
+ *     order -- each row's anchor is written against the text the previous row
+ *     produced, catalog 21E-8: numeric registers only, and the `after`
+ *     lookahead must NOT reference the taken lines):
+ *       "recon/game/psx/drawc.cpp": { "DrawC_Prim__FP10matrixtdef...": [
+ *         {"take": "\\taddu\\t\\$9,\\$3,\\$0\\n",
+ *          "after": "\\tbeq\\t\\$2,\\$0,\\$L\\d+\\n", "slot": true,
+ *          "drop_nop": false},
+ *         ... same row again for the second site ... ] }
+ *     (`$9`=t1=facet_flag, `$3`=v1=ff, `$2`=v0=the `andi 1008` result; the
+ *     row MOVES the copy down into the branch's delay slot and lets the
+ *     stolen `srl` fall back after it, which is exactly retail's stream.
+ *     ⚠️ VERIFY the emitted cc1 `.s` register numbers before wiring -- read
+ *     them off `scratch/rtl/drawc.s`, not off this comment.)
  */
 void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOverlay *overlay,
                int envmap,Draw_CarCache *sd)
@@ -2266,7 +2386,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     u_int *prim;
     int overlayFlag;
     int overlayRaw;
-    short facetFlag;
+    int facetFlag;
     int facet;
     int id0;
     int id1;
@@ -2329,9 +2449,9 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         {
           /* two pseudos: ff computed (v1), facet_flag the live copy (t1) --
            * oracle andi v1,4095; addu t1,v1,zero; srl v0,v1,4 */
-          int ff = facetFlag & 0xfff;
-          facet_flag = ff;
-          if ((facetFlag & 0x3f0) != 0) {
+          int ff = facetFlag & 0xfff; int hi = facetFlag & 0x3f0;
+          facet_flag = ff; __asm__("" : "=r"(facet_flag) : "0"(facet_flag)); __asm__("" : "=r"(ff) : "0"(ff));
+          if (hi != 0) {
             overlayFlag = overlayFlag & ((u_int)ff >> 4);
           if (overlayFlag != 0) {
             while ((overlayFlag & 3) == 0) {
@@ -2359,13 +2479,13 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         gte_stsxy3_ft3(prim);
         {
           u_long color = 0x808080;
-          u_char code = 0x24;
+          u_char code;
           if ((overlayFlag & 0x80) == 0) {
             color = sd->color;
           }
           if ((facet_flag & 1) != 0) {
             code = 0x26;
-          }
+          } else { code = 0x24; }
           prim[1] = color;
           *(u_char *)((int)prim + 7) = code;
         }
@@ -2401,13 +2521,13 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         gte_stsxy3_ft3(prim);
         {
           u_long color = 0x808080;
-          u_char code = 0x24;
+          u_char code;
           if ((overlayFlag & 0x80) == 0) {
             color = sd->color;
           }
           if ((facet_flag & 1) != 0) {
             code = 0x26;
-          }
+          } else { code = 0x24; }
           prim[1] = color;
           *(u_char *)((int)prim + 7) = code;
         }
@@ -2437,14 +2557,14 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     u_int *prim;
     int overlayFlag;
     int overlayRaw;
-    short facetFlag;
+    int facetFlag;
     int facet;
     int id0;
     int id1;
     int id2;
     int facet_flag;
     int sd_otz;
-    int otzSum;
+    int otzSum; u_char code = 0x26;
     while( true ) {
       i = i - 1;
       if (i == -1) {
@@ -2497,9 +2617,9 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         {
           /* two pseudos: ff computed (v1), facet_flag the live copy (t1) --
            * oracle andi v1,4095; addu t1,v1,zero; srl v0,v1,4 */
-          int ff = facetFlag & 0xfff;
-          facet_flag = ff;
-          if ((facetFlag & 0x3f0) != 0) {
+          int ff = facetFlag & 0xfff; int hi = facetFlag & 0x3f0;
+          facet_flag = ff; __asm__("" : "=r"(facet_flag) : "0"(facet_flag)); __asm__("" : "=r"(ff) : "0"(ff));
+          if (hi != 0) {
             overlayFlag = overlayFlag & ((u_int)ff >> 4);
           if (overlayFlag != 0) {
             while ((overlayFlag & 3) == 0) {
@@ -2558,7 +2678,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         }
         {
           u_long color = sd->eColor0;
-          u_char code = 0x26;
+
           prim[1] = color;
           *(u_char *)((int)prim + 7) = code;
         }
@@ -2581,7 +2701,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
           prim[6] = xy2;
         }
         {
-          u_char code = 0x26;
+
           if ((overlayFlag & 1) != 0) {
             prim[1] = sd->eColor2;
           }
@@ -2936,6 +3056,86 @@ gte_ldv3(vt0,vt1,vt2);
  *   - the two `if (facetFlag < 0)` sites (3 + 3) and the 2nd overlayRaw site (3)
  *     -- the same %hi self-temp-vs-separate-temp class as DrawC_Prim's; see the
  *     21E-4 angle written up there.
+ * ===== w74-a3 (2026-08-23): 268 -> 66, count 1879 -> 1877 = ORACLE-EXACT =====
+ * SIX landings.  The w72-a3 residual-268 class list above is retired; the
+ * z-block's "local_alloc post_mark_life" verdict is REFUTED (see (3)).
+ *  (1) 🏆 EXPLICIT `else` ARM FOR THE `code = 0x24` DEFAULT at the two overlay
+ *      sites (:3636 and :3684 -> now the `u_char code; ... else { code = 0x24; }`
+ *      pairs): 268 -> 210 AND the count goes 1879 -> 1877 = EXACT.  Retail:
+ *      `beqz v0,T; li v1,36 [delay slot]; li v1,38`; the `= 0x24` initialiser
+ *      form hoists the `li 36` above the guard and nops the slot.  This is
+ *      DrawC_Prim's landing (2), found there first.  Site-scoped: the other six
+ *      0x24 sites in this fn are exactly neutral.
+ *  (2) 🏆 THE facetFlag RELOAD + ff->facet_flag COPY TRADE, both sites
+ *      (`int facetFlag` at :3515/:3720 + `facet_flag = ff;` + BOTH 20B launders
+ *      + the `int hi` guard temp): 210 -> 176.  Transferred verbatim from
+ *      DrawC_Prim's landing (3)/(4) -- read that receipt for the mechanism and
+ *      for why either half alone is a net loss.
+ *  (3) 🏆🏆 THE z-BLOCK IS AN EA EXPANDER TEMPLATE, NOT AN ALLOCATOR TIE.
+ *      `DRAWC_VTZ(sd, id0, id1, id2)` at all four sites: 122 -> 76.  Full
+ *      evidence + the five sec.3.25-2 tells are on the macro definition at the
+ *      top of this TU.  The w64-a14/w72-a3 "$t4/$t5/$t6 = post_mark_life
+ *      serving order / NEXT INSTRUMENT: qtytrace via the ICE-blanked .i" angle
+ *      is CLOSED: there is no qty to trace, the registers are in the template.
+ *      The four w64-a14(d) void-tail fences after those blocks are now inert
+ *      (measured, all four and jointly) and were removed.
+ *  (4) THE id0/id1/id2 INDEX-LOAD ORDER, RE-PRICED (law 21E-1): the w55-a9
+ *      36-permutation verdict `L201/M201` was measured at the 594 basin and is
+ *      DEAD.  At the 176 basin the per-site optima are L012 for sites A/B/C
+ *      (`id0; id1; id2` -- the natural order) and L201 for site D:
+ *      176 -> 164/150/164 per site, -> 126 jointly.  Then B's MORPH order
+ *      M012: 126 -> 122.  Full sweeps re-run at 66: every site is now at its
+ *      own permutation minimum (load AND morph), all six perms measured.
+ *  (5) THE MORPH-GROUP ORDER AT THE do{}while(0) SITES A AND C -> M012
+ *      (74 -> 70 each, 66 jointly).  The oracle emits id2's `sll/addu` AFTER
+ *      id0's and id1's; ours emitted it first.  With that order landed the
+ *      w64-a14(e) do{}while(0) ref-step wrappers on id1/id2 measure EXACTLY
+ *      neutral (66 with and without, singly and jointly) -- so all six were
+ *      REMOVED.  ⚠️ NOT a free-standing revert: dropping only the id2 wrapper
+ *      while keeping id1's costs +20 (86).  The dial is now subsumed by the
+ *      statement order it was compensating for.
+ *  (6) The case-1 shared `u_char code = 0x24;` (DrawC_Prim landing (1) applied
+ *      to :3486): 76 -> 74.
+ * FALSIFIED AT THIS BASIN (measured here, do not re-run):
+ *   - clip-site identity-then-tweak `code = 0x24; code = 0x26;` at :3863/:3894
+ *     (287) and the case-scope shared `code = 0x26` (272) -- those two sites
+ *     are NOT the shared-constant class DrawC_Prim's are.
+ *   - swapping the two head initialisers (86), and naming the loop-invariant
+ *     gte_stlvnl / gte_ldv0 addresses as source locals (74..86) -- none of
+ *     them re-orders retail's preheader `addiu t0,s1,156` to the front.
+ *   - read-only fence / tied launder on site-D's id2 or facet_flag (100 / 74).
+ * RESIDUAL 66 at an oracle-EXACT 1877 insns, largest first:
+ *   - 🔴 SITE-D $t1<->$t8 TWO-REGISTER SWAP (~26 of 66): ours id2=$t8 +
+ *     facet_flag=$t1, retail id2=$t1 + facet_flag=$t8; it drags the id2 loads,
+ *     morph, lwc2 pair, the DRAWC_VTZ base, the ff copy and every later
+ *     `andi facet_flag` with it.  QUANTIFIED CERTIFICATE (allocsim MATCHES
+ *     108/108 on this fn, so the table is authoritative): id2 = p820
+ *     refs=18 live=200 pri 0.3600; it is served AFTER p821 (t1, refs=18
+ *     live=128, pri 0.5625), which owns $t1 across it, so find_reg's numeric
+ *     scan falls through v0..t3 (t4-t7 are regs_explicitly_used by this TU's
+ *     templates) to $t8.  To win $t1 p820 must out-rank p821:
+ *        live 200 -> <=127 (a 37% cut) OR refs 18 -> 29 (+11 refs).
+ *     The rival direction is just as dead: p821 must go live 128 -> >200
+ *     (+57%).  No fence/ref-step dial spans either gap (a read-only fence is
+ *     +1 ref, catalog 21A-1), and `--solve 820=t1,1089=t8` reports NO
+ *     single-pseudo refs/live delta in the searched window.  `--what-if
+ *     820:live=100..127` DOES hand p820 $t1 but then p819/p818 rotate to
+ *     t3/t8 -- so the delta must be JOINT.  NAMED NEXT ANGLE: identify p821
+ *     in the .greg (refs=18 live=128 -- it is NOT one of site D's ids) and
+ *     price a JOINT (p820,p821) delta; or shorten id2's live range
+ *     structurally by re-deriving it at the DRAWC_UVTINT_ID use instead of
+ *     holding it (the only 37%-class lever left).
+ *   - the fn-head hoist order (4): ours `addiu a2,s1,215; addiu a1,s3,4; ...;
+ *     addiu t0,s1,156`, retail `t0(156); a2(215); ...; a1(4)` -- the
+ *     loop-invariant gte_stlvnl address is emitted FIRST in retail (21B-3
+ *     preheader appearance order).  Both source-level hoists falsified above.
+ *   - the case-1 loop head (3 + 4): ours mints a copy `addu t2,a3,zero` for the
+ *     hoisted `sd+0xd0` gte_ldv0 base and parks -1 in $t3; retail uses $a3
+ *     directly and -1 in $t2.  Naming either address as a local is a net loss.
+ *   - the switch-dispatch reorg steal + the envmap `sw t9,32(sp)` spill
+ *     position (6) -- the same 21B-5 backward-scan-position class the w72-a3
+ *     `noSub` landing already moved once.
+ *   - `li t3,38` off by one position (2) and the :3601 `beqz` off by one (2).
  * ---- DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache  [DRAWC.CPP:2647-3495] SLD-VERIFIED ---- */
 void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOverlay *overlay,
                int envmap,Draw_CarCache *sd)
@@ -3084,16 +3284,16 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
             return;
           }
           facet = obj->facet + i;
-          id2 = facet->vertexId2;
           id0 = facet->vertexId0;
           id1 = facet->vertexId1;
+          id2 = facet->vertexId2;
           if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) continue;
           /* SYM 3.8b: id0-2 morph index->address in place (oracle sll aN,aN,3) */
-          do { id2 = id2 * 8; } while (0);
-          do { id2 = id2 + (int)sd; } while (0);
           id0 = id0 * 8; id0 = id0 + (int)sd;
           id1 = id1 * 8;
-          do { id1 = id1 + (int)sd; } while (0);
+          id1 = id1 + (int)sd;
+          id2 = id2 * 8;
+          id2 = id2 + (int)sd;
           gte_ldVXY0m(*(u_int *)(id0 + 0xd0));
           gte_ldVZ0m(*(u_int *)(id0 + 0xd4));
           gte_ldVXY1m(*(u_int *)(id1 + 0xd0));
@@ -3115,13 +3315,8 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           gte_stSXY2m(sd->dvx2);
           {
             /* load-3/store-3 (oracle lhu t4/t5/t6 batched; idN = morphed addrs) */
-            u_short z0 = *(u_short *)(id0 + 0xd4);
-            u_short z1 = *(u_short *)(id1 + 0xd4);
-            u_short z2 = *(u_short *)(id2 + 0xd4);
-            (sd->vt0).z = z0;
-            (sd->vt1).z = z1;
-            (sd->vt2).z = z2;
-            __asm__("" : : "i"(0));
+            DRAWC_VTZ(sd, id0, id1, id2);
+            
           }
           {
             int clipW = (sd->head).clipW;
@@ -3331,21 +3526,21 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     int id0;
     int id1;
     int id2;
-    int otzSum;
+    int otzSum; u_char code = 0x24;
     while( true ) {
       i = i - 1;
       if (i == -1) {
         return;
       }
       facet = obj->facet + i;
-      id2 = facet->vertexId2;
       id0 = facet->vertexId0;
       id1 = facet->vertexId1;
+      id2 = facet->vertexId2;
       if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) continue;
       /* SYM 3.8b: id0-2 morph index->address in place (oracle sll aN,aN,3) */
-      id2 = id2 * 8; id2 = id2 + (int)sd;
       id0 = id0 * 8; id0 = id0 + (int)sd;
       id1 = id1 * 8; id1 = id1 + (int)sd;
+      id2 = id2 * 8; id2 = id2 + (int)sd;
       gte_ldVXY0m(*(u_int *)(id0 + 0xd0));
       gte_ldVZ0m(*(u_int *)(id0 + 0xd4));
       gte_ldVXY1m(*(u_int *)(id1 + 0xd0));
@@ -3367,13 +3562,8 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
       gte_stSXY2m(sd->dvx2);
       {
         /* load-3/store-3 (oracle lhu t4/t5/t6 batched; idN = morphed addrs) */
-        u_short z0 = *(u_short *)(id0 + 0xd4);
-        u_short z1 = *(u_short *)(id1 + 0xd4);
-        u_short z2 = *(u_short *)(id2 + 0xd4);
-        (sd->vt0).z = z0;
-        (sd->vt1).z = z1;
-        (sd->vt2).z = z2;
-        __asm__("" : : "i"(0));
+        DRAWC_VTZ(sd, id0, id1, id2);
+        
       }
       {
         int clipW = (sd->head).clipW;
@@ -3483,7 +3673,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
       }
       {
         u_long color = sd->color;
-        u_char code = 0x24;
+
         *(u_int *)&prim->r0 = color;
         prim->code = code;
       }
@@ -3512,7 +3702,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     POLY_FT3 *prim;
     int overlayFlag;
     int overlayRaw;
-    short facetFlag;
+    int facetFlag;
     Transformer_zFacet *facet;
     int id0;
     int id1;
@@ -3526,16 +3716,16 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         return;
       }
       facet = obj->facet + i;
-      id2 = facet->vertexId2;
       id0 = facet->vertexId0;
       id1 = facet->vertexId1;
+      id2 = facet->vertexId2;
       if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) continue;
       /* SYM 3.8b: id0-2 morph index->address in place (oracle sll aN,aN,3) */
-      do { id2 = id2 * 8; } while (0);
-      do { id2 = id2 + (int)sd; } while (0);
       id0 = id0 * 8; id0 = id0 + (int)sd;
       id1 = id1 * 8;
-      do { id1 = id1 + (int)sd; } while (0);
+      id1 = id1 + (int)sd;
+      id2 = id2 * 8;
+      id2 = id2 + (int)sd;
       gte_ldVXY0m(*(u_int *)(id0 + 0xd0));
       gte_ldVZ0m(*(u_int *)(id0 + 0xd4));
       gte_ldVXY1m(*(u_int *)(id1 + 0xd0));
@@ -3557,13 +3747,8 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
       gte_stSXY2m(sd->dvx2);
       {
         /* load-3/store-3 (oracle lhu t4/t5/t6 batched; idN = morphed addrs) */
-        u_short z0 = *(u_short *)(id0 + 0xd4);
-        u_short z1 = *(u_short *)(id1 + 0xd4);
-        u_short z2 = *(u_short *)(id2 + 0xd4);
-        (sd->vt0).z = z0;
-        (sd->vt1).z = z1;
-        (sd->vt2).z = z2;
-        __asm__("" : : "i"(0));
+        DRAWC_VTZ(sd, id0, id1, id2);
+        
       }
       {
         int clipW = (sd->head).clipW;
@@ -3596,9 +3781,9 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         {
           /* two pseudos: ff computed (v1), facet_flag the live copy (t1) --
            * oracle andi v1,4095; addu t1,v1,zero; srl v0,v1,4 */
-          int ff = facetFlag & 0xfff;
-          facet_flag = ff;
-          if ((facetFlag & 0x3f0) != 0) {
+          int ff = facetFlag & 0xfff; int hi = facetFlag & 0x3f0;
+          facet_flag = ff; __asm__("" : "=r"(facet_flag) : "0"(facet_flag)); __asm__("" : "=r"(ff) : "0"(ff));
+          if (hi != 0) {
             overlayFlag = overlayFlag & ((u_int)ff >> 4);
           if (overlayFlag != 0) {
             while ((overlayFlag & 3) == 0) {
@@ -3633,13 +3818,13 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         }
         {
           u_long color = 0x808080;
-          u_char code = 0x24;
+          u_char code;
           if ((overlayFlag & 0x80) == 0) {
             color = sd->color;
           }
           if ((facet_flag & 1) != 0) {
             code = 0x26;
-          }
+          } else { code = 0x24; }
           *(u_int *)&prim->r0 = color;
           prim->code = code;
         }
@@ -3681,13 +3866,13 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         }
         {
           u_long color = 0x808080;
-          u_char code = 0x24;
+          u_char code;
           if ((overlayFlag & 0x80) == 0) {
             color = sd->color;
           }
           if ((facet_flag & 1) != 0) {
             code = 0x26;
-          }
+          } else { code = 0x24; }
           *(u_int *)&prim->r0 = color;
           prim->code = code;
         }
@@ -3717,7 +3902,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     POLY_FT3 *prim;
     int overlayFlag;
     int overlayRaw;
-    short facetFlag;
+    int facetFlag;
     Transformer_zFacet *facet;
     int id0;
     int id1;
@@ -3760,13 +3945,8 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
       gte_stSXY2m(sd->dvx2);
       {
         /* load-3/store-3 (oracle lhu t4/t5/t6 batched; idN = morphed addrs) */
-        u_short z0 = *(u_short *)(id0 + 0xd4);
-        u_short z1 = *(u_short *)(id1 + 0xd4);
-        u_short z2 = *(u_short *)(id2 + 0xd4);
-        (sd->vt0).z = z0;
-        (sd->vt1).z = z1;
-        (sd->vt2).z = z2;
-        __asm__("" : : "i"(0));
+        DRAWC_VTZ(sd, id0, id1, id2);
+        
       }
       {
         int clipW = (sd->head).clipW;
@@ -3796,9 +3976,9 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         {
           /* two pseudos: ff computed (v1), facet_flag the live copy (t1) --
            * oracle andi v1,4095; addu t1,v1,zero; srl v0,v1,4 */
-          int ff = facetFlag & 0xfff;
-          facet_flag = ff;
-          if ((facetFlag & 0x3f0) != 0) {
+          int ff = facetFlag & 0xfff; int hi = facetFlag & 0x3f0;
+          facet_flag = ff; __asm__("" : "=r"(facet_flag) : "0"(facet_flag)); __asm__("" : "=r"(ff) : "0"(ff));
+          if (hi != 0) {
             overlayFlag = overlayFlag & ((u_int)ff >> 4);
           if (overlayFlag != 0) {
             while ((overlayFlag & 3) == 0) {

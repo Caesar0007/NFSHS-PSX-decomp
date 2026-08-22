@@ -241,7 +241,48 @@ extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
  *   spill use), so the only remaining vehicles are (a) a real short-lived C value that the
  *   allocator independently puts in $a2 -- none exists in the eight-load window -- or (b) a
  *   build-side per-fn mechanism.  TEXT_MOVES cannot express it: the two instructions differ in
- *   OPCODE (`addu` vs `lw`), not in position. */
+ *   OPCODE (`addu` vs `lw`), not in position.
+ *
+ *   W74-A17 (2026-08-23) -- RE-GATED 2 @199/199 (twice).  THE MECHANISM IS NOW PROVEN BY
+ *   EXPERIMENT AND THE INVALIDATOR IS NAMED FROM THE COMPILER SOURCE, which turns the W64-A3
+ *   "manufacture an intruder in $a2" angle into a precise, quantified certificate.
+ *   🔴 RELOAD-INHERITANCE INVALIDATORS ARE AN EXHAUSTIVE, READABLE LIST (reload1.c, gcc-2.8.1
+ *   source at C:/Temp/gcc-2.8.1-src/extracted).  choose_reload_regs inherits an input reload
+ *   from `reg_last_reload_reg[regno]` only while `reg_reloaded_contents[i] == regno`
+ *   (reload1.c:5514-5586).  That record is cleared in exactly four places, and NOTHING else
+ *   in the pass touches it:
+ *       (a) a CODE_LABEL          -- "a reload reg's contents are unknown after a label"
+ *                                    (reload_as_needed, reload1.c:4208);
+ *       (b) a CALL_INSN           -- for every call-used spill reg (:4217);
+ *       (c) another reload that lands in the same spill reg (emit_reload_insns, :6929);
+ *       (d) INSN_CLOBBERS_REGNO_P -- not defined by the MIPS backend, so unavailable here.
+ *   There is no flag: `for (inheritance = optimize > 0; ...)` (reload1.c:5418) means -O2
+ *   always tries inheritance first.
+ *   ✅ PROOF PROBE (gated, reverted): inserting a branch between `dr = &fs->draw_mode;` and
+ *   `TermPrim(dr)` (`if (remain == 0x7FFFFFFF) return (u_long *)0;`) makes the region come out
+ *   as retail's `addiu $a2,$s3,16 ; sw $a2,16($sp) ; lw $a0,16($sp)` VERBATIM -- the CODE_LABEL
+ *   kills the inheritance and the input reload becomes the spill-slot load.  So the residual is
+ *   understood completely; it is not a scheduling or coloring question at all.
+ *   ⛔ WHY NO ZERO-INSN VEHICLE EXISTS: (a) needs a real branch (+2 insns, and jump.c deletes a
+ *   label whose only reference is a fall-through goto BEFORE reload runs); (b) needs a call;
+ *   (c) needs another SPILLED pseudo to be reloaded into $a2 inside the window -- the eight
+ *   field loads there are all long-lived and take callee-saved registers, and the only $a2-using
+ *   spill stores in the function are the colour defaults; (d) is absent on MIPS.  Naming "$6"
+ *   in an asm is the one remaining way and is self-defeating (catalog 16B: an asm-used hard reg
+ *   enters reload1.c's bad_spill_regs FUNCTION-WIDE, which forbids retail's own $a2 spill).
+ *   FALSIFIED THIS PASS (all gated, all reverted -- the (c) route, which the W64/W71/W72 notes
+ *   named but never actually ran): moving exactly ONE colour default into the window so its
+ *   `li $6,128; sw $6,N($sp)` invalidates $a2 -- `b` after `dr` 7 @200, `g` after `dr` 5 @200,
+ *   `r` after `dr` 5 @200, `b` just before `TermPrim` 7 @200, `g` just before `TermPrim` 5 @200,
+ *   `g`+`b` together 7 @200 (each costs +1 insn AND disturbs the wired PER_FN_TEXT_MOVES
+ *   anchors, which key off `li $6,128` / `sw $6,28($sp)` / `sw $6,32($sp)`); `maxx = 0;` moved
+ *   after `dr` 4 @199 and before `TermPrim` 4 @199 (count-exact but worse -- its store is
+ *   `sw $zero,...` and uses no reload register at all, so it cannot invalidate anything).
+ *   VERDICT: the 2-diff residual is a CERTIFIED reload-inheritance identity with no source
+ *   vehicle.  The only remaining expression is build-side, and it is NOT TEXT_MOVES (the two
+ *   words differ in opcode); it needs a per-fn textual REWRITE of one line
+ *   (`addu $4,$6,$0` -> `lw $4,16($sp)`) plus the adjacent swap -- i.e. the same class as the
+ *   W67 "PER_FN_POST_MASPSX_MOVES" mechanism that _padInitDirSeq is waiting on. */
 extern u_long *FntFlush(int id)
 {
     DR_MODE  *dr;

@@ -243,7 +243,42 @@ extern int intarcsin(int x)   /* @0x800EACD8 */
      * laundered -- has NO site here.  intarcsin's residual is not a call block and not a
      * shared literal; it is one cse copy-vs-rematerialise decision inside a single basic
      * block.  The W71-A15 statement that this site "cannot supply a LATER USE" for the
-     * launder is re-confirmed: it is still the whole reason the launder stalls at 6. */
+     * launder is re-confirmed: it is still the whole reason the launder stalls at 6.
+     *
+     * 🔑 W74-A19 2026-08-23 -- RE-GATED at 2 @48/48 (baseline confirmed).  NO landing, but
+     * this site turned out to be the DECISIVE NEGATIVE CONTROL that BOUNDS a law found the
+     * same wave, so record it here for whoever reads this file next.
+     *
+     * THE NEW LAW (stated in full in syslib/psx/libmath/ADDDF3.c): `reload_cse_regs`
+     * (gcc-2.8.1 reload1.c:7869, called unconditionally from toplev.c:3501) is a POST-RELOAD
+     * hard-register CSE.  `reload_cse_simplify_set` (reload1.c:8178) replaces a SET's source
+     * with any hard register its table records as holding that value -- with NO cost model,
+     * and its table is cleared only at CODE_LABELs, CALL_INSNs and register overwrites.  In
+     * the 2.8.1 SOURCE the test is GENERIC (`side_effects_p(src) || true_regnum(src) >= 0`
+     * are the only rejections), and `reload_cse_record_set` records non-constant sources too.
+     *
+     * 🔴 BUT ON THE cc1 WE ACTUALLY SHIP IT IS CONSTANT-ONLY, AND **THIS FUNCTION PROVES IT**.
+     * Our `$L9` block emits
+     *     lui $2,%hi(asintbl) / addiu $2,$2,%lo(asintbl) / addu $3,$5,$2 / addu $2,$5,$2
+     * i.e. TWO textually identical NON-constant sources `(plus $5 $2)`, adjacent, in one
+     * label-free and call-free run, with the second's dest free -- exactly the configuration
+     * 2.8.1's generic `reload_cse_simplify_set` would rewrite into retail's `addu $2,$3,$0`.
+     * It does not.  Meanwhile the CONSTANT form of the same substitution fires on this very
+     * compiler generation (pad.c PAD_update's `move $a3,$t0`, ADDDF3's `addu $s0,$v1,$zero`).
+     * ⇒ SCOPE OF THE LAW on the psq43 CC1PSX / 2.7.2-970404 / 2.8.x rungs: CONSTANT sources
+     *   only.  (Ladder fingerprint, scratchpad/W74_A19/t4.c: the const substitution exists on
+     *   2.7.2-970404 / 2.8.0 / 2.8.1 and NOT on 2.6.0 / 2.6.3 / 2.6.psyq40 / 2.7.2 / 2.91.66 /
+     *   2.95.2.)
+     * ⇒ CONSEQUENCE FOR THIS SITE: the rung escape that sealed pad.c PAD_update this wave
+     *   (splice to 2.7.2, whose reload never substitutes) can NEVER apply here -- there is
+     *   nothing to un-substitute; we need gcc to CREATE a copy it never creates.  The 2-diff
+     *   residual therefore stays bounded exactly where W61-A19 left it: `combine_regs`
+     *   (local-alloc.c:1866) refuses to keep a copy whose source is block-local and dies once,
+     *   so the copy can only be minted by an `asm_operands` def (the 6-diff fence basin), and
+     *   the residual THERE is a pure QTY_CMP_PRI pair assignment.
+     *   ANGLE UNCHANGED: qtytrace/-dl the la and sum qtys in the depth-2 fence basin.  Do NOT
+     *   re-spell the subscript, the fence, or the rung (the per-fn ladder at the head of this
+     *   file is unchanged and still says default). */
     if (x <= 0xFA00) {                           /* coarse region: round-to-nearest lookup */
         if (x & 0x40)
             idx = (x >> 7) + 1;

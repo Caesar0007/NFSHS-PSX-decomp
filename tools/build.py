@@ -980,6 +980,14 @@ def _apply_epilogue_unfill_alt28(rel_posix, txt):
 CC1_PSYQ40 = Path(r"C:/Temp/nfs3-clean/psyq400/COMPILER/CC1PSX.EXE")
 PER_FN_RAW40_SPLICE = {
     "recon/syslib/psx/libpad/PADSEQD.c": {"_padInitDirSeq"},
+    # W74-A15 (verified end-to-end: object hand-built from the raw40merged.s,
+    # assembled with the lane's as, scored with verify_asm's normalizer ->
+    # firstfile PASS 103/103 AND _first_patch PASS 64/64; coupled with the
+    # scan-before-p init swap in FIRST.c -- land/revert together). The rung
+    # gives the un-split `la` macro (retail's SELF-temp pair) AND GNU as does
+    # the expansion post-schedule so the macro can occupy the lb load-delay
+    # gap -- the maspsx-lane ver-splice loses the second half (13 @98).
+    "recon/syslib/psx/libapi/FIRST.c": {"firstfile"},
 }
 
 PER_FN_FLAG_SPLICE_272 = {
@@ -1558,6 +1566,34 @@ PER_FN_TEXT_MOVES = {
              "after": r"\tsubu\t\$2,\$7,\$2\n(?=\tlw\t\$12,36\(\$sp\)\n)"},
         ],
     },
+    # W74-A7 (validated 2x via vprobe: PASS 561/561, whole TU 12/12, zero
+    # regressions; both anchors region-unique; two non-branch prologue lines,
+    # no label/branch/slot => brdist unaffected by construction): the prologue
+    # save+init group order is a sched2 class/luid tie between two identical
+    # 2-chains -- source-invisible, device-proof (fences 16-68, -fno-sched2 =
+    # a third order).
+    "recon/frontend/common/screenpost.cpp": {
+        "DrawBackground__26tScreenTournamentStandings": [
+            {"take": r"\tsw\t\$23,236\(\$sp\)\n\tmove\t\$23,\$4\n",
+             "after": r"\tsubu\t\$sp,\$sp,248\n"},
+        ],
+    },
+    # W74-A13 (validated 2x via vprobe: PASS 229/229, TU 9/11 -> 10/11, brdist
+    # 0/11; all 14 anchors count==1 in-region AND TU-wide; passes the TEXT_MOVES
+    # pre-flight -- 423-line multiset identical, pure permutation in windows
+    # [62..68]+[136..150]): CreateLicense 18 -> PASS, pure emission order.
+    "recon/game/psx/cario.cpp": {
+        "CarIO_CreateLicense__FPcii": [
+            {"take": r"\tmove\t\$18,\$0\n(?=\tlui\t\$4,[^\n]*\n\taddiu\t\$4,[^\n]*\n\tli\t\$5,528[^\n]*\n)",
+             "after": r"\taddu\t\$17,\$17,\$3\n"},
+            {"take": r"\tli\t\$7,22[^\n]*\n",            "after": r"\taddu\t\$9,\$8,\$9\n"},
+            {"take": r"\tmove\t\$18,\$0\n(?=\tsll\t\$8,\$22,2\n)", "after": r"\tlbu\t\$2,0\(\$10\)\n"},
+            {"take": r"\tlw\t\$11,0\(\$9\)\n",           "after": r"\tla\t\$2,CarIO_Plate1\n(?=\taddu\t\$8,\$8,\$2\n)"},
+            {"take": r"\tlbu\t\$3,0\(\$11\)\n",          "after": r"\taddu\t\$8,\$8,\$2\n"},
+            {"take": r"\tor\t\$3,\$3,\$12\n",            "after": r"\tlw\t\$10,0\(\$8\)\n"},
+            {"take": r"\tsw\t\$3,0\(\$11\)\n",           "after": r"\tor\t\$3,\$3,\$12\n"},
+        ],
+    },
     # W72-A12 (probe-proven on scratchpad/W72_A12/ptools, x2: fn 7 @202/203 ->
     # 4 @203/203 count-exact, TU 20/21 held, elsewhere byte-identical): cc1
     # already emits retail's order (W64-A15 -fno-schedule-insns2 A/B); only
@@ -1815,6 +1851,11 @@ PER_FN_TEXT_MOVES = {
              "after": r"\tmove\t\$17,\$2\n"},
             {"take": r"\tmove\t\$16,\$0\n",
              "after": r"\tsw\t\$16,16\(\$sp\)\n"},
+            # W74-A19 (coupled with the 2.7.2 ver-splice row + the LM/.loc
+            # strip fix; probe-verified 2x -> PASS 66/66): plain move, not a
+            # branch, no drop_after => no brdist pairing.
+            {"take": r"\tmove\t\$7,\$0\n",
+             "after": r"\taddu\t\$6,\$4,-1\n"},
         ],
     },
     # tMenuItemLeftRightSlider::ProcessInput is count/register/source-shape
@@ -2434,6 +2475,11 @@ PER_FN_CC1_VER_SPLICE = {
     # 81<87 but costs _read_data_int's PASS.  Per-fn pricing on the 2.8.1 rung:
     # _read_int 21->15, _read_issue 23->22, CdRead 43->45 (worse -- stays 2.8.0).
     "recon/syslib/psx/libcd/cdread.c": {"2.8.1": {"_read_int", "_read_issue"}},
+    # W74-A19 (probe-verified 2x via the patched-vprobe harness a19_versplice.py;
+    # PAD_update 2 -> PASS 66/66, TU zero regression; coupled with the strip fix
+    # below + the pad.c TEXT_MOVES row): the fn wants 2.7.2 codegen for its
+    # constant remat while the TU stays 2.8.0.
+    "recon/eaclib/psx/pad.c": {"2.7.2": {"PAD_update"}},
 }
 
 
@@ -2465,6 +2511,14 @@ def _apply_cc1_ver_splice(rel_posix: str, s_file: Path, i_file: Path,
             _SPLICE_COUNTER[0] += 1
             alt_region = _uniquify_local_labels(
                 alt_region, f"vs{_SPLICE_COUNTER[0]}")
+            # W74-A19 mechanism fix: sub-2.8 rungs emit -g1 COFF debug INSIDE
+            # the fn region (.loc lines + LM<n>: labels; 2.8 emits after .end).
+            # LM<n> is neither $L nor .L so it survived uniquify, objdump
+            # printed it as a block label, and verify_asm's fn block ENDED
+            # THERE -- every prior sub-2.8 ver-splice probe read vacuously
+            # short. Strip both classes (debug-only, codegen-identical).
+            alt_region = re.sub(r"^\t\.loc\t[^\n]*\n", "", alt_region, flags=re.M)
+            alt_region = re.sub(r"^LM\d+:\n", "", alt_region, flags=re.M)
             normal_text = normal_text.replace(target_region, alt_region, 1)
         s_file.write_text(normal_text)
 
@@ -2672,7 +2726,13 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
         _env40 = dict(os.environ)
         _tmp40 = os.environ.get("TEMP") or r"C:\Temp"
         _env40.update(TMPDIR=_tmp40, TMP=_tmp40, TEMP=_tmp40)
-        r2 = subprocess.run([str(CC1_PSYQ40), *[str(f) for f in cc1_flags],
+        # W74-A15: drop -g1 for the alt compile -- the 1996 cc1 answers it
+        # with COFF debug GNU as rejects (.def/.val/.scl/.type/.endef, .loc,
+        # LM<n>: labels; the LM labels also split the .ent region). Debug-only,
+        # codegen-identical (PADSEQD was immune only because its fn carried
+        # no params/labels).
+        _flags40 = [str(f) for f in cc1_flags if str(f) != "-g1"]
+        r2 = subprocess.run([str(CC1_PSYQ40), *_flags40,
                              str(i_file), "-o", str(alt_s)],
                             capture_output=True, text=True, env=_env40)
         if r2.returncode:

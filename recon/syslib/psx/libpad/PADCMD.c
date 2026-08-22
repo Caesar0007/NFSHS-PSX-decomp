@@ -534,14 +534,45 @@ extern int _padLoadActInfo_rcv(unsigned char *info)
          * re-reads twice).  MATCH (w62-a5): the loop is a ZERO-TRIP-GUARDED do/while and the
          * anchor is assigned INSIDE the guard -- that is what puts `la $a3,_actcur` AFTER the
          * `beq $a0,$v0` guard (ours hoisted it 2 insns early) and gives the back-edge its OWN
-         * `li $t0,-1` instead of a cse copy of the guard's `li $v0,-1`. */
-        if (--cnt != -1) {
-            ac = &_actcur;
-            do {
-                if (info[0x48] == 0) goto tail;
-                *(*ac)++ = *src++;
-                info[0x48] = info[0x48] - 1;
-            } while (--cnt != -1);
+         * `li $t0,-1` instead of a cse copy of the guard's `li $v0,-1`.
+         * MATCH (W74-A20, 2 -> PASS 157/157): the cse CONSTANT-SHARING residual (`addu $t0,$v0,
+         * $zero` where retail materializes `li $t0,-1` fresh) closes with the §21E-5 instrument
+         * once TWO placement laws are obeyed -- neither is a new device, both are position:
+         *   (1) FENCE THE FIRST OCCURRENCE, AND THAT IS THE GUARD'S -1, NOT THE LOOP'S.  The
+         *       launder protects USES, so a sentinel DEFINED where -1 is already live is copied
+         *       anyway (the FontPrint law, recon/syslib/psx/libgpu/FONT.c:505).  Making the
+         *       GUARD's -1 an opaque pseudo `g` means cse has NO -1 in any register at the loop
+         *       sentinel's def, so the plain literal `neg1 = -1;` inside the guard emits a fresh
+         *       `li` -- and, being inside the guard, it lands after `la $a3,_actcur` exactly like
+         *       retail.  `g` still costs nothing: the launder is identity and tied to its input,
+         *       so it is retail's own `li $v0,-1` in front of the `beq`.
+         *   (2) PEEL THE DECREMENT OUT OF THE GUARD TEST (`--cnt; if (cnt != g)`).  reorg fills
+         *       the preceding arm-join `j`'s delay slot by STEALING the first insn of the target
+         *       block and duplicating it; retail's stolen insn is the peeled `addiu $a0,$a0,-1`.
+         *       With the decrement still inside the `if`, whatever we put before it becomes the
+         *       block's first insn and gets stolen instead (measured: the sentinel's `li $t0,-1`
+         *       duplicated into the slot, 4 diffs).
+         * MEASURED at this basin, all 157/157 count-exact: the pair above PASS | `neg1 = -1`
+         * BEFORE `ac = &_actcur;` 2 (the `li` then precedes the `la`) | a read-only fence on `g`
+         * instead of the launder 2 | additionally laundering `neg1` 12, with a `"$7"` clobber 8 |
+         * no peel-split, sentinel laundered before the guard + `"$7"` clobber 4 (the register
+         * pair is right, the `li` is stolen) | the same without the clobber 14 ($a3/$t0 swapped:
+         * the sentinel allocates first and takes the lower reg) | 22B-3 tied multi-output launder
+         * on (cnt, neg1) 30 | void barrier at the anchor 2 (inert). */
+        --cnt;
+        {
+            int g = -1;
+            __asm__("" : "=r"(g) : "0"(g));   /* 21E-5 first-occurrence opacity fence */
+            if (cnt != g) {
+                int neg1;
+                ac = &_actcur;
+                neg1 = -1;                    /* fresh `li $t0,-1` -- no live -1 to share */
+                do {
+                    if (info[0x48] == 0) goto tail;
+                    *(*ac)++ = *src++;
+                    info[0x48] = info[0x48] - 1;
+                } while (--cnt != neg1);
+            }
         }
         if (info[0x48] == 0) goto tail;
 return_zero:

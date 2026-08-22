@@ -939,6 +939,7 @@ void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y)
   charactertbl *pcVar6;
   int w;
   int c;
+  int n;
   u_int uVar7;
   char langSec;
   char langMin;
@@ -954,47 +955,38 @@ void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y)
   langMin = minSep[GameSetup_gData.userSetting.language];
   langSec = secSep[GameSetup_gData.userSetting.language];
   c = (u_char)*str;
-  /* MATCH (w71-a2), half 1 of 2 -- THE AVAILABILITY DIAL.  The w46/w50 receipts proved the
-   * ref/live PRIORITY dials cannot reach retail's handout (0x4D=$s7, y=$fp, 0x53=nowhere):
-   * `y` needs a rank strictly between the two hoisted constants and there is no ref count
-   * between 3 and 4.  The 20B device (W69) dials AVAILABILITY instead of priority: a
-   * zero-insn read-only fence gives `y` +1 ref (out-of-loop = exactly +1) so it out-ranks
-   * both constants and is allocated FIRST, and the `s7` CLOBBER denies it $s7, so the
-   * ascending find_free_reg scan hands it $fp -- retail's register -- and the frame SPILL
-   * of the 4th param (`sw a3,84(sp)` / `lw a3,84(sp)`) disappears.  21 -> 15 on its own.
-   * Measured: fence with no clobber 21 (the w50 number, reconfirmed) . identity-launder
-   * form `("" : "=r"(y) : "0"(y) : "s7")` 25 (+2 refs overshoots) . clobber "fp" 27 .
-   * clobber "s7","s6" / "s7","s5" 26 . "s7","s5","s6" 71. */
-  __asm__("" : : "r"(y) : "$23");   /* $23 = $s7 */
+  n = 0;
+  /* MATCH (w74-a2) -- SEALED 77/77, and BOTH earlier devices (the w71-a2 read-only `y`
+   * fence and the w71-a2 do{}while(0) depth wrapper on the M-test) are GONE.  The whole
+   * 18-diff residual was ONE structural item: the SPRITE CURSOR IS AN INDEXED GIV, not a
+   * post-incremented parameter.
+   *   SYM (tools/symblk.py): sprt REGPARM $4 = a0 -- i.e. the parameter has NO callee-saved
+   *   home, while str/x/y all do ($18/$20/$30).  Retail's `addu s3,a0,zero` therefore is not
+   *   a parm copy at all: it is loop.c's giv INITIALISATION, emitted at loop_start (the
+   *   preheader, after the `beqz` guard), with `addiu s3,s3,20` as the in-loop increment and
+   *   the index biv eliminated -- which is why the SYM lists no counter local either.
+   *   Writing `sprt++` made `sprt` itself the biv, so assign_parms' entry copy `addu s3,a0`
+   *   (plus its `sw s3,44(sp)` save, which must precede the first write) landed in the
+   *   PROLOGUE, ~40 insns early; that in turn stole the beqz delay slot from `addu fp,a3`
+   *   (retail's backward fill, 21B-5) and shifted the whole s5/s6/s7 band.  Writing the call
+   *   argument as `&sprt[n]` restores every one of those items at once.
+   * Measured (all count-exact 77/77): index form + fence + wrapper 30 . index form + wrapper,
+   *   no fence 12 (the 3-cycle langMin s5->s6 / langSec s7->s5 / 0x4D s6->s7) . index form,
+   *   neither device PASS.  The PASS is NOT knife-edge: `sprt + n` vs `&sprt[n]`, `n`
+   *   declared with the ints vs last, and `n = n + 1` before vs after `str = str + 1` all
+   *   PASS; only the two removed devices matter (either one alone re-breaks it).
+   * The 0x53 constant is rematerialised into $v0 in the first `bne`'s delay slot and 0x4D is
+   * LICM-hoisted into $s7 -- retail's exact constant handling -- with no wrapper needed. */
   while (c != 0) {
-    /* MATCH (w71-a2), half 2 of 2.  With half 1 in place both compare constants are still
-     * hoisted and 0x53 wins $s7 because its `li` is emitted SECOND in the preheader (live
-     * 40 vs 42 -- LICM preheader order IS source order, so the FIRST test's constant has
-     * the LONGER range and the LOWER priority).  Retail hoists 0x4D and rematerialises
-     * 0x53 into a caller-saved temp in the first `bne`'s delay slot.  The depth wrapper is
-     * the w44 zero-insn ref inflator (loop.c strips the phony loop; flow.c still weights
-     * the wrapped ref by depth) and lifts 0x4D over 0x53: ours becomes `li s7,77` hoisted
-     * + `li t0,83` rematerialised + NO nop = COUNT-EXACT 77/77, retail's exact shape.
-     * 15 @78 -> 18 @77.  ⚠️ The LCS is non-monotone across this pair -- the 15 basin
-     * carries BOTH constants in registers plus an unfilled `bne` delay slot (78 insns);
-     * this one reproduces retail's constant handling exactly, so it is the kept state
-     * (standing rule: judge on insn count + structure, not the LCS).
-     * Measured: wrapper on the S-test instead 15 @78 . both wrapped 20 @79 . `else if`
-     * 16 @79 . nested depth-2 wrapper 18 @77 (flat in n) . swapping the two tests 15 @78
-     * (it moves the hoist to 0x4D but also inverts the emitted test order) . swapping the
-     * langMin/langSec assignments 18 (inert).
-     * RESIDUAL 18, three items, all pure allocation/position: the prologue emits
-     * `sw s3,44(sp)`/`addu s3,a0,zero`/`addu fp,a3,zero` before retail does; langMin and
-     * langSec hold $s5/$s6 where retail has $s6/$s5; and the rematerialised 0x53 lands in
-     * $t0 where retail uses $v0. */
-    do { if (c == 0x4d) {
+    if (c == 0x4d) {
       c = langMin;
-    } } while (0);
+    }
     if (c == 0x53) {
       c = langSec;
     }
     w = (signed char)((charactertbl *)Font_Getcharacter(c))->advance + 1;
-    Hud_BuildSpriteFromFont(sprt++,(char)c,x,y);
+    Hud_BuildSpriteFromFont(&sprt[n],(char)c,x,y);
+    n = n + 1;
     str = str + 1;
     x = x + w;
     c = (u_char)*str;
@@ -1660,6 +1652,29 @@ void Hud_BuildTimeString(SPRT *sprt,int time)
  *   the add), or where ts1 stays live past the add for a non-fence reason.
  * WARNING: fencesweep.py restores unreliably when its start marker matches a forward
  *   DECLARATION (it then sweeps ~1500 unrelated lines); snapshot the TU and cmp after a run. */
+/* ===== w74-a2: 17 STAYS (ours 268 / oracle 269).  THE COMBINE GATE IS NOW READ OUT OF THE
+ * COMPILER SOURCE, and the whole "second use" family is falsified.
+ * MECHANISM (combine.c can_combine_p:917-931, gcc-2.8.1 source): the copy+add pair
+ *   `(set p (reg ts1))` / `(set p (plus p 2))` is refused ONLY when
+ *      ! all_adjacent  &&  use_crosses_set_p (src, INSN_CUID (insn))
+ *   i.e. the two insns are non-adjacent AND ts1 is SET between them.  Nothing else in the
+ *   guard list applies to a plain reg-reg copy, so ANY spelling that leaves the copy and the
+ *   +2 in one basic block with ts1 unmodified between them gets folded to `addiu v0,s1,2`.
+ *   That is why every "give the forwarded value a second use" idea is inert: a second use
+ *   does not stop the substitution, it only keeps the copy insn alive as well -- and then the
+ *   add would read s1, not the copy (retail's `addiu v1,v1,2` reads the COPY).
+ * FALSIFIED THIS WAVE (all count-stable at ours 268 unless noted, base 17):
+ *   ts2 = prim2->y2 read EARLY (before the y0/y1 RMWs) + `prim2->y2 = ts2 + 2` LAST, with
+ *     the ts1 fence 17 / without it 19 / read placed before `tp3 =` 17 . ts2 = ts1 (copy)
+ *     early + add last 17 . y0-before-y1 order 17 . in-place `ts1 = ts1 + 2` + fence 19 .
+ *   ts1 REUSED as the y1/y0 RMW temp so that ts1 IS set between the copy and the add
+ *     (the exact use_crosses_set_p condition): ts2 via copy 19 . via re-read 19 . with the
+ *     fence 19 . with a dead local (ts4) as the carrier 19 -- in EVERY case the allocator
+ *     coalesces ts2 onto ts1's home and the add comes out in-place `addiu s1,s1,2`
+ *     (combine never even sees a copy), so the RTL-level gate is never reached from source.
+ * => the copy is NOT source-reachable through the combine gate; per the catalog's
+ *   "ours-1-shorter" discriminator (a) -- the oracle's extra insn is a redundant reg-reg
+ *   MOVE -- this is PERMUTER (multi-basin) territory, not a floor. */
 void Hud_BuildTach(int player)
 
 {
@@ -2632,6 +2647,48 @@ void Hud_BuildNumbers0(int player)
  *   last use is REQUIRED there (w2/w7/w3 read w1; x reads w1 and feeds Hud_BuildGT4), so the
  *   only shortening left is a shape whose ELSE ARM does not read w1 at zero insn cost -- or a
  *   permuter run from this basin. */
+/* ===== w74-a2: 188 STAYS (count EXACT 758/758).  BOTH named routes were executed; the
+ * else-arm route is now CLOSED BY CONSTRUCTION and the dial space has a certificate.
+ * (A) "AN ELSE ARM THAT DOES NOT READ w1 AT ZERO COST" -- every algebraic identity for w1 is
+ *   folded straight back by the compiler, so the arm cannot be spelled without the pseudo:
+ *     `x = x - w2 - w3` 301 @753 and `x = x - (w3 + w2)` 300 @754 -- gcc CANCELS the +w2/-w2
+ *     (w3 = w1 - w2) and re-emits `x - w1`, and the fn gets SHORTER, proving the fold;
+ *     `w0 = w1;` + else `x = x - w0` 188 (INERT, cse copy-props the copy away);
+ *     the same with an identity launder on w0 (`("" : "=r"(w0) : "0"(w0))`) 421 @755.
+ *   The one shape that DOES shorten w1 is precomputing the arm VALUE:
+ *     `xw1 = x - w1;` right after the x block + else `x = xw1;` = 235 @757 (the move is
+ *     coalesced away, so it is one insn SHORT), after `y` 235 @757, after hun/ten 241 @757.
+ *     A fresh -dg/-dl dump of that shape confirms w1's allocno is gone from the s-band
+ *     entirely -- i.e. the live dial IS reachable, but alone it lands a DIFFERENT handout
+ *     (and renumbers every pseudo, so the w72 receipt's numbers must be re-read after it).
+ * (B) DIAL-SPACE CERTIFICATE (tools/allocsim.py, MATCH 49/49 order-IDENTICAL on this dump;
+ *   scratchpad/W74_A2_3dial.py): enumerating ONLY the directions a zero-insn device can buy
+ *   -- refs +1/+2 (read-only fence / launder) and live +2..+40 (a later use) -- over the seven
+ *   pseudos {620 hun, 621 ten, 624 w1, 625 w2, 82 pSprt, 643 speed, 627 w7}:
+ *     2-dial (two different pseudos): 11109 combinations, ZERO reach the retail handout;
+ *     3-dial (three different pseudos, refs +1/+2 x live +2..+38 step 4): 34560
+ *     combinations, ZERO hits (a coarser 6860-combination grid likewise 0).
+ *   => no pair of zero-insn LENGTHENING/REF devices can do it; the solution space genuinely
+ *   requires the w1 SHORTENING (60 -> 43) that only a source restructure can buy, and that
+ *   restructure has to keep w2 at live 29..30 and ten at >= 53 at the same time.
+ * (C) FENCE/CLOBBER PROBES IN THIS BASIN (all worse): read-only fence on w2 after the else
+ *   chain 188 (inert), after the `ten==1 x-w3` 236, at block end 276; on ten at block end 256;
+ *   both 268; w2 fence + ten fence split 228.  20B conflict devices: w2 ro-fence + "$16"(s0)
+ *   clobber after w3 421 @759 / after the x block 420 @754, identity launder + clobber 324,
+ *   ten ro-fence + "$22"(s6) 436 @760, w1 ro-fence 421 @759, w1 ro-fence + s6 clobber 421,
+ *   bare `("" : : : "$16")` 421 -- in THIS function the fences are NOT zero-insn (the carriers
+ *   live in callee-saved regs across calls, so the extra reference materializes a copy).
+ * (D) PERMUTER (the other named route) -- SET UP AND RUN, but the harness needs work before
+ *   its results mean anything: `tools/permute.py setup game/psx/hud.cpp Hud_BuildNumbers__Fi
+ *   asm/nonmatchings/main/Hud_BuildNumbers__Fi.s` succeeds only after base.c's three
+ *   `tMenuCommand&` / `tPMenuCommand&` REFERENCE parameters are rewritten to `*` (the
+ *   sanitizer misses fn-pointer members; pycparser dies at "before: &").  Base score 2315
+ *   (== our 188), best score after ~1250 iterations 1620 -- BUT the top candidates are
+ *   SEMANTICALLY INVALID: the mutation that buys the score replaces the cached `prim` with a
+ *   re-read `(POLY_GT4 *)(*(u_char **)0x1F800004)` AFTER the cursor bump, i.e. it reads the
+ *   NEXT packet.  Free randomization is not semantics-preserving on this body, so a real
+ *   campaign here needs PERM macros around the specific choices (arm order, temp scope), not
+ *   the default randomizer.  Logged: scratchpad/W74_A2_perm.log. */
 void Hud_BuildNumbers(int player)
 
 {
@@ -3053,6 +3110,46 @@ void Hud_InitMap(void)
  *   (w64 16B: `asm("" :: "m"(...))` extends the ADDRESS's live range, not the value's) on
  *   one loop's cell, or two structurally different fixed-address SHAPES (the w46 storage-
  *   shape angle, still unexecuted because 0x1F800004 has no linker symbol to asm-label). */
+/* ===== w74-a2: 45 -> 34 (ours 310 / oracle 308).  TWO of the three residual clusters are
+ * CLOSED by one device pair (volatile funnel STORE + a void fence pinning it at the join,
+ * at BOTH sites -- see the two in-body MATCH blocks): the funnel store is back at the join
+ * and the arm-1 `andi a3` now cross-jumps into the shared tail.  The +2 insns are the two
+ * load-delay `nop`s that appear once the store no longer sinks into the slot.
+ * THE ONE REMAINING CLUSTER (both loops, and it OWNS both nops): retail runs
+ *   [lw carptr][lw flags][addiu bump][andi][beqz][sw cursor(ds)]  (cop, oracle 108-114)
+ *   [lw carptr][nop][lw carFlags][addiu bump][sw cursor][andi][beqz]  (race, 240-246)
+ * i.e. the car-pointer/flag LOADS are issued BEFORE the cursor bump+store and the store
+ * fills a delay slot; ours emits [bump][store] first and then eats a nop per load.  sched1
+ * cannot hoist the loads above the store because the w64 identity launder makes `*pktcell`
+ * a VARYING NON-STRUCT mem (true_dependence, sched.c:830-856: the exemption needs the
+ * store's address NOT to vary).  MEASURED THIS WAVE (all in the new basin):
+ *   launder removed (cop / race / both) 59/57/56 -- the schedule becomes RETAIL-EXACT but
+ *     the cross-loop CSE returns ($fp holds 0x1F800004, `mapy` const-propagated to li t0,24)
+ *     => the two clusters are MUTUALLY EXCLUSIVE with every device tried so far;
+ *   launder moved AFTER the cursor store (cop/race/both) 34 = INERT (the opacity is not
+ *     positional -- an asm-written pseudo is unknown to the alias check either way);
+ *   `Render_gPacketPtr` macro in cop/race/both loops 59/57/56 (= the no-launder basin,
+ *     confirming the w71 finding in this basin: the macro restores the shared literal);
+ *   flag read hoisted to a local before the pktcell block: cop 50 @308 (COUNT EXACT but the
+ *     load lands before the address materialization, +16 LCS), race 118, both 134 @308;
+ *   cursor bump moved below the funnel (cop) 294;
+ *   🔴 the w71 NAMED ANGLE ITSELF -- an `m`-constraint fence on the loop's cell
+ *     (`__asm__("" : : "m"(*pktcell))`) -- EXECUTED AND FALSIFIED: with the launders removed
+ *     it is inert on the CSE (cop 64, both 64 = exactly the no-launder basin), and on top of
+ *     the launders it only costs (36).  That is 22B-7's narrowing confirmed on a literal-
+ *     address cell: the 'm' fence dials an ALREADY-EXISTING %hi pseudo and there is none here
+ *     (the address is an integer constant, not a symbol).
+ *   a DISTINCT per-loop constant base (race `(u_char **)0x1F800000` + `[1]`, no launder
+ *     needed there since the constants differ): 34 @310 = same score with one device fewer,
+ *     but the accesses become displacement-4 where retail is displacement-0, so it trades a
+ *     device for a byte diff; both loops that way 70 @308 (COUNT EXACT, schedule right,
+ *     everything else wrong).  Recorded as the shape that reaches 308.
+ * NAMED ANGLE (unchanged in kind, sharpened): the device must make the two loops' address
+ * pseudos un-equatable at cse time WITHOUT the store's address becoming an asm output --
+ * e.g. a per-loop DIFFERENT constant shape whose store still resolves to 0x1F800004 with a
+ * displacement (`(u_char **)0x1F800000` + `[1]` in ONE loop only), or a cse-scope break at
+ * the loop boundary (22A-8: cse blocks end at CODE_LABELs -- something that makes the
+ * SECOND loop's materialization not "available" without touching the pointer's rtl). */
 void Hud_BuildMapMarkers(int player)
 
 {
@@ -3106,23 +3203,25 @@ void Hud_BuildMapMarkers(int player)
       ((Hud_PTag *)sprt)->addr = ((Hud_PTag *)pal)->addr;
       ((Hud_PTag *)pal)->addr = (u_int)sprt;
       *pktcell = (u_char *)sprt + 0x14;
-      currentSpriteColor = ((Cars_gCopCarList[i]->AIFlags & 2) != 0)
+      /* MATCH (w74-a2, supersedes the w72-a2 volatile-READ form): the funnel STORE is
+       * volatile and is PINNED AT THE JOIN by a void fence.  Retail stores the funnel
+       * result at the join (`lw v0,0(s4); nop; sw v0,0(gp)`, oracle 265-267 / 130-132) and
+       * reloads it for the stack argument; ours sank the store BELOW the whole arg block
+       * (filling the load-delay with `addu a0,a3,zero`).  w72's volatile READ bought the
+       * reload but not the store position; the volatile WRITE + a zero-insn void fence
+       * after the funnel buys BOTH -- and the store position is what lets cross_jump merge
+       * one more insn (see the arm-1 note in the race loop).  Grid, all at ours 308-311:
+       * vol-read only (w72) 45 @309 . vol-write only 45 @309 (interchangeable) . fence
+       * only, race/cop/both 42/42/39 . vol-write both + fence race 37 @309 . vol-write
+       * both + fence BOTH 34 @310 (this).  FALSIFIED here: hoisting the read into a local
+       * (inert 45), an `m`-operand fence on the global (42), moving the cursor bump below
+       * the funnel (294 -- it shatters the whole loop band). */
+      *(volatile long *)&currentSpriteColor = ((Cars_gCopCarList[i]->AIFlags & 2) != 0)
                          ? (((gFlip != 0) || (simVar.quickPauseSim != 0)) ? 0xff : 0xff0000)
                          : *(u_long *)&Hud_gCopMarkerColor[i];
-      /* MATCH (w72-a2): the COLOR ARGUMENT IS A VOLATILE RE-READ of the global.  Retail
-       * stores the funnel result to currentSpriteColor at the JOIN and then RELOADS it for
-       * the stack argument (`sw v0,0(gp)` ... argsetup ... `lw v0,0(gp)`; oracle 267/273
-       * and 132/140); our cse keeps the value in a register and SINKS the store below the
-       * arg block, so ours had 2 extra `sw` and 2 missing `lw`.  A volatile-qualified READ
-       * of the same lvalue is the zero-source-change device: it blocks the cse substitution
-       * (a volatile MEM is never an available expression) so the store stays at the join and
-       * a real `lw` is emitted.  Cop site alone 49 @311, race site alone 50 @308 (count
-       * exact), BOTH 45 @309 -- 54 @310 -> 45 @309.  A volatile WRITE instead of the read is
-       * exactly equivalent at the race site (T1 50 @308); the read is kept because the insn
-       * retail has and we lacked is the LOAD.  FALSIFIED alternatives (all >=47): an
-       * `m`-operand fence on the global before the call (47 @309), a plain extra statement. */
+      __asm__("" : : "i"(0));
       Hud_BuildSprite(sprt,0x7a,mapx + x + -2 & 0xffff,mapy - z & 0xffff,
-                 *(volatile u_long *)&currentSpriteColor,0);
+                 currentSpriteColor,0);
     }
     i = i + 1;
   }
@@ -3151,17 +3250,28 @@ void Hud_BuildMapMarkers(int player)
       ((Hud_PTag *)pal)->addr = (u_int)sprt;
       *pktcell = (u_char *)sprt + 0x14;
       if ((Cars_gRaceCarList[i]->carFlags & 0x200U) != 0) {
-        currentSpriteColor = ((Cars_gRaceCarList[i]->AIFlags & 2) != 0)
+        /* MATCH (w74-a2): volatile funnel STORE + void fence, as at the cop site above.
+         * SECOND EFFECT HERE -- THE CROSS-JUMP: with the store sunk into this arm, arm-1's
+         * insns before its `j` were [.. subu a3][sw gp][lw gp][andi a3], so the common
+         * suffix with the arm-3 tail was only [sw zero,20(sp)][jal][sw v0,16(sp)] and our
+         * `andi a3,a3,0xffff` stayed in the arm (reorg then put it in the `j` delay slot,
+         * +1 insn).  Retail merges ONE MORE insn: its arm-1 ends [.. lw v0,0(gp)][subu a3]
+         * [andi a3][stores][jal], so cross_jump takes the `andi` into the shared tail and
+         * reorg fills the `j` slot with `subu a3,fp,s0` (oracle 274/275).  Pinning the
+         * store at the join restores exactly that suffix -- the andi merge is a CONSEQUENCE
+         * of the store position, not an independent item (jump.c find_cross_jump works on
+         * the pre-sched insn order). */
+        *(volatile long *)&currentSpriteColor = ((Cars_gRaceCarList[i]->AIFlags & 2) != 0)
                            ? (((gFlip != 0) || (simVar.quickPauseSim != 0)) ? 0xff : 0xff0000)
                            : *(u_long *)&Hud_gMarkerColor[i];
+        __asm__("" : : "i"(0));
         /* MATCH (w64-a1): `x + mapx` (variable SECOND) at the THREE race-loop sites emits
          * retail's `addiu $a2,$s3,0x16` + `addiu $a2,$a2,-3`; `mapx + x` materialises the
          * const-propagated mapx into a register first (`li $t0,22; addu $a2,$t0,$s3`, +1 insn
          * per site).  The COP-loop site must KEEP `mapx + x` -- retail is li+addu there
          * (@0x800D5D04), and swapping it too costs 3 (57 @309 vs 54 @310). */
-        /* MATCH (w72-a2): same volatile re-read as the cop site above (oracle 267/273). */
         Hud_BuildSprite(sprt,0x79,x + mapx + -3 & 0xffff,mapy - z & 0xffff,
-                   *(volatile u_long *)&currentSpriteColor,0);
+                   currentSpriteColor,0);
       }
       else if ((Cars_gRaceCarList[i]->carFlags & 4U) != 0) {
         Hud_BuildSprite(sprt,0x79,x + mapx + -3 & 0xffff,mapy - z & 0xffff,
@@ -3514,6 +3624,31 @@ void Hud_InitCdPlayer(void)
  *   read the normalized `0(gp)` dump wrong about WHICH global -- but spelling it as the global
  *   RMW measures WORSE: `Hud_gCdScrollTitle = Hud_gCdScrollTitle + 1;` in place of the `scroll`
  *   local 57 @476, and with the two RMWs swapped 57 @476.  The local + write-back stays. */
+/* ===== w74-a2: 54 STAYS (count EXACT 475/475).  CLUSTER (4) -- the two Hud_BuildString
+ * x-arguments -- is now IDENTIFIED as the 22A-1 FOLD LITERAL law and its escape list is
+ * exhausted.  Retail:  `addiu v0,s3,10; lw a1,0(gp); addu v0,s7,v0; addiu a1,a1,-76;
+ * subu a1,v0,a1`  (site B: `addiu v0,s3,22`, same -76); ours folds the +10/+0x16 INTO the
+ * subtrahend constant (`addu v0,s7,s3; addiu a1,a1,-86` / `-98`).  That is fold-const.c:4349
+ * rebuilding `A - (B + K)` with K = TREE_CONSTANT, which 22A-1 proves NO literal spelling
+ * escapes.  The 22A-1 escape ("make K a mutable local") and the 21C-5 escape ("block-scoped
+ * temp") are BOTH measured here and BOTH fail because RTL cse/combine re-fold what the tree
+ * kept apart:
+ *   block temp `int sx = dx + K;` at both sites 64 @475 (it re-associates the OTHER way:
+ *     `addu a1,s3,s7; addiu a1,a1,86`) . one site only 58 . `int sx = x + dx + K;` 64 .
+ *     mutable `int k = 0x4c;` in the subtrahend, both sites 54 (INERT -- cse const-props it
+ *     back) . subtrahend temp `int sc = Hud_gCdScrollTitle - 0x4c;` both sites 54 (inert) .
+ *     sx + sc temps 66 @477 . `sx = x + (dx + K)` + sc 90 @477.
+ * The TWO-SITE law (22A-1) held in the negative direction too: the single-site variant is
+ * strictly worse than either both-sites or neither.
+ * NOT RE-TRIED (already receipted above): cluster (2)'s preheader order, cluster (1)'s flag
+ * head.  New this wave for cluster (2): the loop's bound test written with the operands
+ * swapped (`(int)p >= (int)(title+0x3f)`) is bit-identical 54, and moving the bound test
+ * BELOW the glyph block (semantically neutral -- w is simply computed one iteration further)
+ * gives 57 @474, so the preheader ORDER is not decided by the body's statement order.
+ * NAMED ANGLE for cluster (4): the escape has to stop RTL cse, not the tree fold -- i.e. the
+ * `dx + K` term must be produced by something cse cannot const-fold into the subtrahend
+ * (e.g. the value already living in a register for another reason at that point), which is a
+ * scheduling/liveness question, not a spelling one. */
 void Hud_BuildCdPlayer(int type,int arg1)
 
 {
@@ -5338,6 +5473,33 @@ extern int DashHUD_view[] __asm__("DashHUD_gInfo");
  * => the named angle is not a spelling question: cse equates VALUES, not highs, so any same-node
  *   pair merges both the high and the lo_sum.  A device that shares `(high sym)` while keeping
  *   distinct `(lo_sum)`s has to come from outside the symbol-node axis. */
+/* ===== w74-a2: 13 STAYS (ours 72 / oracle 71).  THE STRUCTURE AXIS IS NOW CLOSED TOO, and
+ * the retail shape is fully read off: retail's `lui $v1` high is a LOOP-CARRIED value with
+ * TWO defs -- the entry test's load (oracle 0/1, separate-temp `lui v1; lw v0,0(v1)`) and the
+ * loop-BOTTOM re-load (56/57, same shape) -- and ONE use, the body's `addiu v0,v1,0` (22),
+ * which is consumed before `sll v1,s1,2` (23) reuses $v1 in the same iteration.  Ours
+ * self-temps BOTH loads (`lui v0; lw v0,0(v0)`), which kills the high at its own load, so the
+ * body must rematerialize `lui v0; addiu v0,v0,0` = our ONE surplus insn.
+ * FALSIFIED THIS WAVE (7 new shapes, on top of the w72 8-cell symbol-node matrix):
+ *   `dh` made LOOP-CARRIED (body reads dh, no in-&& assignment) with the init before the
+ *     guard as the real symbol 43 @74 / as the view 18 @73 / inside the guard 21 @74 --
+ *     the merged full address goes callee-saved exactly as the w72 (same-node) cells did;
+ *   `dh` REMOVED entirely (SYM has no such local -- only `j` $s1): body `DashHUD_gInfo
+ *     .showhud[j]` + tail view 35 @74 / + tail `DashHUD_gInfo.splitscreen` 40 @75; body
+ *     `DashHUD_view[j+7]` + tail view 40 @79 / + tail real 38 @77.
+ * => the `dh` POINTER is load-bearing (it is what keeps ONE lo_sum for three uses); the
+ *   residual is the SELF-TEMP-vs-SEPARATE-TEMP shape of the two loads, and neither the
+ *   unsized-array view (already in use) nor any structural rewrite reaches it.
+ * NEW LENS (global.c:945-950, find_reg pass 0): `used |= ~regs_used_so_far |
+ *   regs_someone_prefers[allocno]` -- pass 0 can only pick a register ALREADY USED in the
+ *   function and NOT preferred by a conflicting allocno.  The high pseudo here is allocated
+ *   by LOCAL alloc (block-local, 2 refs), so the reachable dial is local-alloc's combine_regs
+ *   (the self-temp coalesce) -- deny it by giving the high a second REFERENCE in another
+ *   block, which is exactly what retail's body use is.  Every source spelling that adds that
+ *   second reference so far ALSO merges the lo_sum (w72 matrix) or materializes a new address
+ *   (21A-5 m-fence); the untried lever is a device that references the high WITHOUT naming
+ *   the symbol -- e.g. 22B-3's tied MULTI-OUTPUT launder over the entry load's dest and the
+ *   body's base at once (locals only; parameters ICE). */
 void Hud_RenderTacView(void)
 
 {

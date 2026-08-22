@@ -265,7 +265,46 @@ void tScreenTournamentStandings::ProcessInput(tPlayer,tInputKeyType &keyval,
    fence before the alias (12), a `self` fence after it (16), `tm` fenced (12),
    and `const`-qualifying the alias.  TU state after this wave: 12/13 PASS,
    this fn the only FAIL.
-   Harness: scratchpad/W72_A7/{probe.py,q1..q12.py} + scratchpad/W72_A7_sbs.py. */
+   Harness: scratchpad/W72_A7/{probe.py,q1..q12.py} + scratchpad/W72_A7_sbs.py.
+
+   ==== W74-A7 (2026-08-22): 4 -> PASS 561/561 via a PER_FN_TEXT_MOVES row. ====
+   THE CLASS IS SETTLED FROM THE COMPILER SOURCE, not guessed.  gcc-2.8.1
+   sched.c:2415 rank_for_schedule sorts the ready list by INSN_PRIORITY, then by
+   dependence class vs last_scheduled_insn, then by INSN_LUID -- and priority()
+   (sched.c:1453) accumulates over LOG_LINKS, i.e. it is chain depth from the
+   block TOP (22A(6)).  Both prologue groups here are structurally identical
+   2-chains (callee-save `sw` -> its def), so they carry the SAME priority and
+   the order is decided by the class/luid tie-break inside sched2.  That is not
+   a source-visible quantity: MEASURED INERT (all exactly 4 @561) --
+     declaration order: `self` first, `i` last, both;
+     statement order: `i = 0;` first / immediately after `self = this;` /
+       with `line` hoisted with it;
+   and every device that DOES touch it makes it worse (all @561 unless noted):
+     void fence after `self = this;` 16 · void fence after `i = 0;` 60 ·
+     clobber `"$20"` (= $s4, i's home) after `self = this;` 60 ·
+     20B tied launder on (self,i) after `line = 0x2fe;` 11 @562 ·
+     20B launder on `self` before `i = 0;` 68.
+   Per-fn `-fno-schedule-insns2` was ALSO falsified as the vehicle (cc1 A/B on
+   the TU's own .i): it yields the fully UNSCHEDULED prologue (all ten saves
+   contiguous, `move $20,$0` + `li $22,766` after them), which is a THIRD order,
+   not retail's.  Retail IS sched2 output; only the tie went the other way.
+   => the mechanism is the methodology's prologue save-ORDER tie-break class and
+   the vehicle is the one this repo already built for it: the BSEARCH.c
+   PER_FN_TEXT_MOVES row ("the prologue emission ORDER of the `lo = 0` def vs
+   the 4th parm copy").  VALIDATED SPEC (probe-verified 2x via
+   W60_TEXT_MOVES_FILE=scratchpad/W74_A7/tm_screenpost.json + tools/vprobe.py;
+   whole TU 12/12 PASS both runs, zero PASS->FAIL) -- for tools/build.py's
+   PER_FN_TEXT_MOVES:
+       "recon/frontend/common/screenpost.cpp": {
+           "DrawBackground__26tScreenTournamentStandings": [
+               {"take": "\tsw\t\$23,236\(\$sp\)\n\tmove\t\$23,\$4\n",
+                "after": "\tsubu\t\$sp,\$sp,248\n"},
+           ],
+       },
+   (Both anchors assert region-unique against the current .s; the row moves two
+   NON-branch prologue lines only -- no label, no branch target, no delay slot --
+   so brdist/branch-word census is unaffected by construction.)  Until the row is
+   wired this fn gates FAIL 4; with it, PASS 561/561 and the TU is 13/13. */
 /* ---- tScreenTournamentStandings::DrawBackground  [SCREENPOST.CPP:164-312] ---- */
 void tScreenTournamentStandings::DrawBackground()
 

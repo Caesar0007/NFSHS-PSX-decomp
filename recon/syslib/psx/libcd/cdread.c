@@ -245,14 +245,75 @@ extern void _read_sync(void)
  * `__asm__("" ::: "$2")` before the head store 13.  The clobber DOES move the HIGH pseudo
  * off $v0, but it never TIES it to the base's $v1 -- combine_regs' tie is refused for a
  * lo_sum that is a GLOBAL allocno (21E-4), and a hard-reg denial cannot create a tie, only
- * relocate one side.  Per-fn `-mno-split-addresses` re-priced here: 44 (unchanged). */
+ * relocate one side.  Per-fn `-mno-split-addresses` re-priced here: 44 (unchanged).
+ *
+ * ============================================================================
+ * 🏆 W74-A14: SEALED.  9 -> 5 -> 1 -> PASS 157/157.  Three landings, each with its own
+ * in-body receipt: (1) the TAIL ANCHOR + identity fence, (2) the HEAD ANCHOR + identity
+ * fence, (3) a VOID BARRIER in BOTH arms of the sector-copy `if`.
+ *
+ * WHY THE W71 SWEEP MISSED IT (the reusable lesson -- catalog 21E-1 at its sharpest):
+ * W71-A8 swept the HEAD anchor forms and measured 16-19 against its own 9, and w52-a2
+ * had swept the TAIL anchor and measured 60 against its own 24, so BOTH halves of the
+ * cure stood recorded as falsified.  They are falsified only PAIRWISE-INDEPENDENTLY:
+ * with just one of the two anchors fenced the other region's split `lui/addiu` pair and
+ * the newly-opaque pseudo fight over the same caller-saved band, and the fn gets worse.
+ * Land the TAIL first (9 -> 5), and the HEAD forms that measured 16-19 now measure 1.
+ * ⇒ a two-site device must be priced as a CELL, not as two independent axes (cf. 22C-8
+ * "two independently-swept axes can hide a winner needing both at once", and 22A-1's
+ * "TWO-SITE law: with only one of two sites escaped the fix is a NET LOSS").
+ *
+ * THE COMBINE_REGS LAW, NOW READ OFF THE COMPILER SOURCE (supersedes the (a) note above,
+ * which called it "a pure local-alloc combine_regs tie ... not a shape question"):
+ * combine_regs (gcc-2.8.1 local-alloc.c:1824) can NEVER tie a %hi pseudo to a lo_sum
+ * whose destination is a GLOBAL allocno.  Three guards do it: :1868 needs reg_qty[ureg]
+ * >= 0, :1877 rejects reg_qty[sreg] == -1, and :1946 returns 0 unless reg_qty[sreg] is
+ * exactly -2 -- and :470-77 sets -2 only for a pseudo with REG_BASIC_BLOCK >= 0 AND
+ * REG_N_DEATHS == 1, i.e. block-local with a single death.  Both the head and the tail
+ * `&_cdr` base span three basic blocks, so the tie is structurally unreachable and NO
+ * amount of ref/priority/hard-reg dialling can produce retail's self-temp.  The only two
+ * shapes that CAN are (i) the `-mno-split-addresses` `la` MACRO (whose 2-word form the
+ * assembler expands dest-as-scratch), and (ii) the W49 IDENTITY FENCE, which collapses
+ * the (high)+(lo_sum) pair into ONE opaque pseudo before allocation ever sees it.  (ii)
+ * is the one available per-site.  This is the same law `_read_data_int` already states in
+ * its own receipt -- it just had never been applied to a MULTI-REGION function.
+ *
+ * THE SPLICE-COMPOSITION CELL IS NOW MEASURED, AND IT IS A NET LOSS HERE -- the ask above
+ * can be RETIRED for this function.  scratchpad/W74_A14_mkbuild.py builds a scratch-only
+ * copy of build.py + verify_asm.py whose _apply_cc1_ver_splice takes an extra env-driven
+ * pass, so "2.8.1 + <extra flags>" is measurable without building the orchestrator
+ * mechanism.  Result: `A14_NS_FNS=_read_int` (= 2.8.1 + -mno-split-addresses, the exact
+ * composition the spec asks for) = 37 diffs @160/157, i.e. IDENTICAL to the whole-TU
+ * `no_split_addresses` number already banked above.  That equality is itself the proof
+ * that whole-TU nosplit ALREADY exercises the composition for a ver-spliced function
+ * (`_cc1_flags_for_rung` forwards the TU flags to the rung compile), so the cell was
+ * never unmeasured -- it was mis-read as unmeasured.  WHY it loses: without split
+ * addresses gcc folds each field offset INTO the symbol (`la $v1,_cdr+52` then
+ * `sw $s1,0($v1)`, `lw $v0,-32($v1)`), where retail anchors on `_cdr` itself and keeps
+ * 52/20/16 as load displacements.  The composition mechanism is still worth building for
+ * OTHER functions, but it is not this one's cure.
+ * ============================================================================ */
 extern void _read_int(int intr, int code)
 {
-    _cdr.w34 = code;                                /* remember intr arg for the user cb */
+    /* MATCH (W74-A14, 5 -> 1): the HEAD ANCHOR + W49 IDENTITY FENCE, the same device as the
+     * tail anchor above and for the same reason (retail's one self-temping `la $v1,_cdr`
+     * vs cc1's split `lui $v0,%hi; addiu $v1,$v0,%lo`; combine_regs cannot tie a GLOBAL
+     * allocno's lo_sum, local-alloc.c:1946 requires reg_qty[sreg] == -2).  W71-A8 swept
+     * exactly these forms and measured 16-19 (all worse than its 9) -- that sweep was run
+     * BEFORE the tail anchor existed; from the post-tail basin the same forms are the win
+     * (21E-1).  Measured here (scratchpad/W74_A14_rint_head.json, all gated):
+     *   volatile-struct + fence 1 (kept) - `volatile char *` + fence 1 - `volatile int *`
+     *   + fence 1 - volatile struct WITHOUT the fence 5 (inert) - a bare block wrap 5
+     *   (inert control) - NON-volatile struct + fence 9 (the volatile qualifier is
+     *   load-bearing: without it cse re-derives the field addresses).  */
+    {
+    volatile CdrEnv *h = &_cdr;                     /* $v1 : one `la` for the head region */
+    __asm__("" : "=r"(h) : "0"(h));
+    h->w34 = code;                                  /* remember intr arg for the user cb */
 
     if ((intr & 0xFF) == 1) {                       /* CdlDataReady */
-        if (_cdr.w14 > 0) {                          /* still sectors to read */
-            if (_cdr.w10 == 0x200) {                 /* 2048-byte mode: verify the MSF header */
+        if (h->w14 > 0) {                            /* still sectors to read */
+            if (h->w10 == 0x200) {                   /* 2048-byte mode: verify the MSF header */
                 /* MATCH: a 16-byte scratch (Rage Racer read_callbacks.c spells it
                  * `long buf[4];`), not a 4-byte CdlLOC -- the oracle reserves 16
                  * bytes at sp+0x10 for it (frame 0x30, first save at 0x20). */
@@ -282,13 +343,32 @@ extern void _read_int(int intr, int code)
              * oracle materializes a FRESH `%hi/%lo(_cdr+8)` anchor for this block
              * and reaches w10 by +8 off it, then derives `&_cdr` as `anchor-8`
              * for the three read-modify-writes.  A plain `_cdr.field` recon
-             * rematerializes `%hi/%lo(_cdr)` per access instead. */
+             * rematerializes `%hi/%lo(_cdr)` per access instead.
+             *
+             * MATCH (W74-A14, 1 -> PASS): retail leaves the `beqz` slot `nop`; ours had
+             * reorg steal the DMA arm's leading `lui %hi(_cdr+8)` out of the fall-through
+             * thread (fill_eager_delay_slots -> fill_slots_from_thread, gcc-2.8.1
+             * reorg.c:3455).  A zero-insn VOID BARRIER as each arm's first statement stops
+             * the thread scan (reorg.c stop_search_p returns 1 for any asm) and the slot
+             * goes back to `nop`.  🔑 NEW LAW -- the barrier must be placed in BOTH ARMS:
+             * one arm alone measures 3 (it blocks the steal but de-merges the two arms'
+             * shared `cur` anchor prologue, which jump.c cross-jumped), both arms 0.
+             * The barrier must also sit AFTER the C89 declaration, so `cur` is split
+             * decl/assign.  Measured (scratchpad/W74_A14_rint_slot.json): void both arms 0
+             * (kept) - void DMA arm only 3 - void before the `if` 1 (inert) - a NON-volatile
+             * launder on the live `code` at the arm head / before the `if` / in both arms 1
+             * (inert: reorg stops at it, but it is not a sched1 barrier, and here the steal
+             * needs the sched1 fence too) - splitting the decl alone 1 (inert control). */
             if (CD_read_dma_mode & 1) {
-                volatile int *cur = (volatile int *)&_cdr.w08;
+                volatile int *cur;
+                __asm__("" : : "i"(0));
+                cur = (volatile int *)&_cdr.w08;
                 __asm__("" : "=r"(cur) : "0"(cur));
                 CdGetSector2((u_char *)cur[0], cur[2]); /* DMA: advance deferred to _read_data_int */
             } else {
-                volatile int *cur = (volatile int *)&_cdr.w08;
+                volatile int *cur;
+                __asm__("" : : "i"(0));
+                cur = (volatile int *)&_cdr.w08;
                 __asm__("" : "=r"(cur) : "0"(cur));
                 CdGetSector((u_char *)cur[0], cur[2]);
                 {   /* the `&_cdr` view is derived AFTER the call so it lands in a
@@ -320,22 +400,44 @@ extern void _read_int(int intr, int code)
          * interrupt look like "one sector still to go" instead of tripping the
          * error path that re-issues the read.  (methodology 3.1: the delay slot
          * runs before the branch lands, so its constant belongs to BOTH arms.) */
-        _cdr.w14 = -1;                               /* @80108A14 : non-DataReady intr */
+        h->w14 = -1;                                 /* @80108A14 : non-DataReady intr */
+    }
     }
 
     /* ---- common tail @80108A18 ---------------------------------------------------------------- */
-    _cdr.w18 = VSync(-1);
-    if (_cdr.w14 < 0)                                /* error -> re-issue the read */
+    /* MATCH (W74-A14, 9 -> 5): the TAIL ANCHOR + W49 IDENTITY FENCE -- the exact device
+     * `_read_data_int` uses, and the one w52-a2 measured at 60 and filed as FALSIFIED.
+     * That verdict was taken from the 24-diff basin; two W71 landings later it is the
+     * win (catalog 21E-1: RE-PRICE any documented-exhausted cluster after a sibling
+     * cluster in the same fn changes basin).  WHY it is needed: retail reaches the whole
+     * tail through ONE self-temping `la $s0,_cdr` (`lui $s0,%hi; addiu $s0,$s0,%lo`);
+     * cc1's default -msplit-addresses puts the HIGH in its own short-lived pseudo
+     * (`lui $v1,%hi; addiu $s0,$v1,%lo`) and local-alloc's combine_regs can NEVER tie the
+     * two, because the tie is refused unless the SET reg is block-local with a single
+     * death (local-alloc.c:1868/1877/1946, reg_qty[sreg] must be -2) and this base is a
+     * GLOBAL allocno that crosses calls.  The identity fence turns the completed address
+     * into ONE opaque pseudo, so the self-temp form is all that can be emitted.
+     * Measured in this basin (scratchpad/W74_A14_rint_tail.json, all gated):
+     *   volatile-struct + fence 5 (kept) - `volatile char *` + fence 5 - non-volatile
+     *   struct + fence 12 - volatile struct WITHOUT the fence 14 - non-volatile struct
+     *   without the fence 21 - a bare block wrap / pure re-spelling 9 (inert controls).
+     * The extra block scope is required for C89 declaration placement and is codegen-inert
+     * on its own (the `respell_wrapped` control also measures 9). */
+    {
+    volatile CdrEnv *t = &_cdr;                     /* $s0 : one `la` for the whole tail */
+    __asm__("" : "=r"(t) : "0"(t));
+    t->w18 = VSync(-1);
+    if (t->w14 < 0)                                  /* error -> re-issue the read */
         _read_issue(1);
-    if (VSync(-1) > _cdr.w1c + 0x4B0)                /* overall watchdog (1200 frames) */
-        _cdr.w14 = -1;
-    if (_cdr.w14 != 0 && !(VSync(-1) > _cdr.w1c + 0x4B0))
+    if (VSync(-1) > t->w1c + 0x4B0)                  /* overall watchdog (1200 frames) */
+        t->w14 = -1;
+    if (t->w14 != 0 && !(VSync(-1) > t->w1c + 0x4B0))
         return;                                      /* still busy, not timed out -> wait */
 
     /* ---- read finished (or timed out) @80108A98 ---------------------------------------------- */
-    CdReadyCallback(_cdr.w2c);                       /* restore ready cb */
+    CdReadyCallback(t->w2c);                         /* restore ready cb */
     if (CD_read_dma_mode & 1)
-        CdDataCallback(_cdr.w30);                    /* restore data cb */
+        CdDataCallback(t->w30);                      /* restore data cb */
     CdSyncCallback((int)_read_sync);                /* install completion sync handler */
     CdControlF(9, 0);                               /* CdlPause */
     {
@@ -348,9 +450,10 @@ extern void _read_int(int intr, int code)
          * (the store's fence/alias would otherwise sink the load) and write w24
          * through a NON-VOLATILE lvalue cast so reorg may slot-fill it (3.25-3c). */
         CdlCB cb = (CdlCB)CD_cbread;
-        *(int *)&_cdr.w24 = 1;
+        *(int *)&t->w24 = 1;
         if (cb != 0)
-            cb(_cdr.w14 == 0 ? 2 : 5, code);
+            cb(t->w14 == 0 ? 2 : 5, code);
+    }
     }
 }
 
@@ -485,7 +588,46 @@ extern void _read_data_int(void)
  *      is 25 @125/122 here (re-priced this wave; it is the mechanism but it re-splits
  *      every other address in the function).  NAMED ANGLE for the next pass: a way to
  *      make ONE address materialise as the `la` macro while the rest stay split, i.e. a
- *      per-SITE nosplit, which today only exists as a per-FN build.py flag. */
+ *      per-SITE nosplit, which today only exists as a per-FN build.py flag.
+ *
+ * W74-A14 re-gate: 3 @121/122.  Both halves re-attacked; (b)'s MECHANISM IS NOW PROVEN
+ * AND ITS EXITS ARE ENUMERATED FROM THE COMPILER SOURCE, and the per-SITE-nosplit ask is
+ * upgraded from "named angle" to a costed orchestrator spec:
+ *  (b1) PROOF that nosplit is the mechanism: run under the W74 composition harness
+ *      (scratchpad/W74_A14_mkbuild.py, `A14_NS_FNS=_read_issue` = 2.8.1 +
+ *      -mno-split-addresses) the `+li $a0,6` diff DISAPPEARS from the diff list -- retail's
+ *      duplicate is reproduced exactly.  The residual 21 @125/122 is then entirely
+ *      elsewhere: the two UN-ANCHORED `_cdr` regions fold their field offsets into the
+ *      symbol (`sw $v0,0($v1)` where retail has `sw $v0,28($v1)`) and THREE extra `nop`s
+ *      appear because GNU-as does not split a `la` macro's %lo half across the following
+ *      `jal` the way aspsx did (the W51 AT-MACRO-SPLIT identity, the same thing
+ *      PER_FN_RAW40_SPLICE exists for).  ⇒ a per-fn nosplit landing for _read_issue is a
+ *      THREE-part job: nosplit + a fenced anchor for the shell-open arm and for the error
+ *      tail (the `_read_int` recipe, now proven) + the raw40/GNU-as route for the jal
+ *      macro splits.  Priced, not speculative.
+ *  (b2) WHY NO FENCE CAN SUBSTITUTE (gcc-2.8.1 reorg.c, read this wave).  The fill is
+ *      gcc's, not the assembler's: our .s carries `.set noreorder / beq $2,$0,$L / lui
+ *      $4,%hi(_read_data_int)`, i.e. fill_eager_delay_slots took the FALL-THROUGH thread.
+ *      mostly_true_jump (reorg.c:1353) returns 0 for an EQ condition, so fill_eager tries
+ *      fall-through FIRST and the target only `if (delay_list == 0)`.  Retail's
+ *      fall-through began with a 2-word `la` that eligible_for_delay rejects, so its
+ *      fall-through attempt returned 0 and the target steal ran.  🔑 MEASURED LAW: making
+ *      OUR fall-through attempt fail with an asm does NOT hand the slot to the target --
+ *      the target attempt then also returns 0 and maspsx nops the slot.  Sweep at this
+ *      basin (scratchpad/W74_A14_issue_slot.json, all gated + reverted): void barrier in
+ *      the arm 4 - void in the arm + a void `else` arm 6 - void `else` only 5 - identity
+ *      launder on `g` in the arm 8 - in both arms 10 - read-only fence on `g` in the arm 4
+ *      - in both arms 6 - braces only 3 (inert control).  ⇒ "block the thread you don't
+ *      want" is NOT a way to buy the thread you do want; only making the unwanted thread's
+ *      first insn INELIGIBLE (length 2 = the `la` macro) is.
+ *  (b3) AND THERE IS NO SOURCE ESCAPE AT -G4: mips_check_split (mips.c:893) leaves a
+ *      SYMBOL_REF splittable unless SYMBOL_REF_FLAG is set, and ENCODE_SECTION_INFO
+ *      (mips.h:2792) sets that flag ONLY for a VAR_DECL of size <= the -G threshold.  A
+ *      FUNCTION_DECL never gets it under any -G, so no `-G` value can make
+ *      `(int)_read_data_int` materialise as a macro -- unlike the small-data VAR_DECL case
+ *      that PER_FN_FLAG_SPLICE_272's -G4 row exploits for _padLoadActInfo_rcv (22A-5).
+ *      The -G4 row is therefore NOT applicable here; -mno-split-addresses is the only
+ *      mechanism.  (Note this TU is already at the default -G4.) */
 extern int _read_issue(int retry)
 {
     /* W62-A6: 22 -> 15.  TWO OPPOSITE delay-slot devices, both from the same law

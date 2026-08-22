@@ -324,7 +324,55 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
      *       ARGUMENT setup (`lw $a1,0x18($sp); lw $a2,0x1C($sp)` = w0,w1 in a1/a2, an
      *       ODD-aligned pair) or the `t[2]`/`buf[4]` frame arrays -- there is no
      *       even-aligned lw/lw/sw/sw copy run anywhere in the oracle, so the law that
-     *       sealed MULDF3's `_mul_mant_d` has no site in __divdf3. */
+     *       sealed MULDF3's `_mul_mant_d` has no site in __divdf3.
+     *
+     * W74-A19 2026-08-23 -- RE-GATED at 12, COUNT-EXACT 184/184 (baseline confirmed).
+     * NO landing.  Two assignments closed: (A) the floatlib `__divdf3`/`__dcmp` SOURCE
+     * was mined DIRECTLY (not just described), and (B) row (a) was cross-checked against
+     * the same-wave reload_cse law.
+     *
+     * (A) 📚 floatlib.c IS EXTRACTED AND READ (C:\Temp\gcc-2.8.1-src\extracted2\
+     *     gcc-2.8.1\floatlib.c; `__dcmp` @666, `__divdf3` @689).  Its zero-divide arm is
+     *         if (!x2.l.lower && !x2.l.upper) {
+     *             result.l.lower = 0x0;
+     *             if (sign) result.l.upper = 0xFFF00000;
+     *             else      result.l.upper = 0x7FF00000;
+     *             return result.d;                 <-- EARLY RETURN INSIDE THE ARM
+     *         }
+     *     -- i.e. LOWER first, an if/else on `sign` for UPPER, and its OWN `return`.  The
+     *     early return is the one ingredient no prior wave had tried here (W62/W71/W72 all
+     *     tested the store order and the if/else, never the exit).  MEASURED, whole-fn gate
+     *     (scratchpad/W74_A19/div_v*.txt via scratchpad/W72_A20/a20_tmprobe.py):
+     *       floatlib verbatim: `lo=-1; if(sign) hi=-1; else hi=0x7FFFFFFF; return ur.d;` 67 @185
+     *       ternary + early return, hi then lo ..................................... 64 @184
+     *       ternary + early return, lo then hi ..................................... 64 @184
+     *       floatlib if/else WITHOUT the early return (control) .................... 67 @185
+     *     ⇒ TWO independent readings, both new: the EARLY RETURN alone is worth +52 over
+     *       the baseline ternary (64 vs 12) -- retail's arm demonstrably FALLS THROUGH to the
+     *       single shared `return ur.d;`, so Sony restructured floatlib's multi-exit body into
+     *       one exit; and the if/else-vs-ternary delta (+3, 185 vs 184 insns) reproduces the
+     *       W62 "any spelling that writes ur.w.hi twice re-materialises the union head" bound
+     *       from the exit axis as well.  ⇒ THE floatlib SHAPE LEAD FOR ROW (a) IS CLOSED --
+     *       the corpus ancestor's union spelling and store order are NOT retail's.
+     *     (Its quotient loops -- two `while (mask)` passes over 0x00200000 then 0x80000000 --
+     *      are likewise NOT retail's: the oracle drives one do/while over the `bit[2]` pair
+     *      through `_dbl_shift_us`, exactly as reconstructed here.  `__dcmp` == `_comp_mant`
+     *      is re-confirmed line-for-line and is already transcribed verbatim below.)
+     *
+     * (B) 🔑 ROW (a) IS **NOT** THE reload_cse CLASS (checked, negative -- record it so the
+     *     new law is not mis-applied here).  The same-wave ADDDF3.c receipt names
+     *     `reload_cse_simplify_set` (gcc-2.8.1 reload1.c:8178) as the pass that turns a
+     *     `(set hardreg CONSTANT)` into a copy from a live hard register, and shows it exists
+     *     ONLY on the 2.7.2-970404 / 2.8.0 / 2.8.1 rungs.  THIS TU is wired `cc1_alt 2.7.2`,
+     *     a rung WITHOUT reload_cse -- so our `addu $s3,$v0,$zero` cannot be that pass.  It is
+     *     what the W71/W72 receipts already say: a pre-reload cse SHARE of the guard's
+     *     `lui 0x7FFF` plus the funnel copy that local-alloc's `combine_regs` must refuse
+     *     because `ur` is a GLOBAL allocno (local-alloc.c:1866).  ⇒ the W71 "live routes: a
+     *     cse-table instrument read, or TEXT_MOVES" line stands for THIS function; do not
+     *     import ADDDF3's reload_cse certificate here.
+     * ANGLE UNCHANGED for row (a): the 13B/15B delete_noop_moves family aimed at the
+     * `h`->`ur.w.hi` copy (the 13-diff named-`h` basin already carries retail's polarity and
+     * its fresh `lui/ori`), NOT the constant and NOT the union store order. */
     ua.d = a;
     ub.d = b;
     exp = ((ua.w.hi >> 20) & 0x7FF) - ((ub.w.hi >> 20) & 0x7FF) + 1022;

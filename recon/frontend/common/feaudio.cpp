@@ -557,7 +557,46 @@ LUMPYHEAD * FeAudio_InitViv(char *fname)
        block before or after the type read (2/7/10); splitting the OR chain
        after the 1st or 2nd term with a void fence between (2/2/5/20);
        naming the mask (2) and naming+fencing it (5); mask term first (10).
-       Harness: scratchpad W72_A8_viv{2..9}.py + W72_A8_dumps.py. */
+       Harness: scratchpad W72_A8_viv{2..9}.py + W72_A8_dumps.py.
+
+       ==== W74-A7 (2026-08-22): HELD at 2 @109/109.  The residual is now
+       localised to ONE sched1 decision and both 2-diff basins are read off
+       the compiler, so the next attack has a named target. ====
+       THE TWO BASINS, in pre-reorg terms (cc1 A/B on this TU's own .i with
+       -fno-delayed-branch / -fno-schedule-insns{,2}):
+         natural order (both schedulers off) .. lui $4 / addiu $4 / lw $7 / li $8
+         HEAD-FENCE basin (shipped) .......... lui $4 / addiu $4 | lw $7 / li $8
+         NO-head-fence basin ................. li $8 / lui $4 / lw $7 / addiu $4
+         RETAIL .............................. lui $4 / lw $7 / addiu $4 / li $8
+       So retail is neither the unscheduled order nor either of ours: sched1
+       must leave the mask constant LAST while letting the type load rise
+       between the la's two halves.  In the no-fence basin reorg then takes the
+       FIRST insn of the loop-exit thread for the `beq` slot, which is `li $8`
+       instead of retail's `lui $4` -- i.e. the "2 diffs from the other side"
+       the W72 receipt names is a pure sched1 ORDERING fact, and the reorg pick
+       is downstream of it, not a separate lever.
+       NEW FALSIFICATIONS (all measured this wave, all reverted):
+         from the NO-FENCE basin: void fence after the type read 7 @110 (the
+           fence then blocks `li $8` from filling the lw's LOAD-DELAY slot, so a
+           real `nop` appears where retail has `lui t0,255` -- proof that the
+           mask must stay schedulable immediately after the lw); named
+           `byteMask` after the type read 2; named + fence 4; lumpyName moved
+           inside the block 2; read-only fence on lumpyName 2; the first OR
+           chain split into two statements 2; clobber "$8" on a head fence 2;
+           plain literal at the reservememadr call 17 @110; `char *lumpyName =
+           "lumpyhead"` decl-init 20 @111.
+         from the SHIPPED basin: replacing the head void fence with a
+           NON-VOLATILE launder on lumpyName (22B(5): reorg-only barrier, so the
+           load should rise past it while reorg still stops there) 17 @110 --
+           the launder mints its own copy insn; + a named mask 17 @110; void
+           fence AND launder 17 @110; launder placed after the void fence 2
+           (inert).
+       => NAMED ANGLE (same target, sharper mechanism): the dial must make
+       sched1 rank the CSE'd `li 0xff0000` behind the la pair inside the
+       loop-exit block WITHOUT fencing it away from the lw's load-delay slot.
+       A fence cannot do it (all-or-nothing at a statement boundary) and the
+       20B/21A denial family is an allocation instrument, not a scheduling one.
+       Harness: scratchpad/W74_A7/{probe.py,fa1..fa5.py}. */
     __asm__("" : : "i"(0));
     headerLength = lumpHead.hlen;
     headerNum = lumpHead.num;

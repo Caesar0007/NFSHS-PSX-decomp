@@ -1153,7 +1153,58 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
    * %hi share (+1 insn = the 9/16 basins) or is invisible.  Next lens still -dR; NOTE
    * the instrumented cc1plus ICEs on aih_cop.cpp but has NOT been tried on aiphysic.cpp
    * (scratchpad/W72_A11/A11_trace.py runs it and prints the per-fn fidelity table first;
-   * a trace is a receipt only for functions it reproduces byte-identically). */
+   * a trace is a receipt only for functions it reproduces byte-identically).
+   *
+   * W74-A10 2026-08-22 -- THE OWNER IS NAMED AND FOUR WAVES OF VERDICTS ARE REFUTED.
+   * It is NOT a sched2 ready-list tie, NOT reorg's luid tie, NOT statement order.
+   * It is cse FOLDING THE ADDRESS MATERIALIZATION, and the RTL dumps prove it end to
+   * end (cc1 -dr/-ds/-dc on build/recon/game/common/aiphysic.cpp.i):
+   *   -dr (post-expand): the ARG expression `AIPhysicConfig.latvelcalc_lookahead`
+   *       expands to insn35 `(set r97 (high sym))` + insn36 `(set r96 (lo_sum r97 sym))`
+   *       and insn40 `(set r99 (mem (r96)))` -- i.e. the ARG materializes a FULL-ADDRESS
+   *       pseudo at the head; and `cfg = &AIPhysicConfig;` expands to ITS OWN fresh pair
+   *       AT ITS OWN SOURCE POSITION (insn85 high + insn86 lo_sum, after the
+   *       wipeOutEndTick store when the statement is moved there = retail's slot).
+   *   -ds/-dc (post-cse): insn40's mem is folded to `(mem (lo_sum r97 sym))` (so the ARG
+   *       no longer needs r96) AND the later pair is rewritten to `(set r95 (r96))`, a
+   *       PLAIN COPY of the head pseudo, which local-alloc then coalesces away.
+   *   => the head lo_sum survives ONLY because cse resurrects it as the cfg value, and it
+   *      is the insn reorg's backward scan finds before the jal.  That is why moving the
+   *      statement is byte-inert (W64/W71 both saw it and mis-attributed it to sched).
+   * PROOF BY DENIAL (flag probe, not a landing): with the cfg statement at retail's
+   * position AND `-fno-cse-follow-jumps -fno-cse-skip-blocks`, the fold dies, the head
+   * lo_sum dies with it, and reorg IMMEDIATELY picks retail's filler:
+   *       jal AIWorld_CalcFutureLateralVel ; move $20,$0      <- retail's jal slot
+   * so the reorg half of the residual is SOLVED the moment the fold is denied.  It is
+   * still +1 overall because the un-folded join block re-materializes its own high
+   * (`lui $2,%hi; addiu $16,$2,%lo`) instead of reusing the head's, and that lui also
+   * clobbers the simGlobal load's dest so sched2 cannot slide the pair into the
+   * load-delay hole.
+   * THE EXACT REMAINING REQUIREMENT (now a one-line statement instead of a lens):
+   *   cse must fold the join block's `(high sym)` into the head's high (so the high spans
+   *   the call, is forced callee-saved, and becomes retail's $s0) while NOT having a
+   *   head `lo_sum` pseudo available to fold the join's `lo_sum` into.  Equivalently:
+   *   THE ARG ACCESS MUST NOT LEAVE A FULL-ADDRESS PSEUDO ALIVE.  Retail's head is
+   *   `lui s0,%hi` + `lw a1,%lo(s0)` only -- no full address -- and its single
+   *   `addiu s0,s0,%lo` at oracle idx 31 is the join block's own lo_sum, in-place tied
+   *   because its high source is the same (call-crossing, hence $s0) quantity.
+   * MEASURED THIS WAVE (each a real gate run from the 5-baseline):
+   *   T1 `cfg = &AIPhysicConfig;` moved after the wipeOutEndTick store ... 9 @413
+   *      (count unchanged; only the head high moves to a temp: `lui v1` + `addiu s0,v1`)
+   *   T2 cfg assigned BEFORE the call + arg spelled `cfg->latvelcalc_lookahead` .. 9 @413
+   *   A1 separate arg pointer `p0 = &AIPhysicConfig;` + 20B opacity launder on p0,
+   *      cfg at retail's slot ......................................... 18 @414
+   *      (the launder makes p0 a REAL full address at the head, +1, and drags the
+   *      prologue saves with it -- the cse-breaker must not cost a head insn)
+   *   baseline + `-fno-cse-follow-jumps` / `-fno-cse-skip-blocks` / both: byte-inert
+   *      (at the BASELINE statement position the fold is INTRA-block, so the flags
+   *      cannot bite -- itself a receipt that the fold, not the position, is the owner).
+   * NEXT NAMED ANGLE (unwalked, cheap to price now): kill the head full-address pseudo
+   * WITHOUT adding a head insn.  The SYM-faithful no-pointer form (W59-A3 (d): 14 direct
+   * `AIPhysicConfig.OOCModel.X` uses, last measured 9 and dismissed) is the candidate to
+   * RE-PRICE under today's mechanism -- its "address pseudo split across two regs" is the
+   * same cse artifact, and the SYM (14 INT locals, NO pointer) says it is what EA wrote;
+   * judge it together with the fold-denial, not alone (21E-1). */
   int desiredAngVel;
   int desiredLatVel;
   int currentAngAcc;

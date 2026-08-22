@@ -549,7 +549,63 @@ extern int iSNDpsxmalloc(int size)
      *       combine_regs tie the file has tracked since w32, and it is now bounded by a
      *       same-function control rather than by an argument.
      * ANGLE UNCHANGED: allocsim MATCH + `reqdelta --want` on the two address pseudos, in
-     * THIS 12-diff basin (every prior priced attempt predates the w71 commit landing). */
+     * THIS 12-diff basin (every prior priced attempt predates the w71 commit landing).
+     *
+     * W74-A19 2026-08-23 -- RE-GATED at 12, COUNT-EXACT 127/127 (baseline confirmed).
+     * NO landing.  Two things closed, both recorded so the budget is not re-spent.
+     *
+     * (1) 🔴 THE GCC-LADDER TABLE AT THE HEAD OF THIS FILE IS BASIN-STALE (it was measured
+     *     in the 59-diff basin, before w58/w59/w60/w61/w62/w71 landed ~47 diffs).  RE-LADDERED
+     *     HERE, IN THE 12-DIFF BASIN, per-fn via PER_FN_CC1_VER_SPLICE (default lane, maspsx
+     *     kept; harness scratchpad/W74_A19/a19_versplice.py, which also applies the `LM<n>:`
+     *     debug-label strip described below -- without it every sub-2.8 reading is vacuous):
+     *       default (2.8.0) **12** @127/127   <-- WIRED, still optimal
+     *       2.7.2-970404  37 @128 | 2.8.1  26 @127 | 2.7.2  85 @126 |
+     *       2.91.66      110 @125 | 2.95.2 146 @131 | 2.6.x  compile error (unchanged)
+     *     ⇒ the version axis is CLOSED AGAIN at this basin.  Replace the head table's
+     *       iSNDpsxmalloc column with these numbers when this file is next touched.
+     *
+     * (2) THE ZERO-INSN HARD-REGISTER DENIAL FAMILY (21A-1 / 20B / 22B-1/2) IS NOW SWEPT
+     *     ON BOTH CLUSTERS AND IS EITHER INERT OR NEGATIVE.  This is the family the W72
+     *     receipt had NOT tried here (it tried launders and depth wrappers); it is the only
+     *     instrument that speaks directly to "which register does this sum's dest get".
+     *     All whole-fn gate, this basin (scratchpad/W74_A19/snd_*.txt):
+     *       (ii) scan `idx != 0` arm -- ours `addu $v1,$s3,$v0`, retail `addu $a2,$v0,$s3`:
+     *         void clobber `__asm__("" : : "i"(0) : "$3")` BEFORE the `prev` def .. 12 (inert)
+     *         same clobbering "$2","$3" ........................................... 18 @127
+     *         void clobber "$3" placed INSIDE `prev`'s live range (between the def
+     *           and its two `lhu` uses) .......................................... 12 (inert)
+     *         same clobbering "$2","$3" in the live range ....................... 12 (inert)
+     *         read-only clobber `__asm__("" : : "r"(prev) : "$3")` after the def ... 23 @124
+     *           (the barrier lets cross_jump merge the arm's `addiu $a0/$a1,$sp` pair,
+     *            the same -3 the W71 receipt records for scan_done)
+     *       (iii) scan_done -- ours `sll $a2,$s0,2` / split `%hi`+`lo_sum` across $v1/$v0,
+     *             retail `sll $v0,$s0,2` / self-temped `addiu $v1,$v1,%lo` / `addu $a2,$v0,$v1`:
+     *         22B-7 'm'-OPERAND fence `__asm__("" : : "m"(*pv))` BEFORE the `prev`
+     *           sum (dials the %hi pseudo's refs at zero insns) .................. 28 @125
+     *         the same 'm' fence AFTER the sum .................................. 12 (inert)
+     *         void clobber "$6" ($a2) before the sum ............................ 38 @125
+     *         `off` split out of its decl + void clobber "$6" after it ........... 24 @127
+     *         same with a read-only `"r"(off)` clobber ........................... 24 @127
+     *     🔑 READING (new, and it sharpens the W71/W72 diagnosis): a hard-reg clobber placed
+     *       inside the sum pseudo's live range is INERT on cluster (ii).  Per 21A-1 a clobber
+     *       denies $N to every allocno live at that insn, so an inert result means the $v1
+     *       assignment is NOT a free find_free_reg pick -- it is inherited through
+     *       local-alloc's `combine_regs` TIE with a dying input (local-alloc.c:1866), which is
+     *       decided before any conflict from the asm is consulted.  That is the SAME
+     *       mechanism the w71 commit-block landing cured with an identity launder + a genuine
+     *       LATER USE -- and W72 already proved this arm has no such later use to offer.
+     *       ⇒ cluster (ii) is a combine_regs-tie question, NOT a serving-order or
+     *         availability question; stop aiming denial/priority devices at it.
+     *       ⇒ cluster (iii)'s obstacle is unchanged: the la is SELF-temped ($v1 carrying both
+     *         %hi and the lo_sum) where retail splits it, i.e. the 3.15 self-temp-vs-
+     *         separate-temp tie on an ADDRESS.  The 'm'-fence is the right family but fires on
+     *         the WRONG side here (before the sum = +16, after = inert), consistent with 22B-7
+     *         ("dials only an ALREADY-EXISTING %hi pseudo, and it can BE the blocker").
+     * ANGLE, now narrowed: for (ii) find a source form that gives the offset/base pseudo a
+     * SECOND death in the arm (the only thing combine_regs' :1866 test accepts) WITHOUT an
+     * asm barrier -- the W71 commit recipe's `- entry_off + entry_off` trick is the model;
+     * for (iii) qtytrace/-dl the la qty and attack the SELF-TEMP, not the serving order. */
     unsigned char *base = sndpd;
     unsigned char *pd;
     unsigned int blk, src;

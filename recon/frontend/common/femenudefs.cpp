@@ -2905,7 +2905,110 @@ winCase:
    audit), W72_A6_immaudit.py (register-blind immediate audit), W72_A6_metric.py
    (the 4-metric decomposition), W72_A6_class.py (diff-hunk classifier),
    W72_A6_ctx.py (windowed stream dump), W72_A6_probe.py (variant+pad probe
-   harness that always restores from W72_A6_base.cpp). */
+   harness that always restores from W72_A6_base.cpp).
+
+   [W74-A6 2026-08-22/23]  1257 -> 1238, TU 65/66 PASS on both gate runs, ZERO
+   regressions.  ONE edit landed (the fence move documented at the menuCarGarage
+   line below); the wave's real product is that W72-A6's named item (a) is now
+   MECHANISM-CORRECTED and re-aimed.
+   1. !!! ITEM (a) IS NOT A SCHED1 DIAL -- IT IS A RELOAD SCRATCH PICK.  Read off the
+      RTL dumps (tools/rtl_dump.py -dc -dS -dl -dg -dR on this TU):
+        * COMBINE dump (pre-sched1): `(insn 1990 (set (reg 571) (const_int -1)))`
+          ALREADY sits ~1550 dump-lines from its ONLY use.  It is the -1 pseudo
+          EXPAND created for menuTrackOptions' sp+28 argument; cse then served THAT
+          store from an older -1 pseudo (reg 194) and forwarded reg 571 to the
+          itemGoToDuelBuyCar sp+16 store instead.  So the long live range is a CSE
+          artifact that exists BEFORE sched1 ever runs.
+        * NEW: LAW (gcc-2.8.1 sched.c:1765, sched_analyze_1):
+            if (REG_N_CALLS_CROSSED (regno) == 0 && last_function_call)
+              add_dependence (insn, last_function_call, REG_DEP_ANTI);
+          A pseudo that crosses ZERO calls gets an anti-dep on the last CALL_INSN,
+          which pins its def inside the current call's argument block.  A pseudo that
+          ALREADY crosses a call gets NO such dep, so its def has LOG_LINKS == nil,
+          so priority() (sched.c:1453) returns the floor value 1, and the BACKWARD
+          list scheduler picks it LAST = emits it FIRST in the region.  That is the
+          whole reason our -1 def floats ~83 insns above its use.
+        * reg 571 therefore gets no hard register: reload deletes insn 1990 and
+          REMATERIALIZES the constant at the use (greg dump: insn 2575 becomes
+          `(set (reg t0) (const_int -1))` plus a fresh store insn 7584).
+        * Retail does exactly the same EVERYWHERE: a stream-wide census of all `-1`
+          materializations is 19 ours vs 19 oracle and register-IDENTICAL at 18 of
+          them; only insn 1226/1221 differs (ours $t0, retail $v0).  ==> the residual
+          is reload1.c:5031 allocate_reload_reg -- round-robin from `last_spill_reg`,
+          two passes, pass 0 restricted to regs already in `reload_reg_used_at_all`.
+          The downstream 640-insn t0<->t1 run is the textbook "one different reload
+          allocation rotates the pool cursor" signature (catalog 22A#4).
+        * THE CONTRAST THAT PROVES IT: the structurally identical sibling
+          `itemCarDealer(0x74, &menuGoToCarDealer, 0, 0x3a, 10)` (ours == oracle,
+          insns 1113..1127) materializes its 0x3a into a FRESH pseudo (657) whose def
+          DOES carry `REG_DEP_ANTI` on the preceding call, stays short, wins $v0 from
+          local-alloc's numeric scan, and sched2 then hoists `li v0,58; sw v0,16(sp)`
+          above both address computations -- retail's exact shape at BOTH sites.
+      FALSIFIED ON THE -1 (all gate-measured, all worse; do NOT retry): read-only
+      fence 2010 | doubled read-only fence 2010 | launder+read-only 2007 | identity
+      launder 1271 (re-measured 1252 in the new basin AND objdump-confirmed the
+      constant STILL lands in $t0 -- the launder does not move a reload pick) |
+      void-tail `__asm__("" : : "i"(0))` barrier planted at itemGoToDuelBuyCar /
+      itemColor2 / itemCar2 / itemDuelRace / itemOpponentCar = 1253 / 1247 / 1247 /
+      1257 / 1243, each +1 insn | read-only fences on the PRECEDING -1 literals as
+      cse constant-sharing breakers (menuTrackOptions 1535, menuTrackRecordsItem
+      2296, combinations worse).
+      NEXT ANGLE (named, and it is an INSTRUMENT not a spelling): the instrumented
+      cc1 at C:\Temp\nfs4-instr-cc1 traces find_reg / allocno_compare / qty_compare
+      but NOT `allocate_reload_reg`.  A `[reload_pick]` trace printing spill_regs
+      order, last_spill_reg, the pass number and reload_reg_used_at_all per reload
+      decides in ONE run whether ours diverges by POOL ORDER, by free-ness, or by
+      used-at-all -- and it is the same instrument every "uniform +-1 scratch
+      rotation" residual in this project has been waiting for.
+   2. STALE RECEIPT LINES CORRECTED ABOVE: (d) "the shared-header
+      tInsideBoxControllerLeftRightSlider vptr diff, still not applied" is FALSE --
+      nfs4_types.h:5041 already stores the vptr inside that ctor (a w64 landing), and
+      the two `sw s0,24(obj)` in the 2500-2700 block are that INLINED ctor's own
+      store; the residual there is emission ORDER only.  "moves ours to EXACTLY 3207
+      insns" is also stale (3214 before this wave, 3215 after).  "All eleven $fp
+      writes match" is stale (8 of 11).
+   3. REMAINING STRUCTURE, reg+spill-blind (256 units; script
+      scratchpad/W74_A6_ctx.py, `sbs` / `phase` / `find` modes):
+        insn  959 and 3041  -- `addu a3,zero,zero / lui v0 / lw a2,0(v0)` 3-insn
+                               rotation, twice, identical shape
+        insn 1221-1227      -- the -1 reload pick above
+        insn 1753 / 1870-1874 / 2401-2407 -- 1-2 insn order
+        insn 2500-2700      -- THE BIGGEST MASS: eight repetitions of ONE shape --
+                               retail hoists `addu a1,zero,zero; li a2,127|255` (and
+                               the anchor `lui`) to the TOP of each
+                               tListIteratorRangeIndexed argument block, right after
+                               the previous jal; ours emits them at the BOTTOM next
+                               to the call.  Same multiset at every site, ~5-7 diffs
+                               each.  Measured this wave: moving the eight m"(FEApp)"
+                               fences onto those ctors' 1st/2nd/3rd argument fixes a
+                               lot of that STRUCTURE (reg-blind 256 -> 249) but
+                               collapses the coloring (gate 1901, +5 insns); one
+                               fence per site instead of two = 1242.  So the shape is
+                               reachable -- it needs a NON-barrier ref dial.
+        insn 2714-2743      -- `li a1,4096` / `sw ..,28(sp)` / `sw zero,16(sp)` order
+        insn 3110-3135      -- `li t0,-1` vs `li t1,46` order (+1 insn)
+        insn 3171-3200 tail -- ours `li v0,2` where retail `li a0,2`; ours
+                               `addu v0,t0,zero` (this into the return reg) and
+                               `addu t0,t1,zero` (a copy of a still-live 1) where
+                               retail has `nop` and `li t1,1`; our two tail
+                               caller-save slots are 568/580 vs retail's 564/576.
+                               Tail cse-constant probe: read-only fence on the LAST
+                               `VertHelp = 1` = 1235 but +1 insn; launder = 1238
+                               (neutral); fence on the FIRST occurrence = 1240/1241.
+                               NOT landed -- 3 diffs is not worth an instruction.
+   4. AUDITS RE-RUN AFTER THE LANDING (W72-A6 item (d)).  W72_A6_hiaudit.py: the only
+      multiset deltas are FEApp +2 (our own m-fences), the frontEnd+0x5E vs
+      frontEnd+0x320 anchor swap (13/12 and 7/8, identical FINAL addresses) and the
+      two vtable naming gaps (D_800114D8 / D_80011530).  W72_A6_immaudit.py:
+      `addiu 0` +2 (the same fences), one 757-vs-51 anchor pair, and the known
+      duplicated `addiu 8408`.  THE ARGUMENT SET REMAINS PROVEN BYTE-CORRECT.
+      WARNING: W72_A6_hiaudit.py reads scratchpad/W72_A6_ourdis.txt -- REGENERATE it with
+      `python tools/ourdis.py recon/frontend/common/femenudefs.cpp __15tGlobalMenuDefs`
+      before every run or the audit silently scores a stale object.
+   5. TOOLS ADDED (scratchpad/): W74_A6_ctx.py (aligned side-by-side, t0/t1 phase-run
+      report, cross-stream grep -- all over the two verify_asm streams, no stale
+      snapshots), W74_A6_probe.py + W74_A6_probe2.py (variant harnesses that always
+      restore from W74_A6_base.cpp / W74_A6_base2.cpp). */
 
 
 /* [2026-08-10] Retail constructs every iterator in declaration order between its
@@ -3002,13 +3105,31 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemGarageCar(0x92, (tListIterator *)&iteratorGarageCar, 0x1c, 10)   /* +0x12E8 tMenuItemNFS4LeftRightChoice */
  , itemCarDealer(0x74, (tMenu*)&menuGoToCarDealer, 0, 0x3a, 10)   /* +0x1310 tMenuItemGoToMenuNFS4Button */
  , itemUpgradeCar(0x91, (tMenu *)0x0, MenuExtended_GoToUpgrades, 0x44, 10)   /* +0x133C tMenuItemGoToMenuNFS4Button */
-   /* [W72-A6] The statement-expression read-only fence on &itemGarageCar below is a
-      +1-REF ALLOCNO DIAL (catalog 21A#1), NOT dead code -- DO NOT SIMPLIFY IT AWAY.
-      It raises &itemGarageCar (this+0x12E8) from allocno priority 741 to 917, past
-      &menuCarOptions (this+0x20D8) at 896, so $fp holds the same member retail holds.
-      All eleven $fp writes match the oracle -- offsets AND registers -- only with it. */
- , menuCarGarage(0x1a00, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0x8f, (tMenuItem *)&itemCarSelectRace, ({ __asm__("" : : "r"(&itemGarageCar)); &itemGarageCar; }), &itemCarDealer, &itemUpgradeCar, 0)   /* +0x1368 tMenuNFS4 */
- , menuPostCarGarage(0x1a00, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0x8f, (tMenuItem *)&itemCarSelectRace, &itemUpgradeCar, 0)   /* +0x13E4 tMenuNFS4 */
+   /* [W72-A6 / MOVED W74-A6] The statement-expression read-only fence on
+      &itemGarageCar (now on menuPostCarGarage's FIRST argument, one line below the
+      menuCarGarage call) is a +1-REF ALLOCNO DIAL (catalog 21A#1), NOT dead code --
+      DO NOT SIMPLIFY IT AWAY AND DO NOT MOVE IT.  It raises &itemGarageCar
+      (this+0x12E8) from allocno priority 741 to 917, past &menuCarOptions
+      (this+0x20D8) at 896, so $fp holds the same member retail holds (8 of the 11
+      `addiu fp,` writes match the oracle with it; without the fence the whole
+      function is +101 diffs).
+      W74-A6 POSITION LAW: the fence's +1 REF depends only on its OPERAND, but the
+      output-less asm is VOLATILE = a sched1 BARRIER, and it used to sit INSIDE
+      menuCarGarage's own argument list -- exactly the block where our first
+      structural divergence was (a 21-insn pure-reorder hunk at insns 1140..1160).
+      Moving the barrier out of that block while keeping the operand kept the $fp win
+      and deleted the hunk: gate 1257 -> 1238, phase now clean 0..1226 (was 0..1139).
+      Measured position sweep (gate diffs, everything else held): no fence 1339 |
+      inside menuCarGarage on &itemGarageCar 1257, &itemCarDealer 1257,
+      &itemUpgradeCar 1258, &itemCarSelectRace 1255, 0x8f 1254, the fn-ptr arg 1253,
+      &menuCarOptions / screenCarSelect[0] / 0x1a00 1246 | on itemGarageCar's own
+      ctor 1238 | on menuPostCarGarage's 1st arg 1238 (LANDED) | one member later, at
+      iteratorOpponentCar, 1983 -- a cliff, because past menuCarGarage's use the
+      fence LENGTHENS the live range and $fp is lost again.  So: sweep a read-only
+      fence's position from the operand's definition to just past its LAST use; the
+      optimum is adjacent to a use, never inside the hot argument block. */
+ , menuCarGarage(0x1a00, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0x8f, (tMenuItem *)&itemCarSelectRace, &itemGarageCar, &itemCarDealer, &itemUpgradeCar, 0)   /* +0x1368 tMenuNFS4 */
+ , menuPostCarGarage(({ __asm__("" : : "r"(&itemGarageCar)); (0x1a00); }), (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0x8f, (tMenuItem *)&itemCarSelectRace, &itemUpgradeCar, 0)   /* +0x13E4 tMenuNFS4 */
  , iteratorOpponentCar(&frontEnd.oppCar, &carManager)   /* +0x1460 tListIteratorCar */
  , itemDuelRace(0xbd, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0x2a, 10)   /* +0x147C tMenuItemGoToMenuNFS4Button */
  , itemCar2(0x92, (tListIterator *)&iteratorCar1, 0xc, 10)   /* +0x14A8 tMenuItemNFS4LeftRightChoice */

@@ -2568,7 +2568,41 @@ stateExecuteAndReturn:
    answers exactly that; the instrumented cc1plus ICEs on aih_cop but should be re-tried
    on THIS TU (scratchpad/W72_A11/A11_trace.py prints the per-fn fidelity table first).
    Probe files: scratchpad/W72_A11/v_wing4.py (live), v_wing{,2,3}.py (the dead-copy
-   ladders, kept only as the anchor-trap record). ==== */
+   ladders, kept only as the anchor-trap record).
+   ==== W74-A11 re-gated (4 @675/675) and CORRECTED THE MECHANISM RECORD AGAIN, then
+   closed the address-passing axis at ARM granularity.
+   (1) 🔴 THE BUILTIN IS NOT INVOLVED AT ALL.  W72's correction (1) above assumed
+       BUILT_IN_MEMSET expands here and that its clear_storage/TARGET_MEM_FUNCTIONS exit
+       is what puts the address in $v0.  MEASURED: routing all four arms through a cast
+       function POINTER -- `#define EA_memset ((void *(*)(u_char *,int,int))memset)`,
+       which cannot be builtin-expanded and emits the identical `jal memset` -- is
+       BYTE-IDENTICAL (4 @675).  libfns.h declares `void * memset(...)`, whose type does
+       not match the builtin's, so gcc never treated our calls as BUILT_IN_MEMSET in the
+       first place.  The `addu a2,v0,zero` is therefore NOT a cse/builtin artifact: it is
+       simply our source PASSING `offset`, the call's return value, at those two arms.
+   (2) THE ORACLE, READ PROPERLY, SAYS ALL FOUR ARMS REMATERIALIZE.  The .s has four
+       `jal memset` (idx 46/202/394/595) and each is followed by
+       `addiu $a2,$sp,{0x28,0x28,0x48,0x38}`; three of the four then `j .L8005EC0C`, one
+       shared Newton tail.  Our two PASSING arms are the 0x28 pair (they pass
+       `&trafficOffset`); the two FAILING arms are 0x48/0x38 -- the ones whose source
+       passes `offset`.  Frame slots already agree, so the ONLY question is the a2 value.
+   (3) THE ADDRESS-PASSING AXIS IS CLOSED, at arm granularity and across six spellings.
+       Each re-gated from 4, live definition only (line-scoped harness so the dead copy
+       cannot absorb an anchor): both arms -> `&trafficOffset` 489 @698; the same with the
+       capture removed 489 @698; the same with the calls de-builtined 489 @698; arm D
+       ALONE -> `&trafficOffset` 497 @716; arm D alone -> `(coorddef *)&trafficOffset.x`
+       497 @716; arm D alone -> `(coorddef *)(int)&trafficOffset` 497 @716; arm D alone ->
+       an identity-laundered address local 491 @716.  EVERY one of them adds a callee-saved
+       register (s3 appears, frame -104 -> -112, `this` s1 -> s2) and 23-41 insns.  So it
+       is not a spelling axis: passing the call's VALUE register is what holds the arms'
+       tails textually identical (they cross-jump-merge) and keeps the conflict set at four
+       saved regs.  Retail merges too, but merges BELOW its per-arm `addiu a2` + per-arm
+       `sw v0,off(sp)` -- our build cannot reach that merge point without paying the extra
+       allocno.  NEXT LENS: the extra saved register is the thing to explain, not the
+       address spelling -- dump -dg for the 698 variant and read which allocno s3 carries
+       (the receipt's own qtytrace/copypref ask, now with a concrete control pair to diff:
+       the 4-diff build vs the 489 build differ by ONE source token per arm).
+       Probe files: scratchpad/W74_A11_wing{,2,3}.py. ==== */
 void AIHigh_BTC_Wingman::HighExecute()
 {
   ((AIHigh_BasicCop *)this)->CheckSpikeBelt();

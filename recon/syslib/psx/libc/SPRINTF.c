@@ -171,6 +171,103 @@
  *     (w48-a9) -- the trace needs the fn sliced out into a mini-TU first.
  *     The format-pointer row (`addiu $a3,$a2,1` + `lb $a1,1($a3)` vs retail `addiu $v0,$a2,1` +
  *     `lb $a1,2($a2)`) is the same story one level down and moves with it. */
+/* 🏆 W74-A16 (2026-08-22/23) -- THE TEMPLATE-COPY ROW IS SEALED.  44 -> 28 @545/545
+ * (verify_asm + tugate, each run twice).  The w72-a18 "named next step" was run and it
+ * ANSWERED THE QUESTION IN THE OPPOSITE DIRECTION, which is what unlocked the row.
+ *
+ * (1) 🔑 THE LOCAL-ALLOC-DECLINES VERDICT: **OUR LOCAL-ALLOC DOES NOT DECLINE.  IT ALLOCATES
+ *     THE FOUR SCRATCH QTYS AND PICKS RETAIL'S REGISTERS -- AND THEN gcc-2.8 THROWS THAT
+ *     AWAY.**  Instrumented run (`C:/Temp/nfs4-instr-cc1/cc1-ecoff.exe`, GCC_TRACE_ALLOC=1,
+ *     the production flag set; NOTE the lab needs TMPDIR/TMP/TEMP set to a Windows path or it
+ *     dies with `\/cta<pid>: No such file or directory` -- that, not the segfault, was the
+ *     w72 "every flag combination" blocker).  The movstrsi block's trace reads:
+ *         [qty_order] (qty/reg1:refs/life/calls/sg/csg=pri):
+ *              0/-1:1/2/0/0/0=0  1/-1:1/2/0/0/0=0  2/-1:1/2/0/0/0=0  3/-1:1/2/0/0/0=0
+ *         [find_free_reg] qty 0 ... win [3,5) blocked: 0(live) 1(fixed) 26..28(fixed) 29,30(live) 31(fixed)
+ *         [find_free_reg] qty 0 -> reg 2   qty 1 -> reg 3   qty 2 -> reg 4   qty 3 -> reg 5
+ *     i.e. reg1 = -1 (a SCRATCH qty, not a pseudo), refs 1 / life 2 / pri 0 exactly as w72
+ *     predicted, `constrain_operands` PASSES, and find_free_reg hands out $2/$3/$4/$5 =
+ *     $v0/$v1/$a0/$a1 = RETAIL.  (-O2 still segfaults later, in reload/final; local_alloc and
+ *     global_alloc both complete first, so the trace is sound.  No TU slicing was needed --
+ *     SPRINTF.c is a one-function TU, so the ICE-blanking law had nothing to blank.)
+ *
+ * (2) 🔴 WHY THE PICK NEVER REACHES THE INSN -- local-alloc.c:1699-1706 (gcc-2.8.1):
+ *         if (qty_scratch_rtx[q]) {
+ *             if (GET_CODE (qty_scratch_rtx[q]) == REG) abort ();
+ *             qty_scratch_rtx[q] = gen_rtx (REG, GET_MODE (qty_scratch_rtx[q]),
+ *                                           qty_phys_reg[q]);          <-- a FRESH rtx
+ *             scratch_block[scratch_index] = b;
+ *             scratch_list[scratch_index++] = qty_scratch_rtx[q];
+ *         }
+ *     gcc-2.8 REBINDS the table slot instead of mutating the operand, so the insn still
+ *     carries `(scratch:SI)` into reload and reload's own pool allocates it.  (reload1.c:3755
+ *     `PUT_CODE (scratch_list[i], SCRATCH)` -- the undo path -- only makes sense against an
+ *     in-place mutation, so 2.8 lost the write-through.)  MINIMAL REPRO, 4 lines, decisive:
+ *         struct S { int a, b, c; }; extern struct S G; extern void use(struct S *);
+ *         void f(void) { struct S s; s = G; use(&s); }
+ *       gcc-2.7.2-psx : `la $5,G; lw $2,0($5); lw $3,4($5); lw $4,8($5)`   <-- LOCAL-ALLOC
+ *       gcc-2.8.0-psx : `lw $3,0($7); lw $5,4($7); lw $6,8($7)`            <-- RELOAD POOL
+ *       gcc-2.8.1-psx : identical to 2.8.0.
+ *     Full ladder on THIS TU (all with the production flags): 2.6.0 / 2.6.3 / 2.7.2 ALL emit
+ *     retail's `la $5,D_8012348C; lw $2,0($5); lw $3,4($5); lw $4,8($5)` exactly; 2.8.0 and
+ *     2.8.1 give $11 + $8/$9/$10; 2.91.66 gives $13 + $10/$11/$12; 2.95.2 gives $2 + $3/$4/$5.
+ *     Same split on the REAL vendor compilers: PsyQ 4.0 CC1PSX (2.7.2.SN32.3.7 Build 0001) =
+ *     retail's registers; psq43 CC1PSX (2.8.0 SN32 Build 4.0.0007, our production binary),
+ *     psq44/psq45 CC1PSX (2.8.1 SN32 BUILD 4.0.0010) = the reload pool.  So the version axis
+ *     is REAL but NOT wireable: the 2.7.2 lane builds a DIFFERENT FUNCTION (153 diffs @518 vs
+ *     545, frame 600 vs the oracle's 592) whether driven as `cc1_ver` through the normal
+ *     maspsx pipeline or as PsyQ 4.0's own CC1PSX.  The body is 2.8; only this one row was 2.7-shaped.
+ *
+ * (3) ⭐ WHICH MAKES THE MOVSTRSI FORM PROVABLY UNREACHABLE, AND THAT IS THE CURE.  Under any
+ *     2.8 cc1 the four scratches come from `order_regs_for_reload` (reload1.c:3840), whose
+ *     front group is the `uses == 0 && call_used` hard regs in ascending order; $2/$4/$5/$6
+ *     are `regs_explicitly_used` in EVERY sprintf (return value + memmove/strlen/memchr
+ *     argument registers) and sort to the end.  ⇒ retail's $v0/$v1/$a0 + $a1 are MUTUALLY
+ *     EXCLUDED from the movstrsi form -- a certificate, not a hunch.  §22D-2 re-run confirms
+ *     the pool: a far-away `__asm__("" : : "i"(0) : "$8")` shifts the four t0/t1/t2+t3 ->
+ *     t1/t2/t3+t4 (gate 44 -> 50), "$8".."$11" -> t4..t7 (50), "$12".."$15" inert (46).
+ *     ⇒ STOP SPELLING THE COPY AS A STRUCT ASSIGNMENT.  Written as three word assignments
+ *     through a union view the four registers become ordinary pseudos, and then ONE zero-insn
+ *     read-only availability fence (21A-1) with a `"$2","$3","$4"` clobber -- placed after the
+ *     stores, INSIDE the source-address pseudo's live range per 22B-1 -- de-prioritises that
+ *     pseudo so it lands in $a1 AFTER the three words.  Result is retail verbatim.
+ *     MEASURED DIAL (the clobber set is exact, not decorative):
+ *         movstrsi (was)            44   lui $t3/addiu/lw $t0,$t1,$t2
+ *         words, no fence           52   la $2 / lw $3,$4 / lw $2  (self-temp, 3 regs)
+ *         words + "r"(tsrc) only    44   la $2 / lw $3,$4,$5
+ *         words + clobber "$2"      44   la $3 / lw $2,$4,$5
+ *         words + "$2","$3"         40   la $4 / lw $2,$3,$5
+ *         words + "$2","$3","$4"    28   la $5 / lw $2,$3,$4   <-- RETAIL, LANDED
+ *         words + "$2".."$5"        38   la $6 / lw $2,$3,$4
+ *         fence BEFORE the loads    36   (placement matters -- 22B-1)
+ *         launder form              47 @548  (adds an insn, breaks count parity)
+ *         `int *tdst = (int *)&info` instead of the union view   39 @546 -- the union view is
+ *              REQUIRED; a cast dest regrows w71's `addiu $v0,$sp,528` destination address.
+ *     Union-view-only with the struct assignment left alone is 44 (inert), so the win is the
+ *     COPY SPELLING + the fence, not the union.
+ *
+ * (4) §22D-2 ON THE FORMAT-POINTER ROW -- W71'S "ONE WHOLE-FUNCTION PROFILE" READING IS WRONG.
+ *     The two rows are DIFFERENT CLASSES.  Far-away clobbers of "$2"/"$3"/"$6"/"$7" leave the
+ *     format-pointer temp on $7 (each costs a uniform +2 elsewhere), i.e. it is NOT a reload
+ *     register; a fence placed INSIDE the flags loop DOES move it ("$7" -> $8, "$6","$7" ->
+ *     $9), so it is a local-alloc in-block qty.  It only moves UP: $2..$6 are occupied over
+ *     its window, and the '%'-constant hypothesis for $2 is dead (see below).
+ *
+ * (5) SIBLING ROWS RE-PRICED ON THE NEW BASIN (21E-1), ALL STILL OPEN, NOTHING NEW LANDED:
+ *     '%' cluster: named `pct` register local at both compare sites 47 @546 | `"r"(ch):"$2"`
+ *     fence at the for-head 30 | `"r"(f):"$2"` after the copy 29 @546 | before the flags loop
+ *     29 @546  ==> the `li $s3,48` order row is NOT downstream of a '%'-in-$2 occupancy.
+ *     flagZero: identity launder 28 (inert) | plain `int` 28 (inert) | assigned inside the for
+ *     body 28 (inert) | `"$19"` clobber 296 (catastrophic -- $s3 IS the right seat, only the
+ *     EMISSION ORDER differs).  So flagZero is confirmed a pure emission-order row, 2 diffs.
+ *
+ * REMAINING 28, by row: format-pointer base-reuse + the '*' block 20 (§4 above -- a local-alloc
+ * in-block qty, the biggest remaining class); the `li $s3,48` emission order 2; the `j`/`lui $a3`
+ * slot 2; the case-'c' j-slot pick 4.  NOT a floor.
+ * ⚠️ TOOL GOTCHA (cost a false A/B here): `tools/psyqproof.py` reads the ALREADY-BUILT
+ * `build/<rel>.c.i` and never re-runs cpp, so an A/B that only rewrites the .c and re-runs
+ * psyqproof compares the SAME source twice and reads VACUOUSLY IDENTICAL.  Build the TU
+ * (verify_asm/vprobe) between the edit and the psyqproof call. */
 /* PRIOR MATCH (w51-a8, 2026-08-09) -- RAGE-RACER VENDOR SIBLING AUDITED; our body is already
  * the right shape, so NO transplant was landed (kept at 174 diffs, 547-vs-545 insns).
  * Reference: C:/Temp/rage-racer-decomp\src\main\PAL\lib\libc\sprintf.c (a full
@@ -280,7 +377,15 @@ extern int sprintf(char *out, signed char *f, ...)
 {
     register int flagZero;
     char buf[0x200];
-    printf_info info;
+    /* w74-a16: the conversion spec is spelled as a UNION with its three-word
+     * view so the template copy below can be plain word assignments instead of
+     * a movstrsi block move (see the W74-A16 header note for the proof that a
+     * movstrsi can never reach retail's registers under a 2.8 cc1).  The union
+     * is storage-identical to the bare struct -- printf_info is exactly 12
+     * bytes (`.extern D_8012348C, 12`) -- and every `info.field` use below is
+     * unchanged. */
+    union { printf_info s; int w[3]; } infoU;
+#define info infoU.s
     va_list args;
     char *hexChars;
     int written;
@@ -310,7 +415,27 @@ extern int sprintf(char *out, signed char *f, ...)
             out[written++] = ch;
             continue;
         }
-        info = D_8012348C;
+        {
+            /* w74-a16 (44 -> 28): the template copy, word-wise + a zero-insn
+             * availability fence.  `info = D_8012348C;` is one movstrsi whose
+             * four `(clobber (match_scratch:SI "=&d"))` operands are handed out
+             * by RELOAD's pool under every 2.8 cc1, and $2/$4/$5/$6 are
+             * `regs_explicitly_used` in any sprintf (return value + memmove /
+             * strlen / memchr argument registers) so the pool can NEVER produce
+             * retail's $v0/$v1/$a0 + $a1 -- a proven mutual exclusion, see the
+             * header.  Written as three word assignments the registers are
+             * ordinary pseudos again; the fence then costs zero instructions
+             * and denies $2/$3/$4 to the source-address pseudo (which is live
+             * at that insn), so the address lands in $a1 AFTER the three words
+             * -- retail's `la $5,D_8012348C; lw $2,0($5); lw $3,4($5);
+             * lw $4,8($5)` exactly.  The clobber set is EXACT: "$2" alone is 44,
+             * "$2","$3" is 40, "$2".."$5" is 38, "$2","$3","$4" is 28. */
+            const int *tsrc = (const int *)&D_8012348C;
+            infoU.w[0] = tsrc[0];
+            infoU.w[1] = tsrc[1];
+            infoU.w[2] = tsrc[2];
+            __asm__("" : : "r"(tsrc) : "$2", "$3", "$4");
+        }
 
         while (true) {
             ch = *++f;
@@ -572,3 +697,4 @@ end:
     out[written] = 0;
     return written;
 }
+#undef info

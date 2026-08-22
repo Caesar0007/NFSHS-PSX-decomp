@@ -666,7 +666,55 @@ int InGame_GetPSXPadValue(int value,int player)
            lw 0x88($aN)`, fields 0x68..0xA0 and a 0x80 bias).  So the twin's per-arm
            ADDRESSING cannot transfer -- only its OR-chain flattening did (W63-A14),
            and there is nothing further to port.  Do not re-open the twin as an
-           addressing oracle. */
+           addressing oracle.
+     ===== W74-A12 (2026-08-22/23): 108 -> 97 @234 vs 233.  THE FRONT TWIN'S W72-A8
+     COUPLED DEVICE TRANSFERS, AND IT TRANSFERS EXACTLY ON THE PAIR THE W71 RECEIPT
+     NAMED (retail's .L800DCC68 = 0x53/0x800000 + 0x23/0x800000).
+     THE DEVICE (front.cpp GetPSXPadValue, W72-A8, verbatim shape):
+         { int acc = player << 0x1e;
+           __asm__("" : : "i"(0) : "$2","$3");
+           return (acc | <hi> | <lo>) | 1; }
+     Both halves are load-bearing here exactly as they are there: the BLOCK-LOCAL `acc`
+     lets local-alloc.c's combine_regs tie the last `or`'s dest to its own first operand
+     (`or aN,aN,vM`) -- the one global `newControl` allocno can never be tied (:1841
+     rejects a source with reg_qty < 0, :1874 a dest with reg_qty == -1) -- and the
+     zero-insn hard-reg CLOBBER pushes the resulting block-local qty off find_free_reg's
+     ascending $v0/$v1 landing onto retail's register, so the two arms' tails stay
+     byte-identical and jump2's cross_jump still merges them.  Without the clobber the
+     pair measures 135 (the un-merge); with it 97.  The pair is ATOMIC (arm 0 alone 122,
+     arm 7 alone 98, both 97), and it also RETIRES the w46-a8 de-merge fence that had
+     been the unique optimum for five waves (bit-neutral once the acc is there).
+     MEASURED THIS WAVE (all re-gated; arm indices = the 10 `return newControl | 1;`
+     arms in source order: 0..6 = the 0x53/0x73 group, 7 = 0x23/0x800000,
+     8 = 0x23/0x4000, 9 = 0x23/0x8000):
+       clobber sets on the {0,7} pair: {$2,$3} 97 @234 <== LANDED . {$2} 97 (identical) .
+         {$2,$3,$4} 97 . {$2,$4} 97 . {$2,$5} 99 . {$2,$3,$5} 99 . {$3} 135 . {$4} 135 .
+         {$5} 135 . none 135 -- denying $v0 is the whole effect; $v1 is free either way.
+       every OTHER singleton, with {$2,$3} and with no clobber (18 cells): 112-175 @239-249
+         (0:122/120 . 1:175/146 . 2:117/114 . 3:132/142 . 4:136/120 . 5:115/139 .
+          6:130/134 . 8:118/120 . 9:112/126) -- the COUNT blows up in every one, i.e. a
+         lone acc arm ALWAYS un-merges; only a whole cross-jump group may be converted.
+       all 10 arms at once: {$2,$3} 153 @240 . no clobber 234 @235.
+       triples {0,7}+X with {$2,$3}: +1 164 . +2 103 . +3 121 . +4 110 . +5 104 . +6 119 .
+         +8 107 . +9 101 . {0,7,2,9} 107 . {0,7,8,9} 151  => {0,7} is the unique optimum.
+     🔑 LAW CANDIDATE (catalog): the 20B/21A preference-killer's PARTNER is the arm's own
+     cross-jump GROUP -- convert every arm of one retail shared tail together, or not at
+     all.  A singleton conversion is not a weaker version of the cure, it is a DIFFERENT
+     (un-merging) transform, which is why five waves of singleton/all-arm sweeps read the
+     device as inapplicable to this function.
+     RESIDUAL 97 @234 (+1) = the SAME a0<->a1 role swap in the two REMAINING retail
+     tails.  From the side_by_side those are:
+       (i)  the tail ending `or a1,a1,v1 ; j ; ori v0,a1,1` (ours `or a0,a1,v1 ; ori
+            v0,a0,1`) -- the 0x53/0x400000 family;
+       (ii) the tail ending `or a2,a2,a0 ; j ; ori v0,a2,1` (ours `or a0,a2,a0`) -- the
+            0x3000000/subtract group, which wants $a2, i.e. a clobber set that denies
+            $v0,$v1 AND $a0,$a1 without costing the arm its address pair.
+     That is the front twin's OWN standing residual (its G1 wants $a2, its G2 wants $a1,
+     and there the clobber costs +2 address-rematerialisation insns).  => the two
+     functions are still ONE problem.  NEXT TAKER: do the GROUP DISCOVERY first -- for
+     each retail shared tail walk the oracle's `.L800DC*` labels and list the arms that
+     jump into it, then convert that exact set with the smallest clobber that denies the
+     registers below the wanted one.  Do NOT sweep singletons again. */
   if (gPadinfo.buf[player * 4].nopad != '\0') {
     goto InGame_GetPSXPadValue_noPad;
   }
@@ -682,10 +730,11 @@ InGame_GetPSXPadValue_gotType:
   case 0x73:
     switch (c) {
     case 0x800000:
-      newControl = player << 0x1e |
+      { int acc = player << 0x1e;
+        __asm__("" : : "i"(0) : "$2", "$3");
+        return (acc |
                    (0x80 - INGAME_CD.J1MIN[0]) * 0x10000 |
-                   (0x80 - INGAME_CD.J1MAX[0]) * 0x100 ;
-      return newControl | 1;
+                   (0x80 - INGAME_CD.J1MAX[0]) * 0x100 ) | 1; }
     case 0x200000:
       newControl = player << 0x1e |
                    (INGAME_CD.J1MIN[0] + 0x80) * 0x10000;
@@ -731,20 +780,17 @@ InGame_GetPSXPadValue_gotType:
   case 0x23:
     switch (c) {
     case 0x800000:
-      newControl = player << 0x1e |
+      { int acc = player << 0x1e;
+        __asm__("" : : "i"(0) : "$2", "$3");
+      /* W74-A12: the w46-a8 DE-MERGE FENCE that lived here (`__asm__ volatile("" : :
+         "r"(newControl));`, the unique fence optimum through five waves) is now
+         SUPERSEDED and REMOVED -- with the block-local accumulator above it is exactly
+         bit-neutral (97 @234 with it, 97 @234 without), because the acc form is itself
+         what keeps this tail from over-merging.  Its measurement history is kept in the
+         receipt block above the function. */
+        return (acc |
                    (0x80 - INGAME_CD.deadSpot[0]) * 0x10000 |
-                   (0x80 - INGAME_CD.steeringRange[0]) * 0x100 ;
-      __asm__ volatile("" : : "r"(newControl));
-      /* w46-a8 DE-MERGE FENCE (zero insns, §2b.5 -- NOT a register pin).  The w45 `| 1`-
-         on-the-return lever made gcc's jump2 cross-jump the case tails like retail, but it
-         OVER-merges: these two 0x23 arms had their range-cal loads and `sll s1,2` folded
-         into the shared tail as well, where retail merges only the final `ori v0,a0,1`.
-         An empty asm at the end of exactly these two arms makes their tails differ so
-         jump2 declines them while every other group stays merged.  MEASURED (each set is
-         the whole fence configuration, k1 nopad spelling): {8,9} 264 (kept), {9} 266,
-         {8} 268, {8,9,10} / {8,9,11} / all-four-0x23 268, {9,10} 270, none 272, {8,10} 272,
-         adding ANY 0x53/0x73 arm 267-280, all eight 0x53/0x73 arms 331. */
-      return newControl | 1;
+                   (0x80 - INGAME_CD.steeringRange[0]) * 0x100 ) | 1; }
     case 0x200000:
       newControl = player << 0x1e |
                    (INGAME_CD.deadSpot[0] + 0x80) * 0x10000 ;

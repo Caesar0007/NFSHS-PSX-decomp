@@ -674,7 +674,64 @@ int SetupChunkBuildList(DRender_tView *Vi)
            for this block from the instrumented cc1 (C:/Temp/nfs4-instr-cc1;
            cc1plus-ecoff compiles this TU fine -- see
            scratchpad/W72_A12/instr/bw.trace.txt) and find which qty could be
-           given a window covering [lui,addiu] at zero insns. */
+           given a window covering [lui,addiu] at zero insns.
+
+       W74-A10 2026-08-22 -- THAT ANGLE WAS WALKED WITH A *VALIDATED* INSTRUMENT,
+       and the residual now has an exact arithmetic requirement.  Two W72 claims
+       are corrected on the way.
+       (a) INSTRUMENT VALIDATION (22D-1) -- the instrumented cc1plus-ecoff needs
+           `-mgas -msplit-addresses` for this TU: without them mips.c:3696 leaves
+           mips_split_addresses = 0 and it emits `la $17,BWorld_gChunkBuildList`
+           instead of retail's %hi/%lo pair, i.e. it is NOT an oracle for exactly
+           the insn in question.  WITH them the whole function is byte-identical
+           to CC1PLPSX (286/286 lines, only the TEXT_MOVES-relocated `addu $19`
+           differs), so its allocation trace IS valid here.  Recipe:
+             GCC_TRACE_ALLOC=1 TMPDIR=<win path>\ cc1plus-ecoff.exe -quiet -O2 \
+               -G4 -mgas -msplit-addresses bworld.cpp.i -o x.s 2> trace.txt
+       (b) THE HEAD-BLOCK QTY TABLE (ours; pri = refs*floor_log2(refs)*10000/life):
+             qty5 (merged, refs 4 life 6 win[22,28)) pri 13333 -> reg 2   <- 1st
+             qty0 (THE %hi PAIR, refs 2 life 2 win[4,6)) pri 10000 -> reg 2 <- 2nd
+             qty1 refs2 life4 win[10,14) 5000 -> 2 | qty4 refs2 life4 win[20,24)
+             5000 -> 3 | qty3 refs2 life6 win[18,24) 3333 -> 4 | qty2 refs3
+             life12 win[14,26) 2500 -> 5
+           When the pair is allocated NOTHING is blocked but the fixed regs, so
+           find_free_reg hands it the lowest = $2.  Retail's $3 therefore requires
+           a qty that (i) CONFLICTS with the pair's 2-insn window and (ii) is
+           allocated BEFORE it, i.e. pri > 10000.  With life >= 6 (it must span
+           the pair) the pri formula needs refs*floor_log2(refs) > 6, i.e.
+           refs >= 4 -- a COPY-MERGED qty, exactly the shape of this block's qty5
+           (the Track_gInViewCount address+load+store chain).
+           => the requirement is NOT "make $2 live" in the vague sense, and NOT
+           the gCurrContext birth order (a plain long-lived ctx value is pri 1250,
+           allocated LAST, and would be the one pushed to $3 -- the INVERSE of
+           retail).  It is: the %hi pair must sit LATE ENOUGH in the pre-sched2
+           stream to overlap the refs-4 chain.  sched2 then hoists it back to the
+           head for free (it has no in-block dependents, so the reverse list
+           scheduler picks it last = places it first).
+       (c) A SECOND TEXT_MOVES ROW CANNOT CLOSE THIS.  The row mechanism is a
+           post-cc1 LINE relocation; the residual is a REGISTER NAME ($v0 vs $v1)
+           already chosen by local-alloc.  No arrangement of lines changes it.
+           (Spec answered in the negative -- do not spend a wave building one.)
+       (d) ALSO FALSIFIED THIS WAVE (each a real gate run, all 4 @203):
+             decl order: buildList first / second / totalVisChunks-swapped /
+               chunkInd last ..................................... 4 each
+             buildList assignment moved into the inner block after BOTH setup
+               statements (re-confirming W72's byte-identical cc1 output) ... 4
+           And the sched-flag A/B is re-confirmed sharper: `-fno-schedule-insns`
+           (sched1 OFF) still emits the pair at the head, so W72's "sched1 owns
+           the birth order" is wrong -- the pair's head position survives with
+           sched1 disabled AND with the statement moved, because `buildList` is a
+           BIV and its init sits in the entry block where loop.c leaves it
+           (catalog 21B-3: a PRE-loop assignment is unmovable; only a body
+           assignment becomes a movable that loop.c drops in the PREHEADER).
+       (e) NEXT NAMED ANGLE (sharp, unwalked): get the buildList address
+           materialization to be born as a LOOP MOVABLE so loop.c places it in
+           the preheader (= after the count chain, overlapping qty5) instead of
+           the entry block -- i.e. a shape where the pointer's base is an
+           invariant used INSIDE the loop rather than a pre-loop biv init.  The
+           obvious spelling (index form `BWorld_gChunkBuildList[chunkCount]`
+           inside the body) rewrites 6 matched store sites and is a whole-loop
+           risk, so price it on a scratch copy first. */
     viewList =
         ((short (*)[32])Track_gInViewList)[gCurrContext->currentChunk];
     totalVisChunks =

@@ -196,7 +196,31 @@ void AIHigh_Cop::SetTuningLevers()
    `qty_compare (1, 2)` compares QTYS 1 and 2 while the EXCHANGE permutes qty_ORDER.
    `case 2:` is a correct two-element sort, so a genuinely 2-qty block IS priority
    ordered and the floor_log2 ref/live dial DOES reach it.  Count the block's qtys before
-   quoting 14C. ==== */
+   quoting 14C.
+   ==== W74-A11 re-gated (20 @1460/1460) and CLOSED THE 20B/12A PREFERENCE-KILLER AXIS ON
+   SITE A' with a clean negative.  A' is `lui v0; lw a0,0(v0); bnez a0` where retail
+   SELF-TEMPS (`lw v0,0(v0); bnez v0`), i.e. purely "rev's home is $a0, retail's is $v0",
+   which is textbook 20B: a zero-insn hard-register denial on the existing identity
+   launder.  It does NOTHING.  Measured, each re-gated from 20 and each byte-identical
+   (1460 insns, 20 diffs): the rev launder with `: "$4"`, with `: "$4","$5"`, with
+   `: "$4","$5","$6","$7"`; the dir launder with `: "$4"`; both launders clobbering $a0.
+   A SECOND launder on rev placed after `wrongWay = ~dir;` costs +2 insns (28 @1462)
+   whether it clobbers $a0, all four arg regs, or nothing -- the clobber is again inert.
+   READING (this is the transferable part): 20B's killer denies local-alloc's COPY
+   PREFERENCE, which only exists for a BLOCK-LOCAL qty; `rev` is read in a different block
+   from where it is set, so it is a GLOBAL allocno and its seat comes from global.c's
+   find_reg, where an asm clobber changes nothing it can act on.  Before spending a wave
+   on a 20B clobber walk, check which allocator owns the pseudo (a clobber that is inert
+   across EVERY register set is the tell, and it is cheap: three variants).
+   ALSO FALSIFIED this wave on SITE D (the 0x471c7 slt dest, each re-gated from 20): a
+   named `int lim_ = 0x471c7;` before the test 20 (byte-identical -- 15B's "a plain named
+   constant is const-propagated back = provably inert"), the same with an identity launder
+   20, the same with a read-only fence 20; an identity launder on `speed` itself 23 @1461.
+   So D is not reachable by naming or fencing either operand.  D and A' remain the two-qty
+   handout question; per the ladder law above, COUNT THE BLOCK'S QTYS FIRST (case 3 is the
+   buggy arm, case 2 sorts correctly) -- that census is still the untaken step, and the
+   instrumented cc1plus still ICEs on this TU (use ICE-blanking, 22D(1)).
+   Probe file: scratchpad/W74_A11_cop.py. ==== */
 /* NEAR-MISS 69 diffs, ours 1457 / oracle 1460 (W64-A12 re-gated; w63-a12 landed 77->69
    with the fenced boolean + the 09I volatile-on-the-test-read, both halves ablated and
    both load-bearing).  ONE named residual is now isolated and its cheapest angle is

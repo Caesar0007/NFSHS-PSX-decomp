@@ -188,7 +188,26 @@ extern IntrState *_initIntr(void)       /* @0x800F2968 */
      * 04Z ladder (never run before this; the TU is wired cc1_272): 2.6.3 6, 2.7.2 6,
      * 2.7.2-970404 65 @53, 2.8.0 65 @53, 2.8.1 65 @53 -- the VERSION AXIS IS CLOSED here. */
     g_hooks_ptr->vsync_setter = (IntrSetter)startIntrVSync();
-    g_hooks_ptr->dma_setter   = (IntrSetter)startIntrDMA();
+    /* MATCH (W74-A17, 2026-08-23): 6 -> PASS 54/54.  THE INTRUDER THE W63/W71/W72 NOTES
+     * ASKED FOR, BUILT WITH THE 20B/22B-2 DEVICE.  In RTL the second hooks-pointer load
+     * lives for exactly TWO insns AFTER `jal startIntrDMA` (reorg later back-fills the
+     * store into the jal's delay slot and hoists the `lw` above it), so it never crosses
+     * the call: $v0 holds the call result, $v1 is free, and local-alloc's numeric scan
+     * hands it $v1.  Retail has $a0 there, i.e. $v1 was ALSO busy.  A named call-result
+     * temp creates the statement boundary the window lacked, and a ZERO-INSN clobber
+     * launder on it denies $v1 -- the pointer then takes $a0 and the block is byte-exact.
+     * `d` (not a pointer local) is the carrier: a named `IntrHooks *h` alone is 6 (inert)
+     * and `h` + the same launder is also PASS, so the temp is only the vehicle for the
+     * clobber.  MEASURED (all gated): launder+"$3" on `d` PASS * launder+"$3" on a named
+     * `h` PASS * read-only fence `"r"(h):"$3"` PASS * both stores converted PASS *
+     * launder on `h` with NO clobber 6 (inert -- the clobber is the whole dial) *
+     * void clobber `__volatile__("" : : : "$3")` after `h` 3 @55 (+1 insn: output-less
+     * asm is a sched1 barrier, 20A) * the same launder clobbering "$2" 7 @55. */
+    {
+        IntrSetter d = (IntrSetter)startIntrDMA();
+        __asm__("" : "=r"(d) : "0"(d) : "$3");
+        g_hooks_ptr->dma_setter = d;
+    }
     _96_remove();
     ExitCriticalSection();
     return &g_intr;
@@ -412,7 +431,66 @@ extern void _intrhand(void)            /* @0x800F2A40 */
      *  spelling and killed outright only by the 2.6.3 rung, W63-A8 (2)).  NAMED NEXT ANGLE:
      *  `en` must become a BLOCK-LOCAL qty at each site WITHOUT paying the extra frame slot a
      *  C block scope costs -- i.e. the 06E local-alloc handout again, but now with a
-     *  two-element target and a live-length dial that is known to work. */
+     *  two-element target and a live-length dial that is known to work.
+     * W74-A17 (2026-08-23) RE-GATED 24 @116/116 (twice).  ~90 further cells measured, none
+     * better; but the TARGET IS NOW READ OFF THE TWO STREAMS EXACTLY and the W72 reading of
+     * the 26 basin is CORRECTED.
+     *  (1) RETAIL'S PEND BLOCK, decoded (identical shape at BOTH sites -- and note the gate
+     *      is reloc-name lenient, so which of g_istat_ptr/g_imask_ptr is which does NOT
+     *      affect the score; only the SHAPE does):
+     *          lui/lw $a0   = ptrX (the INNER and's pointer)
+     *          lhu $v1,48($s1) = en                      <-- born SECOND, before `state[1]=1`
+     *          li $v0,1 ; sh $v0,2($s1)
+     *          lui/lw $v0   = ptrY (the OUTER and's pointer)
+     *          lhu $a0,0($a0)   = *ptrX  -- REUSES ptrX's own dying $a0
+     *          lhu $v0,0($v0)   = *ptrY  -- REUSES ptrY's own dying $v0
+     *          and $v1,$v1,$a0  = en & *ptrX ; and $v0,$v0,$v1 = *ptrY & inner
+     *      i.e. retail's tree is `*ptrY & (en & *ptrX)` = EN-INNER, and the two derefs each
+     *      reuse their own pointer's register, so the block spends exactly $a0 + $v0 and
+     *      leaves $v1 to `en`.  OURS emits the two pointer loads first, then the derefs into
+     *      the two LOWEST free caller-saved regs ($v0,$v1), and `en` LAST into whatever is
+     *      left ($a0).
+     *  (2) WHY (mechanism, from local-alloc.c): `en` is fn-scope and used at BOTH pend sites
+     *      => it is a GLOBAL allocno, and global.c runs AFTER local_alloc.  A not-yet-
+     *      allocated global pseudo occupies NOTHING in find_free_reg's `regs_live_at` scan
+     *      (local-alloc.c:2214), so it cannot make $v1 busy for the derefs; the derefs take
+     *      the lowest free regs and `en` gets the leftovers.  THE DEREF-REUSES-ITS-POINTER
+     *      SHAPE NEEDS NO combine_regs (local-alloc.c:1866 is NOT the gate here -- a load's
+     *      memory operand has an 'm' constraint, so block_alloc never even calls combine_regs
+     *      with the base register): a pointer qty dying as an INPUT at insn N gets
+     *      qty_death = 2N (wipe_dead_reg, :2160) and the loaded value born as an OUTPUT gets
+     *      qty_birth = 2N+1, so the ranges are DISJOINT by construction and the reuse is
+     *      purely a question of which register the numeric scan finds free.
+     *  (3) THE 26 BASIN'S TREE IS *NOT* RETAIL'S (W72-A19 (b) corrected).  Re-measured:
+     *      the mp-inline cell emits `en & (*A & *B)` = EN-OUTER at both sites, same as the
+     *      shipped 24.  What DOES emit retail's EN-INNER tree is `pend = *mp & (en & *sp)`
+     *      with the operands as pseudos -- and that basin is 38 (order sp,en,mp) / 40 / 42 /
+     *      46, because the homes then rotate.  Its stream is retail's INSTRUCTION-FOR-
+     *      INSTRUCTION with a 3-register rotation (ours {en=$a1, ptrY=$v1, *ptrX=$v0} vs
+     *      retail {en=$v1, ptrY=$v0, *ptrX=$a0}).
+     *  (4) MAKING `en` BLOCK-LOCAL DOES BUY THE REUSE, and is the closest structural cell
+     *      found: a per-site `{ unsigned short en = ...; }` block gives `lhu $a0,0($a0)`
+     *      (the deref reusing its own pointer, exactly (1)) and a stream that is retail's
+     *      modulo ONE swap -- ours emits ptrY's `lui/lw` at slot 24-25 and `en` at 28, retail
+     *      emits `en` at 24 and ptrY at 27-28; the register pair follows the emission order.
+     *      Score 30 (best of a 36-cell grid: 6 pointer-assignment orders x 6 AND-trees).  The
+     *      whole remaining question is therefore a SCHED1 TIE between `en`'s `lhu` and ptrY's
+     *      `lw` (equal chain depth 3), not an allocator question.
+     *  FALSIFIED THIS PASS (all gated, all reverted): the 36-cell block-local grid (best 30);
+     *  per-site fn-scope en1/en2 32 (24 basin) / 32 (retail-tree basin); all three temps
+     *  block-scoped 36; retail-tree x 4 assignment orders 38/40/42/46; retail tree with mp
+     *  inline 26 / with sp inline 40; a read-only fence or a 20B launder on `en` inside the
+     *  block-local basin 40 (both are sched barriers or mint a copy); a void `"i"(0)` fence
+     *  32 (inert); and THE DEVICE THAT SEALED `_initIntr` ABOVE -- a named deref temp
+     *  (`unsigned short sv = *sp;`) plus a zero-insn clobber launder, swept over clobbers
+     *  $2..$7 on both `*sp` and `*mp` -- ALL go COUNT-OVER at 118 (best 24 @118, i.e. the
+     *  named volatile-deref temp mints an extra insn here) and are rejected under the 14E
+     *  count bar.
+     *  NAMED NEXT ANGLE (sharpened): stand in the BLOCK-LOCAL 30 basin and swap the sched1
+     *  emission order of `en`'s `lhu` against the second pointer's `lw` -- equal INSN_PRIORITY
+     *  chain depth, so the tie falls to luid/source order, and every source reorder tried so
+     *  far is inert because fold decides which pointer is the inner operand.  The instrument
+     *  is the sched1 dump ([sched_pick], C:/Temp/nfs4-instr-cc1), not another spelling sweep. */
     unsigned short *state;
     unsigned short s0;
     long pend;
@@ -612,7 +690,48 @@ extern int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C10 */
      * NAMED NEXT ANGLE: make `&g_intr` the CHEAPER of the two bases inside arm 1 (a cost /
      * equivalence-class-order question in cse.c, readable in C:/Temp/gcc-2.8.1-src), or find
      * the natural 1997 source shape that reads `inited` through the struct base and the cb
-     * array through its own -- the fence is standing in for whatever did that in retail. */
+     * array through its own -- the fence is standing in for whatever did that in retail.
+     * W74-A17 (2026-08-23) RE-GATED 4 @82/82.  THE NAMED ANGLE WAS RUN -- cse.c is READ, and
+     * the answer is that the SWITCH THIS RESIDUAL NEEDS CANNOT FIRE, for a reason that is a
+     * general law rather than a property of this function:
+     *  🔴 CSE CANNOT RE-BASE A `(plus REG small_const)` ADDRESS ONTO AN EQUIVALENT BASE.
+     *    find_best_addr's expensive arm (cse.c:2813, gated on flag_expensive_optimizations)
+     *    is the only path that could rewrite `44($a1)` into `48($a2)`: it looks up the BASE
+     *    register's equivalence class and re-forms `cse_gen_binary(PLUS, equiv, const)`.  It
+     *    accepts the new form only when `ADDRESS_COST(new) < best` OR (equal cost AND
+     *    `(COST(new)+1)>>1 > best_rtx_cost`) -- STRICTLY GREATER.  On MIPS,
+     *    mips_address_cost(PLUS(reg, SMALL_INT)) == 1 for BOTH forms (mips.c:1954) and their
+     *    rtx_costs are identical, so `found_better` never becomes 1 and the incumbent base
+     *    always wins.  => once the address exists as base+disp, NO source spelling can move
+     *    it to the other base; the base is fixed at the moment the address is first formed.
+     *    (The first arm of find_best_addr is unreachable here anyway: `(const (plus sym K))`
+     *    is CONSTANT_ADDRESS_P on mips ABI_32 (mips.h:2595) and returns at cse.c:2707.)
+     *  THE NO-FENCE STREAM, READ OFF (this corrects the W71/W72 "which arm is cold" wording):
+     *    WITHOUT the 'm' fence ours is 12 @84 and it is ARM 2 that goes absolute
+     *    (`lui $v1; lhu $v1,0($v1)` + `lui $at; sh $v1,0($at)`, +2 insns); ARM 1 is ALREADY
+     *    `44($a1)` in both the fenced and unfenced builds.  So the fence's entire job is to
+     *    give the branch-target arm a register base, and `a2` is DEAD in our object -- it
+     *    exists only because the fence's MEM operand forced the address into a register (via
+     *    cse's use_related_value on the `(set a2 (const sym))`, cse.c:6672), and it lands in
+     *    the `beqz` delay slot by accident of reorg, matching retail's insn 20 exactly.
+     *  FALSIFIED THIS PASS (22 more cells, all gated + reverted, all 4 @82 = INERT unless
+     *  noted): arm-1 statement order enabled-before-nNewMask 4 / enabled-first 24; a SECOND
+     *  'm' fence on `g_intr.enabled` after the cb store 6, at the arm-1 TAIL 4, at the arm-1
+     *  HEAD 4; an arm-1-local `unsigned short *ep = &g_intr.enabled;` 4; one asm carrying
+     *  both "m" operands in either order 4; an explicit read-modify-write temp in arm 1 4;
+     *  `"=m"(g_intr.enabled)` as an OUTPUT plus the "m"(inited) input 4; `"m"(*(char*)&g_intr)`
+     *  4; `"m"(inited)+"r"(&g_intr)` 4; the fence duplicated 4; `"m"(inited)+"m"(cb[idx])` 4;
+     *  fence position anywhere inside the guard body (before `nMask = I_MASK`, after
+     *  `I_MASK = 0`) 4, but at FUNCTION head 22 @88.  MORE FENCE OPERANDS (all 12 @84, i.e.
+     *  they mint no base at all): saved_imask, saved_dpcr, jmpbuf[0], evcb[0], cb[10] -- only
+     *  offset 0 (`inited`) works, because only there is the address the bare SYMBOL_REF that
+     *  use_related_value can rewrite as `(plus $a1 -4)` in ONE insn.
+     *  NAMED NEXT ANGLE (re-aimed by the law above): stop trying to re-base arm 1.  The base
+     *  is decided where the address is FORMED, so the only reachable vehicles are (a) a source
+     *  shape in which arm 1's `enabled` address is formed from `&g_intr` in the first place --
+     *  which needs `&g_intr` to be a live REGISTER VALUE with a real use in arm 1, not a dead
+     *  fence artifact -- or (b) a build-side per-fn textual rewrite (TEXT_MOVES cannot express
+     *  it: the two words differ in base register AND displacement, not in position). */
     int oldCallback;
     unsigned short nMask;
     int nNewMask;

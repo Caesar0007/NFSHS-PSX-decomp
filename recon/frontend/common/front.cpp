@@ -518,7 +518,40 @@ void Front_ResetPSXAnalogs(int player)
    the equivalent live-range dial) that moves G1's acc to $a2 WITHOUT touching
    the arm's `lui/addiu frontEnd` pair -- the acc must lose $v0/$v1/$a1 while
    $a0 stays available to the address.  Harness: scratchpad W72_A8_pad{,2,3}.py
-   (arm-indexed transforms + clobber-set sweeps). */
+   (arm-indexed transforms + clobber-set sweeps).
+
+   W74-A7 (2026-08-22): HELD at 12 @222/222.  The W72 next angle was run to
+   exhaustion and the +2 is now ATTRIBUTED TO ONE ARM and shown to be atomic.
+   (1) WHERE THE +2 LIVES.  With the G4 device on the G1 trio (any clobber set
+       that lands the tail), the 224 breaks down as: arm 1 (case 0x100000) loses
+       the SHARED `lui a0 / addiu a0` frontEnd pair that retail materialises
+       once in the dispatch chain -- retail even rides its `addiu a0,a0,0` in a
+       dispatch branch delay slot -- and re-materialises the pair locally, and
+       arm 1's `sll a2,s1,30` leaves the arm's `j` delay slot (retail computes
+       the accumulator THERE, i.e. acc is born in the slot).  Arms 2 and 3 are
+       byte-exact.  So the clobber cannot be placed inside arm 1's accumulator
+       live range without crossing the `j` whose slot the accumulator fills:
+       reorg's stop_search_p fires on the asm and the backward fill dies.
+   (2) THE TRIO IS ATOMIC (new control, 16 measurements).  Block-local `acc` in
+       ALL THREE G1 arms with the clobber in a SUBSET: none 106 @222, {1} 102,
+       {2} 72, {3} 61, {1,2} 49, {1,3} 37, {2,3} 34, {1,2,3} 12 @224 -- and
+       identical numbers for clobber "$2" and "$2","$3".  Only the full trio
+       reaches the tail, so "clobber arm 1 more gently" is not available.
+   (3) LATE / STATEMENT-EXPRESSION PLACEMENTS ARE ALL WORSE (22B(10) supplies
+       the missing boundary, but not a cheaper one).  Grid = 3 placements x 8
+       clobber sets x {G1,G2}: P0 = after acc's birth (W72's, the only good
+       one); P1 = between the hi and lo terms via `({ asm; term; })`; P2 = after
+       both terms.  G1: P0 12 @224 for {$2},{$2,$3},{$2,$5},{$2,$3,$5},
+       {$2,$3,$4} and 110 @226 for any set without $2; P1 76-116 @232; P2
+       56-120 @234-236.  G2: P0 30 @224 best; P1 30 @230; P2 26 @236.  Mixed
+       placements (arm 1 late, arms 2-3 at P0): tag-term 27 @221, lo-term
+       35 @229, a named `r` + trailing clobber 19 @227.
+   => the count bar still refuses all of them.  The angle is unchanged and now
+   provably needs to be paid WITHOUT an asm insn in arm 1: arm 1 must keep both
+   its shared frontEnd pair and its `j`-slot accumulator birth, so the denial
+   has to come from natural liveness (something else occupying $v0/$v1 across
+   that arm), not from a clobber.  Harness: scratchpad/W74_A7/
+   {probe.py,pad1.py,pad2.py,pad3.py}. */
 int GetPSXPadValue(int value,int player)
 
 {

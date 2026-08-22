@@ -877,7 +877,49 @@ extern int CD_cw(unsigned char com, unsigned char *param, unsigned char *result,
      * `i` with a "$6" clobber 6.  This is a REGISTER-HANDOUT certificate, not a floor
      * verdict -- the reachable lever would be an EARLIER allocno taking $a1, i.e. a
      * hard-reg conflict on $a0 for allocno 80 (the CD_pos loop counter), which retail
-     * itself keeps in $a0, so it is not spellable without breaking a matched region. */
+     * itself keeps in $a0, so it is not spellable without breaking a matched region.
+     *
+     * 🔴 W74-A14 CORRECTION -- THE W72 CERTIFICATE'S PREMISE IS WRONG, AND ITS PRICE IS
+     * FALSIFIED BY MEASUREMENT.  Read global.c:333-356 (gcc-2.8.1): `regs_used_so_far` is
+     * SEEDED, before any allocno is handed anything, with every hard reg for which
+     * `regs_ever_live[i] || call_used_regs[i]`.  $a1 is CALL-USED, so it is in
+     * regs_used_so_far from the very first allocno and the pass-0 `IOR_COMPL(used,
+     * regs_used_so_far)` term (global.c:948) NEVER excludes it.  "$a1 is not yet a
+     * candidate at 201's turn" is not a thing; that clause only excludes CALLEE-SAVED regs
+     * nobody has touched yet (the "no cost in using them" comment right above the loop).
+     * The real pass-0 exclusion is the OTHER term on the same line, `regs_someone_prefers
+     * [201]` -- built by prune_preferences (global.c:864) as the union of the FULL
+     * PREFERENCES of every LOWER-priority CONFLICTING allocno, minus 201's own preferences.
+     * ⇒ this is a PREFERENCE certificate, not a priority one.
+     * MEASURED CONSEQUENCES (all gated + reverted, zero source kept):
+     *  - the "raise `ip` refs 6 -> 16" price is FALSE, and the "cc1 caps an asm at 10
+     *    operands so the ceiling is hard" ceiling is FALSE TOO: the cap is per-ASM, and N
+     *    back-to-back read-only fences at the SAME source position stack their operand
+     *    refs while leaving the live range alone.  Ladder on the `ip` fence
+     *    (scratchpad/W74_A14_cw.json): 1 operand (shipped) 4 - 2 ops 4 - 4 ops 4 - 6 ops 4
+     *    - 8 ops 4 - 10 ops 4 - 10+1 4 - 10+4 4 - 10+10 4 - 1+1 4 - 1+1+1+1 4 - a tied
+     *    launder + 1 read-only 4 - tied launder + 10 read-only 4 - 10+10+10 (30 refs) 50.
+     *    So `ip` at ~25 refs, far past the predicted 16, is completely INERT: raising its
+     *    priority does not give 201 $a1, exactly as the preference reading predicts.
+     *  - the prune_preferences exit (add a hard conflict on $a1 to whichever lower-priority
+     *    allocno prefers it, so its preference is AND_COMPL'd away before the union) was
+     *    swept by position with zero-insn 20B clobbers (scratchpad/W74_A14_cw2.json):
+     *    "$5" and "$5","$6" at `ip = &Intr` 4 - at the `com == 2` guard 4 - at `ALARM.name`
+     *    4 (all inert, 201 not live there and the preferring allocno evidently not either)
+     *    - at `tbl =` 8 - at `ip->ready = 0` 8 - at the `tbl` fence 8 - at the `ip` fence 8
+     *    (all worse: those positions DO deny $a1 to something load-bearing).
+     * RESTATED CERTIFICATE: 201 avoids $a1 in pass 0 because some lower-priority
+     * CONFLICTING allocno lists $a1 in hard_reg_full_preferences.  prune_preferences
+     * removes $a1 from regs_someone_prefers[201] in exactly two ways: (i) 201 itself
+     * prefers $a1 (the AND_COMPL at global.c:872) -- which needs a hard-reg COPY to/from
+     * $a1, i.e. a register-asm PIN (banned), or a source shape in which the count pointer
+     * genuinely arrives in / departs to $a1; (ii) the preferring allocno acquires a hard
+     * CONFLICT with $a1 (prune_preferences AND_COMPLs hard_reg_conflicts out of the
+     * preference sets at :855-57) at a point where 201 is NOT live -- the sweep above
+     * found no such position.  Next instrument, if this is ever re-opened: dump
+     * hard_reg_full_preferences from the instrumented cc1 (C:/Temp/nfs4-instr-cc1) to NAME
+     * the preferring allocno instead of sweeping blind; the position that works must lie
+     * inside ITS live range and outside 201's. */
     __asm__("" : : "r"(tbl), "r"(tbl));     /* MATCH (W64-A5): +2 refs on `tbl`, see above */
     cnt = tbl + 0x40;
     i = 0;

@@ -581,7 +581,50 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
  * NEXT INSTRUMENT (named, not run): a PER_FN_TEXT_MOVES row is the natural fit -- every
  * word is already correct and only three insns need relocating; that is orchestrator
  * wiring, not a source edit.  Do NOT re-sweep the RMW order, the width order, the i=0
- * position or the 'm'/"r" fences; all four are closed in this basin. */
+ * position or the 'm'/"r" fences; all four are closed in this basin.
+ * ===== W74-A13 (2026-08-23): 18 -> PASS 229/229.  THE w72 "NEXT INSTRUMENT (named,
+ * not run)" IS NOW RUN AND VALIDATED: SEVEN PER_FN_TEXT_MOVES ROWS.  w72's reading was
+ * exactly right -- every word, every register and the count were already retail's, so
+ * the residual was pure sched2 EMISSION ORDER and the line-move engine is the correct
+ * tool.  ONE CORRECTION: w72 said "three misplaced insns"; the true minimum is SEVEN
+ * moves in TWO windows.  LCS(ours,retail) over the 17-insn 0x11800 block is 11, so 6
+ * moves is the provable floor there, and a 7th `move $18,$0` (the FIRST loop-init
+ * zeroing) sits ~70 insns earlier in the second reservememadr block -- w72 read its
+ * leading -/+ diff pair as part of the same cluster.
+ * ROW SPEC (anchors are cc1plus .s text, PRE-maspsx; numeric registers only;
+ * label-agnostic; every take AND every after verified count==1 both inside the
+ * .ent/.end region AND across the whole TU .s -- collision-proof even if the region
+ * scoping ever changes).  Order matters: apply as listed.
+ *   M0 take  \tmove\t\$18,\$0\n(?=\tlui\t\$4,[^\n]*\n\taddiu\t\$4,[^\n]*\n\tli\t\$5,528[^\n]*\n)
+ *      after \taddu\t\$17,\$17,\$3\n
+ *   M1 take  \tli\t\$7,22[^\n]*\n
+ *      after \taddu\t\$9,\$8,\$9\n
+ *   M2 take  \tmove\t\$18,\$0\n(?=\tsll\t\$8,\$22,2\n)
+ *      after \tlbu\t\$2,0\(\$10\)\n
+ *   M3 take  \tlw\t\$11,0\(\$9\)\n
+ *      after \tla\t\$2,CarIO_Plate1\n(?=\taddu\t\$8,\$8,\$2\n)
+ *   M4 take  \tlbu\t\$3,0\(\$11\)\n
+ *      after \taddu\t\$8,\$8,\$2\n
+ *   M5 take  \tor\t\$3,\$3,\$12\n
+ *      after \tlw\t\$10,0\(\$8\)\n
+ *   M6 take  \tsw\t\$3,0\(\$11\)\n
+ *      after \tor\t\$3,\$3,\$12\n
+ * VALIDATION (each re-run twice): verify_asm PASS 229/229; tugate 9/11 -> 10/11 (zero
+ * PASS->FAIL; the only remaining FAIL is ReadInCarTextureData); brdist 11 fns, 0
+ * branch-offset/count divergence; and the strongest check -- the post-move .s is a
+ * PURE PERMUTATION of the pre-move .s (multiset of all 423 region lines identical;
+ * differing indices confined to [62..68] and [136..150]; NO .set directive, label,
+ * branch or jump line among them), so no delay slot, no .set noreorder region and no
+ * branch distance can have changed.  NEW LAW OFFERED: that permutation + no-branch-
+ * line + no-.set-line assert is the general PRE-FLIGHT for any TEXT_MOVES row set --
+ * it decides 17C's brdist-pairing question statically, before compiling.
+ * JSON row file: scratchpad/W74_A13/tm_createlicense.json (probe with
+ * W60_TEXT_MOVES_FILE=<file> python tools/vprobe.py).  ORCHESTRATOR: wire into
+ * PER_FN_TEXT_MOVES["recon/game/psx/cario.cpp"]["CarIO_CreateLicense__FPcii"] as a NEW
+ * rel key (12F: a duplicate rel key in that dict is SILENTLY SHADOWED; cario.cpp has
+ * no entry today), then run psyqproof for the production REAL=0 leg.
+ * NOT re-swept (closed by w72, still closed): RMW order, width order, i=0 position,
+ * the 'm'/"r" fences. */
 void CarIO_CreateLicense(char *text,int carType,int player)
 
 {
@@ -1075,7 +1118,72 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
    * => CLOSED at the source level.  The only live routes remain (a) the whole-body $v0
    * population (a global property; instrument = the -dg `Register dispositions` list),
    * or (b) a PER_FN_TEXT_MOVES row for the eight head-block insns -- orchestrator
-   * wiring, and cheap here because the block is 8 insns and everything else matches. */
+   * wiring, and cheap here because the block is 8 insns and everything else matches.
+   * ===== W74-A13 (2026-08-23): 19 STAYS @492/491.  ROUTE (b) IS REFUTED AND THE
+   * MECHANISM IS NOW A VALIDATED MODEL INSTEAD OF A HYPOTHESIS.
+   * (1) TEXT_MOVES CANNOT EXPRESS THIS RESIDUAL -- the order is ALREADY retail's.
+   *     side_by_side over the head block, ours | retail, insn for insn:
+   *        lw t0,0(gp)     | lw v0,0(gp)        lw t1,140(sp) | lw t0,140(sp)
+   *        sw t0,68(sp)    | sw v0,68(sp)       j T           | j T
+   *        sw t0,2116(t1)  | sw v0,2116(t0)     [else arm] t0 | t1 (x3)
+   *     Same opcodes, same operands, SAME SEQUENCE -- only the REGISTER NAMES differ
+   *     (+ the fence's own `lw t1,68(sp)`).  The line-move engine moves whole lines; no
+   *     permutation of a stream containing `lw t0,0(gp)` can ever produce one
+   *     containing `lw v0,0(gp)`.  LAW: read the sbs before specifying a TEXT_MOVES
+   *     row set -- "count-exact + N diffs" is NOT sufficient; the diff must be a
+   *     PERMUTATION (same multiset of lines).  For CreateLicense above it is; here it
+   *     is not, and w72 named this route without running that check.
+   * (2) THE RESIDUAL IS A RELOAD SPILL-POOL *MEMBERSHIP* FACT, AND THE ROUND-ROBIN
+   *     MODEL IS NOW VALIDATED BY PREDICTION.  NEW ZERO-INSN INSTRUMENT: a bare
+   *     hard-reg clobber with an IMMEDIATE operand, `__asm__("" : : "i"(0) : "$N")`,
+   *     emits NOTHING (count stays 491) yet moves the whole function's reload scratch
+   *     assignment.  Fence-free sweep at the head-block join, all @491:
+   *        $2 v0 186 = baseline (inert)   $3 v1 186   $8 t0 **140**   $9 t1 206
+   *        $10 t2 / $11 t3 / $12 t4 / $13 t5 / $14 t6 / $15 t7 / $24 t8 / $25 t9,
+   *        and $4-$7 a0-a3: all exactly 186 = inert.
+   *     ONLY $t0 and $t1 are live -- i.e. exactly our spill pool, which is therefore
+   *     PROVEN to be the 2-register set {$t0,$t1}.  Clobbering $t0 shifts it to
+   *     {$t1,$t2} and the ENTIRE function rotates one step (predicted, then confirmed
+   *     insn by insn); clobbering $t0+$t1 shifts it to {$t2,$t3} (234 @491).  Retail
+   *     allocates $v0 as the head-block value's scratch while using $t0/$t1 identically
+   *     everywhere else, so RETAIL'S POOL CONTAINS $v0 AND OURS DOES NOT.
+   * (3) MUTUAL-EXCLUSION CERTIFICATE (the 20B-limit applied to this fn): the ONLY
+   *     zero-insn device that touches the pool is the hard-reg clobber, and reload1.c
+   *     puts every asm-used hard reg into bad_spill_regs FUNCTION-WIDE -- so a clobber
+   *     can only REMOVE a register from the pool, never ADD one.  Naming $v0 in an asm
+   *     is exactly the thing that forbids $v0 from being a spill reg ("$2" measures
+   *     186 = inert for precisely that reason).  => NO zero-insn device can produce
+   *     retail's pool; any device that buys the resync must emit a reference, which
+   *     costs the +1 insn.  That is the landed fence, and it is now PROVEN minimal
+   *     within the device family rather than merely un-falsified.
+   *     Corollary for the lab: the fence does NOT fix the pool -- it CONSUMES one extra
+   *     pool slot at the join, which re-syncs the round-robin cursor with retail's
+   *     3-register rotation for the remaining ~380 insns.  That is the precise sense in
+   *     which it "buys the right answer with the wrong evidence" (w72 frame-slot census).
+   * ALSO FALSIFIED THIS WAVE (all count-checked, none below 19):
+   *   - r-fence PLUS a separate zero-insn clobber (a different position from w72's
+   *     clobber-on-the-fence sweep): $2/$3/$10/$11/$12/$24 all 19 @492 (inert),
+   *     $8 225, $9 121.
+   *   - the w72 ARM-SWAP basin re-priced with the new dial: swap+fence 22 @**491**
+   *     (count-exact, reproduced), swap+no-fence 189 @490 (one SHORT), and every
+   *     swap x clobber cell 22/124/137/189/209/222 -- nothing under 22.
+   *   - PER-TU FLAG IDENTITY (diagnostic, whole-TU): no_schedule_insns 265 @494,
+   *     no_schedule_insns2 141 @506, no_split_addresses 465 @524, no_strength_reduce
+   *     689 @496, g_value 4 221 @490, g_value 0 342 @501.  The wired -G8 + default
+   *     flag set is the optimum; no flag axis reaches the pool.
+   * (4) RTL RECEIPT (tools/rtl_dump.py -dl): `carPixMapCount` is pseudo **88** and the
+   *     head block is `(set (reg/v:SI 88) (mem (symbol_ref "CarIO_carPixMapCount")))`
+   *     followed by `(set (mem (plus (reg 81) 2116)) (reg 88))` -- there is NO separate
+   *     value temp, the variable pseudo IS the value, and 88 is in the w42 -dg list of
+   *     11 allocnos that get NO hard register.  So this is not a "make a temp win $v0"
+   *     problem either; it is the pool.
+   * => The live route is now singular and precisely stated: get $v0 into
+   * order_regs_for_reload's chosen spill set, i.e. lower hard_reg_n_uses[$v0] below
+   * hard_reg_n_uses[$t1] for the whole body.  That is a global property of the ~150
+   * $v0-homed pseudos and is NOT reachable from this function's statements, from any
+   * fence/clobber/launder form, or from any per-TU flag on the board.  Do NOT re-open
+   * the head-block spellings, the fence operand/constraint/position/device axes, the
+   * arm swap, or a TEXT_MOVES row: all are closed with receipts. */
   __asm__("" : : "r"(carPixMapCount));
   if ((reload & 8U) != 0) {
     if (((carObj->render).inside & 1U) != 0) {

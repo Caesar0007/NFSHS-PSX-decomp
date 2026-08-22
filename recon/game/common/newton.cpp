@@ -1906,6 +1906,8 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
   int distRetreat;
   int retreat;
   int nx;
+  int nz;
+  int nz2;
   coorddef upVec;
   matrixtdef islandMatrix;
 
@@ -1913,7 +1915,30 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
   upVec.y = 0x10000;
   upVec.z = 0;
   __asm__("" : : "i"(0));   /* w62-a11 reorg slot-steal barrier, see receipt */
-  barrierVec.x = -(normal.z / 0x100 * 0x100);
+  /* MATCH (W74-A9) -- THE DIVIDE-COPY LAW, proven from the gcc-2.8.1 source:
+     expmed.c:3026 expands every signed `/2^k` (BRANCH_COST<3) as
+         t1 = copy_to_mode_reg(op0); cmp t1,0; bge L; t1 += 2^k-1; L: q = t1>>k;
+     so the `addu $vN,$aN,$zero` copy is ALWAYS emitted.  Whether it SURVIVES is
+     decided in local-alloc.c:470-477 -- reg_qty[i] = -2 (combinable) iff
+     REG_BASIC_BLOCK(i) >= 0 (single block) AND REG_N_DEATHS(i) == 1, else -1 --
+     and combine_regs (local-alloc.c:1866) bails on reg_qty[ureg] < 0, minting
+     the copy.  With the dividend read straight out of the parm home the source
+     is the HARD reg, so combine_regs takes the ureg < FIRST_PSEUDO_REGISTER
+     path (:1898), records qty_phys_sugg, t1 gets $a3 and the copy dies as a
+     noop move -- that was our `nop` + in-place `addiu a3,a3,255`.
+     CURE: name the dividend and give its pseudo a live range that CROSSES a
+     basic-block boundary.  The divide's OWN branch supplies the boundary, so a
+     zero-insn read-only fence placed immediately AFTER the divide statement is
+     enough (the pseudo now spans the pre-branch block and the join block =>
+     REG_BASIC_BLOCK < 0 => reg_qty -1 => copy minted).  Insns 12-18 (the whole
+     normal.z divide) become BYTE-EXACT.  51 -> 43.
+     MEASURED (do not retry): the same `nz` local WITHOUT the fence 49 (inert --
+     one block, one death); fence moved before the divide 51; fence + "$2"
+     clobber 43 (neutral -- the clobber is not the mechanism); the fence deferred
+     past `barrierVec.y = 0;` 43 (equivalent -- any later block works). */
+  nz = normal.z;
+  barrierVec.x = -(nz / 0x100 * 0x100);
+  __asm__("" : : "r"(nz));  /* zero-insn: crosses the divide's own BB boundary */
   __asm__("" : : "i"(0));   /* w62-a11 reorg slot-steal barrier, see receipt */
   barrierVec.y = 0;
   __asm__("" : : "i"(0));   /* W72-A9 3rd void fence -- see the nx receipt below */
@@ -1934,7 +1959,7 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
   barrierVec.z = nx / 0x100 * 0x100;
   distRetreat = normal.x / 0x100 * (newtonObj->linearVel.x / 0x100) +
                 normal.y / 0x100 * (newtonObj->linearVel.y / 0x100) +
-                *(volatile int *)&normal.z / 0x100 * (newtonObj->linearVel.z / 0x100);
+                (nz2 = *(volatile int *)&normal.z) / 0x100 * (newtonObj->linearVel.z / 0x100);
   if (distRetreat < 0) {
     distRetreat = -distRetreat;
   }
@@ -2127,38 +2152,100 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
      is no hidden-pointer / explicit-word-pair variant to try (sec 3.12 #11 does not
      apply: no call is involved, this is the CALLEE side).  Every residual is
      downstream of cse's store-forwarding and the divide expansion, not of the ABI.
-     RESIDUAL 51 MAP (ours 105 / retail 106, i.e. ours is ONE insn short):
-       (a) 3 diffs -- the normal.z divide still coalesces its expand_divmod temp
-           with the dividend (`nop` in the bgez slot + `addiu a3,a3,255`) where
-           retail keeps a fresh one (`addu v0,a3,zero` in the slot + `addiu
-           v0,a3,255`).  nx-style survivors do NOT work here (there is no second
-           use of raw normal.z -- retail's m[2] comes from the later `lw t2`
-           re-read): `nz` for barrierVec.x 51 (neutral), + m[2] 69, + the dot 59.
-           Per the w44 law the survivor must come from a DISTINCT 1-insn
-           computation; none exists in this statement.
+     [W72's residual-51 map is SUPERSEDED -- (a), (b-partly) and (d) are SOLVED,
+      see the W74-A9 block below.  Its (c) hoist measurements were taken on the
+      pre-W74 basin and were re-priced this wave; the numbers there no longer
+      apply.]
+
+     W74-A9 LANDED 51 -> 23 (@105/106) in three steps:
+       (1) THE DIVIDE-COPY LAW (see the `nz` receipt above) -- cluster (a) is now
+           BYTE-EXACT (insns 12-18).  51 -> 43.
+       (2) the m[2] volatile view -- 43 (with (3): part of the cross-basin cell).
+       (3) `nz2` = retail's ONE `lw t2,124(sp)` z re-read serving the dot AND
+           m[2], assigned INSIDE the dot expression, TOGETHER WITH the literal
+           `islandMatrix.m[3] = 0`.  Cluster (d) AND the ENTIRE matrix-store block
+           (the early `addu a0,s1,zero`, the m2,m3,m8,m1,m4,m5,m6,m7 store order
+           and the `sw t1,84(sp)` in the `jal` delay slot) are now BYTE-EXACT.
+           43 -> 23.
+
+     RESIDUAL 23 MAP (ours 105 / retail 106, ONE insn short; every insn outside
+     these three items is byte-exact):
        (b) 2 diffs -- `sw zero,28(sp)` (barrierVec.y) sits before the x-divide in
-           ours, inside it in retail.  Position sweep: after barrierVec.z 51 |
-           before barrierVec.x 50 @104 (LCS-only, structurally worse -- 09K) |
-           after nx 53 | extra void fences after barrierVec.z / after nx 51.
-       (c) 9 diffs -- retail SCHEDULES the normal.y divide EARLY, interleaved with
-           barrierVec.z's shift+store (the shift rides the `bgez a2` slot); ours
-           emits it at its use with an empty slot.  Source hoists of the y term all
-           regress: `ny = normal.y/0x100` before the dot 65 @103 | before
-           barrierVec.z 70 | `ny = normal.y` feeding the dot + m[1] 68 @104.
-       (d) ~6 diffs -- retail's ONE `lw t2,124(sp)` re-read of normal.z serves both
-           the dot term and m[2] (+ a `addu v1,t2,zero` copy); ours re-reads twice.
-           `nz2` spellings measured 69-81 across three waves now.
-       (e) the rest is the accumulator seat ($a1 ours vs $a0/$v0 retail), which is
-           DOWNSTREAM of (c) -- retail's y-divide result occupies $a1.
-     ALSO MEASURED THIS WAVE (all worse, do not retry): dot term order y,x,z 67 |
-     both operands flipped (linearVel first) 66 | a fresh `absDot` temp for the abs
-     51 (neutral) | a named `dot` temp 51 (neutral) | the three matrix ROWS as
-     coorddef struct copies 68/77/82/85 | m[] in retail's emission order 79 |
-     `islandMatrix.m[3] = 0` 72 | a "memory" clobber before the matrix block 58. */
+           ours, at the x-divide's JOIN in retail.  It moves to the right block
+           for free in every cluster-(c) split spelling, so it is DOWNSTREAM of
+           (c) too -- do not chase it on its own (all standalone positions
+           measured 23-25 this wave).
+       (c) THE KEYSTONE, ~9 diffs + the 1-insn deficit.  Retail emits the
+           normal.y divide BETWEEN the x-quotient and barrierVec.z's shift/store:
+             BB5  sw zero,28 | sra v1,v0,8 | addu v0,a2,zero | sll t3,v1,8 | bgez a2
+             BB6  addiu v0,a2,255
+             BB7  sw t3,32(sp) | sra a1,v0,8
+           (Proven from reorg.c: fill_simple_delay_slots' BACKWARD scan runs
+           BEFORE fill_eager_delay_slots, so the `sll t3` in the slot must have
+           been the insn immediately preceding `bgez a2` => the barrierVec.z
+           SHIFT is in BB5 and its STORE in BB7, i.e. the statement is SPLIT
+           around the y-divide.)  The missing insn is that divide's
+           `addu v0,a2,zero` copy, which the same divide-copy law mints as soon as
+           the dividend is a named pseudo + a read-only fence.
+           MEASURED ON THIS BASIN -- the structure IS reproducible but every
+           spelling pays a REGISTER ROTATION worth 6-14 diffs (the split needs
+           extra pseudos; the 23-basin already colours the x-quotient $v1 and the
+           shift $t3 exactly like retail, and any added pseudo pushes the
+           x-quotient to $a0 and the x-divide temp off $v0):
+             nxq+t3+ny+nyq split 33 | +void fence after nxq 29 | anonymous
+             x-quotient (`t3 = nx/0x100*0x100`) 33 | barrierVec.y after the
+             y-divide 35 | plain `nyq = normal.y/0x100` (no copy) 35 @103 |
+             comma-y inside the barrierVec.z statement 35 @103 | no-t3 (shift and
+             store together, y-divide after) 35.
+           ZERO-NEW-DECL carriers (reusing nz / nz2 / retreat, which are dead at
+           that point) all ADD insns instead: 45-55 @106-107.
+           IN-EXPRESSION placement is FALSIFIED WITH A REASON: putting the
+           y-divide in the RIGHT operand of `nx/0x100 * ((nyq = normal.y/0x100),
+           0x100)` does NOT give left-then-right expansion -- gcc-2.8 evaluates a
+           side-effecting operand of a commutative binop FIRST, so the y-divide
+           came out BEFORE the x-divide (41-46 @104-105 across 8 spellings,
+           incl. carrier=retreat / carrier=nz and an in-expression `ny` fence).
+           NEXT ANGLE = the rotation, not the structure: price the split with
+           allocsim/reqdelta on the x-quotient allocno (it must keep $v1 while
+           two more pseudos are born), or find a split that reuses the SAME
+           pseudo for the shift carrier without a copy.
+       (e) the accumulator seat ($a1 ours vs $a0/$v0 retail) -- DOWNSTREAM of (c)
+           exactly as the W72 receipt predicted: retail's y-quotient occupies $a1.
+     FALSIFIED THIS WAVE (do not retry): the SYM's TWO `90 Block start` records at
+     one VA are NOT a codegen dial here -- wrapping {impactVel, distRetreat,
+     upVec, islandMatrix} in a nested block (both orderings) is byte-neutral (43
+     before / 43 after), so our flat block already matches retail's block count.
+     Also re-measured worse on the 43/23 basins: m[] in retail's emission order
+     69-75 | `m[3] = 0` alone 66 | `nz2` alone 64 | volatile views on m[0]/m[1]/
+     m[8]/m[3..5] 49-65 | hoisting `(Car_tObj *)newtonObj` into a local before the
+     matrix block 43 (neutral).
+     [W72 measurements, still valid as negatives: dot term order y,x,z 67 | both
+     operands flipped (linearVel first) 66 | a fresh `absDot` temp 51 (neutral) |
+     a named `dot` temp 51 (neutral) | the three matrix ROWS as coorddef struct
+     copies 68/77/82/85 | a "memory" clobber before the matrix block 58.] */
   islandMatrix.m[0] = nx;   /* MATCH: the $a3 survivor's 2nd use (see the nx receipt) */
   islandMatrix.m[1] = normal.y;
-  islandMatrix.m[2] = normal.z;
-  islandMatrix.m[3] = upVec.x;
+  /* MATCH (W74-A9): retail's ONE `lw $t2,124(sp)` re-read of normal.z serves BOTH
+     the dot's z-term AND m[2] (`sw $t2,64(sp)`); ours re-read twice.  `nz2` is
+     that shared value -- and it MUST be assigned INSIDE the dot expression (see
+     the z-term above), because as its own statement before the dot the load is a
+     schedulable leaf that sched1 hoists into the `lw $v0,172(s1)` load-delay slot
+     (retail leaves that `nop`).  Measured: statement form 27 @103, assignment-in-
+     expression 23 @105, statement + a void fence before the dot 25 @103.
+     KEY: CROSS-BASIN CELL (catalog 22C-8): `nz2` alone is 64 and `m[3] = 0` alone is
+     66 -- BOTH WORSE than the 43 control -- but TOGETHER they are 27.  The whole
+     matrix-store block (a0-hoist, store order, `jal` slot) goes byte-exact only
+     when both land.  This is why the W72 receipt's `nz2 69-81` and the
+     `islandMatrix.m[3] = 0` 72 verdicts read as dead ends: each was priced with
+     the other axis held at its wrong value.  m[1] stays the plain `normal.y`
+     re-read (retail's `lw v0,120(sp)`); m[2] takes no volatile view any more --
+     nz2 IS the volatile read. */
+  islandMatrix.m[2] = nz2;
+  /* MATCH (W74-A9): retail stores a LITERAL zero here (`sw $zero,68(sp)`) and
+     reloads upVec.y/.z (`lw v1,44(sp)` / `lw a3,48(sp)`) -- an asymmetry that is
+     only reproducible by spelling m[3] as the constant.  Only pays together with
+     nz2 (see above). */
+  islandMatrix.m[3] = 0;
   islandMatrix.m[4] = upVec.y;
   islandMatrix.m[5] = upVec.z;
   /* MATCH (W72-A9): retail RELOADS barrierVec.x/.y from the frame here

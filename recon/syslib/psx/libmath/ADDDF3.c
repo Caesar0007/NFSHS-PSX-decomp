@@ -229,6 +229,80 @@ int           _err_math(int errnum, int code);
  * `lui` retail uses as a delay-slot filler.  Live routes unchanged: a cse-table
  * instrument read on the 970404 rung, or TEXT_MOVES.  NOT a floor.
  *
+ * 🏆🏆 W74-A19 2026-08-23 -- RE-GATED at 2 (221/221, baseline confirmed).  NO landing,
+ * but ROW (c) IS NOW A NAMED, gcc-SOURCE-CITED MECHANISM AND A QUANTIFIED CERTIFICATE.
+ * Every W61/W71/W72 receipt above (and DIVDF3's, and pad.c's) routed this class to "a cse
+ * COST-MODEL delta -> dump cse's table".  THAT IS THE WRONG PASS.  It is not cse at all.
+ *
+ * 🔑 NEW LAW -- THE reload_cse CONSTANT-SUBSTITUTION (catalog row candidate; the pass was
+ * read, not guessed).  `reload_cse_regs` (gcc-2.8.1 reload1.c:7869), called unconditionally
+ * from toplev.c:3501 (`if (optimize > 0)` -- there is NO -f switch for it), is a POST-RELOAD
+ * CSE over HARD REGISTERS ONLY.  `reload_cse_simplify_set` (reload1.c:8178) rewrites
+ * `(set <hardreg> <CONSTANT>)` into a copy from ANY hard register whose recorded value is
+ * `rtx_equal_p` to that constant -- there is NO rtx_cost test in the function, so it fires
+ * every time the value is available.  Its value table `reg_values[]` is cleared ONLY at:
+ *   (a) every CODE_LABEL      -- reload1.c:7898-7906, "Forget all the register values at a
+ *                                code label.  We don't try to do anything clever around
+ *                                jumps.";
+ *   (b) CALL_INSNs            -- for every reg in `call_used_regs` (+ memory if non-const);
+ *   (c) an overwrite of the holding register (reload_cse_record_set / _invalidate_regno).
+ * SCOPE, measured on OUR binaries (this is the important half): the substitution fires
+ * ONLY for a CONSTANT source.  asinfunc.c's intarcsin is the negative control -- it emits
+ * `addu $v1,$a1,$v0` then `addu $v0,$a1,$v0`, two IDENTICAL non-constant sources in one
+ * label-free run, and reload_cse leaves the second alone (2.8.1's generic-src form would
+ * have replaced it).  So on the 970404/2.8.x cc1s we ship, read the law as:
+ *     CONSTANT sources only; escapes = a CODE_LABEL, a clobbering CALL, or a rung.
+ *
+ * 🔑 PROVEN IN A MINIMAL REPRO (scratchpad/W74_A19/t1.c/t3.c, 970404 cc1):
+ *     while ((A[1] & 0xE0000000) == 0) { f(A); i++; }
+ *   -> `li $3,-536870912; and; bne; move $18,$3` (the exact row (c) shape), and adding a
+ *   real CODE_LABEL between the entry test and the loop preheader (a second predecessor on
+ *   the loop head) flips it to a FRESH `li $18,-536870912` = retail.  RTL localisation on
+ *   the real function agrees: `.i.cse2` and `.i.lreg` both still carry TWO independent
+ *   `(set (reg) (const_int -536870912))` insns (insn 516 and insn 526) and only the `.i.greg`
+ *   dump (post-reload) shows `(set (reg s0) (reg v1))` with its REG_EQUIV note intact.
+ *   ⇒ our RTL is ALREADY retail's; the divergence is entirely inside reload.
+ *
+ * 🔑 IT IS ALSO A COMPILER-VERSION FINGERPRINT.  Ladder probe (scratchpad/W74_A19/t4.c,
+ * `int a=0,b=0; do{f(a,b);a++;b+=8;}while(a<8);` -- two independent const-0 materializations):
+ *     NO substitution (two fresh `move rX,$0`): 2.6.0 * 2.6.3 * 2.6.psyq40 * 2.7.2 *
+ *                                                2.91.66 * 2.95.2
+ *     SUBSTITUTION (`move $17,$16`):             2.7.2-970404 * 2.8.0 * 2.8.1
+ *   So the feature was added AFTER released 2.7.2 and changed again by egcs.  A retail
+ *   function that re-materializes where we copy was compiled by a cc1 OUTSIDE the
+ *   970404/2.8.x band at that site -- which is a fresh, independent piece of evidence for
+ *   the 04X "Sony prebuilt vendor object, mid-90s gcc" identity of this whole directory.
+ *
+ * WHY IT IS NOT REACHABLE HERE (the certificate).  Retail's shape is
+ *   `lw $v0,0x1C($sp); lui $v1,0xE000; and $v0,$v0,$v1; bnez $v0,.L; [slot] lui $s0,0xE000`
+ * -- the two materializations sit in ONE label-free, call-free run, and the second is the
+ * branch's own delay-slot filler.  The three escapes are each blocked:
+ *   * CODE_LABEL: gcc emits none between an `if`-test and the loop preheader it dominates;
+ *     planting one needs a SECOND PREDECESSOR, i.e. real instructions (measured in t3.c: a
+ *     `if(q){...goto entry;}` pre-arm costs a load, a compare and a branch).
+ *   * CALL: the preheader has none, and peeling the first iteration to get one duplicates
+ *     the whole body + a second entry test.
+ *   * REGISTER OVERWRITE: nothing writes `$v1` between the `and` and the preheader, and the
+ *     only other insn there (`addiu $s1,$zero,1`, the loop's hoisted `1`) is callee-saved by
+ *     necessity (it is live across the `jal`).
+ *   * RUNG: re-laddered THIS wave in THIS basin (04Z), whole-fn, per-fn ver-splice:
+ *       2.6.0 48 * 2.6.3 48 * 2.7.2 45 @222 * 2.7.2-970404 **2** (WIRED, optimal) *
+ *       2.8.0 6 * 2.8.1 12 @223 * 2.91.66 163 @216 * 2.95.2 210 @219.
+ *     The rungs WITHOUT reload_cse are 45-48 because the whole body is tuned to 970404.
+ *   * FLAG: `-fno-rerun-cse-after-loop` measured on the real fn = 2 (inert), as the law
+ *     predicts (cse2 is not the pass; and reload_cse has no switch at all).
+ * ⇒ ROW (c) IS A 1-INSTRUCTION HARDNESS CERTIFICATE, mechanism-named and escape-enumerated.
+ * The only remaining route is a POST-cc1 TEXT REWRITE.  PER_FN_TEXT_MOVES cannot express it
+ * (it is a pure line-MOVE engine and there is no `li $16,-536870912` line anywhere in the
+ * function to move) -- what is needed is a NEW sibling mechanism, e.g.
+ *     PER_FN_TEXT_REWRITE = {rel: {fn: [{"line": <regex, count-asserted 1>, "to": <text>}]}}
+ * with the single row  `\taddu\t\$16,\$3,\$0\n` -> `\tli\t$16,-536870912\n`.
+ * That is byte-exactly retail's word and touches no branch.  ORCHESTRATOR CALL.
+ * ⚠️ DO NOT re-spend budget on cse dumps, fences, launders, named masks, born-in-the-loop
+ * or ref/live dials for this row: they all act on PSEUDOS, before reload, and reload_cse
+ * cannot see any of them.  Same verdict applies verbatim to DIVDF3.c's row (a) sibling
+ * check (see there) and to pad.c PAD_update (where the rung escape DID land a PASS).
+ *
  * 📚 W72-A20 CORPUS VERDICT -- THE fp-bit LINEAGE QUESTION IS SETTLED (see FIXDFSI.c
  * for the decisive receipt): retail's LIBMATH double soft-float is NOT FSF `fp-bit.c`
  * (that file's fp_number_type/unpack/pack machinery has no relation), but it IS

@@ -1758,7 +1758,38 @@ extern int _dws(RECT *rect, u_long *data)
      * identity launder 39 @144 / without 39 @142 / with a read-only fence 44 @137; a
      * named+laundered `guardMask` for the guard test 12; an in-place identity launder on
      * `readyMask` 36 (_dws) and 54 (_drs).  It is the 3.25-3b old-gcc no-copy-prop identity,
-     * unreachable from source AND from the cse/jump flag set. */
+     * unreachable from source AND from the cse/jump flag set.
+     * 🏆 W74-A18 (2026-08-23) -- CLASS (a) IS SOLVED; _dws PASS 143/143, _drs PASS 160/160.
+     * The "3.25-3b old-gcc no-copy-prop" NAME WAS WRONG, and that is why eight waves of cse
+     * / jump / version / flag dials all measured inert: the copy is NOT made by cse and NOT
+     * by any -f option.  It is made by RELOAD_CSE_REGS -- gcc-2.8's "very simple CSE pass
+     * over just the hard registers", called UNCONDITIONALLY at -O2 from toplev.c:3501 after
+     * reload and before jump2.  Its `reload_cse_simplify_set` (reload1.c ~8173) takes any
+     * `(set (hardreg) <non-register>)`, scans i = 0..FIRST_PSEUDO_REGISTER for a hard reg
+     * its reg_values table says already holds that value, and rewrites the set as a REGISTER
+     * COPY (lowest regno wins -- here $v1 = reg 3, the guard test's mask).
+     * PROOF (RTL stage walk, scratchpad/W74_A18/rtl, insn 323 = the readyMask set):
+     *     greg  : (set (reg/v:SI 19 s3) (const_int 67108864))  + REG_EQUIV
+     *     jump2 : (set (reg/v:SI 19 s3) (reg:SI 3 v1))         + REG_EQUIV
+     * i.e. still a constant after global-alloc, a copy before jump2 -- only reload_cse runs
+     * in between.  NOT a version axis either: 2.8.1 (this lane), 2.8.0 and the REAL retail
+     * PsyQ 4.3 CC1PSX all emit `move $19,$3` from this source (all three measured).
+     * THE CURE, zero insns: reload_cse's own main loop invalidates a register's recorded
+     * value on any CLOBBER -- for every non-SET element of a PARALLEL it runs
+     * `note_stores (x, reload_cse_invalidate_rtx)` (reload1.c ~8007) -- and forgets the whole
+     * table at a CODE_LABEL, and forgets all call-used regs at a CALL_INSN.  So an empty asm
+     * that clobbers the DONOR register, placed between the donor's set and the constant set,
+     * makes the constant rematerialize exactly like retail.  `__asm__("" : : : "$3")` before
+     * `readyMask = 0x04000000;` => `lui $s3,1024`, PASS.  (This also explains why the third
+     * occurrence, the `*GPU_GP1 = 0x04000000` store value, was ALWAYS fresh: a CODE_LABEL
+     * sits between it and the guard.)  Placement law = 22B-1's, but for a DIFFERENT pass:
+     * what matters is the FINAL post-reload insn ORDER, not the live ranges -- and the
+     * clobber denies nothing here, the guard mask pseudo is already dead at that point.
+     * RAW40 / vendor-rung verdict for these two fns: FALSIFIED.  PsyQ 4.0's CC1PSX (wired as
+     * a per-fn CC1_VER splice rung) gives _dws 139 insns / 74 diffs and _drs 159 / 57, with a
+     * different frame (80 vs 48) and saved-reg set -- retail's _dws/_drs are 2.8-lane code
+     * that was merely missing this device.  (The 4.0 rung DOES rematerialize 0x04000000 at
+     * all four uses, which is what made the old "old-gcc no-copy-prop" story plausible.) */
     saved = rect;
     var_s4 = 0;                                  /* GP0 cmd selector (0 = 0xA0 load) */
     _gpu_arm_timeout();
@@ -1773,6 +1804,10 @@ extern int _dws(RECT *rect, u_long *data)
     var_s0 = to_write - (quotient << 4);
     size = quotient;
     if ((*GPU_GP1 & 0x04000000) == 0) {          /* wait until ready to receive DMA */
+        /* W74-A18: reload_cse_regs donor-invalidation -- see the block comment above.
+         * WITHOUT this clobber the mask is copied out of the guard's $v1
+         * (`addu $s3,$v1,$zero`); with it, retail's fresh `lui $s3,1024`.  Zero insns. */
+        __asm__("" : : : "$3");
         readyMask = 0x04000000;
         do {
             if (_gpu_check_timeout())
@@ -1834,7 +1869,12 @@ extern int _drs(RECT *rect, u_long *data)
      * RESIDUAL 10 = the identical two classes listed at the end of _dws: three no-copy-prop
      * constant rematerializations (`lui $s3,1024`, `lui $s1,2048`, `li $v1,-1` vs our copies)
      * plus the parm (save, copy) emission order.  Do not re-grind spellings -- the _dws block
-     * lists six that were measured and reverted, and the whole version axis is closed. */
+     * lists six that were measured and reverted, and the whole version axis is closed.
+     * 🏆 W74-A18: PASS 160/160.  Both surviving constant rematerializations were the
+     * RELOAD_CSE_REGS class (mechanism, proof and cure in the _dws block above); each spin
+     * gets the same zero-insn donor-invalidation clobber on $v1 before its mask assignment.
+     * The two spins are independent instances -- the second one's donor is $v1 as well
+     * (the 0x08000000 guard test), so both need their own clobber. */
     int to_read;
     int size;
     int var_s0;
@@ -1856,6 +1896,7 @@ extern int _drs(RECT *rect, u_long *data)
     var_s0 = to_read - (quotient << 4);
     size = quotient;
     if ((*GPU_GP1 & 0x04000000) == 0) {          /* wait until ready for DMA */
+        __asm__("" : : : "$3");                  /* W74-A18 reload_cse donor-invalidation */
         readyMask = 0x04000000;
         do {
             if (_gpu_check_timeout())
@@ -1868,6 +1909,7 @@ extern int _drs(RECT *rect, u_long *data)
     *GPU_GP0 = *(u_long *)saved;
     *GPU_GP0 = *((u_long *)saved + 1);
     if ((*GPU_GP1 & 0x08000000) == 0) {          /* wait until ready to send pixels */
+        __asm__("" : : : "$3");                  /* W74-A18 reload_cse donor-invalidation */
         sendMask = 0x08000000;
         do {
             if (_gpu_check_timeout())
@@ -2143,7 +2185,73 @@ extern int _gpu_que_drain(void)
                  * THIRD volatile `_qout` reload REUSES $a1 at 71; ours runs the index chain
                  * to completion last, so its `_qout` reload must stay live across both
                  * other chains and takes $a2 instead.  Same 06E sched1/local-alloc gap --
-                 * but now it is a 3-insn placement, not a register handout. */
+                 * but now it is a 3-insn placement, not a register handout.
+                 * W74-A18 (2026-08-23) -- THE SCHEDULER MECHANISM READ OFF gcc-2.8.1's
+                 * sched.c, and the residual is now MECHANISM-NAMED rather than "06E gap".
+                 * sched1 is a BACKWARD list scheduler: `last = next_tail` and each pick is
+                 * inserted before the previously placed insn, so the FIRST insn chosen ends
+                 * up LAST in the text.  The ready list holds insns whose successors are all
+                 * placed (INSN_REF_COUNT == 0); rank_for_schedule (sched.c:2415) sorts on
+                 * (1) INSN_PRIORITY = dependence depth from the block TOP, (2) the
+                 * dependent-on-last-scheduled class, (3) INSN_LUID, higher preferred.
+                 * THE DECISIVE RULE IS NOT ANY OF THOSE THREE: when an insn is launched
+                 * because its last successor was just placed, schedule_insn calls
+                 * adjust_priority (sched.c:2533), whose n_deaths is ALWAYS 0 (gcc's own
+                 * "??? this code has no effect, REG_DEAD notes are removed" comment), so the
+                 * `case 0:` arm runs and bumps it to max_priority IF birthing_insn_p holds --
+                 * i.e. if the insn SETS A REGISTER that is live here and has REG_N_SETS == 1.
+                 * Every single-set chain temp qualifies, and max_priority is re-seeded from
+                 * the just-scheduled insn, so THE BUMP IS SELF-SUSTAINING: once a dependence
+                 * chain is entered it runs to completion, beating everything in the ready
+                 * list.  That -- not a coloring tie and not a source read order -- is why
+                 * "ours runs each chain to completion in turn" (the W62/W64/W71 read-offs).
+                 * The counterpart: our three field loads set the HARD regs $a0/$a1 (combine
+                 * folded each `_que.plain[i].f` straight into the call's argument set), and
+                 * REG_N_SETS($a0) >> 1, so they are NOT birthing and sit at priority 2 --
+                 * which is exactly why they lose to the chain.  Retail's stream requires the
+                 * func chain to be interrupted TWICE, i.e. ALL THREE of its insns must be
+                 * non-birthing (REG_N_SETS > 1) while still out-ranking the argument loads
+                 * on LUID.  Those two requirements are in direct conflict under our RTL: the
+                 * folded loads carry the block's HIGHEST luids, so anything that survives to
+                 * out-rank them must be emitted after them in source, and anything with
+                 * REG_N_SETS > 1 is a user variable whose extra set costs a real copy.
+                 * MEASURED THIS WAVE on top of the shipped basin (all reverted; the probe
+                 * harness + case files are scratchpad/W74_A18/probe.py + cases{1..4}.json):
+                 *   IDENTITY/FLAG AXIS, now CLOSED for this fn: per-fn -fno-schedule-insns
+                 *   56 @154 * -fno-schedule-insns2 18 @154 * -fno-delayed-branch 23 @155.
+                 *   Retail's _gpu_que_drain is scheduled code; do not re-probe the flags.
+                 *   REG_N_SETS DIAL (works, but overshoots): a SECOND assignment to `fidx`
+                 *   makes its pseudo non-birthing and the whole func chain drops to the very
+                 *   FRONT of the block instead of splitting -- two chained launders 13 @153
+                 *   in every arrangement tried (clob+plain / plain+clob / clob,E,A,plain /
+                 *   three launders / plain-only pair / E,A,clob,plain / clob,E,plain,A: all
+                 *   13 @153, the +1 insn being the copy the second set costs), and the
+                 *   zero-cost spellings of the same idea are worse (`fidx=_qout; fidx=fidx*96`
+                 *   22 @152, `fidx*=96` 22, the split `*3`+`<<5` three-set form 17 @151 with
+                 *   the clobber / 13 @151 without, `fidx=_qout;fidx=fidx*96` unclobbered 16).
+                 *   LOAD-FOLD AXIS (trying to give the loads low luids): identity launder on
+                 *   `extra` 10 (inert) * on `arg` 33 @151 * on both 12 * on all three 10
+                 *   (inert) * multi-output tied launder (22B-3) on (arg,extra) 26, and with
+                 *   read order fae 39 @151.  READ ORDER re-priced in this basin: fae 18 *
+                 *   fae+launders 15 @151 * aef+launders 15 @151 (W64/W71 numbers hold).
+                 *   CLOBBER PLACEMENT: $v0 clobber moved off `fidx` onto a tied launder of
+                 *   `extra` 20 * of `arg` 28 * of `extra` before the arg read 20 * an
+                 *   output-less volatile `$v0` clobber before the func read 36 (it is a
+                 *   sched1 barrier, 20A) * a read-only fence on `fidx` after the arg read 34.
+                 *   INERT AT 10 (safe, no gain): the clobber statement moved below the
+                 *   extra/arg reads * adding "$6" to it * spelling the call as
+                 *   `(*(QueFunc *)((char *)_que.plain + fidx))(arg, extra)`.
+                 *   `$a2` denial alone ("$6" instead of "$2") 16 -- the $a2 holder is the
+                 *   _qout READ pseudo, not `fidx`, so the existing launder cannot reach it.
+                 * A TEXT_MOVES row was SPECIFIED AND REJECTED here (it is not a pure
+                 * relocation): retail's three reloads live in TWO registers ($a1,$v1,$a1 --
+                 * the third reusing the first) where ours needs THREE ($a2,$a1,$v1), because
+                 * the reuse is a CONSEQUENCE of the split, so no permutation of our text can
+                 * reach retail's.  The best legal permutation (lifting our `sll $v1,$a2,1;
+                 * addu $v1,$v1,$a2` above the arg load) leaves the $a2-vs-$a1 pair plus the
+                 * reload-pair displacement = 8, and moving the reload down instead is
+                 * ILLEGAL (its chain would read $a2 before the load).  Rows are for
+                 * assembler-side relocations; this one would only launder a register diff. */
                 fidx = _qout * 96;
                 __asm__("" : "=r"(fidx) : "0"(fidx) : "$2");
                 extra = _que.plain[_qout].extra;

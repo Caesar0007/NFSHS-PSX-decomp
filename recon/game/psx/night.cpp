@@ -466,6 +466,68 @@ void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char 
            default, so it is a lab instrument, not a shippable toolchain rung.
      Until (a)+(b), the shipped b,g,r basin remains the right ship: it buys region A,
      which is 30 diffs, at the cost of region B, which is 26. */
+  /* ===== W74-A12 (2026-08-22/23): 26 STAYS @113/113 -- and THE SOURCE AXIS IS NOW
+     CLOSED WITH A MECHANISM, not with an exhaustion argument.  The assignment was to
+     find a 2.8.0-reachable spelling the 123-cell store-order x read-back x
+     volatile-store cross-product (w50/w63/w71) missed.  FOUR axes it never touched
+     were swept (37 new cells, every one re-gated); none lands, and the third one
+     REFUTES the model everybody has been working from, which is the useful part.
+     WHAT THE BLOCK ACTUALLY IS (expr.c reading, the assignment's third instrument):
+     `Night_FindClosestColor(newColor, ...)` passes a 4-byte align-1 BLKmode aggregate
+     wholly in $a0, so expand_call reaches expr.c:2859 `move_block_to_reg` ->
+     `operand_subword_force (x, 0, BLKmode)` (expr.c:1734); with alignment below a word
+     that falls through to expmed.c's `extract_split_bit_field`, whose little-endian
+     loop emits exactly the shipped shape -- four byte reads at 16..19(sp), each shifted
+     by 8*i and OR-ed into a running accumulator in ASCENDING byte order.  The tree is
+     therefore FIXED by the loop, not by the source; the only things that can differ are
+     (i) which of the four byte reads cse replaces with a still-recorded store value
+     (`andi rN,rN,255` instead of `lbu`), and (ii) where the accumulator lives.
+     🔴 THE REFUTATION (round 3, the cse MEMORY-INVALIDATION dial -- a `"memory"` clobber
+     between the pack stores and the call).  It does exactly what it should: every
+     recorded store dies, all FOUR bytes become fresh `lbu`s, and the count does not move
+     (113, forwards traded 1:1 for reloads).  Retail's block starts `lbu a0,16(sp)` and
+     then accumulates IN $a0 (`or a0,a0,v0` x3).  Under this clobber gcc-2.8.0 DOES emit
+     `lbu a0,16(sp)` -- and still writes the accumulator into a scratch (`or v0,a0,v0`),
+     with only the final `or` reaching $a0.  ⇒ the accumulator's home is NOT a function
+     of whether the first term is a fresh load or a forwarded register.  Every receipt in
+     this stack from w50 onward has treated "which byte is forwarded" as the question;
+     it is not.  gcc-2.8.0 builds this OR-tree in a scratch unconditionally, gcc-2.8.1
+     (W72-A14's dump) builds it in the destination.  That is the whole 26, it is a
+     one-line codegen-identity difference, and NO byte-availability spelling can reach it.
+     (The clobber also costs upstream: it is a sched1 barrier, so it re-rotates the
+     clamps -- 68 diffs.  mem-clobber placed BEFORE the last store is bit-identical to
+     none, as expected: only the last store's record is at stake.)
+     THE OTHER THREE AXES, all inert or worse (full ladder):
+       (1) MEM_IN_STRUCT_P ALIAS DIAL (catalog 22C-3) -- the three pack stores respelled
+           as `*(u_char *)((char *)&newColor + N) = ...` cast stores, which clear /s and
+           alias-chain to everything: all three, .r only, .g+.b, .b only, .g only =
+           26 BIT-IDENTICALLY in every cell.  Aliasing controls cse INVALIDATION, not
+           cse RECORDING, so a cast store is recorded exactly like a COMPONENT_REF;
+           the dial cannot reach this block at all.  (Dropping the read-back from the
+           cast form still measures 46, i.e. the read-back is doing its documented job.)
+       (2) TIED MULTI-OUTPUT LAUNDER (catalog 22B-3) on the clamped locals:
+           (newG,newB) 29 @114 . (newR,newB) 43 @114 . (newR,newG,newB) 29 @114 .
+           (newG,newB) placed between the .b and .g stores 26 (bit-identical).
+           Every form that is not inert costs its own copy insn -- the same cross-block
+           boundary the W71 front.cpp receipt records for this device.
+           Read-only ref fences on newR / newB (1 and 2 operands, before and after the
+           pack block): 55 / 59 / 67 / 59 @116 -- all +3 real insns.
+       (3) THE ARGUMENT-EXPRESSION AXIS (how expand_call is handed the aggregate):
+           `*(CVECTOR *)&newColor` 26 (bit-identical) . through a `CVECTOR *` local 26
+           (bit-identical) . through a copy `CVECTOR nc2 = newColor;` 97 @118 (a real
+           movstrsi block copy appears) . read-back carrier respelled as a fresh
+           block-local 46 . as `*(u_char *)&newColor` 26 . extra read-backs of .g / .b /
+           both 26 (all bit-identical) . a read-back of .cd 62.
+     ⇒ VERDICT: the source axis for region B is CLOSED, and closed by a named mechanism
+     (extract_split_bit_field's accumulator home is a 2.8.0-vs-2.8.1 identity, not a
+     byte-availability or aliasing or liveness question).  The remaining route is
+     unchanged and is the ORCHESTRATOR-level one W72-A14 specified: a per-fn cc1PLUS
+     VERSION splice for the C++ lane (build.py's `_apply_cc1_ver_splice` is wired only
+     from compile_c) plus a decision on whether an FSF-built 2.8.1 cc1plus may stand in
+     for a vendor one.  With that splice the pack block is free in the r,g,b basin and
+     the whole function reduces to dialling region A (the b15 <-> sourceG order + the
+     prologue parm spill) in that basin.  Nothing further should be spent on spellings
+     here. */
   if (0xff < newB) newB = 0xff;
   /* `& ~7` (a register-held -8, oracle `addiu $v1,$zero,-0x8` + three `and`), NOT
      `& 0xf8` (which is a 16-bit unsigned immediate -> andi). */

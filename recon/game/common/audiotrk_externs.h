@@ -2,15 +2,25 @@
  * Harvested from sibling *_externs.h + *.cpp defs + disasm-v2 (AI/Control demangled). */
 #ifndef _GAME_COMMON_AUDIOTRK_EXTERNS_H_
 #define _GAME_COMMON_AUDIOTRK_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+
+extern "C" {
+int SNDmemlargestunused(...);
+int SNDover(...);
+int fixedmult(...);
+int gettick(...);
+u_short PAD_state(int padID);
+int purgememadr(...);
+int random(...);
+void *reservememadr(...);
+int systemtask(...);
+}
 
 extern CAudioList *gGameAudioList;
 extern DRender_tCalcView AudioClc_gRenderView;
-extern GameSetup_tData   GameSetup_gData;
-extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */
+extern int AudioTrk_GameSetupWords[] asm("GameSetup_gData");
+extern int AudioTrk_simGlobalWords[] asm("simGlobal");
 extern Trk_AnimateInst * Anim_gInstanceFromIndex[8];
-extern Trk_NewSlice  *BWorldSm_slices;
+extern char *AudioTrk_BWorldSmSlices asm("BWorldSm_slices");
 extern int   AudioCmn_GetAsyncSfx(int a, int b, bool c);
 extern int   DrawW_GetAnimationTime(Trk_AnimateInst *animInst);
 extern int  Anim_GetPos(Trk_AnimateInst *animInst, int flags, int ticks, coorddef *pt, int *animTicks, int *animLength);

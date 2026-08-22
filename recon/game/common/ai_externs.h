@@ -2,20 +2,17 @@
  * Harvested from sibling *_externs.h + *.cpp defs + disasm-v2 (AI/Control demangled). */
 #ifndef _GAME_COMMON_CAMERA_EXTERNS_H_
 #define _GAME_COMMON_CAMERA_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
-
 extern AIDataRecord_BestLine_t *AIDataRecord_BestLine;   /* @0x8013c5a0 */
 extern Car_tObj      *Cars_gSortedList[];
 extern Car_tObj * AILife_IsCarInAnyVisibleArea(Car_tObj *carObj);
 extern Car_tObj *Cars_gList[];
 extern Car_tObj *Cars_gHumanRaceCarList[];
 extern Car_tObj *Cars_gTotalSortedList[];
-extern GameSetup_tData   GameSetup_gData;
+extern int AI_GameSetupWords[] asm("GameSetup_gData");
 extern Group              *Object_customObjInst;     /* 0x8013d2c8 */
 extern Group              *Object_customSimObjs;     /* 0x8013d2cc */
-extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */
-extern Trk_NewSlice  *BWorldSm_slices;
+extern int AI_SimGlobalWords[] asm("simGlobal");
+extern char *AI_BWorldSmSlices asm("BWorldSm_slices");
 extern int                 Cars_gNumCopCars;
 extern int                 Cars_gNumTrafficCars;
 extern int                AITune_driveSide;

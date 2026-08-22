@@ -3,7 +3,7 @@
  *   (chunk visibility, build lists, spike belt, glare effects, render contexts). Self-contained.
  *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++.
  */
-#include "../../nfs4_types.h"
+#include "audiotrk_types.h"
 #include "audiotrk_externs.h"
 
 
@@ -331,19 +331,19 @@ AudioTrk_volume_done:
 /* ---- AudioTrk_SoundTrack__FP8Car_tObji  [@0x8007cdc4] ---- */
 void AudioTrk_SoundTrack(Car_tObj *car,int trkazi)
 {
-  if (GameSetup_gData.commMode != 1) {
+  if (AudioTrk_GameSetupWords[3] != 1) {
     if (gMasterAmbientLevel != 0) {
       if (AudioTrk_g != 0) {
         if (gGameAudioList != 0) {
           AudioElem *se;
           int numelems = gGameAudioList->numElements_;
           int quater = (numelems >> 2) + 1;
-          int gtck = simGlobal.gameTicks >> 3;
+          int gtck = AudioTrk_simGlobalWords[1] >> 3;
           int vx = AudioClc_gRenderView.translation.x;
           se = (AudioElem *)(gGameAudioList + 1);
           int vz = AudioClc_gRenderView.translation.z;
           coorddef v;
-          int start = ((simGlobal.gameTicks >> 1) % 4) * quater;
+          int start = ((AudioTrk_simGlobalWords[1] >> 1) % 4) * quater;
           /* MATCH: retail PRE-SETS the default (end = numelems, `addu fp,a3,zero`
              at 8007CE94) and only overrides it on the `<=` arm -- the min ternary
              emits the compare with the operands the other way round. */
@@ -479,8 +479,8 @@ int AudioTrk_PreLoad(void)
     return 1;
   }
 
-  vx = *(int *)BWorldSm_slices;
-  vz = *(int *)((char *)BWorldSm_slices + 8);
+  vx = *(int *)AudioTrk_BWorldSmSlices;
+  vz = *(int *)(AudioTrk_BWorldSmSlices + 8);
   loaded = false;
   tick = gettick() + 0x280;
   numelems = gGameAudioList->numElements_;

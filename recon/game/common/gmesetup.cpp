@@ -11,7 +11,7 @@
  *   (Mc-muffin's decomp.me dMkUR seeded the structure; these 3 reconcile it on
  *    the authoritative 2.8.0 allocator, which differs from decomp.me's 2.8.1.)
  */
-#include "../../nfs4_types.h"
+#include "gmesetup_types.h"
 #include "gmesetup_externs.h"
 
 /* SYM-owned lookup names at 0x80113044..0x801131ec.  The fixed row widths
@@ -74,8 +74,8 @@ void GameSetup_StartUp(int *FrontEndDataStream)
         }
         else if (i >= 0x4D) {
             h[i - 0x4D] = s[1];
-            if (Device_gDeviceList[s[1] & 0xFF].startupfunc != 0) {
-                Device_gDeviceList[s[1] & 0xFF].startupfunc(s[1] >> 8);
+            if (GAMESETUP_DEVICE_STARTUP(s[1] & 0xFF) != 0) {
+                GAMESETUP_DEVICE_STARTUP(s[1] & 0xFF)(s[1] >> 8);
             }
             s += 2;
         }

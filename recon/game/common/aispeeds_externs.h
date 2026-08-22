@@ -1,11 +1,8 @@
 /* game/common/aispeeds_externs.h - reconstructed externs. NOT original.
  * Harvested from sibling *_externs.h + *.cpp defs + disasm-v2 (AI/Control demangled). */
-#ifndef _GAME_COMMON_CAMERA_EXTERNS_H_
-#define _GAME_COMMON_CAMERA_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#ifndef _GAME_COMMON_AISPEEDS_EXTERNS_H_
+#define _GAME_COMMON_AISPEEDS_EXTERNS_H_
 
-extern "C" CARDINFO_def *MCRD_getcard(int);
 extern AIDataRecord_TrackCurve_t *AIDataRecord_TrackCurve;   /* was stale array-of-value shape; owner
                                                      (aidatarecord.cpp) defines it as a POINTER --
                                                      consumers call AIDataRecord_TrackCurve->Get(...),
@@ -17,9 +14,22 @@ extern Car_tObj *Cars_gList[];
 extern Car_tObj *Cars_gAIRaceCarList[9];
 extern Car_tObj *Cars_gTotalSortedList[];
 extern char *Paths_Paths[];
-extern GameSetup_tData   GameSetup_gData;
-extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */
-extern Trk_NewSlice  *BWorldSm_slices;
+extern int GameSetup_gData[22];
+#define AISPEEDS_RACE_TYPE GameSetup_gData[0]
+#define AISPEEDS_NUM_LAPS GameSetup_gData[1]
+#define AISPEEDS_SKILL GameSetup_gData[2]
+#define AISPEEDS_TOURNAMENT_MULTIPLIER GameSetup_gData[4]
+#define AISPEEDS_REVERSE_TRACK GameSetup_gData[12]
+#define AISPEEDS_TRACK GameSetup_gData[15]
+#define AISPEEDS_WEATHER GameSetup_gData[18]
+#define AISPEEDS_TIME GameSetup_gData[21]
+extern Sim_tSimGlobalVar simGlobal;
+extern int AISpeeds_simGlobalWords[] asm("simGlobal");
+#define AISPEEDS_GAME_TICKS AISpeeds_simGlobalWords[1]
+extern u_char (*BWorldSm_slices)[32];
+#define AISPEEDS_SLICE_LANE_COUNT(i) BWorldSm_slices[(i)][0x1d]
+#define AISPEEDS_SLICE_WIDTH_LF(i) BWorldSm_slices[(i)][0x1e]
+#define AISPEEDS_SLICE_WIDTH_RT(i) BWorldSm_slices[(i)][0x1f]
 extern Udff_tInfo * Udff_Opena(char *name,char *mem,int abortFlag);
 extern int            Cars_gNumCars;
 extern int            gNumSlices;
@@ -38,6 +48,12 @@ int AIWorld_ApxSplineDistance(Car_tObj *a, Car_tObj *b);
 int AIWorld_ApxSplineDistance(Car_tObj *a, int sliceB);
 int AIWorld_ApxSplineDistance(int sliceA, Car_tObj *b);
 int AIWorld_ApxSplineDistance(int sliceA, int sliceB);
-/* AIDataRecord_TrackCurve_t::Get / AIDataRecord_CurveSpeedTable_t::Get now called as C++ members (aidatarecord.obj) -- flat externs removed */
+extern "C" int AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve_t *self, int slice)
+    asm("Get__25AIDataRecord_TrackCurve_ti");
+extern "C" int fixeddiv(...);
+extern "C" int fixedmult(...);
+extern "C" int purgememadr(...);
+extern "C" void *reservememadr(...);
+extern "C" int sprintf(...);
 
-#endif /* _GAME_COMMON_CAMERA_EXTERNS_H_ */
+#endif /* _GAME_COMMON_AISPEEDS_EXTERNS_H_ */

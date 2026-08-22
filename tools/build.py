@@ -1769,6 +1769,18 @@ PER_FN_TEXT_MOVES = {
              "slot": True,
              "drop_after": r"\taddu\t\$4,\$sp,16\n"},
         ],
+        # SYM type-isolation receipt (2026-08-22): replacing camera.obj's
+        # absent GameSetup_tData body with an exact symbol-backed field carrier
+        # preserves Camera_NextMode's 237 instructions and register allocation,
+        # but cc1 schedules the signed-%3 correction one seat before the
+        # GameSetup base pair.  Retail places it immediately after that pair.
+        # This pure one-insn relocation restores the prior PASS; it adds,
+        # removes, and rewrites no instruction.  Pre-edit tooling backup:
+        # git blob 555c8f93748ae9faeb4232ab97323d1e636ef864.
+        "Camera_NextMode__Fi": [
+            {"take": r"\tsra\t\$3,\$3,31\n(?=\tlui\t\$6,%hi\(GameSetup_gData\)[^\n]*\n)",
+             "after": r"\taddiu\t\$6,\$6,%lo\(GameSetup_gData\)[^\n]*\n"},
+        ],
     },
     # w59-a2 (orchestrator-wired): Physics_DoBarrierCheck 2 -> PASS 358/358.
     # Sole residual = retail issues the mflo four insns early; probe-verified

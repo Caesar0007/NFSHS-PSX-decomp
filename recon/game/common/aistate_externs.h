@@ -2,9 +2,6 @@
  * Harvested from sibling *_externs.h + *.cpp defs + disasm-v2 (AI/Control demangled). */
 #ifndef _GAME_COMMON_CAMERA_EXTERNS_H_
 #define _GAME_COMMON_CAMERA_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
-
 /* ---- aistate.obj manual vtable symbols (cross-TU; g++ 2.7.2 _vt_<class>) ---- */
 extern Car_tObj *Cars_gList[];
 extern __vtbl_ptr_type AIState_Base_vtable[], AIState_Normal_vtable[], AIState_NonActive_vtable[],
@@ -29,10 +26,10 @@ extern "C" void ___14AIState_Cruise(AIState_Cruise*,int);
 
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj      *Cars_gSortedList[];
-extern GameSetup_tData   GameSetup_gData;
-extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */
+extern int AIState_GameSetupWords[] asm("GameSetup_gData");
+extern int AIState_SimGlobalWords[] asm("simGlobal");
 extern int                 AI_elapsedTime;     /* ai.cpp    @0x8013C554 */
-extern Trk_NewSlice  *BWorldSm_slices;
+extern char *AIState_BWorldSmSlices asm("BWorldSm_slices");
 extern int                 Cars_gNumTrafficCars;
 extern int            Cars_gNumCars;
 extern int            gNumSlices;

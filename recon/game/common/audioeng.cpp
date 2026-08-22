@@ -3,7 +3,7 @@
  *   (chunk visibility, build lists, spike belt, glare effects, render contexts). Self-contained.
  *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++.
  */
-#include "../../nfs4_types.h"
+#include "audioeng_types.h"
 #include "audioeng_externs.h"
 
 
@@ -70,7 +70,7 @@ void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int
         }
         if (cam == 0) {
           s->exh = a->inCarExhaust;
-          if (GameSetup_gData.commMode == 1) {
+          if (AudioEng_GameSetupWords[3] == 1) {
             s->sep = 0;
             s->azi = (u_short)azi;
           }
@@ -401,7 +401,7 @@ int AudioEng_StartUp(int player,char *carname)
   g->setpos = '\0';
   g->plypos = '\0';
   bankloaded = 0;
-  if (GameSetup_gData.commMode == 1) {
+  if (AudioEng_GameSetupWords[3] == 1) {
     sprintf(filename,"%s%sens.viv",Paths_Paths[28],carname);
   }
   else {
@@ -409,7 +409,7 @@ int AudioEng_StartUp(int player,char *carname)
   }
   header = (char *)loadbigfileheader(filename,(void *)16);
   if (header == (char *)0x0) {
-    if (GameSetup_gData.commMode == 1) {
+    if (AudioEng_GameSetupWords[3] == 1) {
       sprintf(filename,"%sp993ens.viv",Paths_Paths[28]);
     }
     else {
@@ -439,7 +439,7 @@ int AudioEng_StartUp(int player,char *carname)
               bankloaded = 1;
               FILE_readsync(handle,offset,pdata,size,100);
               spu = AudioCmn_AddBank(name,size,pdata,player);
-              g->bhandle = (char)gSndBnk[player].bnkID;
+              g->bhandle = (char)AudioEng_gSndBnkWords[player][0];
             }
           }
           else if ((wildcard((u_char *)name,"*.ltb") != 0) &&

@@ -2,7 +2,7 @@
  *   Player-action submission + reaction-table processing. SYM-v3 locals; vs disasm-v2.txt.
  *   NOT original source; SYM-faithful, recompilable C++.
  */
-#include "../../nfs4_types.h"
+#include "aicop_types.h"
 #include "aicop_externs.h"
 
 
@@ -45,15 +45,15 @@ void AICop_StartUp(void)
 {
   char filename[100];
 
-  if (GameSetup_gData.cops != 0) {
+  if (AICOP_COPS != 0) {
     triggerManagerCops = (AITrigger_TriggerManager *)operator new(0x34c);
-    sprintf(filename,"%sTr%02d.cop",Paths_Paths[22],GameSetup_gData.track);
+    sprintf(filename,"%sTr%02d.cop",Paths_Paths[22],AICOP_TRACK);
     AICop_rawTriggers = (u_char *)loadfileadrz(filename,(void *)0x0);
     if (AICop_rawTriggers != (u_char *)0x0) {
-      triggerManagerCops->Init((char *)AICop_rawTriggers);
+      AITrigger_Init(triggerManagerCops,(char *)AICop_rawTriggers);
     }
     else {
-      triggerManagerCops->Init((char *)0x0);
+      AITrigger_Init(triggerManagerCops,(char *)0x0);
     }
   }
   AICop_spikeBelt.active_ = 0;
@@ -65,8 +65,8 @@ void AICop_StartUp(void)
 /* ---- AICop_Restart__Fv  [@0x80066a58] ---- */
 void AICop_Restart(void)
 {
-  if ((AICop_rawTriggers != (u_char *)0x0) && (GameSetup_gData.cops != 0)) {
-    triggerManagerCops->Init((char *)AICop_rawTriggers);
+  if ((AICop_rawTriggers != (u_char *)0x0) && (AICOP_COPS != 0)) {
+    AITrigger_Init(triggerManagerCops,(char *)AICop_rawTriggers);
   }
   AICop_spikeBelt.active_ = 0;
   AICop_numArrestedHumans = 0;
@@ -81,7 +81,7 @@ void AICop_CleanUp(void)
     operator delete(triggerManagerCops);
     triggerManagerCops = (AITrigger_TriggerManager *)0x0;
   }
-  if ((AICop_rawTriggers != (u_char *)0x0) && (GameSetup_gData.cops != 0)) {
+  if ((AICop_rawTriggers != (u_char *)0x0) && (AICOP_COPS != 0)) {
     purgememadr(AICop_rawTriggers);
     AICop_rawTriggers = (u_char *)0x0;
   }

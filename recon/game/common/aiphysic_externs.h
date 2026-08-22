@@ -1,7 +1,6 @@
 /* game/common/aiphysic_externs.h - reconstructed externs. NOT original. */
 #ifndef _GAME_COMMON_AIPHYSIC_EXTERNS_H_
 #define _GAME_COMMON_AIPHYSIC_EXTERNS_H_
-#include "../../nfs4_types.h"
 
 extern "C" int fixedmult(int, int);
 int AIScript_DoReAction(AIScript_t *script, AIScript_tAIReaction testReaction);
@@ -14,8 +13,8 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *car);
 void AIPhysic_InControlPhysics(Car_tObj *car);
 void AIPhysic_FinishUp(Car_tObj *car);
 void Cars_ResetCollidedCars(Car_tObj *car, int a, int b);
-extern GameSetup_tData GameSetup_gData;
-extern Trk_NewSlice *BWorldSm_slices;
+extern int AIPhysic_GameSetupWords[] asm("GameSetup_gData");
+extern char *AIPhysic_BWorldSmSlices asm("BWorldSm_slices");
 /* W65-A8 ORDER IS LOAD-BEARING: a TU-owned tentative definition is emitted in
  * the order its identifier is FIRST DECLARED (here, not at the .cpp def).
  * This is aiphysic.obj's whole .sdata run 0x8013c594..0x8013c59c, in retail
@@ -89,6 +88,8 @@ extern AIPhysic_Config_t  AIPhysicConfig;              /* @0x8010dc74 */
 /* AIPhysic_time / AIPhysic_iTime are declared at the top of this header --
  * their ORDER there is the emission order (W65-A8). */
 extern AIDataRecord_TrackCurve_t *AIDataRecord_TrackCurve;
+extern int AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve_t *,int)
+  asm("Get__25AIDataRecord_TrackCurve_ti");
 extern AIScript_tReactionDetails  AIPerson_ScriptData[]; /* flat view @0x8010da5c */
 /* W62-A17: was `u_char [...]` (1-byte elements) -- WRONG.  It is a single 4-byte int:
    owner def aiinit.cpp `int AIInit_forceHumanHandBrake;` @0x8013c584, and every oracle

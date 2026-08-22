@@ -3,7 +3,7 @@
  *   Reconstruction in progress (started 2026-06-20). NOT original source; SYM-faithful,
  *   recompilable C++. Verified per-function vs asm/nonmatchings/main/*.s.
  */
-#include "../../nfs4_types.h"
+#include "aiphysic_types.h"
 #include "aiphysic_externs.h"
 
 /* Owner-module tentative definition: AIPhysic_elapsedTime ($8013c59c) lives in this TU's
@@ -241,17 +241,17 @@ int AIPhysic_CalcAcceleration(Car_tObj *carObj,int speed)
       acceleration = acceleration / 256 * (carObj->accNitrous / 256);
     }
     acceleration = acceleration / 256 * (carObj->accUpgradeMult / 256);
-    if (0 < GameSetup_gData.Weather) {
+    if (0 < AIPhysic_GameSetupWords[18]) {
       acceleration = acceleration / 256 * 0xe6;
     }
     if ((carObj->carFlags & 0x20U) != 0) {
       acceleration = acceleration / 256 * (carObj->copAccMult / 256);
     }
-    if ((((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
+    if ((((AIPhysic_GameSetupWords[0] == RaceType_HotPursuit) || (AIPhysic_GameSetupWords[0] == RaceType_Id5)) &&
         ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
          ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) &&
        ((carObj->carFlags & 8U) != 0)) {
-      acceleration = acceleration / 256 * (AITune_BTCPerpAccMults[GameSetup_gData.skill] / 256);
+      acceleration = acceleration / 256 * (AITune_BTCPerpAccMults[AIPhysic_GameSetupWords[2]] / 256);
     }
     acceleration = AIPhysic_ModifyAccelerationAccordingToScript(carObj,acceleration);
     /* W54-A15 / LAW 05A: retail SLD puts the CALL and the `!= 0x10000` test on ONE line (394)
@@ -309,8 +309,8 @@ void AIPhysic_CheckDesiredDirection(Car_tObj *carObj)
 {
   int turnAroundSpeed = 0x8e38e;
   if (carObj->carFlags & 0x20) {
-    *(volatile int *)&GameSetup_gData.raceType;
-    __asm__("" : : "m"(GameSetup_gData.raceType));   /* w64-a12 SEAL: the "m"-CONSTRAINT FENCE.
+    *(volatile int *)&AIPhysic_GameSetupWords[0];
+    __asm__("" : : "m"(AIPhysic_GameSetupWords[0]));   /* w64-a12 SEAL: the "m"-CONSTRAINT FENCE.
                        Zero insns AND zero extra address materialization -- it is a second
                        MEMORY reference off the SAME %hi pseudo, which is exactly what the
                        w59 certificate said was the only thing that could keep that pseudo
@@ -477,14 +477,14 @@ void AIPhysic_CheckForBadPosition(Car_tObj *carObj)
 {
     int badSpeed = 0;
     int badRoadPos = 0;
-    Trk_NewSlice *slice;
+    char *slice;
     int pos;
     if (0x730000 < carObj->N.linearVel.z ||
         0x730000 < carObj->N.linearVel.x ||
         (0x730000 < carObj->N.speedXZ &&
          carObj->N.simOptz == 0))
         badSpeed = 1;
-    slice = (Trk_NewSlice *)((*(short *)((char *)carObj + 8) << 5) + (int)BWorldSm_slices);
+    slice = (char *)((*(short *)((char *)carObj + 8) << 5) + (int)AIPhysic_BWorldSmSlices);
     pos = carObj->roadPosition;
     if (pos < (int)0xFFDD0000 - (*(short *)((char *)slice + 0x18) << 8) ||
         (*(short *)((char *)slice + 0x1A) << 8) + 0x230000 < pos)
@@ -525,7 +525,7 @@ void AIPhysic_SimplePhysics(Car_tObj *carObj)
     carObj->AIFlags = carObj->AIFlags & 0xffffffef;
   }
   if (((((carObj->carFlags & 8U) != 0) && (simGlobal[1] > carObj->wipeOutStartTick)) &&
-      (0x1e < AIDataRecord_TrackCurve->Get((int)(carObj->N).simRoadInfo.slice))
+      (0x1e < AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,(int)(carObj->N).simRoadInfo.slice))
       ) && (0x1638e3 < carObj->speed)) {
     carObj->wipeOutEndTick = simGlobal[1] + 0x180;
   }
@@ -855,13 +855,13 @@ int AIPhysic_CalculateRoadPosition(coorddef *pos, int slice)
     coorddef centerBack;
     coorddef carRelative;
     coorddef right;
-    centerBack = *(coorddef *)BWorldSm_slices[slice].center;
+    centerBack = *(coorddef *)(AIPhysic_BWorldSmSlices + slice * 0x20);
     carRelative.x = pos->x - centerBack.x;
     carRelative.y = pos->y - centerBack.y;
     carRelative.z = pos->z - centerBack.z;
-    right.x = (signed char)BWorldSm_slices[slice].right[0] << 9;
-    right.y = (signed char)BWorldSm_slices[slice].right[1] << 9;
-    right.z = (signed char)BWorldSm_slices[slice].right[2] << 9;
+    right.x = *(signed char *)(AIPhysic_BWorldSmSlices + slice * 0x20 + 0x12) << 9;
+    right.y = *(signed char *)(AIPhysic_BWorldSmSlices + slice * 0x20 + 0x13) << 9;
+    right.z = *(signed char *)(AIPhysic_BWorldSmSlices + slice * 0x20 + 0x14) << 9;
     return (right.x / 256) * (carRelative.x / 256) +
            (right.y / 256) * (carRelative.y / 256) +
            (right.z / 256) * (carRelative.z / 256);
@@ -916,7 +916,7 @@ void AIPhysic_GetDesiredVector(Car_tObj *carObj)
   }
   futureBend = __builtin_abs(AIWorld_CalcRoadBend(carObj,dirCorrectedSliceLookAhead));
   {
-    int sl = carObj->lookAheadSlice * 0x20 + (int)BWorldSm_slices;
+    int sl = carObj->lookAheadSlice * 0x20 + (int)AIPhysic_BWorldSmSlices;
     roadWidth = (u_int)(*(u_char *)(sl + 0x1e) << 15) * (u_int)(*(u_char *)(sl + 0x1d) >> 4) +
                 (u_int)(*(u_char *)(sl + 0x1f) << 15) * (*(u_char *)(sl + 0x1d) & 0xf);
   }
@@ -950,10 +950,10 @@ void AIPhysic_GetDesiredVector(Car_tObj *carObj)
       }
       carObj->lookAheadSlice = v;
     }
-    fCPoint = *(coorddef *)(carObj->lookAheadSlice * 0x20 + (int)BWorldSm_slices);
-    right.x = (int)*(signed char *)(carObj->lookAheadSlice * 0x20 + (int)BWorldSm_slices + 0x12) << 9;
-    right.y = (int)*(signed char *)(carObj->lookAheadSlice * 0x20 + (int)BWorldSm_slices + 0x13) << 9;
-    right.z = (int)*(signed char *)(carObj->lookAheadSlice * 0x20 + (int)BWorldSm_slices + 0x14) << 9;
+    fCPoint = *(coorddef *)(carObj->lookAheadSlice * 0x20 + (int)AIPhysic_BWorldSmSlices);
+    right.x = (int)*(signed char *)(carObj->lookAheadSlice * 0x20 + (int)AIPhysic_BWorldSmSlices + 0x12) << 9;
+    right.y = (int)*(signed char *)(carObj->lookAheadSlice * 0x20 + (int)AIPhysic_BWorldSmSlices + 0x13) << 9;
+    right.z = (int)*(signed char *)(carObj->lookAheadSlice * 0x20 + (int)AIPhysic_BWorldSmSlices + 0x14) << 9;
     fPoint.x = fixedmult(carObj->rampDesiredLatPos,right.x);
     fPoint.y = fixedmult(carObj->rampDesiredLatPos,right.y);
     fPoint.z = fixedmult(carObj->rampDesiredLatPos,right.z);
@@ -962,7 +962,7 @@ void AIPhysic_GetDesiredVector(Car_tObj *carObj)
     fPoint.z = fPoint.z + fCPoint.z;
     futureRoadPosition = AIPhysic_CalculateRoadPosition(&fPoint,thisSlice);
     {
-      int sl = thisSlice * 0x20 + (int)BWorldSm_slices;
+      int sl = thisSlice * 0x20 + (int)AIPhysic_BWorldSmSlices;
       if ((((int)((u_int)(*(u_char *)(sl + 0x1f) << 15) * (*(u_char *)(sl + 0x1d) & 0xf)) < futureRoadPosition)
           && (carObj->roadPosition < futureRoadPosition)) ||
          ((futureRoadPosition < (int)-((u_int)(*(u_char *)(sl + 0x1e) << 15) *
@@ -1032,7 +1032,7 @@ int AIPhysic_CheckIfOutOfControl(Car_tObj *carObj)
     if (__builtin_abs(carObj->currentSpeed) < AIPhysicConfig.OOCModel.vel_limit_range + -0x30000) {
       goto ret1;
     }
-    iVar3 = (carObj->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices;
+    iVar3 = (carObj->N).simRoadInfo.slice * 0x20 + (int)AIPhysic_BWorldSmSlices;
     if (carObj->roadPosition <
         (int)-((u_int)(*(u_char *)(iVar3 + 0x1e) << 15) * (u_int)(*(u_char *)(iVar3 + 0x1d) >> 4))) {
       goto ret1;
@@ -1459,7 +1459,7 @@ void AIPhysic_InControlPhysics(Car_tObj *carObj)
     }
     skid = 0xa0000;
   }
-  copCollisionFirmness = GameSetup_gData.skill;
+  copCollisionFirmness = AIPhysic_GameSetupWords[2];
   if (lastCollisionTickDiff < 0x10) {
     carObj->wipeOutStartTick = carObj->wipeOutStartTick - 0x14;
   }
@@ -1756,8 +1756,10 @@ void AIPhysic_CalculateRampedDesiredLatPos(Car_tObj *carObj,eRampType rampType)
 int AIPhysic_HitWallCheck(Car_tObj *carObj)
 {
     int onRoad;
-    onRoad = (carObj->laneIndex >= 7 - (BWorldSm_slices[*(short *)((char *)carObj + 8)].laneCount >> 4)) &&
-             ((int)(BWorldSm_slices[*(short *)((char *)carObj + 8)].laneCount & 0xF) + 6 >= carObj->laneIndex);
+    onRoad = (carObj->laneIndex >= 7 - (*(u_char *)((*(short *)((char *)carObj + 8) << 5) +
+                 (int)AIPhysic_BWorldSmSlices + 0x1d) >> 4)) &&
+             ((int)(*(u_char *)((*(short *)((char *)carObj + 8) << 5) +
+                 (int)AIPhysic_BWorldSmSlices + 0x1d) & 0xF) + 6 >= carObj->laneIndex);
     if (onRoad) return 0;
     if (carObj->driveDirection == -1) {
         carObj->timeOffRoad += AIPhysic_elapsedTime;

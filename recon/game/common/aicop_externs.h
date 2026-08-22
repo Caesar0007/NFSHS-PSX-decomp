@@ -1,13 +1,14 @@
 /* game/common/aicop_externs.h - reconstructed externs. NOT original.
  * Harvested from sibling *_externs.h + *.cpp defs + disasm-v2 (AI/Control demangled). */
-#ifndef _GAME_COMMON_CAMERA_EXTERNS_H_
-#define _GAME_COMMON_CAMERA_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#ifndef _GAME_COMMON_AICOP_EXTERNS_H_
+#define _GAME_COMMON_AICOP_EXTERNS_H_
 
 extern AITrigger_TriggerManager *triggerManagerCops;
 extern Car_tObj           *Cars_gCopCarList[];
-extern GameSetup_tData   GameSetup_gData;
+/* AICOP.SYM omits the externally owned 2600-byte GameSetup body. */
+extern int GameSetup_gData[16];
+#define AICOP_COPS GameSetup_gData[5]
+#define AICOP_TRACK GameSetup_gData[15]
 extern char               *Paths_Paths[];          /* 0x80116468 (paths.obj) */
 extern int                 Cars_gNumCopCars;
 /* w64 unlock (A21 calltarget): all FOUR overloads -- a single decl made every
@@ -16,6 +17,13 @@ int AIWorld_ApxSplineDistance(Car_tObj *a, Car_tObj *b);
 int AIWorld_ApxSplineDistance(Car_tObj *a, int sliceB);
 int AIWorld_ApxSplineDistance(int sliceA, Car_tObj *b);
 int AIWorld_ApxSplineDistance(int sliceA, int sliceB);
-/* AITrigger_TriggerManager::Init now called as C++ member (aitriger.obj) -- flat extern removed */
+/* The retail AICOP graph retains an opaque 844-byte class pointer but no class
+ * body.  A readable ABI alias preserves that boundary and the exact member
+ * call target without fabricating a source-visible complete class here. */
+extern "C" void AITrigger_Init(AITrigger_TriggerManager *self, char *rawTriggers)
+    asm("Init__24AITrigger_TriggerManagerPc");
+extern "C" int sprintf(...);
+extern "C" char *loadfileadrz(...);
+extern "C" int purgememadr(...);
 
-#endif /* _GAME_COMMON_CAMERA_EXTERNS_H_ */
+#endif /* _GAME_COMMON_AICOP_EXTERNS_H_ */

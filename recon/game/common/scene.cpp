@@ -2,7 +2,7 @@
  *   6 fns: Scene_Init/DeInit/PurgeScene/BuildCustomSceneList/LoadSceneFile + GetPlaneY.
  *   GTE-free. Full SYM-locals applied.
  */
-#include "../../nfs4_types.h"
+#include "scene_types.h"
 #include "scene_externs.h"
 
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
@@ -85,7 +85,7 @@ void Scene_LoadSceneFile(int sceneFileIndex)
   bigFile = 0;
   sprintf(fname,"%sscene.viv",Paths_Paths[6]);
   FILE_addbigsync(fname,(void *)0x10,100,&bigFile);
-  sprintf(fname,"tr%02d%02d.scn",GameSetup_gData.track,sceneFileIndex);
+  sprintf(fname,"tr%02d%02d.scn",SCENE_TRACK,sceneFileIndex);
   gGameSceneList = (CSceneList *)0x0;
   gGameSceneList = (CSceneList *)loadfileadr(fname,0);
   FILE_delbigsync((char *)bigFile,(void *)0x64);

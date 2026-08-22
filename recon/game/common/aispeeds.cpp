@@ -2,7 +2,7 @@
  *   Player-action submission + reaction-table processing. SYM-v3 locals; vs disasm-v2.txt.
  *   NOT original source; SYM-faithful, recompilable C++.
  */
-#include "../../nfs4_types.h"
+#include "aispeeds_types.h"
 #include "aispeeds_externs.h"
 
 /* w64-a19 LINK FIX: called at :1229 but only DEFINED at :1235 with no prior
@@ -110,7 +110,7 @@ void AISpeeds_ReadTuningInfo(void)
     CaravanInfo[slotLoop].fallBackRandomTime_TickPercent = uVar2;
     slotLoop = slotLoop + 1;
   }
-  if ((GameSetup_gData.raceType == RaceType_SingleRace) && (0 < Cars_gNumAIRaceCars)) {
+  if ((AISPEEDS_RACE_TYPE == RaceType_SingleRace) && (0 < Cars_gNumAIRaceCars)) {
     int skillMult[3];
     /* SYM identifies the selected model as `carType` (s3) and the nested
      * iteration variable as `carModelLoop` (s0). Keeping those scopes distinct
@@ -125,7 +125,7 @@ void AISpeeds_ReadTuningInfo(void)
         skillMult[1] = Udff_GetInt(handle);
         skillMult[2] = Udff_GetInt(handle);
         if (carModelLoop == carType) {
-          GameSetup_gData.tournamentMultiplier = skillMult[GameSetup_gData.skill];
+          AISPEEDS_TOURNAMENT_MULTIPLIER = skillMult[AISPEEDS_SKILL];
         }
         carModelLoop = carModelLoop + 1;
       } while (carModelLoop < 0x16);
@@ -150,10 +150,10 @@ void AISpeeds_ReadTuningInfo(void)
       Udff_GetInt(handle);
       trackMult = Udff_GetInt(handle);
       nightMult = Udff_GetInt(handle);
-      if (GameSetup_gData.Time == 0) {
+      if (AISPEEDS_TIME == 0) {
         nightMult = 0x10000;
       }
-      if (trackLoop == GameSetup_gData.track) {
+      if (trackLoop == AISPEEDS_TRACK) {
         AISpeeds_trackAndNightMult = fixedmult(trackMult,nightMult);
       }
     }
@@ -186,8 +186,8 @@ int AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRend
   int leadIndex;
   int f_crappyFrameRateCompensatingSpeedup;
   leadIndex = Cars_gNumAIRaceCars - carObj->AISlot;   /* H41: compute EARLY (oracle: subu right after loading Cars_gNumAIRaceCars, before the guard) */
-  if ((((1 < Cars_gNumAIRaceCars) && (GameSetup_gData.raceType != RaceType_HotPursuit)) &&
-      (simGlobal.gameTicks < 0x780)) &&
+  if ((((1 < Cars_gNumAIRaceCars) && (AISPEEDS_RACE_TYPE != RaceType_HotPursuit)) &&
+      (AISPEEDS_GAME_TICKS < 0x780)) &&
      ((Cars_gNumHumanRaceCars == 1 && ((*(u_short *)((char *)Cars_gHumanRaceCarList[0] + 6)) < (carObj->N).totalSlice)))) {
     return leadIndex * 0x3333 + 0x10000;
   }
@@ -212,7 +212,7 @@ int AISpeeds_CalcOpponentTopSpeed(Car_tObj *carObj,int *unFetteredDesiredSpeed)
   if (carObj->fallBehindCar != (Car_tObj *)0x0) {
     f_glue = 0x10000;
   }
-  else if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
+  else if (((AISPEEDS_RACE_TYPE == RaceType_HotPursuit) || (AISPEEDS_RACE_TYPE == RaceType_Id5)) &&
      ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
       ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
     f_glue = AISpeeds_BTCGetGlueFactor(carObj);
@@ -223,7 +223,7 @@ int AISpeeds_CalcOpponentTopSpeed(Car_tObj *carObj,int *unFetteredDesiredSpeed)
   f_script = AISpeeds_GetScriptFactor(carObj);
   f_nitrous = carObj->speedNitrous;
   f_damage = AISpeeds_GetDamageFactor(carObj);
-  if (GameSetup_gData.raceType == RaceType_HotPursuit) goto useDefaultCaravan;
+  if (AISPEEDS_RACE_TYPE == RaceType_HotPursuit) goto useDefaultCaravan;
   if (Cars_gNumAIRaceCars < 2) goto useDefaultCaravan;
   f_caravan = AISpeeds_GetCaravanFactor(carObj);
   goto haveCaravan;
@@ -234,13 +234,13 @@ haveCaravan:
       (f_nitrous / 256) *
       (((AISpeeds_trackAndNightMult / 256) *
         (((f_caravan / 256) *
-          (((GameSetup_gData.tournamentMultiplier / 256) *
+          (((AISPEEDS_TOURNAMENT_MULTIPLIER / 256) *
             (f_glue / 256)) / 256)) / 256)) / 256);
 
   f_final =
       (f_unfettered / 256) *
       (((f_damage / 256) * (f_script / 256)) / 256);
-  if ((GameSetup_gData.raceType != RaceType_HotPursuit) && ((carObj->N).totalSlice < 0x96)) {
+  if ((AISPEEDS_RACE_TYPE != RaceType_HotPursuit) && ((carObj->N).totalSlice < 0x96)) {
     f_unfettered = fixedmult(
         (0x10000 - f_unfettered) * (u_int)(carObj->N).totalSlice,0x1b4);
     f_unfettered = 0x10000 - f_unfettered;
@@ -269,7 +269,7 @@ haveCaravan:
   newDesired = (topSpeed / 256) * (carObj->aiGlue / 256);
   *unFetteredDesiredSpeed = (topSpeed / 256) * (f_unfettered / 256);
   if ((((carObj->carFlags & 1U) != 0) && ((carObj->stats).finishType == 2)) &&
-     (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) ||
+     (((AISPEEDS_RACE_TYPE != RaceType_HotPursuit && (AISPEEDS_RACE_TYPE != RaceType_Id5)) ||
       ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0 &&
        ((Cars_gNumHumanRaceCars != 2 || (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) == 0)))))))) {
     int metersPastFinish;
@@ -297,17 +297,17 @@ haveCaravan:
 
     if (totalSortIndex * 0x280000 <= metersPastFinish) {
       u_int laneCount =
-          BWorldSm_slices[carObj->N.simRoadInfo.slice].laneCount;
+          AISPEEDS_SLICE_LANE_COUNT(carObj->N.simRoadInfo.slice);
 
       if ((latLeft <
-           (int)-((BWorldSm_slices[carObj->N.simRoadInfo.slice].avgPavedWidthLf << 15) *
+           (int)-((AISPEEDS_SLICE_WIDTH_LF(carObj->N.simRoadInfo.slice) << 15) *
                   (laneCount >> 4))) ||
-          ((int)((BWorldSm_slices[carObj->N.simRoadInfo.slice].avgPavedWidthRt << 15) *
+          ((int)((AISPEEDS_SLICE_WIDTH_RT(carObj->N.simRoadInfo.slice) << 15) *
                  (laneCount & 0xf)) < latLeft) ||
           (latRight <
-           (int)-((BWorldSm_slices[carObj->N.simRoadInfo.slice].avgPavedWidthLf << 15) *
+           (int)-((AISPEEDS_SLICE_WIDTH_LF(carObj->N.simRoadInfo.slice) << 15) *
                   (laneCount >> 4))) ||
-          ((int)((BWorldSm_slices[carObj->N.simRoadInfo.slice].avgPavedWidthRt << 15) *
+          ((int)((AISPEEDS_SLICE_WIDTH_RT(carObj->N.simRoadInfo.slice) << 15) *
                  (laneCount & 0xf)) < latRight) ||
           (0x1900000 < metersPastFinish)) {
         newDesired = 0;
@@ -406,9 +406,9 @@ int AISpeeds_CalcOpponentCurveSpeed(Car_tObj *carObj)
           scanSlice = scanSlice + gNumSlices;
         }
       }
-      curve = AIDataRecord_TrackCurve->Get(scanSlice);
+      curve = AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,scanSlice);
       curveSpeed = (carObj->curveSpeedTable)->Get(curve);
-      if (GameSetup_gData.Weather != 0) {
+      if (AISPEEDS_WEATHER != 0) {
         curveSpeed = fixedmult(curveSpeed,AISpeeds_WeatherMultFactors[curve / 4]);
       }
       if (scanMetersDistanceInt == 0) {
@@ -651,7 +651,7 @@ LAB_8006e444:
           ((randtemp & 0xffff00) >> 8) >> 0x10)) * 0x10000;
   }
   if (((((int)slot < Cars_gNumAIRaceCars + -1) && (carObj->fallBehindCar == (Car_tObj *)0x0)) &&
-      ((int)(u_int)(carObj->N).totalSlice < GameSetup_gData.numLaps * gNumSlices + -0x14d)) &&
+      ((int)(u_int)(carObj->N).totalSlice < AISPEEDS_NUM_LAPS * gNumSlices + -0x14d)) &&
      ((1U < (u_int)slot || (leaderBoard.leadRacer != Cars_gHumanRaceCarList[0])))) {
     /* H36 (wave-21 real bug): oracle @0x8006e5b4-0x8006e638 continues past the fastRandom
      * re-seed with a stochastic "pick up a fall-behind car" roll gated by
@@ -756,7 +756,7 @@ negativeThirdGlueIndex:
 haveThirdGlueIndex:
     glue = AIPerson_glueTable[glueIndex];
     packPositionGlueModifier = 0x8000;
-    if (GameSetup_gData.raceType != RaceType_Id3) {
+    if (AISPEEDS_RACE_TYPE != RaceType_Id3) {
       packPositionGlueModifier = 0xe666;
     }
   }
@@ -791,7 +791,7 @@ int AISpeeds_GetDamageFactor(Car_tObj *carObj)
           (carObj->N).damage[3] + (carObj->N).damage[4] + (carObj->N).damage[5] +
           (carObj->N).damage[6] + (carObj->N).damage[7];
   carObj->damageMult = iVar1;
-  if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
+  if (((AISPEEDS_RACE_TYPE == RaceType_HotPursuit) || (AISPEEDS_RACE_TYPE == RaceType_Id5)) &&
      ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
       ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
     iVar2 = 0x147;
@@ -899,7 +899,7 @@ int AISpeeds_CalcTrafficTopSpeed(Car_tObj *carObj)
 
   desired = AISpeeds_GetLegalSpeed((int)(carObj->N).simRoadInfo.slice);
   desired = fixedmult(desired,0xc000);
-  if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
+  if (((AISPEEDS_RACE_TYPE == RaceType_HotPursuit) || (AISPEEDS_RACE_TYPE == RaceType_Id5)) &&
      ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
       ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
     if (carObj->direction != (*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x554))) {
@@ -909,7 +909,7 @@ int AISpeeds_CalcTrafficTopSpeed(Car_tObj *carObj)
   }
   else {
     if (carObj->direction !=
-        ((GameSetup_gData.reverseTrack != 0) ? -1 : 1)) {
+        ((AISPEEDS_REVERSE_TRACK != 0) ? -1 : 1)) {
       desired = (desired < AISpeeds_CalculateOncomingCarSpeed(carObj))
           ? desired : AISpeeds_CalculateOncomingCarSpeed(carObj);
     }
@@ -944,7 +944,7 @@ int AISpeeds_GetLegalSpeed(int slice)
 {
   speedData_t *speedData;   /* SYM-v3: single REG local 'speedData_t *speedData' -- no separate scratch */
 
-  speedData = AISpeeds_TrackSpeeds[GameSetup_gData.track];
+  speedData = AISpeeds_TrackSpeeds[AISPEEDS_TRACK];
   do {
   } while (speedData++->endSlice < slice);
   speedData = speedData - 1;
@@ -1245,37 +1245,37 @@ int AISpeeds_CalcHumanCurveSpeed(Car_tObj *carObj)
 
   sliceAhead = sliceHere;
   if (gNumSlices <= sliceAhead) sliceAhead = sliceHere - gNumSlices;
-  tightestCurve = AIDataRecord_TrackCurve->Get(sliceAhead);
+  tightestCurve = AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,sliceAhead);
 
   off = carObj->direction * 4;
   sliceAhead = sliceHere + off;
   if (0 <= off) { if (gNumSlices <= sliceAhead) sliceAhead -= gNumSlices; }
   else if (sliceAhead < 0) sliceAhead += gNumSlices;
-  curveAhead = AIDataRecord_TrackCurve->Get(sliceAhead); if (tightestCurve < curveAhead) tightestCurve = curveAhead;
+  curveAhead = AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,sliceAhead); if (tightestCurve < curveAhead) tightestCurve = curveAhead;
 
   off = carObj->direction * 8;
   sliceAhead = sliceHere + off;
   if (0 <= off) { if (gNumSlices <= sliceAhead) sliceAhead -= gNumSlices; }
   else if (sliceAhead < 0) sliceAhead += gNumSlices;
-  curveAhead = AIDataRecord_TrackCurve->Get(sliceAhead); if (tightestCurve < curveAhead) tightestCurve = curveAhead;
+  curveAhead = AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,sliceAhead); if (tightestCurve < curveAhead) tightestCurve = curveAhead;
 
   off = carObj->direction * 0xc;
   sliceAhead = sliceHere + off;
   if (0 <= off) { if (gNumSlices <= sliceAhead) sliceAhead -= gNumSlices; }
   else if (sliceAhead < 0) sliceAhead += gNumSlices;
-  curveAhead = AIDataRecord_TrackCurve->Get(sliceAhead); if (tightestCurve < curveAhead) tightestCurve = curveAhead;
+  curveAhead = AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,sliceAhead); if (tightestCurve < curveAhead) tightestCurve = curveAhead;
 
   off = carObj->direction * 0x10;
   sliceAhead = sliceHere + off;
   if (0 <= off) { if (gNumSlices <= sliceAhead) sliceAhead -= gNumSlices; }
   else if (sliceAhead < 0) sliceAhead += gNumSlices;
-  curveAhead = AIDataRecord_TrackCurve->Get(sliceAhead); if (tightestCurve < curveAhead) tightestCurve = curveAhead;
+  curveAhead = AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,sliceAhead); if (tightestCurve < curveAhead) tightestCurve = curveAhead;
 
   off = carObj->direction * 0x14;
   sliceAhead = sliceHere + off;
   if (0 <= off) { if (gNumSlices <= sliceAhead) sliceAhead -= gNumSlices; }
   else if (sliceAhead < 0) sliceAhead += gNumSlices;
-  curveAhead = AIDataRecord_TrackCurve->Get(sliceAhead); if (tightestCurve < curveAhead) tightestCurve = curveAhead;
+  curveAhead = AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,sliceAhead); if (tightestCurve < curveAhead) tightestCurve = curveAhead;
 
   /* Keep the product temporary separate, then reuse `tightestCurve` for the quotient:
    * this is the oracle's a1 -> s0 handoff and gives an exact 183/183 match. */

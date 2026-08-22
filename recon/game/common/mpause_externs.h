@@ -1,4 +1,3 @@
-#include "../../lib/libfns.h"
 /* mpause_externs.h -- cross-TU decls for game/common/mpause.cpp (NFS4 in-race mini pause menu).
  *   Types (tPMenu*, tPMenuItem*, tPauseMenuDefs, tPListIterator*, SndBnk_t, GameSetup_tData,
  *   __vtbl_ptr_type, tPMenuCommand) live in nfs4_types.h.
@@ -16,10 +15,10 @@ extern int   gMasterMusicLevel, gMasterSFXLevel, gMasterEngineLevel,
              gMasterAmbientLevel, gMasterFENarrationLevel;   /* audiocmn.obj */
 extern int   Replay_ReplayMode;           /* replay.obj */
 extern char  Device_gPausePortIndex;      /* device.obj */
-extern SndBnk_t gSndBnk[];                /* audiocmn.obj */
+extern int MPause_SndBnkWords[][3] asm("gSndBnk");
 extern int   ticks;                       /* sys frame counter (EXT 0x8013dcac) */
 extern bool  ChangedEnabling;             /* PauseMenu.obj (SYM EXT BOOL 0x8013d2ec) */
-extern GameSetup_tData GameSetup_gData;   /* gamesetup.obj */
+extern int MPause_GameSetupWords[] asm("GameSetup_gData");
 
 /* ---- cross-TU functions (audio) ---- */
                                    /* sndpsxz */

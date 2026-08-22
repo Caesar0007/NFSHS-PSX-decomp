@@ -3,7 +3,7 @@
  *   collision, registry. SYM-v3 locals applied; owns 16 globals (registry/ranges/basis-dot scratch).
  *   NOT original source; self-contained, recompilable. Ghidra LAB_<addr> goto-labels = deferred-#148 cosmetic.
  */
-#include "../../nfs4_types.h"
+#include "collide_types.h"
 #include "collide_externs.h"
 
 
@@ -1742,12 +1742,12 @@ void Collide_ClearCollisionRegistry(void)
     Collide_gNumRegistered = Collide_gNumRegistered + 1;
     BWorldSm_FindClosestSlice(&InfiniteMassNewton[i].position,&InfiniteMassNewton[i].simRoadInfo);
     slice = InfiniteMassNewton[i].simRoadInfo.slice;
-    relVec.x = InfiniteMassNewton[i].position.x - BWorldSm_slices[slice].center[0];
-    relVec.y = InfiniteMassNewton[i].position.y - BWorldSm_slices[slice].center[0];
-    relVec.z = InfiniteMassNewton[i].position.z - BWorldSm_slices[slice].center[0];
-    rightVec.x = (signed char)BWorldSm_slices[slice].right[0] * 0x200;
-    rightVec.y = (signed char)BWorldSm_slices[slice].right[1] * 0x200;
-    rightVec.z = (signed char)BWorldSm_slices[slice].right[2] * 0x200;
+    relVec.x = InfiniteMassNewton[i].position.x - COLLIDE_SLICE_CENTER0(slice);
+    relVec.y = InfiniteMassNewton[i].position.y - COLLIDE_SLICE_CENTER0(slice);
+    relVec.z = InfiniteMassNewton[i].position.z - COLLIDE_SLICE_CENTER0(slice);
+    rightVec.x = COLLIDE_SLICE_RIGHT(slice,0) * 0x200;
+    rightVec.y = COLLIDE_SLICE_RIGHT(slice,1) * 0x200;
+    rightVec.z = COLLIDE_SLICE_RIGHT(slice,2) * 0x200;
     InfiniteMassNewton[i].xRelRoadCenter =
         (relVec.x / 256) * (rightVec.x / 256) + (relVec.y / 256) * (rightVec.y / 256) +
         (relVec.z / 256) * (rightVec.z / 256);

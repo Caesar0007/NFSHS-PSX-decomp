@@ -3,12 +3,17 @@
  *   barrier/obstacle handling, lane choice + lateral position + lane-slack. SYM-v3 locals;
  *   vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++.
  */
-#include "../../nfs4_types.h"
+#include "ai_types.h"
 #include "ai_externs.h"
 
 #define WRAP_SLICE(a,b) (((a) >= 0) \
     ? ((((b) + (a)) >= gNumSlices) ? ((b) + (a)) - gNumSlices : ((b) + (a))) \
     : ((((b) + (a)) < 0) ? ((b) + (a)) + gNumSlices : ((b) + (a))))
+
+#define AI_SLICE_BYTE(slice, offset) \
+    (*(u_char *)(AI_BWorldSmSlices + (slice) * 0x20 + (offset)))
+#define AI_SLICE_SHORT(slice, offset) \
+    (*(short *)(AI_BWorldSmSlices + (slice) * 0x20 + (offset)))
 
 
 /* ---- ai.obj-owned globals (.bss zero) ---- */
@@ -190,7 +195,7 @@ void AI_DoReactions(Car_tObj *carObj)
   
   iVar1 = AIScript_DoReAction(&carObj->script,8);
   if (iVar1 == -1) goto LAB_horncheck;
-  if (GameSetup_gData.raceType == RaceType_HotPursuit) goto LAB_horncheck;
+  if (AI_GameSetupWords[0] == RaceType_HotPursuit) goto LAB_horncheck;
   AudioClc_SetHorn(carObj,1);
   goto LAB_afterhorn;
 LAB_horncheck:
@@ -200,9 +205,9 @@ LAB_horncheck:
 LAB_afterhorn:
   iVar1 = AIScript_DoReAction(&carObj->script,0x1000);
   if (iVar1 == -1) goto LAB_80057cc0;
-  if (GameSetup_gData.raceType == RaceType_HotPursuit) goto LAB_80057cc0;
+  if (AI_GameSetupWords[0] == RaceType_HotPursuit) goto LAB_80057cc0;
   {
-    uVar2 = (int)(simGlobal.gameTicks & 0x18U) >> 3;
+    uVar2 = (int)(AI_SimGlobalWords[1] & 0x18U) >> 3;
     switch (uVar2) {
     case 0:
       AudioClc_HonkHorn(carObj,4,0x10,8);
@@ -262,12 +267,12 @@ void AI_CheckForPlayerActions(Car_tObj *carObj,Car_tObj *otherCarObj)
   if (AIWorld_GameOdometer(carObjLocal) < 0x3200000) {
     return;
   }
-  if (((simGlobal.gameTicks - (otherCarObjLocal->N).collision.lastTime < 0xf) &&
+  if (((AI_SimGlobalWords[1] - (otherCarObjLocal->N).collision.lastTime < 0xf) &&
        ((otherCarObjLocal->N).collision.lastOtherObj != (BO_tNewtonObj *)0x0)) &&
       ((Car_tObj *)(otherCarObjLocal->N).collision.lastOtherObj == carObjLocal)) {
     AIScript_SubmitPlayerAction(&carObjLocal->script,
                                 otherCarObjLocal->carIndex,0,
-                                simGlobal.gameTicks);
+                                AI_SimGlobalWords[1]);
   }
   int direction = carObjLocal->direction;
   if (otherCarObjLocal->currentSpeed * direction + 0x280000 <
@@ -275,7 +280,7 @@ void AI_CheckForPlayerActions(Car_tObj *carObj,Car_tObj *otherCarObj)
     if (0xbffff < absDistance) goto LAB_80057f34;
     AIScript_SubmitPlayerAction(&carObjLocal->script,
                                 otherCarObjLocal->carIndex,1,
-                                simGlobal.gameTicks);
+                                AI_SimGlobalWords[1]);
   }
   if ((absDistance < 0xc0000) &&
       (otherCarObjLocal->laneIndex == carObjLocal->laneIndex)) {
@@ -283,36 +288,36 @@ void AI_CheckForPlayerActions(Car_tObj *carObj,Car_tObj *otherCarObj)
     if (AIWorld_GameOdometer(carObjLocal) < otherOdometer) {
       AIScript_SubmitPlayerAction(&carObjLocal->script,
                                   otherCarObjLocal->carIndex,2,
-                                  simGlobal.gameTicks);
+                                  AI_SimGlobalWords[1]);
     }
     else {
       AIScript_SubmitPlayerAction(&carObjLocal->script,
                                   otherCarObjLocal->carIndex,3,
-                                  simGlobal.gameTicks);
+                                  AI_SimGlobalWords[1]);
     }
   }
 LAB_80057f34:
   if ((otherCarObjLocal->swapCar == carObjLocal) &&
-      (simGlobal.gameTicks - carObjLocal->swapTime < 0xf)) {
+      (AI_SimGlobalWords[1] - carObjLocal->swapTime < 0xf)) {
     int carOdometer = AIWorld_GameOdometer(carObjLocal);
     if (AIWorld_GameOdometer(otherCarObjLocal) < carOdometer) {
       AIScript_SubmitPlayerAction(&carObjLocal->script,
                                   otherCarObjLocal->carIndex,4,
-                                  simGlobal.gameTicks);
+                                  AI_SimGlobalWords[1]);
     }
     else {
       AIScript_SubmitPlayerAction(&carObjLocal->script,
                                   otherCarObjLocal->carIndex,5,
-                                  simGlobal.gameTicks);
+                                  AI_SimGlobalWords[1]);
     }
   }
   if (((absDistance < 0x1e0000) &&
        ((otherCarObjLocal->control).horn != '\0')) &&
-      (GameSetup_gData.Time == 0))
+      (AI_GameSetupWords[21] == 0))
   {
     AIScript_SubmitPlayerAction(&carObjLocal->script,
                                 otherCarObjLocal->carIndex,6,
-                                simGlobal.gameTicks);
+                                AI_SimGlobalWords[1]);
   }
   return;
 }
@@ -385,7 +390,7 @@ void AI_OpponentBlockPlayer(Car_tObj *carObj,Car_tObj *otherCarObj)
       return;
     }
   }
-  bVar1 = *(u_char *)(otherCarObjSlice * 0x20 + (int)BWorldSm_slices + 0x1d);
+  bVar1 = *(u_char *)(otherCarObjSlice * 0x20 + (int)AI_BWorldSmSlices + 0x1d);
   if (otherCarObj->laneIndex < (int)(7 - (u_int)(bVar1 >> 4))) {
     return;
   }
@@ -432,7 +437,7 @@ void AI_CheckForBarriers(Car_tObj *carObj)
   slicesAhead = (speed << 0x12) / 0x60000;
   forwardSlice0 = WRAP_SLICE(slicesAhead * dir,slice);
   forwardSlice1 = WRAP_SLICE((slicesAhead + 1) * dir,slice);
-  profileHere = *(short *)(slice * 0x20 + (int)BWorldSm_slices + 0x16);
+  profileHere = *(short *)(slice * 0x20 + (int)AI_BWorldSmSlices + 0x16);
   if (AIWorld_IsDriveableLane_UsingMask(slice,masks[0]) == 0) {
     CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + -0xa0000;
   }
@@ -442,8 +447,8 @@ void AI_CheckForBarriers(Car_tObj *carObj)
   if (AIWorld_IsDriveableLane_UsingMask(slice,masks[2]) == 0) {
     CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + -0xa0000;
   }
-  if ((profileHere != *(short *)(forwardSlice0 * 0x20 + (int)BWorldSm_slices + 0x16)) ||
-     (profileHere != *(short *)(forwardSlice1 * 0x20 + (int)BWorldSm_slices + 0x16))) {
+  if ((profileHere != *(short *)(forwardSlice0 * 0x20 + (int)AI_BWorldSmSlices + 0x16)) ||
+     (profileHere != *(short *)(forwardSlice1 * 0x20 + (int)AI_BWorldSmSlices + 0x16))) {
     carObj->barrierThinkHarder = 0x49;
   }
   if (0 < carObj->barrierThinkHarder) {
@@ -554,11 +559,11 @@ void AI_HandleChangeInNumLanes(Car_tObj *carObj)
     }
   }
 LAB_800588a4:
-  laneCount = BWorldSm_slices[lookAheadSlice].laneCount;
+  laneCount = AI_SLICE_BYTE(lookAheadSlice,0x1d);
   laneIndex = carObj->laneIndex;
   if ((laneIndex < (int)(7 - (u_int)(laneCount >> 4))) ||
       ((int)((laneCount & 0xf) + 6) < laneIndex)) {
-    laneCount = BWorldSm_slices[(carObj->N).simRoadInfo.slice].laneCount;
+    laneCount = AI_SLICE_BYTE((carObj->N).simRoadInfo.slice,0x1d);
     if (laneIndex < (int)(7 - (u_int)(laneCount >> 4))) {
       return;
     }
@@ -593,42 +598,42 @@ void AI_HandleShouldersAndOffRoad(Car_tObj *carObj)
     shoulder_merit = 0x50000;
   }
   lane = carObj->laneIndex + -1;
-  bVar1 = BWorldSm_slices[slice].laneCount;
+  bVar1 = AI_SLICE_BYTE(slice,0x1d);
   if ((lane == 6 - (u_int)(bVar1 >> 4)) || (lane == (bVar1 & 0xf) + 7)) {
     int merit0 = CarLogic_gObs[0][0] + shoulder_merit;
     CarLogic_gObs[0][0] = merit0;
-    Trk_NewSlice *sl = (Trk_NewSlice *)((carObj->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices);
-    if ((sl->leftDrive << 8) - (sl->avgPavedWidthLf << 0xf) * (sl->laneCount >> 4) <
+    char *sl = (char *)((carObj->N).simRoadInfo.slice * 0x20 + (int)AI_BWorldSmSlices);
+    if ((*(short *)(sl + 0x18) << 8) - (*(u_char *)(sl + 0x1e) << 0xf) * (*(u_char *)(sl + 0x1d) >> 4) <
         (carObj->N).dimension.x) {
       CarLogic_gObs[0][0] = merit0 + -0x640000;
     }
   }
   lane = carObj->laneIndex + 1;
-  bVar1 = BWorldSm_slices[slice].laneCount;
+  bVar1 = AI_SLICE_BYTE(slice,0x1d);
   if ((lane == 6 - (u_int)(bVar1 >> 4)) || (lane == (bVar1 & 0xf) + 7)) {
     int merit2 = CarLogic_gObs[0][2] + shoulder_merit;
     CarLogic_gObs[0][2] = merit2;
-    Trk_NewSlice *sl = (Trk_NewSlice *)((carObj->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices);
-    if ((sl->rightDrive << 8) - (sl->avgPavedWidthRt << 0xf) * (sl->laneCount & 0xf) <
+    char *sl = (char *)((carObj->N).simRoadInfo.slice * 0x20 + (int)AI_BWorldSmSlices);
+    if ((*(short *)(sl + 0x1a) << 8) - (*(u_char *)(sl + 0x1f) << 0xf) * (*(u_char *)(sl + 0x1d) & 0xf) <
         (carObj->N).dimension.x) {
       CarLogic_gObs[0][2] = merit2 + -0x640000;
     }
   }
-  if ((carObj->laneIndex == 6 - (u_int)(BWorldSm_slices[slice].laneCount >> 4)) ||
-      (carObj->laneIndex == (BWorldSm_slices[slice].laneCount & 0xf) + 7)) {
+  if ((carObj->laneIndex == 6 - (u_int)(AI_SLICE_BYTE(slice,0x1d) >> 4)) ||
+      (carObj->laneIndex == (AI_SLICE_BYTE(slice,0x1d) & 0xf) + 7)) {
     CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + shoulder_merit;
     isRight = (carObj->laneIndex < 7) ^ 1;
     if (carObj->laneIndex < 7) {
-      Trk_NewSlice *sl = (Trk_NewSlice *)((carObj->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices);
-      if ((sl->leftDrive << 8) - (sl->avgPavedWidthLf << 0xf) * (sl->laneCount >> 4) <
+      char *sl = (char *)((carObj->N).simRoadInfo.slice * 0x20 + (int)AI_BWorldSmSlices);
+      if ((*(short *)(sl + 0x18) << 8) - (*(u_char *)(sl + 0x1e) << 0xf) * (*(u_char *)(sl + 0x1d) >> 4) <
           (carObj->N).dimension.x) {
         goto CENTER_DEMERIT;
       }
     }
     if (isRight != 0) {
-      Trk_NewSlice *sl;
-      sl = (Trk_NewSlice *)((carObj->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices);
-      if ((sl->rightDrive << 8) - (sl->avgPavedWidthRt << 0xf) * (sl->laneCount & 0xf) <
+      char *sl;
+      sl = (char *)((carObj->N).simRoadInfo.slice * 0x20 + (int)AI_BWorldSmSlices);
+      if ((*(short *)(sl + 0x1a) << 8) - (*(u_char *)(sl + 0x1f) << 0xf) * (*(u_char *)(sl + 0x1d) & 0xf) <
           (carObj->N).dimension.x) {
 CENTER_DEMERIT:
         CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + -0x640000;
@@ -636,16 +641,16 @@ CENTER_DEMERIT:
     }
   }
   lane = carObj->laneIndex + -1;
-  bVar1 = BWorldSm_slices[slice].laneCount;
+  bVar1 = AI_SLICE_BYTE(slice,0x1d);
   if ((lane < (int)(6 - (u_int)(bVar1 >> 4))) || ((int)((bVar1 & 0xf) + 7) < lane)) {
     CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + -0x3e80000;
   }
-  if ((carObj->laneIndex < (int)(6 - (u_int)(BWorldSm_slices[slice].laneCount >> 4))) ||
-      ((int)((BWorldSm_slices[slice].laneCount & 0xf) + 7) < carObj->laneIndex)) {
+  if ((carObj->laneIndex < (int)(6 - (u_int)(AI_SLICE_BYTE(slice,0x1d) >> 4))) ||
+      ((int)((AI_SLICE_BYTE(slice,0x1d) & 0xf) + 7) < carObj->laneIndex)) {
     CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + -0x3e80000;
   }
   lane = carObj->laneIndex + 1;
-  bVar1 = BWorldSm_slices[slice].laneCount;
+  bVar1 = AI_SLICE_BYTE(slice,0x1d);
   if ((lane < (int)(6 - (u_int)(bVar1 >> 4))) || ((int)((bVar1 & 0xf) + 7) < lane)) {
     CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + -0x3e80000;
   }
@@ -1006,7 +1011,7 @@ static void AI_AddCollidableObjects(Car_tObj *carObj,Group *groupSimObjs)
     if ((u_int)(AIWorld_ApxSplineDistance(spos.slice,carObj) *
                 carObj->direction - 1) < 0x63ffff) {
       centerSlice = *(coorddef *)
-          BWorldSm_slices[(carObj->N).simRoadInfo.slice].center;
+          (AI_BWorldSmSlices + (carObj->N).simRoadInfo.slice * 0x20);
       centerToPt.x = pt.x - centerSlice.x;
       centerToPt.y = pt.y - centerSlice.y;
       centerToPt.z = pt.z - centerSlice.z;
@@ -1119,7 +1124,7 @@ void AI_HandleTrafficHonking(Car_tObj *carObj)
       randtemp = fastRandom * randSeed;
       fastRandom = randtemp & 0xffff;
       iVar2 = (int)((randtemp >> 8 & 0xffff) * 1000 >> 0x10);
-      if (((GameSetup_gData.commMode != 1) && (iVar2 < 5)) &&
+      if (((AI_GameSetupWords[3] != 1) && (iVar2 < 5)) &&
          (carObj->currentSpeed != 0)) {
         AudioClc_HonkHorn(carObj,2,0x20,8);
       }
@@ -1272,7 +1277,7 @@ int AI_TryToShareLanes(Car_tObj *carObj,Car_tObj *carInWay)
   absLaneIndex = AI_Info.desiredLane;
   if (7 <= absLaneIndex) {
     u_int laneWidth =
-        (u_int)*(u_char *)((char *)BWorldSm_slices +
+        (u_int)*(u_char *)((char *)AI_BWorldSmSlices +
                            (carInWay->N).simRoadInfo.slice * 0x20 + 0x1f);
 
     laneWidth = laneWidth * 0x8000;
@@ -1281,7 +1286,7 @@ int AI_TryToShareLanes(Car_tObj *carObj,Car_tObj *carInWay)
   }
   else {
     u_int laneWidth =
-        (u_int)*(u_char *)((char *)BWorldSm_slices +
+        (u_int)*(u_char *)((char *)AI_BWorldSmSlices +
                            (carInWay->N).simRoadInfo.slice * 0x20 + 0x1e);
 
     laneWidth = laneWidth * 0x8000;
@@ -1351,7 +1356,7 @@ noBlockingCar:
   if ((bVar1) && (AI_TryToShareLanes(carObjLocal,carInWay) == 1)) {
     return;
   }
-  iVar2 = slice * 0x20 + (int)BWorldSm_slices;
+  iVar2 = slice * 0x20 + (int)AI_BWorldSmSlices;
   laneInfo = *(u_char *)(iVar2 + 0x1d);
   desiredLane = AI_Info.desiredLane;
   if ((desiredLane == 6 - (laneInfo >> 4)) ||
@@ -1388,13 +1393,13 @@ noBlockingCar:
     }
   }
   iVar2 = slice * 0x20;
-  iVar4 = *(short *)(iVar2 + (int)BWorldSm_slices + 0x1a) * 0x100 -
+  iVar4 = *(short *)(iVar2 + (int)AI_BWorldSmSlices + 0x1a) * 0x100 -
           (carObjLocal->N).dimension.x;
   if (iVar4 < carObjLocal->desiredLatPos) {
     carObjLocal->desiredLatPos = iVar4;
   }
   minLatPosition = (carObjLocal->N).dimension.x +
-                   *(short *)(iVar2 + (int)BWorldSm_slices + 0x18) * -0x100;
+                   *(short *)(iVar2 + (int)AI_BWorldSmSlices + 0x18) * -0x100;
   if (carObjLocal->desiredLatPos < minLatPosition) {
     carObjLocal->desiredLatPos = minLatPosition;
   }
@@ -1512,7 +1517,7 @@ int AI_IsMellowZone(Car_tObj *carObj,int delay)
   if ((carObj->carFlags & 8U) == 0) {
     goto RET0;
   }
-  bVar1 = *(u_char *)((char *)BWorldSm_slices + (carObj->N).simRoadInfo.slice * 0x20 + 0x1d);
+  bVar1 = *(u_char *)((char *)AI_BWorldSmSlices + (carObj->N).simRoadInfo.slice * 0x20 + 0x1d);
   if (carObj->laneIndex == 6 - (u_int)(bVar1 >> 4)) {
     goto RET0;
   }
@@ -1551,7 +1556,7 @@ void AI_PushFinishedCarsToSide(Car_tObj *carObj)
   int iVar2;
   
   if (((carObj->carFlags & 1U) != 0) && ((carObj->stats).finishType == 2)) {
-    int raceT = GameSetup_gData.raceType;
+    int raceT = AI_GameSetupWords[0];
     if ((raceT == 1) || (raceT == 5)) {
       if (((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0) {
         if (Cars_gNumHumanRaceCars == 2) {
@@ -1574,7 +1579,7 @@ PUSH:
     }
     if (totalSortIndex * 0x280000 <= absDistancePastFinish) {
       iVar2 = carObj->laneIndex;
-      bVar1 = *(u_char *)((char *)BWorldSm_slices + (carObj->N).simRoadInfo.slice * 0x20 + 0x1d);
+      bVar1 = *(u_char *)((char *)AI_BWorldSmSlices + (carObj->N).simRoadInfo.slice * 0x20 + 0x1d);
       if ((iVar2 == 6 - (u_int)(bVar1 >> 4)) || (iVar2 == (bVar1 & 0xf) + 7)) {
         CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + 0x960000;
       }

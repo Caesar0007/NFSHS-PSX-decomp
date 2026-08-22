@@ -37,7 +37,7 @@ they are not silently collapsed into a smaller denominator.
   explicit per-record semantic-review row.  Nothing is silently dropped from
   the denominator.
 - A strict compiler-emitted type-graph comparison now distinguishes retail
-  subset coverage from actual per-object source visibility.  Forty-one owners are
+  subset coverage from actual per-object source visibility.  Fifty-seven owners are
   semantically exact: `memcard.obj`, `mdec.obj`, `video.obj`, `FETexture.obj`,
   `textpix.obj`, `textpsx.obj`, `unpack.obj`, `fastrand.obj`, and
   `aiscript.obj`, `new.obj`, `paths.obj`, `textsys.obj`, `simplemem.obj`,
@@ -46,7 +46,11 @@ they are not silently collapsed into a smaller denominator.
   `clock.obj`, `MinFront.obj`, `input.obj`, `aidelaycar.obj`, `AIWORLD.obj`,
   `chunk.obj`, `simqueue.obj`, `stats.obj`, `aiperson.obj`, `dashHUD.obj`,
   `physics.obj`, `AITUNE.obj`, `control.obj`, `souffle.obj`, and
-  `AIDATARECORD.obj`, `AITRIGER.obj`, `TRGSFX.obj`, and `AILIFE.obj`.
+  `AIDATARECORD.obj`, `AITRIGER.obj`, `TRGSFX.obj`, `AILIFE.obj`, and
+  `aicop.obj`, `audedit.obj`, `scene.obj`, `collide.obj`, `AISPEEDS.obj`,
+  `audiomus.obj`, `audioeng.obj`, `audiotrk.obj`, `AIINIT.obj`, and
+  `AIPHYSIC.obj`, `gmesetup.obj`, `AI.obj`, `aistate.obj`, `mpause.obj`, and
+  `newton.obj`, and `camera.obj`.
   The remaining mapped C++
   units still expose reconstruction-only declarations through the monolithic
   `nfs4_types.h` include graph and therefore are not yet source-exact.
@@ -159,7 +163,7 @@ Results:
 - all retail `this` adjustments are zero;
 - structural/target issues: 0;
 - retail targets absent from the symbol map: 0;
-- unsafe direct vtable-row indexing: 0 across 892 source files.
+- unsafe direct vtable-row indexing: 0 across 906 source files.
 
 Evidence:
 
@@ -373,6 +377,40 @@ The current source audits reflect these evidence-backed corrections:
   externally owned `Trk_NewSlice` or `GameSetup_tData` bodies, so the source
   retains their 32-byte slice rows and word-12 `reverseTrack` field as proven
   byte/word carriers.  All twenty life-cycle functions remain byte-exact.
+- `aicop.obj` is exact at 85/85 named types and 2/2 anonymous types.  Its
+  owner surface restores the cop-level/game records, crime and roadblock
+  enums, spike-belt state, schedule, trigger variants/union, and observation
+  array actually emitted by the object.  Retail keeps only opaque pointer
+  identity for the externally defined 844-byte `AITrigger_TriggerManager`;
+  the readable `AITrigger_Init` ABI alias preserves its exact member target
+  without fabricating that absent class body.  The omitted GameSetup body uses
+  its proven `cops` and `track` word carriers.  All four functions remain
+  byte-exact.
+- `audedit.obj` is exact at 84/84 named types and 2/2 anonymous types.  Its
+  compact owner header restores the track-animation, scene/object-animation,
+  audio-list, kernel-pair, and five font-callback typedefs actually emitted by
+  the object.  Both audio-list functions remain byte-exact.
+- `scene.obj` is exact at 84/84 named types and 2/2 anonymous types.  Its
+  owner surface restores the same track/scene object family plus the exact
+  `CSceneList` record; the externally owned GameSetup body stays hidden behind
+  its proven word-15 `track` access.  All six scene functions remain
+  byte-exact.
+- `collide.obj` is exact at 84/84 named types and 2/2 anonymous types.  Its
+  owner surface restores the track/scene object family, collision object list,
+  and schedule actually present in the SYM.  `BWorldSm_slices` remains a
+  loaded pointer to opaque 32-byte rows, preserving the omitted slice body and
+  retail byte/word access widths.  All thirteen existing PASS functions remain
+  PASS and the count-exact 8-diff `Collide_TestObjectVertices` residual is
+  unchanged.
+- `AISPEEDS.obj` is exact at 84/84 named types and 2/2 anonymous types.  Its
+  owner surface restores the schedule, complete UDFF handle, acceleration and
+  curve-speed record classes, AI-physics records, speed tables, upgrade/slot
+  records, kernel pair, and callback typedefs actually emitted by the object.
+  The linked `AIDataRecord_TrackCurve_t` remains an opaque pointer identity and
+  its `Get` calls use the proven member ABI alias.  An incomplete simulation
+  tag plus a word alias preserves both the absent owner body and the retail
+  branch-delay fill; a plain integer-array view was rejected after creating one
+  extra `nop`.  All twenty-nine speed functions remain byte-exact.
 
 ## No-regression receipts
 
@@ -502,10 +540,10 @@ Current strict results:
   ambiguity for game `font.obj` versus the vendor `libgpu/FONT.obj`;
 - `frontend/common`: 41 mapped units remain DIFF and the now-empty artificial
   `mcrd.cpp` unit needs its objdiff ownership removed or reassigned;
-- `game/common`: 34 exact (`aidatarecord`, `aidelaycar`, `ailife`, `aiperson`, `aiscript`, `aitriger`, `aitune`, `aiworld`, `anim`, `chunk`, `clock`, `color`,
+- `game/common`: 50 exact (`ai`, `aicop`, `aidatarecord`, `aidelaycar`, `ailife`, `aiperson`, `aiscript`, `aispeeds`, `aistate`, `aitriger`, `aitune`, `aiworld`, `aiinit`, `aiphysic`, `anim`, `audedit`, `audiomus`, `audioeng`, `audiotrk`, `camera`, `chunk`, `clock`, `collide`, `color`,
   `control`, `dashhud`, `fastrand`, `genericpmx`, `group`, `hudpmx`, `input`, `mathnfs`, `minfront`, `new`,
   `paths`, `physics`, `quatern`, `schedule`, `simqueue`, `simplemem`, `spchevnt`, `stats`,
-  `souffle`, `textsys`, `trgsfx`, `udff`) and 41 DIFF.
+  `scene`, `souffle`, `textsys`, `trgsfx`, `udff`, `gmesetup`, `mpause`, `newton`) and 25 DIFF.
 
 The next 74-record candidate, `bworldSm.obj`, remains intentionally DIFF.  A
 28-word raw view of its externally owned 112-byte `Chunk` rows removed the
@@ -522,12 +560,42 @@ Equivalent raw row/offset carriers changed `Replay_GetInterfaceKey`,
 source was restored and its 16/16 PASS baseline reconfirmed.  Closure needs a
 graph-visible carrier that preserves the common row base and word bitfield RTL.
 
-`aiphysic.obj` remains DIFF although 41/42 of its functions PASS.  Its retail
-graph carries an `AIDataRecord_TrackCurve_t *` identity and method call without
-emitting the pointed-to class body.  Adding the complete class would create a
-source-only tag, while falsifying the extern type would discard reliable SYM
-identity.  Closure needs a faithful opaque-method carrier that preserves both
-the retail type graph and the existing call ABI; no speculative edit was kept.
+`audioclc.obj` remains DIFF at its original 18/18 PASS baseline.  An isolated
+owner graph reached strict equality, but replacing the hidden
+`GameSetup_tData`/`camera_info` member views with scalar rows changed two
+retail address forms (`mode` and `perpInfo[i].CarType`).  The best result was
+still 2 and 6 instruction diffs, and zero-instruction pointer fences made both
+worse.  The complete experiment was reverted; closure needs a source-visible
+carrier that retains field-offset MEM operands without emitting either hidden
+tag body.
+
+`render.obj` now has no semantic dependency on the absent retail
+`GameSetup_tData` tag: all six affected accesses use the exact
+`GameSetup_gData` symbol and proven word offsets, and remain PASS.  Its two
+reconstruction-only packet-tag types are still explicit follow-up work.  A
+raw masked-word replacement was measured and fully reverted because it changed
+`StampImage` from 87 to 90 instructions and `Render_InsertDepthOfField` from
+120 to 134 instructions (35 and 144 diffs respectively).  The retained
+bit-field carrier preserves both PASS bodies; closure needs an owner-graph
+encoding with the same GCC bit-field RTL rather than an equivalent mask/update.
+GCC 2.8.1 source inspection (`toplev.c:rest_of_decl_compilation` and
+`rest_of_type_compilation`) confirms that this compiler emits every completed
+local record/union through `TYPE_STUB_DECL`; it has no source-level `nodebug`
+or `DECL_IGNORED_P` escape hatch.  `#pragma interface` controls vague-linkage
+definitions, not local type debug emission.  The carrier therefore cannot be
+made graph-exact by hiding the correct bit-field type with an attribute or
+pragma; its source representation itself must map to a retail-visible type.
+
+`camera.obj` is now strict-exact without importing the absent retail
+`GameSetup_tData`, `Sim_tSimGlobalVar`, `Sim_tSimSystemVar`, `Trk_NewSlice`, or
+replay aggregate bodies.  Its exact symbol-backed views use proven word/byte
+offsets; retail-visible `Car_tObj::slide` and `linedef` component carriers retain
+GCC's field/row RTL without adding a type record.  The oracle-required
+prechecked loop in `Camera_OpponentLookBehind` restores the original 245-word
+shape.  `Camera_NextMode` needs one documented post-cc1 scheduling relocation;
+it moves, but does not add/remove/rewrite, the existing signed-%3 correction.
+The final graph is 92/92 named and 2/2 anonymous with no extra type/typedef, all
+38 camera functions remain PASS, and the vtable audit is clean across 907 files.
 
 The mapped C++ units cover all retail named and anonymous type bodies, but are
 not source-exact while they expose unrelated monolithic-header declarations or
@@ -548,6 +616,19 @@ Strict evidence:
 - [`type_graph_game_common_strict_after_control_souffle_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_strict_after_control_souffle_20260822.tsv)
 - [`type_graph_game_common_strict_after_aidatarecord_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_strict_after_aidatarecord_20260822.tsv)
 - [`type_graph_game_common_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_20260822.tsv)
+- [`type_graph_game_common_after_aicop_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_after_aicop_20260822.tsv)
+- [`type_graph_game_common_after_aicop_audedit_scene_collide_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_after_aicop_audedit_scene_collide_20260822.tsv)
+- [`type_graph_game_common_after_aispeeds_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_after_aispeeds_20260822.tsv)
+- [`type_graph_game_common_after_audiomus_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_after_audiomus_20260822.tsv)
+- [`type_graph_game_common_after_audio_round_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_after_audio_round_20260822.tsv)
+- [`type_graph_game_common_after_aiinit_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_after_aiinit_20260822.tsv)
+- [`type_graph_game_common_after_aiphysic_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_after_aiphysic_20260822.tsv)
+- [`type_graph_game_common_after_gmesetup_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_after_gmesetup_20260822.tsv)
+- [`type_graph_game_common_after_ai_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_after_ai_20260822.tsv)
+- [`type_graph_game_common_after_aistate_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_after_aistate_20260822.tsv)
+- [`type_graph_game_common_after_mpause_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_after_mpause_20260822.tsv)
+- [`type_graph_game_common_after_newton_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_after_newton_20260822.tsv)
+- [`type_graph_game_common_after_camera_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_after_camera_20260822.tsv)
 - exact owner receipts: [`memcard`](scratchpad/root_sym_audit/type_graph_memcard_semantic_exact_20260821.tsv),
   [`mdec`](scratchpad/root_sym_audit/type_graph_mdec_semantic_exact_20260821.tsv),
   [`video`](scratchpad/root_sym_audit/type_graph_video_isolated_20260821.tsv),
@@ -588,7 +669,23 @@ Strict evidence:
   [`aidatarecord`](scratchpad/root_sym_audit/type_graph_aidatarecord_final_20260822.tsv),
   [`aitriger`](scratchpad/root_sym_audit/type_graph_aitriger_final_20260822.tsv),
   [`trgsfx`](scratchpad/root_sym_audit/type_graph_trgsfx_final_20260822.tsv), and
-  [`ailife`](scratchpad/root_sym_audit/type_graph_ailife_final_20260822.tsv).
+  [`ailife`](scratchpad/root_sym_audit/type_graph_ailife_final_20260822.tsv), plus
+  [`aicop`](scratchpad/root_sym_audit/type_graph_aicop_final_20260822.tsv),
+  [`audedit`](scratchpad/root_sym_audit/type_graph_audedit_final_20260822.tsv),
+  [`scene`](scratchpad/root_sym_audit/type_graph_scene_final_20260822.tsv), and
+  [`collide`](scratchpad/root_sym_audit/type_graph_collide_final_20260822.tsv), and
+  [`aispeeds`](scratchpad/root_sym_audit/type_graph_aispeeds_final_20260822.tsv), and
+  [`audiomus`](scratchpad/root_sym_audit/type_graph_audiomus_final_20260822.tsv),
+  [`audioeng`](scratchpad/root_sym_audit/type_graph_audioeng_final_20260822.tsv), and
+  [`audiotrk`](scratchpad/root_sym_audit/type_graph_audiotrk_final_20260822.tsv), and
+  [`aiinit`](scratchpad/root_sym_audit/type_graph_aiinit_final_20260822.tsv), and
+  [`aiphysic`](scratchpad/root_sym_audit/type_graph_aiphysic_final_20260822.tsv), and
+  [`gmesetup`](scratchpad/root_sym_audit/type_graph_gmesetup_final_20260822.tsv), and
+  [`ai`](scratchpad/root_sym_audit/type_graph_ai_final_20260822.tsv), and
+  [`aistate`](scratchpad/root_sym_audit/type_graph_aistate_final_20260822.tsv), and
+  [`mpause`](scratchpad/root_sym_audit/type_graph_mpause_final_20260822.tsv), and
+  [`newton`](scratchpad/root_sym_audit/type_graph_newton_final_20260822.tsv), and
+  [`camera`](scratchpad/root_sym_audit/type_graph_camera_final_20260822.tsv).
 
 Required closure:
 

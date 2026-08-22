@@ -2,7 +2,7 @@
  *   10 fns: class tPauseMenuDefs ctor/dtor + 8 free MPause_* (music/
  *   controller/logic/render/init/start/end/kill). GTE-free. Full SYM-locals applied.
  */
-#include "../../nfs4_types.h"
+#include "mpause_types.h"
 #include "../../lib/nfs4_new.h"
 #include "mpause_externs.h"
 
@@ -38,20 +38,13 @@ static inline int MPause_CurrentItem(tPMenu *menu)
   return menu->fCurrentItem;
 }
 
-struct MPauseMenuPrefix {
-  int fCurrentItem;
-  BOOL fHighlight;
-  tPMenuItem *fItemList[16];
-  tPMenu *fNextMenu;
-  int fNumItems;
-};
-
-struct MPauseMenuVirtual : public MPauseMenuPrefix {
-  virtual void Unknown1(void);
-  virtual void Initialize(void);
-  virtual void ProcessInput(tInputKeyType &keyVal,tPMenuCommand &command);
-  virtual void Draw(void);
-};
+static inline void MPause_InitializeMenu(tPMenu *menu)
+{
+  __vtbl_ptr_type *vf = *menu->_vf;
+  int delta = vf[2].delta;
+  void (*pfn)(...) = (void (*)(...))vf[2].pfn;
+  (*pfn)((int)menu + delta);
+}
 
 static inline void MPause_EnableItem(tPMenuItem *item)
 {
@@ -94,7 +87,7 @@ tPauseMenuDefs::tPauseMenuDefs()
     itemControllerSettings(8,&menuControllerConfig,0),
     menuOptions(&itemOptionsTitle,&itemAudioSettings,&itemControllerSettings,0),
     itemAudioSettingsTitle(10),
-    iteratorAudioMode(InGameSelectListAudioMode,&GameSetup_gData.userSetting.audioMode),
+    iteratorAudioMode(InGameSelectListAudioMode,&MPause_GameSetupWords[59]),
     itemAudioSettingsAudioMode(0xb,&iteratorAudioMode),
     itemAudioSettingsMusicVolume(0xc,&gMasterMusicLevel,0x7f),
     itemAudioSettingsFXVolume(0xd,&gMasterSFXLevel,0x7f),
@@ -105,13 +98,13 @@ tPauseMenuDefs::tPauseMenuDefs()
                       &itemAudioSettingsMusicVolume,&itemAudioSettingsFXVolume,
                       &itemAudioSettingsSpeechVolume,&itemAudioSettingsEngineVolume,
                       &itemAudioSettingsAmbientVolume,0),
-    iteratorConfig(SelectListConfig,GameSetup_gData.controllerData.controllerConfig,
+    iteratorConfig(SelectListConfig,&MPause_GameSetupWords[24],
                    &Device_gPausePortIndex),
     itemControllerSettingsTitle(0x14),
     itemControllerConfig(0x15,&iteratorConfig),
-    itemControllerShockMode(0x1b,GameSetup_gData.controllerData.shockMode,0x7f,
+    itemControllerShockMode(0x1b,&MPause_GameSetupWords[42],0x7f,
                             &Device_gPausePortIndex),
-    itemControllerShockImpact(0x1c,GameSetup_gData.controllerData.shockImpact,0x7f,
+    itemControllerShockImpact(0x1c,&MPause_GameSetupWords[44],0x7f,
                               &Device_gPausePortIndex),
     menuControllerConfig(&itemControllerSettingsTitle,&itemControllerConfig,
                          &itemControllerShockMode,&itemControllerShockImpact,0),
@@ -142,7 +135,7 @@ void MPause_MusicLogic(char active)
   
   sndover = 1;
   samp = 0x10;
-  switch (GameSetup_gData.userSetting.audioMode) {
+  switch (MPause_GameSetupWords[59]) {
     case 0:
       gStereoMode = 1;
       Audio_direct3davail = 0;
@@ -205,7 +198,7 @@ void MPause_MusicLogic(char active)
       }
       if ((sndover != 0) && (0xc0 < ticks - lastplaytick)) {
         lastplaytick = *(volatile int *)&ticks;
-        SFXHandle = AudioCmn_PlaySound(gSndBnk[3].bnkID,samp,0,vol,0x40)
+        SFXHandle = AudioCmn_PlaySound(MPause_SndBnkWords[3][0],samp,0,vol,0x40)
         ;
       }
     }
@@ -296,7 +289,7 @@ int MPause_Logic(void)
       gMPauseUpdate = 1;
       pThis = gPauseCurrentMenu;
       oldItem = pThis->fCurrentItem;
-      ((MPauseMenuVirtual *)pThis)->ProcessInput(keyVal,command);
+      pThis->VirtualProcessInput(keyVal,command);
       newItem = gPauseCurrentMenu->fCurrentItem;
       if ((short)oldItem != (short)newItem) {
         int start;
@@ -340,14 +333,14 @@ MPauseLogic_command:
     case kMPause_GoToMenu:
       gBackList[gBackDepth++] = gPauseCurrentMenu;
       gPauseCurrentMenu = command.nextMenu;
-      ((MPauseMenuVirtual *)gPauseCurrentMenu)->Initialize();
+      MPause_InitializeMenu(gPauseCurrentMenu);
       break;
 
     case kMPause_BackupMenu:
       if (gBackDepth > 0) {
         --gBackDepth;
         gPauseCurrentMenu = gBackList[gBackDepth];
-        ((MPauseMenuVirtual *)gPauseCurrentMenu)->Initialize();
+        MPause_InitializeMenu(gPauseCurrentMenu);
       } else {
         command.type = kMPause_Continue;
         return command.type;
@@ -410,7 +403,7 @@ void MPause_Render(void)
 void MPause_InitMPause(void)
 
 {
-  TextSys_LoadInGame(GameSetup_gData.userSetting.language);
+  TextSys_LoadInGame(MPause_GameSetupWords[56]);
   gPauseMenuDefs = new tPauseMenuDefs;
   return;
 }
@@ -420,16 +413,16 @@ void MPause_StartPauseMenu(void)
 
 {
   gPauseCurrentMenu = &gPauseMenuDefs->menuPause;
-  ((MPauseMenuVirtual *)gPauseCurrentMenu)->Initialize();
+  MPause_InitializeMenu(gPauseCurrentMenu);
   gBackDepth = 0;
 
-  if ((GameSetup_gData.raceType != RaceType_PinkSlips) && (GameSetup_gData.raceType != RaceType_Tournament)) {
+  if ((MPause_GameSetupWords[0] != RaceType_PinkSlips) && (MPause_GameSetupWords[0] != RaceType_Tournament)) {
     MPause_EnableItem(&gPauseMenuDefs->itemRestart);
   } else {
     MPause_DisableItem(&gPauseMenuDefs->itemRestart);
   }
 
-  if (GameSetup_gData.raceType == RaceType_PinkSlips) {
+  if (MPause_GameSetupWords[0] == RaceType_PinkSlips) {
     MPause_EnableItem(&gPauseMenuDefs->itemForfeitRace);
     MPause_DisableItem(&gPauseMenuDefs->itemQuitRace);
   }
@@ -455,8 +448,12 @@ void MPause_StartPauseMenu(void)
 void MPause_EndPauseMenu(void)
 
 {
-  InGame_ResetPSXController((u_int)(u_char)Device_gPausePortIndex,
-             GameSetup_gData.controllerData.controllerConfig[(u_char)Device_gPausePortIndex]);
+  {
+    int *deviceSetup = (int *)((char *)MPause_GameSetupWords +
+                              ((u_char)Device_gPausePortIndex << 2));
+    InGame_ResetPSXController((u_int)(u_char)Device_gPausePortIndex,
+                              deviceSetup[24]);
+  }
   return;
 }
 

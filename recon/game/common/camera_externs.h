@@ -2,17 +2,30 @@
  * Harvested from sibling *_externs.h + *.cpp defs + disasm-v2 (AI/Control demangled). */
 #ifndef _GAME_COMMON_CAMERA_EXTERNS_H_
 #define _GAME_COMMON_CAMERA_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "camera_types.h"
+
+struct AnimScript;
+struct CARDINFO_def;
 
 AnimScript *Anim_GetAnim(int handle);
+int Camera_AnimGetTimedAnimPosRot(AnimScript *, coorddef *, matrixtdef *)
+    asm("GetTimedAnimPosRot__10AnimScriptP8coorddefP10matrixtdef");
 extern "C" CARDINFO_def *MCRD_getcard(int);
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj *Cars_gList[];   /* real ARRAY @0x8010F9DC (asm/data), NOT ptr-to-ptr - la form */
-extern GameSetup_tData   GameSetup_gData;
-extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */
-extern Sim_tSimSystemVar simVar;
-extern Trk_NewSlice  *BWorldSm_slices;
+/* These externally-owned aggregate bodies are absent from camera.obj's retail
+ * SYM graph.  Keep their exact symbols and source field offsets without
+ * importing foreign type definitions into this translation unit. */
+extern int Camera_GameSetupWords[] asm("GameSetup_gData");
+extern int Camera_SimGlobalWords[] asm("simGlobal");
+extern int Camera_SimVarWords[] asm("simVar");
+extern u_char (*Camera_BWorldSmSlices)[32] asm("BWorldSm_slices");
+#define CAMERA_SETUP_CAMERA(player, index) \
+  (((Car_tObj *)(Camera_GameSetupWords + (index) + (player) * 45))->slide)
+#define CAMERA_SLICE_CENTER(slice) ((coorddef *)&Camera_BWorldSmSlices[(slice)][0])
+#define CAMERA_SLICE_FORWARD(slice, axis) ((signed char)Camera_BWorldSmSlices[(slice)][0x0f + (axis)])
+#define CAMERA_SLICE_RIGHT(slice, axis) ((signed char)Camera_BWorldSmSlices[(slice)][0x12 + (axis)])
+#define CAMERA_SLICE_PAVED_PROFILE(slice) (*(short *)&Camera_BWorldSmSlices[(slice)][0x16])
 extern int                numValidCams;              /* 0x8013d3f0 */
 extern int               Replay_ReplayMode;          /* replay.obj */
 extern int            Cars_gNumCars;
@@ -23,8 +36,10 @@ extern int   BWorldSm_FindClosestQuadRez(coorddef *c, BWorldSm_Pos *pos, int rez
 extern int InBetween;
 extern int Math_Dist3D(coorddef *a,coorddef *b);
 extern int Newton_FindGroundElevationGeneral(coorddef *point,coorddef *normal,coorddef *pointOnQuad);
-extern tReplayCameraModes Replay_ReplayCamera[2];    /* 0x8011704c */
-extern tReplayInterface Replay_ReplayInterface;
+extern linedef Camera_ReplayCamera[] asm("Replay_ReplayCamera");
+extern int Camera_ReplayInterfaceWords[] asm("Replay_ReplayInterface");
+#define CAMERA_REPLAY_DEFAULT(player) Camera_ReplayCamera[(player)].start
+#define CAMERA_REPLAY_MODE(player) Camera_ReplayCamera[(player)].colour
 extern void  Math_fasttransmult(matrixtdef *a, matrixtdef *b, matrixtdef *out);
 extern bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
 extern void *BWorldSm_UNormal(BWorldSm_Pos *pos);
@@ -39,6 +54,11 @@ int BWorldSm_FindClosestQuadMaxIterations(coorddef *pt, BWorldSm_Pos *slicePos, 
  /* @0x800EAD98 eaclib arccos, verify #148 */
  /* @0x800EADBC eaclib: out-args *sin/*cos dropped by Ghidra, verify #148 */
 void Math_NormalizeVector(coorddef *v);
+extern "C" int fixedmult(int, int);
+extern "C" int fixeddiv(int, int);
+extern "C" int memset(...);
+extern "C" void transform(...);
+extern "C" void transpose(...);
  /* eaclib trnsfrm, verify #148 */
 
 #endif /* _GAME_COMMON_CAMERA_EXTERNS_H_ */

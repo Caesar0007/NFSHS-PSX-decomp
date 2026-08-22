@@ -1,12 +1,11 @@
 /* game/common/collide_externs.h - reconstructed externs. NOT original. */
 #ifndef _GAME_COMMON_COLLIDE_EXTERNS_H_
 #define _GAME_COMMON_COLLIDE_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
-
 /* ---- globals (cross-TU) ---- */
 extern int            Cars_gNumCars;
-extern Trk_NewSlice  *BWorldSm_slices;
+extern u_char (*BWorldSm_slices)[32];
+#define COLLIDE_SLICE_CENTER0(i) (*(int *)&BWorldSm_slices[(i)][0])
+#define COLLIDE_SLICE_RIGHT(i,j) ((signed char)BWorldSm_slices[(i)][0x12 + (j)])
 extern BO_tNewtonObj  InfiniteMassNewton[5];   /* @0x801100e4 EXT BO_tNewtonObj[5] */
 extern coorddef       D_80055A00;   /* @0x80055A00 rodata up-vector {0,0x10000,0} (DoObjectFixedObjectCollision upVec source; Ghidra const-folded it) */
 
@@ -37,5 +36,9 @@ void Physics_TestForBarrierCollision(Car_tObj *carObj);
 int  Force_IsForceOn(Car_tObj *car);
 void Force_HitSign(Car_tObj *car);
 int  BWorldSm_FindClosestSlice(coorddef *pt, BWorldSm_Pos *slicePos);
+
+extern "C" int fixedmult(...);
+extern "C" int fixedsqrt(...);
+extern "C" int rdiv(...);
 
 #endif /* _GAME_COMMON_COLLIDE_EXTERNS_H_ */

@@ -3,7 +3,10 @@
 #define SIMQUEUE_EXTERNS_H
 
 /* ---- harvested + SYM ---- */
-extern GameSetup_tData   GameSetup_gData;
+/* simqueue.obj uses only words +0x0c and +0x3c8 of the external owner. */
+extern int GameSetup_gData[243];
+#define SIMQUEUE_COMMMODE GameSetup_gData[3]
+#define SIMQUEUE_NUM_PLAYER_RACE_CARS GameSetup_gData[242]
 
 extern int   gSimQueue_BlockOther;
 extern int   gSimQueue_BlockSelf;

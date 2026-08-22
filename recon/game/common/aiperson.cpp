@@ -2,7 +2,7 @@
  *   Per-car personality assignment + .bin table loaders. SYM-faithful, recompilable C++.
  *   NOT original source. SYM-owned globals are defined in this TU.
  */
-#include "../../nfs4_types.h"
+#include "aiperson_types.h"
 #include "aiperson_externs.h"
 
 /* ---- aiperson.obj-owned globals ----
@@ -55,7 +55,7 @@ void AIPerson_LoadGridAndSetPersonalityIndexes(void)
 
   for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
     Cars_gList[carLoop]->personalityIndex =
-        GameSetup_gData.carInfo[carLoop].Personality;
+        AIPERSON_PERSONALITY_AT(carLoop);
   }
   return;
 }
@@ -147,8 +147,8 @@ void AIPerson_LoadPersonalityData(Udff_tInfo *handle)
     AIPerson_PersonalityData[perLoop].attackActivationHits = AIPerson_attackActivationHits[roadRage];
     AIPerson_PersonalityData[perLoop].attackTime = AIPerson_attackTimes[roadRage];
     AIPerson_PersonalityData[perLoop].fishtailAngle = AIPerson_fishtailAngles[fishtailControl];
-    AIPerson_PersonalityData[perLoop].minimumBetweenWipeoutTicks = AIPerson_minimumWipeOutTicks[wipeOutFreq + GameSetup_gData.Weather];
-    AIPerson_PersonalityData[perLoop].randomBetweenWipeoutTicks = AIPerson_randomWipeOutTicks[wipeOutFreq + GameSetup_gData.Weather];
+    AIPerson_PersonalityData[perLoop].minimumBetweenWipeoutTicks = AIPerson_minimumWipeOutTicks[wipeOutFreq + AIPERSON_WEATHER];
+    AIPerson_PersonalityData[perLoop].randomBetweenWipeoutTicks = AIPerson_randomWipeOutTicks[wipeOutFreq + AIPERSON_WEATHER];
     AIPerson_PersonalityData[perLoop].gripLossProbPerSecond = AIPerson_gripLossProbPerSecond[corneringAbility];
     AIPerson_PersonalityData[perLoop].gripLossMinFactor = AIPerson_gripLossMinFactor[corneringAbility];
     AIPerson_PersonalityData[perLoop].gripLossRecoveryPerTick = AIPerson_gripLossRecoveryPerTick[corneringAbility];
@@ -218,7 +218,7 @@ void AIPerson_LoadGlue(Udff_tInfo *handle)
   Udff_GetInt(handle);
   Udff_GetBuffer(handle,(char *)AIPerson_glueTable,0x54);
   if ((Cars_gNumCopCars != 0) &&
-     (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) ||
+     (((AIPERSON_RACE_TYPE != RaceType_HotPursuit && (AIPERSON_RACE_TYPE != RaceType_Id5)) ||
       ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0 &&
        ((Cars_gNumHumanRaceCars != 2 || (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) == 0)))))))) {
     iVar3 = 0;
@@ -261,12 +261,12 @@ void AIPerson_Startup(void)
   handle = Udff_Opena(filename,(char *)0x0,1);
   AIPerson_LoadScriptData(handle);
   Udff_Close(handle);
-  if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
+  if (((AIPERSON_RACE_TYPE == RaceType_HotPursuit) || (AIPERSON_RACE_TYPE == RaceType_Id5)) &&
      ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
       ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
     sprintf(filename,D_80055374,pathBase[2]);
   }
-  else if (((u_int)GameSetup_gData.raceType < RaceType_Tournament) && (Cars_gNumAIRaceCars == 1)) {
+  else if (((u_int)AIPERSON_RACE_TYPE < RaceType_Tournament) && (Cars_gNumAIRaceCars == 1)) {
     sprintf(filename,D_80055384,D_80116470[0]);
   }
   else {

@@ -4,7 +4,7 @@
  *   (20 B, declared in nfs4_types.h). Faithful C++: `new AnimScript(..)`, obj->Method(..).
  *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++.
  */
-#include "../../nfs4_types.h"
+#include "aitriger_types.h"
 #include "aitriger_externs.h"
 
 
@@ -176,7 +176,7 @@ int AITrigger_TriggerManager::CheckForTriggerAtSlice(int car,int slice)
     }
   }
   if (((this->triggers_[*lastTrigger]->any.slice == slice) &&
-      (0xa00 < simGlobal.gameTicks - this->checkTime_[*lastTrigger])) &&
+      (0xa00 < AITRIGGER_GAME_TICKS - this->checkTime_[*lastTrigger])) &&
      (this->triggers_[*lastTrigger]->any.type != 2)) {
     return *lastTrigger;
   }
@@ -190,13 +190,13 @@ AITrigger_TriggerManager::GetTrigger(int trigger,int *used)
   int triggerNum;
   trigger_t *ptVar1;
   
-  if (0xa00 < simGlobal.gameTicks - this->checkTime_[trigger]) {
+  if (0xa00 < AITRIGGER_GAME_TICKS - this->checkTime_[trigger]) {
     *used = 0;
   }
   else {
     *used = 1;
   }
-  this->checkTime_[trigger] = simGlobal.gameTicks;
+  this->checkTime_[trigger] = AITRIGGER_GAME_TICKS;
   ptVar1 = (trigger_t *)0x0;
   if (trigger < this->numTriggers_) {
     ptVar1 = this->triggers_[trigger];

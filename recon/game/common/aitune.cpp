@@ -3,7 +3,7 @@
  *   (chunk visibility, build lists, spike belt, glare effects, render contexts). Self-contained.
  *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++.
  */
-#include "../../nfs4_types.h"
+#include "aitune_types.h"
 #include "AITUNE_externs.h"
 
 
@@ -33,8 +33,8 @@ void AITune_CleanUp2(void);
 /* ---- AITune_GetOneWay__Fv  [@0x80072e68] ---- */
 int AITune_GetOneWay(void)
 {
-  if (GameSetup_gData.track < 0xc) {
-    return AITune_trackInfo[GameSetup_gData.track].oneWay;
+  if (AITUNE_TRACK < 0xc) {
+    return AITune_trackInfo[AITUNE_TRACK].oneWay;
   }
   return (u_int)(*(u_char *)((int)BWorldSm_slices + 0x3d) >> 4 == 0);   /* byte-match backport: +61 bytes, not +0x3d*sizeof(Trk_NewSlice=32) */
 }
@@ -42,8 +42,8 @@ int AITune_GetOneWay(void)
 /* ---- AITune_GetDriveSide__Fv  [@0x80072ec0] ---- */
 int AITune_GetDriveSide(void)
 {
-  if (GameSetup_gData.track < 0xc) {
-    return AITune_trackInfo[GameSetup_gData.track].driveSide;
+  if (AITUNE_TRACK < 0xc) {
+    return AITune_trackInfo[AITUNE_TRACK].driveSide;
   }
   return 1;
 }
@@ -51,8 +51,8 @@ int AITune_GetDriveSide(void)
 /* ---- AITune_GetRoughLapTimes__Fv  [@0x80072f00] ---- */
 int AITune_GetRoughLapTimes(void)
 {
-  if (GameSetup_gData.track < 0xc) {
-    return AITune_trackInfo[GameSetup_gData.track].roughLapTimeSeconds;
+  if (AITUNE_TRACK < 0xc) {
+    return AITune_trackInfo[AITUNE_TRACK].roughLapTimeSeconds;
   }
   return 0xbe;
 }

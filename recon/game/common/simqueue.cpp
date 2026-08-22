@@ -2,7 +2,7 @@
  *   8 fns: SimQueue_StartUp/Reset/CleanUp/Put/SetCurrentInput/GetCurrentInput/SetLag/IsBlocking.
  *   GTE-free. Full SYM-locals applied.
  */
-#include "../../nfs4_types.h"
+#include "simqueue_types.h"
 #include "simqueue_externs.h"
 
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
@@ -121,15 +121,15 @@ int SimQueue_Put(int pIndex,Input_tResults *val)
   *(Input_tResults *)entry = *val;
   *(int *)(entry + 0x100) = kVALID;
   inputQueue.TailTime[pIndex] = inputQueue.TailTime[pIndex] + 1;
-  if (GameSetup_gData.commMode != 0) {
-    if (GameSetup_gData.commMode == 1) {
+  if (SIMQUEUE_COMMMODE != 0) {
+    if (SIMQUEUE_COMMMODE == 1) {
       if (pIndex != 0) {
         gSimQueue_Ticker = gSimQueue_Ticker + 1;
       }
     }
   }
   else {
-    if (GameSetup_gData.numPlayerRaceCars < 2) {
+    if (SIMQUEUE_NUM_PLAYER_RACE_CARS < 2) {
       gSimQueue_Ticker = gSimQueue_Ticker + 1;
     }
     else if (pIndex != 0) {
@@ -194,12 +194,12 @@ void SimQueue_SetCurrentInput(int time)
 
   pIndex = 0;
   i = time & 0x1f;
-  while (pIndex < GameSetup_gData.numPlayerRaceCars) {
+  while (pIndex < SIMQUEUE_NUM_PLAYER_RACE_CARS) {
     output[pIndex] = inputQueue.Buffer[pIndex][i];
     pIndex = pIndex + 1;
   }
   pIndex = 0;
-  while (pIndex < GameSetup_gData.numPlayerRaceCars) {
+  while (pIndex < SIMQUEUE_NUM_PLAYER_RACE_CARS) {
     inputQueue.Validity[pIndex][i] = 0;
     pIndex = pIndex + 1;
   }
@@ -219,10 +219,10 @@ void SimQueue_GetCurrentInput(int pIndex,Input_tResults *out)
 static void SimQueue_SetLag(void)
 
 {
-  if (GameSetup_gData.commMode == 0) {
+  if (SIMQUEUE_COMMMODE == 0) {
     maxTicksPerFrame = 4;
   }
-  else if (GameSetup_gData.commMode == 1) {
+  else if (SIMQUEUE_COMMMODE == 1) {
     maxTicksPerFrame = 4;
   }
   return;
@@ -238,8 +238,8 @@ static int SimQueue_IsBlocking(int pIndex)
   return 0;
 
 check_mode:
-  if (GameSetup_gData.commMode == 0) goto calculate;
-  if (GameSetup_gData.commMode != 1) goto return_zero;
+  if (SIMQUEUE_COMMMODE == 0) goto calculate;
+  if (SIMQUEUE_COMMMODE != 1) goto return_zero;
 
 calculate:
   return inputQueue.TailTime[0] < inputQueue.HeadTime + maxTicksPerFrame ^ 1;

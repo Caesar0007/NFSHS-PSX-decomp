@@ -1,9 +1,6 @@
 /* game/common/aidatarecord_externs.h - reconstructed externs. NOT original. */
 #ifndef _GAME_COMMON_AIDATARECORD_EXTERNS_H_
 #define _GAME_COMMON_AIDATARECORD_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
-
 /* ---- aidatarecord.obj manual vtable symbols (cross-TU data) ---- */
 extern __vtbl_ptr_type AIDataRecord_t_vtable[], AIDataRecord_AccTable_t_vtable[],
   AIDataRecord_BestLine_t_vtable[], AIDataRecord_TrackCurve_t_vtable[],
@@ -30,5 +27,11 @@ extern char      D_800553E4[];  /* "%sTr%02d.qcr" TrackCurve (recordMethod==0) *
 extern char      D_800553F4[];  /* "%sTr%02d.crv" TrackCurve (else) */
 extern char      D_80055404[];  /* "%s%s.qcs"     CurveSpeed (recordMethod==0) */
 extern char      D_80055410[];  /* "%s%s.csp"     CurveSpeed (else) */
+
+extern "C" void *reservememadr(...);
+extern "C" void *loadpackadrz(...);
+extern "C" int purgememadr(...);
+extern "C" int sprintf(...);
+extern "C" int fixedmult(...);
 
 #endif /* _GAME_COMMON_AIDATARECORD_EXTERNS_H_ */

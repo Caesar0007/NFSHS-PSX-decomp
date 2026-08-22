@@ -2,7 +2,7 @@
  *   7 fns: Stats_DoPlayerGlue/ClearPosition/GetPosition/GetNumOpponents/TrackStats/
  *   ExtrapolateOpponentTimes/TrackEndGame. GTE-free. Full SYM-locals applied.
  */
-#include "../../nfs4_types.h"
+#include "stats_types.h"
 #include "stats_externs.h"
 
 /* stats.obj-owned race-order scratch table.
@@ -38,7 +38,7 @@ void Stats_DoPlayerGlue(void)
     }
   }
 
-  if ((GameSetup_gData.catchupLogic != 0) && (GameSetup_gData.commMode == 1)) {
+  if ((STATS_CATCHUP_LOGIC != 0) && (STATS_COMMMODE == 1)) {
     if (((Cars_gHumanRaceCarList[0]->stats).finishType == 2) ||
        ((Cars_gHumanRaceCarList[1]->stats).finishType == 2)) {
       Cars_gHumanRaceCarList[0]->glue = 0x10000;
@@ -129,12 +129,12 @@ int Stats_GetNumOpponents(void)
 void Stats_TrackStats(Car_tObj *carObj)
 
 {
-  if ((simGlobal.gameTicks & 1U) == 0) {
+  if ((STATS_GAME_TICKS & 1U) == 0) {
     int trackSlices;
     int currentTime;
 
     trackSlices = gNumSlices;
-    currentTime = simGlobal.gameTicks;
+    currentTime = STATS_GAME_TICKS;
     if (((carObj->stats).lap < 4) &&
         ((carObj->linearVel_ch).z >
          (carObj->stats).topSpeed[(carObj->stats).lap])) {
@@ -151,7 +151,7 @@ void Stats_TrackStats(Car_tObj *carObj)
     }
     if (((carObj->stats).lap != carObj->lap) &&
         ((carObj->stats).finishType == 0)) {
-      if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
+      if (((STATS_RACE_TYPE == RaceType_HotPursuit) || (STATS_RACE_TYPE == RaceType_Id5)) &&
          (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0 ||
           ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0)))))
          ) {
@@ -163,8 +163,8 @@ void Stats_TrackStats(Car_tObj *carObj)
       }
       (carObj->stats).lapTime = currentTime;
       (carObj->stats).lap = carObj->lap;
-      if (((carObj->stats).lap == GameSetup_gData.numLaps) &&
-         (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) ||
+      if (((carObj->stats).lap == STATS_NUM_LAPS) &&
+         (((STATS_RACE_TYPE != RaceType_HotPursuit && (STATS_RACE_TYPE != RaceType_Id5)) ||
           (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0 &&
            ((Cars_gNumHumanRaceCars != 2 || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0))))
           )))) {
@@ -178,7 +178,7 @@ void Stats_TrackStats(Car_tObj *carObj)
     {
       int roadSlice;
 
-      if (GameSetup_gData.reverseTrack != 0) {
+      if (STATS_REVERSE_TRACK != 0) {
         roadSlice = trackSlices - (carObj->N).simRoadInfo.slice - 1;
       }
       else {
@@ -267,7 +267,7 @@ void Stats_ExtrapolateOpponentTimes(int type)
         startingTime = sliceTotal * 13;
       }
       extrapolatedTime =
-          startingTime * (gNumSlices * GameSetup_gData.numLaps +
+          startingTime * (gNumSlices * STATS_NUM_LAPS +
                           Cars_gHumanRaceCarList[i]->stats.extractSlice) /
           sliceTotal;
       if (quick_finish) {
@@ -276,7 +276,7 @@ void Stats_ExtrapolateOpponentTimes(int type)
       else {
         Cars_gHumanRaceCarList[i]->stats.lapTime = extrapolatedTime << 1;
       }
-      if (GameSetup_gData.raceType != RaceType_Tournament) {
+      if (STATS_RACE_TYPE != RaceType_Tournament) {
         if (quick_finish) {
           Cars_gHumanRaceCarList[i]->stats.finishType = 2;
         }
@@ -284,7 +284,7 @@ void Stats_ExtrapolateOpponentTimes(int type)
           Cars_gHumanRaceCarList[i]->stats.finishType = 1;
         }
       }
-      else if (GameSetup_gData.localCar == i) {
+      else if (STATS_LOCAL_CAR == i) {
         if (quick_finish) {
           Cars_gHumanRaceCarList[i]->stats.finishType = 2;
         }
@@ -295,7 +295,7 @@ void Stats_ExtrapolateOpponentTimes(int type)
     }
 
     if (type == 1) {
-      if (GameSetup_gData.raceType != RaceType_Tournament) {
+      if (STATS_RACE_TYPE != RaceType_Tournament) {
         if (quick_finish) {
           Cars_gHumanRaceCarList[i]->stats.finishType = 2;
         }
@@ -305,7 +305,7 @@ void Stats_ExtrapolateOpponentTimes(int type)
       }
       else {
         if ((Cars_gHumanRaceCarList[i]->stats.finishType != 2) &&
-            (GameSetup_gData.localCar == i)) {
+            (STATS_LOCAL_CAR == i)) {
           if (quick_finish) {
             Cars_gHumanRaceCarList[i]->stats.finishType = 2;
           }
@@ -319,7 +319,7 @@ void Stats_ExtrapolateOpponentTimes(int type)
           Stats_GetPosition(Cars_gHumanRaceCarList[i]);
       Cars_gHumanRaceCarList[i]->stats.finalTotalTime =
           Cars_gHumanRaceCarList[i]->stats.lapTime;
-      for (j = 0; j < GameSetup_gData.numLaps; j++) {
+      for (j = 0; j < STATS_NUM_LAPS; j++) {
         Cars_gHumanRaceCarList[i]->stats.finalLapTime[j] =
             Cars_gHumanRaceCarList[i]->stats.time[j];
       }
@@ -349,7 +349,7 @@ void Stats_ExtrapolateOpponentTimes(int type)
             Cars_gHumanRaceCarList[i]->N.damage[m];
       }
     }
-    for (j = 0; j < GameSetup_gData.numLaps; j++) {
+    for (j = 0; j < STATS_NUM_LAPS; j++) {
       Cars_gHumanRaceCarList[i]->stats.finalLapTime[j] =
           Cars_gHumanRaceCarList[i]->stats.time[j];
       if ((Cars_gHumanRaceCarList[i]->stats.finalLapTime[j] <
@@ -375,14 +375,14 @@ void Stats_ExtrapolateOpponentTimes(int type)
         startingTime = sliceTotal * 13;
       }
       extrapolatedTime =
-          startingTime * (gNumSlices * GameSetup_gData.numLaps +
+          startingTime * (gNumSlices * STATS_NUM_LAPS +
                           Cars_gAIRaceCarList[i]->stats.extractSlice) /
           sliceTotal;
       if (!quick_finish &&
           (Cars_gHumanRaceCarList[0]->stats.finishType != 2)) {
         Cars_gAIRaceCarList[i]->stats.lapTime =
             extrapolatedTime +
-            GameSetup_gData.numLaps * rand() / 0x80;
+            STATS_NUM_LAPS * rand() / 0x80;
       }
       else {
         Cars_gAIRaceCarList[i]->stats.lapTime = extrapolatedTime;
@@ -399,7 +399,7 @@ void Stats_ExtrapolateOpponentTimes(int type)
     Cars_gAIRaceCarList[i]->stats.finalNumArrests =
         Cars_gAIRaceCarList[i]->stats.numArrests;
     Cars_gAIRaceCarList[i]->stats.finalBestLap = 99999;
-    for (j = 0; j < GameSetup_gData.numLaps; j++) {
+    for (j = 0; j < STATS_NUM_LAPS; j++) {
       if ((Cars_gAIRaceCarList[i]->stats.finalBestLap >
            Cars_gAIRaceCarList[i]->stats.time[j]) &&
           (Cars_gAIRaceCarList[i]->stats.time[j] > 0)) {
@@ -413,14 +413,14 @@ void Stats_ExtrapolateOpponentTimes(int type)
 
       averageLap =
           Cars_gAIRaceCarList[i]->stats.finalTotalTime /
-              GameSetup_gData.numLaps -
+              STATS_NUM_LAPS -
           rand() / 0x30;
       if (averageLap < Cars_gAIRaceCarList[i]->stats.finalBestLap) {
         Cars_gAIRaceCarList[i]->stats.finalBestLap = averageLap;
       }
     }
 
-    for (j = 0; j < GameSetup_gData.numLaps; j++) {
+    for (j = 0; j < STATS_NUM_LAPS; j++) {
       Cars_gAIRaceCarList[i]->stats.finalLapTime[j] =
           Cars_gAIRaceCarList[i]->stats.time[j];
       if ((Cars_gAIRaceCarList[i]->stats.finalLapTime[j] <
@@ -649,10 +649,10 @@ void Stats_TrackEndGame(void)
 
   Stats_PlayersFinishedRace = 0;
   if (Cars_gNumRaceCars > 1) {
-    if ((simGlobal.gameTicks % 64) == 1) {
+    if ((STATS_GAME_TICKS % 64) == 1) {
       int trackSlices;
 
-      trackSlices = GameSetup_gData.numLaps * gNumSlices;
+      trackSlices = STATS_NUM_LAPS * gNumSlices;
       for (i = 0; i < Cars_gNumHumanRaceCars; i++) {
         int PlayerSlice;
         int PlayerPosition;
@@ -675,7 +675,7 @@ void Stats_TrackEndGame(void)
         if (PlayerPosition == 1) {
           DesiredComparison = 2;
         }
-        else if (GameSetup_gData.checkpointType == 1) {
+        else if (STATS_CHECKPOINT_TYPE == 1) {
           DesiredComparison = 1;
         }
         else {
@@ -731,21 +731,21 @@ void Stats_TrackEndGame(void)
     }
   }
 
-  if (simVar.endSimGame == 0) {
+  if (STATS_END_SIM_GAME == 0) {
     for (i = 0; i < Cars_gNumHumanRaceCars; i++) {
       if ((Cars_gHumanRaceCarList[i]->stats.finishType > 1) &&
           (Cars_gHumanRaceCarList[i]->stats.sliceTime + 0x140 <
-           simGlobal.gameTicks) &&
+           STATS_GAME_TICKS) &&
           (((CopSpeak_gQueuePlay == CopSpeak_gQueueHead) &&
             (CopSpeak_gSpchHandle == -1)) ||
            (Cars_gHumanRaceCarList[i]->stats.sliceTime + 0x280 <
-            simGlobal.gameTicks))) {
+            STATS_GAME_TICKS))) {
         Stats_PlayersFinishedRace++;
       }
     }
 
     if (Stats_PlayersFinishedRace == Cars_gNumHumanRaceCars) {
-      simVar.endSimGame = 1;
+      STATS_END_SIM_GAME = 1;
       Stats_ExtrapolateOpponentTimes(2);
     }
   }

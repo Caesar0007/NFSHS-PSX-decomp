@@ -2,7 +2,7 @@
  *   10 fns: Get/Move AngleWind, GetGustWind, Souffle_Add/DoSouffle/CircleClip/InsertFacet,
  *   Init/Restart/Kill TrackSouffle. GTE-free. Full SYM-locals applied.
  */
-#include "../../nfs4_types.h"
+#include "souffle_types.h"
 #include "souffle_externs.h"
 
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
@@ -156,8 +156,8 @@ void Souffle_DoSouffle(void)
   int i;
   coorddef w;
   
-  if (0 < simGlobal.gameTicks - gTMoveSouffle) {
-    gTMoveSouffle = simGlobal.gameTicks;
+  if (0 < SOUFFLE_GAME_TICKS - gTMoveSouffle) {
+    gTMoveSouffle = SOUFFLE_GAME_TICKS;
     if (gCISouffle != 0) {
       gWindDir = gWindDir + 2;
       iVar2 = fastintcos(gWindDir);
@@ -175,7 +175,7 @@ void Souffle_DoSouffle(void)
         motion.z = motion.z + w.z;
       }
       if (Replay_ReplayMode == 2) {
-        int speed = 2 - Replay_ReplayInterface.speed;
+        int speed = 2 - SOUFFLE_REPLAY_SPEED;
         if (0 < speed) {
           motion.x = motion.x >> speed;
           motion.y = motion.y >> speed;
@@ -218,7 +218,7 @@ void Souffle_DoSouffle(void)
         coorddef extramotion = is->extramotion;
         int wave = fastintsin(is->angle);
         if (Replay_ReplayMode == 2) {
-          int speed = 2 - Replay_ReplayInterface.speed;
+          int speed = 2 - SOUFFLE_REPLAY_SPEED;
           if (0 < speed) {
             extramotion.x = extramotion.x >> speed;
             extramotion.y = extramotion.y >> speed;
@@ -348,7 +348,7 @@ void Souffle_InitTrackSouffle(void)
 {
   gWindDir = 0;
   gCISouffle = 0;
-  gTMoveSouffle = simGlobal.gameTicks;
+  gTMoveSouffle = SOUFFLE_GAME_TICKS;
   gISouffle = reservememadr("souffle",0xff0,0);
   return;
 }
@@ -359,7 +359,7 @@ void Souffle_RestartTrackSouffle(void)
 {
   gWindDir = 0;
   gCISouffle = 0;
-  gTMoveSouffle = simGlobal.gameTicks;
+  gTMoveSouffle = SOUFFLE_GAME_TICKS;
   return;
 }
 

@@ -172,7 +172,16 @@ def compare(source: str, owner: str, retail_defs, source_defs) -> Result:
     # retail SYM retains the pointer typedef (including referent size/tag) but
     # filters this private tag block in every object.  Do not classify that
     # header-proven body as a game-source extra.
-    ignored_source_tags = {("STRTAG", "_physadr")}
+    # GCC 2.7.2 also owns ``__vtbl_ptr_type`` as an internal 8-byte vtable
+    # entry.  The retail compiler can materialize extern arrays of that built-in
+    # without emitting a source tag; the reconstruction host compiler ICEs on
+    # the same declaration, so nfs4_types/owner headers use the layout-identical
+    # private ``__nfs4_vtbl_ptr_t`` carrier.  Neither spelling is original
+    # application source, and both are filtered only at this compiler boundary.
+    ignored_source_tags = {
+        ("STRTAG", "_physadr"),
+        ("STRTAG", "__vtbl_ptr_type"),
+    }
     extra_named_keys = set(sb) - set(rb) - ignored_source_tags
     result.source_extra_named = len(extra_named_keys)
 
@@ -230,7 +239,10 @@ def compare(source: str, owner: str, retail_defs, source_defs) -> Result:
     # while retaining the public `physadr` pointer typedef.
     source_td = Counter({
         semantic: count for semantic, count in source_td.items()
-        if not (semantic[3] == "_physadr" and semantic[1] == "STRUCT")
+        if not (
+            (semantic[3] == "_physadr" and semantic[1] == "STRUCT")
+            or (semantic[3] == "__nfs4_vtbl_ptr_t" and semantic[1] == "STRUCT")
+        )
     })
     result.retail_typedefs = sum(retail_td.values())
     result.typedefs_covered = sum(

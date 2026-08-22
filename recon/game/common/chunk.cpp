@@ -9,7 +9,7 @@
  *   The rest of the body matches Ghidra's field-resolved output (delay-slot stores verified
  *   against disasm-v2: each call's result lands in the slot of the *following* jal). Self-contained.
  */
-#include "../../nfs4_types.h"
+#include "chunk_types.h"
 #include "chunk_externs.h"
 
 /* ---- chunk.obj-owned globals (.bss zero) ---- */
@@ -51,7 +51,7 @@ void Chunk::InstanceGroup(SerializedGroup *chunkGroup, SimpleMem *mem)
   this->chunkboundPts[2] = ((RelCoord16 *)(groupData + 16))[6];
   this->chunkboundPts[3] = ((RelCoord16 *)(groupData + 16))[7];
   this->chunkInd = *(short *)(groupData + 12);                     /* @0x7B4E8 group+28 */
-  if (GameSetup_gData.commMode != 1) {
+  if (CHUNK_COMMMODE != 1) {
     pGVar6 = (Group *)(chunkGroup)->LocateCreateGroupType(3, groupMem, 0);
     this->objInstanceBuf = pGVar6;
     pGVar6 = (Group *)(chunkGroup)->LocateCreateGroupType(0xb, groupMem, 0);

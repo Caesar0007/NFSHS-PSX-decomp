@@ -19,7 +19,7 @@ void Control_Human(Car_tObj *carObj)
 {
   int     newGear;
 
-  if ((simGlobal.gameTicks & 3U) != 0) {
+  if ((CONTROL_GAME_TICKS & 3U) != 0) {
     return;
   }
   if ((0 < Cars_gNumAICars) && (carObj->carIndex == 0)) {
@@ -37,18 +37,18 @@ void Control_Human(Car_tObj *carObj)
     carObj->control.event = 0;
   }
   else {
-    (carObj->control).desiredGasLevel = Input_gSim.gas & 0xf8;
-    (carObj->control).desiredBrakeLevel = Input_gSim.brake & 0xf8;
-    if (GameSetup_gData.mirrorTrack == 1) {
-      carObj->control.desiredSteering = ((signed char)Input_gSim.steering / 4) * -4;
+    (carObj->control).desiredGasLevel = CONTROL_INPUT_GAS & 0xf8;
+    (carObj->control).desiredBrakeLevel = CONTROL_INPUT_BRAKE & 0xf8;
+    if (CONTROL_MIRROR_TRACK == 1) {
+      carObj->control.desiredSteering = (CONTROL_INPUT_STEERING / 4) * -4;
     }
     else {
-      carObj->control.desiredSteering = ((signed char)Input_gSim.steering / 4) * 4;
+      carObj->control.desiredSteering = (CONTROL_INPUT_STEERING / 4) * 4;
     }
-    (carObj->control).handBrake = Input_gSim.flags & 1;
-    (carObj->control).horn = Input_gSim.flags >> 1 & 1;
-    (carObj->control).abort = Input_gSim.flags >> 3 == 3;
-    (carObj->control).event = Input_gSim.flags >> 3;
+    (carObj->control).handBrake = CONTROL_INPUT_FLAGS & 1;
+    (carObj->control).horn = CONTROL_INPUT_FLAGS >> 1 & 1;
+    (carObj->control).abort = CONTROL_INPUT_FLAGS >> 3 == 3;
+    (carObj->control).event = CONTROL_INPUT_FLAGS >> 3;
   }
   switch((carObj->control).event) {
   case '\x04':

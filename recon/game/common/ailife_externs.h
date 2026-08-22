@@ -1,16 +1,21 @@
 /* game/common/ailife_externs.h - reconstructed externs. NOT original.
  * Harvested from sibling *_externs.h + *.cpp defs + disasm-v2 (AI/Control demangled). */
-#ifndef _GAME_COMMON_CAMERA_EXTERNS_H_
-#define _GAME_COMMON_CAMERA_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#ifndef _GAME_COMMON_AILIFE_EXTERNS_H_
+#define _GAME_COMMON_AILIFE_EXTERNS_H_
 
 extern Car_tObj           *Cars_gCopCarList[];
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj      *Cars_gSortedList[];
 extern Car_tObj *Cars_gLifeBasisCarList[];
-extern GameSetup_tData   GameSetup_gData;
-extern Trk_NewSlice  *BWorldSm_slices;
+/* AILIFE.SYM does not materialize either large owner type.  Preserve the
+ * original addresses and access widths through their source-visible rows. */
+extern int GameSetup_gData[13];
+#define AILIFE_REVERSE_TRACK GameSetup_gData[12]
+extern u_char (*BWorldSm_slices)[32];
+#define AILIFE_SLICE_CENTER(i) ((coorddef *)&BWorldSm_slices[(i)][0])
+#define AILIFE_SLICE_LANE_COUNT(i) BWorldSm_slices[(i)][0x1d]
+#define AILIFE_SLICE_WIDTH_LF(i) BWorldSm_slices[(i)][0x1e]
+#define AILIFE_SLICE_WIDTH_RT(i) BWorldSm_slices[(i)][0x1f]
 extern int                 Cars_gNumCopCars;
 extern int                 generic128HzClock, stackSpeedUpEnbabledFlag;
 extern int                AIInit_forceHumanHandBrake;
@@ -37,5 +42,9 @@ void  trap(int code);
 void AIInit_ClearAICar(Car_tObj *carObj);
 void AISpeeds_CalcDesiredSpeed(Car_tObj *carObj);
 void AI_ChooseNewLaneSlack(Car_tObj *carObj);
+extern "C" void *SetSp(...);
+extern "C" int fixedmult(...);
+extern "C" void *memset(...);
+extern "C" int xformy(...);
 
-#endif /* _GAME_COMMON_CAMERA_EXTERNS_H_ */
+#endif /* _GAME_COMMON_AILIFE_EXTERNS_H_ */

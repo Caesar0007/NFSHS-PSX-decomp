@@ -1,6 +1,6 @@
 # NFS4 PSX SYM restoration audit and backlog
 
-Date: 2026-08-21
+Date: 2026-08-22
 
 Trusted debug source: `C:\Temp\claud\dumpsym_clean\dumpsym_src\nfs4-f-v3.txt`
 
@@ -37,13 +37,16 @@ they are not silently collapsed into a smaller denominator.
   explicit per-record semantic-review row.  Nothing is silently dropped from
   the denominator.
 - A strict compiler-emitted type-graph comparison now distinguishes retail
-  subset coverage from actual per-object source visibility.  Twenty-eight owners are
+  subset coverage from actual per-object source visibility.  Forty-one owners are
   semantically exact: `memcard.obj`, `mdec.obj`, `video.obj`, `FETexture.obj`,
   `textpix.obj`, `textpsx.obj`, `unpack.obj`, `fastrand.obj`, and
   `aiscript.obj`, `new.obj`, `paths.obj`, `textsys.obj`, `simplemem.obj`,
   `MathNfs.obj`, `quatern.obj`, `udff.obj`, `Group.obj`, `schedule.obj`,
   `HudPmx.obj`, `genericpmx.obj`, `anim.obj`, `spchevnt.obj`, `color.obj`,
-  `clock.obj`, `MinFront.obj`, `input.obj`, `aidelaycar.obj`, and `AIWORLD.obj`.
+  `clock.obj`, `MinFront.obj`, `input.obj`, `aidelaycar.obj`, `AIWORLD.obj`,
+  `chunk.obj`, `simqueue.obj`, `stats.obj`, `aiperson.obj`, `dashHUD.obj`,
+  `physics.obj`, `AITUNE.obj`, `control.obj`, `souffle.obj`, and
+  `AIDATARECORD.obj`, `AITRIGER.obj`, `TRGSFX.obj`, and `AILIFE.obj`.
   The remaining mapped C++
   units still expose reconstruction-only declarations through the monolithic
   `nfs4_types.h` include graph and therefore are not yet source-exact.
@@ -156,7 +159,7 @@ Results:
 - all retail `this` adjustments are zero;
 - structural/target issues: 0;
 - retail targets absent from the symbol map: 0;
-- unsafe direct vtable-row indexing: 0 across 853 source files.
+- unsafe direct vtable-row indexing: 0 across 892 source files.
 
 Evidence:
 
@@ -296,6 +299,80 @@ The current source audits reflect these evidence-backed corrections:
   intentionally opaque declaration: the nine accesses use the proven 32-byte
   retail ABI directly instead of leaking a reconstruction-only `Trk_NewSlice`
   body.  All 22 AI-world functions remain byte-exact.
+- `chunk.obj` is exact at 72/72 named types and 2/2 anonymous types with no
+  source-only tag or typedef semantics.  Its owner header restores the retail
+  pointer-to-array `tPA32` spelling and preserves the omitted large
+  `GameSetup_tData` boundary through the proven `commMode` word access.  All
+  four chunk functions remain byte-exact.
+- `simqueue.obj` is exact at 74/74 named types and 2/2 anonymous types with its
+  `VALIDITY`, `Input_tResults`, `sim_queue`, `SIM_QUEUE`, and device-callback
+  records restored.  All seven existing PASS functions remain PASS and the
+  count-exact 4-diff `SimQueue_SetCurrentInput` residual is unchanged.
+- `stats.obj` is exact at 73/73 named types and 2/2 anonymous types with its
+  schedule and race-position records restored.  The source accesses only the
+  raw words of the externally owned GameSetup/simulation aggregates whose
+  bodies retail `stats.obj` does not emit.  All six existing PASS functions
+  remain PASS and the count-exact 44-diff `Stats_TrackEndGame` residual is
+  unchanged.
+- `aiperson.obj` is exact at 73/73 named types and 2/2 anonymous types.  Its
+  concrete `Udff_tInfo`, schedule, and observation-array records are restored
+  without leaking the absent `GameSetup_tData` owner body.  The documented
+  180-byte row/1060-byte field carrier reproduces the retail global access and
+  all eight personality functions remain byte-exact.
+- `dashHUD.obj` is exact at 74/74 named types and 2/2 anonymous types.  Its
+  owner header restores `Sched_tSchedule`, `forceFocus_t`, and the 108-byte
+  `dashhud_info` without exposing the absent GameSetup/camera/simulation owner
+  bodies.  The existing `BO_tNewtonObj::damage` int-array supplies a documented
+  zero-insn carrier for the retail 180-byte GameSetup car-row walk and its
+  1092/1096 HudSpeed pair.  All six dash-HUD functions remain byte-exact.
+- `physics.obj` is exact at 74/74 named types and 2/2 anonymous types.  Its
+  owner header restores `Sched_tSchedule`, concrete `Udff_tInfo`, the 48-byte
+  wheel-accumulator record, device callback, and opaque `Trk_NewSlice` pointer
+  exactly as emitted by the SYM.  Externally owned GameSetup/simulation bodies
+  remain hidden behind proven word/row carriers.  `BWorldSm_slices` is retained
+  as a loaded pointer to opaque 32-byte rows, preserving both the missing slice
+  body and retail address-formation RTL.  All 22 physics functions remain
+  byte-exact.
+- `AITUNE.obj` is exact at 76/76 named types and 2/2 anonymous types.  Its
+  owner surface adds only the SYM-emitted schedule and four tuning records plus
+  the observation-array typedef to the shared color graph.  The external
+  GameSetup and track-slice bodies remain opaque, with the loaded slice pointer
+  and proven track word represented directly.  All seven tuning functions
+  remain byte-exact.
+- `control.obj` is exact at 77/77 named types and 2/2 anonymous types.  Its
+  owner surface restores the schedule/focus, four sound-interface records,
+  observation array, and device callback actually emitted by the SYM.  The
+  absent simulation, GameSetup, and four-byte input bodies use proven external
+  word/component carriers.  Both control functions remain byte-exact.
+- `souffle.obj` is exact at 77/77 named types and 2/2 anonymous types.  Its
+  owner surface restores `DRender_tView`, `Souffle_tISouffle`, schedule, and
+  the three PsyQ kernel records actually present in this object.  The absent
+  simulation/replay-interface bodies remain external word carriers.  All ten
+  wind/particle functions remain byte-exact.
+- `AIDATARECORD.obj` is exact at 80/80 named types and 2/2 anonymous types.
+  Its owner header restores the two enums, base record, five derived record
+  classes, schedule, and observation-array typedef with the SYM inheritance
+  layouts.  The host-only `__nfs4_vtbl_ptr_t` compatibility carrier is filtered
+  at the same compiler boundary as PsyQ `_physadr`: retail GCC owns the
+  corresponding 8-byte `__vtbl_ptr_type` built-in and emits no application
+  source tag, while the reconstruction compiler ICEs when that built-in is
+  materialized as an extern array.  All 26 record functions remain byte-exact.
+- `AITRIGER.obj` is exact at 82/82 named types and 2/2 anonymous types.  Its
+  owner surface restores the trigger enums, parameter union, trigger/table,
+  manager, schedule, and observation-array records while keeping the omitted
+  simulation aggregate behind its proven word-1 `gameTicks` access.  All ten
+  trigger functions remain byte-exact.
+- `TRGSFX.obj` is exact at 83/83 named types and 2/2 anonymous types.  Its
+  owner surface restores the draw/track, schedule, PsyQ kernel, skidmark,
+  `tSkid`, and souffle records actually emitted by the object.  The absent
+  simulation and GameSetup bodies remain proven word carriers.  All eleven
+  trigger-SFX functions remain byte-exact.
+- `AILIFE.obj` is exact at 83/83 named types and 2/2 anonymous types.  Its
+  owner surface restores the draw/track, schedule, AI-physics, PsyQ kernel,
+  skidmark, and observation-array records.  The SYM does not materialize the
+  externally owned `Trk_NewSlice` or `GameSetup_tData` bodies, so the source
+  retains their 32-byte slice rows and word-12 `reverseTrack` field as proven
+  byte/word carriers.  All twenty life-cycle functions remain byte-exact.
 
 ## No-regression receipts
 
@@ -425,10 +502,32 @@ Current strict results:
   ambiguity for game `font.obj` versus the vendor `libgpu/FONT.obj`;
 - `frontend/common`: 41 mapped units remain DIFF and the now-empty artificial
   `mcrd.cpp` unit needs its objdiff ownership removed or reassigned;
-- `game/common`: 21 exact (`aidelaycar`, `aiscript`, `aiworld`, `anim`, `clock`, `color`,
-  `fastrand`, `genericpmx`, `group`, `hudpmx`, `input`, `mathnfs`, `minfront`, `new`,
-  `paths`, `quatern`, `schedule`, `simplemem`, `spchevnt`, `textsys`, `udff`)
-  and 54 DIFF.
+- `game/common`: 34 exact (`aidatarecord`, `aidelaycar`, `ailife`, `aiperson`, `aiscript`, `aitriger`, `aitune`, `aiworld`, `anim`, `chunk`, `clock`, `color`,
+  `control`, `dashhud`, `fastrand`, `genericpmx`, `group`, `hudpmx`, `input`, `mathnfs`, `minfront`, `new`,
+  `paths`, `physics`, `quatern`, `schedule`, `simqueue`, `simplemem`, `spchevnt`, `stats`,
+  `souffle`, `textsys`, `trgsfx`, `udff`) and 41 DIFF.
+
+The next 74-record candidate, `bworldSm.obj`, remains intentionally DIFF.  A
+28-word raw view of its externally owned 112-byte `Chunk` rows removed the
+extra type body but changed address formation/allocation in six of its 28 PASS
+functions; that experiment was fully reverted.  Closure needs a graph-visible
+field carrier that preserves the typed row/component RTL, not merely equivalent
+byte offsets.
+
+`replay.obj` also remains intentionally DIFF after a fully reverted owner-split
+experiment.  Its omitted `camera_info` body still drives typed 272-byte row
+induction and a 32-bit bitfield-container update in three PASS functions.
+Equivalent raw row/offset carriers changed `Replay_GetInterfaceKey`,
+`Replay_ReplayChooseCamera`, and `Replay_ReplayFindClosestCamera`; all replay
+source was restored and its 16/16 PASS baseline reconfirmed.  Closure needs a
+graph-visible carrier that preserves the common row base and word bitfield RTL.
+
+`aiphysic.obj` remains DIFF although 41/42 of its functions PASS.  Its retail
+graph carries an `AIDataRecord_TrackCurve_t *` identity and method call without
+emitting the pointed-to class body.  Adding the complete class would create a
+source-only tag, while falsifying the extern type would discard reliable SYM
+identity.  Closure needs a faithful opaque-method carrier that preserves both
+the retail type graph and the existing call ABI; no speculative edit was kept.
 
 The mapped C++ units cover all retail named and anonymous type bodies, but are
 not source-exact while they expose unrelated monolithic-header declarations or
@@ -441,6 +540,14 @@ Strict evidence:
 - [`type_graph_game_psx_strict_after_c_units_20260821.tsv`](scratchpad/root_sym_audit/type_graph_game_psx_strict_after_c_units_20260821.tsv)
 - [`type_graph_frontend_common_strict_20260821.tsv`](scratchpad/root_sym_audit/type_graph_frontend_common_strict_20260821.tsv)
 - [`type_graph_game_common_strict_after_aiworld_20260821.tsv`](scratchpad/root_sym_audit/type_graph_game_common_strict_after_aiworld_20260821.tsv)
+- [`type_graph_game_common_strict_after_chunk_simqueue_stats_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_strict_after_chunk_simqueue_stats_20260822.tsv)
+- [`type_graph_game_common_strict_after_aiperson_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_strict_after_aiperson_20260822.tsv)
+- [`type_graph_game_common_strict_after_dashhud_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_strict_after_dashhud_20260822.tsv)
+- [`type_graph_game_common_strict_after_physics_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_strict_after_physics_20260822.tsv)
+- [`type_graph_game_common_strict_after_aitune_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_strict_after_aitune_20260822.tsv)
+- [`type_graph_game_common_strict_after_control_souffle_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_strict_after_control_souffle_20260822.tsv)
+- [`type_graph_game_common_strict_after_aidatarecord_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_strict_after_aidatarecord_20260822.tsv)
+- [`type_graph_game_common_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_20260822.tsv)
 - exact owner receipts: [`memcard`](scratchpad/root_sym_audit/type_graph_memcard_semantic_exact_20260821.tsv),
   [`mdec`](scratchpad/root_sym_audit/type_graph_mdec_semantic_exact_20260821.tsv),
   [`video`](scratchpad/root_sym_audit/type_graph_video_isolated_20260821.tsv),
@@ -469,6 +576,19 @@ Strict evidence:
   [`input`](scratchpad/root_sym_audit/type_graph_input_exact_20260821.tsv), and
   [`aidelaycar`](scratchpad/root_sym_audit/type_graph_aidelaycar_exact_20260821.tsv), and
   [`aiworld`](scratchpad/root_sym_audit/type_graph_aiworld_exact_20260821.tsv).
+  Owner receipts for this round are [`chunk`](scratchpad/root_sym_audit/type_graph_chunk_final_20260822.tsv),
+  [`simqueue`](scratchpad/root_sym_audit/type_graph_simqueue_final_20260822.tsv), and
+  [`stats`](scratchpad/root_sym_audit/type_graph_stats_final_20260822.tsv), plus
+  [`aiperson`](scratchpad/root_sym_audit/type_graph_aiperson_final_20260822.tsv), and
+  [`dashhud`](scratchpad/root_sym_audit/type_graph_dashhud_final_20260822.tsv), and
+  [`physics`](scratchpad/root_sym_audit/type_graph_physics_final_20260822.tsv), and
+  [`aitune`](scratchpad/root_sym_audit/type_graph_aitune_final_20260822.tsv), plus
+  [`control`](scratchpad/root_sym_audit/type_graph_control_final_20260822.tsv), and
+  [`souffle`](scratchpad/root_sym_audit/type_graph_souffle_final_20260822.tsv), plus
+  [`aidatarecord`](scratchpad/root_sym_audit/type_graph_aidatarecord_final_20260822.tsv),
+  [`aitriger`](scratchpad/root_sym_audit/type_graph_aitriger_final_20260822.tsv),
+  [`trgsfx`](scratchpad/root_sym_audit/type_graph_trgsfx_final_20260822.tsv), and
+  [`ailife`](scratchpad/root_sym_audit/type_graph_ailife_final_20260822.tsv).
 
 Required closure:
 

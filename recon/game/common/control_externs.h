@@ -1,13 +1,17 @@
 /* game/common/control_externs.h - reconstructed externs for control.cpp. NOT original. */
 #ifndef _GAME_COMMON_CONTROL_EXTERNS_H_
 #define _GAME_COMMON_CONTROL_EXTERNS_H_
-#include "../../nfs4_types.h"
-
 /* ===== globals (all cross-TU; control.obj owns NO data) ===== */
-extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */
+extern int                simGlobal[2];       /* Sim.obj   (.gameTicks) */
+#define CONTROL_GAME_TICKS simGlobal[1]
 extern int                Cars_gNumAICars;     /* Cars.obj  */
-extern Input_tResults     Input_gSim;          /* Input.obj (sim controller results) */
-extern GameSetup_tData    GameSetup_gData;     /* GameSetup.obj (.mirrorTrack) */
+extern int                Input_gSim;          /* Input.obj (sim controller results) */
+#define CONTROL_INPUT_STEERING (*(signed char *)&Input_gSim)
+#define CONTROL_INPUT_GAS (((u_char *)&Input_gSim)[1])
+#define CONTROL_INPUT_BRAKE (((u_char *)&Input_gSim)[2])
+#define CONTROL_INPUT_FLAGS (((u_char *)&Input_gSim)[3])
+extern int                GameSetup_gData[12]; /* GameSetup.obj (.mirrorTrack) */
+#define CONTROL_MIRROR_TRACK GameSetup_gData[11]
 extern int                HudBustedOverlay;    /* Hud.obj   */
 
 /* ===== free helpers (cfront-mangled in originals; normal C++ linkage) ===== */

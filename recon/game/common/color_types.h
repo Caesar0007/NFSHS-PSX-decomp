@@ -103,6 +103,7 @@ struct Sched_tFunctionSchedule {
     void *var1, *var2;
 };
 
+#ifndef NFS4_OWNER_DEFINES_UDFF_TYPES
 typedef enum Udff_tAccessType {
     UDFF_FILE = 0,
     UDFF_MEMORY = 1
@@ -110,6 +111,7 @@ typedef enum Udff_tAccessType {
 /* Opaque in color.obj; the linked SYM resolves its owner-proven size to 12. */
 struct Udff_tInfo;
 typedef Udff_tInfo *Udff_tHandle;
+#endif
 
 struct AIPerson_t {
     int blockMaxDistance, blockMinDistance, oncomingLookAhead;

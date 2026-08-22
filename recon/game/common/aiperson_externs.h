@@ -2,13 +2,22 @@
  * Harvested from sibling *_externs.h + aiperson.cpp defs + the asm oracle. */
 #ifndef _GAME_COMMON_AIPERSON_EXTERNS_H_
 #define _GAME_COMMON_AIPERSON_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+extern "C" int fixedmult(int a, int b);
+extern "C" int sprintf(char *buffer, const char *format, ...);
+extern "C" char *strcpy(char *destination, const char *source);
 
 /* arrays (technique #1: indexed globals so gcc computes a separate base reg) */
 extern Car_tObj         *Cars_gList[];
 extern Car_tObj         *Cars_gHumanRaceCarList[];
-extern GameSetup_tData   GameSetup_gData;
+extern int GameSetup_gData[19];
+#define AIPERSON_RACE_TYPE GameSetup_gData[0]
+#define AIPERSON_WEATHER GameSetup_gData[18]
+/* Retail walks the GameSetup car rows at 180 bytes and loads Personality at
+ * aggregate offset 1060.  GameSetup_tData is intentionally absent from this
+ * owner's SYM graph; angularVel_ch.x is an existing graph-visible 1060-byte
+ * member displacement and therefore preserves that exact zero-insn access. */
+#define AIPERSON_PERSONALITY_AT(index) \
+    (((Car_tObj *)((char *)GameSetup_gData + (index) * 180))->angularVel_ch.x)
 extern char              GameSetup_gPersonalityNames[][8];
 
 extern int               Cars_gNumCars;

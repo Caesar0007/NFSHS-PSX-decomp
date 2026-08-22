@@ -1,5 +1,4 @@
-/* dashhud_externs.h -- cross-TU decls for game/common/dashhud.cpp (NFS4 dash HUD).
- *   Types (Car_tObj, dashhud_info) live in nfs4_types.h. dashhud OWNS resethud + DashHUD_gInfo (.cpp). */
+/* dashhud_externs.h -- cross-TU decls for game/common/dashhud.cpp (NFS4 dash HUD). */
 #ifndef DASHHUD_EXTERNS_H
 #define DASHHUD_EXTERNS_H
 
@@ -14,10 +13,26 @@ extern void Hud_Kill(void);                                                     
 extern void Hud_PositionMap(void);                                                  /* hud.obj */
 
 /* ---- cross-TU globals ---- */
-extern GameSetup_tData   GameSetup_gData;            /* gmesetup.obj */
+/* GameSetup_tData is absent from dashHUD.obj's retail type graph.  The exact
+ * shared Car_tObj graph nevertheless provides a real int-array component at
+ * +536; over-indexing N.damage to 139/140 gives the retail aggregate
+ * 1092/1096 HudSpeed pair while preserving the 180-byte car-row induction. */
+extern int               GameSetup_gData[274];       /* gmesetup.obj */
+#define DASHHUD_RACE_TYPE GameSetup_gData[0]
+#define DASHHUD_NUM_LAPS GameSetup_gData[1]
+#define DASHHUD_COMMMODE GameSetup_gData[3]
+#define DASHHUD_CHECKPOINT_TYPE GameSetup_gData[47]
+#define DASHHUD_BEST_LAP GameSetup_gData[58]
+#define DASHHUD_CAR_ROW(index) \
+    ((Car_tObj *)((char *)GameSetup_gData + (index) * 180))
+#define DASHHUD_HUD_SPEED(index) (DASHHUD_CAR_ROW(index)->N.damage[139])
+#define DASHHUD_HUD_SPEED_MULT(index) (DASHHUD_CAR_ROW(index)->N.damage[140])
 extern int               Replay_ReplayMode;          /* replay.obj */
-extern camera_info       Camera_gInfo[2];            /* camera.obj */
+extern int               Camera_gInfo[];             /* camera.obj */
+#define DASHHUD_CAMERA_ANCHOR(player) \
+    (*(BO_tNewtonObj **)((char *)Camera_gInfo + (player) * 272))
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
-extern Sim_tSimGlobalVar simGlobal;                  /* sim.obj */
+extern int               simGlobal[2];               /* sim.obj */
+#define DASHHUD_GAME_TICKS simGlobal[1]
 
 #endif /* DASHHUD_EXTERNS_H */

@@ -4,7 +4,7 @@
  *   (crash debris), TrgSfx_AddSkidmark (per-wheel skid-trail state machine -> Skidmark_*),
  *   TrgSfx_Init/Restart/KillTrgSfx (state reset). No GTE.
  */
-#include "../../nfs4_types.h"
+#include "trgsfx_types.h"
 #include "trgsfx_externs.h"
 
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
@@ -42,8 +42,8 @@ void TrgSfx_AddEnviroEffect(int obj,int type,coorddef *emitterpt,coorddef *vec)
   int c;
 
   c = obj & 7;
-  if (10 < simGlobal.gameTicks - gTEnviroEffect[c]) {
-    gTEnviroEffect[c] = simGlobal.gameTicks;
+  if (10 < TRGSFX_GAME_TICKS - gTEnviroEffect[c]) {
+    gTEnviroEffect[c] = TRGSFX_GAME_TICKS;
     Souffle_Add(emitterpt,type,vec,0,0,0);
   }
   return;
@@ -56,8 +56,8 @@ void TrgSfx_AddCarSfx(int car,coorddef *skidpt,int type,coorddef *vec)
   int c;
 
   c = car & 7;
-  if (7 < simGlobal.gameTicks - gTAddCarSfx[c]) {
-    gTAddCarSfx[c] = simGlobal.gameTicks;
+  if (7 < TRGSFX_GAME_TICKS - gTAddCarSfx[c]) {
+    gTAddCarSfx[c] = TRGSFX_GAME_TICKS;
     Souffle_Add(skidpt,type,vec,0,0,0);
   }
   return;
@@ -68,11 +68,11 @@ void TrgSfx_AddCarWheelSfx(int car,int wheel,coorddef *skidpt,int type,coorddef 
 
 {
   car = car & 7;
-  if (delay < simGlobal.gameTicks - gTAddCarWheelSfx[car][wheel]) {
+  if (delay < TRGSFX_GAME_TICKS - gTAddCarWheelSfx[car][wheel]) {
     coorddef dir = *vec;
     dir.x = dir.x >> 1;
     dir.z = dir.z >> 1;
-    gTAddCarWheelSfx[car][wheel] = simGlobal.gameTicks;
+    gTAddCarWheelSfx[car][wheel] = TRGSFX_GAME_TICKS;
     Souffle_Add(skidpt,type,&dir,0,0,0);
   }
   return;
@@ -85,7 +85,7 @@ bool TrgSfx_AddCarExtraCheck(int car,int wheel)
   int c;
 
   c = car & 7;
-  return (simGlobal.gameTicks - gTAddCarExtraSfx[c][wheel] < 8 ^ 1);
+  return (TRGSFX_GAME_TICKS - gTAddCarExtraSfx[c][wheel] < 8 ^ 1);
 }
 
 /* ---- TrgSfx_AddCarExtraSfx__FiiP8coorddefiT2iii  [TRGSFX.CPP:101-111] SLD-VERIFIED ---- */
@@ -98,7 +98,7 @@ void TrgSfx_AddCarExtraSfx(int car,int wheel,coorddef *skidpt,int type,coorddef 
   car = car & 7;
   dir = *vec;
   dir.y = dir.y + (velY >> 3);
-  gTAddCarExtraSfx[car][wheel] = simGlobal.gameTicks;
+  gTAddCarExtraSfx[car][wheel] = TRGSFX_GAME_TICKS;
   Souffle_Add(skidpt,type,&dir,0,ground,colour);
   return;
 }
@@ -108,11 +108,11 @@ void TrgSfx_AddCarSplash(int car,int wheel,coorddef *skidpt,int type,coorddef *v
 
 {
   car = car & 7;
-  if (delay < simGlobal.gameTicks - gTAddCarWheelSfx[car][wheel]) {
+  if (delay < TRGSFX_GAME_TICKS - gTAddCarWheelSfx[car][wheel]) {
     coorddef dir = *vec;
     dir.x = dir.x >> 1;
     dir.z = dir.z >> 1;
-    gTAddCarWheelSfx[car][wheel] = simGlobal.gameTicks;
+    gTAddCarWheelSfx[car][wheel] = TRGSFX_GAME_TICKS;
     Souffle_Add(skidpt,type,&dir,velXZ,0,0);
   }
   return;
@@ -125,8 +125,8 @@ void TrgSfx_CrashCar(coorddef *location)
   u_int rnd;
   Souffle_tISouffle *is;
 
-  if (4 < simGlobal.gameTicks - gTAddCSmoke) {
-    gTAddCSmoke = simGlobal.gameTicks;
+  if (4 < TRGSFX_GAME_TICKS - gTAddCSmoke) {
+    gTAddCSmoke = TRGSFX_GAME_TICKS;
     rnd = random();
     if ((rnd & 0xf) != 0) {
       is = Souffle_Add(location,1,(coorddef *)0x0,0,0,0);
@@ -232,8 +232,8 @@ void TrgSfx_InitTrgSfx(void)
   int j;
   int t;
 
-  t = simGlobal.gameTicks;
-  gTAddCSmoke = simGlobal.gameTicks;
+  t = TRGSFX_GAME_TICKS;
+  gTAddCSmoke = TRGSFX_GAME_TICKS;
   for (i = 0; i < 8; i = i + 1) {
     gTEnviroEffect[i] = t;
     gTAddCarSfx[i] = t;
@@ -248,7 +248,7 @@ void TrgSfx_InitTrgSfx(void)
     }
   }
   gTAddCarWheelDelay = 8;
-  if (GameSetup_gData.commMode == 1) {
+  if (TRGSFX_COMM_MODE == 1) {
     gTAddCarWheelDelay = 0xc;
   }
   return;

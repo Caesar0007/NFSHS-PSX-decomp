@@ -1,7 +1,7 @@
 /* game/common/dashhud.cpp -- RECONSTRUCTED (NFS4 PSX dash HUD init/calc; C++ TU)
  *   6 free fns: DashHUD_InitHUD/KillHUD/ResetHUD/ToggleHud/CheckWrongWay/HUDCalc. GTE-free.
  */
-#include "../../nfs4_types.h"
+#include "dashhud_types.h"
 #include "dashhud_externs.h"
 
 /* ---- dashhud.obj OWNED globals (EXT; SYM Globals.jsonl) ---- */
@@ -24,13 +24,13 @@ void DashHUD_InitHUD(void)
   int i;
 
   i = 0;
-  DashHUD_gInfo.splitscreen = (int)(GameSetup_gData.commMode == 1);
+  DashHUD_gInfo.splitscreen = (int)(DASHHUD_COMMMODE == 1);
   while (i <= DashHUD_gInfo.splitscreen) {
-    if (GameSetup_gData.carInfo[i].HudSpeed == 0) {
-      GameSetup_gData.carInfo[i].HudSpeedMult = 0x23ca5;
+    if (DASHHUD_HUD_SPEED(i) == 0) {
+      DASHHUD_HUD_SPEED_MULT(i) = 0x23ca5;
     }
-    else if (GameSetup_gData.carInfo[i].HudSpeed == 1) {
-      GameSetup_gData.carInfo[i].HudSpeedMult = 0x39999;
+    else if (DASHHUD_HUD_SPEED(i) == 1) {
+      DASHHUD_HUD_SPEED_MULT(i) = 0x39999;
     }
     i = i + 1;
   }
@@ -46,7 +46,7 @@ void DashHUD_InitHUD(void)
   DashHUD_gInfo.wrongway[0] = 0;
   DashHUD_gInfo.wrongway[1] = 0;
   if (Replay_ReplayMode < 2) {
-    DashHUD_gInfo.record = GameSetup_gData.userSetting.bestlap;
+    DashHUD_gInfo.record = DASHHUD_BEST_LAP;
   }
   else {
     DashHUD_gInfo.record = 0;
@@ -54,7 +54,7 @@ void DashHUD_InitHUD(void)
   DashHUD_gInfo.tutor = 0;
   DashHUD_gInfo.warning[0] = 0;
   DashHUD_gInfo.warning[1] = 0;
-  DashHUD_gInfo.maxlaps = GameSetup_gData.numLaps;
+  DashHUD_gInfo.maxlaps = DASHHUD_NUM_LAPS;
   HudPmx_InitTextures();
   Hud_Init0();
   Hud_Init();
@@ -75,7 +75,7 @@ void DashHUD_ResetHUD(void)
 
 {
   if (Replay_ReplayMode < 2) {
-    DashHUD_gInfo.record = GameSetup_gData.userSetting.bestlap;
+    DashHUD_gInfo.record = DASHHUD_BEST_LAP;
   }
   else {
     DashHUD_gInfo.record = 0;
@@ -106,7 +106,7 @@ void DashHUD_CheckWrongWay(int player)
   BO_tNewtonObj *pBVar1;
   int iVar2;
   
-  pBVar1 = Camera_gInfo[player].anchor[1].collision.lastOtherObj;
+  pBVar1 = DASHHUD_CAMERA_ANCHOR(player)[1].collision.lastOtherObj;
   iVar2 = 0;
   if ((0x3f < (int)pBVar1) && (iVar2 = 2, (int)pBVar1 < 0x94)) {
     iVar2 = 1;
@@ -133,18 +133,18 @@ void DashHUD_HUDCalc(int player)
   if (DashHUD_gInfo.lap > DashHUD_gInfo.maxlaps) {
     DashHUD_gInfo.lap = DashHUD_gInfo.maxlaps;
   }
-  if (simGlobal.gameTicks < 0x200) {
+  if (DASHHUD_GAME_TICKS < 0x200) {
     DashHUD_gInfo.laptime = 0;
     DashHUD_gInfo.flashtime = 0;
     goto DashHudCalc_lapTimeCheck;
   }
   if ((car->stats).lap != 0) {
-    if ((simGlobal.gameTicks - (car->stats).lapTime < 0x140) ||
+    if ((DASHHUD_GAME_TICKS - (car->stats).lapTime < 0x140) ||
         ((car->stats).finishType == 2)) {
     DashHUD_gInfo.laptime = (car->stats).time[(car->stats).lap + -1];
-    if (((GameSetup_gData.raceType != RaceType_Id4) && (Replay_ReplayMode < 2)) &&
+    if (((DASHHUD_RACE_TYPE != RaceType_Id4) && (Replay_ReplayMode < 2)) &&
        ((DashHUD_gInfo.record == 0 ||
-        ((DashHUD_gInfo.laptime < DashHUD_gInfo.record || (GameSetup_gData.checkpointType == 4))))))
+        ((DashHUD_gInfo.laptime < DashHUD_gInfo.record || (DASHHUD_CHECKPOINT_TYPE == 4))))))
     {
       DashHUD_gInfo.flashtime = 1;
       DashHUD_gInfo.record = DashHUD_gInfo.laptime;
@@ -153,10 +153,10 @@ void DashHUD_HUDCalc(int player)
     if (DashHUD_gInfo.record == DashHUD_gInfo.laptime) {
       DashHUD_gInfo.flashtime = 1;
     }
-    if ((car->stats).sliceTime + 0xc0 < simGlobal.gameTicks) {
+    if ((car->stats).sliceTime + 0xc0 < DASHHUD_GAME_TICKS) {
       DashHUD_gInfo.flashtime = 0;
     }
-    if ((DashHUD_gInfo.flashtime != 0) && ((simGlobal.gameTicks & 0x10U) != 0)) {
+    if ((DashHUD_gInfo.flashtime != 0) && ((DASHHUD_GAME_TICKS & 0x10U) != 0)) {
       if (resethud == 0) {
         resethud = 1;
       }
@@ -168,13 +168,13 @@ void DashHUD_HUDCalc(int player)
     goto DashHudCalc_lapTimeCheck;
     }
   }
-  DashHUD_gInfo.laptime = simGlobal.gameTicks - (car->stats).lapTime;
+  DashHUD_gInfo.laptime = DASHHUD_GAME_TICKS - (car->stats).lapTime;
   DashHUD_gInfo.flashtime = 0;
   if (resethud != 0) {
     resethud = 0;
   }
 DashHudCalc_lapTimeCheck:
-  if ((simGlobal.gameTicks - (car->stats).lapTime < 0x140) &&
+  if ((DASHHUD_GAME_TICKS - (car->stats).lapTime < 0x140) &&
      (DashHUD_gInfo.lap == DashHUD_gInfo.maxlaps)) {
     DashHUD_gInfo.flashlap = 1;
   }

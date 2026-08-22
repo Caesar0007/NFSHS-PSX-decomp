@@ -2,7 +2,7 @@
  *   Player-action submission + reaction-table processing. SYM-v3 locals; vs disasm-v2.txt.
  *   NOT original source; SYM-faithful, recompilable C++.
  */
-#include "../../nfs4_types.h"
+#include "ailife_types.h"
 #include "ailife_externs.h"
 
 #define WRAP_SLICE(a,b) (((a) >= 0) \
@@ -105,7 +105,7 @@ void AILife_RCPickSliceAndDirection(Car_tObj *carObj)
       int basisOuterSlice =
           (int)(carObj->basisCar->N).simRoadInfo.slice;
       basisOuterSlice = WRAP_SLICE(approachSide * 0x24, basisOuterSlice);
-      basisOuterCoord = *(coorddef *)BWorldSm_slices[basisOuterSlice].center;
+      basisOuterCoord = *AILIFE_SLICE_CENTER(basisOuterSlice);
       if ((AILife_IsCoordInThisVisibleArea(&basisOuterCoord,checkCar) != 0) &&
           (0 < approachSide *
                (AIWorld_ApxSplineDistance(checkCar,carObj->basisCar) / 0x10000))) {
@@ -126,7 +126,7 @@ void AILife_RCPickSliceAndDirection(Car_tObj *carObj)
     carObj->direction = 1;
   }
   if (AITune_oneWay != 0) {
-    carObj->direction = GameSetup_gData.reverseTrack == 0 ? 1 : -1;
+    carObj->direction = AILIFE_REVERSE_TRACK == 0 ? 1 : -1;
   }
   randtemp = fastRandom * randSeed;
   fastRandom = randtemp & 0xffff;
@@ -158,22 +158,22 @@ void AILife_RCPickDesiredLatPosition(Car_tObj *carObj)
 
   newSlice = (int)(carObj->N).simRoadInfo.slice;
   if (carObj->direction == AITune_driveSide) {
-    width = BWorldSm_slices[newSlice].avgPavedWidthRt;
+    width = AILIFE_SLICE_WIDTH_RT(newSlice);
     randtemp = fastRandom * randSeed;
     fastRandom = randtemp & 0xffff;
     width = width << 0xf;
-    randNumLanes = BWorldSm_slices[newSlice].laneCount & 0xf;
+    randNumLanes = AILIFE_SLICE_LANE_COUNT(newSlice) & 0xf;
     randNumLanes =
         (randNumLanes * (randtemp >> 8 & 0xffff) >> 0x10) + 1;
     carObj->desiredLatPos =
         width * randNumLanes - ((u_int)width >> 1);
   }
   else {
-    width = BWorldSm_slices[newSlice].avgPavedWidthLf;
+    width = AILIFE_SLICE_WIDTH_LF(newSlice);
     randtemp = fastRandom * randSeed;
     fastRandom = randtemp & 0xffff;
     width = width << 0xf;
-    randNumLanes = BWorldSm_slices[newSlice].laneCount >> 4;
+    randNumLanes = AILIFE_SLICE_LANE_COUNT(newSlice) >> 4;
     randNumLanes =
         (randNumLanes * (randtemp >> 8 & 0xffff) >> 0x10) + 1;
     carObj->desiredLatPos =
@@ -351,7 +351,7 @@ void AILife_ReencarnateCopBySlice(Car_tObj *carObj,int slice,int travelDirection
   (carObj->N).simRoadInfo.slice = (short)slice;
   if (AITune_oneWay != 0) {
     travelDirection = -1;
-    if (GameSetup_gData.reverseTrack == 0) {
+    if (AILIFE_REVERSE_TRACK == 0) {
       travelDirection = 1;
     }
   }
@@ -361,29 +361,29 @@ void AILife_ReencarnateCopBySlice(Car_tObj *carObj,int slice,int travelDirection
     if (roadSide == -1) {
       carObj->desiredLatPos =
           -0x20000 -
-          (BWorldSm_slices[slice].avgPavedWidthLf << 15) *
-          (BWorldSm_slices[slice].laneCount >> 4);
+          (AILIFE_SLICE_WIDTH_LF(slice) << 15) *
+          (AILIFE_SLICE_LANE_COUNT(slice) >> 4);
     }
     else {
       carObj->desiredLatPos =
-          (BWorldSm_slices[slice].avgPavedWidthRt << 15) *
-          (BWorldSm_slices[slice].laneCount & 0xf) + 0x20000;
+          (AILIFE_SLICE_WIDTH_RT(slice) << 15) *
+          (AILIFE_SLICE_LANE_COUNT(slice) & 0xf) + 0x20000;
     }
   }
   else {
     if ((carObj->direction == 1) ||
-        ((BWorldSm_slices[slice].laneCount >> 4) == 0)) {
+        ((AILIFE_SLICE_LANE_COUNT(slice) >> 4) == 0)) {
       int width;
       int numLanes;
-      width = BWorldSm_slices[slice].avgPavedWidthRt << 15;
-      numLanes = BWorldSm_slices[slice].laneCount & 0xf;
+      width = AILIFE_SLICE_WIDTH_RT(slice) << 15;
+      numLanes = AILIFE_SLICE_LANE_COUNT(slice) & 0xf;
       carObj->desiredLatPos = width * numLanes - ((u_int)width >> 1);
     }
     else {
       int width;
-      width = BWorldSm_slices[slice].avgPavedWidthLf << 15;
+      width = AILIFE_SLICE_WIDTH_LF(slice) << 15;
       carObj->desiredLatPos =
-          -width * (BWorldSm_slices[slice].laneCount >> 4) +
+          -width * (AILIFE_SLICE_LANE_COUNT(slice) >> 4) +
           ((u_int)width >> 1);
     }
   }
@@ -413,7 +413,7 @@ void AILife_ReencarnateCopByPosition(Car_tObj *carObj,int slice,int travelDirect
   (carObj->N).simRoadInfo.slice = (short)slice;
   if (AITune_oneWay != 0) {
     travelDirection = -1;
-    if (GameSetup_gData.reverseTrack == 0) {
+    if (AILIFE_REVERSE_TRACK == 0) {
       travelDirection = 1;
     }
   }
@@ -454,7 +454,7 @@ void AILife_ReencarnateCopByLatPosAndRotation(Car_tObj *carObj,int slice,int tra
   (carObj->N).simRoadInfo.slice = (short)slice;
   if (AITune_oneWay != 0) {
     travelDirection = -1;
-    if (GameSetup_gData.reverseTrack == 0) {
+    if (AILIFE_REVERSE_TRACK == 0) {
       travelDirection = 1;
     }
   }

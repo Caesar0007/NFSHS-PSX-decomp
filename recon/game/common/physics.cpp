@@ -2,7 +2,7 @@
  *   22 fns: SimCar/Real driver + tire forces, traction circle, accel, autoshift, barrier, RS control.
  *   GTE-free (fixed-point + eaclib math). Full SYM-locals applied.
  */
-#include "../../nfs4_types.h"
+#include "physics_types.h"
 #include "physics_externs.h"
 
 /* EA-era MIN/MAX clamp macros.  The oracle proves retail used the TERNARY form
@@ -233,7 +233,7 @@ void Physics_CalculateDerivedCarSpecs(Car_tObj *carObj)
                (carObj->specs->maxSpeed / 0x10000) *
                (carObj->specs->maxSpeed / 0x10000));
 
-  if (7 < GameSetup_gData.track) {
+  if (7 < PHYSICS_TRACK) {
     carObj->specs->gasOffFactor = carObj->specs->gasOffFactor + 0x2666;
     carObj->specs->frontBrakeRatio = carObj->specs->frontBrakeRatio - 0x2666;
     carObj->specs->frontGripBias = carObj->specs->frontGripBias + 0x147;
@@ -491,12 +491,12 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
     int raw1;
     int raw2;
     int raw3;
-    raw1 = (int)(signed char)BWorldSm_slices[slice].right[0];
-    raw3 = (int)(signed char)BWorldSm_slices[slice].right[2];
+    raw1 = (int)(signed char)PHYSICS_SLICE_RIGHT(slice,0);
+    raw3 = (int)(signed char)PHYSICS_SLICE_RIGHT(slice,2);
     __asm__("" : : "r"(raw3), "r"(raw3));
     r1 = raw1 << 9;
     __asm__("" : : "r"(raw1), "r"(raw1));
-    raw2 = (int)(signed char)BWorldSm_slices[slice].right[1];
+    raw2 = (int)(signed char)PHYSICS_SLICE_RIGHT(slice,1);
     collide = diff;
     right.x = r1;
     __asm__("" : "+m"(right.x));
@@ -509,31 +509,31 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
     __asm__("" : "+m"(right.y), "+m"(right.z));
     }
 
-    centerX = BWorldSm_slices[slice].center[0];
+    centerX = PHYSICS_SLICE_CENTER(slice,0);
     __asm__("" : : "r"(centerX), "r"(centerX));
     positionX = (carObj->N).position.x;
     velocityX = positionX + ((carObj->N).linearVel.x >> 5) - centerX;
     __asm__("" : : "r"(velocityX), "r"(velocityX));
     vel_b.x = velocityX;
     __asm__("" : : "r"(positionX));
-    centerY = BWorldSm_slices[slice].center[1];
+    centerY = PHYSICS_SLICE_CENTER(slice,1);
     __asm__("" : : "r"(centerY), "r"(centerY));
     positionY = (carObj->N).position.y;
     velocityY = positionY + ((carObj->N).linearVel.y >> 5) - centerY;
     __asm__("" : : "r"(velocityY));
     vel_b.y = velocityY;
     __asm__("" : : "r"(positionY));
-    centerZ = BWorldSm_slices[slice].center[2];
+    centerZ = PHYSICS_SLICE_CENTER(slice,2);
     __asm__("" : : "r"(centerZ), "r"(centerZ));
     linearZ = (carObj->N).linearVel.z;
     positionZ = (carObj->N).position.z;
-    __asm__("" : : "r"(BWorldSm_slices + slice),
-                 "r"(BWorldSm_slices + slice),
-                 "r"(BWorldSm_slices + slice),
-                 "r"(BWorldSm_slices + slice),
-                 "r"(BWorldSm_slices + slice),
-                 "r"(BWorldSm_slices + slice),
-                 "r"(BWorldSm_slices + slice));
+    __asm__("" : : "r"(PHYSICS_SLICE_ADDR(slice)),
+                 "r"(PHYSICS_SLICE_ADDR(slice)),
+                 "r"(PHYSICS_SLICE_ADDR(slice)),
+                 "r"(PHYSICS_SLICE_ADDR(slice)),
+                 "r"(PHYSICS_SLICE_ADDR(slice)),
+                 "r"(PHYSICS_SLICE_ADDR(slice)),
+                 "r"(PHYSICS_SLICE_ADDR(slice)));
     velocityZ = positionZ + (linearZ >> 5) - centerZ;
     centerKeep = centerZ;
     __asm__("" : : "r"(velocityZ), "r"(velocityZ), "r"(velocityZ),
@@ -588,18 +588,18 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
       ((carObj->N).dimension.x / 0x100 * ((x1 + x2 + x3) / 0x100)) :
       -((carObj->N).dimension.x / 0x100 * ((x1 + x2 + x3) / 0x100));
     }
-    if (x_relRoad < carCollisionWidth - BWorldSm_slices[slice].leftDrive * 0x100 -
+    if (x_relRoad < carCollisionWidth - PHYSICS_SLICE_LEFT_DRIVE(slice) * 0x100 -
                         carObj->extraWallCollisionAllowance) {
       collide = -1;
-      diff = carCollisionWidth - BWorldSm_slices[slice].leftDrive * 0x100 -
+      diff = carCollisionWidth - PHYSICS_SLICE_LEFT_DRIVE(slice) * 0x100 -
              x_relRoad;
       currentWallType = 1;
     }
-    if (BWorldSm_slices[slice].rightDrive * 0x100 - carCollisionWidth +
+    if (PHYSICS_SLICE_RIGHT_DRIVE(slice) * 0x100 - carCollisionWidth +
             carObj->extraWallCollisionAllowance < x_relRoad) {
       collide = 1;
       diff = x_relRoad -
-             (BWorldSm_slices[slice].rightDrive * 0x100 - carCollisionWidth);
+             (PHYSICS_SLICE_RIGHT_DRIVE(slice) * 0x100 - carCollisionWidth);
       currentWallType = 1;
     }
   }
@@ -916,10 +916,10 @@ void Physics_RampCarControlValues(Car_tObj *carObj)
   if ((carObj->control).gearShiftTimer > 0) {
     (carObj->control).gearShiftTimer--;
   }
-  if (0x200 < simGlobal.gameTicks) {
-    if (GameSetup_gData.carInfo[carObj->carIndex].Transmission == 1) {
-      if ((simGlobal.gameTicks < 0x208) &&
-         (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) ||
+  if (0x200 < PHYSICS_GAME_TICKS) {
+    if (PHYSICS_TRANSMISSION_AT(carObj->carIndex) == 1) {
+      if ((PHYSICS_GAME_TICKS < 0x208) &&
+         (((PHYSICS_RACE_TYPE != RaceType_HotPursuit && (PHYSICS_RACE_TYPE != RaceType_Id5)) ||
           (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0 &&
            ((Cars_gNumHumanRaceCars != 2 || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0))))
           )))) {
@@ -956,7 +956,7 @@ void Physics_RampCarControlValues(Car_tObj *carObj)
       }
     }
     if ((carObj->control).desiredGear != (carObj->control).gear) {
-      if ((GameSetup_gData.carInfo[carObj->carIndex].Transmission == 1) ||
+      if ((PHYSICS_TRANSMISSION_AT(carObj->carIndex) == 1) ||
           (carObj->RSControl != 0)) {
         if ((u_char)(carObj->control).desiredGear < 2) {
           (carObj->control).downShifting = '\0';
@@ -1023,8 +1023,8 @@ RampCtrl_setSteering:
     (carObj->control).steering = (carObj->control).desiredSteering;
   }
 RampCtrl_earlyBrake:
-  if ((simGlobal.gameTicks < 0x200) &&
-     (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) ||
+  if ((PHYSICS_GAME_TICKS < 0x200) &&
+     (((PHYSICS_RACE_TYPE != RaceType_HotPursuit && (PHYSICS_RACE_TYPE != RaceType_Id5)) ||
       (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0 &&
        ((Cars_gNumHumanRaceCars != 2 || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0))))))))
   {
@@ -1069,7 +1069,7 @@ RampCtrl_earlyBrake:
      retail's.  Routing it through iVar5 first only reaches 22/26 -- the operand
      must be the field read itself (methodology 5.0c __builtin_abs lever). */
   gSteerRatio = __builtin_abs((carObj->control).steering) << 9;
-  if (((GameSetup_gData.carInfo[carObj->carIndex].Transmission == 1) &&
+  if (((PHYSICS_TRANSMISSION_AT(carObj->carIndex) == 1) &&
       ((carObj->control).gear == '\0')) && ((carObj->control).hanno == 1)) {
     iVar5 = (((u_char)(carObj->control).brakeLevel + 1) * 0x10000) / 0xf8;
     if (0x10000 < iVar5) {
@@ -1482,7 +1482,7 @@ Phy_CalcAcc_clearWheelSpinExit:
     carObj->wheelSpin = 0;
     goto Phy_CalcAcc_finalAdjustReturn;
   }
-  if ((GameSetup_gData.carInfo[carObj->carIndex].Transmission == 1) || (carObj->RSControl != 0)) {
+  if ((PHYSICS_TRANSMISSION_AT(carObj->carIndex) == 1) || (carObj->RSControl != 0)) {
     Physics_AutoShift(carObj);
   }
   if (((carObj->control).gearShiftTimer != '\0') && ((carObj->control).downShifting == '\0')) {
@@ -1600,7 +1600,7 @@ Phy_CalcAcc_clearWheelSpinExit:
       carObj->flywheelRpm = temp;
       __asm__("" : : "r"(desiredRpm), "r"(desiredRpm), "r"(desiredRpm), "r"(desiredRpm));
       ratio = __builtin_abs(carObj->slide) + 0x10000;
-      if ((GameSetup_gData.sgge & 8U) != 0) {
+      if ((PHYSICS_SGGE & 8U) != 0) {
         if (0x30000 < ratio) {
           ratio = 0x30000;
         }
@@ -1970,7 +1970,7 @@ void Physics_CalculateTireForces(Car_tObj *carObj,Physics_tWheelAccStruct *wheel
       wheel->acc = -wheel->roadGrip;
     }
     if ((carObj->carInfo->ABS != 0) && (carObj->linearVel_ch.z < 0x190000)) {
-      if ((simGlobal.gameTicks & 3U) == 0) {
+      if ((PHYSICS_GAME_TICKS & 3U) == 0) {
         wheel->skid = 0x80000;
       }
       else {
@@ -2150,7 +2150,7 @@ int Physics_CalculateRSControlDesiredPosition(Car_tObj *carObj,int sliceAhead,in
            (desLane < 10)) {
       desLane = desLane + 1;
     }
-    laneOffset = (u_int)BWorldSm_slices[sliceAhead].avgPavedWidthRt * 0x8000;
+    laneOffset = (u_int)PHYSICS_SLICE_WIDTH_RT(sliceAhead) * 0x8000;
     position = (desLane - 7) * laneOffset + ((u_int)laneOffset >> 1);
     if (0 < desLane - 7) {
       position = position + 0x18000;
@@ -2169,7 +2169,7 @@ int Physics_CalculateRSControlDesiredPosition(Car_tObj *carObj,int sliceAhead,in
       desLane = desLane - 1;
     }
     laneDelta = 6 - desLane;
-    laneOffset = (u_int)BWorldSm_slices[sliceAhead].avgPavedWidthLf * 0x8000;
+    laneOffset = (u_int)PHYSICS_SLICE_WIDTH_LF(sliceAhead) * 0x8000;
     position = laneDelta * laneOffset + ((u_int)laneOffset >> 1);
     return (0 < laneDelta) ? -(position + 0x18000) : -position;
   }
@@ -2234,7 +2234,7 @@ void Physics_Real(Car_tObj *carObj)
   specs = carObj->specs;
   steeringControl = 1;
   powerControl = 1;
-  if ((GameSetup_gData.Weather != 0) &&
+  if ((PHYSICS_WEATHER != 0) &&
       ((((int)BWorldSm_TunnelFlagSm(&(carObj->N).simRoadInfo)) ^ 1) != 0)) {
     slippery = 1;
   }
@@ -2525,7 +2525,7 @@ void Physics_Real(Car_tObj *carObj)
   (carObj->linearAcc_ch).x = frontWheel.finalAcc.x + rearWheel.finalAcc.x;
   (carObj->linearAcc_ch).z =
       fixedmult((carObj->linearAcc_ch).z,specs->lateralGripMultInv);
-  if (((GameSetup_gData.sgge == 0x80) &&
+  if (((PHYSICS_SGGE == 0x80) &&
        (0 < (carObj->linearAcc_ch).z)) &&
       ((carObj->control).horn != '\0')) {
     (carObj->linearAcc_ch).z <<= 2;
@@ -2607,7 +2607,7 @@ void Physics_Real(Car_tObj *carObj)
   if ((((carObj->N).angularVel.y > 0) && (finalAngularAcc_ch.y > 0)) ||
       (((carObj->N).angularVel.y < 0) && (finalAngularAcc_ch.y < 0))) {
     if (((carObj->control).handBrake != '\0') &&
-        ((GameSetup_gData.sgge & 8U) == 0)) {
+        ((PHYSICS_SGGE & 8U) == 0)) {
       finalAngularAcc_ch.y = finalAngularAcc_ch.y / 2;
     }
     else {
@@ -2756,18 +2756,18 @@ void Physics_Real(Car_tObj *carObj)
         coorddef offset;
 
         carPos = (carObj->N).position;
-        dirVector = *(coorddef *)BWorldSm_slices[sliceAhead].center;
+        dirVector = *(coorddef *)PHYSICS_SLICE_ADDR(sliceAhead);
         roadPosition =
             Physics_CalculateRSControlDesiredPosition(
                 carObj,sliceAhead,__builtin_abs(lookAhead * 3));
         offset.x = fixedmult(
-            (int)(signed char)BWorldSm_slices[sliceAhead].right[0] << 9,
+            (int)(signed char)PHYSICS_SLICE_RIGHT(sliceAhead,0) << 9,
             roadPosition);
         offset.y = fixedmult(
-            (int)(signed char)BWorldSm_slices[sliceAhead].right[1] << 9,
+            (int)(signed char)PHYSICS_SLICE_RIGHT(sliceAhead,1) << 9,
             roadPosition);
         offset.z = fixedmult(
-            (int)(signed char)BWorldSm_slices[sliceAhead].right[2] << 9,
+            (int)(signed char)PHYSICS_SLICE_RIGHT(sliceAhead,2) << 9,
             roadPosition);
         dirVector.x += offset.x;
         dirVector.y += offset.y;
@@ -2789,7 +2789,7 @@ void Physics_Real(Car_tObj *carObj)
       }
     }
   }
-  if ((GameSetup_gData.sgge & 8U) == 0) {
+  if ((PHYSICS_SGGE & 8U) == 0) {
     if ((carObj->control).gasLevel != '\0') {
       if (__builtin_abs(carObj->slide) < 0x199a) {
         goto PhyReal_iceBraking;

@@ -4,7 +4,7 @@
  *   21 standalone fns; the trivial CarTracking::Get + 5 empty dtors were inlined in EA's build.
  *   NOT original source; SYM-faithful, recompilable C++.  vs disasm-v4.txt.
  */
-#include "../../nfs4_types.h"
+#include "aidatarecord_types.h"
 #include "aidatarecord_externs.h"
 
 

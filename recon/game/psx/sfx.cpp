@@ -3,15 +3,8 @@
  *   (billboard/ribbon facet builders), Sfx_AdditivePrim (GTE additive POLY_FT4 emit),
  *   Sfx_BuildSouffleFacet (per-type render dispatch), Sfx_Add (per-type init).
  */
-#include "../../nfs4_types.h"
+#include "sfx_types.h"
 #include "sfx_externs.h"
-
-/* MATCH (w49-a4): PsyQ P_TAG-style OT word -- a 24-bit BITFIELD store IS the oracle's
- * `lw; and 0xff000000; and val,0xffffff; or; sw` (libgpu setaddr()), and the redundant
- * `& 0xffffff` on the VALUE side is the zero-insn ref inflator (cse folds the AND, flow.c
- * still counts the ref).  Same type/idiom as drawc.cpp's DrawC_tTag.  See Sfx_AdditivePrim. */
-typedef struct { u_long addr : 24; u_long len : 8; } Sfx_tTag;
-
 
 /* ---- Sfx_Transform__FP8coorddefP7SVECTORT0  [SFX.CPP:40-75] SLD-VERIFIED ---- */
 void Sfx_Transform(coorddef *worldpt,SVECTOR *campt,coorddef *t)
@@ -199,7 +192,7 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
     if ((mode & 2U) != 0) {
       *(int *)&prim->r0 = 0x2e5898b8;
     }
-    else if (GameSetup_gData.Time == 0) {
+    else if (Sfx_GameSetupWords[21] == 0) {
       *(int *)&prim->r0 = 0x2e181818;
     }
     else {
@@ -227,8 +220,10 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
         ChangeTPage(&tpage,1);
       }
       prim->tpage = tpage;
-      /* MATCH (w49-a4, 38 -> 26, count-exact 126/126): P_TAG bitfield store at THIS site
-         ONLY.  Measured at this basin: site-1 bitfield 26 . site-2 bitfield 36 . BOTH 36 .
+      /* MATCH (w49-a4, 38 -> 26, count-exact 126/126): the expanded P_TAG
+         read-mask/or/write at THIS site only.  The explicit expansion is byte-identical
+         and avoids inventing an Sfx_tTag record absent from the retail SYM.  Measured at
+         this basin: site-1 bitfield 26 . site-2 bitfield 36 . BOTH 36 .
          both-without-the-value-remask 36 . site-1 with the value read as a bitfield too 26
          (tie, kept the plain masked read) . site-1 with NO value remask 44 . site-1 plus
          a redundant `l0 & 0xffffff` on the site-2 value 38.  So the dial is ASYMMETRIC --
@@ -290,7 +285,7 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
  *   no new shape (its OT tails are single-instance and don't carry this tie).  The one
  *   untried instrument remains the -dl/-dg allocno dump on this block. */
       prim = (POLY_FT4 *)Render_gPacketPtr;
-      ((Sfx_tTag *)&prim->tag)->addr =
+      prim->tag = prim->tag & 0xff000000 |
                   *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
       /* ---- w60-a7 SEAL (26 -> PASS 126/126).  The multi-wave "four-constant
        * rotation STRONG floor" fell to the -dl/-dg + instrumented-cc1plus qty

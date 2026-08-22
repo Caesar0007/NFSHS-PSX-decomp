@@ -2,8 +2,6 @@
 #ifndef _GAME_PSX_SFX_EXTERNS_H_
 #define _GAME_PSX_SFX_EXTERNS_H_
 
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
 #include "../../lib/psx_gte.h"
 
 /* ---- module / render globals ---- */
@@ -19,12 +17,17 @@ extern Draw_tPixMap *gSnowPalette;     /* 0x8013d214 */
 extern Draw_tPixMap *gLeafPixmap;      /* 0x8013d218 */
 extern Sfx_tCache    Sfx_gCache;       /* scratchpad OT render cache (0x1f800000) */
 extern int           Draw_gViewOtSize; /* 0x8013d7b0  ordering-table size */
-extern GameSetup_tData GameSetup_gData;   /* 0x801131ec */
+extern int Sfx_GameSetupWords[] asm("GameSetup_gData");
 
 /* ---- eaclib / math / gpu helpers ---- */
 extern void  TrsProj_SetPsxMatrix(matrixtdef *m, coorddef *trans);
 extern void  Math_NormalizeVector(coorddef *v);
 extern void  ChangeTPage(u_short *tpage, int abr);
+extern "C" int fastintcos(...);
+extern "C" int fastintsin(...);
+extern "C" int fixedmult(...);
+extern "C" int intatan(...);
+extern "C" int random(...);
 
 /* ---- GTE (COP2) macros: the real canonical PsyQ inline-asm forms come from psx_gte.h
  *      (included above). The former no-op stubs here SHADOWED them and made every GTE

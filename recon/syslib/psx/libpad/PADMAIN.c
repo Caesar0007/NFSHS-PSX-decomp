@@ -388,9 +388,54 @@ extern void _padStopCom(void)
  *       named byte temp with a `"$2"` clobber-launder 15 @208 (the 20B device DOES move the byte
  *       off $v0 but pays 2 insns); a read-only fence on the byte 25; `one` hoisted + byte temp
  *       22.  The 20B clobber is the right instrument and the open question is a spelling of it
- *       that does not cost the two insns. */
+ *       that does not cost the two insns.
+ * MATCH (W72-A17, 15 @206 -> 7 @206/205) -- TWO of the three clusters closed, both at ZERO
+ *   instructions.  The w71 note's own two open questions were both answered by the SAME reading
+ *   of the fence: a fence's REF/OUTPUT side and its CLOBBER side are independent dials.
+ *   [6] CLOSED.  §21A-1: a READ-ONLY fence `__asm__("" : : "r"(x) : "$N")` carries the 20B
+ *       hard-register denial WITHOUT the launder's output operand, so it costs nothing where the
+ *       launder cost 2 insns.  `__asm__("" : : "r"(info) : "$2");` between the two guards is the
+ *       whole edit (15 -> 9).  MEASURED equivalents (all 9 @206): the same fence with a named
+ *       `int b = info[0x36];` temp as the operand, the fence placed before the byte read, the
+ *       fence inside a block with the temp.  NEGATIVE CONTROL: the identical fence WITHOUT the
+ *       `"$2"` clobber = 15, i.e. the clobber is the entire mechanism and the +1 ref is inert.
+ *   [2] CLOSED, and it was NOT a ready-list tie -- it was the WRAPPER'S OWN BARRIER.  The
+ *       do{}while(0) ref dial plants NOTE_INSN_LOOP_BEG/END around the `sh $v1,0xA($a0)`; the
+ *       cast index's `sll` is written after the wrapper, so sched1 can never lift it above the
+ *       store, while retail issues `sll` FIRST.  Writing `ix = ch << 2;` INSIDE the wrapper (and
+ *       reading `*(int *)(ix + (int)_padFixResult)`) puts both on the same side of the barrier:
+ *       9 -> 7.  This is the w71 `ch`-hoist lesson applied in the OTHER direction -- the LOAD
+ *       belongs outside the wrapper, the SHIFT inside.  MEASURED alternatives: the whole fix READ
+ *       inside the wrapper (7, equivalent); `ix` computed BEFORE the wrapper (16 @207 -- outside
+ *       is not enough, it must be on the store's side of the barrier).
+ *   RESIDUAL 7 @206/205 = cluster [7] ALONE, and it is now the only thing between this function
+ *   and a seal.  Retail: `lui $v1,%hi(_padFixResult)` in the `lw`'s LOAD-DELAY slot, `addiu $v1,
+ *   $v1,%lo` in the `bltz`'s branch slot (i.e. a BLOCK-0 `la`, before both guards), then
+ *   `addu $s1,$v1,$zero` in the loop preheader.  Ours: two `nop`s in those slots and loop.c's own
+ *   `lui $s1; addiu $s1` in the preheader (the +1 net insn).  Every other word in the function is
+ *   retail's.  RE-SWEPT AT THIS BASIN (04Z; all measured, none beats 7): `int *fb =
+ *   _padFixResult;` before the fix read with the guard using `fb` (14 @205 -- count-exact and the
+ *   `la` DOES move into block 0, but it goes straight to $s1 with no copy), after the fix read
+ *   (12 @203), laundered (37/42), and every 2^4 combination of `fb`-vs-global across the four use
+ *   sites (decrement / call arg / loop test / post-loop block): 7, 9, 12, 16, 21, 28, 30, 35, 36,
+ *   47.  Also: a block-local `int *fp = fb;` copy in the loop scope plain (7), laundered (37) and
+ *   forced through `asm("" : "=r"(fp) : "r"(fb))` (37); and the 16B ANCHOR-AS-PARAMETER device --
+ *   a `static __inline__ _padDrainFix(int *fb, unsigned char *info)` helper called with
+ *   `_padFixResult` (7, the inliner substitutes and cse folds it back).
+ *   SHARPENED STATEMENT OF THE OPEN ANGLE: retail has TWO pseudos where we have one -- a block-0
+ *   `la` that DIES into a preheader copy, plus the loop base.  cse cannot be made to keep them
+ *   apart from C (it folds a pointer local straight back to the symbol inside the same extended
+ *   basic block, and an opacity fence that stops the fold also stops loop.c from recognising the
+ *   invariant).  The named instrument is loop.c's `m->match` path in move_movables (a movable
+ *   that combine_movables matched to an earlier one is emitted as a REG-REG COPY at the
+ *   preheader) -- the question to price is what source form puts TWO equal address movables in
+ *   this loop, or, failing that, a PER_FN_POST_MASPSX/TEXT_MOVES row that relocates the two `la`
+ *   halves into the two delay slots (the same mechanism _padInitDirSeq is already gated on). */
 extern int _padInitSioMode(unsigned char *info)
 {
+    int ix;              /* MATCH (W72-A17): the fix-table BYTE index, computed INSIDE the
+                          * do{}while(0) wrapper -- see the wrapper comment below. */
+
     JOY_CTRL = 0x40;
     JOY_CTRL = 0;
     JOY_MODE = 0xd;
@@ -406,10 +451,16 @@ extern int _padInitSioMode(unsigned char *info)
        that follows; outside, the two loads issue in retail's order and fill each other's
        load-delay slots (13B "hoist every load the fence must not block above it").  Keep BOTH
        the wrapper and the hoist -- either alone measures 25. */
+    /* MATCH (W72-A17): the fix-table index `ch << 2` is computed INSIDE the wrapper.  The
+       wrapper's LOOP_BEG/END notes are a sched1 BARRIER, so a `sll` written after it can never
+       rise above the `sh $v1,0xA($a0)` that sits inside -- retail issues the `sll` FIRST.  This
+       is the same "hoist what the barrier must not block" move the w71 `ch` hoist made, in the
+       other direction: the SHIFT belongs inside, the LOAD outside.  9 -> 7. */
     {
         int ch = _padSioChan;
         do {
             JOY_CTRL = (ch != 0) ? 0x3003 : 0x1003;
+            ix = ch << 2;
         } while (0);
     }
 
@@ -420,7 +471,7 @@ extern int _padInitSioMode(unsigned char *info)
            the MEM, orphaning it; gcc-2.7.2 never recomputes reg usage after combine, so the
            orphan keeps refs=2, regclass ties it to ST_REGS and reload gives it a 4-byte
            stack slot -> the phantom `vars= 8` frame (8 diff lines).  See header (2)/(3). */
-        int fix = *(int *)((_padSioChan << 2) + (int)_padFixResult);
+        int fix = *(int *)(ix + (int)_padFixResult);
         if (fix >= 0) {
             if (fix > 0) {
                 do {
@@ -476,6 +527,15 @@ extern int _padInitSioMode(unsigned char *info)
     }
     if (info[0x50] == 0)
         return 1;
+    /* MATCH (W72-A17): §21A-1 READ-ONLY FENCE + HARD-REG DENIAL, the ZERO-INSTRUCTION form of
+       the 20B preference-killer.  Retail keeps the `li $v0,1` staged in the first guard's delay
+       slot LIVE across the second load, so the byte pseudo must take $v1 (`lbu $v1,54($s0)`);
+       ours took $v0.  The w71 receipt found the 20B identity LAUNDER on a named byte temp does
+       move it but pays 2 insns (15 @208).  A read-only fence carries the same `regs_explicitly_
+       used` denial of $2 with NO output operand to materialize, and `info` is already resident
+       in $s0, so it costs nothing at all: 15 -> 9, count unchanged.  The operand is only a
+       carrier -- a named byte temp as the operand measures the same 9. */
+    __asm__("" : : "r"(info) : "$2");
     if (info[0x36] != 0)
         return 0;
     {

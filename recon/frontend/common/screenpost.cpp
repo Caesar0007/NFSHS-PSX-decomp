@@ -224,7 +224,48 @@ void tScreenTournamentStandings::ProcessInput(tPlayer,tInputKeyType &keyval,
    FIRST manager access; operand-order variants are worse (tier-last 39,
    fTournament-first 49).  Route for both halves: the local-alloc QTY
    instrument (methodology 4.6) -- neither is an allocno-table question.
-   Harness: scratchpad/A18/post_v{1,2,3,4}.json + probe.py. */
+   Harness: scratchpad/A18/post_v{1,2,3,4}.json + probe.py.
+   ==== W72-A7 (2026-08-22): 35 -> 4, count 562 -> 561 EXACT. ====
+    (1) 🔑 35 -> 3: THE textType CONSTANT IS A NAMED LOCAL, exactly as the
+        sealed TU-mate tScreenPinkSlipStandings::DrawBackground already spells
+        it (`tMenuTextType type; type = textType_TrackRecords;`).  One pseudo
+        with a live range spanning all nine uses keeps $v0/$v1 occupied at each
+        call, so the rematerialised `li` scans on to retail's $t1 -- ALL SIX
+        textType sites fall together.  The W61 falsification ("an input-priced
+        textType local is 57/558") was BASIN-RELATIVE and is now dead: from the
+        35 basin the plain named local gates 3.  Using it at only the six
+        post-loop sites gates the same 3, so the whole-function spelling (the
+        sibling's) is the one kept.  LAW: when a TU-mate with the same shape is
+        already sealed, COPY ITS LOCAL SET before hunting allocator levers.
+    (2) 3 -> 4 with the COUNT going 562 -> 561: the duplicate
+        `%lo(tournamentManager)` lo_sum (`addiu v0,t1,0` -- objdump proves BOTH
+        addends are 0, i.e. a genuinely redundant second LO_SUM off the shared
+        HI) dies when the manager is reached through a reference bound BEFORE
+        any other statement: `tTournamentManager &tm = tournamentManager;`.
+        POSITION IS THE WHOLE LEVER -- binding/assigning it as the FIRST thing
+        in the body gives one lo_sum (561); the identical alias assigned even
+        ONE statement later (after `self = this;`) gives two again (562).
+        Pointer (`*tm`) and reference spellings are equivalent (both 4).
+        Extending the alias into the loop body is WORSE (15 @562): retail
+        rematerialises the manager address for `PlayerRanking`/`fCompetitors`/
+        `TournPointTotal`, so ONLY the pre-loop reads share a base.
+    (3) the alias re-shuffled global-alloc and swapped `self`/`line` between
+        $s6/$s7 body-wide (78 diffs, all one swap).  A THIRD `"r"(line)` in the
+        loop pricing fence restores retail's `self`=$s7 / `line`=$s6 -> 4.
+        Fence-operand variants that did NOTHING (all exactly 78): adding
+        `"r"(self)` anywhere in either fence, dropping the post-loop fence,
+        `"r"(tm)`, and every declaration-order permutation of `self`/`line`.
+   RESIDUAL 4 = PROLOGUE EMISSION ORDER ONLY.  Same six insns, different order:
+   retail `sw s7 / addu s7,a0 / sw s4 / addu s4,zero / lui t1 / addiu t1`, ours
+   `sw s4 / addu s4,zero / lui t1 / addiu t1 / sw s7 / addu s7,a0` -- sched2
+   ordering the two save+init groups against the manager-address pair.  This is
+   the methodology's prologue save-ORDER tie-break class.  FALSIFIED here (all
+   4 or worse): `i` as a decl-init / first statement / last statement, `self`
+   as a decl-init, `fade` read through `this` instead of `self`, a `this` use
+   fence before the alias (12), a `self` fence after it (16), `tm` fenced (12),
+   and `const`-qualifying the alias.  TU state after this wave: 12/13 PASS,
+   this fn the only FAIL.
+   Harness: scratchpad/W72_A7/{probe.py,q1..q12.py} + scratchpad/W72_A7_sbs.py. */
 /* ---- tScreenTournamentStandings::DrawBackground  [SCREENPOST.CPP:164-312] ---- */
 void tScreenTournamentStandings::DrawBackground()
 
@@ -249,15 +290,20 @@ void tScreenTournamentStandings::DrawBackground()
   int lastRacer;
   int line;
   tScreenTournamentStandings *self;
+  /* W72-A7: MUST be bound BEFORE any other statement -- one statement later
+     and gcc emits a SECOND redundant %lo(tournamentManager) lo_sum (+1 insn). */
+  tTournamentManager &tm = tournamentManager;
+  tMenuTextType type;   /* W72-A7: named, like the sibling tScreenPinkSlipStandings */
 
   self = this;
+  type = textType_TrackRecords;
   fade = self->fScreenFadeVal;
   fadeline = fade;
   i = 0;
   line = 0x2fe;
-  tourneyInfo = &tournamentManager.fDefinition->fTournaments[
-      tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset + tournamentManager.fTournament];
-  numRacers = (short)((short)tournamentManager.fNumRacers + (tourneyInfo->fKnockout != 0));
+  tourneyInfo = &tm.fDefinition->fTournaments[
+      tm.fDefinition->fTiers[tm.fTier].fTournOffset + tm.fTournament];
+  numRacers = (short)((short)tm.fNumRacers + (tourneyInfo->fKnockout != 0));
   lastRacer = numRacers - 1;
   for (;;) {
     short p;
@@ -275,15 +321,17 @@ void tScreenTournamentStandings::DrawBackground()
       statedull = textState_Unselected;
     }
     FETextRender_FullTextFade(fade,TextSys_Word(i + 599),(short)TextSys_WordX(0x2f7),
-                             (short)TextSys_WordY(line),textType_TrackRecords,statedull,0);
+                             (short)TextSys_WordY(line),type,statedull,0);
     FETextRender_FullTextFade(
         fade,
         j == 0 ? PlayerName(0) :
                  Stattool_GetAINameFromPersonality(tournamentManager.fCompetitors[j].fPersonality),
         (short)TextSys_WordX(0x2f8),(short)TextSys_WordY(line),
-        textType_TrackRecords,state,0);
+        type,state,0);
+    /* W72-A7: the THIRD "r"(line) is load-bearing -- it restores retail's
+       self=$s7 / line=$s6 after the tm alias re-ordered global-alloc. */
     __asm__("" : : "r"(fade), "r"(state), "r"(state),
-                    "r"(line), "r"(line));
+                    "r"(line), "r"(line), "r"(line));
     p = j;
     if (tourneyInfo->fKnockout != 0) {
       sprintf(sBuildOutput,TextSys_Word(i == lastRacer ? 0x31c : 0x31b));
@@ -292,20 +340,20 @@ void tScreenTournamentStandings::DrawBackground()
       sprintf(sBuildOutput,"%d %s",(int)tournamentManager.TournPointTotal(&p),TextSys_Word(0x31d));
     }
     FETextRender_FullTextFade(fade,sBuildOutput,(short)TextSys_WordX(0x2fb),
-                             (short)TextSys_WordY(line),textType_TrackRecords,state,1);
+                             (short)TextSys_WordY(line),type,state,1);
     line++;
     i++;
   }
   trackManager.GetTrack((short)Front_GetTrackRaced(),trackInfo);
   FETextRender_FullTextFade(fade,TextSys_Word((short)Front_GetTrackRaced() + 0xd5),(short)TextSys_WordX(0x2f6),
-                           (short)TextSys_WordY(0x2fd),textType_TrackRecords,textState_Hilighted,2);
+                           (short)TextSys_WordY(0x2fd),type,textState_Hilighted,2);
   i = (short)(frontEnd.tier != '\0' ?
                 TextValue(&menuDefs->iteratorSpecialEvent,kPlayerBoth) :
                 TextValue(&menuDefs->iteratorTournament,kPlayerBoth));
   i += 0x13;
   __asm__("" : : "r"(line));
   FETextRender_MenuTextPositionedJustifyFade(fade,(short)i,(short)TextSys_WordX(0x2f6),(short)TextSys_WordY(0x2fc),
-                                             2,textState_Hilighted,textType_TrackRecords);
+                                             2,textState_Hilighted,type);
   wwwww = textpixels(TextSys_Word(i));
   PSXDrawSquare(0,TextSys_WordX(0x2f6) - (wwwww >> 1),TextSys_WordY(0x2fc) - 1,wwwww,9);
   shape = &gCurrentShapes[0][0x27];
@@ -345,20 +393,20 @@ void tScreenTournamentStandings::DrawBackground()
   if (self->fDrawMoney != 0) {
     FETextRender_FullTextFade(fade,TextSys_Word(0x312),(short)TextSys_WordX(0x2fa),
                              (short)TextSys_WordY(0x312),
-                             textType_TrackRecords,
+                             type,
                              self->gotmoney ? 1 : 0,1);
     DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x312),6,self->moneyAwarded,colf,colb);
     FETextRender_FullTextFade(fade,TextSys_Word(0x313),(short)TextSys_WordX(0x2fa),
                              (short)TextSys_WordY(0x313),
-                             textType_TrackRecords,self->gotbilled ? 1 : 0,1);
+                             type,self->gotbilled ? 1 : 0,1);
     DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x313),6,self->moneyDamage,colf,colb);
     FETextRender_FullTextFade(fade,TextSys_Word(0x314),(short)TextSys_WordX(0x2fa),
                              (short)TextSys_WordY(0x314),
-                             textType_TrackRecords,self->gotbonus ? 1 : 0,1);
+                             type,self->gotbonus ? 1 : 0,1);
     DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x314),6,self->moneyBonus,colf,colb);
   }
   FETextRender_FullTextFade(fade,TextSys_Word(0x315),(short)TextSys_WordX(0x2fa),(short)TextSys_WordY(0x315),
-                           textType_TrackRecords,textState_Hilighted,1);
+                           type,textState_Hilighted,1);
   DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x315),9,
             ((self->moneyFinal - self->moneyAwarded) + self->moneyDamage) - self->moneyBonus,colf,colb);
   ::DrawBackgroundImage((tScreen *)self,10,0x1d,gCurrentShapes[0],0);

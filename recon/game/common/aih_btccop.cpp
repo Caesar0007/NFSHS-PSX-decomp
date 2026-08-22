@@ -2531,7 +2531,44 @@ stateExecuteAndReturn:
    So the clobber DOES move the pseudo off $v0 but never onto $a2 -- consistent with the
    w63 reading that this is a local-alloc QTY handout outside allocsim/reqdelta's model,
    and with the 20B LIMIT (the killer cannot beat an availability/eviction constraint).
-   The qtytrace/copypref lane named in w64 is still the only untried lens. */
+   The qtytrace/copypref lane named in w64 is still the only untried lens.
+   ==== W72-A11 re-gated 4 @675/675 and CORRECTED THE MECHANISM RECORD (two errors in
+   this receipt, both falsifiable from primary sources):
+   (1) 🔴 "this build has NO memset builtin to exploit" is WRONG.  gcc-2.8.1 expr.c:9042
+       has BUILT_IN_MEMSET, and its expansion ENDS `dest_addr = clear_storage (...); if
+       (dest_addr == 0) dest_addr = force_operand (dest_rtx, NULL_RTX); return dest_addr;`
+       (expr.c:9099-9104).  For a 12-byte clear that clear_storage lowers to the LIBCALL,
+       dest_addr IS the libcall's value register -- so `offset = (coorddef *)memset(...)`
+       is not "a capture that costs no allocno", it is literally the call's $v0, which is
+       exactly the `move a2,v0` we emit.  Any future reasoning here must start from that.
+       The pair-with-it: because clear_storage's OTHER exit (an inlined movstrsi) returns
+       0 and gcc then emits `force_operand(dest_rtx)` = a real `addiu` with a REG_EQUIV,
+       the rematerialization retail shows is the NON-libcall exit of this same code path.
+       Retail still emits `jal memset`, so it took the libcall exit too -- i.e. retail's
+       source did NOT feed the call's value to Newton.
+   (2) 🔴 THE DEAD-CODE TRAP: lines 1847-2448 of this file are inside `#if 0`, and they
+       contain a SECOND, older copy of AIHigh_BTC_Wingman::HighExecute (def at 1848) whose
+       arms spell the same statements differently (`memset(...); offset = &X;`).  Three of
+       W72's first four probe ladders edited THAT copy and read as "inert" -- the live
+       definition is at 2535.  ALWAYS resolve the definition line before anchoring
+       (`awk '/^#if|^#endif/{print NR": "$0}'`), and treat a whole ladder that measures
+       byte-identical as a MISSED-ANCHOR alarm, not a result.
+   RE-MEASURED ON THE LIVE FUNCTION (all three sites, each re-gated from 4): the 20B/12A
+   clobber walk UP the ascending find_free_reg scan -- identity launder with clobber sets
+   {$2}, {$2,$3}, {$2,$3,$4}, {$2,$3,$4,$5} -- is 8 @675 for EVERY set, identical to the
+   identity launder with NO clobber (8 @675); the read-only fence with the same clobber
+   sets is 9 @676.  So the pseudo leaves $v0 on the launder alone and the clobber walk
+   buys nothing: $a2 is not merely "later in the scan", it is UNAVAILABLE in this qty's
+   window.  That is an availability/eviction fact (20B LIMIT), and it is the reason the
+   preference-killer family cannot finish this fn.  NEXT LENS unchanged and now sharper:
+   dump the qty's find_free_reg window and read WHY $a2 is in `used` -- either
+   regs_live_at over [birth,death) (the arm sets $a1 before the copy; if $a2's live range
+   already starts at the arm's own `j` the whole caller-saved bank above $a1 is barred) or
+   a nonzero qty_n_calls making local-alloc OR in call_used_reg_set.  copypref.py --why
+   answers exactly that; the instrumented cc1plus ICEs on aih_cop but should be re-tried
+   on THIS TU (scratchpad/W72_A11/A11_trace.py prints the per-fn fidelity table first).
+   Probe files: scratchpad/W72_A11/v_wing4.py (live), v_wing{,2,3}.py (the dead-copy
+   ladders, kept only as the anchor-trap record). ==== */
 void AIHigh_BTC_Wingman::HighExecute()
 {
   ((AIHigh_BasicCop *)this)->CheckSpikeBelt();

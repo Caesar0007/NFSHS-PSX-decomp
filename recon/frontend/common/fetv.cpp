@@ -168,7 +168,57 @@ void DrawTVLines(tTVConfig &tv)
    `rpal` assigned after `reflection` (both spellings) exactly inert.  The
    competing insn is a RELOAD, so it has no source statement to reorder against
    -- sched1 ready-list tie, permuter/instrument territory.
-   ALSO FALSIFIED at 3 different basins (do not retry): the `noise->shapey - 1 +
+
+   W72-A5 2026-08-22 -- THE RESIDUAL-2 IS A VALIDATED PER_FN_TEXT_MOVES ROW.
+   Re-baselined 2 @815/815.  The SYM 8c block settles the question that the two
+   prior waves left open: retail's allocation is ALREADY OURS -- fadeTop REG $4
+   (a0), fadeBottom REG $8 (t0), texture/reflection BOTH REG $16 (s0), tv REGPARM
+   $18 (s2), fsize 80, mask 0xc0ff0000, and the three AUTOs (videoWidth sp+16,
+   videoHeight sp+24, do_tint sp+32) all land where we put them.  36(sp) is NOT a
+   SYM AUTO in either build -- it is the reload's own spill slot, and RETAIL
+   SPILLS THE SAME VALUE TO THE SAME OFFSET.  So there is nothing left to allocate
+   differently: the entire residual is the sched emission ORDER of two adjacent,
+   mutually independent loads inside one straight-line block.
+
+   The site in build/recon/frontend/common/fetv.cpp.s (first-reflection block,
+   after the `$L658:` fadeBottom-clamp merge):
+        ours                              retail
+        subu  $2,$7,$2                    subu  $2,$7,$2
+        lw    $12,36($sp)   <- reload     lw    $16,0($23)   <- *packetPtrSlot
+        lw    $16,0($23)                  lw    $12,36($sp)
+        lw    $4,528482304                lw    $4,528482304
+   A one-line swap.  VALIDATED SPEC (probed via tools/vprobe.py +
+   W60_TEXT_MOVES_FILE, whole TU re-gated 5/5 PASS, DrawTV PASS 815/815;
+   objdump of the produced object shows 8d8 lw s0,0(s7) / 8dc lw t4,36(sp) =
+   retail's order):
+
+     "recon/frontend/common/fetv.cpp": {
+       "DrawTV__FR9tTVConfig": [
+         {"take":  r"\tlw\t\$16,0\(\$23\)\n(?=\tlw\t\$4,528482304\n)",
+          "after": r"\tsubu\t\$2,\$7,\$2\n(?=\tlw\t\$12,36\(\$sp\)\n)"},
+       ],
+     },
+
+   Anchor notes (21E-8): numeric registers only; `lw $16,0($23)` occurs TWICE in
+   this function (the other is the second arm's texture read, followed by
+   `lw $5,528482304`) so the take carries a lookahead on `$4` to pin the first
+   reflection; the `after` lookahead names `lw $12,36($sp)`, a line the take does
+   NOT remove, so it still resolves after the take is lifted.  `subu $2,$7,$2`
+   occurs twice in the TU but only once inside this function's region.  The take
+   is a plain load in straight-line code -- no branch line, no drop_after, no
+   delay slot touched -- so the 17C brdist pairing requirement does not apply
+   (block-boundary instructions are untouched and the count stays 815).
+   Wiring is orchestrator-owned (build.py is outside this belt's file scope).
+
+   ALSO FALSIFIED W72-A5 (from the 2-diff basin, reverted): declaring
+   `reflection` block-local at its assignment (`POLY_GT4 *reflection = ...`)
+   is EXACTLY INERT (2 @815) -- the sched1 LAUNCH_PRIORITY hypothesis
+   (REG_N_SETS==1 birthing-insn boost) does not discriminate here, because the
+   fn-scope `reflection` is ALREADY single-assignment (only `texture` is written
+   three times).  The competing insn remains a reload with no source statement,
+   so no luid/source-order dial can reach it.
+
+   W71-A17 (cont.) ALSO FALSIFIED at 3 different basins (do not retry): the `noise->shapey - 1 +
    noise->height` operand swap for the FIRST arm's reflection v2/v3 (77->85,
    62->70, 12->20) and its block-local u_char-temp form (77->81, 12->24) -- that
    pair's load order is already retail's; the tv.v/tv.vh pair above is the one

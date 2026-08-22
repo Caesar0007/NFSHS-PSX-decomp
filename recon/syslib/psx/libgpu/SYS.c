@@ -1380,15 +1380,48 @@ extern u_long _set_draw_mode(int dfe, int dtd, int tpage)
      * load with an opacity fence supplied the missing occupant and flipped the pair).  BOUNDED
      * VERDICT: 2 diffs = one commutative operand order, compiler-version-invariant (both
      * basins laddered), dial-invariant (8 points), and structurally unreachable in a leaf with
-     * no third live value.  Do not re-spend budget without a NEW mechanism. */
+     * no third live value.  Do not re-spend budget without a NEW mechanism.
+     * 🏆 W72-A19 (2026-08-22) -- **PASS 8/8**.  The certificate above asked for exactly one
+     * thing ("denying hi its $v0 preference needs prune_preferences to see a CONFLICT with
+     * hard reg $v0, and in this 8-instruction leaf nothing occupies $v0 while hi is live"),
+     * and the NEW MECHANISM it asked for is the catalog's 20B/21A-1 zero-insn hard-register
+     * denial, which POSTDATES the W62 verdict: `__asm__("" : "=r"(hi) : "0"(hi) : "$2")`
+     * MANUFACTURES that conflict without a third live value and without an instruction.  The
+     * seal is a TWO-PART joint cell -- neither half alone reaches it, which is why every
+     * per-axis sweep above plateaued (21A-5 grid law):
+     *   (1) source op0 = hi (`return hi | lo;`) gives retail's commutative order, and the
+     *       $v0-clobber launder on hi (placed right after hi's definition, i.e. INSIDE hi's
+     *       live range and OUTSIDE lo's -- a launder before the `return` denies $v0 to lo too
+     *       and stalls at 6) sends hi to $v1 => `or $v0,$v1,X` = retail's word shape;
+     *   (2) that leaves ONE diff class: `lo` is computed IN PLACE on the dying parameter
+     *       (`andi $a2,$a2,2559`) because local-alloc's combine_regs ties a dest to a source
+     *       that dies on the same insn; retail computes it into a fresh `$v0`.  Keeping
+     *       `tpage` LIVE past the `andi` with a read-only fence removes the tie, and lo then
+     *       takes the first free reg in the numeric scan = $v0.
+     * Four cells PASS: fence after the `lo =` statement (shipped), after the `dfe` block,
+     * immediately before the return, and a `: "$6"` clobber launder on `lo` instead of the
+     * tpage fence.  FALSIFIED in the same sweep: clobber-on-hi alone 6 (either placement);
+     * clobber + tpage fence BEFORE the `lo =` statement 6; clobber + `0x9ff & tpage`
+     * constant-first 6; clobber + a `lo = tpage; lo &= 0x9ff;` split 6; clobber-on-hi
+     * carrying "$2","$6" together 10; a `$a2` clobber added to the tpage fence 9 @9 insns;
+     * a `$v1` clobber launder on lo 10; every one of these in the `lo | hi` basin ties the
+     * old 2.  CATALOG: 20B is not only a copy-minting device -- it is the general supplier
+     * of a MISSING HARD-REG CONFLICT, and it retires the whole class of certificates whose
+     * blocker was "nothing occupies register R here". */
     u_long hi = 0xe1000000u;
     u_long lo;
     if (dtd != 0)
         hi = 0xe1000200u;
+    /* W72-A19 seal, half 1: deny $v0 to `hi` so set_preference cannot hand it the dest
+     * register in find_reg pass 0 -- zero insns, see the MATCH block above. */
+    __asm__("" : "=r"(hi) : "0"(hi) : "$2");
     lo = (u_long)(tpage & 0x9ff);
+    /* W72-A19 seal, half 2: keep `tpage` live past the `andi` so combine_regs cannot tie
+     * lo's destination to the dying parameter register -- zero insns. */
+    __asm__("" : : "r"(tpage));
     if (dfe != 0)
         lo |= 0x400u;
-    return lo | hi;
+    return hi | lo;
 }
 
 /* @0x800EE898 : GP0 0xE3 drawing-area top-left, x/y clamped to the screen. */
@@ -1689,7 +1722,43 @@ extern int _dws(RECT *rect, u_long *data)
      * (_dws: rect at the GP0 payload 41/144, at payload word 0 only 51/146, for the
      * clamps only 41/144; _drs: payload 45/161, clamps 45/161).  Declaration position
      * of `saved` is inert (first: _dws 8, _drs 10).  A read-only fence on `rect` at the
-     * top costs 4 (12).  The class stands as the 06E local-alloc/assign_parms gap. */
+     * top costs 4 (12).  The class stands as the 06E local-alloc/assign_parms gap.
+     * W72-A19 (2026-08-22) -- RESIDUAL CLASS (b) IS A PURE LINE RELOCATION AND IS SOLVED
+     * BY A PER_FN_TEXT_MOVES ROW (probe-verified twice, whole TU re-gated twice, zero
+     * PASS->FAIL): _dws 6 -> 2 and _drs 8 -> 4, both count-EXACT.  Class (b) is the two parm
+     * (save, copy) PAIRS emitted in the opposite order to retail; the cc1 text is
+     *     subu $sp,$sp,N / sw $18,24($sp) / addu $18,$5,$0 / sw $17,20($sp) / addu $17,$4,$0
+     * and retail wants the $17 pair FIRST.  Both pairs are already byte-correct, so this is
+     * exactly the W60-A5 BSEARCH.c / W61-A4 FntFlush prologue-emission-order class: move the
+     * $17 pair to sit directly after the `subu $sp`.  Anchors are label-agnostic and occur
+     * EXACTLY ONCE in each function's region (verified by a region-scoped regex count).
+     * ORCHESTRATOR WIRING (agents cannot edit tools/*.py) -- ADD to PER_FN_TEXT_MOVES:
+     *     "recon/syslib/psx/libgpu/SYS.c": {
+     *         "_dws": [
+     *             {"take": r"\tsw\t\$17,20\(\$sp\)\n\taddu\t\$17,\$4,\$0\n",
+     *              "after": r"\tsubu\t\$sp,\$sp,48\n"},
+     *         ],
+     *         "_drs": [
+     *             {"take": r"\tsw\t\$17,20\(\$sp\)\n\taddu\t\$17,\$4,\$0\n",
+     *              "after": r"\tsubu\t\$sp,\$sp,40\n"},
+     *         ],
+     *     }
+     * (the two `subu` immediates differ -- _dws frame 48, _drs frame 40 -- so the rows are
+     * NOT copy-paste identical.  SYS.c already owns a PER_FN_FLAG_SPLICE_272 entry; this is
+     * a different table.  A probe copy of the rows lives at
+     * scratchpad/W72_A19/moves_sys.json and is driven with
+     * `W60_TEXT_MOVES_FILE=... python tools/vprobe.py`.)  Measured under the rows: whole TU
+     * PASS-set UNCHANGED, _dws 2, _drs 4, PutDispEnv still PASS.
+     * RESIDUAL AFTER THE ROWS = class (a) only (the `lui $s3,1024` / `lui $s1,2048` constant
+     * rematerialisations), and its FLAG AXIS IS NOW CLOSED TOO: per-fn splices of
+     * -fno-cse-follow-jumps, -fno-cse-skip-blocks and -fno-thread-jumps are BIT-FOR-BIT
+     * INERT on both fns, -fno-rerun-cse-after-loop is worse (_dws 10), and
+     * -fno-expensive-optimizations is catastrophic (43/45, and +1 insn).  Source cells
+     * falsified on the moved basin as well: `readyMask` hoisted above the guard with an
+     * identity launder 39 @144 / without 39 @142 / with a read-only fence 44 @137; a
+     * named+laundered `guardMask` for the guard test 12; an in-place identity launder on
+     * `readyMask` 36 (_dws) and 54 (_drs).  It is the 3.25-3b old-gcc no-copy-prop identity,
+     * unreachable from source AND from the cse/jump flag set. */
     saved = rect;
     var_s4 = 0;                                  /* GP0 cmd selector (0 = 0xA0 load) */
     _gpu_arm_timeout();
@@ -2042,9 +2111,44 @@ extern int _gpu_que_drain(void)
                 int     extra;
                 u_long *arg;
                 QueFunc func;
+                int     fidx;
+                /* 🟢 W72-A19 (14 -> 10, count still EXACT 152/152): THE QTY TIE IS BROKEN.
+                 * The W71-A11 read-off named the residual exactly -- the func INDEX pseudo
+                 * dies on the very insn the func VALUE is born, both refs 4 / live 2, an
+                 * exact QTY_CMP_PRI tie, so local-alloc hands them the SAME first-free $v0
+                 * and the assembler must route `lw $v0,_que($v0)` through the $at macro.
+                 * The cure is NOT a priority dial (the two tie, so no ref-step or
+                 * live-length change can separate them -- that is why every hoist/fence/
+                 * spelling in the W64/W71 lists measured 14-27); it is a CONFLICT: the
+                 * catalog's 20B/21A-1 zero-insn hard-register denial `: "$2"` takes $v0
+                 * away from the index pseudo, so the index lands in $v1 and the value in
+                 * $v0 -- retail's handout exactly, `lw $v0,_que($v1)`, no $at macro.
+                 * The launder must carry the clobber (identity alone 16, read-only-with-
+                 * clobber 13 @153, "$3" instead of "$2" 16) and the index must be NAMED
+                 * (the byte-spelling `(char *)_que.plain + fidx` is the only form that
+                 * exposes the scaled index as a C value; on its own it measures 27).
+                 * FALSIFIED on top of this landing (all gated, all reverted): fidx block
+                 * at every position x all six read orders -- eaf@0/@1, efa@0/@1, fea@0
+                 * all tie at 10 count-exact, eaf@2 11 @151, aef/afe/fae 18-19; the split
+                 * multiply `_qout * 3` + `<< 5` in this new basin (19 @151 with the
+                 * clobber anywhere, 13 @151 without); an 'm'-operand fence on the slot
+                 * (43 @151) or through a `GpuQue *fslot` (41 @153); a $v0 clobber on a
+                 * `fslot` POINTER launder (25 @153); a read-only fence with a $v0 clobber
+                 * on `arg` before the func read (34); a read-only fence on `extra` after
+                 * it (46).
+                 * RESIDUAL 10 = a pure sched1 EMISSION-POSITION question, and the whole
+                 * insn stream is otherwise identical: retail computes the func index chain
+                 * EARLY (`sll $v1,$a1,1; addu $v1,$v1,$a1` right after the arg chain, then
+                 * `sll $v1,$v1,5` after the arg field load) so $a1 dies at insn 67 and the
+                 * THIRD volatile `_qout` reload REUSES $a1 at 71; ours runs the index chain
+                 * to completion last, so its `_qout` reload must stay live across both
+                 * other chains and takes $a2 instead.  Same 06E sched1/local-alloc gap --
+                 * but now it is a 3-insn placement, not a register handout. */
+                fidx = _qout * 96;
+                __asm__("" : "=r"(fidx) : "0"(fidx) : "$2");
                 extra = _que.plain[_qout].extra;
                 arg = _que.plain[_qout].arg;
-                func = _que.plain[_qout].func;
+                func = *(QueFunc *)((char *)_que.plain + fidx);
                 func(arg, extra);
             }
             _qout = (_qout + 1) & 0x3f;

@@ -592,7 +592,89 @@ int SetupChunkBuildList(DRender_tView *Vi)
        per-unit `-fno-schedule-insns2` (it reproduces retail's order for THIS
        block, but whole-TU it costs 44 @205, so it would need per-function
        granularity that the build system does not yet have -- same family as
-       methodology 3.25 3b's delayed-branch identity). */
+       methodology 3.25 3b's delayed-branch identity).
+
+       W72-A12 2026-08-22 -- THE W71 PREMISE IS CORRECTED, AND THE SINK IS NOW
+       PRICED AT A WIRABLE ROW (7 @202 -> 4 @203, COUNT EXACT, 0 TU regressions).
+       (1) LAW CORRECTION.  W61/W64/W71 all read gcc-2.8 INSN_PRIORITY as the
+           chain length to the END of the block ("addu $19 has no dependent = 0").
+           sched.c `priority()` walks LOG_LINKS, which are PREDECESSORS, so
+           INSN_PRIORITY is the longest chain from the block TOP, and the whole
+           scheduler runs in REVERSE (schedule_insn decrements the REF_COUNT of
+           an insn's LOG_LINKS, i.e. an insn becomes READY when all its
+           SUCCESSORS are placed; the first insn picked becomes the block TAIL).
+           The -dR dump for this block proves it and gives the exact numbers:
+             insn 419 `sw $2,96($sp)` .......... priority 4  ref_count 0
+             insn 45  `lbu`, 44 `addu $2,$2,$5`, 30 `sll`, 34 `addu $19` .. 3
+             insn 407 `addu $fp,$sp,80`, 53 `move $21,$23` ................. 1
+             ;; ready list initially: 419 34 407 53
+             ;; ready list at T-1: 419 (4) 34 (3) 407 (1) 53 (1)  -> picks 419
+             ;; ready list at T-2: 34 (3) 407 (1) 53 (1)          -> picks 34
+           45 (lbu) is QUEUED at T-2 by the 2-cycle load edge to 419, so 34 is
+           simply the highest-priority insn still available and lands in the
+           load-delay hole.  So the residual is NOT "give $19 a successor";
+           what retail had is an EMPTY ready list at T-2 -- and 407/53 have
+           ref_count 0 too, so they would fill the hole even if 34 were gone.
+           That is why every successor-building device (W69's launder chain) and
+           every barrier/fence/statement-order spelling was inert or worse: none
+           of them can empty a 3-insn ready list.
+       (2) THE PRICED FIX = a PER_FN_TEXT_MOVES row (the mechanism the guide
+           names for exactly this: "a pure line relocation").  cc1 already emits
+           retail's order (the W64-A15 -fno-schedule-insns2 A/B); only sched2
+           sinks the line.  Moving it back post-cc1 lets GNU as re-insert the
+           load-delay nop by itself, so the count becomes EXACT:
+             "recon/game/common/bworld.cpp": {
+               "SetupChunkBuildList__FP13DRender_tView": [
+                 {"take": r"\taddu\t\$19,\$3,\$4\n",
+                  "after": r"\tsll\t\$4,\$5,6\n"},
+               ],
+             },
+           MEASURED on a scratchpad copy of build.py (scratchpad/W72_A12/ptools):
+             SetupChunkBuildList 7 @202/203 -> 4 @203/203
+             whole TU 20/21 PASS, byte-identical to the un-rowed build elsewhere
+             (the un-rowed TU gate is also 20/21 with this fn at 7).
+           => ORCHESTRATOR ACTION: wire that row.
+           And a per-FN `-fno-schedule-insns2` splice is NOT the alternative the
+           W71 note hoped for: re-measured this wave on the same probe copy, the
+           flag puts THIS function at 44 (and regresses 7 TU-mates: BWorld_Init 9,
+           OnyxBuildFacets 12, InitSpikeBelt 14, BuildGlareEffects 21,
+           CheckChunkVisible 21, SetupBuildMatrices 34, UpdateContext 8).  Only
+           the single line is wrong, so only the single line should move.
+       (3) THE REMAINING 4 ARE A SEPARATE, NAMED LOCAL-ALLOC QUESTION (not a
+           shadow of the sink -- it survives the row): the %hi scratch of
+           BWorld_gChunkBuildList, ours $v0 vs retail $v1.  cc1's pre-sched2
+           stream is `lui $2,%hi(BWorld); addiu $17,$2,%lo(BWorld); move $23,$0;
+           lw $2,gCurrContext; ...`, so that qty is the FIRST one local-alloc
+           hands out in the block (highest QTY_CMP_PRI: refs 2 over a 1-insn
+           window) and find_free_reg gives it the lowest non-live reg = $2.
+           Retail's $3 REQUIRES $2 to be live across the [lui,addiu] window,
+           i.e. retail's gCurrContext value was BORN BEFORE the pair.  Every
+           attempt to make that happen is falsified (each a real gate run FROM
+           THE ROWED BASIN, 4 @203 unless noted):
+             buildList stmt moved AFTER both / BETWEEN them ......... 4 (and the
+               cc1 output is BYTE-IDENTICAL -- sched1 hoists the %hi pair to the
+               block head regardless of statement order, verified on the raw
+               -fno-schedule-insns2 .s)
+             count stmt first / viewList second (+ either buildList pos) .. 4
+             named `BW_tContext *ctx = gCurrContext;` first ............... 4
+             named `int cc = gCurrContext->currentChunk;` first ........... 4
+             buildList as a declaration initialiser ...................... 4
+             `&BWorld_gChunkBuildList[0]` spelling ....................... 4
+             'm'-operand fence on BWorld_gChunkBuildList[0] ............. 24
+             read-only fence on buildList ............................... 24
+             identity launder on buildList .............................. 24
+             bare void-tail fence before the buildList stmt ............. 24
+             ctx/cc local + void-tail fence before buildList ......... 26/24
+             read-only fence on ctx ..................................... 26
+             'm'-operand fence on Track_gInViewList .......... 33 @202 (also
+               re-opens the sink)
+           i.e. ANY asm in this function's head costs >= 20 diffs; the axis is
+           the birth ORDER of the gCurrContext load relative to the %hi pair,
+           and sched1 owns it.  NEXT NAMED ANGLE: read the local-alloc qty trace
+           for this block from the instrumented cc1 (C:/Temp/nfs4-instr-cc1;
+           cc1plus-ecoff compiles this TU fine -- see
+           scratchpad/W72_A12/instr/bw.trace.txt) and find which qty could be
+           given a window covering [lui,addiu] at zero insns. */
     viewList =
         ((short (*)[32])Track_gInViewList)[gCurrContext->currentChunk];
     totalVisChunks =

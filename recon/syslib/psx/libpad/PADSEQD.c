@@ -100,7 +100,27 @@ extern int      _dirCheck(unsigned char *info);
  *   extra word overall) -- so no source form can produce `$at` + a 13-word body.
  *   REQUIRED SHARED CHANGE (report, not made -- tools/ is out of scope for this belt):
  *   PER_FN_POST_MASPSX_MOVES as spec'd by w61-a5, or equivalently the maspsx GNU-as-reorder-fill
- *   option (w48-a6/a10 spec).  Either one lands this function at PASS 13/13. */
+ *   option (w48-a6/a10 spec).  Either one lands this function at PASS 13/13.
+ * W72-A17 2026-08-22 -- CERTIFICATE RE-VERIFIED ARTIFACT-BY-ARTIFACT (not re-reasoned), and the
+ *   class is now BOUNDED FROM THE OTHER SIDE by a `-G` probe that had never been run here:
+ *   (1) re-gated 3 @14/13; `build/.../PADSEQD.c.s` still shows the UNSPLIT macro
+ *       `sw $2,_padFuncRecvAuto` + `j $31` with an EMPTY slot and no noreorder wrapper, and
+ *       `objdump -dr` on the gate object still shows maspsx's `lui $at; sw $v0,0($at); jr $ra;
+ *       nop` -- the one-line POST-maspsx move pair is unchanged in every particular.
+ *   (2) NEW BOUND: the whole class is the `mips_check_split` SMALL-DATA GATE (mips.c:893 +
+ *       ENCODE_SECTION_INFO mips.h:2792 -- see the W72-A17 law block in PADCMD.c).  These three
+ *       pointer globals are 4 bytes, so at the lane's default -G4 they are small-data,
+ *       SYMBOL_REF_FLAG is set, mips_check_split returns 0 and cc1 emits the UNSPLIT MACRO -- a
+ *       macro cannot go in a delay slot, so gcc hands the slot to the assembler (which is why the
+ *       fill is an ASSEMBLER question here and not a reorg one).  MEASURED at `g_value: 0`:
+ *       cc1 pre-splits, reorg DOES put the `sw` in the `jr $ra` slot, and the function becomes
+ *       COUNT-EXACT 13/13 with retail's exact instruction SHAPE -- but scores 12, because the
+ *       scratch register is gcc's `$v1` where retail has the assembler's `$at`, on all three
+ *       stores.  ($at is FIXED_REGISTERS-reserved; no allocator or source lever can request it.)
+ *       g_value 4 and 8 both reproduce the shipped 3 @14.  ⇒ the two basins are: -G4 = right
+ *       REGISTERS, one missing slot fill (3 diffs, shipped); -G0 = right SLOT, wrong registers
+ *       (12 diffs).  Only the POST-maspsx move gets both, which RAISES the mechanism's priority
+ *       rather than lowering it -- and confirms there is no third basin to hunt for. */
 extern void _padInitDirSeq(void)
 {
     _padFuncSendAuto = _dirSendAuto;

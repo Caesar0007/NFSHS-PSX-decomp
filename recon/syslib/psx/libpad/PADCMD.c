@@ -397,7 +397,56 @@ extern void _padLoadActInfo_snd(unsigned char *info)
  *   unexplained asm whose only effect is to add an instruction (the "no scaffolding" rule), and
  *   it does not touch the real cluster.  The mechanism gap is unchanged and is the ONLY route:
  *   a per-fn ver-splice that ALSO carries `-mno-split-addresses` (the 272 twin of 12G's
- *   PER_FN_NO_SPLIT_ADDRESSES + version-splice composition) -- shared build change, reported. */
+ *   PER_FN_NO_SPLIT_ADDRESSES + version-splice composition) -- shared build change, reported.
+ * *** MATCH (W72-A17): 14 @155 -> 10 @155 FROM SOURCE ALONE, and -> 2 @157/157 COUNT-EXACT with
+ * ONE PER_FN_FLAG_SPLICE_272 ROW.  The "missing mechanism" three waves asked for DOES NOT NEED TO
+ * BE BUILT -- it already exists, and the flag it needs is not `-mno-split-addresses` but `-G4`. ***
+ *   🏆 THE LAW (read out of gcc's mips backend, not guessed).  `mips_split_addresses` is set
+ *   UNCONDITIONALLY on this rung (`override_options`, mips.c:3696: `TARGET_GAS &&
+ *   TARGET_SPLIT_ADDRESSES && optimize && !flag_pic && Pmode==SImode`; there is NO user switch --
+ *   confirmed by string-scanning the 970404 cc1.exe: it carries the internal symbol
+ *   `mips_split_addresses` but NO "split-addresses" option string, which is why the w62 probe got
+ *   `Invalid option`).  But the split is applied PER ADDRESS, through `mips_check_split`
+ *   (mips.c:893), which returns 0 -- NO SPLIT, emit the assembler MACRO -- when the symbol has
+ *   SYMBOL_REF_FLAG set.  ENCODE_SECTION_INFO (mips.h:2792) sets that flag iff
+ *   `size > 0 && size <= mips_section_threshold`, i.e. iff the object is SMALL DATA under -G.
+ *   The 272 lane compiles at -G0 (build.py `_compile_c_272`, tu_g_value default "0"), so NOTHING
+ *   is ever small-data and EVERY address is pre-split.  Compiling THIS FUNCTION at -G4 sets the
+ *   flag on the 4-byte `_actcur`, cc1 emits `sw $v1,_actcur` / `la $a3,_actcur` whole, and GNU-as
+ *   expands them into retail's `lui $at; sw ,0($at)` and dest-as-scratch `lui $a3; addiu $a3,$a3`
+ *   -- while the ASSEMBLER still runs at the TU's -G0, so the symbol stays ABSOLUTE (this is the
+ *   half that makes the trick safe: a whole-TU -G4 would also hand `as` a -G4 and risk gp-rel).
+ *   ⇒ THE WIRING (orchestrator; build.py is a shared file, so it is NOT landed here):
+ *        PER_FN_FLAG_SPLICE_272["recon/syslib/psx/libpad/PADCMD.c"] = {"-G4": {"_padLoadActInfo_rcv"}}
+ *   The mechanism appends the flag AFTER the lane's own `-G0`, so the later -G wins; the splice
+ *   then grafts only this function's `.ent` region.  MEASURED, whole-TU, via tools/vprobe.py's
+ *   W61_TABLE hook (build.py untouched): 18/19 PASS with the row, IDENTICAL to the 18/19 without
+ *   it -- ZERO PASS->FAIL.  (A whole-TU `g_value: 4` reaches the same 12 on this fn but COSTS 4
+ *   PASSes -- _padLoadActInfo, _padSetActAlign, _padSetMainMode, _padSetMainMode_rcv each go 1
+ *   insn short at 3 diffs -- so the per-FN splice is the only wirable form.)
+ *   THE SOURCE HALF (landed, and a net win at 14 -> 10 even WITHOUT the row):
+ *     (1) §21A-1 read-only fence + `"$2"` clobber on `cur` -- 12 -> 6 with the row (14 -> ~10
+ *         without).  Retail runs the `base + woff` store pair through $v1; the clobber denies $v0
+ *         to that allocno at zero instructions.  A `"$3"` clobber is a no-op control (12).
+ *     (2) a VOID BARRIER before `cnt = 3;` REPLACING the old `cnt` opacity fence -- 6 -> 2.  The
+ *         old fence's premise (block cse from folding the live 3 into the `woff` shift) is
+ *         basin-stale; what the site needs now is a barrier that stops the `li $a0,3` rising into
+ *         the `lw $v0,0x3C($a1)` load-delay slot, so it lands in the LBU's slot like retail.
+ *         KEEPING BOTH = 6, the old fence alone = 6, moving `cnt = 3;` below the `info[0x48]`
+ *         store = 6.  (04Z at full strength: a device that was load-bearing for three waves is
+ *         now the thing to delete.)
+ *   RUNG RE-LADDERED at this basin (04Z): wired 2.7.2-970404 = 14, plain 2.7.2 = 25 @158,
+ *   2.8.0 = 30 @155, 2.8.1 = 30 @155, 2.6.3 / 2.6.0 = 44 @159.  The wired rung stays optimal.
+ *   RESIDUAL 2 @157/157 with the row (10 without), ONE class: `addu $t0,$v0,$zero` where retail
+ *   has `li $t0,-1` -- cse CONSTANT-SHARING (§21E-5) between the zero-trip guard's `-1` and the
+ *   back-edge test's.  FALSIFIED at this basin, all byte-identical unless noted: a laundered
+ *   named `m1` sentinel for the GUARD's -1 (4); the same with a read-only fence inside the guard
+ *   (2); a void fence at the guard head / after `ac = &_actcur;` (2); and 21B-3 born-in-the-loop
+ *   -- an `e = -1;` assignment at ALL FOUR statement positions inside the do-while body, with the
+ *   test spelled `while (--cnt != e)` (2 at every position; cse folds `e` back to the guard's
+ *   live value before loop.c ever sees a movable).  §21E-5's "fence the FIRST occurrence" is the
+ *   right instrument and the guard IS the first occurrence, but every register-resident spelling
+ *   of that first -1 either changes the guard's own shape or is folded away. */
 extern int _padLoadActInfo_rcv(unsigned char *info)
 {
     switch (info[0x46]) {
@@ -444,10 +493,17 @@ extern int _padLoadActInfo_rcv(unsigned char *info)
             unsigned char *base;
             unsigned woff;
             unsigned char *cur;
+            /* MATCH (W72-A17): a VOID BARRIER here, and the `cnt` opacity fence that used to
+             * sit after `cnt = 3;` is GONE -- 04Z basin-relativity, the old fence is now
+             * HARMFUL (6 -> 2 by dropping it and adding this).  The barrier's job: ours filled
+             * the `lw $v0,0x3C($a1)` load-delay slot with `li $a0,3` and then needed a `nop`
+             * after the `lbu`; retail nops the `lw` slot and spends the `li` on the LBU's slot.
+             * An asm stops reorg/sched from lifting the `li` above the byte read, so the `li`
+             * lands where retail has it.  MEASURED at this basin: with the old cnt fence kept
+             * as well = 6; the cnt fence alone (no barrier) = 6; `cnt = 3;` moved below
+             * `info[0x48] = v;` = 6. */
+            __asm__("" : : "i"(0));
             cnt = 3;
-            __asm__("" : "=r"(cnt) : "0"(cnt));  /* MATCH: opacity fence, 0 insns -- keeps cse from
-                                                  * folding the live `3` into the woff `sll ,3`
-                                                  * (retail rematerializes: `sllv` is the tell) */
             info[0x48] = v;
             d[0] = v;
             src = (*(unsigned char **)(info + 0x3c)) + 5;
@@ -459,6 +515,14 @@ extern int _padLoadActInfo_rcv(unsigned char *info)
                 woff = (d[-8] + 3) & 0x1fc;
             }
             cur = base + woff;
+            /* MATCH (W72-A17): §21A-1 READ-ONLY FENCE + HARD-REG DENIAL, zero insns.  Retail
+             * runs the whole `base + woff` store pair through $v1 (`addu $v1,$v1,$v0;
+             * sw $v1,4($a3); sw $v1,0($at)`); ours took $v0.  Denying $2 to `cur`'s allocno via
+             * the clobber list is the entire mechanism -- the `"r"(cur)` operand is only a
+             * carrier and `cur` is already register-resident, so nothing is emitted.  A `"$3"`
+             * clobber instead measures the un-fenced number, i.e. this is not a generic
+             * perturbation.  Worth 6 diffs. */
+            __asm__("" : : "r"(cur) : "$2");
             *(unsigned char **)(d + 4) = cur;
             _actcur = cur;
         } else {

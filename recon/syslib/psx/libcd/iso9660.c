@@ -218,16 +218,43 @@ extern CdlFILE *CdSearchFile(CdlFILE *fp, char *name)
             return 0;
         _cd_search_nopen = CD_nopen;
     }
-    dir = 1;                                                /* root */
     if (*name != '\\')                                     /* paths must be absolute */
         return 0;
+    /* 🏆 W72-A16 (7 -> PASS 182/182).  The two "TEXT_MOVES class" emission-order items
+     * named in the W71-A9 residual are BOTH source-reachable; they need two DIFFERENT
+     * devices and the `i = 0` one had to be RE-PRICED (21E-1) before the other appeared.
+     *  (1) THE `beq` DELAY SLOT = A THREAD CHOICE, and the target thread's head insn
+     *      decides it.  Retail fills the `beq $v1,$v0` slot from the FALL-THROUGH thread
+     *      (`addu $v0,$zero,$zero`, the `return 0` value) and leaves the following `j`'s
+     *      slot `nop`; ours filled it from the TARGET thread with `li $a0,1` (`dir = 1`).
+     *      Reason: retail's ok-block STARTS with the `sb $zero,16($sp)` store (`comp[0] = 0`)
+     *      and reorg will not steal a MEM store out of a thread it does not own, so it
+     *      falls back to the fall-through; ours started with a plain `li`, which it takes.
+     *      CURE = two halves, BOTH required: write `comp[0] = 0;` BEFORE `dir = 1;` so the
+     *      store is the block's first statement, AND put a zero-insn VOID BARRIER at the
+     *      head of the block so sched1 cannot hoist the `li` back above the store
+     *      (reorg.c stop_search_p also stops the thread scan at the asm).  MEASURED, all
+     *      gated + reverted: barrier alone (dir still first) 5 - `comp` before `dir`
+     *      without the barrier 5 - barrier + dir + comp (old order) 2 (the store/li pair
+     *      inverted) - barrier before the `*name` test 7 - `dir = 1` written after
+     *      `s = name`, in the for-init, or last in the preheader all 5-7 (sched hoists it
+     *      to the block head wherever it is written, so POSITION alone never sufficed --
+     *      which is why the W71-A9 note recorded this half as inert).
+     *  (2) `i = 0` HOISTED AHEAD OF `sep`/`notfound` (7 -> 5 on its own).  W71-A9 measured
+     *      every `i = 0` hoist at 23 and filed it closed; that was the PRE-peel basin.
+     *      Re-priced here it is a clean -2 (21E-1: re-price a documented-exhausted cluster
+     *      after ANY sibling cluster in the same fn changes basin).  The `for (; i < 8; i++)`
+     *      spelling is load-bearing -- moving the init into a separate statement above
+     *      `sep` measures the same 5, but leaving it in the `for` header is 7. */
+    __asm__("" : : "i"(0));
     comp[0] = 0;
+    dir = 1;                                                /* root */
     s = (signed char *)name;
     /* split on '\\'; descend through each directory component, leaving the filename in `comp`.
      * (the binary threads the parent dir id through $a0 across _cd_find_path calls; fp needs NO
      * liveness no-op -- it is live to the `*fp = _cd_dir[i]` copy-out, and the `fp++;fp--;`
      * pair that used to sit here only inflated its ref count, see the W62-A7 note above.) */
-    sep = '\\'; notfound = -1; for (i = 0; i < 8; i++) {
+    i = 0; sep = '\\'; notfound = -1; for (; i < 8; i++) {
         /* MATCH (w63-a6, reqdelta272-priced, ZERO instructions): retail hands out
          * name=$s3 / notfound=$s4 / sep=$s5; ours priced (after the printf-arg fix)
          * sep .2000 > name .1754 > notfound .0517 = $s3/$s4/$s5 -- exactly inverted.
@@ -399,6 +426,32 @@ extern int _cd_cmp_name(char *a, char *b)
  *      does NOT transfer -- with a goto back-edge 64, with the `while` kept 15.  The
  *      multi-exit body (two `break`s) is why: the guard shape changes the whole block
  *      order here, where FIRST.c's single-exit walk keeps it. */
+/* W72-A16 re-gate: 2 @177/177.  Cluster (b) is ALL that is left and it is now PROVEN
+ * TEXT_MOVES-class rather than merely suspected -- retail emits the loop-bound copy
+ * `addu $s5,$v1,$zero` AFTER loop.c's two hoisted address constants
+ * (`la $s4,_cd_pathtbl+8` / `addiu $s6,$s4,4`), ours before them.  21B-3 says why it is
+ * not source-reachable: a guard-block assignment is an ENTRY-block insn, while loop.c
+ * emits its movables immediately before loop_start, and C has no preheader to write in.
+ * THE ONE-ROW SPEC IS DERIVED AND PROVEN (not proposed): scratchpad/W72_A16/
+ * tm_cd_newmedia.json --
+ *     take  \taddu\t\$21,\$3,\$0\n
+ *     after \taddu\t\$22,\$20,4\n
+ * both anchors unique in the TU .s, no `slot`, no `drop_nop`.  The lane's own .s was
+ * edited by exactly that pair, assembled with the lane's `mipsel-none-elf-as -EL
+ * -march=r3000 -mtune=r3000 -G0`, and gated: CD_newmedia PASS 177/177 with the WHOLE TU
+ * 6/6 PASS (artefacts scratchpad/W72_A16/iso_tm.s / .o).  Needs only the orchestrator
+ * PER_FN_TEXT_MOVES entry.
+ * FALSIFIED at this basin (all gated + reverted, on top of the CdSearchFile seal so the
+ * whole cluster was RE-PRICED per 21E-1): loop test on `buf + 0x800` 33 - on `lim` 15 -
+ * `end` computed from `buf + 0x800` inside the guard 2 (inert) - `end = lim` repeated in
+ * the body 2 (inert) - a void barrier before or after `end = lim` 2/2 (inert) -
+ * `idx`/`rec` moved inside the guard 36 - a `CdPathEnt *tbl` local + `tbl[idx]` body to
+ * force the address constants earlier 25 - an `LBA *lbap` addr-of local 21 - a dummy
+ * `__asm__("" : : "r"(_cd_pathtbl[0].lba))` before `end = lim` 8 - a read-only fence on
+ * `end` after the loop 12 - do-while with `end = lim` LAST in the body (the 21B-3
+ * "born in the loop" shape, so LICM would hoist it after the address constants) 22 -
+ * the same as a `while` 15 - do-while with it first 34 - `end` assigned before the
+ * guard 22. */
 extern int CD_newmedia(void)
 {
     u_char *buf;

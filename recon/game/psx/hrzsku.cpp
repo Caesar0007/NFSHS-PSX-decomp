@@ -1088,6 +1088,59 @@ void Hrz_LightningFlicker(int on)
  * 6-live-value shape), and the allocno half (1) resolves itself.  Instrument: the .lreg
  * dump's post-sched1 insn ORDER (tools/rtl_dump.py -dl), not allocsim.  Harness:
  * scratchpad/A4/A4_probe.py + A4_gen.py (variant files v_*.txt, always restores). */
+/* ===== 🏆 W72-A4 (2026-08-22): 72 STAYS SHIPPED @56/56, BUT THE 5-WAVE "SIX-LIVE
+ * R-VALUES" MECHANISM IS FINALLY REPRODUCED FROM C -- and it is a LIVENESS device, not a
+ * priority one, exactly as w60/w64 predicted but never achieved.
+ * THE DEVICE (measured 66 @56/56, count- and opcode-census-exact; full source preserved at
+ * scratchpad/W72_A4/KEEP_h9_66diff_variant.py):
+ *     ONE {t1,t2,t3} block, unchanged (SYM-faithful), THEN a single block declaring NINE
+ *     distinct r names -- {r0,r1,r2} {s0,s1,s2} {u0,u1,u2}, one triple per mpsx ROW in the
+ *     same statement order as the shipped form -- and ONE 6-OPERAND READ-ONLY FENCE
+ *         __asm__("" : : "r"(r0),"r"(r1),"r"(r2),"r"(s0),"r"(s1),"r"(s2));
+ *     placed AFTER row 2's three `sh` stores (i.e. at the very end of the r region).
+ * WHAT IT BUYS -- the schedule half (the "40 diffs" of the w71 decomposition) COLLAPSES:
+ *   ours 12 `lw a2,32(sp)` / 13 `lw v0,40(sp)` vs oracle 12 `lw v1,32(sp)` / 13 `lw a2,
+ *   40(sp)`; ours 22 `lw a0,44(sp)` vs oracle 23 -- i.e. sched1 now HOISTS the reloads in
+ *   PAIRS and holds six shifted values live, which is retail's shape.  All that remains at
+ *   66 is the register NAMING (our t-triple lands $a3/$v1/$t1, retail's $t1/$t0/$t2).
+ *   => w64's verdict "the only remaining axis is the CONFLICT SET, and every source device
+ *   for it is falsified" is REFUTED: the conflict set IS source-reachable -- the missing
+ *   ingredient was CROSS-BLOCK VISIBILITY.  Every prior fence walk (w60's 18 positions x 4
+ *   operand sets, w63's carry fences) fenced values from INSIDE their own sibling block,
+ *   where each triple still dies before the next is born; nine names in ONE scope is what
+ *   lets a fence reach BACKWARDS over two rows.
+ * WHY IT IS NOT SHIPPED: the SYM (@40e990, symblk.py) records exactly FOUR sibling blocks
+ *   -- one {t1,t2,t3} and three {r0,r1,r2} -- so nine fn-scope names contradict retail's
+ *   own declaration structure, and w71-A4 deliberately chose the SYM-faithful basin (72)
+ *   over a lower-scoring one (62).  Landing 66 would trade that precedent for 6 LCS diffs
+ *   of scaffolding.  -> ORCHESTRATOR/USER DECISION; the recipe is exact and re-gateable.
+ * OPERAND/POSITION SWEEP around the device (all re-gated, all count-exact 56/56):
+ *   6 ops after row-2 stores ("end")  66   <- minimum
+ *   6 ops between row-2 shifts+stores 82 · 6 ops before row-2's first shift 80
+ *   {r0,r1,r2,s0,s1} 66 · {r0,r1,r2,s0,s2} 70 · {r0,r1,r2,s1,s2} 70
+ *   {r0,r1,s0,s1,s2} 74 · {r0,r2,s0,s1,s2} 76 · {r1,r2,s0,s1,s2} 74
+ *   best 4-operand set {r0,r1,s0,s2} 68; every other 4-set 70-76
+ *   row-0 triple only 72/78/74 (end/mid/pre) · row-1 triple only 74/82/72
+ *   one-value-per-row carry {r0} then {s0} 68 · nine names, NO fence 72 (= the control,
+ *   so the names alone are inert -- the fence is the whole device)
+ * ALSO FALSIFIED THIS PASS (all re-gated @56/56 unless noted):
+ *   - R-BLOCK ORDER is a CLOSED axis: all six permutations of the three mpsx-row blocks
+ *     measured 72 / 78 / 80 / 80 / 76 / 76 (012 = the shipped order is the minimum).
+ *   - reusing ONE fn-scope {r0,r1,r2} set across all three rows (no braces, which makes
+ *     them GLOBAL allocnos via REG_N_DEATHS==3): 82.
+ * MECHANISM NOTE, read off local-alloc.c:471-477 (gcc-2.8.1 source): a pseudo reaches
+ * local_alloc only if `REG_BASIC_BLOCK(i) >= 0 && REG_N_DEATHS(i) == 1`.  The single
+ * {t1,t2,t3} block sets each name three times, so REG_N_DEATHS==3 and all three t's are
+ * forced to GLOBAL alloc -- which runs AFTER local_alloc and therefore only ever sees what
+ * the local qtys left behind.  That is the whole "32-diff allocno half": it can never be
+ * fixed from the t side, only by making local_alloc consume $a2/$a3, which is precisely
+ * what the six-live device does.
+ * NEXT TAKER: either (a) land the 66 device if the user accepts the SYM deviation, or
+ * (b) find a form that reaches the same conflict set with three sibling {r0,r1,r2} blocks
+ * (nothing visible cross-block except `temp`/`mpsx` MEMs -- an 'm'-operand fence is inert
+ * on frame-relative MEMs per 21A(5), so this needs a genuinely new device), or (c) the
+ * instrumented-cc1 [find_free_reg] trace on the 66 form to price the last naming step.
+ * Harness: scratchpad/W72_A4/probe.py + gen_hrz{,2,3,4}.py. */
 void HrzSetPsxMatrix(matrixtdef *m)
 {
   MATRIX mpsx;
@@ -1321,7 +1374,50 @@ void Hrz_BuildSky(void)
          local_alloc gives it $a3 (side_by_side line 273: ours `lw a3,0(gp)` / oracle
          `lw t0,0(gp)`), i.e. $a3 is still FREE across that range in ours and was NOT in
          retail.  => the open dial is "what occupies $a0-$a3 across .L800D0E60 in retail",
-         NOT the spec caching and NOT the invariant list; that half is settled. */
+         NOT the spec caching and NOT the invariant list; that half is settled.
+     ===== W72-A4 (2026-08-22): 370 STAYS @458/458.  The w71 open dial is now PRICED
+     EXACTLY -- it is a REGISTER-POOL ARITHMETIC problem, not a spelling one -- and the
+     reorg half is reproduced byte-for-byte in a probe.
+     (a) THE PREHEADER IS AN EXACT COUNTING PROBLEM.  Both builds emit TEN values around
+         the Flare_Sun guard.  Retail: i=$t4, hp=$s3, and the eight invariants
+         $t3/$s0/$t2/$t6/$t7/$t9/$t8/$t5 -- i.e. retail's caller-saved pool is EXHAUSTED at
+         $t2..$t9 and TWO values overflow into callee-saved ($s0 and $s3).  Ours: the same
+         ten, but our pool still has $t1 free (retail's $t1 holds `temp`, and retail's $t0
+         holds the in-loop Sky_gTrackSpec cse temp), so nothing overflows past $s0 and `hp`
+         lands in a t-reg.  local_alloc runs FIRST: retail's TWO block-local qtys ($t0 cse
+         temp + $t1 `temp`) are what starve global.c.  Ours only ever creates ONE ($t0
+         `temp`); our cse temp takes $a3, which is still free.
+         => THE DIAL IS: make local_alloc's ascending scan skip $a0-$a3 for the
+         Sky_gTrackSpec temp so it lands in $t1.  Everything else follows mechanically.
+     (b) THE REORG EAGER STEAL IS SOURCE-REACHABLE (new, and it was the w71 "steal
+         CORRECT" note made exact).  Moving `hp = gHorizonPixmap;` BELOW the Flare_Sun
+         guard removes the simple-backward-fill candidate, and reorg then steals + retargets
+         the preheader's first insn exactly like retail.  MEASURED, all re-gated:
+           shipped                                                 370 @458
+           hp below the guard, i=0 first in the preheader           367 @459   <- steal +
+             `hp` in $s3, and insns 136..144 are BYTE-IDENTICAL to the oracle
+             (`addu tN,zero,zero` in the slot AND duplicated at the preheader head,
+              then `lui v0,0; addiu s3,v0,0`).  The ONLY extra insn is the hoisted
+              `lw tN,0(gp)` for the `spec` cache.
+           ...the same with hp/spec/i=0 permuted 6 ways              367 @459 ALL IDENTICAL
+             => preheader STATEMENT ORDER is canonicalised (w63 law re-confirmed here).
+           hp below guard + `spec` INLINED (no cache)                386 @458   <- count
+             EXACT and the steal still correct, but `hp` falls back to $t9 (the pool has
+             room again) and the s-band rotates: 89 fewer LCS matches than 367's shape.
+           `i = 0;` moved ABOVE the guard                       412 @458 / 390 @460
+             => WRONG: i then crosses the Flare_Sun call and is forced CALLEE-SAVED ($s1),
+             which rotates the whole function.  `i = 0;` must stay in the preheader.
+     (c) SO THE THREE HALVES ARE NOW SEPARATELY SOLVED-OR-PRICED: the eager steal (reachable,
+         costs the `spec` hoist), `hp` in $s3 (falls out of the steal shape), and the
+         one-slot t-band shift (needs the $a0-$a3 availability device of (a)).  Nothing was
+         landed because no single combination beats 370 yet -- 367 is count-INEXACT (+1)
+         and 386 is count-exact but LCS-worse.  The winning combination is
+         `hp below the guard` + `spec inlined` + a device that occupies $a3 across
+         .L800D0E60..800D0FF0, which should recover both the missing insn and the band.
+     NEXT TAKER: read the instrumented-cc1 [find_free_reg] trace (C:/Temp/nfs4-instr-cc1
+     cc1plus-ecoff) for the block at .L800D0E60 on the `spec`-inlined form and identify the
+     value retail keeps in $a3 there; that is the last unknown in this function.
+     Harness: scratchpad/W72_A4/probe.py + gen_sky{,2}.py (e_sk_a..k, e_sk_a2). */
   Draw_tPixMap **hp;
   CSkySpec *spec;
 
@@ -1836,6 +1932,90 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
  * class" caveat, so gate the branch words with tools/brdist.py after).  Expected: +2 insns
  * (count 473 EXACT) at the clipW site; the clipH `lui` and the mask-movable rank are
  * independent and stay open. */
+/* ---- W72-A4 (2026-08-22): 118 -> 58 @473/473 COUNT-EXACT.  FOUR stacked levers, each
+ * re-gated on its own and in sequence; the w71 named next step landed as predicted and
+ * then the w61/w63 "mask movable rank" open dial (2) fell as a side effect.
+ * LEDGER (verify_asm, ours/oracle insns):
+ *   baseline (w71)                                          118 @471
+ *   (A) 4-clause `&&` split into nested ifs, laundered `cw`  100 @473  <- +2, count EXACT
+ *   (B) + OR-operand swap on the FIRST OT RMW only            96 @473
+ *   (C) + named `m24` mask + 1-operand read-only fence        84 @473
+ *   (D) + block-scoped `fo = farI*4` in the two delta pairs   80 @473
+ *   (E) + read-only LIVENESS fence on `rowDelta`              58 @473  <- shipped
+ *
+ * (A) THE w71 NAMED STEP, EXECUTED.  Nesting alone is BIT-IDENTICAL (118 @471, measured
+ *     as the control), so the whole win is the laundered int: `int cw = *(u_short *)
+ *     0x1f800010; __asm__("" : "=r"(cw) : "0"(cw));` declared INSIDE clause-1's block,
+ *     then `(short)cw` in clause 2.  The launder keeps the zero-extended pseudo alive at
+ *     combine time, so the `lui 0x1F80; lhu; sll 16; sra 16` UNFUSED shape retail has is
+ *     emitted instead of our fused `lh` -- exactly the +2 insns the w71 receipt predicted.
+ * (B) 🏆 NEW LAW -- THE LICM MOVABLE THAT WINS THE BUDGET IS THE FIRST-GENERATED CONSTANT
+ *     IN THE EXPRESSION.  Retail hoists the TWO-insn 0xFFFFFF and rematerializes the
+ *     ONE-insn 0xFF000000 in the loop; we did the reverse, and w61/w63 filed it as an
+ *     unreachable "movable-rank" dial after ~8 falsified probes (named temps, re-mask
+ *     inflators, occurrence counts).  It is reachable by ONE token: write the first RMW
+ *     as `*(u_int *)p = *pal & 0xffffff | *(u_int *)p & 0xff000000;` (24-bit AND as OR
+ *     operand 0, i.e. generated first).  loop.c walks movables in RTL-generation order and
+ *     the budget is spent on the first one it accepts.  ⚠️ SITE-SELECTIVE: doing the same
+ *     to the SECOND RMW costs 4 (100 vs 96) and doing both = 100.
+ * (C) The named `u_int m24 = 0xffffff;` (w50/w61 measured it at 154/184/194 and closed the
+ *     axis) is a WIN once the OR swap is in place AND it carries a fence: plain named = 96
+ *     (neutral), named + identity launder = 102, named + a ONE-operand read-only fence
+ *     `__asm__("" : : "r"(m24));` after the second RMW = 84.  reqdelta-style arithmetic
+ *     from the .greg/.lreg dump predicted it exactly: p345 (the mask) 5 refs/158 live =
+ *     .253 vs p356 (the colour-base pointer) 8 refs/310 live = .310, so p356 was served
+ *     first and took $s7 while the mask fell to $fp; +2 in-loop refs (one fence operand at
+ *     loop depth 1) lifts the mask to 7 refs = .354 and the pair swaps to retail's
+ *     mask=$s7 / base=$fp.  Operand-count sweep: n=1 -> 84, n=2 -> 116, n=3 -> 128 (an
+ *     OVER-dial regresses exactly as the model says).  Position sweep: between the two
+ *     RMWs = 106, anywhere after the second RMW = 84.
+ * (D) `{ int fo = farI * 4; ... hsd + fo + 0x58 ... }` for both `dx/dy` pairs = -4.  The
+ *     flat `((int)hsd + 0x58) + farI * 4` reassociates so the scaled index is addu
+ *     operand 0 (`addu v0,v0,s6`); the block-scoped temp keeps retail's `addu v0,s6,v0`.
+ *     A pure re-spelling `(int)hsd + farI*4 + 0x58` without the temp is BIT-IDENTICAL
+ *     (84) -- the fold-reassociation escape needs a real block-scoped variable (21C-5).
+ * (E) 🏆 THE BIGGEST SINGLE LEVER (-22): a read-only fence on the max-search counter
+ *     `rowDelta`, placed AFTER the loop, inside the `updown[]` build region.  MECHANISM:
+ *     the three loop globals are priced floor_log2(refs)*refs*4/live -- rowDelta 9 refs
+ *     (init + 4 loop-weighted uses) = 108/L, zval 7 refs = 56/L, Zmax 5 refs = 40/L, so
+ *     ours served rowDelta FIRST and it took $a0; retail's order is zval,$a0 -> Zmax,$a1
+ *     -> rowDelta,$a3.  Extending rowDelta's live range past the loop DEMOTES it below
+ *     both rivals (the classic inverse dial) and zval/Zmax snap to retail's $a0/$a1.
+ *     POSITION IS THE WHOLE DIAL, and the window is sharp -- all re-gated:
+ *       after `pSVar12 = gRngCoordTop + farI;`            73 @472 (count SHORT)
+ *       after `updown[0].vx = ...`                        99 @474
+ *       after `updown[0].vy/.vz`, `updown[1].vx/.vy`      58 @473  <- the plateau
+ *       after `updown[1].vz = ...`                        63 @474
+ *       after `shape_overlap = 0;`                        62 @473
+ *       after `shape_w_idx = 0;`                         164 @473
+ *     Operand count is INERT inside the plateau (1/2/3 operands all 58), i.e. this is a
+ *     pure LIVE-LENGTH dial, not a ref-step one.  A SECOND fence anywhere later regresses
+ *     (62/156/164/162).
+ * FALSIFIED THIS PASS (all re-gated, from the basin named in brackets):
+ *   [100] laundered `ch` for clipH too (the symmetric device)      102 @475  (+2, wrong)
+ *   [84]  laundered `chv` for clipH inside clause 3                 86 @475
+ *   [84]  clipH as the plain literal `*(short *)0x1f800012`        127 @472 (cse-merged)
+ *   [96]  reverting the (B) OR swap once `m24` is named             98/102
+ *   [96]  `m24` declared+laundered before the loop                 102 · plain named 116
+ *   [84]  named temp for the `*(u_int *)p` read (to fix the RMW
+ *         load ORDER, ours reads *pal first)                       102 @473
+ *   [80]  cursor-bump POSITION re-probed in the new basin (the w61
+ *         EARLYBUMP is still required): after pal 144 @477 · after
+ *         RMW2 142 @475 · after the fence 142 @475 · after colour-1
+ *         140 @475 · after colour-2 142 @475
+ * REMAINING RESIDUAL (58 = ~35 diff lines), all named:
+ *   (1) rowDelta $a2-vs-$a3 (4 lines): the priority half is now correct, what is left is
+ *       AVAILABILITY -- retail has something occupying $a2 across rowDelta's range that we
+ *       do not.  §15A: a priority dial is inert on an availability loss; needs the
+ *       [find_free_reg] trace.
+ *   (2) the packet block (14 lines): our cursor read+bump sit at the TOP of the block
+ *       (required, see the falsification above) where retail emits the bump at the very
+ *       end, and our first RMW reads *pal before *p.  One coupled scheduling question.
+ *   (3) the clipH `lui` (2 lines) -- unchanged from w64/w71.
+ *   (4) three sched-position singletons: `nop; sw v0,60(sp)` 8 insns early, the
+ *       `addu s2,s4,zero; li s5,4` preheader pair 4 insns early, one `lh v1,40(sp)`.
+ * Harness: scratchpad/W72_A4/probe.py + apply.py (edit-list variants e_*.py, always
+ * restores; per-step backups hrzsku.cpp.step1..step5). */
 void Hrz_BuildHorizon(DRender_tView *Vi)
 
 {
@@ -1915,6 +2095,14 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
     updown[0].vz = pSVar12->vz;
     updown[1].vx = pSVar12->vx;
     updown[1].vy = (short)Hrz_gTrackSpec->yoffset;
+    /* MATCH (W72-A4, -22): ZERO-INSN LIVE-RANGE fence that DEMOTES `rowDelta`.  The
+       max-search loop's three globals price floor_log2(refs)*refs*4/live as
+       rowDelta 108/L > zval 56/L > Zmax 40/L, so ours served rowDelta first and it took
+       $a0; retail's order is zval=$a0, Zmax=$a1, rowDelta=$a3.  Extending rowDelta's live
+       range past the loop drops it below both rivals.  POSITION is the whole dial (the
+       plateau is exactly this updown[] region: one statement earlier = 99, one later = 63,
+       at `shape_w_idx = 0` = 164); operand COUNT is inert (1/2/3 all 58).  DO NOT DELETE. */
+    __asm__("" : : "r"(rowDelta));
     updown[1].vz = pSVar12->vz;
     {
       /* SYM block line=55 (nested in line=30): a single {p_,s_} scope REUSED for both
@@ -1936,8 +2124,16 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
     /* BUG FIX (round 2 diagnosis, now applied): each loop computes its OWN dx/dy delta ONCE
        from its own temp2d[] entry against a freshly-read posA[farI] baseline -- not a shared
        `right` value recomputed every iteration. */
-    dx = temp2d[0].vx - *(short *)(((int)hsd + 0x58) + farI * 4);
-    dy = temp2d[0].vy - *(short *)(((int)hsd + 0x5a) + farI * 4);
+    {
+      /* MATCH (W72-A4, -4 for the pair of blocks): BLOCK-SCOPED offset temp = the
+         fold-reassociation escape (21C-5).  The flat `((int)hsd + 0x58) + farI * 4`
+         reassociates so the scaled index becomes addu operand 0 (`addu v0,v0,s6`); the
+         plain re-spelling `(int)hsd + farI*4 + 0x58` is BIT-IDENTICAL, only a real
+         block-scoped variable stops fold and gives retail's `addu v0,s6,v0`. */
+      int fo = farI * 4;
+      dx = temp2d[0].vx - *(short *)((int)hsd + fo + 0x58);
+      dy = temp2d[0].vy - *(short *)((int)hsd + fo + 0x5a);
+    }
     shape_overlap = 0;
     shape_visible = (int)hsd;
   up_delta_loop:
@@ -1948,8 +2144,11 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
       shape_overlap = shape_overlap + 1;
       shape_visible = shape_visible + 4;
     if (shape_overlap < 0x11) goto up_delta_loop;
-    dx = temp2d[1].vx - *(short *)(((int)hsd + 0x58) + farI * 4);
-    dy = temp2d[1].vy - *(short *)(((int)hsd + 0x5a) + farI * 4);
+    {
+      int fo = farI * 4;
+      dx = temp2d[1].vx - *(short *)((int)hsd + fo + 0x58);
+      dy = temp2d[1].vy - *(short *)((int)hsd + fo + 0x5a);
+    }
     shape_w_idx = 0;
     shape_idx = (int)hsd;
   down_delta_loop:
@@ -1981,6 +2180,12 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
       int iVar18, iVar15, iVar6;
       (void)pmx;
 
+      /* MATCH (W72-A4, -12 with its fence below): the 24-bit OT mask as a NAMED local.
+         Naming it alone is neutral (96) and the identity-launder form is worse (102); it
+         only pays together with the one-operand read-only fence at its last use, which
+         buys +2 loop-weighted refs and flips the mask/colour-base pair onto retail's
+         $s7/$fp.  See the W72-A4 receipt block above the function. */
+      u_int m24 = 0xffffff;
       iVar15 = 0;
       iVar18 = 4;
       /* MATCH: exit-in-the-middle (top test + unconditional `j` back edge with the
@@ -2001,12 +2206,23 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                lo/hi read AT POINT OF USE (not pre-declared before the clause1 chain) -- the
                oracle defers the 0x1F800010/12 read until clause2 is actually reached (only
                after clause1's OR falls all the way through); a pre-if local hoists it early. */
-            if ((mpts[0].vx >= 0 || mpts[1].vx >= 0 || mpts[2].vx >= 0 || mpts[3].vx >= 0) &&
-                (*(short *)0x1f800010 >= mpts[0].vx || *(short *)0x1f800010 >= mpts[1].vx ||
-                 *(short *)0x1f800010 >= mpts[2].vx || *(short *)0x1f800010 >= mpts[3].vx) &&
-                (mpts[0].vy >= 0 || mpts[1].vy >= 0 || mpts[2].vy >= 0 || mpts[3].vy >= 0) &&
-                (*(short *)((int)hsd + 0x12) >= mpts[0].vy || *(short *)((int)hsd + 0x12) >= mpts[1].vy ||
-                 *(short *)((int)hsd + 0x12) >= mpts[2].vy || *(short *)((int)hsd + 0x12) >= mpts[3].vy)) {
+            /* MATCH (W72-A4, -18 and the count made EXACT 473/473): the flat 4-clause `&&`
+               is written as NESTED ifs ONLY so that clause 2's clipW read can have a block
+               to declare in.  Nesting on its own is BIT-IDENTICAL to the flat form; the
+               win is the laundered int -- `(short)(u_short)MEM` folds at TREE level, so no
+               single expression can keep retail's UNFUSED `lui 0x1F80; lhu; sll 16; sra 16`
+               shape.  The value must pass through a real `int` whose zero-extended pseudo
+               still exists at combine time, and the declaration must sit INSIDE clause 1
+               (the oracle's read is at .L800D16E0, the target clause-1's OR chain jumps
+               to).  DO NOT hoist it above the `if`, and do NOT re-flatten the chain. */
+            if (mpts[0].vx >= 0 || mpts[1].vx >= 0 || mpts[2].vx >= 0 || mpts[3].vx >= 0) {
+            int cw = *(u_short *)0x1f800010;
+            __asm__("" : "=r"(cw) : "0"(cw));
+            if ((short)cw >= mpts[0].vx || (short)cw >= mpts[1].vx ||
+                 (short)cw >= mpts[2].vx || (short)cw >= mpts[3].vx) {
+            if (mpts[0].vy >= 0 || mpts[1].vy >= 0 || mpts[2].vy >= 0 || mpts[3].vy >= 0) {
+            if (*(short *)((int)hsd + 0x12) >= mpts[0].vy || *(short *)((int)hsd + 0x12) >= mpts[1].vy ||
+                 *(short *)((int)hsd + 0x12) >= mpts[2].vy || *(short *)((int)hsd + 0x12) >= mpts[3].vy) {
               Horizon_InterpolateLineSCoords(&right,(DVECTOR *)(((int)hsd + 0x9c) + iVar15),
                          (DVECTOR *)(((int)hsd + 0xe0) + iVar15),&fxOverlapPercentage,1,0);
               iVar6 = Draw_gViewOtSize;
@@ -2025,8 +2241,18 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                    0x1F800004 literal and recomputed the slot at each of the four sites
                    (+6 insns in this block alone).  214 -> 166 diffs, 477 -> 471 insns. */
                 pal = (u_int *)(Render_gPalettePtr + Draw_gViewOtSize * 4 + -8);
-                *(u_int *)p = *(u_int *)p & 0xff000000 | *pal & 0xffffff;
-                *pal = *pal & 0xff000000 | (u_int)p & 0xffffff;
+                /* MATCH (W72-A4, -4): the FIRST RMW's OR operands are SWAPPED (24-bit AND
+                   first).  loop.c walks movables in RTL-GENERATION order and spends its
+                   budget on the first it accepts, so whichever mask constant is generated
+                   first is the one hoisted -- this token is what makes our preheader hoist
+                   the two-insn 0xFFFFFF (retail's) instead of the one-insn 0xFF000000.
+                   SITE-SELECTIVE: the same swap on the SECOND RMW costs +4, both = +4. */
+                *(u_int *)p = *pal & m24 | *(u_int *)p & 0xff000000;
+                *pal = *pal & 0xff000000 | (u_int)p & m24;
+                /* MATCH (W72-A4): the m24 ref dial -- see the decl above.  ONE operand
+                   only (n=2 -> 116, n=3 -> 128) and anywhere AFTER the second RMW
+                   (between the two RMWs -> 106). */
+                __asm__("" : : "r"(m24));
                 puVar1 = (u_int *)(p + 4);
                 *puVar1 = *(u_int *)(&gHrzRingColor[1][0].r + iVar15);
                 *(u_int *)(p + 0x10) = *(u_int *)(&gHrzRingColor[1][1].r + iVar15);
@@ -2057,6 +2283,9 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                   *(u_int *)(p + 0x2c) = *(u_int *)(q + 0x5c);
                 }
               }
+            }
+            }
+            }
             }
           }
         }

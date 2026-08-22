@@ -83,8 +83,14 @@ extern char               *Weather_gDrawnServerA[]     asm("Weather_gDrawnServer
  * dead -- cc1 emits `.extern GameSetup_gData+12,4` and GNU-as rejects the expression;
  * the offset has to live in the C subscript, not in the asm label.  An ARRAY view
  * -- unsized, [1], [4] or [16] -- measures 4, i.e. UNCHANGED: only the SCALAR
- * declaration reaches the macro form.) */
-extern int                 GameSetup_gDataWord0        asm("GameSetup_gData");
+ * declaration reaches the macro form.)
+ * ---- W72-A14 (2026-08-22): REVERTED TO THE UNSIZED ARRAY VIEW.  The scalar/macro
+ * form was only ever buying the LUI's REGISTER, and the cm-read POSITION buys the same
+ * register for free while leaving the load SCHEDULABLE (which the macro form is not).
+ * With `cm` read LAST the split view reaches PASS 197/197 on both lanes -- see the
+ * W72-A14 receipt inside Weather_DoWeather.  The array view also emits no second
+ * `.extern GameSetup_gData`, retiring the doubled-`.extern` dual-lane hazard. */
+extern int                 GameSetup_gDataWord0[]      asm("GameSetup_gData");
 
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
@@ -1711,11 +1717,64 @@ void Weather_DoWeather(DRender_tView *Vi)
    * NAMED NEXT ANGLE (out of source reach): PER_FN_POST_MASPSX_MOVES (the mechanism
    * 13E/19A already spec'd for _padInitDirSeq) -- TEXT_MOVES runs PRE-maspsx and can
    * only move the single macro LINE, which drags the `lui` down with it. */
+  /* ===== W72-A14 (2026-08-22): **PASS 197/197, BOTH LANES** -- 2 -> 0.  The W71-A5
+   * "out of source reach / needs PER_FN_POST_MASPSX_MOVES" verdict is REFUTED, and the
+   * refutation is a clean 21E-1 RE-PRICE: the w63 cm-POSITION table was measured in the
+   * SPLIT-view basin and the w71 re-sweep in the MACRO-view basin, but the winning cell
+   * needs the SPLIT view AND the LAST position TOGETHER -- a cross-basin cell neither
+   * sweep contained.
+   * THE SHAPE (landed above):
+   *   - `GameSetup_gDataWord0` goes back to an UNSIZED ARRAY view (`[]`), i.e. the
+   *     schedulable split `lui`/`lo_sum` pair, NOT the W71 4-byte scalar macro form;
+   *   - the `cm` read moves to LAST, after all three server-array reads.
+   *   Position is the whole dial for the LUI: with the read last, sched1 does NOT hoist
+   *   the `lui` into the prologue address group, so it is born at retail's own slot
+   *   (right after the three `addu`s) and local-alloc gives it retail's SELF-TEMP $v0.
+   *   Measured this wave, all from the shipped W71 basin:
+   *     scalar(macro) view + cm first  ... 2 @197   (the W71 ship)
+   *     scalar(macro) view + cm last   ... 5 @198
+   *     scalar(macro) view + cm mid    ... 18 @197
+   *     array(split)  view + cm first  ... 4 @197   (lui hoisted -> `lui $a3`)
+   *     array(split)  view + cm mid    ... 20 @197  (lui hoisted, whole a0/a1 rotation)
+   *     array(split)  view + cm last   ... 3 @198   <== the new basin, LANDED
+   *     ... + identity launder on cm ....  8 @197 (loses `one` to $v1)
+   *     ... + cm added to the player RO fence .. 3 @198 (bit-identical)
+   *     ... + `one` declared before cm .. 3 @198 (bit-identical)
+   *     ... + wd read first .............. 7 @198
+   * THE REMAINING 3 @198 IS ONE LINE, AND IT IS THE 12F/15D PURE-LINE-RELOCATION CLASS:
+   *   cc1 emits  lui $2,%hi(GameSetup_gData+12) / lw $22,0($5) / lw $23,0($3) /
+   *              lw $20,0($4) / lw $2,%lo(GameSetup_gData+12)($2) / #nop
+   *   retail has  lui / lw $22 / lw $23 / lw $2,%lo(..) / lw $20
+   *   i.e. our cm load is scheduled ONE slot late, and the `#nop` is purely its
+   *   load-delay filler -- moving the load up one slot deletes the nop for free and the
+   *   count goes exact.  Def/use sets are disjoint (`lw $2,..($2)` vs `lw $20,0($4)`),
+   *   so it is a legal scheduling permutation, retail's own order.
+   * ORCHESTRATOR WIRING SPEC -- build.py PER_FN_TEXT_MOVES, weather.cpp,
+   * "Weather_DoWeather__FP13DRender_tView": PREPEND this row BEFORE the existing
+   * w64-a13 `sll` row (both rows are required; row file kept at
+   * scratchpad/W72_A14/tm_weather.json):
+   *
+   *   {"take":  r"\tlw\t\$2,%lo\(GameSetup_gData\+12\)\(\$2\)\n",
+   *    "after": r"\tlui\t\$2,%hi\(GameSetup_gData\+12\) \# high\n"
+   *             r"\tlw\t\$22,0\(\$5\)\n\tlw\t\$23,0\(\$3\)\n"},
+   *
+   * The anchor is the full three-line retail head (numeric registers only, 15D anchor
+   * law); `lw $2,%lo(GameSetup_gData+12)($2)` occurs exactly once in the fn region.
+   * RECEIPTS: gate PASS 197/197 probed TWICE via tools/vprobe.py + W60_TEXT_MOVES_FILE;
+   * WHOLE TU 25/25 PASS with the row (was 24/25); CONTROL -- the row with the OLD scalar
+   * source is INERT (still 2 @197, the anchor cannot fire against the macro form), so the
+   * row may be wired FIRST and the source landing is then strictly monotone.
+   * PRODUCTION LANE: tools/psyqproof.py with W64_PQ_TEXT_MOVES_FILE = **REAL=0 RELOP=0**
+   * (197 words, -G8) -- PsyQ 4.3 cc1 + ASPSX 2.77 byte-identical, so this is a DUAL-LANE
+   * seal.  BONUS, and it closes the W71 flag: the array view emits NO second
+   * `.extern GameSetup_gData` at all (the scalar view's doubled `.extern GameSetup_gData,4`
+   * next to the real `,2600` is gone), so the dual-lane `.extern`-size hazard the W71
+   * device carried is retired rather than merely tolerated. */
   player = Vi->player;
-  int cm = (&GameSetup_gDataWord0)[3];   /* == GameSetup_gData.commMode, @ +0xC */
   wpt = Weather_gPServerA[player];
   wprevpt = Weather_gPrevPServerA[player];
   wd = Weather_gDrawnServerA[player];
+  int cm = GameSetup_gDataWord0[3];   /* == GameSetup_gData.commMode, @ +0xC */
   int one = 1;
   __asm__("" : : "r"(player));
   if ((cm != one) && (0x20 < simGlobal.gameTicks - timechange)) {

@@ -486,7 +486,47 @@ loop:
  * W63-A6: re-gated at 25 @107/106 and the VOID-BARRIER POSITION axis is now CLOSED -- a
  * mechanical sweep inserting a zero-insn `__asm__("" : : "i"(0))` before every statement in
  * the body (scratchpad/w63a6/fencesweep.py) found no position under 25.  Recorded as a real
- * negative: the SAME sweep moved this TU's StCdInterrupt 36 -> 27, so the axis was live. */
+ * negative: the SAME sweep moved this TU's StCdInterrupt 36 -> 27, so the axis was live.
+ *
+ * W72-A16 re-gate: 25 @107/106.  The wave's TWO NEW INSTRUMENTS -- the 20B ZERO-INSN
+ * HARD-REGISTER CONFLICT (which retired CD_init's `qty_phys_sugg` certificate outright)
+ * and the 2-OUTPUT TIED IDENTITY LAUNDER (which sealed CdRead by equalising two
+ * independent sched1 chains) -- were both applied here and BOTH FAIL, so the two clusters
+ * are re-classified rather than merely re-measured.
+ *  (a) THE EXTRA `li $v0,1`.  The oracle materialises the constant 1 ONCE and fills the
+ *      busy-wait guard's `beqz` slot with `lui $a2,1` (the 0x10000 limit); ours duplicates
+ *      `li $v0,1` into that slot and keeps its own copy at the mode test.  The reorg-only
+ *      barrier that this wave found (a NON-VOLATILE launder: reorg.c stop_search_p stops
+ *      at ANY `asm_noperands >= 0` insn, so it blocks a thread steal WITHOUT the sched1
+ *      barrier a void/read-only fence brings) was tried at the head of the target thread
+ *      and is blocked by the 21A-3 dead-launder rule: `i` is DEAD after the loop so its
+ *      launder is deleted (25, inert), and every value that IS live there is load-bearing
+ *      elsewhere -- launder `mode` 43, `ch` 27, `madr` 39, `blocksize` 43, `blocks` 41, a
+ *      `g = ch` round-trip 27.  The plain void barrier remains 27 (w62's reading).
+ *      ⚠️ NEW TOOL LIMIT found here: a 2-output tied launder over two PARAMETERS
+ *      (`"=r"(ch), "=r"(madr)`) CRASHES cc1 ("abnormal program termination") -- tie the
+ *      device to locals only.
+ *  (b) THE BCR/ADDRESS EMISSION ORDER.  Retail fills the `lw $a2,0($a0)` load-delay gap
+ *      with the two BCR insns (`sll $v0,$s3,16; or $v0,$v0,$s4`) and reuses $a2 for the
+ *      DPCR read-modify-write; ours fills that gap with the `p` address add and computes
+ *      BCR after the stores.  The 2-output tied launder is the natural instrument for a
+ *      sched1 chain-length tie -- and it is NET-NEGATIVE at every pairing: (bcr, p) 53,
+ *      (p, bcr) 53, (bcr, dp) 53, (bcr, bit) 47, a laundered `bcr_` after the `dp` fence
+ *      48, `bcr_` computed between the load and the store WITHOUT a fence 25 (inert, cse
+ *      re-sinks it).  Hard-register denial is equally inert or worse: a "$2" clobber added
+ *      to the FIRST `bit` fence 25, to BOTH 25, to the `dp` fence 25, "$6" on the `dp`
+ *      fence 25, a split `sh = ch*4` with a "$2"-clobbered launder 31, a "$6"-clobbered
+ *      `p` launder 31, a "$2"-clobbered launder on the second `dv` 35.
+ *      ⇒ RE-CLASSIFICATION: (b) is NOT an allocation tie the 20B family can dial.  Every
+ *      device that could reach it needs an insn in the load-delay gap, and any asm we can
+ *      put there IS an insn (or a barrier that stops the fill).  The remaining named angle
+ *      is unchanged in kind but sharper: give the BCR value a SECOND CONSUMER so its chain
+ *      genuinely outlives `dv` (a real use after the stores), rather than trying to pin its
+ *      position -- that is the only way its sched1 priority rises without adding an insn.
+ * ALSO RE-CONFIRMED: the else-arm VOLATILE-READ construct that sealed StCdInterrupt this
+ * TU does NOT recur here -- the two `if (mode == 1)`/`else` arms already match byte for
+ * byte in the current basin (the diff hunks are entirely outside them), so there is no
+ * un-merged-arm insn supply to recover. */
 extern void _st_dma(int ch, int madr, int blocks, int blocksize, volatile int chcr,
                     u_char enable_irq, int arg6)
 {

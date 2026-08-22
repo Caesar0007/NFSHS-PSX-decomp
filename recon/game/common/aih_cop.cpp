@@ -149,7 +149,54 @@ void AIHigh_Cop::SetTuningLevers()
    (local-alloc.c:1638-52 -- blocks with next_qty<=3 skip the qsort and compare RAW QTY
    NUMBERS, so no ref/live dial can reorder them; the only dial is crossing the 3<->4
    boundary with a DISTINCT extra qty).  Run tools/copypref.py / qtyprio.py on these
-   three blocks before spending another spelling wave. ==== */
+   three blocks before spending another spelling wave. ====
+   ==== W72-A11: 41 -> 20 AND COUNT-EXACT 1460/1460 (was +1).  All three landings are
+   the SAME device -- the zero-insn OPACITY/IDENTITY fence `("" : "=r"(x) : "0"(x))` --
+   used for THREE DIFFERENT jobs, and every one of them sits verbatim inside a previous
+   wave's falsification list (04Z basin-relativity at full strength: the W71 lists were
+   measured in the 55/69 basins, all three were re-tried here and all three landed).
+     A (SLD 303 wrongWay, the fn's +1 insn):  `int rev = GameSetup_gData.reverseTrack;`
+       + an identity fence, then test `rev == 0`.  W71 falsified "a global-into-local read
+       first (55, byte-identical)" -- the PLAIN local really is inert; the FENCED local
+       gives the reverseTrack load an earlier luid that sched2 honours, so the dir load
+       sinks into its load-delay slot exactly like retail.  41 -> 38, count exact.
+       Then naming `dir` as well AND fencing it (plain `dir` local = inert 38) took the
+       island's register handout to retail's: 38 -> 32.
+     C (SLD 615 AIFlags|2):  a block-local `Car_tObj *co = this->carObj_;` with an
+       identity fence on the POINTER, then `co->AIFlags = co->AIFlags | 2;`.  W71 recorded
+       the un-fenced named pointer as INERT -- again the plain/fenced distinction (15B).
+       Fencing the VALUE instead is inert (38); it is the pointer that must stop being
+       cse-equal to `this->carObj_`.  38 -> 26.  A7 and C3 compose: 20.
+   RESIDUAL 20, four sites, all pure register handout at exact count:
+     A'  the rev load: ours $a0 / retail $v0.
+     B   the inner (mode==1)||(mode==4): retail `li v0,4` in the first beq's delay slot,
+         ours re-uses the outer test's callee-saved $s2 and nops the slot.
+     D   the 0x471c7 compare's DEST reg ($v0 ours / $v1 retail).
+     E   one bne operand order on the chaseLevelIndex_ test.
+   FALSIFIED IN THIS BASIN (each re-gated from its stated base):
+     A: plain `rev` local 41; if/else on rev!=0 41 @1465; if/else on rev==0 41 @1465;
+        `rev` read-only fence 27 @1461; a SECOND identity fence on rev inert (20).
+     B: 21E-5 cse-constant-sharing breaker aimed at the OUTER 4 (a fenced
+        `blockadeMode_t four`) 53 @1461; a void-tail fence before the inner test 50;
+        both together 63.  So B is NOT a cse constant-table question the way the W63
+        note assumed -- breaking the outer's 4 costs more than the inner's fresh `li`
+        buys.  NEXT LENS for B: $s2 is a GLOBAL allocno (the 4 is live across the whole
+        fn); the reachable question is why our inner mode read takes $v0 (leaving no
+        free caller-saved reg for a fresh 4), i.e. the two-qty handout of that block.
+     C: value-local + fence 38; ptr-local + value-local (both fenced) 38.
+     D: named boolean + identity fence inert (20).
+     E: operand flip 26 (WORSE, third confirmation -- do not retry).
+   INSTRUMENT NOTE: the instrumented cc1plus (C:/Temp/nfs4-instr-cc1/cc1plus-ecoff.exe)
+   ICEs on THIS function (aih_cop.cpp:264, "Internal compiler error") and therefore
+   truncates the TU trace after SetTuningLevers -- the [qty_order]/[find_free_reg] lens is
+   NOT available for HighExecute.  Harness scratchpad/W72_A11/A11_trace.py reports the
+   fidelity table and leaves the partial trace; the real CC1PLPSX still accepts -dl/-dg.
+   READ THE LADDER LAW CORRECTLY (gcc-2.8.1 local-alloc.c:1588-1610, read this wave):
+   the raw-qty-number bug is in the `case 3:` arm ONLY -- its second comparison
+   `qty_compare (1, 2)` compares QTYS 1 and 2 while the EXCHANGE permutes qty_ORDER.
+   `case 2:` is a correct two-element sort, so a genuinely 2-qty block IS priority
+   ordered and the floor_log2 ref/live dial DOES reach it.  Count the block's qtys before
+   quoting 14C. ==== */
 /* NEAR-MISS 69 diffs, ours 1457 / oracle 1460 (W64-A12 re-gated; w63-a12 landed 77->69
    with the fenced boolean + the 09I volatile-on-the-test-read, both halves ablated and
    both load-bearing).  ONE named residual is now isolated and its cheapest angle is
@@ -383,12 +430,22 @@ void AIHigh_Cop::HighExecute()
               if (newTrigger.roadblock.type == 3) {
           {
           u_int wrongWay;
+          /* 🔴 W72-A11 -- ZERO-INSN OPACITY FENCES, DO NOT "SIMPLIFY" (receipt at the top
+             of this fn).  The PLAIN locals are byte-inert (both measured); it is the
+             fences that give the reverseTrack load an earlier luid than the dir load, so
+             sched2 sinks the dir load into the reverseTrack load's delay slot exactly like
+             retail.  Dropping the rev fence = 41 @1461 (one insn LONG); dropping the dir
+             fence = 38. */
+          int rev = GameSetup_gData.reverseTrack;
+          __asm__("" : "=r"(rev) : "0"(rev));
+          int dir = newTrigger.roadblock.dir;
+          __asm__("" : "=r"(dir) : "0"(dir));
 
-          wrongWay = ~newTrigger.roadblock.dir;
+          wrongWay = ~dir;
 
-          if (GameSetup_gData.reverseTrack == 0) {
+          if (rev == 0) {
 
-            wrongWay = newTrigger.roadblock.dir ^ 1;
+            wrongWay = dir ^ 1;
 
           }
 
@@ -1168,7 +1225,13 @@ LAB_80064a0c:
 
       int release;
 
-      (this->carObj_)->AIFlags = (this->carObj_)->AIFlags | 2;
+      /* 🔴 W72-A11 -- ZERO-INSN OPACITY FENCE on the POINTER, DO NOT "SIMPLIFY": it stops
+         cse proving `co == this->carObj_`, which flips retail's ptr->$v1 / value->$v0
+         handout for this RMW (38 -> 26; the un-fenced named pointer is inert, and fencing
+         the VALUE instead is inert). */
+      { Car_tObj *co = this->carObj_;
+        __asm__("" : "=r"(co) : "0"(co));
+        co->AIFlags = co->AIFlags | 2; }
 
       {
         int requestSlice;

@@ -150,6 +150,35 @@ extern void *firstfile(char *name, void *dir)
      * sched1's order without adding a pseudo; the only two handles left are a per-fn scheduler
      * flag/rung (build-side) and an instrument read of sched1's ready list (`-dS`) to find which
      * priority input puts the `high` ahead of the load chain. */
+    /* 🔑 W72-A18 RE-GATE (5 @104/103, unchanged) + A QUANTIFIED CERTIFICATE THAT RETIRES THE
+     * SWAP-BASIN NAMED ANGLE.  W64-A5/W71-A13 left the swap basin (scan-init before p-init,
+     * count-EXACT 103/103 at 18, residual = a clean p/scan two-register swap) with the angle
+     * "one ref or one live-unit on p or scan -- read -dl/-dg and find why the fence operand is
+     * not counted".  I read it (tools/rtl_dump_c.py -dg -dl, scratch/rtl_a5/FIRST.i.*) and the
+     * answer is that THE ANGLE IS THE WRONG PASS.  Measured, in the swap basin:
+     *     no fence ......................... rank0 p85 refs 8 live 11 pri 8.727 -> $v1
+     *                                        rank1 p86 refs 9 live 13 pri 8.308 -> $a0   gate 18
+     *     + foreign-operand fence "r"(dir)
+     *       between the loop and `*p='\0'` .. rank0 p86 (8.308) -> $a0
+     *                                        rank1 p85 refs 8 live 12 (8.000) -> $v1     gate 18
+     *     + the same fence x2 .............. rank0 p86 -> $a0, rank1 p85 live 13 (7.385)  gate 18
+     *     + "r"(name) instead of "r"(dir) .. same flip                                    gate 18
+     *   i.e. THE 15A FOREIGN-OPERAND FENCE DOES EXACTLY WHAT IT ADVERTISES -- +1 live on every
+     *   pseudo live across it, +0 refs on the others -- and the allocno RANK ORDER FLIPS as
+     *   predicted.  THE HARD-REG HOMES DO NOT MOVE: p85 stays $v1 and p86 stays $a0 in every
+     *   one of the four tables.  ==> in this basin the p/scan homes are decided by find_reg's
+     *   PREFERENCE/CONFLICT step (12A: find_reg takes a hard-reg preference BEFORE the numeric
+     *   scan), not by allocno_compare, so NO priority dial -- ref, live, or fence-flavour --
+     *   can ever reach them.  That closes the W64-A5/W71-A13 "one ref or one live-unit" angle
+     *   with receipts instead of another sweep, and it is a general LAW worth carrying:
+     *     🔴 A RANK FLIP THAT DOES NOT MOVE THE HOMES PROVES THE RESIDUAL IS PREFERENCE-BOUND.
+     *        Dump the table BEFORE and AFTER the dial; if the order changed and the dispositions
+     *        did not, stop dialing priority and go to global.c's preference/conflict side.
+     *   (The same fence in the CONTROL basin is inert at 5, table rank0 p86 refs 9 live 10 -> $v1
+     *   / rank1 p85 refs 8 live 14 -> $a0 -- i.e. the control basin ALREADY has retail's p=$a0 /
+     *   scan=$v1 assignment, which is why its residual is only the address-materialization row.)
+     *   ==> the CONTROL basin (5) remains the right base; its residual is the `high`/`lo_sum`
+     *   emission-position + self-temp row, unchanged and still sched1/allocation-side. */
     /* extract the device prefix (characters before ':') into _first_devname */
     p = _first_devname;
     scan = (signed char *)name;

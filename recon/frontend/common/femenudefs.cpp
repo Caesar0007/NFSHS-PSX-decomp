@@ -2790,7 +2790,122 @@ winCase:
    NEXT: (a) the shared-header tInsideBoxControllerLeftRightSlider vptr diff still
    stands (see above, still not applied); (b) the only lever left with real mass is
    making gcc spill 8 more pseudos so the pad can go to 0 and the whole spill area
-   re-sites -- that is a register-pressure question, not a source-text one. */
+   re-sites -- that is a register-pressure question, not a source-text one.
+
+   [W72-A6 2026-08-22]  1840 -> 1257 (-583, -32%), TU 65/66 PASS throughout,
+   ZERO regressions.  W71-A16's item (b) is DONE: the extra spills were bought,
+   `compilerFramePad` is GONE, and the frame is now 640 == 640 NATURALLY.
+   Metrics (all from scratchpad/W72_A6_metric.py -- LCS on the verify_asm streams
+   under four normalizations; the last one is the true structural residual):
+                        insns    raw   reg-blind   reg+spill-blind
+     W71-A16 base        3199   1740      938           206
+     W72-A6 landed       3214   1169      275           207   (oracle 3207)
+   1. THE %hi AUDIT WAS RE-RUN AND IS CLEAN -- no more wrong arguments.
+      scratchpad/W72_A6_hiaudit.py upgrades A16_callaudit.py from a per-`jal`
+      HI16 *count* check to an ordered RESOLVED-ADDRESS diff: every (%hi,%lo)
+      pair on both sides is resolved to an absolute address (symbol_addrs +
+      D_xxxxxxxx + the addend split across the HI16/LO16 immediates) and the two
+      sequences are diffed.  237 oracle sites vs 243 ours; after mapping our
+      `Foo_vtable` spelling onto the oracle's `_vt_<len><Foo>` the ONLY multiset
+      deltas are FEApp (+6, shape #2 below) and a 3-for-3 anchor swap
+      (frontEnd+0x5E vs frontEnd+0x320, same FINAL addresses).  D_800114D8 /
+      D_80011530 are just unnamed `_vt_32tBlankMenuItemGoToMenuNFS4Button` /
+      `_vt_33tBlankMenuItemNFS4LeftRightChoice` (proved from
+      asm/data/rdata_80010000_r04.rodata.s) -- a symbol_addrs naming gap, not a bug.
+      scratchpad/W72_A6_immaudit.py does the SAME audit for the this-relative
+      arguments the %hi audit cannot see (register-blind ordered `addiu rD,rS,K`
+      and `li rD,K` sequences): 494 vs 492 addiu sites, multiset delta = only the
+      3 anchor sites + the one duplicated `addiu 8408`; `li` delta = one `li 1`.
+      ==> THE ARGUMENT SET OF THIS CTOR IS NOW PROVEN BYTE-CORRECT.  Do not spend
+      another wave hunting wrong arguments here.
+   2. SHAPE 1 (fp TIE-BREAK) SOLVED -- and it was NOT a tie.  The -dg/-dl dumps
+      name the two rivals exactly (tools/rtl_dump.py + tools/prio.py on
+      "tGlobalMenuDefs::tGlobalMenuDefs()"): p573 = this+0x20D8 (&menuCarOptions)
+      refs=6 live=134 pri=896, p586 = this+0x12E8 (&itemGarageCar) refs=4 live=108
+      pri=741 -- p573 wins $fp on merit, so ours parks the wrong one.  RETAIL's
+      p573 is a MUCH longer allocno: the oracle reaches the menuCarOptions member
+      ctor itself with `lw $a0,0x10C($sp)` (0x800300EC) -- one pseudo from
+      0x8002F49C to 0x800300EC, spilled and reloaded 5x -- while our cse
+      rematerializes `this+0x20D8` for that ctor (hence `addiu 8408` x2 vs x1).
+      Not spellable (the member ctor call is compiler-generated), so the fix is a
+      +1-ref READ-ONLY FENCE on the rival (catalog 21A#1) inside the initializer
+      list, delivered through a GNU STATEMENT-EXPRESSION -- cc1plus 2.8 accepts
+      `({ ... })` in a mem-initializer argument (NEW: this is the only way to put
+      an RTL device inside an initializer list; it opens every data-driven ctor).
+      refs 4->5 makes pri 2*5/109 = 917 > 896 and $fp flips.  ALL ELEVEN $fp
+      writes then match the oracle's, offsets AND registers
+      (`addiu fp,t1,4840` @1110 == oracle @1110).
+      SITE MATTERS: the fence on the menuCarGarage use is +64; the same fence on
+      the menuDuelCarSelect use flips $fp just as well but costs +224 (it fixes
+      insns 1000-1800 and inverts the t0/t1 phase for 1800-3200).
+   3. SHAPE 3 (TAIL POINTER-REUSE) SOLVED, and it is what buys the spills.
+      `(menuMemory).VertHelp = 0;` compiles to `sh zero,0x3110(this)`; retail has
+      `lw t1,0x234(sp); nop; sh zero,0x64(t1)` -- i.e. retail keeps &menuMemory in
+      a pseudo from its ctor to the end of the body and SPILLS it.  A LAUNDER
+      (`{ tMenu *p = &m; __asm__("" : "=r"(p) : "0"(p)); p->VertHelp = 0; }`,
+      catalog 20B) makes the value opaque so the store must use the pointer form,
+      and the pointer's function-long live range makes reload spill it.  That
+      alone moves ours from 3199 to EXACTLY 3207 insns and re-sites the whole
+      spill area.  DIAGNOSTIC THAT FOUND IT: a memory-DISPLACEMENT census over
+      the two streams (op, displacement, non-sp base) -- the ONLY deltas in the
+      whole 3200-insn function were `sh 100` (oracle x2) vs `sh 12560` / `sh 13108`
+      (ours).  Run that census on any big ctor before theorising.
+   4. SHAPE 2 (%hi(FEApp) HOIST) SOLVED, and it is the SAME FACT as "retail spills
+      8 more pseudos".  Retail holds %hi(FEApp) in $s0 across the last six
+      tListIteratorRangeIndexed ctors, which DENIES $s0 to the iterator addresses,
+      which is why retail spills them (`sw t0,520(sp)` ... `lw a2,520(sp)`) where
+      we did `addu a2,s0,zero`.  Cure = the 'm'-OPERAND fence (catalog 21A#5)
+      `__asm__("" : : "m"(FEApp))` on the `&FEApp->fInputPlayer` argument, again
+      via a statement-expression.  COUNT IS A SHARP DIAL: the last EIGHT
+      iterators (SteeringRange1..IIMax) = 1261; last 7 = 1908; last 6 = 2355;
+      last 9/10/all-controller = 2412/2434/2472; all 18 = 3466.
+   5. `compilerFramePad` IS RETIRED.  With 3+4 landed the natural spill area is
+      52..592 and the frame is 640 without any pad; the pad now HURTS (pad 0 =
+      1261, pad 4..32 = 2151..2259, because the declared local perturbs the
+      allocation, not just the numbering).  Deleting the array AND its
+      `__asm__("" : : "m"(compilerFramePad))` anchor is gate-neutral vs pad[0]
+      (both 1261) and is the honest source, so the array is gone.
+      Slot check: ours 157 frame slots vs oracle 156; sp-displacement mismatches
+      on aligned insns dropped 307 -> 59 and the uniform -24 (frame 616 vs 640)
+      class is DEAD.
+   REMAINING 1261, decomposed:
+     ~277 (reg-blind) genuine structure, concentrated in 2500-2700 (the slider
+          ctor block: our `addu a1,zero,zero; li a2,127; lui` order vs retail's)
+          plus the four small hunks at 959 / 1140 / 1221 / 2400.
+     the rest is ONE t0<->t1 PHASE.  It is now measurable as RUNS (script in
+     the receipt trail): ok 3..1142, FLIPPED 1143..1160, ok 1162..1224,
+     FLIPPED 1227..1867 (640 insns -- THE ONE THAT MATTERS), ok 1872..2527,
+     then only short flips.  ROOT OF THE BIG RUN, read off the streams:
+     at the itemGoToDuelBuyCar ctor retail SCHEDULES `addiu v0,zero,-1; sw v0,
+     0x10(sp)` BEFORE the two `addiu this,+0x14F8/+0x1D48`, so $t0 is still live
+     and the -1 takes $v0; ours schedules the -1 AFTER `sw t0,0x120(sp)`, $t0 is
+     dead, and the -1 reuses $t0 -- from there the t0/t1 quantity phase is
+     inverted for 640 insns.  Same 13 insns, same multiset, pure sched1 order.
+     MIPS has no REG_ALLOC_ORDER (config/mips/mips.h), so local-alloc scans
+     $0..$31 and $v0 would win if it were free at the -1's birth -- it IS free in
+     our window (no v0 reference in 1150..1300), which proves the cause is the
+     SCHEDULE, not occupancy.  ==> the next wave's lever is a luid/order dial on
+     that one stack-argument store, NOT an allocator device.
+   FALSIFIED THIS WAVE (measured, do not retry): hard-register CLOBBER devices on
+   the -1 (`: "$8"` / `: "$9"`) -- reload1.c puts every asm-clobbered reg into
+   bad_spill_regs FUNCTION-WIDE, so the whole function migrates to $t2 and $fp
+   becomes `addiu fp,t2,...` (3601 / 2733); a plain launder on the -1 is inert
+   (1271); `__asm__("" : : "r"(this))` at the head, tail, or both of the body is
+   inert (1261 unchanged, deleted as dead per 21A#3); the NON-VOLATILE launder
+   form of the itemGarageCar fence (2210 vs the read-only fence's 1776); the
+   read-only fence at BOTH itemGarageCar uses (2202); any pad != 0 on top of the
+   landed shape; 'm'-fencing the seven iteratorDisplay* FEApp arguments (3466).
+   NEXT (in value order): (a) the sched1 dial on the itemGoToDuelBuyCar `-1`
+   stack-argument store -- worth the 640-insn t0/t1 run; (b) the 2500-2700 slider
+   block order; (c) the tail's last 3 insns (retail's this-reload lands in $v0 so
+   the ctor's `return this` needs no `addu v0,t0,zero`; ours puts the constant 2
+   in $v0 and this in $t0 -- a local-alloc qty ORDER question); (d) the
+   shared-header tInsideBoxControllerLeftRightSlider vptr diff, still not applied.
+   TOOLS (all untracked, scratchpad/): W72_A6_hiaudit.py (resolved-address %hi
+   audit), W72_A6_immaudit.py (register-blind immediate audit), W72_A6_metric.py
+   (the 4-metric decomposition), W72_A6_class.py (diff-hunk classifier),
+   W72_A6_ctx.py (windowed stream dump), W72_A6_probe.py (variant+pad probe
+   harness that always restores from W72_A6_base.cpp). */
 
 
 /* [2026-08-10] Retail constructs every iterator in declaration order between its
@@ -2887,7 +3002,12 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemGarageCar(0x92, (tListIterator *)&iteratorGarageCar, 0x1c, 10)   /* +0x12E8 tMenuItemNFS4LeftRightChoice */
  , itemCarDealer(0x74, (tMenu*)&menuGoToCarDealer, 0, 0x3a, 10)   /* +0x1310 tMenuItemGoToMenuNFS4Button */
  , itemUpgradeCar(0x91, (tMenu *)0x0, MenuExtended_GoToUpgrades, 0x44, 10)   /* +0x133C tMenuItemGoToMenuNFS4Button */
- , menuCarGarage(0x1a00, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0x8f, (tMenuItem *)&itemCarSelectRace, &itemGarageCar, &itemCarDealer, &itemUpgradeCar, 0)   /* +0x1368 tMenuNFS4 */
+   /* [W72-A6] The statement-expression read-only fence on &itemGarageCar below is a
+      +1-REF ALLOCNO DIAL (catalog 21A#1), NOT dead code -- DO NOT SIMPLIFY IT AWAY.
+      It raises &itemGarageCar (this+0x12E8) from allocno priority 741 to 917, past
+      &menuCarOptions (this+0x20D8) at 896, so $fp holds the same member retail holds.
+      All eleven $fp writes match the oracle -- offsets AND registers -- only with it. */
+ , menuCarGarage(0x1a00, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0x8f, (tMenuItem *)&itemCarSelectRace, ({ __asm__("" : : "r"(&itemGarageCar)); &itemGarageCar; }), &itemCarDealer, &itemUpgradeCar, 0)   /* +0x1368 tMenuNFS4 */
  , menuPostCarGarage(0x1a00, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0x8f, (tMenuItem *)&itemCarSelectRace, &itemUpgradeCar, 0)   /* +0x13E4 tMenuNFS4 */
  , iteratorOpponentCar(&frontEnd.oppCar, &carManager)   /* +0x1460 tListIteratorCar */
  , itemDuelRace(0xbd, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0x2a, 10)   /* +0x147C tMenuItemGoToMenuNFS4Button */
@@ -3000,21 +3120,31 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemControllerShockMode(0x20e, (tListIterator *)&iteratorControllerShockMode)   /* +0x2C00 tInsideBoxControllerLeftRightSlider */
  , iteratorControllerShockImpact('\0', '\x7f', frontEnd.shockImpact, &FEApp->fInputPlayer)   /* +0x2C28 tListIteratorRangeIndexed */
  , itemControllerShockImpact(0x20f, (tListIterator *)&iteratorControllerShockImpact)   /* +0x2C3C tInsideBoxControllerLeftRightSlider */
- , iteratorControllerSteeringRange1('\0', '\x7f', frontEnd.J1MAX, &FEApp->fInputPlayer)   /* +0x2C64 tListIteratorRangeIndexed */
+   /* [W72-A6] The eight "m"(FEApp) fences below (this line through
+      iteratorControllerIIMax) are the m-OPERAND SYMBOL-ADDRESS FENCE of catalog
+      21A#5: zero instructions, they only add references to the %hi(FEApp) pseudo so
+      it wins $s0 across these ctors like retail, which denies $s0 to the iterator
+      addresses and makes reload spill them (retail sw t0,520(sp) ... lw a2,520(sp)).
+      The COUNT of SITES is a sharp dial: eight = 1261 diffs, seven = 1908,
+      six = 2355, ten = 2434, all eighteen = 3466.  The count of fences PER SITE
+      is a second, weaker dial that SATURATES: one each = 1261, two each = 1257,
+      three each = 1257 -- hence the doubled fence below.
+      DO NOT SIMPLIFY, DO NOT EXTEND TO MORE SITES. */
+ , iteratorControllerSteeringRange1('\0', '\x7f', frontEnd.J1MAX, ({ __asm__("" : : "m"(FEApp)); __asm__("" : : "m"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2C64 tListIteratorRangeIndexed */
  , itemControllerSteeringRange1(0x211, (tListIterator *)&iteratorControllerSteeringRange1, 0)   /* +0x2C78 tInsideBoxTwoWaySlider */
- , iteratorControllerDeadSpot1('\0', '\x7f', frontEnd.J1MIN, &FEApp->fInputPlayer)   /* +0x2CA8 */
+ , iteratorControllerDeadSpot1('\0', '\x7f', frontEnd.J1MIN, ({ __asm__("" : : "m"(FEApp)); __asm__("" : : "m"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2CA8 */
  , itemControllerDeadSpot1(0x213, (tListIterator *)&iteratorControllerDeadSpot1, 1)   /* +0x2CBC tInsideBoxTwoWaySlider */
- , iteratorControllerSteeringRange2('\0', '\x7f', frontEnd.J2MAX, &FEApp->fInputPlayer)   /* +0x2CEC */
+ , iteratorControllerSteeringRange2('\0', '\x7f', frontEnd.J2MAX, ({ __asm__("" : : "m"(FEApp)); __asm__("" : : "m"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2CEC */
  , itemControllerSteeringRange2(0x210, (tListIterator *)&iteratorControllerSteeringRange2, 2)   /* +0x2D00 tInsideBoxTwoWaySlider */
- , iteratorControllerDeadSpot2('\0', '\x7f', frontEnd.J2MIN, &FEApp->fInputPlayer)   /* +0x2D30 */
+ , iteratorControllerDeadSpot2('\0', '\x7f', frontEnd.J2MIN, ({ __asm__("" : : "m"(FEApp)); __asm__("" : : "m"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2D30 */
  , itemControllerDeadSpot2(0x212, (tListIterator *)&iteratorControllerDeadSpot2, 3)   /* +0x2D44 tInsideBoxTwoWaySlider */
- , iteratorControllerJoyRange('\0', '\x7f', frontEnd.steeringRange, &FEApp->fInputPlayer)   /* +0x2D74 */
+ , iteratorControllerJoyRange('\0', '\x7f', frontEnd.steeringRange, ({ __asm__("" : : "m"(FEApp)); __asm__("" : : "m"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2D74 */
  , itemControllerJoyRange(0x214, (tListIterator *)&iteratorControllerJoyRange, 0)   /* +0x2D88 tInsideBoxTwoWaySlider */
- , iteratorControllerCenterPoint('\0', '\x7f', frontEnd.deadSpot, &FEApp->fInputPlayer)   /* +0x2DB8 */
+ , iteratorControllerCenterPoint('\0', '\x7f', frontEnd.deadSpot, ({ __asm__("" : : "m"(FEApp)); __asm__("" : : "m"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2DB8 */
  , itemControllerCenterPoint(0x215, (tListIterator *)&iteratorControllerCenterPoint, 1)   /* +0x2DCC tInsideBoxTwoWaySlider */
- , iteratorControllerIMax('\0', -1, frontEnd.ImaxRange, &FEApp->fInputPlayer)   /* +0x2DFC */
+ , iteratorControllerIMax('\0', -1, frontEnd.ImaxRange, ({ __asm__("" : : "m"(FEApp)); __asm__("" : : "m"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2DFC */
  , itemControllerIMax(0x216, (tListIterator *)&iteratorControllerIMax, 2)   /* +0x2E10 tInsideBoxTwoWaySlider */
- , iteratorControllerIIMax('\0', -1, frontEnd.IImaxRange, &FEApp->fInputPlayer)   /* +0x2E40 */
+ , iteratorControllerIIMax('\0', -1, frontEnd.IImaxRange, ({ __asm__("" : : "m"(FEApp)); __asm__("" : : "m"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2E40 */
  , itemControllerIIMax(0x217, (tListIterator *)&iteratorControllerIIMax, 3)   /* +0x2E54 tInsideBoxTwoWaySlider */
  , menuControllerDualShock(0x1000, (tScreen *)0x0, (tMenu *)0x0, (tMenu *)0x0, 0, 0, (tMenuItem *)&itemControllerShockMode, &itemControllerShockImpact, 0)   /* +0x2E84 tInsideBoxMenu */
  , menuControllerAnalog(0x1000, (tScreen *)0x0, (tMenu *)0x0, (tMenu *)0x0, 0, 0, (tMenuItem *)&itemControllerSteeringRange1, &itemControllerDeadSpot1, &itemControllerSteeringRange2, &itemControllerDeadSpot2, 0)   /* +0x2EF8 tInsideBoxMenu */
@@ -3050,7 +3180,6 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemMemContinue(0x28a, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_TransitionFromPostGameToMainMenu)   /* +0x3A6C tMemoryCardMenuItem */
  , menuPostGameSave(0x1040, (tScreen *)screenMemcard, (tMenu *)0x0, (tMenu *)0x0, 0, -1, 0x2e, 10, (tMenuItem *)&itemMemContinue, &itemSaveGame, 0)   /* +0x3A98 tOptionsMenu */
 {
-  char compilerFramePad[32];
 
   {
     tMenu *child = (tMenu *)&menuPlayerTwoCarSelect;
@@ -3077,11 +3206,17 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   (menuDisplayOptions).VertHelp = 0;
   (menuControllerConfig).VertHelp = 1;
   (itemTournamentFinishedHome).fFlags = (itemTournamentFinishedHome).fFlags | 0x40;
-  (menuMemory).VertHelp = 0;
-  (menuUserName).VertHelp = 0;
+  /* [W72-A6] TAIL POINTER-REUSE: retail writes these two VertHelp fields through
+     member pointers kept live since their ctors and spilled (lw t1,0x234(sp); nop;
+     sh zero,0x64(t1)), not through this + a big displacement.  The LAUNDER (catalog
+     20B) makes the pointer opaque so the store must use the pointer form; the
+     resulting function-long live range is what makes reload spill it, which re-sites
+     the whole spill area and yields the natural 640-byte frame (compilerFramePad is
+     retired because of this).  Plain member stores here cost ~950 diffs. */
+  { tMenu *pm_ = (tMenu *)&menuMemory; __asm__("" : "=r"(pm_) : "0"(pm_)); pm_->VertHelp = 0; }
+  { tMenu *pu_ = (tMenu *)&menuUserName; __asm__("" : "=r"(pu_) : "0"(pu_)); pu_->VertHelp = 0; }
   (menuTrackRecords).VertHelp = 1;
   (menuTrophyInfo).VertHelp = 0;
-  __asm__("" : : "m"(compilerFramePad));
   return;
 }
 

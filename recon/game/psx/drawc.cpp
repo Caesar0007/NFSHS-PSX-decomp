@@ -1182,9 +1182,91 @@ DrawCPrimStart_camRotMatrix:
        local for positionXZ, or an `envShift` local ahead of both = 20
        bit-identical (cse canonicalises, statement position is inert here);
        read-only fence `("" : : "r"(pz))` before the sum = 18 (the barrier moves
-       the whole block, wrong axis). */
-    sd->eAddZ = ((int)(carObj->N).positionXZ >> shadowAbsOffs + 3 & 0x3fU) +
-                (int)DrawC_gEnvMapOffset[(sd->ePmx1).v0 >> 6];
+       the whole block, wrong axis).
+       ===== w72-a3 (2026-08-22): 8 -> 4, count-exact 976/976, AND the last 4 are a
+       VALIDATED PER_FN_TEXT_MOVES PASS (976/976) -- spec at the end of this block.
+       THE MECHANISM, read off the instrumented cc1plus's own [qty_order] trace
+       (C:/Temp/nfs4-instr-cc1/cc1plus-ecoff.exe, GCC_TRACE_ALLOC=1; fidelity
+       receipt: its .s for THIS fn is byte-identical to the real CC1PLPSX, 955/955
+       lines, only $L-numbers differ).  local-alloc block 126 carries FOUR qtys:
+         q(ev)=lbu+srl+sll chain  q(pos)=lh+srav+andi  q(shift)=addiu  q(addr)=high+lo_sum
+       RETAIL's handout is ev=$v0, pos=$v1, shift=$a0, addr=$a0 (shift and addr
+       SHARE $a0 -- addr is born after shift dies).  Ours had shift=$v0 because
+       q(ev)'s window began at the `lbu`, which sched1 placed AFTER the `addiu`,
+       so $v0 was free over q(shift)'s 2-insn window and the numeric scan took it.
+       => the requirement is exactly: q(ev) must be BORN BEFORE the addiu, and
+       q(addr) must stay the LOWEST-priority of the four (a compact high/lo_sum
+       pair raises it: refs 4 / life 6 = pri 1.333 out-ranks pos at 1.2 and the
+       whole handout rotates -- measured, that is what the plain `ev` split does).
+       THE LANDED FORM (three cooperating parts, all zero-insn):
+        (1) `int envShift = shadowAbsOffs + 3;` FIRST -- gives the addiu the lowest
+            luid so it heads the block exactly like retail.
+        (2) `int pz = <positionXZ>;` then a READ-ONLY fence `("" : : "r"(pz))` --
+            the fence is implicitly volatile, so it is the sched1 BARRIER that stops
+            the `lbu` being hoisted above the `lh` (without it sched1 leads with the
+            lbu because its chain is the longer critical path).
+        (3) `u_int evraw = (sd->ePmx1).v0;` + an IDENTITY LAUNDER
+            ("" : "=r"(evraw) : "0"(evraw)) -- the launder is what keeps the load
+            at its own luid (a bare `u_int evraw = v0;` is folded straight back into
+            the subscript by cse, which is the w71 `= 8 bit-identical` receipt), and
+            keeping the `>> 6` OUT of the split statement is load-bearing: with the
+            shift inside (the w71 `u_int ev = v0 >> 6;` form) the srl/sll move ahead
+            of the address pair, q(addr)'s life collapses 10 -> 6 and it out-ranks
+            q(pos).  MEASURED LADDER at this basin, all count-exact 976 unless noted:
+              base (one statement)                                    8
+              ev split (w71 form)                                    20
+              pz + ev split                                          20
+              evraw split, no launder                                 8 (cse folds)
+              evraw split + launder                                   6
+              pz + evraw split + launder                              6
+              envShift + pz + evraw + launder            (P5)         4
+              envShift + pz + LAUNDER(pz) + evraw + launder (P15)     4 (same bytes)
+              envShift + pz + FENCE(pz) + evraw + launder (LANDED)    4
+        FALSIFIED at the 4 basin (each measured here, none inherited): void-tail
+        fence `("" : : "i"(0))` between pz and evraw = 21 @977; fence on pz with no
+        launder = 10 @978; index-term-first `*(short*)(((evraw>>6)<<1)+(int)tbl)` =
+        28; the same with a named `ev` = 29 @977; `(int)*(tbl + (evraw>>6))` = 21
+        @977; a block-local `ev = evraw>>6` before the sum = 22 @978; `+`-operand
+        swap (table term first) = 22 @978; in-place `evraw = evraw >> 6;` = 23 @979;
+        in-place `pz = pz >> envShift & 0x3f;` = 22 @978; a second read-only fence on
+        evraw = 22 @978; `u_int ev = v0 >> 6` + launder = 23 @979.
+       RESIDUAL 4 = ONE 2-insn group swap, no register left wrong:
+         ours   ... sra $3,$3,$4 / lui $4,%hi(tbl) / addiu $4,$4,%lo(tbl) / srl / sll / addu
+         retail ... sra $3,$3,$4 / srl / sll / lui $4,%hi(tbl) / addiu $4,$4,%lo(tbl) / addu
+       ROOT CAUSE (gcc source): for `tbl[i]` cc1 expands the PLUS's op0 = the symbol
+       address BEFORE op1 = the scaled index, so the high/lo_sum pair always carries
+       the lower luid; sched2 is priority-1-flat post-reload and keeps that order.
+       Retail's build emitted the index first.  No source spelling reaches it (the
+       index-term-first family above is the direct attempt and costs 24+).
+       ==> PER_FN_TEXT_MOVES, VALIDATED VIA tools/vprobe.py = PASS 976/976:
+         key recon/game/psx/drawc.cpp ->
+           "DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache": [
+             {"take": "\tlui\t\$4,%hi\(DrawC_gEnvMapOffset\)[^\n]*\n",
+              "after": "\tsll\t\$2,\$2,1\n(?=\taddu\t\$2,\$2,\$4\n)"},
+             {"take": "\taddiu\t\$4,\$4,%lo\(DrawC_gEnvMapOffset\)[^\n]*\n",
+              "after": "\tlui\t\$4,%hi\(DrawC_gEnvMapOffset\)[^\n]*\n"}]
+       Both takes are UNIQUE in the fn region (1 match each); the row-1 after-anchor
+       is lookahead-pinned on `addu $2,$2,$4` (the bare `sll $2,$2,1` occurs 3x) and
+       references no taken line; row 2 anchors on the line row 1 just placed.  No
+       branch line, no delay slot, no drop_after => the 17C brdist pairing rule does
+       not apply; count stays 976 and the gate reports PASS.
+       WIRING WARNING (12F duplicate-key hazard): build.py ALREADY HAS a
+       "recon/game/psx/drawc.cpp" key in PER_FN_TEXT_MOVES (DrawC_NightHeadlight).
+       The two rows above must be ADDED INSIDE that existing dict -- a second
+       top-level key with the same path is silently discarded (python literal,
+       last wins) and the rows would read as INERT.  Validated exactly that way:
+       tools/vprobe.py's W60_TEXT_MOVES_FILE hook does a setdefault().update(),
+       i.e. it merges into the NightHeadlight entry, and reported PASS 976/976
+       with NightHeadlight still PASSing in the same whole-TU gate (17/20). */
+    {
+      int envShift = shadowAbsOffs + 3;
+      int pz = (int)(carObj->N).positionXZ;
+      __asm__("" : : "r"(pz));
+      u_int evraw = (sd->ePmx1).v0;
+      __asm__("" : "=r"(evraw) : "0"(evraw));
+      sd->eAddZ = (pz >> envShift & 0x3fU) +
+                  (int)DrawC_gEnvMapOffset[evraw >> 6];
+    }
     if (((GameSetup_gData.Weather != 0) &&
         (tunnelFlag = (int)BWorldSm_TunnelFlagSm(&(carObj->N).simRoadInfo), tunnelFlag != 1)) &&
        (Cars_kSkidMarkSurface[(carObj->N).driveSurfaceType] == 1)) {
@@ -1362,18 +1444,68 @@ void DrawC_PrimStop(Car_tObj *carObj,Draw_CarCache *sd)
  *    (Block start $800c0c68): 118 bit-identical -- SYM-faithful but gate-neutral,
  *    reverted to keep the diff minimal (16A: the decl dial is inert for pseudos
  *    local-alloc already treats as block-local).
- * RESIDUAL 118, largest classes (chunkdiff, ours vs oracle):
- *   - the +4 insn excess = two `lhu` facetFlag reloads, one un-hoisted `li v0,38`,
- *     and one load-delay `nop` at the 2nd overlayRaw site (ours `lhu v1,0(v0)`
- *     where retail loads in place `lhu v0,0(v0)` off its own address register).
- *   - the head $t0/$t1/$t2 THREE-WAY ROTATION (about 14 diffs, blocks 1-10): SYM
- *     says `i` = $t2 and `tV` = $t0; ours puts `i` in $t0 and pushes both hoisted
- *     gte-macro addresses one slot up.  Retail serves the two loop-invariant
- *     addresses BEFORE `i` -- a priority dial, not a shape defect.
- *   - the id0/id1/id2 `sll v0,tN,3` scratch (6 diffs) -- see the falsification above.
- *   - retail's %hi base for DrawC_gOverlay lives in callee-saved $s7 with the %lo
- *     addiu re-emitted at each use; ours materialises the whole address into $s4
- *     once.  Storage-shape / -G class (catalog 15E menu), untried here.
+ * (the RESIDUAL-118 class list that stood here is superseded by w72-a3 below;
+ *  its head-rotation entry was the DEFECT this wave fixed.)
+ * ===== w72-a3 (2026-08-22): 118 -> 84, PREDICT-BEFORE-PROBE off allocsim =====
+ * 🏆 THE SYM'S SINGLE fn-SCOPE COUNTER IS AN ALLOCNO LIVE-LENGTH DIAL.
+ * The head $t0/$t1/$t2 three-way rotation (the biggest standing class, ~14 diffs)
+ * was NOT a priority coin-flip: it was priced, then solved, in that order.
+ *  (1) allocsim MATCHES 97/97 on this fn (validate the model first, law 4.3), so
+ *      the table is authoritative: p149 = `i` (the counter, refs 14 / live 42 /
+ *      pri 1.0000, rank 61), p172 = `sd+0x9C` (the gte_stlvnl address, refs 3 /
+ *      live 24 / 0.1250, rank 80), p171 = `sd+0xAC` (gte_ldv0, refs 3 / live 25 /
+ *      0.1200, rank 81).  Retail's handout is p172=$t0, p171=$t1, p149=$t2 -- i.e.
+ *      the two ADDRESSES must be served BEFORE the counter.
+ *  (2) `allocsim --what-if 149:live=N` prices it EXACTLY: live 42 -> 200 gives
+ *      p149=$t1; -> 300 gives $t1 with p171 at $t2; -> 400..600 gives the ORACLE
+ *      TRIPLE p172=$t0 p171=$t1 p149=$t2; -> 900 overshoots to $t3.  The rival
+ *      direction is dead: raising the two addresses' refs (4/6/8/12/16, both) never
+ *      reaches it -- at 6+ they start stealing $a3/$a1/$a2 instead.
+ *      => THE REQUIRED DELTA IS `i` LIVE 42 -> ~400, a 10x, which no fence/
+ *      ref-step dial can buy.  Only a STRUCTURAL change can.
+ *  (3) THE STRUCTURE THE SYM ALREADY MANDATED: symblk lists exactly ONE counter in
+ *      the whole function -- `REG i $10 t2 INT`, declared in the OUTERMOST
+ *      `90 Block start` -- and NO facetIdx/facetCount of any kind.  This recon had
+ *      a second fn-scope `u_int facetIdx` driving all five facet loops.  Merging it
+ *      into `i` (delete the decl, `i = (int)obj->numFacet;`, `if (i == -1)`, 17
+ *      lines) makes ONE pseudo live across every loop: 118 -> 84 in one edit, and
+ *      the head triple + the whole first block become BYTE-EXACT.  tools/posdiff:
+ *      first-use register order is now IDENTICAL to the oracle (24/24) and the
+ *      alpha-renamed structural residual is 37/1389.
+ *      ⚠️ The pre-existing receipt above (`int facetIdx` + `== -1` = bit-identical)
+ *      measured only the TYPE, never the MERGE -- the type is inert, the identity
+ *      is the lever.  Same defect + same cure transferred to DrawC_PrimClip
+ *      (`int facetCount` -> `i`, 325 -> 285); check every fn whose SYM shows one
+ *      counter but whose recon carries two.
+ * RE-PRICED AT THE 84 BASIN (04Z; every number measured here, none inherited):
+ *   - `int facetFlag` per-site: site1 95 @1392, site2 197 @1390, both 208 @1389
+ *     (count-EXACT and still +124 diffs) -- the reload kill remains real and the
+ *     coloring cascade still dominates.  NOT landed; the named angle stands.
+ *   - the fused id-morph at the 5th site (`id0 = id0 * 8 + (int)sd;` x3, the one
+ *     chunkdiff run that emits `sll v0,tN,3; addu tN,v0,s1` instead of retail's
+ *     in-place pair): splitting it is 276/266/256 for one leg, 286..290 for two or
+ *     three, all count-EXACT 1393.  posdiff confirms it is NOT LCS noise -- the
+ *     structural residual itself goes 37 -> 57.  The FUSED form is correct here;
+ *     this is now a STRONG receipt (single-leg + pair + triple all measured, both
+ *     metrics agree), not the basin-relative verdict the older note recorded.
+ *   - the do{}while(0) ref-step dial on the OTHER (already-split) morph site: 154.
+ * RESIDUAL 84 = 37 structural + ~47 coloring (posdiff), largest classes:
+ *   - the 2nd overlayRaw site (chunkdiff run of 6): ours re-loads
+ *     `sll v0,v0,1; addu v0,v0,s4; lhu v1,0(v0); nop; sll v1,v1,16; sra a2,v1,16`
+ *     where retail keeps the value and only sign-extends (`sll v0,v0,16; sra`).
+ *     Retail materialises %hi(DrawC_gOverlay) into $s7 IN the block with the
+ *     `lbu` scheduled BETWEEN the lui and the addiu (a SELF-temp combined qty);
+ *     ours splits the pair across a basic-block boundary (the `lui $2` sits in a
+ *     `beq` delay slot, the `addiu $20,$2` after the label) so combine_regs
+ *     refuses the tie (local-alloc.c:1866, catalog 21E-4) and we get a SEPARATE
+ *     temp + a hoisted $s4 base.  NAMED NEXT ANGLE: keep the %hi/%lo pair inside
+ *     one block (block-local launder at the use, or a TEXT_MOVES row pulling the
+ *     `lui` out of the delay slot) -- 21E-4 records this exact cure as
+ *     `block-local launder + TEXT_MOVES row, 18A coupled -> PASS`.
+ *   - the id0/id1/id2 `sll v0,tN,3` scratch at the fused site (6) -- STRONG floor,
+ *     see the re-price above.
+ *   - the two `lhu` facetFlag reloads (2 insns of the +4 excess) -- the `int
+ *     facetFlag` angle, priced above.
  */
 void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOverlay *overlay,
                int envmap,Draw_CarCache *sd)
@@ -1453,7 +1585,6 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
   int facet_p_v3;
   short facetFlag;
   int i;
-  u_int facetIdx;
   int loopDoneTag;
   short ts10;
   u_char tu1;
@@ -1598,7 +1729,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     tV = tV + 1;
   }
   }
-  facetIdx = (u_int)obj->numFacet;
+  i = (int)obj->numFacet;
   /* envmap&9 computed AT the switch -- the delay-slot filler pulls the andi
    * into the copy-loop guard's slot (v1 dead in the body), oracle 0x800C0490 */
   switch (envmap & 9) {
@@ -1614,11 +1745,11 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     int otzSum;
     if ((envmap & 2U) == 0) {
       while( true ) {
-        facetIdx = facetIdx - 1;
-        if (facetIdx == 0xffffffff) {
+        i = i - 1;
+        if (i == -1) {
           return;
         }
-        facet = (int)(obj->facet + facetIdx);
+        facet = (int)(obj->facet + i);
         id0 = *(u_char *)(facet + 3);
         id1 = *(u_char *)(facet + 4);
         id2 = *(u_char *)(facet + 5);
@@ -1764,11 +1895,11 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       int id2;
       int otzSum;
       while( true ) {
-        facetIdx = facetIdx - 1;
-        if (facetIdx == 0xffffffff) {
+        i = i - 1;
+        if (i == -1) {
           return;
         }
-        facet = (int)(obj->facet + facetIdx);
+        facet = (int)(obj->facet + i);
         id0 = *(u_char *)(facet + 3);
         id1 = *(u_char *)(facet + 4);
         id2 = *(u_char *)(facet + 5);
@@ -1870,11 +2001,11 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     int id2;
     int otzSum;
     while( true ) {
-      facetIdx = facetIdx - 1;
-      if (facetIdx == 0xffffffff) {
+      i = i - 1;
+      if (i == -1) {
         return;
       }
-      facet = (int)(obj->facet + facetIdx);
+      facet = (int)(obj->facet + i);
       id0 = *(u_char *)(facet + 3);
       id1 = *(u_char *)(facet + 4);
       id2 = *(u_char *)(facet + 5);
@@ -2144,11 +2275,11 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     int sd_otz;
     int otzSum;
     while( true ) {
-      facetIdx = facetIdx - 1;
-      if (facetIdx == 0xffffffff) {
+      i = i - 1;
+      if (i == -1) {
         return;
       }
-      facet = (int)(obj->facet + facetIdx);
+      facet = (int)(obj->facet + i);
       id0 = *(u_char *)(facet + 3);
       id1 = *(u_char *)(facet + 4);
       id2 = *(u_char *)(facet + 5);
@@ -2315,11 +2446,11 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     int sd_otz;
     int otzSum;
     while( true ) {
-      facetIdx = facetIdx - 1;
-      if (facetIdx == 0xffffffff) {
+      i = i - 1;
+      if (i == -1) {
         return;
       }
-      facet = (int)(obj->facet + facetIdx);
+      facet = (int)(obj->facet + i);
       id0 = *(u_char *)(facet + 3);
       id1 = *(u_char *)(facet + 4);
       id2 = *(u_char *)(facet + 5);
@@ -2746,12 +2877,65 @@ gte_ldv3(vt0,vt1,vt2);
  *    (`if (overlayFlag & 1) ... else if (facet_flag & 4) ... else ...` followed by
  *    `prim->code = 0x26;`): 348 @1883.  Introducing the block there defeats the
  *    cross_jump merge of the three arms' stores -- leave that one site literal.
- * RESIDUAL 325 -- the class list above (z-block $t4/$t5/$t6, id rotation at the two
- * un-dialed sites, xy0/xy1/xy2 load order, prologue callee-saved rotation) is
- * UNCHANGED by this belt and stays the standing agenda.  Note the z-block wants
- * $t4/$t5/$t6 = the FIRST THREE FREE registers only if $v0..$t3 are all blocked at
- * that point (13A numeric-scan triage), so the honest question there is how many
- * values retail keeps live across the block -- not whether to write a template.
+ * (the RESIDUAL-325 class list that stood here is superseded by w72-a3 below.)
+ * ===== w72-a3 (2026-08-22): 325 -> 268, THREE landings =====
+ *  (1) 🏆 THE SYM'S SINGLE fn-SCOPE COUNTER (transferred from DrawC_Prim's w72-a3
+ *      block -- read that receipt for the allocsim pricing that discovered it).
+ *      symblk lists ONE counter for this fn, `REG i $18 s2 INT`, in the outermost
+ *      block.  This recon carried a SECOND one, `int facetCount = obj->numVertex;`,
+ *      for the first vertex loop while `i` drove every other loop.  Merging it
+ *      (3 lines) lengthens the single pseudo's live range across both regions:
+ *      325 -> 285, and tools/posdiff's first-use register order flips from
+ *      `... s4 s3 s2 ...`-mismatched to IDENTICAL to the oracle (24/24), with the
+ *      alpha-renamed structural residual 909 -> 132.  The whole-function
+ *      callee-saved rotation the old class list called `prologue callee-saved
+ *      ROTATION (ours addu s2,a1,zero, oracle addu s4,a1,zero)` was THIS, and it
+ *      is gone.
+ *  (2) THE FIRST FT3 BLOCK'S xy STORE ORDER: `*(u_int*)&prim->x0/x1/x2 = xyN;` in
+ *      ASCENDING order (it was x2,x0,x1 here, unique in the TU -- every other xy
+ *      block already ascends).  285 -> 273.  Full 6x6 decl-order x store-order
+ *      sweep at this basin: store order 012 is worth -12 with decl order 012, 102
+ *      or 120 (all 273); every other store order is 281 or 285.  The DECL order is
+ *      inert once the store order is right -- the store order is the whole dial.
+ *  (3) HOIST THE `envmap & 0x20` MASK ABOVE THE ADDRESS IT COMPETES WITH:
+ *      `u_int noSub = envmap & 0x20U;` BEFORE `vt1 = (int)&sd->vt3;`, testing
+ *      `if (noSub == 0)`.  273 -> 268, count 1882 -> 1879, structural residual
+ *      132 -> 126.  MECHANISM (diffsrc + the raw): `envmap` is an ARG (stack).
+ *      Retail keeps it in $t9 across the switch and reorg steals the `andi
+ *      $v0,$t9,0x20` into the dispatch's `beqz $v1` delay slot, then puts
+ *      `addiu $t9,$s1,0x3D0` (vt1) in the following `bnez`'s slot.  Ours had the
+ *      vt1 addiu as the last insn before the dispatch, so reorg stole THAT
+ *      instead -- which clobbers $t8 (envmap's register) and costs a 4-insn
+ *      spill+reload group `sw t8,32(sp); lw t8,96(sp); nop; andi v0,t8,32`.
+ *      Giving the mask its own statement AHEAD of the address restores retail's
+ *      steal order.  (This is the reorg backward-scan-position lever, 21B-5.)
+ * RE-PRICED AT THE 273/268 BASIN (04Z; measured here, none inherited):
+ *   - the id-morph do{}while(0) ref-step dial, all 16 site combinations: the
+ *     inherited 1010 (sites 1+3 only) is still the optimum at 285; 0000 289,
+ *     1000/0010 287, 1110 291, 1011 307, 1111 313.  Verdict UNCHANGED post-merge.
+ *   - the z-block ANONYMOUS-TEMP form (no z0/z1/z2 locals -- the SYM lists none in
+ *     that block, so it looked mandated): 297 @1894, +12 insns of load-delay nops.
+ *     The named load-3/store-3 temps are what BATCH the three lhu; dropping the
+ *     void-tail fence as well is catastrophic (569 @1886).  The SYM's silence here
+ *     means anonymous cse temps, NOT `no temps in the source`.
+ *   - `int facetFlag` at either clip site: 284 / 460 / 471.  Still worse.
+ * RESIDUAL 268, largest classes (diffsrc hotspots, then chunkdiff):
+ *   - the two DRAWC_UVTINT_ID sites (6 + 2).
+ *   - the z-block x4, still ours $v0/$v1/$a0 vs retail $t4/$t5/$t6 (24 diffs).
+ *     13A numeric-scan triage, now sharper: at the lhu instant retail's own live
+ *     set is $s1,$s2,$t0,$t1,$a0,$a1,$a2 -- $v0/$v1/$a3/$t2/$t3 look FREE, so the
+ *     $t4 floor is NOT hard-reg occupancy: it is local_alloc's post_mark_life,
+ *     i.e. OTHER block-local qtys in the same basic block were served first and
+ *     took $v0..$t3.  The block is the one the SYM opens at $800c19a4 carrying
+ *     ONLY clipW/clipH, so retail's extra qtys there are anonymous.  NEXT
+ *     INSTRUMENT: the lab qtytrace for this fn IS obtainable -- the instrumented
+ *     cc1plus ICEs on DrawC_Prim, but blanking that ONE body in a copy of the .i
+ *     (w60 12H recipe; scratchpad W72_A3/instr_clip.py does it) carries the trace
+ *     through DrawC_PrimClip.  Blank DrawC_PrimMenu too to get a complete .s for
+ *     the mandatory per-fn byte-fidelity check before quoting the table.
+ *   - the two `if (facetFlag < 0)` sites (3 + 3) and the 2nd overlayRaw site (3)
+ *     -- the same %hi self-temp-vs-separate-temp class as DrawC_Prim's; see the
+ *     21E-4 angle written up there.
  * ---- DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache  [DRAWC.CPP:2647-3495] SLD-VERIFIED ---- */
 void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOverlay *overlay,
                int envmap,Draw_CarCache *sd)
@@ -2781,10 +2965,10 @@ gte_SetRotMatrix(&DrawC_gMatA);
 gte_SetTransMatrix(&DrawC_gMatA);
     char *envmapUV_dst = &sd->tV[0].v;
     short *vert_yz_iter = (short *)((char *)Nvertice + 4);
-    int facetCount = (int)obj->numVertex;
+    i = (int)obj->numVertex;
     while( true ) {
-      facetCount = facetCount - 1;
-      if (facetCount == -1) break;
+      i = i - 1;
+      if (i == -1) break;
       short matRow_y = vert_yz_iter[-1];
       short matRow_z = *vert_yz_iter;
       (sd->vt0).x = *psVar8;
@@ -2881,8 +3065,9 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
    * (case 0 @0x800C18E0, 1 @0x800C2000, 8 @0x800C25BC, 9 @0x800C2AA0) */
   switch (envmap & 9) {
   case 0: {
+      u_int noSub = envmap & 0x20U;
       vt1 = (int)&sd->vt3;
-      if ((envmap & 0x20U) == 0) {
+      if (noSub == 0) {
         /* SYM block line=97 {prim,facet,id0,id1,id2} -- literal repeated SYM
          * names redeclared per case block (wave-9 same-identifier lever);
          * loop rebuilt as while+continue chains per the oracle's slot-filled
@@ -2955,12 +3140,12 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           if (sd->sub_otSize < otzSum) continue;
           DRAWC_OTLINK_FT3(sd, prim);
           {
-            long xy2 = *(long *)&sd->dvx2;
             long xy0 = *(long *)&sd->dvx0;
             long xy1 = *(long *)&sd->dvx1;
-            *(u_int *)&prim->x2 = xy2;
+            long xy2 = *(long *)&sd->dvx2;
             *(u_int *)&prim->x0 = xy0;
             *(u_int *)&prim->x1 = xy1;
+            *(u_int *)&prim->x2 = xy2;
           }
           {
             u_long color = sd->color;

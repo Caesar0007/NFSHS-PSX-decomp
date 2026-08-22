@@ -185,7 +185,76 @@ int SimQueue_Put(int pIndex,Input_tResults *val)
  *   self-vs-separate %hi temp is NOT a section/relocation question.
  * The 28 @48 rows are a THIRD count-exact basin (distinct from the 48 @48 one
  * above), so there are now at least three; the permuter re-seed is the priced
- * next step and it now has three seeds to start from, not one. */
+ * next step and it now has three seeds to start from, not one.
+ *
+ * W72-A12 2026-08-22 -- *** SOLVED (PASS 48/48 under one PER_TU_FLAGS row; see
+ * (3)).  Everything above is a two-year chase of the wrong axis: this was NEVER
+ * an allocator tie-break, it is the -G SMALL-DATA THRESHOLD deciding whether the
+ * address gets SPLIT at all.  Three facts:
+ *  (1) THE MECHANISM.  Our pair is a genuine expand-time SPLIT-ADDRESS pair:
+ *          (set (reg 132) (high  (symbol_ref "output")))      <- BLOCK-LOCAL qty
+ *          (set (reg 136) (lo_sum (reg 132) (symbol_ref "output")))
+ *      and p136 is the loop's walking pointer, live across blocks => a GLOBAL
+ *      allocno with reg_qty == -1.  local-alloc.c:1875 (`sreg >= FIRST_PSEUDO
+ *      && reg_qty[sreg] == -1`) makes combine_regs REFUSE the tie, so the HIGH
+ *      is a free-standing local qty and find_free_reg gives it the lowest free
+ *      register.  In this block there are TWO such highs (inputQueue and
+ *      output) with DISJOINT windows, so BOTH take $v0 -- which is exactly what
+ *      we emit (`lui $2,%hi(inputQueue); addiu $8,$2,%lo` then
+ *      `lui $2,%hi(output); addiu $6,$2,%lo`).  Nothing in this picture can hand
+ *      the second high a NON-lowest register, which is why 20+ source spellings,
+ *      3 fence flavours and 2 permuter basins have all been inert: there is no
+ *      dial, because the answer is not a dial.
+ *  (2) WHAT RETAIL ACTUALLY HAS.  Retail is MIXED inside this one function:
+ *          lui $v0,%hi(inputQueue) ; addiu $t0,$v0,%lo(inputQueue)   <- SPLIT pair
+ *          lui $a2,%hi(output)     ; addiu $a2,$a2,%lo(output)       <- `la $a2,output`
+ *      The second is not a split pair that got lucky -- it is the ASSEMBLER's
+ *      expansion of a SINGLE `la` (a plain `(set (reg) (symbol_ref))` movsi),
+ *      which always self-temps (IDT Ch9 / methodology 3.16).  PROVEN by a raw
+ *      CC1PLPSX A/B (scratchpad/W72_A12/rawcc1.py): with -mno-split-addresses
+ *      cc1 emits `la $8,inputQueue` + `la $6,output` -- i.e. the `la` form
+ *      reproduces retail's `output` pair EXACTLY and simultaneously BREAKS the
+ *      `inputQueue` one.  So the two addresses in retail were materialised by
+ *      DIFFERENT mechanisms, and the `output` one was created AFTER the
+ *      split-address expansion (loop.c's biv initial value).
+ *  (3) *** SOLVED -- IT IS THE -G THRESHOLD, AND THE WIRING IS `g_value: "8"`.
+ *      mips.c `mips_check_split()` refuses to split a symbol whose
+ *      SYMBOL_REF_FLAG is SET, and ENCODE_SECTION_INFO sets that flag for any
+ *      object whose size is <= the -G threshold.  `output` is EXACTLY 8 bytes
+ *      (2 x 4-byte Input_tResults), `inputQueue` is huge.  So at -G8 gcc splits
+ *      `inputQueue`'s address (separate temp) and does NOT split `output`'s
+ *      (plain movsi -> assembler `la` -> SELF temp) -- retail's mixed pair,
+ *      exactly.  At -G4 (our default) `output` is over threshold, gets split
+ *      too, and there is no dial that can recover the self temp.
+ *      MEASURED on a scratchpad copy of build.py (scratchpad/W72_A12/ptools),
+ *      PER_TU_FLAGS "recon/game/common/simqueue.cpp": {"g_value": "8"}:
+ *        SimQueue_SetCurrentInput  4 @48/48 -> PASS 48/48
+ *        whole TU                  7/8 -> 8/8 PASS
+ *          (GetCurrentInput needs the pointer-add spelling landed below; it is
+ *           byte-neutral at -G4, so it is already in-source and safe either way)
+ *      PLACEMENT IS BYTE-NEUTRAL: `objdump -t` of the -G8 object is identical to
+ *      the -G4 one -- output -> .bss.simqueue_output, inputQueue ->
+ *      .bss.simqueue_input_queue, maxTicksPerFrame -> .sbss, the three globals
+ *      -> .sdata.  The named-section attributes above are what keep the now
+ *      under-threshold `output` out of .sbss, so KEEP THEM (dropping them still
+ *      gates 8/8, but only the section attribute guarantees the placement).
+ *      => ORCHESTRATOR ACTION: add the g_value "8" PER_TU_FLAGS row.
+ *      (Falsified alternative, same probe: whole-TU no_split_addresses makes
+ *       BOTH addresses `la` -- this fn 32 @48 and the TU 2/8 PASS: SetLag 4,
+ *       GetCurrentInput 16, IsBlocking 16, Put 46, Reset 47.  A hard NO.)
+ *     Everything else measured this wave, all real gate runs, all 4 @48/48
+ *     unless noted (so the W62/W71 basins are re-confirmed from scratch):
+ *       walking dest declared at the TOP of the function .............. 4
+ *       walking dest assigned just before the loop ................... 4
+ *       do/while (guarded) loop shape ............................... 4
+ *       BOTH bases named, dest first ......................... 39 @47 (-1 insn)
+ *       BOTH bases named, source first ....................... 39 @47
+ *     PERMUTER (the W71 priced next step, DONE): three job dirs seeded from the
+ *     three known count-exact basins (permuter_work/SimQueue_SetCurrentInput__Fi,
+ *     SQ_basin2 = plain base local, SQ_basin3 = block-local counters), ~9k
+ *     iterations each; base score 10, NO score-0 and no candidate below base in
+ *     basin 1.  Consistent with (1): the permuter mutates C, and no C mutation
+ *     changes whether an address is split.  DO NOT re-run the permuter here. */
 void SimQueue_SetCurrentInput(int time)
 
 {
@@ -208,10 +277,20 @@ void SimQueue_SetCurrentInput(int time)
 }
 
 /* ---- SimQueue_GetCurrentInput__FiP14Input_tResults  [SIMQUEUE.CPP:295-407] SLD-VERIFIED ---- */
+/* MATCH (W72-A12): the POINTER-ADD spelling `*(output + pIndex)`, not the
+   subscript `output[pIndex]`.  Both are PASS under the shipped -G4 build (the
+   change is byte-neutral there), but under the -G8 wiring recommended for this
+   TU (see the SetCurrentInput block above) the subscript form emits
+   `sll a0,a0,2` BEFORE the address pair while retail emits it AFTER; the
+   pointer-add (and equally `Input_tResults *p = output; p[pIndex]`, or the
+   int-cast base-first form) puts the base pair first and PASSes both ways.
+   Measured under -G8: subscript 2 @10 | `(pIndex<<2)+(int)output` 2 | a
+   `p = output + pIndex` local 2 | `p = &output[pIndex]` local 2 |
+   pointer-add PASS | `p = output; p[pIndex]` PASS | int-cast base-first PASS. */
 void SimQueue_GetCurrentInput(int pIndex,Input_tResults *out)
 
 {
-  *out = output[pIndex];
+  *out = *(output + pIndex);
   return;
 }
 

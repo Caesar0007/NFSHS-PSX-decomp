@@ -213,6 +213,37 @@ extern int intarcsin(int x)   /* @0x800EACD8 */
      * with retail's copy present) is therefore the structurally-correct one and its residual is a
      * pure local-alloc QTY_CMP_PRI pair assignment.  ANGLE UNCHANGED and now bounded: qtytrace/-dl
      * the two pointer qtys in the depth-2 fence basin.  Do NOT re-spell the subscript. */
+    /* W72-A20 2026-08-22 -- RE-GATED at 2 @48/48 (baseline confirmed) and the w47-a5 /
+     * w50-a9 FENCE BASIN re-derived and re-measured at 6 @48/48, so both basins still
+     * reproduce byte-for-byte.  NO landing; three NEW falsifications, and one relevant
+     * cross-file result recorded because it is the closest device this wave produced.
+     *
+     * NEW MECHANISM TRIED (untried by every previous wave here): the 21A-1 / 20B
+     * ZERO-INSN HARD-REGISTER DENIAL -- a fence carrying a CLOBBER, which is the only
+     * instrument that speaks directly to the "which member of the pair gets $v0" question
+     * the W50/W61 receipts left open.  All in the 6-diff fence basin, all worse:
+     *   read-only clobber fence on a named table base before the sum,
+     *     `const unsigned char *bs = asintbl; __asm__("" : : "r"(bs) : "$3");
+     *      pt = bs + idx; qt = pt; <identity fence on qt>` .................. 14 @48/48
+     *   the SAME clobber attached to the existing `qt` identity fence,
+     *     `__asm__("" : "=r"(qt) : "0"(qt) : "$3")` ......................... 21 @47/48
+     *     (the $v1 denial also un-does the fence's own job -- the copy is coalesced
+     *      away again and we lose the 48th instruction)
+     *   control: the published w50-a9 pt/qt + depth-2 form, re-derived .......... 6 @48/48
+     * READING: the clobber denies $N to EVERY allocno live at that insn (the 21A-1
+     * boundary), and here the la, the sum and the copy are all live in the same tiny
+     * window, so there is no placement that separates them.  The W61-A19 combine_regs
+     * bound therefore stands unchanged, and so does the named angle: qtytrace/-dl the la
+     * and sum qtys in the fence basin.
+     *
+     * NEGATIVE-CONTROL RESULT (why the brief called this one a control, confirmed): the
+     * device that took syslib/libmath/ADDDF3.c from 6 to 2 this same wave -- a DOUBLE
+     * identity fence, pointer-first, so that the pointer's materialization becomes the
+     * first insn of a call block AND the first occurrence of a shared literal is
+     * laundered -- has NO site here.  intarcsin's residual is not a call block and not a
+     * shared literal; it is one cse copy-vs-rematerialise decision inside a single basic
+     * block.  The W71-A15 statement that this site "cannot supply a LATER USE" for the
+     * launder is re-confirmed: it is still the whole reason the launder stalls at 6. */
     if (x <= 0xFA00) {                           /* coarse region: round-to-nearest lookup */
         if (x & 0x40)
             idx = (x >> 7) + 1;

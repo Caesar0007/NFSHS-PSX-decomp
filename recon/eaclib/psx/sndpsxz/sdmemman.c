@@ -507,7 +507,49 @@ extern int iSNDpsxmalloc(int size)
      *   scan arm: depth-2/3 wrapper on the `prev` decl 23@124 | depth-2/3 wrapper on the
      *     `block` sum 27@126 | two named half-temps for prev[0]/prev[1] 12 | `prev` declared
      *     first 12 | entry read hoisted above the block sum 12 | index-first int sum 18.
-     *   commit: read-position and inflator-depth ladders are in the `commit:` receipt. */
+     *   commit: read-position and inflator-depth ladders are in the `commit:` receipt.
+     *
+     * W72-A20 2026-08-22 -- RE-GATED at 12, COUNT-EXACT 127/127 (baseline confirmed).
+     * NO landing.  The brief's named angle was 21B-4 (a fresh literal + read-only fence
+     * so two arms' setups use DIFFERENT registers) applied to scan_done, plus a re-price
+     * of the depth ladder.  Both clusters were attacked; six new falsifications:
+     *   (iii) scan_done -- the SERVING-ORDER reading of the residual (retail off=$v0 /
+     *     pv=$v1 / sum=$a2; ours off=$a2 with pv SPLIT across $v1(hi)+$v0(lo_sum)) says
+     *     `off` must be served before the la, so the ZERO-INSN REF INFLATOR was aimed at
+     *     `off`'s DEFINITION for the first time (every prior ladder wrapped `pv`, the
+     *     `pv[0]` read, or the `prev` statement):
+     *       `do{...}while(0)` depth 1 / 2 / 3 on `off = idx * 4;` .... 12 / 12 / 12 (inert)
+     *       depth 4 (crosses the floor_log2 step at 4->5 weighted refs) ....... 30 @127
+     *     ⇒ the step IS reachable and the direction is WRONG -- raising `off`'s priority
+     *       makes it worse, so `off` is not losing a serving-order race.  The real
+     *       obstacle is the la being SELF-temped ($v1 holding both %hi and the lo_sum),
+     *       which consumes the register pair `off` would otherwise get; that is the
+     *       §3.15 self-temp-vs-separate-temp question on an ADDRESS, and the w71 ladder
+     *       already falsified the declaration-shape lever for it (`D_80147E34` sized
+     *       [1]/[2]/[4] and `&D_80147E34[0]`).  21B-4's "different registers" cannot be
+     *       spelled here at all: the two arms that must stay unmerged end in the ABI arg
+     *       registers $a0/$a1, which no source form can vary.
+     *   (ii) the scan arm's `prev` -- the W71 COMMIT RECIPE transplanted (identity
+     *     launder on the byte offset AFTER the sum, with a genuine LATER USE supplied,
+     *     which is the ingredient the commit block needed and asinfunc.c cannot supply):
+     *       `e_off = idx*4; entry = e_off + table; <launder e_off>;` and the else arm's
+     *       `prev = previous + e_off` as the later use ....................... 14 @127
+     *       (the launder hoists the `addu` above the `bnez` instead of freshening its
+     *        dest -- the tie is not on the offset here, it is on `previous`)
+     *     `prev = (unsigned short *)((unsigned int)(idx*4) + (unsigned int)previous)`
+     *       -- the UNSIGNED index-first spelling, i.e. the exact form `entry` uses two
+     *       lines above and which DOES give `entry` retail's fresh-dest index-first
+     *       `addu $a1,$v0,$s4` ............................................... 18 @127
+     *     the same with the operands swapped (base-first, unsigned) ..... 12 @127 (inert)
+     *     `(idx << 2)` instead of `idx * 4` in that spelling ................ 18 @127
+     *     ⇒ INFORMATIVE: `entry` and `prev` are the SAME expression shape over the same
+     *       CSE'd `idx*4`, one gets retail's fresh dest and the other does not, and the
+     *       source spelling provably does not decide it (the winning spelling, copied
+     *       verbatim from the sibling, is the WORST one).  This is the local-alloc
+     *       combine_regs tie the file has tracked since w32, and it is now bounded by a
+     *       same-function control rather than by an argument.
+     * ANGLE UNCHANGED: allocsim MATCH + `reqdelta --want` on the two address pseudos, in
+     * THIS 12-diff basin (every prior priced attempt predates the w71 commit landing). */
     unsigned char *base = sndpd;
     unsigned char *pd;
     unsigned int blk, src;

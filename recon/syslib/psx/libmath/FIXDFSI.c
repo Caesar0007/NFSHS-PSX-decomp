@@ -142,6 +142,56 @@
  * difference?  (jump.c block placement -- not scheduling-reachable).  The live routes
  * for this one are unchanged: a jump.c instrument read on the 2.7.2 rung, or
  * PER_FN_TEXT_MOVES.  NOT a floor. */
+/* 🏆 W72-A20 (2026-08-22) -- SEALED.  5 @62/63 -> PASS 63/63, source-only, no wiring,
+ * and the opacity fence the w60-a5 receipt installed here is now DELETED.
+ *
+ * 📚 THE CORPUS FIND THAT DID IT (user directive: dig the fp-bit lineage).
+ * The W52-A4 cluster header above says Sony's soft-float has "no public source"
+ * because _dbl_shift/_add_mant_d/_mainasu/_comp_mant are not FSF names.  The NAMES are
+ * indeed Sony's, but the ALGORITHM is FSF's **`gcc-2.8.1/floatlib.c`** (NOT `config/
+ * fp-bit.c`, whose fp_number_type/unpack/pack machinery is unrelated).  floatlib's
+ * `__fixdfsi` is:
+ *     exp = EXPD(dl1) - EXCESSD - 31;        <-- EXCESSD 1022; 1022+31 == 1053 == our v6
+ *     l   = MANTD(dl1);
+ *     if (exp > 0) return (0x7FFFFFFF | SIGND(dl1));
+ *     if (exp < 0 && exp > -32 && l) l >>= -exp; else return (0);
+ *     return (SIGND(dl1) ? -l : l);
+ * i.e. the SAME magic 1053, and -- the part that mattered -- ONE `if (<conds>) shift;
+ * else return 0;` where this reconstruction had TWO separate early returns.
+ * (Sony's deltas: the mantissa is normalised through `_dbl_shift(...,10)` instead of
+ * MANTD, and the overflow arm calls `_err_math(34,17)` before returning INT_MIN/MAX.)
+ * Cross-checks banked the same run: floatlib's appended Barrett-Richardson `__divdf3`
+ * is paired with `__dcmp`, a two-word mantissa comparator == Sony's `_comp_mant`, and
+ * DIVDF3.obj ships exactly that pair; floatlib's own `__adddf3` is a punt-to-float stub
+ * (so ADDDF3 has no ready body in the corpus).  Sources: C:\Temp\gcc-2.8.1-src\
+ * gcc281.tar.gz members gcc-2.8.1/{floatlib.c,libgcc2.c,config/fp-bit.c}; the five Sony
+ * helper names grep to ZERO hits in all three and in C:\Temp\windows-gcc-psx.
+ * VENDOR-BYTE CONTROL (04X, re-run): `python tools/objtruth.py diff
+ * C:/Temp/nfs4-clean/psyq43/extracted/LIBMATH/obj/FIXDFSI.obj __fixdfsi
+ * asm/nonmatchings/main/__fixdfsi.s` = **64/64 non-reloc-masked words match, 0 drift**
+ * -- retail IS the shipped PsyQ 4.3 vendor object, verbatim.
+ *
+ * WHY THE SHAPE CRACKS IT (and why 16 previous block orders could not).  Written as
+ * `if (range && v8) { v8 >>= -v6; } else { return 0; }`, expand_end_cond lays
+ * [then-arm][j Lend][else-arm][Lend] -- retail's exact block order -- and NEITHER arm
+ * falls through, so jump.c's "conditional jumping around an unconditional jump"
+ * inversion (the mechanism every W53..W71 receipt correctly named) has nothing to fire
+ * on.  Every earlier shape kept one arm as a fall-through, which is what jump.c
+ * canonicalised back.  The W62-A8 attempt was the nearest miss: it used the else-arm
+ * form but left the RANGE guard as a separate early return, so the else arm was still
+ * only the `v8 == 0` case and the ret0 block still had a fall-through predecessor.
+ *
+ * AND THE FENCE HAD TO GO -- 04Z lever-order dependence at full strength.  With the new
+ * shape, `v8 >>= -v6;` + the w60-a5 opacity fence gates 3 @64/63 (ONE INSN LONG): the
+ * fence is a scheduling barrier, reorg's `stop_search_p` stops at any asm, so the
+ * `srav` can no longer be pulled into the `j`'s delay slot and we emit `srav; j; nop`
+ * where retail has `j; srav [slot]`.  Deleting the fence gives PASS -- and the copy
+ * `addu $v0,$v1,$zero` that the fence was installed to save now mints by itself in this
+ * basin.  Measured: new shape + fence after the shift 3 @64 | + fence BEFORE the shift
+ * 1 @64 | + NO fence **PASS 63/63**.
+ * LAW (catalog candidate): a matching device installed in an older basin can be the
+ * thing blocking the next lever -- sweep device REMOVAL after every structural landing
+ * (the W63-A6 "an INHERITED fence can BE the blocker" row, second independent witness). */
 unsigned int *_dbl_shift(unsigned int *out, int dir, unsigned int w0, int w1, int count);
 int _err_math(int errnum, int code);
 
@@ -170,21 +220,22 @@ unsigned int __fixdfsi(double a)   /* @0x800F6834 */
         sh[0] = ua.w.lo;
         _dbl_shift((unsigned int *)sh, 0, sh[0], sh[1], 10);
         v8 = sh[1];
-        if ((unsigned int)(v4 - 1022) >= 0x20) return 0;
-        if (v8 == 0) return 0;
+        /* W72-A20: THE FSF floatlib.c SHAPE (see the corpus receipt at the head).
+         * ONE `if (<range> && <mantissa>) shift; else return 0;` -- not two early
+         * returns.  expand_end_cond then lays [shift arm][j Lend][ret0][Lend],
+         * which IS retail's block order, and jump.c has nothing to canonicalise
+         * away because neither arm falls through.  The opacity fence the w60-a5
+         * receipt needed here is GONE: in this basin the copy `addu $v0,$v1,$zero`
+         * mints by itself, and the fence's barrier property was actively costing
+         * the `j`'s delay slot (reorg's stop_search_p stops at any asm, so the
+         * `srav` could not be pulled into it).  5 -> PASS 63/63. */
+        if ((unsigned int)(v4 - 1022) < 0x20 && v8) {
+            v8 = v8 >> (-v6);
+        } else {
+            return 0;
+        }
         {
             unsigned int result;
-            /* w60-a5: retail shifts IN PLACE (`srav $v1,$v1,$v0`) and copies to
-             * the return reg at the join (`addu $v0,$v1,$zero`).  The in-place
-             * mutation alone is not enough -- local-alloc's combine_regs ties
-             * the srav's dest to the return pseudo and delete_noop_moves eats
-             * the copy.  The zero-insn OPACITY FENCE gives the shifted value an
-             * end-point cse/combine cannot equate with its source, so the copy
-             * survives (the w47-a2 delete_noop_moves cure, and exactly the
-             * "make the PRODUCER's destination a distinct pseudo" angle the
-             * W53-A12 receipt below named).  6 -> 5. */
-            v8 = v8 >> (-v6);
-            __asm__("" : "=r"(v8) : "0"(v8));
             result = (unsigned int)v8;
             if (ua.w.hi < 0) result = (unsigned int)(-(int)result);
             return result;

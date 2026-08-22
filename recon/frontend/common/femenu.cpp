@@ -938,7 +938,114 @@ void tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &ke
    Residual census at 161 (tools/opcen.py): lw 35v31, nop 26v23, sw 24v23, lhu 13v12,
    bnez 13v12, j 3v5, beqz 5v6 -- i.e. +7 insns, all traceable to the s4 occupancy
    above plus the forward loop's back-edge shape (retail `beqz OUT; nop; j TOP [ds:
-   lui a1]`, ours `bnez TOP`). */
+   lui a1]`, ours `bnez TOP`).
+
+   W72-A5 2026-08-22 -- THE SELECTIVE ANTI-LICM IS NAMED AND SOURCE-CITED
+   (re-baselined 161 @373/366; NOT landed -- every reachable spelling of the
+   device costs more than the 7 insns it buys.  Read this before touching the
+   loops again.)
+
+   THE MECHANISM, read out of gcc-2.8.1 loop.c (C:/Temp/gcc-2.8.1-src/extracted)
+   and confirmed against a real CC1PLPSX -dL dump of THIS function
+   (tools/rtl_dump.py; scratch/rtl/femenu.i.loop):
+
+   scan_loop() only ever BUILDS a movable when one of three conditions holds
+   (loop.c:691-703):
+       (1) ! maybe_never && ! loop_reg_used_before_p(...)
+       (2) ! REG_USERVAR_P (SET_DEST) && ! REG_LOOP_TEST_P (SET_DEST)
+       (3) reg_in_basic_block_p (p, SET_DEST)
+   and `maybe_never` is set to 1 by loop.c:922-931 at the FIRST CODE_LABEL or
+   JUMP_INSN the scan meets -- which is `scan_start` ITSELF, because scan_loop
+   REQUIRES scan_start to be a CODE_LABEL (loop.c:569-578; otherwise the loop is
+   reported "phony" and LICM is skipped entirely).  The ONLY thing that clears it
+   again is a NOTE_INSN_LOOP_VTOP at loop_depth 0 (loop.c:936-938) -- the note gcc
+   plants at the virtual top of a ROTATED loop.
+   => A ROTATED loop (bottom test, `bnez TOP` back-edge) resets maybe_never to 0
+      and therefore lets condition (1) admit EVERY loop-invariant set, INCLUDING
+      sets of NAMED USER VARIABLES.  An UN-ROTATED loop (top test + unconditional
+      `j TOP` back-edge) has no VTOP note, so maybe_never stays 1 for the whole
+      body and condition (1) NEVER fires -- leaving only (2) [anonymous compiler
+      temps] and (3) [single-basic-block regs] to admit a movable.
+   THAT is the inverse of the 21B-3 born-in-the-loop law, and it is SELECTIVE BY
+   CONSTRUCTION -- which is exactly the split retail shows:
+       0x00FFFFFF  = an anonymous cse temp -> condition (2) holds -> HOISTED
+                     (retail preheader `lui s5 / ori s5` @0x80024D08-0C)
+       0x1F800004  = held in a NAMED pointer used in BOTH arms -> (2) fails
+                     (REG_USERVAR_P), (3) fails (reg_in_basic_block_p returns 0 as
+                     soon as REGNO_FIRST_UID is in the other arm, loop.c:1071),
+                     (1) fails (maybe_never) -> NO MOVABLE -> per-iteration remat
+       0xFF000000  = anonymous temp, life 2, savings 2 -> movable, but declined by
+                     the COST test below; retail `lui t2,65280` in-loop @0x80024D2C
+   Our -dL reproduces the cost side exactly: threshold = (loop_has_call ? 1 : 2)
+   * (1 + n_non_fixed_regs) = 30 here (solved from three dump rows -- life 5 /
+   savings 1 declined, life 8 / savings 4 moved, life 22 / savings 2 declined after
+   seven moves at -3 each), and the move test is
+   `threshold * savings * lifetime >= insn_count` (loop.c:1640) with insn_count
+   113/115.  Our packet-slot rows are
+       Insn 445: regno 105 (life 189), global move-insn savings 1  moved to 775
+       Insn 128: regno 105 (life 320), global move-insn savings 1 halved since
+                 already moved  moved to 788
+   -- savings 1, so it would need lifetime <= 3 to be declined on COST, and
+   m->lifetime is the FUNCTION-WIDE luid span (loop.c:793), which for a variable
+   used in both arms is 189/320.  The cost route is therefore unreachable here;
+   only the maybe_never route is.
+
+   PROOF THE ROUTE WORKS (measured, then reverted): un-rotating BOTH loops as
+   `while (1) { if (!(cond)) break; ... }` removes the movable outright -- the -dL
+   row for regno 105 disappears and is replaced by
+       Insn 461: possible biv, reg 105, const = 528482308
+   i.e. the 0x1F800004 address is now rematerialised per iteration, which IS
+   retail's shape.  (Retail's `ori $a1,$a1,4` is the loop-top insn @0x80024D28 and
+   the `lui $a1,0x1F80` sits in the back-edge delay slot @0x80024F54 with a copy in
+   the entry block @0x80024D24 -- an UN-hoisted 2-insn `li` whose high half reorg
+   stole into the `j` slot.  It is NOT a hoisted constant, and the low half is
+   `ori`, not `addiu`, so it is a `li` constant and not an `la` address, per
+   methodology 3.16.)
+
+   WHY IT IS NOT LANDED -- the un-rotation is not free, and its collateral is
+   larger than the 7-insn surplus it removes.  All re-gated from the 161 base:
+       both loops un-rotated (break)             332 @360, frame 104
+       both loops un-rotated (goto shared tail)  332 @360, frame 104  -- IDENTICAL
+                                                 to break (jump.c canonicalises the
+                                                 two at that position)
+       forward loop only                         329 @371
+       reverse loop only                         299 @367
+       read-only fence on `pslot` placed BEFORE its set inside both loop bodies
+         (the zero-insn way to make loop_reg_used_before_p return 1 and break
+          condition (1) WITHOUT touching the rotation)   331 @375, frame 120 --
+          the fence forces pslot live-in to the loop, so gcc materialises the
+          address in the preheader anyway AND grows the frame.  Route closed.
+   The un-rotated basin loses 8 frame bytes (104 vs the SYM fsize 112) and flips
+   every stack-parameter read from `lh` to `lw + sll/sra` -- the same collateral the
+   W71 block-scope and goto-loop probes recorded.  tools/opcen.py makes the
+   comparison honest: the 161 basin diverges on SEVEN opcode classes
+   (beqz 5v6, bnez 13v12, j 3v5, lhu 13v12, lw 35v31, nop 26v23, sw 24v23 = +7),
+   while the reverse-only un-rotated basin diverges on ELEVEN -- it additionally
+   loses addu 37v39, sll 34v36, slt 5v6, sra 16v17.  Count parity improves,
+   structure does not, so the 161 basin is kept.
+
+   THE NEXT WORKER'S TASK IS NOW SHARP, AND IT IS NOT "find the anti-LICM":
+   the anti-LICM IS the un-rotation.  What has to be solved WITH it is the loop
+   ENTRY / BLOCK ORDER, and retail hands that over too:
+     - retail's forward loop IS zero-trip-guarded (`slt $v0,$v1,$a0; beqz $v0,
+       .L800251B4` @0x80024CFC-D00, so duplicate_loop_exit_test DID run) yet its
+       back edge is the UN-inverted `beqz .L800251B4; nop; j .L80024D28`, because
+       jump.c's jump-around-jump inversion only fires when the exit label DIRECTLY
+       follows the `j`.  In retail the next label is the ELSE ARM (.L80024F58) and
+       the loop's exit runs all the way to the shared function tail (.L800251B4).
+       Ours inverts to `bnez TOP`, so our exit label sits immediately after the loop.
+     - so the wanted shape is a guarded, un-rotated loop whose exit jumps to the
+       FUNCTION TAIL past the other arm: reproduce retail's BLOCK ORDER first (the
+       13D/16C family), and only then re-measure the frame and the parm-read modes.
+       A plain `goto` to a label at the end of the function was already tried and is
+       byte-identical to `break` at that position, so the block-order dial has to
+       come from the ARM layout, not from the loop keyword.
+   Instruments for that pass: tools/rtl_dump.py -dL (the movable table above is the
+   ground truth for any hoist claim), the instrumented cc1 at
+   C:/Temp/nfs4-instr-cc1 for [find_free_reg]/[qty_order] once the shape is right,
+   and tools/opcen.py plus the frame size (SYM fsize 112) as the go/no-go metric --
+   the gate's LCS number is NON-MONOTONE across a frame-size change (every sp
+   displacement shifts by 8) and must not be used to compare these basins. */
 
 /* WARNING: Unable to use type for symbol pkt2 */
 /* WARNING: Unable to use type for symbol pkt */

@@ -640,7 +640,54 @@ void Stats_ExtrapolateOpponentTimes(int type)
      63@233, DesiredSlice 63@233, `"i"(0)` 25@233.
      In the 25-basin: SCALED carrier `jj = j << 2` + cast-int address, index-first
      151@233 and base-first 151@233; dropping the carrier entirely 81@227;
-     a second fence 140@234. */
+     a second fence 140@234.
+
+   ===== W72-A13 (2026-08-22).  Re-gated 44 @232/232 -- KEPT.  A NEW, BETTER-SHAPED
+   basin was found and the count question is now DIAGNOSED rather than guessed.
+   🏆 THE SECOND MIN IS REACHABLE WITHOUT ANY FENCE -- 19 @233, six better than W71's
+   25@233 and it needs no `"i"(0)` scaffolding.  Spell the FALSE ARM's read through a
+   volatile view (either arm read or the compare read works, both measure 19@233):
+       DesiredSlice = trackSlices < Cars_gRaceCarList[j]->stats.sliceTotal ?
+                      trackSlices :
+                      *(volatile int *)&Cars_gRaceCarList[j]->stats.sliceTotal;
+   That reproduces retail's min BYTE-FOR-BYTE, including the branch polarity and the
+   delay-slot store the whole W59..W71 stack was chasing:
+       bnez v0,T / addu s7,a1,zero [slot] / addu s7,v1,zero
+   MECHANISM (measured, not inferred): retail loads sliceTotal into a CALLER-SAVED temp
+   ($v1) and then COPIES it into DesiredSlice; ours expands the COND_EXPR's false arm
+   DIRECTLY INTO THE TARGET (`lw s5,848(v0)` where s5 IS DesiredSlice), so there is no
+   copy to keep and the true arm's store is the only one left.  The volatile view makes
+   the arm read un-mergeable with the target, so both stores exist.
+   🔴 WHY IT IS STILL NOT LANDED, and this is the real finding: **the kept 44 basin is
+   count-exact only because TWO ERRORS CANCEL.**  Ours is (-1) one store short at the
+   min AND (+1) one instruction long in the abs arm: retail parks `j << 2` in the
+   loop-guard's delay slot (`sll s6,s1,2`) and therefore has the `%hi` of
+   Cars_gRaceCarList free to fill the `beq PlayerPosition==1` slot (`lui t5,0`), so its
+   arm is `addiu t5,t5,0 / addu v0,s6,t5 / lw / lw`; ours puts the `sll` in the guard
+   slot and pays `lui / addiu / addu / lw / lw`.  Fixing the min alone therefore ALWAYS
+   lands 233.  ⇒ the two halves must be landed TOGETHER, and the open half is precisely
+   "get `j << 2` into the loop-guard delay slot without the cast-int address penalty".
+   MEASURED THIS WAVE (every one a real gate run, all restored; `V` = the volatile-view
+   min above):
+     V (compare-read volatile) 19@233 . V (arm-read volatile) 19@233 (bit-identical) .
+     V + scaled carrier `jj = j<<2` + cast-int address, index-first 151@233, base-first
+     151@233, char*-base 151@233 . V + `(int)base + (jj<<2)` (unscaled jj) 19@233
+     BIT-IDENTICAL (fold rebuilds the ARRAY_REF -- the cast-int lever cannot reach this
+     site) . V without the jj launder 93@233 . V + launder moved inside the matched
+     guard 76@232 . launder-inside-the-guard alone 65@231 .
+     V + the W71 `"i"(0)` fence 130@234 (the two devices are ANTAGONISTIC -- do not
+     stack them) .
+     20B ZERO-INSN HARD-REG CLOBBER on a `sliceTot` temp
+     (`__asm__("" : "=r"(t) : "0"(t) : "$21"/"$22"/"$23")`): 70/64/64, all COUNT-EXACT
+     232 -- it moves DesiredSlice's HOME (s5 -> s3) but does NOT split the load from it,
+     which PROVES the merge is not a global_alloc copy-preference (20B's target) but an
+     EXPAND-time store-into-target.  Read-only clobber fences on the same temp
+     206-210@234.
+     Plain `sliceTot` temp + ternary 44 (bit-identical to base); the same with a
+     volatile LOAD into the temp 44 (bit-identical) -- a temp cannot reach it, only a
+     volatile at the USE site can.  Read-only fence on the temp after the ternary
+     120@234, before it 126@234.  Override spellings re-confirmed: plain 115@229,
+     `>=` 115@229, through a temp 115@229, swapped-operand ternary 115@229. */
 void Stats_TrackEndGame(void)
 
 {

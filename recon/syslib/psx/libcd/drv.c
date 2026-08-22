@@ -848,6 +848,36 @@ extern int CD_cw(unsigned char com, unsigned char *param, unsigned char *result,
      * cmdNames `la`).  All 6 source orderings of the four ALARM statements are INERT at
      * 18, so (b) is a scheduler decision, not a statement-order one -- next instrument is
      * a mechanical void-barrier position sweep (fencesweep) over that block. */
+    /* W72-A16 re-gate: 4 @259/259.  Residual (b) is gone (W71-A9's in-loop `cmdNames`
+     * landing took the ALARM block); residual (a) -- the parameter loop's saved count
+     * pointer in $a2 where retail has $a1 -- is now a QUANTIFIED HARD-REGISTER
+     * CERTIFICATE, read off the allocator's own dumps rather than guessed:
+     *   tools/qty272.py --keep: the pointer is global allocno 201 (refs 8 / live 11 /
+     *   pri 2.1818, rank 5 of 27); its ONLY hard conflicts are $v0 and $sp; it does NOT
+     *   conflict with `ip` (allocno 77), which is the allocno that holds retail's $a1.
+     *   global.c find_reg (gcc-2.8.1 sources, C:/Temp/gcc-2.8.1-src) runs TWO passes and
+     *   pass 0 ORs in `~regs_used_so_far` -- "we never allocate a register for the FIRST
+     *   TIME in pass 0".  At 201's turn the handout so far is {$v0, $a0, $s0} (allocnos
+     *   186/193/80/184/144), so $a1 is simply NOT YET A CANDIDATE; it is first handed out
+     *   ten ranks later, to `ip` itself.  ⇒ for 201 to land on $a1, some EARLIER-ranked
+     *   allocno must already own $a1, and no dial available here produces that: raising
+     *   `ip` over 201 needs refs 6 -> 16 at live 27 (the floor_log2 pri formula), i.e. 10
+     *   fence operands -- and cc1 REJECTS an asm with more than 10 operands ("more than 10
+     *   operands in `asm'", measured), so the ceiling is hard; lowering 201 below `ip`
+     *   needs live 11 -> 55.  MEASURED CONFIRMATION that denial only walks the allocator
+     *   UPWARD, never down to an unused $a1: an in-loop 20B hard-register conflict on
+     *   "$6" moves it $a2 -> $a3 (still 4 diffs, verified in the disasm), "$6","$7" and
+     *   "$6","$7","$8" stay 4, and clobbering the loop's live regs is catastrophic
+     *   ("$3" 52, "$4" 42, "$3"+"$6" 52, all-temps 48).
+     * ALSO FALSIFIED at this basin (all gated + reverted): moving the `ip` read-only fence
+     * ABOVE the parameter loop -- the obvious "let ip die first" cure -- costs 28 (its
+     * demote works through the LIVE-RANGE extension, so shortening it undoes W64-A5);
+     * dropping it 28; a fence before the tbl fence 28; a bare "$6" clobber before the
+     * guard 15; a read-only fence on `i` or on `cnt` inside the loop 4 / 13; a launder on
+     * `i` with a "$6" clobber 6.  This is a REGISTER-HANDOUT certificate, not a floor
+     * verdict -- the reachable lever would be an EARLIER allocno taking $a1, i.e. a
+     * hard-reg conflict on $a0 for allocno 80 (the CD_pos loop counter), which retail
+     * itself keeps in $a0, so it is not spellable without breaking a matched region. */
     __asm__("" : : "r"(tbl), "r"(tbl));     /* MATCH (W64-A5): +2 refs on `tbl`, see above */
     cnt = tbl + 0x40;
     i = 0;
@@ -1188,8 +1218,42 @@ extern int CD_init_80108140(void)
      * `rare_fallthrough - rare_dest` is 0.  So the question is precisely: what makes retail's
      * target thread yield nothing (or its rarity differ) -- a `-dj`/reorg trace on the two
      * `return -1` predecessors, NOT another source spelling. */
-    if (CD_sync(0, 0) != 2) {
-        goto err;
+    /* 🏆 W72-A16 (5 -> PASS 120/120).  R2's `qty_phys_sugg = $v0` CERTIFICATE IS RETIRED --
+     * the "suggestion no die-twice trick removes" IS removable, by the 20B ZERO-INSN
+     * HARD-REGISTER CONFLICT (a launder whose clobber list names the suggested reg).
+     * Chain of three, each measured on the gate:
+     *  (1) `__asm__("" : "=r"(sr) : "0"(sr) : "$2")` -- the clobber puts $v0 into the
+     *      qty's hard-reg conflict set, so local-alloc CANNOT honour qty_phys_sugg and
+     *      retail's `addu $a0,$v0,$zero` copy MINTS.  This is the SAME device W64-A5
+     *      tried as a plain launder (10, inert): the launder alone does nothing here
+     *      because it does not touch the suggestion -- only the CLOBBER does.
+     *      Count went EXACT 120/120 immediately; the R1 "TEXT_MOVES" item (the
+     *      `li $a0,1; move $a1,$0` CD_cw(CdlNop) arg pair emitted four insns late) FELL
+     *      OUT WITH IT and needs no orchestrator row.  5 -> 6 with `$2` alone, because
+     *      the compare's literal 2 then takes $v0 and re-blocks the slot.
+     *  (2) so the CONSTANT needs the same treatment: name it and give it a tied output on
+     *      the same asm.  With both values laundered under one `"$2"` clobber, `sr`->$a0
+     *      and `two`->$v1, exactly retail (6 -> 2).  Two SEPARATE laundered locals each
+     *      with `"$2"` also gate 2; clobbering `$a0` on the constant's fence pushes `sr`
+     *      off $a0 (6); `"$2","$3"` on `sr` alone is 6.
+     *  (3) the last diff was the `bne`'s slot: reorg could not steal retail's `li $v0,-1`
+     *      from the shared `err:` block because W71-A9 put a stop_search_p VOID BARRIER at
+     *      its head (for the CdlDemute `bnez`, which must take its FALL-THROUGH).  The two
+     *      exits want OPPOSITE reorg behaviour, so they must be SEPARATE blocks: the
+     *      CdlDemute arm keeps `goto err` + the barrier, and THIS arm gets its own inline
+     *      `return -1` with no barrier -- reorg then duplicates its `li $v0,-1` into the
+     *      slot exactly as retail does.  Measured: inline return here 0 (PASS) - dropping
+     *      the `err:` barrier instead 3 - dropping it AND inlining 3 - inlining WITH a
+     *      void barrier in the arm 4.  (Generalises W71-A9's own finding that "the two
+     *      error exits are ASYMMETRIC IN RETAIL": there are THREE exits and all three
+     *      want different reorg treatment.) */
+    {
+        int sr = CD_sync(0, 0);
+        int two = 2;
+        __asm__("" : "=r"(sr), "=r"(two) : "0"(sr), "1"(two) : "$2");
+        if (sr != two) {
+            return -1;
+        }
     }
     __asm__("" : : "i"(0));
     return 0;

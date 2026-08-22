@@ -261,7 +261,70 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
      *       slot is a `nop` for us where retail target-steals the join's a0 setup, and
      *       in arm2 that same setup lands after `n += 1` instead of before it.  Both are
      *       reorg/sched2 position rows on ONE instruction -- a TEXT_MOVES candidate.
-     *   NOT a floor. */
+     *   NOT a floor.
+     *
+     * W72-A20 (2026-08-22) -- RE-GATED at 12 (count-exact 184/184, baseline confirmed).
+     * NO landing.  Ten shapes measured, none < 12; recorded so nobody re-fights them.
+     *
+     * 📚 CORPUS (user directive, the fp-bit lineage dig -- decisive receipt in FIXDFSI.c):
+     * Sony's LIBMATH doubles descend from FSF **`gcc-2.8.1/floatlib.c`**, NOT from
+     * `config/fp-bit.c`.  THIS function has a direct corpus ancestor: floatlib's appended
+     * Barrett-Richardson `__divdf3`, whose two-word mantissa comparator `__dcmp` IS
+     * `_comp_mant` (same 1/-1/0 contract, same "compare hi words then lo words" body,
+     * and floatlib ships the pair in one file exactly as DIVDF3.obj does).  Shape deltas
+     * WORTH KNOWING, all already reflected here or measured below: floatlib clears the
+     * divisor's sign bit before the zero test; sets `result.l.lower` FIRST and only then
+     * selects `upper` with an `if/else` on `sign`; and drives the quotient with two
+     * `while (mask)` loops (0x00200000 then 0x80000000) instead of our single do/while
+     * over a `bit[2]` pair.  Sony replaced floatlib's +/-infinity payload with
+     * 0x7FFFFFFF/-1 and factored the shift/add/negate helpers out.  Source:
+     * C:\Temp\gcc-2.8.1-src\gcc281.tar.gz member gcc-2.8.1/floatlib.c (grep-confirmed
+     * that none of the five Sony helper names occurs in floatlib.c, libgcc2.c, fp-bit.c
+     * or C:\Temp\windows-gcc-psx).
+     *
+     * FALSIFIED THIS WAVE (whole-fn gate; scratchpad/W72_A20/div_*.txt).
+     *   (a) THE ZERO-DIVIDE ARM, row (a) -- the floatlib STORE ORDER + if/else forms:
+     *       `ur.w.lo = -1; ur.w.hi = -1; if (sign == 0) ur.w.hi = 0x7FFFFFFF;` ... 64 @184
+     *       same with the two stores swapped ................................... 64 @184
+     *       `ur.w.lo = -1; if (sign) ur.w.hi = -1; else ur.w.hi = 0x7FFFFFFF;` .. 67 @185
+     *       `ur.w.lo = -1; ur.w.hi = sign ? -1 : 0x7FFFFFFF;` (order only) ...... 14 @184
+     *       named `int h` default-then-override, `ur.w.hi = h;` .................. 13 @185
+     *       named `h`, lo stored first ......................................... 17 @185
+     *       named `h` + an identity fence on `h` before the store ............... 13 @185
+     *       named `h` as a real `if/else` (both arms assign) .................... 12 @184
+     *     ⇒ the W62 "any spelling that writes ur.w.hi twice re-materialises the whole
+     *       union head" verdict REPRODUCES at this basin (64/67, not the old 70), and the
+     *       named-carrier route now reaches 12-13 instead of 23 -- i.e. it improved with
+     *       the basin but never beats the ternary.  🔑 WHAT THE 13-DIFF `h` FORM PROVES
+     *       (read it before the next attempt): it lands retail's BRANCH POLARITY and its
+     *       FRESH `lui/ori` materialization (`bnez $s4; li $v0,-1 [slot]; lui $v0,32767;
+     *       ori`) -- the whole cse-sharing half of row (a) is SOLVED there.  What it
+     *       cannot do is put the result straight into `ur.w.hi`'s register: `h` is a
+     *       distinct pseudo, so it pays `addu $s3,$v0,$zero`, and the freed `lui` no
+     *       longer feeds reorg's steal into the preceding `bnez t2` slot (a `nop`).  The
+     *       remaining question is therefore ONE copy + ONE slot, i.e. the 13B/15B
+     *       delete_noop_moves family aimed at `h`->`ur.w.hi`, NOT the constant any more.
+     *   (b) THE JOIN ROWS, row (b) -- retail DUPLICATES `addiu $a0,$sp,24` (arm1's `j`
+     *       delay slot + arm2 before `n += 1`), we emit it once after `n += 1`:
+     *       per-arm `qp = q;` at each arm tail, `_add_mant_d(q,...)` .............. 65 @185
+     *       09J duplicate-the-call: `_dbl_shift_us(...)` written in BOTH arms ..... 52 @186
+     *       same + the 05C ref-fence duplicated into both arms ................... 53 @187
+     *       W72-A20 POINTER LAUNDER on the tail call's first arg, at the join ..... 64 @184
+     *       same launder placed at the END OF EACH ARM (per-arm `qq`) ............. 84 @186
+     *     ⇒ the ADDDF3 "pointer-first double identity fence" device (which took that
+     *       function 6 -> 2 this wave by making `addiu $a0,$sp,N` the first insn of a
+     *       call block so reorg steals it) does NOT transfer here: the join is reached by
+     *       two edges, so any asm at its head is a barrier that re-colors the whole tail.
+     *   (c) 21E-5 constant-sharing breaker on the guard masks:
+     *       identity fence on the **ua** guard's 0x7FFFFFFF .................... 18 @184
+     *       identity fence on the **ub** guard's 0x7FFFFFFF .................... 56 @184
+     *       the latter + the named-`h` arm ..................................... 56 @184
+     *   (d) 21C-2 DImode two-word-copy audit (the brief's named check): NEGATIVE.  The
+     *       stream is already count-exact 184/184 and every `lw`/`sw` pair here is call
+     *       ARGUMENT setup (`lw $a1,0x18($sp); lw $a2,0x1C($sp)` = w0,w1 in a1/a2, an
+     *       ODD-aligned pair) or the `t[2]`/`buf[4]` frame arrays -- there is no
+     *       even-aligned lw/lw/sw/sw copy run anywhere in the oracle, so the law that
+     *       sealed MULDF3's `_mul_mant_d` has no site in __divdf3. */
     ua.d = a;
     ub.d = b;
     exp = ((ua.w.hi >> 20) & 0x7FF) - ((ub.w.hi >> 20) & 0x7FF) + 1022;

@@ -435,7 +435,40 @@ fs4\EACLIB\PSX\PAD.C is the ONLY
    The two 10-diff rows are the informative ones: making btnOff's zero the
    FIRST one materialised does NOT free the pair, it just moves the copy onto
    `i` and costs 8 more diffs -- confirming the copy is forced by cse having
-   ANY live zero at that point, not by which variable owns it. */
+   ANY live zero at that point, not by which variable owns it.
+
+   W72-A20 2026-08-22 RE-GATE 2, COUNT-EXACT 66/66 (baseline confirmed).  NO
+   landing.  The brief's named angle was 21E-5 (fence the FIRST occurrence of the
+   shared literal so the second re-materializes -- the device that took ADDDF3.c
+   6 -> 2 this same wave).  It is measured here and it does NOT reach this site,
+   and the reason is now precise: at ADDDF3's site the shared literal is a CALL
+   ARGUMENT, so the launder's own `li` is free (it lands inside the argument
+   block); here the shared literal is a LOOP-PREHEADER constant with nothing to
+   hide behind, so the launder's barrier costs real instructions before it can
+   change any value equivalence.
+   NEW FALSIFICATIONS, all in this basin, none < 2:
+     21E-5 launder on the FIRST occurrence -- `i = 0; <identity fence on i>;`
+       then `for (btnOff = 0; i < 8; i++, btnOff += 8)` .............. 21 @71/66
+       (+5 insns: same cost W63 measured for the launder on the other side,
+        so the fence family is now falsified from BOTH ends here)
+     09H WALKER->INDEX -- drop `btnOff` entirely and subscript with `i * 8`,
+       which is what the SYM implies (only `i` is a retail local) ... 13 @65/66
+       ⇒ INFORMATIVE, and it retires the "make btnOff a giv" idea: with the
+       index form loop.c builds a full ADDRESS giv (`lbu $v0,0($a3)`), which
+       DELETES the oracle's indexed-load macro (`lui $at; addu $at,$at,$a3;
+       lbu $v0,0($at)`) and the whole address block diverges.  Retail's `a3`
+       really is a bare INDEX register feeding an assembler indexed-load macro,
+       so `btnOff` must stay an explicit index variable -- the receipt above is
+       right that retail's INIT is giv-shaped, but the variable is not.
+     `btnOff = off - 16;` (a computed zero cse cannot equate) ......... 30 @66/66
+     `for (btnOff = 0, i = 0; i < 8; btnOff += 8, i++)` ............... 12 @66/66
+     declaration order swapped, `int btnOff;` before `int i;` (13A
+       pseudo-number tie-break) ................................. 2 @66/66 (inert)
+   ANGLE UNCHANGED and now bounded from three sides (spelling, fence, index
+   form): this is one cse value-equivalence decision on a preheader constant.
+   The live route is an instrument read (qtytrace/-dl or a cse-table dump on the
+   2.8.0 lane), or PER_FN_TEXT_MOVES -- but note TEXT_MOVES cannot fix it either,
+   since the row needs an OPERAND change (`$t0` -> `$zero`), not a relocation. */
 void PAD_update(void)
 {
   int i;

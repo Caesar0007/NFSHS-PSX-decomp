@@ -1416,14 +1416,6 @@
       }
     },
     {
-      "name": "frontend/common/mcrd",
-      "target_path": "expected/src/frontend/common/mcrd.c.o",
-      "base_path": "build/recon/frontend/common/mcrd.cpp.o",
-      "metadata": {
-        "source_path": "recon/frontend/common/mcrd.cpp"
-      }
-    },
-    {
       "name": "frontend/common/screenaudio",
       "target_path": "expected/src/frontend/common/screenaudio.c.o",
       "base_path": "build/recon/frontend/common/screenaudio.cpp.o",

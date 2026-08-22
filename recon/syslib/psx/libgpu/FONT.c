@@ -212,7 +212,36 @@ extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
  *   The window between the `dr` spill and the call contains ONLY the eight long-lived
  *   field loads (all callee-saved, no reloads), so there is no reload for $a2 to collide
  *   with; the two short-lived values that DO exist there (`fs->tile.w`, `fs->tile.h`)
- *   already take $v0/$v1 in BOTH builds.  The angle stays exactly as W64-A3 named it. */
+ *   already take $v0/$v1 in BOTH builds.  The angle stays exactly as W64-A3 named it.
+ *
+ *   W72-A19 (2026-08-22) -- RE-GATED 2 @199/199 (twice).  The residual is now READ OFF the
+ *   two streams exactly and it is NOT a scheduling position at all: BOTH builds hoist the
+ *   `$a0` setup to the SAME insn index (43/44, twelve insns ahead of `jal TermPrim`); the
+ *   only difference is its FORM and its order against the spill store --
+ *       ours   : addiu $a2,$s3,16 ; addu $a0,$a2,$zero ; sw $a2,16($sp)
+ *       retail : addiu $a2,$s3,16 ; sw $a2,16($sp)     ; lw  $a0,16($sp)
+ *   i.e. reload1.c's choose_reload_regs satisfies the call's input reload by INHERITING the
+ *   output-reload register $a2 (it still validly holds the pseudo), where retail re-loaded
+ *   from the spill slot.  Every zero-insn device this campaign owns was swept against it and
+ *   ALL are catastrophic, because $a2 is a reload/spill register FUNCTION-WIDE here (catalog
+ *   16B: an asm-used hard reg enters reload1.c's bad_spill_regs for the whole function) --
+ *   FALSIFIED, all gated, all reverted: 20B clobber launder "$6" on `dr` 68 @201 * on `p`
+ *   42 * on `text` 38 * read-only fence on `dr` with "$6" 69 @200 * the 20A void clobber
+ *   `__asm__ __volatile__("" : : : "$6")` before the call 41 @198 * a plain identity launder
+ *   on `dr` 45 @200 * an 'm'-operand fence on `fs->draw_mode` 9 @198 * on `dr` itself (which
+ *   forces a REAL stack home) 16-20 @201 in every position * a volatile pointer VIEW at the
+ *   TermPrim site only `*(DR_MODE * volatile *)&dr` 38 (and at all four `dr` uses 38) * a
+ *   non-volatile pointer view 38.  STATEMENT-LEVEL cells, also falsified: the colour-default
+ *   block moved below `dr = &fs->draw_mode;` (to put an $a2-scratch store between the spill
+ *   and the call -- the 14C intruder the W64 note asks for) 16 @199; `boty` computed after
+ *   `dr` 2 (inert); one extra spilled field-load statement (`remain`) moved in front of the
+ *   call 4 @199.
+ *   The W64-A3 angle therefore stands, now with its cost bound: the intruder must occupy $a2
+ *   in the [spill .. call] window WITHOUT naming $a2 in an asm (naming it forbids retail's own
+ *   spill use), so the only remaining vehicles are (a) a real short-lived C value that the
+ *   allocator independently puts in $a2 -- none exists in the eight-load window -- or (b) a
+ *   build-side per-fn mechanism.  TEXT_MOVES cannot express it: the two instructions differ in
+ *   OPCODE (`addu` vs `lw`), not in position. */
 extern u_long *FntFlush(int id)
 {
     DR_MODE  *dr;

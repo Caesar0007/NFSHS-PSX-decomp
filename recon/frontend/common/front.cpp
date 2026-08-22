@@ -457,6 +457,68 @@ void Front_ResetPSXAnalogs(int player)
    IDENTICAL defect, and there it ALSO blocks two cross_jump tail merges (retail's
    .L800DCC68 and .L800DCCF4), so it is worth ~6 insns / ~40 diffs on that side.
    Whoever cracks one seals both. */
+
+/* W72-A8 (2026-08-22): 18 -> 12 @222/222.  ONE OF THE THREE MERGED TAILS IS
+   SEALED, and the mechanism the five previous receipts named is now DIALABLE.
+
+   THE READING (unchanged, and it was right): retail's per-arm accumulator is a
+   BLOCK-LOCAL qty, so local-alloc.c's combine_regs ties the last `or`'s dest to
+   its own first operand (`or a1,a1,v1`); ours is the ONE global `newControl`
+   allocno, whose dest can never be tied (local-alloc.c:1841 rejects a source
+   with reg_qty < 0, :1874 rejects a dest with reg_qty == -1), so the `or` takes
+   a fresh dest that coalesces with the dead address base ($a0).
+
+   WHY EVERY PREVIOUS ATTEMPT LOST: making the accumulator block-local is only
+   HALF the cure.  A block-local qty is handed a register by find_free_reg's
+   ASCENDING 0..31 scan, so it lands $v0/$v1 -- not retail's $a1/$a2 -- and the
+   per-arm tails then differ post-reload, so jump2's cross_jump declines them
+   and the arm un-merges (that is the whole of the w62 58/112/80/206 table and
+   the w71 per-arm 308: all of them are un-merges, not colourings).
+   THE MISSING HALF is the W69-20B / W71-21A ZERO-INSN HARD-REG DENIAL: an asm
+   CLOBBER inside the accumulator's live range puts those low registers into
+   find_free_reg's `used` set at zero instructions, so the block-local qty is
+   pushed up the scan onto retail's register and the tails match again.
+
+   LANDED on the G4 pair (0x53/0x800000 + 0x23/0x800000, retail's .L8002744C):
+       { int acc = player << 0x1e;
+         __asm__("" : : "i"(0) : "$2","$3");
+         return (acc | <hi> | <lo>) | 1; }
+   The accumulator must be BORN before the clobber (so the clobber is inside its
+   range) and the clobber must sit ABOVE the common tail (the whole hi/lo
+   compute) or cross_jump stops at the asm and the merge is lost again.
+   MEASURED (base 18, all count-exact 222 unless noted):
+     G4 pair, acc + clob $2,$3            12  <- landed
+     G4 pair, acc + clob $2,$3,$4         12   (equal; $4 is the address base,
+                                                prefer not to deny it)
+     G4 pair, acc + clob $2,$3,$4,$5      24
+     G4 pair, acc, NO clobber             58   (the w62 number reproduced)
+     ONE G4 arm only (either one)      29/23 @229 -- the pair is atomic
+     G1 trio, acc + clob {$2,$5}/{$2,$3,$5}/{$2,$3,$4,$5}
+                                          12 @224 -- G1's six diffs DO fall
+                                                (`or a2,a2,v0` lands) but the
+                                                arm pays +2 insns for a
+                                                re-materialized address pair,
+                                                so it is NOT landed (count bar)
+     G1 trio, clob {$5}/{$3,$5}          110 @226
+     G2 trio, clob {$2}/{$2,$3}/{$2,$3,$4} 30 @224 ; {$3} 77 @225
+     G1+G2 together                        26 @226
+     two-term acc head (`player<<0x1e | TAG`) for G1/G2  61..110 @214-219
+   ALSO RE-SWEPT AND FALSIFIED from this basin: the InGame twin's TWO-STAGE
+   COMPOUND on every one of the 11 `return newControl | 1;` arms individually
+   (18/20/20/27/27/29/29/34/44/53/63 -- arm 1 is exactly neutral at 18, so the
+   device that was worth 12 diffs on the in-game twin does NOT transfer);
+   plain block-local `acc` at all 11 arms 252 @224, all 11 + the compound arm
+   308 @222 (both reproduce the w62/w71 far basins exactly).
+
+   RESIDUAL 12 = G1 (.L80027398, wants $a2) + G2 (.L800273D0, wants $a1), the
+   same 6-line shape each.  The device reaches them BOTH -- what blocks landing
+   is the +2 address-materialization insns the clobber costs in those arms
+   (their address base is live across the accumulator, so denying registers
+   there forces a re-materialize).  NEXT ANGLE, named: find the clobber set (or
+   the equivalent live-range dial) that moves G1's acc to $a2 WITHOUT touching
+   the arm's `lui/addiu frontEnd` pair -- the acc must lose $v0/$v1/$a1 while
+   $a0 stays available to the address.  Harness: scratchpad W72_A8_pad{,2,3}.py
+   (arm-indexed transforms + clobber-set sweeps). */
 int GetPSXPadValue(int value,int player)
 
 {
@@ -479,10 +541,16 @@ GetPSXPadValue_gotType:
   case 0x73:
     switch (value) {
     case 0x800000:
-      newControl = player << 0x1e |
-                   (0x7f - (byte)frontEnd.J1MIN[player]) * 0x10000 |
-                   (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100;
-      return newControl | 1;
+      /* W72-A8 G4 arm -- see the W72-A8 receipt above.  A BLOCK-LOCAL
+         accumulator (so local-alloc.c:1866 may tie the last `or`'s dest to
+         its own first operand) + the zero-insn hard-reg denial that steers
+         that block-local qty onto retail's $a1.  Both 0x800000 arms must
+         carry it together (they cross-jump into one tail). */
+      { int acc = player << 0x1e;
+        __asm__("" : : "i"(0) : "$2","$3");
+        return (acc |
+                (0x7f - (byte)frontEnd.J1MIN[player]) * 0x10000 |
+                (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100) | 1; }
     case 0x200000:
       newControl = player << 0x1e |
                    ((byte)frontEnd.J1MIN[player] + 0x80) * 0x10000 |
@@ -529,10 +597,13 @@ GetPSXPadValue_gotType:
   case 0x23:
     switch (value) {
     case 0x800000:
-      newControl = player << 0x1e |
-                   (0x7f - (byte)frontEnd.deadSpot[player]) * 0x10000 |
-                   (0x7f - (byte)frontEnd.steeringRange[player]) * 0x100;
-      return newControl | 1;
+      /* W72-A8 G4 arm -- the twin of the 0x53/0x800000 arm above; they share
+         retail's .L8002744C tail and MUST be converted as a pair. */
+      { int acc = player << 0x1e;
+        __asm__("" : : "i"(0) : "$2","$3");
+        return (acc |
+                (0x7f - (byte)frontEnd.deadSpot[player]) * 0x10000 |
+                (0x7f - (byte)frontEnd.steeringRange[player]) * 0x100) | 1; }
     case 0x200000:
       newControl = player << 0x1e |
                    ((byte)frontEnd.deadSpot[player] + 0x80) * 0x10000;

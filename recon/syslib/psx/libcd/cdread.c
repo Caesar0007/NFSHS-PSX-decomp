@@ -219,7 +219,33 @@ extern void _read_sync(void)
  *  (and it breaks CdReadSync/_read_data_int); per-fn nosplit 44; per-fn -fforce-addr 18.
  *  The wired 2.8.1 splice stands.  ⚠️ NOTE the per-fn splice tables OVERWRITE each other:
  *  _apply_fn_splice (nosplit/faddr) runs AFTER _apply_cc1_ver_splice and re-splices from a
- *  DEFAULT-cc1 compile, so "2.8.1 + -mno-split-addresses" is not expressible today. */
+ *  DEFAULT-cc1 compile, so "2.8.1 + -mno-split-addresses" is not expressible today.
+ *
+ * W72-A16 re-gate: 9 @156/157.  The splice-composition cell above is RE-VERIFIED as still
+ * inexpressible (probe: build.py's per-fn nosplit table applied to _read_int re-splices
+ * from a default-cc1 compile, so the 2.8.1 ver-splice is lost).  SPEC for the orchestrator,
+ * so the cell becomes measurable without another wave burning a probe on it:
+ *   _apply_cc1_ver_splice / _apply_cc1_ver_splice_272 and _apply_fn_splice both work by
+ *   RE-COMPILING the whole TU with an alternate cc1/flag set and splicing the named
+ *   function's region out of that second .s into the primary one.  They are applied
+ *   SEQUENTIALLY over the SAME primary text, and each one's second compile uses the
+ *   DEFAULT cc1 + default flags -- so whichever runs last overwrites the other's region.
+ *   FIX = make the two tables COMPOSE by keying the alternate compile on the UNION of the
+ *   per-fn requests: build one extra .s per distinct (cc1, extra-flags) PAIR that any
+ *   function in the TU asks for, then splice each function's region from ITS pair's .s.
+ *   Concretely: collect {fn: (cc1_path, extra_flags)} from PER_FN_CC1_VER_SPLICE[_272],
+ *   PER_FN_NO_SPLIT_ADDRESSES, PER_FN_NO_DELAYED_BRANCH, PER_FN_NO_THREAD_JUMPS,
+ *   PER_FN_G8 and PER_FN_FORCE_ADDR; group by the pair; one compile per group; one splice
+ *   pass over the union.  That is a pure build.py refactor -- no new flag semantics -- and
+ *   it makes "2.8.1 + -mno-split-addresses" (this function) and the same composition for
+ *   CdRead (2.8.0 + nosplit, already wired as a single-table entry) expressible together.
+ * ALSO FALSIFIED at this basin (all gated + reverted): the 20B hard-register conflict
+ * applied to the head split-address pair -- a volatile `&_cdr` anchor + launder with a
+ * "$2" clobber 12, without the clobber 13, with "$2","$3" 14, with "$4" 19, and a bare
+ * `__asm__("" ::: "$2")` before the head store 13.  The clobber DOES move the HIGH pseudo
+ * off $v0, but it never TIES it to the base's $v1 -- combine_regs' tie is refused for a
+ * lo_sum that is a GLOBAL allocno (21E-4), and a hard-reg denial cannot create a tie, only
+ * relocate one side.  Per-fn `-mno-split-addresses` re-priced here: 44 (unchanged). */
 extern void _read_int(int intr, int code)
 {
     _cdr.w34 = code;                                /* remember intr arg for the user cb */
@@ -426,7 +452,40 @@ extern void _read_data_int(void)
  * CdDataCallback call, ours emits it once at the merge point.
  * RE-SWEPT AT THIS BASIN and falsified: an opaque named zero on the SECOND CdControl
  * argument (`int z2=0` + identity fence) 7, on the third 8, on both 9; per-fn ladder
- * 2.8.1 (wired) 3 - 2.8.0 7 - 2.7.2-970404 21 - 2.6.3 35 - 2.7.2 38 - 2.91.66 41. */
+ * 2.8.1 (wired) 3 - 2.8.0 7 - 2.7.2-970404 21 - 2.6.3 35 - 2.7.2 38 - 2.91.66 41.
+ *
+ * W72-A16 re-gate: 3 @121/122.  BOTH halves attacked with the two devices that sealed
+ * CdRead and CD_init this wave; both FALSIFIED HERE, and the reason is now named:
+ *  (a) the `CdControl(9,0,0)` third argument.  The cse-sharing break DOES work -- an
+ *      identity launder on the `param` zero produces retail's `addu $a2,$zero,$zero` --
+ *      but the laundered zero then lands in $s0 and the a1 load becomes
+ *      `addu $a1,$s0,$zero` where retail has `addu $a1,$zero,$zero`, plus a 2-diff
+ *      $v0->$s0 rotation on the shell-open `andi`/`beqz` pair: net 3 -> 7.  Unlike
+ *      CdRead's site (a two-insn arm where the laundered zero coalesces straight into
+ *      $a1 and materialises as `move $5,$0`), this one sits mid-block behind a `puts`
+ *      call, and an OPAQUE value can never be spelled `addu $aN,$zero,$zero`.  MEASURED,
+ *      all reverted: identity launder on the param zero 7 - read-only fence 6 - launder
+ *      on the RESULT zero 8 - the CdRead-winning 2-OUTPUT TIED LAUNDER `(cmd, z)` 7,
+ *      with `z` first 7, with a "$16" clobber 7, with a "$2" clobber 7, with an s0-s7
+ *      clobber list 39 - a void barrier before the block / after the launder / both 7 -
+ *      a "$16" clobber on the launder 7.
+ *  (b) retail DUPLICATES `li $a0,6` into the preceding `beqz`'s slot; ours steals the
+ *      DMA arm's leading `lui $a0,%hi(_read_data_int)` instead.  MECHANISM CONFIRMED
+ *      (gcc-2.8.1 reorg.c stop_search_p, read this wave): retail's fall-through thread
+ *      begins with a 2-word `la` MACRO, which reorg cannot slot at all, so it falls back
+ *      to the target thread and takes the `li`; our -msplit-addresses `lui` half is a
+ *      single stealable insn.  Cures measured: a void barrier at the arm head 4 (it
+ *      blocks the steal but is also a sched1 barrier); the NON-VOLATILE launder -- which
+ *      stop_search_p also stops at, without the sched barrier (reorg.c returns 1 for ANY
+ *      `asm_noperands >= 0` insn, a NEW instrument this wave) -- needs a value that is
+ *      LIVE AFTER the asm or it is deleted as dead (21A-3): `sect` and `retry` are both
+ *      dead there and measure 3 (the asm vanished), and the only live candidate `g`
+ *      costs its own allocation (8 at the arm head, 8 with a "$2" clobber, 7 after the
+ *      call).  PER-FN `-mno-split-addresses` -- which WOULD give the `la` macro form --
+ *      is 25 @125/122 here (re-priced this wave; it is the mechanism but it re-splits
+ *      every other address in the function).  NAMED ANGLE for the next pass: a way to
+ *      make ONE address materialise as the `la` macro while the rest stay split, i.e. a
+ *      per-SITE nosplit, which today only exists as a per-FN build.py flag. */
 extern int _read_issue(int retry)
 {
     /* W62-A6: 22 -> 15.  TWO OPPOSITE delay-slot devices, both from the same law
@@ -774,7 +833,31 @@ extern int CdRead(int sectors, u_long *buf, int mode)
         e->w30 = CdDataCallback(0);                 /* save+clear data cb */
     e->w1c = VSync(-1);
     if (CdStatus() & 0xE0)                          /* drive busy -> pause first */
-        CdControlB(9, 0, 0);
+    {
+        /* 🏆 W72-A16 (2 -> PASS 103/103) -- THE MULTI-OUTPUT TIED IDENTITY FENCE.
+         * Residual class (d) below was diagnosed as "cse-constant-sharing, identity
+         * fence is NOT the cure".  Half right: a SINGLE identity fence on the `param`
+         * zero DOES break the sharing (retail's `addu $a2,$zero,$zero` appears), but it
+         * costs the arg-setup ORDER -- the laundered zero's init now sits on a 3-long
+         * sched1 dependency chain (`move z,$0` -> asm -> `move $5,z` -> jal) while the
+         * `li $a0,9` is depth 1, so sched1 emits the zero first and reorg steals THAT
+         * into the `beqz` slot where retail has `li $a0,9`.  Net 2 diffs either way.
+         * FIX = give BOTH argument values ONE fence with TWO tied outputs.  Both then
+         * hang off the same asm at the same depth, the tie breaks on luid = source
+         * declaration order, and `cmd` (declared first) is emitted first == retail;
+         * the `param` zero is still opaque so the `result` zero re-materializes from
+         * $zero.  Zero instructions, no pin.  ORDER IS LOAD-BEARING: the same fence
+         * with `z` declared/listed first is 2 (the old shape).  MEASURED, all reverted:
+         * single identity fence on the zero 2 - read-only fence 5 - fence on the 3rd
+         * arg 6 - two separately-fenced zeros 6 - `__asm__("":::"$5")` 3 - `"$6"` 5 -
+         * a `cmd` local without a fence 2 (cmd folds back into the call setup) -
+         * cmd+z fenced SEPARATELY 3 - `cmd` as a plain "r" INPUT of the zero's fence
+         * 3 (an input does not equalize the chain, only a tied OUTPUT does). */
+        int cmd = 9;
+        int z = 0;
+        __asm__("" : "=r"(cmd), "=r"(z) : "0"(cmd), "1"(z));
+        CdControlB(cmd, (u_char *)z, 0);
+    }
     /* W64-A6: retail schedules the `slt $v0,$zero,$v0` BEFORE the frame restores; sched2
      * sinks ours below them.  A named boolean + a zero-insn read-only fence pins the
      * compare above the epilogue (7 -> 5).  An identity fence measures the same 5; the

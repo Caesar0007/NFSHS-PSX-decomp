@@ -362,12 +362,49 @@ extern void _pad_reset_state(unsigned char *info)
  *        = 10; JOY,chan,state / JOY,state,chan = 13 @62), a discarded `sio = _padSioRegs` read
  *        before the trio (8), and three fused-increment spellings (`chan = _padSioChan + 1`,
  *        `_padSioChan = _padSioChan + 1`, chan-load-after-the-stores; all 10).  Sched1 ready-list
- *        tie, confirmed a second time. */
+ *        tie, confirmed a second time.
+ * *** MATCH (W72-A17): SEALED, PASS 61/61, pin-free.  BOTH residual classes closed by TWO
+ * COUPLED edits -- land them together, each alone leaves 4 diffs. ***
+ *  (a'') THE -9 MOVABLE, closed by 21B-3 (born-in-the-loop) + 13C's :1640 LIFETIME dial,
+ *        read off `-dL` on the lane binary (tools/qty272.py --keep) instead of guessed:
+ *            Loop from 12 to 131: 40 real insns.
+ *            Insn 25: regno 82 (life 2), move-insn savings 2  moved to 145   <- &_pad_info
+ *            Insn 30: regno 74 (life 1), move-insn savings 1 not desirable   <- the -9
+ *            Insn 42: regno 84 (life 2), move-insn savings 1  moved to 147   <- &_padFixResult
+ *        move_movables (loop.c:1640) moves iff `threshold*savings*lifetime >= insn_count`;
+ *        savings = n_times_set = 1 and is NOT source-reachable (loop.c:600), insn_count = 40,
+ *        so LIFETIME is the only input -- and the two movables that DID move differ from the
+ *        -9 by exactly one luid (life 2 vs 1).  CURE = assign `noport = -9;` INSIDE the loop
+ *        (that is what makes it a movable at all -- the old pre-loop `int noport = -9;` is
+ *        straight-line entry-block code that LICM cannot reorder) AND put ONE zero-insn insn
+ *        between its set and its use so life becomes 2.  The hoist then lands in appearance
+ *        order and the prologue is retail's, register for register:
+ *            lui/addiu $s1 (&_pad_info) | li $s3,-9 | lui/addiu $s2 (&_padFixResult).
+ *        Both fence flavours work (void-tail `"i"(0)` = landed, read-only `"r"(info)` = also
+ *        PASS); the fence is REQUIRED (no fence = 15 @60, the movable is declined again and
+ *        the 4th saved reg + the 0x28 frame go with it).  FALSIFIED at this basin: the set
+ *        placed BEFORE `info = ...` (with `info` split into decl+assign so C89 allows it),
+ *        with and without the fence -- 4 both ways, i.e. the movable is only created when its
+ *        set sits at that RTL position.
+ *  (b'') THE TWO-LOAD LUID TIE, closed by VARIABLE IDENTITY, not by statement order (the
+ *        six trio orderings were re-swept a THIRD time at this new basin per 04Z and are still
+ *        flat: chan,state,JOY / chan,JOY,state / state,chan,JOY = 4; state,JOY,chan = 6;
+ *        JOY-first x2 = 9 @62).  Retail issues `lw _padSioRegs` then `lw _padSioChan`; ours the
+ *        reverse because `chan` is SET TWICE (`chan = _padSioChan` then `chan = chan + 1`), so
+ *        its load's pseudo is not a single-set birth and sched1 ranks the pair the other way.
+ *        Give EACH load its own SINGLE-SET local -- `sio` for the SIO0 base and `c0` for the
+ *        channel -- and the issue order is retail's.  BOTH are needed: `c0` alone = 4,
+ *        `sio` alone = 4, a merely DISCARDED `sio` read (the w64 probe) = 4.  `sio` must
+ *        CARRY the store (`*(volatile u_short *)(sio + 0x0a) = 0`, i.e. JOY_CTRL spelled
+ *        through the local); keeping the JOY_CTRL macro beside a live `sio` re-loads the
+ *        pointer and stays at 4. */
 extern unsigned char *_pad_failall(int flag)
 {
     unsigned char *ret;
-    int noport = -9;
+    int noport;
     int chan;
+    int c0;              /* MATCH: single-set home for the _padSioChan load, see (b'') */
+    unsigned char *sio;  /* MATCH: single-set home for the _padSioRegs load, see (b'') */
 
     /* MATCH (A14/w71): 20B preference-killer -- identity launder + a HARD-REG CLOBBER of $a0.
      * The launder's `"0"` tie drops the implicit volatility (so this is NOT a sched barrier and
@@ -379,6 +416,13 @@ extern unsigned char *_pad_failall(int flag)
     __asm__("" : "=r"(flag) : "0"(flag) : "$4");
     do {
         unsigned char *info = _pad_info + _padSioChan * 0xf0;
+        /* MATCH (W72-A17): `noport` is BORN IN THE LOOP so loop.c enters it as a movable, and
+         * the zero-insn fence below buys the ONE luid of lifetime that move_movables' :1640
+         * budget is short of (life 1 -> 2).  The hoist then lands BETWEEN the two address
+         * hoists, in appearance order = retail's prologue.  Do not hoist the assignment out,
+         * do not delete the fence -- see the (a'') block above. */
+        noport = -9;
+        __asm__("" : : "i"(0));
         if (flag != noport) {
             if (flag == 0)
                 _padFixResult[_padSioChan] = 0;
@@ -387,10 +431,14 @@ extern unsigned char *_pad_failall(int flag)
                 _pad_shift(info);
             }
         }
-        chan = _padSioChan;
+        /* MATCH (W72-A17): one SINGLE-SET local per load -- see (b'') above.  `sio` is
+         * JOY_CTRL's own base (`JOY_CTRL` == `*(volatile u_short *)(_padSioRegs + 0x0a)`);
+         * spelling the store through it is what keeps the pointer load a single-set birth. */
+        sio = _padSioRegs;
+        c0 = _padSioChan;
         _padSioState = 0;
-        JOY_CTRL = 0;
-        chan = chan + 1;
+        *(volatile unsigned short *)(sio + 0x0a) = 0;   /* JOY_CTRL = 0 */
+        chan = c0 + 1;
         _padSioChan = chan;
         if (chan <= _padChanStop)
             ret = (unsigned char *)(unsigned long)

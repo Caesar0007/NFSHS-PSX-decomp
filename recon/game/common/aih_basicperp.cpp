@@ -597,7 +597,35 @@ int AIHigh_BasicPerp::CheckChaserPosition(int copIndex,int carIndex)
          the w60/w61/w63/w64 measurements (11-19 diffs @86-88 in every spelling), not a
          new falsification -- the only reachable cure is to make the guard test a
          quantity cse never range-recorded, which no source spelling of `pos` can be.
-         The qtytrace/copypref lane remains the named next lens. */
+         The qtytrace/copypref lane remains the named next lens.
+         W72-A11 re-gated (2 @85/87) and CLOSED TWO MORE AXES, both with mechanisms:
+         (1) THE SYM BLOCK STRUCTURE IS NOT THE DIAL.  This receipt has quoted the S5/S6
+             blocks since W59 without ever building them; 13D says a loop-body declaration
+             plants NOTE_INSN_BLOCK_BEG/END, which is the kind of boundary that ends a cse
+             extended-basic-block path, so it was the obvious way to invalidate the range
+             record for free.  Measured (each re-gated from 2):
+               S5 -- nextCopIndex/nextCarIndex declared IN the loop body (SYM-faithful;
+                     the recon has them at function scope)                    26 @85
+               S6 -- a bare nested `{ }` opening at the guard, closing before
+                     `pos = pos + -1;`                                   INERT 2 @85
+               S6b -- the same block closing before the copVSPositionList_ store INERT 2
+               S5+S6 / S5+S6b                                                 26 @85
+             So a lexical block alone emits nothing cse respects, and the loop-body
+             declaration pays the same saved-band rotation the W59 (a)/(b) rewrites did
+             WITHOUT restoring the guard.  The guard's deletion survives block notes.
+         (2) THE COMPARISON-CODE AXIS IS CLOSED TOO.  `if ((unsigned int)pos < 1U)` --
+             an LTU record where the outer `if (0 < pos)` recorded LE -- is BYTE-IDENTICAL
+             (2 @85): cse/fold canonicalises the unsigned form back to the same `blez`
+             against the same quantity, so the record still applies.  Also falsified:
+             the plain un-rotated `while (0 < pos)` on its own (the W59 (b) shape had only
+             ever been measured together with the nested-block rewrite) 26 @85; a
+             `for (;;)` with the guard as the sole exit 10 @89; and reading the guard out
+             of the memory cell the loop keeps equal to pos
+             (`this->copVSPositionList_[copIndex] < 1`) 38 @91 (+lw, +nop).
+         STANDING VERDICT unchanged and now stronger: the only thing that restores the
+         branch is a value-fence, which mints a real `addu` because combine_regs
+         (local-alloc.c:1866) refuses to tie a copy of a loop-carried GLOBAL allocno.
+         Probe file scratchpad/W72_A11/v_ccp{,2}.py. */
             if (pos < 1) break;
 
       if (nextCopIndex != -1) {

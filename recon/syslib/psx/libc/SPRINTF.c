@@ -92,6 +92,85 @@
  *   flagZero: dropped entirely (plain '0' literals) 185 | plain `int` instead of `register` 44
  *     (inert) | identity-laundered 44 (inert) | assigned inside the '%' branch 174.
  *     ⇒ the `li $s3,48` emission-order row is downstream of the same pool/profile question. */
+/* 🏆 W72-A18 -- (A) THE VENDOR-BYTE CERTIFICATE, (B) THE CORPUS VERDICT, (C) THE ROOT CAUSE
+ * SHARPENED WITH A DECISIVE EXPERIMENT.  Re-gated at 44 @545/545 (unchanged; nothing landed).
+ *
+ * (A) 🔑 RETAIL'S sprintf IS THE SHIPPED PsyQ 4.3 LIBC VENDOR OBJECT, BYTE-PROVEN.
+ *     `C:/Temp/nfs4-clean/psyq43/extracted/LIBC/functions/sprintf.bin` (2192 B = 548 insns) vs
+ *     the oracle's 548 words: 514/548 raw-identical, and ALL 34 differences are in relocated
+ *     fields only (jal targets, lui/%hi and addiu/lw/sw %lo immediates) -- RELOC-MASKED DIFF = 0.
+ *     So this is the 19A object-identity class (like LIBMATH/LIBMCRD): the target is a genuine
+ *     Sony build of Sony's own source, and every residual here is codegen identity, never
+ *     structure.  ⚠️ NOTE the INDEX.tsv insn counts are the honest size: LIBMCRD's
+ *     GetDirentry/CreateFile/DeleteFile are 152/130/111 = our oracles exactly, so the whole
+ *     libmcrd + libc/SPRINTF cluster is vendor-anchored.
+ *
+ * (B) 🔴 CORPUS VERDICT ON THE TEMPLATE-COPY ROW -- THE HOPED-FOR DISSOLUTION IS FALSE.
+ *     The user's directive was: sotn/sh ship a MATCHED PsyQ sprintf; if their source shape
+ *     avoids the movstrsi template copy (a per-char loop instead of a struct assignment) the
+ *     whole row class dissolves.  IT DOES NOT.  `C:/Temp/sotn-decomp/src/main/psxsdk/libc/
+ *     sprintf.c` is a fully matched body (0 INCLUDE_ASM; splat config lists it as a `c` segment)
+ *     and it copies the template with the IDENTICAL struct assignment `info = D_8002D3A8;`
+ *     over the identical 0xC-byte bitfield `printf_info`.  Point-by-point against our body:
+ *       - same 0x200 buf, same `bufPtr = (char*)&args - sizeof(printf_info) - 4` va_list trick,
+ *         same `for (; ch = *f, ch != 0; ++f)` head, same flag/width/precision/conversion tree,
+ *         same `do { if (info.isHalf) ... } while (0)` wrappers (we already carry them),
+ *         same case set incl. the `default:` that handles '%'.
+ *       - the ONE structural difference is the va_list: sotn uses the STANDARD gcc macro
+ *         `(AP += 4, *(TYPE*)(AP-4))`; ours uses read-then-advance.  That is not a corpus win
+ *         to take -- the standard form was already measured HERE at 69/81 (w61-a9) because THIS
+ *         oracle loads before advancing.  Revision drift, not a better shape.
+ *       - sotn uses plain '0' literals where we need the function-wide `flagZero` register
+ *         constant (dropping ours measures 185), which is independent evidence that the two
+ *         SDK revisions differ -- consistent with (A): match OUR vendor object, not sotn's.
+ *     `C:/Temp/ps1-decomp-refs/rood-reverse/src/SLUS_010.40/libc/SPRINTF.c` is INCLUDE_ASM
+ *     (unmatched), and PE2 ships only a prebuilt libc2/sprintf.o.  ==> the corpus is EXHAUSTED
+ *     for sprintf's SHAPE; our body is already the vendor shape.  Do not re-mine it.
+ *
+ * (C) THE TEMPLATE-COPY REGISTER ROW, ROOT CAUSE SHARPENED (the W71 reading is HALF right).
+ *     What the four registers ARE (mips.md:4110, gcc-2.8.1): `movstrsi_internal` carries FOUR
+ *     `(clobber (match_scratch:SI "=&d"))` operands.  TWO different passes can assign them:
+ *       - local-alloc's `alloc_qty_for_scratch` (local-alloc.c:307) makes each a QTY with
+ *         n_refs 1 / live length 2 / size 4, so QTY_CMP_PRI = floor_log2(1)*1*4/2 = 0 -- they
+ *         sort LAST in their block and then take the lowest free regs by MIPS's ascending
+ *         numeric scan (find_free_reg, no REG_ALLOC_ORDER), i.e. $2,$3,$4,$5 when the block
+ *         head is quiet;
+ *       - failing that, reload's `potential_reload_regs` (order_regs_for_reload, reload1.c:3840)
+ *         = first the `uses == 0 && call_used` hard regs in ASCENDING order, i.e. $8,$9,$10,$11.
+ *     🏆 DECISIVE EXPERIMENT (new, cheap, reusable as a PASS DISCRIMINATOR): put a zero-insn
+ *     void-tail fence with a HARD-REG CLOBBER far away from the copy --
+ *         `__asm__("" : : "i"(0) : "$8");`            (at the top of the fn, 470 insns away)
+ *     and the copy's registers SHIFT BY ONE: t0/t1/t2 + t3 -> t1/t2/t3 + t4 (gate 44 -> 48);
+ *     clobbering "$8","$9","$10","$11" shifts them to t4/t5/t6 + t7.  A local-alloc scratch qty
+ *     could not move (local-alloc only sees `regs_live_at` INSIDE the block) -- so OURS IS THE
+ *     RELOAD POOL, function-wide, exactly as W71 said.
+ *     🔴 BUT RETAIL'S FOUR CANNOT BE THE RELOAD POOL, and this is arithmetic, not opinion:
+ *     order_regs_for_reload adds `large + 1` (large = the sum of every pseudo's REG_N_REFS) to
+ *     every reg in `regs_explicitly_used`, which is a straight copy of `regs_ever_live` taken
+ *     BEFORE pseudo homes are merged in (reload1.c:582).  Any sprintf sets `(reg 2)` for its
+ *     return value and `(reg 4..6)` for the memmove/strlen/memchr argument registers, so
+ *     $2/$4/$5/$6 are `regs_explicitly_used` in EVERY build and sort to the END of the pool.
+ *     Retail's `lui $a1; addiu $a1,$a1; lw $v0,0($a1); lw $v1,4($a1); lw $a0,8($a1)` therefore
+ *     came from LOCAL-ALLOC's scratch qtys (ascending from $2 at a quiet block head).
+ *     ==> ⭐ THE ROW IS NOT A SPILL-POOL-ORDER QUESTION AT ALL.  It is: OUR local-alloc DECLINES
+ *     the four scratch qtys and retail's ACCEPTS them.  That re-points the whole class at
+ *     local-alloc's own basic block, and the .lreg says that block is as quiet as it gets:
+ *         ;; Start of basic block 4.
+ *         ;; Registers live: 0 [$0] 29 [$sp] 30 [$fp] 80 82 85 107 110 113
+ *         (code_label 66 ...)  (insn 72 ... movstrsi_internal ...)   <- the copy IS the block head
+ *     (the six live pseudos are all saved-reg homed; and the dump still PRINTS `(scratch:SI)`
+ *     because local-alloc rewrites `qty_scratch_rtx[]`, never the in-insn rtx -- so the dump is
+ *     NOT evidence either way, which is why the clobber experiment was needed).
+ *     NAMED NEXT STEP (one run, not a sweep): the two exits of `alloc_qty_for_scratch` are
+ *     (i) `constrain_operands(insn_code_num, 0)` failing -- note operand 1 is `memory_operand "o"`
+ *     i.e. OFFSETTABLE, and the source is `(mem (symbol_ref "D_8012348C"))`; and (ii) find_free_reg
+ *     returning -1.  Instrument with the [find_free_reg]/[qty_order] traces.
+ *     ⚠️ LAB BLOCKER RECORDED: `C:/Temp/nfs4-instr-cc1/cc1-ecoff.exe` SEGFAULTS on this TU at
+ *     -O2 (every flag combination tried, with and without -mgas/-funsigned-char/
+ *     -mno-split-addresses); -O0 runs clean.  SPRINTF is one of the known lab-segfault TUs
+ *     (w48-a9) -- the trace needs the fn sliced out into a mini-TU first.
+ *     The format-pointer row (`addiu $a3,$a2,1` + `lb $a1,1($a3)` vs retail `addiu $v0,$a2,1` +
+ *     `lb $a1,2($a2)`) is the same story one level down and moves with it. */
 /* PRIOR MATCH (w51-a8, 2026-08-09) -- RAGE-RACER VENDOR SIBLING AUDITED; our body is already
  * the right shape, so NO transplant was landed (kept at 174 diffs, 547-vs-545 insns).
  * Reference: C:/Temp/rage-racer-decomp\src\main\PAL\lib\libc\sprintf.c (a full

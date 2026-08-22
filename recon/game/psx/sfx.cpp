@@ -560,16 +560,63 @@ static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,
                 because the case-13/14 arm still colors that `or` with $a2 where the two
                 ribbon arms use $a1 (see the a1<->a2 note at the case-13/14 tail).  Fix
                 that swap and the 3-way merge completes, taking the count to 940 and
-                removing (b) entirely -- that is the single highest-value next step. */
+                removing (b) entirely -- that is the single highest-value next step.
+           ==== W72-A14 (2026-08-22): **SEALED -- PASS 938/938, DUAL LANE** (44 -> 0).
+           The predicted chain fired exactly as W71 forecast it, and it went further:
+           44 -> 20 (the a1<->a2 swap, see the case-13/14 note) -> 12 (the `lnk`
+           statement below) -> 6 (the m-fence DELETED) -> PASS (`pt`, see the gte note).
+           THE RIBBON HALF, two facts:
+           (1) THE `lnk` STATEMENT IS THE 3-WAY MERGE.  cross_jump matches a common
+               SUFFIX, and the arm's LAST insn before the `j` decides where the match
+               stops.  With the link masked INLINE in the final expression the arm ends
+               `... sw v1,4(at); and v0,v0,a3; and a1,s0,a1; j` -- `and a1,s0,a1` faces
+               the fall-through's `and v0,v0,a3`, they differ, and only [or, sw] merge.
+               Naming the link as its OWN statement BEFORE the cursor bump emits
+               `and a1,s0,a1` EARLY, so the arm ends `... sw v1,4(at); and v0,v0,a3; j`
+               and all three insns of retail's .L800DE610 merge.  It also deletes the
+               (a) load-delay `nop`: with one insn fewer to place, sched2 puts the cursor
+               bump `addiu v1,s0,40` in the `lw a0,20(s3)` delay slot, retail's own fill.
+               => the W71 residual's TWO items (a)+(b) were ONE cause, not two.
+           (2) !! THE W71 'm'-OPERAND CROSS-JUMP DE-MERGER IS NOW DEAD CODE -- and
+               keeping it COSTS 6 diffs.  It was blocking a merge that, once the arms
+               end in retail's own order, gcc performs CORRECTLY.  Deleting it: 12 -> 6
+               and the count goes EXACT 938/938.  MEASURED (statement-order grid on
+               A=`w=*ot2` B=`lnk=prim&0xffffff` C=`Render_gPacketPtr=prim+0x28`
+               F=the m-fence D=the OT store, plus P/S = C split into value+store):
+                 ABCFD 12 @940 . ACFBD 12 @940 . ACBFD 12 @940 . BACFD 12 @940 .
+                 APSFBD/APSBFD/APBSFD/PASFBD/PABSFD all 12 @940 . ABFCD 47 @939 .
+                 AFBCD 50 @940 . ABCDF 78 @946 . APFSBD 37 @939 . APBFSD 41 @941 .
+                 **ABCD (no fence at all) 6 @938 <== LANDED**
+               The 12-cell plateau is a strict DICHOTOMY that names the mechanism: with
+               the fence present, B before F gives the right bump but reorg TARGET-STEALS
+               `and v0,v0,a3` into the delay slot, and B after F gives the right delay
+               slot but a load-delay `nop`.  Reason: the fence is an ASM insn sitting
+               between the backward-fill candidate and the `j`, and per catalog 4.4 any
+               asm STOPS reorg's backward delay-slot scan -- so the fence itself forced
+               the steal.  Falsified while looking for a fence that does not: an "m"
+               launder on `ot2` instead of `w` at four positions (52-64 diffs -- the "m"
+               operand on the OT ADDRESS rotates the palette/mask registers), and an "m"
+               launder on `lnk` (16 @940).
+           => CATALOG CANDIDATE (21A-6 correction): an instance-local "m"-operand fence is
+             a de-merger of LAST resort.  Before reaching for it, check whether the arms'
+             SUFFIX ORDER is retail's -- a de-merge that is really a mis-ordered suffix is
+             fixed for free by naming the statement, and the fence then costs real diffs.
+             (Here it also masked the delay-slot fill for three waves.) */
         prim = (POLY_FT4 *)Render_gPacketPtr;
         prim->tag = prim->tag & 0xff000000 |
                     *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
         {
           u_int *ot2 = (u_int *)(sd->otz * 4 + (int)Render_gPalettePtr);
+          u_int lnk;
           u_int w = *ot2;
+          /* W72-A14: `lnk` as its OWN statement, BEFORE the cursor bump, is what
+             completes the 3-way cross-jump merge at retail's .L800DE610 AND frees the
+             `lw a0,20(s3)` load-delay slot for the bump.  Do NOT inline it back into the
+             store expression, and do NOT re-add the W71 "m"-operand fence here -- both
+             are measured above. */
+          lnk = (u_int)prim & 0xffffff;
           Render_gPacketPtr = (u_char *)prim + 0x28;
-          __asm__("" : "=r"(w) : "0"(w), "m"(dest[0]));
-          *ot2 = w & 0xff000000 | (u_int)prim & 0xffffff;
+          *ot2 = w & 0xff000000 | lnk;
         }
       }
     }
@@ -970,6 +1017,7 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
       int sina;
       sfxsouffle *ds;
       POLY_FT4 *prim;
+      SVECTOR *pt;
       u_int p0f,p1f,p2f,p3f;
       int link;
 
@@ -988,8 +1036,23 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
       ds->v3.vx = is->trans.vx - (short)cosa;
       ds->v3.vy = is->trans.vy - (short)sina;
       ds->v3.vz = is->trans.vz;
+      /* MATCH (W72-A14): the last 6 diffs were the gte_ldv0 base -- ours `addiu $v0,$sp,
+         40`, retail `addiu $a0,$sp,40`.  The SYM settles it: this block's `8c` list is
+         {prim $8, **pt $4**} nested inside {is $12, dSouffle $4}, i.e. retail HAD a real
+         `SVECTOR *pt` local and local-alloc gave it $a0 -- the register `dSouffle`/`ds`
+         had just vacated.  A `pt` local assigned INSIDE the guard still lands in $v0
+         (measured 6): its live range then starts in a block where $v0/$v1 are already
+         dead.  Assigning it ABOVE the `PrimPtr < MPrimPtr` guard makes the range cross
+         the compare, where $v0/$v1 are busy, and local-alloc hands it $a0 = retail.
+         Falsified at 6 (all count-exact 938): `gte_ldv0(&ds->v0)` and `gte_ldv0(&ds->v1
+         ..)` (bit-identical -- cse folds the spelling), the index-first cast
+         `(SVECTOR *)(16 + (int)ds)`, a block-scoped `SVECTOR *v0p` at the call, and a
+         `pt` declared but assigned inside the guard.  An in-place dead-pointer mutate
+         (`ds = (sfxsouffle *)&ds->v0`) ALSO reaches PASS but invents a variable the SYM
+         does not have; the `pt` form is the faithful one and is what is kept. */
+      pt = &ds->v0;
       if (sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) {
-        gte_ldv0(&dSouffle.v0);
+        gte_ldv0(pt);
         gte_rtps();
         prim = (POLY_FT4 *)Render_gPacketPtr;
         gte_stsxy(&prim->x0);
@@ -1030,16 +1093,50 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
              `&`s; OR-operand flip 59; an m-fence here as well; a `"$5"` hard-reg denial
              on the pixmap temp 55 @945.  This swap is what still costs the 3-way
              shared-tail merge (+4 insns in the ribbon arms) -- crack it and the fn
-             should land at 940 with only the two delay-slot nops left. */
+             should land at 940 with only the two delay-slot nops left.
+             ==== W72-A14 (2026-08-22): **THE $a1<->$a2 SWAP IS SOLVED, 44 -> 20**, by a
+             COMPUTED floor_log2 REF-STEP (catalog 21A-4), read off the INSTRUMENTED cc1
+             (C:\Temp\nfs4-instr-cc1\cc1plus-ecoff.exe, GCC_TRACE_ALLOC=1) -- the 06E /
+             AGENT_GUIDE 4.6 instrument this receipt asked for.  !! the instrumented 2.8.1
+             cc1plus is NOT byte-identical to CC1PLPSX over the whole fn (906 vs 912 cc1
+             insns), but the case-13/14 tail region it emits is IDENTICAL, so its
+             [qty_order]/[find_free_reg] trace is a valid oracle HERE.  Verify that
+             per-region equality before trusting the trace on another function.
+             THE TRACE (last local-alloc block, pri = floor_log2(refs)*refs*10000/life):
+               qty2 = {the 0xffffff constant, the link} refs 5 life 60 -> pri 1666
+               qty3..6 = p0f..p3f                       refs 2 life 10 -> pri 2000 each
+               qty9 = the palette base                  refs 3 life 22 -> pri 1363
+             so the four pixmap words are handed out FIRST and take $v1/$a0/$a1/$v0,
+             leaving the mask $a2 and (after p2f dies) the palette $a1 -- our exact
+             mis-coloring.  RETAIL's map needs the mask handed out BEFORE the pixmap
+             words, i.e. pri > 2000, i.e. floor_log2(r)*r > 12 at life 60: r=5 gives 10
+             (1666), r=6 gives 12 (a TIE), **r=7 gives 14 (2333)**.  A 2-operand read-only
+             fence is exactly +2 refs and zero insns, so the minimal dial is refs 5 -> 7.
+             PREDICTED-THEN-MEASURED: with `u_int m = 0xffffff;` + `__asm__("" : : "r"(m),
+             "r"(m));` the trace reads qty2 refs 7 life 62 pri 2258 and the handout is
+             mask->$a1, p2f->$a2, palette->$a2, 0xff000000->$a3 -- retail byte for byte,
+             and it matches the SYM's own map for this block ($03 l0, $04 l1, $06 l2,
+             $02 l3).  Gate 44 -> 20 in one edit.
+             POSITION x OPERAND-COUNT GRID (16 cells, all re-gated): fence AFTER the tag
+             RMW = 14 @942 (LANDED) . before the `prim` re-read = 20 @942 . at the end of
+             the block = 46/26 @944 . decl+fence above the u-word stores = 16 @942;
+             2/3/4/6 operands are BIT-IDENTICAL within every position (the ref-step is a
+             THRESHOLD, not a ramp -- 2 operands already clears floor_log2's step, so buy
+             the cheapest).  The W71 falsification list above stands: none of those
+             spellings changes REFS, which is why every one of them was inert. */
+          {
+          u_int m = 0xffffff;
           prim = (POLY_FT4 *)Render_gPacketPtr;
           prim->tag = prim->tag & 0xff000000 |
-                      *(u_int *)(Render_gPalettePtr + sd->otz * 4) & 0xffffff;
+                      *(u_int *)(Render_gPalettePtr + sd->otz * 4) & m;
+          __asm__("" : : "r"(m), "r"(m));
           {
             u_int *ot2 = (u_int *)(sd->otz * 4 + (int)Render_gPalettePtr);
             u_int w = *ot2;
-            link = (u_int)prim & 0xffffff;
+            link = (u_int)prim & m;
             Render_gPacketPtr = (u_char *)prim + 0x28;
             *ot2 = w & 0xff000000 | link;
+          }
           }
         }
       }

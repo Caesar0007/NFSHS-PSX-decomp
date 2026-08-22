@@ -498,7 +498,61 @@ void NFS3_CheckForFileOperations(void)
    * so it cannot move allocnos 83/86 apart; a memory-resident one pays real
    * instructions.  ⇒ the "third simultaneously-live value" route has to come from a
    * value the LOOP genuinely needs (not from an asm operand), or from the reload-side
-   * instrument.  The W69 mutual-exclusion certificate stands; natural body kept. */
+   * instrument.  The W69 mutual-exclusion certificate stands; natural body kept.
+   *
+   * W72-A10 (2026-08-22) -- READ OFF gcc-2.8.1's OWN SOURCE (C:/Temp/gcc-2.8.1-src).
+   * The certificate is CONFIRMED at source level AND the route is now exact.
+   * (a) reload1.c:582  `bcopy (regs_ever_live, regs_explicitly_used, ...)` -- taken
+   *     BEFORE pseudo homes are merged, so regs_explicitly_used = the hard regs that
+   *     literally appear in the RTL (asm clobbers among them).  order_regs_for_reload
+   *     then does, for MIPS (`! SMALL_REGISTER_CLASSES`):
+   *         `SET_HARD_REG_BIT (bad_spill_regs, i)` for every regs_explicitly_used[i].
+   *     => a "$4" clobber ANYWHERE removes $a0 from the spill pool for the WHOLE
+   *     function.  W69's mutual exclusion is a compiler LAW, not an observation.
+   * (b) MIPS defines no REG_ALLOC_ORDER, so order_regs_for_reload takes the `#else`
+   *     arm and potential_reload_regs is built in THREE runs, not one sorted list:
+   *         [1] uses==0 AND call_used, ASCENDING regno
+   *         [2] uses==0 AND !call_used, ascending
+   *         [3] uses!=0, qsort by increasing uses (tie: regno)
+   *     Ours: pseudos occupy $v0,$v1,$a0 => run[1] starts 5,6 => "Spilling reg 5.
+   *     Spilling reg 6." (exactly the W62-A12 dump) => operands land $a1,$a2.
+   *     Retail's pair is $a2 THEN $a0, i.e. 6 from run[1] and 4 from run[3].  A reg
+   *     is in run[3] only if some pseudo is ALLOCATED to it.  => retail HAS a pseudo
+   *     in $a0 that is DEAD inside the loop: the loaded bound, which dies at
+   *     `addu $a1,$a0,$zero`.  The bound itself lives in $a1.  => THE FIX IS NOT A
+   *     CLOBBER AND NOT AN ASM OPERAND: it is to own TWO bound pseudos with a real,
+   *     UNCOALESCIBLE copy between them.
+   * (c) WHY retail's copy is uncoalescible (local-alloc.c combine_regs, :1866 comment):
+   *     "If UREG is a pseudo-register that hasn't already been assigned a quantity
+   *      number, it means that it is NOT LOCAL TO THIS BLOCK or dies more than once.
+   *      In either event, we can't do anything with it."  The copy's source is set in
+   *     the guard's block and used in the next one, so local-alloc must leave it.
+   * (d) WHERE retail's second pseudo comes from: jump.c `duplicate_loop_exit_test`
+   *     gives the DUPLICATED (pre-loop guard) copy of the exit test a FRESH pseudo for
+   *     every register set only inside the exit code
+   *     (`reg_map[REGNO (reg)] = gen_reg_rtx (GET_MODE (reg));`) -- and the bound load
+   *     IS such a register, because the bound is a MEM read living in the loop
+   *     condition.  The in-loop load then becomes a register COPY of the guard's
+   *     pseudo, landing after the guard branch = a different block = (c).
+   *     !! that function BAILS OUT (`return 0`) if the exit code contains
+   *     NOTE_INSN_BLOCK_BEG/END or a CALL, and only handles bottom-test loops.
+   * (e) In OUR build only ONE pseudo survives: cse rewrites the in-loop bound read to
+   *     the guard's pseudo and the resulting copy is coalesced away.  MEASURED this
+   *     wave (real gate runs, all 8 @21/21 unless noted):
+   *       hand-rotated guard+do-while, `lim` laundered from `e` .......... 8
+   *       the same without the launder .................................. 8
+   *       `if (*p != 0)` with NO braces (kills the body's block notes) ... 8
+   *       plain `while (p < (int *)gFileMgr.handlearray)` ................ 8
+   *       split `e`/`lim` + read-only fence on `e` AFTER the loop ....... 10 @23
+   *         -- this one DOES mint retail's shape (`lw $a1,28; addu $a0,$a1`)
+   *            but with the two registers SWAPPED and the two loads reordered,
+   *            because `e` (fenced, long-lived) loses the allocno race to `lim`.
+   *       explicit DOUBLE source read of the bound (guard + do-while cond)  17 @22
+   *         -- keeps both loads; loop.c cannot hoist the second because the
+   *            volatile trap asm makes the loop `has_volatile`.
+   * ROUTE: get loop.c/cse to leave the in-loop bound read as a COPY placed AFTER the
+   * guard branch (jump.c's duplicated-test pseudo + a hoist), with the guard's pseudo
+   * winning the lower register.  Everything else about this function is retail-exact. */
   int *p;
 
   for (p = (int *)gFileMgr.oparray; p < (int *)gFileMgr.handlearray; p = p + 1) {

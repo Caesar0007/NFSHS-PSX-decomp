@@ -914,6 +914,24 @@ void Hud_InitMapFrame(int i,int mode)
  * because the COUNT-EXACT basin is new evidence: the residual is a 2-register swap, not the
  * hoist question the w45/w46 notes chased.  Other w50 measurements: fence on y alone [21],
  * identity fence on y alone [39, 78], sc + identity fence on y [38, 77]. */
+/* ===== w72-a2: 18 STAYS (count EXACT 77/77).  The residual is RE-LOCALISED, and the
+ * declaration-order and fence-clobber axes are closed.
+ * THE REAL SHAPE OF THE RESIDUAL (tools/sbs.py): retail emits the two PARAMETER COPIES LATE --
+ *   `addu fp,a3,zero` at 41 and `addu s3,a0,zero` at 43, i.e. AFTER both movstrsi aggregate
+ *   copies and after the two separator `lbu`s -- with its `sw s3,44(sp)` frame save at 11;
+ *   ours emits `sw s3,44(sp)`/`addu s3,a0,zero` at 1/2 and `addu fp,a3,zero` at 8.  So the
+ *   langMin/langSec $s5<->$s6 swap and the `li t0,83`-vs-`li v0,83` remat are DOWNSTREAM of the
+ *   param-copy POSITION, not independent items: retail's a0/a3 survive the aggregate copies and
+ *   are copied out only where first used, ours are copied out in the prologue.
+ * FALSIFIED THIS WAVE (all exactly 18 @77 = inert): swapping the langSec/langMin declarations .
+ *   swapping the minSep/secSep declarations . both . moving the lang declarations to the head of
+ *   the decl list . swapping the two lang ASSIGNMENTS . hoisting `c = (u_char)*str;` above them .
+ *   the y fence clobbering "$21"(s5) instead of "$23"(s7).  COSTLY: clobber "$23"+"$22" 26 @79 .
+ *   "$23"+"$21" 26 @79 . "$23"+"$8"(t0) 54 . the fence carrying `sprt` as a 2nd operand 30 .
+ *   the fence moved INSIDE the loop 65 @78.
+ * NAMED ANGLE: stop the two movstrsi block copies from clobbering the argument registers (the
+ *   21C-1 destination-alignment axis), so gcc has no reason to copy a0/a3 out in the prologue --
+ *   the one change that would move all three residual items together. */
 void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y)
 
 {
@@ -1620,6 +1638,28 @@ void Hud_BuildTimeString(SPRT *sprt,int time)
  * RESIDUAL 40 = the same three scheduling runs the w46 receipt lists (the `lw t4,40(sp)` /
  * `lui v0,16896` group issuing 2 slots late, the prim2 `+2` tail re-read batching, and the
  * two `lw a0,24(sp); jal; li a1,32` groups), now with an EXACT instruction count. */
+/* ===== w72-a2: 17 STAYS (ours 268 / oracle 269).  THE ONE MISSING INSN IS NAMED AND ITS
+ * WHOLE LEVER FAMILY IS NOW MEASURED.  Retail's surplus word is `addu v1,s1,zero` @0x800d4220
+ * -- a COPY of ts1 into a caller-saved reg followed by an in-place `addiu v1,v1,2`, i.e. a
+ * cse STORE-FORWARD copy (the y2 "+= 2" re-read replaced by the register just stored) that
+ * combine did NOT fold; ours folds the whole thing to one `addiu v0,s1,2`.
+ * RE-PRICED IN THIS BASIN (the w63 fence receipt below predates the w71 cos1/sin1 store-order
+ * change that moved the basin -- catalog 21E-1):
+ *   y2 as a re-read RMW `prim2->y2 = prim2->y2 + 2;` LAST in the tail  78 @269 (count-exact,
+ *     but the y0/y1 struct stores in between block the store-forward -> a real `lhu`);
+ *     order y0,y1,y2 70 @269 . y2 RMW FIRST of the three + the ts1 fence 17 @268 (== base, so
+ *     the RMW spelling is FREE when it is first, and still mints no copy) . y2 RMW first with
+ *     tp3 after / mid 18 @267 . ts1+2 first of the three 17 @268.
+ *   ts1 fence dials: NO fence 19 @268 (the w63 fence is still worth 2) . fence moved before
+ *     the gSprt1 link block 79 @268 . clobber "$17"(s1) 79 . clobber "$3"(v1) or "$2"(v0) 17
+ *     (inert) . a 2nd operand "r"(tp3) 17 (inert) . identity launder before the y2 store 80.
+ *   VOID-FENCE AXIS RE-SWEPT AND CLOSED: tools/fencesweep.py over ~500 statement positions
+ *     (the whole 241..1811 region, which contains this entire body) gates 17 at EVERY position.
+ * NAMED ANGLE: the copy is a COMBINE question, not an allocator one -- find a spelling where
+ *   the store-forwarded y2 value has a SECOND use (so combine cannot substitute the copy into
+ *   the add), or where ts1 stays live past the add for a non-fence reason.
+ * WARNING: fencesweep.py restores unreliably when its start marker matches a forward
+ *   DECLARATION (it then sweeps ~1500 unrelated lines); snapshot the TU and cmp after a run. */
 void Hud_BuildTach(int player)
 
 {
@@ -2572,6 +2612,26 @@ void Hud_BuildNumbers0(int player)
  *   `x = x - w1` else-arm, and the four statement-position moves above all overshoot.  The
  *   remaining shape to try is one where the else arm does NOT read w1 (e.g. the three arms
  *   subtract a value the SYM does not name), or a permuter run from this basin. */
+/* ===== w72-a2: 188 STAYS (count EXACT 758/758).  THE 3-DIAL REQUIREMENT IS RE-DERIVED IN
+ * THIS BASIN AND IS NOW EXACT (tools/rtl_dump.py + tools/prio.py + tools/allocsim.py):
+ *   ours   p625 w2 .5000(rank19) > p620 hun .2823(26) > p621 ten .2745(27) > p82 pSprt
+ *          .2611(30) > p643 speed .2142(32) > p624 w1 .2000(33)
+ *   retail needs  hun > w1 > w2 > pSprt > ten.
+ *   VERIFIED: allocsim --what-if 624:live=43 --what-if 625:live=29 --what-if 621:live=56
+ *   --target "620=s0,624=s3,625=s4,82=s5,621=s6,627=s7" reproduces retail EXACTLY.
+ *   => w1 live 60->43 (44 and 45 hand w2 the tie -- 43 ONLY), w2 live 16->29..30,
+ *      ten live 51->>=53.  reqdelta confirms NO one- or two-dial solution (refs +-14/live +-70).
+ *   The REFS axis is closed by arithmetic: with live 60 the floor_log2 steps put w1 at .2333
+ *   (refs 7) or .4000 (refs 8), and w2 at .1875 (refs 3 = wrapper removed) or .6250 (refs 5).
+ * FALSIFIED THIS WAVE (all count-exact 758/758 unless noted): depth wrapper on the else-arm
+ *   `x = x - w1` 188 (INERT), on `x = x - w7` 188, on `x = x - w3` 188 . w3 inlined at its use
+ *   `x = x - (w1 - w2)` 266 @754 . w3 def moved below the x block 188 . w2/w7/w3 defs moved
+ *   below the x block 188, below hun/ten 334 . `y` moved above the w1 group 200 . y + the
+ *   packet block above it 406 . the packet block alone above it 422.
+ * NAMED ANGLE (unchanged, now with exact windows): every statement between w1's def and its
+ *   last use is REQUIRED there (w2/w7/w3 read w1; x reads w1 and feeds Hud_BuildGT4), so the
+ *   only shortening left is a shape whose ELSE ARM does not read w1 at zero insn cost -- or a
+ *   permuter run from this basin. */
 void Hud_BuildNumbers(int player)
 
 {
@@ -3049,7 +3109,20 @@ void Hud_BuildMapMarkers(int player)
       currentSpriteColor = ((Cars_gCopCarList[i]->AIFlags & 2) != 0)
                          ? (((gFlip != 0) || (simVar.quickPauseSim != 0)) ? 0xff : 0xff0000)
                          : *(u_long *)&Hud_gCopMarkerColor[i];
-      Hud_BuildSprite(sprt,0x7a,mapx + x + -2 & 0xffff,mapy - z & 0xffff,currentSpriteColor,0);
+      /* MATCH (w72-a2): the COLOR ARGUMENT IS A VOLATILE RE-READ of the global.  Retail
+       * stores the funnel result to currentSpriteColor at the JOIN and then RELOADS it for
+       * the stack argument (`sw v0,0(gp)` ... argsetup ... `lw v0,0(gp)`; oracle 267/273
+       * and 132/140); our cse keeps the value in a register and SINKS the store below the
+       * arg block, so ours had 2 extra `sw` and 2 missing `lw`.  A volatile-qualified READ
+       * of the same lvalue is the zero-source-change device: it blocks the cse substitution
+       * (a volatile MEM is never an available expression) so the store stays at the join and
+       * a real `lw` is emitted.  Cop site alone 49 @311, race site alone 50 @308 (count
+       * exact), BOTH 45 @309 -- 54 @310 -> 45 @309.  A volatile WRITE instead of the read is
+       * exactly equivalent at the race site (T1 50 @308); the read is kept because the insn
+       * retail has and we lacked is the LOAD.  FALSIFIED alternatives (all >=47): an
+       * `m`-operand fence on the global before the call (47 @309), a plain extra statement. */
+      Hud_BuildSprite(sprt,0x7a,mapx + x + -2 & 0xffff,mapy - z & 0xffff,
+                 *(volatile u_long *)&currentSpriteColor,0);
     }
     i = i + 1;
   }
@@ -3086,7 +3159,9 @@ void Hud_BuildMapMarkers(int player)
          * const-propagated mapx into a register first (`li $t0,22; addu $a2,$t0,$s3`, +1 insn
          * per site).  The COP-loop site must KEEP `mapx + x` -- retail is li+addu there
          * (@0x800D5D04), and swapping it too costs 3 (57 @309 vs 54 @310). */
-        Hud_BuildSprite(sprt,0x79,x + mapx + -3 & 0xffff,mapy - z & 0xffff,currentSpriteColor,0);
+        /* MATCH (w72-a2): same volatile re-read as the cop site above (oracle 267/273). */
+        Hud_BuildSprite(sprt,0x79,x + mapx + -3 & 0xffff,mapy - z & 0xffff,
+                   *(volatile u_long *)&currentSpriteColor,0);
       }
       else if ((Cars_gRaceCarList[i]->carFlags & 4U) != 0) {
         Hud_BuildSprite(sprt,0x79,x + mapx + -3 & 0xffff,mapy - z & 0xffff,
@@ -3424,6 +3499,21 @@ void Hud_InitCdPlayer(void)
  *      first site only 58, second only 60, both 64 -- ALL WORSE, so the w51 verdict holds in
  *      the 54 basin too and the extra pseudo is genuinely what costs.  The named angle is
  *      unchanged: a shape where `dx + K` already exists for another reason. */
+/* ===== w72-a2: 54 STAYS (count EXACT 475/475).  Clusters (1) and (2) each get falsifications.
+ * CLUSTER (2) -- the t0<->a3 LICM preheader ROLE SWAP.  The catalog-15C cure ("make the shape
+ *   address appear FIRST in source") was executed three ways and ALL COST: a pre-loop
+ *   `const HudPmx_tShape *shapes = HudPmx_gShapes;` + `shapes[w].width` 56 @475, non-const 56,
+ *   an `m`-operand fence on `HudPmx_gShapes[0]` before the loop 55 @476.  An "r" fence on the
+ *   array does not compile (array-to-pointer in an "r" operand).  Hoisting the loop BOUND into
+ *   a pre-loop local (the other half of the order pair) is exactly inert (54).
+ *   => the preheader order here is not source-order driven; BOTH movables come from the body.
+ * CLUSTER (1) -- the ||-flag head.  `artist = (char *)0x0;` hoisted above the three index arms
+ *   (one assignment instead of three) 56 @473; with the scroll change too 59 @474.
+ * SCROLL-TICK LOOP: the oracle .s really does RE-READ the counter every iteration
+ *   (`lw v1,%gp_rel(Hud_gCdScrollTitle)` @0x800D6778 -> `sw` @0x800D6784), so the w50 receipt
+ *   read the normalized `0(gp)` dump wrong about WHICH global -- but spelling it as the global
+ *   RMW measures WORSE: `Hud_gCdScrollTitle = Hud_gCdScrollTitle + 1;` in place of the `scroll`
+ *   local 57 @476, and with the two RMWs swapped 57 @476.  The local + write-back stays. */
 void Hud_BuildCdPlayer(int type,int arg1)
 
 {
@@ -5231,6 +5321,23 @@ void Hud_RenderHudView(void)
  *   equate the full lo_sum values (view-alias kills both, real-symbol kills neither). */
 extern int DashHUD_view[] __asm__("DashHUD_gInfo");
 
+/* ===== w72-a2: 13 STAYS (ours 72 / oracle 71).  THE SYMBOL-NODE MATRIX IS COMPLETE.
+ * All eight (entry-test, body-set, tail-set) x {real `&DashHUD_gInfo`, asm-label view
+ * `DashHUD_view`} spellings gated:
+ *   (view,real,view)=13 [kept]  (real,real,view)=13  (view,view,real)=13  (real,view,real)=13
+ *   (view,view,view)=14 @73     (real,real,real)=14 @73
+ *   (view,real,real)=18 @73     (real,view,view)=18 @73
+ *   body reading the view array directly instead of through `dh` 40 @79.
+ * => 13 is reached by EVERY spelling whose two `dh` SETS name DIFFERENT symbol nodes, and 14
+ *   by every spelling that names the same one (cse merges the whole lo_sum and parks it
+ *   callee-saved).  The node used by the ENTRY test is bit-neutral.
+ * The 21A-5 `m`-operand fence family -- the one device that adds refs to a %hi pseudo at zero
+ *   insns -- is CLOSED here too: on the real symbol after the tail set 25 @78, before the body
+ *   set 23 @74, on the view 23 @76, with a real-symbol tail set 26 @75; every placement
+ *   MATERIALIZES the address instead of dialing it.
+ * => the named angle is not a spelling question: cse equates VALUES, not highs, so any same-node
+ *   pair merges both the high and the lo_sum.  A device that shares `(high sym)` while keeping
+ *   distinct `(lo_sum)`s has to come from outside the symbol-node axis. */
 void Hud_RenderTacView(void)
 
 {

@@ -1178,10 +1178,55 @@ void Camera_SetSplineCam(int player)
  *   un-SYM'd $s1) ................................... 173 @352  (far worse)
  *   d-block reshapes from the 32-basin: `int d = numSlice+1; if (d>=9) d = 8;` 34,
  *   explicit if/else 32 -- neither moves the head pair.
- * => NAMED ANGLE: cluster 3 is now a 3-pseudo HEAD COLORING problem in the 32-basin
- * ({player<<4}=$a0, {d}=$v1, {sym}=$v1), not an address-shape problem.  Price it
- * with tools/reqdelta.py / the -dl qty trace on those three allocnos from the
- * 32-basin source; do NOT re-sweep rotRow address spellings (exhausted above). */
+ * => NAMED ANGLE (W71): cluster 3 is a 3-pseudo HEAD COLORING problem in the
+ * 32-basin ({player<<4}=$a0, {d}=$v1, {sym}=$v1), not an address-shape problem.
+ *
+ * W72-A12 SEALED -- PASS 351/351.  The head recolour was NOT a priority dial; it
+ * is 100% DOWNSTREAM of the pre-sched EXPAND ORDER of the two address chains, and
+ * the fix is a SECOND named base pointer.  The full mechanism, receipted:
+ *   1. In the 32-basin every insn of both chains has INSN_PRIORITY 1 (gcc-2.8
+ *      sched.c priority(): `prev_priority = priority(x) + insn_cost - 1`, and all
+ *      MIPS ALU latencies are 1), so rank_for_schedule falls through to
+ *      INSN_LUID -- sched1 CANNOT reorder them.  The emitted order is therefore
+ *      exactly fold()'s operand canonicalisation: an ADDR_EXPR of a static is
+ *      TREE_CONSTANT, so fold puts it SECOND in the PLUS and expand_expr emits
+ *      the `player*272` chain (uid 402/403) BEFORE the `high`/`lo_sum` pair
+ *      (404/405).
+ *   2. local-alloc then hands the registers out by QTY_CMP_PRI
+ *      (floor_log2(refs)*refs*size / (death-birth)):
+ *        Q_A {player*17, <<4}   refs 5, birth 0, death 6 -> 16666
+ *        Q_B {high, lo_sum, -72} refs 7, birth 2, death 6 -> 35000   (Q_B first)
+ *      so Q_B took $v0 and Q_A took $v1.  Retail's order (sym pair FIRST) gives
+ *      Q_B birth 0 life 6 = 23333 and Q_A birth 2 life 4 = 25000 -- Q_A first,
+ *      $v0, and Q_B $v1.  THAT is retail's handout.
+ *   3. The global head swap is a knock-on of (2): with Q_A(p268)=$v1, global.c
+ *      set_preference gives p258 {player<<4} a hard-reg preference for $v1
+ *      (insn 402 is `set p268 <- plus(p258,p80)` and p268 is already renumbered
+ *      by local-alloc).  find_reg's pass-0 `regs_someone_prefers` then denies
+ *      $v1 to the CONFLICTING p263 {numSlice+1} -- and $v0 is already a HARD
+ *      conflict for both -- so p263 falls to $a0 and p258 keeps $v1.  Flip
+ *      p268 to $v0 and the preference becomes the (useless) $v0, p263 takes
+ *      $v1 in pass 0 and p258 takes $a0.  One local-alloc decision, five regs.
+ *   THE LEVER: give the symbol its own LIVE named base pointer, so it is a plain
+ *   pseudo (not TREE_CONSTANT) at fold time and is expanded FIRST:
+ *        int *rotBase = &Camera_gInfo[0].rotation.m[6];
+ *        int *rotRow  = rotBase + player * 68;
+ *   MEASURED, all real gate runs from the 32-basin:
+ *     rotBase + player*68 (two DISTINCT variables) .............. PASS 351/351
+ *     rotBase then (int)rotBase + player*272 ................... PASS 351/351
+ *     ONE variable reassigned (`rotRow = &..m[6]; rotRow += n`) . 33 @352
+ *       -> the base pseudo DIES into the add, so cse loses the related_value
+ *          that turns `Camera_gInfo+72` into retail's `addiu v1,v1,-72`; gcc
+ *          re-materialises `Camera_gInfo` with a second lui/addiu (+1 insn).
+ *          A DISTINCT rotBase stays live and the -72 survives.
+ *     `int *rotBase = Camera_gInfo[0].rotation.m; rotBase + player*68 + 6` 21 @352
+ *     `camera_info *cam = Camera_gInfo; cam[player].rotation.m[6..8]` .. 8 @349
+ *   FALSIFIED here (do not retry): operand order flip `player*272 + (int)&sym`
+ *   (fold canonicalises, byte-identical 32); a read-only ref fence on a named
+ *   `int off = player*272` at ANY operand count 1..10 and at either position --
+ *   always 39 @352, because the asm stops reorg's backward scan and costs the
+ *   first fixedmult's delay-slot fill (`addu s2,a2,zero` -> nop), while the
+ *   ref dial itself never reached Q_A. */
 void Camera_UpdateSplineCam(int player)
 {
   Car_tObj *anchor;
@@ -1250,12 +1295,22 @@ void Camera_UpdateSplineCam(int player)
          tested by `bltz $s2`).  Our recon had the two roles swapped, which is
          why numSlice never crossed a call (calls=0 -> $v1) -- as the step it
          now lives across all three fixedmult calls and lands in retail's seat. */
-      direction = fixedmult(Camera_gInfo[player].rotation.m[6],
+      {
+      /* MATCH (W72-A12, 8 -> PASS): rotBase MUST be its own live variable (not a
+         reassigned rotRow) -- it makes the symbol a plain pseudo at fold time so
+         `high`/`lo_sum` expand BEFORE the player*272 chain (retail's order, which
+         sched1 cannot produce: every insn here has INSN_PRIORITY 1), and it stays
+         live so cse still derives `Camera_gInfo` from `Camera_gInfo+72` as retail's
+         `addiu v1,v1,-72`.  Full mechanism + falsifications in the header block. */
+      int *rotBase = &Camera_gInfo[0].rotation.m[6];
+      int *rotRow = rotBase + player * 68;
+      direction = fixedmult(rotRow[0],
                             Camera_gInfo[player].anchor->roadMatrix.m[6]) +
-                  fixedmult(Camera_gInfo[player].rotation.m[7],
+                  fixedmult(rotRow[1],
                             Camera_gInfo[player].anchor->roadMatrix.m[7]) +
-                  fixedmult(Camera_gInfo[player].rotation.m[8],
+                  fixedmult(rotRow[2],
                             Camera_gInfo[player].anchor->roadMatrix.m[8]);
+      }
       if (direction < 0) {
         numSlice = -numSlice;
       }

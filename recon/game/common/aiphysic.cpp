@@ -1127,7 +1127,33 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
    * uTurn LAST (after cfg, both post-call) 5; uTurn FIRST 5.  Every cfg-before-call
    * order costs the shared %hi (+1 insn, the 9-basin); every uTurn move is byte-inert.
    * => sched2 is NOT breaking this tie on luid here, and the statement axis is now
-   * closed in both directions.  Next lens unchanged: a -dR (sched2) trace. */
+   * closed in both directions.  Next lens unchanged: a -dR (sched2) trace.
+   * W72-A11 re-gated 5 @413/412 and LOCALISED THE +1 EXACTLY (tools/sbs.py, ours idx
+   * 17/22/32 vs oracle 17/31): the extra instruction is ONE nop -- the simGlobal load's
+   * (`lw v0,0(v0)`, oracle idx 30) delay slot.  Retail fills THAT slot with the
+   * `addiu s0,s0,%lo(AIPhysicConfig)` lo_sum and puts `addu s4,zero,zero` (uTurn = 0) in
+   * the jal's slot; ours does the reverse and has nothing left for the load slot.  So the
+   * whole residual is ONE dbr pick: fill_simple_delay_slots' backward scan takes the LAST
+   * insn before the jal, and sched2 issued the lo_sum there where retail issued uTurn's
+   * zero.  Both write callee-saved regs, so either is legal -- there is no correctness
+   * asymmetry to exploit, only the issue order.
+   * FALSIFIED THIS WAVE (each re-gated from 5; scratchpad/W72_A11/v_ooc.py):
+   *   identity fence on `cfg` at its FIRST USE -- i.e. OUTSIDE the W64 "fence family"
+   *     window between the call and the cfg assignment                    INERT 5
+   *   read-only fence on uTurn right after `uTurn = 0;`                         11
+   *   identity fence on uTurn right after `uTurn = 0;`                          13
+   *   decl-with-init `AIPhysic_Config_t *cfg = &AIPhysicConfig;` (12D)           9
+   *   13C LAUNCH-BOOST attempt: adjust_priority raises a readied insn only when
+   *     REG_N_SETS(dest)==1, and uTurn is set TWICE (default + guarded value), so its
+   *     def can never be boosted.  Giving the default its own single-set pseudo
+   *     `{ int z = 0; uTurn = z; }`                                        INERT 5
+   *     (cse folds `z` before flow counts the sets -- the axis is closed, not untried)
+   *   both fences together                                                       13
+   * Reading: every fence placement inside either candidate's window either breaks the
+   * %hi share (+1 insn = the 9/16 basins) or is invisible.  Next lens still -dR; NOTE
+   * the instrumented cc1plus ICEs on aih_cop.cpp but has NOT been tried on aiphysic.cpp
+   * (scratchpad/W72_A11/A11_trace.py runs it and prints the per-fn fidelity table first;
+   * a trace is a receipt only for functions it reproduces byte-identically). */
   int desiredAngVel;
   int desiredLatVel;
   int currentAngAcc;

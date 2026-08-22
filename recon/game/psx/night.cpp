@@ -400,6 +400,72 @@ void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char 
      instrument gap.  It needs tools/qtytrace.py against the instrumented cc1 ("which
      source change moves the arg-assembly reload off $a0 / makes cse forward .b instead of
      .r"), NOT another spelling sweep -- the spelling axis is now saturated three ways. */
+  /* ---- W72-A14 (2026-08-22): 26 STAYS @113/113, but the class is RE-CLASSIFIED and the
+     W71 "needs qtytrace/local-alloc QTY" verdict is REFUTED.  The residual is NOT an
+     allocator question at all -- it is a **gcc VERSION identity** question (catalog 3.25
+     / AGENT_GUIDE 3), and the evidence is now direct rather than inferential.
+     THE INSTRUMENT: C:\Temp\nfs4-instr-cc1\cc1plus-ecoff.exe (the FSF gcc-2.8.1 cc1plus
+     built for the trace lane).  Run it on this TU's own build/.../night.cpp.i with
+     `-quiet -O2 -G8 -funsigned-char` (the -funsigned-char is MANDATORY: PsyQ's CC1PLPSX
+     defines __CHAR_UNSIGNED__, the FSF build does not, and without it every `char` field
+     read comes out `lb` instead of `lbu` and swamps the comparison).
+     FINDING 1 -- THE RESIDUAL IS EXACTLY THE VERSION-SENSITIVE REGION.  With that flag,
+     gcc-2.8.1 and PsyQ CC1PLPSX (2.8.0) emit this 117-cc1-insn function **IDENTICALLY**
+     except for 20 lines, and those 20 lines ARE the by-value CVECTOR argument assembly.
+     Nothing else in the function differs -- not one register, not one schedule slot.
+     FINDING 2 -- 2.8.1 PRODUCES RETAIL'S PACK BLOCK, THE FIRST BUILD EVER TO DO SO.
+     In the NATURAL r,g,b store order gcc-2.8.1 emits, register for register:
+        li $3,-8 / li $4,255 / and $2,$7,$3 / sb $2,16(sp) / and $2,$5,$3 / sb $2,17(sp)
+        andi $2,$2,0xff / and $3,$4,$3 / sll $2,$2,8 / sb $3,18(sp) / andi $3,$3,0xff
+        sll $3,$3,16 / lbu $4,16(sp) / addu $5,$sp,24 / or $4,$4,$2 / lbu $2,19(sp)
+        or $4,$4,$3 / sll $2,$2,24 / jal / or $4,$4,$2
+     which is retail's block verbatim apart from ONE upstream register ($7 vs retail's $6
+     for newR -- the known b15/sourceG rotation).  gcc-2.8.0 instead builds an
+     intermediate accumulator in $v1 and RELOADS a second byte:
+        ... andi $4,$2,0xff / and $3,$5,$3 / sll $4,$4,8 / addu $5,$sp,24 / sb $3,18(sp)
+        lbu $3,16(sp) / **lbu $2,18(sp)** / or $3,$3,$4 / sll $2,$2,16 / lbu $4,19(sp)
+        or $3,$3,$2 / sll $4,$4,24 / jal / **or $4,$3,$4**
+     i.e. 2.8.0 does NOT store-forward the LAST byte store, and its OR-tree therefore
+     cannot start from the arg register.  That is the whole 26.
+     FINDING 3 -- THE TWO HALVES WANT OPPOSITE STORE ORDERS, WHICH IS WHY 26 IS THE 2.8.0
+     MINIMUM.  Region A (the clamps + the prologue parm spill + the b15/sourceG rotation)
+     is retail ONLY in the shipped b,g,r + read-back-of-.r basin; region B (the pack
+     block) is retail ONLY in the r,g,b basin AND only under 2.8.1.  Under 2.8.0 no store
+     order can fix B: the 2.8.0 lane never forwards the last store.  MEASURED THIS WAVE:
+        shipped source, 2.8.0 lane ............................. 26 @113
+        shipped source, 2.8.1 SPLICE .......................... 26 @113 (inert -- 2.8.1's
+             better OR-tree still reloads 18(sp)/19(sp), because the reload IDENTITY is a
+             function of the STORE ORDER, exactly as the W71 receipt says)
+        r,g,b (read-back removed), 2.8.0 ...................... 56 @113
+        r,g,b, 2.8.1 SPLICE .................................. 56 @113 (region B becomes
+             retail, region A's ~50 lines dominate -- the count is a coincidence)
+        r,g,b + `newB = newColor.b;` read-back, 2.8.0 ......... 56, pack block
+             BIT-IDENTICAL to the plain r,g,b one => the last-store forwarding is
+             unreachable from source on 2.8.0, a clean negative control.
+        r,g,b + 1/2/3-operand read-only fence on newR ......... 56 / 68 / 68
+        r,g,b + a 1-operand newR fence placed between the .r and .g stores .. 56
+        r,g,b + that fence, 2.8.1 SPLICE ..................... 56
+     FINDING 4 -- THE CORPUS ROUTE IS CLOSED (the briefed "the matched C spelling may
+     exist"): a by-value CVECTOR/SVECTOR/DVECTOR parameter does not occur ANYWHERE in the
+     34-repo C:\Temp\ps1-decomp-refs corpus, nor in rage-racer-decomp, nor in psyz
+     (`grep -rnE "\((CVECTOR|SVECTOR|DVECTOR)[ ]+[a-z][A-Za-z0-9_]*[,)]" --include=*.c`
+     = zero hits in all three).  There is no matched sibling spelling to copy; EA's
+     `Night_FindClosestColor(CVECTOR, int *)` by-value prototype is unique to this tree.
+     => NAMED NEXT ANGLE, and it is now a ONE-VARIABLE problem: under a 2.8.1 cc1plus the
+     pack block is FREE in the r,g,b basin, so the entire function reduces to "dial region
+     A (b15 <-> sourceG <-> newR + the prologue parm spill slide) in the r,g,b basin".
+     Two orchestrator-level prerequisites, both outside an agent's scope:
+       (a) a per-fn or per-TU **cc1PLUS version splice** for the C++ lane -- build.py's
+           `_apply_cc1_ver_splice` exists but is called only from compile_c, and
+           `_resolve_cc1_alt` resolves the windows-gcc-psx **cc1** (C) rungs; the C++ lane
+           has no ladder.  A probe harness that does the splice is kept at
+           scratchpad/W72_A14/cc1pl_splice_probe.py (monkey-patches compile_cpp, runs the
+           full maspsx+as route, gates with verify_asm's own normalizers).
+       (b) a DECISION on whether an FSF-built 2.8.1 cc1plus may stand in for a vendor one
+           at all -- the instrumented binary needs -funsigned-char to match PsyQ's char
+           default, so it is a lab instrument, not a shippable toolchain rung.
+     Until (a)+(b), the shipped b,g,r basin remains the right ship: it buys region A,
+     which is 30 diffs, at the cost of region B, which is 26. */
   if (0xff < newB) newB = 0xff;
   /* `& ~7` (a register-held -8, oracle `addiu $v1,$zero,-0x8` + three `and`), NOT
      `& 0xf8` (which is a 16-bit unsigned immediate -> andi). */

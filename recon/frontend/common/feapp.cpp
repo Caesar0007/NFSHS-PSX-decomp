@@ -489,7 +489,44 @@ void tFEApplication::Redraw()
        the banked 14-basin buys the byte-exact address window at 14 diffs, same
        insn count, and its residual is the named serving-order angle above.  By
        the gate bar (10 < 14 at equal count) the 14-basin stays BANKED, not
-       landed; revisit only when the serving-order angle has an instrument. */
+       landed; revisit only when the serving-order angle has an instrument.
+       W72-A8 (2026-08-22, base RE-GATED 10 @393/393; NOT MOVED).  The wave's
+       instrument -- the W69-20B / W71-21A ZERO-INSN HARD-REG DENIAL (an asm
+       CLOBBER list, which sealed this belt's InitViv and one of
+       GetPSXPadValue's merged tails) -- was aimed at the 14-basin's named
+       residual (a) "fYOffset lands $a1 for us, $a2 for retail".  IT DOES NOT
+       REACH IT, and the reason is the same LIVE-RANGE law that made it work
+       elsewhere: a clobber only denies a register to quantities LIVE AT THAT
+       INSN, and the 14-basin's only fence sits at the join, BEFORE the
+       fYOffset read is born.  Measured this pass, all reverted:
+         14-basin rebuilt from the W64-A16 recipe .......... 14 @393 (exact)
+         + clobber on the join fence: $5 / $5,$6 / $6 / $7 / $2,$3 .. 14 (inert)
+         + clobber $4 / $4,$5 / $2,$3,$4,$5 ................ 21 @396
+           ($4 is the pc cell's own base -> re-materialisation, +3 insns)
+         `RECT *rp = &r;` early (retail's `addiu a1,sp,56` position) . 37 @392
+         same + a read-only fence on rp ................... 88 @395
+         fYOffset split into a local, none / clob $5 / clob $4,$5
+                                        41 @392 / 41 @392 / 53 @394
+       STRUCTURAL RE-SWEEP of the 14-basin itself (new -- it SIMPLIFIES the
+       banked recipe): the read may stay IN THE ARMS and the read-only fence on
+       `daprim` can be DROPPED.  `pc` arm-duplicated + `*pc = ...` for the store
+       + the read via `*pc` in both arms is 14 @393 with NO fence at all, and a
+       `pc` used for the STORE ONLY (read still through the macro) is also 14.
+       Only the JOIN read without a fence regresses (28 @395).  So the fence in
+       the W64-A16 recipe belongs to the join-read variant, not to the address
+       window.
+       Packet-store position re-priced from the fence-free 14-basin (04Z):
+       store between the two prim-tag statements 69 @400, store first 26 @393
+       -- both reproduce the W64-A16 numbers, so that axis is stable across the
+       simplification.
+       => the two basins' residuals stay DISJOINT (10 = the address window,
+       14 = the lhu handout + the jal-slot pick) and 10 still wins the gate bar.
+       The 14-basin residual (a) is now precisely bounded: it needs $a1 denied
+       INSIDE the two-instruction window between `lhu ...,340(s2)` and its
+       `addu`, and no C statement boundary exists there -- the same
+       "no boundary inside the live range" wall that the InitViv crack got
+       around only because its source word spanned three statements.
+       Harness: scratchpad W72_A8_redraw.py. */
     if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
       (this->fCurrentScreen[(u_char)this->fPlayer])->Draw(true);
       daprim = (DR_AREA *)Render_gPacketPtr;

@@ -5,6 +5,13 @@
  */
 #include "screenusername.h"
 
+/* W72-A7: alignment-1 two-byte block move.  gcc-2.8 lowers a struct
+   assignment at MIN(dst,src) alignment; a struct whose only member is
+   `char b[2]` has alignment 1, which is what retail's `strcpy(output," ")`
+   resolved to (byte lb/lb/sb/sb), where a plain `char[2]`<-string-literal
+   copy resolves to 2 (halfword lhu/sh). */
+struct tPack2 { char b[2]; };
+
 
 /* ---- tScreenUserName::Initialize  (screenusername.cpp:33) ---- */
 void tScreenUserName::Initialize()
@@ -175,7 +182,50 @@ DrawHorizontalLine_draw:
    `&output[0]` / `output + 0` / `output + (i - i)` dest spellings -- all
    exactly 88 in that basin (the alignment comes from neither the dest
    spelling nor the copy call).
-   Harness: scratchpad/A18/user_v{1..9}.json + probe.py. */
+   Harness: scratchpad/A18/user_v{1..9}.json + probe.py.
+   ==== W72-A7 (2026-08-22): 68 -> **PASS 394/394**.  Four coupled landings,
+   each re-gated in the basin it was measured in (04Z):
+    (1) 68 -> 74, count 391 -> 394 EXACT: the Pack2 alignment-1 block move
+        landed (`struct tPack2` above).  A REGRESSION on the diff count but
+        the structurally-true basin -- W71 was right to name it.
+    (2) 74 -> 70: clamp 2's `gridposv = 0` moved INSIDE the `< 0x80` if
+        (before the `<= 0` test) instead of ahead of it, so the pre-set no
+        longer competes for the beqz delay slot.
+    (3) 🔑 70 -> 11: THE WHOLE-BODY SCRATCH ROTATION IS ONE MISSING RELOAD.
+        gcc-2.8 `allocate_reload_reg` (reload1.c ~5083) walks spill_regs
+        ROUND-ROBIN from a FUNCTION-GLOBAL cursor `last_spill_reg`, so ONE
+        extra reload allocation renumbers every later scratch by +1 for the
+        rest of the body.  Retail carries a DEAD `lw $t2,0x70($sp)` (`this`)
+        at 0x8004B2EC, right after the second SubtractiveBox and before the
+        `li $fp,1` constant hoist; without it ours ran the whole body one
+        step behind (ours $t0/$t1/$t2 where retail has $t1/$t2/$t3) -- ~56
+        of the 70 diffs, at 21 sites, all in ONE decision.  Reinstating that
+        single `this` reload collapses ALL of them at once.
+    (4) 11 -> PASS: ALL THREE CLAMPS SHARE ONE SOURCE SHAPE -- high arm
+        (`goto Done`), then the NORMAL arm as its own block (`goto Done`),
+        then the ZERO block, then Done.  Retail's three clamps look
+        different in asm ONLY because reorg fills their delay slots
+        differently (clamp 1 gets `nop`s, clamp 2 gets both arm values in
+        the blez/bnez slots, clamp 3 shares its store).  Do NOT chase the
+        per-clamp asm shape -- write all three the same way.  Clamp 1
+        11 -> 1, clamp 2 1 -> 0.
+   THE `__asm__("" : : "r"(this))` FENCE IS LOAD-BEARING -- DO NOT DELETE.
+   It is a zero-instruction USE marker (not a register pin: no `asm("$N")`,
+   no operand binding), and it is the only device found that materialises
+   retail's dead preheader `this` reload.  FALSIFIED pure-C substitutes, all
+   re-gated here: dropping it 59, `(void)this` 59, `(void)(volatile int)(int)
+   this` 59, `this->fTextFade = this->fTextFade` 59 (gcc deletes all four
+   before reload), a `volatile` pointer local 88 (adds a frame slot + store),
+   `if (this == 0) return;` 2 @396.  `__asm__("" : : "r"((int)this))` also
+   PASSes -- same device.
+   FALSIFIED in the 11-diff basin: clamp 1 compute-first 79, value-first 79;
+   clamp 2 value-first 26, hi-as-if / Yoda-hi / normal-block-without-goto all
+   1 (the leftover duplicated `slti $v0,$v1,129`).  FALSIFIED in the 70-diff
+   basin: copy before/after `y`/`row`, copy before the SubtractiveBox pair
+   (74), `char output[3]`, `output` as a `tPack2` object, SYM declaration
+   order, funnels-declared-first -- all exactly 70 (the rotation is immune to
+   every source-position lever; only the reload count moves it).
+   Harness: scratchpad/W72_A7/{probe.py,p1..p7.py} + scratchpad/W72_A7_sbs.py. */
 /* ---- tScreenUserName::DrawBackground  (screenusername.cpp:80) ---- */
 void tScreenUserName::DrawBackground()
 
@@ -202,20 +252,24 @@ void tScreenUserName::DrawBackground()
   if ((short)((fade >> 1) - 0x80) < 0x81) goto DrawBgUser_fadeboxNormal;
   fadeboxv = 0x80;
   goto DrawBgUser_fadeboxDone;
-DrawBgUser_fadeboxZero:
-  fadeboxv = 0;
-  goto DrawBgUser_fadeboxDone;
 DrawBgUser_fadeboxNormal:
   fadeboxv = (fade >> 1) - 0x80;
+  goto DrawBgUser_fadeboxDone;
+DrawBgUser_fadeboxZero:
+  fadeboxv = 0;
 DrawBgUser_fadeboxDone:
   fadebox = fadeboxv;
-  gridposv = 0;
   if ((short)(fade >> 2) < 0x80) {
-    if ((short)(fade >> 2) <= 0) goto DrawBgUser_gridposDone;
+    if ((short)(fade >> 2) <= 0) goto DrawBgUser_gridposZero;
   }
-  gridposv = fade >> 2;
-  if ((short)(fade >> 2) < 0x81) goto DrawBgUser_gridposDone;
+  if ((short)(fade >> 2) < 0x81) goto DrawBgUser_gridposNormal;
   gridposv = 0x80;
+  goto DrawBgUser_gridposDone;
+DrawBgUser_gridposNormal:
+  gridposv = fade >> 2;
+  goto DrawBgUser_gridposDone;
+DrawBgUser_gridposZero:
+  gridposv = 0;
 DrawBgUser_gridposDone:
   gridpos = gridposv;
   if (fade < 0x80) {
@@ -235,9 +289,15 @@ DrawBgUser_textFadeSkip:
   gray = 0x80808;
   SubtractiveBox(0xf0,0x2a,0xc2,0x55,gray,gray,0,0);
   SubtractiveBox(0xf0,0x7f,0xc2,0x55,0,0,gray,gray);
+  /* W72-A7: retail reloads `this` here and never uses it (the dead
+     `lw $t2,0x70($sp)` @0x8004B2EC).  That one reload advances gcc-2.8's
+     function-global `last_spill_reg` round-robin, which sets the scratch
+     register for EVERY later reload in the body.  Zero-instruction use
+     fence -- NOT a register pin.  Deleting it costs 59 diffs. */
+  __asm__("" : : "r"(this));
   y = MENUUSERNAME_STARTY;
   row = 0;
-  strcpy(output," ");
+  *(struct tPack2 *)output = *(struct tPack2 *)(char *)" ";
   while (row < menu_kUserNameRows) {
     x = 0x102;
     col = 0;

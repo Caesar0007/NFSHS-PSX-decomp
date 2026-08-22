@@ -299,9 +299,14 @@ LUMPYHEAD * FeAudio_InitViv(char *fname)
 
     swappedResult = swappedType << 0x18 | (swappedType & 0xff00) << 8 |
                     (swappedType & 0xff0000) >> 8;
+    /* MATCH (W72-A8): the ZERO-INSN HARD-REG DENIAL that the W60..W67
+       certificate below asked for and could not name.  See the W72-A8 block
+       at the end of this comment -- the clobber pair is load-bearing and the
+       fence MUST sit inside the source word's live range (here: between the
+       three high-byte terms and the destructive final shift). */
+    __asm__("" : : "i"(0) : "$5","$6");
     swappedType >>= 0x18;
     swappedResult |= swappedType;
-    swappedType = swappedResult;
 
     /* MATCH: fence the computed value before publishing it.  This preserves
        the swap while allowing the hlen/num loads to fill retail's slots.
@@ -499,11 +504,64 @@ LUMPYHEAD * FeAudio_InitViv(char *fname)
        reservememadr/asyncload sites (hlen shares) are COPY-PROPAGATED AWAY
        (single foldable use): all 12 @109 == the V4 control; a fence-anchored
        def there 66 @109; the full-addend carrier 26 @109; no-fence share
-       34 @109.  Harness: scratchpad/w67a8/viv_v{1,2,3,4}.json + probe.py. */
-    __asm__("" : "+r"(swappedType));
+       34 @109.  Harness: scratchpad/w67a8/viv_v{1,2,3,4}.json + probe.py.
+
+       ============================================================
+       W72-A8 -- CERTIFICATE CRACKED: 7 @110/109 -> 2 @109/109.
+       ============================================================
+       The certificate above is CORRECT in every measurement and its ask was
+       exactly right ("for $a3 the scan needs $a1 AND $a2 busy over the SAME
+       window").  What it could not name was the DEVICE, because that device
+       was invented two waves later: the W69 20B / W71 21A ZERO-INSN HARD-REG
+       DENIAL -- an asm CLOBBER list.  A clobbered hard register enters
+       find_free_reg's `used` set for every qty live across that insn, at zero
+       instructions and with no added reference, so it moves a LOCAL qty UP
+       the ascending 0..31 scan -- the one axis R2/R3 proved refs and live
+       length cannot reach.
+       THE LANDED SHAPE, three coupled parts (all three required):
+         (1) SPLIT the carrier: `swappedResult` is stored directly
+             (`lumpHead.type = swappedResult;`), so the `swappedType =
+             swappedResult` copy that made the pseudo die twice is GONE and
+             the body is count-exact 109/109;
+         (2) the identity fence becomes a plain void fence (the pseudo is now
+             an ordinary block-local qty again -- V4's shape);
+         (3) `__asm__("" : : "i"(0) : "$5","$6")` placed INSIDE the source
+             word's live range (between the three high-byte terms and the
+             `swappedType >>= 0x18` that is its last use).  $5/$6 = $a1/$a2:
+             the scan skips both and hands the source word $a3 -- retail's
+             register, with the carrier copy gone.
+       MEASURED DIALS (this basin, base 2):
+         clobber pair $5,$6 ............ 2   <- landed
+         clobber $5 only ............... 16   ($a2 still free -> $a2)
+         no clobber .................... 12   (V4's certificate state: $a1)
+         clobber $5,$6 OUTSIDE the range
+           (on the post-chain void fence)  12   = INERT: the source word is
+                                                 already dead at that insn --
+                                                 this is why a clobber fence
+                                                 must be placed by LIVE RANGE,
+                                                 never by taste
+         read-only fence carrying the clobber `"r"(swappedType) : "$5","$6"`
+                                       .. 20   (its +1 ref re-ranks the qty)
+         identity launder + clobber, 3 positions .. 5/20/20 (all >= base)
+       RESIDUAL (2, count-exact): the type load's position inside the string
+       address pair -- retail `lui a0 / lw a3,16(sp) / addiu a0`, ours
+       `lui a0 / addiu a0 / lw a3,16(sp)`; the head void fence (the W66
+       receipt above) is the barrier the load cannot rise through.  DROPPING
+       that head fence DOES float the load into retail's slot -- and then the
+       0xff0000 mask `lui t0,255` floats one position further and is stolen
+       into the loop-exit delay slot instead of `lui a0`, which is the SAME
+       2 diffs seen from the other side.  Both 2-diff basins were measured;
+       kept the head-fence one (its residual is a single sched interleave,
+       not a reorg steal).  Falsified while chasing the last 2 (all in this
+       basin): moving/removing the head fence (2/3/7); lumpyName inside the
+       block before or after the type read (2/7/10); splitting the OR chain
+       after the 1st or 2nd term with a void fence between (2/2/5/20);
+       naming the mask (2) and naming+fencing it (5); mask term first (10).
+       Harness: scratchpad W72_A8_viv{2..9}.py + W72_A8_dumps.py. */
+    __asm__("" : : "i"(0));
     headerLength = lumpHead.hlen;
     headerNum = lumpHead.num;
-    lumpHead.type = swappedType;
+    lumpHead.type = swappedResult;
     lumpHead.hlen = headerLength << 0x18 | (headerLength & 0xff00) << 8 |
                     (headerLength & 0xff0000) >> 8 | headerLength >> 0x18;
     lumpHead.num = headerNum << 0x18 | (headerNum & 0xff00) << 8 |

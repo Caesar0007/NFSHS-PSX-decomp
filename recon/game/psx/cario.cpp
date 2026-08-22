@@ -527,7 +527,61 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
  *     wrong place and costs diffs.  Named `u_int flags = 0x11800` 30; opacity fence on
  *     q1 38 / on q2 34; RMW order re-sweep reads21/stores21 36, stores12 34.
  *   => nothing new to try from source here; consistent with the w53/w44 expand_call-luid
- *   verdict.  Next taker: the per-object identity lane or the permuter. */
+ *   verdict.  Next taker: the per-object identity lane or the permuter.
+ * ===== W72-A15 (2026-08-22): 30 -> 18 @229/229.  THE VALUE-PAIR AXIS WAS *NOT* CLOSED --
+ * the w64/w71 "value-pair and address-local axes both closed" verdict was measured on the
+ * ANONYMOUS-temp RMW form, and the axis it actually left untried is NAMED TEMPS FOR THE
+ * TWO FLAG VALUES + a batched read/store order.  Two additive landings, both count-exact:
+ *  (1) BATCHED NAMED RMW TEMPS (30 -> 20).  Writing the 0x11800 read-modify-write pair as
+ *      `{u_int f2, f1; f2 = *(u_char*)q2|0x11800; f1 = *(u_char*)q1|0x11800;
+ *        *(u_int*)q1 = f1; *(u_int*)q2 = f2;}` with `q2` ASSIGNED BEFORE `q1`.
+ *      WHAT IT BUYS: the whole block's REGISTER MAP becomes oracle-exact -- t4 = the
+ *      0x11800 mask (was t3), t1 = &CarIO_Plate2[player] (was v1), t0 = &Plate1[player],
+ *      t3 = q2, t2 = q1, and the two RMW temps land in the oracle's DISTINCT $v1/$v0
+ *      (the anonymous form reuses $v0 for both, because two non-overlapping anonymous
+ *      temps are one qty).  Naming them is not enough on its own -- the SEQUENTIAL named
+ *      form measures 38 -- the two live ranges must OVERLAP, which only the batched
+ *      read order produces.  This is the 15C/16B "N sequential same-shape values want N
+ *      DISTINCT block-local temps" law with the overlap requirement made explicit.
+ *      FULL 2x2x2x2 SWEEP (decl order x read order x store order x q-assign order, 16
+ *      cells): 20 for {q2-first, store q1 first}, 22 for {q2-first, store q2 first},
+ *      24 for q1-first store-q1-first -- decl and read order are INERT, the q-assign
+ *      order and the store order carry it.
+ *  (2) THE WIDTH-BLOCK READ ORDER (20 -> 18), re-priced from the new basin (04Z): the
+ *      re-reads must be `r1 = Plate1[player]; r2 = Plate2[player];` with the stores still
+ *      `r2->width` first -- which is EXACTLY what the oracle does (`lw t0,0(t0)` [Plate1]
+ *      then `lw v1,0(t1)` [Plate2]; `sh v0,4(v1)` then `sh v0,4(t0)`).  The w62 receipt
+ *      recorded this same cell as 34 and kept reads21/stores21 -- a textbook basin-
+ *      relative falsification: after (1) the ranking inverts (r12s21 18, r21s21 20,
+ *      r12s12 22, r21s12 24; a named `int w = 0x18` carrier is 28-31 AND one insn short).
+ * FALSIFIED THIS WAVE (all re-gated from the live basin):
+ *   - the 21A-5 'm'-OPERAND FENCE on the plate symbols (the brief's named fresh angle):
+ *     `__asm__("" : : "m"(CarIO_PlateN[player]))` at six positions -- before the q pair
+ *     34/32/36, between the decls and the RMWs 38/38, after the RMWs 41/39 (+1 insn),
+ *     before the width block 41/39 (+1 insn), inside it 55.  It does dial the address
+ *     allocno, but in the wrong direction here: the plate address is ALREADY in the
+ *     oracle's register after (1), so every extra ref only perturbs it.
+ *   - read-only "r" fences on f1/f2 (sequential form + a tail fence to force the overlap
+ *     without batching): 30/37/39/41 -- the fence's barrier costs more than the overlap
+ *     buys, and two of them add an instruction.
+ *   - the first `i = 0;` STATEMENT POSITION, re-swept from the 18 basin over all 8 slots
+ *     of the allocation block: 22/20/18/18/18/18/18 -- inert from slot 2 on, confirming
+ *     the w71 reading (it is the loop preheader's induction init, not a statement).
+ *   - reusing q1/q2 for the width re-reads instead of fresh r1/r2: 38 @227 (2 SHORT).
+ * RESIDUAL 18, count EXACT 229/229 and now with ZERO register mismatches -- it is purely
+ * three sched2 EMISSION-ORDER facts, all of which the -dS/-dR receipts already class as
+ * priority-1 ready-list ties:
+ *   (a) the CopyFromShape arg `li a3,22` is emitted BEFORE the &Plate2 address block;
+ *       retail interleaves the address block between `li a2,48` and `li a3,22`;
+ *   (b) the two `addu s2,zero,zero` loop-init zeroings sit ~8 slots earlier than retail's;
+ *   (c) our RMW pair is emitted batched (both lbu, both or, both sw) where retail's is
+ *       sequential -- but the SEQUENTIAL SOURCE FORM costs the register map (38), i.e.
+ *       source order and register map are in direct conflict here, which is the w49/12E
+ *       "a dial buys retail's REGISTER or retail's ORDER, never both" boundary.
+ * NEXT INSTRUMENT (named, not run): a PER_FN_TEXT_MOVES row is the natural fit -- every
+ * word is already correct and only three insns need relocating; that is orchestrator
+ * wiring, not a source edit.  Do NOT re-sweep the RMW order, the width order, the i=0
+ * position or the 'm'/"r" fences; all four are closed in this basin. */
 void CarIO_CreateLicense(char *text,int carType,int player)
 
 {
@@ -608,10 +662,17 @@ void CarIO_CreateLicense(char *text,int carType,int player)
      * fn's identity is expand_call's precompute/luid choice (catalog w42
      * "early-constant-at-block-head", -dS shows every insn in the block at priority 1
      * so NO statement order can produce retail's early materialization). */
-    q1 = CarIO_Plate1[player];
     q2 = CarIO_Plate2[player];
-    *(u_int *)q2 = *(u_char *)q2 | 0x11800;
-    *(u_int *)q1 = *(u_char *)q1 | 0x11800;
+    q1 = CarIO_Plate1[player];
+    {
+      u_int f2;
+      u_int f1;
+
+      f2 = *(u_char *)q2 | 0x11800;
+      f1 = *(u_char *)q1 | 0x11800;
+      *(u_int *)q1 = f1;
+      *(u_int *)q2 = f2;
+    }
     /* MATCH (w62-a14, 44 -> 30, count stays EXACT 229/229): the SAME may-alias
      * serialization a THIRD time, on the two `->width` stores.  The w50-a6 note
      * below said retail "re-loads both there too" and left the re-reads inline --
@@ -622,8 +683,8 @@ void CarIO_CreateLicense(char *text,int carType,int player)
      * four read/store orders, FRESH r1/r2 gives 34/38/34/30 -- the pair must be its
      * own pseudos.  2x2 from the 44 basin: reads12/stores12 34, reads12/stores21 38,
      * reads21/stores12 34, reads21/stores21 30 (kept). */
-    r2 = CarIO_Plate2[player];
     r1 = CarIO_Plate1[player];
+    r2 = CarIO_Plate2[player];
     r2->width = 0x18;
     r1->width = 0x18;
     CarIO_CopyFromShape((short *)((int)shape + 0x10),thePlate,0x30,0x16,0,0);
@@ -960,7 +1021,61 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
    * unique one, and its +1 `lw` is structural to the instrument.  The head-block arm
    * itself was also re-probed: chained assignment 169, statements swapped 169 -- the
    * spill-pool pick in that arm is NOT reachable by re-spelling the CSE.  Route unchanged
-   * (reduce the whole-body $v0 population, or the permuter). */
+   * (reduce the whole-body $v0 population, or the permuter).
+   * ===== W72-A15 (2026-08-22): 19 STAYS @492/491, and the residual now carries a
+   * QUANTIFIED HARDNESS CERTIFICATE instead of a hypothesis.
+   * THE FRAME-SLOT REFERENCE CENSUS (new instrument, one objdump + one .s scan; ours
+   * vs oracle over ALL 33 stack slots this fn touches):
+   *     off 16/20/24/28  10/6/6/6   == oracle      off 88   5 == 5
+   *     off 32..60 (the 4 license_vx/vy pairs)  2 == 2 each   off 96..132  2 == 2 each
+   *     off 64 (carType) 3 == 3     off 72 (recolor_flag) 9 == 9
+   *     off 76/80/84 (palShare) 3 == 3            off 136  4 == 4
+   *     off 140 (carObj ARG) 16 == 16             off 144 (reload) 8 == 8
+   *     off 68 (carPixMapCount)  **8 vs 7**  <-- the ONLY divergence, and it is the
+   *                                              fence's own `lw t1,68(sp)`.
+   * => EVERY spilled value in this function is referenced exactly as often as retail
+   * references it.  So the `order_regs_for_reload` divergence is NOT a frame-reference-
+   * count question at all -- hard_reg_n_uses is dominated by the ~150 pseudos homed in
+   * $v0 (the w42 -dg receipt), and the landed fence flips the pool as a SIDE EFFECT of
+   * a reference retail does not have.  That is why no operand, position, constraint or
+   * device form can shed the +1 insn: the instrument is buying the right answer with the
+   * wrong evidence.  (Reusable: run this census before spending another wave on any
+   * "spill-pool identity" -- if the profile already matches, the dial is elsewhere.)
+   * ALSO: the residual is now CONFINED TO ONE BASIC BLOCK.  side_by_side shows the other
+   * ~480 insns byte-identical; the whole 19 is the `reload & 0x10` head block, where
+   * retail picks {value=$v0, carObj=$t0} in the then-arm and $t1 in the else-arm while we
+   * pick {$t0,$t1} and $t0.
+   * FALSIFIED THIS WAVE (all re-gated from the 19 basin, none reach below 19):
+   *   - HEAD-BLOCK SPELLINGS: a named `int n` temp for the CSE'd value 19 (inert, gcc
+   *     merges it) . n + field-store first 169 . n + identity launder 19 . n + read-only
+   *     fence 169 . n + a `do{...}while(0)` depth wrapper 20 @493 / whole-arm wrapper
+   *     194 @487 . `n | 0` re-mask 19 . reading the local back for the field store 19 .
+   *     the field store first off the GLOBAL 169 . a join-form `int n` assigned in both
+   *     arms with one store after 144 @493 .
+   *   - ARM SWAP (`if ((reload & 0x10U) != 0)` with the bodies exchanged): 22 @**491**
+   *     -- COUNT-EXACT, i.e. the fence's reload merges away -- but 3 diffs worse; the
+   *     same trade appears with a two-operand `"r"(reload),"r"(carPixMapCount)` fence
+   *     (24 @491).  Recorded because a future count-exactness bar may prefer them.
+   *   - FENCE OPERAND (the w63 sweep extended to every local): `reload` 186 @491 (inert
+   *     -- it IS spilled, which refutes the w62 "register local" reading of why it is
+   *     inert; the real reason is that its slot is already referenced enough), `player`
+   *     186, `recolor_flag` 188 @491, `i` 232, `carType` 19, `shpfile` 19 -- so THREE
+   *     different memory-homed operands all buy exactly the same flip, confirming the
+   *     dial is "one more reference to any under-referenced spilled slot".
+   *   - HARD-REG CLOBBERS on the fence (the 20B preference-killer): "$8"($t0) 225,
+   *     "$9"($t1) 121, "$3"($v1) 19 (inert); clobbers placed inside the then-arm 224/236.
+   *     Consistent with the 20B limit -- reload1.c puts every asm-used hard reg into
+   *     bad_spill_regs FUNCTION-WIDE, and $t0/$t1 ARE retail's spill pool here.
+   *   - FENCE POSITION re-swept including the one slot the w63 note named as untried
+   *     (the `.L800BC974` join = right after the `R3DCar_InMenu` recolor block, where
+   *     retail's own `lw t1,0x44(sp)` giv-init sits): there alone 181 @492, there PLUS
+   *     the head-block fence 28 @493, inside the recolor block 48 @**491**, before the
+   *     `Texture_palCopy` store 181 / +keep 28 @493.  The merge the w63 note hoped for
+   *     does not happen -- at that point the pool order is already decided.
+   * => CLOSED at the source level.  The only live routes remain (a) the whole-body $v0
+   * population (a global property; instrument = the -dg `Register dispositions` list),
+   * or (b) a PER_FN_TEXT_MOVES row for the eight head-block insns -- orchestrator
+   * wiring, and cheap here because the block is 8 insns and everything else matches. */
   __asm__("" : : "r"(carPixMapCount));
   if ((reload & 8U) != 0) {
     if (((carObj->render).inside & 1U) != 0) {

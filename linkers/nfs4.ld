@@ -196,8 +196,7 @@ SECTIONS
         */src/frontend/psx/mmeffect.c.o(.text);  /* 0x8004d6d8 +0xa0 */
         */src/frontend/psx/psxfront.c.o(.text);  /* 0x8004d778 +0x1988 */
         */src/frontend/psx/fetexture.c.o(.text);  /* 0x8004f100 +0x2e0 */
-        */src/frontend/psx/memcard.c.o(.text);  /* 0x8004f3e0 +0x1498 */
-        */src/frontend/common/mcrd.c.o(.text);  /* 0x80050244 +0x48 interleaver */
+        */src/frontend/psx/memcard.c.o(.text);  /* 0x8004f3e0 +0x14e0 (W72-A7: absorbed the phantom mcrd.c interleaver -- memcard.obj is contiguous 0x8004f3e0..0x800508c0) */
         */src/frontend/psx/mdec.c.o(.text);  /* 0x800508c0 +0x408 */
         */src/frontend/psx/video.c.o(.text);  /* 0x80050cc8 +0x598 */
         */src/game/common/ai.c.o(.text);  /* 0x80057994 +0x30ac */

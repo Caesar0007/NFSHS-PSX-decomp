@@ -270,6 +270,12 @@ PER_TU_FLAGS = {
     "recon/game/common/aispeeds.cpp":       {"g_value": "8"},
     "recon/game/common/mpause.cpp":         {"g_value": "8"},
     "recon/game/common/bworld.cpp":         {"g_value": "8"},  # w67-a4: probe-proven 20/21 x2, .sdata byte-exact retail
+    # W72-A12 (probe-proven on a scratchpad build.py copy, TU 7/8 -> 8/8, x2):
+    # the mips_check_split small-data gate -- `output` is exactly 8 bytes, so
+    # at -G8 its symbol keeps SYMBOL_REF_FLAG (no split, plain la self-temp)
+    # while the huge inputQueue splits, reproducing retail's MIXED pair.
+    # Whole-TU -mno-split-addresses falsified hard (32 @48, TU 2/8).
+    "recon/game/common/simqueue.cpp":       {"g_value": "8"},
     "recon/game/common/audioeng.cpp":       {"g_value": "8"},
     "recon/game/common/copspeak.cpp":       {"g_value": "8"},
     "recon/game/common/input.cpp":          {"g_value": "8"},
@@ -958,6 +964,17 @@ def _apply_epilogue_unfill_alt28(rel_posix, txt):
 # calls).  {rel: {extra_cc1_flag: {fns}}}.  Splice runs BEFORE the alt28
 # unfill (the spliced region still carries the 2.8 j-$31 block).
 PER_FN_FLAG_SPLICE_272 = {
+    # W72-A17 (probe-verified whole-TU via the W61_TABLE hook, 18/19 identical,
+    # zero PASS->FAIL; fn 10 -> 2 @157/157): the mips_check_split SMALL-DATA
+    # GATE -- mips_split_addresses is unconditional on these rungs (no user
+    # switch), but applied per-address only when ENCODE_SECTION_INFO left
+    # SYMBOL_REF_FLAG unset; at the lane's -G0 nothing is small-data so every
+    # address pre-splits. -G4 for this one fn restores retail's $at/dest-as-
+    # scratch assembler-macro forms while the TU's assembler stays -G0 (symbol
+    # remains absolute). Retires the 3-wave "nosplit mechanism" request.
+    "recon/syslib/psx/libpad/PADCMD.c": {
+        "-G4": {"_padLoadActInfo_rcv"},
+    },
     "recon/syslib/psx/libgpu/SYS.c": {
         "-fno-schedule-insns2": {"_que_ref", "_install_drain_cb",
                                  "_gpu_arm_timeout"},
@@ -1319,6 +1336,19 @@ PER_FN_TEXT_MOVES = {
             {"take": r"\tlbu\t\$4,104\(\$sp\)\n",
              "after": r"\tlw\t\$3,Night_gLightningType\n"},
         ],
+        # W72-A3 (validated via vprobe/W60_TEXT_MOVES_FILE: PrimStart PASS
+        # 976/976, NightHeadlight collateral-clean): retail issues the scaled
+        # index BEFORE the DrawC_gEnvMapOffset high/lo_sum pair; cc1 expands a
+        # subscript's symbol address before the index (lower luid) and sched2
+        # is priority-flat post-reload -- a 2-insn group swap, not source-
+        # reachable. Takes unique in-region; row-1 after-anchor lookahead-
+        # pinned (bare `sll $2,$2,1` occurs 3x); no branch/slot => no brdist.
+        "DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache": [
+            {"take": r"\tlui\t\$4,%hi\(DrawC_gEnvMapOffset\)[^\n]*\n",
+             "after": r"\tsll\t\$2,\$2,1\n(?=\taddu\t\$2,\$2,\$4\n)"},
+            {"take": r"\taddiu\t\$4,\$4,%lo\(DrawC_gEnvMapOffset\)[^\n]*\n",
+             "after": r"\tlui\t\$4,%hi\(DrawC_gEnvMapOffset\)[^\n]*\n"},
+        ],
     },
     "recon/game/psx/flare.cpp": {
         "Flare_LensFlare__FP7DVECTORP15Draw_FlareCache": [
@@ -1487,8 +1517,51 @@ PER_FN_TEXT_MOVES = {
             {"_note": "brdist (5,10,11) -> 0. Our `j $L585` lands on a redundant `lui $4,%hi(Weather_gSys)` that its own path already executed; retail's .L800E22C4 is the following `lw $2,%lo(Weather_gSys)($4)`, where our $L593 already sits. Single user of $L585. TU 24/25 PASS 2x (Weather_DoWeather FAIL 4 = pre-existing).", "take": "\\$L\\d+:\\n(?=\\tlui\\t\\$4,%hi\\(Weather_gSys\\) \\# high\\n\\$L\\d+:\\n\\tlw\\t\\$2,%lo\\(Weather_gSys\\)\\(\\$4\\)\\n)", "after": "\\tlui\\t\\$4,%hi\\(Weather_gSys\\) \\# high\\n(?=\\$L\\d+:\\n\\tlw\\t\\$2,%lo\\(Weather_gSys\\)\\(\\$4\\)\\n)"},
         ],
         # w64-a13 (probe-verified 2x + no-row control): DoWeather 6 -> 4 count-exact 197/197
+        # W72-A14 row 0 (probe-verified 2x via vprobe, whole TU 25/25; control:
+        # inert against the pre-W72 source, so the coupled source landing is
+        # strictly monotone): the GameSetup_gData+12 load is one slot late and
+        # its #nop is purely the load-delay filler; retail issues it right
+        # after the lui + the two server-array loads. 3 @198 -> PASS 197/197.
         "Weather_DoWeather__FP13DRender_tView": [
+            {"take": r"\tlw\t\$2,%lo\(GameSetup_gData\+12\)\(\$2\)\n",
+             "after": r"\tlui\t\$2,%hi\(GameSetup_gData\+12\) \# high\n\tlw\t\$22,0\(\$5\)\n\tlw\t\$23,0\(\$3\)\n"},
             {"take": "\tsll\t\\$16,\\$18,2\n", "after": "\tlui\t\\$3,%hi\\(simGlobal\\+4\\) # high\n(?=\tlui\t\\$2,%hi\\(Weather_gLastProcessTime\\))"},
+        ],
+    },
+    # W72-A5 (probe-verified via vprobe + objdump: PASS 815/815, TU 5/5):
+    # DrawTV 2 -> PASS. Pure emission order of two independent adjacent loads;
+    # SYM 8c proves retail's allocation is already ours (36(sp) = the same
+    # reload spill slot both sides). Straight-line load, no branch/slot ->
+    # no brdist pairing (17C).
+    "recon/frontend/common/fetv.cpp": {
+        "DrawTV__FR9tTVConfig": [
+            {"take": r"\tlw\t\$16,0\(\$23\)\n(?=\tlw\t\$4,528482304\n)",
+             "after": r"\tsubu\t\$2,\$7,\$2\n(?=\tlw\t\$12,36\(\$sp\)\n)"},
+        ],
+    },
+    # W72-A12 (probe-proven on scratchpad/W72_A12/ptools, x2: fn 7 @202/203 ->
+    # 4 @203/203 count-exact, TU 20/21 held, elsewhere byte-identical): cc1
+    # already emits retail's order (W64-A15 -fno-schedule-insns2 A/B); only
+    # sched2 sinks the line -- moving it back post-cc1 lets GNU as re-insert
+    # the load-delay nop itself. Per-fn -fno-schedule-insns2 is NOT the
+    # alternative (44 + 7 TU-mates regress).
+    "recon/game/common/bworld.cpp": {
+        "SetupChunkBuildList__FP13DRender_tView": [
+            {"take": r"\taddu\t\$19,\$3,\$4\n",
+             "after": r"\tsll\t\$4,\$5,6\n"},
+        ],
+    },
+    # W72-A16 (PROVEN: the lane .s edited by this exact pair, assembled with the
+    # lane's own as, gated CD_newmedia PASS 177/177 + whole TU 6/6; artefacts
+    # scratchpad/W72_A16/iso_tm.{s,o}): retail emits the loop-bound copy
+    # `addu $s5,$v1,$zero` AFTER the two LICM-hoisted address constants; ours
+    # before (guard-block source assignment = entry-block insn, 21B-3 -- no
+    # C-level preheader exists, 14 shapes measured worse). Anchors unique
+    # TU-wide; dependency-safe; plain reorder-mode block.
+    "recon/syslib/psx/libcd/iso9660.c": {
+        "CD_newmedia": [
+            {"take": r"\taddu\t\$21,\$3,\$0\n",
+             "after": r"\taddu\t\$22,\$20,4\n"},
         ],
     },
     # w65-a2 label-move rows (probed 2x, objdump 15D).
@@ -1564,6 +1637,18 @@ PER_FN_TEXT_MOVES = {
              "after": r"\tbeq\t\$2,\$0,\$L\d+\n", "copy": True},
             {"take": r"\taddu\t\$2,\$16,\$0\n(?=\$L\d+:\n\tlw\t\$31,24)",
              "after": r"\tand\t\$2,\$2,\$17\n\tbne\t\$2,\$0,\$L\d+\n", "slot": True},
+        ],
+        # W72-A19 (probe-verified 2x, whole-TU re-gated 2x; probe copy
+        # scratchpad/W72_A19/moves_sys.json): the parm (save,copy) pair-order
+        # class -- 3rd instance after BSEARCH/FntFlush. _dws 6 -> 2, _drs
+        # 8 -> 4; anchors label-agnostic, once per fn region.
+        "_dws": [
+            {"take": r"\tsw\t\$17,20\(\$sp\)\n\taddu\t\$17,\$4,\$0\n",
+             "after": r"\tsubu\t\$sp,\$sp,48\n"},
+        ],
+        "_drs": [
+            {"take": r"\tsw\t\$17,20\(\$sp\)\n\taddu\t\$17,\$4,\$0\n",
+             "after": r"\tsubu\t\$sp,\$sp,40\n"},
         ],
     },
     # w60-a9 (orchestrator-wired from the in-source spec): LoadBankHeaders 6 ->

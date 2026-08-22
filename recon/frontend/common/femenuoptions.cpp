@@ -2747,10 +2747,67 @@ void tUserNameMenuItem::Draw(bool selected)
      way it un-shared screenmain's cse2 cross-arm %hi), and on top of the
      current fences exactly 8 (inert).  The un-sharer axis is closed; the
      device still does not exist at source level.
-     Harness: scratchpad/w67a8/un_v1.json + probe.py. */
+     Harness: scratchpad/w67a8/un_v1.json + probe.py.
+
+     *** W72-A5 2026-08-22 -- SEALED, PASS 254/254 (was 8).  THE FIVE-WAVE
+     CERTIFICATE WAS ANSWERING THE WRONG QUESTION. ***
+     W64-A16's reading was RIGHT (retail's $t0 is a reload rematerialisation of a
+     REG_EQUIV constant, not an allocno) but every wave then hunted a device that
+     would make an ALLOCATED pseudo land in $t0.  The fix is the opposite move:
+     stop the constant being allocated at all.
+
+     THE LANDED SHAPE -- one function-scope `int boxRight = 0x9c;` declared with
+     x/y/shape at the top of the body, referenced plainly in BOTH PSXDrawSquare
+     calls, with NO fence, NO per-block scope and NO literal.  A pseudo whose live
+     range spans the whole function (~200 insns) has priority
+     floor_log2(refs)*refs*size/live ~= 1*3*1/200, so global_alloc never gives it a
+     hard register; it keeps its REG_EQUIV (const_int 156) and reload
+     REMATERIALISES it at each use, inside the argument block, into a register
+     drawn from order_regs_for_reload's pool -- $t0, the same register retail
+     reuses.  That reproduces BOTH residual facts at once: the REGISTER ($t0, not
+     $v1) and the 2-slot-later POSITION (immediately before its `subu` consumer,
+     after `addu a2,s0,zero`, because a remat is emitted at the point of use, not
+     at a definition site).  cse cannot share the two materialisations because
+     there is no register holding the value between them -- the spill IS the
+     un-sharer, which is why the 3-wave hunt for a cse un-sharer never had to
+     succeed.
+     ⚠️ The two `__asm__("" : : "r"(this))` fences above ARE still load-bearing --
+     removing them from the sealed basin regresses to an s5/s6 rotation (re-tested
+     W72-A5, restored).  The per-block `{ }` scopes were vestigial and are gone.
+
+     NEW LAW (generalisable): WHEN THE ORACLE'S REGISTER IS A RELOAD REGISTER,
+     DEMOTE THE PSEUDO OUT OF ALLOCATION -- do not dial it INTO the wanted hard
+     reg.  A long-lived, few-ref, REG_EQUIV-eligible local (a constant, or any
+     value gcc can rematerialise) is the zero-instruction way to request
+     "spill me and remat me at each use".  Tell that you are in this class:
+     count is already exact, the wanted register is one the SAME function uses for
+     a SPILL RELOAD elsewhere (here `lw t0,88(sp)`), and the wanted `li` sits
+     immediately before its consumer rather than at a definition point.
+
+     W72-A5 measurements on the way (all re-gated from the 8 base):
+       (a) 20B hard-reg-clobber device `__asm__("" : "=r"(b) : "0"(b) : "$3","$5",
+           "$6","$7")` on BOTH blocks -- it DOES land retail's $t0 for the
+           constant (all four `li v1,156`/`subu a3,v1,a3` diffs vanish) but costs
+           SIX new ones: with $t0 owned by an allocno, order_regs_for_reload
+           re-ranks the spill pool and all three `x` reloads move $t0 -> $t1
+           (`lw t1,88(sp)`, `sll a1,t1,16`, `addiu a1,t1,78`, `addiu s1,t1,156`).
+           16 @254.  First-block-only: 18 @254.  ⇒ a QUANTIFIED PROOF that the
+           constant and the `x` reload cannot BOTH have $t0 while the constant is
+           allocated -- i.e. direct confirmation that retail's constant is not an
+           allocno.  (This is 20B LIMIT (2) -- regs_explicitly_used /
+           bad_spill_regs -- observed from the other side.)
+       (b) cse UN-SHARER FOUND (recorded, superseded by the seal): plain literals
+           in both blocks plus a dead `boxRight = 0;` after the first call gives
+           254 insns and 8 diffs -- flow.c deletes the dead store (zero insns)
+           while cse's `invalidate` on that pseudo stops the second literal
+           reusing the first's register.  So the W67-A8 "un-sharer does not exist"
+           verdict is FALSE: a dead SET un-shares where a volatile asm does not
+           (cse invalidates pseudos on SETs, hard regs on clobbers).  Kept here as
+           the mechanism note only -- the sealed shape needs no un-sharer. */
   int x;
   int y;
   tTexture_ShapeInfo *shape;
+  int boxRight = 0x9c;
   
   x = TextSys_WordX(this->fTextDescription);
   y = TextSys_WordY(this->fTextDescription);
@@ -2838,21 +2895,13 @@ void tUserNameMenuItem::Draw(bool selected)
   int right = x + 0x9c;
   DrawShapeExtended(0x1e,8,right - (int)shape->width,y - 3,
                     (int)this->fFadeVal,0,(tDrawShapeExtended *)0x0);
-  {
-    int boxRight = 0x9c;
-    __asm__("" : "=r"(boxRight) : "0"(boxRight));
-    PSXDrawSquare(0,x,y + -3,boxRight - shape->width,(int)shape->height);
-  }
+  PSXDrawSquare(0,x,y + -3,boxRight - shape->width,(int)shape->height);
   shape = &gHelpShapes[0x21];
   DrawShapeExtended(0x21,8,right - (int)shape->width,y + 0xc,
                     (int)this->fFadeVal,0,(tDrawShapeExtended *)0x0);
   __asm__("" : : "r"(this));
   __asm__("" : : "r"(this));
-  {
-    int boxRight = 0x9c;
-    __asm__("" : "=r"(boxRight) : "0"(boxRight));
-    PSXDrawSquare(0,x,y + 0xc,boxRight - shape->width,(int)shape->height);
-  }
+  PSXDrawSquare(0,x,y + 0xc,boxRight - shape->width,(int)shape->height);
 }
 
 

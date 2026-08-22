@@ -129,7 +129,27 @@ extern int SetIntrMask(int mask)   /* @0x800F2950 */
  * `g_hooks_ptr[0].dma_setter` (6, inert), `(&g_hooks_ptr[0])->` re-test (6, inert).  The
  * W63-A8 intruder angle is unchanged and still needs a value BORN AFTER `jal startIntrDMA`
  * and DEAD BEFORE its store; no zero-insn C form for one exists (the 0-insn void-tail
- * fence carries no register, and an `"r"` fence needs a live value -- the missing thing). */
+ * fence carries no register, and an `"r"` fence needs a live value -- the missing thing).
+ * W72-A19 (2026-08-22) RE-GATED 6 @54/54; the 21A/20B instrument set (which postdates every
+ * note above) is now swept here and is NEGATIVE.  Reading the stream first pins the target
+ * exactly: both hooks_ptr address pseudos are SHORT-LIVED and do NOT cross a call -- reorg
+ * puts each store in the FOLLOWING jal's delay slot (`lui/lw $v1; jal startIntrDMA;
+ * sw $v0,20($v1)` stores the PREVIOUS call's result), so pseudo #2 lives only insns 43-46
+ * and simply takes the first free reg, $v1, because #1 died at 42.  Retail has $a0 there,
+ * i.e. something occupied $v1 across those four insns.  FALSIFIED (all gated, all reverted):
+ * 'm'-operand fences on `g_hooks_ptr` / `->dma_setter` / `->vsync_setter` / `*g_hooks_ptr` /
+ * `->entry` at all three positions (before the vsync statement / between / after the dma
+ * statement) -- 6 (inert) in 7 of the 15 cells, 10-13 @56-57 in the rest; a `IntrSetter
+ * *slot = &g_hooks_ptr->dma_setter;` block with a 20B clobber launder ("$3" 36 @56, "$2"
+ * 35 @57), with a read-only fence + "$3" (38 @56), with a plain identity launder (32 @56),
+ * and the bare `slot` block with no fence at all (20 @54); a mirrored `vslot` for the vsync
+ * store as well (41 @59); the 20A void clobber `__asm__(" " : : : "$3")` BETWEEN the two
+ * statements 10 @54 (it lands BEFORE pseudo #2 is born, so it denies nothing -- exactly the
+ * boundary 21A-1 states).  The angle is CONFIRMED AND SHARPENED, not retired: the intruder
+ * must be born INSIDE the 4-insn window between the `lw` of `g_hooks_ptr` and the delay-slot
+ * store, and no C statement boundary exists there -- the vehicles left are a build-side
+ * per-fn mechanism (TEXT_MOVES is useless here, the registers are already assigned) or an
+ * instrumented-cc1 read of local-alloc's block-4 handout (C:/Temp/nfs4-instr-cc1). */
 extern IntrState *_initIntr(void)       /* @0x800F2968 */
 {
     if (g_intr.inited != 0)
@@ -348,6 +368,43 @@ extern void _intrhand(void)            /* @0x800F2A40 */
      *      so the tree spelling cannot reorder the two pointer materialisations AT ALL" is
      *      true ONLY while the operands are still MEM-off-SYMBOL expressions.  Once they are
      *      pseudos the tree is verbatim, which is what makes (2) work.
+     * W72-A19 (2026-08-22) RE-GATED 24 @116/116.  The three axes the W71 note left open are
+     * now measured with the 21A/20B instrument set (which postdates it), and all three are
+     * NEGATIVE -- the residual survives every zero-insn device this campaign owns:
+     *  (a) THE JOINT GRID the 21A-5 "per-axis minima hide joint cells" law asks for: all
+     *      6 assignment orders x 4 store positions x 6 AND-trees = 144 cells, gated.  Hard
+     *      plateau at 24 for every EN-outer tree at any store position; MA-outer 42, ST-outer
+     *      38, (ST&MA)-outer 28, flat forms 28-42.  The store position is provably inert.
+     *  (b) THE mp-INLINE (26-diff) BASIN RE-OPENED AND READ OFF.  With `sp`+`en` hoisted and
+     *      `mp` left inline the emitted TREE IS RETAIL'S (`*mp & (en & *sp)`, both `and`
+     *      dests correct) at 26 @116, so 26 is STRUCTURALLY closer than the shipped 24 --
+     *      and qty272.py names the exact remaining delta: block 2's locals then hold $v0 AND
+     *      $v1 (93/92 -> $v0, 94/91 -> $v1), so the global allocno `en` (rank 6, pri 10000)
+     *      cannot get $v1 and falls to $a1.  Retail's block-2 locals occupy only $v0 and $a0
+     *      (its `*sp` load REUSES sp's own $a0 and its `*mp` load reuses mp's $v0), leaving
+     *      $v1 free for `en`.  So the target is: keep TWO registers for four local qtys.
+     *      Falsified toward it: per-site `en`/`sp`/`mp` copies (32-36 -- they become extra
+     *      local qtys and take MORE registers, the opposite of what is needed), `int en` 46
+     *      @118, `mp` assigned after the store 38, entry `en` read as `g_intr.enabled` 27
+     *      @117, loop `en` read as `state[0x18]` 55 @117, `en` read after the store 26.
+     *  (c) THE ZERO-INSN DEVICE SWEEP, all inert or worse: a 20B clobber launder on `en`
+     *      ("$4" 30 @118, "$4"+"$5" 30 @118, entry-only 27 @117, loop-only 29 @117 -- the
+     *      launder MINTS a copy because `en` is a two-block global, so every cell goes
+     *      count-over); the same on `mp` ("$3" 29 @117, "$2" 27 @117); a read-only fence with
+     *      "$4" 30 @118; the 20A void clobber `__asm__("" : : : "$4")` / "$4","$5" / "$3"
+     *      inside either pend block -- BIT-FOR-BIT INERT at 24 (a bare CLOBBER does not enter
+     *      global.c's conflict set for an allocno that local-alloc never saw); an 'm'-operand
+     *      fence on `g_intr.inited` before the pend expression 48-52 @120 (the instrument
+     *      that sealed `_set_intr_callback` below is CATASTROPHIC here -- 21A-5's "inert on
+     *      already-correct seats" boundary, this fn's address allocnos are already right);
+     *      an 'm' fence on `g_imask_ptr` 24 (inert, both basins); read-only fences on `en`
+     *      32 / on `sp` 26.
+     *  NAMED NEXT ANGLE (unchanged in kind, now precisely bounded): the 26 basin, not the 24
+     *  one, is the place to stand -- it needs ONE device that makes a local qty's dest REUSE
+     *  its dying source register (the `lhu $a0,0($a0)` / `lhu $v0,0($v0)` shape) so block 2
+     *  spends two registers instead of four.  That is local-alloc.c's combine_regs /
+     *  reg_qty tie (C:/Temp/gcc-2.8.1-src/extracted, local-alloc.c:1866), i.e. the 06E
+     *  instrument gap again -- but with a 2-register target and a readable comparator.
      *  RESIDUAL 24, three clusters, all the same two-element handout: `en` takes $a0 (it is
      *  a GLOBAL allocno -- used at both pend sites -- so global.c, not local-alloc, homes it)
      *  where retail has $v1; the I_MASK pointer takes $v1 where retail has $v0; and the
@@ -525,7 +582,37 @@ extern int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C10 */
      *    own 2-insn `la` AND steals the cb anchor, which recolors the head.  Retail's
      *    `addiu $a2,$a1,-4` therefore is NOT a source-level pointer variable.
      *  - Also re-confirmed here: -mno-split-addresses (the w48 syslib identity) DOES NOT
-     *    EXIST in this lane -- CC1PSX 2.7.2 rejects the option outright. */
+     *    EXIST in this lane -- CC1PSX 2.7.2 rejects the option outright.
+     * 🏆 W72-A19 (2026-08-22) 12 @84 -> 4, COUNT NOW EXACT 82/82.  The W71 diagnosis was
+     * right about the MECHANISM (retail's cse kept BOTH arms warm: two bases for one field)
+     * and wrong about the vehicle -- the missing base is not a source pointer variable at
+     * all, it is an ADDRESS ALLOCNO, and the catalog's 21A-5 'm'-OPERAND FENCE is the one
+     * instrument that mints one at ZERO INSNS.  `__asm__("" : : "m"(g_intr.inited));` placed
+     * once, in the guard body BEFORE the two arms, makes gcc materialise `&g_intr` -- and
+     * because `&g_intr.cb` is already live in $a1 it does so as retail's own
+     * `addiu $a2,$a1,-4` (insn 20, in the `beqz` delay slot, exactly where retail has it).
+     * With that second base alive, the COLD arm (`handler == 0`) stops rematerialising
+     * `g_intr.enabled` absolutely (`lui/lhu` + `lui $at/sh`, +2 insns) and reaches it by
+     * displacement off $a1 like retail.  This is precisely the note's own "cse only rewrites
+     * inside a MEM" observation used constructively: an "m" operand IS a MEM, so it enters
+     * cse's table as an address without emitting a symbolic-address SET.
+     * OPERAND CHOICE IS THE WHOLE DIAL (all gated, all reverted): "m"(g_intr.inited) 4 @82 *
+     * "m"(g_intr.enabled) 9 @83 * "m"(g_intr.enabled)+"m"(g_intr.inited) in either order 9/4 *
+     * "m"(g_intr.in_handler) 12 (inert) * "m"(g_intr.saved_imask) 12 (inert) * "m"(g_intr)
+     * 12 (inert) * "m"(g_intr.cb[0]) 12 (inert).  POSITION matters too: the same fence at an
+     * arm HEAD is 21-23 @81/85, in BOTH arm heads 37, after the arms 12 (inert), inside the
+     * `if (handler != 0)` head 10 @84.  A `"r"` fence on a `&g_intr.enabled` local instead
+     * is 29 @83 (it emits the symbolic SET the mechanism must avoid).
+     * RESIDUAL 4 = the ARM-1 half of the same pair: retail reads/writes `enabled` as
+     * `48($a2)` (struct base) while ours uses `44($a1)` (cb base) -- both bases are now live
+     * and both spellings are legal, so it is a cse "cheapest equivalent base" tie inside one
+     * arm.  Address SPELLINGS are provably inert on it (all 4 @82: `(char *)&g_intr + 48`,
+     * `(char *)&g_intr.inited + 48`, `(char *)&g_intr.cb[-1] + 48`, `((u_short *)&g_intr.cb)[22]`
+     * -- fold canonicalises them all), and a second 'm' fence at the arm head costs an insn.
+     * NAMED NEXT ANGLE: make `&g_intr` the CHEAPER of the two bases inside arm 1 (a cost /
+     * equivalence-class-order question in cse.c, readable in C:/Temp/gcc-2.8.1-src), or find
+     * the natural 1997 source shape that reads `inited` through the struct base and the cb
+     * array through its own -- the fence is standing in for whatever did that in retail. */
     int oldCallback;
     unsigned short nMask;
     int nNewMask;
@@ -535,6 +622,10 @@ extern int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C10 */
         nMask = I_MASK;
         I_MASK = 0;
         nNewMask = nMask & 0xFFFF;
+        /* W72-A19 (12 @84 -> 4 @82): the zero-insn 21A-5 'm'-operand fence that mints
+         * retail's SECOND base `addiu $a2,$a1,-4` (= &g_intr) so BOTH arms stay warm.
+         * Operand and position are both load-bearing -- see the MATCH block above. */
+        __asm__("" : : "m"(g_intr.inited));
         if (handler != 0) {
             g_intr.cb[idx] = handler;
             nNewMask = nNewMask | (1 << idx);

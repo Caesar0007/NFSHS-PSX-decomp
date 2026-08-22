@@ -371,7 +371,29 @@ void RaceSummary(void)
  * The w64 `ip` basin was re-verified this wave (`python scratchpad/w64a13/apply.py
  * rprobe5 ip` -> 106 @475/475, census `addiu 69v70 nop 24v23`); its named dial (+4 RTL
  * insns inside p95's live range at zero refs) is unchanged and still needs the w60-12E
- * instrument, not a spelling. */
+ * instrument, not a spelling.
+ * ===== W72-A13 (2026-08-22): 94 -> 77 @472/475.  THE W71 TRANSFER LANDED, AND IT IS A
+ * TWO-SITE DEFECT, NOT ONE.  The Hud_BTCStats fold escape (a MUTABLE-LOCAL addend; the
+ * fold-const.c:4349 derivation is in that fn's receipt) applies to the per-player loop
+ * head TWICE -- the bar height's `barH - (yoff + 0x13)` AND colmid's
+ * `col2 - ((textpixels(...)>>1) + 2)`.  ONE ALONE IS A NET LOSS and the reason is
+ * mechanical, worth keeping as a law: escaping only the height leaves colmid folded,
+ * which lets `(int)col2` be computed straight into the outgoing arg register `$a1`
+ * instead of its own temp -- that leaves `$t0` UNUSED, and reload's
+ * order_regs_for_reload (reload1.c:3937: the `uses == 0 && call_used_regs` pool is
+ * walked in ASCENDING regno order) then hands the WHOLE function's spill scratch to
+ * `$t0` instead of retail's `$t1`, renaming ~30 instructions (+120 diffs).
+ *   MEASURED: height-only 214 @471 . colmid-only 215 @472 . BOTH 77 @472 .
+ *   Carrier choice is irrelevant (two locals / one reused / both assigned at the block
+ *   top all measure 77 bit-identically; recycling an existing dead local -- halfH, posy,
+ *   titleX, sizeH16 -- also measures identically, so this is NOT a pseudo-numbering
+ *   effect).  AFTER the landing the entire per-player loop head (sbs 144-164) is
+ *   BYTE-EXACT with the oracle, `$t0`/`$t1` included.
+ * RE-PRICED FROM THE 77 BASIN (04Z; every one a real gate run): the w64 `ip` pieces are
+ * all NET LOSSES here -- rows 81 @472 . pitch+fence 85 @476 . pitch+fence+rows 85 @476 .
+ * the full `ip` 96 @473 . ip+rows 100 @473 . ip+pitch 89 @476 .  So the head cluster
+ * (retail's real `mult v1,a1` + the three prologue-interleaved constants + the s1/s3/fp
+ * band) is now the WHOLE residual and it is unchanged in kind by this landing. */
 void RaceStatistics(void)
 
 {
@@ -399,6 +421,11 @@ void RaceStatistics(void)
   int halfH;
   int titleX;
   int titleY;
+  /* W72-A13: the two fold-escape carriers of the per-player loop head; see the MATCH
+     block at their assignments.  They are compiler-visible VAR_DECLs on purpose -- an
+     integer literal there is TREE_CONSTANT and fold rewrites the subtraction. */
+  int colInset;
+  int rowInset;
 
   HUD_STATS_SIZE_H = (GameSetup_gData.numLaps + 1) * 0xc + 0x28;
   /* w40-a4 OPEN (mult 0 vs 1): the oracle hoists `li $a1,0x96` to insn 4 and does a REAL
@@ -539,8 +566,23 @@ void RaceStatistics(void)
       /* SYM: `colmid` is a BLOCK-scoped REG $s2, declared inside the per-player loop. */
       int colmid;
 
-      colmid = col2 - ((textpixels(Cars_gRaceCarList[i]->carInfo->driver) >> 1) + 2);
-      Hud_FBuildF4(0,col2 + -2,((titleY + 0x11) * 0x10000 >> 0x10) + 0xb,1,barH - ((((titleY + 0x11) * 0x10000 >> 0x10) - posyL) + 0x13),0,'\0','\0');
+      /* MATCH (W72-A13, 94 -> 77 and the WHOLE per-player loop head now byte-exact):
+         BOTH subtractions in this block are `A - (B + K)`, and gcc-2.8's fold
+         (fold-const.c:4349, the `associate:` arg1-split branch) rewrites EVERY such tree
+         with a TREE_CONSTANT K into `(A - K) - B` -- retail folded NEITHER.  The escape is
+         the same one that sealed Hud_BTCStats: give K a MUTABLE LOCAL so split_tree()
+         returns 0, then let RTL cse const-prop it back into the `addiu` (the `li` dies, so
+         the escape is free).  The assignment MUST sit in this block for cse to reach it.
+         The two sites are ONE defect and must be fixed TOGETHER: escaping only the colmid
+         `+2` leaves `(int)col2` merged into the arg register `$a1`, which frees `$t0`, and
+         reload's order_regs_for_reload (reload1.c:3937 -- unused call-used regs in ASCENDING
+         regno order) then renames the whole function's spill scratch `$t1`->`$t0` (+120
+         diffs).  With both escaped, `(int)col2` gets its own `$t0` exactly like retail and
+         the scratch stays `$t1`.  Measured: colmid-only 215, height-only 214, BOTH 77. */
+      colInset = 2;
+      colmid = col2 - ((textpixels(Cars_gRaceCarList[i]->carInfo->driver) >> 1) + colInset);
+      rowInset = 0x13;
+      Hud_FBuildF4(0,col2 + -2,((titleY + 0x11) * 0x10000 >> 0x10) + 0xb,1,barH - ((((titleY + 0x11) * 0x10000 >> 0x10) - posyL) + rowInset),0,'\0','\0');
       if (0 < (int)i) {
         Hud_FBuildF4(0,col1 + -2,posyL,1,barH8,0,'\0','\0');
       }
@@ -841,6 +883,36 @@ void RaceStatistics(void)
  * in the postgame arm: ours `addiu v0,s2,-8; subu v0,v0,s1` = `(sizeH - 8) - yoff`,
  * retail `addiu v0,s1,8; subu v0,s2,v0` = `sizeH - (yoff + 8)`.  Register ROLES now
  * match retail (s1 = yoff, s2 = sizeH), so this is the LAST fact in the function.
+ * ===== W72-A13 (2026-08-22): 6 -> PASS 473/473.  SEALED.  THE FOLD IS NOT A TIE-BREAK,
+ * IT IS AN UNCONDITIONAL REWRITE, AND THE ESCAPE IS THE ADDEND'S C STORAGE CLASS.
+ * Read off gcc-2.8.1 fold-const.c (C:/Temp/gcc-2.8.1-src), not inferred:
+ *   fold() `associate:` (4288-4380) tries `split_tree (arg0, ...)` FIRST and only then
+ *   `split_tree (arg1, ...)` (4349).  For `sizeH - (yoff + 8)`: arg0 = sizeH is a plain
+ *   VAR_DECL so it does not split; arg1 = (yoff + 8) DOES, because split_tree (980-1050)
+ *   accepts a PLUS under a MINUS code and takes the branch `if (TREE_CONSTANT
+ *   (TREE_OPERAND (in, 1)))` -> con = 8, var = yoff, varsign = 1.  arg1 is not itself
+ *   TREE_CONSTANT, so fold falls through to
+ *       t = build (MINUS_EXPR, type, fold (build (MINUS_EXPR, type, arg0, con)), var);
+ *   = `(sizeH - 8) - yoff`, EVERY TIME.  No parenthesisation, cast, re-sign, embedded
+ *   assignment, ternary re-shape, fence or `^ zero` can reach it -- ~40 spellings across
+ *   w44/w45/w46/w50/w60/w63/w64/W71 are all explained by this one line.
+ *   ⇒ **retail's source CANNOT have contained an integer literal there.**  The 8 came
+ *   from a MUTABLE LOCAL: a VAR_DECL is not TREE_CONSTANT, split_tree returns 0, fold
+ *   leaves the tree alone, and RTL cse then const-props the 8 back into the `addiu`
+ *   while the `li` dies -- so the escape costs ZERO instructions.  The assignment must
+ *   sit in the same cse path as the use (in the loop body).  Measured ladder:
+ *     literal 8                                   6 @473 (the fold)
+ *     `int k8;` assigned in the PREHEADER          3 @474 (`li s3,8` + `addu v0,s1,s3`)
+ *     `int k8;` assigned INSIDE the loop body      PASS 473/473
+ *     `int k8 = 8;` DECLARED inside the loop body 14 @471 (the block decl plants a
+ *        NOTE_INSN_BLOCK_BEG -> jump.c:2296 duplicate_loop_exit_test refuses -> the loop
+ *        stops rotating; catalog 13D).  Fn-scope decl + in-loop ASSIGNMENT is the shape.
+ *     identity-laundered k8 in the preheader       9 @474
+ *     `postgame ? (k8 = 8) : 0` (14C embedded assign, no extra statement) PASS 473/473
+ *     `short k8`                                   PASS 473/473
+ *   TRANSFERS: RaceStatistics' per-player loop head carries the SAME defect at TWO sites
+ *   (94 -> 77 with both escaped).  Tree-wide grep class: any `A - (B + <literal>)` whose
+ *   oracle shows `addiu rT,B,+K ; subu rD,A,rT`.
  * FALSIFIED FROM THE 6 BASIN (all re-gated here; every one either 6 bit-identical or
  * worse): `(postgame != 0) << 3` and `(postgame != 0) * 8` addends 6 (bit-identical --
  * postgame is a bool so gcc rebuilds the same COND_EXPR) . addend-first 6 . no inner
@@ -887,6 +959,7 @@ void Hud_BTCStats(short player,bool postgame)
   short HUD_STATS_TITLE_START_Y;
   short HUD_STATS_TEXT_START_Y;
   int sizeH;
+  int postgameInset;
 
   chasinghuman = 0;
   showname = 0;
@@ -1010,8 +1083,21 @@ void Hud_BTCStats(short player,bool postgame)
      Pairs with the SINK spelling of the subtrahend below; neither works alone. */
   sizeH = HUD_STATS_SIZE_H;
   for (i = 1; i < 4; i = i + 1) {
+    /* MATCH (W72-A13, THE FOLD ESCAPE -- see the receipt above): the postgame inset is a
+       MUTABLE LOCAL, never the literal 8, and it is assigned INSIDE the loop body.  Both
+       halves are load-bearing and neither works alone:
+         - a literal 8 is TREE_CONSTANT, so fold-const.c:4349 `split_tree (arg1, ...)`
+           succeeds and UNCONDITIONALLY rewrites `sizeH - (yoff + 8)` into
+           `(sizeH - 8) - yoff` (retail folded NEITHER direction);
+         - a VAR_DECL addend is not TREE_CONSTANT, split_tree returns 0, and the tree
+           survives as retail's `addu; subu` pair -- then RTL cse const-props the 8 back
+           into the `addiu` and the `li` dies, but ONLY if the assignment sits in the same
+           cse path as the use, i.e. INSIDE the loop (assigning it in the preheader leaves
+           `li s3,8` + `addu v0,s1,s3` = 3 diffs @474).
+       Do NOT "simplify" this back to `(postgame ? 8 : 0)`. */
+    postgameInset = 8;
     Hud_FBuildF4(0,col[i] - 2,startY + 0xf,1,
-                 sizeH - (((startY + 0xf) - HUD_STATS_POS_Y) + (postgame ? 8 : 0)) -
+                 sizeH - (((startY + 0xf) - HUD_STATS_POS_Y) + (postgame ? postgameInset : 0)) -
                  (showtimeleft ? 0x10 : 0),0,'\0','\0');
   }
   if (showtimeleft) {

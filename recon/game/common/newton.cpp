@@ -1899,6 +1899,8 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
   coorddef barrierVec;
   int impactVel;
   int distRetreat;
+  int retreat;
+  int nx;
   coorddef upVec;
   matrixtdef islandMatrix;
 
@@ -1909,7 +1911,22 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
   barrierVec.x = -(normal.z / 0x100 * 0x100);
   __asm__("" : : "i"(0));   /* w62-a11 reorg slot-steal barrier, see receipt */
   barrierVec.y = 0;
-  barrierVec.z = normal.x / 0x100 * 0x100;
+  __asm__("" : : "i"(0));   /* W72-A9 3rd void fence -- see the nx receipt below */
+  /* MATCH (W72-A9): `nx` IS the two-use survivor pseudo retail parks in $a3.
+     Retail's FIRST read of normal.x is store-forwarded off the parm home
+     (`addu $a3,$a1,$zero`) into a pseudo that feeds BOTH the /256 divide AND
+     islandMatrix.m[0] (`sw $a3,56($sp)` 60 insns later).  Ours read normal.x
+     ONCE for the divide -- one use, so cse copy-propagated $a1 straight into
+     expand_divmod and the m[0] read became a fresh `lw v0,116(sp)` (the clamp's
+     JOIN ends the cse ebb, so the parm home's equivalence is gone by then).
+     Giving the value a NAMED local with two uses mints the copy verbatim and
+     frees $a1 early, which is what lets retail's y-divide result live in $a1.
+     RE-PRICED per 21E-1: w59-a2 (`int normalX`) and w64-a11 (`int nx` feeding
+     3 sites) both measured this family as a REGRESSION (95, 89 @101) -- on the
+     pre-clamp-split basin.  After the two-pseudo clamp landed, plain `nx` is
+     69 @103 on its own and 53 with the m[6]/m[7] pair below. */
+  nx = normal.x;
+  barrierVec.z = nx / 0x100 * 0x100;
   distRetreat = normal.x / 0x100 * (newtonObj->linearVel.x / 0x100) +
                 normal.y / 0x100 * (newtonObj->linearVel.y / 0x100) +
                 *(volatile int *)&normal.z / 0x100 * (newtonObj->linearVel.z / 0x100);
@@ -1928,8 +1945,32 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
   /* MATCH (w55-a11): plain `/0x10` replaces a hand-written `if(x<0)x+=0xf; x>>=4`
      guard -- that guard IS gcc's own signed power-of-2 divide (83->81, and a
      semantic correction: the hand form was a transcription of the codegen). */
-  distRetreat = -distRetreat / 0x10;
-  if (-0x7ad <= distRetreat) {
+  retreat = -distRetreat / 0x10;
+  /* MATCH (W72-A9): 71 -> 61.  THE CLAMP IS A TWO-PSEUDO SELECT, not an in-place
+     override.  Retail keeps the divide result in $v1 (SYM `distRetreat REG $3`)
+     and mints an explicit `addu $a1,$v1,$zero` on the fall-through arm while the
+     `li $a1,-1966` arm rides the `beqz` delay slot; our single-variable
+     `distRetreat = -distRetreat/0x10; if (-0x7ad <= distRetreat) distRetreat =
+     -0x7ae;` coalesced BOTH into $a1 (`sra a1,v0,4` + `li a1,-1966`, no copy).
+     Splitting into a second local so each arm ASSIGNS the result var reproduces
+     insns 71-77 byte-exact (sec 5.0c #3 clamp-as-both-arms-assign).
+     RE-PRICED per 21E-1: w55-a11 measured "clamp-if 81 | clamp-ternary 81" =
+     NEUTRAL, but that was the pre-w60/w62/w64 basin; on the shipped basin the
+     same family is worth 10 diffs.  MEASURED THIS WAVE: inverted if/else 61 |
+     ternary 61 | default-then-override 61 | (RE-MEASURED on the final nx basin:
+     the IF/ELSE forms hold at 51 but the TERNARY spelling of the same MIN
+     regresses to 61 -- so the original was a branched if/else, not a `?:` MIN
+     macro, even though the whole PSX corpus writes MIN/MAX/ABS as ternaries
+     [C:/Temp/ps1-decomp-refs: chrono-cross psyq/abs.h, ff7 world.h, ff8
+     common.h, mgs common.h, glover maths.h -- all `((a)<(b))?(a):(b)` over live
+     expressions into a fresh value, which is the shape that made the split
+     obvious]) | `else`-arm-assigns-the-const (i.e.
+     `if (-0x7ad <= retreat) distRetreat = -0x7ae; else distRetreat = retreat;`)
+     72 @106 (mints the copy but colours retreat into $a2). */
+  if (retreat <= -0x7ae) {   /* == MIN(retreat, -0x7ae); gcc canonicalises to slti -0x7ad */
+    distRetreat = retreat;
+  }
+  else {
     distRetreat = -0x7ae;
   }
   /* RECEIPT (w55-a11): residual 81, ours 101 vs oracle 106 -- the 5-insn gap is the
@@ -2067,15 +2108,67 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
      pseudo to give a reference to.  (Same wave it took
      Newton_TestForUndrivableSurfaces 70 -> 36 on the module-scope
      `testSimRoadInfo`.)  So the 'm' fence is NOT a candidate for this fn's
-     parm-copy residual; the named angle stays 14D's destination-bought copy. */
-  islandMatrix.m[0] = normal.x;
+     parm-copy residual; the named angle stays 14D's destination-bought copy.
+     W72-A9 LANDED 71 -> 51 (@105/106) in three coupled steps, all receipted at
+     their sites: (1) the CLAMP IS A TWO-PSEUDO SELECT (10 diffs); (2) `nx` = the
+     two-use normal.x SURVIVOR retail parks in $a3 (the "destination-bought copy"
+     the w64 receipt asked for turned out to be a SECOND USE, not a destination);
+     (3) volatile views on the m[6]/m[7] reads + a 3rd void fence (8 more).
+     THE BY-VALUE ABI QUESTION IS CLOSED, NEGATIVELY: prologue insns 0-11 are
+     byte-identical (`sw a1,116(sp); sw a2,120(sp); sw a3,124(sp)` = assign_parms
+     homing the G8coorddef's three words into the caller's arg area at sp+0x74/78/7C,
+     with every later read store-FORWARDED off those stores by cse).  The recon's
+     plain by-value `coorddef normal` parameter is EXACTLY retail's shape -- there
+     is no hidden-pointer / explicit-word-pair variant to try (sec 3.12 #11 does not
+     apply: no call is involved, this is the CALLEE side).  Every residual is
+     downstream of cse's store-forwarding and the divide expansion, not of the ABI.
+     RESIDUAL 51 MAP (ours 105 / retail 106, i.e. ours is ONE insn short):
+       (a) 3 diffs -- the normal.z divide still coalesces its expand_divmod temp
+           with the dividend (`nop` in the bgez slot + `addiu a3,a3,255`) where
+           retail keeps a fresh one (`addu v0,a3,zero` in the slot + `addiu
+           v0,a3,255`).  nx-style survivors do NOT work here (there is no second
+           use of raw normal.z -- retail's m[2] comes from the later `lw t2`
+           re-read): `nz` for barrierVec.x 51 (neutral), + m[2] 69, + the dot 59.
+           Per the w44 law the survivor must come from a DISTINCT 1-insn
+           computation; none exists in this statement.
+       (b) 2 diffs -- `sw zero,28(sp)` (barrierVec.y) sits before the x-divide in
+           ours, inside it in retail.  Position sweep: after barrierVec.z 51 |
+           before barrierVec.x 50 @104 (LCS-only, structurally worse -- 09K) |
+           after nx 53 | extra void fences after barrierVec.z / after nx 51.
+       (c) 9 diffs -- retail SCHEDULES the normal.y divide EARLY, interleaved with
+           barrierVec.z's shift+store (the shift rides the `bgez a2` slot); ours
+           emits it at its use with an empty slot.  Source hoists of the y term all
+           regress: `ny = normal.y/0x100` before the dot 65 @103 | before
+           barrierVec.z 70 | `ny = normal.y` feeding the dot + m[1] 68 @104.
+       (d) ~6 diffs -- retail's ONE `lw t2,124(sp)` re-read of normal.z serves both
+           the dot term and m[2] (+ a `addu v1,t2,zero` copy); ours re-reads twice.
+           `nz2` spellings measured 69-81 across three waves now.
+       (e) the rest is the accumulator seat ($a1 ours vs $a0/$v0 retail), which is
+           DOWNSTREAM of (c) -- retail's y-divide result occupies $a1.
+     ALSO MEASURED THIS WAVE (all worse, do not retry): dot term order y,x,z 67 |
+     both operands flipped (linearVel first) 66 | a fresh `absDot` temp for the abs
+     51 (neutral) | a named `dot` temp 51 (neutral) | the three matrix ROWS as
+     coorddef struct copies 68/77/82/85 | m[] in retail's emission order 79 |
+     `islandMatrix.m[3] = 0` 72 | a "memory" clobber before the matrix block 58. */
+  islandMatrix.m[0] = nx;   /* MATCH: the $a3 survivor's 2nd use (see the nx receipt) */
   islandMatrix.m[1] = normal.y;
   islandMatrix.m[2] = normal.z;
   islandMatrix.m[3] = upVec.x;
   islandMatrix.m[4] = upVec.y;
   islandMatrix.m[5] = upVec.z;
-  islandMatrix.m[6] = barrierVec.x;
-  islandMatrix.m[7] = barrierVec.y;
+  /* MATCH (W72-A9): retail RELOADS barrierVec.x/.y from the frame here
+     (`lw t0,24(sp); lw t1,28(sp)`) instead of reusing the pseudos that produced
+     them -- introducing `nx` above made cse keep those two values live to the
+     matrix block (`negu t2,v0` + `sw zero,84(sp)`), costing 2 insns and 8 diffs.
+     A volatile VIEW on just these two reads restores the reload (catalog sec F
+     volatile-as-codegen-device, shape (a); same device already in use on the
+     dot's normal.z term in this fn).  m[8]/barrierVec.z must NOT get one --
+     retail genuinely keeps it in $t3.  MEASURED: both 53 | m[6] only 62 |
+     m[7] only 66 | "memory" clobber before the block 58 @106 | before m[6] 86 |
+     `"m"(barrierVec)` fence 85 | the three rows as coorddef struct copies
+     68/77/82/85 (movstrsi is NOT retail's shape here). */
+  islandMatrix.m[6] = *(volatile int *)&barrierVec.x;
+  islandMatrix.m[7] = *(volatile int *)&barrierVec.y;
   islandMatrix.m[8] = barrierVec.z;
   impactVel = Physics_AttenuateVelocity((Car_tObj *)newtonObj,distRetreat,&islandMatrix);
   Physics_SetCurrentWallType(4);
@@ -2236,6 +2329,31 @@ Netwon_CheckForBadQuad(BO_tNewtonObj *newtonObj,BWorldSm_Pos *testSimRoadInfo,in
    fence-operand sweep RE-PRICED on this basin: n=3 74 | n=4 70 | n=5 70 |
    n=6 70 | n=7 70 | n=8 90 -- the 4..7 plateau still holds and no operand count
    reaches the $s3<->$s6 seat. */
+/* W72-A9 -- SEALED.  36 -> 0, PASS 470/470, in four steps, three of them
+   ordinary source and none of them a pin.  The receipts sit at their sites; the
+   chain, because each step only became visible after the previous one:
+     36 -> 14  the MISSING 48th BRANCH, from the NFSU2-MOBILE TWIN sub_4FEF33
+               (located by refs.py on the already-mapped DoPostBarrier/AddDamageZone
+               twins): a vestigial per-iteration abort flag `aborted = 0;` set right
+               after the testPoint load and tested at the top of the collision_type
+               block.  Four waves hunted this as "a value opaque to cse yet
+               register-resident"; it is just a plain int whose DEF AND USE SIT IN
+               DIFFERENT BASIC BLOCKS, which is all cse needs (its block runs to the
+               next CODE_LABEL), and local-alloc's update_equiv_regs then moves the
+               init to the use with REG_LIVE_LENGTH = 2 / REG_N_CALLS_CROSSED = 0 =
+               retail's 2-insn caller-saved $t3.  The w63 laundered zero is retired.
+     14 -> 8   pBVar13 and local_2c are NOT source variables -- they are loop.c
+               GIVs strength-reduced out of `i` (the twin writes the index form
+               `a1[12*i + 1103]` and `v5 = 2*i`).  Writing the index form puts their
+               initialisations in the PREHEADER AFTER the invariant hoists, which is
+               retail's `addiu s4,s1,8 / addu s5,s1,zero / sw zero,132(sp)` order,
+               and makes the simRoadInfo address hoist off the REGPARM $s1 instead
+               of off the (now non-existent) cursor.  local_2c alone 21 @465,
+               pBVar13 alone 10 @470, both 8 @470.
+     8  -> 0   the two cursor `la`s: a cse-scope launder pair (21E-4), receipt at
+               the loop-1 site.
+   The four-operand read-only fence on `collision_type` and the two 'm' fences on
+   `testSimRoadInfo` from W71-A20 are still load-bearing and stay. */
 void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
 
 {
@@ -2247,8 +2365,7 @@ void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
   coorddef undrivableCenter;
   coorddef speedVec;
   int iVar12;
-  BO_tNewtonObj *pBVar13;
-  int local_2c;
+  int aborted;
   coorddef *quadPt;
   
   collision_type = 0;
@@ -2265,15 +2382,39 @@ void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
     speedVec.z = (newtonObj->linearVel).z * 5 / 0x100;
   }
   i = 0;
-  local_2c = 0;
-  pBVar13 = newtonObj;
   do {
     coorddef testPoint;
 
     if (3 < i) {
       return;
     }
-    testPoint = *(coorddef *)((char *)pBVar13 + 0x28c);
+    testPoint = *(coorddef *)((char *)newtonObj + i * 0x30 + 0x28c);
+    /* MATCH (W72-A9): 36 -> 14, COUNT-EXACT 470/470.  THE MISSING 48th BRANCH,
+       SOLVED -- and it is NOT scaffolding.  The NFSU2-mobile twin of this very
+       function (sub_4FEF33, found via refs.py on the DoPostBarrier/AddDamageZone
+       twins sub_4FDB9E/sub_4F8610) carries a vestigial per-iteration abort flag:
+         v21 = 0;                        <- here, right after the testPoint load
+         ...
+         if (v22 != 0) { if (v21 == 0) { DoPostBarrier...; } break; }
+       Nothing ever sets it non-zero, so gcc-2.8 cannot fold it -- BUT ONLY
+       BECAUSE THE DEF AND THE USE SIT IN DIFFERENT BASIC BLOCKS.  cse's block
+       runs to the next CODE_LABEL (cse.c cse_end_of_basic_block scans
+       `while (p && GET_CODE (p) != CODE_LABEL)`), so it happily crosses the
+       `beqz $s6` -- which is why w64-a11's four spellings of the flag INSIDE the
+       collision_type block all folded (468) and w71-a20's def-in-the-deep-arm
+       cost 3 insns in a callee-saved reg (471, $s0).
+       The 2-insn caller-saved shape retail has (`addu $t3,$zero,$zero` riding the
+       `beqz` delay slot + `bnez $t3`) is local-alloc.c's update_equiv_regs: with
+       REG_N_REFS == 2 and REG_BASIC_BLOCK < 0 it MOVES the initialisation to just
+       before the use and hard-sets REG_LIVE_LENGTH = 2 / REG_N_CALLS_CROSSED = 0
+       -- exactly $t3's profile.  A loop-top def is what makes REG_N_REFS 2 and
+       the two refs cross a block boundary.
+       POSITION SWEEP (all gated): after the `if (3 < i) return;` guard 14 @470 |
+       here (the twin's position) 14 @470 | block-scope decl + here 14 @470 |
+       BEFORE the guard 174 @466 (it joins the loop-entry block and re-colours the
+       whole body).  The launder that w63-a11 used to prove the shape reachable
+       scores 38 here and is now retired. */
+    aborted = 0;
     testPoint.x = testPoint.x + speedVec.x;
     testPoint.y = testPoint.y + speedVec.y;
     testPoint.z = testPoint.z + speedVec.z;
@@ -2425,7 +2566,25 @@ void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
                 undrivableCenter.y = 0;
                 undrivableCenter.x = 0;
                 j = 0;
+                /* MATCH (W72-A9) -- THE LAST 8 DIFFS, and the seal.  Both loops initialise the
+                   cursor from the SAME address value `%hi/%lo(testSimRoadInfo+0x18)`, so cse
+                   merges the two `(high (const (plus sym 24)))` pseudos into ONE allocno that
+                   spans both blocks; local-alloc.c combine_regs (:1866) then REFUSES to tie a
+                   global-allocno source to the lo_sum dest, and we emit the separate-temp form
+                   `lui $v0,%hi; addiu $a2,$v0,%lo` where retail self-temps `lui $a2,%hi; addiu
+                   $a2,$a2,%lo` (8 diffs, 2 sites x 2 insns x 2 sides).  This is the 21E-4 class
+                   verbatim ("a lo_sum CSE'd across blocks = global allocno = tie refused -- a
+                   CSE-SCOPE question, never scheduling") and its named cure is the BLOCK-LOCAL
+                   IDENTITY LAUNDER: a zero-instruction `"=r"/"0"` asm makes each cursor a fresh
+                   opaque pseudo, so neither %hi survives into the other block.
+                   NO C SPELLING REACHES IT -- cse compares RTL VALUES, and every spelling of
+                   this address canonicalises to the same `symbol+24`: measured inert at 8 each,
+                   `&quadPts[0]` / `(coorddef *)&quadPts` / `(coorddef *)((char *)&g + 0x18)` /
+                   `&quadPts[0] + 0` / `&quadPts[j]` / two BLOCK-SCOPE cursor variables / the
+                   init moved above `j = 0`.  ONE launder (either site) = 4; BOTH = PASS.
+                   Retire this pair if a future wave finds a cse-scope lever that is not an asm. */
                 quadPt = testSimRoadInfo.quadPts;
+                __asm__("" : "=r"(quadPt) : "0"(quadPt));
 NewtonTestUndrv_loop1:
                 if (j < 4) {
                   if (testSimRoadInfo.simQuad != (Trk_NewSimQuad *)0x0) {
@@ -2464,6 +2623,7 @@ NewtonTestUndrv_loop1:
               undrivableCenter.x = 0;
               j = 0;
               quadPt = testSimRoadInfo.quadPts;
+              __asm__("" : "=r"(quadPt) : "0"(quadPt));   /* MATCH: 2nd cse-scope launder, see the loop-1 receipt */
 NewtonTestUndrv_loop2:
               if (j < 4) {
                 if (testSimRoadInfo.simQuad != (Trk_NewSimQuad *)0x0) {
@@ -2495,9 +2655,12 @@ NewtonTestUndrv_loop2:
     if (collision_type != 0) {
       int impulse;
       int zone;
+      if (aborted != 0) {   /* MATCH: the twin's `if (v21 == 0) {...}` -- see the `aborted = 0;` receipt */
+        return;
+      }
       Newton_DoPostBarrierCollisionHandling(newtonObj,normal);
       (newtonObj->collision).collisionPoint =
-          *(coorddef *)((char *)pBVar13 + 0x28c);
+          *(coorddef *)((char *)newtonObj + i * 0x30 + 0x28c);
       AIPhysic_ProcessBarrierCollision((Car_tObj *)newtonObj);
       if ((newtonObj[1].simRoadInfo.quadPts[1].y & 4U) != 0) {
         Physics_FixEngineRpm((Car_tObj *)newtonObj);
@@ -2508,7 +2671,7 @@ NewtonTestUndrv_loop2:
       }
       zone = 6;
       if (i != 2) {
-        zone = local_2c;
+        zone = 2 * i;
         if (i == 3) {
           zone = 4;
         }
@@ -2516,9 +2679,7 @@ NewtonTestUndrv_loop2:
       Newton_AddDamageZone(newtonObj,impulse,zone,1);
       return;
     }
-    pBVar13 = (BO_tNewtonObj *)((char *)pBVar13 + 0x30);
     i = i + 1;
-    local_2c = local_2c + 2;
   } while( true );
 }
 

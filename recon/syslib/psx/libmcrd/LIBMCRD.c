@@ -1472,12 +1472,51 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
      * fenced `pc` block 41; `"m"(mc.cmd)` ref-dials on the cse base 53 / 53 / 37 (in-loop inert).
      * NOT LANDED (37 > 36) -- but this is the first form that is STRUCTURALLY retail's, so it is
      * the right base to re-dial from once the band pair has an instrument (06E). */
+    /* 🏆 W72-A18 -- LANDED: 36 -> 24 @154/152.  The W71 basin IS the right base, and the p98/p127
+     * band pair FLIPPED with a zero-insn ref dial.  Three parts, all whole-TU gated twice:
+     *   (1) the W71 pair, re-measured EXACTLY as receipted: m-fence("m"(files)) alone 83 |
+     *       goto-loop retry alone 85 | BOTH 37 @155/152, frame 144 = retail.  Both landed.
+     *   (2) THE FLIP.  W71 priced it right (p98 needs refs 13, or p127 refs 6) but reached for the
+     *       wrong instrument.  MEASURED WITH tools/qty272.py, and this is the LAW worth keeping:
+     *         `"m"(mc.<field>)` adds ZERO refs to the cse base -- on this lane a bare symbolic
+     *         address IS a legitimate MIPS memory operand, so cc1 legitimizes the asm operand as
+     *         `(mem (symbol_ref))` and no pseudo is referenced at all (p98 stayed at refs 11 in
+     *         5 placements; only the LIVE lengths grew, +2 on p98 vs +1 on p127 = the WRONG way).
+     *         `"r"(&mc.<field>)` is worse: it MINTS A FRESH address pseudo per site (never p98)
+     *         and costs a real addiu (gate 39-50 over 5 placements).
+     *       ==> 21A(5)'s "'m' dials the existing %hi pseudo" holds only where a %hi pseudo EXISTS;
+     *       under -G0/2.7.2 (no split addresses) there is none, so the 'm' dial is structurally
+     *       inert on symbol bases.  THE DEVICE THAT WORKS IS THE w44 DEPTH WRAPPER: wrapping the
+     *       latch store group in `do { ... } while (0)` doubles flow.c's loop-weighted refs on the
+     *       base with zero instructions.  Measured grid (refs -> pri -> rank -> gate):
+     *         3 stores  depth1  12/96  0.3750  still below p127   40
+     *         4 stores  depth1  15/98  0.4591  FLIP -> $s3        28
+     *         3 stores  depth2  15/96  0.4687  FLIP               27
+     *         4 stores + UserFuncOpen depth1  15/100  0.4500 FLIP 24   <-- LANDED
+     *         4 stores  depth2  19/98  0.7755  OVER-dialed -> $s1 54
+     *         3 stores  depth3  18/96  0.7500  OVER-dialed        57
+     *         whole guard block depth1  16/100 0.6400 OVER        57
+     *       i.e. the window is ONE floor_log2 step wide -- price it, do not sweep it.
+     *   (3) FALSIFIED on the landed basin (all whole-TU gated, restored): chan store moved out of
+     *       the wrapper (before 26 / after 40); the `pc` fence dropped, plain `mc.chan` read, or a
+     *       depth wrapper on it (28 / 28 / 39); init-order sweep stored-into-the-guard / stored-last
+     *       / stored-after-the-pc-block / err-last ALL INERT at 24 (fretry-first 44); a memory-homed
+     *       `filesM` local via an "m" constraint, in 4 decl/fence positions, 31-55.
+     *   REMAINING 24, four classes, all named: (a) the `files` param home 156($sp) vs retail's
+     *   4-aligned reload slot 92($sp) (~9 -- the W64-A4 8-aligned/8-wide spill lane property, still
+     *   the biggest single row); (b) `stored = 0` in retail's blez delay slot vs our nop + the
+     *   s1/s2/s5 init emission order (~5 -- position-INERT, so it is reorg's fill choice, 13B);
+     *   (c) the fenced `pc` block's `addu $v0,$s3,$zero` copy before `lw $a0,12($v0)` where retail
+     *   has a bare `lw $a0,12($s3)` (3 -- the identity fence's own copy; dropping it costs more);
+     *   (d) `li $v0,2` vs `li $t0,2` + the chan store through the base vs retail's $at macro (~7).
+     *   NOT a floor. */
     /* W62-A8: PARM-SPILL PIN on `dir` (13B/w61-a3 §2).  Without it assign_parms` copy
      * `addu $s6,$a2,$zero` sinks into the busy-guard`s `beqz` delay slot; retail keeps it in
      * the prologue group and lets reorg fill that slot from the fall-through thread with the
      * MemCardMakeDevname arg (`addu $a0,$s7,$zero`).  44 -> 40.  Adding `chan` or `name` as a
      * second operand is inert (40). */
     __asm__("" : : "r"(dir));
+    __asm__("" : : "m"(files));
     if (mc.cmd != 0) {
         printf("Access Denied. : system busy\n");
         return -1;
@@ -1509,11 +1548,11 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
     if (ofs + max > 0) {
         do {
             if (idx == 0) {
-                while (1) {
+                retry_top:
                     _clr_card_event();
                     p = firstfile(devname, &ent);
                     if (p != 0)
-                        break;
+                        goto got_first;
                     /* BUG FIX (w59-a8): the argument is the CARD EVENT, not a fabricated
                      * `ofs > 0` predicate.  The oracle @0x800FB974 is
                      * `jal _get_card_event_x` immediately followed by
@@ -1532,17 +1571,20 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
                         if (mc.cmd > 0) {
                             printf("Access Denied. : event multiple open\n");
                         } else {
+                            do {
                             mc.cmd  = 2;
                             mc.rslt = 0;
                             mc.done = 0;
                             mc.chan = chan;
                             UserFuncOpen((int)MemCardCmd_cb);
+                            } while (0);
                         }
                         MemCardSync(0, 0, &err);
                         MemCardCallback((int)_mc_save_cb);
                         return err;
                     }
-                }
+                    goto retry_top;
+                got_first: ;
             } else {
                 p = nextfile(&ent);
 have_entry:
@@ -1678,7 +1720,20 @@ extern int MemCardCallback(int func)
  *   identity launder on cmd+rslt ............... inert (the launder itself is dead-deleted)
  * NAMED ANGLE: a device that makes the SECOND dead load reuse the FIRST one's register (retail's
  * `$v0` twice).  Both qtys die at their own insn, so this is a local-alloc handout question --
- * the 06E instrument gap, not a spelling. */
+ * the 06E instrument gap, not a spelling.
+ * 🔑 W72-A18 re-measure (unchanged: plain 5/6, both-volatile 6/7) + one more falsification:
+ *   the second read written INTO the first read's variable (`rslt = *(vol)&base[0]; cmd = rslt;
+ *   rslt = *(vol)&base[1];`) = Delete 8 / Create 9 -- the copy is real, not free.  Together with
+ *   W71's "ONE shared dead temp" (8/15) the whole variable-identity family is now closed on both
+ *   callers: no C-level naming makes the two dead destinations share a hard register.
+ *   SHARPENED ANGLE (from this wave's sprintf work, same mechanism family): the two dead loads'
+ *   destinations are pseudos with ONE ref and no uses, so they are the same class as sprintf's
+ *   movstrsi scratches -- decided by whichever of local-alloc / reload assigns them.  THE CHEAP
+ *   DISCRIMINATOR (proven on sprintf this wave): drop a zero-insn hard-reg clobber FAR from the
+ *   site, `__asm__("" : : "i"(0) : "$3");`, and see whether the second load moves.  If it shifts,
+ *   the pair is coming from reload's `potential_reload_regs` (order_regs_for_reload, ascending
+ *   over the `uses == 0 && call_used` set) and the cure is a whole-function pool question; if it
+ *   does not, they are local-alloc qtys and the cure is inside the block.  One run each. */
 static __inline__ long MemCardSyncAt(long mode, int *cmds, int *result, int *base)
 {
     int rslt;
@@ -1927,6 +1982,25 @@ nocard:
          *                                                       named constant straight back;
          *                                                       the fence's barrier costs 10)
          *   volatile snapshot reads in MemCardSyncAt (for the two dead `lw`s)  7 / Delete 6 */
+        /* 🔑 W72-A18 -- THE `li $a1,1` ROW IS NOT A CONSTANT-POSITION QUESTION; IT IS THE
+         * AT-MACRO SPLIT.  The two streams side by side name it (the open() probe site above):
+         *   retail  addiu $a0,$sp,16 ; li $a1,1 ; li $v0,1 ; lw $a2,0xC($s2) ; lui $v1 ; lw $v1
+         *           ; sllv ; or ; lui $at ; JAL open ; sw $v1,0($at)  <- the _mc_present store's
+         *           SECOND macro half fills the call's delay slot
+         *   ours    addiu $a0,$sp,16 ; li $v0,1 ; ... ; lui $at ; sw $v1,0($at) ; JAL open ;
+         *           li $a1,1                                   <- reorg took the arg constant,
+         *           because our store macro was already COMPLETE before the branch
+         * i.e. the flag constant is not "late": it is the only filler LEFT once the store macro
+         * is emitted whole.  Retail's build split `sw $3,_mc_present` across the jal (the w48-a5
+         * AT-MACRO-SPLIT-ACROSS-BRANCH class), which consumed the slot and let the `li` emit
+         * early and naturally.  FALSIFIED THIS WAVE on top of W71's list (all whole-TU gated,
+         * restored): a named `oflag` assigned before the RMW + a READ-ONLY fence right after it
+         * 8 | the same with the fence after the RMW 8 | THREE identity launders (the 07B
+         * bare-constant step) 16 | assigned before `strcat`, no fence 6 (inert) | assigned
+         * before `strcat` WITH a read-only fence 70 (the barrier walls off the whole arg block).
+         * ==> no constant-position or fence device reaches it, because the row lives on the
+         * assembler/macro side, not the value side.  Route: the same maspsx GNU-as-reorder-mode
+         * option that owns the rest of the w48 class-5 family. */
         {
             int prevcb = (int)MemCardCallback(0);
             cmd0 = p[0];
@@ -2053,7 +2127,24 @@ extern long MemCardDeleteFile(long chan, char *file)
      * 5 (inert); `_mc_present |= 1 << base[3]` before `p = base` 5 (inert); identity fence on
      * `p` 21; block-local fenced `pc` copy of p 29; fenced `pc` taken from `base` 17.  The only
      * device that reaches it (an opaque pointer, as MemCardCreateFile uses) costs more than the
-     * row: it makes `*p` may-alias `_mc_save_cb` and loses the load hoist -- see CreateFile. */
+     * row: it makes `*p` may-alias `_mc_save_cb` and loses the load hoist -- see CreateFile.
+     * 🔑 W72-A18: re-gated 5 @110/111.  ONE STATED ESCAPE FALSIFIED + ONE LANE VERDICT MEASURED.
+     *   (a) The W71 mechanism note ends "an OFFSET-0 load has no PLUS to simplify, which is why
+     *       `p[0]` stays base-relative" -- and therefore predicts that routing the chan read
+     *       through a zero-offset pointer escapes the fold.  IT DOES NOT: `{int *q = p + 3;
+     *       ... 1 << *q;}` = 5 (inert) and `{int *q = (int*)((char*)p + 12); ... 1 << q[0];}` = 5
+     *       (inert).  cse propagates the pointer's own known-constant equivalent INTO the
+     *       zero-offset MEM before the address is ever a PLUS, so the offset-0 exemption is a
+     *       property of the ORIGINAL `p[0]` expression's cse history, not a reachable spelling.
+     *       Cross the whole "spell it as offset 0" family off.
+     *   (b) The 2.8-lane per-fn splice named in the W71 note was MEASURED this wave and is NOT
+     *       the cure: `PER_FN_CC1_VER_SPLICE_272 {"2.8.0": {"MemCardDeleteFile"}}` (in-memory
+     *       hook, tools/vprobe.py W61_TABLE) gives 62 diffs @111/111 -- count-exact but a
+     *       completely different saved-reg band (s5/s4 appear, the whole prologue rotates).
+     *       The lane swap fixes the 3-diff fold row and loses ~60 elsewhere.  So the standing
+     *       "needs the 2.8-lane per-fn splice" spec is RETIRED as written; if it is ever revived
+     *       it has to come with the band re-dialled in the 2.8 basin, i.e. it is a from-scratch
+     *       re-match of the function, not a wiring line. */
 
     int *base = &mc.cmd;
     __asm__("" : : "r"(file), "r"(file));

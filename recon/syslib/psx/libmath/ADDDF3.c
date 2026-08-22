@@ -170,6 +170,83 @@ int           _err_math(int errnum, int code);
  * partner.  The reachable levers are unchanged from W61: a cse-table instrument read on
  * the 970404 rung, or a TEXT_MOVES/rung answer.  NOT a floor.
  *
+ * 🏆 W72-A20 (2026-08-22) -- RE-GATED at 6 (the W71 wiring spec landed: 8 -> 6) and
+ * taken 6 -> 2, COUNT-EXACT 221/221, SOURCE-ONLY.  Rows (a) x2 are GONE and NO
+ * TEXT_MOVES row was needed.  The W71 spec below (identity-fence `one` + 2 relocation
+ * rows per site) is SUPERSEDED -- it is still correct (probe-verified again this wave,
+ * see the ledger) but the pure-source form is strictly better.
+ *
+ *   🔑 THE DEVICE: A DOUBLE IDENTITY FENCE, POINTER-FIRST (new catalog row candidate).
+ *   At BOTH `if (A[1] & 0x40000000) { _dbl_shift(A,1,A[0],A[1],1); ae += 1; }` sites:
+ *       int *ap = A;
+ *       int one = 1;
+ *       __asm__("" : "=r"(ap) : "0"(ap));
+ *       __asm__("" : "=r"(one) : "0"(one));
+ *       _dbl_shift((unsigned int *)ap, one, A[0], A[1], 1);
+ *   TWO INDEPENDENT JOBS THAT ONLY WORK AS A PAIR:
+ *     * `one` is the 21E-5 CSE-CONSTANT-SHARING BREAKER APPLIED TO THE *FIRST*
+ *       OCCURRENCE.  The two literal `1`s are arg2 (register, emitted first) and arg5
+ *       (stack).  cse serves the stack one as a copy of $a1 (`addu $v0,$a1,$zero`).
+ *       Laundering ARG2 makes the first occurrence opaque, so the second re-materializes
+ *       retail's `li $v0,1`.  The W71 receipt fenced arg5 (the SECOND occurrence) --
+ *       that also kills both rows but the opaque `li` is then emitted ahead of the whole
+ *       argument block and reorg steals IT for the `beq` slot (+4).
+ *     * `ap` is a POSITION dial: the fence's operand is materialized at the fence, so
+ *       `addiu $a0,$sp,24` becomes the FIRST insn of the call block and reorg's eager
+ *       steal puts THAT in the `beq` delay slot -- which is exactly retail's slot.
+ *   MEASURED (whole-fn gate, this basin): baseline 6 | `one` fence alone at site 1 8,
+ *   at both sites 10 (the W71 number, reproduced) | `ap` fence alone at both sites 6
+ *   (inert -- it fixes the slot but leaves the shared constant) | BOTH at site 1 only
+ *   (not run) | BOTH at both sites 2.  Order inside the block is load-bearing only in
+ *   that `ap`'s fence must precede `one`'s (they are emitted in fence order).
+ *
+ *   FOR THE RECORD -- the W71 TEXT_MOVES route, re-probed and CONFIRMED this wave before
+ *   the source form was found (scratchpad/W72_A20/rows_add_a.json + a20_tmprobe.py):
+ *   with ONLY `one` fenced at both sites, appending FOUR rows [A,B,A,B] where
+ *     A = take `(?<=\tbeq\t\$2,\$0,\$L\d\d\n)\tli\t\$5,1[^\n]*\n`
+ *         after `\taddu\t\$4,\$sp,24\n(?=\tli\t\$2,1[^\n]*\n)`
+ *     B = take `\taddu\t\$4,\$sp,24\n(?=\tli\t\$5,1[^\n]*\n\tli\t\$2,1[^\n]*\n)`
+ *         after `\tbeq\t\$2,\$0,\$L\d\d\n(?=\t\.set\t macro\n)`   [no space -- see json]
+ *   gates 2 as well (10 -> 2, objdump-verified: each site becomes
+ *   `beq; addiu $4,$sp,24 [slot]` + `li $5,1; li $2,1; sw $2,16($sp)` = retail's words).
+ *   Rows-without-fences is INERT (6), so the pair was safe -- but the source form needs
+ *   no wiring at all, so THE ROWS WERE NOT REQUESTED.
+ *
+ * RESIDUAL (2) = row (c) ONLY: `addu $s0,$v1,$zero` vs retail `lui $s0,57344`, the
+ * 0xE0000000 normalisation mask copied from the peeled entry test instead of being
+ * re-materialized in the loop preheader.  NEW FALSIFICATIONS in the W72 basin (04Z
+ * re-measurement -- every one of these was re-run AFTER the double-fence landed):
+ *   explicit peel `if (mask==0) do{...}while(mask==0)` (two source occurrences) .. 2 (inert)
+ *   same + a named `normMask` ASSIGNED IN THE LOOP BODY (21B-3 born-in-the-loop) .. 2 (inert)
+ *   same + an identity fence on `normMask` INSIDE the guarded block ............... 2 (inert)
+ *   a fenced `normMask` materialized BEFORE the entry test (15B born-first) ....... 5 @222
+ *   the 21E-5 form -- fence the ENTRY test's OWN mask, loop uses the literal ...... 13 @222
+ *     (+1 = a load-delay `nop`: with the mask pre-materialized nothing is left to fill
+ *      the `lw $v1,28($sp)` slot, where retail's own `lui` is the filler)
+ * MECHANISM, restated and now confirmed from both sides: an identity fence LAUNDERS,
+ * it does not RE-MATERIALIZE (the `"0"` tie forwards cse's value into the fence), and
+ * the only occurrence whose materialization we could make opaque is the one whose
+ * `lui` retail uses as a delay-slot filler.  Live routes unchanged: a cse-table
+ * instrument read on the 970404 rung, or TEXT_MOVES.  NOT a floor.
+ *
+ * 📚 W72-A20 CORPUS VERDICT -- THE fp-bit LINEAGE QUESTION IS SETTLED (see FIXDFSI.c
+ * for the decisive receipt): retail's LIBMATH double soft-float is NOT FSF `fp-bit.c`
+ * (that file's fp_number_type/unpack/pack machinery has no relation), but it IS
+ * derived from FSF **`gcc-2.8.1/floatlib.c`** -- the W52-A4 header note above should be
+ * read as "not fp-bit, and the HELPER NAMES are Sony's", not "no FSF ancestor".  Proof
+ * chain: floatlib's `__fixdfsi` uses the byte-exact same `EXPD - EXCESSD - 31` (= our
+ * `v4 - 1053`) and the exact `if (<range> && l) l >>= -exp; else return 0;` shape that
+ * took __fixdfsi to PASS this wave; floatlib's appended Barrett-Richardson `__divdf3`
+ * is paired with a two-word mantissa comparator `__dcmp` == Sony's `_comp_mant`, and
+ * DIVDF3.obj ships exactly that pair.  floatlib's own `__adddf3` is a punt-to-float
+ * stub, so THIS function has no ready-made body in the corpus -- Sony wrote the double
+ * add themselves around the same helper decomposition.  Source read from
+ * C:\Temp\gcc-2.8.1-src\gcc281.tar.gz (gcc-2.8.1/floatlib.c, gcc-2.8.1/config/fp-bit.c,
+ * gcc-2.8.1/libgcc2.c); none of _dbl_shift/_add_mant_d/_mainasu/_comp_mant/_mul_mant_d
+ * appears in any of them (grep-confirmed), and none appears in C:\Temp\windows-gcc-psx.
+ * Vendor-byte cross-check: psyq43/extracted LIBMATH/obj/*.obj are retail verbatim
+ * (objtruth `diff` on FIXDFSI = 64/64 words, 0 drift) -- 04X re-confirmed.
+ *
  * ---- shape notes ----
  * Same 05B soft-float PAIR shape + oracle re-derivation as DIVDF3.c/MULDF3.c.
  * Oracle tells (frame 0x60): a -> $s2:$s3, b -> $s0:$s1 (BOTH DFmode pairs land
@@ -245,7 +322,22 @@ double __adddf3(double a, double b)   /* @0x800F5A54 */
         ae -= 1;
     }
     if (A[1] & 0x40000000) {
-        _dbl_shift((unsigned int *)A, 1, A[0], A[1], 1);
+        /* W72-A20 DOUBLE IDENTITY FENCE -- DO NOT DELETE EITHER HALF, DO NOT REORDER.
+         * Zero insns.  Two independent jobs that only work as a PAIR (see the receipt
+         * above): (1) the `ap` launder makes `addiu $a0,$sp,24` the FIRST insn of the
+         * call block, so reorg's eager steal puts THAT in the `beq`'s delay slot like
+         * retail (unfenced, the block starts with `li $5,1` and reorg steals that);
+         * (2) the `one` launder is the 21E-5 cse-constant-sharing breaker on the FIRST
+         * occurrence of the literal 1 -- with arg2 opaque, cse can no longer serve the
+         * 5th (stack) argument's `1` as a copy of $a1, so it re-materializes retail's
+         * `li $v0,1`.  Fencing only `one` (the W71 receipt's form) fixes (2) but the
+         * `li` then lands ahead of the arg setup and reorg steals IT (+4); fencing only
+         * `ap` fixes (1) alone (inert, 6). */
+        int *ap = A;
+        int one = 1;
+        __asm__("" : "=r"(ap) : "0"(ap));
+        __asm__("" : "=r"(one) : "0"(one));
+        _dbl_shift((unsigned int *)ap, one, A[0], A[1], 1);
         ae += 1;
     }
     k = 255;
@@ -254,7 +346,12 @@ double __adddf3(double a, double b)   /* @0x800F5A54 */
     rnd[0] = k;
     _add_mant_d(A, A[0], A[1], *(volatile int *)&rnd[0], rnd[1]);
     if (A[1] & 0x40000000) {
-        _dbl_shift((unsigned int *)A, 1, A[0], A[1], 1);
+        /* W72-A20 DOUBLE IDENTITY FENCE -- second site, identical recipe (see above). */
+        int *ap = A;
+        int one = 1;
+        __asm__("" : "=r"(ap) : "0"(ap));
+        __asm__("" : "=r"(one) : "0"(one));
+        _dbl_shift((unsigned int *)ap, one, A[0], A[1], 1);
         ae += 1;
     }
     _dbl_shift((unsigned int *)A, 1, A[0], A[1], 9);

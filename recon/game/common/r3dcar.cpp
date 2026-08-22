@@ -1934,14 +1934,12 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
   int iVar8;
   int iVar9;
   Transformer_zScene *pTVar10;
-  int iVar11;
   int iVar12;
   int iVar13;
   int iVar15;
   int iVar16;
   GameSetup_tCarData *pGVar14;
   u_int uVar20;
-  u_long *(*subOtStart)[2];
   Transformer_zScene **ppTVar21;
   coorddef parent;       /* SYM fn AUTO sp+0x18 */
   matrixtdef bodyMat;
@@ -1982,7 +1980,6 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
   if (cop_flag == 0) {
     pGVar14->Country = 0;
   }
-  subOtStart = R3DCar_subOtStart;
   uVar20 = R3DCar_InMenu & 0x80;
   iVar9 = uVar20 != 0;
   /* NEAR-MISS (W56-A14): subOtRow[iVar9]+iVar11 -- oracle sums both scaled indices
@@ -2046,11 +2043,68 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
      this basin the gFlip load stays batched before `lw a0,0(s1)` in every spelling.
      NAMED ANGLE: which of the two index pseudos wins $v0 in local-alloc when the
      sum's operand 0 is iVar9 -- price it with tools/reqdelta.py on those two
-     allocnos.  The sum-SPELLING axis is now exhausted twice over; do not re-sweep. */
-  u_long **subOtRow = subOtStart[gFlip];
-  iVar11 = ((carObj->N).objID & 0xfU) * 0x200;
+     allocnos.  The sum-SPELLING axis is now exhausted twice over; do not re-sweep.
+
+     W72-A12 2026-08-22 -- SEALED, PASS 1054/1054.  The W71 named angle was right
+     about WHAT to price and wrong about WHERE: both index values are LOCAL-alloc
+     quantities (allocsim/reqdelta model only GLOBAL allocnos -- they report
+     rank=None / no conflicts for p136,p139,p140,p142,p137,p149), so the dial is
+     local-alloc.c's QTY_CMP_PRI, not global.c's allocno_compare.  Computed from
+     the -dl RTL of the 16-diff `iVar9*4 + gFlip*8` basin (insns 160/167/169/172/
+     174/188/190/195 in the .lreg):
+       Q_iVar9 = {p136 sltu, p139 <<2, p137 sum, p149 +base}  -- combine_regs ties
+                 the accumulator to OPERAND 0 at every step, so ONE qty:
+                 refs 8, birth pos3, death pos12 -> life 18
+                 pri = floor_log2(8)*8/18*10000 = 13333   -> handed out FIRST, $v0
+       Q_gFlip = {p140 load, p142 <<3}      refs 4, life 8
+                 pri = floor_log2(4)*4/8*10000  = 10000   -> second, $v1
+     Retail is the other way round, so Q_gFlip needs the higher pri.  A READ-ONLY
+     FENCE on a named `gf` buys refs at zero insns, and the CROSSING POINT IS
+     COMPUTABLE IN ADVANCE (21A-4, here for a LOCAL qty): the fence insn costs
+     Q_gFlip one position of life (8->10) and Q_iVar9 two (18->20), so
+       n=1  refs 5 -> 2*5/10 = 10000  vs 24/20 = 12000   (lose)
+       n=2  refs 6 -> 2*6/10 = 12000  vs        12000    (TIE -> lower qty number
+                                                          wins, i.e. Q_iVar9)
+       n=3  refs 7 -> 2*7/10 = 14000  vs        12000    (WIN)
+     PREDICTED 3, MEASURED 3 -- the whole v0<->v1 cluster rename (8 insns incl. the
+     gFlip lui/lw) flips at exactly n=3 and is stable for n=4..6.
+     Two more source facts were needed on top of the ref-step, each measured:
+       * NAME THE BASE FIRST (`int subOtBase = (int)R3DCar_subOtStart;` as its own
+         earlier statement) -- keeps retail's `addiu a1,a1,%lo` adjacent to its
+         `lui a1` instead of letting sched2 sink it past the whole index sum
+         (6 -> 4).
+       * SPLIT THE objID LOAD from its mask (`int objId = (carObj->N).objID;`
+         BEFORE the fence, mask INLINE in the store expression) -- retail issues
+         `lw a0,0(s1)` early (position 57, filling the gFlip load's shadow) and
+         the `andi a0,a0,15` late (position 64, after `addu v1,v1,a1`); one
+         statement cannot produce both halves (4 -> 2 -> PASS).
+     LADDER (every row a real gate run):
+       kept row-pointer form (the W71 shipped state) ............... 6 @1054
+       `iVar9*4 + gFlip*8` byte sum (state B) .................... 16 @1054
+       + `int gf` carrier, fence n=0/1/2 .................. 16 / 20 / 20
+       + fence n=3..6 ............................................. 6
+       + base named first ......................................... 4
+       + objId split, mask still its own statement ................ 2
+       + mask inlined into the store .......................... PASS 1054
+       (also PASS: objId split + a named `sub` pointer local for the deref)
+     FALSIFIED from the n=3 basin (all real gate runs): iVar11 statement first 8 |
+     iVar11 between fence and sum 20 | fence after the sum 10 | fence after iVar11
+     38 | objId before the base 6 | objId between base and gf 6 | objId after the
+     sum 4 | mask inlined WITHOUT the objId split 4.
+     The now-dead `subOtStart` local (decl + assignment) and `iVar11` were removed;
+     both removals were gate-checked and are byte-neutral. */
+  int subOtBase = (int)R3DCar_subOtStart;
+  int gf = gFlip;
+  int objId = (carObj->N).objID;
+  /* MATCH (W72-A12): 3-operand READ-ONLY fence = +3 refs, ZERO insns.  It lifts
+     the gFlip quantity's QTY_CMP_PRI (14000) above the iVar9 accumulator chain's
+     (12000) so local-alloc hands $v0 to gFlip and $v1 to iVar9, exactly as retail.
+     n is not arbitrary: 1 and 2 are measured LOSSES (the pri crossing is at 3, see
+     the arithmetic in the block comment above).  Do NOT "simplify" this away. */
+  __asm__ ("" : : "r" (gf), "r" (gf), "r" (gf));
+  int subOtOff = iVar9 * 4 + gf * 8;
   (carObj->render).sub_ot =
-       subOtRow[iVar9] + iVar11;
+       *(u_long **)(subOtOff + subOtBase) + (objId & 0xfU) * 0x200;
   if (uVar20 != 0) goto R_ICFtMenu_sceneCounterJoin;
   (carObj->render).sub_otSize = 0x200;
   (carObj->render).sub_otOffset = 0x100;

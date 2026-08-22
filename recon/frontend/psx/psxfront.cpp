@@ -1723,7 +1723,71 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    *   20-basin body remains the closer-scoring lookalike.  Residual unchanged:
    *   the tint/RMW2 $v0-$v1 role swap; route unchanged (#E' instrumented-cc1
    *   sched/find_free_reg trace).
-   *   Harness: scratchpad/A18/font_v1.json + probe.py. */
+   *   Harness: scratchpad/A18/font_v1.json + probe.py.
+   * W72-A8 (2026-08-22, base RE-GATED 20 @82/82; NOT MOVED -- but the
+   *   MECHANISM IS NOW READ OFF THE INSTRUMENT, and one long-standing
+   *   "neutral" verdict is CORRECTED).
+   *   #E' EXECUTED: the instrumented cc1 (C:/Temp/nfs4-instr-cc1
+   *   cc1plus-ecoff.exe, GCC_TRACE_ALLOC=1, -mgas -msplit-addresses
+   *   -funsigned-char -fno-exceptions -fno-rtti, -G4) reproduces THIS body
+   *   byte-identically (80/80 cc1 insns vs the real CC1PLPSX), so its trace is
+   *   a receipt.  Pseudo identification via the .lreg RTL:
+   *     tint value  = pseudo 110 (insn 91 `set (reg 110) (mem (symbol_ref
+   *                   "font_tint"))`, insn 93 stores it to prim+4)
+   *     RMW2 temp   = pseudo 122/123 (116 read *pal, 119 and, 120 ior,
+   *                   122 store) -- qty_combine merges 123 into 122's qty
+   *     RMW1 temps  = 117/118 (merged) and 115
+   *   THE HANDOUT, exactly (qty [window]=priority -> reg, in ALLOCATION order):
+   *     qty 26 [124,128)=20000 -> v0 . qty 16 [42,48)=13333 -> v0 .
+   *     qty 15 [40,50)=12000 -> v1 . qty 17 (RMW2) [52,62)=12000 -> v0 . ...
+   *     qty 13 (tint) [32,36)=5000 -> v0   (allocated TWELFTH)
+   *   RMW2 is allocated FOURTH; at that moment nothing holds $v0 over
+   *   [52,62), so find_free_reg's ascending scan takes $v0.  RETAIL's $v0 is
+   *   held there by the TINT, whose window in the retail stream spans
+   *   [lui@31 .. sw@39] and therefore OVERLAPS RMW2 [33..37].  Ours has the
+   *   tint window 4 units wide and 20 units EARLIER.  => the required delta is
+   *   NOT a ref/priority step at all: it is the tint's live range crossing
+   *   RMW2's, which only the tint-late statement order produces -- and that is
+   *   the 112 basin.  The clobber device cannot substitute: it denies a
+   *   register only to quantities live AT the asm insn, and no C statement
+   *   boundary exists inside RMW2.  MEASURED (base 20, all reverted):
+   *     clobber-only fence "$2" / "$3" / "$2,$3" at four positions around the
+   *     cluster -- the clobber CHOICE is exactly inert at every position and
+   *     the barrier itself costs 3 insns: 135 @79 (before dv / before tint),
+   *     91 @79 (after tint), 73 @79 (after the RMW comma).
+   *   !! CORRECTION TO A STANDING "NEUTRAL" VERDICT (W53-A4 round 8): the
+   *   font_tint STORAGE SHAPE is NOT inert -- it had only ever been judged on
+   *   the gate.  An unsized (or sized) asm-label VIEW
+   *       extern u_long font_tint_v[] __asm__("font_tint");  ... font_tint_v[0]
+   *   DOES change the emission: cc1 goes from the one-insn assembler macro
+   *   `lw $2,font_tint` to the real SPLIT `lui $2,%hi(font_tint);
+   *   lw $2,%lo(font_tint)($2)` -- which is what retail must have had, because
+   *   retail's two halves are SEPARATED by three insns (31 and 34) and no
+   *   maspsx/ASPSX macro expansion can produce a split pair.  MECHANISM (read,
+   *   not guessed): mips.c:893 `mips_check_split` splits a SYMBOL_REF only
+   *   when `! SYMBOL_REF_FLAG`, and SYMBOL_REF_FLAG marks small data -- a
+   *   4-byte `extern u_long font_tint;` is small-data-eligible at -G4, so the
+   *   SCALAR DECLARATION BLOCKS THE SPLIT BY CONSTRUCTION.  The gate is
+   *   unchanged at 20 (the two halves still schedule adjacently), so the view
+   *   is not landed, but the axis is OPEN rather than closed: it is the only
+   *   shape in which the tint pair can be pulled apart the way retail's is,
+   *   and its qty picture differs (the pair is TWO qtys, [28,34) and [34,38),
+   *   not one).
+   *   TINT-LATE FAMILY RE-PRICED FROM THE VIEW BASIN (04Z): after RMW 110,
+   *   after len/code 112, after clut 112; a named carrier with the load early
+   *   and the store late 138 @84 (view) / 112 @82 (macro).
+   *   NEW NAMED ROUTE, with a first measurement: the 112 tint-late basin is
+   *   the STRUCTURALLY-TRUE one (this receipt has said so since W71-A18) and
+   *   its whole-body rotation IS clobber-steerable -- `__asm__("" : : "i"(0) :
+   *   "$8")` placed after the clut store takes it 112 -> 72 COUNT-EXACT in ONE
+   *   edit (it denies $t0 to `prim`, which retail homes in $t1).  Sweep from
+   *   there: {$8,$9}@clut 112, {$8,$2}@clut 72, {$8,$3}@clut 84, {$8}@dv
+   *   113 @79, {$8}@RMW 109 @79.  72 still loses to this body's 20, so nothing
+   *   is landed -- but the tint-late basin is no longer "a rotation with no
+   *   dial": it has one, and unwinding the remaining renames (dv t0, pal t2,
+   *   masks t3/t5) one clobber at a time is the concrete next pass.
+   *   Harness: scratchpad W72_A8_font.py + W72_A8_trace.py (the instrumented-cc1
+   *   qty/find_free_reg reader, with a lab-fidelity check built in). */
   POLY_FT4      *prim;
   PSXFront_PTag *pal;
   int            width;

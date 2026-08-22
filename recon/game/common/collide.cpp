@@ -1044,79 +1044,45 @@ vhalf:   /* VERTEX!=0 : o0 orientMat, if(0<xRange) negation */
                normaly.z / 256 * (vel.z / 256);
         dotz = normalz.x / 256 * (vel.x / 256) + normalz.y / 256 * (vel.y / 256) +
                normalz.z / 256 * (vel.z / 256);
-        __asm__("");
-        /* NEAR-MISS 14 (ours 763 / oracle 765) -- BOTH sites of this block carry the
-           SAME 7-insn residual (this one and the `zRange < 0` twin below), so a fix
-           here doubles.  Retail DEFERS dotz's `mflo $t3; addu $v1,$a0,$t3` past the
-           whole abs(dotx)/abs(doty) chain AND past the `slt $v0,$a1,$a3`
-           (= `doty < dotx`), then pays a `nop`:
-              retail  ... mult ; bgez a3 ; negu a3 ; bgez a1 ; negu a1 ;
-                          slt v0,a1,a3 ; mflo t3 ; addu v1,a0,t3 ; bgez v1 ; nop
-              ours    ... mult ; mflo t3 ; addu v1,a0,t3 ; bgez a3 ; negu a3 ;
-                          bgez a1 ; negu a1 ; slt v0,a1,a3
-           i.e. retail's mflo lands in a LATER BASIC BLOCK (after two conditional
-           branches), which gcc-2.8's per-BB sched2 can never do by scheduling --
-           it has to be the RTL emission order.  Ours completes dotz in the mult's
-           own block.
-           FALSIFIED (W61-A13, 2026-08-15, real gate runs on site 1):
-             delete this fence ................................. 15 @762
-             move this fence between doty and dotz ............. 23 @764
-           So the fence is NOT what pins the mflo (it is load-bearing for something
-           else: removing it LOSES an instruction).
-           NEXT ANGLE: the deferral is an emission-order fact -- read the -dl/-dg
-           RTL for this region and find what keeps our (set t3 (lo)) adjacent to the
-           mult; candidates are an opacity fence on `dotz` placed AFTER the abs
-           chain, or a source order in which the dotz SUM (not its terms) is written
-           after the dotx/doty abs statements.
-
-           W64-A15 2026-08-15 -- THE COUNT-EXACT BASIN IS FOUND (not landed).
-           Hoisting BOTH abs blocks above the dotz assignment --
-               dotx = ...; doty = ...;
-               if (dotx < 0) dotx = -dotx;
-               if (doty < 0) doty = -doty;
-               dotz = ...;                 <- the fence stays with dotz
-               if (dotz < 0) dotz = -dotz;
-           -- gates 44 diffs at **765/765, COUNT-EXACT** (applied at BOTH sites).
-           That is the first form to reach retail's length: it restores both missing
-           `nop`s, i.e. the "2 short" half of the residual is a pure STATEMENT-ORDER
-           fact, not a delay-slot/fence question.  Reverted under the honest-count
-           rule (44 > 14) but this is the right basin: what is left is dotz's MULT,
-           which retail issues BEFORE the abs blocks while its `mflo`+`addu` land
-           after them.  MECHANISM (mips.md `mulsi3_internal` has dest constraint
-           "=l"): the product pseudo LIVES IN LO across the abs blocks and the
-           `mflo` is reload's move emitted at the USE, so retail's shape needs the
-           product's single use to sit after the abs blocks while the multiply
-           itself sits before -- exactly one pseudo held in LO across two branches.
-           ALSO FALSIFIED this wave (both sites, real gate runs):
-             dotz = z-product only, x/y tail after the abs blocks .... 526 @755
-             dotz = x/y partial, z-product after the abs blocks ....... 86 @767
-             block-scoped `zprod`/`zpart` pair + sum after the abs .... 108 @753
-             same without the fence .................................. 106 @751
-           NEXT: from the absfirst basin, price the 44 with posdiff/alpha and hunt
-           the one edit that keeps the z multiply in the pre-abs block (a named
-           product local whose ONLY use is after the abs blocks, without adding a
-           block scope -- the block scopes above cost 10-14 insns of frame).
-           NOT a floor.
-           W71-A20 -- two data points, no landing.  (1) The absfirst basin is
-           CONFIRMED and is PER-SITE additive: applying it to the `zRange < 0` TWIN
-           ONLY gates 29 @764 (exactly ONE of the two missing `nop`s restored, +15
-           diffs), which reproduces and explains the w64-a15 "both sites = 44 @765".
-           (2) The 'm'-CONSTRAINT FENCE (catalog 16B) -- the device that took
-           Newton_TestForUndrivableSurfaces 70 -> 36 this wave -- is CATASTROPHIC on
-           this fn's module globals: `__asm__("" : : "m"(findClosestSideDave) xN)`
-           or `"m"(pNormal)` placed before `obj0 = o0;` gates 255 @764 at every
-           count n=1..4 (it ADDS an instruction and re-colors the whole body).  The
-           w56/w13 receipt above is right that this fn's globals are already at
-           their retail seats (o0/o1/normal = s1/s2/s0); do not dial them. */
-        if (dotx < 0) {
-          dotx = -dotx;
-        }
-        if (doty < 0) {
-          doty = -doty;
-        }
-        if (dotz < 0) {
-          dotz = -dotz;
-        }
+        /* SEALED W72-A10 (2026-08-22): 14 diffs @763/765 -> PASS 765/765.  TWO edits,
+           both applied at BOTH sites (this one and the `zRange < 0` twin below):
+             (1) `x = __builtin_abs(x)` for the dotx/doty/dotz triple instead of
+                 `if (x < 0) x = -x;`   ** THE LAW **
+             (2) delete the bare `__asm__("")` that used to sit after the dotz
+                 statement.
+           WHY (mips.md `abssi2`, gcc-2.8.1 config/mips/mips.md:1800-1822): abssi2 is a
+           SINGLE define_insn whose template emits the whole `bgez %1,1f%#\n\tsubu
+           %0,$0,%0\n1:` sequence (dst==src arm; `%#` = the delay-slot nop, and the
+           pattern bumps dslots_jump_total/filled itself, length 3).  So the retail abs
+           chain is NOT three basic blocks -- it is three ordinary insns.  The whole
+           region `mult / abs / abs / slt / mflo / addu / abs` therefore lives in ONE
+           basic block, and gcc's per-BB scheduler is free to sink dotz's `mflo`+`addu`
+           past the two abs insns and hoist the `slt $v0,$a1,$a3` above them -- exactly
+           retail's order -- and the two "missing" nops are the abssi2 templates' own
+           `%#`, not reorg slots.  Written as `if (x<0) x=-x;` the abs is a real branch
+           + BB, sched2 cannot cross it, the mflo stays welded to its mult, and reorg
+           then steals the `slt` into the abs(dotz) branch's slot (= the old 2-insn
+           deficit + the 14-diff residual).  The bare `__asm__("")` was a volatile
+           scheduling BARRIER pinning `mflo` next to `mult`; with the abs insns in place
+           it was the last thing blocking the sink.  (SLD confirms retail's statement
+           order is ours: 863 = dotz, 864/865/866 = the three abs, 868 = the compare;
+           insns 366-368 carry lines 868/863/863 out of order = pure scheduling.)
+           MEASURED ON THE WAY (real gate runs, both sites unless noted):
+             baseline (if-form abs + bare fence) ................ 14 @763/765
+             + head-of-thread void fence `("" : : "i"(0))` before
+               the `doty<dotx` compare ......................... 20 @765/765
+               (zero-insn, restores BOTH nops by blocking reorg's
+                eager steal -- proves the deficit was slot theft)
+             + zprod split (3rd term in its own local) ......... 220 @765/765
+             + third term recomputed after the abs blocks ....... 88 @769/765
+             __builtin_abs, bare fence KEPT .................... 20 @765/765
+             __builtin_abs, bare fence REMOVED ................. PASS 765/765
+           W64-A15's "absfirst" basin (44 @765) was the same insight seen from the
+           wrong side: hoisting the abs STATEMENTS restored the length by accident;
+           making the abs an INSN restores it by construction. */
+        dotx = __builtin_abs(dotx);
+        doty = __builtin_abs(doty);
+        dotz = __builtin_abs(dotz);
         if (doty < dotx && dotz < dotx) {
           goto useNormalX;
         }
@@ -1232,16 +1198,9 @@ ohalf:   /* OTHER!=0 : o1 orientMat, if(xRange<0) negation */
                normaly.z / 256 * (vel.z / 256);
         dotz = normalz.x / 256 * (vel.x / 256) + normalz.y / 256 * (vel.y / 256) +
                normalz.z / 256 * (vel.z / 256);
-        __asm__("");
-        if (dotx < 0) {
-          dotx = -dotx;
-        }
-        if (doty < 0) {
-          doty = -doty;
-        }
-        if (dotz < 0) {
-          dotz = -dotz;
-        }
+        dotx = __builtin_abs(dotx);
+        doty = __builtin_abs(doty);
+        dotz = __builtin_abs(dotz);
         if (doty < dotx && dotz < dotx) {
 useNormalX:
           *normal = normalx;
@@ -1501,7 +1460,54 @@ int Collide_TestObjectVertices(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef *p,c
                is exactly the device that sealed Physics_Real this wave.  The z
                re-load needs a live pseudo across the bgez, i.e. the SAME launder in
                its output-bearing (non-volatile) form so the value survives the BB
-               boundary.  NOT a floor. */
+               boundary.  NOT a floor.
+
+               W72-A10 (2026-08-22) -- THE MECHANISM IS NAMED AND THE Z HALF LANDS.
+               gcc-2.8.1 `local-alloc.c` combine_regs (:1866 header comment, verbatim):
+               "If UREG is a pseudo-register that hasn't already been assigned a
+                quantity number, it means that it is NOT LOCAL TO THIS BLOCK or dies
+                more than once.  In either event, we can't do anything with it."
+               => a reg-reg copy whose SOURCE pseudo crosses a basic-block boundary is
+               NOT coalescible, so it SURVIVES.  Retail's two copies (`addu $v0,$a0`
+               and `addu $v1,$a2`) are exactly that: two carriers loaded at SLD line
+               1149 and copied into their consumers at 1151, uncoalescible because they
+               cross the /256 branches.  Our carriers die inside one block => the copies
+               fold => the chronic "2 SHORT" (1162).
+               BEST BASIN FOUND (not landed, honest-count 8 stands):
+                 K1  int rpx = relativePosition.x, rpz = relativePosition.z;
+                     maxrp = rpx;  maxrp /= 256;
+                     maxrv = rpz;                      <- DEAD maxrv as the z carrier
+                     maxrp = maxrp*maxrp + (maxrv/256)*(maxrv/256);
+                 => 9 diffs @1163.  The Z COPY MINTS (`addu $v1,$a0,$zero`, retail
+                 `addu $v1,$a2,$zero`) and the whole z divide matches, because `maxrv`
+                 is a GLOBAL allocno (live since SLD 1145) whose assignment sits in a
+                 different block from rpz's load.  SYM agrees: maxrv = REG $3 = $v1 IS
+                 retail's z-copy destination.  The single remaining insn is the X copy
+                 `addu $v0,$a0,$zero`: `maxrp = rpx` has def and use in the SAME block,
+                 so combine_regs ties them and the load lands straight in $v0.
+               PROOF OF THE MECHANISM (probe, not a candidate): hoisting the rpx/rpz
+               declaration ABOVE `if (0x0E100000 < maxrv)` makes both carriers cross the
+               guard branch -- BOTH copies mint (`addu $v0,$v1,$zero` appears) -- but the
+               loads then emit before the beqz: 15 @1163.
+               MEASURED THIS WAVE (all real gate runs, all at both-copy granularity):
+                 S1 two block-local temps + maxrp=rpx ........... 14 @1162
+                 S2 temps assigned on one line .................. 14 @1162
+                 S3 temps + plain symmetric expression .......... 22 @1162
+                 S4 temps + anonymous re-reads of BOTH .......... 15 @1163 (temps DCE'd)
+                 E1 identity launder on rpx ..................... 15 @1163
+                 E4 read-only fences on BOTH after the statement . 15 @1163
+                    (x copy MINTS; load seats swap a2/a0; z copy lost)
+                 G1-G3 `*(volatile int*)&relativePosition.[xz]` .. 14 @1162
+                    => the fold is NOT combine merging the load into the copy
+                 F1-F6 launder-mid / split sum / z-divide-in-place  14-50
+                 H1-H6 decl order, separate decl lines, 3rd temp,
+                       read-only fence placements ............... 14-45
+                 K3 maxrv assigned before maxrp ................. 14 @1162
+                 K5/K6 separate z temp divided in place ......... 44-45
+                 L1-L6 x-side devices on top of K1 .............. 9-11
+               ROUTE (sharp): a shape in which the X carrier's single use lies in a
+               DIFFERENT basic block from its load, without moving the loads out of the
+               `if`.  No asm device can do it -- an asm does not split a basic block. */
             maxrp = relativePosition.x;
             maxrp /= 256;
             asm volatile("" : : "r"(relativePosition.x));

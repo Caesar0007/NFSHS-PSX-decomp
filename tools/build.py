@@ -963,6 +963,25 @@ def _apply_epilogue_unfill_alt28(rel_posix, txt):
 # _apply_fn_splice provides for the maspsx lane, which _compile_c_272 never
 # calls).  {rel: {extra_cc1_flag: {fns}}}.  Splice runs BEFORE the alt28
 # unfill (the spliced region still carries the 2.8 j-$31 block).
+# W73 (orchestrator, user-ordered vendor-provenance experiment): PER-FN RAW-4.0
+# SPLICE -- the VENDOR-BUILD-IDENTITY cure for the AT-MACRO-SPLIT-ACROSS-BRANCH
+# class.  PROVENANCE (receipt in PADSEQD.c): the shipped PsyQ 4.3 lib member
+# _padInitDirSeq carries `lui $at / jr $ra / sw %lo($at)` (macro split across
+# the return), but NEITHER ASPSX 2.77 (4.3 CD) NOR ASPSX 2.56 (PsyQ 4.0) emits
+# that split from any on-hand cc1 output (both drivers pass only `-q`; verified
+# via CCPSX -v on both SDKs) -- Sony's internal lib build used an earlier
+# assembler rung.  GNU as in .set-reorder mode STILL HAS the behavior, and
+# PsyQ 4.0's CC1PSX emits the required UNSPLIT `la`/`sw` macro form (2.6.x-era
+# codegen; 2.8.0 pre-splits addresses).  So: compile the named fns with the
+# PsyQ 4.0 cc1, splice their raw macro-form regions into the POST-maspsx text
+# (maspsx would pre-expand the macros and nop the slot -- that IS the 3-diff),
+# and let the lane's own GNU as do the split natively.  Byte-proof:
+# scratchpad/W73_pq40.s + GNU-as objdump == retail w10..w12 exactly.
+CC1_PSYQ40 = Path(r"C:/Temp/nfs3-clean/psyq400/COMPILER/CC1PSX.EXE")
+PER_FN_RAW40_SPLICE = {
+    "recon/syslib/psx/libpad/PADSEQD.c": {"_padInitDirSeq"},
+}
+
 PER_FN_FLAG_SPLICE_272 = {
     # W72-A17 (probe-verified whole-TU via the W61_TABLE hook, 18/19 identical,
     # zero PASS->FAIL; fn 10 -> 2 @157/157): the mips_check_split SMALL-DATA
@@ -2615,20 +2634,77 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
     _apply_text_moves(rel.as_posix(), s_file)
     _apply_branch_retarget(rel.as_posix(), s_file)
 
-    # maspsx reads cc1 .s on stdin; remaining args pass through to GNU as.
-    maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
-                  "--run-assembler", f"--gnu-as-path={AS}",
-                  *AS_ARCH, f"-G{tu_g_value}", "-I", ROOT / "include",
-                  "-I", ROOT, "-o", obj]
-    if JTBL_AT_FUSION or tu_flags.get("jtbl_at_fusion"):
-        maspsx_cmd.append("--jtbl-at-fusion")
-    if tu_flags.get("nop_before_label"):
-        maspsx_cmd.append("--nop-before-label")
-    r = subprocess.run([str(c) for c in maspsx_cmd],
-                       input=s_file.read_text(), capture_output=True, text=True,
-                       cwd=ROOT)
-    if r.returncode or not obj.exists():
-        sys.exit(f"[maspsx/as] {rel}\n{r.stdout}{r.stderr}")
+    raw40 = PER_FN_RAW40_SPLICE.get(rel.as_posix())
+    if raw40 and CC1_PSYQ40.exists():
+        # W73 raw-4.0 splice: capture maspsx's TEXT (no --run-assembler),
+        # substitute each named fn's region with the PsyQ 4.0 cc1's raw
+        # macro-form region, then assemble with the lane's own GNU as --
+        # whose .set-reorder pass splits the trailing sw macro across the
+        # jr exactly like Sony's internal assembler did (provenance above).
+        cap_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}",
+                   "--expand-div", "--print-output"]
+        if JTBL_AT_FUSION or tu_flags.get("jtbl_at_fusion"):
+            cap_cmd.append("--jtbl-at-fusion")
+        if tu_flags.get("nop_before_label"):
+            cap_cmd.append("--nop-before-label")
+        r = subprocess.run([str(c) for c in cap_cmd],
+                           input=s_file.read_text(), capture_output=True,
+                           text=True, cwd=ROOT)
+        if r.returncode:
+            sys.exit(f"[maspsx-capture] {rel}\n{r.stderr}")
+        post = r.stdout
+        alt_s = obj.with_suffix(".raw40.s")
+        # the 1996-era cc1 builds its scratch path from TMPDIR and writes
+        # cta<pid> files there; a POSIX-style or empty TMPDIR makes it try
+        # "\/cta..." at the drive root (the stray cta* litter class).
+        _env40 = dict(os.environ)
+        _tmp40 = os.environ.get("TEMP") or r"C:\Temp"
+        _env40.update(TMPDIR=_tmp40, TMP=_tmp40, TEMP=_tmp40)
+        r2 = subprocess.run([str(CC1_PSYQ40), *[str(f) for f in cc1_flags],
+                             str(i_file), "-o", str(alt_s)],
+                            capture_output=True, text=True, env=_env40)
+        if r2.returncode:
+            sys.exit(f"[cc1-psyq40] {rel}\n{r2.stdout}{r2.stderr}")
+        alt_text = alt_s.read_text(errors="replace")
+        for name in sorted(raw40):
+            fr = _extract_fn_region(alt_text, name)
+            # maspsx's --print-output strips the leading tab from .ent/.end;
+            # extract the post-maspsx region with a whitespace-tolerant pair.
+            pm = re.search(r"^[ \t]*\.ent[ \t]+%s\b[^\n]*\n" % re.escape(name),
+                           post, re.M)
+            if not pm:
+                sys.exit(f"[raw40] post-maspsx .ent {name} not found in {rel}")
+            pm2 = re.search(r"^[ \t]*\.end[ \t]+%s[ \t]*$" % re.escape(name),
+                            post[pm.end():], re.M)
+            pend = pm.end() + (pm2.end() if pm2 else 0)
+            tr = post[pm.start():pend]
+            _SPLICE_COUNTER[0] += 1
+            fr = _uniquify_local_labels(fr, f"raw40{_SPLICE_COUNTER[0]}")
+            post = post.replace(tr, fr, 1)
+        merged = obj.with_suffix(".raw40merged.s")
+        merged.write_text(post)
+        # maspsx --run-assembler force-feeds GNU as -G0 (its default; the
+        # --dont-force-G0 flag exists to disable) -- mirror that here, else
+        # the spliced sw macros go gp-relative and diverge.
+        r3 = run([AS, *AS_ARCH, "-G0", "-I", ROOT / "include",
+                  "-I", ROOT, "-o", obj, merged])
+        if r3.returncode or not obj.exists():
+            sys.exit(f"[as-raw40] {rel}\n{r3.stdout}{r3.stderr}")
+    else:
+        # maspsx reads cc1 .s on stdin; remaining args pass through to GNU as.
+        maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
+                      "--run-assembler", f"--gnu-as-path={AS}",
+                      *AS_ARCH, f"-G{tu_g_value}", "-I", ROOT / "include",
+                      "-I", ROOT, "-o", obj]
+        if JTBL_AT_FUSION or tu_flags.get("jtbl_at_fusion"):
+            maspsx_cmd.append("--jtbl-at-fusion")
+        if tu_flags.get("nop_before_label"):
+            maspsx_cmd.append("--nop-before-label")
+        r = subprocess.run([str(c) for c in maspsx_cmd],
+                           input=s_file.read_text(), capture_output=True, text=True,
+                           cwd=ROOT)
+        if r.returncode or not obj.exists():
+            sys.exit(f"[maspsx/as] {rel}\n{r.stdout}{r.stderr}")
     # hand-asm blocks lack .size/.type => objdiff sees 0-length fns (0% on
     # decomp.dev despite PASS). Symtab-metadata-only, code bytes untouched.
     import fix_symsizes; fix_symsizes.fix(str(obj))

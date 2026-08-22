@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3490 functions, 3423 at 100% (98.1%)
+TOTAL: 3490 functions, 3424 at 100% (98.1%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -3420,7 +3420,7 @@ VA             %match  unit                     function
 0x8010A080    100.00%  syslib/psx/libapi/A65    format
 0x8010A090    100.00%  syslib/psx/libcard/A80   _new_card
 0x8010A0A0    100.00%  syslib/psx/libcard/A78   _card_write
-0x8010A0B0     87.69%  syslib/psx/libpad/PADSEQD _padInitDirSeq
+0x8010A0B0    100.00%  syslib/psx/libpad/PADSEQD _padInitDirSeq
 0x8010A0E4    100.00%  syslib/psx/libpad/PADSEQD _dirSendAuto
 0x8010A1E4    100.00%  syslib/psx/libpad/PADSEQD _dirRecvAuto
 0x8010A434    100.00%  syslib/psx/libpad/PADSEQD _dirFailAuto

@@ -73,6 +73,36 @@ extern int      _dirCheck(unsigned char *info);
  *      gate scores 2/13.  Do NOT wire this row; it is a textbook case of the gate being
  *      blind in both directions (w46 hazard).  The POST-maspsx rule spec'd above stays the
  *      only route, and it stays orchestrator-owned.
+ * W73 orchestrator 2026-08-22 -- VENDOR-BUILD IDENTITY PROVEN (user-ordered experiment):
+ *  (1) the REAL PsyQ 4.3 toolchain (psq43 CC1PSX -O2, and again with -fno-delayed-branch,
+ *      -> ASPSX.EXE 2.77 with the vendor driver's exact `-q` invocation, verified via
+ *      `CCPSX -v`) produces 13 words with `lui $at / sw / jr` -- ASPSX 2.77 does NOT
+ *      split the store macro into the jr slot under ANY flag the driver passes
+ *      (scratchpad/W73_pq_flags.py: REAL=1, words 11/12 = the sw/jr order swap).
+ *  (2) the SHIPPED PsyQ 4.3 lib member ITSELF (psyq43/extracted/LIBPAD/functions/
+ *      _padInitDirSeq.bin w10..w12 = 3c010000/03e00008/ac220000) carries retail's
+ *      lui/jr/sw-in-slot shape -- i.e. Sony's own shipped library CANNOT be rebuilt by
+ *      the toolchain on the same CD.  The split came from Sony's internal lib build
+ *      (an earlier ASPSX rung; note the 272-lane GNU-as in .set-reorder DOES split it,
+ *      w51-a5 -- the behavior existed and 2.77 lost it).  => the residual is a
+ *      VENDOR-BUILD IDENTITY (same family as sec.3.25-3b / the DMPSX templates), and
+ *      PER_FN_POST_MASPSX_MOVES reproduces a vendor artifact no on-hand assembler
+ *      emits -- not an emulation of ASPSX 2.77.
+ *  (3) 🏆 SEALED same session -- PASS 13/13, TU 5/5 COMPLETE (gated 2x + full build).
+ *      The landed mechanism is BETTER than the POST-maspsx move spec: PsyQ 4.0's
+ *      CC1PSX emits the required UNSPLIT `la`/`sw` macro form (2.6.x codegen), and
+ *      GNU as in .set-reorder mode still splits the trailing sw macro across the
+ *      jr natively (byte-proof scratchpad/W73_pq40.s -> objdump == retail w10..12).
+ *      Wired as build.py PER_FN_RAW40_SPLICE: compile THIS fn with CC1_PSYQ40,
+ *      splice its raw region into the post-maspsx text (whitespace-tolerant
+ *      .ent/.end pair -- maspsx strips the leading tab), assemble with the lane's
+ *      own GNU as at -G0 (maspsx's forced default; -G4 sends the sw macros
+ *      gp-relative).  Gotcha: the 1996 cc1 needs a Windows-style TMPDIR or it
+ *      writes cta<pid> at the drive root (the repo's stray cta* litter class).
+ *      SCOPE: valid only where the fn's whole 4.0-codegen region matches retail
+ *      (trivial fns; w51-a5 proved this one) -- do NOT extend to 2.8-shaped fns
+ *      needing only the macro-split (MemCardCreateFile's li $a1,1 row stays in
+ *      the w48 class-5 maspsx-as-reorder-option family).
  * A14/w71 2026-08-21 -- RE-ATTACKED FROM SOURCE per the no-floors rule; the identity attribution
  *   STANDS, and here is the move-pair evidence the directive asks for, read off the artifacts
  *   rather than reasoned:

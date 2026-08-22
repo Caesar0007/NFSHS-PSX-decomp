@@ -2,7 +2,7 @@
  *   6 fns: Audio_InitDriver/DeInitDriver/CleanUp/FECleanUp, AudioCmn_AddBank/LoadBank.
  *   GTE-free. Full SYM-locals applied.
  */
-#include "../../nfs4_types.h"
+#include "audio_types.h"
 #include "audio_externs.h"
 
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
@@ -29,8 +29,8 @@ void Audio_InitDriver(int buffersize,int spusize)
 
   i = 0;
   do {
-    gSndBnk[i].bnkID = i;
-    gSndBnk[i].pdata = (char *)0x0;
+    Audio_gSndBnkWords[i][0] = i;
+    Audio_gSndBnkWords[i][2] = 0;
     i = i + 1;
   } while (i < 7);
   if ((AudioCmn_kAudioOn != 0) || (AudioCmn_kAudioStreamingOn != 0)) {
@@ -70,9 +70,9 @@ void Audio_CleanUp(void)
 
   i = 0;
   do {
-    if (gSndBnk[i].pdata != (char *)0x0) {
-      purgememadr(gSndBnk[i].pdata);
-      gSndBnk[i].pdata = (char *)0x0;
+    if (Audio_gSndBnkWords[i][2] != 0) {
+      purgememadr((char *)Audio_gSndBnkWords[i][2]);
+      Audio_gSndBnkWords[i][2] = 0;
     }
     i = i + 1;
   } while (i < 7);
@@ -84,9 +84,9 @@ void Audio_FECleanUp(void)
 
 {
   SNDbankremove(-1);
-  if (gSndBnk[0].pdata != (char *)0x0) {
-    purgememadr(gSndBnk[0].pdata);
-    gSndBnk[0].pdata = (char *)0x0;
+  if (Audio_gSndBnkWords[0][2] != 0) {
+    purgememadr((char *)Audio_gSndBnkWords[0][2]);
+    Audio_gSndBnkWords[0][2] = 0;
   }
   return;
 }
@@ -126,8 +126,8 @@ int AudioCmn_AddBank(char *filename,int size,char *pdata,int BankNum)
     AudioClc_SndError(check);
   }
   purgememadr(pdata);
-  gSndBnk[BankNum].pdata = p;
-  gSndBnk[BankNum].bnkID = bhandle;
+  Audio_gSndBnkWords[BankNum][2] = (int)p;
+  Audio_gSndBnkWords[BankNum][0] = bhandle;
   return size;
 }
 

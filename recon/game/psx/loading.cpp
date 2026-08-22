@@ -3,7 +3,7 @@
  *   Loading_UpdateLoadingScreen (per-checkpoint progress-bar tiles), Loading_GetInitialMemory
  *   (record largest free block). No GTE.
  */
-#include "../../nfs4_types.h"
+#include "loading_types.h"
 #include "loading_externs.h"
 
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
@@ -33,8 +33,8 @@ void Loading_DrawLoadingScreen(void)
   int language;
   char name [255];
 
-  language = GameSetup_gData.userSetting.language;
-  sprintf(name,"%sLoad%d%c.qps",Paths_Paths[0x19],GameSetup_gData.track,GameSetup_gData.mirrorTrack + 0x61);
+  language = Loading_GameSetupWords[56];
+  sprintf(name,"%sLoad%d%c.qps",Paths_Paths[0x19],Loading_GameSetupWords[15],Loading_GameSetupWords[11] + 0x61);
   f = (char *)loadshapeadr(name,(void *)0x0);
   sprintf(name,"%sLoada.psh",Paths_Paths[0x19]);
   g = (char *)loadshapeadr(name,(void *)0x0);

@@ -2661,16 +2661,50 @@ void Hud_BuildNumbers0(int player)
  *     A fresh -dg/-dl dump of that shape confirms w1's allocno is gone from the s-band
  *     entirely -- i.e. the live dial IS reachable, but alone it lands a DIFFERENT handout
  *     (and renumbers every pseudo, so the w72 receipt's numbers must be re-read after it).
- * (B) DIAL-SPACE CERTIFICATE (tools/allocsim.py, MATCH 49/49 order-IDENTICAL on this dump;
- *   scratchpad/W74_A2_3dial.py): enumerating ONLY the directions a zero-insn device can buy
- *   -- refs +1/+2 (read-only fence / launder) and live +2..+40 (a later use) -- over the seven
+ * (B) 🔴🔴 DIAL-SPACE SEARCH -- AND A CORRECTION THAT KILLS THE w72 "NO SOLUTION WITHOUT
+ *   SHORTENING w1" VERDICT.  ⚠️ PROCESS TRAP FIRST (it invalidated an intermediate result of
+ *   this very wave): `tools/rtl_dump.py` writes a FIXED path (scratch/rtl/<tu>.i.{greg,lreg}),
+ *   so ANY probe that dumps while a variant is applied silently REPLACES the baseline dump --
+ *   and allocsim/reqdelta then answer confidently about a DIFFERENT program.  COPY the dump to
+ *   a protected name and re-verify its pseudo signature before trusting a number.  The
+ *   protected baseline for this fn is scratchpad/W74_A2_base.{greg,lreg}; its signature is the
+ *   w72 one: p624 6/60, p625 4/16, p621 7/51, p620 8/85, p82 35/670, p643 6/56, p627 2/16.
+ *   Searches RE-RUN on that protected dump (scratchpad/W74_A2_recheck.py), over the seven
  *   pseudos {620 hun, 621 ten, 624 w1, 625 w2, 82 pSprt, 643 speed, 627 w7}:
- *     2-dial (two different pseudos): 11109 combinations, ZERO reach the retail handout;
- *     3-dial (three different pseudos, refs +1/+2 x live +2..+38 step 4): 34560
- *     combinations, ZERO hits (a coarser 6860-combination grid likewise 0).
- *   => no pair of zero-insn LENGTHENING/REF devices can do it; the solution space genuinely
- *   requires the w1 SHORTENING (60 -> 43) that only a source restructure can buy, and that
- *   restructure has to keep w2 at live 29..30 and ten at >= 53 at the same time.
+ *     PURE 2-dial (refs +1/+2/+3 x live +2..+40): 11109 combos, ZERO hits  [holds];
+ *     PURE 3-dial (refs +1/+2 x live +2..+38 step 4): 60480 combos, 🔴 NINE HITS -- an
+ *       earlier run of this same grid printed "34560 combos / 0 hits" and was the STALE-DUMP
+ *       artifact; the hit family is  w1 refs+2 . w2 live+14 . ten live+6..+38;
+ *     a finer grid (live step 2, 9 pseudos) gives 21 hits, and a focused window scan gives
+ *       216 hit cells whose shape is exactly:  w1 refs +2/+3 (live may drift +0..+8) .
+ *       w2 refs+0 -> live +14 | refs+1 -> live +20/+22 | refs+2 -> live +28 .
+ *       ten refs +0 ONLY (no fence, no launder), live +4..+38.
+ *     ACCURATE 2-DEVICE model (a real zero-insn device is +1/+2 refs AND +N live TOGETHER):
+ *       37044 combos, ZERO hits -- so it genuinely needs three devices.
+ *   => the retail handout IS reachable without shortening w1.  The w1 half is already LANDED
+ *   in a probe: an identity launder in the else arm (`("" : "=r"(w1) : "0"(w1))`) + hun/ten
+ *   moved above the packet block measures w1 refs 8 / live 68 -> $s3, RETAIL'S REGISTER, and
+ *   on that basin allocsim says only TWO dials remain, both pure LIVE extensions:
+ *       w2 live 16 -> 29/30 (refs unchanged 4)   and   ten live 52 -> 54..70 (refs unchanged 7)
+ *   -- verified: `--what-if 625:live=30 --what-if 621:live=56` reproduces retail EXACTLY.
+ * (B2) THE OPEN DEVICE QUESTION (this is where the fn now sits): no zero-insn source device
+ *   was found for those two live extensions, because BOTH need live WITHOUT a new reference:
+ *     - moving the `w3 = w1 - w2;` statement (5 positions: after the x block / y / the packet
+ *       block / the first Hud_BuildGT4 / the colour stores) leaves w2 at live 16 in EVERY
+ *       case -- gcc sinks the shift to its use, so source ORDER cannot anchor its birth;
+ *     - a read-only fence DOES move it, but only in coarse jumps: measured live 17 (after the
+ *       first BuildGT4 / after the colour stores), 35 (right after the packet block), 57
+ *       (before it), 62 (after the 2nd `ten==1`), 104 (block end) -- never 29/30 at refs 4 and
+ *       never 36..38 at refs 5, i.e. every position over- or under-shoots the window;
+ *     - the ten placements (hun/ten above the packet block / above the x block / above `y`)
+ *       move ten's live only 51 -> 52.
+ *   GATE REALITY CHECK (why none of this has landed yet): the model predicts the ASSIGNMENT
+ *   only.  Every combination gated WORSE than the 188 baseline -- launder alone 286, launder +
+ *   ten-up 286, + w2 fence 198/238, the full 20-cell {launder x ten-placement x w2-fence}
+ *   matrix 188..439 (@758-759) -- because the same devices also perturb the SCHEDULE.  So the
+ *   next step is not another dial: it is a w2/ten live extension that adds NO reference and NO
+ *   scheduling barrier (a birth/last-use RELOCATION), which is a structural question about
+ *   where gcc sinks the `w2` shift, not an allocator one.
  * (C) FENCE/CLOBBER PROBES IN THIS BASIN (all worse): read-only fence on w2 after the else
  *   chain 188 (inert), after the `ten==1 x-w3` 236, at block end 276; on ten at block end 256;
  *   both 268; w2 fence + ten fence split 228.  20B conflict devices: w2 ro-fence + "$16"(s0)

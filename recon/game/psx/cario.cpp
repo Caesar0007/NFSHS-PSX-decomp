@@ -2,7 +2,7 @@
  *   11 fns: StartUp/CleanUp/ReStart, Copy[From/To]Shape, CreateLicense/CleanUpLicense/LicenseCheck,
  *   ReadIn/UpdateCarTextureData, ReleaseCarCluts. GTE-free. Full SYM-locals applied.
  */
-#include "../../nfs4_types.h"
+#include "cario_types.h"
 #include "cario_externs.h"
 
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
@@ -790,7 +790,7 @@ void CarIO_CreateLicense(char *text,int carType,int player)
         start = start + 6;
       }
     }
-    if ((R3DCar_InMenu == 0) && (GameSetup_gData.mirrorTrack != 0)) {
+    if ((R3DCar_InMenu == 0) && (CarIO_GameSetupWords[11] != 0)) {
       CarIO_CopyToShape(thePlate + 6,(short *)&CarIO_Plate1[player]->data,1);
       CarIO_CopyToShape(thePlate,(short *)&CarIO_Plate2[player]->data,1);
     }
@@ -1208,7 +1208,7 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
      * already-stored 8, NOT a fresh `recolor_flag = 0x18` store. */
     recolor_flag = recolor_flag | 0x10;
   }
-  Texture_palCopy = (Texture_pal8bit *)(carObj->render).palCopy;
+  Texture_palCopy = (carObj->render).palCopy;
   Texture_ResetPaletteSharing();
   /* MATCH (w62-a14, 35 -> 19): the loop-tail COMMA ORDER.  Both builds emit the
    * same two spilled-giv increments (68(sp) += 1 = carPixMapCount, 88(sp) += 2);
@@ -1409,7 +1409,7 @@ void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
   if (R3DCar_InMenu == 0) {
     recolor_flag = 0x18;
   }
-  Texture_palCopy = (Texture_pal8bit *)(carObj->render).palCopy;
+  Texture_palCopy = (carObj->render).palCopy;
   Texture_ResetPaletteSharing();
   /* MATCH (w50-a6, 25 -> 7, ours 301 -> 299 vs oracle 298): the two spilled counters'
    * TAIL ORDER is set by the comma-expression order.  Retail updates carPixMapCount

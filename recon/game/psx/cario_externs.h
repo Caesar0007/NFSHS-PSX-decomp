@@ -1,4 +1,3 @@
-#include "../../lib/libfns.h"
 /* cario_externs.h -- extern decls for game/psx/cario.cpp (NFS4 PSX car texture/CLUT I/O). */
 #ifndef CARIO_EXTERNS_H
 #define CARIO_EXTERNS_H
@@ -7,8 +6,8 @@
 
 /* ---- harvested from sealed *_externs.h ---- */
 extern Draw_tPixMap *CarIO_carPixMap;
-extern GameSetup_tData   GameSetup_gData;
-extern Texture_pal8bit*Texture_palCopy;         /* 0x8013db0c */
+extern int             CarIO_GameSetupWords[] asm("GameSetup_gData");
+extern void           *Texture_palCopy;         /* 0x8013db0c */
 extern int             Texture_palNum;          /* 0x8013db10 */
 extern int R3DCar_InMenu;
   /* generic shape-data ptr (int, char, void ptr) */
@@ -43,5 +42,11 @@ extern shapetbl *CarIO_Plate2[2];
 extern char     *R3DCar_LicenseShapeFile;      /* OWNER r3dcar.cpp:44 defines a
                                                 * POINTER; the old `char []` decl made
                                                 * both locateshapez calls pass &ptr. */
+
+extern "C" void *locateshapez(...);
+extern "C" int purgememadr(...);
+extern "C" void *reservememadr(...);
+extern "C" char *strcat(...);
+extern "C" unsigned int strlen(...);
 
 #endif

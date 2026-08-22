@@ -37,7 +37,7 @@ they are not silently collapsed into a smaller denominator.
   explicit per-record semantic-review row.  Nothing is silently dropped from
   the denominator.
 - A strict compiler-emitted type-graph comparison now distinguishes retail
-  subset coverage from actual per-object source visibility.  Sixty-three owners are
+  subset coverage from actual per-object source visibility.  Sixty-four owners are
   semantically exact: `memcard.obj`, `mdec.obj`, `video.obj`, `FETexture.obj`,
   `textpix.obj`, `textpsx.obj`, `unpack.obj`, `fastrand.obj`, and
   `aiscript.obj`, `new.obj`, `paths.obj`, `textsys.obj`, `simplemem.obj`,
@@ -51,7 +51,7 @@ they are not silently collapsed into a smaller denominator.
   `audiomus.obj`, `audioeng.obj`, `audiotrk.obj`, `AIINIT.obj`, and
   `AIPHYSIC.obj`, `gmesetup.obj`, `AI.obj`, `aistate.obj`, `mpause.obj`, and
   `newton.obj`, `camera.obj`, `TrackSpec.obj`, `loading.obj`, `texture.obj`, and
-  `Draw.obj`, `Sfx.obj`, and `TrsProj.obj`.
+  `Draw.obj`, `Sfx.obj`, `TrsProj.obj`, and `CarIO.obj`.
   The remaining mapped C++
   units still expose reconstruction-only declarations through the monolithic
   `nfs4_types.h` include graph and therefore are not yet source-exact.
@@ -537,7 +537,7 @@ Current strict results:
 
 - `frontend/psx`: 4 exact (`memcard`, `mdec`, `video`, `fetexture`) and 4 DIFF
   (`drawshp`, `mmeffect`, `movie`, `psxfront`);
-- `game/psx`: 9 exact (`textpix`, `textpsx`, `unpack`, `trackspec`, `loading`, `texture`, `draw`, `sfx`, `trsproj`), 18 DIFF, and one owner
+- `game/psx`: 10 exact (`textpix`, `textpsx`, `unpack`, `trackspec`, `loading`, `texture`, `draw`, `sfx`, `trsproj`, `cario`), 17 DIFF, and one owner
   ambiguity for game `font.obj` versus the vendor `libgpu/FONT.obj`;
 - `frontend/common`: 41 mapped units remain DIFF and the now-empty artificial
   `mcrd.cpp` unit needs its objdiff ownership removed or reassigned;
@@ -596,7 +596,7 @@ prechecked loop in `Camera_OpponentLookBehind` restores the original 245-word
 shape.  `Camera_NextMode` needs one documented post-cc1 scheduling relocation;
 it moves, but does not add/remove/rewrite, the existing signed-%3 correction.
 The final graph is 92/92 named and 2/2 anonymous with no extra type/typedef, all
-38 camera functions remain PASS, and the vtable audit is clean across 913 files.
+38 camera functions remain PASS, and the vtable audit is clean across 914 files.
 
 `TrackSpec.obj` is now strict-exact through an owner-specific type header.  Its
 externally owned `GameSetup_tData` is represented by an exact-symbol word view
@@ -641,6 +641,15 @@ type surface assembled from the SYM records.  Its only
 `GameSetup_tData::commMode` access uses the exact `GameSetup_gData` symbol at
 word offset 3.  The final graph is 50/50 named and 2/2 anonymous with no extra
 typedef semantics, and all 11 TrsProj functions remain PASS.
+
+`CarIO.obj` is now strict-exact by extending the already-proven color owner
+surface with its local `CarIO_textureInfo` record.  Its sole foreign
+`GameSetup_tData::mirrorTrack` access uses the exact `GameSetup_gData` symbol at
+word offset 11, while the externally owned palette pointer is carried without
+importing `Texture_pal8bit`.  The final graph is 72/72 named and 2/2 anonymous
+with no extra typedef semantics.  Ten functions remain PASS and
+`CarIO_ReadInCarTextureData` remains unchanged at its pre-existing 19-diff,
+492-versus-491-instruction baseline.
 
 The mapped C++ units cover all retail named and anonymous type bodies, but are
 not source-exact while they expose unrelated monolithic-header declarations or
@@ -736,7 +745,8 @@ Strict evidence:
   [`texture`](scratchpad/root_sym_audit/type_graph_texture_final_20260823.tsv), and
   [`draw`](scratchpad/root_sym_audit/type_graph_draw_final_20260823.tsv), and
   [`sfx`](scratchpad/root_sym_audit/type_graph_sfx_final_20260823.tsv), and
-  [`trsproj`](scratchpad/root_sym_audit/type_graph_trsproj_final_20260823.tsv).
+  [`trsproj`](scratchpad/root_sym_audit/type_graph_trsproj_final_20260823.tsv), and
+  [`cario`](scratchpad/root_sym_audit/type_graph_cario_final_20260823.tsv).
 
 Required closure:
 

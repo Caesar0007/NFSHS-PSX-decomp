@@ -3,7 +3,7 @@
  *   to GameSetup), static read (byte-copy from a buffer cursor), Read (load TrXX.bin + parse),
  *   Load (weather/night -> spec index -> Read).
  */
-#include "../../nfs4_types.h"
+#include "trackspec_types.h"
 #include "trackspec_externs.h"
 
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
@@ -280,10 +280,10 @@ void TrackSpec_SetDefault(CTrackSpec *spec)
    * scheduled far from the load), so the locals were a reconstruction artifact whose
    * merged live range was what pushed `spec` off $a1 in the first place. */
   spec->fogstate = 0;                                       /* SLD 47 */
-  spec->weatherstate = (short)GameSetup_gData.Weather;      /* SLD 48 */
+  spec->weatherstate = (short)TrackSpec_GameSetupWords[18]; /* SLD 48 */
   spec->horizonstate = 1;                                   /* SLD 49 */
   spec->skystate = 1;                                       /* SLD 50 */
-  spec->nightstate = (short)GameSetup_gData.Time;           /* SLD 51 */
+  spec->nightstate = (short)TrackSpec_GameSetupWords[21];   /* SLD 51 */
   spec->depthcuestate = 1;                                  /* SLD 52 */
 
   (spec->fogspec).contrast = 0x10000;                       /* SLD 54 */
@@ -355,8 +355,8 @@ void TrackSpec_SetDefault(CTrackSpec *spec)
 void TrackSpec_SetUp(void)
 
 {
-  GameSetup_gData.Time = (int)TrackSpec_gSpec.nightstate;
-  GameSetup_gData.Weather = (int)TrackSpec_gSpec.weatherstate;
+  TrackSpec_GameSetupWords[21] = (int)TrackSpec_gSpec.nightstate;
+  TrackSpec_GameSetupWords[18] = (int)TrackSpec_gSpec.weatherstate;
   return;
 }
 
@@ -433,7 +433,7 @@ void TrackSpec_Read(int spec_num)
    * and the lui lands in the oracle's slot.  CAVEAT: the SYM's block list for this fn
    * names only currentpos/startpos/str -- no `trk` -- so the name is ours; the STATEMENT
    * is SLD-attested. */
-  int trk = GameSetup_gData.track;
+  int trk = TrackSpec_GameSetupWords[15];
 
   sprintf(str,"%sTr%02d.bin",Paths_Paths[6],trk);
   /* w41-a5: `currentpos` (an AUTO -- its address goes to read()) takes the RAW

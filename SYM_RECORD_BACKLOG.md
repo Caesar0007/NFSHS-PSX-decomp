@@ -1,6 +1,6 @@
 # NFS4 PSX SYM restoration audit and backlog
 
-Date: 2026-08-22
+Date: 2026-08-23
 
 Trusted debug source: `C:\Temp\claud\dumpsym_clean\dumpsym_src\nfs4-f-v3.txt`
 
@@ -37,7 +37,7 @@ they are not silently collapsed into a smaller denominator.
   explicit per-record semantic-review row.  Nothing is silently dropped from
   the denominator.
 - A strict compiler-emitted type-graph comparison now distinguishes retail
-  subset coverage from actual per-object source visibility.  Fifty-seven owners are
+  subset coverage from actual per-object source visibility.  Fifty-eight owners are
   semantically exact: `memcard.obj`, `mdec.obj`, `video.obj`, `FETexture.obj`,
   `textpix.obj`, `textpsx.obj`, `unpack.obj`, `fastrand.obj`, and
   `aiscript.obj`, `new.obj`, `paths.obj`, `textsys.obj`, `simplemem.obj`,
@@ -50,7 +50,7 @@ they are not silently collapsed into a smaller denominator.
   `aicop.obj`, `audedit.obj`, `scene.obj`, `collide.obj`, `AISPEEDS.obj`,
   `audiomus.obj`, `audioeng.obj`, `audiotrk.obj`, `AIINIT.obj`, and
   `AIPHYSIC.obj`, `gmesetup.obj`, `AI.obj`, `aistate.obj`, `mpause.obj`, and
-  `newton.obj`, and `camera.obj`.
+  `newton.obj`, `camera.obj`, and `TrackSpec.obj`.
   The remaining mapped C++
   units still expose reconstruction-only declarations through the monolithic
   `nfs4_types.h` include graph and therefore are not yet source-exact.
@@ -536,7 +536,7 @@ Current strict results:
 
 - `frontend/psx`: 4 exact (`memcard`, `mdec`, `video`, `fetexture`) and 4 DIFF
   (`drawshp`, `mmeffect`, `movie`, `psxfront`);
-- `game/psx`: 3 exact (`textpix`, `textpsx`, `unpack`), 24 DIFF, and one owner
+- `game/psx`: 4 exact (`textpix`, `textpsx`, `unpack`, `trackspec`), 23 DIFF, and one owner
   ambiguity for game `font.obj` versus the vendor `libgpu/FONT.obj`;
 - `frontend/common`: 41 mapped units remain DIFF and the now-empty artificial
   `mcrd.cpp` unit needs its objdiff ownership removed or reassigned;
@@ -595,7 +595,14 @@ prechecked loop in `Camera_OpponentLookBehind` restores the original 245-word
 shape.  `Camera_NextMode` needs one documented post-cc1 scheduling relocation;
 it moves, but does not add/remove/rewrite, the existing signed-%3 correction.
 The final graph is 92/92 named and 2/2 anonymous with no extra type/typedef, all
-38 camera functions remain PASS, and the vtable audit is clean across 907 files.
+38 camera functions remain PASS, and the vtable audit is clean across 908 files.
+
+`TrackSpec.obj` is now strict-exact through an owner-specific type header.  Its
+externally owned `GameSetup_tData` is represented by an exact-symbol word view
+at the three retail-attested offsets (`track` 15, `Weather` 18, and `Time` 21),
+so the foreign record body no longer leaks into this object's debug graph.  The
+final graph is 35/35 named and 2/2 anonymous, with no extra typedef semantics;
+all five TrackSpec functions remain PASS.
 
 The mapped C++ units cover all retail named and anonymous type bodies, but are
 not source-exact while they expose unrelated monolithic-header declarations or
@@ -685,7 +692,8 @@ Strict evidence:
   [`aistate`](scratchpad/root_sym_audit/type_graph_aistate_final_20260822.tsv), and
   [`mpause`](scratchpad/root_sym_audit/type_graph_mpause_final_20260822.tsv), and
   [`newton`](scratchpad/root_sym_audit/type_graph_newton_final_20260822.tsv), and
-  [`camera`](scratchpad/root_sym_audit/type_graph_camera_final_20260822.tsv).
+  [`camera`](scratchpad/root_sym_audit/type_graph_camera_final_20260822.tsv), and
+  [`trackspec`](scratchpad/root_sym_audit/type_graph_trackspec_final_20260823.tsv).
 
 Required closure:
 

@@ -3,7 +3,7 @@
  *   (bump alloc), Platform_SysStartUp (PSX boot: heap/eaclib/display/FS/timers), nfs2eacinit
  *   (eaclib boot), Platform_DebuggerPollHost (stub), Platform_Reset/GetDCTBuffer (DCT scratch). No GTE.
  */
-#include "../../nfs4_types.h"
+#include "platform_types.h"
 #include "platform_externs.h"
 
 /* W67-A4: platform.obj's retail .sdata run 0x8013da9c..0x8013dac0, reproduced
@@ -129,12 +129,14 @@ char *Platform_TempReserveMemory(int size,char *string)
 void Platform_SysStartUp(void)
 
 {
+  int userRam;
   char *endofcode;
 
   disablecd = 0;
   endofcode = (char *)gEAMemPoolBase;
-  nfs_sysInfo.userRam = 0x801fc000 - (int)endofcode;   /* 0x801fc000 = PSX RAM top (2MB) - 16KB stack reserve; hardware constant */
-  initmemadr(endofcode,nfs_sysInfo.userRam);
+  userRam = 0x801fc000 - (int)endofcode;   /* 0x801fc000 = PSX RAM top (2MB) - 16KB stack reserve; hardware constant */
+  Platform_nfsUserRam = userRam;
+  initmemadr(endofcode,userRam);
   nfs2eacinit();
   Draw_SetEnvironment(0x200,0xf0,1,0,1,0,0,0);
   initlinkmode(0,1,1);

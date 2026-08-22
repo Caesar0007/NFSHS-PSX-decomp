@@ -37,7 +37,7 @@ they are not silently collapsed into a smaller denominator.
   explicit per-record semantic-review row.  Nothing is silently dropped from
   the denominator.
 - A strict compiler-emitted type-graph comparison now distinguishes retail
-  subset coverage from actual per-object source visibility.  Sixty-four owners are
+  subset coverage from actual per-object source visibility.  Sixty-five owners are
   semantically exact: `memcard.obj`, `mdec.obj`, `video.obj`, `FETexture.obj`,
   `textpix.obj`, `textpsx.obj`, `unpack.obj`, `fastrand.obj`, and
   `aiscript.obj`, `new.obj`, `paths.obj`, `textsys.obj`, `simplemem.obj`,
@@ -51,7 +51,7 @@ they are not silently collapsed into a smaller denominator.
   `audiomus.obj`, `audioeng.obj`, `audiotrk.obj`, `AIINIT.obj`, and
   `AIPHYSIC.obj`, `gmesetup.obj`, `AI.obj`, `aistate.obj`, `mpause.obj`, and
   `newton.obj`, `camera.obj`, `TrackSpec.obj`, `loading.obj`, `texture.obj`, and
-  `Draw.obj`, `Sfx.obj`, `TrsProj.obj`, and `CarIO.obj`.
+  `Draw.obj`, `Sfx.obj`, `TrsProj.obj`, `CarIO.obj`, and `platform.obj`.
   The remaining mapped C++
   units still expose reconstruction-only declarations through the monolithic
   `nfs4_types.h` include graph and therefore are not yet source-exact.
@@ -537,7 +537,7 @@ Current strict results:
 
 - `frontend/psx`: 4 exact (`memcard`, `mdec`, `video`, `fetexture`) and 4 DIFF
   (`drawshp`, `mmeffect`, `movie`, `psxfront`);
-- `game/psx`: 10 exact (`textpix`, `textpsx`, `unpack`, `trackspec`, `loading`, `texture`, `draw`, `sfx`, `trsproj`, `cario`), 17 DIFF, and one owner
+- `game/psx`: 11 exact (`textpix`, `textpsx`, `unpack`, `trackspec`, `loading`, `texture`, `draw`, `sfx`, `trsproj`, `cario`, `platform`), 16 DIFF, and one owner
   ambiguity for game `font.obj` versus the vendor `libgpu/FONT.obj`;
 - `frontend/common`: 41 mapped units remain DIFF and the now-empty artificial
   `mcrd.cpp` unit needs its objdiff ownership removed or reassigned;
@@ -596,7 +596,7 @@ prechecked loop in `Camera_OpponentLookBehind` restores the original 245-word
 shape.  `Camera_NextMode` needs one documented post-cc1 scheduling relocation;
 it moves, but does not add/remove/rewrite, the existing signed-%3 correction.
 The final graph is 92/92 named and 2/2 anonymous with no extra type/typedef, all
-38 camera functions remain PASS, and the vtable audit is clean across 914 files.
+38 camera functions remain PASS, and the vtable audit is clean across 915 files.
 
 `TrackSpec.obj` is now strict-exact through an owner-specific type header.  Its
 externally owned `GameSetup_tData` is represented by an exact-symbol word view
@@ -650,6 +650,15 @@ importing `Texture_pal8bit`.  The final graph is 72/72 named and 2/2 anonymous
 with no extra typedef semantics.  Ten functions remain PASS and
 `CarIO_ReadInCarTextureData` remains unchanged at its pre-existing 19-diff,
 492-versus-491-instruction baseline.
+
+`platform.obj` is now strict-exact through the proven color surface plus its
+PsyQ kernel/card records.  The externally owned `tNfsSystemInfo` body is absent
+from this retail object; its sole word-0 `userRam` access therefore uses the
+exact `nfs_sysInfo` symbol through a retail-visible one-word aggregate carrier
+and a semantic `Platform_nfsUserRam` macro.  This preserves the aggregate MEM
+form without introducing an extra debug record.  The final graph is 76/76
+named and 2/2 anonymous with no extra typedef semantics, and all eight platform
+functions remain PASS.
 
 The mapped C++ units cover all retail named and anonymous type bodies, but are
 not source-exact while they expose unrelated monolithic-header declarations or
@@ -746,7 +755,8 @@ Strict evidence:
   [`draw`](scratchpad/root_sym_audit/type_graph_draw_final_20260823.tsv), and
   [`sfx`](scratchpad/root_sym_audit/type_graph_sfx_final_20260823.tsv), and
   [`trsproj`](scratchpad/root_sym_audit/type_graph_trsproj_final_20260823.tsv), and
-  [`cario`](scratchpad/root_sym_audit/type_graph_cario_final_20260823.tsv).
+  [`cario`](scratchpad/root_sym_audit/type_graph_cario_final_20260823.tsv), and
+  [`platform`](scratchpad/root_sym_audit/type_graph_platform_final_20260823.tsv).
 
 Required closure:
 

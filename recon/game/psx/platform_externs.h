@@ -2,9 +2,6 @@
 #ifndef _GAME_PSX_PLATFORM_EXTERNS_H_
 #define _GAME_PSX_PLATFORM_EXTERNS_H_
 
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
-
 /* ---- module globals (simple bump-allocator arena + DCT scratch) ---- */
 extern u_int           gTotalMemory;    /* 0x8013dabc  arena size */
 extern int             gLowMemory;      /* 0x8013dab0  arena low/base addr */
@@ -13,7 +10,11 @@ extern int             gCurrentMemory;  /* 0x8013dab8  bump cursor */
 extern int             gSysStartUp;     /* 0x8013da9c  init flag (+4 = cwd path buf) */
 // [owned->file-static in platform.cpp] char *gDctXtraMem; /* 0x8013daac */
 extern int             disablecd;       /* 0x8013dc58 */
-extern tNfsSystemInfo  nfs_sysInfo;     /* 0x8013d2b4 */
+/* tNfsSystemInfo is completed only in nfs3.obj; platform.obj's SYM does not
+ * expose that tag.  Group is a retail-visible one-word aggregate whose field
+ * preserves the aggregate MEM form required by this sole word-0 access. */
+extern Group Platform_nfsSysInfoCarrier asm("nfs_sysInfo"); /* 0x8013d2b4 */
+#define Platform_nfsUserRam (Platform_nfsSysInfoCarrier.m_num_elements)
 
 /* ---- link-time markers / scratch buffers (no SYM name; raw addresses) ---- */
 extern char gPlatformInitMem[];   /* 0x80054d10  end-of-init-memory marker (arena high) */
@@ -27,5 +28,15 @@ extern void  Paths_StartUp(void);
 
 /* ---- this module ---- */
 extern void  nfs2eacinit(void);
+
+extern "C" void ResetCallback(...);
+extern "C" void FlushCache(...);
+extern "C" void FILE_init(...);
+extern "C" void initasync(...);
+extern "C" void initjoy(...);
+extern "C" void initlinkmode(...);
+extern "C" void initmemadr(...);
+extern "C" void inittimer(...);
+extern "C" void setdirectory(...);
 
 #endif

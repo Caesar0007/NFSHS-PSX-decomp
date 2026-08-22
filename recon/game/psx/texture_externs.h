@@ -1,4 +1,3 @@
-#include "../../lib/libfns.h"
 /* texture_externs.h -- externs for texture.cpp (GAME/PSX texture/palette/CLUT/PMX loading) */
 #ifndef TEXTURE_EXTERNS_H
 #define TEXTURE_EXTERNS_H
@@ -22,5 +21,15 @@ extern void  Texture_GetClutId(int id, int *xclut, int *yclut);  /* fwd (intra-m
 extern void  TextureProcess_Init(void);                    /* sibling TextureProcess.obj */
 extern int   TextureProcess_TransColorCheck(char *data, int numentry);
 extern int   TextureProcess_DepthColorCluts(char *data, int numentry);
+
+extern "C" unsigned short GetClut(...);
+extern "C" int GetTPage(...);
+extern "C" int LoadImage(...);
+extern "C" void *loadfileadr(...);
+extern "C" void *locateshapez(...);
+extern "C" int purgememadr(...);
+extern "C" void *reservememadr(...);
+extern "C" int shapedepth(...);
+extern "C" int sprintf(...);
 
 #endif /* TEXTURE_EXTERNS_H */

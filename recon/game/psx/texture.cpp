@@ -1,7 +1,7 @@
 /* game/psx/texture.cpp -- RECONSTRUCTED (NFS4 PSX texture/palette/CLUT/PMX loading; C++ TU)
  *   26 fns (Texture_ + FETexture_): palette sharing, CLUT alloc, PMX texture load, VRAM blit. No GTE.
  */
-#include "../../nfs4_types.h"
+#include "texture_types.h"
 #include "texture_externs.h"
 
 /* ---- Texture.obj-OWNED globals (.bss; zero in NFS4.EXE) -- DEFINED here (self-contained;

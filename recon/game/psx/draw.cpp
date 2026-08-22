@@ -8,7 +8,7 @@
  * no_schedule_insns breaks 7, no_schedule_insns2 breaks 11; no_strength_reduce is
  * byte-neutral (21 PASS, StopRenderingView still 50).  draw.obj is NOT a flag
  * object -- do not re-probe. */
-#include "../../nfs4_types.h"
+#include "draw_types.h"
 #include "draw_externs.h"
 
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
@@ -23,7 +23,7 @@ int gFlip;
 int gLoop;
 int gTotalMem;
 /* SYM: Draw.obj file-static callback pointer (opcode 6 / STAT PTR FCN VOID). */
-static fn_void *Draw_gSyncCallback;
+static void (*Draw_gSyncCallback)(void);
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 int Draw_SetView(int x0,int y0,int x1,int y1,int w,int h,int dtd,int isbg,int otsize);
@@ -42,7 +42,7 @@ void Draw_StartRenderingView(int viewid);
 void Draw_StopRenderingView(int viewid);
 void Draw_CheckFirstFrameRender(void);
 void Draw_StartFrameRender(void);
-void Draw_SetDrawSyncCallback(fn_void *p);
+void Draw_SetDrawSyncCallback(void (*p)(void));
 void Draw_StopFrameRender(void);
 void Draw_DrawDirectScreen(shapetbl *tile,int x,int y);
 void Draw_DirectSetEnvironment(int x,int y,int w,int h,int edraw,int edisplay,int erase,int r,int g,int b);
@@ -294,13 +294,13 @@ void AllocatePrimitivesBuffer(void)
   Draw_tView *view1;
   Draw_tView *view;
 
-  if (GameSetup_gData.commMode == 1) {
+  if (Draw_GameSetupWords[3] == 1) {
     Draw_InitViewOT();
   }
   else {
     Draw_InitViewOTInGame();
   }
-  if (GameSetup_gData.commMode == 1) {
+  if (Draw_GameSetupWords[3] == 1) {
     gTotalMem = 0x22500;
   }
   else {
@@ -308,7 +308,7 @@ void AllocatePrimitivesBuffer(void)
   }
   gEnviro[0].server = Platform_ReserveMemory(gTotalMem,"ps0");
   gEnviro[1].server = Platform_ReserveMemory(gTotalMem,"ps1");
-  if (GameSetup_gData.commMode == 1) {
+  if (Draw_GameSetupWords[3] == 1) {
     view0 = &Draw_gView[Draw_gPlayer1View];
     view0->membudget = (gTotalMem >> 1) + -0x1a00;
     view1 = &Draw_gView[Draw_gPlayer2View];
@@ -345,7 +345,7 @@ void ClearPlatformPrimitivesBuffer(void)
   DrawSync(0);
   gEnviro[1].server = (char *)0x0;
   gEnviro[0].server = (char *)0x0;
-  if (GameSetup_gData.commMode == 1) {
+  if (Draw_GameSetupWords[3] == 1) {
     Draw_DeInitViews();
   }
   else {
@@ -558,7 +558,7 @@ void Draw_StartFrameRender(void)
 }
 
 /* ---- Draw_SetDrawSyncCallback__FPFv_v  [DRAW.CPP:448-449] SLD-VERIFIED ---- */
-void Draw_SetDrawSyncCallback(fn_void *p)
+void Draw_SetDrawSyncCallback(void (*p)(void))
 
 {
   
@@ -682,7 +682,7 @@ void Draw_InitRenderEngine(int x0,int y0,int x1,int y1,int w,int h)
   gEnviro[1].server = (char *)0x0;
   SetDefDispEnv(&gEnviro[0].disp,x0,y0,w,h);
   SetDefDispEnv(&gEnviro[1].disp,x1,y1,w,h);
-  Draw_SetDrawSyncCallback((fn_void *)0x0);
+  Draw_SetDrawSyncCallback((void (*)(void))0x0);
   return;
 }
 

@@ -264,6 +264,97 @@
  * REMAINING 28, by row: format-pointer base-reuse + the '*' block 20 (§4 above -- a local-alloc
  * in-block qty, the biggest remaining class); the `li $s3,48` emission order 2; the `j`/`lui $a3`
  * slot 2; the case-'c' j-slot pick 4.  NOT a floor.
+ * 🔴🏆 W75-A14 (2026-08-23) -- ONE REAL BUG REMOVED FROM THE BUILD WIRING + ONE LANDING.
+ * Re-gated at 28 @545/545 (baseline confirmed), now **25 @546/545**.
+ *
+ * (A) 🔴 THE w63-a9 PER_FN_TEXT_MOVES ROW WAS A GATE-BLIND DEAD-CODE BUG -- REMOVED.
+ *     The row moved `la $7,$LC0` into the `j $L98` delay slot (`slot: True`).  `la` is a
+ *     TWO-INSTRUCTION MACRO; gas expands it to `lui $7,%hi; addiu $7,$7,%lo`, so the
+ *     wrapper put `lui` in the slot and left the `addiu` AFTER the taken jump, where it
+ *     never executes.  objdump of the spliced object:
+ *         59c: j 5ac ; 5a0: lui a3,0x0 [slot] ; 5a4: addiu a3,a3,0   <-- UNREACHABLE
+ *     ⇒ on the `%X` and `%p` paths `hexChars` kept only the %hi half of the string
+ *     address, i.e. a 64K-aligned garbage pointer that `hexChars[num % 16U]` then reads.
+ *     Same class as _padInitDirSeq (15D) and HeliCam (17C); 4th firing.
+ *     🔑 NEW STANDING SAFETY LAW (banked in build.py at the removal site): a `slot: True`
+ *     TEXT_MOVES row may only take a line that assembles to EXACTLY ONE machine word --
+ *     never `la`, never a 32-bit `li`, never an absolute lw/sw/div macro.  gcc had
+ *     REFUSED that slot on purpose: under -mno-split-addresses the address load is one
+ *     RTL insn of `length` 2 and `eligible_for_delay` rejects it; the row overrode a
+ *     correct compiler decision at the text level.
+ *     COST, probe-verified 2x: 28 @545 -> 29 @546 (the slot becomes a `nop`).
+ *     🔑 AND IT RE-OPENS THE FLAG QUESTION.  Retail's three words are
+ *     `lui $a3,%hi ; j $L98 ; addiu $a3,$a3,%lo [slot]` = a SPLIT-ADDRESS PAIR whose
+ *     second half reorg legally sinks into the slot -- i.e. RETAIL WAS BUILT WITH SPLIT
+ *     ADDRESSES AT THIS SITE, and `no_split_addresses` is a PAPER-OVER of the w59
+ *     `lui $v0; addiu $a3,$v0` self-temp class (the §3.15-CORRECTION HI-scratch class,
+ *     a DECLARATION-SHAPE question) that makes retail's shape unreachable here by
+ *     construction.  Measured this wave (row removed in all three):
+ *         no_split_addresses ON  (wired)  25 @546
+ *         no_split_addresses OFF          46 @545  (count-exact; the delta is the
+ *                                                   self-temp class + its ripple)
+ *         OFF + g_value 4 / 8             46 / 46  (-G is inert -- the literals are
+ *                                                   .rdata, so 22A-5's small-data gate
+ *                                                   never fires here)
+ *     ⇒ the honest next step for this TU is to fix the self-temp class on the SPLIT
+ *     lane (unsized-array / storage-shape levers, §3.12 #5) and then drop the flag,
+ *     not to keep buying 18 diffs with a papered-over address form.  ORCHESTRATOR CALL.
+ *
+ * (B) 🏆 THE case-'c' SLOT ROW IS SOLVED (4 diffs) -- SPLIT THE CURSOR ADVANCE.  `args`
+ *     is memory-homed, so `args += 4;` is ONE statement expanding to lw/addiu/sw, and
+ *     sched2 keeps the addiu and the sw adjacent; the `j`'s backward slot fill then takes
+ *     the block's last insn, `sb $v1,0($s1)`.  Retail's slot is the args STORE.  Naming
+ *     the new cursor (`char *nextArgs = args + 4; ... args = nextArgs;`) splits the two
+ *     halves: the addiu stays in the `lbu`'s LOAD-DELAY slot and the sw becomes last.
+ *     29 -> 25.  The three plain store-order permutations the w61-a9 receipt priced at 62
+ *     are all 35 @548 on this basin (the addiu leaves the load-delay slot => two `nop`s);
+ *     `len = 1` position is inert.  This is a reusable dial anywhere a memory-homed
+ *     cursor's advance has to straddle another store (grep: `args += 4` siblings).
+ *
+ * (C) THE FORMAT-POINTER CLUSTER (16 of the 25) -- RTL-LOCALIZED, ANGLE SHARPENED.
+ *     Everything below is new; the standing note said only "post-RTL base-reuse choice".
+ *     The cse dump (`scratch/rtl_a5/SPRINTF.i.cse`, insns 309/311/315/317) shows that at
+ *     EVERY `ch = *++f;` site the shape is identical and already correct:
+ *         (set (reg N)   (mem (addressof f)))          ; reload f
+ *         (set (reg N+1) (plus (reg N) 1))             ; f+1
+ *         (set (mem (addressof f)) (reg N+1))          ; store f
+ *         (set (reg QI)  (mem:QI (plus (reg N) 1)))    ; load off the RELOADED base
+ *     so cse already canonicalises the load base to the reloaded `f`, NOT to the
+ *     increment.  The divergence appears only where a SECOND site follows a first with
+ *     no memory kill in between: there the reload pseudo is store-to-load forwarded, and
+ *     the `addiu` operand folds TWO levels (`reg143 + 2` = retail's `addiu $v0,$a2,2`,
+ *     which OURS ALSO EMITS) while the MEM address folds only ONE (`reg144 + 1` =
+ *     `lb $a1,1($a3)`; retail keeps folding to `2($a2)`).  That asymmetry is cse's
+ *     `find_best_addr`/`canon_reg` pair: canon_reg rewrites the address's base to its
+ *     quantity's FIRST register (the earlier increment pseudo) and find_best_addr only
+ *     replaces an address when a candidate is STRICTLY cheaper -- `(plus reg144 1)` and
+ *     `(plus reg143 2)` cost the same, so the incumbent wins.  ⇒ the `$a3`-vs-`$v0`
+ *     register half is a CONSEQUENCE, not a cause: with the a2-based address the
+ *     increment pseudo dies at its store and takes the lowest free caller-saved reg.
+ *     This also RETIRES the w74-a16 §4 reading that the two halves are separate classes
+ *     and the [reload_pick] instrument's applicability here: the temp is not a reload
+ *     register and the row is decided long before allocation.
+ *     RE-FALSIFIED ON THIS BASIN (04Z; whole-fn gate, scratchpad/w75/A14_spr.py):
+ *       `f = f + 1; ch = *f;` at the two second-read sites .................. 28 (inert)
+ *       `ch = *(f += 1);` at the two second-read sites ...................... 28 (inert)
+ *       `ch = f[1]; f = f + 1;` at the two second-read sites ................ 41 @544
+ *       `f = f + 1; ch = *f;` at ALL NINE sites ............................. 28 (inert)
+ *       `ch = f[1]; f = f + 1;` at ALL NINE sites ........................... 78 @537
+ *     NAMED NEXT ANGLE (not a spelling): the lever must change which register cse's
+ *     canon_reg calls the quantity's FIRST -- i.e. break the store-to-load forwarding
+ *     chain for the ADDRESS while keeping it for the `addiu`.  An opacity fence on `f`
+ *     cannot do it (it kills both halves; the `addiu` then stops folding to `a2+2`).
+ *     The remaining routes are a cse-table instrument read on the psq43 2.8.0 lane, or
+ *     the SPLIT-address lane above, where the whole address basin is different.
+ *
+ * (D) FLAG RE-LADDER ON THE 25-BASIN (04Z): cc1_ver 2.8.1 25 (identical) *
+ *     no_strength_reduce 25 (inert) * no_builtin 25 (inert) * no_schedule_insns2 55 @548.
+ *
+ * REMAINING 25, by row: the format-pointer cluster 16 (C above); the `li $s3,48`
+ * emission order 2 (closed as an appearance-order property of the LICM preheader group --
+ * the three flag literals are born inside the loop, `flagZero` before it); the
+ * `la`/`j`/`nop` slot 3 (A above -- a SPLIT-lane row, and correct code as it stands);
+ * the two `li $v0,42` / `nop` slot rows 4 (downstream of C).  NOT a floor.
  * ⚠️ TOOL GOTCHA (cost a false A/B here): `tools/psyqproof.py` reads the ALREADY-BUILT
  * `build/<rel>.c.i` and never re-runs cpp, so an A/B that only rewrites the .c and re-runs
  * psyqproof compares the SAME source twice and reads VACUOUSLY IDENTICAL.  Build the TU
@@ -634,11 +725,25 @@ extern int sprintf(char *out, signed char *f, ...)
 
         case 'c': {
             unsigned char argChar;
+            /* w75-a14 (29 -> 25): SPLIT THE CURSOR ADVANCE.  `args` is memory-homed
+             * (its address escapes through va_start), so `args += 4;` is one statement
+             * that expands to lw/addiu/sw -- and sched2 keeps the addiu and the sw
+             * adjacent, so the `j`'s delay slot gets back-filled with the LAST insn of
+             * the block, which is then `sb $v1,0($s1)`.  Retail's slot is the args
+             * STORE (`lbu; addiu; sb; j; [slot] sw`), i.e. its addiu sits in the lbu's
+             * LOAD-DELAY slot while its sw is the block's last insn.  Naming the new
+             * cursor value splits the two halves so each lands where retail put it.
+             * ⚠️ Do NOT "simplify" back to `args += 4;`, and do NOT instead move the
+             * whole `args += 4;` below the store -- that pulls the addiu out of the
+             * load-delay slot and costs two `nop`s (measured 35 @548 for all three
+             * store-order permutations; `len = 1` position is inert either way). */
+            char *nextArgs;
 
             --bufPtr;
             argChar = *(unsigned char *)args;
-            args += 4;
+            nextArgs = args + 4;
             *bufPtr = argChar;
+            args = nextArgs;
             len = 1;
             break;
         }

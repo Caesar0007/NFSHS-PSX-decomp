@@ -2602,7 +2602,35 @@ stateExecuteAndReturn:
        address spelling -- dump -dg for the 698 variant and read which allocno s3 carries
        (the receipt's own qtytrace/copypref ask, now with a concrete control pair to diff:
        the 4-diff build vs the 489 build differ by ONE source token per arm).
-       Probe files: scratchpad/W74_A11_wing{,2,3}.py. ==== */
+       Probe files: scratchpad/W74_A11_wing{,2,3}.py.
+   ==== W75-A9 re-gated (4 @675/675, posmis 4) and CLOSED THE ADDRESS-ARG AXIS FOR GOOD
+   with four MORE spellings, including the one the W75 orchestrator handed down from the
+   A20 tree sweep ("ctor-return-vs-address remat: re-take &obj after the call / hold the
+   address in a named local, 3.12 #16").  Every one of them lands in the SAME 489 basin:
+     Y1 both arms -> &trafficOffset (the A20 shape, control)          489 @698
+     Y3 offset = &trafficOffset re-assigned right BEFORE the call     489 @698
+     Y5 memset(...); offset = &trafficOffset;  (3.12 #16 proper)      489 @698
+     Y8 offset = &X; memset((u_char *)offset,...); pass offset        489 @698
+     Y9 arg spelled (coorddef *)((char *)&trafficOffset)              489 @698
+     Y2 store via offset->y AND pass &trafficOffset                   503 @684
+     Y7 offset = &X; memset(offset); offset->y; pass offset           497 @684
+   ONE NEW DATUM worth keeping: Y6 (keep the capture, store via offset->y, still PASS
+   offset) is 19 @662 -- the FIRST basin this function has ever had that is SHORTER than
+   the oracle (-13), i.e. `trafficOffset.y = ...` vs `offset->y = ...` at the two arms is
+   worth 13 insns.  Not a landing, but it is a different direction from every 489/497/503
+   measurement and is the only under-count base on record.
+   CORRECTION TO THE W63 RECEIPT ABOVE: its "(i) NEW FALSIFICATION: reordering all three
+   arms to `offset = &X; memset((u_char *)offset,0,0xc);` is INERT -- 4 diffs, byte-
+   identical" is VOID.  W63 predates the W72 dead-copy discovery; re-measured on the LIVE
+   definition only (compound 4-line anchor, count asserted == 2) that shape is 489 @698,
+   not inert.  Treat any pre-W72 "inert" on this function as a missed-anchor alarm.
+   STANDING VERDICT unchanged and now six-spelling-strong: passing the CALL RETURN VALUE
+   is what keeps the two arms textually identical so they cross-jump-merge; any
+   address-valued arg de-merges them, costs one callee-saved register (s3 appears, frame
+   -104 -> -112, this s1 -> s2) and +9..23 insns.  W74 NEXT LENS still stands and is the
+   right one: -dg the 489 variant and read WHICH allocno s3 carries; the 4-diff and 489
+   builds differ by ONE source token per arm, so it is a clean control pair.
+   Probe: scratchpad/w75/A9_v7.py, A9_v8.py (A9_probe.py harness, multi-count anchors). ==== */
 void AIHigh_BTC_Wingman::HighExecute()
 {
   ((AIHigh_BasicCop *)this)->CheckSpikeBelt();

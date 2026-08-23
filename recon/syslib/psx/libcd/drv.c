@@ -787,6 +787,10 @@ extern int CD_cw(unsigned char com, unsigned char *param, unsigned char *result,
      * `sb $0,SYM+N` assembler macros -- same lever CD_flush already carries. */
     ip = &Intr;
     __asm__("" : "=r"(ip) : "0"(ip));
+    __asm__("" : : : "$4");   /* MATCH (W75-A17): 20B zero-insn hard-register DENIAL of $a0
+                               * inside `ip`'s live range (and outside `i`'s) -- see the
+                               * W75-A17 receipt above.  Without it `ip` finds $a0 free and
+                               * takes it, pushing the com<<2 index onto $a1. */
     ip->sync = 0;
     tbl = _cd_result_flag;
     if (*(int *)((com << 2) + (int)_cd_result_flag))
@@ -920,7 +924,77 @@ extern int CD_cw(unsigned char com, unsigned char *param, unsigned char *result,
      * hard_reg_full_preferences from the instrumented cc1 (C:/Temp/nfs4-instr-cc1) to NAME
      * the preferring allocno instead of sweeping blind; the position that works must lie
      * inside ITS live range and outside 201's. */
-    __asm__("" : : "r"(tbl), "r"(tbl));     /* MATCH (W64-A5): +2 refs on `tbl`, see above */
+    /* ==========================================================================
+     * 🏆 W75-A17: SEALED.  4 -> 16 -> PASS 259/259.  The W72 "hard-register
+     * certificate" and the W74 "preference certificate" were BOTH wrong about the
+     * mechanism, and the real one is readable straight out of `tools/qty272.py`
+     * (the .greg conflict lists) -- no instrumented cc1 needed.
+     *
+     * WHAT THE DUMP ACTUALLY SAYS (control basin, 4 diffs).  The parameter loop's
+     * saved count-address pointer is global allocno 130 (NOT 201 -- 201 is the
+     * INLINED `_memcpy8` destination; W72/W74 read the wrong pseudo out of a stale
+     * numbering, which is why their price and their exits never matched reality).
+     *   130: refs 3 / live 9 / pri 3333, rank 15, conflicts {72 74 75 76 77 80, $v0,$v1}
+     *   77 (`ip`): refs 6 / live 27 / pri 4444, rank 10, home $a1
+     *   80 (`i`):  rank 2, home $a0
+     * global.c's ascending scan for 130 therefore reads: $v0/$v1 hard-barred, $a0
+     * barred by 80, $a1 barred by **77** -> $a2.  There is no preference involved at
+     * all (130's `prefs` field is empty); 130 avoids $a1 because IT CONFLICTS WITH
+     * `ip`, and it conflicts with `ip` because the W64-A5 read-only fence that demotes
+     * `ip` sits AFTER the parameter loop and holds `ip` live across it.  Retail's `ip`
+     * is also $a1 -- it just DIES at `sb $0,1($a1)`, so retail reuses $a1 for the
+     * count pointer.  ⇒ the defect was a LIVE-RANGE OVERLAP the demote device created,
+     * not an allocator tie-break.
+     *
+     * THE FIX, two coupled parts (a CELL -- neither works alone; cf. 21E-1/22C-8):
+     *  (1) DELETE the `ip` read-only fence (its only job was "ip after tbl") and buy
+     *      the same ordering on the OTHER side instead: raise `tbl`'s refs from 4 to 8
+     *      by widening the existing zero-insn read-only fence from 2 to 6 operands.
+     *      tbl 5714 -> 17142 (rank 9 -> 7), ip 4444 -> 12500 with live 27 -> 8.
+     *      `ip` now dies before the loop, 130 takes $a1 = retail.  4 -> 16.
+     *  (2) The 16 is a NEW, DIFFERENT rotation: with its live range shortened, `ip`
+     *      (rank 9) finds $a0 FREE -- it does not conflict with `i`(80) -- and takes it,
+     *      pushing the `com << 2` index (allocno 115) onto $a1.  Cure = a 20B ZERO-INSN
+     *      HARD-REGISTER DENIAL of $a0 placed strictly INSIDE `ip`'s live range and
+     *      OUTSIDE `i`'s: `__asm__("" : : : "$4");`.  `ip` -> $a1, 115 -> $a0.  16 -> 0.
+     *
+     * MEASURED (all gated; the ladder is the receipt):
+     *   tbl fence operand ladder with the ip fence dropped: 3 ops 28 - 4 ops 28 -
+     *     5 ops 28 - 6 ops 16 - 7 ops 16 - 8 ops 16 - 10 ops 16  (the floor_log2 step
+     *     at refs 8 is the dial; 6 operands = 8 refs is the minimum that lands it)
+     *   ip fence MOVED above the loop instead of dropped, same ladder: 3/4 28 - 6/8 16
+     *     (identical -- confirming the fence's position is irrelevant once tbl outranks
+     *     it, i.e. w64-a5's "position is the dial" was basin-local)
+     *   $a0-denial position/mask sweep from the 16 basin: "$4" after the ip identity
+     *     fence 0 - after `ip->sync = 0` 0 - before the ready-flag guard 0 - BEFORE
+     *     `ip = &Intr` 16 (INERT: outside ip's live range, the 22B-1 law) - "$4","$5"
+     *     at all three inside positions 8 - "$5" alone at all three 16 (INERT).
+     *   FALSIFIED on the way: moving `ip = &Intr` (+ its identity fence) up to just
+     *     after `CD_sync(0,0)` to demote by an EARLIER BIRTH rather than a later death
+     *     -- 11 @258/259 in every variant (fence kept 15, fence before the loop 11,
+     *     fence at the tbl fence 11, no extra fence 11, 2-operand fence 11); the
+     *     earlier birth also costs an instruction, so that whole family is out.
+     *   The plain "move the ip fence above the loop" control (no tbl boost) reproduces
+     *     W64-A5's 28 exactly.
+     *
+     * 🔑 TRANSFERABLE LAWS:
+     *  (a) A READ-ONLY (live-extending) DEMOTE FENCE IS ALSO A CONFLICT GENERATOR.
+     *      When the demoted value's register is one the oracle REUSES later in the
+     *      function, the fence's own live extension is what blocks the reuse.  Prefer
+     *      buying the ordering by PROMOTING THE RIVAL (a ref-only dial, live-neutral)
+     *      whenever the demoted value's register is reused downstream.
+     *  (b) READ THE PSEUDO NUMBER OFF A FRESH DUMP.  Two waves of certificates were
+     *      built on a stale pseudo id; qty272's conflict list would have refuted both
+     *      in one call.  A conflict list is a stronger instrument than a preference
+     *      argument -- check conflicts FIRST, preferences second.
+     *  (c) The 20B denial DOES reach a global allocno whose scan simply finds a free
+     *      lower-numbered register (unlike 22B-2's adjacent-def/use QTY, where there is
+     *      no decision left to deny).  Gate on "is the register free at this allocno's
+     *      turn", not on "is there a tie".
+     * ========================================================================== */
+    __asm__("" : : "r"(tbl), "r"(tbl), "r"(tbl), "r"(tbl), "r"(tbl), "r"(tbl));
+    /* MATCH (W64-A5 device, W75-A17 re-dialled): +6 refs on `tbl` (4 -> 8, crossing the
+     * floor_log2 step) so tbl outranks `ip` WITHOUT the live-extending ip fence. */
     cnt = tbl + 0x40;
     i = 0;
     if (cnt[com] > 0)
@@ -928,7 +1002,6 @@ extern int CD_cw(unsigned char com, unsigned char *param, unsigned char *result,
             CDREG2 = param[i];
             i++;
         } while (i < cnt[com]);
-    __asm__("" : : "r"(ip));                /* MATCH (W64-A5): demotes `ip`, see above */
     CD_com = (unsigned char)com;
     CDREG1 = CD_com;
     if (arg3 != 0)

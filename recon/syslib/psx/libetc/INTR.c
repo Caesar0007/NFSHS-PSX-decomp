@@ -490,7 +490,90 @@ extern void _intrhand(void)            /* @0x800F2A40 */
      *  emission order of `en`'s `lhu` against the second pointer's `lw` -- equal INSN_PRIORITY
      *  chain depth, so the tie falls to luid/source order, and every source reorder tried so
      *  far is inert because fold decides which pointer is the inner operand.  The instrument
-     *  is the sched1 dump ([sched_pick], C:/Temp/nfs4-instr-cc1), not another spelling sweep. */
+     *  is the sched1 dump ([sched_pick], C:/Temp/nfs4-instr-cc1), not another spelling sweep.
+     * 🏆 W75-A16 (2026-08-23) 24 -> 20 @116/116, gated 2x, whole TU 11/13 unchanged.  THE
+     * CLOSING-TEST CLUSTER IS CLOSED -- by WIRING, not by a spelling: a per-fn 2.6.3 rung
+     * (PER_FN_CC1_VER_SPLICE_272 row in tools/build.py).  Three results, all receipts:
+     *  (1) THE RUNG DIFFERENCE IS NOW CHARACTERISED, not just scored.  Diffing the two
+     *      cc1 outputs for the WHOLE function (scratchpad/w75/a16_intrhand_272.s vs
+     *      a16_intrhand_263.s, 166 lines each) the ONLY codegen difference is the closing
+     *      test's register pair: 2.7.2 emits `lhu $3,0($5); lhu $2,0($6)`, 2.6.3 emits
+     *      `lhu $2,0($5); lhu $3,0($6)` == retail (the first deref takes $v0, the second
+     *      $v1).  Every other delta is `move $d,$s` vs `addu $d,$s,$0`, which the gate
+     *      normalises.  So the "2.6.3 -4" banked since W63-A8 is exactly this cluster and
+     *      nothing else -- the rung cannot be masking a source lever.
+     *  (2) THE RUNG IS ORTHOGONAL TO THE PEND RESIDUAL (measured, 5 basins x 3 rungs):
+     *      shipped 24->20, mp-inline 26->22, block-local-en 32->28, sp/en/mp order 28->24,
+     *      retail-EN-INNER-tree 38->34; 2.6.0 == 2.6.3 everywhere; 970404/2.8.0/2.8.1 all
+     *      110 @114 (count-OFF) on every basin.  => -4 is a constant offset, so future
+     *      source work on the pend blocks re-prices unchanged under the rung.
+     *  (3) NOT VACUOUS (the W74-A19 LM/.loc trap does NOT reach this lane): the strip fix
+     *      lives only in _apply_cc1_ver_splice (default lane).  It is not needed in the 272
+     *      lane because _compile_c_272's cc1_flags are `-quiet -O2 -G<n> -mgas` with NO
+     *      `-g1`, so the sub-2.8 rungs emit no COFF debug at all -- verified 0 `LM<n>:` and
+     *      0 `.loc` in the rung's .s, and the gate reads the full 116/116.  Every earlier
+     *      272-lane sub-2.8 ver-splice number (incl. W63-A8's ladder) was therefore REAL.
+     * W75-A16 PEND-BLOCK WORK (all gated, all reverted; nothing beat 24 in-lane), plus TWO
+     * corrections to banked mechanism claims:
+     *  🔴 CORRECTION to W72-A19(c): "a bare CLOBBER does not enter global.c's conflict set"
+     *     is FALSE as a mechanism.  global.c:1384 mark_reg_clobber -> :1239 record_one_conflict
+     *     DOES set hard_reg_conflicts[j] for every allocno LIVE AT THAT INSN, hard regs
+     *     included.  The real reason those cells read inert is placement: a clobber-ONLY
+     *     `__asm__("" : : : "$N")` has zero operands, and sched.c:1987 gates the
+     *     everything-barrier on `code != ASM_OPERANDS || MEM_VOLATILE_P (x)` -- a
+     *     non-volatile ASM_OPERANDS with no inputs has NO dependences at all, so the insn
+     *     floats to the TOP of the block (verified in the .s: the #APP lands before the
+     *     first pointer load), i.e. OUTSIDE `en`'s live range, where the conflict is a
+     *     no-op.  Re-measured here: "$2"/"$3"/"$4"/"$5"/"$4","$5"/"$4","$5","$6" ALL 24,
+     *     bit-for-bit.  The forms that DO stay put cost insns: `__asm__ __volatile__(""
+     *     : : : "$4")` 36 @118, bare `__volatile__("")` 30 @118, read-only `("" : : "r"(en)
+     *     : "$N")` 28-40 @118 (the fence pulls `en`'s load out of the load-delay gap that
+     *     `lhu a0,48(s1)` was filling, so each site mints a nop).
+     *  🆕 NEW LAW -- WHY THE TWO POINTER LOADS HOIST ABOVE `state[1] = 1` (sched.c:830
+     *     true_dependence): a read X after a store MEM is dependence-FREE when
+     *     `MEM_IN_STRUCT_P (mem) && rtx_addr_varies_p (mem) && !MEM_IN_STRUCT_P (x) &&
+     *     !rtx_addr_varies_p (x)`.  `state[1] = 1` is an ARRAY_REF (/s) at a pseudo base
+     *     (varying); `g_imask_ptr` is a plain VAR_DECL (no /s) at a symbol (fixed) -- the
+     *     exclusion fires exactly, so sched1 is free to hoist BOTH pointer loads above the
+     *     store no matter where the source puts them (this is why every mp/sp statement
+     *     reorder measured inert since W62).  RESPELLING THE STORE AS A CAST INDIRECT_REF
+     *     `*(unsigned short *)((char *)state + 2) = 1;` removes its MEM_IN_STRUCT_P, the
+     *     exclusion stops firing, and the hoist DISAPPEARS -- at zero insns.  With the
+     *     `sp; en; store; mp` order that reproduces retail's entry-block SHAPE for the
+     *     first time in this campaign: `lui/lw $a0`(sp) | store | `lui/lw`(mp) | derefs,
+     *     i.e. sp lands in retail's own $a0 and mp is materialised AFTER the store (28 ->
+     *     24; a `("" : : "r"(sp) : "$2","$3")` fence reaches the same 24 without the cast).
+     *     It is NOT landed because it ties the shipped 24 -- the LAST divergence is that
+     *     `en` is a fn-scope (GLOBAL) allocno, so global.c homes it after local_alloc and
+     *     it takes the leftover; retail's block spends only $a0+$v0 on locals, leaving $v1
+     *     for `en`, while ours spends $a0+$v0+$v1 because `*sp` (higher priority, refs 2 /
+     *     live 3) grabs $v0 before mp can reuse the dead `li $v0,1` register.
+     *  NAMED NEXT ANGLE (re-aimed, and now a 1-element target): stand in the CAST-STORE
+     *  `sp; en; store; mp` basin (24, structurally retail's) and make `*sp` land in $a0 --
+     *  it needs $v0 AND $v1 unavailable at its birth, which is what retail's live `en`($v1)
+     *  + `mp`($v0) provide.  The only vehicle left that does not cost an insn is a hard-reg
+     *  conflict placed INSIDE `*sp`'s live range but OUTSIDE `mp`'s -- impossible with a
+     *  clobber (they overlap), so it is either (a) an allocation-ORDER dial that demotes
+     *  `*sp` below `mp` in local-alloc's qsort (refs/live-length, tools/qty272.py), or
+     *  (b) making `en` a per-site LOCAL that local_alloc actually seats in $v1 (the
+     *  block-local grid is 30-36 today; the cast-store basin has never been crossed with
+     *  it).  FALSIFIED THIS PASS on top of everything above: cast-store x {EN-OUTER,
+     *  EN-INNER} x {no fence, sp-fence, en-fence x 6 clobbers} (24 best, 28-46 elsewhere);
+     *  block-local `en` x cast store 32-36 (40-44 @118 when `en` is read as
+     *  `g_intr.enabled`); per-fn -fno-schedule-insns 26 @116 (and it does NOT stop the
+     *  hoist -- the hoist is a DEPENDENCE fact, not a scheduling one), -fno-schedule-insns2
+     *  30, -fno-strength-reduce 24, -fno-cse-follow-jumps 24, -fno-delayed-branch 29 @119.
+     * W75-A16 LANE FACTS for the next agent on this TU (both verified in tools/build.py):
+     *  - 3.25-3b (aspsx-filled slots) does NOT apply to either target: both are already
+     *    count-exact, and -fno-delayed-branch mints an insn at each (_intrhand 29 @119,
+     *    _set_intr_callback 17 @83).  The TU's PER_FN_NO_DELAYED_BRANCH set stays as is.
+     *  - 🔴 RAW40 SCOPE RULE: PER_FN_RAW40_SPLICE is INERT for any `cc1_272` TU, twice
+     *    over.  (1) compile_c returns from _compile_c_272 (build.py:2699) long before the
+     *    raw40 block (:2751), so a row here would silently do nothing; (2) even if it ran,
+     *    CC1_PSYQ40 and _resolve_cc1_272 resolve to the SAME binary on the dev box
+     *    (C:/Temp/nfs3-clean/psyq400/COMPILER/CC1PSX.EXE) -- the 272 lane already IS the
+     *    raw-4.0 macro-form cc1 assembled by the lane's own GNU as.  Do not add RAW40 rows
+     *    to INTR.c; the equivalent axis here is the ver-splice rung. */
     unsigned short *state;
     unsigned short s0;
     long pend;
@@ -731,7 +814,56 @@ extern int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C10 */
      *  shape in which arm 1's `enabled` address is formed from `&g_intr` in the first place --
      *  which needs `&g_intr` to be a live REGISTER VALUE with a real use in arm 1, not a dead
      *  fence artifact -- or (b) a build-side per-fn textual rewrite (TEXT_MOVES cannot express
-     *  it: the two words differ in base register AND displacement, not in position). */
+     *  it: the two words differ in base register AND displacement, not in position).
+     * W75-A16 (2026-08-23) RE-GATED 4 @82/82 (twice).  The W74 angle "(b) a build-side
+     * per-fn textual rewrite" is now DEAD BY POLICY (user, 2026-08-23: post-recompile
+     * instruction rewrites -- PER_FN_TEXT_MOVES / RA_SINK -- are forbidden); angle (a) was
+     * run to its mechanism and the target is RE-STATED one layer deeper than W74 left it:
+     *  🔑 THE CHOOSER IS `use_related_value` (cse.c:1812), AND IT IS OLDEST-WINS.
+     *    W74 proved find_best_addr cannot RE-base an existing `(plus reg K)`.  What FORMS
+     *    the address in the first place is use_related_value, reached from cse_insn:6672
+     *    under the guard `src_const && (GET_CODE (src_const) == CONST || (src_const_elt &&
+     *    src_const_elt->related_value != 0))`.  It starts at the class RELT of the bare
+     *    SYMBOL_REF, and on the FIRST iteration takes any REG in that class (=> `48($a2)`,
+     *    retail's form); only if the symbol class has NO register does it step to
+     *    `p = p->related_value`.  insert() (cse.c:1458-1460) links each new CONST just
+     *    BEFORE the base, "so the element that follows SUBELT is the OLDEST one" => the
+     *    step lands on the OLDEST related constant that owns a register.  Here that is
+     *    `&g_intr.cb` = sym+4 in $a1, minted at insn 5 for `oldCallback = g_intr.cb[idx]`
+     *    -- hence ours `44($a1)`, and hence also the guard's `lhu $v0,-4($a1)` (which BOTH
+     *    builds share: same rule, offset 0-4).
+     *  🔴 WHY OUR $a2 DOES NOT COUNT: the 21A-5 'm' fence's base is materialised for the
+     *    "m" constraint AFTER cse, so cse never sees a `(set reg (symbol_ref g_intr))` and
+     *    the symbol class stays register-less.  => the residual is NOT a cost tie inside
+     *    cse (the W72/W74 "cheapest equivalent base" reading) but a TABLE-CONTENT fact:
+     *    retail's cse had a REG in the symbol class at that point and ours does not.
+     *  FALSIFIED THIS PASS (all gated + reverted; the 4 @82 control re-measured each run):
+     *    every vehicle that puts `&g_intr` in a register in SOURCE pays for a full `la`
+     *    because cc1 does NOT route the asm/pointer address through use_related_value --
+     *    `__asm__("" : : "r"(&g_intr))` 15 @85 (the .s carries `la $6,D_80134AF8`, two
+     *    machine words, and arm 1 STILL reads `44($a1)`, so even a live $a2 is inert while
+     *    it is outside the symbol class), the same with `__volatile__` 16 @86,
+     *    `"r"(&g_intr.in_handler)` 15 @85, `"r"(&g_intr.enabled)` 15 @85, the 'm' fence
+     *    PLUS any of those 4-7 @82/83, `IntrState *ctl = &g_intr` assigned in the guard
+     *    body and used in arm 1 only 9 @85 / in both arms 30 @86 / declared inside arm 1
+     *    9 @85 (fence) and 31 @87 (no fence), an 'm' fence on `g_intr.enabled` at the arm-1
+     *    head 4 (inert).  AXES re-priced on the 4-basin and all inert or worse: rungs
+     *    2.6.0 / 2.6.3 / 2.7.2 = 4, 970404 / 2.8.0 / 2.8.1 = 64 @82; per-fn flags -G4 4,
+     *    -G8 4, -fno-expensive-optimizations 4 (independently re-confirming W74's reading
+     *    that find_best_addr's expensive arm is not the path), -fno-schedule-insns 20 @80,
+     *    -fno-schedule-insns2 20 @82; `-mno-split-addresses` re-confirmed REJECTED by the
+     *    lane's CC1PSX ("Invalid option `no-split-addresses'").
+     *  NAMED NEXT ANGLE (sharpened to one question): get a REG into cse's bare-SYMBOL_REF
+     *  equivalence class for `g_intr` before arm 1's address is formed, WITHOUT paying a
+     *  `la`.  The only known zero-cost producer of such a REG is use_related_value itself
+     *  rewriting a `(set reg (symbol_ref))` into `addiu reg,$a1,-4` -- which is exactly the
+     *  insn retail has at slot 20 -- so the question is which construct in cc1 2.7.2 still
+     *  reaches cse_insn:6672 with `src_const == (symbol_ref g_intr)`.  Read the RTL before
+     *  cse (-dc / rtl_dump) for the `"r"(&g_intr)` cell and find out whether the address is
+     *  already expanded to a lui/lo_sum pair at that point (in which case the answer is a
+     *  rung/flag that leaves it unsplit, and none of the 2.6/2.7 rungs accept the switch)
+     *  or whether src_const is set but the symbol class is simply absent (in which case a
+     *  cheap earlier offset-0 REFERENCE -- not an address-take -- is the vehicle). */
     int oldCallback;
     unsigned short nMask;
     int nNewMask;

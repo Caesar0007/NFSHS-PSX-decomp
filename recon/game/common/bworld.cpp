@@ -731,7 +731,57 @@ int SetupChunkBuildList(DRender_tView *Vi)
            invariant used INSIDE the loop rather than a pre-loop biv init.  The
            obvious spelling (index form `BWorld_gChunkBuildList[chunkCount]`
            inside the body) rewrites 6 matched store sites and is a whole-loop
-           risk, so price it on a scratch copy first. */
+           risk, so price it on a scratch copy first.
+
+       W75-A11 2026-08-23 -- ANGLE (e) WALKED AND FALSIFIED, AND THE HEAD
+       POSITION OF THE %hi PAIR IS NOW EXPLAINED BY A LAW instead of an
+       observation.  4 STAYS @203/203; the TU stays 20/21.
+       (a) ANGLE (e) IS DEAD.  Spelling the walker as an INDEX form born in the
+           loop (`buildList = (volatile tBuildEntry *)BWorld_gChunkBuildList +
+           chunkCount;` inside the innermost visible-block, `buildList++`
+           deleted, the head-block assignment removed) so that loop.c would
+           hoist the base into the PREHEADER: gate FAIL **134 @201** -- gcc's
+           strength reduction does rebuild a walker, but it drops a callee-saved
+           register (frame 136 vs retail's 144, s4/s5 re-roled) and re-colors the
+           whole body.  Not a basin; do not re-price it.
+           (loop.c does NOT block the hoist for a volatile loop -- loop_has_volatile
+           is consulted only by the loop-REVERSAL gate at loop.c:6070, and
+           invariant_p's MEM arm turns on unknown_address_altered for the calls,
+           which is irrelevant to a constant ADDRESS.  So the falsification is
+           about strength reduction, not about volatile.)
+       (b) WHY THE PAIR IS IMMUNE TO SOURCE STATEMENT ORDER (the W72/W74
+           "byte-identical cc1 output" observation, now mechanized).  Both
+           scheduling passes are REVERSE list schedulers (W72's own correction:
+           priority() walks LOG_LINKS = PREDECESSORS, so INSN_PRIORITY is the
+           longest chain from the block TOP, and schedule_insn places the
+           first-picked insn at the block TAIL).  An address materialization has
+           NO in-block data predecessor, so `lui %hi` has priority 0 and
+           `addiu %lo` priority 1 -- the two LOWEST in this 28-insn head block,
+           hence they are picked LAST and land FIRST, whatever order RTL
+           generation emitted them in.  That is a structural property of the
+           insn's dependence depth, not of the statement position, which is
+           exactly why every statement-move measured byte-identical.
+       (c) THE REQUIREMENT, RESTATED IN THE FORM A FUTURE WAVE CAN ATTACK.
+           Retail's $v1 needs the pair to conflict with a qty already holding
+           $v0, and W74-A10(b) fixes the arithmetic: a rival with
+           pri = refs*floor_log2(refs)*10000/life > 10000 spanning the pair, i.e.
+           refs >= 4 with life <= 7 -- only this block's qty5 (the
+           Track_gInViewCount address+load+store chain, refs 4 / life 6 /
+           window [22,28)) qualifies.  Combined with (b): the pair can only
+           reach that window if it acquires an in-block DATA PREDECESSOR chain
+           of depth >= 3, because that is the only thing that raises its
+           INSN_PRIORITY.  No known zero-byte device supplies a PREDECESSOR --
+           W69's launder chain was measured in the SUCCESSOR direction and costs
+           a real `addu` per link past depth 1 -- and every asm in this head
+           costs >= 20 diffs.  NEXT NAMED ANGLE: a zero-byte predecessor device
+           (or a real source value the address legitimately derives from).
+       (d) ALSO FALSIFIED THIS WAVE -- the PER-FN CC1 FLAG axis, which had never
+           been swept for this function (instrument: scratchpad/w75/vprobe_flag.py,
+           a generic per-FUNCTION flag splice on build.py's _apply_fn_splice).
+           All real gate runs: -fno-expensive-optimizations, -fno-caller-saves,
+           -fno-rerun-cse-after-loop, -fno-cse-follow-jumps, -fno-cse-skip-blocks,
+           -fno-thread-jumps, -fno-peephole, -fno-function-cse, -fforce-addr
+           = 4 @203 (INERT); -fno-force-mem 21 @202.  Flag axis CLOSED. */
     viewList =
         ((short (*)[32])Track_gInViewList)[gCurrContext->currentChunk];
     totalVisChunks =

@@ -751,7 +751,59 @@ void Stats_ExtrapolateOpponentTimes(int type)
    it, so the two properties are currently carried by the SAME volatile.  Next
    instruments: a base un-merge that is independent of the min statement (an 'm'
    fence that actually reaches the arm's address without the volatile -- measured
-   ineffective alone here), or the 06E local-alloc/qtytrace lane. */
+   ineffective alone here), or the 06E local-alloc/qtytrace lane.
+
+   ===== W75-A10 (2026-08-23).  Re-gated 12 @232/232 -- KEPT (nothing landed).
+   The W74 route was run to its end; the result is a QUANTIFIED BOUNDARY plus one
+   new law.
+   NEW DIAGNOSTIC -- with the min's volatile removed the build is 76 @226, and the
+   SIX missing instructions are now enumerated off the sbs instead of guessed:
+     -4  the abs arm's INDEX-FORM base rematerialization.  retail
+         `addiu t5,t5,0 / addu v0,s6,t5 / lw v0,0(v0) / nop / lw v0,1056(v0)`;
+         ours collapses to ONE `lw v0,1056(v1)` re-using the min's own element
+         pointer.
+     -1  the min's SECOND store.  Without the volatile gcc uses the TARGET as the
+         compare temp -- `lw s3,848(v1) / slt v0,a1,s3 / beqz / addu s3,a1,zero`
+         -- one load, one store, no copy (W72-A13's expand-into-target, sharpened:
+         it is not only the arm that expands into the target, the COMPARE reads
+         through it too).
+     -1  the `lui t5,0` retail parks in the `beq PlayerPosition==1` delay slot.
+   and the ENTIRE s3/s4/s5/s6/s7/fp band rotates with them (PlayerSlice stops
+   spilling to 20(sp)).  So the volatile is not one of two carriers -- it carries
+   the whole basin.
+   EVERY ALTERNATIVE UN-MERGE DEVICE LANDS ON THE SAME 228 PLATEAU (4 short, band
+   rotated).  MEASURED THIS WAVE (every one a real gate run, all restored):
+     plain min ............................................... 76 @226
+     plain-temp min .......................................... 76 @226
+     plain-temp + `"memory"` clobber at the abs-arm head ...... 78 @228
+     plain-temp + `"memory"` right after the min .............. 65 @229
+     plain-temp + `"memory"` after the min, 'm'-fence deleted . 79 @229
+     plain min + `"memory"` at the arm head + 'm'-fence ....... 78 @228
+     plain min + volatile ELEMENT view in the abs arm ......... 78 @228
+     plain min + both ........................................ 78 @228
+     volatile ELEMENT view INSIDE the min (`Car_tObj *car =
+       *(Car_tObj *volatile *)&Cars_gRaceCarList[j];`) ........ 78 @228
+     the same through a `Car_tObj *volatile *slot` local ...... 78 @228
+     compare-read volatile + plain false arm ................. 100 @236
+     temp + 20B tied launder with "$23" / "$22" clobber ....... 72 @226
+     temp + read-only fence with "$23" ....................... 69 @227
+     temp + read-only fence with "$23","$22","$21","$20" ..... 107 @227
+   *** NEW LAW (why the plateau exists): the volatile at the sliceTotal USE SITE is
+   the ONLY device that produces the abs arm's INDEX form.  A `"memory"` clobber
+   or a volatile ELEMENT view does force the arm to RE-LOAD the element, but it
+   re-loads through the loop's GIV WALKER (`lw v0,0(s0)`), never through
+   `(j<<2) + base`.  Only an unmovable volatile MEM at the min's use site stops
+   loop.c strength-reducing that second address into the walker -- and only then
+   does the 'm'-fence (21A-5) have a %hi pseudo to dial.  This retires the whole
+   "find another un-merge device" line of attack.
+   DEVICE-REMOVAL RE-TEST (23B-3, run as asked): dropping the 'm'-fence from the
+   shipped basin is W74's 93 @233; dropping the volatile is 76 @226.  Neither
+   device is redundant -- both are load-bearing.
+   => THE OPEN ASK IS NOW SINGULAR: force the ABS ARM's element address into the
+   INDEX form while the min is PLAIN.  Cast-int spellings cannot (fold rebuilds
+   the ARRAY_REF, W72-A13), so the lever is loop.c-side -- an index expression
+   loop.c cannot strength-reduce (a non-BIV-derived index), or the 06E
+   local-alloc/qtytrace lane run on the 228 dump. */
 void Stats_TrackEndGame(void)
 
 {

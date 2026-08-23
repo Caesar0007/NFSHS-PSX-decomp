@@ -642,6 +642,65 @@ int AIHigh_BasicPerp::CheckChaserPosition(int copIndex,int carIndex)
          on it 15 @86 -- i.e. the 13B/21B "any asm stops reorg's backward scan" rule does
          NOT keep the copy out of the blez delay slot here, because the copy is minted by
          the launder itself and sits BELOW it.  Probe: scratchpad/W74_A11_ccp.py. */
+      /* ==== W75-A9 re-gated (2 @85/87) and IDENTIFIED THE OWNING PASS AND ITS EXACT
+         ESCAPE FROM COMPILER SOURCE + RTL DUMPS.  Six waves called this "a cse
+         value-range record"; that is right but incomplete, and the missing half is
+         what makes it actionable.
+         (1) WHERE THE MISSING `blez` COMES FROM -- it is NOT a source statement at all.
+             jump.c:625 calls duplicate_loop_exit_test (jump.c:2286) for every
+             NOTE_INSN_LOOP_BEG whose next_nonnote_insn is a SIMPLEJUMP (our do/while +
+             break shape emits exactly that).  It COPIES the loop-entry block --
+             {the two positionVSCopList_ loads, the guard test} -- to just before
+             LOOP_BEG and rotates the loop.  In our .jump dump that copy is
+             insns 247-256 (loads, temps remapped per the jump.c reg_map block) plus
+             jump_insn 257 (`le reg83 0`).  257 IS the oracle idx-33 blez; cross_jump
+             later merges the copied loads with the loop-top ones, which is why the
+             surviving branch reads as in-loop in the retail listing.
+         (2) WHY IT DIES: cse.c:7681 record_jump_equiv(insn,0) on the outer
+             `if (0 < pos)` (jump_insn 47) records GT/const0 against pos QUANTITY
+             (record_jump_cond, cse.c:6105); fold_rtx cse.c:5520-5539 then folds 257 to
+             false via comparison_dominates_p(GT, reverse(LE)).  PROVED by dump diff:
+             .jump has THREE `le` jump_insns (47, 257, 224), .cse has TWO (257 deleted,
+             and 78 condition dropped to a plain `j` -- retail deletes THAT one too).
+         (3) THE ESCAPE IS A cse BASIC-BLOCK BOUNDARY, NOT A VALUE DEVICE.
+             cse_end_of_basic_block (cse.c:8189) ends a cse block ONLY at a CODE_LABEL,
+             and -- when !after_loop -- at NOTE_INSN_LOOP_END / NOTE_INSN_SETJMP.
+             Conditional jumps do NOT end it, so 47 and 257 sit in ONE block and the
+             record applies.  That explains every prior falsification (block notes,
+             comparison codes, loop shape, barriers all leave the boundary alone).
+         (4) THE cse1 HALF IS SOLVED, MEASURED: `do { __asm__("" : : ); } while (0);`
+             as the first statement inside the `if` plants a NOTE_INSN_LOOP_END between
+             47 and the copy -> the .cse dump SHOWS the duplicated test SURVIVING cse
+             and loop.  A BARE `do{}while(0)` does NOT work and that is not a null
+             result: with no insn inside, jump.c next_nonnote_insn(LOOP_BEG) skips its
+             notes straight to the REAL loop simplejump, duplicate_loop_exit_test fires
+             on the WRONG loop_start and emits the copy BEFORE the breaker notes (35
+             @90).  The asm-bearing breaker gates 25 @86.
+         (5) THE REMAINING BLOCKER IS NAMED: cse2 (rerun-cse-after-loop) runs with
+             after_loop=1 and cse.c:8225-8231 explicitly IGNORES NOTE_INSN_LOOP_END, so
+             it re-folds the copy.  Pass attribution by dump: the guard survives
+             jump/cse/loop and dies in cse2.  PROOF: breaker + -fno-rerun-cse-after-loop
+             puts THREE `blez` in the .s (guard restored; the flag is a PROBE, not a
+             landing -- whole-TU it is 49 @94).  Only a CODE_LABEL between 47 and the
+             copy survives BOTH cse passes -- and jump.c pass 1 deletes unreferenced
+             labels before duplicate_loop_exit_test runs, so it must be REFERENCED.
+         FALSIFIED THIS WAVE (each re-gated from 2): a 26-flag cc1 sweep -- -O1, -O3,
+         -G0, -G8, -fno-cse-follow-jumps, -fno-cse-skip-blocks, -fno-rerun-cse-after-loop,
+         -fno-thread-jumps, -fno-expensive-optimizations, both schedulers,
+         -fno-delayed-branch, -mno-split-addresses, -fno-strength-reduce, -funroll-loops,
+         -fomit-frame-pointer, -fno-function-cse, -fno-peephole, -fno-defer-pop,
+         -fno-inline -- ALL leave blez=2, so the FLAG AXIS IS CLOSED on its own;
+         `while(0){}` / `for(;0;){}` breakers 35 @90; the breaker OUTSIDE the `if` inert
+         (2 @85 -- its LOOP_END lands before insn 47); FOUR early-return spellings of the
+         outer guard (`pos<1`, `pos<=0`, `!(0<pos)`, `0>=pos`) all byte-identical 2 @85
+         (gcc jumps straight to the shared epilogue, no label is planted); the 22B(3)
+         tied identity launder on `pos` in the PREHEADER (a position no prior wave tried
+         -- every earlier fence was AT the guard) 35 @92, worse than the guard position.
+         NEXT NAMED ANGLE: a ZERO-INSN source construct that plants a REFERENCED
+         CODE_LABEL in the loop preheader.  Untried candidate: an `||` outer condition
+         (`if (X || 0 < pos)`), whose true-arm label is emitted immediately before the
+         body -- it needs a zero-cost X.
+         Probes: scratchpad/w75/A9_v1..v4.py, A9_flagprobe.py; dumps scratchpad/w75/A9_rtl/. ==== */
             if (pos < 1) break;
 
       if (nextCopIndex != -1) {

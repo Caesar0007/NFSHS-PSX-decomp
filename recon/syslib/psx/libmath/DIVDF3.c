@@ -372,13 +372,95 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
      *     import ADDDF3's reload_cse certificate here.
      * ANGLE UNCHANGED for row (a): the 13B/15B delete_noop_moves family aimed at the
      * `h`->`ur.w.hi` copy (the 13-diff named-`h` basin already carries retail's polarity and
-     * its fresh `lui/ori`), NOT the constant and NOT the union store order. */
+     * its fresh `lui/ori`), NOT the constant and NOT the union store order.
+     *
+     * 🏆🏆 W75-A14 2026-08-23 -- **12 -> 6, count-exact 184/184.  ROW (a) IS SOLVED.**  It was
+     * never a cse/constant/union-store question at all; three waves priced the wrong axis.
+     *
+     * 🔴 THE W62/W72 "ANY SPELLING THAT WRITES ur.w.hi TWICE RE-MATERIALISES THE WHOLE UNION
+     * HEAD" VERDICT IS FALSE -- it is a two-line DIAGNOSIS ERROR, not a mechanism.  The
+     * 64/70-diff readings for the 13C inverted-default form are a clean 3-WAY REGISTER
+     * ROTATION and nothing else: sbs shows ours {ur = $s0:$s1, n = $s2, exp = $s3} against
+     * retail {n = $s0, exp = $s1, ur = $s2:$s3}, with EVERY other word identical.  Nobody
+     * ever ran sbs on the falsified variant -- the raw diff COUNT was taken as the verdict.
+     * (Catalog 09K/21E-3 restated: judge a structural move on the sbs, never on the count.)
+     *
+     * 🔑 LANDING 1 -- THE SHAPE.  Retail's arm IS the 13C inverted default:
+     *       ur.w.hi = -1;
+     *       if (sign == 0) ur.w.hi = 0x7FFFFFFF;
+     *       ur.w.lo = -1;
+     *   giving retail's `bnez $s4` polarity, `li $s3,-1` in its delay slot (reorg backward-
+     *   steals the default), the FRESH `lui $s3,0x7FFF; ori` on the fall-through, and
+     *   `li $s2,-1` in the `j` slot.  No copy, no funnel: the ternary's `addu $s3,$v0,$zero`
+     *   and its cse-shared `lui $v0,0x7FFF` are both gone.
+     *
+     * 🔑 LANDING 2 -- THE SEAT, PREDICTED THEN MEASURED (global.c allocno_compare).
+     *   `ur` is ONE DFmode pseudo, and a `(set (subreg:SI (reg:DF)) ...)` is a PARTIAL write,
+     *   so flow keeps the pair live from function entry (dump: reg 76, 19 refs / 159 insns /
+     *   crosses 11 calls) -- that is why `ur` is callee-saved at all.  EACH `ur.w.X = ...`
+     *   costs TWO refs (read-modify-write), so the extra store moves it 17 -> 19 and lifts
+     *   its priority just past `n`'s, stealing $s0:$s1.
+     *   🏆 THIS LANE'S PRIORITY FORMULA **HAS THE SIZE TERM** -- a correction to 12A/qty272.
+     *   Measured on this dump (`scratchpad/w75/rtl/DIVDF3.i.greg`, cc1 = windows-gcc-psx
+     *   gcc-2.7.2-psx, the wired rung):  pri = floor_log2(refs)*refs/live_length * SIZE,
+     *   size in WORDS.  The printed `;; 11 regs to allocate: 74 (2) 75 (2) 76 (2) 79 130 127
+     *   78 80 117 81 77` is reproduced 11/11 by the SIZE form and NOT by the size-free form
+     *   (which would rank 79 and 130 ahead of 74/75/76).  qty272.py's `pri()` docstring
+     *   claims the size-free rule for "the 272 lane"; that was validated on PsyQ CC1PSX --
+     *   it does NOT hold for the windows-gcc-psx 2.7.2 rung, so re-derive per binary.
+     *   (Also: qty272.parse_greg CRASHES on this dump -- the `;; N regs to allocate:` line
+     *   prints a ` (2)` word-count suffix for multi-word allocnos that the regex does not
+     *   accept.  One-line fix queued for the tool owner; the numbers above were read by hand.)
+     *   PRICING: pri(76) = 4*19/159*2 = 0.956 vs pri(79 = `n`) = 3*8/28*1 = 0.857.  ONE extra
+     *   reference on `n` gives 3*9/28 = 0.964 > 0.956 and flips the pair.  Delivered by adding
+     *   a SECOND `"r"(n)` operand to the 05C ref-fence that was already there -- zero insns,
+     *   no new asm, no new local.  find_free_reg then hands $s0 to `n`, $s2:$s3 to `ur` (the
+     *   lowest FREE EVEN pair, 16 being taken) and $s1 to `exp` -- retail exactly.
+     *   MEASURED: baseline (ternary) 12 | inverted default alone 64 @184 (the rotation) |
+     *   + "r"(exp) x1/x2/x3 on the fence 64/64/64 (WRONG allocno -- `exp` is reg 78, priority
+     *   0.248, nowhere near the boundary; recorded so the operand choice is not re-guessed) |
+     *   + a SECOND "r"(n) **6** @184.  Two whole-arm rewrites also falsified here:
+     *   split the result into two scalar `int rhi, rlo;` assembled once at the exit ... 29 @183
+     *     (they cross NO calls, so they land caller-saved $v0/$v1 -- retail's $s2:$s3 pair is
+     *      proof the result IS the partially-written DFmode union, not two ints).
+     *
+     * RESIDUAL (6) -- TWO reorg TARGET-STEAL rows, both the SAME mechanism, both !own_thread:
+     *   (i) idx 27: retail steals `lui $v0,0x7FFF` (the ua-guard mask's first half, which
+     *       also stays at its home idx 34) into the `bnez $t2,$L2` delay slot and re-points
+     *       that branch one insn later; ours emits `nop`.  $L2 has TWO predecessors, so this
+     *       is fill_slots_from_thread's `! own_thread` COPY path (reorg.c:3635
+     *       `temp = own_thread ? trial : copy_rtx (trial)`), gated by
+     *       `! insn_sets_resource_p (trial, &opposite_needed, 1)` (:3574) where
+     *       opposite_needed = mark_target_live_regs of the FALL-THROUGH (arm 1).  Prediction
+     *       is fine (mostly_true_jump returns 1 for NE, reorg.c:3961), so the refusal is a
+     *       liveness question on $v0 at arm 1's head -- and mark_target_live_regs is
+     *       CFG-STALE (13E).  NEXT ANGLE (named, not run): dump -dd/-dR on this rung and read
+     *       which resource makes `opposite_needed` claim $v0; the source lever, if any, is to
+     *       kill a $v0 use at the head of arm 1.  A fence CANNOT help (13B: a fence blocks
+     *       theft, never supplies it).  Mechanism route: this needs a COPY, not a move, so
+     *       PER_FN_TEXT_MOVES cannot express it (the line is still needed at $L2) -- it is
+     *       the 11B "TEXT_MOVES COPY variant" ask, or PER_FN_BRANCH_RETARGET + a copy row.
+     *  (ii) idx 133/145: the same !own_thread copy at the exp>=0 arm's `j`, where retail puts
+     *       the join's `addiu $a0,$sp,24` in the `j` slot AND keeps a copy that arm 2 falls
+     *       through (retail arm2 order: jal / [slot exp=0] / addiu a0,sp,24 / addiu s0,s0,1).
+     *       Ours emits it ONCE, after `n += 1`.  Same COPY-not-MOVE property.  W72's four
+     *       duplicate-the-call / per-arm-pointer / launder spellings (52-84) were re-read but
+     *       NOT re-run at this basin -- they were all priced when row (a) still cost 6 insns,
+     *       so 04Z says re-price them before trusting those numbers.
+     *   NOT a floor. */
     ua.d = a;
     ub.d = b;
     exp = ((ua.w.hi >> 20) & 0x7FF) - ((ub.w.hi >> 20) & 0x7FF) + 1022;
     sign = (ua.w.hi & 0x80000000) ^ (ub.w.hi & 0x80000000);
     if ((ub.w.hi & 0x7FFFFFFF) == 0 && ub.w.lo == 0) {
-        ur.w.hi = sign ? -1 : 0x7FFFFFFF;
+        /* W75-A14: the 13C INVERTED DEFAULT, not a ternary -- retail's `bnez $s4` with
+         * `li $s3,-1` backward-stolen into its delay slot and a FRESH `lui/ori` on the
+         * fall-through.  Costs `ur` two extra refs (a subreg store to a DFmode pseudo is
+         * a read-modify-write); the seat that buys back is dialed at the `n` fence below.
+         * The W62/W72 "writes ur.w.hi twice = 64/70 diffs" verdict was a mis-read of that
+         * seat rotation -- see the receipt. */
+        ur.w.hi = -1;
+        if (sign == 0) ur.w.hi = 0x7FFFFFFF;
         ur.w.lo = -1;
     } else if ((ua.w.hi & 0x7FFFFFFF) == 0 && ua.w.lo == 0) {
         ur.w.hi = sign;
@@ -437,7 +519,13 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
                 __asm__ __volatile__("" : : "i"(0));
                 n += 1;
             }
-            __asm__("" : : "r"(n));   /* 05C ref-fence: see receipt */
+            /* 05C ref-fence.  TWO `n` operands, NOT one -- the second is the W75-A14
+             * seat dial: it takes `n`'s REG_N_REFS 8 -> 9, whose global.c priority
+             * floor_log2(9)*9/28 = 0.964 just clears the DFmode `ur` allocno's
+             * floor_log2(19)*19/159*2 = 0.956, so `n` is served first and takes $s0,
+             * leaving retail's $s2:$s3 even pair for `ur` and $s1 for `exp`.
+             * Dropping either operand costs 58 diffs.  Zero insns. */
+            __asm__("" : : "r"(n), "r"(n));
             _dbl_shift_us((unsigned int *)q, 1, q[0], q[1], n);
             q[1] &= 0xFFEFFFFF;
             if (exp >= 2047) {

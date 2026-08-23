@@ -628,6 +628,84 @@ extern void _read_data_int(void)
  *      that PER_FN_FLAG_SPLICE_272's -G4 row exploits for _padLoadActInfo_rcv (22A-5).
  *      The -G4 row is therefore NOT applicable here; -mno-split-addresses is the only
  *      mechanism.  (Note this TU is already at the default -G4.) */
+/* ==========================================================================
+ * W75-A17 re-gate: 3 @121/122.  NOTHING LANDED, but the function is now
+ * ROUTE-SOLVED: a complete, measured recipe reaches **1 diff** and both named
+ * residuals VANISH -- and it is blocked by a NEW, previously-unknown hazard
+ * that also produces a broken object.  Everything below is reproducible from
+ * scratchpad/w75/{a17_mkbuild.py,a17_msweep.py,a17_srcprobe.py,a17_ri_land.py}.
+ *
+ * 1. THE `CdControl(9,0,0)` RESIDUAL IS `reload_cse_regs`, AND IT IS A COMPILER-
+ *    VERSION IDENTITY, NOT A SPELLING.  (W75-A20 named the pass; this is the
+ *    consequence.)  `reload_cse_regs` is called UNCONDITIONALLY at `optimize > 0`
+ *    (gcc-2.8.1 toplev.c:3501 -- there is no flag), and IT DOES NOT EXIST IN
+ *    gcc-2.7.2 at all.  So retail's `addu $a2,$zero,$zero` is not a spelling we
+ *    failed to find: it is what a 2.7.2 build emits.  MEASURED PROOF: under the
+ *    PsyQ-4.0 (2.7.2) RAW40 route BOTH named residuals -- the `addu $a2,$a1,$zero`
+ *    reload_cse rewrite AND the missing `li $a0,6` reorg duplicate -- disappear
+ *    from the diff list without any source change.  ⇒ CDREAD.OBJ is a 2.7.2
+ *    object like its libcd siblings drv.c/stcdint.c (both wired `cc1_272`); this
+ *    TU's 2.8 lane is a RECON-SOURCE artifact, not a toolchain fact.
+ *
+ * 2. PER-FN LADDER RE-PROBED with the W74-A19 LM/.loc strip fix in place (the
+ *    fix that invalidated every earlier sub-2.8 ver-splice number), through a
+ *    scratch build.py copy that composes rung x extra-flags on BOTH lanes:
+ *      wired(2.8.1) 3 - 2.8.0 7 - TU-own(2.8.0) 7 - 2.7.2-970404 18 @120 -
+ *      psyq40 35 - 2.7.2 35 - 2.6.3 35 @127 - 2.6.0 35 @127 - 2.95.2 39 -
+ *      2.91.66 41 @119 - **RAW40 23 @117**.
+ *    No maspsx-lane rung beats the wired 2.8.1: the sub-2.8 rungs pay the
+ *    AT-MACRO class (`sw $v0,_cdr+N` assembler macros for the un-anchored `_cdr`
+ *    regions) plus maspsx's `.set noreorder` nops.  RAW40 (2.7.2 cc1 + GNU-as in
+ *    reorder mode, no maspsx) pays only the first half.
+ *
+ * 3. THE RAW40 ROUTE, FULLY PRICED (this is the W74-A14 "three-part job", now
+ *    measured end to end; each step gated, all reverted):
+ *      RAW40 alone .......................................... 23 @117/122
+ *      + ERROR-TAIL fenced anchor (`volatile CdrEnv *er = &_cdr;` + W49
+ *        identity fence, the proven `_read_int` recipe) ...... 16 @122/122 (count-EXACT)
+ *      + SHELL-OPEN fenced anchor, VSync SPLIT OUT FIRST
+ *        (`v = VSync(-1); sh = &_cdr; fence; sh->w1c = v;`) ...  5 @121/122
+ *      + the `_read_int` callback ADDRESS hoisted to its own
+ *        local BEFORE the tail anchor AND identity-fenced
+ *        (`cb = (int)_read_int; fence; g = &_cdr;`) ..........  1 @121/122
+ *    Shell-anchor variants at the 16 basin: split-VSync 5 - field anchor 15 -
+ *    plain identity anchor 15 @119 - anchor before CdControlF 17 @119 - no fence
+ *    16 (inert) - read-only fence 18 @124.  The VSync SPLIT is the whole lever
+ *    (same shape as w63-a6's tail-anchor split): with `sh->w1c = VSync(-1)` the
+ *    anchor is minted before the call and lands in a callee-saved reg.
+ *    `cb` variants: plain hoist before the anchor / before the barrier / before
+ *    the CdPosToInt call are all 5 (INERT) -- only the IDENTITY-FENCED hoist
+ *    (which stops cse from re-sinking the address) reaches 1.
+ *
+ * 4. 🔴🔴 WHY IT IS NOT LANDED -- NEW HAZARD, GATE-INVISIBLE, AND IT MAKES A
+ *    BROKEN OBJECT: **a zero-insn `__asm__` fence can be chosen by reorg as a
+ *    DELAY-SLOT FILLER.**  In the RAW40/272 route the merged .s comes out as
+ *        .set noreorder / jal CdLastPos / #APP <empty asm> #NO_APP / .set reorder
+ *    -- gcc counted the empty asm as the filler, it emits NOTHING, and the next
+ *    real instruction (`jal CdPosToInt`) silently lands in the delay slot.  On
+ *    R3000 a jump in a jump's delay slot is UNDEFINED, so the object is wrong;
+ *    verify_asm/tugate cannot see it (the instruction STREAM still matches, one
+ *    `nop` short -- that missing `nop` IS the residual 1 diff).  Removing the
+ *    barrier does not help: any other zero-insn fence in range is taken instead
+ *    (barrier variants all 1 @121: `"memory"` clobber, a `"$1"` clobber, a
+ *    read-only fence on `sect`, the barrier moved above the call, both, none).
+ *    NEW STANDING CHECK: `tools/slotcheck.py <obj> [fn]` -- flags any branch/jump
+ *    sitting in a branch/jump delay slot.  TREE-WIDE SCAN RUN THIS WAVE:
+ *    **521 objects in build/recon, 0 flagged** -- the shipped tree is clean and
+ *    the hazard is specific to the (zero-insn asm x 272/RAW40 reorder route)
+ *    combination.  Run it after ANY new 272/RAW40 wiring.
+ *
+ * ⇒ NEXT ANGLE (named, costed): land the RAW40 route once the fence device can be
+ *    made non-slottable -- either (a) find the gcc-2.8 length/eligibility path that
+ *    lets an empty asm into a MIPS delay slot and give the fences a form that fails
+ *    it, or (b) rebuild the two anchors WITHOUT identity fences (the `_read_int`
+ *    combine_regs law says the fence is the only per-site shape that collapses the
+ *    %hi/lo_sum pair, so this needs the `-mno-split-addresses` half of the
+ *    composition instead), or (c) a maspsx/route-level post-pass that re-nops a
+ *    slot whose filler assembled to zero bytes.  Until then the wired 2.8.1
+ *    3-diff basin stands, and its two residuals are FULLY EXPLAINED (reload_cse +
+ *    the split-address reorg steal), not merely "named".
+ * ========================================================================== */
 extern int _read_issue(int retry)
 {
     /* W62-A6: 22 -> 15.  TWO OPPOSITE delay-slot devices, both from the same law

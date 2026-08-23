@@ -2251,11 +2251,74 @@ extern int _gpu_que_drain(void)
                  * addu $v1,$v1,$a2` above the arg load) leaves the $a2-vs-$a1 pair plus the
                  * reload-pair displacement = 8, and moving the reload down instead is
                  * ILLEGAL (its chain would read $a2 before the load).  Rows are for
-                 * assembler-side relocations; this one would only launder a register diff. */
+                 * assembler-side relocations; this one would only launder a register diff.
+                 * 🟢 W75-A15 (2026-08-23) -- 10 -> 6, count still EXACT 152/152 (gated twice,
+                 * whole TU re-gated twice, 43/44 held).  ONE new source cell; the residual 6
+                 * is then a PURE LINE PERMUTATION which under the 2026-08-23 USER POLICY
+                 * (post-recompile instruction rewrites are FORBIDDEN) must stay unshipped --
+                 * the pre-flight below is recorded as a DIAGNOSTIC only, not as a row ask.
+                 *   (1) THE SOURCE CELL = retail's VOLATILE READ ORDER + a clobber register
+                 *       nobody had tried.  The three `_qout` reads are volatile, so their
+                 *       TEXT order IS their SOURCE order once `fidx` is counted as the first
+                 *       read: ours was (fidx=func, extra, arg), retail's stream is
+                 *       (func, arg, extra) -- read off the reloc addends, _que+0 = .func,
+                 *       +4 = .arg, +8 = .extra.  Swapping to `arg` before `extra` alone is
+                 *       the W64/W71/W72 "aef" row (18) -- but that row was only ever measured
+                 *       with the `"$2"` clobber inherited from the W72 landing.  The clobber
+                 *       REGISTER is a free axis and the whole grid (none/$v0/$v1/$a0/$a1/$a2/
+                 *       $v0+$a2/$a2+$v1 x three positions, scratchpad/w75/a15_grid.py) has a
+                 *       single minimum: **`"$5"` ($a1), placed AFTER both field reads** = 6
+                 *       count-exact.  Everything else in the grid is 14-28.  Why $a1: denying
+                 *       $a1 to `fidx`'s launder pushes the func-index handout so that only
+                 *       TWO `_qout` reloads are live at once and the third REUSES the first's
+                 *       register -- retail's exact 2-register shape (22B-1: a clobber denies
+                 *       only quantities live at that insn, so the position is the other half).
+                 *   (2) THE RESIDUAL 6 IS THEN A PURE 3-LINE PERMUTATION, which is exactly
+                 *       what the W64/W72 note said it was NOT -- because in THIS basin the
+                 *       registers finally agree: cc1 emits [sll $3,$3,5][lw $5,_qout]
+                 *       [lw $4,_que+4($2)] where retail emits [lw $4,_que+4($2)][lw $5,_qout]
+                 *       [sll $3,$3,5].  Same words, same registers, no .set/label/branch
+                 *       moved => the 23D-2 pre-flight PASSES.  A two-row relocation WAS built
+                 *       and measured PASS 152/152 with wordcmp REAL=0 and brdist clean, then
+                 *       REMOVED and NOT shipped: the 2026-08-23 user policy forbids
+                 *       post-recompile instruction rewrites.  The finding is kept as the
+                 *       CHARACTERISATION of the residual -- ours [sll $3,$3,5][lw $5,_qout]
+                 *       [lw $4,_que+4($2)] vs retail [lw $4,_que+4($2)][lw $5,_qout]
+                 *       [sll $3,$3,5] -- i.e. what any future SOURCE dial must achieve:
+                 *       sink BOTH the third volatile `_qout` reload and the func index
+                 *       chain's closing shift below the `.arg` field load.  It is a sched1
+                 *       emission-position question with the registers already retail's.
+                 *   AXES CLOSED THIS PASS (measured here, never measured before for this fn;
+                 *   the ladders were re-run in the NEW 6-diff basin per 04Z, both tables give
+                 *   the same verdict):
+                 *   COMPILER VERSION -- per-fn CC1_VER_SPLICE_272, 10-basin | 6-basin:
+                 *   2.6.0 26|22 · 2.6.3 26|22 · 2.7.2 20|16 · 2.7.2-970404 141@151|135@151 ·
+                 *   2.8.0 10|6 · 2.8.1 (wired) 10|6 · 2.91.66 97@161 · 2.95.2 82@156 -- no rung
+                 *   wins, so the 04M/W73 "raw PsyQ-4.0 (2.7.2) whole-fn identity" precondition
+                 *   FAILS here and PER_FN_RAW40_SPLICE is inapplicable (it is also unreachable
+                 *   in this lane: the raw40 mechanism lives in compile_c's maspsx branch and
+                 *   SYS.c is a cc1_alt/272-recipe TU).  FLAGS -- per-fn FLAG_SPLICE_272:
+                 *   -fno-strength-reduce / -fno-expensive-optimizations / -fforce-mem /
+                 *   -fno-cse-follow-jumps / -fno-cse-skip-blocks / -fno-thread-jumps /
+                 *   -fno-peephole / -fno-function-cse / -fno-caller-saves / -fcaller-saves /
+                 *   -fno-defer-pop / -fno-inline / -G4 / -G8 all INERT at 10;
+                 *   -fno-rerun-cse-after-loop 23 @155; -fforce-addr 128 @162.  Re-run in the
+                 *   6-basin: -fno-schedule-insns 64 @154 · -fno-schedule-insns2 12 @154 ·
+                 *   -fno-delayed-branch 19 @155 · -fno-rerun-cse-after-loop 24 @156 ·
+                 *   -fno-expensive-optimizations 26 · -fno-strength-reduce / -fno-thread-jumps
+                 *   / -G4 inert at 6 -- the 3.25-3b delayed-branch identity class is NOT this
+                 *   fn's, on either basin.
+                 *   SOURCE -- the interleaved `_qout*3` + `<<5` split (the func chain cut
+                 *   across the arg read, 8 arrangements, scratchpad/w75/a15_S{1..8}.json) is
+                 *   19-21 @151 and stays falsified; in the 6-basin, moving the `<< 5` INTO the
+                 *   func-read statement (`... + (fidx << 5)`) is 21-24, the E-before-A order
+                 *   with the $a1 clobber is 10-11 @152-153, the A/F/E order 11-14, and adding
+                 *   $a2/$a3/$t0 to the clobber set is bit-for-bit INERT at 6 -- the dial is
+                 *   exactly the $a1 denial, nothing else (grids: a15_grid.py, a15_grid2.py). */
                 fidx = _qout * 96;
-                __asm__("" : "=r"(fidx) : "0"(fidx) : "$2");
-                extra = _que.plain[_qout].extra;
                 arg = _que.plain[_qout].arg;
+                extra = _que.plain[_qout].extra;
+                __asm__("" : "=r"(fidx) : "0"(fidx) : "$5");
                 func = *(QueFunc *)((char *)_que.plain + fidx);
                 func(arg, extra);
             }

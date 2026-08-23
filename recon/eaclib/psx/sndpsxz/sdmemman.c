@@ -605,7 +605,57 @@ extern int iSNDpsxmalloc(int size)
      * ANGLE, now narrowed: for (ii) find a source form that gives the offset/base pseudo a
      * SECOND death in the arm (the only thing combine_regs' :1866 test accepts) WITHOUT an
      * asm barrier -- the W71 commit recipe's `- entry_off + entry_off` trick is the model;
-     * for (iii) qtytrace/-dl the la qty and attack the SELF-TEMP, not the serving order. */
+     * for (iii) qtytrace/-dl the la qty and attack the SELF-TEMP, not the serving order.
+     *
+     * 🔑 W75-A19 2026-08-23 -- RE-GATED at 12, COUNT-EXACT 127/127 (baseline confirmed).  NO
+     * landing, but CLUSTER (iii) IS RE-DIAGNOSED FROM THE OBJECT AND TWO STANDING READINGS ARE
+     * CORRECTED.  Probe harnesses: scratchpad/w75/a19/snd_probe{,2,3,4}.py (+ snd_sbs_*.txt).
+     *
+     * (1) 🔴 (iii) IS NOT A SELF-TEMP TIE-BREAK AND NOT A SERVING-ORDER RACE -- OURS CARRIES AN
+     *     EXTRA ADDRESS PSEUDO.  Side by side:
+     *       ours   sll a2,s0,2 | lui v1,%hi | addiu v0,v1,%lo | addu a2,a2,v0
+     *              ... lhu v1,%lo(D_80147E34)(v1)   <- the LIMIT read is a DIRECT absolute load
+     *       retail sll v0,s0,2 | lui v1,%hi | addiu v1,v1,%lo | addu a2,v0,v1
+     *              ... lhu v1,0(v1)                 <- the LIMIT read goes THROUGH pv, no reloc
+     *     `pv[0]` is a CONSTANT address (cse knows pv == &D_80147E34), so gcc folds it into a
+     *     %lo displacement off the SHARED %hi.  That gives the %hi pseudo TWO uses, so it cannot
+     *     tie to the lo_sum (no self-temp) and THREE address pseudos are live at the add -- which
+     *     is what pushes `off` out of $v0 into $a2.  Retail's %hi has ONE use, ties (self-temps),
+     *     and only TWO are live.  ⇒ the lever is "stop the constant-address fold on the LIMIT
+     *     read", not "dial the serving order of `off`" (which W72 already proved runs the wrong
+     *     way) and not "attack the self-temp" (the self-temp is the CONSEQUENCE, not the cause).
+     *
+     * (2) THE LAUNDER REACHES IT STRUCTURALLY -- AND ITS 2-INSN PRICE IS NOT WHAT W71 RECORDED.
+     *     `__asm__("" : "=r"(pv) : "0"(pv))` makes pv opaque, the fold disappears and the block
+     *     becomes retail's SHAPE exactly: `lui a1 / addiu a1,a1,0 / addu v0,a1,v0 / lhu v1,0(v0)
+     *     / lhu v0,2(v0) / ... / lhu v0,0(a1)` -- one la pseudo, limit read at displacement 0.
+     *     It gates 30 @125.  The missing 2 are NOT the cross_jump merge of the `addiu $a0/$a1,$sp`
+     *     pair that the W71 receipt blames: the side-by-side shows the loop-bottom `bnez` losing
+     *     its delay-slot fill (ours `nop`, retail `sll v0,s0,2`) and scan_done carrying ONE `sll`
+     *     where retail carries TWO.  That is 13B / reorg.c:685-712 stop_search_p returning 1 at
+     *     ANY asm -- the launder stands between the branch and the filler.  A fence can BLOCK
+     *     slot theft, never supply it.
+     *     PRICED AND FALSIFIED around it (all in this basin): launder + `do{}while(0)` depth
+     *     ladder 0/1/2/3/4/5 on the pv def = 30 @125 EVERY RUNG (the launder saturates the ref
+     *     dial -- re-priced per 04Z, the kept depth-3 is inert once the launder is present) |
+     *     launder + void fence `"i"(0)` at the block HEAD 30 @125, MID 30 @125, before the limit
+     *     read 31 @126, at the block TAIL 30 @**129** (overshoots by 4) | void fence alone, no
+     *     launder 24 @127 | launder before vs after the wrapper, both 30 @125 | launder moved
+     *     after the sum 30 @125, immediately before the limit read 29 @126, +depth-3 33 @126 |
+     *     launder on a second alias `lim` 33 @126 | launder on the limit alias only 33 @126.
+     *
+     * (3) THE NON-ASM ROUTE TO (1) IS FALSIFIED: a VOLATILE VIEW DOES NOT STOP THE FOLD.
+     *     `*(volatile unsigned short *)pv` 12 (inert) | `((volatile unsigned short *)pv)[0]` 12 |
+     *     volatile view + index-first sum 12 | limit read hoisted first, volatile 28 @129, plain
+     *     27 @128 | limit read via `prev - off` 33 @126 (gcc folds it back to the symbol).
+     *     Reason: the fold is address LEGITIMIZATION for a constant address, not a cse/combine
+     *     rewrite, so MEM_VOLATILE_P never gets consulted.
+     * ANGLE, re-narrowed: (iii) needs a ZERO-INSN way to make `pv` non-constant that does NOT
+     * sit between the loop-bottom branch and scan_done's first insn -- i.e. either an opaque def
+     * placed OUTSIDE this block (pv hoisted above the scan loop, so reorg's scan range is clean),
+     * or a PER_FN mechanism (TEXT_MOVES) that restores the stolen `sll` after the launder lands.
+     * Do NOT re-run: volatile views, the depth ladder, void-fence placements, or the launder
+     * spellings above.  (ii) is unchanged from the W74 reading. */
     unsigned char *base = sndpd;
     unsigned char *pd;
     unsigned int blk, src;

@@ -278,7 +278,54 @@ extern int intarcsin(int x)   /* @0x800EACD8 */
      *   the residual THERE is a pure QTY_CMP_PRI pair assignment.
      *   ANGLE UNCHANGED: qtytrace/-dl the la and sum qtys in the depth-2 fence basin.  Do NOT
      *   re-spell the subscript, the fence, or the rung (the per-fn ladder at the head of this
-     *   file is unchanged and still says default). */
+     *   file is unchanged and still says default).
+     *
+     * 🔑 W75-A19 2026-08-23 -- RE-GATED at 2 @48/48 (baseline confirmed).  NO landing, but the
+     * angle five waves have named ("qtytrace/-dl the la and sum qtys") WAS FINALLY RUN, and the
+     * dump turns the standing description of the two basins inside out.  READ THIS BEFORE
+     * SPENDING ANOTHER HOUR HERE.
+     *
+     * THE -dl RECEIPT (fence basin, dump kept at scratchpad/w75/a19/fb.lreg):
+     *     ;; Register 99 in 3.   ;; Register 100 in 3.   ;; Register 101 in 3.
+     *     ;; Register 102 in 2.  ;; Register 103 in 2.   ;; Register 105 in 2.
+     * i.e. the la (r99 lo_sum / r100 high) and the SUM (r101) are ONE local qty on $v1, while
+     * retail wants la->$v0 and sum->$v1.  They are one qty because the la DIES AT THE ADD and
+     * local-alloc's combine_regs ties an output to a dying input.
+     *
+     * 🔴 THE TWO BASINS ARE COMPLEMENTARY, AND THE REASON IS ONE SENTENCE:
+     *   - 2-diff basin: the source subscripts the table TWICE, so the la is USED TWICE, never
+     *     dies at the first add, is never tied -> it already gets retail's $v0 and the sum
+     *     already gets retail's $v1.  What is missing is only the COPY.
+     *   - fence basin: the identity launder mints retail's copy, but the copy REPLACES the
+     *     second subscript -- so the la now has exactly ONE use, dies at the add, and gets tied.
+     *   ⇒ THE COPY *IS* THE LA'S SECOND USE.  Every C spelling must choose one or the other;
+     *     that, not a QTY_CMP_PRI pair assignment, is why both basins are stuck.  (The W50/W61/
+     *     W71 reading "the fence basin's residual is a serving-order/self-temp question" is
+     *     hereby corrected: it is a combine_regs TIE created by the fence itself.)
+     *
+     * NEW FALSIFICATIONS (the zero-insn LATER-USE family -- the ingredient W71-A15 named as the
+     * one this site cannot supply, now swept properly for the first time; probe harness
+     * scratchpad/w75/a19/asin_probe{,2,3}.py, outputs alongside):
+     *   2-diff basin: `m`-fence `__asm__("" : : "m"(*pt))` after the loads 21 @47 | on *qt 21 @47
+     *     | between the loads 25 @47 | on both 21 @47 | on the plain two-subscript form 18 @48 |
+     *     read-only `"r"(pt)` after 21 @47 | `"r"(qt)` after 21 @47 | named `base` + `"r"(base)`
+     *     after 25 @47 | + `"m"(*base)` after 25 @47 | identity launder on a RE-SPELLED second
+     *     address (`qt = &asintbl[idx]`) 24 @48, +depth-2 wrapper 6 @48, launder on `pt` 28 @48.
+     *   fence basin: `"r"(base)` after the loads 30 @48 | `"m"(*base)` after 30 @48 | `"r"(base)`
+     *     before the loads 22 @48 | two-operand `"r"(base),"r"(pt)` 38 @48 | `"r"(asintbl)` after
+     *     the loads 9 @**49** (the fence COSTS an insn -- cse does NOT substitute the live la
+     *     pseudo into an asm "r" operand naming the array) | the same mid-block 26 @50 |
+     *     `"m"(asintbl[0])` after the loads 30 @48 (zero-insn but rotates idx $a1->$v1 whole-fn).
+     *   ⇒ an 'm'/'r' operand extends a live range but does NOT give a pseudo the SECOND DEATH
+     *     local-alloc.c:1866 asks for; it just collapses us back to the 47-insn one-address form.
+     * NEXT ANGLE (new, and narrower than any previous one): stop hunting a later use for the
+     * la -- hunt a THIRD reference to the table base that is neither the copy nor a second
+     * subscript, i.e. an RTL where the copy exists AND the la is multi-BLOCK (reg_qty < 0 is
+     * satisfied by non-locality as well as by a second death).  The only multi-block candidate
+     * in this function is the `idx == 0x1FF` arm, and W71 already showed the plain form const-
+     * props there -- so the device must keep that arm's `asintbl[0x1FF]` in a register WITHOUT
+     * changing its emitted code.  Do NOT re-run: the subscript spellings, the fence spellings,
+     * the flag ladder, the rung ladder, or the later-use fences above. */
     if (x <= 0xFA00) {                           /* coarse region: round-to-nearest lookup */
         if (x & 0x40)
             idx = (x >> 7) + 1;

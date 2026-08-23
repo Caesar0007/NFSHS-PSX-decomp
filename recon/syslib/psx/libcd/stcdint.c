@@ -645,19 +645,96 @@ extern void _st_dma(int ch, int madr, int blocks, int blocksize, volatile int ch
      *     Also re-confirmed inert: naming the 0x10000 busy-wait limit (27, slightly
      *     worse -- it does NOT move retail's `lui a2,1` into the guard's delay slot).
      * with `bcr` 33. */
+    /* 🏆 W75-A17: 25 -> 21 @107/106 -- the FIRST movement on this function in four waves,
+     * and it re-classifies cluster (b).  THE LANDING: a NAMED `idx` local for `ch << 4`
+     * plus a ZERO-INSN READ-ONLY FENCE on it (see the code below).  All the w62/w64/w72/w74
+     * spellings that were measured byte-identical (`int base` + index-first sum, literal
+     * index-first sum, `p`-before-`dp`, named `bcr`, ...) touched only the EXPRESSION; none
+     * of them changed the local-alloc QTY table, which is what actually decides this region.
+     * THE INSTRUMENT (tools/qty272.py --all, block 8 = the tail): every value here is a
+     * BLOCK-LOCAL qty, priority = floor_log2(refs)*refs*10000/live.  Control basin:
+     *   idx      refs 2  live  4  pri 5000 -> $a1        base  refs 2 live 7 pri 2857 -> $a2
+     * The read-only fence lengthens idx's live range 4 -> 12 (refs 2 -> 3), pri 5000 -> 2500,
+     * which pushes idx BELOW the base constant; the base then takes $a1 -- and because `p`
+     * (global allocno 80, prefs $a1) is tied to it, retail's `lui $a1;ori $a1 ... addu
+     * $a1,$v0,$a1` dest-is-the-BASE form appears.  -4 diffs, ZERO insns added, whole-TU 2/3
+     * held (gated twice).
+     * ⇒ RE-CLASSIFICATION OF CLUSTER (b): the w62/w64/w72/w74 receipts treated the BCR /
+     * address emission order as a sched1 DAG tie ("every legal statement order produces the
+     * same DAG").  The `-dR` (sched2) dump proves the tail order is decided POST-RELOAD, in
+     * sched2, where the dependence graph is over HARD REGISTERS -- so (b) is DOWNSTREAM of
+     * the register handout, not an independent scheduling tie.  Fix the handout and the
+     * emission order follows (it already did once, for the base/p pair).
+     * RESIDUAL 21, now ONE named allocation defect plus its two consequences:
+     *   (i)  the dv-chain (`ch*4`, `+3`) holds $v0 and `idx` holds $a2; retail has them
+     *        SWAPPED (dv -> $a2, idx -> $v0).  qty272 prices it exactly: the dv chain is
+     *        refs 2 / live 2 / pri 10000, idx is refs 2+1 / live 12 / pri 2500.  For idx to
+     *        reach $v0 it must outrank 10000, i.e. floor_log2(r)*r/live > 1 -- at live 12
+     *        that is refs >= 8.  MEASURED LADDER on the fence operand count (refs = 2+n):
+     *        n=1 21 (shipped) - n=2 33 - n=3 33 - n=4 33 - n=5 33 - n=6..10 46 @108.  The
+     *        priority does cross the step, but the extra refs re-colour the whole block
+     *        first; so the ref dial CANNOT reach it from the idx side.
+     *        The dv side is equally barred: every device that lengthens the dv chain's live
+     *        range costs an insn -- read-only fence on `dv` at the `p` statement 32 @108, at
+     *        `dp` 32 @108, two operands 32 @108, a split `sh` variable with the fence at `p`
+     *        32 @108 / before `dv = *dp` 32 @108 / at `p` in the pre-landing basin 32 @108.
+     *   (ii) the BCR pair still lands after the MADR store (consequence of (i)).
+     *   (iii) the extra `li $v0,1` in the busy-wait guard's slot (cluster (a), unchanged).
+     * ALSO FALSIFIED AT THIS BASIN (all gated + reverted): identity fence on idx 32 @108 /
+     * identity+read-only 40 @108 / two fence SITES 40 @108 / fence moved after `p` 21
+     * (inert) / after `dp` 21 (inert) / after the stores 21 (inert) / plain named idx with
+     * no fence 25 / idx assigned before `dv` 22 @108 / a named `base` local + identity fence
+     * 29 / read-only or identity fence on `p` before `dp` 41 @109 / void barrier before `dp`
+     * 21 (inert) / `dp` before `p` 21 (inert) / named `bcr` hoisted above `dp` 21, above the
+     * `*dp` store 21, after `dv = *dp` 21 (all inert -- cse re-sinks it), `bcr` + read-only
+     * fence 32 @108 / moving `bit` below `idx` 35.
+     * PER-FN FLAG + RUNG AXES CLOSED AT THIS BASIN (scratch harness
+     * scratchpad/w75/a17_mkbuild.py -- an env-driven per-fn (rung x extra-flags) splice on
+     * the 272 lane, so the composition cell is measurable without touching build.py):
+     *   flags  -fno-delayed-branch 35 - -fno-schedule-insns 33 @109 - -fno-schedule-insns2
+     *          42 @108 - -fno-expensive-optimizations 47 - -fno-rerun-cse-after-loop 58 @112
+     *          - -fforce-addr 50 @108 - -fno-peephole / -fno-cse-follow-jumps /
+     *          -fno-thread-jumps / -fno-force-mem / -fno-function-cse / -fno-caller-saves /
+     *          -fno-defer-pop / -mno-gpopt / -G4 / -G8 all 25 (INERT, control basin)
+     *   rungs  2.6.0 25 - 2.6.3 25 - 2.7.2 25 (wired) - 2.7.2-970404 81 @103 - 2.8.0 74 @104
+     *          - 2.8.1 77 @103 - 2.91.66 123 - 2.95.2 143 @95; 2.6.3/2.6.0 +
+     *          -fno-delayed-branch 35.  No rung and no flag beats the wired lane.
+     * THE 20B HARD-REGISTER-CONFLICT ANGLE IS NOW MEASURED AND CLOSED HERE TOO -- the one
+     * position the w72/w74 clobber sweeps never covered is strictly INSIDE the dv chain's
+     * live range (between `dv = ch*4` and the `sllv`), and it is completely INERT: a bare
+     * zero-ref clobber there scores 21 for "$2", "$2","$3", "$4", "$5", "$6", for a split
+     * `t3 = dv + 3` with the clobber between the two halves, before the `bit` fences, and at
+     * the `idx` statement -- EIGHT positions/masks, all byte-identical to the control.  That
+     * is the W74-A14 22B-2 law at a new site: denial cannot reach a qty whose def and use
+     * are adjacent, because there is no allocation decision left to deny.
+     * ⇒ NEXT ANGLE (named, unmeasured): every SOURCE dial for the dv/idx swap is now spent
+     * (refs ladder, live ladder, clobber positions, statement order, spellings, flags,
+     * rungs).  What is NOT spent is the local-alloc HANDOUT ORDER itself: qty272 gives the
+     * priority table but not find_free_reg's per-qty scan, and the instrumented cc1
+     * (C:/Temp/nfs4-instr-cc1, [find_free_reg]/[qty_compare] traces) has never been pointed
+     * at a cc1_272-lane function.  The ask is a 272-lane qtytrace: dump the block-8 scan and
+     * read WHY $v0 is offered to the dv chain before idx -- i.e. whether it is the priority
+     * order at all, or a qty_phys_copy_sugg/prune_preferences effect (the same correction
+     * W74-A14 had to make to the CD_cw certificate one file over). */
     __asm__("" : : "r"(bv));   /* MATCH: DEMOTE bv (read-only fence) so dptr wins $v1 */
     dummy = *(volatile int *)_dicr;
     __asm__ __volatile__("");  /* MATCH: Rage Racer CD_dmastart barrier -- keep the DICR read-back serial */
     {
         int dv;
         int bit;
+        int idx;
 
         dv  = ch * 4;
         bit = 1 << (dv + 3);
         __asm__ __volatile__("");  /* MATCH: Rage Racer CD_dmastart barrier */
         __asm__("" : "=r"(bit) : "0"(bit));  /* MATCH: PROMOTE bit -> $v1 (2 refs => negative */
         __asm__("" : "=r"(bit) : "0"(bit));  /* MATCH: allocno numerator; needs TWO fences)   */
-        p   = (volatile int *)(0x1F801080 + (ch << 4));
+        idx = ch << 4;
+        __asm__("" : : "r"(idx));  /* MATCH (W75-A17): DEMOTE idx (read-only fence, live 4 ->
+                                    * 12, qty pri 5000 -> 2500) so the 0x1F801080 base outranks
+                                    * it and takes $a1 = `p`'s reg -> retail's dest-is-the-BASE
+                                    * `addu $a1,$v0,$a1`.  Zero insns.  25 -> 21; see above. */
+        p   = (volatile int *)(0x1F801080 + idx);
         dp  = _dpcr;
         __asm__("" : "=r"(dp) : "0"(dp));  /* MATCH: PROMOTE dp -> $a0 (p then takes $a1) */
         dv  = *dp;

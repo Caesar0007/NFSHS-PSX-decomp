@@ -266,7 +266,48 @@ void AIHigh_Opponent::CheckForWipeOut()
          carObj_h one); the same via a statement-expression 103 @123; folding the
          tableEntry read into the existing carObj_h wrapper 27 @123; splitting the
          tableEntry decl from its initializer alone INERT.  Harness:
-         scratchpad/W74_A11_{gate,sbs,wipe}.py. */
+         scratchpad/W74_A11_{gate,sbs,wipe}.py.
+         ==== W75-A9 re-gated (9 @121/120) and CORRECTED W74 closing sentence, then
+         priced the residual off cc1 OWN SCHEDULER DUMP.
+         (1) IT IS NOT A CROSS-BLOCK PLACEMENT QUESTION.  W74 wrote "retail 596
+             chain is in the pre-branch block, ours in the post-branch one".  There is no
+             branch between them: (abs:SI ...) is ONE RTL insn (abssi2, mips.md) and the
+             dumps confirm exactly one (abs:SI in .jump/.cse/.loop/.cse2/.combine, so the
+             whole loop head `lw a0,0(a2)` .. `beqz` is ONE basic block (bb 12, insns
+             205-249).  The residual is a WITHIN-BLOCK sched2 ready-list order.
+         (2) THE INSTRUMENT: cc1 -dS/-dR print the per-block priority table AND the
+             ready-list trace.  bb 12 (-dR, sched2):
+               209 lw carObj_h        pri 1     226 lw ->596          pri 3
+               222 lw ->1380          pri 2 (ref_count 9!)  229 sll  pri 4
+               394 lui 0xD0000        pri 2     231 addu (hlai+idx)   pri 4
+               395 ori 21844          pri 2     233 lw *(tableEntry)  pri 4
+               244 abs                pri 3     237 lw ->932          pri 3
+               248 slt                pri 3     241 lw ->148          pri 5
+             The scheduler runs BACKWARD; reversing its picks gives the forward stream
+             209,222,394,395,244,226,248,229,231,233,237,241,249 = OUR asm exactly
+             (394 then stolen into the previous branch delay slot by reorg).  Retail
+             wants 209,395,226,222,229,231,244,248,... i.e. 226 (the carIndex load) AHEAD
+             of 222 (the currentSpeed load).
+         (3) THE ONE THING THAT BLOCKS IT, quantified: insn 226 carries a LOG_LINKS edge
+             to 222, which is what gives it pri 3 = pri(222)+1; and 222 has ref_count 9,
+             i.e. EVERY other insn in the block is chained behind the 1380 load.  With
+             that edge gone 226 would tie 222 at pri 2 and rank_for_schedule last
+             tie-break (priority, then last-scheduled class, then INSN_LUID = original
+             order) would make the SOURCE ORDER decisive -- which is what would make the
+             already-measured "carIndex read first" spelling meaningful.  Killing that
+             edge is the NEXT NAMED LENS for this fn.
+         FALSIFIED THIS WAVE (each re-gated from 9, all BYTE-IDENTICAL 9 @121):
+           - the 22C(3) MEM_IN_STRUCT_P ALIAS DIAL, never tried on this fn: spelling the
+             three cast field reads as real COMPONENT_REFs -- carObj_h->currentSpeed
+             (+1380), hlai[carObj_h->carIndex] (+596), carObj_h->stats.numFines
+             (+932) -- singly and in ALL FOUR combinations.  The /s flag does appear on
+             the resulting MEMs but does NOT remove 222 chaining, so the alias dial is
+             closed here (contrast DoObjects, where it sealed).
+           - __builtin_abs(field1380) (the ternary ALREADY folds to abssi2, so 22A(3)
+             has nothing left to buy here) and the (...) ? 1 : 0 wrapper.
+           - __builtin_abs(*(int *)((char *)carObj_h + 1380)) inlined at the compare
+             site 19 @121 (re-confirms W71 inline-the-abs-load falsification).
+         Probes: scratchpad/w75/A9_v5.py, A9_v6.py; dumps scratch/rtl/aih_opp.i.{sched,sched2}. */
       /* ==== */
       /* ---- W62-A10 (51 diffs, ours 121 / oracle 120) -- SUPERSEDED by the block above;
          kept for its falsification list.  The residual is now ONE

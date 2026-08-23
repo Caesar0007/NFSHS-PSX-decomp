@@ -282,7 +282,62 @@ extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
  *   vehicle.  The only remaining expression is build-side, and it is NOT TEXT_MOVES (the two
  *   words differ in opcode); it needs a per-fn textual REWRITE of one line
  *   (`addu $4,$6,$0` -> `lw $4,16($sp)`) plus the adjacent swap -- i.e. the same class as the
- *   W67 "PER_FN_POST_MASPSX_MOVES" mechanism that _padInitDirSeq is waiting on. */
+ *   W67 "PER_FN_POST_MASPSX_MOVES" mechanism that _padInitDirSeq is waiting on.
+ *
+ *   🔴🔴 W75-A15 (2026-08-23) -- RE-GATED 2 @199/199 (twice), and THE W74-A17 MECHANISM
+ *   ATTRIBUTION IS REFUTED BY THE COMPILER'S OWN DUMP.  The residual is NOT choose_reload_regs
+ *   inheritance.  RECEIPT: the `-dg` post-reload RTL dump (scratchpad/w75/a15_FONT_base.greg,
+ *   printed by toplev.c BEFORE reload_cse_regs runs -- that is what makes it the discriminator)
+ *   contains, adjacent and in this order:
+ *       (insn 547 (set (mem:SI (plus (reg sp) (const_int 16))) (reg:SI 6 a2)))
+ *       (insn 117 (set (reg:SI 4 a0) (mem:SI (plus (reg sp) (const_int 16)))))
+ *   i.e. RELOAD ALREADY EMITS RETAIL'S `sw $a2,16($sp) ; lw $a0,16($sp)` VERBATIM -- there is no
+ *   inheritance and never was.  The copy is manufactured afterwards by **reload_cse_regs**
+ *   (toplev.c:3501, `if (optimize > 0)`, NO -f switch), whose reload_cse_simplify_set
+ *   (reload1.c:8178) rewrites `(set hardreg MEM)` into a copy from the LOWEST-NUMBERED hard reg
+ *   whose recorded value equals that MEM (scan `for (i = 0; i < FIRST_PSEUDO_REGISTER; i++)` at
+ *   :8203, gated only by MEMORY_MOVE_COST >= 2 and REGISTER_MOVE_COST == 2, both fixed on MIPS).
+ *   $a2 still holds the value from the store, so the load becomes `move $4,$6`; sched2 then
+ *   swaps it above the store, giving our final `addu $a0,$a2,$zero ; sw $a2,16($sp)`.  This is
+ *   the SAME pass W72/W74 identified for _dws/_drs in libgpu/SYS.c (catalog 23A-2) -- FntFlush
+ *   is its MEM flavour: the tell is `addu rD,rS,zero` where retail has a `lw` from a slot the
+ *   SAME register was stored to earlier in the same label/call-free region.
+ *   WHY THE CORRECTION MATTERS (and why no source device can win): reload_cse_regs runs on the
+ *   FINAL hard-register stream, and its value record for $a2 is cleared in exactly three places
+ *   (reload1.c:7899 CODE_LABEL -- "forget all the register values at a code label"; :7929
+ *   CALL_INSN for every call_used reg; :7786 reload_cse_invalidate_rtx via note_stores, i.e. any
+ *   insn that WRITES $a2 or stores to an aliasing MEM).  The store and the load are ADJACENT in
+ *   the post-reload stream by construction (output reload of `dr`, then the call's input
+ *   reload), so there is NO WINDOW for any of the three -- which is why W74's branch probe
+ *   worked (it planted a CODE_LABEL, +2 insns) and why every colour-default relocation costs
+ *   +1 insn.  Naming "$6" in an asm remains self-defeating (16B bad_spill_regs function-wide).
+ *   FALSIFIED THIS PASS (all gated, all reverted): the ZERO-INSN PRESERVED-LABEL device
+ *   `{ void *lp = &&term; (void)lp; } term:` before the call (and its `if (lp == 0) goto term;`
+ *   variant) -- 2 @199, INERT: the dead label-address set is DCE'd and jump.c then deletes the
+ *   label, so no CODE_LABEL survives to reload_cse (the device is real but needs an escaping
+ *   reference, which costs code -- recorded so it is not re-invented); the ZERO-INSN
+ *   ADDRESS-TAKING device `(void)&dr;` (three positions) -- 38 @199 count-exact, and the
+ *   side-by-side shows WHY it cannot win: dr leaves the spilled-pseudo pool for the
+ *   address-taken-scalar pool (16A frame-order sub-law) so its slot moves 16 -> 36 and every
+ *   other slot shifts, AND cse store-forwards the memory home anyway, so the copy survives.
+ *   PER-FN VERSION LADDER re-measured in THIS basin (04Z basin-relativity; maspsx-lane
+ *   PER_FN_CC1_VER_SPLICE): 2.6.3 98 @201 | 2.7.2 85 @200 | 2.7.2-970404 27 @200 |
+ *   2.8.0 2 @199 (ties the wired 2.8.1) | 2.91.66 178 @205 -- no rung wins, even though the
+ *   23A-2 version fingerprint says 2.6.x/2.7.2 LACK reload_cse_regs entirely: those rungs lose
+ *   the whole-fn shape.  VERDICT (unchanged in value, corrected in mechanism): a 2-diff
+ *   CERTIFIED reload_cse_regs identity.  🔴 UNDER THE 2026-08-23 USER POLICY (post-recompile
+ *   instruction rewrites FORBIDDEN) the only expression this residual ever had is now OFF the
+ *   table: the 23D-2 pre-flight FAILS anyway (the two words differ in OPCODE, so the diff is
+ *   not a line-multiset permutation and no relocation row could express it), and the W74 "per-fn
+ *   POST-cc1 line rewrite / PER_FN_POST_MASPSX_MOVES" ask is exactly the forbidden class.  What
+ *   remains legitimate is a COMPILER-INPUT lane -- and the 23A-2 fingerprint says the pass is
+ *   ABSENT on 2.6.x/2.7.2, so a rung that lacks reload_cse_regs would fix it for free IF its
+ *   whole-fn codegen matched; measured here, none does (ladder above).  That is the standing
+ *   angle: a cc1 rung (or a rebuilt cc1) that is 2.8.0 in every pass EXCEPT reload_cse_regs.
+ *   🔑 TREE-WIDE: any standing
+ *   "reload-inheritance" verdict should be re-checked the same way -- the `-dg` dump is printed
+ *   BEFORE reload_cse_regs, so `.greg` showing the ORACLE's insn while the `.s` shows ours is a
+ *   one-run proof that the actor is reload_cse_regs, not reload. */
 extern u_long *FntFlush(int id)
 {
     DR_MODE  *dr;

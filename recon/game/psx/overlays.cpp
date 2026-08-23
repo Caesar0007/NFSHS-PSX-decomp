@@ -394,6 +394,53 @@ void RaceSummary(void)
  * the full `ip` 96 @473 . ip+rows 100 @473 . ip+pitch 89 @476 .  So the head cluster
  * (retail's real `mult v1,a1` + the three prologue-interleaved constants + the s1/s3/fp
  * band) is now the WHOLE residual and it is unchanged in kind by this landing. */
+/* ===== W75-A13 (2026-08-23): 71 STAYS @474/475.  Four contributions; the first is a
+ * TOOL DEFECT that makes part of the project's -G ledger untrustworthy, so read it
+ * before re-running any "-G inert" verdict.
+ * (1) 🔴 tools/gprobe.py MEASURED VACUOUSLY (found, reproduced, FIXED this wave).
+ *     Its with_flags() re-read the ALREADY-PATCHED tools/build.py instead of the
+ *     pristine text, so each candidate's PER_TU_FLAGS row ACCUMULATED at the top of
+ *     the dict literal; with duplicate keys the LAST (= oldest-inserted) row wins, so
+ *     every cell after the first non-baseline one silently RE-MEASURED candidate #2.
+ *     On this TU it printed 71/71/71/71/71.  Instrumented repro: the file grows
+ *     183686 -> 183740 -> 183794 -> 183860 -> 183942 bytes across the five cells.
+ *     Fixed in tools/gprobe.py (`src = orig`); the fixed tool now reproduces an
+ *     independent byte-mode prober (scratchpad/w75/A13/flagprobe.py) exactly.
+ *     🔴 LEDGER CONSEQUENCE: any "-G INERT" verdict produced with the old tool is only
+ *     trustworthy for its g_value=8 cell.  build.py's own w47-a7 census comment
+ *     ("INERT ... aih_play, dashhud, mpause, hrzsku, overlays, psxcontroller,
+ *     textureprocess") therefore says nothing about g_value=0 / -mno-split-addresses /
+ *     g8+nosplit on those seven TUs -- re-run them with the fixed tool.
+ * (2) THE FLAG-IDENTITY AXIS IS NOW HONESTLY CLOSED HERE (whole-TU totals over the 5
+ *     gated fns, fixed tool + the independent prober, 2x): baseline 71 . g_value=8 71
+ *     (BIT-IDENTICAL) . g_value=0 215 . -mno-split-addresses 598 . g8+nosplit 598 .
+ *     -fno-schedule-insns 744 . -fno-schedule-insns2 416 . -fno-delayed-branch 634.
+ * (3) 04Z RE-PRICING FROM THE 71 BASIN (every cell a real gate run; the W72 ledger was
+ *     priced at 77 and it MOVED): `rows` 81 -> 73 @474 -- and with `rows` the head is
+ *     structurally retail's (`addiu a1,a1,28; sh a1,88(sp)` == oracle `addiu a0,a0,28`),
+ *     the residual there being only the a0/a2/v1/a1 band.  rows x pitch-fence position
+ *     {at the assignment / after SIZE_W / after POS_X / after the raceType arm} =
+ *     73 / 77 / 75 / 73.  Named `cx`=160 + fence 104 @475.  col1 explicit temp 98 @477 .
+ *     + an availability fence on the temp 89 @474 . the fence sunk one statement 87 @474 .
+ *     a fence on the re-read expression 93 @474 -- NONE of them mints retail's
+ *     `addiu v1,s4,10; addu s6,v1,zero` (all stay 474, i.e. still one insn short).
+ * (4) 🔑 THE 18-DIFF `Cars_gHumanRaceCarList` ADDRESS CLUSTER IS RECLASSIFIED -- it is
+ *     neither an access spelling nor an allocno question.  A zero-insn reload-POOL
+ *     PROBER (catalog 23D-3) `__asm__("" : : "i"(0) : "$9")` rotates EVERY one of our
+ *     four `lui/addiu $t1` symbol materializations to `$t2` in ONE step (201 diffs),
+ *     which proves $t1 there is the reload SPILL POOL, not an allocated pseudo; retail
+ *     materializes the same four addresses in $v0/$v1.  So the cluster is 22A-4's
+ *     RELOAD ROUND-ROBIN ROTATION (allocate_reload_reg walks spill_regs from a
+ *     function-global cursor) and it is DOWNSTREAM of an earlier reload-count
+ *     divergence -- the obvious candidate being the ONE insn we are short, the col1
+ *     copy.  ⇒ do not spend more on the four access sites; they are a symptom, and the
+ *     named instrument is 23D-1's [reload_pick] trace.  Corroborating: an 'm'-operand
+ *     fence on Cars_gHumanRaceCarList[0] costs +2 insns (77 @476) and an "r" fence +3
+ *     (78 @477), exactly 22B-7's "nothing to dial when there is no existing %hi pseudo".
+ * (5) The fp<->s1 pair is NOT reachable by a priority dial: allocsim MATCHES 50/50
+ *     (order-vs-dump IDENTICAL) on this basin, and reqdelta --want "p164=s1,p191=fp"
+ *     (p191 refs=6 live=41 -> fp, p164 refs=3 live=27 -> s1) finds no single-dial and
+ *     no same-pseudo two-dial delta within +-40 on refs/live/calls. */
 void RaceStatistics(void)
 
 {

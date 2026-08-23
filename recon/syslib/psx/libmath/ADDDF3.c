@@ -303,6 +303,52 @@ int           _err_math(int errnum, int code);
  * cannot see any of them.  Same verdict applies verbatim to DIVDF3.c's row (a) sibling
  * check (see there) and to pad.c PAD_update (where the rung escape DID land a PASS).
  *
+ * 🏆🏆🏆 W75-A14 2026-08-23 -- **SEALED, PASS 221/221, source-only, no wiring.**  The W74-A19
+ * certificate's escape list was INCOMPLETE: its "REGISTER OVERWRITE" bullet was read as
+ * "nothing writes $v1 there" when the right question is "nothing writes $v1 there YET".
+ *
+ * 🔑 NEW LAW -- THE reload_cse CLOBBER ESCAPE (zero insns, gcc-source-cited).
+ *   reload_cse_regs's value table is invalidated not only by CODE_LABELs and CALL_INSNs but
+ *   by ANY CLOBBER of the holding register: reload1.c:7995-8007 walks a PARALLEL body and,
+ *   for every element that is not a SET, calls `note_stores (x, reload_cse_invalidate_rtx)`;
+ *   reload_cse_invalidate_rtx (:7786) -> reload_cse_invalidate_regno (:7610) drops
+ *   reg_values[regno].  An `__asm__` with a hard-register clobber list IS such a PARALLEL
+ *   (`(parallel [(asm_operands ...) (clobber (reg $3))])`), and it costs ZERO bytes.
+ *   ⇒ a 20B-family clobber placed BETWEEN the donor's set and the constant's set makes
+ *   reload_cse re-materialize the constant, exactly like a rung without the pass.
+ *
+ * 🔑 THE PLACEMENT RULE (three constraints; all three are needed -- each was measured):
+ *   (1) AFTER the donor's `(set $N CONSTANT)` and BEFORE the constant's second set.
+ *   (2) ANCHORED BY A DATA DEPENDENCE.  A clobber-only `__asm__("" : : : "$3")` has no
+ *       operands, so at sched1 it depends on NOTHING (the clobber names a HARD reg while
+ *       the donor is still a pseudo -- no output dependence exists yet) and the scheduler
+ *       hoists it to the top of the block, ahead of the donor => INERT (measured: 2, the
+ *       baseline).  Listing a live value as a read-only operand pins it after that value's
+ *       def.  Here the operand is the entry test's own result.
+ *   (3) BEFORE THE BRANCH, not in the preheader.  reorg's stop_search_p (reorg.c:685-712)
+ *       returns 1 at ANY asm, so an asm sitting between the branch and the preheader kills
+ *       the fall-through-thread steal that puts retail's `lui $s0` in the branch's delay
+ *       slot (measured: 3 diffs @222, `nop` + the `lui` one line late).  Put the asm before
+ *       the branch and reorg's forward scan is unobstructed.
+ *   THE LANDED FORM (peel the entry test out so there is a statement position at (1)):
+ *       normTest = A[1] & 0xE0000000;
+ *       __asm__("" : : "r"(normTest) : "$3");
+ *       if (normTest == 0) { do { ... } while ((A[1] & 0xE0000000) == 0); }
+ *   The `do/while` peel itself is codegen-neutral (W72 measured it inert at 2); the fence
+ *   is what lands the row.  $3 is the donor the W74 RTL localisation already named.
+ *   LADDER RE-CHECK NOT NEEDED: the wired 970404 rung is now byte-exact.
+ *   MEASURED THIS WAVE: baseline 2 | clobber-only asm in the peeled block 3 @222 |
+ *   clobber-only asm after a split `normTest` (no operand) 2 (hoisted, inert) |
+ *   read-only-operand fence + "$3" clobber before the branch **PASS 221/221** (gated 2x,
+ *   whole-TU 1/1).  psyqproof: INAPPLICABLE-LANE (cc1_alt rung), as for all of libmath.
+ *   ⚠️ DO NOT delete the fence, drop its `"r"(normTest)` operand, move it after the `if`,
+ *   or re-fuse `normTest` back into the `if` condition -- each breaks one of (1)-(3).
+ *   TRANSFERABLE: every other "ours `addu rD,rS,zero` where retail re-materializes a
+ *   constant" row on a 970404/2.8.0/2.8.1 lane is now a one-fence job -- identify the donor
+ *   hard register from the diff, find a live value defined between the two sets, and fence
+ *   it with that register clobbered.  (NOT applicable on 2.6.x/2.7.2/2.91/2.95 rungs, which
+ *   have no reload_cse -- see the W74 fingerprint table above.  DIVDF3.c is a 2.7.2 lane.)
+ *
  * 📚 W72-A20 CORPUS VERDICT -- THE fp-bit LINEAGE QUESTION IS SETTLED (see FIXDFSI.c
  * for the decisive receipt): retail's LIBMATH double soft-float is NOT FSF `fp-bit.c`
  * (that file's fp_number_type/unpack/pack machinery has no relation), but it IS
@@ -353,6 +399,7 @@ double __adddf3(double a, double b)   /* @0x800F5A54 */
     int *zp;
     int *bp;
     int ae, be, k;
+    int normTest;
     int sign;
     int signMask;
 
@@ -391,9 +438,13 @@ double __adddf3(double a, double b)   /* @0x800F5A54 */
     } else if (A[1] == 0 && A[0] == 0) {
         return uz.d;
     }
-    while ((A[1] & 0xE0000000) == 0) {
-        _dbl_shift((unsigned int *)A, 0, A[0], A[1], 1);
-        ae -= 1;
+    normTest = A[1] & 0xE0000000;
+    __asm__("" : : "r"(normTest) : "$3");
+    if (normTest == 0) {
+        do {
+            _dbl_shift((unsigned int *)A, 0, A[0], A[1], 1);
+            ae -= 1;
+        } while ((A[1] & 0xE0000000) == 0);
     }
     if (A[1] & 0x40000000) {
         /* W72-A20 DOUBLE IDENTITY FENCE -- DO NOT DELETE EITHER HALF, DO NOT REORDER.

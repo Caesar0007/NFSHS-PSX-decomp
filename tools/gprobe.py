@@ -40,7 +40,14 @@ def gate(tu, syms):
     return tot, npass, nfail
 
 def with_flags(tu, flags):
-    src = BUILD.read_text(encoding="utf-8")
+    # w75-a13 FIX: read the PRISTINE build.py, never the file we just patched.
+    # The old form re-read the mutated file, so every candidate's row ACCUMULATED
+    # at the top of the dict literal; with duplicate keys the LAST (= oldest
+    # inserted) row wins, so cells 3..N silently re-measured candidate 2.  On
+    # overlays.cpp this reported the baseline (71) for all five cells while the
+    # true numbers are 71/71/215/598/598.  Any "-G inert" verdict produced by the
+    # old tool is VACUOUS for every cell after the first non-baseline one.
+    src = orig
     if flags is None: return src
     ins = '    "%s": %r,\n' % (tu, flags)
     return src.replace("PER_TU_FLAGS = {\n", "PER_TU_FLAGS = {\n"+ins, 1)

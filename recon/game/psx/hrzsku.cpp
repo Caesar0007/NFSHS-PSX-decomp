@@ -1569,7 +1569,51 @@ void Hrz_BuildSky(void)
      LCS diff count -- scratchpad/W74_A4/posmis.py prints both (the two metrics agreed on
      every decision this pass).
      NEXT TAKER: the G4 $a0<->$a1 tie is the cheapest of the three residuals (one qty pair,
-     ~20 lines); the GT4/FT4 head rotation is the same question one block up. */
+     ~20 lines); the GT4/FT4 head rotation is the same question one block up.
+     ===== W75-A8 (2026-08-23): 150 -> 146 @458/458 COUNT-EXACT, posmis 81 -> 76.  THE
+     PREHEADER RESIDUAL [143-147] IS CLOSED -- the whole hoist list is now byte-exact.
+     THE LEVER (device-free, one line): SPLIT THE PIXMAP-TABLE ADDRESS OFF ITS LOAD.
+       Draw_tPixMap **hpb = gHorizonPixmap;   <- FIRST statement of the GT4 block
+       ... prim = ...; slot = ...; pmx = hpb[gSkyPixmapIndex[i]];
+     loop.c walks movables in RTL-GENERATION order, so the preheader hoist ORDER is decided
+     by FIRST APPEARANCE in the loop body.  W74 could only put retail lui/addiu s3
+     (gHorizonPixmap) at the head of that list by moving the whole pmx STATEMENT to the
+     front, which costs 58 elsewhere (the pmx load must stay last).  Naming the base as a
+     block-local decouples the two halves: the ADDRESS appears first, the LOAD stays last.
+     It is born in the loop, so loop.c hoists it (21B(3)); zero insns.
+     The FT4/G4 twin is REDUNDANT (GT4 is generated first) -- measured bit-identical.
+     FALSIFIED / RE-PRICED THIS PASS (all re-gated in the NEW basin, 04Z applied):
+       - the same first-appearance effect via a fence -- __asm__("" : : "r"(&gHorizonPixmap
+         [0])) at the loop top / in the GT4 head / after temp = 180-181 @461-462: the
+         output-less asm is a sched1 BARRIER at the loop head (20A) and costs 3-4 insns.
+         The launder-carrier form on temp with the address as an extra input: same 180.
+       - G4 block slot as an INT-typed index-first sum (12D): +11 insns (469) at the G4
+         site ALONE, and still +11 with all three sites converted -- so it is NOT the
+         FT4/G4 cross-jump group (23B(5)) but the G4 arm itself.  GT4 site = BIT-IDENTICAL,
+         FT4 site = count-exact but posmis 458.  W74 global verdict re-confirmed per site.
+       - G4 prim 20B hard-reg conflict to force retail prim=$a1/slot=$a0: EVERY spelling
+         ("$4" launder / "$4" void / "$5" launder) costs the SAME +11 insns (469).  That is
+         20B LIMIT (2) -- reload1.c puts every asm-used hard reg into bad_spill_regs
+         FUNCTION-WIDE, and this function needs $a0 as a spill reg.  => the G4 $a0<->$a1 tie
+         is CERTIFIED unreachable by the 20B family; it needs the ref-count/live-length side.
+       - statement order re-priced in the new basin: G4 slot-first = BIT-IDENTICAL, FT4
+         slot-first = BIT-IDENTICAL, GT4 slot-first = 150, all-three = 150.  A named
+         int px = gSkyPixmapIndex[i] (with or without hpb) = BIT-IDENTICAL; the
+         index-first byte form *(Draw_tPixMap **)(px*4 + (int)hpb) = 206; pmx moved to
+         2nd or 3rd in GT4 = 206.  Statement order really is canonicalised here.
+       - GT4 pmx 20B launder, all of "$3"/"$5"/"$6"/"$7" = 216-230 (over-denial).
+       - DEVICE-REMOVAL RE-TEST (23B(3)) on the FT4 "$7" conflict: still LOAD-BEARING --
+         deleting it gates 308 @456 (and 364 with a GT4 twin added).  KEEP IT.
+     REMAINING 146 = the two head rotations only: [278-304] GT4 and [349-390] FT4 (retail
+     slot=$a0, prim=$a1, pixmap index=$v1 -- ours prim=$a0, index=$a1, slot=$a2, i.e. retail
+     serves index->slot->prim and we serve prim->index->slot), plus [391-441] the G4 pure
+     $a0<->$a1 swap.  All three are ONE question: retail prim is served LAST despite
+     having ~14 refs to slot 3, so retail prim qty must carry a LONGER live length (or
+     fewer refs) than ours.  NEXT TAKER: this is now a pure local-alloc PRIORITY question --
+     read the instrumented [qty_order] trace for the GT4 block (C:/Temp/nfs4-instr-cc1,
+     per-basin fidelity first) rather than probing spellings; every spelling axis above is
+     exhausted and the 20B axis is certified closed by the +11 bad_spill_regs result.
+     Harness: scratchpad/w75/{probe,posmis,sbsdump}.py + e_{s,t,u,v,w,x,y}*.py. */
 
   otz_old = 0x78;
   if (HRZ_GAMESETUP_COMM_MODE == 1) {
@@ -1714,9 +1758,20 @@ void Hrz_BuildSky(void)
                    that was measured in the OLD (cached-spec) basin; in the faithful one
                    it is worth 56 diffs.  (pmx,prim,slot) 208 - (prim,pmx,slot) 210 -
                    (pmx,slot,prim) 210 - (slot,pmx,prim) 154. */
+                /* MATCH (W75-A8, 150 -> 146 @458/458 and the PREHEADER NOW BYTE-EXACT):
+                   naming the pixmap table base as a BLOCK-LOCAL, assigned as the FIRST
+                   statement of the GT4 block, is what puts retail's `lui/addiu s3`
+                   (gHorizonPixmap) at the HEAD of the hoist list.  loop.c walks movables in
+                   RTL-generation order, so the hoist order is decided by FIRST APPEARANCE in
+                   the loop body -- and W74 could only reach that by moving the whole `pmx`
+                   statement to the front, which costs 58 elsewhere.  Splitting the ADDRESS
+                   off the `pmx` load decouples the two: the address appears first, the load
+                   stays last.  The block is BORN IN THE LOOP so loop.c hoists it (21B(3)).
+                   The FT4/G4 twin is redundant (GT4 is generated first): measured identical. */
+                Draw_tPixMap **hpb = gHorizonPixmap;
                 prim = (POLY_GT4 *)Render_gPacketPtr;
                 slot = (u_int *)(Draw_gViewOtSize * 4 + Render_gPalettePtr);
-                pmx = gHorizonPixmap[gSkyPixmapIndex[i]];
+                pmx = hpb[gSkyPixmapIndex[i]];
                 /* MATCH (W74-A4): 24-bit-AND-FIRST here and in the FT4 block, TAG-FIRST
                    in the G4 block below.  Retail's OR dest is the prim->tag operand in
                    all three (`and a2,a2,t6; or a2,a2,v0`), but the operand order also
@@ -2276,7 +2331,72 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
  * BRANCH-WORD STATE (tools/brdist.py, run this pass): 2 offset diffs (branch 18: 142 vs
  * 143, branch 22: 126 vs 127) -- both are the SAME 1-insn shift as the [243-281] run above,
  * not a control-flow defect; they disappear with it.  HrzSetPsxMatrix (now PASS) is clean.
- * Harness: scratchpad/W74_A4/probe.py + posmis.py + gen_bh{,2..18}.py (always restores). */
+ * Harness: scratchpad/W74_A4/probe.py + posmis.py + gen_bh{,2..18}.py (always restores).
+ * ===== W75-A8 (2026-08-23): 20 -> 12 @473/473 COUNT-EXACT, posmis 48 -> 9.  TWO of the
+ * four W74 residuals are CLOSED, including the clipH lui that had stood since w64 (4th
+ * basin) -- and they were closed TOGETHER, as one +-1 TRADE CELL (catalog 23B(1)).
+ * (1) NEW LAW -- A ZERO-BYTE ASM IS A REAL SCHEDULING INSN AND WILL EAT A LOAD-DELAY
+ *     SLOT.  A non-volatile launder __asm__("" : "=r"(x) : "0"(x)) is an RTL insn that
+ *     emits NO BYTES.  sched sees it as ready one cycle after the load that feeds it, parks
+ *     it in the lhu load-delay gap, and reports the latency satisfied -- but since it
+ *     assembles to nothing, the slot comes out as a NOP.  That is exactly the one insn
+ *     retail spends on lh v1,40(sp) (mpts[0].vx) at the clipW site.  This is a DISTINCT
+ *     cost from 23B(2) (an identity launder addu lands in whatever delay slot is
+ *     nearby) -- here the launder emits nothing at all and still costs a slot.
+ *     THE CURE (zero insns): give the asm the value you want in the slot as an EXTRA INPUT,
+ *     __asm__("" : "=r"(cw) : "0"(cw), "r"((int)mpts[0].vx)); -- the lh must now be
+ *     scheduled ABOVE the asm, so it lands in the slot and the asm sits where there is no
+ *     stall.  The operand costs nothing (it is the lh own destination register).
+ *     GENERALISES: any "ours has a nop where retail fills the slot" next to an existing
+ *     zero-byte fence/launder is this; the extra-input form is the fix.
+ * (2) THE clipH SITE IS THE SAME SHAPE AS clipW, and the three previously-falsified
+ *     spellings failed because they were priced ALONE and because they emit a SIGNED load:
+ *       plain literal *(short *)0x1f800012        61 @472  (emits lh + NO sll/sra: -1)
+ *       plain int ch = *(u_short *)0x1f800012;    61 @472  (combine re-fuses it to lh)
+ *       int ch + extra-input launder              17 @474  (correct shape, +1)
+ *     Only the last is retail lui 0x1F80 / lhu / sll 16 / sra 16.  Paired with (1)
+ *     -1 it is EXACTLY count-neutral -- 14 @473, posmis 48 -> 10.
+ * (3) 14 -> 12: int q = iVar15 + (int)hsd; (INDEX-FIRST int sum, 12D) in the <8 ringPMX
+ *     arm.  W74 filed this "INERT in three basins (fold reassociates it back)"; it is NOT
+ *     inert once the two clip residuals are closed.  04Z / 23B(7) re-pricing.
+ * REMAINING 12 = TWO clusters (posmis 9):
+ *   [187-193] the iVar18/iVar15 init pair vs the two loop.c hoists -- retail emits the
+ *             HOISTS FIRST (lui/addiu fp, addu s3,s6,zero) and the two inits after.
+ *             NEW NAMED ANGLE (not run -- out of budget): loop.c appends its hoists at the
+ *             END of the preheader, so a PRE-LOOP assignment can never sit after them
+ *             (21B(3)); retail addu s2,s4,zero / li s5,4 are therefore very likely
+ *             loop.c own GIV INITIALISERS -- i.e. iVar15/iVar18 are NOT source variables
+ *             (they are absent from the SYM, which lists only right/prim/pmx in this block)
+ *             but strength-reduced i-indexed accesses (23C(4)/(5)).  The rewrite is to
+ *             index every hsd + iVar15 + K / + iVar18 + K by i / i+1 and delete both
+ *             counters.  Falsified cheaply first: init order swapped 16, iVar15 = i;
+ *             iVar18 = iVar15 + 4; 16, a 2-operand fence before the pair 74 @475.
+ *   [335-338] the RMW1 evaluation order.  ORACLE-READ TRUTH: retail RMW1 is TAG-FIRST --
+ *             it loads *(u_int *)p first (lw v1,0(s0) before lw v0,-8(a0)), ANDs it
+ *             with $a1=0xff000000, and the OR dest is that same reg.  Our 24-bit-first
+ *             spelling is provably NOT retail.  Writing it tag-first (*(u_int *)p =
+ *             *(u_int *)p & 0xff000000 | *pal & m24;) makes ALL FOUR of those lines match
+ *             -- and is blocked by ONE local-alloc slot rotation: ours then gives pp $a1
+ *             and the 0xff000000 hoist $t1 where retail has $a2 and $a1 (36 @473, posmis
+ *             18).  EVERY device tried on that rotation fails: a clobber of ANY register
+ *             ("$4","$5","$6","$7", singly or paired) added to the pp launder costs a
+ *             uniform +4 insns (40 @477) -- 20B LIMIT (2), bad_spill_regs function-wide;
+ *             deleting the pp anchor instead = 80 @475; a named u_int m8 = 0xff000000
+ *             (+/- its own read-only fence) = 36 @473, unchanged.
+ *             MEASURED SIBLING BASIN, NOT SHIPPED: u_int tv = *(u_int *)p;
+ *             __asm__("" : : "r"(tv)); before an unchanged 24-first RMW1 gates **10 diffs**
+ *             @473 -- the two lw and the two and all become byte-exact -- but posmis
+ *             rises 9 -> 16 because the lui a1,65280 slides 7 positions into the block
+ *             (the output-less fence is a sched1 barrier) and the OR dest flips.  Per the
+ *             count-exact metric rule (posmis, not LCS) the 12/posmis-9 basin is shipped;
+ *             the 10/posmis-16 form is recorded here as a real alternative basin for
+ *             whoever solves the pp $a1-vs-$a2 rotation, since it already owns the load
+ *             order.  Also measured there: the fence one statement later 34, next to the
+ *             m24 fence 20, before the RMW as a 2-operand fence 54, tag-first on top 36.
+ *             Device-free birth-order forms (u_int pv = *pal; after tv, or moving the
+ *             pal = statement below tv) are BIT-IDENTICAL -- cse re-folds them; the
+ *             volatile fence is the only thing that holds the order.
+ * Harness: scratchpad/w75/{probe,posmis,sbsdump}.py + e_{a,b,c,d,f,g,h,i,j,k,l}*.py. */
 void Hrz_BuildHorizon(DRender_tView *Vi)
 
 {
@@ -2499,12 +2619,34 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                to).  DO NOT hoist it above the `if`, and do NOT re-flatten the chain. */
             if (mpts[0].vx >= 0 || mpts[1].vx >= 0 || mpts[2].vx >= 0 || mpts[3].vx >= 0) {
             int cw = *(u_short *)0x1f800010;
-            __asm__("" : "=r"(cw) : "0"(cw));
+            /* MATCH (W75-A8, part of 20 -> 14 and the clipW nop KILLED): the extra
+               "r" input is the ZERO-BYTE-ASM-IN-A-LOAD-DELAY-SLOT cure (new law).  A
+               non-volatile launder is a real RTL insn that emits NO bytes; sched happily
+               parks it in the `lhu`'s load-delay gap, the latency reads as satisfied and
+               the assembler still has to nop the slot -- which is exactly the one insn
+               retail spends on `lh v1,40(sp)` (mpts[0].vx).  Giving the asm that same
+               value as an extra INPUT forces the `lh` to be scheduled ABOVE the asm, so it
+               lands in the slot for free.  Zero insns (the operand is the lh's own dest).
+               Priced with the clipH twin below: this half alone is 17 @472 (count short). */
+            __asm__("" : "=r"(cw) : "0"(cw), "r"((int)mpts[0].vx));
             if ((short)cw >= mpts[0].vx || (short)cw >= mpts[1].vx ||
                  (short)cw >= mpts[2].vx || (short)cw >= mpts[3].vx) {
             if (mpts[0].vy >= 0 || mpts[1].vy >= 0 || mpts[2].vy >= 0 || mpts[3].vy >= 0) {
-            if (*(short *)((int)hsd + 0x12) >= mpts[0].vy || *(short *)((int)hsd + 0x12) >= mpts[1].vy ||
-                 *(short *)((int)hsd + 0x12) >= mpts[2].vy || *(short *)((int)hsd + 0x12) >= mpts[3].vy) {
+            /* MATCH (W75-A8, the other half of 20 -> 14): the clipH read is the SAME
+               shape as the clipW one above -- a fresh `lui 0x1F80` + `lhu` + an UNFUSED
+               sll/sra extend -- i.e. retail did NOT reach clipH through the `hsd` pointer
+               (which is why ours emitted the single `lhu v0,18(s6)`).  Three spellings had
+               been falsified before because they were priced ALONE: the plain literal
+               `*(short *)0x1f800012` emits a SIGNED `lh` and folds the extend away (61 @472),
+               and the plain `int ch` does the same (61 @472, b3).  It must be the
+               zero-extended `u_short` read through a real `int` (so combine cannot fuse the
+               (short) cast back into an `lh`) PLUS the same extra-input launder, which is
+               zero-insn here too: 17 @474 alone, and EXACTLY count-neutral when paired with
+               the clipW half (the +-1 TRADE CELL of catalog 23B(1)). */
+            int ch = *(u_short *)0x1f800012;
+            __asm__("" : "=r"(ch) : "0"(ch), "r"((int)mpts[0].vy));
+            if ((short)ch >= mpts[0].vy || (short)ch >= mpts[1].vy ||
+                 (short)ch >= mpts[2].vy || (short)ch >= mpts[3].vy) {
               Horizon_InterpolateLineSCoords(&right,(DVECTOR *)(((int)hsd + 0x9c) + iVar15),
                          (DVECTOR *)(((int)hsd + 0xe0) + iVar15),&fxOverlapPercentage,1,0);
               iVar6 = Draw_gViewOtSize;
@@ -2578,7 +2720,12 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                   *(u_int *)(p + 0x2c) = *(u_int *)((int)hsd + iVar15 + 0x58);
                 }
                 else {
-                  int q = (int)hsd + iVar15;
+                  /* MATCH (W75-A8, 14 -> 12): INDEX-FIRST int sum (12D law) -- the oracle
+                     emits `addu v1,s2,s6` with iVar15 (=$s2) as addu operand 0.  W74 filed
+                     this spelling "INERT in three basins (fold reassociates it back)"; it is
+                     NOT inert once the two clip residuals are closed -- 04Z / catalog 23B(7)
+                     re-pricing, worth 2 diffs and posmis 10 -> 9 here. */
+                  int q = iVar15 + (int)hsd;
                   __asm__("" : "=r"(q) : "0"(q));
                   *(u_int *)(p + 8) = *(u_int *)(q + 0x9c);
                   *(u_int *)(p + 0x14) = *(u_int *)&right;   /* MATCH: word copy, see above */

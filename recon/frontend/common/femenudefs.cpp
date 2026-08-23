@@ -3008,7 +3008,114 @@ winCase:
    5. TOOLS ADDED (scratchpad/): W74_A6_ctx.py (aligned side-by-side, t0/t1 phase-run
       report, cross-stream grep -- all over the two verify_asm streams, no stale
       snapshots), W74_A6_probe.py + W74_A6_probe2.py (variant harnesses that always
-      restore from W74_A6_base.cpp / W74_A6_base2.cpp). */
+      restore from W74_A6_base.cpp / W74_A6_base2.cpp).
+
+   [W75-A1 2026-08-23]  1238 -> 1138 (-100, -8.1%), reg-blind structure 256 -> 200,
+   reg+spill-blind 196 -> 144.  TU 65/66 PASS on both gate runs, ZERO regressions,
+   instruction count UNCHANGED (3215).  The landing is a SHARED-HEADER edit, not a
+   TU edit -- see the W75-A1 block at nfs4_types.h (tBlankMenuItemNFS4LeftRightChoice).
+   1. THE LANDED LEVER -- THE VPTR-STORE ALIAS DIAL (gcc-2.8.1 sched.c
+      true_dependence(), :846-875).  Ten inline ctors in nfs4_types.h wrote the
+      manual vtable pointer as `*(void **)&_vf = (void *)&X_vtable;`.  That is an
+      INDIRECT_REF through a cast, so MEM_IN_STRUCT_P is CLEAR on the store.
+      true_dependence only DROPS a MEM conflict when
+        MEM_IN_STRUCT_P(store) && rtx_addr_varies_p(store) && mode != QImode
+        && !MEM_IN_STRUCT_P(read) && !rtx_addr_varies_p(read)
+      so with the cast form every `lui vN; lw aN,%lo(global)(vN)` argument load of
+      the NEXT member ctor was pinned BELOW the vptr store of the previous one.
+      Retail hoists those loads above the store.  Writing the store as the plain
+      member assignment `_vf = (__typeof__(_vf))&X_vtable;` (a COMPONENT_REF =>
+      MEM_IN_STRUCT_P set) restores retail's order at every site.  Same address
+      stored; the cast was a reconstruction artifact.  Staged measurement:
+      1 site (tBlankMenuItemGoToMenuNFS4Button) 1238 -> 1190; all 9 `&_vf` sites
+      1238 -> 1148; + the 10th (`_base_tInsideBoxLeftRightSlider._vf`) -> 1138.
+      Blast radius is EXACTLY the six TUs that construct these classes and all six
+      gate clean (femenudefs 65/66, femenuoptions 92/92, femenuextended 57/57,
+      screencarselect 59/59, fememcard 18/18, vtables_tmenu / vtables_tpausemenu
+      0/0); `build.py --skip-asm` is green.
+      REUSABLE: ~90 more `*(void **)&...->_vf = ...` sites exist across recon/**.cpp;
+      each is a candidate wherever a near-miss shows an argument load ordered after
+      a vptr store.  (They were NOT converted here -- they sit in PASSing functions.)
+   2. !!! THE t0/t1 PHASE IS NOT A RELOAD SCRATCH PICK.  W74-A6 item 1 is CORRECTED.
+      It is gcc's CSE 1000-INSN HASH-TABLE FLUSH KLUDGE, cited:
+        gcc-2.8.1 cse.c:8626-8644, cse_basic_block():
+          (comment in cse.c) "If we have processed 1,000 insns, flush the hash
+          table to avoid extreme quadratic behavior. ??? This is a real kludge"
+          if (num_insns++ > 1000) { <invalidate every REG elt, remove every other
+                                     elt>; num_insns = 0; }
+      `num_insns` is a per-BASIC-BLOCK counter (cse.c:8590) and the loop increments
+      it for EVERY rtx in the chain (insns AND notes).  This ctor is ONE basic block
+      (`;; Processing block from 2 to 0, 3610 sets.`), so cse's constant table is
+      wiped every 1001 chain objects.  MEASURED on the -dj (cse input) dump: the
+      function contains exactly FOUR surviving `(set (reg) (const_int -1))` defs, at
+      chain ordinals 131 / 986 / 2019 / 3008 -- one per 1001-object run; every other
+      -1 is CSE-forwarded to its run's first one.  Consequence chain for the residual:
+        * pre-cse the itemGoToDuelBuyCar -1 is a FRESH pseudo (jump dump insn 2573,
+          `(set (reg 703) (const_int -1))`) used one insn later at 2575;
+        * cse rewrites 2575's source to reg 570 (def at ordinal 986, ~320 objects
+          back, same flush run) and deletes 2573;
+        * .lreg then reports `Register 570 used 2 times across 100 insns ... crosses
+          5 calls` => it can take neither a caller-saved reg (call-crossing) nor a
+          callee-saved one (priority floor_log2(2)*2/100), so it gets NO hard reg;
+        * reload rematerializes it into a SPILL register.  This function's spill pool
+          is EXACTLY {$t0,$t1}: a census of the .greg dump finds 443 reload-created
+          register sets, 228 $t0 + 215 $t1 and NOTHING else.  Round-robin hands it
+          $t0, the following `10` gets $t1, and from insn 1227 the whole t0/t1
+          quantity phase is inverted for ~382 instructions (~770 of the 1138).
+        * RETAIL's -1 is in $v0 -- a register that is NOT in any possible spill pool
+          here -- so retail's pseudo was ALLOCATED, i.e. SHORT, i.e. retail's cse
+          flush boundary fell between the previous -1 def and this site.
+      ==> the dial is the RTL-object count of everything before this point, not any
+      allocator device.  A20's [reload_pick] instrument CANNOT answer it (see 4).
+   3. FALSIFIED THIS WAVE (all gate-measured; do NOT retry):
+      * reload-pool cursor rotation via a far-away zero-insn hard-reg clobber
+        (catalog 22D#2) -- `__asm__("" : : "i"(0) : "$N")` at the body tail for
+        N = $v1,$t2..$t9: ALL gate-INERT (1238), because those registers are not in
+        the pool; N = $s1..$s7: 3046..3419 (catastrophic).  The pool is 2 members and
+        both are already used, so no rotation can ever produce retail's $v0.
+      * cse-boundary shifting by a head pad of K zero-machine-instruction RTL objects
+        -- `__asm__("" : : "i"(0))` x K in the first mem-initializer: K=1..4 -> 1253/
+        1254 (each is a sched1 barrier, so large K measures barriers not boundaries);
+        K=6..960 -> 1982..4224.  Non-barrier variant (K dead stores to one local, 0
+        machine insns, cse never deletes a dead set): K=1 -> 1238 (validity check,
+        byte-identical), K=2..1000 -> 2650..4469.  The baseline sits in a good local
+        optimum; the boundary is not reachable by padding.
+      * PER-TU COMPILER FLAGS -- the control (-O2 -G0) is OPTIMAL and this axis is now
+        CLOSED for this fn: -g1 1256 / -g 2075 (both DO change codegen, so retail's
+        debug-note count is a real dial, just not this one) / -mno-split-addresses
+        3672 / -fno-schedule-insns 4883 / -fno-schedule-insns2 4133 /
+        -fno-delayed-branch 1875 / -fno-strength-reduce INERT.
+        (Harness: scratchpad/w75/A1_dbg.py -- runs the REAL compile_cpp with an extra
+        cc1plus flag injected + COFF-debug stripped, without touching tools/.)
+      * slider-block (2500-2700) dials: a THIRD "m"(FEApp) fence per site 1138
+        (saturated, inert); an added / leading / only `"m"(frontEnd)` fence
+        2648 / 2648 / 1614 / 1470; a NON-barrier identity launder on the FEApp
+        pointer 1698, and that launder ON TOP of the two m-fences 1270.  The
+        first-two-argument literal SPELLING is completely inert (char literals vs
+        0,127 vs (char) casts vs hex: all 1138) -- they fold to the same constant.
+      * the READ side of the same alias dial: rewriting the ten `screenMain[0]` and
+        eight `screenCarSelect[0]` argument reads as `*screenMain` / `*screenCarSelect`
+        (INDIRECT_REF instead of ARRAY_REF) is INERT (1138) at every site.
+   4. THE NAMED [reload_pick] INSTRUMENT ASK IS ANSWERED -- NEGATIVELY, TWICE OVER.
+      (a) LAB FIDELITY IS ZERO for this function.  The instrumented FSF cc1plus
+      (C:\Temp\nfs4-instr-cc1\cc1plus-ecoff.exe, -O2 -G0 -fno-exceptions -fno-rtti on
+      the REAL pipeline .i) emits 2957 insns vs CC1PLPSX's 3155, 3490 LCS diff units,
+      and the COMMON PREFIX IS ZERO INSTRUCTIONS (`subu $sp,$sp,600` vs `,640`).  No
+      trace from that lane is a receipt in this basin.  (To reach the ICE-free state
+      at all, the .i needs two edits: drop the brace-elided `gCarActivation[6][5]`
+      initialiser and cast the two `command.type = cmdType` int->enum assignments.)
+      (b) Even with a perfect lab it would answer the wrong question: our pick IS the
+      correct round-robin answer from a 2-member pool; retail's $v0 is not a pool
+      member at all.
+   5. RE-PRICED IN THE NEW BASIN (catalog 04Z basin-relativity): every W72/W74 device
+      still landed here remains OPTIMAL after the alias-dial landing -- removing the
+      menuPostCarGarage read-only fence costs +101 (1239), one m-fence per site
+      instead of two costs +4 (1142), three per site is inert (1138), and the two
+      -1-site devices are still worse (read-only 1663, launder 1152).
+   6. TOOLS (untracked, scratchpad/w75/): A1_probe.py + A1_variants.py (variant
+      harness, always restores from A1_base.cpp), A1_dbg.py (flag-injection lab),
+      rtl_base/ (protected -dj/-ds/-dl/-dg/-dR/-dS dumps of the landed TU).
+      WARNING: tools/rtl_dump.py writes a FIXED path -- copy before re-dumping. */
 
 
 /* [2026-08-10] Retail constructs every iterator in declaration order between its

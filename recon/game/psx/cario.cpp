@@ -1183,7 +1183,76 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
    * $v0-homed pseudos and is NOT reachable from this function's statements, from any
    * fence/clobber/launder form, or from any per-TU flag on the board.  Do NOT re-open
    * the head-block spellings, the fence operand/constraint/position/device axes, the
-   * arm swap, or a TEXT_MOVES row: all are closed with receipts. */
+   * arm swap, or a TEXT_MOVES row: all are closed with receipts.
+   * ===== W75-A11 (2026-08-23): 19 STAYS @492/491, but the W74-A13 CONCLUSION IS
+   * REFUTED -- "retail's spill pool contains $v0" is IMPOSSIBLE, and the live
+   * route reverts to the w41 reading (i) with a mechanism behind it.
+   * (1) THE REFUTATION, from reload1.c order_regs_for_reload (:3840) + a register
+   *     census of the oracle.  potential_reload_regs run[1] is
+   *     "hard_reg_n_uses == 0 AND call_used, ASCENDING regno", and run[3] (uses
+   *     != 0, sorted by increasing uses) comes AFTER every zero-use register.
+   *     Oracle register census (asm/nonmatchings/main/<this fn>.s):
+   *         v0 184 | v1 83 | t0 46 | t1 45 | t2..t9 **0** | a0 31 a1 27 a2 12 a3 11
+   *     So retail's run[1] contains $t2..$t9 (eight registers with zero uses).
+   *     For $v0 to be a spill register it would have to be in run[1] as well,
+   *     i.e. NO pseudo allocated to $v0 anywhere -- yet retail computes real
+   *     values into $v0 with no spill store around them (`andi v0,t1,16; bnez
+   *     v0`, `lhu v0,2240(t1)`, `sll v0,v1,16` ...), which is an ALLOCATED
+   *     pseudo, not a reload scratch (an unallocated pseudo's DEF must be
+   *     followed by a store to its home; there is none).  And even if it were,
+   *     $v0=2 would be picked BEFORE $t0=8 ascending, so the head-block pair
+   *     would be ($v0,$v1)-flavoured, not ($v0,$t0).  => retail's pool is
+   *     {$t0,$t1} exactly like ours, and `lw v0,0(gp)` in the head block is an
+   *     ALLOCATED PSEUDO, not a spill reload.
+   * (2) WHAT THAT MEANS (and it makes the fence's behaviour finally coherent):
+   *     the head block consumes TWO pool slots for us ($t0 for the value,
+   *     $t1 for the carObj ARG reload) but only ONE for retail ($t0 for carObj;
+   *     the value lives in an allocated pseudo $v0).  ONE extra round-robin step
+   *     at insn ~105 is precisely what de-phases allocate_reload_reg's cursor
+   *     (`i = (i+1) % n_spills`, reload1.c:5091) for the remaining ~380 insns --
+   *     and the landed r-fence re-phases it by consuming one MORE slot at the
+   *     join.  That is the mechanism behind w74's "buys the right answer with
+   *     the wrong evidence", stated causally.
+   * (3) THE LIVE ROUTE IS THEREFORE NOT "reduce the whole-body $v0 population"
+   *     (a global property nobody can move) BUT the w41 reading (i): make the
+   *     head-block value an ALLOCATED PSEUDO distinct from the memory-homed
+   *     `carPixMapCount` (pseudo 88).  Retail's RTL must be
+   *       (set (reg T) (mem gprel)) ; (set (reg 88) (reg T)) ; (set (mem field) (reg T))
+   *     with T in $v0 and 88 memory-homed, so `(set 88 T)` prints as
+   *     `sw v0,68(sp)`.  Ours has NO T -- rtl_dump -dl shows
+   *     `(set (reg/v:SI 88) (mem (symbol_ref ...)))` directly.  If T is created,
+   *     the fence should also become unnecessary (the cursor never de-phases),
+   *     which would shed the +1 insn as well => 491 count-exact.
+   * (4) FALSIFIED THIS WAVE (real gate runs, from the 19 basin):
+   *     - MEMORY-RESIDENT-FROM-THE-START: `(void)&carPixMapCount;` in place of
+   *       the fence (make the local addressable so every access is a MEM and the
+   *       value necessarily gets its own temp) = **466 @499** -- put_var_into_stack
+   *       reshapes the whole frame.  Dead end; the temp must come from the
+   *       expression, not from the variable's storage class.
+   *     - PER-FN CC1 FLAG AXIS (new; instrument scratchpad/w75/vprobe_flag.py, a
+   *       generic per-FUNCTION flag splice on build.py's _apply_fn_splice):
+   *       -fno-caller-saves 19 @492, -fno-thread-jumps 19, -fno-peephole 19,
+   *       -fno-function-cse 19 (all INERT); -fno-cse-follow-jumps 27 @496,
+   *       -fno-cse-skip-blocks 32 @497, -fno-rerun-cse-after-loop 33 @498,
+   *       -fno-force-mem 41 @492, -fno-expensive-optimizations 87 @492.
+   *       Nothing under 19; the flag axis is CLOSED (this complements the w74
+   *       per-TU flag row, which covered a different six).
+   *     - NAMED TEMP re-confirmed inert (19 @492), AND the merger is NOT
+   *       local-alloc.c's optimize_reg_copy_1/2: with `int n = CarIO_carPixMapCount;
+   *       carPixMapCount = n; field = n;` PLUS per-fn -fno-expensive-optimizations
+   *       (which disables BOTH copy optimizers) the head block still emits
+   *       `lw t0,0(gp)` (87 @492 overall).  T is collapsed into pseudo 88
+   *       EARLIER than local-alloc -- at expand/cse -- so any escape has to be
+   *       a tree-level one.
+   *     - FIELD RE-READ form (`field = CarIO_carPixMapCount; carPixMapCount =
+   *       field;` in the then-arm -- semantically identical, and the one shape
+   *       that structurally MUST create a temp): 169 @492.  It reverses the two
+   *       stores, so reorg steals the wrong one into the `j` delay slot.
+   * NEXT NAMED ANGLE (unwalked, and now the ONLY one): a head-block spelling in
+   * which the loaded value and the memory-homed local have OVERLAPPING live
+   * ranges (catalog 22C-7) so cse/copy-prop cannot collapse T into pseudo 88 --
+   * every previously tried `int n` form let them stay sequential, which is
+   * exactly the condition 22C-7 says keeps them one qty. */
   __asm__("" : : "r"(carPixMapCount));
   if ((reload & 8U) != 0) {
     if (((carObj->render).inside & 1U) != 0) {

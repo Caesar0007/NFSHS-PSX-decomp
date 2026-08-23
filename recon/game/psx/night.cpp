@@ -528,6 +528,77 @@ void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char 
      the whole function reduces to dialling region A (the b15 <-> sourceG order + the
      prologue parm spill) in that basin.  Nothing further should be spent on spellings
      here. */
+  /* ===== W75-A13 (2026-08-23): 26 STAYS @113/113 -- and the W72/W74 verdict
+     ("the accumulator's home is a 2.8.0-vs-2.8.1 CODEGEN identity inside
+     extract_split_bit_field") is REFUTED.  The two compilers' RTL for this
+     function is IDENTICAL; the divergence is a LOCAL-ALLOC ELIGIBILITY GATE,
+     and it is now cited rather than inferred.
+     THE MEASUREMENT (same .i fed to CC1PLPSX 2.8.0 and to
+     C:/Temp/nfs4-instr-cc1/cc1plus-ecoff.exe 2.8.1 with -funsigned-char, both
+     -O2 -G8, dumps -dc/-dl; copies under scratchpad/w75/A13/):
+       . the .s bodies differ in EXACTLY the accumulator register -- 2.8.0 runs
+         the OR-tree in $v1 and ORs into $a0 only at the last term, 2.8.1 runs it
+         in $a0 throughout (= retail).  Same insn COUNT, same everything else.
+       . the combine dumps are insn-for-insn identical, SAME PSEUDO NUMBERS,
+         except 2.8.0 carries ONE extra insn:
+             (insn 320 139 141 (use (reg:SI 137)) -1 (nil)
+                 (expr_list:REG_DEAD (reg:SI 137) (nil)))
+         parked immediately after (code_label 139) = the join label of the newB
+         clamp = the head of the pack block's basic block.  reg 137 IS the
+         ior accumulator (set at insns 196/202, consumed by
+         (set (reg a0) (ior 137 150)) at insn 205).
+     WHERE THAT INSN COMES FROM: combine.c distribute_notes, REG_DEAD case --
+     the backward walk `for (tem = prev_nonnote_insn (i3); place == 0 && tem &&
+     (INSN || CALL_INSN); tem = prev_nonnote_insn (tem))` (2.8.1 combine.c:11298)
+     finds no home, stops on the CODE_LABEL, and then combine.c:11396 does
+     `place = emit_insn_after (gen_rtx (USE, VOIDmode, XEXP (note, 0)), tem)`
+     and hangs the death note on it.  The ONLY 2.8.0->2.8.1 ChangeLog entries
+     touching this code are `combine.c (distribute_notes, case REG_DEAD): ... use
+     reg_bitfield_target_p` (Sat Feb 14 1998) and `combine.c (distribute_notes):
+     Completely check for note operand being only partially set on potential note
+     target` (Thu Feb 12 1998).  There is NO expmed.c entry in the 2.8.0..2.8.1
+     window at all -- extract_split_bit_field is the same code in both, exactly as
+     the dumps show.  (ChangeLog extracted to scratchpad/w75/A13/gcc-2.8.1/.)
+     WHY IT COSTS THE REGISTER: the extra USE makes REG_N_DEATHS(137) == 2
+     (.lreg: 2.8.0 "Register 137 used 10 times across 7 insns in block 6; dies in
+     2 places" vs 2.8.1 "... across 6 insns in block 6").  local-alloc.c:472 lets
+     a pseudo into LOCAL allocation only when
+        REG_BASIC_BLOCK (i) >= 0 && REG_N_DEATHS (i) == 1
+     so 2.8.0 sets reg_qty[137] = -1 and SKIPS it.  The handouts prove it: the
+     2.8.1 .lreg prints `;; Register 137 in 4.` ($a0 = retail) and the 2.8.0 .lreg
+     prints no line for 137 at all.  What follows is forced -- local-alloc hands
+     the block-local byte temps their registers first (reg 139 -> $v1, and reg 150,
+     the `lbu 19(sp)` byte, -> $a0 INSIDE 137's live range), and global_alloc, which
+     DOES record a hard_reg_preference of $a0 for 137 (global.c:1351 mark_reg_store
+     -> :1538 set_preference, the 'e'-format branch off the ior, copy=0), finds $a0
+     occupied over the whole range and prunes it (global.c:1033).  137 -> $v1.
+     THE BOUND (why no 2.8.0 spelling reaches it):
+       (a) the orphan is invariant under the shape.  Death-count instrument run on
+           the SHIPPED basin (2), the SLD-natural r,g,b basin (2), and a BRANCHLESS
+           newB clamp that DELETES the clamp-join CODE_LABEL outright (2 -- the walk
+           just stops at the next label up, 63 diffs @114).  combine.c:11396 fires
+           whenever `tem != 0`, i.e. anywhere but the first insn of a function.
+       (b) $a0 cannot be freed for 137 by the 20B family: reg 150 is born AND dies
+           strictly inside 137's live range, so any zero-insn clobber that denies
+           $a0 to 150 denies it to 137 too (22B-1 clobber-live-range placement law).
+     NEW AXES SWEPT AND FALSIFIED THIS WAVE (on top of the 123-cell w50/w63/w71
+     cross-product and W74's four): the 23A-3 STATEMENT-COUNT LIFETIME DIAL -- the
+     three pack stores merged into ONE comma statement, in both basins and with/
+     without the read-back: 56 / 56 / 26 / 26, the last two BIT-IDENTICAL (the
+     three stores are already one basic block, so no luid moves); the branchless
+     clamp above; and `newColor.cd = 0` (which does make cse forward all four bytes)
+     -- 20 diffs but @111, THREE INSNS SHORT and unfaithful, since retail's oracle
+     reloads 0x13(sp) with no preceding store.  23A-1 (scratch write-through) and
+     23A-2 (reload_cse donor) re-checked against this basin and neither applies:
+     there is no movstrsi block move here, and the residual carries no
+     `addu rD,rS,zero`-for-a-constant tell.
+     => NAMED ANGLE (replaces "wire a 2.8.1 cc1plus for the pack block"): the wanted
+     effect is REG_N_DEATHS(accumulator) == 1, i.e. keep combine from orphaning that
+     one death note.  The instrument that would settle it is a [distribute_notes]
+     trace on the instrumented cc1plus naming the (i3, from_insn) pair whose
+     REG_DEAD(reg 137) goes homeless -- the same class of named instrument ask as
+     23D-1's [reload_pick].  A whole-function cc1plus version splice would of course
+     also fix it, but it is no longer the only description of the problem. */
   if (0xff < newB) newB = 0xff;
   /* `& ~7` (a register-held -8, oracle `addiu $v1,$zero,-0x8` + three `and`), NOT
      `& 0xf8` (which is a 16-bit unsigned immediate -> andi). */

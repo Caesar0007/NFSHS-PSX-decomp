@@ -4713,16 +4713,30 @@ struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {   /* 40 
 };
 
 extern __vtbl_ptr_type tMenuItemOptionsLeftRightChoice_vtable[], tMenuItemOptionsTwoItemChoice_vtable[], tBlankMenuItemGoToMenuNFS4Button_vtable[], tMenuItemDisplayLeftRightChoice_vtable[], tMenuItemSlidingActivated_vtable[], tMenuItemOnOffLeftRightChoice_vtable[], tMenuItemControllerLeftRightChoice_vtable[], tMemoryCardMenuItem_vtable[], tBlankMenuItemNFS4LeftRightChoice_vtable[], tInsideBoxControllerLeftRightSlider_vtable[];   /* manual vtables for fwd-ctor stores */
+/* [W75-A1 2026-08-23] THE VPTR-STORE ALIAS DIAL -- DO NOT "SIMPLIFY" THE TEN
+   `_vf = (__typeof__(_vf))&X_vtable;` STORES BACK TO `*(void **)&_vf = (void *)&X_vtable;`.
+   gcc-2.8.1 sched.c true_dependence() (:846-875) drops the MEM conflict between a
+   varying IN-STRUCT store and a fixed-address NON-struct read ONLY when
+   MEM_IN_STRUCT_P(store) && rtx_addr_varies_p(store) && !MEM_IN_STRUCT_P(read)
+   && !rtx_addr_varies_p(read).  `*(void **)&_vf = ...` is an INDIRECT_REF through a
+   cast => MEM_IN_STRUCT_P is CLEAR => every following `lw aN,%lo(global)(vN)` argument
+   load is pinned BELOW the vptr store, which is not what retail does.  The plain
+   member assignment is a COMPONENT_REF => MEM_IN_STRUCT_P set => the scheduler hoists
+   the argument loads exactly like retail.  Measured: __15tGlobalMenuDefs 1238 -> 1138
+   diffs (reg-blind structure 256 -> 200), 0 PASS->FAIL in all six TUs that construct
+   these classes (femenudefs 65/66, femenuoptions 92/92, femenuextended 57/57,
+   screencarselect 59/59, fememcard 18/18, vtables_t{menu,pausemenu}).  Semantically
+   identical (same address stored); the cast form was a reconstruction artifact. */
 struct tBlankMenuItemNFS4LeftRightChoice : public tMenuItemNFS4LeftRightChoice {   /* 40 bytes */
     tBlankMenuItemNFS4LeftRightChoice() {}   /* default ctor (members not init-listed elsewhere) */
-    tBlankMenuItemNFS4LeftRightChoice(unsigned int t, tListIterator *d, int ff, int nf) : tMenuItemNFS4LeftRightChoice(t, d, ff, nf) { *(void **)&_vf = (void *)&tBlankMenuItemNFS4LeftRightChoice_vtable; }   /* inline fwd ctor */
+    tBlankMenuItemNFS4LeftRightChoice(unsigned int t, tListIterator *d, int ff, int nf) : tMenuItemNFS4LeftRightChoice(t, d, ff, nf) { _vf = (__typeof__(_vf))&tBlankMenuItemNFS4LeftRightChoice_vtable; }   /* inline fwd ctor */
     bool TransitionIsFinished();
     void Draw(int, int, bool);   /* w64 unlock (A19 2.4): char form was undefined */
 };
 
 struct tMenuItemOptionsLeftRightChoice : public tMenuItemLeftRightChoice {   /* 32 bytes */
     tMenuItemOptionsLeftRightChoice() {}   /* default ctor (members not init-listed elsewhere) */
-    tMenuItemOptionsLeftRightChoice(unsigned int t, tListIterator *d) : tMenuItemLeftRightChoice(t, d) { *(void **)&_vf = (void *)&tMenuItemOptionsLeftRightChoice_vtable; }   /* inline fwd ctor (tGlobalMenuDefs init-list) */
+    tMenuItemOptionsLeftRightChoice(unsigned int t, tListIterator *d) : tMenuItemLeftRightChoice(t, d) { _vf = (__typeof__(_vf))&tMenuItemOptionsLeftRightChoice_vtable; }   /* inline fwd ctor (tGlobalMenuDefs init-list) */
     /* FEMenuExtended methods */
     void Draw(int x,int y,bool selected);
 
@@ -4730,7 +4744,7 @@ struct tMenuItemOptionsLeftRightChoice : public tMenuItemLeftRightChoice {   /* 
 
 struct tMenuItemOptionsTwoItemChoice : public tMenuItemLeftRightChoice {   /* 36 bytes */
     tMenuItemOptionsTwoItemChoice() {}   /* default ctor (members not init-listed elsewhere) */
-    tMenuItemOptionsTwoItemChoice(unsigned int t, tListIterator *d) : tMenuItemLeftRightChoice(t, d) { *(void **)&_vf = (void *)&tMenuItemOptionsTwoItemChoice_vtable; fOnOffFade = 0x80; }   /* inline fwd ctor */
+    tMenuItemOptionsTwoItemChoice(unsigned int t, tListIterator *d) : tMenuItemLeftRightChoice(t, d) { _vf = (__typeof__(_vf))&tMenuItemOptionsTwoItemChoice_vtable; fOnOffFade = 0x80; }   /* inline fwd ctor */
     short              fOnOffFade;   /* +0x20 */
     /* FEMenuExtended methods */
     void TransitionOn();
@@ -4884,7 +4898,7 @@ struct tMenuItemSlidingMenu : public tMenuItem {   /* 68 bytes */
 
 struct tMenuItemSlidingActivated : public tMenuItemSlidingMenu {   /* 72 bytes */
     tMenuItemSlidingActivated() {}   /* default ctor (members not init-listed elsewhere) */
-    tMenuItemSlidingActivated(unsigned int a, short b, short c, short d, short e, bool f) : tMenuItemSlidingMenu(a, b, c, d, e, f) { *(void **)&_vf = (void *)&tMenuItemSlidingActivated_vtable; }   /* inline fwd ctor */
+    tMenuItemSlidingActivated(unsigned int a, short b, short c, short d, short e, bool f) : tMenuItemSlidingMenu(a, b, c, d, e, f) { _vf = (__typeof__(_vf))&tMenuItemSlidingActivated_vtable; }   /* inline fwd ctor */
     bool               fActive;   /* +0x44 */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
@@ -4899,7 +4913,7 @@ struct tMenuItemSlidingActivated : public tMenuItemSlidingMenu {   /* 72 bytes *
 
 struct tMenuItemDisplayLeftRightChoice : public tMenuItemLeftRightFade {   /* 44 bytes */
     tMenuItemDisplayLeftRightChoice() {}   /* default ctor (members not init-listed elsewhere) */
-    tMenuItemDisplayLeftRightChoice(unsigned int t, tListIterator *d) : tMenuItemLeftRightFade(t, d) { *(void **)&_vf = (void *)&tMenuItemDisplayLeftRightChoice_vtable; }   /* inline fwd ctor */
+    tMenuItemDisplayLeftRightChoice(unsigned int t, tListIterator *d) : tMenuItemLeftRightFade(t, d) { _vf = (__typeof__(_vf))&tMenuItemDisplayLeftRightChoice_vtable; }   /* inline fwd ctor */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
     void Draw(int, int, bool);  /* SYM: FCN VOID */
@@ -4908,7 +4922,7 @@ struct tMenuItemDisplayLeftRightChoice : public tMenuItemLeftRightFade {   /* 44
 
 struct tMenuItemOnOffLeftRightChoice : public tMenuItemLeftRightFade {   /* 48 bytes */
     tMenuItemOnOffLeftRightChoice() {}   /* default ctor (members not init-listed elsewhere) */
-    tMenuItemOnOffLeftRightChoice(unsigned int t, tListIterator *d) : tMenuItemLeftRightFade(t, d) { *(void **)&_vf = (void *)&tMenuItemOnOffLeftRightChoice_vtable; }   /* inline fwd ctor */
+    tMenuItemOnOffLeftRightChoice(unsigned int t, tListIterator *d) : tMenuItemLeftRightFade(t, d) { _vf = (__typeof__(_vf))&tMenuItemOnOffLeftRightChoice_vtable; }   /* inline fwd ctor */
     short              fOnFade;   /* +0x2C */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
@@ -4952,7 +4966,7 @@ struct tInsideBoxSongMenu : public tInsideBoxMenu {   /* 136 bytes */
 
 struct tMenuItemControllerLeftRightChoice : public tMenuItemLeftRightFade {   /* 44 bytes */
     tMenuItemControllerLeftRightChoice() {}   /* default ctor (members not init-listed elsewhere) */
-    tMenuItemControllerLeftRightChoice(unsigned int t, tListIterator *d) : tMenuItemLeftRightFade(t, d) { *(void **)&_vf = (void *)&tMenuItemControllerLeftRightChoice_vtable; }   /* inline fwd ctor */
+    tMenuItemControllerLeftRightChoice(unsigned int t, tListIterator *d) : tMenuItemLeftRightFade(t, d) { _vf = (__typeof__(_vf))&tMenuItemControllerLeftRightChoice_vtable; }   /* inline fwd ctor */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
     void Draw(int, int, bool);  /* SYM: FCN VOID */
@@ -5019,7 +5033,7 @@ struct tMenuItemGoToMenuButtonFade : public tMenuItemGoToMenuButton {   /* 44 by
 
 struct tMemoryCardMenuItem : public tMenuItemGoToMenuButtonFade {   /* 44 bytes */
     tMemoryCardMenuItem() {}   /* default ctor (members not init-listed elsewhere) */
-    tMemoryCardMenuItem(unsigned int t, tMenu *m, void (*f)(tMenuCommand&)) : tMenuItemGoToMenuButtonFade(t, m, f) { *(void **)&_vf = (void *)&tMemoryCardMenuItem_vtable; }   /* inline fwd ctor */
+    tMemoryCardMenuItem(unsigned int t, tMenu *m, void (*f)(tMenuCommand&)) : tMenuItemGoToMenuButtonFade(t, m, f) { _vf = (__typeof__(_vf))&tMemoryCardMenuItem_vtable; }   /* inline fwd ctor */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
     void Draw(bool);  /* SYM: FCN VOID */
@@ -5028,7 +5042,7 @@ struct tMemoryCardMenuItem : public tMenuItemGoToMenuButtonFade {   /* 44 bytes 
 
 struct tBlankMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuNFS4Button {   /* 44 bytes */
     tBlankMenuItemGoToMenuNFS4Button() {}   /* default ctor (members not init-listed elsewhere) */
-    tBlankMenuItemGoToMenuNFS4Button(unsigned int t, tMenu *m, void (*f)(tMenuCommand&), int ff, int nf) : tMenuItemGoToMenuNFS4Button(t, m, f, ff, nf) { *(void **)&_vf = (void *)&tBlankMenuItemGoToMenuNFS4Button_vtable; }   /* inline fwd ctor */
+    tBlankMenuItemGoToMenuNFS4Button(unsigned int t, tMenu *m, void (*f)(tMenuCommand&), int ff, int nf) : tMenuItemGoToMenuNFS4Button(t, m, f, ff, nf) { _vf = (__typeof__(_vf))&tBlankMenuItemGoToMenuNFS4Button_vtable; }   /* inline fwd ctor */
     bool TransitionIsFinished();
     /* w64 unlock (A19 2.4): the int/char spellings were the overloads NOTHING
      * defines -- vtable slots relocated against phantoms (runtime NULL dispatch). */
@@ -5038,7 +5052,7 @@ struct tBlankMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuNFS4Button {  
 
 struct tInsideBoxControllerLeftRightSlider {   /* 40 bytes */
     tInsideBoxControllerLeftRightSlider() {}   /* default ctor (members not init-listed elsewhere) */
-    tInsideBoxControllerLeftRightSlider(unsigned int t, tListIterator *d) : _base_tInsideBoxLeftRightSlider(t, d) { *(void **)&_base_tInsideBoxLeftRightSlider._vf = (void *)&tInsideBoxControllerLeftRightSlider_vtable; }   /* w64 unlock (A16 wish): vptr store INSIDE construction, as retail 0x80030ADC/AFC/B34 and the :4577/:4586 siblings do */
+    tInsideBoxControllerLeftRightSlider(unsigned int t, tListIterator *d) : _base_tInsideBoxLeftRightSlider(t, d) { _base_tInsideBoxLeftRightSlider._vf = (__typeof__(_base_tInsideBoxLeftRightSlider._vf))&tInsideBoxControllerLeftRightSlider_vtable; }   /* w64 unlock (A16 wish): vptr store INSIDE construction, as retail 0x80030ADC/AFC/B34 and the :4577/:4586 siblings do */
     tInsideBoxLeftRightSlider _base_tInsideBoxLeftRightSlider;   /* +0x0 */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */

@@ -1538,6 +1538,41 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
      *      Class (a) is therefore a QUANTIFIED FLOOR at its present 8 rows (2 for the param-home
      *      store + 6 for the tail reload) unless somebody re-matches the whole function inside a
      *      2.8 basin -- the same verdict DeleteFile's 2.8-splice spec already carries. */
+    /* 🔑 W75-A18 -- CLASSES (b) AND (c) ARE ONE TWO-HALF CELL, AND THE TWO HALVES ARE MUTUALLY
+     * EXCLUSIVE BY CONSTRUCTION.  Named + fully priced; do not spend another dial on either half
+     * alone (five prior waves each tried one half and read "position-INERT").
+     *   (c) wants the opacity-fenced `pc` block, because that is the only device that produces
+     *       retail's ONE-INSN chan read `lw $a0,12($s3)` (plain `mc.chan` folds to the two-insn
+     *       assembler macro `lui $a0,%hi ; lw $a0,%lo`).
+     *   (b) wants retail's `addu $s5,$0,$0` (stored = 0) inside the `blez` delay slot.  That is a
+     *       reorg BACKWARD fill (the value must run on both edges, so it can never come from a
+     *       thread), and reorg.c:685-712 stop_search_p ABORTS the backward scan at the first asm.
+     *       The `pc` launder IS that asm, and it necessarily sits between the inits and the blez
+     *       (it feeds the `lw $a0,12(pc)` that the RMW chain consumes right before the branch).
+     * MEASURED THIS WAVE (each whole-TU gated, restored):
+     *   launder kept  = the shipped basin ......... 23 lcs @153/152, blez slot `nop`
+     *   launder dropped, plain `mc.chan` .......... 24 lcs @152/152 COUNT-EXACT: the blez slot
+     *       fills with `addu $s5,$0,$0` EXACTLY like retail and the s5 emission order matches;
+     *       the whole loss is the chan read becoming `lui $a0 ; lw $a0,0($a0)` (+1 insn) which
+     *       then slides ~55 positions (posmis 70, but ~60 of that is the slide).
+     *   `stored = 0` MOVED (three positions: before the pc block / last inside it / after it) --
+     *       ALL INERT at 23.  Position is not the dial: sched2 hoists the independent `li` to the
+     *       top of the block regardless, and even when it does not, the launder still walls the
+     *       scan.  This retires the W62/W72 "init-order sweep" rows as *explained*, not just
+     *       measured.
+     *   assignment-order swap (fretry before idx, fences left in place) ... 43.
+     *   fn-scope `pc` + launder at the top of the function, so the asm is in the ENTRY block and
+     *       out of the blez scan: 29 (chan read alone) / 37 (guard `pc[0]` too) -- the 9th global
+     *       allocno rotates the s0/s1 band, exactly as w53-a7/w59-a8 measured on older basins.
+     *       The base-anchor family is now falsified on FOUR basins; stop re-testing it.
+     * ⇒ THE NAMED ANGLE (unclaimed, precise): a device that makes `mc.chan` read as base+offset
+     *   off the compiler's OWN `mc` cse base WITHOUT an asm in that basic block.  Root cause is
+     *   cse-block scope: the busy guard's `lw $v0,0($s3)` and the loop's `sw ...,0($s3)` group
+     *   both reuse the base, but the RMW sits in its own cse block (cse.c blocks end at
+     *   CODE_LABELs, 22A(8)) where the address is re-expanded as a symbol macro.  Anything that
+     *   puts a second `mc` access in the SAME block as the chan read -- or that carries the base
+     *   pseudo across the guard's label without minting a named allocno -- collects (b) AND (c)
+     *   together, worth ~6 rows plus the ~55-position slide. */
     /* W62-A8: PARM-SPILL PIN on `dir` (13B/w61-a3 §2).  Without it assign_parms` copy
      * `addu $s6,$a2,$zero` sinks into the busy-guard`s `beqz` delay slot; retail keeps it in
      * the prologue group and lets reorg fill that slot from the fall-through thread with the
@@ -1792,6 +1827,43 @@ extern int MemCardCallback(int func)
  * the two dead destinations share a hard register" result -- means the remaining handle is
  * local-alloc's own preference/conflict step (12A/find_reg), the same place FIRST.c's p/scan
  * certificate landed.  Keep the reads PLAIN: volatile buys count-exactness and costs +1. */
+/* 🏆 W75-A18 -- THE "+1" WAS NEVER A REGISTER HANDOUT: IT WAS THE THIRD READ'S LOAD-DELAY SLOT.
+ * MemCardDeleteFile SEALED PASS 111/111; MemCardCreateFile 6 -> 4 count-EXACT 130/130.
+ * Five waves priced the two dead loads as a local-alloc handout problem ("make the second dead
+ * load reuse $v0") and every dial was inert.  The real shape is one statement further on.
+ * Retail's three consecutive reads are, in SOURCE order and all into the SAME register:
+ *      lw $v0,0x0($s0)   <- cmd    (dead)
+ *      lw $v0,0x4($s0)   <- rslt   (dead)
+ *      lw $v0,0x8($s0)   <- the mode==0 zero-trip guard on `done`
+ *      nop                          <- the guard load's own load-delay bubble
+ *      bnez $v0,...
+ * With only base[0]/base[1] volatile, ours emitted 0 / 8 / 4 : sched1 is free to sink the
+ * PLAIN 8-load past the volatile 4-load (a volatile MEM orders only against other volatile
+ * MEMs here) and then uses the 4-load to FILL the 8-load's load-delay slot -- which both
+ * reorders the pair AND deletes retail's `nop`, so the second dead value has to live in $v1
+ * (its range now spans the guard load's $v0).  That is the entire "+1": one insn short
+ * (110/111) and a $v0/$v1 rename, neither of them an allocator decision.
+ * THE CURE IS THE THIRD VOLATILE, not a dial: `*(volatile int *)&base[2]` on the zero-trip
+ * guard.  All three reads are then volatile MEMs, sched1 may not reorder them, the 4-load can
+ * no longer fill the 8-load's delay slot (retail's `nop` comes back), and each dead pseudo
+ * dies on its own insn -> local-alloc hands all three $v0 for free.  It is also the HONEST
+ * declaration: mc.cmd / mc.rslt / mc.done are all written asynchronously by the VSync pump
+ * (the same MemCardStop spin-hoist bug class, catalog w48 17A), so every read of them here is
+ * genuinely volatile -- the reconstruction was under-declaring two thirds of them.
+ * LAW (belt-wide, new): when a volatile-vs-plain read pair reads as "+1 insn and a register
+ * rename", check whether the NEXT PLAIN read of the same aggregate is eating the residual as
+ * a load-delay filler before pricing anything as a register handout -- one non-volatile
+ * sibling read is enough to re-order and absorb a whole volatile group.
+ * FALSIFIED/priced on this landing (measured, gated): base[2] guard volatile with the two reads
+ * left PLAIN -> Delete 2 / Create 6 = EXACTLY the baseline, completely INERT (with the two reads
+ * plain there is nothing to keep, so ordering them buys nothing).  The three reads are ONE
+ * indivisible cell -- a 23B "two-half cell", and the reason five waves of half-probes read as
+ * "volatile costs +1".  cc1 LADDER on the pre-landing basin (all three fns, PER_FN_CC1_VER_SPLICE_272):
+ * 2.7.2 = the lane (6/2/23), 2.7.2-970404 77/62/134, 2.8.0 86/66/166, 2.8.1 86/62/166,
+ * 2.6.0 + 2.6.3 REJECT the TU ("inconsistent operand constraints in an asm", GetDirentry) --
+ * the version axis is CLOSED for LIBMCRD.  Post-landing flag sweep on CreateFile
+ * (PER_FN_FLAG_SPLICE_272): -fno-peephole 4, -fno-function-cse 4 (both inert),
+ * -fno-schedule-insns2 18, -fno-schedule-insns 20, -fno-delayed-branch 10 (@134/130). */
 static __inline__ long MemCardSyncAt(long mode, int *cmds, int *result, int *base)
 {
     int rslt;
@@ -1803,8 +1875,8 @@ static __inline__ long MemCardSyncAt(long mode, int *cmds, int *result, int *bas
 
     /* w48-a1: the snapshot reads come AFTER the guard -- the oracle emits
      * `lw $t0,0($v1); lw $a3,4($v1)` at the .L800FBB24 join, not before the bnez. */
-    cmd = base[0];
-    rslt = base[1];
+    cmd = *(volatile int *)&base[0];
+    rslt = *(volatile int *)&base[1];
 
     if (mode == 0) {                        /* blocking */
         /* MATCH (w52-a6, 26 -> 7 diffs): the oracle spins on a REBASED anchor -- it zero-trip-
@@ -1814,7 +1886,7 @@ static __inline__ long MemCardSyncAt(long mode, int *cmds, int *result, int *bas
          * the non-blocking `done != 0` tail (which still reaches `done` as `8($v1)`): with a
          * shared `base[2] = 0;` the two byte-identical tails cross-jump-MERGE and the whole
          * blocking arm collapses -- that single statement was 24 of the 26 missing insns. */
-        if (base[2] == 0) {                  /* explicit zero-trip guard, as retail wrote it */
+        if (*(volatile int *)&base[2] == 0) { /* explicit zero-trip guard, as retail wrote it */
             volatile int *pdone = (volatile int *)&mc.done;
             /* the guard is EXPLICIT + the loop is bottom-tested: a plain `while` makes gcc add
              * its OWN rotation copy of the test on top of ours (double guard, +3 insns).
@@ -2102,6 +2174,41 @@ nocard:
          * (Also measured this wave and INERT here: per-fn `-G4` and `-G8` flag splices -- §22A(5)'s
          * mips_check_split small-data gate is a 2.8-rung property; 2.7.2 has no address
          * pre-splitting at all, so the -G dial has nothing to gate.  Cross it off for this TU.) */
+        /* 🔴 W75-A18 -- THE W74 SPEC IS *NOT* BUILT, ON PURPOSE, AND THE `-fno-delayed-branch`
+         * ALTERNATIVE IS NOW PROVEN UNREACHABLE.  Read both halves before re-opening this row.
+         * (i) POLICY.  Commit 75be7d4c ("Restore exact SYM graph for textureprocess without
+         *     rewrites") records the user policy of 2026-08-23: POST-RECOMPILE INSTRUCTION
+         *     REWRITES ARE FORBIDDEN -- PER_FN_RA_SINK was emptied for it and the concurrent
+         *     working copy is removing PER_FN_TEXT_MOVES rows (psxcontroller) for the same
+         *     reason.  PER_FN_SLOT_UNFILL_272 is exactly that class (it deletes an instruction
+         *     cc1 emitted and re-emits it above the branch), so it was NOT wired.  Wiring it is
+         *     a USER CALL, not a belt call.  Everything else about the spec still holds:
+         *     the `-fno-delayed-branch` byte-proof in the W74 block above is real.
+         * (ii) THE FOUR-ROW ALTERNATIVE IS DEAD ANYWAY (measured on the post-volatile basin).
+         *     `-fno-delayed-branch` spliced onto this fn alone now gives 10 @134/130, and its
+         *     four missing insns are THREE distinct slot classes, not one:
+         *        beq(busy-guard) slot   nop vs `addu $s1,$0,$0`   -- gas CAN backward-fill this
+         *                                                            (move `retry = 0` above the
+         *                                                            guard)
+         *        bltz(probe) slot       nop vs `sll $20,$20,16`   -- gas CAN backward-fill
+         *        beq(rslt==3) slot      nop vs `addiu $a0,$sp,16` -- 🔴 gas CAN NEVER DO THIS.
+         *     The third is reorg's EAGER TARGET-THREAD STEAL: retail's `beq $3,$v0,.L800FBCDC`
+         *     jumps PAST the `addiu $a0,$sp,0x10` and carries it in the slot, i.e. the insn comes
+         *     from the branch's TARGET side and the branch is re-pointed to a label one insn
+         *     later.  GNU as only ever fills backwards from the preceding instruction (w48 04K,
+         *     re-confirmed) so under -fno-delayed-branch that fill is structurally lost.
+         *     ⇒ the -fno-delayed-branch route's floor is >= 4 diffs = the row it was meant to buy.
+         * (iii) WHY NO SOURCE FENCE REACHES IT (reorg.c, cited).  fill_simple_delay_slots starts
+         *     its backward scan at `prev_nonnote_insn(jal)` and takes the FIRST eligible trial
+         *     (reorg.c:3082-3125); stop_search_p (:685-712) fires at any asm, but an asm can only
+         *     be placed BEFORE the argument-register moves in C -- calls.c emits those moves last,
+         *     inside expand_call -- so the scan always meets `li $5,1` before any fence.  A fence
+         *     can only BLOCK theft, and here there is nothing to block it WITH (13B).  Falsified
+         *     this wave on top of the W71/W72/W74 lists: cc1 LADDER (2.7.2-970404 77, 2.8.0 86,
+         *     2.8.1 86, 2.6.x reject the TU) and per-fn flag splices -fno-peephole 4 (inert),
+         *     -fno-function-cse 4 (inert), -fno-schedule-insns2 18, -fno-schedule-insns 20.
+         * ⇒ STATUS: 4 diffs, count-EXACT 130/130, ONE named row, blocked on a USER POLICY
+         *   DECISION rather than on a missing lever. */
         {
             int prevcb = (int)MemCardCallback(0);
             cmd0 = p[0];

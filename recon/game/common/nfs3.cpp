@@ -614,7 +614,64 @@ void NFS3_CheckForFileOperations(void)
    *   (`g` read first) is exactly neutral (2).  NEXT ANGLE: get the guard bound
    *   demoted out of allocation entirely (a REG_EQUIV-preserving shape, or a
    *   -mno-split-addresses per-fn splice for this TU) so $a0 re-enters the spill
-   *   pool; everything else in the function is retail-exact. */
+   *   pool; everything else in the function is retail-exact.
+   *
+   * ===== W75-A11 (2026-08-23): 2 STAYS @21/21.  THE RELOAD MODEL IS NOW
+   * VALIDATED BY PREDICTION, AND THE REQUIREMENT IS EXACT.
+   * (1) MECHANISM, read off reload1.c (not probed).  order_regs_for_reload
+   *     (:3840) builds potential_reload_regs in THREE runs when the target has
+   *     no REG_ALLOC_ORDER (MIPS): [1] hard_reg_n_uses==0 AND call_used,
+   *     ASCENDING regno; [2] uses==0 AND !call_used; [3] uses!=0, qsort by
+   *     INCREASING uses.  fixed regs and every regs_explicitly_used reg get
+   *     `uses += large+1` and land in bad_spill_regs (:3888-3903).
+   *     allocate_reload_reg (:5083) then walks spill_regs ROUND-ROBIN from the
+   *     FUNCTION-GLOBAL cursor last_spill_reg (reset to -1 at :823):
+   *       i = (i + 1) % n_spills   -- advanced PER RELOAD, not per insn.
+   *     OURS: pseudos sit in $v0,$v1,$a0(G = the guard bound),$a1(L) => run[1]
+   *     starts 6,7 => n_spills=2, spill_regs=[$a2,$a3]; cursor -1 => the trap's
+   *     operand0 takes index 0 ($a2), operand1 index 1 ($a3).  Exactly ours.
+   * (2) PREDICTION TEST (the receipt this wave adds).  Adding `: "$7"` to the
+   *     trap asm puts $a3 in bad_spill_regs, so spill_regs must become
+   *     [$a2,$t0] and operand1 must become $t0.  MEASURED: FAIL 2 @21/21 with
+   *     `-addu t0,a2,zero / +addu a0,a2,zero`.  Predicted == measured, so the
+   *     model is an ORACLE for this residual, not a hypothesis.  (Reverted.)
+   * (3) THE EXACT REQUIREMENT FOR RETAIL'S `addu a0,a2,zero`.  Retail's pair is
+   *     spill_regs[1] THEN spill_regs[0] -- a WRAP -- which forces BOTH:
+   *       (a) spill_regs = [$a0,$a2], i.e. hard_reg_n_uses[$a0]==0: NO pseudo
+   *           allocated to $a0 anywhere in the function; AND
+   *       (b) an EARLIER reload in the function, so the cursor already sits at
+   *           index 0 when the trap is reloaded.
+   *     ONE fact satisfies both: retail's guard bound G is UNALLOCATED and
+   *     carries REG_EQUIV(mem gFileDevice+0x1C), so `lw a0,0x1C(v0)` IS that
+   *     earlier reload and `addu a1,a0,zero` is reload INHERITANCE feeding L.
+   *     This supersedes the W74 wording ("get $a0 back into the spill pool"):
+   *     the two halves are not independent dials, they are one fact.
+   * (4) WHY NO DEVICE BUYS IT (certificate sharpened, all source-cited).  A
+   *     clobber only ever REMOVES a register from the pool (2), so it cannot
+   *     make $a0 free.  Demotion via REG_LIVE_LENGTH is unreachable from C:
+   *     flow.c:1179/1200 set -1 only for setjmp-live pseudos and global.c:558
+   *     honours -2 only for parameters; with 3-4 allocnos and ~20 free regs
+   *     global.c:561 find_reg always succeeds.  local-alloc.c's
+   *     reg_equiv_replace escape (the `REG_N_REFS==2 && REG_BASIC_BLOCK<0`
+   *     arm of update_equiv_regs) cannot fire either: our G has THREE refs
+   *     (set + guard test + the preheader copy) and its set/use share a block.
+   * (5) ALSO FALSIFIED THIS WAVE (each a real gate run, all 2 @21/21 unless
+   *     noted).  PER-FN -mno-split-addresses -- the very angle W74 named as the
+   *     next one -- 6 @21/21: it folds +0x18/+0x1C into the address so the two
+   *     field loads become 0(v0)/4(v0), and the a3-vs-a0 pick is UNCHANGED, so
+   *     it does not demote G.  PER-FN CC1 FLAG SWEEP (a NEW axis; instrument =
+   *     scratchpad/w75/vprobe_flag.py, a generic per-FUNCTION flag splice built
+   *     on build.py's _apply_fn_splice, W75_FN_FLAG='{"<tu>":{"<flag>":["fn"]}}'):
+   *     -fno-expensive-optimizations, -fno-caller-saves, -fno-rerun-cse-after-loop,
+   *     -fno-cse-follow-jumps, -fno-cse-skip-blocks, -fno-thread-jumps,
+   *     -fno-force-mem, -fno-peephole, -fno-function-cse, -fno-inline,
+   *     -fno-defer-pop, -fno-strength-reduce, -fno-schedule-insns,
+   *     -fno-schedule-insns2, -G0, -G8 = ALL exactly 2 (inert);
+   *     -fno-omit-frame-pointer 9 @26.  The FLAG AXIS IS CLOSED for this fn.
+   * NEXT NAMED ANGLE (unwalked): a source shape in which the guard bound is
+   * never a pseudo -- the guard test carrying the MEM directly, with the loop
+   * bound a separate pseudo -- so G's references collapse to one reload plus
+   * inheritance.  Everything else in this function is retail-exact. */
   int *p;
   int *g;
   int *e;

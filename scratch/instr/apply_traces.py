@@ -26,6 +26,7 @@ import os, re, sys
 MARK = "nfs4_trace_on"          # global.c marker
 MARK_LA = "nfs4_la_trace"       # local-alloc.c marker
 MARK_RL = "nfs4_rl_trace"       # reload1.c marker
+MARK_RP = "nfs4_reload_pick"    # reload1.c [reload_pick] marker (w75-A20)
 
 
 def rd(p):  return open(p, 'r', newline='').read()
@@ -383,70 +384,81 @@ def patch_reload1(root):
     print("  reload1.c  patched (%d re-home trace sites)" % n)
 
 
-def patch_sched(root):
-    """[sched_pick] -- per-pick decision trace at schedule_block's ready[0]
-    selection (round-11): pass (0=sched1/1=sched2), clock, the PREVIOUS
-    last_scheduled insn, and for each ready insn (pri, rank-class vs last,
-    LUID).  Gated on env GCC_TRACE_SCHED (separate from GCC_TRACE_ALLOC)."""
-    p = os.path.join(root, 'sched.c')
+# =========================================================================
+def patch_reload_pick(root):
+    """w75-A20: the [reload_pick] instrument --- allocate_reload_reg's decision.
+
+    reload1.c:5031 allocate_reload_reg walks spill_regs[] ROUND-ROBIN starting at
+    `last_spill_reg + 1` (reload1.c:5083 `i = last_spill_reg;` then :5088
+    `i = (i + 1) % n_spills;`) over TWO passes: pass 0 accepts only registers
+    already in reload_reg_used_at_all and NOT in reload_reg_used_for_inherit
+    (reload1.c:5100-5104 = "reuse first"), pass 1 accepts any free one.  That
+    rotating cursor is the mechanism behind the uniform +-1 scratch-rotation
+    class, so the trace prints, per pick: the whole spill_regs order with each
+    entry's free/used_at_all/inherit/class-membership state, the incoming
+    last_spill_reg cursor, and (on success) the winning index + pass.
+
+    Requires patch_reload1() to have run first (reuses its nfs4_rl_trace gate).
+    """
+    p = os.path.join(root, 'reload1.c')
     s = rd(p)
-    if 'nfs4_sched_trace' in s:
-        print("  sched.c    already patched"); return
-    backup(p)
+    if MARK_RP in s:
+        print("  reload1.c  [reload_pick] already patched"); return
+    if 'nfs4_rl_trace' not in s:
+        raise SystemExit("PATCH FAIL (reload_pick): run patch_reload1 first")
 
-    anchor = "static int insn_cost\t\t\tPROTO((rtx, rtx, rtx));"
-    helper = anchor + '''
-
-extern char *getenv ();
-static int nfs4_sched_trace PROTO((void));
-
-static int
-nfs4_sched_trace ()
-{
-  static int t = -1;
-  if (t < 0)
+    # 1) entry dump -- right after force_group is computed, before the pass loop.
+    a = "  int force_group = reload_nregs[r] > 1 && ! last_reload;\n"
+    b = a + r"""
+  /* ---- w75-A20 [reload_pick] instrumentation ---- */
+  if (nfs4_reload_pick_trace ())
     {
-      char *e = getenv ("GCC_TRACE_SCHED");
-      t = (e && *e && *e != '0') ? 1 : 0;
+      int k_, cls_ = (int) reload_reg_class[r];
+      fprintf (stderr,
+	       "[reload_pick]      r=%d insn=%d class=%d mode=%d nregs=%d opnum=%d when=%d noerror=%d force_group=%d n_spills=%d last_spill_reg=%d start=%d order:",
+	       r, insn ? INSN_UID (insn) : -1, cls_, (int) reload_mode[r],
+	       reload_nregs[r], reload_opnum[r], (int) reload_when_needed[r],
+	       noerror, force_group, n_spills, last_spill_reg,
+	       (noerror || ! force_group)
+	       ? (n_spills ? (last_spill_reg + 1) % n_spills : -1) : 0);
+      for (k_ = 0; k_ < n_spills; k_++)
+	fprintf (stderr, " %d:$%d%s%s%s%s", k_, spill_regs[k_],
+		 TEST_HARD_REG_BIT (reg_class_contents[cls_], spill_regs[k_]) ? "c" : "",
+		 reload_reg_free_p (spill_regs[k_], reload_opnum[r],
+				    reload_when_needed[r]) ? "f" : "",
+		 TEST_HARD_REG_BIT (reload_reg_used_at_all, spill_regs[k_]) ? "u" : "",
+		 TEST_HARD_REG_BIT (reload_reg_used_for_inherit, spill_regs[k_]) ? "h" : "");
+      fprintf (stderr, "\n");
     }
-  return t;
-}
-'''
-    s = sub1(s, anchor, helper, 'sched helper')
+  /* ----------------------------------------------- */
+"""
+    s = sub1(s, a, b, "reload_pick entry dump")
 
-    pick_anchor = ("      n_ready = new_ready;\n"
-                   "      last_scheduled_insn = insn = ready[0];")
-    trace = ("      n_ready = new_ready;\n"
-             "      if (nfs4_sched_trace () && n_ready > 0)\n"
-             "\t{\n"
-             "\t  int nfs4_i;\n"
-             "\t  fprintf (stderr, \"[sched_pick] pass=%d clk=%d last=%d ::\",\n"
-             "\t\t   reload_completed, clock,\n"
-             "\t\t   last_scheduled_insn ? INSN_UID (last_scheduled_insn) : -1);\n"
-             "\t  for (nfs4_i = 0; nfs4_i < n_ready && nfs4_i < 10; nfs4_i++)\n"
-             "\t    {\n"
-             "\t      rtx nfs4_t = ready[nfs4_i];\n"
-             "\t      rtx nfs4_l;\n"
-             "\t      int nfs4_cls = 3;\n"
-             "\t      if (last_scheduled_insn)\n"
-             "\t\t{\n"
-             "\t\t  nfs4_l = find_insn_list (nfs4_t, LOG_LINKS (last_scheduled_insn));\n"
-             "\t\t  if (nfs4_l == 0 || insn_cost (nfs4_t, nfs4_l, last_scheduled_insn) == 1)\n"
-             "\t\t    nfs4_cls = 3;\n"
-             "\t\t  else if (REG_NOTE_KIND (nfs4_l) == 0)\n"
-             "\t\t    nfs4_cls = 1;\n"
-             "\t\t  else\n"
-             "\t\t    nfs4_cls = 2;\n"
-             "\t\t}\n"
-             "\t      fprintf (stderr, \" %d(p%d,c%d,l%d)\", INSN_UID (nfs4_t),\n"
-             "\t\t       INSN_PRIORITY (nfs4_t), nfs4_cls, INSN_LUID (nfs4_t));\n"
-             "\t    }\n"
-             "\t  fprintf (stderr, \"\\n\");\n"
-             "\t}\n"
-             "      last_scheduled_insn = insn = ready[0];")
-    s = sub1(s, pick_anchor, trace, 'sched pick site')
+    # 2) result dump -- at the one site that commits the choice (reload1.c:5185).
+    a = "	    last_spill_reg = i;\n"
+    b = ("	    if (nfs4_reload_pick_trace ())\n"
+         "	      fprintf (stderr, \"[reload_pick]      r=%d WON i=%d $%d pass=%d"
+         " (cursor %d -> %d)\\n\",\n"
+         "		       r, i, spill_regs[i], pass, last_spill_reg, i);\n"
+         + a)
+    s = sub1(s, a, b, "reload_pick result dump")
+
+    # 3) the gate helper + its K&R forward decl (see the PROTO gotcha above).
+    a = "static int nfs4_rl_trace PROTO((void));\n"
+    b = (a + "static int nfs4_reload_pick_trace PROTO((void));\t/* w75-A20 */\n")
+    s = sub1(s, a, b, "reload_pick proto")
+
+    a = "/* --------------------------------- */\n"
+    b = ("/* ---- w75-A20 " + MARK_RP + " ---- */\n"
+         + (TRACE_FN % {'name': 'nfs4_reload_pick_trace'}).replace(
+             'GCC_TRACE_ALLOC', 'GCC_TRACE_RELOAD_PICK')
+             .replace('extern char *getenv ();\n', '')
+         + "/* --------------------------------- */\n"
+         + a)
+    s = sub1(s, a, b, "reload_pick helper def")
+
     wr(p, s)
-    print("  sched.c    patched (pick-site decision trace)")
+    print("  reload1.c  [reload_pick] patched")
 
 
 # =========================================================================
@@ -457,5 +469,5 @@ if __name__ == '__main__':
     patch_global(root)
     patch_local_alloc(root)
     patch_reload1(root)
-    patch_sched(root)
+    patch_reload_pick(root)
     print("DONE")

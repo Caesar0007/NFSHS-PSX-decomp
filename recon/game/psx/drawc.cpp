@@ -1585,7 +1585,38 @@ void DrawC_PrimStop(Car_tObj *carObj,Draw_CarCache *sd)
  *     STRONG floor verdict SURVIVES three basin changes.  Do not re-run.
  *   - `int facetFlag` alone at site1 = 47 @1388; the R device alone = 35 @1390
  *     (both the "one short / one long" halves of landing (3)).
- * RESIDUAL 16 = TWO classes only, at an oracle-EXACT 1389 insns:
+ * ===== 🏆 W75-A7: BOTH RESIDUAL CLASSES CLOSED -- DrawC_Prim PASS 1389/1389,
+ * source-side only (no build.py row of any kind; the PER_FN_TEXT_MOVES spec at
+ * the end of this block is SUPERSEDED and must NOT be wired -- post-recompile
+ * instruction rewrites are forbidden by user policy, 2026-08-23).  Two landings,
+ * each re-tested for device removal (23B-3) and each necessary:
+ *  (A) THE id-MORPH SPLIT x THE `i` REF-STEP -- ONE CELL, not two axes (23B-1).
+ *      The split at the 5th site is what mints the oracle's in-place
+ *      `sll $tN,$tN,3; addu $tN,$tN,$s1`; it was measured at 198/206/216 across
+ *      FOUR waves and filed a STRONG floor because it costs each idN +2 mentions
+ *      => +4 loop-weighted refs (12 -> 16), crossing the floor_log2 3 -> 4 step
+ *      and lifting all three id allocnos ABOVE the fn-scope counter `i` in
+ *      global.c:594's allocno_compare -- a one-seat rotation of the whole $t
+ *      band.  Restoring `i` to the head of the order takes refs 55 -> >=64
+ *      (5*63/829 = .380 < id2's .4183, 6*64/829 = .4632 > it), i.e. FIVE
+ *      read-only fence operands at loop depth 1 (+2 each).  PREDICTED ==
+ *      MEASURED: n=3 194, n=4 194, n=5 PASS, n=8 PASS, n=10 PASS.  Full
+ *      allocsim receipt (MATCH 97/98, order-vs-dump IDENTICAL on both dumps) in
+ *      scratchpad/w75/A7_alloc_{fused,split}.txt.  Removal test: fused morph
+ *      + no fence = 12; split + no fence = 194.
+ *  (B) THE LAUNDER POSITION IS THE DELAY-SLOT DIAL.  The copy-vs-`beqz` class
+ *      below is NOT an inherent cost of the launder device -- it is a cost of
+ *      WHERE the launder sits.  reorg.c:685 stop_search_p fires at ANY asm, so
+ *      a launder standing between `facet_flag = ff` and the guard branch walls
+ *      reorg's backward scan off from the copy and it eager-steals the
+ *      following `srl` from the target thread instead.  Moving BOTH launders
+ *      INSIDE the `if (hi != 0)` body keeps their cse-breaking job (the copy
+ *      still survives) while clearing the scan path: 4 -> 0.  SITE-JOINT: the
+ *      device must be applied at BOTH facetFlag sites (either site alone = 2).
+ *      Falsified at this basin: launder before the copy (L3/L7) 34; a read-only
+ *      fence instead (L8) 16; mixed forms 107-121 @1390.
+ * ===== end W75-A7; the 16-diff analysis below is retained as the receipt =====
+ * RESIDUAL 16 (as of W74) = TWO classes only, at an oracle-EXACT 1389 insns:
  *   - the id0/id1/id2 `sll v0,tN,3` shared scratch at the fused site (12 of 16)
  *     -- ours `sll v0,t9,3; addu t9,v0,s1`, retail in-place `sll t9,t9,3`.
  *     STRONG floor (see the re-price).  NAMED ANGLE: the only untried route is
@@ -1611,7 +1642,11 @@ void DrawC_PrimStop(Car_tObj *carObj,Draw_CarCache *sd)
  *     must survive WITHOUT an asm insn standing between it and the guard --
  *     i.e. either a PER_FN_TEXT_MOVES row (spec below) or a non-asm
  *     cse-breaker for the `ff`/`facet_flag` pair.
- *     PER_FN_TEXT_MOVES ROW SPEC (orchestrator-wireable, 2 rows, one per site;
+ *     🔴 SUPERSEDED BY W75-A7 (B) ABOVE AND FORBIDDEN BY POLICY -- DO NOT WIRE.
+ *     (The rows were built and measured this belt: 16 -> 12, brdist clean.  They
+ *     were then REMOVED when the user's no-post-recompile-rewrite rule landed,
+ *     and the source-side launder-position lever closed the same class for free.)
+ *     PER_FN_TEXT_MOVES ROW SPEC (historical, 2 rows, one per site;
  *     they are position-identical so they must both be present and in file
  *     order -- each row's anchor is written against the text the previous row
  *     produced, catalog 21E-8: numeric registers only, and the `after`
@@ -2450,8 +2485,15 @@ gte_SetTransMatrix(((char *)sd + 0x14));
           /* two pseudos: ff computed (v1), facet_flag the live copy (t1) --
            * oracle andi v1,4095; addu t1,v1,zero; srl v0,v1,4 */
           int ff = facetFlag & 0xfff; int hi = facetFlag & 0x3f0;
-          facet_flag = ff; __asm__("" : "=r"(facet_flag) : "0"(facet_flag)); __asm__("" : "=r"(ff) : "0"(ff));
+          facet_flag = ff;
           if (hi != 0) {
+            /* W75-A7: BOTH launders moved INSIDE the guard body -- see the
+             * receipt above DrawC_Prim.  They still stop cse collapsing
+             * ff/facet_flag (so retail's `addu $9,$3,$0` copy survives), but
+             * they no longer stand BETWEEN that copy and the `beqz`, so
+             * reorg.c:685 stop_search_p lets the backward scan reach the copy
+             * and fill the guard's delay slot with it -- retail's stream. */
+            __asm__("" : "=r"(facet_flag) : "0"(facet_flag)); __asm__("" : "=r"(ff) : "0"(ff));
             overlayFlag = overlayFlag & ((u_int)ff >> 4);
           if (overlayFlag != 0) {
             while ((overlayFlag & 3) == 0) {
@@ -2575,10 +2617,48 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       id1 = *(u_char *)(facet + 4);
       id2 = *(u_char *)(facet + 5);
       if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) continue;
-      /* SYM 3.8b: id0-2 morph index->address in place (oracle sll aN,aN,3) */
-      id0 = id0 * 8 + (int)sd;
-      id1 = id1 * 8 + (int)sd;
-      id2 = id2 * 8 + (int)sd;
+      /* SYM 3.8b: id0-2 morph index->address IN PLACE (oracle sll aN,aN,3).
+       * ===== W75-A7: THE SPLIT + A PRICED floor_log2 REF-STEP ON `i` =====
+       * The SPLIT (`idN = idN * 8; idN = idN + (int)sd;`) is what makes cc1
+       * emit the oracle's in-place `sll tN,tN,3; addu tN,tN,$s1` -- the fused
+       * form borns a fresh pseudo for the shift and gives `sll $v0,tN,3`.
+       * The split alone measured 198 across FOUR waves (w55 448 / w62 / w63 /
+       * w72 "STRONG floor" / w74 "do not re-run") because it costs each idN
+       * +2 mentions => +4 loop-weighted REG_N_REFS (12 -> 16), which crosses
+       * the floor_log2 step 3 -> 4 and lifts all three id allocnos ABOVE the
+       * fn-scope counter `i` in global.c's allocno_compare -- rotating the
+       * whole $t band by one seat (i $t2 -> $t9, id0 $t9 -> $t8, ...).
+       * PROVEN, not probed (gcc-2.8.1 global.c:594, allocsim/-dg receipt in
+       * scratchpad/w75/A7_alloc_{fused,split}.txt, model MATCH 97/98 and
+       * order-vs-dump IDENTICAL on both dumps):
+       *     pri = floor_log2(refs)*refs / live * 10000 * size
+       *   fused  i p149 55/829 = .3317 > id2 p562 12/153 = .2352
+       *                                > id1 p561 12/156 = .2307
+       *                                > id0 p560 12/157 = .2292   (retail)
+       *   split  id2 .4183 > id1 .4102 > id0 .4076 > i .3317       (rotated)
+       * CURE = give `i` enough refs to re-take the head of the order.  The
+       * what-if ladder says the crossing is at refs >= 64 (floor_log2 5 -> 6:
+       * 5*63/829 = .380 < .4183, but 6*64/829 = .4632 > .4183), i.e. +9 over
+       * 55.  This loop is depth 1, so flow.c weights each mention x2 => FIVE
+       * read-only fence operands (+10 -> 65) and not four (+8 -> 63).
+       * PREDICTED == MEASURED: n=3 194, n=4 194, n=5 PASS, n=8/n=10 PASS.
+       * The fence is the 21A(1) read-only form: zero-insn (count stays
+       * oracle-EXACT 1389) and it adds refs WITHOUT the identity launder's
+       * extra copy (23B-2).  POSITION is a separate dial and was swept: at
+       * the loop head (after `i = i - 1;`) or just after `facet = ...` it
+       * costs a real insn (1390: it walls off a delay-slot fill) -- only the
+       * two placements bracketing the morph block are free; this one and the
+       * before-morph twin both PASS at n>=5.  Everything statement-shaped
+       * without the ref-step still explodes (>=186), which is exactly why the
+       * four earlier waves read this as a floor: they priced the SPLIT axis
+       * alone and never the (split x `i`-refs) CELL (catalog 23B-1). */
+      id0 = id0 * 8;
+      id0 = id0 + (int)sd;
+      id1 = id1 * 8;
+      id1 = id1 + (int)sd;
+      id2 = id2 * 8;
+      id2 = id2 + (int)sd;
+      __asm__("" : : "r"(i),"r"(i),"r"(i),"r"(i),"r"(i));
       gte_ldVXY0m(*(u_int *)(id0 + 0xd0));
       gte_ldVZ0m(*(u_int *)(id0 + 0xd4));
       gte_ldVXY1m(*(u_int *)(id1 + 0xd0));
@@ -2618,8 +2698,15 @@ gte_SetTransMatrix(((char *)sd + 0x14));
           /* two pseudos: ff computed (v1), facet_flag the live copy (t1) --
            * oracle andi v1,4095; addu t1,v1,zero; srl v0,v1,4 */
           int ff = facetFlag & 0xfff; int hi = facetFlag & 0x3f0;
-          facet_flag = ff; __asm__("" : "=r"(facet_flag) : "0"(facet_flag)); __asm__("" : "=r"(ff) : "0"(ff));
+          facet_flag = ff;
           if (hi != 0) {
+            /* W75-A7: BOTH launders moved INSIDE the guard body -- see the
+             * receipt above DrawC_Prim.  They still stop cse collapsing
+             * ff/facet_flag (so retail's `addu $9,$3,$0` copy survives), but
+             * they no longer stand BETWEEN that copy and the `beqz`, so
+             * reorg.c:685 stop_search_p lets the backward scan reach the copy
+             * and fill the guard's delay slot with it -- retail's stream. */
+            __asm__("" : "=r"(facet_flag) : "0"(facet_flag)); __asm__("" : "=r"(ff) : "0"(ff));
             overlayFlag = overlayFlag & ((u_int)ff >> 4);
           if (overlayFlag != 0) {
             while ((overlayFlag & 3) == 0) {
@@ -3136,6 +3223,58 @@ gte_ldv3(vt0,vt1,vt2);
  *     position (6) -- the same 21B-5 backward-scan-position class the w72-a3
  *     `noSub` landing already moved once.
  *   - `li t3,38` off by one position (2) and the :3601 `beqz` off by one (2).
+ * ===== W75-A7: 66 -> 49 (count 1876 vs oracle 1877), THREE landings + one
+ * quantified certificate.  All source-side; no build.py rows (policy).
+ *  (1) 🔴 REAL BUG, and it WAS the "case-1 loop head" coloring class above:
+ *      loop-2's `gte_ldv0` read tV[0] (`(char *)sd + 0xd0`) forever instead of
+ *      the CURRENT tV.  Oracle proof: its base `$a3` is the same register the
+ *      loop stores `tV->x` through and it carries `addiu $a3,$a3,8` in the
+ *      loop's `j` delay slot.  The bogus loop-invariant address is exactly why
+ *      cc1 had to hoist + COPY it (`addu $10,$a3,$0`) while retail needs no
+ *      copy; the "-1 parked in $t3 instead of $t2" was downstream of that.
+ *      -5 lines / -9 gate; costs one insn of the count because the copy really
+ *      was surplus (see (4) for the compensating -1).
+ *  (2) THE LAUNDER-POSITION DIAL at both facetFlag sites (-4, the DrawC_Prim
+ *      (B) lever): reorg.c:685 stop_search_p fires at any asm, so a launder
+ *      between `facet_flag = ff` and the guard `beqz` walls the backward scan
+ *      off the copy; inside the guard body it still breaks the cse collapse
+ *      but the slot is reachable.  Site-joint (either alone = -2).
+ *  (3) THE loop-1 (a)+(b) PORT re-priced at this basin (-4) -- see the receipt
+ *      at the loop itself; the w53-a2 "MEASURED NO-OP on PrimClip" verdict was
+ *      basin-relative (04Z).
+ *  (4) 🏆 QUANTIFIED REQUIRED-DELTA CERTIFICATE for the dominant residual --
+ *      the t1<->t8 permutation (19 of the ~29 remaining posmis positions;
+ *      id2 and facet_flag in the case-8 loop, plus id2's lbu/sll emission
+ *      order).  allocsim on the CURRENT dumps (scratchpad/w75/A7_now.{greg,
+ *      lreg}, MATCH 107/107, order-vs-dump IDENTICAL) identifies
+ *        p816 id0 refs 18 live 199 pri .3618 -> $t3   (retail $t3 OK)
+ *        p817 id1 refs 18 live 196 pri .3673 -> $t2   (retail $t2 OK)
+ *        p818 id2 refs 18 live 200 pri .3600 -> $t8   (retail $t1)
+ *        p819 facet_flag refs 18 live 129 pri .5581 -> $t1 (retail $t8)
+ *      Retail's order is p818 > p817 > p816 > p819.  MINIMAL JOINT DELTA
+ *      (what-if-verified, all four seats land exactly):
+ *        p818  REG_N_REFS 18 -> >=19  (one loop-weighted mention: +1 = +2)
+ *        p819  REG_LIVE_LENGTH 129 -> >=200  (ties break by lower pseudo, and
+ *              818 < 819)  OR  REG_N_REFS 18 -> <=14 (two mentions removed)
+ *      FALSIFIED realizations, all measured this belt: multi-operand read-only
+ *      fences on id0/id1/id2 (7 cells of the ref ladder incl. the model's own
+ *      (5,5,6)) = 68..118 -- the fence insn's own live-length contribution
+ *      rotates the rest of the table, which a single-pseudo what-if does not
+ *      model; 20B clobbers "$24"/"$11"/"$10" on a site-local copy of the
+ *      DRAWC_VTZ template = +1 insn each (265..291), "$9" bit-inert; a 20B
+ *      clobber on facet_flag's launder = +1 insn (267..295); the FULL 6x6
+ *      id-load x id-morph statement-ORDER sweep (36 cells) -- the shipped
+ *      (id2,id0,id1)/(id2,id0,id1) pair is the joint minimum, nothing improves.
+ *      => NAMED NEXT ANGLE: a ZERO-INSN way to add ~71 to facet_flag's live
+ *      length (a 15A foreign-operand fence lengthens every range across it by
+ *      one insn, so it must sit ~70 RTL insns past facet_flag's last use), or
+ *      a -2-mention reshape of its nine mentions.  Do NOT re-run the ref
+ *      ladder on the ids: it is priced and it loses.
+ *  REMAINING BESIDES (4): `addiu $a2,$s1,215` one hoist-group late (2, angle at
+ *  the loop); the switch-dispatch `li $2,8` reorg eager-steal + the missing
+ *  `nop` (this is the +1 that (1) exposed) and the `sw $t9,32($sp)` spill
+ *  position (6); `li $t3,38` off by one position (2).  The dispatch blocks are
+ *  compiler-generated (no source statement to fence at their thread head).
  * ---- DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache  [DRAWC.CPP:2647-3495] SLD-VERIFIED ---- */
 void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOverlay *overlay,
                int envmap,Draw_CarCache *sd)
@@ -3159,21 +3298,41 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
      * OWN nested SYM block chain (line=18/19/27/31, va 0x800c15c8-0x800c16bc)
      * distinct from psVar8's later, unrelated facet-vertex uses -- give it a
      * fresh block-scoped 'vt' pseudo (shadowing the outer psVar8) instead of
-     * reusing the function-scope one, matching the oracle's short-lived reg. */
-    short *psVar8 = (short *)Nvertice;
+     * reusing the function-scope one, matching the oracle's short-lived reg.
+     * ===== W75-A7: the DrawC_Prim loop-1 (a)+(b) port, RE-PRICED (04Z) =====
+     * The w53-a2 receipt on DrawC_Prim's twin recorded this port as "MEASURED
+     * NO-OP on DrawC_PrimClip (626 -> 626)"; that verdict was taken at the 626
+     * basin.  At the post-launder basin it is -4: ONE `COORD16 *vt` cursor +
+     * a block-local {t1,t2,t3} triple instead of the two-cursor
+     * psVar8/vert_yz_iter form, with `vt` assigned ABOVE the two gte_Set*Matrix
+     * macros.  loop.c then STRENGTH-REDUCES the y/z cursor itself, so its init
+     * `addiu $a1,$s3,4` is emitted in the GIV group -- AFTER the LICM movables
+     * (`li -1`, `addiu $t1,$s1,172`, `addiu $t0,$s1,156`) -- which is where
+     * retail has it; the source-assigned `vert_yz_iter` was emitted in the
+     * ENTRY block, i.e. BEFORE all three hoists.  Assigning `vt` below the
+     * macros instead (K2/K3 in the sweep) is +2.  RESIDUAL of this class = the
+     * ONE remaining `addiu $a2,$s1,215` (envmapUV_dst), still a source-assigned
+     * pointer emitted in the entry block where retail has it in the giv group:
+     * NAMED ANGLE = make the UV byte cursor a giv too, anchored at
+     * `&sd->tV[0].v` (retail's base is +215, i.e. `.v` with `[-1]` for `.u`, so
+     * DrawC_Prim's typed `Draw_CarVertex *` walker -- base +214 -- must NOT be
+     * ported here). */
+    COORD16 *vt = Nvertice;
 gte_SetRotMatrix(&DrawC_gMatA);
 gte_SetTransMatrix(&DrawC_gMatA);
     char *envmapUV_dst = &sd->tV[0].v;
-    short *vert_yz_iter = (short *)((char *)Nvertice + 4);
     i = (int)obj->numVertex;
     while( true ) {
       i = i - 1;
       if (i == -1) break;
-      short matRow_y = vert_yz_iter[-1];
-      short matRow_z = *vert_yz_iter;
-      (sd->vt0).x = *psVar8;
-      (sd->vt0).y = matRow_y;
-      (sd->vt0).z = matRow_z;
+      {
+        short e1 = vt->x;
+        short e2 = vt->y;
+        short e3 = vt->z;
+        (sd->vt0).x = e1;
+        (sd->vt0).y = e2;
+        (sd->vt0).z = e3;
+      }
 gte_ldv0((char *)sd + 0xac);
       gte_rt();
 gte_stlvnl((char *)sd + 0x9c);
@@ -3182,8 +3341,7 @@ gte_stlvnl((char *)sd + 0x9c);
       if (absZ_envmap < 0) {
         absZ_envmap = -absZ_envmap;
       }
-      vert_yz_iter = vert_yz_iter + 3;
-      psVar8 = psVar8 + 3;
+      vt = vt + 1;
       envmapUV_dst[-1] = (char)tvx;
       *envmapUV_dst = (char)absZ_envmap;
       envmapUV_dst = envmapUV_dst + 8;
@@ -3243,7 +3401,19 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         tV->y = t2;
         tV->z = t3;
       }
-gte_ldv0((char *)sd + 0xd0);
+      /* 🔴 W75-A7 REAL BUG FIX (gate-visible, was 5 diffs): this loads the
+       * vector to transform from the CURRENT tV slot, not from tV[0].  The
+       * oracle's base register is the SAME walking `$a3` it stores tV->x
+       * through (`addiu $a3,$a3,8` in the loop's `j` delay slot); the old
+       * `(char *)sd + 0xd0` is tV[0]'s address, so from iteration 2 on the
+       * recon re-transformed vertex 0 for every vertex.  cc1 was reporting
+       * the defect all along: a fixed base hoisted out of the loop had to be
+       * COPIED (`addu $10,$a3,$0`) because $a3 is mutated -- the "extra copy
+       * + `-1` parked in $t3 instead of $t2" residual the w72/w74 receipts
+       * filed as a coloring class.  58 -> 49 (count 1876 vs 1877: the copy
+       * really was one insn, and the remaining -1 is the separate switch
+       * `li $2,8`/`nop` class below, which was masking it). */
+gte_ldv0((char *)tV);
       gte_rt();
 gte_stlvnl((char *)sd + 0x9c);
       {
@@ -3782,8 +3952,16 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           /* two pseudos: ff computed (v1), facet_flag the live copy (t1) --
            * oracle andi v1,4095; addu t1,v1,zero; srl v0,v1,4 */
           int ff = facetFlag & 0xfff; int hi = facetFlag & 0x3f0;
-          facet_flag = ff; __asm__("" : "=r"(facet_flag) : "0"(facet_flag)); __asm__("" : "=r"(ff) : "0"(ff));
+          facet_flag = ff;
           if (hi != 0) {
+            /* W75-A7: launders INSIDE the guard body (same lever as the two
+             * DrawC_Prim sites; -2 each here).  reorg.c:685 stop_search_p
+             * fires at ANY asm, so a launder standing between the ff copy
+             * and the beqz walls the backward scan off from the copy and
+             * reorg eager-steals the following srl instead.  Inside the body
+             * the launders still break the cse collapse that would delete
+             * the copy, but the slot is reachable again. */
+            __asm__("" : "=r"(facet_flag) : "0"(facet_flag)); __asm__("" : "=r"(ff) : "0"(ff));
             overlayFlag = overlayFlag & ((u_int)ff >> 4);
           if (overlayFlag != 0) {
             while ((overlayFlag & 3) == 0) {
@@ -3977,8 +4155,16 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           /* two pseudos: ff computed (v1), facet_flag the live copy (t1) --
            * oracle andi v1,4095; addu t1,v1,zero; srl v0,v1,4 */
           int ff = facetFlag & 0xfff; int hi = facetFlag & 0x3f0;
-          facet_flag = ff; __asm__("" : "=r"(facet_flag) : "0"(facet_flag)); __asm__("" : "=r"(ff) : "0"(ff));
+          facet_flag = ff;
           if (hi != 0) {
+            /* W75-A7: launders INSIDE the guard body (same lever as the two
+             * DrawC_Prim sites; -2 each here).  reorg.c:685 stop_search_p
+             * fires at ANY asm, so a launder standing between the ff copy
+             * and the beqz walls the backward scan off from the copy and
+             * reorg eager-steals the following srl instead.  Inside the body
+             * the launders still break the cse collapse that would delete
+             * the copy, but the slot is reachable again. */
+            __asm__("" : "=r"(facet_flag) : "0"(facet_flag)); __asm__("" : "=r"(ff) : "0"(ff));
             overlayFlag = overlayFlag & ((u_int)ff >> 4);
           if (overlayFlag != 0) {
             while ((overlayFlag & 3) == 0) {

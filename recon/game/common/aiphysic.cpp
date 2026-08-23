@@ -1204,7 +1204,25 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
    * `AIPhysicConfig.OOCModel.X` uses, last measured 9 and dismissed) is the candidate to
    * RE-PRICE under today's mechanism -- its "address pseudo split across two regs" is the
    * same cse artifact, and the SYM (14 INT locals, NO pointer) says it is what EA wrote;
-   * judge it together with the fold-denial, not alone (21E-1). */
+   * judge it together with the fold-denial, not alone (21E-1).
+   *
+   * W75-A9 re-gated (5 @413/412) and CLOSED THE MOST OBVIOUS READING OF W74 own
+   * requirement with a clean negative.  W74 states it as "THE ARG ACCESS MUST NOT LEAVE
+   * A FULL-ADDRESS PSEUDO ALIVE"; the mechanism that decides whether an address is
+   * pre-split into (high)+(lo_sum) pseudos at all is mips_check_split /
+   * mips_split_addresses (22A-5), whose user-visible switch is -mno-split-addresses --
+   * and build.py already carries a per-fn vehicle for it (PER_FN_NO_SPLIT_ADDRESSES,
+   * spliced by _apply_fn_splice in the C++ lane).  MEASURED per-fn on this function via
+   * the W61_TABLE env hook: -mno-split-addresses = 18 diffs @414 (WORSE, +1 insn), so
+   * removing the split does not remove the head full-address pseudo in the way retail
+   * needs -- retail STILL splits (lui s0,%hi + lw a1,%lo(s0)); what it lacks is a
+   * separate lo_sum pseudo, which is a cse question, not a split-addresses question.
+   * Also re-measured through the same hook, each byte-identical to the 5-baseline:
+   * PER_FN_FORCE_ADDR (-fforce-addr), PER_FN_NO_THREAD_JUMPS, PER_FN_G8.
+   * => the whole PER-FN FLAG-SPLICE MENU available in the C++ lane is now priced on this
+   * function and none of it reaches the fold.  W74 NEXT NAMED ANGLE (re-price the
+   * SYM-faithful no-pointer form together with fold-denial) remains the untaken step.
+   * Probe: W61_TABLE hook on tools/vprobe.py, see scratchpad/w75/A9_report.md. */
   int desiredAngVel;
   int desiredLatVel;
   int currentAngAcc;

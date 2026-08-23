@@ -2222,7 +2222,65 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
      [W72 measurements, still valid as negatives: dot term order y,x,z 67 | both
      operands flipped (linearVel first) 66 | a fresh `absDot` temp 51 (neutral) |
      a named `dot` temp 51 (neutral) | the three matrix ROWS as coorddef struct
-     copies 68/77/82/85 | a "memory" clobber before the matrix block 58.] */
+     copies 68/77/82/85 | a "memory" clobber before the matrix block 58.]
+
+     ===== W75-A10 (2026-08-23).  Re-gated 23 @105/106 -- KEPT (nothing landed).
+     THE KEYSTONE (c) IS SOLVED STRUCTURALLY.  The barrierVec.z SPLIT combined
+     with the DIVIDE-COPY LAW applied to the SECOND divide reproduces retail's
+     block layout EXACTLY for the first time: insns 19..30
+       addu a3,a1,zero / bgez a3 / addu vN,a3,zero [slot] / addiu vN,a3,255 /
+       sw zero,28(sp) / sra <q>,vN,8 / addu v0,a2,zero / bgez a2 /
+       sll t3,<q>,8 [slot] / addiu v0,a2,255 / sw t3,32(sp) / sra a1,v0,8
+     all appear in retail's ORDER and with retail's BLOCK MEMBERSHIP (the
+     barrierVec.y store at the x-divide JOIN, the barrierVec.z store at the
+     y-divide JOIN).  THE SPELLING (basin floor 29 @105/106):
+       nx = normal.x;  nxq = nx / 0x100;  __asm__("" : : "r"(nxq));
+       barrierVec.y = 0;  t3 = nxq * 0x100;
+       ny = normal.y;  nyq = ny / 0x100;  __asm__("" : : "r"(ny));
+       barrierVec.z = t3;
+       distRetreat = nxq*(lvx/0x100) + nyq*(lvy/0x100)
+                     + (nz2 = *(volatile int*)&normal.z)/0x100*(lvz/0x100);
+     TWO NEW FACTS:
+      (1) THE DIVIDE-COPY LAW GENERALISES TO THE y-DIVIDE.  A named `ny` plus a
+          read-only fence AFTER the divide statement mints the y-divide's
+          `addu vN,a2,zero` copy (local-alloc.c:470-477 / combine_regs :1866 --
+          the same mechanism the `nz` receipt above cites).  On the SHIPPED
+          (unsplit) basin the copy just replaces the `bgez a2` delay-slot `nop`
+          so the count stays 105 and the gate is 29; INSIDE the split it is worth
+          exactly 2 insns (35 @103 without the fence -> 33 @105 with it).
+      (2) THE SPLIT BASIN'S RESIDUAL IS ONE ALLOCNO SEAT, NOT STRUCTURE.  Retail
+          puts the x-quotient in $v1 and the x-divide's temp in $v0 -- the temp
+          DIES at `sra v1,v0,8`, so the y-divide's own temp re-uses $v0.  Ours
+          colours the x-quotient $a0, which it SHARES WITH THE DOT'S ACCUMULATOR
+          (`mult a0,v0` then `mflo a0`); that pushes the x-divide temp off $v0
+          and cascades into the lvy-divide schedule (ours hoists `lw ..,176(s1)`
+          above `mflo`, eating retail's two `nop`s) and into cluster (e).
+     MEASURED THIS WAVE (all real gate runs, all restored):
+       split, statement-order sweep: {nxq,bvy,t3,ny/nyq,bvz} 33 | t3 before bvy 33
+         | t3 after the y-divide 33 | without the `ny` fence 35 @103 | plain
+         `nyq = normal.y/0x100` (no `ny` carrier) 35 @103
+       split + read-only fence on nxq (+1 ref, zero insn) ....... 29 @105 = FLOOR
+         (it seats the x-divide TEMP on retail's $v0; the quotient stays $a0)
+       split + "r"(nxq) with "$4" clobber 31 | +"$4","$5" 39 | +"$2" 29 | +"$8" 29
+         | "$4" clobber moved to the dot 31 | "$4" clobber alone at the dot 31
+       split + void fence between t3 and the y-divide 31 | volatile view on
+         linearVel.y 29 | barrierVec.y after t3 29
+       `ny` + fence on the SHIPPED basin (no split) ............. 29 @105
+       dot as `+=` accumulation: three statements 31 | two statements 23
+         (BIT-IDENTICAL to the shipped single expression) | two statements +
+         `__asm__("" : : "i"(0) : "$5")` between them 34 @106/106 (COUNT-EXACT,
+         but the whole band rotates) | + `"r"(distRetreat)`+"$5" 34 @106 |
+         plain `"r"(distRetreat)` 29 | `"i"(0)`+"$4" 29
+       split + `+=` accumulation 29 | split + accumulation + "$5" 50 @106 |
+       split + "$5" clobber before the dot 31
+     NOT LANDED (hard-floor-basin rule: 29 > 23).  NEXT ANGLE, now STRUCTURE-FREE:
+     from the 29 basin the only remaining question is "give the x-quotient $v1
+     while keeping the accumulator off it".  Both are compiler temps at source
+     level, so the reachable instruments are (a) the [reload_pick]/qtytrace lane
+     run ON THE SPLIT BASIN's dump (04Z -- the cell table is basin-relative), or
+     (b) a clobber whose live-range window ends BEFORE `mflo` (22B-1 placement
+     law): every whole-statement position measured above is either inert or hits
+     the accumulator too. */
   islandMatrix.m[0] = nx;   /* MATCH: the $a3 survivor's 2nd use (see the nx receipt) */
   islandMatrix.m[1] = normal.y;
   /* MATCH (W74-A9): retail's ONE `lw $t2,124(sp)` re-read of normal.z serves BOTH

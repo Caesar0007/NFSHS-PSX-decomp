@@ -726,7 +726,63 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
          moving that statement inside the block was BYTE-IDENTICAL.  NEXT
          INSTRUMENT (named): the -dS (sched1) ready lists for the same block, to
          find what makes 325 rise; anything that keeps it below 264 in the sched1
-         output lands all four insns at once. */
+         output lands all four insns at once.
+         ---- W75-A5 (2026-08-23) THE -dS DUMP IS IN; the w74 reading is CORRECTED
+         in two places and the residual is re-classed AGAIN, one pass further up.
+         Base re-gated 8 @588/588 (posmis 13).
+         (1) TIE DIRECTION REFUTED.  rank_for_schedule (sched.c:2455-2458) returns
+             `INSN_LUID (tmp) - INSN_LUID (tmp2)` with tmp = *y and tmp2 = *x, so
+             the sort is DESCENDING by LUID and the pick is ready[0] -- the HIGHER
+             LUID wins, i.e. the insn appearing LATER in the pass's input chain is
+             picked first and therefore PLACED LATER.  w74 recorded "lower LUID
+             picked first"; every conclusion drawn from that direction is inverted.
+             The correct statement: ours picks 325 at T-31 because LUID(325) >
+             LUID(264); to match retail the v4 ADDRESS must sit AFTER `n = n + 4`
+             in the pass's input.
+         (2) SCHED1 MAKES THE IDENTICAL CHOICE, so it is not the dial either.
+             -dS, same basic block 21 (258..360): `ready list at T-31: 325 (1)
+             264 (1), now 325 264` -- bit-for-bit the sched2 picture, and the
+             sched1 OUTPUT chain reads `(insn 268 264 325 ...)`, i.e. 264 -> 268 ->
+             325, plain source order.  Neither scheduler moved anything here; both
+             merely preserved the chain they were handed.  The dial is therefore
+             the PRE-SCHED1 (cse/loop/combine) chain order, which is source order.
+         (3) THE REORDER IS REACHABLE BUT COSTS THE MUTATION INSN (measured).
+             Moving `v4 = &r_div->v[n]` BELOW `n = n + 4` via a `short n0 = n`
+             snapshot DOES flip the pair -- the emitted head becomes
+             `addiu a3,v0,1; addiu s4,a3,4; sll v0,v0,16` (retail's `addiu`-before-
+             `sll` shape) -- but EVERY snapshot spelling lands at 587, ONE INSN
+             SHORT, and cascades the colouring:
+               n0 snapshot, n=n+4 early, v4 last ............ 235 @587
+               same + q before n=n+4 ....................... 235 @587
+               same + v5 driven off (short)(q-1) ........... 235 @587
+               n0 + nb + a dedicated `newn` local, `n = newn`
+                 assigned last (keeps the param store late)   143 @587
+               the same with q computed before newn ........ 143 @587
+               n0 assigned in-place after `n = n + 1` ...... 101 @589
+             The lost insn is the same one the w70 "single-chain-base form" lost:
+             the in-place `n = n + 1` mutation that mints retail's $a3 and the
+             ARG-home store pairing.  So the requirement is contradictory at the
+             source layer -- retail's chain order needs v4's address emitted after
+             the new-n, and our only way to emit it later destroys the mutation.
+             Also re-measured inert/worse this wave: `short nb = n; n = n + 4;`
+             hoisted above v5..v8 (8, BYTE-IDENTICAL); the four indices spelled as
+             three named temps interleaved with their uses (28).
+         (4) THE 21C(3)/(4) ACCESS-SPELLING AXIS IS INERT HERE (measured this
+             wave, all BYTE-IDENTICAL at 8 @588):
+               v4 = (Draw_SVertex *)(((int)n * 16) + (int)r_div->v);   8
+               v4 = (Draw_SVertex *)(((int)n << 4) + (int)r_div->v);   8
+               v4 = (Draw_SVertex *)((int)r_div->v + ((int)n * 16));   8
+               v4 = (Draw_SVertex *)(((int)n * 16) + (int)r_div);      8
+             i.e. index-term-first, mult-vs-shift and operand side all fold back
+             to the same ARRAY_REF here -- the lever that sealed
+             Hud_BuildNumbers0/InGame_GetPSXPadValue does not reach this site.
+         NEXT INSTRUMENT (named, and it is now a PRE-SCHED question): -df / -dc on
+         this block to find which pass FIXES the v4-address position in the chain,
+         and specifically whether the ONE insn every snapshot form loses (the
+         in-place `n = n + 1`) can be preserved while the v4 address still moves
+         below the new-n -- that is the exact contradiction to break.
+         DO NOT re-run: the fence walk (w70, 36 probes, all +2 insns on a short),
+         the six index-chain spellings (w70), or any n0/nb/newn snapshot (above). */
       short q = n + 1;
       v5 = &r_div->v[n];
       v6 = &r_div->v[q];
@@ -2476,6 +2532,24 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
            but per 12E only OUTPUT-BEARING fences invalidate cse's value proofs,
            so it cannot break the sharing.  This is a second witness for the 13B
            4-witness device request, in the REF axis rather than the LIVE axis.
+     ---- w75-a6 (2026-08-23): the REF-LOWERING COMPENSATION is measured and it is
+       a monotone TRADE, not a route.  Idea: keep the +2-ref opacity fence on
+       gteFlag (which DOES break the cse sharing, count 359) and pay for the rank
+       by REMOVING in-loop refs -- each in-loop `sd->zeroGTETransFlag = gteFlag;`
+       rewritten to the literal `1` drops gteFlag by 2 loop-weighted refs:
+         fence only, 0 literals ....... 52 @359 (count-exact, s-band rotated)
+         fence + 1 literal ............ 41 @360
+         fence + 2 literals ........... 30 @361
+       i.e. every 2 refs bought costs ONE INSN (the literal materializes its own
+       `li` before loop.c can merge it with the others), and the 4-literal end of
+       the ladder is the already-recorded 26 @359 shape whose hoisted movable is
+       QImode (pri .0513) and cannot reach buildInd's .2090.  So the ask stands
+       exactly as stated above: the breaker must be zero-REF, not merely zero-insn.
+       NOTE the w75-a6 DEVICE LAW learned on this TU's two `offsets` sites (see the
+       DrawW_BuildObjectFacets / DrawW_BuildCustomObjectFacets receipts): a
+       NON-VOLATILE tied launder is the +2-ref/zero-insn priority dial and a VOLATILE
+       (output-less) fence is a sched-order dial via rank_for_schedule's class test
+       -- neither is a +1-ref device, which is why this residual survives both.
      ============================================================================ */
 
   buildInd = 0;
@@ -3387,7 +3461,45 @@ gte_SetTransMatrix((void *)0x1f800014);
       if ((visList == (short *)0x0) || ((((u_short)visList[objectIndex] >> 0xc ^ 1) & 1) == 0)) {
         objectOffset = offset;
         if (offset == 0) {
-          objectOffset = (int)goffsets[objInstance->zoffset];
+          /* MATCH (w75-a6): 6 -> PASS.  THREE COUPLED PARTS, each measured alone
+             and each load-bearing (a 23B(1) joint cell, not three levers):
+             (1) INDEX TEMP FIRST -- `zo` is born ahead of the address;
+             (2) VOID FENCE between the index and the address materialization --
+                 an output-less (volatile) asm is a sched BARRIER (sched.c:1985
+                 ASM_OPERANDS w/ MEM_VOLATILE_P adds a dependence on every prior
+                 set + flush_pending_lists) AND a reorg stop_search_p barrier, so
+                 the `lui` can no longer float above the `lbu` nor be stolen into
+                 the `bnez`'s delay slot -- retail leaves that slot a `nop`;
+             (3) OPACITY LAUNDER on the pointer local -- `g` gets a SECOND SET, so
+                 loop.c's scan_loop never builds a movable for it (a movable needs
+                 n_times_set == 1, loop.c:779).  WITHOUT it the goffsets address is
+                 a loop invariant that loop.c HOISTS to the preheader -- the -dL
+                 dump for this fn reads
+                   `Insn 161: regno 115 (life 3), move-insn savings 2  moved to 521`
+                   `Insn 162: regno 114 (life 2), move-insn forces 161  moved to 523`
+                 (move_movables' gate `threshold*savings*lifetime >= insn_count`,
+                 loop.c:1640, with insn_count 141) -- and in the preheader it loses
+                 its register (all nine callee-saved are taken), so reload
+                 REMATERIALIZES it at the use into a spill-pool scratch.  THAT is
+                 the whole `lui $t0` the w50..w62 receipts below chased as a
+                 "find_free_reg window" / "post-sched1 birth order": the qty was
+                 never in local-alloc's hands at all.  Killing the movable makes it
+                 block-local and local-alloc hands it retail's $v1.
+             DEVICE-REMOVAL RE-TEST (23B(3)), all re-gated at this basin:
+               fence only, no pointer local, no launder .......... 10 (still hoisted)
+               fence + pointer local, no launder ................. 6 (still hoisted)
+               fence + launder, subscript form `g[zo]` ........... 2 (addu operand
+                                                                     order only)
+               fence + launder + index-term-first cast ........... PASS
+             The index-term-first cast is what flips `addu v0,v1,v0` to retail's
+             `addu v0,v0,v1`; the w61-a2 falsification of that same 12D spelling
+             was priced in the OLD (hoisted) basin -- 21E(1) re-pricing. */
+          { int zo = objInstance->zoffset;
+            signed char *g;
+            __asm__("" : : "i"(0));
+            g = goffsets;
+            __asm__("" : "=r"(g) : "0"(g));
+            objectOffset = *(signed char *)(zo + (int)g); }
         }
         animType = objInstance->type;
         /* SYM block-scoping (line70/71 vs 95/107/114, all converging on the shared
@@ -3828,8 +3940,49 @@ gte_SetTransMatrix(transMat);
     while (1) {
       if (!(objectIndex < groupNumElements)) break;
       __asm__("" : : "i"(0));
-      tc5 = objInstance->type;
-      objectOffset = *(offsets + objInstance->zoffset);
+      /* MATCH (w75-a6): 16 -> 6, count-EXACT 200/200.  RESIDUAL CLASS (A) BELOW
+         IS HALF-CLOSED: the `offsets` block's two block-local qtys are no longer
+         v0<->v1 swapped -- ours now has retail's address=$v1 / index=$v0 and the
+         only diffs left in the block are the EMISSION SLOTS of the two byte loads.
+         THE DIAL IS NOT BIRTH ORDER (the w74 reading) BUT QTY PRIORITY.  Splitting
+         the index into `zo` and OPACITY-LAUNDERING it (non-volatile, tied, zero
+         insns) puts +2 refs on the index qty, which lifts QTY_CMP_PRI (local-alloc.c
+         :1665, floor_log2(refs)*refs*size/live) above the address qty's, so the
+         index is allocated FIRST and takes $v0 by find_free_reg's ascending scan.
+         POSITION IS LOAD-BEARING: the launder must sit BEFORE the `tc5` load --
+         after it the same device gates 17 @201.
+         WHY NOT A VOLATILE (output-less) FENCE: sched.c:1985 makes a volatile asm
+         depend on every prior set and flush_pending_lists, so every later
+         register-setter gets a REG_DEP_OUTPUT on it while every memory reader gets
+         a plain data dep -- rank_for_schedule's class test (class 2 > class 1) then
+         puts the `lui` AHEAD of the `lbu` unconditionally.  That is exactly what
+         the loop-top void fence does here, and it is why every read-only-fence and
+         barrier-position probe below failed.  A non-volatile tied launder adds the
+         refs WITHOUT the dependence storm.
+         MEASURED THIS WAVE (all re-gated, all reverted unless noted):
+           plain `int zo` split / index-term-first cast / both ......... 16 (no move)
+           pointer local `signed char *g = offsets` (no launder) ....... 70 @200
+              (loop.c hoists it, reload remats it into $t2 -- the same movable
+               mechanism as DrawW_BuildObjectFacets' goffsets, see there)
+           pointer local + opacity launder ............................. 20 @202
+           loop-top fence deleted ..................................... 17 @199
+           loop-top fence -> non-volatile launder on objInstance ....... 16
+           loop-top fence moved after tc5 / after the lookup ........... 17 @201 / 20
+           `zo` + opacity launder AFTER the tc5 load ................... 17 @201
+           `zo` + opacity launder BEFORE the tc5 load (LANDED) ......... 6 @200
+           + laundered pointer local for the address (address-first
+             emission order, retail's) ................................ 5 @201 --
+              ONE LONG: retail fills the `lbu $v0,4($s4)` load-delay slot with the
+              type load, ours emits it after `li $v0,5` and pays a nop.  That basin
+              is the crisper NEXT ANGLE (one sched2 slot from count-exact + PASS
+              modulo class (B)); it is recorded in scratchpad/w75/d10.json.
+           class (B) re-price on BOTH new bases (21E(1)) ............... 44 / 45
+              -- reading `sz` through objCollideBoomInstance still costs, so the
+              deliberate `lh s2,32(s4)` trade below STANDS. */
+      { int zo = objInstance->zoffset;
+        __asm__("" : "=r"(zo) : "0"(zo));
+        tc5 = objInstance->type;
+        objectOffset = *(offsets + zo); }
       if ((tc5 == 5) || (tc5 == 2)) {
         objDef = Track_gObjDefs[objInstance->pad];
         /* MATCH (w71-a1, rule-8): the SYM's `objCollideBoomInstance` ($s2) is a
@@ -5801,14 +5954,58 @@ gte_swc2(0x7,otz94);
            * asm block without a header/global-decl change (out of scope here),
            * so &Skid_gCtrlScratch_94's value is passed in fresh -- a few insns
            * of address-materialization floor remain, but the whole 13-line
-           * bit-shift/alignment emulation below (which was ALSO producing the
-           * WRONG runtime effect: it recomputed a byte-aligned unaligned merge
-           * generically instead of linking the primitive into the OT chain at
-           * all -- Render_gPacketPtr's new prim was never inserted into
-           * sub_ot[otz], a real rendering bug, dropped skidmark polys) collapses
-           * into the compact link sequence. */
+           * bit-shift/alignment emulation it replaces was ALSO producing the wrong
+           * runtime effect (see the w45 note below).
+           * ---- W75-A5 (2026-08-23): 28 -> 20, count still EXACT 353/353.
+           * THE w72 RESIDUAL CLASS (B) IS CLOSED.  The template's `%0` landed in
+           * $v0 where retail has $a2 because the output was a FRESH block-local
+           * `void *primOut` -- but `lw %0,4(%1)` re-reads exactly the value the
+           * enclosing block already named: `primPtr = Render_gPacketPtr;` IS
+           * sd->head.cprim.PrimPtr, i.e. the same word this template loads.
+           * Writing the output back into `primPtr` makes it ONE pseudo instead of
+           * two, so the dead `primPtr` register ($a2, dead after the `sh v0,14(a2)`
+           * clut store) is reused for the template's result exactly as retail does
+           * (`lw a2,4(s1)` / `addiu t6,a2,52` / `sll t4,a2,8` / `sw t6,0(a2)`).
+           * This is VARIABLE IDENTITY (23C(2) / the w74 BuildSpikeBelt cure), not
+           * a device: no clobber, no fence, and semantically the assignment the EA
+           * macro itself performs (the template's %0 IS the newly allocated prim).
+           * Zero risk to the four other users of `primPtr` in this block -- they
+           * all run BEFORE the template and the value is identical.
+           * (Historical: the 13-line bit-shift/alignment emulation this template
+           * replaced was ALSO producing the WRONG runtime effect -- it recomputed
+           * a byte-aligned unaligned merge generically instead of linking the
+           * primitive into the OT chain at all, so Render_gPacketPtr's new prim
+           * was never inserted into sub_ot[otz]: a real rendering bug that
+           * dropped skidmark polys.)
+           *
+           * RESIDUAL 20 = the w72 class (A) alone, the PROLOGUE EMISSION ORDER.
+           * RE-PRICED THIS WAVE at the new (post-primPtr) basin per 21E(1), all
+           * three sweeps FALSIFIED again -- 20 is the minimum of every one:
+           *   - all 120 permutations of the five init GROUPS  (min 20 = current)
+           *   - all 720 permutations of the SIX init statements otz/sd/grey/
+           *     ccount/m/t, i.e. grey and ccount split apart, which no earlier
+           *     wave had tried    (min 20 = current; every m-first or t-first
+           *     order sits at 58-70, so retail's m,t-first prologue is a strictly
+           *     worse basin for us, not a nearby one)
+           *   - the fence grid (grey 1-3 / m 1-3 / t 1-2) crossed with the
+           *     m,t-first orders  (min 58)
+           *   - the skidIdx-multiply position, before/after each of the three
+           *     matrix blocks     (INERT: 20 at all four positions)
+           *   - all 6 row-0 load x all 6 row-0 store permutations  (min 20 =
+           *     current ld012/st012; 22 and 24 elsewhere)
+           * So the standing w72 ask is unchanged and is the ONLY route left: a
+           * zero-insn device that LENGTHENS a live range without adding a
+           * REG_N_REFS and without inserting an RTL barrier.  flow.c:1594 +
+           * flow.c:1975 are the definition -- REG_LIVE_LENGTH is incremented once
+           * per real ('i'-class) insn the pseudo is live over, plus once per set;
+           * NOTEs are not counted (the counting block sits inside the
+           * `GET_RTX_CLASS (GET_CODE (insn)) == 'i'` arm) -- so lexical blocks,
+           * loop notes and any other note-only construct are provably inert for
+           * this dial, and the only reachable ends are the DEF (source position)
+           * and the LAST USE.  Here the def cannot move: `ccount_local` must stay
+           * above `m` to keep the grey/m/ccount priority band, which is exactly
+           * what forces our m/t pair to be emitted last. */
           {
-            void *primOut;
             __asm__ volatile(
                 "lw\t%0,4(%1)\n\t"
                 "lw\t$12,0(%2)\n\t"
@@ -5824,7 +6021,7 @@ gte_swc2(0x7,otz94);
                 "sll\t$12,%0,8\n\t"
                 "sw\t$14,0(%0)\n\t"
                 "swl\t$12,2($13)"
-                : "=&r"(primOut)
+                : "=&r"(primPtr)
                 : "r"(sd), "r"(otz94)
                 : "$12", "$13", "$14", "memory");
           }
@@ -6066,6 +6263,17 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
            all feed one giv class.
        (B) the two 4-byte AUTO slots 72/76(sp) are swapped, and `save_pre_otz`
            takes $s6 where the SYM says $s7 -- both follow (A).
+     ---- w75-a6 (2026-08-23): ONE MORE FALSIFICATION on the (A) axis, and it bounds
+       the "second iv class" ask from the other side.  KILLING BIV-NESS ENTIRELY --
+       one opacity launder `__asm__("" : "=r"(geomVertices) : "0"(geomVertices));`
+       at the head of the vertex-copy block, which gives the pointer a set that is
+       NOT `reg = reg + invariant` so loop.c cannot classify it as a biv at all --
+       gates 190 @501, i.e. SIX INSNS SHORT and far worse.  That is the giv
+       machinery's own cost measured directly: retail definitely strength-reduces
+       here, so the remaining angle is still exactly the recorded one (a SECOND
+       REAL BIV, a companion pointer with its own `+= 2` at both advance sites, so
+       combine_givs has two iv classes to hang the 8 loads on).  The launder is
+       therefore NOT a shortcut to it -- do not re-try the biv-kill.
      ---- */
   POLY_GT4 *prim;
   int lineQuadCount;
@@ -6740,11 +6948,80 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
      reused pseudo and shifts into three destinations) plus about 10 pure emission
      positions (`addu $a2,$zero,$zero` three slots late, `li $a3,72` two slots late,
      `li $a3,144` / `li $a1,1` / `addiu $t0,sp,16` rotated by one).  Both are
-     count-neutral. */
-  { int t;
-    t = (signed char)BWorldSm_slices[slice].forward[0]; t++; t--; fx = (u_short)(t >> 1);
-    t = (signed char)BWorldSm_slices[slice].forward[1]; t++; t--; fy = (u_short)(t >> 1);
-    t = (signed char)BWorldSm_slices[slice].forward[2]; t++; t--; fz = (u_short)(t >> 1); }
+     count-neutral.
+     ---- W75-A5 (2026-08-23): 30 -> 28, count still EXACT 268/268 (posmis 23).
+     HALF OF THE EMISSION CLUSTER IS CLOSED, AND CLUSTER (a) IS RE-PRICED AND
+     STILL OPTIMAL.
+     (i) LANDED: the three copy-loop byte cursors must be initialised AFTER `i`,
+         not before -- see the `{ int kk; i = 1; kk = C; }` split at each loop
+         head below.  A `{ int kk = C; i = 1; ... }` DECLARATION-INITIALISER makes
+         the cursor store the block's FIRST statement, and 21B(3) appearance order
+         then emits it ahead of `li $a1,1`; splitting the declaration from the
+         assignment moves it behind `i` at zero insns.  This fixed the `li $a3,72`
+         and `li $a1,1` slots in loops 2 and 3.
+         MEASURED (all 268/268): base 30 - `i` first via a split decl 28 - `i = 1`
+         lifted OUT of the block, `int kk = C` inside 28 - both split 28 - `i = 1,
+         kk = C` as one comma statement 28 - `kk` promoted to a FUNCTION-SCOPE int
+         shared by all three loops 74 (the w74 variable-identity law again: one
+         shared cursor allocno is catastrophic here).
+     (ii) THE REMAINING CURSOR SLOT NEEDS THE CURSOR BEHIND THE TWO loop.c GIVS
+         (`addiu $a3,$sp,16` base + `addiu $a0,$sp,24` dest), which no source
+         position reaches: the givs are emitted by loop.c into the preheader,
+         every pre-loop source assignment lands in the entry block ahead of them,
+         and giving the base an explicit source name to drag it forward costs +2
+         insns -- `CCOORD16 *b = vertex3d;` 38 @270, `int b = (int)vertex3d;`
+         38 @270, the same declared last 38 @270.  Retail's cursor is therefore
+         emitted by loop.c itself, not by a source statement -- the standing
+         "born in the loop" (21B(3)) question, and `kk` cannot be a movable
+         because `kk += 8` gives it n_times_set == 2 (loop.c:779).
+     (iii) 🏆 CLUSTER (a) IS CLOSED (28 -> 8, count still EXACT 268/268).  THERE IS
+         NO TEMPORARY AT ALL: retail loads each signed byte STRAIGHT INTO the
+         short AUTO's own pseudo and shifts it IN PLACE, which is why it holds
+         three distinct callee-saved registers ($s4/$s3/$s2) instead of our one
+         reused raw temp plus three shift destinations.  The form is
+             fx = (signed char)...forward[0]; fx++; fx--; fx >>= 1;
+         -- i.e. the SAME `t++; t--;` net-zero merge blocker as before, but applied
+         to the DESTINATION SHORT rather than to an int carrier, with the shift
+         written as the in-place `>>=`.  MIPS PROMOTE_MODE keeps a short pseudo
+         sign-extended in its SImode register, so `fx >>= 1` needs no re-extension
+         and emits retail's bare `sra $sN,$sN,1`; the four ex-diff insns and their
+         interleave (`lb s4,15; lb s3,16; sra s4; sh s4; lb s2,17; sra s3; sh s3;
+         lb a1,18; sra s2`) now match 1:1.
+         THE DISCRIMINATOR that found it: the no-temp form WITHOUT any blocker
+         (`fx = (signed char)X; fx >>= 1;`) already reproduces retail's registers,
+         order and interleave EXACTLY and gates 23 -- but at 271, three insns over,
+         because combine re-merges the sign-extend into `lbu; sll 24; sra 25` once
+         per axis.  A residual that is +N insns of ONE repeated 3-insn-vs-2-insn
+         idiom with everything else positionally exact is a MERGE question, not an
+         allocation one: price the blocker, not the pseudo graph.
+         Measured on the no-temp form (all reverted except the winner):
+           no blocker, `fx >>= 1` ................................ 23 @271
+           no blocker, `fx = (u_short)((short)fx >> 1)` .......... 23 @271
+           no blocker, loads grouped then shifts grouped ......... 23 @271
+           no blocker, software-pipelined ....................... 23 @271
+           `fx |= zeroShort;` runtime-zero blocker ............... 23 @271 (folded)
+           opacity launder `__asm__("":"=r"(fx):"0"(fx))` ....... 140 @290 (an asm
+                 operand on a `short` is NOT zero-insn -- +22 here, the same
+                 +2-per-site the w70 SubdividFacet fence walk measured)
+           read-only fence `__asm__("":: "r"(fx))` .............. 93 @285
+           `fx++; fx--;` ......................................... 8 @268  <- LANDED
+           `fx++; fx--;` + the explicit (u_short)((short)fx>>1) ... 8 @268 (identical)
+         AND the whole three-temp family that four waves priced is now moot; for
+         the record it was re-priced once more at the 28-basin before the no-temp
+         form was found (three int temps with in-place `>>=`, in three statement
+         orders, and with an opacity launder substituted for ++/--: all 40 @268;
+         two temps 152 @266; one temp with in-place `>>=` 184 @266).  TWO
+         independent merge blockers giving the SAME 40 for every 3-pseudo spelling
+         was the tell that the pseudo graph was not the axis.
+     RESIDUAL 8 = (ii) alone: the three loop-preheader cursor slots.  Re-confirmed
+     inert this wave: the for-comma init `for (i = 1, kk = C; ...)`, `kk` assigned
+     after the `do`, and `i = 1` lifted out of the block with `int kk = C` inside
+     all gate 8 @268. */
+  {
+    fx = (signed char)BWorldSm_slices[slice].forward[0]; fx++; fx--; fx >>= 1;
+    fy = (signed char)BWorldSm_slices[slice].forward[1]; fy++; fy--; fy >>= 1;
+    fz = (signed char)BWorldSm_slices[slice].forward[2]; fz++; fz--; fz >>= 1;
+  }
   sx = (u_short)(fixedmult(gSpikeBeltX,(int)(signed char)BWorldSm_slices[slice].right[0] << 9) >> 10);
   sy = (u_short)(fixedmult(gSpikeBeltX,(int)(signed char)BWorldSm_slices[slice].right[1] << 9) >> 10);
   sz = (short)(fixedmult(gSpikeBeltX,(int)(signed char)BWorldSm_slices[slice].right[2] << 9) >> 10);
@@ -6752,8 +7029,18 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
   vertex3d[0].y = sy - fy;
   vertex3d[0].z = sz - fz;
   vertex3d[0].light = 0;
-  { int kk = 0;
+  /* MATCH (w75-a5, 30 -> 28 with the two siblings below): the loop's byte
+     cursor must be initialised AFTER `i`, not before.  Retail emits the three
+     preheader constants in the order i / base-giv / dest-giv / cursor; the
+     `int kk = C;` DECLARATION-INITIALISER puts the cursor's store first (it is
+     the block's first statement), which is 21B(3) appearance order.  Splitting
+     the declaration from the assignment moves it behind `i = 1` at zero insns.
+     (An explicit base pointer/int local to push it behind the two loop.c givs
+     as well costs +2 insns -- 270 -- so the remaining cursor slot is a real
+     residual, not this dial.) */
+  { int kk;
   i = 1;
+  kk = 0;
   do {
     CCOORD16 *p = (CCOORD16 *)((int)vertex3d + kk);
     vertex3d[i].x = *(u_short *)&p->x + wx;
@@ -6767,8 +7054,9 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
   vertex3d[9].y = sy + 0x19;
   vertex3d[9].z = sz;
   vertex3d[9].light = 0;
-  { int kk = 0x48;
+  { int kk;
   i = 1;
+  kk = 0x48;
   do {
     CCOORD16 *p = (CCOORD16 *)((int)vertex3d + kk);
     vertex3d[i+9].x = *(u_short *)&p->x + wx;
@@ -6782,8 +7070,9 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
   vertex3d[18].y = sy + fy;
   vertex3d[18].z = sz + fz;
   vertex3d[18].light = 0;
-  { int kk = 0x90;
+  { int kk;
   i = 1;
+  kk = 0x90;
   do {
     CCOORD16 *p = (CCOORD16 *)((int)vertex3d + kk);
     vertex3d[i+18].x = *(u_short *)&p->x + wx;

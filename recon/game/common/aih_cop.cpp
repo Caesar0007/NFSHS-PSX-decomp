@@ -220,7 +220,32 @@ void AIHigh_Cop::SetTuningLevers()
    handout question; per the ladder law above, COUNT THE BLOCK'S QTYS FIRST (case 3 is the
    buggy arm, case 2 sorts correctly) -- that census is still the untaken step, and the
    instrumented cc1plus still ICEs on this TU (use ICE-blanking, 22D(1)).
-   Probe file: scratchpad/W74_A11_cop.py. ==== */
+   Probe file: scratchpad/W74_A11_cop.py.
+   ==== W75-A9 re-gated (20 @1460/1460) and TOOK THE CENSUS STEP W72/W74 kept naming
+   but never ran, plus gave the residual its honest metric.
+   POSMIS (tools/posmis.py, the count-exact metric): 9 positional mismatches, not 20 --
+   the LCS-20 is inflated (21E-3).  The nine, verbatim:
+     A'  215 ours `lw a0,0(v0)` / retail `lw v0,0(v0)`; 217 `bnez a0` / `bnez v0`
+     B   361 `lw v0,32(s1)` / `lw v1,32(s1)`; 363 `beq v0,a1` / `beq v1,a1`;
+         364 ours NOP / retail `li v0,4`; 365 `beq v0,s2` / `beq v1,v0`
+     D  1083 `slt v0,v0,v1` / `slt v1,v0,v1`; 1084 `beqz v0` / `beqz v1`
+     E  1125 `bne v1,v0` / `bne v0,v1`
+   So B is FOUR of the nine and is the only cluster with a structural component (retail
+   materializes a fresh `li v0,4` in the beq delay slot; ours nops it and reuses $s2).
+   THE QTY CENSUS IS NOW AVAILABLE, no ICE needed: the REAL CC1PLPSX prints -dl, and
+   tools/copypref.py reads it directly --
+     python tools/rtl_dump.py recon/game/common/aih_cop.cpp -dl
+     python tools/copypref.py scratch/rtl/aih_cop.i.lreg "AIHigh_Cop::HighExecute"
+   (a saved copy of that table is scratchpad/w75/A9_cop_qty.txt).  Headline facts for the
+   next agent, which decide whether 14C applies at all: HighExecute has 104 local-alloc
+   blocks and 61 of them carry <= 3 qtys, i.e. MOST of this function sits in local-alloc.c
+   `case 3:`/`case 2:` territory -- count the qtys of the block you are pricing before
+   quoting either arm.  copypref also flags where its own model and the compiler disagree
+   (the `!!` rows); several of those are exactly the v0/v1 two-qty handouts of sites
+   A'/C/D, so `--why <pseudo>` on them is the concrete next command.
+   NOTHING LANDED THIS WAVE on this fn (budget went to the belt's other four); the census
+   above plus posmis=9 is the deliverable.  Do not re-run site E's operand flip (three
+   confirmations that it is worse) or the 20B clobber walk on A' (W74 closed it). ==== */
 /* NEAR-MISS 69 diffs, ours 1457 / oracle 1460 (W64-A12 re-gated; w63-a12 landed 77->69
    with the fenced boolean + the 09I volatile-on-the-test-read, both halves ablated and
    both load-bearing).  ONE named residual is now isolated and its cheapest angle is

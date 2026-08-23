@@ -1850,7 +1850,86 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    *   target is the 44 body.  Its remaining ask is ONE sched2 ready-list tie
    *   (give the tint's `lw` the RMW2 load-delay slot) plus the 8-insn block order,
    *   i.e. exactly PER_FN_TEXT_MOVES/sched-trace territory, no longer allocation.
-   *   Harness: scratchpad/W74_A8/{font_probe,font_r1,font_r2,font_climb}.py. */
+   *   Harness: scratchpad/W74_A8/{font_probe,font_r1,font_r2,font_climb}.py.
+   * ==== W75-A2 (2026-08-23, baseline RE-GATED 20 @82/82 and KEPT; the 44 body
+   *   also reproduces exactly).  The queued TEXT_MOVES step is STATICALLY
+   *   REFUTED, and the 5-wave tint/RMW2 register wall is DISSOLVED by a
+   *   declaration-shape change -- it was never an allocator question.
+   *   (1) TEXT_MOVES PRE-FLIGHT (catalog 23D-2), tool
+   *   scratchpad/w75/A2_preflight.py: the residual is NOT a line-multiset
+   *   permutation in EITHER basin -- 6 asymmetric lines in the 20 basin, 9 in
+   *   the 44 basin, and they are REGISTER differences (RMW2 v0-vs-v1 on
+   *   lw/and/or/sw + li 9/sb 3, plus gFontClut a2-vs-v0 in the 44 basin).  No
+   *   PER_FN_TEXT_MOVES row can express it; the route is source dials only.
+   *   (2) THE BLOCKER, READ OFF THE .lreg (not guessed).  In the 44 body
+   *   insn 122 = the tint load, `(set (reg 126) (mem/s:SI (lo_sum (reg 125)
+   *   (symbol_ref font_tint))))`, carries a TRUE DEPENDENCE on insn 116 =
+   *   RMW2's store `(set (mem/s:SI (reg 88)) (reg 122))` = pal-addr.  Retail
+   *   issues that load at oracle slot 34, BETWEEN RMW2's read (33) and its
+   *   and (35), so retail's RTL had no such edge.  That one edge is the whole
+   *   v0/v1 wall: retail's `lui %hi(font_tint)` at 31 holds $v0 across RMW2's
+   *   window and pushes RMW2's temp onto $v1.
+   *   (3) THE ESCAPE (gcc-2.8.1 sched.c true_dependence, approx. 830-856): the
+   *   dependence is dropped when MEM_IN_STRUCT_P(store) and
+   *   rtx_addr_varies_p(store) hold while NEITHER holds for the load.
+   *   rtlanal.c:108 `case LO_SUM: return rtx_varies_p (XEXP (x, 1))` means a
+   *   SPLIT address never varies, so only MEM_IN_STRUCT_P blocked us -- and the
+   *   W72/W74 view sets it because `font_tint_v[0]` is an ARRAY_REF.
+   *   expr.c:5531 sets it on an INDIRECT_REF only for a PLUS_EXPR address, an
+   *   aggregate type, or a BARE ADDR_EXPR of an aggregate, so `*font_tint_v`,
+   *   `*(u_long *)font_tint_v`, `*(u_long *)&font_tint_v[0]` and a sized [2]
+   *   view ALL still emit mem/s (measured: all exactly 44, dumps kept).
+   *   THE SHAPE THAT WORKS is a NON-AGGREGATE 8-BYTE asm-label view read
+   *   through a CAST:
+   *       extern double font_tint_d __asm__("font_tint");
+   *       *(u_long *)&prim->r0 = *(u_long *)&font_tint_d;
+   *   8 bytes are above -G4 so mips_check_split (mips.c:893, gated on
+   *   SYMBOL_REF_FLAG = small data) still SPLITS the address -- which retail's
+   *   31/34 separation requires and no maspsx/ASPSX macro can ever produce --
+   *   while the cast clears MEM_IN_STRUCT_P.  The .lreg then shows
+   *   `(mem:SI (lo_sum ...))` with deps 119 only, and cc1 emits retail's
+   *   interleave verbatim with RMW2 in $v1.
+   *   => STORAGE SHAPE IS TWO AXES, not one: -G eligibility decides whether the
+   *   address SPLITS, aggregate-ness decides whether the load may CROSS an
+   *   indirect store.  The array view bought only the first.  TREE-WIDE: any
+   *   near-miss whose oracle interleaves a global load into an indirect-store
+   *   window is this class.
+   *   (4) SIDE EFFECT + CURE.  Alias freedom lets `pal` coalesce onto the dead
+   *   `y` REGPARM $a1 instead of retail's $t2, so the fn needs 15 registers
+   *   instead of 16, never spills `v` to $s0, and LOSES ITS FRAME (78 insns).
+   *   Cure = catalog 20B non-volatile tied launder with a hard-reg clobber
+   *   (zero insns, not a sched1 barrier), placed inside pal's live range:
+   *   `__asm__("" : "=r"(pal) : "0"(pal) : "$5");` after `pal =` AND again
+   *   between the two addPrim halves.  ONE launder alone puts pal on $t2 but
+   *   the 0xff000000 mask then takes $a1 (still 78); BOTH restore count-exact
+   *   82/82 with v back on $s0.
+   *   (5) LADDER (all re-gated, nothing landed): 44 control 44 - double view 78
+   *   @78 - +1 launder 80 @78 - +2 launders 48 @82 - and the same view applied
+   *   to gFontClut (`extern double gFontClut_d __asm__("gFontClut");
+   *   prim->clut = *(u_short *)&gFontClut_d;`) 46 @82.  46 still loses to the
+   *   landed 20-diff lookalike AND to the 44 body, so NOTHING WAS LANDED.
+   *   RESIDUAL ANATOMY of the 46 basin, three independent 2-register swaps with
+   *   the tint/link cluster now EXACT: (a) yoff $t3 vs retail $t4 and the
+   *   0x00ffffff P_TAG mask $t4 vs retail $t3 (9 lines; a qty SERVING-ORDER
+   *   inversion -- yoff prices .33 vs the mask's .11, so retail's yoff must
+   *   have had a LONGER live range); (b) the gFontClut VALUE $a2 vs $v0 (its
+   *   live range is 24 slots here, retail's 2); (c) the len-9 constant and
+   *   `addiu ?,t8,5` $v0 vs $v1.
+   *   FALSIFIED THIS PASS (all re-gated): the tint carrier SPLIT into separate
+   *   load/store statements straddling addPrim -- the exact shape W72-A8's
+   *   instrumented handout asked for, never probed in the 44 basin -- at 7
+   *   load/store position pairs and both decl positions, 138-150 (macro form 86
+   *   @78); every non-double view spelling (44); D4-basin orders with pal or
+   *   prim+bump hoisted ahead of the y-chain (78-130) -- source luid does NOT
+   *   move the one-slot pal-load-vs-y-subu sched tie; a def-use-guarded
+   *   single-move climb over ALL 141 valid orders of the 48 basin (every one
+   *   exactly 48); code+clut swept adjacent as a PAIR through the tail (48-132);
+   *   the y-tail-late family re-priced here (46-141); and $t3/$t4 denials via
+   *   `$11`/`$12` clobbers on yoff/height/width/dv/prim/pal carriers at 20+
+   *   sites (50-139).
+   *   NEXT: close (a), (b), (c) -- with them this basin is byte-exact, since it
+   *   already reproduces retail's frame, store order, link cluster and tint
+   *   interleave.  Harness: scratchpad/w75/A2_*.py, report A2_report.md. */
   POLY_FT4      *prim;
   PSXFront_PTag *pal;
   int            width;

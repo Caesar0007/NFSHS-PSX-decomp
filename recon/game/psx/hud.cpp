@@ -5898,31 +5898,24 @@ void Hud_RenderTacView(void)
 
 {
   int j;
-  int *dh;
+  int *dh; /* SYM-CODEGEN-CARRIER: dh -- direct DashHUD field/view spellings are current FAIL 35-40 and lose the shared lo_sum */
 
   j = 0;
   if (-1 < DashHUD_view[0]) {
     __asm__ volatile("" : : "r"(j));
     do {
-      /* MATCH (w44-a5): ONE shared `j * 4` feeding BOTH the showhud test and the
-       * Hud_gTacView[] fetch, index-term FIRST in the address add -- reproduces the
-       * oracle's single `sll $v1,$s1,2; addu` per iteration.  40 -> 35 diffs, one of
-       * the two surplus callee-saved regs gone. */
-      int j4;
-
-      j4 = j * 4;
+      /* MATCH (w44-a5): the repeated index-term-first expressions let gcc CSE ONE
+       * shared `j * 4` for both Hud_gTacView[] fetches -- no source `j4` local is
+       * required. This reproduces the oracle's single `sll $v1,$s1,2; addu` per
+       * iteration. */
       if ((GameSetup_gData.carInfo[j].HudTach != 0) &&
           (dh = (int *)&DashHUD_gInfo, dh[j + 7] != 0)) {
-        u_char *pal;
-        DR_MODE *tp;
 
-        Draw_StartRenderingView(*(int *)(j4 + (int)Hud_gTacView));
+        Draw_StartRenderingView(*(int *)(j * 4 + (int)Hud_gTacView));
         DashHUD_HUDCalc(j);
         Hud_BuildTach(j);
-        pal = Render_gPalettePtr;
-        /* ONE address for the tag: two textual gTPage1[j][2] uses make gcc keep a second
-         * +0x30 giv (oracle has a single $s2 walker). */
-        tp = &gTPage1[j][2];
+        /* Canonical PsyQ addPrim expansion: the repeated gTPage1[j][2] expression
+         * becomes one +0x30 giv (the oracle's $s2 walker) without `tp`/`pal` locals. */
         /* MATCH (w75-a4): the OT link written as the addPrim P_TAG BITFIELD PAIR (the w45
          * lever already used in Hud_BuildMapMarkers / Hud_BuildWingmanInterface), not as
          * explicit &0xff000000 / &0xffffff masks.  With explicit masks the 0xff000000
@@ -5931,9 +5924,9 @@ void Hud_RenderTacView(void)
          * bitfield store generates the masks in retail's order for free.  13 -> 11, count
          * unchanged.  Falsified alternatives (all with the explicit masks kept): swapping
          * the first `|`'s operands 19, both statements' operands 23, the second only 17. */
-        ((Hud_PTag *)tp)->addr = ((Hud_PTag *)pal)->addr;
-        ((Hud_PTag *)pal)->addr = (u_int)tp;
-        Draw_StopRenderingView(*(int *)(j4 + (int)Hud_gTacView));
+        ((Hud_PTag *)&gTPage1[j][2])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
+        ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&gTPage1[j][2];
+        Draw_StopRenderingView(*(int *)(j * 4 + (int)Hud_gTacView));
       }
       j = j + 1;
       dh = DashHUD_view;

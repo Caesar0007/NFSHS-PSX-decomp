@@ -1697,6 +1697,29 @@ position-sensitive words for that same residual. Repeated whole-TU gates keep
 `DrawW_AddSubdividPrimGT3` helper remains PASS 28/28, and the vtable indexing
 audit remains clean.
 
+### P36 — Tactical-view canonical index/tag reconstruction (`2026-08-24`)
+
+The refreshed strict game/PSX declaration audit is recorded in
+[`game_psx_after_tacview_reconcile_20260824.md`](scratchpad/root_sym_audit/game_psx_after_tacview_reconcile_20260824.md).
+It advances the result from 382/395 to 383/395 declaration-clean functions,
+reduces generic extra source-local names from 297 to 293, keeps raw type
+findings at zero, and keeps missing SYM names at zero.
+
+`Hud_RenderTacView` removes three reconstruction-only aliases with no opcode
+movement. Repeated `j * 4 + Hud_gTacView` expressions let GCC form the single
+shared index itself, eliminating `j4`. The canonical PsyQ `addPrim` expansion
+uses `Render_gPalettePtr` and `&gTPage1[j][2]` directly, eliminating `pal` and
+`tp` while preserving the existing OT-tag and +0x30 GIV shapes. The remaining
+source-only `dh` identity is explicitly receipted: direct `DashHUD_gInfo` and
+`DashHUD_view` spellings were measured across the existing source grid at
+FAIL 35-40 and lose the shared low-address sum.
+
+The authoritative residual remains 11 differences at 72/71, confined to the
+two self-temporary global loads and the missing cross-block high-half reuse.
+Repeated whole-TU gates preserve `hud.cpp` at 61/62 PASS with only this same
+function outstanding; the adjacent `Hud_RenderMapView` remains PASS 161/161,
+and the vtable indexing audit remains clean.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

@@ -5324,23 +5324,14 @@ void DrawC_DivideShadowPrim(COORD16 *vt0,COORD16 *vt1,COORD16 *vt2,COORD16 *vt3,
                ,u_short *u3,Draw_tPixMap *pmx,Draw_CarCache *sd)
 
 {
-  u_int mlo;      /* 0x00FFFFFF addr mask (oracle: $a1) */
-  u_int mhi;      /* 0xFF000000 len mask  (oracle: $a2) */
   POLY_FT4 * prim;
-  u_long * ot;
   u_short uv2;
   u_short uv3;
-  u_short uVar1;
-  u_short uVar2;
-  u_short uVar3;
   u_short clut;
   u_short tpage;
-  int iVar4;
-  u_int uVar5;
+  u_int color; /* SYM-CODEGEN-CARRIER: color -- direct sd->color store is current FAIL 5 at 123/122 */
   u_short uv1;
   u_short uv0;
-  u_long *puVar6;
-  u_int *puVar7;
 
   if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr) {
 gte_ldv0(vt0);
@@ -5364,33 +5355,34 @@ gte_stsxy3((char *)prim + 0x10,(char *)prim + 0x20,(char *)prim + 0x18);
     else {
       gte_avsz4();
       gte_stOTZm(sd->otz);
-      iVar4 = (sd->otz >> 3) + 0x28;
-      sd->otz = iVar4;
-      if (iVar4 < 0) {
+      sd->otz = (sd->otz >> 3) + 0x28;
+      if (sd->otz < 0) {
         return;
       }
-      if (Draw_gViewOtSize + -3 < iVar4) {
+      if (Draw_gViewOtSize + -3 < sd->otz) {
         return;
       }
     }
     if ((((-1 < *(short *)(((int)vt0) + 4)) || (-1 < vt1->z)) || (-1 < vt2->z)) || (-1 < vt3->z)) {
-      mlo = 0xffffff;                          /* masks FIRST (oracle: a1/a2 hoisted before the loads,
-                                                * first lui even sits in the z-chain delay slot) */
-      mhi = 0xff000000;
+      {
+      u_long *ot;
+      u_int *otp; /* SYM-CODEGEN-CARRIER: otp -- one staged OT-cell address avoids six extra reload/address instructions */
       prim = (POLY_FT4 *)(sd->head).cprim.PrimPtr;
-      puVar6 = (sd->head).cprim.LastPrim;
+      ot = (sd->head).cprim.LastPrim;
       (sd->head).cprim.PrimPtr = (char *)prim + 0x28;
       /* volatile: the oracle reloads sd->otz fresh here (stored just above) */
-      puVar7 = (u_int *)(puVar6 + *(int volatile *)&sd->otz);
-      *(u_int *)prim = *(u_int *)prim & mhi | *puVar7 & mlo;
-      *puVar7 = *puVar7 & mhi | (u_int)prim & mlo;
-      uVar5 = sd->color;
+      otp = (u_int *)(ot + *(int volatile *)&sd->otz);
+      *(u_int *)prim = *(u_int *)prim & 0xff000000 | *otp & 0xffffff;
+      *otp = *otp & 0xff000000 | (u_int)prim & 0xffffff;
+      }
+      color = sd->color;
       *(u_char *)((int)prim + 3) = 9;
-      ((u_int *)prim)[1] = uVar5;
+      ((u_int *)prim)[1] = color;
       *(u_char *)((int)prim + 7) = 0x2e;
-      uVar1 = pmx->tpage;
-      *(u_short *)((int)prim + 0xe) = pmx->clut;
-      *(u_short *)((int)prim + 0x16) = uVar1;
+      tpage = pmx->tpage;
+      clut = pmx->clut;
+      *(u_short *)((int)prim + 0xe) = clut;
+      *(u_short *)((int)prim + 0x16) = tpage;
       /* RESIDUAL (w38-a3): 109 diffs at 123/122 insns.  ONE extra insn = a second
          register copy: gcc gives the asm's `tp8` cursor $a1 (retail uses $t0), so
          vt1 has to be copied out of $a1 (`addu t2,a1,zero`) ON TOP OF the vt0 copy

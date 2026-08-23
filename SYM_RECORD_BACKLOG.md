@@ -1745,6 +1745,32 @@ that the remaining allocation rotations are solved. Two whole-TU gates preserve
 `Hrz_BuildSky` 146 residuals. The adjacent `Hrz_SetDitheringPrim` remains PASS
 34/34, and the vtable indexing audit remains clean.
 
+### P38 — Shadow-divider SYM block reconstruction (`2026-08-24`)
+
+The refreshed strict game/PSX declaration audit is recorded in
+[`game_psx_after_divshadow_reconcile_20260824.md`](scratchpad/root_sym_audit/game_psx_after_divshadow_reconcile_20260824.md).
+It advances the result from 384/395 to 385/395 declaration-clean functions and
+reduces generic extra source-local names from 289 to 280 while preserving zero
+missing SYM names and zero raw type findings.
+
+`DrawC_DivideShadowPrim` now uses the retail SYM identities and scopes instead
+of parallel Ghidra names. The previously unused block local `ot` replaces
+`puVar6`; the recorded `clut` and `tpage` locals replace `uVar1` and the direct
+CLUT path. Unused `uVar2`/`uVar3` are deleted, `iVar4` is folded into the natural
+`sd->otz` update and guards, and `mlo`/`mhi` are restored as literal tag masks.
+All of those changes remain byte-exact.
+
+Only two source-only carriers remain, with direct-form receipts. The staged OT
+cell `otp` avoids six extra address/reload instructions; repeating its full
+expression is FAIL 16 at 128/122. The staged `color` load preserves the retail
+load-delay/store register shape; a direct `sd->color` store is FAIL 5 at
+123/122.
+
+Repeated detailed gates preserve `DrawC_DivideShadowPrim` PASS 122/122 and
+`DrawC_ShadowPrim` PASS 129/129. Two whole-TU gates confirm `drawc.cpp` remains
+20/20 PASS. Production PsyQ proof reports REAL=0 and RELOP=0, and the vtable
+indexing audit remains clean.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

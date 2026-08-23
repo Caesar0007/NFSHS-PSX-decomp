@@ -3,9 +3,6 @@
 #ifndef _GAME_PSX_OVERLAYS_EXTERNS_H_
 #define _GAME_PSX_OVERLAYS_EXTERNS_H_
 
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
-
 /* ---- globals ---- */
 /* StatsTimer[2] is modelled as its TWO retail per-element gp-rel symbols (the same
    scalar+alias pair replay_externs.h already uses): the oracle reaches every CONSTANT
@@ -29,8 +26,13 @@ extern Car_tObj      *Cars_gHumanRaceCarList[];/* 0x8010fa48 */
    from the .L800DAF30 edge and keeps the block a 2-predecessor join. */
 extern Car_tObj      *D_8010FA4C;              /* 0x8010fa4c = Cars_gHumanRaceCarList[1] */
 extern Car_tObj      *Cars_gRaceCarList[];     /* 0x8010fa00 */
-extern GameSetup_tData GameSetup_gData;         /* 0x801131ec */
-extern Sim_tSimGlobalVar simGlobal;             /* 0x8011e0ac */
+extern int Overlays_GameSetupWords[] asm("GameSetup_gData");
+extern int Overlays_SimWords[] asm("simGlobal");
+#define OVERLAYS_RACE_TYPE          Overlays_GameSetupWords[0]
+#define OVERLAYS_NUM_LAPS           Overlays_GameSetupWords[1]
+#define OVERLAYS_COMM_MODE          Overlays_GameSetupWords[3]
+#define OVERLAYS_PINK_SLIPS_FORFEIT Overlays_GameSetupWords[46]
+#define OVERLAYS_GAME_TICKS         Overlays_SimWords[1]
 extern tBTCPerpInfo   BTCPerpInfo[2][10];       /* 0x80120bc0 */
 extern int            FinalBTC_Countdown;       /* 0x8013d938 */
 
@@ -40,6 +42,7 @@ extern int   Hud_BuildString(char *str, int x, int y, int rgb, int flag, int cen
 extern void  Hud_FBuildF4(int x, int y, int yy, int w, int h, u_long col, char c0, char c1);
 extern char *TextSys_Word(int id);
 extern "C" int textpixels(char *s);
+extern "C" int sprintf(...);
 extern void  Font_TextColor(int idx);
 extern void  Font_TextXY(char *s, int x, int y);
 extern void  OptionsBarThing(int x, int y, int w, int h);

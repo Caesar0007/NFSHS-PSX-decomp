@@ -37,7 +37,7 @@ they are not silently collapsed into a smaller denominator.
   explicit per-record semantic-review row.  Nothing is silently dropped from
   the denominator.
 - A strict compiler-emitted type-graph comparison now distinguishes retail
-  subset coverage from actual per-object source visibility.  Sixty-seven owners are
+  subset coverage from actual per-object source visibility.  Sixty-eight owners are
   semantically exact: `memcard.obj`, `mdec.obj`, `video.obj`, `FETexture.obj`,
   `textpix.obj`, `textpsx.obj`, `unpack.obj`, `fastrand.obj`, and
   `aiscript.obj`, `new.obj`, `paths.obj`, `textsys.obj`, `simplemem.obj`,
@@ -52,7 +52,7 @@ they are not silently collapsed into a smaller denominator.
   `AIPHYSIC.obj`, `gmesetup.obj`, `AI.obj`, `aistate.obj`, `mpause.obj`, and
   `newton.obj`, `camera.obj`, `TrackSpec.obj`, `loading.obj`, `texture.obj`, and
   `Draw.obj`, `Sfx.obj`, `TrsProj.obj`, `CarIO.obj`, `platform.obj`, and
-  `force.obj`, and `audio.obj`.
+  `force.obj`, `audio.obj`, and `overlays.obj`.
   The remaining mapped C++
   units still expose reconstruction-only declarations through the monolithic
   `nfs4_types.h` include graph and therefore are not yet source-exact.
@@ -165,7 +165,7 @@ Results:
 - all retail `this` adjustments are zero;
 - structural/target issues: 0;
 - retail targets absent from the symbol map: 0;
-- unsafe direct vtable-row indexing: 0 across 917 source files.
+- unsafe direct vtable-row indexing: 0 across 918 source files.
 
 Evidence:
 
@@ -538,7 +538,7 @@ Current strict results:
 
 - `frontend/psx`: 4 exact (`memcard`, `mdec`, `video`, `fetexture`) and 4 DIFF
   (`drawshp`, `mmeffect`, `movie`, `psxfront`);
-- `game/psx`: 13 exact (`textpix`, `textpsx`, `unpack`, `trackspec`, `loading`, `texture`, `draw`, `sfx`, `trsproj`, `cario`, `platform`, `force`, `audio`), 14 DIFF, and one owner
+- `game/psx`: 14 exact (`textpix`, `textpsx`, `unpack`, `trackspec`, `loading`, `texture`, `draw`, `sfx`, `trsproj`, `cario`, `platform`, `force`, `audio`, `overlays`), 13 DIFF, and one owner
   ambiguity for game `font.obj` versus the vendor `libgpu/FONT.obj`;
 - `frontend/common`: 41 mapped units remain DIFF and the now-empty artificial
   `mcrd.cpp` unit needs its objdiff ownership removed or reassigned;
@@ -597,7 +597,7 @@ prechecked loop in `Camera_OpponentLookBehind` restores the original 245-word
 shape.  `Camera_NextMode` needs one documented post-cc1 scheduling relocation;
 it moves, but does not add/remove/rewrite, the existing signed-%3 correction.
 The final graph is 92/92 named and 2/2 anonymous with no extra type/typedef, all
-38 camera functions remain PASS, and the vtable audit is clean across 917 files.
+38 camera functions remain PASS, and the vtable audit is clean across 918 files.
 
 `TrackSpec.obj` is now strict-exact through an owner-specific type header.  Its
 externally owned `GameSetup_tData` is represented by an exact-symbol word view
@@ -678,6 +678,15 @@ This retains the original typed row addressing without adding a debug record.
 The final graph is 80/80 named and 2/2 anonymous with no extra type or typedef
 semantics, and all six Audio functions remain PASS.
 
+`overlays.obj` is now strict-exact through the proven color surface plus its
+scheduler, BTC-perpetrator, and font-kern records.  The externally owned
+`GameSetup_gData` and `simGlobal` bodies are absent from this retail object, so
+their five used fields retain the exact symbols through word offsets 0, 1, 3,
+46, and 1 respectively.  The final graph is 74/74 named and 2/2 anonymous with
+no extra type or typedef semantics.  Four functions remain PASS, while
+`RaceStatistics` is unchanged at its pre-existing 71-diff,
+474-versus-475-instruction baseline.
+
 The mapped C++ units cover all retail named and anonymous type bodies, but are
 not source-exact while they expose unrelated monolithic-header declarations or
 miss owner-specific typedef variants.  The three C units that previously had
@@ -702,6 +711,7 @@ Strict evidence:
 - [`type_graph_game_common_after_aispeeds_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_after_aispeeds_20260822.tsv)
 - [`type_graph_game_common_after_audiomus_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_after_audiomus_20260822.tsv)
 - [`type_graph_game_psx_after_audio_20260823.tsv`](scratchpad/root_sym_audit/type_graph_game_psx_after_audio_20260823.tsv)
+- [`type_graph_game_psx_after_overlays_20260823.tsv`](scratchpad/root_sym_audit/type_graph_game_psx_after_overlays_20260823.tsv)
 - [`type_graph_game_common_after_audio_round_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_after_audio_round_20260822.tsv)
 - [`type_graph_game_common_after_aiinit_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_after_aiinit_20260822.tsv)
 - [`type_graph_game_common_after_aiphysic_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_after_aiphysic_20260822.tsv)

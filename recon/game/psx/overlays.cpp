@@ -2,7 +2,7 @@
  *   5 fns: OptionsBarThing, Hud_RenderStatsView, RaceSummary, RaceStatistics, Hud_BTCStats
  *   -- all reconstructed with full SYM-locals applied (0 missing, audited). No GTE.
  */
-#include "../../nfs4_types.h"
+#include "overlays_types.h"
 #include "overlays_externs.h"
 
 /* gp-rel owning-TU defs (section 3.12 #6): overlays.obj OWNS these (the SYM's overlays.obj
@@ -123,11 +123,11 @@ void RaceSummary(void)
   int titleX;
 
   HUD_STATS_POS_X = 8;
-  if (GameSetup_gData.numLaps == 1) {
+  if (OVERLAYS_NUM_LAPS == 1) {
     HUD_STATS_POS_X = 0x28;
   }
   HUD_STATS_SIZE_W = 0x130;
-  if (GameSetup_gData.numLaps == 1) {
+  if (OVERLAYS_NUM_LAPS == 1) {
     HUD_STATS_SIZE_W = 0xef;
   }
   HUD_STATS_SIZE_H = (short)((Cars_gNumRaceCars + 1) * 0xc + 0x1e);
@@ -160,7 +160,7 @@ void RaceSummary(void)
   coltime = HUD_STATS_POS_X + 0xa7;
   Font_TextXY(TextSys_Word(0x3b),coltime,(titleY + 0xf) * 0x10000 >> 0x10);
   colbestlap = HUD_STATS_POS_X + 0xe1;
-  if (GameSetup_gData.numLaps != 1) {
+  if (OVERLAYS_NUM_LAPS != 1) {
     Font_TextXY(TextSys_Word(0x3c),colbestlap,(titleY + 0xf) * 0x10000 >> 0x10);
   }
   Hud_FBuildF4(0,HUD_STATS_POS_X,((titleY + 0x11) * 0x10000 >> 0x10) + 0xc,(u_short)HUD_STATS_SIZE_W,1,0,'\0','\0');
@@ -168,7 +168,7 @@ void RaceSummary(void)
   Hud_FBuildF4(0,colname + -2,HUD_STATS_POS_Y,1,barH,0,'\0','\0');
   Hud_FBuildF4(0,colcar + -2,HUD_STATS_POS_Y,1,barH,0,'\0','\0');
   Hud_FBuildF4(0,coltime + -2,HUD_STATS_POS_Y,1,barH,0,'\0','\0');
-  if (GameSetup_gData.numLaps != 1) {
+  if (OVERLAYS_NUM_LAPS != 1) {
     Hud_FBuildF4(0,colbestlap + -2,HUD_STATS_POS_Y,1,barH,0,'\0','\0');
   }
   i = 0;
@@ -199,10 +199,10 @@ void RaceSummary(void)
       }
       sprintf(string,"%s",Cars_gRaceCarList[i]->carNameLocalized);
       Font_TextXY(string,colcar,((titleY + 0x11) * 0x10000 >> 0x10) + pos * 0xc);
-      if (GameSetup_gData.pinkSlipsForfeit == i) {
+      if (OVERLAYS_PINK_SLIPS_FORFEIT == i) {
         sprintf(string,TextSys_Word(0x36));
       }
-      else if ((GameSetup_gData.raceType == RaceType_HotPursuit) &&
+      else if ((OVERLAYS_RACE_TYPE == RaceType_HotPursuit) &&
                (Cars_gRaceCarList[i]->stats.finalNumArrests != 0)) {
         sprintf(string,TextSys_Word(0x3d));
       }
@@ -213,7 +213,7 @@ void RaceSummary(void)
         sprintf(string,TextSys_Word(0x35));
       }
       Font_TextXY(string,coltime,((titleY + 0x11) * 0x10000 >> 0x10) + pos * 0xc);
-      if (GameSetup_gData.numLaps != 1) {
+      if (OVERLAYS_NUM_LAPS != 1) {
         if (*(int *)((int)Cars_gRaceCarList[i] + 0x3e8) != 0) {
           Hud_ParseTime(*(int *)((int)Cars_gRaceCarList[i] + 0x3e8),string);
         }
@@ -435,7 +435,7 @@ void RaceStatistics(void)
   int colInset;
   int rowInset;
 
-  HUD_STATS_SIZE_H = (GameSetup_gData.numLaps + 1) * 0xc + 0x28;
+  HUD_STATS_SIZE_H = (OVERLAYS_NUM_LAPS + 1) * 0xc + 0x28;
   /* ===== MATCH (W74-A12, 2026-08-22/23): 77 -> 71 @474/475.  THE HEAD CLUSTER IS
      PARTLY SOLVED and the w49/w63/w64 "named constants" reading is VINDICATED -- what
      every earlier wave was missing is that the SET is `one` + `pitch` (NOT pitch alone,
@@ -594,8 +594,8 @@ void RaceStatistics(void)
      (`addiu $a1,$a1,0x1C; sh` == oracle `addiu $a0,$a0,0x1C; sh`) -- retail kept the
      product live in a local.  Insn count unchanged 459/475 but LCS 230->236, so land
      it TOGETHER with the head register rotation (ours s1/s4/s7/s2 vs oracle s4/s7/s2/s3). */
-  if (GameSetup_gData.numLaps == 1) {
-    HUD_STATS_SIZE_H = (GameSetup_gData.numLaps + 1) * 0xc + 0x1c;
+  if (OVERLAYS_NUM_LAPS == 1) {
+    HUD_STATS_SIZE_H = (OVERLAYS_NUM_LAPS + 1) * 0xc + 0x1c;
   }
   /* W74-A12: the `pitch` availability fence lives HERE, one basic block below its
      assignment -- see the MATCH block above.  It is zero-insn and pin-free; it exists
@@ -604,7 +604,7 @@ void RaceStatistics(void)
      it would fence the `Cars_gNumHumanRaceCars` load out of the head schedule.  Moving
      it up to the assignment costs 2 diffs; deleting it costs 12. */
   __asm__ volatile("" : : "r"(pitch));
-  if (GameSetup_gData.raceType == RaceType_HotPursuit) {
+  if (OVERLAYS_RACE_TYPE == RaceType_HotPursuit) {
     HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 0x1b;
   }
   sizeH16 = (int)((u_int)(u_short)HUD_STATS_SIZE_H << 0x10);
@@ -615,14 +615,14 @@ void RaceStatistics(void)
   col2 = 0xa0;
   HUD_STATS_POS_Y = (short)posy;
   titleY = 0x76 - halfH;
-  HUD_STATS_HOTPURSUIT_Y = (short)(titleY + (GameSetup_gData.numLaps + 2) * 0xc + 0x13);
+  HUD_STATS_HOTPURSUIT_Y = (short)(titleY + (OVERLAYS_NUM_LAPS + 2) * 0xc + 0x13);
   if (1 < Cars_gNumHumanRaceCars) {
     col2 = 0x55;
   }
   Font_TextColor(6);
   Font_TextXY(TextSys_Word(0x39),titleX * 0x10000 >> 0x10,titleY);
   Hud_FBuildF4(0,HUD_STATS_POS_X,((titleY + 0x11) * 0x10000 >> 0x10) + 0xb,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
-  if (GameSetup_gData.raceType == RaceType_HotPursuit) {
+  if (OVERLAYS_RACE_TYPE == RaceType_HotPursuit) {
     Hud_FBuildF4(0,HUD_STATS_POS_X,HUD_STATS_HOTPURSUIT_Y,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
   }
   i = 0;
@@ -666,8 +666,8 @@ void RaceStatistics(void)
     /* NOT `a && b`: the oracle keeps two separate compares off ONE load
        (`beq $v0,1` @0x800DA2E0 then `blez $v0` @0x800DA2EC); the &&-form lets gcc
        range-fold them into a single `slti v0,v0,2`. */
-    if (GameSetup_gData.numLaps != 1) {
-     if (0 < GameSetup_gData.numLaps) {
+    if (OVERLAYS_NUM_LAPS != 1) {
+     if (0 < OVERLAYS_NUM_LAPS) {
       j = 0;
       do {
         if ((int)j * 2 + 4 < D_8013D99C) {
@@ -692,23 +692,23 @@ void RaceStatistics(void)
           Font_TextXY(string,col2 + 5,((titleY + 0x11) * 0x10000 >> 0x10) + (int)j * 0xc + 0xc);
         }
         j = j + 1;
-      } while ((int)j < GameSetup_gData.numLaps);
+      } while ((int)j < OVERLAYS_NUM_LAPS);
      }
     }
-    if (GameSetup_gData.numLaps * 2 + 4 < D_8013D99C) {
+    if (OVERLAYS_NUM_LAPS * 2 + 4 < D_8013D99C) {
       sprintf(string,TextSys_Word(0x37));
       Font_TextColor(3);
       Font_TextXY(string,(int)col1,
-                  GameSetup_gData.numLaps != 1 ?
-                  ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc + 0xc :
-                  ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc);
-      if (GameSetup_gData.pinkSlipsForfeit == i) {
+                  OVERLAYS_NUM_LAPS != 1 ?
+                  ((titleY + 0x11) * 0x10000 >> 0x10) + OVERLAYS_NUM_LAPS * 0xc + 0xc :
+                  ((titleY + 0x11) * 0x10000 >> 0x10) + OVERLAYS_NUM_LAPS * 0xc);
+      if (OVERLAYS_PINK_SLIPS_FORFEIT == i) {
         sprintf(string,TextSys_Word(0x36));
       }
       else if ((Cars_gHumanRaceCarList[i]->stats).finalFinishType == 2) {
         Hud_ParseTime((Cars_gHumanRaceCarList[i]->stats).finalTotalTime,string);
       }
-      else if ((GameSetup_gData.raceType == RaceType_HotPursuit) &&
+      else if ((OVERLAYS_RACE_TYPE == RaceType_HotPursuit) &&
                ((Cars_gHumanRaceCarList[i]->stats).finalNumArrests != 0)) {
         sprintf(string,TextSys_Word(0x3d));
       }
@@ -716,18 +716,18 @@ void RaceStatistics(void)
         sprintf(string,TextSys_Word(0x35));
       }
       Font_TextXY(string,col2 + 5,
-                  (GameSetup_gData.numLaps != 1 ?
-                   ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc : ((titleY + 0x11) * 0x10000 >> 0x10)) + 0xc);
+                  (OVERLAYS_NUM_LAPS != 1 ?
+                   ((titleY + 0x11) * 0x10000 >> 0x10) + OVERLAYS_NUM_LAPS * 0xc : ((titleY + 0x11) * 0x10000 >> 0x10)) + 0xc);
     }
-    if (GameSetup_gData.raceType == RaceType_HotPursuit) {
-      if (GameSetup_gData.numLaps * 2 + 6 < D_8013D99C) {
+    if (OVERLAYS_RACE_TYPE == RaceType_HotPursuit) {
+      if (OVERLAYS_NUM_LAPS * 2 + 6 < D_8013D99C) {
         sprintf(string,TextSys_Word(0x3e));
         Font_TextColor(3);
         Font_TextXY(string,(int)col1,HUD_STATS_HOTPURSUIT_Y + 1);
         sprintf(string,"%d",*(int *)((int)Cars_gHumanRaceCarList[i] + 0x3c0));
         Font_TextXY(string,col2 + 5,HUD_STATS_HOTPURSUIT_Y + 1);
       }
-      if (GameSetup_gData.numLaps * 2 + 8 < D_8013D99C) {
+      if (OVERLAYS_NUM_LAPS * 2 + 8 < D_8013D99C) {
         sprintf(string,TextSys_Word(0x3f));
         Font_TextColor(3);
         Font_TextXY(string,(int)col1,HUD_STATS_HOTPURSUIT_Y + 0xd);
@@ -1256,18 +1256,18 @@ void Hud_RenderStatsView(void)
   int screen;
   int t;
 
-  screen = simGlobal.gameTicks >> 9 & 1;
+  screen = OVERLAYS_GAME_TICKS >> 9 & 1;
   /* Block order + branch polarity transcribed from the oracle CFG (0x800DAE94..0x800DAFE8):
      the flags!=0 arm is the if-BODY (oracle `beqz` skips to the ==0 block), the shared
      screen=0 block sits EARLY at .L800DAED0, and the "one player" tail (.L800DAFE4)
      falls out of the numRaceCars test at .L800DAFD0. */
   if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0) {
-    if (GameSetup_gData.commMode == 1) goto HudStats_common;
+    if (OVERLAYS_COMM_MODE == 1) goto HudStats_common;
 HudStats_setUserZero:
     screen = 0;
     goto HudStats_finalize;
   }
-  if (GameSetup_gData.commMode != 1) goto HudStats_checkNumCars;
+  if (OVERLAYS_COMM_MODE != 1) goto HudStats_checkNumCars;
 HudStats_common:
   if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0) {
     if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0) goto HudStats_check200B;
@@ -1277,10 +1277,10 @@ HudStats_common:
 HudStats_check200B:
   if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0) goto HudStats_setUserOne;
   if (Hud_NextPerp[0] != 0) goto HudStats_setUserZero;
-  if (GameSetup_gData.commMode != 1) goto HudStats_setUserZero;
+  if (OVERLAYS_COMM_MODE != 1) goto HudStats_setUserZero;
 HudStats_secondCar:
   if ((D_8010FA4C->carFlags & 0x200U) == 0) goto HudStats_finalize;
-  if (GameSetup_gData.commMode != 1) goto HudStats_finalize;
+  if (OVERLAYS_COMM_MODE != 1) goto HudStats_finalize;
   if (Hud_NextPerp[1] == 0) goto HudStats_finalize;
   screen = 1;
   goto HudStats_finalize;
@@ -1320,7 +1320,7 @@ HudStats_finalize:
     if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) {
       RaceStatistics();
     }
-    else if (GameSetup_gData.commMode == 1) {
+    else if (OVERLAYS_COMM_MODE == 1) {
       Hud_BTCStats(1,true);
     }
     else {

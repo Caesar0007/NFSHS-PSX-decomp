@@ -167,6 +167,14 @@ Until it exists, DE-PRIORITIZE residuals classified as local-alloc swaps —
 they are receipted, not floors, and spelling sweeps there are wasted budget.
 
 ### 4.7 Reference corpora (the triangle + twin)
+- **Canonical PsyQ 4.3 documentation** `C:\Temp\PSYQ\psyq-430-doc` — primary
+  semantic authority for SDK API names, signatures, structures, macros, and
+  intended use.  Start with `Devrefs\Libref.pdf` for library APIs and
+  `Devrefs\Inlinref.pdf` for GTE/DMPSX inline names, macro composition, and
+  pipeline rules.  Documentation establishes source semantics; extracted
+  objects and the retail oracle remain the byte/codegen authority.
+- **Canonical PsyQ 4.3 kit** `C:\Temp\nfs4-clean\psyq43` — headers and tools;
+  use `COFF\INCLUDE\INLINE_C.H` to settle exact GTE macro spellings.
 - **Rage Racer** `C:\Temp\rage-racer-decomp` — 100% byte-exact PSX corpus.
   `src/main/PAL/lib/libcd`, `libgpu` = matched Sony-lib C (the proven lever
   goldmine: port the SHAPES, drop their register-asm pins — we are pin-free).

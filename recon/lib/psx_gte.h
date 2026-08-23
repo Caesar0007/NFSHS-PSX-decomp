@@ -91,9 +91,10 @@
 #define gte_stsxy3(p0,p1,p2) __asm__ volatile (                                \
     "swc2 $12, 0(%0)\n\tswc2 $13, 0(%1)\n\tswc2 $14, 0(%2)"                     \
     : : "r"(p0), "r"(p1), "r"(p2) : "memory")
-#define gte_stSXY0(p) __asm__ volatile ("swc2 $12, 0(%0)" : : "r"(p) : "memory")
-#define gte_stSXY1(p) __asm__ volatile ("swc2 $13, 0(%0)" : : "r"(p) : "memory")
-#define gte_stSXY2(p) __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(p) : "memory")
+/* Canonical PsyQ 4.3 INLINE_C.H / Inlinref spellings. */
+#define gte_stsxy0(p) __asm__ volatile ("swc2 $12, 0(%0)" : : "r"(p) : "memory")
+#define gte_stsxy1(p) __asm__ volatile ("swc2 $13, 0(%0)" : : "r"(p) : "memory")
+#define gte_stsxy2(p) __asm__ volatile ("swc2 $14, 0(%0)" : : "r"(p) : "memory")
 /* PACKET-targeted SXY/RGB stores (DMPSX Inlinref Tables 1-30/1-38, added 2026-07-09):
  * ONE packet base + the POLY_* fixed field offsets -- the oracle form in the EA render
  * loop (DrawC_Prim: `swc2 $12,8(a1); $13,16(a1); $14,24(a1)` == gte_stsxy3_ft3(prim)).
@@ -126,7 +127,7 @@
 #define gte_stsz4c(p)  __asm__ volatile (                                      \
     "swc2 $16, 0(%0)\n\tswc2 $17, 4(%0)\n\tswc2 $18, 8(%0)\n\tswc2 $19, 12(%0)" \
     : : "r"(p) : "memory")
-#define gte_stOTZ(p)  __asm__ volatile ("swc2 $7, 0(%0)"  : : "r"(p) : "memory")
+#define gte_stotz(p)  __asm__ volatile ("swc2 $7, 0(%0)"  : : "r"(p) : "memory")
 /* "m"-FORM stores (2026-07-09): output-memory-operand variants -- gcc emits the FULL
  * base+displacement addressing itself (`swc2 $24,0xC4($t0)` off a live struct base),
  * matching the EA-expander sites where the "r"-form would materialize an address first.
@@ -136,7 +137,7 @@
 #define gte_stSXY0m(x) __asm__ volatile ("swc2 $12, %0" : "=m"(x))
 #define gte_stSXY1m(x) __asm__ volatile ("swc2 $13, %0" : "=m"(x))
 #define gte_stSXY2m(x) __asm__ volatile ("swc2 $14, %0" : "=m"(x))
-#define gte_stMAC0(p) __asm__ volatile ("swc2 $24, 0(%0)" : : "r"(p) : "memory")
+#define gte_stopz(p) __asm__ volatile ("swc2 $24, 0(%0)" : : "r"(p) : "memory")
 /* store the FLAG control reg */
 #define gte_stflg(p)  __asm__ volatile (                                       \
     "cfc2 $12, $31\n\tnop\n\tsw $12, 0(%0)"                                     \
@@ -225,9 +226,9 @@
 #define gte_stsv(p)            ((void)(p))
 #define gte_stsxy(p)           ((void)(p))
 #define gte_stsxy3(p0,p1,p2)   do { (void)(p0); (void)(p1); (void)(p2); } while (0)
-#define gte_stSXY0(p)          ((void)(p))
-#define gte_stSXY1(p)          ((void)(p))
-#define gte_stSXY2(p)          ((void)(p))
+#define gte_stsxy0(p)          ((void)(p))
+#define gte_stsxy1(p)          ((void)(p))
+#define gte_stsxy2(p)          ((void)(p))
 #define gte_stsxy3_f3(p)       ((void)(p))
 #define gte_stsxy3_ft3(p)      ((void)(p))
 #define gte_stsxy3_g3(p)       ((void)(p))
@@ -245,13 +246,13 @@
 #define gte_stsz3c(p)          ((void)(p))
 #define gte_stsz4(a,b,c,d)     do { (void)(a); (void)(b); (void)(c); (void)(d); } while (0)
 #define gte_stsz4c(p)          ((void)(p))
-#define gte_stOTZ(p)           ((void)(p))
+#define gte_stotz(p)           ((void)(p))
 #define gte_stMAC0m(x)         ((void)(x))
 #define gte_stOTZm(x)          ((void)(x))
 #define gte_stSXY0m(x)         ((void)(x))
 #define gte_stSXY1m(x)         ((void)(x))
 #define gte_stSXY2m(x)         ((void)(x))
-#define gte_stMAC0(p)          ((void)(p))
+#define gte_stopz(p)           ((void)(p))
 #define gte_stflg(p)           ((void)(p))
 #define gte_swc2(reg,p)        do { (void)(reg); (void)(p); } while (0)
 #define gte_SetRotMatrix(m)    ((void)(m))

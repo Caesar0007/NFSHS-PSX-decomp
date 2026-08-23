@@ -151,7 +151,7 @@ void Sfx_BuildFastDisolveFacet(Souffle_tISouffle *is,sfxsouffle *dSouffle,Draw_t
  * local/expression regardless of shape). A raw-asm form with a HARD-CODED scratch register name
  * (`addiu $2,%0,8; swc2 $14,0($2)`) does perturb the count (53->51) but is the register-pin
  * anti-pattern (§3.13) and caused COLLATERAL regressions elsewhere in the function (a new diff
- * appeared on `gte_stOTZ`) -- reverted. The clean fix is a macro-level constraint change
+ * appeared on `gte_stotz`) -- reverted. The clean fix is a macro-level constraint change
  * (`"=m"`->`"r"`) in the SHARED `recon/lib/psx_gte.h`, out of scope for a sfx.cpp-only edit.
  * ACCEPT as a genuine cross-file near-miss (matches §3.12's base+offset-fusion family, but here
  * it's a real register-vs-memory-operand codegen gap, not a verify-tool artifact). SYM lists 4
@@ -200,7 +200,7 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
     }
     gte_stsxy3(&prim->x1,&prim->x3,&prim->x2);
     gte_avsz4();
-    gte_stOTZ(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
+    gte_stotz(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
     sd->otz = (sd->otz >> 1) + offset;
     if ((-1 < sd->otz) && (sd->otz <= Draw_gViewOtSize + -3)) {
       *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */
@@ -461,7 +461,7 @@ static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,
       *(u_long *)&prim->r0 = *(u_long *)&color;
       gte_stsxy3(&prim->x0,&prim->x3,&prim->x2);
       gte_avsz4();
-      gte_stOTZ(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
+      gte_stotz(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
       sd->otz = (sd->otz >> 1) + 0x32;
       if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
         u_long l3,l2,l1,l0;
@@ -1059,7 +1059,7 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
         *(int *)&prim->r0 = is->colour | 0x2c000000;
         gte_stsxy3(&prim->x1,&prim->x3,&prim->x2);
         gte_avsz4();
-        gte_stOTZ(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
+        gte_stotz(&sd->otz);   /* oracle stores OTZ ($7) here, not SZ3 ($19) */
         sd->otz = (sd->otz >> 1) + 0xf;
         if ((sd->otz >= 0) && (sd->otz <= Draw_gViewOtSize + -3)) {
           *((char *)prim + 3) = 9;   /* OT tag length (9 words) -- NOT prim->code */

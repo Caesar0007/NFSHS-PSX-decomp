@@ -768,7 +768,7 @@ void Hrz_BuildForkLightning(Draw_DCache *sd)
     HrzSetPsxTranslation(&trans);
     gte_ldv0((SVECTOR *)&Hrz_gLightningPosInSky_vx);
     gte_rtps();
-    gte_stSXY2(&screenPos);
+    gte_stsxy2(&screenPos);
     for (i = 0; i < (u_char)gHrz_Lightning.numForks; i = i + 1) {
       fork = &gHrz_Lightning.forks[i];
       pos.vx = fork->pos.vx + screenPos.vx;
@@ -1295,7 +1295,7 @@ void Hrz_RotProj16(int n, SVECTOR *s, int *z, DVECTOR *p)
     gte_ldv0(s);                  /* load vx,vy,vz into VXY0/VZ0 */
     gte_rtps();                   /* rotate / transform / perspective */
     s = s + 1;
-    gte_stSXY2(p);                /* store screen XY -> DVECTOR (SXY2) */
+    gte_stsxy2(p);                /* store screen XY -> DVECTOR (SXY2) */
     p = p + 1;
     gte_swc2(0x1b, z);            /* store screen Z (MAC3) -> int  [no canonical macro] */
     z = z + 1;
@@ -1635,7 +1635,7 @@ void Hrz_BuildSky(void)
          at an identical total of 458.  Every GTE opcode matches one-for-one
          (swc2 13/13, lwc2 10/10, and zero mtc2/mfc2/ctc2/cfc2/cop2 on either side), so
          there is NO remaining gte_* macro mis-selection in this function: gte_ldv3 /
-         gte_rtpt / gte_stsxy3 / gte_stsz3 / gte_ldv0 / gte_rtps / gte_stSXY2 / gte_stsz /
+         gte_rtpt / gte_stsxy3 / gte_stsz3 / gte_ldv0 / gte_rtps / gte_stsxy2 / gte_stsz /
          gte_stlvnl are all the right forms and the right arities.  The 370 residual is
          therefore ENTIRELY the register permutation the w62 receipt priced (the +1 shift
          over the caller-saved band, ~94 diffs by permtest) plus body scheduling, plus one
@@ -1652,7 +1652,7 @@ void Hrz_BuildSky(void)
         pcnt = pcnt + 1;
         scnt = scnt + 1;
         zcnt = zcnt + 1;
-        gte_stSXY2(scnt);
+        gte_stsxy2(scnt);
         gte_stsz(zcnt);
         n = n + -1;
       } while (n != -1);
@@ -1680,7 +1680,7 @@ void Hrz_BuildSky(void)
       scnt = scnt + 1;
       zcnt = zcnt + 1;
       gte_stlvnl(&transformed.vx);
-      gte_stSXY2(scnt);
+      gte_stsxy2(scnt);
       scnt->vy = (short)(transformed.vy >> 2) + (short)otz_old;
       gte_stsz(zcnt);
       n = n + -1;
@@ -1895,7 +1895,7 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
       pcnt = pcnt + 1;
       gte_stsz(&zcnt);
       if (0 < zcnt) {
-        gte_stSXY2(&scnt);
+        gte_stsxy2(&scnt);
         gte_stlvnl(&transformed.vx);
         scnt.vy = (short)((transformed.vy >> 2) + pshift);
         if ((scnt.vx <= (sd->head).clipW) && (-1 < scnt.vx) &&
@@ -2467,7 +2467,7 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
       p_ = updown[1];
       gte_ldv0(&p_);
       gte_rtps();
-      gte_stSXY2((DVECTOR *)&s_);
+      gte_stsxy2((DVECTOR *)&s_);
       *(long *)&temp2d[1] = s_;   /* MATCH: word copy (a DVECTOR assign = align-1 lwl/lwr quad) */
       /* MATCH (W74-A4, part of 25 -> 22 and the count back to EXACT): a zero-insn VOID
          FENCE stops sched1 SINKING the `sw v0,60(sp)` write-back past the second
@@ -2477,7 +2477,7 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
       p_ = updown[0];
       gte_ldv0(&p_);
       gte_rtps();
-      gte_stSXY2((DVECTOR *)&s_);
+      gte_stsxy2((DVECTOR *)&s_);
       *(long *)&temp2d[0] = s_;   /* MATCH: word copy, see above */
     }
     /* BUG FIX (round 2 diagnosis, now applied): each loop computes its OWN dx/dy delta ONCE

@@ -1431,6 +1431,36 @@ Two repeated detailed gates preserve `Hud_BuildCdPlayer` PASS 475/475 and
 `psyqproof.py` reports REAL=0 and RELOP=0 for both edited functions, and the
 vtable indexing audit remains clean.
 
+### P26 — Numbers/MenuColor source-identity reconstruction (`2026-08-24`)
+
+The refreshed game/PSX audit is recorded in
+`scratchpad/root_sym_audit/game_psx_after_menucolor_reconcile_20260824.md`.
+It advances the strict result from 372/395 to 374/395 declaration-clean
+functions and reduces generic extra source-local names from 381 to 368.
+Missing SYM names remain zero; explicit source-only codegen carriers increase
+from 252 to 260 because every retained name below now has a measured receipt.
+
+`Hud_BuildNumbers0` removes two dead block declarations of `SPRT *p`. Its seven
+formerly generic source-only identities are now individually falsified against
+natural SYM-only rewrites: reusing `y` is FAIL 54, reusing `i` is FAIL 8,
+duplicating the `etime` calls is FAIL 6, mutating `num` instead of `last` is
+FAIL 6, merging `pal_2` is FAIL 44, and inlining the remaining `p` is FAIL 73
+at 530/531. The precomputed `eSprt` already has the function's seal receipt.
+
+`DrawC_MenuColorData` removes five reconstruction-only locals. The early
+car-type check reuses the SYM `menuColor` variable before its later menu-color
+assignment; `carInfo` fields are accessed directly; and the two final palette
+calls are restored inside their natural branches, after which GCC cross-jumps
+their common call tail exactly as retail. The sole retained source-only name,
+`menuColorSlot`, has a current direct-index falsification of FAIL 26 at the
+same 136 instructions.
+
+Repeated detailed gates preserve `Hud_BuildNumbers0` PASS 531/531 and
+`DrawC_MenuColorData` PASS 136/136. Repeated whole-TU gates preserve `hud.cpp`
+at 61/62 PASS (only unchanged `Hud_RenderTacView`, 11 diffs) and confirm
+`drawc.cpp` is 20/20 PASS. `psyqproof.py` reports REAL=0 and RELOP=0 for both
+edited functions, and the vtable indexing audit remains clean.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

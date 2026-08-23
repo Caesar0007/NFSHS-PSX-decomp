@@ -2215,8 +2215,8 @@ void Hud_BuildNumbers0(int player)
   POLY_G4 *HudG4;
   int splitY;
   int y;
-  int y_2;
-  int primAddr;
+  int y_2; /* SYM-CODEGEN-CARRIER: y_2 -- reusing the SYM `y` pseudo is FAIL 54 at the same 531 instructions */
+  int primAddr; /* SYM-CODEGEN-CARRIER: primAddr -- reusing SYM `i` is FAIL 8; reusing `y` joins the FAIL-54 allocation basin */
 
   i = player;
   if (player != 0) {
@@ -2239,8 +2239,8 @@ void Hud_BuildNumbers0(int player)
   }
   if (GameSetup_gData.carInfo[player].HudTime != 0) {
     if ((DashHUD_gInfo.flashtime == 0) || ((simGlobal.gameTicks & 0x10U) == 0)) {
-      SPRT *eSprt;
-      int etime;
+      SPRT *eSprt; /* SYM-CODEGEN-CARRIER: eSprt -- precomputed call argument is the measured branch-delay-slot source shape that sealed the function */
+      int etime; /* SYM-CODEGEN-CARRIER: etime -- duplicating the calls removes this pseudo but is FAIL 6 at 531/531 */
 
       eSprt = pSprt + 12;
       if (Hud_BeTheCop != 0) {
@@ -2254,7 +2254,7 @@ void Hud_BuildNumbers0(int player)
       {
         int j;
         int num;
-        int last;
+        int last; /* SYM-CODEGEN-CARRIER: last -- mutating SYM `num` is FAIL 6; recomputing the bound is FAIL 13 at 532/531 */
         u_int *pal;
 
         num = 8;
@@ -2275,7 +2275,7 @@ void Hud_BuildNumbers0(int player)
       {
         int j;
         u_int *pal;
-        u_int *pal_2;
+        u_int *pal_2; /* SYM-CODEGEN-CARRIER: pal_2 -- merging the two packet-link ranges into `pal` is FAIL 44 at 531/531 */
 
         j = 4;
         __asm__("" : : "r"(j));
@@ -2333,7 +2333,7 @@ void Hud_BuildNumbers0(int player)
     {
       int j;
       u_char *pal;
-      SPRT *p;
+      SPRT *p; /* SYM-CODEGEN-CARRIER: p -- inlining pSprt+30 is FAIL 73 at 530/531; two other dead `p` declarations were removed */
 
       p = pSprt + 30;
       *(u_int *)&pSprt[10].u0 = *(int *)&(HudPmx_gShapes[0x76].pixmap);
@@ -2399,7 +2399,6 @@ void Hud_BuildNumbers0(int player)
       {
         int j;
         u_char *pal; /* SYM-CODEGEN-CARRIER: pal -- per-block palette-link base prevents scratch-base LICM and preserves mask birth order */
-        SPRT *p;
 
         Hud_BuildTimeString(pSprt + 30,(Cars_gHumanRaceCarList[player]->stats).checkpointDifference);
         j = 0x1e;
@@ -2439,7 +2438,6 @@ void Hud_BuildNumbers0(int player)
       {
         int j;
         u_char *pal;
-        SPRT *p;
 
         j = 0x1e;
         pal = Render_gPalettePtr;

@@ -541,31 +541,25 @@ void DrawC_MenuColorData(int color,Car_tObj *carObj,int player)
 
 {
   int menuColor;
-  int sVar1;
   int carType;
-  int carType0;
-  int iVar3;
-  GameSetup_tCarData *pGVar4;
-  Texture_pal8bit *palCopy;
   char *shpfile;
   char filename [10];
   char infilename [100];
 
-  pGVar4 = carObj->carInfo;
-  carType0 = pGVar4->carType;
+  menuColor = carObj->carInfo->carType;
   if (carObj->async_handle == 0) {
-    if ((int)(carObj->render).currentCarType != carType0) {
+    if ((int)(carObj->render).currentCarType != menuColor) {
       return;
     }
     (carObj->render).upgradeFlags =
-         (char)pGVar4->EngineMods + (char)pGVar4->WeightTransfer * '\x02' +
-         (char)pGVar4->GroundEffects * '\x04';
+         (char)carObj->carInfo->EngineMods + (char)carObj->carInfo->WeightTransfer * '\x02' +
+         (char)carObj->carInfo->GroundEffects * '\x04';
     if ((u_int)((u_short)(carObj->render).currentCarType - 0x10) < 3) {
       (carObj->render).upgradeFlags = '\a';
     }
     menuColor = color + ((u_int)(u_char)(carObj->render).upgradeFlags & 1) * 0x100 +
                 ((u_int)(u_char)(carObj->render).upgradeFlags & 2) * 0x100;
-    int *menuColorSlot = DrawC_gMenuColor + player;
+    int *menuColorSlot /* SYM-CODEGEN-CARRIER: menuColorSlot -- direct DrawC_gMenuColor[player] is FAIL 26 at the same 136 instructions and perturbs the preceding menuColor allocation */ = DrawC_gMenuColor + player;
     if (*menuColorSlot == menuColor) {
       return;
     }
@@ -591,18 +585,15 @@ void DrawC_MenuColorData(int color,Car_tObj *carObj,int player)
       }
       Texture_CarColor = (color & 7U) + ((u_char)(carObj->render).upgradeFlags & 2) * 4;
       Texture_ProcessPaletteCopy((Texture_pal8bit *)(carObj->render).palCopy,0,1);
-      iVar3 = 1;
-      palCopy = (Texture_pal8bit *)(carObj->render).palCopy;
-      sVar1 = (carObj->render).palNum;
       Texture_CarColor = (color & 7U) + ((u_char)(carObj->render).upgradeFlags & 1) * 8;
+      Texture_ProcessPaletteCopy((Texture_pal8bit *)(carObj->render).palCopy,1,
+                                 (carObj->render).palNum);
     }
     else {
-      iVar3 = 0;
-      palCopy = (Texture_pal8bit *)(carObj->render).palCopy;
-      sVar1 = (carObj->render).palNum;
       Texture_CarColor = color & 7;
+      Texture_ProcessPaletteCopy((Texture_pal8bit *)(carObj->render).palCopy,0,
+                                 (carObj->render).palNum);
     }
-    Texture_ProcessPaletteCopy(palCopy,iVar3,sVar1);
   }
   (carObj->render).colorIndex = (short)color;
   return;

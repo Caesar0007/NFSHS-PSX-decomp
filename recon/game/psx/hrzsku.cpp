@@ -1729,8 +1729,8 @@ void Hrz_BuildSky(void)
                 POLY_GT4 *prim;
                 Draw_tPixMap *pmx;
 
-                u_int *slot;
-                u_long c0;
+                u_int *slot; /* SYM-CODEGEN-CARRIER: slot -- one staged OT address prevents post-store global re-evaluation (+16 insns) */
+                u_long c0; /* SYM-CODEGEN-CARRIER: c0 -- split colour load/bump/store fills the retail packet load-delay slot */
                 /* MATCH (W74-A4, 208 -> 152): prim, slot, pmx IN THIS ORDER.  Statement
                    order in these prim blocks was recorded "canonicalised" by w42/w63 --
                    that was measured in the OLD (cached-spec) basin; in the faithful one
@@ -1746,7 +1746,7 @@ void Hrz_BuildSky(void)
                    off the `pmx` load decouples the two: the address appears first, the load
                    stays last.  The block is BORN IN THE LOOP so loop.c hoists it (21B(3)).
                    The FT4/G4 twin is redundant (GT4 is generated first): measured identical. */
-                Draw_tPixMap **hpb = gHorizonPixmap;
+                Draw_tPixMap **hpb /* SYM-CODEGEN-CARRIER: hpb -- split table-base appearance is the measured 150->146 hoist-order lever */ = gHorizonPixmap;
                 prim = (POLY_GT4 *)Render_gPacketPtr;
                 slot = (u_int *)(Draw_gViewOtSize * 4 + Render_gPalettePtr);
                 pmx = hpb[gSkyPixmapIndex[i]];
@@ -1786,8 +1786,8 @@ void Hrz_BuildSky(void)
                 POLY_FT4 *prim;
                 Draw_tPixMap *pmx;
 
-                u_int *slot;
-                u_int tag;
+                u_int *slot; /* SYM-CODEGEN-CARRIER: slot -- shared carrier for the same PsyQ OT cell across the packet-pointer store */
+                u_int tag; /* SYM-CODEGEN-CARRIER: tag -- stages the OT word so the packet-pointer store remains between load and store */
                 /* MATCH (W74-A4, -2): same prim, slot, pmx order as the GT4 block. */
                 prim = (POLY_FT4 *)Render_gPacketPtr;
                 slot = (u_int *)(Draw_gViewOtSize * 4 + Render_gPalettePtr);
@@ -1821,8 +1821,8 @@ void Hrz_BuildSky(void)
             else {
               POLY_G4 *prim;
 
-              u_int *slot;
-              u_long c0;
+              u_int *slot; /* SYM-CODEGEN-CARRIER: slot -- retains the G4 block's single-evaluation OT address */
+              u_long c0; /* SYM-CODEGEN-CARRIER: c0 -- preserves the G4 load-delay-filling split */
               prim = (POLY_G4 *)Render_gPacketPtr;
               slot = (u_int *)(Draw_gViewOtSize * 4 + Render_gPalettePtr);
               prim->tag = prim->tag & 0xff000000 | slot[-2] & 0xffffff;

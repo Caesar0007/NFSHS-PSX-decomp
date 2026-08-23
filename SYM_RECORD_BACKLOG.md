@@ -1720,6 +1720,31 @@ Repeated whole-TU gates preserve `hud.cpp` at 61/62 PASS with only this same
 function outstanding; the adjacent `Hud_RenderMapView` remains PASS 161/161,
 and the vtable indexing audit remains clean.
 
+### P37 — Sky-builder compiler-carrier classification (`2026-08-24`)
+
+The refreshed strict game/PSX declaration audit is recorded in
+[`game_psx_after_buildsky_reconcile_20260824.md`](scratchpad/root_sym_audit/game_psx_after_buildsky_reconcile_20260824.md).
+It advances the result from 383/395 to 384/395 declaration-clean functions,
+reduces generic extra source-local names from 293 to 289, and preserves zero
+missing SYM names and zero raw type findings.
+
+`Hrz_BuildSky`'s four non-SYM identities are now tied to their existing
+measured source/codegen receipts rather than left as generic review findings.
+The block-local `hpb` split makes the pixmap-table address appear first to
+loop.c while leaving the indexed load last (the measured 150-to-146 lever).
+`c0` splits the first colour load from its packet store so the cursor bump fills
+the load-delay slot. `slot` keeps each PsyQ OT cell single-evaluated across an
+aliasing packet-pointer store; repeating the full expression adds 16
+instructions. `tag` stages the FT4 OT word so that same packet-pointer store
+can remain between the OT read and write.
+
+The authoritative function remains count-exact at 458/458 with 146 differences;
+this checkpoint classifies reliable SYM/source information without claiming
+that the remaining allocation rotations are solved. Two whole-TU gates preserve
+`hrzsku.cpp` at 20/22 PASS with the same `Hrz_BuildHorizon` 12 and
+`Hrz_BuildSky` 146 residuals. The adjacent `Hrz_SetDitheringPrim` remains PASS
+34/34, and the vtable indexing audit remains clean.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

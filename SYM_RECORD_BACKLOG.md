@@ -1399,6 +1399,38 @@ Two repeated detailed gates preserve `startIntrDMA` PASS 19/19,
 the naming correction is codegen-neutral. `tools/slotcheck.py` reports
 `bad = 0`, and the vtable indexing audit remains clean.
 
+### P25 — Hud/DrawW source-semantic reconciliation (`2026-08-24`)
+
+The current game/PSX declaration audit is recorded in
+`scratchpad/root_sym_audit/game_psx_after_spike_reconcile_20260824.md`.
+It advances the strict result from 370/395 to 372/395 declaration-clean
+functions and reduces generic extra source-local names from 395 to 381.
+Missing SYM names remain zero; the sole type finding remains the separately
+receipted `DrawC_PrimClip::facetFlag` case.
+
+`Hud_BuildCdPlayer` now spells its unused second `int` parameter without an
+invented name. The `Fii` mangling proves the parameter's type and position,
+while the function's complete SYM block names only `type`; the unnamed C++
+parameter is therefore the strongest recoverable source form. Seven remaining
+source-only compiler-shaping names now carry individual measured
+`SYM-CODEGEN-CARRIER` receipts. In particular, directly testing the activation
+condition removes `bVar2`/`uVar5` but is FAIL 5 at 474/475 instructions, so
+that tempting cleanup was rejected rather than weakening the PASS.
+
+`DrawW_BuildSpikeBelt` removes the fabricated `sdG` alias and uses the typed
+view of the existing SYM parameter `sd` directly with unchanged codegen. Its
+five remaining source-only GIV/allocation names have explicit W74-W76 receipts;
+removing the `p`/`q` address pseudos was independently re-tested here and is
+FAIL 145 at 279/268 instructions, so they are retained as proven codegen
+carriers rather than generic review rows.
+
+Two repeated detailed gates preserve `Hud_BuildCdPlayer` PASS 475/475 and
+`DrawW_BuildSpikeBelt` PASS 268/268. Two repeated whole-TU gates preserve
+`hud.cpp` at 61/62 PASS (only the unchanged `Hud_RenderTacView`, 11 diffs) and
+`draww.cpp` at 31/35 PASS (the same four pre-existing residuals: 8/9/20/66).
+`psyqproof.py` reports REAL=0 and RELOP=0 for both edited functions, and the
+vtable indexing audit remains clean.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

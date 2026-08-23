@@ -6913,6 +6913,14 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
 void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
 
 {
+  /* The following source-only names are measured compiler-shaping carriers,
+     not asserted retail debug locals.  Their exact alternatives are priced in
+     the W74-W76 receipt below:
+     SYM-CODEGEN-CARRIER: so -- bare offset preserves both loop.c GIVs.
+     SYM-CODEGEN-CARRIER: dof -- destination-first GIV discovery fixes the handout.
+     SYM-CODEGEN-CARRIER: p -- removing the source address pseudos is FAIL 145 (279/268).
+     SYM-CODEGEN-CARRIER: q -- paired destination address pseudo is part of that result.
+     SYM-CODEGEN-CARRIER: vt -- one reused subtrahend temp is PASS; three temps are FAIL 44 and a pointer is FAIL 51. */
   /* MATCH (w11-a9): full rule-8 SYM rewrite (SYM @0x800CA520) -- REAL local set
      {i,j,vertex3d,wx,wy,wz,fx,fy,fz,sx,sy,sz,slice,cp,quads,material,tmp,tmp2};
      the prior draft used ~15 Ghidra temps (uVar6-8/sVar13-18/iVar9-14/pTVar10/
@@ -7251,8 +7259,7 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
   material.mipmap_offset = 0;
   material.pmxIndex = *(u_short *)&gInitialArt.shapeCount - 1;
   {
-    Draw_tGiveShelbyMoreCache *sdG = (Draw_tGiveShelbyMoreCache *)sd;
-    sdG->nightFlags = 0;
+    ((Draw_tGiveShelbyMoreCache *)sd)->nightFlags = 0;
     /* MATCH (w74-a1, 46 -> 30 count-exact): retail loads the SUBTRAHEND
        (the view translation) BEFORE the minuend at every axis --
        `lw $t4,456(sp); lw $t3,408(sp); lw $v1,8($t4); lw $v0,0($t3)`.
@@ -7268,16 +7275,16 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
     tmp.z = cp->z - vt; }
     transform(&tmp.x,gWorldMat.m,&tmp2.x);
     DrawW_WorldSetUpTranslation(&tmp2,&sd->matB);
-    sdG->vertices = vertex3d;
-    sdG->quadCount = 0x10;
-    sdG->quads = quads;
-    sdG->offset = 0x23;
-    sdG->materials = &material;
-    *(int *)&sdG->trans = 0;
-    sdG->trans.z = 0;
-    sdG->zeroGTETransFlag = 0;
-    sdG->light = -1;
-    DrawW_kCtrlWorld_High(sdG);
+    ((Draw_tGiveShelbyMoreCache *)sd)->vertices = vertex3d;
+    ((Draw_tGiveShelbyMoreCache *)sd)->quadCount = 0x10;
+    ((Draw_tGiveShelbyMoreCache *)sd)->quads = quads;
+    ((Draw_tGiveShelbyMoreCache *)sd)->offset = 0x23;
+    ((Draw_tGiveShelbyMoreCache *)sd)->materials = &material;
+    *(int *)&((Draw_tGiveShelbyMoreCache *)sd)->trans = 0;
+    ((Draw_tGiveShelbyMoreCache *)sd)->trans.z = 0;
+    ((Draw_tGiveShelbyMoreCache *)sd)->zeroGTETransFlag = 0;
+    ((Draw_tGiveShelbyMoreCache *)sd)->light = -1;
+    DrawW_kCtrlWorld_High((Draw_tGiveShelbyMoreCache *)sd);
   }
   return;
 }

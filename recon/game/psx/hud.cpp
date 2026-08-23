@@ -247,7 +247,7 @@ void Hud_BuildMapMarkers(int player);
 void Hud_WingmanFlash(int player,int index);
 void Hud_BuildWingmanInterface(int player);
 void Hud_InitCdPlayer(void);
-void Hud_BuildCdPlayer(int type,int arg1);
+void Hud_BuildCdPlayer(int type,int);
 int Hud_BuildRadar(int player);
 void Hud_BuildReplay(void);
 int Hud_NextPlayer(int player);
@@ -3900,18 +3900,18 @@ void Hud_InitCdPlayer(void)
  * In the third arm, spelling the title-present and title-null cases as a real if/else keeps
  * the later `beqz title` as the join owner.  Reorg then places `artist = 0` in the earlier
  * bnez slot and `a0 = title` in the later beqz slot exactly as retail. */
-void Hud_BuildCdPlayer(int type,int arg1)
+void Hud_BuildCdPlayer(int type,int)
 
 {
-  int bVar2;
+  int bVar2; /* SYM-CODEGEN-CARRIER: bVar2 -- direct condition spelling is FAIL 5 (474/475); this flag preserves retail's materialized $s0 join value */
   int sec;
   /* MATCH (w75-a4): the two fold-const escape carriers for the Hud_BuildString x-args
    * (see the cluster-(4) receipt above the function).  NOT SYM locals -- both are
    * const-propagated back to their literals by RTL cse, so they cost ZERO insns; they
    * exist only to keep fold-const.c's associate: block from splitting the two trees. */
-  int dxk;
-  int scz;
-  u_int uVar5;
+  int dxk; /* SYM-CODEGEN-CARRIER: dxk -- fold-constant escape for the exact Hud_BuildString x tree */
+  int scz; /* SYM-CODEGEN-CARRIER: scz -- paired fold-constant escape for the exact scroll subtraction tree */
+  u_int uVar5; /* SYM-CODEGEN-CARRIER: uVar5 -- direct PAD_state tests are part of the measured FAIL-5 direct-condition form; comma staging preserves the retail call-result web */
   int w;
   int tx;
   char *s;
@@ -4101,7 +4101,7 @@ HudCdPlay_nullStringFallback:
      * between the stores (all 33-34). */
 HudCdPlay_scrollTick:
     {
-      int lt = Hud_gCdLastTick;
+      int lt /* SYM-CODEGEN-CARRIER: lt -- no-local form is FAIL 39; the measured laundered load is required for retail's $a0 coloring */ = Hud_gCdLastTick;
       __asm__("" : "=r"(lt) : "0"(lt) : "$3");
       if (ticks > lt) {   /* operand order: oracle loads ticks FIRST */
         /* MATCH (w75-a4): a COMPUTED ref-step (21A-4) on the lastTick+4 quantity.  The
@@ -4114,7 +4114,7 @@ HudCdPlay_scrollTick:
          * n = 0/1/2/3/4/5 -> 23/23/15/15/15/15, so 2 is the minimum operand count.  The
          * fence MUST sit before the `Hud_gCdLastTick` store: after it the range is already
          * closed and every n costs +1 insn (24 @477). */
-        int lt4 = lt + 4;
+        int lt4 /* SYM-CODEGEN-CARRIER: lt4 -- two-operand ref step is the measured minimum that reverses the two local QTY handouts */ = lt + 4;
         __asm__("" : : "r"(lt4),"r"(lt4));
         Hud_gCdLastTick = lt4;
         Hud_gCdScrollTitle = Hud_gCdScrollTitle + 1;
@@ -4139,7 +4139,7 @@ HudCdPlay_scrollTick:
    * whole preheader is now instruction-for-instruction retail's; the residual there is
    * only the $a3<->$t0 assignment of the two hoisted values. */
   if (*title != 0) {
-    int i = 0;
+    int i /* SYM-CODEGEN-CARRIER: i -- indexed-GIV form preserves the measured retail title+0x3f elimination group */ = 0;
     /* exit-in-the-middle `while(1)`: the do/while form let gcc PEEL the bound test into
      * the preheader AND re-test it at the bottom; the oracle (.L800D67E4) tests the bound
      * ONCE at the top and uses the *p!=0 test as the conditional back-edge. */
@@ -6358,3 +6358,4 @@ void Hud_Perp_OverlayOff(int player)
 }
 
 /* end of hud.cpp */
+  u_int uVar5;

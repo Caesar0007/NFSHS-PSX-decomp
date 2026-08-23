@@ -1583,6 +1583,38 @@ pre-existing residuals (8/9/20/66). Production PsyQ proof with the existing
 validated text moves reports REAL=0 and RELOP=0, and the vtable indexing audit
 remains clean.
 
+### P32 — Transformed-object inline-helper reconstruction (`2026-08-24`)
+
+The refreshed strict game/PSX declaration audit is recorded in
+[`game_psx_after_transform_reconcile_20260824.md`](scratchpad/root_sym_audit/game_psx_after_transform_reconcile_20260824.md).
+It advances the result from 379/395 to 380/395 declaration-clean functions and
+reduces generic extra source-local names from 320 to 309. Missing SYM names
+remain zero, and the object-owned data result remains 0 missing / 61 extra
+definitions.
+
+`DrawObjectTransform` removes the fabricated integer address carrier
+`mat_local`. The matrix tail is now expressed as a second block-local
+`MATRIX *m`, matching the inline-helper source scope already used in the night
+matrix block. This preserves the retail `$s0` matrix base and remains byte-exact;
+making the entire tail use direct `&sd->matB` expressions is current FAIL 4 at
+the same 214 instructions.
+
+The ten remaining source-only identities now carry explicit evidence. Directly
+using `objDef->vertexCount` is current FAIL 4/214; directly testing
+`gNight_renderNight` is FAIL 10/214; and replacing the early `shapeDef_p` load
+and later store with direct `Track_materials` access is FAIL 12/214 at both
+natural statement positions. The existing SLD/oracle receipt records the
+three-axis `posX`/`posY`/`posZ` and `tX`/`tY`/`tZ` split-load shape: folding the
+axes expands the function to 217 instructions against retail's 214. The two
+block-local `m` declarations therefore represent one measured inline-helper
+identity rather than the removed reconstruction-only integer alias.
+
+Two repeated detailed gates preserve `DrawObjectTransform` PASS 214/214 and
+`DrawObjectSimple` PASS 189/189. Two repeated whole-TU gates preserve
+`draww.cpp` at 31/35 PASS with the same four pre-existing residuals
+(8/9/20/66). Production PsyQ proof reports REAL=0 and RELOP=0, and the vtable
+indexing audit remains clean.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

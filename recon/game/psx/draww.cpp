@@ -4197,13 +4197,12 @@ int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk
      DrawW_DoLines lever -- OVERSHOOTS to 217/191 instead of landing exact 214, so
      reverted both times; not a straight port here. RESIDUAL 88 = this pointer-
      chase deficit + further register-coloring cascade. */
-  int mat_local;
   matrixtdef mattemp;
   coorddef tmp;
   coorddef tmp2;
-  int isCullable;  /* MATCH: int not u_char -- u_char local emitted bogus andi 255 */
-  Track_tMaterial *shapeDef_p;
-  int drawResult;
+  int isCullable;  /* SYM-CODEGEN-CARRIER: isCullable -- direct objDef->vertexCount is current FAIL 4/214 */
+  Track_tMaterial *shapeDef_p; /* SYM-CODEGEN-CARRIER: shapeDef_p -- both direct Track_materials placements are current FAIL 12/214 */
+  int drawResult;  /* SYM-CODEGEN-CARRIER: drawResult -- direct gNight_renderNight guard is current FAIL 10/214 */
 
   /* w46-a7 RECEIPT -- 5 diffs, ours 190 / oracle 189 (the +1 is a load-delay `nop`).
      PROLOGUE PARAM-COPY SINK (the same named class as DrawW_DoLines in this TU):
@@ -4240,9 +4239,9 @@ int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk
     if (((Cars_gList[Vi->player]->control).lights & 6U) != 0) {
       *(u_char *)((int)sd[1].matB.t + 2) = 5;
     }
-    { int posX = ((Camera_gInfo[Vi->player].target)->position).x; tmp.x = pCp->x - posX; }
-    { int posY = ((Camera_gInfo[Vi->player].target)->position).y; tmp.y = pCp->y - posY; }
-    { int posZ = ((Camera_gInfo[Vi->player].target)->position).z; tmp.z = pCp->z - posZ; }
+    { int posX = ((Camera_gInfo[Vi->player].target)->position).x; /* SYM-CODEGEN-CARRIER: posX -- split target-position loads preserve the retail pointer chase */ tmp.x = pCp->x - posX; }
+    { int posY = ((Camera_gInfo[Vi->player].target)->position).y; /* SYM-CODEGEN-CARRIER: posY -- y-axis member of the measured split-load shape */ tmp.y = pCp->y - posY; }
+    { int posZ = ((Camera_gInfo[Vi->player].target)->position).z; /* SYM-CODEGEN-CARRIER: posZ -- direct three-axis source previously expands to 217/214 instructions */ tmp.z = pCp->z - posZ; }
     transform(&tmp.x,gNightMat.m,&tmp2.x);
     DrawW_WorldSetUpTranslation(&tmp2,&sd->matNight);
     if (BW_gCopCarObj != (Car_tObj *)0x0) {
@@ -4254,16 +4253,16 @@ int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk
       DrawW_WorldSetUpTranslation(&tmp2,&sd->matCop);
     }
     {
-      MATRIX *m = (MATRIX *)&(sd->matB);
+      MATRIX *m = (MATRIX *)&(sd->matB); /* SYM-CODEGEN-CARRIER: m -- shared inline-helper name; fully direct matB bases are current FAIL 4/214 */
       m->t[2] = 0;
       m->t[1] = 0;
       (sd->matB).t[0] = 0;
 gte_SetTransMatrix(m);
     }
   }
-  { int tX = (Vi->cview).translation.x; tmp.x = pCp->x - tX; }
-  { int tY = (Vi->cview).translation.y; tmp.y = pCp->y - tY; }
-  { int tZ = (Vi->cview).translation.z; tmp.z = pCp->z - tZ; }
+  { int tX = (Vi->cview).translation.x; /* SYM-CODEGEN-CARRIER: tX -- split view-translation loads preserve retail issue order */ tmp.x = pCp->x - tX; }
+  { int tY = (Vi->cview).translation.y; /* SYM-CODEGEN-CARRIER: tY -- y-axis member of the measured split-load shape */ tmp.y = pCp->y - tY; }
+  { int tZ = (Vi->cview).translation.z; /* SYM-CODEGEN-CARRIER: tZ -- folding the three axes belongs to the prior 217/214 instruction basin */ tmp.z = pCp->z - tZ; }
   TrsProj_SetPsxTransZero();
   TrsProj_TransPt(&tmp,&tmp2);
   if (offset == -1) {
@@ -4275,17 +4274,19 @@ gte_SetTransMatrix(m);
   *(u_int *)(sd[1].matB.m[0] + 2) = 0;
   sd[1].matB.m[1][1] = 0;
   Math_fasttransmult(matrix,&gWorldMat,&mattemp);
-  mat_local = (int)&sd->matB;
-  DrawW_WorldSetUpMatrix(&mattemp,(MATRIX *)mat_local);
-  DrawW_WorldSetUpTranslation(&tmp2,(MATRIX *)mat_local);
-  *(u_char *)((int)sd[1].matB.t + 3) = 0;
-  sd->light = light;
-  DrawW_kCtrlWorld_High((Draw_tGiveShelbyMoreCache *)sd);
-  DrawW_WorldSetUpMatrix(&gWorldMat,(MATRIX *)mat_local);
-  ((MATRIX *)mat_local)->t[2] = 0;
-  ((MATRIX *)mat_local)->t[1] = 0;
-  (sd->matB).t[0] = 0;
-gte_SetTransMatrix((MATRIX *)mat_local);
+  {
+    MATRIX *m = (MATRIX *)&sd->matB;
+    DrawW_WorldSetUpMatrix(&mattemp,m);
+    DrawW_WorldSetUpTranslation(&tmp2,m);
+    *(u_char *)((int)sd[1].matB.t + 3) = 0;
+    sd->light = light;
+    DrawW_kCtrlWorld_High((Draw_tGiveShelbyMoreCache *)sd);
+    DrawW_WorldSetUpMatrix(&gWorldMat,m);
+    m->t[2] = 0;
+    m->t[1] = 0;
+    (sd->matB).t[0] = 0;
+gte_SetTransMatrix(m);
+  }
   return (u_int)objDef->quadCount;
 }
 

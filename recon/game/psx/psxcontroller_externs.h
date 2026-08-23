@@ -2,8 +2,7 @@
 #ifndef _GAME_PSX_PSXCONTROLLER_EXTERNS_H_
 #define _GAME_PSX_PSXCONTROLLER_EXTERNS_H_
 
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "psxcontroller_types.h"
 
 /* ---- globals ---- */
 extern int             Input_gHandler[];        /* 0x80113c14  per-control packed input descriptor */
@@ -13,8 +12,10 @@ extern Car_tObj       *Cars_gHumanRaceCarList[];/* 0x8010fa48 */
 extern int             Cars_gNumHumanRaceCars;  /* 0x8013c800 */
 extern int             Replay_ReplayMode;       /* 0x8013d3f4 */
 extern int             hoff[] __asm__("D_8013DAC0");                  /* 0x8013dac0  per-player input-handler base offset */
-extern tPadModuleState gPadinfo;                /* 0x8013e89c */
-extern GameSetup_tData GameSetup_gData;          /* 0x801131ec */
+extern u_char PSXController_gPadBytes[][8] asm("gPadinfo"); /* 0x8013e89c */
+extern int GameSetup_gData[];                    /* 0x801131ec */
+
+extern "C" void PAD_update(void);
 
 /* ---- helpers ---- */
                     /* eaclib PADPSXZ */

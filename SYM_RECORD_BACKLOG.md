@@ -37,7 +37,7 @@ they are not silently collapsed into a smaller denominator.
   explicit per-record semantic-review row.  Nothing is silently dropped from
   the denominator.
 - A strict compiler-emitted type-graph comparison now distinguishes retail
-  subset coverage from actual per-object source visibility.  Seventy-five owners are
+  subset coverage from actual per-object source visibility.  Seventy-six owners are
   semantically exact: `memcard.obj`, `mdec.obj`, `video.obj`, `FETexture.obj`,
   `textpix.obj`, `textpsx.obj`, `unpack.obj`, `fastrand.obj`, and
   `aiscript.obj`, `new.obj`, `paths.obj`, `textsys.obj`, `simplemem.obj`,
@@ -53,8 +53,8 @@ they are not silently collapsed into a smaller denominator.
   `newton.obj`, `camera.obj`, `TrackSpec.obj`, `loading.obj`, `texture.obj`, and
   `Draw.obj`, `Sfx.obj`, `TrsProj.obj`, `CarIO.obj`, `platform.obj`, and
   `force.obj`, `audio.obj`, `overlays.obj`, `Weather.obj`, `rpause.obj`, and
-  `hrzsku.obj`, `TextureProcess.obj`, `Skidmark.obj`, `fe3dmenu.obj`, and
-  `device.obj`.
+  `hrzsku.obj`, `TextureProcess.obj`, `Skidmark.obj`, `fe3dmenu.obj`,
+  `device.obj`, and `psxcontroller.obj`.
   The remaining mapped C++
   units still expose reconstruction-only declarations through the monolithic
   `nfs4_types.h` include graph and therefore are not yet source-exact.
@@ -770,6 +770,22 @@ rewrite entry.  The local, undefined-symbol, build-route, and gate evidence is
 retained in the
 [`device source-authority receipt`](scratchpad/root_sym_audit/device_source_authority_receipt_20260823.txt).
 
+`psxcontroller.obj` is now strict-exact through the same guarded
+`gmesetup.obj` surface, with the foreign owning `GameSetup_tData` and
+`FEI_tList` bodies omitted.  Its two opaque external objects are represented
+by exact-symbol scalar/array views: `GameSetup_gData` supplies the attested
+word offsets without importing its foreign body, while `gPadinfo` preserves
+the retail eight-byte row/index tree.  The final graph is 86/86 named and 2/2
+anonymous with no extra type or typedef semantics.  `InGame_ResetPSXController`,
+`InGame_GetDevice`, and `InGame_SetRamp` retain PASS; the detailed local-scope
+receipt explicitly keeps two non-exact items open: `InGame_GetPSXPadValue`'s
+`newControl` currently occupies `$a0` instead of retail `$v0`, and SetRamp's
+load-bearing block-local `hb` has no retail record.  The current type-graph and
+scope evidence is retained in
+[`type_graph_psxcontroller_w78_current_20260823.tsv`](scratchpad/root_sym_audit/type_graph_psxcontroller_w78_current_20260823.tsv)
+and
+[`psxcontroller scope audit`](scratchpad/root_sym_audit/psxcontroller_scope_audit_20260823.md).
+
 The mapped C++ units cover all retail named and anonymous type bodies, but are
 not source-exact while they expose unrelated monolithic-header declarations or
 miss owner-specific typedef variants.  The three C units that previously had
@@ -777,6 +793,7 @@ genuine missing retail type sets are now exact.
 
 Strict evidence:
 
+- [`type_graph_game_psx_after_psxcontroller_20260823.tsv`](scratchpad/root_sym_audit/type_graph_game_psx_after_psxcontroller_20260823.tsv)
 - [`type_graph_frontend_psx_strict_after_round_20260821.tsv`](scratchpad/root_sym_audit/type_graph_frontend_psx_strict_after_round_20260821.tsv)
 - [`type_graph_game_psx_strict_after_c_units_20260821.tsv`](scratchpad/root_sym_audit/type_graph_game_psx_strict_after_c_units_20260821.tsv)
 - [`type_graph_frontend_common_strict_20260821.tsv`](scratchpad/root_sym_audit/type_graph_frontend_common_strict_20260821.tsv)
@@ -881,7 +898,8 @@ Strict evidence:
   [`textureprocess`](scratchpad/root_sym_audit/type_graph_textureprocess_final_20260823.tsv), and
   [`skidmark`](scratchpad/root_sym_audit/type_graph_skidmark_final_20260823.tsv), and
   [`fe3dmenu`](scratchpad/root_sym_audit/type_graph_fe3dmenu_final_20260823.tsv), and
-  [`device`](scratchpad/root_sym_audit/type_graph_device_final_20260823.tsv).
+  [`device`](scratchpad/root_sym_audit/type_graph_device_final_20260823.tsv), and
+  [`psxcontroller`](scratchpad/root_sym_audit/type_graph_psxcontroller_w78_current_20260823.tsv).
 
 Required closure:
 

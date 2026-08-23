@@ -3,9 +3,7 @@
  *   (axis selector -> packed control word, per controller type + per-player range cal),
  *   InGame_GetDevice (control & 0xff), InGame_SetRamp (digital-input -> disable analog ramp). No GTE.
  */
-#include "../../nfs4_types.h"
 #include "psxcontroller_externs.h"
-
 
 /* ---- InGame_ResetPSXController__Fii  [PSXCONTROLLER.CPP:97-163] SLD-VERIFIED ----
  * w39-a7: 334 -> 254 diffs, instruction count now EXACT 305/305.  Four fixes, each
@@ -24,8 +22,10 @@
  *      (REG $0x13 = $s3); there is no `v`.  One long-lived `v` spanning both
  *      carFlags arms forced a copy trio (`addu a0,a1,zero; ori a1,a1,6; addu
  *      a0,a1,zero`) at each of the three `| 6` sites where the oracle ORs in place
- *      (`nop; ori a0,a0,6`).  Giving each independent site its own block-scoped
- *      `int m` collapses them and makes the count exact.  (-50, 307->305 insns)
+ *      (`nop; ori a0,a0,6`).  At this intermediate wave, giving each site a
+ *      block-scoped `int m` collapsed them and made the count exact; W76 later
+ *      recovered the same code with SYM-exact conditional call arguments.
+ *      (-50, 307->305 insns)
  *      The remaining function-scope `v` is real: the Time if/else assigns it in
  *      both arms and it is consumed after the join (h[0x54]).
  *  (5) the 3-way type classification is spelled as a NESTED if (`if (type != 0x23)
@@ -97,9 +97,23 @@ void InGame_ResetPSXController(int player,int config)
   int type;
   int *h;
 
-  type = gPadinfo.buf[player * 4].ID;
+  type = PSXController_gPadBytes[player * 4][5];
   h = Input_gHandler;
   type = (type == 0x23) ? 0 : (((type == 0x53) || (type == 0x73)) ? 1 : 2);
+  /* Exact-SYM lifetime probe: express every related address from the same
+     player-scaled byte offset without introducing a source local. */
+#define INGAME_PLAYER_OFFSET (player << 2)
+#define INGAME_CONTROL_TYPE (frontEnd.controlType[player])
+#define INGAME_PAD_ID (PSXController_gPadBytes[INGAME_PLAYER_OFFSET][5])
+  if (INGAME_CONTROL_TYPE != (u_short)INGAME_PAD_ID) {
+    INGAME_CONTROL_TYPE = (u_short)INGAME_PAD_ID;
+  }
+  ((GameSetup_tControllerData *)(INGAME_PLAYER_OFFSET +
+                                 (int)&GameSetup_gData))
+      ->controllerConfig[24] = config;
+#undef INGAME_PAD_ID
+#undef INGAME_CONTROL_TYPE
+#undef INGAME_PLAYER_OFFSET
   /* w46-a8 (40 -> 21): the store is BACK at retail's position (after the controlType if)
      and the w41 lever-(7) job -- making the `player*4` giv a GLOBAL allocno instead of a
      block-local qty that steals $s0 pre-global-alloc -- is done by a ZERO-INSN USE FENCE
@@ -180,54 +194,24 @@ void InGame_ResetPSXController(int player,int config)
          260 (`player << 2` and `player * 4` identical), with the fence 5.  Spelling ALL
          ~28 hoff sites cast-int: without the fence 254, with the fence 3 and
          bit-identical to the kept minimal three-site form -- so the minimal edit stays.
-   ---- w61-a15 (2026-08-15): 3 -> **PASS 305/305** via PER_FN_TEXT_MOVES; the source
-   axis is now CLOSED WITH A CITED MECHANISM, not a guess.
-   🔑 WHY NO SOURCE DEVICE CAN EVER WORK (gcc-2.8.1 reorg.c `stop_search_p`, lines
-   685-712): the backward delay-slot scan in `fill_simple_delay_slots` terminates
-   unconditionally at ANY asm insn --
-       case INSN: return (GET_CODE (PATTERN (insn)) == SEQUENCE
-                          || GET_CODE (PATTERN (insn)) == ASM_INPUT
-                          || asm_noperands (PATTERN (insn)) >= 0);
-   So a read-only fence ANYWHERE in the pre-branch block hides EVERY insn before it
-   from the scan -- including the `sll $21,$18,2` the fence itself exists to pin
-   there.  And the fence must be pre-branch (a late def/use pair does not make the
-   pseudo global; no fence = 254).  The two requirements are therefore mutually
-   exclusive BY THE COMPILER'S OWN CODE: fence pre-branch => scan blocked => reorg
-   falls through to the target steal and duplicates `lui $2,%hi(GameSetup_gData)`
-   (306); no fence => the giv is block-local, local-alloc grabs $s0 and the whole
-   6-way saved-reg rotation returns (254).  This retires the w60-a7 "open angle".
-   NEWLY FALSIFIED THIS WAVE (all from the 3 basin, all reconfirming the above):
-   hoisting the compare's two OPERANDS into locals so the fence is emitted LAST
-   pre-branch -- `int ct`/`int id` + fence + `if (ct != id)` 3 (bit-identical,
-   i.e. the operand hoist is inert); the same non-volatile 3; the same with the
-   ORIGINAL top-of-block fence kept as well 3; `u_short ct`/`u_short id` 22 @303;
-   the fence carrying `"r"(ct)` as a second operand 9 @306.
-   ⇒ ORCHESTRATOR ACTION -- wire this PER_FN_TEXT_MOVES row (probe-verified PASS
-   twice, TU-mates byte-unchanged: SetRamp 13, GetPSXPadValue 257, GetDevice PASS):
-       "recon/game/psx/psxcontroller.cpp": {
-           "InGame_ResetPSXController__Fii": [
-               {"take": r"\tsll\t\$21,\$18,2\n(?= \#APP\n)",
-                "after": r"\tbeq\t\$3,\$2,\$L\d+\n",
-                "drop_after": r"\tlui\t\$2,%hi\(GameSetup_gData\) \# high\n"},
-               {"take": r"\tlui\t\$2,%hi\(GameSetup_gData\) \# high\n"
-                        r"(?=\$L\d+:\n\taddiu\t\$2,\$2,%lo\(GameSetup_gData\))",
-                "after": r"\$L\d+:\n"
-                         r"(?=\taddiu\t\$2,\$2,%lo\(GameSetup_gData\) \# low\n"
-                         r"\taddu\t\$2,\$21,\$2\n)"},
-           ],
-       },
-   Move 1 puts the giv `sll $s5,$s2,2` in the controlType `beq`'s delay slot and
-   DELETES the eager-stolen `lui` duplicate (this is exactly retail's simple fill).
-   Move 2 slides the `$L` merge label ABOVE the surviving `lui %hi(GameSetup_gData)`
-   so both paths reach it once -- semantically identical to what we emit today and
-   byte-identical to retail.  All anchors are label-agnostic and verified unique in
-   the region (1 match each; the `lui %hi(GameSetup_gData)` pair is disambiguated by
-   lookahead).  Probe harness: scratchpad/w61a15/textmove_probe.py. */
-  __asm__ volatile("" : : "r"(player * 4));
-  if (frontEnd.controlType[player] != (u_short)gPadinfo.buf[player * 4].ID) {
-    frontEnd.controlType[player] = (u_short)gPadinfo.buf[player * 4].ID;
-  }
-  GameSetup_gData.controllerData.controllerConfig[player] = config;
+   ---- W76 SYM-exact source correction (2026-08-23): **PASS 305/305**, no helper,
+   no fence, and no post-compile text move.  The load-bearing spelling is a macro-only
+   source quantity `INGAME_PLAYER_OFFSET = player << 2`, used both as the gPadinfo row
+   index and as the later GameSetup owner offset.  Unlike `player * 4`, gcc does not fold
+   this spelling back into ARRAY_REF before allocation: it remains live across the
+   controlType branch, becomes the retail `$s5` global allocno, and reorg places its
+   `sll $s5,$s2,2` in the branch delay slot.  Natural `frontEnd.controlType[player]`
+   keeps the retail address/load shape.  The exact-graph owner-base carrier stores via
+   controllerConfig[24] (owner byte 0x60) without importing absent GameSetup owner types.
+   The earlier inline-helper PASS was a useful allocation proof but emitted an extra
+   full-debug inline scope and is superseded.
+
+   The four reconstruction-only block locals named `m` were also removed.  Their exact
+   retail spelling is the conditional call argument `(type == 1) ? (mapping | 6) :
+   mapping` (and `(type == 1) ? 6 : 0`); all four substitutions are byte-neutral.
+   Full-debug scope proof now contains only REGPARM `player`=$s2, `config`=$s6 and the
+   one retail function block with REG locals `type`=$s3 and `h`=$s4.  Type-graph gate:
+   named 86/86, anonymous 2/2, no source extras. */
   h[0x4f - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0][type],player);
   h[0x50 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][1][type],player);
   h[0x51 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][2][type],player);
@@ -237,48 +221,35 @@ void InGame_ResetPSXController(int player,int config)
   h[0x65 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][7][type],player);
   h[0x53 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][4][type],player);
   if ((Cars_gHumanRaceCarList[player]->carFlags & 0x200U) != 0) {
-    int m = mappings[config][10][type];
-
-    if (type == 1) {
-      m = m | 6;
-    }
-    h[0x81 - hoff[player]] = InGame_GetPSXPadValue(m,player);
+    h[0x81 - hoff[player]] = InGame_GetPSXPadValue(
+        (type == 1) ? (mappings[config][10][type] | 6)
+                    : mappings[config][10][type],
+        player);
   }
   else {
-    int m;
-
     h[0x7d - hoff[player]] = InGame_GetPSXPadValue(mappings[config][0][type],0);
     h[0x7e - hoff[player]] = InGame_GetPSXPadValue(mappings[config][1][type],0);
-    m = mappings[config][10][type];
-    if (type == 1) {
-      m = m | 6;
-    }
-    h[0x82 - hoff[player]] = InGame_GetPSXPadValue(m,player);
+    h[0x82 - hoff[player]] = InGame_GetPSXPadValue(
+        (type == 1) ? (mappings[config][10][type] | 6)
+                    : mappings[config][10][type],
+        player);
   }
   /* w59-a6: the three `hoff[player]` reads below are spelled as the byte-base form
      `*(int *)((player << 2) + (int)hoff)` ON PURPOSE (catalog 09I) -- they are the first
      statement of a post-`jal` block and the plain subscript issues the `lui/addiu` pair
      ahead of the `sll`, which retail does not.  Do NOT "simplify" them back to
      `hoff[player]`: that costs 12 diffs.  Every other site in this fn stays natural. */
-  if (GameSetup_gData.Time != 0) {
-    int m;
-
+  if (GameSetup_gData[21] != 0) {
     h[0x73 - *(int *)((player << 2) + (int)hoff)] = InGame_GetPSXPadValue(mappings[config][9][type],player);
-    m = 0;
-    if (type == 1) {
-      m = 6;
-    }
-    h[0x54 - hoff[player]] = InGame_GetPSXPadValue(m,player);
+    h[0x54 - hoff[player]] = InGame_GetPSXPadValue(
+        (type == 1) ? 6 : 0, player);
   }
   else {
-    int m;
-
     h[0x73 - *(int *)((player << 2) + (int)hoff)] = InGame_GetPSXPadValue(0,player);
-    m = mappings[config][9][type];
-    if (type == 1) {
-      m = m | 6;
-    }
-    h[0x54 - hoff[player]] = InGame_GetPSXPadValue(m,player);
+    h[0x54 - hoff[player]] = InGame_GetPSXPadValue(
+        (type == 1) ? (mappings[config][9][type] | 6)
+                    : mappings[config][9][type],
+        player);
   }
   h[0x66 - *(int *)((player << 2) + (int)hoff)] = InGame_GetPSXPadValue(mappings[config][5][type],player);
   h[0x67 - hoff[player]] = InGame_GetPSXPadValue(mappings[config][6][type],player);
@@ -415,16 +386,23 @@ void InGame_ResetPSXController(int player,int config)
  *  in the prologue with `addu s0,a0` deferred into the jal delay slot; ours the mirror).
  *  That is an assign_parms emission-order question (catalog: NARROW-PARAM lever / parm-copy
  *  sink), not a switch-shape one, and every case body's register roles hang off it. */
-/* A6/W71 index-term-first address spelling -- see the receipt above. */
-#define INGAME_CD (((GameSetup_tData *)((player << 2) + (int)&GameSetup_gData))->controllerData)
+/* W75 exact-SYM carrier.  psxcontroller.obj contains GameSetup_tControllerData but
+   not its GameSetup_tData owner.  Keep the player-scaled owner-base address explicit,
+   then express owner offset 0x60 plus the selected controller field through the known
+   controllerConfig word array.  Moving 0x60 into the pointer expression makes gcc emit
+   %hi/%lo(GameSetup_gData+96) and costs 22 authoritative diffs; this form keeps the
+   relocation on GameSetup_gData and the complete offset in each load displacement. */
+#define INGAME_CD_VALUE(field) \
+  (((GameSetup_tControllerData *)((player << 2) + (int)&GameSetup_gData)) \
+       ->controllerConfig[24 + \
+          (int)&((GameSetup_tControllerData *)0)->field / 4])
 int InGame_GetPSXPadValue(int value,int player)
 
 {
+  int c = value;
   int newControl;
-  int c;
   int type;
 
-  c = value;
   PAD_update();
   /* w46-a8 (279 -> 264, with the two de-merge fences below): the nopad trichotomy
      RE-OPENED from the w45 `| 1`-on-the-return basin.  In the OLD 329 basin this
@@ -714,97 +692,152 @@ int InGame_GetPSXPadValue(int value,int player)
      functions are still ONE problem.  NEXT TAKER: do the GROUP DISCOVERY first -- for
      each retail shared tail walk the oracle's `.L800DC*` labels and list the arms that
      jump into it, then convert that exact set with the smallest clobber that denies the
-     registers below the wanted one.  Do NOT sweep singletons again. */
-  if (gPadinfo.buf[player * 4].nopad != '\0') {
-    goto InGame_GetPSXPadValue_noPad;
+     registers below the wanted one.  Do NOT sweep singletons again.
+     W77 GROUP/QTY RECEIPT (2026-08-23): updated per-function m2c plus the raw oracle
+     partitions the remaining arms as {0x400000,0x20000000,0x40000000} -> $a0 tail,
+     {0x100000,-0x80000000,0x10000000} -> $a2 tail, and
+     {0x53/0x200000,0x23/0x200000,0x23/0x4000,0x23/0x8000} -> the other $a0 tail.
+     The current instrumented-cc1 trace prices the first positive group's chain qty at
+     refs/life 4/24 (priority .3333) behind the address qty at 7/18 (.7777): exactly
+     +4 chain references are required to take $a0.  A block-local `acc` plus two tied
+     zero-insn uses crosses that threshold and improves 97 -> 85; spelling the indexed
+     controller pointer before the carrier improves once more to 84 @235.  Both forms
+     were intentionally UNWOUND because they add non-retail `acc`/`cd` debug locals.
+     One tied use misses the threshold (107); moving the uses after the expression costs
+     107 @244; the complete $a2 block-local conversion is 103 alone and 88 atop the 84
+     basin.  Next: reproduce the +4-ref qty change with a DECL_IGNORED compiler temporary
+     or a source identity that leaves no SYM local; do not re-run the named-carrier grid. */
+  /* W78 SYM-SAFE ANONYMOUS QTY LANDING (2026-08-23): 97 @234 -> 76 @235.
+     GCC 2.8.1 source closes W77's DECL_IGNORED route: every DECL_IGNORED_P setter in
+     the C++ front end is for compiler-created/type declarations, never a user variable
+     or variable attribute (`unused` retains all three `acc` debug records).  The same
+     allocation is nevertheless reachable without a source local.  In every arm of the
+     exact retail positive shared-tail group {0x400000,0x20000000,0x40000000}, first
+     expose the common player-indexed controller address as an unnamed input, then give
+     the already-CSE'd `player << 0x1e` quantity two unnamed uses.  Keeping the address
+     and value fences separate is load-bearing: one combined address+2 package is 102;
+     separate address+2 is 76.  Each arm is atomic (dropping the first arm to one use is
+     82 @239, the second 94 @245), while a third/fourth use is byte-neutral at 76.
+     Full `-g` CC1PLPSX output introduces NO local/block records.  Reordering the source
+     declarations from `newControl,c,type` to the SYM's `c,newControl,type` is byte-neutral
+     and makes the emitted record order exact: value, player, c, newControl, type.
+     CLOSED from this basin: OR associations 117/120; pointer-last operand order 106;
+     duplicate address input 102; `m` instead of the address `r` input byte-neutral 76;
+     applying the same dial to the other four-arm $a0 tail 128 @233 (compound pair alone
+     93 @232); direct-return conversion of that tail 107 @232; direct-return conversion
+     of the $a2 tail 120 @237; putting `|1` back inside newControl on the positive/$a2
+     groups 113/156.  A fresh trace prices the negative-tail rotation as shared-0x80,
+     address,chain = a2,a0,a1 -> desired a0,a1,a2, but a literal asm input creates a NEW
+     constant qty instead of adding refs to the shared one (one per arm 108 @239, three
+     per arm 133 @244).  Duplicating a high term is 137 @238 and duplicated returns are
+     183 @250; tag-first and `-(field-0x80)` are byte-neutral.  W78's reference-catalog
+     follow-up also closes a tiny inline subtraction helper (142 @239) and the equivalent
+     `~field+0x81` spelling (148 @235); `0x100-(field+0x80)` and `0x7f-field+1` compile
+     byte-identically at 76.  The remaining 76 is thus a freshly priced two-tail/dispatch
+     problem; its negative-tail route requires a source use that attaches to the EXISTING
+     shared 0x80 qty, not another literal qty. */
+  /* W76 SYM correction (2026-08-23), byte-neutral at 97 @234: the explicit nopad
+     gotos/labels are replaced by their natural if/else, removing the non-retail label
+     debug record.  In the two atomic 0x800000 arms, repeating `player << 0x1e` as both
+     a zero-insn asm input and the return term makes gcc CSE one unnamed block-local
+     quantity across the barrier.  It allocates exactly like W74's named `acc`, but no
+     source local or nested debug block is emitted.  Full-debug names/types/scopes now
+     match retail: REGPARM value=$a0, player=$s1, and one function block containing only
+     c=$s0, newControl and type=$v1.  The still-nonmatching build colors newControl=$a0;
+     retail's SYM says $v0, so that register home remains part of the binary residual. */
+  if (PSXController_gPadBytes[player * 4][4] == '\0') {
+    type = PSXController_gPadBytes[player * 4][5];
+    __asm__("");
   }
-  type = gPadinfo.buf[player * 4].ID;
-  __asm__("");
-  goto InGame_GetPSXPadValue_gotType;
-InGame_GetPSXPadValue_noPad:
-  type = 0;
-  goto InGame_GetPSXPadValue_gotType;
-InGame_GetPSXPadValue_gotType:
+  else {
+    type = 0;
+  }
   switch (type) {
   case 0x53:
   case 0x73:
     switch (c) {
     case 0x800000:
-      { int acc = player << 0x1e;
-        __asm__("" : : "i"(0) : "$2", "$3");
-        return (acc |
-                   (0x80 - INGAME_CD.J1MIN[0]) * 0x10000 |
-                   (0x80 - INGAME_CD.J1MAX[0]) * 0x100 ) | 1; }
+      __asm__("" : : "r"(player << 0x1e), "i"(0) : "$2", "$3");
+      return ((player << 0x1e) |
+              (0x80 - INGAME_CD_VALUE(J1MIN[0])) * 0x10000 |
+              (0x80 - INGAME_CD_VALUE(J1MAX[0])) * 0x100 ) | 1;
     case 0x200000:
       newControl = player << 0x1e |
-                   (INGAME_CD.J1MIN[0] + 0x80) * 0x10000;
-      return (newControl |= (INGAME_CD.J1MAX[0] + 0x80) * 0x100) | 1;
+                   (INGAME_CD_VALUE(J1MIN[0]) + 0x80) * 0x10000;
+      return (newControl |= (INGAME_CD_VALUE(J1MAX[0]) + 0x80) * 0x100) | 1;
     case 0x100000:
       newControl = player << 0x1e |
                    0x1000000 |
-                   (0x80 - INGAME_CD.J1MIN[0]) * 0x10000 |
-                   (0x80 - INGAME_CD.J1MAX[0]) * 0x100 ;
+                   (0x80 - INGAME_CD_VALUE(J1MIN[0])) * 0x10000 |
+                   (0x80 - INGAME_CD_VALUE(J1MAX[0])) * 0x100 ;
       return newControl | 1;
     case 0x400000:
+      __asm__("" : : "r"((GameSetup_tControllerData *)
+                           ((player << 2) + (int)&GameSetup_gData)));
+      __asm__("" : : "r"(player << 0x1e), "r"(player << 0x1e));
       newControl = player << 0x1e |
                    0x1000000 |
-                   (INGAME_CD.J1MIN[0] + 0x80) * 0x10000 |
-                   (INGAME_CD.J1MAX[0] + 0x80) * 0x100 ;
+                   (INGAME_CD_VALUE(J1MIN[0]) + 0x80) * 0x10000 |
+                   (INGAME_CD_VALUE(J1MAX[0]) + 0x80) * 0x100 ;
       return newControl | 1;
     case -0x80000000:
       newControl = player << 0x1e |
                    0x2000000 |
-                   (0x80 - INGAME_CD.J2MIN[0]) * 0x10000 |
-                   (0x80 - INGAME_CD.J2MAX[0]) * 0x100 ;
+                   (0x80 - INGAME_CD_VALUE(J2MIN[0])) * 0x10000 |
+                   (0x80 - INGAME_CD_VALUE(J2MAX[0])) * 0x100 ;
       return newControl | 1;
     case 0x20000000:
+      __asm__("" : : "r"((GameSetup_tControllerData *)
+                           ((player << 2) + (int)&GameSetup_gData)));
+      __asm__("" : : "r"(player << 0x1e), "r"(player << 0x1e));
       newControl = player << 0x1e |
                    0x2000000 |
-                   (INGAME_CD.J2MIN[0] + 0x80) * 0x10000 |
-                   (INGAME_CD.J2MAX[0] + 0x80) * 0x100 ;
+                   (INGAME_CD_VALUE(J2MIN[0]) + 0x80) * 0x10000 |
+                   (INGAME_CD_VALUE(J2MAX[0]) + 0x80) * 0x100 ;
       return newControl | 1;
     case 0x10000000:
       newControl = player << 0x1e |
                    0x3000000 |
-                   (0x80 - INGAME_CD.J2MIN[0]) * 0x10000 |
-                   (0x80 - INGAME_CD.J2MAX[0]) * 0x100 ;
+                   (0x80 - INGAME_CD_VALUE(J2MIN[0])) * 0x10000 |
+                   (0x80 - INGAME_CD_VALUE(J2MAX[0])) * 0x100 ;
       return newControl | 1;
     case 0x40000000:
+      __asm__("" : : "r"((GameSetup_tControllerData *)
+                           ((player << 2) + (int)&GameSetup_gData)));
+      __asm__("" : : "r"(player << 0x1e), "r"(player << 0x1e));
       newControl = player << 0x1e |
                    0x3000000 |
-                   (INGAME_CD.J2MIN[0] + 0x80) * 0x10000 |
-                   (INGAME_CD.J2MAX[0] + 0x80) * 0x100 ;
+                   (INGAME_CD_VALUE(J2MIN[0]) + 0x80) * 0x10000 |
+                   (INGAME_CD_VALUE(J2MAX[0]) + 0x80) * 0x100 ;
       return newControl | 1;
     }
     break;
   case 0x23:
     switch (c) {
     case 0x800000:
-      { int acc = player << 0x1e;
-        __asm__("" : : "i"(0) : "$2", "$3");
+      __asm__("" : : "r"(player << 0x1e), "i"(0) : "$2", "$3");
       /* W74-A12: the w46-a8 DE-MERGE FENCE that lived here (`__asm__ volatile("" : :
          "r"(newControl));`, the unique fence optimum through five waves) is now
-         SUPERSEDED and REMOVED -- with the block-local accumulator above it is exactly
-         bit-neutral (97 @234 with it, 97 @234 without), because the acc form is itself
-         what keeps this tail from over-merging.  Its measurement history is kept in the
-         receipt block above the function. */
-        return (acc |
-                   (0x80 - INGAME_CD.deadSpot[0]) * 0x10000 |
-                   (0x80 - INGAME_CD.steeringRange[0]) * 0x100 ) | 1; }
+         SUPERSEDED and REMOVED.  W76's unnamed repeated-expression quantity preserves
+         the same allocation and is exactly bit-neutral (97 @234), while avoiding the
+         non-retail `acc` debug local. */
+      return ((player << 0x1e) |
+              (0x80 - INGAME_CD_VALUE(deadSpot[0])) * 0x10000 |
+              (0x80 - INGAME_CD_VALUE(steeringRange[0])) * 0x100 ) | 1;
     case 0x200000:
       newControl = player << 0x1e |
-                   (INGAME_CD.deadSpot[0] + 0x80) * 0x10000 ;
+                   (INGAME_CD_VALUE(deadSpot[0]) + 0x80) * 0x10000 ;
       return (newControl |=
-              (INGAME_CD.steeringRange[0] + 0x80) * 0x100) | 1;
+              (INGAME_CD_VALUE(steeringRange[0]) + 0x80) * 0x100) | 1;
     case 0x4000:
       newControl = player << 0x1e |
                    0x1000000 |
-                   INGAME_CD.ImaxRange[0] * 0x100 ;
+                   INGAME_CD_VALUE(ImaxRange[0]) * 0x100 ;
       return newControl | 1;
     case 0x8000:
       newControl = player << 0x1e |
                    0x2000000 |
-                   INGAME_CD.IImaxRange[0] * 0x100 ;
+                   INGAME_CD_VALUE(IImaxRange[0]) * 0x100 ;
       return newControl | 1;
     case 0x400:
       newControl = player << 0x1e | 0x30aff01;
@@ -815,7 +848,7 @@ InGame_GetPSXPadValue_gotType:
   newControl = player << 0x1a | c << 8 | 2;
   return newControl;
 }
-#undef INGAME_CD
+#undef INGAME_CD_VALUE
 
 /* ---- InGame_GetDevice__Fi  [PSXCONTROLLER.CPP:338-339] SLD-VERIFIED ---- */
 int InGame_GetDevice(int control)
@@ -1029,7 +1062,6 @@ void InGame_SetRamp(void)
 
 {
   int *h;
-  int *hp;
 
   h = Input_gHandler;
   if (Replay_ReplayMode < 2) {
@@ -1038,12 +1070,9 @@ void InGame_SetRamp(void)
     i = 0;
     if (i < Cars_gNumHumanRaceCars) {
       do {
-      int ctrl;
-
-        ctrl = *(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288);
-        *(int *)(ctrl + 0x1c) = 1;
-        *(int *)(ctrl + 0x20) = 1;
-        *(int *)(ctrl + 0x18) = 1;
+        Cars_gHumanRaceCarList[i]->carInfo->RampSteering =
+            Cars_gHumanRaceCarList[i]->carInfo->RampBrake =
+                Cars_gHumanRaceCarList[i]->carInfo->RampGas = 1;
         /* ===== w64-a14: SEAL 13 -> PASS 98/98.  FOUR ordered devices; the
          * w63-a14 "push k on loop.c's threshold" angle was never needed --
          * the &hoff hoist is killed at the MOVABLE-EXISTENCE layer instead.
@@ -1066,21 +1095,42 @@ void InGame_SetRamp(void)
          *      `addu s0,v0,v1` vs retail `addu s0,v1,v0` (catalog 14D/12D).
          *      8 -> 2 -> PASS.  `i * 4`, `i << 2` and `(int)(i * 4)` all seal;
          *      `i + hb` (pointer sum) does NOT (2).
-         * SYM NOTE: the 8c block lists only `h`($s4) and `i`($s3) -- `hp`/`hb`
-         * are reconstruction devices, and the SYM's mask $803f0000 (s0-s5+ra,
-         * NO s6) is the receipt that retail carried NO hoisted &hoff pseudo. */
+         * SYM NOTE: the 8c block lists only `h`($s4) and `i`($s3).  W76 removes
+         * `ctrl` and `hp`; `hb` remains the one open reconstruction device.  The
+         * SYM's mask $803f0000 (s0-s5+ra, NO s6) proves retail carried no hoisted
+         * &hoff pseudo. */
+#define INGAME_HOFF_PTR ((int *)(i * 4 + (int)hb))
         { int *hb = hoff;
           __asm__("" : "=r"(hb) : "0"(hb));
-          hp = (int *)(i * 4 + (int)hb); }
-        if (InGame_GetDevice(h[0x4f - *hp]) == 1) {
+          __asm__("" : : "r"(INGAME_HOFF_PTR));
+        if (InGame_GetDevice(h[0x4f - *INGAME_HOFF_PTR]) == 1) {
           *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x18) = 0;
         }
-        if (InGame_GetDevice(h[0x51 - *hp]) == 1) {
+        if (InGame_GetDevice(h[0x51 - *INGAME_HOFF_PTR]) == 1) {
           *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x1c) = 0;
         }
-        if (InGame_GetDevice(h[0x52 - *hp]) == 1) {
+        if (InGame_GetDevice(h[0x52 - *INGAME_HOFF_PTR]) == 1) {
           *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x20) = 0;
         }
+        }
+#undef INGAME_HOFF_PTR
+        /* W76 SYM correction (2026-08-23), byte-neutral PASS 98/98:
+           `RampSteering = RampBrake = RampGas = 1` is the typed chained assignment
+           whose unnamed base CSE replaces the non-retail `ctrl` local and preserves
+           retail's +0x1c,+0x20,+0x18 store order.  Repeating the full index-first
+           hoff address as an asm input removes function-scope `hp` while preserving
+           the same $s0 quantity.  Full-debug now has only one remaining extra record,
+           block-local `hb`; eliminating its load-bearing identity launder without
+           re-hoisting &hoff is the open SYM task.  W78 re-priced that task: repeating
+           the fully anonymous `i*4+(int)hoff` address (with `r`, `m`, or volatile view)
+           re-hoists &hoff and costs 17 @99 plus a non-retail $s6; a sign-extension
+           zero identity costs 34 @100; a raw absolute-address spelling reaches 8 @96
+           but loses the required symbol relocation and two retail instructions.  The
+           Parasite Eve 2 inline-identity idiom was also tested both as a base-only helper
+           and with the complete index-first address inside the helper; both remove `hb`
+           but rotate the loop's saved-register topology and cost 57 @107.  All were
+           reverted; `hb` remains until a SYM-safe opaque-address source shape is found,
+           because PASS preservation takes priority over deleting its record. */
         i = i + 1;
       } while (i < Cars_gNumHumanRaceCars);
     }

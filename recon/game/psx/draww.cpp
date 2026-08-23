@@ -4387,17 +4387,15 @@ int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coo
      tools/*.py, so this stays a named lane, not a landing. */
   coorddef tmp;
   coorddef tmp2;
-  int isCullable;
-  Track_tMaterial *shapeDef_p;
-  int drawResult;
+  int isCullable; /* SYM-CODEGEN-CARRIER: isCullable -- direct objDef->vertexCount is current FAIL 8/189 */
+  int drawResult; /* SYM-CODEGEN-CARRIER: drawResult -- direct gNight_renderNight guard is current FAIL 6/189 */
 
   /* MATCH: SYM 0x800c8214 shows ONLY tmp/tmp2 (+REG offset) as locals; u_char
      isCullable had emitted a bogus `andi 255` (retyped int), and the mirror
      expression now groups (cnt*2+1) before the base add per the oracle
      `sll;addiu 4;addu`. */
-  shapeDef_p = Track_materials;
   sd[1].head.cprim.PrimPtr = (char *)(objDef + 1);
-  *(Track_tMaterial **)sd[1].matB.m[0] = shapeDef_p;
+  *(Track_tMaterial **)sd[1].matB.m[0] = Track_materials;
   *(u_char *)((int)&sd[1].head.cprim.MPrimPtr + 3) = objDef->quadCount;
   isCullable = objDef->vertexCount;
   *(u_char *)((int)sd[1].matB.t + 2) = 0;
@@ -4409,9 +4407,9 @@ int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coo
     if (((Cars_gList[Vi->player]->control).lights & 6U) != 0) {
       *(u_char *)((int)sd[1].matB.t + 2) = 5;
     }
-    { int posX = ((Camera_gInfo[Vi->player].target)->position).x; tmp.x = (Vi->cview).translation.x - posX; }
-    { int posY = ((Camera_gInfo[Vi->player].target)->position).y; tmp.y = (Vi->cview).translation.y - posY; }
-    { int posZ = ((Camera_gInfo[Vi->player].target)->position).z; tmp.z = (Vi->cview).translation.z - posZ; }
+    { int posX = ((Camera_gInfo[Vi->player].target)->position).x; /* SYM-CODEGEN-CARRIER: posX -- split target-position load preserves the retail pointer chase */ tmp.x = (Vi->cview).translation.x - posX; }
+    { int posY = ((Camera_gInfo[Vi->player].target)->position).y; /* SYM-CODEGEN-CARRIER: posY -- y-axis member of the measured split-load shape */ tmp.y = (Vi->cview).translation.y - posY; }
+    { int posZ = ((Camera_gInfo[Vi->player].target)->position).z; /* SYM-CODEGEN-CARRIER: posZ -- direct three-axis expressions are current FAIL 38/185 */ tmp.z = (Vi->cview).translation.z - posZ; }
     transform(&tmp.x,gNightMat.m,&tmp2.x);
     DrawW_WorldSetUpTranslation(&tmp2,&sd->matNight);
     if (BW_gCopCarObj != (Car_tObj *)0x0) {
@@ -4423,7 +4421,7 @@ int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coo
       DrawW_WorldSetUpTranslation(&tmp2,&sd->matCop);
     }
     {
-      MATRIX *m = (MATRIX *)&(sd->matB);
+      MATRIX *m = (MATRIX *)&(sd->matB); /* SYM-CODEGEN-CARRIER: m -- mixed base/direct matB lvalues keep retail's store bases; fully direct form is FAIL 4/189 */
       m->t[2] = 0;
       m->t[1] = 0;
       (sd->matB).t[0] = 0;
@@ -4432,9 +4430,9 @@ gte_SetTransMatrix(m);
   }
   if (offset == -1) {
     *(int *)&sd[1].head.clipW = Draw_gMidGroundOtz;
-    { int tX = (Vi->cview).translation.x; sd[1].matB.m[0][2] = (short)(pCp->x - tX >> 0xc); }
-    { int tY = (Vi->cview).translation.y; sd[1].matB.m[1][0] = (short)(pCp->y - tY >> 0xc); }
-    { int tZ = (Vi->cview).translation.z; sd[1].matB.m[1][1] = (short)(pCp->z - tZ >> 0xc); }
+    { int tX = (Vi->cview).translation.x; /* SYM-CODEGEN-CARRIER: tX -- split load fixes the clip-store issue position */ sd[1].matB.m[0][2] = (short)(pCp->x - tX >> 0xc); }
+    { int tY = (Vi->cview).translation.y; /* SYM-CODEGEN-CARRIER: tY -- y-axis member of the same source statement split */ sd[1].matB.m[1][0] = (short)(pCp->y - tY >> 0xc); }
+    { int tZ = (Vi->cview).translation.z; /* SYM-CODEGEN-CARRIER: tZ -- folding all six loads is current FAIL 12/189 */ sd[1].matB.m[1][1] = (short)(pCp->z - tZ >> 0xc); }
   }
   else {
     { int tX = (Vi->cview).translation.x; sd[1].matB.m[0][2] = (short)(pCp->x - tX >> 10); }

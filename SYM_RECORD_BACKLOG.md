@@ -1560,6 +1560,29 @@ repeated whole-TU gates confirm `flare.cpp` is 27/27 PASS. Production PsyQ proof
 with the existing validated text moves reports REAL=0 and RELOP=0, and the
 vtable indexing audit remains clean.
 
+### P31 — Simple-object source-identity reconstruction (`2026-08-24`)
+
+The refreshed strict game/PSX declaration audit advances from 378/395 to
+379/395 declaration-clean functions and reduces generic extra source-local
+names from 330 to 320. Missing SYM names remain zero, and the object-owned data
+result remains 0 missing / 61 extra definitions.
+
+`DrawObjectSimple` removes the `shapeDef_p` alias and stores `Track_materials`
+directly with unchanged code generation. The nine retained source-only
+identities have explicit falsification receipts: direct `vertexCount` is FAIL
+8/189; direct `gNight_renderNight` is FAIL 6/189; folding the target-position
+splits is FAIL 38 at 185/189; folding the six view-translation loads into their
+stores is FAIL 12/189; and replacing the mixed `m`/direct `matB` lvalues with
+fully direct access is FAIL 4/189. The failed mixed-lvalue probe initially
+touched the analogous sibling block in `DrawObjectTransform`; it was restored
+and that neighbor was explicitly re-gated PASS 214/214 before landing.
+
+Two repeated detailed gates preserve `DrawObjectSimple` PASS 189/189. Two
+repeated whole-TU gates preserve `draww.cpp` at 31/35 PASS with the same four
+pre-existing residuals (8/9/20/66). Production PsyQ proof with the existing
+validated text moves reports REAL=0 and RELOP=0, and the vtable indexing audit
+remains clean.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

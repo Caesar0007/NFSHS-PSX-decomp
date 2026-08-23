@@ -3795,6 +3795,7 @@ gClutDepth = 0x8012107C;
 Fog_gBuf = 0x8012307C;
 openkeys = 0x801231FC;
 TrackSpec_gSpec = 0x8012327C;
+D_801232A4 = 0x801232A4;
 Weather_gDensityTbl = 0x80123384;
 Weather_gIntensityTbl = 0x80123394;
 Weather_gTrackIntensityLimitTbl = 0x801233A4;

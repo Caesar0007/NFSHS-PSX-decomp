@@ -189,7 +189,7 @@ void DrawC_ReadLightingData(void)
   /* MATCH: track staged through a block-local int (oracle schedules the format-string
      %hi(lui a1) between the two global loads only when a3 comes from a reg temp);
      + for(;;)-form loops below give i the SYM's s1 (REG $11) vs the &ScaneData temp. */
-  {int trk = GameSetup_gData.track; sprintf(name,"%sTr%02d.env",Paths_Paths[6],trk);}
+  {int trk /* SYM-CODEGEN-CARRIER: trk -- stages a3 so the format address schedules between global loads */ = GameSetup_gData.track; sprintf(name,"%sTr%02d.env",Paths_Paths[6],trk);}
   RenderingFileData = (char *)loadfileadr(name,0x10);
   ScaneData = RenderingFileData;
   DrawC_gEnvMapMax = Risk_ReadNextValue(&ScaneData);
@@ -311,7 +311,9 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
            GENERAL RULE (new): N sequential same-shape reads that each die at
            once want N DISTINCT block-local temps, not one reused temp -- the
            reuse both pins one register and inflates the local's conflict set. */
-    { int h0; int h1; int h2;
+    { int h0 /* SYM-CODEGEN-CARRIER: h0 -- three distinct subtrahend quantities preserve retail local allocation */;
+      int h1 /* SYM-CODEGEN-CARRIER: h1 -- merging the three subtrahends produced the measured register rotation */;
+      int h2 /* SYM-CODEGEN-CARRIER: h2 -- the separate immediate lifetime reuses the just-dead register */;
     h0 = (Cars_gHumanRaceCarList[i]->N).position.x;
     tmp.x = (carObj->N).position.x - h0;
     h1 = (Cars_gHumanRaceCarList[i]->N).position.y;
@@ -340,8 +342,10 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
        (addu $v1,$v1,$v0 once, then lbu 0/1/2($v1)) and ONE for &light
        ($a2 = sp+104).  Spelling the full &Night_gWeatherColor[type] address
        at each of the three byte reads made cc1 rematerialize it. */
-    u_char *lp = (u_char *)&light;
-    u_char *wc = (u_char *)&Night_gWeatherColor[Night_gLightningType];
+    u_char *lp /* SYM-CODEGEN-CARRIER: lp -- direct per-channel light-slot expressions rematerialize the base */ =
+        (u_char *)&light;
+    u_char *wc /* SYM-CODEGEN-CARRIER: wc -- inline weather-table expressions are FAIL 48 (109/107) */ =
+        (u_char *)&Night_gWeatherColor[Night_gLightningType];
     short newR;
     short newG;
     short newB;
@@ -3251,7 +3255,16 @@ gte_ldv3(vt0,vt1,vt2);
  *        p817 id1 refs 18 live 196 pri .3673 -> $t2   (retail $t2 OK)
  *        p818 id2 refs 18 live 200 pri .3600 -> $t8   (retail $t1)
  *        p819 facet_flag refs 18 live 129 pri .5581 -> $t1 (retail $t8)
- *      Retail's order is p818 > p817 > p816 > p819.  MINIMAL JOINT DELTA
+ *      Retail's order is p818 > p817 > p816 > p819.  🏆 IT IS PROVABLY A JOINT
+ *      (2-PSEUDO) CELL: an EXHAUSTIVE single-pseudo sweep (scratchpad/w75/
+ *      A7_single.py -- p818 refs 2..60, p819 refs 2..60, p818 live 20..800/10,
+ *      p819 live 20..800/10, each a full re-allocation checking all four seats)
+ *      returns SOLUTIONS: NONE, while the joint control (818:refs=20 +
+ *      819:refs=14) hits.  No dial on id2 alone and none on facet_flag alone
+ *      reaches retail at ANY magnitude -- which is exactly why every
+ *      single-axis attempt in this and earlier waves failed (23B-1, with an
+ *      exhaustive proof rather than a sample).  Do not re-open it as a
+ *      one-dial target.  MINIMAL JOINT DELTA
  *      (what-if-verified, all four seats land exactly):
  *        p818  REG_N_REFS 18 -> >=19  (one loop-weighted mention: +1 = +2)
  *        p819  REG_LIVE_LENGTH 129 -> >=200  (ties break by lower pseudo, and
@@ -3275,6 +3288,23 @@ gte_ldv3(vt0,vt1,vt2);
  *  `nop` (this is the +1 that (1) exposed) and the `sw $t9,32($sp)` spill
  *  position (6); `li $t3,38` off by one position (2).  The dispatch blocks are
  *  compiler-generated (no source statement to fence at their thread head).
+ * ===== W76-A7 (2026-08-23): 49 -> PASS 1877/1877, zero insns, zero pins =====
+ *  (0) vt1-def moved below the noSub guard = the missing insn AND the whole
+ *      dispatch class in one move (49 -> 42 count-EXACT; in-line receipt).
+ *  (1) THE JOINT (id2,facet_flag) CELL LANDED as (id2 refs->20 via a
+ *      target-only read fence) + (facet_flag DENIED t1-t3 via clobbers on a
+ *      relocated launder) -- not the modeled refs->14: the -2-mention route
+ *      is structurally dead (launder removal = only -1 mention AND collapses
+ *      the copy web: 260/238-diff rotations, envmap t9->t8, id2->a2).  Also
+ *      falsified en route: facet_flag tail read fence at the loop join
+ *      (live 129->188 < the 223 bar), loop-carried loop-head fence (live 423
+ *      -> conflicts with the whole loop -> callee-saved $s3, 24E-4).  With
+ *      the seats fixed, the id load/morph order went back to the natural
+ *      id0,id1,id2 (the 36-cell w73 sweep verdict was basin-relative, 04Z).
+ *      42 -> 16 -> 4.
+ *  (2) UV cursor -> index form (giv-group init, 12D) + case-1 `code = 0x24`
+ *      born-in-the-loop (21B-3): 4 -> PASS.
+ *  Receipts: scratchpad/w76/A7_report.md, A7_allocsim_*.txt, A7_p*_sbs.txt.
  * ---- DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache  [DRAWC.CPP:2647-3495] SLD-VERIFIED ---- */
 void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOverlay *overlay,
                int envmap,Draw_CarCache *sd)
@@ -3320,7 +3350,15 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
     COORD16 *vt = Nvertice;
 gte_SetRotMatrix(&DrawC_gMatA);
 gte_SetTransMatrix(&DrawC_gMatA);
+    /* W76-A7 (12D eliminated-biv law; the W75 'giv' angle landed): the UV
+     * stores are INDEX form so loop.c strength-reduces the address into a
+     * giv and ELIMINATES uvk -- the giv init `addiu $a2,$s1,215` is then
+     * emitted in the giv group AFTER the LICM movables (li -1, +172, +156)
+     * = retail's slot; the source-assigned +8 cursor was entry-block
+     * (2 diffs).  Base stays &tV[0].v (+215, with [-1] for .u) -- do NOT
+     * port DrawC_Prim's +214 typed walker (W75 receipt). */
     char *envmapUV_dst = &sd->tV[0].v;
+    int uvk = 0;
     i = (int)obj->numVertex;
     while( true ) {
       i = i - 1;
@@ -3342,9 +3380,9 @@ gte_stlvnl((char *)sd + 0x9c);
         absZ_envmap = -absZ_envmap;
       }
       vt = vt + 1;
-      envmapUV_dst[-1] = (char)tvx;
-      *envmapUV_dst = (char)absZ_envmap;
-      envmapUV_dst = envmapUV_dst + 8;
+      envmapUV_dst[uvk * 8 - 1] = (char)tvx;
+      envmapUV_dst[uvk * 8] = (char)absZ_envmap;
+      uvk = uvk + 1;
     }
   }
   TrsProj_SetTransPrecision(8);
@@ -3436,7 +3474,6 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
   switch (envmap & 9) {
   case 0: {
       u_int noSub = envmap & 0x20U;
-      vt1 = (int)&sd->vt3;
       if (noSub == 0) {
         /* SYM block line=97 {prim,facet,id0,id1,id2} -- literal repeated SYM
          * names redeclared per case block (wave-9 same-identifier lever);
@@ -3599,6 +3636,15 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           }
         }
       }
+      /* W76-A7 (the '1876 vs 1877' missing insn): vt1's def lives AFTER the
+       * noSub guard -- retail's bnez fills its slot by eager-stealing this
+       * addiu from the target thread (21B-5) and keeps `sw $t9,32($sp)` at
+       * the target head; defined above the guard it was the backward-fill
+       * candidate instead (slot = the spill sw), and the dispatch's `beqz
+       * $v0` slot upstream flipped li-8/nop.  This one move closed the whole
+       * W75 6-line "switch-dispatch" class: 49 -> 42, count 1876 -> 1877
+       * EXACT. */
+      vt1 = (int)&sd->vt3;
       vt2 = (int)&sd->vt5;
       u1 = &sd->u3;
       u2_00 = (int)&sd->u5;
@@ -3696,7 +3742,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     int id0;
     int id1;
     int id2;
-    int otzSum; u_char code = 0x24;
+    int otzSum; u_char code;
     while( true ) {
       i = i - 1;
       if (i == -1) {
@@ -3832,6 +3878,14 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           DRAWC_UVTINT_ID(sd, prim, id0, id1, id2);
         }
       }
+      /* W76-A7 (21B-3 born-in-the-loop): `code = 0x24` is assigned HERE,
+       * inside the loop AFTER the two 0x26 blocks, so both constants are
+       * LICM movables hoisted in APPEARANCE order = retail's preheader
+       * `li t3,38; li s4,36`.  The case-scope `= 0x24` initialiser (w73
+       * landing (6), measured at the 76 basin) emitted li 36 in the ENTRY
+       * block ahead of the 38 hoist -- the final 2 diffs.  `code` is
+       * read-only in this tail; per-iteration re-assign is identical. */
+      code = 0x24;
       DRAWC_OTLINK_FT3(sd, prim);
       {
         long xy0 = *(long *)&sd->dvx0;
@@ -4094,14 +4148,23 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         return;
       }
       facet = obj->facet + i;
-      id2 = facet->vertexId2;
       id0 = facet->vertexId0;
       id1 = facet->vertexId1;
+      id2 = facet->vertexId2;
       if ((sd->head).cprim.MPrimPtr <= (sd->head).cprim.PrimPtr) continue;
       /* SYM 3.8b: id0-2 morph index->address in place (oracle sll aN,aN,3) */
-      id2 = id2 * 8; id2 = id2 + (int)sd;
+      /* W76-A7 JOINT CELL, id2 half (closes the W75 t1<->t8 certificate):
+       * the target-only read fence (24E-3) adds ONE loop-weighted mention ->
+       * id2 refs 18->20, pri .3600->.3980, outranks id1/id0 and takes $t1
+       * like retail.  Load+morph order restored to id0,id1,id2 = retail's
+       * lbu/sll order (the id2-first order was the w73 66-basin optimum;
+       * dead at this basin, 04Z).  The facet_flag half is the clobber-
+       * launder in the FT3B arm below.  allocsim receipt: all four seats ==
+       * retail, MATCH 107/107 (scratchpad/w76/A7_allocsim_p6.txt). */
       id0 = id0 * 8; id0 = id0 + (int)sd;
       id1 = id1 * 8; id1 = id1 + (int)sd;
+      id2 = id2 * 8; id2 = id2 + (int)sd;
+      __asm__("" : : "r"(id2));
       gte_ldVXY0m(*(u_int *)(id0 + 0xd0));
       gte_ldVZ0m(*(u_int *)(id0 + 0xd4));
       gte_ldVXY1m(*(u_int *)(id1 + 0xd0));
@@ -4276,6 +4339,24 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         int index = facet->textureIndex;
         int which = (overlayFlag & 3) - 1;
         Transformer_zOverlay *facetOverlay = overlay + (index * 3 + which);
+        /* W76-A7 JOINT CELL, facet_flag half: tied launder carrying
+         * $9/$10/$11 CLOBBERS = zero-insn hard-reg denial (20B/22B-1).
+         * facet_flag (pri .5581, served first) is denied t1-t3; t4-t7 are
+         * template regs; it lands in retail's $t8, freeing $t1 for the
+         * fenced id2.  Position laws, all three load-bearing: (a) it sits
+         * where id0-2 are DEAD (21A-1: a clobber denies every allocno live
+         * at the asm -- at the old launder site the ids are live and lose
+         * t1-t3 too); (b) INSIDE the arm, so the ePmx0-guard beqz slot can
+         * still steal `andi v0,a2,3` (24D-6 stop_search_p: at the thread
+         * head it walled the steal, +1 nop); (c) it READS facetOverlay so
+         * sched1 cannot float it to the block head (24D-7: a no-dependency
+         * asm is PLACED FIRST and walls the (overlayFlag&3) beqz slot's
+         * steal of `addiu a0,v0,-1` -- measured +1 nop without the operand;
+         * the arm block is <=3 qtys so the extra facetOverlay ref cannot
+         * reorder its handout, 15A).  The W75 "20B clobber on facet_flag's
+         * launder = +1 insn" falsification was position- and basin-relative
+         * (old site, no read anchor, no id2 fence): 23B-3/04Z. */
+        __asm__("" : "=r"(facet_flag) : "0"(facet_flag), "r"(facetOverlay) : "$9", "$10", "$11");
         prim = (POLY_FT3 *)(sd->head).cprim.PrimPtr;
         DRAWC_OTLINK_FT3B(sd, prim);
         {
@@ -4536,7 +4617,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
        short changes the frame and register allocation (PASS480 -> 113 diffs).
        The widened masked value below is the measured retail codegen carrier. */
     u_int facetFlag;   /* SYM $t3 = flag & 0xfff (the MASKED value), not the raw field */
-    u_short rawFlag;
+    u_short rawFlag; /* SYM-CODEGEN-CARRIER: rawFlag -- separate unmasked flag preserves retail priority; adding it to the tex fence is FAIL 14 */
     int overlayFlag;
     Transformer_zFacet *facet;
     int id0;
@@ -4658,7 +4739,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
        -- the target RTL is "LICM movable (addiu a2,s1,215) + giv init that is a
        deleted copy", which is the only shape that puts one insn in the movable
        band and none in the giv band. */
-    { int tex = facet->textureIndex;
+    { int tex /* SYM-CODEGEN-CARRIER: tex -- block-local texture byte plus the measured USE fence seals retail scheduling */ = facet->textureIndex;
       rawFlag = facet->flag;
       __asm__("" : : "r"(tex));   /* tex ONLY -- see the ref-count warning above */
       overlayFlag = (int)((u_int)(u_short)DrawC_gOverlay[tex] << 0x10) >> 0x10; }
@@ -4880,8 +4961,7 @@ void DrawC_PrimHalo(matrixtdef *m,coorddef *t,Transformer_zObj *obj,int type,int
      the oracle keeps in that register. */
   int i;
   COORD16 *vertice;
-  int iVar6;
-  int uVar8;
+  int uVar8; /* SYM-CODEGEN-CARRIER: uVar8 -- in-place real_type reuse is FAIL 97 (295/298) */
 
   vertice = obj->vertex;   /* oracle: lw fp,0x10(obj) = ->vertex */
   TrsProj_SetTransPrecision(8);
@@ -5016,10 +5096,9 @@ gte_ldv3((char *)sd + 0xac,(char *)sd + 0xb4,(char *)sd + 0xbc);
         }
         gte_avsz3();
         gte_stOTZm(sd->otz);
-        iVar6 = sd->otz + sd->sub_otz;
-        sd->otz = iVar6;
-        if (iVar6 < 0) continue;
-        if (sd->sub_otSize < iVar6) continue;
+        sd->otz = sd->otz + sd->sub_otz;
+        if (sd->otz < 0) continue;
+        if (sd->sub_otSize < sd->otz) continue;
         }
       /* 🏆 w50-A3 (the last 7 diffs -> PASS): the `andi $s3,type,0xFFBF` block belongs
          HERE, after all three `continue` gates (retail @800C3CF4, right before the
@@ -5125,8 +5204,10 @@ gte_ldv3((char *)sd + 0xac,(char *)sd + 0xb4,(char *)sd + 0xbc);
               expression needed a separate temp (`sra v0,a0,16; andi v1,v0,255`): 15 -> 7.
          The last 7 (the `real_type` block position) fell to the move-after-the-gate +
          the facet ref dial -- see the note at the `real_type` assignment. */
-        u_int ov = (u_int)(u_short)DrawC_gOverlay[index];
-        int ovs = (int)(ov << 0x10);
+        u_int ov /* SYM-CODEGEN-CARRIER: ov -- staged halfword keeps one shared overlay load */ =
+            (u_int)(u_short)DrawC_gOverlay[index];
+        int ovs /* SYM-CODEGEN-CARRIER: ovs -- fresh shifted value plus two fences reproduces retail scheduling */ =
+            (int)(ov << 0x10);
         __asm__("" : : "r"(ovs));
         if (facet->flag < 0) {
           overlayFlag = ovs >> 0x18;
@@ -5178,7 +5259,6 @@ void DrawC_ShadowPrim(Draw_tVertex *shadowVT,Draw_CarCache *sd)
 
 {
   POLY_FT4 *prim;
-  int iVar1;
   Draw_tPixMap *shadowPmx;
 
   shadowPmx = gShadowPixmap0;
@@ -5198,9 +5278,8 @@ gte_ldv3((char *)shadowVT + 0x8,(char *)shadowVT + 0x18,(char *)shadowVT + 0x10)
 gte_stsxy3((char *)prim + 0x10,(char *)prim + 0x20,(char *)prim + 0x18);
     gte_avsz4();
     gte_stOTZm(sd->otz);
-    iVar1 = (sd->otz >> 1) + 0x28;
-    sd->otz = iVar1;
-    if ((-1 < iVar1) && (iVar1 <= Draw_gViewOtSize + -3)) {
+    sd->otz = (sd->otz >> 1) + 0x28;
+    if ((-1 < sd->otz) && (sd->otz <= Draw_gViewOtSize + -3)) {
       u_long *ot;
       {
       u_long l0;      /* MATCH: the colour word needs its OWN temp -- reusing l1 for it
@@ -5224,7 +5303,7 @@ gte_stsxy3((char *)prim + 0x10,(char *)prim + 0x20,(char *)prim + 0x18);
       /* MATCH: index the OT with the field we JUST STORED (`sd->otz`), not the
          local `iVar1` -- cc1 forwards the stored value and emits retail's
          redundant `addu v0,v1,zero` copy before the shift (3 -> PASS). */
-      u_long *otp = ot + sd->otz;
+      u_long *otp /* SYM-CODEGEN-CARRIER: otp -- one shared OT-cell address preserves the retail index copy and three uses */ = ot + sd->otz;
       *(u_long *)prim = *(u_long *)prim & 0xff000000 | *otp & 0xffffff;
       *otp = *otp & 0xff000000 | (u_long)prim & 0xffffff;
       }
@@ -5347,8 +5426,6 @@ void DrawC_ShadowPrimClip(Draw_tVertex *shadowVT,Draw_CarCache *sd)
   /* rule-8 (w39-a3): the SYM names ONLY shadowPmx ($fp) plus five sibling
      block-scoped temp sets ({t1,t2,t3}, 3x {z,t1,t2,t3}, {uv0..uv3}).  The
      fn-scope t1/t2/t3/z/sVar1-5/uv0-3 copies were dead Ghidra leftovers. */
-  u_char *u2;
-  COORD16 *vt2;
   Draw_tPixMap *shadowPmx;
 
   shadowPmx = gShadowPixmap0;
@@ -5358,8 +5435,6 @@ void DrawC_ShadowPrimClip(Draw_tVertex *shadowVT,Draw_CarCache *sd)
   ChangeTPage(&shadowPmx->tpage,2);
 gte_SetRotMatrix(&DrawC_gScreenMat);
 gte_SetTransMatrix(&DrawC_gScreenMat);
-  vt2 = &sd->vt8;
-  u2 = &sd->offsetU2;
   /* SYM: FIVE sibling blocks (one macro line=5): vt0 copy {t1,t2,t3} (no z),
    * vt1/vt2/vt3 copies {z,t1,t2,t3}, uv block later.
    * MATCH (w40-a3, 265 -> PASS, count exact 335/335): the vt3 SCALING reads the
@@ -5456,13 +5531,13 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
   sd->offsetV1 = (u_char)((int)((u_int)sd->v3 + (u_int)sd->v0 + 1) >> 1);
   sd->offsetU2 = (u_char)((int)((u_int)sd->u0 + (u_int)sd->u2 + 1) >> 1);
   sd->offsetV2 = (u_char)((int)((u_int)sd->v0 + (u_int)sd->v2 + 1) >> 1);
-  DrawC_DivideShadowPrim(&sd->vt0,&sd->vt4,vt2,&sd->vt7,(u_short *)&sd->u0,(u_short *)&sd->u4,(u_short *)u2,
+  DrawC_DivideShadowPrim(&sd->vt0,&sd->vt4,&sd->vt8,&sd->vt7,(u_short *)&sd->u0,(u_short *)&sd->u4,(u_short *)&sd->offsetU2,
              (u_short *)&sd->offsetU1,shadowPmx,sd);
-  DrawC_DivideShadowPrim(&sd->vt4,&sd->vt1,&sd->vt5,vt2,(u_short *)&sd->u4,(u_short *)&sd->u1,(u_short *)&sd->u5,
-             (u_short *)u2,shadowPmx,sd);
-  DrawC_DivideShadowPrim(&sd->vt7,vt2,&sd->vt6,&sd->vt3,(u_short *)&sd->offsetU1,(u_short *)u2,
+  DrawC_DivideShadowPrim(&sd->vt4,&sd->vt1,&sd->vt5,&sd->vt8,(u_short *)&sd->u4,(u_short *)&sd->u1,(u_short *)&sd->u5,
+             (u_short *)&sd->offsetU2,shadowPmx,sd);
+  DrawC_DivideShadowPrim(&sd->vt7,&sd->vt8,&sd->vt6,&sd->vt3,(u_short *)&sd->offsetU1,(u_short *)&sd->offsetU2,
              (u_short *)&sd->offsetU0,(u_short *)&sd->u3,shadowPmx,sd);
-  DrawC_DivideShadowPrim(&sd->vt8,&sd->vt5,&sd->vt2,&sd->vt6,(u_short *)u2,(u_short *)&sd->u5,(u_short *)&sd->u2,
+  DrawC_DivideShadowPrim(&sd->vt8,&sd->vt5,&sd->vt2,&sd->vt6,(u_short *)&sd->offsetU2,(u_short *)&sd->u5,(u_short *)&sd->u2,
              (u_short *)&sd->offsetU0,shadowPmx,sd);
   return;
 }
@@ -5509,14 +5584,14 @@ void DrawC_SpotPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
 gte_SetRotMatrix(((char *)sd + 0x14));
 gte_SetTransMatrix(((char *)sd + 0x14));
   {
-    DR_MODE *pDVar7;
+    DR_MODE *pDVar7; /* SYM-CODEGEN-CARRIER: pDVar7 -- separate mode-packet pointer; reusing outer prim is part of a FAIL 74 (227/225) rewrite */
     u_long *ot;
     pDVar7 = (DR_MODE *)(sd->head).cprim.PrimPtr;
     ot = (sd->head).cprim.LastPrim;
     sd->otz = 0;
     (sd->head).cprim.PrimPtr = (char *)(pDVar7 + 1);
     {
-      u_int *puVar8 = (u_int *)(ot + sd->otz);
+      u_int *puVar8 /* SYM-CODEGEN-CARRIER: puVar8 -- distinct OT-cell address; mutating ot is part of FAIL 74 (227/225) */ = (u_int *)(ot + sd->otz);
       ((DrawC_tTag *)pDVar7)->addr = *puVar8 & 0xffffff;
       ((DrawC_tTag *)puVar8)->addr = (u_int)pDVar7 & 0xffffff;
     }
@@ -5572,7 +5647,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         }
         gte_stsxy3_g3(prim);
         {
-          u_int color = sd->color;
+          u_int color /* SYM-CODEGEN-CARRIER: color -- staged packet color provides the retail load-delay slot; direct store is FAIL 7 (226/225) */ = sd->color;
           *(u_char *)((int)prim + 3) = 6;
           ((u_int *)prim)[3] = 0;
           ((u_int *)prim)[5] = 0;
@@ -5677,7 +5752,7 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
        This exact spelling was FALSIFIED in w45 at the pre-fence basin; the
        vt0 sched fence above changed the landscape and it now lands (catalog
        w45 LAW: falsifications are BASIN-RELATIVE, re-test after every edit). */
-    signed char m1 = -1;
+    signed char m1 /* SYM-CODEGEN-CARRIER: m1 -- named fill sentinel must materialize before the counter */ = -1;
     index = 0x1f;
     /* MATCH (w45-a4, 80 -> 42): the fill counter is `index`, NOT `i`.  Retail
        runs the whole fn on ONE counter register for {fill, j, index} vs `i`
@@ -5685,7 +5760,7 @@ void DrawC_ShowroomPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
        share a pseudo with the inner `i` (=$a3 everywhere) and rotated a0/a1/
        a2/a3/t0..t3 by one across the whole function.  A fresh block-local
        counter measures 84, `j` measures 80, `index` 42. */
-    signed char *hs = &hilight_state[0x1f];
+    signed char *hs /* SYM-CODEGEN-CARRIER: hs -- explicit reverse walker reproduces the down-counting GIV */ = &hilight_state[0x1f];
     do {
       *hs = m1;
       index = index + -1;
@@ -5787,7 +5862,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         (sd->vt1).z = t3;
       }
       {
-        COORD16 *z1 = &Fe3D_lightsVertex[index * 2 + 1];
+        COORD16 *z1 /* SYM-CODEGEN-CARRIER: z1 -- address GIV avoids the offset-GIV plus per-iteration add */ = &Fe3D_lightsVertex[index * 2 + 1];
         short t1 = z1->x;
         short t2 = z1->y;
         short t3 = z1->z;

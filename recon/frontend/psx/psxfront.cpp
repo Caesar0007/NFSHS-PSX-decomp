@@ -1929,7 +1929,68 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    *   sites (50-139).
    *   NEXT: close (a), (b), (c) -- with them this basin is byte-exact, since it
    *   already reproduces retail's frame, store order, link cluster and tint
-   *   interleave.  Harness: scratchpad/w75/A2_*.py, report A2_report.md. */
+   *   interleave.  Harness: scratchpad/w75/A2_*.py, report A2_report.md.
+   * ==== W76-A2 (2026-08-23, baseline RE-GATED 20 @82/82 and KEPT; I1
+   *   control reproduces 46).  RESIDUAL (a) -- the yoff/mask $t3-vs-$t4
+   *   serving-order inversion -- IS CLOSED IN-BASIN; the true basin moved
+   *   46 -> 34 (M3, count-exact, lab-identical).
+   *   (1) MECHANISM, read off the instrumented-cc1 qty trace (lab byte-
+   *   identical on this basin => trace is a receipt): yoff+hoff are ONE qty
+   *   (combine_regs ties the addu; refs 5 live 32 pri 3125); the 0x00ffffff
+   *   mask = two tied constant pseudos, refs 6 live 60 pri 2000 -- ours
+   *   serves yoff first (-> $t3).  Retail serves the MASK first, which needs
+   *   mask pri > 3125: refs 6 -> 8 crosses the floor_log2 rung (3*8/60=4000).
+   *   (2) THE LEVER (M3 = the w44-a2 PSXDrawTransSquare double-mask, done at
+   *   statement level): name RMW2's link value in a local assigned early
+   *   (`la = (uint)prim & 0xffffff;` after the bump; `pal->addr = la;`) AND
+   *   spell RMW1's value side with an explicit re-mask
+   *   (`((PSXFront_PTag *)prim)->addr = pal->addr & 0xffffff;`).  A bitfield
+   *   store of a VARIABLE re-masks it -> +1 flow ref each on the mask
+   *   constant; combine folds the redundant ands away (count stays 82) but
+   *   flow's ref counts survive -> mask qty refs 8 pri 4000, served first:
+   *   mask $t3 / yoff+hoff $t4 RETAIL-EXACT, the whole 9-line class gone.
+   *   (named la alone = 7 refs pri 2333 = not enough, measured 46.)
+   *   (3) 34 > 20 so NOTHING LANDED -- the body stays the 20 lookalike.
+   *   M3 residual anatomy (4 clusters): HEAD 18 = a pure line-multiset
+   *   PERMUTATION (identical text; ours emits the dv shift chain before the
+   *   bump/RMW1/pal block, retail after) -- and the -dS dump shows OUR
+   *   POST-SCHED1 ORDER ALREADY MATCHES RETAIL'S FINAL (dv shifts after the
+   *   link block, y2/y3 late): the hoist is SCHED2's, enabled by the dv
+   *   LOAD's early slot (sched1 luid tie-break, dv = stmt 3).  (c) 4 = the
+   *   +5 carrier $v0-vs-$v1: the carrier window [52,58) overlaps RMW2-temp's
+   *   $v1 [56,70), so ours can NEVER take $v1 in this luid layout; retail's
+   *   carrier luids sat past RMW2's window (its addiu@42/subu@46 are the
+   *   post-alloc sched2 echo of the $v1 anti-dep).  len/code 8 + clut 4 =
+   *   source position (code-last / tpage-then-clut is the only order that
+   *   holds the middle; retail's SLD order stays catastrophic here:
+   *   code-after-tint 78, clut-before-tpage 138, full-SLD tail 132).
+   *   FALSIFIED THIS BELT (all re-gated): named-mask constant + launder
+   *   ref-steps (71/71 @83, 90 @82 -- a launder on a constant pseudo costs a
+   *   real insn); named yoff def-top 46; y3-into-bottom statement merges
+   *   108/108 @86 (basin collapse, 2nd callee-saved reg appears); dv / y-
+   *   chain statement moves in M3 (106-152; dv-after-pal 106 = whole-body
+   *   t0/t1 rotation); y2/y3-late with the arg6 carrier AND with a plain
+   *   local carrier (identical 139/141/108 @83-86 -- the +insns are the
+   *   late move itself, not arg6's stack home); tail reorders 38-138;
+   *   srcw-copy + pal/prim-input tied-launder dependence devices on the dv
+   *   load (144-152 @80-81); per-fn flag splices on M3 (-fno-schedule-
+   *   insns2 69 @83, -fno-schedule-insns 115 @79, -fno-expensive-
+   *   optimizations 89 @79) -- retail used DEFAULT scheduling, re-confirmed
+   *   in this basin; every device still load-bearing (no-L1 50, no-L2 82
+   *   @78, no-xyfence 80).  Sibling corpus: no PSX gcc-2.8 upside-down FT4
+   *   font-blit sibling exists (CTR DecalFont = other era/compiler; the
+   *   residual here is sched emission, not spelling).  PIN VERDICT: the
+   *   last-resort register pin cannot express any remaining cluster (HEAD /
+   *   len-code / clut are emission ORDER; (c) is a live-window overlap no
+   *   binding fixes without the order) -- no pin landed, bar not met.
+   *   NEXT (W77): the M3 head cluster is ONE sched2 stale-order tie fed by
+   *   the dv load's luid -- (i) instrumented sched2 trace on the M3 body
+   *   (lab is byte-identical) to find the ready-list tie that flips the dv
+   *   chain; (ii) close (c) with any shape pushing the carrier's birth past
+   *   luid 70 without moving y2/y3 statements (every statement/carrier form
+   *   measured is +1..+4 insns).  M3 body preserved at
+   *   scratchpad/w76/A2_body_m3.cpp; harness scratchpad/w76/A2_*.py;
+   *   report scratchpad/w76/A2_report.md. */
   POLY_FT4      *prim;
   PSXFront_PTag *pal;
   int            width;

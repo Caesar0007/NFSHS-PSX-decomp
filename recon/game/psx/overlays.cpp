@@ -28,13 +28,10 @@ int D_8013D99C;
 void OptionsBarThing(int x,int y,int w,int h)
 
 {
-  char *str;
-  int width;
-
   Hud_GoTpage(1);
-  str = TextSys_Word(0x40);
-  width = Hud_BuildString(TextSys_Word(0x40),0,0,0,0,1);
-  Hud_BuildString(str,0xa0 - (width >> 1),y + h + -6,0xbebe,0,0);
+  Hud_BuildString(TextSys_Word(0x40),
+                  0xa0 - (Hud_BuildString(TextSys_Word(0x40),0,0,0,0,1) >> 1),
+                  y + h + -6,0xbebe,0,0);
   Hud_FBuildF4(0,x,y + h + -8,w,8,0,'\0','\0');
   Hud_GoTpage(0);
   return;
@@ -117,10 +114,8 @@ void RaceSummary(void)
   short HUD_STATS_SIZE_H;
   short HUD_STATS_POS_Y;
   char string [40];
-  int halfH;
-  int titleY;
-  int barH;
-  int titleX;
+  int titleY; /* SYM-CODEGEN-CARRIER: titleY -- direct HUD_STATS_POS_Y-derived expressions are FAIL 87 (344/349) */
+  int titleX; /* SYM-CODEGEN-CARRIER: titleX -- direct title-coordinate spelling is FAIL 79 (350/349) */
 
   HUD_STATS_POS_X = 8;
   if (OVERLAYS_NUM_LAPS == 1) {
@@ -131,8 +126,7 @@ void RaceSummary(void)
     HUD_STATS_SIZE_W = 0xef;
   }
   HUD_STATS_SIZE_H = (short)((Cars_gNumRaceCars + 1) * 0xc + 0x1e);
-  halfH = HUD_STATS_SIZE_H >> 1;
-  HUD_STATS_POS_Y = (short)(0x78 - halfH);
+  HUD_STATS_POS_Y = (short)(0x78 - (HUD_STATS_SIZE_H >> 1));
   /* DECL POSITION IS THE FRAME LAYOUT (w41-a4): reload assigns spill slots in pseudo-regno
      order and cc1plus numbers pseudos where the declaration is REACHED, so the SYM's AUTO
      offsets read off retail's decl sequence.  fsize 184 = string 0x20 / SIZE_W 0x48 /
@@ -146,7 +140,7 @@ void RaceSummary(void)
   short coltime;
   short colbestlap;
   titleX = 0xa0 - (textpixels(TextSys_Word(0x38)) >> 1);
-  titleY = 0x76 - halfH;
+  titleY = 0x76 - (HUD_STATS_SIZE_H >> 1);
   Font_TextColor(6);
   Font_TextXY(TextSys_Word(0x38),titleX * 0x10000 >> 0x10,titleY);
   Font_TextColor(3);
@@ -164,12 +158,11 @@ void RaceSummary(void)
     Font_TextXY(TextSys_Word(0x3c),colbestlap,(titleY + 0xf) * 0x10000 >> 0x10);
   }
   Hud_FBuildF4(0,HUD_STATS_POS_X,((titleY + 0x11) * 0x10000 >> 0x10) + 0xc,(u_short)HUD_STATS_SIZE_W,1,0,'\0','\0');
-  barH = HUD_STATS_SIZE_H + -8;
-  Hud_FBuildF4(0,colname + -2,HUD_STATS_POS_Y,1,barH,0,'\0','\0');
-  Hud_FBuildF4(0,colcar + -2,HUD_STATS_POS_Y,1,barH,0,'\0','\0');
-  Hud_FBuildF4(0,coltime + -2,HUD_STATS_POS_Y,1,barH,0,'\0','\0');
+  Hud_FBuildF4(0,colname + -2,HUD_STATS_POS_Y,1,HUD_STATS_SIZE_H + -8,0,'\0','\0');
+  Hud_FBuildF4(0,colcar + -2,HUD_STATS_POS_Y,1,HUD_STATS_SIZE_H + -8,0,'\0','\0');
+  Hud_FBuildF4(0,coltime + -2,HUD_STATS_POS_Y,1,HUD_STATS_SIZE_H + -8,0,'\0','\0');
   if (OVERLAYS_NUM_LAPS != 1) {
-    Hud_FBuildF4(0,colbestlap + -2,HUD_STATS_POS_Y,1,barH,0,'\0','\0');
+    Hud_FBuildF4(0,colbestlap + -2,HUD_STATS_POS_Y,1,HUD_STATS_SIZE_H + -8,0,'\0','\0');
   }
   i = 0;
   while (1) {
@@ -240,7 +233,8 @@ void RaceSummary(void)
      carrier = 6 (the volatile asm invalidates memory in cse, so the carrier cannot be CSE'd
      onto the fence's load -- that is WHY the w45 fence angle could not be walked into place),
      statement-expression fence inside arg 3 = 6, fence on POS_Y too = 7 (350 insns). */
-  int w2 = HUD_STATS_SIZE_W & 0xffff;
+  int w2 /* SYM-CODEGEN-CARRIER: w2 -- named masked-width result preserves retail's lhu-plus-copy pair */ =
+      HUD_STATS_SIZE_W & 0xffff;
   OptionsBarThing(HUD_STATS_POS_X,HUD_STATS_POS_Y,w2,(int)HUD_STATS_SIZE_H);
   Hud_RenderPauseBox(HUD_STATS_POS_X,HUD_STATS_POS_Y,w2,(int)HUD_STATS_SIZE_H);
   }
@@ -441,6 +435,27 @@ void RaceSummary(void)
  *     (order-vs-dump IDENTICAL) on this basin, and reqdelta --want "p164=s1,p191=fp"
  *     (p191 refs=6 live=41 -> fp, p164 refs=3 live=27 -> s1) finds no single-dial and
  *     no same-pseudo two-dial delta within +-40 on refs/live/calls. */
+/* ===== W76-A13 (2026-08-23): 71 -> 70 @475/475 COUNT-EXACT (first count-exact landing
+ * in any basin).  LANDED: the colX cross-call straddle (see the MATCH block at the colX
+ * assignment) -- mints retail's col1 copy `addiu v1,s4,10; addu s6,v1,zero` via the
+ * combine.c:936-941 cross-call refusal.  The W75 (4) hypothesis "the 18-diff carlist
+ * cluster is downstream of the col1 copy" is REFUTED by the landing: with the copy
+ * minted and the count exact, all four `lui/addiu $t1` sites are UNCHANGED (still the
+ * reload spill scratch vs retail's allocated $v0/$v1 block qtys).  MEASURED THIS WAVE
+ * from the new 70 basin: `rows` 72 @475 (still a net loss).  Per-region NAMED base
+ * pointers (`Car_tObj **hbN = Cars_gHumanRaceCarList;` x4) = 68 @475 but do NOT flip
+ * the sites (constant-equiv remat is name-blind: cse copy-propagates the symbol
+ * constant through the named local, reg_equiv_constant drives reload remat exactly as
+ * before) -- NOT landed, non-SYM noise for -2.  ROTATION CHECK (the W76 brief's named
+ * angle): the oracle's outer loop ends `j T; addiu s7,s7,1` = un-rotated, IDENTICAL to
+ * ours -- rotation is NOT the discriminator, 22A-2/23A-3 do not separate the builds
+ * here.  REMAINING (the whole 70): ~18 carlist materializations (ours reload-remat of
+ * the cse+LICM-shared pseudo 261 [.combine insns 1403/1404 hoist it to the outer
+ * preheader; global_alloc denies it a reg -> REG_EQUIV remat per site]; retail = four
+ * per-region SHORT-LIVED las in $v0/$v1, i.e. retail's source shape kept them
+ * per-region block qtys -- HOW is still open), ~25 head/prologue (the interleave
+ * `li a1,150 / sw s7 / li s7,160 / sw s2 / li s2,1` + a0/a2/v1/a1 band + `li t1,52`
+ * rows-fold), 6 fp<->s1 (W75 (5): not priority-reachable), position slides. */
 void RaceStatistics(void)
 
 {
@@ -448,6 +463,7 @@ void RaceStatistics(void)
   short j;
   short col1;
   short col2;
+  short colX;
   char string [40];
   short HUD_STATS_POS_X;
   short HUD_STATS_SIZE_W;
@@ -657,12 +673,24 @@ void RaceStatistics(void)
   sizeH16 = (int)((u_int)(u_short)HUD_STATS_SIZE_H << 0x10);
   halfH = sizeH16 >> 0x11;
   posy = 0x78 - halfH;
+  /* MATCH (W76-A13, 71 @474 -> 70 @475/475 COUNT-EXACT, the col1 2-diff cluster SOLVED):
+     retail's `addiu v1,s4,10; addu s6,v1,zero` is a CROSS-CALL COMBINE REFUSAL, proven
+     from the SLD: the add carries SLD:186 (BEFORE the titleX calls) and the copy SLD:198
+     (AFTER them).  combine.c:936-941 refuses any merge whose i2 sits before the last
+     CALL_INSN (`INSN_CUID (insn) < last_call_cuid && ! CONSTANT_P (src)`), so the
+     add+copy pair survives combine, and sched1 then sinks the add next to its use
+     (colX's live range collapses to 1 insn -> $v1, exactly retail).  `colX` models the
+     two-statement split retail's source had (value computed before the titleX statement,
+     col1 assigned after HUD_STATS_HOTPURSUIT_Y); a single `col1 = POS_X + 0xa;` in ANY
+     position merges (both halves on one side of the calls) -- that is why every
+     w41..w75 col1-temp cell failed to mint the copy (they were all call-adjacent). */
+  colX = HUD_STATS_POS_X + 0xa;
   titleX = 0xa0 - (textpixels(TextSys_Word(0x39)) >> 1);
-  col1 = HUD_STATS_POS_X + 0xa;
   col2 = 0xa0;
   HUD_STATS_POS_Y = (short)posy;
   titleY = 0x76 - halfH;
   HUD_STATS_HOTPURSUIT_Y = (short)(titleY + (OVERLAYS_NUM_LAPS + 2) * 0xc + 0x13);
+  col1 = colX;
   if (1 < Cars_gNumHumanRaceCars) {
     col2 = 0x55;
   }
@@ -1074,8 +1102,8 @@ void Hud_BTCStats(short player,bool postgame)
   short HUD_STATS_TITLE_START_X;
   short HUD_STATS_TITLE_START_Y;
   short HUD_STATS_TEXT_START_Y;
-  int sizeH;
-  int postgameInset;
+  int sizeH; /* SYM-CODEGEN-CARRIER: sizeH -- hoisted minuend fixes the retail s1/s2 expression roles */
+  int postgameInset; /* SYM-CODEGEN-CARRIER: postgameInset -- mutable in-loop constant escapes fold while CSE restores addiu 8 */
 
   chasinghuman = 0;
   showname = 0;
@@ -1301,7 +1329,7 @@ void Hud_RenderStatsView(void)
 
 {
   int screen;
-  int t;
+  int t; /* SYM-CODEGEN-CARRIER: t -- distinct clamped result produces the two retail global stores; in-place clamp is FAIL 15 */
 
   screen = OVERLAYS_GAME_TICKS >> 9 & 1;
   /* Block order + branch polarity transcribed from the oracle CFG (0x800DAE94..0x800DAFE8):

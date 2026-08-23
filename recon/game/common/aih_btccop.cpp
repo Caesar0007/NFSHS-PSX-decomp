@@ -2631,6 +2631,33 @@ stateExecuteAndReturn:
    right one: -dg the 489 variant and read WHICH allocno s3 carries; the 4-diff and 489
    builds differ by ONE source token per arm, so it is a clean control pair.
    Probe: scratchpad/w75/A9_v7.py, A9_v8.py (A9_probe.py harness, multi-count anchors). ==== */
+/* ==== W76-A9 SEALED CLEAN (PASS 675/675, posmis 0) -- THE 7-WAVE a2 WALL WAS AN
+   INLINED TU-LOCAL DERIVED-STATE CTOR, proven from the NFSU2-mobile x86 twin
+   (nfsu2_x86_1.1.5/nfsu2.dll: AIHigh_BTC_Wingman::HighExecute @0x1015fa??
+   calls ctor 0x10161850 = base-ctor + vf store + {coorddef local; zero-init;
+   .y = carIndex*0xa0000; Newton_SetInitialSlicePositionOrientationEtc(&carObj_->N,
+   0,&local,1);} + carObj_->N.active=0, then SetState(p,7) @0x101619b0).
+   EA wrote a file-local class (its own D_80054F24 NonActive-vtable copy) whose
+   INLINE CTOR holds the memset/Newton payload; integrate.c inline expansion is
+   why retail rematerializes `addiu a2,sp,OFF` per arm with NO shared address
+   pseudo (every flattened-source spelling either copies the memset return --
+   addu a2,v0 -- or CSEs (plus fp K) across the call into a callee-saved = the
+   489 basin; W74/W75 receipts above).  The two flattened freeze arms are now
+   placement-new of this class; their leftover `coorddef *offset;` and shadow
+   `coorddef trafficOffset;` decls MUST stay deleted (each unused decl re-grows
+   the frame 104->120 and shifts every traffic slot +16).  The case-0 and case-2
+   arms stay open-coded (they already gate PASS; W75 falsification history kept
+   above).  Probe: scratchpad/w76/A9_btc_I4.variant, A9_btc_I4_posmis.txt. ==== */
+struct AIState_BTCInactive : public AIState_Base {
+    AIState_BTCInactive(Car_tObj *carObj) : AIState_Base(carObj) {
+        coorddef trafficOffset;
+        _vf = (__vtbl_ptr_type (*)[4])D_80054F24;
+        memset((u_char *)&trafficOffset,0,12);
+        trafficOffset.y = carObj->carIndex * 0xa0000;
+        Newton_SetInitialSlicePositionOrientationEtc(&carObj_->N,0,&trafficOffset,1);
+        carObj_->N.active = 0;
+    }
+};
 void AIHigh_BTC_Wingman::HighExecute()
 {
   ((AIHigh_BasicCop *)this)->CheckSpikeBelt();
@@ -2757,7 +2784,6 @@ void AIHigh_BTC_Wingman::HighExecute()
     {
       coorddef newPos;
       coorddef pos;
-      coorddef trafficOffset;
       AIState_Chase *chaseState;
 
       chaseState = (AIState_Chase *)this->state_;
@@ -2863,18 +2889,11 @@ void AIHigh_BTC_Wingman::HighExecute()
         Car_tObj *carObj;
         AIState_Base *newState;
         AIState_Base *oldState;
-        coorddef *offset;
 
         this->AssignToPlayer(0);
         newState = operator new(8);
         carObj = this->carObj_;
-        new(newState) AIState_Base(carObj);
-        newState->_vf = (__vtbl_ptr_type (*)[4])D_80054F24;
-        offset = (coorddef *)memset((u_char *)&trafficOffset,0,12);
-        trafficOffset.y = carObj->carIndex * 0xa0000;
-        Newton_SetInitialSlicePositionOrientationEtc(
-            &newState->carObj_->N,0,offset,1);
-        newState->carObj_->N.active = 0;
+        new(newState) AIState_BTCInactive(carObj);
         oldState = this->state_;
         if (oldState != 0) {
           (*(int (**)(...))((char *)oldState->_vf + 20))(
@@ -3001,19 +3020,11 @@ void AIHigh_BTC_Wingman::HighExecute()
         Car_tObj *carObj;
         AIState_Base *newState;
         AIState_Base *oldState;
-        coorddef *offset;
-        coorddef trafficOffset;
 
         this->AssignToPlayer(0);
         newState = operator new(8);
         carObj = this->carObj_;
-        new(newState) AIState_Base(carObj);
-        newState->_vf = (__vtbl_ptr_type (*)[4])D_80054F24;
-        offset = (coorddef *)memset((u_char *)&trafficOffset,0,12);
-        trafficOffset.y = carObj->carIndex * 0xa0000;
-        Newton_SetInitialSlicePositionOrientationEtc(
-            &newState->carObj_->N,0,offset,1);
-        newState->carObj_->N.active = 0;
+        new(newState) AIState_BTCInactive(carObj);
         oldState = this->state_;
         if (oldState != 0) {
           (*(int (**)(...))((char *)oldState->_vf + 20))(

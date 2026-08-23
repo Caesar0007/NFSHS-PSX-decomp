@@ -244,7 +244,7 @@ void MenuExtended_GoToTwoPlayerSingleRace(tMenuCommand &command)
   tDialogYesNoTri YesNoDialog;
 
   dlgThis = &YesNoDialog;
-  *(void **)&(dlgThis->_vf) = (void *)&tDialogYesNoTri_vtable;
+  dlgThis->_vf = (__typeof__(dlgThis->_vf))&tDialogYesNoTri_vtable;   /* w76-A20 vptr-store alias dial (24A) */
   uVar2 = carManager.GetNumOwnedCars(0);
   if ((int)((uint)uVar2 << 0x10) < 1) {
     dlgThis->string =
@@ -765,7 +765,7 @@ bool PinkSlipsPreSave(void)
       tDialogYesNoTri YesNoDialog;
 
       dlgThis = &YesNoDialog;
-      *(void **)&(dlgThis->_vf) = (void *)&tDialogYesNoTri_vtable;
+      dlgThis->_vf = (__typeof__(dlgThis->_vf))&tDialogYesNoTri_vtable;   /* w76-A20 vptr-store alias dial (24A) */
       dlgThis->string =
            TextSys_Word(0x273);
       dlgThis->yesnowords[0] = 0x321;
@@ -3193,10 +3193,25 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemTrackDirection(0xcc, (tListIterator *)&iteratorTrackDirection)   /* +0xEC0 tMenuItemOptionsLeftRightChoice */
  , itemTrackMirrored(0xcd, (tListIterator *)&iteratorTrackMirrored)   /* +0xEE0 tMenuItemOptionsTwoItemChoice */
  , itemTimeOfDay(0xce, (tListIterator *)&iteratorTimeOfDay)   /* +0xF04 tMenuItemOptionsTwoItemChoice */
- , itemWeather(0xcf, (tListIterator *)&iteratorWeather)   /* +0xF28 tMenuItemOptionsTwoItemChoice */
- , itemTraffic(0xd0, (tListIterator *)&iteratorTraffic)   /* +0xF4C tMenuItemOptionsTwoItemChoice */
- , itemLocalSpeech(0xd2, &iteratorLocalSpeech)   /* +0xF70 tMenuItemOptionsTwoItemChoice */
- , menuTrackOptions(0x1000, (tScreen *)0x0, (tMenu *)0x0, (tMenu *)0x0, 0, 0xb9, -1, (tMenuItem *)&itemLaps, &itemTrackDirection, &itemTrackMirrored, &itemTimeOfDay, &itemWeather, &itemTraffic, &itemLocalSpeech, 0)   /* +0xF94 tMenuOptions */
+   /* [W76-A1 2026-08-23] CSE-FLUSH NOTE DIAL -- the five `({ ... })` wrappers here
+      and on menuTrackOptions' 2nd/3rd item args below are NOT dead code and their
+      COUNT, SITES and DEPTH are all load-bearing: DO NOT SIMPLIFY OR EXTEND.
+      Each depth-1 statement-expression adds 4 NOTE_INSN_BLOCK notes + 1 cse-deleted
+      value copy = 5 RTL chain objects and ZERO machine insns (insn count 3215
+      unchanged).  cse.c:8620-8645 counts EVERY chain rtx (insns AND notes) toward
+      its per-1001-object hash-table flush (catalog 24C-1), so these 25 objects at
+      chain ordinals ~1002-1063 shift where the flush boundaries land: gate
+      1138 -> 932 (-206; reg-blind structure 200 -> 134), and the itemGoToDuelBuyCar
+      -1 def becomes FRESH (own `li`, no longer cse-forwarded to menuTrackOptions'
+      -1 from ~330 objects earlier).  Measured cell shape (w76 probe, 40+ variants):
+      the 3 item-init sites + exactly TWO menuTrackOptions args, depth 1: any 2 MTO
+      args work (932 x4 subsets); singles inert (1138); depth 2 = 2800; 1 or 3 MTO
+      args = 2251/2331; more sites/depths anywhere = 1497..5641 (chaotic).  Full map
+      + falsifications -> scratchpad/w76/A1_report.md. */
+ , itemWeather(0xcf, (tListIterator *)({ &iteratorWeather; }))   /* +0xF28 tMenuItemOptionsTwoItemChoice */
+ , itemTraffic(0xd0, (tListIterator *)({ &iteratorTraffic; }))   /* +0xF4C tMenuItemOptionsTwoItemChoice */
+ , itemLocalSpeech(0xd2, ({ &iteratorLocalSpeech; }))   /* +0xF70 tMenuItemOptionsTwoItemChoice */
+ , menuTrackOptions(0x1000, (tScreen *)0x0, (tMenu *)0x0, (tMenu *)0x0, 0, 0xb9, -1, (tMenuItem *)&itemLaps, ({ &itemTrackDirection; }), ({ &itemTrackMirrored; }), &itemTimeOfDay, &itemWeather, &itemTraffic, &itemLocalSpeech, 0)   /* +0xF94 tMenuOptions */
  , menuTrackRecordsItem(0, (tMenu *)0x0, 0, -1, -1)   /* +0x1018 tBlankMenuItemGoToMenuNFS4Button */
  , menuTrackRecords(0x1000, (tScreen *)screenTrackRecords, (tMenu *)0x0, (tMenu *)0x0, 0, 0xd4, 1, 10, (tMenuItem *)0x0)   /* +0x1044 tOptionsMenu */
  , itemTrackInfoContinue(0x5a, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToGarage, 0x21, 10)   /* +0x10C4 tMenuItemGoToMenuNFS4Button */

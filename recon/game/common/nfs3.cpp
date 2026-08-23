@@ -581,8 +581,7 @@ void NFS3_CheckForFileOperations(void)
    * (d) THE DIAL, therefore, is to keep the GUARD's pseudo live PAST the copy --
    *     i.e. a read-only fence on the guard bound placed AFTER the loop:
    *         g = handlearray; if (p < g) { e = g; do {...} while (p < e); }
-   *         __asm__("" : : "r"(g));
-   *     Zero insns, no hard-register name, no clobber (so the W69 mutual-exclusion
+   *          *     Zero insns, no hard-register name, no clobber (so the W69 mutual-exclusion
    *     certificate -- "the only $a0 dial also forbids retail's spill" -- is
    *     SIDE-STEPPED, not violated: nothing enters regs_explicitly_used).
    *     RESULT 2 @21/21; insns 0-11 and 13-20 are byte-exact incl. retail's
@@ -668,16 +667,65 @@ void NFS3_CheckForFileOperations(void)
    *     -fno-defer-pop, -fno-strength-reduce, -fno-schedule-insns,
    *     -fno-schedule-insns2, -G0, -G8 = ALL exactly 2 (inert);
    *     -fno-omit-frame-pointer 9 @26.  The FLAG AXIS IS CLOSED for this fn.
-   * NEXT NAMED ANGLE (unwalked): a source shape in which the guard bound is
+   * NEXT NAMED ANGLE (W75): a source shape in which the guard bound is
    * never a pseudo -- the guard test carrying the MEM directly, with the loop
    * bound a separate pseudo -- so G's references collapse to one reload plus
-   * inheritance.  Everything else in this function is retail-exact. */
+   * inheritance.
+   *
+   * ===== W76-A11 (2026-08-23): SEALED PASS 21/21 -- PIN-SEALED (last-resort
+   * register pins, per the W76 policy order (a)-(e); wordcmp REAL=0, slotcheck 0).
+   * (1) THE W75 NAMED ANGLE WAS WALKED AND FALSIFIED FIRST (real gate runs):
+   *     guard carrying the MEM directly, bound read first ........ 8 @21/21
+   *     the same with a read-only fence on the bound ............. 8 @21/21
+   *     anonymous guard temp + separate re-read + fence on e ..... 3 @22/21
+   *     cse folds the second read of the SAME MEM into the first pseudo in
+   *     every ordering, so the guard bound always keeps >=2 same-block refs
+   *     and stays allocated; update_equiv_regs' replace arm (REG_N_REFS==2 &&
+   *     REG_BASIC_BLOCK<0, local-alloc.c:1169) is unreachable for a guard
+   *     compare by construction (set and use share the block).  With that the
+   *     W75 certificate is COMPLETE: no C shape and no zero-insn device can
+   *     make hard_reg_n_uses[$a0]==0 while keeping retail's bytes => pin lane.
+   * (2) THE CONSTRUCTION (all three registers taken by construction, no reload
+   *     left in the function, so the whole spill-pool question dissolves):
+   *       register int *g asm("$4") = handlearray  -> lw a0,0x1C(v0) (G home)
+   *       e = g                                    -> addu a1,a0,zero (L=$5,
+   *         kept real because z1's $4 is SCOPE-live through the loop: the arm
+   *         pin, not the W74 fence, now supplies the G/L conflict -- the fence
+   *         was REMOVED after a 23B-3 device-removal retest, still PASS)
+   *       arm: register int z0 asm("$6"); register int z1 asm("$4");
+   *            z0 = 0;                             -> addu a2,zero,zero (slot)
+   *            asm("" : "=r"(z0) : "0"(z0));       -> zero-insn opacity launder
+   *            z1 = z0;                            -> addu a0,a2,zero
+   *            asm volatile("break 0x666
+	nop" : : "r"(z0), "r"(z1));
+   * (3) WHY EACH PIECE IS LOAD-BEARING (each removal measured):
+   *     z-pins with plain inits, g unpinned + fence ....... 8 @21/21 (the
+   *        fence extends pseudo-G through the arm -> G conflicts the arm pins
+   *        -> G displaced to $a1, L to $a3)
+   *     g pinned, z inits `= 0` (both orders) ............. 5 @22/21
+   *     g pinned, separate stmts z0=0; z1=0 ............... 5 @22/21
+   *     g pinned, z1 = z0 WITHOUT the launder ............. 5 @22/21
+   *        mechanism (fresh -dS dump): $4 is SCOPE-live through g's block, so
+   *        (set $4 0) carries the longer chain and sched1 orders it BEFORE
+   *        (set $6 0) regardless of statement order; cse const-props a plain
+   *        z1=z0 back to (set $4 0).  The launder makes z0's value opaque, so
+   *        z1=z0 keeps a true dependence and the order is forced: z0's set
+   *        lands in the beqz slot (gcc dbr fills it itself) and z1's set IS
+   *        retail's addu a0,a2,zero.
+   * DO NOT touch the pins, the launder, or the statement order -- every
+   * neighbouring cell is measured worse above.  PsyQ notation: asm text none
+   * needed (empty template), clobbers none, reg names "$N" accepted by this
+   * CC1PLPSX. */
   int *p;
-  int *g;
   int *e;
 
   p = (int *)gFileMgr.oparray;
-  g = (int *)gFileMgr.handlearray;
+  {
+#if defined(__mips__)
+  register int *g __asm__("$4") = (int *)gFileMgr.handlearray;   /* PIN: retail lw a0,0x1C(v0) */
+#else
+  int *g = (int *)gFileMgr.handlearray;
+#endif
   if (p < g) {
     e = g;
     do {
@@ -685,8 +733,15 @@ void NFS3_CheckForFileOperations(void)
 #if defined(__mips__)
         /* MATCH: trap() is INLINE in retail -- `break 0x666` (objdump: break 1,614) plus two
          * zeroed register args; no jal, so the function stays a leaf (no frame, no $ra save). */
-        __asm__ __volatile__("break 0x666
-	nop" : : "r"(0), "r"(0));
+        {
+          register int z0 __asm__("$6");
+          register int z1 __asm__("$4");
+          z0 = 0;
+          __asm__("" : "=r"(z0) : "0"(z0));
+          z1 = z0;
+          __asm__ __volatile__("break 0x666
+	nop" : : "r"(z0), "r"(z1));
+        }
 #else
         trap(0x666);   /* host build: no MIPS break */
 #endif
@@ -694,14 +749,7 @@ void NFS3_CheckForFileOperations(void)
       p = p + 1;
     } while (p < e);
   }
-#if defined(__mips__)
-  /* MATCH (W74-A8, see (d) above): ZERO-INSN read-only fence.  It keeps the GUARD's
-   * bound pseudo live past the preheader copy `e = g`, which is the only thing that
-   * makes global.c record a conflict between the two bound allocnos -- without it
-   * both take $a0, the copy self-cancels and is deleted, and the guard's beqz delay
-   * slot degenerates to a nop (the 8-diff body).  DO NOT "simplify" this away. */
-  __asm__("" : : "r"(g));
-#endif
+  }
   return;
 }
 

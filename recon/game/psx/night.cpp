@@ -599,6 +599,65 @@ void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char 
      REG_DEAD(reg 137) goes homeless -- the same class of named instrument ask as
      23D-1's [reload_pick].  A whole-function cc1plus version splice would of course
      also fix it, but it is no longer the only description of the problem. */
+  /* ===== W76-A13 (2026-08-23): 26 STAYS in the tree, but the function is SOLVED --
+     PASS 113/113 exists under a per-fn cc1plus-2.8.1 splice (recipe below), and the
+     W75 provenance is UPGRADED to the exact 2.8.0 bug + its fix commit.
+     (1) TRUE PROVENANCE (supersedes W75's walk-internal reading -- the walk code is
+     IDENTICAL in 2.8.0/2.8.1).  The orphaning distribution is try_combine(i3=insn 196
+     `137 &= 0xFF00FFFF`, i2=insn 190 `137 = 139|143` = the accumulator's BIRTH): the
+     merged pattern `137 = 139|143` drops the self-use (mask folded via nonzero_bits),
+     i3dest_killed = reg 137, and elim_i2 = i2dest = reg 137 (full 2->1 merge, dest not
+     in i2src -- combine.c:2189).  gcc-2.8.1 passes elim_i2/elim_i1 to the i3dest_killed
+     distribute_notes call (combine.c:2356-2359), whose REG_DEAD case discards the note
+     at `if (XEXP(note,0) == elim_i2 ...) break;` (:11282) -> place stays 0 ->
+     REG_N_DEATHS-- (:11535-38) -> deaths(137)==1 -> local-alloc eligible -> $a0 = retail.
+     gcc-2.8.0 passed NULL_RTX there; the fix is ChangeLog Fri Feb 6 1998 (Kenner):
+     "combine.c (try_combine): Pass elim_i2 and elim_i1 to distribute_notes for
+     i3dest_killed REG_DEAD note."  W75 cited the two distribute_notes-body entries
+     (Feb 12/14) but the operative change is this CALL-SITE one.
+     (2) THEOREM (source axis closed BY CONSTRUCTION, upgrading W75's measurements):
+     on 2.8.0 the note has NO good outcome -- a successful walk PLACEMENT also leaves
+     REG_N_DEATHS==2 (only the elim-discard path decrements), and the orphan fires
+     whenever combine merges the accumulator birth into the first SURVIVING self-mask,
+     which every >=3-field by-value byte-aggregate build produces (the first acc-mask
+     folds in cse via AND-chain association, every later one sits over an IOR and
+     survives to combine).  No spelling of a 4-byte by-value CVECTOR can escape.
+     (3) TOOL BUG: the W72-A14 splice harness (scratchpad/W72_A14/cc1pl_splice_probe.py)
+     gated VACUOUSLY -- tools/verify_asm.py re-imports build.py FRESH (module_from_spec
+     ignores the monkey-patch) and compile_cpp has no cache, so the gate recompiled
+     UNSPLICED.  Every W72 Finding-3 "SPLICE" cell (26/56/56) = the no-splice number.
+     Fixed harness: scratchpad/w76/A13_splicegate.py (gates the pre-built object,
+     SPLICE-NOOP guard).  TRUE splice table (all count 113 unless noted, x2 stable):
+        shipped source + 2.8.1 splice ......... 16  (W72 said 26 "inert" -- wrong)
+        r,g,b, no read-back + splice .......... 20  (W72 said 56 -- wrong; residual =
+             region A exactly: b15<->newR a2/a3 pair + the parm-spill slide)
+        ... + sourceB fence removed ........... 20  (the W55 fence is 2.8.1-inert)
+        ... + 1-op newR fence after newR clamp   3 @114 (fence barrier blocks the chg
+             mult's load-delay-slot fill -> stray nop)
+        ... + tied launder on newR ............  8
+        ... + `__asm__("" : : "r"(newR));` AT THIS fence position, sourceB fence
+             removed, read-back removed ....... PASS 113/113  <== spec kept at
+             scratchpad/w76/A13_c4.spec; same source on the 2.8.0 lane = 56.
+     The PASS source is MORE faithful than the shipped basin: SLD-natural r,g,b store
+     order (SLD 206-208), no read-back device, one 1-op fence.  Mechanism: +1 ref lifts
+     newR (4->5 refs, pri .33->.42) above b15's .33 tie so newR allocates first ($a2,
+     retail) and b15 takes $a3; at this position the barrier sits between the newB
+     compute and its clamp where it blocks no slot fill.
+     => SHIP DECISION unchanged until the orchestrator/user wires a PER-FN cc1PLUS
+     ver-splice lane (compile_cpp has none; only compile_c has _apply_cc1_ver_splice)
+     and rules on the FSF-built 2.8.1 cc1plus stand-in (-funsigned-char lab build).
+     When wired: apply A13_c4.spec verbatim + the splice row -> seal.  NOTE for the
+     [distribute_notes] trace belt (A20): pristine 2.8.1 does NOT reproduce the Night
+     orphan -- the note dies at the :11282 elim break; to reproduce 2.8.0 behavior the
+     instrument needs an env-gated NULL elim_i2/elim_i1 at the i3dest_killed call.
+     CONFIRMED with A20's built instrument (GCC_TRACE_DISTRIBUTE_NOTES=2, instrumented
+     2.8.1 cc1plus, this TU's .i): ZERO trace lines -- reg 137's REG_DEAD never even
+     enters the place==0 walk under 2.8.1 (discarded at the elim break, upstream of
+     the walk), the one-command negative certificate for this receipt.  The W75 named
+     angles (a) label-move and (b) same-block-death are both DEAD BY CONSTRUCTION on
+     2.8.0: a *successful* walk placement also yields REG_N_DEATHS==2 (theorem above),
+     so no label/block reshape can reach deaths==1 -- only the elim discard can, and
+     2.8.0 never takes it.  The splice-lane PASS recipe above supersedes them. */
   if (0xff < newB) newB = 0xff;
   /* `& ~7` (a register-held -8, oracle `addiu $v1,$zero,-0x8` + three `and`), NOT
      `& 0xf8` (which is a 16-bit unsigned immediate -> andi). */
@@ -650,23 +709,17 @@ void Night_CreateNightTable(int colorIndex,long colorH,int bright,u_char (*tbl)[
 void Night_GenerateNextLightningEvent(void)
 
 {
-  u_int r;
-  int fork;
-  int rmask;
-  int *ticksp;
+  int rmask; /* SYM-CODEGEN-CARRIER: rmask -- shared masked-delay result; direct expressions are FAIL 8 (29/29) */
+  int *ticksp; /* SYM-CODEGEN-CARRIER: ticksp -- explicit gameTicks cell preserves retail relocation/issue order; direct global is FAIL 2 */
 
   ticksp = &simGlobal.gameTicks;
-  r = random();
-  rmask = (r & 0x7ff) + 0x1f;
+  rmask = (random() & 0x7ff) + 0x1f;
   Night_gNextLightning = *ticksp + rmask;
-  r = random();
-  rmask = (r & 0xf) + 0xf;
+  rmask = (random() & 0xf) + 0xf;
   Night_gEndNextLightning = Night_gNextLightning + rmask;
   Night_gNextFlicker = Night_gNextLightning;
-  r = random();
-  Night_gFlashAzimuth = r & 0xffff;
-  fork = random();
-  Night_gShowForks = (u_char)fork & 1;
+  Night_gFlashAzimuth = random() & 0xffff;
+  Night_gShowForks = (u_char)random() & 1;
   return;
 }
 
@@ -702,9 +755,6 @@ void Night_PauseLightningEffect(int player)
 void Night_DoLightningEffect(DRender_tView *Vi)
 
 {
-  u_int r;
-  BOOL tunnel;
-  
   if (Night_gLightning != 0) {
     AudioCmn_PlayThunder(Night_gFlashIntensity,Night_gFlashAzimuth);
     Hrz_LightningFlicker(0);
@@ -713,24 +763,20 @@ void Night_DoLightningEffect(DRender_tView *Vi)
   if (((simGlobal.gameTicks > Night_gNextLightning) &&
       (simGlobal.gameTicks < Night_gEndNextLightning)) && (Night_gNextFlicker < simGlobal.gameTicks)
      ) {
-    r = random();
-    Night_gLightningType = r & 1;
+    Night_gLightningType = random() & 1;
     Hrz_LightningFlicker(1);
-    tunnel = BWorldSm_TunnelFlagSm(&Camera_gInfo[Vi->player].slicePos);
     /* branched if/else, NOT `= (tunnel == 0)`: the oracle emits
        `beqz $v0,.L; addiu $v0,zero,1` + two separate `sb` stores with a `j` over the
        else arm; the boolean-expression form folds to a single sltiu. */
-    if (tunnel != 0) {
+    if (BWorldSm_TunnelFlagSm(&Camera_gInfo[Vi->player].slicePos) != 0) {
       Night_gDrawLightning = 0;
     }
     else {
       Night_gDrawLightning = 1;
     }
     Night_gLightning = 1;
-    r = random();
-    Night_gNextFlicker = simGlobal.gameTicks + (r & 3);
-    r = random();
-    Night_gFlashIntensity = (Night_gLightningType + 1) * (r & 0x1f) + 0x40;
+    Night_gNextFlicker = simGlobal.gameTicks + (random() & 3);
+    Night_gFlashIntensity = (Night_gLightningType + 1) * (random() & 0x1f) + 0x40;
     if (lightningInit != '\0') {
       if (Night_gShowForks != '\0') {
         Hrz_SetLightingPosInSky(Vi);
@@ -940,22 +986,13 @@ void Night_InitWeatherTables(void)
 void Night_SetWeatherColors(int colorIndex)
 
 {
-  long colorH;
-  u_char (*wtbl) [256];
-  u_char (**wtblp) [256];
-  long *color_walk;
   int i;
 
   i = 0;
-  color_walk = Night_gWeatherColor_arr;
-  wtblp = Night_gWeatherLightingTable_arr;
   do {
-    colorH = *color_walk;
-    color_walk = color_walk + 1;
-    wtbl = *wtblp;
-    wtblp = wtblp + 1;
+    Night_CreateNightTableElement(colorIndex,Night_gWeatherColor_arr[i],0xf,
+                                  *Night_gWeatherLightingTable_arr[i] + colorIndex);
     i = i + 1;
-    Night_CreateNightTableElement(colorIndex,colorH,0xf,*wtbl + colorIndex);
   } while (i < 2);
   return;
 }
@@ -1151,14 +1188,10 @@ void Night_KillNightDriving(void)
 void Night_RestartNightDriving(void)
 
 {
-  u_int r;
-  
   if ((GameSetup_gData.Weather == 1) && (GameSetup_gData.Time != 0)) {
     Night_gLightning = 0;
-    r = random();
-    Night_gNextLightning = simGlobal.gameTicks + (r & 0x1ff);
-    r = random();
-    Night_gEndNextLightning = Night_gNextLightning + (r & 0x31);
+    Night_gNextLightning = simGlobal.gameTicks + (random() & 0x1ff);
+    Night_gEndNextLightning = Night_gNextLightning + (random() & 0x31);
     Night_gNextFlicker = Night_gNextLightning;
     Hrz_LightningFlicker(0);
   }
@@ -1359,9 +1392,6 @@ void Night_RestartNightDriving(void)
 void Night_SetEnviroment(DRender_tView *Vi)
 
 {
-  int mode;
-  int zn;
-  
   if (GameSetup_gData.Time != 0) {
     Night_gDrawLightning = '\0';
     Night_gCurrentNightColor = Night_gPlayerLightingTable;
@@ -1373,8 +1403,9 @@ void Night_SetEnviroment(DRender_tView *Vi)
     Night_gZDistShift = 0xc;
     /* MATCH (w63-a13): 6 -> 2, count still EXACT 68/68.  See the w63-a13 block
      * above the function for the mechanism and the falsification list. */
-    u_char *tgt = (u_char *)Camera_gInfo[Vi->player].target;
-    int zn2 = 0x80;
+    u_char *tgt /* SYM-CODEGEN-CARRIER: tgt -- direct target access is FAIL 6 (68/68) */ =
+        (u_char *)Camera_gInfo[Vi->player].target;
+    int zn2 /* SYM-CODEGEN-CARRIER: zn2 -- direct constant store is FAIL 8 (68/68) */ = 0x80;
     __asm__("" : : "r"(zn2));
     Night_gZNear = zn2;
     if ((tgt[0x447] & 4) != 0) {

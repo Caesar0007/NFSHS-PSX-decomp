@@ -439,8 +439,7 @@ int DrawW_CalcSubdivision(Draw_tGiveShelbyMoreCache *sd,Draw_SVertex *v0,Draw_SV
      order gives the oracle's beqz-to-far-block layout + duplicated `jr` returns.
      Every funnel/ternary/nested form leaves the value in $v1 + a copy (14 diffs), and
      the ascending/nested direct-return orders flip branch polarity (6-10 diffs). */
-  int iVar1;
-  int minz;
+  int minz; /* SYM-CODEGEN-CARRIER: minz -- running-min funnel required by the measured retail guard chain */
   int z0;
   int z1;
   int z2;
@@ -781,6 +780,28 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
          and specifically whether the ONE insn every snapshot form loses (the
          in-place `n = n + 1`) can be preserved while the v4 address still moves
          below the new-n -- that is the exact contradiction to break.
+         ---- W76-A5 (2026-08-23): THE FOLD-BACK FAMILY IS FALSIFIED TOO; stays 8.
+         The untried cell -- spell v4's index off the ALREADY-MUTATED n so the
+         statement can sit chain-AFTER the new-n while cse folds the constant
+         back to the old register (s4) at zero insns -- does NOT fold:
+           v4 = &r_div->v[(short)(n - 5)] placed after `n = n + 4` .. 101 @589
+           v4 = &r_div->v[(short)(n - 1)] between q-block and n+4 ...   9 @589
+           v4 = &r_div->v[(short)(n - 1)] right after n+1 (w70 cell
+             re-priced at this basin) ..............................  26 @588
+         The addiu -K survives in all three: cse cannot simplify
+         (plus (subreg:HI promoted-n) -K) back to the old SImode reg through
+         the PROMOTE_MODE truncation, so every after-mutation spelling is +1
+         insn -- the source layer stays contradictory (the 9 @589 cell is the
+         closest order-wise and is exactly one dead addiu over).  The named
+         instrument stands: -df/-dc chain forensics, plus one NEW fact for it --
+         retail's interleave ([addiu n+1][sll s4][addiu n+4][sra][addu]) puts
+         `addiu t8,a3,4` INSIDE v4's 3-insn scale chain, which NO statement
+         order can produce at expand time; combined with W75's proof that both
+         scheds preserved their input here, the divergence must be created
+         between expand and sched2 on the RETAIL side only -- check reload-
+         inserted ARG-home reloads (the lhu s4 reload is a RELOAD insn, so
+         sched2's luid picture differs from sched1's) before any more source
+         probing.
          DO NOT re-run: the fence walk (w70, 36 probes, all +2 insns on a short),
          the six index-chain spellings (w70), or any n0/nb/newn snapshot (above). */
       short q = n + 1;
@@ -1056,7 +1077,6 @@ void DrawW_SetUpSubdividFacet(int face,Draw_tGiveShelbyMoreCache *sd)
   Draw_SVertex *v2;
   Draw_SVertex *v3;
   POLY_GT4 *prim;
-  short sVar2;
 
   v0 = &sd->v0;
   v1 = &sd->v1;
@@ -1134,8 +1154,7 @@ gte_swc2(0xe,((char *)sd + 0x184));
   }
   v0->a = '\0';
   if (v0->dvx < 0x3e9) {
-    sVar2 = v0->dvy;
-    if ((((1000 < sVar2) || (v0->dvx < -1000)) || (sVar2 < -1000)) || (v0->vz < 0x65))
+    if ((((1000 < v0->dvy) || (v0->dvx < -1000)) || (v0->dvy < -1000)) || (v0->vz < 0x65))
     goto DrW_SubSetup_v0Alpha;
   }
   else {
@@ -1144,8 +1163,7 @@ DrW_SubSetup_v0Alpha:
   }
   v1->a = '\0';
   if (v1->dvx < 0x3e9) {
-    sVar2 = v1->dvy;
-    if (((1000 < sVar2) || (v1->dvx < -1000)) || ((sVar2 < -1000 || (v1->vz < 0x65))))
+    if (((1000 < v1->dvy) || (v1->dvx < -1000)) || ((v1->dvy < -1000 || (v1->vz < 0x65))))
     goto DrW_SubSetup_v1Alpha;
   }
   else {
@@ -1154,8 +1172,7 @@ DrW_SubSetup_v1Alpha:
   }
   v2->a = '\0';
   if (v2->dvx < 0x3e9) {
-    sVar2 = v2->dvy;
-    if (((1000 < sVar2) || (v2->dvx < -1000)) || ((sVar2 < -1000 || (v2->vz < 0x65))))
+    if (((1000 < v2->dvy) || (v2->dvx < -1000)) || ((v2->dvy < -1000 || (v2->vz < 0x65))))
     goto DrW_SubSetup_v2Alpha;
   }
   else {
@@ -1164,8 +1181,7 @@ DrW_SubSetup_v2Alpha:
   }
   v3->a = '\0';
   if (v3->dvx < 0x3e9) {
-    sVar2 = v3->dvy;
-    if ((((sVar2 < 0x3e9) && (-0x3e9 < v3->dvx)) && (-0x3e9 < sVar2)) && (100 < v3->vz))
+    if ((((v3->dvy < 0x3e9) && (-0x3e9 < v3->dvx)) && (-0x3e9 < v3->dvy)) && (100 < v3->vz))
     goto DrW_SubSetup_callSubdiv;
   }
   v3->a = '\x01';
@@ -1285,7 +1301,7 @@ void Night_NightCalc(VECTOR *v,short *idx,Draw_tGiveShelbyMoreCache *sd)
        already register-resident.  FALSIFIED: split with no fence (2), split with
        a USE-only fence `: : "r"(lt)` (21, count 58 -- it forces a real copy), a
        void `: : "i"(0)` fence before the statement (2, byte-identical). */
-    int lt = sd->night_LightningType;
+    int lt /* SYM-CODEGEN-CARRIER: lt -- identity laundering moves the table-byte load to the retail issue slot */ = sd->night_LightningType;
     __asm__("" : "=r"(lt) : "0"(lt));
     *idx = (u_short)(*Night_gWeatherLightingTable[lt])[*idx];
   }
@@ -1329,7 +1345,6 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
    * the quad's verts 2 and 3 are cross-fed (vt3 -> slot2, vt2 -> slot3). */
   VECTOR temp0;
   long color;
-  CVECTOR *lt;
 
   if (sd->light == -1) {
     if ((sd->nightFlags & 1U) != 0) {
@@ -2233,7 +2248,7 @@ void DrawW_kCtrlWorld_High(Draw_tGiveShelbyMoreCache *sd)
      exactly the oracle's lazy sentinel. The earlier attempt failed because it kept
      `sentinel = -1` UP FRONT (sentinel then owns the -1 materialization in $s3 and the
      guard compares vs $s3) AND fused the load-decrement through a $v0 stage. */
-  int sentinel;
+  int sentinel; /* SYM-CODEGEN-CARRIER: sentinel -- lazily materializes the retail $s3 loop terminator */
   int numQuads;
   Trk_Quad *pquad;
 
@@ -2261,12 +2276,13 @@ void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
      `r2`,`r3` sharing ANOTHER ($v1) in the innermost block -- i.e. topVert/iquad is loaded
      ONCE into r0, reused for BOTH aPoints[1]=r0 and aPoints[0]=r0+1 (assigned to r1); same
      for botVert into r2/r3 -> aPoints[2]=r2, aPoints[3]=r3=r2+1. The previous version
-     re-read pTVar4->topVert/botVert via 4 independent expressions (4 loads instead of 2) --
+     re-read stripPtr->topVert/botVert via 4 independent expressions (4 loads instead of 2) --
      also needed BOTH topVert/botVert loaded back-to-back BEFORE either `+iquad` add (same
      load-batch-then-compute idiom as DrawW_WorldSetUpMatrix), and a dedicated `pMaterial`
-     pointer pre-offset by +4 (walked +2/iter) instead of re-deriving `(char*)pTVar4+4+
+     pointer pre-offset by +4 (walked +2/iter) instead of re-deriving `(char*)stripPtr+4+
      iquad*2` each pass (frees $s2 for the oracle's addressing).
-     NEAR-MISS 2 diffs (2026-07-08, was 10): the inner loop is the EXIT-IN-THE-MIDDLE
+     SEALED: the current authoritative gate is PASS 58/58. The historical final
+     pre-seal residual was 2 diffs (2026-07-08, was 10): the inner loop is the EXIT-IN-THE-MIDDLE
      no-rotation shape (methodology par.3.12 #15a) -- `while(true){ if(numQuads<=iquad)
      break; body; }` keeps gcc's top-test + unconditional `j`-back (the oracle's form);
      BOTH a goto-test do-while AND a plain `while(iquad<numQuads)` get rotated to a
@@ -2279,31 +2295,26 @@ void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
   int r1;
   int r2;
   int r3;
-  u_char bVar1;
-  short sVar2;
   int iquad;
   int numQuads;
   Trk_NewStrip *stripPtr;
-  Trk_NewStrip *pTVar4;
-  u_short *pMaterial;
+  u_short *pMaterial; /* SYM-CODEGEN-CARRIER: pMaterial -- dedicated +4 halfword cursor is required for the retail inner-loop addressing/allocation */
   Trk_Quad newQuad;
 
-  pTVar4 = sd->stripPtr;
+  stripPtr = sd->stripPtr;
   sd->doublelayer = 1;
   while( true ) {
-    sVar2 = sd->numStrips + -1;
-    sd->numStrips = sVar2;
+    sd->numStrips = sd->numStrips + -1;
     iquad = 0;
-    if (sVar2 == -1) break;
-    bVar1 = pTVar4->quadCount;
-    numQuads = (int)(u_int)bVar1;
-    pMaterial = (u_short *)((char *)pTVar4 + 4);
+    if (sd->numStrips == -1) break;
+    numQuads = (int)(u_int)(u_char)stripPtr->quadCount;
+    pMaterial = (u_short *)((char *)stripPtr + 4);
     while (true) {
       if (numQuads <= iquad) break;
       if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr) {
         newQuad.material = *pMaterial;
-        r0 = pTVar4->topVert;
-        r2 = pTVar4->botVert;
+        r0 = stripPtr->topVert;
+        r2 = stripPtr->botVert;
         r0 = r0 + iquad;
         newQuad.aPoints[1] = (u_char)r0;
         r0 = r0 + 1;   /* in-place increment (r0 dead after); r1 takes the result */
@@ -2318,7 +2329,7 @@ void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
       pMaterial = pMaterial + 1;
       iquad = iquad + 1;
     }
-    pTVar4 = (Trk_NewStrip *)(&pTVar4->topVert + (u_char)pTVar4->size);
+    stripPtr = (Trk_NewStrip *)(&stripPtr->topVert + (u_char)stripPtr->size);
   }
   return;
 }
@@ -2550,6 +2561,41 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
        NON-VOLATILE tied launder is the +2-ref/zero-insn priority dial and a VOLATILE
        (output-less) fence is a sched-order dial via rank_for_schedule's class test
        -- neither is a +1-ref device, which is why this residual survives both.
+     ---- W76-A6 (2026-08-23): STILL 9, but the class-(b) ask is RE-FRAMED by a SYM
+       DISCOVERY, and 12 more cells are measured (all probed on a temp sibling TU,
+       all reverted; base untouched):
+       (1) 🔑 SYM GROUND TRUTH (nfs4-f-v3.txt 8c block @0x800c6fa0, offset 3e325d):
+           the ONLY named locals are sd (REG $0x10=s0!), chunkCount (AUTO -0x30),
+           buildInd (REG $0x1e=fp), chunkDat (s1), pChunkCp (s2), cx/cz/dist (v0),
+           tmp/tmp2 (AUTOs; s5 = &tmp2 is the hoisted ADDRESS of an AUTO), group/
+           this.  THERE IS NO gteFlag AND NO negOne -- retail's `li s7,1` /
+           `li s6,-1` are LICM-HOISTED MOVABLES from in-loop LITERALS (the four
+           zeroGTETransFlag=1 and five light=-1 sites).  Our named-constant locals
+           are FABRICATED (rule-8 violation, SYM-empty-locals=>DELETE class); the
+           whole class-(b) "cse breaker" framing chases a shape retail never had.
+       (2) MEASURED (base 9 @358):  full-literal SYM-true shape (both vars deleted,
+           9 literal sites) 77 @362; + W72 off7d-fence removed 77 @362 -- the
+           literal basin needs its OWN device re-tune (the current fence/statement
+           set was tuned for the variable basin; 23B-3).  W74's 26 @359 was the
+           gteFlag-only-literal HALF-cell; the negOne half was never probed with it.
+       (3) NEW DEVICE, WORKS BUT ROTATES HERE: opaque tied-constant asm-init
+           `__asm__("" : "=r"(x) : "0"(K))` = `x = K` spelled so cse never records
+           a register holding K (the K materializes as the asm's RELOAD, post-cse).
+           On gteFlag it MINTS retail's `li v0,1` at count-EXACT 359 every time
+           (36-46 diffs: the asm is a sched1 black box, the prologue interleave +
+           s-band rotate).  Catalog-worthy as the zero-REF cse-sharing breaker the
+           W74 ask names -- just not the right tool where the variable itself is
+           fabricated.
+       (4) Falsified same wave: volatile store cast (9, cse substitutes anyway);
+           elder plain `int one=1` before gteFlag (9 -- 23C-2 single-def/single-use
+           const-props back); elder laundered one (12 @359 -- cse canon_reg
+           rewrites the launder INPUT to the oldest 1-holder = s7, minting
+           `addu v1,s7,zero`); one/gteFlag order+launder permutations (75-83 @362);
+           multi-output gteFlag+negOne launder 48, separate launders 54.
+       NEXT ANGLE (named): re-tune the device set IN the full-literal SYM-true
+       basin -- the movable landscape there is 1(x4,QI)/-1(x5,HI)/125(x4)/0x7d...
+       vs buildInd/&tmp2; start from w1+w2 (scratchpad/w76/a6_w{1,2}.json) and
+       price fence-site sweeps on the literal occurrences like W72 did for 125.
      ============================================================================ */
 
   buildInd = 0;
@@ -2939,16 +2985,14 @@ void DrawW_WorldSetUpTranslation(coorddef *t,MATRIX *mat)
 {
   int tx;
   int ty;
-  int iVar1;
-  int iVar2;
   int tz;
   
   tx = t->x;
-  iVar1 = t->y;
-  iVar2 = t->z;
+  ty = t->y;
+  tz = t->z;
   mat->t[0] = tx >> 10;
-  mat->t[1] = iVar1 >> 10;
-  mat->t[2] = iVar2 >> 10;
+  mat->t[1] = ty >> 10;
+  mat->t[2] = tz >> 10;
 gte_SetTransMatrix(mat);
   return;
 }
@@ -2973,7 +3017,7 @@ int DrawW_GetAnimationTime(Trk_AnimateInst *animInst)
 {
   int track;
   int maxTick;
-  int iVar2;
+  int iVar2; /* SYM-CODEGEN-CARRIER: iVar2 -- distinct result funnel preserves the retail copy */
 
   /* MATCH: early-return the gameTicks case (inverted condition) so gcc lays out
      [conds][gameTicks][body] like the oracle; the body then re-reads objectIndex.
@@ -3011,7 +3055,7 @@ int DrawW_GetAnimationTime(Trk_AnimateInst *animInst)
      hoists above the compare.  (Catalog par.A "flat guard-chain / result-funnel"
      family; the earlier receipt's "ours is objectively better-scheduled floor,
      permuter candidate" verdict is retired.) */
-  int tick;
+  int tick; /* SYM-CODEGEN-CARRIER: tick -- block-local load temp feeding the distinct result pseudo */
   maxTick = (animInst->count + -2) * (int)animInst->interval;
   tick = animation_timer[animInst->objectIndex - 1];
   if (maxTick <= tick) {
@@ -3084,34 +3128,29 @@ void DrawW_SetAnimationTime(Trk_AnimateInst *animInst,int *table,int time)
 void DrawW_DoObjectAnimations(void)
 
 {
-  int time_00;
   int track;
-  Trk_AnimateInst **ppTVar1;
   int i;
-  int iVar2;
   int *trackPtr;
-  int (*table) [2];
   int time;
-  
-  if (GameSetup_gData.track == 0) {
-    table = trk0;
+
+  track = GameSetup_gData.track;
+  if (track == 0) {
+    trackPtr = trk0[0];
   }
   else {
-    if (GameSetup_gData.track != 4) {
+    if (track != 4) {
       return;
     }
-    table = trk4;
+    trackPtr = trk4[0];
   }
-  time_00 = simGlobal.gameTicks;   /* MATCH: load deferred past the track test (oracle order) */
-  iVar2 = 0;
-  ppTVar1 = Anim_gInstanceFromIndex;
+  time = simGlobal.gameTicks;   /* MATCH: load deferred past the track test (oracle order) */
+  i = 0;
   do {
-    if ((*ppTVar1)->objectIndex != '\0') {
-      DrawW_SetAnimationTime(*ppTVar1,*table,time_00);
+    if (Anim_gInstanceFromIndex[i]->objectIndex != '\0') {
+      DrawW_SetAnimationTime(Anim_gInstanceFromIndex[i],trackPtr,time);
     }
-    iVar2 = iVar2 + 1;
-    ppTVar1 = ppTVar1 + 1;
-  } while (iVar2 < 0x10);
+    i = i + 1;
+  } while (i < 0x10);
   return;
 }
 
@@ -3146,9 +3185,7 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
   matrixtdef matrix;               /* AUTO -0x88 -> 32(sp) */
   coorddef cp;                     /* AUTO -0x60 -> 72(sp) */
   coorddef pt2;                    /* AUTO -0x50 -> 88(sp) */
-  int animType;
-  BOOL clipRes;
-  int distSq;
+  int animType;                    /* SYM-CODEGEN-CARRIER: direct field tests are FAIL 2 (189/189; sltiu vs retail slti) */
 
   
   /* NEGATIVE (w41-a2, both halves measured, both REVERTED).  SYM declares `sd`
@@ -3494,20 +3531,20 @@ gte_SetTransMatrix((void *)0x1f800014);
              The index-term-first cast is what flips `addu v0,v1,v0` to retail's
              `addu v0,v0,v1`; the w61-a2 falsification of that same 12D spelling
              was priced in the OLD (hoisted) basin -- 21E(1) re-pricing. */
-          { int zo = objInstance->zoffset;
-            signed char *g;
+          { int zo = objInstance->zoffset; /* SYM-CODEGEN-CARRIER: index temp is one part of the measured PASS joint cell */
+            signed char *g;               /* SYM-CODEGEN-CARRIER: second SET prevents loop.c hoisting; removing it loses PASS */
             __asm__("" : : "i"(0));
             g = goffsets;
             __asm__("" : "=r"(g) : "0"(g));
             objectOffset = *(signed char *)(zo + (int)g); }
         }
-        animType = objInstance->type;
         /* SYM block-scoping (line70/71 vs 95/107/114, all converging on the shared
            loop-tail at line124/132) + the oracle's flat forward-beq compare chain
            (==1 / <2-skip / ==3 / ==7 / skip) with BOTH case bodies pushed OUT OF LINE
            after the chain -- neither a plain if/else-if (inlines case1) nor a switch
            (gcc picks a range-check lowering for {1,3,7}) reproduces this; an explicit
            goto dispatch matches the oracle's actual block layout 1:1. */
+        animType = objInstance->type;
         if (animType == 1) goto animCase1;
         if (animType < 2) goto animNext;
         if ((animType == 3) || (animType == 7)) goto animCase37;
@@ -3522,13 +3559,12 @@ gte_SetTransMatrix((void *)0x1f800014);
          * (`move s2,zero` / `li s2,1` / `beqz s2`) = +2 insns AND it stole the
          * delay slot the oracle fills with `addu $a0,$s7,$zero`. */
         if (doFrustumClip != 0) {
-          clipRes = ObjectClipped(Vi,(int)objInstance->pad,(coorddef *)&objInstance->x,
-                             (Draw_tGiveShelbyMoreCache *)sd);
-          if (clipRes != 0) goto animNext;
+          if (ObjectClipped(Vi,(int)objInstance->pad,(coorddef *)&objInstance->x,
+                            (Draw_tGiveShelbyMoreCache *)sd) != 0) goto animNext;
         }
         if (zClipSq != -1) {
-          distSq = xzsquaredist32((coorddef *)&objInstance->x,&(Vi->cview).translation);
-          if (zClipSq <= distSq) goto animNext;
+          if (zClipSq <= xzsquaredist32((coorddef *)&objInstance->x,
+                                        &(Vi->cview).translation)) goto animNext;
         }
         /* MATCH (w46-a6): retail accumulates the RETURN VALUE directly --
          * `jal DrawObjectSimple; j .L800C7B54; addu $s5,$s5,$v0` -- it never
@@ -3548,8 +3584,7 @@ gte_SetTransMatrix((void *)0x1f800014);
            range to 24 and it then outranks objInstance for $s0 (40 diffs vs 22 here) --
            see the head receipt, residual class (A). */
         if ((zClipSq == -1) ||
-           (distSq = xzsquaredist32(&cp,&(Vi->cview).translation),
-           distSq < zClipSq)) {
+           (xzsquaredist32(&cp,&(Vi->cview).translation) < zClipSq)) {
           objDef = Track_gObjDefs[objInstance->pad];
           totalCount = totalCount + DrawObjectTransform(Vi,sd,&matrix,
                              objDef,&cp,objectOffset,-1);
@@ -3931,6 +3966,14 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
     transMat->t[1] = 0;
     (sd->matB).t[0] = 0;
 gte_SetTransMatrix(transMat);
+    /* W76-A6: zero-insn OUT-OF-LOOP opacity launder on the walker -- +2
+       unweighted REG_N_REFS on objInstance so it stays above t1 in
+       allocno_compare now that sz reads through objCollideBoomInstance
+       (which re-inflates p85 by one loop-weighted ref).  Position matters:
+       at the head block (before groupNumElements) it costs the guard
+       polarity / a store slot (3 @199); here, inside the guarded body
+       (24D-6), it is free and the fn is PASS 200/200. */
+    __asm__("" : "=r"(objInstance) : "0"(objInstance));
     /* MATCH (w71-a1): the oracle's element loop is UN-ROTATED -- the test sits at
        the loop TOP (`lw t1,84(sp); nop; slt v0,s7,t1; beqz v0,exit`) and the
        back-edge is an unconditional `j` whose DELAY SLOT carries `addiu s7,s7,1`
@@ -3979,10 +4022,36 @@ gte_SetTransMatrix(transMat);
            class (B) re-price on BOTH new bases (21E(1)) ............... 44 / 45
               -- reading `sz` through objCollideBoomInstance still costs, so the
               deliberate `lh s2,32(s4)` trade below STANDS. */
-      { int zo = objInstance->zoffset;
-        __asm__("" : "=r"(zo) : "0"(zo));
+      /* ==== W76-A6 (2026-08-23): 6 -> PASS 200/200, ALL residual classes closed.
+         (1) The d10 basin (laundered pointer `g` + laundered `zo`) was ONE nop
+             long: the zo launder is ON THE DATAFLOW PATH (lbu zo -> asm -> addu),
+             so sched2 can never move it out of the zoffset load-delay slot and the
+             zero-byte asm EATS the slot (24D-4).  Every attempt to make the asm
+             depend on the type load (24D-4's named cure) dragged the QI operand
+             into the allocation and minted an `andi 255` / re-colored the block
+             (measured: tc5-before-launder 13, "r"(tc5) 11, "r"(load-expr) 65,
+             "r"((int)load-expr) 11 -- all @201).
+         (2) THE UNMEASURED CELL WINS: g laundered + PLAIN `int zo` split (no zo
+             device at all) = 2 @200/200.  In the g-basin the address qty already
+             has +2 refs from ITS OWN launder, so the index needs no boost; W75's
+             zo launder was only compensating for the address hoist that the g
+             launder now kills at the source (24E-8).  Retail emission order
+             (lui/addiu ; lbu zo ; [slot] lbu type ; addu ; li 5 ; lb) and retail
+             registers (address $v1, index $v0) both come out for free.
+         (3) With (2) landed, the class-(B) `lh s2,32(s4)` trade RE-PRICED (21E-1)
+             and FELL: sz through objCollideBoomInstance costs 44 alone, but with a
+             compensating OUT-OF-LOOP launder on objInstance (after
+             gte_SetTransMatrix, +2 unweighted refs keeping p95 above t1) the whole
+             fn is PASS -- see the two edits below.  Device-removal re-test: minus
+             loop-top fence 1 @199 (the empty-beqz-slot law), minus tail launder
+             45 @199, minus g launder 68 -- all three stay. */
+      { signed char *g;
+        int zo;
+        g = offsets;
+        __asm__("" : "=r"(g) : "0"(g));
+        zo = objInstance->zoffset;
         tc5 = objInstance->type;
-        objectOffset = *(offsets + zo); }
+        objectOffset = *(signed char *)(zo + (int)g); }
       if ((tc5 == 5) || (tc5 == 2)) {
         objDef = Track_gObjDefs[objInstance->pad];
         /* MATCH (w71-a1, rule-8): the SYM's `objCollideBoomInstance` ($s2) is a
@@ -4024,14 +4093,12 @@ gte_SetTransMatrix(transMat);
             Quatern_QuatToMat(&quat,&matrix);
             sx = (int)objCollideBoomInstance->sx << 8;
             sy = (int)objCollideBoomInstance->sy << 8;
-            /* MATCH (w71-a1): the LAST blend read goes through `objInstance`, not
-               `objCollideBoomInstance`.  Same address (the two alias), but it holds
-               objCollideBoomInstance's REG_N_REFS at 8 instead of 10, which is what
-               keeps `objInstance` above `t1` in allocno_compare (reading it through
-               objCollideBoomInstance re-inflates p85 and rotates objInstance back to
-               $s5: gate 83 -> 119).  Costs exactly one diff, `lh s2,32(s4)` vs the
-               oracle's `lh s2,32(s2)`. */
-            sz = (int)((Trk_CollideBoomInst *)objInstance)->sz << 8;
+            /* MATCH (W76-A6, retiring the w71-a1 trade): retail reads ALL of
+               quat/sx/sy/sz through $s2 (`lh s2,32(s2)`), and in the g-basin the
+               p85 ref-inflation is paid for by the out-of-loop objInstance launder
+               after gte_SetTransMatrix (+2 unweighted refs keep p95 above t1) --
+               the old one-diff `lh s2,32(s4)` trade is gone and the fn is PASS. */
+            sz = (int)objCollideBoomInstance->sz << 8;
             /* MATCH (w62-a2): retail STORES the two saved results BEFORE the
              * third fixedmult call of each row -- `sw s5,32(sp); sw s3,44(sp);
              * jal fixedmult; [ds] sw v0,56(sp)`.  Calling m[6]/m[7]/m[8] first
@@ -4534,7 +4601,7 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
   PER_FN_BRANCH_RETARGET as ONE unit (18A coupling). */
 
   u_char type;   /* SYM REG $s0 */
-  ObjectAnim *anim;
+  ObjectAnim *anim; /* SYM-CODEGEN-CARRIER: anim -- the arm-local anchor receipt removes the retail v0/v1 dispatch copy */
   Trk_SimObject *simObjs;   /* SYM AUTO -56 -> sp+72 */
   int doFrustumClip;        /* SYM AUTO -52 -> sp+76 */
   short light;
@@ -4613,7 +4680,7 @@ gte_SetTransMatrix(&DW_WORLDMAT);
                               objInstance->z - (Vi->cview).translation.z));
         if (type == 9) {
           /* MATCH: SYM block scope (t1,t2,sx,sy -- no sz for the qz/qy-only shift pair). */
-          int t1, t2, t3, sx, sy;
+          int t1, t2, t3 /* SYM-CODEGEN-CARRIER: t3 -- split fixedmult result delays only the matrix store, preserving retail call/store scheduling */, sx, sy;
 
           sx = (int)((Trk_CollideBoomInst *)objInstance)->qz << 8;
           sy = (int)((Trk_CollideBoomInst *)objInstance)->qy << 8;
@@ -4866,9 +4933,7 @@ bool ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMoreC
      `if(iVar1<=iVar2){slt-arm} else {pvVar3=1;}` (arms swapped from the natural
      `if(iVar2<iVar1)` reading) matches. All three combined -> 61==61, byte-identical. */
   tBoundingSphere *bSphere;
-  int iVar1;
-  int iVar2;
-  BOOL pvVar3;
+  BOOL pvVar3; /* SYM-CODEGEN-CARRIER: pvVar3 -- result funnel preserves retail branch polarity; direct returns are FAIL 6 (61/61) */
   coorddef tmp;
   coorddef tmp2;
   coorddef trans;
@@ -4886,11 +4951,9 @@ bool ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMoreC
   tmp2.x = tmp2.x + trans.x;
   tmp2.y = tmp2.y + trans.y;
   tmp2.z = tmp2.z + trans.z;
-  iVar1 = tmp2.x;
   tmp2.z = tmp2.z + bSphere->radius * 0x400;
-  iVar2 = tmp2.z;
-  if (iVar1 <= iVar2) {
-    pvVar3 = (u_int)(iVar2 < -iVar1);
+  if (tmp2.x <= tmp2.z) {
+    pvVar3 = (u_int)(tmp2.z < -tmp2.x);
   }
   else {
     pvVar3 = 1;
@@ -5212,24 +5275,21 @@ int Draw_CircleClip(coorddef *pt1,coorddef *pt2,int r)
 {
   int dist;
   int dz;
-  int iVar1;
-  int iVar2;
   int dx;
   
-  dz = pt1->x;
-  iVar2 = dz - pt2->x;
-  if (iVar2 < 1) {
-    iVar2 = pt2->x - dz;
+  dx = pt1->x - pt2->x;
+  if (dx < 1) {
+    dx = pt2->x - pt1->x;
   }
-  iVar1 = pt1->z - pt2->z;
-  if (iVar1 < 1) {
-    iVar1 = pt2->z - pt1->z;
+  dz = pt1->z - pt2->z;
+  if (dz < 1) {
+    dz = pt2->z - pt1->z;
   }
-  if (iVar1 < iVar2) {
-    dist = iVar2 + (iVar1 >> 2);
+  if (dz < dx) {
+    dist = dx + (dz >> 2);
   }
   else {
-    dist = iVar1 + (iVar2 >> 2);
+    dist = dz + (dx >> 2);
   }
   return (u_int)(dist < r);
 }
@@ -6004,7 +6064,38 @@ gte_swc2(0x7,otz94);
            * this dial, and the only reachable ends are the DEF (source position)
            * and the LAST USE.  Here the def cannot move: `ccount_local` must stay
            * above `m` to keep the grey/m/ccount priority band, which is exactly
-           * what forces our m/t pair to be emitted last. */
+           * what forces our m/t pair to be emitted last.
+           * ---- W76-A5 (2026-08-23): STAYS 20; the m-first BASIN IS PRICED TO
+           * EXHAUSTION and the PIN LANE IS FALSIFIED WITH RECEIPTS (so no pin
+           * can land here even as last resort):
+           *  - retail-order (m,t,otz,grey,sd,cc) with ccount READ THROUGH m
+           *    (`((Draw_tCtrlSkidmark *)m)->count` -- the ref-transfer that
+           *    reproduces retail's `lw s5,48(s4)`): fence grid grey 2-3 x m 0-1
+           *    x t 1-2, adjacent AND tail-positioned: 58-94.  With ccM, cse
+           *    MERGES fskid/m into one pseudo (offset-0 base) -> the parm loses
+           *    its ARG-home spill (`sw a0,88(sp)` becomes `sw s4,48(sp)`,
+           *    frame 88 -> 96) -- a second, independent breakage of the basin.
+           *  - LAUNDER on m to break the cse merge: +1 insn (identity addu
+           *    materializes, 23B-2) -- 62-125 @354/355, dead.
+           *  - read-only fence on fskid to force the parm live: count drops to
+           *    352 (one short), 73 -- dead.
+           *  - PIN LANE PRICED: `register int ccount_local asm("s5")` over the
+           *    retail order x fence grid: 58-108 -- the pin buys the band but
+           *    NOT the merge/spill structure, so a pin cannot seal this fn.
+           *  - r2/r0 20B denial in the CURRENT basin (launder+$2-clobber on the
+           *    row-0 temps to flip v0->a1): 24-29, all worse.
+           *  - per-fn FLAG-SPLICE lane (allowed compiler-input): -fno-delayed-
+           *    branch 66 @363, -fno-thread-jumps 21 @352, -fforce-addr 71 @362,
+           *    -G8 21 @352, -mno-split-addresses 64 @349 -- all worse.
+           *  - corpus: no EA skidmark sibling (CTR VehGroundSkids is a
+           *    different toolchain/idiom).
+           * EMISSION = SOURCE ORDER at priority-0 ties (both scheds preserve
+           * input here), so the residual needs retail's m,t-first SOURCE order
+           * to coexist with the band -- every device family measured cannot
+           * provide both.  NAMED NEXT ANGLE: instrument-diff the -dg allocno
+           * tables of the current vs m-first basins and find the single
+           * allocator input (ref/live/conflict) that retail's basin satisfies;
+           * i.e. this is now an instrument task, not a probe task. */
           {
             __asm__ volatile(
                 "lw\t%0,4(%1)\n\t"
@@ -6058,19 +6149,14 @@ void DrawW_SetUpSubdividFacet_Line(Draw_tGiveShelbyMoreCache *sd)
      first made cc1plpsx instead emit `lhu+sll 16+sra 16` (functionally identical
      3-insn manual sign-extend) for the SAME value re-read inside the nested `if`.
      Removing the intermediate local and reading `v->dvx` directly at both use
-     sites (matching how `v->dvy`/`vz` are already read a second time via ts2/
-     ts4/ts6 already) restored the plain `lh`. Structurally-identical rewrite for
-     all 4 vertices; v3's block additionally lost its own now-redundant `ts5`. */
+     sites restored the plain `lh`. The later SYM-exact cleanup also removed the
+     remaining `ts2/ts4/ts6` decompiler temporaries and reads `dvy` directly at
+     both textual uses; gcc emits the same 166-instruction retail body. */
   Draw_SVertex *v0;
   Draw_SVertex *v1;
   Draw_SVertex *v2;
   Draw_SVertex *v3;
   POLY_GT4 *prim;
-  u_long cw_a;
-  u_long cw_b;
-  short ts4;
-  short ts2;
-  short ts6;
 
   v0 = &sd->v0;
   v1 = &sd->v1;
@@ -6086,12 +6172,17 @@ gte_swc2(0xe,((char *)sd + 0x154));
 gte_ldv3(((char *)sd + 0x15c),((char *)sd + 0x16c),((char *)sd + 0x17c));
   gte_rtpt();
   prim = &sd->GT4Prim;
-  cw_a = *(u_long *)&prim->r1;
-  cw_b = *(u_long *)&prim->r0;
-  *(u_long *)&v2->r = cw_a;
-  *(u_long *)&v1->r = cw_a;
-  *(u_long *)&v3->r = cw_b;
-  *(u_long *)&v0->r = cw_b;
+  {
+    u_long a;
+    u_long b;
+
+    a = *(u_long *)&prim->r1;
+    b = *(u_long *)&prim->r0;
+    *(u_long *)&v2->r = a;
+    *(u_long *)&v1->r = a;
+    *(u_long *)&v3->r = b;
+    *(u_long *)&v0->r = b;
+  }
 gte_stsxy3(((char *)sd + 0x164),((char *)sd + 0x174),((char *)sd + 0x184));
   {
     u_short a;
@@ -6110,8 +6201,7 @@ gte_stsxy3(((char *)sd + 0x164),((char *)sd + 0x174),((char *)sd + 0x184));
   }
   v0->a = '\0';
   if (v0->dvx < 0x3e9) {
-    ts2 = v0->dvy;
-    if ((((1000 < ts2) || (v0->dvx < -1000)) || (ts2 < -1000)) || (v0->vz < 0x65))
+    if ((((1000 < v0->dvy) || (v0->dvx < -1000)) || (v0->dvy < -1000)) || (v0->vz < 0x65))
     goto DrW_SubSetupLine_v0Alpha;
   }
   else {
@@ -6120,8 +6210,7 @@ DrW_SubSetupLine_v0Alpha:
   }
   v1->a = '\0';
   if (v1->dvx < 0x3e9) {
-    ts4 = v1->dvy;
-    if (((1000 < ts4) || (v1->dvx < -1000)) || ((ts4 < -1000 || (v1->vz < 0x65))))
+    if (((1000 < v1->dvy) || (v1->dvx < -1000)) || ((v1->dvy < -1000 || (v1->vz < 0x65))))
     goto DrW_SubSetupLine_v1Alpha;
   }
   else {
@@ -6130,8 +6219,7 @@ DrW_SubSetupLine_v1Alpha:
   }
   v2->a = '\0';
   if (v2->dvx < 0x3e9) {
-    ts6 = v2->dvy;
-    if (((1000 < ts6) || (v2->dvx < -1000)) || ((ts6 < -1000 || (v2->vz < 0x65))))
+    if (((1000 < v2->dvy) || (v2->dvx < -1000)) || ((v2->dvy < -1000 || (v2->vz < 0x65))))
     goto DrW_SubSetupLine_v2Alpha;
   }
   else {
@@ -6140,8 +6228,7 @@ DrW_SubSetupLine_v2Alpha:
   }
   v3->a = '\0';
   if (v3->dvx < 0x3e9) {
-    ts6 = v3->dvy;
-    if ((((ts6 < 0x3e9) && (-0x3e9 < v3->dvx)) && (-0x3e9 < ts6)) && (100 < v3->vz))
+    if ((((v3->dvy < 0x3e9) && (-0x3e9 < v3->dvx)) && (-0x3e9 < v3->dvy)) && (100 < v3->vz))
     goto DrW_SubSetupLine_callSubdiv;
   }
   v3->a = '\x01';
@@ -6274,6 +6361,42 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
        REAL BIV, a companion pointer with its own `+= 2` at both advance sites, so
        combine_givs has two iv classes to hang the 8 loads on).  The launder is
        therefore NOT a shortcut to it -- do not re-try the biv-kill.
+     ---- W76-A6 (2026-08-23): THE SECOND REAL BIV WAS BUILT AND MEASURED (temp
+       sibling TU, reverted): `int *g2 = (int *)geomVertices + 1;` before the
+       outer loop, `g2 += 4` beside BOTH `geomVertices += 2` advance sites, and
+       the 8 copy words split g2[5]/gv[7], g2[1]/gv[3], gv[0]/g2[0], g2[3]/gv[5]
+       (scratchpad/w76/a6_o1.json).  GATE 213 @524 (+17 insns, frame 120->128) --
+       BUT the structure half-WORKED and the receipt is sharp:
+       (a) 🔑 the g2 CLASS REPRODUCES RETAIL'S s5 EXACTLY -- reduced giv anchored
+           at abs +16 (disps +8/-8/0 for words 24/8/16, retail-identical; word 4
+           spilled to a temp only from pressure).  The anchor law held perfectly:
+           with g2 init at +4, the LAST g2-giv in body order is vt3's g2[3]
+           (abs 16) -> the combined giv anchors there = retail's s5.  The g2 half
+           of the construct is SOLVED; keep the o1 spelling for it.
+       (b) the FAILURE is the gv class: ours REDUCES its 3 givs (28/12/20) into a
+           second new reg (anchor +20) + keeps the biv for word 0, where retail
+           uses the BIV DIRECT for all of 0/12/20/28 -- the extra reduced-giv reg
+           is what blows the frame/pressure (+17).
+       (c) gcc-source facts for the next belt (loop.c, gcc-2.8.1-src): DEST_ADDR
+           givs get v->lifetime = 1 (loop.c:4577); combine_givs SUMS benefit AND
+           lifetime into the leader (:5760ff `g1->benefit += g2->benefit;
+           g1->lifetime += g2->lifetime`); the per-leader ignore test is
+           `lifetime * threshold * benefit < insn_count` (:3914) with threshold =
+           (loop_has_call ? 1 : 2) * (3 + n_non_fixed_regs) (:3280) and a further
+           `benefit -= add_cost * bl->biv_count` (:3881); a +0 access is NEVER a
+           giv (:4376 mult==1&&add==0 excluded) so it is always biv-direct free.
+       NEXT ANGLE (named, sharper than before): make the gv class FAIL the :3914
+       test while g2's passes.  The dials in the formula: gv-class giv COUNT
+       (fewer givs = smaller summed lifetime*benefit -- move a 4th word onto g2?
+       but retail's word->base map is fixed), biv_count (a THIRD gv increment
+       site would raise add_cost*biv_count and cut benefit -- e.g. splitting one
+       `+= 2` into `+= 1; += 1`... must stay count-neutral), or loop_has_call/
+       n_non_fixed_regs (global, untouchable).  Run CC1PLPSX -dL on the o1 form
+       FIRST: it prints the exact `lifetime * threshold * benefit` vs insn_count
+       numbers for both classes (the :3919 dump line), which turns the dial
+       choice into arithmetic.  Do NOT re-try: single-class spellings (all
+       falsified w72), the biv-kill launder (w75), or an UN-advanced g2 (its givs
+       just rejoin the gv class -- w72's two-base form).
      ---- */
   POLY_GT4 *prim;
   int lineQuadCount;
@@ -6512,16 +6635,15 @@ void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShe
      scheme with array-indexed CCOORD16 struct-field stores off ONE base (pts3d[0].f
      / pts3d[1].f), matching the oracle's single `lhu/sh` displacement pattern (the
      2nd base the oracle DOES use, t2 = pts3d+6, is the compiler's own strength
-     reduction of pts3d[N].light -- not a source-level variable). The walking
-     Trk_Line* (curLine, oracle $t4) reads firstPoint/slice as named struct fields
-     instead of raw u_char[0]/[1] casts (Trk_Line = {firstPoint,slice,type,quadIndex}
-     matches the byte layout 1:1); lineQuad is materialized FRESH at the call site
-     (matching oracle recomputing group+1 via $t9 there) rather than reusing the
-     now-advanced walking pointer. chunkDat->firstSimSliceInd has NO separate SYM
+     reduction of pts3d[N].light -- not a source-level variable). The SYM
+     `lineQuad` local is used as the walking Trk_Line* and reads firstPoint/slice
+     as named struct fields instead of raw u_char[0]/[1] casts (Trk_Line =
+     {firstPoint,slice,type,quadIndex} matches the byte layout 1:1); resetting it
+     before the call matches the oracle recomputing group+1 via $t9 there without
+     an additional source alias. chunkDat->firstSimSliceInd has NO separate SYM
      name -- it's a loop-invariant load the compiler CSEs into $s2 on its own; giving
      it an explicit local (the old sVar3) is unnecessary and is dropped. */
   int i;
-  Trk_Line *curLine;
   CCOORD16 *pts3d;
   Trk_Line *lineQuad;
   int slice;
@@ -6531,17 +6653,15 @@ void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShe
   CCOORD16 *wpts;
 
   pts3d = gVertex3d;
-  curLine = (Trk_Line *)(group + 1);
+  lineQuad = (Trk_Line *)(group + 1);
   i = 0;
   slice = chunkDat->firstSimSliceInd;
   tx = trans->x;
   ty = trans->y;
   tz = trans->z;
   wpts = (CCOORD16 *)(chunkDat->vertexBuf + 1);
-  while( true ) {
-    bool bVar10 = i < group->m_num_elements << 1;
+  while (i < group->m_num_elements << 1) {
     i = i + 2;
-    if (!bVar10) break;
     /* MATCH (w45-a5) -- PASS 88/88.  Four cooperating levers, in this order:
        (1) RULE-8: SYM VA 800ca0f8 block declares EXACTLY seven inner names --
            `pts` (PTR CCOORD16, reg $6=$a2) and six SHORTs x($3=$v1) y($4=$a0)
@@ -6571,7 +6691,7 @@ void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShe
            explicit `(T*)((i << 5) + (int)base)` cast form delivers it
            (methodology 5.0c commutative-addu lever).  2 -> PASS. */
     CCOORD16 *pts;
-    char *rn;
+    char *rn; /* SYM-CODEGEN-CARRIER: rn -- direct right[0..2] is 29 diffs and one instruction short */
     short x;
     short y;
     short z;
@@ -6579,8 +6699,8 @@ void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShe
     short wy;
     short wz;
 
-    pts = wpts + (u_int)curLine->firstPoint;
-    rn = ((Trk_NewSlice *)(((slice + (u_int)curLine->slice) << 5) + (int)BWorldSm_slices))->right;
+    pts = wpts + (u_int)lineQuad->firstPoint;
+    rn = ((Trk_NewSlice *)(((slice + (u_int)lineQuad->slice) << 5) + (int)BWorldSm_slices))->right;
     wx = (signed char)rn[0] >> 3;
     wy = (signed char)rn[1] >> 3;
     wz = (signed char)rn[2] >> 3;
@@ -6602,7 +6722,7 @@ void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShe
     pts3d->z = tz + (z + wz);
     pts3d->light = pts->light;
     pts3d = pts3d + 1;
-    curLine = curLine + 1;
+    lineQuad = lineQuad + 1;
   }
   lineQuad = (Trk_Line *)(group + 1);
   DrawW_OnyxLinePrim(gVertex3d,lineQuad,group->m_num_elements,sd);
@@ -7038,48 +7158,79 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
      (An explicit base pointer/int local to push it behind the two loop.c givs
      as well costs +2 insns -- 270 -- so the remaining cursor slot is a real
      residual, not this dial.) */
-  { int kk;
+  /* ==== W76-A5 (2026-08-23): 8 -> PASS 268/268, DEVICE-FREE. ====
+     RESIDUAL (ii) CLOSED -- the three preheader cursor slots.  Retail's byte
+     cursors are LOOP.C-EMITTED GIV INITS (chain-after the hoisted &vertex3d
+     movable), not entry-block source statements; no source position of an
+     explicit `kk` biv can reach that slot (every W75 falsification stands).
+     THE SPELLING: name the BARE OFFSET as its own int giv, `so = (i << 3) + K;
+     p = (CCOORD16 *)((int)vertex3d + so);` -- loop.c strength-reduces `so` and
+     emits `li $aN,K+8` in the preheader BEHIND `addiu $t0,$sp,16`.
+     WHY IT DOES NOT LOSE AN INSN (the w61/W76 giv-merge trap): combine_givs_p
+     (gcc-2.8.1 loop.c:5647-5674) merges two givs only when (a) identical
+     mult+add, or (b) g2 is DEST_ADDR and express_from(g1,g2) is a VALID
+     memory address.  With the sp-relative base folded INTO the giv (the w61
+     `vertex3d[i+8]` index form, or `(i<<3)+(int)vertex3d+K` in one expression
+     -- measured 265/-1 per loop this wave) the two cursors differ by a
+     CONSTANT -> express_from = reg+8 = valid address -> merged.  With the BARE
+     offset named, express_from yields a 3-term sp-based expression ->
+     memory_address_p fails -> BOTH cursors survive, exactly retail's pair.
+     Loops 2/3 additionally need the DEST offset as its own explicit giv `dof`
+     DEFINED BEFORE `so` (giv discovery order = body insn order; the reduced
+     regs hand out a3=src/a2=dst only in this order -- `so` first swaps the
+     pair, 44 diffs) with the address adds written p-then-q.  Loop 1 keeps its
+     ARRAY_REF dest (retail walks the dest pointer there: addiu $a0,$sp,24).
+     Measured this wave (probe TU, all @268/268 unless noted): explicit-kk
+     baseline 8 - named base `int b`/`CCOORD16 *b` rerouted through the body
+     +1 insn per loop (17/18 @269/270) - ARRAY_REF giv form 15-75 @265 (merge,
+     -1/loop) - bare-offset giv loop1 only 6 - two-giv ds loops2+3 + loop1
+     PASS - two-giv sd (so first) 44.  */
+  { int so;
   i = 1;
-  kk = 0;
   do {
-    CCOORD16 *p = (CCOORD16 *)((int)vertex3d + kk);
+    CCOORD16 *p;
+    so = (i << 3) - 8;
+    p = (CCOORD16 *)((int)vertex3d + so);
     vertex3d[i].x = *(u_short *)&p->x + wx;
     vertex3d[i].y = *(u_short *)&p->y + wy;
     vertex3d[i].z = *(u_short *)&p->z + wz;
     vertex3d[i].light = 0;
-    kk += 8;
     i++;
   } while (i < 9); }
   vertex3d[9].x = sx;
   vertex3d[9].y = sy + 0x19;
   vertex3d[9].z = sz;
   vertex3d[9].light = 0;
-  { int kk;
+  { int so; int dof;
   i = 1;
-  kk = 0x48;
   do {
-    CCOORD16 *p = (CCOORD16 *)((int)vertex3d + kk);
-    vertex3d[i+9].x = *(u_short *)&p->x + wx;
-    vertex3d[i+9].y = *(u_short *)&p->y + wy;
-    vertex3d[i+9].z = *(u_short *)&p->z + wz;
-    vertex3d[i+9].light = 0;
-    kk += 8;
+    CCOORD16 *p; CCOORD16 *q;
+    dof = (i << 3) + 0x48;
+    so = (i << 3) + 0x40;
+    p = (CCOORD16 *)((int)vertex3d + so);
+    q = (CCOORD16 *)((int)vertex3d + dof);
+    q->x = *(u_short *)&p->x + wx;
+    q->y = *(u_short *)&p->y + wy;
+    q->z = *(u_short *)&p->z + wz;
+    q->light = 0;
     i++;
   } while (i < 9); }
   vertex3d[18].x = sx + fx;
   vertex3d[18].y = sy + fy;
   vertex3d[18].z = sz + fz;
   vertex3d[18].light = 0;
-  { int kk;
+  { int so; int dof;
   i = 1;
-  kk = 0x90;
   do {
-    CCOORD16 *p = (CCOORD16 *)((int)vertex3d + kk);
-    vertex3d[i+18].x = *(u_short *)&p->x + wx;
-    vertex3d[i+18].y = *(u_short *)&p->y + wy;
-    vertex3d[i+18].z = *(u_short *)&p->z + wz;
-    vertex3d[i+18].light = 0;
-    kk += 8;
+    CCOORD16 *p; CCOORD16 *q;
+    dof = (i << 3) + 0x90;
+    so = (i << 3) + 0x88;
+    p = (CCOORD16 *)((int)vertex3d + so);
+    q = (CCOORD16 *)((int)vertex3d + dof);
+    q->x = *(u_short *)&p->x + wx;
+    q->y = *(u_short *)&p->y + wy;
+    q->z = *(u_short *)&p->z + wz;
+    q->light = 0;
     i++;
   } while (i < 9); }
   j = 0;

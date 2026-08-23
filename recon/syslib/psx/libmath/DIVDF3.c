@@ -180,6 +180,7 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
     int *dp;
     int exp, n;
     int *qp;
+    unsigned int *p2;   /* W76-A14: arm2's named tail-call pointer (order fence) */
     int sign;
 
     /* W62-A8 (2026-08-15) -- RE-GATED at 22.  The div-by-zero arm's named angle ("stop cse
@@ -447,7 +448,46 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
      *       duplicate-the-call / per-arm-pointer / launder spellings (52-84) were re-read but
      *       NOT re-run at this basin -- they were all priced when row (a) still cost 6 insns,
      *       so 04Z says re-price them before trusting those numbers.
-     *   NOT a floor. */
+     *   NOT a floor.
+     *
+     * 🏆 W76-A14 2026-08-23 -- **6 -> 2, count-exact 184/184.  ROW (ii) IS SOLVED** (both the
+     * `j`-slot nop @133 and the @145/146 [n+=1 | addiu a0,sp,24] order swap).  Three landings,
+     * all zero-insn, see the in-body comments: (1) the 05C fence MOVED out of the join head
+     * (it was the first insn at arm1's `j` target; reorg stop_search_p fires at ANY asm and
+     * walled the thread scan -- fence position alone: 6 -> 4); (2) the tail _dbl_shift_us
+     * DUPLICATED per arm + a DEAD `qp = 0;` cse-kill after each arm's _add_mant_d (without the
+     * kill, cse folds the in-arm &q into qp -> cross-call value -> callee-saved home, s-band
+     * rotation, 48; with it the duplicated calls cross_jump-merge exactly at retail's
+     * `sw s0,16` label); (3) arm2's tail pointer NAMED (p2) + an output-less order fence
+     * before `n += 1` (the sched2 critical-path tie is otherwise unwinnable: increment chain
+     * depth 4 via the /s-load false dep, a0-setup depth 2).  ⚠️ ORACLE FACT that unlocked it:
+     * .L800F6020 sits at `sw s0,0x10`, AFTER `addiu a0,sp,0x18` -- retail's a0-setup was
+     * PER-ARM, not a join insn; W75's "!own_thread COPY" reading of row (ii) was wrong.
+     * Falsified at this basin: per-arm `p=(uint*)q` w/o kill 86 @186 | dup w/o kill 48 @186 |
+     * `n+1` as 5th arg 65 @185 | `(n+=1)` embedded 4 (inert) | non-/s cast q loads 4 (inert) |
+     * 05C before n+=1 4 (inert) | W71 fence REMOVED at this basin 11 @183 (still needed).
+     *
+     * RESIDUAL (2) = row (i) @27 ONLY, now a CERTIFIED RUNG-IDENTITY row: ours `nop` in the
+     * `bnez t2,$L2` slot where retail copy-steals `lui $v0,0x7FFF` ($L2's head) and re-points.
+     * MECHANISM (gcc-2.8.1 source read + measured 2.7.2-vs-2.8.0 delta): the steal is gated by
+     * `! insn_sets_resource_p (trial, &opposite_needed, 1)` (reorg.c:3574), opposite_needed =
+     * mark_target_live_regs(fall-through).  For our fall-through (arm 1, inside block 0 -- no
+     * BARRIER+label between fn start and it, find_basic_block returns 0) the block scan marks
+     * $v0 live at its prologue SETs and its REG_DEAD (insn 33, `xor s4`) only enters
+     * pending_dead_regs, which is flushed ONLY at a CODE_LABEL (reorg.c:2860-2905) -- none
+     * exists there, so $v0 stays claimed.  gcc-2.8's find_dead_or_set_registers (reorg.c:2479)
+     * then FOLLOWS BOTH ARMS of the conditional at the target and discovers $v0 set-before-use
+     * (dead) -- 2.7.2's inline forward scan stops at the first conditional jump and never
+     * recovers the death.  MEASURED: on the 2.8.0/2.8.1/970404 rungs the @27 row VANISHES
+     * (their reorg fills the slot) but the allocator/cse deltas cost more elsewhere
+     * (V13-shape ladder: 2.7.2=2 | 970404=6 | 2.8.0=6 | 2.8.1=6 | 2.6.3=5 @183).  No source
+     * lever exists on this rung: the claim is fed by the prologue's unavoidable $v0 sets
+     * (identical in retail), not by any arm-1 $v0 use -- W75's "kill a $v0 use at arm 1's
+     * head" angle is closed (there is none; the pessimism is structural).  The vendor binary's
+     * reorg is 2.8-lineage on this axis while its allocator prices like our 2.7.2 rung
+     * (the W75 size-term proof) -- a mixed identity none of our 8 rungs reproduces whole.
+     * Routes left: a rung with 2.7.2 allocator + 2.8 reorg (does not exist on disk), or an
+     * annotated floor receipt.  Under the no-post-compile-rewrite policy this row is DONE. */
     ua.d = a;
     ub.d = b;
     exp = ((ua.w.hi >> 20) & 0x7FF) - ((ub.w.hi >> 20) & 0x7FF) + 1022;
@@ -502,11 +542,27 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
                  * instead.  27 -> 25. */
                 exp += 1;
                 _add_mant_d(qp, q[0], q[1], t[0], t[1]);
+                /* W76-A14 (2026-08-23): 6 -> 2.  The tail _dbl_shift_us is
+                 * DUPLICATED into both arms (retail's true shape -- the oracle's
+                 * join label .L800F6020 sits at `sw s0,0x10(sp)`, AFTER the
+                 * per-arm `addiu a0,sp,0x18`, so each arm owned its own tail-call
+                 * setup and cross_jump merged only from the sw onward; arm1's `j`
+                 * then backward-steals ITS OWN a0-setup into the delay slot).
+                 * `qp = 0;` after each arm call is a DEAD SET (flow deletes it,
+                 * zero insns) whose one job is to INVALIDATE qp's cse quantity:
+                 * without it cse folds the in-arm `&q` back into qp, the address
+                 * becomes a cross-call value, and the whole s-band rotates into a
+                 * callee-saved home (measured 48/86 diffs).  Measured ladder:
+                 * fence-move alone 4 | +dup naive 48 | +dup+kill 4 | +p2+order
+                 * fence (else arm) 2.  See the else arm + scratchpad/w76. */
+                qp = 0;
+                _dbl_shift_us((unsigned int *)q, 1, q[0], q[1], n);
             } else {
                 n = -exp;
                 t[1] = 0;
                 t[0] = 1 << n;
                 _add_mant_d(qp, q[0], q[1], t[0], t[1]);
+                qp = 0;   /* W76-A14 dead cse-kill -- see the arm above */
                 exp = 0;
                 /* W71-A12 CROSS-JUMP UN-MERGER -- DO NOT DELETE, DO NOT MOVE.
                  * Zero insns.  Without it sched1 hoists `exp = 0` above the jal,
@@ -515,18 +571,37 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
                  * own `jal _add_mant_d` (ours 182 vs retail 184).  The barrier pins
                  * `exp = 0` after the call, the suffixes differ, both arms keep
                  * their call -- and reorg then puts `exp = 0` in the jal's delay
-                 * slot exactly like retail.  Placement table in the receipt above. */
+                 * slot exactly like retail.  Placement table in the receipt above.
+                 * (W76-A14: still required at the 2-diff basin -- removing it
+                 * re-merges the arms, 11 @183.) */
                 __asm__ __volatile__("" : : "i"(0));
+                /* W76-A14 ORDER FENCE: retail's arm2 tail is [addiu a0,sp,24;
+                 * addiu s0,s0,1] -- the a0 setup ABOVE the increment.  Naming the
+                 * tail pointer (p2) and reading it through an output-less
+                 * (volatile) fence BEFORE `n += 1` forces the a0 materialization
+                 * above the fence while the increment cannot hoist across it --
+                 * zero insns, the sched2 critical-path tie (increment chain depth
+                 * 4 via sw s0,16 vs a0-setup depth 2) is otherwise unwinnable.
+                 * The 05C fence AFTER `n += 1` then differs the two arms' suffixes
+                 * at the right spot, so cross_jump merges exactly at `sw s0,16`
+                 * like retail. */
+                p2 = (unsigned int *)q;
+                __asm__ __volatile__("" : : "r"(p2));
                 n += 1;
+                /* 05C ref-fence.  TWO `n` operands, NOT one -- the second is the W75-A14
+                 * seat dial: it takes `n`'s REG_N_REFS 8 -> 9, whose global.c priority
+                 * floor_log2(9)*9/28 = 0.964 just clears the DFmode `ur` allocno's
+                 * floor_log2(19)*19/159*2 = 0.956, so `n` is served first and takes $s0,
+                 * leaving retail's $s2:$s3 even pair for `ur` and $s1 for `exp`.
+                 * Dropping either operand costs 58 diffs.  Zero insns.
+                 * (W76-A14: moved from the join into this arm -- at the join head
+                 * it was an asm at the `j` target, and reorg's stop_search_p
+                 * fires at ANY asm, walling the thread scan that fills arm1's
+                 * `j` delay slot with the a0 setup: the fence position alone was
+                 * worth 2 diffs.  Seat effect is position-independent.) */
+                __asm__("" : : "r"(n), "r"(n));
+                _dbl_shift_us(p2, 1, q[0], q[1], n);
             }
-            /* 05C ref-fence.  TWO `n` operands, NOT one -- the second is the W75-A14
-             * seat dial: it takes `n`'s REG_N_REFS 8 -> 9, whose global.c priority
-             * floor_log2(9)*9/28 = 0.964 just clears the DFmode `ur` allocno's
-             * floor_log2(19)*19/159*2 = 0.956, so `n` is served first and takes $s0,
-             * leaving retail's $s2:$s3 even pair for `ur` and $s1 for `exp`.
-             * Dropping either operand costs 58 diffs.  Zero insns. */
-            __asm__("" : : "r"(n), "r"(n));
-            _dbl_shift_us((unsigned int *)q, 1, q[0], q[1], n);
             q[1] &= 0xFFEFFFFF;
             if (exp >= 2047) {
                 _err_math(34, 15);

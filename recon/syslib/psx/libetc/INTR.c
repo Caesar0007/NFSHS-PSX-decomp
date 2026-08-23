@@ -589,9 +589,30 @@ extern void _intrhand(void)            /* @0x800F2A40 */
      * (hold the address / the value in a named local so the block's pseudo BIRTH ORDER is
      * source-controlled), not fences and not pins.  They MUST stay function-scope and
      * SHARED between the two pend sites: per-site copies score 30, block scopes 36-38. */
-    unsigned short en;                  /* the enabled-IRQ mask, read once per pend site  */
-    volatile unsigned short *sp;        /* I_STAT anchor                                   */
-    volatile unsigned short *mp;        /* I_MASK anchor                                   */
+    /* MATCH (W76-A16, 2026-08-23): 20 -> PASS 116/116.  PIN-SEALED (policy last resort;
+     * two seat pins) -- the seven-wave pend-block wall falls as a JOINT CELL of SIX
+     * ingredients, every one measured load-bearing by ablation (drop any one and it
+     * fails: no-mp-pin 36, no-en-pin 20, no-pins 34, plain store 16, entry order
+     * mp-first 18, loop order unchanged 4, EN-OUTER tree 18):
+     *   (1) en pinned $3 + (2) mp pinned $2 -- retail's seats.  W74-A17(2) proved the
+     *       mechanism: a fn-scope pseudo is a GLOBAL allocno, invisible to local-alloc's
+     *       find_free_reg scan (local-alloc.c:2214), so no C shape can make $v0/$v1
+     *       busy at the derefs' births; the pins ARE that occupancy.  ~250 clean cells
+     *       over W60..W75 (spellings, scopes, fences, clobber sets, flags, rungs,
+     *       corpus shapes) + this wave's -O3/xenogears-preset and sotn 2.6-flagset
+     *       falsifications exhausted the clean ladder first.
+     *   (3) the W75-A16 cast store (below) kills the true_dependence hoist,
+     *   (4) entry order sp;en;store;mp + (5) loop order sp;en;mp, and
+     *   (6) retail's EN-INNER pend tree `*mp & (en & *sp)` (W74-A17(1) read it off the
+     *       stream; the tree basin scored 38-46 un-pinned ONLY because the homes
+     *       rotated -- with the seats pinned it is exact, incl. `lhu a0,0(a0)` /
+     *       `lhu v0,0(v0)` each deref reusing its own pointer's dying register).
+     * The 2.6.3 ver-splice rung is now INERT here (PASS with and without the row --
+     * the pins also fix the closing-test lhu pair the rung was bought for); the row
+     * stays per W76 policy 3.  Receipts: scratchpad/w76/A16_report.md + a16_i*.py. */
+    register unsigned short en __asm__("$3");   /* enabled-IRQ mask, $v1 = retail seat */
+    volatile unsigned short *sp;                /* I_STAT anchor ($a0 falls out naturally) */
+    register volatile unsigned short *mp __asm__("$2");  /* I_MASK anchor, $v0 = retail */
 
     state = (unsigned short *)&g_intr;
     __asm__("" : "=r"(state) : "0"(state));  /* zero-insn opacity fence: keep the base a REGISTER */
@@ -599,11 +620,13 @@ extern void _intrhand(void)            /* @0x800F2A40 */
         printf("unexpected interrupt(%04x)\n", I_STAT);
         ReturnFromException();
     }
-    mp = g_imask_ptr;
     sp = g_istat_ptr;
     en = state[0x18];
-    state[1] = 1;
-    pend = en & (*sp & *mp);
+    /* W75-A16 cast store: clears MEM_IN_STRUCT_P so sched.c:830 true_dependence
+     * stops exempting the pointer loads from the store dependence (zero insns). */
+    *(unsigned short *)((char *)state + 2) = 1;
+    mp = g_imask_ptr;
+    pend = *mp & (en & *sp);
     s0 = (unsigned short)pend;
     if (pend != 0) {
         one = 1;
@@ -623,10 +646,10 @@ extern void _intrhand(void)            /* @0x800F2A40 */
                     i++;
                 }
             }
-            mp = g_imask_ptr;
             sp = g_istat_ptr;
             en = g_intr.enabled;
-            pend = en & (*sp & *mp);
+            mp = g_imask_ptr;
+            pend = *mp & (en & *sp);
             s0 = (unsigned short)pend;
         } while (pend != 0);
     }
@@ -873,14 +896,45 @@ extern int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C10 */
         nMask = I_MASK;
         I_MASK = 0;
         nNewMask = nMask & 0xFFFF;
-        /* W72-A19 (12 @84 -> 4 @82): the zero-insn 21A-5 'm'-operand fence that mints
-         * retail's SECOND base `addiu $a2,$a1,-4` (= &g_intr) so BOTH arms stay warm.
-         * Operand and position are both load-bearing -- see the MATCH block above. */
-        __asm__("" : : "m"(g_intr.inited));
+        /* MATCH (W76-A16, 2026-08-23): 4 @82 -> PASS 82/82.  PIN-SEALED (policy last
+         * resort; the pin is the SEAT only, the mechanism is proven and documented).
+         * MECHANISM (cse.c, read + dump-verified this wave, .rtl/.cse/.cse2 receipts in
+         * scratchpad/w76/a16_dumps/): retail's arm-1 `lhu/sh 0x30($a2)` (struct base)
+         * vs arm-2 `0x2C($a1)` (cb base) asymmetry is decided by cse.c:5693 `from_plus`
+         * RE-ASSOCIATION, not by use_related_value's chooser: ANY pseudo whose cse class
+         * carries `(plus regCB -4)` has its `(plus reg 48)` uses folded onto the cb base
+         * (48-4=44) in cse2 -- that is what un-based BOTH our arms (and why the W72 'm'
+         * fence could only mint a DEAD $a2: its base enters the table with the -4 form).
+         * ESCAPE = a tied zero-insn launder whose OUTPUT is a fresh pseudo: an asm output
+         * is unrecordable in cse, so the laundered pointer's class has NO plus-form and
+         * from_plus cannot fire on arm 1, while arm 2's plain access still folds 44($a1)
+         * = retail's exact mixed pair.  Measured (all gated, all count-checked):
+         *   ctl+launder, no pin: 7 @83 (reload tie copy `move $4,$6` -- combine_regs
+         *   refuses the tie, 19B: ctl is a global allocno, reg_qty<0 source);
+         *   + clobbers "$4","$5" (24E seat denial): 2 @82 posmis 3 -- the $4 clobber
+         *   anti-deps the cb store (sw reads hard $4 post-alloc) and sched2 hoists
+         *   sw above li/sllv (retail: li,sllv,sw).  Clobber grid: "$4" 7, "$2$3$4" 7
+         *   (seat falls to $5), "$4$5" 2, "$2$3$4$5" 2; launder position: arm-1 head 2,
+         *   pre-branch 29 @81 (arm 2 collapses onto the opaque reg), after-cb 2, after
+         *   nNewMask 12; named `bit` / "r"(1<<idx) extra input 12 (recolors); statement
+         *   swap 2 (inert); -fno-schedule-insns2 16; -O3 / -O3+fenceless / -g -gcoff /
+         *   sotn 2.6-flagset x {2.7.2, 2.6.3} all inert (xenogears -O3 PSY-Q preset
+         *   falsified as a vendor-identity lead -- arm words unchanged in all 6 cells).
+         * THE PIN: `register IntrState *c2 __asm__("$6")` seats the launder output in
+         * retail's $a2 -- the ONLY missing piece after the falsifications above (the
+         * clean seat needs $2..$5 denied at the asm without touching $4; no zero-insn
+         * C vehicle exists: local-alloc's numeric scan cannot see the not-yet-colored
+         * global slot-ptr in $4, 24E-W74).  Zero insns: the asm emits nothing, the tie
+         * gives ctl (global.c) the same $6, the addiu lands in the beqz delay slot by
+         * eager-steal exactly like retail, and the guard keeps `lhu -4($a1)`. */
+        {
+        IntrState *ctl = &g_intr;
         if (handler != 0) {
+            register IntrState *c2 __asm__("$6");
+            __asm__("" : "=r"(c2) : "0"(ctl));
             g_intr.cb[idx] = handler;
             nNewMask = nNewMask | (1 << idx);
-            g_intr.enabled |= (1 << idx);
+            c2->enabled |= (1 << idx);
         } else {
             g_intr.cb[idx] = 0;
             nNewMask = nNewMask & ~(1 << idx);
@@ -895,6 +949,7 @@ extern int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C10 */
         if (idx == 5) ChangeClearRCnt(1, handler == 0);
         if (idx == 6) ChangeClearRCnt(2, handler == 0);
         I_MASK = nNewMask;
+        }
     }
     return oldCallback;
 }

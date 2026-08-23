@@ -1332,6 +1332,7 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
     int      stored;
     int      fretry;
     int      err;
+    int      cmd2;
 
     /* FALSIFIED (w53-a7): the TU-wide base-anchor law does NOT pay here.  Retail does reach
      * _mc_chan as `lw $a0,0xC($s3)` off a &_mc_cmd anchor, but adding the fenced base local
@@ -1573,6 +1574,43 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
      *   puts a second `mc` access in the SAME block as the chan read -- or that carries the base
      *   pseudo across the guard's label without minting a named allocno -- collects (b) AND (c)
      *   together, worth ~6 rows plus the ~55-position slide. */
+    /* W76-A18 -- THE W75 NAMED ANGLE LANDED: 23 -> 8 @152/152 (posmis 13); classes (b)+(c)+(d)
+     * collected together, plus the li-2 DEMOTE cell.  THE DEVICE THE FOUR FALSIFIED BASINS MISSED:
+     * a SINGLE fn-scope opacity-laundered `pc = &mc.cmd` carrying EVERY mc access in the fn
+     * (entry guard, RMW chan read, handler guard, latch stores) -- the full DeleteFile/CreateFile
+     * anchor design, never previously ported whole.  Why it is not the falsified base-anchor
+     * family: those basins ADDED an anchor next to the compiler's own cse base (9th allocno);
+     * this one REPLACES it (same allocno count), and the opacity launder kills the REG_EQUAL
+     * const so cse2 can no longer fold reg+12 back to the `mc+12` macro (mechanism: cse fold_rtx
+     * const-propagates a base whose qty is REG_EQUAL-known; find_best_addr never re-touches
+     * CONSTANT_ADDRESS_P addresses, cse.c:2707; measured -- the same source with a path-visible
+     * la folds insn 79 reg84+12 -> const(mc+12) at cse2; dumps scratchpad/w76/rtl/A18_base.i.*).
+     * LADDER (each whole-TU gated; prober scratchpad/w76/A18_probe.py):
+     *   G1 plain chan read + fences moved into then-block ... 26 (chan still macro: the fold-back
+     *      needs the LAUNDER gone-from-const, not fence removal; blez slot fills but with fretry)
+     *   G2 + retail init order (fretry,idx early, stored LAST) ... 22 count-exact (reorg backward
+     *      fill takes the CLOSEST eligible init -> stored=0 must sit last)
+     *   G5 fn-scope pc, all accesses ... 49 (band rotated: pc pri .8648 over idx)
+     *   G5c + latch do-while UNWRAPPED (-3 weighted refs) ... 39 (fretry .5192 vs pc .527)
+     *   G5d + fretry ref fences (per-INSN counting, +1 each) ... 17 -- band retail-exact:
+     *      idx $s1 .6666 > fretry $s2 .6000 > pc $s3 .5064 > giv $s4 .3783 (A18_G5d_qty.txt)
+     *   G6 + the W71 read-before-store hoist (prevcb/cmd0 block) ... 12 (guard load v1, save_cb
+     *      store after = retail order)
+     *   G7 + `cmd2 = 2` DEMOTE local (long-live, low-pri, keeps REG_EQUIV -> reload REMATS
+     *      `li t0,2` and reorg's target-thread steal drops it into the blez slot exactly like
+     *      retail; the honest-C stack-forcing shape the W75 receipt asked for) ... 8
+     *   G7e device minimization: idx fence UNNECESSARY (8); 3 fretry fences = minimum (2 -> 34).
+     * SIDE WINS IN THE BASIN: the chan WRITE un-folds for free (plain `mc.chan = chan` against
+     * the opaque pc has no const base to fold onto -> `sw $23,mc+12` macro -> gas splits it into
+     * UserFuncOpen's jal slot = retail's `lui $at; jal; sw $s7,%lo(D_80147524)($at)`); the li-2
+     * steal came out of reorg naturally once cmd0/cmd2 were named.
+     * REMAINING 8 = ONE class: the W74-certified 2.7.2 rung floor (a) -- `sw $a3,156` vs retail's
+     * 4-aligned 92($sp) -- plus its tail reload riding the same slot (`lw v1,156` vs `lw t0,92`).
+     * Tail-reg dials RE-MEASURED on THIS basin: clobber "$2" (kept) v1/8 | none v0/9 (+nop, loses
+     * the beqz fill) | "$3" 9 | "$2","$3" a0/8 | "$2".."$7" 24 (bad_spill_regs displaces the
+     * max/end-ptr $t0 users; W74's verdict re-confirmed).  The reg half is worth 4 rows; the
+     * named additive angle (give $2 more USES so order_regs_for_reload demotes it in the ring
+     * sort) is still unclaimed.  NOT a floor beyond (a). */
     /* W62-A8: PARM-SPILL PIN on `dir` (13B/w61-a3 §2).  Without it assign_parms` copy
      * `addu $s6,$a2,$zero` sinks into the busy-guard`s `beqz` delay slot; retail keeps it in
      * the prologue group and lets reorg fill that slot from the fall-through thread with the
@@ -1580,7 +1618,10 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
      * second operand is inert (40). */
     __asm__("" : : "r"(dir));
     __asm__("" : : "m"(files));
-    if (mc.cmd != 0) {
+    {
+    int *pc = &mc.cmd;
+    __asm__("" : "=r"(pc) : "0"(pc));
+    if (pc[0] != 0) {
         printf("Access Denied. : system busy\n");
         return -1;
     }
@@ -1588,11 +1629,10 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
     MemCardMakeDevname(chan, devname);
     strcat(devname, name);
     err     = 0;
-    idx     = 0;
-    __asm__("" : : "r"(idx));
-    stored  = 0;
     fretry  = 0;
-    __asm__("" : : "r"(fretry));
+    idx     = 0;
+    stored  = 0;
+    cmd2    = 2;
     /* W62-A8: retail READS _mc_chan off the live &_mc_cmd base (`lw $a0,0xC($s3)`) while
      * still WRITING it with the `$at` macro.  The device that gets the read there WITHOUT
      * spending a 9th saved reg (the w53-a7/w59-a8 objection) is a BLOCK-LOCAL, opacity-
@@ -1602,13 +1642,12 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
      * 40 -> 36.  A PLAIN (unfenced) block-local is inert (40) -- the fence is the lever.
      * On MemCardDeleteFile the same fenced form measures 23 -> 47 (its `p` is loop-live and
      * the fence becomes an alias barrier), so price it per function. */
-    {
-        int *pc = &mc.cmd;
-        __asm__("" : "=r"(pc) : "0"(pc));
-        _mc_present |= 1 << pc[3];
-    }
+    _mc_present |= 1 << pc[3];
 
     if (ofs + max > 0) {
+        __asm__("" : : "r"(fretry));
+        __asm__("" : : "r"(fretry));
+        __asm__("" : : "r"(fretry));
         do {
             if (idx == 0) {
                 retry_top:
@@ -1630,17 +1669,19 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
                     fretry = fretry + 1;
                     if (fretry > 3) {
                         /* repeated failure: re-accept the card, then bail */
-                        _mc_save_cb = (int (*)(int, int))MemCardCallback(0);
-                        if (mc.cmd > 0) {
+                        {
+                        int prevcb = (int)MemCardCallback(0);
+                        int cmd0 = pc[0];
+                        _mc_save_cb = (int (*)(int, int))prevcb;
+                        if (cmd0 > 0) {
                             printf("Access Denied. : event multiple open\n");
                         } else {
-                            do {
-                            mc.cmd  = 2;
-                            mc.rslt = 0;
-                            mc.done = 0;
+                            pc[0]   = cmd2;
+                            pc[1]   = 0;
+                            pc[2]   = 0;
                             mc.chan = chan;
                             UserFuncOpen((int)MemCardCmd_cb);
-                            } while (0);
+                        }
                         }
                         MemCardSync(0, 0, &err);
                         MemCardCallback((int)_mc_save_cb);
@@ -1685,6 +1726,7 @@ have_entry:
     if (files != 0)
         *files = stored;
     return 0;
+    }
 }
 
 /* @0x800FBAE8 : MemCardCallback -- install completion callback, return the previous one. */
@@ -2069,9 +2111,35 @@ extern long MemCardCreateFile(long chan, char *file, long blocks)
     retry = 0;
     MemCardMakeDevname(chan, devname);
     strcat(devname, file);
+    /* W76-A18 -- PIN-SEALED (LAST RESORT under the 2026-08-23 policy): 4 -> PASS 130/130.
+     * THE ROW: retail emits `addiu $a0,$sp,16 ; li $a1,1` EARLY, leaves the open() jal slot
+     * EMPTY, and gas backward-fills it by SPLITTING the `sw $3,_mc_present` macro
+     * (`lui $at` above, `sw $v1,%lo(_mc_present)($at)` in the slot).  Ours: reorg's
+     * fill_simple_delay_slots takes `li $5,1` (the FIRST eligible candidate walking back from
+     * the jal -- calls.c emits arg moves LAST, so no C statement can sit between them and the
+     * call; reorg.c:3082-3125 + stop_search_p :685-712, the W75 citation).
+     * FALSIFIED before this (the last-resort justification): every fence/constant-position
+     * device (W71/W72/W74 lists), named-oflag forms 6-70, cc1 ladder (2.7.2-970404 77 / 2.8.0 86
+     * / 2.8.1 86 / 2.6.x reject), per-fn -fno-peephole / -fno-function-cse (inert),
+     * -fno-schedule-insns{,2} 18/20, -fno-delayed-branch 10 @134/130 with a >=4-diff floor
+     * (target-thread steal unrecoverable by gas); PER_FN_SLOT_UNFILL_272 = post-compile rewrite,
+     * FORBIDDEN by policy.  THE CELL (all three parts REQUIRED -- measured this wave:
+     * pins-without-wall 4, m1-pin+wall 4, wall-only 4, full cell PASS):
+     *   1. `register char *dn asm("$4") = devname` -- the address materializes at the DECL
+     *      (early, retail's position), not inside expand_call;
+     *   2. `register long m1 asm("$5") = 1` -- same for the mode constant;
+     *   3. an output-less (volatile, sched-anchored) zero-insn asm BETWEEN the pinned sets and
+     *      the RMW -- stop_search_p wall: the backward scan now dies before reaching either
+     *      pinned set, the slot stays empty, and gas produces retail's macro split.
+     * The pins carry values the ABI puts in those registers at the call anyway (a0/a1 = the
+     * open() args); no allocation is being forced that the call itself does not force. */
+    {
+    register char *dn __asm__("$4") = devname;
+    register long  m1 __asm__("$5") = 1;
+    __asm__ __volatile__("" : : "i"(0));
     _mc_present |= 1 << (base[3]);
-
-    fd = open(devname, 1);                       /* probe: does it already exist? */
+    fd = open(dn, m1);                           /* probe: does it already exist? */
+    }
     if (fd >= 0) {
         close(fd);
         return 6;                                /* already present */

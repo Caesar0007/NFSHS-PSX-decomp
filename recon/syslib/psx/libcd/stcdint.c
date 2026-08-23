@@ -716,27 +716,52 @@ extern void _st_dma(int ch, int madr, int blocks, int blocksize, volatile int ch
      * read WHY $v0 is offered to the dv chain before idx -- i.e. whether it is the priority
      * order at all, or a qty_phys_copy_sugg/prune_preferences effect (the same correction
      * W74-A14 had to make to the CD_cw certificate one file over). */
+    /* [PIN] W76-A17: 21 -> 1 @107/106 -- THE RAGE-RACER CELL (PIN-SEALED residual-1; the
+     * pin is LAST-RESORT per the W76 policy ladder, receipt below).
+     * SIBLING-CORPUS HIT (the angle the W75 receipt had not run): the 100%-byte-exact
+     * Rage Racer decomp's CD_dmastart (C:/Temp/rage-racer-decomp/src/main/PAL/lib/libcd/
+     * dma_start.c) IS this routine, and its matched source needed `register long dv
+     * asm("$6")` -- the SAME seat our dv/idx inversion wants.  Independent proof the
+     * dv->$a2 seat is pin-territory, not a missed source dial.
+     * THE LANDING IS A JOINT CELL (each part alone measured WORSE, all gated):
+     *   pin dv -> $6 alone (idx machinery kept)                 35
+     *   pin dv + drop idx fence                                 35
+     *   pin dv + drop idx local (p = 0x1F801080 + (ch << 4))    35
+     *   FULL CELL: pin dv + drop idx local/fence + drop the two
+     *     `bit` identity fences + drop the `dp` identity fence   1  <- landed
+     *   full cell + also drop the bv read-only fence            19  (bv fence load-bearing)
+     *   full cell + bv PINNED to $4 instead of its fence          7
+     *   full cell but keep the dp fence                          15
+     * (23B-3 at work: the W64/W75 bit/dp/idx devices were scaffolding for the wrong
+     * seating; once dv sits in $a2 they are net-negative and are REMOVED.)
+     * THE RESIDUAL 1 = `li v0,1` duplicated into the busy-guard's beqz delay slot, and it
+     * is a PIPELINE-IDENTITY FLOOR (sec.3.25-3b), mechanism read from reorg.c + dumps:
+     *   - the guard's fall-through steal (retail's slot = the preheader `lui a2,1`
+     *     0x10000 limit) is impossible in cc1: the 65536 pseudo is loop-carried
+     *     ("dies in 0 places", flow dump), so mark_target_live_regs' REG_DEAD walk keeps
+     *     $a2 "live" at the loop exit and fill_slots_from_thread refuses the trial;
+     *   - fill_simple's backward scan cannot reach any earlier candidate because the
+     *     VOLATILE busy-read sits between (scan stops at a volatile ref);
+     *   - so cc1's eager fill duplicates the target's `li v0,1` (label NUSES=2 -> copy,
+     *     not move) = the +1 insn; measured invariant across shapes: for-loop, guarded
+     *     do-while, named limit in-loop, named limit pre-loop (entry-block li lands ABOVE
+     *     the branch and is STILL not taken -- scratchpad/w76/a17_slotsweep.py).
+     *   Retail's slot is ASPSX's OWN fall-through fill under -fno-delayed-branch (the
+     *   3.25-3b identity); per-fn -fno-delayed-branch was re-measured at 35 (W75) because
+     *   GNU-as reorder cannot reproduce ASPSX's fills elsewhere in the fn.  No compiler
+     *   input reaches 106/106; 1 is this function's floor on the wired pipeline. */
     __asm__("" : : "r"(bv));   /* MATCH: DEMOTE bv (read-only fence) so dptr wins $v1 */
     dummy = *(volatile int *)_dicr;
     __asm__ __volatile__("");  /* MATCH: Rage Racer CD_dmastart barrier -- keep the DICR read-back serial */
     {
-        int dv;
+        register int dv __asm__("$6");  /* PIN (W76-A17, last-resort): dv -> $a2, retail seat. */
         int bit;
-        int idx;
 
         dv  = ch * 4;
         bit = 1 << (dv + 3);
         __asm__ __volatile__("");  /* MATCH: Rage Racer CD_dmastart barrier */
-        __asm__("" : "=r"(bit) : "0"(bit));  /* MATCH: PROMOTE bit -> $v1 (2 refs => negative */
-        __asm__("" : "=r"(bit) : "0"(bit));  /* MATCH: allocno numerator; needs TWO fences)   */
-        idx = ch << 4;
-        __asm__("" : : "r"(idx));  /* MATCH (W75-A17): DEMOTE idx (read-only fence, live 4 ->
-                                    * 12, qty pri 5000 -> 2500) so the 0x1F801080 base outranks
-                                    * it and takes $a1 = `p`'s reg -> retail's dest-is-the-BASE
-                                    * `addu $a1,$v0,$a1`.  Zero insns.  25 -> 21; see above. */
-        p   = (volatile int *)(0x1F801080 + idx);
+        p   = (volatile int *)(0x1F801080 + (ch << 4));
         dp  = _dpcr;
-        __asm__("" : "=r"(dp) : "0"(dp));  /* MATCH: PROMOTE dp -> $a0 (p then takes $a1) */
         dv  = *dp;
         *dp = dv | bit;
         *p++ = madr;                                /* MADR */

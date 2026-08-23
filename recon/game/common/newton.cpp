@@ -1908,6 +1908,11 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
   int nx;
   int nz;
   int nz2;
+  int nxq;
+  int t3;
+  int ny;
+  int nyq;
+  int dsum;
   coorddef upVec;
   matrixtdef islandMatrix;
 
@@ -1940,7 +1945,6 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
   barrierVec.x = -(nz / 0x100 * 0x100);
   __asm__("" : : "r"(nz));  /* zero-insn: crosses the divide's own BB boundary */
   __asm__("" : : "i"(0));   /* w62-a11 reorg slot-steal barrier, see receipt */
-  barrierVec.y = 0;
   __asm__("" : : "i"(0));   /* W72-A9 3rd void fence -- see the nx receipt below */
   /* MATCH (W72-A9): `nx` IS the two-use survivor pseudo retail parks in $a3.
      Retail's FIRST read of normal.x is store-forwarded off the parm home
@@ -1956,12 +1960,34 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
      pre-clamp-split basin.  After the two-pseudo clamp landed, plain `nx` is
      69 @103 on its own and 53 with the m[6]/m[7] pair below. */
   nx = normal.x;
-  barrierVec.z = nx / 0x100 * 0x100;
-  distRetreat = normal.x / 0x100 * (newtonObj->linearVel.x / 0x100) +
-                normal.y / 0x100 * (newtonObj->linearVel.y / 0x100) +
+  nxq = nx / 0x100;                /* W76-A10: the (c) split -- x-quotient named */
+  barrierVec.y = 0;
+  __asm__("" : : "r"(nxq));        /* W76-A10: zero-insn; seats the x-div temp on $v0;
+                                      placed AFTER the bvy store so the join pair keeps
+                                      sched1's retail [sw,sra] order (fence between them
+                                      pins the wrong order -- see receipt) */
+  t3 = nxq * 0x100;                /* W76-A10: shift carrier -- sll lands in the y-bgez slot */
+  ny = normal.y;
+  nyq = ny / 0x100;
+  barrierVec.z = t3;
+  __asm__("" : : "r"(ny));         /* W76-A10: divide-copy law carrier for the y-divide
+                                      (mints `addu v0,a2,zero`); must sit near the divide
+                                      (deferring past the dot loses the copy, 7 @105) */
+  dsum = ({ int p1 = nxq * (newtonObj->linearVel.x / 0x100); __asm__("" : : "i"(0)); p1; }) +
+                nyq * (newtonObj->linearVel.y / 0x100) +
                 (nz2 = *(volatile int *)&normal.z) / 0x100 * (newtonObj->linearVel.z / 0x100);
-  if (distRetreat < 0) {
-    distRetreat = -distRetreat;
+  /* W76-A10: the stmt-expr's i(0) fence after the x-mult is THE keystone device --
+     a volatile asm barrier INSIDE the dot expression stops sched1 hoisting the
+     lvy load (`lw 176(s1)`, pseudo 107) above the x-mult.  That hoist was creating
+     the 107x87 / 107x103 conflicts that denied $v1/$v0 to the x-quotient (read off
+     the -dg .greg conflict lists, scratchpad/w76/nsplit.i.greg) -- the whole W75
+     "one allocno seat" residual was DOWNSTREAM of this one sched1 move.  `dsum`
+     (not distRetreat) carries the dot+abs so the carrier pseudo has NO call-arg
+     $a1 preference (retail's sum lives in $v0; SYM's distRetreat REG $3 is the
+     post-/16 value).  A reader who "simplifies" p1/dsum away or moves a fence
+     reintroduces a 20+ diff miss. */
+  if (dsum < 0) {
+    dsum = -dsum;
   }
   /* MATCH (w64-a11): 73 -> 71.  reorg was EAGER-STEALING the unary minus of the
      next statement into the abs-guard's `bgez` delay slot, so ours emitted THREE
@@ -1975,7 +2001,7 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
   /* MATCH (w55-a11): plain `/0x10` replaces a hand-written `if(x<0)x+=0xf; x>>=4`
      guard -- that guard IS gcc's own signed power-of-2 divide (83->81, and a
      semantic correction: the hand form was a transcription of the codegen). */
-  retreat = -distRetreat / 0x10;
+  retreat = -dsum / 0x10;
   /* MATCH (W72-A9): 71 -> 61.  THE CLAMP IS A TWO-PSEUDO SELECT, not an in-place
      override.  Retail keeps the divide result in $v1 (SYM `distRetreat REG $3`)
      and mints an explicit `addu $a1,$v1,$zero` on the fall-through arm while the
@@ -2280,7 +2306,52 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
      run ON THE SPLIT BASIN's dump (04Z -- the cell table is basin-relative), or
      (b) a clobber whose live-range window ends BEFORE `mflo` (22B-1 placement
      law): every whole-statement position measured above is either inert or hits
-     the accumulator too. */
+     the accumulator too.
+
+     ===== W76-A10 (2026-08-23).  LANDED 23 -> 2 @106/106 (count-exact).
+     THE W75 "ONE ALLOCNO SEAT" WAS DOWNSTREAM OF ONE SCHED1 HOIST -- proven by
+     reading the production CC1PLPSX's own -dl/-dg dumps on the split basin
+     (scratchpad/w76/a10_dump.py; nsplit.i.{lreg,greg}): pseudo 87 = x-quotient
+     (took $a0), pseudo 107 = the lvy load `lw ..,176(s1)` which sched1 hoisted
+     ABOVE the x-mult (insn 133 before 129/131 in the post-sched1 chain).  That
+     hoist made 107 conflict with 87 AND 103 (lvx dividend): 107 (allocated 5th)
+     took $v1, denying it to 87 (allocated 15th; conflict list: 84 a3, 88 t3,
+     89 a2, 90 a1, 100/103 v0, 107 v1, hard 2,6 -> first free = $a0).  Retail has
+     no hoist: its lw sits after mflo (2 nops), its lvy dividend takes $v0, the
+     x-quotient $v1.  THE DEVICES (all zero-insn, coupled -- a 3-way cell):
+       (1) stmt-expr fence: `({ int p1 = nxq*(lvx/0x100); __asm__("":: "i"(0)); p1; })`
+           -- a volatile-asm sched barrier INSIDE the dot, after the x-mult,
+           blocks the hoist (a statement split cannot -- `+=` gives the sum
+           pseudo the call-arg $a1 pref, and V15/V30-class orders put the store
+           in the wrong block).
+       (2) `dsum` carries the dot+abs; `distRetreat` keeps only the clamp result
+           -- kills the $a1 (call-arg) preference on the sum web so retail's
+           anonymous-sum seats reproduce (addu a0,a0,t4 / addu v0,a0,t4 /
+           negu v0,v0; SYM binds distRetreat=$3 to the post-/16 value, so dsum
+           is the compiler-temp equivalent, NOT an invented SYM local).
+       (3) fence POSITIONS: r(nxq) AFTER `barrierVec.y = 0;` and r(ny) AFTER
+           `barrierVec.z = t3;` -- sched1 puts both join pairs in retail's
+           [sw, sra] order; an output-less fence BETWEEN a pair pins [sra, sw]
+           (it anti-deps the store).  x-join now byte-exact.
+     MEASURED (gate runs, restored unless landed):
+       split+stmt-expr fence (V1) 14 @106 | split+dsum (V2) 19 @105 |
+       V1+V2 (V3) 4 @106 | V3 + fences moved after the stores (V4) 2 @106 LANDED
+       | fence r(ny) before bvz (V5) 2 | drop r(nxq) (V6) 14 | drop r(ny) (V7)
+       26 @104 | bvz before the y-divide (V15) 6 | r(ny) after the dot (V23)
+       7 @105 | ny carried by the stmt-expr fence (V32) 7 @105 (y-div temp
+       recolors a0 + sra sinks) | fence r(ny),r(nyq) (V33) 8 | r(nyq) only (V34)
+       25 @105 | two fences r(nyq)+r(ny) (V36) 8 | ny born before the x-divide,
+       no fence (V43) 26 @104 (copy-propagated away).
+     RESIDUAL 2 @106/106: ONE swap at the y-join -- retail `sw t3,32(sp)` then
+     `sra a1,v0,8`; ours sra-first.  sched1 already emits retail's [sw, sra]
+     (nv4.i.greg insns 116/112) -- the re-swap is POST-RELOAD (sched2): the
+     x-join pair survives because its fence reads the sra's own output (nxq)
+     while the y-fence reads only ny, so the y-sra escapes the fence's dep cone
+     and sched2 re-ranks it above the store.  Making the y-fence read nyq too
+     re-couples them but the +1 ref recolors (V33 8).  NEXT ANGLE: a sched2-side
+     trace ([sched] lane on the instrumented cc1plus) on the V4 dump to name the
+     exact rank that flips the pair, or a y-side device whose dep cone contains
+     the sra WITHOUT adding a ref to nyq (no such spelling found this wave). */
   islandMatrix.m[0] = nx;   /* MATCH: the $a3 survivor's 2nd use (see the nx receipt) */
   islandMatrix.m[1] = normal.y;
   /* MATCH (W74-A9): retail's ONE `lw $t2,124(sp)` re-read of normal.z serves BOTH

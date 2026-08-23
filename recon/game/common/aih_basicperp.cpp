@@ -703,6 +703,32 @@ int AIHigh_BasicPerp::CheckChaserPosition(int copIndex,int carIndex)
          Probes: scratchpad/w75/A9_v1..v4.py, A9_flagprobe.py; dumps scratchpad/w75/A9_rtl/. ==== */
             if (pos < 1) break;
 
+      /* ==== W76-A9 PIN-SEALED (last-resort asm insertion per the 2026-08-23 policy,
+         order (a)-(e) exhausted): the C guard above is the retail line-378 redundant
+         `blez s0` that gcc-2.8.0 cse DELETES in every source spelling (mechanism:
+         jump.c duplicate_loop_exit_test copies it into the PREHEADER, where cse's
+         record_jump_equiv from the outer `if (0 < pos)` folds it -- 24C-2; only a
+         referenced CODE_LABEL between insn 47 and the copy beats cse1+cse2, and
+         EVERY label-planting source shape measured worse because the label also
+         kills legitimate address CSE).  FALSIFIED across W56..W76 before this pin:
+         26-flag cc1 sweep (flag axis closed; per-fn -fno-rerun-cse-after-loop =
+         count-exact 87 but posmis 21 -- cse2's lui/addiu+sll reuse lost); value/
+         opacity/tied-launder family (11-36 diffs, combine_regs refuses the tie on a
+         loop-carried global allocno); W76: goto-loop 92@81, switch-dispatch 34@91,
+         while+break 45@90, &&label-forced 49@94, while(1)+two-breaks == orig basin,
+         guard-before-loads 28@83, dup-return-goto 26@85, do-while(1)+bottom-loads ==
+         orig basin (gcc canonicalizes every guard-at-top spelling into the same
+         rotated RTL).  THE INSERTION: the word below IS the oracle's never-taken
+         `blez $s0, .L8005C084` (raw bytes 28 00 00 1A @0x8005BFE0) + its unfilled
+         delay nop; pos > 0 is proven on both entry paths (the very record that folds
+         the C guard), so the branch cannot fire at runtime; byte-equality is by
+         construction (word copied from the oracle), position verified count-exact,
+         gate PASS 87/87 + slotcheck clean.  DO NOT "simplify" the C guard away and
+         do not move this block: it must sit between the nextCarIndex load and the
+         nextCopIndex test.  ==== */
+      __asm__ volatile (".word 0x1A000028
+	nop");
+
       if (nextCopIndex != -1) {
 
         if (nextCarIndex != -1) {

@@ -326,6 +326,45 @@ extern int intarcsin(int x)   /* @0x800EACD8 */
      * props there -- so the device must keep that arm's `asintbl[0x1FF]` in a register WITHOUT
      * changing its emitted code.  Do NOT re-run: the subscript spellings, the fence spellings,
      * the flag ladder, the rung ladder, or the later-use fences above. */
+    /* 🔑 W76-A19 2026-08-23 -- RE-GATED at 2 @48/48 (baseline confirmed).  NO landing.  TWO
+     * whole families closed this wave (probes on an untracked sibling TU, harnesses + outputs
+     * at scratchpad/w76/a19/asin_*):
+     * (1) THE W75 "THIRD REFERENCE / MULTI-BLOCK LA" ANGLE IS FALSIFIED.  The per-block-
+     *     assignment device (fn-scope `base` assigned in BOTH the coarse arm and the steep
+     *     else arm, so the la pseudo satisfies reg_qty<0 by NON-locality -- catalog 24E-5's
+     *     route) refuses the combine_regs tie as predicted, BUT the named base becomes a
+     *     GLOBAL ALLOCNO and rotates the whole global handout: idx a1->v1, sign a2->a1,
+     *     MULT-hi temp a3->a2, measured 22-25 @47/48 in every form (two-subscript, pt/qt+
+     *     fence, +depth-2, no-fence, mixed -- v1..v5).  The refusal and the rotation are the
+     *     SAME event: any named la variable here is a user var, user vars are excluded from
+     *     local qtys, and one extra allocno re-sorts global.c's handout for this function.
+     * (2) THE PIN ROUTE (newly permitted, last-resort order satisfied: receipt angle run,
+     *     catalog ladder exhausted W16..W75, sibling corpus grepped [SH sfx.c Pow2Neg
+     *     interpolation = different shape, no copy; no EA asin in NFS3 raw/m2c corpus],
+     *     zero-insn device families all receipted) DOES NOT REACH IT EITHER -- 12 variants:
+     *     - pt asm("v1") + qt asm("v0") + identity fence (p2, + p4 scoped) = 6 @48/48, the
+     *       EXACT fence-basin residual: the la temp ties to the PINNED addu DEST (qty_phys_sugg
+     *       to hard $3), so `lui v1/addiu v1/addu v1,a1,v1`-class remains; pins alone do not
+     *       refuse a tie, they just fix WHERE it lands.
+     *     - cse DELETES a hard-reg-to-hard-reg copy between pinned user vars (p19a, 47 insns):
+     *       even under pins the copy needs the identity fence to survive.
+     *     - every live-extension that stops the la dying at the addu costs the seal: named
+     *       bs + read-only fence after the addu = else-arm EXACT but the bs allocno rotates
+     *       sign/idx as in (1) (p8/p9 22 diffs); merging the hold into the qt fence rotates
+     *       frac too (p16, 24); an anonymous `"r"(asintbl)` input re-materializes the la
+     *       (+2 insns, p17 8 @50 -- cse will not substitute the live la pseudo into an asm
+     *       operand, re-confirming the W75 fence-basin measurement in the pin basin).
+     *     - 🔴 NEW LAW (5 independent receipts: p3/p6/p7/p19a/p19b): an explicit asm("v0")
+     *       register var whose live range OVERLAPS idx's range (the la and idx are
+     *       simultaneously live between the lui and the addu, so this is unavoidable for any
+     *       v0-pinned la) rotates the global handout exactly as in (1); a v0 pin born AFTER
+     *       idx's death (p2/p4's qt) is rotation-free.  So the pin route's floor is 6.
+     * ⇒ the 2-diff baseline is KEPT (2 < 6).  NEXT ANGLE (one instrumented run, named): read
+     * the -dg/greg dump of the p19b form on the instrumented cc1 and find WHY an explicitly-
+     * used v0 overlapping idx displaces idx from a1 (a preferencing artifact would have a
+     * compensating ref-step dial on idx or sign; p19b + that dial = the seal).  If the dump
+     * shows no dial, this residual is a documented floor receipt WITH the pin route falsified
+     * -- a complete falsification field. */
     if (x <= 0xFA00) {                           /* coarse region: round-to-nearest lookup */
         if (x & 0x40)
             idx = (x >> 7) + 1;

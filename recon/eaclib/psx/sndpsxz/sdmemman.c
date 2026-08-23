@@ -656,6 +656,39 @@ extern int iSNDpsxmalloc(int size)
      * or a PER_FN mechanism (TEXT_MOVES) that restores the stolen `sll` after the launder lands.
      * Do NOT re-run: volatile views, the depth ladder, void-fence placements, or the launder
      * spellings above.  (ii) is unchanged from the W74 reading. */
+    /* 🔑 W76-A19 2026-08-23 -- RE-GATED at 12, COUNT-EXACT 127/127 (baseline confirmed).  NO
+     * landing; the W75 angle and two flag routes are closed, and cluster (iii) now has a
+     * STRUCTURAL BOUND.  Probes on an untracked sibling TU (scratchpad/w76/a19/snd_*):
+     * (1) FILLER-AS-INPUT (catalog 24D-4's cure aimed at the W75 stop_search_p diagnosis):
+     *     giving the pv launder the wanted slot filler as an extra input operand
+     *     (`__asm__("" : "=r"(pv) : "0"(pv), "r"(off))`) so the `sll` schedules above the
+     *     asm and the forward slot-scan finds it first -- measured IDENTICAL to the plain
+     *     launder: s4/s5(+depth-3)/s6(plain) ALL 30 @125.  The uncapped diff shows ours'
+     *     scan_done still has NO leading `sll` at all (the off computation is not even in
+     *     the block) and the la lands in $a1 -- the launder basin is 2 insns short AND
+     *     ~5-reg recolored; it is much farther from retail than the 12-diff baseline.
+     * (2) PER-FN -mno-split-addresses (PER_FN_NO_SPLIT_ADDRESSES, the CdRead-precedent
+     *     compiler-input lane, probed per-fn on iSNDpsxmalloc only): 32 @125 -- falsified
+     *     in THIS basin too (the old TU-wide 63@120 receipt was basin-stale but the verdict
+     *     stands).
+     * (3) 🔴 STRUCTURAL BOUND on (iii), new: verify_asm normalizes the folded limit read
+     *     (`lhu v1,%lo(D_80147E34)(v1)`) to retail's `lhu v1,0(v1)` -- that line is NOT in
+     *     the diff.  The remaining 6 diff-lines exist because the fold keeps the %hi pseudo
+     *     LIVE past the addiu (its 2nd use is the folded lhu), so the lo_sum output can
+     *     NEVER be assigned %hi's register ($v1) -- retail's self-temp `addiu v1,v1,%lo`
+     *     is unreachable while the fold lives, by conflict, not by tie-break.  A full match
+     *     therefore REQUIRES killing the fold, and every zero-insn route to that is now
+     *     receipted dead: volatile views (W75), launder anywhere in the block (stop_search_p
+     *     +2 insns + recolor), launder hoisted above the loop (moves the la out of
+     *     scan_done = wrong position; a pre-loop launder on an uninit pv is re-killed by
+     *     the in-block def), alias-symbol / two-symbol splits (+1 lui, count breaks),
+     *     D_80147E34 size ladder (W71), no-split (above).  ⇒ (iii) is BOUNDED: reachable
+     *     only by a device that makes pv's value opaque to cse AT ZERO INSNS with NO asm
+     *     between the loop-bottom branch and scan_done's first insn -- no such device
+     *     exists in the current catalog.  Documented floor receipt with a complete
+     *     falsification field; next genuinely-new instrument would be a cse-side trace
+     *     (why fold_rtx prices the re-materialization under the reg-copy) on the
+     *     instrumented cc1. */
     unsigned char *base = sndpd;
     unsigned char *pd;
     unsigned int blk, src;

@@ -34,13 +34,18 @@ char gDctBuffer[64]; char gEAMemPoolBase[64]; char gPlatformInitMem[64];  /* FIX
 /* SEALED (12/12 PASS): oracle's subu-then-addu = an IN-PLACE mutate of the compiler temp
  * holding gPlatformInitMem (m -= tempLow -> sw gTotal; m += tempLow -> gHigh recovery).
  * MATCH: in-place +=/-= two-step (SS 3.12 #14 family) -- the single-expression forms let cse
- * reuse the still-live address pseudo and drop the addu. */
+ * reuse the still-live address pseudo and drop the addu.
+ * W76 SYM receipt: SYM names only tempLow.  No-local nested/global forms compile to 11
+ * instructions because CSE proves `(base - low) + low == base`.  An empty tied-output
+ * barrier restores 12 instructions but splits the value at the gTotalMemory store and
+ * produces a complete v0/v1 swap (14 diffs); ref-count dials through the asm operands do
+ * not move that allocation.  Keep the PASS source until an anonymous value can remain
+ * live across the store without adding a debug record. */
 void Platform_InitMemory(void)
 
 {
   u_int tempLow;
-
-  u_int m;
+  u_int m; /* SYM-CODEGEN-CARRIER: m -- required for retail subu/store/addu recovery */
 
   tempLow = 0x80010080;   /* PSX prog base 0x80010000 + 0x80 EXE-header = low-mem bound; memory-map constant (no data symbol), not a VA to migrate */
   m = (u_int)gPlatformInitMem;
@@ -82,8 +87,8 @@ void Platform_InitMemory(void)
 char *Platform_ReserveMemory(int size,char *string)
 
 {
-  int newmem;
-  char *mem;
+  int newmem; /* SYM-CODEGEN-CARRIER: newmem -- required rounded-address lifetime */
+  char *mem; /* SYM-CODEGEN-CARRIER: mem -- preserves the success-return delay-slot copy */
 
   size = size + 3;
   size = (size / 4) * 4;
@@ -129,14 +134,12 @@ char *Platform_TempReserveMemory(int size,char *string)
 void Platform_SysStartUp(void)
 
 {
-  int userRam;
   char *endofcode;
 
   disablecd = 0;
   endofcode = (char *)gEAMemPoolBase;
-  userRam = 0x801fc000 - (int)endofcode;   /* 0x801fc000 = PSX RAM top (2MB) - 16KB stack reserve; hardware constant */
-  Platform_nfsUserRam = userRam;
-  initmemadr(endofcode,userRam);
+  Platform_nfsUserRam = 0x801fc000 - (int)endofcode;   /* 0x801fc000 = PSX RAM top (2MB) - 16KB stack reserve; hardware constant */
+  initmemadr(endofcode,Platform_nfsUserRam);
   nfs2eacinit();
   Draw_SetEnvironment(0x200,0xf0,1,0,1,0,0,0);
   initlinkmode(0,1,1);

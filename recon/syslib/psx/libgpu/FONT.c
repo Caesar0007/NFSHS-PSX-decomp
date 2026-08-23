@@ -337,7 +337,45 @@ extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
  *   🔑 TREE-WIDE: any standing
  *   "reload-inheritance" verdict should be re-checked the same way -- the `-dg` dump is printed
  *   BEFORE reload_cse_regs, so `.greg` showing the ORACLE's insn while the `.s` shows ours is a
- *   one-run proof that the actor is reload_cse_regs, not reload. */
+ *   one-run proof that the actor is reload_cse_regs, not reload.
+ *
+ *   🏆 W76-A15 (2026-08-23) -- HELD at 2 @199/199 (gated twice); the W75 certificate is now
+ *   PROVEN SUFFICIENT by a one-variable compiler experiment, and every remaining input-lane
+ *   angle is measured shut:
+ *   (1) §24B DONOR-CLOBBER FAMILY MEASURED AND FALSIFIED ON THIS SITE (the brief's ask; the
+ *       W64 16B prediction confirmed by gate, all reverted): A14 __adddf3-recipe anchored
+ *       clobber `__asm__("" : : "r"(dr) : "$6")` after `dr = &fs->draw_mode;` 68 @201; the
+ *       same just before `TermPrim(dr)` 69 @200; ARG-LAUNDER `("" : "=r"(dr) : "0"(dr))`
+ *       before the call 45 @200; launder+"$6" 68 @201.  Root cause of the blowups: the donor
+ *       $a2 is a RELOAD register here (not an allocated pseudo's home as in __adddf3), so any
+ *       asm naming "$6" poisons bad_spill_regs FUNCTION-WIDE (16B) and every reload in the fn
+ *       re-deals; the launder alone costs the +1 the count cannot absorb (24B-2).
+ *   (2) RAW40 (PsyQ 4.0 cc1; reachable -- FONT.c IS a maspsx-lane TU -- and never tried):
+ *       whole-fn 84 diffs, frame 80 vs 120 -- the PADSEQD whole-fn scope rule FAILS, lane
+ *       inapplicable.  (Probe note: the 1996 cc1 rejects `-mno-split-addresses`; the raw40
+ *       branch's _flags40 filter must also strip it for any no_split_addresses TU.)
+ *   (3) FLAG AXIS CLOSED (15 rungs via vprobe_flag, never measured for this fn):
+ *       -fcaller-saves / -fno-function-cse / -fforce-mem / -fno-peephole / -fno-defer-pop /
+ *       -fno-cse-follow-jumps / -fno-thread-jumps / -fno-rerun-cse-after-loop all INERT at 2;
+ *       -fno-strength-reduce 4 @199; -fforce-addr 13 @198; -fno-cse-skip-blocks 15 @204;
+ *       -fno-schedule-insns2 21 @202; -fno-schedule-insns 52 @201; -fno-delayed-branch
+ *       48 @215; -fno-expensive-optimizations 92 @205.
+ *   (4) VENDOR COMPARANDUM (psyz, PSY-Q 4.0 matched decomp, decomp/src/libgpu/font.c:303,
+ *       HEAD 6d47e5e): FntFlush's matched source is SHAPE-IDENTICAL to ours at the site
+ *       (`dr = &font->draw_mode;` -> the eight field loads -> `TermPrim(dr);`) -- the source
+ *       shape is vendor-confirmed; the residual is toolchain identity, not source.
+ *   (5) 🏆 SUFFICIENCY PROOF (instrument lab, scratchpad/w76/a15_lab_{base,norcse}_fn.s):
+ *       scratch/gccsrc/gcc-2.8.1/toplev.c:3501 is now env-guarded
+ *       (`getenv("GCC_NO_RELOAD_CSE")`, behavior unchanged when unset; cc1 rebuilt in
+ *       scratch/gccbuild-ecoff).  Pass ON: the lab reproduces our defect VERBATIM
+ *       (`move $4,$6` above the sw).  Pass OFF (GCC_NO_RELOAD_CSE=1): the SAME binary emits
+ *       retail's `sw $6,16($sp); lw $4,16($sp)` -- AND the two colour-default stores
+ *       `sw $6,28/32($sp)` move to retail's early position, i.e. the exact two lines the
+ *       wired w61-a4 PER_FN_TEXT_MOVES rows relocate.  The whole-region diff is exactly
+ *       those two effects and nothing else.  ⇒ Sony's internal lib rung = a 2.8-shape cc1
+ *       WITHOUT reload_cse_regs (pre-970404 dev snapshot); a sanctioned no-rcse rung would
+ *       seal FntFlush AND retire both TEXT_MOVES rows.  NOT wired: a patched cc1 is not a
+ *       historical rung -- lane decision belongs to the user/orchestrator. */
 extern u_long *FntFlush(int id)
 {
     DR_MODE  *dr;

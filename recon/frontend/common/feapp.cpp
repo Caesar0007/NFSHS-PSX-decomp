@@ -21,7 +21,7 @@ extern int Draw_gDoVSync_arr[] asm("Draw_gDoVSync");
 
 inline tDialogBase::tDialogBase()
 {
-  *(void **)&_vf = (void *)tDialogBase_vtable;
+  _vf = (__typeof__(_vf))tDialogBase_vtable;   /* w76-A20 vptr-store alias dial (24A) */
   currentlyOn = 0;
   reservedheight = 0;
   MaxH = 0;
@@ -39,7 +39,7 @@ inline tDialogBase::tDialogBase()
 
 inline tDialogMessageString::tDialogMessageString()
 {
-  *(void **)&_vf = (void *)tDialogMessageString_vtable;
+  _vf = (__typeof__(_vf))tDialogMessageString_vtable;   /* w76-A20 vptr-store alias dial (24A) */
   Centerit = 0;
   fFullyOpen = 0;
   timeOutTicks = 0;
@@ -48,20 +48,20 @@ inline tDialogMessageString::tDialogMessageString()
 
 inline tDialogHelp::tDialogHelp()
 {
-  *(void **)&_vf = (void *)tDialogHelp_vtable;
+  _vf = (__typeof__(_vf))tDialogHelp_vtable;   /* w76-A20 vptr-store alias dial (24A) */
   variant = -1;
   timeOutTicks = 0x578;
 }
 
 inline tDialogMessageStringWithTimeout::tDialogMessageStringWithTimeout()
 {
-  *(void **)&_vf = (void *)tDialogMessageStringWithTimeout_vtable;
+  _vf = (__typeof__(_vf))tDialogMessageStringWithTimeout_vtable;   /* w76-A20 vptr-store alias dial (24A) */
   timeOutTicks = 0x480;
 }
 
 inline tDialogNoInputMessage::tDialogNoInputMessage()
 {
-  *(void **)&_vf = (void *)tDialogNoInputMessage_vtable;
+  _vf = (__typeof__(_vf))tDialogNoInputMessage_vtable;   /* w76-A20 vptr-store alias dial (24A) */
 }
 
 
@@ -259,6 +259,11 @@ void tFEApplication::DrawHelpIcons()
 
 /* ---- tFEApplication::Redraw  [FEAPP.CPP:225-395] SLD-VERIFIED ---- */
 
+/* MATCH (W76-A12, PASS 393/393): one-member struct view of the scratchpad
+   packet cell.  The COMPONENT_REF store through it carries MEM_IN_STRUCT_P
+   (24A), which is load-bearing -- see the W76 receipt inside Redraw. */
+typedef struct { u_char *pkt; } tPacketCellView;
+
 void tFEApplication::Redraw()
 
 {
@@ -268,6 +273,9 @@ void tFEApplication::Redraw()
   char buffer [32];
   DRAWENV *drenv;
   DR_AREA *daprim;
+  /* SYM-CODEGEN-CARRIER: pc, pal2 -- see the W76-A12 receipt below. */
+  u_char **pc;
+  u_int pal2;
   RECT r;
 
   saveFPlayer = this->fPlayer;
@@ -596,19 +604,60 @@ void tFEApplication::Redraw()
        Harness: scratchpad/W74_A7/{probe.py,rd1..rd8.py}. */
     if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
       (this->fCurrentScreen[(u_char)this->fPlayer])->Draw(true);
-      daprim = (DR_AREA *)Render_gPacketPtr;
+      pc = (u_char **)0x1f800004;
+      daprim = (DR_AREA *)*pc;
     }
     else {
-      daprim = (DR_AREA *)Render_gPacketPtr;
+      pc = (u_char **)0x1f800004;
+      daprim = (DR_AREA *)*pc;
     }
     {
     r.x = 0;
     r.y = *(short *)((char *)drenv + 2) + this->fYOffset;
     r.w = 0x200;
     r.h = height;
+    /* ==== W76-A12 (2026-08-23): SEALED PASS 393/393, DEVICE-FREE. ====
+       The W74/W75 named angle ("deny reorg the packet-store steal without an
+       asm") is answered by THREE COUPLED SOURCE FACTS -- the oracle's own
+       store order shows retail's source had the packet bump BETWEEN the two
+       prim-tag writes (store order follows source statement order):
+         (1) MIDDLE STORE ORDER: daprim-tag merge, packet store, palette-tag
+             store LAST.  reorg scans backward from the SetDrawArea jal and
+             takes the ADJACENT palette store for the slot = retail's pick;
+             the packet store is never a candidate.  Every earlier probe of
+             this order alone lost the shared palette-pointer load (69 @400 /
+             67 @394) because the intervening register-base store clobbers the
+             palette MEM equivalence in no-TBAA cse.
+         (2) STRUCT-VIEW PACKET STORE (24A /s axis): `((tPacketCellView *)pc)
+             ->pkt = ...` is a COMPONENT_REF, MEM_IN_STRUCT_P SET -- a varying
+             STRUCT store does not invalidate the FIXED non-struct palette
+             pointer load, so the shared load survives (measured: plain *pc
+             middle 69 @400 -> struct-view middle 46 @395).
+         (3) pal2 PRECOMPUTE: naming the palette RMW result right after the
+             daprim merge shortens the 0xFF000000 movable's luid span, keeping
+             it UNDER the LICM budget threshold (23A(3)) so the mask stays
+             in-loop in $t0 like retail; without it the middle order hoists
+             the mask to a callee-saved reg (+2 insns, 46 @395).  The final
+             `*(u_int *)Render_gPalettePtr = pal2;` is the same bitfield RMW
+             written out (semantics identical, byte stream retail's).
+       Also load-bearing: the arm-duplicated `pc` + `*pc` reads (W64-A16 --
+       two SETs so loop.c builds no movable; cross_jump re-merges the li) give
+       retail's `lui t0/ori t0,t0,4/lw a0,0(t0)` window with the beqz-slot
+       steal, and with (1)-(3) the old 14-basin residuals (fYOffset $a1/$a2 +
+       `addiu a1,sp,56` position + the jal-slot pick) all dissolve -- they
+       were downstream of the packet store's emission position.
+       W76 falsification field (all measured, all reverted): struct-view
+       middle w/o pal2 46 @395 (mask hoisted, +s7 spill); plain *pc middle
+       69 @400; comma-3 forms identical (46/69) -- statement-count axis inert
+       here; struct-view LAST position 14 @393 (axis inert there, = W64);
+       fixed-address struct store 46 @395; pal2 + plain *pc middle 23 @396.
+       Vendor axes (probed on InitViv this belt, same TU family): version
+       lane and 12-flag ladder all inert -- this seal is pure 2.8.0 source
+       shape. */
     ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr,
-    ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
-    Render_gPacketPtr = (u_char *)daprim + 0xc;
+    pal2 = (*(u_int *)Render_gPalettePtr & 0xff000000) | ((u_int)daprim & 0xffffff);
+    ((tPacketCellView *)pc)->pkt = (u_char *)daprim + 0xc;
+    *(u_int *)Render_gPalettePtr = pal2;
     SetDrawArea(daprim,&r);
     }
   }

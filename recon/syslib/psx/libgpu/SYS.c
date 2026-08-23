@@ -2314,7 +2314,44 @@ extern int _gpu_que_drain(void)
                  *   func-read statement (`... + (fidx << 5)`) is 21-24, the E-before-A order
                  *   with the $a1 clobber is 10-11 @152-153, the A/F/E order 11-14, and adding
                  *   $a2/$a3/$t0 to the clobber set is bit-for-bit INERT at 6 -- the dial is
-                 *   exactly the $a1 denial, nothing else (grids: a15_grid.py, a15_grid2.py). */
+                 *   exactly the $a1 denial, nothing else (grids: a15_grid.py, a15_grid2.py).
+                 * 🟢 W76-A15 (2026-08-23) -- HELD at 6 count-exact; 27 NEW cells measured, all
+                 * >= 19; and THE ORDER LEVER WAS FOUND (with a joint-cell proof of why it
+                 * cannot land).  Probes: scratchpad/w76/a15_P*.json + a15_grid3.txt.
+                 *   (1) 🏆 ORDER IS SOURCE-REACHABLE: reading the arg field through the
+                 *       VOLATILE view (`arg = _que.shared[_qout].arg;`, everything else as
+                 *       shipped) emits retail's EXACT dispatch order -- argload(68-70),
+                 *       reload3(71-72), closing sll(73) -- the whole 6-diff permutation gone
+                 *       (a15_P16_sbs.txt).  Volatile<->volatile ordering pins the argload
+                 *       above reload3, and the closing shift becomes the only legal
+                 *       load-delay filler = retail's 73.  BUT the basin costs the HANDOUT:
+                 *       reload1 $v0 / func *3 chain $a2 / reload3 $v1 (retail $a1/$v1/$a1)
+                 *       = 20 @152.  The full clobber grid IN THIS BASIN (12 sets x 3
+                 *       positions + 7 $a1-anchored pairs, a15_grid3.txt) has NO cell below
+                 *       19, and only $5-containing cells keep the count at 152 -- so the
+                 *       order fix and the handout fix are a PROVEN JOINT CELL (24F-12
+                 *       PrimClip class): each axis's cure destroys the other's precondition.
+                 *   (2) 6-basin RE-PRICES (04Z), all worse: extra-launder 21@151 * all-three
+                 *       launders 21@151 * multi-output tied (arg,extra) 24@152 * launder
+                 *       carrier=extra w/ $5 19@151 * carrier=arg w/ $5 35@151 * both-carrier
+                 *       w/ $5 32@152 * fidx-launder +"r"(arg) dep operand 29@153 *
+                 *       +"r"(extra) 21@153.  Scale-deferral: raw fidx w/ *96 in the func
+                 *       stmt 37@155 (with AND without the clobber) * + volatile barrier
+                 *       43@155 * *3 first + <<5-in-func + barrier 21@151.  Volatile empty
+                 *       barrier (24D-3 order dial) after the arg stmt 20@152 (a15_P6_sbs:
+                 *       order partly retail but the handout breaks + a copy mints).
+                 *       Double-set fidx (a qidx-launder between read and scale, any clobber)
+                 *       30@154 -- the 2nd set still costs real copies (W74 REG_N_SETS law).
+                 *   (3) CORPUS: psyz _exeque is STILL INCLUDE_ASM at HEAD 6d47e5e
+                 *       (checked 2026-08-23) -- the "psyz has matched sys.c" hint is stale;
+                 *       no vendor body exists anywhere (W64 note stands).
+                 *   (4) PIN LANE (policy last-resort) STRUCTURALLY INAPPLICABLE: the
+                 *       residual is sched1 EMISSION POSITION at exact count -- a register
+                 *       pin cannot reorder emission, and any real asm insertion breaks
+                 *       152/152.  VERDICT: 6 stands as a sched1 filler-pick floor receipt
+                 *       (24D family) under the no-post-compile-rewrite policy; the only
+                 *       order-correct source form is the volatile-arg basin above, banked
+                 *       for any future device that can reach ITS handout. */
                 fidx = _qout * 96;
                 arg = _que.plain[_qout].arg;
                 extra = _que.plain[_qout].extra;

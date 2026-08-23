@@ -37,7 +37,7 @@ they are not silently collapsed into a smaller denominator.
   explicit per-record semantic-review row.  Nothing is silently dropped from
   the denominator.
 - A strict compiler-emitted type-graph comparison now distinguishes retail
-  subset coverage from actual per-object source visibility.  Seventy-two owners are
+  subset coverage from actual per-object source visibility.  Seventy-three owners are
   semantically exact: `memcard.obj`, `mdec.obj`, `video.obj`, `FETexture.obj`,
   `textpix.obj`, `textpsx.obj`, `unpack.obj`, `fastrand.obj`, and
   `aiscript.obj`, `new.obj`, `paths.obj`, `textsys.obj`, `simplemem.obj`,
@@ -53,7 +53,7 @@ they are not silently collapsed into a smaller denominator.
   `newton.obj`, `camera.obj`, `TrackSpec.obj`, `loading.obj`, `texture.obj`, and
   `Draw.obj`, `Sfx.obj`, `TrsProj.obj`, `CarIO.obj`, `platform.obj`, and
   `force.obj`, `audio.obj`, `overlays.obj`, `Weather.obj`, `rpause.obj`, and
-  `hrzsku.obj`, and `TextureProcess.obj`.
+  `hrzsku.obj`, `TextureProcess.obj`, and `Skidmark.obj`.
   The remaining mapped C++
   units still expose reconstruction-only declarations through the monolithic
   `nfs4_types.h` include graph and therefore are not yet source-exact.
@@ -166,7 +166,7 @@ Results:
 - all retail `this` adjustments are zero;
 - structural/target issues: 0;
 - retail targets absent from the symbol map: 0;
-- unsafe direct vtable-row indexing: 0 across 922 source files.
+- unsafe direct vtable-row indexing: 0 across 923 source files.
 
 Evidence:
 
@@ -539,7 +539,7 @@ Current strict results:
 
 - `frontend/psx`: 4 exact (`memcard`, `mdec`, `video`, `fetexture`) and 4 DIFF
   (`drawshp`, `mmeffect`, `movie`, `psxfront`);
-- `game/psx`: 18 exact (`textpix`, `textpsx`, `unpack`, `trackspec`, `loading`, `texture`, `draw`, `sfx`, `trsproj`, `cario`, `platform`, `force`, `audio`, `overlays`, `weather`, `rpause`, `hrzsku`, `textureprocess`), 9 DIFF, and one owner
+- `game/psx`: 19 exact (`textpix`, `textpsx`, `unpack`, `trackspec`, `loading`, `texture`, `draw`, `sfx`, `trsproj`, `cario`, `platform`, `force`, `audio`, `overlays`, `weather`, `rpause`, `hrzsku`, `textureprocess`, `skidmark`), 8 DIFF, and one owner
   ambiguity for game `font.obj` versus the vendor `libgpu/FONT.obj`;
 - `frontend/common`: 41 mapped units remain DIFF and the now-empty artificial
   `mcrd.cpp` unit needs its objdiff ownership removed or reassigned;
@@ -598,7 +598,7 @@ prechecked loop in `Camera_OpponentLookBehind` restores the original 245-word
 shape.  `Camera_NextMode` needs one documented post-cc1 scheduling relocation;
 it moves, but does not add/remove/rewrite, the existing signed-%3 correction.
 The final graph is 92/92 named and 2/2 anonymous with no extra type/typedef, all
-38 camera functions remain PASS, and the vtable audit is clean across 922 files.
+38 camera functions remain PASS, and the current vtable audit is clean across 923 files.
 
 `TrackSpec.obj` is now strict-exact through an owner-specific type header.  Its
 externally owned `GameSetup_tData` is represented by an exact-symbol word view
@@ -731,6 +731,16 @@ reaches PASS from source through a zero-instruction post-call read-only
 `contrast` use; the former `PER_FN_RA_SINK` post-compile relocation is disabled
 and textureprocess has no post-recompile rewrite entry.
 
+`Skidmark.obj` is now strict-exact through the proven color graph plus its
+retail PsyQ packet, view, draw, track-art, kernel, skid-segment, chunk, and
+control records.  The foreign completed `GameSetup_tData` body is absent from
+this retail object; an exact-symbol word view preserves the sole attested
+`commMode` access at word offset 3.  The final graph is 83/83 named and 2/2
+anonymous with no extra type or typedef semantics.  All 11 Skidmark functions
+remain PASS, all undefined references resolve to project definitions/configured
+symbols, and neither `skidmark.cpp` nor any Skidmark function has a post-recompile
+rewrite entry in `tools/build.py`.
+
 The mapped C++ units cover all retail named and anonymous type bodies, but are
 not source-exact while they expose unrelated monolithic-header declarations or
 miss owner-specific typedef variants.  The three C units that previously had
@@ -839,7 +849,8 @@ Strict evidence:
   [`weather`](scratchpad/root_sym_audit/type_graph_game_psx_after_weather_20260823.tsv), and
   [`rpause`](scratchpad/root_sym_audit/type_graph_rpause_final_20260823.tsv), and
   [`hrzsku`](scratchpad/root_sym_audit/type_graph_hrzsku_final_20260823.tsv), and
-  [`textureprocess`](scratchpad/root_sym_audit/type_graph_textureprocess_final_20260823.tsv).
+  [`textureprocess`](scratchpad/root_sym_audit/type_graph_textureprocess_final_20260823.tsv), and
+  [`skidmark`](scratchpad/root_sym_audit/type_graph_skidmark_final_20260823.tsv).
 
 Required closure:
 

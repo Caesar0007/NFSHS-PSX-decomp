@@ -3,7 +3,6 @@
  *   (24-slot chunk allocator), Skidmark_Add/AddStretch/Stretch/EndStretch (append/extend
  *   skid trails), Skidmark_OnyxBuildFacets (queue render), Init/Restart/Kill. No GTE.
  */
-#include "../../nfs4_types.h"
 #include "skidmark_externs.h"
 
 /* ---- Skidmark.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
@@ -352,7 +351,7 @@ void Skidmark_InitSkidmark(void)
 
 {
   gMaxSChunk = 0x10;
-  if (GameSetup_gData.commMode == 1) {
+  if (GameSetup_gData[3] == 1) {
     gMaxSChunk = 8;
   }
   gSm = reservememadr("SkidMark",gMaxSChunk * 0x2b0,0);

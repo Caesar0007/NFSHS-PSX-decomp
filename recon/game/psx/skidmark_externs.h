@@ -2,8 +2,7 @@
 #ifndef _GAME_PSX_SKIDMARK_EXTERNS_H_
 #define _GAME_PSX_SKIDMARK_EXTERNS_H_
 
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "skidmark_types.h"
 
 /* ---- module globals (gp-relative .bss) ---- */
 // [owned->defined in skidmark.cpp] extern Skidmark_Chunk *gSm;        /* 0x8013dac8  ring of skid-mark chunks */
@@ -18,8 +17,19 @@
           /* 16.16 fixed-point multiply */
 
 /* ---- game globals / sibling helpers ---- */
-extern GameSetup_tData GameSetup_gData;        /* 0x801131ec */
+/* GameSetup_tData is a foreign completed owner absent from Skidmark.obj's
+ * retail type graph.  Only commMode (word 3) is used here. */
+extern int GameSetup_gData[];                  /* 0x801131ec */
 extern void  Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid);   /* DrawW: queue skid render */
+
+extern "C" {
+int   intatan(int dx, int dz);
+int   fastintcos(int angle);
+int   fastintsin(int angle);
+int   fixedmult(int a, int b);
+void *reservememadr(const char *name, int size, int memory_class);
+int   purgememadr(void *ptr);
+}
 
 /* ---- this module (forward decls for intra-TU calls) ---- */
 extern Skidmark_Chunk *Skidmark_CheckChunk(coorddef *skidpt, int newsegs, int slice);

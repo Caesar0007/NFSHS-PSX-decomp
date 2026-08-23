@@ -487,7 +487,23 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
      * reorg is 2.8-lineage on this axis while its allocator prices like our 2.7.2 rung
      * (the W75 size-term proof) -- a mixed identity none of our 8 rungs reproduces whole.
      * Routes left: a rung with 2.7.2 allocator + 2.8 reorg (does not exist on disk), or an
-     * annotated floor receipt.  Under the no-post-compile-rewrite policy this row is DONE. */
+     * annotated floor receipt.  Under the no-post-compile-rewrite policy this row is DONE.
+     *
+     * 🏆🏆 W76-A14 (post-resume, same day) -- **PASS 184/184 via PER_FN_CC1_VER_SPLICE_272
+     * {"2.7.2-970404": __divdf3} + two zero-insn RCSE MEM-FENCES (in the arms below).**
+     * The rung question above IS answerable on disk after all: gcc-2.7.2-970404's reorg is
+     * 2.8-lineage (it FILLS the @27 slot -- measured, the row vanishes) while its allocator
+     * still prices like the 2.7.2 family (V13 shape carried over with NO seat rotation).
+     * Its one divergence from the vendor: it HAS reload_cse_regs (W74 fingerprint), which
+     * forwarded the two `t[0]` arg reloads as `addu $a3,$s0/$v0,$0` where retail (built
+     * without the pass -- the same "2.8-shape cc1 WITHOUT reload_cse" identity A15 proved
+     * for LIBGPU FntFlush, confirmed here on the lab no-rcse cc1: `lw $7,40($sp)` returns)
+     * reloads from the frame.  The two =m volatile self-rewrite fences defeat exactly that
+     * (mem-side table invalidation, legal even with a LIVE donor), and the fn PASSes.
+     * Device ladder (all measured, splice lane): naive ":::memory" barriers 70 @188 |
+     * "$2" clobber arm2 + launder arm1 4 | volatile m-clobber arm2 2 | non-volatile =m
+     * both arms 4 | two-slot =m 70 @188 | VOLATILE =m both arms **PASS**.  Wired-lane
+     * control with the devices: 2 (inert, @27 only) -- the splice row is what lands it. */
     ua.d = a;
     ub.d = b;
     exp = ((ua.w.hi >> 20) & 0x7FF) - ((ub.w.hi >> 20) & 0x7FF) + 1022;
@@ -535,6 +551,19 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
                 n = 1;
                 t[1] = 0;
                 t[0] = n;
+                /* W76-A14 RCSE MEM-FENCE (needed by the 970404 splice lane -- see
+                 * the receipt at the head of the fn): a VOLATILE zero-insn asm that
+                 * "rewrites" t[0] in place.  Its "=m" output makes note_stores
+                 * invalidate the just-stored slot's reg<->mem association inside
+                 * reload_cse_regs, so the call's `lw $a3,40($sp)` arg reload
+                 * survives instead of being rewritten into retail-mismatching
+                 * `addu $a3,$s0,$0` (24B MEM flavour; the donor $s0 = n is LIVE,
+                 * so the ADDDF3-style donor clobber is not legal here).  MUST stay
+                 * __volatile__: the non-volatile spelling is sched1-free and
+                 * displaces the `sw $0,44` t[1] store (measured 4); a two-slot
+                 * "=m"(t[0]),"=m"(t[1]) form is catastrophic (70 @188).  Inert on
+                 * the wired 2.7.2 lane (no reload_cse there). */
+                __asm__ __volatile__("" : "=m"(t[0]) : "m"(t[0]));
                 /* w60-a5: the exponent update sits BEFORE the call in retail --
                  * reorg's backward scan steals it into the jal's delay slot
                  * (`addiu $s1,$s1,1` / `addu $s1,$zero,$zero`).  After the call
@@ -561,6 +590,8 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
                 n = -exp;
                 t[1] = 0;
                 t[0] = 1 << n;
+                /* W76-A14 RCSE MEM-FENCE, arm-2 twin (see arm 1). */
+                __asm__ __volatile__("" : "=m"(t[0]) : "m"(t[0]));
                 _add_mant_d(qp, q[0], q[1], t[0], t[1]);
                 qp = 0;   /* W76-A14 dead cse-kill -- see the arm above */
                 exp = 0;

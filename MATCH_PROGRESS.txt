@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3490 functions, 3456 at 100% (99.0%)
+TOTAL: 3490 functions, 3458 at 100% (99.1%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -2397,7 +2397,7 @@ VA             %match  unit                     function
 0x800D3E94    100.00%  game/psx/hud             Hud_BuildTach__Fi
 0x800D42C8    100.00%  game/psx/hud             Hud_BuildString__FPciiiib
 0x800D4624    100.00%  game/psx/hud             Hud_BuildNumbers0__Fi
-0x800D4E70     93.26%  game/psx/hud             Hud_BuildNumbers__Fi
+0x800D4E70    100.00%  game/psx/hud             Hud_BuildNumbers__Fi
 0x800D5A48    100.00%  game/psx/hud             Hud_InitMap__Fv
 0x800D5AE8    100.00%  game/psx/hud             Hud_BuildMapMarkers__Fi
 0x800D5FB8    100.00%  game/psx/hud             Hud_WingmanFlash__Fii
@@ -2991,7 +2991,7 @@ VA             %match  unit                     function
 0x800F57C4    100.00%  syslib/psx/libmath/EXTSFDF2 __extendsfdf2
 0x800F5924    100.00%  syslib/psx/libmath/TRUDFSF2 __truncdfsf2
 0x800F5A54    100.00%  syslib/psx/libmath/ADDDF3 __adddf3
-0x800F5DD4     99.65%  syslib/psx/libmath/DIVDF3 __divdf3
+0x800F5DD4    100.00%  syslib/psx/libmath/DIVDF3 __divdf3
 0x800F60B4    100.00%  syslib/psx/libmath/DIVDF3 _comp_mant
 0x800F6104    100.00%  syslib/psx/libc/C26      strncpy
 0x800F6114    100.00%  eaclib/psx/eacpsxz/nullfunc setclipwindow

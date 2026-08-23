@@ -348,22 +348,14 @@ void Hud_DebugCrap(void)
 void Hud_BuildSprite(SPRT *sprt,int shapeIdx,int x,int y,u_long color,int trans)
 
 {
-  u_char uVar1;
-  u_short uVar2;
-  int tu1;
   HudPmx_tShape *shape;
-  HudPmx_tShape *pHVar3;
-  u_int uVar4;
-  u_int uVar5;
   
-  pHVar3 = HudPmx_gShapes + shapeIdx;
+  shape = HudPmx_gShapes + shapeIdx;
   SetSemiTrans(sprt,trans);
   *(u_char *)((int)&sprt->tag + 3) = 4;
-  uVar4 = color | 0x66000000;
-  *(u_int *)&sprt->r0 = uVar4;
-  uVar5 = y << 0x10 | x;
-  *(u_int *)&sprt->x0 = uVar5;
-  *(u_int *)&sprt->u0 = *(u_int *)&pHVar3->pixmap;
+  *(u_int *)&sprt->r0 = color | 0x66000000;
+  *(u_int *)&sprt->x0 = y << 0x10 | x;
+  *(u_int *)&sprt->u0 = *(u_int *)&shape->pixmap;
   *(u_int *)&sprt->w = (int)HudPmx_gShapes[shapeIdx].height << 0x10 | (int)HudPmx_gShapes[shapeIdx].width;
   return;
 }
@@ -437,14 +429,6 @@ void Hud_BuildF3(POLY_F3 *prim,HudPmx_tShape *shape,int x,int y,u_long color)
 void Hud_BuildGT4(POLY_GT4 *prim,HudPmx_tShape *shape,int x,int y,u_long color)
 
 {
-  u_char uVar1;
-  u_short uVar2;
-  u_int uVar3;
-  int tu2;
-  int uv23_pack;
-  int tpage_clut;
-  int w_h_pack;
-  
   *(u_char *)((int)&prim->tag + 3) = 0xc;
   *(u_int *)&prim->x0 = y << 0x10 | x;
   *(u_int *)&prim->r0 = color | 0x3e000000;
@@ -465,14 +449,6 @@ void Hud_BuildGT4(POLY_GT4 *prim,HudPmx_tShape *shape,int x,int y,u_long color)
 void Hud_BuildFT4(POLY_FT4 *prim,HudPmx_tShape *shape,int x,int y,u_long color,int trans)
 
 {
-  u_char uVar1;
-  u_short uVar2;
-  u_int uVar3;
-  int tu2;
-  int tu3;
-  int tu4;
-  int tu5;
-  
   *(u_int *)&prim->r0 = color;
   SetPolyFT4(prim);
   SetSemiTrans(prim,trans);
@@ -491,15 +467,6 @@ void Hud_BuildFT4(POLY_FT4 *prim,HudPmx_tShape *shape,int x,int y,u_long color,i
 void Hud_BuildMirrorFT4(POLY_FT4 *prim,HudPmx_tShape *shape,int x,int y,u_long color,int trans)
 
 {
-  u_char uVar1;
-  u_char uVar2;
-  u_short uVar3;
-  u_int uVar4;
-  int tu2;
-  int tu3;
-  int tu4;
-  int tu5;
-  
   *(u_int *)&prim->r0 = color;
   SetPolyFT4(prim);
   SetSemiTrans(prim,trans);
@@ -520,13 +487,6 @@ void Hud_BuildMirrorFT4(POLY_FT4 *prim,HudPmx_tShape *shape,int x,int y,u_long c
 void Hud_BuildMapMirrorFT4(POLY_FT4 *prim,HudPmx_tShape *shape,int x,int y,u_long color,int trans)
 
 {
-  u_char uVar1;
-  u_char uVar2;
-  u_short uVar3;
-  u_int uVar4;
-  int tu2;
-  int tu3;
-  
   *(u_int *)&prim->r0 = color;
   SetPolyFT4(prim);
   SetSemiTrans(prim,trans);
@@ -888,17 +848,11 @@ void Hud_InitMapFrame(int i,int mode)
 void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y)
 
 {
-  char cVar2;
-  charactertbl *pcVar6;
   int w;
   int c;
-  int n;
-  u_int uVar7;
+  int n; /* SYM-CODEGEN-CARRIER: n -- indexed sprite GIV keeps REGPARM sprt in $a0; sprt++ is the measured 18-diff form */
   char langSec;
   char langMin;
-  u_char bVar3;
-  u_char bVar4;
-  u_char bVar5;
   /* Ghidra hand-expanded these 2 as unaligned lwl/lwr bit-math on a stack
      pointer; the oracle is a plain compiler-generated rodata->stack aggregate
      copy (movstrsi shape, catalog wave-4 row) of a 6-char literal init. */
@@ -1705,14 +1659,14 @@ void Hud_BuildTach(int player)
   int sin1;
   int carType;
   u_long color;
-  int tachNeedle_p;
+  int tachNeedle_p; /* SYM-CODEGEN-CARRIER: tachNeedle_p -- direct per-arm clut loads are FAIL 14 (269/269) */
   POLY_F3 *prim;
   POLY_F3 *prim2;
-  void *tp9;
-  u_char *tp3;
-  short ts3;
-  short ts4;
-  short ts1;
+  void *tp9;   /* SYM-CODEGEN-CARRIER: tp9 -- staged second primitive/link block preserves the measured retail statement groups */
+  u_char *tp3; /* SYM-CODEGEN-CARRIER: tp3 -- late palette reload is part of the measured +2 tail ordering */
+  short ts3;   /* SYM-CODEGEN-CARRIER: ts3 -- shared x1 store stage preserves the retail store-forward pair */
+  short ts4;   /* SYM-CODEGEN-CARRIER: ts4 -- shared y1 store stage preserves the retail store-forward pair */
+  short ts1;   /* SYM-CODEGEN-CARRIER: ts1 -- reused x2/y2 stage plus liveness receipt materializes retail's copy */
   
   if (player != 0) {
     gSprt1 = gSprite1;
@@ -1756,7 +1710,7 @@ void Hud_BuildTach(int player)
    * Without the fence sched1 sinks the addiu to the bottom of the block and reorg steals it
    * into the `beqz` delay slot; with it, retail's `or s0,s0,v0` is the steal and the hoisted
    * value lands in $v1.  See the receipt block above the function. */
-  u_long clutx;
+  u_long clutx; /* SYM-CODEGEN-CARRIER: clutx -- hoisted else-arm value plus fence is the measured sched1 fixpoint */
   clutx = x + 0x1d;
   __asm__ ("" : : "r"(clutx));
   clut = clut | (y + 0x9d) << 8;
@@ -1775,7 +1729,7 @@ void Hud_BuildTach(int player)
   cos1 = fixedmult(cos,10) + 0xe;
   sin1 = fixedmult(sin,10) + 0xe;   /* sin1 (SYM: $s6) */
   {
-    u_char *pal;
+    u_char *pal; /* SYM-CODEGEN-CARRIER: pal -- first packet-link palette range is independently allocated */
 
     prim = (POLY_F3 *)Render_gPacketPtr;
     pal = Render_gPalettePtr;
@@ -1822,7 +1776,7 @@ void Hud_BuildTach(int player)
     *(short *)((u_char *)tp9 + 0xe) = (short)sin1;
     prim2 = (POLY_F3 *)Render_gPacketPtr;
     {
-    u_char *pal2 = Render_gPalettePtr;
+    u_char *pal2 /* SYM-CODEGEN-CARRIER: pal2 -- split second packet-link range is the measured w46 allocation lever */ = Render_gPalettePtr;
     ((Hud_PTag *)prim2)->addr = ((Hud_PTag *)pal2)->addr;
     Render_gPacketPtr = (u_char *)prim2 + 0x14;
     ((Hud_PTag *)pal2)->addr = (u_int)prim2;
@@ -1946,11 +1900,11 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
   int i;
   int ox;
   int numch;
-  int iw1;
-  int iw2;
-  int iw3;
-  int iw4;
-  int iw5;
+  int iw1; /* SYM-CODEGEN-CARRIER: iw1 -- direct arm expression is FAIL 8 (217/215) */
+  int iw2; /* SYM-CODEGEN-CARRIER: iw2 -- direct sibling-arm expression is FAIL 30 (217/215) */
+  int iw3; /* SYM-CODEGEN-CARRIER: iw3 -- direct network-arm expression is FAIL 8 (217/215) */
+  int iw4; /* SYM-CODEGEN-CARRIER: iw4 -- direct network sibling expression is FAIL 8 (217/215) */
+  int iw5; /* SYM-CODEGEN-CARRIER: iw5 -- direct post-glyph expression is FAIL 12 (217/215) */
 
   Hud_GoTpage(1);
   ix = x;
@@ -2120,7 +2074,7 @@ HudBuildStr_haveShape:
       /* MATCH (w51-a9 a): NAMING the index makes its pseudo born before the array base, so
        * it inherits the $a0 the call argument just freed (retail's `andi a0,s0,255; lui v1`)
        * instead of the base taking $a0 and the index $v1. */
-      int as = alphShape;
+      int as /* SYM-CODEGEN-CARRIER: as -- named index is the measured 26-to-9 allocation lever */ = alphShape;
       ix = iw5 + HudPmx_gShapes[as].width;
       }
     }
@@ -2803,6 +2757,51 @@ void Hud_BuildNumbers0(int player)
  *   PATTERN, so it survives the pseudo renumbering every source edit causes; A3_probe.py
  *   gates + dumps + prints that table per variant (snapshot/restore PER VARIANT -- a human
  *   session edits this TU concurrently). */
+/* ===== w76-a3: 188 -> PASS 758/758 (posmis 147 -> 0) -- SEALED, ZERO devices (no asm,
+ * no fences, no pins; the W75 K-recipe's statement moves were NOT needed).  Six levers:
+ *  1. X-HOIST (posmis 147->110): retail computes `x = x-1-width` ABOVE `if (hun != 0)`
+ *     (the subu sits in the beqz delay slot and runs on BOTH paths; x is DEAD when
+ *     hun==0 -- block-scoped, no later read -- so semantics preserved).  Spelled as a
+ *     block `{ int xm1 = x - 1; ... }` because fold rebuilds `x-1-w` into `x-(w+1)`
+ *     (22A-1); the block temp keeps retail's `(x-1)-w` = `addiu v0,s2,-1; subu`.
+ *     This also collapsed the whole 40-insn tail cluster AND freed hun's ref/live
+ *     shape (r8 l73 pri .3288) so hun needs NO ref inflation in this basin -- the
+ *     six-wave hun problem dissolved as a side effect.
+ *  2. HudPosition m2 FOLD-ESCAPE (110->84): `pSprt[37].x0` respelled with a mutable
+ *     `int m2 = -2;` (22A-1 escape) and the sum as `(A + B + (W + m2)) - P` -- the -2
+ *     stays on the width (retail `addiu a1,a1,-2`) instead of fold's `-(P+2)`; fixing
+ *     that one statement also snapped the block's whole a1/a2 caller-saved rotation.
+ *  3. hun/ten MOVED UP to just after `speed = ...` (84->79 with 4): retail materializes
+ *     the divide magics FIRST and starts both mults early -- source order hun;ten;
+ *     SpeedColor;color2;w1... reproduces it.  (The w71 "moving hun+ten up 236" verdict
+ *     was basin-relative -- re-priced per 21E-1.)  Side effect: ten live 51->55 =
+ *     pri .2545 < pSprt .2608, which is ten's required dial, for free.
+ *  4. switch-default INDEX-FIRST int-cast spelling `DashHUD_gInfo.gear * 20 +
+ *     (int)pSprt + 780` (both sites): retail associates (base + scaled) + 780 and puts
+ *     the scaled index first in the addu (5.0c commutative-addu lever).
+ *  5. w2 wrapper DROPPED (the old w53 pSprt dial): w2 refs 4->3, live 10 (the HT move
+ *     shortened it) = pri .3000.
+ *  6. w1 DEPTH-3 phony loop on the else arm `do { do { x = x - w1; } while (0); }
+ *     while (0);` = +2 refs (r8 l60 pri .4000), zero insns.  ⚠️ do NOT "simplify" the
+ *     double nesting away: depth-3 DOES stack here (w71's "nesting does not stack" was
+ *     the x-w2 site, basin-relative).  A depth-2 wrapper is only +1 ref (measured r7)
+ *     and the handout collapses.
+ * THE MECHANISM (allocsim-certified, MATCH 50/50 on this basin): with hun on s0 the
+ * seating chain is forced -- prim s1, x s2 (magic-const conflict excludes them from
+ * s0), and priority order hun .3117 > w1 .4000* > w2 .3000 > pSprt .2608 > ten .2545
+ * (*w1 allocates before hun; the magic conflict still lands it on s3) gives w1 s3,
+ * w2 s4, pSprt s5, ten s6, w7 s7, and speed-raw/splitY snap to s4/s6 as riders.
+ * p626(w1) refs=8 hits for ANY live 47..80 (measured window, live 60 inside) -- the
+ * W75 live-dial targets (39/10/56) were ONE cell of a much wider family.
+ * FALSIFIED on the way (all this basin): read-only fences on w1/w2/ten at 6+ positions
+ * (+1 insn each -- the carriers cross calls, w74-C confirmed) . tied launder on w1
+ * (frame explosion, count 756) . x-block do-wrapper (RTL restructure, count 756) .
+ * w7-def wrapper (allocsim: w7 pri .3 steals s5) . every statement-move cell that
+ * relocates the w-group or x block (KXP 120, HT3 114, HT4 128 -- each breaks the
+ * magic-const/prim/x seating that anchors s0/s1/s2).
+ * Probes: scratchpad/w76/A3_probe.py (temp-sibling protocol), sweeps A3_sweep*.py,
+ * side-by-sides A3_sbs_*.txt, dumps A3_*.{greg,lreg}.  Landed recipe = variant HT8
+ * (scratchpad/w76/A3_h8.json). */
 void Hud_BuildNumbers(int player)
 
 {
@@ -2834,9 +2833,9 @@ void Hud_BuildNumbers(int player)
   if (((GameSetup_gData.carInfo[i].HudLapnum != 0) && (Hud_BeTheCop == 0)) &&
      (DashHUD_gInfo.maxlaps != 1)) {
     int j;
-    u_char *pal;
-    u_char *pal_2;
-    u_char *pal_3;
+    u_char *pal;   /* SYM-CODEGEN-CARRIER: pal -- per-assignment palette split is the measured 388-to-256 allocation lever */
+    u_char *pal_2; /* SYM-CODEGEN-CARRIER: pal_2 -- separate second link range preserves the retail mask/pointer handout */
+    u_char *pal_3; /* SYM-CODEGEN-CARRIER: pal_3 -- separate final link group preserves the retail caller-saved band */
 
     *(int *)&pSprt[20].u0 = *(int *)&HudPmx_gHudNumberUV[DashHUD_gInfo.lap];
     *(int *)&pSprt[22].u0 = *(int *)&HudPmx_gHudNumberUV[DashHUD_gInfo.maxlaps];
@@ -2900,8 +2899,11 @@ void Hud_BuildNumbers(int player)
      * reassociates `(A + B + W + -2) - P` into `(A + B + W) - (P + 2)` (ours `addiu v0,v0,2`
      * on the SUBTRAHEND); leading, retail's `lhu a1,896(a2); addiu a1,a1,-2` (the -2 stays on
      * the width) is emitted early and the whole caller-saved band follows.  208 -> 200. */
-    pSprt[37].x0 = (HudPmx_gShapes[0x2c].width + g1Player[0xe].x + g1Player[10].x + -2) -
-                   HudPmx_gShapes[DashHUD_gInfo.position + 0x2c].width;
+    {
+      int m2 /* SYM-CODEGEN-CARRIER: m2 -- mutable fold escape is the measured 110-to-84 lever */ = -2;
+      pSprt[37].x0 = (g1Player[0xe].x + g1Player[10].x + (HudPmx_gShapes[0x2c].width + m2)) -
+                     HudPmx_gShapes[DashHUD_gInfo.position + 0x2c].width;
+    }
     *(int *)&pSprt[37].u0 = *(int *)&HudPmx_gShapes[DashHUD_gInfo.position + 0x2c].pixmap;
     pSprt[37].w = HudPmx_gShapes[DashHUD_gInfo.position + 0x2c].width;
     *(u_int *)&pSprt[39].u0 = *(u_int *)&HudPmx_gShapes[DashHUD_gInfo.opponents + 0x35].pixmap;
@@ -2932,9 +2934,9 @@ void Hud_BuildNumbers(int player)
       ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[47];
       break;
     default:
-      ((Hud_PTag *)&pSprt[DashHUD_gInfo.gear + 39])->addr =
+      ((Hud_PTag *)(DashHUD_gInfo.gear * 20 + (int)pSprt + 780))->addr =
            ((Hud_PTag *)Render_gPalettePtr)->addr;
-      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[DashHUD_gInfo.gear + 39];
+      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)(DashHUD_gInfo.gear * 20 + (int)pSprt + 780);
       break;
     }
     if (GameSetup_gData.carInfo[i].HudSpeed == 0) {
@@ -2962,6 +2964,8 @@ void Hud_BuildNumbers(int player)
     u_long SpeedColor;
 
     speed = fixedmult(GameSetup_gData.carInfo[i].HudSpeedMult,DashHUD_gInfo.speed) / 0x10000;
+    hun = speed / 100;
+    ten = speed / 10 + hun * -10;
     SpeedColor = 0xc8c8c8;
     color2 = 0x505050;
     w1 = HudPmx_gShapes[0x2c].width + 1;
@@ -2982,7 +2986,7 @@ void Hud_BuildNumbers(int player)
      * `x = w1*2 + (A+B+4)` 228. */
     x = (int)g1Player[1].x + (int)g1Player[0xc].x;
     {
-      int xt = x + 4;
+      int xt /* SYM-CODEGEN-CARRIER: xt -- statement-granular fold barrier is the measured 196-to-188 lever */ = x + 4;
       x = w1 * 2 + xt;
     }
     y = (int)g1Player[1].y + (int)g1Player[0xc].y + splitY;
@@ -2990,8 +2994,6 @@ void Hud_BuildNumbers(int player)
     Render_gPacketPtr = Render_gPacketPtr + 0x34;
     ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
     ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
-    hun = speed / 100;
-    ten = speed / 10 + hun * -10;
     Hud_BuildGT4(prim,HudPmx_gShapes + speed % 10 + 0x2c,x,y,SpeedColor);
     *(u_int *)&prim->r3 = color2;
     *(u_int *)&prim->r2 = color2;
@@ -3010,13 +3012,13 @@ void Hud_BuildNumbers(int player)
        * NESTED depth-2 wrapper on the else-arm `x = x - w1;` (260), one wrapper round
        * the w2+w7 defs (346 @760), and moving `hun`/`ten` below the first Hud_BuildGT4
        * to lengthen `speed`'s live range (504 @762). */
-      do { x = x - w2; } while (0);
+      x = x - w2;
     }
     else if (ten == 7) {
       x = x - w7;
     }
     else {
-      x = x - w1;
+      do { do { x = x - w1; } while (0); } while (0);
     }
     if ((hun != 0) || (ten != 0)) {
       prim = (POLY_GT4 *)Render_gPacketPtr;
@@ -3030,12 +3032,15 @@ void Hud_BuildNumbers(int player)
     if (ten == 1) {
       x = x - w3;
     }
+    {
+      int xm1 /* SYM-CODEGEN-CARRIER: xm1 -- block-local fold barrier preserves x-1 before the width subtraction */ = x - 1;
+      x = xm1 - (int)HudPmx_gShapes[hun + 0x2c].width;
+    }
     if (hun != 0) {
       prim = (POLY_GT4 *)Render_gPacketPtr;
       Render_gPacketPtr = Render_gPacketPtr + 0x34;
       ((Hud_PTag *)prim)->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
       ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)prim;
-      x = x - 1 - (int)HudPmx_gShapes[hun + 0x2c].width;
       Hud_BuildGT4(prim,HudPmx_gShapes + hun + 0x2c,x,y,SpeedColor);
       *(u_int *)&prim->r3 = color2;
       *(u_int *)&prim->r2 = color2;
@@ -3303,7 +3308,7 @@ void Hud_BuildMapMarkers(int player)
   int cenX;
   int cenZ;
   int mapy;
-  int mapx;
+  int mapx; /* SYM-CODEGEN-CARRIER: mapx -- const-propagated 0x16 rematerialization has no surviving SYM local */
 
   cenX = gMapOffX;
   cenZ = gMapOffY + 2;
@@ -3315,9 +3320,9 @@ void Hud_BuildMapMarkers(int player)
     if (Cars_gCopCarList[i]->N.active != '\0') {
       SPRT *sprt;
       int slice;
-      u_char *pal;
-      u_char **pktcell;
-      int aiflags;
+      u_char *pal;     /* SYM-CODEGEN-CARRIER: pal -- block-local OT link base preserves the retail mask allocation */
+      u_char **pktcell;/* SYM-CODEGEN-CARRIER: pktcell -- per-loop identity launder breaks cross-loop CSE and restores mapy $fp */
+      int aiflags;     /* SYM-CODEGEN-CARRIER: aiflags -- source-positioned flag load is the measured 34-to-21 lever */
 
       slice = Cars_gCopCarList[i]->N.simRoadInfo.slice;
       rx = BWorldSm_slices[slice].center[0] / gMapScaleX;
@@ -3385,8 +3390,8 @@ void Hud_BuildMapMarkers(int player)
       int slice;
       u_char *pal;
       u_char **pktcell;
-      Car_tObj *car;
-      u_int cflags;
+      Car_tObj *car; /* SYM-CODEGEN-CARRIER: car -- paired source-positioned pointer load is required for PASS */
+      u_int cflags;  /* SYM-CODEGEN-CARRIER: cflags -- paired carFlags load is the measured 74-to-14 lever */
 
       slice = Cars_gRaceCarList[i]->N.simRoadInfo.slice;
       rx = BWorldSm_slices[slice].center[0] / gMapScaleX;
@@ -3589,12 +3594,12 @@ void Hud_BuildWingmanInterface(int player)
    * g1Player[0xe].x read once (s1), the -0x1b string-x CSEs into s0. */
   int splitY;
   int flashTicks;
-  int now;
+  int now; /* SYM-CODEGEN-CARRIER: now -- named ticks load is the measured 114-to-98 evaluation-order lever */
   POLY_F4 *poly;
   int x;
-  int xf;
+  int xf; /* SYM-CODEGEN-CARRIER: xf -- shared x-minus-0x1c CSE is the measured 176-to-135 lever */
   int y;
-  int two;
+  int two; /* SYM-CODEGEN-CARRIER: two -- callee-saved literal is the measured 18-to-6 lever */
 
   /* MATCH (w50-a1): 18 -> 6, count EXACT 211/211 -- the w45 NAMED-ONE lever that cluster
    * (3) below named but never swept.  Retail materialises the literal 2 into a CALLEE-SAVED
@@ -3647,14 +3652,14 @@ void Hud_BuildWingmanInterface(int player)
      * NOTE `iconRow` is an invented local (the SYM's line-19 block declares none, same as
      * the pre-existing `fc`/`pal` here) -- it is the row-offset a 1998 HUD programmer would
      * have written for a 9-pixel icon pitch. */
-    int fc = (flashTicks % 0x14) * 10;
-    u_char *pal = Render_gPalettePtr;
+    int fc /* SYM-CODEGEN-CARRIER: fc -- guarded modulo staging fixes the /20 magic birth order */ = (flashTicks % 0x14) * 10;
+    u_char *pal /* SYM-CODEGEN-CARRIER: pal -- block-local scope split is the measured 98-to-22 allocation lever */ = Render_gPalettePtr;
     poly = (POLY_F4 *)Render_gPacketPtr;
     ((Hud_PTag *)poly)->addr = ((Hud_PTag *)pal)->addr;
     Render_gPacketPtr = (u_char *)poly + 0x18;
     ((Hud_PTag *)pal)->addr = (u_int)poly;
     {
-      int iconRow = ((u_char)Hud_gWingmanFlashIcon[player] + 1) * 9 + 2;
+      int iconRow /* SYM-CODEGEN-CARRIER: iconRow -- statement-level fold barrier seals the final 2 diffs */ = ((u_char)Hud_gWingmanFlashIcon[player] + 1) * 9 + 2;
       Hud_BuildF4(poly,0,x - 0x10,y + iconRow,0x3f,8,fc);
     }
   }

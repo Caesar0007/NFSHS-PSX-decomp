@@ -359,6 +359,48 @@
  * `build/<rel>.c.i` and never re-runs cpp, so an A/B that only rewrites the .c and re-runs
  * psyqproof compares the SAME source twice and reads VACUOUSLY IDENTICAL.  Build the TU
  * (verify_asm/vprobe) between the edit and the psyqproof call. */
+/* W76-A14 (2026-08-23) -- NO LANDING (25 held); the W75 §(A) ORCHESTRATOR CALL is ANSWERED
+ * IN THE NEGATIVE and the split-lane / self-temp question is CLOSED with a mechanism:
+ *
+ * (1) SPLIT-LANE ROW CENSUS (no_split_addresses OFF, default cc1: 42 @545 count-exact;
+ *     sbs at scratchpad/w76/A14_spr_split_sbs.txt).  The format-pointer cluster and the
+ *     `li s3,48` row carry over UNCHANGED; the la/j/nop + li-42 slot rows are replaced by
+ *     retail's split-pair shape (357 lui / 358 j / 359 addiu-in-slot = W75-(A)'s three
+ *     words, CORRECT code, no dead-addiu hazard); the NEW class is HI-SCRATCH SELF-TEMP:
+ *     ours `lui $v0,%hi(S); addiu dest,$v0,%lo(S)` at 3 sites (D_8012348C @28, the two
+ *     digit-string las @357/@360) + a jtbl-index scratch pair, where retail SELF-temps
+ *     (`lui dest; addiu dest,dest`).
+ * (2) 🔴 THE SELF-TEMP CLASS IS COMPILER-STRUCTURAL, NOT DECLARATION-SHAPE (all §3.12#5
+ *     levers falsified on the split lane: extern-unsized-array digit tables 42 (inert,
+ *     the oracle's D_80056B38/D_80056B4C shape) | tsrc read-only fence 42 (inert) | tsrc
+ *     identity launder 49 @548 | per-case single-def pointer locals 42 (inert)).
+ *     MECHANISM, source-cited: gcc-2.8.1 mips.md `movsi` expands a split address as
+ *     `tem = (reload_in_progress|reload_completed) ? operands[0] : gen_reg_rtx(mode)` --
+ *     a FRESH high temp at expand time, dest-reuse (= retail's self-temp) ONLY when the
+ *     materialization happens inside reload.  And local-alloc's combine_regs CANNOT tie
+ *     the fresh high to the dest afterwards: for the digit las the dest (hexChars) is a
+ *     cross-block variable, refused at local-alloc.c:1866 `reg_qty[sreg] == -1`; for the
+ *     template la the folded first load `lw $v0,0($v0_hi)` (mem(lo_sum) combine fold)
+ *     gives the high a second use, disqualifying it as a clean single-death local.
+ *     ⇒ retail's self-temp split pairs are RELOAD-TIME materializations = another face of
+ *     the vendor-internal cc1 (the A15 "2.8-shape without reload_cse" libc/libgpu rung),
+ *     not reachable from source on any disk rung.  The wired `no_split_addresses` row is
+ *     therefore LOAD-BEARING, not a paper-over: dropping it buys the whole class back.
+ * (3) 🔑 THE FORMAT-POINTER CLUSTER IS VERSION-CURED ON 970404: split lane + cc1_alt
+ *     2.7.2-970404 = 31 @546 with ALL format-pointer rows GONE (the cse canon_reg /
+ *     find_best_addr one-level-vs-two-level address-fold asymmetry is 2.8.0-specific).
+ *     Not wirable whole-fn: the 970404 basin pays li-'#'-position (3), jtbl at-fusion
+ *     lost (5, its .s shape no longer matches the maspsx cap pattern) and keeps the
+ *     self-temp class (7) => 31 > 25.  A rung with 970404-cse + no-split addressing does
+ *     not exist (970404 rejects `-mno-split-addresses`: "Invalid option").
+ * (4) 04Z flag re-ladder at 25 (all falsified): -fno-rerun-cse-after-loop 73 @556 |
+ *     -fno-cse-follow-jumps 45 @548 | -fno-cse-skip-blocks 82 @557 | -fforce-addr 25
+ *     (inert) | -fno-function-cse 25 (inert).
+ * REMAINING 25 unchanged in KIND (format cluster 16 / li-48 order 2 / la-j-nop 3 /
+ * li-42 slots 4) -- every row now carries either a version receipt (970404 cures the 16)
+ * or a vendor-identity receipt (the 3+4 need the split lane whose self-temp class needs
+ * the vendor cc1).  The honest route left = the A15-class sanctioned vendor rung
+ * (USER CALL), not source or wiring.  NOT a floor -- a rung decision. */
 /* PRIOR MATCH (w51-a8, 2026-08-09) -- RAGE-RACER VENDOR SIBLING AUDITED; our body is already
  * the right shape, so NO transplant was landed (kept at 174 diffs, 547-vs-545 insns).
  * Reference: C:/Temp/rage-racer-decomp\src\main\PAL\lib\libc\sprintf.c (a full

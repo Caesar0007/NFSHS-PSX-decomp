@@ -1485,6 +1485,30 @@ and `hud.cpp` at 61/62 PASS (only the unchanged `Hud_RenderTacView`, 11
 diffs). Production PsyQ proof reports REAL=0 and RELOP=0 for both functions,
 and the vtable indexing audit remains clean.
 
+### P28 — License-builder source reconstruction (`2026-08-24`)
+
+The refreshed strict game/PSX declaration audit advances from 375/395 to
+376/395 declaration-clean functions and reduces generic extra source-local
+names from 359 to 349. Missing SYM names remain zero, and the object-owned data
+result remains 0 missing / 61 extra definitions.
+
+`CarIO_CreateLicense` removes three decompiler-only value names without losing
+their evaluation order. The header and CLUT copy loops now use natural chained
+assignments, eliminating `hdr` and `tu3`; the first flag RMW uses its expression
+directly, eliminating `f1`. Seven retained aliases are independently required
+to express retail's may-alias scheduling: `p1`/`p2` preload both header-copy
+bases before either chained store, `q1`/`q2` do the same for the flag RMW,
+`r1`/`r2` form the separately allocated width-store pair, and `f2` keeps the
+second flag byte live across the first store. Current SYM-variable reuse tests
+are FAIL 78 for `q1`/`q2`, FAIL 58 for `r1`/`r2`, and FAIL 11 at 230/229 when
+`f2` is tied to `r2`; all were rejected and restored before landing.
+
+Two repeated detailed gates preserve `CarIO_CreateLicense` PASS 229/229. Two
+repeated whole-TU gates preserve `cario.cpp` at 10/11 PASS, with only the
+unchanged `CarIO_ReadInCarTextureData` residual (19 diffs). Production PsyQ
+proof with the existing validated text-move recipe reports REAL=0 and RELOP=0,
+and the vtable indexing audit remains clean.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

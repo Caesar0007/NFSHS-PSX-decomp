@@ -630,10 +630,10 @@ void CarIO_CreateLicense(char *text,int carType,int player)
   shapetbl *clutPlate1;
   shapetbl *clutPlate2;
   short *thePlate;
-  shapetbl *q1;
-  shapetbl *q2;
-  shapetbl *r1;
-  shapetbl *r2;
+  shapetbl *q1; /* SYM-CODEGEN-CARRIER: q1 -- first RMW base; reusing the dead SYM clutPlate pair is current FAIL 78/229 */
+  shapetbl *q2; /* SYM-CODEGEN-CARRIER: q2 -- paired preloaded base keeps both aliasable loads ahead of either store */
+  shapetbl *r1; /* SYM-CODEGEN-CARRIER: r1 -- fresh width-store base; reusing q1/q2 is measured FAIL 40 */
+  shapetbl *r2; /* SYM-CODEGEN-CARRIER: r2 -- paired fresh base; reusing clutPlate1/2 is current FAIL 58/229 */
   int i;
 
   /* oracle: `slti a1,carType,22; bnez a1,<big arm>` -- the carType>=0x16
@@ -665,24 +665,18 @@ void CarIO_CreateLicense(char *text,int carType,int player)
      * reads21/stores21 104 -- i.e. the READ order must stay source order and only the
      * stores flip.  A bare store swap without the temps is 122 (it swaps the reads too). */
     do {
-      int hdr;
-      shapetbl *p1;
-      shapetbl *p2;
+      shapetbl *p1; /* SYM-CODEGEN-CARRIER: p1 -- materializes both may-alias plate bases before the chained stores */
+      shapetbl *p2; /* SYM-CODEGEN-CARRIER: p2 -- direct indexed globals serialize the second load and are measured FAIL 122 */
 
-      hdr = ((int *)shape)[i];
       p1 = CarIO_Plate1[player];
       p2 = CarIO_Plate2[player];
-      *(int *)((char *)p2 + i * 4) = hdr;
-      *(int *)((char *)p1 + i * 4) = hdr;
+      *(int *)((char *)p1 + i * 4) =
+          *(int *)((char *)p2 + i * 4) = ((int *)shape)[i];
       i = i + 1;
     } while (i < 4);
     i = 0;
     do {
-      int tu3;
-
-      tu3 = ((int *)clutptr)[i];
-      ((int *)clutPlate2)[i] = tu3;
-      ((int *)clutPlate1)[i] = tu3;
+      ((int *)clutPlate1)[i] = ((int *)clutPlate2)[i] = ((int *)clutptr)[i];
       i = i + 1;
     } while (i < 0xc);
     /* MATCH (w50-a6, 82 -> 78): the SAME may-alias serialization one block later --
@@ -705,12 +699,10 @@ void CarIO_CreateLicense(char *text,int carType,int player)
     q2 = CarIO_Plate2[player];
     q1 = CarIO_Plate1[player];
     {
-      u_int f2;
-      u_int f1;
+      u_int f2; /* SYM-CODEGEN-CARRIER: f2 -- retains q2's byte load across the q1 store; reusing r2 is current FAIL 11/230 */
 
       f2 = *(u_char *)q2 | 0x11800;
-      f1 = *(u_char *)q1 | 0x11800;
-      *(u_int *)q1 = f1;
+      *(u_int *)q1 = *(u_char *)q1 | 0x11800;
       *(u_int *)q2 = f2;
     }
     /* MATCH (w62-a14, 44 -> 30, count stays EXACT 229/229): the SAME may-alias

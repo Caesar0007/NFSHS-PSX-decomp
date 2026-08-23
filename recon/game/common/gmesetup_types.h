@@ -10,6 +10,7 @@ typedef struct __nfs4_vtbl_ptr_t {
 } __nfs4_vtbl_ptr_t;
 #define __vtbl_ptr_type __nfs4_vtbl_ptr_t
 
+#ifndef NFS4_GMESETUP_OMIT_OWNER_RECORDS
 struct FEI_tList { int v; int *p; };
 
 struct GameSetup_tData {
@@ -28,6 +29,7 @@ struct GameSetup_tData {
     int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
     GameSetup_tCarData carInfo[9];
 };
+#endif
 
 struct tTexture_ShapeInfo {
     shapetbl *shpptr;

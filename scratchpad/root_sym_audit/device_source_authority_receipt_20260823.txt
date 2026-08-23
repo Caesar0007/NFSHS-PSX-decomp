@@ -1,0 +1,37 @@
+device.obj source-authority receipt -- 2026-08-23
+
+Full-debug local/alias probe (same compile_debug route as the strict graph sweep):
+  .def analogs; .val 4; .scl 4; .type 0x12; .endef
+
+Absent from emitted .def rows:
+  padbase
+  Device_gPadBytes
+  Device_gControllerConfig
+
+The two source view declarations therefore do not invent debug names, and the
+only touched function local emitted by this round is retail's SYM-attested
+Device_ReadPad `analogs` register local.
+
+Undefined-symbol check on build/recon/game/psx/device.cpp.o:
+  frontEnd GameSetup_gData gPadinfo gUseFrontend
+  InGame_ResetPSXController__Fii Input_gHandler PAD_state PAD_update
+  Replay_ReplayMode simVar
+All ten names are exact configured/project symbols.
+
+tools/build.py search:
+  recon/game/psx/device.cpp appears only in PER_TU_FLAGS with g_value=8.
+  No Device function appears in a post-recompile rewrite table.
+
+Authoritative gates:
+  Device_VerifyType__Fi PASS 42
+  Device_Fail__Fi PASS 28
+  Device_Update__Fv PASS 56
+  Device_StartUp__Fv PASS 10
+  Device_SetHardCodedKeys__Fv PASS 25
+  Device_PSXPad__FUl PASS 26
+  Device_ReadPad__FiUl PASS 140
+  Device_PSXPadMulti__FUl PASS 55
+  Device_Analog__FUl PASS 64
+  Device_Null__FUl PASS 2
+  GameSetup_StartUp__FPi PASS 225
+  GameSetup_CleanUp__Fv PASS 2

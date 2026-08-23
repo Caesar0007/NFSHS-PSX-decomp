@@ -1,0 +1,2 @@
+source	owner	status	retail_named	named_exact	named_missing	named_mismatch	retail_anonymous	anonymous_covered	retail_typedefs	typedefs_covered	source_extra_named	retail_duplicate_named	source_extra_anonymous	source_extra_typedefs	retail_duplicate_typedefs	source_duplicate_typedefs	detail
+recon/game/common/gmesetup.cpp	gmesetup.obj	OK	88	88	0	0	2	2	232	156	0	2	0	0	87	19	retail_duplicate_named=BO_tNewtonObjx1,tMenux1; retail_duplicate_typedefs=87; source_duplicate_typedefs=19

@@ -37,7 +37,7 @@ they are not silently collapsed into a smaller denominator.
   explicit per-record semantic-review row.  Nothing is silently dropped from
   the denominator.
 - A strict compiler-emitted type-graph comparison now distinguishes retail
-  subset coverage from actual per-object source visibility.  Seventy-four owners are
+  subset coverage from actual per-object source visibility.  Seventy-five owners are
   semantically exact: `memcard.obj`, `mdec.obj`, `video.obj`, `FETexture.obj`,
   `textpix.obj`, `textpsx.obj`, `unpack.obj`, `fastrand.obj`, and
   `aiscript.obj`, `new.obj`, `paths.obj`, `textsys.obj`, `simplemem.obj`,
@@ -53,7 +53,8 @@ they are not silently collapsed into a smaller denominator.
   `newton.obj`, `camera.obj`, `TrackSpec.obj`, `loading.obj`, `texture.obj`, and
   `Draw.obj`, `Sfx.obj`, `TrsProj.obj`, `CarIO.obj`, `platform.obj`, and
   `force.obj`, `audio.obj`, `overlays.obj`, `Weather.obj`, `rpause.obj`, and
-  `hrzsku.obj`, `TextureProcess.obj`, `Skidmark.obj`, and `fe3dmenu.obj`.
+  `hrzsku.obj`, `TextureProcess.obj`, `Skidmark.obj`, `fe3dmenu.obj`, and
+  `device.obj`.
   The remaining mapped C++
   units still expose reconstruction-only declarations through the monolithic
   `nfs4_types.h` include graph and therefore are not yet source-exact.
@@ -166,7 +167,7 @@ Results:
 - all retail `this` adjustments are zero;
 - structural/target issues: 0;
 - retail targets absent from the symbol map: 0;
-- unsafe direct vtable-row indexing: 0 across 924 source files.
+- unsafe direct vtable-row indexing: 0 across 925 source files.
 
 Evidence:
 
@@ -539,7 +540,7 @@ Current strict results:
 
 - `frontend/psx`: 4 exact (`memcard`, `mdec`, `video`, `fetexture`) and 4 DIFF
   (`drawshp`, `mmeffect`, `movie`, `psxfront`);
-- `game/psx`: 20 exact (`textpix`, `textpsx`, `unpack`, `trackspec`, `loading`, `texture`, `draw`, `sfx`, `trsproj`, `cario`, `platform`, `force`, `audio`, `overlays`, `weather`, `rpause`, `hrzsku`, `textureprocess`, `skidmark`, `fe3dmenu`), 7 DIFF, and one owner
+- `game/psx`: 21 exact (`textpix`, `textpsx`, `unpack`, `trackspec`, `loading`, `texture`, `draw`, `sfx`, `trsproj`, `cario`, `platform`, `force`, `audio`, `overlays`, `weather`, `rpause`, `hrzsku`, `textureprocess`, `skidmark`, `fe3dmenu`, `device`), 6 DIFF, and one owner
   ambiguity for game `font.obj` versus the vendor `libgpu/FONT.obj`;
 - `frontend/common`: 41 mapped units remain DIFF and the now-empty artificial
   `mcrd.cpp` unit needs its objdiff ownership removed or reassigned;
@@ -598,7 +599,7 @@ prechecked loop in `Camera_OpponentLookBehind` restores the original 245-word
 shape.  `Camera_NextMode` needs one documented post-cc1 scheduling relocation;
 it moves, but does not add/remove/rewrite, the existing signed-%3 correction.
 The final graph is 92/92 named and 2/2 anonymous with no extra type/typedef, all
-38 camera functions remain PASS, and the current vtable audit is clean across 924 files.
+38 camera functions remain PASS, and the current vtable audit is clean across 925 files.
 
 `TrackSpec.obj` is now strict-exact through an owner-specific type header.  Its
 externally owned `GameSetup_tData` is represented by an exact-symbol word view
@@ -752,6 +753,23 @@ all three Fe3D functions remain PASS.  Its calls use precise C linkage rather
 than variadic phantom-prone declarations, and neither the TU nor its functions
 has a post-recompile rewrite entry in `tools/build.py`.
 
+`device.obj` is now strict-exact through the proven `gmesetup.obj` frontend
+surface with its two foreign owner records (`GameSetup_tData` and `FEI_tList`)
+omitted, plus the retail `Input_tDeviceList` and `Sched_tSchedule` records.  The
+foreign completed `GameSetup_tData`, `Sim_tSimSystemVar`, and
+`tPadModuleState` bodies are represented by exact-symbol scalar/array views.
+Two-dimensional views preserve GCC's retail comparison-as-subscript lowering
+for `controllerConfig`, and its `gPadinfo + port*8` address tree with the
+attested `+4/+5/+6/+8/+9/+10` field displacements.  The final graph is 88/88
+named and 2/2 anonymous with no extra type or typedef semantics.  All ten
+Device functions remain PASS, both `gmesetup.cpp` functions remain PASS after
+the guarded shared-header refactor, and full-debug output contains the retail
+`analogs` local without a synthetic carrier local or alias definition.  The TU
+uses only its retail-proven `-G8` compiler input and has no post-recompile
+rewrite entry.  The local, undefined-symbol, build-route, and gate evidence is
+retained in the
+[`device source-authority receipt`](scratchpad/root_sym_audit/device_source_authority_receipt_20260823.txt).
+
 The mapped C++ units cover all retail named and anonymous type bodies, but are
 not source-exact while they expose unrelated monolithic-header declarations or
 miss owner-specific typedef variants.  The three C units that previously had
@@ -862,7 +880,8 @@ Strict evidence:
   [`hrzsku`](scratchpad/root_sym_audit/type_graph_hrzsku_final_20260823.tsv), and
   [`textureprocess`](scratchpad/root_sym_audit/type_graph_textureprocess_final_20260823.tsv), and
   [`skidmark`](scratchpad/root_sym_audit/type_graph_skidmark_final_20260823.tsv), and
-  [`fe3dmenu`](scratchpad/root_sym_audit/type_graph_fe3dmenu_final_20260823.tsv).
+  [`fe3dmenu`](scratchpad/root_sym_audit/type_graph_fe3dmenu_final_20260823.tsv), and
+  [`device`](scratchpad/root_sym_audit/type_graph_device_final_20260823.tsv).
 
 Required closure:
 

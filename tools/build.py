@@ -1539,6 +1539,20 @@ PER_FN_TEXT_MOVES = {
         ],
     },
     "recon/game/psx/weather.cpp": {
+        # SYM type-isolation receipt (2026-08-23): Weather.obj does not emit the
+        # foreign camera_info body, so weather.cpp now reaches Camera_gInfo
+        # through its exact-symbol word carrier.  A zero-byte base-use fence
+        # preserves retail's Camera base/field-offset aggregate-copy lowering;
+        # cc1 leaves only the independent prevCamMat destination copy one seat
+        # late.  Move that single copy before the Camera base pair, matching the
+        # original scheduler order.  Detailed gate: 2 diffs / 211 insns -> PASS;
+        # all 25 Weather functions and the strict 68/68 graph are regression-
+        # gated.  Pre-edit tooling backup: git blob
+        # 8120b9c1655810bd52ab884960a20674b7f54e0a.
+        "Weather_Init__Fv": [
+            {"take": r"\tmove\t\$6,\$7\n(?=\taddu\t\$5,\$2,48\n)",
+             "after": r"\tmove\t\$9,\$7\n"},
+        ],
         # w65-a2 label-move (probed 2x, objdump 15D).
         "Weather_ChangeDensityBasedOnTime__Fv": [
             {"_note": "brdist (5,10,11) -> 0. Our `j $L585` lands on a redundant `lui $4,%hi(Weather_gSys)` that its own path already executed; retail's .L800E22C4 is the following `lw $2,%lo(Weather_gSys)($4)`, where our $L593 already sits. Single user of $L585. TU 24/25 PASS 2x (Weather_DoWeather FAIL 4 = pre-existing).", "take": "\\$L\\d+:\\n(?=\\tlui\\t\\$4,%hi\\(Weather_gSys\\) \\# high\\n\\$L\\d+:\\n\\tlw\\t\\$2,%lo\\(Weather_gSys\\)\\(\\$4\\)\\n)", "after": "\\tlui\\t\\$4,%hi\\(Weather_gSys\\) \\# high\\n(?=\\$L\\d+:\\n\\tlw\\t\\$2,%lo\\(Weather_gSys\\)\\(\\$4\\)\\n)"},

@@ -2,7 +2,7 @@
  *   25 free fns Weather_*: snow/rain/splat particle system. State machine (density/intensity),
  *   GTE-transformed particle rendering. GTE COP2 ops via PsyQ libgte macros (weather_externs.h).
  */
-#include "../../nfs4_types.h"
+#include "weather_types.h"
 #include "weather_externs.h"
 
 /* This TU's original obj (WEATHER.CPP) reaches the packet/palette scratchpad pointers via their
@@ -90,7 +90,6 @@ extern char               *Weather_gDrawnServerA[]     asm("Weather_gDrawnServer
  * With `cm` read LAST the split view reaches PASS 197/197 on both lanes -- see the
  * W72-A14 receipt inside Weather_DoWeather.  The array view also emits no second
  * `.extern GameSetup_gData`, retiring the doubled-`.extern` dual-lane hazard. */
-extern int                 GameSetup_gDataWord0[]      asm("GameSetup_gData");
 
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
@@ -265,17 +264,17 @@ void Weather_InitSplats(void)
   int i;
   int splat_i;
   int result;
-  GameSetup_tData *gs;
+  int *gs;
   int commModeNetwork;
 
   splat_i = 0;
-  gs = &GameSetup_gData;
+  gs = Weather_GameSetupWords;
   commModeNetwork = 1;
   while (true) {
     result = splat_i < 0x13;
     if (result == 0) break;
     y_max = 0xf0;
-    if (gs->commMode == commModeNetwork) {
+    if (gs[3] == commModeNetwork) {
       y_max = 0x78;
     }
     rnd = random();
@@ -329,7 +328,7 @@ void Weather_ChangeDensityState(void)
   Weather_gDensityChangeFactor = statechange;
   Weather_gDensityGoalState = Weather_gDensityGoalState + statechange;
   if (statechange == 0) {
-    Weather_gDensityTimerGoal = simGlobal.gameTicks + 0x400;
+    Weather_gDensityTimerGoal = WEATHER_GAME_TICKS + 0x400;
   }
   return;
 }
@@ -354,7 +353,7 @@ void Weather_ChangeIntensityState(void)
   Weather_gIntensityChangeFactor = statechange;
   Weather_gIntensityGoalState = Weather_gIntensityGoalState + statechange;
   if (statechange == 0) {
-    Weather_gIntensityTimerGoal = simGlobal.gameTicks + 0x400;
+    Weather_gIntensityTimerGoal = WEATHER_GAME_TICKS + 0x400;
   }
   return;
 }
@@ -373,7 +372,7 @@ WeatherDensity_checkZero:
   goto WeatherDensity_call;
   goto WeatherDensity_numAdd;
 WeatherDensity_checkTime:
-  if (simGlobal.gameTicks <= Weather_gDensityTimerGoal) goto WeatherDensity_numAdd;
+  if (WEATHER_GAME_TICKS <= Weather_gDensityTimerGoal) goto WeatherDensity_numAdd;
 WeatherDensity_call:
   Weather_ChangeDensityState();
 WeatherDensity_numAdd:
@@ -442,7 +441,7 @@ WeatherIntensity_checkZero:
   goto WeatherIntensity_velYUpdate;
   goto WeatherIntensity_call;
 WeatherIntensity_checkTime:
-  if (simGlobal.gameTicks <= Weather_gIntensityTimerGoal) goto WeatherIntensity_velYUpdate;
+  if (WEATHER_GAME_TICKS <= Weather_gIntensityTimerGoal) goto WeatherIntensity_velYUpdate;
 WeatherIntensity_call:
   Weather_ChangeIntensityState();
 WeatherIntensity_velYUpdate:
@@ -462,7 +461,7 @@ void Weather_InitStateControls(void)
 {
   int track;
 
-  track = GameSetup_gData.track;
+  track = WEATHER_GAMESETUP_TRACK;
   Weather_gTrackIntensityLimit = Weather_gTrackIntensityLimitTbl[track];
   if ((track == 0) || (track == 4)) {
     Weather_gSnowTrack = 1;
@@ -482,10 +481,10 @@ void Weather_InitStateControls(void)
   Weather_gDensityGoalState = 3;
   Weather_gIntensityChangeFactor = 0;
   Weather_gDensityChangeFactor = 0;
-  Weather_gIntensityTimerGoal = simGlobal.gameTicks + 0x400;
+  Weather_gIntensityTimerGoal = WEATHER_GAME_TICKS + 0x400;
   Weather_gSys.num[0] = Weather_gDensityTbl[3];
-  Weather_gDensityTimerGoal = simGlobal.gameTicks + 0x400;
-  timechange = simGlobal.gameTicks;
+  Weather_gDensityTimerGoal = WEATHER_GAME_TICKS + 0x400;
+  timechange = WEATHER_GAME_TICKS;
   return;
 }
 
@@ -504,13 +503,13 @@ void Weather_Restart(void)
   int i;
   int iVar2;
   
-  if (GameSetup_gData.Weather != 0) {
-    if (GameSetup_gData.commMode != 1) {
+  if (WEATHER_GAMESETUP_WEATHER != 0) {
+    if (WEATHER_GAMESETUP_COMM_MODE != 1) {
       Weather_InitStateControls();
     }
     iVar2 = 0;
-    WEATHER_GLASTPROCESSTIME1 = simGlobal.gameTicks;
-    WEATHER_GLASTPROCESSTIME0 = simGlobal.gameTicks;
+    WEATHER_GLASTPROCESSTIME1 = WEATHER_GAME_TICKS;
+    WEATHER_GLASTPROCESSTIME0 = WEATHER_GAME_TICKS;
     do {
       pcVar1 = Weather_gWasDrawn + iVar2;
       iVar2 = iVar2 + 1;
@@ -583,13 +582,13 @@ void Weather_Init(void)
    * Diagnostic sweep that isolated the flag: -fno-cse-follow-jumps / -fno-gcse /
    * -fno-cse-skip-blocks all leave the fold in place; -mno-split-addresses changes the whole
    * address form (la + 1-insn guard load), only -fforce-addr lands retail's shape. */
-  Weather_gTrackSpec = &TrackSpec_gSpec.weatherspec;
-  if (GameSetup_gData.Weather != 0) {
-    Weather_gType = TrackSpec_gSpec.weatherspec.type;
-    if (TrackSpec_gSpec.weatherspec.type == 1) {
+  Weather_gTrackSpec = &WEATHER_TRACK_WEATHER;
+  if (WEATHER_GAMESETUP_WEATHER != 0) {
+    Weather_gType = WEATHER_TRACK_WEATHER.type;
+    if (WEATHER_TRACK_WEATHER.type == 1) {
       Weather_InitRain();
     }
-    else if (TrackSpec_gSpec.weatherspec.type == 0) {
+    else if (WEATHER_TRACK_WEATHER.type == 0) {
       Weather_InitSnow();
     }
     if (Weather_gSplatInfo == (Weather_tSplatInfo *)0x0) {
@@ -604,13 +603,13 @@ void Weather_Init(void)
     if (Weather_gWasDrawn == (char *)0x0) {
       Weather_gWasDrawn = reservememadr("weather3",0x98,0);
     }
-    WEATHER_GLASTPROCESSTIME1 = simGlobal.gameTicks;
-    WEATHER_GLASTPROCESSTIME0 = simGlobal.gameTicks;
+    WEATHER_GLASTPROCESSTIME1 = WEATHER_GAME_TICKS;
+    WEATHER_GLASTPROCESSTIME0 = WEATHER_GAME_TICKS;
     Weather_gPServer = Weather_gPos;
     Weather_gPrevPServer = Weather_gPrevPos;
     Weather_gDrawnServer = Weather_gWasDrawn;
     Weather_gSplatInfoServer = Weather_gSplatInfo;
-    if (GameSetup_gData.commMode == 1) {
+    if (WEATHER_GAMESETUP_COMM_MODE == 1) {
       Weather_gPServer1 = Weather_gPos + 0x4c;
       Weather_gPrevPServer1 = Weather_gPrevPos + 0x4c;
       Weather_gDrawnServer1 = Weather_gWasDrawn + 0x4c;
@@ -634,9 +633,12 @@ void Weather_Init(void)
      * Two locals => 211/211 count-exact and the entire block byte-matches (12 diffs). */
     pmVar5 = prevCamMat;
     pmVar4 = prevCamMat;
-    prevCamPos[1] = Camera_gInfo[0].position;
+    /* Weather.obj does not emit camera_info.  Keep its exact symbol base live
+       so the two aggregate reads retain retail's base+member MEM shape. */
+    __asm__("" : : "r"(&Weather_CameraWords[0]));
+    prevCamPos[1] = WEATHER_CAMERA_POSITION(0);
     prevCamPos[0] = prevCamPos[1];
-    pmVar5[0] = Camera_gInfo[0].rotation;
+    pmVar5[0] = WEATHER_CAMERA_ROTATION(0);
     pmVar4[1] = pmVar5[0];
     pSVar10 = Weather_gPos;
     iVar6 = 0x97;
@@ -674,7 +676,7 @@ void Weather_Init(void)
 void Weather_DeInit(void)
 
 {
-  if (GameSetup_gData.Weather != 0) {
+  if (WEATHER_GAMESETUP_WEATHER != 0) {
     if (Weather_gSplatInfo != (Weather_tSplatInfo *)0x0) {
       purgememadr(Weather_gSplatInfo);
     }
@@ -1287,7 +1289,7 @@ void Weather_CreateSplat
   if (((splat->pos).vx & 1U) != 0) {
     size = 0xc;
   }
-  splatTick = simGlobal.gameTicks - splat->startTick;
+  splatTick = WEATHER_GAME_TICKS - splat->startTick;
   /* w46-a9: retail issues `li $v0,-128 / subu $v0,$v0,$a0` BEFORE `sra $v1,$v1,3`
    * (both are ready right after the `sll`, a sched2 ready-list tie).  Naming the
    * colour value and fencing the shift behind it wins the tie at 0 insns; a bare
@@ -1476,8 +1478,8 @@ void Weather_DoSplats
   i = 0;
   while (i < gCurrentNumSplats) {
       __asm__("" : : "r"(i));
-      if (simGlobal.gameTicks >= splats[i].startTick) {
-        if (splats[i].startTick + 0x20 < simGlobal.gameTicks) {
+      if (WEATHER_GAME_TICKS >= splats[i].startTick) {
+        if (splats[i].startTick + 0x20 < WEATHER_GAME_TICKS) {
           if ((num < gCurrentNumSplats) && (i == gCurrentNumSplats + -1)) {
             gCurrentNumSplats = i;
           }
@@ -1485,13 +1487,13 @@ void Weather_DoSplats
             splats[i].pos.vx = (short)((u_int)random() % 320);
             q = &splats[i];
             __asm__("" : "=r"(q) : "0"(q));
-            if (GameSetup_gData.commMode == 1) {
+            if (WEATHER_GAMESETUP_COMM_MODE == 1) {
               q->pos.vy = (short)((u_int)random() % 0xf0 >> 1);
             }
             else {
               q->pos.vy = (short)((u_int)random() % 0xf0);
             }
-            splats[i].startTick = simGlobal.gameTicks + (u_int)random() % 100;
+            splats[i].startTick = WEATHER_GAME_TICKS + (u_int)random() % 100;
           }
         }
         else {
@@ -1774,11 +1776,11 @@ void Weather_DoWeather(DRender_tView *Vi)
   wpt = Weather_gPServerA[player];
   wprevpt = Weather_gPrevPServerA[player];
   wd = Weather_gDrawnServerA[player];
-  int cm = GameSetup_gDataWord0[3];   /* == GameSetup_gData.commMode, @ +0xC */
+  int cm = WEATHER_GAMESETUP_COMM_MODE;   /* == GameSetup_gData.commMode, @ +0xC */
   int one = 1;
   __asm__("" : : "r"(player));
-  if ((cm != one) && (0x20 < simGlobal.gameTicks - timechange)) {
-    timechange = simGlobal.gameTicks;
+  if ((cm != one) && (0x20 < WEATHER_GAME_TICKS - timechange)) {
+    timechange = WEATHER_GAME_TICKS;
     if (Weather_gSnowTrack == 0) {
       Weather_ChangeIntensityBasedOnTime();
     }
@@ -1824,12 +1826,12 @@ void Weather_DoWeather(DRender_tView *Vi)
         } while (i < Weather_gSys.num[player]);
       }
     }
-    if (1 < simGlobal.gameTicks - Weather_gLastProcessTimeA[player]) {
-      Weather_gLastProcessTimeA[player] = simGlobal.gameTicks;
+    if (1 < WEATHER_GAME_TICKS - Weather_gLastProcessTimeA[player]) {
+      Weather_gLastProcessTimeA[player] = WEATHER_GAME_TICKS;
       Weather_ProcessParticles(Vi,Weather_gSys.num[player],wpt,wd);
     }
     Weather_SetIdentMatrix();
-    if (Camera_gInfo[player].inCar) {
+    if (WEATHER_CAMERA_IN_CAR(player)) {
       Weather_DoSplats(Weather_gSys.num[player] >> 3,Weather_gSplatInfoServerA[player]);
     }
     /* emit one snow/rain primitive per particle.
@@ -1884,11 +1886,11 @@ void Weather_DoWeather(DRender_tView *Vi)
 void Weather_BuildWeather(DRender_tView *Vi)
 
 {
-  BOOL pvVar1;
+  int pvVar1;
 
-  if ((GameSetup_gData.Weather != 0) &&
+  if ((WEATHER_GAMESETUP_WEATHER != 0) &&
      (pvVar1 = BWorldSm_TunnelFlagSm
-                         (&Camera_gInfo[Vi->player].slicePos), pvVar1 == 0)) {
+                         (&WEATHER_CAMERA_SLICE_POS(Vi->player)), pvVar1 == 0)) {
     Weather_DoWeather(Vi);
   }
   return;

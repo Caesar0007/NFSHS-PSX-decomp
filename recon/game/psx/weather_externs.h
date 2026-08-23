@@ -1,4 +1,3 @@
-#include "../../lib/libfns.h"
 /* weather_externs.h -- externs referenced by weather.cpp (GAME/PSX/WEATHER.CPP particle weather) */
 #ifndef WEATHER_EXTERNS_H
 #define WEATHER_EXTERNS_H
@@ -38,10 +37,19 @@ extern int               Weather_gTrackIntensityLimit;         /* 0x8013dc0c */
  * per-element in weather.cpp with an asm()-label array view; no cross-TU extern. */
 
 /* ---- shared game globals (SYM Globals.jsonl; declared in their owning TUs) ---- */
-extern GameSetup_tData   GameSetup_gData;          /* 0x801131ec */
-extern Sim_tSimGlobalVar simGlobal;                /* 0x8011e0ac */
-extern CTrackSpec        TrackSpec_gSpec;          /* 0x8012327c */
-extern camera_info       Camera_gInfo[2];          /* 0x8010f2ac */
+extern int               Weather_GameSetupWords[] asm("GameSetup_gData");
+extern int               Weather_SimWords[] asm("simGlobal");
+extern char              Weather_TrackSpecBytes[] asm("TrackSpec_gSpec");
+extern u_int             Weather_CameraWords[] asm("Camera_gInfo");
+#define WEATHER_GAMESETUP_COMM_MODE Weather_GameSetupWords[3]
+#define WEATHER_GAMESETUP_TRACK     Weather_GameSetupWords[15]
+#define WEATHER_GAMESETUP_WEATHER   Weather_GameSetupWords[18]
+#define WEATHER_GAME_TICKS          Weather_SimWords[1]
+#define WEATHER_TRACK_WEATHER       (*(CWeatherSpec *)(Weather_TrackSpecBytes + 0x20))
+#define WEATHER_CAMERA_POSITION(i)  (*(coorddef *)(Weather_CameraWords + (i) * 68 + 2))
+#define WEATHER_CAMERA_ROTATION(i)  (*(matrixtdef *)(Weather_CameraWords + (i) * 68 + 12))
+#define WEATHER_CAMERA_IN_CAR(i)    ((Weather_CameraWords[(i) * 68 + 29] >> 27) & 1)
+#define WEATHER_CAMERA_SLICE_POS(i) (*(BWorldSm_Pos *)(Weather_CameraWords + (i) * 68 + 35))
 extern coorddef          prevCamPos[2];            /* 0x8012342c */
 extern matrixtdef        prevCamMat[2];            /* 0x80123444 */
 extern int               gCurrentNumSplats;        /* 0x8013dba0 */
@@ -61,5 +69,14 @@ extern bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *slicePos) asm("BWorldSm_TunnelFl
 extern Draw_tPixMap *gWeatherPixmap[3];            /* 0x80112b7c  snow/rain sprites */
 extern int          Input_gLookBehind[2];          /* 0x8013d230 */
 // [owned->file-static in weather.cpp] int timechange; /* 0x8013de4c */
+
+extern "C" {
+int fixedmult(...);
+int purgememadr(...);
+int random(...);
+void *reservememadr(...);
+void SetDrawMode(...);
+void transpose(...);
+}
 
 #endif /* WEATHER_EXTERNS_H */

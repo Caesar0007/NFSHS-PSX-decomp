@@ -1957,20 +1957,21 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
   long angleZ;
   long angleZ2;
   char flareVis;
-  int otz;
+  int otz; /* SYM-CODEGEN-CARRIER: otz -- keeping the zero as a value preserves retail's shift/address chain; literal zero is FAIL 6/407 */
 
   otz = 0;
   if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr + -0x400) {
     {
       DVECTOR pt [4];
       CVECTOR col;
-      u_long colw = 0xffffff;
-      DVECTOR *pp = pt;
-      CVECTOR *cp = &col;
-      int otSize = Draw_gViewOtSize;
+      u_long colw = 0xffffff; /* SYM-CODEGEN-CARRIER: colw -- inline 0xffffff is current FAIL 24/409 */
+      DVECTOR *pp = pt; /* SYM-CODEGEN-CARRIER: pp -- pre-fence call address forces the retail ARG-slot reload */
+      CVECTOR *cp = &col; /* SYM-CODEGEN-CARRIER: cp -- paired pre-fence address in the same measured head-block recipe */
+      int otSize = Draw_gViewOtSize; /* SYM-CODEGEN-CARRIER: otSize -- folding the -2 into this load is measured FAIL 10 */
       long result;
 
-      { int vx0 = screenPos->vx;  int vy0 = screenPos->vy;
+      { int vx0 = screenPos->vx; /* SYM-CODEGEN-CARRIER: vx0 -- fence materializes retail's sx copy instead of folding the load into $fp */
+        int vy0 = screenPos->vy; /* SYM-CODEGEN-CARRIER: vy0 -- paired temporary materializes the sy/$s7 copy */
         __asm__ volatile("" : : "r"(vx0), "r"(vy0));
         sx = vx0;  sy = vy0; }
       /* MATCH: group order sx-2, sy-2, sx+3, sy+3 (compute order in the oracle)
@@ -2154,19 +2155,15 @@ gte_SetRotMatrix(&mtx);
       }
       {
         DR_MODE *aprim;
-        u_int *slot;
-        u_int pkt24;
-        u_int addr24_0;
 
         aprim = (DR_MODE *)Render_gPacketPtr;
 
-        addr24_0 = (u_int)aprim & 0xffffff;
-        slot = (u_int *)(otz * 4);
-        slot = (u_int *)((int)slot + (int)Render_gPalettePtr);
-        *(u_int *)aprim = *(u_int *)aprim & 0xff000000 | *slot & 0xffffff;
-        pkt24 = *slot & 0xff000000;
+        /* Canonical PsyQ addPrim: the P_TAG bitfield pair expresses getaddr/setaddr
+         * without reconstruction-only slot/mask temporaries. */
+        ((Flare_PTag *)aprim)->addr =
+            ((Flare_PTag *)(otz * 4 + (int)Render_gPalettePtr))->addr;
         Render_gPacketPtr = (u_char *)aprim + 0xc;
-        *slot = pkt24 | (addr24_0 & 0xffffff);
+        ((Flare_PTag *)(otz * 4 + (int)Render_gPalettePtr))->addr = (u_int)aprim;
         SetDrawMode(aprim,0,otz,0x120,(RECT *)0x0);
       }
     }

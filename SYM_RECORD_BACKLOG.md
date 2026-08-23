@@ -1535,6 +1535,31 @@ repeated whole-TU gates preserve `hud.cpp` at 61/62 PASS, with only the
 unchanged `Hud_RenderTacView` residual (11 diffs). Production PsyQ proof reports
 REAL=0 and RELOP=0, and the vtable indexing audit remains clean.
 
+### P30 — Canonical PsyQ lens-flare tag linking (`2026-08-24`)
+
+The refreshed strict game/PSX declaration audit advances from 377/395 to
+378/395 declaration-clean functions and reduces generic extra source-local
+names from 340 to 330. Missing SYM names remain zero, and the object-owned data
+result remains 0 missing / 61 extra definitions.
+
+`Flare_LensFlare` replaces the hand-masked `slot`/`pkt24`/`addr24_0` ordering-
+table tail with the canonical PsyQ `addPrim` source shape, expressed through
+the SDK-compatible `P_TAG` bitfield pair. This removes all three reconstruction
+temporaries while preserving the exact 409-word retail function.
+
+The seven retained source-only identities now have explicit current or
+previously measured receipts. Literalizing the zero-valued `otz` loses the
+retail shift/address chain (FAIL 6 at 407/409), and inlining `colw` is current
+FAIL 24/409. `pp`/`cp` must be born before the head fence to force the retail
+argument-slot reload; `otSize` keeps the view-size load separate from `-2`;
+and fenced `vx0`/`vy0` materialize the two retail copies into `sx`/`sy` rather
+than folding the loads directly into their homes.
+
+Two repeated detailed gates preserve `Flare_LensFlare` PASS 409/409. Two
+repeated whole-TU gates confirm `flare.cpp` is 27/27 PASS. Production PsyQ proof
+with the existing validated text moves reports REAL=0 and RELOP=0, and the
+vtable indexing audit remains clean.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

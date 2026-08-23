@@ -1,13 +1,16 @@
-#include "../../lib/libfns.h"
 /* fe3dmenu_externs.h -- externs for fe3dmenu.cpp (3D showroom/car render; PsyQ math + soft-float) */
 #ifndef FE3DMENU_EXTERNS_H
 #define FE3DMENU_EXTERNS_H
+
+#include "fe3dmenu_types.h"
 
 /* globals (SYM Globals.jsonl) */
 extern COORD16  Fe3D_lightsVertex[64];   /* 0x80051334  ARY STRUCT COORD16 x64 */
 extern COORD16  Fe3D_spotVertex[33];     /* 0x8005126c  ARY STRUCT COORD16 x33 */
 extern char     bigBuf[];
 extern int      gMenuRotate[2];
+/* Scratchpad stack terminator; it has no linked storage or SYM type record. */
+#define gScratchLastWord (*(int *)0x1F8003FC)
 /* w38-a9: Render_gMenuRenderFlag dropped -- it is the SCRATCHPAD field
    sd->head.mirror @0x1F80000C, not a linked symbol (see Draw_MenuRenderingView).
    The remaining scalars use the UNSIZED-ARRAY ASM-LABEL VIEW: as plain `extern int`
@@ -39,6 +42,18 @@ extern u_long   gWSavePtr_v[]                 asm("gWSavePtr");
 /* PsyQ / EA fixed-point + matrix math */
 void Math_NormalizeVector(coorddef *);
 void Math_fasttransmult(matrixtdef *, matrixtdef *, matrixtdef *);
+
+extern "C" {
+int   csin(int angle);
+int   ccos(int angle);
+int   fastintsin(int angle);
+int   fastintcos(int angle);
+void  crossproduct(coorddef *a, coorddef *b, coorddef *result);
+int   fixedxformy(matrixtdef *matrix, int angle);
+void  transpose(matrixtdef *source, matrixtdef *destination);
+void  transform(int *source, int *matrix, int *destination);
+void *SetSp(void *stack_pointer);
+}
 
 /* 3D car / texture / projection render */
 void Texture_LoadMenuTexture(void);

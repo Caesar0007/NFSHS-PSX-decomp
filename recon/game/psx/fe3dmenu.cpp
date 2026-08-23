@@ -3,7 +3,6 @@
  *   tListIteratorCar (8; :tListIterator), tListIteratorCarColor (6; :tListIterator).
  *   Member defs; base ctors via init-lists; manual _vf vtable for the iterator virtuals.
  */
-#include "../../nfs4_types.h"
 #include "fe3dmenu_externs.h"
 
 

@@ -3892,7 +3892,14 @@ void Hud_InitCdPlayer(void)
  * INELIGIBLE, and the label blocks the fill regardless of the insn's origin), a pinned
  * `register char *t asm("$4")` copy above the branch lands [addu][beqz] = 2 diffs instead
  * of 1, and the branch-taken thread (nullTitleTail) starts with a store (`keepup = 0`),
- * which reorg can never speculate into a non-annulled MIPS-I slot. */
+ * which reorg can never speculate into a non-annulled MIPS-I slot.
+ * ===== w77: PASS 475/475, NO ASM/PIN.  The floor diagnosis was basin-local: the invented
+ * `wordId` funnel made the third arm's `bnez title` target the post-test join.  Retail's
+ * natural source duplicates `TextSys_Word(0x44/0x45/0x46)` in the three arms and assigns
+ * `artist = 0` after each call; cross_jump merges the identical call/assignment tails.
+ * In the third arm, spelling the title-present and title-null cases as a real if/else keeps
+ * the later `beqz title` as the join owner.  Reorg then places `artist = 0` in the earlier
+ * bnez slot and `a0 = title` in the later beqz slot exactly as retail. */
 void Hud_BuildCdPlayer(int type,int arg1)
 
 {
@@ -4027,34 +4034,35 @@ HudCdPlay_activateGate:
      * materializes each word id straight into $a0 (`li $a0,0x44/0x45/0x46`) in the delay slot
      * of a `j` to ONE shared `jal TextSys_Word` -- i.e. each arm calls it inline and gcc
      * cross-jump-merged the calls. */
-    /* MATCH (w75-a4): retail has only TWO `addu s0,zero,zero` (artist = 0) in this
+    /* MATCH (w77): retail has only TWO `addu s0,zero,zero` (artist = 0) in this
      * cascade -- one in arm 3 before its early-exit `bnez` (oracle 207, the branch's
      * delay slot) and one in the SHARED `jal TextSys_Word` delay slot (oracle 210).
-     * Writing `artist = 0` inside each arm gives THREE, because cross_jump stops at
-     * the arms' differing `li a0,0x44/45/46` and can never reach the store behind it.
-     * Staging the word id in a local and putting the single `artist = 0` on the shared
-     * path reproduces retail exactly: each arm keeps `li a0,K` in its `j` delay slot
-     * (the w39 reading of the oracle stands) and reorg takes the one store into the
-     * shared call's slot.  40 @477 -> 36 @475 (count exact again).  Falsified: reusing
-     * the dead `bVar2` as the staging local 75 @476; dropping arm 3's own store
-     * 37 @474; hoisting one `artist = 0` above the whole cascade 42 @475. */
-    int wordId;
+     * The original-looking source calls TextSys_Word directly in every arm and assigns
+     * artist afterward.  cross_jump merges those identical call/assignment suffixes,
+     * leaving each differing word id in its arm's jump slot.  The third arm's explicit
+     * if/else is essential: it retains the later title test as the join and eliminates
+     * the final nop.  The prior staged `wordId` funnel reached 1 diff but could not express
+     * this CFG and was absent from the SYM local list. */
     if (index == 0) {
       sprintf(strindex,"- -");
-      wordId = 0x44;
+      title = TextSys_Word(0x44);
+      artist = (char *)0x0;
     }
     else if (index == -2) {
       sprintf(strindex,"- -");
-      wordId = 0x45;
+      title = TextSys_Word(0x45);
+      artist = (char *)0x0;
     }
     else {
       sprintf(strindex,"- -");
-      artist = (char *)0x0;
-      if (title != (char *)0x0) goto HudCdPlay_nullStringFallback;
-      wordId = 0x46;
+      if (title != (char *)0x0) {
+        artist = (char *)0x0;
+      }
+      else {
+        title = TextSys_Word(0x46);
+        artist = (char *)0x0;
+      }
     }
-    artist = (char *)0x0;
-    title = TextSys_Word(wordId);
 HudCdPlay_nullStringFallback:
     /* oracle `.L800D6724: beqz $s1,.L800D6894` -- the keepup/lastTick block is OUT OF LINE,
      * placed immediately before the buildOutString join (.L800D68A4); the main path reaches

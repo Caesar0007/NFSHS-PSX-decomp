@@ -6733,6 +6733,16 @@ void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShe
 void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
 
 {
+  /* Source-only identities retained only where the oracle proves their
+     statement/allocation role; they are not asserted SYM locals:
+     SYM-CODEGEN-CARRIER: m -- mixed matB lvalues are the measured exact GTE-base shape.
+     SYM-CODEGEN-CARRIER: m2 -- the in-loop sibling requires the same mixed-base shape.
+     SYM-CODEGEN-CARRIER: posX -- completing the target-pointer chase as its own statement preserves retail's load-delay stall.
+     SYM-CODEGEN-CARRIER: posY -- y-axis instance of the independently measured pointer-chase split.
+     SYM-CODEGEN-CARRIER: posZ -- z-axis instance of the independently measured pointer-chase split.
+     SYM-CODEGEN-CARRIER: tx -- direct final subtraction is FAIL 6 at 199/199 because the translation load moves.
+     SYM-CODEGEN-CARRIER: ty -- y-axis scheduling identity in that same current falsification.
+     SYM-CODEGEN-CARRIER: tz -- z-axis scheduling identity in that same current falsification. */
   /* MATCH (2026-07-11, 79 -> 52 diffs; insns now EXACT 199==199): the tmp.x/y/z
      computations `(Vi->cview).translation.N - ((Camera_gInfo[Vi->player].target)->
      position).N` (and the BW_gCopCarObj sibling block) are a genuine TWO-LEVEL
@@ -6841,11 +6851,10 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
           if (gNight_renderNight != 0) {
             coorddef tmp;
             coorddef tmp2;
-            u_char bVar1;
-            bVar1 = *(u_char *)((int)sd[1].matB.t + 2);
-            *(u_char *)((int)sd[1].matB.t + 2) = bVar1 | 4;
+            geomRez = *(u_char *)((int)sd[1].matB.t + 2);
+            *(u_char *)((int)sd[1].matB.t + 2) = geomRez | 4;
             if (((Cars_gList[Vi->player]->control).lights & 6U) != 0) {
-              *(u_char *)((int)sd[1].matB.t + 2) = bVar1 | 5;
+              *(u_char *)((int)sd[1].matB.t + 2) = geomRez | 5;
             }
             {
               int posX = ((Camera_gInfo[Vi->player].target)->position).x;

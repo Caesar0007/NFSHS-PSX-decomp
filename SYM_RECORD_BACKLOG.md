@@ -1461,6 +1461,30 @@ at 61/62 PASS (only unchanged `Hud_RenderTacView`, 11 diffs) and confirm
 `drawc.cpp` is 20/20 PASS. `psyqproof.py` reports REAL=0 and RELOP=0 for both
 edited functions, and the vtable indexing audit remains clean.
 
+### P27 — DrawW line-builder SYM reconciliation (`2026-08-24`)
+
+The refreshed strict game/PSX declaration audit advances from 374/395 to
+375/395 declaration-clean functions and reduces generic extra source-local
+names from 368 to 359. Missing SYM names remain zero. The audit also exposed
+and removed one inert duplicate `uVar5` declaration after the end of
+`hud.cpp`; this returns the object-owned data result to its prior 0 missing / 61
+extra definitions instead of silently counting the stray line as a global.
+
+`DrawW_DoLines` now reuses the SYM-recorded `geomRez` local for the night-light
+flag byte instead of inventing a separate `bVar1`. Its eight remaining
+source-only identities have explicit oracle receipts: `m` and `m2` preserve
+the measured mixed `matB` lvalue form; `posX`, `posY`, and `posZ` preserve the
+retail pointer-chase statement/load-delay shape; and directly folding `tx`,
+`ty`, and `tz` into the final subtractions is FAIL 6 at the same 199
+instructions because it moves the translation loads.
+
+Two repeated detailed gates preserve `DrawW_DoLines` PASS 199/199 and
+`Hud_BuildCdPlayer` PASS 475/475. Two repeated whole-TU gates preserve
+`draww.cpp` at 31/35 PASS (the same four pre-existing residuals: 8/9/20/66)
+and `hud.cpp` at 61/62 PASS (only the unchanged `Hud_RenderTacView`, 11
+diffs). Production PsyQ proof reports REAL=0 and RELOP=0 for both functions,
+and the vtable indexing audit remains clean.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

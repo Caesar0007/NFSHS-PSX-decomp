@@ -6356,4 +6356,3 @@ void Hud_Perp_OverlayOff(int player)
 }
 
 /* end of hud.cpp */
-  u_int uVar5;

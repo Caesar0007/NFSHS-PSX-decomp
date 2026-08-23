@@ -1381,6 +1381,24 @@ type finding, and zero global type findings.
 Detailed gates confirm `hrzsku.cpp` is 20/22 PASS and `weather.cpp` is 25/25
 PASS. The two horizon failures were observed read-only and remain locked.
 
+### P24 — Canonical PsyQ `INTR_DMA.obj` internal names (`2026-08-24`)
+
+`recon/syslib/psx/libetc/INTR_DMA.c` now uses the recovered PsyQ source
+identifiers `trapIntrDMA`, `setIntrDMA`, and `DMA_memclr` instead of the
+reconstruction-only identifiers `_dma_isr`, `func_80106878`, and `_bzero_w`.
+The canonical PsyQ 4.3 archive proves the enclosing 672-byte
+`startIntrDMA`/`INTR_DMA.obj` member; the internal name/order/body mapping is
+independently corroborated by the SOTN, Xenogears, psyz, and Rage Racer PsyQ
+reconstructions. Explicit asm-name aliases retain NFS4's existing retail
+linker labels, so the source identifiers are restored without a post-compile
+rewrite or an instruction-template body.
+
+Two repeated detailed gates preserve `startIntrDMA` PASS 19/19,
+`trapIntrDMA` (`_dma_isr`) PASS 96/96, and `DMA_memclr` (`_bzero_w`) PASS 9/9.
+`setIntrDMA` retains its pre-existing 36-diff residual at 41/43 instructions;
+the naming correction is codegen-neutral. `tools/slotcheck.py` reports
+`bad = 0`, and the vtable indexing audit remains clean.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

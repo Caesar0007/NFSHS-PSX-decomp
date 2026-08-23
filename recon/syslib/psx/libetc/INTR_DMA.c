@@ -1,16 +1,23 @@
 /* syslib/psx/libetc/INTR_DMA.cpp -- RECONSTRUCTED from nfs4-f.exe (Ghidra; verified vs disasm).
- *   obj INTR_DMA.obj ; libetc.lib.  DMA-interrupt setup + dispatch: startIntrDMA @0x801066AC installs _dma_isr
- *   as the IRQ-3 (DMA) handler and returns the per-channel DMA-callback setter (DMACallback); _dma_isr
+ *   obj INTR_DMA.obj ; libetc.lib.  DMA-interrupt setup + dispatch: startIntrDMA @0x801066AC installs trapIntrDMA
+ *   as the IRQ-3 (DMA) handler and returns the per-channel DMA-callback setter (setIntrDMA); trapIntrDMA
  *   @0x801066F8 services each pending channel (DICR @0x1F8010F4 bits 24-30) and reports DMA bus errors;
- *   DMACallback @0x80106878 registers/enables a channel callback.  dma_cb table @0x8013BD24.  The obj-local
- *   _bzero_w (@0x80106924) is `static` (each PsyQ obj carries its own copy).
+ *   setIntrDMA @0x80106878 registers/enables a channel callback.  dma_cb table @0x8013BD24.  The obj-local
+ *   DMA_memclr (@0x80106924) is `static` (each PsyQ obj carries its own copy).
+ *
+ *   CANONICAL PSYQ NAME RECEIPT (2026-08-24): PsyQ 4.3's extracted INTR_DMA.obj is one 672-byte
+ *   startIntrDMA text member, so its archive index exposes only that public name.  Independent SDK
+ *   reconstructions preserve the original internal source order and names as startIntrDMA,
+ *   trapIntrDMA, setIntrDMA, DMA_memclr; their bodies and offsets match this retail member exactly.
+ *   NFS4's address-only linker labels are retained below with asm-name aliases, while the C identifiers
+ *   now carry the canonical source spellings.
  *
  * w25-a2 SURVEY (-fno-delayed-branch splice project, methodology sec 3.25.3b): startIntrDMA
- *   (14 diffs) and _dma_isr (16-24 diffs) both carry PARTIAL signature fingerprints (jal-arg-setup
+ *   (14 diffs) and trapIntrDMA (16-24 diffs) both carry PARTIAL signature fingerprints (jal-arg-setup
  *   split across the delay slot vs oracle computing the full arg BEFORE the jal; epilogue lw
  *   ra/addiu sp/jr ra reordering). Empirically whole-TU `-fno-delayed-branch` test (w25-a2,
  *   reverted, not committed): startIntrDMA 14->10 diffs (improves, does NOT reach PASS -- a
- *   residual `addiu v0,v0,0` return-value-materialization reorder survives); _dma_isr 16->25-33
+ *   residual `addiu v0,v0,0` return-value-materialization reorder survives); trapIntrDMA 16->25-33
  *   diffs (WORSE -- a second, unrelated lever entangles: ours materializes some addresses via an
  *   intermediate register then copies into the dest [e.g. lui s1,0; addiu a0,s1,0] where the
  *   oracle materializes directly into the dest [lui a0,0; addiu a0,a0,0], a rematerialize-into-
@@ -21,16 +28,16 @@
  */
 extern void InterruptCallback(int idx, void (*h)());   /* INTR */
 extern int  printf(const char *fmt, ...);              /* C63 */
-extern void _dma_isr(void);
+extern void trapIntrDMA(void) __asm__("_dma_isr");
 /* @0x80106878 : the per-channel DMA-callback setter startIntrDMA hands back.  NOT `static`:
  * the oracle materialises its address as `lui %hi(func_80106878); addiu %lo(func_80106878)`,
  * i.e. the symbol has its OWN global entry (a file-static would take a .text SECTION-relative
  * reloc with a nonzero addend -- methodology 3.12 #12).  It also carries the project label
  * `func_80106878` (configs/symbol_addrs.txt + src/.../INTR_DMA.c's INCLUDE_ASM); naming it
  * anything else leaves the oracle symbol unpaired -- objdiff reported it 0% and verify_asm
- * `NOT IN OBJECT` while the body was in fact byte-exact under the local name
- * `_dma_set_callback` (W52-A9; same hidden-phantom class as the _bzero_w note above). */
-int func_80106878(int ch, int func);
+ * `NOT IN OBJECT` while the body was in fact byte-exact under a source-level name
+ * (W52-A9; same hidden-phantom class as the DMA_memclr note above). */
+int setIntrDMA(int ch, int func) __asm__("func_80106878");
 
 extern volatile unsigned int *g_dicr_ptr __asm__("D_8013BD20");   /* @0x8013BD20 : = 0x1F8010F4 */
 /* W66-A3 (link): the 8-word run at 0x8013BD24 is emitted by the splat blob
@@ -42,12 +49,14 @@ extern volatile unsigned int *g_madr_ptr __asm__("D_8013BD44");   /* @0x8013BD44
 
 #define DICR (*g_dicr_ptr)
 
-/* HIDDEN-PHANTOM FIX (w14-a2): oracle name is the bare "_bzero_w" (no __F mangling suffix), but
- * this `static` C++ fn got C++-mangled to _bzero_w__FPii, a NAME MISMATCH invisible to the gate
+/* HIDDEN-PHANTOM FIX (w14-a2): oracle label is the bare "_bzero_w" (no __F mangling suffix), but
+ * this `static` C++ fn got C++-mangled without an explicit asm name, a NAME MISMATCH invisible to the gate
  * ("NOT IN OBJECT" forever). `static`+`extern "C"` can't combine as adjacent storage-class
- * specifiers on this compiler -- wrap in an `extern "C" { }` block instead. */
+ * specifiers on this compiler.  The alias preserves that retail label while restoring PsyQ's
+ * canonical source identifier. */
 
-static void _bzero_w(int *p, int n)   /* @0x80106924 */
+static void DMA_memclr(int *p, int n) __asm__("_bzero_w");
+static void DMA_memclr(int *p, int n)   /* @0x80106924 */
 {
     int i = n - 1;
     if (n != 0) {
@@ -58,16 +67,16 @@ static void _bzero_w(int *p, int n)   /* @0x80106924 */
 
 extern void *startIntrDMA(void)   /* @0x801066AC */
 {
-    _bzero_w(dma_cb, 8);
+    DMA_memclr(dma_cb, 8);
     /* MATCH (w48-a7, methodology 3.25-3c): the oracle puts this store in the
      * `jal InterruptCallback` DELAY SLOT.  gcc's reorg refuses to slot-fill a volatile MEM, so
      * the volatile qualifier alone cost the fill -- cast it away for this one store. */
     *(unsigned int *)g_dicr_ptr = 0;
-    InterruptCallback(3, _dma_isr);
-    return (void *)func_80106878;
+    InterruptCallback(3, trapIntrDMA);
+    return (void *)setIntrDMA;
 }
 
-extern void _dma_isr(void)   /* @0x801066F8 */
+extern void trapIntrDMA(void)   /* @0x801066F8 */
 {
     unsigned int pending;
     int i;
@@ -120,7 +129,7 @@ dma_error:
  *   the productive instrument is the -dg/-dl dump plus allocsim on the block-local qtys
  *   that own $a0/$a1 in the two arms, i.e. a 3-QTY-LAW dial on the DICR read-modify-write
  *   blocks rather than any further reshaping of the parameters.  Not a floor. */
-int func_80106878(int ch, int func)   /* @0x80106878 (installed by startIntrDMA) */
+int setIntrDMA(int ch, int func)   /* @0x80106878 (installed by startIntrDMA) */
 {
     int old = dma_cb[ch];
     if (func != old) {

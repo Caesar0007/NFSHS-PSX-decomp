@@ -5349,7 +5349,8 @@ void Hud_RenderHudView(void)
    * splitY AUTO -0x40 (loop-body block); perp block: flare_intensity/x/y/ww/ww2/color/
    * flare_type (ww AUTO -0x3C = full text width, ww2 = half); showhud block: gSprt1=$s4,
    * nextplayer=$v0; inner: w1=$s2 w2=$s3 totalwidth=$s0 h=$v1; sprt-link block: i=$a2.
-   * viewOff/tpageOff walkers of the old recon are compiler givs -> index-form [j]. */
+   * viewOff/tpageOff are source-level walkers: replacing them with index expressions is
+   * measured FAIL 248 at 604/606, so the earlier compiler-giv interpretation is rejected. */
   char sBuildOutput[64];
   int j;
   /* MATCH (w61-a1) -- THE SPILL-SLOT CYCLE IS DECLARATION ORDER, and the w46/w51 verdict
@@ -5373,9 +5374,9 @@ void Hud_RenderHudView(void)
    * declaring it here puts it in the right place in the reload1.c:778 regno walk.  cse does
    * NOT const-prop the name back (the value is loop-invariant and stays one pseudo).
    * 50 -> 18, count still EXACT 606/606. */
-  u_int otmask;
-  int viewOff;
-  int tpageOff;
+  u_int otmask; /* SYM-CODEGEN-CARRIER: otmask -- declaration order places retail's 0x00ffffff spill at sp+104 */
+  int viewOff; /* SYM-CODEGEN-CARRIER: viewOff -- source walker; the direct j*4 index form is FAIL 248/604 */
+  int tpageOff; /* SYM-CODEGEN-CARRIER: tpageOff -- paired 0x30-stride walker required by that measured source shape */
 
   /* MATCH (w61-a1), step 3: retail saves $fp and zeroes it (j = 0) BEFORE materialising
    * the two loop-invariant constants -- `j = 0;` first.  18 -> 14, count still EXACT. */
@@ -5395,7 +5396,7 @@ void Hud_RenderHudView(void)
       u_long x;
       u_long y;
       u_long ww2;
-      u_long ww2p1;
+      u_long ww2p1; /* SYM-CODEGEN-CARRIER: ww2p1 -- statement split blocks fold from collapsing 160-(ww2+1) */
       u_long color;
       int flare_type;
 
@@ -5464,7 +5465,7 @@ void Hud_RenderHudView(void)
          * the fence [8 @604].  Fence placement/scope are free: fn-scope `cdshow`,
          * block-local, fence before or after the `cdshow = 0`, and the nested-if vs
          * `&&` spelling of the override guard all measure the same 4 @606. */
-        int cdshow = 0;
+        int cdshow = 0; /* SYM-CODEGEN-CARRIER: cdshow -- explicit default/override plus fence is the measured PASS 606 branch shape */
 
         if (0x23f < simGlobal.gameTicks) {
           cdshow = 1;
@@ -5490,13 +5491,13 @@ void Hud_RenderHudView(void)
       Hud_BuildNumbers0(j);
       Hud_BuildNumbers(j);
       {
-        u_char *pal;
-        u_int *tagp;
-        u_int pw;
+        u_char *pal; /* SYM-CODEGEN-CARRIER: pal -- direct Render_gPalettePtr spelling is current FAIL 48/610 in this link block */
+        u_int pw; /* SYM-CODEGEN-CARRIER: pw -- two-reference post-store fence is the measured local-alloc tie breaker */
 
         pal = Render_gPalettePtr;
-        tagp = (u_int *)((int)gTPage0 + tpageOff);
-        *tagp = *tagp & 0xff000000 | *(u_int *)pal & otmask;
+        *(u_int *)((int)gTPage0 + tpageOff) =
+            *(u_int *)((int)gTPage0 + tpageOff) & 0xff000000 |
+            *(u_int *)pal & otmask;
         /* MATCH (w64-a1) -- SEAL, the w63 named angle executed.  Retail gives the AND a FRESH
          * dest tied to the OR's dest (`and v1,v0,t1 / or v1,v1,a0`); ours tied it to the AND's
          * DYING SOURCE (`and v0,v0,t1 / or v1,v0,a0`).  The gate is local-alloc's combine_regs
@@ -5509,7 +5510,7 @@ void Hud_RenderHudView(void)
          * at the AND.  The fence must carry TWO operands (one = 10 diffs; the ref step is the
          * dial, catalog 05C) and must sit AFTER the consuming store (before it = 5 @607). */
         pw = *(u_int *)pal;
-        *(u_int *)pal = pw & 0xff000000 | (u_int)tagp & otmask;
+        *(u_int *)pal = pw & 0xff000000 | ((int)gTPage0 + tpageOff) & otmask;
         __asm__("" : : "r"(pw), "r"(pw));
         if (GameSetup_gData.carInfo[j].HudTach != 0) {
           gSprt1[1].tag = (u_long *)((u_int)gSprt1[1].tag & 0xff000000 | *(u_int *)pal & otmask);
@@ -5576,12 +5577,13 @@ void Hud_RenderHudView(void)
     }
     {
       u_char *pal;
-      u_int *tagp;
 
       pal = Render_gPalettePtr;
-      tagp = (u_int *)((int)gTPage1 + tpageOff);
-      *tagp = *tagp & 0xff000000 | *(u_int *)pal & otmask;
-      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)tagp & otmask;
+      *(u_int *)((int)gTPage1 + tpageOff) =
+          *(u_int *)((int)gTPage1 + tpageOff) & 0xff000000 |
+          *(u_int *)pal & otmask;
+      *(u_int *)pal = *(u_int *)pal & 0xff000000 |
+          ((int)gTPage1 + tpageOff) & otmask;
     }
     if (((((dashhud_info *)((int)&DashHUD_gInfo + viewOff))->showhud[0] != 0) &&
          (Hud_gWingmanInterface[j] != '\0')) && (Replay_ReplayMode < 2)) {
@@ -5589,17 +5591,16 @@ void Hud_RenderHudView(void)
     }
     {
       u_char *pal;
-      u_int *tagp;
-      int *viewp;
 
       pal = Render_gPalettePtr;
-      viewp = (int *)((int)Hud_gHudView + viewOff);
-      tagp = (u_int *)((int)gTPage0 + tpageOff + 0xc);
+      *(u_int *)((int)gTPage0 + tpageOff + 0xc) =
+          *(u_int *)((int)gTPage0 + tpageOff + 0xc) & 0xff000000 |
+          *(u_int *)pal & otmask;
+      *(u_int *)pal = *(u_int *)pal & 0xff000000 |
+          ((int)gTPage0 + tpageOff + 0xc) & otmask;
+      Draw_StopRenderingView(*(int *)((int)Hud_gHudView + viewOff));
       viewOff = viewOff + 4;
       tpageOff = tpageOff + 0x30;
-      *tagp = *tagp & 0xff000000 | *(u_int *)pal & otmask;
-      *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)tagp & otmask;
-      Draw_StopRenderingView(*viewp);
     }
     j = j + 1;
   }

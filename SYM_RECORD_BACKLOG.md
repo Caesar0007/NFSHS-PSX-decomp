@@ -1509,6 +1509,32 @@ unchanged `CarIO_ReadInCarTextureData` residual (19 diffs). Production PsyQ
 proof with the existing validated text-move recipe reports REAL=0 and RELOP=0,
 and the vtable indexing audit remains clean.
 
+### P29 — Hud-view tag-link reconstruction (`2026-08-24`)
+
+The refreshed strict game/PSX declaration audit advances from 376/395 to
+377/395 declaration-clean functions and reduces generic extra source-local
+names from 349 to 340. Missing SYM names remain zero, and the object-owned data
+result remains 0 missing / 61 extra definitions.
+
+`Hud_RenderHudView` removes all three block-local `tagp` declarations by
+restoring direct tag-link lvalues, and removes `viewp` by stopping the current
+view before advancing the two source walkers. These natural forms remain
+byte-exact. The stale claim that `viewOff`/`tpageOff` were compiler-generated
+GIVs is corrected: replacing them with `j`-indexed expressions is measured
+FAIL 248 at 604/606, proving that the walkers are source-significant.
+
+The seven remaining source-only identities now carry explicit evidence.
+`otmask` fixes the retail spill-declaration order; `ww2p1` prevents an unwanted
+constant fold; `cdshow` preserves the measured default/override branch shape;
+and `pw` is the two-reference local-allocation dial. Directly replacing `pal`
+with `Render_gPalettePtr` in its three link blocks is FAIL 48/610, FAIL 11/607,
+and FAIL 30/608 respectively, so the alias is retained as a measured carrier.
+
+Two repeated detailed gates preserve `Hud_RenderHudView` PASS 606/606. Two
+repeated whole-TU gates preserve `hud.cpp` at 61/62 PASS, with only the
+unchanged `Hud_RenderTacView` residual (11 diffs). Production PsyQ proof reports
+REAL=0 and RELOP=0, and the vtable indexing audit remains clean.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

@@ -1615,6 +1615,39 @@ Two repeated detailed gates preserve `DrawObjectTransform` PASS 214/214 and
 (8/9/20/66). Production PsyQ proof reports REAL=0 and RELOP=0, and the vtable
 indexing audit remains clean.
 
+### P33 — Custom-object source-identity reconstruction (`2026-08-24`)
+
+The refreshed strict game/PSX declaration audit is recorded in
+[`game_psx_after_buildcustom_reconcile_20260824.md`](scratchpad/root_sym_audit/game_psx_after_buildcustom_reconcile_20260824.md).
+It advances the result from 380/395 to 381/395 declaration-clean functions,
+reduces generic extra source-local names from 309 to 299, and keeps missing SYM
+names at zero. The object-owned data result remains 0 missing / 61 extra
+definitions.
+
+`DrawW_BuildCustomObjectFacets` removes three decompiler-only aliases without
+changing its 200-word retail body. `objDef_p` is replaced by the direct
+`Object_GetAnim(...) == 0` test; `instData_p` is replaced by the direct
+`ObjectClipped(...) != 0` test; and the cached byte `tc5` is replaced by the
+natural `objInstance->type` field tests. The virtual-dispatch receiver is moved
+into its actual arm scope and renamed from Ghidra's `pOVar5` to source-level
+`anim`.
+
+Every remaining source-only identity has an explicit oracle receipt. Folding
+`buildResult` into the distance guard is current FAIL 8 at 204/200. Removing
+the integer `bVar7` control funnel changes the frame and is FAIL 146 at 196/200.
+The shared `transMat` base is the measured 11-to-9 `sd` reference dial that
+reproduces retail's argument spill; `t3` preserves the third fixed-multiply
+result until its retail store slot; and the `g`/`zo` pair preserves the exact
+offset-table allocation and load issue order. The arm-local `anim` is required
+to evaluate `Object_GetAnim` once before its virtual call; optimized SYM does
+not describe that transient source local.
+
+Repeated detailed gates preserve `DrawW_BuildCustomObjectFacets` PASS 200/200,
+`DrawObjectTransform` PASS 214/214, and `DrawW_BuildObjectFacets` PASS 189/189.
+Two repeated whole-TU gates preserve `draww.cpp` at 31/35 PASS with the same
+four pre-existing residuals (8/9/20/66). Production PsyQ proof reports REAL=0
+and RELOP=0, and the vtable indexing audit remains clean.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

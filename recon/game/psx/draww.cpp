@@ -3883,16 +3883,13 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
      = NINE callee-saved allocnos (mask $c0ff0000), which is exactly the pool
      that pushes the `sd` ARG back out to its incoming stack home. */
   Trk_CollideBoomInst * objCollideBoomInstance;
-  int objDef_p;
-  int buildResult;
-  int instData_p;
-  ObjectAnim *pOVar5;
-  MATRIX *transMat;
+  int buildResult; /* SYM-CODEGEN-CARRIER: buildResult -- folding the distance call into the guard is current FAIL 8/204 */
+  MATRIX *transMat; /* SYM-CODEGEN-CARRIER: transMat -- shared matB base drops sd refs 11->9 and reproduces the retail ARG spill */
   int sx;
   int sy;
   int sz;
   int t2;
-  int t3;
+  int t3; /* SYM-CODEGEN-CARRIER: t3 -- third fixedmult result must remain live until the retail matrix-store slot */
   Trk_SimpleInst *objInstance;
   int t1;
   int objectOffset;
@@ -3902,10 +3899,7 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
   tQuat quat;
   int totalCount;
   int groupNumElements;
-  int bVar7;   /* MATCH (w40-a2): a u_char flag makes cc1plus re-mask on every use
-                  (`andi v0,s1,255` x3) -- the oracle tests it bare (`bnez s1`), so the
-                  original local was int-width (catalog par.C u_char->u_int lever). */
-  u_char tc5;
+  int bVar7; /* SYM-CODEGEN-CARRIER: bVar7 -- direct accept-condition form is current FAIL 146/196 and changes the frame */
   /* SYM (rule-8, nfs4-f-v3.txt:191805): `offsets` is a FUNCTION-SCOPE STATIC of
      THIS function (`96 Def2 class STAT type ARY CHAR size 8 dims 1 8`, recorded
      inside this fn's 8c block; unlike the file-scope static `goffsets` it has no
@@ -4045,14 +4039,13 @@ gte_SetTransMatrix(transMat);
              fn is PASS -- see the two edits below.  Device-removal re-test: minus
              loop-top fence 1 @199 (the empty-beqz-slot law), minus tail launder
              45 @199, minus g launder 68 -- all three stay. */
-      { signed char *g;
-        int zo;
+      { signed char *g; /* SYM-CODEGEN-CARRIER: g -- tied opacity prevents loop.c from hoisting the offsets base */
+        int zo; /* SYM-CODEGEN-CARRIER: zo -- split z-offset index preserves the retail load issue order */
         g = offsets;
         __asm__("" : "=r"(g) : "0"(g));
         zo = objInstance->zoffset;
-        tc5 = objInstance->type;
         objectOffset = *(signed char *)(zo + (int)g); }
-      if ((tc5 == 5) || (tc5 == 2)) {
+      if ((objInstance->type == 5) || (objInstance->type == 2)) {
         objDef = Track_gObjDefs[objInstance->pad];
         /* MATCH (w71-a1, rule-8): the SYM's `objCollideBoomInstance` ($s2) is a
            SECOND walker aliasing objInstance -- retail materializes it with
@@ -4063,15 +4056,14 @@ gte_SetTransMatrix(transMat);
            nine SYM allocnos never existed and `sd` kept the vacant register
            instead of falling back to its incoming ARG home. */
         objCollideBoomInstance = (Trk_CollideBoomInst *)objInstance;
-        if ((tc5 == 2) ||
-           (objDef_p = (int)Object_GetAnim(simObjs + ((u_char *)objInstance)[0x22]), objDef_p == 0)) {
+        if ((objInstance->type == 2) ||
+           (Object_GetAnim(simObjs + ((u_char *)objInstance)[0x22]) == 0)) {
           buildResult = xzsquaredist32((coorddef *)&objInstance->x,&(Vi->cview).translation);
           bVar7 = 0;
           if ((zClipSq <= buildResult) ||
              ((objInstance->type == 2 &&
-              (instData_p = (int)ObjectClipped(Vi,(int)objInstance->pad,
-                                            (coorddef *)&objInstance->x,
-                                            (Draw_tGiveShelbyMoreCache *)sd), instData_p != 0)))) {
+              (ObjectClipped(Vi,(int)objInstance->pad,(coorddef *)&objInstance->x,
+                             (Draw_tGiveShelbyMoreCache *)sd) != 0)))) {
             bVar7 = 1;
           }
           if (bVar7 == 0) {
@@ -4139,9 +4131,10 @@ gte_SetTransMatrix(transMat);
           }
         }
         else {
-          pOVar5 = Object_GetAnim(simObjs + ((u_char *)objInstance)[0x22]);
-          (*(*pOVar5->_vf)[2].pfn)
-                    ((int)&pOVar5->_vf + (int)(*pOVar5->_vf)[2].delta,Vi,sd,objectOffset);
+          ObjectAnim *anim; /* SYM-CODEGEN-CARRIER: anim -- single-evaluation virtual-dispatch receiver; SYM omits optimized arm locals */
+          anim = Object_GetAnim(simObjs + ((u_char *)objInstance)[0x22]);
+          (*(*anim->_vf)[2].pfn)
+                    ((int)&anim->_vf + (int)(*anim->_vf)[2].delta,Vi,sd,objectOffset);
         }
       }
       objInstance = (Trk_SimpleInst *)((int)objInstance + (int)objInstance->size);

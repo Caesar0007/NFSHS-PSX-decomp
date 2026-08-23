@@ -1672,6 +1672,31 @@ Repeated detailed gates preserve `DrawC_PrimClip` PASS 1877/1877 and its
 `drawc.cpp` is 20/20 PASS. Production PsyQ proof reports REAL=0 and RELOP=0,
 and the vtable indexing audit remains clean.
 
+### P35 — Subdivision `addPrim` source reconstruction (`2026-08-24`)
+
+The refreshed strict game/PSX declaration audit is recorded in
+[`game_psx_after_subdivid_reconcile_20260824.md`](scratchpad/root_sym_audit/game_psx_after_subdivid_reconcile_20260824.md).
+It advances the result from 381/395 to 382/395 declaration-clean functions,
+reduces generic extra source-local names from 299 to 297, keeps raw type
+findings at zero, and keeps missing SYM names at zero.
+
+`DrawW_SubdividFacet` no longer invents a `pal` local in each of its four GT3
+packet blocks. The OT link is restored as the canonical PsyQ 4.3 `addPrim`
+setaddr/getaddr expansion: the OT expression appears directly in both tag
+assignments, and GCC performs the commoning itself. This removes the four
+decompiler-derived aliases with byte-identical output. The sole remaining
+source-only identity, `q`, is explicitly receipted: its named `n + 1` pivot is
+the measured allocation cell that reduced this function from 26 differences
+to the current 8.
+
+The authoritative residual remains exactly 8 differences at 588/588: four
+identical `addiu` instructions occupy different positions in the `n`/`q`
+index-chain schedule. Production PsyQ proof reports RELOP=0 and 13 real
+position-sensitive words for that same residual. Repeated whole-TU gates keep
+`draww.cpp` at 31/35 PASS with the same four residuals (8/9/20/66), the adjacent
+`DrawW_AddSubdividPrimGT3` helper remains PASS 28/28, and the vtable indexing
+audit remains clean.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

@@ -484,10 +484,11 @@ int DrawW_CalcSubdivision(Draw_tGiveShelbyMoreCache *sd,Draw_SVertex *v0,Draw_SV
  *   subOtz_local, midX_01) were compiler temps -- NOT C variables (SYM has no record).
  *   doublelayer block: { POLY_GT3 *prim($a0); int otz($s0); } + flat goto web (each failed
  *   vertex test jumps PAST the edges that would re-test it); each GT3 emit = a nested
- *   block { POLY_GT3 *prim; u_int *pal; } (inline-helper scope, invisible to the SYM --
+ *   block { POLY_GT3 *prim; } (inline-helper scope, invisible to the SYM --
  *   gcc-2.8 sdb drops inlined scopes; the block-local prim gets the $a0 call-arg
- *   suggestion in LOCAL-alloc, and pal keeps the palette slot single-eval across the
- *   aliasing *prim store).  Leaf: { POLY_GT4 *prim($s3); } + { long bfct(AUTO 0x34); }
+ *   suggestion in LOCAL-alloc).  The OT link is the canonical PsyQ `addPrim`
+ *   setaddr/getaddr expansion; gcc CSEs the repeated OT expression without a source
+ *   `pal` alias.  Leaf: { POLY_GT4 *prim($s3); } + { long bfct(AUTO 0x34); }
  *   and the OT-link done by the EA DMPSX-analog FIXED-REG template ($t4-$t6 scratches,
  *   lwl/swl 24-bit insert; operand 3 = &sd->otz).
  *   gte_rtps_u(v4)/gte_rtps_u(sd) in flag-blocks 1/2 = DEAD asm inputs (fastmovf.c
@@ -804,7 +805,7 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
          probing.
          DO NOT re-run: the fence walk (w70, 36 probes, all +2 insns on a short),
          the six index-chain spellings (w70), or any n0/nb/newn snapshot (above). */
-      short q = n + 1;
+      short q = n + 1; /* SYM-CODEGEN-CARRIER: q -- the named pivot is the measured 26->8 allocation cell */
       v5 = &r_div->v[n];
       v6 = &r_div->v[q];
       v7 = &r_div->v[(short)(q + 1)];
@@ -891,12 +892,11 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
       if (v4->a) goto DrawWSubdiv_edge1;
       {
         POLY_GT3 *prim;   /* block-local (inline-helper scope) */
-        u_int *pal;
         prim = (POLY_GT3 *)Render_gPacketPtr;
-        pal = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
-        ((DrawW_PTag *)prim)->addr = ((DrawW_PTag *)pal)->addr;
+        ((DrawW_PTag *)prim)->addr =
+          ((DrawW_PTag *)(otz * 4 + (int)Render_gPalettePtr))->addr;
         Render_gPacketPtr = (u_char *)prim + 0x28;
-        ((DrawW_PTag *)pal)->addr = (u_long)prim;
+        ((DrawW_PTag *)(otz * 4 + (int)Render_gPalettePtr))->addr = (u_long)prim;
         DrawW_AddSubdividPrimGT3(prim,v0,v1,v4,sd);
       }
 DrawWSubdiv_edge1:
@@ -905,12 +905,11 @@ DrawWSubdiv_edge1:
       if (v5->a) goto DrawWSubdiv_edge2;
       {
         POLY_GT3 *prim;   /* block-local (inline-helper scope) */
-        u_int *pal;
         prim = (POLY_GT3 *)Render_gPacketPtr;
-        pal = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
-        ((DrawW_PTag *)prim)->addr = ((DrawW_PTag *)pal)->addr;
+        ((DrawW_PTag *)prim)->addr =
+          ((DrawW_PTag *)(otz * 4 + (int)Render_gPalettePtr))->addr;
         Render_gPacketPtr = (u_char *)prim + 0x28;
-        ((DrawW_PTag *)pal)->addr = (u_long)prim;
+        ((DrawW_PTag *)(otz * 4 + (int)Render_gPalettePtr))->addr = (u_long)prim;
         DrawW_AddSubdividPrimGT3(prim,v1,v2,v5,sd);
       }
 DrawWSubdiv_edge2:
@@ -919,12 +918,11 @@ DrawWSubdiv_edge2:
       if (v6->a) goto DrawWSubdiv_edge3;
       {
         POLY_GT3 *prim;   /* block-local (inline-helper scope) */
-        u_int *pal;
         prim = (POLY_GT3 *)Render_gPacketPtr;
-        pal = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
-        ((DrawW_PTag *)prim)->addr = ((DrawW_PTag *)pal)->addr;
+        ((DrawW_PTag *)prim)->addr =
+          ((DrawW_PTag *)(otz * 4 + (int)Render_gPalettePtr))->addr;
         Render_gPacketPtr = (u_char *)prim + 0x28;
-        ((DrawW_PTag *)pal)->addr = (u_long)prim;
+        ((DrawW_PTag *)(otz * 4 + (int)Render_gPalettePtr))->addr = (u_long)prim;
         DrawW_AddSubdividPrimGT3(prim,v2,v3,v6,sd);
       }
 DrawWSubdiv_edge3:
@@ -933,12 +931,11 @@ DrawWSubdiv_edge3:
       if (v7->a) goto DrawWSubdiv_edgedone;
       {
         POLY_GT3 *prim;   /* block-local (inline-helper scope) */
-        u_int *pal;
         prim = (POLY_GT3 *)Render_gPacketPtr;
-        pal = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
-        ((DrawW_PTag *)prim)->addr = ((DrawW_PTag *)pal)->addr;
+        ((DrawW_PTag *)prim)->addr =
+          ((DrawW_PTag *)(otz * 4 + (int)Render_gPalettePtr))->addr;
         Render_gPacketPtr = (u_char *)prim + 0x28;
-        ((DrawW_PTag *)pal)->addr = (u_long)prim;
+        ((DrawW_PTag *)(otz * 4 + (int)Render_gPalettePtr))->addr = (u_long)prim;
         DrawW_AddSubdividPrimGT3(prim,v3,v0,v7,sd);
       }
 DrawWSubdiv_edgedone:

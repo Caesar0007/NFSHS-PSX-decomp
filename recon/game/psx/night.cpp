@@ -347,7 +347,15 @@ void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char 
      in both directions (every combination is 26 or 54-58) and the allocno side is now
      closed, the only remaining axis is which bytes cse chooses to forward -- a cse/expand
      question for the instrumented lane, not a spelling sweep. */
-  __asm__("" : : "r"(sourceB), "r"(sourceB));
+  /* W76-orchestrator (2026-08-23): fence retuned per the A13_c4.spec PASS recipe --
+     1-op "r"(newR) form; the old 2-op sourceB fence belongs to the 2.8.0-lane 26
+     basin.  Live ONLY together with the SLD-natural store order below and the
+     retail-2.8.1 per-fn cc1plus splice row (PER_FN_CC1PLUS_VER_SPLICE, psq44
+     CC1PLPSX "2.8.1 SN32 BUILD 4.0.0010" -- a RETAIL SN binary, per the user's
+     retail-PsyQ-only ruling).  Mechanism: the 2.8.0 orphan (use reg) note from
+     try_combine's NULL-elim distribute_notes call (fixed Feb-6-1998) -- see the
+     A13 receipt below. */
+  __asm__("" : : "r"(newR));
   /* ---- W71-A5 (2026-08-21): 26 STAYS @113/113.  The residual is now BOUNDED to a
      single mechanical fact and the bound is worth writing down, because the same wave
      cracked its TWIN (Night_AdditiveNightCalc, 59 -> PASS) with exactly the analogous
@@ -675,10 +683,13 @@ void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char 
      and plain g,b,r), and adding further read-backs changes nothing.  ⚠️ do NOT also route
      the else-arm's gTableCache stores through newR/newG/newB -- that costs 7 real insns
      (141 @120).  Reverse store order is the load-bearing half; keep both. */
-  newColor.b = (u_char)(newB & ~7);
-  newColor.g = (u_char)(newG & ~7);
+  /* W76-orchestrator: SLD-natural r,g,b store order, read-back REMOVED -- the
+     A13_c4.spec PASS-113/113 shape under the 2.8.1 splice row.  The W50 reverse-
+     order + read-back device above described the 2.8.0-lane 38/26 basins and is
+     SUPERSEDED for this fn (kept as history). */
   newColor.r = (u_char)(newR & ~7);
-  newR = newColor.r;
+  newColor.g = (u_char)(newG & ~7);
+  newColor.b = (u_char)(newB & ~7);
   /* newColor.cd is deliberately NOT initialised: the oracle builds the by-value CVECTOR
      argument by re-reading all four bytes back off the stack (`lbu $v0,0x13($sp)` for
      .cd) with no preceding store, so retail leaves it whatever was in the slot.  Harmless

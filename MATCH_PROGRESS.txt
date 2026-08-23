@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3490 functions, 3458 at 100% (99.1%)
+TOTAL: 3490 functions, 3460 at 100% (99.1%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -2403,7 +2403,7 @@ VA             %match  unit                     function
 0x800D5FB8    100.00%  game/psx/hud             Hud_WingmanFlash__Fii
 0x800D606C    100.00%  game/psx/hud             Hud_BuildWingmanInterface__Fi
 0x800D63B8    100.00%  game/psx/hud             Hud_InitCdPlayer__Fv
-0x800D63DC     99.78%  game/psx/hud             Hud_BuildCdPlayer__Fii
+0x800D63DC    100.00%  game/psx/hud             Hud_BuildCdPlayer__Fii
 0x800D6B48    100.00%  game/psx/hud             Hud_BuildRadar__Fi
 0x800D7250    100.00%  game/psx/hud             Hud_BuildReplay__Fv
 0x800D754C    100.00%  game/psx/hud             Hud_NextPlayer__Fi
@@ -2436,7 +2436,7 @@ VA             %match  unit                     function
 0x800DB200    100.00%  game/psx/loading         Loading_UpdateLoadingScreen__Fi
 0x800DB2F8    100.00%  game/psx/loading         Loading_GetInitialMemory__Fv
 0x800DB318    100.00%  game/psx/night           Night_FindClosestColor__FG7CVECTORPi
-0x800DB3E0     95.28%  game/psx/night           Night_CreateNightTableElement__FiliPUc
+0x800DB3E0    100.00%  game/psx/night           Night_CreateNightTableElement__FiliPUc
 0x800DB5A4    100.00%  game/psx/night           Night_CreateNightTable__FiliPA256_A16_Uc
 0x800DB5CC    100.00%  game/psx/night           Night_GenerateNextLightningEvent__Fv
 0x800DB640    100.00%  game/psx/night           Night_PauseLightningEffect__Fi

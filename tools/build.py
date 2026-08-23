@@ -2527,6 +2527,66 @@ def _apply_fn_splice(rel_posix: str, s_file: Path, i_file: Path,
 # empty until a real adopter is measured.  Keep the mechanism: the "two
 # functions in one default-lane TU want different compilers" class is real
 # (it is exactly what PER_FN_CC1_VER_SPLICE_272 exists for in the 272 lane).
+# W76-orchestrator (2026-08-23): the C++ twin of PER_FN_CC1_VER_SPLICE, using
+# RETAIL SN cc1plus binaries only (user ruling: gate compilers = retail PsyQ;
+# no FSF/self-built stand-ins).  PsyQ 4.4/4.5 ship CC1PLPSX "2.8.1 SN32 BUILD
+# 4.0.0010" -- the genuine 2.8.1-lineage vendor binary whose distribute_notes
+# carries the Feb-6-1998 try_combine NULL-elim fix (the Night orphan-USE
+# mechanism, W76-A13 provenance).  Same dual-compile-and-splice recipe as
+# _apply_cc1_ver_splice; the whole .s still goes through maspsx.
+# Resolution: env NFS4_CC1PL_281 > psq44 > psq45 (byte-comparable builds).
+CC1PLUS_RUNGS = {
+    "2.8.1-sn": [Path(_env("NFS4_CC1PL_281",
+                           r"C:/Temp/psq44/pssn/bin/CC1PLPSX.EXE")),
+                 Path(r"C:/Temp/psq45/BIN/CC1PLPSX.EXE")],
+}
+# {rel_posix: {rung: {mangled fn names}}}
+PER_FN_CC1PLUS_VER_SPLICE = {
+    # W76-A13 (spec A13_c4.spec, PASS 113/113 x2 in the fixed splice gate;
+    # landed by orchestrator with the retail psq44 binary after the user's
+    # retail-only ruling): the fn's 2.8.0 residual is the orphan (use reg)
+    # note class -- unfixable from source on 2.8.0 by construction.
+    "recon/game/psx/night.cpp": {"2.8.1-sn": {"Night_CreateNightTableElement__FiliPUc"}},
+}
+
+
+def _resolve_cc1plus_rung(rung: str):
+    for c in CC1PLUS_RUNGS.get(rung, []):
+        if c.is_file():
+            return c
+    return None
+
+
+def _apply_cc1plus_ver_splice(rel_posix: str, s_file: Path, i_file: Path,
+                              cc1pl_flags: list) -> None:
+    """Per-FUNCTION cc1plus-BINARY splice for the C++ (maspsx) lane."""
+    table = PER_FN_CC1PLUS_VER_SPLICE.get(rel_posix)
+    if not table:
+        return
+    for rung, fn_names in sorted(table.items()):
+        if not fn_names:
+            continue
+        alt = _resolve_cc1plus_rung(rung)
+        if alt is None:
+            _warn_alt_fallback(rel_posix, rung,
+                               "the TU's own cc1plus (fn ver-splice skipped)")
+            continue
+        alt_s = s_file.with_suffix(".vsp_%s.s" % rung.replace(".", "_").replace("-", "_"))
+        r = run([alt, *cc1pl_flags, i_file, "-o", alt_s])
+        if r.returncode:
+            sys.exit(f"[cc1plus-vs {rung}] {rel_posix}\n{r.stdout}{r.stderr}")
+        alt_text = alt_s.read_text(errors="replace")
+        normal_text = s_file.read_text()
+        for name in sorted(fn_names):
+            alt_region = _extract_fn_region(alt_text, name)
+            target_region = _extract_fn_region(normal_text, name)
+            _SPLICE_COUNTER[0] += 1
+            alt_region = _uniquify_local_labels(
+                alt_region, f"vsp{_SPLICE_COUNTER[0]}")
+            normal_text = normal_text.replace(target_region, alt_region, 1)
+        s_file.write_text(normal_text)
+
+
 PER_FN_CC1_VER_SPLICE = {
     # "recon/syslib/psx/libmath/MULDF3.c": {"2.7.2": {"_mul_mant_d"}},  # 14->19
     # w60 orchestrator (A4 ladder + A5 mechanism): cdread.c whole-TU 2.8.1 is
@@ -2896,6 +2956,7 @@ def compile_cpp(src: Path) -> Path:
     if r.returncode:
         sys.exit(f"[cc1pl] {rel}\n{r.stdout}{r.stderr}")
 
+    _apply_cc1plus_ver_splice(rel.as_posix(), s_file, i_file, cc1pl_flags)
     _apply_fn_splice(rel.as_posix(), s_file, i_file, CC1PL, cc1pl_flags)
     _apply_epilogue_unfill(rel.as_posix(), s_file)
     _apply_ra_sink(rel.as_posix(), s_file)

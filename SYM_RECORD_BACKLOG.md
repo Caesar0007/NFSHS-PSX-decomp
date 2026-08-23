@@ -37,7 +37,7 @@ they are not silently collapsed into a smaller denominator.
   explicit per-record semantic-review row.  Nothing is silently dropped from
   the denominator.
 - A strict compiler-emitted type-graph comparison now distinguishes retail
-  subset coverage from actual per-object source visibility.  Sixty-nine owners are
+  subset coverage from actual per-object source visibility.  Seventy owners are
   semantically exact: `memcard.obj`, `mdec.obj`, `video.obj`, `FETexture.obj`,
   `textpix.obj`, `textpsx.obj`, `unpack.obj`, `fastrand.obj`, and
   `aiscript.obj`, `new.obj`, `paths.obj`, `textsys.obj`, `simplemem.obj`,
@@ -52,7 +52,7 @@ they are not silently collapsed into a smaller denominator.
   `AIPHYSIC.obj`, `gmesetup.obj`, `AI.obj`, `aistate.obj`, `mpause.obj`, and
   `newton.obj`, `camera.obj`, `TrackSpec.obj`, `loading.obj`, `texture.obj`, and
   `Draw.obj`, `Sfx.obj`, `TrsProj.obj`, `CarIO.obj`, `platform.obj`, and
-  `force.obj`, `audio.obj`, `overlays.obj`, and `Weather.obj`.
+  `force.obj`, `audio.obj`, `overlays.obj`, `Weather.obj`, and `rpause.obj`.
   The remaining mapped C++
   units still expose reconstruction-only declarations through the monolithic
   `nfs4_types.h` include graph and therefore are not yet source-exact.
@@ -165,7 +165,7 @@ Results:
 - all retail `this` adjustments are zero;
 - structural/target issues: 0;
 - retail targets absent from the symbol map: 0;
-- unsafe direct vtable-row indexing: 0 across 919 source files.
+- unsafe direct vtable-row indexing: 0 across 920 source files.
 
 Evidence:
 
@@ -538,7 +538,7 @@ Current strict results:
 
 - `frontend/psx`: 4 exact (`memcard`, `mdec`, `video`, `fetexture`) and 4 DIFF
   (`drawshp`, `mmeffect`, `movie`, `psxfront`);
-- `game/psx`: 15 exact (`textpix`, `textpsx`, `unpack`, `trackspec`, `loading`, `texture`, `draw`, `sfx`, `trsproj`, `cario`, `platform`, `force`, `audio`, `overlays`, `weather`), 12 DIFF, and one owner
+- `game/psx`: 16 exact (`textpix`, `textpsx`, `unpack`, `trackspec`, `loading`, `texture`, `draw`, `sfx`, `trsproj`, `cario`, `platform`, `force`, `audio`, `overlays`, `weather`, `rpause`), 11 DIFF, and one owner
   ambiguity for game `font.obj` versus the vendor `libgpu/FONT.obj`;
 - `frontend/common`: 41 mapped units remain DIFF and the now-empty artificial
   `mcrd.cpp` unit needs its objdiff ownership removed or reassigned;
@@ -597,7 +597,7 @@ prechecked loop in `Camera_OpponentLookBehind` restores the original 245-word
 shape.  `Camera_NextMode` needs one documented post-cc1 scheduling relocation;
 it moves, but does not add/remove/rewrite, the existing signed-%3 correction.
 The final graph is 92/92 named and 2/2 anonymous with no extra type/typedef, all
-38 camera functions remain PASS, and the vtable audit is clean across 919 files.
+38 camera functions remain PASS, and the vtable audit is clean across 920 files.
 
 `TrackSpec.obj` is now strict-exact through an owner-specific type header.  Its
 externally owned `GameSetup_tData` is represented by an exact-symbol word view
@@ -697,6 +697,15 @@ aggregate-copy lowering without emitting a foreign camera type.  The final
 graph is 68/68 named and 2/2 anonymous with no extra type or typedef semantics,
 and all 25 Weather functions remain PASS.
 
+`rpause.obj` is now strict-exact through its exact compact Draw/PsyQ surface.
+The externally owned `Draw_tView` and `dflip` bodies are absent from this
+retail object, so exact-symbol byte-row carriers retain only the 200-byte view
+stride and the display-environment offset actually used.  A fully inlined
+address helper plus a zero-byte raw-base receipt preserves GCC's retail
+row/flip/`+192` address tree without emitting a helper symbol or a foreign
+debug type.  The final graph is 35/35 named and 2/2 anonymous with no extra
+type or typedef semantics, and all three RPause functions are PASS.
+
 The mapped C++ units cover all retail named and anonymous type bodies, but are
 not source-exact while they expose unrelated monolithic-header declarations or
 miss owner-specific typedef variants.  The three C units that previously had
@@ -723,6 +732,7 @@ Strict evidence:
 - [`type_graph_game_psx_after_audio_20260823.tsv`](scratchpad/root_sym_audit/type_graph_game_psx_after_audio_20260823.tsv)
 - [`type_graph_game_psx_after_overlays_20260823.tsv`](scratchpad/root_sym_audit/type_graph_game_psx_after_overlays_20260823.tsv)
 - [`type_graph_game_psx_after_weather_20260823.tsv`](scratchpad/root_sym_audit/type_graph_game_psx_after_weather_20260823.tsv)
+- [`type_graph_game_psx_after_rpause_20260823.tsv`](scratchpad/root_sym_audit/type_graph_game_psx_after_rpause_20260823.tsv)
 - [`type_graph_game_common_after_audio_round_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_after_audio_round_20260822.tsv)
 - [`type_graph_game_common_after_aiinit_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_after_aiinit_20260822.tsv)
 - [`type_graph_game_common_after_aiphysic_20260822.tsv`](scratchpad/root_sym_audit/type_graph_game_common_after_aiphysic_20260822.tsv)
@@ -797,7 +807,11 @@ Strict evidence:
   [`trsproj`](scratchpad/root_sym_audit/type_graph_trsproj_final_20260823.tsv), and
   [`cario`](scratchpad/root_sym_audit/type_graph_cario_final_20260823.tsv), and
   [`platform`](scratchpad/root_sym_audit/type_graph_platform_final_20260823.tsv), and
-  [`force`](scratchpad/root_sym_audit/type_graph_force_final_20260823.tsv).
+  [`force`](scratchpad/root_sym_audit/type_graph_force_final_20260823.tsv), and
+  [`audio`](scratchpad/root_sym_audit/type_graph_game_psx_after_audio_20260823.tsv),
+  [`overlays`](scratchpad/root_sym_audit/type_graph_game_psx_after_overlays_20260823.tsv),
+  [`weather`](scratchpad/root_sym_audit/type_graph_game_psx_after_weather_20260823.tsv), and
+  [`rpause`](scratchpad/root_sym_audit/type_graph_rpause_final_20260823.tsv).
 
 Required closure:
 

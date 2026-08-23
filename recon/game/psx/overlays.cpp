@@ -456,6 +456,16 @@ void RaceSummary(void)
  * per-region block qtys -- HOW is still open), ~25 head/prologue (the interleave
  * `li a1,150 / sw s7 / li s7,160 / sw s2 / li s2,1` + a0/a2/v1/a1 band + `li t1,52`
  * rows-fold), 6 fp<->s1 (W75 (5): not priority-reachable), position slides. */
+/* ===== W77-A13 (2026-08-24): 70 -> 54, count remains exact 475/475.
+ * A SYM-first removal ladder confirmed that five apparent frame locals were only
+ * decompiler spill names.  `halfH` was neutral at 70; deleting `posy`, then `posyL`,
+ * then `barH8` temporarily walked 76 -> 78 -> 81 (474/475), but deleting `barH`
+ * collapsed the allocation to 54 at 475/475.  The retail 176-byte frame survives:
+ * HUD_STATS_POS_Y is now assigned directly, and its later uses plus the bar heights
+ * are expressed from the recorded AUTO locals and the remaining `sizeH16` carrier.
+ * Thus the old claim that the unnamed stack gaps required five source declarations
+ * is refuted; they are reload spills.  The nine remaining non-SYM names carry explicit
+ * current-basin receipts at their declarations and stay queued for source elimination. */
 void RaceStatistics(void)
 
 {
@@ -463,40 +473,33 @@ void RaceStatistics(void)
   short j;
   short col1;
   short col2;
-  short colX;
+  short colX; /* SYM-CODEGEN-CARRIER: colX -- cross-call split preserves retail's add/copy pair; direct col1 forms lose it */
   char string [40];
   short HUD_STATS_POS_X;
   short HUD_STATS_SIZE_W;
   short HUD_STATS_SIZE_H;
   short HUD_STATS_POS_Y;
-  /* DECL ORDER IS THE FRAME LAYOUT (w41-a4): reload assigns spill slots in PSEUDO-REGNO
-     order and cc1plus numbers pseudos in declaration order, so the SYM's AUTO offsets read
-     off the retail decl sequence directly.  fsize 176 = string@0x20, POS_X 0x48, SIZE_W
-     0x50, SIZE_H 0x58, POS_Y 0x60, <sizeH16> 0x68, <posy> 0x6C, HOTPURSUIT_Y 0x70, <barH>
-     0x78, <posyL> 0x7C, <barH8> 0x80 -- i.e. TWO int temps sit BETWEEN POS_Y and
-     HOTPURSUIT_Y (HImode decl slots take an 8-byte stride, SImode spills 4). */
-  int sizeH16;
-  int posy;
+  /* SYM records only the five named AUTO objects: string@sp+0x20, POS_X@0x48,
+     SIZE_W@0x50, SIZE_H@0x58, POS_Y@0x60 and HOTPURSUIT_Y@0x70.  The intervening
+     words are reload spills, not source declarations: deleting posy/posyL/barH/
+     barH8/halfH preserves the 176-byte retail frame and improves 70 -> 54. */
+  int sizeH16; /* SYM-CODEGEN-CARRIER: sizeH16 -- direct HUD_STATS_SIZE_H uses are FAIL 86 at 475/475 */
   short HUD_STATS_HOTPURSUIT_Y;
-  int barH;
-  int posyL;
-  int barH8;
-  int halfH;
-  int titleX;
-  int titleY;
+  int titleX; /* SYM-CODEGEN-CARRIER: titleX -- direct title-coordinate form is FAIL 135 at 468/475 */
+  int titleY; /* SYM-CODEGEN-CARRIER: titleY -- direct HUD_STATS_POS_Y form is FAIL 88 at 469/475 */
   /* W74-A12: the three head carriers (see the MATCH block at their assignments).
      `one` and `pitch` are the two named constants retail held in locals (w63/w64
      reading); `nh` is the numHumanRaceCars read hoisted ABOVE the `one` fence so
      sched1 can still issue its load before the SIZE_H arithmetic, exactly like
      retail (oracle insns 17-18 sit between the numLaps load and `addiu a0,a2,1`). */
-  int one;
-  int pitch;
-  int nh;
+  int one; /* SYM-CODEGEN-CARRIER: one -- natural direct head trio is FAIL 86 at 473/475 */
+  int pitch; /* SYM-CODEGEN-CARRIER: pitch -- nonconstant multiplier plus fence preserves retail mult/mflo */
+  int nh; /* SYM-CODEGEN-CARRIER: nh -- shared human-count read preserves retail head scheduling */
   /* W72-A13: the two fold-escape carriers of the per-player loop head; see the MATCH
      block at their assignments.  They are compiler-visible VAR_DECLs on purpose -- an
      integer literal there is TREE_CONSTANT and fold rewrites the subtraction. */
-  int colInset;
-  int rowInset;
+  int colInset; /* SYM-CODEGEN-CARRIER: colInset -- literal +2 triggers the wrong fold/reload-pool rotation */
+  int rowInset; /* SYM-CODEGEN-CARRIER: rowInset -- literal +0x13 must be escaped with colInset; single escapes are FAIL 214/215 */
 
   HUD_STATS_SIZE_H = (OVERLAYS_NUM_LAPS + 1) * 0xc + 0x28;
   /* ===== MATCH (W74-A12, 2026-08-22/23): 77 -> 71 @474/475.  THE HEAD CLUSTER IS
@@ -671,8 +674,7 @@ void RaceStatistics(void)
     HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 0x1b;
   }
   sizeH16 = (int)((u_int)(u_short)HUD_STATS_SIZE_H << 0x10);
-  halfH = sizeH16 >> 0x11;
-  posy = 0x78 - halfH;
+  HUD_STATS_POS_Y = (short)(0x78 - (sizeH16 >> 0x11));
   /* MATCH (W76-A13, 71 @474 -> 70 @475/475 COUNT-EXACT, the col1 2-diff cluster SOLVED):
      retail's `addiu v1,s4,10; addu s6,v1,zero` is a CROSS-CALL COMBINE REFUSAL, proven
      from the SLD: the add carries SLD:186 (BEFORE the titleX calls) and the copy SLD:198
@@ -687,8 +689,7 @@ void RaceStatistics(void)
   colX = HUD_STATS_POS_X + 0xa;
   titleX = 0xa0 - (textpixels(TextSys_Word(0x39)) >> 1);
   col2 = 0xa0;
-  HUD_STATS_POS_Y = (short)posy;
-  titleY = 0x76 - halfH;
+  titleY = 0x76 - (sizeH16 >> 0x11);
   HUD_STATS_HOTPURSUIT_Y = (short)(titleY + (OVERLAYS_NUM_LAPS + 2) * 0xc + 0x13);
   col1 = colX;
   if (1 < Cars_gNumHumanRaceCars) {
@@ -701,9 +702,6 @@ void RaceStatistics(void)
     Hud_FBuildF4(0,HUD_STATS_POS_X,HUD_STATS_HOTPURSUIT_Y,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
   }
   i = 0;
-  posyL = posy;
-  barH = sizeH16 >> 0x10;
-  barH8 = barH + -8;
   while (1) {
     if (Cars_gNumHumanRaceCars <= (int)i) break;
     {
@@ -726,9 +724,10 @@ void RaceStatistics(void)
       colInset = 2;
       colmid = col2 - ((textpixels(Cars_gRaceCarList[i]->carInfo->driver) >> 1) + colInset);
       rowInset = 0x13;
-      Hud_FBuildF4(0,col2 + -2,((titleY + 0x11) * 0x10000 >> 0x10) + 0xb,1,barH - ((((titleY + 0x11) * 0x10000 >> 0x10) - posyL) + rowInset),0,'\0','\0');
+      Hud_FBuildF4(0,col2 + -2,((titleY + 0x11) * 0x10000 >> 0x10) + 0xb,1,
+                   (sizeH16 >> 0x10) - ((((titleY + 0x11) * 0x10000 >> 0x10) - (int)HUD_STATS_POS_Y) + rowInset),0,'\0','\0');
       if (0 < (int)i) {
-        Hud_FBuildF4(0,col1 + -2,posyL,1,barH8,0,'\0','\0');
+        Hud_FBuildF4(0,col1 + -2,(int)HUD_STATS_POS_Y,1,(sizeH16 >> 0x10) + -8,0,'\0','\0');
       }
       if (2 < D_8013D99C) {
         Font_TextColor(3);

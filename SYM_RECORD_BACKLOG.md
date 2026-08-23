@@ -1797,6 +1797,33 @@ expansion. Detailed verification preserves `DrawC_DividePrim` PASS 153/153,
 the whole `drawc.cpp` gate remains 20/20 PASS, production PsyQ proof reports
 REAL=0 and RELOP=0, and the vtable indexing audit remains clean.
 
+### P40 — Race-statistics spill/local reconciliation (`2026-08-24`)
+
+The refreshed strict game/PSX declaration audit is recorded in
+[`game_psx_after_racestats_reconcile_20260824.md`](scratchpad/root_sym_audit/game_psx_after_racestats_reconcile_20260824.md).
+It advances the result from 386/395 to 387/395 declaration-clean functions,
+reduces generic extra source-local names from 270 to 256, and preserves zero
+missing SYM names and zero raw type findings.
+
+`RaceStatistics` no longer declares five decompiler spill names as source
+locals. The measured removal ladder was deliberately non-monotonic: deleting
+`halfH` held 70 differences, then deleting `posy`, `posyL`, and `barH8` walked
+70 -> 76 -> 78 -> 81 (the last at 474/475 instructions); deleting `barH` then
+collapsed the result to 54 differences at the exact retail count of 475/475.
+The 176-byte frame remains unchanged. Consequently the old inference that its
+unnamed stack gaps required these five C declarations is refuted: they are
+compiler reload spills around the six actual SYM AUTO objects.
+
+The nine remaining non-SYM names (`colX`, `sizeH16`, `titleX`, `titleY`, `one`,
+`pitch`, `nh`, `colInset`, and `rowInset`) now carry explicit current-basin
+code-generation receipts in the source and remain queued for eventual source
+elimination. This is an improved source-restoration checkpoint, not a claim of
+final source identity. Detailed verification reports 54 differences at
+475/475; the whole `overlays.cpp` gate remains 4/5 PASS with no regression to
+its four exact neighbors. Production PsyQ proof reports REAL=42, RELOP=3, and
+87 relocation-site differences for the remaining residual. The vtable indexing
+audit remains clean.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

@@ -54,20 +54,18 @@
 void Fe3D_InitShowroom(void)
 
 {
-  int iVar1;
+  int iVar1; /* SYM-CODEGEN-CARRIER: iVar1 -- direct-call algebra is FAIL 22 (105/107) and loses the retail staged return use */
   long angle_sin;
   long angle_cos;
-  short sVar4;
+  short sVar4; /* SYM-CODEGEN-CARRIER: sVar4 -- two-step vertex indexing is required by the measured allocation/schedule receipt below */
   /* SYM-TYPE-OVERRIDE: iPlus -- short changes the arithmetic extension path
    * and regresses the exact 107-instruction body by 8 diffs. */
   int iPlus;
-  COORD16 *pCVar6;
   long angle;
   int i;
   
   angle = 0;
   i = 0;
-  pCVar6 = Fe3D_spotVertex;
   do {
     iVar1 = csin(angle);
     Fe3D_spotVertex[i].x = (short)((((iVar1 << 4) << 1) + (iVar1 << 4)) >> 8);
@@ -86,7 +84,7 @@ void Fe3D_InitShowroom(void)
   while (1) {
     if (0x20 <= i) break;
     angle_sin = fastintsin(angle) >> 3;
-    int cos_raw = fastintcos(angle);
+    int cos_raw /* SYM-CODEGEN-CARRIER: cos_raw -- splitting the call from its shift places the retail late sra */ = fastintcos(angle);
     /* MATCH (w50-a6, 6 -> PASS 107/107): the w49 residual was THREE insns issued in the
      * wrong sched2 slots, and all three are STATEMENT-POSITION dials (the fence itself is
      * already at its optimum -- re-swept in the new basin, every other fence position is
@@ -116,7 +114,7 @@ void Fe3D_InitShowroom(void)
      * after `iPlus = sh`), not before the .z store (16) or on both (8); a plain recompute
      * (identity fence on the (short) cast form) is 28.  The explicit `sh = sVar4 << 16`
      * split is what shares the `sll`; without it the fence has nothing to split. */
-    int sh = sVar4 << 16;
+    int sh /* SYM-CODEGEN-CARRIER: sh -- shared sign-extend plus identity fence reproduces the two retail consumers */ = sVar4 << 16;
     sVar4 = sVar4 + 1;
     iPlus = sh;
     __asm__("" : "=r"(iPlus) : "0"(iPlus));
@@ -172,9 +170,7 @@ void Draw_MenuRenderingView(Car_tObj *carObj,DRender_tView *Vi,int posX,int posY
                int camRot,float camY,float camZ,int light,int reflection)
 
 {
-  bool bVar1;
-  matrixtdef *mr;
-  matrixtdef *m;
+  bool bVar1; /* SYM-CODEGEN-CARRIER: bVar1 -- direct showRoomFlag retest is FAIL 19 (237/234) */
   matrixtdef temp;
   matrixtdef temp1;
   matrixtdef temp2;
@@ -203,7 +199,6 @@ void Draw_MenuRenderingView(Car_tObj *carObj,DRender_tView *Vi,int posX,int posY
   else {
     fixedxformy(&temp,camRot << 6);
   }
-  mr = &(Vi->cview).mrotation;
   /* w38-a9: the oracle stores 0x10000 at m[4] (sp+0xB8) with the other two diagonal
      entries and only THEN overwrites it with 0x8980 in the Math_fasttransmult jal's
      delay slot -- i.e. the source writes a full IDENTITY first, then tweaks m[4].
@@ -218,17 +213,16 @@ void Draw_MenuRenderingView(Car_tObj *carObj,DRender_tView *Vi,int posX,int posY
   correct.m[7] = 0;
   correct.m[8] = 0x10000;
   correct.m[4] = 0x8980;
-  Math_fasttransmult(&correct,&temp,mr);
-  m = &(Vi->cview).mrotationInv;
-  transpose(mr,m);
+  Math_fasttransmult(&correct,&temp,&(Vi->cview).mrotation);
+  transpose(&(Vi->cview).mrotation,&(Vi->cview).mrotationInv);
   pos.x = 0;
   pos.y = (int)(camY * 65536.0f);
   pos.z = (int)(camZ * 65536.0f);
-  transform(&pos.x,mr->m,(int *)&Vi->cview);
+  transform(&pos.x,(Vi->cview).mrotation.m,(int *)&Vi->cview);
   pos.x = -(Vi->cview).translation.x;
   pos.y = -(Vi->cview).translation.y;
   pos.z = -(Vi->cview).translation.z;
-  transform(&pos.x,m->m,&(Vi->cview).translationInv.x);
+  transform(&pos.x,(Vi->cview).mrotationInv.m,&(Vi->cview).translationInv.x);
   (carObj->N).orientMat.m[0] = 0x10000;
   (carObj->N).orientMat.m[4] = 0x10000;
   (carObj->N).orientMat.m[8] = 0x10000;

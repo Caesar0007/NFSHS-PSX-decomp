@@ -415,6 +415,69 @@ The current source audits reflect these evidence-backed corrections:
   tag plus a word alias preserves both the absent owner body and the retail
   branch-delay fill; a plain integer-array view was rejected after creating one
   extra `nop`.  All twenty-nine speed functions remain byte-exact.
+- The PASS-only game/PSX local audit removed ten reconstructed temporaries
+  from six functions while preserving every byte: `AudioCmn_LoadBank` now emits
+  only SYM's `bankdata`/`pdata`; `Device_Fail` only its static `failtime[2]`;
+  `Device_PSXPad` no locals; and both `CarIO_StartUp`/`CarIO_ReStart` only `i`
+  in `$v1`.  `Device_Update` lost its call-result `iVar2` but retains a measured
+  `iVar1` codegen carrier; deleting that carrier changes PASS 56 into 59
+  instructions.  `Platform_InitMemory` likewise retains its measured `m`
+  carrier after all no-local forms either deleted the retail recovery `addu` or
+  produced a complete `$v0/$v1` swap.  Exact gates and falsified forms are in
+  [`game_psx_passlock_receipt_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_receipt_20260823.md).
+- A second PASS-only continuation removed another 36 reconstruction-only local
+  names across `draw.cpp`, `force.cpp`, `font.cpp`, `hrzsku.cpp`,
+  `overlays.cpp`, and `textureprocess.cpp`, with zero PASS regressions. The
+  game/PSX declaration audit moved from 198 to 204 clean mapped functions and
+  from 918 to 882 extra source-local names. All unmatched bodies remained
+  locked; `RaceStatistics` was observed at its unchanged FAIL 71 baseline but
+  was not edited. Exact per-function removals and gates are appended to the
+  same PASS-lock receipt above.
+- A third PASS-only continuation removed 11 more reconstructed locals from
+  `texture.cpp`, `trsproj.cpp`, `weather.cpp`, and `trackspec.cpp`. Their four
+  complete translation-unit gates are all PASS, and their named/anonymous SYM
+  type graphs are exact. The cumulative PASS-lock series now improves the
+  game/PSX declaration audit from 193 to 211 clean mapped functions and from
+  928 to 871 extra source-local names (57 removed), without editing a locked
+  unmatched body.
+- A fourth PASS-only continuation removed ten more reconstruction-only locals
+  from exact functions in `hrzsku.cpp`, `weather.cpp`, `textureprocess.cpp`,
+  `flare.cpp`, `sfx.cpp`, `unpack.c`, and `texture.cpp`. The declaration audit
+  is now 221/395 clean with 861 extra local names: cumulative movement from the
+  series baseline is +28 clean functions and -67 names. Full translation-unit
+  gates remained exact except for the two already-unmatched, untouched
+  `hrzsku.cpp` functions. The root `tPA32` declaration is now SYM's pointer to
+  an array of 32 shorts (`short (*)[32]`), rather than the inverse array of
+  pointers; flare typedef coverage increased from 193/224 to 194/224. The
+  remaining flare type-graph `DIFF` is the broader shared-header-extra queue,
+  not a residual `tPA32` mismatch.
+- A fifth PASS-only continuation restored `textnpixels::ch` to the C struct-tag
+  spelling `struct charactertbl *` and `TP_gZPaletteSystem` to the canonical
+  `TP_ZPaletteSystem` identity. Textpix is type-graph exact (15/15 named,
+  46/46 typedefs), textureprocess remains OK (83/83 named, 2/2 anonymous), and
+  all affected functions remain PASS. Narrow audit normalization now treats
+  C's explicit `struct:tag` namespace and direct `R(*)(args)` declarations as
+  their proven PsyQ STRUCT / PTR-FCN equivalents; this removes the false
+  `Draw_gSyncCallback` data-pointer report without changing its already-correct
+  source. Five tested allocation temporaries are now explicit
+  `SYM-CODEGEN-CARRIER` records rather than generic review items. The game/PSX
+  audit is 225/395 clean with 856 generic extras, one function type finding,
+  and zero global type findings. The remaining function type finding belongs
+  to locked, unmatched `DrawC_PrimClip` and was not edited.
+- A sixth PASS-only continuation converted 86 additional generic local-name
+  entries into explicit oracle-backed `SYM-CODEGEN-CARRIER` records across
+  device, draw, platform, force, font, loading, trackspec, skidmark, sfx,
+  texture, textureprocess, and weather. It also removed
+  `Platform_SysStartUp::userRam` and `Force_Update::uVar3` entirely while
+  preserving PASS 54/54 and PASS 278/278; the latter now uses the direct
+  unsigned `(u_int)car->carIndex` expression required for retail's `sltiu`.
+  Direct-form probes prove `Texture_CheckForSharedPalette::num` (16 register
+  diffs at 77/77) and `Force_Update::controller` (11 diffs, 279/278) are real
+  allocation/address-shape carriers. The current game/PSX audit is 263/395
+  clean with 768 generic extras and 92 explicit source-only carrier names;
+  cumulative PASS-lock movement is +70 clean functions and -160 generic names.
+  Full affected-TU gates are PASS except for the already-unmatched, untouched
+  `InGame_GetPSXPadValue` baseline.
 
 ## No-regression receipts
 
@@ -1003,6 +1066,320 @@ The 17 tables listed in the vtable section match raw bytes but lack `_vt.*`
 records in this SYM.  They remain a separate provenance queue.  Search another
 regional/build SYM or original object metadata before assigning a debug name;
 raw address correspondence alone does not make the name authoritative.
+
+### P6 — Seventh game/PSX PASS-lock cleanup (`2026-08-23`)
+
+The seventh PASS-only declaration wave is recorded in
+[`game_psx_passlock_carriers7_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_carriers7_20260823.md)
+and the refreshed generated audit
+[`game_psx_passlock_audit7_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_audit7_20260823.md).
+
+It removes three source-only locals from byte-matched functions and classifies
+ten proven source-only codegen/ABI carriers.  The game/PSX declaration result is
+now 276/395 clean, with zero missing SYM names, 755 generic extra local names,
+102 explicit source-only carriers, one function type finding, and zero global
+type findings.  The only function type finding remains
+`DrawC_PrimClip::facetFlag`; that function is unmatched and was kept read-only
+under the user's current lock.
+
+Detailed `tools/verify_asm.py` whole-TU gates confirm every edited function is
+still PASS.  Existing unmatched rows in `hrzsku`, `cario`, `drawc`, `draww`, and
+`hud` were observed but not edited.  They remain backlog work until the user
+explicitly unlocks unmatched function bodies.
+
+### P7 — Eighth game/PSX PASS-lock cleanup (`2026-08-23`)
+
+The eighth PASS-only declaration wave is recorded in
+[`game_psx_passlock_carriers8_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_carriers8_20260823.md)
+and the refreshed generated audit
+[`game_psx_passlock_audit8_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_audit8_20260823.md).
+
+It removes seven source-only local names from byte-matched functions and
+classifies seven oracle-measured source-only codegen carriers. The game/PSX
+declaration result is now 286/395 clean, with zero missing SYM names, 741
+generic extra local names, 109 explicit source-only carriers, one function type
+finding, and zero global type findings. The only function type finding remains
+`DrawC_PrimClip::facetFlag`; that function is unmatched and remained read-only.
+
+Detailed whole-TU gates confirm all edited functions remain PASS. Existing
+locked mismatches in `draww`, `hud`, and `night` were observed but not edited;
+`textureprocess` is 16/16 PASS.
+
+### P8 — Ninth game/PSX PASS-lock cleanup (`2026-08-23`)
+
+The ninth PASS-only declaration wave is recorded in
+[`game_psx_passlock_carriers9_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_carriers9_20260823.md)
+and the refreshed generated audit
+[`game_psx_passlock_audit9_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_audit9_20260823.md).
+
+It removes two source-only declarations from byte-matched functions and
+classifies eight oracle-measured source-only codegen carriers. The game/PSX
+declaration result is now 292/395 clean, with zero missing SYM names, 731
+generic extra local names, 117 explicit source-only carriers, one function type
+finding, and zero global type findings. The only function type finding remains
+the locked `DrawC_PrimClip::facetFlag` row.
+
+Detailed whole-TU gates confirm all edited functions remain PASS. Existing
+locked mismatches in `cario`, `drawc`, `draww`, and `hud` were observed but not
+edited.
+
+### P9 — Tenth game/PSX PASS-lock cleanup (`2026-08-23`)
+
+The tenth PASS-only declaration wave is recorded in
+[`game_psx_passlock_carriers10_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_carriers10_20260823.md)
+and the refreshed generated audit
+[`game_psx_passlock_audit10_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_audit10_20260823.md).
+
+It removes eight source-only local names from byte-matched functions and
+classifies fourteen oracle-measured source-only codegen carriers. The game/PSX
+declaration result is now 303/395 clean, with zero missing SYM names, 709
+generic extra local names, 131 explicit source-only carriers, one function type
+finding, and zero global type findings. The sole function type finding remains
+the locked `DrawC_PrimClip::facetFlag` row.
+
+Detailed whole-TU gates confirm every edited function remains PASS. Existing
+locked mismatches in `drawc`, `hrzsku`, `hud`, and `night` were observed but
+not edited; `flare` and `weather` are fully PASS.
+
+### P10 — Eleventh game/PSX PASS-lock cleanup (`2026-08-23`)
+
+The eleventh PASS-only declaration wave is recorded in
+[`game_psx_passlock_carriers11_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_carriers11_20260823.md)
+and the refreshed generated audit
+[`game_psx_passlock_audit11_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_audit11_20260823.md).
+
+It removes twelve source-only local names from byte-matched functions and
+classifies sixteen oracle/compiler-measured source-only codegen carriers. The
+game/PSX declaration result is now 313/395 clean, with zero missing SYM names,
+681 generic extra local names, 147 explicit source-only carriers, one function
+type finding, and zero global type findings. The sole function type finding
+remains the locked `DrawC_PrimClip::facetFlag` row.
+
+Detailed whole-TU gates confirm every edited function remains PASS. Existing
+locked mismatches in `cario`, `draww`, `hud`, `night`, and `overlays` were
+observed but not edited; `flare` remains fully PASS.
+
+### P11 — Twelfth game/PSX PASS-lock cleanup (`2026-08-23`)
+
+The twelfth PASS-only declaration wave is recorded in
+[`game_psx_passlock_carriers12_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_carriers12_20260823.md)
+and the refreshed generated audit
+[`game_psx_passlock_audit12_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_audit12_20260823.md).
+
+It removes sixteen source-only local names from byte-matched functions and
+classifies seven oracle/compiler-measured source-only codegen carriers. The
+game/PSX declaration result is now 320/395 clean, with zero missing SYM names,
+658 generic extra local names, 154 explicit source-only carriers, one function
+type finding, and zero global type findings. The sole function type finding
+remains the locked `DrawC_PrimClip::facetFlag` row.
+
+Detailed whole-TU gates confirm every edited function remains PASS. Existing
+locked mismatches in `drawc`, `draww`, and `hud` were observed but not edited.
+
+### P12 — Thirteenth game/PSX PASS-lock cleanup (`2026-08-23`)
+
+The thirteenth PASS-only declaration wave is recorded in
+[`game_psx_passlock_carriers13_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_carriers13_20260823.md)
+and the refreshed generated audit
+[`game_psx_passlock_audit13_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_audit13_20260823.md).
+
+It removes nine unproven source names from byte-matched functions and classifies
+six oracle/compiler-measured source-only codegen carriers. The two unused
+`Hud_Draw321Num` formals retain their mangling-proven types and positions but no
+longer assert names absent from the SYM. The game/PSX declaration result is now
+325/395 clean, with zero missing SYM names, 643 generic extra local names, 160
+explicit source-only carriers, one function type finding, and zero global type
+findings. The sole function type finding remains the locked
+`DrawC_PrimClip::facetFlag` row.
+
+Detailed whole-TU gates confirm every edited function remains PASS. Existing
+locked mismatches in `draww` and `hud` were observed but not edited;
+`fe3dmenu` and `flare` are fully PASS.
+
+### P13 — Fourteenth game/PSX PASS-lock cleanup (`2026-08-23`)
+
+The fourteenth PASS-only declaration wave is recorded in
+[`game_psx_passlock_carriers14_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_carriers14_20260823.md)
+and the refreshed generated audit
+[`game_psx_passlock_audit14_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_audit14_20260823.md).
+
+It removes seven source-only locals from byte-matched functions and classifies
+ten oracle/compiler-measured source-only codegen carriers. The game/PSX
+declaration result is now 329/395 clean, with zero missing SYM names, 626
+generic extra local names, 170 explicit source-only carriers, one function type
+finding, and zero global type findings. The sole function type finding remains
+the locked `DrawC_PrimClip::facetFlag` row.
+
+Detailed whole-TU gates confirm every edited function remains PASS. The only
+observed failures are unchanged locked rows in `drawc` and `night`.
+
+### P14 — Fifteenth game/PSX PASS-lock cleanup (`2026-08-23`)
+
+The fifteenth PASS-only declaration wave is recorded in
+[`game_psx_passlock_carriers15_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_carriers15_20260823.md)
+and the refreshed generated audit
+[`game_psx_passlock_audit15_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_audit15_20260823.md).
+
+It removes twelve source-only locals from byte-matched functions and classifies
+five source-only codegen carriers backed by existing oracle/compiler receipts.
+The game/PSX declaration result is now 333/395 clean, with zero missing SYM
+names, 609 generic extra local names, 175 explicit source-only carriers, one
+function type finding, and zero global type findings. The sole function type
+finding remains the locked `DrawC_PrimClip::facetFlag` row.
+
+Detailed whole-TU gates confirm every edited function remains PASS. Existing
+locked mismatches in `draww`, `hud`, and `hrzsku` were observed but not edited.
+
+### P15 — Sixteenth game/PSX PASS-lock cleanup (`2026-08-23`)
+
+The sixteenth PASS-only declaration wave is recorded in
+[`game_psx_passlock_carriers16_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_carriers16_20260823.md)
+and the refreshed generated audit
+[`game_psx_passlock_audit16_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_audit16_20260823.md).
+
+It removes fourteen source-only locals from byte-matched functions and
+classifies nine source-only codegen carriers backed by measured rejected forms
+or existing oracle/compiler receipts. The game/PSX declaration result is now
+338/395 clean, with zero missing SYM names, 586 generic extra local names, 184
+explicit source-only carriers, one function type finding, and zero global type
+findings. The sole function type finding remains the locked
+`DrawC_PrimClip::facetFlag` row.
+
+Detailed whole-TU gates confirm every edited function remains PASS. Existing
+locked mismatches in `hud` were observed but not edited; `flare`, `weather`,
+and `fe3dmenu` are fully PASS.
+
+### P16 — Seventeenth game/PSX PASS-lock cleanup (`2026-08-23`)
+
+The seventeenth PASS-only declaration wave is recorded in
+[`game_psx_passlock_carriers17_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_carriers17_20260823.md)
+and the refreshed generated audit
+[`game_psx_passlock_audit17_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_audit17_20260823.md).
+
+It resolves twenty-five generic source-local discrepancies in four byte-matched
+functions, removing decompiler temporaries or classifying five measured
+codegen carriers. The game/PSX declaration result is now 342/395 clean, with
+zero missing SYM names, 562 generic extra local names, 189 explicit source-only
+carriers, one function type finding, and zero global type findings. The sole
+function type finding remains the locked `DrawC_PrimClip::facetFlag` row.
+
+Detailed whole-TU gates confirm every edited function remains PASS. Existing
+locked mismatches in `hud` and `overlays` were observed but not edited;
+`weather` is 25/25 PASS.
+
+### P17 — Eighteenth game/PSX PASS-lock cleanup (`2026-08-23`)
+
+The eighteenth PASS-only declaration wave is recorded in
+[`game_psx_passlock_carriers18_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_carriers18_20260823.md)
+and the refreshed generated audit
+[`game_psx_passlock_audit18_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_audit18_20260823.md).
+
+It replaces hand-written ordering-table mask/OR reconstructions with the
+canonical PsyQ 24-bit `P_TAG` field expansion in eight byte-matched functions,
+removing thirty-three fabricated local names and classifying four independently
+measured color-load carriers. The game/PSX declaration result is now 350/395
+clean, with zero missing SYM names, 525 generic extra local names, 193 explicit
+source-only carriers, one function type finding, and zero global type findings.
+
+Detailed whole-TU gates confirm `flare.cpp` is 27/27 PASS and `hrzsku.cpp` is
+20/22 PASS. The two horizon mismatches were observed read-only and remain locked.
+
+### P18 — Nineteenth game/PSX PASS-lock cleanup (`2026-08-23`)
+
+The nineteenth PASS-only declaration wave is recorded in
+[`game_psx_passlock_carriers19_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_carriers19_20260823.md)
+and the refreshed generated audit
+[`game_psx_passlock_audit19_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_audit19_20260823.md).
+
+It resolves twenty-five generic discrepancies in five byte-matched functions:
+twenty source-only names were removed and five compiler-measured names were
+classified as explicit codegen carriers. The game/PSX declaration result is now
+355/395 clean, with zero missing SYM names, 501 generic extra local names, 198
+explicit source-only carriers, one function type finding, and zero global type
+findings. The sole function type finding remains the locked
+`DrawC_PrimClip::facetFlag` row.
+
+Detailed whole-TU gates confirm `flare.cpp` is 27/27 PASS, `hud.cpp` is 59/62
+PASS, and `draww.cpp` is 31/35 PASS. All seven failures were observed read-only
+and remain locked.
+
+### P19 — Twentieth game/PSX PASS-lock cleanup (`2026-08-23`)
+
+The twentieth PASS-only declaration wave is recorded in
+[`game_psx_passlock_carriers20_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_carriers20_20260823.md)
+and the refreshed generated audit
+[`game_psx_passlock_audit20_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_audit20_20260823.md).
+
+It removes six decompiler-only values from byte-matched `Hud_BuildSprite` and
+classifies all six independently measured codegen carriers in byte-matched
+`Hud_BuildString`. The game/PSX declaration result is now 357/395 clean, with
+zero missing SYM names, 489 generic extra local names, 204 explicit source-only
+carriers, one function type finding, and zero global type findings.
+
+The whole-TU detailed gate confirms `hud.cpp` remains 59/62 PASS. Its three
+failures were observed read-only and remain locked.
+
+### P20 — Twenty-first game/PSX PASS-lock cleanup (`2026-08-23`)
+
+The twenty-first PASS-only declaration wave is recorded in
+[`game_psx_passlock_carriers21_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_carriers21_20260823.md)
+and the refreshed generated audit
+[`game_psx_passlock_audit21_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_audit21_20260823.md).
+
+It removes twenty-eight unused, non-SYM declarations from four byte-matched Hud
+packet builders. The game/PSX declaration result is now 361/395 clean, with
+zero missing SYM names, 461 generic extra local names, 204 explicit source-only
+carriers, one function type finding, and zero global type findings.
+
+The whole-TU detailed gate confirms `hud.cpp` remains 59/62 PASS. Its three
+failures were observed read-only and remain locked.
+
+### P21 — Twenty-second game/PSX PASS-lock cleanup (`2026-08-23`)
+
+The twenty-second PASS-only declaration wave is recorded in
+[`game_psx_passlock_carriers22_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_carriers22_20260823.md)
+and the refreshed generated audit
+[`game_psx_passlock_audit22_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_audit22_20260823.md).
+
+It reconciles twenty-one generic discrepancies across byte-matched
+`Hud_BuildTimeSprites`, `Flare_CarShapedHalo`, and `Flare_Halo2`, using
+canonical PsyQ tag fields, an unnamed ABI-only parameter, dead-declaration
+removal, and explicit compiler-carrier evidence. The game/PSX declaration
+result is now 364/395 clean, with zero missing SYM names, 442 generic extra
+local names, 211 explicit source-only carriers, one function type finding, and
+zero global type findings.
+
+Detailed gates confirm `flare.cpp` is 27/27 PASS and `hud.cpp` is now **60/62
+PASS**. `Hud_BuildNumbers` became PASS 758/758 without a body edit; the two
+remaining Hud failures were observed read-only and remain locked.
+
+### P22 — Twenty-third game/PSX PASS-lock cleanup (`2026-08-23`)
+
+The twenty-third PASS-only declaration wave is recorded in
+[`game_psx_passlock_carriers23_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_carriers23_20260823.md)
+and the generated audit
+[`game_psx_passlock_audit23_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_audit23_20260823.md).
+
+It converts twenty-seven generic Hud discrepancies into explicit
+compiler-measured carrier dispositions. The game/PSX declaration result reaches
+368/395 clean, with zero missing SYM names, 415 generic extra locals, and 238
+explicit source-only carriers. `hud.cpp` remains 60/62 PASS.
+
+### P23 — Twenty-fourth game/PSX PASS-lock cleanup (`2026-08-23`)
+
+The twenty-fourth PASS-only declaration wave is recorded in
+[`game_psx_passlock_carriers24_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_carriers24_20260823.md)
+and the refreshed generated audit
+[`game_psx_passlock_audit24_20260823.md`](scratchpad/root_sym_audit/game_psx_passlock_audit24_20260823.md).
+
+It restores natural indexed-array source in `Hrz_GetHorizonPixMap` and canonical
+SYM loop locals in `Weather_Init`, resolving nineteen generic discrepancies.
+The game/PSX declaration result is now 370/395 clean, with zero missing SYM
+names, 396 generic extra locals, 240 explicit source-only carriers, one function
+type finding, and zero global type findings.
+
+Detailed gates confirm `hrzsku.cpp` is 20/22 PASS and `weather.cpp` is 25/25
+PASS. The two horizon failures were observed read-only and remain locked.
 
 ## Closure rule
 

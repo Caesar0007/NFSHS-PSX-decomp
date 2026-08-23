@@ -367,17 +367,15 @@ void read(char **handle,void *buf,int bytes)
   char *source;
   char *dest;
   int i;
-  char c;
 
   source = *handle;
   dest = (char *)buf;
   i = 0;
   if (i < bytes) {
     do {
-      c = *source;
+      *dest = *source;
       source = source + 1;
       i = i + 1;
-      *dest = c;
       dest = dest + 1;
     } while (i < bytes);
   }
@@ -420,7 +418,7 @@ void read(char **handle,void *buf,int bytes)
 void TrackSpec_Read(int spec_num)
 
 {
-  char *filebuf;
+  char *filebuf; /* SYM-CODEGEN-CARRIER: filebuf -- models retail's uncoalesced call-result copy */
   char *startpos;
   char str [64];
   CTrackSpecHeader header;
@@ -433,7 +431,7 @@ void TrackSpec_Read(int spec_num)
    * and the lui lands in the oracle's slot.  CAVEAT: the SYM's block list for this fn
    * names only currentpos/startpos/str -- no `trk` -- so the name is ours; the STATEMENT
    * is SLD-attested. */
-  int trk = TrackSpec_GameSetupWords[15];
+  int trk = TrackSpec_GameSetupWords[15]; /* SYM-CODEGEN-CARRIER: trk -- SLD-attested hoisted fetch */
 
   sprintf(str,"%sTr%02d.bin",Paths_Paths[6],trk);
   /* w41-a5: `currentpos` (an AUTO -- its address goes to read()) takes the RAW

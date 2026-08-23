@@ -131,12 +131,14 @@ int AudioCmn_AddBank(char *filename,int size,char *pdata,int BankNum)
   return size;
 }
 
-/* ---- AudioCmn_LoadBank__FPci  [AUDIO.CPP:217-230] SLD-VERIFIED ---- */
+/* ---- AudioCmn_LoadBank__FPci  [AUDIO.CPP:217-230] SLD-VERIFIED ----
+ * PASS 33/33; SYM names only bankdata(AUTO -0x60) and pdata($s0).
+ * The direct filesize() argument is also the independent m2c shape; keeping
+ * its return in a named iVar1 produced an extra non-retail debug local. */
 int AudioCmn_LoadBank(char *filename,int BankNum)
 
 {
   char *pdata;
-  int iVar1;
   char bankdata [80];
 
   strcpy(bankdata,filename);
@@ -145,8 +147,7 @@ int AudioCmn_LoadBank(char *filename,int BankNum)
   if (pdata == (char *)0x0) {
     return 0;
   }
-  iVar1 = filesize(bankdata);
-  return AudioCmn_AddBank(filename,iVar1,pdata,BankNum);
+  return AudioCmn_AddBank(filename,filesize(bankdata),pdata,BankNum);
 }
 
 /* end of audio.cpp */

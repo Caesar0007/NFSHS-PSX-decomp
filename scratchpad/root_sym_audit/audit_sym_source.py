@@ -615,6 +615,17 @@ def compatible_decl_types(sym_rows: list[Decl], src_rows: list[dict]) -> tuple[b
     }:
         return True, "char-debug-signedness"
 
+    # In a C translation unit ctags preserves the `struct` namespace as
+    # `struct:tag`, whereas PsyQ's STRUCT/PTR debug display prints only `tag`.
+    # This is the same named tag and pointer/array constructor, not a typedef
+    # substitution.  Keep this normalization C-specific by requiring ctags'
+    # explicit `struct:` marker on the source side.
+    for sym_type in sym_types:
+        for src_type in src_types:
+            c_tag = re.fullmatch(r"struct:([A-Za-z_]\w*)(.*)", src_type)
+            if c_tag and c_tag.group(1) + c_tag.group(2) == sym_type:
+                return True, "c-struct-tag"
+
     for src_type in src_types:
         if src_type.endswith("&") and src_type[:-1] + "*" in sym_types:
             return True, "reference-as-pointer"
@@ -1159,12 +1170,15 @@ def audit(
                 if (
                     "PTR" in sym_tokens
                     and "FCN" in sym_tokens
-                    and re.fullmatch(r"fn_[A-Za-z_]\w*\*", source_type)
+                    and (
+                        re.fullmatch(r"fn_[A-Za-z_]\w*\*", source_type)
+                        or re.search(r"\(\*\)\([^)]*\)$", source_type)
+                    )
                 ):
                     # PsyQ retains only PTR/FCN/return-type for these data
-                    # records; the typedef carries the actual callback
-                    # prototype in source.  It is still a function-pointer
-                    # object, not a void-data pointer.
+                    # records.  Ctags exposes either a named function typedef
+                    # pointer or the direct `R(*)(args)` declarator; both are
+                    # function-pointer objects, not void-data pointers.
                     global_type_equivalent += 1
                     global_type_equivalent_reasons["generic-function-pointer"] += 1
                 elif (

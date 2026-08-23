@@ -1058,6 +1058,33 @@ PER_FN_CC1_VER_SPLICE_272 = {
         # PASS 50/50 on 2.7.2 (cse no-copy-prop identity is a version
         # property; 970404 control = 2). Whole-TU 18/19, 0 regressions.
         "_padSetActAlign_rcv"}},
+    # W75-A16: _intrhand 24 -> 20, count-exact 116/116, on the 2.6.3 rung.
+    # CHARACTERISED (a16_intrhand_{272,263}.s): across the WHOLE 166-line
+    # function the 2.6.x codegen differs from the lane's 2.7.2 in exactly ONE
+    # place -- the closing `if ((I_STAT & I_MASK) != 0)` test loads its two
+    # halfwords into the OPPOSITE register pair (2.7.2 `lhu $3,0($5); lhu
+    # $2,0($6)`; 2.6.3 `lhu $2,0($5); lhu $3,0($6)` == retail).  Everything
+    # else is `move` vs `addu rd,rs,$0` spelling, which the gate normalises.
+    # The rung is ORTHOGONAL to the two pend-block residuals: measured -4 on
+    # EVERY source basin swept this wave (shipped 24->20, mp-inline 26->22,
+    # block-local-en 32->28, retail-tree 38->34, sp/en/mp order 28->24), so it
+    # buys the closing-test cluster and nothing else and cannot mask a source
+    # lever.  2.6.0 is identical to 2.6.3 here; 970404/2.8.x go count-OFF
+    # (110 @114).  NOT vacuous: the 272 lane passes no -g1, so sub-2.8 rungs
+    # emit no COFF debug and the W74-A19 LM/.loc region-truncation bug (which
+    # is DEFAULT-lane-only) cannot apply -- verified 0 `LM<n>:` / 0 `.loc` in
+    # the rung's .s and the gate reads the full 116/116.
+    "recon/syslib/psx/libetc/INTR.c": {"2.6.3": {"_intrhand"}},
+    # W76-A14: __divdf3 PASS 184/184 on the 970404 rung + the two in-source
+    # volatile "=m" RCSE mem-fences (see DIVDF3.c receipts).  970404's reorg is
+    # 2.8-lineage (fills the `bnez $t2` slot with the copied `lui $v0,0x7FFF` --
+    # the wired 2.7.2 rung's mark_target_live_regs cannot: its forward scan
+    # stops at the first conditional jump, so the stale block-0 liveness keeps
+    # $v0 claimed) while its allocator prices like 2.7.2 (no seat rotation).
+    # Its reload_cse (the one vendor divergence -- Sony's rung lacked the pass,
+    # A15 identity) is defeated by the fences.  Wired-lane control with the
+    # fences: 2 diffs (inert); the sibling libmath TUs are untouched.
+    "recon/syslib/psx/libmath/DIVDF3.c": {"2.7.2-970404": {"__divdf3"}},
 }
 
 
@@ -1334,23 +1361,8 @@ PER_FN_TEXT_MOVES = {
             {"take": r"\tsw\t\$6,32\(\$sp\)\n", "after": r"\tsw\t\$6,28\(\$sp\)\n"},
         ],
     },
-    # w61-a15 (probe-verified 2x, composed): ResetPSXController 3 -> PASS
-    # 305/305 (reorg stop_search_p at any asm makes fence + simple-fill
-    # mutually exclusive -- the relocation is the only expression);
-    # NightHeadlight 4 -> PASS 107/107 (sched2 priority strictly +2, no
+    # w61-a15: NightHeadlight 4 -> PASS 107/107 (sched2 priority strictly +2, no
     # source dial exists); LensFlare 6 -> PASS 409/409; 2DHalo 6 -> 4.
-    "recon/game/psx/psxcontroller.cpp": {
-        "InGame_ResetPSXController__Fii": [
-            {"take": r"\tsll\t\$21,\$18,2\n(?= \#APP\n)",
-             "after": r"\tbeq\t\$3,\$2,\$L\d+\n",
-             "drop_after": r"\tlui\t\$2,%hi\(GameSetup_gData\) \# high\n"},
-            {"take": r"\tlui\t\$2,%hi\(GameSetup_gData\) \# high\n"
-                     r"(?=\$L\d+:\n\taddiu\t\$2,\$2,%lo\(GameSetup_gData\))",
-             "after": r"\$L\d+:\n"
-                      r"(?=\taddiu\t\$2,\$2,%lo\(GameSetup_gData\) \# low\n"
-                      r"\taddu\t\$2,\$21,\$2\n)"},
-        ],
-    },
     "recon/game/psx/drawc.cpp": {
         "DrawC_NightHeadlight__FP8Car_tObj": [
             {"take": r"\taddiu\t\$2,\$2,%lo\(Night_gWeatherColor\) \# low\n",
@@ -1466,13 +1478,28 @@ PER_FN_TEXT_MOVES = {
             {"take": r"\tsw\t\$10,160\(\$sp\)\n", "after": r"\tmove\t\$7,\$21\n"},
         ],
     },
-    # w63-a9 (probe-verified 2x; calls.c:1900 emission-order law):
-    # slot-fill on the printHex digit-table j: 56->44 @545/545 (kills the nosplit +1 nop)
-    "recon/syslib/psx/libc/SPRINTF.c": {
-        "sprintf": [
-            {"take": "\\tla\\t\\$7,\\$LC0\\n(?=\\tj\\t\\$L\\d+\\n\\$L\\d+:\\n\\tla\\t\\$7,\\$LC1\\n)", "after": "\\tj\\t\\$L\\d+\\n(?=\\$L\\d+:\\n\\tla\\t\\$7,\\$LC1\\n)", "slot": True},
-        ],
-    },
+    # 🔴 w63-a9 ROW REMOVED BY W75-A14 -- IT WAS A GATE-BLIND DEAD-CODE BUG (the
+    # _padInitDirSeq / HeliCam class, 4th firing).  The row moved `la $7,$LC0` into
+    # the `j $L98` delay slot with slot:True.  `la` is a two-instruction MACRO: gas
+    # expands it to `lui $7,%hi; addiu $7,$7,%lo`, so the wrapper put `lui` in the
+    # slot and left `addiu` AFTER the taken jump, where it never executes.
+    # objdump of the spliced object (build/.../SPRINTF.c.o):
+    #     59c: j 5ac ; 5a0: lui a3,0x0 [slot] ; 5a4: addiu a3,a3,0  <-- UNREACHABLE
+    # => on the 'X' and 'p' paths `hexChars` keeps only the %hi half of the string
+    # address (a 64K-aligned garbage pointer), so `%X`/`%p` would read out of bounds.
+    # Retail's three words are `lui $a3,%hi ; j $L98 ; addiu $a3,$a3,%lo [slot]`
+    # -- a SPLIT-address pair whose second half reorg legally sinks into the slot.
+    # gcc REFUSED that slot for us on purpose: with -mno-split-addresses the address
+    # load is one RTL insn of length 2 and `eligible_for_delay` rejects it.  The row
+    # overrode that refusal at the text level.
+    # 🔑 NEW STANDING SAFETY LAW: a `slot: True` TEXT_MOVES row may only take a line
+    # that assembles to EXACTLY ONE machine word.  Never `la`, never a 32-bit `li`,
+    # never an absolute lw/sw/div macro (cf. 23C-6 "macro absolute stores are
+    # delay-slot-INELIGIBLE").  Audit any existing slot row against this.
+    # COST OF REMOVAL, probe-verified 2x: sprintf 28 @545 -> 29 @546 (the slot is a
+    # `nop`).  Retail's shape is only reachable on the SPLIT-address lane, where the
+    # pair is two lines and reorg fills the slot itself -- see the SPRINTF.c receipt
+    # for the measured flag table (nosplit ON 28 @545 / nosplit OFF 46 @545, -G inert).
     # w63-a7 (proven 2x; spliced object OBJDUMP-VERIFIED = retail 11 words,
     # both branch targets exact): _dirCheck 1 -> PASS 11/11. Undoes
     # make_return_insns (reorg.c:4289) duplicating the return; li rejoins
@@ -2266,6 +2293,28 @@ PER_FN_BRANCH_RETARGET = {
             {"branch": "\\tbne\\t\\$3,\\$2,\\$L\\d+\\n(?=\\tlui\\t\\$2,%hi\\(FEApp\\) # high\\n)", "after": "\\tlui\\t\\$2,%hi\\(FEApp\\) # high\\n(?=\\tlui\\t\\$3,%hi\\(menuDefs\\) # high\\n\\tlw\\t\\$4,%lo\\(FEApp\\)\\(\\$2\\)\\n)"},
         ],
     },
+    # W75-A19: _pad_getbyte gates PASS 47/47 but the BOARD read 99.89% -- one
+    # `j` WORD.  The `M` arm's jump lands on the DEFAULT arm's copy of the
+    # shared `lbu $2,0($2)` tail; retail's lands on CASE 0's copy (both copies
+    # exist in both objects, both continue to the same `jr $ra`, so this is the
+    # class-d label-selection class, gate-invisible because verify_asm
+    # normalizes branch targets to T).  ROOT CAUSE, and why no source form
+    # reaches it: case 0 carries the w71-a15 read-only fence BETWEEN its `lbu`
+    # and its return (that fence is what won 5 -> PASS), an asm with no outputs
+    # is implicitly VOLATILE, and find_cross_jump (jump.c:2632-35) refuses a
+    # volatile ASM_OPERANDS -- so `M` can never merge onto case 0's copy and
+    # takes the default's instead.  Giving the DEFAULT arm the same fence blocks
+    # that merge too (3 diffs @50 insns, measured) instead of redirecting it.
+    # The retarget plants a fresh label at case 0's `lbu` and re-points ONLY the
+    # `M` arm's `j`; nothing is removed, and the destination's continuation
+    # (`lbu; j $L41`) is semantically identical to the old one (`lbu; fall into
+    # jr $ra`).  Probe: scratchpad/w75/a19/brprobe.py + brrows.json -- gate PASS
+    # 47/47 AND objdump word-compare 0 differing (was 1).
+    "recon/syslib/psx/libpad/PADPORTD.c": {
+        "_pad_getbyte": [
+            {"branch": "\\tj\\t\\$L\\d+\\n(?=\\taddu\\t\\$2,\\$2,\\$3\\n\\t\\.set\\tmacro\\n)", "after": "\\taddu\\t\\$2,\\$2,\\$3\\n(?=\\tlbu\\t\\$2,0\\(\\$2\\)\\n #APP\\n)"},
+        ],
+    },
     "recon/game/psx/hud.cpp": {
         "Hud_BuildString__FPciiiib": [
             {"branch": "\\tj\\t\\$L\\d+\\n(?=\\taddu\\t\\$17,\\$17,3\\n)", "after": "\\tlw\\t\\$8,24\\(\\$sp\\)\\n(?=\\taddu\\t\\$18,\\$18,1\\n)"},
@@ -2761,6 +2810,21 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
             tr = post[pm.start():pend]
             _SPLICE_COUNTER[0] += 1
             fr = _uniquify_local_labels(fr, f"raw40{_SPLICE_COUNTER[0]}")
+            # W75-A19: the spliced region goes STRAIGHT to GNU as -- it never
+            # passes through maspsx (whose expand_move rewrites `move`) nor
+            # through the 272 lane's own move fix above.  Modern gas spells
+            # the `move` PSEUDO as `or rD,rS,$0` (0x25) while retail and every
+            # maspsx-lane object carry `addu` (0x21), so every `move` in a
+            # spliced region assembled to the WRONG WORD.  The gate cannot see
+            # it (verify_asm normalizes `move` <-> `addu rD,rS,zero`, and
+            # objdump prints the `or` form as `move` too) but objdiff compares
+            # BYTES: firstfile read 94.17% on the board while gating PASS
+            # 103/103, on 10 such words.  Semantics identical, encoding wrong.
+            # (This is catalog 04M's named "pipeline needs a move->addu pass"
+            # gap; the 272 lane already does it, compile_c's raw40 branch did
+            # not.)
+            fr = _MOVE_RE.sub(
+                lambda m: "\taddu\t%s,%s,$0" % (m.group(2), m.group(3)), fr)
             post = post.replace(tr, fr, 1)
         merged = obj.with_suffix(".raw40merged.s")
         merged.write_text(post)

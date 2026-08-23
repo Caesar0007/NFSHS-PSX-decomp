@@ -1100,7 +1100,7 @@ void InGame_SetRamp(void)
          * SYM's mask $803f0000 (s0-s5+ra, NO s6) proves retail carried no hoisted
          * &hoff pseudo. */
 #define INGAME_HOFF_PTR ((int *)(i * 4 + (int)hb))
-        { int *hb = hoff;
+        { int *hb = hoff; /* SYM-CODEGEN-CARRIER: hb -- blocks the non-retail &hoff loop hoist */
           __asm__("" : "=r"(hb) : "0"(hb));
           __asm__("" : : "r"(INGAME_HOFF_PTR));
         if (InGame_GetDevice(h[0x4f - *INGAME_HOFF_PTR]) == 1) {
@@ -1128,9 +1128,14 @@ void InGame_SetRamp(void)
            but loses the required symbol relocation and two retail instructions.  The
            Parasite Eve 2 inline-identity idiom was also tested both as a base-only helper
            and with the complete index-first address inside the helper; both remove `hb`
-           but rotate the loop's saved-register topology and cost 57 @107.  All were
-           reverted; `hb` remains until a SYM-safe opaque-address source shape is found,
-           because PASS preservation takes priority over deleting its record. */
+           but rotate the loop's saved-register topology and cost 57 @107.  A full-body
+           inline carrier and an anonymous-union carrier both stay 98/98, but full debug
+           rejects them: the inline expansion adds nested `h`/`i`/`hb` records, while the
+           union adds an anonymous type/member and still emits local `hb`.  GCC 2.8.1
+           `sdbout.c` also proves ordinary locals are not suppressed by `DECL_IGNORED_P`
+           or system-header provenance.  All were reverted; `hb` remains until a SYM-safe
+           opaque-address source shape is found, because PASS preservation takes priority
+           over deleting its record. */
         i = i + 1;
       } while (i < Cars_gNumHumanRaceCars);
     }

@@ -27,6 +27,8 @@ MARK = "nfs4_trace_on"          # global.c marker
 MARK_LA = "nfs4_la_trace"       # local-alloc.c marker
 MARK_RL = "nfs4_rl_trace"       # reload1.c marker
 MARK_RP = "nfs4_reload_pick"    # reload1.c [reload_pick] marker (w75-A20)
+MARK_RO = '"[reload-order] FUNCTION'  # reload1.c [reload-order] marker (hand w59-era; folded w76-A20)
+MARK_DN = "nfs4_dn_trace"       # combine.c [distribute_notes] marker (w76-A20)
 
 
 def rd(p):  return open(p, 'r', newline='').read()
@@ -462,6 +464,156 @@ def patch_reload_pick(root):
 
 
 # =========================================================================
+def patch_reload_order(root):
+    """w76-A20: fold the previously HAND-APPLIED [reload-order] trace into this
+    script.  W75-A20 flagged that the trace existed ONLY in the built repo tree
+    (scratch/gccsrc/gcc-2.8.1/reload1.c) -- a from-scratch rebuild (deleting
+    gccsrc) would silently lose it.  This emits BYTE-IDENTICAL text to the hand
+    patch, so an already-hand-patched tree is detected and skipped.
+
+    Prints, at the end of order_regs_for_reload's use census (just before the
+    ELIMINABLE_REGS block), each GP reg r2..r15's hard_reg_n_uses[].uses +
+    regs_explicitly_used -- the INPUT to the spill-pool ORDER (pairs with
+    [reload_pick], which shows the round-robin walk over the resulting pool).
+    Gated on GCC_TRACE_ALLOC via nfs4_rl_trace; requires patch_reload1 first.
+    """
+    p = os.path.join(root, 'reload1.c')
+    s = rd(p)
+    if MARK_RO in s:
+        print("  reload1.c  [reload-order] already patched"); return
+    if 'nfs4_rl_trace' not in s:
+        raise SystemExit("PATCH FAIL (reload_order): run patch_reload1 first")
+
+    a = ("  hard_reg_n_uses[HARD_FRAME_POINTER_REGNUM].uses += 2 * large + 2;\n"
+         "  SET_HARD_REG_BIT (bad_spill_regs, HARD_FRAME_POINTER_REGNUM);\n")
+    b = a + r"""
+  if (nfs4_rl_trace ())
+    {
+      fprintf (stderr, "[reload-order] FUNCTION %s large=%d", current_function_name, large);
+      for (i = 2; i <= 15; i++)
+        fprintf (stderr, " r%d=%d/e%d", i, hard_reg_n_uses[i].uses,
+                 (int) regs_explicitly_used[i]);
+      fprintf (stderr, "\n");
+    }
+"""
+    s = sub1(s, a, b, "reload-order census dump")
+    wr(p, s)
+    print("  reload1.c  [reload-order] patched")
+
+
+# =========================================================================
+DN_HELPER = r'''
+/* ---- w76-A20 [distribute_notes] instrumentation ---- */
+extern char *getenv ();
+extern char *current_function_name;
+
+static int nfs4_dn_trace ()
+{
+  static int t = -1;
+  if (t < 0)
+    {
+      char *e = getenv ("GCC_TRACE_DISTRIBUTE_NOTES");
+      t = (e && *e && *e != '0') ? ((*e == '2') ? 2 : 1) : 0;
+    }
+  return t;
+}
+/* ---------------------------------------------------- */
+
+'''
+
+
+def patch_distribute_notes(root):
+    """w76-A20: the [distribute_notes] instrument -- combine.c's orphaned-REG_DEAD
+    synthetic-USE emission (catalog 24E-6; the Night_CreateNightTableElement
+    reg-137 mechanism, W75-A13 receipt in recon/game/psx/night.cpp).
+
+    distribute_notes' REG_DEAD case walks BACKWARD from i3
+    (`for (tem = prev_nonnote_insn (i3); place == 0 && tem && (INSN||CALL_INSN);
+    tem = prev_nonnote_insn (tem))`, combine.c:11298 in the pristine file)
+    looking for a home for the death note; when the walk is stopped by a
+    non-INSN (a CODE_LABEL) with no home found, combine.c:11396 emits a
+    synthetic `(use (reg))` after the stopper and hangs the note there.  That
+    orphan USE is a SECOND death -> REG_N_DEATHS==2 -> the pseudo fails
+    local-alloc.c:472 eligibility and loses its hard register.  NOTE the
+    version asymmetry (W75-A13, ChangeLog-cited): the vendor-2.8.0 lane orphans
+    Night's reg 137; FSF 2.8.1 (this lab) does NOT (Feb-1998 distribute_notes
+    fixes) -- so on that fn this trace's value is the NEGATIVE certificate plus
+    the =2 walk lines showing where 2.8.1 seats the note instead.
+
+    Gated on its OWN env var GCC_TRACE_DISTRIBUTE_NOTES (so GCC_TRACE_ALLOC
+    streams aren't flooded):
+      =1  one line per ORPHAN emission:
+          [distribute_notes] fn=<name> ORPHAN reg=<regno> i3=<uid>
+              from_insn=<uid|-1> stopped_at=<rtxcode>:<uid> use=<uid>
+      =2  additionally, one line per REG_DEAD note that ENTERS the place==0
+          backward walk, with its final disposition:
+          [distribute_notes] fn=<name> walk reg=<regno> i3=<uid>
+              from_insn=<uid|-1> place=<uid|0> tem=<rtxcode>:<uid>|null kind=<n>
+    combine runs BEFORE local_alloc's `===== FUNCTION =====` marker, hence the
+    inline fn= field.  Patched into combine.c, which is shared backend -- BOTH
+    cc1 and cc1plus pick it up on rebuild.
+    """
+    p = os.path.join(root, 'combine.c')
+    s = rd(p)
+    if MARK_DN in s:
+        print("  combine.c  [distribute_notes] already patched"); return
+    backup(p)
+
+    # 1) K&R forward decl in the existing PROTO block
+    s = sub1(s,
+             "static void distribute_notes\tPROTO((rtx, rtx, rtx, rtx, rtx, rtx));\n",
+             "static void distribute_notes\tPROTO((rtx, rtx, rtx, rtx, rtx, rtx));\n"
+             "static int nfs4_dn_trace\tPROTO((void));\t/* w76-A20 */\n",
+             "distribute_notes proto")
+
+    # 2) helper definition just above distribute_notes' own comment block
+    a = "/* Given a chain of REG_NOTES originally from FROM_INSN, try to place them\n"
+    s = sub1(s, a, DN_HELPER + a, "dn helper def")
+
+    # 3) the ORPHAN emission trace (=1) -- inside the emission block, after the
+    #    basic_block_head fixup, while `tem` (the stopper) is still in scope.
+    a = ("\t      if (REG_NOTE_KIND (note) == REG_DEAD && place == 0 && tem != 0)\n"
+         "\t\t{\n"
+         "\t\t  place\n"
+         "\t\t    = emit_insn_after (gen_rtx (USE, VOIDmode, XEXP (note, 0)),\n"
+         "\t\t\t\t       tem);\n"
+         "\n"
+         "\t\t  /* If this insn was emitted between blocks, then update\n"
+         "\t\t     basic_block_head of the current block to include it.  */\n"
+         "\t\t  if (basic_block_end[this_basic_block - 1] == tem)\n"
+         "\t\t    basic_block_head[this_basic_block] = place;\n"
+         "\t\t}\n")
+    b = a[:-len("\t\t}\n")] + r"""
+		  /* w76-A20 [distribute_notes] ORPHAN trace */
+		  if (nfs4_dn_trace ())
+		    fprintf (stderr,
+			     "[distribute_notes] fn=%s ORPHAN reg=%d i3=%d from_insn=%d stopped_at=%s:%d use=%d\n",
+			     current_function_name ? current_function_name : "?",
+			     REGNO (XEXP (note, 0)), INSN_UID (i3),
+			     from_insn ? INSN_UID (from_insn) : -1,
+			     GET_RTX_NAME (GET_CODE (tem)), INSN_UID (tem),
+			     INSN_UID (place));
+		}
+	      /* w76-A20 [distribute_notes] walk-outcome trace (verbose =2) */
+	      if (nfs4_dn_trace () > 1)
+		fprintf (stderr,
+			 "[distribute_notes] fn=%s walk reg=%d i3=%d from_insn=%d place=%d tem=%s:%d kind=%d\n",
+			 current_function_name ? current_function_name : "?",
+			 GET_CODE (XEXP (note, 0)) == REG
+			 ? (int) REGNO (XEXP (note, 0)) : -1,
+			 INSN_UID (i3), from_insn ? INSN_UID (from_insn) : -1,
+			 place ? INSN_UID (place) : 0,
+			 tem ? GET_RTX_NAME (GET_CODE (tem)) : "null",
+			 tem ? INSN_UID (tem) : -1,
+			 (int) REG_NOTE_KIND (note));
+"""
+    s = sub1(s, a, b, "dn orphan trace")
+
+    wr(p, s)
+    print("  combine.c  [distribute_notes] patched")
+
+
+# =========================================================================
 if __name__ == '__main__':
     root = sys.argv[1] if len(sys.argv) > 1 else '.'
     print("patching gcc tree at %s" % os.path.abspath(root))
@@ -470,4 +622,6 @@ if __name__ == '__main__':
     patch_local_alloc(root)
     patch_reload1(root)
     patch_reload_pick(root)
+    patch_reload_order(root)
+    patch_distribute_notes(root)
     print("DONE")

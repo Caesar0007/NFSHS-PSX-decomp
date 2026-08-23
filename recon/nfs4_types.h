@@ -6228,7 +6228,8 @@ typedef int fixed824;
 typedef int fixed248;
 typedef void Trk_Chunk;
 typedef void *lpTrk_Chunk;
-typedef short *tPA32[32];
+/* SYM Def2: PTR ARY SHORT, dim 32 -- pointer to a 32-short row. */
+typedef short (*tPA32)[32];
 typedef Udff_tInfo *Udff_tHandle;
 typedef int AIPerson_tGlueTable[21];
 typedef AIScript_tReactionDetails AIScript_tScriptData[7];

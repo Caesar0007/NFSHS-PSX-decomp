@@ -15,7 +15,7 @@ extern char              *Paths_Paths[50];       /* 0x80116468 */
  * definition in textureprocess.cpp.  This whole run is retail's .sdata
  * 0x8013db74..0x8013db8c, in retail VA order.  Do NOT re-sort. */
 extern int                gZDepth;               /* 0x8013db74 */
-extern TP_tZPaletteSystem TP_gZPaletteSystem;    /* 0x8013db78 */
+extern TP_ZPaletteSystem TP_gZPaletteSystem;    /* 0x8013db78 */
 extern int                Fog_gNumKeys;          /* 0x8013db7c */
 /* PER-ELEMENT SPLIT (w39-a10): retail's .sdata carries these as TWO separate
    4-byte dlabels (Fog_gCurrentKey @0x8013db80, D_8013DB84 @0x8013db84), and

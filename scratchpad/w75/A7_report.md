@@ -168,6 +168,32 @@ p819  REG_LIVE_LENGTH 129 -> >=200 (ties break by lower pseudo, 818 < 819)
       OR  REG_N_REFS  18 -> <=14   (two mentions removed)
 ```
 
+**🏆 IT IS PROVABLY A JOINT (2-PSEUDO) CELL — exhaustive single-pseudo sweep.**
+`scratchpad/w75/A7_single.py` re-runs the whole allocation once per candidate and
+checks all four seats. Search space, every point evaluated:
+
+```
+p818 REG_N_REFS       2 .. 60          (59 points)
+p819 REG_N_REFS       2 .. 60          (59 points)
+p819 REG_LIVE_LENGTH  20 .. 800 by 10  (79 points)
+p818 REG_LIVE_LENGTH  20 .. 800 by 10  (79 points)
+  => SINGLE-PSEUDO SOLUTIONS: NONE
+  => joint control (818:refs=20 + 819:refs=14): True
+```
+
+So **no** dial on `id2` alone and **no** dial on `facet_flag` alone can reach retail's
+handout at any magnitude — the flip requires moving *both* pseudos across each other,
+which is precisely why every single-axis attempt in this and earlier waves failed.
+This is catalog 23B-1 ("price CELLS, not axes") with an exhaustive proof rather than
+a sample, and it retires the class as a single-dial target for good.
+
+*(`tools/reqdelta.py` was the intended instrument here and is NOT usable on this
+function: it buffers all output and was still running at a 1200 s cap on a
+108-allocno fn at `--max 80`, so a timeout yields **zero** partial results — `RC=124`,
+empty file. The `allocsim` sweep above answers the same question in ~4 minutes.
+Process note for the tool owner: reqdelta wants incremental flushing and/or an
+early-exit, and its `--max` cost is superlinear in allocno count.)*
+
 **Falsified realizations (all measured this belt — do not re-run):**
 * multi-operand read-only fences on id0/id1/id2 — the full ref ladder, 7 cells
   including the model's own (5,5,6): **68 … 118**, all worse than 62. The fence

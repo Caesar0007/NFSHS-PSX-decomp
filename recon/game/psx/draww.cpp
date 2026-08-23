@@ -3185,7 +3185,7 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
   matrixtdef matrix;               /* AUTO -0x88 -> 32(sp) */
   coorddef cp;                     /* AUTO -0x60 -> 72(sp) */
   coorddef pt2;                    /* AUTO -0x50 -> 88(sp) */
-  int animType;                    /* SYM-CODEGEN-CARRIER: direct field tests are FAIL 2 (189/189; sltiu vs retail slti) */
+  int animType;                    /* SYM-CODEGEN-CARRIER: animType -- direct field tests are FAIL 2 (189/189; sltiu vs retail slti) */
 
   
   /* NEGATIVE (w41-a2, both halves measured, both REVERTED).  SYM declares `sd`
@@ -3531,8 +3531,8 @@ gte_SetTransMatrix((void *)0x1f800014);
              The index-term-first cast is what flips `addu v0,v1,v0` to retail's
              `addu v0,v0,v1`; the w61-a2 falsification of that same 12D spelling
              was priced in the OLD (hoisted) basin -- 21E(1) re-pricing. */
-          { int zo = objInstance->zoffset; /* SYM-CODEGEN-CARRIER: index temp is one part of the measured PASS joint cell */
-            signed char *g;               /* SYM-CODEGEN-CARRIER: second SET prevents loop.c hoisting; removing it loses PASS */
+          { int zo = objInstance->zoffset; /* SYM-CODEGEN-CARRIER: zo -- index temp is one part of the measured PASS joint cell */
+            signed char *g;               /* SYM-CODEGEN-CARRIER: g -- second SET prevents loop.c hoisting; removing it loses PASS */
             __asm__("" : : "i"(0));
             g = goffsets;
             __asm__("" : "=r"(g) : "0"(g));

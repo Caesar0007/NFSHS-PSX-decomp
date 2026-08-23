@@ -6,6 +6,9 @@
 #include "hrzsku_types.h"
 #include "hrzsku_externs.h"
 
+/* PsyQ ordering-table tag used by the SDK addPrim()/setaddr()/getaddr() macros. */
+typedef struct { unsigned addr : 24, len : 8; } Hrz_PTag;
+
 /* ---- link-harness owned-global definition (extern-declared, never defined) ---- */
 int Hrz_gProjResultZ0; int Hrz_gProjScratch_9C;  /* HrzSku.obj-owned projection scratch (BSS) */
 
@@ -109,7 +112,7 @@ void Horizon_InterpolateLineSCoords(DVECTOR *sc,DVECTOR *s0,DVECTOR *s1,int *per
 {
   int i;
   int p;
-  int pv;
+  int pv; /* SYM-CODEGEN-CARRIER: pv -- pre-loop read preserves the retail LICM/reference shape */
 
   if (bPercentageArray != 0) {
     if (0 < n) {
@@ -194,12 +197,11 @@ void Horizon_InterpolateLineSCoords(DVECTOR *sc,DVECTOR *s0,DVECTOR *s1,int *per
 void Sky_InitStars(void)
 
 {
-  int seed;
   int i;
   long oldSeed;
 
   if (starPosInSky == (SVECTOR *)0x0) {
-    seed = random();
+    oldSeed = random();
     seedrandom(Sky_gTrackSpec->starRandomSeed);
     starPosInSky = (SVECTOR *)reservememadr("stars",Sky_gTrackSpec->numStars << 3,0);
     starColors = (u_long *)reservememadr("starCols",Sky_gTrackSpec->numStars << 2,0);
@@ -228,7 +230,7 @@ void Sky_InitStars(void)
                    starBright % (Sky_gTrackSpec->starBrightMax - Sky_gTrackSpec->starBrightMin);
       starColors[i] = starBright * 0x10000 | starBright * 0x100 | starBright;
     }
-    seedrandom(seed);
+    seedrandom(oldSeed);
   }
   return;
 }
@@ -540,41 +542,18 @@ void Hrz_Init2DRing(void)
 void Hrz_GetHorizonPixMap(Draw_tPixMap *p)
 
 {
-  Draw_tPixMap **skytbl_walk;
-  Draw_tPixMap *p_walk;
-  void *tp2;
-  int tp3;
-  int extra_pmx;
   int i;
-  int src_off;
-  int dst_off;
-  int pixmap_base;
-  int pixmap_base2;
 
   i = 0xb;
-  pixmap_base = (int)&gHorizonPixmap;
-  skytbl_walk = (Draw_tPixMap **)(pixmap_base + 0x2c);
-  p_walk = p + 0xb;
   do {
-    *skytbl_walk = p_walk;
-    skytbl_walk = skytbl_walk + -1;
+    gHorizonPixmap[i] = p + i;
     i = i - 1;
-    p_walk = p_walk + -1;
   } while (-1 < i);
   i = 0;
-  pixmap_base2 = (int)&gHorizonPixmap;
-  dst_off = 0x30;
-  extra_pmx = (int)&gHorizonExtraSkyPixmaps;
-  src_off = 0x20;
   do {
-    tp2 = (void *)(src_off + pixmap_base2);
-    src_off = src_off + 4;
+    Texture_CloneUVPmx(gHorizonPixmap[i + 8],0,&gHorizonExtraSkyPixmaps[i]);
+    gHorizonPixmap[i + 12] = &gHorizonExtraSkyPixmaps[i];
     i = i + 1;
-    Texture_CloneUVPmx(*(Draw_tPixMap **)tp2,0,(Draw_tPixMap *)extra_pmx);
-    tp3 = dst_off + pixmap_base2;
-    dst_off = dst_off + 4;
-    *(int *)tp3 = extra_pmx;
-    extra_pmx = extra_pmx + 0x10;
   } while (i < 4);
   return;
 }
@@ -700,10 +679,10 @@ void Hrz_TextureQuad(DVECTOR *pt,char type,char bright,Draw_DCache *sd)
   u_long l1;
   u_long l2;
   u_long l3;
-  Draw_tPixMap *pmx;
-  u_char *pal;
-  u_int *slot;
-  u_int tag;
+  Draw_tPixMap *pmx; /* SYM-CODEGEN-CARRIER: pmx -- load-four/store-four pixmap copy requires one shared source pointer */
+  u_char *pal;       /* SYM-CODEGEN-CARRIER: pal -- caches the fixed scratchpad palette pointer exactly once */
+  u_int *slot;       /* SYM-CODEGEN-CARRIER: slot -- preserves the retail index-first OT address chain and staged RMW */
+  u_int tag;         /* SYM-CODEGEN-CARRIER: tag -- keeps the packet-pointer store between the OT load and store */
 
   prim = (POLY_FT4 *)Render_gPacketPtr;
   pal = Render_gPalettePtr;
@@ -801,12 +780,14 @@ void Hrz_BuildForkLightning(Draw_DCache *sd)
   return;
 }
 
-/* ---- Hrz_LightningFlicker__Fi  [HRZSKU.CPP:901-954] SLD-VERIFIED ---- */
+/* ---- Hrz_LightningFlicker__Fi  [HRZSKU.CPP:901-954] SLD-VERIFIED ----
+ * SYM lists only `i`; removing source carrier `col` and storing each literal directly is
+ * count-exact but FAIL 4 (55/55), moving both loop-setup `li a1,84` sites. */
 void Hrz_LightningFlicker(int on)
 
 {
   int i;
-  u_int col;
+  u_int col; /* SYM-CODEGEN-CARRIER: col -- shared branch colour preserves retail loop setup */
 
   if (on != 0) {
     if (on == 1) {
@@ -1300,20 +1281,17 @@ void HrzSetPsxMatrix(matrixtdef *m)
 void HrzSetPsxTranslation(coorddef *t)
 {
   MATRIX mpsx;
-  int *tt = (int *)t;
 
-  mpsx.t[0] = tt[0] >> 10;
-  mpsx.t[1] = tt[1] >> 10;
-  mpsx.t[2] = tt[2] >> 10;
+  mpsx.t[0] = ((int *)t)[0] >> 10;
+  mpsx.t[1] = ((int *)t)[1] >> 10;
+  mpsx.t[2] = ((int *)t)[2] >> 10;
   gte_SetTransMatrix(&mpsx);
 }
 
 /* ---- Hrz_RotProj16__FiP7SVECTORPiP7DVECTOR  [HRZSKU.CPP:1032-1045] SLD-VERIFIED ---- */
 void Hrz_RotProj16(int n, SVECTOR *s, int *z, DVECTOR *p)
 {
-  int i;
-
-  for (i = n - 1; i != -1; i--) {
+  for (n = n - 1; n != -1; n--) {
     gte_ldv0(s);                  /* load vx,vy,vz into VXY0/VZ0 */
     gte_rtps();                   /* rotate / transform / perspective */
     s = s + 1;
@@ -1329,8 +1307,8 @@ void Hrz_SetDitheringPrim(int dither,int otz)
 
 {
   DR_MODE *prim;
-  u_int *prev_pkt_slot;
-  u_int prev_val;
+  u_int *prev_pkt_slot; /* SYM-CODEGEN-CARRIER: prev_pkt_slot -- shared indexed palette cell; direct expressions are FAIL 24 (36/34) */
+  u_int prev_val; /* SYM-CODEGEN-CARRIER: prev_val -- removing the staged palette word is FAIL 4 (34/34) */
 
   prev_pkt_slot = (u_int *)(otz * 4 + (int)Render_gPalettePtr);
   prim = (DR_MODE *)Render_gPacketPtr;
@@ -1923,36 +1901,21 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
         if ((scnt.vx <= (sd->head).clipW) && (-1 < scnt.vx) &&
             ((short)((transformed.vy >> 2) + pshift) <= (sd->head).clipH) &&
             (-1 < (short)((transformed.vy >> 2) + pshift))) {
-          /* MATCH (w38-a10): ONE-EXPRESSION `otz*4 + (int)pal` slot form (the same idiom
+          /* MATCH (w38-a10): ONE-EXPRESSION ordering-table slot form (the same idiom
              as Hrz_TextureQuad@652 / Hrz_BuildSky@861). The earlier two-statement
              sll-then-add chain cost an extra insn AND a t2/a1 base-vs-index swap
              (11 diffs, ours 112 vs oracle 111); the single expression makes the shift
              result itself the addu dest + accumulator == oracle `sll a1,s3,2 ;
              lui v0 ; lw v0 ; addu a1,a1,v0`. 11 -> 2 diffs, count exact.
-             w41-a8: PASS.  The last 2 diffs were the emission ORDER of the two
-             LICM-hoisted mask constants (ours lui 0xff000000 BEFORE lui 0xffffff, oracle
-             after).  LEVER (new; generalizes to the whole OT-link family): loop.c hoists
-             movables in INSN order = the order the constants are first GENERATED in RTL,
-             and inside `A & 0xff000000 | B & 0xffffff` that is ff000000-then-ffffff.
-             Flipping the OR operands DOES reorder the hoists but also flips which
-             subexpression lands in $v1 vs $v0 (measured 8 diffs; 12 with both statements
-             flipped).  The DECOUPLED fix: give the SECOND RMW's `(u_int)prim & 0xffffff`
-             its own temp evaluated BEFORE the first RMW (`pkt24` -- the Flare_Tri
-             `pkt_addr24` idiom).  The 0xFFFFFF def then precedes the 0xFF000000 def, the
-             movable list hoists in the oracle's order, and the first RMW keeps its
-             prim-mask-first evaluation.  Same tie is carried by Flare_*Flare + BuildSky. */
-          u_int *slot;
-          u_int tag;
-          u_int pkt24;
-          u_char *pal;
-          pal = Render_gPalettePtr;
-          slot = (u_int *)(otz * 4 + (int)pal);
+             w41-a8 reached PASS with hand-mask staging.  PASS-lock wave 18 replaces the
+             four reconstruction temporaries with the actual PsyQ addPrim bitfield source:
+             the 24-bit field lowering preserves the same mask order and remains PASS
+             111/111 while matching the SYM's no-local block. */
           prim = (TILE_1 *)Render_gPacketPtr;
-          pkt24 = (u_int)prim & 0xffffff;
-          *(u_int *)prim = *(u_int *)prim & 0xff000000 | *slot & 0xffffff;
-          tag = *slot;
+          ((Hrz_PTag *)prim)->addr =
+              ((Hrz_PTag *)(otz * 4 + (int)Render_gPalettePtr))->addr;
           Render_gPacketPtr = (u_char *)prim + 0xc;
-          *slot = tag & 0xff000000 | pkt24;
+          ((Hrz_PTag *)(otz * 4 + (int)Render_gPalettePtr))->addr = (u_int)prim;
           *(u_long *)((u_char *)prim + 4) = starColors[n];
           *((u_char *)prim + 3) = 2;
           *((u_char *)prim + 7) = 0x68;

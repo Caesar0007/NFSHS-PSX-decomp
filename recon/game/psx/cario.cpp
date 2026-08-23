@@ -32,24 +32,23 @@ void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player);
 void CarIO_ReleaseCarCluts(Car_tObj *carObj);
 
 
-/* ---- CarIO_StartUp__Fv  [CARIO.CPP:208-229] SLD-VERIFIED ---- */
+/* ---- CarIO_StartUp__Fv  [CARIO.CPP:208-229] SLD-VERIFIED ----
+ * PASS 27/27; the SYM's sole local is i($v1).  Indexed source lets strength
+ * reduction create the descending Draw_tPixMap pointer anonymously, removing
+ * the reconstructed pDVar1/iVar2 records without changing one instruction. */
 void CarIO_StartUp(void)
 
 {
-  Draw_tPixMap *pDVar1;
   int i;
-  int iVar2;
   
   if (CarIO_carPixMap == (Draw_tPixMap *)0x0) {
     CarIO_carPixMap = reservememadr("carPixMap",0x2640,0);
   }
-  iVar2 = 0x263;
-  pDVar1 = CarIO_carPixMap + 0x263;
+  i = 0x263;
   do {
-    pDVar1->flag = 0;
-    iVar2 = iVar2 + -1;
-    pDVar1 = pDVar1 + -1;
-  } while (-1 < iVar2);
+    CarIO_carPixMap[i].flag = 0;
+    i = i + -1;
+  } while (-1 < i);
   CarIO_carPixMapCount = 0;
   CarIO_carVRamCount = 0;
   CarIO_licenseSFX_Count = 0;
@@ -71,21 +70,19 @@ void CarIO_CleanUp(void)
   return;
 }
 
-/* ---- CarIO_ReStart__Fv  [CARIO.CPP:244-253] SLD-VERIFIED ---- */
+/* ---- CarIO_ReStart__Fv  [CARIO.CPP:244-253] SLD-VERIFIED ----
+ * PASS 19/19; same SYM-exact indexed-loop shape as CarIO_StartUp: only i($v1)
+ * is source-visible and gcc owns the descending pointer temporary. */
 void CarIO_ReStart(void)
 
 {
-  Draw_tPixMap *pDVar1;
   int i;
-  int iVar2;
-  
-  iVar2 = 0x263;
-  pDVar1 = CarIO_carPixMap + 0x263;
+
+  i = 0x263;
   do {
-    pDVar1->flag = 0;
-    iVar2 = iVar2 + -1;
-    pDVar1 = pDVar1 + -1;
-  } while (-1 < iVar2);
+    CarIO_carPixMap[i].flag = 0;
+    i = i + -1;
+  } while (-1 < i);
   CarIO_carPixMapCount = 0;
   CarIO_carVRamCount = 0;
   CarIO_CleanUpLicense(0);
@@ -331,10 +328,10 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
         u_short pixel3;
 
         if (i < 0) break;
-        int n0;
-        int n1;
-        int n2;
-        int n3;
+        int n0; /* SYM-CODEGEN-CARRIER: n0 -- named parallel nibble chain; the 576-cell assignment/OR sweep requires all four stages */
+        int n1; /* SYM-CODEGEN-CARRIER: n1 -- named parallel nibble chain */
+        int n2; /* SYM-CODEGEN-CARRIER: n2 -- named parallel nibble chain */
+        int n3; /* SYM-CODEGEN-CARRIER: n3 -- named parallel nibble chain */
 
         pixel3 = source[i];
         n0 = (pixel3 & 0xf) << 0xc;
@@ -811,8 +808,8 @@ void CarIO_CreateLicense(char *text,int carType,int player)
 void CarIO_CleanUpLicense(int player)
 
 {
-  shapetbl **ppPlate1;
-  shapetbl *psVar1;
+  shapetbl **ppPlate1; /* SYM-CODEGEN-CARRIER: ppPlate1 -- shared element-address walker; the measured index form is FAIL 6 */
+  shapetbl *psVar1; /* SYM-CODEGEN-CARRIER: psVar1 -- shared loaded plate passed to purgememadr */
 
   ppPlate1 = CarIO_Plate1 + player;
   psVar1 = *ppPlate1;
@@ -833,8 +830,8 @@ void CarIO_CleanUpLicense(int player)
 void CarIO_LicenseCheck(int reload,int *license_vx,int *license_vy,Car_tObj *carObj,int plate)
 
 {
-  int sVar1;
-  int sVar2;
+  int sVar1; /* SYM-CODEGEN-CARRIER: sVar1 -- separates the table value from the old license_vx load; canonical reuse is FAIL 2 */
+  int sVar2; /* SYM-CODEGEN-CARRIER: sVar2 -- paired table-value staging for the exact load widths */
   int sfx_vy;
   int sfx_vx;
   
@@ -1510,7 +1507,7 @@ void CarIO_UpdateCarTextureData(char *shpfile,Car_tObj *carObj,int player)
       recolor_flag = 0;
     }
     if (shape != (shapetbl *)0x0) {
-      Draw_tPixMap *pmx;
+      Draw_tPixMap *pmx; /* SYM-CODEGEN-CARRIER: pmx -- holds the index-term-first pixmap address */
 
       /* MATCH: index term FIRST in the address add -- the oracle emits
        * `addu a1,s5,v0` (scaled index, then the gp-loaded base); the natural

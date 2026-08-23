@@ -62,10 +62,10 @@ int Texture_CheckForSharedPalette(int test,char *data,Draw_tPixMap *pmx,int bpp)
 {
   int i;
   int j;
-  int count;             /* MATCH: a NAMED entry-count local -- gcc propagates the
+  int count;             /* SYM-CODEGEN-CARRIER: count -- a NAMED entry-count local -- gcc propagates the
                           * literal into the inner `slti` but keeps the register
                           * for the `beq j,count` full-match test (oracle $t4). */
-  int num;
+  int num; /* SYM-CODEGEN-CARRIER: num -- direct global bounds swap $t3/$t4 (16 diffs) */
   int *indata;
   int *checkdata;
 
@@ -245,20 +245,15 @@ void Texture_MenuReleaseClutId(short id)
 void Texture_ColorCarPalette(char *from,char *to,int numentry)
 
 {
-  int count;
-  short *src;
-  short entry;
-  
-  count = numentry + -1;
-  src = (short *)(from + Texture_CarColor * 0x20);
-  if (numentry != 0) {
+  numentry = numentry + -1;
+  from = from + Texture_CarColor * 0x20;
+  if (numentry != -1) {
     do {
-      entry = *src;
-      src = src + 1;
-      count = count + -1;
-      *(short *)to = entry;
+      *(short *)to = *(short *)from;
+      from = from + 2;
+      numentry = numentry + -1;
       to = (char *)((int)to + 2);
-    } while (count != -1);
+    } while (numentry != -1);
   }
   return;
 }
@@ -274,8 +269,7 @@ void Texture_CopyPalette(char *data,int width,int x,int y)
   short *dest;
   int i;
   short *source;
-  u_char zero;
-  short entry;
+  u_char zero; /* SYM-CODEGEN-CARRIER: zero -- pins retail's counter/destination coloring */
 
   zero = 0;
   i = zero;
@@ -285,10 +279,9 @@ void Texture_CopyPalette(char *data,int width,int x,int y)
   source = (short *)data;
   if (zero < width) {
     do {
-      entry = *source;
+      *dest = *source;
       source = source + 1;
       i = i + 1;
-      *dest = entry;
       dest = dest + 1;
     } while (i < width);
   }
@@ -342,13 +335,13 @@ void Texture_LoadImage(RECT *imgrect,u_long *p)
 void Texture_Vramf(shapetbl *shp,int x,int y,int clutx,int cluty)
 
 {
-  int rowpix;
-  int rowround;
-  u_int kind;            /* MATCH: UNSIGNED -- the oracle compares with sltu/sltiu */
-  shapetbl *nextshp;     /* MATCH: the list advance funnels through a temp that is
+  int rowpix; /* SYM-CODEGEN-CARRIER: rowpix -- preserves the signed row-rounding sequence */
+  int rowround; /* SYM-CODEGEN-CARRIER: rowround -- in-place rounded row width */
+  u_int kind; /* SYM-CODEGEN-CARRIER: kind -- unsigned range-test carrier */
+  shapetbl *nextshp; /* SYM-CODEGEN-CARRIER: nextshp -- list advance funnels through a temp that is
                           * then copied into shp (oracle: addu a0,...; addu s0,a0). */
   RECT r;
-  int deadfrm[4];        /* MATCH: SYM says fsize=80 with `r` the ONLY named AUTO
+  int deadfrm[4]; /* SYM-CODEGEN-CARRIER: deadfrm -- SYM says fsize=80 with `r` the ONLY named AUTO
                           * (at -0x40 => sp+0x10) and mask=$80ff0000 (ra + s0-s7,
                           * NO $fp).  16 bytes of gcc temp space sit above `r`;
                           * this filler reproduces the frame size. */
@@ -440,10 +433,10 @@ void Texture_Vramcf(shapetbl *shp,int x,int y,int clutx,int cluty)
   char*s;
   int rowbytes;
   int height;
-  int h;
-  int rowall;
-  int off;
-  short ybot;
+  int h; /* SYM-CODEGEN-CARRIER: h -- preserves the signed height copy */
+  int rowall; /* SYM-CODEGEN-CARRIER: rowall -- masked row width reused by both paths */
+  int off; /* SYM-CODEGEN-CARRIER: off -- shared row-tail byte offset */
+  short ybot; /* SYM-CODEGEN-CARRIER: ybot -- shared bottom-row coordinate */
   RECT r;
 
   /* MATCH: mask INTO rowall (ONE statement) -- the oracle parks the MASKED value
@@ -569,7 +562,8 @@ void Texture_LoadPmx(char *f,char *n,int ctrl,int rx,int ry,int cx,int cy,Draw_t
     /* MATCH: the masked word goes through its OWN temp before the != 0 test --
      * a direct `(word & 0x4000) != 0` lets gcc fold the single-bit test into
      * `srl 14; andi 1`; the temp keeps the oracle's `andi 0x4000; sltu zero,v0`. */
-    { int fl = *(u_int *)((char *)shpptr + 0xc) & 0x4000; rotated = (fl != 0); }
+    { int fl = *(u_int *)((char *)shpptr + 0xc) & 0x4000; /* SYM-CODEGEN-CARRIER: fl -- blocks single-bit fold */
+      rotated = (fl != 0); }
     if (rx == -1) {
       x = 0;
       y = 0xa0;
@@ -740,10 +734,10 @@ void Texture_InitTrackTexture(void)
 void Texture_InitMenuClut(void)
 
 {
-  short *pal4;
-  short *pal8;
-  u_short clut;
-  int cbase;
+  short *pal4; /* SYM-CODEGEN-CARRIER: pal4 -- loop pointer base */
+  short *pal8; /* SYM-CODEGEN-CARRIER: pal8 -- second-loop pointer base */
+  u_short clut; /* SYM-CODEGEN-CARRIER: clut -- in-place CLUT sequence value */
+  int cbase; /* SYM-CODEGEN-CARRIER: cbase -- source-hoisted loop invariant */
   int y;
   int x;
   
@@ -810,18 +804,15 @@ void Texture_InitMenuTexture(void)
 void Texture_CleanupMenuTexture(void)
 
 {
-  Draw_tPixMap **ppDVar1;
   int i;
   
   i = 0;
-  ppDVar1 = gMenuPixmap;
   do {
-    if (*ppDVar1 != (Draw_tPixMap *)0x0) {
-      Texture_MenuReleaseClutId((*ppDVar1)->clut);
+    if (gMenuPixmap[i] != (Draw_tPixMap *)0x0) {
+      Texture_MenuReleaseClutId(gMenuPixmap[i]->clut);
     }
-    *ppDVar1 = (Draw_tPixMap *)0x0;
+    gMenuPixmap[i] = (Draw_tPixMap *)0x0;
     i = i + 1;
-    ppDVar1 = ppDVar1 + 1;
   } while (i < 8);
   return;
 }
@@ -830,28 +821,27 @@ void Texture_CleanupMenuTexture(void)
 void Texture_LoadMenuTexture(void)
 
 {
-  char *shapefile;
   Draw_tPixMap *pmx;
   char *shpfile;
   char name [255];
 
   if (gMenuPixmap[0] == (Draw_tPixMap *)0x0) {
     sprintf(name,"%sshow.psh",Paths_Paths[0x19]);
-    shapefile = (char *)loadfileadr(name,0);
+    shpfile = (char *)loadfileadr(name,0);
     Texture_ResetPaletteSharing();
-    Texture_LoadPmx(shapefile,"show",0,0x380,0x180,-1,-1,gMenuPixmapAlloc);
+    Texture_LoadPmx(shpfile,"show",0,0x380,0x180,-1,-1,gMenuPixmapAlloc);
     gMenuPixmap[0] = gMenuPixmapAlloc;
-    Texture_LoadPmx(shapefile,"shad",0,0x380,0x180,-1,-1,gMenuPixmapAlloc + 1);
+    Texture_LoadPmx(shpfile,"shad",0,0x380,0x180,-1,-1,gMenuPixmapAlloc + 1);
     gMenuPixmap[1] = gMenuPixmapAlloc + 1;
-    Texture_LoadPmx(shapefile,"lgt3",0,0x380,0x180,-1,-1,gMenuPixmapAlloc + 2);
+    Texture_LoadPmx(shpfile,"lgt3",0,0x380,0x180,-1,-1,gMenuPixmapAlloc + 2);
     gMenuPixmap[3] = gMenuPixmapAlloc + 2;
-    Texture_LoadPmx(shapefile,"lgta",0,0x380,0x180,-1,-1,gMenuPixmapAlloc + 3);
+    Texture_LoadPmx(shpfile,"lgta",0,0x380,0x180,-1,-1,gMenuPixmapAlloc + 3);
     gMenuPixmap[4] = gMenuPixmapAlloc + 3;
-    Texture_LoadPmx(shapefile,"lgtb",0,0x380,0x180,-1,-1,gMenuPixmapAlloc + 4);
+    Texture_LoadPmx(shpfile,"lgtb",0,0x380,0x180,-1,-1,gMenuPixmapAlloc + 4);
     gMenuPixmap[5] = gMenuPixmapAlloc + 4;
-    Texture_LoadPmx(shapefile,"lgtc",0,0x380,0x180,-1,-1,gMenuPixmapAlloc + 5);
+    Texture_LoadPmx(shpfile,"lgtc",0,0x380,0x180,-1,-1,gMenuPixmapAlloc + 5);
     gMenuPixmap[6] = gMenuPixmapAlloc + 5;
-    purgememadr(shapefile);
+    purgememadr(shpfile);
   }
   return;
 }

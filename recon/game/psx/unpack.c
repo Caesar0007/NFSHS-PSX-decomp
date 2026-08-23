@@ -64,24 +64,22 @@ long unpack(void *src, void *dst)
 long unpacksizez(void *src)
 {
   long len = 0;
-  int magic;
 
   if ((((u_char *)src)[1] == 0xfb) || (((u_char *)src)[1] == 0x32)) {
-    magic = *(u_char *)src & 0xfe;
-    if (magic == 0x32) goto ok;
-    if (magic < 0x33) {
-      if (magic == 0x18) goto ok;
-      if (magic < 0x19) {
-        if (magic == 0x10) goto ok;
+    if ((short)(*(u_char *)src & 0xfe) == 0x32) goto ok;
+    if ((short)(*(u_char *)src & 0xfe) < 0x33) {
+      if ((short)(*(u_char *)src & 0xfe) == 0x18) goto ok;
+      if ((short)(*(u_char *)src & 0xfe) < 0x19) {
+        if ((short)(*(u_char *)src & 0xfe) == 0x10) goto ok;
       } else {
-        if (magic == 0x30) goto ok;
+        if ((short)(*(u_char *)src & 0xfe) == 0x30) goto ok;
       }
     } else {
-      if (magic == 0x46) goto ok;
-      if (magic < 0x47) {
-        if (magic == 0x34) goto ok;
+      if ((short)(*(u_char *)src & 0xfe) == 0x46) goto ok;
+      if ((short)(*(u_char *)src & 0xfe) < 0x47) {
+        if ((short)(*(u_char *)src & 0xfe) == 0x34) goto ok;
       } else {
-        if (magic == 0x4a) goto ok;
+        if ((short)(*(u_char *)src & 0xfe) == 0x4a) goto ok;
       }
     }
     goto done;

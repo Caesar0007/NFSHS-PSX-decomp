@@ -338,8 +338,8 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
        * "the one untried instrument remains the -dl/-dg allocno dump" note --
        * the dump was the instrument, and the answer was a JOINT dial pair
        * (the same joint-sweep law that cracked CarIO_CopyToShape this wave). */
-      { u_int *ot2 = (u_int *)(sd->otz * 4 + (int)Render_gPalettePtr);
-      u_int w = *ot2;
+      { u_int *ot2 = (u_int *)(sd->otz * 4 + (int)Render_gPalettePtr); /* SYM-CODEGEN-CARRIER: ot2 */
+      u_int w = *ot2; /* SYM-CODEGEN-CARRIER: w -- keeps the retail OT read/bump/write schedule */
       addr24 = (u_int)prim & 0xffffff;
       Render_gPacketPtr = (u_char *)prim + 0x28;
       *ot2 = w & 0xff000000 | addr24; }
@@ -898,7 +898,7 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
       int radius;
       int cosa;
       int sina;
-      sfxsouffle *ds;
+      sfxsouffle *ds; /* SYM-CODEGEN-CARRIER: ds -- register-base view required for retail vertex stores */
 
       radius = 0x88 - (u_char)is->cycle;
       cosa = fixedmult(fastintcos(is->angle),radius);
@@ -1013,8 +1013,11 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
       sfxsouffle *ds;
       POLY_FT4 *prim;
       SVECTOR *pt;
-      u_int p0f,p1f,p2f,p3f;
-      int link;
+      u_int p0f; /* SYM-CODEGEN-CARRIER: p0f -- instrumented allocation-trace pixmap word */
+      u_int p1f; /* SYM-CODEGEN-CARRIER: p1f -- instrumented allocation-trace pixmap word */
+      u_int p2f; /* SYM-CODEGEN-CARRIER: p2f -- instrumented allocation-trace pixmap word */
+      u_int p3f; /* SYM-CODEGEN-CARRIER: p3f -- instrumented allocation-trace pixmap word */
+      int link; /* SYM-CODEGEN-CARRIER: link -- retail OT-link staging value */
 
       cosa = fixedmult(fastintcos(is->angle),6);
       sina = fixedmult(fastintsin(is->angle),6);
@@ -1120,14 +1123,14 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
              the cheapest).  The W71 falsification list above stands: none of those
              spellings changes REFS, which is why every one of them was inert. */
           {
-          u_int m = 0xffffff;
+          u_int m = 0xffffff; /* SYM-CODEGEN-CARRIER: m -- measured qty ref-step mask */
           prim = (POLY_FT4 *)Render_gPacketPtr;
           prim->tag = prim->tag & 0xff000000 |
                       *(u_int *)(Render_gPalettePtr + sd->otz * 4) & m;
           __asm__("" : : "r"(m), "r"(m));
           {
-            u_int *ot2 = (u_int *)(sd->otz * 4 + (int)Render_gPalettePtr);
-            u_int w = *ot2;
+            u_int *ot2 = (u_int *)(sd->otz * 4 + (int)Render_gPalettePtr); /* SYM-CODEGEN-CARRIER: ot2 */
+            u_int w = *ot2; /* SYM-CODEGEN-CARRIER: w -- lifts OT read before cursor store */
             link = (u_int)prim & m;
             Render_gPacketPtr = (u_char *)prim + 0x28;
             *ot2 = w & 0xff000000 | link;
@@ -1145,20 +1148,17 @@ void Sfx_BuildSouffleFacet(DRender_tView *Vi,Souffle_tISouffle *is)
 void Sfx_Add(Souffle_tISouffle *is)
 
 {
-  char cycle;
-
   switch((u_char)is->type) {
   case 1:
   case 2:
   case 3:
-    cycle = 0x1f;
-    goto SfxAdd_setRandom;
+    is->cycle = 0x1f;
+    is->rndpixmap = random() & 1;
+    return;
   case 6:
   case 7:
   case 9:
-    cycle = 8;
-SfxAdd_setRandom:
-    is->cycle = cycle;
+    is->cycle = 8;
     is->rndpixmap = random() & 1;
     return;
   case 11:

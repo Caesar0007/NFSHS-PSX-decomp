@@ -66,10 +66,10 @@ void Loading_DrawLoadingScreen(void)
 void Loading_UpdateLoadingScreen(int checkpoint)
 
 {
-  shapetbl *tile;
+  shapetbl *tile; /* SYM-CODEGEN-CARRIER: tile -- nested call is 44 diffs, 64/62 */
   int i;
   int max;
-  int y;
+  int y; /* SYM-CODEGEN-CARRIER: y -- required for retail addend reassociation */
   char name [255];
 
   max = 0x17;

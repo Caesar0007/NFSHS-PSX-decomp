@@ -91,22 +91,21 @@ int Device_VerifyType(int port)
   return 1;
 }
 
-/* ---- Device_Fail__Fi  [DEVICE.CPP:72-87] SLD-VERIFIED ---- */
+/* ---- Device_Fail__Fi  [DEVICE.CPP:72-87] SLD-VERIFIED ----
+ * PASS 28/28; SYM names only the file-static failtime[2].  Direct use of the
+ * VerifyType result and repeated indexed byte expression lets gcc create the
+ * unnamed temporaries, avoiding the fabricated iVar2/bVar1 debug records. */
 int Device_Fail(int port)
 
 {
   static u_char failtime[2];   /* @0x8013dde4 STAT (.bss) */
-  u_char bVar1;
-  int iVar2;
 
-  iVar2 = Device_VerifyType(port);
-  if (iVar2 != 0) {
+  if (Device_VerifyType(port) != 0) {
     failtime[port != 0] = '\0';
   }
   else {
-    bVar1 = failtime[port != 0];
-    if ((u_int)bVar1 < 9) {
-      failtime[port != 0] = bVar1 + 1;
+    if ((u_int)failtime[port != 0] < 9) {
+      failtime[port != 0] = failtime[port != 0] + 1;
     }
     else {
       return 1;
@@ -115,13 +114,17 @@ int Device_Fail(int port)
   return 0;
 }
 
-/* ---- Device_Update__Fv  [DEVICE.CPP:109-160] SLD-VERIFIED ---- */
+/* ---- Device_Update__Fv  [DEVICE.CPP:109-160] SLD-VERIFIED ----
+ * PASS 56/56.  The call-result iVar2 was removable and is now direct.  The
+ * remaining iVar1 is a measured PASS carrier: deleting it makes gcc preserve
+ * the GameSetup array base in $s0 and reload word 3 after Device_Fail (59
+ * instructions), whereas retail preserves the loaded word itself in $s0.
+ * SYM emits no local record, so this carrier remains explicitly backlogged. */
 void Device_Update(void)
 
 {
-  int iVar1;
-  int iVar2;
-  
+  int iVar1; /* SYM-CODEGEN-CARRIER: iVar1 -- removal changes PASS 56 to 59 insns */
+
   PAD_update();
   if (simVar[2] != 0) {
     Device_gPaused = 1;
@@ -135,15 +138,14 @@ void Device_Update(void)
     Device_gToggleTime[1] = 0;
   }
   if (simVar[2] == 0) {
-    iVar2 = Device_Fail(0);
-    if (iVar2 != 0) {
+    if (Device_Fail(0) != 0) {
       Device_gForcePause = 1;
       Device_gPausePort = 0;
       Device_gPausePortIndex = '\0';
     }
     else {
       iVar1 = GameSetup_gData[3];
-      if ((iVar1 == 1) && (iVar2 = Device_Fail(4), iVar2 != 0)) {
+      if ((iVar1 == 1) && (Device_Fail(4) != 0)) {
         Device_gForcePause = iVar1;
         Device_gPausePort = 4;
         Device_gPausePortIndex = (char)iVar1;
@@ -187,20 +189,17 @@ void Device_SetHardCodedKeys(void)
   return;
 }
 
-/* ---- Device_PSXPad__FUl  [DEVICE.CPP:244-250] SLD-VERIFIED ---- */
+/* ---- Device_PSXPad__FUl  [DEVICE.CPP:244-250] SLD-VERIFIED ----
+ * PASS 26/26; SYM names no locals.  The VerifyType call and pad-state load are
+ * intentionally direct so their compiler temporaries emit no iVar1/state defs. */
 int Device_PSXPad(u_long param)
 
 {
-  int iVar1;
-  u_short state;
-
-  iVar1 = Device_VerifyType(param >> 0x10);
-  if (iVar1 == 0) {
+  if (Device_VerifyType(param >> 0x10) == 0) {
     return 0;
   }
-  state = *(u_short *)((int)&gPadinfo[0].data.standard.state + 4 +
-                        (param >> 0x10) * sizeof(PAD_COMMON));
-  if (((u_short)~state & param) != 0) {
+  if (((u_short)~*(u_short *)((int)&gPadinfo[0].data.standard.state + 4 +
+                              (param >> 0x10) * sizeof(PAD_COMMON)) & param) != 0) {
     return 0xff;
   }
   return 0;

@@ -88,8 +88,8 @@ Skidmark_CheckChunk(coorddef *skidpt,int newsegs,int slice)
 
 {
   int NewChunk;
-  int d;
-  int nseg;
+  int d; /* SYM-CODEGEN-CARRIER: d -- preserves separate signed axis compare arms */
+  int nseg; /* SYM-CODEGEN-CARRIER: nseg -- required for the in-place segment sum */
   Skidmark_Chunk *returnsm;
 
   returnsm = gSm + gUseSm;
@@ -173,7 +173,7 @@ void Skidmark_Add(tSkid *prevskid,coorddef *skidpt,CVECTOR *color,int tireWidth,
 
 {
   Skidmark_Chunk *sm;
-  int n;
+  int n; /* SYM-CODEGEN-CARRIER: n -- prevents non-retail cross-jump over-merging */
 
   if (prevskid->nseg == (Skidmark_Segment *)0x0) {
     sm = Skidmark_CheckChunk(skidpt,2,slice);
@@ -239,7 +239,7 @@ void Skidmark_AddStretch(Skidmark_Segment **save,int *savechunk,tSkid *prevskid,
 
 {
   Skidmark_Chunk *sm;
-  int n;
+  int n; /* SYM-CODEGEN-CARRIER: n -- preserves the per-arm segment-index web */
 
   if (prevskid->nseg == (Skidmark_Segment *)0x0) {
     sm = Skidmark_CheckChunk(skidpt,2,slice);

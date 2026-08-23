@@ -75,15 +75,13 @@ void Font_TextTint(int rgb)
 void Font_SetABR(int abr)
 
 {
-  int y;
-  int val;
+  int y; /* SYM-CODEGEN-CARRIER: y -- inlining swaps $a2/$a3 (6 diffs, 18/18) */
 
   font_abr = abr;
-  val = *(int *)((*(int *)((u_char *)&(currentfont) + 136)) + 0xc);
-  y = (val << 4) >> 20;
+  y = (*(int *)((*(int *)((u_char *)&(currentfont) + 136)) + 0xc) << 4) >> 20;
   font_currentTPage =
        GetTPage(*(u_char *)(*(int *)((u_char *)&(currentfont) + 136)) & 3,abr,
-                  (val << 0x14) >> 0x14,
+                  (*(int *)((*(int *)((u_char *)&(currentfont) + 136)) + 0xc) << 0x14) >> 0x14,
                   y);
   return;
 }
@@ -122,6 +120,7 @@ void Font_SetABR(int abr)
 void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int tpage)
 
 {
+  /* SYM-CODEGEN-CARRIER: tpage -- unused ABI parameter required by the blitter signature */
   int width;
   int height;
   SPRT *sprt;
@@ -273,18 +272,15 @@ Font_textbsearch(int key,char *base,u_long nmemb,u_long size)
 charactertbl * Font_Getcharacter(int targetindex)
 
 {
-  u_int base_00;
-  int probe_idx;
+  u_int base_00; /* SYM-CODEGEN-CARRIER: base_00 -- removal shrinks 35 to 33 insns */
   charactertbl *ch;
-  charactertbl *p;
   char *base;
 
   base = (char *)&(currentfont);
   base_00 = (*(int *)(base + 132));
-  p = (charactertbl *)((*(int *)(base + 132)) + (targetindex + -0x20) * 0xb);
-  probe_idx = geti(p,2);
-  if (probe_idx == targetindex) {
-    return p;
+  ch = (charactertbl *)((*(int *)(base + 132)) + (targetindex + -0x20) * 0xb);
+  if (geti(ch,2) == targetindex) {
+    return ch;
   }
   return Font_textbsearch(targetindex,(char *)base_00,(*(int *)(base + 116)),0xb);
 }
@@ -339,11 +335,9 @@ void Font_ReSetBlitter(void)
 void Font_SwitchFont(char *f1)
 
 {
-  charactertbl *pcVar1;
-  u_char *base;
-  u_char *pv1;
-  int c_val;
-  int abr_val;
+  u_char *base; /* SYM-CODEGEN-CARRIER: base -- anchors the MEM_IN_STRUCT_P store view */
+  u_char *pv1; /* SYM-CODEGEN-CARRIER: pv1 -- carries the current font shape pointer */
+  int abr_val; /* SYM-CODEGEN-CARRIER: abr_val -- measured load-placement carrier */
 
   setfont(f1);
   base = (u_char *)&(currentfont);
@@ -367,14 +361,13 @@ void Font_SwitchFont(char *f1)
     ((struct FontZeroView *)(base + 0x94))->b = 0;
     ((struct FontZeroView *)(base + 0x94))->c = 0;
   }
-  c_val = *(int *)(pv1 + 0xc);
   {
-    int arg3 = (c_val << 4) >> 0x14;
-    int arg2 = (c_val << 0x14) >> 0x14;
-    font_currentTPage = GetTPage(*(u_char *)pv1 & 3,abr_val,arg2,arg3);
+    int arg3 = (*(int *)(pv1 + 0xc) << 4) >> 0x14; /* SYM-CODEGEN-CARRIER: arg3 */
+    font_currentTPage = GetTPage(*(u_char *)pv1 & 3,abr_val,
+                                (*(int *)(pv1 + 0xc) << 0x14) >> 0x14,
+                                arg3);
   }
-  pcVar1 = Font_Getcharacter(0x20);
-  gFontSpaceWidth = pcVar1->advance;
+  gFontSpaceWidth = Font_Getcharacter(0x20)->advance;
   return;
 }
 
@@ -411,7 +404,7 @@ int Font_LoadFont(char *f1,int x,int y,char in_game)
   int i;
   int l;
   shapetbl *shp;
-  char *hdr;
+  char *hdr; /* SYM-CODEGEN-CARRIER: hdr -- named header base preserves retail constant association */
 
   setfont(f1);
   shp = (shapetbl *)(*(int *)((u_char *)&(currentfont) + 136));
@@ -471,7 +464,7 @@ void Font_TextXY(char *string,int x,int y)
   charactertbl *ch;
   int code;
   char *str;
-  u_char *cfbase;
+  u_char *cfbase; /* SYM-CODEGEN-CARRIER: cfbase -- direct currentfont uses add 2 insns/52 diffs */
 
   str = string;
   code = -1;
@@ -500,12 +493,8 @@ void Font_TextXY(char *string,int x,int y)
   }
   {
     DR_MODE *dr_mode;
-    u_int *pal;
-    int tpage;
 
     dr_mode = (DR_MODE *)Render_gPacketPtr;
-    pal = (u_int *)Render_gPalettePtr;
-    tpage = (int)font_currentTPage;
     /* w45-a3: PASS 86/86 (was 8).  This tail IS PsyQ addPrim(pal, dr_mode):
      *   setaddr(dr_mode, getaddr(pal));  bump;  setaddr(pal, dr_mode);
      * BOTH halves must go through the P_TAG BITFIELD.  The value side being a
@@ -519,10 +508,10 @@ void Font_TextXY(char *string,int x,int y)
      * as a PAIR with Weather_DoWeather's DR_MODE tail" verdict was WRONG: those two
      * literals only existed because the link was hand-rolled as word RMWs.  Bitfield
      * stores have no mask constants to rotate. */
-    ((Font_PTag *)dr_mode)->addr = ((Font_PTag *)pal)->addr;
-    ((Font_PTag *)pal)->addr = (u_long)dr_mode;
+    ((Font_PTag *)dr_mode)->addr = ((Font_PTag *)Render_gPalettePtr)->addr;
+    ((Font_PTag *)Render_gPalettePtr)->addr = (u_long)dr_mode;
     Render_gPacketPtr = (u_char *)dr_mode + 0xc;
-    SetDrawMode(dr_mode,0,0,tpage,(RECT *)0x0);
+    SetDrawMode(dr_mode,0,0,(int)font_currentTPage,(RECT *)0x0);
   }
   return;
 }

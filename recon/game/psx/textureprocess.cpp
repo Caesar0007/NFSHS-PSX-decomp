@@ -13,7 +13,7 @@ FogKey *Fog_gHeadKey;
  * adjacent retail element labels; Fog_gCurrentKeyArr is the indexed view. */
 FogKey *Fog_gCurrentKey;
 FogKey *D_8013DB84;
-TP_tZPaletteSystem TP_gZPaletteSystem;
+TP_ZPaletteSystem TP_gZPaletteSystem;
 int Fog_gNumKeys;
 int gZDepth;
 
@@ -25,16 +25,14 @@ static char fogstrspc[64];
 int TextureProcess_TransColorCheck(char *data,int numentry)
 
 {
-  u_short uVar1;
   int translucent_flag;
 
   translucent_flag = 0;
   while (1) {
     numentry = numentry - 1;
     if (numentry == -1) break;
-    uVar1 = *(u_short *)data;
+    translucent_flag = translucent_flag | (0x8000 < *(u_short *)data);
     data = (char *)((int)data + 2);
-    translucent_flag = translucent_flag | (0x8000 < uVar1);
   }
   return translucent_flag;
 }
@@ -43,14 +41,14 @@ int TextureProcess_TransColorCheck(char *data,int numentry)
 void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int cx,int cy)
 {
   short newdata [256];
-  int *spec;                     /* MATCH: the oracle materializes
+  int *spec; /* SYM-CODEGEN-CARRIER: spec -- the oracle materializes
                                   * la $v1,TrackSpec_gSpec ONCE and parks it in
                                   * $fp across the whole loop (lw 0x10, lbu
                                   * 0x14/0x15/0x16 off it); direct
                                   * TrackSpec_gSpec.fogspec.X references emit a
                                   * fresh fused %hi/%lo per access. */
   char *sourcedata;
-  short *p;
+  short *p; /* SYM-CODEGEN-CARRIER: p -- stack-output walker with load-order role */
   int contrasttemp;
   int j;
   u_short color;
@@ -120,7 +118,6 @@ int TextureProcess_DepthColorCluts(char *data,int numentry)
   int i;
   int cx;
   int cy;
-  int ret;
 
   DrawSync(0);
   i = 0;
@@ -131,8 +128,7 @@ int TextureProcess_DepthColorCluts(char *data,int numentry)
     TextureProcess_ColorClut(i,0x10,data,numentry,cx,cy);
     i = i + 1;
   }
-  ret = TP_gZPaletteSystem.numdepthclut++;
-  return ret;
+  return TP_gZPaletteSystem.numdepthclut++;
 }
 
 /* ---- Fog_CheckRange__FiP6FogKey  [TEXTUREPROCESS.CPP:639-661] SLD-VERIFIED ---- */
@@ -140,26 +136,22 @@ FogKey * Fog_CheckRange(int currentslice,FogKey *fkey)
 
 {
   FogKey *keynext;
-  int iVar2;
-  int iVar3;
 
   keynext = fkey->next;
-  iVar2 = (int)fkey->slice;
-  iVar3 = (int)keynext->slice;
   /* MATCH: direct returns (no result funnel) -- the oracle stages 0/fkey straight
    * into $v0 in the branch delay slots; a funnel local takes $a2 + a tail copy. */
-  if (iVar3 < iVar2) {
+  if (keynext->slice < fkey->slice) {
     /* MATCH: `||` short-circuit -- both arms fall into ONE `return fkey` block
      * (oracle beqz/beqz both target .L800E0BC4); split returns duplicate it. */
-    if ((iVar2 <= currentslice) || (currentslice < iVar3)) {
+    if ((fkey->slice <= currentslice) || (currentslice < keynext->slice)) {
       return fkey;
     }
     goto ret0;
   }
-  if (currentslice < iVar2) {
+  if (currentslice < fkey->slice) {
     goto ret0;
   }
-  if (currentslice < iVar3) {
+  if (currentslice < keynext->slice) {
     return fkey;
   }
 ret0:
@@ -170,24 +162,19 @@ ret0:
 FogKey * Fog_FindKey(int currentslice,FogKey *fkey)
 
 {
-  FogKey *pFVar1;
-  
   if (fkey == (FogKey *)0x0) {
     fkey = Fog_gHeadKey;
   }
-  pFVar1 = Fog_CheckRange(currentslice,fkey);
-  if (pFVar1 == (FogKey *)0x0) {
+  if (Fog_CheckRange(currentslice,fkey) == (FogKey *)0x0) {
     if (currentslice < fkey->slice) {
       do {
         fkey = fkey->prev;
-        pFVar1 = Fog_CheckRange(currentslice,fkey);
-      } while (pFVar1 == (FogKey *)0x0);
+      } while (Fog_CheckRange(currentslice,fkey) == (FogKey *)0x0);
     }
     else {
       do {
         fkey = fkey->next;
-        pFVar1 = Fog_CheckRange(currentslice,fkey);
-      } while (pFVar1 == (FogKey *)0x0);
+      } while (Fog_CheckRange(currentslice,fkey) == (FogKey *)0x0);
     }
   }
   return fkey;
@@ -197,30 +184,24 @@ FogKey * Fog_FindKey(int currentslice,FogKey *fkey)
 FogKey * Fog_AllocKey(void)
 
 {
-  FogKey *pFVar2;
-  int *piVar1;
   int i;
-  int one;                 /* MATCH: the "slot is free" marker held in a named
+  int one;                 /* SYM-CODEGEN-CARRIER: one -- the "slot is free" marker held in a named
                             * local -- the oracle materializes `li a2,1` right
                             * after i=0 and BEFORE the two base addresses; a bare
                             * literal in the compare gets it emitted last. */
 
   i = 0;
   one = 1;
-  pFVar2 = Fog_gBuf;
-  piVar1 = openkeys;
   do {
-    i = i + 1;
     /* MATCH: if/else with the ADVANCE as the if-arm -- the oracle keeps the
      * found-body INLINE (bne skips it); an early `return` if-arm makes gcc
      * invert the branch and push the found block past the loop exit. */
-    if (*piVar1 != one) {
-      pFVar2 = pFVar2 + 1;
-      piVar1 = piVar1 + 1;
+    if (openkeys[i] != one) {
+      i = i + 1;
     }
     else {
-      *piVar1 = 0;
-      return pFVar2;
+      openkeys[i] = 0;
+      return &Fog_gBuf[i];
     }
   } while (i < 0x20);
   return (FogKey *)0x0;
@@ -262,7 +243,10 @@ void Fog_AddKey(int slice,int distance)
   return;
 }
 
-/* ---- Fog_Update__Fi  [TEXTUREPROCESS.CPP:840-884] SLD-VERIFIED ---- */
+/* ---- Fog_Update__Fi  [TEXTUREPROCESS.CPP:840-884] SLD-VERIFIED ----
+ * SYM omits the `slot` cell pointer.  Direct indexed load/store is count-exact but
+ * FAIL 4 (81/81), swapping the slice load with the player-index shift; keep the shared
+ * cell address as a measured scheduling carrier. */
 void Fog_Update(int player)
 {
   int currentslice;
@@ -273,13 +257,15 @@ void Fog_Update(int player)
   int diffdistance;
   int final_dist;
   int numslices;
-  int start;
+  int start; /* SYM-CODEGEN-CARRIER: start -- branch-result join keeps the retail
+              * single final TrackSpec_gSpec[6] store; direct per-arm stores are
+              * FAIL 11 (82/81). */
 
   if (Fog_gNumKeys != 1) {
     BWorldSm_FindClosestQuadRez((coorddef *)(gCView + 2),fogslicePos + player,1);
     currentslice = fogslicePos[player].slice;
     {
-      FogKey **slot = &Fog_gCurrentKeyArr[player];
+      FogKey **slot /* SYM-CODEGEN-CARRIER: slot -- shared indexed cell keeps the retail load/index issue order */ = &Fog_gCurrentKeyArr[player];
       key = Fog_FindKey(currentslice,*slot);
       *slot = key;
     }
@@ -384,12 +370,12 @@ haveext:
 void Fog_InitFogTriggers(void)
 
 {
-  int *openkey_walk;
+  int *openkey_walk; /* SYM-CODEGEN-CARRIER: openkey_walk -- explicit reverse array walker */
   int num_player;
   int i;
   int k;
-  int slice_off;
-  int openval;
+  int slice_off; /* SYM-CODEGEN-CARRIER: slice_off -- loop-strength-reduction carrier */
+  int openval; /* SYM-CODEGEN-CARRIER: openval -- LICM-order constant carrier */
   
   openval = 1;
   i = 0x1f;
@@ -560,7 +546,6 @@ void CV_ProcessWorldColors_FINAL(int constrast,CVECTOR *color,short brightness)
 void CV_ColorTracks(int track,int weather,int night)
 
 {
-  u_char uVar1;
   short brightness;
   int contrast;
   CVECTOR color;
@@ -658,11 +643,9 @@ void CV_ColorTracks(int track,int weather,int night)
   if (GameSetup_gData[3] == 1) {
     if (((track == 2) && (weather == 1)) && (night == 1)) {
       contrast = -0x9c80;
-      uVar1 = '\x10';
-      /* MATCH: the shared "color.g = uVar1; brightness = 0x10" block is laid out
-       * at the track==4 site -- this arm JUMPS to it while the track==4 arm FALLS
-       * THROUGH into it; hosting the label here inlines a duplicate copy. */
-      goto CVColor_setColorG;
+      color.g = '\x10';
+      brightness = 0x10;
+      goto CVColor_emitFinal;
     }
     /* MATCH: FLAT per-case chain -- each arm re-tests `track` (the oracle has two
      * separate track==3 tests and two track==4 tests, with the compare constant
@@ -686,9 +669,7 @@ void CV_ColorTracks(int track,int weather,int night)
     }
     if (((track == 4) && (weather == 1)) && (night == 1)) {
       contrast = -0x10000;
-      uVar1 = '\x18';
-CVColor_setColorG:
-      color.g = uVar1;
+      color.g = '\x18';
       brightness = 0x10;
       goto CVColor_emitFinal;
     }

@@ -14,12 +14,12 @@ extern FONTFILECHAR *getcharacter(int code);   /* eaclib EACPSXZ glyph-info look
 /* ---- textnpixels  [TEXTPIX.C:61-98] SLD-VERIFIED ---- */
 int textnpixels(char *str, int n)
 {
-  FONTFILECHAR *ch;
+  struct charactertbl *ch;
   int code;
   int stringlen;
   int i;
   int dx;
-  unsigned char *fontbase;
+  unsigned char *fontbase; /* SYM-CODEGEN-CARRIER: fontbase -- direct form is 5 diffs, 36/37 */
 
   i = 0;
   stringlen = 0;

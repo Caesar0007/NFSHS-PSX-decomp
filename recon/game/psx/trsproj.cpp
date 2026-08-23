@@ -145,9 +145,8 @@ void TrsProj_TransPtN16(RelCoord16 *s,coorddef *d,int n)
 {
   SVECTOR pt;
   VECTOR tv;
-  int i;
 
-  for (i = n - 1; i != -1; i = i - 1) {
+  for (n = n - 1; n != -1; n = n - 1) {
     pt.vx = s->x;
     pt.vy = 0;
     pt.vz = s->z;

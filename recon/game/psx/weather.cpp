@@ -253,39 +253,34 @@ void Weather_InitRain(void)
  * B-row EXIT-IN-THE-MIDDLE form -- `while(true){ result = i<19; if (result==0) break; body; i++; }`
  * (increment at body END, break tested via the result var, NOT a for(;;i++) head-increment) keeps
  * the oracle's top-test `slti;beqz->exit` + unconditional `j` back-edge. MATCH: exit-in-the-middle
- * no-rotation + result-var break. */
+ * no-rotation + result-var break.  PASS-only SYM cleanup restored canonical
+ * `i/ySize` and direct random-call expressions.  Direct `Weather_GameSetupWords[3] == 1`
+ * is FAIL 15 (66/69), so the setup base/value remain explicit carriers. */
 void Weather_InitSplats(void)
 
 {
-  u_int rnd;
-  u_int uVar1;
   int ySize;
-  u_int y_max;
   int i;
-  int splat_i;
-  int result;
-  int *gs;
-  int commModeNetwork;
+  int result; /* SYM-CODEGEN-CARRIER: result -- required by the measured exit-in-the-middle no-rotation loop */
+  int *gs; /* SYM-CODEGEN-CARRIER: gs -- direct global indexing is part of the measured FAIL 15 form */
+  int commModeNetwork; /* SYM-CODEGEN-CARRIER: commModeNetwork -- direct literal comparison is part of the measured FAIL 15 form */
 
-  splat_i = 0;
+  i = 0;
   gs = Weather_GameSetupWords;
   commModeNetwork = 1;
   while (true) {
-    result = splat_i < 0x13;
+    result = i < 0x13;
     if (result == 0) break;
-    y_max = 0xf0;
+    ySize = 0xf0;
     if (gs[3] == commModeNetwork) {
-      y_max = 0x78;
+      ySize = 0x78;
     }
-    rnd = random();
-    Weather_gSplatInfo[splat_i].pos.vx = (short)(rnd % 320);
-    uVar1 = random();
-    if (y_max == 0) {
+    Weather_gSplatInfo[i].pos.vx = (short)((u_int)random() % 320);
+    if (ySize == 0) {
     }
-    Weather_gSplatInfo[splat_i].pos.vy = (short)(uVar1 % y_max);
-    uVar1 = random();
-    Weather_gSplatInfo[splat_i].startTick = uVar1 % 300;
-    splat_i = splat_i + 1;
+    Weather_gSplatInfo[i].pos.vy = (short)((u_int)random() % ySize);
+    Weather_gSplatInfo[i].startTick = (u_int)random() % 300;
+    i = i + 1;
   }
   return;
 }
@@ -315,14 +310,12 @@ void Weather_ChangeDensityState(void)
 
 {
   int statechange;
-  int goalPlusChange;
 
   statechange = Weather_GetNewState();
-  goalPlusChange = Weather_gDensityGoalState + statechange;
-  if (goalPlusChange >= 4) {
+  if (Weather_gDensityGoalState + statechange >= 4) {
     statechange = -1;
   }
-  else if (goalPlusChange < 0) {
+  else if (Weather_gDensityGoalState + statechange < 0) {
     statechange = 1;
   }
   Weather_gDensityChangeFactor = statechange;
@@ -340,14 +333,12 @@ void Weather_ChangeIntensityState(void)
 
 {
   int statechange;
-  int goalPlusChange;
 
   statechange = Weather_GetNewState();
-  goalPlusChange = Weather_gIntensityGoalState + statechange;
-  if (Weather_gTrackIntensityLimit < goalPlusChange) {
+  if (Weather_gTrackIntensityLimit < Weather_gIntensityGoalState + statechange) {
     statechange = -1;
   }
-  else if (goalPlusChange < 0) {
+  else if (Weather_gIntensityGoalState + statechange < 0) {
     statechange = 1;
   }
   Weather_gIntensityChangeFactor = statechange;
@@ -499,22 +490,19 @@ void Weather_InitStateControls(void)
 void Weather_Restart(void)
 
 {
-  char *pcVar1;
   int i;
-  int iVar2;
   
   if (WEATHER_GAMESETUP_WEATHER != 0) {
     if (WEATHER_GAMESETUP_COMM_MODE != 1) {
       Weather_InitStateControls();
     }
-    iVar2 = 0;
+    i = 0;
     WEATHER_GLASTPROCESSTIME1 = WEATHER_GAME_TICKS;
     WEATHER_GLASTPROCESSTIME0 = WEATHER_GAME_TICKS;
     do {
-      pcVar1 = Weather_gWasDrawn + iVar2;
-      iVar2 = iVar2 + 1;
-      *pcVar1 = '\0';
-    } while (iVar2 < 0x98);
+      Weather_gWasDrawn[i] = '\0';
+      i = i + 1;
+    } while (i < 0x98);
   }
   return;
 }
@@ -537,18 +525,10 @@ void Weather_Restart(void)
 void Weather_Init(void)
 
 {
-  u_int uVar1;
-  char *pcVar2;
-  int *piVar3;
-  matrixtdef *pmVar4;
-  matrixtdef *pmVar5;
-  int iVar6;
-  int iVar7;
-  int iVar8;
+  matrixtdef *pmVar4; /* SYM-CODEGEN-CARRIER: pmVar4 -- second destination-base evaluation supplies retail's required register copy */
+  matrixtdef *pmVar5; /* SYM-CODEGEN-CARRIER: pmVar5 -- first aggregate-copy base preserves the measured movstrsi scratch pool */
   int i;
-  short *psVar9;
   SVECTOR *sv;
-  SVECTOR *pSVar10;
   
   /* w49-a10 NAMED ANGLE (12 diffs, count-EXACT 211/211, all in insns 1-14): the residual
    * is ONE address-materialization decision.  Retail keeps %hi(TrackSpec_gSpec.weatherspec)
@@ -640,32 +620,26 @@ void Weather_Init(void)
     prevCamPos[0] = prevCamPos[1];
     pmVar5[0] = WEATHER_CAMERA_ROTATION(0);
     pmVar4[1] = pmVar5[0];
-    pSVar10 = Weather_gPos;
-    iVar6 = 0x97;
-    psVar9 = &pSVar10->vz;
+    sv = Weather_gPos;
+    i = 0x97;
     do {
-      iVar6 = iVar6 + -1;
-      uVar1 = random();
+      i = i + -1;
       if ((int)Weather_gSys.width == 0) {
       }
-      pSVar10->vx = (short)(uVar1 % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.width;
-      uVar1 = random();
+      sv->vx = (short)((u_int)random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.width;
       if ((int)Weather_gSys.height == 0) {
       }
-      psVar9[-1] = Weather_gSys.bottom + (short)(uVar1 % (u_int)(int)Weather_gSys.height);
-      uVar1 = random();
+      sv->vy = Weather_gSys.bottom + (short)((u_int)random() % (u_int)(int)Weather_gSys.height);
       if ((int)Weather_gSys.length == 0) {
       }
-      pSVar10 = pSVar10 + 1;
-      *psVar9 = Weather_gSys.znear + (short)(uVar1 % (u_int)(int)Weather_gSys.length);
-      psVar9 = psVar9 + 4;
-    } while (iVar6 != -1);
-    iVar6 = 0;
+      sv->vz = Weather_gSys.znear + (short)((u_int)random() % (u_int)(int)Weather_gSys.length);
+      sv = sv + 1;
+    } while (i != -1);
+    i = 0;
     do {
-      pcVar2 = Weather_gWasDrawn + iVar6;
-      iVar6 = iVar6 + 1;
-      *pcVar2 = '\0';
-    } while (iVar6 < 0x98);
+      Weather_gWasDrawn[i] = '\0';
+      i = i + 1;
+    } while (i < 0x98);
     gCurrentNumSplats = 0;
     Weather_InitSplats();
   }
@@ -719,7 +693,7 @@ void Weather_DeInit(void)
 void Weather_TransformVertex(matrixtdef *m,int n,SVECTOR *s)
 {
   VECTOR tv;
-  SVECTOR *next;
+  SVECTOR *next; /* SYM-CODEGEN-CARRIER: next -- carries the retail $a1 loop successor */
 
   Weather_SetMatrix(m);
   gte_ldv0(s);
@@ -774,94 +748,73 @@ void Weather_TransformVertex(matrixtdef *m,int n,SVECTOR *s)
 short Weather_CheckAndResetParticles(SVECTOR *pt)
 
 {
-  u_int rnd;
-  u_int uVar1;
-  u_int uVar2;
+  u_int rnd; /* SYM-CODEGEN-CARRIER: rnd -- preserves random() before zfar/2; direct modulo is FAIL 77 (222/223) */
   short flag;
-  short sVar3;
-  SVECTOR *pt_reg;
-  short z_off;
-  short sVar4;
-  short reset_flag;
   
-  sVar3 = 0;
+  flag = 0;
   if ((int)pt->vx > (int)Weather_gSys.width) {
     pt->vx = (short)(-Weather_gSys.width + 0x40);
-    rnd = random();
     if ((int)Weather_gSys.height == 0) {
     }
-    pt->vy = Weather_gSys.bottom + (short)(rnd % (u_int)(int)Weather_gSys.height);
-    uVar1 = random();
+    pt->vy = Weather_gSys.bottom + (short)(random() % (u_int)(int)Weather_gSys.height);
     if ((int)Weather_gSys.length == 0) {
     }
-    pt->vz = Weather_gSys.znear + (short)(uVar1 % (u_int)(int)Weather_gSys.length);
-    sVar3 = 1;
+    pt->vz = Weather_gSys.znear + (short)(random() % (u_int)(int)Weather_gSys.length);
+    flag = 1;
   }
   else if ((int)pt->vx < -(int)Weather_gSys.width) {
     pt->vx = Weather_gSys.width + -0x40;
-    uVar1 = random();
     if ((int)Weather_gSys.height == 0) {
     }
-    pt->vy = Weather_gSys.bottom + (short)(uVar1 % (u_int)(int)Weather_gSys.height);
-    uVar1 = random();
+    pt->vy = Weather_gSys.bottom + (short)(random() % (u_int)(int)Weather_gSys.height);
     if ((int)Weather_gSys.length == 0) {
     }
-    pt->vz = Weather_gSys.znear + (short)(uVar1 % (u_int)(int)Weather_gSys.length);
-    sVar3 = 2;
+    pt->vz = Weather_gSys.znear + (short)(random() % (u_int)(int)Weather_gSys.length);
+    flag = 2;
   }
   if (pt->vz > Weather_gSys.zfar) {
     pt->vz = Weather_gSys.znear + 0x40;
-    uVar1 = random();
     if ((int)Weather_gSys.width == 0) {
     }
-    pt->vx = (short)(uVar1 % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.width;
-    uVar1 = random();
+    pt->vx = (short)(random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.width;
     if ((int)Weather_gSys.height == 0) {
     }
-    pt->vy = Weather_gSys.bottom + (short)(uVar1 % (u_int)(int)Weather_gSys.height);
-    sVar3 = 3;
+    pt->vy = Weather_gSys.bottom + (short)(random() % (u_int)(int)Weather_gSys.height);
+    flag = 3;
   }
   else if ((int)pt->vz < (int)Weather_gSys.znear) {
-    sVar3 = 4;
-    uVar1 = random();
-    uVar2 = (u_int)(((int)((u_int)(u_short)Weather_gSys.zfar << 0x10) >> 0x10) / 2);
-    if (uVar2 == 0) {
-    }
-    pt->vz = Weather_gSys.znear + (short)(uVar1 % uVar2);
-    uVar1 = random();
+    flag = 4;
+    rnd = random();
+    pt->vz = Weather_gSys.znear +
+             (short)(rnd % (u_int)(((int)((u_int)(u_short)Weather_gSys.zfar << 0x10) >> 0x10) / 2));
     if ((int)Weather_gSys.width == 0) {
     }
-    pt->vx = (short)(uVar1 % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.width;
-    uVar1 = random();
+    pt->vx = (short)(random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.width;
     if ((int)Weather_gSys.height == 0) {
     }
-    pt->vy = Weather_gSys.bottom + (short)(uVar1 % (u_int)(int)Weather_gSys.height);
+    pt->vy = Weather_gSys.bottom + (short)(random() % (u_int)(int)Weather_gSys.height);
   }
   if (pt->vy > Weather_gSys.top) {
     pt->vy = Weather_gSys.bottom + 0x40;
-    uVar1 = random();
     if ((int)Weather_gSys.width == 0) {
     }
-    pt->vx = (short)(uVar1 % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.width;
-    uVar1 = random();
+    pt->vx = (short)(random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.width;
     if ((int)Weather_gSys.length == 0) {
     }
-    pt->vz = Weather_gSys.znear + (short)(uVar1 % (u_int)(int)Weather_gSys.length);
-    sVar3 = 5;
+    pt->vz = Weather_gSys.znear + (short)(random() % (u_int)(int)Weather_gSys.length);
+    flag = 5;
   }
   else if ((int)pt->vy < (int)Weather_gSys.bottom) {
     pt->vy = Weather_gSys.top + -0x40;
-    uVar1 = random();
     if ((int)Weather_gSys.width == 0) {
     }
-    pt->vx = (short)(uVar1 % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.width;
-    uVar1 = random();
+    pt->vx = (short)(random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.width;
     if ((int)Weather_gSys.length == 0) {
     }
-    pt->vz = Weather_gSys.znear + (short)(uVar1 % (u_int)(int)Weather_gSys.length);
-    sVar3 = 6;
+    pt->vz = Weather_gSys.znear + (short)(random() % (u_int)(int)Weather_gSys.length);
+    flag = 6;
   }
-  return sVar3;
+  return flag;
 }
 
 /* ---- Weather_QuickReOrthogonalize__FP10matrixtdefT0  [WEATHER.CPP:673-700] SLD-VERIFIED ----
@@ -962,8 +915,7 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
   /* camera translation delta since last frame, rotated into camera space -> total_vector_change */
   {
     coorddef *cp;
-
-    coorddef *tr = &Vi->cview.translation;
+    coorddef *tr /* SYM-CODEGEN-CARRIER: tr -- shared translation base; direct field/source use is FAIL 22 (251/251) */ = &Vi->cview.translation;
 
     temp_vector.vx = (short)((Vi->cview.translation.x - prevCamPos[Vi->player].x) / 0x400);
     temp_vector.vy = (short)((tr->y - prevCamPos[Vi->player].y) / 0x400);
@@ -1018,7 +970,7 @@ void Weather_ProcessParticles(DRender_tView *Vi,int num,SVECTOR *wpt,char *wd)
   {
     SVECTOR *tv;
     long n;
-    short reset;
+    short reset; /* SYM-CODEGEN-CARRIER: reset -- holds the call result across the retail writeback and pointer increment */
 
     tv = wpt;
     n = 0;
@@ -1057,7 +1009,7 @@ void Weather_CreateSnow(SVECTOR *pt)
   SVECTOR gv [4];
   POLY_FT4 *prim;
   Draw_tPixMap *pmx;
-  u_int *pal;
+  u_int *pal; /* SYM-CODEGEN-CARRIER: pal -- CSE carrier for the palette cursor value */
   unsigned long l0;
   unsigned long l1;
   unsigned long l2;
@@ -1092,10 +1044,10 @@ void Weather_CreateSnow(SVECTOR *pt)
    * after the block 6, store at the END of the block 6, this form 2. */
   __asm__ __volatile__("");
   {
-    u_char *next = (u_char *)prim + 0x28;   /* bump off the loaded prim, no re-read */
-    u_int palw = *pal;
+    u_char *next = (u_char *)prim + 0x28; /* SYM-CODEGEN-CARRIER: next -- split packet bump */
+    u_int palw = *pal; /* SYM-CODEGEN-CARRIER: palw -- split palette RMW */
     RENDER_PACKETPTR_ADDR = next;
-    u_int addr24 = (u_int)prim & 0xffffff;
+    u_int addr24 = (u_int)prim & 0xffffff; /* SYM-CODEGEN-CARRIER: addr24 */
     *pal = palw & 0xff000000 | (addr24 & 0xffffff);
   }
   *((char *)prim + 3) = 9;                                  /* OT tag length (9 words) */
@@ -1172,7 +1124,7 @@ void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
     gte_rtps();
     prim = (LINE_G2 *)RENDER_PACKETPTR_ADDR;
     {
-      u_int *pal = (u_int *)RENDER_PALETTEPTR_ADDR;
+      u_int *pal = (u_int *)RENDER_PALETTEPTR_ADDR; /* SYM-CODEGEN-CARRIER: pal */
       *(u_int *)prim = *(u_int *)prim & 0xff000000 | *pal & 0xffffff;
       /* MATCH (w49-a10, 16 -> PASS): the CreateSnow/CreateSplat packet-emission
        * recipe, minus the fence.  The palette RMW is SPLIT (read `palw` FIRST) and
@@ -1185,9 +1137,9 @@ void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
        * local costs 8 diffs here -- they pin the 0x402020 constant's lui/ori below
        * the header store, where retail hoists it above the whole group. */
       {
-        u_int palw = *pal;
+        u_int palw = *pal; /* SYM-CODEGEN-CARRIER: palw -- split palette RMW */
         RENDER_PACKETPTR_ADDR = (u_char *)prim + 0x14;
-        u_int addr24 = (u_int)prim & 0xffffff;
+        u_int addr24 = (u_int)prim & 0xffffff; /* SYM-CODEGEN-CARRIER: addr24 */
         *pal = palw & 0xff000000 | (addr24 & 0xffffff);
       }
     }
@@ -1204,7 +1156,7 @@ void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
     gte_rtps();
     prim = (LINE_G2 *)RENDER_PACKETPTR_ADDR;
     {
-      u_int *pal = (u_int *)RENDER_PALETTEPTR_ADDR;
+      u_int *pal = (u_int *)RENDER_PALETTEPTR_ADDR; /* SYM-CODEGEN-CARRIER: pal */
       *(u_int *)prim = *(u_int *)prim & 0xff000000 | *pal & 0xffffff;
       /* MATCH (w49-a10, 16 -> PASS): the CreateSnow/CreateSplat packet-emission
        * recipe, minus the fence.  The palette RMW is SPLIT (read `palw` FIRST) and
@@ -1217,9 +1169,9 @@ void Weather_CreateRain(SVECTOR *pt0,DVECTOR *pt1,char *wd)
        * local costs 8 diffs here -- they pin the 0x402020 constant's lui/ori below
        * the header store, where retail hoists it above the whole group. */
       {
-        u_int palw = *pal;
+        u_int palw = *pal; /* SYM-CODEGEN-CARRIER: palw -- split palette RMW */
         RENDER_PACKETPTR_ADDR = (u_char *)prim + 0x14;
-        u_int addr24 = (u_int)prim & 0xffffff;
+        u_int addr24 = (u_int)prim & 0xffffff; /* SYM-CODEGEN-CARRIER: addr24 */
         *pal = palw & 0xff000000 | (addr24 & 0xffffff);
       }
     }
@@ -1253,7 +1205,7 @@ void Weather_CreateSplat
   POLY_FT4 *prim;
   int size;
   int splatTick;
-  u_char *tp3;
+  u_char *tp3; /* SYM-CODEGEN-CARRIER: tp3 -- scratchpad palette-pointer model */
 
   prim = (POLY_FT4 *)RENDER_PACKETPTR_ADDR;
   tp3 = RENDER_PALETTEPTR_ADDR;
@@ -1274,11 +1226,11 @@ void Weather_CreateSplat
    *  (3) a zero-operand USE fence after the `next` value statement pins the
    *      `addiu $v1,$t0,0x28` into the tag merge instead of letting it sink. */
   {
-    u_char *next = (u_char *)prim + 0x28;
+    u_char *next = (u_char *)prim + 0x28; /* SYM-CODEGEN-CARRIER: next -- split packet bump */
     __asm__ __volatile__("");
     {
-      u_int palw = *(u_int *)tp3;
-      u_int addr24 = (u_int)prim & 0xffffff;
+      u_int palw = *(u_int *)tp3; /* SYM-CODEGEN-CARRIER: palw -- split palette RMW */
+      u_int addr24 = (u_int)prim & 0xffffff; /* SYM-CODEGEN-CARRIER: addr24 */
       RENDER_PACKETPTR_ADDR = next;
       *(u_int *)tp3 = palw & 0xff000000 | (addr24 & 0xffffff);
     }
@@ -1295,7 +1247,7 @@ void Weather_CreateSplat
    * colour value and fencing the shift behind it wins the tie at 0 insns; a bare
    * fence between the two ORIGINAL statements over-shoots (sra sinks too far). */
   {
-    int col = -0x80 - splatTick * 4;
+    int col = -0x80 - splatTick * 4; /* SYM-CODEGEN-CARRIER: col -- wins the retail shift tie */
     __asm__ __volatile__("");
     splatTick = splatTick >> 3;
     prim->r0 = prim->g0 = prim->b0 = (u_char)col;
@@ -1309,7 +1261,7 @@ void Weather_CreateSplat
   prim->x3 = vx + size + splatTick;
   prim->y3 = vy + splatTick + size + splatTick * 2;
   {
-    Draw_tPixMap *pmx;
+    Draw_tPixMap *pmx; /* SYM-CODEGEN-CARRIER: pmx -- pixmap word-copy base */
     u_long l0;
     u_long l1;
     u_long l2;
@@ -1470,7 +1422,7 @@ void Weather_DoSplats
 
 {
   int i;
-  Weather_tSplatInfo *q;
+  Weather_tSplatInfo *q; /* SYM-CODEGEN-CARRIER: q -- measured GIV/identity carrier */
 
   if (gCurrentNumSplats < num) {
     gCurrentNumSplats = num;
@@ -1560,10 +1512,10 @@ void Weather_DoWeather(DRender_tView *Vi)
   int clean_up;
   int i;
   int n;
-  int mode;
+  int mode; /* SYM-CODEGEN-CARRIER: mode -- staged Camera_GetMode result */
   DR_MODE *prim;
-  int *plb;
-  u_int *pal;
+  int *plb; /* SYM-CODEGEN-CARRIER: plb -- laundered prevLookBehind slot */
+  u_int *pal; /* SYM-CODEGEN-CARRIER: pal -- palette cursor CSE value */
 
   /* NEAR-MISS 36 (count EXACT 197/197) -- CLASSIFIED (W55-A16).  allocsim replicates
      this function's GLOBAL handout 25/25 EXACTLY, so none of the residual is a global
@@ -1776,8 +1728,8 @@ void Weather_DoWeather(DRender_tView *Vi)
   wpt = Weather_gPServerA[player];
   wprevpt = Weather_gPrevPServerA[player];
   wd = Weather_gDrawnServerA[player];
-  int cm = WEATHER_GAMESETUP_COMM_MODE;   /* == GameSetup_gData.commMode, @ +0xC */
-  int one = 1;
+  int cm = WEATHER_GAMESETUP_COMM_MODE; /* SYM-CODEGEN-CARRIER: cm -- staged commMode load */
+  int one = 1; /* SYM-CODEGEN-CARRIER: one -- early compare constant */
   __asm__("" : : "r"(player));
   if ((cm != one) && (0x20 < WEATHER_GAME_TICKS - timechange)) {
     timechange = WEATHER_GAME_TICKS;
@@ -1872,10 +1824,10 @@ void Weather_DoWeather(DRender_tView *Vi)
      * NEGATIVE here (this tail sits at the end of a 197-insn function whose residual is a
      * whole-function allocno permutation, so the barrier costs more than it buys). */
     {
-      u_char *next = (u_char *)prim + 0xc;
-      u_int palw = *pal;
+      u_char *next = (u_char *)prim + 0xc; /* SYM-CODEGEN-CARRIER: next -- split DR_MODE bump */
+      u_int palw = *pal; /* SYM-CODEGEN-CARRIER: palw -- split palette RMW */
       RENDER_PACKETPTR_ADDR = next;
-      u_int addr24 = (u_int)prim & 0xffffff;
+      u_int addr24 = (u_int)prim & 0xffffff; /* SYM-CODEGEN-CARRIER: addr24 */
       *pal = palw & 0xff000000 | (addr24 & 0xffffff);
     }
     SetDrawMode(prim,0,0,0x20,(RECT *)0x0);
@@ -1886,11 +1838,8 @@ void Weather_DoWeather(DRender_tView *Vi)
 void Weather_BuildWeather(DRender_tView *Vi)
 
 {
-  int pvVar1;
-
   if ((WEATHER_GAMESETUP_WEATHER != 0) &&
-     (pvVar1 = BWorldSm_TunnelFlagSm
-                         (&WEATHER_CAMERA_SLICE_POS(Vi->player)), pvVar1 == 0)) {
+      (BWorldSm_TunnelFlagSm(&WEATHER_CAMERA_SLICE_POS(Vi->player)) == 0)) {
     Weather_DoWeather(Vi);
   }
   return;

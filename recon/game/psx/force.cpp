@@ -73,10 +73,10 @@ void Force_Vbl(void)
   int i;
 
   for (i = 0; i < 2; i = i + 1) {
-    Force_tGlobal *f;
+    Force_tGlobal *f; /* SYM-CODEGEN-CARRIER: f -- models retail's +8 loop walker */
     int padnum;
     int padstate;
-    int actuator1;
+    int actuator1; /* SYM-CODEGEN-CARRIER: actuator1 -- preserves the shared 0xff clamp block */
 
     f = &Force_g[i];
     padnum = i << 4;
@@ -197,19 +197,17 @@ void Force_Update(Car_tObj *car)
   Force_tGlobal *f;
   int skids;
   int impacts;
-  GameSetup_tControllerData *controller;
+  GameSetup_tControllerData *controller; /* SYM-CODEGEN-CARRIER: controller -- direct casts are 11 diffs, 279/278 */
   int impactmultiplier;
   int v0;
   int v1;
-  u_int uVar3;
   int frontmultiplier;
   int rearmultiplier;
   
-  uVar3 = car->carIndex;
-  if (1 < uVar3) {
+  if (1U < (u_int)car->carIndex) {
     return;
   }
-  f = &Force_g[uVar3];
+  f = &Force_g[car->carIndex];
   if (1 < Replay_ReplayMode) {
     f->high = '\0';
     f->low = '\0';
@@ -217,8 +215,8 @@ void Force_Update(Car_tObj *car)
     return;
   }
   controller = (GameSetup_tControllerData *)Force_GameSetupWords;
-  skids = *(int *)((char *)&controller->shockMode[uVar3] + 96);
-  impacts = *(int *)((char *)&controller->shockImpact[uVar3] + 96);
+  skids = *(int *)((char *)&controller->shockMode[car->carIndex] + 96);
+  impacts = *(int *)((char *)&controller->shockImpact[car->carIndex] + 96);
   if (skids != 0) {
     frontmultiplier = (skids + 0x10) * 0x2da6;
   }
@@ -309,7 +307,7 @@ ForceUpd_audioRevLoop:
     }
   }
   if (frontmultiplier != 0) {
-    int clamped;
+    int clamped; /* SYM-CODEGEN-CARRIER: clamped -- forces the clamp onto the call-argument copy */
 
     clamped = v0;
     if (0xa0000 < clamped) {
@@ -465,19 +463,6 @@ void Force_HitSign(Car_tObj *car)
 void Force_HitWall(int impulse)
 
 {
-
-  int skids;
-  int impacts;
-
-  int padnum;
-
-  int v1;
-  int v0;
-
-  int impactmultiplier;
-  int frontmultiplier;
-  int rearmultiplier;
-  
   return;
 }
 

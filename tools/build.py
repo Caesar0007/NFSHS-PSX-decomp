@@ -1211,17 +1211,12 @@ def _apply_epilogue_unfill(rel_posix: str, s_file: Path) -> None:
     s_file.write_text(txt)
 
 
-# Per-FUNCTION $ra-save SINK (w50-a6, CV_ColorTracks): retail schedules the
-# prologue `sw $31,N($sp)` BELOW the first call's whole arg setup, immediately
-# before the jal; ours emits it with the other prologue saves.  No cc1 flag
-# reaches this shape (flag axis falsified: -fno-schedule-insns/-insns2,
-# -mno-split-addresses, -fno-delayed-branch) -- it is a pure textual relocation
-# on the .s, same lane family as PER_FN_EPILOGUE_UNFILL.
-PER_FN_RA_SINK = {
-    "recon/game/psx/textureprocess.cpp": {
-        "CV_ColorTracks__Fiii",   # FAIL 2 (130/130) -> PASS per the a6 receipt
-    },
-}
+# Per-FUNCTION $ra-save SINK.  The former CV_ColorTracks entry is intentionally
+# disabled: user policy (2026-08-23) forbids post-recompile instruction
+# rewriting.  Its exact prior stanza is backed up in
+# scratchpad/root_sym_audit/build_py_textureprocess_ra_sink_backup_20260823.md;
+# textureprocess must match from reconstructed source/compiler inputs only.
+PER_FN_RA_SINK = {}
 
 
 # w54 wave-close: PER_FN_TEXT_MOVES -- generic post-cc1 instruction

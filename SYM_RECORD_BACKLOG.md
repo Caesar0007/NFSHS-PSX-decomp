@@ -37,7 +37,7 @@ they are not silently collapsed into a smaller denominator.
   explicit per-record semantic-review row.  Nothing is silently dropped from
   the denominator.
 - A strict compiler-emitted type-graph comparison now distinguishes retail
-  subset coverage from actual per-object source visibility.  Seventy-one owners are
+  subset coverage from actual per-object source visibility.  Seventy-two owners are
   semantically exact: `memcard.obj`, `mdec.obj`, `video.obj`, `FETexture.obj`,
   `textpix.obj`, `textpsx.obj`, `unpack.obj`, `fastrand.obj`, and
   `aiscript.obj`, `new.obj`, `paths.obj`, `textsys.obj`, `simplemem.obj`,
@@ -53,7 +53,7 @@ they are not silently collapsed into a smaller denominator.
   `newton.obj`, `camera.obj`, `TrackSpec.obj`, `loading.obj`, `texture.obj`, and
   `Draw.obj`, `Sfx.obj`, `TrsProj.obj`, `CarIO.obj`, `platform.obj`, and
   `force.obj`, `audio.obj`, `overlays.obj`, `Weather.obj`, `rpause.obj`, and
-  `hrzsku.obj`.
+  `hrzsku.obj`, and `TextureProcess.obj`.
   The remaining mapped C++
   units still expose reconstruction-only declarations through the monolithic
   `nfs4_types.h` include graph and therefore are not yet source-exact.
@@ -166,7 +166,7 @@ Results:
 - all retail `this` adjustments are zero;
 - structural/target issues: 0;
 - retail targets absent from the symbol map: 0;
-- unsafe direct vtable-row indexing: 0 across 921 source files.
+- unsafe direct vtable-row indexing: 0 across 922 source files.
 
 Evidence:
 
@@ -539,7 +539,7 @@ Current strict results:
 
 - `frontend/psx`: 4 exact (`memcard`, `mdec`, `video`, `fetexture`) and 4 DIFF
   (`drawshp`, `mmeffect`, `movie`, `psxfront`);
-- `game/psx`: 17 exact (`textpix`, `textpsx`, `unpack`, `trackspec`, `loading`, `texture`, `draw`, `sfx`, `trsproj`, `cario`, `platform`, `force`, `audio`, `overlays`, `weather`, `rpause`, `hrzsku`), 10 DIFF, and one owner
+- `game/psx`: 18 exact (`textpix`, `textpsx`, `unpack`, `trackspec`, `loading`, `texture`, `draw`, `sfx`, `trsproj`, `cario`, `platform`, `force`, `audio`, `overlays`, `weather`, `rpause`, `hrzsku`, `textureprocess`), 9 DIFF, and one owner
   ambiguity for game `font.obj` versus the vendor `libgpu/FONT.obj`;
 - `frontend/common`: 41 mapped units remain DIFF and the now-empty artificial
   `mcrd.cpp` unit needs its objdiff ownership removed or reassigned;
@@ -598,7 +598,7 @@ prechecked loop in `Camera_OpponentLookBehind` restores the original 245-word
 shape.  `Camera_NextMode` needs one documented post-cc1 scheduling relocation;
 it moves, but does not add/remove/rewrite, the existing signed-%3 correction.
 The final graph is 92/92 named and 2/2 anonymous with no extra type/typedef, all
-38 camera functions remain PASS, and the vtable audit is clean across 921 files.
+38 camera functions remain PASS, and the vtable audit is clean across 922 files.
 
 `TrackSpec.obj` is now strict-exact through an owner-specific type header.  Its
 externally owned `GameSetup_tData` is represented by an exact-symbol word view
@@ -718,6 +718,19 @@ type.  The final graph is 75/75 named and 2/2 anonymous with no extra type or
 typedef semantics.  Twenty of 22 functions remain PASS; `Hrz_BuildSky` and
 `Hrz_BuildHorizon` retain their exact pre-existing 150- and 20-diff baselines.
 
+`TextureProcess.obj` is now strict-exact through the proven color graph plus
+its exact track-environment, font-kern, palette, and fog records.  The foreign
+completed `GameSetup_tData`, `CTrackSpec`, and `DRender_tView` bodies are absent
+from this retail object; exact-symbol word views preserve the attested
+GameSetup offsets 3, 15, 18, and 21, TrackSpec fog offsets 16, 20, and 24, and
+the view translation at byte offset 8.  The retail palette typedef spelling is
+restored as `TP_tZPaletteSystem` over tag `TP_ZPaletteSystem`.  The final graph
+is 83/83 named and 2/2 anonymous with no extra type or typedef semantics, and
+all 16 TextureProcess/Fog/CV functions remain PASS.  `CV_ColorTracks` now
+reaches PASS from source through a zero-instruction post-call read-only
+`contrast` use; the former `PER_FN_RA_SINK` post-compile relocation is disabled
+and textureprocess has no post-recompile rewrite entry.
+
 The mapped C++ units cover all retail named and anonymous type bodies, but are
 not source-exact while they expose unrelated monolithic-header declarations or
 miss owner-specific typedef variants.  The three C units that previously had
@@ -825,7 +838,8 @@ Strict evidence:
   [`overlays`](scratchpad/root_sym_audit/type_graph_game_psx_after_overlays_20260823.tsv),
   [`weather`](scratchpad/root_sym_audit/type_graph_game_psx_after_weather_20260823.tsv), and
   [`rpause`](scratchpad/root_sym_audit/type_graph_rpause_final_20260823.tsv), and
-  [`hrzsku`](scratchpad/root_sym_audit/type_graph_hrzsku_final_20260823.tsv).
+  [`hrzsku`](scratchpad/root_sym_audit/type_graph_hrzsku_final_20260823.tsv), and
+  [`textureprocess`](scratchpad/root_sym_audit/type_graph_textureprocess_final_20260823.tsv).
 
 Required closure:
 

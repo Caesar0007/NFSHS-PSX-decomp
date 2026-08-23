@@ -2,7 +2,6 @@
  *   16 fns: TextureProcess_* (translucency/CLUT depth-color), Fog_* (keyframe fog triggers),
  *   CV_* (world-color vertex processing). No GTE.
  */
-#include "../../nfs4_types.h"
 #include "textureprocess_externs.h"
 
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
@@ -14,7 +13,7 @@ FogKey *Fog_gHeadKey;
  * adjacent retail element labels; Fog_gCurrentKeyArr is the indexed view. */
 FogKey *Fog_gCurrentKey;
 FogKey *D_8013DB84;
-TP_ZPaletteSystem TP_gZPaletteSystem;
+TP_tZPaletteSystem TP_gZPaletteSystem;
 int Fog_gNumKeys;
 int gZDepth;
 
@@ -44,7 +43,7 @@ int TextureProcess_TransColorCheck(char *data,int numentry)
 void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int cx,int cy)
 {
   short newdata [256];
-  CTrackSpec *spec;              /* MATCH: the oracle materializes
+  int *spec;                     /* MATCH: the oracle materializes
                                   * la $v1,TrackSpec_gSpec ONCE and parks it in
                                   * $fp across the whole loop (lw 0x10, lbu
                                   * 0x14/0x15/0x16 off it); direct
@@ -68,8 +67,8 @@ void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int
    * (oracle: la $v1,TrackSpec_gSpec; lw 0x10($v1); addu $fp,$v1,$zero).
    * `p = newdata` must come LAST: its luid decides whether sched1 issues the
    * addiu before or after the mflo. */
-  contrasttemp = (TrackSpec_gSpec.fogspec.contrast * level) / (maxlevel + -1);
-  spec = &TrackSpec_gSpec;
+  contrasttemp = (TrackSpec_gSpec[4] * level) / (maxlevel + -1);
+  spec = TrackSpec_gSpec;
   p = newdata;
   /* MATCH: exit-in-the-middle -- numentry is re-loaded from its arg slot at the
    * top of every iteration and the back edge is an unconditional `j`. */
@@ -86,11 +85,11 @@ void TextureProcess_ColorClut(int level,int maxlevel,char *data,int numentry,int
       /* MATCH: one variable per channel (raw value then clamped result share
        * $s1/$s2/$s0) and the `= 0` default as the if-ARM so it lands in the
        * bltz delay slot. */
-      temp = r - fixedmult(r - spec->fogspec.color.r,contrasttemp);
+      temp = r - fixedmult(r - ((CVECTOR *)(spec + 5))->r,contrasttemp);
       if (temp < 0) { r = 0; } else { r = temp; if (0xff < r) { r = 0xff; } }
-      temp = g - fixedmult(g - spec->fogspec.color.g,contrasttemp);
+      temp = g - fixedmult(g - ((CVECTOR *)(spec + 5))->g,contrasttemp);
       if (temp < 0) { g = 0; } else { g = temp; if (0xff < g) { g = 0xff; } }
-      temp = b - fixedmult(b - spec->fogspec.color.b,contrasttemp);
+      temp = b - fixedmult(b - ((CVECTOR *)(spec + 5))->b,contrasttemp);
       if (temp < 0) { b = 0; } else { b = temp; if (0xff < b) { b = 0xff; } }
       if (b < 8) { b = 8; }                          /* keep a minimum blue so the pixel stays visible */
       /* MATCH: narrow each channel to 5 bits as its OWN statement (assigned back
@@ -277,7 +276,7 @@ void Fog_Update(int player)
   int start;
 
   if (Fog_gNumKeys != 1) {
-    BWorldSm_FindClosestQuadRez(&gCView.cview.translation,fogslicePos + player,1);
+    BWorldSm_FindClosestQuadRez((coorddef *)(gCView + 2),fogslicePos + player,1);
     currentslice = fogslicePos[player].slice;
     {
       FogKey **slot = &Fog_gCurrentKeyArr[player];
@@ -309,7 +308,7 @@ void Fog_Update(int player)
     else {
       start = key->distance;
     }
-    TrackSpec_gSpec.fogspec.start = start;
+    TrackSpec_gSpec[6] = start;
   }
 }
 
@@ -317,7 +316,7 @@ void Fog_Update(int player)
 char * Fog_MakeTrackPathName(char *ext)
 
 {
-  sprintf(fogstrspc,"%sTr%02d%s",Paths_Paths[6],GameSetup_gData.track & 0xf,ext);
+  sprintf(fogstrspc,"%sTr%02d%s",Paths_Paths[6],GameSetup_gData[15] & 0xf,ext);
   return fogstrspc;
 }
 
@@ -340,17 +339,17 @@ int Fog_ReadFogKeys(void)
    * D_8013DB4C/54/5C/64, i.e. in source order).  The literal TEXTS keep their
    * previous order -- verify_asm normalizes the %hi/%lo so the oracle cannot
    * arbitrate which name belongs to which slot; only the CONDITIONS are proven. */
-  if (GameSetup_gData.Time != 0) {
-    if (GameSetup_gData.Weather != 0) {
+  if (GameSetup_gData[21] != 0) {
+    if (GameSetup_gData[18] != 0) {
       strspc = Fog_MakeTrackPathName("N.fog");
       goto haveext;
     }
   }
-  if (GameSetup_gData.Time != 0) {
+  if (GameSetup_gData[21] != 0) {
     strspc = Fog_MakeTrackPathName("W.fog");
     goto haveext;
   }
-  if (GameSetup_gData.Weather != 0) {
+  if (GameSetup_gData[18] != 0) {
     strspc = Fog_MakeTrackPathName("S.fog");
     goto haveext;
   }
@@ -405,7 +404,7 @@ void Fog_InitFogTriggers(void)
   } while (-1 < i);
   num_player = Fog_ReadFogKeys();
   if (num_player == 0) {
-    Fog_AddKey(0,TrackSpec_gSpec.fogspec.start);
+    Fog_AddKey(0,TrackSpec_gSpec[6]);
   }
   num_player = 1;
   /* MATCH (w39-a10, 35 -> 4).  Four levers:
@@ -462,7 +461,7 @@ void Fog_InitFogTriggers(void)
    * than the structurally-faithful form (12 diffs).  Do not re-fight. */
   Fog_gCurrentKey = Fog_gHeadKey;
   D_8013DB84 = Fog_gHeadKey;
-  if (GameSetup_gData.commMode == 1) {
+  if (GameSetup_gData[3] == 1) {
     num_player = 2;
   }
   fogslicePos = reservememadr("fog pos",num_player * 0x84,0);
@@ -571,7 +570,7 @@ void CV_ColorTracks(int track,int weather,int night)
    * inside the branches leaves it in $a0 (the outgoing arg reg).  The same 0
    * feeds memset's fill arg (oracle: addu a1,s0,zero).
    *
-   * FLOOR, QUANTIFIED (72 diffs, COUNT-EXACT 130/130, w39-a10): the body is
+   * HISTORICAL BASIN (72 diffs, COUNT-EXACT 130/130, w39-a10; solved below): the body is
    * structurally identical to retail -- same insns, same $s0/$s1 reference
    * counts (22/16 both sides) -- and the ONLY residual is one uniform
    * $s0<->$s1 swap: retail puts `contrast` in $s0 and `weather` in $s1, we do
@@ -610,8 +609,9 @@ void CV_ColorTracks(int track,int weather,int night)
    * refs is possible only by breaking cse's reuse of weather's register as
    * the constant 1 in the three `bne $s3,$s1` night tests -- which requires
    * testing `night` BEFORE `weather` and so contradicts the oracle's
-   * track/weather/night compare order at every arm.  FLOOR (STRONG). */
-  /* MATCH (w49-a6, 72 -> 2, count still EXACT 130/130): the STRONG-floor receipt above
+   * track/weather/night compare order at every arm.  Historical measurement;
+   * the post-call read-only fence below supplies the missing source lever. */
+  /* HISTORICAL STEP (w49-a6, 72 -> 2, count still EXACT 130/130): the receipt above
    * quantified the whole 72-diff residual as ONE allocno_compare razor -- weather
    * (14 refs / 114) .36842 vs contrast (11 refs / 90) .36666 -- and named the exact bar:
    * contrast needs refs >= 12 (3*12/90 = .400) at ZERO instructions.  Every zero-cost dial
@@ -622,7 +622,7 @@ void CV_ColorTracks(int track,int weather,int night)
    * retail's way.  (Two nested wrappers measure the same 2; the wrapper must sit on a
    * contrast REF, and this one is outside every call-crossing region so its LOOP_BEG/END
    * note costs no scheduling.) */
-  /* PER_FN_PROLOGUE_UNSINK CANDIDATE (w50-a6).  The residual is now exactly 2 diffs at a
+  /* HISTORICAL POST-COMPILE CANDIDATE (w50-a6, now disabled).  The residual was exactly 2 diffs at a
    * COUNT-EXACT 130/130, and both are the SAME instruction in two places -- `sw ra,40(sp)`:
    *   ours   ... sw s3,36; addu s3,a2; [sw ra,40]; sw s0,24; addu s0,zero; addiu a0,sp,16;
    *              addu a1,s0; jal memset
@@ -638,11 +638,24 @@ void CV_ColorTracks(int track,int weather,int night)
    * -fno-schedule-insns2 35, -mno-split-addresses 18, -fno-delayed-branch 128 @150 insns.
    * No flag moves the save, and the w49 receipt already banks 8 falsified fence placements.
    * A textual per-fn splice moving the `sw $31,0x28($sp)` line down to just before the `jal`
-   * would land PASS; nothing else is left.  REPORTED, not wired (build.py off-limits). */
-  do { contrast = 0; } while (0);
+   * landed PASS historically.  It is no longer wired: user policy forbids
+   * post-recompile instruction rewrites, and the source-only receipt follows. */
+  /* MATCH (2026-08-23, raw compiler output, 72 -> PASS 130/130): a plain
+   * `contrast = 0` plus a read-only empty-asm use immediately AFTER memset is
+   * the two-axis lever.  The use emits zero instructions.  It supplies the
+   * extra contrast reference needed for retail's contrast=$s0/weather=$s1
+   * allocation and, because it extends contrast across the call boundary from
+   * the far side, sched2 places `sw $ra,40($sp)` after memset's a0/a1 setup at
+   * the exact retail slot.  Placement is essential: the old do/while depth
+   * wrapper lands raw FAIL 2 and needs the forbidden RA_SINK rewrite; the same
+   * read-only use before memset also lands FAIL 2; identity fences land
+   * count-exact FAIL 4/6/10 by blocking zero-value CSE or delaying the $s0
+   * save/init.  tools/build.py has no textureprocess post-compile rule. */
+  contrast = 0;
   memset(&color,0,4);
+  __asm__("" : : "r"(contrast));
   brightness = 0;
-  if (GameSetup_gData.commMode == 1) {
+  if (GameSetup_gData[3] == 1) {
     if (((track == 2) && (weather == 1)) && (night == 1)) {
       contrast = -0x9c80;
       uVar1 = '\x10';
@@ -710,7 +723,7 @@ CVColor_emitFinal:
 void CV_InitColorVertices(void)
 
 {
-  CV_ColorTracks(GameSetup_gData.track & 0xf,GameSetup_gData.Weather,GameSetup_gData.Time);
+  CV_ColorTracks(GameSetup_gData[15] & 0xf,GameSetup_gData[18],GameSetup_gData[21]);
   return;
 }
 

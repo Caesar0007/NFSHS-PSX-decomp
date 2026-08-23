@@ -3917,6 +3917,8 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     POLY_FT3 *prim;
     int overlayFlag;
     int overlayRaw;
+    /* SYM-TYPE-OVERRIDE: facetFlag -- this block's SHORT record is current
+       FAIL 15 at 1878/1877; the widened promoted carrier is required. */
     int facetFlag;
     Transformer_zFacet *facet;
     int id0;
@@ -4125,6 +4127,8 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     POLY_FT3 *prim;
     int overlayFlag;
     int overlayRaw;
+    /* SYM-TYPE-OVERRIDE: facetFlag -- this block's SHORT record independently
+       measures FAIL 15 at 1878/1877; the widened promoted carrier is required. */
     int facetFlag;
     Transformer_zFacet *facet;
     int id0;

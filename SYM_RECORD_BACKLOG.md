@@ -1648,6 +1648,30 @@ Two repeated whole-TU gates preserve `draww.cpp` at 31/35 PASS with the same
 four pre-existing residuals (8/9/20/66). Production PsyQ proof reports REAL=0
 and RELOP=0, and the vtable indexing audit remains clean.
 
+### P34 — PrimClip promoted `facetFlag` proof (`2026-08-24`)
+
+The refreshed strict game/PSX declaration audit is recorded in
+[`game_psx_after_primclip_type_reconcile_20260824.md`](scratchpad/root_sym_audit/game_psx_after_primclip_type_reconcile_20260824.md).
+It closes the final raw type-comparison finding (1 -> 0), keeps all 395 SYM
+functions mapped, and keeps missing SYM names at zero. The result remains
+381/395 declaration-clean because `DrawC_PrimClip` still has separately queued
+source-only identities, but its reliable type evidence is no longer left as an
+unclassified contradiction.
+
+SYM records `facetFlag` as `SHORT` in both the case-8 and case-9 source blocks.
+Each block was recompiled independently with that exact spelling in the final
+W76 source basin: either single-site change is FAIL 15 at 1878/1877, while both
+together are FAIL 30 at 1879/1877. The mismatch consists of the extra narrow
+reload/sign-extension path and its resulting register rotation. The byte-exact
+body therefore retains an `int` promoted carrier at each site and now marks the
+pair as an explicit oracle-proven SYM type override rather than ignoring the
+debug records.
+
+Repeated detailed gates preserve `DrawC_PrimClip` PASS 1877/1877 and its
+`DrawC_Prim` sibling PASS 1389/1389. Two repeated whole-TU gates confirm
+`drawc.cpp` is 20/20 PASS. Production PsyQ proof reports REAL=0 and RELOP=0,
+and the vtable indexing audit remains clean.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

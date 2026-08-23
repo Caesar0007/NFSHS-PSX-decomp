@@ -2907,94 +2907,71 @@ void DrawC_DividePrim(COORD16 *vt0,COORD16 *vt1,COORD16 *vt2,u_short *u0,u_short
 
 {
   POLY_FT3 * prim;
-  int bfct;
-  long xy0;
-  long xy1;
-  long xy2;
-  u_long color;
-  u_char code;
-  u_short uv1;
-  u_short uv2;
-  int sVar1;      /* clipW held as INT (oracle: lh, no per-use re-extension) */
-  int sVar2;      /* clipH likewise */
-  u_short uVar3;
-  u_short uVar4;
-  u_int *puVar5;
-  u_short clut;
-  int clipW;
-  u_short tpage;
-  int iVar6;
-  u_int *puVar7;
-  u_short uv0;
-  u_int uVar8;
-  u_int uVar9;
-  int clipH;
-  u_long *puVar10;
   
   if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr) {
-gte_ldv3(vt0,vt1,vt2);
-    gte_rtpt();
-    gte_nclip();
-    gte_stMAC0m(sd->bfct);   /* m-form: swc2 $24,0x44(sd) direct displacement (EA-expander site) */
-    iVar6 = sd->bfct;
-    if ((sd->head).mirror != 0) {
-      iVar6 = -iVar6;
+    {
+      int bfct;
+      gte_ldv3(vt0,vt1,vt2);
+      gte_rtpt();
+      gte_nclip();
+      gte_stMAC0m(sd->bfct); /* m-form: swc2 $24,0x44(sd) direct displacement (EA-expander site) */
+      bfct = sd->bfct;
+      if ((sd->head).mirror != 0) {
+        bfct = -bfct;
+      }
+      if (bfct <= 0) {
+        return;
+      }
     }
-    if (0 < iVar6) {
+    {
+      int clipW;
+      int clipH;
       gte_stSXY0m(sd->dvx0);   /* m-form: swc2 $12,0xC4(sd) etc. */
       gte_stSXY1m(sd->dvx1);
       gte_stSXY2m(sd->dvx2);
-      sVar1 = (sd->head).clipW;
-      sVar2 = (sd->head).clipH;
-      if (((((((sd->dvx0 <= sVar1) || (sd->dvx1 <= sVar1)) || (sd->dvx2 <= sVar1)) &&
-            (((-1 < sd->dvx0 || (-1 < sd->dvx1)) || (-1 < sd->dvx2)))) &&
-           (((sd->dvy0 <= sVar2 || (sd->dvy1 <= sVar2)) || (sd->dvy2 <= sVar2)))) &&
-          (((-1 < sd->dvy0 || (-1 < sd->dvy1)) || (-1 < sd->dvy2)))) &&
-         (((-1 < vt0->z || (-1 < vt1->z)) || (-1 < vt2->z)))) {
-        gte_avsz3();
-        gte_stOTZm(sd->otz);
-        iVar6 = sd->otz + sd->sub_otz;
-        sd->otz = iVar6;
-        if ((-1 < iVar6) && (iVar6 <= sd->sub_otSize)) {
-          /* OT-link, EA DMPSX-analog FIXED-REG TEMPLATE variant A / FULL BLOCK (2026-07-09):
-           * prim = sd->PrimPtr; slot = sd->sub_ot + sd->otz; sd->PrimPtr += 0x20;
-           * prim->tag = slot->addr24 | (7<<24); slot->addr24 = prim.
-           * $t4/$t5/$t6 hardcoded (the expander's temps); prim is the asm OUTPUT. */
-          __asm__ volatile(
-              "lw	%0,4(%1)
-	lw	$12,60(%1)
-	lw	$13,56(%1)
-	addiu	$14,%0,32
-	sll	$12,$12,2
-	addu	$13,$13,$12
-	sw	$14,4(%1)
-	lwl	$14,2($13)
-	lui	$12,0x0700
-	srl	$14,$14,8
-	or	$14,$14,$12
-	sll	$12,%0,8
-	sw	$14,0(%0)
-	swl	$12,2($13)"
-              : "=&r"(puVar7) : "r"(sd)
-              : "$12", "$13", "$14", "memory");
-          uVar8 = *(u_int *)&sd->dvx1;
-          uVar9 = *(u_int *)&sd->dvx2;
-          puVar7[2] = *(u_int *)&sd->dvx0;
-          puVar7[4] = uVar8;
-          puVar7[6] = uVar9;
-          puVar7[1] = sd->color;
-          *(u_char *)((int)puVar7 + 7) = 0x24;
-          clut  = pmx->clut;                       /* clut first (v0), tpage second (a0) */
-          tpage = pmx->tpage;
-          *(u_short *)((int)puVar7 + 0xe) = clut;
-          *(u_short *)((int)puVar7 + 0x16) = tpage;
-          uv1 = *u1;                               /* u1 loads FIRST (a0) */
-          uv0 = *u0;                               /* then u0 (a1) */
-          uv2 = *u2;                               /* then u2 (v0) */
-          *(u_short *)(puVar7 + 3) = uv0;
-          *(u_short *)(puVar7 + 5) = uv1;
-          *(u_short *)(puVar7 + 7) = uv2;
-        }
+      clipW = (sd->head).clipW;
+      clipH = (sd->head).clipH;
+      if (((clipW < sd->dvx0) && (clipW < sd->dvx1) && (clipW < sd->dvx2)) ||
+          ((sd->dvx0 < 0) && (sd->dvx1 < 0) && (sd->dvx2 < 0)) ||
+          ((clipH < sd->dvy0) && (clipH < sd->dvy1) && (clipH < sd->dvy2)) ||
+          ((sd->dvy0 < 0) && (sd->dvy1 < 0) && (sd->dvy2 < 0)) ||
+          ((vt0->z < 0) && (vt1->z < 0) && (vt2->z < 0))) {
+        return;
+      }
+    }
+    gte_avsz3();
+    gte_stOTZm(sd->otz);
+    sd->otz += sd->sub_otz;
+    if ((-1 < sd->otz) && (sd->otz <= sd->sub_otSize)) {
+      DRAWC_OTLINK_FT3(sd, prim);
+      {
+        long xy0 = *(long *)&sd->dvx0;
+        long xy1 = *(long *)&sd->dvx1;
+        long xy2 = *(long *)&sd->dvx2;
+        ((u_int *)prim)[2] = xy0;
+        ((u_int *)prim)[4] = xy1;
+        ((u_int *)prim)[6] = xy2;
+      }
+      {
+        u_long color = sd->color;
+        u_char code = 0x24;
+        ((u_int *)prim)[1] = color;
+        *(u_char *)((int)prim + 7) = code;
+      }
+      {
+        u_short clut = pmx->clut;
+        u_short tpage = pmx->tpage;
+        u_short uv0;
+        u_short uv1;
+        u_short uv2;
+        *(u_short *)((int)prim + 0xe) = clut;
+        *(u_short *)((int)prim + 0x16) = tpage;
+        uv1 = *u1;                             /* u1 loads FIRST (a0) */
+        uv0 = *u0;                             /* then u0 (a1) */
+        uv2 = *u2;                             /* then u2 (v0) */
+        *(u_short *)((u_int *)prim + 3) = uv0;
+        *(u_short *)((u_int *)prim + 5) = uv1;
+        *(u_short *)((u_int *)prim + 7) = uv2;
       }
     }
   }

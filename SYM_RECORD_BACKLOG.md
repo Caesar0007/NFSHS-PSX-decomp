@@ -1771,6 +1771,32 @@ Repeated detailed gates preserve `DrawC_DivideShadowPrim` PASS 122/122 and
 20/20 PASS. Production PsyQ proof reports REAL=0 and RELOP=0, and the vtable
 indexing audit remains clean.
 
+### P39 — Triangle-divider SYM block reconstruction (`2026-08-24`)
+
+The refreshed strict game/PSX declaration audit is recorded in
+[`game_psx_after_divprim_reconcile_20260824.md`](scratchpad/root_sym_audit/game_psx_after_divprim_reconcile_20260824.md).
+It advances the result from 385/395 to 386/395 declaration-clean functions and
+reduces generic extra source-local names from 280 to 270 while preserving zero
+missing SYM names and zero raw type findings.
+
+`DrawC_DividePrim` now follows the retail SYM identities, types, and block
+lifetimes. The function-local `prim`, the early `bfct` block, the clipping
+`clipW`/`clipH` block, and the three packet-population blocks
+(`xy0`/`xy1`/`xy2`, `color`/`code`, and
+`uv0`/`uv1`/`uv2`/`clut`/`tpage`) correspond directly to the SYM records and
+block addresses. Ten Ghidra-only declarations (`iVar6`, `puVar10`, `puVar5`,
+`puVar7`, `sVar1`, `sVar2`, `uVar3`, `uVar4`, `uVar8`, and `uVar9`) are gone.
+The OT-depth update is expressed naturally through `sd->otz`, and the packet
+link uses the TU's documented fixed-register `DRAWC_OTLINK_FT3` macro with the
+actual SYM `prim` output rather than an inline duplicate and synthetic pointer.
+
+The PsyQ 4.3 manuals at `C:\Temp\PSYQ\psyq-430-doc` and canonical
+`LIBGPU.H` corroborate the `POLY_FT3` packet and `addPrim` ordering-table source
+semantics; the retail oracle remains the byte authority for EA's fixed-register
+expansion. Detailed verification preserves `DrawC_DividePrim` PASS 153/153,
+the whole `drawc.cpp` gate remains 20/20 PASS, production PsyQ proof reports
+REAL=0 and RELOP=0, and the vtable indexing audit remains clean.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

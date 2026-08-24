@@ -9,6 +9,8 @@
 void tTournamentManager::Initialize()
 
 {
+  /* SYM-CODEGEN-CARRIER: numCars -- keeping the promoted car-count value
+     separate preserves the retail byte load before the two garage stores. */
   short i;
 
   this->fMoney = Tourn_StartMoney;
@@ -41,53 +43,51 @@ void tTournamentManager::Initialize()
 void tTournamentManager::LoadDescription()
 
 {
-  short unk1;   // Unused
-  void *tourneyPtr;
+  /* SYM-CODEGEN-CARRIER: tourneyDef
+     SYM-CODEGEN-CARRIER: trackId
+     SYM-CODEGEN-CARRIER: trnId
+     These promoted traversal values preserve the retail loop bounds and
+     callee-saved allocation; folding tourneyDef changes 77 instructions. */
   tTournamentDefinition *tourneyDef;
-  uint unk2;    // Unused
-  short unk3;   // Unused
-  uint unk4;    // Unused
   short track;
   uint trackId;
-  char *data;   // Unused
-  void *tourneyEntries;
+  char *data;
   short tourney;
   uint trnId;
   short tier;
-  int unk5;     // Unused
   char filename [80];
-  char *input;  // Unused
+  char *input;
   
   sprintf(filename,"%s%s",Paths_Paths[0x25],"tourn.trn");
   this->ReleaseDescription();
-  tourneyPtr = (void *)loadfileadr(filename,0x10);
-  blockmove(tourneyPtr,this->fFinishPoints,6);
-  this->fNumTiers = *(char *)((int)tourneyPtr + Tourn_TRN_HeaderSize);
+  input = (char *)loadfileadr(filename,0x10);
+  blockmove(input,this->fFinishPoints,6);
+  this->fNumTiers = input[Tourn_TRN_HeaderSize];
   tourneyDef = reservememadr("Tourney",sizeof(tTournamentDefinition),0);
   tier = 0;
   this->fDefinition = tourneyDef;
-  tourneyEntries = (void *)((int)tourneyPtr + Tourn_TRN_EntriesStart);
+  data = input + Tourn_TRN_EntriesStart;
 
   if (this->fNumTiers != 0) {
     do {
-      blockmove(tourneyEntries,this->fDefinition->fTiers + tier, sizeof(tTierInfo));
+      blockmove(data,this->fDefinition->fTiers + tier, sizeof(tTierInfo));
       tourneyDef = this->fDefinition;
       tourney = (short)tourneyDef->fTiers[tier].fTournOffset;
       trnId = (uint)tourney;
-      tourneyEntries = (void *)((int)tourneyEntries + sizeof(tTierInfo));
+      data += sizeof(tTierInfo);
       if ((short)trnId < (short)trnId + tourneyDef->fTiers[tier].fNumTournaments) {
         do {
-          blockmove(tourneyEntries, tourneyDef->fTournaments + tourney, sizeof(tTourneyInfo));
+          blockmove(data, tourneyDef->fTournaments + tourney, sizeof(tTourneyInfo));
           tourneyDef = this->fDefinition;
           track = (short)tourneyDef->fTournaments[tourney].fTrackOffset;
           trackId = (uint)track;
-          tourneyEntries = (void *)((int)tourneyEntries + sizeof(tTourneyInfo));
+          data += sizeof(tTourneyInfo);
           if ((short)trackId < (short)trackId + tourneyDef->fTournaments[tourney].fNumTracks) {
             do {
-              blockmove(tourneyEntries, tourneyDef->fTracks + track, sizeof(tTrackInfo));
+              blockmove(data, tourneyDef->fTracks + track, sizeof(tTrackInfo));
               track = track + 1;
               tourneyDef = this->fDefinition;
-              tourneyEntries = (void *)((int)tourneyEntries + sizeof(tTrackInfo));
+              data += sizeof(tTrackInfo);
             } while (track < (int)((short)trackId +
                                     tourneyDef->fTournaments[tourney].fNumTracks));
           }
@@ -99,7 +99,7 @@ void tTournamentManager::LoadDescription()
     } while (tier < (int)(uint)(byte)this->fNumTiers);
   }
 
-  purgememadr(tourneyPtr);
+  purgememadr(input);
   return;
 }
 
@@ -157,22 +157,18 @@ short * tTournamentManager::GetTrackList(short tier,short tournament)
 
 /* ---- tTournamentManager::GetTrackToRace  [FETOURN.CPP:243-249] ---- */
 
-void tTournamentManager::GetTrackToRace(tTrackInfo &track_r)
+void tTournamentManager::GetTrackToRace(tTrackInfo &track)
 
 {
-  tTrackInfo *trackPtr = &track_r;   /* R-ref param; alias keeps the pointer-form body codegen-identical */
-  tTournamentDefinition * tourneyDef;
-  
-  tourneyDef = this->fDefinition;
-  blockmove(tourneyDef->fTracks +
-             ((uint)(((uint)tourneyDef->fTiers[this->fTier].fTournOffset + this->fTournament)
-                       + tourneyDef->fTournaments)->fTrackOffset
-              + this->fCurrentTrack),trackPtr,sizeof(tTrackInfo));
+  blockmove(this->fDefinition->fTracks +
+             ((uint)(((uint)this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament)
+                       + this->fDefinition->fTournaments)->fTrackOffset
+              + this->fCurrentTrack),&track,sizeof(tTrackInfo));
 
-  track->fDirection = this->fDirection[this->fCurrentTrack];
-  track->fMirrored = this->fMirror[this->fCurrentTrack];
-  track->fTimeOfDay = this->fTimeOfDay[this->fCurrentTrack];
-  track->fWeather = this->fWeather[this->fCurrentTrack];
+  track.fDirection = this->fDirection[this->fCurrentTrack];
+  track.fMirrored = this->fMirror[this->fCurrentTrack];
+  track.fTimeOfDay = this->fTimeOfDay[this->fCurrentTrack];
+  track.fWeather = this->fWeather[this->fCurrentTrack];
   return;
 }
 
@@ -207,9 +203,17 @@ void tTournamentManager::GetTrackToRace(tTrackInfo &track_r)
 void tTournamentManager::StartNewTournament(byte tier,byte tournament)
 
 {
+  /* SYM-CODEGEN-CARRIER: fRandOption
+     SYM-CODEGEN-CARRIER: fTrackOption
+     SYM-CODEGEN-CARRIER: numCompetitors
+     SYM-CODEGEN-CARRIER: tourneyDef
+     SYM-CODEGEN-CARRIER: tourneyDefLocal
+     SYM-CODEGEN-CARRIER: tourneyInfoOffset
+     SYM-CODEGEN-CARRIER: trackOffset
+     These are the expression-splitting carriers documented in the PASS
+     receipt above; the retail SYM records only i, tourn, and track. */
   byte fTrackOption;
   short numCompetitors;
-  int iVar3; // Unused
   int fRandOption;
   int trackOffset;
   tTournamentDefinition* tourneyDefLocal;
@@ -217,7 +221,6 @@ void tTournamentManager::StartNewTournament(byte tier,byte tournament)
   tTournamentDefinition* tourneyDef;
   tTrackInfo* track;
   short i;
-  int iVar9; // Unused
   tTourneyInfo* tourn;
 
   this->fTier = (uint)tier;
@@ -285,11 +288,12 @@ void tTournamentManager::StartNewTournament(byte tier,byte tournament)
 /* ---- tTournamentManager::IsTournamentFinished  [FETOURN.CPP:337-344] ---- */
 short tTournamentManager::IsTournamentFinished()
 {
-  tTournamentDefinition *def;
+  /* SYM-CODEGEN-CARRIER: currentTourney -- one shared address is required;
+     repeating the field chain loses an instruction and changes offsets. */
   tTourneyInfo *currentTourney;
 
-  def = this->fDefinition;
-  currentTourney = def->fTournaments + (def->fTiers[this->fTier].fTournOffset + this->fTournament);
+  currentTourney = this->fDefinition->fTournaments +
+      (this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament);
   if (this->fCurrentTrack >= (int)currentTourney->fNumTracks) goto ret1;
   if (currentTourney->fKnockout == '\0') goto ret0;
   if (this->fCurrentTrack <= (int)this->fCompetitors[0].fPoints) goto ret0;
@@ -304,26 +308,25 @@ ret0:
 static int tournPointsCompare(char *p1,char *p2)
 
 {
-  u_char bVar1;
-  u_char bVar2;
+  /* SYM-CODEGEN-CARRIER: tm
+     SYM-CODEGEN-CARRIER: comps
+     The two-stage embedded-array base formation supplies the retail +280
+     adjustment; direct tournamentManager indexing is one instruction short. */
   tTournamentManager *tm;
   tCompetitor *comps;
-  tCompetitor *c1;
-  tCompetitor *c2;
   Car_tStats *dummyCars;
   int result;
 
   tm = &tournamentManager;
   comps = tm->fCompetitors;
   dummyCars = Cars_gNewCarStatsList;
-  bVar1 = *p2;
-  bVar2 = *p1;
-  c1 = comps + bVar1;
-  c2 = comps + bVar2;
-  result = (u_int)c1->fPoints - (u_int)c2->fPoints;
+  result = (u_int)comps[(byte)*p2].fPoints - (u_int)comps[(byte)*p1].fPoints;
   if ((result == 0) &&
-     (result = (int)c1->fIsPlayerCar - (int)c2->fIsPlayerCar, result == 0)) {
-    result = dummyCars[bVar2].finalPosition - dummyCars[bVar1].finalPosition;
+     (result = (int)comps[(byte)*p2].fIsPlayerCar -
+               (int)comps[(byte)*p1].fIsPlayerCar,
+      result == 0)) {
+    result = dummyCars[(byte)*p1].finalPosition -
+             dummyCars[(byte)*p2].finalPosition;
   }
   return result;
 }
@@ -335,7 +338,6 @@ static int tournPointsCompare(char *p1,char *p2)
 void tTournamentManager::UpdateTournFinishMoney()
 
 {
-  long prize;
   u_char i;
   tTourneyInfo *tourn;
 
@@ -343,14 +345,13 @@ void tTournamentManager::UpdateTournFinishMoney()
       [(u_int)this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament];
   this->fPrevBestPlacement = this->fBestPlacement[(signed char)tourn->fTournamentID];
   if (tourn->fKnockout != '\0') {
-    prize = this->GetTournamentFinishPrize(this->fCompetitors[0].fPosition - 1);
-    (this->fAwards).fTournMoney = (this->fAwards).fTournMoney + prize;
+    (this->fAwards).fTournMoney +=
+        this->GetTournamentFinishPrize(this->fCompetitors[0].fPosition - 1);
   }
   else {
     for (i = 0; i < 6; i++) {
       if (this->fRanking[i] == '\0') {
-        prize = this->GetTournamentFinishPrize((u_short)i);
-        (this->fAwards).fTournMoney = (this->fAwards).fTournMoney + prize;
+        (this->fAwards).fTournMoney += this->GetTournamentFinishPrize((u_short)i);
         if ((int)i < (int)(signed char)this->fBestPlacement[(signed char)tourn->fTournamentID]) {
           this->fBestPlacement[(signed char)tourn->fTournamentID] = i + 1;
         }
@@ -367,12 +368,11 @@ void tTournamentManager::UpdateTournFinishMoney()
 void tTournamentManager::UpdateTrackFinishMoney()
 
 {
-  long prize;
   Car_tStats *dummyCars;
   
   if (Cars_gNewCarStatsList[0].finalFinishType == 2) {
-    prize = this->GetTrackFinishPrize((short)Cars_gNewCarStatsList[0].finalPosition + -1);
-    (this->fAwards).fMoney = (this->fAwards).fMoney + prize;
+    (this->fAwards).fMoney +=
+        this->GetTrackFinishPrize((short)Cars_gNewCarStatsList[0].finalPosition + -1);
   }
   return;
 }
@@ -381,12 +381,13 @@ void tTournamentManager::UpdateTrackFinishMoney()
 
 /* ---- tTournamentManager::CalcTrackFinishDamageBill  [FETOURN.CPP:422-470] ---- */
 
-void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill_r,long &bonus_r)
+void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill,long &bonus)
 
 {
+  /* SYM-CODEGEN-CARRIER: mask -- the signed-short shift carrier selects the
+     retail srav/andi sequence; an inline (1 << i) changes 24 instructions. */
   static long retbill;
   static long retbonus;
-  long *bill = &bill_r; long *bonus = &bonus_r;   /* R-ref params; alias keeps body codegen-identical */
   int i;
   short mask;
   long totalcarprice;
@@ -420,8 +421,8 @@ void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill_r
       retbill = (totalcarprice * damage * 3) / 10000;
     }
   }
-  *bill = retbill;
-  *bonus = retbonus;
+  bill = retbill;
+  bonus = retbonus;
   return;
 }
 
@@ -495,6 +496,15 @@ void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill_r
 void tTournamentManager::UpdateTrackFinishPoints()
 
 {
+  /* SYM-CODEGEN-CARRIER: comp
+     SYM-CODEGEN-CARRIER: knockout
+     SYM-CODEGEN-CARRIER: next
+     SYM-CODEGEN-CARRIER: rankVal
+     SYM-CODEGEN-CARRIER: ranked
+     SYM-CODEGEN-CARRIER: ranking
+     SYM-CODEGEN-CARRIER: stats
+     These expression carriers implement the allocation/address-shape receipt
+     above; the retail SYM locals i, k, dummyCars, and numCompetitors remain. */
   int i;
   short k;
   Car_tStats *dummyCars;
@@ -660,7 +670,8 @@ short tTournamentManager::AdvanceToNextTrack()
               numGarageCars = numGarageCars + 1;
             }
             FECheat_ActivateBonus(this->fTier + cheat_FinishedTournament);
-            (this->fAwards).fCompletedCar = this->fTier + cm_BonusCar1;
+            (this->fAwards).fCompletedCar =
+                (tCarModels)(this->fTier + cm_BonusCar1);
             carInfo = carManager.GetCarFromID((short)(this->fAwards).fCompletedCar);
             carManager.SetCarAvailable((tCarModels)(this->fAwards).fCompletedCar,true);
             carManager.SetCarViewable((tCarModels)(this->fAwards).fCompletedCar,true);
@@ -690,42 +701,37 @@ short tTournamentManager::AdvanceToNextTrack()
 short tTournamentManager::GetLastTrackRaced()
 
 {
-  tTournamentDefinition *ptVar1;
-  
-  ptVar1 = this->fDefinition;
-  return (short)(signed char)ptVar1->fTracks
-                [(uint)(ptVar1->fTournaments +
-                       ((uint)ptVar1->fTiers[this->fTier].fTournOffset + this->fTournament))->
+  return (short)(signed char)this->fDefinition->fTracks
+                [(uint)(this->fDefinition->fTournaments +
+                       ((uint)this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament))->
                        fTrackOffset + this->fCurrentTrack + -1].fTrackNumber;
 }
 
 
 
 /* ---- tTournamentManager::SaveTournament  [FETOURN.CPP:744-762] ---- */
-void tTournamentManager::SaveTournament(tSaveTournament &save_r)
+void tTournamentManager::SaveTournament(tSaveTournament &save)
 {
-  tSaveTournament *save = &save_r;   /* R-ref param; alias keeps body codegen-identical */
   short i;
 
-  save->fSaveMoney = this->fMoney;
+  save.fSaveMoney = this->fMoney;
   i = 0;
   do {
-    save->fSaveBestPlacement[i] = this->fBestPlacement[i];
+    save.fSaveBestPlacement[i] = this->fBestPlacement[i];
     i = i + 1;
   } while (i < 0x40);
   return;
 }
 
 /* ---- tTournamentManager::LoadTournament  [FETOURN.CPP:773-791] ---- */
-void tTournamentManager::LoadTournament(tSaveTournament &load_r)
+void tTournamentManager::LoadTournament(tSaveTournament &load)
 {
-  tSaveTournament *load = &load_r;   /* R-ref param; alias keeps body codegen-identical */
   short i;
 
-  this->fMoney = load->fSaveMoney;
+  this->fMoney = load.fSaveMoney;
   i = 0;
   do {
-    this->fBestPlacement[i] = load->fSaveBestPlacement[i];
+    this->fBestPlacement[i] = load.fSaveBestPlacement[i];
     i = i + 1;
   } while (i < 0x40);
   return;
@@ -748,6 +754,8 @@ short tTournamentManager::GetNumCompetitors()
 void tTournamentManager::UpdateCarLineup()
 
 {
+  /* SYM-CODEGEN-CARRIER: numCompetitors -- retains the single call result as
+     the loop bound; SYM records the independently allocated i and k locals. */
   short i;
   short k;
   short numCompetitors;
@@ -819,7 +827,8 @@ long tTournamentManager::GetTrackFinishPrize(short position)
 /* ---- tTournamentManager::GetTournamentFinishPrize  [FETOURN.CPP:897-905] ---- */
 long tTournamentManager::GetTournamentFinishPrize(short position)
 {
-  /* SYM: no locals at all -- `this` is the only REG entry; def/tourn are compiler temps */
+  /* SYM-CODEGEN-CARRIER: tourn -- SYM has no locals here; the shared pointer
+     is required for the retail address schedule (inlining changes 14 insns). */
   if ((ushort)position < 6) {
     tTourneyInfo *tourn = this->fDefinition->fTournaments +
              (this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament);
@@ -845,7 +854,6 @@ void tTournamentManager::GetAwardInformation(tAwardInformation &info)
 void tTournamentManager::UpdateAwardInformation()
 
 {
-  tCarInfo *ptVar3;
   long bill;
   long bonus;
   
@@ -872,9 +880,10 @@ void tTournamentManager::UpdateAwardInformation()
     FECheat_ActivateBonus((this->fAwards).fActivateCheat);
   }
   if (((this->fAwards).fAwardCar != 0) && ((this->fAwards).fAwardCarGarageFull == 0)) {
-    ptVar3 = carManager.GetCarFromID((short)(this->fAwards).fAwardCarModel);
     carManager.PurchaseCar((short)(this->fAwards).fAwardCarModel,
-               (short)(signed char)ptVar3->fColorOrder[(byte)(this->fAwards).fAwardCarColor],0);
+               (short)(signed char)carManager.GetCarFromID(
+                   (short)(this->fAwards).fAwardCarModel)->fColorOrder[
+                       (byte)(this->fAwards).fAwardCarColor],0);
     carManager.PurchaseUpgrade((ushort)(byte)frontEnd.garageCar[0],
                (ushort)(byte)(this->fAwards).fAwardCarUpgrades,0);
   }
@@ -898,6 +907,8 @@ short tTournamentManager::TournPointTotal(short *p)
 short tTournamentManager::PlayerRanking(short pos)
 
 {
+  /* SYM-CODEGEN-CARRIER: numCompetitors -- preserves one GetNumCompetitors
+     call and its loop-bound lifetime; the retail debug local is i. */
   short i;
   short numCompetitors;
 
@@ -930,6 +941,10 @@ void tTournamentManager::GetTrophyName(tTourneyInfo *tourn,tTrophySize size,char
                )
 
 {
+  /* SYM-CODEGEN-CARRIER: best
+     SYM-CODEGEN-CARRIER: t
+     `best` fixes the pre-branch load schedule and the short `t` controls the
+     aggregate-initializer allocation; folding t changes 40 instructions. */
   /* SYM locals: int showplace (REG $2) + char trophySizeLetter[3] (AUTO -0x18)
      + char trophyPlacementLetter[4] (AUTO -0x10); `place` keeps its own REG $3.
      The two arrays are AGGREGATE INITIALIZERS (rodata->stack copies: 3x lb/sb
@@ -968,18 +983,14 @@ void tTournamentManager::GetTrophyName(tTourneyInfo *tourn,tTrophySize size,char
 bool tTournamentManager::ValidCar(tCarInfo &carInfo)
 
 {
-  u_char oppClass;
-  tTournamentDefinition *definition;
   tTourneyInfo *tourney;
   bool result;
 
-  definition = this->fDefinition;
-  tourney = &definition->fTournaments
-      [(u_int)definition->fTiers[this->fTier].fTournOffset + this->fTournament];
-  oppClass = tourney->fOpponentCarClass;
+  tourney = &this->fDefinition->fTournaments
+      [(u_int)this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament];
   result = 1;
-  if (oppClass != '\n') {
-    result = carInfo.fCarClass == oppClass;
+  if (tourney->fOpponentCarClass != '\n') {
+    result = carInfo.fCarClass == tourney->fOpponentCarClass;
     if ((FECheat_IsCheatEnabled(cheat_FinishedTournament) != 0) && (this->fTier == 0)) {
       result = 1;
     }
@@ -1053,7 +1064,7 @@ char tListIteratorTournament::Value(tPlayer)
 
 /* ---- tListIteratorTournament::TextValue  [FETOURN.CPP:1124-1130] ---- */
 
-short tListIteratorTournament::TextValue(tPlayer player_id)
+short tListIteratorTournament::TextValue(tPlayer)
 
 {
   short tournIndex;
@@ -1069,27 +1080,18 @@ short tListIteratorTournament::TextValue(tPlayer player_id)
 
 /* ---- tListIteratorTournament::Increment  [FETOURN.CPP:1134-1144] ---- */
 
-void tListIteratorTournament::Increment(tPlayer arg1)
+void tListIteratorTournament::Increment(tPlayer)
 
 {
-  int iVar1;
-  uint uVar2;
-  tTournamentDefinition *ptVar3;
-  char *pcVar4;
-  byte *pbVar5;
   tTierInfo *tier;
 
-  uVar2 = (uint)(byte)frontEnd.tier;
-  ptVar3 = this->fTournamentManager->fDefinition;
+  tier = &this->fTournamentManager->fDefinition->fTiers[(byte)frontEnd.tier];
   do {
-    pcVar4 = this->fValue;
-    *pcVar4 = *pcVar4 + '\x01';
-    pbVar5 = (byte *)this->fValue;
-    if (ptVar3->fTiers[uVar2].fNumTournaments <= *pbVar5) {
-      *pbVar5 = 0;
+    *this->fValue = *this->fValue + 1;
+    if (tier->fNumTournaments <= (byte)*this->fValue) {
+      *this->fValue = 0;
     }
-    iVar1 = (int)this->ValidTournament(*this->fValue) ^ 1;
-  } while (iVar1 != 0);
+  } while (!this->ValidTournament(*this->fValue));
   return;
 }
 
@@ -1097,27 +1099,22 @@ void tListIteratorTournament::Increment(tPlayer arg1)
 
 /* ---- tListIteratorTournament::Decrement  [FETOURN.CPP:1148-1158] ---- */
 
-void tListIteratorTournament::Decrement(tPlayer arg1)
+void tListIteratorTournament::Decrement(tPlayer)
 
 {
-  uchar uVar1;
-  int iVar2;
-  uint uVar3;
-  tTournamentDefinition *ptVar4;
-  uchar *puVar5;
+  /* SYM-CODEGEN-CARRIER: value -- a single byte value web produces the retail
+     branch-delay decrement; repeating *fValue adds five instructions. */
+  byte value;
   tTierInfo *tier;
 
-  uVar3 = (uint)(byte)frontEnd.tier;
-  ptVar4 = this->fTournamentManager->fDefinition;
+  tier = &this->fTournamentManager->fDefinition->fTiers[(byte)frontEnd.tier];
   do {
-    puVar5 = (uchar *)this->fValue;
-    uVar1 = *puVar5;
-    if (uVar1 == '\0') {
-      uVar1 = ptVar4->fTiers[uVar3].fNumTournaments;
+    value = *this->fValue;
+    if (value == 0) {
+      value = tier->fNumTournaments;
     }
-    *puVar5 = uVar1 - 1;
-    iVar2 = (int)this->ValidTournament(*this->fValue) ^ 1;
-  } while (iVar2 != 0);
+    *this->fValue = value - 1;
+  } while (!this->ValidTournament(*this->fValue));
   return;
 }
 
@@ -1128,26 +1125,21 @@ void tListIteratorTournament::Decrement(tPlayer arg1)
 bool tListIteratorTournament::ValidTournament(char tourn)
 
 {
-  u_short flags;
   tTierInfo *currentTier;
   tTourneyInfo *currentTourn;
-  tTournamentDefinition *definition;
-  tTournamentManager *tournamentManager;
   bool result;
 
-  tournamentManager = this->fTournamentManager;
-  definition = tournamentManager->fDefinition;
-  currentTier = &definition->fTiers[(u_char)frontEnd.tier];
-  currentTourn = &definition->fTournaments
+  currentTier = &this->fTournamentManager->fDefinition->fTiers[(u_char)frontEnd.tier];
+  currentTourn = &this->fTournamentManager->fDefinition->fTournaments
       [(u_int)currentTier->fTournOffset + (u_int)(u_char)tourn];
-  flags = currentTourn->fRequiredFlags;
   result = 1;
-  if ((flags & 1) != 0) {
-    result = (signed char)tournamentManager->fBestPlacement[
+  if ((currentTourn->fRequiredFlags & 1) != 0) {
+    result = (signed char)this->fTournamentManager->fBestPlacement[
         currentTourn->fRequiredTournamentID] < '\x04';
   }
-  if (((flags & 2) != 0) &&
-     ('\x01' < (signed char)tournamentManager->fBestPlacement[currentTourn->fRequiredTournamentID])) {
+  if (((currentTourn->fRequiredFlags & 2) != 0) &&
+     ('\x01' < (signed char)this->fTournamentManager->fBestPlacement[
+         currentTourn->fRequiredTournamentID])) {
     result = 0;
   }
   return result;

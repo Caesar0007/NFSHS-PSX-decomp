@@ -2936,6 +2936,35 @@ linked every TU, stopping only at the unavailable untracked retail
 real duplicates, hidden phantoms, or relocation-referenced unresolved symbols,
 and the vtable audit passes 930 files.
 
+### P86 — track-select initialization local restoration (`2026-08-25`)
+
+Retail SYM records only `tTrackInformation trackInfo`, `RECT r`, and
+`char moviename[80]` in `tScreenTrackSelect::Initialize`.  Reconstruction now
+removes the unsupported `iVar1` video-handle identity and `this_00` video-wall
+pointer identity.
+
+The recovered handle statement nests the assignment naturally in the first
+consumer:
+`VIDEO_spoolfile(hVideo = VIDEO_create(...), moviename)`.  This precisely
+reproduces retail's `VIDEO_create` return move and the `hVideo` store in the
+`VIDEO_spoolfile` call delay slot without creating a source local.  Repeating
+`&fVideoWall` at the four wall calls lets GCC retain retail's anonymous `$s0`
+CSE address while exposing no named pointer in debug information.
+
+The function remains PASS at 111 instructions and its fresh `-g` twin is
+instruction-identical.  Two complete `screentracks.cpp` gates remain 10/10
+PASS.  The strict frontend/common audit advances from 587 to 588
+declaration-clean functions and reduces generic extra names from 835 to 833,
+with zero missing names, type findings, storage findings, global findings, or
+mapping reviews.
+
+The isolated clean frontend baseline remains 835/838 with zero compile failures
+and the same three pre-existing residuals.  A complete clean build compiled and
+linked every TU, stopping only at the unavailable untracked retail
+`rom/nfs4-f.exe` comparison.  Both complete relink lanes are GREEN with zero
+real duplicates, hidden phantoms, or relocation-referenced unresolved symbols,
+and the vtable audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

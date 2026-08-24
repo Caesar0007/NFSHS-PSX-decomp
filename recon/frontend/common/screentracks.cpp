@@ -255,8 +255,6 @@ void tScreenTrackSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
 void tScreenTrackSelect::Initialize()
 
 {
-  int iVar1;
-  tVideoWall *this_00;
   tTrackInformation trackInfo;
   RECT r;
   char moviename [80];
@@ -274,19 +272,19 @@ void tScreenTrackSelect::Initialize()
   this->tScreen::Initialize();
   sprintf
             (moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],(int)(signed char)trackInfo.fTrackID);
-  iVar1 = VIDEO_create(0xa0,0x80,0xf0000,0x2c000,0x10);
-  this->hVideo = iVar1;
-  VIDEO_spoolfile(iVar1,moviename);
-  this_00 = &this->fVideoWall;
+  VIDEO_spoolfile(this->hVideo =
+                    VIDEO_create(0xa0,0x80,0xf0000,0x2c000,0x10),moviename);
   VIDEO_startplayback(this->hVideo);
   this->fFrame = 0;
-  ::Initialize(this_00,this->tvConfigs,this->fSwapShapes.fShapes,0,10,tvOrder,0x96);
-  SetAvailableText(this_00,0xf8,0x140,0x50);
-  SetAvailableIcon(this_00,0x26,10,0x136,0x3c,this->fPermShapes.fShapes);
+  ::Initialize(&this->fVideoWall,this->tvConfigs,this->fSwapShapes.fShapes,
+               0,10,tvOrder,0x96);
+  SetAvailableText(&this->fVideoWall,0xf8,0x140,0x50);
+  SetAvailableIcon(&this->fVideoWall,0x26,10,0x136,0x3c,
+                   this->fPermShapes.fShapes);
   this->fBrightness = 0;
   this->fDestBrightness = 0;
   this->fTVsInitialized = 0;
-  TurnOn(this_00);
+  TurnOn(&this->fVideoWall);
   /* MATCH: retail computes the dependent tick value before publishing fTicksSet. */
   this->fVideoTicks = ticks[0] - 0x100;
   this->fTicksSet = 1;

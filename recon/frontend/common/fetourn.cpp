@@ -234,7 +234,7 @@ void tTournamentManager::StartNewTournament(byte tier,byte tournament)
       do {
           this->fCompetitors[i].fPoints = 0;
           this->fCompetitors[i].fEliminated = 0;
-          this->fCompetitors[i].fIsPlayerCar = 0;
+          this->fCompetitors[i].fIsPlayerCar = (byte)0;
 
           this->fCompetitors[i].fPersonality =
               (i != 0) ? (uint)tourn->fPersonalities[i + -1] : (uint)kPersonalityNemesis;
@@ -276,7 +276,7 @@ void tTournamentManager::StartNewTournament(byte tier,byte tournament)
           i = i + 1;
       } while (i < (int)(uint)tourn->fNumTracks);
   }
-  this->fCompetitors[0].fIsPlayerCar = 1;
+  this->fCompetitors[0].fIsPlayerCar = (byte)1;
   return;
 }
 

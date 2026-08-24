@@ -2842,6 +2842,35 @@ names, type findings, storage findings, or mapping reviews.  All six
 zero compile failures and the same two pre-existing residuals.  Relink is
 GREEN and the vtable audit passes 930 files.
 
+### P83 — `tListIteratorTrack` increment/decrement source restoration (`2026-08-24`)
+
+Retail SYM records only the implicit `this` and `atIndex` parameters for both
+`tListIteratorTrack::Increment` and `tListIteratorTrack::Decrement`; neither
+function has a source-local declaration.  Reconstruction now removes the six
+unsupported decompiler identities: Increment's `iVar1`, `pcVar2`, and
+`pbVar3`, plus Decrement's `cVar1`, `iVar2`, and `pcVar3`.
+
+Increment now expresses the indexed byte increment, range wrap, and
+`ValidTrack` loop predicate directly.  This agrees with retail SLD lines
+252-254 and remains PASS at 43 instructions.  Decrement uses one direct
+conditional assignment:
+`fValue[index] = (fValue[index] == 0 ? fNumTracks : fValue[index]) - 1`.
+That no-local expression is not merely semantic shorthand: it reproduces
+retail's conditional value selection followed by its single common byte store.
+The superficially natural three-statement spelling (`if` assignment followed
+by `--`) is a measured FAIL 10 at 44/36 instructions because GCC emits the
+assignment store and then reloads the indexed value before decrementing it.
+The conditional expression is PASS at 36 instructions.  Fresh `-g` twins for
+both functions are instruction-identical to their normal gate objects and emit
+no named local beyond the reliable retail parameter set.
+
+Two complete `fetracks.cpp` gates remain 15/15 PASS.  The strict
+frontend/common audit advances from 583 to 585 declaration-clean functions and
+reduces generic extra names from 847 to 841, with zero missing names, type
+findings, storage findings, global findings, or mapping reviews.  The frontend
+board remains 836/838 with zero compile failures and the same two pre-existing
+residuals.  Both relink lanes are GREEN and the vtable audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

@@ -1471,76 +1471,16 @@ void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache *sd,POLY_GT4 *prim,CCOORD16 
 void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
 
 {
-  int*z;
-  int p1;
-  int p2;
-  int p3;
-  int t2;
-  short tx;
-  short ty;
-  short tz;
   long * dp0;
   long * dp1;
   long * dp2;
   int newIndex;
-  DR_TWIN * aprim;
-  int p0;
-  int dU;
-  short vert2_proj_x;
-  int vertProj_p;
-  short vert0_proj_x;
-  short tu27;
-  void *tp2;
-  short vert1_proj_x;
-  short tu28;
-  short vert3_proj_x;
-  u_int *tp1;
-  short tu29;
-  short tu30;
-  int tu24;
-  int dV;
-  int ti5;
-  u_int uVar3_00;
-  short sVar1;
-  short ts27;
-  int iVar2;
-  u_long l2;
-  int depth_index;
-  int primPtr;
-  int depth_avg;
-  short ts31;
-  u_long l3;
-  int ti18;
-  Track_tMaterial *currentQuadMat;
-  int vert_y_pack;
-  int vert_x_pack;
-  int vertProj_idx;
-  int vert1_idx;
   CCOORD16 *geomVertices;
-  int geomVerts_p;
-  short vert0_proj_y;
-  short vert1_proj_y;
-  short vert2_proj_y;
-  short vert3_proj_y;
-  int t1;
-  short tu46;
-  short tu47;
-  short tu48;
-  short tu49;
-  int t3;
-  int tp36;
-  int zeroTransFlag;
   POLY_GT4 *prim;
-  Draw_tPixMap *workPmx;
-  int save_pre_otz;
-  char flag;
-  int doSubdivision;
-  int face;
   CCOORD16 vt0;
   CCOORD16 vt1;
   CCOORD16 vt2;
   CCOORD16 vt3;
-  RECT r;
   long dvxy0;
   long dvxy1;
   long dvxy3;
@@ -1551,13 +1491,6 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
   long b;
   long c;   /* SYM AUTO -0x28 -- vertex-3 colour for the dpct trio (was a stray u_int) */
   long color;
-  int tu5;
-  int tp6;
-  u_char *tp20;
-  u_char *p;
-  int tu1;
-  u_long l0;
-  u_long l1;
   
   /* MATCH (2026-08-01, rule-8 SYM rewrite of the whole vertex-setup section):
    * the SYM 8c block @0x800C64F8 names EVERY local here -- outer block:
@@ -1760,6 +1693,14 @@ gte_stlvnl(((char *)sd + 0xc8));
        ((-(sd->tVn1).vx <= (sd->tVn1).vz || (-(sd->tVn2).vx <= (sd->tVn2).vz)))))) &&
      (((-1 < (sd->tVn0).vz || (-1 < (sd->tVn1).vz)) ||
       ((-1 < (sd->tVn2).vz || (-1 < (sd->tVn3).vz)))))) {
+    Track_tMaterial *currentQuadMat;
+    Draw_tPixMap *workPmx;
+    int save_pre_otz;
+    int primPtr /* SYM-CODEGEN-CARRIER: primPtr -- direct typed pPmx expressions are FAIL 21 (591/592), rotating the material/pmx load chain */;
+    int depth_avg /* SYM-CODEGEN-CARRIER: depth_avg -- deriving both shifts from sd->otz/save_pre_otz is FAIL 6 at count-exact 592/592 */;
+    char flag;
+    int doSubdivision;
+    int face;
     gte_avsz4_b();
     currentQuadMat = sd->materials + *((short *)inQuad);
     flag = currentQuadMat->flag;
@@ -1773,7 +1714,6 @@ gte_stsxy3(&dvxy1,&dvxy3,&dvxy2);
     if ((face == 0) && (doSubdivision == 0)) {
       gte_nclip_b();
 gte_swc2(0x18,&bfct);
-      iVar2 = 1;
       if ((sd->head).mirror == 1) {
         bfct = -bfct;
       }
@@ -1786,7 +1726,7 @@ gte_swc2(0x18,&bfct);
         gte_ldsxy3(dvxy0,dvxy1,dvxy2);
         gte_nclip();
 gte_swc2(0x18,&bfct);
-        if ((sd->head).mirror == iVar2) {
+        if ((sd->head).mirror == 1) {
           bfct = -bfct;
         }
         if (bfct < 0) {
@@ -1810,12 +1750,12 @@ gte_swc2(0x8,&depthcue);
      * -- the `sd->otz = save_pre_otz` store rides the bne delay slot (unconditional),
      * each arm adds sd->offset into $v0 separately, and gcc cross-jump-merges the two
      * `sd->otz =` stores into the shared tail `sw`. */
-    depth_avg = sd->otz;
     /* MATCH (w40-a2): STORE-THEN-READ-BACK -- the oracle emits `sra v0,a1,1` and then a
      * redundant `addu s3,v0,zero` copy before the `sw` in the bne delay slot; that copy
      * is cse forwarding the just-STORED field value into a second (named) evaluation.
      * Writing `save_pre_otz = depth_avg>>1; sd->otz = save_pre_otz;` computes straight
      * into $s3 and loses the copy. */
+    depth_avg = sd->otz;
     sd->otz = depth_avg >> 1;
     save_pre_otz = sd->otz;
     if (sd->offset == Draw_gMidGroundOtz) {
@@ -1832,16 +1772,16 @@ gte_swc2(0x8,&depthcue);
          * lw t0,0(t0)`) and drives both OT-slot computations off that register, while
          * re-reading `sd->otz` for each of them (`lw v0,0x94(s0)` ... `lw a2,0x94(s0)`).
          * Per-use `Render_gPalettePtr` costs a second scratchpad load. */
-        u_char *pal;
+        DR_TWIN *aprim;
+        RECT r;
         aprim = (DR_TWIN *)Render_gPacketPtr;
-        pal = Render_gPalettePtr;
         r.w = 0;
         r.h = 0;
         r.x = 0;
         r.y = 0;
-        ((DrawW_PTag *)aprim)->addr = ((DrawW_PTag *)(pal + sd->otz * 4))->addr;
+        ((DrawW_PTag *)aprim)->addr = ((DrawW_PTag *)(Render_gPalettePtr + sd->otz * 4))->addr;
         Render_gPacketPtr = (u_char *)aprim + 0xc;
-        ((DrawW_PTag *)(pal + sd->otz * 4))->addr = (u_long)aprim;
+        ((DrawW_PTag *)(Render_gPalettePtr + sd->otz * 4))->addr = (u_long)aprim;
         SetTexWindow(aprim,&r);
       }
       /* RECEIPT (w44-a7) -- THE ORACLE'S TRUE SHAPE HERE IS AN if/else, AND IT IS
@@ -2064,20 +2004,21 @@ gte_swc2(0x8,&depthcue);
          * w40-a2 read the oracle as load-3/store-3 and left dvxy0 stored DIRECTLY,
          * which cost a `nop` (its lw could not fill a slot) AND shifted the whole
          * group's registers down one (v0/v1/a0 vs the oracle's v1/a0/a1).  Adding the
-         * FOURTH temp `q0` is worth 13 of the 20 residual diffs: 20 -> 7, 592 -> 591.
+         * FOURTH temp (the SYM `p0`) is worth 13 of the 20 residual diffs:
+         * 20 -> 7, 592 -> 591.
          * (The remaining 7 = the default-then-override / if-else trade only.) */
-        long q0;
-        long q1;
-        long q2;
-        long q3;
-        q0 = dvxy0;
-        q1 = dvxy1;
-        q2 = dvxy2;
-        q3 = dvxy3;
-        *(long *)&prim->x0 = q0;
-        *(long *)&prim->x1 = q1;
-        *(long *)&prim->x2 = q2;
-        *(long *)&prim->x3 = q3;
+        int p0;
+        int p1;
+        int p2;
+        int p3;
+        p0 = dvxy0;
+        p1 = dvxy1;
+        p2 = dvxy2;
+        p3 = dvxy3;
+        *(long *)&prim->x0 = p0;
+        *(long *)&prim->x1 = p1;
+        *(long *)&prim->x2 = p2;
+        *(long *)&prim->x3 = p3;
       }
       /* NEGATIVE (w40-a2, retested at TWO baselines, 227 and 139): the oracle's
        * `beqz $v0` makes the DrawW_NightColorCalc call the FALL-THROUGH, so the arms
@@ -2115,9 +2056,9 @@ gte_ldrgb(&a);
            * `lw`s, then the three `sw`s) -- reproduce with three register temps
            * (catalog par.A "N named value-temps / parallel chains"). */
           {
-            long tc;
-            long ta;
-            long tb;
+            long tc /* SYM-CODEGEN-CARRIER: tc -- direct a/b/c light-table loads are FAIL 54 (596/592), serializing the three chains */;
+            long ta /* SYM-CODEGEN-CARRIER: ta -- separate register staging preserves the retail parallel load batch */;
+            long tb /* SYM-CODEGEN-CARRIER: tb -- separate register staging preserves the retail parallel load batch */;
             ta = *(long *)(Chunk_lightTable + vt0.light);
             tb = *(long *)(Chunk_lightTable + vt1.light);
             tc = *(long *)(Chunk_lightTable + vt3.light);
@@ -2149,25 +2090,33 @@ gte_strgb(&color);
        * oracle's access width, not 3 manual sub-field byte/half stores per
        * group (field-fusion lever, same family as DrawW_SetUpSubdividFacet
        * _Line's *(u_short*)&v->u fusion). */
-      l0 = *(u_long *)&workPmx->u0;
-      l1 = *(u_long *)&workPmx->u1;
-      l2 = *(u_long *)&workPmx->u2;
-      l3 = *(u_long *)&workPmx->u3;
-      *(u_long *)&prim->u0 = l0;
-      *(u_long *)&prim->u1 = l1;
-      *(u_long *)&prim->u2 = l2;
-      *(u_long *)&prim->u3 = l3;
+      {
+        u_long l0;
+        u_long l1;
+        u_long l2;
+        u_long l3;
+        l0 = *(u_long *)&workPmx->u0;
+        l1 = *(u_long *)&workPmx->u1;
+        l2 = *(u_long *)&workPmx->u2;
+        l3 = *(u_long *)&workPmx->u3;
+        *(u_long *)&prim->u0 = l0;
+        *(u_long *)&prim->u1 = l1;
+        *(u_long *)&prim->u2 = l2;
+        *(u_long *)&prim->u3 = l3;
+      }
       if (prim->clut == 0xffff) {
-        ti18 = (save_pre_otz - sd->startfog) * 0x10 >> ((int)sd->distfog);
-        if (ti18 < 0) {
-          ti18 = 0;
+        int depth_index;
+        depth_index = (save_pre_otz - sd->startfog) * 0x10 >> ((int)sd->distfog);
+        if (depth_index < 0) {
+          depth_index = 0;
         }
-        else if (0xf < ti18) {
-          ti18 = 0xf;
+        else if (0xf < depth_index) {
+          depth_index = 0xf;
         }
-        prim->clut = gClutDepth[workPmx->pad2][ti18];
+        prim->clut = gClutDepth[workPmx->pad2][depth_index];
       }
       if (doSubdivision != 0) {
+        int zeroTransFlag;
         zeroTransFlag = sd->zeroGTETransFlag;
 gte_SetRotMatrix(((char *)sd + 0x74));
         if (zeroTransFlag == 0) {
@@ -2195,28 +2144,31 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         /* MATCH: the oracle reads the two scratchpad cursors INSIDE the guard (single
          * use site); hoisting them above the `andi 0x80` test costs 5 unconditional
          * insns the oracle never pays. */
-        iVar2 = (u_int)workPmx->u3 - (u_int)workPmx->u0;
-        if (iVar2 < 0) {
-          iVar2 = -iVar2;
+        DR_TWIN *aprim;
+        int dU;
+        int dV;
+        RECT r;
+        dU = (u_int)workPmx->u3 - (u_int)workPmx->u0;
+        if (dU < 0) {
+          dU = -dU;
         }
-        ti5 = (u_int)workPmx->v3 - (u_int)workPmx->v0;
-        if (ti5 < 0) {
-          ti5 = -ti5;
+        dV = (u_int)workPmx->v3 - (u_int)workPmx->v0;
+        if (dV < 0) {
+          dV = -dV;
         }
-        r.w = (short)iVar2 + 1;
-        r.h = (short)ti5 + 1;
+        r.w = (short)dU + 1;
+        r.h = (short)dV + 1;
         r.x = 0;
         r.y = 0;
-        p = Render_gPacketPtr;
-        tp20 = Render_gPalettePtr;
+        aprim = (DR_TWIN *)Render_gPacketPtr;
         /* MATCH: the oracle reads each scratchpad cursor ONCE (`lw a0,0(t2)` /
          * `lw t0,0(t0)`) and drives the whole OT-link off those two registers -- the
          * per-use `Render_gPacketPtr` / `Render_gPalettePtr` re-reads cost 5 extra
          * scratchpad loads. */
-        ((DrawW_PTag *)p)->addr = ((DrawW_PTag *)(tp20 + sd->otz * 4))->addr;
-        Render_gPacketPtr = p + 0xc;
-        ((DrawW_PTag *)(tp20 + sd->otz * 4))->addr = (u_long)p;
-        SetTexWindow((DR_TWIN *)p,&r);
+        ((DrawW_PTag *)aprim)->addr = ((DrawW_PTag *)(Render_gPalettePtr + sd->otz * 4))->addr;
+        Render_gPacketPtr = (u_char *)aprim + 0xc;
+        ((DrawW_PTag *)(Render_gPalettePtr + sd->otz * 4))->addr = (u_long)aprim;
+        SetTexWindow(aprim,&r);
       }
     }
   }

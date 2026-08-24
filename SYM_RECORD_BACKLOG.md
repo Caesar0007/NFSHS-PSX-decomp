@@ -2098,6 +2098,39 @@ Detailed verification remains exact at 976/976 instructions.  The complete
 `drawc.cpp` gate remains **20/20 PASS**, its rebuilt object reports delay-slot
 `bad = 0`, and the vtable indexing audit passes all 926 files.
 
+### P49 — `DrawW_DrawQuad` complete SYM local reconciliation (`2026-08-24`)
+
+The refreshed strict game/PSX declaration audit is recorded in
+[`game_psx_after_drawquad_reconcile_20260824.md`](scratchpad/root_sym_audit/game_psx_after_drawquad_reconcile_20260824.md).
+It closes the final generic-local review entry: all 395/395 mapped game/PSX
+functions are declaration-clean, with zero missing SYM names, zero extra
+source-local names, zero type findings, zero storage findings, and zero mapping
+reviews.
+
+`DrawW_DrawQuad` no longer carries its declaration-only decompiler slab.  The
+live projection words are restored to the SYM `int p0`/`p1`/`p2`/`p3`, the fog
+lookup uses `depth_index`, and the texture-window deltas use `dU`/`dV`.
+`aprim` and `RECT r` now have the two separate lexical scopes recorded by SYM;
+the material, subdivision, UV-copy, fog-index, and zero-translation locals are
+likewise declared in their owning blocks.  Direct non-volatile
+`Render_gPalettePtr` expressions let GCC perform the retail cursor reuse, so
+the non-SYM `pal`, `tp20`, and packet `p` caches disappear without changing a
+byte.
+
+Five explicitly receipted compiler-shaping identities remain and are not
+claimed as debug-visible locals.  Eliminating `depth_avg` produces 6
+differences at count-exact 592/592; eliminating `primPtr` through typed direct
+`pPmx` expressions produces 21 differences and one missing instruction; and
+serializing the three light-table loads directly into the address-taken
+`a`/`b`/`c` AUTOs instead of staging through `ta`/`tb`/`tc` produces 54
+differences at 596/592.  Their `SYM-CODEGEN-CARRIER` markers preserve those
+negative receipts explicitly.
+
+Detailed verification remains exact at 592/592 instructions.  The complete
+game/PSX gate remains **385/395 PASS** with no compile failures, the rebuilt
+`draww.cpp` object reports delay-slot `bad = 0`, and the vtable indexing audit
+passes all 926 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

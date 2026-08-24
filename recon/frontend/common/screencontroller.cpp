@@ -566,6 +566,16 @@ void tScreenControllerConfig::ActualDrawController(int frame,int fadelevelmain,i
   }
 }
 
+static inline short ControllerTwistRange(int player)
+{
+  /* The SLD inline block at 0x80044994 owns exactly `player` (INT) and
+     `range` (SHORT).  Keeping the short inside this helper preserves that
+     original source scope without forcing its promoted caller value back
+     through a 16-bit spill/reload. */
+  short range = (short)(gPadinfo.buf[player * 4].data.negcon.twist - 0x80);
+  return range;
+}
+
 /* ---- tScreenControllerConfig::DrawController  (screencontroller.cpp:1156) ---- */
 /* MATCH: 77 -> 5. `flare_intensity / 4` restores gcc's signed-division bias,
    `__builtin_abs` restores the retail absolute-value branch/copy shape, and
@@ -879,18 +889,15 @@ DrawCtrl_ticksUpdate:
     }
   }
   int frame = (uint)(byte)this->fCurrentController;
-  /* SYM-TYPE-OVERRIDE: range -- SYM's inlined block records SHORT.  Keeping
-     the promoted arithmetic carrier as int is required for retail codegen;
-     spelling the carrier itself short adds a truncation/sign-extension chain
-     (55 diffs, 837/836) and was reverted. */
-  int range;
+  /* SYM-INLINE-LOCAL: range = ControllerTwistRange */
+  int rangeValue;
   int modeBase;
   byte controller;
   if (((u_int)(frame - 1) < 2) &&
       (((menuDefs[0]->itemControllerJoyRange).fActive != 0 ||
        ((menuDefs[0]->itemControllerCenterPoint).fActive != 0)))) {
-    range = gPadinfo.buf[this->player * 4].data.negcon.twist - 0x80;
-    if (range < 0xb) goto DrawCtrl_smallAxis;
+    rangeValue = ControllerTwistRange(this->player);
+    if (rangeValue < 0xb) goto DrawCtrl_smallAxis;
     modeBase = 0x1a;
     controller = (byte)frame;
     if ((byte)this->fCurrentController == 2) {
@@ -898,24 +905,24 @@ DrawCtrl_ticksUpdate:
     }
     if (controller == 2) {
 DrawCtrl_calcModeTwo:
-      frame = modeBase + (range * 0xd) / 0x81;
+      frame = modeBase + (rangeValue * 0xd) / 0x81;
       goto DrawCtrl_axisDone;
     }
     /* The retail CFG tests the fresh field read and captured frame separately. */
     goto DrawCtrl_calcModeOther;
 DrawCtrl_smallAxis:
     modeBase = 0x23;
-    if (range >= -10) {
+    if (rangeValue >= -10) {
       goto DrawCtrl_zeroAxis;
     }
-    range = -range;
+    rangeValue = -rangeValue;
     controller = (byte)frame;
     if ((byte)this->fCurrentController == 2) {
       modeBase = 0x10;
     }
     if (controller == 2) goto DrawCtrl_calcModeTwo;
 DrawCtrl_calcModeOther:
-    frame = modeBase + (range << 3) / 0x81;
+    frame = modeBase + (rangeValue << 3) / 0x81;
     goto DrawCtrl_axisDone;
 DrawCtrl_zeroAxis:
     frame = (uint)(frame == 2);

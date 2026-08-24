@@ -2320,6 +2320,24 @@ mapping review. An explicit source body would contradict the same-line SYM
 evidence and alter member construction/teardown decisions, so body absence is
 the proven source-restored state rather than an unresolved disposition.
 
+### P59 — `DrawController` inlined `SHORT range` restored (`2026-08-24`)
+
+The receipt is recorded in
+[`drawcontroller_inline_range_20260824.md`](scratchpad/root_sym_audit/drawcontroller_inline_range_20260824.md).
+SLD block topology proves that `range` is not the former flat function-scope
+`int`: it is a `SHORT` local in a line-1 inlined helper block beginning at
+`0x80044994`, alongside the helper's `INT player` parameter.  The source now
+restores that boundary with a static inline short helper and keeps its promoted
+caller value in a separately named `int` carrier.
+
+`DrawController__23tScreenControllerConfig` remains exact at 836/836
+instructions.  The strict frontend/common audit returns to zero missing names
+and zero type findings, records the helper-local ownership explicitly, and the
+function-type override queue falls from two entries to one.  The frontend bulk
+gate remains 835/838 with no compile failures, relink remains green with zero
+genuine unresolved references, the full production link succeeds, and the
+926-file vtable audit passes.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

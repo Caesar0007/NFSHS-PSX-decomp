@@ -1008,6 +1008,49 @@ def documented_function_type_overrides(target: Path, src: SourceFunction) -> set
     )
 
 
+def documented_inline_locals(
+    target: Path, src: SourceFunction, src_fns: list[SourceFunction]
+) -> tuple[list[dict], dict[str, str]]:
+    """Resolve SYM locals owned by an inlined source helper.
+
+    PsyQ places an inlined callee's debug locals inside the emitted caller's
+    function block.  A flat source-only audit therefore cannot find those
+    names in the caller even when the original helper and its lexical local
+    have both been restored.  ``SYM-INLINE-LOCAL: local = Helper`` is a narrow
+    ownership receipt: admit the declaration only when ctags finds exactly one
+    same-TU helper and that helper really declares the named local.
+    """
+    path = target / src.path
+    try:
+        body = path.read_text(encoding="utf-8", errors="replace").splitlines()[
+            src.line - 1 : src.end
+        ]
+    except OSError:
+        return [], {}
+    mappings = re.findall(
+        r"\bSYM-INLINE-LOCAL:\s*([A-Za-z_]\w*)\s*=\s*([A-Za-z_]\w*)",
+        "\n".join(body),
+    )
+    resolved: list[dict] = []
+    owners: dict[str, str] = {}
+    for local_name, helper_name in mappings:
+        helpers = [
+            fn
+            for fn in src_fns
+            if fn.path == src.path and fn.name == helper_name
+        ]
+        if len(helpers) != 1:
+            continue
+        declarations = [
+            decl for decl in helpers[0].decls if decl.get("name") == local_name
+        ]
+        if not declarations:
+            continue
+        resolved.extend(declarations)
+        owners[local_name] = helper_name
+    return resolved, owners
+
+
 def audit(
     sym_fns: list[SymFunction],
     sym_globals: list[SymGlobal],
@@ -1048,6 +1091,8 @@ def audit(
     clean = 0
     documented_total = 0
     documented_rows: list[tuple[SymFunction, set[str]]] = []
+    inline_local_total = 0
+    inline_local_rows: list[tuple[SymFunction, dict[str, str]]] = []
     codegen_total = 0
     codegen_rows: list[tuple[SymFunction, set[str]]] = []
     function_type_override_total = 0
@@ -1072,6 +1117,13 @@ def audit(
         ignored_names = {"this", "__in_chrg", "__vtt_parm"}
         sym_names = {d.name for d in sym_decls if d.name not in ignored_names}
         src_decls = list(src.decls)
+        inline_decls, inline_owners = documented_inline_locals(
+            target, src, src_fns
+        )
+        src_decls.extend(inline_decls)
+        if inline_owners:
+            inline_local_total += len(inline_owners)
+            inline_local_rows.append((sf, inline_owners))
         stat_names = {d.name for d in sym_decls if d.cls == "STAT"}
         src_decls.extend(
             d for d in file_decls.get(source_basename(sf.source_file), []) if d["name"] in stat_names
@@ -1303,6 +1355,7 @@ def audit(
             f"- Function storage-class findings: {function_storage_total}",
             f"- Implicit aggregate special members (source body correctly absent): {implicit_generated_total}",
         f"- Explicit oracle-receipted carrier mappings: {documented_total}",
+        f"- Explicit restored inline-local mappings: {inline_local_total}",
         f"- Explicit source-only codegen carriers: {codegen_total}",
         f"- Explicit oracle-proven function type overrides: {function_type_override_total}",
             f"- Functions needing mapping review: {len(selected) - mapped - implicit_generated_total}",
@@ -1365,6 +1418,12 @@ def audit(
     lines.extend(["## Explicit SYM carrier/optimization mappings", ""])
     for sf, names in documented_rows:
         lines.append(f"- `{sf.name}`: " + ", ".join(f"`{n}`" for n in sorted(names)))
+    lines.extend(["", "## Explicit restored inline-local mappings", ""])
+    for sf, owners in inline_local_rows:
+        entries = [
+            f"`{name}` from `{helper}`" for name, helper in sorted(owners.items())
+        ]
+        lines.append(f"- `{sf.name}`: " + ", ".join(entries))
     lines.extend(["", "## Explicit source-only codegen carriers", ""])
     for sf, names in codegen_rows:
         lines.append(f"- `{sf.name}`: " + ", ".join(f"`{n}`" for n in sorted(names)))

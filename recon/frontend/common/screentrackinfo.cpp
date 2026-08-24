@@ -102,6 +102,8 @@ void tScreenTrackInfo::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
 {
   if ((keyval == kInput_KeyType_Triangle) &&
      (TurnOffInstant(&this->fVideoWall), tournamentManager.fCurrentTrack == 0)) {
+    /* SYM-CODEGEN-CARRIER: fee -- direct addition is measured FAIL 8 (39/39)
+       because it swaps the retail value and accumulated-money registers. */
     long fee = *(long *)((char *)(tournamentManager.fDefinition) +
          ((uint)(tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset +
           tournamentManager.fTournament) * sizeof(tTourneyInfo) + 0x54);

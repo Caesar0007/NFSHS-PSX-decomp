@@ -717,7 +717,8 @@ short tDialogInteractive::Run()
 void tDialogYesNo::CalculateDimensions()
 
 {
-  
+  /* SYM-CODEGEN-CARRIER: iVar2 -- the W55-A15 oracle receipt below proves
+     this temporary is required to preserve retail's in-place field update. */
   int iVar2;
 
   /* MATCH (W55-A15, 20->PASS): retail mutates the FIELD in place in BOTH arms

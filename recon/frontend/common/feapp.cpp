@@ -273,8 +273,9 @@ void tFEApplication::Redraw()
   char buffer [32];
   DRAWENV *drenv;
   DR_AREA *daprim;
-  /* SYM-CODEGEN-CARRIER: pc, pal2 -- see the W76-A12 receipt below. */
+  /* SYM-CODEGEN-CARRIER: pc -- see the W76-A12 receipt below. */
   u_char **pc;
+  /* SYM-CODEGEN-CARRIER: pal2 -- see the W76-A12 receipt below. */
   u_int pal2;
   RECT r;
 

@@ -159,12 +159,9 @@ void tScreenTournSelect::Cleanup()
 void tScreenTournSelect::UpdateVideoWall(tTourneyInfo *tourn)
 
 {
-  char *fileName;
-
   if (tourn->fTrophyID != (signed char)this->fPreviousTrophy) {
-    fileName = gSwapFileName;
     GetTrophyName(&tournamentManager,tourn,ts_Medium,gSwapFileName,-1);
-    ::AsyncLoadSwapShapeFile((tScreen *)this,fileName);
+    ::AsyncLoadSwapShapeFile((tScreen *)this,gSwapFileName);
     this->fTVsInitialized = 0;
     this->fPreviousTrophy = tourn->fTrophyID;
     if (-1 < this->fTransitionDirection) {

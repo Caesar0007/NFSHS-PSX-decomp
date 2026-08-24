@@ -20,15 +20,13 @@ static void TransformVector(int (&vect)[4],int (&transform)[4][4],int (&result)[
 static void TransformVector(int (&vect)[4],int (&transform)[4][4],int (&result)[4])
 
 {
-  int prod;
   short I;
   short J;
 
   for (I = 0; I < 4; I = I + 1) {
     result[I] = 0;
     for (J = 0; J < 4; J = J + 1) {
-      prod = fixedmult(vect[J],transform[J][I]);
-      result[I] = result[I] + prod;
+      result[I] = result[I] + fixedmult(vect[J],transform[J][I]);
     }
   }
   return;
@@ -59,6 +57,8 @@ void DrawCar(tCarInfo &carInfo,short x,short y,float camerax,float cameray,char 
 {
   int the_simcarcolor;
   u_long ticks;
+  /* SYM-CODEGEN-CARRIER: signedTicks -- the W63/W66 oracle receipt above
+     proves this source conversion supplies retail's signed remainder shape. */
   long signedTicks;
   
   ticks = ::ticks[0];
@@ -488,6 +488,8 @@ void tScreenCarSelect::CalcSplinePosition(int knot1,int knot2,int knot3,int knot
                int &camY,int &camZ,int &screenX,int &screenY,int &camRot)
 
 {
+  /* SYM-CODEGEN-CARRIER: _i -- writing through the output references directly
+     is measured FAIL 107 (185/176); this scalar preserves retail allocation. */
   int _i;
   short i;
   int T [4];
@@ -569,6 +571,8 @@ void tScreenCarSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,ch
 void tScreenCarSelect::UpdateVideoWall(tCarInfo &carInfo)
 
 {
+  /* SYM-CODEGEN-CARRIER: bVar1 -- direct fCountry storage is measured FAIL 2
+     (52/52) because its relocation/reference identity differs from retail. */
   u_int bVar1;
 
   if ((((ushort)carInfo.fCarIndex != this->fPreviousCar) ||
@@ -594,10 +598,7 @@ void tScreenCarSelect::UpdateVideoWall(tCarInfo &carInfo)
 void tScreenCarSelect::AllocateAsyncBuffer()
 
 {
-  char *str;
-  
-  str = Platform_GetDCTBuffer(40000,"VideoWall");
-  this->fSwapShapes.fDestFile = str;
+  this->fSwapShapes.fDestFile = Platform_GetDCTBuffer(40000,"VideoWall");
   return;
 }
 
@@ -619,14 +620,11 @@ void tScreenCarSelect::FreeAsyncBuffer()
 void tScreenCarSelect::InitializeVideoWall()
 
 {
-  tVideoWall *videowall;
-  
-  videowall = this->fVideoWall;
   ::Initialize(&this->fVideoWall[0],this->tvConfigs,this->fSwapShapes.fShapes,0,10,tvOrder,0x96);
-  SetAvailableText(videowall,0xf8,0x140,0x50);
-  videowall->SetAvailableIcon(0x1c,10,0x136,0x3c,this->fPermShapes.fShapes);
+  SetAvailableText(this->fVideoWall,0xf8,0x140,0x50);
+  this->fVideoWall->SetAvailableIcon(0x1c,10,0x136,0x3c,this->fPermShapes.fShapes);
   if ((this->fSwapShapes.fFlags & 1) != 0) {
-    UpdateImages(videowall);
+    UpdateImages(this->fVideoWall);
     this->fTVsInitialized = 1;
   }
   return;
@@ -1572,6 +1570,8 @@ void tScreenCarSelectDuel::GetShapeInfo(short &numPermShapes,short &numSwapShape
 void tScreenCarSelectDuel::UpdateVideoWall(tCarInfo &carInfo)
 
 {
+  /* SYM-CODEGEN-CARRIER: bVar1 -- direct fCountry storage is measured FAIL 2
+     (52/52) because its relocation/reference identity differs from retail. */
   u_int bVar1;
 
   if ((((ushort)carInfo.fCarIndex != this->fPreviousCar) ||
@@ -1968,6 +1968,8 @@ void tScreenCarSelectTwoPlayer::GetShapeInfo(short &numPermShapes,short &numSwap
 void tScreenCarSelectTwoPlayer::UpdateVideoWall(tCarInfo &carInfo)
 
 {
+  /* SYM-CODEGEN-CARRIER: bVar1 -- direct fCountry storage is measured FAIL 3
+     (52/53); this temporary retains retail's load-delay-slot schedule. */
   u_int bVar1;
 
   if ((((ushort)carInfo.fCarIndex != this->fPreviousCar) ||

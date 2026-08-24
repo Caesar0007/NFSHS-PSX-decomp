@@ -113,6 +113,8 @@ void SubtractiveBox(int x,int y,int w,int h,int col1,int col2,int col3,int col4)
      Removing either identity use leaves the otherwise exact 88-insn body
      with the sole $s1/$s2 permutation (24 diffs). */
   DR_MODE *dr_mode;
+  /* SYM-CODEGEN-CARRIER: packetCell -- the W59 oracle receipt above proves
+     this source-only address pseudo is required for retail register allocation. */
   u_char **packetCell;
   POLY_G4 *prim;
 
@@ -620,10 +622,7 @@ void tOptionsMenu::Draw()
 void tOptionsMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command)
 
 {
-  short sVar1;
-  
-  sVar1 = this->GetNumberEnabledItems();
-  if (sVar1 == 0) {
+  if (this->GetNumberEnabledItems() == 0) {
     this->fCurrentItem = 0;
     if ((keyval != kInput_KeyType_Triangle) && (keyval != kInput_KeyType_Circle)) {
       keyval = kInput_KeyType_AlreadyProcessed;

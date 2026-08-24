@@ -390,6 +390,8 @@ void tScreenCongrats::ProcessInput(tPlayer p,tInputKeyType &keyval,tMenuCommand 
 
 {
   extern SPEECHINFO ginfo;   /* global @0x800514e8 (feaudio.cpp); oracle reads ginfo+0x10 as lhu */
+  /* SYM-CODEGEN-CARRIER: bConsumeKey -- collapsing this temporary is measured
+     FAIL 5 (19/22) and removes retail's explicit normalized-boolean branch. */
   bool bConsumeKey;
 
   if (keyval != kInput_KeyType_Circle) {

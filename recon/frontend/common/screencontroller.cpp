@@ -1088,6 +1088,8 @@ void tScreenControllerConfig::DrawBackground()
      test as the corresponding integer XOR restores retail's immediate `xori`;
      a pointer comparison made gcc retain constant 1 in $s1 across calls,
      displaced `fade` to $s2, and added an unnecessary saved register. */
+  /* SYM-CODEGEN-CARRIER: om -- the W57/W64 oracle receipt above proves this
+     pointer is required to retain retail's displaced fScreenFade load. */
   tOptionsMenu *om = &menuDefs[0]->menuControllerConfig;
   fade = (short)(om->fScreenFade >> 1);
   if (0x80 < fade) {

@@ -2149,9 +2149,10 @@ these placeholders restores the source/data model instead of inventing 64-byte
 and structure-sized allocations absent from the retail object.
 
 The complete game/PSX function gate remains **385/395 PASS**, with 35/35 TUs
-compiling and no function result changed.  The repository-wide link still
-halts on the pre-existing unresolved jump-table, vtable, and library-reference
-backlog; that independent gate does not report an `SP` or `Sfx_gCache`
+compiling and no function result changed.  At this historical checkpoint the
+repository-wide link still halted on the then-unresolved jump-table, vtable,
+and library-reference backlog; P51 immediately below records its subsequent
+closure.  That independent gate did not report an `SP` or `Sfx_gCache`
 dependency.
 
 ### P51 — full-link jump-table/vtable/reference backlog closed (`2026-08-24`)
@@ -2181,6 +2182,16 @@ indexing audit remains clean across 926 files.
 The produced flat image is still 21.14% identical, first differing at `0x878`
 with a `-32` byte size delta. That is the separate legacy section-layout/order
 backlog and is no longer conflated with unresolved references.
+
+A fresh 2026-08-24 re-audit also corrected the diagnostic census itself.
+`tools/phantom_audit.py` now reads the declared `nonmatching` symbol from each
+oracle assembly file instead of treating an address-suffixed filename as a
+distinct link name.  The seven former ownership findings were all false
+positives: five file-local duplicate helper instances and the `cd_read` and
+`_bzero_w` filename aliases.  The normalized census reports 3,484/3,484
+distinct oracle names owned, zero hidden phantoms, zero missing owners, and
+513/513 reconstruction TUs compiling.  The independent full build and both
+relink lanes remain green with zero genuine unresolved references.
 
 ### P52 — game/PSX function-local static scope restored (`2026-08-24`)
 

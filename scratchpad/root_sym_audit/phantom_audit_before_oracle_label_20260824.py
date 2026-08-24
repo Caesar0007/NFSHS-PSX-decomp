@@ -25,32 +25,14 @@ bld.OUT = bld.BUILD
 SKIP_COMPILE = '--skip-compile' in sys.argv
 
 # ---------- 1. oracle names ----------
-# Some oracle files need an address suffix solely to keep two same-named static
-# copies distinct on disk (and two historical files use an address-only stem).
-# The symbol being audited is the declaration after `nonmatching`, not that
-# filesystem key.  Using the stem here used to create seven false ownership
-# gaps even though every corresponding retail symbol had a compiled owner.
-oracle = {}  # declared name -> set of sources ('main'/'front')
-oracle_files = 0
-oracle_filename_aliases = []
-
-def declared_oracle_name(path):
-    text = path.read_text(errors='replace')
-    match = re.search(r'^\s*nonmatching\s+([^,\s]+)', text, re.MULTILINE)
-    return match.group(1) if match else path.stem
-
+oracle = {}  # name -> set of sources ('main'/'front')
 for sub in ('main', 'front'):
     d = ROOT / 'asm' / 'nonmatchings' / sub
     if not d.is_dir():
         continue
     for f in d.glob('*.s'):
-        oracle_files += 1
-        name = declared_oracle_name(f)
-        oracle.setdefault(name, set()).add(sub)
-        if name != f.stem:
-            oracle_filename_aliases.append((f.stem, name, sub))
-print(f"oracle files: {oracle_files}  distinct declared names: {len(oracle)}")
-print(f"oracle filename aliases normalized: {len(oracle_filename_aliases)}")
+        oracle.setdefault(f.stem, set()).add(sub)
+print(f"oracle names: {len(oracle)}")
 
 # ---------- 2. compile every recon TU, collect defined symbols ----------
 tus = sorted(list(ROOT.glob('recon/**/*.c')) + list(ROOT.glob('recon/**/*.cpp')))
@@ -171,8 +153,7 @@ print(f"unmatched (ownership/missing gap): {len(unmatched)}")
 
 out = ROOT / 'scratch' / 'phantom_report.txt'
 with out.open('w') as f:
-    f.write(f"oracle files: {oracle_files}  distinct declared names: {len(oracle)}\n")
-    f.write(f"oracle filename aliases normalized: {len(oracle_filename_aliases)}\n")
+    f.write(f"oracle names: {len(oracle)}\n")
     f.write(f"recon TUs: {len(tus)}  compiled OK: {len(compile_ok)}  FAILED: {len(compile_fail)}\n")
     f.write(f"defined symbols (union): {len(defined)}\n")
     f.write(f"exact-matched: {len(exact)}\n")
@@ -189,8 +170,5 @@ with out.open('w') as f:
     f.write("\n=== UNMATCHED (no exact, no near — ownership/missing gap) ===\n")
     for name, sources in unmatched:
         f.write(f"{name}  [{','.join(sources)}]\n")
-    f.write("\n=== NORMALIZED ORACLE FILENAME ALIASES ===\n")
-    for stem, name, source in sorted(oracle_filename_aliases):
-        f.write(f"{stem} -> {name}  [{source}]\n")
 
 print(f"\nfull report -> {out}")

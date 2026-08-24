@@ -661,91 +661,38 @@ int DrawC_PrimStart(Draw_tVertex *center,Car_tObj *carObj,int lightAvg,Draw_CarC
   int i;
   int cop_flag;
   int half;
-  int mirror;
-  int overlay;
-  int eSpeed;
-  int quad;
-  short envMap;
-  int eColor;
-  int eColor2;
-  u_int uVar1;
-  Draw_tPixMap *pDVar2;
-  short tu12;
-  int envColor2;
-  int sub_ot_p;
-  int sub_otz_x4;
-  int drawEnv_p;
-  int envTexShape;
   int tunnelFlag;
-  int shapeData_p;
-  short extraShadow;
-  int sub_otz_h2;
   int sub_otOffset;
-  short extraEnvMap;
-  int iVar3;
-  short shadow;
-  u_char *puVar4;
-  int lightAvgScaled;
-  int envColor;
-  u_int uVar5;
-  int shadowQuad;
-  int matPart_a;
-  int menuPmx_w2;
-  int matPart_b;
-  int menuPmx_w3;
-  int menuPmx_w0;
-  int menuPmx_w1;
   int sub_otz;
-  int shapeIdx;
   int carType;
-  int vertCount;
-  DRAWENV *LEnv;
-  int tpageShadow;
-  int nabr_blend;
-  int envSpeed;
-  int shadowAbsOffs;
-  int halfTransp;
-  void *tp1;
-  u_int shadowTex;
-  Draw_tPixMap *reflMap_iter;
-  u_int envMapTex;
-  u_int shadow_align_a;
-  u_int envMap_w0;
-  short eIndexEnvMap;
-  u_int envMap_w3;
-  short eIndexShadow;
-  short headLight_bits;
-  int envMapBigBit;
-  int tp2;
-  void *tp3;
-  short tu14;
-  short tu15;
-  u_int envMap_align_a;
-  u_int shadowMap_w1;
-  int carTypeOffRange;
-  int tp8;
-  u_int envMap_align_b;
-  int tp12;
-  u_int shadowMap_w2;
-  int tp11;
-  long sub_otSize_local;
-  u_int shadow_align_b;
-  u_int *tp17;
-  u_char *tp20;
-  u_char *tp4;
-  u_short tu27;
+
+  /* Source-only compiler-shaping identities.  None has a SYM declaration, and
+   * each survives only because the natural direct spelling fails the retail
+   * oracle while this form is exact at 976/976:
+   *   SYM-CODEGEN-CARRIER: ctd
+   *     Direct `(carType - 0x16U) < 6` is 14 diffs at 976 instructions; the
+   *     split preserves the SYM carType/cop_flag homes ($s1/$s4).
+   *   SYM-CODEGEN-CARRIER: sort_carObj
+   *     Repeating `carObj->render.sort_carObj` directly is 17 diffs and grows
+   *     the body to 981 instructions; the typed cache restores the retail web.
+   *   SYM-CODEGEN-CARRIER: tunnelFlag
+   *     Comparing the call result directly is 24 diffs at 976 instructions.
+   *   SYM-CODEGEN-CARRIER: envShift
+   *   SYM-CODEGEN-CARRIER: pz
+   *   SYM-CODEGEN-CARRIER: evraw
+   *     The exhaustive allocator/scheduler ladder beside their use proves the
+   *     three-way split and zero-byte fences are jointly required; collapsing
+   *     any member regresses the authoritative detailed comparison. */
   
-  envMapBigBit = 0;
-  vertCount = (int)(carObj->render).currentCarType;
-  matPart_a = (int)&DrawC_gScreenMat;
+  half = 0;
+  carType = (int)(carObj->render).currentCarType;
   /* MATCH (w45-a4, 102 -> 86): the `- 0x16` needs its OWN pseudo.  Fused,
      cc1 computes the difference IN PLACE on the loaded value (`addiu s1,s4,-22;
      sltiu s1,s1,6`) which swaps the two SYM locals' homes; split, the value
      keeps retail's $s1, the difference gets retail's scratch $v0 and the flag
      lands in $s4 (`lh s1,2236(s2); addiu v0,s1,-22; sltiu s4,v0,6`). */
-  { u_int ctd = vertCount - 0x16U; carTypeOffRange = ctd < 6; }
+  { u_int ctd = carType - 0x16U; cop_flag = ctd < 6; }
 gte_SetRotMatrix(&DrawC_gScreenMat);
-  matPart_b = (int)&DrawC_gScreenMat;
 gte_SetTransMatrix(&DrawC_gScreenMat);
   gte_ldv0(center);
   gte_rtps();
@@ -787,11 +734,10 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
      carObj->render.sub_otz subtracts (shapeIdx>>2)<<2, not shapeIdx*4. Oracle-evidenced:
      `sra $t4,$t4,2` before `sw 0x40($s3)` @0x800BEDF8. Costs ~17 fuzzy diffs (our cc1plus
      CSEs a reload the PsyQ compiler kept) -- accepted. */
-  shapeIdx = sd->sub_otz;
+  sub_otz = sd->sub_otz;
   if (R3DCar_InMenu == 0) {
-    sub_otz_h2 = shapeIdx >> 1;
-    sd->sub_otz = sub_otz_h2;
-    if ((sub_otz_h2 < 0) || (Draw_gViewOtSize + -3 < sub_otz_h2)) {
+    sd->sub_otz = sub_otz >> 1;
+    if ((sd->sub_otz < 0) || (Draw_gViewOtSize + -3 < sd->sub_otz)) {
       return -1;
     }
   }
@@ -812,15 +758,15 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
      this swap, 51 with both -- but all three cost +1 insn @977, so the count-exact
      52 form is kept per the project's count bar). */
   (carObj->render).world_otz = sd->sub_otz;
-  puVar4 = (carObj->render).sort_carObj;
   /* shapeIdx morphs in place to <<2 BEFORE the branch (oracle sll s0,s0,2 in
    * the beqz slot region); non-null arm INLINE first (oracle beqz to far arm) */
-  shapeIdx = shapeIdx << 2;
-  if (puVar4 != (u_char *)0x0) {
-    sd->sub_ot = *(u_long **)(puVar4 + 0x86c);
-    sd->sub_otSize = *(int *)(puVar4 + 0x870);
-    sd->sub_otz = (sd->sub_otz - *(int *)(puVar4 + 0x864)) * 2;
-    sub_otOffset = *(int *)(puVar4 + 0x874);
+  sub_otz = sub_otz << 2;
+  if ((carObj->render).sort_carObj != (u_char *)0x0) {
+    Car_tObj *sort_carObj = (Car_tObj *)(carObj->render).sort_carObj;
+    sd->sub_ot = (sort_carObj->render).sub_ot;
+    sd->sub_otSize = (sort_carObj->render).sub_otSize;
+    sd->sub_otz = (sd->sub_otz - (sort_carObj->render).world_otz) * 2;
+    sub_otOffset = (sort_carObj->render).sub_otOffset;
   }
   else {
     /* MATCH (w40-a3): read the two fields BACK from sd for the call args -- cc1's
@@ -832,16 +778,15 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     sd->sub_otz = 0;
     sub_otOffset = (carObj->render).sub_otOffset;
   }
-  sub_otz_x4 = sd->sub_otz * 4;
-  sd->sub_otz = sub_otz_x4;
-  (carObj->render).sub_otz = sub_otz_x4 + sub_otOffset - shapeIdx;
+  sd->sub_otz = sd->sub_otz * 4;
+  (carObj->render).sub_otz = sd->sub_otz + sub_otOffset - sub_otz;
   sd->sub_otSize = sd->sub_otSize + -1;
   sd->pmxStart = CarIO_carPixMap + (carObj->render).textureStartIndex;
   sd->offsetU0 = (u_char)(carObj->render).textureOffsetU;
   sd->offsetV0 = (u_char)(carObj->render).textureOffsetV;
   sd->offsetU1 = (carObj->render).licenseOffsetU[0];
   sd->offsetV1 = (carObj->render).licenseOffsetV[0];
-  lightAvgScaled = 0x32;
+  i = 0x32;
   sd->offsetU2 = (carObj->render).licenseOffsetU[1];
   /* was a bare-VA literal -0x7fee0a94 (= &DrawC_gOverlay[50]) walked by a
    * pointer: really an INDEXED clear of gOverlay[50..0] -- gcc strength-
@@ -849,58 +794,52 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
    * the downstream gOverlay[0] accesses rematerialize the symbol fresh */
   sd->offsetV2 = (carObj->render).licenseOffsetV[1];
   do {
-    DrawC_gOverlay[lightAvgScaled] = 0;
-    lightAvgScaled = lightAvgScaled + -1;
-  } while (-1 < lightAvgScaled);
+    DrawC_gOverlay[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   if (R3DCar_InMenu == 0) {
-    int damageLevel = (carObj->N).damage[0];
-    if (0x1e0001 <= damageLevel) {
+    if (0x1e0001 <= (carObj->N).damage[0]) {
       DrawC_gOverlay[0] = DrawC_gOverlay[0] | 1;
       DrawC_gOverlay[2] = DrawC_gOverlay[2] | 1;
     }
-    else if (0xa0000 < damageLevel) {
+    else if (0xa0000 < (carObj->N).damage[0]) {
       DrawC_gOverlay[0] = DrawC_gOverlay[0] | 2;
       DrawC_gOverlay[2] = DrawC_gOverlay[2] | 2;
     }
-    damageLevel = (carObj->N).damage[2];
-    if (0x1e0001 <= damageLevel) {
+    if (0x1e0001 <= (carObj->N).damage[2]) {
       DrawC_gOverlay[0] = DrawC_gOverlay[0] | 0x100;
       DrawC_gOverlay[2] = DrawC_gOverlay[2] | 0x100;
     }
-    else if (0xa0000 < damageLevel) {
+    else if (0xa0000 < (carObj->N).damage[2]) {
       DrawC_gOverlay[0] = DrawC_gOverlay[0] | 0x200;
       DrawC_gOverlay[2] = DrawC_gOverlay[2] | 0x200;
     }
-    damageLevel = (carObj->N).damage[3];
-    if (0x1e0001 <= damageLevel) {
+    if (0x1e0001 <= (carObj->N).damage[3]) {
       DrawC_gOverlay[2] = DrawC_gOverlay[2] | 0x400;
     }
-    else if (0xa0000 < damageLevel) {
+    else if (0xa0000 < (carObj->N).damage[3]) {
       DrawC_gOverlay[2] = DrawC_gOverlay[2] | 0x800;
     }
-    damageLevel = (carObj->N).damage[4];
-    if (0x1e0001 <= damageLevel) {
+    if (0x1e0001 <= (carObj->N).damage[4]) {
       DrawC_gOverlay[1] = DrawC_gOverlay[1] | 0x100;
       DrawC_gOverlay[2] = DrawC_gOverlay[2] | 0x1000;
     }
-    else if (0xa0000 < damageLevel) {
+    else if (0xa0000 < (carObj->N).damage[4]) {
       DrawC_gOverlay[1] = DrawC_gOverlay[1] | 0x200;
       DrawC_gOverlay[2] = DrawC_gOverlay[2] | 0x2000;
     }
-    damageLevel = (carObj->N).damage[6];
-    if (0x1e0001 <= damageLevel) {
+    if (0x1e0001 <= (carObj->N).damage[6]) {
       DrawC_gOverlay[1] = DrawC_gOverlay[1] | 1;
       DrawC_gOverlay[2] = DrawC_gOverlay[2] | 0x10;
     }
-    else if (0xa0000 < damageLevel) {
+    else if (0xa0000 < (carObj->N).damage[6]) {
       DrawC_gOverlay[1] = DrawC_gOverlay[1] | 2;
       DrawC_gOverlay[2] = DrawC_gOverlay[2] | 0x20;
     }
-    damageLevel = (carObj->N).damage[7];
-    if (0x1e0001 <= damageLevel) {
+    if (0x1e0001 <= (carObj->N).damage[7]) {
       DrawC_gOverlay[2] = DrawC_gOverlay[2] | 4;
     }
-    else if (0xa0000 < damageLevel) {
+    else if (0xa0000 < (carObj->N).damage[7]) {
       DrawC_gOverlay[2] = DrawC_gOverlay[2] | 8;
     }
     if (0x30000 < (carObj->N).damage[8]) {
@@ -924,9 +863,8 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         DrawC_gOverlay[0x1a] = DrawC_gOverlay[0x1a] | 0x8000;
       }
     }
-    headLight_bits = (carObj->render).headLight;
-    if ((headLight_bits & 0x11U) != 0) {
-      if (((headLight_bits & 0x40U) != 0) || ((DrawC_gOverlay[0] & 1U) == 0)) {
+    if (((carObj->render).headLight & 0x11U) != 0) {
+      if ((((carObj->render).headLight & 0x40U) != 0) || ((DrawC_gOverlay[0] & 1U) == 0)) {
         DrawC_gOverlay[0x1d] = DrawC_gOverlay[0x1d] | 0x81;
       }
       if ((((carObj->render).headLight & 4U) != 0) || ((DrawC_gOverlay[0] & 0x100U) == 0)) {
@@ -943,7 +881,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         DrawC_gOverlay[0x19] = DrawC_gOverlay[0x19] | 0x8000;
       }
     }
-    if (!carTypeOffRange) {
+    if (!cop_flag) {
       /* MATCH (w46-a3, 86 -> 70): VARIABLE IDENTITY -- the mirror index gets
          its OWN block-local name.  `shadow_align_b` is a Ghidra fn-scope
          invention reused for four unrelated values later in this function;
@@ -953,11 +891,11 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
          $a0 like retail.  Same lever family as ShowroomPrims 93->4.
          (A SECOND name for the xored value measures 88 -- retail mutates
          ONE pseudo in place, `xori a0,a0,1`.) */
-      u_int mir = (sd->head).mirror;
-      if (((carObj->render).signalLight[mir] & 0x80U) != 0) {
+      int mirror = (sd->head).mirror;
+      if (((carObj->render).signalLight[mirror] & 0x80U) != 0) {
         DrawC_gOverlay[0x1c] = DrawC_gOverlay[0x1c] | 0x40;
       }
-      if (((carObj->render).signalLight[mir] & 8U) != 0) {
+      if (((carObj->render).signalLight[mirror] & 8U) != 0) {
         if ((DrawC_gOverlay[0] & 1U) == 0) {
           DrawC_gOverlay[0x1b] = DrawC_gOverlay[0x1b] | 0x80;
         }
@@ -978,11 +916,11 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
        * block-local name here (so its qty is born and dies inside this block
        * and out-lives the address temp), which is the same variable-identity
        * lever that took ShowroomPrims 93->4 this wave. */
-      mir = mir ^ 1;
-      if (((carObj->render).signalLight[mir] & 0x80U) != 0) {
+      mirror = mirror ^ 1;
+      if (((carObj->render).signalLight[mirror] & 0x80U) != 0) {
         DrawC_gOverlay[0x1c] = DrawC_gOverlay[0x1c] | 0x4000;
       }
-      if (((carObj->render).signalLight[mir] & 8U) != 0) {
+      if (((carObj->render).signalLight[mirror] & 8U) != 0) {
         if ((DrawC_gOverlay[0] & 0x100U) == 0) {
           DrawC_gOverlay[0x1b] = DrawC_gOverlay[0x1b] | 0x8000;
         }
@@ -990,7 +928,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           DrawC_gOverlay[0x1c] = DrawC_gOverlay[0x1c] | 0x8100;
         }
       }
-      if (1 < (u_char)R3DCar_SignalBrakeFlare[vertCount]) {   /* @0x800BF468 lbu R3DCar_SignalBrakeFlare(carType) */
+      if (1 < (u_char)R3DCar_SignalBrakeFlare[carType]) {   /* @0x800BF468 lbu R3DCar_SignalBrakeFlare(carType) */
         if ((DrawC_gOverlay[0x1c] & 0x40U) == 0) {
           DrawC_gOverlay[0x1c] = DrawC_gOverlay[0x1c] | DrawC_gOverlay[0x18] & 0xffU;
         }
@@ -998,35 +936,31 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           DrawC_gOverlay[0x1c] = DrawC_gOverlay[0x1c] | DrawC_gOverlay[0x18] & 0xff00U;
         }
       }
-      if (R3DCar_SignalBrakeFlare[vertCount] == '\x03') {   /* @0x800BF4DC lbu R3DCar_SignalBrakeFlare(carType) */
+      if (R3DCar_SignalBrakeFlare[carType] == '\x03') {   /* @0x800BF4DC lbu R3DCar_SignalBrakeFlare(carType) */
         /* in-place swap, temps AT the use site (oracle lhu 56; lh 48; sh; sh).
          * g[0x18] is not written between the old fn-head ts13 capture and here,
          * so reading it fresh is value-identical -- and it's the oracle's shape */
-        u_short tc = DrawC_gOverlay[0x1c];
-        int t8 = DrawC_gOverlay[0x18];   /* INT, not short: a `short` local lets
-                             * combine drop the sign-extend and emit lhu (catalog C) */
-        DrawC_gOverlay[0x18] = tc;
-        DrawC_gOverlay[0x1c] = t8;
+        int overlay = (short)DrawC_gOverlay[0x18];
+        DrawC_gOverlay[0x18] = DrawC_gOverlay[0x1c];
+        DrawC_gOverlay[0x1c] = overlay;
       }
       goto DrawCPrimStart_carTypeOff;
     }
   }
   else {
 DrawCPrimStart_carTypeOff:
-    if (!carTypeOffRange) goto DrawCPrimStart_camRotMatrix;
+    if (!cop_flag) goto DrawCPrimStart_camRotMatrix;
   }
   {
     /* oracle 0x800BF530..: unconditional |2 / |0x200 stores FIRST (g1b/g1c =
      * the PRE-store lhu pair, reused for the |0x83/|0x281 overwrite), then the
      * siren1 arm reloads fresh and ORs 0x8100 -- no default/override funnel */
-    u_short g1b = DrawC_gOverlay[0x1b];
-    u_short g1c = DrawC_gOverlay[0x1c];
-    DrawC_gOverlay[0x1b] = g1b | 2;
-    DrawC_gOverlay[0x1c] = g1c | 0x200;
+    DrawC_gOverlay[0x1b] = DrawC_gOverlay[0x1b] | 2;
+    DrawC_gOverlay[0x1c] = DrawC_gOverlay[0x1c] | 0x200;
     if (DrawC_gOverlay[4] == 0) {
       if (DrawC_SirenFlash[(u_short)(carObj->render).signalLight[0] & 0xf] != 0) {
-        DrawC_gOverlay[0x1b] = g1b | 0x83;
-        DrawC_gOverlay[0x1c] = g1c | 0x281;
+        DrawC_gOverlay[0x1b] = DrawC_gOverlay[0x1b] | 0x81;
+        DrawC_gOverlay[0x1c] = DrawC_gOverlay[0x1c] | 0x81;
       }
       if (DrawC_SirenFlash[(u_short)(carObj->render).signalLight[1] & 0xf] != 0) {
         DrawC_gOverlay[0x1b] = DrawC_gOverlay[0x1b] | 0x8100;
@@ -1080,10 +1014,11 @@ DrawCPrimStart_camRotMatrix:
   DrawC_gMatA.t[0] = 0;
   DrawC_gWetRoad = 0;
   if (R3DCar_InMenu == 0) {
-    shadowAbsOffs = 3;
-    drawEnv_p = (int)Draw_GetDRAWENV(gCView.id,gFlip);
-    eIndexEnvMap = (carObj->N).eIndexEnvMap;
-    eIndexShadow = (carObj->N).eIndexShadow;
+    RECT tw;
+    DRAWENV *LEnv;
+    int eSpeed;
+    eSpeed = 3;
+    LEnv = Draw_GetDRAWENV(gCView.id,gFlip);
     /* quad = SIGNED byte (oracle lb 124); each .extra read ONCE as lhu into a
      * temp -- the &0xff and <<16>>24 both derive from the SAME halfword value */
     /* MATCH (w53-a2, 70 -> 60, count-exact 976/976).  Two independent edits:
@@ -1112,66 +1047,68 @@ DrawCPrimStart_camRotMatrix:
           that lbu's load-delay with the SetDrawMode `0` arg (`addu a2,zero,zero`),
           ours sinks the tw.x store behind the w/h constant stores. */
     {
-      u_int envExtra;
-      u_int shadExtra;
-      int quadB = (signed char)(carObj->N).simRoadInfo.quad;
-      uVar5 = (u_int)(u_short)DrawC_gEnvMap[eIndexEnvMap].tex;
-      envExtra = (u_short)DrawC_gEnvMap[eIndexEnvMap].extra;
-      shadow_align_b = (u_int)(u_short)DrawC_gShadow[eIndexShadow].tex;
-      shadExtra = (u_short)DrawC_gShadow[eIndexShadow].extra;
-      nabr_blend = 2;
-      if (quadB < (int)(envExtra & 0xff)) {
-        uVar5 = (int)(envExtra << 0x10) >> 0x18;
+      int quad;
+      int tpageShadow;
+      short envMap;
+      short shadow;
+      short extraEnvMap;
+      short extraShadow;
+      quad = (signed char)(carObj->N).simRoadInfo.quad;
+      envMap = (u_short)DrawC_gEnvMap[(carObj->N).eIndexEnvMap].tex;
+      extraEnvMap = (u_short)DrawC_gEnvMap[(carObj->N).eIndexEnvMap].extra;
+      shadow = (u_short)DrawC_gShadow[(carObj->N).eIndexShadow].tex;
+      extraShadow = (u_short)DrawC_gShadow[(carObj->N).eIndexShadow].extra;
+      tpageShadow = 2;
+      if (quad < (int)((u_short)extraEnvMap & 0xff)) {
+        envMap = (int)((u_int)(u_short)extraEnvMap << 0x10) >> 0x18;
       }
-      if (quadB < (int)(shadExtra & 0xff)) {
-        shadow_align_b = (int)(shadExtra << 0x10) >> 0x18;
+      if (quad < (int)((u_short)extraShadow & 0xff)) {
+        shadow = (int)((u_int)(u_short)extraShadow << 0x10) >> 0x18;
       }
-    }
-    if (10 < (short)uVar5) {
-      uVar5 = uVar5 - 10;
-      envMapBigBit = 1;   /* oracle li s7,1 inside the arm (no bool materialize) */
-    }
-    envMap = (short)(uVar5 - 1);
-    if ((int)(shadow_align_b << 0x10) < 0) {
-      shadowAbsOffs = 0;
-      shadow_align_b = -shadow_align_b;
-    }
-    if (10 < (short)shadow_align_b) {
-      shadow_align_b = shadow_align_b - 10;
-      nabr_blend = 1;
-    }
-    shadow_align_b = shadow_align_b - 1;   /* MATCH w55-a9: own statement -> reorg steals it into the (short)(uVar5-1) bgez delay slot (oracle addiu a1,a1,-1 @800BF918) */
-    if (envMap < 0) {
-      *(u_int *)&sd->ePmx0 = 0;   /* fused u0/v0/clut word store (oracle sw zero) */
-    }
-    else {
-      /* MATCH: whole-struct copy (both sides Draw_tPixMap) -- gcc's own unaligned
-       * struct-assignment codegen (lwl/lwr/swl/swr) reproduces the oracle's
-       * 16-byte movstrsi-style block; the old byte/word-peeled shift-mask form
-       * was a Ghidra decompile artifact, not the true source shape. */
-      sd->ePmx0 = Track_gReflectionMaps[envMap];
-    }
-    iVar3 = (int)(shadow_align_b * 0x10000) >> 0x10;
-    if (iVar3 < 0) {
-      *(u_int *)&sd->ePmx1 = 0;   /* fused u0/v0/clut word store (oracle sw zero) */
-    }
-    else {
-      RECT tw;
-      tw.x = (short)Track_gReflectionMaps[iVar3].u0;
-      tw.y = (short)Track_gReflectionMaps[iVar3].v0;
+      if (10 < envMap) {
+        envMap = envMap - 10;
+        half = 1;   /* oracle li s7,1 inside the arm (no bool materialize) */
+      }
+      envMap = envMap - 1;
+      if (shadow < 0) {
+        eSpeed = 0;
+        shadow = -shadow;
+      }
+      if (10 < shadow) {
+        shadow = shadow - 10;
+        tpageShadow = 1;
+      }
+      shadow = shadow - 1;   /* MATCH w55-a9: own statement -> reorg steals it into the (short)(uVar5-1) bgez delay slot (oracle addiu a1,a1,-1 @800BF918) */
+      if (envMap < 0) {
+        *(u_int *)&sd->ePmx0 = 0;   /* fused u0/v0/clut word store (oracle sw zero) */
+      }
+      else {
+        /* MATCH: whole-struct copy (both sides Draw_tPixMap) -- gcc's own unaligned
+         * struct-assignment codegen (lwl/lwr/swl/swr) reproduces the oracle's
+         * 16-byte movstrsi-style block; the old byte/word-peeled shift-mask form
+         * was a Ghidra decompile artifact, not the true source shape. */
+        sd->ePmx0 = Track_gReflectionMaps[envMap];
+      }
+      if (shadow < 0) {
+        *(u_int *)&sd->ePmx1 = 0;   /* fused u0/v0/clut word store (oracle sw zero) */
+      }
+      else {
+        tw.x = (short)Track_gReflectionMaps[shadow].u0;
+        tw.y = (short)Track_gReflectionMaps[shadow].v0;
       tw.w = 0x80;
       tw.h = 0x40;
-      SetDrawMode(&sd->drawModeOn,(u_int)*(u_char *)(drawEnv_p + 0x17),0,
-                 (u_int)Track_gReflectionMaps[iVar3].tpage,&tw);
+        SetDrawMode(&sd->drawModeOn,(u_int)LEnv->dfe,0,
+                   (u_int)Track_gReflectionMaps[shadow].tpage,&tw);
       tw.h = 0;
       tw.w = 0;
       tw.y = 0;
       tw.x = 0;
-      SetDrawMode(&sd->drawModeOff,(u_int)*(u_char *)(drawEnv_p + 0x17),0,
-                 (u_int)*(u_short *)(drawEnv_p + 0x14),&tw);
+        SetDrawMode(&sd->drawModeOff,(u_int)LEnv->dfe,0,
+                  (u_int)LEnv->tpage,&tw);
       /* MATCH: whole-struct copy (both sides Draw_tPixMap); see ePmx0 above. */
-      sd->ePmx1 = Track_gReflectionMaps[iVar3];
-      ChangeTPage(&(sd->ePmx1).tpage,nabr_blend);
+      sd->ePmx1 = Track_gReflectionMaps[shadow];
+        ChangeTPage(&(sd->ePmx1).tpage,tpageShadow);
+      }
     }
     /* w70-a1 RESIDUAL (8 diffs, count-exact 976/976): a pure sched2 ready-list
        ORDER + one register pick.  The insn MULTISET is identical -- ours
@@ -1285,7 +1222,7 @@ DrawCPrimStart_camRotMatrix:
        i.e. it merges into the NightHeadlight entry, and reported PASS 976/976
        with NightHeadlight still PASSing in the same whole-TU gate (17/20). */
     {
-      int envShift = shadowAbsOffs + 3;
+      int envShift = eSpeed + 3;
       int pz = (int)(carObj->N).positionXZ;
       __asm__("" : : "r"(pz));
       u_int evraw = (sd->ePmx1).v0;
@@ -1302,11 +1239,11 @@ DrawCPrimStart_camRotMatrix:
          (short)((((carObj->N).dimension.y * 3 >> 1) + (carObj->N).objAltitude) >> 8);
   }
   else {
-    shapeData_p = (int)Draw_GetDRAWENV(gCView.id,gFlip);
-    SetDrawMode(&sd->drawModeOn,(u_int)*(u_char *)(shapeData_p + 0x17),1,
-               (u_int)*(u_short *)(shapeData_p + 0x14),(RECT *)0x0);
-    SetDrawMode(&sd->drawModeOff,(u_int)*(u_char *)(shapeData_p + 0x17),0,
-               (u_int)*(u_short *)(shapeData_p + 0x14),(RECT *)0x0);
+    DRAWENV *LEnv = Draw_GetDRAWENV(gCView.id,gFlip);
+    SetDrawMode(&sd->drawModeOn,(u_int)LEnv->dfe,1,
+               (u_int)LEnv->tpage,(RECT *)0x0);
+    SetDrawMode(&sd->drawModeOff,(u_int)LEnv->dfe,0,
+               (u_int)LEnv->tpage,(RECT *)0x0);
     /* MATCH: whole-struct copy (both sides Draw_tPixMap); see ePmx0 above. */
     sd->ePmx0 = *gMenuPixmap[0];
   }
@@ -1329,7 +1266,7 @@ DrawCPrimStart_camRotMatrix:
     if (R3DCar_InMenu == 0) {
       eColor = lightAvg >> 2;
       eColor = (int)((u_int)eColor * (u_int)R3DCar_eMapColour.r) >> 7;
-      if (envMapBigBit) {
+      if (half) {
         eColor = (eColor << 1) / 3;
       }
       /* *0x10101 written as explicit sll16+sll8 adds (oracle shape; cc1plus's

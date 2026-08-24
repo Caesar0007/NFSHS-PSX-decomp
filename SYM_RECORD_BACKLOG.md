@@ -2061,6 +2061,43 @@ guards also remain clean: vtable indexing passes all 926 files, call-target
 audit reports zero proven wrong targets, undefined-call audit reports
 `UNDEF=0`, and TU-order audit reports 523 objects with zero inversions.
 
+### P48 — `DrawC_PrimStart` complete SYM local reconciliation (`2026-08-24`)
+
+The refreshed strict game/PSX declaration audit is recorded in
+[`game_psx_after_primstart_reconcile_20260824.md`](scratchpad/root_sym_audit/game_psx_after_primstart_reconcile_20260824.md).
+It advances the result from 393/395 to 394/395 declaration-clean functions and
+reduces generic extra source-local names from 119 to 48, while preserving zero
+missing SYM names and zero type/storage findings.  `DrawW_DrawQuad` is now the
+only function left in the game/PSX generic-local review queue.
+
+`DrawC_PrimStart` now assigns the live retail webs to the names and types
+recorded by SYM: `i`, `carType`, `cop_flag`, `sub_otz`, `half`, block-local
+`mirror` and `overlay`, `RECT tw`, the two block-local `DRAWENV *LEnv`
+instances, and the environment block's `eSpeed`, `quad`, `tpageShadow`,
+`envMap`, `shadow`, `extraEnvMap`, and `extraShadow`.  Raw DRAWENV offsets are
+replaced by the canonical `dfe` and `tpage` fields.  The shadow and environment
+indices now retain their recorded signed-short types throughout their live
+webs.
+
+Thirty-seven declaration-only decompiler remnants were removed.  A further
+twenty-eight non-SYM staging identities were eliminated by restoring direct
+field expressions or reusing the owning SYM local: damage-level and headlight
+loads, environment/shadow table indices, depth scaling, the overlay swap,
+reflection-map indices, and pre-store overlay values all compile to the same
+retail instructions without explicit source temporaries.
+
+Only six source-only identities remain, each under an explicit measured
+`SYM-CODEGEN-CARRIER` receipt.  Direct spellings regress `ctd` by 14 diffs at
+976 instructions, `sort_carObj` by 17 diffs and five extra instructions, and
+`tunnelFlag` by 24 diffs at 976 instructions.  The existing allocator/scheduler
+ladder proves that `envShift`, `pz`, and `evraw` plus their zero-byte fences are
+jointly necessary for the final retail handout and ordering.  These names are
+not claimed as debug-visible retail locals.
+
+Detailed verification remains exact at 976/976 instructions.  The complete
+`drawc.cpp` gate remains **20/20 PASS**, its rebuilt object reports delay-slot
+`bad = 0`, and the vtable indexing audit passes all 926 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

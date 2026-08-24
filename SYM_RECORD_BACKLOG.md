@@ -37,7 +37,7 @@ they are not silently collapsed into a smaller denominator.
   explicit per-record semantic-review row.  Nothing is silently dropped from
   the denominator.
 - A strict compiler-emitted type-graph comparison now distinguishes retail
-  subset coverage from actual per-object source visibility.  Seventy-six owners are
+  subset coverage from actual per-object source visibility.  Seventy-seven owners are
   semantically exact: `memcard.obj`, `mdec.obj`, `video.obj`, `FETexture.obj`,
   `textpix.obj`, `textpsx.obj`, `unpack.obj`, `fastrand.obj`, and
   `aiscript.obj`, `new.obj`, `paths.obj`, `textsys.obj`, `simplemem.obj`,
@@ -54,7 +54,7 @@ they are not silently collapsed into a smaller denominator.
   `Draw.obj`, `Sfx.obj`, `TrsProj.obj`, `CarIO.obj`, `platform.obj`, and
   `force.obj`, `audio.obj`, `overlays.obj`, `Weather.obj`, `rpause.obj`, and
   `hrzsku.obj`, `TextureProcess.obj`, `Skidmark.obj`, `fe3dmenu.obj`,
-  `device.obj`, and `psxcontroller.obj`.
+  `device.obj`, `psxcontroller.obj`, and `fefades.obj`.
   The remaining mapped C++
   units still expose reconstruction-only declarations through the monolithic
   `nfs4_types.h` include graph and therefore are not yet source-exact.
@@ -2491,6 +2491,25 @@ eight-byte object.
 type overrides and zero explicit global storage overrides; the strict audit
 remains 395/395 declaration-clean with no missing names, extra locals, or type
 findings.  The board remains 385/395 PASS, and relink/vtable gates remain green.
+
+### P68 — `fefades.obj` owner-visible type surface restored (`2026-08-24`)
+
+The receipt is recorded in
+[`fefades_owner_type_surface_20260824.md`](scratchpad/root_sym_audit/fefades_owner_type_surface_20260824.md).
+`fefades.cpp` no longer inherits the reconstruction-wide monolithic type graph.
+Its owner header exposes only the PsyQ drawing leaf graph, the retail
+`tTexture_ShapeInfo`, `kernpair`/`KERN`, `tMenuTextType`, and the five font
+callback typedefs present in this object.  The `byte` source spelling is kept as
+a macro because retail emits no corresponding typedef record.
+
+The compiler-emitted graph is strict-exact: 35/35 named records and both
+anonymous records match, all 81 unique retail typedef semantics are covered,
+and there are zero extra named, anonymous, or typedef semantics.  The eight
+remaining retail typedef rows are exact duplicate records rather than missing
+declarations.  All six `fefades.cpp` functions remain byte-exact.  The complete
+frontend gate remains 836/838 byte-matches with only the known two-instruction
+bulk relocation artifact and the global-menu constructor residual; both relink
+lanes are green and the vtable audit passes all 927 files.
 
 ## Closure rule
 

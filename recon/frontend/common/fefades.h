@@ -1,7 +1,7 @@
 /* frontend/common/fefades.h - reconstructed declarations for FEFADES.CPP (C++ TU) */
 #ifndef _FRONTEND_COMMON_FEFADES_H_
 #define _FRONTEND_COMMON_FEFADES_H_
-#include "../../nfs4_types.h"
+#include "fefades_types.h"
 #include "fefades_externs.h"
 
 /* FEFADES.CPP is C++ (cfront-mangled). CalcFadeVal is OVERLOADED (2/3/4-arg). */

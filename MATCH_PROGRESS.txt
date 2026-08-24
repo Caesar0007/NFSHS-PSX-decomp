@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3491 functions, 3468 at 100% (99.3%)
+TOTAL: 3492 functions, 3469 at 100% (99.3%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -253,6 +253,7 @@ VA             %match  unit                     function
 0x8002089C    100.00%  frontend/common/femenuoptions Draw__19tMemoryCardMenuItemb
 0x80020AF4    100.00%  frontend/common/femenuoptions ProcessInput__35tInsideBoxControllerLeftRightSlider7tPlayerR13tInputKeyTypeR12tMenuCommand
 0x80020BB8    100.00%  frontend/common/femenuoptions ___35tInsideBoxControllerLeftRightSlider
+0x80020BD8    100.00%  frontend/common/femenuoptions ___19tMemoryCardMenuItem
 0x80020BF8    100.00%  frontend/common/femenuoptions ___27tMenuItemGoToMenuButtonFade
 0x80020C18    100.00%  frontend/common/femenuoptions ___17tUserNameMenuItem
 0x80020C38    100.00%  frontend/common/femenuoptions ___34tMenuItemControllerLeftRightChoice

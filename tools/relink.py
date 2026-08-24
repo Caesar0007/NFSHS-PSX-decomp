@@ -49,6 +49,12 @@ OUTDIR = ROOT / "build" / "relink"
 EXCLUDED = ("diffsrc", "scratch", "scratchpad", "pbuild", "relink")
 LANES = {"recon": ("recon", "asm"), "src": ("src", "asm")}
 PLACEHOLDER = re.compile(r"(?:func|D|DAT|lbl|jtbl)_([0-9A-Fa-f]{8})$")
+LINK_METADATA = (
+    "linkers/undefined_syms_auto.txt",
+    "linkers/undefined_funcs_auto.txt",
+    "linkers/retail_data_symbols.ld",
+    "linkers/nfs4.ld",
+)
 
 
 def batched(seq, n):
@@ -57,10 +63,26 @@ def batched(seq, n):
 
 
 def lane_objects(lane):
+    # Build directories intentionally survive normal incremental builds, so
+    # scanning build/** directly admits objects for renamed/deleted probes and
+    # backup TUs.  Those stale files created hundreds of false REAL duplicates
+    # and can also preserve obsolete unresolved spellings.  Construct the lane
+    # from live source paths, exactly as build.py does, and admit only objects
+    # that still have an owning source file.
+    sources = []
+    if lane == "recon":
+        sources += sorted((ROOT / "recon").rglob("*.cpp"))
+        sources += sorted((ROOT / "recon").rglob("*.c"))
+    else:
+        sources += sorted((ROOT / "src").rglob("*.c"))
+    sources += sorted((ROOT / "asm").glob("*.s"))
+    sources += sorted((ROOT / "asm" / "data").glob("*.s"))
+
     objs = []
-    for sub in LANES[lane]:
-        objs += sorted(o for o in (ROOT / "build" / sub).rglob("*.o")
-                       if not set(EXCLUDED) & set(o.parts))
+    for src in sources:
+        obj = ROOT / "build" / (str(src.relative_to(ROOT)) + ".o")
+        if obj.is_file():
+            objs.append(obj)
     return objs
 
 
@@ -94,6 +116,27 @@ def va_of(name, vas):
         return vas[name]
     m = PLACEHOLDER.match(name)
     return int(m.group(1), 16) if m else None
+
+
+def linker_resolved_names():
+    """Names satisfied by final-link scripts rather than by an input object.
+
+    `ld -r` intentionally runs without the placement script, so absolute BIOS,
+    hardware, raw-storage aliases and linker boundary symbols remain undefined
+    in its merged object even though the production link resolves them.  Keep
+    them visible as metadata, but do not count them as the reconstruction's
+    unresolved relocation frontier.
+    """
+    names = set()
+    assign = re.compile(
+        r"^\s*(?:PROVIDE\s*\(\s*)?([A-Za-z_.$][A-Za-z0-9_.$]*)\s*=",
+        re.M,
+    )
+    for rel in LINK_METADATA:
+        p = ROOT / rel
+        if p.is_file():
+            names.update(assign.findall(p.read_text(errors="replace")))
+    return names
 
 
 def nm_defined(objs):
@@ -255,7 +298,10 @@ def run_lane(lane, verbose=False):
         if ln.strip():
             undef.add(ln.split()[-1])
     refs = reloc_referenced(objs)
-    unres = sorted(undef & refs)
+    unres_all = undef & refs
+    link_names = linker_resolved_names()
+    link_resolved = sorted(unres_all & link_names)
+    unres = sorted(unres_all - link_names)
     benign = sorted(undef - refs)
 
     # ---- hidden phantoms -------------------------------------------------
@@ -278,11 +324,13 @@ def run_lane(lane, verbose=False):
         "dup_total": len(dups), "dup_blob": len(dup_blob),
         "dup_real": len(dup_real),
         "unresolved_reloc": len(unres), "unresolved_benign": len(benign),
+        "linker_resolved_reloc": len(link_resolved),
         "phantoms": len(phantoms),
         "multi_va_names_excluded": len(multiva),
         "excluded_subtrees": excluded_census(),
         "dup_real_rows": dup_real, "phantom_rows": phantoms,
         "unresolved_names": unres,
+        "linker_resolved_names": link_resolved,
     }
     print(f"== lane {lane}: {len(objs)} objects "
           f"(excluded: {res['excluded_subtrees']})")
@@ -292,7 +340,8 @@ def run_lane(lane, verbose=False):
     print(f"   HIDDEN PHANTOMS={len(phantoms)}                          "
           f"[must be 0]")
     print(f"   UNRESOLVED (reloc-referenced)={len(unres)}  "
-          f"(symtab-only, benign={len(benign)})")
+          f"(linker-resolved={len(link_resolved)}; "
+          f"symtab-only, benign={len(benign)})")
     for d in dup_real[:20]:
         print(f"     REAL DUP  {d['sym']}  {d['a']}  <->  {d['b']}")
     for p in phantoms[:20]:

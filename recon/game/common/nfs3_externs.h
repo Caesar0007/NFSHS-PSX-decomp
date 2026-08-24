@@ -8,7 +8,7 @@
 /* cross-TU globals + unmangled lib fns referenced by nfs3.obj */
 extern int _6Speech_fgUndefined;            /* Speech::fgUndefined (Speaker*) */
 extern int _6Speech_fgSpeech;               /* Speech::fgSpeech (Speech*) */
-extern __vtbl_ptr_type Speaker_vtable[];     /* @0x80055dc4  Speech::Speaker vtable (defined in speech.cpp); Ghidra fabricated the name "Speech_Speaker_vtable" for this same VA */
+extern __vtbl_ptr_type Speaker_vtable[] __asm__("_vt_Q26Speech7Speaker"); /* @0x80055dc4  Speech::Speaker vtable (defined in speech.cpp); GCC linkage spelling is the SYM/retail `_vt_Q26Speech7Speaker` */
 // [owned->defined in nfs3.cpp] extern char befuddleExtensions[][4];
 extern char *Paths_Paths[];
 extern GameSetup_tData GameSetup_gData;

@@ -2999,11 +2999,27 @@ def assemble_s(src: Path) -> Path:
 def link_and_verify():
     elf = BUILD / "nfs4.elf"
     out_exe = BUILD / "nfs4.exe"
-    cmd = [LD]
+    # The linker script's `*/src/...` selectors place input sections, but GNU
+    # ld does not use wildcard selectors to discover files.  Pass the current
+    # source-lane objects explicitly through a response file; otherwise only
+    # the exactly named raw data objects are loaded and every code reference
+    # (vtable slots, jump-table .L labels, calls) is reported as undefined.
+    # Derive this list from live source paths rather than build/**/*.o so stale
+    # probe/renamed objects can never leak into the retail link.
+    src_objects = []
+    for src in sorted((ROOT / "src").rglob("*.c")):
+        obj = OUT / (str(src.relative_to(ROOT)) + ".o")
+        if obj.exists():
+            src_objects.append(obj)
+    rsp = BUILD / "link_src_objects.rsp"
+    rsp.write_text("\n".join(f'"{obj.relative_to(ROOT).as_posix()}"'
+                              for obj in src_objects) + "\n")
+    cmd = [LD, f"@{rsp.relative_to(ROOT).as_posix()}"]
     # splat's undefined_{syms,funcs}_auto.txt are `name = 0xADDR;` assignments
     # (valid ld script) for refs to addresses outside our segments (HW regs,
     # BIOS, overlay). Feed them so absolute relocations resolve.
-    for auto in ("undefined_syms_auto.txt", "undefined_funcs_auto.txt"):
+    for auto in ("undefined_syms_auto.txt", "undefined_funcs_auto.txt",
+                 "retail_data_symbols.ld"):
         p = ROOT / "linkers" / auto
         if p.exists():
             cmd += ["-T", p]

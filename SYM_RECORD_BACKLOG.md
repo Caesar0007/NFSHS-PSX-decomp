@@ -2154,6 +2154,34 @@ halts on the pre-existing unresolved jump-table, vtable, and library-reference
 backlog; that independent gate does not report an `SP` or `Sfx_gCache`
 dependency.
 
+### P51 — full-link jump-table/vtable/reference backlog closed (`2026-08-24`)
+
+The full receipt is recorded in
+[`link_reference_backlog_closed_20260824.md`](scratchpad/root_sym_audit/link_reference_backlog_closed_20260824.md).
+The long-standing undefined-reference set was a link-input discovery defect:
+GNU `ld` section wildcards place objects already supplied to the linker but do
+not discover `build/src/**/*.o`. The build now passes a source-derived response
+file, excluding stale probe/renamed objects by construction. This restores all
+code owners for raw jump tables, vtables, and library references.
+
+The remaining 63 named storage references are backed by MAP/SYM-authoritative
+`PROVIDE` aliases in `linkers/retail_data_symbols.ld`; these aliases allocate no
+duplicate storage and yield to future reconstructed vars/data definitions. A
+real C++ linkage defect was also corrected: `nfs3.cpp` now references the
+retail `_vt_Q26Speech7Speaker` symbol instead of an unmangled
+`Speaker_vtable`. Its affected function remains 25/25 PASS.
+
+A fresh complete `tools/build.py` run compiles every TU and reaches a successful
+final link with **zero undefined references**. The standing relink gate is
+GREEN for both lanes with **REAL duplicates 0, hidden phantoms 0, and genuine
+relocation-referenced unresolved names 0**; it reports six recon and 200 source
+relocations separately as explicitly final-link-provided metadata. The vtable
+indexing audit remains clean across 926 files.
+
+The produced flat image is still 21.14% identical, first differing at `0x878`
+with a `-32` byte size delta. That is the separate legacy section-layout/order
+backlog and is no longer conflated with unresolved references.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

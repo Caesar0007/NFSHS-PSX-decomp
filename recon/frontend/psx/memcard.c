@@ -476,10 +476,8 @@ int iMCRD_DoFileLoad(int card)
   int error;
   MCRDFILEINFO *pMFI;
   SHAPE *s;
-  u_char ch;
-  u_char *src;
-  u_int attr;
-  u_int attr2;
+  u_char ch; /* SYM-CODEGEN-CARRIER: ch -- reusing the SYM error value removes
+                one instruction and is measured FAIL 5 (169/170) */
 
   /* MATCH: SYM (8c @0x8004f7a4) lists exactly SIX locals - cmd/res AUTO -0x30/-0x2C,
    * i REG $17($s1), error REG $2($v0), pMFI REG $18($s2), s REG $16($s0).  ONE index
@@ -518,18 +516,16 @@ int iMCRD_DoFileLoad(int card)
     while (i < 3) {
       s = pMFI->icon[i];
       if (s == (SHAPE *)0x0) break;
-      src = pMFI->header.icon1;
-      if (i != 0) {
-        if (i == 1) {
-          src = pMFI->header.icon2;
-        }
-        else {
-          src = pMFI->header.icon3;
-        }
+      if (i == 0) {
+        blockmove(pMFI->header.icon1,&s->data,0x80);
       }
-      blockmove(src,&s->data,0x80);
-      attr = shapetype(4);
-      s->type = attr;
+      else if (i == 1) {
+        blockmove(pMFI->header.icon2,&s->data,0x80);
+      }
+      else {
+        blockmove(pMFI->header.icon3,&s->data,0x80);
+      }
+      s->type = shapetype(4);
       /* MATCH (w44, 31 -> PASS): the header word is TWO BITFIELD ASSIGNMENTS, not a
        * folded `hdr = attr & 0xff | 0x9000; *(uint *)s = hdr;` word store.  `s->next`
        * is a read-modify-write of word 0 whose load cse FORWARDS from the `s->type`
@@ -559,8 +555,7 @@ int iMCRD_DoFileLoad(int card)
        * the read away, drops the loop to 62 and costs a 9th callee-saved reg. */
       s = (SHAPE *)((int)s + s->next);
       blockmove(pMFI->header.iconclut,&s->data,0x20);
-      attr2 = cluttype(0x10);
-      s->type = attr2;
+      s->type = cluttype(0x10);
       i = i + 1;
       s->width = 0x10;
       s->height = 1;
@@ -597,9 +592,6 @@ int iMCRD_DoFileLoad(int card)
 int MCRD_savefile(int card,MCRDFILE *pFILE)
 
 {
-  u_short sjis;
-  u_int len;
-  u_char *clut;
   int i;
   int nIcons;
   MCRDFILEINFO *pMFI;
@@ -640,27 +632,23 @@ int MCRD_savefile(int card,MCRDFILE *pFILE)
       if (pFILE->title == (char *)0x0) {
         return -1;
       }
-      len = strlen(pFILE->title);
-      if (len == 0) {
+      if (strlen(pFILE->title) == 0) {
         return -1;
       }
-      len = strlen(pFILE->title);
       /* MATCH: the -1 must be the FALL-THROUGH of this test (retail's shared
        * error block sits right here and the head's size-check jumps INTO it via
        * cross-jump); a goto to a tail label puts the block at the end instead. */
-      if (0x20 < len) {
+      if (0x20 < strlen(pFILE->title)) {
 MCRDsave_errorDefault:
         return -1;
       }
       i = 0;
       do {
-        sjis = ascii2sjis(pFILE->title[i]);
-        pMFI->header.title[i] = sjis;
-        if (sjis == 0) break;
+        pMFI->header.title[i] = ascii2sjis(pFILE->title[i]);
+        if (pMFI->header.title[i] == 0) break;
         i = i + 1;
       } while (i < 0x20);
-      clut = getshapeclut(pFILE->icon[0]);
-      blockmove(clut + 0x10,pMFI->header.iconclut,0x20);
+      blockmove(getshapeclut(pFILE->icon[0]) + 0x10,pMFI->header.iconclut,0x20);
       blockmove(&pFILE->icon[0]->data,pMFI->header.icon1,0x80);
       if (1 < nIcons) {
         blockmove(&pFILE->icon[1]->data,pMFI->header.icon2,0x80);
@@ -1246,10 +1234,13 @@ int iMCRD_FormatCard(int card)
 int iMCRD_HandleError(int func,int opResult,int card)
 
 {
-  int scratch_i;
-  int tmp_int;
+  int scratch_i; /* SYM-CODEGEN-CARRIER: scratch_i -- distinct case-3/case-6
+                    join value; merging it with tmp_int is measured FAIL 22 */
+  int tmp_int; /* SYM-CODEGEN-CARRIER: tmp_int -- shared switch-arm lasterror
+                  value feeding the loop-depth-protected final store */
   CARDINFO *pCI;
-  fMemCardInfo *gmi;
+  fMemCardInfo *gmi; /* SYM-CODEGEN-CARRIER: gmi -- per-predecessor base definitions
+                        are required to reuse one retail pseudo at the join */
   int code;
 
   /* MATCH: SYM (8c @0x800504cc) lists FOUR locals - code REG $20($s4), pCI REG $17($s1),
@@ -1358,7 +1349,8 @@ int iMCRD_HandleError(int func,int opResult,int card)
         /* MATCH: SYM nested block - numberoftries/result live only here. */
         int numberoftries;
         int result;
-        int failed;   /* MATCH: the -1 sentinel loop.c hoists out of the retry test.
+        int failed;   /* SYM-CODEGEN-CARRIER: failed -- removing this named sentinel
+                       * is measured FAIL 52.  MATCH: the -1 sentinel loop.c hoists out of the retry test.
                        * As a bare literal it becomes a short-lived hoisted allocno
                        * whose priority (3 refs / 16 insns) beats pCI's and steals
                        * $s1; naming it lengthens its live range so pCI wins $s1 and

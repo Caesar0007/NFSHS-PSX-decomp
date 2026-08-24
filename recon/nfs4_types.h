@@ -4677,6 +4677,10 @@ struct tFEApplication {   /* 896 bytes */
     tDialogNoInputMessage NoInputMemCardDialog;   /* +0x2D0 */
     bool               gotName[2], needName[2];   /* +0x368 */
     int                speechToPlay[2];   /* +0x378 */
+    /* Retail inlines this accessor and records only its implicit `this`.
+       SYM does not retain the helper's exact spelling; GetPlayer is the
+       descriptive reconstruction name for the proven inline source shape. */
+    inline u_char GetPlayer() { return (u_char)fPlayer; }
     void Redraw();   /* FEDialog */
     /* FEApp methods */
     tFEApplication();

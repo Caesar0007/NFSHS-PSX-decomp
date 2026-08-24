@@ -1850,6 +1850,12 @@ void tScreenCarSelectDuel::DrawForeground()
 bool tScreenCarSelectTwoPlayer::GetCar(tCarInfo &carInfo)
 
 {
+  /* SYM-INLINE-THIS: GetPlayer */
+  /* SYM-CODEGEN-CARRIER: player.  Retail omits a caller-local name, but this
+     long-lived cache is currently required to preserve its $s0 allocation:
+     direct fPlayer repetition is FAIL 67 and repeated GetPlayer calls are
+     count-exact FAIL 46.  The accessor spelling itself is not retained by
+     SYM; see the shared-type declaration receipt. */
   /* MATCH 2026-08-11 (59 -> PASS, 84/84).  SYM 8c @0x8003e040 gives fsize 48,
      mask $803f0000 = ra + s0..s5;
      REGPARM `carInfo` = $18 ($s2); the ONLY named REG locals are
@@ -1864,14 +1870,14 @@ bool tScreenCarSelectTwoPlayer::GetCar(tCarInfo &carInfo)
   int currentplayer;
   int garageNumber;
   int player;
-  int color;
 
-  player = (u_char)FEApp->fPlayer;
+  player = FEApp->GetPlayer();
   currentplayer = player;
   garageNumber = player;
   if (frontEnd.carListType == '\0') {
     carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[player],carInfo);
-    color = frontEnd.carColors[player][(signed char)carInfo.fCarID];
+    carInfo.fColor = carInfo.fColorOrder
+         [frontEnd.carColors[player][(signed char)carInfo.fCarID]];
   }
   else {
     if (carManager.GetNumOwnedCars((short)player) <= 0) {
@@ -1881,10 +1887,9 @@ bool tScreenCarSelectTwoPlayer::GetCar(tCarInfo &carInfo)
       return 0;
     }
     carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[currentplayer],carInfo,garageNumber);
-    color = carInfo.fColor;
+    carInfo.fColor = carInfo.fColorOrder[carInfo.fColor];
   }
-  carInfo.fColor = carInfo.fColorOrder[color];
-  carInfo.fCountry = frontEnd.carCountry[FEApp->fPlayer][(signed char)carInfo.fCarID];
+  carInfo.fCountry = frontEnd.carCountry[FEApp->GetPlayer()][(signed char)carInfo.fCarID];
   return 1;
 }
 
@@ -2406,18 +2411,16 @@ void tScreenCarSelectTwoPlayer::Cleanup()
 bool tScreenPinkSlipsCarSelect::GetCar(tCarInfo &carInfo)
 
 {
-  ushort garageNumber;
-  byte player;
-
+  /* SYM-INLINE-THIS: GetPlayer */
   if (PinkSlipsScreenState[0] != CardLoadedFine) {
     return 0;
   }
   if (PinkSlipsScreenState[1] != CardLoadedFine) {
     return 0;
   }
-  player = (byte)FEAppB[0]->fPlayer;
-  garageNumber = (ushort)frontEnd.pinkSlipsCar[player];
-  carManager.GetPinkSlipsCar(garageNumber,carInfo,(ushort)player);
+  carManager.GetPinkSlipsCar
+       ((ushort)(byte)frontEnd.pinkSlipsCar[FEApp->GetPlayer()],carInfo,
+        (ushort)FEApp->GetPlayer());
   carInfo.fColor = carInfo.fColorOrder[carInfo.fColor];
   return 1;
 }

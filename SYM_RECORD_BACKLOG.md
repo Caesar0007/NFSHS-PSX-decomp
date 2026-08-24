@@ -3047,6 +3047,60 @@ retail `rom/nfs4-f.exe` comparison.  Both complete relink lanes are GREEN with
 zero real duplicates, hidden phantoms, or relocation-referenced unresolved
 symbols, and the vtable audit passes 930 files.
 
+### P89 — car-select inline player-access restoration (`2026-08-25`)
+
+Retail SYM records `currentplayer` and `garageNumber` as the only caller locals
+in `tScreenCarSelectTwoPlayer::GetCar`; the prior PASS source additionally
+exposed invented `player` and `color` identities.  The branch assembly shows
+that `color` is not a source join variable: each source arm assigns
+`fColorOrder[...]` to `fColor`, and GCC cross-jump-merges their identical load
+and store tail.  Reconstruction now restores those duplicated arm assignments,
+removing `color` while remaining PASS at 84 instructions.
+
+The same function has nested retail `tFEApplication this` records at its two
+player-read sites.  `tFEApplication::GetPlayer` is now restored as an inline
+field accessor, and both reads use it; the fresh `-g` object remains
+instruction-identical and the strict audit explicitly owns the nested `this`
+records to that helper.  SYM does not retain the inline helper's exact source
+spelling, so `GetPlayer` is a descriptive reconstruction name rather than a
+claim of uniquely recovered spelling.
+
+The remaining `player` cache is no longer a generic review disposition.  It is
+an explicit measured codegen carrier: direct `fPlayer` repetition is FAIL 67
+at 85/84 instructions, while replacing all uses with repeated inline accessor
+calls is count-exact FAIL 46 at 84/84.  The current carrier keeps retail's
+long-lived `$s0` value distinct from named `$s5 currentplayer` and
+`$s3 garageNumber` and remains byte-exact.
+
+Retail records no caller locals in
+`tScreenPinkSlipsCarSelect::GetCar`, only its parameters and a nested inline
+`tFEApplication this`.  Reconstruction removes `player` and `garageNumber` and
+passes two repeated `GetPlayer()` expressions directly to the
+`GetPinkSlipsCar` call.  GCC CSEs that accessor result into retail `$a3`, using
+it for both the pink-slips array index and final call argument.  The function
+remains PASS at 36 instructions and is newly declaration-clean.
+
+Both focused `-g` twins are exact and the complete `screencarselect.cpp` gate
+remains 59/59 PASS.  The strict frontend/common audit advances from 612 to 614
+declaration-clean functions, reduces generic extra names from 803 to 799,
+advances explicit inline-local mappings from two to four, and advances measured
+source-only carrier mappings from 157 to 158.  Missing names, type findings,
+storage findings, global findings, and mapping reviews remain zero.
+
+An adjacent no-local `tScreenCongrats::CalculatePrizes` probe was not retained.
+The best pure-source mixed float/raw spelling was count-exact FAIL 6 at 29/29:
+only the `fCarCX` constant lifetime/store schedule and a zero-store position
+remained.  Direct-float, raw-store, and conditional duplication variants were
+worse.  The known PASS form was restored exactly, so no regression or
+unverified source claim entered this checkpoint.
+
+The isolated clean frontend baseline remains 835/838 with zero compile
+failures and the same three pre-existing residuals.  A complete clean build
+compiled and linked every TU, stopping only at the unavailable untracked
+retail `rom/nfs4-f.exe` comparison.  Both complete relink lanes are GREEN with
+zero real duplicates, hidden phantoms, or relocation-referenced unresolved
+symbols, and the vtable audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

@@ -2438,6 +2438,24 @@ offset-6/offset-7 texture stores.  This removes the layout-compatible
 findings; the explicit function-type override queue falls from four to three.
 The full game/PSX gate remains 385/395 PASS with no compile failures.
 
+### P65 — `DrawC_PrimClip` repeated short `facetFlag` locals restored (`2026-08-24`)
+
+The receipt is recorded in
+[`drawc_primclip_short_facetflag_20260824.md`](scratchpad/root_sym_audit/drawc_primclip_short_facetflag_20260824.md).
+Both repeated case blocks now declare the `short facetFlag` recorded by SLD/SYM.
+The value is assigned from the signed `Transformer_zFacet::flag` field and its
+ordinary integer promotion is made explicit in a source-only `facetValue`
+carrier.  This preserves retail's single signed halfword load instead of GCC's
+otherwise redundant signed/unsigned HImode reload pair.
+
+`DrawC_PrimClip` remains exact at 1877/1877 instructions; its two exact
+neighbors remain PASS at 1389/1389 and 480/480.  The full-debug `drawc.cpp`
+type graph retains all 105/105 named retail records exactly.  Game/PSX is now
+395/395 declaration-clean with zero missing names, extra locals, or type
+findings, and the explicit function-type override queue falls from three to
+two.  The full game/PSX gate remains 385/395 PASS with no compile failures;
+both relink lanes and the 926-file vtable audit remain green.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

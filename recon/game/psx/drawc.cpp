@@ -2991,10 +2991,14 @@ void DrawC_DividePrim(COORD16 *vt0,COORD16 *vt1,COORD16 *vt2,u_short *u0,u_short
  *      DrawC_Prim's landing (2), found there first.  Site-scoped: the other six
  *      0x24 sites in this fn are exactly neutral.
  *  (2) 🏆 THE facetFlag RELOAD + ff->facet_flag COPY TRADE, both sites
- *      (`int facetFlag` at :3515/:3720 + `facet_flag = ff;` + BOTH 20B launders
- *      + the `int hi` guard temp): 210 -> 176.  Transferred verbatim from
- *      DrawC_Prim's landing (3)/(4) -- read that receipt for the mechanism and
- *      for why either half alone is a net loss.
+ *      (`facet_flag = ff;` + BOTH 20B launders + the `int hi` guard temp):
+ *      210 -> 176.  Transferred from DrawC_Prim's landing (3)/(4) -- read that
+ *      receipt for the mechanism and for why either half alone is a net loss.
+ *      W76 SYM closure subsequently restored the retail `short facetFlag` at
+ *      both sites without changing these bytes: assigning through the short
+ *      into `int facetValue` preserves the source type while making the usual
+ *      integer-promotion result explicit, so cc1 retains one sign-extended
+ *      `lh` instead of reloading the HImode local as both `lh` and `lhu`.
  *  (3) 🏆🏆 THE z-BLOCK IS AN EA EXPANDER TEMPLATE, NOT AN ALLOCATOR TIE.
  *      `DRAWC_VTZ(sd, id0, id1, id2)` at all four sites: 122 -> 76.  Full
  *      evidence + the five sec.3.25-2 tells are on the macro definition at the
@@ -3772,9 +3776,12 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     POLY_FT3 *prim;
     int overlayFlag;
     int overlayRaw;
-    /* SYM-TYPE-OVERRIDE: facetFlag -- this block's SHORT record is current
-       FAIL 15 at 1878/1877; the widened promoted carrier is required. */
-    int facetFlag;
+    short facetFlag;
+    /* SYM-CODEGEN-CARRIER: facetValue -- the integer-promoted result of the facetFlag
+       assignment.  A direct later use of the HImode local makes GCC emit a
+       second unsigned reload; this explicit promotion reproduces retail's
+       single `lh` while the -g type graph retains facetFlag as SHORT. */
+    int facetValue;
     Transformer_zFacet *facet;
     int id0;
     int id1;
@@ -3837,10 +3844,10 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
       overlayRaw = (u_short)DrawC_gOverlay[facet->textureIndex]; overlayRaw = overlayRaw << 0x10;
       overlayFlag = overlayRaw >> 0x10;
       if (overlayFlag != 0) {
-        facetFlag = *(short *)facet;
+        facetValue = (facetFlag = facet->flag);
         sd_otz = sd->otz;
         overlayFlag = overlayFlag & 0xff;
-        if (facetFlag < 0) {
+        if (facetValue < 0) {
           overlayFlag = overlayRaw >> 0x18;
         }
         sd_otz = sd_otz + sd->sub_otz;
@@ -3852,7 +3859,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         {
           /* two pseudos: ff computed (v1), facet_flag the live copy (t1) --
            * oracle andi v1,4095; addu t1,v1,zero; srl v0,v1,4 */
-          int ff = facetFlag & 0xfff; int hi = facetFlag & 0x3f0;
+          int ff = facetValue & 0xfff; int hi = facetValue & 0x3f0;
           facet_flag = ff;
           if (hi != 0) {
             /* W75-A7: launders INSIDE the guard body (same lever as the two
@@ -3980,9 +3987,9 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     POLY_FT3 *prim;
     int overlayFlag;
     int overlayRaw;
-    /* SYM-TYPE-OVERRIDE: facetFlag -- this block's SHORT record independently
-       measures FAIL 15 at 1878/1877; the widened promoted carrier is required. */
-    int facetFlag;
+    short facetFlag;
+    /* SYM-CODEGEN-CARRIER: facetValue -- same proven SHORT-assignment promotion as case 8. */
+    int facetValue;
     Transformer_zFacet *facet;
     int id0;
     int id1;
@@ -4052,10 +4059,10 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
       overlayRaw = (u_short)DrawC_gOverlay[facet->textureIndex]; overlayRaw = overlayRaw << 0x10;
       overlayFlag = overlayRaw >> 0x10;
       if (overlayFlag != 0) {
-        facetFlag = *(short *)facet;
+        facetValue = (facetFlag = facet->flag);
         sd_otz = sd->otz;
         overlayFlag = overlayFlag & 0xff;
-        if (facetFlag < 0) {
+        if (facetValue < 0) {
           overlayFlag = overlayRaw >> 0x18;
         }
         sd_otz = sd_otz + sd->sub_otz;
@@ -4064,7 +4071,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         {
           /* two pseudos: ff computed (v1), facet_flag the live copy (t1) --
            * oracle andi v1,4095; addu t1,v1,zero; srl v0,v1,4 */
-          int ff = facetFlag & 0xfff; int hi = facetFlag & 0x3f0;
+          int ff = facetValue & 0xfff; int hi = facetValue & 0x3f0;
           facet_flag = ff;
           if (hi != 0) {
             /* W75-A7: launders INSIDE the guard body (same lever as the two

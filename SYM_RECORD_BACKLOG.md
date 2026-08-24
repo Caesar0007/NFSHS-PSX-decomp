@@ -37,7 +37,7 @@ they are not silently collapsed into a smaller denominator.
   explicit per-record semantic-review row.  Nothing is silently dropped from
   the denominator.
 - A strict compiler-emitted type-graph comparison now distinguishes retail
-  subset coverage from actual per-object source visibility.  Seventy-eight owners are
+  subset coverage from actual per-object source visibility.  Seventy-nine owners are
   semantically exact: `memcard.obj`, `mdec.obj`, `video.obj`, `FETexture.obj`,
   `textpix.obj`, `textpsx.obj`, `unpack.obj`, `fastrand.obj`, and
   `aiscript.obj`, `new.obj`, `paths.obj`, `textsys.obj`, `simplemem.obj`,
@@ -54,7 +54,8 @@ they are not silently collapsed into a smaller denominator.
   `Draw.obj`, `Sfx.obj`, `TrsProj.obj`, `CarIO.obj`, `platform.obj`, and
   `force.obj`, `audio.obj`, `overlays.obj`, `Weather.obj`, `rpause.obj`, and
   `hrzsku.obj`, `TextureProcess.obj`, `Skidmark.obj`, `fe3dmenu.obj`,
-  `device.obj`, `psxcontroller.obj`, `fefades.obj`, and `felines.obj`.
+  `device.obj`, `psxcontroller.obj`, `fefades.obj`, `felines.obj`, and
+  `fevideowall.obj`.
   The remaining mapped C++
   units still expose reconstruction-only declarations through the monolithic
   `nfs4_types.h` include graph and therefore are not yet source-exact.
@@ -2528,6 +2529,23 @@ remaining retail typedef rows are exact duplicates.  Both `felines.cpp`
 functions remain byte-exact after two clean gates.  Frontend remains 836/838
 byte-matches, both relink lanes are green, and the vtable audit passes all 928
 files.
+
+### P70 — `fevideowall.obj` owner-visible type surface restored (`2026-08-24`)
+
+The receipt is recorded in
+[`fevideowall_owner_type_surface_20260824.md`](scratchpad/root_sym_audit/fevideowall_owner_type_surface_20260824.md).
+The owner now exposes only its retail PsyQ/drawing leaf records and the
+video-wall-specific `tTexture_ShapeInfo`, `tTVState`, `tTVConfig`,
+`tVideoWall`, `kernpair`/`KERN`, `tDrawShapeExtended`, and font callback
+types.  It no longer inherits unrelated declarations from `nfs4_types.h`.
+
+The compiler-emitted graph is strict-exact: 38/38 named and 2/2 anonymous
+records match, all 115 unique retail typedef semantics are covered, and no
+source-only named, anonymous, or typedef semantic remains.  Retail's 41 and
+the source's 31 repeated typedef rows are retained as duplicate-debug evidence,
+not treated as additional source declarations.  All twelve functions remain
+byte-exact after two clean gates.  Frontend remains 836/838 byte-matches, both
+relink lanes are green, and the vtable audit passes all 929 files.
 
 ## Closure rule
 

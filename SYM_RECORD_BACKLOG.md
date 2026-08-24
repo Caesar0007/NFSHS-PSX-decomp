@@ -1824,6 +1824,41 @@ its four exact neighbors. Production PsyQ proof reports REAL=42, RELOP=3, and
 87 relocation-site differences for the remaining residual. The vtable indexing
 audit remains clean.
 
+### P41 — Skidmark-controller SYM identity and scope reconstruction (`2026-08-24`)
+
+The refreshed strict game/PSX declaration audit is recorded in
+[`game_psx_after_skidmark_reconcile_20260824.md`](scratchpad/root_sym_audit/game_psx_after_skidmark_reconcile_20260824.md).
+It advances the result from 387/395 to 388/395 declaration-clean functions,
+reduces generic extra source-local names from 256 to 240, and preserves zero
+missing SYM names and zero raw type findings.
+
+`Draw_kCtrlSkidmark` now uses twelve more retail source identities rather than
+parallel decompiler aliases. The active names are `prim`, `ccount`, `i`,
+`count`, `type`, and `save_pre_otz`; the synthetic `primPtr`, `ccount_local`,
+`depth_skid`, `ti2`, `color_pack`, and `vt_y` declarations are gone. A natural
+short-circuit break removes `bVar2`, `skidChunk_p`, and `vert_count`, while
+subtrahend-first arithmetic removes `tx`, `ty`, and `tz`. The SYM/SLD lexical
+blocks are also restored for `sm`, `td`/`ts`/`count`/`i`, `prim`,
+`type`/`pmx`/`save_pre_otz`, and `depth_index`. Every one of these changes is
+byte-neutral at the authoritative gate.
+
+Four non-SYM code-generation carriers remain explicitly queued with current
+receipts: `skidIdx` (natural pointer indexing is FAIL 227 at 354/353), `otz94`
+(repeated literals are FAIL 36 at 353/353), `grey` (direct literals are FAIL 68
+at 353/353), and `neg1` (a direct sentinel test is FAIL 24 at 353/353). The
+complete PsyQ 4.3 headers/documentation also disprove the canonical Sony packet
+macros for this exact site: `setPolyGT4` plus `setSemiTrans` measured 302
+differences at 375/353, and `setcode` plus `setlen` measured 303 at 376/353.
+The retail byte-store expansion is therefore kept as an EA-wrapper lead.
+
+Detailed verification remains 20 differences at the exact 353/353 count, and
+the whole `draww.cpp` gate remains 31/35 PASS with residuals 8/9/20/66.
+Production PsyQ proof reports REAL=33 and RELOP=0. Correcting `prim` from the
+synthetic `void *` to the SYM `POLY_GT4 *` also lets the instrumented gcc-2.8.1
+compiler finish this function; its output is d308 from production here, so that
+trace is retained only as a diagnostic and not accepted as an allocation
+receipt. The vtable indexing audit remains clean.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

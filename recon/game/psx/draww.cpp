@@ -5519,34 +5519,15 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
      ⚠️ The receipted allocsim table above is now BASIN-STALE (it was measured at
      303/354; we are at 274/355) -- re-dump before using its reqdelta chain.
      ============================================================================ */
-  int skidChunk_p;
-  int vert_count;
-  int depth_index;
-  POLY_GT4 *prim;
-  void *primPtr;
-  Draw_tPixMap *pmx;
-  int type;
-  int color_pack;
-  int save_pre_otz;
-  int vt_y;
-  int i;
-  int depth_skid;
-  int count;
-  Draw_DCache *sd;
-  Skidmark_Chunk *sm;
-  matrixtdef *m;
   int ccount;
-  int ccount_local;
+  matrixtdef *m;
   coorddef *t;
-  int skidIdx;
-  coorddef td;
-  coorddef ts;
-  int ti2;
+  Draw_DCache *sd;
+  int skidIdx; /* SYM-CODEGEN-CARRIER: skidIdx -- natural fskid->smp + ccount is FAIL 227 at 354/353 */
   /* MATCH (w46-a6): SYM has no u_char here and the oracle keeps the
    * backface flag as a plain word in $s0 (`sltu $s0,$zero,$v0;
    * beqz $s0` @0x800C91B8) -- a u_char local forced an extra
    * `andi ...,255` + a copy on every loop iteration. */
-  int bVar2;
 
   /* MATCH (wave-14): `sd` (SYM REG Draw_DCache*, the scratchpad cache cursor
      -- same idiom as DrawW_BuildObjectFacets/DoTrough) was DECLARED but never
@@ -5583,14 +5564,14 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
    * 0x1F800094 is `sd->otz`'s address in the same cache header, and the oracle keeps
    * that literal in its OWN callee-saved reg across the calls (`lui fp,0x1F80;
    * ori fp,fp,0x94` in the prologue), so model it as a local pointer. */
-  int *otz94;
+  int *otz94; /* SYM-CODEGEN-CARRIER: otz94 -- repeated literal 0x1f800094 is FAIL 36 at 353/353 */
   /* MATCH (w40-a2): 0x404040 is stored four times deep inside the loop across calls;
    * the oracle materializes it ONCE into a callee-saved reg in the prologue
    * (`lui s3,0x40; ori s3,s3,0x4040`).  Diff-neutral on its own but it reproduces the
    * oracle's prologue materialization SET (0x1F800000 base + 0x1F800094 + 0x404040);
    * the only one still missing is `t = &fskid->t` ($s6), which REGRESSES (344->415)
    * every time it is added -- retested twice, w39 and w40. */
-  int grey;
+  int grey; /* SYM-CODEGEN-CARRIER: grey -- four direct 0x404040 stores are FAIL 68 at 353/353 */
 
   /* ================= W72-A1 (2026-08-22): 274 -> 28, count 355 -> EXACT 353 ====
      THE RULE-8 `Skidmark_Chunk *sm` WALKER SPLIT (the named angle every wave since
@@ -5686,10 +5667,33 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
            packet cursor read at (4).
      ============================================================================ */
 
+  /* ================= W78-A1 (2026-08-24): SYM identities/scopes restored =====
+     The gate remains 20 diffs at the exact 353/353 count, but twelve generic
+     decompiler names are gone.  The previously unused SYM identities now carry
+     their real values: prim<-primPtr, ccount<-ccount_local, i<-depth_skid,
+     count<-ti2, type<-color_pack, and save_pre_otz<-vt_y.  The short-circuit
+     break form removes bVar2/skidChunk_p/vert_count byte-identically; spelling
+     each subtraction as `-t->axis + sm->cp.axis` removes tx/ty/tz while retaining
+     retail's subtrahend-first loads.  The SLD/SYM scopes are also literal again:
+     sm begins after the matrix setup; td/ts/count/i begin after chunk selection;
+     prim begins in the packet block; type/pmx/save_pre_otz begin in the visible
+     facet block; and depth_index exists only in the CLUT-repair block.
+
+     The four remaining non-SYM identities are explicitly receipted at their
+     declarations: natural indexing for skidIdx is 227/354, direct OTZ literals
+     are 36/353, direct grey literals are 68/353, and a direct -1 test is 24/353.
+     Canonical PsyQ 4.3 setPolyGT4+setSemiTrans is not this retail expansion: it
+     measured 302 diffs at 375/353; even setcode+setlen measured 303 at 376/353.
+     This supports an EA packet-wrapper expansion at this site.  Correcting prim
+     from void* to the SYM POLY_GT4* also removes the gcc-2.8.1 instrumentation
+     ICE; that compiler is d308 from production for this function, so its trace
+     remains diagnostic only and is not used as an allocation receipt.
+     ============================================================================ */
+
   otz94 = (int *)0x1f800094;
   sd = (Draw_DCache *)&Render_gPalettePtr;
   grey = 0x404040;
-  ccount_local = fskid->count;
+  ccount = fskid->count;
   __asm__("" : : "r"(grey));
   __asm__("" : : "r"(grey));
   m = &fskid->m;
@@ -5700,7 +5704,7 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
      reqdelta on the post-rule-8 dump: `p102 refs 10 -> 11` is the MINIMAL single
      dial that flips the t/skidIdx pair to retail's $s6/$s7. */
   __asm__("" : : "r"(t));
-  skidIdx = ccount_local * 0x2b0;
+  skidIdx = ccount * 0x2b0;
   /* MATCH (w40-a2): SYM @0x800C909C declares the matrix conversion as THREE sibling
    * blocks of `int r0,r1,r2`; the oracle runs each row as three PARALLEL chains
    * (`lw r0; lw r1; lw r2; sra; sra; sra; sh; sh; sh`) so the loads fill each other's
@@ -5739,9 +5743,11 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
     (sd->matB).m[2][1] = (short)(r1 >> 4);
     (sd->matB).m[2][2] = (short)(r2 >> 4);
   }
+  {
+  Skidmark_Chunk *sm;
   do {
     do {
-      ccount_local = ccount_local + -1;
+      ccount = ccount + -1;
       /* MATCH (w72-a1): the `-1` sentinel is a LOOP-INVARIANT constant that
          loop.c hoists to the preheader, where it loses its register and reload
          rematerializes it into an arbitrary scratch ($t8); retail has `li $v0,-1`
@@ -5749,8 +5755,9 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
          the named constant gives the pseudo a SECOND set, so no movable is built
          and the constant stays block-local.  Zero insns (353/353 either way).
          Same device as the four `sd->offset = 0x7d` sites in DrawW_DoTrough. */
-      { int neg1 = -1; __asm__("" : "=r"(neg1) : "0"(neg1));
-      if (ccount_local == neg1) {
+      { int neg1 /* SYM-CODEGEN-CARRIER: neg1 -- direct -1 test is FAIL 24 at 353/353 */ = -1;
+      __asm__("" : "=r"(neg1) : "0"(neg1));
+      if (ccount == neg1) {
         return;
       } }
       /* MATCH (w46-a6): retail has NO `skidIter` -- the SYM lists no such
@@ -5762,27 +5769,30 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
        * `sd`.  Identical arithmetic: smp[-1]+0x10-2*8 == (int)smp-0x2B0. */
       skidIdx = skidIdx + -0x2b0;
       sm = (Skidmark_Chunk *)((int)fskid->smp + skidIdx);
-      bVar2 = 0;
-      skidChunk_p = (int)BWorld_IsSliceInBuildList((int)sm->slice);
-      if (skidChunk_p != 0) {
-        vert_count = Draw_CircleClip(&sm->cp,t,0x320000);
-        bVar2 = vert_count != 0;
+      if ((BWorld_IsSliceInBuildList((int)sm->slice) != 0) &&
+          (Draw_CircleClip(&sm->cp,t,0x320000) != 0)) {
+        break;
       }
-    } while (bVar2 == 0);
+    } while (true);
+    {
+    coorddef td;
+    coorddef ts;
+    int count;
+    int i;
     /* MATCH (w72-a1, w45-a5 subtrahend-first class): retail loads the
        SUBTRAHEND (`lw $v1,0($s6)` = t->N) BEFORE the minuend; a single
        `a - b` expression evaluates left-to-right and loads them the other way. */
-    { int tx = t->x; ts.x = sm->cp.x - tx; }
-    { int ty = t->y; ts.y = sm->cp.y - ty; }
-    { int tz = t->z; ts.z = sm->cp.z - tz; }
+    ts.x = -t->x + sm->cp.x;
+    ts.y = -t->y + sm->cp.y;
+    ts.z = -t->z + sm->cp.z;
     transform(&ts.x,(int *)m,&td.x);
     (sd->matB).t[0] = td.x >> 6;
     (sd->matB).t[1] = td.y >> 6;
     (sd->matB).t[2] = td.z >> 6;
 gte_SetRotMatrix(&sd->matB);
 gte_SetTransMatrix(&sd->matB);
-    ti2 = *(int *)&sm->n;
-    for (depth_skid = 0; depth_skid < (short)ti2; depth_skid = depth_skid + 1) {
+    count = *(int *)&sm->n;
+    for (i = 0; i < (short)count; i = i + 1) {
       /* MATCH (2026-07-11): oracle re-reads Render_gPacketEnd's TRUE storage
        * address (scratchpad 0x1F800008, same "Render_gPacketPtr style" fixed-
        * lvalue idiom as nfs4_types.h's Render_gPacketPtr/Render_gPalettePtr
@@ -5816,8 +5826,9 @@ gte_SetTransMatrix(&sd->matB);
        * `pt1_index` is the oracle's $t1 walker (sm + i*0x1C), so the two
        * addresses are pt1_index+0x10 and pt1_index+0x18 -- and the +8 step
        * between them is the oracle's own `addiu $v1,$v1,8`. */
-      if ((sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) && (sm->seg[depth_skid].next != (Skidmark_Segment *)0x0)) {
-gte_ldv0((int *)&sm->seg[depth_skid].svx[0]);
+      if ((sd->head.cprim.PrimPtr < sd->head.cprim.MPrimPtr) && (sm->seg[i].next != (Skidmark_Segment *)0x0)) {
+        POLY_GT4 *prim;
+gte_ldv0((int *)&sm->seg[i].svx[0]);
         gte_rtps();
 gte_stlvnl(&sd->tVn0);
         /* MATCH (w72-a1): retail reaches the packet cursor through the
@@ -5825,18 +5836,18 @@ gte_stlvnl(&sd->tVn0);
          * through the sd base (which folds to a single `lw $a2,4($s1)` and
          * lands one insn short) -- the same lever that sealed
          * DrawW_OnyxLinePrim's `prim` in w71. */
-        primPtr = Render_gPacketPtr;
+        prim = (POLY_GT4 *)Render_gPacketPtr;
         /* CORRECTNESS FIX (2026-07-12, oracle @0x800C92E0): SXY goes to the
          * CURRENT packet cursor (Render_gPacketPtr + 8), not the fixed
          * scratchpad literal 0x1F800008 (= Render_gPacketEnd's slot). */
-gte_swc2(0xe,(void *)(primPtr + 8));
-gte_ldv0((int *)&sm->seg[depth_skid].svx[1]);
+gte_swc2(0xe,(void *)((int)prim + 8));
+gte_ldv0((int *)&sm->seg[i].svx[1]);
         gte_rtps();
 gte_stlvnl(&sd->tVn1);
-gte_ldv0((int *)&sm->seg[depth_skid].next->svx[1]);
+gte_ldv0((int *)&sm->seg[i].next->svx[1]);
         gte_rtps();
 gte_stlvnl(&sd->tVn2);
-gte_ldv0((int *)&sm->seg[depth_skid].next->svx[0]);
+gte_ldv0((int *)&sm->seg[i].next->svx[0]);
         gte_rtps();
 gte_stlvnl(&sd->tVn3);
         /* MATCH (2026-07-11): the four gte_stlvnl() calls just above write the
@@ -5870,7 +5881,11 @@ gte_stlvnl(&sd->tVn3);
            ((((-sd->tVn0.vx < sd->tVn0.vz || (-sd->tVn1.vx < sd->tVn1.vz)
               ) || (-sd->tVn2.vx < sd->tVn2.vz)) ||
             (-sd->tVn3.vx < sd->tVn3.vz)))) {
-          color_pack = sm->seg[depth_skid].type;
+          int type;
+          Draw_tPixMap *pmx;
+          int save_pre_otz;
+
+          type = sm->seg[i].type;
           /* CORRECTNESS BUG (W70, found by the m2c cross-verify -- seal criterion
            * 6 -- against C:/Temp/nfs4-clean/Binaries/NFS4-B-USA/c/func_800C909C.c):
            * `gSkidMarkPixmap` is an ARRAY OF POINTERS (SYM nfs4-f-v3.txt:119780
@@ -5884,7 +5899,7 @@ gte_stlvnl(&sd->tVn3);
            * m2c is unambiguous: `temp_a3 = *(0x8013D1EC + ((temp_t0 & 1) * 4));`
            * then `temp_a2->unkC = temp_a3->unk0` ... `temp_a3->unkA << 5`, i.e. the
            * pointer is LOADED and dereferenced.  One indirection was missing. */
-          pmx = gSkidMarkPixmap[color_pack & 1];
+          pmx = gSkidMarkPixmap[type & 1];
           /* CORRECTNESS BUG (w46-a6) -- the three transformed screen XYs were
            * written to SCRATCHPAD 0x1F800014/2C/20 (= sd->matB's interior!),
            * clobbering the rotation matrix and leaving the primitive's
@@ -5896,8 +5911,8 @@ gte_stlvnl(&sd->tVn3);
            * later `sw $v0,0xC($a2)` / `lhu $v1,0xE($a2)` pixmap+clut stores.
            * POLY_GT4: x1y1@0x14, x2y2@0x20, x3y3@0x2C.  Also -3 insns: the
            * oracle's addiu-off-prim replaces our lui/ori literal pairs. */
-gte_stsxy3((void *)((int)primPtr + 0x14),(void *)((int)primPtr + 0x2c),
-                     (void *)((int)primPtr + 0x20));
+gte_stsxy3((void *)((int)prim + 0x14),(void *)((int)prim + 0x2c),
+                     (void *)((int)prim + 0x20));
           gte_avsz4();
           /* MATCH (w72-a1): retail STORES the GTE OTZ through the literal
            * 0x1F800094 pointer it keeps in $fp (`swc2 $7,0($fp)`) but READS and
@@ -5906,8 +5921,8 @@ gte_stsxy3((void *)((int)primPtr + 0x14),(void *)((int)primPtr + 0x2c),
            * both sides through the literal made cc1 materialize a SECOND
            * lui/ori 0x1F800094 pair for the store operand. */
 gte_swc2(0x7,otz94);
-          vt_y = sd->otz >> 5;
-          sd->otz = vt_y + 0x32;
+          save_pre_otz = sd->otz >> 5;
+          sd->otz = save_pre_otz + 0x32;
           if (sd->otz < 1) {
             return;
           }
@@ -5917,24 +5932,24 @@ gte_swc2(0x7,otz94);
           /* MATCH (w46-a6, step B -- the ONE inverted arm brcensus flagged as
            * `beqz 7v8 bnez 9v8`): the oracle's guard is `beqz $t0,.L800C94CC`
            * @0x800C94B0, i.e. the GREY arm is the FALL-THROUGH and the pixmap
-           * arm is the branch TARGET.  Writing `if (color_pack == 0)` first
+           * arm is the branch TARGET.  Writing `if (type == 0)` first
            * emitted `bnez` and swapped the two blocks' physical order. */
-          if (color_pack != 0) {
-            *(u_int *)((int)primPtr + 4) = grey;
-            *(u_int *)((int)primPtr + 0x10) = grey;
-            *(u_int *)((int)primPtr + 0x28) = grey;
-            *(u_int *)((int)primPtr + 0x1c) = grey;
+          if (type != 0) {
+            *(u_int *)((int)prim + 4) = grey;
+            *(u_int *)((int)prim + 0x10) = grey;
+            *(u_int *)((int)prim + 0x28) = grey;
+            *(u_int *)((int)prim + 0x1c) = grey;
           }
           else {
-            *(int *)((int)primPtr + 4) = *(int *)&sm->seg[depth_skid].rgb;
-            *(int *)((int)primPtr + 0x10) = *(int *)&sm->seg[depth_skid].rgb;
-            *(u_int *)((int)primPtr + 0x28) =
-                 *(u_int *)&sm->seg[depth_skid].next->rgb;
-            *(u_int *)((int)primPtr + 0x1c) =
-                 *(u_int *)&sm->seg[depth_skid].next->rgb;
+            *(int *)((int)prim + 4) = *(int *)&sm->seg[i].rgb;
+            *(int *)((int)prim + 0x10) = *(int *)&sm->seg[i].rgb;
+            *(u_int *)((int)prim + 0x28) =
+                 *(u_int *)&sm->seg[i].next->rgb;
+            *(u_int *)((int)prim + 0x1c) =
+                 *(u_int *)&sm->seg[i].next->rgb;
           }
-          *(u_char *)((int)primPtr + 7) = 0x3e;
-          *(u_char *)((int)primPtr + 3) = 0xc;
+          *(u_char *)((int)prim + 7) = 0x3e;
+          *(u_char *)((int)prim + 3) = 0xc;
           /* MATCH (w41-a2): SYM block @0x800C950C line 119 declares FOUR ULONG REG
            * locals l0..l3 ($2/$3/$4/$5).  The oracle batches all four pixmap word
            * loads (lw v0,0(a3); lw v1,4(a3); lw a0,8(a3); lw a1,0xC(a3)) and only
@@ -5948,10 +5963,10 @@ gte_swc2(0x7,otz94);
             l1 = *(u_long *)&pmx->u1;
             l2 = *(u_long *)&pmx->u2;
             l3 = *(u_long *)&pmx->u3;
-            *(u_long *)((int)primPtr + 0xc) = l0;
-            *(u_long *)((int)primPtr + 0x18) = l1;
-            *(u_long *)((int)primPtr + 0x24) = l2;
-            *(u_long *)((int)primPtr + 0x30) = l3;
+            *(u_long *)((int)prim + 0xc) = l0;
+            *(u_long *)((int)prim + 0x18) = l1;
+            *(u_long *)((int)prim + 0x24) = l2;
+            *(u_long *)((int)prim + 0x30) = l3;
           }
           /* CORRECTNESS + MATCH (w41-a2, census lh 4v2 / lhu 2v5):
            * (a) the POLY_GT4 clut at +0xE is a U_SHORT compared against the literal
@@ -5968,13 +5983,15 @@ gte_swc2(0x7,otz94);
            *     The `sll 16; sra 16` on the first one is the u_short read narrowed
            *     back to SIGNED for the subtract; the second stays unsigned (it is a
            *     shift COUNT feeding `srav`). */
-          if (*(u_short *)((int)primPtr + 0xe) == 0xffff) {
+          if (*(u_short *)((int)prim + 0xe) == 0xffff) {
+            int depth_index;
+
             /* MATCH (w46-a6): read the fog pair by DISPLACEMENT off the shared
              * scratchpad base -- oracle `lhu $v0,0xDC($s1); lhu $v1,0xDE($s1)`
              * @0x800C9548.  The DW_SCRATCH literal form materialized TWO extra
              * `lui 0x1F80`s.  (Draw_DCache stops at 0xDC; the fog pair lives in
              * the bigger Draw_tGiveShelbyMoreCache view of the same header.) */
-            depth_index = (vt_y - ((Draw_tGiveShelbyMoreCache *)sd)->startfog) * 0x10 >>
+            depth_index = (save_pre_otz - ((Draw_tGiveShelbyMoreCache *)sd)->startfog) * 0x10 >>
                        ((Draw_tGiveShelbyMoreCache *)sd)->distfog;
             if (depth_index < 0) {
               depth_index = 0;
@@ -5982,7 +5999,7 @@ gte_swc2(0x7,otz94);
             else if (0xf < depth_index) {
               depth_index = 0xf;
             }
-            *(short *)((int)primPtr + 0xe) =
+            *(short *)((int)prim + 0xe) =
                  /* MATCH (w72-a1): qty_combine ties the sum's DEST to its FIRST
                     operand -- retail accumulates into the depth-index register
                     (`sll $v1,$v1,1; sll $v0,$v0,5; addu $v1,$v1,$v0; addu $v1,$v1,$t8`).
@@ -6009,16 +6026,16 @@ gte_swc2(0x7,otz94);
            * THE w72 RESIDUAL CLASS (B) IS CLOSED.  The template's `%0` landed in
            * $v0 where retail has $a2 because the output was a FRESH block-local
            * `void *primOut` -- but `lw %0,4(%1)` re-reads exactly the value the
-           * enclosing block already named: `primPtr = Render_gPacketPtr;` IS
+           * enclosing block already named: `prim = Render_gPacketPtr;` IS
            * sd->head.cprim.PrimPtr, i.e. the same word this template loads.
-           * Writing the output back into `primPtr` makes it ONE pseudo instead of
-           * two, so the dead `primPtr` register ($a2, dead after the `sh v0,14(a2)`
+           * Writing the output back into `prim` makes it ONE pseudo instead of
+           * two, so the dead `prim` register ($a2, dead after the `sh v0,14(a2)`
            * clut store) is reused for the template's result exactly as retail does
            * (`lw a2,4(s1)` / `addiu t6,a2,52` / `sll t4,a2,8` / `sw t6,0(a2)`).
            * This is VARIABLE IDENTITY (23C(2) / the w74 BuildSpikeBelt cure), not
            * a device: no clobber, no fence, and semantically the assignment the EA
            * macro itself performs (the template's %0 IS the newly allocated prim).
-           * Zero risk to the four other users of `primPtr` in this block -- they
+           * Zero risk to the four other users of `prim` in this block -- they
            * all run BEFORE the template and the value is identical.
            * (Historical: the 13-line bit-shift/alignment emulation this template
            * replaced was ALSO producing the WRONG runtime effect -- it recomputed
@@ -6028,7 +6045,7 @@ gte_swc2(0x7,otz94);
            * dropped skidmark polys.)
            *
            * RESIDUAL 20 = the w72 class (A) alone, the PROLOGUE EMISSION ORDER.
-           * RE-PRICED THIS WAVE at the new (post-primPtr) basin per 21E(1), all
+           * RE-PRICED THIS WAVE at the new (post-prim) basin per 21E(1), all
            * three sweeps FALSIFIED again -- 20 is the minimum of every one:
            *   - all 120 permutations of the five init GROUPS  (min 20 = current)
            *   - all 720 permutations of the SIX init statements otz/sd/grey/
@@ -6101,7 +6118,7 @@ gte_swc2(0x7,otz94);
                 "sll\t$12,%0,8\n\t"
                 "sw\t$14,0(%0)\n\t"
                 "swl\t$12,2($13)"
-                : "=&r"(primPtr)
+                : "=&r"(prim)
                 : "r"(sd), "r"(otz94)
                 : "$12", "$13", "$14", "memory");
           }
@@ -6109,7 +6126,9 @@ gte_swc2(0x7,otz94);
         }
       }
     }
+    }
   } while( true );
+  }
 }
 
 /* ---- DrawW_SetUpSubdividFacet_Line__FP25Draw_tGiveShelbyMoreCache  [DRAWW.CPP:3049-3103] SLD-VERIFIED ---- */

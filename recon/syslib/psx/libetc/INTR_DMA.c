@@ -26,7 +26,9 @@
  *   separately, then re-test with a1's per-fn splice mechanism (whole-TU flag is not authoritative
  *   for the final per-fn residual, but is a valid proxy since gcc codegens per-function).
  */
-extern void InterruptCallback(int idx, void (*h)());   /* INTR */
+typedef void (*Callback)(void);
+
+extern void InterruptCallback(int idx, void (*h)(void));   /* INTR */
 extern int  printf(const char *fmt, ...);              /* C63 */
 extern void trapIntrDMA(void) __asm__("_dma_isr");
 /* @0x80106878 : the per-channel DMA-callback setter startIntrDMA hands back.  NOT `static`:
@@ -37,14 +39,14 @@ extern void trapIntrDMA(void) __asm__("_dma_isr");
  * anything else leaves the oracle symbol unpaired -- objdiff reported it 0% and verify_asm
  * `NOT IN OBJECT` while the body was in fact byte-exact under a source-level name
  * (W52-A9; same hidden-phantom class as the DMA_memclr note above). */
-int setIntrDMA(int ch, int func) __asm__("func_80106878");
+Callback setIntrDMA(int ch, Callback func) __asm__("func_80106878");
 
 extern volatile unsigned int *g_dicr_ptr __asm__("D_8013BD20");   /* @0x8013BD20 : = 0x1F8010F4 */
 /* W66-A3 (link): the 8-word run at 0x8013BD24 is emitted by the splat blob
  * (asm/data/data_8010CCD4_r18.data.s, dlabel D_8013BD24) -- alias the recon
  * spelling onto it rather than minting a second, unplaced object.  Name-only:
  * the reloc changes, the bytes do not (the two neighbours already do this). */
-extern int dma_cb[8] __asm__("D_8013BD24");  /* @0x8013BD24 : per-channel DMA callbacks */
+extern Callback dma_cb[8] __asm__("D_8013BD24");  /* @0x8013BD24 : per-channel DMA callbacks */
 extern volatile unsigned int *g_madr_ptr __asm__("D_8013BD44");   /* @0x8013BD44 : = 0x1F801080 */
 
 #define DICR (*g_dicr_ptr)
@@ -86,7 +88,7 @@ extern void trapIntrDMA(void)   /* @0x801066F8 */
             if (pending & 1) {
                 DICR &= 0xffffff | (1 << (i + 24));
                 if (dma_cb[i] != 0) {
-                    ((void (*)())dma_cb[i])();
+                    dma_cb[i]();
                 }
             }
         }
@@ -129,9 +131,9 @@ dma_error:
  *   the productive instrument is the -dg/-dl dump plus allocsim on the block-local qtys
  *   that own $a0/$a1 in the two arms, i.e. a 3-QTY-LAW dial on the DICR read-modify-write
  *   blocks rather than any further reshaping of the parameters.  Not a floor. */
-int setIntrDMA(int ch, int func)   /* @0x80106878 (installed by startIntrDMA) */
+Callback setIntrDMA(int ch, Callback func)   /* @0x80106878 (installed by startIntrDMA) */
 {
-    int old = dma_cb[ch];
+    Callback old = dma_cb[ch];
     if (func != old) {
         if (func != 0) {
             dma_cb[ch] = func;

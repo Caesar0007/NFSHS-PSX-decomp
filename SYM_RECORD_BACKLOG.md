@@ -1859,6 +1859,32 @@ compiler finish this function; its output is d308 from production here, so that
 trace is retained only as a diagnostic and not accepted as an allocation
 receipt. The vtable indexing audit remains clean.
 
+### P42 — Canonical PsyQ interrupt callback names and types (`2026-08-24`)
+
+The two private libetc interrupt members now use canonical PsyQ source
+identities while retaining every NFS4 retail linkage label.  In
+`INTR_VB.c`, the synthetic C identifiers `startIntrVSync_helper_1`,
+`startIntrVSync_helper_2`, and `startIntrVSync_helper_3` are replaced by
+`trapIntrVSync`, `setIntrVSync`, and `VSync_memclr`; explicit asm-name aliases
+preserve the existing oracle/config symbols.  The unused reconstructed
+`priority` parameter on `startIntrVSync` is removed.  Both the VSync and DMA
+callback tables, setters, and temporaries now use a real `Callback` function
+pointer type instead of integer carriers.
+
+The PsyQ 4.3 archive index proves `INTR_VB.obj` as the 288-byte
+`startIntrVSync` member and `INTR_DMA.obj` as the 672-byte `startIntrDMA`
+member.  Matched PsyQ source from SOTN and corroborating Xenogears/Rage Racer
+implementations supply the private routine spellings; `Libref.pdf` page 375
+(manual page 7-129) independently fixes the public `VSyncCallback` API boundary
+and prevents that public name from being reused for the private setter.
+
+Detailed verification preserves all seven existing exact bodies:
+`startIntrVSync` 22/22, `trapIntrVSync` 27/27, `setIntrVSync` 11/11,
+`VSync_memclr` 9/9, `startIntrDMA` 19/19, `trapIntrDMA` 96/96, and
+`DMA_memclr` 9/9.  `setIntrDMA` retains exactly its pre-existing 36-diff
+residual at 41/43 instructions.  Whole-TU gates remain 4/4 PASS for
+`INTR_VB.c` and 3/4 PASS for `INTR_DMA.c`; no PASS regressed.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

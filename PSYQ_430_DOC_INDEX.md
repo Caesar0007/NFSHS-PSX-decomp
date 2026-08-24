@@ -40,6 +40,12 @@ whole root when the primary manuals do not settle a question.
   suffix as the no-leading-nop Type-2 form in `inline_c.h`.
 - Canonical `COFF\INCLUDE\INLINE_C.H` settles exact basic macro spellings such
   as `gte_stsxy0`, `gte_stsxy1`, `gte_stsxy2`, `gte_stotz`, and `gte_stopz`.
+- `Libref.pdf`, PDF page 375 (manual page 7-129), documents the public
+  `VSyncCallback` boundary as a callback-function-pointer API.  The canonical
+  archive index separately identifies the private `INTR_VB.obj` and
+  `INTR_DMA.obj` members; their internal source names must therefore be
+  recovered from matching member/source evidence rather than confused with
+  the public `VSyncCallback` symbol.
 
 ## Evidence workflow
 

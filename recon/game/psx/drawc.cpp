@@ -1662,59 +1662,6 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
 
 {
   COORD16 * Nvertice;
-  COORD16 * vt;
-  int u;
-  int tvx;
-  short t1;
-  short t2;
-  short t3;
-  PCOORD16 * tV;
-  POLY_FT3 * prim;
-  Transformer_zFacet * facet;
-  int id0;
-  int id1;
-  int id2;
-  int bfct;
-  u_long color;
-  Draw_tPixMap * pmx;
-  u_char offsetU;
-  u_char offsetV;
-  u_char u0;
-  u_char u1;
-  u_char u2;
-  u_char v0;
-  u_char v1;
-  u_char v2;
-  u_short uv0;
-  u_short uv1;
-  short * z;
-  long xy0;
-  long xy1;
-  long xy2;
-  int overlayFlag;
-  int facet_flag;
-  int sd_otz;
-  int index;
-  int which;
-  Transformer_zOverlay * facetOverlay;
-  char cVar1;
-  u_short clut;
-  int absZ;
-  int matRow1_x;
-  short *psVar6;
-  u_short tpage;
-  int matRow0_w1;
-  int matRow_temp;
-  int envmapMode;
-  int bfctResult_b;
-  int ti34;
-  u_short uv2;
-  u_char primTypeByte_b;
-  u_char code;
-  int facetByteOff;
-  int iVar8;
-  u_int uVar10;
-  u_char v;
   /* w60-a7: the envmap-UV cursor is the TYPED `Draw_CarVertex *` walker, not a raw
      byte cursor -- the same shape DrawC_PrimMenu's identical loop was SEALED with this
      wave.  A `char *` walked `+ 8` is a BIV whose init is an ordinary source statement
@@ -1725,29 +1672,18 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
      is the reason it is kept.  NOTE the same conversion applied to DrawC_PrimClip's
      twin loop measures 552 -> 566 (also count-unchanged) and was NOT landed -- re-probe
      it there after PrimClip's block-order work, per the lever-order law. */
-  Draw_CarVertex *envmapUV_dst;
-  short *psVar12;
-  int iVar13;
-  int iVar14;
-  COORD16 *vertex_iter;
-  u_int *puVar17;
-  int tV_dst;
-  int facet_p_v3;
-  short facetFlag;
   int i;
-  int loopDoneTag;
-  short ts10;
-  u_char tu1;
-  u_char tu4;
-  short tu19;
-  short tu11;
-  short tu12;
-  short tu14;
-  short tu15;
-  char tc6;
-  short ts7;
-  u_short tu21;
-  u_short uVar8_00;
+
+  /* The SYM has no distinct records for these four source-shaping identities.
+     Each remains only because the detailed W53/W60/W75 receipts below measure
+     a natural direct spelling as a different instruction/allocation stream.
+     SYM-CODEGEN-CARRIER: envmapUV_dst
+     SYM-CODEGEN-CARRIER: ff
+     SYM-CODEGEN-CARRIER: hi
+     SYM-CODEGEN-CARRIER: overlayRaw
+     SYM-TYPE-OVERRIDE: facetFlag -- the SYM records SHORT, but a direct short
+     declaration regresses PASS to 30 differences at 1391/1389; the current
+     promoted int carrier preserves the retail lhu/sign-extension/allocation shape. */
   
   Nvertice = obj->Nvertex;
   /* field-fusion: ePmx0.{u0,v0,clut} contiguous 4-byte packed -- ONE lw each */
@@ -1756,7 +1692,7 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
   }
   /* MATCH (w53-a2, 360 -> 338): the envmap-UV loop rebuilt to DrawC_PrimMenu's
      PROVEN loop-1 shape (PrimMenu's loop-1 is byte-exact).  Three parts:
-      (a) ONE `COORD16 *vt` cursor + a block-local e1/e2/e3 x,y,z triple, instead of
+      (a) ONE `COORD16 *vt` cursor + a block-local t1/t2/t3 x,y,z triple, instead of
           the Ghidra two-cursor form (`psVar6` for x + `vert_yz_iter` for y/z read at
           [-1]/[0]).  Strength reduction then MINTS the y/z cursor itself as a giv
           (`addiu a1,s3,4`), and a giv is emitted AFTER the LICM movables in the loop
@@ -1778,7 +1714,8 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
      626 -> 626 with the same 28 diffs in the first 130 rows, so it was NOT landed;
      PrimClip keeps its two-cursor loop-1. */
   if ((envmap & 1U) != 0) {
-    vt = Nvertice;
+    COORD16 *vt = Nvertice;
+    Draw_CarVertex *envmapUV_dst;
 gte_SetRotMatrix(&DrawC_gMatA);
 gte_SetTransMatrix(&DrawC_gMatA);
     i = (int)obj->numVertex;
@@ -1787,25 +1724,25 @@ gte_SetTransMatrix(&DrawC_gMatA);
       i = i - 1;
       if (i == -1) break;
       {
-        short e1, e2, e3;
-        e1 = vt->x;
-        e2 = vt->y;
-        e3 = vt->z;
-        (sd->vt0).x = e1;
-        (sd->vt0).y = e2;
-        (sd->vt0).z = e3;
+        short t1, t2, t3;
+        t1 = vt->x;
+        t2 = vt->y;
+        t3 = vt->z;
+        (sd->vt0).x = t1;
+        (sd->vt0).y = t2;
+        (sd->vt0).z = t3;
       }
 gte_ldv0((char *)sd + 0xac);
       gte_rt();
 gte_stlvnl((char *)sd + 0x9c);
-      absZ = (sd->tv).vz;
-      tvx = (sd->tv).vx;    /* int load (lw) -- oracle stores its low byte */
-      if (absZ < 0) {
-        absZ = -absZ;
+      int v = (sd->tv).vz;
+      int u = (sd->tv).vx;    /* int load (lw) -- oracle stores its low byte */
+      if (v < 0) {
+        v = -v;
       }
       vt = vt + 1;
-      envmapUV_dst->u = (char)tvx;
-      envmapUV_dst->v = (char)absZ;
+      envmapUV_dst->u = (char)u;
+      envmapUV_dst->v = (char)v;
       envmapUV_dst = envmapUV_dst + 1;
     }
   }
@@ -1858,9 +1795,9 @@ gte_SetTransMatrix(((char *)sd + 0x14));
      init is emitted before every loop.c hoist, while the typed walker's biv is
      eliminated into an address giv (the PrimMenu seal law, w60-a7). */
   {
-  Draw_CarVertex *tV = sd->tV;
+  PCOORD16 *tV = (PCOORD16 *)sd->tV;
+  COORD16 *vt = obj->vertex;
 
-  vertex_iter = obj->vertex;
   i = (int)obj->numVertex;
   while( true ) {
     i = i + -1;
@@ -1868,14 +1805,14 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     {
       short t1, t2, t3;
 
-      t2 = vertex_iter->y;
-      t3 = vertex_iter->z;
-      t1 = vertex_iter->x;
-      (tV->vt).x = t1;
-      (tV->vt).y = t2;
-      (tV->vt).z = t3;
+      t2 = vt->y;
+      t3 = vt->z;
+      t1 = vt->x;
+      tV->x = t1;
+      tV->y = t2;
+      tV->z = t3;
     }
-    vertex_iter = vertex_iter + 1;
+    vt = vt + 1;
     tV = tV + 1;
   }
   }
@@ -1892,7 +1829,6 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     int id0;
     int id1;
     int id2;
-    int otzSum;
     if ((envmap & 2U) == 0) {
       while( true ) {
         i = i - 1;
@@ -1971,10 +1907,9 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         }
         gte_avsz3();
         gte_stOTZm(sd->otz);
-        otzSum = sd->otz + sd->sub_otz;
-        sd->otz = otzSum;
-        if (otzSum < 0) continue;
-        if (sd->sub_otSize < otzSum) continue;
+        sd->otz = sd->otz + sd->sub_otz;
+        if (sd->otz < 0) continue;
+        if (sd->sub_otSize < sd->otz) continue;
         DRAWC_OTLINK_FT3(sd, prim);
         gte_stsxy3_ft3(prim);
         {
@@ -2043,7 +1978,6 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       int id0;
       int id1;
       int id2;
-      int otzSum;
       while( true ) {
         i = i - 1;
         if (i == -1) {
@@ -2079,10 +2013,9 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         }
         gte_avsz3();
         gte_stOTZm(sd->otz);
-        otzSum = sd->otz + sd->sub_otz;
-        sd->otz = otzSum;
-        if (otzSum < 0) continue;
-        if (sd->sub_otSize < otzSum) continue;
+        sd->otz = sd->otz + sd->sub_otz;
+        if (sd->otz < 0) continue;
+        if (sd->sub_otSize < sd->otz) continue;
         DRAWC_OTLINK_FT3(sd, prim);
         gte_stsxy3_ft3(prim);
         {
@@ -2149,7 +2082,6 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     int id0;
     int id1;
     int id2;
-    int otzSum;
     while( true ) {
       i = i - 1;
       if (i == -1) {
@@ -2185,34 +2117,33 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       gte_stSXY2m(sd->dvx2);
       gte_avsz3();
       gte_stOTZm(sd->otz);
-      otzSum = sd->otz + sd->sub_otz;
-      sd->otz = otzSum;
-      if (otzSum < 0) continue;
-      if (sd->sub_otSize < otzSum) continue;
+      sd->otz = sd->otz + sd->sub_otz;
+      if (sd->otz < 0) continue;
+      if (sd->sub_otSize < sd->otz) continue;
       if (((*(u_short *)facet & 0x3f3) != 0) && (*(int *)&sd->ePmx1 != 0)) {
         {
-          u_short *z = (u_short *)(Nvertice + *(u_char *)(facet + 3));
-          u_short t1 = z[0];
-          u_short t2 = z[1];
-          u_short t3 = z[2];
+          short *z = (short *)(Nvertice + *(u_char *)(facet + 3));
+          short t1 = z[0];
+          short t2 = z[1];
+          short t3 = z[2];
           (sd->vt0).x = t1;
           (sd->vt0).y = t2;
           (sd->vt0).z = t3;
         }
         {
-          u_short *z = (u_short *)(Nvertice + *(u_char *)(facet + 4));
-          u_short t1 = z[0];
-          u_short t2 = z[1];
-          u_short t3 = z[2];
+          short *z = (short *)(Nvertice + *(u_char *)(facet + 4));
+          short t1 = z[0];
+          short t2 = z[1];
+          short t3 = z[2];
           (sd->vt1).x = t1;
           (sd->vt1).y = t2;
           (sd->vt1).z = t3;
         }
         {
-          u_short *z = (u_short *)(Nvertice + *(u_char *)(facet + 5));
-          u_short t1 = z[0];
-          u_short t2 = z[1];
-          u_short t3 = z[2];
+          short *z = (short *)(Nvertice + *(u_char *)(facet + 5));
+          short t1 = z[0];
+          short t2 = z[1];
+          short t3 = z[2];
           (sd->vt2).x = t1;
           (sd->vt2).y = t2;
           (sd->vt2).z = t3;
@@ -2423,7 +2354,6 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     int id2;
     int facet_flag;
     int sd_otz;
-    int otzSum;
     while( true ) {
       i = i - 1;
       if (i == -1) {
@@ -2500,10 +2430,9 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         sd->otz = sd_otz;
       }
       else {
-        otzSum = sd->otz + sd->sub_otz;
-        sd->otz = otzSum;
-        if (otzSum < 0) continue;
-        if (sd->sub_otSize < otzSum) continue;
+        sd->otz = sd->otz + sd->sub_otz;
+        if (sd->otz < 0) continue;
+        if (sd->sub_otSize < sd->otz) continue;
         facet_flag = *(u_short *)facet & 0xfff;
       }
       if ((overlayFlag & 3) != 0) {
@@ -2601,7 +2530,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     int id2;
     int facet_flag;
     int sd_otz;
-    int otzSum; u_char code = 0x26;
+    u_char code = 0x26;
     while( true ) {
       i = i - 1;
       if (i == -1) {
@@ -2713,36 +2642,35 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         sd->otz = sd_otz;
       }
       else {
-        otzSum = sd->otz + sd->sub_otz;
-        sd->otz = otzSum;
-        if (otzSum < 0) continue;
-        if (sd->sub_otSize < otzSum) continue;
+        sd->otz = sd->otz + sd->sub_otz;
+        if (sd->otz < 0) continue;
+        if (sd->sub_otSize < sd->otz) continue;
         facet_flag = *(u_short *)facet & 0xfff;
       }
       if (((facet_flag & 0x3f3) != 0) && (*(int *)&sd->ePmx1 != 0)) {
         {
-          u_short *z = (u_short *)(Nvertice + *(u_char *)(facet + 3));
-          u_short t1 = z[0];
-          u_short t2 = z[1];
-          u_short t3 = z[2];
+          short *z = (short *)(Nvertice + *(u_char *)(facet + 3));
+          short t1 = z[0];
+          short t2 = z[1];
+          short t3 = z[2];
           (sd->vt0).x = t1;
           (sd->vt0).y = t2;
           (sd->vt0).z = t3;
         }
         {
-          u_short *z = (u_short *)(Nvertice + *(u_char *)(facet + 4));
-          u_short t1 = z[0];
-          u_short t2 = z[1];
-          u_short t3 = z[2];
+          short *z = (short *)(Nvertice + *(u_char *)(facet + 4));
+          short t1 = z[0];
+          short t2 = z[1];
+          short t3 = z[2];
           (sd->vt1).x = t1;
           (sd->vt1).y = t2;
           (sd->vt1).z = t3;
         }
         {
-          u_short *z = (u_short *)(Nvertice + *(u_char *)(facet + 5));
-          u_short t1 = z[0];
-          u_short t2 = z[1];
-          u_short t3 = z[2];
+          short *z = (short *)(Nvertice + *(u_char *)(facet + 5));
+          short t1 = z[0];
+          short t2 = z[1];
+          short t3 = z[2];
           (sd->vt2).x = t1;
           (sd->vt2).y = t2;
           (sd->vt2).z = t3;

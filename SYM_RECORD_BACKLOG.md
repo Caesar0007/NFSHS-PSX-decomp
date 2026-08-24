@@ -1995,6 +1995,41 @@ Detailed verification remains exact at 1877/1877 instructions.  The complete
 `drawc.cpp` gate is **20/20 PASS**, and its rebuilt object passes the illegal
 branch-in-delay-slot check with `bad = 0`.
 
+### P46 — `DrawC_Prim` scope cleanup and exposed typed-body queue (`2026-08-24`)
+
+The refreshed strict game/PSX declaration audit is recorded in
+[`game_psx_after_prim_scope_reconcile_20260824.md`](scratchpad/root_sym_audit/game_psx_after_prim_scope_reconcile_20260824.md).
+Generic extra source-local names fall from 161 to 119 while missing SYM names
+remain zero.  The declaration-clean count remains 392/395 because removing a
+large false function-scope declaration slab correctly exposes two previously
+masked typed-body findings rather than hiding them behind same-spelled names.
+
+`DrawC_Prim` now uses the first transform block's actual `t1`/`t2`/`t3` and
+integer `u`/`v` identities instead of `e1`/`e2`/`e3`, `tvx`, and `absZ`.
+The second transform walker is the SYM `COORD16 *vt` plus `PCOORD16 *tV`, and
+the six ePmx vertex-copy blocks now use signed `short *z` and signed
+`t1`/`t2`/`t3`.  Five non-SYM `otzSum` declarations are eliminated through
+direct `sd->otz` updates.  Twenty-seven declaration-only decompiler names and
+the unused function-scope duplicate slab are removed; the surviving lexical
+declarations now live in their owning SYM blocks.
+
+Four non-SYM source-shaping identities remain explicitly receipted:
+`envmapUV_dst`, `overlayRaw`, `ff`, and `hi`.  The SYM `short facetFlag` was
+also tested directly: it regresses exact output to 30 differences at
+1391/1389, so the promoted `int` carrier is retained under an explicit
+`SYM-TYPE-OVERRIDE` receipt while a source-shape solution remains open.
+
+Two reliable type corrections remain intentionally queued: the five per-case
+`facet` declarations are still raw `int` rather than
+`Transformer_zFacet *`, and the five `prim` declarations remain `u_int *`
+rather than `POLY_FT3 *`.  Correcting either requires a coordinated conversion
+of every byte/word offset expression so C pointer scaling does not alter
+semantics; this checkpoint does not waive or conceal those findings.
+
+Detailed verification remains exact at 1389/1389 instructions.  The complete
+`drawc.cpp` gate remains **20/20 PASS**, the rebuilt object reports delay-slot
+`bad = 0`, and the vtable indexing audit passes all 926 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

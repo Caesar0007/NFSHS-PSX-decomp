@@ -2745,6 +2745,32 @@ storage findings, or mapping reviews.  `fedialog.cpp` remains 33/33 PASS; the
 frontend board remains 836/838 with zero compile failures and the same two
 pre-existing residuals.  Relink is GREEN and the vtable audit passes 930 files.
 
+### P79 — `tCarManager::GetPinkSlipsCar` typed source restoration (`2026-08-24`)
+
+Retail SYM records only the four parameters of
+`tCarManager::GetPinkSlipsCar`; reconstruction now removes all four non-SYM
+locals (`uVar1`, `src`, `iVar2`, and `iVar3`).  The body uses the recovered
+`fPinkSlipsCars[playerNum][garageNumber - fNumCars]` array and
+`tOwnedCarInfo` members directly, replacing raw `this`-relative byte arithmetic
+with the semantically restored aggregate access visible in the type graph.
+This agrees with m2c's repeated address tree and IDA's parameter/register
+allocation (`this` `$s1`, `garageNumber` `$s4`, `carInfo` `$s2`, `playerNum`
+`$a3`) while introducing no source-visible local identities.
+
+The first typed rewrite was count-exact FAIL 6 at 55/55: placing `fCountry`
+and `fCarIndex` before `fColor` moved those stores ahead of the color load.
+Restoring the natural member statement order—`fUpgrades`, `fColor`,
+`fCountry`, then `fCarIndex`—lets GCC fill the color load-delay window with the
+last two stores and returns PASS at 55 instructions.  A fresh `-g` twin is
+instruction-identical and exposes only the retail parameter set.
+
+The strict frontend/common audit advances from 579 to 580 declaration-clean
+functions and reduces generic extra names from 860 to 856, with zero missing
+names, type findings, storage findings, or mapping reviews.
+`fecars.cpp` remains 46/46 PASS; the frontend board remains 836/838 with zero
+compile failures and the same two pre-existing residuals.  Relink is GREEN and
+the vtable audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

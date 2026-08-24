@@ -719,23 +719,17 @@ void tCarManager::GetGarageCar(short garageNumber,tCarInfo &carInfo,short player
 void tCarManager::GetPinkSlipsCar(short garageNumber,tCarInfo &carInfo,short playerNum)
 
 {
-  uchar uVar1;
-  tCarInfo *src;
-  int iVar2;
-  int iVar3;
-  
-  iVar2 = (int)garageNumber;
-  iVar3 = (int)((u_int)(u_short)playerNum << 0x10) >> 9;
-  src = this->GetCarFromID((short)*(signed char *)((iVar2 - this->fNumCars) * 4 + iVar3 + 0x108 + (int)this)
-                    );
-  blockmove(src,&carInfo,0xcc);
+  blockmove(this->GetCarFromID(
+      this->fPinkSlipsCars[playerNum][garageNumber - this->fNumCars].fCarID),
+    &carInfo,0xcc);
   carInfo.fAvailable = '\x01';
   carInfo.fViewable = '\x01';
-  carInfo.fUpgrades = *(uchar *)((iVar2 - this->fNumCars) * 4 + iVar3 + 0x109 + (int)this);
-  uVar1 = *(uchar *)((iVar2 - this->fNumCars) * 4 + iVar3 + 0x10a + (int)this);
+  carInfo.fUpgrades =
+    this->fPinkSlipsCars[playerNum][garageNumber - this->fNumCars].fUpgrades;
+  carInfo.fColor =
+    this->fPinkSlipsCars[playerNum][garageNumber - this->fNumCars].fCarColor;
   carInfo.fCountry = '\0';
   carInfo.fCarIndex = (uchar)garageNumber;
-  carInfo.fColor = uVar1;
   return;
 }
 

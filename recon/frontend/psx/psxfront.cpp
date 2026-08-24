@@ -5,6 +5,62 @@
 #include "psxfront.h"
 #include "psxfront_externs.h"
 
+/* The SLD has no declarations for the pre-ABS value, raw shapey copy, or bottom-V
+ * copy.  These single-evaluation macro bodies reproduce the exact retail RTL while
+ * keeping those macro-private names out of the function's debug-local set.  Their
+ * original macro spellings are not recoverable, so the names below are descriptive. */
+#define PSXFRONT_FADE_ABS(dst,value) { \
+  int raw;                              \
+  raw = (value);                        \
+  (dst) = raw;                          \
+  if (raw * 0x10000 < 0) {              \
+    (dst) = -raw;                       \
+  }                                     \
+  (dst) = (dst) << 1;                   \
+}
+
+#define PSXFRONT_INIT_V(shp,flags,v) {       \
+  int vraw;                                  \
+  vraw = (byte)(shp)->shapey;                \
+  (v) = vraw;                                \
+  if (((flags) & 2) != 0) {                  \
+    (v) = vraw - 1;                          \
+  }                                          \
+  __asm__ volatile("" : : "r"(vraw));       \
+}
+
+#define PSXFRONT_STORE_BOTTOM_V(prim,vh,v) { \
+  u_char vb;                                 \
+  vb = (v);                                  \
+  (prim)[0x25] = (vh) + vb;                  \
+  (prim)[0x31] = (vh) + vb;                  \
+}
+
+#define PSXFRONT_SCALE_UV(shp,flags,prim,bpp,one,u,v,uw,vh) { \
+  int sw = (byte)(shp)->width;                                  \
+  int sh_ = (byte)(shp)->height;                                \
+  u = (((ushort)(shp)->shapex & 0x3f) << 4) / bpp;              \
+  v = (byte)(shp)->shapey;                                      \
+  if (((flags) & 4U) != 0) {                                    \
+    u = u - one;                                                \
+  }                                                             \
+  uw = u + sw;                                                  \
+  if (((flags) & 2U) != 0) {                                    \
+    v = (byte)(shp)->shapey - one;                              \
+  }                                                             \
+  ((u_char *)prim)[0xd] = v;                                    \
+  ((u_char *)prim)[0x19] = v;                                   \
+  vh = v + sh_;                                                 \
+  ((u_char *)prim)[0xc] = u;                                    \
+  do {                                                          \
+    ((u_char *)prim)[0x18] = uw;                                \
+    ((u_char *)prim)[0x24] = u;                                 \
+    ((u_char *)prim)[0x25] = vh;                                \
+    ((u_char *)prim)[0x30] = uw;                                \
+    ((u_char *)prim)[0x31] = vh;                                \
+  } while (0);                                                  \
+}
+
 /* PSXFront.obj STAT helper.  Keep the recovered source name while preserving
  * the exact retail linkage label for the pointer-form reconstruction. */
 static void AdjustShapeDrawing(tTexture_ShapeInfo *tShp,int *x,int *y,int *flags,
@@ -360,28 +416,16 @@ static void AdjustShapeDrawing(tTexture_ShapeInfo *tShp,int *x,int *y,int *flags
   else if ((*flags & 0x40U) != 0) {
     int fbot;
     int ftop;
-    /* MATCH: rawT/rawB are the PRE-ABS values.  SYM's fbot($v0)/ftop($a1) hold ONLY the final
-     * `0x80 - fade*` results -- keeping the raw in the same variable made ftop's allocno outrank
-     * the flip_axis CSE temp and rotated $a0/$a1 through the whole arm (70 diffs).  Split = PASS. */
-    int rawT;
-    int rawB;
     /* the abs runs on the INT (ftop/fbot); only the DOUBLED value lands in the short fade var --
      * that is why the oracle's `sll v0,a3,1` carries no sign-extension of the source (w42-a7). */
-    rawT = ((uint)(ushort)extra->flip_axis - (uint)(ushort)*y) + 1;
-    fadetop = rawT;
-    if (rawT * 0x10000 < 0) {
-      fadetop = -rawT;
-    }
-    fadetop = fadetop << 1;
+    PSXFRONT_FADE_ABS
+      (fadetop,((uint)(ushort)extra->flip_axis - (uint)(ushort)*y) + 1);
     if (0x80 < fadetop) {
       fadetop = 0x80;
     }
-    rawB = ((uint)(ushort)extra->flip_axis - ((uint)(ushort)*y + (uint)(ushort)tShp->height)) + 1;
-    fadebottom = rawB;
-    if (rawB * 0x10000 < 0) {
-      fadebottom = -rawB;
-    }
-    fadebottom = fadebottom << 1;
+    PSXFRONT_FADE_ABS
+      (fadebottom,((uint)(ushort)extra->flip_axis -
+                   ((uint)(ushort)*y + (uint)(ushort)tShp->height)) + 1);
     if (0x80 < fadebottom) {
       fadebottom = 0x80;
     }
@@ -410,6 +454,39 @@ static void AdjustShapeDrawing(tTexture_ShapeInfo *tShp,int *x,int *y,int *flags
  * (& 0xff000000), so loop.c hoists the two constants in retail's order (LO then HI); the
  * hand-written `dest & 0xff000000 | src & 0xffffff` OR generates HI first.  w44-a2 */
 typedef struct { unsigned addr : 24, len : 8; } PSXFront_PTag;
+
+/* Font's SLD exposes no palette-link temporary.  This packet-head macro keeps
+ * the single cached OT pointer private while preserving the measured source order. */
+#define PSXFRONT_FONT_PACKET_HEAD(prim,src,v,dv) {                       \
+  PSXFront_PTag *pal;                                                    \
+  pal = (PSXFront_PTag *)Render_gPalettePtr;                             \
+  dv = (((*(int *)((int)src + 0xc) << 4) >> 0x14) + v & 0xff) - 1;      \
+  *(u_long *)&prim->r0 = font_tint;                                      \
+  ((PSXFront_PTag *)prim)->addr = pal->addr,                             \
+  pal->addr = (uint)prim;                                                \
+}
+
+/* Font's SLD likewise has no right/bottom declarations.  They are private to
+ * the packet-coordinate expansion, whose statement order is codegen-sensitive. */
+#define PSXFRONT_FONT_GEOMETRY(prim,src,x,y,u,dv,width,height) {           \
+  int bottom;                                                            \
+  int right;                                                             \
+  bottom = y + height;                                                   \
+  right = x + width;                                                     \
+  prim->tpage = (*(byte *)src & 3) << 7 |                                \
+                (uint)*(int *)((int)src + 0xc) >> 0x14 & 0x10 |          \
+                (*(int *)((int)src + 0xc) & 0x3ff) >> 6;                 \
+  prim->u0 = u, prim->v0 = dv,                                          \
+  prim->u1 = u + width, prim->v1 = dv;                                   \
+  prim->u2 = u, prim->v2 = dv + height,                                  \
+  prim->u3 = u + width, prim->v3 = dv + height;                          \
+  prim->x0 = x;                                                          \
+  __asm__("" : : "i"(0));                                              \
+  prim->y0 = bottom,                                                     \
+  prim->x1 = right, prim->y1 = bottom,                                   \
+  prim->x2 = x, prim->y2 = y,                                           \
+  prim->x3 = right, prim->y3 = y;                                       \
+}
 
 /* ---- DrawGouraudShape  (psxfront.cpp:928, code lines 928-985) ---- */
 /* ---- w44-a1 RESIDUAL 198 (count EXACT 245/245, frame 104 == SYM fsize, brcensus CLEAN) ----
@@ -493,7 +570,7 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
   short    i;
   short    w;
   short    w1;
-  int      vraw;    /* MATCH (W61-A18, 20 -> 16 count-EXACT 245/245): vraw is INT,
+  /* MATCH (W61-A18, 20 -> 16 count-EXACT 245/245): vraw is INT,
                      * not u_char.  A u_char vraw makes `v = vraw` a MASKED copy
                      * (`andi t4,v0,255`) and chains the arm off the mask
                      * (`addiu t4,t4,-1`); retail emits a PLAIN copy `addu t4,v0,zero`
@@ -514,7 +591,7 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
                      * copy-props `v = vraw`); the OUTLIVING SECOND CONSUMER is the
                      * zero-insn USE fence after the if/else -- make_regs_eqv keeps
                      * the copy because vraw now outlives v's birth on BOTH paths. */
-  u_char   vb;      /* MATCH (w46-a1): retail gives `v` TWO homes -- $t4 for the
+  /* MATCH (w46-a1): retail gives `v` TWO homes -- $t4 for the
                      * prim[0xd]/prim[0x19] stores AND a byte slot 0x20(sp) reloaded
                      * into $t7 for the `vh + v` bottom row.  This second u_char copy
                      * IS that spilled pseudo; it supplies the third stack slot the
@@ -529,8 +606,6 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
     y = y + height;
     height = -height;
   }
-  vraw = (byte)shp->shapey;
-  v = vraw;
   vh = shp->height;
   /* 2026-08-02 INLINE ADDENDA (angle #1 measured, 3 falsifications + 2 ORACLE FACTS):
    * retail's vh pair is PRE-loop: `lhu $t8,0x12($s4)` with the spill `sh $t8,0x18($sp)`
@@ -731,13 +806,10 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
    *   i.e. 2 of 3 measured ZERO, the third negative -- the same "mostly incidental noise"
    *   ratio the w45 trust rules predict.  The `prim[0x30] = prim[0x18];` read-back variant
    *   is count-EXACT 245/245 at 34 -- parked as a second basin for a future round. */
-  if ((flags & 2) != 0) {
-    v = vraw - 1;
-  }
+  PSXFRONT_INIT_V(shp,flags,v);
   /* vraw's outliving consumer (see decl note) + the W61-A18 v ref-step: the "r"(v)
      operand is a ZERO-INSN out-of-loop +1 ref that keeps v above the colour pointer
      in allocno_compare so v holds $t4 and colour holds $t5, as retail does. */
-  __asm__ volatile("" : : "r"(vraw));
   /* PROBE FALSIFIED (2026-08-02): an identical `vh = shp->height;` 2nd def in the
    * flags&2 arm is CSE-DELETED before local-alloc (160 unchanged) -- breaking the
    * single-set REG_EQUIV needs a def cse cannot merge (volatile view / different
@@ -747,11 +819,16 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
   i = 0;
   while (i < shp->width) {
     int addw;
-    int texX;
-    int wsel;
-    int c3;
-    int addwm1;
-    int ibp;
+    int texX; /* SYM-CODEGEN-CARRIER: texX -- repeating shapex+ibp is measured
+                 FAIL 60 (247/245), duplicating loads and rotating divide operands */
+    int wsel; /* SYM-CODEGEN-CARRIER: wsel -- folding the clamp into SYM local w is
+                 measured FAIL 78 (245/245), rotating the callee-saved allocation */
+    int c3; /* SYM-CODEGEN-CARRIER: c3 -- direct color[3] at its store is measured
+               FAIL 10 (245/245); this early latch restores retail load/store order */
+    int addwm1; /* SYM-CODEGEN-CARRIER: addwm1 -- repeating addw-1 is measured
+                   FAIL 39 (248/245), reassociating the four vertex expressions */
+    int ibp; /* SYM-CODEGEN-CARRIER: ibp -- fusing this divide into texX is measured
+                FAIL 16 (243/245), changing issue order and deleting two instructions */
 
     /* MATCH (w46-a1, 83->67): the divide chain is its OWN statement, so it gets the
      * lower luid and issues BEFORE the `lhu 0x18(s4)` shapex load whose load-delay
@@ -766,12 +843,6 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
       wsel = shp->width - i;
     }
     w = wsel;
-    uint *pal;   /* w44-a1: retail keeps the palette-cursor POINTER in $a0 across both RMWs
-                    (`lui a0,0x1F80; lw a0,0(a0)` once, then lw/lw/sw off $a0) -- 246 -> 245
-                    count-EXACT.  The w43 "straight-line emitters want the purge" rule does NOT
-                    apply in a LOOP: here the oracle caches (w43 loop-vs-straight-line row). */
-    uint  addr24;
-
     prim = Render_gPacketPtr;
     Render_gPacketPtr = prim + 0x34;   /* bump-early: kills the 0x1F800004 movable's hoist (w44-a1), holds in the addPrim basin too (120 vs 182 for bump-between) */
     /* w44-a1 addr24-EARLY (w41 family): giving the 2nd RMW's 24-bit link term its OWN temp at
@@ -779,10 +850,9 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
        INDEPENDENTLY, which the OR-operand swaps could not do (they move both).  -dL now shows
        the movable set retail has: 0xFFFFFF is the ONLY hoisted constant, both scratchpad
        addresses AND 0xFF000000 are rematerialised in-loop. */
-    pal = (uint *)Render_gPalettePtr;
     /* EA-1998 addPrim(): P_TAG bitfield setaddr pair (house idiom). */
-    ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)pal)->addr;
-    ((PSXFront_PTag *)pal)->addr = (uint)prim;
+    ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)Render_gPalettePtr)->addr;
+    ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;
     *(int *)(prim + 4) = color[0];
     *(int *)(prim + 0x10) = color[1];
     *(int *)(prim + 0x1c) = color[2];
@@ -871,9 +941,7 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
      * Falsified from the 4-diff basin: full ascending 0x24/0x25/0x30/0x31 (129, frame
      * drops to 96 -- vb leaves memory); dropping `vb` and storing `vh + v` directly
      * (124 @243, frame 96). */
-    vb = v;
-    prim[0x25] = vh + vb;
-    prim[0x31] = vh + vb;
+    PSXFRONT_STORE_BOTTOM_V(prim,vh,v);
     prim[0x30] = u + w1;
     if (w1 <= 0) {
       w1 = 1;
@@ -883,8 +951,7 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
        * Retail emits `addiu v1,a2,-1` -- addw stays live in $a2 -- whereas the in-place
        * mutate rotated the whole flags&4 arm's a-band down one register
        * ({w1=a0,addw=a1,u+w1=v0} ours vs {w1=a1,addw=a2,u+w1=v1} retail). */
-      addwm1 = addw - 1;    /* materialized ONCE ($v1) -- writing `+ (addw - 1)` per site lets gcc
-                             reassociate the -1 out and re-add addw at each vertex (w42-a7) */
+      addwm1 = addw - 1;
       *(short *)(prim + 8) = ((width + x) - i) + addwm1;
       *(short *)(prim + 10) = y;
       *(short *)(prim + 0x14) = ((shp->width + x) - (i + w1)) + addwm1;
@@ -1028,26 +1095,17 @@ static void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int 
   char     v;
   char     uw;
   char     vh;
-  int      xm1;
-  int      one;   /* permuter find (score 620->305): the shared -1 subtrahend is a
-                   * NAMED constant materialized ONCE between the SetSemiTrans and
-                   * GetClut calls -- it lives in a reg across the calls like retail. */
-  uint    *pal;   /* w44-a1 MATCH: retail holds the PALETTE-CURSOR POINTER in $a2 across the whole
-                     RMW pair (`lui a2,0x1F80; lw a2,0(a2)` ONCE, then `lw v1,0(a2)` / `lw v0,0(a2)` /
-                     `sw v0,0(a2)`).  Reading the scratchpad literal `Render_gPalettePtr` three times
-                     makes cc1 reload the POINTER after the may-aliasing `*prim` store (+1 insn) --
-                     the straight-line-emitter purge rule does NOT apply here (w43 loop-vs-
-                     straight-line row): the oracle caches.  176 -> 175 = COUNT-EXACT. */
+  int      one; /* SYM-CODEGEN-CARRIER: one -- replacing the shared subtrahend with
+                   literals is measured FAIL 31 (176/175), rotating x/y allocation */
 
   prim = (POLY_GT4 *)Render_gPacketPtr;
-  pal = (uint *)Render_gPalettePtr;
   width = shp->width;
   height = shp->height;
   bpp = (byte)shp->depth;
   /* EA-1998 addPrim(): P_TAG bitfield setaddr pair, bump between (house idiom). */
-  ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)pal)->addr;
+  ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)Render_gPalettePtr)->addr;
   Render_gPacketPtr = (u_char *)prim + 0x34;
-  ((PSXFront_PTag *)pal)->addr = (uint)prim;
+  ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;
   *(int *)((u_char *)prim + 4) = color[0];
   *(int *)((u_char *)prim + 0x10) = color[1];
   *(int *)((u_char *)prim + 0x1c) = color[2];
@@ -1074,42 +1132,11 @@ static void ScaleGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int 
   *(short *)((u_char *)prim + 0x16) = y;
   *(short *)((u_char *)prim + 0x20) = x;
   *(short *)((u_char *)prim + 0x22) = y + fixedmult(scaley,height);
-  xm1 = x - one;
-  xm1 = xm1 + fixedmult(scalex,width);
-  *(short *)((u_char *)prim + 0x2c) = xm1;
+  *(short *)((u_char *)prim + 0x2c) = (x - one) + fixedmult(scalex,width);
   *(short *)((u_char *)prim + 0x2e) = y + fixedmult(scaley,height);
-  {
-    /* w44-a1 MATCH: retail BATCHES the two byte field reads (`lbu a2,0x10(s4)` = width,
-       `lbu a0,0x12(s4)` = height) ahead of the u/v flip guards so `vh = v + height` can be an
-       IN-PLACE mutation of v's register right after the two v stores (`addu v0,v0,a0`).  Reading
-       the fields at their use sites sinks the height load past the u/uw stores and re-orders the
-       whole sb run (36/48/37/49 instead of retail's 36/37/48/49). */
-    int sw = (byte)shp->width;
-    int sh_ = (byte)shp->height;
-    u = (((ushort)shp->shapex & 0x3f) << 4) / bpp;
-    v = (byte)shp->shapey;
-    if ((flags & 4U) != 0) {
-      u = u - one;   /* 2026-08-02: == re-divide spelling and == kept-q-temp spelling (all 32,
-                    * copy-prop folds); kept as the simplest.  Retail's mflo-v1/u-a1 mirror
-                    * is not spelling-reachable -- allocator identity. */
-    }
-    uw = u + sw;
-    if ((flags & 2U) != 0) {
-      v = (byte)shp->shapey - one;
-    }
-    ((u_char *)prim)[0xd] = v;
-    ((u_char *)prim)[0x19] = v;
-    vh = v + sh_;
-    ((u_char *)prim)[0xc] = u;
-    do {   /* permuter r2 find (score 230->175): depth dial on the sb tail -- doubles
-            * the loop-weighted refs of u/uw/vh for the caller-save contest */
-      ((u_char *)prim)[0x18] = uw;
-      ((u_char *)prim)[0x24] = u;
-      ((u_char *)prim)[0x25] = vh;
-      ((u_char *)prim)[0x30] = uw;
-      ((u_char *)prim)[0x31] = vh;
-    } while (0);
-  }
+  /* The SLD records u/v/uw/vh but not the two batched byte-read temporaries;
+   * the macro-private sw/sh_ expansion preserves their exact load order. */
+  PSXFRONT_SCALE_UV(shp,flags,prim,bpp,one,u,v,uw,vh);
   return;
 }
 
@@ -1974,12 +2001,9 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    *   scratchpad/w76/A2_body_m3.cpp; harness scratchpad/w76/A2_*.py;
    *   report scratchpad/w76/A2_report.md. */
   POLY_FT4      *prim;
-  PSXFront_PTag *pal;
   int            width;
   int            height;
   int            dv;
-  int            right;
-  int            bottom;
 
   width = ch->width;
   height = ch->height;
@@ -1988,28 +2012,11 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
   y = arg6 - (height + *(signed char *)&ch->yoffset);
   prim = (POLY_FT4 *)Render_gPacketPtr;
   Render_gPacketPtr = (u_char *)prim + 0x28;
-  pal = (PSXFront_PTag *)Render_gPalettePtr;
-  dv = (((*(int *)((int)src + 0xc) << 4) >> 0x14) + v & 0xff) - 1;
-  *(u_long *)&prim->r0 = font_tint;
-  ((PSXFront_PTag *)prim)->addr = pal->addr,
-  pal->addr = (uint)prim;
+  PSXFRONT_FONT_PACKET_HEAD(prim,src,v,dv);
   ((PSXFront_PTag *)prim)->len = 9,
   prim->code = 0x2c;
   prim->clut = gFontClut;
-  bottom = y + height;
-  right = x + width;
-  prim->tpage = (*(byte *)src & 3) << 7 | (uint)*(int *)((int)src + 0xc) >> 0x14 & 0x10 |
-                (*(int *)((int)src + 0xc) & 0x3ff) >> 6;
-  prim->u0 = u, prim->v0 = dv,
-  prim->u1 = u + width, prim->v1 = dv;
-  prim->u2 = u, prim->v2 = dv + height,
-  prim->u3 = u + width, prim->v3 = dv + height;
-  prim->x0 = x;
-  __asm__("" : : "i"(0));
-  prim->y0 = bottom,
-  prim->x1 = right, prim->y1 = bottom,
-  prim->x2 = x, prim->y2 = y,
-  prim->x3 = right, prim->y3 = y;
+  PSXFRONT_FONT_GEOMETRY(prim,src,x,y,u,dv,width,height);
   return;
 }
 

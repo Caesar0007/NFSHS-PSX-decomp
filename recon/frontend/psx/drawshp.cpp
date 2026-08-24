@@ -164,11 +164,11 @@ void DrawShape_SubtractNFS4RectEdges(RECT &rect)
    *  o ROUTE: permuter (multi-basin), or the per-object toolchain-identity
    *    investigation that already owns the allocno_compare delta. */
   DR_MODE *dr_mode;
-  u_char *prevPrim;
+  u_char *prevPrim; /* SYM-CODEGEN-CARRIER: prevPrim -- removing the cached addPrim
+                       palette pointer is measured 107/108 and loses retail LICM */
   POLY_G4 *prim;
-  u_long linkWord;
-  u_long linkW2;   /* 2nd OT-link macro temp (permuter find, fresh-dest for the $v0/$v1 tie) */
-  u_long m24;
+  u_long linkWord; /* SYM-CODEGEN-CARRIER: linkWord -- folding the addPrim link RMW
+                      moves its store before the packet bump; the split form is PASS */
   short x1;
   short y1;
   short x2;

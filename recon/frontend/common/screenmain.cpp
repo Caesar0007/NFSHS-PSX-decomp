@@ -73,18 +73,14 @@ void tScreenMain::SwapBackground(int num)
 
 {
   tScreenMainState oldState;
-  int iVar1;
-  tScreenMainState tVar2;
   char buffer [8];
   
-  oldState = this->hVideo;
-  VIDEO_abortplayback(oldState);
-  iVar1 = this->fCurrentSlot;
+  VIDEO_abortplayback(this->hVideo);
   this->bVideoAborted = 1;
-  if ((((this->fVideoShapes[iVar1].async_handle == 0) &&
-       (this->fVideoShapes[iVar1].fFile == (char *)0x0)) &&
-      (this->fVideoShapes[1 - iVar1].async_handle == 0)) &&
-     (this->fVideoShapes[1 - iVar1].fFile == 0)) {
+  if ((((this->fVideoShapes[this->fCurrentSlot].async_handle == 0) &&
+       (this->fVideoShapes[this->fCurrentSlot].fFile == (char *)0x0)) &&
+      (this->fVideoShapes[1 - this->fCurrentSlot].async_handle == 0)) &&
+     (this->fVideoShapes[1 - this->fCurrentSlot].fFile == 0)) {
     if (num == -1) {
       do {
         /* MATCH (SLD 246 = ONE statement): don't park rand()'s result in the
@@ -95,18 +91,18 @@ void tScreenMain::SwapBackground(int num)
                this->fCurrentBG[1 - this->fCurrentSlot]);
     }
     else {
-      this->fCurrentBG[iVar1] = num;
+      this->fCurrentBG[this->fCurrentSlot] = num;
     }
     sprintf(buffer,"zyVid%02d",this->fCurrentBG[this->fCurrentSlot]);
     ::AsyncLoadShapeFile((tScreen *)this,buffer,this->fVideoShapes + this->fCurrentSlot);
-    tVar2 = this->fState;
+    oldState = this->fState;
     this->fState = kScreenMain_Off;
     this->fCurrentSlot = 1 - this->fCurrentSlot;
     /* MATCH (SLD 260/261/263): retail DUPLICATES the SetState call in both
        arms (gcc cross-jump-merges them back into one `jal`, with the `!=`
        polarity putting the Warning arm out of line and `a0 = this` in the
        beq's delay slot); a select-into-a-variable form emits one setup. */
-    if (tVar2 != kScreenMain_WarningImage) {
+    if (oldState != kScreenMain_WarningImage) {
       this->SetState(kScreenMain_StaticImage);
     }
     else {
@@ -274,7 +270,7 @@ void tScreenMain::InitDynamicImages()
 
 
 /* ---- tScreenMain::ProcessInput  [SCREENMAIN.CPP:406-412] ---- */
-void tScreenMain::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command)
+void tScreenMain::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &)
 
 {
   

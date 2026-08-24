@@ -2965,6 +2965,37 @@ linked every TU, stopping only at the unavailable untracked retail
 real duplicates, hidden phantoms, or relocation-referenced unresolved symbols,
 and the vtable audit passes 930 files.
 
+### P87 — screen-main state/local restoration (`2026-08-25`)
+
+Retail SYM records exactly two locals in `tScreenMain::SwapBackground`:
+automatic `char buffer[8]` and register `tScreenMainState oldState`.  The prior
+reconstruction incorrectly assigned the reliable `oldState` identity to
+`hVideo`, introduced unsupported `iVar1` and `tVar2` identities, and only used
+`tVar2` for the actual screen-state snapshot.  Reconstruction now calls
+`VIDEO_abortplayback(hVideo)` directly, refers to `fCurrentSlot` directly, and
+assigns `oldState = fState` immediately before changing `fState`.  This restores
+the reliable local's source meaning as well as its name and type.
+
+Retail SYM records only the implicit `this` and reference parameter `keyval`
+inside `tScreenMain::ProcessInput`.  The ABI signature still requires its
+unused `tPlayer` and `tMenuCommand&` parameters, but optimized debug data does
+not retain source names for them.  Their definition-side declarators are now
+intentionally unnamed instead of presenting the invented `fromPlayer` and
+`command` names as recovered source information.
+
+`SwapBackground` remains PASS at 111 instructions and `ProcessInput` remains
+PASS at 27 instructions.  The complete `screenmain.cpp` gate is 13/13 PASS.
+The strict frontend/common audit advances from 588 to 590 declaration-clean
+functions and reduces generic extra names from 833 to 829, with zero missing
+names, type findings, storage findings, global findings, or mapping reviews.
+
+The isolated clean frontend baseline remains 835/838 with zero compile
+failures and the same three pre-existing residuals.  A complete clean build
+compiled and linked every TU, stopping only at the unavailable untracked
+retail `rom/nfs4-f.exe` comparison.  Both complete relink lanes are GREEN with
+zero real duplicates, hidden phantoms, or relocation-referenced unresolved
+symbols, and the vtable audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

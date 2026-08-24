@@ -2389,6 +2389,22 @@ production image links successfully.  The macro identifier is descriptive:
 SYM proves the expansion/source shape but cannot uniquely recover its original
 preprocessor spelling.
 
+### P62 — `Sky_InitStars` signed local / unsigned operation restored (`2026-08-24`)
+
+The receipt is recorded in
+[`sky_initstars_int_brightness_20260824.md`](scratchpad/root_sym_audit/sky_initstars_int_brightness_20260824.md).
+`starBright` is now the nested-loop `REG INT` recorded by SYM.  The former
+`u_int` override was unnecessary: retail's unsigned `divu` constrains the
+remainder expression, not the lexical type of the receiving local.  Casting
+`starBright` at the `%` numerator preserves the unsigned arithmetic while
+restoring the declared source type.
+
+`Sky_InitStars` remains exact at 122/122 instructions.  The strict game/PSX
+audit remains 395/395 declaration-clean with zero missing names, extra locals,
+or type findings, while the explicit function-type override queue falls from
+six to five.  The complete game/PSX gate remains 385/395 PASS with no compile
+failures; relink and the 926-file vtable audit remain green.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

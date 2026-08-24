@@ -183,9 +183,10 @@ void Horizon_InterpolateLineSCoords(DVECTOR *sc,DVECTOR *s0,DVECTOR *s1,int *per
  * oracle's `divu;bnez;break 7;mfhi` sequence is the COMPILER'S OWN automatic ÷0 guard from
  * a bare `%` operator (`--expand-div`, catalog row C), not a hand-written check; removed
  * both explicit `if/trap` pairs and folded the range subtraction directly into the modulo
- * expression -- this ALSO fixed a signed-vs-unsigned bug (starBright was `int`, giving a
- * SIGNED `div` with an extra INT_MIN/-1 overflow guard the oracle doesn't have; corrected
- * to `u_int` -- oracle's second range check is `divu`, not `div`).
+ * expression -- this ALSO fixed a signed-vs-unsigned bug (a bare signed `%` gives a
+ * `div` plus the INT_MIN/-1 overflow guard the oracle does not have).  The local remains
+ * the SYM-recorded `int`; an explicit `(u_int)starBright` on the remainder numerator puts
+ * unsignedness on the operation itself and emits the retail `divu` byte-for-byte.
  * (4) w39-a8: PASS (was 50 diffs / 5 saved regs vs the oracle's 6).  The "one missing
  * callee-saved reg" was NOT an allocator floor -- it was THREE fabricated locals the SYM
  * (@40dd10: oldSeed $s5, i $s4, radius $s1, height $s2, latAngle $s3, heightAngle $s0,
@@ -210,9 +211,7 @@ void Sky_InitStars(void)
       int heightAngle;
       int height;
       int radius;
-      /* SYM-TYPE-OVERRIDE: starBright -- the retail body uses unsigned modulo
-       * (`divu`); an int local emits the signed divide/overflow guard. */
-      u_int starBright;
+      int starBright;
 
       latAngle = random();
       latAngle = latAngle & 0xffff;
@@ -227,7 +226,7 @@ void Sky_InitStars(void)
       starPosInSky[i].vz = (short)fixedmult(fixedcos(latAngle),radius);
       starBright = random();
       starBright = Sky_gTrackSpec->starBrightMin +
-                   starBright % (Sky_gTrackSpec->starBrightMax - Sky_gTrackSpec->starBrightMin);
+                   (u_int)starBright % (Sky_gTrackSpec->starBrightMax - Sky_gTrackSpec->starBrightMin);
       starColors[i] = starBright * 0x10000 | starBright * 0x100 | starBright;
     }
     seedrandom(oldSeed);

@@ -1474,8 +1474,10 @@ static short ascii2sjis(u_char ascii_code)
   u_short sjis_code;
   u_char stmp;
   u_char stmp2;
-  u_int base;
-  u_short *pk;
+  u_int base; /* SYM-CODEGEN-CARRIER: base -- required statement-split/index chain;
+                 the direct spellings are measured 4/14 diffs above */
+  u_short *pk; /* SYM-CODEGEN-CARRIER: pk -- earlier-born table-base quantity is
+                  required for retail's $v0/$v1 local allocation */
 
   stmp = 0;
   stmp2 = stmp;                 /* MATCH: oracle's addu a1,v1,zero = stmp2 inits from stmp's zero */
@@ -1552,7 +1554,8 @@ static u_char sjis2ascii(short sjis_code)
 {
   int idx;
   u_char bottom;
-  int kind;
+  int kind; /* SYM-CODEGEN-CARRIER: kind -- reusing sjis_code is measured FAIL 15
+               (43/44) and rotates the recorded idx/bottom allocation */
 
   kind = 0;
   idx = sjis_code >> 8;         /* MATCH: short >> 8 = the oracle's sll 16 / sra 24 */

@@ -148,19 +148,14 @@ void CleanupSpinningCars(void)
 void CleanupSpinningCarsMenu(void)
 
 {
-  Car_tObj *carObj;
-  Car_tObj **ppCar;
   int i;
   
   if (rendering3DEnvironmentInitialized != '\0') {
     DrawSync(0);
     i = 0;
-    ppCar = gCarObj;
     do {
-      carObj = *ppCar;
-      ppCar = ppCar + 1;
+      R3DCar_DeInstantiate3DCarMenu(gCarObj[i]);
       i = i + 1;
-      R3DCar_DeInstantiate3DCarMenu(carObj);
     } while (i < 2);
     Texture_CleanupMenuTexture();
     CarIO_ReStart();
@@ -1172,21 +1167,19 @@ void ScaleShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSh
 void LoadAllHelpShapes(void)
 
 {
-  char *f;
   int i;
-  int index;
   char *permFile;
   char fullName [48];
   
   sprintf(fullName,"%szperm.psh",Paths_Paths[0x20]);
-  f = (char *)loadshapeadr(fullName,(void *)0x0);
-  if (f != (char *)0x0) {
-    index = 0;
+  permFile = (char *)loadshapeadr(fullName,(void *)0x0);
+  if (permFile != (char *)0x0) {
+    i = 0;
     do {
-      FETexture_LoadPmx(f,index,gHelpShapes[0] + index);
-      index = index + 1;
-    } while (index < 0x3b);
-    purgememadr(f);
+      FETexture_LoadPmx(permFile,i,gHelpShapes[0] + i);
+      i = i + 1;
+    } while (i < 0x3b);
+    purgememadr(permFile);
   }
   return;
 }
@@ -1204,7 +1197,8 @@ void PSXDrawSquare(int col,int x,int y,int w,int h)
    * $a3 x+w mutated in place) and lets cse hold the OT-slot POINTER in one anonymous temp while
    * DE-referencing it twice (the 1st setaddr store may alias).  w43-a3 */
   POLY_F4 *prim;
-  uint link;
+  uint link; /* SYM-CODEGEN-CARRIER: link -- direct OT read-modify-write is measured
+                FAIL 52 at the same 38-instruction count; this stages addPrim's value */
 
   prim = (POLY_F4 *)Render_gPacketPtr;
   /* setaddr(prim, getaddr(OT)) -- 24-bit tag bitfield RMW */
@@ -1234,7 +1228,7 @@ void PSXDrawSquare(int col,int x,int y,int w,int h)
 /* lines 1350-1353: (static data / macros / comments - no emitted code) */
 
 /* ---- PSXDrawGouraudSquare  (psxfront.cpp:1354, code lines 1354-1368) ---- */
-/* GPU packet: builds POLY_G4 (stride 0x24, SetPolyG4); prim=u_char* build cursor, prevPrim=u_char* link word */
+/* GPU packet: builds POLY_G4 (stride 0x24, SetPolyG4); prim=u_char* build cursor. */
 void PSXDrawGouraudSquare(int x,int y,int w,int h,int c1,int c2,int c3,int c4)
 
 {
@@ -1243,16 +1237,15 @@ void PSXDrawGouraudSquare(int x,int y,int w,int h,int c1,int c2,int c3,int c4)
    * x_s, y_s, x_plus_w and y_plus_h were Ghidra fabrications: retail MUTATES the w
    * and y params in place (addu $s2,$s3,$s2 / addu $s1,$s1,$s4) and lets the `sh`
    * stores do the narrowing -- no (short) casts, no extra pseudos. */
-  uint     otWord;
-  POLY_G4 *prevPrim;
+  uint     otWord; /* SYM-CODEGEN-CARRIER: otWord -- direct OT read-modify-write
+                      is measured FAIL 44 at the same 60-instruction count */
   POLY_G4 *prim;
 
   prim = (POLY_G4 *)Render_gPacketPtr;
-  prevPrim = (POLY_G4 *)Render_gPalettePtr;
-  prim->tag = prim->tag & 0xff000000 | prevPrim->tag & 0xffffff;
-  otWord = prevPrim->tag;
+  prim->tag = prim->tag & 0xff000000 | *(uint *)Render_gPalettePtr & 0xffffff;
+  otWord = *(uint *)Render_gPalettePtr;
   Render_gPacketPtr = (u_char *)prim + 0x24;
-  prevPrim->tag = otWord & 0xff000000 | (uint)prim & 0xffffff;
+  *(uint *)Render_gPalettePtr = otWord & 0xff000000 | (uint)prim & 0xffffff;
   *(int *)&prim->r0 = c1;
   *(int *)&prim->r1 = c2;
   *(int *)&prim->r2 = c3;
@@ -1274,7 +1267,7 @@ void PSXDrawGouraudSquare(int x,int y,int w,int h,int c1,int c2,int c3,int c4)
 /* (PSXFront_PTag typedef moved above DrawGouraudShape, 2026-08-02 EA-style sweep) */
 
 /* ---- PSXDrawTransGouraudSquare  (psxfront.cpp:1377, code lines 1377-1398) ---- */
-/* GPU packet: builds POLY_G4 (stride 0x24, code 0x39); prim=u_char* build cursor, prevPrim=u_char* link word */
+/* GPU packet: builds POLY_G4 (stride 0x24, code 0x39); prim=u_char* build cursor. */
 void PSXDrawTransGouraudSquare(int x,int y,int w,int h,int opacity,int c1,int c2,int c3,int c4)
 
 {
@@ -1282,22 +1275,20 @@ void PSXDrawTransGouraudSquare(int x,int y,int w,int h,int opacity,int c1,int c2
    * ASSIGNED and stood in for the real `x` param in all four packed vertex words (oracle $t5 = the
    * x REGPARM copy) -- every quad got a garbage X.  LICM hoists the two (x+w) words. w42-a7 */
   int      i;
-  POLY_G4 *prevPrim;
   POLY_G4 *prim;
 
   i = 0;
   if (0 < opacity) {
     do {
       prim = (POLY_G4 *)Render_gPacketPtr;
-      prevPrim = (POLY_G4 *)Render_gPalettePtr;
       i = i + 1;
       /* setaddr(prim, getaddr(OT)) / setaddr(OT, prim) -- the P_TAG 24-bit bitfield
        * stores.  The VALUE side must NOT be a bitfield READ (`((PTag *)prevPrim)->addr`):
        * that masks twice, lifting the 0xffffff allocno's loop-weighted ref count 5 -> 7
        * past the `i` counter's .2745 and stealing its $t0 (measured 14 diffs).  w44-a2 */
-      ((PSXFront_PTag *)prim)->addr = prevPrim->tag;
+      ((PSXFront_PTag *)prim)->addr = *(uint *)Render_gPalettePtr;
       Render_gPacketPtr = (u_char *)prim + 0x24;
-      ((PSXFront_PTag *)prevPrim)->addr = (uint)prim;
+      ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;
       *(int *)&prim->r0 = c1;
       *(int *)&prim->r1 = c2;
       *(int *)&prim->r2 = c3;
@@ -1316,7 +1307,7 @@ void PSXDrawTransGouraudSquare(int x,int y,int w,int h,int opacity,int c1,int c2
 /* lines 1399-1403: (static data / macros / comments - no emitted code) */
 
 /* ---- PSXDrawTransSquare  (psxfront.cpp:1404, code lines 1404-1416) ---- */
-/* GPU packet: builds POLY_F4 (stride 0x18, code 0x2a); prim=u_char* build cursor, prevPrim=u_char* link word */
+/* GPU packet: builds POLY_F4 (stride 0x18, code 0x2a); prim=u_char* build cursor. */
 void PSXDrawTransSquare(int col,int x,int y,int w,int h,short opacity)
 
 {
@@ -1324,23 +1315,21 @@ void PSXDrawTransSquare(int col,int x,int y,int w,int h,short opacity)
    * declared was fabricated -- including `xv`/`yv`, which were NEVER ASSIGNED and fed the vertex
    * stores in place of the real x/y params (oracle: $t5=$a1=x, $t6=$a2=y). w42-a7. */
   short i;
-  POLY_F4 *prevPrim;
   POLY_F4 *prim;
 
   i = 0;
   if (0 < opacity) {
     do {
       prim = (POLY_F4 *)Render_gPacketPtr;
-      prevPrim = (POLY_F4 *)Render_gPalettePtr;
       i = i + 1;
       /* setaddr(prim, getaddr(OT)) / setaddr(OT, prim) -- the full P_TAG bitfield
        * addPrim() shape.  Here the value side IS a bitfield READ (unlike
        * PSXDrawTransGouraudSquare, which needs the plain word): the second 0xffffff mask
        * is what lifts that constant's loop-weighted allocno onto retail's $t0 ahead of
        * the (y+h) vertex value.  Probe: plain-word value 14, hand-masked OR 22/34.  w44-a2 */
-      ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)prevPrim)->addr;
+      ((PSXFront_PTag *)prim)->addr = ((PSXFront_PTag *)Render_gPalettePtr)->addr;
       Render_gPacketPtr = (u_char *)prim + 0x18;
-      ((PSXFront_PTag *)prevPrim)->addr = (uint)prim;
+      ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;
       *(int *)&prim->r0 = col;
       prim->code = 0x2a;
       ((u_char *)prim)[3] = 5;

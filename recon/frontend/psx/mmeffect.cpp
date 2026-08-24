@@ -44,7 +44,9 @@ void FeDraw_SetABRMode(int abr)
    * OR operands swapped (26); and the -G / -mno-split-addresses axis (gprobe: all
    * four settings == baseline). */
   DR_MODE *dr_mode;
-  u_long linkWord;
+  u_long linkWord; /* SYM-CODEGEN-CARRIER: linkWord -- SLD proves this is the
+                      one-line OT-link macro's internal value; direct forms are
+                      measured 17-40 diffs in the receipt above */
 
   dr_mode = (DR_MODE *)Render_gPacketPtr;
   dr_mode->tag = dr_mode->tag & 0xff000000 | *(u_long *)Render_gPalettePtr & 0xffffff;

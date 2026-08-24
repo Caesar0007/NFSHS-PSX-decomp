@@ -2820,6 +2820,28 @@ names, type findings, storage findings, or mapping reviews.  All five
 compile failures and the same two pre-existing residuals.  Relink is GREEN and
 the vtable audit passes 930 files.
 
+### P82 — `FeTools_FormatMoney` statement/local restoration (`2026-08-24`)
+
+Retail SYM records only `long absnum` and `char neg` for
+`FeTools_FormatMoney`, in addition to the two parameters.  Reconstruction now
+removes the unsupported `format`, `hi`, and `lo` identities.  `hi` and `lo`
+were unused decompiler remnants; each branch now passes
+`TextSys_Word(0x83/0x84/0x85)` directly as the nested `sprintf` format
+argument instead of assigning it through `format`.
+
+This source shape is independently supported by retail SLD: the word lookup
+and corresponding `sprintf` call occupy one source line in each of the three
+numeric-format arms.  It remains PASS at 93 instructions, and a fresh `-g`
+twin is instruction-identical while emitting only the reliable retail local
+set (`absnum` `$s0`, `neg` `$s1`, `string` `$s2`, and `amount` `$a1`).
+
+The strict frontend/common audit advances from 582 to 583 declaration-clean
+functions and reduces generic extra names from 850 to 847, with zero missing
+names, type findings, storage findings, or mapping reviews.  All six
+`fetools.cpp` functions remain PASS; the frontend board remains 836/838 with
+zero compile failures and the same two pre-existing residuals.  Relink is
+GREEN and the vtable audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

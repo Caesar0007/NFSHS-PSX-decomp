@@ -199,9 +199,6 @@ void FeTools_deinit(void)
 void FeTools_FormatMoney(char *string,long amount)
 
 {
-  char *format;
-  int lo;
-  int hi;
   long absnum;
   char neg;
 
@@ -228,16 +225,13 @@ void FeTools_FormatMoney(char *string,long amount)
      `sw v0,0x10(sp); jal sprintf` tail, which is exactly what per-arm sprintf calls emit.
      (The census tell was `mult 3v4 / mfhi 3v4` = one whole divide missing.) */
   if (absnum < 1000) {
-    format = TextSys_Word(0x83);
-    sprintf(string,format,neg,absnum);
+    sprintf(string,TextSys_Word(0x83),neg,absnum);
   }
   else if (absnum < 1000000) {
-    format = TextSys_Word(0x84);
-    sprintf(string,format,neg,absnum / 1000,absnum % 1000);
+    sprintf(string,TextSys_Word(0x84),neg,absnum / 1000,absnum % 1000);
   }
   else {
-    format = TextSys_Word(0x85);
-    sprintf(string,format,neg,absnum / 1000000,(absnum % 1000000) / 1000,absnum % 1000);
+    sprintf(string,TextSys_Word(0x85),neg,absnum / 1000000,(absnum % 1000000) / 1000,absnum % 1000);
   }
   return;
 }

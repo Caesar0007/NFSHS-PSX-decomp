@@ -124,7 +124,6 @@ def compile_debug_twin(src: Path) -> Path:
     if r.returncode:
         sys.exit(f"[diffsrc cc1 -g] {rel}\n{r.stdout}{r.stderr}")
     bld._apply_fn_splice(rel.as_posix(), s_file, i_file, cc1, flags)
-    bld._apply_epilogue_unfill(rel.as_posix(), s_file)
     _uniquify_dbg_labels(s_file)
     maspsx_cmd = [bld.PY, bld.MASPSX, f"--aspsx-version={bld.ASPSX_VERSION}",
                   "--expand-div", "--run-assembler", f"--gnu-as-path={bld.AS}",

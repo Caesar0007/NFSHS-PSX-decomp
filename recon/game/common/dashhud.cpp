@@ -5,7 +5,6 @@
 #include "dashhud_externs.h"
 
 /* ---- dashhud.obj OWNED globals (EXT; SYM Globals.jsonl) ---- */
-int          resethud;        /* 0x8013ddb0 [$gp+0x1864] reset/toggle flag */
 dashhud_info DashHUD_gInfo;    /* 0x80112730 */
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
@@ -121,6 +120,7 @@ void DashHUD_CheckWrongWay(int player)
 void DashHUD_HUDCalc(int player)
 
 {
+  static int resethud;        /* SYM STAT offset 0, retail 0x8013ddb0 */
   Car_tObj *car;
   int topSpeed;
 

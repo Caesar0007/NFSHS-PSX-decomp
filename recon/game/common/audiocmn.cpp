@@ -27,8 +27,9 @@ int          falseLapTrigNumsForward[10][2] = { 4, 7, 4, 7, 4, 7, -1, -1, 4, 7, 
 int          falseLapTrigNumsBackward[10][2] = { 4, 5, 4, 5, -1, -1, -1, -1, 4, 5, 4, 5, 4, 5, -1, -1, -1, -1, 4, 5 };   /* @0x8010e63c */
 char         Xfade[129] = { 0, 3, 7, 10, 13, 16, 19, 22, 24, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 46, 48, 50, 51, 53, 54, 55, 57, 58, 60, 61, 62, 63, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 84, 85, 86, 87, 88, 88, 89, 90, 91, 91, 92, 93, 94, 94, 95, 96, 96, 97, 98, 98, 99, 100, 100, 101, 101, 102, 103, 103, 104, 104, 105, 106, 106, 107, 107, 108, 108, 109, 109, 110, 110, 111, 111, 112, 112, 113, 113, 114, 114, 115, 115, 116, 116, 117, 117, 118, 118, 119, 119, 119, 120, 120, 121, 121, 122, 122, 122, 123, 123, 124, 124, 125, 125, 125, 126, 127, 127 };   /* @0x8010e68c */
 static char  SkidInitMaxFreq[71] = { 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };   /* @0x8010e710 */
-/* SYM STAT, file scope: immediately follows SkidInitMaxFreq at 0x8010e758. */
-static char compareTimes[25] = {
+/* SYM STAT, hoisted pending restoration of this TU's original declaration order:
+   a literal function-local move changes retail .data offset 0x288 to 0x954. */
+static char compareTimes[25] = {              /* retail 0x8010e758 */
   30, 12, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5, -6, -7, -8, -9,
   -10, -11, -12, -15, -20, -25, -30
 };
@@ -90,13 +91,12 @@ char D_8013C69C[] __attribute__((section(".sdata"), aligned(4))) = "itl";
 char D_8013C6A0[] __attribute__((section(".sdata"), aligned(4))) = "Gen";
 char D_8013C6A4[] __attribute__((section(".sdata"), aligned(4))) = "brt";
 char D_8013C6A8[] __attribute__((section(".sdata"), aligned(4))) = "fre";
-/* W67-A4 REAL DATA DEFECT (zeroinit class, 9th): retail initialises
-   lastImpactSample to 0x63 (ROM bytes 63 00 00 00 @0x8013c6ac -- gaptell
-   misread them as STR "c"); our uninitialised static compared against 0,
-   changing the double-impact-suppression behavior.  File-scope static (was
-   fn-local in HandleImpactSample) so it emits at its retail position. */
-static int  lastImpactSample = 0x63;   /* @0x8013c6ac */
-static char cobbleCount = 0;           /* @0x8013c6b0 */
+/* SYM records these as function-local statics.  They remain hoisted until the
+   original TU declaration order is restored: direct moves change retail
+   .sdata offsets 0x84/0x88 to 0xf0/0xf4.  The 0x63 initializer is confirmed
+   by retail bytes, correcting the older zero-initialized reconstruction. */
+static int  lastImpactSample = 0x63;          /* retail 0x8013c6ac */
+static char cobbleCount = 0;                  /* retail 0x8013c6b0 */
 int          falseLapTrigCur = 0;   /* @0x8013c6b4  (bss(zero)) */
 int          flaseLapTrigTrack = 0;   /* @0x8013c6b8  (bss(zero)) */
 char         currentLap[2] = {0, 0};   /* @0x8013c6bc  (bss(zero)) */
@@ -1259,7 +1259,6 @@ int scaleFrequency(int sndPlayer,int iSFXnum,int tweakedForce)
    `iSFXnum` and an anti-repeat block per half of the switch instead of an early `return`. */
 int ChooseImpactSample(int force,s_type surface1,s_type surface2)
 {
-  /* lastImpactSample: file-scope static now (W67-A4, = 0x63) */
   int iSFXnum = 0;
 
   if (surface1 == 8) {
@@ -1853,7 +1852,6 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   int cobblestoneAmp;
   char SPSC;
   int PlayerPan;
-  /* cobbleCount: file-scope static now (W67-A4, = 0) */
   int loadAmp;
   int amplitude;
   int roadNoiseAmp;

@@ -7,8 +7,7 @@
 #include "mpause_externs.h"
 
 /* ---- mpause.obj OWNED globals (Ghidra left $gp-relative; SYM names via disasm-proto,
- *   $gp base 0x8013C54C). EXT = external linkage (other TUs extern these); STAT = file-static.
- *   wasActive..lastplaytick are MPause_MusicLogic-private statics (laid out in this block). */
+ *   $gp base 0x8013C54C). EXT = external linkage (other TUs extern these); STAT = file-static. */
 tPauseMenuDefs *gPauseMenuDefs;              /* EXT 0x8013d268 [$gp+0xd1c] */
 bool  gMPauseUpdate;                         /* EXT 0x8013d264 [$gp+0xd18], SYM BOOL */
 bool  gMPauseUpdateNextTime;                 /* EXT 0x8013d240 [$gp+0xcf4], SYM BOOL */
@@ -19,8 +18,6 @@ static short  kMovingHighlight;              /* STAT 0x8013ddb8 [$gp+0x186c] */
 static short  kMovingHighlightDir;           /* STAT 0x8013ddba [$gp+0x186e] */
 static int    gBackDepth;                    /* STAT 0x8013ddbc [$gp+0x1870] */
 static tPMenu *gBackList[6];                 /* STAT 0x8013e0c0 */
-static char   wasActive, testSFX, playingSFX;   /* STAT MusicLogic statics 0x14/0x15/0x16 */
-static int    vol, SFXHandle, lastplaytick;     /* STAT MusicLogic statics 0x18/0x1c/0x20 */
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void MPause_MusicLogic(char active);
@@ -126,6 +123,12 @@ tPauseMenuDefs::~tPauseMenuDefs()
 void MPause_MusicLogic(char active)
 
 {
+  static char wasActive;
+  static char testSFX;
+  static char playingSFX;
+  static int vol;
+  static int SFXHandle;
+  static int lastplaytick;
   tPMenu *pThis;  /* folded receiver temp (SYM REG `this`) */
   int sndover;
   int samp;

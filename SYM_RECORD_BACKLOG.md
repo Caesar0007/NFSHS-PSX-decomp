@@ -2206,6 +2206,27 @@ strict audit is recorded in
 all 395 functions remain declaration-clean, and the extra-global queue falls
 from 59 to 55 with zero missing globals, storage findings, or type findings.
 
+### P53 — complete function-local `STAT` scope census (`2026-08-24`)
+
+The complete 54-record function-static census is recorded in
+[`function_static_scope_census_20260824.md`](scratchpad/root_sym_audit/function_static_scope_census_20260824.md).
+Seven additional game/common declarations now occupy their SYM-recorded scopes:
+`resethud` belongs to `DashHUD_HUDCalc`, while `wasActive`, `testSFX`,
+`playingSFX`, `vol`, `SFXHandle`, and `lastplaytick` belong to
+`MPause_MusicLogic`. Both functions remain byte-exact at 176/176 and 174/174
+instructions, and the rebuilt local symbols retain the recorded contiguous
+`.sbss` offsets.
+
+Forty other records were already function-local and the four game/PSX records
+closed in P52 remain correct. The only remaining scope exceptions are
+`audiocmn.cpp`'s `compareTimes`, `lastImpactSample`, and `cobbleCount`. A direct
+scope restoration preserves all three function PASSes but moves their exact
+retail object offsets from `.data+0x288`, `.sdata+0x84`, and `.sdata+0x88` to
+`.data+0x954`, `.sdata+0xf0`, and `.sdata+0xf4`. That experiment was reverted.
+These three records are therefore a concrete TU-declaration-order task, not an
+unclassified exception: their source scope and retail placement must be restored
+together by recovering `audiocmn.cpp`'s original declaration interleaving.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

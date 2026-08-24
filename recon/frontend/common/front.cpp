@@ -3044,29 +3044,24 @@ void Front_GetInGameVars(void)
    
    Toolchain: PsyQ SDK 4.3 (May 1998), GCC 2.7.2, ASPSX 2.77, PSYLINK 2.73.Build date: 1999-02-22.See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md.
    
-   [Locals 2026-05-08] Locals renamed via deep-body inspection. Sets license-plate text for both
-   players. Loop p=0..1 (2 players, sign-extended via *0x10000 >> 0x10 dance for compiler): fmt =
-   PlayerName(p); s = &frontEnd.licensePlate[p*4] (4-char plate buffer per player). sprintf(plate,
-   name) -> raw name. UpperCaseItKeepingInMindThoseBloodySpecialCharacters (sic) normalizes accented
-   Latin chars. s_lower (then re-lowercases? - likely creates mixed case). CarIO_CleanUpLicense +
-   CarIO_CreateLicense generate the plate texture for car rendering. */
+   SYM/SLD restoration (P94, 2026-08-25): retail records only `short i`.
+   Repeating `frontEnd.licensePlate[i]` at its four consumers and nesting
+   `PlayerName(i)` in sprintf removes the decompiler `fmt`/`s` identities.
+   GCC's C++ argument order preserves the call/address sequence and CSE keeps
+   the plate pointer across the following calls.  Exact PASS 42/42. */
 
 void SetLicensePlate(void)
 
 {
-  char *fmt;
-  char *s;
   short i;
 
   i = 0;
   do {
-    fmt = PlayerName(i);
-    s = frontEnd.licensePlate[i];
-    sprintf(s,fmt);
-    StatTool_UpperCaseItKeepingInMindThoseBloodySpecialCharacters(s);
-    s_lower(s);
+    sprintf(frontEnd.licensePlate[i],PlayerName(i));
+    StatTool_UpperCaseItKeepingInMindThoseBloodySpecialCharacters(frontEnd.licensePlate[i]);
+    s_lower(frontEnd.licensePlate[i]);
     CarIO_CleanUpLicense(i);
-    CarIO_CreateLicense(s,0,i);
+    CarIO_CreateLicense(frontEnd.licensePlate[i],0,i);
     i = i + 1;
   } while (i < 2);
   return;

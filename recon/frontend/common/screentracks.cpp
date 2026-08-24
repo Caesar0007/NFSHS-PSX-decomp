@@ -311,15 +311,8 @@ void tScreenTrackSelect::Cleanup()
 void tScreenTrackSelect::SetBrightness(short bright)
 
 {
-  int iVar1;
-  short curBrightness;
-
   if (bright != this->fDestBrightness) {
-    curBrightness = this->fBrightness;
-    iVar1 = ticks[0];
-    this->fDestBrightness = bright;
-    this->fStartBrightness = curBrightness;
-    this->fStartTicks = iVar1;
+    this->SetBrightnessTransition(bright,this->fBrightness,ticks[0]);
   }
   return;
 }

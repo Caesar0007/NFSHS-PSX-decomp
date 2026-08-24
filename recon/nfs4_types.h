@@ -5801,6 +5801,17 @@ struct tScreenTrackSelect : public tScreen {   /* 672 bytes */
     void Initialize();
     void Cleanup();
     void SetBrightness(short bright);
+    /* SYM/SLD: SetBrightness lines 263-266 contain repeated nested blocks but
+       no caller locals.  This semantic inline member evaluates the current
+       brightness and tick arguments before publishing the three fields,
+       reproducing retail's load/load/store/store/store sequence.  The inline
+       identifier itself is not recoverable from the optimized artifacts. */
+    inline void SetBrightnessTransition(short bright, short currentBrightness,
+                                        u_long startTicks) {
+        fDestBrightness = bright;
+        fStartBrightness = currentBrightness;
+        fStartTicks = startTicks;
+    }
     void UpdateBrightness(tTrackInformation &trackInfo);
     void UpdateVideoWall(tTrackInformation &trackInfo);
     void DrawVideoWall();

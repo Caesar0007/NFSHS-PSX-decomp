@@ -897,8 +897,12 @@ extern byte D_8011472A, D_80114604, D_80114723, D_80114729;
 bool tScreenCarSelect::GetCar(tCarInfo &carInfo)
 
 {
+  /* SYM-CODEGEN-CARRIER: uVar1 -- retail records no caller locals.  Directly
+     assigning the color expression is FAIL 9 at 159/160: it collapses the
+     available/color value split and removes retail's intervening nop.  The
+     separate color byte keeps the exact $v1/$v0 store pair.  The former
+     `count` cache is not required: direct GetNum*Cars comparisons remain PASS. */
   uchar uVar1;
-  short count;
 
   switch(this->fState) {
   case 0:
@@ -918,8 +922,7 @@ bool tScreenCarSelect::GetCar(tCarInfo &carInfo)
     break;
   case 7:
     if (D_8011472A == 1) {
-      count = carManager.GetNumOwnedCars(0);
-      if (count <= 0) {
+      if (carManager.GetNumOwnedCars(0) <= 0) {
         return 0;
       }
     }
@@ -934,13 +937,11 @@ bool tScreenCarSelect::GetCar(tCarInfo &carInfo)
     carInfo.fCountry = frontEnd.carCountry[0][(signed char)carInfo.fCarID];
     break;
   default:
-    count = carManager.GetNumOwnedCars(0);
-    if (count <= 0 && D_80114604 != 1) {
+    if (carManager.GetNumOwnedCars(0) <= 0 && D_80114604 != 1) {
       return 0;
     }
     if (D_80114604 == 2 && this->fState != 3) {
-      count = carManager.GetNumTourneyCars(0);
-      if (count <= 0) {
+      if (carManager.GetNumTourneyCars(0) <= 0) {
         return 0;
       }
     }

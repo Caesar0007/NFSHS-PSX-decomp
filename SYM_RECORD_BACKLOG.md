@@ -3290,6 +3290,55 @@ relocation-referenced unresolved symbols.  Call-target and undefined-call
 audits report zero defects, the TU-order audit reports zero inversions, and the
 vtable indexing audit passes 930 files.
 
+### P94 — inline brightness state and two no-local frontend restorations (`2026-08-25`)
+
+Retail records no locals in `tScreenTrackSelect::SetBrightness`.  The direct
+three-field reconstruction is FAIL 10 at 14/12 instructions because dependent
+loads/stores introduce two nops.  SLD lines 263--266 instead contain repeated
+nested blocks around one load/load/store/store/store sequence, proving an
+inlined source scope.  Reconstruction now calls the semantic inline member
+`SetBrightnessTransition(bright, fBrightness, ticks[0])`; by-value argument
+evaluation performs both loads before the inline stores and reproduces retail
+exactly.  The function is PASS 12/12 with an instruction-identical `-g` twin,
+and the caller no longer exposes `iVar1` or `curBrightness`.  Optimized retail
+artifacts do not retain the inline member's original identifier, so the chosen
+name is descriptive rather than claimed token-exact.
+
+`SetLicensePlate` records only `short i`.  Reconstruction now nests
+`PlayerName(i)` directly in `sprintf` and repeats
+`frontEnd.licensePlate[i]` at its four consumers.  GCC preserves the retail
+call/address order and CSEs the plate address across the later calls without
+the decompiler `fmt` and `s` declarations.  The function remains exact PASS
+42/42 with an exact `-g` twin.
+
+Retail also records no locals in `tScreenCarSelect::GetCar`.  The three
+`GetNum*Cars` results are now compared directly, eliminating `short count`
+while preserving PASS 160/160.  The remaining color byte is explicitly
+measured: direct assignment is FAIL 9 at 159/160 because it collapses the
+available/color register split and removes retail's intervening nop.  The
+separate `uVar1` spelling remains exact and is now an oracle-backed
+`SYM-CODEGEN-CARRIER`, not a generic review item.  Its fresh `-g` twin is exact,
+and `screencarselect.cpp` remains 59/59 PASS.
+
+The refreshed strict frontend/common audit is stored in
+[`frontend_common_strict_p94_20260825.md`](scratchpad/root_sym_audit/frontend_common_strict_p94_20260825.md).
+It advances declaration-clean mapped functions from 623 to 626, reduces
+generic extra source-local names from 780 to 774, and records 166 explicit
+source-only codegen carriers.  Missing names, mangled source identifiers, type
+findings, storage findings, global findings, and functions needing mapping
+review remain zero.
+
+The complete frontend board remains 816/838 with zero compile failures.
+`front.cpp` remains 42/43 with only the pre-existing `GetPSXPadValue`
+residual, `screentracks.cpp` remains 9/10 with only its pre-existing
+two-instruction `DrawBackground` residual, and `screencarselect.cpp` remains
+59/59.  The complete build compiled and linked every TU, stopping only because
+the isolated worktree lacks `rom/nfs4-f.exe` for final image comparison.  Both
+relink lanes are GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols.  Call-target and undefined-call
+audits report zero defects, the TU-order audit reports zero inversions, and the
+vtable indexing audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

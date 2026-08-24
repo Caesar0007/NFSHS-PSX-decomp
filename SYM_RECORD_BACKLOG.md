@@ -2474,6 +2474,24 @@ locals, or type findings, and its explicit function-type override queue is now
 empty (2 -> 0).  The game/PSX board remains 385/395 PASS; both relink lanes and
 the 926-file vtable audit remain green.
 
+### P67 — `Weather_gLastProcessTime` static array restored (`2026-08-24`)
+
+The receipt is recorded in
+[`weather_last_process_time_static_array_20260824.md`](scratchpad/root_sym_audit/weather_last_process_time_static_array_20260824.md).
+The former two-external-scalar storage model is replaced by the reliable
+Weather.obj declaration: one file-static `int Weather_gLastProcessTime[2]`.
+Explicit `.sbss` placement gives the two constant-index sites their retail
+GP-relative stores, while the existing unsized same-symbol view preserves the
+runtime-index site's absolute array base.  Both access forms alias one real
+eight-byte object.
+
+`Weather_Init` remains exact at 211/211 instructions, `Weather_Restart` at
+31/31, and `Weather_DoWeather` at 197/197.  The full Weather.cpp debug graph is
+`OK` with 68/68 named records exact.  Game/PSX now has zero explicit function
+type overrides and zero explicit global storage overrides; the strict audit
+remains 395/395 declaration-clean with no missing names, extra locals, or type
+findings.  The board remains 385/395 PASS, and relink/vtable gates remain green.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

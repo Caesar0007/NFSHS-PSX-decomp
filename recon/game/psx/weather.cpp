@@ -13,27 +13,18 @@
 #define RENDER_PACKETPTR_ADDR (*(u_char **)0x1F800004)
 #define RENDER_PALETTEPTR_ADDR (*(u_char **)0x1F800000)
 
-/* SYM-CARRIER: Weather_gLastProcessTime
- * SYM-STORAGE-OVERRIDE: Weather_gLastProcessTime -- spelling the split carrier
- * file-static makes Weather_Init 219/211 with 24 diffs; external tentative
- * element symbols are required for the verified PASS 211/211 gp/absolute mix.
- * Weather_gLastProcessTime[2] is SPLIT STORAGE, same shape as the four server arrays below.
- * Weather_Init/Weather_Restart reach the CONSTANT-index elements as two independent one-insn
- * %gp_rel(D_8013DE54)/%gp_rel(D_8013DE58) symbols (8 bytes is over this build's -G4 threshold
- * as ONE object, each 4-byte element alone is gp-eligible), while Weather_DoWeather's RUNTIME
- * index needs an absolute array base (`lui/addiu %hi/%lo(D_8013DE54)` + `addu v1,s1,v0`).
- * w40-a6: the old model was a DUPLICATING dual -- two fabricated scalars PLUS a separate
- * `int Weather_gLastProcessTime[2]` object -- i.e. the catalog's per-element-dual BUG CLASS:
- * the two forms alias by NAME ONLY, so Init/Restart's resets (written through the scalars)
- * never reached the storage DoWeather reads.  Replaced with the aliasing model: one tentative
- * def per element + an UNSIZED asm()-label array VIEW aliased onto element [0]'s symbol, so
- * both access paths hit the SAME memory (unsized+extern keeps it out of maspsx's sbss_entries,
- * so the view stays absolute). */
-int Weather_gLastProcessTime;                   /* [0] @0x8013de54 (oracle D_8013DE54) */
-int Weather_gLastProcessTime1;                  /* [1] @0x8013de58 (oracle D_8013DE58) */
+/* SYM records one file-static `int Weather_gLastProcessTime[2]` at 0x8013DE54.
+ * The explicit `.sbss` placement is the compiler-native storage carrier that
+ * reproduces both retail access forms under this reconstruction's -G4 build:
+ * constant [0]/[1] stores become one-insn %gp_rel accesses, while the unsized
+ * asm-label view below keeps Weather_DoWeather's runtime-index base absolute.
+ * Both spellings alias the same eight bytes; there are no fabricated element
+ * definitions and the full -O2 -g graph matches the retail STAT ARY INT record. */
+static int Weather_gLastProcessTime[2] __attribute__((section(".sbss")));
+/* SYM-CARRIER: Weather_gLastProcessTimeA -- runtime-index view of the same array. */
 extern int Weather_gLastProcessTimeA[] asm("Weather_gLastProcessTime");
-#define WEATHER_GLASTPROCESSTIME0 Weather_gLastProcessTime
-#define WEATHER_GLASTPROCESSTIME1 Weather_gLastProcessTime1
+#define WEATHER_GLASTPROCESSTIME0 Weather_gLastProcessTime[0]
+#define WEATHER_GLASTPROCESSTIME1 Weather_gLastProcessTime[1]
 
 /* ---- SPLIT-STORAGE data-mat for the four per-player server arrays (w39-a6) ----------------
  * Oracle evidence (Weather_Init__Fv.s): every CONSTANT-index element is reached through its

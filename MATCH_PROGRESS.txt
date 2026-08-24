@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3490 functions, 3460 at 100% (99.1%)
+TOTAL: 3491 functions, 3468 at 100% (99.3%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ VA             %match  unit                     function
 0x80015CB8    100.00%  frontend/common/feaudio  FeAudio_AsyncPlaySpeech__Fii
 0x80015D34    100.00%  frontend/common/feaudio  FeAudio_StartBigfileRead__FPciiPi
 0x80015DCC    100.00%  frontend/common/feaudio  FeAudio_LocateBigfile__FP9LUMPYHEADPcPiT2
-0x80015F24     98.17%  frontend/common/feaudio  FeAudio_InitViv__FPc
+0x80015F24    100.00%  frontend/common/feaudio  FeAudio_InitViv__FPc
 0x800160D8    100.00%  frontend/common/feaudio  FeAudio_InitCommentary__Fii
 0x80016178    100.00%  frontend/common/feaudio  FeAudio_DeInitCommentary__Fv
 0x800161B0    100.00%  frontend/common/fecars   Initialize__11tCarManager
@@ -168,6 +168,7 @@ VA             %match  unit                     function
 0x8001BEF8    100.00%  frontend/common/femenuextended UpdateTransition__10tMenuBlank
 0x8001BF00    100.00%  frontend/common/femenuextended ___29tMenuItemOptionsTwoItemChoice
 0x8001BF20    100.00%  frontend/common/femenuextended ___31tMenuItemOptionsLeftRightChoice
+0x8001BF40    100.00%  frontend/common/femenuextended Draw__27tMenuItemGoToMenuNFS4Buttonb
 0x8001BF48    100.00%  frontend/common/femenuoptions CalcPulsateYellow__Fv
 0x8001BFA0    100.00%  frontend/common/femenuoptions DrawLeftFlare__FiiiRi
 0x8001C0FC    100.00%  frontend/common/femenuoptions SubtractiveBox__Fiiiiiiii
@@ -422,7 +423,7 @@ VA             %match  unit                     function
 0x8002709C    100.00%  frontend/common/front    Front_ResetSettingsMenu__Fi
 0x800270E4    100.00%  frontend/common/front    Front_ResetPSXController__Fii
 0x80027150    100.00%  frontend/common/front    Front_ResetPSXAnalogs__Fi
-0x80027194     99.91%  frontend/common/front    GetPSXPadValue__Fii
+0x80027194    100.00%  frontend/common/front    GetPSXPadValue__Fii
 0x8002750C    100.00%  frontend/common/front    SetPads__Fv
 0x80027648    100.00%  frontend/common/front    InitFrontEndStructure__Fv
 0x80027940    100.00%  frontend/common/front    LoadConfig__Fv
@@ -516,7 +517,7 @@ VA             %match  unit                     function
 0x8002E18C    100.00%  frontend/common/femenudefs MenuExtended_ExitTourney__FR12tMenuCommand
 0x8002E21C    100.00%  frontend/common/femenudefs MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand
 0x8002E34C    100.00%  frontend/common/femenudefs MenuExtended_PinkSlipsContinue__FR12tMenuCommand
-0x8002E3B8     96.25%  frontend/common/femenudefs __15tGlobalMenuDefs
+0x8002E3B8     96.16%  frontend/common/femenudefs __15tGlobalMenuDefs
 0x800315D4    100.00%  frontend/common/femenudefs ___15tGlobalMenuDefs
 0x800321C0    100.00%  frontend/common/femenudefs TransitionIsFinished__32tBlankMenuItemGoToMenuNFS4Button
 0x800321C8    100.00%  frontend/common/femenudefs Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib
@@ -890,7 +891,7 @@ VA             %match  unit                     function
 0x8004ECDC    100.00%  frontend/psx/psxfront    PSXDrawGouraudSquare__Fiiiiiiii
 0x8004EDCC    100.00%  frontend/psx/psxfront    PSXDrawTransGouraudSquare__Fiiiiiiiii
 0x8004EED0    100.00%  frontend/psx/psxfront    PSXDrawTransSquare__Fiiiiis
-0x8004EFB4     89.60%  frontend/psx/psxfront    FontUpsideDownBlit__FiiPviiP12charactertbli
+0x8004EFB4     74.71%  frontend/psx/psxfront    FontUpsideDownBlit__FiiPviiP12charactertbli
 0x8004F100    100.00%  frontend/psx/fetexture   FETexture_LoadPmxAtOffset__FPciP18tTexture_ShapeInfoii
 0x8004F3B8    100.00%  frontend/psx/fetexture   FETexture_LoadPmx__FPciP18tTexture_ShapeInfo
 0x8004F3E0    100.00%  frontend/psx/memcard     MCRD_init
@@ -1082,7 +1083,7 @@ VA             %match  unit                     function
 0x80063270    100.00%  game/common/aih_hum      HighExecute__12AIHigh_Human
 0x800632AC    100.00%  game/common/aih_hum      __12AIHigh_HumanP8Car_tObj
 0x800632E0    100.00%  game/common/aih_hum      ___12AIHigh_Human
-0x80063308     92.50%  game/common/aih_opp      CheckForWipeOut__15AIHigh_Opponent
+0x80063308    100.00%  game/common/aih_opp      CheckForWipeOut__15AIHigh_Opponent
 0x800634E8    100.00%  game/common/aih_opp      DoRearEnder__15AIHigh_Opponent
 0x800637BC    100.00%  game/common/aih_opp      HighExecute__15AIHigh_Opponent
 0x80063AE8    100.00%  game/common/aih_opp      __15AIHigh_OpponentP8Car_tObj
@@ -1090,7 +1091,7 @@ VA             %match  unit                     function
 0x80063BD8    100.00%  game/common/aih_opp      ___15AIHigh_Opponent
 0x80063C00    100.00%  game/common/aih_cop      __10AIHigh_CopP8Car_tObji
 0x80063C4C    100.00%  game/common/aih_cop      SetTuningLevers__10AIHigh_Cop
-0x80063CC4     99.92%  game/common/aih_cop      HighExecute__10AIHigh_Cop
+0x80063CC4    100.00%  game/common/aih_cop      HighExecute__10AIHigh_Cop
 0x80065394    100.00%  game/common/aih_cop      CheckForNeedyPlayers__10AIHigh_Cop
 0x80065430    100.00%  game/common/aih_cop      CheckForWipeOut__10AIHigh_Cop
 0x800655A8    100.00%  game/common/aih_cop      CheckForNewTarget__10AIHigh_Cop
@@ -1179,7 +1180,7 @@ VA             %match  unit                     function
 0x8006AC3C    100.00%  game/common/aiphysic     AIPhysic_GetDesiredVector__FP8Car_tObj
 0x8006B224    100.00%  game/common/aiphysic     AIPhysic_TargetedGetDesiredVector__FP8Car_tObj
 0x8006B260    100.00%  game/common/aiphysic     AIPhysic_CheckIfOutOfControl__FP8Car_tObj
-0x8006B400     99.47%  game/common/aiphysic     AIPhysic_OutOfControlPhysics__FP8Car_tObj
+0x8006B400    100.00%  game/common/aiphysic     AIPhysic_OutOfControlPhysics__FP8Car_tObj
 0x8006BA70    100.00%  game/common/aiphysic     AIPhysic_GetRearEndDamageFactor__FP8Car_tObj
 0x8006BAC8    100.00%  game/common/aiphysic     AIPhysic_InControlPhysics__FP8Car_tObj
 0x8006C37C    100.00%  game/common/aiphysic     AIPhysic_FinishUp__FP8Car_tObj
@@ -1482,7 +1483,7 @@ VA             %match  unit                     function
 0x8007D940    100.00%  game/common/bworld       SetupBuildMatrices__FP13DRender_tViewP11Draw_DCache
 0x8007DC14    100.00%  game/common/bworld       BWorld_CheckChunkVisible__FP12BWorldSm_PosT0
 0x8007DD54    100.00%  game/common/bworld       GetRezIndex__Fi
-0x8007DD74     99.95%  game/common/bworld       SetupChunkBuildList__FP13DRender_tView
+0x8007DD74    100.00%  game/common/bworld       SetupChunkBuildList__FP13DRender_tView
 0x8007E0A0    100.00%  game/common/bworld       BWorld_IsSliceInBuildList__Fi
 0x8007E0F4    100.00%  game/common/bworld       BWorld_OnyxBuildFacets__FP13DRender_tView
 0x8007E3F8    100.00%  game/common/bworld       BWAllocMem__Fl
@@ -1872,7 +1873,7 @@ VA             %match  unit                     function
 0x800A2318    100.00%  game/common/newton       Newton_CalculateGroundShadowMatrix__FP13BO_tNewtonObjP8coorddefi
 0x800A268C    100.00%  game/common/newton       Newton_CalcRealShadowCoordinates__FP8Car_tObji
 0x800A2A2C    100.00%  game/common/newton       Newton_CheckForSpikeBelts__FP13BO_tNewtonObj
-0x800A2AF0     98.11%  game/common/newton       Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef
+0x800A2AF0    100.00%  game/common/newton       Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef
 0x800A2C98    100.00%  game/common/newton       Newton_GenerateVector__FiP8coorddefP12BWorldSm_Pos
 0x800A2E24    100.00%  game/common/newton       Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi
 0x800A2E84    100.00%  game/common/newton       Newton_TestForUndrivableSurfaces__FP13BO_tNewtonObj
@@ -2104,7 +2105,7 @@ VA             %match  unit                     function
 0x800B6878    100.00%  game/common/sim          Sim_ProcessSimSchedules__Fv
 0x800B6B9C    100.00%  game/common/sim          Sim_ProcessPause__Fv
 0x800B6CA0    100.00%  game/common/sim          Sim_CheckForPause__Fi
-0x800B6D4C    100.00%  game/common/sim          Sim_MainGameLoop__Fv
+0x800B6D4C     99.36%  game/common/sim          Sim_MainGameLoop__Fv
 0x800B7250    100.00%  game/common/simplemem    Alloc__9SimpleMemii
 0x800B729C    100.00%  game/common/simplemem    FeignAlloc__9SimpleMemi
 0x800B72BC    100.00%  game/common/simplemem    ResizeToFit__9SimpleMem
@@ -2132,7 +2133,7 @@ VA             %match  unit                     function
 0x800B81A8    100.00%  game/common/stats        Stats_GetNumOpponents__Fv
 0x800B81FC    100.00%  game/common/stats        Stats_TrackStats__FP8Car_tObj
 0x800B8604    100.00%  game/common/stats        Stats_ExtrapolateOpponentTimes__Fi
-0x800B8DB8     99.66%  game/common/stats        Stats_TrackEndGame__Fv
+0x800B8DB8    100.00%  game/common/stats        Stats_TrackEndGame__Fv
 0x800B9158    100.00%  game/common/textsys      TextSys_LoadWordsGeneric__FiPc
 0x800B91DC    100.00%  game/common/textsys      TextSys_LoadInGame__Fi
 0x800B9228    100.00%  game/common/textsys      TextSys_LoadWords__Fi
@@ -2414,7 +2415,7 @@ VA             %match  unit                     function
 0x800D7E64    100.00%  game/psx/hud             Hud_Render321Go__Fv
 0x800D7FB0    100.00%  game/psx/hud             BigBTCTime__Fi
 0x800D82D0    100.00%  game/psx/hud             Hud_RenderHudView__Fv
-0x800D8C48     95.49%  game/psx/hud             Hud_RenderTacView__Fv
+0x800D8C48     98.24%  game/psx/hud             Hud_RenderTacView__Fv
 0x800D8D64    100.00%  game/psx/hud             Hud_ParseTime__FiPc
 0x800D8ED0    100.00%  game/psx/hud             Hud_RenderPauseBox__Fiiii
 0x800D9058    100.00%  game/psx/hud             Hud_Render__Fv
@@ -2429,7 +2430,7 @@ VA             %match  unit                     function
 0x800D9950    100.00%  game/psx/hud             Hud_Perp_OverlayOff__Fi
 0x800D9968    100.00%  game/psx/overlays        OptionsBarThing__Fiiii
 0x800D9A48    100.00%  game/psx/overlays        RaceSummary__Fv
-0x800D9FBC     93.51%  game/psx/overlays        RaceStatistics__Fv
+0x800D9FBC     95.89%  game/psx/overlays        RaceStatistics__Fv
 0x800DA728    100.00%  game/psx/overlays        Hud_BTCStats__Fsb
 0x800DAE8C    100.00%  game/psx/overlays        Hud_RenderStatsView__Fv
 0x800DB0B8    100.00%  game/psx/loading         Loading_DrawLoadingScreen__Fv

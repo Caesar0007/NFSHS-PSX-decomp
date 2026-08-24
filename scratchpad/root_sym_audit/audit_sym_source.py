@@ -1121,9 +1121,10 @@ def documented_inline_locals(
         ]
     except OSError:
         return [], {}
+    body_text = "\n".join(body)
     mappings = re.findall(
         r"\bSYM-INLINE-LOCAL:\s*([A-Za-z_]\w*)\s*=\s*([A-Za-z_]\w*)",
-        "\n".join(body),
+        body_text,
     )
     resolved: list[dict] = []
     owners: dict[str, str] = {}
@@ -1142,6 +1143,28 @@ def documented_inline_locals(
             continue
         resolved.extend(declarations)
         owners[local_name] = helper_name
+
+    # Inline C++ member receivers are implicit and therefore absent from
+    # ctags' local/parameter rows.  Admit a narrow `this` receipt only when
+    # the caller visibly invokes the named member and a real inline body is
+    # present in the reconstruction's shared type header.  This keeps the
+    # marker evidentiary rather than turning it into a generic suppression.
+    inline_this = re.findall(
+        r"\bSYM-INLINE-THIS:\s*([A-Za-z_]\w*)", body_text
+    )
+    type_header = ROOT / "recon" / "nfs4_types.h"
+    try:
+        type_text = type_header.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        type_text = ""
+    for helper_name in inline_this:
+        invoked = re.search(rf"(?:->|\.)\s*{re.escape(helper_name)}\s*\(", body_text)
+        defined = re.search(
+            rf"\b{re.escape(helper_name)}\s*\([^;{{}}]*\)\s*(?:const\s*)?{{",
+            type_text,
+        )
+        if invoked and defined:
+            owners["this"] = helper_name
     return resolved, owners
 
 

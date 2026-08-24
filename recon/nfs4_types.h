@@ -2832,6 +2832,9 @@ struct tMenu {   /* 108 bytes */
     void TransitionOn();
     bool TransitionIsFinished();  /* SYM: FCN bool (four-byte int) */
     bool IsSubMenu();              /* SYM: FCN bool (four-byte int) */
+    /* FEAPP.CPP:202 SLD/SYM records this as an inlined tMenu receiver;
+       the debug stream does not retain the helper's original spelling. */
+    bool HasOptionsMenu() { return fOptionsMenu != (tMenu *)0x0; }
     long DebounceKeys();
 
 };

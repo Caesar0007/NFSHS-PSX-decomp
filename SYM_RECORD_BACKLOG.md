@@ -2692,6 +2692,35 @@ board remains 836/838 with zero compile failures and only the two pre-existing
 residuals.  Both relink lanes are GREEN, the vtable audit passes 930 files, and
 no new scratchpad snapshot was created.
 
+### P77 — `tFEApplication::DrawHelpIcons` inline receiver restoration (`2026-08-24`)
+
+`tFEApplication::DrawHelpIcons` removes all four generic reconstruction locals
+(`bVar1`, `pcVar2`, `iVar4`, and `uVar3`) that retail SYM does not record.  The
+text calls and width/length expression are now written directly, agreeing with
+the independent m2c expression tree and IDA's temporary `$v0`/`$s0` values.
+Those three expression identities are byte-neutral.
+
+The final boolean required a structural recovery rather than a suppression.
+Directly testing the two `fOptionsMenu` fields removes `bVar1` but is FAIL 15 at
+251/254 instructions.  Retail SYM instead opens nested inline blocks at source
+line 52 and records an implicit `tMenu *this` in `$v0` at `0x80013594`, followed
+by a second nested inline block at `0x80013614`.  Restoring an inline
+`tMenu::HasOptionsMenu()` accessor reproduces the retail 0/1 materialization and
+returns the function to PASS at 254 instructions.  A fresh `-g` twin is
+instruction-identical and emits the same nested implicit `this` in `$v0`; the
+tracked audit now has a narrow `SYM-INLINE-THIS` receipt for this record.  The
+debug stream proves the inline accessor's body and receiver but does not retain
+its original identifier, so `HasOptionsMenu` is an explicit descriptive
+spelling rather than a claim of uniquely recovered text.
+
+The strict frontend/common audit advances from 577 to 578 declaration-clean
+functions, reduces generic extra names from 867 to 863, and advances explicit
+inline-local mappings from one to two, with zero missing names, type findings,
+storage findings, or mapping reviews.  `feapp.cpp` remains 15/15 PASS; the
+frontend board remains 836/838 with zero compile failures and the same two
+pre-existing residuals.  Both relink lanes are GREEN and the vtable audit
+passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

@@ -171,10 +171,6 @@ void tFEApplication::PerformMenuDestruction()
 void tFEApplication::DrawHelpIcons()
 
 {
-  bool bVar1;
-  char *pcVar2;
-  int iVar4;
-  int uVar3;
   tDrawShapeExtended flags;
   int Col;
   int x;
@@ -190,8 +186,7 @@ void tFEApplication::DrawHelpIcons()
     int i;
 
     string2[1] = '\0';
-    pcVar2 = TextSys_Word(0xfc);
-    sprintf(string,pcVar2);
+    sprintf(string,TextSys_Word(0xfc));
     i = strlen(string);
     i = i - 1;
     while (-1 < i) {
@@ -225,20 +220,12 @@ void tFEApplication::DrawHelpIcons()
       DrawShapeExtended(0x36,0x18,x,y,0,0,&flags);
       x = x + 0xf;
     }
-    pcVar2 = TextSys_Word(0xfc);
-    FETextRender_FullTextRGB(pcVar2,x,y,Col,'\0',0);
-    pcVar2 = TextSys_Word(0xfc);
-    iVar4 = textpixels(pcVar2);
-    pcVar2 = TextSys_Word(0xfc);
-    uVar3 = strlen(pcVar2);
-    x += 5 + (iVar4 - uVar3);
-    bVar1 = false;
-    if ((this->fCurrentMenu[0]->fOptionsMenu != (tMenu *)0x0) ||
+    FETextRender_FullTextRGB(TextSys_Word(0xfc),x,y,Col,'\0',0);
+    x += 5 + (textpixels(TextSys_Word(0xfc)) - strlen(TextSys_Word(0xfc)));
+    /* SYM-INLINE-THIS: HasOptionsMenu */
+    if (this->fCurrentMenu[0]->HasOptionsMenu() ||
        ((this->fCurrentMenu[1] != (tMenu *)0x0 &&
-        (this->fCurrentMenu[1]->fOptionsMenu != (tMenu *)0x0)))) {
-      bVar1 = true;
-    }
-    if (bVar1) {
+        this->fCurrentMenu[1]->HasOptionsMenu()))) {
       if (((gPadinfo.buf[0].nopad == '\0') && (gPadinfo.buf[0].ID != '#')) ||
          ((gPadinfo.buf[4].nopad == '\0' && (gPadinfo.buf[4].ID != '#')))) {
         DrawShapeExtended(0x37,0x18,x,y,0,0,&flags);
@@ -248,8 +235,7 @@ void tFEApplication::DrawHelpIcons()
         DrawShapeExtended(0x38,0x18,x,y,0,0,&flags);
         x = x + 0xf;
       }
-      pcVar2 = TextSys_Word(0xfd);
-      FETextRender_FullTextRGB(pcVar2,x,y,Col,'\0',0);
+      FETextRender_FullTextRGB(TextSys_Word(0xfd),x,y,Col,'\0',0);
     }
   }
   return;

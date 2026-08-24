@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import collections
+import functools
 import json
 import re
 import subprocess
@@ -635,6 +636,30 @@ def source_global_type(rec: dict) -> str:
     return source_record_type(rec)
 
 
+@functools.lru_cache(maxsize=1)
+def function_pointer_typedefs() -> frozenset[str]:
+    """Return real source typedef names whose declarator is a function pointer.
+
+    Ctags reports a parameter written with such a typedef as only the typedef
+    name, while PsyQ records its lowered ``PTR FCN`` constructor.  Resolve the
+    declaration from reconstructed headers instead of hard-coding individual
+    typedef names or treating arbitrary pointer-sized aliases as equivalent.
+    """
+    typedef_re = re.compile(
+        r"\btypedef\s+[^;]*?\(\s*\*\s*([A-Za-z_]\w*)\s*\)\s*\([^;]*\)\s*;",
+        re.S,
+    )
+    names: set[str] = set()
+    for header in (ROOT / "recon").rglob("*.h"):
+        try:
+            names.update(
+                typedef_re.findall(header.read_text(encoding="utf-8", errors="replace"))
+            )
+        except OSError:
+            continue
+    return frozenset(names)
+
+
 def compatible_decl_types(sym_rows: list[Decl], src_rows: list[dict]) -> tuple[bool, str]:
     """Recognize PsyQ debug encodings that are not source-type conflicts.
 
@@ -728,7 +753,7 @@ def compatible_decl_types(sym_rows: list[Decl], src_rows: list[dict]) -> tuple[b
             "(*" in norm_type(d.get("typeref", ""))
             or norm_type(d.get("typeref", "")).startswith("fn_")
             for d in src_rows
-        ):
+        ) or bool(src_types & function_pointer_typedefs()):
             return True, "generic-function-pointer"
 
     return False, ""

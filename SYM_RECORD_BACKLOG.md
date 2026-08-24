@@ -2286,6 +2286,22 @@ with no compile failures, relink remains green, and the 926-file vtable audit
 passes. Only these three linkage tokens are staged from the pre-existing dirty
 `femenudefs.cpp`; its other edits remain user-owned and unstaged.
 
+### P57 — function-pointer typedef audit normalization (`2026-08-24`)
+
+The receipt is recorded in
+[`function_pointer_typedef_audit_20260824.md`](scratchpad/root_sym_audit/function_pointer_typedef_audit_20260824.md).
+The last two game/common type findings were false conflicts between SYM's lowered
+`PTR FCN VOID` records and the source typedef `Sched_tFunctionPt`, declared as
+`void (*)(void *)`. The audit now discovers real function-pointer typedef
+declarators from reconstructed headers and accepts their names only when SYM
+independently records the `FCN` constructor.
+
+Strict game/common, game/PSX, and frontend/common audits now all report zero
+missing reliable local names, **zero type-comparison findings**, and **zero
+function storage-class findings**. The two affected scheduler functions remain
+exact at 45/45 and 51/51 instructions. This is a read-only audit correction; no
+reconstructed source or compiler output changed.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

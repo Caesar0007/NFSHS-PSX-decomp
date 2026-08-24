@@ -1312,15 +1312,15 @@ PER_FN_TEXT_MOVES = {
     # w60-a8: label-AGNOSTIC anchors ($L numbers renumber on any TU reorder; a
     # literal $L<n> silently no-ops the splice) -- shape-anchored on the
     # merge-point move that precedes the epilogue's double label + lw $31.
-    "recon/game/common/aiphysic.cpp": {
-        "AIPhysic_CalcAcceleration__FP8Car_tObji": [
-            {"take": r"\tmove\t\$2,\$16\n(?=\$L\d+:\n\$L\d+:\n\tlw\t\$31,)",
-             "after": r"\tbeq\t\$5,\$2,\$L\d+\n",
-             "copy": True, "slot": True},
+    #"recon/game/common/aiphysic.cpp": {
+    #    "AIPhysic_CalcAcceleration__FP8Car_tObji": [
+    #        {"take": r"\tmove\t\$2,\$16\n(?=\$L\d+:\n\$L\d+:\n\tlw\t\$31,)",
+    #         "after": r"\tbeq\t\$5,\$2,\$L\d+\n",
+    #         "copy": True, "slot": True},
             # w65-a2 label-move (probed 2x, objdump 15D).
-            {"_note": "brdist (27,5,6) -> 0. APPEND AFTER the existing w59-a3/w60-a8 copy+slot row (anchors below are the post-row text). The beq's delay slot already carries `move $2,$16`; retail's .L80069974 is the epilogue `lw $31`, one past the merge copy. TU 41/42 PASS 2x (AIPhysic_OutOfControlPhysics FAIL 5 = pre-existing).", "take": "\\$L\\d+:\\n(?=\\tmove\\t\\$2,\\$16\\n\\$L\\d+:\\n\\$L\\d+:\\n\\tlw\\t\\$31,)", "after": "\\tmove\\t\\$2,\\$16\\n(?=\\$L\\d+:\\n\\$L\\d+:\\n\\tlw\\t\\$31,)"},
-        ],
-    },
+    #        {"_note": "brdist (27,5,6) -> 0. APPEND AFTER the existing w59-a3/w60-a8 copy+slot row (anchors below are the post-row text). The beq's delay slot already carries `move $2,$16`; retail's .L80069974 is the epilogue `lw $31`, one past the merge copy. TU 41/42 PASS 2x (AIPhysic_OutOfControlPhysics FAIL 5 = pre-existing).", "take": "\\$L\\d+:\\n(?=\\tmove\\t\\$2,\\$16\\n\\$L\\d+:\\n\\$L\\d+:\\n\\tlw\\t\\$31,)", "after": "\\tmove\\t\\$2,\\$16\\n(?=\\$L\\d+:\\n\\$L\\d+:\\n\\tlw\\t\\$31,)"},
+    #    ],
+    #},
     # w60-a4 (orchestrator-wired, probe-verified): CD_get_intr -> PASS 343/343
     # WITH the coupled in-source void-tail fence (moves alone 10->2, fence
     # alone 10->8).  Anchors disambiguated by LOOKAHEAD on the following

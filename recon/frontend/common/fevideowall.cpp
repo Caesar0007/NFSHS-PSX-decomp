@@ -243,7 +243,9 @@ void tVideoWall::TurnOff()
   extern int ticksA[];
 
   if (this->fTransitionDirection != -1) {
-    int tickCounter = ticksA[0];
+    int tickCounter; /* SYM-CODEGEN-CARRIER: tickCounter -- assigning ticksA[0]
+                        directly is measured FAIL 3 (10/9) and leaves a load nop. */
+    tickCounter = ticksA[0];
     this->fTransitionDirection = -1;
     this->fTVTicks = tickCounter;
   }
@@ -278,7 +280,9 @@ void tVideoWall::TurnOn()
   extern int ticksA[];
 
   if (this->fTransitionDirection != 1) {
-    int tickCounter = ticksA[0];
+    int tickCounter; /* SYM-CODEGEN-CARRIER: tickCounter -- direct field assignment
+                        is measured FAIL 3 (10/9); this split fills the load slot. */
+    tickCounter = ticksA[0];
     this->fTransitionDirection = 1;
     this->fTVTicks = tickCounter;
   }

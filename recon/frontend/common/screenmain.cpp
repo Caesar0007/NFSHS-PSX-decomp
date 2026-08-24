@@ -797,14 +797,13 @@ void tScreenMain::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char **
 void tScreenMain::PreLoad()
 
 {
-  int rnd;
   short i;
   char buffer [32];
   
   sprintf(gPermBuffer,"zMain%d",(uint)(byte)frontEnd.language);
-  rnd = rand();
-  this->fPreviousAnim = (short)(rnd % 0x19);
-  sprintf(gNameBuffer,"yVda%02d",(rnd % 0x19) * 0x10000 >> 0x10);
+  this->fPreviousAnim = (short)(rand() % 0x19);
+  sprintf(gNameBuffer,"yVda%02d",
+          (int)this->fPreviousAnim * 0x10000 >> 0x10);
   this->tScreen::PreLoad();
   /* MATCH: ONE fn-scope `short i` serves BOTH loops -- splitting it into i/j
      halves the allocno's refs and loses the oracle's s2 handout (s0 instead).

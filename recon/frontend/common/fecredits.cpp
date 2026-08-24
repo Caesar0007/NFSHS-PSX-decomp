@@ -38,6 +38,8 @@ void tCreditManager::Setup()
 void tCreditManager::Init(int arg1)
 
 {
+  /* SYM-CODEGEN-CARRIER: arg1 -- the method's trailing `i` mangling proves the
+     unused argument; optimized debug consequently has no parameter record. */
   char filename [80];
   
   if (this->fCreditsInitialized == 0) {

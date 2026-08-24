@@ -589,6 +589,8 @@ void tMenuItem::Draw(int x,int y,bool selected)
 void tMenuItem::Draw(int x,int y,int w,bool selected)
 
 {
+  /* SYM-CODEGEN-CARRIER: w -- the mangled `iiib` signature proves this unused
+     third coordinate argument even though optimized debug has no parameter row. */
   (*(*this->_vf)[6].pfn)((char *)this + (int)(*this->_vf)[6].delta,
                          selected,x,y,0);
 }
@@ -621,12 +623,9 @@ tMenuItemInteractive::~tMenuItemInteractive()
 tMenuItemLeftRightChoice::tMenuItemLeftRightChoice(u_int textDescription,tListIterator *dataPtr)
   : tMenuItemInteractive(textDescription)
 {
-  u_int uVar1;
-  
-  uVar1 = this->fFlags;
   *(void **)&(this->_vf) = (void *)tMenuItemLeftRightChoice_vtable;
   this->fData = dataPtr;
-  this->fFlags = uVar1 | 0x400;
+  this->fFlags |= 0x400;
   return;
 }
 
@@ -1429,16 +1428,15 @@ void tMenu::tMenuConstructor(tMenuItem *firstItem,void *ap)
 {
   int i;
   tMenuItem *p;
-  tMenuItem *ptVar1;
   
   i = 0;
   this->VertHelp = 0;
   this->fItemList[0] = firstItem;
   while (1) {
     ap = (int *)((int)ap + 4);
-    ptVar1 = ((tMenuItem **)ap)[-1];
-    this->fItemList[i + 1] = ptVar1;
-    if (ptVar1 == (tMenuItem *)0x0) break;
+    p = ((tMenuItem **)ap)[-1];
+    this->fItemList[i + 1] = p;
+    if (p == (tMenuItem *)0x0) break;
     i = i + 1;
   }
   return;
@@ -1516,7 +1514,6 @@ void tMenu::Initialize()
 void tMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command)
 
 {
-  tMenuItem *ptVar3;
   int lastItem;
   
   if (((this->fFlags & 4) != 0) && (keyval == kInput_KeyType_Start)) {
@@ -1525,10 +1522,11 @@ void tMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &
   if (((this->fFlags & 0x10000) != 0) && (keyval == kInput_KeyType_Cross)) {
     keyval = kInput_KeyType_Start;
   }
-  ptVar3 = this->fItemList[this->fCurrentItem];
-  if (ptVar3 != (tMenuItem *)0x0) {
-    (*(*ptVar3->_vf)[3].pfn)
-        ((char *)ptVar3 + (int)(*ptVar3->_vf)[3].delta,fromPlayer,&keyval,&command);
+  if (this->fItemList[this->fCurrentItem] != (tMenuItem *)0x0) {
+    (*(*this->fItemList[this->fCurrentItem]->_vf)[3].pfn)
+        ((char *)this->fItemList[this->fCurrentItem] +
+         (int)(*this->fItemList[this->fCurrentItem]->_vf)[3].delta,
+         fromPlayer,&keyval,&command);
   }
   switch (keyval) {
     case kInput_KeyType_Up:
@@ -1613,7 +1611,6 @@ void tMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &
 short tMenu::GetNumberEnabledItems()
 
 {
-  u_int *puVar1;
   short result;
   short i;
   
@@ -1628,9 +1625,8 @@ short tMenu::GetNumberEnabledItems()
   /* The explicit backedge prevents GCC's loop pass from rotating this into
      a bottom-tested loop; retail performs the null test at the loop head. */
 GetNumberEnabledItems_loop:
-  puVar1 = (u_int *)this->fItemList[i];
-  if (puVar1 != (u_int *)0x0) {
-    if (((*puVar1 ^ 1) & 1) != 0) {
+  if (this->fItemList[i] != (tMenuItem *)0x0) {
+    if (((this->fItemList[i]->fFlags ^ 1) & 1) != 0) {
       result = result + 1;
     }
     i = i + 1;

@@ -119,18 +119,11 @@ TrophyRoomProc_keyLeftCheck:
 void tScreenTrophyRoom::PreLoad()
 
 {
-  char *name;
-  
   ::PreLoad((tScreen *)this);
   (this->fTrophyShapes).fShapes = (tTexture_ShapeInfo *)0x0;
   ::InitializeShapes((tScreen *)this,&this->fTrophyShapes,8);
-  if (frontEnd.tier != '\0') {
-    name = "zCase2";
-  }
-  else {
-    name = "zCase";
-  }
-  ::AsyncLoadShapeFile((tScreen *)this,name,&this->fTrophyShapes);
+  ::AsyncLoadShapeFile((tScreen *)this,
+      frontEnd.tier != '\0' ? "zCase2" : "zCase",&this->fTrophyShapes);
   return;
 }
 

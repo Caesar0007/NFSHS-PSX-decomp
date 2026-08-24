@@ -2456,6 +2456,24 @@ findings, and the explicit function-type override queue falls from three to
 two.  The full game/PSX gate remains 385/395 PASS with no compile failures;
 both relink lanes and the 926-file vtable audit remain green.
 
+### P66 — remaining `DrawC` short `facetFlag` overrides closed (`2026-08-24`)
+
+The receipt is recorded in
+[`drawc_remaining_short_facetflags_20260824.md`](scratchpad/root_sym_audit/drawc_remaining_short_facetflags_20260824.md).
+Both `DrawC_Prim` case-local declarations and the `DrawC_PrimMenu` loop local
+now use the reliable SYM `short facetFlag` type.  `DrawC_Prim` makes the normal
+integer promotion explicit through a source-only `facetValue` carrier;
+`DrawC_PrimMenu` removes the former unsigned `rawFlag` substitute and separates
+the compiler's low-twelve-bit SI-mode CSE into a documented `facetMask` carrier.
+
+All three affected drawing functions remain byte-exact: `DrawC_Prim`
+1389/1389, `DrawC_PrimClip` 1877/1877, and `DrawC_PrimMenu` 480/480.  The
+full-debug `drawc.cpp` graph retains all 105/105 named retail records exactly.
+Game/PSX remains 395/395 declaration-clean with zero missing names, extra
+locals, or type findings, and its explicit function-type override queue is now
+empty (2 -> 0).  The game/PSX board remains 385/395 PASS; both relink lanes and
+the 926-file vtable audit remain green.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

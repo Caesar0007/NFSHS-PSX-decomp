@@ -1593,6 +1593,12 @@ void DrawC_PrimStop(Car_tObj *carObj,Draw_CarCache *sd)
  *     stolen `srl` fall back after it, which is exactly retail's stream.
  *     ⚠️ VERIFY the emitted cc1 `.s` register numbers before wiring -- read
  *     them off `scratch/rtl/drawc.s`, not off this comment.)
+ * ===== W76 SYM CLOSURE: BOTH `short facetFlag` DECLARATIONS RESTORED =====
+ * The DrawC_PrimClip receipt transfers byte-for-byte here.  Each assignment
+ * is made through the retail SHORT local into an explicit integer-promotion
+ * carrier (`facetValue = (facetFlag = facet->flag)`).  That keeps the single
+ * sign-extended `lh` and all W75 allocation/delay-slot work unchanged while
+ * the `-O2 -g` graph again records the reliable SHORT type.  PASS 1389/1389.
  */
 void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOverlay *overlay,
                int envmap,Draw_CarCache *sd)
@@ -1611,16 +1617,14 @@ void DrawC_Prim(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_zOve
      it there after PrimClip's block-order work, per the lever-order law. */
   int i;
 
-  /* The SYM has no distinct records for these four source-shaping identities.
+  /* The SYM has no distinct records for these five source-shaping identities.
      Each remains only because the detailed W53/W60/W75 receipts below measure
      a natural direct spelling as a different instruction/allocation stream.
      SYM-CODEGEN-CARRIER: envmapUV_dst
      SYM-CODEGEN-CARRIER: ff
      SYM-CODEGEN-CARRIER: hi
      SYM-CODEGEN-CARRIER: overlayRaw
-     SYM-TYPE-OVERRIDE: facetFlag -- the SYM records SHORT, but a direct short
-     declaration regresses PASS to 30 differences at 1391/1389; the current
-     promoted int carrier preserves the retail lhu/sign-extension/allocation shape. */
+     SYM-CODEGEN-CARRIER: facetValue */
   
   Nvertice = obj->Nvertex;
   /* field-fusion: ePmx0.{u0,v0,clut} contiguous 4-byte packed -- ONE lw each */
@@ -2284,7 +2288,10 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     POLY_FT3 *prim;
     int overlayFlag;
     int overlayRaw;
-    int facetFlag;
+    short facetFlag;
+    /* SYM-CODEGEN-CARRIER: facetValue -- explicit promotion of the SHORT
+       assignment, preserving retail's single signed halfword load. */
+    int facetValue;
     Transformer_zFacet *facet;
     int id0;
     int id1;
@@ -2331,10 +2338,10 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       overlayRaw = (u_short)DrawC_gOverlay[facet->textureIndex]; overlayRaw = overlayRaw << 0x10;
       overlayFlag = overlayRaw >> 0x10;
       if (overlayFlag != 0) {
-        facetFlag = facet->flag;
+        facetValue = (facetFlag = facet->flag);
         sd_otz = sd->otz;
         overlayFlag = overlayFlag & 0xff;
-        if (facetFlag < 0) {
+        if (facetValue < 0) {
           overlayFlag = overlayRaw >> 0x18;
         }
         sd_otz = sd_otz + sd->sub_otz;
@@ -2346,7 +2353,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         {
           /* two pseudos: ff computed (v1), facet_flag the live copy (t1) --
            * oracle andi v1,4095; addu t1,v1,zero; srl v0,v1,4 */
-          int ff = facetFlag & 0xfff; int hi = facetFlag & 0x3f0;
+          int ff = facetValue & 0xfff; int hi = facetValue & 0x3f0;
           facet_flag = ff;
           if (hi != 0) {
             /* W75-A7: BOTH launders moved INSIDE the guard body -- see the
@@ -2460,7 +2467,10 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     POLY_FT3 *prim;
     int overlayFlag;
     int overlayRaw;
-    int facetFlag;
+    short facetFlag;
+    /* SYM-CODEGEN-CARRIER: facetValue -- same proven SHORT-assignment
+       promotion as case 8. */
+    int facetValue;
     Transformer_zFacet *facet;
     int id0;
     int id1;
@@ -2546,10 +2556,10 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       overlayRaw = (u_short)DrawC_gOverlay[facet->textureIndex]; overlayRaw = overlayRaw << 0x10;
       overlayFlag = overlayRaw >> 0x10;
       if (overlayFlag != 0) {
-        facetFlag = facet->flag;
+        facetValue = (facetFlag = facet->flag);
         sd_otz = sd->otz;
         overlayFlag = overlayFlag & 0xff;
-        if (facetFlag < 0) {
+        if (facetValue < 0) {
           overlayFlag = overlayRaw >> 0x18;
         }
         sd_otz = sd_otz + sd->sub_otz;
@@ -2558,7 +2568,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         {
           /* two pseudos: ff computed (v1), facet_flag the live copy (t1) --
            * oracle andi v1,4095; addu t1,v1,zero; srl v0,v1,4 */
-          int ff = facetFlag & 0xfff; int hi = facetFlag & 0x3f0;
+          int ff = facetValue & 0xfff; int hi = facetValue & 0x3f0;
           facet_flag = ff;
           if (hi != 0) {
             /* W75-A7: BOTH launders moved INSIDE the guard body -- see the
@@ -4450,11 +4460,8 @@ gte_SetTransMatrix(((char *)sd + 0x14));
    * strength reduction creates the t9 giv (i*12, decremented alongside the counter) */
   for (;;) {
     POLY_FT3 *prim;
-    /* SYM-TYPE-OVERRIDE: facetFlag -- the debug record says short, but using
-       short changes the frame and register allocation (PASS480 -> 113 diffs).
-       The widened masked value below is the measured retail codegen carrier. */
-    u_int facetFlag;   /* SYM $t3 = flag & 0xfff (the MASKED value), not the raw field */
-    u_short rawFlag; /* SYM-CODEGEN-CARRIER: rawFlag -- separate unmasked flag preserves retail priority; adding it to the tex fence is FAIL 14 */
+    short facetFlag;
+    u_int facetMask; /* SYM-CODEGEN-CARRIER: facetMask -- masked SI-mode value held in retail $t3 */
     int overlayFlag;
     Transformer_zFacet *facet;
     int id0;
@@ -4523,20 +4530,20 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         (a) `vt = Nvertice;` hoisted ABOVE the two gte_Set*Matrix macros in the
             envmap pre-loop (retail emits `addu a3,v1,zero` as the FIRST insn of the
             envmap arm, ours emitted it after the whole ctc2 block).  11 -> 9.
-        (b) a block-local `tex` temp so the textureIndex lbu and the flag lhu are
+        (b) a block-local `tex` temp so the textureIndex lbu and the facetFlag lhu are
             two adjacent loads of the SAME base (facet) -- alone: NO-OP (9).
         (c) 🔑 a ZERO-INSN USE FENCE on `tex` ONLY, between the two loads and the
             gOverlay index chain.  An operand-less `__asm__` is implicitly volatile
             = a sched barrier, so the flag lhu can no longer SINK past the
             gOverlay chain (retail: `lbu v0,2(t0); lhu a0,0(t0); sll v0,v0,1`,
             ours had `lbu; sll; addu; lhu(gOverlay); sll; lhu(flag)`).  9 -> 2.
-       ⚠️ THE FENCE MUST NOT LIST rawFlag.  `__asm__("" : : "r"(tex), "r"(rawFlag))`
-       fixes the SCHEDULE identically (count-exact 480/480) but the extra REF on
-       rawFlag lifts its allocno priority (floor_log2(4)*4 vs floor_log2(3)*3) so it
-       takes $v1 and the gOverlay shift temp is pushed to $a0 -- retail is the other
-       way round -> 14 diffs.  Fencing `tex` alone leaves rawFlag at 3 refs and the
-       whole v1/a0 pair lands retail-exact.  (Fence-dial law, catalog w49/w50/w52-a2:
-       a read-only fence DEMOTES; here we want NO promotion at all on rawFlag.)
+       W76 SYM closure removes the former unsigned rawFlag carrier entirely:
+       the reliable SHORT facetFlag is loaded directly and used for the sign test.
+       The low twelve bits live in explicit SI-mode carrier `facetMask`, which
+       reproduces retail's `$t3` mask CSE without widening the source declaration.
+       The `-O2 -g` graph retains facetFlag as SHORT and optimizes facetMask out.
+       The fence still lists `tex` only; adding the flag value changes its weighted
+       ref priority and rotates the `$v1/$a0` pair.
        RESIDUAL 2 = the loop-1 preheader EMISSION-ORDER tie on `addiu a2,s1,215`
        (tVc): ours emits it with the source statements (before the LICM movables
        `li -1`/`addiu 172`/`addiu 156`), retail emits it AFTER them and before the
@@ -4577,22 +4584,22 @@ gte_SetTransMatrix(((char *)sd + 0x14));
        deleted copy", which is the only shape that puts one insn in the movable
        band and none in the giv band. */
     { int tex /* SYM-CODEGEN-CARRIER: tex -- block-local texture byte plus the measured USE fence seals retail scheduling */ = facet->textureIndex;
-      rawFlag = facet->flag;
+      facetFlag = facet->flag;
       __asm__("" : : "r"(tex));   /* tex ONLY -- see the ref-count warning above */
       overlayFlag = (int)((u_int)(u_short)DrawC_gOverlay[tex] << 0x10) >> 0x10; }
-    facetFlag = rawFlag & 0xfff;
+    facetMask = facetFlag & 0xfff;
     /* SYM truth: NO `which` at this scope -- the decode MUTATES overlayFlag in
      * place (one pseudo, oracle a1 throughout); `which` is an overlay-arm local.
-     * Every mask is written against facetFlag so cc1 CSEs the andi
-     * ONCE into facetFlag's own register ($t3) and reuses it for the &4/&1
+     * Every mask is written against facetMask so cc1 CSEs the andi
+     * ONCE into facetMask's own register ($t3) and reuses it for the &4/&1
      * tests in the arms -- exactly retail's `andi t3,a0,4095` in the delay slot. */
     if (overlayFlag != 0) {
       overlayFlag = overlayFlag & 0x3f;
-      if ((short)rawFlag < 0) {
+      if (facetFlag < 0) {
         overlayFlag = (int)((u_int)(u_short)DrawC_gOverlay[facet->textureIndex] << 0x10) >> 0x18;
       }
-      if (((facetFlag & 0x3f0) != 0) &&
-          (overlayFlag = overlayFlag & facetFlag >> 4, overlayFlag != 0)) {
+      if (((facetMask & 0x3f0) != 0) &&
+          (overlayFlag = overlayFlag & facetMask >> 4, overlayFlag != 0)) {
         for (; (overlayFlag & 3) == 0; overlayFlag = overlayFlag >> 2) {
         }
       }
@@ -4617,7 +4624,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       {
         u_long color;
         u_char code;
-        if ((facetFlag & 4) != 0) {   /* fall-through = the !=0 arm */
+        if ((facetMask & 4) != 0) {   /* fall-through = the !=0 arm */
           color = sd->eColor1;
           *(u_long *)&prim->r0 = color;
         }
@@ -4673,7 +4680,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         u_long color;
         u_char code;
         color = sd->color;
-        if ((facetFlag & 1) != 0) {
+        if ((facetMask & 1) != 0) {
           code = 0x26;
         }
         else {
@@ -4729,7 +4736,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         u_long color;
         u_char code;
         color = sd->color;
-        if ((facetFlag & 1) != 0) {
+        if ((facetMask & 1) != 0) {
           code = 0x26;
         }
         else {
@@ -4740,7 +4747,7 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       }
       /* byte path INLINE first (oracle bnez skips it), halfword arm out of
        * line; UV pairs as direct lbu triples (wave-9 lhu->2x lbu fix) */
-      if (((envmap & 2U) != 0) && ((facetFlag & 1) == 0)) {
+      if (((envmap & 2U) != 0) && ((facetMask & 1) == 0)) {
         Draw_tPixMap *pmx;
         u_char u0, u1, u2, v0, v1, v2, u, v;
         u_short clut, tpage;

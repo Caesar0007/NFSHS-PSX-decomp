@@ -1968,6 +1968,33 @@ safety (`bad = 0`).  Call-target audit reports zero proven wrong targets,
 undefined-call audit reports `UNDEF=0`, TU-order audit reports 523 objects and
 zero inversions, and the vtable indexing audit passes all 926 files.
 
+### P45 — `DrawC_PrimClip` exact local-name/type reconciliation (`2026-08-24`)
+
+The refreshed strict game/PSX declaration audit is recorded in
+[`game_psx_after_primclip_reconcile_20260824.md`](scratchpad/root_sym_audit/game_psx_after_primclip_reconcile_20260824.md).
+It advances the result from 391/395 to 392/395 declaration-clean functions,
+reduces generic extra source-local names from 177 to 161, and preserves zero
+missing SYM names and zero type findings.
+
+The first envmap transform now uses the debug identities `t1`, `t2`, `t3`,
+`u`, and `v` instead of the parallel decompiler names `e1`, `e2`, `e3`,
+`tvx`, and `absZ_envmap`.  Four non-SYM `otzSum` declarations are eliminated
+by updating and testing `sd->otz` directly, and the non-SYM `noSub` temporary
+is replaced by the source-level `envmap & 0x20` guard.  The subdivision
+address carriers are restored from raw `int` values to `COORD16 *` and
+`u_char *`, with unnecessary call-site casts removed.  Every correction is
+byte-neutral.
+
+The remaining nine audit-visible identities have explicit W72-W76 codegen
+receipts in the function, and the same-spelled `u1`/`u2` pointer carriers are
+now explicitly documented because nested SYM UV-byte locals would otherwise
+hide them from a name-only audit.  They remain compiler-shaping carriers, not
+claimed debug declarations.
+
+Detailed verification remains exact at 1877/1877 instructions.  The complete
+`drawc.cpp` gate is **20/20 PASS**, and its rebuilt object passes the illegal
+branch-in-delay-slot check with `bad = 0`.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

@@ -3281,11 +3281,28 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
   int i;
   COORD16 *Nvertice;
   u_char *u2;
-  int vt2_00;
-  int u2_00;
+  COORD16 *vt2_00;
+  u_char *u2_00;
   u_char *u1;
-  int vt1;
-  int vt2;
+  COORD16 *vt1;
+  COORD16 *vt2;
+
+  /* These names do not correspond to distinct DrawC_PrimClip SYM declarations.
+     They are retained only where the W72-W76 oracle experiments cited below prove
+     that a natural direct/index spelling changes scheduling, GIV placement, or local
+     allocation.  u1/u2 are included explicitly because same-spelled nested UV-byte
+     locals would otherwise hide these pointer carriers from a name-only audit.
+     SYM-CODEGEN-CARRIER: envmapUV_dst
+     SYM-CODEGEN-CARRIER: ff
+     SYM-CODEGEN-CARRIER: hi
+     SYM-CODEGEN-CARRIER: overlayRaw
+     SYM-CODEGEN-CARRIER: u1
+     SYM-CODEGEN-CARRIER: u2
+     SYM-CODEGEN-CARRIER: u2_00
+     SYM-CODEGEN-CARRIER: uvk
+     SYM-CODEGEN-CARRIER: vt1
+     SYM-CODEGEN-CARRIER: vt2
+     SYM-CODEGEN-CARRIER: vt2_00 */
 
   Nvertice = obj->Nvertex;
   if ((*(int *)&sd->ePmx0 == 0) && (*(int *)&sd->ePmx1 == 0)) {
@@ -3332,24 +3349,24 @@ gte_SetTransMatrix(&DrawC_gMatA);
       i = i - 1;
       if (i == -1) break;
       {
-        short e1 = vt->x;
-        short e2 = vt->y;
-        short e3 = vt->z;
-        (sd->vt0).x = e1;
-        (sd->vt0).y = e2;
-        (sd->vt0).z = e3;
+        short t1 = vt->x;
+        short t2 = vt->y;
+        short t3 = vt->z;
+        (sd->vt0).x = t1;
+        (sd->vt0).y = t2;
+        (sd->vt0).z = t3;
       }
 gte_ldv0((char *)sd + 0xac);
       gte_rt();
 gte_stlvnl((char *)sd + 0x9c);
-      int absZ_envmap = (sd->tv).vz;
-      int tvx = (sd->tv).vx;   /* int load (lw) -- oracle stores its low byte */
-      if (absZ_envmap < 0) {
-        absZ_envmap = -absZ_envmap;
+      int v = (sd->tv).vz;
+      int u = (sd->tv).vx;   /* int load (lw) -- oracle stores its low byte */
+      if (v < 0) {
+        v = -v;
       }
       vt = vt + 1;
-      envmapUV_dst[uvk * 8 - 1] = (char)tvx;
-      envmapUV_dst[uvk * 8] = (char)absZ_envmap;
+      envmapUV_dst[uvk * 8 - 1] = (char)u;
+      envmapUV_dst[uvk * 8] = (char)v;
       uvk = uvk + 1;
     }
   }
@@ -3441,8 +3458,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
    * (case 0 @0x800C18E0, 1 @0x800C2000, 8 @0x800C25BC, 9 @0x800C2AA0) */
   switch (envmap & 9) {
   case 0: {
-      u_int noSub = envmap & 0x20U;
-      if (noSub == 0) {
+      if ((envmap & 0x20U) == 0) {
         /* SYM block line=97 {prim,facet,id0,id1,id2} -- literal repeated SYM
          * names redeclared per case block (wave-9 same-identifier lever);
          * loop rebuilt as while+continue chains per the oracle's slot-filled
@@ -3452,7 +3468,6 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         int id0;
         int id1;
         int id2;
-        int otzSum;
         while( true ) {
           i = i - 1;
           if (i == -1) {
@@ -3504,10 +3519,9 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           }
           gte_avsz3();
           gte_stOTZm(sd->otz);
-          otzSum = sd->otz + sd->sub_otz;
-          sd->otz = otzSum;
-          if (otzSum < 0) continue;
-          if (sd->sub_otSize < otzSum) continue;
+          sd->otz = sd->otz + sd->sub_otz;
+          if (sd->otz < 0) continue;
+          if (sd->sub_otSize < sd->otz) continue;
           DRAWC_OTLINK_FT3(sd, prim);
           {
             long xy0 = *(long *)&sd->dvx0;
@@ -3612,11 +3626,11 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
        * $v0` slot upstream flipped li-8/nop.  This one move closed the whole
        * W75 6-line "switch-dispatch" class: 49 -> 42, count 1876 -> 1877
        * EXACT. */
-      vt1 = (int)&sd->vt3;
-      vt2 = (int)&sd->vt5;
+      vt1 = &sd->vt3;
+      vt2 = &sd->vt5;
       u1 = &sd->u3;
-      u2_00 = (int)&sd->u5;
-      vt2_00 = (int)&sd->vt4;
+      u2_00 = &sd->u5;
+      vt2_00 = &sd->vt4;
       u2 = &sd->u4;
       while( true ) {
         i = i - 1;
@@ -3689,13 +3703,13 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         sd->v4 = (u_char)((int)((u_int)sd->v1 + (u_int)sd->v2 + 1) >> 1);
         sd->u5 = (u_char)((int)((u_int)sd->u2 + (u_int)sd->u0 + 1) >> 1);
         sd->v5 = (u_char)((int)((u_int)sd->v2 + (u_int)sd->v0 + 1) >> 1);
-        DrawC_DividePrim(&sd->vt0,(COORD16 *)vt1,(COORD16 *)vt2,(u_short *)&sd->u0,(u_short *)u1,
+        DrawC_DividePrim(&sd->vt0,vt1,vt2,(u_short *)&sd->u0,(u_short *)u1,
                    (u_short *)u2_00,pmx,sd);
-        DrawC_DividePrim((COORD16 *)vt1,&sd->vt1,(COORD16 *)vt2_00,(u_short *)u1,(u_short *)&sd->u1,
+        DrawC_DividePrim(vt1,&sd->vt1,vt2_00,(u_short *)u1,(u_short *)&sd->u1,
                    (u_short *)u2,pmx,sd);
-        DrawC_DividePrim((COORD16 *)vt2,(COORD16 *)vt2_00,&sd->vt2,(u_short *)u2_00,(u_short *)u2,
+        DrawC_DividePrim(vt2,vt2_00,&sd->vt2,(u_short *)u2_00,(u_short *)u2,
                    (u_short *)&sd->u2,pmx,sd);
-        DrawC_DividePrim((COORD16 *)vt2,(COORD16 *)vt1,(COORD16 *)vt2_00,(u_short *)u2_00,(u_short *)u1,
+        DrawC_DividePrim(vt2,vt1,vt2_00,(u_short *)u2_00,(u_short *)u1,
                    (u_short *)u2,pmx,sd);
         }
       }
@@ -3710,7 +3724,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     int id0;
     int id1;
     int id2;
-    int otzSum; u_char code;
+    u_char code;
     while( true ) {
       i = i - 1;
       if (i == -1) {
@@ -3760,10 +3774,9 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
       }
       gte_avsz3();
       gte_stOTZm(sd->otz);
-      otzSum = sd->otz + sd->sub_otz;
-      sd->otz = otzSum;
-      if (otzSum < 0) continue;
-      if (sd->sub_otSize < otzSum) continue;
+      sd->otz = sd->otz + sd->sub_otz;
+      if (sd->otz < 0) continue;
+      if (sd->sub_otSize < sd->otz) continue;
       if ((((u_short)facet->flag & 0x3f3) != 0) && (*(int *)&sd->ePmx1 != 0)) {
         {
           short *z = (short *)&Nvertice[facet->vertexId0];
@@ -3903,7 +3916,6 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     int id2;
     int facet_flag;
     int sd_otz;
-    int otzSum;
     while( true ) {
       i = i - 1;
       if (i == -1) {
@@ -3997,10 +4009,9 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         sd->otz = sd_otz;
       }
       else {
-        otzSum = sd->otz + sd->sub_otz;
-        sd->otz = otzSum;
-        if (otzSum < 0) continue;
-        if (sd->sub_otSize < otzSum) continue;
+        sd->otz = sd->otz + sd->sub_otz;
+        if (sd->otz < 0) continue;
+        if (sd->sub_otSize < sd->otz) continue;
         facet_flag = (u_short)facet->flag & 0xfff;
       }
       if ((overlayFlag & 3) != 0) {
@@ -4113,7 +4124,6 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
     int id2;
     int facet_flag;
     int sd_otz;
-    int otzSum;
     while( true ) {
       i = i - 1;
       if (i == -1) {
@@ -4211,10 +4221,9 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         sd->otz = sd_otz;
       }
       else {
-        otzSum = sd->otz + sd->sub_otz;
-        sd->otz = otzSum;
-        if (otzSum < 0) continue;
-        if (sd->sub_otSize < otzSum) continue;
+        sd->otz = sd->otz + sd->sub_otz;
+        if (sd->otz < 0) continue;
+        if (sd->sub_otSize < sd->otz) continue;
         facet_flag = (u_short)facet->flag & 0xfff;
       }
       if ((envmap & 0x20U) != 0) {

@@ -283,8 +283,6 @@ long tCarManager::SellCar(short garageNumber,short playerNum)
 long tCarManager::PurchaseUpgrade(short garageNumber,short upgradeFlags,short playerNum)
 
 {
-  u_char bVar1;
-  u_char *slot;
   tCarInfo *carInfo;
   short mask;
   short i;
@@ -296,11 +294,15 @@ long tCarManager::PurchaseUpgrade(short garageNumber,short upgradeFlags,short pl
   for (i = 0; i < 3; i++) {
     mask = 1 << i;
     if ((upgradeFlags & mask) != 0) {
-      slot = (u_char *)
-        (((int)garageNumber - (int)this->fNumCars) * 4 + playerNum * 128 + (char *)this + 9);
-      bVar1 = *slot;
-      if ((bVar1 & mask) == 0) {
-        *slot = mask | bVar1;
+      if ((*(u_char *)(playerNum * 128 +
+                       ((int)garageNumber - (int)this->fNumCars) * 4 +
+                       (char *)this + 9) & mask) == 0) {
+        *(u_char *)(playerNum * 128 +
+                    ((int)garageNumber - (int)this->fNumCars) * 4 +
+                    (char *)this + 9) =
+            mask | *(u_char *)(playerNum * 128 +
+                               ((int)garageNumber - (int)this->fNumCars) * 4 +
+                               (char *)this + 9);
         result = result + carInfo->fPrices[i + 1];
       }
     }
@@ -455,8 +457,6 @@ void tCarManager::AddToPinkSlipsList(short carModel,short color,short playerNum)
 void tCarManager::AddUpgradesToPinkSlipsList(short garageNumber,short upgradeFlags,short playerNum)
 
 {
-  u_char bVar1;
-  u_char *slot;
   short mask;
   short i;
 
@@ -465,11 +465,15 @@ void tCarManager::AddUpgradesToPinkSlipsList(short garageNumber,short upgradeFla
   for (i = 0; i < 3; i++) {
     mask = 1 << i;
     if ((upgradeFlags & mask) != 0) {
-      slot = (u_char *)
-        (((int)garageNumber - (int)this->fNumCars) * 4 + playerNum * 128 + (char *)this + 0x109);
-      bVar1 = *slot;
-      if ((bVar1 & mask) == 0) {
-        *slot = mask | bVar1;
+      if ((*(u_char *)(playerNum * 128 +
+                       ((int)garageNumber - (int)this->fNumCars) * 4 +
+                       (char *)this + 0x109) & mask) == 0) {
+        *(u_char *)(playerNum * 128 +
+                    ((int)garageNumber - (int)this->fNumCars) * 4 +
+                    (char *)this + 0x109) =
+            mask | *(u_char *)(playerNum * 128 +
+                               ((int)garageNumber - (int)this->fNumCars) * 4 +
+                               (char *)this + 0x109);
       }
     }
   }

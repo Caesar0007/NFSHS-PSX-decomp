@@ -918,14 +918,11 @@ void tDialogYesNoMem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyVal,tMen
 
 {
   bool fMemCardGone;
-  int iVar2;
-  CARDINFO_def *pCVar3;
   int card;
   
   fMemCardGone = false;
   card = CURRENTPLAYER * 4 + 1;
-  iVar2 = MCRD_handlecardevents(card);
-  switch(iVar2) {
+  switch(MCRD_handlecardevents(card)) {
   case 2:
   case 3:
   case 7:
@@ -936,8 +933,7 @@ void tDialogYesNoMem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyVal,tMen
   case 0x17:
     fMemCardGone = true;
   }
-  pCVar3 = MCRD_getcard(card);
-  if (pCVar3->status == -1) {
+  if (MCRD_getcard(card)->status == -1) {
     fMemCardGone = true;
   }
   if (fMemCardGone) {

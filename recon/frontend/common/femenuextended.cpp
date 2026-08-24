@@ -828,13 +828,9 @@ void tMenuNFS4::UpdateTransition()
 void tMenuNFS4::DrawItem(int item)
 
 {
-  tMenuItem *ptVar1;
-  __vtbl_ptr_type (*pa_Var2) [11];
-  
-  ptVar1 = this->fItemList[item];
-  pa_Var2 = ptVar1->_vf;
-  (*(*pa_Var2)[5].pfn)
-            ((char *)ptVar1 + (int)(*pa_Var2)[5].delta,10,item * 0x12 + 0x2b,
+  (*(*this->fItemList[item]->_vf)[5].pfn)
+            ((char *)this->fItemList[item] +
+             (int)(*this->fItemList[item]->_vf)[5].delta,10,item * 0x12 + 0x2b,
              item == this->fCurrentItem);
   return;
 }
@@ -912,18 +908,15 @@ tMenuNFS4TwoPlayer::~tMenuNFS4TwoPlayer()
 void tMenuNFS4TwoPlayer::DrawItem(int item)
 
 {
-  tMenuItem *ptVar1;
-  __vtbl_ptr_type (*pa_Var2) [11];
   short y;
   
   y = 0x2b;
   if (FEApp->fPlayer == '\x01') {
     y = 0x94;
   }
-  ptVar1 = this->fItemList[item];
-  pa_Var2 = ptVar1->_vf;
-  (*(*pa_Var2)[5].pfn)
-            ((char *)ptVar1 + (int)(*pa_Var2)[5].delta,10,y + item * 0x12,
+  (*(*this->fItemList[item]->_vf)[5].pfn)
+            ((char *)this->fItemList[item] +
+             (int)(*this->fItemList[item]->_vf)[5].delta,10,y + item * 0x12,
              item == this->fCurrentItem);
   return;
 }

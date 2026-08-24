@@ -907,20 +907,15 @@ void tScreenMain::Initialize()
 void tScreenMain::Cleanup()
 
 {
-  int off;
   int i;
-  int i_2;
-  
-  i_2 = 0;
+
+  i = 0;
   VIDEO_destroy(this->hVideo);
-  off = 0x558;
   purgememadr((void *)this->hVideo);
   do {
-    ::FreeShapes((tScreen *)this,
-                        (tShapeInformation *)((char *)this + off));
-    i_2 = i_2 + 1;
-    off = off + 0x28;
-  } while (i_2 < 2);
+    ::FreeShapes((tScreen *)this,this->fVideoShapes + i);
+    i = i + 1;
+  } while (i < 2);
   this->tScreen::Cleanup();
   return;
 }

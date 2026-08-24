@@ -346,12 +346,11 @@ tOptionsMenu::~tOptionsMenu()
 long tOptionsMenu::DebounceKeys()
 
 {
-  long lVar1;
-  tMenuItem *ptVar2;
-  
-  ptVar2 = this->fItemList[this->fCurrentItem];
-  if ((ptVar2 != (tMenuItem *)0x0) && (((ptVar2->fFlags & 1) ^ 1) != 0)) {
-    return (*(*ptVar2->_vf)[2].pfn)((int)ptVar2 + (int)(*ptVar2->_vf)[2].delta);
+  if ((this->fItemList[this->fCurrentItem] != (tMenuItem *)0x0) &&
+      (((this->fItemList[this->fCurrentItem]->fFlags & 1) ^ 1) != 0)) {
+    return (*(*this->fItemList[this->fCurrentItem]->_vf)[2].pfn)
+        ((int)this->fItemList[this->fCurrentItem] +
+         (int)(*this->fItemList[this->fCurrentItem]->_vf)[2].delta);
   }
   return 0;
 }

@@ -3363,31 +3363,28 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemControllerShockMode(0x20e, (tListIterator *)&iteratorControllerShockMode)   /* +0x2C00 tInsideBoxControllerLeftRightSlider */
  , iteratorControllerShockImpact('\0', '\x7f', frontEnd.shockImpact, &FEApp->fInputPlayer)   /* +0x2C28 tListIteratorRangeIndexed */
  , itemControllerShockImpact(0x20f, (tListIterator *)&iteratorControllerShockImpact)   /* +0x2C3C tInsideBoxControllerLeftRightSlider */
-   /* [W72-A6] The eight "m"(FEApp) fences below (this line through
-      iteratorControllerIIMax) are the m-OPERAND SYMBOL-ADDRESS FENCE of catalog
-      21A#5: zero instructions, they only add references to the %hi(FEApp) pseudo so
-      it wins $s0 across these ctors like retail, which denies $s0 to the iterator
-      addresses and makes reload spill them (retail sw t0,520(sp) ... lw a2,520(sp)).
-      The COUNT of SITES is a sharp dial: eight = 1261 diffs, seven = 1908,
-      six = 2355, ten = 2434, all eighteen = 3466.  The count of fences PER SITE
-      is a second, weaker dial that SATURATES: one each = 1261, two each = 1257,
-      three each = 1257 -- hence the doubled fence below.
-      DO NOT SIMPLIFY, DO NOT EXTEND TO MORE SITES. */
- , iteratorControllerSteeringRange1('\0', '\x7f', frontEnd.J1MAX, ({ __asm__("" : : "m"(FEApp)); __asm__("" : : "m"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2C64 tListIteratorRangeIndexed */
+   /* [W72-A6; re-priced 2026-08-24] These read-only FEApp uses are allocation
+      dials.  An exhaustive 256-site-mask sweep measured the pointer-value `r` form
+      at all eight sites as the best operand family, reducing this ctor 932 -> 874
+      diffs; the former all-`m` form is the 932 baseline.  A second count sweep
+      proved that only the first two and final sites require doubled references;
+      the five middle second references are byte-neutral and were removed.  Do not
+      change the remaining count or extend the dial without re-pricing the ctor. */
+ , iteratorControllerSteeringRange1('\0', '\x7f', frontEnd.J1MAX, ({ __asm__("" : : "r"(FEApp)); __asm__("" : : "r"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2C64 tListIteratorRangeIndexed */
  , itemControllerSteeringRange1(0x211, (tListIterator *)&iteratorControllerSteeringRange1, 0)   /* +0x2C78 tInsideBoxTwoWaySlider */
- , iteratorControllerDeadSpot1('\0', '\x7f', frontEnd.J1MIN, ({ __asm__("" : : "m"(FEApp)); __asm__("" : : "m"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2CA8 */
+ , iteratorControllerDeadSpot1('\0', '\x7f', frontEnd.J1MIN, ({ __asm__("" : : "r"(FEApp)); __asm__("" : : "r"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2CA8 */
  , itemControllerDeadSpot1(0x213, (tListIterator *)&iteratorControllerDeadSpot1, 1)   /* +0x2CBC tInsideBoxTwoWaySlider */
- , iteratorControllerSteeringRange2('\0', '\x7f', frontEnd.J2MAX, ({ __asm__("" : : "m"(FEApp)); __asm__("" : : "m"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2CEC */
+ , iteratorControllerSteeringRange2('\0', '\x7f', frontEnd.J2MAX, ({ __asm__("" : : "r"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2CEC */
  , itemControllerSteeringRange2(0x210, (tListIterator *)&iteratorControllerSteeringRange2, 2)   /* +0x2D00 tInsideBoxTwoWaySlider */
- , iteratorControllerDeadSpot2('\0', '\x7f', frontEnd.J2MIN, ({ __asm__("" : : "m"(FEApp)); __asm__("" : : "m"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2D30 */
+ , iteratorControllerDeadSpot2('\0', '\x7f', frontEnd.J2MIN, ({ __asm__("" : : "r"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2D30 */
  , itemControllerDeadSpot2(0x212, (tListIterator *)&iteratorControllerDeadSpot2, 3)   /* +0x2D44 tInsideBoxTwoWaySlider */
- , iteratorControllerJoyRange('\0', '\x7f', frontEnd.steeringRange, ({ __asm__("" : : "m"(FEApp)); __asm__("" : : "m"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2D74 */
+ , iteratorControllerJoyRange('\0', '\x7f', frontEnd.steeringRange, ({ __asm__("" : : "r"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2D74 */
  , itemControllerJoyRange(0x214, (tListIterator *)&iteratorControllerJoyRange, 0)   /* +0x2D88 tInsideBoxTwoWaySlider */
- , iteratorControllerCenterPoint('\0', '\x7f', frontEnd.deadSpot, ({ __asm__("" : : "m"(FEApp)); __asm__("" : : "m"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2DB8 */
+ , iteratorControllerCenterPoint('\0', '\x7f', frontEnd.deadSpot, ({ __asm__("" : : "r"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2DB8 */
  , itemControllerCenterPoint(0x215, (tListIterator *)&iteratorControllerCenterPoint, 1)   /* +0x2DCC tInsideBoxTwoWaySlider */
- , iteratorControllerIMax('\0', -1, frontEnd.ImaxRange, ({ __asm__("" : : "m"(FEApp)); __asm__("" : : "m"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2DFC */
+ , iteratorControllerIMax('\0', -1, frontEnd.ImaxRange, ({ __asm__("" : : "r"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2DFC */
  , itemControllerIMax(0x216, (tListIterator *)&iteratorControllerIMax, 2)   /* +0x2E10 tInsideBoxTwoWaySlider */
- , iteratorControllerIIMax('\0', -1, frontEnd.IImaxRange, ({ __asm__("" : : "m"(FEApp)); __asm__("" : : "m"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2E40 */
+ , iteratorControllerIIMax('\0', -1, frontEnd.IImaxRange, ({ __asm__("" : : "r"(FEApp)); __asm__("" : : "r"(FEApp)); &FEApp->fInputPlayer; }))   /* +0x2E40 */
  , itemControllerIIMax(0x217, (tListIterator *)&iteratorControllerIIMax, 3)   /* +0x2E54 tInsideBoxTwoWaySlider */
  , menuControllerDualShock(0x1000, (tScreen *)0x0, (tMenu *)0x0, (tMenu *)0x0, 0, 0, (tMenuItem *)&itemControllerShockMode, &itemControllerShockImpact, 0)   /* +0x2E84 tInsideBoxMenu */
  , menuControllerAnalog(0x1000, (tScreen *)0x0, (tMenu *)0x0, (tMenu *)0x0, 0, 0, (tMenuItem *)&itemControllerSteeringRange1, &itemControllerDeadSpot1, &itemControllerSteeringRange2, &itemControllerDeadSpot2, 0)   /* +0x2EF8 tInsideBoxMenu */

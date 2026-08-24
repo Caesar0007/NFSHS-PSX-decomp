@@ -660,6 +660,89 @@ def function_pointer_typedefs() -> frozenset[str]:
     return frozenset(names)
 
 
+@functools.lru_cache(maxsize=1)
+def named_type_aliases() -> dict[str, str]:
+    """Recover source typedef aliases whose SYM spelling is the underlying tag.
+
+    PsyQ writes ``typedef struct CARDINFO_def { ... } CARDINFO`` parameters as
+    ``PTR STRUCT tag CARDINFO_def`` in the debug stream, while ctags correctly
+    reports the source spelling ``CARDINFO *``.  Resolve only aliases proven by
+    reconstructed declarations; do not equate arbitrary same-sized types.
+    Definitions with bodies are brace-matched so function-pointer fields and
+    comments cannot make a broad regular expression consume another typedef.
+    """
+    candidates: dict[str, set[str]] = collections.defaultdict(set)
+    sources = [
+        path
+        for path in (ROOT / "recon").rglob("*")
+        if path.suffix.lower() in {".h", ".c", ".cpp"}
+    ]
+    aggregate_start = re.compile(
+        r"\btypedef\s+(?:struct|union|enum)\s+([A-Za-z_]\w*)\s*\{"
+    )
+    aggregate_forward = re.compile(
+        r"\btypedef\s+(?:struct|union|enum)\s+([A-Za-z_]\w*)\s+"
+        r"([A-Za-z_]\w*)\s*;"
+    )
+    simple_alias = re.compile(
+        r"\btypedef\s+([A-Za-z_]\w*)\s+([A-Za-z_]\w*)\s*;"
+    )
+    for path in sources:
+        try:
+            text = path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        for match in aggregate_forward.finditer(text):
+            candidates[match.group(2)].add(match.group(1))
+        for match in simple_alias.finditer(text):
+            candidates[match.group(2)].add(match.group(1))
+        for match in aggregate_start.finditer(text):
+            tag = match.group(1)
+            opening = match.end() - 1
+            depth = 0
+            closing = -1
+            for index in range(opening, len(text)):
+                if text[index] == "{":
+                    depth += 1
+                elif text[index] == "}":
+                    depth -= 1
+                    if depth == 0:
+                        closing = index
+                        break
+            if closing < 0:
+                continue
+            alias_match = re.match(
+                r"\s*([A-Za-z_]\w*)\s*;", text[closing + 1 :]
+            )
+            if alias_match:
+                candidates[alias_match.group(1)].add(tag)
+
+    # A name with conflicting reconstructed definitions is not safe evidence.
+    aliases = {
+        alias: next(iter(targets))
+        for alias, targets in candidates.items()
+        if len(targets) == 1
+    }
+    # Collapse unambiguous alias chains (e.g. CARDINFO -> CARDINFO_def).
+    for alias in list(aliases):
+        seen = {alias}
+        target = aliases[alias]
+        while target in aliases and target not in seen:
+            seen.add(target)
+            target = aliases[target]
+        aliases[alias] = target
+    return aliases
+
+
+def expand_named_type_alias(text: str) -> str:
+    """Expand one leading typedef name while retaining pointer/array shape."""
+    match = re.fullmatch(r"([A-Za-z_]\w*)(.*)", text)
+    if not match:
+        return text
+    target = named_type_aliases().get(match.group(1))
+    return (target + match.group(2)) if target else text
+
+
 def compatible_decl_types(sym_rows: list[Decl], src_rows: list[dict]) -> tuple[bool, str]:
     """Recognize PsyQ debug encodings that are not source-type conflicts.
 
@@ -673,6 +756,10 @@ def compatible_decl_types(sym_rows: list[Decl], src_rows: list[dict]) -> tuple[b
     src_types = {source_record_type(d) for d in src_rows}
     if sym_types & src_types:
         return True, "exact"
+
+    expanded_src_types = {expand_named_type_alias(t) for t in src_types}
+    if sym_types & expanded_src_types:
+        return True, "source-typedef-tag"
 
     # PsyQ's CHAR debug record does not retain the target's explicit source
     # signedness.  This project compiles plain char unsigned, while selected
@@ -766,6 +853,13 @@ def compatible_return_types(sym_type: str, src_type: str) -> bool:
     if not sym_type or not src_type:
         return True
     if sym_type == src_type:
+        return True
+    if expand_named_type_alias(src_type) == sym_type:
+        return True
+    # Ctags keeps the C tag namespace in the return typeref.  PsyQ prints the
+    # same named enum/struct tag without the namespace prefix.
+    c_tag = re.fullmatch(r"(?:struct|union|enum):([A-Za-z_]\w*)(.*)", src_type)
+    if c_tag and c_tag.group(1) + c_tag.group(2) == sym_type:
         return True
     erase_char_sign = lambda text: re.sub(
         r"\b(?:signed|unsigned) char\b", "char", text

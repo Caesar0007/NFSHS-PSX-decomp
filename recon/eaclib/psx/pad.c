@@ -214,16 +214,10 @@ void PAD_restore(void)
  * reaches the same PASS with zero collateral, so that is the action, not a lane change. */
 u_short PAD_state(int padID)
 {
-  uint buttons;
-
   if (gPadinfo.initialized != 0 && (uint)padID < 8) {
-    buttons = PAD_convert(gPadinfo.buf + padID);
-    buttons = buttons & 0xffff;
+    return PAD_convert(gPadinfo.buf + padID) & 0xffff;
   }
-  else {
-    buttons = 0;
-  }
-  return buttons;
+  return 0;
 }
 
 /* lines 187-277: (static data / macros / comments - no emitted code) */
@@ -537,6 +531,13 @@ fs4\EACLIB\PSX\PAD.C is the ONLY
    move $a3,$0`, the rung emits the two zeros adjacent. */
 void PAD_update(void)
 {
+  /* SYM-CODEGEN-CARRIER: off
+     SYM-CODEGEN-CARRIER: btnOff
+     SYM-CODEGEN-CARRIER: active
+     SYM-CODEGEN-CARRIER: debCount
+     The SLD/compiler-ladder receipt above proves these expression carriers:
+     retail records only i, while removing btnOff or restoring an index loop
+     changes the retail GIV/address form. */
   int i;
   int off;
   int btnOff;

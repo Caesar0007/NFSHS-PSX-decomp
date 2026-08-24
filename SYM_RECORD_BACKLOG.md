@@ -2638,6 +2638,33 @@ instruction residual.  A 26-diff inline-helper route was rejected because it
 introduced two non-retail nested debug-block pairs.  The owner TU remains 24/25
 PASS with no matched-neighbor regression.
 
+### P75 — frontend optimized-local reconciliation continued (`2026-08-24`)
+
+`Front_EnableLocalSpeech` retains its non-SYM `int lang` only as an explicit
+`SYM-CODEGEN-CARRIER`. Repeating `trackInfo.fLanguage` directly removes the
+identity but is FAIL 4 at 33/35 instructions: GCC folds retail's separate
+signed `bltz`/`slti` tests into one `sltiu`. The receipt now sits inside the
+function so the strict audit associates it with `lang`; the function remains
+PASS at 35 instructions and `front.cpp` remains 43/43 PASS.
+
+`tScreenAudio::PlaySound` removes two source-only identities that retail SYM
+does not record. Repeating `menuAudio.fCurrentItem` directly preserves GCC's
+anonymous `$v1` CSE value and removes `item`; testing `this->audioTest` directly
+removes `testMode`. Both changes are byte-neutral and the function remains PASS
+at 232 instructions. The one remaining source-only name, `validItem`, is not
+hidden by optimization: a fresh `CC1PLPSX -O2 -G0 -g` build emits its definition
+in `$v0`, while retail SYM has no row. The direct `&&` spelling is FAIL 7 at
+229/232 and the nameless ternary is FAIL 3 at 229/232, so the current source
+marks it as an explicit unresolved carrier rather than a retail local.
+
+The strict frontend/common audit improves from 574 to 576 declaration-clean
+functions, 874 to 870 generic extra names, and 153 to 155 explicitly receipted
+source-only carriers, with zero missing names, type findings, storage findings,
+or mapping reviews. `screenaudio.cpp` remains 8/8 PASS and the frontend board
+remains 836/838 with no compile failures and the same two pre-existing
+residuals. Both relink lanes are GREEN with zero real duplicates, hidden
+phantoms, or genuine unresolved relocations; the vtable audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

@@ -2582,10 +2582,8 @@ track_value_ready:
    is one of the locally supported languages.
 
    [Locals 2026-08-16] Retail SYM restores the BOOL result in $s1 and the
-   stack-local trackInfo. SYM-CODEGEN-CARRIER: lang is an optimized-away
-   expression carrier: it
-   is required for retail's lbu followed by the signed bltz/slti range test,
-   but has no surviving SYM debug entry. Detailed gate: PASS 35/35;
+   stack-local trackInfo. The optimized-away language expression identity is
+   receipted beside its declaration below. Detailed gate: PASS 35/35;
    Front_BuildStream remains PASS 1000/1000. */
 
 bool Front_EnableLocalSpeech(void)
@@ -2593,6 +2591,10 @@ bool Front_EnableLocalSpeech(void)
 {
   bool result;
   tTrackInformation trackInfo;
+  /* SYM-CODEGEN-CARRIER: lang -- absent from retail's surviving debug rows,
+     but required for the separate signed bltz/slti range test.  Repeating
+     trackInfo.fLanguage directly is FAIL 4 at 33/35 instructions: gcc folds
+     the two signed tests into one sltiu. */
   int lang;
 
   result = false;

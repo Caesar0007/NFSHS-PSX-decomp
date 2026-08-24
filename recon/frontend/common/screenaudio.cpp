@@ -39,10 +39,13 @@ void tScreenAudio::PlaySound()
     SNDSYS_setopts(&opts);
     this->prevAudioMode = frontEnd.audioMode;
   }
-  int item = (short)(menuDefs[0]->menuAudio).fCurrentItem;
+  /* SYM-CODEGEN-CARRIER: validItem -- fresh -g emits this source-only identity
+     in $v0, while retail SYM has no corresponding row.  The direct && form is
+     FAIL 7 at 229/232; the nameless ternary is FAIL 3 at 229/232.  Retain as
+     an explicit unresolved source-shape carrier, not a claimed retail local. */
   int validItem = 0;
-  if (item > 0) {
-    validItem = item < 6;
+  if ((short)(menuDefs[0]->menuAudio).fCurrentItem > 0) {
+    validItem = (short)(menuDefs[0]->menuAudio).fCurrentItem < 6;
   }
   if (validItem != 0) {
     int sndover;
@@ -50,7 +53,7 @@ void tScreenAudio::PlaySound()
     int RepresentativeSound;
 
     sndover = 1;
-    switch (item) {
+    switch ((short)(menuDefs[0]->menuAudio).fCurrentItem) {
     case 1:
       vol = (uint)(byte)frontEnd.sfxVolume;
       RepresentativeSound = 0x1f;
@@ -82,20 +85,19 @@ void tScreenAudio::PlaySound()
     if ((sndover != 0) && (*(unsigned short *)((char *)&ginfo + 0x16) == 0) &&
         (RepresentativeSound != 0)) {
       int azimuth = 0;
-      short testMode = this->audioTest;
 
-      if (testMode == 1) {
+      if (this->audioTest == 1) {
         azimuth = 0xc000;
         this->audioTest = (frontEnd.audioMode == '\x02') ? 2 : 3;
       }
-      else if (testMode == 2) {
+      else if (this->audioTest == 2) {
         this->audioTest = (frontEnd.audioMode == '\x01') ? 2 : 3;
       }
-      else if (testMode == 3) {
+      else if (this->audioTest == 3) {
         azimuth = 0x3fff;
         this->audioTest = (frontEnd.audioMode == '\x02') ? 4 : 1;
       }
-      else if (testMode == 4) {
+      else if (this->audioTest == 4) {
         azimuth = 0x8000;
         this->audioTest = 1;
       }

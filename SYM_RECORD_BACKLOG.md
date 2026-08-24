@@ -2030,6 +2030,37 @@ Detailed verification remains exact at 1389/1389 instructions.  The complete
 `drawc.cpp` gate remains **20/20 PASS**, the rebuilt object reports delay-slot
 `bad = 0`, and the vtable indexing audit passes all 926 files.
 
+### P47 — `DrawC_Prim` typed facet and primitive reconciliation (`2026-08-24`)
+
+The refreshed strict game/PSX declaration audit is recorded in
+[`game_psx_after_prim_typed_reconcile_20260824.md`](scratchpad/root_sym_audit/game_psx_after_prim_typed_reconcile_20260824.md).
+It advances the result from 392/395 to 393/395 declaration-clean functions,
+preserves zero missing SYM names, and clears the final two game/PSX type
+findings.  Generic extra source-local names remain at 119; the only remaining
+review entries are the explicitly receipted source-shaping carriers in
+`DrawC_PrimStart` and `DrawW_DrawQuad`.
+
+All five per-case `facet` declarations in `DrawC_Prim` now use the SYM type
+`Transformer_zFacet *`.  Raw byte offsets are replaced by the canonical
+`flag`, `textureIndex`, `vertexId0`/`vertexId1`/`vertexId2`, and
+`uv0`/`uv1`/`uv2` fields.  Packed UV halfword transfers retain an explicit
+`u_short` view of each two-byte `Transformer_zUV`, preserving the original
+single-load/single-store source shape without pretending the facet itself is
+an integer address.
+
+The five `prim` declarations now use the SYM type `POLY_FT3 *`.  Existing
+packed packet construction keeps explicit `u_int *` word views only where the
+source deliberately writes complete packet words or halfwords; packet identity
+and all macro boundaries are now typed as the PsyQ primitive rather than as a
+generic integer buffer.
+
+Both coordinated conversions are byte-neutral: detailed verification remains
+exact at 1389/1389 instructions, the complete `drawc.cpp` gate is **20/20
+PASS**, and its rebuilt object reports delay-slot `bad = 0`.  Repository-wide
+guards also remain clean: vtable indexing passes all 926 files, call-target
+audit reports zero proven wrong targets, undefined-call audit reports
+`UNDEF=0`, and TU-order audit reports 523 objects with zero inversions.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

@@ -2604,6 +2604,27 @@ pointer-shape probes did not beat that authoritative result.  Its first current
 allocation divergence remains documented in the receipt for a future
 ground-up reconstruction round.
 
+### P74 — `FontUpsideDownBlit` source declarations restored from SYM (`2026-08-24`)
+
+The receipt is recorded in
+[`fontupsidedownblit_sym_source_exact_20260824.md`](scratchpad/root_sym_audit/fontupsidedownblit_sym_source_exact_20260824.md).
+The function now preserves the seven-argument ABI with an unnamed final `int`,
+matching retail's absence of a declaration for that unused slot.  The packet and
+geometry macro expansions no longer invent `pal`, `bottom`, or `right`, and the
+reconstruction-only assembly fence was removed.  The body contains neither
+`asm` nor `volatile` and exposes only retail's `prim`, `width`, `height`, and
+`dv` locals.
+
+A fresh full-debug compiler receipt has the exact semantic parameter/local set,
+types, storage roles, and single lexical block.  The retail registers also match
+for `x`, `src`, `u`, both `v` records, both `ch` records, `prim`, `width`,
+`height`, and `dv`.  The remaining physical debug-location difference is `y`:
+reconstruction keeps it in incoming `$a1`, while retail allocates `$t8`.  That
+allocation evidence remains honestly represented by the 52-diff, 82/82
+instruction residual.  A 26-diff inline-helper route was rejected because it
+introduced two non-retail nested debug-block pairs.  The owner TU remains 24/25
+PASS with no matched-neighbor regression.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

@@ -455,24 +455,19 @@ static void AdjustShapeDrawing(tTexture_ShapeInfo *tShp,int *x,int *y,int *flags
  * hand-written `dest & 0xff000000 | src & 0xffffff` OR generates HI first.  w44-a2 */
 typedef struct { unsigned addr : 24, len : 8; } PSXFront_PTag;
 
-/* Font's SLD exposes no palette-link temporary.  This packet-head macro keeps
- * the single cached OT pointer private while preserving the measured source order. */
+/* Font's SLD exposes no palette-link temporary.  Keep the addPrim expansion
+ * expression-only so the macro does not invent a source/debug local. */
 #define PSXFRONT_FONT_PACKET_HEAD(prim,src,v,dv) {                       \
-  PSXFront_PTag *pal;                                                    \
-  pal = (PSXFront_PTag *)Render_gPalettePtr;                             \
   dv = (((*(int *)((int)src + 0xc) << 4) >> 0x14) + v & 0xff) - 1;      \
   *(u_long *)&prim->r0 = font_tint;                                      \
-  ((PSXFront_PTag *)prim)->addr = pal->addr,                             \
-  pal->addr = (uint)prim;                                                \
+  ((PSXFront_PTag *)prim)->addr =                                       \
+      ((PSXFront_PTag *)Render_gPalettePtr)->addr,                       \
+  ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;              \
 }
 
-/* Font's SLD likewise has no right/bottom declarations.  They are private to
- * the packet-coordinate expansion, whose statement order is codegen-sensitive. */
+/* Font's SLD likewise has no right/bottom declarations.  Express the shared
+ * sums at their stores; optimized compiler temporaries are not source locals. */
 #define PSXFRONT_FONT_GEOMETRY(prim,src,x,y,u,dv,width,height) {           \
-  int bottom;                                                            \
-  int right;                                                             \
-  bottom = y + height;                                                   \
-  right = x + width;                                                     \
   prim->tpage = (*(byte *)src & 3) << 7 |                                \
                 (uint)*(int *)((int)src + 0xc) >> 0x14 & 0x10 |          \
                 (*(int *)((int)src + 0xc) & 0x3ff) >> 6;                 \
@@ -481,11 +476,10 @@ typedef struct { unsigned addr : 24, len : 8; } PSXFront_PTag;
   prim->u2 = u, prim->v2 = dv + height,                                  \
   prim->u3 = u + width, prim->v3 = dv + height;                          \
   prim->x0 = x;                                                          \
-  __asm__("" : : "i"(0));                                              \
-  prim->y0 = bottom,                                                     \
-  prim->x1 = right, prim->y1 = bottom,                                   \
+  prim->y0 = y + height,                                                 \
+  prim->x1 = x + width, prim->y1 = y + height,                           \
   prim->x2 = x, prim->y2 = y,                                           \
-  prim->x3 = right, prim->y3 = y;                                       \
+  prim->x3 = x + width, prim->y3 = y;                                   \
 }
 
 /* ---- DrawGouraudShape  (psxfront.cpp:928, code lines 928-985) ---- */
@@ -1377,13 +1371,12 @@ void PSXDrawTransSquare(int col,int x,int y,int w,int h,short opacity)
 
 /* ---- FontUpsideDownBlit  (psxfront.cpp:1434, code lines 1434-1466) ---- */
 /* GPU packet: builds POLY_FT4 (stride 0x28, code 0x2c); prim=u_char* build cursor, prevPrim=u_char* link word */
-void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int arg6)
+void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int)
 
 {
-  /* SYM-CODEGEN-CARRIER: arg6 -- the seven-argument ABI is authoritative: the mangled
-   * name ends in `...P12charactertbli`, and Font's callback typedef has the same
-   * trailing int. SYM omits a parameter record because that source slot was
-   * unused; the six-argument m2c prototype likewise reflects only observed loads. */
+  /* The seven-argument ABI is authoritative (the mangled name ends in
+   * `...P12charactertbli`), but the retail SYM has no record for the unused final
+   * parameter. */
   /* SYM 8c block: prim (POLY_FT4*), width, height, dv -- all INT -- plus the v/ch REG copies.
    * 🔴 ch->yoffset is read with `lb` in retail (SIGNED) -- this build's plain `char` is unsigned,
    * so it needs an explicit (signed char); and retail never doubles it: the top-Y is built as
@@ -2000,6 +1993,27 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
    *   measured is +1..+4 insns).  M3 body preserved at
    *   scratchpad/w76/A2_body_m3.cpp; harness scratchpad/w76/A2_*.py;
    *   report scratchpad/w76/A2_report.md. */
+  /* ==== 2026-08-24 SYM-EXACT SOURCE CLEANUP — 20 -> 52 (82/82) ====
+   * The old 20-diff basin depended on source declarations absent from retail:
+   * named seventh-parameter carrier `arg6`, macro locals `pal`/`bottom`/`right`,
+   * and a zero-insn asm fence.  The body below removes all four devices.  The
+   * seventh ABI slot is now unnamed; the macro expansions introduce no locals;
+   * and this function contains neither asm nor volatile.
+   *
+   * Fresh -O2 -g CC1PLPSX evidence now emits exactly the retail declaration set
+   * and block topology: x/y/src/u, stack v/ch plus their REG copies, and one block
+   * containing only prim/width/height/dv with the retail types.  prim=$t1,
+   * width=$t7, height=$t6, dv=$t0, v=$s0, and ch=$v0 are also retail-exact.
+   * The remaining 52 instruction diffs are codegen allocation/scheduling: y is
+   * still kept in incoming $a1 instead of retail $t8, followed by the associated
+   * addPrim/tint and tpage echoes.  No source-only name is retained to hide that
+   * residual.  Falsified while preserving the same no-asm/no-volatile policy:
+   * one-expression y chain 58; dv as the seventh parameter 118@78; dv reused as
+   * the +5 carrier 118@78; prim reused as the carrier 138@78; v reused as the
+   * carrier 130; and an address-of-stack-slot carrier 122.  A static-inline +5
+   * helper reached 26 and made y=$t8, but CC1PLPSX emitted two additional nested
+   * block pairs absent from retail SYM, so that tempting non-exact route was also
+   * rejected. */
   POLY_FT4      *prim;
   int            width;
   int            height;
@@ -2007,9 +2021,9 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int a
 
   width = ch->width;
   height = ch->height;
-  y = y - *(signed char *)&ch->yoffset;
-  arg6 = y + 5;
-  y = arg6 - (height + *(signed char *)&ch->yoffset);
+  y -= *(signed char *)&ch->yoffset;
+  y += 5;
+  y -= height + *(signed char *)&ch->yoffset;
   prim = (POLY_FT4 *)Render_gPacketPtr;
   Render_gPacketPtr = (u_char *)prim + 0x28;
   PSXFRONT_FONT_PACKET_HEAD(prim,src,v,dv);

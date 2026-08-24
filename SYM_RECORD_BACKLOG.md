@@ -2571,18 +2571,31 @@ The receipt is recorded in
 [`screenmemcard_drawbackground_minmax_20260824.md`](scratchpad/root_sym_audit/screenmemcard_drawbackground_minmax_20260824.md).
 Retail SLD maps each of the three fade clamps to one source line.  The exact EA
 `MIN`/`MAX` operand order recovered from the matched NFS2 PC beta header also
-recreates the NFS4 retail allocation, so the reconstruction-only `int value`
-temporary was removed and line 581 is again one expression.  Focused verification
-is PASS at 410 instructions and the complete owner TU is 15/15 PASS.  The bulk
-frontend renderer still reports its known two-instruction unresolved-relocation
-presentation difference, not a source or object-byte regression.
+recreates the NFS4 retail allocation.  The continuation reuses retail's existing
+`short x` as the first clamp carrier and removes reconstruction-only `value`,
+`fadeCalc`, and the empty compiler fence.  It also restores SLD lines 673-674 as
+an in-place `y` adjustment followed by the direct final horizontal-line call in
+the lexical block that owns retail's nested `int k`; all six final-message
+aliases are gone.
 
-The function is not yet claimed source-local exact: its explicit geometry and
-final-message temporaries remain absent from the reliable SYM local list.  They
-are retained in the backlog until an expression/macro reconstruction removes
-them without disturbing the exact object code.  `ScreenMemcard.obj` also still
-inherits source-only declarations through the monolithic header, as the strict
-type sweep records.
+A fresh full-debug compile now emits the complete reliable retail local set and
+only six additional definitions: `gouraudX`, `gouraudY`, `extraY`, `startX`,
+`startY`, and `width`, allocated to `$a2/$v1/$a3/$s3/$s2/$s1`.  Replacing all
+six with direct `ushort` expressions is measured FAIL 33 at 413/410
+instructions; removing only `startX`/`startY`/`width` is count-exact FAIL 6.
+They are therefore explicit `SYM-CODEGEN-CARRIER` evidence, not generic review
+items or claimed retail names.  The source declarations `w` and `h` emit no
+full-debug definitions and are not contradicted by their absence from retail
+SYM.
+
+Focused verification is PASS at 410 instructions and the complete owner TU is
+15/15 PASS.  The frontend board remains 836/838 with no compile failures; its
+bulk renderer still presents the known two-instruction unresolved-relocation
+pair for this body.  Both relink lanes are GREEN with zero real duplicates,
+hidden phantoms, or genuine unresolved relocations, and the vtable indexing
+audit passes all 930 files.  The only remaining function-local restoration
+queue is the six named geometry carriers above; the owner type graph remains a
+separate monolithic-header provenance issue.
 
 ### P73 — requested `FeAudio_InitViv` and global-menu constructor audit (`2026-08-24`)
 

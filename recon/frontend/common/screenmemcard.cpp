@@ -735,7 +735,13 @@ void tScreenMemcard::DrawBackground()
   short i;
   short w;
   short h;
-  int fadeCalc;
+  /* SYM-CODEGEN-CARRIER: these six ushort geometry aliases are absent from
+     retail's reliable local list.  Fresh -g gives them $a2/$v1/$a3/$s3/$s2/$s1.
+     Replacing all six with direct ushort expressions is FAIL 33 (413/410),
+     while removing only startX/startY/width is count-exact FAIL 6.  The same
+     debug build omits w/h entirely, so their source spelling is not disproved
+     by retail SYM.  Retain these aliases until a PASS-preserving expression or
+     macro shape reproduces the retail allocation without emitting their defs. */
   ushort gouraudX;
   ushort gouraudY;
   ushort extraY;
@@ -748,32 +754,14 @@ void tScreenMemcard::DrawBackground()
     this->theNFS4icon = -1;
   }
   systemtask(0);
+  /* SYM/SLD receipt: lines 575-581 are the fade calculation followed by
+     three one-line EA MIN/MAX clamps.  Retail's existing short x carries the
+     pre-clamp fade value before being reused for geometry; no fadeCalc local
+     or compiler fence belongs to the source. */
   fade = (ushort)this->fScreenFadeVal * 2;
-  __asm__("" : "+r"(fade));
-  fadeCalc = (ushort)this->fScreenFadeVal * 2 - 0x80;
-  if ((short)fadeCalc < 0x80) {
-    if ((short)fadeCalc <= 0) goto DrawBgFadeboxCalcZero;
-  }
-  if ((short)fadeCalc < 0x81) goto DrawBgFadeboxCalcDone;
-  fadeCalc = 0x80;
-  goto DrawBgFadeboxCalcDone;
-DrawBgFadeboxCalcZero:
-  fadeCalc = 0;
-DrawBgFadeboxCalcDone:
-  fadebox = (short)fadeCalc;
-  fadeCalc = fade >> 1;
-  if ((short)fadeCalc < 0x80) {
-    if ((short)fadeCalc <= 0) goto DrawBgGridposZero;
-  }
-  gridpos = (short)fadeCalc;
-  if ((short)fadeCalc < 0x81) goto DrawBgGridposDone;
-  gridpos = 0x80;
-  goto DrawBgGridposDone;
-DrawBgGridposZero:
-  gridpos = 0;
-DrawBgGridposDone:
-  /* SLD line 581 is one source statement.  The matched EA MIN/MAX expansion
-     recreates retail's anonymous $a1 clamp carrier without a non-SYM local. */
+  x = (ushort)this->fScreenFadeVal * 2 - 0x80;
+  fadebox = (x = MAX(MIN(0x80,x),0));
+  gridpos = MAX(MIN(0x80,fade >> 1),0);
   fTextFade = MAX(MIN(0x80,fade * 2),0);
   if (this->fInitedMemCard == 0) {
     this->fMemCardMessageTextSys = 0x27c;
@@ -852,16 +840,10 @@ DrawBgGridposDone:
     y += MEMCARD_DELTAY;
   }
   {
-    short finalDir = i % 2;
-    ushort finalStartX = GRIDMEMCARD_STARTX;
-    ushort finalGouraudX = GRIDMEMCARDGOURAUDBIT_X;
-    ushort finalMessageH = kMemCardMessageH;
-    short finalX = finalStartX - finalGouraudX;
-    short finalY = y + (finalMessageH - MEMCARD_DELTAY);
-    this->DrawHorizontalLine(finalX,finalY,gridpos,finalDir);
-  }
-  {
     int k;
+    y += kMemCardMessageH - MEMCARD_DELTAY;
+    this->DrawHorizontalLine(GRIDMEMCARD_STARTX - GRIDMEMCARDGOURAUDBIT_X,
+                             y,gridpos,i % 2);
     for (k = 0; k < 0x10; k++) {
       DrawShapeExtended(0x1e + k,0,0,0,fadebox,0,
                         (tDrawShapeExtended *)0x0);

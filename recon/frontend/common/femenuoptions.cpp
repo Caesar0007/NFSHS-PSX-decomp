@@ -199,7 +199,9 @@ done:
 void tMenuItemGoToMenuButtonFade::UpdateTransition(bool selected)
 
 {
-  __vtbl_ptr_type (*pa_Var1) [11];
+  /* SYM-CODEGEN-CARRIER: iVar2
+   * The no-local SYM block and one-line SLD clamp identify this as the
+   * compiler-created result of EA's nested MIN/MAX expression. */
   int iVar2;
   
   iVar2 = (int)this->fFadeVal + (int)this->fFadeDir;
@@ -209,11 +211,10 @@ void tMenuItemGoToMenuButtonFade::UpdateTransition(bool selected)
   if (iVar2 < 0) {
     iVar2 = 0;
   }
-  pa_Var1 = this->_vf;
   this->fFadeVal = (short)iVar2;
-  (*(*pa_Var1)[9].pfn)
+  (*(*this->_vf)[9].pfn)
             ((int)&this->fFlags +
-             (int)(*pa_Var1)[9].delta);
+             (int)(*this->_vf)[9].delta);
   ((tMenuItem *)this)->UpdateTransition(selected);
   return;
 }
@@ -290,7 +291,8 @@ bool tMenuItemLeftRightFade::TransitionIsFinished()
 void tMenuItemLeftRightFade::UpdateTransition(bool selected)
 
 {
-  __vtbl_ptr_type (*pa_Var1) [11];
+  /* SYM-CODEGEN-CARRIER: iVar2
+   * Compiler-created destination of the one-line nested MIN/MAX clamp. */
   int iVar2;
   
   iVar2 = (int)this->fFadeVal + (int)this->fFadeDir;
@@ -300,11 +302,10 @@ void tMenuItemLeftRightFade::UpdateTransition(bool selected)
   if (iVar2 < 0) {
     iVar2 = 0;
   }
-  pa_Var1 = this->_vf;
   this->fFadeVal = (short)iVar2;
-  (*(*pa_Var1)[9].pfn)
+  (*(*this->_vf)[9].pfn)
             ((int)&this->fFlags +
-             (int)(*pa_Var1)[9].delta);
+             (int)(*this->_vf)[9].delta);
   ((tMenuItem *)this)->UpdateTransition(selected);
   return;
 }
@@ -662,9 +663,10 @@ tInsideBoxMenu::~tInsideBoxMenu()
 void tInsideBoxMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command)
 
 {
-  __vtbl_ptr_type (*pa_Var1) [11];
+  /* SYM-CODEGEN-CARRIER: tVar2
+   * The no-local SYM block still requires the original key value to survive
+   * the AlreadyProcessed write; this is the compiler's cached reference load. */
   tInputKeyType tVar2;
-  tMenuItem *ptVar3;
   
   if (this->fMoving != 0) {
     tVar2 = keyval;
@@ -675,9 +677,8 @@ void tInsideBoxMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenu
   tVar2 = keyval;
 ProcInpFE_keyUpItemZero:
   if ((tVar2 == kInput_KeyType_Up) && (this->fCurrentItem == 0)) {
-    ptVar3 = this->fItemList[0];
-    pa_Var1 = ptVar3->_vf;
-    (*(*pa_Var1)[3].pfn)((char *)ptVar3 + (int)(*pa_Var1)[3].delta);
+    (*(*this->fItemList[0]->_vf)[3].pfn)
+      ((char *)this->fItemList[0] + (int)(*this->fItemList[0]->_vf)[3].delta);
   }
   else if ((keyval != kInput_KeyType_Down) ||
           (this->fItemList[this->fCurrentItem + 1] != (tMenuItem *)0x0)) {
@@ -855,7 +856,8 @@ bool tMenuItemSlidingMenu::TransitionIsFinished()
 void tMenuItemSlidingMenu::UpdateTransition(bool selected)
 
 {
-  __vtbl_ptr_type (*pa_Var1) [11];
+  /* SYM-CODEGEN-CARRIER: iVar2
+   * Compiler-created destination of the one-line nested MIN/MAX clamp. */
   int iVar2;
   
   iVar2 = (int)this->fFadeVal + (int)this->fFadeDir;
@@ -865,9 +867,9 @@ void tMenuItemSlidingMenu::UpdateTransition(bool selected)
   if (iVar2 < 0) {
     iVar2 = 0;
   }
-  pa_Var1 = this->_vf;
   this->fFadeVal = (short)iVar2;
-  (*(*pa_Var1)[9].pfn)((int)&this->fFlags + (int)(*pa_Var1)[9].delta);
+  (*(*this->_vf)[9].pfn)
+    ((int)&this->fFlags + (int)(*this->_vf)[9].delta);
   this->tMenuItem::UpdateTransition(selected);
   return;
 }
@@ -879,18 +881,11 @@ void tMenuItemSlidingMenu::UpdateTransition(bool selected)
 long tMenuItemSlidingMenu::DebounceKeys()
 
 {
-  u_int uVar1;
-  __vtbl_ptr_type (*pa_Var2) [11];
-  tInsideBoxMenu *ptVar3;
-  
-  ptVar3 = this->currMenu;
-  uVar1 = 0x600;
-  if (ptVar3 != (tInsideBoxMenu *)0x0) {
-    pa_Var2 = (ptVar3)->_vf;
-    uVar1 = (*(*pa_Var2)[4].pfn)((int)ptVar3 + (*pa_Var2)[4].delta);
-    uVar1 = uVar1 | 0x600;
+  if (this->currMenu != (tInsideBoxMenu *)0x0) {
+    return (*(*this->currMenu->_vf)[4].pfn)
+      ((int)this->currMenu + (*this->currMenu->_vf)[4].delta) | 0x600;
   }
-  return uVar1;
+  return 0x600;
 }
 
 
@@ -1182,13 +1177,10 @@ void tMenuItemSlidingMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval
                tMenuCommand &command)
 
 {
-  __vtbl_ptr_type (*pa_Var1) [11];
-  tInsideBoxMenu *ptVar2;
-  
   if ((this->fOpenHeight == this->fHeight) &&
-     (ptVar2 = this->currMenu, ptVar2 != (tInsideBoxMenu *)0x0)) {
-    pa_Var1 = (ptVar2)->_vf;
-    (*(*pa_Var1)[3].pfn)((int)ptVar2 + (*pa_Var1)[3].delta);
+      (this->currMenu != (tInsideBoxMenu *)0x0)) {
+    (*(*this->currMenu->_vf)[3].pfn)
+      ((int)this->currMenu + (*this->currMenu->_vf)[3].delta);
   }
   if (keyval == kInput_KeyType_Down) {
     keyval = kInput_KeyType_AlreadyProcessed;
@@ -1322,7 +1314,8 @@ bool tMenuItemSlidingActivated::TransitionIsFinished()
 void tMenuItemSlidingActivated::UpdateTransition(bool selected)
 
 {
-  __vtbl_ptr_type (*pa_Var1) [11];
+  /* SYM-CODEGEN-CARRIER: iVar2
+   * Compiler-created destination of the one-line nested MIN/MAX clamp. */
   int iVar2;
   
   iVar2 = (int)this->fFadeVal + (int)this->fFadeDir;
@@ -1332,10 +1325,9 @@ void tMenuItemSlidingActivated::UpdateTransition(bool selected)
   if (iVar2 < 0) {
     iVar2 = 0;
   }
-  pa_Var1 = this->_vf;
   this->fFadeVal = (short)iVar2;
-  (*(*pa_Var1)[9].pfn)
-            ((int)&this->fFlags + (int)(*pa_Var1)[9].delta);
+  (*(*this->_vf)[9].pfn)
+            ((int)&this->fFlags + (int)(*this->_vf)[9].delta);
   ((tMenuItem *)this)->UpdateTransition(selected);
   return;
 }
@@ -3011,7 +3003,8 @@ done:
 void tUserNameMenuItem::UpdateTransition(bool selected)
 
 {
-  __vtbl_ptr_type (*pa_Var1) [11];
+  /* SYM-CODEGEN-CARRIER: iVar2
+   * Compiler-created destination of the one-line nested MIN/MAX clamp. */
   int iVar2;
   
   iVar2 = (int)this->fFadeVal + (int)this->fFadeDir;
@@ -3021,9 +3014,8 @@ void tUserNameMenuItem::UpdateTransition(bool selected)
   if (iVar2 < 0) {
     iVar2 = 0;
   }
-  pa_Var1 = this->_vf;
   this->fFadeVal = (short)iVar2;
-  (*(*pa_Var1)[9].pfn)((int)this + (int)(*pa_Var1)[9].delta);
+  (*(*this->_vf)[9].pfn)((int)this + (int)(*this->_vf)[9].delta);
   this->tMenuItem::UpdateTransition(selected);
   return;
 }

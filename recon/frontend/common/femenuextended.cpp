@@ -674,29 +674,21 @@ void tMenuNFS4::Initialize()
 
 {
   short item;
-  u_char bVar1;
-  tMenuItem *ptVar2;
-  u_int *puVar3;
 
   this->tMenu::Initialize();
   this->fLastItem = (char)this->fCurrentItem;
-  ptVar2 = this->fItemList[0];
   this->fInItemTransition = 0;
   this->fInMenuTransition = 0;
   this->fNumItems = '\0';
-  if (ptVar2 != (tMenuItem *)0x0) {
-    do {
-      bVar1 = this->fNumItems + 1;
-      this->fNumItems = bVar1;
-    } while (this->fItemList[bVar1] != (tMenuItem *)0x0);
+  while (this->fItemList[this->fNumItems] != (tMenuItem *)0x0) {
+    this->fNumItems++;
   }
-  item = 0;
   if ((this->fFlags & 0x200) != 0) {
-    while( true ) {
-      puVar3 = (u_int *)this->fItemList[item];
-      item = item + 1;
-      if (puVar3 == (u_int *)0x0) break;
-      *puVar3 = *puVar3 | 0x200;
+    item = 0;
+    while (true) {
+      if (this->fItemList[item] == (tMenuItem *)0x0) break;
+      this->fItemList[item]->fFlags |= 0x200;
+      item++;
     }
   }
   return;
@@ -720,19 +712,11 @@ void tMenuNFS4::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuComma
 void tMenuNFS4::TransitionOff()
 
 {
-  tMenuItem *ptVar1;
-  int iVar2;
-  int iVar3;
   short i;
 
-  i = 0;
-  ptVar1 = this->fItemList[0];
-  while (ptVar1 != (tMenuItem *)0x0) {
-    iVar3 = (int)this->fItemList[i];
-    iVar2 = *(int *)(iVar3 + 0x18);
-    (**(int (**)(...))(iVar2 + 0x3c))(iVar3 + *(short *)(iVar2 + 0x38));
-    i = i + 1;
-    ptVar1 = this->fItemList[i];
+  for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {
+    (*(*this->fItemList[i]->_vf)[7].pfn)
+      ((char *)this->fItemList[i] + (int)(*this->fItemList[i]->_vf)[7].delta);
   }
   return;
 }
@@ -744,19 +728,11 @@ void tMenuNFS4::TransitionOff()
 void tMenuNFS4::TransitionOn()
 
 {
-  tMenuItem *ptVar1;
-  int iVar2;
-  int iVar3;
   short i;
 
-  i = 0;
-  ptVar1 = this->fItemList[0];
-  while (ptVar1 != (tMenuItem *)0x0) {
-    iVar3 = (int)this->fItemList[i];
-    iVar2 = *(int *)(iVar3 + 0x18);
-    (**(int (**)(...))(iVar2 + 0x44))(iVar3 + *(short *)(iVar2 + 0x40));
-    i = i + 1;
-    ptVar1 = this->fItemList[i];
+  for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {
+    (*(*this->fItemList[i]->_vf)[8].pfn)
+      ((char *)this->fItemList[i] + (int)(*this->fItemList[i]->_vf)[8].delta);
   }
   return;
 }
@@ -836,35 +812,31 @@ void tMenuNFS4::DrawItem(int item)
 void tMenuNFS4::Draw()
 
 {
-  short index;
-  tMenuItem *ptVar1;
-  __vtbl_ptr_type (*pa_Var2) [11];
+  /* SYM-CODEGEN-CARRIER: iVar3
+   * SYM-CODEGEN-CARRIER: iVar4
+   * The SYM records only `short i` and `tDrawShapeExtended drawFlags`.
+   * These two optimized field-value carriers preserve the retail register
+   * handout: collapsing both into direct member reads is FAIL 31 / 85 insns
+   * versus PASS 82, while the direct title, item-pointer, and vtable forms pass. */
   int iVar3;
   int iVar4;
   short i;
   tDrawShapeExtended drawFlags;
 
-  index = this->fTitle;
-  if (-1 < index) {
-    FETextRender_Title(index);
+  if (-1 < this->fTitle) {
+    FETextRender_Title(this->fTitle);
   }
   this->tMenu::Initialize();
-  ptVar1 = this->fItemList[this->fCurrentItem];
-  iVar4 = ptVar1->fButtonImage;
-  iVar3 = ptVar1->fNumFrames;
+  iVar4 = this->fItemList[this->fCurrentItem]->fButtonImage;
+  iVar3 = this->fItemList[this->fCurrentItem]->fNumFrames;
   if ((-1 < iVar4) && (0 < iVar3)) {
     drawFlags.tint[0] = 0xcec844;
     DrawShapeExtended(iVar4 + ((int)(*(int *)&ticks[0] >> 4) % iVar3),0x410,0x10,
                       FEApp->fPlayer != 0 ? 0x79 : 0x10,0,0,&drawFlags);
   }
-  i = 0;
-  ptVar1 = this->fItemList[0];
-  while (ptVar1 != (tMenuItem *)0x0) {
-    pa_Var2 = this->_vf;
-    (*pa_Var2[1][0].pfn)
-              ((int)this + pa_Var2[1][0].delta,(int)i);
-    i = i + 1;
-    ptVar1 = this->fItemList[i];
+  for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {
+    (*((__vtbl_ptr_type *)this->_vf)[11].pfn)
+              ((int)this + ((__vtbl_ptr_type *)this->_vf)[11].delta,(int)i);
   }
   return;
 }
@@ -1121,12 +1093,9 @@ void tMenuOptions::Draw()
 
 {
   short numItems;
-  __vtbl_ptr_type (*pa_Var2) [11];
   u_long deltaTicks;
   long itemY;
-  tMenuItem *ptVar5;
   short i;
-  int iVar6;
   long y;
   long x;
   long h;
@@ -1134,8 +1103,7 @@ void tMenuOptions::Draw()
   
   numItems = ((tMenu *)this)->GetNumberEnabledItems();
   w = 0x140;
-  pa_Var2 = this->_vf;
-  (*(*pa_Var2)[7].pfn)((int)this + (*pa_Var2)[7].delta);
+  (*(*this->_vf)[7].pfn)((int)this + (*this->_vf)[7].delta);
   h = numItems * 0x12;
   if (this->fInMenuTransition != 0) {
     deltaTicks = ticks[0] - this->fMenuEnterTicks;
@@ -1160,13 +1128,12 @@ void tMenuOptions::Draw()
   }
   h = h + 0x12;
   x = (int)(screenwidth - w) >> 1;
-  iVar6 = 0xf0 - h;
-  y = iVar6 >> 1;
+  y = (0xf0 - h) >> 1;
   if (this->fPlayer == 0) {
-    y = y - (iVar6 >> 2);
+    y = y - ((0xf0 - h) >> 2);
   }
   else if (this->fPlayer == 1) {
-    y = y + (iVar6 >> 2);
+    y = y + ((0xf0 - h) >> 2);
   }
   if (this->fInMenuTransition == 0) {
     if (-1 < this->fTitle) {
@@ -1176,12 +1143,12 @@ void tMenuOptions::Draw()
     }
     itemY = y + 0x12;
     i = 0;
-    while( true ) {
-      ptVar5 = this->fItemList[i];
-      if (ptVar5 == (tMenuItem *)0x0) break;
-      if (((ptVar5->fFlags ^ 1) & 1) != 0) {
-        (*(*ptVar5->_vf)[5].pfn)
-                  ((char *)ptVar5 + (int)(*ptVar5->_vf)[5].delta,x + 10,itemY,
+    while (true) {
+      if (this->fItemList[i] == (tMenuItem *)0x0) break;
+      if (((this->fItemList[i]->fFlags ^ 1) & 1) != 0) {
+        (*(*this->fItemList[i]->_vf)[5].pfn)
+                  ((char *)this->fItemList[i] +
+                   (int)(*this->fItemList[i]->_vf)[5].delta,x + 10,itemY,
                    (int)i == this->fCurrentItem);
         itemY = itemY + 0x12;
       }

@@ -133,14 +133,9 @@ char tListIteratorIndexed::Value(tPlayer)
 short tListIteratorIndexed::TextValue(tPlayer)
 
 {
-  __vtbl_ptr_type (*pa_Var1) [6];
-  u_int uVar2;
-  
-  pa_Var1 = this->_vf;
-  uVar2 = (*(*pa_Var1)[2].pfn)
-                    ((int)&this->fSelectionList + (int)(*pa_Var1)[2].delta,
-                     0xffffffff);
-  return (int)this->fSelectionList[uVar2 & 0xff];
+  return (int)this->fSelectionList[
+    (*(*this->_vf)[2].pfn)
+      ((int)&this->fSelectionList + (int)(*this->_vf)[2].delta,0xffffffff) & 0xff];
 }
 
 
@@ -206,14 +201,9 @@ char tListIteratorDoubleIndexed::Value(tPlayer)
 short tListIteratorDoubleIndexed::TextValue(tPlayer)
 
 {
-  __vtbl_ptr_type (*pa_Var1) [6];
-  u_int uVar2;
-  
-  pa_Var1 = this->_vf;
-  uVar2 = (*(*pa_Var1)[2].pfn)
-                    ((int)&this->fSelectionList + (int)(*pa_Var1)[2].delta,
-                     0xffffffff);
-  return (int)this->fSelectionList[uVar2 & 0xff];
+  return (int)this->fSelectionList[
+    (*(*this->_vf)[2].pfn)
+      ((int)&this->fSelectionList + (int)(*this->_vf)[2].delta,0xffffffff) & 0xff];
 }
 
 
@@ -288,13 +278,9 @@ char tListIteratorMultiPlayer::Value(tPlayer atIndex)
 short tListIteratorMultiPlayer::TextValue(tPlayer atIndex)
 
 {
-  __vtbl_ptr_type (*pa_Var1) [6];
-  u_int uVar2;
-  
-  pa_Var1 = this->_vf;
-  uVar2 = (*(*pa_Var1)[2].pfn)
-                    ((int)&this->fSelectionList + (int)(*pa_Var1)[2].delta);
-  return this->fSelectionList[uVar2 & 0xff];
+  return this->fSelectionList[
+    (*(*this->_vf)[2].pfn)
+      ((int)&this->fSelectionList + (int)(*this->_vf)[2].delta) & 0xff];
 }
 
 
@@ -304,17 +290,12 @@ short tListIteratorMultiPlayer::TextValue(tPlayer atIndex)
 void tListIteratorMultiPlayer::Increment(tPlayer atIndex)
 
 {
-  char *pcVar1;
-  u_char *pbVar2;
-  
   if (atIndex == kPlayerBoth) {
     atIndex = kPlayerOne;
   }
-  pcVar1 = this->fValue + atIndex;
-  *pcVar1 = *pcVar1 + '\x01';
-  pbVar2 = (u_char *)(this->fValue + atIndex);
-  if (this->fSelectionList[*pbVar2] == 0) {
-    *pbVar2 = 0;
+  this->fValue[atIndex]++;
+  if (this->fSelectionList[(u_char)this->fValue[atIndex]] == 0) {
+    this->fValue[atIndex] = 0;
   }
   return;
 }
@@ -326,25 +307,16 @@ void tListIteratorMultiPlayer::Increment(tPlayer atIndex)
 void tListIteratorMultiPlayer::Decrement(tPlayer atIndex)
 
 {
-  char cVar1;
-  short sVar2;
-  char *pcVar3;
-  
   if (atIndex == kPlayerBoth) {
     atIndex = kPlayerOne;
   }
-  pcVar3 = this->fValue;
-  cVar1 = pcVar3[atIndex];
-  if (cVar1 == '\0') {
-    sVar2 = this->fSelectionList[(u_char)pcVar3[atIndex] + 1];
-    while (0 < sVar2) {
-      pcVar3[atIndex] = pcVar3[atIndex] + '\x01';
-      pcVar3 = this->fValue;
-      sVar2 = this->fSelectionList[(u_char)pcVar3[atIndex] + 1];
+  if (this->fValue[atIndex] == '\0') {
+    while (0 < this->fSelectionList[(u_char)this->fValue[atIndex] + 1]) {
+      this->fValue[atIndex]++;
     }
     return;
   }
-  pcVar3[atIndex] = cVar1 - 1;
+  this->fValue[atIndex]--;
   return;
 }
 
@@ -718,15 +690,10 @@ void tMenuItemLeftRightChoice::Draw(bool selected)
 tMenuItemLeftRightSlider::tMenuItemLeftRightSlider(u_int textDescription,tListIterator *dataPtr)
   : tMenuItemInteractive(textDescription)
 {
-  u_int uVar1;
-  u_int uVar2;
-
-  uVar1 = this->fFlags;
   this->fData = dataPtr;
-  this->fFlags = uVar1 | 0x80;
+  this->fFlags |= 0x80;
   *(void **)&(this->_vf) = (void *)tMenuItemLeftRightSlider_vtable;
-  uVar2 = this->fFlags;
-  this->fFlags = uVar2 | 0x80;
+  this->fFlags |= 0x80;
   return;
 }
 
@@ -1483,20 +1450,16 @@ tMenu::~tMenu()
 void tMenu::Initialize()
 
 {
-  int iVar1;
-  int iVar2;
   int original;
   
-  iVar1 = this->fCurrentItem;
-  if (((this->fItemList[iVar1]->fFlags ^ 1) & 1) == 0) {
-    original = iVar1;
+  if (((this->fItemList[this->fCurrentItem]->fFlags ^ 1) & 1) == 0) {
+    original = this->fCurrentItem;
     do {
-      iVar2 = this->fCurrentItem;
-      if ((this->fItemList[iVar2]->fFlags & 1) == 0) {
+      if ((this->fItemList[this->fCurrentItem]->fFlags & 1) == 0) {
         return;
       }
-      this->fCurrentItem = iVar2 + 1;
-      if (this->fItemList[iVar2 + 1] == (tMenuItem *)0x0) {
+      this->fCurrentItem++;
+      if (this->fItemList[this->fCurrentItem] == (tMenuItem *)0x0) {
         this->fCurrentItem = 0;
       }
     } while (original != this->fCurrentItem);
@@ -1725,13 +1688,9 @@ bool tMenu::IsSubMenu()
 long tMenu::DebounceKeys()
 
 {
-  __vtbl_ptr_type (*pa_Var1) [11];
-  long lVar2;
-  
-  pa_Var1 = this->fItemList[this->fCurrentItem]->_vf;
-  lVar2 = (*(*pa_Var1)[2].pfn)
-                    ((char *)this->fItemList[this->fCurrentItem] + (int)(*pa_Var1)[2].delta);
-  return lVar2;
+  return (*(*this->fItemList[this->fCurrentItem]->_vf)[2].pfn)
+    ((char *)this->fItemList[this->fCurrentItem] +
+     (int)(*this->fItemList[this->fCurrentItem]->_vf)[2].delta);
 }
 
 

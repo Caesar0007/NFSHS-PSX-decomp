@@ -91,9 +91,7 @@ void tMissionManager::GetMissionToRace(tMissionInfo **mission)
 
 {
   tMissionTierInfo *currentTier;
-  uint numStages;
-  uint numMissions;
-  
+
   *mission = &this->fDefinition->fMissions[
                (uint)this->fDefinition->fTiers[(byte)frontEnd.policeTier].fMissionOffset +
                (uint)(byte)frontEnd.policeMission];

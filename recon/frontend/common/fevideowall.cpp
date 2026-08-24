@@ -179,8 +179,6 @@ void tVideoWall::Draw()
 
 {
   long textColor;
-  char *sMenuText;
-  int iVar2;
   short i;
   tDrawShapeExtended drawFlags;
   
@@ -211,14 +209,14 @@ void tVideoWall::Draw()
       if ((this->fIconShapes != (tTexture_ShapeInfo *)0x0) && (0 < this->fIconFrames)) {
         drawFlags.tint[0] = 0xbebe;
         drawFlags.custom_shapes = this->fIconShapes;
-        iVar2 = (int)this->fIconFrames;
-        DrawShapeExtended(this->fIcon + (ticks[0] >> 4) % iVar2,0x611,this->fIconX,this->fIconY,
+        DrawShapeExtended(this->fIcon + (ticks[0] >> 4) % (int)this->fIconFrames,
+                   0x611,this->fIconX,this->fIconY,
                    0x80 - this->fAvailableBright,1,&drawFlags);
       }
       if (-1 < this->fAvailableTextID) {
         FETextRender_SetABR(1,true);
-        sMenuText = TextSys_Word((int)this->fAvailableTextID);
-        FETextRender_FullTextRGB(sMenuText,this->fAvailableX,this->fAvailableY,textColor,'\x03',2);
+        FETextRender_FullTextRGB(TextSys_Word((int)this->fAvailableTextID),
+                   this->fAvailableX,this->fAvailableY,textColor,'\x03',2);
         FETextRender_SetABR(0,false);
       }
     }

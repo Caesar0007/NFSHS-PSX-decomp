@@ -603,8 +603,12 @@ void tScreen::PreLoad()
 void tScreen::TransitionOff(tScreen_TransitionType type,tMenu *arg2)
 
 {
+  /* SYM-CODEGEN-CARRIER: arg2 -- the mangled signature proves this unused
+     menu argument even though optimized debug has no parameter row. */
+  /* SYM-CODEGEN-CARRIER: iVar1 -- direct ticks storage is measured FAIL 8
+     (8/8) and changes the retail load/store register schedule. */
   int iVar1;
-  
+
   iVar1 = ticks[0];
   this->fScreenFadeVal = 0;
   this->fInternalScreenFadeVal = 0;
@@ -620,8 +624,12 @@ void tScreen::TransitionOff(tScreen_TransitionType type,tMenu *arg2)
 void tScreen::TransitionOn(tScreen_TransitionType type,tMenu *arg2)
 
 {
+  /* SYM-CODEGEN-CARRIER: arg2 -- the mangled signature proves this unused
+     menu argument even though optimized debug has no parameter row. */
+  /* SYM-CODEGEN-CARRIER: iVar1 -- direct ticks storage is measured FAIL 6
+     (9/9) and changes the retail load/store register schedule. */
   int iVar1;
-  
+
   this->fScreenFadeVal = 0x80;
   iVar1 = ticks[0];
   this->fInternalScreenFadeVal = 0x80;

@@ -43,9 +43,7 @@ void CalcPulsateYellow(void)
 void DrawLeftFlare(int y,int fSelFade,int fFadeVal,int &flareextra)
 
 {
-  int iVar1;
   int x;
-  int index;
   int flare_intensity;
   int glintFade;
   
@@ -90,9 +88,7 @@ void DrawLeftFlare(int y,int fSelFade,int fFadeVal,int &flareextra)
   }
   if (0 < flare_intensity) {
     x = TextSys_WordX(0x1de);
-    iVar1 = (flare_intensity << 1) >> 0x1f;
-    index = (flare_intensity << 1) / 3 + iVar1;
-    Flare_2DHalo(x,y + 5,flare_intensity / 2,index - iVar1,0x17);
+    Flare_2DHalo(x,y + 5,flare_intensity / 2,(flare_intensity << 1) / 3,0x17);
     DrawShapeExtended(0,0,x - 3,y - 1,glintFade,(u_int)(glintFade != 0),(tDrawShapeExtended *)0x0);
   }
   return;
@@ -1915,6 +1911,8 @@ void tInsideBoxSongMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
               tMenuCommand &command)
 
 {
+  /* SYM-CODEGEN-CARRIER: fromPlayer -- retained by the mangled ABI signature. */
+  /* SYM-CODEGEN-CARRIER: command -- retained by the mangled ABI signature. */
   /* SYM: FCN VOID, one local (int j). w35-a9 diagnosis confirmed against the
      raw oracle: this fn writes its result THROUGH the keyval reference (not
      a return value) -- the earlier `return 0x1000`/`return -0x7ffb0000`
@@ -2141,6 +2139,8 @@ void tInsideBoxTwoWaySlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyv
               tMenuCommand &command)
 
 {
+  /* SYM-CODEGEN-CARRIER: fromPlayer -- retained by the mangled ABI signature. */
+  /* SYM-CODEGEN-CARRIER: command -- retained by the mangled ABI signature. */
   /* MATCH: plain straight-line ifs reading the `keyval` REFERENCE directly — no
      tVar1 cache, no volatile, no goto.  gcc reloads keyval at the end of the
      Cross body all by itself (partial redundancy across the two `if (keyval==K)`

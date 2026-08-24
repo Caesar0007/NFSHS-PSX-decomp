@@ -578,6 +578,8 @@ void tMenuItem::UpdateSelFade(bool selected)
 void tMenuItem::Draw(int x,int y,bool selected)
 
 {
+  /* SYM-CODEGEN-CARRIER: x -- the `iib` mangling proves this unused argument. */
+  /* SYM-CODEGEN-CARRIER: y -- the `iib` mangling proves this unused argument. */
   (*(*this->_vf)[4].pfn)((char *)this + (int)(*this->_vf)[4].delta,
                          selected);
 }

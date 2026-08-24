@@ -183,7 +183,9 @@ void tDialogBase::Draw()
 void tDialogBase::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command)
 
 {
-  
+  /* SYM-CODEGEN-CARRIER: fromPlayer -- the mangled signature proves this
+     unused argument even though optimized debug has no parameter row. */
+  /* SYM-CODEGEN-CARRIER: command -- likewise retained by the retail ABI. */
   if (keyval != kInput_KeyType_AlreadyProcessed) {
     this->Hide();
     keyval = kInput_KeyType_AlreadyProcessed;

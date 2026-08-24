@@ -13,7 +13,10 @@ void tScreenTrackInfo::GetShapeInfo(short &numPermShapes,short &numSwapShapes,ch
   numSwapShapes = 10;
   GetTrackToRace(&tournamentManager,&this->fTrack);
   *permFileName = "zInfo";
+  /* SYM-CODEGEN-CARRIER: dayTimes2 -- collapsing both terms is measured FAIL 10
+     (40/40) and swaps the retail byte-load/arithmetic destinations. */
   int dayTimes2 = (uint)(this->fTrack).fTimeOfDay * 2;
+  /* SYM-CODEGEN-CARRIER: weatherPlus -- paired with dayTimes2 in that receipt. */
   int weatherPlus = (this->fTrack).fWeather + 0x61;
   sprintf(gSwapFileName,"TR%02d%c",(int)(signed char)(this->fTrack).fTrackNumber,
              dayTimes2 + weatherPlus);

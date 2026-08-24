@@ -2252,6 +2252,23 @@ The strict audit maps all 547 SYM-owned globals with zero missing, type, or
 storage findings. All 54 reliable function-local `STAT` records are now
 source-scoped.
 
+### P55 — explicit-register local audit false negatives closed (`2026-08-24`)
+
+The receipt is recorded in
+[`register_asm_local_parser_20260824.md`](scratchpad/root_sym_audit/register_asm_local_parser_20260824.md).
+The two remaining game/common missing-local findings, `PlayerPosition` and
+`DesiredSlice` in `Stats_TrackEndGame`, were not source omissions: both already
+exist in the exact 232/232 reconstruction with guide-permitted hard-register
+annotations. Universal Ctags omitted the `register T name asm("$reg")` syntax.
+
+The read-only audit now recovers only this narrow literal-register declaration
+form and binds it to the unique containing function. SYM-owned names are matched
+normally; non-SYM names using the form remain visible as explicit codegen
+carriers. A fresh strict game/common audit maps all 1,193 functions and all 547
+owned globals with **zero missing reliable local names**, zero missing globals,
+and zero function/global storage findings. No reconstructed source or compiler
+output is modified by the parser correction.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

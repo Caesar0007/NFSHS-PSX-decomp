@@ -370,6 +370,51 @@ def source_functions(records: list[dict]) -> tuple[list[SourceFunction], dict[st
     return funcs, file_decls
 
 
+def add_register_asm_locals(sources: list[Path], funcs: list[SourceFunction]) -> None:
+    """Recover function locals carrying an explicit GCC hard-register annotation.
+
+    Universal Ctags 6.x omits declarations such as
+    ``register int value asm("$21")`` entirely.  These are permitted, narrowly
+    documented reconstruction carriers, and skipping them creates both false
+    missing-SYM findings and an incomplete source-local census.  Admit only a
+    single declaration ending in a literal MIPS register annotation, then bind
+    it to the unique function whose ctags line range contains it.
+    """
+    register_asm = re.compile(
+        r'^\s*register\s+(.+?[\s*&])([A-Za-z_]\w*)\s+'
+        r'(?:__asm__|asm)\s*\("\$[A-Za-z0-9]+"\)\s*;',
+        re.M,
+    )
+    by_file: dict[str, list[SourceFunction]] = collections.defaultdict(list)
+    for fn in funcs:
+        by_file[fn.path].append(fn)
+    for source in sources:
+        try:
+            text = source.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        candidates = by_file.get(source.name.lower(), [])
+        for match in register_asm.finditer(text):
+            line = text.count("\n", 0, match.start()) + 1
+            owners = [fn for fn in candidates if fn.line <= line <= fn.end]
+            if len(owners) != 1:
+                continue
+            fn = owners[0]
+            name = match.group(2)
+            if any(row.get("name") == name for row in fn.decls):
+                continue
+            fn.decls.append(
+                {
+                    "name": name,
+                    "kind": "local",
+                    "typeref": "typename:" + match.group(1).strip(),
+                    "line": line,
+                    "pattern": match.group(0),
+                    "asm_register": True,
+                }
+            )
+
+
 def add_included_header_definitions(
     sources: list[Path], headers: list[Path], records: list[dict], file_decls: dict[str, list[dict]]
 ) -> None:
@@ -1009,7 +1054,16 @@ def audit(
         if documented:
             documented_total += len(documented)
             documented_rows.append((sf, documented))
-        codegen = documented_codegen_names(target, src)
+        # A hard-register annotation is a reconstruction carrier only when its
+        # base name is absent from SYM.  SYM-owned names such as DesiredSlice
+        # remain ordinary matched declarations even though their allocation is
+        # constrained explicitly in the reconstruction.
+        asm_codegen = {
+            d["name"]
+            for d in src.decls
+            if d.get("asm_register") and d["name"] not in sym_names
+        }
+        codegen = documented_codegen_names(target, src) | asm_codegen
         if codegen:
             codegen_total += len(codegen)
             codegen_rows.append((sf, codegen))
@@ -1315,6 +1369,7 @@ def main() -> None:
         sources.append(ROOT / "recon/frontend/common/mcrd.cpp")
     headers = sorted(target.glob("*.h"))
     src_fns, file_decls = source_functions(ctags_records(sources))
+    add_register_asm_locals(sources, src_fns)
     add_included_header_definitions(sources, headers, ctags_records(headers), file_decls)
     add_asm_label_definitions(sources, file_decls)
     report = audit(parse_sym(args.sym), parse_sym_globals(args.sym), src_fns, file_decls, target)

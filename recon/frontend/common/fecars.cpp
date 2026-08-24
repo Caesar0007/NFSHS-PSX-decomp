@@ -930,19 +930,9 @@ void tCarManager::InitializeIngameCarList()
 bool tCarManager::IsCarAnAddedModel(tCarModels &model,char &color)
 
 {
-  tCarInfo *ptVar1;
-  int iVar2;
-  char *base;
-  u_int index;
-
-  ptVar1 = this->GetCarFromID((short)model);
-  iVar2 = (int)(signed char)ptVar1->fColorOrder[(u_char)color];
-  base = &gCarSelected[0][0];
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 7;
-  }
-  index = (u_int)model + (iVar2 >> 3) * 50;
-  return (base[index] != '\0');
+  return gCarSelected[
+    (signed char)this->GetCarFromID((short)model)->fColorOrder[(u_char)color] / 8
+  ][model] != '\0';
 }
 
 

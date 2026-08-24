@@ -2771,6 +2771,27 @@ names, type findings, storage findings, or mapping reviews.
 compile failures and the same two pre-existing residuals.  Relink is GREEN and
 the vtable audit passes 930 files.
 
+### P80 — `tCarManager::IsCarAnAddedModel` no-local source restoration (`2026-08-24`)
+
+Retail SYM records only the implicit `this` parameter plus the `model` and
+`color` reference parameters for `tCarManager::IsCarAnAddedModel`; it records
+no source locals.  Reconstruction now removes all four generic temporaries
+(`ptVar1`, `iVar2`, `base`, and `index`) and expresses the operation directly
+through the recovered types:
+`gCarSelected[(signed char)GetCarFromID(model)->fColorOrder[color] / 8][model]`.
+The signed byte conversion and ordinary signed division by eight naturally
+reproduce retail's negative-value correction before the arithmetic shift, and
+the typed two-dimensional access reproduces the 50-byte row stride without
+flattened pointer arithmetic.
+
+The focused authoritative gate remains PASS at 32 instructions, and a fresh
+`-g` twin is instruction-identical while exposing only the reliable retail
+parameter set.  The strict frontend/common audit advances from 580 to 581
+declaration-clean functions and reduces generic extra names from 856 to 852,
+with zero missing names, type findings, storage findings, or mapping reviews.
+The frontend board remains 836/838 with zero compile failures and the same two
+pre-existing residuals.  Relink is GREEN and the vtable audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

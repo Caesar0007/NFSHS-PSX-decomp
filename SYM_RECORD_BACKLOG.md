@@ -2367,6 +2367,28 @@ or function-storage findings, **zero explicit function type overrides**, and
 zero mapping-review functions.  The frontend bulk gate remains 835/838 with no
 compile failures, relink remains green, and the 926-file vtable audit passes.
 
+### P61 — `TrsProj_SetPsxMatrix` repeated macro locals restored (`2026-08-24`)
+
+The receipt is recorded in
+[`trsproj_matrix_row_macro_20260824.md`](scratchpad/root_sym_audit/trsproj_matrix_row_macro_20260824.md).
+The former flat `SHORT r0/r1/r2` workaround contradicted the trusted SYM, which
+records three separate nested line-1 blocks and an `INT r0/r1/r2` set inside
+each block.  The source now expresses those three repeated lexical regions as
+three expansions of a row-conversion macro.  Each expansion declares the exact
+three `int` locals, shifts one source-matrix column by four, and stores a row of
+the PsyQ `MATRIX`.
+
+This restores both the debug topology and the exact retail allocation while
+preserving `TrsProj_SetPsxMatrix` PASS at 60/60 instructions.  The strict audit
+validates the same-TU macro definition, all three local declarations, and the
+exact expansion count rather than exempting missing names.  Game/PSX is now
+395/395 declaration-clean with zero missing names, zero extra locals, and zero
+type findings; its binary gate remains 385/395 PASS with no compile failures.
+Both relink lanes remain green, the vtable audit passes 926 files, and the full
+production image links successfully.  The macro identifier is descriptive:
+SYM proves the expansion/source shape but cannot uniquely recover its original
+preprocessor spelling.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

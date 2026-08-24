@@ -1051,6 +1051,80 @@ def documented_inline_locals(
     return resolved, owners
 
 
+def documented_macro_locals(
+    target: Path, src: SourceFunction
+) -> tuple[list[dict], dict[str, str]]:
+    """Resolve repeated SYM lexical blocks owned by a same-TU macro.
+
+    A macro expansion can give PsyQ several same-named debug locals in nested
+    line-1 blocks even though Ctags cannot see declarations inside ``#define``
+    replacement text.  ``SYM-MACRO-LOCALS: a, b = MACRO x3`` is accepted only
+    when the macro exists in the same source file, declares every named local,
+    and the audited function invokes it exactly the stated number of times.
+    This validates the restored source shape instead of exempting missing names.
+    """
+    path = target / src.path
+    try:
+        full_lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return [], {}
+    body_text = "\n".join(full_lines[src.line - 1 : src.end])
+    mappings = re.findall(
+        r"\bSYM-MACRO-LOCALS:\s*"
+        r"([A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*)\s*=\s*"
+        r"([A-Za-z_]\w*)\s+x(\d+)",
+        body_text,
+    )
+    resolved: list[dict] = []
+    owners: dict[str, str] = {}
+    for local_list, macro_name, expansion_text in mappings:
+        expected_expansions = int(expansion_text)
+        if len(re.findall(rf"\b{re.escape(macro_name)}\s*\(", body_text)) != expected_expansions:
+            continue
+        start = next(
+            (
+                index
+                for index, line in enumerate(full_lines)
+                if re.match(
+                    rf"^\s*#\s*define\s+{re.escape(macro_name)}\b", line
+                )
+            ),
+            None,
+        )
+        if start is None:
+            continue
+        macro_lines = [full_lines[start]]
+        while macro_lines[-1].rstrip().endswith("\\") and start + len(macro_lines) < len(full_lines):
+            macro_lines.append(full_lines[start + len(macro_lines)])
+        macro_text = "\n".join(macro_lines)
+        local_rows: list[dict] = []
+        for local_name in [name.strip() for name in local_list.split(",")]:
+            declaration = re.search(
+                rf"\b((?:(?:const|signed|unsigned)\s+)*[A-Za-z_]\w*(?:\s*\*)?)"
+                rf"\s+{re.escape(local_name)}\s*(?:=|;)",
+                macro_text,
+            )
+            if declaration is None:
+                local_rows = []
+                break
+            local_rows.append(
+                {
+                    "name": local_name,
+                    "kind": "local",
+                    "typeref": "typename:" + declaration.group(1).strip(),
+                    "line": start + 1,
+                    "pattern": declaration.group(0),
+                    "macro_local": macro_name,
+                }
+            )
+        if not local_rows:
+            continue
+        resolved.extend(local_rows)
+        owner = f"{macro_name} x{expected_expansions}"
+        owners.update({row["name"]: owner for row in local_rows})
+    return resolved, owners
+
+
 def audit(
     sym_fns: list[SymFunction],
     sym_globals: list[SymGlobal],
@@ -1093,6 +1167,8 @@ def audit(
     documented_rows: list[tuple[SymFunction, set[str]]] = []
     inline_local_total = 0
     inline_local_rows: list[tuple[SymFunction, dict[str, str]]] = []
+    macro_local_total = 0
+    macro_local_rows: list[tuple[SymFunction, dict[str, str]]] = []
     codegen_total = 0
     codegen_rows: list[tuple[SymFunction, set[str]]] = []
     function_type_override_total = 0
@@ -1124,6 +1200,11 @@ def audit(
         if inline_owners:
             inline_local_total += len(inline_owners)
             inline_local_rows.append((sf, inline_owners))
+        macro_decls, macro_owners = documented_macro_locals(target, src)
+        src_decls.extend(macro_decls)
+        if macro_owners:
+            macro_local_total += len(macro_owners)
+            macro_local_rows.append((sf, macro_owners))
         stat_names = {d.name for d in sym_decls if d.cls == "STAT"}
         src_decls.extend(
             d for d in file_decls.get(source_basename(sf.source_file), []) if d["name"] in stat_names
@@ -1356,6 +1437,7 @@ def audit(
             f"- Implicit aggregate special members (source body correctly absent): {implicit_generated_total}",
         f"- Explicit oracle-receipted carrier mappings: {documented_total}",
         f"- Explicit restored inline-local mappings: {inline_local_total}",
+        f"- Explicit restored macro-local mappings: {macro_local_total}",
         f"- Explicit source-only codegen carriers: {codegen_total}",
         f"- Explicit oracle-proven function type overrides: {function_type_override_total}",
             f"- Functions needing mapping review: {len(selected) - mapped - implicit_generated_total}",
@@ -1422,6 +1504,12 @@ def audit(
     for sf, owners in inline_local_rows:
         entries = [
             f"`{name}` from `{helper}`" for name, helper in sorted(owners.items())
+        ]
+        lines.append(f"- `{sf.name}`: " + ", ".join(entries))
+    lines.extend(["", "## Explicit restored macro-local mappings", ""])
+    for sf, owners in macro_local_rows:
+        entries = [
+            f"`{name}` from `{macro}`" for name, macro in sorted(owners.items())
         ]
         lines.append(f"- `{sf.name}`: " + ", ".join(entries))
     lines.extend(["", "## Explicit source-only codegen carriers", ""])

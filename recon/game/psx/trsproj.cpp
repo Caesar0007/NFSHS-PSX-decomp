@@ -61,35 +61,27 @@ void TrsProj_SetViewTrsProjEnviro(DRender_tView *Vi)
 }
 
 /* ---- TrsProj_SetPsxMatrix__FP10matrixtdefP8coorddef  [TRSPROJ.CPP:137-151] SLD-VERIFIED ---- */
+#define TRSPROJ_SET_MATRIX_ROW(row, i0, i1, i2) \
+{ \
+  int r0 = (int)m->m[i0] >> 4; \
+  int r1 = (int)m->m[i1] >> 4; \
+  int r2 = (int)m->m[i2] >> 4; \
+  mpsx.m[row][0] = (short)r0; \
+  mpsx.m[row][1] = (short)r1; \
+  mpsx.m[row][2] = (short)r2; \
+}
+
 void TrsProj_SetPsxMatrix(matrixtdef *m,coorddef *t)
 {
-  /* SYM-TYPE-OVERRIDE: r0; SYM-TYPE-OVERRIDE: r1; SYM-TYPE-OVERRIDE: r2.
-   * SYM records INT, but the short lexical
-   * temporaries reproduce the retail load/store scheduling exactly (60/60);
-   * int variants are one instruction short and regress to 47+ diffs. */
-  short r0;
-  short r1;
-  short r2;
   MATRIX mpsx;
 
-  r0 = (short)((int)m->m[0] >> 4);
-  r1 = (short)((int)m->m[3] >> 4);
-  r2 = (short)((int)m->m[6] >> 4);
-  mpsx.m[0][0] = r0;
-  mpsx.m[0][1] = r1;
-  mpsx.m[0][2] = r2;
-  r0 = (short)((int)m->m[1] >> 4);
-  r1 = (short)((int)m->m[4] >> 4);
-  r2 = (short)((int)m->m[7] >> 4);
-  mpsx.m[1][0] = r0;
-  mpsx.m[1][1] = r1;
-  mpsx.m[1][2] = r2;
-  r0 = (short)((int)m->m[2] >> 4);
-  r1 = (short)((int)m->m[5] >> 4);
-  r2 = (short)((int)m->m[8] >> 4);
-  mpsx.m[2][0] = r0;
-  mpsx.m[2][1] = r1;
-  mpsx.m[2][2] = r2;
+  /* SYM-MACRO-LOCALS: r0, r1, r2 = TRSPROJ_SET_MATRIX_ROW x3
+   * Retail records three nested line-1 blocks, each with INT r0/r1/r2.
+   * The expansion shape is authoritative; the descriptive macro name is not
+   * recoverable from this SYM. */
+  TRSPROJ_SET_MATRIX_ROW(0, 0, 3, 6);
+  TRSPROJ_SET_MATRIX_ROW(1, 1, 4, 7);
+  TRSPROJ_SET_MATRIX_ROW(2, 2, 5, 8);
   gte_SetRotMatrix(&mpsx);
   if (t != (coorddef *)0x0) {
     TrsProj_SetPsxTrans(t);
@@ -100,6 +92,8 @@ void TrsProj_SetPsxMatrix(matrixtdef *m,coorddef *t)
   mpsx.t[0] = 0;
   gte_SetTransMatrix(&mpsx);
 }
+
+#undef TRSPROJ_SET_MATRIX_ROW
 
 /* ---- TrsProj_SetPsxTrans__FP8coorddef  [TRSPROJ.CPP:157-164] SLD-VERIFIED ---- */
 void TrsProj_SetPsxTrans(coorddef *t)

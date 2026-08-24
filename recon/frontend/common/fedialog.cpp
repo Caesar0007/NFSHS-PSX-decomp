@@ -61,21 +61,26 @@ void tDialogBase::InitializeClass()
 void tDialogBase::DrawAllDialogs()
 
 {
+  /* SYM-CODEGEN-CARRIER: sVar1 -- retail records only `short i`, but keeping
+     the call result as a separate short preserves its allocation.  Testing
+     ShouldTimeOut() directly is FAIL 31 at 55/52 instructions. */
   short sVar1;
-  __vtbl_ptr_type (*pa_Var2) [10];
-  tDialogBase **pptVar5;
   short i;
   
   i = 0;
   while (DialogVisibilityList[i] != (tDialogBase *)0x0) {
     if (7 < i) break;
-    pptVar5 = DialogVisibilityList + i;
-    sVar1 = (*pptVar5)->ShouldTimeOut();
-    if ((sVar1 != 0) && ((*pptVar5)->Hide(), *pptVar5 == (tDialogBase *)0x0)) {
+    sVar1 = DialogVisibilityList[i]->ShouldTimeOut();
+    if ((sVar1 != 0) &&
+        (DialogVisibilityList[i]->Hide(),
+         DialogVisibilityList[i] == (tDialogBase *)0x0)) {
       return;
     }
-    pa_Var2 = ((*pptVar5))->_vf;
-    (*pa_Var2[1][1].pfn)((char *)*pptVar5 + pa_Var2[1][1].delta);
+    /* ABI-neutral spelling of the original virtual `Draw()` call; retail SYM
+       records no source vtable or array-slot pointer locals. */
+    (*(*((DialogVisibilityList[i]->_vf) + 1))[1].pfn)
+      ((char *)DialogVisibilityList[i] +
+       (*((DialogVisibilityList[i]->_vf) + 1))[1].delta);
     i = i + 1;
   }
   return;

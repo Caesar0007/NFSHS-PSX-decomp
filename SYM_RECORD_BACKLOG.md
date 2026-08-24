@@ -2721,6 +2721,30 @@ frontend board remains 836/838 with zero compile failures and the same two
 pre-existing residuals.  Both relink lanes are GREEN and the vtable audit
 passes 930 files.
 
+### P78 — `tDialogBase::DrawAllDialogs` temporary removal (`2026-08-24`)
+
+Retail SYM records only `short i` for `tDialogBase::DrawAllDialogs`.
+Reconstruction now removes the source-only `pptVar5` array-slot pointer and
+`pa_Var2` vtable-row pointer.  Repeating `DialogVisibilityList[i]` lets GCC
+retain retail's anonymous `$s0` slot address, while pointer arithmetic over the
+manual ABI table expresses the original virtual `Draw()` call without adding a
+source vtable identity or unsafe direct row indexing.  Both removals are
+byte-neutral and the function remains PASS at 52 instructions.
+
+The remaining non-SYM `short sVar1` is explicitly classified as a measured
+`SYM-CODEGEN-CARRIER`, not a retail local.  Testing `ShouldTimeOut()` directly
+removes the identity but changes the loop allocation/frame basin and is FAIL 31
+at 55/52 instructions.  Restoring the separate short funnel returns PASS; the
+receipt remains local to the function so the strict audit cannot mistake it
+for recovered SYM information.
+
+The strict frontend/common audit advances from 578 to 579 declaration-clean
+functions, reduces generic extra names from 863 to 860, and moves explicit
+source-only carriers from 156 to 157, with zero missing names, type findings,
+storage findings, or mapping reviews.  `fedialog.cpp` remains 33/33 PASS; the
+frontend board remains 836/838 with zero compile failures and the same two
+pre-existing residuals.  Relink is GREEN and the vtable audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

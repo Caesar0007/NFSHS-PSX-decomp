@@ -222,4 +222,3 @@ functions are mapped to their demangled C++ names and class scopes.
 - `skidmark.cpp` extra definitions: `Skid_gCtrlPoint_0`, `Skid_gCtrlPoint_1`, `Skid_gCtrlPoint_2`, `Skid_gCtrlPoint_3`, `Skid_gCtrlPoint_4`, `Skid_gCtrlPoint_5`, `Skid_gCtrlPoint_6`, `Skid_gCtrlScratch_94`, `Skid_gCtrlScratch_98`, `Skid_gScratchPos1`, `Skid_gScratchPos2`
 - `textureprocess.cpp` extra definitions: `D_8013DB84`
 - `weather.cpp` extra definitions: `Weather_gDrawnServer1`, `Weather_gLastProcessTime1`, `Weather_gPServer1`, `Weather_gPrevPServer1`, `Weather_gSplatInfoServer1`
-

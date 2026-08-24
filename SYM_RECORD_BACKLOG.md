@@ -2910,6 +2910,32 @@ After that build, both relink lanes are GREEN with zero real duplicates, hidden
 phantoms, or relocation-referenced unresolved symbols, and the vtable audit
 passes 930 files.
 
+### P85 — Be-The-Cop congrats message local restoration (`2026-08-24`)
+
+Retail SYM records exactly three locals in
+`tScreenBeTheCopCongrats::DrawCongratsMessage`: register `short congrats`,
+automatic `RECT r`, and automatic `char buffer[250]`.  Reconstruction now
+removes the unsupported `padState`, `fmt`, `copWord`, and `fade` identities.
+The PAD result is tested directly, the format and car-name word lookups are
+nested directly in `sprintf`, and `FETextRender_WordWrapText` receives the
+literal `textState_Selected` recorded by the oracle instruction stream.
+
+The resulting call order agrees with retail SLD and assembly: optional car-word
+lookup, format lookup, car-word lookup, `sprintf`, then the wrapped-text call.
+The function remains PASS at 47 instructions and its fresh `-g` twin is
+instruction-identical while exposing only the three reliable retail locals.
+Two complete `screencongrats.cpp` gates remain 28/28 PASS.
+
+The strict frontend/common audit advances from 586 to 587 declaration-clean
+functions and reduces generic extra names from 839 to 835, with zero missing
+names, type findings, storage findings, global findings, or mapping reviews.
+The isolated clean frontend baseline remains 835/838 with zero compile failures
+and the same three pre-existing residuals.  A complete clean build compiled and
+linked every TU, stopping only at the unavailable untracked retail
+`rom/nfs4-f.exe` comparison.  Both complete relink lanes are GREEN with zero
+real duplicates, hidden phantoms, or relocation-referenced unresolved symbols,
+and the vtable audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

@@ -37,7 +37,7 @@ they are not silently collapsed into a smaller denominator.
   explicit per-record semantic-review row.  Nothing is silently dropped from
   the denominator.
 - A strict compiler-emitted type-graph comparison now distinguishes retail
-  subset coverage from actual per-object source visibility.  Seventy-nine owners are
+  subset coverage from actual per-object source visibility.  Eighty owners are
   semantically exact: `memcard.obj`, `mdec.obj`, `video.obj`, `FETexture.obj`,
   `textpix.obj`, `textpsx.obj`, `unpack.obj`, `fastrand.obj`, and
   `aiscript.obj`, `new.obj`, `paths.obj`, `textsys.obj`, `simplemem.obj`,
@@ -55,7 +55,7 @@ they are not silently collapsed into a smaller denominator.
   `force.obj`, `audio.obj`, `overlays.obj`, `Weather.obj`, `rpause.obj`, and
   `hrzsku.obj`, `TextureProcess.obj`, `Skidmark.obj`, `fe3dmenu.obj`,
   `device.obj`, `psxcontroller.obj`, `fefades.obj`, `felines.obj`, and
-  `fevideowall.obj`.
+  `fevideowall.obj`, and `fetv.obj`.
   The remaining mapped C++
   units still expose reconstruction-only declarations through the monolithic
   `nfs4_types.h` include graph and therefore are not yet source-exact.
@@ -2546,6 +2546,60 @@ the source's 31 repeated typedef rows are retained as duplicate-debug evidence,
 not treated as additional source declarations.  All twelve functions remain
 byte-exact after two clean gates.  Frontend remains 836/838 byte-matches, both
 relink lanes are green, and the vtable audit passes all 929 files.
+
+### P71 — `fetv.obj` owner-visible type surface restored (`2026-08-24`)
+
+The receipt is recorded in
+[`fetv_owner_type_surface_20260824.md`](scratchpad/root_sym_audit/fetv_owner_type_surface_20260824.md).
+`fetv.cpp` now has an owner-specific header containing only the retail
+PsyQ/drawing leaf graph and its `tTexture_ShapeInfo`, `tTVState`, `tTVConfig`,
+`kernpair`/`KERN`, `tActiveLine`, forward declaration, and five font callback
+types.  Raw word/byte packet operations replace the reconstruction-only packed
+bitfield tag type, which is absent from the retail owner graph.
+
+The compiler-emitted graph is strict-exact: 40/40 named and 2/2 anonymous
+records match, all 94 unique retail typedef semantics are covered, and no
+source-only named, anonymous, or typedef semantic remains.  The eight remaining
+retail typedef rows and eleven repeated source rows are duplicate-debug evidence.
+All five functions remain byte-exact after two clean gates; `DrawTVLines` is
+PASS at 213 instructions.  Both relink lanes are green and the vtable audit
+passes all 930 files.
+
+### P72 — `tScreenMemcard::DrawBackground` source clamp restored (`2026-08-24`)
+
+The receipt is recorded in
+[`screenmemcard_drawbackground_minmax_20260824.md`](scratchpad/root_sym_audit/screenmemcard_drawbackground_minmax_20260824.md).
+Retail SLD maps each of the three fade clamps to one source line.  The exact EA
+`MIN`/`MAX` operand order recovered from the matched NFS2 PC beta header also
+recreates the NFS4 retail allocation, so the reconstruction-only `int value`
+temporary was removed and line 581 is again one expression.  Focused verification
+is PASS at 410 instructions and the complete owner TU is 15/15 PASS.  The bulk
+frontend renderer still reports its known two-instruction unresolved-relocation
+presentation difference, not a source or object-byte regression.
+
+The function is not yet claimed source-local exact: its explicit geometry and
+final-message temporaries remain absent from the reliable SYM local list.  They
+are retained in the backlog until an expression/macro reconstruction removes
+them without disturbing the exact object code.  `ScreenMemcard.obj` also still
+inherits source-only declarations through the monolithic header, as the strict
+type sweep records.
+
+### P73 — requested `FeAudio_InitViv` and global-menu constructor audit (`2026-08-24`)
+
+The receipt is recorded in
+[`requested_frontend_targets_20260824.md`](scratchpad/root_sym_audit/requested_frontend_targets_20260824.md).
+`FeAudio_InitViv` already exactly represents every reliable function-local SYM
+record: `fname` is the register `char *` parameter, `vivHandle` is register
+`int`, `lumpHead` is the 16-byte automatic `LUMPYHEAD`, and `bigfileHeader` is
+the register `LUMPYHEAD *`.  It remains PASS at 109 instructions and
+`feaudio.cpp` remains 10/10 PASS, so no speculative source change was made.
+
+The live user-edited `tGlobalMenuDefs` constructor remains the only far frontend
+residual: 874 diffs, 3,223 reconstructed versus 3,207 retail instructions.
+Constant-spelling, cast, callback, and statement-shape probes did not improve
+that authoritative baseline, so none were landed and the user's edit was
+preserved.  Its first current allocation divergence is documented in the
+receipt for a future ground-up reconstruction round.
 
 ## Closure rule
 

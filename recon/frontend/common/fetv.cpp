@@ -5,7 +5,14 @@
  */
 #include "fetv.h"
 
-typedef struct { unsigned addr : 24, len : 8; } FETV_PTag;
+#define FETV_getaddr(p) (*(u_long *)(p) & 0x00ffffff)
+#define FETV_setaddr(p, addr) \
+  (*(u_long *)(p) = (*(u_long *)(p) & 0xff000000) | \
+                    ((u_int)(addr) & 0x00ffffff))
+#define FETV_setlen(p, len) (*((u_char *)(p) + 3) = (u_char)(len))
+#define FETV_setcachedaddr(p, tag, addr) \
+  (*(u_long *)(p) = ((tag) & 0xff000000) | \
+                    ((u_int)(addr) & 0x00ffffff))
 #define FETV_setXYWH(p, x, y, w, h) \
   ((p)->x0 = (x), (p)->y0 = (y), \
    (p)->x1 = (x) + (w), (p)->y1 = (y), \
@@ -37,12 +44,15 @@ void DrawTVLines(tTVConfig &tv)
     }
   }
   if (0 < (fxHeight << 0x10)) {
+    u_long *palette = (u_long *)Render_gPalettePtr;
+    u_long paletteTag;
     videoFX = (POLY_F4 *)Render_gPacketPtr;
-    ((FETV_PTag *)videoFX)->addr = ((FETV_PTag *)Render_gPalettePtr)->addr;
-    Render_gPacketPtr = Render_gPacketPtr + 0x18;
-    ((FETV_PTag *)Render_gPalettePtr)->addr = (u_int)videoFX;
+    FETV_setaddr(videoFX,FETV_getaddr(palette));
+    paletteTag = *palette;
+    Render_gPacketPtr = (u_char *)(videoFX + 1);
+    FETV_setcachedaddr(palette,paletteTag,videoFX);
     videoFX->code = 0x2a;
-    ((FETV_PTag *)videoFX)->len = 5;
+    FETV_setlen(videoFX,5);
     FETV_setXYWH(videoFX,tv.x,y,tv.w,fxHeight);
     videoFX->b0 = 10;
     videoFX->g0 = 10;
@@ -50,12 +60,15 @@ void DrawTVLines(tTVConfig &tv)
   }
   y = tv.fxThin;
   if (((int)tv.fxThin > (int)tv.y) && ((int)tv.fxThin < (int)tv.y + (int)tv.h)) {
+    u_long *palette = (u_long *)Render_gPalettePtr;
+    u_long paletteTag;
     videoFX = (POLY_F4 *)Render_gPacketPtr;
-    ((FETV_PTag *)videoFX)->addr = ((FETV_PTag *)Render_gPalettePtr)->addr;
-    Render_gPacketPtr = Render_gPacketPtr + 0x18;
-    ((FETV_PTag *)Render_gPalettePtr)->addr = (u_int)videoFX;
+    FETV_setaddr(videoFX,FETV_getaddr(palette));
+    paletteTag = *palette;
+    Render_gPacketPtr = (u_char *)(videoFX + 1);
+    FETV_setcachedaddr(palette,paletteTag,videoFX);
     videoFX->code = 0x2a;
-    ((FETV_PTag *)videoFX)->len = 5;
+    FETV_setlen(videoFX,5);
     FETV_setXYWH(videoFX,tv.x,y,tv.w,1);
     videoFX->b0 = 10;
     videoFX->g0 = 10;

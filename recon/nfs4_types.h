@@ -42,6 +42,16 @@ typedef unsigned short ushort;
 typedef unsigned char uchar;
 typedef unsigned char undefined;
 
+/* EA common scalar macros.  These operand-order-exact forms are recovered
+ * from the matched NFS2 PC beta headers and reproduce NFS4's one-line SLD
+ * clamp expansions (notably ScreenMemcard.cpp:577/579/581). */
+#ifndef MIN
+#define MIN(a,b) (((a) > (b)) ? (b) : (a))
+#endif
+#ifndef MAX
+#define MAX(a,b) (((a) > (b)) ? (a) : (b))
+#endif
+
 /* ---- PSX scratchpad-resident render globals (0x1F800000 region) ----------------------
  * Render_gPacketPtr (GPU OT packet-build cursor) and Render_gPalettePtr (palette/CLUT
  * scratch cursor) are POINTER variables whose STORAGE lives at fixed PSX scratchpad

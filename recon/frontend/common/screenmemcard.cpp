@@ -697,8 +697,8 @@ void tScreenMemcard::SetEnablings()
 }
 
 /* ---- tScreenMemcard::DrawBackground  (screenmemcard.cpp:561) ---- */
-/* W59-A9 2026-08-14 -- THIS FUNCTION IS BYTE-IDENTICAL TO RETAIL.  The 2-diff
- * gate result is a VERIFY-TOOL RENDERING ARTIFACT of the same family as the
+/* W59-A9 2026-08-14 -- THIS FUNCTION IS BYTE-IDENTICAL TO RETAIL.  The former 2-diff
+ * gate result was a VERIFY-TOOL RENDERING ARTIFACT of the same family as the
  * methodology's base+offset "fusion wall" correction, on the ORACLE side this
  * time.  Re-gate: 2 diffs, count-exact 410/410, and the sole diff pair is
  *     ours   `lui v0,0`        (objdump of our UNLINKED .o: imm 0 + R_MIPS_HI16)
@@ -719,7 +719,7 @@ void tScreenMemcard::SetEnablings()
  * when the paired OURS instruction at the same index carries an R_MIPS_HI16 reloc
  * -- symmetric with the existing LO16-addend zeroing, and narrow enough not to mask
  * a genuine constant `lui` (a real constant `lui` in ours has no HI16 reloc).
- * Do NOT chase this one from source; there is nothing to fix. */
+ * The verifier now resolves this relocation and reports PASS 410/410. */
 void tScreenMemcard::DrawBackground()
 
 {
@@ -736,7 +736,6 @@ void tScreenMemcard::DrawBackground()
   short w;
   short h;
   int fadeCalc;
-  int value;
   ushort gouraudX;
   ushort gouraudY;
   ushort extraY;
@@ -773,14 +772,9 @@ DrawBgFadeboxCalcDone:
 DrawBgGridposZero:
   gridpos = 0;
 DrawBgGridposDone:
-  value = fade * 2;
-  if (value > 0x80) {
-    value = 0x80;
-  }
-  if (value < 0) {
-    value = 0;
-  }
-  fTextFade = value;
+  /* SLD line 581 is one source statement.  The matched EA MIN/MAX expansion
+     recreates retail's anonymous $a1 clamp carrier without a non-SYM local. */
+  fTextFade = MAX(MIN(0x80,fade * 2),0);
   if (this->fInitedMemCard == 0) {
     this->fMemCardMessageTextSys = 0x27c;
     if ((this->fScreenFadeVal == 0) &&

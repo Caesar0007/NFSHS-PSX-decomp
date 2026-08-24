@@ -13,6 +13,14 @@
 #define FETV_setcachedaddr(p, tag, addr) \
   (*(u_long *)(p) = ((tag) & 0xff000000) | \
                     ((u_int)(addr) & 0x00ffffff))
+/* Canonical PsyQ 4.3 LIBGPU.H packet-tag shape and addPrim expansion. */
+typedef struct {
+  unsigned addr:24, len:8;
+  u_char r0, g0, b0, code;
+} P_TAG;
+#define setaddr(p, _addr) (((P_TAG *)(p))->addr = (u_long)(_addr))
+#define getaddr(p) ((u_long)((P_TAG *)(p))->addr)
+#define addPrim(ot, p) setaddr(p,getaddr(ot)), setaddr(ot,p)
 #define FETV_setXYWH(p, x, y, w, h) \
   ((p)->x0 = (x), (p)->y0 = (y), \
    (p)->x1 = (x) + (w), (p)->y1 = (y), \
@@ -44,13 +52,9 @@ void DrawTVLines(tTVConfig &tv)
     }
   }
   if (0 < (fxHeight << 0x10)) {
-    u_long *palette = (u_long *)Render_gPalettePtr;
-    u_long paletteTag;
     videoFX = (POLY_F4 *)Render_gPacketPtr;
-    FETV_setaddr(videoFX,FETV_getaddr(palette));
-    paletteTag = *palette;
+    addPrim(Render_gPalettePtr,videoFX);
     Render_gPacketPtr = (u_char *)(videoFX + 1);
-    FETV_setcachedaddr(palette,paletteTag,videoFX);
     videoFX->code = 0x2a;
     FETV_setlen(videoFX,5);
     FETV_setXYWH(videoFX,tv.x,y,tv.w,fxHeight);
@@ -60,13 +64,9 @@ void DrawTVLines(tTVConfig &tv)
   }
   y = tv.fxThin;
   if (((int)tv.fxThin > (int)tv.y) && ((int)tv.fxThin < (int)tv.y + (int)tv.h)) {
-    u_long *palette = (u_long *)Render_gPalettePtr;
-    u_long paletteTag;
     videoFX = (POLY_F4 *)Render_gPacketPtr;
-    FETV_setaddr(videoFX,FETV_getaddr(palette));
-    paletteTag = *palette;
+    addPrim(Render_gPalettePtr,videoFX);
     Render_gPacketPtr = (u_char *)(videoFX + 1);
-    FETV_setcachedaddr(palette,paletteTag,videoFX);
     videoFX->code = 0x2a;
     FETV_setlen(videoFX,5);
     FETV_setXYWH(videoFX,tv.x,y,tv.w,1);

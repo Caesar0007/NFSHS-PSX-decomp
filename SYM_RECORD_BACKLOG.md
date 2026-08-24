@@ -2792,6 +2792,34 @@ with zero missing names, type findings, storage findings, or mapping reviews.
 The frontend board remains 836/838 with zero compile failures and the same two
 pre-existing residuals.  Relink is GREEN and the vtable audit passes 930 files.
 
+### P81 — `DrawTVLines` canonical PsyQ `addPrim` restoration (`2026-08-24`)
+
+Retail SYM records only `fxHeight`, `x`, `y`, and `videoFX` in
+`DrawTVLines`; the reconstruction-only `palette` and `paletteTag` identities
+are now removed from both packet-building arms.  The retail SLD assigns each
+complete ordering-table link expansion to one source line, and canonical PsyQ
+4.3 `LIBGPU.H` supplies the exact source form:
+`addPrim(Render_gPalettePtr, videoFX)`.  Restoring its `P_TAG` 24:8 bitfield
+shape and canonical `setaddr`/`getaddr` expansion reproduces the retail mask,
+load, and store sequence without source-visible helper locals.
+
+Two controls distinguish the recovered macro from merely deleting names.
+Repeating `*palette` without `paletteTag` is count-exact FAIL 8 at 213/213
+instructions because both packet-cursor bumps move from `$v1` to `$v0`.
+Moving that bump after the hand-expanded palette store is FAIL 48 at 213/213
+and swaps the palette pointer and low-address mask allocations.  The canonical
+`addPrim` expression followed by the cursor bump is PASS at 213 instructions;
+GCC schedules the bump into the macro expansion exactly as retail does.  A
+fresh `-g` twin is instruction-identical and exposes only the reliable retail
+local set.
+
+The strict frontend/common audit advances from 581 to 582 declaration-clean
+functions and reduces generic extra names from 852 to 850, with zero missing
+names, type findings, storage findings, or mapping reviews.  All five
+`fetv.cpp` functions remain PASS; the frontend board remains 836/838 with zero
+compile failures and the same two pre-existing residuals.  Relink is GREEN and
+the vtable audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

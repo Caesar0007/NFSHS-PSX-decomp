@@ -29,9 +29,7 @@ extern int ticks_a[] asm("ticks");
 int VIDEO_create(int width,int height,int fps,int streambuffersize,int memtype)
 
 {
-  int status;
   struct VIDEOSTRUCT *vid;
-  void *mem;
   int handle;
   SNDPLAYOPTS playopts;
   char fname [60];
@@ -39,7 +37,7 @@ int VIDEO_create(int width,int height,int fps,int streambuffersize,int memtype)
   Platform_ResetDCTBuffer();
   sprintf(fname,"%sDCT.BIN",Paths_Paths[0x20]);
   handle = asyncloadfileat(fname,(int)CF_DVLC);
-  while (status = getasyncreadstatus(handle), status == 0) {
+  while (getasyncreadstatus(handle) == 0) {
     systemtask(0);
   }
   vid = (struct VIDEOSTRUCT *)reservememadr("Videostruct",0x40,memtype);
@@ -47,10 +45,8 @@ int VIDEO_create(int width,int height,int fps,int streambuffersize,int memtype)
   vid->id = 0x57444956;   /* 'VIDW' */
   vid->bufferwidth = width;
   vid->bufferheight = height;
-  mem = reservememadr("streambuffer",streambuffersize,memtype);
-  vid->streambuffer = (char *)mem;
-  mem = STREAM_create(2,2,2,vid->streambuffer,streambuffersize);
-  vid->videotap = (long)mem;
+  vid->streambuffer = (char *)reservememadr("streambuffer",streambuffersize,memtype);
+  vid->videotap = (long)STREAM_create(2,2,2,vid->streambuffer,streambuffersize);
   STREAM_setfilter(vid->videotap,1,0xffff,0x4353,2);
   {
     extern int screenbpp[];
@@ -60,7 +56,8 @@ int VIDEO_create(int width,int height,int fps,int streambuffersize,int memtype)
        %hi in a SEPARATE scratch ($v1) and issues the load BEFORE the mdechandle
        store, which still holds the call result in $v0.  A direct timerhz[0] read
        sinks below the store and then self-temps into $a0. */
-    int *hzp = timerhz;
+    int *hzp /* SYM-CODEGEN-CARRIER: hzp -- the direct timerhz read sinks past the
+                mdechandle store and changes retail scheduling, as measured above */ = timerhz;
     vid->mdechandle = initmdec(width,height,screenbpp[0],memtype);
     vid->displaytimeincr = fixeddiv(fixedmult(*hzp << 0x10,0xa0000),fps);
   }
@@ -90,11 +87,9 @@ void VIDEO_destroy(int handle)
 void VIDEO_spoolfile(int handle,char *fname)
 
 {
-  int requestid;
-  
   if ((((VIDEOSTRUCT *)handle)->id == 0x57444956   /* 'VIDW' */) && (((VIDEOSTRUCT *)handle)->state == VIDEOSTATE_IDLE)) {
-    requestid = STREAM_queuefile(((VIDEOSTRUCT *)handle)->videotap,fname,0,0);
-    ((VIDEOSTRUCT *)handle)->streamrequestid = requestid;
+    ((VIDEOSTRUCT *)handle)->streamrequestid =
+        STREAM_queuefile(((VIDEOSTRUCT *)handle)->videotap,fname,0,0);
     ((VIDEOSTRUCT *)handle)->state = VIDEOSTATE_SPOOLING;
   }
   return;
@@ -106,11 +101,8 @@ void VIDEO_spoolfile(int handle,char *fname)
 void VIDEO_startplayback(int handle)
 
 {
-  int buffered;
-  
   if ((((VIDEOSTRUCT *)handle)->id == 0x57444956   /* 'VIDW' */) && (((VIDEOSTRUCT *)handle)->state != VIDEOSTATE_IDLE)) {
-    buffered = STREAM_bufferusage(((VIDEOSTRUCT *)handle)->videotap);
-    if (buffered >= 20001) {
+    if (STREAM_bufferusage(((VIDEOSTRUCT *)handle)->videotap) >= 20001) {
       ((VIDEOSTRUCT *)handle)->state = VIDEOSTATE_PLAYING;
     }
   }
@@ -167,8 +159,8 @@ enum VIDEOSTATE VIDEO_state(int handle)
 int VIDEO_updateframexy(int handle,int x,int y)
 
 {
-  int result;
-  int endofstream;
+  int result; /* SYM-CODEGEN-CARRIER: result -- direct videodecode testing rotates
+                 retail chunk/dropped ($s2/$s1) and is measured FAIL 17 (81/80) */
   struct STREAMCHUNKHDR *chunk;
   struct VIDEOSTRUCT *vid;
   int dropped;
@@ -184,11 +176,10 @@ int VIDEO_updateframexy(int handle,int x,int y)
     if (vid->displaytime > currenttime) {
       return 0;
     }
-    endofstream = STREAM_isendofstream(vid->videotap);
-    if (endofstream != 0) {
+    if (STREAM_isendofstream(vid->videotap) != 0) {
       return 0;
     }
-    while (endofstream == 0) {
+    while (1) {
       chunk = STREAM_get(vid->videotap);
       if (chunk == (struct STREAMCHUNKHDR *)0x0) {
         return 0;
@@ -208,8 +199,7 @@ VIDEOupdateFrame_incCounter:
       if (!dropped) {
         return 1;
       }
-      endofstream = STREAM_isendofstream(vid->videotap);
-      if (endofstream == 0) continue;
+      if (STREAM_isendofstream(vid->videotap) == 0) continue;
       return 1;
     }
   }
@@ -225,11 +215,8 @@ VIDEOupdateFrame_incCounter:
 void videoupdatetime(struct VIDEOSTRUCT *vid)
 
 {
-  int acc;
-  
-  acc = vid->displaytimefrac + vid->displaytimeincr;
-  vid->displaytimefrac = acc;
-  vid->displaytime = vid->displaytime + (acc >> 0x10);
+  vid->displaytimefrac = vid->displaytimefrac + vid->displaytimeincr;
+  vid->displaytime = vid->displaytime + (vid->displaytimefrac >> 0x10);
   vid->displaytimefrac = (u_int)(ushort)vid->displaytimefrac;
   return;
 }
@@ -240,7 +227,6 @@ void videoupdatetime(struct VIDEOSTRUCT *vid)
 int videodecode(struct VIDEOSTRUCT *vid,struct STREAMCHUNKHDR *chunk,int x,int y)
 
 {
-  int done;
   int timeout;
 
   if (chunk->type == 0x4443546d) {
@@ -259,8 +245,7 @@ int videodecode(struct VIDEOSTRUCT *vid,struct STREAMCHUNKHDR *chunk,int x,int y
        are real here; the exact nesting SITE is a codegen dial, not SYM-placed. */
     do {
       do { do {
-        done = mdecdone(vid->mdechandle);
-        if (done != 0) {
+        if (mdecdone(vid->mdechandle) != 0) {
           return 1;
         }
         systemtask(0);

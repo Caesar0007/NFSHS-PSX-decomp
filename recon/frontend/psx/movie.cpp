@@ -319,14 +319,8 @@ void Movie_Stop(void)
 bool Movie_Finished(void)
 
 {
-  int finished;
-
-  finished = 0;
-  if ((((gMovieFrame >= gEndFrame) || (bMovieLoaded == 0)) || (bStopMovie != 0)) ||
-     (bRewindMovie != 0)) {
-    finished = 1;
-  }
-  return finished;
+  return (((gMovieFrame >= gEndFrame) || (bMovieLoaded == 0)) ||
+          (bStopMovie != 0)) || (bRewindMovie != 0);
 }
 
 /* lines 322-326: (static data / macros / comments - no emitted code) */
@@ -414,10 +408,7 @@ int Movie_Play(char movie)
 int play_movie(char movie)
 
 {
-  int ret;
-  
-  ret = Movie_Play(movie);
-  return ret;
+  return Movie_Play(movie);
 }
 
 /* lines 413-419: (static data / macros / comments - no emitted code) */
@@ -701,14 +692,10 @@ static void strSync(DECENV *dec,int arg1)
 static void strKickCD(CdlLOC *loc)
 
 {
-  int status;
-  
-  do {
-    status = CdControl('\x15',&loc->minute,(u_char *)0x0);
-  } while (status == 0);
-  do {
-    status = CdRead2(0x1c0);
-  } while (status == 0);
+  while (CdControl('\x15',&loc->minute,(u_char *)0x0) == 0) {
+  }
+  while (CdRead2(0x1c0) == 0) {
+  }
   return;
 }
 

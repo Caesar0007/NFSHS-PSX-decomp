@@ -62,7 +62,8 @@ void InitializeSpinningCars(void)
   /* SYM: the ONLY local is `i` (INT).  carData_walk/obj_walk were fabricated -- retail indexes
    * GameSetup_gData.carInfo[i] / gCarObj[i] and loop.c strength-reduces both into givs ($s2 stride
    * 0xB4, $s3 stride 4).  Loop is TOP-tested with a `j` back-edge, not gcc's rotated do-while. */
-  Car_tObj *carObj;
+  Car_tObj *carObj; /* SYM-CODEGEN-CARRIER: carObj -- repeated gCarObj[i] access is
+                       measured FAIL 51 and expands retail 95 to 102 instructions */
   int i;
 
   if (rendering3DEnvironmentInitialized == '\0') {
@@ -85,9 +86,9 @@ void InitializeSpinningCars(void)
       carObj->carInfo = &GameSetup_gData.carInfo[i];
       carObj->carInfo->carType = 1;
       strcpy(carObj->carName,GameSetup_gCarNames[carObj->carInfo->carType]);
-      (carObj->N).objID = i | 0x100;
+      carObj->N.objID = i | 0x100;
       R3DCar_Instantiate3DCar(carObj,i);
-      (carObj->N).active = '\x01';
+      carObj->N.active = '\x01';
       i = i + 1;
     }
     R3DCar_PostStartUp();
@@ -173,7 +174,6 @@ void CleanupSpinningCarsMenu(void)
 void DoTitleScreen(void)
 
 {
-  void *shape;
   shapetbl *tempShp2;
   char fileName [48];
   char artfilename [20];
@@ -188,10 +188,10 @@ void DoTitleScreen(void)
       return;
     }
   }
-  shape = (tTexture_ShapeInfo *)locateshapez(creditShapeFile[0],(void *)"back");
+  tempShp2 = (shapetbl *)locateshapez(creditShapeFile[0],(void *)"back");
   Quick_DD(1,0,1);
   settrans(0);
-  movfxya(shape,0,0);
+  movfxya(tempShp2,0,0);
   settrans(1);
   Quick_DD(0,1,0);
   purgememadr(creditShapeFile[0]);
@@ -236,7 +236,8 @@ void PSXExitFrontend(void)
 void PSX_AllocShapes(void)
 
 {
-  tTexture_ShapeInfo **slot = gHelpShapes;   /* &gHelpShapes[0] computed BEFORE the call -> held in a
+  tTexture_ShapeInfo **slot /* SYM-CODEGEN-CARRIER: slot -- direct global indexing is
+                                measured FAIL 11 (16/17) */ = gHelpShapes;   /* &gHelpShapes[0] computed BEFORE the call -> held in a
                                                 callee-saved reg (s0) across reservememadr, like the oracle */
   *slot = (tTexture_ShapeInfo *)reservememadr("gHelpShapes",0x760,0);
   blockclear(*slot,0x760);
@@ -919,12 +920,7 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
 static void DrawFlatShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *color,int abr)
 
 {
-  int c0;
-
-  c0 = *color;
-  color[3] = c0;
-  color[2] = c0;
-  color[1] = c0;
+  color[1] = color[2] = color[3] = color[0];
   /* @0x8004E660: tail-call DrawGouraudShape with the SAME incoming args -- shp/flags/x/y/color/abr are
    * never modified in DrawFlatShape. The recon passed uninitialized Ghidra locals abrv/flagsv in the
    * flags/x slots, dropping the real flags and x parameters (M14). */
@@ -944,7 +940,8 @@ void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSha
    * arm), with flags&8 as the FALL-THROUGH side. w42-a7. */
   tTexture_ShapeInfo *tShp;
   int color [4];
-  int bright;
+  int bright; /* SYM-CODEGEN-CARRIER: bright -- inlining the narrowing expression
+                 is measured FAIL 32 at the same 65-instruction count */
 
   if ((flags & 8) != 0) {
     tShp = gHelpShapes[0] + index;
@@ -1128,12 +1125,7 @@ static void ScaleFlatShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int sca
                int abr)
 
 {
-  int c0;
-  
-  c0 = *color;
-  color[3] = c0;
-  color[2] = c0;
-  color[1] = c0;
+  color[1] = color[2] = color[3] = color[0];
   ScaleGouraudShape(shp,flags,x,y,scalex,scaley,color,abr);
   return;
 }
@@ -1151,7 +1143,8 @@ void ScaleShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSh
   int scalex = 0x20000;
   int scaley = 0x10000;
   int color [4];
-  int bright;
+  int bright; /* SYM-CODEGEN-CARRIER: bright -- inlining the narrowing expression
+                 is measured FAIL 32 at the same 75-instruction count */
 
   if ((flags & 8) != 0) {
     tShp = gHelpShapes[0] + index;

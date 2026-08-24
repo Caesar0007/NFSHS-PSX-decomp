@@ -317,7 +317,6 @@ void MCRD_init(int fMultitap)
 
 {
   int i;
-  int card;
   
   blockclear(&gMemCardInfo,0x17dc);
   gMemCardInfo.ConfirmOverwriteProc = iMCRD_DefaultCBProc1;
@@ -327,12 +326,12 @@ void MCRD_init(int fMultitap)
   gMemCardInfo.SavingDataProc = (void (*)(void))asyncidle;
   gMemCardInfo.LoadingDataProc = (void (*)(void))asyncidle;
   MemCardInit(1);
-  card = 1;
+  i = 1;
   do {
     timedwait(10);
-    iMCRD_InitCard(card);
-    card = card + 1;
-  } while (card < 9);
+    iMCRD_InitCard(i);
+    i = i + 1;
+  } while (i < 9);
   addtimer(iMCRD_timersub);
   MemCardStart();
   return;
@@ -345,21 +344,17 @@ int iMCRD_InitCard(int card)
 
 {
   CARDINFO *pCI;
-  int ret;
-  
+
   pCI = MCRD_getcard(card);
-  if (pCI == (CARDINFO *)0x0) {
-    ret = -1;
-  }
-  else {
+  if (pCI != (CARDINFO *)0x0) {
     pCI->status = -1;
     pCI->lasterror = 0;
     pCI->numfiles = 0;
     pCI->freeblocks = 0xf;
     blockclear(pCI->dir,600);
-    ret = 0;
+    return 0;
   }
-  return ret;
+  return -1;
 }
 
 /* lines 144-173: (static data / macros / comments - no emitted code) */
@@ -687,10 +682,6 @@ int iMCRD_DoFileWrite(int card)
 
 {
   int error;
-  int err_state;
-  long sync_done;
-  int err;
-  long sync;
   MCRDFILEINFO *pMFI;
   long cmd;
   long res;
@@ -704,9 +695,9 @@ int iMCRD_DoFileWrite(int card)
     res = MemCardCreateFile
                     (gMemCardInfo.channel,pMFI->name,
                      (u_int)pMFI->header.nslots);
-    err_state = iMCRD_HandleError(2,res,card);
-    if (err_state != 0) {
-      return err_state;
+    error = iMCRD_HandleError(2,res,card);
+    if (error != 0) {
+      return error;
     }
     timedwait(0x40);
     res = MemCardWriteFile
@@ -716,12 +707,11 @@ int iMCRD_DoFileWrite(int card)
       gMemCardInfo.bReady = 1;
       return 0xd;
     }
-    do {
-      sync_done = MemCardSync(0,&cmd,&res);
-    } while (sync_done == 0);
-    err = iMCRD_HandleError(2,res,card);
-    if (err != 0) {
-      return err;
+    while (MemCardSync(0,&cmd,&res) == 0) {
+    }
+    error = iMCRD_HandleError(2,res,card);
+    if (error != 0) {
+      return error;
     }
   }
   res = MemCardWriteFile
@@ -732,16 +722,15 @@ int iMCRD_DoFileWrite(int card)
     gMemCardInfo.bReady = 1;
     return 0xd;
   }
-  do {
-    sync = MemCardSync(0,&cmd,&res);
-  } while (sync == 0);
-  err = iMCRD_HandleError(2,res,card);
-  if (err == 0) {
+  while (MemCardSync(0,&cmd,&res) == 0) {
+  }
+  error = iMCRD_HandleError(2,res,card);
+  if (error == 0) {
     gMemCardInfo.bReady = 0;      /* MATCH: retail stores bReady BEFORE task here */
     gMemCardInfo.task = LOAD_CARD;
     return 0xc;
   }
-  return err;
+  return error;
 }
 
 /* lines 854-904: (static data / macros / comments - no emitted code) */
@@ -750,26 +739,20 @@ int iMCRD_DoFileWrite(int card)
 int iMCRD_DoFileDelete(int card)
 
 {
-  long del_res;
-  CARDINFO *pcard;
   MCRDFILEINFO *pMFI;
   int retval;
-  int ret_state;
   
-  ret_state = 0x11;
+  retval = 0x11;
   pMFI = &gMemCardInfo.fileinfo;   /* MATCH: SYM local; la(+0x260) anchor, name=+4, base=-0x260 */
-  del_res = MemCardDeleteFile(gMemCardInfo.channel,pMFI->name);
-  switch (del_res) {
+  switch (MemCardDeleteFile(gMemCardInfo.channel,pMFI->name)) {
   case 0:
     gMemCardInfo.task = LOAD_CARD;
     break;
   case 5:
-    pcard = MCRD_getcard(card);
-    ret_state = 0x12;
-    pcard->lasterror = 0x13;
+    MCRD_getcard(card)->lasterror = (retval = 0x12, 0x13);
     gMemCardInfo.bReady = 1;
   }
-  return ret_state;
+  return retval;
 }
 
 /* lines 930-970: (static data / macros / comments - no emitted code) */
@@ -974,10 +957,13 @@ int MCRD_handlecardevents(int card)
          * in scratch/w46_a2_receipts.md.  DO NOT `simplify' g back to a plain
          * &array[idx] pointer, and do not drop either hoist. */
         status = 2;
-        { int idx = card + -1;
-          fMemCardInfo *g =
+        { int idx /* SYM-CODEGEN-CARRIER: idx -- measured address-index hoist for the
+                     exact case-1 store schedule documented above */ = card + -1;
+          fMemCardInfo *g /* SYM-CODEGEN-CARRIER: g -- struct-cast base preserves
+                             the retail +0x34/+0x40 displacements */ =
               (fMemCardInfo *)((char *)&gMemCardInfo + idx * 4);
-          int t = timerhz;
+          int t /* SYM-CODEGEN-CARRIER: t -- hoisted timerhz value is required for
+                   the exact local-allocation priority and schedule */ = timerhz;
         gMemCardInfo.bReady = cmd;
           do { do {
           g->existencecheckticks[0] = t;
@@ -1100,25 +1086,20 @@ MCRDhandleCard_end:
 int MCRD_fileexists(int card,char *name)
 
 {
-  CARDINFO *pCard;
-  int cmp;
   int i;
   struct DIRENTRY *pDir;
-  struct DIRENTRY *s1;
   char fullname [24];
   
-  pCard = MCRD_getcard(card);
-  s1 = pCard->dir;
+  pDir = MCRD_getcard(card)->dir;
   strcpy(fullname,gMemCardInfo.productCode);
   strcat(fullname,name);
   i = 0;
   do {
-    cmp = strcmp((char *)s1,fullname);
-    if (cmp == 0) {
+    if (strcmp((char *)pDir,fullname) == 0) {
       return i;
     }
     i = i + 1;
-    s1 = s1 + 1;
+    pDir = pDir + 1;
   } while (i < 0xf);
   return -1;
 }
@@ -1155,25 +1136,23 @@ int garyMemCardGrabBlocks(int card,int filenum)
 {
   CARDINFO *pCI;
   int i;
-  int size;
   struct DIRENTRY *pDir;
-  struct DIRENTRY *dir;
   
   pCI = MCRD_getcard(card);
-  dir = pCI->dir;
-  MemCardGetDirentry(gMemCardInfo.channel,"*",dir,&pCI->numfiles,0,0xf);
+  pDir = pCI->dir;
+  MemCardGetDirentry(gMemCardInfo.channel,"*",pDir,&pCI->numfiles,0,0xf);
   i = 0;
   if (0 < filenum) {
     do {
       i = i + 1;
-      dir = dir + 1;
+      pDir = pDir + 1;
     } while (i < filenum);
   }
-  size = dir->size;
-  if (size < 0) {
-    size = size + 0x1fff;
+  card = pDir->size;
+  if (card < 0) {
+    card = card + 0x1fff;
   }
-  return size >> 0xd;
+  return card >> 0xd;
 }
 
 /* lines 1562-1565: (static data / macros / comments - no emitted code) */
@@ -1183,50 +1162,45 @@ int iMCRD_LoadCard(int card)
 
 {
   int error;
-  CARDINFO *pcard;
-  int i_or_size;
-  int ret_state;
-  long opResult;
-  int size;
+  int size; /* SYM-CODEGEN-CARRIER: size -- direct field/ternary form is measured
+               FAIL 13 (62/63); reusing the SYM error pseudo also adds two moves */
   int slot;
   struct DIRENTRY *pDir;
-  struct DIRENTRY *dir;
   CARDINFO *pCI;
   
-  pcard = MCRD_getcard(card);
-  dir = pcard->dir;
-  i_or_size = iMCRD_InitCard(card);
-  if (i_or_size != 0) {
-    ret_state = 0xb;
+  pCI = MCRD_getcard(card);
+  pDir = pCI->dir;
+  error = iMCRD_InitCard(card);
+  if (error != 0) {
+    error = 0xb;
   }
   else {
-    opResult = MemCardGetDirentry
-                         (gMemCardInfo.channel,"*",dir,&pcard->numfiles,0,0xf);
-    ret_state = iMCRD_HandleError(1,opResult,card);
+    error = iMCRD_HandleError
+        (1,MemCardGetDirentry(gMemCardInfo.channel,"*",pDir,&pCI->numfiles,0,0xf),card);
     slot = 0;
-    if (ret_state == 0) {
+    if (error == 0) {
       do {
-        if (dir->name[0] != '\0') {
-          size = dir->size;
+        if (pDir->name[0] != '\0') {
+          size = pDir->size;
           if (size < 0) {
             size = size + 0x1fff;
           }
-          pcard->freeblocks = pcard->freeblocks - (size >> 0xd);
+          pCI->freeblocks = pCI->freeblocks - (size >> 0xd);
         }
         slot = slot + 1;
-        dir = dir + 1;
+        pDir = pDir + 1;
       } while (slot < 0xf);
-      if (pcard->freeblocks == 0) {
-        pcard->status = -3;
+      if (pCI->freeblocks == 0) {
+        pCI->status = -3;
       }
       else {
-        pcard->status = 0;
+        pCI->status = 0;
       }
       gMemCardInfo.bReady = 1;
-      ret_state = 9;
+      error = 9;
     }
   }
-  return ret_state;
+  return error;
 }
 
 /* lines 1694-1695: (static data / macros / comments - no emitted code) */
@@ -1236,12 +1210,10 @@ int iMCRD_FormatCard(int card)
 
 {
   CARDINFO *pCI;
-  long fmtRes;
   int result;
   
   result = 0;
   pCI = MCRD_getcard(card);
-  fmtRes = MemCardFormat(gMemCardInfo.channel);
   /* MATCH: a real switch WITH the empty success case (0).  THREE case nodes is
    * what makes gcc-2.8's balance_case_nodes split the list at the middle, so the
    * root (1) gets BOTH children; emit_case_nodes' "neither subtree bounded" arm
@@ -1251,7 +1223,7 @@ int iMCRD_FormatCard(int card)
    * A plain 2-case switch keeps the list LINEAR (balance_case_nodes only splits
    * when i > 2), the root has a right child only, and emit_case_nodes takes the
    * "handle node->right explicitly" else-arm = two bare beq's, NO bound test. */
-  switch (fmtRes) {
+  switch (MemCardFormat(gMemCardInfo.channel)) {
   case 0:
     break;
   case 1:

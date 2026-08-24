@@ -111,11 +111,6 @@ Weather_tState Weather_gType;
 static int timechange;                         /* @0x8013de4c SYM STAT */
 int gCurrentNumSplats;
 
-/* DoWeather function-local statics (SYM STAT class; persist across frames) */
-static int prevCameraMode[2];
-static int prevLookBehind[2];
-
-
 /* ---- Weather_GetNumParticles__Fi  [WEATHER.CPP:107-108] SLD-VERIFIED ---- */
 int Weather_GetNumParticles(int player)
 
@@ -1508,6 +1503,8 @@ void Weather_DoWeather(DRender_tView *Vi)
   DVECTOR *wprevpt;
   char *wd;
   int player;
+  static int prevLookBehind[2]; /* SYM STAT ARY INT[2], record offset 0x14 */
+  static int prevCameraMode[2]; /* SYM STAT ARY INT[2], record offset 0x1c */
   int ab;
   int clean_up;
   int i;

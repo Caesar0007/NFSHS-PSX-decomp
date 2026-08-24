@@ -17,10 +17,6 @@ TP_ZPaletteSystem TP_gZPaletteSystem;
 int Fog_gNumKeys;
 int gZDepth;
 
-/* Fog_MakeTrackPathName function-local static string buffer (SYM STAT fogstrspc) */
-static char fogstrspc[64];
-
-
 /* ---- TextureProcess_TransColorCheck__FPci  [TEXTUREPROCESS.CPP:47-62] SLD-VERIFIED ---- */
 int TextureProcess_TransColorCheck(char *data,int numentry)
 
@@ -302,6 +298,8 @@ void Fog_Update(int player)
 char * Fog_MakeTrackPathName(char *ext)
 
 {
+  static char fogstrspc[64]; /* SYM STAT ARY CHAR[64] */
+
   sprintf(fogstrspc,"%sTr%02d%s",Paths_Paths[6],GameSetup_gData[15] & 0xf,ext);
   return fogstrspc;
 }

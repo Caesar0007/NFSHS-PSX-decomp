@@ -2182,6 +2182,30 @@ The produced flat image is still 21.14% identical, first differing at `0x878`
 with a `-32` byte size delta. That is the separate legacy section-layout/order
 backlog and is no longer conflated with unresolved references.
 
+### P52 — game/PSX function-local static scope restored (`2026-08-24`)
+
+Four declarations previously modelled as file globals are now placed in the
+functions that own their `STAT` records:
+
+- `lightningInit` (`CHAR`) in `Night_DoLightningEffect`;
+- `fogstrspc` (`ARY CHAR[64]`) in `Fog_MakeTrackPathName`;
+- `prevLookBehind` and `prevCameraMode` (`ARY INT[2]`) in
+  `Weather_DoWeather`, in their recorded SYM order.
+
+The compiler now emits function-local symbols (`lightningInit.236`,
+`fogstrspc.22`, `prevLookBehind.52`, and `prevCameraMode.53`) instead of four
+module-level definitions. The suffixes are compiler-generated identities; the
+source-visible names and types match the reliable function records. The two
+weather arrays occupy adjacent eight-byte cells in the recorded order.
+
+All affected functions remain exact: `Night_DoLightningEffect` 97/97,
+`Fog_MakeTrackPathName` 20/20, and `Weather_DoWeather` 197/197 PASS. The complete
+game/PSX gate remains **385/395 PASS** with 35/35 TUs compiling. The refreshed
+strict audit is recorded in
+[`game_psx_after_function_statics_20260824.md`](scratchpad/root_sym_audit/game_psx_after_function_statics_20260824.md):
+all 395 functions remain declaration-clean, and the extra-global queue falls
+from 59 to 55 with zero missing globals, storage findings, or type findings.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

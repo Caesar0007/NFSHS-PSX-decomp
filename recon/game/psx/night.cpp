@@ -49,7 +49,6 @@ u_char       (*Night_gWeatherLightingTable)[256] = 0;   /* @0x8013d9f0  = [0] */
 u_char       (*D_8013D9F4)[256] = 0;   /* @0x8013d9f4  = [1] retail per-element gp-rel alias */
 extern u_char (*Night_gWeatherLightingTable_arr[2])[256] asm("Night_gWeatherLightingTable"); /* array VIEW -- MUST be sized [2] */
 char         CopCarTypeLights[6] = { 0, 0, 1, 0, 1, 1 };   /* @0x8013d9f8 */
-char         lightningInit = 1;   /* @0x8013D9FE  SYM: STAT CHAR; abuts CopCarTypeLights (chars pack, no pad) */
 bool         gNight_renderNight;   /* @0x8013da28  (bss(zero)); SYM BOOL */
 int          Night_gXDist;   /* @0x8013da2c  (bss(zero)) */
 int          Night_gZNear;   /* @0x8013da30  (bss(zero)) */
@@ -766,6 +765,8 @@ void Night_PauseLightningEffect(int player)
 void Night_DoLightningEffect(DRender_tView *Vi)
 
 {
+  static char lightningInit = 1; /* SYM STAT CHAR @ function-relative data offset 0x1e */
+
   if (Night_gLightning != 0) {
     AudioCmn_PlayThunder(Night_gFlashIntensity,Night_gFlashAzimuth);
     Hrz_LightningFlicker(0);

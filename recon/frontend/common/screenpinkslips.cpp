@@ -247,34 +247,21 @@ void tScreenPinkSlips::Cleanup()
 void tScreenPinkSlips::UpdateVideoWall(tTrackInformation &trackInfo)
 
 {
-  /* MATCH: fTrackID is a SIGNED byte (this build's plain `char` is unsigned, so
-     every read needs the explicit signed-char view -> lbu + sll/sra 24); the
-     ONE sign-extended value feeds both the compare and the sprintf arg (oracle
-     `addu $a2,$v0,$zero`), while the fPreviousTrack store RE-READS the field
-     (the two calls may alias).  fPreviousTrack is a signed short -> `lh`. */
-  /* MATCH (W55-A15/W59, 12 -> PASS, count 43/43): retail does NOT fuse the sign-extension into
-     an `lb` -- the oracle reads `lbu` then `sll 24 / sra 24`.  Per the volatile-QImode law
-     a volatile QImode MEM cannot be combined with its sign_extend, so the volatile u_char
-     view prevents folding to `lb`.  Giving the promoted value its real narrow source type,
-     `signed char`, then makes local allocation put the shift temporary in $a2 and the
-     sign-extended result back in $v0; promotion at sprintf mints retail's final
-     `addu $a2,$v0,$zero` in the call delay slot.
-     Falsified here: an identity fence on trackID at the definition (count-exact 43/43,
-     16 diffs), the same fence just before the sprintf and a read-only fence inside the
-     `if` (both 43/43 @10 -- they mint the copy but leave the sll/sra pair swapped and
-     cost the beq delay-slot fill), a two-statement shift split (9), Yoda compare order. */
-  signed char trackID = *(volatile u_char *)&trackInfo.fTrackID;
-
-  if (trackID != this->fPreviousTrack) {
-    sprintf(gSwapFileName,"TR%02dPS",trackID);
+  /* SYM records no locals.  Repeating the explicit
+     `(signed char)(u_char)fTrackID` expression lets GCC CSE one unsigned byte
+     read across the compare and sprintf argument while retaining retail's
+     lbu/sll/sra promotion sequence; the calls then force the later
+     fPreviousTrack assignment to reread the field.  Writing fTVTicks before
+     fTransitionDirection also schedules the ticks load before the -1 store,
+     reproducing retail without the former trackID/iVar1 carriers or volatile. */
+  if ((signed char)(u_char)trackInfo.fTrackID != this->fPreviousTrack) {
+    sprintf(gSwapFileName,"TR%02dPS",(signed char)(u_char)trackInfo.fTrackID);
     ::AsyncLoadSwapShapeFile((tScreen *)this,gSwapFileName);
     this->fTVsInitialized = 0;
     this->fPreviousTrack = (short)(signed char)trackInfo.fTrackID;
     if (-1 < *(signed char *)&this->fTransitionDirection) {
-      int iVar1 = ticks;
-
+      this->fTVTicks = ticks;
       *(signed char *)&this->fTransitionDirection = -1;
-      this->fTVTicks = iVar1;
     }
     VIDEO_abortplayback(this->hVideo);
   }

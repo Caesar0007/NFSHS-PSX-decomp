@@ -3101,6 +3101,44 @@ retail `rom/nfs4-f.exe` comparison.  Both complete relink lanes are GREEN with
 zero real duplicates, hidden phantoms, or relocation-referenced unresolved
 symbols, and the vtable audit passes 930 files.
 
+### P90 — video-wall no-local source restoration (`2026-08-25`)
+
+Retail SYM records no locals in
+`tScreenPinkSlips::UpdateVideoWall`; the previous PASS source exposed
+`signed char trackID`, `int iVar1`, and a volatile byte access.  Reconstruction
+now repeats `(signed char)(u_char)trackInfo.fTrackID` at the compare and
+`sprintf` argument.  GCC CSEs the pre-call expressions into one unsigned byte
+read followed by retail's `lbu/sll/sra` promotion sequence, while the intervening
+calls still force the later `fPreviousTrack` assignment to reread the field.
+No volatile qualifier or caller-local identity is required.
+
+The tick update is restored as direct field statements.  Writing
+`fTVTicks = ticks` before assigning `fTransitionDirection = -1` lets GCC hoist
+the ticks load, then issue the -1 store before the tick store, exactly matching
+retail.  The opposite direct statement order is FAIL 7 at 44/43 instructions;
+the accepted order remains PASS at 43 instructions with an exact fresh `-g`
+twin.
+
+Retail also records no locals in
+`tScreenCarSelectDuel::InitializeVideoWall`.  Reconstruction removes
+`vw_player` and `vw_opp`, repeating `fVideoWall` and `fVideoWall + 1` directly
+at their consumers.  GCC naturally retains those addresses anonymously in
+retail `$s1` and `$s0`.  The function remains PASS at 71 instructions with an
+exact fresh `-g` twin.
+
+Complete TU gates remain 8/8 for `screenpinkslips.cpp` and 59/59 for
+`screencarselect.cpp`.  The strict frontend/common audit advances from 614 to
+616 declaration-clean functions and reduces generic extra names from 799 to
+795.  Missing names, type findings, storage findings, global findings, and
+mapping reviews remain zero.
+
+The isolated clean frontend baseline remains 835/838 with zero compile
+failures and the same three pre-existing residuals.  A complete clean build
+compiled and linked every TU, stopping only at the unavailable untracked
+retail `rom/nfs4-f.exe` comparison.  Both complete relink lanes are GREEN with
+zero real duplicates, hidden phantoms, or relocation-referenced unresolved
+symbols, and the vtable audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

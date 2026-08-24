@@ -1393,25 +1393,23 @@ void tScreenCarSelectDuel::FreeAsyncBuffer()
 void tScreenCarSelectDuel::InitializeVideoWall()
 
 {
-  tVideoWall *vw_opp;
-  tVideoWall *vw_player;
-  
-  vw_player = this->fVideoWall;
+  /* SYM records no locals.  Repeating fVideoWall and fVideoWall + 1 at their
+     consumers lets GCC retain the two addresses anonymously in retail $s1
+     and $s0 without the former vw_player/vw_opp source identities. */
   ::Initialize(&this->fVideoWall[0],this->tvConfigs,
              this->fSwapShapes.fShapes,0,5,tvSplitOrder,0);
-  SetAvailableText(vw_player,0xf8,0x10e,0x2d);
+  SetAvailableText(this->fVideoWall,0xf8,0x10e,0x2d);
   if ((this->fSwapShapes.fFlags & 1) != 0) {
-    vw_player->SetOffset(6,0);
-    UpdateImages(vw_player);
+    this->fVideoWall->SetOffset(6,0);
+    UpdateImages(this->fVideoWall);
     this->fTVsInitialized = 1;
   }
-  vw_opp = this->fVideoWall + 1;
   ::Initialize(&this->fVideoWall[1],this->tvConfigs + 5,(this->fOpponentShapes).fShapes,0,5,
              tvSplitOrder,0);
-  SetAvailableText(vw_player,0xf8,0x10e,0x96);
+  SetAvailableText(this->fVideoWall,0xf8,0x10e,0x96);
   if (((this->fOpponentShapes).fFlags & 1) != 0) {
-    vw_opp->SetOffset(6,0x69);
-    UpdateImages(vw_opp);
+    (this->fVideoWall + 1)->SetOffset(6,0x69);
+    UpdateImages(this->fVideoWall + 1);
     this->fTVsInitialized = 1;
   }
   return;

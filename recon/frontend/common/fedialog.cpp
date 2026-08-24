@@ -977,8 +977,8 @@ void tDialogYesNoTri::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyVal,tMen
 
 /* ---- tDialogNoInputMessage::ProcessInput  [FEDIALOG.CPP:921-931] SLD-VERIFIED ---- */
 
-void tDialogNoInputMessage::ProcessInput(tPlayer atPlayer,tInputKeyType &keyVal,
-               tMenuCommand &command)
+void tDialogNoInputMessage::ProcessInput(tPlayer,tInputKeyType &,
+               tMenuCommand &)
 
 {
   return;

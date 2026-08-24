@@ -2996,6 +2996,57 @@ retail `rom/nfs4-f.exe` comparison.  Both complete relink lanes are GREEN with
 zero real duplicates, hidden phantoms, or relocation-referenced unresolved
 symbols, and the vtable audit passes 930 files.
 
+### P88 — optimized-away frontend callback parameters (`2026-08-25`)
+
+Retail SYM records only the implicit `this` for the empty virtual bodies
+`tDialogNoInputMessage::ProcessInput` and `tMenuItem::ProcessInput`; their
+required `tPlayer`, `tInputKeyType&`, and `tMenuCommand&` ABI parameters have no
+recoverable source names.  Reconstruction now leaves all six definition-side
+declarators unnamed while retaining the exact virtual signatures.
+
+The same optimized-debug pattern applies to 20 `femenudefs.cpp` callbacks whose
+`tMenuCommand&` argument is required by linkage but unused by the body.  Retail
+SYM records no parameter name for these functions, so reconstruction now leaves
+the definition-side reference unnamed in the following callbacks:
+
+- `MenuExtended_SetTestDrive`, `MenuExtended_SetSingleRace`,
+  `MenuExtended_SetTournament`, `MenuExtended_SetSpecialEvent`,
+  `MenuExtended_SetSoloRace`, `MenuExtended_SetDuelRace`, and
+  `MenuExtended_SetFullGrid`;
+- `MenuExtended_SetHPSoloRace`, `MenuExtended_SetHPDuelRace`, and
+  `MenuExtended_SetHotPursuit`;
+- `MenuExtended_PurchaseUpgrade1`, `MenuExtended_PurchaseUpgrade2`,
+  `MenuExtended_PurchaseUpgrade3`, `MenuExtended_SaveGame`, and
+  `MenuExtended_SetPinkSlips`;
+- `MenuExtended_GoToTournTrophyRoom`, `MenuExtended_GoToSETrophyRoom`,
+  `MenuExtended_SetBeginner`, `MenuExtended_SetIntermediate`, and
+  `MenuExtended_SetExpert`.
+
+All 22 changed functions remain individually PASS.  Complete TU gates remain
+33/33 for `fedialog.cpp`, 73/73 for `femenu.cpp`, and 65/66 for
+`femenudefs.cpp`; the latter's sole residual remains the pre-existing
+`tGlobalMenuDefs` constructor.  The strict frontend/common audit advances from
+590 to 612 declaration-clean functions and reduces generic extra names from
+829 to 803, with zero missing names, type findings, storage findings, global
+findings, or mapping reviews.
+
+Four adjacent one-local callbacks were instruction-traced but intentionally
+left unchanged.  Removing `ptVar1` and addressing `menuDefs[0]` directly makes
+`MenuExtended_TransitionFromPostGameToMainMenu` FAIL 5 at 8/7 instructions;
+the corresponding direct forms of `MenuExtended_GoToUpgrades`,
+`MenuExtended_GoToShowroom`, and `MenuExtended_GoToDealerShowroom` each FAIL 7
+at 17/16.  The direct expressions perform the potentially aliasing command
+store before loading `menuDefs`, whereas retail loads `menuDefs` first and
+retains it across the store.  Failed forms were reverted; this measured source
+shape contradiction remains explicit rather than being mislabeled resolved.
+
+The isolated clean frontend baseline remains 835/838 with zero compile
+failures and the same three pre-existing residuals.  A complete clean build
+compiled and linked every TU, stopping only at the unavailable untracked
+retail `rom/nfs4-f.exe` comparison.  Both complete relink lanes are GREEN with
+zero real duplicates, hidden phantoms, or relocation-referenced unresolved
+symbols, and the vtable audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

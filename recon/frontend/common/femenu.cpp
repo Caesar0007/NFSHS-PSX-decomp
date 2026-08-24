@@ -494,7 +494,7 @@ long tMenuItem::DebounceKeys()
 
 /* ---- tMenuItem::ProcessInput  [FEMENU.CPP:447-448] SLD-VERIFIED ---- */
 
-void tMenuItem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command)
+void tMenuItem::ProcessInput(tPlayer,tInputKeyType &,tMenuCommand &)
 
 {
   return;

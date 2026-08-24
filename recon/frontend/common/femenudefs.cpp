@@ -86,7 +86,7 @@ void MenuExtended_SetTwoPlayer(tMenuCommand &command)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetTestDrive(tMenuCommand &command)
+void MenuExtended_SetTestDrive(tMenuCommand &)
 
 {
   frontEnd.carListType = '\0';
@@ -112,7 +112,7 @@ void MenuExtended_SetTestDrive(tMenuCommand &command)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetSingleRace(tMenuCommand &command)
+void MenuExtended_SetSingleRace(tMenuCommand &)
 
 {
   frontEnd.carListType = '\x01';
@@ -138,7 +138,7 @@ void MenuExtended_SetSingleRace(tMenuCommand &command)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetTournament(tMenuCommand &command)
+void MenuExtended_SetTournament(tMenuCommand &)
 
 {
   frontEnd.carListType = '\x01';
@@ -165,7 +165,7 @@ void MenuExtended_SetTournament(tMenuCommand &command)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetSpecialEvent(tMenuCommand &command)
+void MenuExtended_SetSpecialEvent(tMenuCommand &)
 
 {
   frontEnd.carListType = '\x01';
@@ -192,7 +192,7 @@ void MenuExtended_SetSpecialEvent(tMenuCommand &command)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetSoloRace(tMenuCommand &command)
+void MenuExtended_SetSoloRace(tMenuCommand &)
 
 {
   frontEnd.pinkSlipsTrackIndex = '\0';
@@ -293,7 +293,7 @@ void MenuExtended_GoToTwoPlayerSingleRace(tMenuCommand &command)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetDuelRace(tMenuCommand &command)
+void MenuExtended_SetDuelRace(tMenuCommand &)
 
 {
   frontEnd.pinkSlipsTrackIndex = '\0';
@@ -319,7 +319,7 @@ void MenuExtended_SetDuelRace(tMenuCommand &command)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetFullGrid(tMenuCommand &command)
+void MenuExtended_SetFullGrid(tMenuCommand &)
 
 {
   frontEnd.pinkSlipsTrackIndex = '\0';
@@ -1336,7 +1336,7 @@ void MenuExtended_GoToDealerShowroom(tMenuCommand &command)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetHPSoloRace(tMenuCommand &command)
+void MenuExtended_SetHPSoloRace(tMenuCommand &)
 
 {
   frontEnd.pinkSlipsTrackIndex = '\0';
@@ -1362,7 +1362,7 @@ void MenuExtended_SetHPSoloRace(tMenuCommand &command)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetHPDuelRace(tMenuCommand &command)
+void MenuExtended_SetHPDuelRace(tMenuCommand &)
 
 {
   frontEnd.pinkSlipsTrackIndex = '\0';
@@ -1389,7 +1389,7 @@ void MenuExtended_SetHPDuelRace(tMenuCommand &command)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetHotPursuit(tMenuCommand &command)
+void MenuExtended_SetHotPursuit(tMenuCommand &)
 
 {
   frontEnd.carListType = '\0';
@@ -1699,7 +1699,7 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_PurchaseUpgrade1(tMenuCommand &command)
+void MenuExtended_PurchaseUpgrade1(tMenuCommand &)
 
 {
   MenuExtended_PurchaseUpgrade(1);
@@ -1723,7 +1723,7 @@ void MenuExtended_PurchaseUpgrade1(tMenuCommand &command)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_PurchaseUpgrade2(tMenuCommand &command)
+void MenuExtended_PurchaseUpgrade2(tMenuCommand &)
 
 {
   MenuExtended_PurchaseUpgrade(2);
@@ -1747,7 +1747,7 @@ void MenuExtended_PurchaseUpgrade2(tMenuCommand &command)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_PurchaseUpgrade3(tMenuCommand &command)
+void MenuExtended_PurchaseUpgrade3(tMenuCommand &)
 
 {
   MenuExtended_PurchaseUpgrade(0);
@@ -1769,7 +1769,7 @@ void MenuExtended_PurchaseUpgrade3(tMenuCommand &command)
    [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_SaveGame__FR12tMenuCommand(int arg0)'.Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling pattern.
     */
 
-void MenuExtended_SaveGame(tMenuCommand &command)
+void MenuExtended_SaveGame(tMenuCommand &)
 
 {
   if ((CURRENTLYUSINGMEMCARD == 0) &&
@@ -2180,7 +2180,7 @@ void MenuExtended_FinishedPlayer2GetName(tMenuCommand &command)
    `pinkSlipsWinner[i]=-1`) reproduces the oracle's per-iteration sll<<16;sra>>16 exactly.
    -> byte-match, 48/48 insns. */
 
-void MenuExtended_SetPinkSlips(tMenuCommand &command)
+void MenuExtended_SetPinkSlips(tMenuCommand &)
 
 {
   short i;
@@ -2371,7 +2371,7 @@ void MenuExtended_GoToGarage(tMenuCommand &command)
    MenuExtended_GoToTournTrophyRoom__FR12tMenuCommand(int arg0)'. Fixed via m2c body (arg0 = struct
    deref) + PCSX runtime (a0 = consistent ptr) + sibling pattern. */
 
-void MenuExtended_GoToTournTrophyRoom(tMenuCommand &command)
+void MenuExtended_GoToTournTrophyRoom(tMenuCommand &)
 
 {
   frontEnd.tier = '\0';
@@ -2395,7 +2395,7 @@ void MenuExtended_GoToTournTrophyRoom(tMenuCommand &command)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_GoToSETrophyRoom(tMenuCommand &command)
+void MenuExtended_GoToSETrophyRoom(tMenuCommand &)
 
 {
   frontEnd.tier = '\x01';
@@ -2418,7 +2418,7 @@ void MenuExtended_GoToSETrophyRoom(tMenuCommand &command)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetBeginner(tMenuCommand &command)
+void MenuExtended_SetBeginner(tMenuCommand &)
 
 {
   frontEnd.skillLevel = '\0';
@@ -2442,7 +2442,7 @@ void MenuExtended_SetBeginner(tMenuCommand &command)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetIntermediate(tMenuCommand &command)
+void MenuExtended_SetIntermediate(tMenuCommand &)
 
 {
   frontEnd.skillLevel = '\x01';
@@ -2465,7 +2465,7 @@ void MenuExtended_SetIntermediate(tMenuCommand &command)
    arg0)'. Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling
    pattern. */
 
-void MenuExtended_SetExpert(tMenuCommand &command)
+void MenuExtended_SetExpert(tMenuCommand &)
 
 {
   frontEnd.skillLevel = '\x02';

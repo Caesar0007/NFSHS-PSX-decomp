@@ -381,6 +381,9 @@ int AskTheUserToSaveTheGame(void)
 void MenuExtended_TransitionFromPostGameToMainMenu(tMenuCommand &command)
 
 {
+  /* SYM-CODEGEN-CARRIER: ptVar1 -- retail records no caller local here, but
+     spelling menuDefs[0] directly is FAIL 5 at 8/7 instructions: the possibly
+     aliasing command store moves before the menuDefs load. */
   tGlobalMenuDefs *ptVar1;
   
   ptVar1 = menuDefs[0];
@@ -657,6 +660,8 @@ static void MenuExtended_GoToSeller(tMenuCommand &command)
 static void MenuExtended_GoToUpgrades(tMenuCommand &command)
 
 {
+  /* SYM-CODEGEN-CARRIER: ptVar1 -- the direct menuDefs[0] member expression is
+     FAIL 7 at 17/16 instructions because its load crosses the command store. */
   tGlobalMenuDefs *ptVar1;
   
   ptVar1 = menuDefs[0];
@@ -1289,6 +1294,8 @@ void MenuExtended_EnterUserName(tMenuCommand &command)
 void MenuExtended_GoToShowroom(tMenuCommand &command)
 
 {
+  /* SYM-CODEGEN-CARRIER: ptVar1 -- the direct menuDefs[0] member expression is
+     FAIL 7 at 17/16 instructions because its load crosses the command store. */
   tGlobalMenuDefs *ptVar1;
   
   ptVar1 = menuDefs[0];
@@ -1311,6 +1318,8 @@ void MenuExtended_GoToShowroom(tMenuCommand &command)
 void MenuExtended_GoToDealerShowroom(tMenuCommand &command)
 
 {
+  /* SYM-CODEGEN-CARRIER: ptVar1 -- the direct menuDefs[0] member expression is
+     FAIL 7 at 17/16 instructions because its load crosses the command store. */
   tGlobalMenuDefs *ptVar1;
   
   ptVar1 = menuDefs[0];

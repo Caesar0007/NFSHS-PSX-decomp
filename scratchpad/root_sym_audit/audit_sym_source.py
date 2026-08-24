@@ -1650,7 +1650,7 @@ def audit(
 
 
 def main() -> None:
-    global STRICT_NATIVE_BOOL
+    global DEFAULT_SYM, STRICT_NATIVE_BOOL
     parser = argparse.ArgumentParser()
     parser.add_argument("target", nargs="?", default="recon/frontend/common")
     parser.add_argument("--sym", type=Path, default=DEFAULT_SYM)
@@ -1661,6 +1661,8 @@ def main() -> None:
         help="report native C++ bool separately from four-byte BOOL",
     )
     args = parser.parse_args()
+    # Keep the report provenance exact when a caller selects a non-default SYM.
+    DEFAULT_SYM = args.sym
     STRICT_NATIVE_BOOL = args.strict_native_bool
     target = (ROOT / args.target).resolve() if not Path(args.target).is_absolute() else Path(args.target)
     sources = sorted([*target.glob("*.cpp"), *target.glob("*.c")])

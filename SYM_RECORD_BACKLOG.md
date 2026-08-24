@@ -3236,6 +3236,60 @@ real duplicates, hidden phantoms, or relocation-referenced unresolved symbols;
 call-target and undefined-call audits report zero defects, the TU-order audit
 reports zero inversions, and the vtable audit passes 930 files.
 
+### P93 — frontend one-local queue closure and worktree-safe audit provenance (`2026-08-25`)
+
+The five remaining one-local generic review rows are now reconciled against
+retail SYM, SLD, and fresh instruction gates.  Four are adjacent
+`femenudefs.cpp` callbacks whose retail blocks contain no named caller local.
+Their `ptVar1 = menuDefs[0]` caches are explicit `SYM-CODEGEN-CARRIER`
+identities: replacing the first cache with direct member access is FAIL 5 at
+8/7 instructions, and the corresponding direct forms of
+`MenuExtended_GoToUpgrades`, `MenuExtended_GoToShowroom`, and
+`MenuExtended_GoToDealerShowroom` are each FAIL 7 at 17/16.  The direct forms
+move the potentially aliasing command store before the `menuDefs` load.  The
+documented forms remain exact PASS at 7, 16, 16, and 16 instructions.
+
+`GetPSXPadValue` has only `int newControl` in `$v0` and `int type` in `$v1` in
+the reliable function block; the SLD covers source lines 333--465 and records
+no nested block local.  The two block-local `acc` spellings are therefore
+explicit source-only codegen carriers, not claimed original identifiers.  They
+form one atomic cross-jump group and, with the already measured zero-insn
+hard-register denial, improve the authoritative function from FAIL 18 to the
+current count-exact FAIL 12 at 222/222 instructions.  Both sites now carry the
+same `SYM-CODEGEN-CARRIER: acc` disposition and point to the existing
+W72-A8/W74-A7 allocator receipt.
+
+A new SLD/retail-dataflow reconstruction path was measured and fully reverted.
+Separating `newControl |= 1` from the return was byte-neutral at FAIL 12.
+Anonymous `1 | (expression)` across the complete G1 shared-tail trio was FAIL
+106 at 222/222.  Treating retail `$v0` as a source-level high-field/tag-only
+`newControl` scored FAIL 55 at 223/222 for G1, FAIL 68 at 222/222 for symmetric
+G1+G2, and FAIL 141 at 215/222 when applied to every analog arm.  The last
+result proves that `$v0` is an optimizer intermediate in that dataflow, not a
+valid partial assignment interpretation of the SYM local.  The exact prior
+source was restored before this checkpoint.
+
+The refreshed strict frontend/common audit is stored in
+[`frontend_common_strict_p93_20260825.md`](scratchpad/root_sym_audit/frontend_common_strict_p93_20260825.md).
+It advances declaration-clean mapped functions from 618 to 623, reduces
+generic extra source-local names from 785 to 780, classifies 165 explicit
+source-only codegen carriers, and reports zero missing SYM names, mangled
+source identifiers, type findings, storage findings, global findings, or
+functions needing mapping review.  The audit generator now reports the actual
+`--sym` input path, and the call-target audit plus its object classifier now
+derive their repository root from `__file__`; linked-worktree gates can no
+longer silently inspect the dirty primary checkout.
+
+The complete frontend board remains 816/838 with zero compile failures.
+`front.cpp` remains 42/43 with only the pre-existing count-exact
+`GetPSXPadValue` residual; `femenudefs.cpp` remains 58/66 with no PASS
+regression.  A complete build compiled and linked every TU, stopping only when
+the isolated worktree lacked `rom/nfs4-f.exe` for the final image comparison.
+Both relink lanes are GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols.  Call-target and undefined-call
+audits report zero defects, the TU-order audit reports zero inversions, and the
+vtable indexing audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

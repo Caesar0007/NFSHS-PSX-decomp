@@ -19,7 +19,9 @@ import sys
 import tempfile
 from pathlib import Path
 
-ROOT = Path(r'C:\Temp\nfs4-decomp')
+# Resolve the checkout that owns this tool; hardcoding the primary checkout
+# makes a clean linked-worktree audit report unrelated dirty-tree results.
+ROOT = Path(__file__).resolve().parents[1]
 CLI = str(ROOT / 'tools' / 'objdiff' / 'objdiff-cli.exe')   # vendored 3.8.0; the repo IS the version pin
 sys.path.insert(0, str(Path(__file__).parent))
 from objclass import addrs, mnem, reloc_of  # noqa: E402

@@ -574,7 +574,8 @@ GetPSXPadValue_gotType:
   case 0x73:
     switch (value) {
     case 0x800000:
-      /* W72-A8 G4 arm -- see the W72-A8 receipt above.  A BLOCK-LOCAL
+      /* SYM-CODEGEN-CARRIER: acc -- W72-A8 G4 arm; retail SYM records only
+         newControl/type.  See the W72-A8/W74-A7 receipt above.  A BLOCK-LOCAL
          accumulator (so local-alloc.c:1866 may tie the last `or`'s dest to
          its own first operand) + the zero-insn hard-reg denial that steers
          that block-local qty onto retail's $a1.  Both 0x800000 arms must
@@ -630,8 +631,8 @@ GetPSXPadValue_gotType:
   case 0x23:
     switch (value) {
     case 0x800000:
-      /* W72-A8 G4 arm -- the twin of the 0x53/0x800000 arm above; they share
-         retail's .L8002744C tail and MUST be converted as a pair. */
+      /* SYM-CODEGEN-CARRIER: acc -- the twin of the 0x53/0x800000 arm above;
+         they share retail's .L8002744C tail and MUST be converted as a pair. */
       { int acc = player << 0x1e;
         __asm__("" : : "i"(0) : "$2","$3");
         return (acc |

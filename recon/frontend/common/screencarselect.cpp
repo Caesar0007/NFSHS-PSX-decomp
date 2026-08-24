@@ -22,6 +22,13 @@ inline tDialogBase *tDialogBase::SetPosition(short x, short y, tPlayer player)
   return this;
 }
 
+/* The SetDialog SLD records this string-store expansion as an inline
+   tDialogMessageString receiver.  No standalone symbol retains its spelling. */
+inline tDialogMessageString *tDialogMessageString::SetString(char *text)
+{
+  string = text;
+  return this;
+}
 
 /* ---- (static)::TransformVector  [SCREENCARSELECT.CPP:51-59] ---- */
 /* File-static 4x4 fixed-point matrix * 4-vector (ScreenCarSelect.obj 1st fn @0x8003a8f0).
@@ -2586,45 +2593,36 @@ void tScreenPinkSlipsCarSelect::Cleanup()
 
 
 /* ---- tScreenPinkSlipsCarSelect::SetDialog  [SCREENCARSELECT.CPP:2098-2187] ---- */
-/* MATCH W63 PASS (37 -> 0, 164/164 instructions).  The raw CFG/SLD puts the
+/* MATCH W63/P92 PASS (37 -> 0, 164/164 instructions).  The raw CFG/SLD puts the
    CardLoadedFine message arm first and branches to the ready-player Hide arm;
    it also places the shared card-failure tail before the three loading cases.
-   Block-local dialog bases after sprintf and before TextSys_Word reproduce the
-   two retail address-materialization sites and seal the final store operands. */
+   Retail SYM records one caller local, `player` in $s0; the repeated dialog
+   aliases below represent its inline tDialogMessageString `this` scopes. */
 void tScreenPinkSlipsCarSelect::SetDialog()
 
 {
-  char *str;
-  char *str2;
-  short y_off;
-  int iVar3;
+  /* SYM-CODEGEN-CARRIER: wordnum -- retail lists no durable caller local for
+     this selector.  Each definition feeds TextSys_Word in $a0 and dies there;
+     duplicated selector-free arms are count-exact FAIL 2 (the final store uses
+     $s0 instead of retail $a0).  Reusing one selector across the disjoint card
+     and loading funnels is PASS and does not join their RTL lifetimes.  Neither
+     SYM nor the binary can distinguish this optimized local from a macro temp. */
   int wordnum;
   int player;
-  uint p;
-  byte p_byte;
   
-  /* MATCH: ONE u_int `p` (a separate `byte p_byte` + `(uint)` copy emits two dead
-     `andi ..,255` promotions the oracle has none of) and a BLOCK-LOCAL `dlg`
-     declared AFTER the y_off select -- the oracle materializes `addiu v0,s2,928`
-     there, in a caller-saved reg, and reaches all three header fields by
-     displacement (124/126/100) instead of the absolute 1028/1052/1054. */
-  p = FEApp->fPlayer;
-  y_off = 0x3c;
-  if (p == 0) {
-    y_off = -0x3c;
-  }
-  tDialogBackUpOnly *dlg = &this->CarDialog;
-  dlg->OffsetX = 0;
-  dlg->OffsetY = y_off;
-  dlg->specificPlayer = (ushort)p;
+  /* SYM: `player` is the sole caller local ($s0).  SetPosition reconstructs the
+     line-2100 inline tDialogBase receiver and its three retail halfword stores. */
+  player = FEApp->fPlayer;
+  this->CarDialog.SetPosition(0, (player == 0) ? -0x3c : 0x3c,
+                              (tPlayer)player);
   /* MATCH: the Hide+return block is OUT OF LINE -- the oracle's `bnez fExitingScreen`
      branches TO it and it sits physically right after the switch dispatch (`jr v0`),
      i.e. it IS the first case body.  Keeping it inline as the if-body flips the
      branch polarity and costs the `j T; nop` skip pair. */
-  if (((PinkSlipsScreenState[0] != CardLoadedFine) && (p == 1)) || (this->fExitingScreen != 0)) {
+  if (((PinkSlipsScreenState[0] != CardLoadedFine) && (player == 1)) || (this->fExitingScreen != 0)) {
     goto switchD_8003f3b4_caseD_7;
   }
-  if (PinkSlipsScreenState[p] != NoCardInserted) {
+  if (PinkSlipsScreenState[player] != NoCardInserted) {
     this->fStartCheckTick = 0;
   }
   /* MATCH: CASE BODIES IN ORACLE VA ORDER (wave-10 law).  The jump table is keyed
@@ -2633,22 +2631,19 @@ void tScreenPinkSlipsCarSelect::SetDialog()
      CardFailed(0x2ad, falls through into the shared TextSys_Word/Display tail),
      then NotEnough/TooMany.  Ghidra's value order costs ~60 diffs of pure block
      motion. */
-  switch(PinkSlipsScreenState[p]) {
+  switch(PinkSlipsScreenState[player]) {
   case WhoCaresWeBeExiting:
 switchD_8003f3b4_caseD_7:
     ((tDialogBase *)&this->CarDialog)->Hide();
     return;
   case CardLoadedFine:
-    if ((FEApp->waitingForOtherPlayer[p] != 0) ||
-        (PinkSlipsScreenState[1 - p] != CardLoadedFine)) {
-      str2 = TextSys_Word(0x2a8);
-      str = PlayerName(1 - p);
-      sprintf("",str2,str);
+    if ((FEApp->waitingForOtherPlayer[player] != 0) ||
+        (PinkSlipsScreenState[1 - player] != CardLoadedFine)) {
+      sprintf("",TextSys_Word(0x2a8),PlayerName(1 - player));
       {
+        /* SYM-CODEGEN-CARRIER: dlg -- preserves the inline receiver allocation. */
         tDialogBackUpOnly *dlg = &this->CarDialog;
-
-        dlg->string = "";
-        ((tDialogBase *)dlg)->Display();
+        dlg->SetString("")->tDialogBase::Display();
       }
       this->fStartCheckTick = 0;
       goto SetDlg_cardOkReturn;
@@ -2661,22 +2656,15 @@ switchD_8003f3b4_caseD_7:
       if (this->fStartCheckTick == 0) {
         this->fStartCheckTick = ticks[0];
       }
-      iVar3 = p + 0x2ab;
+      wordnum = player + 0x2ab;
       if (799 < ticks[0] - this->fStartCheckTick) {
-        iVar3 = p + 0x2a9;
+        wordnum = player + 0x2a9;
       }
       {
-      /* MATCH (W57-A2): BASE-POINTER HOIST, taken BEFORE the TextSys_Word
-         call so the address is live across it -- the oracle materializes
-         `addiu s0,s2,928` (&CarDialog) into a register and reaches the
-         string field by displacement (`sw v0,144(s0)`) AND passes the same
-         register to Display (`addu a0,s0,zero`).  Taken AFTER the call gcc
-         folds it back into `sw v0,1072(s2)` + `addiu a0,s2,928` (2 insns,
-         1 short).  Same lever as SetDialog__25tScreenCarSelectTwoPlayer. */
-      tDialogBackUpOnly *dlg = &this->CarDialog;
-      str2 = TextSys_Word(iVar3);
-      dlg->string = str2;
-      ((tDialogBase *)dlg)->Display();
+        /* SYM-CODEGEN-CARRIER: dlg -- the inline receiver must be born before
+           TextSys_Word to occupy retail $s0 and fill the call delay slot. */
+        tDialogBackUpOnly *dlg = &this->CarDialog;
+        dlg->SetString(TextSys_Word(wordnum))->tDialogBase::Display();
       }
       return;
     }
@@ -2689,39 +2677,35 @@ switchD_8003f3b4_caseD_7:
     this->fStartCheckTick = 0;
     goto SetDlg_cardOkReturn;
   case CardFailedNotFound:
-    iVar3 = p + 0x2af;
+    wordnum = player + 0x2af;
     goto SetDlg_cardFailed;
   case CardFailedUnformatted:
-    iVar3 = p + 0x2b1;
+    wordnum = player + 0x2b1;
     goto SetDlg_cardFailed;
   case CardFailed:
-    iVar3 = p + 0x2ad;
+    wordnum = player + 0x2ad;
 SetDlg_cardFailed:
     {
+      /* SYM-CODEGEN-CARRIER: dlg -- preserves the inline receiver allocation. */
       tDialogBackUpOnly *dlg = &this->CarDialog;
-
-      str2 = TextSys_Word(iVar3);
-      dlg->string = str2;
-      ((tDialogBase *)dlg)->Display();
+      dlg->SetString(TextSys_Word(wordnum))->tDialogBase::Display();
     }
     this->fCardFailed = 1;
     this->fStartCheckTick = 0;
     return;
   case NotEnoughCars:
-    wordnum = p + 0x32d;
+    wordnum = player + 0x32d;
     goto SetDlg_loadingWord;
   case TooManyCars:
-    wordnum = p + 0x32f;
+    wordnum = player + 0x32f;
     goto SetDlg_loadingWord;
   case CardCurrentlyLoading:
-    wordnum = p + 0x280;
+    wordnum = player + 0x280;
 SetDlg_loadingWord:
     {
+      /* The shared selector remains block-local in RTL across this funnel. */
       tDialogBackUpOnly *dlg = &this->CarDialog;
-
-      str2 = TextSys_Word(wordnum);
-      dlg->string = str2;
-      ((tDialogBase *)dlg)->Display();
+      dlg->SetString(TextSys_Word(wordnum))->tDialogBase::Display();
     }
     this->fStartCheckTick = 0;
 SetDlg_cardOkReturn:

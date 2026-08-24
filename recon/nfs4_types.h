@@ -3937,6 +3937,7 @@ struct tDialogMessageString : public tDialogBase {   /* 152 bytes */
     char               *string;   /* +0x90 */
     bool               Centerit;   /* +0x94 */
     tDialogMessageString();
+    inline tDialogMessageString *SetString(char *text);
     /* FEDialog methods */
     void CalculateDimensions();
     void Draw();

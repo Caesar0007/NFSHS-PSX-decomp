@@ -3185,6 +3185,57 @@ unresolved symbols.  The vtable audit passes 930 files, call-target and
 undefined-call audits report zero defects, and the TU-order audit reports zero
 inversions.
 
+### P92 — pink-slips dialog SYM-local and inline-receiver restoration (`2026-08-25`)
+
+Retail SYM records `int player` in `$s0` as the only durable caller local in
+`tScreenPinkSlipsCarSelect::SetDialog`.  The prior exact source exposed eight
+generic review names: `dlg`, `iVar3`, `p`, `p_byte`, `str`, `str2`, `wordnum`,
+and `y_off`.  The SLD also records the same inline `tDialogBase this` three-store
+scope restored in P91 and repeated inline `tDialogMessageString this` scopes at
+the message-store sites.
+
+Reconstruction now uses `player` directly from the FE application, invokes the
+P91 `SetPosition` inline member for OffsetX, OffsetY, and specificPlayer, nests
+the `TextSys_Word`/`PlayerName` calls directly, and restores a semantic inline
+`tDialogMessageString::SetString` expansion.  This removes `p`, `p_byte`,
+`y_off`, `str`, `str2`, and the initial dialog-base alias.  The former `iVar3`
+and loading-only `wordnum` selectors are merged into one descriptive `wordnum`
+carrier shared across disjoint switch funnels; GCC keeps each definition
+block-local in RTL, so their lifetimes do not join.
+
+The remaining `wordnum` identity is measured rather than a generic review
+disposition.  Expanding the three loading arms without a selector preserves the
+164-instruction count but is FAIL 2: the final message store uses saved `$s0`
+instead of retail `$a0`.  The one-selector common funnel is exact.  An isolated
+compiler lab reproduced the production PsyQ function instruction-for-instruction
+with the instrumented GCC 2.8.1 C++ compiler, confirming that the divergence is
+formed before local allocation rather than by a guessed allocator floor.
+
+The repeated block-local `dlg` spellings are explicit source carriers for the
+inline message-dialog receivers recorded by SLD.  Their retail registers vary
+by call site exactly as the nested `this` records require; removing the alias at
+the NoCard site is count-exact FAIL 6 because the receiver remains in `$a0`
+instead of retail `$s0`.  SYM and the binary do not preserve the original inline
+setter identifier, its exact return-type spelling, or whether the optimized
+word selector originated as a named local or a macro temporary.  `SetString`
+and `wordnum` are therefore semantic reconstruction spellings, not claims of
+uniquely recovered source tokens.
+
+The function remains exact PASS at 164/164 instructions with an exact fresh
+`-g` twin, and the complete `screencarselect.cpp` gate remains 59/59 PASS.  The
+strict frontend/common audit advances from 617 to 618 declaration-clean
+functions, reduces generic extra names from 793 to 785, and classifies the two
+remaining dialog/selector identities as explicit source-only carriers.  Missing
+names, type findings, storage findings, global findings, and mapping reviews
+remain zero.
+
+The source-only frontend board remains 816/838 with zero compile failures.  A
+complete build compiled and linked every TU, stopping only at the unavailable
+untracked `rom/nfs4-f.exe` comparison.  Both relink lanes are GREEN with zero
+real duplicates, hidden phantoms, or relocation-referenced unresolved symbols;
+call-target and undefined-call audits report zero defects, the TU-order audit
+reports zero inversions, and the vtable audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

@@ -3,6 +3,24 @@
  */
 #include "screenpost.h"
 
+/* The Initialize SLD puts the complete max/max/divide expansion on source line
+ * 118 and records only tInfo.  Keep its two evaluation carriers macro-private;
+ * the original macro spelling is not recoverable. */
+#define SCREENPOST_SET_COUNT_SPEED(self,tInfo) {          \
+  int max_money;                                         \
+  int max_damage;                                        \
+  max_money = (self)->moneyBonus;                        \
+  (self)->fStartCountdownNOW = 0;                        \
+  if (max_money < (tInfo).fMoney) {                      \
+    max_money = (tInfo).fMoney;                          \
+  }                                                      \
+  max_damage = (self)->moneyDamage;                      \
+  if (max_damage < max_money) {                          \
+    max_damage = max_money;                              \
+  }                                                      \
+  (self)->fCountSpeed = max_damage / 0x18;               \
+}
+
 
 /* ---- (free)::DrawMoney  [SCREENPOST.CPP:47-75] ---- */
 
@@ -13,22 +31,18 @@
 void DrawMoney(int x,int y,int numplaces,long number,int colfore,int colback)
 
 {
-  char *str;
   char string1 [50];
   char string2 [50];
   
   switch (numplaces) {
   case 3:
-    str = TextSys_Word(0x86);
-    sprintf(string1,str,0);
+    sprintf(string1,TextSys_Word(0x86),0);
     break;
   case 6:
-    str = TextSys_Word(0x87);
-    sprintf(string1,str,0,0);
+    sprintf(string1,TextSys_Word(0x87),0,0);
     break;
   case 9:
-    str = TextSys_Word(0x88);
-    sprintf(string1,str,0,0,0);
+    sprintf(string1,TextSys_Word(0x88),0,0,0);
     break;
   }
   FeTools_FormatMoney(string2,number);
@@ -55,9 +69,6 @@ tScreenTournamentStandings::tScreenTournamentStandings()
 void tScreenTournamentStandings::Initialize()
 
 {
-  int iVar1;
-  int max_damage;
-  int max_money;
   tAwardInformation tInfo;
   
   this->tScreen::Initialize();
@@ -69,10 +80,9 @@ void tScreenTournamentStandings::Initialize()
     if (tInfo.fMoney != 0) {
       this->gotmoney = 1;
     }
-    iVar1 = tournamentManager.fMoney - tInfo.fTournMoney;
-    this->moneyFinal = iVar1;
+    this->moneyFinal = tournamentManager.fMoney - tInfo.fTournMoney;
     if (tInfo.fCompletedGarageFull != 0) {
-      this->moneyFinal = iVar1 - tInfo.fCompletedBonusMoney;
+      this->moneyFinal -= tInfo.fCompletedBonusMoney;
     }
     this->moneyAwarded = tInfo.fMoney;
     tournamentManager.CalcTrackFinishDamageBill(false,this->moneyDamage,this->moneyBonus);
@@ -86,16 +96,7 @@ void tScreenTournamentStandings::Initialize()
     if (((this->moneyBonus == 0) && (this->moneyDamage == 0)) && (this->moneyAwarded == 0)) {
       this->fCountedDown = 1;
     }
-    max_money = this->moneyBonus;
-    this->fStartCountdownNOW = 0;
-    if (max_money < tInfo.fMoney) {
-      max_money = tInfo.fMoney;
-    }
-    max_damage = this->moneyDamage;
-    if (max_damage < max_money) {
-      max_damage = max_money;
-    }
-    this->fCountSpeed = max_damage / 0x18;
+    SCREENPOST_SET_COUNT_SPEED(this,tInfo);
   }
   else {
     this->moneyFinal = tournamentManager.fMoney - tInfo.fTournMoney;

@@ -35,7 +35,9 @@ void tScreenCongrats::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
      express both message choices directly, and keep the racer bound short;
      the decompiler's prefix/ranking locals changed statement order and the
      $s4/$s5 allocation.  The trophy test branches away to the switch arm. */
-  short numRanked;
+  short numRanked; /* SYM-CODEGEN-CARRIER: numRanked -- spelling the bound directly
+                      is measured FAIL 100 (156/150), grows the frame, and rotates
+                      every saved register; this short carrier preserves retail. */
   int i;
   int j;
   tTourneyInfo *tourneyInfo;
@@ -558,13 +560,11 @@ void tScreenTournamentTrophy::ProcessInput(tPlayer p,tInputKeyType &keyval,tMenu
 bool tScreenTournamentTrophy::GetCar(tCarInfo &carInfo)
 
 {
-  tCarInfo *srcCar;
   tAwardInformation tInfo;
   
   if (this->congratsMessage == kScreenCongrats_Congrats) {
     GetAwardInformation(&tournamentManager,&tInfo);
-    srcCar = GetCarFromID(&carManager, (u_short)tInfo.fAwardCarModel);
-    blockmove(srcCar,&carInfo,0xcc);
+    blockmove(GetCarFromID(&carManager, (u_short)tInfo.fAwardCarModel),&carInfo,0xcc);
     carInfo.fUpgrades = tInfo.fAwardCarUpgrades;
     carInfo.fColor = tInfo.fAwardCarColor;
   }
@@ -794,10 +794,8 @@ prizes_done:
 bool tScreenBeTheCopCongrats::GetCar(tCarInfo &carInfo)
 
 {
-  tCarInfo *srcCar;
   
-  srcCar = GetCarFromID(&carManager, (ushort)(byte)frontEnd.congratsCopCar);
-  blockmove(srcCar,&carInfo,0xcc);
+  blockmove(GetCarFromID(&carManager, (ushort)(byte)frontEnd.congratsCopCar),&carInfo,0xcc);
   carInfo.fCountry = frontEnd.congratsCopCountry;
   return 1;
 }
@@ -860,12 +858,10 @@ void tScreenBeTheCopCongrats::DrawCongratsMessage()
 bool tScreenTournamentCongrats::GetCar(tCarInfo &carInfo)
 
 {
-  tCarInfo *srcCar;
   tAwardInformation tInfo;
   
   GetAwardInformation(&tournamentManager,&tInfo);
-  srcCar = GetCarFromID(&carManager, (u_short)tInfo.fCompletedCar);
-  blockmove(srcCar,&carInfo,0xcc);
+  blockmove(GetCarFromID(&carManager, (u_short)tInfo.fCompletedCar),&carInfo,0xcc);
   return 1;
 }
 
@@ -873,18 +869,14 @@ bool tScreenTournamentCongrats::GetCar(tCarInfo &carInfo)
 void tScreenTournamentCongrats::CalculatePrizes()
 
 {
-  long cash;
   tAwardInformation tInfo;
   
   GetAwardInformation(&tournamentManager,&tInfo);
   this->tScreenCongrats::CalculatePrizes();
   this->trophy = kTrophyCar;
   this->TotalCash = tournamentManager.fMoney;
-  cash = -1;
-  if (tInfo.fCompletedGarageFull != 0) {
-    cash = tInfo.fCompletedBonusMoney;
-  }
-  this->CashAwarded = cash;
+  this->CashAwarded = tInfo.fCompletedGarageFull != 0 ?
+      tInfo.fCompletedBonusMoney : -1;
   this->fCarX = 0x116;
   this->fCarY = 0x4b;
   this->fCarCX = 4.0;

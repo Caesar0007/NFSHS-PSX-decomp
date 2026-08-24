@@ -93,19 +93,12 @@ extern int MEMCARDFRONTENDISINITTED_arr[] asm("MEMCARDFRONTENDISINITTED");
 static void ChecksumData(tMemCardData *memCardData)
 
 {
-  u_long uVar1;
-  
   memCardData->fSize = 0x14ac;
-  uVar1 = crc16(&memCardData->frontEnd,0x450);
-  memCardData->frontEndCRC = uVar1;
-  uVar1 = crc16(&memCardData->carInfo,0xe0);
-  memCardData->carInfoCRC = uVar1;
-  uVar1 = crc16(&memCardData->trackInfo,0x10);
-  memCardData->trackInfoCRC = uVar1;
-  uVar1 = crc16(&memCardData->tournament,0xb0);
-  memCardData->tournamentCRC = uVar1;
-  uVar1 = crc16(memCardData->records,0xe9c);
-  memCardData->recordsCRC = uVar1;
+  memCardData->frontEndCRC = crc16(&memCardData->frontEnd,0x450);
+  memCardData->carInfoCRC = crc16(&memCardData->carInfo,0xe0);
+  memCardData->trackInfoCRC = crc16(&memCardData->trackInfo,0x10);
+  memCardData->tournamentCRC = crc16(&memCardData->tournament,0xb0);
+  memCardData->recordsCRC = crc16(memCardData->records,0xe9c);
   return;
 }
 
@@ -117,22 +110,16 @@ static bool VerifySuccessfulRead(tMemCardData *memCardData)
 
 {
   bool result;
-  u_long uVar1;
 
   /* MATCH: `(cmp) & result` BOOL-accumulation form (SYM: result BOOL) -- the oracle re-masks
      the stored bool in each beq delay slot (andi s0,s0,1 = the fold of `1 & result` on the equal path
      -- BITWISE &, not &&: && normalizes via sltu) then clears on fall-through; a plain
      `if (x != crc) result = false;` chain emits no andi and mis-colors s0/s1. */
-  uVar1 = crc16(&memCardData->frontEnd,0x450);
-  result = memCardData->frontEndCRC == uVar1;
-  uVar1 = crc16(&memCardData->carInfo,0xe0);
-  result = (memCardData->carInfoCRC == uVar1) & result;
-  uVar1 = crc16(&memCardData->trackInfo,0x10);
-  result = (memCardData->trackInfoCRC == uVar1) & result;
-  uVar1 = crc16(&memCardData->tournament,0xb0);
-  result = (memCardData->tournamentCRC == uVar1) & result;
-  uVar1 = crc16(memCardData->records,0xe9c);
-  result = (memCardData->recordsCRC == uVar1) & result;
+  result = memCardData->frontEndCRC == crc16(&memCardData->frontEnd,0x450);
+  result = (memCardData->carInfoCRC == crc16(&memCardData->carInfo,0xe0)) & result;
+  result = (memCardData->trackInfoCRC == crc16(&memCardData->trackInfo,0x10)) & result;
+  result = (memCardData->tournamentCRC == crc16(&memCardData->tournament,0xb0)) & result;
+  result = (memCardData->recordsCRC == crc16(memCardData->records,0xe9c)) & result;
   result = (memCardData->fSize == 0x14ac) & result;
   return result;
 }
@@ -265,10 +252,7 @@ static int Confirm(int Text,int yesText)
 static int OverwriteConfirm(void)
 
 {
-  int iVar1;
-  
-  iVar1 = Confirm(CURRENTPLAYER[0] + 0x323,0x28f);
-  return iVar1;
+  return Confirm(CURRENTPLAYER[0] + 0x323,0x28f);
 }
 
 
@@ -288,10 +272,7 @@ static int OverwriteAlwaysYes(void)
 static int FormatConfirm(void)
 
 {
-  int iVar1;
-  
-  iVar1 = Confirm(CURRENTPLAYER[0] + 0x327,0x290);
-  return iVar1;
+  return Confirm(CURRENTPLAYER[0] + 0x327,0x290);
 }
 
 

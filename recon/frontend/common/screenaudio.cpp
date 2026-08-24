@@ -134,10 +134,12 @@ void tScreenAudio::DrawForeground()
      identity fence invalidates the obsolete fadeCalc value after assigning
      named `fade`, making the promoted call argument read retail's $s2. */
   short fade;
+  /* SYM-CODEGEN-CARRIER: fadeCalc -- source-only int funnel for retail's
+     clamp allocation.  Assigning the EA MAX/MIN expression directly to fade
+     is FAIL 20 at 64/68; limiting fadeCalc to the clamp block is FAIL 7 at
+     69/68.  Omitting the identity fence is count-exact FAIL 2. */
   int fadeCalc;
-  char *label;
-  int textWidth;
-  
+
   fadeCalc = (menuDefs[0]->menuAudio).fScreenFade >> 1;
   if ((short)fadeCalc < 0x80) {
     if ((short)fadeCalc <= 0) goto DrawFgAudio_fadeZero;
@@ -161,9 +163,7 @@ DrawFgAudio_fadeDone:
   }
   if (99 < fade) {
     FETextRender_MenuTextPositionedJustify(0x27d,0x1e0,0xdc,1,textState_Selected,textType_ScreenInfo);
-    label = TextSys_Word(0x27d);
-    textWidth = textpixels(label);
-    PSXDrawSquare(0,0x1e0,0xdc,-textWidth - 5,7);
+    PSXDrawSquare(0,0x1e0,0xdc,-textpixels(TextSys_Word(0x27d)) - 5,7);
   }
   return;
 }

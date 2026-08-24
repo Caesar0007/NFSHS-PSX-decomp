@@ -2665,6 +2665,33 @@ remains 836/838 with no compile failures and the same two pre-existing
 residuals. Both relink lanes are GREEN with zero real duplicates, hidden
 phantoms, or genuine unresolved relocations; the vtable audit passes 930 files.
 
+### P76 — `tScreenAudio::DrawForeground` source-surface reconciliation (`2026-08-24`)
+
+`tScreenAudio::DrawForeground` removes the reconstruction-only `label` and
+`textWidth` identities that retail SYM does not record.  The final message
+geometry now repeats retail's nested call directly as
+`textpixels(TextSys_Word(0x27d))`; this is byte-neutral and the function remains
+PASS at 68 instructions.  A fresh full-debug build consequently emits neither
+name, while retaining the reliable retail identities `this`, `fade`, and `i`.
+
+The non-SYM `int fadeCalc` remains only as an explicit
+`SYM-CODEGEN-CARRIER`.  Fresh debug output exposes it in `$a0`, proving it is
+source-visible rather than an anonymous compiler temporary, but three measured
+source-shape alternatives fail against retail: assigning the EA `MAX`/`MIN`
+expression directly to `fade` is FAIL 20 at 64/68 instructions; limiting the
+integer funnel to the clamp block is FAIL 7 at 69/68; and omitting the identity
+fence is count-exact FAIL 2 at 68/68.  The current spelling preserves PASS and
+records the contradiction explicitly instead of presenting `fadeCalc` as a
+recovered retail local.
+
+The strict frontend/common audit advances from 576 to 577 declaration-clean
+functions, reduces generic extra names from 870 to 867, and moves explicit
+carriers from 155 to 156, with zero missing names, type findings, storage
+findings, or mapping reviews.  `screenaudio.cpp` remains 8/8 PASS; the frontend
+board remains 836/838 with zero compile failures and only the two pre-existing
+residuals.  Both relink lanes are GREEN, the vtable audit passes 930 files, and
+no new scratchpad snapshot was created.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

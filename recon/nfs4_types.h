@@ -3910,6 +3910,7 @@ struct tDialogBase : public tScreen {   /* 144 bytes */
     short              fDefault, ReturnValue;   /* +0x88 */
     int                fFadeText;   /* +0x8C */
     tDialogBase();
+    inline tDialogBase *SetPosition(short x, short y, tPlayer player);
     /* reconstructed member fns (FECheats.obj cross-refs; ABI-neutral) */
     void Display();
 

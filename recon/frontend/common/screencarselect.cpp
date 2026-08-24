@@ -11,6 +11,17 @@ typedef struct tPsyQPrimTag {
   unsigned int len : 8;
 } tPsyQPrimTag;
 
+/* The retail SLD records this three-store expansion as an inline tDialogBase
+   scope in both car-select SetDialog methods.  No standalone symbol survives,
+   so SetPosition is a semantic reconstruction of the unavailable identifier. */
+inline tDialogBase *tDialogBase::SetPosition(short x, short y, tPlayer player)
+{
+  OffsetX = x;
+  OffsetY = y;
+  specificPlayer = (short)player;
+  return this;
+}
+
 
 /* ---- (static)::TransformVector  [SCREENCARSELECT.CPP:51-59] ---- */
 /* File-static 4x4 fixed-point matrix * 4-vector (ScreenCarSelect.obj 1st fn @0x8003a8f0).
@@ -2280,54 +2291,28 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
 void tScreenCarSelectTwoPlayer::SetDialog()
 
 {
-  /* MATCH (W56-A4): the oracle ADVANCES `this` ($s1) IN PLACE (`addiu s1,s1,928`)
-     to reach the CarDialog sub-object (+0x3A0) and reaches every header field by
-     small displacement (124/126/100) + passes the base to Display.  The BASE-POINTER
-     HOIST is reproduced by a block-local `dlg = &this->CarDialog;` declared AFTER the
-     y_off select (same source position as PinkSlips SetDialog) and used for EVERY
-     access incl. Display -- gcc coalesces dlg with `this` (which is dead after) so it
-     advances in place.  This took the fn 28 -> 11 (the whole store/Display half now
-     byte-matches). RESIDUAL 11 (off-by-1, §3.15 CSE tie, NOT reachable): the guard
-     reads fPlayer ANONYMOUSLY (oracle keeps it transient in $a0, `sll v1,a0,2`) and
-     `player` is a second named read that cse turns into a COPY `addu s0,a0,zero` in
-     the beqz delay slot; our build cse's harder and loads fPlayer straight into $s0,
-     which also lets `this->s1` fill the beqz slot instead of the oracle's early
-     prologue copy.  The a0/s0-vs-s0/slot split is one coupled allocno/CSE decision
-     (guard-index register choice); prior wave already predicted it.
-     SEALED (W57-A2, 11 -> PASS 48/48): it IS the cse DOUBLE-EVALUATION copy
-     (catalog trichotomy case 2), and it is source-reachable.  `player` must be
-     WRITTEN ONCE IN THE GUARD'S BASIC BLOCK (decl-with-init; the guard then
-     indexes the local) AND RE-READ inside the then-block.  cse folds both C-level
-     reads into the single `lbu $a0,0x22C($v0)` and turns the second write into the
-     oracle's surviving copy `addu $s0,$a0,$zero`, which reorg steals into the
-     `beqz` delay slot -- which in turn frees the prologue for the early
-     `addu $s1,$a0,$zero` (`this`) the oracle emits at 0x8003EC60.
-     ONE write only (either position) makes the load land straight in $s0 and
-     defers the `this` copy into the slot = the 11-diff shape.  FALSIFIED:
-     read-before-guard-only; decl-init-only; TWO reads both inside the block;
-     `player = FEApp->fPlayer` embedded in the guard subscript alone; and a `this`
-     parm-copy fence (+2 insns).  SYM 8c confirms `player` is the fn's ONLY named
-     local, class REG $16 = $s0. */
+  /* SYM/PASS (2026-08-25): retail lists only `int player` ($s0).  Its SLD
+     records inline tFEApplication::this at entry and inline tDialogBase::this
+     at 0x8003EC9C, exactly where OffsetX, OffsetY, and specificPlayer are
+     written.  Reconstructing that inline member removes the former SYM-extra
+     `y_off` and `dlg` locals.  The member's returned `this` carries the dialog
+     subobject through sprintf and the string store, allowing GCC to advance
+     outer `this` from $s1 to CarDialog in place as retail does.  The duplicated
+     FEApp read remains load-bearing: CSE turns it into the retail
+     `addu $s0,$a0,$zero` in the guard delay slot.  Exact result: PASS 48/48.
+     The debug data proves the inline member's type/body but does not encode its
+     original identifier; SetPosition is the explicit semantic reconstruction. */
   int player = FEApp->fPlayer;
 
   if (FEApp->waitingForOtherPlayer[player] != 0) {
-    short y_off;
-    tDialogBackUpOnly *dlg;
     player = FEApp->fPlayer;
-    y_off = 0x3c;
-    if (player == 0) {
-      y_off = -0x3c;
-    }
-    dlg = &this->CarDialog;
-    dlg->OffsetX = 0;
-    dlg->OffsetY = y_off;
-    dlg->specificPlayer = (ushort)player;
-    sprintf("",TextSys_Word(0x2a8),PlayerName(1 - player));
-    dlg->string = "";
-    ((tDialogBase *)dlg)->Display();
+    ((tDialogBackUpOnly *)this->CarDialog.SetPosition(
+        0, (player == 0) ? -0x3c : 0x3c, (tPlayer)player))->string =
+      (sprintf("",TextSys_Word(0x2a8),PlayerName(1 - player)), "");
+    this->CarDialog.Display();
   }
   else {
-    ((tDialogBase *)&this->CarDialog)->Hide();
+    this->CarDialog.Hide();
   }
   return;
 }

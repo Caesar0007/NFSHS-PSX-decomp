@@ -3139,6 +3139,52 @@ retail `rom/nfs4-f.exe` comparison.  Both complete relink lanes are GREEN with
 zero real duplicates, hidden phantoms, or relocation-referenced unresolved
 symbols, and the vtable audit passes 930 files.
 
+### P91 — two-player dialog inline-source restoration (`2026-08-25`)
+
+Retail SYM records `int player` in `$s0` as the only named local in
+`tScreenCarSelectTwoPlayer::SetDialog`.  The prior PASS source additionally
+declared `short y_off` and `tDialogBackUpOnly *dlg`; removing those declarations
+as ordinary direct field expressions lost one instruction and rotated the saved
+register web, so a simple deletion was not a valid reconstruction.
+
+The SLD resolves the source construct that the decompilers cannot show.  It
+records an inline `tFEApplication this` scope at function entry and an inline
+`tDialogBase this` scope at `0x8003EC9C`, exactly where retail writes OffsetX,
+OffsetY, and specificPlayer.  The same inline three-store scope appears in
+`tScreenPinkSlipsCarSelect::SetDialog`, independently corroborating that this is
+a shared dialog member rather than three caller-local field statements.
+
+Reconstruction now supplies that inline member as
+`tDialogBase::SetPosition(short, short, tPlayer)`.  Its returned `this` pointer
+is used directly as the string-store lvalue carrier across `sprintf`, so the
+caller needs neither `y_off` nor `dlg`.  GCC consequently advances the outer
+`this` from `$s1` to the CarDialog subobject in place and emits retail's
+small-displacement stores and Display delay slot.  The duplicated FEApp player
+read remains load-bearing: CSE turns it into retail's
+`addu $s0,$a0,$zero` in the guard delay slot.  The result is exact PASS 48/48
+with an exact fresh `-g` twin, and `screencarselect.cpp` remains 59/59 PASS.
+
+The SYM/SLD proves the inline receiver type and the three-store body, but an
+inlined member has no surviving standalone symbol from which to recover its
+original identifier or exact return-type spelling.  `SetPosition` is therefore
+an explicit semantic reconstruction name, not a claim that those source tokens
+are uniquely recoverable.  This is the retained proof required for information
+the retail artifacts cannot distinguish.
+
+The strict frontend/common audit advances from 616 to 617 declaration-clean
+functions and reduces generic extra source-local names from 795 to 793.
+Missing names, type findings, storage findings, global findings, and mapping
+reviews remain zero.  After rebasing onto the source-only Level-A baseline,
+the complete frontend board is 816/838 with zero compile failures; this target
+remains exact and the complete `screencarselect.cpp` TU remains 59/59 PASS.
+
+A complete clean build compiled and linked every TU, stopping only at the
+unavailable untracked `rom/nfs4-f.exe` comparison.  Both relink lanes remain
+GREEN with zero real duplicates, hidden phantoms, or relocation-referenced
+unresolved symbols.  The vtable audit passes 930 files, call-target and
+undefined-call audits report zero defects, and the TU-order audit reports zero
+inversions.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

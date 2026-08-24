@@ -203,27 +203,25 @@ int AIPhysic_GearBottomSpeed(Car_tObj *carObj, Gear_t gear)
 /* ---- AIPhysic_CalcAcceleration__FP8Car_tObji ---- */
 int AIPhysic_CalcAcceleration(Car_tObj *carObj,int speed)
 {
-  int accelEntry;
-  int acceleration;
-  int absSpeed;
-  int speedUpAcc;
+    int accelEntry;
+    int acceleration;
+    int absSpeed;
+    int speedUpAcc;
 
-  absSpeed = __builtin_abs(speed);
-  if (0 < carObj->aiShiftTimer) {
-    return 0;
-  }
-  {
+    absSpeed = __builtin_abs(speed);
+    
+    if (0 < carObj->aiShiftTimer) {
+      return 0;
+    }
+    
     if (carObj->carInfo->carType < 0x16) {
       int normalTopCap;
       int upgradeTopCap;
 
       normalTopCap = Cars_topSpeedCap[carObj->carInfo->carType];
       upgradeTopCap = fixedmult(normalTopCap,carObj->topSpeedUpgradeMult);
-      if (fixedmult(upgradeTopCap,carObj->aiGlue) < absSpeed) {
-        goto ret0;
-      }
-      if (upgradeTopCap < absSpeed) {
-        goto ret0;
+      if (fixedmult(upgradeTopCap,carObj->aiGlue) < absSpeed || upgradeTopCap < absSpeed) {
+        return 0;
       }
       if (normalTopCap < absSpeed) {
         absSpeed = normalTopCap + -0x238e3;
@@ -259,28 +257,8 @@ int AIPhysic_CalcAcceleration(Car_tObj *carObj,int speed)
     if ((speedUpAcc = AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRenderingTheseCars(carObj)) != 0x10000) {
       acceleration = fixedmult(acceleration,speedUpAcc);
     }
-  }
-  return acceleration;
-  /* NEAR-MISS 2 diffs, count-exact 184/184 (w11-a8, was 123): the final beqz's delay
-     slot -- aspsx-2.77 fills it with the merge target's `addu v0,s0` (redundant-copy
-     fill), maspsx unconditionally nops a reorder-mode branch slot.
-     W59-A3 EVIDENCE (gcc .s, scratch/rtl/aiphysic.s): cc1plus emits
-       `beq $5,$2,$L694` under .set REORDER with an EMPTY slot; $L694 is `move $2,$16`
-       and the oracle carries that same insn BOTH in the slot AND at the merge point
-       (indices 172 and 176) => aspsx COPIED the target insn into the slot.  gcc's own
-       reorg declined because mostly_true_jump scores an EQ forward branch 0, so
-       fill_eager_delay_slots never tries the target thread, and the backward scan is
-       barred by 09L (the candidate WRITES $2, which the beq READS).
-     W59-A3 FALSIFIED (4 source shapes, all re-gated): early-return in the ==-arm,
-       duplicated `return acceleration;` in both arms, per-arm return + shared tail,
-       and `==`-inverted guard all COLLAPSE the oracle's `addu s0,v0 / addu v0,s0`
-       round-trip (182/184, still 2 diffs) -- the baseline shape is the only
-       count-exact one.  ORCHESTRATOR SPEC (PER_FN_TEXT_MOVES): for
-       AIPhysic_CalcAcceleration__FP8Car_tObji, COPY (not move) the `move $2,$16` line
-       that follows `$L694:` into the empty slot of `beq $5,$2,$L694` and drop the
-       maspsx nop; the copy is idempotent so the branch target need not be redirected. */
-ret0:
-  return 0;
+    
+    return acceleration;
 }
 
 /* ---- AIPhysic_ModifyAccelerationAccordingToScript__FP8Car_tObji ---- */

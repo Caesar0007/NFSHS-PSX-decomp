@@ -890,12 +890,8 @@ void tScreenTournamentCongrats::CalculatePrizes()
 void tScreenTournamentCongrats::DrawCongratsMessage()
 
 {
-  char *word;
   RECT r;
-  tMenuTextState fade;
   tAwardInformation tInfo;
-  char buffer [256];
-  char money [64];
 
   /* @0x800496E0-FC/0x39F4C-58: oracle materializes a real RECT{x=0x29,y=0x3C,w=0xC8,h=0x190} local
    * (same idiom as the sibling DrawCongratsMessage fns) then, inside the fCompletedGarageFull branch,
@@ -907,20 +903,21 @@ void tScreenTournamentCongrats::DrawCongratsMessage()
   r.h = 400;
   /* oracle's FETextRender_WordWrapText 3rd arg is a LITERAL `li a2,1` (=textState_Selected), not a
    * read of an uninitialized `fade` local (both call sites). */
-  fade = textState_Selected;
   GetAwardInformation(&tournamentManager,&tInfo);
-  word = TextSys_Word((int)tInfo.fCompletedText);
-  FETextRender_WordWrapText(word,r,fade,textType_PostGame);
+  FETextRender_WordWrapText(TextSys_Word((int)tInfo.fCompletedText),r,
+                            textState_Selected,textType_PostGame);
   if (tInfo.fCompletedGarageFull != 0) {
+    char buffer [256];
+    char money [64];
+
     /* @0x39F4C-58: oracle overwrites r.y/r.w here (NOT r.w/r.h) -- confirmed via the exact sp
      * offsets (0x12=r.y, 0x14=r.w), not a naive "next two fields" guess. */
     r.y = 0xb4;
     r.w = 0x1ae;
     FeTools_FormatMoney(money,tInfo.fCompletedBonusMoney);
-    word = TextSys_Word(0x40);
-    sprintf(buffer,word,money);
-    word = TextSys_Word(0x40);
-    FETextRender_WordWrapText(word,r,fade,textType_PostGame);
+    sprintf(buffer,TextSys_Word(0x40),money);
+    FETextRender_WordWrapText(TextSys_Word(0x40),r,textState_Selected,
+                              textType_PostGame);
   }
   return;
 }

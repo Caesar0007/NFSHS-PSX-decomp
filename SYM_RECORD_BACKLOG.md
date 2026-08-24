@@ -2871,6 +2871,45 @@ findings, storage findings, global findings, or mapping reviews.  The frontend
 board remains 836/838 with zero compile failures and the same two pre-existing
 residuals.  Both relink lanes are GREEN and the vtable audit passes 930 files.
 
+### P84 — tournament-congrats message declaration restoration (`2026-08-24`)
+
+Retail SYM records only function-scope `RECT r` and
+`tAwardInformation tInfo` in
+`tScreenTournamentCongrats::DrawCongratsMessage`.  It opens the
+garage-full block at `0x80049740` and records `char buffer[256]` plus
+`char money[64]` there.  Reconstruction now restores that exact declaration
+scope and removes the unsupported function-scope `word` and `fade` identities.
+The three word lookups are nested directly in their consumers, and both text
+calls pass the literal `textState_Selected`, agreeing with retail's immediate
+argument and the SLD statement extents.
+
+The restored function remains PASS at 51 instructions and its fresh `-g` twin
+is instruction-identical.  Two complete `screencongrats.cpp` gates remain
+28/28 PASS.  The strict frontend/common audit advances from 585 to 586
+declaration-clean functions and reduces generic extra names from 841 to 839,
+with zero missing names, type findings, storage findings, global findings, or
+mapping reviews.
+
+The adjacent `tScreenTrackSelect::SetBrightness` no-local record was also
+retested but was not changed.  Retail SYM records no locals, while the current
+PASS source uses `curBrightness` and `iVar1` to snapshot both RHS values before
+the three stores.  Direct source orders are disproved for now: assigning start
+brightness/start ticks/destination is FAIL 6 at 14/12 instructions, and
+destination/start brightness/start ticks is FAIL 10 at 14/12.  Retail's nested
+empty SYM blocks suggest a macro or inline expansion, but that evidence does
+not uniquely identify its source form, so the measured contradiction remains
+explicit backlog rather than an invented expression.
+
+The isolated clean `origin/main` frontend baseline remains 835/838 with zero
+compile failures and its three pre-existing residuals (`GetPSXPadValue`, the
+bulk-only memcard background artifact, and the global menu constructor); the
+user's dirty main checkout separately retains the unstaged PASS form of
+`GetPSXPadValue`.  A complete clean build compiled and linked all TUs, stopping
+only when its untracked retail `rom/nfs4-f.exe` comparison input was absent.
+After that build, both relink lanes are GREEN with zero real duplicates, hidden
+phantoms, or relocation-referenced unresolved symbols, and the vtable audit
+passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

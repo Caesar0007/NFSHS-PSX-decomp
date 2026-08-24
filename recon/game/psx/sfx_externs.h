@@ -15,7 +15,6 @@ extern Draw_tPixMap *gGravelPalette;   /* 0x8013d20c */
 extern Draw_tPixMap *gGrassPalette;    /* 0x8013d210 */
 extern Draw_tPixMap *gSnowPalette;     /* 0x8013d214 */
 extern Draw_tPixMap *gLeafPixmap;      /* 0x8013d218 */
-extern Sfx_tCache    Sfx_gCache;       /* scratchpad OT render cache (0x1f800000) */
 extern int           Draw_gViewOtSize; /* 0x8013d7b0  ordering-table size */
 extern int Sfx_GameSetupWords[] asm("GameSetup_gData");
 

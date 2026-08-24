@@ -5756,8 +5756,3 @@ gte_stsxy3((char *)prim + 0x10,(char *)prim + 0x20,(char *)prim + 0x18);
   }
   return;
 }
-
-/* end of draww.cpp */
-
-/* owning-TU def (extern-declared, never defined; link-harness) */
-char SP[64];  /* FIXME size approx */

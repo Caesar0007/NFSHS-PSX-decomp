@@ -55,7 +55,6 @@ extern short R3DCar_yawCam;
 extern void R3DCcar_ReadTrackShadow(void);
 extern void R3DCcar_ReadeMapData(void);
 extern int Risk_ReadNextValue(char **);
-extern char SP[];
 extern int             Texture_CarColor;        /* 0x8013db08 */
 extern void Texture_ProcessPaletteCopy(Texture_pal8bit *, int, int);
 extern Draw_tPixMap Track_gReflectionMaps[4];

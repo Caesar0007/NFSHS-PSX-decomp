@@ -1178,8 +1178,3 @@ void Sfx_Add(Souffle_tISouffle *is)
   }
   return;
 }
-
-/* end of sfx.cpp */
-
-/* owning-TU def (extern-declared, never defined; link-harness) */
-Sfx_tCache Sfx_gCache;

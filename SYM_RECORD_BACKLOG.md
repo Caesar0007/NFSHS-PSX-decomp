@@ -2131,6 +2131,29 @@ game/PSX gate remains **385/395 PASS** with no compile failures, the rebuilt
 `draww.cpp` object reports delay-slot `bad = 0`, and the vtable indexing audit
 passes all 926 files.
 
+### P50 — dead game/PSX link-harness globals removed (`2026-08-24`)
+
+The refreshed owner audit is recorded in
+[`game_psx_after_dead_harness_globals_20260824.md`](scratchpad/root_sym_audit/game_psx_after_dead_harness_globals_20260824.md).
+The game/PSX extra-definition queue falls from 61 to 59 while all 302 SYM data
+records retain owners: missing globals remain zero, and global type/storage
+findings remain zero.
+
+Two fabricated end-of-TU definitions and their unused extern declarations are
+removed.  `drawc.cpp`'s `char SP[64]` had no SYM record, no source reference,
+and only a `FIXME size approx` link-harness comment.  `sfx.cpp`'s
+`Sfx_tCache Sfx_gCache` was likewise unreferenced and contradicted the retail
+implementation: `Sfx_BuildSouffleFacet` addresses its cache through the
+literal PSX scratchpad base `0x1f800000`, not a linked BSS object.  Removing
+these placeholders restores the source/data model instead of inventing 64-byte
+and structure-sized allocations absent from the retail object.
+
+The complete game/PSX function gate remains **385/395 PASS**, with 35/35 TUs
+compiling and no function result changed.  The repository-wide link still
+halts on the pre-existing unresolved jump-table, vtable, and library-reference
+backlog; that independent gate does not report an `SP` or `Sfx_gCache`
+dependency.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

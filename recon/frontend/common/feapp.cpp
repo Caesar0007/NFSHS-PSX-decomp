@@ -1383,6 +1383,12 @@ MainLoop_nextPlayer:
 tAppCommand tFEApplication::RunPostGame()
 
 {
+  /* SYM-CODEGEN-CARRIER: item
+   * SYM-CODEGEN-CARRIER: screen
+   * At retail source line 112 the SYM emits nested inline `this` records for
+   * tUserNameMenuItem and tScreenUserName plus the real local `m`.  These two
+   * aliases represent those inlined receiver values, not caller-scope locals;
+   * spelling the receivers as repeated globals is FAIL 59 / 201 versus PASS 194. */
   tMenuCommand command;
   int ret;
   Car_tStats *dummyCars;

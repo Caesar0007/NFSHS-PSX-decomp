@@ -105,6 +105,11 @@ static void FECheat_HandleActivation(tCheatCode cheat)
   case cheat_AllGold:
   case cheat_AllSilver:
   case cheat_AllBronze: {
+    /* SYM-CODEGEN-CARRIER: placement
+     * SYM-CODEGEN-CARRIER: placements
+     * These preserve retail's placement=$a1 / manager-base=$v0 handout.  The
+     * direct `tournamentManager.fBestPlacement[i] = cheat - 0x1b` source form
+     * is instruction-count neutral but FAIL 10 / 116 versus PASS 116. */
     char placement;
     char *placements;
 

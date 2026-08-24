@@ -452,7 +452,11 @@ bool tOptionsMenu::TransitionIsFinished()
 void tOptionsMenu::UpdateTransition()
 
 {
-  /* SYM 8c block: the ONLY local is `short i` (REG $s0); every other Ghidra temp
+  /* SYM-CODEGEN-CARRIER: citem
+   * SYM-CODEGEN-CARRIER: item
+   * SYM-CODEGEN-CARRIER: entry
+   * SYM-CODEGEN-CARRIER: adjusted
+   * SYM 8c block: the ONLY source local is `short i` (REG $s0); every other Ghidra temp
      (iVar2/pa_Var3/iVar4/ptVar5/bVar6/sVar7) was a fabrication.  SLD segmentation:
      367 fInMenuTransition / 369 fTransitionDirection / 371 fScreenFade>0 /
      374 clamp-to-0 / 379-380 forward TransitionIsFinished scan / 383-385 goto the
@@ -907,6 +911,16 @@ void tMenuItemSlidingMenu::Draw(bool selected)
 void tMenuItemSlidingMenu::UpdatefOpenHeight(bool selected)
 
 {
+  /* SYM-CODEGEN-CARRIER: closeH
+   * SYM-CODEGEN-CARRIER: cur
+   * SYM-CODEGEN-CARRIER: fade
+   * SYM-CODEGEN-CARRIER: fadeOut
+   * SYM-CODEGEN-CARRIER: lim
+   * SYM-CODEGEN-CARRIER: newFade
+   * SYM-CODEGEN-CARRIER: shrinkH
+   * SYM-CODEGEN-CARRIER: slide
+   * The no-local SYM block and the per-path allocation receipts below prove
+   * these are compiler expression destinations, not source-scope locals. */
   /* MATCH: PASS 136/136.  SYM: fsize 0 / mask 0 / no named locals.  Retail's
      two fade-in paths feed one shared clamp with two compiler temporaries:
      the first computes newFade from the existing fade value in $v1, while the
@@ -1216,6 +1230,11 @@ void tMenuItemSlidingMenu::SetMenu(bool bothmenus,tInsideBoxMenu *menu)
 void tMenuItemSlidingActivated::UpdatefOpenHeight(bool arg1)
 
 {
+  /* SYM-CODEGEN-CARRIER: arg1 -- retained by the mangled ABI signature. */
+  /* SYM-CODEGEN-CARRIER: iVar2
+   * SYM-CODEGEN-CARRIER: iVar4
+   * Compiler-created destinations for the ordered MIN/MAX expression whose
+   * exact load order and no-return behavior are receipted below. */
   int iVar2;
   int iVar4;
 
@@ -1471,16 +1490,9 @@ void tMenuItemDisplayLeftRightChoice::Draw(int offx,int offy,bool selected)
 void tMenuItemOnOffLeftRightChoice::TransitionOn()
 
 {
-  u_int cVar1;
-  u_int bSet;
-  tListIterator *ptVar2;
-  __vtbl_ptr_type (*pa_Var3) [6];
-
-  ptVar2 = this->fData;
-  pa_Var3 = ptVar2->_vf;
-  cVar1 = (*(u_char (*)(char *, int))(*pa_Var3)[2].pfn)((char *)ptVar2 + (int)(*pa_Var3)[2].delta,0xffffffff);
-  bSet = (0 < cVar1);
-  this->fOnFade = (u_short)(bSet << 7);
+  this->fOnFade = (u_short)
+    ((0 < (*(u_char (*)(char *, int))(*this->fData->_vf)[2].pfn)
+      ((char *)this->fData + (int)(*this->fData->_vf)[2].delta,0xffffffff)) << 7);
   this->tMenuItemLeftRightFade::TransitionOn();
   return;
 }
@@ -1629,27 +1641,20 @@ void tMenuItemLeftRightAudioSlider::Draw(int ox,int oy,bool selected)
 int tMenuItemLeftRightAudioSlider::Percentage()
 
 {
-  char cVar1;
-  __vtbl_ptr_type (*pa_Var2) [6];
-  u_int uVar3;
-  int iVar4;
-  tListIterator *ptVar5;
-  tListIterator *ptVar6;
   int percent;
 
-  ptVar5 = this->fData;
-  pa_Var2 = ptVar5->_vf;
-  uVar3 = (*(*pa_Var2)[2].pfn)((char *)ptVar5 + (int)(*pa_Var2)[2].delta,0xffffffff);
-  ptVar6 = this->fData;
   /* MATCH: SLD's only source local is `percent` in $s0.  Assign the scaled
      numerator to it before division; the decompiler's iVar6 pseudo kept that
      value in a caller register and displaced the inlined iterator `this`. */
-  percent = ((uVar3 & 0xff) - (u_int)(u_char)ptVar6->fMinValue) * 100;
-  iVar4 = (u_int)(u_char)ptVar6->fMaxValue - (u_int)(u_char)ptVar6->fMinValue;
-  percent = percent / iVar4;
-  cVar1 = (*(*ptVar6->_vf)[2].pfn)
-                    ((char *)ptVar6 + (int)(*ptVar6->_vf)[2].delta,0xffffffff);
-  if ((cVar1 != '\0') && (percent < 100)) {
+  percent = (((*(*this->fData->_vf)[2].pfn)
+               ((char *)this->fData + (int)(*this->fData->_vf)[2].delta,
+                0xffffffff) & 0xff) -
+             (u_int)(u_char)this->fData->fMinValue) * 100;
+  percent = percent / (int)((u_int)(u_char)this->fData->fMaxValue -
+                            (u_int)(u_char)this->fData->fMinValue);
+  if (((u_char)(*(*this->fData->_vf)[2].pfn)
+       ((char *)this->fData + (int)(*this->fData->_vf)[2].delta,0xffffffff) != 0) &&
+      (percent < 100)) {
     percent = percent + 1;
   }
   return percent;
@@ -1759,7 +1764,12 @@ tInsideBoxSongMenu::~tInsideBoxSongMenu()
 
 /* ---- tInsideBoxSongMenu::Draw  [FEMENUOPTIONS.CPP:1271-1314] SLD-VERIFIED ---- */
 
-/* MATCH W67: 126 -> PASS.  SYM authenticates j, drawY and song; removing the
+/* SYM-CODEGEN-CARRIER: drawBaseY
+   SYM-CODEGEN-CARRIER: fadeValue
+   SYM-CODEGEN-CARRIER: fe
+   SYM-CODEGEN-CARRIER: slide
+   SYM-CODEGEN-CARRIER: width
+   MATCH W67: 126 -> PASS.  SYM authenticates j, drawY and song; removing the
    Ghidra pointer walk, SSA scalar copies, and cached vtable row restores
    retail's indexed fade loops.  The optimized-only expression carriers place
    slideOffset/width in IDA's gold $s6/$s4 allocation.  Natural FEPlayList
@@ -3027,6 +3037,13 @@ void tUserNameMenuItem::UpdateTransition(bool selected)
 void tMemoryCardMenuItem::Draw(bool selected)
 
 {
+  /* SYM-CODEGEN-CARRIER: selected -- retained by the mangled ABI signature. */
+  /* SYM-CODEGEN-CARRIER: sVar2
+   * SYM-CODEGEN-CARRIER: v
+   * SYM-CODEGEN-CARRIER: sv
+   * SYM-CODEGEN-CARRIER: less
+   * These are the caller-saved expression results described by the measured
+   * load/clamp receipts below; none consumes a SYM local or saved register. */
   /* SYM 8c local list (the allocation budget, 06A): fEnableFade $10=s0,
      fEnableSlide $13=s3, x $14=s4, y $16=s6, ColText $11=s1, Col $10=s0,
      tCol AUTO -0x38, fWidth $10=s0, shape $11=s1.  Everything else here is a
@@ -3147,19 +3164,13 @@ void tInsideBoxControllerLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInput
                tMenuCommand &command)
 
 {
-  char cVar1;
-  __vtbl_ptr_type (*pa_Var2) [6];
-  tInputKeyType tVar3;
-  tListIterator *ptVar4;
-  
-  tVar3 = keyval;
-  if (((tVar3 == kInput_KeyType_Left) || (tVar3 == kInput_KeyType_Right)) &&
-     ((tVar3 != kInput_KeyType_Right ||
-      (ptVar4 = (this->_base_tInsideBoxLeftRightSlider).fData,
-      pa_Var2 = ptVar4->_vf,
-      cVar1 = (*(*pa_Var2)[2].pfn)
-                        ((char *)ptVar4 + (int)(*pa_Var2)[2].delta,0xffffffff),
-      cVar1 != ((this->_base_tInsideBoxLeftRightSlider).fData)->fMaxValue)))) {
+  if (((keyval == kInput_KeyType_Left) || (keyval == kInput_KeyType_Right)) &&
+      ((keyval != kInput_KeyType_Right) ||
+       ((u_char)(*(*this->_base_tInsideBoxLeftRightSlider.fData->_vf)[2].pfn)
+          ((char *)this->_base_tInsideBoxLeftRightSlider.fData +
+           (int)(*this->_base_tInsideBoxLeftRightSlider.fData->_vf)[2].delta,
+           0xffffffff) !=
+        (u_char)this->_base_tInsideBoxLeftRightSlider.fData->fMaxValue))) {
     screenControllerConfig[0]->fResetShakeTimeOut = 1;
   }
   ((tMenuItemLeftRightSlider *)this)->ProcessInput(fromPlayer,keyval,command)

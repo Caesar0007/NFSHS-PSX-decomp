@@ -2302,6 +2302,24 @@ function storage-class findings**. The two affected scheduler functions remain
 exact at 45/45 and 51/51 instructions. This is a read-only audit correction; no
 reconstructed source or compiler output changed.
 
+### P58 — implicit `tAllScreens` special members proven (`2026-08-24`)
+
+The receipt is recorded in
+[`implicit_tallscreens_special_members_20260824.md`](scratchpad/root_sym_audit/implicit_tallscreens_special_members_20260824.md).
+The two frontend records formerly summarized only as “compiler-generated
+aggregate functions without source bodies” are now explicit: the implicit
+`tAllScreens` constructor `__11tAllScreens` and destructor `_._11tAllScreens`.
+Both SYM records point to the `new tAllScreens` declaration line, the aggregate
+declares no special members, and `new/delete` require GCC to synthesize them from
+its 24 class-type members.
+
+The generated constructor and destructor are authoritative PASS at 262/262 and
+116/116 instructions and have local `STAT` object symbols. The audit now lists
+their names, VAs, file, and roles; frontend/common has zero functions needing
+mapping review. An explicit source body would contradict the same-line SYM
+evidence and alter member construction/teardown decisions, so body absence is
+the proven source-restored state rather than an unresolved disposition.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

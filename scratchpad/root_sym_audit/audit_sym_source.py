@@ -1044,6 +1044,7 @@ def audit(
     type_equivalent_reasons: collections.Counter[str] = collections.Counter()
     function_storage_total = 0
     implicit_generated_total = 0
+    implicit_generated_rows: list[SymFunction] = []
     clean = 0
     documented_total = 0
     documented_rows: list[tuple[SymFunction, set[str]]] = []
@@ -1058,6 +1059,7 @@ def audit(
         if src is None:
             if sf.name in {"__11tAllScreens", "_._11tAllScreens"}:
                 implicit_generated_total += 1
+                implicit_generated_rows.append(sf)
                 continue
             findings.append((sf, None, quality, [], [], []))
             continue
@@ -1299,7 +1301,7 @@ def audit(
                 f"{reason}={count}" for reason, count in sorted(type_equivalent_reasons.items())
             ) + ")",
             f"- Function storage-class findings: {function_storage_total}",
-            f"- Compiler-generated aggregate functions without source bodies: {implicit_generated_total}",
+            f"- Implicit aggregate special members (source body correctly absent): {implicit_generated_total}",
         f"- Explicit oracle-receipted carrier mappings: {documented_total}",
         f"- Explicit source-only codegen carriers: {codegen_total}",
         f"- Explicit oracle-proven function type overrides: {function_type_override_total}",
@@ -1352,6 +1354,14 @@ def audit(
                 else:
                     lines.append("- Type: " + item)
         lines.append("")
+    lines.extend(["## Implicit aggregate special members", ""])
+    for sf in implicit_generated_rows:
+        role = "constructor" if sf.name == "__11tAllScreens" else "destructor"
+        lines.append(
+            f"- `{sf.name}` ({sf.va}, `{source_basename(sf.source_file)}`): implicit "
+            f"`tAllScreens` {role}; emitted from the aggregate member graph at the "
+            "recorded declaration line, so an explicit source body would be incorrect."
+        )
     lines.extend(["## Explicit SYM carrier/optimization mappings", ""])
     for sf, names in documented_rows:
         lines.append(f"- `{sf.name}`: " + ", ".join(f"`{n}`" for n in sorted(names)))

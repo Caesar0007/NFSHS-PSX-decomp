@@ -5723,6 +5723,16 @@ struct tScreenCongrats : public tScreen {   /* 388 bytes */
     void DrawBackground();
     void DrawForeground();
     void CalculatePrizes();
+    /* SYM/SLD: Initialize opens repeated nested entry blocks without a caller
+       tick local.  Passing the tick into this semantic inline member performs
+       its load before the ordered state stores, as in retail. */
+    inline void PrepareInitialize(int tick) {
+        fSpeechToPlay = 0;
+        starttick = -1;
+        framenum = -1;
+        InExtraSpin = 0;
+        fEnterTick = tick;
+    }
     void Initialize();
     void ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);
 };

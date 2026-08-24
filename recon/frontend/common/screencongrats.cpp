@@ -352,15 +352,14 @@ void tScreenCongrats::CalculatePrizes()
 void tScreenCongrats::Initialize()
 
 {
+  /* SYM-CODEGEN-CARRIER: vtbl -- retail SYM has no source local here; the original
+     C++ virtual-call syntax produced its vtable temporaries implicitly.  The
+     reconstruction models the ABI through _vf, so this cache is the safe
+     source-level surrogate.  Direct _vf[1][0]/_vf[1][2] access remains byte-
+     exact (PASS 49/49) but is rejected by audit_vtable_indexing.py four times. */
   __vtbl_ptr_type (*vtbl) [10];
-  int tick;
 
-  tick = ticks[0];
-  this->fSpeechToPlay = 0;
-  this->starttick = -1;
-  this->framenum = -1;
-  this->InExtraSpin = 0;
-  this->fEnterTick = tick;
+  this->PrepareInitialize(ticks[0]);
   SetLicensePlate();
   vtbl = this->_vf;
   (*vtbl[1][0].pfn)((char *)this + vtbl[1][0].delta);

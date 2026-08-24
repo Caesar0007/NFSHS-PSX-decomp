@@ -1,7 +1,7 @@
 /* frontend/common/felines.h - reconstructed declarations for FELINES.CPP (C++ TU) */
 #ifndef _FRONTEND_COMMON_FELINES_H_
 #define _FRONTEND_COMMON_FELINES_H_
-#include "../../nfs4_types.h"
+#include "felines_types.h"
 #include "felines_externs.h"
 
 /* FELINES.CPP is C++ (cfront-mangled in SYM) -> normal C++ linkage. */

@@ -35,7 +35,7 @@ void PSXTransDrawBrightEndLine(int col,int x,int y,int w,int h,int side,int fade
   }
   BrightCol = CalcFadeVal(col,0xffffff,0x40);
   if (fade != 0) {
-    if ((uint)side < 2) {
+    if ((unsigned int)side < 2) {
       hh = h * (0x80 - fade) / 0x80;
       endbit = hh >> 3;
       ww = w;

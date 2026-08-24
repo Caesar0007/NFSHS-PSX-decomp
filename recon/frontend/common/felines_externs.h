@@ -2,7 +2,7 @@
  * NOT an original header; added for standalone C++ compile. */
 #ifndef _FRONTEND_COMMON_FELINES_EXTERNS_H_
 #define _FRONTEND_COMMON_FELINES_EXTERNS_H_
-#include "../../nfs4_types.h"
+#include "felines_types.h"
 
 /* game-side C++ helpers (cfront-mangled in originals; normal C++ linkage) */
 int  CalcFadeVal(int col, int target, int amount);

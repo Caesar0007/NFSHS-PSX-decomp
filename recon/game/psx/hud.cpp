@@ -6318,33 +6318,13 @@ void Hud_Perp_OverlayOn(int player,int level)
   return;
 }
 
-/* ---- Hud_Perp_OverlayOff__Fi  [HUD.CPP:4106-4107] SLD-VERIFIED ---- */
+/* ---- Hud_Perp_OverlayOff__Fi  [HUD.CPP:4106-4107] SLD-VERIFIED ----
+ * PASS (6/6), declaration-clean against the SYM.  The retail function has no
+ * AUTO/REGPARM records; the former 22 unused locals were copied from a broad
+ * decompiler context and cannot belong to this two-line source function. */
 void Hud_Perp_OverlayOff(int player)
 
 {
-  int rpm;
-  int slice;
-  int temp1;
-  int offy;
-  int speed;
-  int sec;
-  char *artist;
-  char *title;
-  int rx;
-  int flashTicks;
-  int lx;
-  char langSec;
-  int ten;
-  int w7;
-  int sin;
-  int cos;
-  int ox;
-  int cenX;
-  int cenZ;
-  int u;
-  int v;
-  int yo;
-
   *(int *)((player << 2) + (int)PerpOverlayOn) = 0;
   return;
 }

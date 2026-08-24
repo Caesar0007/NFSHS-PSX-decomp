@@ -2369,6 +2369,26 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
   int i;
   Draw_HorizonCache *hsd;
 
+  /* The SYM has no records for these source-shaping identities.  Each is retained only
+     where an oracle-measured natural spelling changes code generation; the detailed
+     receipts below give the corresponding experiment and delta.
+     SYM-CODEGEN-CARRIER: c1
+     SYM-CODEGEN-CARRIER: ch
+     SYM-CODEGEN-CARRIER: cw
+     SYM-CODEGEN-CARRIER: fo
+     SYM-CODEGEN-CARRIER: iVar15
+     SYM-CODEGEN-CARRIER: iVar18
+     SYM-CODEGEN-CARRIER: m24
+     SYM-CODEGEN-CARRIER: pSVar12
+     SYM-CODEGEN-CARRIER: pal
+     SYM-CODEGEN-CARRIER: pp
+     SYM-CODEGEN-CARRIER: q
+     SYM-CODEGEN-CARRIER: shape_idx
+     SYM-CODEGEN-CARRIER: shape_visible
+     The two shape pointers are additionally proven by the natural hsd->array[i] rewrite:
+     it regresses 12 @473 to 24 @475.  Deriving iVar15/iVar18 directly from i regresses to
+     156 @469 and changes the retail 128-byte frame to 120 bytes. */
+
   /* PSX scratchpad base (0x1F800000). Held in ONE local for the WHOLE function (not a
      literal at each site) because the oracle keeps this address live in a single
      CALLEE-SAVED register ($s6) across every intervening call (Hrz_RotProj16,
@@ -2413,50 +2433,49 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
     int *zval;
     SVECTOR updown [2];
     DVECTOR temp2d [2];
-    int rowDelta;               /* SYM: nested "i" -- the farI/Zmax search counter */
+    int i;                      /* SYM: nested "i" -- shadows the function-scope ring index */
     int farI, Zmax, dx, dy;
+    int shape_visible, shape_idx;
     SVECTOR *pSVar12;
-    short shape_short;
-    int shape_visible, shape_idx, shape_overlap, shape_w_idx;
 
     Hrz_RotProj16(0x11,gRngCoordTop,(int *)((int)hsd + 0x124),(DVECTOR *)((int)hsd + 0x58));
     farI = 0;
     Zmax = 0;
     zval = (int *)((int)hsd + 0x124);
-    rowDelta = 0;
+    i = 0;
     /* MATCH (W74-A4, 58 -> 50): ZERO-INSN HARD-REG CONFLICT (catalog 20B / 22B(2)) --
-       the AVAILABILITY half of the rowDelta residual the w72 receipt could only name.
+       the AVAILABILITY half of the nested-i residual the w72 receipt could only name.
        The w72 fence below fixed the PRIORITY order (zval=$a0, Zmax=$a1); this denies $a2
-       to the quantities live here so find_reg's ascending scan gives rowDelta retail's
+       to the quantities live here so find_reg's ascending scan gives the nested i retail's
        $a3.  BOTH are required (dropping the fence below gates 78).  Position is the dial:
-       one statement earlier (before `rowDelta = 0;`) is INERT at 58. */
+       one statement earlier (before `i = 0;`) is INERT at 58. */
     __asm__("" : : "i"(0) : "$6");
     do {
       if (Zmax < *zval) {
         Zmax = *zval;
-        farI = rowDelta;
+        farI = i;
       }
-      rowDelta = rowDelta + 1;
+      i = i + 1;
       zval = zval + 1;
-    } while (rowDelta < 0x10);
+    } while (i < 0x10);
     /* MATCH (W74-A4, 34 -> 30): index-first INT sum (12D law) -- the oracle emits
        `sll a0,t0,3; addu a0,a0,v0` with the farI product as addu operand 0; the natural
        `gRngCoordTop + farI` is pointer arithmetic and is always rebuilt ptr-first. */
     pSVar12 = (SVECTOR *)(farI * 8 + (int)gRngCoordTop);
     updown[0].vx = pSVar12->vx;
-    shape_short = (short)Hrz_gTrackSpec->yoffset + (short)Hrz_gTrackSpec->height;
-    updown[0].vy = shape_short;
+    updown[0].vy = (short)Hrz_gTrackSpec->yoffset + (short)Hrz_gTrackSpec->height;
     updown[0].vz = pSVar12->vz;
     updown[1].vx = pSVar12->vx;
     updown[1].vy = (short)Hrz_gTrackSpec->yoffset;
-    /* MATCH (W72-A4, -22): ZERO-INSN LIVE-RANGE fence that DEMOTES `rowDelta`.  The
+    /* MATCH (W72-A4, -22): ZERO-INSN LIVE-RANGE fence that demotes the nested `i`.  The
        max-search loop's three globals price floor_log2(refs)*refs*4/live as
-       rowDelta 108/L > zval 56/L > Zmax 40/L, so ours served rowDelta first and it took
-       $a0; retail's order is zval=$a0, Zmax=$a1, rowDelta=$a3.  Extending rowDelta's live
+       nested i 108/L > zval 56/L > Zmax 40/L, so ours served i first and it took
+       $a0; retail's order is zval=$a0, Zmax=$a1, i=$a3.  Extending i's live
        range past the loop drops it below both rivals.  POSITION is the whole dial (the
        plateau is exactly this updown[] region: one statement earlier = 99, one later = 63,
-       at `shape_w_idx = 0` = 164); operand COUNT is inert (1/2/3 all 58).  DO NOT DELETE. */
-    __asm__("" : : "r"(rowDelta));
+       at the second loop's `i = 0` = 164); operand COUNT is inert (1/2/3 all 58).
+       DO NOT DELETE. */
+    __asm__("" : : "r"(i));
     updown[1].vz = pSVar12->vz;
     {
       /* SYM block line=55 (nested in line=30): a single {p_,s_} scope REUSED for both
@@ -2493,31 +2512,31 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
       dx = temp2d[0].vx - *(short *)((int)hsd + fo + 0x58);
       dy = temp2d[0].vy - *(short *)((int)hsd + fo + 0x5a);
     }
-    shape_overlap = 0;
+    i = 0;
     shape_visible = (int)hsd;
   up_delta_loop:
       if (0 < *(int *)(shape_visible + 0x124)) {
         *(short *)(shape_visible + 0x14) = *(short *)(shape_visible + 0x58) + dx;
         *(short *)(shape_visible + 0x16) = *(short *)(shape_visible + 0x5a) + dy;
       }
-      shape_overlap = shape_overlap + 1;
+      i = i + 1;
       shape_visible = shape_visible + 4;
-    if (shape_overlap < 0x11) goto up_delta_loop;
+    if (i < 0x11) goto up_delta_loop;
     {
       int fo = farI * 4;
       dx = temp2d[1].vx - *(short *)((int)hsd + fo + 0x58);
       dy = temp2d[1].vy - *(short *)((int)hsd + fo + 0x5a);
     }
-    shape_w_idx = 0;
+    i = 0;
     shape_idx = (int)hsd;
   down_delta_loop:
       if (0 < *(int *)(shape_idx + 0x124)) {
         *(short *)(shape_idx + 0x58) = *(short *)(shape_idx + 0x58) + dx;
         *(short *)(shape_idx + 0x5a) = *(short *)(shape_idx + 0x5a) + dy;
       }
-      shape_w_idx = shape_w_idx + 1;
+      i = i + 1;
       shape_idx = shape_idx + 4;
-    if (shape_w_idx < 0x11) goto down_delta_loop;
+    if (i < 0x11) goto down_delta_loop;
   }
   Horizon_InterpolateLineSCoords((DVECTOR *)((int)hsd + 0x9c),(DVECTOR *)((int)hsd + 0x58),(DVECTOR *)((int)hsd + 0x14),
              gfxPmxHeightPercentage,0x10,1);
@@ -2534,12 +2553,10 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
       DVECTOR right;
       POLY_GT4 *prim;
       Draw_tPixMap *pmx;
-      u_int *puVar1, *puVar14, *pal;
+      u_int *pal;
       u_char **pp;
       u_int c1;
-      u_char *p;
-      int iVar18, iVar15, iVar6;
-      (void)pmx;
+      int iVar18, iVar15;
 
       /* MATCH (W72-A4, -12 with its fence below): the 24-bit OT mask as a NAMED local.
          Naming it alone is neutral (96) and the identity-launder form is worse (102); it
@@ -2612,8 +2629,7 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                  (short)ch >= mpts[2].vy || (short)ch >= mpts[3].vy) {
               Horizon_InterpolateLineSCoords(&right,(DVECTOR *)(((int)hsd + 0x9c) + iVar15),
                          (DVECTOR *)(((int)hsd + 0xe0) + iVar15),&fxOverlapPercentage,1,0);
-              iVar6 = Draw_gViewOtSize;
-              puVar14 = *(u_int **)((int)gpPmx + iVar15);
+              pmx = *(Draw_tPixMap **)((int)gpPmx + iVar15);
               if (Hrz_gTrackSpec->ringPMX[i] != '\x10') {
                 /* MATCH (W74-A4, 50 -> 42): FENCED HELD-ADDRESS ANCHOR (05F / 14D /
                    methodology 3.12 #16).  Retail materialises &Render_gPacketPtr ONCE
@@ -2627,10 +2643,9 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                    4th 48 - after SetPolyGT4 175 @476. */
                 pp = (u_char **)0x1f800004;
                 __asm__("" : "=r"(pp) : "0"(pp));
-                p = *pp;
-                prim = (POLY_GT4 *)p;
+                prim = (POLY_GT4 *)*pp;
                 /* MATCH (w50-a5): the OT-link RMW pair runs off the ALREADY-LOADED
-                   cursor `p` and ONE shared palette-slot pointer `pal`, never a fresh
+                   cursor `prim` and ONE shared palette-slot pointer `pal`, never a fresh
                    scratchpad re-read (catalog w40 packet-emission (a) + the shared-base
                    row).  The oracle materializes &Render_gPacketPtr ONCE (`lui a2,8064;
                    ori a2,a2,4`), loads the cursor into a saved reg (`lw s0,0(a2)`),
@@ -2648,39 +2663,38 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                    first is the one hoisted -- this token is what makes our preheader hoist
                    the two-insn 0xFFFFFF (retail's) instead of the one-insn 0xFF000000.
                    SITE-SELECTIVE: the same swap on the SECOND RMW costs +4, both = +4. */
-                *(u_int *)p = *pal & m24 | *(u_int *)p & 0xff000000;
-                *pal = *pal & 0xff000000 | (u_int)p & m24;
+                *(u_int *)prim = *pal & m24 | *(u_int *)prim & 0xff000000;
+                *pal = *pal & 0xff000000 | (u_int)prim & m24;
                 /* MATCH (W72-A4): the m24 ref dial -- see the decl above.  ONE operand
                    only (n=2 -> 116, n=3 -> 128) and anywhere AFTER the second RMW
                    (between the two RMWs -> 106). */
                 __asm__("" : : "r"(m24));
-                puVar1 = (u_int *)(p + 4);
                 /* MATCH (W74-A4): the cursor bump sits BETWEEN the first colour load and
                    its store, exactly as retail emits it (`lw v1,0(v0); addiu v0,s0,52;
                    sw v0,0(a2); sw v1,4(s0)`) -- splitting the load out of the store is
                    what lets the bump land there.  After this the whole packet block is
                    byte-identical to the oracle bar the two RMW load-order lines. */
                 c1 = *(u_int *)(&gHrzRingColor[1][0].r + iVar15);
-                *pp = p + 0x34;
-                *puVar1 = c1;
-                *(u_int *)(p + 0x10) = *(u_int *)(&gHrzRingColor[1][1].r + iVar15);
-                *(u_int *)(p + 0x1c) = *(u_int *)(&gHrzRingColor[0][0].r + iVar15);
-                *(u_int *)(p + 0x28) = *(u_int *)(&gHrzRingColor[0][1].r + iVar15);
-                SetPolyGT4((POLY_GT4 *)p);
-                *(u_int *)(p + 0xc) = *puVar14;
-                *(u_int *)(p + 0x18) = puVar14[1];
-                *(u_int *)(p + 0x24) = puVar14[2];
-                *(u_int *)(p + 0x30) = puVar14[3];
+                *pp = (u_char *)prim + 0x34;
+                *(u_int *)((u_char *)prim + 4) = c1;
+                *(u_int *)((u_char *)prim + 0x10) = *(u_int *)(&gHrzRingColor[1][1].r + iVar15);
+                *(u_int *)((u_char *)prim + 0x1c) = *(u_int *)(&gHrzRingColor[0][0].r + iVar15);
+                *(u_int *)((u_char *)prim + 0x28) = *(u_int *)(&gHrzRingColor[0][1].r + iVar15);
+                SetPolyGT4(prim);
+                *(u_int *)((u_char *)prim + 0xc) = *(u_int *)pmx;
+                *(u_int *)((u_char *)prim + 0x18) = ((u_int *)pmx)[1];
+                *(u_int *)((u_char *)prim + 0x24) = ((u_int *)pmx)[2];
+                *(u_int *)((u_char *)prim + 0x30) = ((u_int *)pmx)[3];
                 /* MATCH: arm-swap (catalog §A) -- m2c shows the branch condition as the
                    DIRECT ">=8" form (fall-through arm is >=8, not <8); the inverted-and-swap
                    compiles with the SAME polarity/inline-arm layout the oracle uses. */
                 if (8 <= (u_char)Hrz_gTrackSpec->ringPMX[i]) {
                   /* MATCH: WORD copy -- a DVECTOR struct assignment emits the align-1
                      lwl/lwr+swl/swr quad; the oracle does one lw/sw pair. */
-                  *(u_int *)(p + 8) = *(u_int *)&right;
-                  *(u_int *)(p + 0x14) = *(u_int *)((int)hsd + iVar15 + 0x9c);
-                  *(u_int *)(p + 0x20) = *(u_int *)((int)hsd + iVar15 + 0x5c);
-                  *(u_int *)(p + 0x2c) = *(u_int *)((int)hsd + iVar15 + 0x58);
+                  *(u_int *)((u_char *)prim + 8) = *(u_int *)&right;
+                  *(u_int *)((u_char *)prim + 0x14) = *(u_int *)((int)hsd + iVar15 + 0x9c);
+                  *(u_int *)((u_char *)prim + 0x20) = *(u_int *)((int)hsd + iVar15 + 0x5c);
+                  *(u_int *)((u_char *)prim + 0x2c) = *(u_int *)((int)hsd + iVar15 + 0x58);
                 }
                 else {
                   /* MATCH (W75-A8, 14 -> 12): INDEX-FIRST int sum (12D law) -- the oracle
@@ -2690,10 +2704,10 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                      re-pricing, worth 2 diffs and posmis 10 -> 9 here. */
                   int q = iVar15 + (int)hsd;
                   __asm__("" : "=r"(q) : "0"(q));
-                  *(u_int *)(p + 8) = *(u_int *)(q + 0x9c);
-                  *(u_int *)(p + 0x14) = *(u_int *)&right;   /* MATCH: word copy, see above */
-                  *(u_int *)(p + 0x20) = *(u_int *)(q + 0x58);
-                  *(u_int *)(p + 0x2c) = *(u_int *)(q + 0x5c);
+                  *(u_int *)((u_char *)prim + 8) = *(u_int *)(q + 0x9c);
+                  *(u_int *)((u_char *)prim + 0x14) = *(u_int *)&right;   /* MATCH: word copy, see above */
+                  *(u_int *)((u_char *)prim + 0x20) = *(u_int *)(q + 0x58);
+                  *(u_int *)((u_char *)prim + 0x2c) = *(u_int *)(q + 0x5c);
                 }
               }
             }

@@ -23,6 +23,7 @@ and its extracted objects plus the NFS4 retail oracle for byte/codegen truth.
 | CD-ROM image generation | `Devrefs\Cdgen.pdf` |
 | Data-conversion utilities | `Devrefs\Dataconv.pdf` |
 | SDevTC compiler/debugger environment | `Devrefs\sdevtc.pdf` |
+| PsyQ GCC optimization levels, ABI/register conventions, and short-data rules | `CONF\SCEE\96April\optimize.pdf` |
 
 The corpus also contains conference material, technical notes, training
 material, samples, tools, videos, and hardware-specific manuals.  Search the
@@ -58,6 +59,28 @@ whole root when the primary manuals do not settle a question.
   callback environment as a 12-word `buf` followed by `stack[1024]`; the
   installed interrupt SP is `&stack[1004]`, the exact retail `+0x1018`
   address.
+- `CONF\SCEE\96April\optimize.pdf`, PDF pages 14-17, confirms that `-O1`
+  performs compiler-selected local register allocation, delay-slot filling,
+  repeated-expression elimination, and unused-local elimination; `-O2` adds
+  more aggressive register allocation and frame-pointer elimination, while
+  `-O3` adds heuristic inlining and known-trip-count loop unrolling.  This is
+  direct SDK-era evidence that a SYM-absent source temporary may disappear or
+  reshape allocation, but it does not make an unmatched carrier an original
+  source identity.
+- The same optimization deck, PDF pages 20-25 and 38-42, records the PsyQ ABI
+  register roles, first-four-arguments-in-`a0`-`a3` convention, saved-register
+  treatment across calls, 16-bit base+offset addressing, `sdata`/`sbss`
+  `gp`-relative model, and `-G<num>` size threshold.  It also states that under
+  optimized builds GCC chooses register placement itself; the C `register`
+  keyword only affects debug (`-g`) builds unless an explicit hard-register
+  declaration is used.
+- `Devrefs\sdevtc.pdf`, PDF pages 21-24, confirms the retail tool pipeline:
+  `.C` uses the C front end, `.CPP` uses the C++ front end, both proceed through
+  assembler and linker, and `-O0`/`-O1`/`-O2`/`-O3` select no, standard, full,
+  and full-plus-inlining optimization respectively.  It explicitly redirects
+  detailed compiler behavior to the separate GNU compiler documentation;
+  therefore `C:\Temp\gcc-2.8.1-src` and measured cc1 traces remain the authority
+  for allocator internals that these PsyQ manuals do not specify.
 
 ## Evidence workflow
 

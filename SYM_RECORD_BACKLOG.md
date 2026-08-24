@@ -1923,6 +1923,51 @@ relocation masking.  After all source-name, type, and layout corrections,
 `tools\tugate.py` remains **13/13 PASS** and `tools\slotcheck.py` reports
 `bad = 0`; no matched function regressed.
 
+### P44 — Horizon/HUD SYM local restoration and full PsyQ compiler references (`2026-08-24`)
+
+The refreshed strict game/PSX declaration audit is recorded in
+[`game_psx_after_hrz_hud_reconcile_20260824.md`](scratchpad/root_sym_audit/game_psx_after_hrz_hud_reconcile_20260824.md).
+It advances the result from 389/395 to 391/395 declaration-clean functions,
+reduces generic extra source-local names from 220 to 177, and preserves zero
+missing SYM names and zero type findings.
+
+`Hud_Perp_OverlayOff` had no AUTO/REGPARM records at all.  Its 22 unused locals
+were broad decompiler-context residue and are removed; detailed verification
+remains exact at 6/6 instructions and the whole `hud.cpp` gate remains 61/62
+PASS with only the pre-existing 11-diff `Hud_RenderTacView` residual.
+
+`Hrz_BuildHorizon` now uses the actual nested SYM `i` for the max-search and
+both 17-entry correction loops.  The dead `iVar6` and one-use `shape_short`
+are removed, as are the duplicate `shape_overlap`/`shape_w_idx` counters.
+The SYM locals `Draw_tPixMap *pmx` and `POLY_GT4 *prim` now carry the live
+pixmap and packet pointers instead of synthetic `puVar14` and byte-pointer
+`p`; the one-use `puVar1` address temporary is also gone.  All eight changes
+are byte-neutral, preserving the authoritative 12-diff, count-exact 473/473
+baseline.
+
+All thirteen remaining non-SYM identities in `Hrz_BuildHorizon` now have
+explicit oracle receipts.  Two decisive natural-source probes were retained
+as falsification evidence: replacing `shape_visible`/`shape_idx` with direct
+`hsd->array[i]` expressions regresses 12 @473 to 24 @475, while deriving
+`iVar15`/`iVar18` directly from `i` regresses to 156 @469 and incorrectly
+shrinks the retail 128-byte frame to 120 bytes.  These names remain measured
+compiler-shaping carriers, not claimed retail debug identities.
+
+The documentation index now routes compiler questions through the complete
+PsyQ 4.3 corpus at `C:\Temp\PSYQ\psyq-430-doc`.  The April 1996 optimization
+deck supplies direct SDK-era evidence for optimization-level behavior, ABI
+register roles, delay-slot filling, `gp` short data, and GCC-selected register
+allocation; `sdevtc.pdf` confirms the C/C++ pipeline and explicitly delegates
+allocator internals to the GNU compiler documentation.  Thus these manuals
+strengthen semantic/source interpretation while measured gcc-2.8.1 traces and
+the retail oracle remain authoritative for exact allocation.
+
+Whole-TU regression gates are 20/22 PASS for `hrzsku.cpp` (unchanged residuals
+12 and 146) and 61/62 PASS for `hud.cpp`; both compiled objects pass delay-slot
+safety (`bad = 0`).  Call-target audit reports zero proven wrong targets,
+undefined-call audit reports `UNDEF=0`, TU-order audit reports 523 objects and
+zero inversions, and the vtable indexing audit passes all 926 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

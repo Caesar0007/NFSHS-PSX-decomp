@@ -853,6 +853,8 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
           case 0x17:
             Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
             {
+              /* SYM-CODEGEN-CARRIER: pCVar7 -- each switch arm must retain the
+                 single MCRD_getcard result across multiple status tests. */
               CARDINFO_def *pCVar7 = MCRD_getcard(player * 4 + 1);
               __asm__("");
               result = PinkSlipsError_CardFull;

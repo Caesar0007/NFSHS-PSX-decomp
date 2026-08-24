@@ -142,8 +142,10 @@ tScreenCarSelect::~tScreenCarSelect()
 void tScreenCarSelect::Cleanup()
 
 {
+  /* SYM-CODEGEN-CARRIER: vtbl -- direct this->_vf[1][5] indexing is measured
+     byte-identical but violates the manual-ABI vtable safety gate. */
   __vtbl_ptr_type (*vtbl) [10];
-  
+
   CleanupSpinningCarsMenu();
   this->tScreen::Cleanup();
   vtbl = this->_vf;
@@ -2247,6 +2249,8 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
        sliderResult was the intermediate 12-diff basin but left a join-copy echo. */
     if (gotcar != 0) {
       tCarStatType carStat = remap[j];
+      /* SYM-CODEGEN-CARRIER: ci -- the retail block has a second, pointer-typed
+         `carInfo`; this spelling distinguishes it from the live AUTO carInfo. */
       tCarInfo *ci = &carInfo;
       result = (short)ci->fStats[0][carStat];
       if ((ci->fUpgrades & 1) != 0) {
@@ -2331,10 +2335,7 @@ void tScreenCarSelectTwoPlayer::SetDialog()
 void tScreenCarSelectTwoPlayer::AllocateAsyncBuffer()
 
 {
-  char *str;
-  
-  str = Platform_GetDCTBuffer(16000,"VideoWall");
-  this->fSwapShapes.fDestFile = str;
+  this->fSwapShapes.fDestFile = Platform_GetDCTBuffer(16000,"VideoWall");
   return;
 }
 
@@ -2568,15 +2569,12 @@ void tScreenPinkSlipsCarSelect::DrawForeground()
 void tScreenPinkSlipsCarSelect::Initialize()
 
 {
-  CARDINFO_def *cardInfo;
-  
   this->waitfordialog = 0;
   this->fStartCheckTick = 0;
   this->fCardFailed = 0;
   PinkSlipsScreenState[0] = NoCardInserted;
   PinkSlipsScreenState[1] = NoCardInserted;
-  cardInfo = MCRD_getcard(1);
-  this->pCI = cardInfo;
+  this->pCI = MCRD_getcard(1);
   Init_Memcard(true,1);
   this->fExitingScreen = 0;
   this->tScreenCarSelectTwoPlayer::Initialize();

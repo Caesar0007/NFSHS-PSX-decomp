@@ -883,6 +883,8 @@ DrawBgGridposDone:
 void tScreenMemcard::DrawForeground()
 
 {
+  /* SYM-CODEGEN-CARRIER: fade -- raw retail allocation (IDA $s1; m2c var_a0)
+     keeps this clamped value live across the four DrawShapeExtended calls. */
   int fade;
   int k;
 

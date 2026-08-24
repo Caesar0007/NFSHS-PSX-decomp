@@ -2405,6 +2405,24 @@ or type findings, while the explicit function-type override queue falls from
 six to five.  The complete game/PSX gate remains 385/395 PASS with no compile
 failures; relink and the 926-file vtable audit remain green.
 
+### P63 — `Fe3D_InitShowroom` short post-increment index restored (`2026-08-24`)
+
+The receipt is recorded in
+[`fe3d_initshowroom_short_iplus_20260824.md`](scratchpad/root_sym_audit/fe3d_initshowroom_short_iplus_20260824.md).
+The nested line-15 `REG SHORT iPlus` is now represented directly.  The former
+exact workaround used a separate short counter, a shifted integer carrier, an
+integer-typed `iPlus`, and a zero-byte identity fence.  Retail's copied old
+index and rematerialized first `.z` address instead come naturally from the
+original-style statement boundary: both `.z` subscripts post-increment the
+single short index.
+
+The restored form removes `sVar4`, `sh`, and the fence while preserving
+`Fe3D_InitShowroom` PASS at 107/107 instructions.  Game/PSX remains 395/395
+declaration-clean with zero missing names, extra locals, or type findings; the
+explicit function-type override queue falls from five to four.  The complete
+game/PSX gate remains 385/395 PASS with no compile failures, both relink lanes
+are green, and the vtable audit passes all 926 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

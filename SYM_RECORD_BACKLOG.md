@@ -2595,11 +2595,14 @@ the register `LUMPYHEAD *`.  It remains PASS at 109 instructions and
 `feaudio.cpp` remains 10/10 PASS, so no speculative source change was made.
 
 The live user-edited `tGlobalMenuDefs` constructor remains the only far frontend
-residual: 874 diffs, 3,223 reconstructed versus 3,207 retail instructions.
-Constant-spelling, cast, callback, and statement-shape probes did not improve
-that authoritative baseline, so none were landed and the user's edit was
-preserved.  Its first current allocation divergence is documented in the
-receipt for a future ground-up reconstruction round.
+residual: 872 diffs, 3,223 reconstructed versus 3,207 retail instructions.  A
+zero-instruction immediate-only scheduling boundary after the recovered
+`menuTrackRecords.VertHelp = 1` store reduced the prior 874 baseline by two
+diffs without changing instruction count; the user's brace edit was preserved.
+Constant-spelling, cast, callback, label, inline-helper, and alternate FEApp
+pointer-shape probes did not beat that authoritative result.  Its first current
+allocation divergence remains documented in the receipt for a future
+ground-up reconstruction round.
 
 ## Closure rule
 

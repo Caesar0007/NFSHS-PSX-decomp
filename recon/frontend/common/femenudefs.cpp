@@ -3419,8 +3419,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , menuCredits(0x1010, (tScreen *)screenMain[0], (tMenu *)0x0, (tMenu *)0x0, 0, -1)   /* +0x39F0 tMenuBlank */
  , itemMemContinue(0x28a, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_TransitionFromPostGameToMainMenu)   /* +0x3A6C tMemoryCardMenuItem */
  , menuPostGameSave(0x1040, (tScreen *)screenMemcard, (tMenu *)0x0, (tMenu *)0x0, 0, -1, 0x2e, 10, (tMenuItem *)&itemMemContinue, &itemSaveGame, 0)   /* +0x3A98 tOptionsMenu */
-{
-
+ {
   {
     tMenu *child = (tMenu *)&menuPlayerTwoCarSelect;
     (menuPlayerOneCarSelect).fChildMenu = child;
@@ -3456,6 +3455,9 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   { tMenu *pm_ = (tMenu *)&menuMemory; __asm__("" : "=r"(pm_) : "0"(pm_)); pm_->VertHelp = 0; }
   { tMenu *pu_ = (tMenu *)&menuUserName; __asm__("" : "=r"(pu_) : "0"(pu_)); pu_->VertHelp = 0; }
   (menuTrackRecords).VertHelp = 1;
+  /* [2026-08-24] Zero-insn tail scheduling boundary: 874 -> 872 diffs in the
+     current constructor basin, with the instruction count unchanged at 3223. */
+  __asm__("" : : "i"(0));
   (menuTrophyInfo).VertHelp = 0;
   return;
 }

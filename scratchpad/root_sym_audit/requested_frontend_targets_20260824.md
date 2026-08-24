@@ -19,14 +19,17 @@ non-SYM geometry carriers and the owner's monolithic type surface stay open.
 ## `tGlobalMenuDefs::tGlobalMenuDefs`
 
 The current user-edited constructor is the only far residual in
-`frontend/common`: 874 diffs, 3,223 reconstructed instructions versus 3,207
+`frontend/common`: 872 diffs, 3,223 reconstructed instructions versus 3,207
 retail.  Its first current divergence is an allocation/scheduling split near
 instruction 1,227: retail completes the `-1` load/store before the following
 address calculations, while the reconstruction schedules those calculations
 first and rotates the subsequent temporary registers.
 
-Natural constant spellings and casts were neutral at 874.  Statement-expression
-forms were substantially worse, and callback cast/spacing/unsigned/hex probes
-were also neutral.  No failed experiment was landed, and the live user edit in
-`femenudefs.cpp` was preserved.  This target remains explicit backlog rather
+Natural constant spellings and casts were neutral at the former 874 baseline.
+Statement-expression forms were substantially worse, and callback
+cast/spacing/unsigned/hex probes were also neutral.  A zero-instruction
+immediate-only scheduling boundary after `menuTrackRecords.VertHelp = 1`
+reduced 874 to 872 without changing the 3,223-instruction reconstruction; two
+function gates and two complete 65/66 TU gates reproduced the result.  The live
+user brace edit remains intact.  The target remains explicit backlog rather
 than being mislabeled as fixed.

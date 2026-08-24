@@ -2218,7 +2218,7 @@ instructions, and the rebuilt local symbols retain the recorded contiguous
 `.sbss` offsets.
 
 Forty other records were already function-local and the four game/PSX records
-closed in P52 remain correct. The only remaining scope exceptions are
+closed in P52 remain correct. At this checkpoint the remaining scope exceptions were
 `audiocmn.cpp`'s `compareTimes`, `lastImpactSample`, and `cobbleCount`. A direct
 scope restoration preserves all three function PASSes but moves their exact
 retail object offsets from `.data+0x288`, `.sdata+0x84`, and `.sdata+0x88` to
@@ -2226,6 +2226,31 @@ retail object offsets from `.data+0x288`, `.sdata+0x84`, and `.sdata+0x88` to
 These three records are therefore a concrete TU-declaration-order task, not an
 unclassified exception: their source scope and retail placement must be restored
 together by recovering `audiocmn.cpp`'s original declaration interleaving.
+
+### P54 — `audiocmn.cpp` declaration interleaving closes all `STAT` scopes (`2026-08-24`)
+
+The P53 experiment supplied the missing constraint. Global `.data` definitions
+following `compareTimes` and global `.sdata` definitions following
+`cobbleCount` are now encountered after their owning functions, while
+non-emitting declarations keep earlier code valid. This restores all three
+source declarations to their recorded function scopes without attributes or
+post-build rewriting.
+
+The resulting local symbols land exactly at `.data+0x288` (`compareTimes.258`),
+`.sdata+0x84` (`lastImpactSample.271`), and `.sdata+0x88`
+(`cobbleCount.286`). Every following data symbol retains its retail offset;
+section sizes remain `.data=0x970`, `.sdata=0xf8`, and `.rodata=0xa0`.
+Saved-section comparison reports zero non-relocation byte differences, and the
+whole `.sdata` section is byte-identical.
+
+All audiocmn function oracles remain exact, including `AudioCmn_GetTimePhrase`
+20/20, `ChooseImpactSample` 184/184, `AudioCmn_CheckState` 415/415,
+`AudioCmn_SoundCar` 530/530, and `AudioCmn_ReverbOff` 10/10. The full
+game/common gate remains 1257/1258 PASS with no compile failures; its sole
+residual belongs to the independent, pre-existing `speech.cpp` worktree edit.
+The strict audit maps all 547 SYM-owned globals with zero missing, type, or
+storage findings. All 54 reliable function-local `STAT` records are now
+source-scoped.
 
 ## Closure rule
 

@@ -18,6 +18,25 @@ void AudioCmn_ReverbOff(void);
    the tables here only reference them). */
 extern char D_8013C67C[], D_8013C684[], D_8013C68C[], D_8013C690[], D_8013C694[],
             D_8013C698[], D_8013C69C[], D_8013C6A0[], D_8013C6A4[], D_8013C6A8[];
+extern char *AudioCmn_LanguageName[7];
+extern int bSirenOn[6], bSirenPitchingUp[6], quickSirenActive[6];
+extern int sirenPitchWidth[6], sirenCurrentPitch[6], slowSirenReps[6];
+extern int sirenCount[6], reachedSirenMin[6], quickSirenTimeCount[6];
+extern AudioCmn_tReTrig AudioCmn_gReTrig[2];
+extern SndBnk_t gSndBnk[7];
+extern Channels_t gaChannel[71];
+extern AudioCmn_tAsyncSfxSlot AudioCmn_gSfxSlot[32];
+extern char carbankname[12];
+extern int falseLapTrigCur, flaseLapTrigTrack;
+extern char currentLap[2];
+extern int bestLapTime[2], gtotallaptimes[2], AudioCmn_gPlayerArrested[2];
+extern int AudioCmn_gCursorSndHandle, AudioCmn_gLastFade;
+extern void *AudioCmn_gLoadTables, *AudioCmn_gCruiseTables;
+extern int AudioCmn_gResume, AudioCmn_gStreamRestartTimer;
+extern char fMysticWindON[2], fAmbientRangeON[2];
+extern int currentWindVal[2], nextWindVal[2];
+extern int currentWindPan, nextWindPan, gQuickSirenCount;
+extern int AudioCmn_ThunderAmp, AudioCmn_ThunderAzi, AudioCmn_ThunderDel;
 char         *const AudioCmn_FESFX_loadLangMap[12] = {   /* @0x8005570c: readonly image pointers */
     D_8013C68C, D_8013C6A4, D_8013C68C, D_8013C6A8, D_8013C68C, D_8013C6A4,
     D_8013C690, D_8013C6A4, D_8013C68C, D_8013C68C, D_8013C68C, 0
@@ -27,29 +46,6 @@ int          falseLapTrigNumsForward[10][2] = { 4, 7, 4, 7, 4, 7, -1, -1, 4, 7, 
 int          falseLapTrigNumsBackward[10][2] = { 4, 5, 4, 5, -1, -1, -1, -1, 4, 5, 4, 5, 4, 5, -1, -1, -1, -1, 4, 5 };   /* @0x8010e63c */
 char         Xfade[129] = { 0, 3, 7, 10, 13, 16, 19, 22, 24, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 46, 48, 50, 51, 53, 54, 55, 57, 58, 60, 61, 62, 63, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 84, 85, 86, 87, 88, 88, 89, 90, 91, 91, 92, 93, 94, 94, 95, 96, 96, 97, 98, 98, 99, 100, 100, 101, 101, 102, 103, 103, 104, 104, 105, 106, 106, 107, 107, 108, 108, 109, 109, 110, 110, 111, 111, 112, 112, 113, 113, 114, 114, 115, 115, 116, 116, 117, 117, 118, 118, 119, 119, 119, 120, 120, 121, 121, 122, 122, 122, 123, 123, 124, 124, 125, 125, 125, 126, 127, 127 };   /* @0x8010e68c */
 static char  SkidInitMaxFreq[71] = { 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };   /* @0x8010e710 */
-/* SYM STAT, hoisted pending restoration of this TU's original declaration order:
-   a literal function-local move changes retail .data offset 0x288 to 0x954. */
-static char compareTimes[25] = {              /* retail 0x8010e758 */
-  30, 12, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5, -6, -7, -8, -9,
-  -10, -11, -12, -15, -20, -25, -30
-};
-char         *AudioCmn_LanguageName[7] = {   /* @0x8010e774 : image ptrs 0x8013c68c/90/94/98/9c + "eng" x2 (pooled) */
-    D_8013C68C, D_8013C690, D_8013C694, D_8013C698, D_8013C69C, D_8013C68C, D_8013C68C
-};
-int          bSirenOn[6] = {0};   /* @0x8010e790: explicit zero preserves .data order */
-int          bSirenPitchingUp[6] = { 1, 1, 1, 1, 1, 1 };   /* @0x8010e7a8 */
-int          quickSirenActive[6] = {0};   /* @0x8010e7c0 */
-int          sirenPitchWidth[6] = { 32, 40, 28, 42, 28, 42 };   /* @0x8010e7d8 */
-int          sirenCurrentPitch[6] = { 32, 32, 32, 32, 32, 32 };   /* @0x8010e7f0 */
-int          slowSirenReps[6] = { 3, 3, 3, 3, 3, 3 };   /* @0x8010e808 */
-int          sirenCount[6] = {0};   /* @0x8010e820 */
-int          reachedSirenMin[6] = {0};   /* @0x8010e838 */
-int          quickSirenTimeCount[6] = {0};   /* @0x8010e850 */
-AudioCmn_tReTrig AudioCmn_gReTrig[2] = {0};   /* @0x8010e868 */
-SndBnk_t     gSndBnk[7] = {0};   /* @0x8010e8a8 */
-Channels_t   gaChannel[71] = {0};   /* @0x8010e8fc */
-AudioCmn_tAsyncSfxSlot AudioCmn_gSfxSlot[32] = {0};   /* @0x8010eb34 */
-char         carbankname[12] = {0};   /* @0x8010ee34 */
 char         trackMusicState = 4;   /* @0x8013c628 */
 int          audioBackwardsDirection = 0;   /* @0x8013c62c  (bss(zero)) */
 int          intensityFalseLapCounter = 0;   /* @0x8013c630  (bss(zero)) */
@@ -91,46 +87,6 @@ char D_8013C69C[] __attribute__((section(".sdata"), aligned(4))) = "itl";
 char D_8013C6A0[] __attribute__((section(".sdata"), aligned(4))) = "Gen";
 char D_8013C6A4[] __attribute__((section(".sdata"), aligned(4))) = "brt";
 char D_8013C6A8[] __attribute__((section(".sdata"), aligned(4))) = "fre";
-/* SYM records these as function-local statics.  They remain hoisted until the
-   original TU declaration order is restored: direct moves change retail
-   .sdata offsets 0x84/0x88 to 0xf0/0xf4.  The 0x63 initializer is confirmed
-   by retail bytes, correcting the older zero-initialized reconstruction. */
-static int  lastImpactSample = 0x63;          /* retail 0x8013c6ac */
-static char cobbleCount = 0;                  /* retail 0x8013c6b0 */
-int          falseLapTrigCur = 0;   /* @0x8013c6b4  (bss(zero)) */
-int          flaseLapTrigTrack = 0;   /* @0x8013c6b8  (bss(zero)) */
-char         currentLap[2] = {0, 0};   /* @0x8013c6bc  (bss(zero)) */
-/* MATCH (w66-a6): the five 8-byte objects of this TU's .sdata run sit INSIDE
- * retail's small-data window (0x8013c628..0x8013c71c) but -G4 exiles anything
- * over 4 bytes to .data, punching 24- and 16-byte holes in the ownership map.
- * The per-fn -G8 region splice CANNOT fix that: PER_FN_G8 substitutes only the
- * `.ent NAME ... .end NAME` TEXT region, and every data directive lives outside
- * it -- measured with the splice applied to ALL 48 functions of this TU, all
- * five objects still emit under `.data` (scratchpad/w66a6, probes A/B/C).
- * A whole-TU -G8 does place them, but it re-materializes every small-object
- * address as the unschedulable `la` macro and breaks CheckState (W59-11G).
- * The section attribute is the storage-only equivalent: it moves the object and
- * leaves -G (and therefore every address materialization) alone -- the object's
- * TEXT is BYTE-IDENTICAL to the un-attributed build, 3765/3765 words. */
-int          bestLapTime[2] __attribute__((section(".sdata"))) = {0, 0};   /* @0x8013c6c0  (bss(zero)) */
-int          gtotallaptimes[2] __attribute__((section(".sdata"))) = {0, 0};   /* @0x8013c6c8  (bss(zero)) */
-int          AudioCmn_gPlayerArrested[2] __attribute__((section(".sdata"))) = {0, 0};   /* @0x8013c6d0  (bss(zero)) */
-int          AudioCmn_gCursorSndHandle = 0;   /* @0x8013c6d8  (bss(zero)) */
-int          AudioCmn_gLastFade = 0;   /* @0x8013c6dc  (bss(zero)) */
-void         *AudioCmn_gLoadTables = 0;   /* @0x8013c6e0  (bss(zero)) */
-void         *AudioCmn_gCruiseTables = 0;   /* @0x8013c6e4  (bss(zero)) */
-int          AudioCmn_gResume = 0;   /* @0x8013c6e8  (bss(zero)) */
-int          AudioCmn_gStreamRestartTimer = 0;   /* @0x8013c6ec  (bss(zero)) */
-char         fMysticWindON[2] = {0, 0};   /* @0x8013c6f0  (bss(zero)) */
-char         fAmbientRangeON[2] = {0, 0};   /* @0x8013c6f4  (bss(zero)) */
-int          currentWindVal[2] __attribute__((section(".sdata"))) = {0, 0};   /* @0x8013c6f8  (bss(zero)) */
-int          nextWindVal[2] __attribute__((section(".sdata"))) = {0, 0};   /* @0x8013c700  (bss(zero)) */
-int          currentWindPan = 0;   /* @0x8013c708  (bss(zero)) */
-int          nextWindPan = 0;   /* @0x8013c70c  (bss(zero)) */
-int          gQuickSirenCount = 0;   /* @0x8013c710  (bss(zero)) */
-int          AudioCmn_ThunderAmp = 0;   /* @0x8013c714  (bss(zero)) */
-int          AudioCmn_ThunderAzi = 0;   /* @0x8013c718  (bss(zero)) */
-int          AudioCmn_ThunderDel = 0;   /* @0x8013c71c  (bss(zero)) */
 static int   PlayersRampedGasLevel[2] __attribute__((section(".bss")));   /* SYM STAT @0x8013dd80 */
 
 
@@ -784,6 +740,10 @@ void AudioCmn_SetLevels(void)
 /* ---- AudioCmn_GetTimePhrase__Fi  [@0x8007706c] ---- */
 int AudioCmn_GetTimePhrase(int time)
 {
+  static char compareTimes[25] = {
+    30, 12, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5, -6, -7, -8, -9,
+    -10, -11, -12, -15, -20, -25, -30
+  };
   int seconds;
   int index;
 
@@ -1259,6 +1219,8 @@ int scaleFrequency(int sndPlayer,int iSFXnum,int tweakedForce)
    `iSFXnum` and an anti-repeat block per half of the switch instead of an early `return`. */
 int ChooseImpactSample(int force,s_type surface1,s_type surface2)
 {
+  /* Retail bytes confirm the nonzero initializer at .sdata+0x84. */
+  static int lastImpactSample = 0x63;
   int iSFXnum = 0;
 
   if (surface1 == 8) {
@@ -1852,6 +1814,7 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   int cobblestoneAmp;
   char SPSC;
   int PlayerPan;
+  static char cobbleCount = 0;
   int loadAmp;
   int amplitude;
   int roadNoiseAmp;
@@ -2625,5 +2588,50 @@ void AudioCmn_ReverbOff(void)
   fReverbOn = '\0';
 
 }
+
+/* Definitions following their original function-local .data predecessor. */
+char *AudioCmn_LanguageName[7] = { /* @0x8010e774 */
+  D_8013C68C, D_8013C690, D_8013C694, D_8013C698, D_8013C69C, D_8013C68C, D_8013C68C
+};
+int bSirenOn[6] = {0};                                      /* @0x8010e790 */
+int bSirenPitchingUp[6] = { 1, 1, 1, 1, 1, 1 };             /* @0x8010e7a8 */
+int quickSirenActive[6] = {0};                              /* @0x8010e7c0 */
+int sirenPitchWidth[6] = { 32, 40, 28, 42, 28, 42 };        /* @0x8010e7d8 */
+int sirenCurrentPitch[6] = { 32, 32, 32, 32, 32, 32 };      /* @0x8010e7f0 */
+int slowSirenReps[6] = { 3, 3, 3, 3, 3, 3 };               /* @0x8010e808 */
+int sirenCount[6] = {0};                                   /* @0x8010e820 */
+int reachedSirenMin[6] = {0};                              /* @0x8010e838 */
+int quickSirenTimeCount[6] = {0};                          /* @0x8010e850 */
+AudioCmn_tReTrig AudioCmn_gReTrig[2] = {0};                 /* @0x8010e868 */
+SndBnk_t gSndBnk[7] = {0};                                 /* @0x8010e8a8 */
+Channels_t gaChannel[71] = {0};                             /* @0x8010e8fc */
+AudioCmn_tAsyncSfxSlot AudioCmn_gSfxSlot[32] = {0};         /* @0x8010eb34 */
+char carbankname[12] = {0};                                /* @0x8010ee34 */
+
+/* Definitions following both function-local .sdata records.  The explicit
+ * section attributes preserve the retail -G8 ownership without changing the
+ * TU's -G4 address materialization. */
+int falseLapTrigCur = 0;                                    /* @0x8013c6b4 */
+int flaseLapTrigTrack = 0;                                  /* @0x8013c6b8 */
+char currentLap[2] = {0, 0};                                /* @0x8013c6bc */
+int bestLapTime[2] __attribute__((section(".sdata"))) = {0, 0}; /* @0x8013c6c0 */
+int gtotallaptimes[2] __attribute__((section(".sdata"))) = {0, 0}; /* @0x8013c6c8 */
+int AudioCmn_gPlayerArrested[2] __attribute__((section(".sdata"))) = {0, 0}; /* @0x8013c6d0 */
+int AudioCmn_gCursorSndHandle = 0;                          /* @0x8013c6d8 */
+int AudioCmn_gLastFade = 0;                                 /* @0x8013c6dc */
+void *AudioCmn_gLoadTables = 0;                             /* @0x8013c6e0 */
+void *AudioCmn_gCruiseTables = 0;                           /* @0x8013c6e4 */
+int AudioCmn_gResume = 0;                                   /* @0x8013c6e8 */
+int AudioCmn_gStreamRestartTimer = 0;                       /* @0x8013c6ec */
+char fMysticWindON[2] = {0, 0};                             /* @0x8013c6f0 */
+char fAmbientRangeON[2] = {0, 0};                           /* @0x8013c6f4 */
+int currentWindVal[2] __attribute__((section(".sdata"))) = {0, 0}; /* @0x8013c6f8 */
+int nextWindVal[2] __attribute__((section(".sdata"))) = {0, 0}; /* @0x8013c700 */
+int currentWindPan = 0;                                     /* @0x8013c708 */
+int nextWindPan = 0;                                        /* @0x8013c70c */
+int gQuickSirenCount = 0;                                   /* @0x8013c710 */
+int AudioCmn_ThunderAmp = 0;                                /* @0x8013c714 */
+int AudioCmn_ThunderAzi = 0;                                /* @0x8013c718 */
+int AudioCmn_ThunderDel = 0;                                /* @0x8013c71c */
 
 

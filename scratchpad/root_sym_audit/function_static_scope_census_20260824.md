@@ -13,8 +13,8 @@ checked against its owning source function.
 - Seven game/common records are restored in this round: `resethud` in
   `DashHUD_HUDCalc`, plus `wasActive`, `testSFX`, `playingSFX`, `vol`,
   `SFXHandle`, and `lastplaytick` in `MPause_MusicLogic`.
-- Three `audiocmn.cpp` records remain explicitly hoisted pending restoration of
-  that TU's original declaration order: `compareTimes`, `lastImpactSample`, and
+- Three `audiocmn.cpp` records were restored by recovering that TU's section-wise
+  declaration encounter order: `compareTimes`, `lastImpactSample`, and
   `cobbleCount`.
 
 The seven new declarations preserve both code and data layout. Detailed oracle
@@ -34,7 +34,7 @@ mpause.cpp.o  .sbss+0x0c lastplaytick.35
 The compiler-generated numeric suffixes are not source identifiers. Base names,
 types, declaration order, storage class, and offsets agree with SYM.
 
-## Measured `audiocmn.cpp` constraint
+## Recovered `audiocmn.cpp` declaration interleaving
 
 All three owning functions remain byte-exact when their declarations are moved
 literally into function scope, but the rebuilt data offsets cease to match the
@@ -46,11 +46,23 @@ retail object:
 | `lastImpactSample` | `.sdata+0x84` | `.sdata+0xf0` |
 | `cobbleCount` | `.sdata+0x88` | `.sdata+0xf4` |
 
-The failed literal move was reverted. This is positive evidence that the
-remaining scope correction cannot be isolated: the original interleaving of
-global declarations and function definitions must be restored so GCC encounters
-these local statics at the retail points. Current object offsets remain exact,
-and comments in `audiocmn.cpp` preserve this measured dependency.
+That failed literal move established that the scope correction could not be
+isolated. The `.data` definitions following `compareTimes` and the `.sdata`
+definitions following `cobbleCount` are now encountered after the owning
+functions, with non-emitting declarations available to earlier code. GCC now
+emits all three honest function-local symbols at their retail offsets:
+
+```
+audiocmn.cpp.o .data +0x288 compareTimes.258
+audiocmn.cpp.o .sdata+0x084 lastImpactSample.271
+audiocmn.cpp.o .sdata+0x088 cobbleCount.286
+```
+
+Every following `.data` and `.sdata` symbol retains its previous/retail offset.
+The rebuilt section sizes are unchanged (`.data=0x970`, `.sdata=0xf8`,
+`.rodata=0xa0`). Against the saved linked-section reference, `.sdata` is wholly
+byte-identical and `.data`/`.rodata` have zero differences outside their normal
+`R_MIPS_32` relocation words.
 
 ## Gates
 
@@ -59,7 +71,11 @@ and comments in `audiocmn.cpp` preserve this measured dependency.
 - `AudioCmn_GetTimePhrase__Fi`: PASS, 20/20 instructions.
 - `ChooseImpactSample__Fi6s_typeT1`: PASS, 184/184 instructions.
 - `AudioCmn_SoundCar__FP8Car_tObjiiiiiii`: PASS, 530/530 instructions.
+- Complete game/common gate: 1257/1258 PASS with no compile failures; its sole
+  residual is in the independently user-edited `speech.cpp` TU.
+- Strict game/common ownership audit: all 547 SYM-owned globals mapped, zero
+  missing globals, and zero global type/storage findings. `audiocmn.cpp`'s extra
+  queue now contains only its eleven explicit literal/table carriers.
 - Frontend/common strict ownership audit: 0 missing and 0 extra globals.
 - Game/PSX strict audit retains the P52 result: all four reliable hoisted
   function statics are restored; remaining extras are documented carriers.
-

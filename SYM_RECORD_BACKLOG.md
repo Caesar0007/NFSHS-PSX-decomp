@@ -2423,6 +2423,21 @@ explicit function-type override queue falls from five to four.  The complete
 game/PSX gate remains 385/395 PASS with no compile failures, both relink lanes
 are green, and the vtable audit passes all 926 files.
 
+### P64 — `DrawC_PrimMenu` PCOORD16 cache walker restored (`2026-08-24`)
+
+The receipt is recorded in
+[`drawc_primmenu_pcoord16_tv_20260824.md`](scratchpad/root_sym_audit/drawc_primmenu_pcoord16_tv_20260824.md).
+The two eight-byte cache walkers are now the `PCOORD16 *tV` recorded by SYM.
+The transformed-coordinate loop writes `x/y/z` directly, while the environment
+map loop accesses the two bytes occupying the `p` halfword to express retail's
+offset-6/offset-7 texture stores.  This removes the layout-compatible
+`Draw_CarVertex *` substitute and its explicit type override.
+
+`DrawC_PrimMenu` remains exact at 480/480 instructions.  Game/PSX remains
+395/395 declaration-clean with zero missing names, extra locals, or type
+findings; the explicit function-type override queue falls from four to three.
+The full game/PSX gate remains 385/395 PASS with no compile failures.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

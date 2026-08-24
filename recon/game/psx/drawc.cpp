@@ -4313,9 +4313,9 @@ void DrawC_PrimMenu(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
                  {color($v1) code($a1)} {pmx($v0)} {u0-2 v0-2 u v clut tpage}
        plain arm {xy0-2} {color($v0) code($a1)} {pmx($v1)} {u0-2 v0-2 u v
                  clut($a0) tpage($v0)} | {uv0-2 pmx($v1) clut($v0) tpage($v1)}
-     Every Ghidra iVarN/uVarN/puVarN/psVarN temp is purged (~40 of them); the
-     ONE un-named pointer kept is the loop-1 tV byte cursor, which the oracle
-     also carries as an anonymous giv ($a2, addiu 215 / stride 8).
+     Every Ghidra iVarN/uVarN/puVarN/psVarN temp is purged (~40 of them).  Both
+     vertex-cache loops use the SYM `PCOORD16 *tV`; loop 1 addresses the two
+     bytes of its `p` halfword as the stored u/v pair.
      Retail reuses the DYING $s2 (the `t` param) for the DrawC_gOverlay base,
      which is why the frame is 48 with only 7 saved regs. */
   int i;
@@ -4324,34 +4324,18 @@ void DrawC_PrimMenu(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
   Nvertice = obj->Nvertex;
   if ((envmap & 1U) != 0) {
     COORD16 *vt;
-    /* w60-a7 SEAL (2 -> PASS 480/480).  The last residual was the PREHEADER
-     * POSITION of `addiu a2,s1,215` (the &sd->tV[0].v cursor): ours emitted it
-     * FIRST, retail emits it after loop.c's hoisted invariants (`li -1`, the
-     * gte_ldv0/gte_stlvnl addresses 172/156) and before the `vt+4` giv init.
-     * ROOT CAUSE: a raw `char *tVc` walked with an explicit `tVc = tVc + 8` is
-     * a BIV, so its init is an ordinary source statement emitted in the
-     * preheader BEFORE loop.c ever runs.  Declaring the real
-     * `Draw_CarVertex *tV` (stride 8, the same shape loop-2 already uses) and
-     * writing `tV->u`/`tV->v` lets loop.c fold both byte stores onto ONE
-     * address giv anchored at `.v`, ELIMINATE the biv, and emit that giv's
-     * init in the giv group -- exactly retail's slot.
-     * LAW (catalog candidate): an explicit byte-cursor biv and a typed-struct
-     * walker whose biv loop.c eliminates put their initialisation in DIFFERENT
-     * preheader groups; the preheader ORDER is the discriminator.
-     * Falsified from this basin (all still 2): moving the cursor init before
-     * `i =`, before the two gte_Set macros, and spelling it `(char *)sd + 215`
-     * -- source position inside the preheader is a no-op against loop.c's
-     * hoists.  Storing `.v` before `.u` = 6. */
-    /* SYM-TYPE-OVERRIDE: tV -- SYM exposes the layout-compatible PCOORD16
-       debug view, but the real Draw_CarVertex walker is required for the
-       loop.c-eliminated stride-8 giv that seals this function at PASS480. */
-    Draw_CarVertex *tV;
+    /* PASS 480/480: the SYM `PCOORD16` walker has the required eight-byte
+     * stride.  Its `p` field occupies offsets 6..7, so byte access to `p`
+     * expresses the retail u/v stores without inventing a second structure
+     * type.  loop.c eliminates the typed walker biv and emits the offset-7 giv
+     * after the other preheader invariants, exactly as retail. */
+    PCOORD16 *tV;
 
     vt = Nvertice;
 gte_SetRotMatrix(&DrawC_gMatA);
 gte_SetTransMatrix(&DrawC_gMatA);
     i = (u_int)obj->numVertex;   /* SYM: ONE fn-scope `i` (t8) counts ALL 3 loops */
-    tV = sd->tV;
+    tV = (PCOORD16 *)sd->tV;
     /* exit-in-the-middle: keeps the top dec+test + unconditional j back (no rotation),
      * and the after-join reg-reg compare beats the nor/~x const-fold */
     while (1) {
@@ -4377,8 +4361,8 @@ gte_stlvnl((char *)sd + 0x9c);
           v = -v;
         }
         vt = vt + 1;
-        tV->u = (char)u;
-        tV->v = (char)v;
+        ((char *)&tV->p)[0] = (char)u;
+        ((char *)&tV->p)[1] = (char)v;
         tV = tV + 1;
       }
     }
@@ -4428,9 +4412,9 @@ gte_SetRotMatrix(((char *)sd + 0x14));
 gte_SetTransMatrix(((char *)sd + 0x14));
   {
     COORD16 *vt;
-    Draw_CarVertex *tV;
+    PCOORD16 *tV;
 
-    tV = sd->tV;
+    tV = (PCOORD16 *)sd->tV;
     vt = obj->vertex;
     i = (u_int)obj->numVertex;
     while (1) {
@@ -4443,9 +4427,9 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         t2 = vt->y;
         t3 = vt->z;
         t1 = vt->x;
-        (tV->vt).x = t1;
-        (tV->vt).y = t2;
-        (tV->vt).z = t3;
+        tV->x = t1;
+        tV->y = t2;
+        tV->z = t3;
       }
       vt = vt + 1;
       tV = tV + 1;

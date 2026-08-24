@@ -2338,6 +2338,24 @@ gate remains 835/838 with no compile failures, relink remains green with zero
 genuine unresolved references, the full production link succeeds, and the
 926-file vtable audit passes.
 
+### P60 — final function-local type override eliminated (`2026-08-24`)
+
+The receipt is recorded in
+[`drawcurrcredit_short_y_20260824.md`](scratchpad/root_sym_audit/drawcurrcredit_short_y_20260824.md).
+`DrawCurrCredit::y` is now the top-level `REG SHORT` recorded by SYM while the
+function remains exact at 451/451 instructions.  The decisive source recovery
+was not a type workaround: three copied branch-local cursor increments are
+restored to one statement after the jaguar/rollthedice/normal join.  GCC then
+tail-duplicates that common statement into precisely the retail predecessor
+delay slots without creating the temporary formerly blamed on the short type.
+
+The fabricated `textY` and `nextY` locals are also removed; a direct field test
+and explicit unsigned source load preserve retail's `lh`/`lhu` pair.  The
+strict frontend/common audit now reports zero missing reliable names, zero type
+or function-storage findings, **zero explicit function type overrides**, and
+zero mapping-review functions.  The frontend bulk gate remains 835/838 with no
+compile failures, relink remains green, and the 926-file vtable audit passes.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

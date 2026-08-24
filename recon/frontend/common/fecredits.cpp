@@ -290,16 +290,17 @@ void tCreditManager::DrawCurrCredit()
      The 2026-08-03 follow-up makes the post-NEWLINE and post-ASTERISK
      tag reads volatile: this defeats GCC's inappropriate cross-join CSE
      and restores both of retail's fresh `lbu v1,0(s0)` instructions at
-     zero code-size cost. The 2026-08-03 GCC-2.8.1 follow-up seals the final
-     8 diffs: SYM-TYPE-OVERRIDE: y is an unsigned full-width carrier, with
-     explicit 16-bit
-     source loads. This lets the scheduler advance `y += 8` before the render
-     call without a truncation temporary. Splitting the later `textY` test
-     from its unsigned value load reproduces retail's `lh`/`lhu` pair. PASS,
-     451/451 instructions. */
+     zero code-size cost. The 2026-08-24 SLD follow-up restores `y` as the
+     recorded SHORT and recovers the missing post-join statement: every tag
+     case shares one final `y += 8` after the jaguar/rollthedice/normal branch,
+     which GCC tail-duplicates into the retail predecessor delay slots.  The
+     old branch-local copies made GCC combine the rollthedice increments and
+     falsely required an unsigned full-width carrier.  A direct `textY` test
+     followed by its unsigned source load reproduces retail's `lh`/`lhu` pair.
+     PASS, 451/451 instructions. */
   int t16;
   tCredit *fShowCred;
-  uint y;
+  short y;
   int lineWidth;
   int ColTextTitle;
   int scrollY;
@@ -362,12 +363,8 @@ void tCreditManager::DrawCurrCredit()
     FETextRender_FullTextRGB(pcVar3,fShowCred->subTitleX,fShowCred->subTitleY,ColTextSubTitle,'\0',
                fShowCred->subTitleJustify);
   }
-  {
-    int textY = fShowCred->textY;
-    uint nextY = (u_short)fShowCred->textY;
-    if (textY != 0) {
-      y = nextY;
-    }
+  if (fShowCred->textY != 0) {
+    y = (u_short)fShowCred->textY;
   }
   x = fShowCred->textX;
   width = fShowCred->subTitleWidth;
@@ -437,17 +434,13 @@ void tCreditManager::DrawCurrCredit()
       r.h = 100;
       pcVar3 = TextSys_Word(0x596);
       FETextRender_WordWrapTextRGBJustify(pcVar3,r,ColText,0,0,false);
-      y = y + 8;
     }
     else if (rollthedice) {
-      int rtd = 0;
-      do {
+      for (int rtd = 0; rtd < 0x19; rtd++) {
         pcVar3 = TextSys_Word(rtd + 0x597);
         FETextRender_FullTextRGB(pcVar3,x,y,ColText,'\0',fShowCred->textJustify);
         y = y + 8;
-        rtd = rtd + 1;
-      } while (rtd < 0x19);
-      y = y + 8;
+      }
     }
     else {
       /* MATCH (w37-a2): De Morgan physical block-order flip (W36 lever #1)
@@ -462,8 +455,8 @@ void tCreditManager::DrawCurrCredit()
           FETextRender_FullTextRGB((char *)p,x,y,CalcFadeVal(0x505050,this->fTextFade),'\0',fShowCred->textJustify);
         }
       }
-      y = y + 8;
     }
+    y = y + 8;
     p = p2;
     if (p2 != 0) {
       p = p2 + 1;

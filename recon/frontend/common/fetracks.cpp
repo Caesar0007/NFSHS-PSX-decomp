@@ -211,7 +211,10 @@ short tListIteratorTrack::TextValue(tPlayer atIndex)
 
 {
   tTrackInformation *trackInfo;
+  /* SYM-CODEGEN-CARRIER: trackEntry -- collapsing the nested lookup is measured
+     FAIL 10 (16/16) and swaps the index/base arithmetic registers. */
   tTrackInformation *trackEntry;
+  /* SYM-CODEGEN-CARRIER: uVar1 -- paired index carrier in that receipt. */
   u_int uVar1;
 
   trackInfo = (tTrackInformation *)this->fIndex;

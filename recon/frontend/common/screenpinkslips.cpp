@@ -189,7 +189,11 @@ void tScreenPinkSlips::GetShapeInfo(short &numPermShapes,short &numSwapShapes,ch
 void tScreenPinkSlips::Initialize()
 
 {
+  /* SYM-CODEGEN-CARRIER: iVar1 -- direct ticks storage is measured FAIL 9
+     (83/82) and changes the final load-delay/store schedule. */
   int iVar1;
+  /* SYM-CODEGEN-CARRIER: tmp -- direct hVideo reuse is paired with that
+     one-instruction regression. */
   int tmp;
   RECT r;
   char moviename [80];

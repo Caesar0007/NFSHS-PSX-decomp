@@ -431,18 +431,13 @@ void tScreen::AsyncLoadShapeFile(char *name,tShapeInformation &data)
 void tScreen::CancelAsyncLoad(tShapeInformation &data)
 
 {
-  int iVar1;
-  char *pcVar2;
-
   if (data.async_handle != 0) {
-    iVar1 = getasyncreadstatus(data.async_handle);
-    if (iVar1 == 0) {
+    if (getasyncreadstatus(data.async_handle) == 0) {
       data.fLoadCancelled = 1;
     }
     else {
       if (data.fDestFile == (char *)0x0) {
-        pcVar2 = getasyncreadadr(data.async_handle);
-        data.fFile = pcVar2;
+        data.fFile = getasyncreadadr(data.async_handle);
       }
       if (data.fFile != (char *)0x0) {
         if (data.fDestFile == (char *)0x0) {

@@ -1008,7 +1008,10 @@ void tScreenMemcard::Initialize()
 void tScreenMemcard::Cleanup()
 
 {
+  /* SYM-CODEGEN-CARRIER: menus -- direct global/member spelling is measured
+     FAIL 20 (27/25) and loses retail's shared menuDefs base. */
   tGlobalMenuDefs *menus;
+  /* SYM-CODEGEN-CARRIER: iconTable -- paired address carrier in that receipt. */
   char (*iconTable) [15] [3] [192];
 
   this->ReleaseIcons();

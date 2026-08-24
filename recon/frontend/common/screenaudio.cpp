@@ -293,9 +293,12 @@ tScreenAudio::tScreenAudio()
 void tScreenAudio::Initialize()
 
 {
+  /* SYM-CODEGEN-CARRIER: menus -- direct menuDefs accesses are measured FAIL 9
+     (25/24) and add an address materialization. */
   tGlobalMenuDefs *menus;
+  /* SYM-CODEGEN-CARRIER: audioMode -- paired load-delay carrier in that receipt. */
   char audioMode;
-  
+
   menus = menuDefs[0];
   this->fPrevSelectedSong = -1;
   SetMenu((tMenuItemSlidingMenu *)&menus->itemSlidingPlayList,true,

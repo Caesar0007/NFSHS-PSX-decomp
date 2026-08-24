@@ -34,7 +34,10 @@ void tScreenControllerConfig::SetActuators(int max)
      expose the common timer store and retail branch layout.  The full-width
      pulse removes a redundant mask; tickValue orders the two independent
      global-address pseudos exactly as retail. */
+  /* SYM-CODEGEN-CARRIER: tickValue -- the oracle receipt above proves this
+     split orders the independent ticks/random-table address pseudos. */
   int tickValue;
+  /* SYM-CODEGEN-CARRIER: pulse -- the full-width carrier removes a mask. */
   uint pulse;
 
   if (this->fResetShakeTimeOut != 0) {
@@ -1329,7 +1332,11 @@ void tScreenControllerConfig::GetShapeInfo(short &numPermShapes,short &numSwapSh
 void tScreenControllerConfig::Initialize()
 
 {
+  /* SYM-CODEGEN-CARRIER: b -- direct fInputPlayer storage is measured FAIL 23
+     (76/73) and rotates the subsequent frontend/menu address schedule. */
   uint b;
+  /* SYM-CODEGEN-CARRIER: mode -- direct duplicate config loads are part of
+     that same three-instruction regression. */
   char mode;
 
   (this->fShaker).active = '\0';

@@ -2335,7 +2335,7 @@ void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache *sd)
 void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
 
 {
-  MATRIX *mB;                      /* &sd->matB, the shared trans-matrix base */
+  MATRIX *mB; /* SYM-CODEGEN-CARRIER: mB -- shared &sd->matB base is required by the retail GTE/store expansion */
   /* RE-GATE (w44-a7): 125 diffs, ours 358 / oracle 359 (worklist said 179).
      TRIAGE (tools/posdiff.py): alpha-renamed LCS 261/359, structural residual 98,
      and the first-use order differs ONLY in where `s4`(=buildList) and `fp`(=the
@@ -2394,8 +2394,6 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
   int buildInd;
   Chunk *chunkDat;
   coorddef *pChunkCp;
-  coorddef tmp;
-  coorddef tmp2;
   /* MATCH (w71-a1): the two predecessors of DrawWTrough_setStateCallHigh must both
      reach the label with the quads POINTER in a register and the STORE left in the
      shared tail -- retail's uniform per-arm shape is
@@ -2405,7 +2403,7 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
      cannot reach the slot (the goto jumps past it) and the arm pays two nops -- the
      whole +2 count excess -- and the early-pinned load also pushes the `li 125/30`
      constants off $v0 onto $t0/$t1/$t2 in the other arms. */
-  Trk_Quad *joinQuads;
+  Trk_Quad *joinQuads; /* SYM-CODEGEN-CARRIER: joinQuads -- load-early/store-late form fills each call delay slot */
   /* MATCH (wave-14, 157->127): CONSTANTS-IN-REGS lever. The oracle prologue
      materializes -1/1 ONCE (`addiu $s6,$zero,-1` / `addiu $s7,$zero,1`) and
      reuses those TWO callee-saved regs at every one of the 5/4 sd->light /
@@ -2448,8 +2446,8 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
      rotated the whole prologue.  Assigning them as statements in the oracle's
      birth order fixes it.  Measured: this form 114 · assign after the sd block
      142 · assign around the doublelayer store 142 · decl-initializers 118. */
-  int negOne;
-  int gteFlag;
+  int negOne; /* SYM-CODEGEN-CARRIER: negOne -- named form reproduces retail's loop-hoisted -1 in $s6 */
+  int gteFlag; /* SYM-CODEGEN-CARRIER: gteFlag -- named form reproduces retail's loop-hoisted 1 in $s7 */
   /* ================= W72-A1 (2026-08-22): 48 -> 11, count 359 -> 358 =========
        (1) THE LOREZ ARM'S TWO RE-READS (48 -> 39).  `sd->stripPtr = (Trk_NewStrip
            *)(chunkDat->lorezstripBuf + 1);` followed by
@@ -2638,6 +2636,8 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
       sd->materials = Track_materials;
       sd->light = negOne;
       if (gNight_renderNight != 0) {
+        coorddef tmp;
+        coorddef tmp2;
         int cx;
         int cz;
         int dist;
@@ -2649,80 +2649,50 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
          * ((x<<4)+x)<<4).  A bare literal store is folded into the `sb` immediate and
          * never leaves a register behind, so ours emits the constant shift.  Same
          * named-constant device as `negOne` above. */
-        int four = 4;
+        int four = 4; /* SYM-CODEGEN-CARRIER: four -- one register feeds nightFlags and the Camera_gInfo scale shift */
 
         sd->nightFlags = (char)four;
-        /* MATCH (w45-a5, 94 -> 92): same subtrahend-first operand-load-order class as
-           the sd->trans block above -- the oracle issues `lw $v1,168($a0)` (the
-           camera-target position component) BEFORE `lw $v0,8($s2)` (the chunk
-           centre).  Only the .z site is load-bearing (splitting .x alone measures
-           94, splitting .z alone or both measures 92); written uniformly. */
-        { int px = ((Camera_gInfo[Vi->player].target)->position).x;
-          cx = (pChunkCp->x - px) >> 10; }
-        { int pz = ((Camera_gInfo[Vi->player].target)->position).z;
-          cz = (pChunkCp->z - pz) >> 10; }
+        /* MATCH (w77 source restoration, still 9 @358): unary-negation plus addition
+           preserves the retail subtrahend-first loads (`target` before `pChunkCp`)
+           without the non-SYM px/pz aliases used by the prior split spelling. */
+        cx = (-((Camera_gInfo[Vi->player].target)->position).x + pChunkCp->x) >> 10;
+        cz = (-((Camera_gInfo[Vi->player].target)->position).z + pChunkCp->z) >> 10;
         dist = cx * cx + cz * cz;
         if (dist <= 0x47DFFFF) {
           if (((Cars_gList[Vi->player]->control).lights & 6U) != 0) {
             sd->nightFlags = 5;
           }
-          {
-            int posX = ((Camera_gInfo[Vi->player].target)->position).x;
-            tmp.x = (Vi->cview).translation.x - posX;
-          }
-          {
-            int posY = ((Camera_gInfo[Vi->player].target)->position).y;
-            tmp.y = (Vi->cview).translation.y - posY;
-          }
-          {
-            int posZ = ((Camera_gInfo[Vi->player].target)->position).z;
-            tmp.z = (Vi->cview).translation.z - posZ;
-          }
+          tmp.x = -((Camera_gInfo[Vi->player].target)->position).x + (Vi->cview).translation.x;
+          tmp.y = -((Camera_gInfo[Vi->player].target)->position).y + (Vi->cview).translation.y;
+          tmp.z = -((Camera_gInfo[Vi->player].target)->position).z + (Vi->cview).translation.z;
           transform(&tmp.x,gNightMat.m,&tmp2.x);
           DrawW_WorldSetUpTranslation(&tmp2,&sd->matNight);
         }
         if (BW_gCopCarObj != (Car_tObj *)0x0) {
-          int cx2;
-          int cz2;
-          int dist2;
-          /* MATCH (w45-a5, 92 -> 88): third site of the subtrahend-first class (both
-             axes load-bearing here: z-only measures 90, both 88). */
-          { int px = (BW_gCopCarObj->N).position.x;
-            cx2 = (pChunkCp->x - px) >> 10; }
-          { int pz = (BW_gCopCarObj->N).position.z;
-            cz2 = (pChunkCp->z - pz) >> 10; }
-          dist2 = cx2 * cx2 + cz2 * cz2;
-          if (dist2 <= 0x47DFFFF) {
+          int dist;
+          /* MATCH (w77 source restoration): the direct repeated expression lets CSE
+             form the unnamed squared deltas while the only retail local remains the
+             nested `dist` recorded by SYM. */
+          dist = (((-(BW_gCopCarObj->N).position.x + pChunkCp->x) >> 10) *
+                  ((-(BW_gCopCarObj->N).position.x + pChunkCp->x) >> 10)) +
+                 (((-(BW_gCopCarObj->N).position.z + pChunkCp->z) >> 10) *
+                  ((-(BW_gCopCarObj->N).position.z + pChunkCp->z) >> 10));
+          if (dist <= 0x47DFFFF) {
             sd->nightFlags = sd->nightFlags | 2;
-            {
-              int posX = (BW_gCopCarObj->N).position.x;
-              tmp.x = (Vi->cview).translation.x - posX;
-            }
-            {
-              int posY = (BW_gCopCarObj->N).position.y;
-              tmp.y = (Vi->cview).translation.y - posY;
-            }
-            {
-              int posZ = (BW_gCopCarObj->N).position.z;
-              tmp.z = (Vi->cview).translation.z - posZ;
-            }
+            tmp.x = -(BW_gCopCarObj->N).position.x + (Vi->cview).translation.x;
+            tmp.y = -(BW_gCopCarObj->N).position.y + (Vi->cview).translation.y;
+            tmp.z = -(BW_gCopCarObj->N).position.z + (Vi->cview).translation.z;
             transform(&tmp.x,gCopMat.m,&tmp2.x);
             DrawW_WorldSetUpTranslation(&tmp2,&sd->matCop);
           }
         }
       }
-      /* MATCH (w45-a5, 100 -> 94): OPERAND LOAD ORDER.  The oracle loads the
-         SUBTRAHEND first (`lw $v1,8($s3)` = Vi->cview.translation.N) and only
-         then the minuend (`lw $v0,0($s2)` = pChunkCp->N).  A single
-         `a->N - b->N` expression evaluates left-to-right, so ours loaded them
-         the other way round at all three axes.  Same device as DrawW_DoLines'
-         per-axis split below.  (One shared temp measures the same 94.) */
-      { int vx = (Vi->cview).translation.x;
-        sd->trans.x = (short)((pChunkCp->x - vx) >> 10); }
-      { int vy = (Vi->cview).translation.y;
-        sd->trans.y = (short)((pChunkCp->y - vy) >> 10); }
-      { int vz = (Vi->cview).translation.z;
-        sd->trans.z = (short)((pChunkCp->z - vz) >> 10); }
+      /* MATCH (w77 source restoration): `-subtrahend + minuend` preserves the
+         oracle's Vi-translation-before-pChunkCp load order without the non-SYM
+         vx/vy/vz aliases. */
+      sd->trans.x = (short)((-(Vi->cview).translation.x + pChunkCp->x) >> 10);
+      sd->trans.y = (short)((-(Vi->cview).translation.y + pChunkCp->y) >> 10);
+      sd->trans.z = (short)((-(Vi->cview).translation.z + pChunkCp->z) >> 10);
       /* MATCH (w45-a5, 125 -> 118, count 358 -> EXACT 359): the oracle computes
          `addiu $v0,$s0,0x14` = &sd->matB ONCE and reaches t[2]/t[1] through it
          (`sw $zero,0x1C($v0)` / `0x18($v0)`) while t[0] keeps the sd base
@@ -2764,10 +2734,10 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
       }
       else {
         {
-        Group *lorez = chunkDat->lorezstripBuf;
+        Group *lorez = chunkDat->lorezstripBuf; /* SYM-CODEGEN-CARRIER: lorez -- caches the buffer across aliasing sd stores */
         if (lorez != (Group *)0x0) {
-          short lorezN = (short)lorez->m_num_elements;
-          Trk_NewStrip *lorezPtr = (Trk_NewStrip *)(lorez + 1);
+          short lorezN = (short)lorez->m_num_elements; /* SYM-CODEGEN-CARRIER: lorezN -- preserves count-before-pointer-advance order */
+          Trk_NewStrip *lorezPtr = (Trk_NewStrip *)(lorez + 1); /* SYM-CODEGEN-CARRIER: lorezPtr -- preserves the second retail null guard */
           sd->stripPtr = lorezPtr;
           sd->numStrips = lorezN;
           /* RESTORED (w46-a6) -- the w40 receipt above says this inner
@@ -2824,7 +2794,8 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
                flr2(4)*4*4/1 = the block maximum).  Zero insns at THIS site; site-wise
                probe: 2524 -> 22@359, 2585 -> 11@358, 2645 -> 15@358, 2666 -> 19@360,
                every pair/triple worse. */
-              int off7d = 0x7d; __asm__("" : "=r"(off7d) : "0"(off7d)); sd->offset = off7d; }
+              int off7d = 0x7d; /* SYM-CODEGEN-CARRIER: off7d -- one-site opacity prevents the four 0x7d stores from becoming a loop movable */
+              __asm__("" : "=r"(off7d) : "0"(off7d)); sd->offset = off7d; }
             DrawW_StripDraw_High(sd);
           }
         }

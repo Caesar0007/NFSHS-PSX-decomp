@@ -1885,6 +1885,44 @@ Detailed verification preserves all seven existing exact bodies:
 residual at 41/43 instructions.  Whole-TU gates remain 4/4 PASS for
 `INTR_VB.c` and 3/4 PASS for `INTR_DMA.c`; no PASS regressed.
 
+### P43 — PsyQ 4.3 `INTR.obj` source identity and environment layout (`2026-08-24`)
+
+The main libetc interrupt member now uses the stable PsyQ source identities
+instead of its retail/debug labels.  `startIntr`, `trapIntr`, `setIntr`,
+`stopIntr`, `restartIntr`, and `memclr` retain `_initIntr`, `_intrhand`,
+`_set_intr_callback`, `StopCallback`, `RestartCallback`, and `_bzero_w` as
+explicit emitted-name aliases.  This distinction is required because NFS4's
+v1.75-derived member omits the public Stop/Restart compatibility thunks: the
+retail `StopCallback` and `RestartCallback` labels name the real private
+implementations.
+
+The callback environment is restored as `intrEnv_t intrEnv`, with canonical
+fields `interruptsInitialized`, `inInterrupt`, `handlers`,
+`enabledInterruptsMask`, `savedMask`, `savedPcr`, `buf`, and `stack`.
+Canonical PsyQ 4.3 `setjmp.h` proves `jmp_buf` is 12 words; the remaining
+4096 bytes are `stack[1024]`, not reconstructed "filler" or an EvCB table.
+Consequently `intrEnv.buf[1] = (long)&intrEnv.stack[1004]` produces the exact
+retail `+0x1018` saved-SP address naturally.  The callback table and globals
+are likewise restored as `Callbacks`, `callbacks`, `pCallbacks`, `i_stat`,
+`g_InterruptMask`, `d_pcr`, and `trapMissedCount`, with storage-label aliases
+for the NFS4 data image.
+
+Function-pointer carriers now use `Callback` and `IntrSetter`, including the
+public `InterruptCallback`, `DMACallback`, `VSyncCallback`, and
+`VSyncCallbacks` boundaries.  The documentation hierarchy is recorded rather
+than flattened: `Libref.pdf` pages 859/895/897/904 describe public semantics,
+canonical `libetc.h` preserves several legacy `int` prototypes, and matched
+PsyQ sources expose the internal pointer-returning implementations.  Where
+those sources disagree, the retail body cannot uniquely prove a C return type;
+the chosen spelling follows the matched member structure and the ambiguity
+remains explicit here.
+
+`tools\objtruth.py` and the existing W67 receipts prove the retained NFS4
+member bodies byte-identical to the PsyQ 4.3 `INTR.obj` v1.75 member after
+relocation masking.  After all source-name, type, and layout corrections,
+`tools\tugate.py` remains **13/13 PASS** and `tools\slotcheck.py` reports
+`bad = 0`; no matched function regressed.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

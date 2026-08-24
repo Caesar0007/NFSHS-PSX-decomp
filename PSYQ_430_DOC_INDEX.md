@@ -46,6 +46,18 @@ whole root when the primary manuals do not settle a question.
   `INTR_DMA.obj` members; their internal source names must therefore be
   recovered from matching member/source evidence rather than confused with
   the public `VSyncCallback` symbol.
+- `Libref.pdf`, PDF pages 859, 895, 897, and 904 (manual pages 12-3, 12-39,
+  12-41, and 12-48), documents `CheckCallback`, `ResetCallback`,
+  `RestartCallback`, and `StopCallback`.  `libetc.h` in the canonical 4.3 kit
+  uses legacy `int` declarations for several of these routines while the
+  manual describes some as `void`; return types must therefore be reconciled
+  with the matching member/source and retail call behavior, not copied from
+  either document in isolation.
+- Canonical `setjmp.h` defines `JB_SIZE` as 12 and `jmp_buf` as 12 integers.
+  Together with the matched PsyQ `intr.c` layout, this proves the private
+  callback environment as a 12-word `buf` followed by `stack[1024]`; the
+  installed interrupt SP is `&stack[1004]`, the exact retail `+0x1018`
+  address.
 
 ## Evidence workflow
 

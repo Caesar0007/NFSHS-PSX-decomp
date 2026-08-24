@@ -1,113 +1,120 @@
 /* syslib/psx/libetc/INTR.cpp -- RECONSTRUCTED from nfs4-f.exe (Ghidra; verified vs disasm, IDA unreliable
  *   for libetc).  obj INTR.obj ; libetc.lib.  The PsyQ interrupt-callback manager: init/teardown, the
- *   _intrhand IRQ dispatcher (longjmp'd to from the BIOS entry-int vector via the setjmp buffer), and the
+ *   trapIntr IRQ dispatcher (longjmp'd to from the BIOS entry-int vector via the setjmp buffer), and the
  *   per-IRQ callback registration API.  IRQ regs: I_STAT=0x1F801070, I_MASK=0x1F801074, DPCR=0x1F8010F0.
- *   EvCB block @0x80134AF8 (0x41a words) modelled as IntrState so _bzero_w clears the exact region; the
- *   vsync/dma slot-setters returned by startIntr{VSync,DMA} are cached in g_vsync_setter/g_dma_setter.
+ *   intrEnv @0x80134AF8 is 0x41a words: callback state, a 12-word jmp_buf, and stack[1024].
+ *   The setters returned by startIntr{VSync,DMA} are cached in pCallbacks.
  */
 
-typedef int (*IntrSetter)(int, int);
+typedef void (*Callback)(void);
+typedef Callback (*IntrSetter)(int, Callback);
+typedef int jmp_buf[12];
 
 extern int  printf(const char *fmt, ...);          /* C63 */
 extern void ReturnFromException(void);             /* A23 */
 extern void ChangeClearPAD(int v);                 /* A91 */
 extern int  ChangeClearRCnt(int t, int m);         /* L10 */
-extern int  setjmp(long *env);                     /* C19 */
+extern int  setjmp(jmp_buf env);                   /* C19 */
 extern void HookEntryInt(void *h);                 /* A25 */
 extern int  EnterCriticalSection(void);            /* A36 */
 extern void ExitCriticalSection(void);             /* A37 */
 extern void ResetEntryInt(void);                   /* A24 */
 extern void _96_remove(void);                      /* C114 */
-extern void *startIntrVSync(void);                 /* INTR_VB */
-extern void *startIntrDMA(void);                   /* INTR_DMA */
+extern IntrSetter startIntrVSync(void);            /* INTR_VB */
+extern IntrSetter startIntrDMA(void);              /* INTR_DMA */
 
-extern void _intrhand(void);
-extern int  _set_intr_callback(unsigned int idx, int handler);
+/* Canonical PsyQ source identifiers.  NFS4's retail labels are retained with
+ * explicit aliases because this v1.75-derived object exposes the private
+ * implementations under linker/debug names. */
+extern void trapIntr(void) __asm__("_intrhand");
+extern Callback setIntr(unsigned int idx, Callback handler) __asm__("_set_intr_callback");
 
-/* EvCB block @0x80134AF8 (0x41a words) */
+/* Canonical intr.c v1.75 callback environment: 12-word setjmp state followed
+ * by the private 1024-word interrupt stack.  startIntr installs stack[1004]
+ * as the saved SP, exactly matching the retail +0x1018 address. */
 typedef struct {
-    unsigned short inited;                 /* +0x00  @0x80134AF8 */
-    unsigned short in_handler;             /* +0x02  @0x80134AFA */
-    int   cb[11];                          /* +0x04  @0x80134AFC : IRQ callbacks 0..10 */
-    unsigned short enabled;                /* +0x30  @0x80134B28 : enabled-IRQ mask */
-    unsigned short saved_imask;            /* +0x32  @0x80134B2A */
-    int   saved_dpcr;                      /* +0x34  @0x80134B2C */
-    long  jmpbuf[(0x1018 - 0x38) / 4];     /* +0x38  @0x80134B30 : setjmp buf + filler */
-    int   evcb[(0x1068 - 0x1018) / 4];     /* +0x1018 @0x80135B10 : BIOS EvCB table */
-} IntrState;
-extern IntrState g_intr __asm__("D_80134AF8");  /* @0x80134AF8 -- storage owned by the splat
-                                                 * data blob; see the W65-A6 note at EOF */
-extern IntrState *_initIntr(void);
+    unsigned short interruptsInitialized;  /* +0x00  @0x80134AF8 */
+    unsigned short inInterrupt;            /* +0x02  @0x80134AFA */
+    Callback handlers[11];                 /* +0x04  @0x80134AFC */
+    unsigned short enabledInterruptsMask;  /* +0x30  @0x80134B28 */
+    unsigned short savedMask;              /* +0x32  @0x80134B2A */
+    int savedPcr;                          /* +0x34  @0x80134B2C */
+    jmp_buf buf;                           /* +0x38  @0x80134B30 */
+    int stack[1024];                       /* +0x68  @0x80134B60 */
+} intrEnv_t;
+extern intrEnv_t intrEnv __asm__("D_80134AF8"); /* @0x80134AF8 -- storage owned by the
+                                                  * splat data blob; see W65-A6 at EOF */
+extern intrEnv_t *startIntr(void) __asm__("_initIntr");
 
-/* MATCH (structural): the libetc callback API dispatches through a HOOK TABLE --
- * D_80135B60 = 8-slot struct {entry, dma_setter, set_cb, reset, stop, vsync_setter,
- * restart, &g_intr}, D_80135B80 = POINTER to it; every public fn loads the pointer and
- * jalr's the slot (lw v0,%lo(D_80135B80); lw v0,OFF(v0); jalr).  The former separate
- * g_dma_setter/g_vsync_setter globals @0x80135B64/74 ARE the +0x04/+0x14 slots. */
-typedef struct {
-    int        (*entry)();                        /* +0x00 @0x80135B60 : 0x80056F4C (static init) */
-    IntrSetter   dma_setter;                      /* +0x04 : filled by _initIntr (startIntrDMA) */
-    int        (*set_cb)(unsigned int, int);      /* +0x08 : _set_intr_callback */
-    IntrState *(*reset)(void);                    /* +0x0C : _initIntr */
-    IntrState *(*stop)(void);                     /* +0x10 : StopCallback */
-    IntrSetter   vsync_setter;                    /* +0x14 : filled by _initIntr (startIntrVSync) */
-    void       (*restart)(void);                  /* +0x18 : RestartCallback */
-    IntrState   *state;                           /* +0x1C : &g_intr */
-} IntrHooks;
-extern IntrHooks        g_hooks;             /* @0x80135B60 */
-extern IntrHooks       *g_hooks_ptr __asm__("D_80135B80");         /* @0x80135B80 : = &g_hooks */
-extern volatile unsigned short *g_istat_ptr __asm__("D_80135B84"); /* @0x80135B84 : = 0x1F801070 */
-extern volatile unsigned short *g_imask_ptr __asm__("D_80135B88"); /* @0x80135B88 : = 0x1F801074 */
-extern volatile unsigned int   *g_dpcr_ptr __asm__("D_80135B8C");  /* @0x80135B8C : = 0x1F8010F0 */
-extern int g_intr_timeout __asm__("D_80135B90");                   /* @0x80135B90 */
+/* MATCH (structural): public APIs dispatch through the canonical Callbacks table.
+ * D_80135B60 holds {rcsid, DMACallback, InterruptCallback, ResetCallback,
+ * StopCallback, VSyncCallbacks, RestartCallback, &intrEnv}; D_80135B80 is
+ * pCallbacks.  Every wrapper loads that pointer and jalr's the corresponding slot. */
+typedef struct Callbacks {
+    const char *rcsid;                            /* +0x00 @0x80135B60 */
+    IntrSetter DMACallback;                       /* +0x04 */
+    Callback (*InterruptCallback)(unsigned int, Callback); /* +0x08 */
+    intrEnv_t *(*ResetCallback)(void);            /* +0x0C */
+    intrEnv_t *(*StopCallback)(void);             /* +0x10 */
+    IntrSetter VSyncCallbacks;                    /* +0x14 */
+    intrEnv_t *(*RestartCallback)(void);          /* +0x18 */
+    intrEnv_t *intrEnv;                           /* +0x1C */
+} Callbacks;
+extern Callbacks callbacks __asm__("D_80135B60");
+extern Callbacks *pCallbacks __asm__("D_80135B80");
+extern volatile unsigned short *i_stat __asm__("D_80135B84");
+extern volatile unsigned short *g_InterruptMask __asm__("D_80135B88");
+extern volatile unsigned int *d_pcr __asm__("D_80135B8C");
+extern int trapMissedCount __asm__("D_80135B90");
 
-#define I_STAT (*g_istat_ptr)
-#define I_MASK (*g_imask_ptr)
-#define DPCR   (*g_dpcr_ptr)
+#define I_STAT (*i_stat)
+#define I_MASK (*g_InterruptMask)
+#define DPCR   (*d_pcr)
 
-/* HIDDEN-PHANTOM FIX (w14-a2): oracle name is the bare "_bzero_w" (no __F mangling suffix), but
- * this `static` C++ fn got C++-mangled to _bzero_w__FPii, a NAME MISMATCH invisible to the gate
+/* HIDDEN-PHANTOM FIX (w14-a2): memclr's oracle name is the bare "_bzero_w"
+ * (no __F mangling suffix), but this `static` C++ fn otherwise gets C++-mangled,
+ * a NAME MISMATCH invisible to the gate
  * ("NOT IN OBJECT" forever). `static`+`extern "C"` can't combine as adjacent storage-class
  * specifiers on this compiler -- wrap in an `extern "C" { }` block instead.
  * W60-A1 (2026-08-14): the DEFINITION moved to EOF -- retail puts _bzero_w LAST in the obj
- * (@0x800F2E70, after RestartCallback); this forward decl keeps _initIntr's call site valid. */
-static void _bzero_w(int *p, int n);
+ * (@0x800F2E70, after RestartCallback); this forward decl keeps startIntr's call site valid. */
+static void memclr(int *p, int n) __asm__("_bzero_w");
 
-extern void ResetCallback(void)        /* @0x800F284C */
+extern void *ResetCallback(void)       /* @0x800F284C */
 {
-    g_hooks_ptr->reset();
+    return pCallbacks->ResetCallback();
 }
 
-extern void InterruptCallback(unsigned int idx, int handler)   /* @0x800F287C */
+extern void InterruptCallback(unsigned int idx, Callback handler)   /* @0x800F287C */
 {
-    g_hooks_ptr->set_cb(idx, handler);
+    pCallbacks->InterruptCallback(idx, handler);
 }
 
-extern int DMACallback(int ch, int func)   /* @0x800F28AC */
+extern Callback DMACallback(int ch, Callback func)   /* @0x800F28AC */
 {
-    return g_hooks_ptr->dma_setter(ch, func);
+    return pCallbacks->DMACallback(ch, func);
 }
 
-extern int VSyncCallback(int func)     /* @0x800F28DC */
+extern void VSyncCallback(Callback func)     /* @0x800F28DC */
 {
-    return g_hooks_ptr->vsync_setter(4, func);
+    pCallbacks->VSyncCallbacks(4, func);
 }
 
-extern int VSyncCallbacks(int idx, int func)   /* @0x800F2910 */
+extern Callback VSyncCallbacks(int idx, Callback func)   /* @0x800F2910 */
 {
-    return g_hooks_ptr->vsync_setter(idx, func);
+    return pCallbacks->VSyncCallbacks(idx, func);
 }
 
-/* @0x800F2940 -- returns g_intr.in_handler (D_80134AFA); lhu = unsigned read */
+/* @0x800F2940 -- returns intrEnv.inInterrupt (D_80134AFA); lhu = unsigned read */
 extern int CheckCallback(void)
 {
-    return (unsigned short)g_intr.in_handler;
+    return (unsigned short)intrEnv.inInterrupt;
 }
 
 extern int SetIntrMask(int mask)   /* @0x800F2950 */
 {
     /* MATCH: oracle uses g_imask_ptr (D_80135B88) indirection → lw ptr; lhu *ptr; sh a0,*ptr in jr delay */
-    unsigned short *p = (unsigned short *)g_imask_ptr;
+    unsigned short *p = (unsigned short *)g_InterruptMask;
     int old = *p;
     *p = (unsigned short)mask;
     return old;
@@ -150,19 +157,19 @@ extern int SetIntrMask(int mask)   /* @0x800F2950 */
  * store, and no C statement boundary exists there -- the vehicles left are a build-side
  * per-fn mechanism (TEXT_MOVES is useless here, the registers are already assigned) or an
  * instrumented-cc1 read of local-alloc's block-4 handout (C:/Temp/nfs4-instr-cc1). */
-extern IntrState *_initIntr(void)       /* @0x800F2968 */
+extern intrEnv_t *startIntr(void)       /* @0x800F2968 */
 {
-    if (g_intr.inited != 0)
+    if (intrEnv.interruptsInitialized != 0)
         return 0;
 
     I_STAT = I_MASK = 0;
     DPCR = 0x33333333;
-    _bzero_w((int *)&g_intr, 0x41a);
-    if (setjmp(g_intr.jmpbuf) != 0)
-        _intrhand();
-    g_intr.jmpbuf[1] = (long)g_intr.evcb;
-    HookEntryInt(g_intr.jmpbuf);
-    g_intr.inited = 1;
+    memclr((int *)&intrEnv, 0x41a);
+    if (setjmp(intrEnv.buf) != 0)
+        trapIntr();
+    intrEnv.buf[1] = (long)&intrEnv.stack[1004];
+    HookEntryInt(intrEnv.buf);
+    intrEnv.interruptsInitialized = 1;
     /* RESIDUAL 6 (w61-a8), count-EXACT 54/54: the SECOND `g_hooks_ptr` load lands in
      * $v1 where retail uses $a0 (the first one is $v1 in both) -- two identical
      * local-alloc QTYs where retail's second conflicts with the first and ours does
@@ -187,7 +194,7 @@ extern IntrState *_initIntr(void)       /* @0x800F2968 */
      * an intruder born after the call and dead before the store, not a longer-lived 89.
      * 04Z ladder (never run before this; the TU is wired cc1_272): 2.6.3 6, 2.7.2 6,
      * 2.7.2-970404 65 @53, 2.8.0 65 @53, 2.8.1 65 @53 -- the VERSION AXIS IS CLOSED here. */
-    g_hooks_ptr->vsync_setter = (IntrSetter)startIntrVSync();
+    pCallbacks->VSyncCallbacks = startIntrVSync();
     /* MATCH (W74-A17, 2026-08-23): 6 -> PASS 54/54.  THE INTRUDER THE W63/W71/W72 NOTES
      * ASKED FOR, BUILT WITH THE 20B/22B-2 DEVICE.  In RTL the second hooks-pointer load
      * lives for exactly TWO insns AFTER `jal startIntrDMA` (reorg later back-fills the
@@ -204,16 +211,16 @@ extern IntrState *_initIntr(void)       /* @0x800F2968 */
      * void clobber `__volatile__("" : : : "$3")` after `h` 3 @55 (+1 insn: output-less
      * asm is a sched1 barrier, 20A) * the same launder clobbering "$2" 7 @55. */
     {
-        IntrSetter d = (IntrSetter)startIntrDMA();
+        IntrSetter d = startIntrDMA();
         __asm__("" : "=r"(d) : "0"(d) : "$3");
-        g_hooks_ptr->dma_setter = d;
+        pCallbacks->DMACallback = d;
     }
     _96_remove();
     ExitCriticalSection();
-    return &g_intr;
+    return &intrEnv;
 }
 
-extern void _intrhand(void)            /* @0x800F2A40 */
+extern void trapIntr(void)             /* @0x800F2A40 */
 {
     /* MATCH (w51-a7): shape TRANSPLANTED from the byte-exact Rage Racer PsyQ decomp
      * (C:/Temp/rage-racer-decomp/src/main/PAL/lib/libapi/interrupt_dispatch.c :: intrDispatch).
@@ -614,18 +621,18 @@ extern void _intrhand(void)            /* @0x800F2A40 */
     volatile unsigned short *sp;                /* I_STAT anchor ($a0 falls out naturally) */
     register volatile unsigned short *mp __asm__("$2");  /* I_MASK anchor, $v0 = retail */
 
-    state = (unsigned short *)&g_intr;
+    state = (unsigned short *)&intrEnv;
     __asm__("" : "=r"(state) : "0"(state));  /* zero-insn opacity fence: keep the base a REGISTER */
     if (state[0] == 0) {
         printf("unexpected interrupt(%04x)\n", I_STAT);
         ReturnFromException();
     }
-    sp = g_istat_ptr;
+    sp = i_stat;
     en = state[0x18];
     /* W75-A16 cast store: clears MEM_IN_STRUCT_P so sched.c:830 true_dependence
      * stops exempting the pointer loads from the store dependence (zero insns). */
     *(unsigned short *)((char *)state + 2) = 1;
-    mp = g_imask_ptr;
+    mp = g_InterruptMask;
     pend = *mp & (en & *sp);
     s0 = (unsigned short)pend;
     if (pend != 0) {
@@ -646,9 +653,9 @@ extern void _intrhand(void)            /* @0x800F2A40 */
                     i++;
                 }
             }
-            sp = g_istat_ptr;
-            en = g_intr.enabled;
-            mp = g_imask_ptr;
+            sp = i_stat;
+            en = intrEnv.enabledInterruptsMask;
+            mp = g_InterruptMask;
             pend = *mp & (en & *sp);
             s0 = (unsigned short)pend;
         } while (pend != 0);
@@ -672,20 +679,20 @@ extern void _intrhand(void)            /* @0x800F2A40 */
          * unsized `[]`) RE-TESTED on this basin = 49 -- it still subtracts where retail
          * wants a held ADDRESS (w60-a1 law 5 holds); the pointer used for the STORE
          * only = 44 (inert), i.e. the anchor must carry BOTH accesses. */
-        int *tp = &g_intr_timeout;
+        int *tp = &trapMissedCount;
         t = *tp;
         c = t;
         t = t + 1;
         *tp = t;
         if (c >= 0x801) {
             printf("intr timeout(%04x:%04x)\n", I_STAT, I_MASK);
-            g_intr_timeout = 0;
+            trapMissedCount = 0;
             I_STAT = 0;
         }
     } else {
-        g_intr_timeout = 0;
+        trapMissedCount = 0;
     }
-    g_intr.in_handler = 0;
+    intrEnv.inInterrupt = 0;
     ReturnFromException();
 }
 
@@ -702,7 +709,7 @@ extern void _intrhand(void)            /* @0x800F2A40 */
  * plus retail computing `st` in the `beqz $v0` delay slot where ours re-stages the return value,
  * plus one extra `andi $v1,0xffff` (dropping the pendingValue opacity fence removes it but costs
  * more elsewhere).  Needs qtytrace, not another spelling sweep. */
-extern int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C10 */
+extern Callback setIntr(unsigned int idx, Callback handler)   /* @0x800F2C10 */
 {
     /* MATCH (W67-A2, 2026-08-15): 25 -> 12 -- BODY REPLACED with the xenogears-decomp
      * matched `setIntr` (src/slus_006.64/psyq/libetc/intr.c, v1.76; sotn's matched v1.73
@@ -887,12 +894,12 @@ extern int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C10 */
      *  rung/flag that leaves it unsplit, and none of the 2.6/2.7 rungs accept the switch)
      *  or whether src_const is set but the symbol class is simply absent (in which case a
      *  cheap earlier offset-0 REFERENCE -- not an address-take -- is the vehicle). */
-    int oldCallback;
+    Callback oldCallback;
     unsigned short nMask;
     int nNewMask;
 
-    oldCallback = g_intr.cb[idx];
-    if ((handler != oldCallback) && g_intr.inited) {
+    oldCallback = intrEnv.handlers[idx];
+    if ((handler != oldCallback) && intrEnv.interruptsInitialized) {
         nMask = I_MASK;
         I_MASK = 0;
         nNewMask = nMask & 0xFFFF;
@@ -928,17 +935,17 @@ extern int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C10 */
          * gives ctl (global.c) the same $6, the addiu lands in the beqz delay slot by
          * eager-steal exactly like retail, and the guard keeps `lhu -4($a1)`. */
         {
-        IntrState *ctl = &g_intr;
+        intrEnv_t *ctl = &intrEnv;
         if (handler != 0) {
-            register IntrState *c2 __asm__("$6");
+            register intrEnv_t *c2 __asm__("$6");
             __asm__("" : "=r"(c2) : "0"(ctl));
-            g_intr.cb[idx] = handler;
+            intrEnv.handlers[idx] = handler;
             nNewMask = nNewMask | (1 << idx);
-            c2->enabled |= (1 << idx);
+            c2->enabledInterruptsMask |= (1 << idx);
         } else {
-            g_intr.cb[idx] = 0;
+            intrEnv.handlers[idx] = 0;
             nNewMask = nNewMask & ~(1 << idx);
-            g_intr.enabled &= ~(1 << idx);
+            intrEnv.enabledInterruptsMask &= ~(1 << idx);
         }
         /* @0x800F2CC0-D20: ChangeClearRCnt(<per-IRQ root-counter index>, handler==0). */
         if (idx == 0) {
@@ -954,7 +961,8 @@ extern int _set_intr_callback(unsigned int idx, int handler)   /* @0x800F2C10 */
     return oldCallback;
 }
 
-extern IntrState *StopCallback(void)   /* @0x800F2D58 */
+extern intrEnv_t *stopIntr(void) __asm__("StopCallback");
+extern intrEnv_t *stopIntr(void)       /* @0x800F2D58 */
 {
     /* MATCH (w51-a7, methodology 3.12 #16 HOLD-GLOBAL-ADDR-ACROSS-CALL): the oracle keeps
      * &g_intr in the callee-saved $s0 for the WHOLE function (`lui/addiu $s0` in the prologue,
@@ -962,13 +970,13 @@ extern IntrState *StopCallback(void)   /* @0x800F2D58 */
      * the gcc-2.7.2 lane a bare `g_intr.field` rematerializes the address per access
      * (`lui $at; sh 0($at)`); a named pointer local live across EnterCriticalSection forces the
      * $s0 hoist. */
-    IntrState *cb = &g_intr;
+    intrEnv_t *cb = &intrEnv;
     __asm__("" : "=r"(cb) : "0"(cb));   /* zero-insn opacity fence (W49): keep cb a REGISTER base */
-    if (cb->inited == 0)
+    if (cb->interruptsInitialized == 0)
         return 0;
     EnterCriticalSection();
-    cb->saved_imask = I_MASK;
-    cb->saved_dpcr  = DPCR;
+    cb->savedMask = I_MASK;
+    cb->savedPcr  = DPCR;
     /* MATCH (w48-a7): CHAINED assignment -- the oracle stores 0 to I_MASK and then RE-READS it
      * (`sh $zero,0($v0); lhu $v0,0($v0); sh $v0,0($a0)`).  That re-read is exactly gcc's
      * volatile handling of `a = b = 0` (the value of the inner assignment is fetched back from
@@ -976,13 +984,14 @@ extern IntrState *StopCallback(void)   /* @0x800F2D58 */
     I_STAT = I_MASK = 0;
     /* MATCH (methodology 3.25-3c): the oracle puts this store in the `jal ResetEntryInt` DELAY
      * SLOT; gcc's reorg will not slot-fill a volatile MEM, so the store side drops volatile. */
-    *(unsigned int *)g_dpcr_ptr = DPCR & 0x77777777;
+    *(unsigned int *)d_pcr = DPCR & 0x77777777;
     ResetEntryInt();
-    cb->inited = 0;
+    cb->interruptsInitialized = 0;
     return cb;
 }
 
-extern int RestartCallback(void)       /* @0x800F2DF8 */
+extern intrEnv_t *restartIntr(void) __asm__("RestartCallback");
+extern intrEnv_t *restartIntr(void)    /* @0x800F2DF8 */
 {
     /* MATCH (w48-a7) branch POLARITY: the oracle skips AWAY on the already-running case
      * (`bnez $v0,.L800F2E5C`) and falls straight through into the body, with the `return 0`
@@ -992,18 +1001,18 @@ extern int RestartCallback(void)       /* @0x800F2DF8 */
      * (`addiu $a0,$s0,0x38` for the jmpbuf arg, `lhu 0x32($s0)`, `lw 0x34($s0)`, and the tail
      * `addu $v0,$s0,$zero`).  Under the gcc-2.7.2 lane a plain `&g_intr` is const-folded back
      * into per-access `sym`-macros (`lui $at; ...`); the fence keeps cb a register base. */
-    IntrState *cb = &g_intr;
+    intrEnv_t *cb = &intrEnv;
     __asm__("" : "=r"(cb) : "0"(cb));
-    if (cb->inited != 0)
+    if (cb->interruptsInitialized != 0)
         return 0;
-    HookEntryInt(cb->jmpbuf);
-    cb->inited = 1;
-    I_MASK = cb->saved_imask;
+    HookEntryInt(cb->buf);
+    cb->interruptsInitialized = 1;
+    I_MASK = cb->savedMask;
     /* MATCH (methodology 3.25-3c): this store sits in the `jal ExitCriticalSection` DELAY SLOT
      * in the oracle; reorg will not slot-fill a volatile MEM, so the store side drops volatile. */
-    *(unsigned int *)g_dpcr_ptr = cb->saved_dpcr;
+    *(unsigned int *)d_pcr = cb->savedPcr;
     ExitCriticalSection();
-    return (int)cb;
+    return cb;
     /* RESIDUAL 1 (w53-a9) -- MECHANISM SOLVED, NEEDS A BUILD-SIDE WIRING, NOT A SOURCE CHANGE.
      * The single diff is a `nop` the oracle carries between `lw $2,52($s0)` and the
      * `jal ExitCriticalSection`.  Root cause: OUR cc1 fills the jal's delay slot ITSELF
@@ -1017,7 +1026,7 @@ extern int RestartCallback(void)       /* @0x800F2DF8 */
      * No C spelling reaches it -- the slot is filled before the assembler runs. */
 }
 
-static void _bzero_w(int *p, int n)        /* @0x800F2E70 */
+static void memclr(int *p, int n)          /* @0x800F2E70 */
 {
     int i = n - 1;
     if (n != 0) { do { *p = 0; i = i - 1; p = p + 1; } while (i != -1); }

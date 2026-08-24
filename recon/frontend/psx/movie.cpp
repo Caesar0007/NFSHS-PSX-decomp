@@ -13,7 +13,7 @@ static void strInit(CdlLOC *loc,int frame_size,fn_void *callback,fn_void *endcal
 static void strCallback(void);
 static int strNextVlc(DECENV *dec);
 static u_long *strNext(DECENV *dec);
-static void strSync(DECENV *dec,int arg1);
+static void strSync(DECENV *dec,int mode);
 static void strKickCD(CdlLOC *loc);
 
 /* ---- Movie.obj STAT (file-local) globals ---- */
@@ -172,10 +172,13 @@ void Movie_SetDecodeOffset(short x0,short y0,short x1,short y1)
   /* MATCH: the oracle keeps &dec.rect[0] and &dec.rect[1] in registers (they are the
    * two ClearImage arguments) and writes every field through them, in the order
    * x0,y0,x1,y1,h,h,w,w -- statement order IS store order here. */
-  RECT *r0 = dec.rect;
-  RECT *r1 = dec.rect + 1;
-  short mh;
-  short mw;
+  RECT *r0; /* SYM-CODEGEN-CARRIER: r0 -- direct dec.rect field stores are measured
+               FAIL 27; this base preserves the retail paired-store allocation */
+  RECT *r1; /* SYM-CODEGEN-CARRIER: r1 -- direct dec.rect + 1 field stores are measured
+               FAIL 27; this base preserves the retail paired-store allocation */
+
+  r0 = dec.rect;
+  r1 = dec.rect + 1;
 
   /* MATCH: PER-SITE storage view -- read gMovieHeight through the SCALAR static
    * (`_d`), not the unsized `_v[]` view.  The view's split %hi/%lo lowering is
@@ -183,16 +186,14 @@ void Movie_SetDecodeOffset(short x0,short y0,short x1,short y1)
    * macro form is unschedulable and issues where retail has it.  (Same symbol
    * uses the view form in strNext/Movie_Init -- both spellings are correct,
    * pick per site.) */
-  mh = gMovieHeight_d;
   r0->x = x0;
   r0->y = y0;
   r1->x = x1;
   r1->y = y1;
-  mw = (short)(((int)gMovieWidth * (int)PPWTop) / (int)PPWBottom);
-  r0->h = mh;
-  r1->h = mh;
-  r0->w = mw;
-  r1->w = mw;
+  r0->h = gMovieHeight_d;
+  r1->h = gMovieHeight_d;
+  r0->w = (short)(((int)gMovieWidth * (int)PPWTop) / (int)PPWBottom);
+  r1->w = (short)(((int)gMovieWidth * (int)PPWTop) / (int)PPWBottom);
   ClearImage(r0,'\0','\0','\0');
   ClearImage(r1,'\0','\0','\0');
   DrawSync(0);
@@ -205,7 +206,6 @@ void Movie_SetDecodeOffset(short x0,short y0,short x1,short y1)
 void Movie_Load(char movie)
 
 {
-  void *found;
   CdlFILE file;
   char gFEFileName [80];
   
@@ -233,19 +233,13 @@ void Movie_Load(char movie)
     PPWBottom = 1;
     gMode = 2;
   }
-  found = CdSearchFile(&file,gFEFileName);
-  if (found != (void *)0x0) {
-    /* MATCH: the oracle holds &loc and &dec in callee-saved registers (they are the
-     * store base and the two call arguments) -- real pointer locals reproduce that. */
-    CdlLOC *lp = loc_v;
-    DECENV *d = &dec;
-
-    lp->minute = file.pos.minute;
-    lp->second = file.pos.second;
-    lp->sector = file.pos.sector;
-    strSetDefDecEnv(d);
-    strInit(lp,0xfffffff,strCallback,(fn_void *)0x0);
-    strNextVlc(d);
+  if (CdSearchFile(&file,gFEFileName) != (void *)0x0) {
+    loc_v[0].minute = file.pos.minute;
+    loc_v[0].second = file.pos.second;
+    loc_v[0].sector = file.pos.sector;
+    strSetDefDecEnv(&dec);
+    strInit(loc_v,0xfffffff,strCallback,(fn_void *)0x0);
+    strNextVlc(&dec);
     bMovieLoaded = 1;
   }
   return;
@@ -257,33 +251,32 @@ void Movie_Load(char movie)
 int Movie_NextFrame(void)
 
 {
-  int ret;
-  int xstep;
+  int ret; /* SYM-CODEGEN-CARRIER: ret -- direct/goto returns are measured FAIL 3
+              (76/77), losing the retail shared-return jump */
   /* MATCH: SYM says fsize=32 with mask s0+ra and NO named locals -- the oracle's frame
    * carries 8 bytes of never-referenced slack that our expression shape does not
    * allocate; a dead 2-word local restores the exact frame + sp displacements. */
-  int deadfrm[2];
+  int deadfrm[2]; /* SYM-CODEGEN-CARRIER: deadfrm -- removing this measured frame
+                     carrier changes the SYM-proven 32-byte frame and stack offsets */
   /* MATCH: the oracle parks &dec in a callee-saved register (addiu s0,v0,%lo) and
    * reaches every field by displacement -- a real pointer local reproduces it. */
-  DECENV *d = &dec;
-
   (void)deadfrm;
 
-  DecDCTin(d->vlcbuf[d->vlcid],(int)gMode);
+  DecDCTin(dec.vlcbuf[dec.vlcid],(int)gMode);
   DecDCTinSync(1);
-  xstep = ((int)PPWTop << 4) / (int)PPWBottom;
   /* MATCH: the `h-1; if(<0) h+14; >>4` sequence Ghidra shows is gcc's own signed /16
    * guard -- it is a plain `(h - 1) / 16`, not a hand-written clamp, and writing it
    * that way puts the slice.h load where the oracle has it (after the 2nd divide). */
   DecDCTout
-            ((u_long *)d->imgbuf,
-             ((((d->slice.w + -1) / xstep + 1) * xstep) << 4) *
-             ((d->slice.h + -1) / 0x10 + 1) >> 1);
-  ret = strNextVlc(d);
+            ((u_long *)dec.imgbuf,
+             ((((dec.slice.w + -1) / (((int)PPWTop << 4) / (int)PPWBottom) + 1) *
+               (((int)PPWTop << 4) / (int)PPWBottom)) << 4) *
+             ((dec.slice.h + -1) / 0x10 + 1) >> 1);
   /* MATCH: the error arm is the OUT-OF-LINE branch target in the oracle (bltz skips
    * to it) and the success arm falls through -- write it in that polarity. */
+  ret = strNextVlc(&dec);
   if (ret >= 0) {
-    strSync(d,0);
+    strSync(&dec,0);
     VSync(0);
     ret = 0;
   }
@@ -329,15 +322,15 @@ bool Movie_Finished(void)
 int Movie_Play(char movie)
 
 {
-  bool dispRect;
-  int finished;
-  int frame_ret;
+  bool dispRect; /* SYM-CODEGEN-CARRIER: dispRect -- direct repeated rectid tests are
+                    measured FAIL 44 (136/132), rotating saved-register allocation */
   int joyval;
   DISPENV disp;
   DRAWENV draw;
   /* MATCH: SYM fsize=184 (disp@-0xA0, draw@-0x88, 3 saved regs) -- 16 bytes of
    * never-referenced frame slack our expression shape does not allocate. */
-  int deadfrm[4];
+  int deadfrm[4]; /* SYM-CODEGEN-CARRIER: deadfrm -- removing this measured frame
+                     carrier changes the SYM-proven 184-byte frame and stack offsets */
   
   (void)deadfrm;
   SNDcdvol(gMasterMusicLevel * 0x7f >> 7);
@@ -346,15 +339,13 @@ int Movie_Play(char movie)
   /* MATCH: two SEPARATE branch tests -- the `&&`-comma form made gcc materialize
    * `frame_ret != -1` as a VALUE (nor/sltu) instead of branching on it. */
   while( true ) {
-    finished = Movie_Finished();
     /* MATCH: `(x ^ 1) == 0` is the ONLY spelling of "x == 1" that cc1plus keeps
      * as the oracle's `xori v0,v0,1; beqz v0`.  Plain `x == 1` (and `!(x ^ 1)`,
      * and the inverted `if (x != 1) ... else break`) all hoist a `li reg,1` out
      * of the loop and branch register-to-register -- which ALSO gave that
      * constant a 3rd reference and stole the first saved register. */
-    if ((finished ^ 1) == 0) break;
-    frame_ret = Movie_NextFrame();
-    if (frame_ret == -1) break;
+    if ((Movie_Finished() ^ 1) == 0) break;
+    if (Movie_NextFrame() == -1) break;
     dispRect = dec.rectid == 0;
     SetDefDispEnv
               (&disp,(int)dec.rect[dispRect].x,(int)dec.rect[dispRect].y,(int)dec.rect[dispRect].w,
@@ -417,12 +408,18 @@ int play_movie(char movie)
 static void strSetDefDecEnv(DECENV *dec)
 
 {
-  short mh;
-  u_long *vb0;
-  u_long *vb1;
-  u_short *img;
-  int bottom;
-  int top;
+  short mh; /* SYM-CODEGEN-CARRIER: mh -- direct late gMovieHeight access is measured
+               FAIL 7 (36/35); this early read restores retail scheduling */
+  u_long *vb0; /* SYM-CODEGEN-CARRIER: vb0 -- the measured 16-view/24-read-order
+                  search requires this early vlcbuf0 read for the retail schedule */
+  u_long *vb1; /* SYM-CODEGEN-CARRIER: vb1 -- the measured 16-view/24-read-order
+                  search requires this early vlcbuf1 read for the retail schedule */
+  u_short *img; /* SYM-CODEGEN-CARRIER: img -- the measured view/order search requires
+                   this early imgbuf read for the retail batched-lui schedule */
+  int bottom; /* SYM-CODEGEN-CARRIER: bottom -- direct PPWBottom access is measured
+                 FAIL 48 (35/35), changing the entire scheduled instruction order */
+  int top; /* SYM-CODEGEN-CARRIER: top -- direct PPWTop access is measured FAIL 47
+              (36/35), changing division placement and register allocation */
   
   /* MATCH (w44): the READ order and the STORE order must BOTH be
    * vlcbuf0, vlcbuf1, imgbuf, gMovieHeight -- i.e. the four fields written in
@@ -480,14 +477,11 @@ static void strInit(CdlLOC *loc,int frame_size,fn_void *callback,fn_void *endcal
 static void strCallback(void)
 
 {
-  int rw;
-  int vh;
-  int hstep;
-  int rem;
-  int rectid;
-  uint nextRect;
+  int rem; /* SYM-CODEGEN-CARRIER: rem -- repeating the remainder expression is
+              measured FAIL 86 (207/191), duplicating division and rotating registers */
   /* MATCH: SYM fsize=32 with mask s0+ra -- 8 bytes of never-referenced frame slack. */
-  int deadfrm[2];
+  int deadfrm[2]; /* SYM-CODEGEN-CARRIER: deadfrm -- removing this measured frame
+                     carrier changes the SYM-proven 32-byte frame and stack offsets */
 
   (void)deadfrm;
   if ((gIsRGB24 != 0) && (StCdIntrFlag != 0)) {
@@ -500,10 +494,8 @@ static void strCallback(void)
   /* MATCH: the slice.x advance is written INSIDE each arm (the oracle joins only after
    * the store); a shared `xstep` temp merged the two adds into one block. */
   if (isFirstSlice != 0) {
-    /* MATCH: the SYM lists NO locals for this fn -- `hstep`/`rw` as named
-     * locals give the quotient and the width their OWN pseudos, so the quotient
-     * cannot reuse the dividend's register and the whole caller-saved pool
-     * rotates by one (decbase a1->a2, PPWTop a2->a3, isFirstSlice a3->t0). */
+    /* MATCH: keep the quotient expression direct here.  Giving it a named local
+     * creates a separate pseudo and rotates the whole caller-saved pool. */
     rem = (int)dec.rect[dec.rectid].w % (((int)PPWTop << 4) / (int)PPWBottom);
     if (rem != 0) {
       isFirstSlice = 0;
@@ -515,12 +507,11 @@ static void strCallback(void)
   }
   dec.slice.x = dec.slice.x + (short)(((int)PPWTop << 4) / (int)PPWBottom);
 strCallback_inlinedJoin:
-  rectid = dec.rectid;
-  if ((int)dec.slice.x < (int)dec.rect[rectid].x + (int)dec.rect[rectid].w) {
-    hstep = ((int)PPWTop << 4) / (int)PPWBottom;
+  if ((int)dec.slice.x < (int)dec.rect[dec.rectid].x + (int)dec.rect[dec.rectid].w) {
     DecDCTout
               ((u_long *)dec.imgbuf,
-               ((((dec.slice.w + -1) / hstep + 1) * hstep) << 4) *
+               ((((dec.slice.w + -1) / (((int)PPWTop << 4) / (int)PPWBottom) + 1) *
+                 (((int)PPWTop << 4) / (int)PPWBottom)) << 4) *
                ((dec.slice.h + -1) / 0x10 + 1) >> 1);
   }
   else {
@@ -531,12 +522,11 @@ strCallback_inlinedJoin:
      * to $a3.  With the rectid store first, gcc emits the immediate `sltiu a0,a1,1`
      * and rectid dies into $a1, rotating the tail.  (gcc reschedules the two stores
      * back into retail's emitted order.) */
-    nextRect = (uint)(rectid == 0);
     dec.isdone = 1;
-    dec.rectid = nextRect;
-    dec.slice.x = dec.rect[nextRect].x;
+    dec.rectid = (uint)(dec.rectid == 0);
+    dec.slice.x = dec.rect[dec.rectid].x;
     isFirstSlice = 1;
-    dec.slice.y = dec.rect[nextRect].y + (short)((0xf0 - gHeight) / 2);
+    dec.slice.y = dec.rect[dec.rectid].y + (short)((0xf0 - gHeight) / 2);
   }
   return;
 }
@@ -548,9 +538,7 @@ static int strNextVlc(DECENV *dec)
 
 {
   u_long *next;
-  uint vid;
   int cnt;
-  int r;
   
   cnt = 10;
   do {
@@ -560,11 +548,10 @@ static int strNextVlc(DECENV *dec)
   } while (cnt != 0);
   return -1;
 found:
-  vid = (uint)(dec->vlcid == 0);
-  dec->vlcid = vid;
-  r = DecDCTvlc(next,dec->vlcbuf[vid]);
-  while (r != 0) {
-    r = DecDCTvlc((u_long *)0x0,(u_long *)0x0);
+  dec->vlcid = (uint)(dec->vlcid == 0);
+  if (DecDCTvlc(next,dec->vlcbuf[dec->vlcid]) != 0) {
+    while (DecDCTvlc((u_long *)0x0,(u_long *)0x0) != 0) {
+    }
   }
   StFreeRing(next);
   return 0;
@@ -576,14 +563,18 @@ found:
 static u_long * strNext(DECENV *dec)
 
 {
-  u_long st;
+  u_long st; /* SYM-CODEGEN-CARRIER: st -- direct StGetNext testing is measured
+                FAIL 5 (131/130), moving the loop decrement across the call setup */
 
-  short mh;
-  short ws;
-  int bottom;
+  short mh; /* SYM-CODEGEN-CARRIER: mh -- repeating the gHeight reads is measured
+               FAIL 22 (134/130), duplicating loads and changing division allocation */
+  int bottom; /* SYM-CODEGEN-CARRIER: bottom -- repeating PPWBottom is measured
+                 FAIL 46 (144/130), duplicating loads/divides and rotating operands */
   int cnt;
-  int wt;
-  int *wp;
+  int wt; /* SYM-CODEGEN-CARRIER: wt -- repeating gWidth*PPWTop is measured FAIL 42
+             (150/130), duplicating the multiply/divide chain */
+  int *wp; /* SYM-CODEGEN-CARRIER: wp -- direct gWidth and scalar-view spellings are
+              each measured one instruction long; this pointer preserves alias/schedule */
   RECT rect;
   u_long *addr;
   CDSECTOR *sector;
@@ -644,38 +635,35 @@ framedone:
   dec->rect[1].h = (short)gHeight;
   dec->rect[0].h = mh;
   (dec->slice).h = mh;
-  ws = (short)(wt / bottom);
-  dec->rect[1].w = ws;
-  dec->rect[0].w = ws;
+  dec->rect[1].w = (short)(wt / bottom);
+  dec->rect[0].w = (short)(wt / bottom);
   return addr;
 }
 
 /* lines 601-603: (static data / macros / comments - no emitted code) */
 
 /* ---- strSync  (movie.cpp:604, code lines 604-621) ---- */
-static void strSync(DECENV *dec,int arg1)
+static void strSync(DECENV *dec,int mode)
 
 {
-  int viewOff;
-  uint nextRect;
-  int one;
+  /* SYM-CODEGEN-CARRIER: mode -- the mangled `...i` proves the optimized-away
+   * second int parameter; canonical PsyQ STR sample sources name it `mode`. */
+  int viewOff; /* SYM-CODEGEN-CARRIER: viewOff -- direct loop use is measured
+                  FAIL 50 (44/44), losing retail loop-invariant hoisting/allocation */
   /* MATCH: the spin counter lives in a STACK SLOT and is re-loaded/stored on every
    * iteration (sw/lw 0(sp)) -- a plain register local can never reproduce that. */
   volatile u_long cnt;
 
   cnt = 0x800000;
   if (dec->isdone == 0) {
-    /* MATCH: the /2 is loop-INVARIANT in the oracle (hoisted into $a1 before the spin)
-     * and the constant 1 is materialized up front, then reused as the srav amount. */
-    one = 1;
+    /* MATCH: the /2 is loop-invariant in the oracle. */
     viewOff = (0xf0 - gHeight) / 2;
     do {
       cnt = cnt - 1;
       if (cnt == 0) {
-        dec->isdone = one;
-        nextRect = (uint)(dec->rectid == 0);
-        dec->rectid = nextRect;
-        (dec->slice).x = dec->rect[nextRect].x;
+        dec->isdone = 1;
+        dec->rectid = (uint)(dec->rectid == 0);
+        (dec->slice).x = dec->rect[dec->rectid].x;
         /* MATCH: the second access RE-READS dec->rectid from memory (the oracle emits a
          * 2nd lw 0x20 + sll) -- a cached local gets store-forwarded away. */
         (dec->slice).y = dec->rect[dec->rectid].y + (short)viewOff;

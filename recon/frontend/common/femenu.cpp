@@ -1644,22 +1644,18 @@ GetNumberEnabledItems_loop:
 void tMenu::Draw()
 
 {
-  tMenuItem *ptVar1;
-  __vtbl_ptr_type (*pa_Var2) [11];
   short item;
 
   if (-1 < this->fTitle) {
     FETextRender_Title(this->fTitle);
   }
   item = 0;
-  ptVar1 = this->fItemList[0];
-  while (ptVar1 != (tMenuItem *)0x0) {
-    pa_Var2 = this->fItemList[item]->_vf;
-    (*(*pa_Var2)[4].pfn)
-              ((char *)this->fItemList[item] + (int)(*pa_Var2)[4].delta,
+  while (this->fItemList[item] != (tMenuItem *)0x0) {
+    (*(*this->fItemList[item]->_vf)[4].pfn)
+              ((char *)this->fItemList[item] +
+               (int)(*this->fItemList[item]->_vf)[4].delta,
                (int)item == this->fCurrentItem);
     item = item + 1;
-    ptVar1 = this->fItemList[item];
   }
   return;
 }
@@ -1671,19 +1667,15 @@ void tMenu::Draw()
 void tMenu::UpdateTransition()
 
 {
-  tMenuItem *ptVar1;
-  __vtbl_ptr_type (*pa_Var2) [11];
   short item;
 
   item = 0;
-  ptVar1 = this->fItemList[0];
-  while (ptVar1 != (tMenuItem *)0x0) {
-    pa_Var2 = this->fItemList[item]->_vf;
-    (*(*pa_Var2)[10].pfn)
-              ((char *)this->fItemList[item] + (int)(*pa_Var2)[10].delta,
+  while (this->fItemList[item] != (tMenuItem *)0x0) {
+    (*(*this->fItemList[item]->_vf)[10].pfn)
+              ((char *)this->fItemList[item] +
+               (int)(*this->fItemList[item]->_vf)[10].delta,
                this->fCurrentItem == (int)item);
     item = item + 1;
-    ptVar1 = this->fItemList[item];
   }
   return;
 }

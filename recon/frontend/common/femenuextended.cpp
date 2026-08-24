@@ -802,21 +802,15 @@ bool tMenuNFS4::TransitionIsFinished()
 void tMenuNFS4::UpdateTransition()
 
 {
-  tMenuItem *ptVar1;
-  tMenuItem *pItem;
-  __vtbl_ptr_type (*pa_Var2) [11];
   short i;
 
   i = 0;
-  ptVar1 = this->fItemList[0];
-  while (ptVar1 != (tMenuItem *)0x0) {
-    pItem = this->fItemList[i];
-    pa_Var2 = pItem->_vf;
-    (*(*pa_Var2)[10].pfn)
-              ((char *)pItem + (int)(*pa_Var2)[10].delta,
+  while (this->fItemList[i] != (tMenuItem *)0x0) {
+    (*(*this->fItemList[i]->_vf)[10].pfn)
+              ((char *)this->fItemList[i] +
+               (int)(*this->fItemList[i]->_vf)[10].delta,
                (int)i == this->fCurrentItem);
     i = i + 1;
-    ptVar1 = this->fItemList[i];
   }
   return;
 }
@@ -953,9 +947,6 @@ tMenuNFS4Bottom::~tMenuNFS4Bottom()
 void tMenuNFS4Bottom::Draw()
 
 {
-  tMenuItem *ptVar1;
-  tMenuItem *pItem;
-  __vtbl_ptr_type (*pa_Var2) [11];
   short i;
   RECT r;
 
@@ -965,15 +956,12 @@ void tMenuNFS4Bottom::Draw()
   r.h = 0xb;
   MenuNFS4_SetHelpPos(r);
   i = 0;
-  ptVar1 = this->fItemList[0];
-  while (ptVar1 != (tMenuItem *)0x0) {
-    pItem = this->fItemList[i];
-    pa_Var2 = pItem->_vf;
-    (*(*pa_Var2)[5].pfn)
-              ((char *)pItem + (int)(*pa_Var2)[5].delta,0,0,
+  while (this->fItemList[i] != (tMenuItem *)0x0) {
+    (*(*this->fItemList[i]->_vf)[5].pfn)
+              ((char *)this->fItemList[i] +
+               (int)(*this->fItemList[i]->_vf)[5].delta,0,0,
                (int)i == this->fCurrentItem);
     i = i + 1;
-    ptVar1 = this->fItemList[i];
   }
   return;
 }

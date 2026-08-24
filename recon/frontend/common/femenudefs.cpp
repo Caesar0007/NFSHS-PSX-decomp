@@ -585,7 +585,7 @@ MX_GoToCar_oppFilterSetup:
    four independent setup operations are restored to retail order by the scoped build recipe.
    MATCH: 26/26. */
 
-void MenuExtended_GoToDealer(tMenuCommand &command)
+static void MenuExtended_GoToDealer(tMenuCommand &command)
 
 {
   int cmdType;
@@ -625,7 +625,7 @@ void MenuExtended_GoToDealer(tMenuCommand &command)
    live-range lever and scoped retail-order recipe as the twin GoToDealer above.
    MATCH: 26/26. */
 
-void MenuExtended_GoToSeller(tMenuCommand &command)
+static void MenuExtended_GoToSeller(tMenuCommand &command)
 
 {
   int cmdType;
@@ -654,7 +654,7 @@ void MenuExtended_GoToSeller(tMenuCommand &command)
    
    [ghidra-meta] section: front.text */
 
-void MenuExtended_GoToUpgrades(tMenuCommand &command)
+static void MenuExtended_GoToUpgrades(tMenuCommand &command)
 
 {
   tGlobalMenuDefs *ptVar1;

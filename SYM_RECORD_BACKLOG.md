@@ -2269,6 +2269,23 @@ owned globals with **zero missing reliable local names**, zero missing globals,
 and zero function/global storage findings. No reconstructed source or compiler
 output is modified by the parser correction.
 
+### P56 — frontend `STAT` callback linkage restored (`2026-08-24`)
+
+The receipt is recorded in
+[`frontend_stat_function_linkage_20260824.md`](scratchpad/root_sym_audit/frontend_stat_function_linkage_20260824.md).
+`MenuExtended_GoToDealer`, `MenuExtended_GoToSeller`, and
+`MenuExtended_GoToUpgrades` were externally linked despite reliable SYM `STAT`
+records and TU-private call sites. All three definitions are now `static`; the
+object symbols are local and their 26/26, 26/26, and 16/16 instruction oracles
+remain exact.
+
+The strict frontend/common audit now reports zero missing local names, **zero
+function storage-class findings** (previously three), zero missing/extra owned
+globals, and zero global storage findings. The full cluster remains 835/838 PASS
+with no compile failures, relink remains green, and the 926-file vtable audit
+passes. Only these three linkage tokens are staged from the pre-existing dirty
+`femenudefs.cpp`; its other edits remain user-owned and unstaged.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

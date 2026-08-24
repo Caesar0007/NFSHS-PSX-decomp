@@ -63,7 +63,7 @@ void tTournamentManager::LoadDescription()
   tourneyPtr = (void *)loadfileadr(filename,0x10);
   blockmove(tourneyPtr,this->fFinishPoints,6);
   this->fNumTiers = *(char *)((int)tourneyPtr + Tourn_TRN_HeaderSize);
-  tourneyDef = reservememadr("Tourney",0x2924,0);
+  tourneyDef = reservememadr("Tourney",sizeof(tTournamentDefinition),0);
   tier = 0;
   this->fDefinition = tourneyDef;
   tourneyEntries = (void *)((int)tourneyPtr + Tourn_TRN_EntriesStart);
@@ -111,9 +111,9 @@ void tTournamentManager::ReleaseDescription()
 
 {
   
-  if (this->fDefinition != (tTournamentDefinition *)0x0) {
+  if (this->fDefinition != NULL) {
     purgememadr(this->fDefinition);
-    this->fDefinition = (tTournamentDefinition *)0x0;
+    this->fDefinition = NULL;
   }
   return;
 }
@@ -135,7 +135,7 @@ void tTournamentManager::UpdateTrackList(short tier,short tournament)
   i = 0;
   if (numTracks != 0) {
     do {
-      this->fTrackList[i] = (signed char)this->fDefinition->fTracks[trackOffset++].fTrackNumber + 0xd5;
+      this->fTrackList[i] = (signed char)this->fDefinition->fTracks[trackOffset++].fTrackNumber + 0xD5; // ?
       i = i + 1;
     } while (i < numTracks);
   }
@@ -160,17 +160,15 @@ short * tTournamentManager::GetTrackList(short tier,short tournament)
 void tTournamentManager::GetTrackToRace(tTrackInfo &track_r)
 
 {
-  tTrackInfo *track = &track_r;   /* R-ref param; alias keeps the pointer-form body codegen-identical */
-  tTournamentDefinition *ptVar1;
+  tTrackInfo *trackPtr = &track_r;   /* R-ref param; alias keeps the pointer-form body codegen-identical */
+  tTournamentDefinition * tourneyDef;
   
-  ptVar1 = this->fDefinition;
-  /* Retail adds fTrackOffset and fCurrentTrack before the single 40-byte
-     scale.  Writing the tournament lookup as index+base also preserves its
-     offset-first MIPS addu operand order. */
-  blockmove(ptVar1->fTracks +
-             ((uint)(((uint)ptVar1->fTiers[this->fTier].fTournOffset + this->fTournament)
-                       + ptVar1->fTournaments)->fTrackOffset
-              + this->fCurrentTrack),track,0x28);
+  tourneyDef = this->fDefinition;
+  blockmove(tourneyDef->fTracks +
+             ((uint)(((uint)tourneyDef->fTiers[this->fTier].fTournOffset + this->fTournament)
+                       + tourneyDef->fTournaments)->fTrackOffset
+              + this->fCurrentTrack),trackPtr,sizeof(tTrackInfo));
+
   track->fDirection = this->fDirection[this->fCurrentTrack];
   track->fMirrored = this->fMirror[this->fCurrentTrack];
   track->fTimeOfDay = this->fTimeOfDay[this->fCurrentTrack];
@@ -209,81 +207,76 @@ void tTournamentManager::GetTrackToRace(tTrackInfo &track_r)
 void tTournamentManager::StartNewTournament(byte tier,byte tournament)
 
 {
-  byte bVar1;
-  short sVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  tTournamentDefinition *ptVar6;
-  int iVar7;
-  tTournamentDefinition *ptVar8;
-  tTrackInfo *track;
+  byte fTrackOption;
+  short numCompetitors;
+  int iVar3; // Unused
+  int fRandOption;
+  int trackOffset;
+  tTournamentDefinition* tourneyDefLocal;
+  int tourneyInfoOffset;
+  tTournamentDefinition* tourneyDef;
+  tTrackInfo* track;
   short i;
-  int iVar9;
-  tTourneyInfo *tourn;
-  
+  int iVar9; // Unused
+  tTourneyInfo* tourn;
+
   this->fTier = (uint)tier;
   this->fTournament = (uint)tournament;
   this->fCurrentTrack = 0;
-  sVar2 = this->GetNumCompetitors();
-  ptVar8 = this->fDefinition;
-  /* MATCH (W55-A10): retail stores a FULL WORD here (`sll 16; sra 16; sw v0,16(s3)`), i.e.
-     fNumRacers is a 4-byte field in the original -- our shared header models it as
-     `short fNumRacers, fPadNumRacers;` (a USER-owned nfs4_types.h change), so force the
-     word store per-use.  The sign-extend comes from `(int)sVar2` for free. */
-  *(int *)&this->fNumRacers = (int)sVar2;
+  numCompetitors = this->GetNumCompetitors();
+  tourneyDef = this->fDefinition;
+
+  *(int*)&this->fNumRacers = (int)numCompetitors;
   i = 0;
-  iVar7 = (uint)ptVar8->fTiers[this->fTier].fTournOffset + this->fTournament;
-  tourn = ptVar8->fTournaments + iVar7;
-  if (0 < sVar2) {
-    do {
-      this->fCompetitors[i].fPoints = 0;
-      this->fCompetitors[i].fEliminated = 0;
-      this->fCompetitors[i].fIsPlayerCar = '\0';
-      /* MATCH (W55-A10): retail's guards are `beqz` -- the i!=0 arm is the FALL-THROUGH and
-         the i==0 arm sits OUT-OF-LINE.  Writing the tests as `i != 0` (not `i == 0`) picks
-         that polarity/block order. */
-      this->fCompetitors[i].fPersonality =
-          (i != 0) ? (uint)tourn->fPersonalities[i + -1] : (uint)kPersonalityNemesis;
-      this->fCompetitors[i].fPosition = (i != 0) ? (uchar)i : (uchar)this->fNumRacers;
-      i = i + 1;
-    } while (i < *(int *)&this->fNumRacers);
+  tourneyInfoOffset = (uint)tourneyDef->fTiers[this->fTier].fTournOffset + this->fTournament;
+  tourn = tourneyDef->fTournaments + tourneyInfoOffset;
+  if (0 < numCompetitors) {
+      do {
+          this->fCompetitors[i].fPoints = 0;
+          this->fCompetitors[i].fEliminated = 0;
+          this->fCompetitors[i].fIsPlayerCar = 0;
+
+          this->fCompetitors[i].fPersonality =
+              (i != 0) ? (uint)tourn->fPersonalities[i + -1] : (uint)kPersonalityNemesis;
+          this->fCompetitors[i].fPosition = (i != 0) ? (uchar)i : (uchar)this->fNumRacers;
+          i = i + 1;
+      } while (i < *(int*)&this->fNumRacers);
   }
   i = 0;
-  if (tourn->fNumTracks != '\0') {
-    do {
-      iVar5 = (uint)tourn->fTrackOffset;
-      iVar5 = iVar5 + i;
-      ptVar6 = this->fDefinition;
-      track = ptVar6->fTracks + iVar5;
-      bVar1 = track->fDirection;
-      this->fDirection[i] = bVar1;
-      if (1 < bVar1) {
-        iVar4 = rand();
-        this->fDirection[i] = (byte)iVar4 & 1;
-      }
-      bVar1 = track->fMirrored;
-      this->fMirror[i] = bVar1;
-      if (1 < bVar1) {
-        iVar4 = rand();
-        this->fMirror[i] = (byte)iVar4 & 1;
-      }
-      bVar1 = track->fTimeOfDay;
-      this->fTimeOfDay[i] = bVar1;
-      if (1 < bVar1) {
-        iVar4 = rand();
-        this->fTimeOfDay[i] = (byte)iVar4 & 1;
-      }
-      bVar1 = track->fWeather;
-      this->fWeather[i] = bVar1;
-      if (1 < bVar1) {
-        iVar5 = rand();
-        this->fWeather[i] = (byte)iVar5 & 1;
-      }
-      i = i + 1;
-    } while (i < (int)(uint)tourn->fNumTracks);
+  if (tourn->fNumTracks != 0) {
+      do {
+          trackOffset = (uint)tourn->fTrackOffset;
+          trackOffset = trackOffset + i;
+          tourneyDefLocal = this->fDefinition;
+          track = tourneyDefLocal->fTracks + trackOffset;
+          fTrackOption = track->fDirection; // 0 - Disabled, 1 - Enabled, 2 - Random
+          this->fDirection[i] = fTrackOption;
+          if (1 < fTrackOption) {
+              fRandOption = rand();
+              this->fDirection[i] = (byte)fRandOption & 1;
+          }
+          fTrackOption = track->fMirrored;
+          this->fMirror[i] = fTrackOption;
+          if (1 < fTrackOption) {
+              fRandOption = rand();
+              this->fMirror[i] = (byte)fRandOption & 1;
+          }
+          fTrackOption = track->fTimeOfDay;
+          this->fTimeOfDay[i] = fTrackOption;
+          if (1 < fTrackOption) {
+              fRandOption = rand();
+              this->fTimeOfDay[i] = (byte)fRandOption & 1;
+          }
+          fTrackOption = track->fWeather;
+          this->fWeather[i] = fTrackOption;
+          if (1 < fTrackOption) {
+              trackOffset = rand();
+              this->fWeather[i] = (byte)trackOffset & 1;
+          }
+          i = i + 1;
+      } while (i < (int)(uint)tourn->fNumTracks);
   }
-  this->fCompetitors[0].fIsPlayerCar = '\x01';
+  this->fCompetitors[0].fIsPlayerCar = 1;
   return;
 }
 

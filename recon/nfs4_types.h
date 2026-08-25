@@ -2853,6 +2853,14 @@ struct tMenu {   /* 108 bytes */
                (fFlags & 0x400) != 0 ||
                fOnButtonPress != 0x0;
     }
+    /* FEDIALOG.CPP:33 proves this slot-3 virtual dispatch and receiver
+       adjustment; the original inline helper spelling is not retained. */
+    inline void ProcessInputVirtual(tPlayer player, tInputKeyType &key,
+                                    tMenuCommand &command) {
+        __vtbl_ptr_type (*vf)[11] = _vf;
+        (*(*vf)[3].pfn)((char *)this + (*vf)[3].delta,
+                        player, &key, &command);
+    }
     long DebounceKeys();
 
 };
@@ -3939,6 +3947,9 @@ struct tDialogBase : public tScreen {   /* 144 bytes */
     void HideAllDialogs();
     static tDialogBase *GetTopMostDialog();  /* SYM: FCN PTR tDialogBase */
     void Hide();
+    /* FEDIALOG.CPP:41 records a zero-length inlined tDialogBase receiver
+       around the currentlyOn predicate in tDialogInteractive::Run. */
+    inline bool IsVisible() { return currentlyOn != 0; }
     void Draw();
     void ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command);
     /* W65-A3 (calltarget): NO declared dtor.  Retail's whole tDialog family
@@ -3971,6 +3982,19 @@ struct tDialogMessageString : public tDialogBase {   /* 152 bytes */
 
 struct tDialogInteractive : public tDialogMessageString {   /* 160 bytes */
     bool               ReadyToReturnValue, fCurrentlyRunning;   /* +0x98 */
+    /* FEDIALOG.CPP:1/49 retains the inlined receivers for these two virtual
+       dispatches.  Their slots and this-adjustments are proven; the original
+       private helper spellings are not present in SYM. */
+    inline void CalculateDimensionsVirtual() {
+        __vtbl_ptr_type (*vf)[10] = _vf;
+        (*vf[1][0].pfn)((char *)this + vf[1][0].delta);
+    }
+    inline void ProcessInputVirtual(tPlayer player, tInputKeyType &key,
+                                    tMenuCommand &command) {
+        __vtbl_ptr_type (*vf)[10] = _vf;
+        (*(*vf)[9].pfn)((char *)this + (*vf)[9].delta,
+                        player, &key, &command);
+    }
     /* FEDialog methods */
     short Run();
 
@@ -4723,6 +4747,9 @@ struct tFEApplication {   /* 896 bytes */
        SYM does not retain the helper's exact spelling; GetPlayer is the
        descriptive reconstruction name for the proven inline source shape. */
     inline u_char GetPlayer() { return (u_char)fPlayer; }
+    /* FEDIALOG.CPP:32/33 records two inlined `tPlayer player` formals around
+       these array reads.  The accessor body is proven; SYM omits its name. */
+    inline tMenu *CurrentMenu(tPlayer player) { return fCurrentMenu[player]; }
     void Redraw();   /* FEDialog */
     /* FEApp methods */
     tFEApplication();

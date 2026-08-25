@@ -72,6 +72,15 @@ static inline void DialogMessageAnimateOpen(tDialogMessageString *dialog, int ti
   }
 }
 
+/* Run's 8c record has no boolean local for this predicate, while SLD opens
+   nested inline scopes at retail lines 31/32.  The private helper spelling is
+   unavailable; this boundary preserves the proven materialized-bool shape. */
+static inline bool DialogCanProcessCircle(tFEApplication *app, tPlayer player)
+{
+  return app->helpPopup.currentlyOn == 0 &&
+         app->CurrentMenu(player) != (tMenu *)0x0;
+}
+
 extern "C" {
 void ___7tScreen(void *);
 void ___31tDialogMessageStringWithTimeout(void *thisp) { ___7tScreen(thisp); }
@@ -665,20 +674,15 @@ void tDialogBackUpOnly::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
 short tDialogInteractive::Run()
 
 {
-  /* SYM-OPTIMIZED: player -- the two SLD entries are inlined formals that
-     share $s1 with loop `i`, not a distinct local allocation. */
-  bool bVar2;
-  __vtbl_ptr_type (*pa_Var3) [10];
-  int iVar5;
-  int iVar6;
+  /* The two SLD `player` entries are inlined formals sharing $s1 with `i`.
+     SYM-INLINE-LOCAL: player = DialogCanProcessCircle */
   tInputKeyType keyVal [2];
   tMenuCommand command;
   
   this->fCurrentlyRunning = 1;
   ((tDialogBase *)this)->Display();
-  pa_Var3 = this->_vf;
-  (*pa_Var3[1][0].pfn)
-            ((char *)this + pa_Var3[1][0].delta);
+  /* SYM-INLINE-THIS: CalculateDimensionsVirtual */
+  this->CalculateDimensionsVirtual();
   this->ReadyToReturnValue = 0;
   while (this->ReadyToReturnValue == 0) {
     u_long debounce = -1;
@@ -692,30 +696,22 @@ short tDialogInteractive::Run()
         keyVal[i] = kInput_KeyType_AlreadyProcessed;
       }
       if (keyVal[i] == kInput_KeyType_Circle) {
-        bVar2 = false;
-        if ((FEApp->helpPopup).currentlyOn == 0) {
-          bVar2 = FEApp->fCurrentMenu[i] != (tInsideBoxMenu *)0x0;
-        }
-        if (bVar2) {
-          iVar6 = (int)FEApp->fCurrentMenu[i];
-          iVar5 = *(int *)(iVar6 + 0x68);
-          (**(int (**)(...))(iVar5 + 0x1c))
-              (iVar6 + *(short *)(iVar5 + 0x18),(tPlayer)i,&keyVal[i],&command);
+        if (DialogCanProcessCircle(FEApp,(tPlayer)i)) {
+          FEApp->CurrentMenu((tPlayer)i)->ProcessInputVirtual(
+              (tPlayer)i,keyVal[i],command);
           keyVal[i] = kInput_KeyType_AlreadyProcessed;
         }
       }
       if (keyVal[i] != kInput_KeyType_AlreadyProcessed) {
-        tDialogBase *helpPopup = (tDialogBase *)&FEApp->helpPopup;
-        if (helpPopup->currentlyOn != 0) {
-          helpPopup->Hide();
+        /* SYM-INLINE-THIS: IsVisible */
+        if (((tDialogBase *)&FEApp->helpPopup)->IsVisible()) {
+          ((tDialogBase *)&FEApp->helpPopup)->Hide();
           keyVal[i] = kInput_KeyType_AlreadyProcessed;
         }
       }
       if (keyVal[i] != kInput_KeyType_NoKey) {
-        pa_Var3 = this->_vf;
-        (*(*pa_Var3)[9].pfn)
-                  ((char *)this + (*pa_Var3)[9].delta,
-                   (tPlayer)i,&keyVal[i],&command);
+        /* SYM-INLINE-THIS: ProcessInputVirtual */
+        this->ProcessInputVirtual((tPlayer)i,keyVal[i],command);
       }
       i++;
     }

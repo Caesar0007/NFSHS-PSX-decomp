@@ -16,16 +16,16 @@ functions are mapped to their demangled C++ names and class scopes.
 - Source definitions still using mangled linkage identifiers: 0
 - Explicit deleting-destructor ABI carriers: 0
 - Explicit cross-TU ownership closures: 0
-- Declaration-clean mapped functions: 724
+- Declaration-clean mapped functions: 725
 - Missing SYM names: 0
-- Extra source-local names: 399
+- Extra source-local names: 394
 - Type-comparison findings: 0
 - Recognized ABI/debug-equivalent type encodings: 245
   (generic-function-pointer=12, promoted-stack-argument=26, reference-as-pointer=207)
 - Function storage-class findings: 0
 - Implicit aggregate special members (source body correctly absent): 2
-- Explicit oracle-receipted carrier mappings: 4
-- Explicit restored inline-local mappings: 18
+- Explicit oracle-receipted carrier mappings: 3
+- Explicit restored inline-local mappings: 20
 - Explicit restored macro-local mappings: 0
 - Explicit linkage-proven ABI parameters omitted from SYM: 16
 - Explicit source-only codegen carriers: 306
@@ -57,19 +57,15 @@ functions are mapped to their demangled C++ names and class scopes.
 
 - Extra source locals: `chk`, `fePlayer`, `nc`, `newSel`, `prevSlot`, `slot`, `slot31`
 
-### `CalculateDimensions__11tDialogHelp` (0x80018b90, fedialog.cpp:283, map=exact)
+### `CalculateDimensions__11tDialogHelp` (0x80018b90, fedialog.cpp:292, map=exact)
 
 - Extra source locals: `currentTicks`, `openHeight`, `scanMenu`, `shape3`
 
-### `Draw__11tDialogHelp` (0x8001912c, fedialog.cpp:450, map=exact)
+### `Draw__11tDialogHelp` (0x8001912c, fedialog.cpp:459, map=exact)
 
 - Extra source locals: `bufferPtr`, `firstTick`, `loadedTicks`
 
-### `Run__18tDialogInteractive` (0x800197e8, fedialog.cpp:665, map=exact)
-
-- Extra source locals: `bVar2`, `helpPopup`, `iVar5`, `iVar6`, `pa_Var3`
-
-### `Draw__12tDialogYesNo` (0x80019b44, fedialog.cpp:844, map=exact)
+### `Draw__12tDialogYesNo` (0x80019b44, fedialog.cpp:840, map=exact)
 
 - Extra source locals: `idx`, `pa_Var3`, `ptVar8`, `rgbBase`, `sMenuText`, `sVar1`, `sVar2`, `textBase`
 
@@ -271,7 +267,6 @@ functions are mapped to their demangled C++ names and class scopes.
 - `_._11tAllScreens` (0x8002bf0c, `front.cpp`): implicit `tAllScreens` destructor; emitted from the aggregate member graph at the recorded declaration line, so an explicit source body would be incorrect.
 ## Explicit SYM carrier/optimization mappings
 
-- `Run__18tDialogInteractive`: `player`
 - `FECheat_HandleActivation__F10tCheatCode`: `num`
 - `SetupCurrCredit__14tCreditManager`: `lasttick`
 - `DrawBackground__25tScreenCarSelectTwoPlayer`: `carInfo`
@@ -281,6 +276,7 @@ functions are mapped to their demangled C++ names and class scopes.
 - `DrawHelpIcons__14tFEApplication`: `this` from `HasOptionsMenu`
 - `CalculateDimensions__11tDialogHelp`: `this` from `HasFlag`
 - `Draw__11tDialogHelp`: `this` from `CalculateDimensionsVirtual`
+- `Run__18tDialogInteractive`: `player` from `DialogCanProcessCircle`, `this` from `ProcessInputVirtual`
 - `FECheat_ActivateCheat__FPc`: `this` from `SetString`
 - `ProcessInput__16tScreenCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand`: `this` from `SetTextDescription`
 - `DrawBackground__16tScreenCarSelect`: `this` from `GetPlayer`

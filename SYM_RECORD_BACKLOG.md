@@ -3448,6 +3448,75 @@ calls with zero defects.  The call-target audit retains exactly the two
 pre-existing swapped `Sim_MainGameLoop` sites, the TU-order audit reports zero
 inversions, and the vtable indexing audit passes 930 files.
 
+### P98 — `GenericMenuSaveGame` register-role and inline-scope restoration (`2026-08-26`)
+
+Reliable SYM names the save result `successful` in `$s0` and the temporary
+initialization flag `uninitafter` in `$s2`.  The prior source used `successful`
+for the flag, introduced decompiler local `ret` for the result, and left the
+real `uninitafter` declaration unused.  Source now assigns `successful =
+SaveGame(0)`, uses `uninitafter` only to pair temporary initialization with
+`DeInit_Memcard`, and returns `successful`; the retail names, roles, and
+allocation now agree.
+
+SYM also records two nested `tScreenMemcard *this` scopes and one nested
+`tDialogMessageString *this` scope.  The message stores now call inferred
+header-inline `SetMessage` twice and the dialog string store calls the existing
+inline `SetString`.  This removes unused `dlgThis` and transient `pcVar4` while
+validating all three receivers.  Optimized SYM does not retain the private
+screen helper identifier, so `SetMessage` is explicitly descriptive rather
+than claimed token-exact.
+
+Two non-unique identities remain measured and explicit.  `noInput` holds the
+dialog receiver across `TextSys_Word` while Display deliberately uses a fresh
+`FEApp` dereference; the W57-A1 direct form was the allocation/scheduling
+regression that this anchor fixed.  `app` is required by the exit-in-the-middle
+wait loop so its last-loaded value feeds the post-loop Redraw; direct global
+spelling rotates the exit test and adds a bottom re-test.
+
+The reconstructed function remains exact PASS at 71/71 instructions with an
+instruction-identical `-g` twin.  The refreshed strict frontend/common audit is
+stored in
+[`frontend_common_strict_p203_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p203_20260826.md).
+After incorporating the independent exact-PASS `MenuExtended_SellCar` and
+`MenuExtended_GoToTwoPlayerSingleRace` restorations already on `origin/main`,
+the combined ledger reports 738 declaration-clean mapped functions, 311
+generic extra source-local names, 41 validated inline mappings, and 327
+explicit codegen carriers.  This function's own contribution is one
+declaration-clean closure, five removed generic names, three validated
+receivers, and two measured carriers.  Missing names, type findings, storage
+findings, global findings, and mapping reviews remain zero.
+
+### P99 — combined-tree `DisplayMessage` ownership closure (`2026-08-26`)
+
+Rebasing P98 over the independently landed `MenuExtended_SellCar` restoration
+exposed a real shared-header integration defect.  Its first form added global
+`char *TextSys_Word(int)` solely so inline `tFEApplication::DisplayMessage`
+could call it.  That signature is canonical in SYM, but legacy `femenu.cpp` and
+`front.cpp` deliberately include old `int TextSys_Word(int)` TU declarations;
+the full build rejected both TUs and then misleadingly linked while reporting
+them skipped.
+
+The global declaration is removed.  `tFEApplication` retains only the member
+declaration in the shared type header, while the ordinary inline member body is
+defined in `femenudefs.cpp`, whose own extern surface already has the canonical
+text signature.  This keeps the source-level helper and retail allocation
+without exporting an unrelated declaration to every frontend TU.
+`MenuExtended_SellCar` remains exact PASS at 86/86 instructions,
+`GenericMenuSaveGame` remains PASS at 71/71, and sampled functions in both
+previously rejected TUs remain PASS.  Its two reliable nested receivers are now
+explicitly validated as the `SetString` and `DisplayMessage` expansions; these
+account for the combined ledger's increase from 39 to 41 inline mappings.
+The subsequently incorporated two-player transition is also PASS at 69/69,
+raising the complete `femenudefs.cpp` gate to 60/66 PASS.
+
+The corrected combined-tree full build compiles every translation unit with
+zero skips and reproduces the standing executable hash.  Both relink lanes are
+GREEN with zero real duplicates, hidden phantoms, or relocation-referenced
+unresolved symbols; the undefined-call audit scans 15,781 calls with zero
+defects.  The call-target audit retains exactly the two pre-existing swapped
+`Sim_MainGameLoop` sites, the TU-order audit reports zero inversions, and the
+vtable indexing audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

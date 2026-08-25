@@ -5793,6 +5793,12 @@ struct tScreenMemcard : public tScreen {   /* 1444 bytes */
     int                fScreenFadeReadyTick;   /* +0x598 */
     short              player;   /* +0x59C */
     bool               fGetNewIcons;   /* +0x5A0 */
+    /* FEMENUDEFS.CPP preserves two inlined tScreenMemcard receivers for the
+       message stores, but optimized SYM does not retain the private helper
+       identifier. */
+    inline void SetMessage(int newMessage) {
+        message = newMessage;
+    }
     /* --- reconstructed member fns (ScreenMemcard.obj; non-virtual, ABI-neutral) --- */
     void GetShapeInfo(short &numPermShapes, short &numSwapShapes, char **permFileName, char **swapFileName);
     void DrawIcon(shapetbl *icon, int x, int y, int destwidth, int destheight, short fFade);

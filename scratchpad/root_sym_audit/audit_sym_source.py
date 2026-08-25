@@ -1141,9 +1141,8 @@ def documented_inline_locals(
     """
     path = target / src.path
     try:
-        body = path.read_text(encoding="utf-8", errors="replace").splitlines()[
-            src.line - 1 : src.end
-        ]
+        source_text = path.read_text(encoding="utf-8", errors="replace")
+        body = source_text.splitlines()[src.line - 1 : src.end]
     except OSError:
         return [], {}
     body_text = "\n".join(body)
@@ -1235,7 +1234,7 @@ def documented_inline_locals(
         )
         defined = re.search(
             rf"\b{re.escape(helper_name)}\s*\([^;{{}}]*\)\s*(?:const\s*)?{{",
-            type_text,
+            type_text + "\n" + source_text,
         )
         if call_count >= occurrence and defined:
             # Keep one receipt per expansion.  A caller can inline two member

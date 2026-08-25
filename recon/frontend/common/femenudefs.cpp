@@ -748,29 +748,30 @@ bool GenericMenuSaveGame(int showdialog)
 
 {
   bool successful;
-  char *pcVar4;
-  bool ret;
-  tScreenMemcard *dlgThis;
   bool uninitafter;   /* SYM: REG BOOL uninitafter */
 
+  /* SYM-CODEGEN-CARRIER: app -- the exit-in-the-middle loop must reuse its
+     last FEApp value for the post-loop Redraw; direct global spelling rotates
+     the exit test and adds a bottom re-test. */
   tFEApplication *app;
 
-  /* NEAR-MISS 58 diffs (was 69): literal FEApp de-ref (dropped the value-cache) + `^1` fFullyOpen
-     loop idiom brought insn count to 69 vs oracle 71 and the call/branch structure into line.
-     Residual wall = gcc-2.7.2 does NOT CSE %hi(FEApp) into a callee-saved reg the way the oracle
-     does (oracle holds %hi(FEApp) in s1 across all 5 FEApp loads + frees s0 to be reused as
-     &FEApp->NoInput and s2 for `successful`); our build self-temps `lui a0;lw a0` per access -> 2
-     saved regs not 3, frame-offset shift, successful in s1 not s2. Same %hi reload tie-break as
-     GenericMenuLoadGame (3.15) -- not source-reachable. The `app` cache reuses one saved reg in
-     the Display block (58 vs the pure-literal 59). */
-  screenMemcard->message = 0x27e;
+  /* SYM restoration 2026-08-26, PASS 71/71: reliable SYM names the SaveGame
+     result `successful` in s0 and the temporary initialization flag
+     `uninitafter` in s2.  The old source had those roles reversed, carried a
+     decompiler `ret`, and left the real SYM local unused.  The two SetMessage
+     calls restore the nested tScreenMemcard receivers, and SetString restores
+     the nested tDialogMessageString receiver. */
+  /* SYM-INLINE-THIS: SetMessage */
+  screenMemcard->SetMessage(0x27e);
   FEApp->Redraw();
-  successful = false;
+  uninitafter = false;
   if ((MEMCARD_INITIALIZED == 0) || (showdialog != 0)) {
+    /* SYM-CODEGEN-CARRIER: noInput -- retail forms and holds this receiver in
+       s0 across TextSys_Word while Display uses a fresh FEApp dereference. */
     tDialogNoInputMessage *noInput = &FEApp->NoInputMemCardDialog;
 
-    pcVar4 = TextSys_Word(0x282);
-    noInput->string = pcVar4;
+    /* SYM-INLINE-THIS: SetString */
+    noInput->SetString(TextSys_Word(0x282));
     ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Display();
     while (1) {
       app = FEApp;
@@ -779,17 +780,18 @@ bool GenericMenuSaveGame(int showdialog)
     }
     app->Redraw();
     if (MEMCARD_INITIALIZED == 0) {
-      successful = true;
+      uninitafter = true;
       Init_Memcard(true,0);
     }
   }
-  ret = SaveGame(0);
-  screenMemcard->message = -1;
-  if (successful) {
+  successful = SaveGame(0);
+  /* SYM-INLINE-THIS: SetMessage */
+  screenMemcard->SetMessage(-1);
+  if (uninitafter) {
     DeInit_Memcard();
   }
   ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();
-  return ret;
+  return successful;
 }
 
 
@@ -1489,6 +1491,7 @@ void MenuExtended_SellCar(tMenuCommand &command)
       (money >= carManager.CheapestCarStockPrice())) {
     tDialogYesNo popUp;
 
+    /* SYM-INLINE-THIS: SetString */
     popUp.SetString(TextSys_Word(0xa5));
     popUp.SetChoices(0x321,0x322,0);
     if (popUp.Run() != 0) {
@@ -1500,6 +1503,7 @@ void MenuExtended_SellCar(tMenuCommand &command)
     }
   }
   else {
+    /* SYM-INLINE-THIS: DisplayMessage */
     FEApp->DisplayMessage(0xa9);
   }
   return;

@@ -541,72 +541,42 @@ void tMenuItemOptionsTwoItemChoice::TransitionOn()
    the jalr delay-slot filler); 59->37 the DrawShapeExtended flag as `selected ? 0 : 1`
    (see OptionsLeftRightChoice) -- note `iVar8 ? 0 : 1` does NOT work, the int copy
    canonicalizes back to a setcc; 37->21 dropped the `int iVar8 = selected` copy;
-   21->0 the clamp as a flat nested if/else-if reading the FIELD at each test (the
-   Ghidra comma/&& form materializes a real boolean; a short local lets cse remat the
-   value in-register instead of retail's `lh`+`lhu` reload pair). */
+   21->0 the EA MIN/MAX clamp expansion reading the FIELD at each macro occurrence
+   (the Ghidra comma/&& form materializes a real boolean; a short source local lets
+   cse remat the value in-register instead of retail's `lh`+`lhu` reload pair). */
 
 void tMenuItemOptionsTwoItemChoice::Draw(int x,int y,bool selected)
 
 {
   tTexture_ShapeInfo *left;
-  char cVar2;
-  short sVar3;
-  tListIterator *ptVar4;
   int Col;
-  char *pcVar5;
-  short sVar6;
-  __vtbl_ptr_type (*pa_Var7) [6];
   RECT r;
   tDrawShapeExtended drawFlags;
   int ColTextOn;
   int ColTextOff;
   
-  ptVar4 = this->fData;
-  pa_Var7 = ptVar4->_vf;
   left = &gHelpShapes[0x29];
-  cVar2 = (*(*pa_Var7)[2].pfn)((char *)ptVar4 + (int)(*pa_Var7)[2].delta,0xffffffff);
-  if (cVar2 != '\0') {
+  if ((u_char)(*(*this->fData->_vf)[2].pfn)
+      ((char *)this->fData + (int)(*this->fData->_vf)[2].delta,0xffffffff) != 0) {
     this->fOnOffFade = this->fOnOffFade + 0x40;
   }
   else {
     this->fOnOffFade = this->fOnOffFade + -0x40;
   }
-  /* MATCH (W57-A5): the clamp re-reads the FIELD (oracle `lh`+`lhu` pair) -- routing the
-     stepped value through a short local instead lets cse remat it in-register (sll/sra). */
-  /* MATCH/CFG (w65-a1, 04Q class): retail's `blez` for the <1 arm jumps to the
-     SHARED negative-clamp block (branch word 36: ours +6 vs retail +4), i.e. the
-     low arm and the in-range arm run the SAME `sVar3 = fOnOffFade; if (< 0)
-     sVar3 = 0;` code -- which is value-identical to a plain `sVar3 = 0` for
-     every v <= 0.  Falsified (both re-gated): folding the two guards into
-     `v < 1 || v < 0x80` (and the &&-mirror) loses a branch entirely, 160 insns;
-     physically DUPLICATING the arm body is count-exact 161 and also routes
-     right, but costs 12 coloring diffs -- only the shared block matches. */
-  if (this->fOnOffFade < 1) {
-    goto fme_clampLow;
-  }
-  else if (this->fOnOffFade < 0x80) {
-fme_clampLow:
-    sVar3 = this->fOnOffFade;
-    if (this->fOnOffFade < 0) {
-      sVar3 = 0;
-    }
-  }
-  else {
-    sVar3 = 0x80;
-  }
-  this->fOnOffFade = sVar3;
+  this->fOnOffFade = MIN(0x80,MAX(this->fOnOffFade,0));
   Col = CalcTextFadeSelToHi(textType_Options,this->fSelFade,0);
   CalcOnOffFade(textType_Options,this->fOnOffFade,
              this->fSelFade,0,ColTextOn,
              ColTextOff);   /* W58-A1: decl is int& (was `(...)`) -- same $a4/$a5 addresses */
-  pcVar5 = TextSys_Word(this->fTextDescription);
-  sVar6 = (short)((u_int)((y + 3) * 0x10000) >> 0x10);
-  FETextRender_FullTextRGB(pcVar5,(short)((u_int)((x + 0x94) * 0x10000) >> 0x10),sVar6,Col,'\0',1);
-  pcVar5 = TextSys_Word((int)*(this->fData)->fSelectionList);
-  FETextRender_FullTextRGB(pcVar5,(short)((u_int)((x + 0xb0) * 0x10000) >> 0x10),sVar6,ColTextOff,'\0',0);
-  pcVar5 = TextSys_Word((int)(this->fData)->fSelectionList[1]);
-  FETextRender_FullTextRGB(pcVar5,(short)(((x - (u_int)(u_short)left->width) + 0x126) * 0x10000 >> 0x10),
-             sVar6,ColTextOn,'\0',1);
+  FETextRender_FullTextRGB(TextSys_Word(this->fTextDescription),
+             (short)((u_int)((x + 0x94) * 0x10000) >> 0x10),
+             (short)(y + 3),Col,'\0',1);
+  FETextRender_FullTextRGB(TextSys_Word((int)*(this->fData)->fSelectionList),
+             (short)((u_int)((x + 0xb0) * 0x10000) >> 0x10),
+             (short)(y + 3),ColTextOff,'\0',0);
+  FETextRender_FullTextRGB(TextSys_Word((int)(this->fData)->fSelectionList[1]),
+             (short)(((x - (u_int)(u_short)left->width) + 0x126) * 0x10000 >> 0x10),
+             (short)(y + 3),ColTextOn,'\0',1);
   drawFlags.tint[0] =
        CalcFadeVal(0xb54200,0xbebe,
                   (int)this->fSelFade);

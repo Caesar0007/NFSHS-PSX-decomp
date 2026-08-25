@@ -27,6 +27,37 @@ typedef struct {
    (p)->x2 = (x), (p)->y2 = (y) + (h), \
    (p)->x3 = (x) + (w), (p)->y3 = (y) + (h))
 
+/* DrawTV's SYM record has one outer scope and no packet-block locals.  These
+   wrappers restore the canonical PsyQ addPrim tag-link expansion together
+   with the packet-cursor bump.  The optimized expansion needs a transient OT
+   tag value, but it is not a DrawTV source local; moving it into the zero-cost
+   inline boundary removes the seven manual reconstruction aliases while
+   preserving the authoritative 815-instruction allocation.  SYM cannot retain
+   the private wrapper/macro spelling, so the two packet sizes remain explicit. */
+static inline void FETVLinkFT4(u_int *palette,POLY_FT4 *primitive,
+                               u_char **packetPtrSlot,u_int rgbMask)
+{
+  u_int paletteTag;
+
+  *(u_int *)primitive =
+       *(u_int *)primitive & 0xff000000 | *palette & rgbMask;
+  paletteTag = *palette;
+  *packetPtrSlot = (u_char *)primitive + 0x28;
+  *palette = paletteTag & 0xff000000 | (u_int)primitive & rgbMask;
+}
+
+static inline void FETVLinkGT4(u_int *palette,POLY_GT4 *primitive,
+                               u_char **packetPtrSlot,u_int rgbMask)
+{
+  u_int paletteTag;
+
+  *(u_int *)primitive =
+       *(u_int *)primitive & 0xff000000 | *palette & rgbMask;
+  paletteTag = *palette;
+  *packetPtrSlot = (u_char *)primitive + 0x34;
+  *palette = paletteTag & 0xff000000 | (u_int)primitive & rgbMask;
+}
+
 
 /* ---- DrawTVLines  [FETV.CPP:25-77] SLD-VERIFIED ---- */
 
@@ -309,19 +340,18 @@ void DrawTV(tTVConfig &tv)
   }
   if ((tv.flags & 0x10) == 0) {
     if (tv.state != tv_StateOn) {
+      /* SYM-CODEGEN-CARRIER: packetPtrSlot -- spelling the four accesses with
+         Render_gPacketPtr directly measures FAIL 92 (819/815) from this basin;
+         the shared address is required for retail's s7 scratchpad anchor. */
       u_char **packetPtrSlot = (u_char **)0x1f800004;
-      u_int *palette;
-      u_int paletteTag;
+      /* SYM-CODEGEN-CARRIER: rgbMask -- the two zero-instruction references
+         are the measured W63/W71 priority price that assigns 0x00ffffff to s4;
+         inlining the literal rotates the function-long saved-register pair. */
       u_int rgbMask = 0xffffff;
       __asm__("" : : "r"(rgbMask), "r"(rgbMask));
 
       texture = (POLY_FT4 *)*packetPtrSlot;
-      palette = (u_int *)Render_gPalettePtr;
-      *(u_int *)texture =
-           *(u_int *)texture & 0xff000000 | *palette & rgbMask;
-      paletteTag = *palette;
-      *packetPtrSlot = (u_char *)texture + 0x28;
-      *palette = paletteTag & 0xff000000 | (u_int)texture & rgbMask;
+      FETVLinkFT4((u_int *)Render_gPalettePtr,texture,packetPtrSlot,rgbMask);
       *(u_int *)&texture->r0 =
            (0x40 - (bright >> 1)) * 0x10000 |
            (0x40 - (bright >> 1)) * 0x100 |
@@ -347,6 +377,13 @@ void DrawTV(tTVConfig &tv)
       texture->u2 = ((int)noise->shapex - (int)(short)(noise->shapex & 0xffc0)) * 0x10 /
                     (int)noise->depth;
       {
+        /* SYM-CODEGEN-CARRIER: noiseHeight
+           SYM-CODEGEN-CARRIER: noiseShapeY -- direct byte-cast addition or a
+           zero-local inline accessor keeps the count but changes both retail
+           load/register pairs (DrawTV residual 2 -> 10); an inline two-local
+           helper still leaves 6.  The statement-local pair is the measured
+           compiler scheduling carrier for the required height-before-shapey
+           loads and is absent from the function's sole SYM scope. */
         u_char noiseHeight;
         u_char noiseShapeY;
         noiseShapeY = noise->shapey;
@@ -387,14 +424,8 @@ void DrawTV(tTVConfig &tv)
         if (fadeBottom > 0x80) {
           fadeBottom = 0x80;
         }
-        u_int *rpal = (u_int *)Render_gPalettePtr;
-        u_int rtag;
         reflection = (POLY_GT4 *)*packetPtrSlot;
-        *(u_int *)reflection =
-             *(u_int *)reflection & 0xff000000 | *rpal & rgbMask;
-        rtag = *rpal;
-        *packetPtrSlot = (u_char *)reflection + 0x34;
-        *rpal = rtag & 0xff000000 | (u_int)reflection & rgbMask;
+        FETVLinkGT4((u_int *)Render_gPalettePtr,reflection,packetPtrSlot,rgbMask);
         *(u_int *)&reflection->r0 = *(u_int *)&reflection->r1 =
              (((0x80 - bright) * (0x80 - fadeTop) / 0x80) << 0x10) |
              (((0x80 - bright) * (0x80 - fadeTop) / 0x80) << 8) |
@@ -438,17 +469,11 @@ void DrawTV(tTVConfig &tv)
     }
     if (tv.state != tv_StateOff) {
       u_char **packetPtrSlot = (u_char **)0x1f800004;
-      u_int paletteTag;
       u_int rgbMask = 0xffffff;
       __asm__("" : : "r"(rgbMask), "r"(rgbMask));
 
-      u_int *palette = (u_int *)Render_gPalettePtr;
-      u_int tagMask = 0xff000000;
       texture = (POLY_FT4 *)*packetPtrSlot;
-      *(u_int *)texture = *(u_int *)texture & tagMask | *palette & rgbMask;
-      paletteTag = *palette;
-      *packetPtrSlot = (u_char *)texture + 0x28;
-      *palette = paletteTag & tagMask | (u_int)texture & rgbMask;
+      FETVLinkFT4((u_int *)Render_gPalettePtr,texture,packetPtrSlot,rgbMask);
       *(u_int *)&texture->r0 = tint;
       SetPolyFT4(texture);
       SetSemiTrans(texture,0);
@@ -488,13 +513,9 @@ void DrawTV(tTVConfig &tv)
         if (fadeBottom > 0x80) {
           fadeBottom = 0x80;
         }
-        u_int *palette2 = (u_int *)Render_gPalettePtr;
-        u_int paletteTag2;
         texture = (POLY_FT4 *)*packetPtrSlot;
-        *(u_int *)texture = *(u_int *)texture & tagMask | *palette2 & rgbMask;
-        paletteTag2 = *palette2;
-        *packetPtrSlot = (u_char *)texture + 0x34;
-        *palette2 = paletteTag2 & tagMask | (u_int)texture & rgbMask;
+        FETVLinkGT4((u_int *)Render_gPalettePtr,(POLY_GT4 *)texture,
+                    packetPtrSlot,rgbMask);
         ((u_char *)texture)[3] = 0xc;
         *(u_int *)&((POLY_GT4 *)texture)->r0 = *(u_int *)&((POLY_GT4 *)texture)->r1 =
              (((tint >> 16 & 0xff) * (0x80 - fadeTop) >> 7) << 16) |

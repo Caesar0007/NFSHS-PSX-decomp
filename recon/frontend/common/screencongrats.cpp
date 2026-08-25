@@ -466,8 +466,12 @@ bool tScreenPinkSlipCongrats::GetCar(tCarInfo &carInfo)
 void tScreenPinkSlipCongrats::CalculatePrizes()
 
 {
-  __vtbl_ptr_type (*vtbl)[10];
+  /* SYM-CODEGEN-CARRIER: player -- SYM omits this source local, but folding
+     the winner-derived value into the two CarIO calls is measured FAIL71
+     (65/68 instructions) and changes the frame/saved-register allocation. */
   int player;
+  /* SYM-CODEGEN-CARRIER: speechId2 -- the documented three-step in-place
+     mutation is required for retail's $v1 lifetime and unmerged arm stores. */
   int speechId2;
   tCarInfo carinfo;
 
@@ -486,11 +490,11 @@ void tScreenPinkSlipCongrats::CalculatePrizes()
   player = 1 - this->fWinner;
   CarIO_CleanUpLicense(player);
   CarIO_CreateLicense((char *)((int)&frontEnd + (1 - player) * 8 + 900),0,player);
-  vtbl = this->_vf;
-  (*vtbl[1][2].pfn)
+  (*(*this->_vf)[12].pfn)
             /* MATCH: explicit int-cast with the BASE first -> oracle `addu $a0,$s3,$a0`
                (the natural `p + delta` form emits the operands the other way round). */
-            ((char *)((int)this->fPermShapes.fFilename + (vtbl[1][2].delta + -0x14)),&carinfo);
+            ((char *)((int)this->fPermShapes.fFilename +
+                      ((*this->_vf)[12].delta + -0x14)),&carinfo);
   /* @0x80048D74: oracle `lb v1,0xD1(sp)` reads fSpeechCarID as SIGNED (matches its use in a real
    * `==-1` compare below); tCarInfo::fSpeechCarID is a shared-header plain `char` (platform default
    * unsigned on this toolchain, hence a stray `lbu` -- cast to `signed char` here, in-TU only).
@@ -513,6 +517,8 @@ void tScreenPinkSlipCongrats::CalculatePrizes()
        `(id2 + 0x13) + fWinner` -> 9-14 diffs).  Falsified at the pre-mutation basin: <<1 vs *2,
        both operand orders, flat 3-term forms, a named product temp, a named speech
        accumulator, void-tail fences in/after the else arm. */
+    /* SYM-CODEGEN-CARRIER: base -- folding this expression reassociates the
+       three-term sum and has been measured at 9-14 instruction diffs. */
     int base = this->fWinner + 0x13;
 
     speechId2 = speechId2 * 2;

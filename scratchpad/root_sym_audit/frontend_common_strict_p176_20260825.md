@@ -16,9 +16,9 @@ functions are mapped to their demangled C++ names and class scopes.
 - Source definitions still using mangled linkage identifiers: 0
 - Explicit deleting-destructor ABI carriers: 0
 - Explicit cross-TU ownership closures: 0
-- Declaration-clean mapped functions: 718
+- Declaration-clean mapped functions: 719
 - Missing SYM names: 0
-- Extra source-local names: 437
+- Extra source-local names: 432
 - Type-comparison findings: 0
 - Recognized ABI/debug-equivalent type encodings: 245
   (generic-function-pointer=12, promoted-stack-argument=26, reference-as-pointer=207)
@@ -28,7 +28,7 @@ functions are mapped to their demangled C++ names and class scopes.
 - Explicit restored inline-local mappings: 16
 - Explicit restored macro-local mappings: 0
 - Explicit linkage-proven ABI parameters omitted from SYM: 16
-- Explicit source-only codegen carriers: 304
+- Explicit source-only codegen carriers: 306
 - Explicit oracle-proven function type overrides: 0
 - Functions needing mapping review: 0
 - SYM object-owned data records in target TUs: 190
@@ -84,10 +84,6 @@ functions are mapped to their demangled C++ names and class scopes.
 ### `Draw__12tDialogYesNo` (0x80019b44, fedialog.cpp:831, map=exact)
 
 - Extra source locals: `idx`, `pa_Var3`, `ptVar8`, `rgbBase`, `sMenuText`, `sVar1`, `sVar2`, `textBase`
-
-### `Draw__20tMenuItemSlidingMenuiib` (0x8001d63c, femenuoptions.cpp:1047, map=exact-signature)
-
-- Extra source locals: `draw`, `drawFlagsPtr`, `drawX`, `drawY`, `right`
 
 ### `DrawTV__FR9tTVConfig` (0x8002234c, fetv.cpp:240, map=exact)
 
@@ -360,6 +356,7 @@ functions are mapped to their demangled C++ names and class scopes.
 - `Draw__14tInsideBoxMenusssss`: `entry10`, `entry6`
 - `UpdateTransition__20tMenuItemSlidingMenub`: `iVar2`
 - `UpdatefOpenHeight__20tMenuItemSlidingMenub`: `closeH`, `cur`, `fade`, `fadeOut`, `lim`, `newFade`, `shrinkH`, `slide`
+- `Draw__20tMenuItemSlidingMenuiib`: `drawX`, `drawY`
 - `UpdatefOpenHeight__25tMenuItemSlidingActivatedb`: `arg1`, `iVar2`, `iVar4`
 - `UpdateTransition__25tMenuItemSlidingActivatedb`: `iVar2`
 - `Draw__31tMenuItemDisplayLeftRightChoiceiib`: `x`, `y`

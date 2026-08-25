@@ -1081,34 +1081,34 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
   if ((this->currMenu != (tInsideBoxMenu *)0x0) || (fPlayList)) {
     tDrawShapeExtended drawFlags;
     int width;
-    int right;
-    int draw;
     int drawX;
     int drawY;
-    tDrawShapeExtended *drawFlagsPtr;
 
-    /* MATCH: right/draw/drawX/drawY/drawFlagsPtr expose the compiler-managed
-       values visible in the retail SSA without changing the SYM source-local
-       contract.  The read-only pointer fence crosses p127's 3->4 ref step so
-       GCC hands &drawFlags/right to $s0/$s1, as recorded by retail. */
+    /* SYM-CODEGEN-CARRIER: drawX
+       SYM-CODEGEN-CARRIER: drawY
+       MATCH: these two merged call arguments expose compiler-managed values
+       visible in retail SSA without changing the SYM source-local contract.
+       Direct drawX spelling is 63 diffs and one instruction short; a ternary
+       drawY spelling is 47 diffs and five instructions long.  The read-only
+       address fence crosses p127's 3->4 ref step so GCC hands &drawFlags and
+       the shared x+width value to $s0/$s1, as recorded by retail.  Former
+       aliases `right`, `draw`, and `drawFlagsPtr` were independently removed
+       with the function remaining PASS. */
     width = fPlayList ? 0xdc : (int)this->fWidth;
     drawFlags.tint[0] = CalcFadeVal(0,0xbebe,(int)this->fSelFade,(int)this->fFadeVal);
-    right = x + width;
     drawY = y + -2;
-    drawX = (right - (int)shape->width) - 0xa;
+    drawX = ((x + width) - (int)shape->width) - 0xa;
     if (fPlayList) {
       drawY = y + -3;
     }
-    draw = 1;
-    drawFlagsPtr = &drawFlags;
-    DrawShapeExtended(0x39,0x18,drawX,drawY,0,draw,drawFlagsPtr);
-    __asm__("" : : "r"(drawFlagsPtr));
+    DrawShapeExtended(0x39,0x18,drawX,drawY,0,1,&drawFlags);
+    __asm__("" : : "r"(&drawFlags));
     drawY = y + 4;
-    drawX = (right - (int)shape->width) - 0xa;
+    drawX = ((x + width) - (int)shape->width) - 0xa;
     if (fPlayList) {
       drawY = y + 3;
     }
-    DrawShapeExtended(0x3a,0x18,drawX,drawY,0,draw,drawFlagsPtr);
+    DrawShapeExtended(0x3a,0x18,drawX,drawY,0,1,&drawFlags);
   }
   if (this->currMenu != (tInsideBoxMenu *)0x0) {
     int xx;

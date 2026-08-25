@@ -1896,30 +1896,29 @@ void MenuExtended_LoadGame(tMenuCommand &command)
 
    [Match 2026-07-05] Branch-polarity flip (oracle emits the else/congrats block as
    fall-through, the if/AskUser block as the branch target -- both nested ifs written
-   inverted vs the natural Ghidra reading) -> byte-match, 32/32 insns. */
+   inverted vs the natural Ghidra reading) -> byte-match, 32/32 insns.
+   [SYM 2026-08-25] Retail declares only `command` and stack `award`; direct
+   predicate use plus branch-local command.nextMenu assignments remove the former
+   iVar1/ptVar2 while preserving exact PASS 32/32 and the exact -g twin. */
 
 void MenuExtended_TierFinished(tMenuCommand &command)
 
 {
-  int iVar1;
-  tMenu *ptVar2;
   tAwardInformation award;
   
   command.type = kMenu_Command_GoToMenuOneWay;
   tournamentManager.GetAwardInformation(award);
   if (award.fCompletedTier != 0) {
-    ptVar2 = (tMenu *)&menuDefs[0]->menuTierCompleteCongrats;
+    command.nextMenu = (tMenu *)&menuDefs[0]->menuTierCompleteCongrats;
   }
   else {
-    iVar1 = AskTheUserToSaveTheGame();
-    if (iVar1 != 0) {
-      ptVar2 = (tMenu*)&menuDefs[0]->menuPostGameSave;
+    if (AskTheUserToSaveTheGame() != 0) {
+      command.nextMenu = (tMenu*)&menuDefs[0]->menuPostGameSave;
     }
     else {
-      ptVar2 = (tMenu*)&menuDefs[0]->menuMain;
+      command.nextMenu = (tMenu*)&menuDefs[0]->menuMain;
     }
   }
-  command.nextMenu = ptVar2;
   return;
 }
 
@@ -2608,29 +2607,25 @@ void MenuExtended_ExitPinkSlipsEarly(tMenuCommand &command)
 
    [ghidra-meta] section: front.text
 
-   [Match 2026-07-05] Three levers: (1) bVar2 as plain int (not byte) so the two
-   byte-field compares emit signed `slt`, matching the oracle -- two same-typed
-   `byte` operands otherwise fold to `sltu`; (2) ptVar1=menuDefs[0] moved into the
-   else/GoToMenuOneWay path only (oracle never touches menuDefs on the win path);
-   (3) physical block-order swap (else-body first, win-body reached via a trailing
-   goto) for branch polarity -- the natural `&&`/nested-if emits the opposite
-   fall-through no matter how the C conditions are phrased. -> byte-match, 27/27. */
+   [SYM/source 2026-08-25] Retail records only `command`. Repeating the promoted
+   track-threshold expression lets GCC CSE it while retaining signed `slt` for
+   both byte-field comparisons. Spelling nextMenu before type loads menuDefs only
+   on the GoToMenuOneWay path and removes ptVar1. The physical block-order swap
+   (else-body first, win-body reached via the trailing goto) preserves retail
+   polarity. This local-free form is exact PASS 27/27 with an exact -g twin. */
 
 void MenuExtended_PinkSlipsContinue(tMenuCommand &command)
 
 {
-  tGlobalMenuDefs *ptVar1;
-  int bVar2;
-
-  bVar2 = ((byte)frontEnd.pinkSlipsNumTracks >> 1) + 1;
-  if ((byte)frontEnd.pinkSlipsWins[0] < bVar2) {
-    if ((byte)frontEnd.pinkSlipsWins[1] < bVar2) {
+  if ((byte)frontEnd.pinkSlipsWins[0] <
+      ((byte)frontEnd.pinkSlipsNumTracks >> 1) + 1) {
+    if ((byte)frontEnd.pinkSlipsWins[1] <
+        ((byte)frontEnd.pinkSlipsNumTracks >> 1) + 1) {
       goto winCase;
     }
   }
-  ptVar1 = menuDefs[0];
+  command.nextMenu = (tMenu *)&menuDefs[0]->menuPinkSlipCongrats;
   command.type = kMenu_Command_GoToMenuOneWay;
-  command.nextMenu = (tMenu *)&ptVar1->menuPinkSlipCongrats;
   return;
 winCase:
   frontEnd.pinkSlipsTrackIndex = frontEnd.pinkSlipsTrackIndex + '\x01';

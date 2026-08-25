@@ -1658,47 +1658,45 @@ static void Front_InitOpponentCars(tFEStream &streamData)
 static void Front_InitMissions(tFEStream &streamData)
 
 {
-  int cVar1;
-  char cVar2;
-  char cVar3;
+  /* SYM: function-scope locals are exactly `i` and `fBestCar`; oldTier and
+     oldMission belong to the nested Hot Pursuit block below. */
   short i;
-  int iVar4;
-  int cVar5;
   tCarModels fBestCar;
-  char oldTier;
-  char oldMission;
   
   streamData.pMission = (tMissionInfo *)0x0;
   streamData.pStages = (tStageInfo *)0x0;
-  cVar5 = '\0';
+  fBestCar = (tCarModels)0;
   if (frontEnd.raceType == RaceType_HotPursuit) {
+    char oldTier;
+    char oldMission;
+
     /* MATCH: a plain short-counter `for` -- retail's zero-trip guard is
-       `slt i,numPlayers` (i's initial 0 shares the register with cVar5's 0), NOT
+       `slt i,numPlayers` (i's initial 0 shares the register with fBestCar's 0), NOT
        the `blez numPlayers` a literal `0 < numPlayers` if-guard produces, and the
        bound is LICM-hoisted because the body has no aliasing store. */
     for (i = 0; i < streamData.numPlayers; i = i + 1) {            /* 1552 */
       if (streamData.playerCars[i].fCarClass != '\a') {               /* 1557 */
         return;                                                          /* 1559 */
       }
-      cVar1 = *(signed char *)&streamData.playerCars[i].fCarID;                        /* 1561 */
-      if (cVar5 < cVar1) {                                              /* 1562 */
-        cVar5 = cVar1;                                                  /* 1563 */
+      if ((int)fBestCar <
+          (int)*(signed char *)&streamData.playerCars[i].fCarID) {       /* 1562 */
+        fBestCar = (tCarModels)*(signed char *)&streamData.playerCars[i].fCarID; /* 1563 */
       }
     }
     /* SLD statements 1567/1568 then 1576/1577: the policeTier/policeMission
        save AND restore both live INSIDE the raceType==1 arm, which is why retail
        holds &frontEnd in a callee-saved reg ($s0) across the three calls instead
        of rematerialising %hi/%lo for the restores. */
-    cVar2 = frontEnd.policeTier;                                        /* 1567 */
-    cVar3 = frontEnd.policeMission;                                     /* 1568 */
-    frontEnd.policeTier = cVar5 + -0x16;                                /* 1569 */
+    oldTier = frontEnd.policeTier;                                      /* 1567 */
+    oldMission = frontEnd.policeMission;                                /* 1568 */
+    frontEnd.policeTier = (signed char)fBestCar + -0x16;                 /* 1569 */
     frontEnd.policeMission = '\0';                                      /* 1570 */
     missionManager.LoadDescription(true);                              /* 1572 */
     missionManager.GetMissionToRace(&streamData.pMission);            /* 1573 */
     missionManager.GetMissionStages((ushort)(byte)frontEnd.policeTier,
                (ushort)(byte)frontEnd.policeMission,&streamData.pStages); /* 1574 */
-    frontEnd.policeTier = cVar2;                                        /* 1576 */
-    frontEnd.policeMission = cVar3;                                     /* 1577 */
+    frontEnd.policeTier = oldTier;                                      /* 1576 */
+    frontEnd.policeMission = oldMission;                                /* 1577 */
   }
   return;
 }

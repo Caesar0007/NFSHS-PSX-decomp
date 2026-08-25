@@ -2126,33 +2126,22 @@ void MenuExtended_FinishedPlayer1GetName(tMenuCommand &command)
 void MenuExtended_FinishedPlayer2GetName(tMenuCommand &command)
 
 {
+  /* SYM-CODEGEN-CARRIER: ptVar1 -- SYM records only `dummyCars` in $s1 and
+     stack `nBestCarIndex`; the two boolean/short call-result temporaries fold
+     away exactly.  Direct `menuDefs[0]->menuPostGameTrackRecords` is FAIL7
+     (41/40), moving the command stores around the address-load delay slot, so
+     this source-only final-menu carrier preserves retail's exact schedule. */
   tGlobalMenuDefs *ptVar1;
-  short sVar2;
-  bool pvVar3;
   Car_tStats *dummyCars;
   short nBestCarIndex;
 
-  /* [SYM check 2026-07-27] SYM ground truth (8c Function start @0x8002DD14) proves `dummyCars`
-     is a REAL `class REG type PTR STRUCT Car_tStats` local, and the function's .mask is
-     $80070000 = s0|s1|s2 (3 saved regs) + ra. Assigning `Cars_gNewCarStatsList` to `dummyCars`
-     ONCE and passing it at each call site matches the SYM's named local -- but verify_asm
-     confirmed it is CODEGEN-NEUTRAL (byte-identical before/after): gcc-2.8.0 already CSEs the
-     bare global's %hi across all 4 call sites on its own, so the explicit local changes nothing
-     observable. Kept anyway for SYM fidelity (harmless, more faithful to ground truth). Residual
-     (37 diffs) = oracle allocates a genuine 3RD saved reg (s0) to cache %hi(Cars_gNumRaceCars)
-     across all 4 reads (`lui s0,%hi(...)` once, then `lh a1,%lo(...)(s0)` per site); our build
-     allocates only 2 saved regs (command in s1, &Cars_gNewCarStatsList in s0) and rematerializes
-     `lui a1,%hi(Cars_gNumRaceCars); lh a1,...` FRESH at all 4 sites instead. Pure allocator
-     register-BUDGET tie-break (gcc-2.8.0's global.c priority didn't rank Cars_gNumRaceCars's
-     address high enough to earn a 3rd callee-saved reg here); not source-reachable without a
-     pin (forbidden). Accept as floor. */
+  /* SYM: `dummyCars` is the real REG Car_tStats pointer in $s1 and is reused
+     across all four stat-tool calls; `nBestCarIndex` is its recorded AUTO. */
   dummyCars = Cars_gNewCarStatsList;
-  pvVar3 = StatChk_IsRecordLapTime(dummyCars,(short)Cars_gNumRaceCars,&nBestCarIndex);
-  if (pvVar3) {
+  if (StatChk_IsRecordLapTime(dummyCars,(short)Cars_gNumRaceCars,&nBestCarIndex)) {
     StatChk_SaveRecordLapTime(dummyCars,(short)Cars_gNumRaceCars,nBestCarIndex);
   }
-  sVar2 = StatChk_IsTopTime(dummyCars,(short)Cars_gNumRaceCars);
-  if (sVar2 != 0) {
+  if (StatChk_IsTopTime(dummyCars,(short)Cars_gNumRaceCars) != 0) {
     StatChk_SaveTopTime(dummyCars,(short)Cars_gNumRaceCars);
   }
   ptVar1 = menuDefs[0];

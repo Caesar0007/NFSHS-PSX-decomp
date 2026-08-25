@@ -81,12 +81,16 @@ int CalcTextFadeSelToHi(tMenuTextType type,short fSelFade,short fFade)
 /* ---- CalcOnOffFade  (fefades.cpp:65, code lines 65-79) ---- */
 /* SYM 8c: the named REG locals are ColSelOn($12=$s2) / ColSelOff($16=$s6) /
    ColUnSelOn+ColUnSelOff (both $10=$s0) plus the two int& REGPARM->REG copies
-   ($17, $1e); baseA/baseB/baseC below are compiler temps in retail (the three
-   kRGBVals lookups are hoisted by CSE ahead of the first call).  SLD statements:
+   ($17, $1e).  SLD statements:
    72 / 73 / 75 / 76 / 78 / 79 -- the order kept here.
    MATCH 2026-08-13 (12->2): the three SYM inline-block pairs were accessor calls.
    The sole residual is scheduling of `%lo(kRGBVals)` by six instructions; register
-   allocation, instruction count, row bases, displacements, and calls are exact. */
+   allocation, instruction count, row bases, displacements, and calls are exact.
+   NFS4 SYM cannot recover names for the three values that retail CSE-hoists
+   before the first call.  Removing them with inline-accessor expressions is
+   FAIL 135 (103/88); raw expressions are FAIL 93 (97/88), and raw expressions
+   with these value webs are FAIL 14 (86/88).  The retained form is FAIL 2
+   (88/88), with only the documented address-low scheduling displacement. */
 void CalcOnOffFade(tMenuTextType type,short fOnOffFade,short fSelFade,short fFade,int &OnColor,
                int &OffColor)
 
@@ -95,6 +99,10 @@ void CalcOnOffFade(tMenuTextType type,short fOnOffFade,short fSelFade,short fFad
   int ColSelOff;
   int ColUnSelOn;
   int ColUnSelOff;
+  /* SYM-CODEGEN-CARRIER: baseA
+     SYM-CODEGEN-CARRIER: baseB
+     SYM-CODEGEN-CARRIER: baseC -- measured source-only value webs; see the
+     function receipt above. */
   int baseA;
   int baseB;
   int baseC;

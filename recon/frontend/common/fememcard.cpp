@@ -562,7 +562,16 @@ bool SaveGame(short player)
    player value before the loop.  `nomessage = 0` precedes the zero-valued locals so
    sched1 splits its %hi setup across both dialog predecessors exactly as in retail.
    The final empty scheduling fence keeps the last error-message assignment out of a
-   jump delay slot, leaving `finished = true` there instead. */
+   jump delay slot, leaving `finished = true` there instead.
+
+   SYM restoration 2026-08-26: the two nested line-111/188 `this` records are
+   now represented by the existing header-inline SetString member rather than
+   raw field stores.  Retail computes each receiver before TextSys_Word and a
+   separate Display receiver before the inline store.  Direct fluent and
+   direct two-statement spellings score FAIL 73 (373/374) and FAIL 69
+   (375/374); the four marked source-only carriers preserve retail's exact
+   ordering and allocation.  Their original private spellings are not
+   recoverable from SYM or the optimized binary. */
 
 short LoadGame(short player,bool PinkSlips,bool WithDialogs)
 
@@ -576,6 +585,8 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
   int memCardResult;
   int count;
   int returnmessage;
+  /* SYM-CODEGEN-CARRIER: cardshifted -- retail keeps the promoted card value
+     in s5 while SYM exposes only the source `cardNum` short in s3. */
   int cardshifted;                 /* s5 = (player*4|1) << 16; every card arg = >>16 */
   tMemCardData memCardData;
   char memorycardbuffer [256];
@@ -663,11 +674,17 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
           if (nomessage_arr[0] == 0) {
             Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
             Hide((tDialogBase *)&FEApp[0]->MemCardDialog);
-            /* dlgmsg held across the TextSys call (inlined-this block, s0) */
+            /* SYM-CODEGEN-CARRIER: dlgmsg -- retail computes and holds the
+               inlined receiver across TextSys_Word in s0. */
             tDialogMessageString *dlgmsg = &FEApp[0]->MemCardDialog;
+            /* SYM-CODEGEN-CARRIER: dialogText -- preserves the call result
+               while the independent Display receiver is formed. */
             char *dialogText = TextSys_Word(player + 0x329);
+            /* SYM-CODEGEN-CARRIER: dialogBase -- forming this before the
+               inline store gives retail's load/store order. */
             tDialogBase *dialogBase = (tDialogBase *)&FEApp[0]->MemCardDialog;
-            dlgmsg->string = dialogText;
+            /* SYM-INLINE-THIS: SetString */
+            dlgmsg->SetString(dialogText);
             Display(dialogBase);
           }
         }
@@ -712,11 +729,12 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
     if (nomessage_arr[0] == 0) {
       Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
       Hide((tDialogBase *)&FEApp[0]->MemCardDialog);
-      /* dlgmsg held across the TextSys call (inlined-this block, s0) */
+      /* The three measured carriers above repeat at this second expansion. */
       tDialogMessageString *dlgmsg = &FEApp[0]->MemCardDialog;
       char *dialogText = TextSys_Word(returnmessage + player);
       tDialogBase *dialogBase = (tDialogBase *)&FEApp[0]->MemCardDialog;
-      dlgmsg->string = dialogText;
+      /* SYM-INLINE-THIS: SetString */
+      dlgmsg->SetString(dialogText);
       Display(dialogBase);
       while (true) {
         if (((FEApp[0]->MemCardDialog).fFullyOpen ^ 1) == 0) break;

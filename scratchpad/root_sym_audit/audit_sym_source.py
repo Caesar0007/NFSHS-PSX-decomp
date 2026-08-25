@@ -1224,17 +1224,25 @@ def documented_inline_locals(
         type_text = type_header.read_text(encoding="utf-8", errors="replace")
     except OSError:
         type_text = ""
+    seen_helpers: collections.Counter[str] = collections.Counter()
     for helper_name in inline_this:
-        invoked = re.search(rf"(?:->|\.)\s*{re.escape(helper_name)}\s*\(", body_text)
+        seen_helpers[helper_name] += 1
+        occurrence = seen_helpers[helper_name]
+        call_count = len(
+            re.findall(
+                rf"(?:->|\.)\s*{re.escape(helper_name)}\s*\(", body_text
+            )
+        )
         defined = re.search(
             rf"\b{re.escape(helper_name)}\s*\([^;{{}}]*\)\s*(?:const\s*)?{{",
             type_text,
         )
-        if invoked and defined:
+        if call_count >= occurrence and defined:
             # Keep one receipt per expansion.  A caller can inline two member
-            # helpers and retail then legitimately records two distinct
-            # `this` rows; a plain dict key used to overwrite the first one.
-            owners[f"this@{helper_name}"] = helper_name
+            # helpers, or expand the same helper twice, and retail then
+            # legitimately records distinct `this` rows.  A helper-only dict
+            # key used to overwrite repeated same-helper expansions.
+            owners[f"this@{helper_name}#{occurrence}"] = helper_name
     return resolved, owners
 
 

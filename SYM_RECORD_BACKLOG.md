@@ -3377,6 +3377,44 @@ audit reports zero defects, and the call-target audit retains exactly the two
 pre-existing swapped `Sim_MainGameLoop` sites.  The TU-order audit reports zero
 inversions, and the vtable indexing audit passes 930 files.
 
+### P96 — `LoadGame` repeated inline-message scopes (`2026-08-26`)
+
+Retail `LoadGame` records its function locals and registers exactly, then adds
+two nested line-111/188 scopes at 0x80035198 and 0x80035294.  Each nested scope
+contains only `tDialogMessageString *this` in `$s0`.  Both raw `string` field
+stores are now restored as calls to the already-established header-inline
+`SetString` member, so the source contains two validated inline receiver
+expansions rather than four unexplained decompiler-style caller locals.
+
+The retail order is stricter than a direct member spelling: it forms and holds
+the message-dialog receiver across `TextSys_Word`, then forms the independent
+Display receiver before the inline store.  A fluent direct form is FAIL 73 at
+373/374 instructions, and a direct two-statement form is FAIL 69 at 375/374.
+The exact form therefore retains `dlgmsg`, `dialogText`, and `dialogBase` as
+explicit measured codegen carriers.  The promoted `cardshifted` value is also
+explicit: IDA confirms it in `$s5`, while reliable SYM exposes only source
+`short cardNum` in `$s3`.  Neither evidence source uniquely preserves the
+private spelling of these four identities.
+
+The restored member-call form remains exact PASS at 374/374 instructions with
+an instruction-identical `-g` twin, and the complete `fememcard.cpp` gate is
+18/18 PASS.  The refreshed strict frontend/common audit is stored in
+[`frontend_common_strict_p201_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p201_20260826.md).
+It advances declaration-clean mapped functions from 734 to 735, reduces generic
+extra source-local names from 337 to 333, validates both same-helper inline
+receivers, raises explicit inline mappings from 32 to 35, and classifies 318
+explicit codegen carriers.  Missing names, type findings, storage findings,
+global findings, and mapping reviews remain zero.  The audit's inline-receipt
+keys now preserve repeated expansions of the same helper instead of collapsing
+them into one row.
+
+A fresh full build compiles and links every translation unit.  Both relink
+lanes are GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; the undefined-call audit scans 15,781
+calls with zero defects.  The call-target audit retains exactly the two
+pre-existing swapped `Sim_MainGameLoop` sites, the TU-order audit reports zero
+inversions, and the vtable indexing audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

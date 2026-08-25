@@ -1873,52 +1873,36 @@ void GenericMenuLoadGame(int player)
    
    [ghidra-meta] section: front.text
    
-   [Sig-callgraph 2026-05-08] PRIOR-SESSION ARG LOSS: 0->1. Mangled-name authority + vtable-dispatch
-   context (body/caller-prep masked by indirect-call pattern). Generic param names; refine later.
-   
-   [Sig-fix 2026-05-11 PCSX-runtime R4] Was 'int MenuExtended_LoadGame__FR12tMenuCommand(int arg0)'.Fixed via m2c body (arg0 = struct deref) + PCSX runtime (a0 = consistent ptr) + sibling pattern.
+   [SYM restoration 2026-08-26, PASS 38/38] The `FR12tMenuCommand` linkage proves
+   the callback's reference parameter, while the missing REGPARM record proves
+   that its source spelling was unnamed.  The early-return guard keeps the sole
+   SYM AUTO (`tDialogYesNo AreYouSure`, 168 bytes at sp+16) in function scope but
+   constructs it only on the enabled path.  `SetChoices` reconstructs the SYM's
+   inlined tDialogYesNo receiver in s0; the original private helper identifier is
+   not recoverable.  Consuming Run directly removes the decompiler-invented result
+   local.  The anonymous eight-byte frame receipt is documented at its statement.
+   Focused verify_asm and the independent -g/SLD twin are both exact. */
 
-   [NEAR-MISS 2026-07-05, was 33 diffs, then 18] Real fix: `AreYouSure`/`sVar1`/`dlgThis` moved
-   from function scope INTO the `if` block. A C++ local object's non-trivial ctor runs
-   unconditionally at its declaration's scope entry -- with `AreYouSure` at function scope its
-   ctor call was hoisted BEFORE the fFlags guard test entirely (oracle's ctor call is
-   genuinely conditional, reached only in the fFlags==0 fall-through). Block-scoping it
-   restores the right control flow; `dlgThis` (unused before) now carries the &AreYouSure
-   hoist matching the ExitPinkSlipsEarly/EnterUserName fix family.
-
-   [BUG FIX 2026-07-27, 18->13 diffs] Found a genuine DOUBLE-DESTRUCTION bug: the block also had
-   a manual `tScreen_dtor((tScreen*)&AreYouSure,2);` call at the end -- but `AreYouSure` is type
-   tDialogYesNo, which HAS a real user-declared `tDialogYesNo::~tDialogYesNo()` (fedialog.cpp,
-   empty body -> forwards to the base tScreen dtor). Declaring the local ALREADY auto-invokes
-   that destructor at scope exit (same family as AskTheUserToSaveTheGame's dropped-phantom-ctor
-   fix, and screencarselect.cpp/screentournselect.cpp/screentrophyroom.cpp's "declared base dtor
-   auto-fires, no manual tScreen_dtor" convention) -- our compiled object was literally calling
-   BOTH `___12tDialogYesNo` (auto) AND `tScreen_dtor` (manual, same net effect) back to back.
-   Dropped the manual call; ours now emits exactly ONE dtor call (`___12tDialogYesNo`, vs the
-   oracle's direct `___7tScreen` -- irrelevant to the gate, `jal` targets normalize to `jal T`).
-   [2026-08-03, 13->1] SLD places the 168-byte AreYouSure at sp+16 but starts the save area at
-   sp+192, proving an otherwise invisible 8-byte stack-layout slot.  A volatile 64-bit carrier
-   restores that exact gcc-2.8 frame without emitting instructions.  The sole residual is one
-   redundant `addu a0,s0,zero` scheduled into the zero-result branch delay; the common cleanup
-   already rematerializes the same argument, and source-equivalent branch/cast forms are neutral. */
-
-void MenuExtended_LoadGame(tMenuCommand &command)
+void MenuExtended_LoadGame(tMenuCommand &)
 
 {
-  if (((menuDefs[0]->itemLoadGame).fFlags & 1) == 0) {
-    short sVar1;
-    tDialogYesNo *dlgThis;
-    tDialogYesNo AreYouSure;
-    volatile long long framePadding;
-    dlgThis = &AreYouSure;
-    dlgThis->yesnowords[0] = 0x321;
-    dlgThis->yesnowords[1] = 0x322;
-    dlgThis->fDefault = 0;
-    dlgThis->string = TextSys_Word(0x2c0);
-    sVar1 = ((tDialogInteractive *)dlgThis)->Run();
-    if (sVar1 != 0) {
-      GenericMenuLoadGame((int)screenMemcard->player);
-    }
+  if (((menuDefs[0]->itemLoadGame).fFlags & 1) != 0) {
+    return;
+  }
+  tDialogYesNo AreYouSure;
+  /* SYM-ANONYMOUS-CARRIER: retail reserves eight bytes between the only
+     named AUTO (`AreYouSure`, 168 bytes at sp+16) and the s0/ra save area at
+     sp+192.  IDA independently recovers a 176-byte local region, while SYM
+     records no second caller local.  A discarded temporary of this function's
+     eight-byte ABI type reproduces that compiler-owned slot without creating
+     a false debug-local record.  Omitting it is count-exact FAIL 12 and changes
+     only the frame/save offsets from 200/192/196 to 192/184/188.  The artifacts
+     cannot recover the temporary's original source spelling or exact type. */
+  tMenuCommand();
+  /* SYM-INLINE-THIS: SetChoices */
+  AreYouSure.SetChoices(0x321, 0x322, 0)->string = TextSys_Word(0x2c0);
+  if (AreYouSure.Run() != 0) {
+    GenericMenuLoadGame((int)screenMemcard->player);
   }
   return;
 }

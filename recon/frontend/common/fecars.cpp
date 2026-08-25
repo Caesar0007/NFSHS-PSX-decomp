@@ -948,11 +948,10 @@ void tCarManager::AddCarToIngameList(tCarModels &model,char &color)
 
 /* ---- tCarManager::FindSimilarCar  [FECARS.CPP:851-883] SLD-VERIFIED ----
    MATCH (2026-08-11, 49 -> PASS, 109/109).  The earlier W56 round landed:
-   (1) 🔴 SIGNEDNESS FIX (-8): the SECOND `% numColors` (color assignment, line
-       ~965) recomputed `j + color` through a `(u_int)` cast, making the sum
-       UNSIGNED -> `divu` (no overflow guard).  Retail divides SIGNED (`div` +
-       INT_MIN/-1 guard @0x80017854), same as the first modulo (via `int iVar5`).
-       Cast the color to `(int)` so the recomputed sum stays signed.
+   (1) 🔴 SIGNEDNESS FIX (-8): an earlier SECOND `% numColors` expression
+       recomputed `j + color` through a `(u_int)` cast, making the sum UNSIGNED
+       -> `divu` (no overflow guard).  Retail divides SIGNED (`div` + INT_MIN/-1
+       guard @0x80017854); both retained expressions therefore cast color to int.
    (2) BASE-FIRST address (-2): fColorOrder access via `(int)carInfo + color +
        0xAF` reproduces retail's `addu $v1,$t3,$v1` (carInfo+color); the member
        form emits the operands swapped.
@@ -979,16 +978,18 @@ void tCarManager::AddCarToIngameList(tCarModels &model,char &color)
    hoists the inner-entry predicate once across the outer loop and recreates the
    saved short copies, boolean, global base, and complete retail register band. */
 
-bool tCarManager::FindSimilarCar(tCarModels &model,char &color,short arg3,tCarModels *arg4)
+bool tCarManager::FindSimilarCar(tCarModels &model,char &color,short,tCarModels *)
 
 {
-  u_char bVar1;
+  /* The mangled `R10tCarModelsRcsP10tCarModels` linkage proves two trailing
+     parameter types after `color`, but the optimized 8c record names neither
+     because both are unused.  Keep them intentionally unnamed: their original
+     identifiers are not recoverable, and decompiler `arg3`/`arg4` aliases are
+     not source evidence. */
   tCarInfo *carInfo;
   short colorScheme;
   short numColors;
-  int iVar5;
   char carColor;
-  u_int uVar7;
   short j;
   short i;
 
@@ -1008,18 +1009,18 @@ bool tCarManager::FindSimilarCar(tCarModels &model,char &color,short arg3,tCarMo
                       (u_int)(u_char)carInfo->fNumDarkColors);
   for (i = 0; i < 2; i++) {
     for (j = 0; j < numColors; j++) {
-      iVar5 = (int)j + (u_int)(u_char)color;
-      carColor = (char)((u_char)carInfo->fColorOrder[iVar5 % numColors] >> 3);
+      carColor = (char)((u_char)carInfo->fColorOrder[
+          ((int)j + (int)(u_char)color) % numColors] >> 3);
       if (carColor == colorScheme) {
-        bVar1 = gCarSelected[carColor][model];
-        uVar7 = (u_char)carInfo->fColorOrder[iVar5 % numColors] & 7;
-        if (((int)(u_int)bVar1 >> uVar7 & 1U) == 0) {
-          gCarSelected[carColor][model] = bVar1 | (u_char)(1 << uVar7);
-          /* MATCH (W56-A8): the SECOND modulo recomputes `j + color` but the retail
-             oracle divides SIGNED (`div`, with the INT_MIN/-1 guard @0x80017854).
-             The prior `(u_int)` cast made the whole sum unsigned -> `divu` (no guard),
-             -4 insns.  Cast the color to `(int)` so the recomputed sum stays signed,
-             matching the first modulo (line above, via the `int iVar5`). */
+        if (((int)(u_int)gCarSelected[carColor][model] >>
+             ((u_char)carInfo->fColorOrder[
+                 ((int)j + (int)(u_char)color) % numColors] & 7) & 1U) == 0) {
+          gCarSelected[carColor][model] |= (u_char)(1 <<
+              ((u_char)carInfo->fColorOrder[
+                  ((int)j + (int)(u_char)color) % numColors] & 7));
+          /* MATCH (W56-A8): the SECOND modulo recomputes `j + color`, and retail
+             divides SIGNED (`div`, with the INT_MIN/-1 guard @0x80017854).
+             Keep the color cast signed here just as in both order-table indices. */
           color = (char)(((int)j + (int)(u_char)color) % numColors);
           return 1;
         }

@@ -2918,7 +2918,7 @@ struct tCarManager {   /* 908 bytes */
     void InitializeIngameCarList();
     bool IsCarAnAddedModel(tCarModels &model,char &color);   /* SYM BOOL is PsyQ's native C++ boolean debug code; the body returns 0/1. */
     void AddCarToIngameList(tCarModels &model,char &color);
-    bool FindSimilarCar(tCarModels &model,char &color,short arg3,tCarModels *arg4);  /* SYM: FCN bool */
+    bool FindSimilarCar(tCarModels &model,char &color,short,tCarModels *);  /* SYM: FCN bool; trailing unused parameter names absent from 8c */
 
 };
 

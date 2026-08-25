@@ -572,6 +572,7 @@ typedef struct tItemButton tItemButton;
 typedef struct tPSXToFEMapping tPSXToFEMapping;
 typedef struct tListIteratorDoubleIndexed tListIteratorDoubleIndexed;
 typedef struct tListIteratorMultiPlayer tListIteratorMultiPlayer;
+char *TextSys_Word(int);
 typedef struct tScreenMain tScreenMain;
 typedef struct MCRDFILE_def MCRDFILE_def;
 typedef struct tVideoWall tVideoWall;
@@ -4762,6 +4763,13 @@ struct tFEApplication {   /* 896 bytes */
     /* FEDIALOG.CPP:32/33 records two inlined `tPlayer player` formals around
        these array reads.  The accessor body is proven; SYM omits its name. */
     inline tMenu *CurrentMenu(tPlayer player) { return fCurrentMenu[player]; }
+    /* FEMENUDEFS.CPP:811 records this expansion as an inline
+       tFEApplication receiver.  The debug stream omits the private helper's
+       original spelling, but preserves its exact two-operation body. */
+    inline void DisplayMessage(int word) {
+        tDialogMessageString *dialog = &messagePopup;
+        dialog->SetString(TextSys_Word(word))->tDialogBase::Display();
+    }
     void Redraw();   /* FEDialog */
     /* FEApp methods */
     tFEApplication();

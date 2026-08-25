@@ -1431,22 +1431,23 @@ void MenuExtended_SetHotPursuit(tMenuCommand &)
    OR from `slt;xori 1;beqz` to the oracle's direct `slt v0,s0,v0; bnez`.  Plus the `pp` anchor on
    the string/fDefault stores (was sp-relative), and `bVar1 = false` MOVED after the CalcUsedPrice
    statement so gcc emits it into that jal's delay slot instead of at the top of the fn (which
-   also fixes the prologue save ORDER: s1,s0,s2,ra). The final GetNumOwnedCars argument/sum
-   scheduling tie is restored by the scoped build recipe. MATCH: 86/86. */
+   also fixes the prologue save ORDER: s1,s0,s2,ra).
+
+   [2026-08-26 source-only/SYM restoration, 6 -> PASS 86/86] Removed the remaining
+   decompiler aliases: retail SYM names only function-scope `long money`, block-local
+   `tDialogYesNo popUp`, and the two inlined receivers.  The comma-staged self-assignment
+   is load-bearing: it keeps the retail fMoney load in s0 before CalcUsedPrice while making
+   GCC birth the final addition after both GetNumOwnedCars argument moves, so reorg selects
+   that addition for the call delay slot.  The source-level tFEApplication::DisplayMessage
+   inline restores the line-811 receiver shape.  No asm, volatile, added caller local, or
+   post-compilation modification is used. MATCH: 86/86. */
 
 void MenuExtended_SellCar(tMenuCommand &command)
 
 {
-  bool bVar1;
-  tFEApplication *ptVar2;
-  short sVar3;
-  long lVar4;
-  long lVar5;
-  long lVar6;
-  char *pcVar7;
+  /* SYM-ABI-PARAM: command -- required by the retail `FR12tMenuCommand`
+     linkage identity; optimized away before the SYM parameter records. */
   long money;
-  tDialogMessageString *this_00;
-  tDialogMessageString *dlgThis;
 
   /* [2026-07-11] Dropped the REDUNDANT `tDialogYesNo_ctor(&popUp)` manual call and block-scoped
      popUp into the `if (bVar1)` (see AskTheUserToSaveTheGame's note for why).
@@ -1459,38 +1460,25 @@ void MenuExtended_SellCar(tMenuCommand &command)
      materializes the `<=` as `slt;xori 1;beqz` where the oracle branches directly (`slt;bnez`,
      the w43 (x^1)/boolean-branch class), + a saved-reg-count/frame delta (ours 208/4-sreg vs
      oracle 200/3-sreg) -- coloring, allocsim/qtytrace class. */
-  money = tournamentManager.fMoney;
-  money = money + carManager.CalcUsedPrice((ushort)(byte)frontEnd.garageCar[0]);
-  bVar1 = false;
-  sVar3 = carManager.GetNumOwnedCars(0);
-  if ((1 < sVar3) ||
-     (carManager.CheapestCarStockPrice() <= money)) {
-    bVar1 = true;
-  }
-  ptVar2 = FEApp;
-  if (bVar1) {
+  money = (money = tournamentManager.fMoney,
+           money + carManager.CalcUsedPrice(
+                       (ushort)(byte)frontEnd.garageCar[0]));
+  if ((carManager.GetNumOwnedCars(kPlayerOne) > 1) ||
+      (money >= carManager.CheapestCarStockPrice())) {
     tDialogYesNo popUp;
-    tDialogYesNo *pp = &popUp;
 
-    pp->string =
-         TextSys_Word(0xa5);
-    pp->yesnowords[0] = 0x321;
-    pp->yesnowords[1] = 0x322;
-    pp->fDefault = 0;
-    sVar3 = ((tDialogInteractive *)&popUp)->Run();
-    if (sVar3 != 0) {
-      lVar6 = carManager.SellCar((ushort)(byte)frontEnd.sellerCar,0);
-      tournamentManager.fMoney = tournamentManager.fMoney + lVar6;
+    popUp.SetString(TextSys_Word(0xa5));
+    popUp.SetChoices(0x321,0x322,0);
+    if (popUp.Run() != 0) {
+      tournamentManager.fMoney +=
+          carManager.SellCar((ushort)(byte)frontEnd.sellerCar,0);
       menuDefs[0]->iteratorSellerCar.Decrement(kPlayerOne);
       menuDefs[0]->iteratorSellerCar.Increment(kPlayerOne);
       AudioCmn_PlayFESFX(0x1a);
     }
   }
   else {
-    this_00 = &FEApp->messagePopup;
-    pcVar7 = TextSys_Word(0xa9);
-    this_00->string = pcVar7;
-    ((tDialogBase *)this_00)->Display();
+    FEApp->DisplayMessage(0xa9);
   }
   return;
 }

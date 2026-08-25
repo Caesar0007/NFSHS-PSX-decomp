@@ -1063,7 +1063,6 @@ void MenuExtended_GoToTournTrackInfo(tMenuCommand &command)
   long amount;
   int iVar6;
   int iVar7;
-  tDialogMessageString *dlgThis;
   tDialogMessageString *this_00;
   tTourneyInfo *tourn;
   tTourneyInfo *tsaved;
@@ -1160,7 +1159,6 @@ void MenuExtended_GoToSpecialEventTrackInfo(tMenuCommand &command)
   long amount;
   int iVar6;
   int iVar7;
-  tDialogMessageString *dlgThis;
   tDialogMessageString *this_00;
   tTourneyInfo *tourn;
   tTourneyInfo *tsaved;
@@ -1645,7 +1643,6 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
   char *pcVar4;
   tDialogMessageString *dlgThis;
   int upgradeFlag;
-  uint uVar5;
   tCarInfo carInfo;
 
   /* NEAR-MISS (2026-07-11): dropped the eager `ptVar1 = FEApp` cache -> FEApp now loaded
@@ -1679,11 +1676,13 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
      -- `pp=&popUp` used ONLY for the two yesnowords stores (oracle anchors those in s0 but keeps
      .string/.fDefault sp-relative; anchoring all or none is each 8 diffs, the split is 4);
      (c) compute `dlgThis` BEFORE the TextSys_Word(0xa8) call so reorg fills that jal's delay slot
-     with `addiu s0,s0,44` instead of the arg li. The final independent fMoney/fPrices load order
-     is restored by the scoped build recipe. MATCH: 80/80. */
-  uVar5 = 1 << (upgradeNumber);
+     with `addiu s0,s0,44` instead of the arg li.  Reusing the SYM-recorded `upgradeFlag`
+     for the bit mask removes the non-SYM `uVar5` carrier without changing code.
+     REMAINING: 2 diffs at 80/80; retail loads fMoney before fPrices, while gcc schedules
+     those independent loads in the opposite order.  No post-compilation move is active. */
+  upgradeFlag = 1 << (upgradeNumber);
   carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[0],carInfo,0);
-  if ((carInfo.fUpgrades & uVar5) == 0) {
+  if ((carInfo.fUpgrades & upgradeFlag) == 0) {
     if (carInfo.fPrices[upgradeNumber + 1] <= tournamentManager.fMoney) {
       tDialogYesNo popUp;
       tDialogYesNo *pp = &popUp;
@@ -1695,7 +1694,8 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
       popUp.fDefault = 0;
       sVar2 = ((tDialogInteractive *)&popUp)->Run();
       if (sVar2 != 0) {
-        lVar3 = carManager.PurchaseUpgrade((ushort)(byte)frontEnd.garageCar[0],(short)uVar5,0);
+        lVar3 = carManager.PurchaseUpgrade((ushort)(byte)frontEnd.garageCar[0],
+                                           (short)upgradeFlag,0);
         tournamentManager.fMoney = tournamentManager.fMoney - lVar3;
         AudioCmn_PlayFESFX(0x1a);
       }
@@ -2246,10 +2246,11 @@ extern "C" int SavePinkSlipsCars_intarg(int,short,short)
    
    [ghidra-meta] section: front.text */
 
-/* MATCH (2026-08-13, 10->PASS, 138/138): SYM's sole `int fWinner` local plus a late tied
+/* NEAR-PASS (2026-08-13, 10->2, 138/138): SYM's sole `int fWinner` local plus a late tied
    `playerNum` quantity reproduces retail s3->s0 allocation. Caller-local int-argument aliases
-   preserve the retail symbols while preventing redundant short sign extensions. One sanctioned
-   text move restores sched2's swapped `carManager` argument setup. Earlier five levers remain:
+   preserve the retail symbols while preventing redundant short sign extensions.  The sole
+   residual is source gcc preparing the `carManager` a0 argument four instructions later than
+   retail; no post-compilation move is active. Earlier five levers remain:
    (1) `dlgThis2 = &RetryCancelDialog` anchor for the
    yesnowords/fDefault stores; (2) BOTH fFullyOpen spin loops rewritten exit-in-the-middle
    (`while(1){ ptVar2 = FEApp; if((...fFullyOpen ^ 1)==0) break; ptVar2->Redraw();} ptVar2->Redraw();`)
@@ -2266,12 +2267,10 @@ extern "C" int SavePinkSlipsCars_intarg(int,short,short)
 void MenuExtended_AwardPinkSlipsCar(tMenuCommand &command)
 
 {
-  tFEApplication *ptVar1;
   tFEApplication *ptVar2;
   tGlobalMenuDefs *ptVar3;
   char *mess;
   char *pcVar5;
-  tScreenPinkSlipCongrats *dlgThis;
   tDialogYesNo *dlgThis2;
   tDialogNoInputMessage *dlgThis3;
   tDialogNoInputMessage *this_00;

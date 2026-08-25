@@ -1147,6 +1147,32 @@ def documented_inline_locals(
     except OSError:
         return [], {}
     body_text = "\n".join(body)
+
+    # Inline member bodies live in the shared type header rather than the
+    # caller TU.  Cache ctags' exact parameter/local rows once: resolving a
+    # SYM-INLINE-LOCAL marker against only src_fns made genuine header-inline
+    # locals (`data`, `m`) look missing even though the adjacent THIS receipt
+    # already proved the same invoked body.  Admission below still requires a
+    # unique defined helper, a visible call in this function, and an actual
+    # ctags declaration owned by that helper; it is not a name suppression.
+    cache = getattr(documented_inline_locals, "_type_header_cache", None)
+    if cache is None:
+        type_header = ROOT / "recon" / "nfs4_types.h"
+        header_records = ctags_records([type_header])
+        header_helpers: dict[str, list[dict]] = collections.defaultdict(list)
+        header_decls: dict[tuple[str, str], list[dict]] = collections.defaultdict(list)
+        for rec in header_records:
+            if rec.get("kind") == "function" and "end" in rec:
+                header_helpers[rec.get("name", "")].append(rec)
+            elif rec.get("kind") in ("local", "parameter"):
+                scope = rec.get("scope", "")
+                if "::" in scope:
+                    owner, helper = scope.rsplit("::", 1)
+                    header_decls[(owner, helper)].append(rec)
+        cache = (type_header, header_helpers, header_decls)
+        setattr(documented_inline_locals, "_type_header_cache", cache)
+    type_header, header_helpers, header_decls = cache
+
     mappings = re.findall(
         r"\bSYM-INLINE-LOCAL:\s*([A-Za-z_]\w*)\s*=\s*([A-Za-z_]\w*)",
         body_text,
@@ -1159,11 +1185,28 @@ def documented_inline_locals(
             for fn in src_fns
             if fn.path == src.path and fn.name == helper_name
         ]
-        if len(helpers) != 1:
+        declarations = []
+        if len(helpers) == 1:
+            declarations = [
+                decl for decl in helpers[0].decls if decl.get("name") == local_name
+            ]
+        elif helpers:
+            # Ambiguous same-TU overloads need a stronger signature-aware
+            # receipt; do not silently fall through to an unrelated header
+            # helper with the same unqualified name.
             continue
-        declarations = [
-            decl for decl in helpers[0].decls if decl.get("name") == local_name
-        ]
+        if not declarations:
+            invoked = re.search(
+                rf"(?:->|\.)\s*{re.escape(helper_name)}\s*\(", body_text
+            )
+            candidates = header_helpers.get(helper_name, [])
+            if invoked and len(candidates) == 1:
+                owner = candidates[0].get("scope", "")
+                declarations = [
+                    decl
+                    for decl in header_decls.get((owner, helper_name), [])
+                    if decl.get("name") == local_name
+                ]
         if not declarations:
             continue
         resolved.extend(declarations)
@@ -1177,7 +1220,6 @@ def documented_inline_locals(
     inline_this = re.findall(
         r"\bSYM-INLINE-THIS:\s*([A-Za-z_]\w*)", body_text
     )
-    type_header = ROOT / "recon" / "nfs4_types.h"
     try:
         type_text = type_header.read_text(encoding="utf-8", errors="replace")
     except OSError:
@@ -1189,7 +1231,10 @@ def documented_inline_locals(
             type_text,
         )
         if invoked and defined:
-            owners["this"] = helper_name
+            # Keep one receipt per expansion.  A caller can inline two member
+            # helpers and retail then legitimately records two distinct
+            # `this` rows; a plain dict key used to overwrite the first one.
+            owners[f"this@{helper_name}"] = helper_name
     return resolved, owners
 
 
@@ -1652,7 +1697,8 @@ def audit(
     lines.extend(["", "## Explicit restored inline-local mappings", ""])
     for sf, owners in inline_local_rows:
         entries = [
-            f"`{name}` from `{helper}`" for name, helper in sorted(owners.items())
+            f"`{'this' if name.startswith('this@') else name}` from `{helper}`"
+            for name, helper in sorted(owners.items())
         ]
         lines.append(f"- `{sf.name}`: " + ", ".join(entries))
     lines.extend(["", "## Explicit restored macro-local mappings", ""])

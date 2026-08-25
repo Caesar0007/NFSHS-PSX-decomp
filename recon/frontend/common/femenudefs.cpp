@@ -1233,69 +1233,44 @@ void MenuExtended_GoToSpecialEventTrackInfo(tMenuCommand &command)
 
 /* ---- MenuExtended_EnterUserName__FR12tMenuCommand  [FEMENUDEFS.CPP:734-739] ---- */
 
-/* Decoded Phase 83: MenuExtended_EnterUserName__FR12tMenuCommand(tMenuCommand&) - prompt user-name entry (initial
-   profile setup) (100 B)
-   [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
+/* Prompt initial-profile user-name entry (100 B).
 
-   [ghidra-meta] section: front.text
+   [SYM restoration 2026-08-26, PASS 25/25] Retail records only caller parameter
+   `command`.  Its two nested line-2 scopes are exact inline receipts:
+   tUserNameMenuItem `this` in a1 with `data` in v1, then tScreenUserName `this`
+   in v0 with `m` in a2.  The reconstructed member operations reproduce those
+   scopes and the complete retail instruction stream.  Their private inline
+   identifiers are absent from the optimized SYM, so the descriptive names in
+   nfs4_types.h are explicitly inferred rather than claimed as recovered text.
 
-   [NEAR-MISS 2026-07-05/2026-08-03, was 30 diffs, now 6] Three real fixes landed: (1) playerNameList
-   is char[2][8] (8-byte rows) -- the old `frontEnd.playerNameList[bVar2*4]` byte-offset hack
-   was WRONG indexing (should scale by 8, not 4); plain `playerNameList[bVar2]` row-index lets
-   the compiler emit the correct sll-by-3. (2) dlgThis=&ptVar3->menuItemUserName hoisted once
-   (oracle materializes this base ONE time via addiu right after the menuDefs load; the old
-   code recomputed the full absolute offset per field). (3) bVar1/bVar2 as u_int (not byte)
-   drops the redundant andi 0xff the oracle doesn't have (a same-typed `byte` local re-masks
-   on every use in this build). Residual = bVar1/bVar2 are the textually-identical expression
-   `FEApp->fInputPlayer`; the oracle emits it as TWO separate lbu (a3 then v1), ours CSEs to
-   ONE lbu + reused v1. Tried: reordering (moves the residual, doesn't remove it), a volatile
-   read (forces the 2 separate loads back but reintroduces the dropped andi -- net same size,
-   less honest). Left as the compiler's own CSE decision; not source-reachable without
-   register pins (forbidden) or a real volatile FEApp (shared-header change, unjustified --
-   nothing else about FEApp needs it).
-
-   [2026-07-07 addendum] Also tried: dropping bVar1/bVar2 entirely and reading
-   `FEApp->fInputPlayer` inline at each of the two use sites (fPlayer=/fData=) -- regresses to 17
-   diffs AND changes insn count (26 vs 25; gcc re-schedules the loads to sit right before each use,
-   interleaved with the zero-stores, which is a WORSE shape than the current CSE-then-diverge one).
-   Swapping fCurrentRow/fCurrentColumn write order (a permuter-suggested candidate, see below)
-   regresses to 9. PERMUTER (~130 iterations, tools/run_permuter.py) found only a same-shape
-   candidate (internal score 100->95, the fCurrentRow/Column swap just mentioned) which verify_asm
-   confirms is WORSE, not better -- the permuter's internal Levenshtein score does not reliably
-   track verify_asm's diff-line count here (known caveat, [[reference_psx_cpp_reconstruction_methodology]]
-   "survey tools over-count vs verify_asm").
-
-   [2026-08-03 GCC-2.8.1 follow-up] Keep the volatile byte read in a separate `bVar1`
-   pseudo before caching the normal array-index value in `bVar2`, then store `bVar1` into
-   `fPlayer`. Reading it before `menuDefs` also gives retail's `%hi(FEApp)`, `%hi(menuDefs)`,
-   `lw menuDefs`, `lw FEApp` schedule. The function is byte-matched at 25 instructions. */
+   The source-only `player`/`defs` carriers are measured, not decompiler residue.
+   GCC suppresses `player` from its -g output; its distinct first byte read is
+   required for retail's a3/v1 pair.  GCC does emit `defs`, while retail omits
+   that optimized alias; removing it reloads menuDefs and grows the function to
+   29 instructions.  This is retained as an explicit non-unique source-shape
+   proof until stronger original-header evidence resolves the spelling. */
 
 void MenuExtended_EnterUserName(tMenuCommand &command)
 
 {
-  u_int bVar1;
-  u_int bVar2;
-  char *data;
-  tOptionsMenu *m;
-  tGlobalMenuDefs *ptVar3;
-  tScreenUserName *ptVar4;
-  tUserNameMenuItem *dlgThis;
+  /* SYM-CODEGEN-CARRIER: player -- the first byte read is suppressed from the
+     -g record; keeping it distinct is required for retail's two lbu values. */
+  u_int player;
+  /* SYM-CODEGEN-CARRIER: defs -- a direct repeated menuDefs[0] expression
+     reloads the base and emits 29 rather than retail's 25 instructions. */
+  tGlobalMenuDefs *defs;
 
-  bVar1 = *(volatile u_char *)&FEApp->fInputPlayer;
-  ptVar3 = menuDefs[0];
-  dlgThis = &ptVar3->menuItemUserName;
-  bVar2 = FEApp->fInputPlayer;
-  dlgThis->fPlayer = bVar1;
-  dlgThis->fMaxStringLength = 7;
-  ptVar4 = screenUserName;
-  dlgThis->fCurrentRow = 0;
-  dlgThis->fCurrentColumn = 0;
-  data = frontEnd.playerNameList[bVar2];
-  dlgThis->fData = data;
-  m = &ptVar3->menuUserName;
-  ptVar4->callingMenu = m;
+  player = *(volatile u_char *)&FEApp->fInputPlayer;
+  defs = menuDefs[0];
+  /* SYM-INLINE-THIS: SetUserNameData
+     SYM-INLINE-LOCAL: data = SetUserNameData */
+  defs->menuItemUserName.SetUserNameData(
+      player, frontEnd.playerNameList[FEApp->fInputPlayer]);
+  /* SYM-INLINE-THIS: SetCallingMenu
+     SYM-INLINE-LOCAL: m = SetCallingMenu */
+  screenUserName->SetCallingMenu(&defs->menuUserName);
   command.type = kMenu_Command_GoToMenu;
-  command.nextMenu = (tMenu *)m;
+  command.nextMenu = (tMenu *)&defs->menuUserName;
   return;
 }
 

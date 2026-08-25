@@ -5112,6 +5112,17 @@ struct tUserNameMenuItem : public tMenuItem {   /* 140 bytes */
     bool TransitionIsFinished();  /* SYM: FCN bool (four-byte int) */
     void UpdateTransition(bool);
 
+    /* FEMENUDEFS.CPP inlines this setup operation.  The retail SYM preserves
+       its tUserNameMenuItem receiver and the live `data` argument, but not
+       the private inline identifier. */
+    inline void SetUserNameData(short player, char *data) {
+        fPlayer = player;
+        fMaxStringLength = 7;
+        fCurrentRow = 0;
+        fCurrentColumn = 0;
+        fData = data;
+    }
+
 };
 
 struct tMenuItemGoToMenuButtonFade : public tMenuItemGoToMenuButton {   /* 44 bytes */
@@ -5289,6 +5300,12 @@ struct tScreenUserName : public tScreen {   /* 204 bytes */
     void DrawVerticalLine(short x, short y, short gridpos);
     void DrawHorizontalLine(short x, short y, short gridpos);
     void DrawBackground();
+
+    /* FEMENUDEFS.CPP records the inlined receiver and `m` value.  Its private
+       source identifier is not recoverable from the optimized SYM. */
+    inline void SetCallingMenu(tOptionsMenu *m) {
+        callingMenu = m;
+    }
 };
 
 struct tScreenTournamentStandings : public tScreen {   /* 148 bytes */

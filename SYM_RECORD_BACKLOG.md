@@ -3339,6 +3339,44 @@ relocation-referenced unresolved symbols.  Call-target and undefined-call
 audits report zero defects, the TU-order audit reports zero inversions, and the
 vtable indexing audit passes 930 files.
 
+### P95 — `MenuExtended_EnterUserName` nested inline scope restoration (`2026-08-26`)
+
+Retail SYM records no ordinary caller local in `MenuExtended_EnterUserName`, but
+does record two nested inline member scopes: `tUserNameMenuItem *this` in `$a1`
+with `char *data` in `$v1`, followed by `tScreenUserName *this` in `$v0` with
+`tOptionsMenu *m` in `$a2`.  Reconstruction now calls inferred inline
+`SetUserNameData` and `SetCallingMenu` members whose parameters and receivers
+reproduce those four records.  The optimized records do not preserve either
+inline helper's original identifier, so these descriptive helper names are not
+claimed as uniquely recovered source tokens.
+
+The function is exact PASS at 25/25 instructions, its fresh `-g` twin is
+instruction-identical, and both nested receiver/parameter pairs are recovered
+with the retail names, types, and registers.  Two source-only identities remain
+explicit rather than hidden as generic review items.  The first input-player
+byte read must remain distinct to produce retail's two `lbu` values, while GCC
+suppresses that `player` identity from the `-g` record.  A cached `defs` base is
+also required: spelling the repeated `menuDefs[0]` accesses directly reloads
+the base and grows the function from retail's 25 instructions to 29.  SYM and
+the optimized binary cannot uniquely determine the original spelling of either
+carrier.
+
+The refreshed strict frontend/common audit is stored in
+[`frontend_common_strict_p200_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p200_20260826.md).
+It reports 734 declaration-clean mapped functions, zero missing SYM names, zero
+type, storage, global, or mapping-review findings, 337 explicitly classified
+extra source-local names, 32 validated inline mappings, and 314 codegen
+carriers.  The audit now resolves unique invoked inline bodies in the shared
+type header and distinguishes repeated inline `this` receipts by helper scope;
+these changes validate evidence rather than suppress names.
+
+The complete `femenudefs.cpp` gate remains 58/66 PASS with precisely the
+pre-existing residual set.  A fresh complete build succeeds, the raw object
+board remains 3360/3493 exact, both relink lanes are GREEN, the undefined-call
+audit reports zero defects, and the call-target audit retains exactly the two
+pre-existing swapped `Sim_MainGameLoop` sites.  The TU-order audit reports zero
+inversions, and the vtable indexing audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

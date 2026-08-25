@@ -92,20 +92,18 @@ void tCreditManager::RealDeInit()
 
 /* ---- tCreditManager::Draw  [FECREDITS.CPP:120-151] ---- */
 void tCreditManager::Draw(bool selected)
-/* MATCH (2026-08-11, 35 -> PASS, 81/81): direct fTVFade updates keep their
-   result in $v0, while one cached `screenMain` pointer and indexed tvConfigs
-   access produce retail's $a1 base with a 48-byte GIV.  The SYM-only loop
-   local consequently occupies $a2 exactly.  IDA's raw-fade $v0 / clamped-fade
-   $v1 split comes from the natural post-clamp copy shape: clamp iVar2 first,
-   then assign fadeValue once after the branch.  Keeping the raw value live
-   through that copy prevents coalescing; jump optimization duplicates the
-   copy into the nonnegative delay slot and negative arm exactly as retail. */
+/* MATCH (2026-08-25, PASS 81/81): SYM records only the block-local `i`.
+   EA's nested MIN/MAX expansion restores both fade clamps without the old
+   decompiler `iVar2`/`fadeValue`/`uVar3` aliases or an empty asm fence.  The
+   fTextFade MAX argument order is significant: field first reproduces the
+   retail v1/a0 comparison and result funnel. */
 {
+  /* SYM-CODEGEN-CARRIER: mainScreen -- caching the global pointer gives the
+     retail $a1 48-byte GIV while leaving the real SYM local `i` in $a2.
+     Direct `screenMain->tvConfigs[i]` was measured FAIL 25 (84/81); the
+     optimized source spelling that caused this handout is not unique. */
   tScreenMain *mainScreen;
   int i;
-  int iVar2;
-  int fadeValue;
-  uint uVar3;
 
   if (selected) {
     this->fTVFade = this->fTVFade + 4;
@@ -113,29 +111,18 @@ void tCreditManager::Draw(bool selected)
   else {
     this->fTVFade = this->fTVFade + -4;
   }
-  iVar2 = this->fTVFade;
-  if (iVar2 < 0) {
-    iVar2 = 0;
-  }
-  fadeValue = iVar2;
-  __asm__("" : : "r" (iVar2));
-  if (0x5c < fadeValue) {
-    fadeValue = 0x5c;
-  }
-  this->fTVFade = fadeValue;
-  if (fadeValue < 0x5c) {
-    fadeValue = 0x80 - fadeValue;
-    if (fadeValue < this->fTextFade) {
-      fadeValue = this->fTextFade;
-    }
-    this->fTextFade = fadeValue;
+  this->fTVFade = MIN(0x5c,MAX(this->fTVFade,0));
+  if (this->fTVFade < 0x5c) {
+    this->fTextFade = MAX(this->fTextFade,0x80 - this->fTVFade);
   }
   mainScreen = screenMain;
   i = 0;
   do {
     mainScreen->tvConfigs[i].flags = mainScreen->tvConfigs[i].flags | 2;
-    uVar3 = 0x80 - this->fTVFade;
-    mainScreen->tvConfigs[i].tint = uVar3 * 0x10000 | uVar3 * 0x100 | uVar3;
+    mainScreen->tvConfigs[i].tint =
+        (0x80 - this->fTVFade) * 0x10000 |
+        (0x80 - this->fTVFade) * 0x100 |
+        (0x80 - this->fTVFade);
     i = i + 1;
   } while (i < 0x10);
   if (this->fTVFade == 0) {

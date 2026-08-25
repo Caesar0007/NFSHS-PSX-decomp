@@ -556,17 +556,20 @@ void tScreenCarSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,ch
                ,char **swapFileName)
 
 {
+  /* SYM-CODEGEN-CARRIER: vtbl -- the retail virtual GetCar call's implicit
+     dispatch temporary has no SYM source local.  The manual non-virtual ABI
+     model needs this cached row pointer: direct this->_vf[1][3] dispatch is
+     byte-identical, but fails audit_vtable_indexing as unsafe row indexing. */
   __vtbl_ptr_type (*vtbl) [10];
-  int valid;
   tCarInfo carInfo;
 
   numPermShapes = 0x8e;
   numSwapShapes = 0xb;
   *permFileName = "zcars";
   vtbl = this->_vf;
-  valid = (*vtbl[1][3].pfn)
-                    (this->fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo) == 1;
-  if (!valid) {
+  if (((*vtbl[1][3].pfn)
+           (this->fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,
+            &carInfo) ^ 1) != 0) {
     carManager.GetStockCar(0,carInfo);
   }
   this->fPreviousCar = (ushort)carInfo.fCarIndex;

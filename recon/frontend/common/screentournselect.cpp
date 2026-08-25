@@ -41,9 +41,16 @@ void tScreenTournSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
      base and precompute the trophy pointer before the output stores.  This
      preserves numSwapShapes in $t1 and schedules the retail branch delays;
      gSwapFileName's address remains in $s0 across the call. */
+  /* SYM-CODEGEN-CARRIER: useSpecial -- folding the if/else selection into
+     the tournament index is measured FAIL60 (51/51), changing the entire
+     early allocation and branch schedule. */
   byte useSpecial;
+  /* SYM-CODEGEN-CARRIER: fe -- direct frontEnd member reads are measured
+     FAIL3 (52/51), reloading the base for tier instead of retaining it. */
   tfrontEnd *fe;
-  char *swapName;
+  /* SYM-CODEGEN-CARRIER: trophyTourn -- folding the tournament lookup into
+     GetTrophyName is measured FAIL19 (50/51), moving output stores across the
+     lookup and losing retail's precomputed pointer web. */
   tTourneyInfo *trophyTourn;
 
   /* MATCH: an if/ELSE (both arms load) - the oracle jumps over the else arm;
@@ -62,9 +69,8 @@ void tScreenTournSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
   numPermShapes = 0x40;
   numSwapShapes = 0x20;
   *permFileName = "ztourn";
-  swapName = gSwapFileName;
-  GetTrophyName(&tournamentManager,trophyTourn,ts_Medium,swapName,-1);
-  *swapFileName = swapName;
+  GetTrophyName(&tournamentManager,trophyTourn,ts_Medium,gSwapFileName,-1);
+  *swapFileName = gSwapFileName;
   return;
 }
 

@@ -2485,40 +2485,33 @@ void MenuExtended_SetExpert(tMenuCommand &)
 
    [ghidra-meta] section: front.text
 
-   [BUG FIX 2026-07-27] Same DOUBLE-DESTRUCTION bug as the other tDialogYesNo locals: objdump
-   confirmed `jal tScreen_dtor` then `jal ___12tDialogYesNo` back to back on AreYouSure. Dropped
-   the manual call. Insn count coincidentally MATCHED the oracle before this fix (36==36, ours
-   PADDED by the 3 duplicate insns) -- after removing them ours is 33 vs oracle 36, a genuine
-   3-insn shortfall that pre-existed and was simply masked by the double-call bug (oracle caches
-   command/`this` in s1, ours in s0/a0 -- an unrelated register-caching gap, not yet fixed).
-   Diff count still improved 52->49; kept as a correctness fix (this fn was double-freeing the
-   dialog's vtable on every real call). */
-
-/* [W57-A1 2026-08-09, 49->PASS] Three faithful fixes: `dlgThis = &AreYouSure` anchor for every
-   field store + the Run arg (oracle s0-based, ours sp-relative); `ptVar1 = menuDefs[0]` moved
-   INSIDE the taken arm (oracle's `lui/lw` sits after the branch); and the if/else ARMS SWAPPED to
-   `if (sVar2 != 0) {GoToMenuOneWay...} else {None}` so the nonzero case is the FALL-THROUGH and
-   the zero case the beqz target -- matching the oracle's branch polarity + block layout. */
+   [SYM restoration 2026-08-25] The caller SYM records only `command` and the
+   stack object `AreYouSure`.  Consuming Run directly removes the unrecorded
+   result local at exact 36/36.  Spelling nextMenu before type removes the
+   unrecorded menu pointer while the scheduler retains retail's type-first
+   store order.  The remaining `dialog` alias is an evidenced codegen carrier,
+   documented at its declaration below. */
 
 void MenuExtended_ExitTourney(tMenuCommand &command)
 
 {
-  tGlobalMenuDefs *ptVar1;
-  short sVar2;
-  tDialogYesNo *dlgThis;
+  /* SYM-CODEGEN-CARRIER: dialog -- SYM records the derived-constructor receiver
+     `this` in $s0, not an additional caller local.  Reusing that receiver for
+     the subsequent field stores and Run is exact PASS 36/36.  Direct stack-
+     object spelling is FAIL 39 at 33/36 and changes the frame from 200 to 192
+     bytes, so this alias represents the retail optimized receiver lifetime. */
+  tDialogYesNo *dialog;
   tDialogYesNo AreYouSure;
 
-  dlgThis = &AreYouSure;
-  dlgThis->yesnowords[0] = 0x321;
-  dlgThis->yesnowords[1] = 0x322;
-  dlgThis->fDefault = 0;
-  dlgThis->string =
+  dialog = &AreYouSure;
+  dialog->yesnowords[0] = 0x321;
+  dialog->yesnowords[1] = 0x322;
+  dialog->fDefault = 0;
+  dialog->string =
        TextSys_Word(0x9d);
-  sVar2 = ((tDialogInteractive *)dlgThis)->Run();
-  if (sVar2 != 0) {
-    ptVar1 = menuDefs[0];
+  if (((tDialogInteractive *)dialog)->Run() != 0) {
+    command.nextMenu = (tMenu *)&menuDefs[0]->menuMain;
     command.type = kMenu_Command_GoToMenuOneWay;
-    command.nextMenu = (tMenu *)(tMenu*)&ptVar1->menuMain;
   }
   else {
     command.type = kMenu_Command_None;

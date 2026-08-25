@@ -327,17 +327,18 @@ void tScreenCongrats::DrawForeground()
 void tScreenCongrats::CalculatePrizes()
 
 {
+  /* SYM-CODEGEN-CARRIER: carCYBits
+     SYM-CODEGEN-CARRIER: carCXBits
+     The function SYM records only `this`; these are semantic names for the
+     two raw float-constant quantities required by retail allocation, not
+     claims of recoverable source-local names.  Direct float assignments are
+     FAIL 35 at 30/29 because `this` is copied to $a1; direct raw field writes
+     without the quantities are FAIL 12 at 29/29.  Keeping fCarCX live through
+     the tail restores `this`=$a0, fCarCX=$a1, and fCarCY=$v1 and remains the
+     best measured shape at exact 29/29 with four scheduling-only diffs. */
   unsigned long carCYBits = 0xc0eccccd;
   unsigned long carCXBits = 0x40800000;
 
-  /* MATCH (2026-08-12, 8 -> 4 diffs, exact 29/29): spelling BOTH float fields
-     as raw-word locals gives gcc the two independent integer quantities seen
-     in retail.  It now materializes/stores the -7.4 bits in $v1, schedules the
-     message/zero stores correctly, and sinks fCarCX into the branch delay slot.
-     The remaining coupled pair is only `lui $a1,0x4080` + the fCarY store:
-     retail places both earlier.  Declaration order and a pure-C multi-set were
-     neutral; early read/identity fences moved the message/CY group too early
-     (8 diffs), and reversed X/Y stores also cost 8. */
   this->congratsMessage = kScreenCongrats_Congrats;
   this->trophy = kTrophyNone;
   this->smallSpinningThing = kSpinningNone;

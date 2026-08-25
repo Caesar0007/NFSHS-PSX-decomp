@@ -524,16 +524,10 @@ void tMenuItemOptionsLeftRightChoice::Draw(int x,int y,bool selected)
 void tMenuItemOptionsTwoItemChoice::TransitionOn()
 
 {
-  u_int cVar1;
-  u_int bVar;
-  tListIterator *ptVar2;
-  __vtbl_ptr_type (*pa_Var3) [6];
-
-  ptVar2 = this->fData;
-  pa_Var3 = ptVar2->_vf;
-  cVar1 = (u_char)(*(*pa_Var3)[2].pfn)((char *)ptVar2 + (int)(*pa_Var3)[2].delta,0xffffffff);
-  bVar = (u_int)(0 < cVar1);
-  this->fOnOffFade = bVar << 7;
+  this->fOnOffFade =
+      ((u_char)(*(*this->fData->_vf)[2].pfn)
+                    ((char *)this->fData + (int)(*this->fData->_vf)[2].delta,
+                     0xffffffff) != 0) << 7;
   return;
 }
 

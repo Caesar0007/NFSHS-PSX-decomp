@@ -325,19 +325,14 @@ tMenuItemNFS4LeftRightChoice::~tMenuItemNFS4LeftRightChoice()
           6-insn shift/add chain (catalog 06D multiply-by-the-VARIABLE);
     65->30 same treatment for the mirrored (fFlags & 0x200) block;
     30->12 the drawArrows flag computed INSIDE the argument list;
-    12-> 0 comparison operand order = LOAD order (`enabled > transVal` loads 38 before
-          34) + multiply operand order `sVar4 * rect.w` (moves `li 115` after the
-          sign-extend, which frees the beqz slot for the oracle's `sll v0,a0,16`). */
+    12-> 0 MIN macro operand order = LOAD order (`enabled > transVal` loads 38 before
+          34) + multiply by the selected macro value and `rect.w` (moves `li 115`
+          after the sign-extend, freeing the beqz slot for retail's `sll v0,a0,16`). */
 
 void tMenuItemNFS4LeftRightChoice::Draw(int x,int y,bool selected)
 
 {
-  short sVar1;
   short dist;
-  char *string;
-  int iVar2;
-  bool bVar3;
-  short sVar4;
   RECT rect;
   
   /* MATCH (W57-A5): shape taken VERBATIM from the PASSing sibling
@@ -349,16 +344,16 @@ void tMenuItemNFS4LeftRightChoice::Draw(int x,int y,bool selected)
   }
   else {
     FETextRender_SetFont(0);
-    string = TextSys_Word(this->fTextDescription);
-    iVar2 = textpixels(string);
-    dist = 0xa5;
-    if (0x8b < (short)iVar2) {
-      dist = (short)iVar2 + 0x19;
+    dist = textpixels(TextSys_Word(this->fTextDescription));
+    if (dist < 0x8c) {
+      dist = 0xa5;
     }
-    sVar1 = this->fOffset;
-    this->fOffset = sVar1 + -2;
+    else {
+      dist += 0x19;
+    }
+    this->fOffset -= 2;
     if (selected == 0) {
-      this->fOffset = sVar1 + -4;
+      this->fOffset -= 2;
     }
     if (this->fOffset < 0) {
       this->fOffset = (u_short)this->fOffset + dist;
@@ -383,11 +378,7 @@ void tMenuItemNFS4LeftRightChoice::Draw(int x,int y,bool selected)
   rect.y = (short)y;
   rect.w = 0x73;
   rect.h = 0xb;
-  sVar4 = this->fEnabledTransitionVal;
-  if (this->fEnabledTransitionVal > this->fTransitionVal) {
-    sVar4 = this->fTransitionVal;
-  }
-  rect.w = (short)(sVar4 * rect.w / 0x80);
+  rect.w = (short)(MIN(this->fEnabledTransitionVal,this->fTransitionVal) * rect.w / 0x80);
   /* MATCH (W57-A5): the drawArrows flag is computed INSIDE the argument list --
      retail emits the a3/16(sp) arg loads BEFORE the flag's branch. */
   MenuNFS4_DrawTextBox(this->fTextDescription,rect,
@@ -399,11 +390,7 @@ void tMenuItemNFS4LeftRightChoice::Draw(int x,int y,bool selected)
     rect.y = 0x118 - (short)y;
     rect.w = 0x73;
     rect.h = 0xb;
-    sVar4 = this->fTransitionVal;
-    if (this->fTransitionVal > this->fEnabledTransitionVal) {
-      sVar4 = this->fEnabledTransitionVal;
-    }
-    rect.w = (short)(sVar4 * rect.w / 0x80);
+    rect.w = (short)(MIN(this->fTransitionVal,this->fEnabledTransitionVal) * rect.w / 0x80);
     MenuNFS4_DrawTextBox(this->fTextDescription,
                rect,0x8c,this->fOffset,
                this->fSelFade,(selected != 0) || (this->fOffset != 0xe),1);

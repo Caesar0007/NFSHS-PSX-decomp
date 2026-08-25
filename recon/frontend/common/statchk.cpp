@@ -97,11 +97,9 @@ PurgeRest:
 void StatChk_SaveRecordLapTime(Car_tStats *dummyCars,short nNumCars,short nBestCarIndex)
 
 {
-  short track;
   int newBestLap;
   tCarInfo *carInfo;
   tRecordBuffer *TrackRecords;
-  char *playerName;
   tRecordBuffer RecordHolder;
   tRecordBuffer DummyRaceResult;
   
@@ -110,8 +108,7 @@ void StatChk_SaveRecordLapTime(Car_tStats *dummyCars,short nNumCars,short nBestC
      a `1 < x - 7` spelling emits the signed slti. */
   if ((carInfo->fCarClass != 7) && (carInfo->fCarClass != 8)) {
     TrackRecords = (tRecordBuffer *)reservememadr("trkrcrds",0x168,0x10);
-    track = Front_GetTrackRaced();
-    Stattool_GetRecords(track,TrackRecords);
+    Stattool_GetRecords(Front_GetTrackRaced(),TrackRecords);
     memcpy_call(&RecordHolder,TrackRecords + 1,0x14);
     if ((dummyCars[nBestCarIndex].finalNumArrests == 0) &&
        (dummyCars[nBestCarIndex].finalFinishType == 2)) {
@@ -122,13 +119,13 @@ void StatChk_SaveRecordLapTime(Car_tStats *dummyCars,short nNumCars,short nBestC
     }
     DummyRaceResult.nBestLap = dummyCars[nBestCarIndex].finalBestLap;
     DummyRaceResult.nCar = *(signed char *)&carInfo->fCarID;   /* MATCH: lb, plain char is unsigned here */
-    playerName = PlayerName((int)nBestCarIndex);
-    strcpy(DummyRaceResult.sName,playerName);
+    strcpy(DummyRaceResult.sName,PlayerName((int)nBestCarIndex));
     memcpy_call(TrackRecords,&DummyRaceResult,0x14);
-    track = Front_GetTrackRaced();
-    blockmove(TrackRecords,Stats_gTrackRecords + track * 0x11,0x154);
-    /* MATCH: materialize the value before forming the global lvalue. GCC 2.8.1 then gives
-       the shorter-lived NewBestLap address $v0 and this value $v1, matching retail. */
+    blockmove(TrackRecords,Stats_gTrackRecords + Front_GetTrackRaced() * 0x11,0x154);
+    /* SYM-CODEGEN-CARRIER: newBestLap -- not a recorded source local, but
+       spelling this as `NewBestLap = 1` is FAIL6 (100/100): retail loads the
+       address into $v1 and 1 into $v0, while the direct lvalue reverses those
+       registers.  Materializing the value reproduces the retail allocation. */
     newBestLap = 1;
     NewBestLap = newBestLap;
     purgememadr(TrackRecords);

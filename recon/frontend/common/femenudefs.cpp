@@ -404,21 +404,17 @@ void MenuExtended_TransitionFromPostGameToMainMenu(tMenuCommand &command)
 
    [ghidra-meta] section: front.text
 
-   [Match 2026-07-05] ptVar1=menuDefs[0] moved INTO the save-branch only (oracle never
-   loads menuDefs on the tail-call path) + branch-polarity flip (save-branch is the
-   fall-through, the tail-call is the branch target) -> byte-match, 19/19 insns. */
+   [SYM/SLD 2026-08-25] Retail records only `command`.  Calling the predicate
+   directly removes the former iVar2 without code change.  Spelling nextMenu
+   before type makes GCC load menuDefs before the independent type store and is
+   exact PASS 19/19; the opposite source order is FAIL 5 (20/19). */
 
 void MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame(tMenuCommand &command)
 
 {
-  tGlobalMenuDefs *ptVar1;
-  int iVar2;
-
-  iVar2 = AskTheUserToSaveTheGame();
-  if (iVar2 != 0) {
-    ptVar1 = menuDefs[0];
+  if (AskTheUserToSaveTheGame() != 0) {
+    command.nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuPostGameSave;
     command.type = kMenu_Command_GoToMenuOneWay;
-    command.nextMenu = (tMenu *)(tMenu*)&ptVar1->menuPostGameSave;
   }
   else {
     MenuExtended_TransitionFromPostGameToMainMenu(command);

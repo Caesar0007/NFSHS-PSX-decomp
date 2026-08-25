@@ -1554,13 +1554,16 @@ tMenuItemLeftRightAudioSlider::~tMenuItemLeftRightAudioSlider()
 void tMenuItemLeftRightAudioSlider::Draw(int ox,int oy,bool selected)
 
 {
-  u_short uVar1;
   int coltext;
-  char *sMenuText;
-  __vtbl_ptr_type (*pa_Var3) [6];
-  tListIterator *ptVar4;
-  u_int uVar5;
-  int iVar6;
+  /* SYM-CODEGEN-CARRIER: brightTextColor
+     The trusted block names only `coltext` ($s0). Retail nevertheless holds
+     textDefinitions[][5]'s bright palette color across DrawLeftFlare in $s2;
+     no debug name survives, so this semantic name is not claimed as original. */
+  int brightTextColor;
+  /* SYM-CODEGEN-CARRIER: rgbVals
+     GCC must materialize kRGBVals before the first TextSys_WordFlags call so
+     the address remains in $s1 across both calls; inlining the array base
+     rematerializes it after the call and loses the 131/131 retail allocation. */
   int *rgbVals;
   tDrawShapeExtended tCol;
 
@@ -1579,31 +1582,29 @@ void tMenuItemLeftRightAudioSlider::Draw(int ox,int oy,bool selected)
      rematerializes the address after the call. */
   rgbVals = kRGBVals;
   coltext = TextSys_WordFlags((int)(short)this->fTextDescription);
-  iVar6 = rgbVals[(u_char)textDefinitions[coltext][5]];
+  brightTextColor = rgbVals[(u_char)textDefinitions[coltext][5]];
   coltext = TextSys_WordFlags((int)(short)this->fTextDescription);
   coltext = rgbVals[(u_char)textDefinitions[coltext][4]];
   DrawLeftFlare((int)this->fY,
              (int)this->fSelFade,
              (int)this->fFadeVal,this->flareextra);
-  coltext = CalcFadeVal(coltext,iVar6,
+  coltext = CalcFadeVal(coltext,brightTextColor,
                      (int)this->fSelFade,
                      (int)this->fFadeVal);
   /* MATCH: no return funnel ($v0 incidental) and the fData reload lives INSIDE
      the DrawSlider argument list. */
   if (this->fFadeVal != 0x80) {
-    sMenuText = TextSys_Word(this->fTextDescription);
-    FETextRender_FullTextRGB(sMenuText,this->fX,this->fY,
+    FETextRender_FullTextRGB(TextSys_Word(this->fTextDescription),this->fX,this->fY,
                coltext,'\0',1);
     tCol.tint[0] = CalcFadeVal(0x551e00,0xbebe,
                               (int)this->fSelFade,(int)this->fFadeVal);
     if (this->fSelFade != 0) {
       DrawShapeExtended(this->fAudioArt + 1,0x10,0,0,0,0,&tCol);
     }
-    ptVar4 = this->fData;
-    pa_Var3 = ptVar4->_vf;
-    uVar1 = (*(*pa_Var3)[2].pfn)((char *)ptVar4 + (int)(*pa_Var3)[2].delta,0xffffffff)
-    ;
-    DrawSlider(uVar1 & 0xff,(u_short)(u_char)this->fData->fMinValue,
+    DrawSlider((*(*this->fData->_vf)[2].pfn)
+                   ((char *)this->fData + (int)(*this->fData->_vf)[2].delta,
+                    0xffffffff) & 0xff,
+               (u_short)(u_char)this->fData->fMinValue,
                (u_short)(u_char)this->fData->fMaxValue,
                this->fX + 0x14,this->fY + 1,
                this->fWidth,this->fHeight,4,4,
@@ -1742,21 +1743,20 @@ tInsideBoxSongMenu::~tInsideBoxSongMenu()
 
 /* ---- tInsideBoxSongMenu::Draw  [FEMENUOPTIONS.CPP:1271-1314] SLD-VERIFIED ---- */
 
-/* SYM-CODEGEN-CARRIER: drawBaseY
-   SYM-CODEGEN-CARRIER: fadeValue
-   SYM-CODEGEN-CARRIER: fe
-   SYM-CODEGEN-CARRIER: slide
-   SYM-CODEGEN-CARRIER: width
-   MATCH W67: 126 -> PASS.  SYM authenticates j, drawY and song; removing the
-   Ghidra pointer walk, SSA scalar copies, and cached vtable row restores
-   retail's indexed fade loops.  The optimized-only expression carriers place
-   slideOffset/width in IDA's gold $s6/$s4 allocation.  Natural FEPlayList
-   ownership plus index-first address arithmetic preserves `addu v0,v0,fp`,
-   while the right-grouped Y sum reproduces retail's addition chain. */
-
 void tInsideBoxSongMenu::Draw(short x,short y,short w,short slideOffset,short maxheight)
 
 {
+  /* SYM-CODEGEN-CARRIER: drawBaseY
+     SYM-CODEGEN-CARRIER: fadeValue
+     SYM-CODEGEN-CARRIER: fe
+     SYM-CODEGEN-CARRIER: slide
+     SYM-CODEGEN-CARRIER: width
+     MATCH W67: 126 -> PASS.  SYM authenticates j, drawY and song; removing the
+     Ghidra pointer walk, SSA scalar copies, and cached vtable row restores
+     retail's indexed fade loops.  The optimized-only expression carriers place
+     slideOffset/width in IDA's gold $s6/$s4 allocation.  Natural FEPlayList
+     ownership plus index-first address arithmetic preserves `addu v0,v0,fp`,
+     while the right-grouped Y sum reproduces retail's addition chain. */
   int song;
   int j;
   int drawY;
@@ -1971,15 +1971,11 @@ void tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool selected)
      (e) SYM records inner `tCol` and outer `drawFlags` at the same AUTO -56.
      Declaring drawFlags after the inner block lets gcc reuse that slot. */
   tTexture_ShapeInfo *shape;
-  short sVar2;
   int x;
   int y;
   int Col;
   int ColText;
   int w;
-  char *pcVar6;
-  __vtbl_ptr_type (*pa_Var7) [6];
-  tListIterator *ptVar8;
 
   x = TextSys_WordX(this->fTextDescription) + ox;
   y = TextSys_WordY(this->fTextDescription) + oy;
@@ -1993,14 +1989,13 @@ void tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool selected)
     tDrawShapeExtended tCol;
 
     tCol.tint[0] = Col;
-    pcVar6 = TextSys_Word(this->fTextDescription);
-    FETextRender_FullTextRGB(pcVar6,(short)x,(short)y,ColText,'\0',0);
-    ptVar8 = this->fData;
-    pa_Var7 = ptVar8->_vf;
-    sVar2 = (*(*pa_Var7)[3].pfn)
-                      ((char *)ptVar8 + (int)(*pa_Var7)[3].delta,gMenu_SubMenuPlayer);
-    pcVar6 = TextSys_Word((int)sVar2);
-    FETextRender_FullTextRGB(pcVar6,(short)(x + 0x97),(short)y,ColText,'\0',2);
+    FETextRender_FullTextRGB(TextSys_Word(this->fTextDescription),
+                             (short)x,(short)y,ColText,'\0',0);
+    FETextRender_FullTextRGB(
+        TextSys_Word((int)(short)(*(*this->fData->_vf)[3].pfn)
+            ((char *)this->fData + (int)(*this->fData->_vf)[3].delta,
+             gMenu_SubMenuPlayer)),
+        (short)(x + 0x97),(short)y,ColText,'\0',2);
   }
   tDrawShapeExtended drawFlags;
 
@@ -2008,7 +2003,8 @@ void tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool selected)
                             (int)this->fFadeVal);
   DrawShapeExtended(0xa,0x18,(short)x + 0x83,(short)y,0,1,&drawFlags);
   DrawShapeExtended(0xb,0x18,(short)x + 0xa1,(short)y,0,1,&drawFlags);
-  /* MATCH: keep the subtraction UN-reassociated — inline, gcc rewrites
+  /* SYM-CODEGEN-CARRIER: w
+     MATCH: keep the subtraction UN-reassociated — inline, gcc rewrites
      `x - (w - 0xb0)` into `(x + 0xb0) - w`; a temp pins the oracle's
      `addiu a2,a2,-176; subu a2,s1,a2`. */
   w = (int)shape->width - 0xb0;
@@ -2052,12 +2048,8 @@ void tInsideBoxLeftRightSlider::Draw(int x,int y,int w,bool selected)
      ($v0 is DrawSlider's, incidental), so the `lh 8(s0)` for the fSelFade arg is
      emitted LATE at the call instead of being hoisted into a saved reg.  Decl
      order coltext-before-col is the s3/s4 assignment. */
-  u_short uVar1;
   int coltext;
   int col;
-  char *sMenuText;
-  __vtbl_ptr_type (*pa_Var3) [6];
-  tListIterator *ptVar4;
   
   this->fX = (short)x;
   this->fY = (short)y;
@@ -2069,15 +2061,15 @@ void tInsideBoxLeftRightSlider::Draw(int x,int y,int w,bool selected)
              ,w,1);
   PSXDrawSquare(col,(int)this->fX,this->fY + 8,
              w,1);
-  sMenuText = TextSys_Word(this->fTextDescription);
-  FETextRender_FullTextRGB(sMenuText,this->fX + 4,
+  FETextRender_FullTextRGB(TextSys_Word(this->fTextDescription),this->fX + 4,
              this->fY + 10,coltext,'\0',0);
-  ptVar4 = this->fData;
-  pa_Var3 = ptVar4->_vf;
-  uVar1 = (*(*pa_Var3)[2].pfn)((char *)ptVar4 + (int)(*pa_Var3)[2].delta,0xffffffff);
-  /* MATCH: the fData reload belongs INSIDE the argument list (a preceding
-     `ptVar4 = this->fData;` statement schedules it between the fX and fY reads). */
-  DrawSlider(uVar1 & 0xff,(u_short)(u_char)this->fData->fMinValue,
+  /* MATCH: keep the virtual selection read nested in DrawSlider's first
+     argument; this leaves the following fData reload inside the argument list
+     and schedules it between retail's fX and fY reads. */
+  DrawSlider((*(*this->fData->_vf)[2].pfn)
+                 ((char *)this->fData + (int)(*this->fData->_vf)[2].delta,
+                  0xffffffff) & 0xff,
+             (u_short)(u_char)this->fData->fMinValue,
              (u_short)(u_char)this->fData->fMaxValue,
              this->fX + 4,this->fY + 2,
              (short)((u_int)((w + -8) * 0x10000) >> 0x10),this->fHeight,4,
@@ -2155,14 +2147,17 @@ void tInsideBoxTwoWaySlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyv
 void tInsideBoxTwoWaySlider::Draw(int x,int y,int w,bool selected)
 
 {
-  short sVar1;
-  u_short uVar2;
+  /* SYM-CODEGEN-CARRIER: selection
+     The virtual read must remain a separate statement before fWidth so retail
+     performs the jalr before the width narrowing; SYM retains only the inlined
+     tListIterator `this`, so no original name survives for this value. */
+  u_short selection;
   int col2;
   int col;
   int coltext;
-  char *sMenuText;
-  __vtbl_ptr_type (*pa_Var4) [6];
-  tListIterator *ptVar5;
+  /* SYM-CODEGEN-CARRIER: fWidth
+     A named narrow value preserves the shared 16-bit width passed to both
+     DrawSlider calls; inlining it changes the retail argument schedule. */
   short fWidth;
   int ww;
 
@@ -2192,24 +2187,21 @@ void tInsideBoxTwoWaySlider::Draw(int x,int y,int w,bool selected)
              this->fY + 8,ww,1);
   PSXDrawSquare(col,this->fX + ww + 3,
              (int)this->fY,2,9);
-  sMenuText = TextSys_Word(this->fTextDescription);
-  FETextRender_FullTextRGB(sMenuText,this->fX + 4,
+  FETextRender_FullTextRGB(TextSys_Word(this->fTextDescription),this->fX + 4,
              this->fY + 10,coltext,'\0',0);
-  ptVar5 = this->fData;
-  pa_Var4 = ptVar5->_vf;
-  uVar2 = (*(*pa_Var4)[2].pfn)((char *)ptVar5 + (int)(*pa_Var4)[2].delta,0xffffffff);
-  /* MATCH (see tInsideBoxLeftRightSlider::Draw): the fData reload belongs INSIDE
-     the argument list, and retail drops the result ($v0 = DrawSlider's). */
+  selection = (*(*this->fData->_vf)[2].pfn)
+      ((char *)this->fData + (int)(*this->fData->_vf)[2].delta,0xffffffff);
+  /* MATCH: the min/max fData reloads remain inside the argument list, and
+     retail drops the result ($v0 = DrawSlider's). */
   fWidth = (short)((u_int)(((w >> 1) + -8) * 0x10000) >> 0x10);
-  DrawSlider(uVar2 & 0xff,(u_short)(u_char)this->fData->fMinValue,
+  DrawSlider(selection & 0xff,(u_short)(u_char)this->fData->fMinValue,
              (u_short)(u_char)this->fData->fMaxValue,
              this->fX + 1,this->fY + 2,fWidth,
              this->fHeight,4,4,true,0,
              this->fSelFade,0);
-  ptVar5 = this->fData;
-  pa_Var4 = ptVar5->_vf;
-  uVar2 = (*(*pa_Var4)[2].pfn)((char *)ptVar5 + (int)(*pa_Var4)[2].delta,0xffffffff);
-  DrawSlider(uVar2 & 0xff,(u_short)(u_char)this->fData->fMinValue,
+  selection = (*(*this->fData->_vf)[2].pfn)
+      ((char *)this->fData + (int)(*this->fData->_vf)[2].delta,0xffffffff);
+  DrawSlider(selection & 0xff,(u_short)(u_char)this->fData->fMinValue,
              (u_short)(u_char)this->fData->fMaxValue,
              (short)(((u_int)(u_short)this->fX + ww + 10) * 0x10000 >>
                     0x10),this->fY + 2,fWidth,

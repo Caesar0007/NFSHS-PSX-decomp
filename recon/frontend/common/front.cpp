@@ -1239,15 +1239,10 @@ static void Front_InitStream(tFEStream &streamData)
 static void Front_InitPlayerCars(tFEStream &streamData)
 
 {
-  uchar uVar1;
-  short sVar2;
-  char *pcVar3;
-  void *pvVar4;
+  /* SYM: function-scope locals are exactly `carInfo` and `i`; carModel and
+     carColor are declared only in the final loop block. */
   tCarInfo *carInfo;
-  tCarInfo *ptVar6;
   short i;
-  tCarModels carModel;
-  char carColor;
   
   streamData.numPlayers = 0;
   /* MATCH: EACH arm carries its OWN `carInfo->fColor = fColorOrder[fColor]; numPlayers++`
@@ -1273,9 +1268,9 @@ static void Front_InitPlayerCars(tFEStream &streamData)
        displacement instead (+205 vs the oracle's +197). */
     carInfo = &streamData.playerCars[streamData.numPlayers];
     carInfo->fColor = carInfo->fColorOrder[carInfo->fColor];
-    sVar2 = streamData.numPlayers + 1;
-    streamData.numPlayers = sVar2;
-    carManager.GetPinkSlipsCar((ushort)(byte)frontEnd.pinkSlipsCar[1],*(streamData.playerCars + sVar2),1);
+    streamData.numPlayers = streamData.numPlayers + 1;
+    carManager.GetPinkSlipsCar((ushort)(byte)frontEnd.pinkSlipsCar[1],
+                               streamData.playerCars[streamData.numPlayers],1);
     carInfo = &streamData.playerCars[streamData.numPlayers];
     carInfo->fColor = carInfo->fColorOrder[carInfo->fColor];
     streamData.numPlayers = streamData.numPlayers + 1;
@@ -1291,24 +1286,22 @@ static void Front_InitPlayerCars(tFEStream &streamData)
           /* MATCH: `carColors[i]`, NOT the Ghidra `carColors[i * 0x18]` -- carColors is
              char[2][48], so Ghidra's flattened byte index multiplied the row stride twice
              (ours i*24*48=1152, retail i*48). Same for carCountry below. */
-          pcVar3 = carInfo->fShapeName + ((byte)frontEnd.carColors[i][carInfo->fCarID] - 8)
-          ;
+          carInfo->fColor = carInfo->fColorOrder[
+              (byte)frontEnd.carColors[i][carInfo->fCarID]];
         }
         else {
           carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[i],
                      *(streamData.playerCars + streamData.numPlayers),i);
           carInfo = &streamData.playerCars[streamData.numPlayers];
-          pcVar3 = carInfo->fShapeName + (carInfo->fColor - 8);
+          carInfo->fColor = carInfo->fColorOrder[carInfo->fColor];
         }
-        carInfo->fColor = pcVar3[0xaf];
         /* MATCH: retail leaves the load-delay `nop` after the fColorOrder read and stores
            BEFORE reading fCarClass; our sched1 hoists the fCarClass load over the fColor
            store (it disambiguates the two char fields). The barrier restores the order. */
         __asm__ __volatile__("" : : "i"(0));
         if (carInfo->fCarClass == '\a') {
-          uVar1 = frontEnd.carCountry[streamData.numPlayers][carInfo->fCarID];
+          carInfo->fCountry = frontEnd.carCountry[streamData.numPlayers][carInfo->fCarID];
           carInfo->fColor = '\0';
-          carInfo->fCountry = uVar1;
         }
         streamData.numPlayers = streamData.numPlayers + 1;
         /* MATCH: the increment lives IN the condition, AFTER the gameMode test (retail

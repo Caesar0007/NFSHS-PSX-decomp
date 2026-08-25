@@ -37,29 +37,25 @@ void tScreenTrophyRoom::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
                char **permFileName,char **swapFileName)
 
 {
-  /* MATCH (S3.12 #16): retail holds gSwapFileName's ADDRESS in a callee-saved
-     reg ($s0) ACROSS the GetTrophyName call and reuses it for *swapFileName
-     (oracle `addu $a3,$s0,$zero` ... `sw $s0,0($s2)`); materializing the
-     address twice costs an extra lui/addiu pair. */
-  char *swapName = gSwapFileName;
-
   numPermShapes = 0x26;
   numSwapShapes = 0x20;
-  /* MATCH: the SLD splits this in two - line 60 computes the tournament INDEX
-     (both lbu's + the shared tier*2), line 61 is the call.  As one expression
-     gcc scales each index term separately (two x84 chains) and hands
-     &tournamentManager a non-$a0 scratch. */
+  /* MATCH: the SLD splits the THIS-dependent current-tournament read from the
+     call.  Folding that read into the call scales the index terms separately
+     and hands &tournamentManager a non-$a0 scratch; the remaining offset plus
+     `cur` expression can stay in the call without changing code or SLD. */
   {
-    /* the THIS-dependent read must be its own statement FIRST: it frees $a0
-       for &tournamentManager (oracle `addu $a1,$a0,$v0` then `lui $a0`). */
+    /* SYM-CODEGEN-CARRIER: cur -- folding this member read into the index is
+       FAIL27 (49/48); its own statement frees $a0 before the manager address
+       is formed and reproduces retail's allocation order. */
     uint cur = (uint)(byte)this->fRealCurrentTourn[(byte)frontEnd.tier];
-    uint tourn = (uint)(tournamentManager.fDefinition)->fTiers[(byte)frontEnd.tier].fTournOffset + cur;
 
     GetTrophyName(&tournamentManager,
-               (tournamentManager.fDefinition)->fTournaments + tourn,ts_Small,swapName,-1);
+               (tournamentManager.fDefinition)->fTournaments +
+                 ((uint)(tournamentManager.fDefinition)->fTiers[(byte)frontEnd.tier].fTournOffset + cur),
+               ts_Small,gSwapFileName,-1);
   }
   *permFileName = "zTrophy";
-  *swapFileName = swapName;
+  *swapFileName = gSwapFileName;
   return;
 }
 

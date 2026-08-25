@@ -2631,8 +2631,10 @@ int * Front_BuildStream(int *stream)
 {
   int colourLoop;
   int j, type;
-  int iVar3;
-  uint uVar6;
+  /* SYM-CODEGEN-CARRIER: randomSeed -- direct assignment to stream[0x31]
+     is FAIL 5 at 1001/1000: it keeps the value in $a0 and removes retail's
+     load-delay nop.  The captured value restores `lh v0` plus that delay. */
+  int randomSeed;
   int numplaylistsongs;
   int *d;
   int trackLang;
@@ -2705,11 +2707,11 @@ int * Front_BuildStream(int *stream)
   stream[0x2e] = 3;
   stream[0x2f] = 1;
   stream[0x30] = 0x1b;
-  iVar3 = (int)frontEnd.randomSeed;
+  randomSeed = (int)frontEnd.randomSeed;
   stream[0x32] = 0x4a;
   stream[0x33] = 0;
   stream[0x34] = 0x24;
-  stream[0x31] = iVar3;
+  stream[0x31] = randomSeed;
   gameLang = (uint)(byte)frontEnd.language;
   trackLang = (uint)(byte)streamData.trackInfo.fLanguage;
   if ((frontEnd.localSpeech != '\0') && Front_EnableLocalSpeech()) {
@@ -2782,8 +2784,7 @@ int * Front_BuildStream(int *stream)
     }
   }
   *d++ = 0x29;
-  iVar3 = Stattool_ReturnRecordLapTime((short)(signed char)streamData.track.fTrackNumber);
-  *d++ = iVar3;
+  *d++ = Stattool_ReturnRecordLapTime((short)(signed char)streamData.track.fTrackNumber);
   *d++ = 8;
   if ((frontEnd.raceType == RaceType_SingleRace) && (frontEnd.carListType == '\0')) {
     *d++ = 1;
@@ -2861,21 +2862,14 @@ int * Front_BuildStream(int *stream)
     *d++ = 0x73;
     *d++ = GetPSXPadValue(mappings[config][9][type],0);
     *d++ = 0x54;
-    uVar6 = 0;
-    if (type == 1) {
-      uVar6 = 6;
-    }
+    *d++ = GetPSXPadValue((type == 1) ? 6 : 0,0);
   }
   else {
     *d++ = 0x73;
     *d++ = 0;
     *d++ = 0x54;
-    uVar6 = mappings[config][9][type];
-    if (type == 1) {
-      uVar6 = uVar6 | 6;
-    }
+    *d++ = GetPSXPadValue(mappings[config][9][type] | ((type == 1) ? 6 : 0),0);
   }
-  *d++ = GetPSXPadValue(uVar6,0);
   *d++ = 0x4d;
   *d++ = GetPSXPadValue(mappings[config][0xb][type],0);
   *d++ = 0x75;
@@ -2894,26 +2888,18 @@ int * Front_BuildStream(int *stream)
       *d++ = GetPSXPadValue(0x1000,0);
     }
     *d++ = 0x81;
-    uVar6 = mappings[config][10][type];
-    if (type == 1) {
-      uVar6 = uVar6 | 6;
-    }
+    *d++ = GetPSXPadValue(mappings[config][10][type] | ((type == 1) ? 6 : 0),0);
   }
   else {
     *d++ = 0x82;
-    uVar6 = mappings[config][10][type];
-    if (type == 1) {
-      uVar6 = uVar6 | 6;
-    }
-    *d++ = GetPSXPadValue(uVar6,0);
+    *d++ = GetPSXPadValue(mappings[config][10][type] | ((type == 1) ? 6 : 0),0);
     *d++ = 0x7d;
     *d++ = GetPSXPadValue(mappings[config][0][type],0);
     *d++ = 0x7e;
     *d++ = GetPSXPadValue(mappings[config][1][type],0);
     *d++ = 0x81;
-    uVar6 = 0x40;
+    *d++ = GetPSXPadValue(0x40,0);
   }
-  *d++ = GetPSXPadValue(uVar6,0);
   if (frontEnd.gameMode == '\x01') {
     config = (uint)(byte)frontEnd.controlConfig[1];
     type = (short)frontEnd.controlType[1];
@@ -2940,21 +2926,14 @@ int * Front_BuildStream(int *stream)
       *d++ = 0xbf;
       *d++ = GetPSXPadValue(mappings[config][9][type],1);
       *d++ = 0xa0;
-      uVar6 = 0;
-      if (type == 1) {
-        uVar6 = 6;
-      }
+      *d++ = GetPSXPadValue((type == 1) ? 6 : 0,1);
     }
     else {
       *d++ = 0xbf;
       *d++ = 0;
       *d++ = 0xa0;
-      uVar6 = mappings[config][9][type];
-      if (type == 1) {
-        uVar6 = uVar6 | 6;
-      }
+      *d++ = GetPSXPadValue(mappings[config][9][type] | ((type == 1) ? 6 : 0),1);
     }
-    *d++ = GetPSXPadValue(uVar6,1);
     *d++ = 0x99;
     *d++ = GetPSXPadValue(mappings[config][0xb][type],1);
     *d++ = 0xc1;
@@ -2965,26 +2944,18 @@ int * Front_BuildStream(int *stream)
     *d++ = GetPSXPadValue(0x800,1);
     if (streamData.playerCars[1].fCarClass == '\a') {
       *d++ = 0xcd;
-      uVar6 = mappings[config][10][type];
-      if (type == 1) {
-        uVar6 = uVar6 | 6;
-      }
+      *d++ = GetPSXPadValue(mappings[config][10][type] | ((type == 1) ? 6 : 0),1);
     }
     else {
       *d++ = 0xce;
-      uVar6 = mappings[config][10][type];
-      if (type == 1) {
-        uVar6 = uVar6 | 6;
-      }
-      *d++ = GetPSXPadValue(uVar6,1);
+      *d++ = GetPSXPadValue(mappings[config][10][type] | ((type == 1) ? 6 : 0),1);
       *d++ = 0xc9;
       *d++ = GetPSXPadValue(mappings[config][0][type],1);
       *d++ = 0xca;
       *d++ = GetPSXPadValue(mappings[config][1][type],1);
       *d++ = 0xcd;
-      uVar6 = 0x40;
+      *d++ = GetPSXPadValue(0x40,1);
     }
-    *d++ = GetPSXPadValue(uVar6,1);
   }
   *d++ = 0;
   resizememadr(stream,(int)d - (int)stream);

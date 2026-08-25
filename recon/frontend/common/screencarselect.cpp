@@ -966,29 +966,16 @@ void tScreenCarSelect::SetBrightness(short bright,short i)
 void tScreenCarSelect::UpdateBrightness(short i)
 
 {
-  short destBrightness;
-  short brightness;
-  short sVar3;
-
-  brightness = this->fBrightness[i];
-  destBrightness = this->fDestBrightness[i];
-  /* MATCH: `destBrightness > brightness` -- NOT the equivalent
-     `brightness < destBrightness`.  Compare-operand order IS the load order here
-     (05H): the reversed phrasing emits `lh a2,888` before `lh a1,884`, which is
-     what puts destBrightness in $a2 / brightness in $a1 like the oracle.  The
-     plain `<` spelling swaps the pair across all 3 compares. */
-  if (destBrightness > brightness) {
-    sVar3 = this->fBrightness[i] + 8;
-    this->fBrightness[i] = sVar3;
-    if (this->fDestBrightness[i] < sVar3) {
+  if (this->fDestBrightness[i] > this->fBrightness[i]) {
+    this->fBrightness[i] = this->fBrightness[i] + 8;
+    if (this->fDestBrightness[i] < this->fBrightness[i]) {
       this->fBrightness[i] = this->fDestBrightness[i];
       return;
     }
   }
-  else if (destBrightness < brightness) {
-    sVar3 = this->fBrightness[i] + -8;
-    this->fBrightness[i] = sVar3;
-    if (sVar3 < this->fDestBrightness[i]) {
+  else if (this->fDestBrightness[i] < this->fBrightness[i]) {
+    this->fBrightness[i] = this->fBrightness[i] + -8;
+    if (this->fBrightness[i] < this->fDestBrightness[i]) {
       this->fBrightness[i] = this->fDestBrightness[i];
     }
   }

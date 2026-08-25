@@ -983,36 +983,37 @@ void tScreenCarSelect::UpdateBrightness(short i)
 void tScreenCarSelect::DrawBackground()
 
 {
-  bool bVar1;
-  __vtbl_ptr_type (*vtbl) [10];
-  int valid;
-  short bright;
+  /* SYM/PASS: the recorded caller local is only carInfo.  Flattened slots
+     13/10 and the direct brightness conditional remove valid/vtbl/bright;
+     GetPlayer restores the nested tFEApplication receiver. */
+  /* SYM-CODEGEN-CARRIER: canUpload -- retail records no caller local here,
+     but folding this predicate directly into the if is FAIL7 (75/76): it
+     removes retail's boolean materialization/nop and reverses the final branch.
+     The identifier is not recoverable; this semantic spelling documents the
+     exact source-level allocation carrier. */
+  bool canUpload;
   tCarInfo carInfo;
 
-  vtbl = this->_vf;
-  valid = (*vtbl[1][3].pfn)
-                    (this->fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
-  if (valid != 0) {
+  if ((*(*this->_vf)[13].pfn)
+      (this->fPermShapes.fFilename + -0x14 + (*this->_vf)[13].delta,
+       &carInfo) != 0) {
     ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
-    bVar1 = (this->fSwapShapes.fFile != (char *)0x0) &&
-            (this->fVideoWall[0].fTransitionDirection != -1) &&
-            (gCarObj[(byte)FEAppB[0]->fPlayer]->async_handle == 0) &&
-            (0x80 < ticks[0] - this->fFadeTicks[0]);
-    if (bVar1) {
+    canUpload = (this->fSwapShapes.fFile != (char *)0x0) &&
+                (this->fVideoWall[0].fTransitionDirection != -1) &&
+                /* SYM-INLINE-THIS: GetPlayer */
+                (gCarObj[FEAppB[0]->GetPlayer()]->async_handle == 0) &&
+                (0x80 < ticks[0] - this->fFadeTicks[0]);
+    if (canUpload) {
       this->tScreen::UploadSwapShapes(0xb);
       TurnOn(this->fVideoWall);
       if (this->fBrightness[0] == this->fDestBrightness[0]) {
-        bright = 0x20;
-        if (carInfo.fAvailable != '\0') {
-          bright = 0x80;
-        }
-        this->SetBrightness(bright,0);
+        this->SetBrightness((carInfo.fAvailable != '\0') ? 0x80 : 0x20,0);
       }
     }
   }
   if (this->fScreenFadeVal < 0x80) {
-    vtbl = this->_vf;
-    (*vtbl[1][0].pfn)(this->fPermShapes.fFilename + -0x14 + vtbl[1][0].delta,0);
+    (*(*this->_vf)[10].pfn)
+        (this->fPermShapes.fFilename + -0x14 + (*this->_vf)[10].delta,0);
   }
   return;
 }

@@ -435,6 +435,19 @@ void MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame(tMenuCommand &comm
 void MenuExtended_GoToCarSelect(tMenuCommand &command)
 
 {
+  /* SYM-CODEGEN-CARRIER: dialog
+     SYM-CODEGEN-CARRIER: nextMenu
+     SYM-CODEGEN-CARRIER: screen
+     SYM-CODEGEN-CARRIER: state
+     Retail SYM exposes only `trackInfo` plus an inlined tFEApplication
+     receiver.  These four aliases are therefore not claimed as recovered
+     source locals; they preserve optimizer decisions proven by the exact
+     oracle.  Removing `dialog` and spelling the popup chain directly is 42
+     diffs and two instructions short.  Replacing the three car-select merge
+     carriers with direct branch statements is 24 diffs and two instructions
+     long; retaining only screen/state or nextMenu/state is 15 diffs, and
+     retaining nextMenu/screen is nine.  All four together remain PASS
+     (229/229), so their unknowable source names are explicitly receipted. */
   tDialogMessageString *dialog = &FEApp->messagePopup;
   tMenu *nextMenu;
   tScreenCarSelect *screen;
@@ -476,14 +489,14 @@ void MenuExtended_GoToCarSelect(tMenuCommand &command)
     else {
       command.type = kMenu_Command_GoToMenu;
       if (frontEnd.carListType == '\0') {
-        state = 0;
         nextMenu = (tMenu*)&menuDefs[0]->menuSingleCarSelect;
         screen = screenCarSelect[0];
+        state = 0;
       }
       else {
-        state = 1;
         nextMenu = (tMenu*)&menuDefs[0]->menuCarGarage;
         screen = screenCarSelect[0];
+        state = 1;
       }
       command.nextMenu = nextMenu;
       screen->SetState(state);

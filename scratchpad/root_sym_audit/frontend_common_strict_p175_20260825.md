@@ -16,9 +16,9 @@ functions are mapped to their demangled C++ names and class scopes.
 - Source definitions still using mangled linkage identifiers: 0
 - Explicit deleting-destructor ABI carriers: 0
 - Explicit cross-TU ownership closures: 0
-- Declaration-clean mapped functions: 717
+- Declaration-clean mapped functions: 718
 - Missing SYM names: 0
-- Extra source-local names: 441
+- Extra source-local names: 437
 - Type-comparison findings: 0
 - Recognized ABI/debug-equivalent type encodings: 245
   (generic-function-pointer=12, promoted-stack-argument=26, reference-as-pointer=207)
@@ -28,7 +28,7 @@ functions are mapped to their demangled C++ names and class scopes.
 - Explicit restored inline-local mappings: 16
 - Explicit restored macro-local mappings: 0
 - Explicit linkage-proven ABI parameters omitted from SYM: 16
-- Explicit source-only codegen carriers: 300
+- Explicit source-only codegen carriers: 304
 - Explicit oracle-proven function type overrides: 0
 - Functions needing mapping review: 0
 - SYM object-owned data records in target TUs: 190
@@ -117,67 +117,63 @@ functions are mapped to their demangled C++ names and class scopes.
 
 - Extra source locals: `defs`, `dlgThis`, `ptVar1`, `sVar3`, `screenState`, `this_00`, `uVar2`
 
-### `MenuExtended_GoToCarSelect__FR12tMenuCommand` (0x8002c4fc, femenudefs.cpp:435, map=exact)
-
-- Extra source locals: `dialog`, `nextMenu`, `screen`, `state`
-
-### `GenericMenuSaveGame__Fi` (0x8002c9a0, femenudefs.cpp:712, map=exact)
+### `GenericMenuSaveGame__Fi` (0x8002c9a0, femenudefs.cpp:725, map=exact)
 
 - Extra source locals: `app`, `dlgThis`, `noInput`, `pcVar4`, `ret`
 
-### `MenuExtended_GoToRace__FR12tMenuCommand` (0x8002cc98, femenudefs.cpp:898, map=exact)
+### `MenuExtended_GoToRace__FR12tMenuCommand` (0x8002cc98, femenudefs.cpp:911, map=exact)
 
 - Extra source locals: `dlgThis`, `pcVar3`, `ptVar1`, `uVar2`, `wordnum`
 
-### `MenuExtended_GoTo2PlayerRace__FR12tMenuCommand` (0x8002cdf4, femenudefs.cpp:970, map=exact)
+### `MenuExtended_GoTo2PlayerRace__FR12tMenuCommand` (0x8002cdf4, femenudefs.cpp:983, map=exact)
 
 - Extra source locals: `dlgThis`, `pcVar3`, `ptVar1`, `uVar2`, `wordnum`
 
-### `MenuExtended_GoToTournTrackInfo__FR12tMenuCommand` (0x8002cf40, femenudefs.cpp:1042, map=exact)
+### `MenuExtended_GoToTournTrackInfo__FR12tMenuCommand` (0x8002cf40, femenudefs.cpp:1055, map=exact)
 
 - Extra source locals: `dlgThis`, `fe`, `iVar6`, `iVar7`, `pcVar5`, `pp`, `ptVar1`, `ptVar2`, `ptVar3`, `sVar4`, `this_00`, `tm`, `tsaved`
 
-### `MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand` (0x8002d0a8, femenudefs.cpp:1139, map=exact)
+### `MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand` (0x8002d0a8, femenudefs.cpp:1152, map=exact)
 
 - Extra source locals: `dlgThis`, `fe`, `iVar6`, `iVar7`, `pcVar5`, `pp`, `ptVar1`, `ptVar2`, `ptVar3`, `sVar4`, `this_00`, `tm`, `tsaved`
 
-### `MenuExtended_EnterUserName__FR12tMenuCommand` (0x8002d214, femenudefs.cpp:1262, map=exact)
+### `MenuExtended_EnterUserName__FR12tMenuCommand` (0x8002d214, femenudefs.cpp:1275, map=exact)
 
 - Extra source locals: `bVar1`, `bVar2`, `dlgThis`, `ptVar3`, `ptVar4`
 
-### `MenuExtended_SellCar__FR12tMenuCommand` (0x8002d3a0, femenudefs.cpp:1451, map=exact)
+### `MenuExtended_SellCar__FR12tMenuCommand` (0x8002d3a0, femenudefs.cpp:1464, map=exact)
 
 - Extra source locals: `bVar1`, `command`, `dlgThis`, `lVar4`, `lVar5`, `lVar6`, `pcVar7`, `pp`, `ptVar2`, `sVar3`, `this_00`
 
-### `MenuExtended_BuyCar__FR12tMenuCommand` (0x8002d4f8, femenudefs.cpp:1555, map=exact)
+### `MenuExtended_BuyCar__FR12tMenuCommand` (0x8002d4f8, femenudefs.cpp:1568, map=exact)
 
 - Extra source locals: `command`, `dlgThis`, `lVar3`, `pcVar4`, `pp`, `ptVar1`, `sVar2`, `this_00`
 
-### `MenuExtended_PurchaseUpgrade__Fi` (0x8002d64c, femenudefs.cpp:1626, map=exact)
+### `MenuExtended_PurchaseUpgrade__Fi` (0x8002d64c, femenudefs.cpp:1639, map=exact)
 
 - Extra source locals: `dlgThis`, `lVar3`, `pcVar4`, `pp`, `ptVar1`, `sVar2`, `uVar5`
 
-### `MenuExtended_LoadGame__FR12tMenuCommand` (0x8002d8d0, femenudefs.cpp:1892, map=exact)
+### `MenuExtended_LoadGame__FR12tMenuCommand` (0x8002d8d0, femenudefs.cpp:1905, map=exact)
 
 - Extra source locals: `command`, `dlgThis`, `framePadding`, `sVar1`
 
-### `MenuExtended_PostGameMenu__FR12tMenuCommand` (0x8002db04, femenudefs.cpp:2034, map=exact)
+### `MenuExtended_PostGameMenu__FR12tMenuCommand` (0x8002db04, femenudefs.cpp:2047, map=exact)
 
 - Extra source locals: `dlgThis`, `ptVar3`, `ptVar4`, `pvVar2`, `sVar1`
 
-### `MenuExtended_FinishedPlayer1GetName__FR12tMenuCommand` (0x8002dc04, femenudefs.cpp:2093, map=exact)
+### `MenuExtended_FinishedPlayer1GetName__FR12tMenuCommand` (0x8002dc04, femenudefs.cpp:2106, map=exact)
 
 - Extra source locals: `dlgThis`, `ptVar1`, `ptVar2`, `ptVar3`, `pvVar5`, `sVar4`
 
-### `MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand` (0x8002de74, femenudefs.cpp:2253, map=exact)
+### `MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand` (0x8002de74, femenudefs.cpp:2266, map=exact)
 
 - Extra source locals: `dlgThis`, `dlgThis2`, `dlgThis3`, `pcVar5`, `playerNum`, `ptVar1`, `ptVar2`, `ptVar3`, `this_00`
 
-### `MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand` (0x8002e21c, femenudefs.cpp:2561, map=exact)
+### `MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand` (0x8002e21c, femenudefs.cpp:2574, map=exact)
 
 - Extra source locals: `dlgThis`, `fmt`, `iVar5`, `msg`, `pcVar4`, `ptVar2`, `sVar3`
 
-### `__15tGlobalMenuDefs` (0x8002e3b8, femenudefs.cpp:3127, map=exact)
+### `__15tGlobalMenuDefs` (0x8002e3b8, femenudefs.cpp:3140, map=exact)
 
 - Extra source locals: `pm_`, `pu_`
 
@@ -407,6 +403,7 @@ functions are mapped to their demangled C++ names and class scopes.
 - `Front_BuildStream__FPi`: `randomSeed`
 - `AskTheUserToSaveTheGame__Fv`: `dlgThis`
 - `MenuExtended_TransitionFromPostGameToMainMenu__FR12tMenuCommand`: `ptVar1`
+- `MenuExtended_GoToCarSelect__FR12tMenuCommand`: `dialog`, `nextMenu`, `screen`, `state`
 - `MenuExtended_GoToDealer__FR12tMenuCommand`: `cmdType`, `dlgThis`, `ptVar1`, `state`
 - `MenuExtended_GoToSeller__FR12tMenuCommand`: `cmdType`, `dlgThis`, `ptVar1`, `state`
 - `MenuExtended_GoToUpgrades__FR12tMenuCommand`: `ptVar1`

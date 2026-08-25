@@ -845,8 +845,11 @@ void tScreenCarSelect::DrawVideoWall(short y)
 
 {
   bool validCar;
+  /* SYM-CODEGEN-CARRIER: vtbl -- the retail virtual GetCar call's implicit
+     dispatch temporary has no SYM source local.  The manual non-virtual ABI
+     model needs this cached row pointer: direct this->_vf[1][3] dispatch is
+     byte-identical, but fails audit_vtable_indexing as unsafe row indexing. */
   __vtbl_ptr_type (*vtbl) [10];
-  tVideoWall *this_00;
   tCarInfo carInfo;
   
   vtbl = this->_vf;
@@ -862,11 +865,10 @@ void tScreenCarSelect::DrawVideoWall(short y)
     TurnOffInstant(this->fVideoWall);
     this->SetBrightness(0,0);
   }
-  this_00 = this->fVideoWall;
-  ::UpdateTransition(this_00);
-  this_00->SetValid(validCar);
-  SetAvailable(this_00,(ushort)carInfo.fAvailable);
-  ::Draw(this_00);
+  ::UpdateTransition(this->fVideoWall);
+  this->fVideoWall->SetValid(validCar);
+  SetAvailable(this->fVideoWall,(ushort)carInfo.fAvailable);
+  ::Draw(this->fVideoWall);
   return;
 }
 

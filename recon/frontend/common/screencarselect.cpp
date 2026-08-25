@@ -1320,25 +1320,26 @@ DrawFG_afterCarRender:
 void tScreenCarSelectDuel::PreLoad()
 
 {
-  char *buf_or_path;
-  char *str;
-  int use_default;
-  void *vtbl;
+  /* SYM/PASS: retail records only carInfo and buffer.  Direct destination
+     assignments and flattened slot 13 remove buf_or_path/str/vtbl exactly. */
+  /* SYM-CODEGEN-CARRIER: useDefault -- folding `call == 1` into the following
+     guard is FAIL4 (74/74), replacing retail's xori/beqz with li/beq.  SYM
+     cannot recover an identifier for this optimized boolean; useDefault is
+     the semantic reconstruction of the required materialized predicate. */
+  bool useDefault;
   tCarInfo carInfo;
   char buffer [32];
   
   (this->fOpponentShapes).fShapes = (tTexture_ShapeInfo *)0x0;
   ::InitializeShapes((tScreen *)this,&this->fOpponentShapes,5);
   ::PreLoad((tScreen *)this);
-  buf_or_path = Platform_GetDCTBuffer(16000,"VideoWall");
-  this->fSwapShapes.fDestFile = buf_or_path;
-  str = Platform_GetDCTBuffer(16000,"OpponentVid");
-  vtbl = this->_vf;
-  (this->fOpponentShapes).fDestFile = str;
-  use_default = (**(code **)((int)vtbl + 0x6c))
-                          (this->fPermShapes.fFilename +
-                           -0x14 + *(short *)((int)vtbl + 0x68),&carInfo) == 1;
-  if (!use_default) {
+  this->fSwapShapes.fDestFile = Platform_GetDCTBuffer(16000,"VideoWall");
+  this->fOpponentShapes.fDestFile =
+      Platform_GetDCTBuffer(16000,"OpponentVid");
+  useDefault = (*(*this->_vf)[13].pfn)
+      (this->fPermShapes.fFilename + -0x14 + (*this->_vf)[13].delta,
+       &carInfo) == 1;
+  if (!useDefault) {
     carManager.GetStockCar(0,carInfo);
   }
   sprintf(buffer,"z%s",carInfo.fSmallName);

@@ -1676,7 +1676,9 @@ def main() -> None:
     report = audit(parse_sym(args.sym), parse_sym_globals(args.sym), src_fns, file_decls, target)
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(report + "\n", encoding="utf-8")
+        # Keep generated ledgers stable and git-diff-clean even when audit()
+        # already returns a report terminated by a newline.
+        args.output.write_text(report.rstrip("\n") + "\n", encoding="utf-8")
     print(report)
 
 

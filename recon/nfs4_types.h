@@ -3937,7 +3937,12 @@ struct tDialogMessageString : public tDialogBase {   /* 152 bytes */
     char               *string;   /* +0x90 */
     bool               Centerit;   /* +0x94 */
     tDialogMessageString();
-    inline tDialogMessageString *SetString(char *text);
+    /* SLD records this expansion as an inline tDialogMessageString receiver
+       in multiple callers; no standalone function symbol survives. */
+    inline tDialogMessageString *SetString(char *text) {
+        string = text;
+        return this;
+    }
     /* FEDialog methods */
     void CalculateDimensions();
     void Draw();

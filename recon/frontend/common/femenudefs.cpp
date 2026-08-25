@@ -346,20 +346,22 @@ void MenuExtended_SetFullGrid(tMenuCommand &)
 int AskTheUserToSaveTheGame(void)
 
 {
-  int is_cheater;
+  /* SYM-CODEGEN-CARRIER: dlgThis -- retail has no caller local here, but SLD
+     records the inlined tDialogMessageString::SetString receiver `this` in
+     $s0.  Pure direct-object spelling is FAIL 13 (29/30); using SetString but
+     addressing the three following fields from the stack is FAIL 6 (30/30).
+     Carrying SetString's returned receiver through those stores and Run is the
+     exact PASS 30/30 representation of that optimized inline `this` lifetime. */
   tDialogMessageString *dlgThis;
 
   /* MATCH 2026-08-03: SLD starts YesNoDialog and answer only inside the
-     non-cheater block.  Keeping the dialog base pointer live in dlgThis and
-     returning answer from that block reproduces retail's s0 allocation and
-     the single automatic constructor/destructor pair. */
-  is_cheater = (int)FECheat_IsTheUserACryBabyCheater();
-  if ((is_cheater ^ 1) != 0) {
+     non-cheater block.  Returning answer from that block reproduces retail's
+     s0 allocation and the single automatic constructor/destructor pair. */
+  if ((FECheat_IsTheUserACryBabyCheater() ^ 1) != 0) {
     int answer;
     tDialogYesNo YesNoDialog;
 
-    dlgThis = (tDialogMessageString *)&YesNoDialog;
-    dlgThis->string = TextSys_Word(0x331);
+    dlgThis = YesNoDialog.SetString(TextSys_Word(0x331));
     ((tDialogYesNo *)dlgThis)->yesnowords[0] = 0x321;
     ((tDialogYesNo *)dlgThis)->yesnowords[1] = 0x322;
     ((tDialogYesNo *)dlgThis)->fDefault = 0;

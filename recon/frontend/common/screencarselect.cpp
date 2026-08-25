@@ -22,14 +22,6 @@ inline tDialogBase *tDialogBase::SetPosition(short x, short y, tPlayer player)
   return this;
 }
 
-/* The SetDialog SLD records this string-store expansion as an inline
-   tDialogMessageString receiver.  No standalone symbol retains its spelling. */
-inline tDialogMessageString *tDialogMessageString::SetString(char *text)
-{
-  string = text;
-  return this;
-}
-
 /* ---- (static)::TransformVector  [SCREENCARSELECT.CPP:51-59] ---- */
 /* File-static 4x4 fixed-point matrix * 4-vector (ScreenCarSelect.obj 1st fn @0x8003a8f0).
    GCC-v2 `FRA4_iRA4_A4_iT0` decodes to the retail array-reference signature below;

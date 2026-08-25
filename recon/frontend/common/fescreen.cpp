@@ -640,36 +640,38 @@ void tScreen::TransitionOn(tScreen_TransitionType type,tMenu *arg2)
 void tScreen::UpdateTransition()
 
 {
-  short sVar1;
-  int iVar2;
-  int iVar3;
+  /* SYM-CODEGEN-CARRIER: transitionValue
+   * Retail first reuses $v0 for fTransitionOff and the selected +/-12 result.
+   * Removing this source value and updating fadeValue directly is 30/30 but
+   * measures FAIL 10 because the selected result remains in $v1. */
+  int transitionValue;
+  /* SYM-CODEGEN-CARRIER: fadeValue
+   * The clamp keeps the selected result in $v1 while its comparisons use $v0.
+   * Folding this value into transitionValue measures FAIL 19 (33/30). */
+  int fadeValue;
 
-  /* MATCH (2026-08-03): the flag and selected result intentionally share
-     iVar2. Once the branch consumes the flag, gcc coalesces the result into
-     the same $v0 while iVar3 keeps the fade value in $v1. */
-  iVar2 = this->fTransitionOff;
-  iVar3 = this->fInternalScreenFadeVal;
-  if (iVar2 == 0) {
-    iVar2 = iVar3 + -0xc;
+  transitionValue = this->fTransitionOff;
+  fadeValue = this->fInternalScreenFadeVal;
+  if (transitionValue == 0) {
+    transitionValue = fadeValue + -0xc;
   } else {
-    iVar2 = iVar3 + 0xc;
+    transitionValue = fadeValue + 0xc;
   }
-  this->fInternalScreenFadeVal = iVar2;
-  iVar3 = iVar2;
-  if (iVar2 < -0x32) {
-    iVar3 = -0x32;
+  this->fInternalScreenFadeVal = transitionValue;
+  fadeValue = transitionValue;
+  if (transitionValue < -0x32) {
+    fadeValue = -0x32;
   }
-  if (0x96 < iVar3) {
-    iVar3 = 0x96;
+  if (0x96 < fadeValue) {
+    fadeValue = 0x96;
   }
-  this->fInternalScreenFadeVal = iVar3;
-  sVar1 = (short)this->fInternalScreenFadeVal;
-  this->fScreenFadeVal = sVar1;
-  if (sVar1 < 0) {
+  this->fInternalScreenFadeVal = fadeValue;
+  this->fScreenFadeVal = (short)this->fInternalScreenFadeVal;
+  if (this->fScreenFadeVal < 0) {
     this->fScreenFadeVal = 0;
     return;
   }
-  if (0x80 < sVar1) {
+  if (0x80 < this->fScreenFadeVal) {
     this->fScreenFadeVal = 0x80;
   }
   return;

@@ -81,6 +81,25 @@ static inline bool DialogCanProcessCircle(tFEApplication *app, tPlayer player)
          app->CurrentMenu(player) != (tMenu *)0x0;
 }
 
+/* Draw's retail load selects state 1/2 and then addresses the row-8 palette
+   state subarray.  SLD retains no caller temporary for that selection; the
+   exact private helper spelling is not recoverable. */
+static inline int DialogYesNoTextState(tDialogYesNo *dialog, int item)
+{
+  if (item == dialog->ReturnValue) {
+    return 1;
+  }
+  return 2;
+}
+
+static inline char *DialogTextDefinitionsBase()
+{
+  /* Keeping the array's unoffset base in its own zero-local inline boundary
+     reproduces retail's indexed `lbu +51`; folding the row offset into the
+     returned address is byte-different. */
+  return (char *)textDefinitions;
+}
+
 extern "C" {
 void ___7tScreen(void *);
 void ___31tDialogMessageStringWithTimeout(void *thisp) { ___7tScreen(thisp); }
@@ -818,43 +837,25 @@ tDialogYesNo::tDialogYesNo()
 
 
 /* ---- tDialogYesNo::Draw  [FEDIALOG.CPP:773-815] SLD-VERIFIED ---- */
-/* MATCH: 78 -> 16 -> 12 -> 6 -> 0 (W57-A5/W59/W66), exact 98/98.
-   THE LEVER: the two Ghidra locals `sVar1 = this->top; sVar2 = this->height;` were
-   fabricated -- they held two field values in TWO callee-saved regs across the
-   FETextRender_SetABR call (forcing an extra saved reg, `fp`, + its save/restore, and
-   `lhu`+late-extend instead of `lh`).  Reading the fields INLINE in the `y` expression
-   makes gcc load-and-add them in one reg pair exactly like retail.  Also moved
-   `ptVar8 = this;` after the `x` init (preheader statement order).
-   W59 source-authority corrections: retail's SLD/IDA sequence is a natural
-   `y = top + height; y -= 11;` followed by a `(short)y` call argument, not the
-   Ghidra-derived multiply-by-65536/shift-back expression (16->12).  Explicit
-   `rgbBase`/`textBase` loop invariants make LICM emit both address materializations
-   before `ptVar8=this`, reuse v0 for their %hi scratch, and seal the whole six-diff
-   preheader cluster (12->6).
-   W66: the SLD transitions at 0x80019c2c/38/3c/44 recover the last source
-   shape: `top + height - 11` was one expression before SetABR.  Keeping the
-   subtraction in that expression lets scheduling place the sum before SetABR,
-   the subtraction in its delay slot, and the short cast in TextSys_Word's delay
-   slot, sealing the final six position-only residuals. */
+/* MATCH (2026-08-26): exact 98/98 and declaration-clean against SYM's sole
+   locals `i`, `x`, `y`, and `col`.  CalculateDimensionsVirtual removes the raw
+   vtable alias.  DialogYesNoTextState plus DialogTextDefinitionsBase preserve
+   retail's hoisted palette bases and state-1/2 `lbu +51` without caller temps;
+   natural `yesnowords[i]` produces the retail pointer induction.  The SLD/IDA
+   statement shape `y = top + height - 11` remains one expression, scheduling
+   the subtraction in SetABR's delay slot and the short cast in TextSys_Word's
+   delay slot. */
 
 void tDialogYesNo::Draw()
 
 {
-  short sVar1;
-  short sVar2;
-  __vtbl_ptr_type (*pa_Var3) [10];
-  char *sMenuText;
   int col;
-  int idx;
   int y;
   int i;
   int x;
-  tDialogYesNo *ptVar8;
-  int *rgbBase;
-  char *textBase;
   
-  pa_Var3 = this->_vf;
-  (*pa_Var3[1][0].pfn)((int)this + pa_Var3[1][0].delta);
+  /* SYM-INLINE-THIS: CalculateDimensionsVirtual */
+  this->CalculateDimensionsVirtual();
   if (this->fFadeText != 0) {
     this->fFullyOpen = 0;
   }
@@ -863,23 +864,17 @@ void tDialogYesNo::Draw()
     x = (int)this->left +
             ((int)((u_int)(u_short)this->width
                   << 0x10) >> 0x12);
-    rgbBase = kRGBVals;
-    textBase = (char *)textDefinitions;
-    ptVar8 = this;
     while( true ) {
       if (2 <= i) break;
-      idx = 2;
-      if (i == this->ReturnValue) {
-        idx = 1;
-      }
-      col = CalcFadeVal(rgbBase[(u_char)textBase[idx + 0x33]],(int)this->fFadeText);
+      col = CalcFadeVal(
+          kRGBVals[(u_char)DialogTextDefinitionsBase()
+              [DialogYesNoTextState(this,i) + 0x33]],
+          (int)this->fFadeText);
       y = (int)this->top + (int)this->height - 0xb;
       FETextRender_SetABR(1,true);
-      sMenuText = TextSys_Word(ptVar8->yesnowords[0]);
-      FETextRender_FullTextRGB(sMenuText,(short)x,(short)y,col,'\0',2);
+      FETextRender_FullTextRGB(TextSys_Word(this->yesnowords[i]),
+                              (short)x,(short)y,col,'\0',2);
       FETextRender_SetABR(0,false);
-      ptVar8 = (tDialogYesNo *)
-               &(ptVar8)->fPermShapes.fFile;
       x = x + ((int)((u_int)(u_short)this->width << 0x10) >> 0x11);
       i = i + 1;
     }

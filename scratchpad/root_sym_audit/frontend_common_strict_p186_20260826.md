@@ -16,16 +16,16 @@ functions are mapped to their demangled C++ names and class scopes.
 - Source definitions still using mangled linkage identifiers: 0
 - Explicit deleting-destructor ABI carriers: 0
 - Explicit cross-TU ownership closures: 0
-- Declaration-clean mapped functions: 725
+- Declaration-clean mapped functions: 726
 - Missing SYM names: 0
-- Extra source-local names: 394
+- Extra source-local names: 386
 - Type-comparison findings: 0
 - Recognized ABI/debug-equivalent type encodings: 245
   (generic-function-pointer=12, promoted-stack-argument=26, reference-as-pointer=207)
 - Function storage-class findings: 0
 - Implicit aggregate special members (source body correctly absent): 2
 - Explicit oracle-receipted carrier mappings: 3
-- Explicit restored inline-local mappings: 20
+- Explicit restored inline-local mappings: 21
 - Explicit restored macro-local mappings: 0
 - Explicit linkage-proven ABI parameters omitted from SYM: 16
 - Explicit source-only codegen carriers: 306
@@ -57,17 +57,13 @@ functions are mapped to their demangled C++ names and class scopes.
 
 - Extra source locals: `chk`, `fePlayer`, `nc`, `newSel`, `prevSlot`, `slot`, `slot31`
 
-### `CalculateDimensions__11tDialogHelp` (0x80018b90, fedialog.cpp:292, map=exact)
+### `CalculateDimensions__11tDialogHelp` (0x80018b90, fedialog.cpp:311, map=exact)
 
 - Extra source locals: `currentTicks`, `openHeight`, `scanMenu`, `shape3`
 
-### `Draw__11tDialogHelp` (0x8001912c, fedialog.cpp:459, map=exact)
+### `Draw__11tDialogHelp` (0x8001912c, fedialog.cpp:478, map=exact)
 
 - Extra source locals: `bufferPtr`, `firstTick`, `loadedTicks`
-
-### `Draw__12tDialogYesNo` (0x80019b44, fedialog.cpp:840, map=exact)
-
-- Extra source locals: `idx`, `pa_Var3`, `ptVar8`, `rgbBase`, `sMenuText`, `sVar1`, `sVar2`, `textBase`
 
 ### `DrawTV__FR9tTVConfig` (0x8002234c, fetv.cpp:240, map=exact)
 
@@ -277,6 +273,7 @@ functions are mapped to their demangled C++ names and class scopes.
 - `CalculateDimensions__11tDialogHelp`: `this` from `HasFlag`
 - `Draw__11tDialogHelp`: `this` from `CalculateDimensionsVirtual`
 - `Run__18tDialogInteractive`: `player` from `DialogCanProcessCircle`, `this` from `ProcessInputVirtual`
+- `Draw__12tDialogYesNo`: `this` from `CalculateDimensionsVirtual`
 - `FECheat_ActivateCheat__FPc`: `this` from `SetString`
 - `ProcessInput__16tScreenCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand`: `this` from `SetTextDescription`
 - `DrawBackground__16tScreenCarSelect`: `this` from `GetPlayer`

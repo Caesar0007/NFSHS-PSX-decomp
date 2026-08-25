@@ -513,16 +513,27 @@ void tDialogHelp::Draw()
   short i;
   short j;
   char buffer [80];
+  /* SYM-CODEGEN-CARRIER: bufferPtr -- direct `buffer[j]`/`buffer` use is
+     behaviorally equivalent but measures FAIL 2 (187/187): GCC materializes
+     the stack-buffer address two instructions after retail. */
   char *bufferPtr;
   short y;
   long ticks;
   int numLetters;
+  /* SYM-CODEGEN-CARRIER: firstTick -- repeating `this->startTicks` directly
+     measures FAIL 4 (189/187), inserting two load-delay nops and moving the
+     member load past retail's tick-value copy. */
   long firstTick;
   
   /* SYM-INLINE-THIS: CalculateDimensionsVirtual */
   this->CalculateDimensionsVirtual();
   firstTick = this->startTicks;
   {
+    /* SYM-CODEGEN-CARRIER: loadedTicks -- direct `ticks = ::ticks[0]`
+       measures FAIL 3 (186/187): retail has a separate `v0 -> a0` value copy
+       between the global tick load and comparison.  The zero-instruction
+       allocation fence preserves that proven quantity without rewriting the
+       compiled object. */
     long loadedTicks = ::ticks[0];
     ticks = loadedTicks;
     __asm__("" : "+r"(loadedTicks));

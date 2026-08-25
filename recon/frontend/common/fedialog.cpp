@@ -100,6 +100,13 @@ static inline char *DialogTextDefinitionsBase()
   return (char *)textDefinitions;
 }
 
+static inline int DialogYesNoOpenElapsed(tDialogYesNo *dialog)
+{
+  /* CalculateDimensions' 8c record has no elapsed local.  Repeating this
+     zero-local accessor lets GCC share the quantity exactly as retail does. */
+  return ticks[0] - dialog->startTicks;
+}
+
 extern "C" {
 void ___7tScreen(void *);
 void ___31tDialogMessageStringWithTimeout(void *thisp) { ___7tScreen(thisp); }
@@ -750,21 +757,14 @@ short tDialogInteractive::Run()
 void tDialogYesNo::CalculateDimensions()
 
 {
-  /* SYM-CODEGEN-CARRIER: iVar2 -- the W55-A15 oracle receipt below proves
-     this temporary is required to preserve retail's in-place field update. */
-  int iVar2;
-
-  /* MATCH (W55-A15, 20->PASS): retail mutates the FIELD in place in BOTH arms
-     (`lhu v0,108(s0); addiu v0,v0,15; sh v0,108(s0)`), so the height read's own
-     register is the sum's destination and post-reload cross_jump merges the two
-     arms' identical stores into the oracle's single `sh`.  Routing the result
-     through a `short sVar1` funnel + one trailing store gives the sum a FRESH
-     destination and rotates the whole magic-divide block ($v0/$v1/$a0). */
+  /* MATCH (2026-08-26): 46/46 and zero named locals, matching SYM.  The
+     elapsed accessor replaces the former iVar2 carrier while preserving the
+     retail in-place height update and merged trailing store. */
   ((tDialogMessageString *)this)->CalculateDimensions();
   if (this->MaxH == 0) {
-    iVar2 = ticks[0] - this->startTicks;
-    if (iVar2 < 0x32) {
-      this->height = this->height + (short)((iVar2 * 0xf) / 0x32);
+    if (DialogYesNoOpenElapsed(this) < 0x32) {
+      this->height = this->height +
+          (short)((DialogYesNoOpenElapsed(this) * 0xf) / 0x32);
     }
     else {
       this->height = this->height + 0xf;

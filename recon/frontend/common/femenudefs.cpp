@@ -798,17 +798,17 @@ bool PinkSlipsPreSave(void)
    
    [ghidra-meta] section: front.text */
 
+/* SYM/SLD family receipt (One/Three/Five): retail records only `command`.
+   Calling PinkSlipsPreSave directly removes pvVar2, while spelling nextMenu
+   before type lets GCC load menuDefs before the independent command store.
+   This local-free shape is exact PASS 23/23 in all three clones. */
+
 void MenuExtended_GoToBestOfOne(tMenuCommand &command)
 
 {
-  tGlobalMenuDefs *ptVar1;
-  bool pvVar2;
-  
-  pvVar2 = PinkSlipsPreSave();
-  if (pvVar2) {
-    ptVar1 = menuDefs[0];
+  if (PinkSlipsPreSave()) {
+    command.nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuSingleTrackSelect;
     command.type = kMenu_Command_GoToMenu;
-    command.nextMenu = (tMenu *)(tMenu*)&ptVar1->menuSingleTrackSelect;
   }
   else {
     command.type = kMenu_Command_None;
@@ -831,14 +831,9 @@ void MenuExtended_GoToBestOfOne(tMenuCommand &command)
 void MenuExtended_GoToBestOfThree(tMenuCommand &command)
 
 {
-  tGlobalMenuDefs *ptVar1;
-  bool pvVar2;
-  
-  pvVar2 = PinkSlipsPreSave();
-  if (pvVar2) {
-    ptVar1 = menuDefs[0];
+  if (PinkSlipsPreSave()) {
+    command.nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuPinkSlipsBestOfThree;
     command.type = kMenu_Command_GoToMenu;
-    command.nextMenu = (tMenu *)(tMenu*)&ptVar1->menuPinkSlipsBestOfThree;
   }
   else {
     command.type = kMenu_Command_None;
@@ -861,14 +856,9 @@ void MenuExtended_GoToBestOfThree(tMenuCommand &command)
 void MenuExtended_GoToBestOfFive(tMenuCommand &command)
 
 {
-  tGlobalMenuDefs *ptVar1;
-  bool pvVar2;
-  
-  pvVar2 = PinkSlipsPreSave();
-  if (pvVar2) {
-    ptVar1 = menuDefs[0];
+  if (PinkSlipsPreSave()) {
+    command.nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuPinkSlipsBestOfFive;
     command.type = kMenu_Command_GoToMenu;
-    command.nextMenu = (tMenu *)(tMenu*)&ptVar1->menuPinkSlipsBestOfFive;
   }
   else {
     command.type = kMenu_Command_None;

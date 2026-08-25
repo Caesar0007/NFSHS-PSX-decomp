@@ -749,68 +749,59 @@ void tScreenCarSelect::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &
               )
 
 {
-  short state2;
-  __vtbl_ptr_type (*vtbl) [10];
+  /* SYM/PASS: the caller owns exactly carInfo, validCar, and item.  Flattened
+     vtable slot 13 removes the decompiler's vtbl/delta alias; direct keyval and
+     fState reads remove tVar4/state2.  The selected ABS menu item is SYM's
+     `item`, and its three nested tMenuItem receivers are the inlined
+     SetTextDescription stores reconstructed in nfs4_types.h. */
   bool validCar;
-  tInputKeyType tVar4;
   tMenuItem *item;
-  tMenuItemOptionsLeftRightChoice *lrItem;
   tCarInfo carInfo;
   
-  tVar4 = keyval;
-  if (tVar4 == kInput_KeyType_Square) {
-    vtbl = this->_vf;
-    item = (tMenuItem *)(int)vtbl[1][3].delta;
-    validCar = (*(bool (*)(...))vtbl[1][3].pfn)((int)(tScreen *)this + (int)&item->fFlags,&carInfo);
+  if (keyval == kInput_KeyType_Square) {
+    validCar = (*(bool (*)(...))(*this->_vf)[13].pfn)
+        ((char *)this + (*this->_vf)[13].delta,&carInfo);
     if (FEApp->fPlayer == '\0') {
-      lrItem = &menuDefs->itemABS;
+      item = &menuDefs->itemABS;
     }
     else {
-      lrItem = &menuDefs->itemABS2;
+      item = &menuDefs->itemABS2;
     }
-    lrItem->fTextDescription = 0x10b;
+    /* SYM-INLINE-THIS: SetTextDescription */
+    item->SetTextDescription(0x10b);
     if (validCar != 0) {
       if ((signed char)carInfo.fCarID == '\b') {
-        lrItem->fTextDescription = 0x10c;
+        item->SetTextDescription(0x10c);
       }
       if ((signed char)carInfo.fCarID == '\x01') {
-        lrItem->fTextDescription = 0x10d;
+        item->SetTextDescription(0x10d);
       }
     }
     if ((frontEnd.oppNumber == '\x01') || (frontEnd.gameMode == '\x01')) {
       (menuDefs->itemOpponentUpgrades).
       fFlags = (menuDefs->itemOpponentUpgrades).fFlags | 1;
     }
-    tVar4 = keyval;
   }
-  if (tVar4 != kInput_KeyType_Triangle) {
+  if (keyval != kInput_KeyType_Triangle) {
     return;
   }
-  state2 = this->fState;
-  /* MATCH: NONE of the three SetState arms stages a return value -- the oracle has
-     exactly ONE `jal SetState` that all three arms reach by `j` after setting only
-     $a0/$a1, and the epilogue returns SetState's incidental $v0.  Writing
-     `return 1;`/`return 6;` after each call blocks gcc's cross_jump merge (2 jals)
-     and rewrites the whole block layout.  Same "falls off the end" shape as the
-     state2<2 arm already documented below. */
   /* MATCH: flat goto/shared-tail form.  The oracle has exactly ONE `jal SetState`
      that every arm reaches by `j` after setting only $a0/$a1 -- no arm stages a
      return value (the epilogue returns SetState's incidental $v0), and the
-     state2<2 arm falls off the end of the function entirely (retail UB, $v0 = the
+     fState<2 arm falls off the end of the function entirely (retail UB, $v0 = the
      scheduler's leftover).  `if/else if` spellings put the gameMode block in the
-     middle; the explicit labels reproduce the oracle's stub-then-tail layout. */
-  /* MATCH (06A): the SYM 8c block lists ONLY carInfo/validCar/item -- there is no
-     `state` and no `state2`.  A `state` local costs its own `li a1,N` in the
-     gameMode arm, where the oracle re-uses the compare's constant register
+     middle; the explicit labels reproduce the oracle's stub-then-tail layout.
+     Direct fState comparisons also let the gameMode arm reuse the compare's
+     constant register
      (`addiu v0,1; beq v1,v0; addu a1,v0,zero`).  Blocks are written in the
      oracle's physical VA order (dispatch / >=6 sub-dispatch / ==5 / ==6 /
      gameMode / shared jal), which also fixes the ==6 branch polarity. */
-  if (state2 == 5) goto st5;
-  if (5 < state2) goto ge6;
-  if (state2 < 2) goto done;
+  if (this->fState == 5) goto st5;
+  if (5 < this->fState) goto ge6;
+  if (this->fState < 2) goto done;
   goto gamemode;
 ge6:
-  if (state2 == 6) goto st6;
+  if (this->fState == 6) goto st6;
   return;
 st5:
   this->SetState(0);
@@ -835,7 +826,7 @@ done:
      Without it reorg's fill_simple_delay_slots reaches the `j gamemode`
      simplejump FIRST and steals the gameMode block's head
      `lui %hi(frontEnd.gameMode)` into the *j's* slot; retail leaves the `j`
-     nop'd and the `lui` lands in the preceding `bnez` (state2<2) slot instead.
+     nop'd and the `lui` lands in the preceding `bnez` (fState<2) slot instead.
      A zero-insn `asm("" : : "i"(0))` at THIS label (the bnez's target head) is
      the only placement that flips it -- at the gamemode head it costs a real
      insn (99), before the `goto` / after the guard it is inert. */

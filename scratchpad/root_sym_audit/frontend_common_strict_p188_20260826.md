@@ -28,7 +28,7 @@ functions are mapped to their demangled C++ names and class scopes.
 - Explicit restored inline-local mappings: 21
 - Explicit restored macro-local mappings: 0
 - Explicit linkage-proven ABI parameters omitted from SYM: 16
-- Explicit source-only codegen carriers: 305
+- Explicit source-only codegen carriers: 304
 - Explicit oracle-proven function type overrides: 0
 - Functions needing mapping review: 0
 - SYM object-owned data records in target TUs: 190
@@ -57,11 +57,11 @@ functions are mapped to their demangled C++ names and class scopes.
 
 - Extra source locals: `chk`, `fePlayer`, `nc`, `newSel`, `prevSlot`, `slot`, `slot31`
 
-### `CalculateDimensions__11tDialogHelp` (0x80018b90, fedialog.cpp:318, map=exact)
+### `CalculateDimensions__11tDialogHelp` (0x80018b90, fedialog.cpp:325, map=exact)
 
 - Extra source locals: `currentTicks`, `openHeight`, `scanMenu`, `shape3`
 
-### `Draw__11tDialogHelp` (0x8001912c, fedialog.cpp:485, map=exact)
+### `Draw__11tDialogHelp` (0x8001912c, fedialog.cpp:492, map=exact)
 
 - Extra source locals: `bufferPtr`, `firstTick`, `loadedTicks`
 
@@ -316,7 +316,6 @@ functions are mapped to their demangled C++ names and class scopes.
 - `ValidCar__16tListIteratorCar7tPlayerc`: `carClass`
 - `Increment__21tListIteratorCarColor7tPlayer`: `fNumColors`, `notWrapped`
 - `DrawAllDialogs__11tDialogBase`: `sVar1`
-- `Draw__20tDialogMessageString`: `halfw`
 - `TransitionIsFinished__9tMenuNFS4`: `iVar2`, `iVar4`, `ptVar1`, `uVar3`
 - `Draw__9tMenuNFS4`: `iVar3`, `iVar4`
 - `TransitionOff__12tMenuOptions`: `iVar1`

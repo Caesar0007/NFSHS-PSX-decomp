@@ -26,6 +26,13 @@ static inline int DialogMessageTickAge(int value)
   return value + -0x32;
 }
 
+static inline int DialogMessageHalfWidth(tDialogMessageString *dialog)
+{
+  /* Draw's 8c record names only `col` and `r`.  This zero-local boundary
+     preserves retail's width-before-left load order without a halfw carrier. */
+  return (int)((u_int)(u_short)dialog->width << 0x10) >> 0x11;
+}
+
 /* The zero-local 8c record and nested line-1 SLD scopes prove an inline source
    boundary around this clamp.  Its behavior and allocation are exact; the
    original unexported helper/macro spelling is not recoverable from SYM. */
@@ -636,13 +643,9 @@ void tDialogMessageString::Draw()
     r.h = this->height - ((u_short)this->reservedheight + 8);
     FETextRender_SetABR(1,true);
     if (this->Centerit != 0) {
-      /* SYM-CODEGEN-CARRIER: halfw -- inlining preserves instruction count
-         but moves the width load after the left load (2 diffs); reversing the
-         add operands changes the hard-register assignment (8 diffs). */
-      int halfw = (int)((u_int)(u_short)this->width << 0x10) >> 0x11;
-
       FETextRender_FullTextRGB(this->string,
-                 (short)(((u_int)(u_short)this->left + halfw) * 0x10000
+                 (short)(((u_int)(u_short)this->left +
+                          DialogMessageHalfWidth(this)) * 0x10000
                         >> 0x10),this->top + 8,col,'\0',2);
     }
     else {

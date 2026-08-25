@@ -4,6 +4,12 @@
  */
 #include "femenudefs.h"
 
+inline void tFEApplication::DisplayMessage(int word)
+{
+  tDialogMessageString *dialog = &messagePopup;
+  dialog->SetString(TextSys_Word(word))->tDialogBase::Display();
+}
+
 /* ---- FEMenuDefs.obj-OWNED globals -- DEFINED here (self-contained; .data=real EXE bytes) ---- */
 /* tBlankMenuItemGoToMenuNFS4Button_vtable @0x800114d8 + tBlankMenuItemNFS4LeftRightChoice_vtable @0x80011530:
    real __vtbl_ptr_type[11] defs live in game/common/vtables_tmenu.cpp; declared extern via femenudefs_externs.h. */

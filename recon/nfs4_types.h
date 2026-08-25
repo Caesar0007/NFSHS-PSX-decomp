@@ -572,7 +572,6 @@ typedef struct tItemButton tItemButton;
 typedef struct tPSXToFEMapping tPSXToFEMapping;
 typedef struct tListIteratorDoubleIndexed tListIteratorDoubleIndexed;
 typedef struct tListIteratorMultiPlayer tListIteratorMultiPlayer;
-char *TextSys_Word(int);
 typedef struct tScreenMain tScreenMain;
 typedef struct MCRDFILE_def MCRDFILE_def;
 typedef struct tVideoWall tVideoWall;
@@ -4766,10 +4765,7 @@ struct tFEApplication {   /* 896 bytes */
     /* FEMENUDEFS.CPP:811 records this expansion as an inline
        tFEApplication receiver.  The debug stream omits the private helper's
        original spelling, but preserves its exact two-operation body. */
-    inline void DisplayMessage(int word) {
-        tDialogMessageString *dialog = &messagePopup;
-        dialog->SetString(TextSys_Word(word))->tDialogBase::Display();
-    }
+    inline void DisplayMessage(int word);
     void Redraw();   /* FEDialog */
     /* FEApp methods */
     tFEApplication();

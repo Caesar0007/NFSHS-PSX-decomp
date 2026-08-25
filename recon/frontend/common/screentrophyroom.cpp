@@ -309,19 +309,25 @@ void tScreenTrophyRoom::LoadTrophy()
 
 {
   if (this->fRealCurrentTourn[this->tier] != (ushort)(byte)this->fPreviousTrophy) {
-    /* MATCH: same shape as GetShapeInfo -- the THIS-dependent index read is
-       its own statement, the two index terms are GROUPED (one x84 chain), and
-       gSwapFileName's address is held in a local across both calls ($s0). */
+    /* MATCH: the two index terms are grouped into one x84 chain.  Direct
+       gSwapFileName arguments still keep its address in $s0 across both calls;
+       no source alias is required. */
     /* the frontEnd.tier read is its OWN local so its %hi lands in the beq
        delay slot (retail's eager steal) instead of tournamentManager's. */
+    /* SYM-CODEGEN-CARRIER: tierIdx -- folding the frontend tier read into the
+       index is measured FAIL2 (54/54): the eager delay-slot %hi switches from
+       frontEnd to tournamentManager even though the instruction text matches. */
     uint tierIdx = (uint)(byte)frontEnd.tier;
-    char *swapName = gSwapFileName;
-    uint cur = (uint)(byte)this->fRealCurrentTourn[this->tier];
-    uint tourn = (uint)(tournamentManager.fDefinition)->fTiers[tierIdx].fTournOffset + cur;
+    /* SYM-CODEGEN-CARRIER: tourn -- folding the grouped tournament index into
+       GetTrophyName is measured FAIL29 with five extra instructions (59/54),
+       changing the call argument and saved-register allocation. */
+    uint tourn = (uint)(tournamentManager.fDefinition)->fTiers[tierIdx].fTournOffset +
+                 (uint)(byte)this->fRealCurrentTourn[this->tier];
 
     GetTrophyName(&tournamentManager,
-               (tournamentManager.fDefinition)->fTournaments + tourn,ts_Small,swapName,-1);
-    ::AsyncLoadSwapShapeFile((tScreen *)this,swapName);
+               (tournamentManager.fDefinition)->fTournaments + tourn,
+               ts_Small,gSwapFileName,-1);
+    ::AsyncLoadSwapShapeFile((tScreen *)this,gSwapFileName);
     this->fPreviousTrophy = (char)this->fRealCurrentTourn[this->tier];
   }
   return;

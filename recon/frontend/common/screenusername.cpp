@@ -241,6 +241,11 @@ void tScreenUserName::DrawBackground()
   short gridpos;
   short row;
   short col;
+  /* SYM-CODEGEN-CARRIER: fadeboxv
+     SYM-CODEGEN-CARRIER: gridposv
+     SYM-CODEGEN-CARRIER: textfadev -- optimized clamp-funnel values absent
+     from the retail local list.  The W72-A7 receipt above measures the direct
+     destination and alternate clamp forms; these funnels retain PASS 394/394. */
   short fadeboxv;
   short gridposv;
   short textfadev;

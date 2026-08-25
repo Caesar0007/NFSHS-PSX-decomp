@@ -1175,9 +1175,17 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
   short factor;
   int myDarkBlue;
   int Col;
+  /* SYM-CODEGEN-CARRIER: redVal -- the per-arm pre-width value is required
+     for retail's red/green/blue divide order and late short conversion. */
   int redVal;
+  /* SYM-CODEGEN-CARRIER: greenVal -- keeping the forward green value separate
+     places its width shifts at retail's OR site. */
   int greenVal;
+  /* SYM-CODEGEN-CARRIER: redVal2 -- sharing or inlining the reverse-arm term
+     rotates the expression tree; the all-inline form measures 178 diffs. */
   int redVal2;
+  /* SYM-CODEGEN-CARRIER: greenVal2 -- the reverse arm needs its own lifetime;
+     shared forward/reverse temporaries previously measured 137 diffs. */
   int greenVal2;
 
   factor = !fSelFade;

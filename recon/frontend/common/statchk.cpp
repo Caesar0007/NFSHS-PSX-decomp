@@ -433,8 +433,11 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
   int nTopTenSort [8];
   short nTopTenIndex [8];
   int nCheckTotalTime;
+  /* SYM-CODEGEN-CARRIER: uRecSz -- retail records no source local, but one
+     function-wide record-size variable is required to preserve the three
+     separate constant rematerializations and shift chains.  Spelling
+     sizeof(tRecordBuffer) directly is FAIL 126 (412/416). */
   unsigned int uRecSz;
-  int copyDst;
   short k;
   short nCar;
   char *buffer;
@@ -522,9 +525,9 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
             RecordHolders[nLapIndicator + 7] = DummyRaceResult;
             memcpy_call(buffer,&RecordHolders[nLapIndicator],uRecSz * 8);
             for (k = 0; k < 8; k = k + 1) {
-              copyDst = (nLapIndicator + k) * (int)sizeof(tRecordBuffer);
-              copyDst = copyDst + (int)RecordHolders;
-              memcpy_call((tRecordBuffer *)copyDst,
+              memcpy_call((tRecordBuffer *)
+                          ((nLapIndicator + k) * (int)sizeof(tRecordBuffer) +
+                           (int)RecordHolders),
                           buffer + nTopTenIndex[k] * uRecSz,uRecSz);
             }
           }

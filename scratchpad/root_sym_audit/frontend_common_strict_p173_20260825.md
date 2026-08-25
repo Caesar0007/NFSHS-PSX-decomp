@@ -16,9 +16,9 @@ functions are mapped to their demangled C++ names and class scopes.
 - Source definitions still using mangled linkage identifiers: 0
 - Explicit deleting-destructor ABI carriers: 0
 - Explicit cross-TU ownership closures: 0
-- Declaration-clean mapped functions: 712
+- Declaration-clean mapped functions: 715
 - Missing SYM names: 0
-- Extra source-local names: 453
+- Extra source-local names: 447
 - Type-comparison findings: 0
 - Recognized ABI/debug-equivalent type encodings: 245
   (generic-function-pointer=12, promoted-stack-argument=26, reference-as-pointer=207)
@@ -28,7 +28,7 @@ functions are mapped to their demangled C++ names and class scopes.
 - Explicit restored inline-local mappings: 16
 - Explicit restored macro-local mappings: 0
 - Explicit linkage-proven ABI parameters omitted from SYM: 16
-- Explicit source-only codegen carriers: 286
+- Explicit source-only codegen carriers: 292
 - Explicit oracle-proven function type overrides: 0
 - Functions needing mapping review: 0
 - SYM object-owned data records in target TUs: 190
@@ -88,18 +88,6 @@ functions are mapped to their demangled C++ names and class scopes.
 ### `Draw__20tMenuItemSlidingMenuiib` (0x8001d63c, femenuoptions.cpp:1047, map=exact-signature)
 
 - Extra source locals: `draw`, `drawFlagsPtr`, `drawX`, `drawY`, `right`
-
-### `Draw__31tMenuItemDisplayLeftRightChoiceiib` (0x8001e230, femenuoptions.cpp:1443, map=exact)
-
-- Extra source locals: `x`, `y`
-
-### `Draw__29tMenuItemOnOffLeftRightChoiceiib` (0x8001e384, femenuoptions.cpp:1488, map=exact)
-
-- Extra source locals: `x`, `y`
-
-### `Draw__34tMenuItemControllerLeftRightChoiceiib` (0x8001f084, femenuoptions.cpp:1966, map=exact)
-
-- Extra source locals: `x`, `y`
 
 ### `DrawTV__FR9tTVConfig` (0x8002234c, fetv.cpp:240, map=exact)
 
@@ -386,10 +374,12 @@ functions are mapped to their demangled C++ names and class scopes.
 - `UpdatefOpenHeight__20tMenuItemSlidingMenub`: `closeH`, `cur`, `fade`, `fadeOut`, `lim`, `newFade`, `shrinkH`, `slide`
 - `UpdatefOpenHeight__25tMenuItemSlidingActivatedb`: `arg1`, `iVar2`, `iVar4`
 - `UpdateTransition__25tMenuItemSlidingActivatedb`: `iVar2`
+- `Draw__31tMenuItemDisplayLeftRightChoiceiib`: `x`, `y`
+- `Draw__29tMenuItemOnOffLeftRightChoiceiib`: `x`, `y`
 - `Draw__29tMenuItemLeftRightAudioSlideriib`: `brightTextColor`, `rgbVals`
 - `UpdateTransition__29tMenuItemLeftRightAudioSliderb`: `iVar1`
 - `Draw__18tInsideBoxSongMenusssss`: `drawBaseY`, `fadeValue`, `fe`, `slide`, `width`
-- `Draw__34tMenuItemControllerLeftRightChoiceiib`: `w`
+- `Draw__34tMenuItemControllerLeftRightChoiceiib`: `w`, `x`, `y`
 - `Draw__22tInsideBoxTwoWaySlideriiib`: `fWidth`, `selection`
 - `Calibrate__22tInsideBoxTwoWaySlider`: `app`, `minimum`, `padBase`, `padInfo`, `screen`, `value`
 - `ProcessInput__17tUserNameMenuItem7tPlayerR13tInputKeyTypeR12tMenuCommand`: `character`, `column`, `lastColumn`, `rowBase`, `rowOffset`, `selectedChar`, `soundId`, `stringLength`

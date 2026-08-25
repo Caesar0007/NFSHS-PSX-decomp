@@ -1448,9 +1448,13 @@ void tMenuItemDisplayLeftRightChoice::Draw(int offx,int offy,bool selected)
      `int ColText` ($s2, reusing offy's reg); x/y are compiler temps.
      MATCH: NO return funnel — retail drops the result ($v0 is the shared `li 2`
      stack arg, and on the fade==0x80 early-out it is the compare's `li 0x80`);
-     x stays an int narrowed PER USE, y's narrowing CSEs into its own reg. */
+     x stays an int narrowed per use, while y's narrowing CSEs once. */
   int ColText;
+  /* SYM-CODEGEN-CARRIER: x -- the parameter-only spelling changes retail's
+     saved-register handout (42 diffs); retaining only y leaves 40 diffs. */
   int x;
+  /* SYM-CODEGEN-CARRIER: y -- retaining only x leaves a 16-diff allocation
+     swap.  Both independent values are required for the exact 60-insn body. */
   int y;
 
   if (this->fFadeVal != 0x80) {
@@ -1492,7 +1496,11 @@ void tMenuItemOnOffLeftRightChoice::Draw(int offx,int offy,bool selected)
      MATCH (same family as tMenuItemDisplayLeftRightChoice::Draw): no return
      funnel, in-branch fOnFade stores, x/y plain ints narrowed PER USE, and the
      TextSys_Word results consumed straight into $a0. */
+  /* SYM-CODEGEN-CARRIER: x -- adjusting the parameters directly is two
+     instructions short and 68 diffs; retaining only y leaves 64 diffs. */
   int x;
+  /* SYM-CODEGEN-CARRIER: y -- retaining only x leaves 80 diffs.  The two
+     independent values restore the exact 94-insn frame and allocation. */
   int y;
   int ColTextOn;
   int ColTextOff;
@@ -1975,7 +1983,11 @@ void tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool selected)
      (e) SYM records inner `tCol` and outer `drawFlags` at the same AUTO -56.
      Declaring drawFlags after the inner block lets gcc reuse that slot. */
   tTexture_ShapeInfo *shape;
+  /* SYM-CODEGEN-CARRIER: x -- parameter mutation leaves 34 diffs; retaining
+     only y leaves 24.  Its independent pseudo is required by retail. */
   int x;
+  /* SYM-CODEGEN-CARRIER: y -- retaining only x leaves 28 diffs.  With both
+     values exposed, GCC reproduces the exact 129-insn saved-register map. */
   int y;
   int Col;
   int ColText;

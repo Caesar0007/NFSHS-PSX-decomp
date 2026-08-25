@@ -1024,7 +1024,13 @@ int Front_Menu(tFront_ProcessingType role)
 {
   long extraMoney;
   int result;
+  /* SYM-CODEGEN-CARRIER: one -- a shared value of one preserves retail's s4
+     lifetime and `extraMoney + one` evaluation tree.  Literal replacement is
+     FAIL 13 with 174/173 instructions. */
   int one;
+  /* SYM-CODEGEN-CARRIER: needCar -- retail materializes a zero-initialized
+     condition accumulator before the guarded money test.  The equivalent
+     short-circuit condition is FAIL 51 with 168/173 instructions. */
   int needCar;
   tMenuCommand tempCommand;
   

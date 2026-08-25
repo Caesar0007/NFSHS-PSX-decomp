@@ -2192,10 +2192,7 @@ static int *Front_AppendPlayerCarData(int *stream,tFEStream &streamData)
 static int *Front_AppendOpponentData(int *stream,tFEStream &streamData)
 
 {
-  byte bVar1;
   tCarInfo *carInfo;
-  int iVar2;
-  tCarInfo *ptVar3;
   tCarLineup *carLineup;
   short i;
 
@@ -2207,20 +2204,20 @@ static int *Front_AppendOpponentData(int *stream,tFEStream &streamData)
   if (0 < streamData.numOpponents) {
     i = 0;
     do {
-      iVar2 = (int)i + (int)streamData.numPlayers;
-      /* MATCH: hoist &streamData.carLineup[iVar2] into its own pointer, used for every
+      /* MATCH/SYM: compute the lineup index directly and hoist its address into the
+         recorded `carLineup` pointer, used for every
          field access below -- the oracle materializes ONE base (`addiu s0,s0,0x1A4` = the
          carLineup[] field offset) and reads each member via a SMALL displacement off it,
-         rather than re-deriving `&carLineup[iVar2].field` (base+0x1A4+fieldOff) at every
+         rather than re-deriving each member address (base+0x1A4+fieldOff) at every
          access. */
-      carLineup = &streamData.carLineup[iVar2];
-      ptVar3 = carManager.GetCarFromID((short)carLineup->carModel);
+      carLineup = &streamData.carLineup[(int)i + (int)streamData.numPlayers];
+      carInfo = carManager.GetCarFromID((short)carLineup->carModel);
       *stream++ = 0x119;
       *stream++ = (int)streamData.currentCar;
       *stream++ = (int)(signed char)carLineup->position;
       *stream++ = 0x104;
       *stream++ = (int)streamData.currentCar;
-      *stream++ = (uint)ptVar3->fSimNumber;
+      *stream++ = (uint)carInfo->fSimNumber;
       *stream++ = 0x106;
       *stream++ = (int)streamData.currentCar;
       *stream++ = 1;
@@ -2256,16 +2253,16 @@ static int *Front_AppendOpponentData(int *stream,tFEStream &streamData)
       *stream++ = 0;
       *stream++ = 0x122;
       *stream++ = (int)streamData.currentCar;
-      bVar1 = carLineup->carColor;
-      *stream++ = ptVar3->fColorList[bVar1] >> 0x10 & 0xff | ptVar3->fColorList[bVar1] & 0xff00 |
-             (ptVar3->fColorList[bVar1] & 0xff) << 0x10;
+      *stream++ = carInfo->fColorList[(byte)carLineup->carColor] >> 0x10 & 0xff |
+                    carInfo->fColorList[(byte)carLineup->carColor] & 0xff00 |
+                    (carInfo->fColorList[(byte)carLineup->carColor] & 0xff) << 0x10;
       *stream++ = 0x123;
       *stream++ = (int)streamData.currentCar;
-      *stream++ = ptVar3->fHudColor[(streamData.track).fTimeOfDay];
+      *stream++ = carInfo->fHudColor[(streamData.track).fTimeOfDay];
       *stream++ = 0x124;
       *stream++ = (int)streamData.currentCar;
       i = i + 1;
-      *stream++ = (uint)ptVar3->fSpeechColors[(byte)carLineup->carColor];
+      *stream++ = (uint)carInfo->fSpeechColors[(byte)carLineup->carColor];
       streamData.currentCar = streamData.currentCar + 1;
     } while (i < streamData.numOpponents);
   }

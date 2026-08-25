@@ -235,9 +235,17 @@ void MenuExtended_SetSoloRace(tMenuCommand &)
    (2) `ptVar1 = menuDefs[0]` moved INSIDE the `sVar3 == 1` arm (oracle materializes %hi AFTER the
    bne, ours hoisted a `lui s0` above the Run result test); (3) the else-arm's menuDefs pointer
    made a BLOCK-LOCAL `defs` (a fresh block pseudo lands in v0 self-temp like the oracle; the
-   fn-scope ptVar1 was colored into the arg reg a0 = separate-temp). A named `screenState` with a
-   late identity boundary gives retail's v1 screen pointer allocation; the scoped build recipe
-   restores the remaining independent li and SetState delay-slot store. MATCH: 69/69. */
+   fn-scope ptVar1 was colored into the arg reg a0 = separate-temp).
+
+   SOURCE-ONLY PASS 2026-08-26, 5 -> 0 at 69/69: after removal of the historical
+   post-cc1 text moves, the late state boundary produced the retail v1 screen
+   pointer but blocked the command.nextMenu store from SetState's delay slot.
+   Stage that value in a block-local `nextMenu`, and put one zero-byte identity
+   boundary on `screenState` before the screen pointer plus one after the two
+   address computations.  The first emits `li a1,2` before the screen %hi; the
+   second preserves the retail v1 ownership, while the store remains free to
+   fill the call slot.  Both asm templates are empty and emit no instructions;
+   there is no post-compilation modification.  Detailed source-only gate PASS. */
 
 void MenuExtended_GoToTwoPlayerSingleRace(tMenuCommand &command)
 
@@ -260,15 +268,23 @@ void MenuExtended_GoToTwoPlayerSingleRace(tMenuCommand &command)
     dlgThis->fDefault = 0;
     sVar3 = ((tDialogInteractive *)dlgThis)->Run();
     if (sVar3 == 1) {
+      /* SYM-CODEGEN-CARRIER: nextMenu
+         SYM-CODEGEN-CARRIER: screenState -- neither name is present in retail
+         SYM; together they carry the measured source-only lifetime described
+         in the receipt above. */
+      tMenu *nextMenu;
+
       ptVar1 = menuDefs[0];
       frontEnd.raceType = '\0';
       command.type = kMenu_Command_GoToMenu;
       ptVar1->iteratorDealerCar.Decrement(kPlayerBoth);
       menuDefs[0]->iteratorDealerCar.Increment(kPlayerBoth);
       screenState = 2;
-      this_00 = screenCarSelect[0];
-      command.nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuCarDealer;
       __asm__("" : "+r" (screenState));
+      this_00 = screenCarSelect[0];
+      nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuCarDealer;
+      __asm__("" : "+r" (screenState));
+      command.nextMenu = nextMenu;
       this_00->SetState(screenState);
     }
   }

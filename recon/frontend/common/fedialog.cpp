@@ -150,28 +150,26 @@ void tDialogBase::InitializeClass()
 
 /* ---- tDialogBase::DrawAllDialogs  [FEDIALOG.CPP:90-101] SLD-VERIFIED ---- */
 
-/* MATCH 2026-08-03: SLD's sole local is short i.  Expressing the old-ABI
-   virtual-call adjustment directly as object + delta is significant here:
-   routing it through fPermShapes.fFilename - 0x14 exposed the call-argument
-   target to GCC's expand_binop and reversed the otherwise-commutative addu. */
+/* MATCH (2026-08-26): 52/52 with SLD/SYM's sole local `short i`.  The nested
+   timeout -> Hide -> null-slot return control flow naturally preserves the
+   short call-result truncation, eliminating the old sVar1 carrier.  Expressing
+   the old-ABI virtual-call adjustment directly as object + delta is also
+   significant: routing it through fPermShapes.fFilename - 0x14 reverses the
+   otherwise-commutative addu. */
 
 void tDialogBase::DrawAllDialogs()
 
 {
-  /* SYM-CODEGEN-CARRIER: sVar1 -- retail records only `short i`, but keeping
-     the call result as a separate short preserves its allocation.  Testing
-     ShouldTimeOut() directly is FAIL 31 at 55/52 instructions. */
-  short sVar1;
   short i;
   
   i = 0;
   while (DialogVisibilityList[i] != (tDialogBase *)0x0) {
     if (7 < i) break;
-    sVar1 = DialogVisibilityList[i]->ShouldTimeOut();
-    if ((sVar1 != 0) &&
-        (DialogVisibilityList[i]->Hide(),
-         DialogVisibilityList[i] == (tDialogBase *)0x0)) {
-      return;
+    if ((short)DialogVisibilityList[i]->ShouldTimeOut() != 0) {
+      DialogVisibilityList[i]->Hide();
+      if (DialogVisibilityList[i] == (tDialogBase *)0x0) {
+        return;
+      }
     }
     /* ABI-neutral spelling of the original virtual `Draw()` call; retail SYM
        records no source vtable or array-slot pointer locals. */

@@ -1540,8 +1540,9 @@ static void Front_InitOpponentCars(tFEStream &streamData)
        (§5.0c "explicit else x = N" / 13C inverted-default, applied to the
        constant arm rather than the computed one.) */
     if (frontEnd.raceType == RaceType_Tournament) {
-      /* MATCH: an `int` temp forces the WORD load of fNumRacers (retail `lw`); assigning
-         the expression straight into the `short` lets gcc narrow it to `lhu`. */
+      /* SYM-CODEGEN-CARRIER: numRacers -- a direct expression is count-exact
+         but reads the int field with `lhu` (FAIL 2 at 357/357); this statement
+         boundary preserves retail's `lw` without changing the value. */
       int numRacers = tournamentManager.fNumRacers;
       numOpponents = numRacers + -1;
     }
@@ -1569,8 +1570,8 @@ static void Front_InitOpponentCars(tFEStream &streamData)
         streamData.carLineup[i + 1].carUpgrades = tourn->fOpponentUpgrades[i];
       }
       if ((frontEnd.raceType == RaceType_Tournament) && (frontEnd.tier == '\0')) {
-        BOOL pvVar5 = FECheat_IsCheatEnabled(cheat_FinishedTournament);
-        if ((pvVar5 != 0) && (frontEnd.opponentUpgrades != '\0')) {
+        if ((FECheat_IsCheatEnabled(cheat_FinishedTournament) != 0) &&
+           (frontEnd.opponentUpgrades != '\0')) {
           streamData.carLineup[i + 1].carUpgrades = tourn->fOpponentUpgrades[i];
         }
         else {
@@ -1584,7 +1585,9 @@ static void Front_InitOpponentCars(tFEStream &streamData)
     }
     if (frontEnd.raceType == RaceType_Tournament) {
       tournamentManager.UpdateCarLineup();
-      /* MATCH: same int-temp WORD-load fix as the raceType==2 block above (retail `lw`). */
+      /* SYM-CODEGEN-CARRIER: numRacers2 -- the direct sibling expression is
+         likewise count-exact but reads with `lhu` (FAIL 2 at 357/357); the
+         explicit int value preserves retail's `lw 16(s0)`. */
       int numRacers2 = tournamentManager.fNumRacers;
       streamData.numOpponents = numRacers2 + -1;
       carLineup = tournamentManager.fCarLineup;

@@ -87,9 +87,16 @@ void tScreenTournSelect::Initialize()
      is a real if/else and reuses one frontEnd base.  The trophy lookup uses an
      index-first typed byte address, preserving `addu v0,v0,a0`; fTVTicks reads
      the full-width ISR counter directly instead of truncating through `i`. */
+  /* SYM-CODEGEN-CARRIER: useSpecial -- folding the if/else into the trophy
+     index is measured FAIL35 with one missing instruction (145/146), changing
+     the selection branch and subsequent index allocation. */
   byte useSpecial;
+  /* SYM-CODEGEN-CARRIER: fe -- direct frontEnd member reads are measured
+     FAIL7 with one extra instruction (147/146), reloading the tier base. */
   tfrontEnd *fe;
-  ushort flags;
+  /* SYM-CODEGEN-CARRIER: tvIdx -- recomputing `i * 2 + j` at each access is
+     measured FAIL112 with twelve extra instructions (158/146), changing the
+     saved-register set and the whole loop allocation. */
   int tvIdx;
   short i;
   short j;
@@ -121,10 +128,9 @@ void tScreenTournSelect::Initialize()
       this->trophyTV[tvIdx].y = j * 0x25 + 0x8e;
       j = j + 1;
       this->trophyTV[tvIdx].w = 0x4c;
-      flags = this->trophyTV[tvIdx].flags;
       this->trophyTV[tvIdx].x = i * 0x4c + 0xa5;
       this->trophyTV[tvIdx].h = 0x25;
-      this->trophyTV[tvIdx].flags = flags | 0x30;
+      this->trophyTV[tvIdx].flags |= 0x30;
     } while (j < 2);
     i = i + 1;
   } while (i < 2);

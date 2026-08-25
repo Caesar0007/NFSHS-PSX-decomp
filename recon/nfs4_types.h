@@ -2841,6 +2841,18 @@ struct tMenu {   /* 108 bytes */
     /* FEAPP.CPP:202 SLD/SYM records this as an inlined tMenu receiver;
        the debug stream does not retain the helper's original spelling. */
     bool HasOptionsMenu() { return fOptionsMenu != (tMenu *)0x0; }
+    /* FEDIALOG.CPP:63/80 SLD records each flag predicate as an inlined tMenu
+       receiver.  The body is proven; the original helper spelling is not
+       retained by the debug stream. */
+    bool HasFlag(unsigned int flag) { return (fFlags & flag) != 0; }
+    /* FEDIALOG.CPP:77 SLD records this three-field predicate as an inlined
+       tMenu receiver.  The body is proven; the original helper spelling is
+       not retained by the debug stream. */
+    bool CanContinue() {
+        return fNextMenu != (tMenu *)0x0 ||
+               (fFlags & 0x400) != 0 ||
+               fOnButtonPress != 0x0;
+    }
     long DebounceKeys();
 
 };

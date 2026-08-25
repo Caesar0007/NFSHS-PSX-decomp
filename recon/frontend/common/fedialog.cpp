@@ -10,13 +10,6 @@ static tDialogBase *DialogVisibilityList[8];   /* @0x80052b38  (bss(zero)); SYM 
 
 extern tTexture_ShapeInfo *gHelpShapesA[] asm("gHelpShapes");
 
-static inline bool MenuHasFlag(tMenu *menu, unsigned int flag)
-{
-  return (menu->fFlags & flag) != 0;
-}
-
-
-
 extern "C" {
 void ___7tScreen(void *);
 void ___31tDialogMessageStringWithTimeout(void *thisp) { ___7tScreen(thisp); }
@@ -274,7 +267,8 @@ void tDialogHelp::CalculateDimensions()
       this->AddItem(0x53,0xa0);
     }
     if (showCross) {
-      if (MenuHasFlag(menu,0x10000) || MenuHasFlag(menu,0x20000)) {
+      /* SYM-INLINE-THIS: HasFlag */
+      if (menu->HasFlag(0x10000) || menu->HasFlag(0x20000)) {
         this->AddItem(0x56,0x4000);
       }
       else {
@@ -291,20 +285,16 @@ void tDialogHelp::CalculateDimensions()
       this->AddItem(0x58,8);
     }
     else {
-      bool canContinue;
-
-      canContinue = false;
-      if (((menu->fNextMenu != (tMenu *)0x0) || ((menu->fFlags & 0x400) != 0)) ||
-          (menu->fOnButtonPress != 0x0)) {
-        canContinue = true;
+      /* SYM-INLINE-THIS: CanContinue
+         SYM-INLINE-THIS: HasFlag */
+      if (menu->CanContinue()) {
+        this->AddItem(0x56,8);
       }
-      if ((!canContinue) && ((menu->fFlags & 4) == 0)) {
-        goto CalcDim_helpArrFetch;
+      else if (menu->HasFlag(4)) {
+        this->AddItem(0x56,8);
       }
-      this->AddItem(0x56,8);
     }
   }
-CalcDim_helpArrFetch:
   i = 0;
   while (helpArray[this->variant].items[i].text != 0) {
     this->AddItem(helpArray[this->variant].items[i].text,
@@ -314,17 +304,15 @@ CalcDim_helpArrFetch:
   this->helpcontrollers = 0;
   PAD_update();
   {
-    tPadModuleState *padState = &gPadinfo;
-    if (padState->buf[0].nopad == '\0') {
+    if (gPadinfo.buf[0].nopad == '\0') {
       this->helpcontrollers =
-          this->helpcontrollers | (padState->buf[0].ID == '#' ? 2 : 1);
+          this->helpcontrollers | (gPadinfo.buf[0].ID == '#' ? 2 : 1);
     }
   }
   {
-    tPadModuleState *padState = &gPadinfo;
-    if (padState->buf[4].nopad == '\0') {
+    if (gPadinfo.buf[4].nopad == '\0') {
       this->helpcontrollers =
-          this->helpcontrollers | (padState->buf[4].ID == '#' ? 2 : 1);
+          this->helpcontrollers | (gPadinfo.buf[4].ID == '#' ? 2 : 1);
     }
   }
   i = 0;
@@ -362,21 +350,19 @@ CalcDim_helpArrFetch:
   this->width = this->width + 0x14;
   this->height = this->height + 10;
   if ((u_int)(currentTicks - this->startTicks) < 0x32) {
-    short openWidth;
     int openHeight;
 
-    openWidth = gHelpShapesA[0][0x2a].width;
     openHeight = gHelpShapesA[0][0x2a].height;
     this->width =
-         openWidth * 2 +
+         gHelpShapesA[0][0x2a].width * 2 +
          (short)((u_int)(((int)this->width -
-                         (short)(openWidth * 2)) *
-                        (currentTicks - this->startTicks)) / 0x32);
+                          (short)(gHelpShapesA[0][0x2a].width * 2)) *
+                         (currentTicks - this->startTicks)) / 0x32);
     this->height =
          openHeight * 2 +
          (short)((u_int)(((int)this->height -
-                         (short)(openHeight * 2)) *
-                        (currentTicks - this->startTicks)) / 0x32);
+                          (short)(openHeight * 2)) *
+                         (currentTicks - this->startTicks)) / 0x32);
   }
   this->top = 0x14;
   this->left = 0x1f9 - this->width;

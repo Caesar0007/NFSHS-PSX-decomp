@@ -18,14 +18,14 @@ functions are mapped to their demangled C++ names and class scopes.
 - Explicit cross-TU ownership closures: 0
 - Declaration-clean mapped functions: 723
 - Missing SYM names: 0
-- Extra source-local names: 410
+- Extra source-local names: 407
 - Type-comparison findings: 0
 - Recognized ABI/debug-equivalent type encodings: 245
   (generic-function-pointer=12, promoted-stack-argument=26, reference-as-pointer=207)
 - Function storage-class findings: 0
 - Implicit aggregate special members (source body correctly absent): 2
 - Explicit oracle-receipted carrier mappings: 4
-- Explicit restored inline-local mappings: 16
+- Explicit restored inline-local mappings: 17
 - Explicit restored macro-local mappings: 0
 - Explicit linkage-proven ABI parameters omitted from SYM: 16
 - Explicit source-only codegen carriers: 306
@@ -57,23 +57,23 @@ functions are mapped to their demangled C++ names and class scopes.
 
 - Extra source locals: `chk`, `fePlayer`, `nc`, `newSel`, `prevSlot`, `slot`, `slot31`
 
-### `CalculateDimensions__11tDialogHelp` (0x80018b90, fedialog.cpp:228, map=exact)
+### `CalculateDimensions__11tDialogHelp` (0x80018b90, fedialog.cpp:221, map=exact)
 
-- Extra source locals: `canContinue`, `currentTicks`, `openHeight`, `openWidth`, `padState`, `scanMenu`, `shape3`
+- Extra source locals: `currentTicks`, `openHeight`, `scanMenu`, `shape3`
 
-### `Draw__11tDialogHelp` (0x8001912c, fedialog.cpp:401, map=exact)
+### `Draw__11tDialogHelp` (0x8001912c, fedialog.cpp:387, map=exact)
 
 - Extra source locals: `bufferPtr`, `buttonY`, `firstTick`, `loadedTicks`, `pa_Var3`
 
-### `CalculateDimensions__20tDialogMessageString` (0x80019418, fedialog.cpp:500, map=exact)
+### `CalculateDimensions__20tDialogMessageString` (0x80019418, fedialog.cpp:486, map=exact)
 
 - Extra source locals: `clampedFade`, `fade_or_h`, `iVar2`, `shapeHeight`, `shapeWidth`, `tick_age`
 
-### `Run__18tDialogInteractive` (0x800197e8, fedialog.cpp:652, map=exact)
+### `Run__18tDialogInteractive` (0x800197e8, fedialog.cpp:638, map=exact)
 
 - Extra source locals: `bVar2`, `helpPopup`, `iVar5`, `iVar6`, `pa_Var3`
 
-### `Draw__12tDialogYesNo` (0x80019b44, fedialog.cpp:831, map=exact)
+### `Draw__12tDialogYesNo` (0x80019b44, fedialog.cpp:817, map=exact)
 
 - Extra source locals: `idx`, `pa_Var3`, `ptVar8`, `rgbBase`, `sMenuText`, `sVar1`, `sVar2`, `textBase`
 
@@ -283,6 +283,7 @@ functions are mapped to their demangled C++ names and class scopes.
 ## Explicit restored inline-local mappings
 
 - `DrawHelpIcons__14tFEApplication`: `this` from `HasOptionsMenu`
+- `CalculateDimensions__11tDialogHelp`: `this` from `HasFlag`
 - `FECheat_ActivateCheat__FPc`: `this` from `SetString`
 - `ProcessInput__16tScreenCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand`: `this` from `SetTextDescription`
 - `DrawBackground__16tScreenCarSelect`: `this` from `GetPlayer`

@@ -269,25 +269,27 @@ int Stattool_ReturnRecordLapTime(short nTrack)
 short Stattool_CheckForHumanCar(Car_tStats *dummyCars)
 
 {
-  int numCars;
+  /* SYM-CODEGEN-CARRIER: nNumCars -- NFS4 SYM records only `k` and
+   * `bHumanFlag`, but the matched NFS2 PC beta source restores this exact
+   * local name and early-break loop.  Its `short` type is oracle-significant:
+   * this form is PASS 34/34, while `int` is FAIL 5. */
+  short nNumCars;
   short k;
   short bHumanFlag;
   
   bHumanFlag = 0;
-  numCars = (short)((ushort)GameSetup_gData.numPlayerRaceCars +
-                (ushort)GameSetup_gData.numOpponentRaceCars);
+  nNumCars = (short)GameSetup_gData.numPlayerRaceCars +
+             (short)GameSetup_gData.numOpponentRaceCars;
   k = 0;
-  if (0 < numCars) {
-    int one = 1;
-    int bound = numCars;
-    do {
-      if ((dummyCars[k].carFlags & 4U) != 0) {
-        bHumanFlag = 1;
-      }
-      k = k + 1;
-    } while ((bHumanFlag != one) && (k < bound));
-  }
-  return bHumanFlag;
+  do {
+    if (k >= nNumCars) {
+      break;
+    }
+    if ((dummyCars[k].carFlags & 4U) != 0) {
+      bHumanFlag = 1;
+    }
+    k = k + 1;
+  } while (bHumanFlag != 1);
   return bHumanFlag;
 }
 

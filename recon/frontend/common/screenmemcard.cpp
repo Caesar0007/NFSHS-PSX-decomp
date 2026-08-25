@@ -305,9 +305,17 @@ VL_clamped:
 void tScreenMemcard::DrawHorizontalLine(short x,short y,short gridpos,short dir)
 
 {
+  /* SYM-CODEGEN-CARRIER: width -- folding SLD line 276 into the call is
+     measured FAIL21 (47/48), losing retail's independent width value web. */
   int width;
+  /* SYM-CODEGEN-CARRIER: pos -- the short join carrier delays retail's
+     gridpos copy into $t0; direct parameter clamping was measured FAIL16. */
   short pos;
+  /* SYM-CODEGEN-CARRIER: test -- the explicit signed test separates the
+     clamp comparison web from the clamped value (measured 10 -> 5 diffs). */
   int test;
+  /* SYM-CODEGEN-CARRIER: shifted -- the shift-pair value and positive-arm
+     identity fence preserve retail's independent $a3 sign-extension web. */
   unsigned int shifted;
 
   /* MATCH (SLD 274 = ONE source line for the whole clamp): the 0x40 arm is OUT

@@ -1358,7 +1358,13 @@ static void Front_InitTourneyTraffic(tFEStream &streamData)
 
 {
   short i;
+  /* SYM-CODEGEN-CARRIER: maxTraffic -- the named bound preserves retail's
+     saved s5 and register `slt`; literal 3 is FAIL 13 at 90/93 instructions. */
   short maxTraffic;
+  /* SYM-CODEGEN-CARRIER: tourn -- materializing the selected tournament
+     pointer before the race-type guard preserves the retail index schedule
+     and pointer-relative fTraffic load.  Repeating the expression is FAIL 21
+     at 92/93 instructions. */
   tTourneyInfo *tourn;
   tCarModels carModel;
   char carColor;

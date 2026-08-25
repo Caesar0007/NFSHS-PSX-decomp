@@ -5296,6 +5296,9 @@ struct tScreenTournamentStandings : public tScreen {   /* 148 bytes */
     int                starttick;   /* +0x74 */
     bool               gotmoney, gotbonus, gotbilled, fDrawMoney, fCountedDown, fStartCountdownNOW;   /* +0x78 */
     int                fCountSpeed;   /* +0x90 */
+    /* FEMENUDEFS.CPP records this one-store operation twice as an inlined
+       tScreenTournamentStandings receiver; the private identifier is absent. */
+    inline void SetDrawMoney() { fDrawMoney = 1; }
     /* --- reconstructed member fns (ScreenPost.obj; non-virtual, ABI-neutral) --- */
     tScreenTournamentStandings();
     void Initialize();

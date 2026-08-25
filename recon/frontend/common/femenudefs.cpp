@@ -2018,54 +2018,44 @@ static bool MenuExtended_DidUserWinBeTheCop(void)
    
    [ghidra-meta] section: front.text */
 
-/* [W57-A1 2026-08-09, 50->PASS] Two levers: (1) the raceType dispatch is a REAL `switch`, not an
-   if/else-if cascade -- the oracle carries the gcc-2.8 balance_case_nodes fingerprint (median
-   pivot `beq a0,v1(=2)` + `slti a0,3` bound test in its delay slot, case bodies out-of-line, `j`
-   to the shared default).  Case ORDER 2 / 6 / 1 with case 1 FALLING THROUGH into `default:` is
-   what the oracle's block layout + the `beqz` from the DidUserWin test into the default block
-   say.  (2) inside case 2 the arms were swapped (`sVar1 != 0` is the FALL-THROUGH) and the
-   `ptVar4->fDrawMoney = 1; return;` tail DUPLICATED into both arms through two DIFFERENT locals
-   -- one shared `ptVar4` made the two arms textually identical so cross_jump merged the whole
-   tail (incl. the nextMenu store), where the oracle merges only `li 1; sw ...132`. */
+/* [SYM restoration 2026-08-26, PASS 64/64] Retail records only the `command`
+   REGPARM in s0.  Both call results are consumed directly.  The two nested
+   `this` records in v1 are restored by the inline SetDrawMoney operation; SYM
+   preserves its receiver type and store but not the private helper identifier.
+   Direct per-case nextMenu assignments remove the decompiler's synthetic menu
+   pointer and let gcc cross-jump their identical store/return tails exactly as
+   retail did.  The case order 2 / 6 / 1 and case-1 fallthrough preserve the
+   balance_case_nodes tree and SLD statement order.  verify_asm and the -g/SLD
+   twin are exact, with no caller locals beyond the SYM budget. */
 
 void MenuExtended_PostGameMenu(tMenuCommand &command)
 
 {
-  short sVar1;
-  bool pvVar2;
-  tMenu *ptVar3;
-  tScreenTournamentStandings *dlgThis;
-  tScreenTournamentStandings *ptVar4;
-  
   StatChk_ClearNewRecords();
   command.type = kMenu_Command_GoToMenuOneWay;
   switch (frontEnd.raceType) {
   case 2:
-    sVar1 = tournamentManager.IsTournamentFinished();
-    if (sVar1 != 0) {
+    if (tournamentManager.IsTournamentFinished() != 0) {
       command.nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuTournamentFinished;
-      dlgThis = screenTournamentStandings;
-      dlgThis->fDrawMoney = 1;
+      /* SYM-INLINE-THIS: SetDrawMoney */
+      screenTournamentStandings->SetDrawMoney();
       return;
     }
     command.nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuTournamentStandings;
-    ptVar4 = (tScreenTournamentStandings *)screenTournamentStandings3item;
-    ptVar4->fDrawMoney = 1;
+    screenTournamentStandings3item->SetDrawMoney();
     return;
   case 6:
-    ptVar3 = (tMenu*)&menuDefs[0]->menuPinkSlipStandings;
-    break;
+    command.nextMenu = (tMenu *)&menuDefs[0]->menuPinkSlipStandings;
+    return;
   case 1:
-    pvVar2 = MenuExtended_DidUserWinBeTheCop();
-    if (pvVar2) {
-      ptVar3 = (tMenu *)&menuDefs[0]->menuBeTheCopCongrats;
-      break;
+    if (MenuExtended_DidUserWinBeTheCop()) {
+      command.nextMenu = (tMenu *)&menuDefs[0]->menuBeTheCopCongrats;
+      return;
     }
     /* fall through */
   default:
-    ptVar3 = (tMenu*)&menuDefs[0]->menuMain;
+    command.nextMenu = (tMenu *)&menuDefs[0]->menuMain;
   }
-  command.nextMenu = ptVar3;
   return;
 }
 

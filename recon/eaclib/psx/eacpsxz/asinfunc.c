@@ -375,20 +375,15 @@ extern int intarcsin(int x)   /* @0x800EACD8 */
         if (0xFFFF < x) {
             result = 0x100;                      /* clamp to 90 degrees */
         } else {
-            int t0;
-            int t1;
             int frac;
 
             idx  = x >> 7;
             frac = x & 0x7F;                     /* 0x800EAD40 (branch delay slot -> both paths) */
             if (idx == 0x1FF) {                  /* top step interpolates toward 90deg */
-                t0 = asintbl[0x1FF];
-                t1 = 0x100;
+                result = asintbl[idx] + (((0x100 - asintbl[idx]) * frac) >> 7);
             } else {
-                t0 = asintbl[idx];
-                t1 = asintbl[idx + 1];
+                result = asintbl[idx] + (((asintbl[idx + 1] - asintbl[idx]) * frac) >> 7);
             }
-            result = t0 + (((t1 - t0) * frac) >> 7);
         }
     }
 

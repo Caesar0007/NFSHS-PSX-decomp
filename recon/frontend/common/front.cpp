@@ -1879,14 +1879,14 @@ static void Front_InitPerps(tFEStream &streamData)
 static void Front_InitTrack(tFEStream &streamData)
 
 {
-  tTrackInformation *src;
-  int iVar1;
+  /* SYM: the retail body records exactly one local, `tournTrack` in $v1.
+     GetTrackByID and rand results remain expression temporaries, not source locals. */
   tTrackInfo *tournTrack;
   
   if (frontEnd.raceType == RaceType_Tournament) {
     tournamentManager.GetTrackToRace(streamData.track);
-    src = trackManager.GetTrackByID((short)(signed char)streamData.track.fTrackNumber);
-    blockmove(src,&streamData.trackInfo,0x30);
+    blockmove(trackManager.GetTrackByID((short)(signed char)streamData.track.fTrackNumber),
+              &streamData.trackInfo,0x30);
   }
   else {
     trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
@@ -1896,36 +1896,32 @@ static void Front_InitTrack(tFEStream &streamData)
        (in the branch's delay slot in the oracle) and reused by BOTH arms -- reproduces
        the oracle's shared v1=&track pointer + offset stores instead of per-field
        absolute streamData-relative offsets. */
-    tTrackInfo *pTrack = &streamData.track;
+    tournTrack = &streamData.track;
     if ((frontEnd.carListType == '\x01') || (frontEnd.raceType == RaceType_HotPursuit)) {
-      pTrack->fDirection = frontEnd.trackdirection[(byte)frontEnd.pinkSlipsTrackIndex];
-      pTrack->fMirrored = frontEnd.trackmirrored[(byte)frontEnd.pinkSlipsTrackIndex];
-      pTrack->fTimeOfDay = frontEnd.timeOfDay[(byte)frontEnd.pinkSlipsTrackIndex];
-      pTrack->fWeather = frontEnd.weather[(byte)frontEnd.pinkSlipsTrackIndex];
+      tournTrack->fDirection = frontEnd.trackdirection[(byte)frontEnd.pinkSlipsTrackIndex];
+      tournTrack->fMirrored = frontEnd.trackmirrored[(byte)frontEnd.pinkSlipsTrackIndex];
+      tournTrack->fTimeOfDay = frontEnd.timeOfDay[(byte)frontEnd.pinkSlipsTrackIndex];
+      tournTrack->fWeather = frontEnd.weather[(byte)frontEnd.pinkSlipsTrackIndex];
     }
     else {
-      pTrack->fWeather = '\0';
-      pTrack->fTimeOfDay = '\0';
-      pTrack->fMirrored = '\0';
-      pTrack->fDirection = '\0';
+      tournTrack->fWeather = '\0';
+      tournTrack->fTimeOfDay = '\0';
+      tournTrack->fMirrored = '\0';
+      tournTrack->fDirection = '\0';
     }
     streamData.track.fDifficulty = 0x10000;
   }
   if (1 < streamData.track.fDirection) {
-    iVar1 = rand();
-    streamData.track.fDirection = (byte)iVar1 & 1;
+    streamData.track.fDirection = (byte)rand() & 1;
   }
   if (1 < streamData.track.fMirrored) {
-    iVar1 = rand();
-    streamData.track.fMirrored = (byte)iVar1 & 1;
+    streamData.track.fMirrored = (byte)rand() & 1;
   }
   if (1 < streamData.track.fTimeOfDay) {
-    iVar1 = rand();
-    streamData.track.fTimeOfDay = (byte)iVar1 & 1;
+    streamData.track.fTimeOfDay = (byte)rand() & 1;
   }
   if (1 < streamData.track.fWeather) {
-    iVar1 = rand();
-    streamData.track.fWeather = (byte)iVar1 & 1;
+    streamData.track.fWeather = (byte)rand() & 1;
   }
   return;
 }

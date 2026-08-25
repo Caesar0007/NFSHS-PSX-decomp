@@ -223,8 +223,9 @@ void MenuExtended_SetSoloRace(tMenuCommand &)
    frame, purely a scratch-register/CSE tie-break (§3.15 family); the dead `dlgThis` local doesn't
    change it. Not source-reachable without a pin (forbidden); accept. */
 
-/* [W57-A1 2026-08-09, 34->6] THREE levers: (1) `dlgThis = &YesNoDialog` ANCHOR for the _vf /
-   string / yesnowords / fDefault stores (oracle addresses them off s0/a0, ours was sp-relative);
+/* [W57-A1 2026-08-09, 34->6] THREE levers: (1) the inline tDialogYesNoTri
+   constructor owns the _vf store, while `dlgThis = &YesNoDialog` anchors the
+   string / yesnowords / fDefault stores (retail addresses them off s0/a0);
    (2) `ptVar1 = menuDefs[0]` moved INSIDE the `sVar3 == 1` arm (oracle materializes %hi AFTER the
    bne, ours hoisted a `lui s0` above the Run result test); (3) the else-arm's menuDefs pointer
    made a BLOCK-LOCAL `defs` (a fresh block pseudo lands in v0 self-temp like the oracle; the
@@ -244,7 +245,6 @@ void MenuExtended_GoToTwoPlayerSingleRace(tMenuCommand &command)
   tDialogYesNoTri YesNoDialog;
 
   dlgThis = &YesNoDialog;
-  dlgThis->_vf = (__typeof__(dlgThis->_vf))&tDialogYesNoTri_vtable;   /* w76-A20 vptr-store alias dial (24A) */
   uVar2 = carManager.GetNumOwnedCars(0);
   if ((int)((uint)uVar2 << 0x10) < 1) {
     dlgThis->string =
@@ -753,22 +753,23 @@ bool PinkSlipsPreSave(void)
 
 {
   int answer;
-  int is_cheater;
   bool ret;
+  /* SYM-CODEGEN-CARRIER: dlgThis -- SYM records the inlined derived-constructor
+     `this` in $s0, not a caller local.  The restored inline constructor owns
+     the vptr store, but direct-object spelling for the later fields is still
+     count-exact FAIL 8 (50/50), with all four stores using $sp instead of $s0.
+     Carrying that optimized receiver lifetime remains exact PASS 50/50. */
   tDialogYesNoTri *dlgThis;
 
-  /* MATCH: keep the default result outside the dialog's lifetime but assign it
-     before entering the nested scope. GCC then fills the cheater branch delay
-     with `li s1,1`, while the explicit dialog pointer retains retail's s0-based
-     field stores. The local's automatic destructor handles both exits. */
-  is_cheater = (int)FECheat_IsTheUserACryBabyCheater();
-  if ((is_cheater ^ 1) != 0) {
+  /* Keep the default result outside the dialog's lifetime but assign it before
+     entering the nested scope. GCC then fills the cheater branch delay with
+     `li s1,1`; the automatic destructor handles both exits. */
+  if ((FECheat_IsTheUserACryBabyCheater() ^ 1) != 0) {
     ret = true;
     {
       tDialogYesNoTri YesNoDialog;
 
       dlgThis = &YesNoDialog;
-      dlgThis->_vf = (__typeof__(dlgThis->_vf))&tDialogYesNoTri_vtable;   /* w76-A20 vptr-store alias dial (24A) */
       dlgThis->string =
            TextSys_Word(0x273);
       dlgThis->yesnowords[0] = 0x321;

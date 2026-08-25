@@ -5267,7 +5267,14 @@ struct tDialogYesNoMem : public tDialogYesNo {   /* 168 bytes */
 
 };
 
+extern __vtbl_ptr_type tDialogYesNoTri_vtable[];
+
 struct tDialogYesNoTri : public tDialogYesNo {   /* 168 bytes */
+    /* Retail SLD records this derived constructor inline at each automatic
+       object declaration; the manual vtable model must spell its vptr store. */
+    inline tDialogYesNoTri() {
+        _vf = (__typeof__(_vf))&tDialogYesNoTri_vtable;
+    }
     /* FEDialog methods */
     void ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command );
 

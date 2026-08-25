@@ -481,27 +481,21 @@ void tMenuItemOptionsLeftRightChoice::Draw(int x,int y,bool selected)
 
 {
   tTexture_ShapeInfo *left;
-  short sVar2;
   int col;
-  char *pcVar3;
-  __vtbl_ptr_type (*pa_Var4) [6];
-  tListIterator *ptVar5;
-  short y_00;
   RECT r;
   tDrawShapeExtended drawFlags;
   
   left = &gHelpShapes[0x29];
   col = CalcTextFadeSelToHi(textType_Options,
                       this->fSelFade,0);
-  pcVar3 = TextSys_Word(this->fTextDescription);
-  y_00 = (short)((u_int)((y + 3) * 0x10000) >> 0x10);
-  FETextRender_FullTextRGB(pcVar3,(short)((u_int)((x + 0x94) * 0x10000) >> 0x10),y_00,col,'\0',1);
-  ptVar5 = this->fData;
-  pa_Var4 = ptVar5->_vf;
-  sVar2 = (*(*pa_Var4)[3].pfn)((char *)ptVar5 + (int)(*pa_Var4)[3].delta,0xffffffff);
-  pcVar3 = TextSys_Word((int)sVar2);
-  FETextRender_FullTextRGB(pcVar3,(short)((u_int)((((int)((u_int)(u_short)left->width << 0x10) >> 0x11) + x +
-                                   0xd9) * 0x10000) >> 0x10),y_00,col,'\0',2);
+  FETextRender_FullTextRGB(TextSys_Word(this->fTextDescription),
+             (short)((u_int)((x + 0x94) * 0x10000) >> 0x10),
+             (short)(y + 3),col,'\0',1);
+  FETextRender_FullTextRGB(
+             TextSys_Word((int)(short)(*(*this->fData->_vf)[3].pfn)
+                 ((char *)this->fData + (int)(*this->fData->_vf)[3].delta,0xffffffff)),
+             (short)((u_int)((((int)((u_int)(u_short)left->width << 0x10) >> 0x11) + x +
+                                   0xd9) * 0x10000) >> 0x10),(short)(y + 3),col,'\0',2);
   drawFlags.tint[0] =
        CalcFadeVal(0xb54200,0xbebe,
                   (int)this->fSelFade);

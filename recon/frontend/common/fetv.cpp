@@ -537,47 +537,39 @@ void DrawTV(tTVConfig &tv)
 void InitTV(tTVConfig &tv,tTexture_ShapeInfo *textures,short index)
 
 {
-  u_char uVar1;
-  u_short uVar2;
-  u_int uVar3;
-  int iVar4;
-  int iVar5;
+  /* SYM records no locals.  Direct textures[index] expressions let GCC form
+     the retail $s0 indexed base without a source pointer/byte-offset local.
+     SLD lines 304..309 put both rand assignments before tint/flip/transition/
+     brightness; that order lets the second remainder stay live while those
+     independent stores fill its divide latency and is exact PASS 132/132. */
   
-  iVar5 = (int)((u_int)(u_short)index << 0x10) >> 0xb;
   tv.state = tv_StateOff;
   tv.flags = 0;
-  tv.x = -*(short *)((int)&textures->centerx + iVar5);
-  tv.y = -*(short *)((int)&textures->centery + iVar5);
-  tv.w = *(short *)((int)&textures->width + iVar5);
-  tv.h = *(short *)((int)&textures->height + iVar5);
-  uVar3 = (u_int)(u_char)(&textures->depth)[iVar5];
-  iVar4 = ((int)*(short *)((int)&textures->shapex + iVar5) -
-          (int)(short)(*(u_short *)((int)&textures->shapex + iVar5) & 0xffc0)) * 0x10;
-  tv.u = (u_char)(iVar4 / (int)uVar3);
-  uVar1 = *(u_char *)((int)&textures->shapey + iVar5);
+  tv.x = -textures[index].centerx;
+  tv.y = -textures[index].centery;
+  tv.w = textures[index].width;
+  tv.h = textures[index].height;
+  tv.u = (u_char)((((int)textures[index].shapex -
+          (int)(short)(textures[index].shapex & 0xffc0)) * 0x10) /
+          (int)(u_char)textures[index].depth);
+  tv.v = (u_char)textures[index].shapey;
   tv.uw = (u_char)tv.w;
   tv.vh = (u_char)tv.h;
-  tv.v = uVar1;
-  tv.shapex = *(u_short *)((int)&textures->shapex + iVar5);
-  tv.shapey = *(u_short *)((int)&textures->shapey + iVar5);
-  tv.clutID = *(u_short *)((int)&textures->clutID + iVar5);
-  tv.shapeType = (*((u_char *)textures + 9 + iVar5)) & 3;
-  uVar2 = GetClut((tv.clutID & 0x3f) << 4,(u_int)(tv.clutID >> 6));
-  tv.clut = uVar2;
-  uVar2 = *(u_short *)((int)&textures->shapey + iVar5);
-  tv.tpage = ((u_char)(*((u_char *)textures + 9 + iVar5)) & 3) << 7 | (short)(uVar2 & 0x100) >> 4 |
-              (u_short)((*(u_short *)((int)&textures->shapex + iVar5) & 0x3c0) >> 6) |
-              (uVar2 & 0x200) << 2;
-  iVar4 = rand();
-  iVar5 = tv.h * 0x30;
-  tv.fxWide = (short)(iVar4 % iVar5);
-  iVar4 = rand();
-  iVar5 = tv.h * 0x30;
+  tv.shapex = textures[index].shapex;
+  tv.shapey = textures[index].shapey;
+  tv.clutID = textures[index].clutID;
+  tv.shapeType = textures[index].type & 3;
+  tv.clut = GetClut((tv.clutID & 0x3f) << 4,(u_int)(tv.clutID >> 6));
+  tv.tpage = ((u_char)textures[index].type & 3) << 7 |
+              (short)(textures[index].shapey & 0x100) >> 4 |
+              (u_short)((textures[index].shapex & 0x3c0) >> 6) |
+              (textures[index].shapey & 0x200) << 2;
+  tv.fxWide = (short)(rand() % (tv.h * 0x30));
+  tv.fxThin = (short)(rand() % (tv.h * 0x30));
+  tv.tint = 0x808080;
   tv.flip_axis = 0;
   tv.transition = 0;
-  tv.tint = 0x808080;
   tv.destBrightness = 0x80;
-  tv.fxThin = (short)(iVar4 % iVar5);
   return;
 }
 

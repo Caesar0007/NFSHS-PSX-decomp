@@ -16,9 +16,9 @@ functions are mapped to their demangled C++ names and class scopes.
 - Source definitions still using mangled linkage identifiers: 0
 - Explicit deleting-destructor ABI carriers: 0
 - Explicit cross-TU ownership closures: 0
-- Declaration-clean mapped functions: 721
+- Declaration-clean mapped functions: 722
 - Missing SYM names: 0
-- Extra source-local names: 421
+- Extra source-local names: 415
 - Type-comparison findings: 0
 - Recognized ABI/debug-equivalent type encodings: 245
   (generic-function-pointer=12, promoted-stack-argument=26, reference-as-pointer=207)
@@ -57,11 +57,7 @@ functions are mapped to their demangled C++ names and class scopes.
 
 - Extra source locals: `chk`, `fePlayer`, `nc`, `newSel`, `prevSlot`, `slot`, `slot31`
 
-### `GetGarageCar__11tCarManagersR8tCarInfos` (0x80016f4c, fecars.cpp:687, map=exact)
-
-- Extra source locals: `iVar3`, `iVar5`, `src`, `uVar1`, `uVar2`, `uVar4`
-
-### `FindSimilarCar__11tCarManagerR10tCarModelsRcsP10tCarModels` (0x80017718, fecars.cpp:987, map=exact)
+### `FindSimilarCar__11tCarManagerR10tCarModelsRcsP10tCarModels` (0x80017718, fecars.cpp:982, map=exact)
 
 - Extra source locals: `arg3`, `arg4`, `bVar1`, `iVar5`, `uVar7`
 

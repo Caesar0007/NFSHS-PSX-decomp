@@ -687,28 +687,23 @@ void tCarManager::GetStockCar(short carNumber,tCarInfo &carInfo)
 void tCarManager::GetGarageCar(short garageNumber,tCarInfo &carInfo,short playerNum)
 
 {
-  uchar uVar1;
-  u_short uVar2;
-  tCarInfo *src;
-  int iVar3;
-  u_short uVar4;
-  int iVar5;
-
-  uVar4 = (u_short)playerNum;
-  if ((playerNum == 1) && (uVar2 = this->GetNumOwnedCars(1), (int)((u_int)uVar2 << 0x10) < 1)) {
-    uVar4 = 0;
+  /* SYM records no locals.  The retail <<7 player stride and <<2 slot stride
+     are the declared fCarGarage[2][32] member indexing; direct member source
+     removes six decompiler address/value aliases and remains PASS 67/67. */
+  if ((playerNum == 1) && (this->GetNumOwnedCars(1) < 1)) {
+    playerNum = 0;
   }
-  iVar3 = (int)garageNumber;
-  iVar5 = (int)(uVar4 << 0x10) >> 9;
-  src = this->GetCarFromID((short)*(signed char *)((iVar3 - this->fNumCars) * 4 + iVar5 + 8 + (int)this));
-  blockmove(src,&carInfo,0xcc);
+  blockmove(this->GetCarFromID(
+      this->fCarGarage[playerNum][garageNumber - this->fNumCars].fCarID),
+      &carInfo,0xcc);
   carInfo.fAvailable = '\x01';
   carInfo.fViewable = '\x01';
-  carInfo.fUpgrades = *(uchar *)((iVar3 - this->fNumCars) * 4 + iVar5 + 9 + (int)this);
-  uVar1 = *(uchar *)((iVar3 - this->fNumCars) * 4 + iVar5 + 10 + (int)this);
+  carInfo.fUpgrades =
+      this->fCarGarage[playerNum][garageNumber - this->fNumCars].fUpgrades;
+  carInfo.fColor =
+      this->fCarGarage[playerNum][garageNumber - this->fNumCars].fCarColor;
   carInfo.fCountry = '\0';
   carInfo.fCarIndex = (uchar)garageNumber;
-  carInfo.fColor = uVar1;
   return;
 }
 

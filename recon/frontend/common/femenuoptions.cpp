@@ -695,12 +695,16 @@ ProcInpFE_keyUpItemZero:
 
 /* ---- tInsideBoxMenu::Draw  [FEMENUOPTIONS.CPP:558-605] SLD-VERIFIED ---- */
 
-void tInsideBoxMenu::Draw(short x,short y,short w,short slideOffset,short arg5)
+void tInsideBoxMenu::Draw(short x,short y,short w,short slideOffset,short)
 
 {
+  /* SYM-CODEGEN-CARRIER: entry10 -- the original virtual dispatch created
+     this row-10 compiler temporary without a source local; flattening the
+     ABI-neutral manual `_vf` form is FAIL 7 (152/153). */
   __vtbl_ptr_type *entry10;
+  /* SYM-CODEGEN-CARRIER: entry6 -- distinct row-6 dispatch lifetime required
+     by retail allocation; flattening it is FAIL 18 (153/153). */
   __vtbl_ptr_type *entry6;
-  tMenuItem *item;
   short i;
   short j;
   
@@ -733,15 +737,13 @@ void tInsideBoxMenu::Draw(short x,short y,short w,short slideOffset,short arg5)
     if ((3 < j) && (this->fItemList[i - 1] == (tMenuItem *)0x0)) {
       return;
     }
-    if ((-1 < i) && (item = this->fItemList[i], item != (tMenuItem *)0x0)) {
-      entry10 = &(*item->_vf)[10];
-      (*entry10->pfn)((char *)item + (int)entry10->delta,
+    if ((-1 < i) && (this->fItemList[i] != (tMenuItem *)0x0)) {
+      entry10 = &(*this->fItemList[i]->_vf)[10];
+      (*entry10->pfn)((char *)this->fItemList[i] + (int)entry10->delta,
                     this->fMoving == 0 ? i == this->fCurrentItem : false);
-      item = this->fItemList[i];
-      /* MATCH: retail gives the two vtable rows distinct scratch lifetimes. */
-      entry6 = &(*item->_vf)[6];
+      entry6 = &(*this->fItemList[i]->_vf)[6];
       (*entry6->pfn)
-                ((char *)item + (int)entry6->delta,x,
+                ((char *)this->fItemList[i] + (int)entry6->delta,x,
                  /* SLD line 599: form the base offset first, add fMoving last. */
                  ((int)this->fMoving + (y + slideOffset + ((short)j + -1) * 0x18)) + 5,
                  w,this->fMoving == 0 ? (short)i == this->fCurrentItem : false);

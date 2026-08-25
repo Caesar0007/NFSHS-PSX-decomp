@@ -253,10 +253,18 @@ LoadIcon_clearCardFlag:
 void tScreenMemcard::DrawVerticalLine(short x,short y,short gridpos,short dir)
 
 {
-  int height;
+  /* SYM-CODEGEN-CARRIER: innerHeight -- collapsing HEIGHT/GOURAUD/EXTRA into
+     one expression is measured FAIL13 (46/45); the two-stage sum preserves
+     retail's arithmetic webs while final `height` itself folds exactly. */
   int innerHeight;
+  /* SYM-CODEGEN-CARRIER: pos -- the short clamp carrier preserves retail's
+     incoming-$a3 stores and delayed gridpos handoff (measured 26 -> 17). */
   short pos;
+  /* SYM-CODEGEN-CARRIER: test -- the explicit signed-test web separates the
+     comparisons from the clamped short result (measured 17 -> 13). */
   int test;
+  /* SYM-CODEGEN-CARRIER: shifted -- the positive-arm identity fence keeps
+     retail's independent $v0/$v1 sign-extension webs (measured 17 -> 13). */
   unsigned int shifted;
   /* MATCH (SLD 265 = ONE source line for the whole clamp): the 0x40 arm is
      OUT OF LINE (oracle `beqz` branches FORWARD to it, past the =0 block, which
@@ -295,8 +303,8 @@ VL_clamped:
      gcc emits the retail GOURAUD/HEIGHT/EXTRA load homes and final $v1->$v0 add. */
   innerHeight = (ushort)GRIDMEMCARD_HEIGHT +
                 (ushort)GRIDMEMCARDGOURAUDBIT_Y * 2;
-  height = (ushort)EXTRAYATTOP + innerHeight;
-  PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,2,(short)height,
+  PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,2,
+             (short)((ushort)EXTRAYATTOP + innerHeight),
              (uint)(dir == 0),(int)gridpos * 2,0);
   return;
 }

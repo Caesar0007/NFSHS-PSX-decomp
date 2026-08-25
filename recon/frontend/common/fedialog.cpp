@@ -570,9 +570,7 @@ void tDialogMessageString::CalculateDimensions()
 void tDialogMessageString::Draw()
 
 {
-  __vtbl_ptr_type (*pa_Var1) [10];
   int col;
-  int idx;
   RECT r;
   
   (*(this->_vf)[1][0].pfn)((int)this + (this->_vf)[1][0].delta);
@@ -587,12 +585,12 @@ void tDialogMessageString::Draw()
     r.x = this->left + 0x11;
     r.y = this->top + 10;
     r.w = this->width + -0x14;
-    {
-      int rh = (u_short)this->reservedheight + 8;
-      r.h = this->height - rh;
-    }
+    r.h = this->height - ((u_short)this->reservedheight + 8);
     FETextRender_SetABR(1,true);
     if (this->Centerit != 0) {
+      /* SYM-CODEGEN-CARRIER: halfw -- inlining preserves instruction count
+         but moves the width load after the left load (2 diffs); reversing the
+         add operands changes the hard-register assignment (8 diffs). */
       int halfw = (int)((u_int)(u_short)this->width << 0x10) >> 0x11;
 
       FETextRender_FullTextRGB(this->string,

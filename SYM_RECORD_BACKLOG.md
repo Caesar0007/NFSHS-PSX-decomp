@@ -3415,6 +3415,39 @@ calls with zero defects.  The call-target audit retains exactly the two
 pre-existing swapped `Sim_MainGameLoop` sites, the TU-order audit reports zero
 inversions, and the vtable indexing audit passes 930 files.
 
+### P97 — `SaveGame` inline message and card-status restoration (`2026-08-26`)
+
+Retail `SaveGame` records its complete function-local budget and one nested
+line-173 scope at 0x80034d3c containing only `tDialogMessageString *this` in
+`$s0`.  The final raw `string` field store is now a call to the established
+header-inline `SetString` member, validating that nested receiver in source.
+
+The former decompiler pointer `pCVar4` is no longer retained.  Retail loads the
+single card status into `$v1`, and an ordinary block-local `status` value
+reproduces that allocation exactly.  Reusing the recorded `$s0` local `event`
+instead changes its earlier switch allocation and is FAIL 18 at the same
+292-instruction count.  Because optimized SYM omits the transient value, its
+private original spelling remains non-unique and is explicitly receipted as a
+codegen carrier.  `wd` is likewise required to hold the stack-dialog address
+across construction and `TextSys_Word`; `dlgmsg`, `message`, and
+`displayDialog` reproduce the independently measured receiver/call/store order.
+
+The restored source remains exact PASS at 292/292 instructions with an
+instruction-identical `-g` twin.  The refreshed strict frontend/common audit is
+stored in
+[`frontend_common_strict_p202_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p202_20260826.md).
+It advances declaration-clean mapped functions from 735 to 736, reduces generic
+extra source-local names from 333 to 328, raises validated inline mappings from
+35 to 36, and classifies 323 explicit codegen carriers.  Missing names, type
+findings, storage findings, global findings, and mapping reviews remain zero.
+
+A fresh full build reproduces the standing executable hash.  Both relink lanes
+are GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; the undefined-call audit scans 15,781
+calls with zero defects.  The call-target audit retains exactly the two
+pre-existing swapped `Sim_MainGameLoop` sites, the TU-order audit reports zero
+inversions, and the vtable indexing audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

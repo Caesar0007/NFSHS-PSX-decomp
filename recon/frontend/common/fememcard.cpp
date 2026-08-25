@@ -412,7 +412,14 @@ void Init_MemcardFile(MCRDFILE_def &memCardFile,short cardnum,bool notitle)
    without adding an instruction.  Explicit message/display locals reproduce retail's
    load-before-store order at the final dialog update.  Restoring the retail header's
    inline dialog constructor chain makes the implicit ctor and following field stores
-   share one address pseudo, producing the retail s0 staging across `jal __7tScreen`. */
+   share one address pseudo, producing the retail s0 staging across `jal __7tScreen`.
+
+   SYM restoration 2026-08-26: the final nested line-173 `this` scope now uses
+   the established inline SetString member.  The recorded `event` local cannot
+   double as the card-status value: that extends s0 and is FAIL 18.  A transient
+   `status` value exactly reproduces retail v1 and is semantically stronger than
+   the old decompiler pointer.  The five marked identities remain measured
+   source-only carriers whose private spellings are not uniquely recoverable. */
 
 bool SaveGame(short player)
 
@@ -448,7 +455,8 @@ bool SaveGame(short player)
   int event;
   bool returnvalue;
   int returnmessage;
-  /* MATCH: wd = CSE of &WarningDialog across the ctor/TextSys calls (hold-addr, s0): the
+  /* SYM-CODEGEN-CARRIER: wd -- CSE of &WarningDialog across the ctor/TextSys calls
+     (hold-addr, s0): the
      oracle stores the three non-zero-constant fields through s0 and takes both call args
      from it; zeros/vt stay sp-direct. */
   tDialogNoInputMessage *wd = &WarningDialog;
@@ -512,11 +520,13 @@ bool SaveGame(short player)
     case 0xd:
     case 0x17:
       {
-        CARDINFO_def *pCVar4 = MCRD_getcard(player * 4 + 1);
+        /* SYM-CODEGEN-CARRIER: status -- retail holds the loaded status in v1;
+           reusing recorded local `event` perturbs its earlier switch allocation. */
+        int status = MCRD_getcard(player * 4 + 1)->status;
         returnmessage = 0x29d;
-        if (pCVar4->status != -3) {
+        if (status != -3) {
           returnmessage = 0x325;
-          if (pCVar4->status == -1) {
+          if (status == -1) {
             returnmessage = 0x32b;
           }
         }
@@ -533,11 +543,17 @@ bool SaveGame(short player)
   BringThatBeatBack();
   if (nomessage_arr[0] == 0) {
     Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
-    /* dlgmsg held across the TextSys call (inlined-this block, s0) */
+    /* SYM-CODEGEN-CARRIER: dlgmsg -- held across TextSys_Word as the nested
+       inline receiver in s0. */
     tDialogMessageString *dlgmsg = &FEApp[0]->MemCardDialog;
+    /* SYM-CODEGEN-CARRIER: message -- preserves the call result while the
+       independent Display receiver is formed. */
     char *message = TextSys_Word(returnmessage + player);
+    /* SYM-CODEGEN-CARRIER: displayDialog -- forming this before the inline
+       store gives retail's load/store order. */
     tDialogBase *displayDialog = (tDialogBase *)&FEApp[0]->MemCardDialog;
-    dlgmsg->string = message;
+    /* SYM-INLINE-THIS: SetString */
+    dlgmsg->SetString(message);
     Display(displayDialog);
     while (true) {
       if (((FEApp[0]->MemCardDialog).fFullyOpen ^ 1) == 0) break;

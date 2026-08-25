@@ -1359,10 +1359,6 @@ void tMenuItemSlidingActivated::ProcessInput(tPlayer fromPlayer,tInputKeyType &k
                tMenuCommand &command)
 
 {
-  AudioMus_tSongList *pAVar1;
-  int iVar2;
-  __vtbl_ptr_type (*pa_Var3) [11];
-  tInsideBoxMenu *ptVar4;
   
   /* MATCH (catalog §B arm-order): the oracle branches AWAY on `== Cross`
      (`beq v1,v0`) and lays the Cross body OUT-OF-LINE at the end, falling
@@ -1391,32 +1387,25 @@ void tMenuItemSlidingActivated::ProcessInput(tPlayer fromPlayer,tInputKeyType &k
     AudioMus_SysCleanUp();
     AudioMus_SysStartUp(0xc000,0x18000,"ymus");
     AudioMus_PlaySong("game*");
-    pAVar1 = AudioMus_GetSongList("*",0);
-    screenAudio->songlist = pAVar1;
+    screenAudio->songlist = AudioMus_GetSongList("*",0);
   }
   if (this->fSlideOffset == 0) {
-    iVar2 = this->fActive;
-    if (iVar2 == 0) goto SlideActivProc_callBaseProcess;
-    ptVar4 = this->currMenu;
-    if (ptVar4 != (tInsideBoxMenu *)0x0) {
-      pa_Var3 = (ptVar4)->_vf;
+    if (this->fActive == 0) goto SlideActivProc_callBaseProcess;
+    if (this->currMenu != (tInsideBoxMenu *)0x0) {
       /* MATCH (methodology #11): the vtable `pfn` is `int(*)(...)`, so passing the
          two REFERENCE params through it decays them to BY-VALUE copies (a2/a3 +
          a stack word).  The oracle passes the references themselves (a2=&keyval,
          a3=&command) -> cast the fn-ptr to the real reference signature.  Also
          `(int)ptVar4 + delta` (not fItemList-0x10) to get the oracle's
          `addu a0,currMenu,delta` operand order. */
-      ((void (*)(int,tPlayer,tInputKeyType &,tMenuCommand &))(*pa_Var3)[3].pfn)
-                ((int)ptVar4 + (*pa_Var3)[3].delta,fromPlayer,keyval,
+      ((void (*)(int,tPlayer,tInputKeyType &,tMenuCommand &))(*this->currMenu->_vf)[3].pfn)
+                ((int)this->currMenu + (*this->currMenu->_vf)[3].delta,fromPlayer,keyval,
                  command);
       goto SlideActivProc_getActive;
     }
   }
-  else {
 SlideActivProc_getActive:
-    iVar2 = this->fActive;
-  }
-  if ((iVar2 != 0) && ((keyval == kInput_KeyType_Up || (keyval == kInput_KeyType_Down)))) {
+  if ((this->fActive != 0) && ((keyval == kInput_KeyType_Up || (keyval == kInput_KeyType_Down)))) {
     keyval = kInput_KeyType_AlreadyProcessed;
   }
 SlideActivProc_callBaseProcess:

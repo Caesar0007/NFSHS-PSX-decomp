@@ -10,6 +10,15 @@ static tDialogBase *DialogVisibilityList[8];   /* @0x80052b38  (bss(zero)); SYM 
 
 extern tTexture_ShapeInfo *gHelpShapesA[] asm("gHelpShapes");
 
+/* Draw's 8c record has no `buttonY` local.  Retail nevertheless shares this
+   expression across the two controller-button calls; this inline boundary
+   preserves that CSE without inventing a caller local.  The body is proven,
+   while the original helper/macro spelling is not recoverable. */
+static inline int DialogHelpButtonY(short item)
+{
+  return (item - 1) * 0xf + 0xf;
+}
+
 extern "C" {
 void ___7tScreen(void *);
 void ___31tDialogMessageStringWithTimeout(void *thisp) { ___7tScreen(thisp); }
@@ -379,7 +388,8 @@ void tDialogHelp::CalculateDimensions()
    gcc cross-jump-merges their common tails only after each arm computes
    `(i-1)`, reproducing both `j` delay-slot fills and the retail block order.
    A single explicit goto-shared call instead hoists the prefix and costs ten
-   diffs.  `int buttonY` in the two-button arm remains load-bearing.  The
+   diffs.  Duplicating the two-button Y expression directly costs 13 diffs;
+   `DialogHelpButtonY` preserves its shared value without a non-SYM local.  The
    two-stage tick materialization preserves retail's load/copy pair.  Keeping
    the tick live through the letter-count division, and initializing the loop
    index and stack-buffer cursor first, reproduces its allocation and schedule. */
@@ -387,7 +397,6 @@ void tDialogHelp::CalculateDimensions()
 void tDialogHelp::Draw()
 
 {
-  __vtbl_ptr_type (*pa_Var3) [10];
   short i;
   short j;
   char buffer [80];
@@ -397,8 +406,8 @@ void tDialogHelp::Draw()
   int numLetters;
   long firstTick;
   
-  pa_Var3 = this->_vf;
-  (*pa_Var3[1][0].pfn)((char *)this + pa_Var3[1][0].delta);
+  /* SYM-INLINE-THIS: CalculateDimensionsVirtual */
+  this->CalculateDimensionsVirtual();
   firstTick = this->startTicks;
   {
     long loadedTicks = ::ticks[0];
@@ -433,14 +442,11 @@ DialogHelpDraw_pad35:
 DialogHelpDraw_specialButtons:
         if ((control == 0xa0) || (control == 0x50) || (control == 0x40))
           goto DialogHelpDraw_pad65Special;
-        {
-          int buttonY = (i - 1) * 0xf + 0xf;
-          FeTools_DrawPSXButton(0x41,(u_short)control,this->left + 0x14,
-                     this->top + buttonY + 4);
-          FeTools_DrawPSXButton(0x23,(u_short)control,this->left + 0x28,
-                     this->top + buttonY + 4);
-          goto DialogHelpDraw_buttonsDone;
-        }
+        FeTools_DrawPSXButton(0x41,(u_short)control,this->left + 0x14,
+                   this->top + DialogHelpButtonY(i) + 4);
+        FeTools_DrawPSXButton(0x23,(u_short)control,this->left + 0x28,
+                   this->top + DialogHelpButtonY(i) + 4);
+        goto DialogHelpDraw_buttonsDone;
 DialogHelpDraw_pad65Special:
         FeTools_DrawPSXButton(0x41,(u_short)control,this->left + 0x14,
                    (i - 1) * 0xf + this->top + 0x13);

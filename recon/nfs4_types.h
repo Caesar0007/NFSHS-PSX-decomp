@@ -4674,6 +4674,13 @@ struct tDialogHelp : public tDialogBase {   /* 212 bytes */
     /* FEDialog methods */
     void AddItem(short textID,short controllerID);
     void CalculateDimensions();
+    /* FEDIALOG.CPP:1 SLD preserves this inlined virtual-dimensions dispatch
+       receiver.  The body and vtable slot are proven; its original helper
+       spelling is not retained by the debug stream. */
+    inline void CalculateDimensionsVirtual() {
+        __vtbl_ptr_type (*vf)[10] = _vf;
+        (*vf[1][0].pfn)((char *)this + vf[1][0].delta);
+    }
     void Draw();
 
 };

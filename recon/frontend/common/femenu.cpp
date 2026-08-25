@@ -1292,27 +1292,19 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
 void tMenuItemLeftRightSlider::Draw(bool selected)
 
 {
-  u_char uVar1;
-  int iVar2;
-  __vtbl_ptr_type (*pa_Var3) [6];
-  u_int wordnum;
   
   if (this->fX == 0 && this->fY == 0) {
-    iVar2 = TextSys_WordX(this->fTextDescription);
-    wordnum = this->fTextDescription;
-    this->fX = (short)iVar2;
-    iVar2 = TextSys_WordY(wordnum);
-    this->fY = (short)iVar2;
+    this->fX = (short)TextSys_WordX(this->fTextDescription);
+    this->fY = (short)TextSys_WordY(this->fTextDescription);
   }
   FETextRender_MenuTextPositioned((short)this->fTextDescription,this->fX + 8,
              this->fY + 3,(tMenuTextState)(selected != 0),textType_Options);
-  pa_Var3 = this->fData->_vf;
-  uVar1 = (*(*pa_Var3)[2].pfn)
-                    ((char *)this->fData + (int)(*pa_Var3)[2].delta,0xffffffff);
   /* MATCH (W57-A5): the fSelFade select is written INLINE as the 12th argument -- retail
      branches and stores 0x80 / 0 straight into the outgoing 44(sp) arg slot; routing it
      through a local makes gcc fold it to `(selected!=0) << 7` off the text-state bool. */
-  DrawSlider(uVar1,(u_short)(u_char)this->fData->fMinValue,(u_short)(u_char)this->fData->fMaxValue,
+  DrawSlider((u_char)(*(*this->fData->_vf)[2].pfn)
+                    ((char *)this->fData + (int)(*this->fData->_vf)[2].delta,0xffffffff),
+             (u_short)(u_char)this->fData->fMinValue,(u_short)(u_char)this->fData->fMaxValue,
              this->fX + 0x73,this->fY + 4,this->fWidth,this->fHeight,6,4,false,0,
              selected ? 0x80 : 0,0);
   return;

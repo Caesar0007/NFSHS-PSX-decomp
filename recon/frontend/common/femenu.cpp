@@ -622,37 +622,38 @@ void tMenuItemLeftRightChoice::ProcessInput(tPlayer fromPlayer,tInputKeyType &ke
               tMenuCommand &command)
 
 {
-  u_int uVar1;
-  __vtbl_ptr_type (*pa_Var2) [6];
-  tListIterator *ptVar3;
-  int SFXnum;
-  /* MATCH: SYM fsize=32 for this fn but our frame computes 24 -- 8 bytes of
-     retail frame have no named SYM local; this filler reproduces the SYM's
-     own frame size (do not delete: frame size is part of the byte match). */
+  /* SYM-ABI-PARAM: command -- the `R12tMenuCommand` mangling proves this
+     optimized-away reference parameter even though the SYM omits it. */
+  /* SYM-CODEGEN-CARRIER: frameFiller -- SYM proves fsize=32 with vars=8 but
+     records no named local at any scope.  Removing these two words is FAIL
+     12 (44/44): only the frame allocation, save/restore offsets, and final
+     stack adjustment change to 24 bytes.  The retail binary therefore proves
+     an anonymous eight-byte source/compiler temporary, but neither artifact
+     can recover its original spelling or type. */
   int frameFiller[2];
 
-  uVar1 = this->fFlags & 1;
-  if (uVar1 != 0) {
+  /* SYM-INLINE-THIS: IsDisabled */
+  if (this->IsDisabled()) {
     return;
   }
   switch (keyval) {
   case kInput_KeyType_Left:
-    ptVar3 = this->fData;
-    pa_Var2 = ptVar3->_vf;
-    (*(*pa_Var2)[5].pfn)((char *)ptVar3 + (int)(*pa_Var2)[5].delta);
-    SFXnum = 5;
+    ((void (*)(char *,tPlayer))(*this->fData->_vf)[5].pfn)
+        ((char *)this->fData + (int)(*this->fData->_vf)[5].delta,
+         fromPlayer);
+    keyval = kInput_KeyType_AlreadyProcessed;
+    AudioCmn_PlayFESFX(5);
     break;
   case kInput_KeyType_Right:
-    ptVar3 = this->fData;
-    pa_Var2 = ptVar3->_vf;
-    (*(*pa_Var2)[4].pfn)((char *)ptVar3 + (int)(*pa_Var2)[4].delta);
-    SFXnum = 6;
+    ((void (*)(char *,tPlayer))(*this->fData->_vf)[4].pfn)
+        ((char *)this->fData + (int)(*this->fData->_vf)[4].delta,
+         fromPlayer);
+    keyval = kInput_KeyType_AlreadyProcessed;
+    AudioCmn_PlayFESFX(6);
     break;
   default:
     return;
   }
-  keyval = kInput_KeyType_AlreadyProcessed;
-  AudioCmn_PlayFESFX(SFXnum);
   /* MATCH: retail falls off the end here -- no return-value materialization
      ($v0 is the AudioCmn_PlayFESFX leftover in the oracle). */
 }
@@ -730,35 +731,49 @@ void tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &ke
               tMenuCommand &command)
 
 {
-  short sVar1;
-  u_int uVar2;
-  int (*pcVar3)(...);
-  tListIterator *ptVar4;
-  /* MATCH: SYM fsize frame filler -- see tMenuItemLeftRightChoice::ProcessInput. */
+  /* SYM-ABI-PARAM: command -- the `R12tMenuCommand` mangling proves this
+     optimized-away reference parameter even though the SYM omits it. */
+  /* SYM-CODEGEN-CARRIER: frameFiller -- SYM proves fsize=32 with vars=8 but
+     records no named local at any scope.  This is the same anonymous
+     eight-byte source/compiler temporary measured in the adjacent choice
+     implementation; omitting it changes the retail frame to 24 bytes. */
   int frameFiller[2];
 
-  uVar2 = this->fFlags & 1;
-  if (uVar2 != 0) {
+  /* SYM-INLINE-THIS: IsDisabled */
+  if (this->IsDisabled()) {
     return;
   }
   switch (keyval) {
   case kInput_KeyType_Left:
-    ptVar4 = this->fData;
-    (*(*ptVar4->_vf)[5].pfn)((char *)ptVar4 + (int)(*ptVar4->_vf)[5].delta);
+    ((void (*)(char *,tPlayer))(*this->fData->_vf)[5].pfn)
+        ((char *)this->fData + (int)(*this->fData->_vf)[5].delta,
+         fromPlayer);
     break;
   case kInput_KeyType_Right:
-    ptVar4 = this->fData;
-    (*(*ptVar4->_vf)[4].pfn)((char *)ptVar4 + (int)(*ptVar4->_vf)[4].delta);
+    ((void (*)(char *,tPlayer))(*this->fData->_vf)[4].pfn)
+        ((char *)this->fData + (int)(*this->fData->_vf)[4].delta,
+         fromPlayer);
     break;
   default:
     return;
   }
-  /* MATCH: this natural statement order produces retail's exact instruction set and
-     register allocation.  GCC sched2 instead chooses li a1 for the call delay slot;
-     the narrow build receipt restores retail's legal ordering by preparing a1 and
-     the processed-key value before the jal, then placing this store in its slot. */
-  AudioCmn_PlayFESFXVol(0x15,0x40);
+  /* MATCH: SYM-CODEGEN-CARRIER: sound
+     MATCH: SYM-CODEGEN-CARRIER: volume
+     Retail SLD assigns the processed-key store to original line 644 and the
+     sound call to line 645, proving that source statement order.  The direct
+     spelling is FAIL 6 (42/42); placing the call first violates the SLD and is
+     still FAIL 2.  These statement-local immediate carriers and zero-insn
+     identity fences preserve the proven statement order while giving sched2
+     retail's `a0`, `a1`, processed-value, call/store ordering.  Fence order is
+     measured: sound-before-volume is FAIL 2 with only the immediate loads
+     swapped.  SYM records no lexical locals here, so their original spelling
+     is not recoverable; the binary proves only the two immediate value webs. */
+  int sound = 0x15;
+  int volume = 0x40;
+  __asm__("" : "=r"(volume) : "0"(volume));
+  __asm__("" : "=r"(sound) : "0"(sound));
   keyval = kInput_KeyType_AlreadyProcessed;
+  AudioCmn_PlayFESFXVol(sound,volume);
   /* MATCH: retail falls off the end (no return-value materialization). */
 }
 

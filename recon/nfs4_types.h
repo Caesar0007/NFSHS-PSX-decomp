@@ -2804,6 +2804,10 @@ struct tMenuItem {   /* 28 bytes */
     void Draw(int x, int y, int w, bool selected);  /* SYM: FCN VOID */
     void TransitionOn();    /* @0x80025aa8  empty base virtual (overridden by tMenu); surfaced by #75 vtable mat */
     void TransitionOff();   /* @0x80025ab0  empty base virtual (overridden by tMenu); surfaced by #75 vtable mat */
+    /* FEMENU.CPP:563/630 records an inlined tMenuItem receiver around this
+       flag predicate.  The matching pause-menu base class uses the canonical
+       IsDisabled spelling for the same bit-zero test. */
+    bool IsDisabled() { return (fFlags & 1) != 0; }
     /* SCREENCARSELECT.CPP:776/784/787 records an inlined tMenuItem receiver
        around each text-ID store.  The debug stream proves this body but not
        the original helper spelling. */

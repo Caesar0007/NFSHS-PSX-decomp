@@ -1443,7 +1443,8 @@ void tMenuItemLeftRightFade::MyLeftRightDraw(int x,int y)
 void tMenuItemDisplayLeftRightChoice::Draw(int offx,int offy,bool selected)
 
 {
-  /* SYM 8c block: params this($s3)/offx($s0)/offy($s2) and the ONE named local
+  /* SYM-ABI-PARAM: selected -- unused, but the `iib` linkage proves the bool arg.
+     SYM 8c block: params this($s3)/offx($s0)/offy($s2) and the ONE named local
      `int ColText` ($s2, reusing offy's reg); x/y are compiler temps.
      MATCH: NO return funnel — retail drops the result ($v0 is the shared `li 2`
      stack arg, and on the fade==0x80 early-out it is the compare's `li 0x80`);
@@ -1487,7 +1488,8 @@ void tMenuItemOnOffLeftRightChoice::TransitionOn()
 void tMenuItemOnOffLeftRightChoice::Draw(int offx,int offy,bool selected)
 
 {
-  /* MATCH (same family as tMenuItemDisplayLeftRightChoice::Draw): no return
+  /* SYM-ABI-PARAM: selected -- unused, but the `iib` linkage proves the bool arg.
+     MATCH (same family as tMenuItemDisplayLeftRightChoice::Draw): no return
      funnel, in-branch fOnFade stores, x/y plain ints narrowed PER USE, and the
      TextSys_Word results consumed straight into $a0. */
   int x;
@@ -1554,6 +1556,7 @@ tMenuItemLeftRightAudioSlider::~tMenuItemLeftRightAudioSlider()
 void tMenuItemLeftRightAudioSlider::Draw(int ox,int oy,bool selected)
 
 {
+  /* SYM-ABI-PARAM: selected -- unused, retained by the retail `iib` linkage. */
   int coltext;
   /* SYM-CODEGEN-CARRIER: brightTextColor
      The trusted block names only `coltext` ($s0). Retail nevertheless holds
@@ -1890,8 +1893,8 @@ void tInsideBoxSongMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
               tMenuCommand &command)
 
 {
-  /* SYM-CODEGEN-CARRIER: fromPlayer -- retained by the mangled ABI signature. */
-  /* SYM-CODEGEN-CARRIER: command -- retained by the mangled ABI signature. */
+  /* SYM-ABI-PARAM: fromPlayer -- retained by the mangled ABI signature. */
+  /* SYM-ABI-PARAM: command -- retained by the mangled ABI signature. */
   /* SYM: FCN VOID, one local (int j). w35-a9 diagnosis confirmed against the
      raw oracle: this fn writes its result THROUGH the keyval reference (not
      a return value) -- the earlier `return 0x1000`/`return -0x7ffb0000`
@@ -1963,7 +1966,8 @@ void tInsideBoxSongMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
 void tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool selected)
 
 {
-  /* MATCH: (a) BASE-ANCHOR — retail holds `&gHelpShapes[0x1e]` in one saved reg
+  /* SYM-ABI-PARAM: selected -- unused, retained by the retail `iib` linkage.
+     MATCH: (a) BASE-ANCHOR — retail holds `&gHelpShapes[0x1e]` in one saved reg
      ($s5: `lui;lw;addiu +960`), not the array base re-indexed per use;
      (b) ONE tDrawShapeExtended AUTO (the 2nd cost 32 frame bytes);
      (c) no return funnel — $v0 is the last stack arg, incidental;
@@ -2044,7 +2048,8 @@ tInsideBoxLeftRightSlider::~tInsideBoxLeftRightSlider()
 void tInsideBoxLeftRightSlider::Draw(int x,int y,int w,bool selected)
 
 {
-  /* MATCH: no `fSelFade`/`col` return funnel — retail's Draw drops its result
+  /* SYM-ABI-PARAM: selected -- unused, retained by the retail `iiib` linkage.
+     MATCH: no `fSelFade`/`col` return funnel — retail's Draw drops its result
      ($v0 is DrawSlider's, incidental), so the `lh 8(s0)` for the fSelFade arg is
      emitted LATE at the call instead of being hoisted into a saved reg.  Decl
      order coltext-before-col is the s3/s4 assignment. */
@@ -2110,8 +2115,8 @@ void tInsideBoxTwoWaySlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyv
               tMenuCommand &command)
 
 {
-  /* SYM-CODEGEN-CARRIER: fromPlayer -- retained by the mangled ABI signature. */
-  /* SYM-CODEGEN-CARRIER: command -- retained by the mangled ABI signature. */
+  /* SYM-ABI-PARAM: fromPlayer -- retained by the mangled ABI signature. */
+  /* SYM-ABI-PARAM: command -- retained by the mangled ABI signature. */
   /* MATCH: plain straight-line ifs reading the `keyval` REFERENCE directly — no
      tVar1 cache, no volatile, no goto.  gcc reloads keyval at the end of the
      Cross body all by itself (partial redundancy across the two `if (keyval==K)`
@@ -2147,6 +2152,7 @@ void tInsideBoxTwoWaySlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyv
 void tInsideBoxTwoWaySlider::Draw(int x,int y,int w,bool selected)
 
 {
+  /* SYM-ABI-PARAM: selected -- unused, retained by the retail `iiib` linkage. */
   /* SYM-CODEGEN-CARRIER: selection
      The virtual read must remain a separate statement before fWidth so retail
      performs the jalr before the width narrowing; SYM retains only the inlined
@@ -2435,8 +2441,8 @@ void tUserNameMenuItem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
      are dead (never read in the body, matching the oracle: $a3/&command is
      never touched). SYM's 8c block shows NO named locals at all: every
      scalar below is a Ghidra-fabricated compiler temp, not a real variable.
-     SYM-CODEGEN-CARRIER: fromPlayer
-     SYM-CODEGEN-CARRIER: command
+     SYM-ABI-PARAM: fromPlayer
+     SYM-ABI-PARAM: command
      SYM-CODEGEN-CARRIER: selectedChar
      SYM-CODEGEN-CARRIER: column
      SYM-CODEGEN-CARRIER: stringLength
@@ -2645,7 +2651,7 @@ int SpecialCharacter(char current)
 void tUserNameMenuItem::Draw(bool selected)
 
 {
-  /* SYM-CODEGEN-CARRIER: selected
+  /* SYM-ABI-PARAM: selected
      SYM-CODEGEN-CARRIER: boxRight
      SYM-CODEGEN-CARRIER: menuStartY
      SYM-CODEGEN-CARRIER: columnx
@@ -3037,7 +3043,7 @@ void tUserNameMenuItem::UpdateTransition(bool selected)
 void tMemoryCardMenuItem::Draw(bool selected)
 
 {
-  /* SYM-CODEGEN-CARRIER: selected -- retained by the mangled ABI signature. */
+  /* SYM-ABI-PARAM: selected -- retained by the mangled ABI signature. */
   /* SYM-CODEGEN-CARRIER: sVar2
    * SYM-CODEGEN-CARRIER: v
    * SYM-CODEGEN-CARRIER: sv

@@ -71,46 +71,39 @@ void tTrackManager::GetTrack(short trackNumber,tTrackInformation &trackInfo)
 
 /* ---- tTrackManager::LoadDescription  [FETRACKS.CPP:94-139] SLD-VERIFIED ---- */
 
+/* MATCH: the SYM-authenticated source has only `input`, `data`, `filename`,
+   and `i`.  As in tCarManager::LoadDescription, `input` owns the loaded file,
+   `data` owns the allocation result, and the indexed record loop is strength-
+   reduced to retail's byte-offset induction variable.  The named record
+   fields replace all decompiler offset aliases. 78/78 instructions. */
+
 void tTrackManager::LoadDescription()
 
 {
-  u_long *addr;
-  u_long uVar1;
-  tTrackInformation *dst;
-  char *pcVar2;
-  char *data;
-  int iVar3;
-  u_long i;
-  u_int uVar4;
   char *input;
+  char *data;
   char filename [80];
+  u_long i;
   
   sprintf(filename,"%s%s",Paths_Paths[0x25],"fetrk.trk");
   this->ReleaseDescription();
-  addr = (u_long *)loadfileadr(filename,0x10);
-  uVar1 = *addr;
-  this->fNumTracks = uVar1;
-  dst = (tTrackInformation *)reservememadr("Track List",uVar1 * 0x30,0);
-  this->fTracks = dst;
-  blockmove(addr + 1,dst,this->fNumTracks * 0x30);
-  uVar4 = 0;
+  input = (char *)loadfileadr(filename,0x10);
+  this->fNumTracks = *(u_long *)input;
+  data = (char *)reservememadr("Track List",this->fNumTracks * 0x30,0);
+  this->fTracks = (tTrackInformation *)data;
+  blockmove(input + 4,data,this->fNumTracks * 0x30);
+  i = 0;
   if (this->fNumTracks != 0) {
-    bool one = true;
-    iVar3 = 0;
     do {
-      pcVar2 = (char *)(iVar3 + (int)this->fTracks);
-      if (pcVar2[3] != '\0') {
-        this->fAvailableTracks[*(signed char *)pcVar2] = one;
+      if (this->fTracks[i].fAvailable != '\0') {
+        this->fAvailableTracks[(signed char)this->fTracks[i].fTrackID] = true;
       }
-      pcVar2 = (char *)(iVar3 + (int)this->fTracks);
-      if (pcVar2[4] == '\0') {
-        this->fViewableTracks[*(signed char *)pcVar2] = one;
+      if (this->fTracks[i].fIsEgg == '\0') {
+        this->fViewableTracks[(signed char)this->fTracks[i].fTrackID] = true;
       }
-      iVar3 = iVar3 + 0x30;
-      uVar4 = uVar4 + 1;
-    } while (uVar4 < this->fNumTracks);
+    } while (++i < this->fNumTracks);
   }
-  purgememadr(addr);
+  purgememadr(input);
   return;
 }
 

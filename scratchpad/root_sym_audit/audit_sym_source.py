@@ -1086,6 +1086,31 @@ def documented_codegen_names(target: Path, src: SourceFunction) -> set[str]:
     )
 
 
+def documented_abi_params(target: Path, src: SourceFunction) -> set[str]:
+    """Return ABI parameters intentionally absent from the optimized SYM block.
+
+    A marker is accepted only when ctags independently classifies the named
+    declaration as a function parameter.  This prevents an annotation typo (or
+    a local disguised as an ABI receipt) from suppressing a real review item.
+    The retail GCC-v2 linkage spelling and the exact compiled symbol remain the
+    signature evidence; the marker explains why no REGPARM/ARG row survives.
+    """
+    path = target / src.path
+    try:
+        body = path.read_text(encoding="utf-8", errors="replace").splitlines()[
+            src.line - 1 : src.end
+        ]
+    except OSError:
+        return set()
+    marked = set(
+        re.findall(r"\bSYM-ABI-PARAM:\s*([A-Za-z_]\w*)", "\n".join(body))
+    )
+    parameters = {
+        decl["name"] for decl in src.decls if decl.get("kind") == "parameter"
+    }
+    return marked & parameters
+
+
 def documented_function_type_overrides(target: Path, src: SourceFunction) -> set[str]:
     """Return measured lexical types retained despite a conflicting SYM row."""
     path = target / src.path
@@ -1286,6 +1311,8 @@ def audit(
     inline_local_rows: list[tuple[SymFunction, dict[str, str]]] = []
     macro_local_total = 0
     macro_local_rows: list[tuple[SymFunction, dict[str, str]]] = []
+    abi_param_total = 0
+    abi_param_rows: list[tuple[SymFunction, set[str]]] = []
     codegen_total = 0
     codegen_rows: list[tuple[SymFunction, set[str]]] = []
     function_type_override_total = 0
@@ -1331,6 +1358,10 @@ def audit(
         if documented:
             documented_total += len(documented)
             documented_rows.append((sf, documented))
+        abi_params = documented_abi_params(target, src)
+        if abi_params:
+            abi_param_total += len(abi_params)
+            abi_param_rows.append((sf, abi_params))
         # A hard-register annotation is a reconstruction carrier only when its
         # base name is absent from SYM.  SYM-owned names such as DesiredSlice
         # remain ordinary matched declarations even though their allocation is
@@ -1359,7 +1390,7 @@ def audit(
             for d in src.decls
             if not d["name"].startswith("__anon") and d["name"] not in source_ignored_names
         }
-        extra = sorted(source_local_names - sym_names - codegen)
+        extra = sorted(source_local_names - sym_names - codegen - abi_params)
         type_mismatch: list[str] = []
         source_linkage = "STAT" if src.file_scope else "EXT"
         if sf.linkage_cls and sf.linkage_cls != source_linkage:
@@ -1555,6 +1586,7 @@ def audit(
         f"- Explicit oracle-receipted carrier mappings: {documented_total}",
         f"- Explicit restored inline-local mappings: {inline_local_total}",
         f"- Explicit restored macro-local mappings: {macro_local_total}",
+        f"- Explicit linkage-proven ABI parameters omitted from SYM: {abi_param_total}",
         f"- Explicit source-only codegen carriers: {codegen_total}",
         f"- Explicit oracle-proven function type overrides: {function_type_override_total}",
             f"- Functions needing mapping review: {len(selected) - mapped - implicit_generated_total}",
@@ -1629,6 +1661,9 @@ def audit(
             f"`{name}` from `{macro}`" for name, macro in sorted(owners.items())
         ]
         lines.append(f"- `{sf.name}`: " + ", ".join(entries))
+    lines.extend(["", "## Explicit linkage-proven ABI parameters omitted from SYM", ""])
+    for sf, names in abi_param_rows:
+        lines.append(f"- `{sf.name}`: " + ", ".join(f"`{n}`" for n in sorted(names)))
     lines.extend(["", "## Explicit source-only codegen carriers", ""])
     for sf, names in codegen_rows:
         lines.append(f"- `{sf.name}`: " + ", ".join(f"`{n}`" for n in sorted(names)))

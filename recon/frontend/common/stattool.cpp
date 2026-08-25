@@ -199,31 +199,24 @@ void Stattool_GetAllDefaultRecords(tRecordBuffer *TrackRecords,bool cheatones)
 {
   tRecordBuffer *AllRecords;
   int s;
-  tRecordBuffer *src;
-  tRecordBuffer *dest;
   int i;
   int n;
-  int base;
   
   AllRecords = (tRecordBuffer *)reservememadr("records",0xe9c,0x10);
   Stattool_ReadDefaultRecords(AllRecords,cheatones);
   i = 0;
-  base = 0;
   do {
     n = 0;
     do {
-      s = base + n;
-      dest = TrackRecords + s;
-      src = AllRecords + s;
-      strcpy(dest->sName,src->sName);
-      Stattool_SamNelsonsUpperLowerStringConverterForRecords(dest->sName);
-      dest->nCar = src->nCar;
-      dest->nTime = src->nTime;
+      s = i * 0x11 + n;
+      strcpy(TrackRecords[s].sName,AllRecords[s].sName);
+      Stattool_SamNelsonsUpperLowerStringConverterForRecords(TrackRecords[s].sName);
+      TrackRecords[s].nCar = AllRecords[s].nCar;
+      TrackRecords[s].nTime = AllRecords[s].nTime;
       n = n + 1;
-      dest->nBestLap = src->nBestLap;
+      TrackRecords[s].nBestLap = AllRecords[s].nBestLap;
     } while (n < 0x11);
     i = i + 1;
-    base = base + 0x11;
   } while (i < 0xb);
   purgememadr(AllRecords);
   return;

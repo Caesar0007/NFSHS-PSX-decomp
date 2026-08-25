@@ -559,12 +559,13 @@ void tOptionsMenu::Draw()
 {
   /* SYM 8c block: locals are `short i` (REG $s1) + the AUTO `tDrawShapeExtended
      drawFlags`; the nested `tMenuItem *this` blocks are INLINED accessors. */
-  tMenuItem *ptVar1;
-  __vtbl_ptr_type (*pa_Var2) [11];
+  /* SYM-CODEGEN-CARRIER: entry -- manual representation of the compiler's
+     old-ABI virtual-dispatch row; flattening row 5 is FAIL 7 (128/129). */
   __vtbl_ptr_type *entry;
+  /* SYM-CODEGEN-CARRIER: adjusted -- preserves retail's dead receiver
+     mutation before the indirect call; inlining it is FAIL 25 (128/129). */
   char *adjusted;
   short i;
-  bool bVar4;
   tDrawShapeExtended drawFlags;
 
   CalcPulsateYellow();
@@ -603,14 +604,10 @@ void tOptionsMenu::Draw()
        vtable base as a displacement (`lh 40(v0)`), and the this-adjust MUTATING
        the (now dead) receiver register in place (`addu a0,a0,v0`).  Same spelling
        as tMenuItemSlidingMenu::Draw's matched dispatches. */
-    ptVar1 = this->fItemList[i];
-    entry = &(*ptVar1->_vf)[5];
-    adjusted = (char *)ptVar1 + (int)entry->delta;
-    bVar4 = false;
-    if (this->fInMenuTransition == 0) {
-      bVar4 = (int)i == this->fCurrentItem;
-    }
-    (*entry->pfn)(adjusted,0,0,bVar4);
+    entry = &(*this->fItemList[i]->_vf)[5];
+    adjusted = (char *)this->fItemList[i] + (int)entry->delta;
+    (*entry->pfn)(adjusted,0,0,
+        this->fInMenuTransition == 0 && (int)i == this->fCurrentItem);
   }
   return;
 }

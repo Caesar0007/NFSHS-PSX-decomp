@@ -2252,17 +2252,22 @@ void tInsideBoxTwoWaySlider::Calibrate()
 {
   int range;
   int player;
+  /* SYM-CODEGEN-CARRIER: padInfo
+     SYM-CODEGEN-CARRIER: padBase
+     SYM-CODEGEN-CARRIER: screen
+     SYM-CODEGEN-CARRIER: app
+     The trusted block names only range/player. These typed expression carriers
+     preserve retail's screen/a0, app/v1, pad-base and indexed-pad lifetimes;
+     their semantic reconstruction names are not claimed as original. */
   tPadModuleState *padInfo;
   tPadModuleState *padBase;
   tScreenControllerConfig *screen;
   tFEApplication *app;
 
-  /* MATCH (12->4): preserve the retail volatile global-pointer load order,
-     then expose gPadinfo's base before reading the player byte.  This gives
-     GCC the exact screen/a0, app/v1, and pad-base lifetimes; only the dying
-     FEApp symbol-address scratch remains a v1-vs-v0 allocation tie. */
-  screen = *(tScreenControllerConfig * volatile *)&screenControllerConfig[0];
-  app = *(tFEApplication * volatile *)&FEApp;
+  /* MATCH: separate typed assignments preserve the retail global-pointer load
+     order without volatile, then expose gPadinfo before reading the player. */
+  screen = screenControllerConfig[0];
+  app = FEApp;
   /* MATCH: SYM declares GetCurrentStickRange{,2} as CHAR; their nonnegative
      ABS/MAX expressions need no callee-side mask, and the caller's explicit
      u_char cast yields the oracle's `andi a1,v0,255` after each jal. */
@@ -2290,6 +2295,9 @@ void tInsideBoxTwoWaySlider::Calibrate()
     break;
   case 1:
     if (padInfo->buf[0].ID == '#') {
+      /* SYM-CODEGEN-CARRIER: value
+         The repeated branch-local narrow destination preserves retail's
+         sign-test/zero-select/store sequence; SYM retains no original name. */
       char value;
 
       range = padInfo->buf[0].data.negcon.twist;
@@ -2345,7 +2353,8 @@ void tInsideBoxTwoWaySlider::Calibrate()
     break;
   case 3:
     if (padInfo->buf[0].ID == '#') {
-      /* MATCH: the bound is an int carrier.  GCC can then share literal 10
+      /* SYM-CODEGEN-CARRIER: minimum
+         MATCH: the bound is an int carrier.  GCC can then share literal 10
          between the comparison and fallback value, selecting retail's
          `li; slt` pair instead of `slti` followed by a late `li`. */
       int minimum;
@@ -2426,37 +2435,49 @@ void tUserNameMenuItem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
      are dead (never read in the body, matching the oracle: $a3/&command is
      never touched). SYM's 8c block shows NO named locals at all: every
      scalar below is a Ghidra-fabricated compiler temp, not a real variable.
+     SYM-CODEGEN-CARRIER: fromPlayer
+     SYM-CODEGEN-CARRIER: command
+     SYM-CODEGEN-CARRIER: selectedChar
+     SYM-CODEGEN-CARRIER: column
+     SYM-CODEGEN-CARRIER: stringLength
+     SYM-CODEGEN-CARRIER: character
+     SYM-CODEGEN-CARRIER: rowBase
+     SYM-CODEGEN-CARRIER: soundId
+     SYM-CODEGEN-CARRIER: rowOffset
+     SYM-CODEGEN-CARRIER: lastColumn
+     These semantic carrier names are reconstruction descriptions, not claims
+     that the optimized-away original identifiers can be recovered from SYM.
      Real switch(keyval) (gcc balance_case_nodes: ==0x400/Down root, <0x401
      bound test over 0x2/Cross+0x200/Up, else 0x800/Left+0x1000/Right).
      Switching and testing the reference directly preserves the shared
      Up/Down test: Down supplies the tiny 0x200 header while Up reuses the
      dispatch compare. menu_kUserNameRows is read lazily in that shared body
      (the oracle stages its lui in the split-test delay slot). */
-  u_char bVar1;
-  short sVar4;
-  u_int uVar5;
-  u_int uVar10;
-  int iVar9;
-  int sfxArg;
+  u_char selectedChar;
+  short column;
+  u_int stringLength;
+  u_int character;
+  int rowBase;
+  int soundId;
 
   switch (keyval) {
   case kInput_KeyType_Down:
   case kInput_KeyType_Up:
     if (keyval == kInput_KeyType_Up) {
       this->fCurrentRow--;
-      sfxArg = 3;
+      soundId = 3;
       if (this->fCurrentRow < 0) {
         this->fCurrentRow = menu_kUserNameRows + -1;
       }
     }
     else {
       this->fCurrentRow++;
-      sfxArg = 4;
+      soundId = 4;
       if (this->fCurrentRow >= (short)menu_kUserNameRows) {
         this->fCurrentRow = 0;
       }
     }
-    AudioCmn_PlayFESFX(sfxArg);
+    AudioCmn_PlayFESFX(soundId);
     if (this->fCurrentColumn < 0) {
       this->fCurrentColumn = 0;
     }
@@ -2464,11 +2485,11 @@ void tUserNameMenuItem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
     break;
   case kInput_KeyType_Left:
     this->fCurrentColumn--;
-    sfxArg = 3;
+    soundId = 3;
     if (this->fCurrentColumn < 0) {
       this->fCurrentColumn = 5;
     }
-    AudioCmn_PlayFESFX(sfxArg);
+    AudioCmn_PlayFESFX(soundId);
     keyval = kInput_KeyType_AlreadyProcessed;
     break;
   case kInput_KeyType_Right:
@@ -2478,16 +2499,16 @@ void tUserNameMenuItem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
     }
     AudioCmn_PlayFESFX(4);
     keyval = kInput_KeyType_AlreadyProcessed;
-    sVar4 = this->fCurrentColumn;
-    iVar9 = this->fCurrentRow * 9;
-    if (this->fRowList[0][this->fCurrentColumn + iVar9] == '-') {
-      int rowOffset = iVar9;
+    column = this->fCurrentColumn;
+    rowBase = this->fCurrentRow * 9;
+    if (this->fRowList[0][this->fCurrentColumn + rowBase] == '-') {
+      int rowOffset = rowBase;
       do {
-        this->fCurrentColumn = sVar4 + 1;
+        this->fCurrentColumn = column + 1;
         if (this->fCurrentColumn > 5) {
           this->fCurrentColumn = 0;
         }
-        sVar4 = this->fCurrentColumn;
+        column = this->fCurrentColumn;
       } while (this->fRowList[0][this->fCurrentColumn + rowOffset] == '-');
     }
     /* MATCH/CFG (w65-a1, 04Q class): when the Right case lands on a NON-dash cell
@@ -2500,12 +2521,12 @@ void tUserNameMenuItem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
     else goto feo_upper;
     break;
   case kInput_KeyType_Cross:
-    uVar5 = strlen(this->fData);
-    bVar1 = this->fRowList[this->fCurrentRow][this->fCurrentColumn];
-    sVar4 = (short)uVar5;
-    if ((u_int)(bVar1 - 0x23) < 2) {
-      if (0 < sVar4) {
-        this->fData[sVar4 + -1] = '\0';
+    stringLength = strlen(this->fData);
+    selectedChar = this->fRowList[this->fCurrentRow][this->fCurrentColumn];
+    column = (short)stringLength;
+    if ((u_int)(selectedChar - 0x23) < 2) {
+      if (0 < column) {
+        this->fData[column + -1] = '\0';
         AudioCmn_PlayFESFX(0x15);
       }
       keyval = kInput_KeyType_AlreadyProcessed;
@@ -2513,9 +2534,9 @@ void tUserNameMenuItem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
     }
     else {
       /* Pin-free zero-insn fence: retain the retail byte-extension boundary. */
-      __asm__("" : "+r"(bVar1));
-      uVar10 = (u_int)bVar1 & 0xff;
-      if ((uVar10 == 0x21) || (uVar10 == 0x40)) {
+      __asm__("" : "+r"(selectedChar));
+      character = (u_int)selectedChar & 0xff;
+      if ((character == 0x21) || (character == 0x40)) {
         if (CheckForCheats(this->fData)) {
           *this->fData = '\0';
         }
@@ -2529,10 +2550,10 @@ void tUserNameMenuItem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
           AudioCmn_PlayFESFX(1);
         }
       }
-      else if ((uVar10 == 0x26) || (uVar10 == 0x5e)) {
-        if (sVar4 < this->fMaxStringLength) {
-          this->fData[sVar4] = ' ';
-          this->fData[sVar4 + 1] = '\0';
+      else if ((character == 0x26) || (character == 0x5e)) {
+        if (column < this->fMaxStringLength) {
+          this->fData[column] = ' ';
+          this->fData[column + 1] = '\0';
           AudioCmn_PlayFESFX(0x15);
         }
         else {
@@ -2540,12 +2561,12 @@ void tUserNameMenuItem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
         }
       }
       else {
-        if (sVar4 >= this->fMaxStringLength) {
+        if (column >= this->fMaxStringLength) {
           AudioCmn_PlayFESFX(1);
         }
         else {
-          this->fData[sVar4] = bVar1;
-          this->fData[sVar4 + 1] = '\0';
+          this->fData[column] = selectedChar;
+          this->fData[column + 1] = '\0';
           AudioCmn_PlayFESFX(0x15);
           keyval = kInput_KeyType_AlreadyProcessed;
         }
@@ -2553,17 +2574,17 @@ void tUserNameMenuItem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
     }
     break;
   }
-  sVar4 = this->fCurrentColumn;
-  iVar9 = this->fCurrentRow * 9;
-  if (this->fRowList[0][this->fCurrentColumn + iVar9] == '-') {
-    int wrapColumn = 5;
-    int rowOffset = iVar9;
+  column = this->fCurrentColumn;
+  rowBase = this->fCurrentRow * 9;
+  if (this->fRowList[0][this->fCurrentColumn + rowBase] == '-') {
+    int lastColumn = 5;
+    int rowOffset = rowBase;
     do {
-      this->fCurrentColumn = sVar4 - 1;
+      this->fCurrentColumn = column - 1;
       if (this->fCurrentColumn < 0) {
-        this->fCurrentColumn = wrapColumn;
+        this->fCurrentColumn = lastColumn;
       }
-      sVar4 = this->fCurrentColumn;
+      column = this->fCurrentColumn;
     } while (this->fRowList[0][this->fCurrentColumn + rowOffset] == '-');
   }
 feo_upper:
@@ -2624,7 +2645,16 @@ int SpecialCharacter(char current)
 void tUserNameMenuItem::Draw(bool selected)
 
 {
-  /* MATCH (2026-08-14): IDA/SLD show that lowercase, digit, and fallback
+  /* SYM-CODEGEN-CARRIER: selected
+     SYM-CODEGEN-CARRIER: boxRight
+     SYM-CODEGEN-CARRIER: menuStartY
+     SYM-CODEGEN-CARRIER: columnx
+     SYM-CODEGEN-CARRIER: row
+     SYM-CODEGEN-CARRIER: right
+     SYM names x/y/shape and the inner lexical locals, but not these ABI and
+     expression carriers; the descriptive names below are not claimed as
+     recoverable original identifiers.
+     MATCH (2026-08-14): IDA/SLD show that lowercase, digit, and fallback
      glyphs share the scoped `shapetodraw` join, while punctuation arms call
      directly.  Keeping the column*28 value separate from `xx`, and spelling
      startx as two assignments, restores retail's a2/s1 web and start-x

@@ -3960,6 +3960,16 @@ struct tDialogInteractive : public tDialogMessageString {   /* 160 bytes */
 
 struct tDialogYesNo : public tDialogInteractive {   /* 168 bytes */
     int                yesnowords[2];   /* +0xA0 */
+    /* SYM/SLD records a one-line inline tDialogYesNo receiver for this exact
+       four-store choice setup, but does not preserve the original identifier. */
+    inline tDialogYesNo *SetChoices(int yesWord, int noWord,
+                                    short defaultValue, short player) {
+        yesnowords[0] = yesWord;
+        yesnowords[1] = noWord;
+        fDefault = defaultValue;
+        specificPlayer = player;
+        return this;
+    }
     /* FEDialog methods */
     void CalculateDimensions();
     tDialogYesNo();

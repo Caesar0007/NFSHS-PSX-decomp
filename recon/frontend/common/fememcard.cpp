@@ -940,11 +940,11 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
   PinkSlipsErrorCode err;
   int retry;
 
-  /* MATCH W64 PASS (45 -> 0, 219 instructions): rely on the generated
-     tDialogNoInputMessage construction chain instead of replaying its stores
-     manually.  In the WillLoseCar arm, declaring the dialog-base pointer only
-     after sprintf gives it the retail $a0 home and reproduces the string store
-     as 0x90($a0) without extending its live range across the call. */
+  /* MATCH W64/P101 PASS (45 -> 0, 219 instructions): rely on the generated
+     tDialogNoInputMessage construction chain instead of replaying its stores.
+     SYM records no `rc` or `dialog` caller locals: SetChoices reconstructs the
+     one-line inline tDialogYesNo receiver at line 1105, and SetString restores
+     the later inline tDialogMessageString receiver after sprintf. */
   /* [2026-07-11 consolidation] dropped REDUNDANT tDialogYesNo_ctor(&RetryCancelDialog) +
      tScreen_ctor((tScreen*)&WillLoseCarMessage) manual calls: both are undefined phantom
      externs; the real declared ctors (tDialogYesNo(), tScreen() via the ctor-less tDialog*
@@ -954,14 +954,7 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
      manual tScreen_dtor calls for them dropped too, oracle's two ___7tScreen calls right
      before the epilogue are exactly the implicit auto-dtors at function scope exit). */
   retry = 0;
-  /* MATCH: RetryCancel stores through a base pointer (oracle addiu v1,sp,16 + offset stores) */
-  {
-    tDialogYesNo *rc = &RetryCancelDialog;
-    rc->yesnowords[0] = 0x291;
-    rc->yesnowords[1] = 0x292;
-    rc->fDefault = 1;
-    rc->specificPlayer = player;
-  }
+  RetryCancelDialog.SetChoices(0x291, 0x292, 1, player);
   do {
     Display((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
     while (true) {
@@ -1005,18 +998,12 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
         if (WillLoseCar != 0) {
           sprintf(string2,TextSys_Word(WillLoseCar == 2 ? 0x299 : 0x298),
                   PlayerName(player));
-          tDialogBase *dialog = (tDialogBase *)&WillLoseCarMessage;
-
-          ((tDialogNoInputMessage *)dialog)->string = string2;
+          WillLoseCarMessage.SetString(string2);
           WillLoseCarMessage.OffsetX = 0;
           WillLoseCarMessage.OffsetY = -0x3c;
-          Display(dialog);
+          WillLoseCarMessage.Display();
         }
-        {
-          tDialogYesNo *rc = &RetryCancelDialog;
-          rc->string = string;
-          retry = Run((tDialogInteractive *)rc);
-        }
+        retry = ((tDialogInteractive *)RetryCancelDialog.SetString(string))->Run();
         Hide((tDialogBase *)&WillLoseCarMessage);
       }
     }

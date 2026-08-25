@@ -139,36 +139,29 @@ FECheat_placement_test:
 void FECheat_EncodeString(char *input,char *output)
 
 {
-  char *pcVar1;
-  char *pcVar2;
-  char *pcVar3;
-  u_char *pbVar4;
+  /* SYM/SLD: the complete local surface is `int i`, `int j`, and
+     `char buffer[8]`.  Direct indexed source removes six decompiler pointer
+     temporaries and remains byte-exact (35/35). */
   int j;
-  u_int uVar5;
-  int iVar6;
   int i;
   char buffer [8];
   
-  iVar6 = 0;
+  i = 0;
   do {
-    pcVar3 = buffer + iVar6;
-    pcVar1 = input + iVar6;
-    pcVar2 = output + iVar6;
-    iVar6 = iVar6 + 1;
-    *pcVar3 = *pcVar1;
-    *pcVar2 = '\0';
-  } while (iVar6 < 8);
-  iVar6 = 0;
+    buffer[i] = input[i];
+    output[i] = '\0';
+    i = i + 1;
+  } while (i < 8);
+  i = 0;
   do {
-    uVar5 = 0;
+    j = 0;
     do {
-      pbVar4 = (u_char *)(buffer + uVar5);
-      output[iVar6] = output[iVar6] | (u_char)((*pbVar4 & 1) << uVar5);
-      uVar5 = uVar5 + 1;
-      *pbVar4 = *pbVar4 >> 1;
-    } while ((int)uVar5 < 8);
-    iVar6 = iVar6 + 1;
-  } while (iVar6 < 8);
+      output[i] = output[i] | (u_char)((buffer[j] & 1) << j);
+      buffer[j] = (u_char)buffer[j] >> 1;
+      j = j + 1;
+    } while (j < 8);
+    i = i + 1;
+  } while (i < 8);
   return;
 }
 

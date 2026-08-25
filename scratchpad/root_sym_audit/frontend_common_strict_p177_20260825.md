@@ -16,9 +16,9 @@ functions are mapped to their demangled C++ names and class scopes.
 - Source definitions still using mangled linkage identifiers: 0
 - Explicit deleting-destructor ABI carriers: 0
 - Explicit cross-TU ownership closures: 0
-- Declaration-clean mapped functions: 719
+- Declaration-clean mapped functions: 720
 - Missing SYM names: 0
-- Extra source-local names: 432
+- Extra source-local names: 426
 - Type-comparison findings: 0
 - Recognized ABI/debug-equivalent type encodings: 245
   (generic-function-pointer=12, promoted-stack-argument=26, reference-as-pointer=207)
@@ -92,10 +92,6 @@ functions are mapped to their demangled C++ names and class scopes.
 ### `InitTV__FR9tTVConfigP18tTexture_ShapeInfos` (0x80023008, fetv.cpp:537, map=exact)
 
 - Extra source locals: `iVar4`, `iVar5`, `uVar1`, `uVar2`, `uVar3`
-
-### `FECheat_EncodeString__FPcT0` (0x80023410, fecheats.cpp:139, map=exact)
-
-- Extra source locals: `iVar6`, `pbVar4`, `pcVar1`, `pcVar2`, `pcVar3`, `uVar5`
 
 ### `ProcessInput__24tMenuItemLeftRightChoice7tPlayerR13tInputKeyTypeR12tMenuCommand` (0x8002497c, femenu.cpp:621, map=exact)
 

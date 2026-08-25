@@ -19,6 +19,49 @@ static inline int DialogHelpButtonY(short item)
   return (item - 1) * 0xf + 0xf;
 }
 
+static inline void DialogHelpAnimateOpen(tDialogHelp *dialog)
+{
+  /* SLD opens an outer inline scope at 0x80019034 (retail line 140), exactly
+     where the tick is materialized, and an inner scope at 0x80019068 (line
+     146), exactly where the opening body begins.  The caller's 8c record has
+     neither `currentTicks` nor `openHeight`; keeping them inside this proven
+     inline boundary restores that scope while preserving retail allocation. */
+  long currentTicks = ticks[0];
+
+  dialog->width = dialog->width + 0x14;
+  dialog->height = dialog->height + 10;
+  if ((u_int)(currentTicks - dialog->startTicks) < 0x32) {
+    int openHeight = gHelpShapesA[0][0x2a].height;
+
+    dialog->width =
+         gHelpShapesA[0][0x2a].width * 2 +
+         (short)((u_int)(((int)dialog->width -
+                          (short)(gHelpShapesA[0][0x2a].width * 2)) *
+                         (currentTicks - dialog->startTicks)) / 0x32);
+    dialog->height =
+         openHeight * 2 +
+         (short)((u_int)(((int)dialog->height -
+                          (short)(openHeight * 2)) *
+                         (currentTicks - dialog->startTicks)) / 0x32);
+  }
+}
+
+static inline void DialogHelpPositionAndClamp(tDialogHelp *dialog,
+                                              tTexture_ShapeInfo *shape)
+{
+  /* The caller's complete 8c record has no shape pointer.  Passing shape 3
+     through this zero-local inline boundary makes GCC evaluate the argument
+     before the centering expressions, reproducing retail's early base load.
+     SYM does not retain the private helper/macro spelling, only the absence of
+     a caller local; the body and resulting 359-instruction allocation are
+     byte-exact. */
+  dialog->left = (short)((screenwidth - dialog->width) / 2);
+  dialog->top = (short)((0xf0 - dialog->height) / 2);
+  if ((int)dialog->width < shape->width + 0x14) {
+    dialog->width = shape->width + 0x14;
+  }
+}
+
 /* CalculateDimensions' 8c record names only `ticks`.  This inline expression
    keeps the retail subtraction grouping without introducing a caller local. */
 static inline int DialogMessageTickAge(int value)
@@ -328,8 +371,6 @@ void tDialogHelp::CalculateDimensions()
   short i;
   tPlayer player;
   tHelpData helpArray [1] = { { 1, { {0,0}, {0,0}, {0,0}, {0,0} } } };
-  long currentTicks;
-  tTexture_ShapeInfo *shape3;
 
   FETextRender_SetFont(0);
   this->numItems = 0;
@@ -341,19 +382,20 @@ void tDialogHelp::CalculateDimensions()
   if (helpArray[this->variant].autoGenerate != '\0') {
     bool showLeftRight;
     bool showCross;
-    tMenu *scanMenu;
 
     showLeftRight = false;
     showCross = false;
-    menu = FEApp->fCurrentMenu[player];
-    scanMenu = menu;
+    menu = FEApp->CurrentMenu(player);
     i = 0;
     while (true) {
-      if (scanMenu->fItemList[i] == (tMenuItem *)0x0) {
+      /* SLD line 45 records the inlined CurrentMenu player argument here.
+         Re-reading that accessor is the original source shape: GCC CSEs its
+         value with `menu` but retains retail's a0 = s0 pointer copy. */
+      if (FEApp->CurrentMenu(player)->fItemList[i] == (tMenuItem *)0x0) {
         break;
       }
-      if (((scanMenu->fItemList[i]->fFlags ^ 1) & 1) != 0) {
-        if ((scanMenu->fItemList[i]->fFlags & 0x400) != 0) {
+      if (((FEApp->CurrentMenu(player)->fItemList[i]->fFlags ^ 1) & 1) != 0) {
+        if ((FEApp->CurrentMenu(player)->fItemList[i]->fFlags & 0x400) != 0) {
           showLeftRight = true;
         }
         else {
@@ -442,30 +484,8 @@ void tDialogHelp::CalculateDimensions()
   else {
     this->height = this->numItems * 0xf;
   }
-  shape3 = &gHelpShapesA[0][3];
-  this->left = (short)((screenwidth - this->width) / 2);
-  this->top = (short)((0xf0 - this->height) / 2);
-  if ((int)this->width < shape3->width + 0x14) {
-    this->width = shape3->width + 0x14;
-  }
-  currentTicks = ticks[0];
-  this->width = this->width + 0x14;
-  this->height = this->height + 10;
-  if ((u_int)(currentTicks - this->startTicks) < 0x32) {
-    int openHeight;
-
-    openHeight = gHelpShapesA[0][0x2a].height;
-    this->width =
-         gHelpShapesA[0][0x2a].width * 2 +
-         (short)((u_int)(((int)this->width -
-                          (short)(gHelpShapesA[0][0x2a].width * 2)) *
-                         (currentTicks - this->startTicks)) / 0x32);
-    this->height =
-         openHeight * 2 +
-         (short)((u_int)(((int)this->height -
-                          (short)(openHeight * 2)) *
-                         (currentTicks - this->startTicks)) / 0x32);
-  }
+  DialogHelpPositionAndClamp(this,&gHelpShapesA[0][3]);
+  DialogHelpAnimateOpen(this);
   this->top = 0x14;
   this->left = 0x1f9 - this->width;
   return;

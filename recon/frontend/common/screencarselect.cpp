@@ -403,13 +403,9 @@ DrawOvl_transitionPos:
 void tScreenCarSelect::SetState(int state)
 
 {
-  /* W55-A2 BUGFIX (class-1, unsigned-char deleted guard): this build's plain `char` is
-     UNSIGNED (__CHAR_UNSIGNED__), so `-1 < cVar1` below folded to a constant TRUE and gcc
-     DELETED the guard -- every empty overlay slot would be treated as a valid overlay index.
-     gStateOverlays is `signed char[8][4]` and the oracle guards with `lb $v1; bltz $v1`
-     (8003B654/8003B65C), so the local must be SIGNED. */
-  signed char cVar1;
-  tOverlay *ovl;
+  /* SYM/PASS: retail owns only `i` and `fPreviousState`.  gStateOverlays is
+     signed char[8][4], so direct indexing preserves the required `lb; bltz`
+     empty-slot guard while removing the former cVar1/ovl aliases. */
   short i;
   short fPreviousState;
   
@@ -424,16 +420,16 @@ void tScreenCarSelect::SetState(int state)
     }
     i = 0;
     do {
-      ovl = this->fCurrentOverlays[i];
-      if (ovl != (tOverlay *)0x0) {
-        if ((int)ovl->ID != (int)gStateOverlays[state][i]) {
-          ovl->direction = -1;
+      if (this->fCurrentOverlays[i] != (tOverlay *)0x0) {
+        if ((int)this->fCurrentOverlays[i]->ID !=
+            (int)gStateOverlays[state][i]) {
+          this->fCurrentOverlays[i]->direction = -1;
         }
       }
       else {
-        cVar1 = gStateOverlays[state][i];
-        if (-1 < cVar1) {
-          this->fCurrentOverlays[i] = this->fOverlays + cVar1;
+        if (-1 < gStateOverlays[state][i]) {
+          this->fCurrentOverlays[i] =
+              this->fOverlays + gStateOverlays[state][i];
           this->fCurrentOverlays[i]->transition = 0;
           this->fCurrentOverlays[i]->direction = 1;
         }
@@ -462,30 +458,15 @@ void tScreenCarSelect::SetState(int state)
     return;
   }
 compute:
-  /* MATCH (W57-A2, the 16 -> PASS seal): `ticks` is the VSync-ISR counter, so each
-     read is a REAL re-read -- the oracle emits TWO `lw $rN,%lo(ticks)($v0)` off one
-     hoisted base, BATCHED (nothing between them), then all four stores.  A plain
-     `this->fSpeechTicks = ticks[0]; this->fShowroomTicks = ticks[0];` pair gets the
-     two loads serialized through one register with the fSpeechTicks store WEDGED
-     between them (cse re-loads because the intervening `this->` store invalidates,
-     but sched can no longer batch them) = 16 diffs; two named temps without the
-     volatile view CSE into ONE load (160 insns, 1 short).  The per-use volatile
-     view `*(volatile int *)&ticks[0]` is both semantically correct (ISR-written)
-     and the only form that gives TWO un-mergeable loads free to batch.
-     Statement order is load-bearing too: `gStopCommentaryNow = 1;` must precede the
-     pair (it hoists %hi(gStopCommentaryNow) above the fInShowroom store exactly as
-     the oracle does at 0x8003B6E0); with it after the reads the fn stalls at 2.
-     Falsified: every 5-statement permutation of the plain form (plateau 16), the
-     chained `a = b = ticks[0]` and every single-load temp form (9 @ 160). */
+  /* `ticks` is VSync-ISR state, so both volatile reads are semantically real.
+     This statement order lets the scheduler batch retail's two loads, then emit
+     its fSpeechTicks/fSpeechPlayed/fShowroomTicks stores without the former
+     source-only t1/t2 temporaries.  Exact result: PASS 161/161. */
   this->fInShowroom = (uint)(state - 5U < 2);
   gStopCommentaryNow = 1;
-  {
-  int t1 = *(volatile int *)&ticks[0];
-  int t2 = *(volatile int *)&ticks[0];
-  this->fSpeechTicks = t1;
+  this->fSpeechTicks = *(volatile int *)&ticks[0];
+  this->fShowroomTicks = *(volatile int *)&ticks[0];
   this->fSpeechPlayed = 0;
-  this->fShowroomTicks = t2;
-  }
   if (this->fInShowroom != 0) {
     AudioMus_StopSong(1000);
     i = 0;

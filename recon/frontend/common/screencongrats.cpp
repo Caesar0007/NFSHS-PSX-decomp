@@ -129,6 +129,11 @@ void tScreenCongrats::DrawBackground()
   int StripeRGB;
   int bannerframe;
   tDrawShapeExtended drawFlags3;
+  /* SYM-CODEGEN-CARRIER: vtbl -- the retail extended virtual call's implicit
+     dispatch temporary has no SYM source local.  The manual
+     non-virtual ABI model needs this cached row pointer: direct
+     this->_vf[1][1] dispatch is byte-identical, but fails
+     audit_vtable_indexing as unsafe row indexing. */
   __vtbl_ptr_type (*vtbl) [10];
 
   fJustFadeOff = 0;
@@ -196,6 +201,9 @@ void tScreenCongrats::DrawBackground()
       else {
         this->framenum = (ticks[0] - this->starttick) / 2;
         if (0x13 < this->framenum) {
+          /* SYM-CODEGEN-CARRIER: spinTicks -- retail records no source local,
+             but the scoped tick copy is required for its reload/value split.
+             Reading ticks[0] directly is FAIL 13 (540/541). */
           int spinTicks;
 
           __asm__("" : : "i"(0));

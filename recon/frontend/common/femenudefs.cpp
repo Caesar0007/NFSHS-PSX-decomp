@@ -935,11 +935,6 @@ void MenuExtended_GoToBestOfFive(tMenuCommand &command)
 void MenuExtended_GoToRace(tMenuCommand &command)
 
 {
-  tFEApplication *ptVar1;
-  ushort uVar2;
-  char *pcVar3;
-  tFEApplication *dlgThis;
-  int wordnum;
   tDialogMessageString *popUp;
   tCarInfo carInfo;
 
@@ -951,22 +946,28 @@ void MenuExtended_GoToRace(tMenuCommand &command)
      frame 256 vs the oracle's 4 / 248).  Plus the 08D messagePopup ANCHOR: `popUp = &FEApp->
      messagePopup` materialized EARLY (the oracle puts `addiu s1,v1,44` in the first guard's
      delay slot) and reused for both the store and the Display arg. */
-  ptVar1 = FEApp;
+  /* [SYM restoration 2026-08-26, PASS 87/87] Reliable SYM names only
+     command/popUp/carInfo in the caller.  MessagePopup restores the initial
+     tFEApplication receiver and the four SetString calls restore its four
+     nested dialog receivers.  Direct call-result tests eliminate uVar2;
+     dlgThis, ptVar1, pcVar3, and wordnum were decompiler residue.  Optimized
+     SYM does not preserve the private MessagePopup identifier. */
   command.type = kMenu_Command_StartRace;
-  popUp = &ptVar1->messagePopup;
+  /* SYM-INLINE-THIS: MessagePopup */
+  popUp = FEApp->MessagePopup();
   if (((frontEnd.carListType == '\x01') &&
-      (uVar2 = carManager.GetNumOwnedCars(0), (int)((uint)uVar2 << 0x10) <= 0)) &&
+      ((int)((uint)carManager.GetNumOwnedCars(0) << 0x10) <= 0)) &&
      ((frontEnd.raceType != RaceType_HotPursuit) && (frontEnd.raceType != RaceType_PinkSlips))) {
-    pcVar3 = TextSys_Word(0xaa);
-    popUp->string = pcVar3;
+    /* SYM-INLINE-THIS: SetString */
+    popUp->SetString(TextSys_Word(0xaa));
     ((tDialogBase *)popUp)->Display();
     command.type = kMenu_Command_None;
     return;
   }
   if ((frontEnd.raceType == RaceType_Tournament) &&
-     (uVar2 = carManager.GetNumTourneyCars(0), (int)((uint)uVar2 << 0x10) < 1)) {
-    pcVar3 = TextSys_Word(0xf1);
-    popUp->string = pcVar3;
+     ((int)((uint)carManager.GetNumTourneyCars(0) << 0x10) < 1)) {
+    /* SYM-INLINE-THIS: SetString */
+    popUp->SetString(TextSys_Word(0xf1));
     ((tDialogBase *)popUp)->Display();
     command.type = kMenu_Command_None;
     return;
@@ -974,8 +975,8 @@ void MenuExtended_GoToRace(tMenuCommand &command)
   if ((frontEnd.raceType == RaceType_HotPursuit) &&
      (carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[0],carInfo),
       carInfo.fPursuitAvailable == '\x00')) {
-    pcVar3 = TextSys_Word(0xf2);
-    popUp->string = pcVar3;
+    /* SYM-INLINE-THIS: SetString */
+    popUp->SetString(TextSys_Word(0xf2));
     ((tDialogBase *)popUp)->Display();
     command.type = kMenu_Command_None;
     return;
@@ -987,8 +988,8 @@ void MenuExtended_GoToRace(tMenuCommand &command)
   if (carInfo.fAvailable != '\x00') {
     return;
   }
-  pcVar3 = TextSys_Word(0xf3);
-  popUp->string = pcVar3;
+  /* SYM-INLINE-THIS: SetString */
+  popUp->SetString(TextSys_Word(0xf3));
   ((tDialogBase *)popUp)->Display();
   command.type = kMenu_Command_None;
   return;
@@ -1007,11 +1008,6 @@ void MenuExtended_GoToRace(tMenuCommand &command)
 void MenuExtended_GoTo2PlayerRace(tMenuCommand &command)
 
 {
-  tFEApplication *ptVar1;
-  ushort uVar2;
-  tFEApplication *dlgThis;
-  char *pcVar3;
-  int wordnum;
   tDialogMessageString *popUp;
   tCarInfo carInfo;
 
@@ -1020,26 +1016,33 @@ void MenuExtended_GoTo2PlayerRace(tMenuCommand &command)
      materializes `li a0,K` in each guard's delay slot, cross-jump-merging four identical
      `TextSys_Word/Display/type=0` tails; + the 08D messagePopup anchor materialized early
      (oracle `addiu s2,v0,44` in the raceType==6 guard's delay slot). */
-  ptVar1 = FEApp;
+  /* [SYM restoration 2026-08-26, PASS 83/83] Reliable caller locals are only
+     command/popUp/carInfo.  MessagePopup, three SetString calls, and two
+     CurrentPlayer reads account for every nested receiver; direct call-result
+     testing removes uVar2 and the remaining four decompiler identities.  The
+     two inferred tFEApplication helper names are descriptive, not token-exact. */
   command.type = kMenu_Command_Start2PlayerRace;
-  popUp = &ptVar1->messagePopup;
+  /* SYM-INLINE-THIS: MessagePopup */
+  popUp = FEApp->MessagePopup();
   if (frontEnd.raceType == RaceType_PinkSlips) {
     return;
   }
   if (((frontEnd.carListType == '\x01') &&
-      (uVar2 = carManager.GetNumOwnedCars(0), (int)((uint)uVar2 << 0x10) <= 0)) &&
+      ((int)((uint)carManager.GetNumOwnedCars(0) << 0x10) <= 0)) &&
      (frontEnd.raceType != RaceType_HotPursuit)) {
-    pcVar3 = TextSys_Word(0xaa);
-    popUp->string = pcVar3;
+    /* SYM-INLINE-THIS: SetString */
+    popUp->SetString(TextSys_Word(0xaa));
     ((tDialogBase *)popUp)->Display();
     command.type = kMenu_Command_None;
     return;
   }
+  /* SYM-INLINE-THIS: CurrentPlayer */
   if ((frontEnd.carListType == '\x00') &&
-     (carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[(byte)FEApp->fPlayer],carInfo),
+     (carManager.GetStockCar(
+          (ushort)(byte)frontEnd.playerCar[(byte)FEApp->CurrentPlayer()],carInfo),
       carInfo.fAvailable == '\x00')) {
-    pcVar3 = TextSys_Word(0xf3);
-    popUp->string = pcVar3;
+    /* SYM-INLINE-THIS: SetString */
+    popUp->SetString(TextSys_Word(0xf3));
     ((tDialogBase *)popUp)->Display();
     command.type = kMenu_Command_None;
     return;
@@ -1047,12 +1050,14 @@ void MenuExtended_GoTo2PlayerRace(tMenuCommand &command)
   if (frontEnd.raceType != RaceType_HotPursuit) {
     return;
   }
-  carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[(byte)FEApp->fPlayer],carInfo);
+  /* SYM-INLINE-THIS: CurrentPlayer */
+  carManager.GetStockCar(
+      (ushort)(byte)frontEnd.playerCar[(byte)FEApp->CurrentPlayer()],carInfo);
   if (carInfo.fPursuitAvailable != '\x00') {
     return;
   }
-  pcVar3 = TextSys_Word(0xf2);
-  popUp->string = pcVar3;
+  /* SYM-INLINE-THIS: SetString */
+  popUp->SetString(TextSys_Word(0xf2));
   ((tDialogBase *)popUp)->Display();
   command.type = kMenu_Command_None;
   return;

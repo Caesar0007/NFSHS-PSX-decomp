@@ -3517,6 +3517,45 @@ defects.  The call-target audit retains exactly the two pre-existing swapped
 `Sim_MainGameLoop` sites, the TU-order audit reports zero inversions, and the
 vtable indexing audit passes 930 files.
 
+### P100 — `GoToRace` twin inline/accessor restoration (`2026-08-26`)
+
+Reliable SYM gives `MenuExtended_GoToRace` exactly three caller identities:
+`command` in `$s3`, `popUp` in `$s1`, and stack `carInfo`.  It then records one
+nested `tFEApplication *this` receiver and four nested
+`tDialogMessageString *this` receivers.  Source now obtains `popUp` through an
+inferred inline `MessagePopup` accessor and uses four inline `SetString` calls,
+accounting for every nested scope.  Direct use of the two car-count call
+results preserves retail's shift/sign tests without `uVar2`; `ptVar1`,
+`pcVar3`, `dlgThis`, and `wordnum` are removed as decompiler residue.
+
+The two-player twin likewise records only `command` in `$s3`, `popUp` in `$s2`,
+and stack `carInfo`.  Its nested scopes are one initial `tFEApplication`
+receiver, three dialog receivers, and two further `tFEApplication` receivers at
+the player-index reads.  Source now uses `MessagePopup`, three `SetString`
+calls, and two inferred `CurrentPlayer` accessors.  The same direct call-result
+shape eliminates `uVar2` and the remaining four generic identities.  Optimized
+SYM preserves the receiver types/registers but not the private
+`MessagePopup`/`CurrentPlayer` identifiers, so those names are explicitly
+descriptive rather than claimed token-exact.
+
+`MenuExtended_GoToRace` remains exact PASS at 87/87 instructions and
+`MenuExtended_GoTo2PlayerRace` remains PASS at 83/83, both with
+instruction-identical `-g` twins.  The refreshed strict frontend/common audit
+is stored in
+[`frontend_common_strict_p204_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p204_20260826.md).
+It advances declaration-clean mapped functions from 738 to 740, reduces generic
+extra source-local names from 311 to 301, and raises validated inline mappings
+from 41 to 52 without adding a codegen carrier.  Missing names, type findings,
+storage findings, global findings, and mapping reviews remain zero.
+
+A fresh shared-header full build compiles every translation unit with zero
+skips and reproduces the standing executable hash.  Both relink lanes are GREEN
+with zero real duplicates, hidden phantoms, or relocation-referenced unresolved
+symbols; the undefined-call audit scans 15,781 calls with zero defects.  The
+call-target audit retains exactly the two pre-existing swapped
+`Sim_MainGameLoop` sites, the TU-order audit reports zero inversions, and the
+vtable indexing audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

@@ -4762,6 +4762,10 @@ struct tFEApplication {   /* 896 bytes */
     /* FEDIALOG.CPP:32/33 records two inlined `tPlayer player` formals around
        these array reads.  The accessor body is proven; SYM omits its name. */
     inline tMenu *CurrentMenu(tPlayer player) { return fCurrentMenu[player]; }
+    /* FEMENUDEFS.CPP preserves these receivers in the GoToRace pair, but not
+       the private inline identifiers. */
+    inline tDialogMessageString *MessagePopup() { return &messagePopup; }
+    inline tPlayer CurrentPlayer() { return fPlayer; }
     /* FEMENUDEFS.CPP:811 records this expansion as an inline
        tFEApplication receiver.  The debug stream omits the private helper's
        original spelling, but preserves its exact two-operation body. */

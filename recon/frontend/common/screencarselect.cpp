@@ -22,6 +22,29 @@ inline tDialogBase *tDialogBase::SetPosition(short x, short y, tPlayer player)
   return this;
 }
 
+/* SYM-INLINE reconstruction (original identifier/declaration site unavailable):
+   DrawSliders and both multiplayer DrawForeground functions contain the same
+   nested debug scope: parameters `carStat`, pointer `carInfo`, then local
+   `result`, all attributed to one call-site line.  This body reproduces all
+   three expansions byte-for-byte; the retail artifacts cannot recover its
+   original spelling, so CarStatValue is an explicit semantic name. */
+static inline short CarStatValue(tCarStatType carStat, tCarInfo *carInfo)
+{
+  short result;
+
+  result = (short)carInfo->fStats[0][carStat];
+  if ((carInfo->fUpgrades & 1) != 0) {
+    result = result + carInfo->fStats[1][carStat];
+  }
+  if ((carInfo->fUpgrades & 2) != 0) {
+    result = result + carInfo->fStats[2][carStat];
+  }
+  if ((carInfo->fUpgrades & 4) != 0) {
+    result = result + carInfo->fStats[3][carStat];
+  }
+  return result;
+}
+
 /* ---- (static)::TransformVector  [SCREENCARSELECT.CPP:51-59] ---- */
 /* File-static 4x4 fixed-point matrix * 4-vector (ScreenCarSelect.obj 1st fn @0x8003a8f0).
    GCC-v2 `FRA4_iRA4_A4_iT0` decodes to the retail array-reference signature below;
@@ -1028,10 +1051,10 @@ void tScreenCarSelect::DrawBackground()
 void tScreenCarSelect::DrawSliders(tCarInfo &carInfo,short x,short y)
 
 {
-  /* MATCH: locals from the SYM 8c block (fsize 88, mask $807f0000 = ra,s0-s6):
-       fn scope   short j        ($s2)
-       loop block tCarStatType carStat ($v0), short result ($a0)
-     Ghidra's bVar1/tVar2/value/iVar3/sVar4 were fabricated; the extra
+  /* MATCH/SYM: the caller's own local is only short j ($s2).  The repeated
+     nested `carStat`, pointer `carInfo`, and `result` records belong to the
+     inlined CarStatValue body reconstructed above.  Ghidra's
+     bVar1/tVar2/value/iVar3/sVar4 were fabricated; the extra
      sign-extended copy of `y` they induced cost an 8th saved reg ($s7).
      Loop is EXIT-IN-THE-MIDDLE (oracle: top test + unconditional `j` back
      edge at .L8003C6B4) -- a `for` rotates it. */
@@ -1039,31 +1062,17 @@ void tScreenCarSelect::DrawSliders(tCarInfo &carInfo,short x,short y)
 
   j = 0;
   while (true) {
-    tCarStatType carStat;
-    short result;
-
     if (4 < j) break;
     /* MATCH: the (short) cast must sit on the SUM -- `y + 4` alone makes gcc
        materialize a sign-extended copy of y in its own saved reg (an 8th
        callee-save + 8 bytes of frame); the oracle extends AFTER the add. */
     FETextRender_MenuTextPositioned(textVals[j],x,(short)(y + 4),textState_Unselected,
                                     textType_Default);
-    carStat = remap[j];
-    /* 🔴 CORRECTNESS: the previous form indexed fStats[k][carStat + k], reading
-       0x36/0x3C/0x42 instead of the oracle's 0x35/0x3A/0x3F -- the upgrade rows
-       of fStats[4][5] are reached with the SAME column index.  Sharing the index
-       expression is also what lets gcc CSE one base (`addu $a1,$s4,$v0`). */
-    result = (short)carInfo.fStats[0][carStat];
-    if ((carInfo.fUpgrades & 1) != 0) {
-      result = result + carInfo.fStats[1][carStat];
-    }
-    if ((carInfo.fUpgrades & 2) != 0) {
-      result = result + carInfo.fStats[2][carStat];
-    }
-    if ((carInfo.fUpgrades & 4) != 0) {
-      result = result + carInfo.fStats[3][carStat];
-    }
-    DrawSlider(result,0,0xb,x,y,0x68,3,7,3,false,0,0x80,0);
+    /* SYM-INLINE-LOCAL: carStat = CarStatValue
+       SYM-INLINE-LOCAL: carInfo = CarStatValue
+       SYM-INLINE-LOCAL: result = CarStatValue */
+    DrawSlider(CarStatValue(remap[j],&carInfo),0,0xb,x,y,0x68,3,7,3,
+               false,0,0x80,0);
     y = y + 0xf;
     j = j + 1;
   }
@@ -1752,17 +1761,14 @@ void tScreenCarSelectDuel::DrawBackground()
 
 
 /* ---- tScreenCarSelectDuel::DrawForeground  [SCREENCARSELECT.CPP:1613-1635] ---- */
-/* MATCH: 106 -> 0 diffs.  Rebuilding from the SYM local set removes the
-   fabricated integer loop state and fixes the upgrade-row indexing.  The
-   final source shape keeps the accumulator as the block-local `short result`
-   recorded by SYM, then assigns it to an `int sliderResult` in the valid-car
-   arm (or literal zero in the other arm).  gcc consequently emits retail's
-   branch-local sign extension and tail-merges the shared DrawSlider call,
-   without the former zero-insn identity fence. */
+/* MATCH/SYM: 106 -> PASS (118/118).  The caller owns exactly carInfo, i, j,
+   y, and validCar.  Flattened slot 13 removes the decompiler-only vtbl alias
+   while remaining safe under the vtable audit.  The conditional CarStatValue
+   call restores SYM's nested inline scope and removes both fabricated `ci`
+   and `sliderResult` without changing one retail instruction. */
 void tScreenCarSelectDuel::DrawForeground()
 
 {
-  __vtbl_ptr_type (*vtbl) [10];
   tCarInfo carInfo;
   short i;
   short j;
@@ -1770,36 +1776,19 @@ void tScreenCarSelectDuel::DrawForeground()
   bool validCar;
   
   y = 0x2d;
-  vtbl = this->_vf;
-  validCar = (*(bool (*)(...))vtbl[1][3].pfn)
-                    ((char *)this + vtbl[1][3].delta,&carInfo);
+  validCar = (*(bool (*)(...))(*this->_vf)[13].pfn)
+                    ((char *)this + (*this->_vf)[13].delta,&carInfo);
   i = 0;
   while (i < 2) {
     j = 0;
     while (j < 5) {
-      int sliderResult;
       FETextRender_MenuTextPositionedJustify(text2PVals[j],500,y + 4,1,
           textState_Unselected,textType_ScreenInfo);
-      if (validCar != 0) {
-        short result;
-        tCarStatType carStat = remap[j];
-        tCarInfo *ci = &carInfo;
-        result = (short)ci->fStats[0][carStat];
-        if ((ci->fUpgrades & 1) != 0) {
-          result = result + ci->fStats[1][carStat];
-        }
-        if ((ci->fUpgrades & 2) != 0) {
-          result = result + ci->fStats[2][carStat];
-        }
-        if ((ci->fUpgrades & 4) != 0) {
-          result = result + ci->fStats[3][carStat];
-        }
-        sliderResult = (short)result;
-      }
-      else {
-        sliderResult = 0;
-      }
-      DrawSlider(sliderResult,0,0xb,0x1a1,y,0x49,3,4,3,true,0,0x80,0);
+      /* SYM-INLINE-LOCAL: carStat = CarStatValue
+         SYM-INLINE-LOCAL: carInfo = CarStatValue
+         SYM-INLINE-LOCAL: result = CarStatValue */
+      DrawSlider((validCar != 0) ? CarStatValue(remap[j],&carInfo) : 0,
+                 0,0xb,0x1a1,y,0x49,3,4,3,true,0,0x80,0);
       y = y + 0xf;
       j = j + 1;
     }
@@ -2161,25 +2150,19 @@ extern tFEApplication *FEAppA[] asm("FEApp");
 void tScreenCarSelectTwoPlayer::DrawForeground()
 
 {
-  /* MATCH: locals VERBATIM from the SYM 8c block (fsize 296, mask $807f0000):
+  /* MATCH: caller locals verbatim from the SYM 8c block (fsize 296,
+       mask $807f0000):
        AUTO tCarInfo carInfo (@sp+0x38)   REG short j($s2), short yOffset($s1),
        BOOL gotcar($s4).  Ghidra's auStack_f0/abStack_c0/bb/b6/b1/loc_2c were
        byte-slices of that ONE tCarInfo -- keeping them apart cost the shared
        `addu $a1,$s3,$v0` stat base.  Loop is exit-in-the-middle like
-       tScreenCarSelect::DrawSliders, and the (short) cast sits on `yOffset + 4`. */
+       tScreenCarSelect::DrawSliders, and the (short) cast sits on `yOffset + 4`.
+       The nested carStat/pointer-carInfo/result records at 0x8003EB60 are the
+       byte-exact inline CarStatValue expansion, not extra caller locals. */
   tCarInfo carInfo;
   short j;
   short yOffset;
   bool gotcar;   /* SYM BOOL is native C++ bool; the oracle copies the normalized `$v0`. */
-  /* MATCH: the SYM 8c block does NOT list a function-scope `ci`/carInfo-pointer --
-     it names a PTR STRUCT tCarInfo "carInfo" (shadowing the AUTO struct) scoped to
-     the innermost block starting @0x8003EB60, i.e. declared FRESH inside the
-     `if (gotcar)` loop body, not hoisted before the loop. The compiler still
-     loop-invariant-hoists its VALUE (&carInfo is constant), landing the address
-     materialize in the loop-setup preamble (@0x8003EB14, beside the s6/s5 table
-     bases) instead of inside the earlier if/else (which had no reason to touch it
-     when `ci` didn't exist there yet) -- that's what was stealing the if/else's
-     branch-delay slots in the old function-scope-hoisted form. */
 
   yOffset = 0x2d;
   if (FEAppA[0]->fPlayer == '\x01') {
@@ -2205,47 +2188,17 @@ void tScreenCarSelectTwoPlayer::DrawForeground()
   }
   j = 0;
   while (true) {
-    short result;
-
     if (4 < j) break;
     FETextRender_MenuTextPositionedJustify(text2PVals[j],500,(short)(yOffset + 4),1,
                                            textState_Unselected,textType_Default);
-    /* SUPERSEDED RESIDUAL RECEIPT: the ACCUMULATE arm is the inline one -- oracle `beqz $s4,.L8003EBC8`
-       branches AWAY to the `result = 0` block, which sits after it. RESIDUAL FLOOR:
-       oracle keeps the accumulator in $v1 (matching the SYM's REG $v1 `result`) and
-       the fUpgrades test byte in $a0; ours swaps them ($a0 accumulator / $v1 test) --
-       a uniform a0<->v1 register-coloring tie-break (§3.15 family). Tried: call
-       duplication per branch (worse, 56 diffs -- reverted), ci/carStat declaration
-       reorder (already applied above, helped elsewhere but doesn't move this pair).
-       W56-A4 FALSIFIED: caching `int up = ci->fUpgrades;` (live-range-lengthen to
-       push fUpgrades onto $a0) recolors the head, 27 -> 55 (reverted). The SYM
-       confirms `result` is REG $v1; the off-by-1 (oracle's speculative `sll v0,v1,16`
-       sign-extend in the last `beqz` slot) is a direct consequence of the swap --
-       fix the swap and the slot fills. Needs the QTY-layer instrument, not a spelling
-       sweep.
-       RESOLVED 2026-08-11 (27 -> PASS, 143/143): zero belongs directly to the
-       DrawSlider call argument, not to `result`.  The conditional first argument
-       `(gotcar != 0) ? result : 0` keeps result in the SYM-prescribed $v1 and
-       fUpgrades in $a0, emits the speculative sign extension in the final upgrade
-       branch slot, and materializes zero directly in $a0.  An identity-fenced
-       sliderResult was the intermediate 12-diff basin but left a join-copy echo. */
-    if (gotcar != 0) {
-      tCarStatType carStat = remap[j];
-      /* SYM-CODEGEN-CARRIER: ci -- the retail block has a second, pointer-typed
-         `carInfo`; this spelling distinguishes it from the live AUTO carInfo. */
-      tCarInfo *ci = &carInfo;
-      result = (short)ci->fStats[0][carStat];
-      if ((ci->fUpgrades & 1) != 0) {
-        result = result + ci->fStats[1][carStat];
-      }
-      if ((ci->fUpgrades & 2) != 0) {
-        result = result + ci->fStats[2][carStat];
-      }
-      if ((ci->fUpgrades & 4) != 0) {
-        result = result + ci->fStats[3][carStat];
-      }
-    }
-    DrawSlider((gotcar != 0) ? result : 0,0,0xb,0x1a1,yOffset,0x49,3,4,3,
+    /* SYM-INLINE-LOCAL: carStat = CarStatValue
+       SYM-INLINE-LOCAL: carInfo = CarStatValue
+       SYM-INLINE-LOCAL: result = CarStatValue
+       The conditional call keeps result in retail/SYM $v1, the upgrades byte
+       in $a0, and materializes the invalid-car zero directly as DrawSlider's
+       first argument.  Exact result: PASS 143/143. */
+    DrawSlider((gotcar != 0) ? CarStatValue(remap[j],&carInfo) : 0,
+               0,0xb,0x1a1,yOffset,0x49,3,4,3,
                true,0,0x80,0);
     yOffset = yOffset + 0xf;
     j = j + 1;

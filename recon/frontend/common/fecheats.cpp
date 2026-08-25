@@ -227,6 +227,16 @@ void FECheat_ActivateBonus(tCheatCode cheat)
 bool FECheat_ActivateCheat(char *cheat)
 
 {
+  /* SYM-INLINE-THIS: SetString
+     SYM records the inlined tDialogMessageString receiver `this` in $s0 at
+     source line 14.  Collapsing this receiver into direct SetString/Display
+     spellings is FAIL36-37 and swaps the long-lived result/i allocation.
+     SYM-CODEGEN-CARRIER: dlgThis
+     SYM-CODEGEN-CARRIER: pcVar4
+     SYM-CODEGEN-CARRIER: ptVar2
+     These two source-only staging names place the FEApp reload between the
+     TextSys_Word call and the dialog-string store; removing either is FAIL2
+     (66/66), moving that load across the store. */
   tFEApplication *ptVar2;
   char *pcVar4;
   tDialogMessageString *dlgThis;
@@ -252,7 +262,7 @@ bool FECheat_ActivateCheat(char *cheat)
       dlgThis = &FEApp->MemCardDialog;
       pcVar4 = TextSys_Word(0x27a);
       ptVar2 = FEApp;
-      dlgThis->string = pcVar4;
+      dlgThis->SetString(pcVar4);
       ((tDialogBase *)&ptVar2->MemCardDialog)->Display();
       FECheat_HandleActivation((tCheatCode)cheatList[i].cheat);
       result = 1;

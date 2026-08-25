@@ -1461,8 +1461,11 @@ void tScreenCarSelectDuel::DrawVideoWall(short y)
 
 {
   bool validCar;
+  /* SYM-CODEGEN-CARRIER: vtbl -- the retail virtual GetCar call's implicit
+     dispatch temporary has no SYM source local.  The manual non-virtual ABI
+     model needs this cached row pointer: direct this->_vf[1][3] dispatch is
+     byte-identical, but fails audit_vtable_indexing as unsafe row indexing. */
   __vtbl_ptr_type (*vtbl) [10];
-  tVideoWall *vw;
   short i;
   tCarInfo carInfo;
 
@@ -1481,35 +1484,16 @@ void tScreenCarSelectDuel::DrawVideoWall(short y)
     TurnOffInstant(this->fVideoWall);
     this->SetBrightness(0,0);
   }
-  vw = this->fVideoWall;
   if (((this->fSwapShapes.fFlags & 1) != 0) &&
      (this->fTVsInitialized == 0)) {
-    vw->SetOffset(6,0);
-    UpdateImages(vw);
+    this->fVideoWall->SetOffset(6,0);
+    UpdateImages(this->fVideoWall);
     this->fTVsInitialized = 1;
   }
-  /* NAMED ANGLE -- w59-a10 BRANCH-TARGET AUDIT (gate-invisible, objdiff 99.94).
-     This fn gates PASS 86/86 but its FIRST guard branch word is 1040000D (ours)
-     vs 1040000E (retail): ours targets the merge-point `addiu s0,s2,0x304`
-     (insn 67), retail targets the shared tail (insn 68) -- i.e. retail's insn 67
-     belongs to the IF BODY, ours is the merge.  gcc's reorg COPIES the merge addu
-     into the branch delay slot (insn 54) but does not redirect the branch past
-     the original; retail's build did redirect.  Instruction placement is
-     byte-identical -- ONLY the branch label differs.
-     FALSIFIED (both re-gated):
-       (a) move `vw = this->fVideoWall;` to the END of the if body -> gcc CSEs the
-           duplicate away, 85/86 insns, FAIL 1;
-       (b) (a) + a pre-if identity fence `__asm__("" : "=r"(vw) : "0"(vw))` to make
-           the first materialization cse-opaque -> keeps both addu's but the fence
-           blocks reorg's backward slot scan, 87/86 insns, FAIL 5.
-     Next angle: read build/recon/frontend/common/screencarselect.cpp.i.dbr
-     (reorg dump) for the redirect decision, or a PER_FN_TEXT_MOVES-class branch
-     relabel spec.  Sibling: DrawOpponentVideoWall has the identical defect. */
-  vw = this->fVideoWall;
-  ::UpdateTransition(vw);
-  vw->SetValid(validCar);
-  SetAvailable(vw,(ushort)carInfo.fAvailable);
-  ::Draw(vw);
+  ::UpdateTransition(this->fVideoWall);
+  this->fVideoWall->SetValid(validCar);
+  SetAvailable(this->fVideoWall,(ushort)carInfo.fAvailable);
+  ::Draw(this->fVideoWall);
   return;
 }
 
@@ -1520,8 +1504,6 @@ void tScreenCarSelectDuel::DrawOpponentVideoWall(short y)
 
 {
   short i;
-  tVideoWall *vw_opp;
-  tVideoWall *this_00;
 
   i = 0;
   do {
@@ -1534,18 +1516,16 @@ void tScreenCarSelectDuel::DrawOpponentVideoWall(short y)
     TurnOffInstant(this->fVideoWall + 1);
     this->SetBrightness(0,1);
   }
-  vw_opp = this->fVideoWall + 1;
   if (((this->fSwapShapes.fFlags & 1) != 0) &&
      (this->fOpponentTVsInitialized == 0)) {
-    vw_opp->SetOffset(6,0x69);
-    UpdateImages(vw_opp);
+    (this->fVideoWall + 1)->SetOffset(6,0x69);
+    UpdateImages(this->fVideoWall + 1);
     this->fOpponentTVsInitialized = 1;
   }
-  this_00 = this->fVideoWall + 1;
-  ::UpdateTransition(this_00);
-  this_00->SetValid(1);
-  SetAvailable(this_00,1);
-  ::Draw(this_00);
+  ::UpdateTransition(this->fVideoWall + 1);
+  (this->fVideoWall + 1)->SetValid(1);
+  SetAvailable(this->fVideoWall + 1,1);
+  ::Draw(this->fVideoWall + 1);
   return;
 }
 

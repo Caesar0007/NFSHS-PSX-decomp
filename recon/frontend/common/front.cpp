@@ -2271,8 +2271,9 @@ static int *Front_AppendOpponentData(int *stream,tFEStream &streamData)
 static int *Front_AppendCopData(int *stream,tFEStream &streamData)
 
 {
-  tCarInfo *ptVar1;
-  int iVar2;
+  /* SYM-CODEGEN-CARRIER: carInfo -- inlining GetCarFromID at fSimNumber
+     moves the call past the leading tag stores (FAIL 14 at 149/149). */
+  tCarInfo *carInfo;
   short i;
 
   if (0 < (int)streamData.numCops + (int)streamData.numSuperCops) {
@@ -2289,32 +2290,23 @@ static int *Front_AppendCopData(int *stream,tFEStream &streamData)
      that; a `for`/`while` condition gets loop-rotated to a bottom test. */
   /* MATCH (W56-A6): the missing `i = i + 1` increment was restored (oracle `addiu s3,s3,1`),
      and the bound test is written `i >= sum` (i first) so gcc sign-extends i BEFORE loading the
-     two bound shorts -- filling the load-delay slot with the `sra` exactly as retail (30->5 diffs).
-     NEAR-SEAL FLOOR (5 diffs, 1 extra insn): the iVar2 (`*stream++`) store slot. Retail pre-saves
-     the cursor in v1 before the numSuperCops branch and fills that branch's delay slot with the
-     NEXT increment (`addu v1,s0,zero; ...; sw a0,0(v1)`); ours fills the delay slot with THIS
-     store's own increment (`sw a0,0(s0); addiu s0,s0,4`). Pure reorg delay-slot-fill choice
-     (§3.21 family) -- receipted, needs PER_FN delay-slot control or a qtytrace-class instrument. */
+     two bound shorts -- filling the load-delay slot with the `sra` exactly as retail.
+     SYM restore 2026-08-25: the direct conditional cursor store below removes the
+     decompiler iVar2/slot pair and reproduces retail's pre-saved cursor and branch
+     delay-slot increment, sealing the function at 149/149. */
   i = 0;
   while (1) {
     if (i >= (int)streamData.numCops + (int)streamData.numSuperCops) break;
-    ptVar1 = carManager.GetCarFromID((short)streamData.copCars[i]);
+    carInfo = carManager.GetCarFromID((short)streamData.copCars[i]);
     *stream++ = 0x104;
-    iVar2 = 8;
     *stream++ = (int)streamData.currentCar;
-    *stream++ = (uint)ptVar1->fSimNumber;
+    *stream++ = (uint)carInfo->fSimNumber;
     *stream++ = 0x106;
     *stream++ = (int)streamData.currentCar;
     *stream++ = 1;
     *stream++ = 0x105;
     *stream++ = (int)streamData.currentCar;
-    {
-      int *slot = stream++;
-      if (i < streamData.numSuperCops) {
-        iVar2 = 0x10;
-      }
-      *slot = iVar2;
-    }
+    *stream++ = (i < streamData.numSuperCops) ? 0x10 : 8;
     *stream++ = 0x118;
     *stream++ = (int)streamData.currentCar;
     *stream++ = (byte)frontEnd.skillLevel + 5;

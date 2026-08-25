@@ -2458,8 +2458,14 @@ static int *Front_AppendPerpData(int *stream,tFEStream &streamData)
 static int *Front_AppendTrafficData(int *stream,tFEStream &streamData)
 
 {
-  tCarInfo *ptVar1;
+  /* SYM-CODEGEN-CARRIER: carInfo -- the lookup result must survive the two
+     leading stream stores while `i` advances.  Inlining GetCarFromID at the
+     fSimNumber use is count-exact but FAIL 24 (148/148). */
+  tCarInfo *carInfo;
   int density;
+  /* SYM-CODEGEN-CARRIER: traffic -- widening numTraffic before division
+     avoids a narrow-subreg sign-extension chain.  Direct field division is
+     FAIL 4 at 150/148 instructions. */
   int traffic;
   short i;
 
@@ -2473,11 +2479,11 @@ static int *Front_AppendTrafficData(int *stream,tFEStream &streamData)
   i = 0;
   if (0 < streamData.numTraffic) {
     do {
-      ptVar1 = carManager.GetCarFromID(streamData.trafficCars[i]);
+      carInfo = carManager.GetCarFromID(streamData.trafficCars[i]);
       *stream++ = 0x104;
       i = i + 1;
       *stream++ = (int)streamData.currentCar;
-      *stream++ = (uint)ptVar1->fSimNumber;
+      *stream++ = (uint)carInfo->fSimNumber;
       *stream++ = 0x106;
       *stream++ = (int)streamData.currentCar;
       *stream++ = 1;

@@ -2032,8 +2032,6 @@ static void Front_InitTraffic(tFEStream &streamData)
 static int *Front_AppendPlayerCarData(int *stream,tFEStream &streamData)
 
 {
-  int iVar1;
-  uint uVar2;
   tCarInfo *carInfo;
   tCarLineup *carLineup;
   short i;
@@ -2160,16 +2158,15 @@ static int *Front_AppendPlayerCarData(int *stream,tFEStream &streamData)
         *stream++ = (uint)carInfo->fDefaultTires;
       }
       *stream++ = 0x107;
-      iVar1 = (int)i;
       *stream++ = (int)streamData.currentCar;
-      *stream++ = (uint)(byte)frontEnd.rampSteer[iVar1];
+      *stream++ = (uint)(byte)frontEnd.rampSteer[i];
       *stream++ = 0x108;
       *stream++ = (int)streamData.currentCar;
-      *stream++ = (uint)(byte)frontEnd.rampGas[iVar1];
+      *stream++ = (uint)(byte)frontEnd.rampGas[i];
       *stream++ = 0x109;
       *stream++ = (int)streamData.currentCar;
-      *stream++ = (uint)(byte)frontEnd.rampBrake[iVar1];
-      stream = OutputDisplaySettings(stream,(int)streamData.currentCar,iVar1,streamData.trackInfo);
+      *stream++ = (uint)(byte)frontEnd.rampBrake[i];
+      stream = OutputDisplaySettings(stream,(int)streamData.currentCar,i,streamData.trackInfo);
       i = i + 1;
       streamData.currentCar = streamData.currentCar + 1;
     } while (i < streamData.numPlayers);

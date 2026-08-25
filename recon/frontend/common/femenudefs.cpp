@@ -2338,23 +2338,21 @@ void MenuExtended_AwardPinkSlipsCar(tMenuCommand &command)
 void MenuExtended_GoToGarage(tMenuCommand &command)
 
 {
-  tMenu *ptVar1;
-  tListIteratorCar *dlgThis;
-  tListIteratorCar *this_00;
-  
+  /* SYM-CODEGEN-CARRIER: garageIterator
+   * The retail call shares one post-frontEnd address between the filter store
+   * and Decrement's member-call receiver.  Repeating the member is FAIL 11; a
+   * declaration-initialized reference moves the frontEnd LUI and is FAIL 2. */
+  tListIteratorCar *garageIterator;
+
   frontEnd.carListType = '\x01';
-  this_00 = &menuDefs[0]->iteratorGarageCar;
-  this_00->fCarListFilter = 0x40;
-  this_00->Decrement(kPlayerBoth);
+  garageIterator = &menuDefs[0]->iteratorGarageCar;
+  garageIterator->fCarListFilter = 0x40;
+  garageIterator->Decrement(kPlayerBoth);
   menuDefs[0]->iteratorGarageCar.Increment(kPlayerBoth);
   command.type = kMenu_Command_GoToMenu;
-  if (tournamentManager.fCurrentTrack == 0) {
-    ptVar1 = (tMenu*)&menuDefs[0]->menuCarGarage;
-  }
-  else {
-    ptVar1 = (tMenu*)&menuDefs[0]->menuPostCarGarage;
-  }
-  command.nextMenu = ptVar1;
+  command.nextMenu = (tournamentManager.fCurrentTrack == 0) ?
+      (tMenu *)&menuDefs[0]->menuCarGarage :
+      (tMenu *)&menuDefs[0]->menuPostCarGarage;
   screenCarSelect[0]->SetState(1);
   return;
 }

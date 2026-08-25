@@ -2013,7 +2013,44 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int)
    * carrier 130; and an address-of-stack-slot carrier 122.  A static-inline +5
    * helper reached 26 and made y=$t8, but CC1PLPSX emitted two additional nested
    * block pairs absent from retail SYM, so that tempting non-exact route was also
-   * rejected. */
+   * rejected.
+   *
+   * ==== 2026-08-25 SYM-EXACT FAIL-6 RTL RECEIPT ====
+   * The body below is now count-exact (82/82) and its only residuals are the
+   * len/tint ownership pair plus the y0 store position.  Fresh retail-compiler
+   * -da dumps identify the header mechanism exactly: tint address/value are
+   * pseudos 127/128 and the byte constant 9 is pseudo 129.  Sched1 ends 128
+   * before 129 is born, so local-alloc gives both $v0; sched2 then records a hard
+   * anti-dependence and cannot hoist `li 9` across the tint store.  Retail instead
+   * keeps the tint value live across that definition, giving 9 to $v1.  The tail
+   * is likewise one measured sched2 level: tpage store insn 175 has priority 7,
+   * while y0 store insn 219 has priority 6, so ours selects tpage too early in
+   * the backward schedule and emits y0 before it.
+   *
+   * Rejected from this exact basin (all restored): canonical setPolyFT4-before-
+   * tint 80@84; duplicated early len 78@84; dead code-byte carrier 79@85;
+   * existing v/ch carriers 78@78 and 16@82; byte/comma ch staging neutral or 16;
+   * byte inline-return carrier 14@84; literal/readback/identity empty-asm carriers
+   * 108-130@79/80; v3/y0 and tpage/v3/y0 comma dependencies 70@82 and 112@78;
+   * x1-after-y0 dependency 10@82; memory-tied y0 dependency 72@82; and the
+   * corpus-authentic destructive width/height phase 112@78 (113@79 with a v
+   * liveness fence, which also blocks the return delay-slot fill).  Raw-vs-member
+   * tint destination spelling and a tpage conditional dependency are exactly
+   * neutral at 6.
+   *
+   * ==== 2026-08-26 SYM-EXACT PASS (82/82) ====
+   * The community macro reconstruction in scratchpad/FontUpside.txt supplied
+   * the missing combined source shape.  Its decisive parts must be kept as one
+   * bundle: addPrim's comma expansion precedes the packet-cursor bump; `dv`
+   * retains the unadjusted masked value and setUVWH subtracts one at every UV
+   * use; setPolyFT4 is followed by the source's explicit setcode/setlen writes
+   * (gcc removes the redundant stores but changes the 9/tint live overlap); and
+   * setXYWH expands as semicolon-separated x/y assignments in vertex order.
+   * Comma punctuation by itself was neutral; the complete macro/lifetime shape
+   * changes both remaining scheduler decisions.  Detailed verify_asm and vdiff
+   * are exact, tools/sldall.py reports a -g twin, and the frontend/psx SYM audit
+   * remains 85/85 declaration-clean with zero missing/extra locals or types.
+   * No asm, volatile, register pin, added local, or post-compiler move is used. */
   POLY_FT4      *prim;
   int            width;
   int            height;
@@ -2021,16 +2058,35 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int)
 
   width = ch->width;
   height = ch->height;
-  y -= *(signed char *)&ch->yoffset;
-  y += 5;
-  y -= height + *(signed char *)&ch->yoffset;
+  dv = (((shapetbl *)src)->shapey + v) & 0xff;
+  y -= (signed char)ch->yoffset;
+  y += 5 - (height + (signed char)ch->yoffset);
   prim = (POLY_FT4 *)Render_gPacketPtr;
-  Render_gPacketPtr = (u_char *)prim + 0x28;
-  PSXFRONT_FONT_PACKET_HEAD(prim,src,v,dv);
-  ((PSXFront_PTag *)prim)->len = 9,
-  prim->code = 0x2c;
+  ((PSXFront_PTag *)prim)->addr =
+      ((PSXFront_PTag *)Render_gPalettePtr)->addr,
+  ((PSXFront_PTag *)Render_gPalettePtr)->addr = (uint)prim;
+  Render_gPacketPtr += sizeof(POLY_FT4);
+  *(u_long *)&prim->r0 = font_tint;
+  ((PSXFront_PTag *)prim)->len = (u_char)9,
+  prim->code = (u_char)0x2c;
+  prim->code = (u_char)0x2c;
+  ((PSXFront_PTag *)prim)->len = (u_char)9;
   prim->clut = gFontClut;
-  PSXFRONT_FONT_GEOMETRY(prim,src,x,y,u,dv,width,height);
+  prim->tpage = (((shapetbl *)src)->type & 3) << 7 |
+                (((shapetbl *)src)->shapey & 0x100) >> 4 |
+                (((shapetbl *)src)->shapex & 0x3ff) >> 6;
+  prim->u0 = u, prim->v0 = dv - 1,
+  prim->u1 = u + width, prim->v1 = dv - 1,
+  prim->u2 = u, prim->v2 = dv - 1 + height,
+  prim->u3 = u + width, prim->v3 = dv - 1 + height;
+  prim->x0 = x;
+  prim->y0 = y + height;
+  prim->x1 = x + width;
+  prim->y1 = y + height;
+  prim->x2 = x;
+  prim->y2 = y;
+  prim->x3 = x + width;
+  prim->y3 = y;
   return;
 }
 

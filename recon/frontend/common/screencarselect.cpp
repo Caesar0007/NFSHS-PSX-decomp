@@ -1880,24 +1880,21 @@ bool tScreenCarSelectTwoPlayer::GetCar(tCarInfo &carInfo)
 
 /* ---- tScreenCarSelectTwoPlayer::DrawVideoWall  [SCREENCARSELECT.CPP:1668-1701] ---- */
 /* MATCH 2026-08-03 (18->PASS): the unsized FEApp view keeps %hi(FEApp)
-   live while reloading the pointer value at each access, as in retail.
-   A dedicated int offset is copy-coalesced directly into the third argument
-   register; sharing the later short text offset forced GCC to use $a3 and
-   insert a move.  Direct fVideoWall expressions also match SLD's local set. */
+   live while reloading the pointer value at each access, as in retail. */
 void tScreenCarSelectTwoPlayer::DrawVideoWall(short y)
 
 {
   bool validCar;
-  __vtbl_ptr_type (*vtbl) [10];
-  short sVar2;
-  int offset;
+  /* SYM-CODEGEN-CARRIER: videoOffset
+   * Retail initializes the third SetOffset argument in the FEApp branch delay
+   * slot.  A direct ternary is one instruction shorter and measures FAIL 5. */
+  int videoOffset;
   short i;
   tCarInfo carInfo;
 
-  vtbl = this->_vf;
-  validCar = (*(bool (*)(...))vtbl[1][3].pfn)
+  validCar = (*(bool (*)(...))(*this->_vf)[13].pfn)
                     (this->fPermShapes.fFilename + -0x14 +
-                     vtbl[1][3].delta,&carInfo);
+                     (*this->_vf)[13].delta,&carInfo);
   i = 0;
   do {
     DrawShapeExtended(i,0,0,-(int)y,
@@ -1906,16 +1903,13 @@ void tScreenCarSelectTwoPlayer::DrawVideoWall(short y)
   } while (i < 0xc);
   if (((this->fSwapShapes.fFlags & 1) != 0) &&
      (this->fTVsInitialized == 0)) {
-    offset = 0;
+    videoOffset = 0;
     if (FEAppB[0]->fPlayer != '\0') {
-      offset = 0x69;
+      videoOffset = 0x69;
     }
-    this->fVideoWall->SetOffset(6,offset);
-    sVar2 = 0x2d;
-    if (FEAppB[0]->fPlayer != '\0') {
-      sVar2 = 0x96;
-    }
-    SetAvailableText(this->fVideoWall,0xf8,0x10e,sVar2);
+    this->fVideoWall->SetOffset(6,videoOffset);
+    SetAvailableText(this->fVideoWall,0xf8,0x10e,
+        (FEAppB[0]->fPlayer != '\0') ? 0x96 : 0x2d);
     UpdateImages(this->fVideoWall);
     this->fTVsInitialized = 1;
   }

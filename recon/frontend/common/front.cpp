@@ -2366,30 +2366,33 @@ static int *Front_AppendCopData(int *stream,tFEStream &streamData)
 static int *Front_AppendPerpData(int *stream,tFEStream &streamData)
 
 {
-  tCarInfo *ptVar1;
+  /* SYM-CODEGEN-CARRIER: carInfo -- inlining the lookup at fSimNumber moves
+     the call past the leading tag/cursor updates and changes the entire
+     handout (FAIL 248 at 168/166). */
+  tCarInfo *carInfo;
+  /* SYM-CODEGEN-CARRIER: carManagerPtr -- direct carManager access is
+     count-exact but schedules its `lui a0` four instructions too early
+     (FAIL 2 at 166/166).  The pointer preserves retail placement. */
   tCarManager *carManagerPtr;
-  int iVar2;
-  int *piVar3;
   short i;
 
   /* MATCH: pointer-increment stores here too (same idiom as the rest of the fn). Branch
      polarity/arm order flipped vs the natural null-check-first form -- the oracle's `beqz`
      skips the RARE (pMission==NULL) case out-of-line and falls through the common
-     (pMission!=NULL) case. Materialize piVar3=stream FIRST and write through piVar3 for the
-     WHOLE function (never touch `stream` again) -- the oracle copies the incoming arg into its
+     (pMission!=NULL) case. Advance the `stream` parameter itself for the whole function --
+     the oracle copies the incoming arg into its
      callee-saved cursor reg immediately, before the if/else, not just before the loop. */
-  piVar3 = stream;
   if (streamData.pMission != (tMissionInfo *)0x0) {
-    *piVar3++ = 0x25;
-    *piVar3++ = (uint)streamData.pMission->fNumStages;
-    *piVar3++ = 0x26;
-    *piVar3++ = (uint)streamData.pMission->fStageOffset;
+    *stream++ = 0x25;
+    *stream++ = (uint)streamData.pMission->fNumStages;
+    *stream++ = 0x26;
+    *stream++ = (uint)streamData.pMission->fStageOffset;
   }
   else {
-    *piVar3++ = 0x25;
-    *piVar3++ = 0;
-    *piVar3++ = 0x26;
-    *piVar3++ = 0;
+    *stream++ = 0x25;
+    *stream++ = 0;
+    *stream++ = 0x26;
+    *stream++ = 0;
   }
   /* MATCH: SYM-implied `short i` loop counter and pointer-increment stores. IDA's retail
      allocation shows s0 holding the complete streamData+i*8 per-perp base, reused by the
@@ -2399,48 +2402,47 @@ static int *Front_AppendPerpData(int *stream,tFEStream &streamData)
   if (0 < streamData.numPerpObjects) {
     do {
       carManagerPtr = &carManager;
-      iVar2 = (int)&streamData + ((i << 0x10) >> 0xd);
-      ptVar1 = carManagerPtr->GetCarFromID(*(short *)(iVar2 + 608));
-      *piVar3++ = 0x104;
+      carInfo = carManagerPtr->GetCarFromID((short)streamData.perps[i].carModel);
+      *stream++ = 0x104;
+      *stream++ = (int)streamData.currentCar;
+      *stream++ = (uint)carInfo->fSimNumber;
+      *stream++ = 0x106;
+      *stream++ = (int)streamData.currentCar;
+      *stream++ = 1;
+      *stream++ = 0x10a;
+      *stream++ = (int)streamData.currentCar;
+      *stream++ = (uint)(byte)streamData.perps[i].carColor;
+      *stream++ = 0x10b;
+      *stream++ = (int)streamData.currentCar;
+      *stream++ = 0;
+      *stream++ = 0x105;
+      *stream++ = (int)streamData.currentCar;
+      *stream++ = 2;
+      *stream++ = 0x118;
+      *stream++ = (int)streamData.currentCar;
+      *stream++ = 0;
+      *stream++ = 0x10c;
+      *stream++ = (int)streamData.currentCar;
+      *stream++ = 1;
+      *stream++ = 0x125;
+      *stream++ = (int)streamData.currentCar;
+      *stream++ = 0;
+      *stream++ = 0x110;
+      *stream++ = (int)streamData.currentCar;
+      *stream++ = 0;
+      *stream++ = 0x112;
+      *stream++ = (int)streamData.currentCar;
+      *stream++ = 0;
+      *stream++ = 0x10d;
+      *stream++ = (int)streamData.currentCar;
+      *stream++ = 0;
       i = i + 1;
-      *piVar3++ = (int)streamData.currentCar;
-      *piVar3++ = (uint)ptVar1->fSimNumber;
-      *piVar3++ = 0x106;
-      *piVar3++ = (int)streamData.currentCar;
-      *piVar3++ = 1;
-      *piVar3++ = 0x10a;
-      *piVar3++ = (int)streamData.currentCar;
-      *piVar3++ = (uint)*(byte *)(iVar2 + 612);
-      *piVar3++ = 0x10b;
-      *piVar3++ = (int)streamData.currentCar;
-      *piVar3++ = 0;
-      *piVar3++ = 0x105;
-      *piVar3++ = (int)streamData.currentCar;
-      *piVar3++ = 2;
-      *piVar3++ = 0x118;
-      *piVar3++ = (int)streamData.currentCar;
-      *piVar3++ = 0;
-      *piVar3++ = 0x10c;
-      *piVar3++ = (int)streamData.currentCar;
-      *piVar3++ = 1;
-      *piVar3++ = 0x125;
-      *piVar3++ = (int)streamData.currentCar;
-      *piVar3++ = 0;
-      *piVar3++ = 0x110;
-      *piVar3++ = (int)streamData.currentCar;
-      *piVar3++ = 0;
-      *piVar3++ = 0x112;
-      *piVar3++ = (int)streamData.currentCar;
-      *piVar3++ = 0;
-      *piVar3++ = 0x10d;
-      *piVar3++ = (int)streamData.currentCar;
-      *piVar3++ = 0;
       streamData.currentCar = streamData.currentCar + 1;
     } while (i < streamData.numPerpObjects);
   }
-  *piVar3++ = 0x25;
-  *piVar3++ = (int)streamData.numPerps;
-  return piVar3;
+  *stream++ = 0x25;
+  *stream++ = (int)streamData.numPerps;
+  return stream;
 }
 
 

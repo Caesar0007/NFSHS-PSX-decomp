@@ -1192,26 +1192,36 @@ void tMenuOptions::TransitionOff()
 void tMenuOptions::TransitionOn()
 
 {
-  int iVar1;
-  tMenuItem *ptVar2;
-  tMenuOptions *ptVar3;
-  
-  ptVar3 = this;
+  /* SYM-CODEGEN-CARRIER: enterTicks
+   * The SYM block has no named local here, but retail holds ticks in $v1
+   * across the fInMenuTransition store and writes fMenuEnterTicks in the
+   * AudioCmn_PlayFESFX call delay slot.  A direct ticks assignment is the
+   * same length but measures FAIL 10 because it moves the call-argument load
+   * ahead of the ticks load and changes the resulting schedule. */
+  int enterTicks;
+  /* SYM-CODEGEN-CARRIER: itemCursor
+   * Retail keeps this in $s1 and a separate address cursor in $s0, starting
+   * at this and advancing four bytes per fItemList slot.  The debug stream
+   * exposes no original source name for that optimized cursor. */
+  tMenuOptions *itemCursor;
+
+  itemCursor = this;
 TransitionOn_nextItem:
-  ptVar2 = ptVar3->fItemList[0];
-  if (ptVar2 == (tMenuItem *)0x0) {
+  if (itemCursor->fItemList[0] == (tMenuItem *)0x0) {
     goto TransitionOn_itemsDone;
   }
-  if (((ptVar2->fFlags ^ 1) & 1) != 0) {
-    (*(*ptVar2->_vf)[8].pfn)((char *)ptVar2 + (int)(*ptVar2->_vf)[8].delta);
+  if (((itemCursor->fItemList[0]->fFlags ^ 1) & 1) != 0) {
+    (*(*itemCursor->fItemList[0]->_vf)[8].pfn)
+        ((char *)itemCursor->fItemList[0] +
+         (int)(*itemCursor->fItemList[0]->_vf)[8].delta);
   }
-  ptVar3 = (tMenuOptions *)&ptVar3->fTitle;
+  itemCursor = (tMenuOptions *)&itemCursor->fTitle;
   goto TransitionOn_nextItem;
 TransitionOn_itemsDone:
   this->fTransitionDirection = '\x01';
-  iVar1 = ticks[0];
+  enterTicks = ticks[0];
   this->fInMenuTransition = 1;
-  this->fMenuEnterTicks = iVar1;
+  this->fMenuEnterTicks = enterTicks;
   AudioCmn_PlayFESFX(0xf);
   return;
 }

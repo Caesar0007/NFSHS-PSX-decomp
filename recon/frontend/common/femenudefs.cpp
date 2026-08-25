@@ -1793,6 +1793,14 @@ void MenuExtended_SaveGame(tMenuCommand &)
 void GenericMenuLoadGame(int player)
 
 {
+  /* SYM-CODEGEN-CARRIER: app
+     SYM-CODEGEN-CARRIER: mc
+     Retail records only caller parameter `player`; its two `this` records are
+     nested tScreenMemcard inline receivers at source line 925.  These aliases
+     are therefore not additional semantic locals: they preserve the retail
+     s0/s1 global-address lifetimes and scratch reloads.  Direct global
+     dereferences and pointer-to-pointer spellings both measured FAIL 36,
+     while this shape is the exact 37/37 -g twin. */
   tFEApplication *app;
   tScreenMemcard *mc;
 

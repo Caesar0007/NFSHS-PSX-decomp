@@ -3188,33 +3188,25 @@ bool PlayerNameExist(int player)
    
    Toolchain: PsyQ SDK 4.3 (May 1998), GCC 2.7.2, ASPSX 2.77, PSYLINK 2.73.Build date: 1999-02-22.See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md.
    
-   [Locals 2026-05-08] Locals renamed via deep-body inspection. Returns ALL-UPPER player name. s =
-   &frontEnd.allUpperCasedPlayerNameList[player*4]. sprintf(*s, frontEnd.playerNameList[player*4])
-   copies the raw name. name_len = strlen(*s); on empty: same default fallback as
-   PlayerNameMixedCase (wordnum = 0x4E or player+0x50 from TextSys). Else:
-   StatTool_UpperCaseItKeepingInMindThoseBloodySpecialCharacters in-place uppercases (handles
-   accented Latin chars). Returns *s. Mirror of PlayerNameMixedCase but enforces uppercase output.
+   [SYM restore 2026-08-25] The retail function records no source locals. Direct array expressions,
+   direct strlen testing, and arm-local TextSys_Word returns reproduce the exact 35-instruction
+   body; the former s/name_len/wordnum temporaries were decompiler artifacts. The non-empty path
+   uppercases the cached player name in place, including its special-character handling.
     */
 
 char * PlayerName(int player)
 
 {
-  uint name_len;
-  char (*s)[8];
-  int wordnum;
-  
-  s = frontEnd.allUpperCasedPlayerNameList + player;
-  sprintf(*s,frontEnd.playerNameList[player]);
-  name_len = strlen(*s);
-  if (name_len != 0) {
-    StatTool_UpperCaseItKeepingInMindThoseBloodySpecialCharacters(*s);
-    return *s;
+  sprintf(frontEnd.allUpperCasedPlayerNameList[player],frontEnd.playerNameList[player]);
+  if (strlen(frontEnd.allUpperCasedPlayerNameList[player]) != 0) {
+    StatTool_UpperCaseItKeepingInMindThoseBloodySpecialCharacters
+      (frontEnd.allUpperCasedPlayerNameList[player]);
+    return frontEnd.allUpperCasedPlayerNameList[player];
   }
-  wordnum = 0x4e;
   if (frontEnd.gameMode == '\x01') {
-    wordnum = player + 0x50;
+    return (char *)TextSys_Word(player + 0x50);
   }
-  return (char *)TextSys_Word(wordnum);
+  return (char *)TextSys_Word(0x4e);
 }
 
 
@@ -3232,29 +3224,20 @@ char * PlayerName(int player)
    
    Toolchain: PsyQ SDK 4.3 (May 1998), GCC 2.7.2, ASPSX 2.77, PSYLINK 2.73.Build date: 1999-02-22.See PROJECT_AUDIT_2026-05-05.md and SESSION_2026-05-07_SUMMARY.md.
    
-   [Locals 2026-05-08] Locals renamed via deep-body inspection. Returns mixed-case player name (with
-   default fallback). s = &frontEnd.playerNameList[player*4]. name_len = strlen(*s). On empty name:
-   wordnum = 0x4E (= 'PLAYER' default text-id); for 2-player mode: wordnum = player + 0x50 (=
-   'PLAYER ONE' / 'PLAYER TWO'); s = TextSys_Word(wordnum). Returns *s (= the displayed name).Mixed-case = 'Foo' rather than the 'FOO' variant in PlayerName (which forces uppercase via
-   StatTool helper). */
+   [SYM restore 2026-08-25] The retail function records no source locals. Direct array expressions,
+   direct strlen testing, and arm-local TextSys_Word returns reproduce the exact 27-instruction
+   body; the former s/name_len/wordnum temporaries were decompiler artifacts. */
 
 char * PlayerNameMixedCase(int player)
 
 {
-  uint name_len;
-  char (*s)[8];
-  int wordnum;
-  
-  s = frontEnd.playerNameList + player;
-  name_len = strlen(*s);
-  if (name_len != 0) {
-    return *s;
+  if (strlen(frontEnd.playerNameList[player]) != 0) {
+    return frontEnd.playerNameList[player];
   }
-  wordnum = 0x4e;
   if (frontEnd.gameMode == '\x01') {
-    wordnum = player + 0x50;
+    return (char *)TextSys_Word(player + 0x50);
   }
-  return (char *)TextSys_Word(wordnum);
+  return (char *)TextSys_Word(0x4e);
 }
 
 

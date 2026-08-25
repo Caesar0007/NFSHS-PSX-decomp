@@ -202,7 +202,6 @@ void tScreenCarSelect::Cleanup()
 void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
 
 {
-  __vtbl_ptr_type (*vtbl) [10];
   long value;
   short text;
   int moneyColor;
@@ -220,9 +219,8 @@ void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
   if (overlay == (tOverlay *)0x0) {
     return;
   }
-  vtbl = this->_vf;
-  validCar = (*(bool (*)(...))vtbl[1][3].pfn)
-               ((char *)this + vtbl[1][3].delta,&carInfo);
+  validCar = (*(bool (*)(...))(*this->_vf)[13].pfn)
+               ((char *)this + (*this->_vf)[13].delta,&carInfo);
   if (overlay->direction != 0) {
     fade = overlay->transition + overlay->delta * overlay->direction;
     overlay->transition = fade;
@@ -284,6 +282,9 @@ DrawOvl_transitionPos:
                              temp.y + 3,1,textState_Selected,textType_FramedInfo)
     ;
     {
+      /* SYM-CODEGEN-CARRIER: tournamentMoney -- direct fMoney argument is
+         measured FAIL6 (551/551), scheduling li a2 after the global load;
+         this materialized value preserves retail's li/load/a3 sequence. */
       long tournamentMoney;
 
       tournamentMoney = tournamentManager.fMoney;
@@ -297,8 +298,15 @@ DrawOvl_transitionPos:
     break;
   case 4:
     for (i = 0; i < 3; i = i + 1) {
+      /* SYM-CODEGEN-CARRIER: yOffset -- replacing the materialized value and
+         read-only register fence with a call-site ternary in both loops is
+         measured FAIL210 (547/551); the fence preserves retail's $a0 handout. */
       int yOffset;
+      /* SYM-CODEGEN-CARRIER: flags -- inlining the predicate/0x410 mask in
+         both calls is measured FAIL188 with six extra instructions. */
       int flags;
+      /* SYM-CODEGEN-CARRIER: xPos -- inlining both `(40*i + K) + pos.x`
+         expressions is measured FAIL40 (551/551), changing i/a2/t2 handout. */
       int xPos;
 
       yOffset = 0;

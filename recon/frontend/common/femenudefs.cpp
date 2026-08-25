@@ -584,22 +584,34 @@ MX_GoToCar_oppFilterSetup:
    into the store by cse and changes nothing -- measured) lengthens its range, drops its priority
    below the pointer's, and the whole {v0,v1} pair flips to the oracle's assignment.  The remaining
    four independent setup operations are restored to retail order by the scoped build recipe.
-   MATCH: 26/26. */
+   [2026-08-25] Re-gating disproved the stale MATCH claim: that form was eight
+   diffs.  A second named call-state value and ONE combined two-output opacity
+   fence preserve both allocation decisions together and reduce the residual
+   to two (26/26 instructions); only `li v1,1` is scheduled early. */
 
 static void MenuExtended_GoToDealer(tMenuCommand &command)
 
 {
   int cmdType;
+  int state;
   tGlobalMenuDefs *ptVar1;
   tScreenCarSelect *dlgThis;
 
-  cmdType = 1;
-  __asm__("" : "+r" (cmdType));
+  /* SYM-CODEGEN-CARRIER: cmdType
+     SYM-CODEGEN-CARRIER: state
+     SYM-CODEGEN-CARRIER: ptVar1
+     SYM-CODEGEN-CARRIER: dlgThis
+     The literal five-statement SLD spelling is 16 diffs.  The earlier
+     cmdType/ptVar1/dlgThis recipe is eight; the combined state/cmdType fence
+     is two at equal length and keeps the exact retail register assignment. */
+  cmdType = kMenu_Command_GoToMenu;
+  state = 2;
+  __asm__("" : "+r"(state), "+r"(cmdType));
   dlgThis = screenCarSelect[0];
   ptVar1 = menuDefs[0];
   command.type = cmdType;
   command.nextMenu = (tMenu *)&ptVar1->menuCarDealer;
-  dlgThis->SetState(2);
+  dlgThis->SetState(state);
   menuDefs[0]->iteratorDealerCar.Decrement(kPlayerBoth);
   menuDefs[0]->iteratorDealerCar.Increment(kPlayerBoth);
   return;
@@ -622,24 +634,30 @@ static void MenuExtended_GoToDealer(tMenuCommand &command)
    shape, internal score 30). Same conclusion: genuine gcc scratch-register tie-break floor,
    accept, do not pin. */
 
-/* [W57-A1 2026-08-09, 10->8; W61 2026-08-13, 8->PASS] Same fenced-named-constant
-   live-range lever and scoped retail-order recipe as the twin GoToDealer above.
-   MATCH: 26/26. */
+/* [W57-A1 2026-08-09, 10->8; corrected 2026-08-25] Same allocation family as
+   GoToDealer.  The old PASS receipt was stale; the combined state/cmdType
+   fence below reduces the authoritative residual to two at 26/26 instructions. */
 
 static void MenuExtended_GoToSeller(tMenuCommand &command)
 
 {
   int cmdType;
+  int state;
   tGlobalMenuDefs *ptVar1;
   tScreenCarSelect *dlgThis;
 
-  cmdType = 1;
-  __asm__("" : "+r" (cmdType));
+  /* SYM-CODEGEN-CARRIER: cmdType
+     SYM-CODEGEN-CARRIER: state
+     SYM-CODEGEN-CARRIER: ptVar1
+     SYM-CODEGEN-CARRIER: dlgThis -- twin receipt is documented above. */
+  cmdType = kMenu_Command_GoToMenu;
+  state = 3;
+  __asm__("" : "+r"(state), "+r"(cmdType));
   dlgThis = screenCarSelect[0];
   ptVar1 = menuDefs[0];
   command.type = cmdType;
   command.nextMenu = (tMenu *)&ptVar1->menuCarSeller;
-  dlgThis->SetState(3);
+  dlgThis->SetState(state);
   menuDefs[0]->iteratorSellerCar.Decrement(kPlayerBoth);
   menuDefs[0]->iteratorSellerCar.Increment(kPlayerBoth);
   return;
@@ -2733,9 +2751,10 @@ winCase:
    deltas.  Post-fix our anchor deltas are byte-identical to retail's
    (-0xFD/-0xF3/-0xEE/-0xE9/-0x10A/-0x105 ...) and `%hi(frontEnd)` count is
    55 == 55.  Also fixed (§3.12 #12, gate-invisible because the LO16 addend is
-   normalized away): MenuExtended_GoToDealer / _GoToSeller / _GoToUpgrades had
-   their address taken but were `static`, emitting `.text`-section relocs where
-   retail has global-symbol relocs; `static` dropped, retail linkage restored.
+   normalized away): an earlier relocation-only inference said
+   MenuExtended_GoToDealer / _GoToSeller / _GoToUpgrades should not be
+   `static`.  CORRECTED 2026-08-25: trusted SYM records all three as class
+   STAT, so file-local linkage is the original source and is retained.
    FRAME: with the arg fixes the natural spill area GREW, so the pad optimum moved
    52/56 -> 25..32 (all give 1840; 33 -> 2518, 0 -> 1974).  It is now 32.  Our
    spills sit at 104..596 vs retail 72..592 -- a 32-byte (8-slot) deficit, i.e.

@@ -322,12 +322,14 @@ void tScreenPinkSlips::DrawVideoWall()
 
 
 /* ---- tScreenPinkSlips::ProcessInput  [SCREENPINKSLIPS.CPP:371-389] ---- */
-void tScreenPinkSlips::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &command
+void tScreenPinkSlips::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &
               )
 
 {
-  uint uVar2;
   tTrackInformation trackInfo;
+  /* SYM-CODEGEN-CARRIER: defs -- direct menuDefs access rematerializes the
+     global base, expanding this function from 79 to 84 instructions and
+     measuring 21 diffs. */
   tGlobalMenuDefs *defs;
   
   if (keyval == kInput_KeyType_Square) {
@@ -337,12 +339,9 @@ void tScreenPinkSlips::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMe
        test.  GCC 2.8.1 then retains it in $a0, as in the retail object,
        instead of rematerializing menuDefs for the conditional store. */
     defs = menuDefs;
-    uVar2 = (defs->itemTraffic).fFlags &
-            0xfffffffe;
-    (defs->itemTraffic).fFlags = uVar2;
+    (defs->itemTraffic).fFlags &= 0xfffffffe;
     if ((frontEnd.gameMode != '\x01') && (frontEnd.oppNumber == '\x02')) {
-      (defs->itemTraffic).fFlags =
-           uVar2 | 1;
+      (defs->itemTraffic).fFlags |= 1;
     }
     if (2 < trackInfo.fTrackDifficulty) {
       (menuDefs->itemTraffic).fFlags =

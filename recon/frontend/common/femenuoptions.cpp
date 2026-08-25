@@ -1448,11 +1448,7 @@ void tMenuItemDisplayLeftRightChoice::Draw(int offx,int offy,bool selected)
      MATCH: NO return funnel — retail drops the result ($v0 is the shared `li 2`
      stack arg, and on the fade==0x80 early-out it is the compare's `li 0x80`);
      x stays an int narrowed PER USE, y's narrowing CSEs into its own reg. */
-  short sVar1;
   int ColText;
-  char *sMenuText;
-  __vtbl_ptr_type (*pa_Var4) [6];
-  tListIterator *ptVar5;
   int x;
   int y;
 
@@ -1462,12 +1458,11 @@ void tMenuItemDisplayLeftRightChoice::Draw(int offx,int offy,bool selected)
     ColText = CalcTextFadeSelToHi(textType_Options,
                      this->fSelFade,this->fFadeVal);
     this->MyLeftRightDraw((short)x,(short)y);
-    ptVar5 = this->fData;
-    pa_Var4 = ptVar5->_vf;
-    sVar1 = (*(*pa_Var4)[3].pfn)
-                      ((char *)ptVar5 + (int)(*pa_Var4)[3].delta,gMenu_SubMenuPlayer);
-    sMenuText = TextSys_Word((int)sVar1);
-    FETextRender_FullTextRGB(sMenuText,(short)(x + 0x73),(short)y,ColText,'\0',2);
+    FETextRender_FullTextRGB(
+        TextSys_Word((int)(short)(*(*this->fData->_vf)[3].pfn)
+            ((char *)this->fData + (int)(*this->fData->_vf)[3].delta,
+             gMenu_SubMenuPlayer)),
+        (short)(x + 0x73),(short)y,ColText,'\0',2);
   }
 }
 
@@ -1495,21 +1490,16 @@ void tMenuItemOnOffLeftRightChoice::Draw(int offx,int offy,bool selected)
   /* MATCH (same family as tMenuItemDisplayLeftRightChoice::Draw): no return
      funnel, in-branch fOnFade stores, x/y plain ints narrowed PER USE, and the
      TextSys_Word results consumed straight into $a0. */
-  char cVar1;
-  __vtbl_ptr_type (*pa_Var3) [6];
   int x;
   int y;
-  tListIterator *ptVar6;
   int ColTextOn;
   int ColTextOff;
 
   if (this->fFadeVal != 0x80) {
-    ptVar6 = this->fData;
-    pa_Var3 = ptVar6->_vf;
-    cVar1 = (*(*pa_Var3)[2].pfn)
-                      ((char *)ptVar6 + (int)(*pa_Var3)[2].delta,0xffffffff);
     /* MATCH: branch polarity — the `!= 0` (+0x20) arm is the FALL-THROUGH. */
-    if (cVar1 != '\0') {
+    if ((char)(*(*this->fData->_vf)[2].pfn)
+          ((char *)this->fData + (int)(*this->fData->_vf)[2].delta,
+           0xffffffff) != '\0') {
       this->fOnFade = this->fOnFade + 0x20;
     }
     else {

@@ -1358,26 +1358,24 @@ tMenuItemGoToMenuButton::~tMenuItemGoToMenuButton()
 
 /* ---- tMenuItemGoToMenuButton::ProcessInput  [FEMENU.CPP:897-926] SLD-VERIFIED ---- */
 
-void tMenuItemGoToMenuButton::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,
+void tMenuItemGoToMenuButton::ProcessInput(tPlayer,tInputKeyType &keyval,
               tMenuCommand &command)
 
 {
-  u_int uVar1;
-  u_int uVar2;
-  void *reg_a3;
-  /* MATCH: SYM fsize frame filler -- see tMenuItemLeftRightChoice::ProcessInput. */
+  /* SYM-CODEGEN-CARRIER: frameFiller -- SYM proves fsize=32 but records no
+     source local.  Removing this two-word storage keeps 36 instructions yet
+     changes the frame to 24 bytes (12 detailed diffs).  The retail binary
+     proves the eight-byte allocation, not its original optimized spelling. */
   int frameFiller[2];
 
-  uVar2 = this->fFlags;
-  uVar1 = uVar2 & 1;
-  if (uVar1 != 0) {
+  if ((this->fFlags & 1) != 0) {
     return;
   }
   if (keyval != kInput_KeyType_Cross) {
     return;
   }
   if (this->fNewMenu != (tMenu *)0x0) {
-    if ((uVar2 & 0x40) != 0) {
+    if ((this->fFlags & 0x40) != 0) {
       command.type = kMenu_Command_GoToMenuOneWay;
     }
     else {

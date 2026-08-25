@@ -153,9 +153,10 @@ void tScreenMemcard::LoadIcon(int filenum)
 {
   bool done;
   int i;
-  shapetbl *iconShape;
   int clutx;
   int cluty;
+  /* SYM-CODEGEN-CARRIER: cardInfo -- direct this->pCI access keeps the same
+     215 instructions but moves the pCI load below the title store (2 diffs). */
   CARDINFO_def *cardInfo;
   
   if (AudioMus_Buffered() < AudioMus_Threshold()) {
@@ -169,10 +170,9 @@ void tScreenMemcard::LoadIcon(int filenum)
       cardInfo = this->pCI;
       this->fMemFile[filenum].title = (char *)((int)this->fMemTitle + filenum * 0x20);
       this->fMemFile[filenum].name = (char *)(cardInfo->dir + filenum);
-      iconShape = (shapetbl *)(*fMemIcon + filenum);
-      this->fMemFile[filenum].icon[0] = iconShape;
-      this->fMemFile[filenum].icon[1] = (shapetbl *)&*(int *)((char *)&iconShape[9] + 0xc);
-      this->fMemFile[filenum].icon[2] = (shapetbl *)&iconShape[0x13].width;
+      this->fMemFile[filenum].icon[0] = (shapetbl *)(*fMemIcon)[filenum][0];
+      this->fMemFile[filenum].icon[1] = (shapetbl *)(*fMemIcon)[filenum][1];
+      this->fMemFile[filenum].icon[2] = (shapetbl *)(*fMemIcon)[filenum][2];
       do {
         i = MCRD_handlecardevents(this->card);
       } while (i != 0x16);
@@ -220,6 +220,9 @@ void tScreenMemcard::LoadIcon(int filenum)
             } while (i < (int)(uint)this->numicon[filenum]);
           }
           {
+            /* SYM-CODEGEN-CARRIER: one -- direct literal stores allocate $v0;
+               this shared block-local value restores retail's two $t0 stores
+               and measures 8 fewer instruction diffs. */
             int one = 1;
             this->fFadeIcon[filenum] = 0x80;
             this->goticon[filenum] = one;
@@ -235,6 +238,8 @@ void tScreenMemcard::LoadIcon(int filenum)
         case 0x17:
           done = true;
           {
+            /* SYM-CODEGEN-CARRIER: pulled -- assigning done directly removes
+               retail's `addu $t0,$s7,$zero` and measures 3 diffs (214/215). */
             bool pulled = done;
             __asm__("" : "=r"(pulled) : "0"(pulled));
             this->fSomePunkInQAPulledOutTheMemoryCardWhileLoadingIcons = pulled;

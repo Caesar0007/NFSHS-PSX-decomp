@@ -44,9 +44,13 @@ void tScreenTrophyInfo::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
      copy web without extending its lifetime; retail v0/v1 ownership follows exactly (4 -> PASS,
      76/76).  A uint local instead inherits a0 and remains at 4. */
   tTourneyInfo *tourn;
-  short placement;   /* MATCH (W57-A7, 9 -> 6, count-exact 76/76): retail sign-extends the
-                        placement from 16 bits at the kBannerColors index (`sll 16; sra 14`
-                        = (short)p * 4); an `int` local emits a bare `sll 2`. */
+  /* SYM-CODEGEN-CARRIER: placement -- folding the default/validated value
+     into the banner lookup is measured FAIL27 with three missing instructions
+     (73/76); the short carrier preserves retail's sign-extended table index. */
+  short placement;
+  /* SYM-CODEGEN-CARRIER: idx -- staging the complete tournament index before
+     pointer formation was measured 27 -> 17 diffs and restores retail's
+     screenTrophyRoom-first evaluation order without adding instructions. */
   uint idx;
 
   /* MATCH (W57-A7, 15 -> 9): naming the frontEnd.tier byte read in its OWN statement makes
@@ -55,7 +59,11 @@ void tScreenTrophyInfo::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
      Falsified here: swapping the two addends of the sum (25-27), staging the whole
      fTournOffset chain into a local (25), naming screenTrophyRoom->tier (19). */
   {
+    /* SYM-CODEGEN-CARRIER: feTier -- the independent byte-read statement was
+       measured 15 -> 9 diffs by placing its lui/lbu before fDefinition. */
     uint feTier = (uint)(byte)frontEnd.tier;
+    /* SYM-CODEGEN-CARRIER: currentTourn -- comma-staging this byte was the
+       measured final 4 -> PASS step, restoring retail's v0/v1 ownership. */
     byte currentTourn;
 
     idx = (currentTourn =

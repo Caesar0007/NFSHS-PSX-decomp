@@ -19,6 +19,59 @@ static inline int DialogHelpButtonY(short item)
   return (item - 1) * 0xf + 0xf;
 }
 
+/* CalculateDimensions' 8c record names only `ticks`.  This inline expression
+   keeps the retail subtraction grouping without introducing a caller local. */
+static inline int DialogMessageTickAge(int value)
+{
+  return value + -0x32;
+}
+
+/* The zero-local 8c record and nested line-1 SLD scopes prove an inline source
+   boundary around this clamp.  Its behavior and allocation are exact; the
+   original unexported helper/macro spelling is not recoverable from SYM. */
+static inline int DialogMessageClampFade(tDialogMessageString *dialog)
+{
+  int fade = dialog->fFadeText;
+  int clamped;
+
+  if (0x80 < fade) {
+    fade = 0x80;
+  }
+  clamped = fade;
+  if (clamped < 0) {
+    clamped = 0;
+  }
+  dialog->fFadeText = clamped;
+  return clamped;
+}
+
+/* SLD opens a separate nested scope at retail line 580 (0x80019500) for this
+   animation.  Keeping it inline removes five false caller locals while
+   retaining retail's exact shared shape loads and arithmetic schedule. */
+static inline void DialogMessageAnimateOpen(tDialogMessageString *dialog, int ticks)
+{
+  int elapsed = ticks - dialog->startTicks;
+
+  if (elapsed < 0x32) {
+    int shapeWidth = gHelpShapes[0x2a].width;
+    int shapeHeight = gHelpShapes[0x2a].height;
+
+    dialog->fFullyOpen = 0;
+    dialog->width =
+         shapeWidth * 2 +
+         (short)((((int)dialog->width - (((int)shapeWidth << 0x11) >> 0x10)) * elapsed) / 0x32)
+    ;
+    dialog->height =
+         shapeHeight * 2 +
+         (short)((((int)dialog->height - (((int)shapeHeight << 0x11) >> 0x10)) *
+                  (ticks - dialog->startTicks))
+                        / 0x32);
+  }
+  else {
+    dialog->fFullyOpen = 1;
+  }
+}
+
 extern "C" {
 void ___7tScreen(void *);
 void ___31tDialogMessageStringWithTimeout(void *thisp) { ___7tScreen(thisp); }
@@ -492,25 +545,11 @@ DialogHelpDraw_buttonsDone:;
 void tDialogMessageString::CalculateDimensions()
 
 {
-  int fade_or_h;
-  int iVar2;
   int ticks;
-  int tick_age;
-  int clampedFade;
   
   ticks = ::ticks[0];
-  tick_age = ticks + -0x32;
-  this->fFadeText = 0x80 - ((tick_age - this->startTicks) * 0x80) / 100;
-  fade_or_h = this->fFadeText;
-  if (0x80 < fade_or_h) {
-    fade_or_h = 0x80;
-  }
-  clampedFade = fade_or_h;
-  if (clampedFade < 0) {
-    clampedFade = 0;
-  }
-  this->fFadeText = clampedFade;
-  if (clampedFade != 0) {
+  this->fFadeText = 0x80 - ((DialogMessageTickAge(ticks) - this->startTicks) * 0x80) / 100;
+  if (DialogMessageClampFade(this) != 0) {
     this->fFullyOpen = 0;
   }
   this->width = this->MaxW;
@@ -529,25 +568,7 @@ void tDialogMessageString::CalculateDimensions()
     this->height = this->MaxH;
   }
   ticks = ::ticks[0];
-  iVar2 = ticks - this->startTicks;
-  if (iVar2 < 0x32) {
-    int shapeWidth = gHelpShapes[0x2a].width;
-    int shapeHeight = gHelpShapes[0x2a].height;
-
-    this->fFullyOpen = 0;
-    this->width =
-         shapeWidth * 2 +
-         (short)((((int)this->width - (((int)shapeWidth << 0x11) >> 0x10)) * iVar2) / 0x32)
-    ;
-    this->height =
-         shapeHeight * 2 +
-         (short)((((int)this->height - (((int)shapeHeight << 0x11) >> 0x10)) *
-                  (ticks - this->startTicks))
-                        / 0x32);
-  }
-  else {
-    this->fFullyOpen = 1;
-  }
+  DialogMessageAnimateOpen(this, ticks);
   this->left =
        this->OffsetX + (short)((screenwidth - this->width) / 2);
   this->top =

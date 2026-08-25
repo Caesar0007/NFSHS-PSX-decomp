@@ -16,9 +16,9 @@ functions are mapped to their demangled C++ names and class scopes.
 - Source definitions still using mangled linkage identifiers: 0
 - Explicit deleting-destructor ABI carriers: 0
 - Explicit cross-TU ownership closures: 0
-- Declaration-clean mapped functions: 723
+- Declaration-clean mapped functions: 724
 - Missing SYM names: 0
-- Extra source-local names: 405
+- Extra source-local names: 399
 - Type-comparison findings: 0
 - Recognized ABI/debug-equivalent type encodings: 245
   (generic-function-pointer=12, promoted-stack-argument=26, reference-as-pointer=207)
@@ -57,23 +57,19 @@ functions are mapped to their demangled C++ names and class scopes.
 
 - Extra source locals: `chk`, `fePlayer`, `nc`, `newSel`, `prevSlot`, `slot`, `slot31`
 
-### `CalculateDimensions__11tDialogHelp` (0x80018b90, fedialog.cpp:230, map=exact)
+### `CalculateDimensions__11tDialogHelp` (0x80018b90, fedialog.cpp:283, map=exact)
 
 - Extra source locals: `currentTicks`, `openHeight`, `scanMenu`, `shape3`
 
-### `Draw__11tDialogHelp` (0x8001912c, fedialog.cpp:397, map=exact)
+### `Draw__11tDialogHelp` (0x8001912c, fedialog.cpp:450, map=exact)
 
 - Extra source locals: `bufferPtr`, `firstTick`, `loadedTicks`
 
-### `CalculateDimensions__20tDialogMessageString` (0x80019418, fedialog.cpp:492, map=exact)
-
-- Extra source locals: `clampedFade`, `fade_or_h`, `iVar2`, `shapeHeight`, `shapeWidth`, `tick_age`
-
-### `Run__18tDialogInteractive` (0x800197e8, fedialog.cpp:644, map=exact)
+### `Run__18tDialogInteractive` (0x800197e8, fedialog.cpp:665, map=exact)
 
 - Extra source locals: `bVar2`, `helpPopup`, `iVar5`, `iVar6`, `pa_Var3`
 
-### `Draw__12tDialogYesNo` (0x80019b44, fedialog.cpp:823, map=exact)
+### `Draw__12tDialogYesNo` (0x80019b44, fedialog.cpp:844, map=exact)
 
 - Extra source locals: `idx`, `pa_Var3`, `ptVar8`, `rgbBase`, `sMenuText`, `sVar1`, `sVar2`, `textBase`
 

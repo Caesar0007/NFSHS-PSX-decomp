@@ -156,8 +156,13 @@ void tScreenTrackRecords::DrawBackground()
   char string[50];
   char string2[50];
   int fade;
-  int fadeAmt;
+  /* SYM-CODEGEN-CARRIER: clampTmp -- routing the fade clamp through the
+     SYM AUTO short maxitem changes its narrowing and measures 8-93 diffs;
+     this int lifetime is required for retail's unclipped $a1 comparisons. */
   int clampTmp;
+  /* SYM-CODEGEN-CARRIER: lineFadeCalc -- assigning the nested MIN/MAX clamp
+     directly to the SYM short linefadeval measures 6-145 diffs; this int
+     carrier delays the narrowing until after retail's $s5 clamp sequence. */
   int lineFadeCalc;
   short linefadeval;
   short maxitem;
@@ -175,12 +180,15 @@ void tScreenTrackRecords::DrawBackground()
   tDrawShapeExtended drawflags;
 
   fade = (this->fScreenFadeVal * 0x134) / 0x80;
-  fadeAmt = fade - 0xb4;
-  if (fadeAmt < 0) {
-    fadeAmt = 0;
+  /* SYM restoration: tt is the declared $s2 int.  Retail uses that same
+     non-overlapping lifetime for this text-fade clamp and later overwrites
+     it with the texture tick offset; a separate fadeAmt name is unnecessary. */
+  tt = fade - 0xb4;
+  if (tt < 0) {
+    tt = 0;
   }
-  if (0x80 < fadeAmt) {
-    fadeAmt = 0x80;
+  if (0x80 < tt) {
+    tt = 0x80;
   }
   clampTmp = fade;
   if (clampTmp < 0) {
@@ -203,8 +211,8 @@ void tScreenTrackRecords::DrawBackground()
   boxw = TextSys_WordX(0x24f) - boxx;
   midy = TextSys_WordY(0x25f);
   Col = 0x232323;
-  ColTextSel = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][4]],(short)fadeAmt);
-  ColTextBright = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][5]],(short)fadeAmt);
+  ColTextSel = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][4]],(short)tt);
+  ColTextBright = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][5]],(short)tt);
   this->DrawRecords(maxitem);
   sprintf(string2,TextSys_Word(0x251),Front_GetLapsForType());
   sprintf(string,"%s %s",TextSys_Word((short)Front_GetTrackRaced() + 0xd5),string2);
@@ -216,6 +224,8 @@ void tScreenTrackRecords::DrawBackground()
      `addiu v0,v0,-2; subu s3,v0,a0`, i.e. the -2 is applied to the half-width FIRST.
      Only a separate statement stops fold from re-associating it back. */
   {
+    /* SYM-CODEGEN-CARRIER: half -- the separate assignment is the measured
+       statement boundary required to prevent fold's constant reassociation. */
     short half = ((short)shape->width >> 1) - 2;
 
     lbx = half - shape->centerx;

@@ -664,22 +664,26 @@ void tMenuItemLeftRightChoice::ProcessInput(tPlayer fromPlayer,tInputKeyType &ke
 void tMenuItemLeftRightChoice::Draw(bool selected)
 
 {
-  short index;
-  int iVar1;
-  int iVar2;
-  __vtbl_ptr_type (*pa_Var3) [6];
-  tMenuTextState textState;
+  /* SYM-CODEGEN-CARRIER: x
+     SYM-CODEGEN-CARRIER: y
+     SYM records no named locals, but retail calls TextSys_WordX/WordY once
+     and reuses both results across two render calls, which requires shared C
+     storage.  The semantic names follow those APIs; `int` is codegen-proven
+     (changing both to short is FAIL 5, 52/51).  The original optimized
+     spelling/name pair is not uniquely recoverable from SYM or the binary. */
+  int x;
+  int y;
 
-  iVar1 = TextSys_WordX(this->fTextDescription);
-  iVar2 = TextSys_WordY(this->fTextDescription);
-  textState = (tMenuTextState)(selected != 0);
-  FETextRender_MenuTextPositioned((short)this->fTextDescription,(short)iVar1,
-             (short)iVar2,textState,textType_Options);
-  pa_Var3 = this->fData->_vf;
-  index = (*(*pa_Var3)[3].pfn)
-                    ((char *)this->fData + (int)(*pa_Var3)[3].delta,
-                     gMenu_SubMenuPlayer[0]);
-  FETextRender_MenuTextPositioned(index,(short)((u_int)((iVar1 + 0xb4) * 0x10000) >> 0x10),(short)iVar2,textState,
+  x = TextSys_WordX(this->fTextDescription);
+  y = TextSys_WordY(this->fTextDescription);
+  FETextRender_MenuTextPositioned((short)this->fTextDescription,(short)x,
+             (short)y,(tMenuTextState)(selected != 0),textType_Options);
+  FETextRender_MenuTextPositioned(
+             (*(*this->fData->_vf)[3].pfn)
+                    ((char *)this->fData + (int)(*this->fData->_vf)[3].delta,
+                     gMenu_SubMenuPlayer[0]),
+             (short)((u_int)((x + 0xb4) * 0x10000) >> 0x10),(short)y,
+             (tMenuTextState)(selected != 0),
              textType_Options);
   return;
 }

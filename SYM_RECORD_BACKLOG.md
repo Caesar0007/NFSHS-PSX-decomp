@@ -4314,6 +4314,46 @@ zero inversions across 513 objects, call-target audit finds zero proven wrong
 targets across 460 units, vtable indexing passes 930 files, and the source-only
 policy audit finds no post-compiler text moves or branch retargets.
 
+### P121 — car-select foreground SYM carrier reconciliation (`2026-08-26`)
+
+Reliable `tScreenCarSelect::DrawForeground` SYM records member receiver `this`
+in `$s3`, `short i` in `$s0`, stack `tCarInfo carInfo`, `short bShowStats` in
+`$s1`, `tMenuItem *currentItem` in `$s2`, and native `bool validCar` in `$s5`.
+All seven SYM-omitted identities have now been tested separately and replaced
+as generic review findings by explicit source-only codegen-carrier receipts.
+
+Using only `currentItem` is FAIL 11 at 556/557 and collapses retail's
+`$s0`-to-`$s2` handoff; assigning the virtual-call result straight to
+`validCar` is count-exact FAIL 14 and moves its `$v0`-to-`$s5` handoff ahead of
+menu initialization.  A literal overlay direction is FAIL 7 at 556/557 and
+loses retail's loop-invariant `$t0 = 1`.  Folding `textBase` is count-exact
+FAIL 2 and associates 996 with the wrong arithmetic arm.  Repeated member use
+without `shapeTicks` is FAIL 12 at 559/557; a direct conditional without
+`shapeFade` is FAIL 11 at 558/557; and literal 0x180 without `fadeBase` is
+count-exact FAIL 8.  The latter three receipts independently prove the
+speech-fade value web and its retail `$v0`/`$v1`/`$t0` allocation.  Optimized
+SYM cannot preserve private names for any of these required identities.
+
+`DrawForeground__16tScreenCarSelect` remains exact PASS at 557/557
+instructions, with zero detailed diffs and an instruction-identical `-g` twin.
+The complete 59-body translation-unit aggregate retains its 53 strict passes,
+two relocation-sensitive near classifications, and four pre-existing far
+classifications; the edited body itself is detailed PASS and no neighbor
+changed.  The refreshed strict frontend/common audit is stored in
+[`frontend_common_strict_p225_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p225_20260826.md).
+It advances declaration-clean mapped functions from 759 to 760, reduces
+generic extra source-local names from the prior published 189 to 181 (seven
+from this reconciliation plus one contemporaneous upstream cleanup), and raises explicit
+source-only codegen carriers from 415 to 422.  Missing-name, type, storage,
+global, and mapping-review queues remain empty.
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; undefined-call audits scan 15,782
+reconstruction and 15,779 source-lane calls with zero defects.  TU order has
+zero inversions across 513 objects, call-target audit finds zero proven wrong
+targets across 460 units, vtable indexing passes 930 files, and the source-only
+policy audit finds no post-compiler text moves or branch retargets.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

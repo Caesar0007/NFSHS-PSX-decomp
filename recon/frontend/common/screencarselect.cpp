@@ -1076,9 +1076,17 @@ void tScreenCarSelect::DrawForeground()
   tCarInfo carInfo;
   short bShowStats;
   tMenuItem *currentItem;
+  /* SYM-CODEGEN-CARRIER: currentItemValue -- using only the SYM-visible
+     `currentItem` is FAIL 11 at 556/557 and collapses retail's `$s0`->$s2
+     handoff, rotating the shared -2 mask into the wrong saved register. */
   tMenuItem *currentItemValue;
   bool validCar;
+  /* SYM-CODEGEN-CARRIER: validCarValue -- assigning the virtual-call result
+     directly to `validCar` is count-exact FAIL 14 and moves retail's `$v0`
+     ->`$s5` handoff ahead of menu-flag initialization. */
   bool validCarValue;
+  /* SYM-CODEGEN-CARRIER: overlayDirection -- a direct literal store is
+     FAIL 7 at 556/557 and loses retail's loop-invariant `$t0 = 1`. */
   int overlayDirection;
   
   currentItemValue = FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem];
@@ -1197,6 +1205,8 @@ void tScreenCarSelect::DrawForeground()
         int cameraY;
         int cameraZ;
         int textID;
+        /* SYM-CODEGEN-CARRIER: textBase -- folding the 996 base into the full
+           text ID is count-exact FAIL 2 and associates it with the wrong arm. */
         int textBase;
         u_long textTicks;
         long elapsedticks;
@@ -1207,13 +1217,20 @@ void tScreenCarSelect::DrawForeground()
         tDrawShapeExtended drawFlags;
         int textColor;
         int fadeVal;
-        /* MATCH W67 (2026-08-11): IDA's distinct v29/v30 live ranges are real:
-           keep the second speech-tick fade separate from the earlier text fade.
-           The empty early-clobber identity fence makes the subtraction's three
-           simultaneous values allocate as retail ($v0 base, $v1 ticks, $t0 fade)
-           and emits no instructions, reducing this function 8 diffs -> PASS. */
+        /* MATCH W67: IDA's distinct speech-tick fade live ranges are real.
+           The empty early-clobber boundary keeps the subtraction's three
+           simultaneous values in retail `$v0`/`$v1`/`$t0` without emitting
+           instructions, sealing the former eight-diff residual. */
+        /* SYM-CODEGEN-CARRIER: shapeFade -- a direct nested conditional in
+           the draw call is FAIL 11 at 558/557 and stores the result via `$v0`.
+           Its explicit early-clobber identity keeps retail's `$t0` value web. */
         int shapeFade;
+        /* SYM-CODEGEN-CARRIER: shapeTicks -- repeated direct member reads are
+           FAIL 12 at 559/557, reload the value, and reshape both fade arms. */
         u_long shapeTicks;
+        /* SYM-CODEGEN-CARRIER: fadeBase -- using literal 0x180 directly in
+           the explicit branch form is count-exact FAIL 8 and moves the fade
+           result from retail `$t0` to `$v0`. */
         int fadeBase;
 
         screenX = 0;

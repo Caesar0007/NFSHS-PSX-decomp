@@ -60,19 +60,20 @@ void tScreen::DisplayLoadingText()
 
 /* ---- tScreen::GoNonInterlaced  [FESCREEN.CPP:144-173] SLD-VERIFIED ---- */
 
-/* MATCH (2026-08-03, 11->1; 2026-08-13, 1->PASS): retail does not write literal 240 to every
+/* MATCH (2026-08-03, 11->1; source-only W79 2->PASS 52/52): retail does not write literal 240 to every
    halfword. It stores `screenheight = 240`, reloads the low half once for
    the three gEnviro heights/first drawenv height, then reloads it for the
    second drawenv. GCC 2.8.1's scheduler otherwise moves the first load below
    the two hardware-environment stores; retaining their volatile byte view
    fixes that ordering, while an int carrier restores retail's $a1/$a2
    allocation. A `u_short` carrier removes GCC's redundant post-lhu `andi`.
-   Source-only W76: bind the environment address and the 0x100 display height
-   before a statement-expression load whose empty inputs expose those two true
-   dependencies.  The ordinary u_short load is safe after the immediately
-   preceding screenheight store and avoids the volatile expression's duplicate
-   load.  This places env/a3/Draw_gView/height exactly and reduces 4 -> 2 at
-   52/52.  The sole remaining pair is the independent ra-save position. */
+   W79 removes the output-less fence: GCC treats it as implicitly volatile, so
+   its scheduling barrier pulled the independent ra save four slots early.
+   Restoring the exact SLD statement order supplies the needed height lifetime
+   naturally: gEnviro[0] y/h/screen.h (153-155), env byte 16 (156), gEnviro[1]
+   y/screen.h (157-158), env byte 40 (159), then the view setup (161).  The lhu
+   stays before both volatile byte stores while the ra save sinks to retail's
+   slot.  No asm/post-cc1 aid; strict_branch clean. */
 
 void tScreen::GoNonInterlaced()
 
@@ -91,21 +92,18 @@ void tScreen::GoNonInterlaced()
   screenheight = 0xf0;
   env = (volatile char *)gEnviro;
   dispY = 0x100;
-  height = ({
-    __asm__("" : : "r"(env), "r"(dispY));
-    *(u_short *)&screenheight;
-  });
-  views = Draw_gView;
+  height = *(u_short *)&screenheight;
+  gEnviro[0].disp.disp.y = (short)dispY;
+  gEnviro[0].disp.disp.h = height;
+  gEnviro[0].disp.screen.h = height;
   env[16] = '\0';
+  gEnviro[1].disp.disp.y = 0;
+  gEnviro[1].disp.screen.h = height;
   env[40] = '\0';
+  views = Draw_gView;
   playerView = A_Draw_gPlayer1View;
   iVar1 = *playerView;
   view0 = views + iVar1;
-  gEnviro[0].disp.disp.y = (short)dispY;
-  gEnviro[1].disp.disp.y = 0;
-  gEnviro[0].disp.disp.h = height;
-  gEnviro[0].disp.screen.h = height;
-  gEnviro[1].disp.screen.h = height;
   view0->drawenv[0].dfe = '\0';
   iVar2 = *playerView;
   view1 = views + iVar2;

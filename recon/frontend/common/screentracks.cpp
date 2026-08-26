@@ -183,16 +183,26 @@ void tScreenTrackSelect::DrawBackground()
               "after": r"\tmove\t\$7,\$21\n"},
            ],
          },
-       `move $7,$21` occurs twice in the fn; the take-line precedes BOTH, so
-       re.search's first match is the correct (12F) anchor after the take-line
-       is removed.  Result: DrawBackground PASS 299/299, TU 10/10 PASS. */
+        `move $7,$21` occurs twice in the fn; the take-line precedes BOTH, so
+        re.search's first match is the correct (12F) anchor after the take-line
+        is removed.  Result: DrawBackground PASS 299/299, TU 10/10 PASS. */
+    /* MATCH W79 (2026-08-26, source-only 2->PASS 299/299): the remaining
+       spill-position tie was caused by the allocation fence itself.  GCC makes
+       an output-less asm implicitly volatile; sched2 therefore put an anti-dep
+       from it onto packetPtrSlot's `sw t2,160(sp)` and forced that store ahead
+       of the GetTPage argument packet.  Expressing addrMask in the first
+       24-bit packet-link assignment supplies the same load-bearing allocator
+       reference naturally (the bitfield store already needs that mask), while
+       removing the scheduling barrier.  sched2 then emits the store at retail
+       SLD:155, after the SLD:161 argument setup.  strict_branch: 12/12 clean;
+       all 10 TU functions remain PASS.  This supersedes the diagnostic-only
+       PER_FN_TEXT_MOVES receipt above; no post-cc1 move is used. */
     u_char **packetPtrSlot = &Render_gPacketPtr;
     u_int addrMask = 0xffffff;
-    __asm__("" : : "r"(addrMask));
     (prim = (POLY_FT4 *)*packetPtrSlot,
      ((tTrackSelectPrimTag *)prim)->addr = *(u_int *)Render_gPalettePtr,
      *packetPtrSlot = (u_char *)prim + sizeof(POLY_FT4),
-     ((tTrackSelectPrimTag *)Render_gPalettePtr)->addr = (u_int)prim);
+     ((tTrackSelectPrimTag *)Render_gPalettePtr)->addr = (u_int)prim & addrMask);
     *(u_int *)&prim->r0 = this->fBrightness << 0x10 |
                           this->fBrightness << 8 | this->fBrightness;
     (((tTrackSelectPrimTag *)prim)->len = 9, prim->code = 0x2e);

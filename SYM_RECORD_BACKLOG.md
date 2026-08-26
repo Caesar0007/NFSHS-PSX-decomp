@@ -4475,6 +4475,46 @@ zero inversions across 513 objects, call-target audit finds zero proven wrong
 targets across 460 units, vtable indexing passes 930 files, and the source-only
 policy audit finds no post-compiler text moves or branch retargets.
 
+### P125 — pink-slips award callback SYM local reconciliation (`2026-08-26`)
+
+Reliable `MenuExtended_AwardPinkSlipsCar` SYM records reference parameter
+`command` in `$s5`, stack `char string[80]`, stack
+`tDialogYesNo RetryCancelDialog`, `int fWinner` in `$s3`, stack
+`tCarInfo carInfo`, and the nested inlined dialog identities (`this`/`mess`).
+Two decompiler-only identities are deleted outright: `PlayerName(fWinner)`
+can feed `sprintf` directly without `pcVar5`, and both fully-open spin loops
+can use `FEApp` directly without `ptVar2`.  Both reductions retain exact code,
+and the older loop receipt is corrected to describe the simplified source.
+
+Five surviving SYM-omitted identities now have explicit counterfactual proof.
+Direct final `menuDefs[0]` use without `ptVar3` is count-exact FAIL 6 and moves
+the command-type constant.  Direct stack-aggregate members without `dlgThis2`
+are FAIL 13 at 137/138 and lose the stack-base `$s0` handoff.  Direct first-
+dialog members without `dlgThis3` are count-exact FAIL 6, while direct second-
+dialog storage without `this_00` is FAIL 16 at 136/138 and loses the base held
+across `TextSys_Word`.  Using `fWinner` directly without `playerNum` is FAIL 67
+at 135/138, shrinking the frame and rotating the complete saved-register web.
+The binary proves these value webs, but optimized SYM cannot preserve their
+private names.
+
+`MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand` remains exact PASS at
+138/138 instructions, with zero detailed diffs and an instruction-identical
+`-g` twin.  The complete `femenudefs.cpp` aggregate remains 65 strict PASS and
+one pre-existing far global-constructor classification.  The refreshed strict
+frontend/common audit is stored in
+[`frontend_common_strict_p229_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p229_20260826.md).
+It advances declaration-clean mapped functions from 763 to 764, reduces
+generic extra source-local names from 160 to 153, and raises explicit
+source-only codegen carriers from 435 to 440.  Missing-name, type, storage,
+global, and mapping-review queues remain empty.
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; undefined-call audits scan 15,782
+reconstruction and 15,779 source-lane calls with zero defects.  TU order has
+zero inversions across 513 objects, call-target audit finds zero proven wrong
+targets across 460 units, vtable indexing passes 930 files, and the source-only
+policy audit finds no post-compiler text moves or branch retargets.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

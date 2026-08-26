@@ -2267,9 +2267,9 @@ static inline tCarManager *AwardPinkSlipsCarManagerArg(tCarManager *mgr)
    retail; no post-compilation move is active. Earlier five levers remain:
    (1) `dlgThis2 = &RetryCancelDialog` anchor for the
    yesnowords/fDefault stores; (2) BOTH fFullyOpen spin loops rewritten exit-in-the-middle
-   (`while(1){ ptVar2 = FEApp; if((...fFullyOpen ^ 1)==0) break; ptVar2->Redraw();} ptVar2->Redraw();`)
-   -- kills duplicate_loop_exit_test's rotation and reuses the last-loaded a0 for the post-loop
-   Redraw, exactly like GenericMenuSaveGame; (3) the two NoInputMemCardDialog anchors made SEPARATE
+   with direct `FEApp` accesses -- this kills duplicate_loop_exit_test's rotation and GCC
+   still reuses the last-loaded a0 for the post-loop Redraw without a source pointer identity,
+   exactly like GenericMenuSaveGame; (3) the two NoInputMemCardDialog anchors made SEPARATE
    locals (one shared local forced a callee-saved pseudo + an extra `addu a0,sN,zero`; the first
    block's anchor legitimately dies into a0, the second is held across TextSys_Word); (4) the
    pink-slip index written as the real member access `frontEnd.pinkSlipsCar[1 - player]` (+ the 4th
@@ -2281,14 +2281,22 @@ static inline tCarManager *AwardPinkSlipsCarManagerArg(tCarManager *mgr)
 void MenuExtended_AwardPinkSlipsCar(tMenuCommand &command)
 
 {
-  tFEApplication *ptVar2;
+  /* SYM-CODEGEN-CARRIER: ptVar3 -- direct final menuDefs[0] use is
+     count-exact FAIL 6 and changes the command-type constant from `$v0` to `$a1`. */
   tGlobalMenuDefs *ptVar3;
   char *mess;
-  char *pcVar5;
+  /* SYM-CODEGEN-CARRIER: dlgThis2 -- direct RetryCancelDialog members are
+     FAIL 13 at 137/138 and lose retail's stack-base `$s0` handoff. */
   tDialogYesNo *dlgThis2;
+  /* SYM-CODEGEN-CARRIER: dlgThis3 -- direct first-dialog member spellings are
+     count-exact FAIL 6 and collapse retail's separate base/store addresses. */
   tDialogNoInputMessage *dlgThis3;
+  /* SYM-CODEGEN-CARRIER: this_00 -- direct second-dialog string storage is
+     FAIL 16 at 136/138 and loses the base held across TextSys_Word. */
   tDialogNoInputMessage *this_00;
   int fWinner;
+  /* SYM-CODEGEN-CARRIER: playerNum -- using fWinner directly is FAIL 67 at
+     135/138, shrinks the frame, and rotates the complete saved-register web. */
   int playerNum;
   char string [80];
   tDialogYesNo RetryCancelDialog;
@@ -2306,17 +2314,15 @@ void MenuExtended_AwardPinkSlipsCar(tMenuCommand &command)
   dlgThis2->fDefault = 1;
   fWinner = screenPinkSlipCongrats->fWinner;
   mess = TextSys_Word(0x29a);
-  pcVar5 = PlayerName(fWinner);
-  sprintf(string,mess,pcVar5,fWinner + 1);
+  sprintf(string,mess,PlayerName(fWinner),fWinner + 1);
   dlgThis3 = &FEApp->NoInputMemCardDialog;
   dlgThis3->string = string;
   ((tDialogBase *)dlgThis3)->Display();
   while (1) {
-    ptVar2 = FEApp;
-    if (((ptVar2->NoInputMemCardDialog).fFullyOpen ^ 1) == 0) break;
-    ptVar2->Redraw();
+    if (((FEApp->NoInputMemCardDialog).fFullyOpen ^ 1) == 0) break;
+    FEApp->Redraw();
   }
-  ptVar2->Redraw();
+  FEApp->Redraw();
   Init_Memcard(false,1);
   carManager.GetPinkSlipsCar((ushort)(byte)frontEnd.pinkSlipsCar[1 - fWinner],carInfo,
              (short)(1 - fWinner));
@@ -2336,11 +2342,10 @@ void MenuExtended_AwardPinkSlipsCar(tMenuCommand &command)
   this_00->string = mess;
   ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Display();
   while (1) {
-    ptVar2 = FEApp;
-    if (((ptVar2->NoInputMemCardDialog).fFullyOpen ^ 1) == 0) break;
-    ptVar2->Redraw();
+    if (((FEApp->NoInputMemCardDialog).fFullyOpen ^ 1) == 0) break;
+    FEApp->Redraw();
   }
-  ptVar2->Redraw();
+  FEApp->Redraw();
   GenericMenuLoadGame(0);
   DeInit_Memcard();
   ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();

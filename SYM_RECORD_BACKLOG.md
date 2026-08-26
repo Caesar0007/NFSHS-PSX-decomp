@@ -3798,6 +3798,80 @@ relocation-referenced unresolved symbols; the undefined-call audit scans
 pre-existing swapped `Sim_MainGameLoop` sites, the TU-order audit reports zero
 inversions, and the vtable indexing audit passes 930 files.
 
+### P107 — global-menu constructor tail-identity reconciliation (`2026-08-26`)
+
+Reliable `tGlobalMenuDefs::tGlobalMenuDefs` SYM records the constructor
+receiver, its nested implicit member-constructor receivers, and three distinct
+tail locals named `child`.  It does not record either temporary used by the
+two final `VertHelp` stores.  The previous reconstruction exposed those
+optimized-away identities as opaque `pm_` and `pu_`; they are now descriptive
+`memoryMenu` and `userNameMenu`, and both are explicitly classified as
+source-only codegen carriers rather than claimed original spellings.
+
+The existing W72 oracle receipt establishes why the identities cannot simply
+be deleted: direct member stores move this constructor to roughly 950 diffs,
+whereas the two identity-laundered pointers preserve their retail-length live
+ranges, spill placement, and the natural 640-byte frame.  The rename and SYM
+classification are instruction-neutral.  The authoritative constructor stays
+at FAIL 872 with ours 3223 versus oracle 3207 instructions; after the concurrent
+source-PASS correction to `MenuExtended_PurchaseUpgrade`, the complete
+`femenudefs.cpp` translation-unit gate is 61/66 PASS with four 2-diff menu
+helpers and this constructor as its only residuals.
+
+The intermediate strict frontend/common audit is stored in
+[`frontend_common_strict_p211_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p211_20260826.md).
+It advances declaration-clean mapped functions from 747 to 748, reduces
+generic extra source-local names from 250 to 248, and raises explicit
+source-only codegen carriers from 371 to 373.  Missing names, type findings,
+storage findings, global findings, and mapping reviews remain zero.
+
+### P108 — pink-slips inline receivers and `DoMemCardStuff` carriers (`2026-08-26`)
+
+Reliable `tScreenPinkSlipsCarSelect::DoMemCardStuff` SYM records the member
+receiver in `$s2`, top-level `int player` in `$s3`, top-level `int card` in
+`$s1`, and block-local `int ret` in `$v1`.  At function entry it also records
+a nested `tFEApplication *this` in `$v0`.  Source now expresses that nested
+receiver through the established inline `tFEApplication::GetPlayer()` body
+instead of a raw `fPlayer` field read.  The accessor spelling is descriptive
+because optimized SYM retains its receiver and body extent, not the private
+inline identifier.
+
+`tScreenPinkSlipsCarSelect::SetDialog` independently records the same nested
+`tFEApplication *this` receiver at its entry before top-level `int player` in
+`$s0`.  Its first player read now uses the same established `GetPlayer()`
+inline body instead of spelling the field access directly.  The function
+remains exact PASS at 164/164 instructions with an instruction-identical `-g`
+twin.
+
+The five identities absent from SYM—`cardInfo`, `pinkState`, `resultState`,
+`resultStatePtr`, and default-arm `stateBase`—are now explicitly classified as
+source-only codegen carriers.  This disposition is measured rather than
+generic: the existing 83-to-PASS receipt establishes that the separate result
+pointer/value temporaries reproduce the shared outcome store and the scoped
+base pointer preserves retail's `%hi`/`%lo`/index order.  Removing the
+decompiler's duplicate player/card identities was the source change that
+restored SYM's `$s3`/`$s1` allocation.
+
+The natural `DoMemCardStuff` inline-accessor spelling remains exact PASS at
+198/198 instructions with an instruction-identical `-g` twin, and the complete
+`screencarselect.cpp` translation-unit gate remains 59/59 PASS.  The refreshed
+strict frontend/common audit is stored in
+[`frontend_common_strict_p212_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p212_20260826.md).
+It advances declaration-clean mapped functions from 748 to 749, reduces
+generic extra source-local names from 248 to 243, raises validated inline
+mappings from 56 to 58, and raises explicit source-only codegen carriers from
+373 to 378.  Missing names, type findings, storage findings, global findings,
+and mapping reviews remain zero.
+
+A fresh full build after both reconciliations compiles and links every
+translation unit and reproduces the standing executable hash
+`926db68e57a2dbcc9ca02a25981360ddc0a71464`.  Both relink lanes are GREEN with
+zero real duplicates, hidden phantoms, or relocation-referenced unresolved
+symbols; the undefined-call audit scans 15,781 calls with zero defects.  The
+call-target audit retains exactly the two pre-existing swapped
+`Sim_MainGameLoop` sites, the TU-order audit reports zero inversions, and the
+vtable indexing audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

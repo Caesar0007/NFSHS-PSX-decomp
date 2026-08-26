@@ -3448,9 +3448,13 @@ tGlobalMenuDefs::tGlobalMenuDefs()
      20B) makes the pointer opaque so the store must use the pointer form; the
      resulting function-long live range is what makes reload spill it, which re-sites
      the whole spill area and yields the natural 640-byte frame (compilerFramePad is
-     retired because of this).  Plain member stores here cost ~950 diffs. */
-  { tMenu *pm_ = (tMenu *)&menuMemory; __asm__("" : "=r"(pm_) : "0"(pm_)); pm_->VertHelp = 0; }
-  { tMenu *pu_ = (tMenu *)&menuUserName; __asm__("" : "=r"(pu_) : "0"(pu_)); pu_->VertHelp = 0; }
+     retired because of this).  Plain member stores here cost ~950 diffs.
+     Reliable SYM names only the constructor's nested `this` receivers and three
+     `child` locals; these optimized-away tail identities have descriptive names:
+     SYM-CODEGEN-CARRIER: memoryMenu
+     SYM-CODEGEN-CARRIER: userNameMenu */
+  { tMenu *memoryMenu = (tMenu *)&menuMemory; __asm__("" : "=r"(memoryMenu) : "0"(memoryMenu)); memoryMenu->VertHelp = 0; }
+  { tMenu *userNameMenu = (tMenu *)&menuUserName; __asm__("" : "=r"(userNameMenu) : "0"(userNameMenu)); userNameMenu->VertHelp = 0; }
   (menuTrackRecords).VertHelp = 1;
   /* [2026-08-24] Zero-insn tail scheduling boundary: 874 -> 872 diffs in the
      current constructor basin, with the instruction count unchanged at 3223. */

@@ -2339,6 +2339,12 @@ void tScreenPinkSlipsCarSelect::DrawBackground()
 void tScreenPinkSlipsCarSelect::DoMemCardStuff()
 
 {
+  /* Reliable SYM does not name these optimized-away source identities:
+     SYM-CODEGEN-CARRIER: cardInfo
+     SYM-CODEGEN-CARRIER: resultState
+     SYM-CODEGEN-CARRIER: resultStatePtr
+     SYM-CODEGEN-CARRIER: pinkState
+     SYM-CODEGEN-CARRIER: stateBase */
   CARDINFO_def *cardInfo;
   PinkSlipsCarSelectState resultState;
   PinkSlipsCarSelectState *resultStatePtr;
@@ -2347,7 +2353,8 @@ void tScreenPinkSlipsCarSelect::DoMemCardStuff()
   int card;
   int player;
   
-  player = FEApp->fPlayer;
+  /* SYM-INLINE-THIS: GetPlayer */
+  player = FEApp->GetPlayer();
   card = 1;
   if (player != kPlayerOne) {
     card = 5;
@@ -2508,7 +2515,8 @@ void tScreenPinkSlipsCarSelect::SetDialog()
   
   /* SYM: `player` is the sole caller local ($s0).  SetPosition reconstructs the
      line-2100 inline tDialogBase receiver and its three retail halfword stores. */
-  player = FEApp->fPlayer;
+  /* SYM-INLINE-THIS: GetPlayer */
+  player = FEApp->GetPlayer();
   this->CarDialog.SetPosition(0, (player == 0) ? -0x3c : 0x3c,
                               (tPlayer)player);
   /* MATCH: the Hide+return block is OUT OF LINE -- the oracle's `bnez fExitingScreen`

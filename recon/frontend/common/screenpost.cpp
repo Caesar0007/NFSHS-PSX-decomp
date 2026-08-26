@@ -353,18 +353,19 @@ void tScreenTournamentStandings::DrawBackground()
   fade = this->fScreenFadeVal;
   fadeline = fade;
   line = 0x2fe;
-  tourneyInfo = &tournamentManager.fDefinition->fTournaments[
-      tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
+  /* MATCH: the retail address web uses the existing SYM `shape` local as the
+     short-lived definition carrier.  Reusing it here removes the duplicate
+     tournamentManager LO_SUM while preserving the loop's split call address. */
+  shape = (tTexture_ShapeInfo *)tournamentManager.fDefinition;
+  tourneyInfo = &((tTournamentDefinition *)shape)->fTournaments[
+      ((tTournamentDefinition *)shape)->fTiers[tournamentManager.fTier].fTournOffset +
       tournamentManager.fTournament];
   numRacers = (short)((short)tournamentManager.fNumRacers +
                       (tourneyInfo->fKnockout != 0));
   lastRacer = numRacers - 1;
-  for (;;) {
+  for (; i < numRacers; i++) {
     short p;
 
-    if (i >= numRacers) {
-      break;
-    }
     j = (short)tournamentManager.PlayerRanking((short)(i + 1));
     state = textState_Selected;
     if (j == 0) {
@@ -396,7 +397,6 @@ void tScreenTournamentStandings::DrawBackground()
     FETextRender_FullTextFade(fade,sBuildOutput,(short)TextSys_WordX(0x2fb),
                              (short)TextSys_WordY(line),type,state,1);
     line++;
-    i++;
   }
   trackManager.GetTrack((short)Front_GetTrackRaced(),trackInfo);
   FETextRender_FullTextFade(fade,TextSys_Word((short)Front_GetTrackRaced() + 0xd5),(short)TextSys_WordX(0x2f6),
@@ -410,7 +410,10 @@ void tScreenTournamentStandings::DrawBackground()
                                              2,textState_Hilighted,type);
   wwwww = textpixels(TextSys_Word(i));
   PSXDrawSquare(0,TextSys_WordX(0x2f6) - (wwwww >> 1),TextSys_WordY(0x2fc) - 1,wwwww,9);
-  shape = &gCurrentShapes[0][0x27];
+  /* The typed comma stage starts shape's real packet-table lifetime without
+     joining it to the definition carrier above.  Together these two stages
+     produce the retail a0 ownership and match 561/561. */
+  shape = (shape = gCurrentShapes[0], &shape[0x27]);
   /* SYM-CODEGEN-CARRIER: halfWidth -- folding the center adjustment raises
      the authoritative residual from 3 to 11 and reverses retail's value web. */
   int halfWidth = ((short)shape->width >> 1) - 2;

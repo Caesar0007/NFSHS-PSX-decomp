@@ -4978,6 +4978,56 @@ zero inversions across 513 objects, call-target audit finds zero proven wrong
 targets across 460 units, vtable indexing passes 930 files, and the source-only
 policy audit finds no post-compiler text moves or branch retargets.
 
+### P137 — controller renderer optimized-value reconciliation (`2026-08-27`)
+
+Reliable `DrawController__23tScreenControllerConfig` records define exactly
+function-scope `drawFlags`, `shakex`, `shakey`, `maxshakex`, `maxshakey`, and
+`fadelevel`, plus the three function-static values `flare_intensity`, `max_fi`,
+and `max_fidir`.  The halo block records only `ii`.  Later SLD blocks recover
+the two inlined NegCon range calculations and the final inlined
+`ControllerTwistRange` `player`/SHORT `range` pair.  No reliable record names
+the shock predicates, halo expression intermediates, or final mode-selection
+webs.
+
+All twelve remaining source-only identities now carry explicit evidence rather
+than a generic review disposition.  Folding `shockModeActive` into its compound
+predicate is FAIL 18 at 832/836 and deletes four retail instructions; folding
+the distinct second-arm `shockImpactActive` predicate is FAIL 52 at 834/836 and
+rotates the long-lived shake registers.  IDA independently shows these as two
+different optimized values (`v7` in `$a0` and `v10` in `$a1`).  Collapsing
+`offsets`, `x`, `controllerOffset`, `row`, `xOffset`, `haloX`, and `iy` into
+direct `Offset` indexing and arithmetic remains count-exact but is FAIL 30 at
+836/836.  The split-index/working-copy spelling is therefore required by the
+retail value web even though optimization removed its private identifiers.
+
+The final three carriers have independent receipts.  `rangeValue` is the
+full-width caller storage for the helper's recorded SHORT `range`; narrowing
+the caller carrier is FAIL 55 at 837/836.  `modeBase` corresponds to IDA's
+mutually exclusive `v72`/`v73` base-constant web, for which optimized SYM keeps
+no identifier.  The arm-local byte `controller` preserves the separate fresh
+field and captured-frame tests: an arm-local `int` is FAIL 21 at 839/836, and
+an initialized outer copy is FAIL 6 at 838/836.
+
+The retained body remains exact PASS at 836/836 instructions, `diffsrc` proves
+an instruction-exact `-g` twin, and `strict_branch` compares all 101 raw branch
+words CLEAN.  The complete `screencontroller.cpp` board remains 18 PASS, one
+near, and three far functions.  The refreshed strict frontend/common audit is
+stored in
+[`frontend_common_strict_p241_20260827.md`](scratchpad/root_sym_audit/frontend_common_strict_p241_20260827.md).
+It advances declaration-clean mapped functions from 776 to 777, removes all
+twelve generic names from this function's queue, reduces generic extra
+source-local names from 41 to 29, and raises explicit source-only codegen
+carriers from 501 to 513.  Missing-name, type, storage, global, and mapping
+review queues remain empty.
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; undefined-call audits scan 15,782
+reconstruction and 15,779 source-lane calls with zero defects.  TU order has
+zero inversions across 513 objects, call-target audit finds zero proven wrong
+targets across 460 units, vtable indexing passes 930 files, the phantom census
+reports zero `__Fe` bases, and the source-only policy audit finds no
+post-compiler text moves or branch retargets.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

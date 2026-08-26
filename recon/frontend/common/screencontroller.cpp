@@ -629,6 +629,9 @@ void tScreenControllerConfig::DrawController()
   short maxshakex;
   short maxshakey;
   int fadelevel;
+  /* SYM-CODEGEN-CARRIER: shockModeActive -- no debug name survives for IDA's
+     first arm value (`v7`, $a0).  Folding it into the predicate is measured
+     FAIL 18 at 832/836, deleting four retail instructions. */
   bool shockModeActive;
   
   shakex = 0;
@@ -654,6 +657,9 @@ void tScreenControllerConfig::DrawController()
     maxshakey = ((byte)frontEnd.shockMode[this->player] >> 6) + 2;
   }
   else {
+    /* SYM-CODEGEN-CARRIER: shockImpactActive -- the distinct second-arm value
+       is IDA `v10` in $a1.  Folding it into the predicate is measured FAIL 52
+       at 834/836 and rotates the long-lived shake registers. */
     bool shockImpactActive;
 
     shockImpactActive = false;
@@ -719,6 +725,16 @@ void tScreenControllerConfig::DrawController()
   }
   if (0 < flare_intensity) {
     int ii = 0;
+    /* SYM-CODEGEN-CARRIER: offsets
+       SYM-CODEGEN-CARRIER: x
+       SYM-CODEGEN-CARRIER: controllerOffset
+       SYM-CODEGEN-CARRIER: row
+       SYM-CODEGEN-CARRIER: xOffset
+       SYM-CODEGEN-CARRIER: haloX
+       SYM-CODEGEN-CARRIER: iy
+       These optimized-away split-index/working-copy values reproduce the
+       retail halo argument web.  Direct Offset indexing and arithmetic is
+       count-exact but measured FAIL 30 at 836/836. */
     unsigned char (*offsets)[2] = Offset;
     int x = (int)shakex + 0x7e;
     do {
@@ -907,8 +923,16 @@ DrawCtrl_ticksUpdate:
   }
   int frame = (uint)(byte)this->fCurrentController;
   /* SYM-INLINE-LOCAL: range = ControllerTwistRange */
+  /* SYM-CODEGEN-CARRIER: rangeValue -- promoted caller storage for the
+     helper's recorded SHORT `range`; making this carrier SHORT is measured
+     FAIL 55 at 837/836. */
   int rangeValue;
+  /* SYM-CODEGEN-CARRIER: modeBase -- IDA's mutually exclusive v72/v73 base
+     constant web; the optimized SYM has no surviving source identifier. */
   int modeBase;
+  /* SYM-CODEGEN-CARRIER: controller -- the arm-local byte copy keeps the
+     fresh field test distinct from the captured frame test.  An arm-local
+     int is FAIL 21 at 839/836; an initialized outer copy is FAIL 6 at 838/836. */
   byte controller;
   if (((u_int)(frame - 1) < 2) &&
       (((menuDefs[0]->itemControllerJoyRange).fActive != 0 ||

@@ -153,10 +153,18 @@ void BringThatBeatBack(void)
 static int Confirm(int Text,int yesText)
 
 {
+  /* Reliable SYM records `MyDialog`, `putbackon`, `ret`, nested setup roles
+     `num`/`yes`, the inlined Hide receiver, and the later message-string
+     receiver.  These optimized-away identities are retained only where the
+     exact oracle allocation requires a separate source value:
+     SYM-CODEGEN-CARRIER: dialog
+     SYM-CODEGEN-CARRIER: dialogVtable
+     SYM-CODEGEN-CARRIER: feApp
+     SYM-CODEGEN-CARRIER: noInputDialog
+     SYM-CODEGEN-CARRIER: messageDialog
+     SYM-CODEGEN-CARRIER: messageText
+     SYM-CODEGEN-CARRIER: displayDialog */
   bool putbackon;         /* SYM: REG BOOL $s3 */
-  short sVar4;
-  int num, yes;
-  char *pcVar5;
   int ret;                /* SYM: REG INT $s2 (reuses Text's reg) */
 
   BringThatBeatBack();
@@ -169,52 +177,60 @@ static int Confirm(int Text,int yesText)
      BringThatBeatBack precedes the jal __12tDialogYesNo ctor -- the object's ctor fires at
      its point of declaration (C++), so the real source declares it here, not at fn-top. */
   tDialogYesNoMem MyDialog;
-  tDialogYesNoMem *dlg = &MyDialog;
+  tDialogYesNoMem *dialog = &MyDialog;
   /* MATCH: GCC 2.8.1 must create the vtable-address pseudo first, then load FEApp[0]
      before the stack _vf store. Splitting both values reproduces retail's interleaved
      `lui v0; lui s1; lw v1; addiu v0; sw v0` schedule. */
-  __vtbl_ptr_type (*dialogVf)[10] =
+  __vtbl_ptr_type (*dialogVtable)[10] =
       (__vtbl_ptr_type (*)[10])tDialogYesNoMem_vtable;
-  tFEApplication *app = FEApp[0];
+  tFEApplication *feApp = FEApp[0];
   /* [2026-07-11 RESTORE] the manual _vf poke was WRONGLY dropped in the wave-5 consolidation:
      this hierarchy uses MANUAL _vf dispatch (not real C++ virtuals), so the implicit
      tDialogYesNoMem ctor does NOT set the derived vtable -- gcc's synthesized ctor only calls
      the base tDialogYesNo ctor. The oracle explicitly stores &_vt_15tDialogYesNoMem to _vf(0x60)
      right after the ctor (`sw v0,0x60(s0)`). Restore it. */
-  dlg->_vf = dialogVf;
+  dialog->_vf = dialogVtable;
   putbackon = false;
   /* MATCH: pointer-local for the NoInput dialog (SYM shows an inlined tDialogBase-`this` block
      in $a0 here) -- oracle computes base+720 ONCE (addiu a0,v1,720), tests currentlyOn via
      112(a0), and reuses a0 for Hide; a direct member test loads 832(base) then recomputes. */
   {
-    tDialogNoInputMessage *noInput = &app->NoInputMemCardDialog;
-    if (noInput->currentlyOn != 0) {
-      Hide((tDialogBase *)noInput);
+    tDialogNoInputMessage *noInputDialog = &feApp->NoInputMemCardDialog;
+    if (noInputDialog->currentlyOn != 0) {
+      /* SYM-INLINE-THIS: Hide */
+      ((tDialogBase *)noInputDialog)->Hide();
       putbackon = true;
     }
   }
-  dlg->string =
-       TextSys_Word(Text);
-  dlg->yesnowords[1] = 0x292;
-  dlg->yesnowords[0] = yesText;
-  dlg->fDefault = 0;
-  if (frontEnd.language == '\x03') {
-    dlg->OffsetX = 0;
-    dlg->OffsetY = 10;
+  {
+    /* Reliable line-9 SYM records these inlined setup roles in the caller's
+       original parameter registers ($s2/$s4); they are real uses, not
+       declaration-only audit placeholders. */
+    int num = Text;
+    int yes = yesText;
+
+    dialog->string = TextSys_Word(num);
+    dialog->yesnowords[1] = 0x292;
+    dialog->yesnowords[0] = yes;
+    dialog->fDefault = 0;
+    if (frontEnd.language == '\x03') {
+      dialog->OffsetX = 0;
+      dialog->OffsetY = 10;
+    }
   }
-  sVar4 = Run((tDialogInteractive *)dlg);
-  ret = (int)sVar4;
+  ret = (int)(short)Run((tDialogInteractive *)dialog);
   if (ret == -1) {
     /* MATCH: dlgmsg pointer computed BEFORE the TextSys_Word call and HELD across it in a
        callee-saved reg (SYM: inlined tDialogMessageString-`this` block, $s0; oracle
        lw s0,0(s1) + addiu s0,s0,568 in the jal delay slot); the Display arg is a FRESH
        FEApp re-deref (selective/partial caching -- oracle recomputes it). */
-    tDialogMessageString *dlgmsg = &FEApp[0]->MemCardDialog;
-    pcVar5 = TextSys_Word(CURRENTPLAYER[0] + 0x32b);
-    /* MATCH: form Display's fresh `this` before storing pcVar5. Besides matching retail's
+    tDialogMessageString *messageDialog = &FEApp[0]->MemCardDialog;
+    char *messageText = TextSys_Word(CURRENTPLAYER[0] + 0x32b);
+    /* MATCH: form Display's fresh `this` before storing messageText. Besides matching retail's
        load-before-store schedule, this keeps the FEApp address in $s1 for the wait loop. */
     tDialogBase *displayDialog = (tDialogBase *)&FEApp[0]->MemCardDialog;
-    dlgmsg->string = pcVar5;
+    /* SYM-INLINE-THIS: SetString */
+    messageDialog->SetString(messageText);
     Display(displayDialog);
     /* MATCH: exit-in-the-middle wait loop (top-test + j back); the ==1 exit is written `^ 1`
        so it emits the oracle's xori;beqz -- an `== 1` compare makes gcc hoist li 1 into a

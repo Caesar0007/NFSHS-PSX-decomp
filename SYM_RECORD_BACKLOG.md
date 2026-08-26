@@ -3704,6 +3704,54 @@ relocation-referenced unresolved symbols; the undefined-call audit scans
 pre-existing swapped `Sim_MainGameLoop` sites, the TU-order audit reports zero
 inversions, and the vtable indexing audit passes 930 files.
 
+### P105 — `Confirm` nested setup and receiver restoration (`2026-08-26`)
+
+Reliable `Confirm__Fii` SYM records caller parameters `Text` in `$s2` and
+`yesText` in `$s4`, stack object `MyDialog`, outer `putbackon` in `$s3` and
+`ret` in `$s2`.  Its line-9 nested blocks separately restore `int num` in
+`$s2` and `int yes` in `$s4`; the previous function-scope, declaration-only
+`num`/`yes` pair was only satisfying the audit and did not represent those
+lexical records.  Source now declares and uses both identities in the exact
+dialog-setup block.  The decompiler-only `sVar4` is removed by converting the
+`Run` result directly through its retail short width into `ret`.
+
+The recorded `tDialogBase *this` receiver is now expressed by the real
+`tDialogBase::Hide()` member call rather than the TU's free ABI alias.  The
+later `tDialogMessageString *this` receiver is restored through the existing
+inline `SetString` member body.  The strict ledger validates the latter inline
+body directly.  It deliberately does not count `Hide` as an inline-body
+mapping because the reconstructed `Hide` definition remains out-of-line in
+`fedialog.cpp`; the member call and reliable nested SYM receiver are retained
+as the semantic evidence without weakening the audit's definition-body gate.
+
+Seven source identities absent from optimized SYM no longer expose decompiler
+spellings.  They are descriptive `dialog`, `dialogVtable`, `feApp`,
+`noInputDialog`, `messageDialog`, `messageText`, and `displayDialog`, each
+explicitly classified as a source-only codegen carrier.  Replacing `dialog`
+with direct `MyDialog` accesses is a measured FAIL at 34 diffs with the same
+109-instruction count: it rotates the saved-register allocation and changes
+the stack-object addressing.  The pointer carrier therefore remains required
+by the retail allocation rather than being a generic review disposition.
+
+`Confirm__Fii` remains exact PASS at 109/109 instructions with an
+instruction-identical `-g` twin, and the complete `fememcard.cpp`
+translation-unit gate remains 18/18 PASS.  The refreshed strict
+frontend/common audit is stored in
+[`frontend_common_strict_p209_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p209_20260826.md).
+It advances declaration-clean mapped functions from 745 to 746, reduces
+generic extra source-local names from 267 to 259, raises validated inline
+mappings from 55 to 56, and raises explicit source-only codegen carriers from
+355 to 362.  Missing names, type findings, storage findings, global findings,
+and mapping reviews remain zero.
+
+A fresh full build compiles and links every translation unit and reproduces
+the standing executable hash `926db68e57a2dbcc9ca02a25981360ddc0a71464`.
+Both relink lanes are GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; the undefined-call audit scans
+15,781 calls with zero defects.  The call-target audit retains exactly the two
+pre-existing swapped `Sim_MainGameLoop` sites, the TU-order audit reports zero
+inversions, and the vtable indexing audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

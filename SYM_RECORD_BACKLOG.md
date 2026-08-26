@@ -4634,6 +4634,44 @@ zero inversions across 513 objects, call-target audit finds zero proven wrong
 targets across 460 units, vtable indexing passes 930 files, and the source-only
 policy audit finds no post-compiler text moves or branch retargets.
 
+### P129 — trophy-room initialization SYM local reconciliation (`2026-08-26`)
+
+Reliable `Initialize__17tScreenTrophyRoom` SYM records identify only the
+implicit `tScreenTrophyRoom *this` parameter and `short i` in `$s1`; its SLD
+map also separates the shape-load polling loop, tier/count assignments, trophy
+loop, texture call, and final selection clamp.  Both recoverable declarations
+are present with their recorded types and scope.
+
+Two decompiler-only identities are deleted without changing one instruction.
+The `IsShapeFileLoaded` result feeds the polling condition directly instead of
+passing through `loaded`.  Direct `frontEnd.tier` reads plus
+`loopFe = &frontEnd` remove the `fe` alias and its old four-input empty opacity
+fence while preserving retail's caller-saved-to-`$s3` handoff.  Six remaining
+SYM-omitted identities have explicit counterfactual proof: direct EA `MIN`
+without `curIdx` is FAIL 16 at 120/118; reusing the early frontend value without
+`loopFe` is FAIL 21 at 117/118; folding `tournIdx` is FAIL 15 at 125/118; direct
+indexed access without `tourney` is count-exact FAIL 4; loading directly into
+`place` without `placement` is FAIL 12 at 120/118; and folding `place` into the
+texture-call argument is FAIL 8 at 114/118.  The binary proves those six value
+webs, but optimized SYM cannot recover their private names.
+
+`Initialize__17tScreenTrophyRoom` remains exact PASS at 118/118 instructions,
+with zero detailed diffs and an instruction-exact `-g` twin.  The complete
+`screentrophyroom.cpp` aggregate remains eight strict PASS and one pre-existing
+far function.  The refreshed strict frontend/common audit is stored in
+[`frontend_common_strict_p233_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p233_20260826.md).
+It advances declaration-clean mapped functions from 767 to 768, reduces
+generic extra source-local names from 131 to 123, and raises explicit
+source-only codegen carriers from 450 to 456.  Missing-name, type, storage,
+global, and mapping-review queues remain empty.
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; undefined-call audits scan 15,782
+reconstruction and 15,779 source-lane calls with zero defects.  TU order has
+zero inversions across 513 objects, call-target audit finds zero proven wrong
+targets across 460 units, vtable indexing passes 930 files, and the source-only
+policy audit finds no post-compiler text moves or branch retargets.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

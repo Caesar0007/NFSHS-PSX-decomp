@@ -136,39 +136,50 @@ void tScreenTrophyRoom::Initialize()
      140 the texture load / 144..152 the tail.  No <<16 fixed-point counter,
      no `numT` temp, and the placement is read ONCE (the if-body reuses it).
      MATCH (2026-08-10, 18 -> PASS 118/118): the instrumented GCC dump plus allocsim
-     reproduced all 13 global handouts and identified the only real mismatch as the
-     `&frontEnd` / 6-or-8 constant priority crossing.  Four read-only references at
-     the proven early placement give retail base=$v1 and constant=$a0; moving that
-     zero-insn fence to `fe`'s last use lengthens the pseudo and loses the crossing.
-     A separate `loopFe = fe` states retail's caller-saved-to-$s3 handoff; splitting
-     `i = 0` before it gives the SLD-130 `$s1` then `$s3` order.  Finally, explicit
-     `tournIdx`/`tourney` source temporaries make the SLD-132 address add retain its
-     result in $v0.  The earlier structural falsifications remain valid: if/else for
-     the ternary (27, +1 insn), Yoda compare (18), named `short numT` (18), swapped
-     tier/count statements (21, 117 insns), and `(byte)frontEnd.tier != 0` (18). */
-  int loaded;
+     reproduced all 13 global handouts and isolated the frontEnd/constant priority
+     crossing and the loop's caller-saved-to-$s3 handoff.  The later source-only SYM
+     cleanup (2026-08-26) found the simpler original-looking form: direct
+     `frontEnd.tier` reads plus `loopFe = &frontEnd` preserve that handoff at exact
+     PASS, so the old `fe` alias and four-input opacity fence were unnecessary.
+     The load-poll result also feeds its condition directly.  The six remaining
+     SYM-omitted value webs have measured counterfactual receipts beside their
+     declarations; explicit `tournIdx`/`tourney`, in particular, retain retail's
+     address-add result and operand order. */
+  /* SYM-CODEGEN-CARRIER: curIdx -- the direct EA `MIN(current,count - 1)`
+     expansion is FAIL 16 at 120/118 because it reloads both operands; retail
+     keeps one candidate and one current-tournament load. */
   int curIdx;
-  tfrontEnd *fe;
+  /* SYM-CODEGEN-CARRIER: loopFe -- reusing `fe` directly is FAIL 21 at
+     117/118; it loses retail's caller-saved-to-`$s3` handoff and rotates the
+     tier/constant allocation web. */
   tfrontEnd *loopFe;
   short i;
 
   this->tScreen::Initialize();
   do {
     systemtask(0);
-    loaded = (int)::IsShapeFileLoaded((tScreen *)this,&this->fTrophyShapes);
-  } while ((loaded ^ 1) != 0);
-  fe = &frontEnd;
-  __asm__("" : : "r"(fe), "r"(fe), "r"(fe), "r"(fe));
-  this->tier = (uint)(byte)fe->tier;
-  this->fNumTrophies = fe->tier != '\0' ? 8 : 6;
+  } while (((int)::IsShapeFileLoaded((tScreen *)this,&this->fTrophyShapes) ^ 1) != 0);
+  this->tier = (uint)(byte)frontEnd.tier;
+  this->fNumTrophies = frontEnd.tier != '\0' ? 8 : 6;
   this->fClearScreen = 1;
   i = 0;
-  loopFe = fe;
+  loopFe = &frontEnd;
 
   for (; i < this->fNumTrophies; i = i + 1) {
+    /* SYM-CODEGEN-CARRIER: placement -- loading directly into `short place`
+       and clamping the invalid case is FAIL 12 at 120/118; it changes signed
+       load width and reverses the retail branch/value initialization. */
     int placement;
+    /* SYM-CODEGEN-CARRIER: tournIdx -- folding the tier offset into the
+       tournament pointer is FAIL 15 at 125/118 and decomposes the scaled
+       address into a longer shift/add web. */
     int tournIdx;
+    /* SYM-CODEGEN-CARRIER: place -- folding the clamp into the texture-call
+       argument is FAIL 8 at 114/118; it removes retail's independent short
+       result and its sign-extension/value-selection web. */
     short place;
+    /* SYM-CODEGEN-CARRIER: tourney -- direct indexed access is count-exact
+       FAIL 4 and reverses retail's pointer-add destination/operand order. */
     tTourneyInfo *tourney;
 
     this->fTrophyList[i] = 1;

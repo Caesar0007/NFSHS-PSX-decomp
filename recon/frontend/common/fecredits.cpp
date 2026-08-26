@@ -297,21 +297,30 @@ void tCreditManager::DrawCurrCredit()
      old branch-local copies made GCC combine the rollthedice increments and
      falsely required an unsigned full-width carrier.  A direct `textY` test
      followed by its unsigned source load reproduces retail's `lh`/`lhu` pair.
+     The tail now restores SYM's nested `int width` in $s2 literally, shadowing
+     the top-level `width` in $s0.  The six remaining optimized-away identities
+     have no recoverable private spelling:
+     SYM-CODEGEN-CARRIER: frameTick
+     SYM-CODEGEN-CARRIER: titleFadeBase
+     SYM-CODEGEN-CARRIER: subTitleFadeBase
+     SYM-CODEGEN-CARRIER: text
+     SYM-CODEGEN-CARRIER: pixelWidth
+     SYM-CODEGEN-CARRIER: tag
      PASS, 451/451 instructions. */
-  int t16;
+  int frameTick;
   tCredit *fShowCred;
   short y;
-  int lineWidth;
+  int titleFadeBase;
   int ColTextTitle;
-  int scrollY;
+  int subTitleFadeBase;
   int ColTextSubTitle;
   int ColText;
-  char *pcVar3;
-  uint uVar4;
+  char *text;
+  uint pixelWidth;
   int width;
   short x;
   char *p, *p2;
-  byte tagByte;
+  byte tag;
   bool hidden;
   bool jaguar;
   bool rollthedice;
@@ -322,15 +331,15 @@ void tCreditManager::DrawCurrCredit()
   char buffer [292];
 
   drawFlags.tint[0] = 0xcec844;
-  t16 = ticks >> 4;
-  DrawShapeExtended((t16 - (t16 / 10) * 10) + 0xe6,0x410,0x10,0x10,0,0,&drawFlags);
+  frameTick = ticks >> 4;
+  DrawShapeExtended((frameTick - (frameTick / 10) * 10) + 0xe6,0x410,0x10,0x10,0,0,&drawFlags);
   fShowCred = this->CreditBuffer + this->fShowCreditNum;
   FETextRender_SetABR(1,true);
   y = (u_short)fShowCred->subTitleY;
-  lineWidth = CalcFadeVal(0xbebe,this->fTextFade);
-  ColTextTitle = CalcFadeVal(lineWidth,0x28);
-  scrollY = CalcFadeVal(0xbebe,this->fTextFade);
-  ColTextSubTitle = CalcFadeVal(scrollY,0x28);
+  titleFadeBase = CalcFadeVal(0xbebe,this->fTextFade);
+  ColTextTitle = CalcFadeVal(titleFadeBase,0x28);
+  subTitleFadeBase = CalcFadeVal(0xbebe,this->fTextFade);
+  ColTextSubTitle = CalcFadeVal(subTitleFadeBase,0x28);
   ColText = CalcFadeVal(0x787878,this->fTextFade);
   /* MATCH (w37-a2): physical block order flip (W36 lever #1 De Morgan swap)
      -- the oracle reaches the FullTextRGB body via a `beqz`-taken branch
@@ -341,12 +350,12 @@ void tCreditManager::DrawCurrCredit()
     r.y = fShowCred->titleY;
     r.w = fShowCred->titleWidth;
     r.h = 100;
-    pcVar3 = TextSys_Word(fShowCred->titleTextID + 0x514);
-    FETextRender_WordWrapTextRGBJustify(pcVar3,r,ColTextTitle,fShowCred->titleJustify,0,false);
+    text = TextSys_Word(fShowCred->titleTextID + 0x514);
+    FETextRender_WordWrapTextRGBJustify(text,r,ColTextTitle,fShowCred->titleJustify,0,false);
   }
   else {
-    pcVar3 = TextSys_Word(fShowCred->titleTextID + 0x514);
-    FETextRender_FullTextRGB(pcVar3,fShowCred->titleX,fShowCred->titleY,ColTextTitle,'\0',
+    text = TextSys_Word(fShowCred->titleTextID + 0x514);
+    FETextRender_FullTextRGB(text,fShowCred->titleX,fShowCred->titleY,ColTextTitle,'\0',
                fShowCred->titleJustify);
   }
   if (fShowCred->subTitleWidth != 0) {
@@ -354,13 +363,13 @@ void tCreditManager::DrawCurrCredit()
     r.y = fShowCred->subTitleY;
     r.w = fShowCred->subTitleWidth;
     r.h = 100;
-    pcVar3 = TextSys_Word(fShowCred->subTitleTextID + 0x514);
-    y = y + FETextRender_WordWrapTextRGBJustify(pcVar3,r,ColTextSubTitle,fShowCred->subTitleJustify,0,false);
+    text = TextSys_Word(fShowCred->subTitleTextID + 0x514);
+    y = y + FETextRender_WordWrapTextRGBJustify(text,r,ColTextSubTitle,fShowCred->subTitleJustify,0,false);
   }
   else {
     y = y + 8;
-    pcVar3 = TextSys_Word(fShowCred->subTitleTextID + 0x514);
-    FETextRender_FullTextRGB(pcVar3,fShowCred->subTitleX,fShowCred->subTitleY,ColTextSubTitle,'\0',
+    text = TextSys_Word(fShowCred->subTitleTextID + 0x514);
+    FETextRender_FullTextRGB(text,fShowCred->subTitleX,fShowCred->subTitleY,ColTextSubTitle,'\0',
                fShowCred->subTitleJustify);
   }
   if (fShowCred->textY != 0) {
@@ -370,10 +379,10 @@ void tCreditManager::DrawCurrCredit()
   width = fShowCred->subTitleWidth;
   if (width == 0) {
     FETextRender_SetFont(0);
-    pcVar3 = TextSys_Word(fShowCred->subTitleTextID + 0x514);
-    uVar4 = textpixels(pcVar3);
-    pcVar3 = TextSys_Word(fShowCred->subTitleTextID + 0x514);
-    width = uVar4 - strlen(pcVar3);
+    text = TextSys_Word(fShowCred->subTitleTextID + 0x514);
+    pixelWidth = textpixels(text);
+    text = TextSys_Word(fShowCred->subTitleTextID + 0x514);
+    width = pixelWidth - strlen(text);
   }
   if (x == 0) {
     if (fShowCred->subTitleJustify == 0) {
@@ -393,35 +402,35 @@ void tCreditManager::DrawCurrCredit()
     if (p2 != 0) {
       *p2 = 0;
     }
-    tagByte = *p;
-    if (tagByte == 10) {
+    tag = *p;
+    if (tag == 10) {
       /* MATCH (w37-a2): compare the skip-loop against the CAPTURED
-         tagByte, not the literal again -- lets gcc reuse the register
+         tag, not the literal again -- lets gcc reuse the register
          the initial `if` already loaded instead of a fresh `li`. */
       do {
         p = p + 1;
-      } while (*p == tagByte);
-      tagByte = *(volatile byte *)p;
+      } while (*p == tag);
+      tag = *(volatile byte *)p;
     }
-    if (tagByte == 9) {
+    if (tag == 9) {
       hidden = true;
       do {
         p = p + 1;
-      } while (*p == tagByte);
+      } while (*p == tag);
     }
-    tagByte = *p;
-    if (tagByte == 0x2a) {
+    tag = *p;
+    if (tag == 0x2a) {
       jaguar = true;
       do {
         p = p + 1;
-      } while (*p == tagByte);
-      tagByte = *(volatile byte *)p;
+      } while (*p == tag);
+      tag = *(volatile byte *)p;
     }
-    if (tagByte == 0x5e) {
+    if (tag == 0x5e) {
       rollthedice = true;
       do {
         p = p + 1;
-      } while (*p == tagByte);
+      } while (*p == tag);
     }
     /* MATCH (w37-a2): a single conditional-value store (not two separate
        assignments) -- the oracle computes v0=2000/700 via one branch and
@@ -432,13 +441,13 @@ void tCreditManager::DrawCurrCredit()
       r.y = 0x55;
       r.w = 0x118;
       r.h = 100;
-      pcVar3 = TextSys_Word(0x596);
-      FETextRender_WordWrapTextRGBJustify(pcVar3,r,ColText,0,0,false);
+      text = TextSys_Word(0x596);
+      FETextRender_WordWrapTextRGBJustify(text,r,ColText,0,0,false);
     }
     else if (rollthedice) {
       for (int rtd = 0; rtd < 0x19; rtd++) {
-        pcVar3 = TextSys_Word(rtd + 0x597);
-        FETextRender_FullTextRGB(pcVar3,x,y,ColText,'\0',fShowCred->textJustify);
+        text = TextSys_Word(rtd + 0x597);
+        FETextRender_FullTextRGB(text,x,y,ColText,'\0',fShowCred->textJustify);
         y = y + 8;
       }
     }
@@ -468,28 +477,28 @@ void tCreditManager::DrawCurrCredit()
        as NESTED-BLOCK locals distinct from the earlier top-level `width`
        (subTitleWidth-derived, REG s0) -- reusing that SAME C variable here
        merged the two live ranges and re-colored the earlier one too. Use
-       a fresh `width2` for this block's shadowed `width` (SYM REG s2),
+       a fresh nested `width` for this block (SYM REG s2),
        with `dist` REASSIGNED in place (matches oracle's $s0 reuse). It
        stays LIVE into the second bright-line calc (oracle's `subu s1,v0,
        s2` reuses it there). */
-    int width2;
+    int width;
     dist = ((ticks - this->fLineTicks) * 0x208) / 0x50;
-    width2 = 200;
+    width = 200;
     if (dist < 200) {
-      width2 = dist;
+      width = dist;
       dist = 200;
     }
     if (0x140 < dist) {
-      width2 = 0x140 - dist;
-      if (width2 < 0) {
-        width2 = 0;
+      width = 0x140 - dist;
+      if (width < 0) {
+        width = 0;
       }
-      dist = 0x208 - width2;
+      dist = 0x208 - width;
     }
-    if (0 < width2) {
+    if (0 < width) {
       ColTextSubTitle = CalcFadeVal(0x505050,0x40);
       ColTextTitle = fShowCred->subTitleY + -2;
-      PSXTransDrawBrightEndLine(ColTextSubTitle,dist + -0x25,ColTextTitle,width2,4,3,1,0,1);
+      PSXTransDrawBrightEndLine(ColTextSubTitle,dist + -0x25,ColTextTitle,width,4,3,1,0,1);
     }
     dist = ((ticks - this->fLineTicks) * 0x10c) / 0x50;
     height = 100;
@@ -502,7 +511,7 @@ void tCreditManager::DrawCurrCredit()
       if (height < 0) {
         height = 0;
       }
-      dist = 0x10c - width2;
+      dist = 0x10c - width;
     }
     if (0 < height) {
       ColTextTitle = CalcFadeVal(0x505050,0x40);

@@ -3669,6 +3669,41 @@ relocation-referenced unresolved symbols; the undefined-call audit scans
 pre-existing swapped `Sim_MainGameLoop` sites, the TU-order audit reports zero
 inversions, and the vtable indexing audit passes 930 files.
 
+### P104 — `DrawCurrCredit` shadowed-width and role restoration (`2026-08-26`)
+
+Reliable `DrawCurrCredit` SYM records a top-level `int width` in `$s0`, then a
+tail block beginning at 0x800365e4 with distinct `dist` in `$s0`, `width` in
+`$s2`, and `height` in `$s1`.  Reconstruction previously called that proven
+nested identity `width2`, despite its own receipt already recognizing the SYM
+shadow.  The tail now literally declares `int width`, restoring the original
+scope and name while shadowing the earlier `$s0` variable exactly as recorded.
+
+The other six identities absent from SYM no longer expose decompiler spellings
+`t16`, `lineWidth`, `scrollY`, `pcVar3`, `uVar4`, and `tagByte`.  They are now
+descriptive `frameTick`, `titleFadeBase`, `subTitleFadeBase`, `text`,
+`pixelWidth`, and `tag`, each explicitly classified as a source-only codegen
+carrier.  Their private spellings are not recoverable from optimized debug
+data; the existing w37/SLD receipt proves their separated lifetimes and
+statement shapes are required for the retail allocation and fresh tag loads.
+
+`DrawCurrCredit` remains exact PASS at 451/451 instructions with an
+instruction-identical `-g` twin, and the complete `fecredits.cpp`
+translation-unit gate remains 7/7 PASS.  The refreshed strict frontend/common
+audit is stored in
+[`frontend_common_strict_p208_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p208_20260826.md).
+It advances declaration-clean mapped functions from 744 to 745, reduces generic
+extra source-local names from 274 to 267, and raises explicit source-only
+codegen carriers from 349 to 355.  Missing names, type findings, storage
+findings, global findings, and mapping reviews remain zero.
+
+A fresh full build compiles and links every translation unit and reproduces the
+standing executable hash `926db68e57a2dbcc9ca02a25981360ddc0a71464`.
+Both relink lanes are GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; the undefined-call audit scans
+15,781 calls with zero defects.  The call-target audit retains exactly the two
+pre-existing swapped `Sim_MainGameLoop` sites, the TU-order audit reports zero
+inversions, and the vtable indexing audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

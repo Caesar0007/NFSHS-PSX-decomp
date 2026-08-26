@@ -76,8 +76,14 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
     s_upper(buffer);
     textpix = textpixels(buffer) - strlen(buffer);
     {
+      /* SYM-CODEGEN-CARRIER: textType -- absent from the reliable local list;
+         its identity boundary stages retail's $a0 call argument. */
       int textType;
+      /* SYM-CODEGEN-CARRIER: selFade -- the widened copy of stack parameter
+         fSelFade stages retail's $a1 without changing its recorded ABI type. */
       int selFade;
+      /* SYM-CODEGEN-CARRIER: fade -- the zero-valued identity boundary stages
+         retail's $a2 and leaves the dist add in the call delay slot. */
       int fade;
       dist = ({
         int selected = textpix >= dist ? textpix : dist;

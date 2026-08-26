@@ -4107,6 +4107,35 @@ relocation-referenced unresolved symbols; the undefined-call audit scans
 wrong-call-target sites, the TU-order audit reports zero inversions across 513
 objects, and the vtable indexing audit passes 930 files.
 
+### P115 — menu text-box allocation-carrier reconciliation (`2026-08-26`)
+
+Reliable `MenuNFS4_DrawTextBox` SYM records parameters `helpText`, `r`,
+`initialWidth`, `drawOffset`, `fSelFade`, `drawArrows`, and `reflected`; outer
+locals `drenv`, `daprim`, `temp`, `textpix`, `dist`, `drawFlags`, `buffer`, and
+`shape`; and nested `col` and `ypos`.  It records no locals corresponding to
+the source-only `textType`, `selFade`, or `fade` allocation dials introduced by
+the source-level PASS reconstruction.
+
+Those three identities are now explicitly classified as source-only codegen
+carriers rather than generic unresolved locals.  The existing source-only
+receipt proves their purpose: the selected-value boundary and separate
+`textType`/`selFade` identities stage retail's `$a0/$a1`, the zero-valued
+`fade` identity stages `$a2`, and the void-tail boundary leaves
+`addiu $s5,$v1,25` in the call delay slot.  `selFade` is only a widened copy of
+the correctly typed stack parameter and does not change the recorded function
+ABI.  SYM and the binary preserve these value webs but cannot recover private
+spellings for the three optimized-away carriers.
+
+`MenuNFS4_DrawTextBox__FiR4RECTissbT5` remains exact PASS at 293/293
+instructions, and the complete `femenuextended.cpp` translation-unit gate is
+57/57 PASS.  No post-compiler rewrite or build recipe is involved.  The
+refreshed strict frontend/common audit is stored in
+[`frontend_common_strict_p219_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p219_20260826.md).
+It advances declaration-clean mapped functions from 752 to 753, reduces
+generic extra source-local names from 229 to 226, and raises explicit
+source-only codegen carriers from 386 to 389.  All missing-name, type, storage,
+global, and mapping-review queues remain empty.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

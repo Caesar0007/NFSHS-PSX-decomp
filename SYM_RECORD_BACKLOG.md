@@ -4435,6 +4435,46 @@ zero inversions across 513 objects, call-target audit finds zero proven wrong
 targets across 460 units, vtable indexing passes 930 files, and the source-only
 policy audit finds no post-compiler text moves or branch retargets.
 
+### P124 — track-select input SYM/ABI reconciliation (`2026-08-26`)
+
+Reliable `tScreenTrackSelect::ProcessInput` SYM records member receiver `this`
+in `$s0`, reference parameter `keyval` in `$a2`, and stack
+`tTrackInformation trackInfo`.  The retail linkage
+`ProcessInput__18tScreenTrackSelect7tPlayerR13tInputKeyTypeR12tMenuCommand`
+independently proves the two optimized-away source parameters: by-value
+`tPlayer player` and reference `tMenuCommand &command`.  They are now explicit
+ABI-parameter mappings instead of generic extra names.
+
+Four decompiler identities are deleted outright while retaining byte-exact
+code.  `Front_EnableLocalSpeech()` can feed the condition directly without
+`pvVar2`; the current menu's vtable can be referenced in the virtual call
+without `menuVtbl`; the call result can feed its xor test without `cmdResult`;
+and compound traffic-flag updates remove `trafficFlags`.  The only surviving
+SYM-omitted identity, `ptVar1`, is an explicit source-only codegen carrier:
+direct `menuDefsA[0]` spellings are FAIL 8 at 116/114 and reload the global
+base instead of retaining retail `$a0`.
+
+`ProcessInput__18tScreenTrackSelect7tPlayerR13tInputKeyTypeR12tMenuCommand`
+remains exact PASS at 114/114 instructions, with zero detailed diffs and an
+instruction-identical `-g` twin.  Its exact neighbor
+`DrawBackground__18tScreenTrackSelect` remains PASS at 299/299.  The complete
+ten-body TU aggregate retains eight strict passes, one relocation-sensitive
+near classification, and one pre-existing far classification.  The refreshed
+strict frontend/common audit is stored in
+[`frontend_common_strict_p228_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p228_20260826.md).
+It advances declaration-clean mapped functions from 762 to 763, reduces
+generic extra source-local names from 167 to 160, raises explicit ABI
+parameters from 19 to 21, and raises source-only codegen carriers from 434 to
+435.  Missing-name, type, storage, global, and mapping-review queues remain
+empty.
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; undefined-call audits scan 15,782
+reconstruction and 15,779 source-lane calls with zero defects.  TU order has
+zero inversions across 513 objects, call-target audit finds zero proven wrong
+targets across 460 units, vtable indexing passes 930 files, and the source-only
+policy audit finds no post-compiler text moves or branch retargets.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

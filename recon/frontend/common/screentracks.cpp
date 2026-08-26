@@ -431,6 +431,10 @@ void tScreenTrackSelect::ProcessInput(tPlayer player,tInputKeyType &keyval,
               tMenuCommand &command)
 
 {
+  /* SYM-ABI-PARAM: player -- unused, but `7tPlayer` in retail linkage proves
+     the by-value parameter retained by the original source signature. */
+  /* SYM-ABI-PARAM: command -- unused, but `R12tMenuCommand` proves the
+     reference parameter retained by the original source signature. */
   /* MATCH (SLD 341-370 + SYM fsize 72 / mask $80010000 = ra,s0 only):
      the SQUARE arm is the INLINE one (oracle `bne $a2,8,.L80042178` branches
      AWAY to the Triangle arm); the recon had them the other way round, which
@@ -440,26 +444,23 @@ void tScreenTrackSelect::ProcessInput(tPlayer player,tInputKeyType &keyval,
      just the `lui $v0,%hi(FEApp)` sitting in the `bne` delay slot at 0x80042178,
      and the SYM types this function FCN VOID -- the Triangle tail simply falls
      into the epilogue with $v0 incidental.
-     [2026-08-03, 12->PASS] Keep the Square arm's masked trafficFlags in its
-     own block-local pseudo instead of reusing the Triangle arm's cmdResult.
-     With ptVar1 retained for the two stores, GCC assigns retail's menuDefs
-     base to $a0 and trafficFlags to $a1, with no reload or extra instruction. */
+     [2026-08-03, 12->PASS] Keep the Square arm separate from the Triangle
+     call expression.  With ptVar1 retained for its two stores, GCC assigns
+     retail's menuDefs base to $a0 and the masked flags to $a1 without a
+     source identity, reload, or extra instruction. */
+  /* SYM-CODEGEN-CARRIER: ptVar1 -- direct menuDefsA[0] spellings are FAIL 8
+     at 116/114 and reload the global base instead of retaining `$a0`. */
   tGlobalMenuDefs *ptVar1;
-  bool pvVar2;
-  __vtbl_ptr_type (*menuVtbl) [11];
-  uint cmdResult;
   tTrackInformation trackInfo;
 
   if (keyval == kInput_KeyType_Square) {
     GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
                &trackInfo);
-    uint trafficFlags;
 
     ptVar1 = menuDefsA[0];
-    trafficFlags = (ptVar1->itemTraffic).fFlags & 0xfffffffe;
-    (ptVar1->itemTraffic).fFlags = trafficFlags;
+    (ptVar1->itemTraffic).fFlags &= 0xfffffffe;
     if ((frontEnd.gameMode != '\x01') && (frontEnd.oppNumber == '\x02')) {
-      (ptVar1->itemTraffic).fFlags = trafficFlags | 1;
+      (ptVar1->itemTraffic).fFlags |= 1;
     }
     if (2 < trackInfo.fTrackDifficulty) {
       (menuDefsA[0]->itemTraffic).fFlags =
@@ -474,8 +475,7 @@ void tScreenTrackSelect::ProcessInput(tPlayer player,tInputKeyType &keyval,
       (menuDefsA[0]->itemTraffic).fFlags =
            (menuDefsA[0]->itemTraffic).fFlags | 1;
     }
-    if ((frontEnd.raceType == RaceType_HotPursuit) &&
-       (pvVar2 = Front_EnableLocalSpeech(), pvVar2))
+    if ((frontEnd.raceType == RaceType_HotPursuit) && Front_EnableLocalSpeech())
     {
       (menuDefsA[0]->itemLocalSpeech).fFlags =
            (menuDefsA[0]->itemLocalSpeech).fFlags & 0xfffffffe;
@@ -487,10 +487,9 @@ ProcInpLocSpch_setFlags:
     return;
   }
   if (keyval == kInput_KeyType_Triangle) {
-    menuVtbl = FEAppA[0]->fCurrentMenu[0]->_vf;
-    cmdResult = (*(*menuVtbl)[8].pfn)
-                      ((int)FEAppA[0]->fCurrentMenu[0]->fItemList + -0x10 + (*menuVtbl)[8].delta);
-    if ((cmdResult ^ 1) != 0) {
+    if (((*(*FEAppA[0]->fCurrentMenu[0]->_vf)[8].pfn)
+                      ((int)FEAppA[0]->fCurrentMenu[0]->fItemList + -0x10 +
+                       (*FEAppA[0]->fCurrentMenu[0]->_vf)[8].delta) ^ 1) != 0) {
       TurnOffInstant(&this->fVideoWall);
     }
   }

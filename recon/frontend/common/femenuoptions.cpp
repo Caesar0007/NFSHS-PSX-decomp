@@ -763,15 +763,25 @@ tMenuItemSlidingMenu::tMenuItemSlidingMenu(u_int textDescription,short width,sho
   /* MATCH (LAW 05A — the SLD IS the statement order): retail's body is
      614 fFlags|=0x80 / 615 currMenu / 616 nextMenu / 617 fWidth / 618 fHeight /
      619 fDiffX / 620 fDiffY / 621 fFillback / 622 fSelFade — ONE fFlags OR (the
-     recon had it twice), and a TYPED vtable store so gcc can schedule the `sw`. */
+     recon had it twice), and a TYPED vtable store so gcc can schedule the `sw`.
+     [SOURCE PASS 2026-08-26, 4->0, 42/42] The two stack-argument halfword stores
+     otherwise schedule above the first flags update and vtable write.  A volatile
+     lvalue on exactly the vtable word and those two halfwords preserves retail's
+     `flags -> vtable -> fDiffX -> fDiffY` phase without adding an instruction,
+     local, register pin, or post-compilation move.  Canonical comma chaining,
+     relocating the existing zero-byte parameter fence, and volatile halfwords
+     with a nonvolatile vtable word were each measured neutral at FAIL 4; a
+     memory-tied fence reached the phase but changed the `this` copy web and was
+     FAIL 19 at 43/42. */
   this->nextMenu = (tInsideBoxMenu *)0x0;
   this->fWidth = width;
   this->fHeight = height;
   this->fSelFade = 0;
   this->fFlags = this->fFlags | 0x80;
-  this->_vf = (__vtbl_ptr_type (*)[11])tMenuItemSlidingMenu_vtable;
-  this->fDiffX = (short)diffx;
-  this->fDiffY = (short)diffy;
+  *(void * volatile *)&this->_vf =
+      (void *)tMenuItemSlidingMenu_vtable;
+  *(volatile short *)&this->fDiffX = (short)diffx;
+  *(volatile short *)&this->fDiffY = (short)diffy;
   this->fFillback = fillback;
   /* MATCH (LAW 05A): the SLD attributes a SECOND `fFlags |= 0x80`
      (`lw a0,0(v0); ori a0,a0,128; sw a0,0(v0)`) to line 624 — the ctor's closing

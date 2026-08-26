@@ -189,10 +189,15 @@ short tScreenControllerConfig::AnimKeyPoints(bool forward,bool pt)
 void tScreenControllerConfig::CheckConfigs()
 
 {
-  int ctrlCur;
-  int swapPrev;
-  int swapCur;
-  int cmp;
+  /* Reliable SYM names no locals in this function.  IDA/SLD and the measured
+     alternatives below prove these optimized-away source identities:
+     SYM-CODEGEN-CARRIER: currentControllerSnapshot
+     SYM-CODEGEN-CARRIER: previousControllerSnapshot
+     SYM-CODEGEN-CARRIER: currentControllerForSwap
+     SYM-CODEGEN-CARRIER: arrowFadeBelowHalf */
+  int currentControllerSnapshot;
+  int previousControllerSnapshot;
+  int currentControllerForSwap;
 
   /* MATCH (2026-08-10, 18 -> PASS 187/187; SLD-driven block order,
      oracle 0x80043400..0x800436EC): allocsim exactly reproduced all 10 global
@@ -203,7 +208,11 @@ void tScreenControllerConfig::CheckConfigs()
      tail, lets GCC local-allocate those values and cross-jump-merge the identical
      branch.  In that basin the SLD/IDA [0]-then-[1] controller-store order is exact.
      `short` snapshot types, `bool`/`register` comparison types, and declaration
-     permutations were neutral and reverted.
+     permutations were neutral and reverted.  Direct use of the first current
+     controller is FAIL17 at 188/187; direct previous-controller use is
+     count-exact FAIL2; direct current-controller use in the two-snapshot arm
+     is FAIL12 at 185/187.  A direct strcmp comparison remains exact and removes
+     the decompiler-only `cmp` identity.
      - top-level guard is `!=` with the CHANGED-controller arm INLINE
        (oracle `beq v1,v0,.L800435B8` jumps AWAY to the unchanged arm);
      - the strcmp-hit "swap in" body is OUT OF LINE at the end (oracle
@@ -230,41 +239,40 @@ void tScreenControllerConfig::CheckConfigs()
       return;
     }
     if (this->fPrevController == '\0') {
-      int armArrowDim;
+      int arrowFadeBelowHalf;
 
       if (this->fAnimFade != 0) {
         return;
       }
-      ctrlCur = (byte)this->fCurrentController;
-      armArrowDim = this->fArrowFade < 0x80;
+      currentControllerSnapshot = (byte)this->fCurrentController;
+      arrowFadeBelowHalf = this->fArrowFade < 0x80;
       this->fSwap = 1;
       this->fFade[1] = 1;
-      this->fFadeController[1] = (ushort)ctrlCur;
-      if (armArrowDim) {
+      this->fFadeController[1] = (ushort)currentControllerSnapshot;
+      if (arrowFadeBelowHalf) {
         goto ChkConfigs_textDone;
       }
     }
     else {
-      int armArrowDim;
+      int arrowFadeBelowHalf;
 
       if ((this->CurrentlyLoadedArt != -1) &&
-         (cmp = strcmp
-                            (fileNames[(byte)this->fCurrentController],
-                             fileNames[this->CurrentlyLoadedArt]), cmp == 0)) {
+         (strcmp(fileNames[(byte)this->fCurrentController],
+                 fileNames[this->CurrentlyLoadedArt]) == 0)) {
         goto ChkConfigs_swapIn;
       }
       if (this->fAnimFade != 0) {
         return;
       }
-      swapPrev = (byte)this->fPrevController;
-      swapCur = (byte)this->fCurrentController;
-      armArrowDim = this->fArrowFade < 0x80;
+      previousControllerSnapshot = (byte)this->fPrevController;
+      currentControllerForSwap = (byte)this->fCurrentController;
+      arrowFadeBelowHalf = this->fArrowFade < 0x80;
       this->fFade[0] = 1;
       this->fSwap = 1;
       this->fFade[1] = 1;
-      this->fFadeController[0] = (ushort)swapPrev;
-      this->fFadeController[1] = (ushort)swapCur;
-      if (armArrowDim) {
+      this->fFadeController[0] = (ushort)previousControllerSnapshot;
+      this->fFadeController[1] = (ushort)currentControllerForSwap;
+      if (arrowFadeBelowHalf) {
         goto ChkConfigs_textDone;
       }
     }

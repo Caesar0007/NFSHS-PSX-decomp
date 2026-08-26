@@ -3947,6 +3947,45 @@ relocation-referenced unresolved symbols; the undefined-call audit scans
 pre-existing swapped `Sim_MainGameLoop` sites, the TU-order audit reports zero
 inversions, and the vtable indexing audit passes 930 files.
 
+### P111 — controller-config change-state local restoration (`2026-08-26`)
+
+Reliable `tScreenControllerConfig::CheckConfigs` SYM records only member
+receiver `this` in `$s0`; it retains no named locals.  The decompiler-only
+`cmp` identity is now removed by using the `strcmp` result directly, which
+remains exact PASS and better matches the empty retail local budget.
+
+The four remaining optimized-away identities are descriptive
+`currentControllerSnapshot`, `previousControllerSnapshot`,
+`currentControllerForSwap`, and branch-local `arrowFadeBelowHalf`.  Each is
+explicitly classified as a source-only codegen carrier.  Their necessity is
+individually measured: replacing the first current-controller snapshot with a
+direct member read is FAIL 17 at 188/187 instructions; direct use of the
+previous controller is count-exact FAIL 2 because its `$a0` byte load moves
+from the retail SLD position; direct use of the second current controller is
+FAIL 12 at 185/187 and changes the `$a0/$a1` loads and paired stores.  The
+existing allocsim/IDA receipt proves the two branch-local arrow comparisons
+must be locally allocated before GCC cross-jump-merges their common tail.
+Neither SYM nor the binary uniquely preserves these four private spellings.
+
+`CheckConfigs__23tScreenControllerConfig` remains exact PASS at 187/187
+instructions with an instruction-identical `-g` twin.  The complete
+`screencontroller.cpp` translation-unit gate remains 21/22 PASS with only the
+pre-existing one-diff `tScreenControllerConfig` constructor residual.  The
+refreshed strict frontend/common audit is stored in
+[`frontend_common_strict_p215_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p215_20260826.md).
+It advances declaration-clean mapped functions from 752 to 753, reduces
+generic extra source-local names from 227 to 222, and raises explicit
+source-only codegen carriers from 387 to 391.  Missing names, type findings,
+storage findings, global findings, and mapping reviews remain zero.
+
+A fresh full build compiles and links every translation unit and reproduces
+the standing executable hash `926db68e57a2dbcc9ca02a25981360ddc0a71464`.
+Both relink lanes are GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; the undefined-call audit scans
+15,781 calls with zero defects.  The call-target audit retains exactly the two
+pre-existing swapped `Sim_MainGameLoop` sites, the TU-order audit reports zero
+inversions, and the vtable indexing audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

@@ -938,12 +938,13 @@ void tScreenMemcard::ReleaseIcons()
 void tScreenMemcard::Initialize()
 
 {
-  int inputPlayer;
+  /* SYM-CODEGEN-CARRIER: feApp -- direct FEApp member access is count-exact
+     FAIL 6 because retail loads the application pointer before publishing the
+     reservememadr result; this alias preserves that observable load order. */
   tFEApplication *feApp;
-  tGlobalMenuDefs *menus;
-  uint saveFlags;
-  uint loadFlags;
-  int i;
+  /* SYM-CODEGEN-CARRIER: msgId -- folding this conditional into the later
+     menu-field store is FAIL 43 at 107/106 instructions; the staged value is
+     retail's live $a3 across the menuDefs load and has no recoverable name. */
   uint msgId;
   
   GRIDMEMCARD_STARTX = 0xf6;
@@ -969,29 +970,31 @@ void tScreenMemcard::Initialize()
   this->checkingstart = 0;
   this->memcardanimframe = 0;
   this->count = 0;
-  inputPlayer = feApp->fInputPlayer;
   msgId = 0x287;
-  this->player = (ushort)inputPlayer;
-  this->card = (uint)inputPlayer * 4 + 1;
+  this->player = feApp->fInputPlayer;
+  this->card = this->player * 4 + 1;
   if (this->player != 0) {
     msgId = 0x289;
   }
-  i = 0;
-  menus = menuDefs[0];
-  saveFlags = (menus->itemSaveGame).fFlags;
-  loadFlags = (menus->itemLoadGame).fFlags;
-  (menus->itemLoadGame).fTextDescription = msgId;
-  (menus->itemSaveGame).fFlags = saveFlags | 1;
-  (menus->itemLoadGame).fFlags = loadFlags | 1;
-  do {
-    this->goticon[i] = '\0';
-    this->numicon[i] = '\0';
-    this->numblock[i] = '\0';
-    /* Direct indexing lets GCC share the retail this + i * 2 base. */
-    this->fFadeIcon[i] = 0x80;
-    this->fMemIconClutId[i] = 0;
-    i = i + 1;
-  } while (i < 0xf);
+  {
+    int i = 0;
+    /* SYM-CODEGEN-CARRIER: menus -- repeated direct menuDefs[0] addressing is
+       FAIL 38 at 110/106 instructions; the shared pointer preserves retail's
+       single load and the paired flags-update web. */
+    tGlobalMenuDefs *menus = menuDefs[0];
+    (menus->itemLoadGame).fTextDescription = msgId;
+    (menus->itemSaveGame).fFlags |= 1;
+    (menus->itemLoadGame).fFlags |= 1;
+    do {
+      this->goticon[i] = '\0';
+      this->numicon[i] = '\0';
+      this->numblock[i] = '\0';
+      /* Direct indexing lets GCC share the retail this + i * 2 base. */
+      this->fFadeIcon[i] = 0x80;
+      this->fMemIconClutId[i] = 0;
+      i = i + 1;
+    } while (i < 0xf);
+  }
   this->fInitedMemCard = 0;
   this->fGetNewIcons = 0;
   this->fReadyToGetNewIcons = 0;

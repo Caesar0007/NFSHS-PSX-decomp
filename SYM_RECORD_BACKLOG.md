@@ -4068,6 +4068,45 @@ relocation-referenced unresolved symbols; the undefined-call audit scans
 pre-existing swapped `Sim_MainGameLoop` sites, the TU-order audit reports zero
 inversions, and the vtable indexing audit passes 930 files.
 
+### P114 — memory-card initialization local-budget and scope restoration (`2026-08-26`)
+
+Reliable `tScreenMemcard::Initialize` SYM records member receiver `this` in
+`$s0` and exactly one named local: `int i` in `$a2`, inside the lexical block
+that begins at retail address `0x80047d50` and ends after the initialization
+loop at `0x80047da8`.  Source now restores that nested scope explicitly with
+`int i = 0` at the block entry.
+
+The decompiler-only `inputPlayer`, `saveFlags`, and `loadFlags` identities are
+deleted.  Reading the newly assigned `player` member for the card calculation
+preserves retail's single byte load, and direct `|=` updates preserve the two
+load/OR/store webs; all three reductions remain exact PASS.  The three
+remaining SYM-omitted identities are descriptive `feApp`, `msgId`, and
+block-local `menus`, each now classified as a source-only codegen carrier.
+Their necessity is measured: direct `FEApp` member access is count-exact
+FAIL 6 because it publishes the `fMemIcon` result before loading the
+application pointer; folding `msgId` into the later conditional store is
+FAIL 43 at 107/106 instructions; and repeated direct `menuDefs[0]` addressing
+is FAIL 38 at 110/106 instructions.  SYM and the retail binary prove those
+three value webs but do not uniquely preserve their private source spellings.
+
+`Initialize__14tScreenMemcard` remains exact PASS at 106/106 instructions
+with an instruction-identical `-g` twin, and the complete
+`screenmemcard.cpp` translation-unit gate is now 15/15 PASS.  The refreshed
+strict frontend/common audit is stored in
+[`frontend_common_strict_p218_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p218_20260826.md).
+It advances declaration-clean mapped functions from 751 to 752, reduces
+generic extra source-local names from 235 to 229, and raises explicit
+source-only codegen carriers from 383 to 386.  Missing names, type findings,
+storage findings, global findings, and mapping reviews remain zero.
+
+A strict full rebuild compiles and links every translation unit and reproduces
+the standing executable hash `926db68e57a2dbcc9ca02a25981360ddc0a71464`.
+Both relink lanes are GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; the undefined-call audit scans
+15,782 calls with zero defects.  The call-target audit reports zero proven
+wrong-call-target sites, the TU-order audit reports zero inversions across 513
+objects, and the vtable indexing audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

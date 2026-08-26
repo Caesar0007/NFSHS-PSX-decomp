@@ -2228,13 +2228,25 @@ extern "C" void AddUpgradesToPinkSlipsList_intarg(tCarManager *,short,short,int)
 extern "C" int SavePinkSlipsCars_intarg(int,short,short)
   __asm__("SavePinkSlipsCarsWithErrorDialogs__Fsss");
 
+static inline tCarManager *AwardPinkSlipsCarManagerArg(tCarManager *mgr)
+{
+  __asm__("" : "+r"(mgr));
+  return mgr;
+}
+
 /* Decoded Phase 83: MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand(tMenuCommand&) - award winner the loser's car
    after pinkslips race (552 B)
    [zero direct xref] Menu command callback - registered via tMenuCommand fn pointer
    
    [ghidra-meta] section: front.text */
 
-/* NEAR-PASS (2026-08-13, 10->2, 138/138): SYM's sole `int fWinner` local plus a late tied
+/* PASS (2026-08-26, 2->PASS, 138/138): a one-use inline manager-argument
+   identity makes GCC form `a0 = carManager` immediately after GetPinkSlipsCar,
+   before the remaining argument loads, exactly like retail.  The empty asm emits
+   no instruction and has no hard-register pin; placing it in the inline helper
+   avoids adding `mgr` to this function's strict SYM local set.  The helper emits
+   no standalone symbol.  Earlier receipt follows.
+   NEAR-PASS (2026-08-13, 10->2, 138/138): SYM's sole `int fWinner` local plus a late tied
    `playerNum` quantity reproduces retail s3->s0 allocation. Caller-local int-argument aliases
    preserve the retail symbols while preventing redundant short sign extensions.  The sole
    residual is source gcc preparing the `carManager` a0 argument four instructions later than
@@ -2295,7 +2307,9 @@ void MenuExtended_AwardPinkSlipsCar(tMenuCommand &command)
   carManager.GetPinkSlipsCar((ushort)(byte)frontEnd.pinkSlipsCar[1 - fWinner],carInfo,
              (short)(1 - fWinner));
   playerNum = fWinner;
-  AddToPinkSlipsList_intarg(&carManager,(short)carInfo.fCarID,(ushort)carInfo.fColor,
+  AddToPinkSlipsList_intarg(
+             AwardPinkSlipsCarManagerArg(&carManager),
+             (short)carInfo.fCarID,(ushort)carInfo.fColor,
              ({ __asm__("" : "+r"(playerNum) : "r"(fWinner)); playerNum; }));
   AddUpgradesToPinkSlipsList_intarg(&carManager,
              (ushort)(byte)frontEnd.pinkSlipsCar[playerNum],(ushort)carInfo.fUpgrades,playerNum);

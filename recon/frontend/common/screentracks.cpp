@@ -14,9 +14,13 @@ typedef struct {
 void tScreenTrackSelect::DrawBackground()
 
 {
-  short creditsTextVal;
+  /* SYM-CODEGEN-CARRIER: shapeX -- replacing its two-stage 0x200/0x250
+     value web with literals is FAIL 190 at 285/299 and collapses the mask,
+     UV, tpage, frame, and saved-register structure documented below. */
   short shapeX;
   short shapeY;
+  /* SYM-CODEGEN-CARRIER: videoY -- using only SYM-visible `shapeY` is
+     FAIL 10 at 297/299 and loses retail's distinct `$s0`/`$s6` value webs. */
   int videoY;
   RECT r;
   tTrackInformation trackInfo;
@@ -27,13 +31,14 @@ void tScreenTrackSelect::DrawBackground()
   r.y = 200;
   r.w = 0xaa;
   r.h = 0xc;
-  creditsTextVal = TextValue(&menuDefs->iteratorTrack,kPlayerBoth);
-  DrawShape_NFS4RoundRectangle(creditsTextVal,&r,0);
+  DrawShape_NFS4RoundRectangle(TextValue(&menuDefs->iteratorTrack,kPlayerBoth),&r,0);
   GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);
   this->UpdateBrightness(trackInfo);
   this->UpdateVideoWall(trackInfo);
   ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
   {
+    /* SYM-CODEGEN-CARRIER: videoWall -- direct member spellings are
+       count-exact FAIL 6 and create a saved `$s0` base before retail does. */
     tVideoWall *videoWall = &this->fVideoWall;
 
     if (((this->fSwapShapes.fFile != (char *)0x0) &&
@@ -48,6 +53,8 @@ void tScreenTrackSelect::DrawBackground()
   state = (VIDEOSTATE)VIDEO_state(this->hVideo);
   if (state == VIDEOSTATE_SPOOLING) {
     RECT r;
+    /* SYM-CODEGEN-CARRIER: startTicks -- direct field assignment is FAIL 3
+       at 300/299 and moves the tick load after the brightness store. */
     int startTicks;
 
     r.x = shapeX;
@@ -84,9 +91,9 @@ void tScreenTrackSelect::DrawBackground()
   }
   if (0 < this->fBrightness) {
     /* MATCH: the EA/PsyQ quad wrapper materializes its texture-X origin for
-       both UV and tpage arithmetic.  The address-mask read is also explicit:
-       its fourth GCC reference crosses the local-allocator priority step and
-       gives retail's s0/s1/s2/s3 mask/page/V/Y handout.
+       both UV and tpage arithmetic.  The first packet-link's 24-bit bitfield
+       write naturally materializes the 0xffffff address mask and gives
+       retail's s0/s1/s2/s3 mask/page/V/Y handout without a source local.
 
        W60-A10 -- the whole 26-diff residual is count-exact (299/299) and reads
        off the SLD (tools/sldall.py) as ONE cause: retail's FIRST prim treats
@@ -190,19 +197,20 @@ void tScreenTrackSelect::DrawBackground()
        spill-position tie was caused by the allocation fence itself.  GCC makes
        an output-less asm implicitly volatile; sched2 therefore put an anti-dep
        from it onto packetPtrSlot's `sw t2,160(sp)` and forced that store ahead
-       of the GetTPage argument packet.  Expressing addrMask in the first
-       24-bit packet-link assignment supplies the same load-bearing allocator
-       reference naturally (the bitfield store already needs that mask), while
-       removing the scheduling barrier.  sched2 then emits the store at retail
+       of the GetTPage argument packet.  Expressing literal 0xffffff directly
+       in the first 24-bit packet-link assignment supplies the load-bearing
+       mask reference naturally, while removing the false source identity and
+       scheduling barrier.  sched2 then emits the store at retail
        SLD:155, after the SLD:161 argument setup.  strict_branch: 12/12 clean;
        all 10 TU functions remain PASS.  This supersedes the diagnostic-only
        PER_FN_TEXT_MOVES receipt above; no post-cc1 move is used. */
+    /* SYM-CODEGEN-CARRIER: packetPtrSlot -- direct Render_gPacketPtr use is
+       count-exact FAIL 4 and hoists the scratchpad address before retail. */
     u_char **packetPtrSlot = &Render_gPacketPtr;
-    u_int addrMask = 0xffffff;
     (prim = (POLY_FT4 *)*packetPtrSlot,
      ((tTrackSelectPrimTag *)prim)->addr = *(u_int *)Render_gPalettePtr,
      *packetPtrSlot = (u_char *)prim + sizeof(POLY_FT4),
-     ((tTrackSelectPrimTag *)Render_gPalettePtr)->addr = (u_int)prim & addrMask);
+     ((tTrackSelectPrimTag *)Render_gPalettePtr)->addr = (u_int)prim & 0xffffff);
     *(u_int *)&prim->r0 = this->fBrightness << 0x10 |
                           this->fBrightness << 8 | this->fBrightness;
     (((tTrackSelectPrimTag *)prim)->len = 9, prim->code = 0x2e);

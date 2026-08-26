@@ -4394,6 +4394,47 @@ zero inversions across 513 objects, call-target audit finds zero proven wrong
 targets across 460 units, vtable indexing passes 930 files, and the source-only
 policy audit finds no post-compiler text moves or branch retargets.
 
+### P123 — track-select background SYM local reconciliation (`2026-08-26`)
+
+Reliable `tScreenTrackSelect::DrawBackground` SYM records member receiver
+`this` in `$s7`, stack `RECT r`, stack `tTrackInformation trackInfo`, `short
+shapeY` in `$s6`, `POLY_FT4 *prim` in `$fp`, `VIDEOSTATE state` in `$v1`, the
+inlined-video-wall receiver in `$s0`, nested stack `RECT r`, and nested stack
+`char moviename[80]`.  Two decompiler-only identities are deleted outright:
+the TextValue call can feed `DrawShape_NFS4RoundRectangle` directly without
+`creditsTextVal`, and the first 24-bit packet-link can use literal `0xffffff`
+without `addrMask`.  Both reductions remain byte-exact PASS; the latter also
+removes an obsolete source-local explanation from the matching receipt.
+
+Five surviving SYM-omitted identities now have explicit counterfactual proof.
+Using only `shapeY` without `videoY` is FAIL 10 at 297/299 and loses distinct
+`$s0`/`$s6` webs.  Direct member spellings without `videoWall` are count-exact
+FAIL 6; direct field assignment without `startTicks` is FAIL 3 at 300/299.
+Direct `Render_gPacketPtr` use without `packetPtrSlot` is count-exact FAIL 4
+and hoists the scratchpad address.  Replacing `shapeX` with literal 0x200/0x250
+is FAIL 190 at 285/299, collapsing retail's mask, UV, tpage, frame, and saved-
+register structure.  The binary proves these value webs, but optimized SYM
+cannot preserve their private names.
+
+`DrawBackground__18tScreenTrackSelect` remains exact PASS at 299/299
+instructions, with zero detailed diffs and an instruction-identical `-g` twin.
+The complete ten-body TU aggregate retains eight strict passes, one
+relocation-sensitive near classification, and one pre-existing far
+classification; the edited body is detailed PASS and no neighbor changed.
+The refreshed strict frontend/common audit is stored in
+[`frontend_common_strict_p227_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p227_20260826.md).
+It advances declaration-clean mapped functions from 761 to 762, reduces
+generic extra source-local names from 174 to 167, and raises explicit
+source-only codegen carriers from 429 to 434.  Missing-name, type, storage,
+global, and mapping-review queues remain empty.
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; undefined-call audits scan 15,782
+reconstruction and 15,779 source-lane calls with zero defects.  TU order has
+zero inversions across 513 objects, call-target audit finds zero proven wrong
+targets across 460 units, vtable indexing passes 930 files, and the source-only
+policy audit finds no post-compiler text moves or branch retargets.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

@@ -1155,16 +1155,14 @@ ForceVbl_drawCtrlCheck:
 }
 
 /* ---- tScreenControllerConfig::DrawForeground  (screencontroller.cpp:1659) ---- */
-/* W63 (2026-08-10): 167 diffs -> PASS (410/410 insns).  SLD/SYM and the IDA
-   register annotations exposed five decompiler artifacts: fArrowFadeDir is
-   written directly in the two arms (after testing its old value); string1/2
-   are addressed as arrays rather than through invented pointer locals; the
-   text-loop index starts after the first fade call; the embedded negcon dialog
-   has one shared base pointer; and both pixel widths are explicit temporaries,
-   with the square width selected inside the call expression.  A full-width
-   text length plus a short candidate restores the sl/k handoff; declaring the
-   copy destination, counter, and source in retail order seals the last
-   scheduling difference without an assembly workaround. */
+/* MATCH/SYM P136 (2026-08-26): exact PASS 410/410.  Reliable records restore
+   TL, i, j, string1, string2, brightstring, astringpointer, brightX, sl, fade,
+   and the nested ColText, ColText2, TextIndex, k, and howfarout declarations.
+   The recorded inline tDialogBase receiver is restored through IsVisible().
+   Direct controller storage, the explicit MIN candidate, and the final square
+   width alias are folded back into their source expressions; the EA MIN macro
+   and reuse of SYM `k` reproduce retail exactly.  Eight optimized-away value
+   webs remain below with measured SYM-CODEGEN-CARRIER receipts. */
 void tScreenControllerConfig::DrawForeground()
 
 {
@@ -1199,16 +1197,17 @@ void tScreenControllerConfig::DrawForeground()
     this->fArrowFade = 0;
   }
   if (0x7f < this->fArrowFade) {
-    char controller = this->fCurrentController;
-
     this->fArrowFade = 0x80;
-    this->fTextController = controller;
-    if (controller == '\x06') {
+    this->fTextController = this->fCurrentController;
+    if (this->fTextController == '\x06') {
       this->fTextController = '\x05';
     }
-    char config = frontEnd.controlConfig[this->player];
+    /* SYM-CODEGEN-CARRIER: selectedConfig -- direct member assignment is
+       count-exact FAIL 2 because it moves the fFadeTextOut store ahead of the
+       frontend config-table load. */
+    char selectedConfig = frontEnd.controlConfig[this->player];
     this->fFadeTextOut = 0;
-    this->fTextConfig = config;
+    this->fTextConfig = selectedConfig;
   }
   else {
     if (this->fArrowFade == 0) {
@@ -1234,22 +1233,28 @@ void tScreenControllerConfig::DrawForeground()
                                                           [(byte)this->fTextConfig][i][0];
 
           if (TextIndex != -1) {
-            short *pTL = TL;
-            int n = 4;
-            short *pTextLoc = TextLocations[TextIndex];
+            /* SYM-CODEGEN-CARRIER: textLocationOut
+               SYM-CODEGEN-CARRIER: copyCount
+               SYM-CODEGEN-CARRIER: textLocationIn
+               The constant-size memcpy form is FAIL 43 at 411/410; a direct
+               indexed loop is FAIL 182 at 414/410 and shrinks the retail
+               184-byte frame to 176.  These three value webs preserve the
+               halfword-pointer loop emitted by the retail source expansion. */
+            short *textLocationOut = TL;
+            int copyCount = 4;
+            short *textLocationIn = TextLocations[TextIndex];
 
             do {
-              *pTL++ = *pTextLoc++;
-              n--;
-            } while (n != -1);
+              *textLocationOut++ = *textLocationIn++;
+              copyCount--;
+            } while (copyCount != -1);
             int k;
+            /* SYM-CODEGEN-CARRIER: textLength -- assigning strlen directly
+               to the SYM SHORT `sl` is FAIL 151 at 411/410 and rotates the
+               function's saved-register allocation. */
             int textLength = strlen(TextSys_Word((int)TL[2]));
             sl = (short)textLength;
-            short candidate = this->fTextTypeOn;
-            if ((short)textLength < candidate) {
-              candidate = textLength;
-            }
-            k = candidate;
+            k = MIN(this->fTextTypeOn,(short)textLength);
             if (this->fTextTypeOn < (short)textLength) {
               int howfarout;
 
@@ -1278,6 +1283,10 @@ void tScreenControllerConfig::DrawForeground()
               }
               FETextRender_SetFont(0);
               brightX = TL[0];
+              /* SYM-CODEGEN-CARRIER: textWidth -- duplicating the width
+                 expression in the two arms is FAIL 148 at 416/410; reusing
+                 the dead SYM `k` is count-exact FAIL 48 and exchanges the
+                 retail $s0/$s1 value webs across the text loop. */
               int textWidth = textpixels(string1) - strlen(string1);
               if (TL[3] == 1) {
                 brightX = brightX - textWidth;
@@ -1293,9 +1302,9 @@ void tScreenControllerConfig::DrawForeground()
               astringpointer = TextSys_Word((int)TL[2]);
             }
             FETextRender_FullTextRGB(astringpointer,TL[0],TL[1],ColText,'\0',TL[3]);
-            int squareWidth = textpixels(astringpointer) - strlen(astringpointer);
+            k = textpixels(astringpointer) - strlen(astringpointer);
             PSXDrawSquare(0,(int)TL[0],(int)TL[1],
-                          (TL[3] != 0) ? -squareWidth : squareWidth,7);
+                          (TL[3] != 0) ? -k : k,7);
           }
         }
       }
@@ -1304,10 +1313,15 @@ void tScreenControllerConfig::DrawForeground()
          i < NumTexts[(byte)this->fTextController - 1][(byte)this->fTextConfig];
          i++) {
       int TextIndex = (byte)this->fTextController - 1;
+      /* SYM-CODEGEN-CARRIER: flag -- folding this materialized predicate into
+         the final conjunction is FAIL 55 at 409/410. */
       bool flag = false;
+      /* SYM-CODEGEN-CARRIER: dialog -- direct negconPopUp member expressions
+         are count-exact FAIL 58 and rotate the global-table address registers. */
       tDialogYesNo *dialog = &this->negconPopUp;
 
-      if (dialog->currentlyOn == 0) {
+      /* SYM-INLINE-THIS: IsVisible */
+      if (!((tDialogBase *)dialog)->IsVisible()) {
         flag = dialog->fCurrentlyRunning == 0;
       }
       if (flag && (TextIndex >= 0)) {

@@ -4894,8 +4894,8 @@ uses those recorded scopes instead of one function-scope rectangle and moves
 Six decompiler-only identities are deleted entirely without changing one
 instruction: the two VIDEO return aliases, the text pointer, the async-handle
 copy, the warning-loop tint copy, and the unused TV bound collapse into their
-owning statements.  The former
-random-animation, fade-component, elapsed-tick, animation-frame, and video
+owning statements.  The former random-animation, fade-component, elapsed-tick,
+animation-frame, and video
 temporaries are replaced by six descriptive source-only value webs.  Each has
 an explicit counterfactual receipt: feeding `fadeComponent` through SYM
 `fade` is count-exact FAIL 22; inlining `videoY` is FAIL 24 at 820/822; nesting
@@ -4922,6 +4922,54 @@ eleven generic names from this function's queue, reduces generic extra
 source-local names from 63 to 52, and raises explicit source-only codegen
 carriers from 487 to 493.  Missing-name, type, storage, global, and mapping
 review queues remain empty.
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; undefined-call audits scan 15,782
+reconstruction and 15,779 source-lane calls with zero defects.  TU order has
+zero inversions across 513 objects, call-target audit finds zero proven wrong
+targets across 460 units, vtable indexing passes 930 files, and the source-only
+policy audit finds no post-compiler text moves or branch retargets.
+
+### P136 — controller foreground SYM and inline-source reconciliation (`2026-08-26`)
+
+Reliable `DrawForeground__23tScreenControllerConfig` records define
+function-scope `TL`, `i`, `j`, `string1`, `string2`, `brightstring`,
+`astringpointer`, `brightX`, `sl`, and `fade`; nested `ColText`, `ColText2`,
+`TextIndex`, `k`, and `howfarout`; and an inline `tDialogBase` receiver.  The
+source now restores the recorded receiver through `IsVisible()` and retains
+the exact lexical scopes of every named local.
+
+Three generic identities are removed while preserving byte identity.  The
+controller snapshot now stores and tests `fTextController` directly.  The
+manual short candidate becomes the EA `MIN(fTextTypeOn, (short)textLength)`
+macro spelling.  The final square width reuses the recovered SYM `k` local
+rather than creating a second width identity.
+
+Eight optimized-away value webs remain with explicit counterfactual proof.
+Direct `selectedConfig` assignment is count-exact FAIL 2 because it moves the
+`fFadeTextOut` store ahead of the frontend-table load.  Replacing
+`textLocationOut`, `copyCount`, and `textLocationIn` with constant-size
+`memcpy` is FAIL 43 at 411/410; a direct indexed loop is FAIL 182 at 414/410
+and shrinks the frame from 184 to 176 bytes.  Assigning `strlen` directly to
+SYM SHORT `sl` instead of retaining full-width `textLength` is FAIL 151 at
+411/410.  Duplicating the `textWidth` expression in its arms is FAIL 148 at
+416/410, while reusing SYM `k` there is count-exact FAIL 48.  Direct
+`negconPopUp` expressions instead of the shared `dialog` base are count-exact
+FAIL 58, and folding `flag` into the final conjunction is FAIL 55 at 409/410.
+Retail bytes prove these value webs, but the optimized SYM cannot recover their
+private spellings.
+
+`DrawForeground__23tScreenControllerConfig` remains exact PASS at 410/410
+instructions with an instruction-exact `-g` twin, and all 34 raw branch words
+compare CLEAN.  The complete `screencontroller.cpp` board remains 18 PASS,
+one near, and three far functions.  The refreshed strict frontend/common audit
+is stored in
+[`frontend_common_strict_p240_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p240_20260826.md).
+It advances declaration-clean mapped functions from 775 to 776, removes all
+eleven generic names from this function's queue, reduces generic extra
+source-local names from 52 to 41, restores one additional inline-local mapping,
+and raises explicit source-only codegen carriers from 493 to 501.  Missing-name,
+type, storage, global, and mapping review queues remain empty.
 
 Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
 relocation-referenced unresolved symbols; undefined-call audits scan 15,782

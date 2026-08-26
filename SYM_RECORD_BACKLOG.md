@@ -3908,6 +3908,45 @@ relocation-referenced unresolved symbols; the undefined-call audit scans
 pre-existing swapped `Sim_MainGameLoop` sites, the TU-order audit reports zero
 inversions, and the vtable indexing audit passes 930 files.
 
+### P110 — track-info background local-budget restoration (`2026-08-26`)
+
+Reliable `tScreenTrackInfo::DrawBackground` SYM records only member receiver
+`this` in `$s3`, `uint i` in `$s0`, stack array `short trackConditions[4]`,
+and `tTrackInformation *trackInfo` in `$s5`.  The reconstructed loop's
+block-local `word` was not required source structure: folding it into the
+indexed text-render argument remains exact PASS, so the generic identity is
+deleted rather than suppressed.
+
+The four remaining SYM-omitted identities are descriptive `trackList`,
+`state`, `highlighted`, and `screenInfo`, each now explicitly classified as a
+source-only codegen carrier.  `trackList` holds the single `GetTrackList`
+result across the sentinel loop; removing that identity would change semantics
+by repeating the call.  The scoped `state` identity is oracle-proven: folding
+it into the call conditional is FAIL 37 at 165/162 instructions and rotates
+the loop's saved-register and address schedule.  The existing receipt proves
+that the two post-use `screenInfo` references price retail's saved constants as
+`$s2 = highlighted` and `$s1 = screenInfo` without blocking the `$a3` shift
+operand.  SYM and the retail binary do not retain the four private spellings.
+
+`DrawBackground__16tScreenTrackInfo` remains exact PASS at 162/162
+instructions with an instruction-identical `-g` twin, and the complete
+`screentrackinfo.cpp` translation-unit gate remains 5/5 PASS.  The refreshed
+strict frontend/common audit is stored in
+[`frontend_common_strict_p214_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p214_20260826.md).
+Against the concurrent PurchaseUpgrade SYM-cleanup baseline, it advances
+declaration-clean mapped functions from 751 to 752, reduces generic extra
+source-local names from 232 to 227, and raises explicit
+source-only codegen carriers from 383 to 387.  Missing names, type findings,
+storage findings, global findings, and mapping reviews remain zero.
+
+A fresh full build compiles and links every translation unit and reproduces
+the standing executable hash `926db68e57a2dbcc9ca02a25981360ddc0a71464`.
+Both relink lanes are GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; the undefined-call audit scans
+15,781 calls with zero defects.  The call-target audit retains exactly the two
+pre-existing swapped `Sim_MainGameLoop` sites, the TU-order audit reports zero
+inversions, and the vtable indexing audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

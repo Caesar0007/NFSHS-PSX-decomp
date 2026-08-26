@@ -31,28 +31,33 @@ void tScreenTrackInfo::GetShapeInfo(short &numPermShapes,short &numSwapShapes,ch
    pointer/Y locals left three scheduling residuals.  For the four justified
    labels, two post-use read-only references to screenInfo price the saved
    constants as retail s2=highlighted and s1=screenInfo without a pre-call
-   barrier, leaving a3=1 available for the retail sllv index scale. */
+   barrier, leaving a3=1 available for the retail sllv index scale.  Folding
+   state into the call conditional is FAIL37 at 165/162 instructions and
+   rotates the loop's saved-register/address schedule. */
 void tScreenTrackInfo::DrawBackground()
 
 {
+  /* Reliable SYM omits these optimized-away source identities:
+     SYM-CODEGEN-CARRIER: trackList
+     SYM-CODEGEN-CARRIER: state
+     SYM-CODEGEN-CARRIER: highlighted
+     SYM-CODEGEN-CARRIER: screenInfo */
   tTrackInformation *trackInfo;
-  short *pList;
+  short *trackList;
   uint i;
   short trackConditions [4] = { 0xcc, 0xcd, 0xce, 0xcf };  /* .rodata @0x80011f6c: FE condition-label text IDs */
   
   
   trackInfo = GetTrackByID(&trackManager,(short)(this->fTrack).fTrackNumber);
-  for (pList = GetTrackList(&tournamentManager,(ushort)(byte)frontEnd.tier,
+  for (trackList = GetTrackList(&tournamentManager,(ushort)(byte)frontEnd.tier,
                             (ushort)(frontEnd.tier != '\0' ? frontEnd.specialevent : frontEnd.tournament)),
-       i = 0; pList[i] != 0; i = i + 1) {
-    short word = pList[i];
-
+       i = 0; trackList[i] != 0; i = i + 1) {
     tMenuTextState state = textState_Selected;
     if (i == tournamentManager.fCurrentTrack) {
       state = textState_Hilighted;
     }
     FETextRender_MenuTextPositioned
-              (word,0xaa,(short)(0x8f + (int)i * 9),
+              (trackList[i],0xaa,(short)(0x8f + (int)i * 9),
                state,textType_ScreenInfo);
   }
   for (i = 0; i < 4; i = i + 1) {

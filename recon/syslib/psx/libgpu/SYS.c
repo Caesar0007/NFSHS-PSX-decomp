@@ -1725,42 +1725,10 @@ extern int _dws(RECT *rect, u_long *data)
      * clamps only 41/144; _drs: payload 45/161, clamps 45/161).  Declaration position
      * of `saved` is inert (first: _dws 8, _drs 10).  A read-only fence on `rect` at the
      * top costs 4 (12).  The class stands as the 06E local-alloc/assign_parms gap.
-     * W72-A19 (2026-08-22) -- RESIDUAL CLASS (b) IS A PURE LINE RELOCATION AND IS SOLVED
-     * BY A PER_FN_TEXT_MOVES ROW (probe-verified twice, whole TU re-gated twice, zero
-     * PASS->FAIL): _dws 6 -> 2 and _drs 8 -> 4, both count-EXACT.  Class (b) is the two parm
-     * (save, copy) PAIRS emitted in the opposite order to retail; the cc1 text is
-     *     subu $sp,$sp,N / sw $18,24($sp) / addu $18,$5,$0 / sw $17,20($sp) / addu $17,$4,$0
-     * and retail wants the $17 pair FIRST.  Both pairs are already byte-correct, so this is
-     * exactly the W60-A5 BSEARCH.c / W61-A4 FntFlush prologue-emission-order class: move the
-     * $17 pair to sit directly after the `subu $sp`.  Anchors are label-agnostic and occur
-     * EXACTLY ONCE in each function's region (verified by a region-scoped regex count).
-     * ORCHESTRATOR WIRING (agents cannot edit tools/*.py) -- ADD to PER_FN_TEXT_MOVES:
-     *     "recon/syslib/psx/libgpu/SYS.c": {
-     *         "_dws": [
-     *             {"take": r"\tsw\t\$17,20\(\$sp\)\n\taddu\t\$17,\$4,\$0\n",
-     *              "after": r"\tsubu\t\$sp,\$sp,48\n"},
-     *         ],
-     *         "_drs": [
-     *             {"take": r"\tsw\t\$17,20\(\$sp\)\n\taddu\t\$17,\$4,\$0\n",
-     *              "after": r"\tsubu\t\$sp,\$sp,40\n"},
-     *         ],
-     *     }
-     * (the two `subu` immediates differ -- _dws frame 48, _drs frame 40 -- so the rows are
-     * NOT copy-paste identical.  SYS.c already owns a PER_FN_FLAG_SPLICE_272 entry; this is
-     * a different table.  A probe copy of the rows lives at
-     * scratchpad/W72_A19/moves_sys.json and is driven with
-     * `W60_TEXT_MOVES_FILE=... python tools/vprobe.py`.)  Measured under the rows: whole TU
-     * PASS-set UNCHANGED, _dws 2, _drs 4, PutDispEnv still PASS.
-     * RESIDUAL AFTER THE ROWS = class (a) only (the `lui $s3,1024` / `lui $s1,2048` constant
-     * rematerialisations), and its FLAG AXIS IS NOW CLOSED TOO: per-fn splices of
-     * -fno-cse-follow-jumps, -fno-cse-skip-blocks and -fno-thread-jumps are BIT-FOR-BIT
-     * INERT on both fns, -fno-rerun-cse-after-loop is worse (_dws 10), and
-     * -fno-expensive-optimizations is catastrophic (43/45, and +1 insn).  Source cells
-     * falsified on the moved basin as well: `readyMask` hoisted above the guard with an
-     * identity launder 39 @144 / without 39 @142 / with a read-only fence 44 @137; a
-     * named+laundered `guardMask` for the guard test 12; an in-place identity launder on
-     * `readyMask` 36 (_dws) and 54 (_drs).  It is the 3.25-3b old-gcc no-copy-prop identity,
-     * unreachable from source AND from the cse/jump flag set.
+     * W79 -- class (b) is source-solvable too.  A nonvolatile empty asm that ties `data`
+     * as input/output and reads `saved` creates a real saved->data dependency.  Unlike an
+     * output-less asm, it is not an implicit scheduling barrier, so sched1 emits retail's
+     * rect pair before the data pair without disturbing the timeout call or allocation.
      * 🏆 W74-A18 (2026-08-23) -- CLASS (a) IS SOLVED; _dws PASS 143/143, _drs PASS 160/160.
      * The "3.25-3b old-gcc no-copy-prop" NAME WAS WRONG, and that is why eight waves of cse
      * / jump / version / flag dials all measured inert: the copy is NOT made by cse and NOT
@@ -1793,6 +1761,7 @@ extern int _dws(RECT *rect, u_long *data)
      * that was merely missing this device.  (The 4.0 rung DOES rematerialize 0x04000000 at
      * all four uses, which is what made the old "old-gcc no-copy-prop" story plausible.) */
     saved = rect;
+    __asm__("" : "=r"(data) : "0"(data), "r"(saved));
     var_s4 = 0;                                  /* GP0 cmd selector (0 = 0xA0 load) */
     _gpu_arm_timeout();
     saved->w = CLAMP(saved->w, 0, GEnv.screenW);

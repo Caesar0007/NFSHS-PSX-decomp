@@ -136,42 +136,20 @@ extern int CdReadyCallback(int func)
  *     decrement), NOT a fall-through around an else.
  *   - `status` is a real variable set 0/-1 and the return is `status + 1`
  *     (oracle: `addu s7,zero,zero` / `li s7,-1` + `addiu v0,s7,1`).
- * Rage Racer additionally needs `register long cmd asm("$20")` pins and
- * zero-insn opacity fences; asm register pins are FORBIDDEN here
- * (methodology 3.13), so they are dropped and the residual is left honest.
- *
  * MATCH (w55-a5): CdControl / CdControlB take an **INT** command parameter, like
  * Rage Racer's `long com` and like the already-PASSing CdControlF.  Their oracles
  * copy the parameter RAW (`addu $s4,$a0,$zero`) and re-mask per use; a `u_char`
  * parameter masks ONCE at entry (`andi $s4,$a0,255`) and can never match (the
  * w53-a9 CdControlF law).  All call sites tree-wide pass LITERAL command codes,
  * so the prototype widening is codegen-neutral at every one of them.
- * ⚠️ UNLIKE CdControlF, neither of these wants the identity fence on `cmd`: with
- * the fence the parm-copy is PROMOTED past `resultReg` and the whole s-handout
- * rotates (B 4 -> 22, measured).  Plain `int com`, no fence.
- * RESIDUAL, both fns, NAMED + PROVEN: a PURE 2-LINE TEXT RELOCATION -- retail
- * emits `sw $20,32($sp); addu $20,$4,$0` immediately after `addu $18,$6,$0`
- * (i.e. cmd's parm copy is the 3rd first-def), ours sinks it below `li $16,3`
- * and `li $fp,1`.  No source lever reaches it (falsified in this basin: void /
- * volatile / bare `__asm__("")` fences at the copy, top-of-fn fence, decl-order
- * swap, an early `cmd`-use, hoisting `command` -- 4 or worse every time).
- *   ORCHESTRATOR: PER_FN_TEXT_MOVES spec, PROVEN PASS 83/83 for CdControlB by
- *   scratchpad/w55a5_moves.py:
- *     "recon/syslib/psx/libcd/cdcont.c": {"CdControlB": [
- *        {"take": r"\tsw\t\$20,32\(\$sp\)\n\taddu\t\$20,\$4,\$0\n",
- *         "after": r"\taddu\t\$18,\$6,\$0\n"}]}
- *   BLOCKER: `_apply_text_moves` is called only from compile_c / compile_cpp;
- *   `_compile_c_272` (this TU's lane) never calls it -- one line to add.
- *   CdControl carries the SAME move plus one more residual (see its own note). */
+ * MATCH (W79): no hard-register pin or post-cc1 move is needed.  GCC 2.7.2's
+ * sched1 works backward; once the command byte-mask is scheduled, the `cmd`
+ * copy becomes newly ready and otherwise jumps ahead of the retry initializer.
+ * A zero-byte `(resultReg,cmd)` input boundary before `retries`, followed by a
+ * separate read of `command`, reproduces retail's result/cmd/retry/command
+ * handout and emission order in both functions. */
 
-/* @0x800F78B4 : CdControl -- issue a command (with result), retrying up to 4 times.
- * RESIDUAL 8 = the shared 2-line parm-copy relocation (see the block note above,
- * 4 diffs) + a local-alloc handout: the loop-head `command != 1` literal goes to
- * `$v0` here, retail to `$t0` -- i.e. retail's numeric first-free scan found
- * $v0..$a3 all in use over that 2-insn qty's range and ours did not.  FALSIFIED
- * (all byte-identical, gcc canonicalizes the guard): Yoda `1 != command`,
- * `(command - 1) != 0`, `command < 1 || 1 < command`, a block-scoped `one = 1;`
- * re-materialized inside the loop. */
+/* @0x800F78B4 : CdControl -- issue a command (with result), retrying up to 4 times. */
 extern int CdControl(int com, unsigned char *param, unsigned char *result)
 {
     unsigned char *arg;
@@ -204,15 +182,16 @@ extern int CdControl(int com, unsigned char *param, unsigned char *result)
      * FALSIFIED (all re-gated here): read-only fence on `one` 29, identity launder 53,
      * `do { one = 1; } while (0)` 9, Yoda `1 != command` INERT, `(unsigned char)cmd != 1`
      * 25, a second named constant for the CdlSetloc `2` 7 @80.
-     * The pre-existing PER_FN_TEXT_MOVES row for this fn stays -- it fixes the parm-copy
-     * ORDER; its in-table note "residual = a li v0/t0 register substitution TEXT_MOVES
-     * cannot reach" is now CLOSED from the source side. */
+     * W79's paired zero-byte boundaries below also close the former parm-copy
+     * scheduling residual without a post-compiler move. */
     one = 1;
     arg = param;
     resultReg = result;
     cmd = com;
+    __asm__("" : : "r"(resultReg), "r"(cmd));
     retries = 3;
     command = (unsigned char)cmd;
+    __asm__("" : : "r"(command));
     base = setloc;
     savedMode = CD_cbsync;
     offset = command * 4;
@@ -325,6 +304,7 @@ extern int CdControlB(int com, unsigned char *param, unsigned char *result)
     arg = param;
     resultReg = result;
     cmd = com;
+    __asm__("" : : "r"(resultReg), "r"(cmd));
     /* MATCH (w55-a5): same recipe as CdControlF -- the command parameter is an
      * INT, copied RAW (`addu s4,a0,zero`) and re-masked per use; a u_char param
      * masks ONCE at entry (`andi s4,a0,255`) and can never match. */
@@ -336,6 +316,7 @@ extern int CdControlB(int com, unsigned char *param, unsigned char *result)
      * CdControl keeps the literal.  272-lane: F 15->4, B 15->4, both COUNT-EXACT. */
     one = 1;
     command = (unsigned char)cmd;
+    __asm__("" : : "r"(command));
     base = setloc;
     savedMode = CD_cbsync;
     offset = command * 4;

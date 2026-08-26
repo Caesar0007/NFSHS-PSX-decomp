@@ -229,14 +229,25 @@ long tCarManager::PurchaseCar(short carModel,short color,short playerNum)
 long tCarManager::SellCar(short garageNumber,short playerNum)
 
 {
+  /* Reliable SYM records only `i` and `result` for this function.  The
+     optimized-away identities below are retained because the measured W54,
+     W57, and W70 source shapes are all required for the exact retail codegen;
+     their private original spellings are not recoverable from SYM.
+     SYM-CODEGEN-CARRIER: removedSlotOffset
+     SYM-CODEGEN-CARRIER: previousSlotOffset
+     SYM-CODEGEN-CARRIER: lastSlotOffset
+     SYM-CODEGEN-CARRIER: numCars
+     SYM-CODEGEN-CARRIER: playerFrontEnd
+     SYM-CODEGEN-CARRIER: selectedSlotOffset
+     SYM-CODEGEN-CARRIER: newSelection */
   long result;
   short i;
 
   result = this->CalcUsedPrice(garageNumber);
   {
-    int slot = ((int)garageNumber - (int)this->fNumCars) * 4;
-    slot = slot + playerNum * 128;
-    *(signed char *)(slot + (char *)this + 8) = -1;
+    int removedSlotOffset = ((int)garageNumber - (int)this->fNumCars) * 4;
+    removedSlotOffset = removedSlotOffset + playerNum * 128;
+    *(signed char *)(removedSlotOffset + (char *)this + 8) = -1;
   }
   for (i = garageNumber - this->fNumCars + 1; i < 0x20; i++) {
     /* MATCH: (signed char) -- plain `char < 0` folds false (unsigned char ABI); retail
@@ -247,30 +258,31 @@ long tCarManager::SellCar(short garageNumber,short playerNum)
     this->fCarGarage[playerNum][i - 1].fCarColor = this->fCarGarage[playerNum][i].fCarColor;
   }
   { /* own statement: keeps fold from merging the -4 into the +8 displacement */
-    int prevSlot = i * 4 - 4;
-    prevSlot = prevSlot + playerNum * 128;
-    *(signed char *)(prevSlot + (char *)this + 8) = -1;
+    int previousSlotOffset = i * 4 - 4;
+    previousSlotOffset = previousSlotOffset + playerNum * 128;
+    *(signed char *)(previousSlotOffset + (char *)this + 8) = -1;
   }
   { /* MATCH (W57-A7, 8 -> 6): see the RemoveFromPinkSlipsList twin -- naming `playerNum*128`
        makes `this` the addu's operand 0 (retail `addu v0,s3,a1`). */
-    int slot31 = playerNum * 128;
+    int lastSlotOffset = playerNum * 128;
 
-    *(signed char *)(slot31 + (char *)this + 0x84) = -1;
+    *(signed char *)(lastSlotOffset + (char *)this + 0x84) = -1;
   }
   {
-  u_long nc;
-  u_char *fePlayer = (u_char *)&frontEnd + playerNum;
-  int chk = ((u_int)fePlayer[0x123] - (nc = this->fNumCars)) * 4;
-  chk = chk + playerNum * 128;
-  if (*(signed char *)(chk + (char *)this + 8) < 0) {
-    char newSel;
-    if ((u_int)fePlayer[0x123] <= nc) {
-      newSel = '\0';
+  u_long numCars;
+  u_char *playerFrontEnd = (u_char *)&frontEnd + playerNum;
+  int selectedSlotOffset =
+      ((u_int)playerFrontEnd[0x123] - (numCars = this->fNumCars)) * 4;
+  selectedSlotOffset = selectedSlotOffset + playerNum * 128;
+  if (*(signed char *)(selectedSlotOffset + (char *)this + 8) < 0) {
+    char newSelection;
+    if ((u_int)playerFrontEnd[0x123] <= numCars) {
+      newSelection = '\0';
     }
     else {
-      newSel = fePlayer[0x123] - 1;
+      newSelection = playerFrontEnd[0x123] - 1;
     }
-    fePlayer[0x123] = newSel;
+    playerFrontEnd[0x123] = newSelection;
   }
   }
   return result;
@@ -364,14 +376,25 @@ long tCarManager::PurchaseUpgrade(short garageNumber,short upgradeFlags,short pl
 void tCarManager::RemoveFromPinkSlipsList(short garageNumber,short playerNum)
 
 {
+  /* Reliable SYM records only `i` for this function.  These seven
+     optimized-away identities are the exact twin of SellCar's measured
+     address/allocation shape; their private original spellings are not
+     recoverable from SYM.
+     SYM-CODEGEN-CARRIER: removedSlotOffset
+     SYM-CODEGEN-CARRIER: previousSlotOffset
+     SYM-CODEGEN-CARRIER: lastSlotOffset
+     SYM-CODEGEN-CARRIER: numCars
+     SYM-CODEGEN-CARRIER: playerFrontEnd
+     SYM-CODEGEN-CARRIER: selectedSlotOffset
+     SYM-CODEGEN-CARRIER: newSelection */
   short i;
 
   /* INDEX-FIRST spelling: retail keeps `playerNum*128` and `this` SEPARATE
      (`addu v0,v0,a0; addu v0,t1,v0`); the natural member form hoists `this + playerNum*128`. */
   {
-    int slot = ((int)garageNumber - (int)this->fNumCars) * 4;
-    slot = slot + playerNum * 128;
-    *(signed char *)(slot + (char *)this + 0x108) = -1;
+    int removedSlotOffset = ((int)garageNumber - (int)this->fNumCars) * 4;
+    removedSlotOffset = removedSlotOffset + playerNum * 128;
+    *(signed char *)(removedSlotOffset + (char *)this + 0x108) = -1;
   }
   for (i = garageNumber - this->fNumCars + 1; i < 0x20; i++) {
     /* MATCH: (signed char) -- plain `char < 0` folds false (unsigned char ABI); retail
@@ -383,9 +406,9 @@ void tCarManager::RemoveFromPinkSlipsList(short garageNumber,short playerNum)
   }
   { /* own statement: keeps fold from merging the -4 into the 0x108 displacement
        (retail has an explicit `addiu v0,v0,-4` on the index chain) */
-    int prevSlot = i * 4 - 4;
-    prevSlot = prevSlot + playerNum * 128;
-    *(signed char *)(prevSlot + (char *)this + 0x108) = -1;
+    int previousSlotOffset = i * 4 - 4;
+    previousSlotOffset = previousSlotOffset + playerNum * 128;
+    *(signed char *)(previousSlotOffset + (char *)this + 0x108) = -1;
   }
   { /* MATCH (W57-A7, 8 -> 6): the slot-31 store's `addu` operand order is decided by whether
        `playerNum*128` is an EXPRESSION or a real INPUT OPERAND.  Written flat, gcc builds the
@@ -393,24 +416,25 @@ void tCarManager::RemoveFromPinkSlipsList(short garageNumber,short playerNum)
        address sites already do) makes `this` operand 0 -> retail's `addu v0,t1,a1`.  The w41
        "int-typed sum flips addu operand 0" spelling `(int)this + playerNum*128 + K` measured
        IDENTICAL to the flat form -- statement granularity, not operand spelling, is the dial. */
-    int slot31 = playerNum * 128;
+    int lastSlotOffset = playerNum * 128;
 
-    *(signed char *)(slot31 + (char *)this + 0x184) = -1;
+    *(signed char *)(lastSlotOffset + (char *)this + 0x184) = -1;
   }
   {
-  u_long nc;
-  u_char *fePlayer = (u_char *)&frontEnd + playerNum;
-  int chk = ((u_int)fePlayer[0x123] - (nc = this->fNumCars)) * 4;
-  chk = chk + playerNum * 128;
-  if (*(signed char *)(chk + (char *)this + 0x108) < 0) {
-    char newSel;
-    if ((u_int)fePlayer[0x125] <= nc) {
-      newSel = '\0';
+  u_long numCars;
+  u_char *playerFrontEnd = (u_char *)&frontEnd + playerNum;
+  int selectedSlotOffset =
+      ((u_int)playerFrontEnd[0x123] - (numCars = this->fNumCars)) * 4;
+  selectedSlotOffset = selectedSlotOffset + playerNum * 128;
+  if (*(signed char *)(selectedSlotOffset + (char *)this + 0x108) < 0) {
+    char newSelection;
+    if ((u_int)playerFrontEnd[0x125] <= numCars) {
+      newSelection = '\0';
     }
     else {
-      newSel = fePlayer[0x123] - 1;
+      newSelection = playerFrontEnd[0x123] - 1;
     }
-    fePlayer[0x125] = newSel;
+    playerFrontEnd[0x125] = newSelection;
   }
   }
   return;

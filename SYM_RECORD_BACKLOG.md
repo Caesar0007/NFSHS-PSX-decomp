@@ -3596,6 +3596,43 @@ call-target audit retains exactly the two pre-existing swapped
 `Sim_MainGameLoop` sites, the TU-order audit reports zero inversions, and the
 vtable indexing audit passes 930 files.
 
+### P102 — car-removal twin carrier restoration (`2026-08-26`)
+
+Reliable `tCarManager::SellCar` SYM records only caller parameters, `short i`
+in `$a2`, and `long result` in `$t0`; `RemoveFromPinkSlipsList` records only
+its caller parameters and `short i` in `$a3`.  Neither function has a nested
+SYM local block.  The seven additional identities in each reconstructed body
+are therefore optimized-away source structure whose private spellings cannot
+be recovered from the debug records.
+
+The twins no longer expose decompiler spellings `slot`, `prevSlot`, `slot31`,
+`nc`, `fePlayer`, `chk`, and `newSel`.  They now use descriptive
+`removedSlotOffset`, `previousSlotOffset`, `lastSlotOffset`, `numCars`,
+`playerFrontEnd`, `selectedSlotOffset`, and `newSelection`, with every identity
+explicitly recorded as a source-only codegen carrier.  This is not a generic
+disposition: the existing W54/W57/W70 oracle receipts prove that the separated
+offset statements, player-relative frontend base, embedded car-count load, and
+explicit selection branch are all required for the exact allocation,
+addressing, and delay-slot schedule.
+
+`SellCar` remains exact PASS at 96/96 instructions and
+`RemoveFromPinkSlipsList` remains PASS at 82/82, both with
+instruction-identical `-g` twins.  The complete `fecars.cpp` translation-unit
+gate is 46/46 PASS.  The refreshed strict frontend/common audit is stored in
+[`frontend_common_strict_p206_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p206_20260826.md).
+It advances declaration-clean mapped functions from 741 to 743, reduces generic
+extra source-local names from 295 to 281, and raises explicit source-only
+codegen carriers from 328 to 342.  Missing names, type findings, storage
+findings, global findings, and mapping reviews remain zero.
+
+A fresh full build compiles and links every translation unit and reproduces the
+standing executable hash `926db68e57a2dbcc9ca02a25981360ddc0a71464`.
+Both relink lanes are GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; the undefined-call audit scans
+15,781 calls with zero defects.  The call-target audit retains exactly the two
+pre-existing swapped `Sim_MainGameLoop` sites, the TU-order audit reports zero
+inversions, and the vtable indexing audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

@@ -68,12 +68,12 @@
 extern int  fixedmult(int a, int b);                       /* eacpsxz @0x800E4328 (lbl_D4328) */
 extern void blockmove(void *src, void *dst, int n);        /* eacpsxz @0x800E62DC (lbl_D62DC) */
 
-typedef union transmult_pointer_arg {
-    int *pointer;
-    int * volatile memory;
-} transmult_pointer_arg;
+typedef struct transmult_pointer_args {
+    int *left;
+    int *right;
+} transmult_pointer_args;
 
-extern int *transmult(transmult_pointer_arg a, transmult_pointer_arg b, int *out) /* @0x80105F40 */
+extern int *transmult(transmult_pointer_args args, int *out) /* @0x80105F40 */
 {
     register int *aw;
     int temp[9];
@@ -231,20 +231,30 @@ extern int *transmult(transmult_pointer_arg a, transmult_pointer_arg b, int *out
      *   PER_FN_TEXT_MOVES["recon/eaclib/psx/eacpsxz/trnsmult.c"] = {"transmult": [
      *       {"take": r"\tsw\t\$4,104\(\$sp\)\n", "after": r"\tsw\t\$22,88\(\$sp\)\n"}]}
      * Both anchors are unique inside the .ent/.end region and label-agnostic (w60-a8). */
+    /* MATCH (2026-08-26, no volatile): the first two pointer arguments form one
+     * 8-byte by-value aggregate.  MIPS o32 still passes its fields in a0/a1 and
+     * `out` in a2, so this is call-ABI-identical to three pointer arguments.
+     * Unlike two independent scalar parameters, GCC keeps the aggregate field
+     * reads as distinct parameter-home accesses: that naturally reproduces the
+     * retail double a reload, the pa[] reloads, and both load-delay nops.  The
+     * NFS2 PC `_transmult` body confirms the same left-row/right-column math,
+     * while the NFS4 PSX IDA/Ghidra bodies confirm this walker/stack-scratch
+     * loop shape.  Result: 81/81 instructions and the same lone prologue-order
+     * residual (2 diffs) as the former volatile-pointer-view implementation. */
     i = 0;
     i2 = 8;
     i1 = 4;
-    aw = a.pointer;
+    aw = args.left;
     for (; i < 9; i += 3) {
         j = 0;
         j2 = 24;
         j1 = 12;
         {
-            base = a.memory;
+            base = args.left;
             base = (int *)((char *)base + i1);
             pa[0] = base;
-            bw = b.pointer;
-            base = a.memory;
+            bw = args.right;
+            base = args.left;
             base = (int *)((char *)base + i2);
             pa[1] = base;
         }
@@ -254,13 +264,13 @@ extern int *transmult(transmult_pointer_arg a, transmult_pointer_arg b, int *out
             acc  = fixedmult(aw[i], *bw);
             bw++;
             base = pa[0];
-            av = *(volatile int *)base;
-            base = b.memory;
+            av = *base;
+            base = args.right;
             bv = *(int *)((char *)base + j1);
             acc += fixedmult(av, bv);
             base = pa[1];
-            av = *(volatile int *)base;
-            base = b.memory;
+            av = *base;
+            base = args.right;
             bv = *(int *)((char *)base + j2);
             acc += fixedmult(av, bv);
             temp[i + j] = acc;
@@ -270,5 +280,5 @@ extern int *transmult(transmult_pointer_arg a, transmult_pointer_arg b, int *out
         i2 += 12;
         i1 += 12;
     }
-    blockmove(temp, out, 0x24);                                 /* 9 ints -> output (alias-safe) */
+    blockmove(temp, out, 0x24);                                /* 9 ints -> output (alias-safe) */
 }

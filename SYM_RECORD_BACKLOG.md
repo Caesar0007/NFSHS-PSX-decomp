@@ -4136,6 +4136,39 @@ generic extra source-local names from 229 to 226, and raises explicit
 source-only codegen carriers from 386 to 389.  All missing-name, type, storage,
 global, and mapping-review queues remain empty.
 
+### P116 — dealer/seller transition carrier reconciliation (`2026-08-26`)
+
+Reliable SYM records for both `MenuExtended_GoToDealer` and
+`MenuExtended_GoToSeller` retain only reference parameter `command` in `$a2`;
+their 24-byte frames and `$s0/$ra` masks record no named locals.  The source
+identities have therefore been renamed from decompiler forms `cmd`, `ptVar1`,
+and `dlgThis` to descriptive `commandPtr`, `menuDefinitions`, and
+`carSelectScreen`, alongside already descriptive `state` and `cmdType`.
+
+All five identities in each callback are explicitly classified as source-only
+codegen carriers.  On the current source-only compiler path, the natural
+zero-local dealer spelling is measured count-exact FAIL 16 at 26/26
+instructions: it loses the early `$a2` command copy, `$a1` state, `$a0` menu
+pointer, `$v1` command constant, and early screen receiver load.  The retained
+empty identity boundaries restore exactly those value webs.  The seller body
+is the allocation-identical twin—same instruction count, schedule, boundaries,
+and carrier roles, differing only in state constant and member offsets—so this
+dealer measurement directly proves the shared mechanism while the authoritative
+gate independently proves both final bodies exact.  SYM and retail code cannot
+recover private spellings for optimized-away carrier values.
+
+`MenuExtended_GoToDealer__FR12tMenuCommand` and
+`MenuExtended_GoToSeller__FR12tMenuCommand` both remain exact PASS at 26/26
+instructions.  The complete `femenudefs.cpp` translation-unit gate is 65/66
+PASS with only the existing 872-diff `tGlobalMenuDefs` constructor residual,
+and the source-only-policy audit passes with no post-compiler text moves or
+branch retargets.  The refreshed strict frontend/common audit is stored in
+[`frontend_common_strict_p220_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p220_20260826.md).
+It advances declaration-clean mapped functions from 753 to 755, reduces
+generic extra source-local names from 226 to 216, and raises explicit
+source-only codegen carriers from 389 to 399.  Missing-name, type, storage,
+global, and mapping-review queues remain empty.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

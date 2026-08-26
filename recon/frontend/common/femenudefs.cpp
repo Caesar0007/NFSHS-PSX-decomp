@@ -630,23 +630,33 @@ MX_GoToCar_oppFilterSetup:
 static void MenuExtended_GoToDealer(tMenuCommand &command)
 
 {
+  /* SYM-CODEGEN-CARRIER: state -- the zero-local natural spelling is
+     count-exact FAIL 16; this value stages retail's SetState $a1. */
   int state;
+  /* SYM-CODEGEN-CARRIER: cmdType -- the same receipt proves the staged menu
+     command constant is retail's independently live $v1 value. */
   int cmdType;
-  tMenuCommand *cmd;
-  tGlobalMenuDefs *ptVar1;
-  tScreenCarSelect *dlgThis;
+  /* SYM-CODEGEN-CARRIER: commandPtr -- the combined identity boundary keeps
+     the reference parameter as retail's command-store base in $a2. */
+  tMenuCommand *commandPtr;
+  /* SYM-CODEGEN-CARRIER: menuDefinitions -- direct menuDefs[0] addressing is
+     part of the FAIL-16 spelling; this shared pointer supplies retail's $a0. */
+  tGlobalMenuDefs *menuDefinitions;
+  /* SYM-CODEGEN-CARRIER: carSelectScreen -- direct screenCarSelect[0] use is
+     part of the FAIL-16 spelling and loses retail's early receiver load. */
+  tScreenCarSelect *carSelectScreen;
 
   state = 2;
-  cmd = &command;
-  __asm__("" : "+r"(cmd), "+r"(state));
-  dlgThis = screenCarSelect[0];
-  ptVar1 = menuDefs[0];
+  commandPtr = &command;
+  __asm__("" : "+r"(commandPtr), "+r"(state));
+  carSelectScreen = screenCarSelect[0];
+  menuDefinitions = menuDefs[0];
   cmdType = 1;
-  __asm__("" : "+r"(ptVar1));
-  cmd->type = cmdType;
+  __asm__("" : "+r"(menuDefinitions));
+  commandPtr->type = cmdType;
   __asm__("" : : "r"(cmdType));
-  cmd->nextMenu = (tMenu *)&ptVar1->menuCarDealer;
-  dlgThis->SetState(state);
+  commandPtr->nextMenu = (tMenu *)&menuDefinitions->menuCarDealer;
+  carSelectScreen->SetState(state);
   menuDefs[0]->iteratorDealerCar.Decrement(kPlayerBoth);
   menuDefs[0]->iteratorDealerCar.Increment(kPlayerBoth);
   return;
@@ -676,23 +686,29 @@ static void MenuExtended_GoToDealer(tMenuCommand &command)
 static void MenuExtended_GoToSeller(tMenuCommand &command)
 
 {
+  /* SYM-CODEGEN-CARRIER: state -- seller is the allocation-identical twin of
+     the measured dealer FAIL-16 natural spelling; this stages SetState $a1. */
   int state;
+  /* SYM-CODEGEN-CARRIER: cmdType -- twin staged command constant in $v1. */
   int cmdType;
-  tMenuCommand *cmd;
-  tGlobalMenuDefs *ptVar1;
-  tScreenCarSelect *dlgThis;
+  /* SYM-CODEGEN-CARRIER: commandPtr -- twin command-store base in $a2. */
+  tMenuCommand *commandPtr;
+  /* SYM-CODEGEN-CARRIER: menuDefinitions -- twin shared menu pointer in $a0. */
+  tGlobalMenuDefs *menuDefinitions;
+  /* SYM-CODEGEN-CARRIER: carSelectScreen -- twin early SetState receiver. */
+  tScreenCarSelect *carSelectScreen;
 
   state = 3;
-  cmd = &command;
-  __asm__("" : "+r"(cmd), "+r"(state));
-  dlgThis = screenCarSelect[0];
-  ptVar1 = menuDefs[0];
+  commandPtr = &command;
+  __asm__("" : "+r"(commandPtr), "+r"(state));
+  carSelectScreen = screenCarSelect[0];
+  menuDefinitions = menuDefs[0];
   cmdType = 1;
-  __asm__("" : "+r"(ptVar1));
-  cmd->type = cmdType;
+  __asm__("" : "+r"(menuDefinitions));
+  commandPtr->type = cmdType;
   __asm__("" : : "r"(cmdType));
-  cmd->nextMenu = (tMenu *)&ptVar1->menuCarSeller;
-  dlgThis->SetState(state);
+  commandPtr->nextMenu = (tMenu *)&menuDefinitions->menuCarSeller;
+  carSelectScreen->SetState(state);
   menuDefs[0]->iteratorSellerCar.Decrement(kPlayerBoth);
   menuDefs[0]->iteratorSellerCar.Increment(kPlayerBoth);
   return;

@@ -266,7 +266,17 @@ void DrawTVLines(tTVConfig &tv)
    noise->height` operand swap for the FIRST arm's reflection v2/v3 (77->85,
    62->70, 12->20) and its block-local u_char-temp form (77->81, 12->24) -- that
    pair's load order is already retail's; the tv.v/tv.vh pair above is the one
-   that was inverted. */
+   that was inverted.
+
+   SOURCE PASS 2026-08-26 (2->0, 815/815): immediately after acquiring the
+   first reflection packet, spell a zero-net pointer perturbation as
+   `reflection--; reflection++;`.  GCC removes both arithmetic operations but
+   preserves the copy-web/priority shape long enough for `lw s0,0(s7)` to issue
+   before the independent fadeBottom reload, exactly like retail.  The MGS-style
+   hidden packet temporary and a canonical assignment/call comma chain were
+   neutral at FAIL 2.  An empty identity asm moved the packet load but blocked
+   delay-slot scheduling and was FAIL 11 at 816/815.  The final solution is pure
+   C and needs no local, volatile, asm, register pin, or postcompile splice. */
 
 void DrawTV(tTVConfig &tv)
 
@@ -425,6 +435,8 @@ void DrawTV(tTVConfig &tv)
           fadeBottom = 0x80;
         }
         reflection = (POLY_GT4 *)*packetPtrSlot;
+        reflection--;
+        reflection++;
         FETVLinkGT4((u_int *)Render_gPalettePtr,reflection,packetPtrSlot,rgbMask);
         *(u_int *)&reflection->r0 = *(u_int *)&reflection->r1 =
              (((0x80 - bright) * (0x80 - fadeTop) / 0x80) << 0x10) |

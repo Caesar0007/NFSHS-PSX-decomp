@@ -496,17 +496,23 @@ extern int _dirFailAuto(unsigned char *info)
  *   booleanize the result (11 @10), and an opacity fence prevents the fold but still rotates the
  *   pair (12 @11).  A statement-expression return with a post-constant read fence prevents delay-
  *   slot folding but moves the one-carrier to $a1 and grows to 13 insns (10 diffs).  All were
- *   reverted; the one-extra-return basin below remains authoritative. */
+ *   reverted.
+ * w79-root: source-only PASS 11/11.  The shipped Silent Hill and Parasite Eve 2 PADSEQD objects
+ *   contain the same 11-word helper, confirming the Sony single-result funnel.  Spell the two
+ *   outcomes as one `r`, then launder that merged value once at the shared exit.  The tied empty
+ *   identity prevents GCC 2.8 from booleanizing or splitting the arms into two returns, while
+ *   remaining schedulable: the equal branch receives `r = 0` in its delay slot, the other arm
+ *   falls through to `r = 1`, and both reach the single retail `jr $ra`. */
 extern int _dirCheck(unsigned char *info)
 {
     int r;
 
-    if (*(unsigned short *)(info + 0xe6) != 0) {
-        r = 0xff;
-        if (info[0x46] == r) {
-            r = 0;
-            return r;
-        }
+    if ((*(unsigned short *)(info + 0xe6) == 0) ||
+        (info[0x46] != 0xff)) {
+        r = 1;
+    } else {
+        r = 0;
     }
-    return 1;
+    __asm__("" : "=r"(r) : "0"(r));
+    return r;
 }

@@ -375,9 +375,10 @@ void tScreenMemcard::PlaceIcons(register int i,int fadeval)
 
 {
   short yy;
-  shapetbl *icon;
   short xx;
   int j;
+  /* SYM-CODEGEN-CARRIER: animFrame -- recomputing the remainder only in the
+     icon-table arm is FAIL 93 at 214/213 and moves the div across the branch. */
   int animFrame;
   tDrawShapeExtended fFlags;
 
@@ -396,10 +397,20 @@ void tScreenMemcard::PlaceIcons(register int i,int fadeval)
     }
     yy = (short)((uint)(ushort)GRIDMEMCARD_STARTY + (MEMCARDICONOFFY & 0xffffU) +
             (4 - (short)((int)this->cursorPosition / 3)) * MEMCARD_DELTAY);
+    /* SYM-CODEGEN-CARRIER: nfs4Icon -- direct member comparison is FAIL 3 at
+       214/213, loading the member beside the div instead of before savedY. */
     int nfs4Icon = this->theNFS4icon;
+    /* SYM-CODEGEN-CARRIER: tickFrame -- folding the shifted tick load into
+       the remainder expression is count-exact FAIL 18 and rotates its web. */
     int tickFrame;
+    /* SYM-CODEGEN-CARRIER: numIcons -- direct member use even through the
+       same read-only fence is FAIL 64 at 217/213 and rotates saved homes. */
     int numIcons;
+    /* SYM-CODEGEN-CARRIER: tickPtr -- direct `ticks` is count-exact FAIL 2,
+       placing its address high half one instruction after retail. */
     int *tickPtr = A_ticks;
+    /* SYM-CODEGEN-CARRIER: savedY -- direct reuse of `yy` is count-exact
+       FAIL 2, moving the tick-address high half after retail's $a3->$s0 copy. */
     short savedY = yy;
     __asm__("" : "=r"(savedY) : "0"(savedY));
     /* MATCH (73 -> 4 -> 2 -> PASS, 213/213): the natural signed-short
@@ -427,8 +438,8 @@ void tScreenMemcard::PlaceIcons(register int i,int fadeval)
                  &fFlags);
     }
     else {
-      icon = (shapetbl *)(*fMemIcon)[i][animFrame];
-      this->DrawIcon(icon,xx * 0x10000 >> 0x10,yy * 0x10000 >> 0x10,0x1f,0x10,
+      this->DrawIcon((shapetbl *)(*fMemIcon)[i][animFrame],
+                 xx * 0x10000 >> 0x10,yy * 0x10000 >> 0x10,0x1f,0x10,
                  (short)(fadeval + this->fFadeIcon[i] < 0x81 ?
                          fadeval + this->fFadeIcon[i] : 0x80));
     }

@@ -4277,6 +4277,43 @@ relocation-referenced unresolved symbols; the undefined-call audit scans
 objects, vtable indexing passes 930 files, and the source-only-policy audit
 finds no post-compiler text moves or branch retargets.
 
+### P120 — memory-card icon-placement SYM local reconciliation (`2026-08-26`)
+
+Reliable `tScreenMemcard::PlaceIcons` SYM records member receiver `this` in
+`$s2`, parameter `i` in `$s3`, stack parameter `fadeval`, `short xx` in `$s1`,
+`short yy` in `$s0`, `int j` in `$s4`, and stack
+`tDrawShapeExtended fFlags`.  The decompiler-only `shapetbl *icon` identity is
+deleted: passing the indexed `fMemIcon` entry directly remains exact PASS.
+
+The six surviving SYM-omitted identities are now explicitly classified with
+individual oracle receipts.  Direct member comparison without `nfs4Icon` is
+FAIL 3 at 214/213; folding `tickFrame` is count-exact FAIL 18; removing
+`animFrame` moves the remainder into one control-flow arm and is FAIL 93 at
+214/213.  Direct member use without `numIcons`, through the same read-only
+boundary, is FAIL 64 at 217/213.  Direct `ticks` without `tickPtr` and direct
+reuse of `yy` without `savedY` are each count-exact FAIL 2, placing the tick
+address high half on the wrong side of retail's coordinate copy.  These value
+webs are proven by the binary, but optimized SYM cannot preserve their private
+names.
+
+`PlaceIcons__14tScreenMemcardii` remains exact PASS at 213/213 instructions,
+with zero detailed diffs and an instruction-identical `-g` twin.  Every one of
+the translation unit's 14 directly oracle-bearing bodies remains detailed
+PASS; the co-owned destructor body has no separate oracle entry.  The refreshed
+strict frontend/common audit is stored in
+[`frontend_common_strict_p224_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p224_20260826.md).
+It advances declaration-clean mapped functions from 758 to 759, reduces
+generic extra source-local names from 196 to 189, and raises explicit
+source-only codegen carriers from 409 to 415.  Missing-name, type, storage,
+global, and mapping-review queues remain empty.
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; undefined-call audits scan 15,782
+reconstruction and 15,779 source-lane calls with zero defects.  TU order has
+zero inversions across 513 objects, call-target audit finds zero proven wrong
+targets across 460 units, vtable indexing passes 930 files, and the source-only
+policy audit finds no post-compiler text moves or branch retargets.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

@@ -4551,6 +4551,48 @@ zero inversions across 513 objects, call-target audit finds zero proven wrong
 targets across 460 units, vtable indexing passes 930 files, and the source-only
 policy audit finds no post-compiler text moves or branch retargets.
 
+### P127 — tournament-standings background SYM local reconciliation (`2026-08-26`)
+
+Reliable `DrawBackground__26tScreenTournamentStandings` SYM records identify
+the implicit receiver `this` in `$s7`; `int fade` in `$fp`; stack `int
+fadeline`; `int i` in `$s4`; `int j` in `$s3`; stack `tTourneyInfo *
+tourneyInfo`; stack `char sBuildOutput[80]`; `tMenuTextState state` in `$s5`;
+`tMenuTextState statedull` in `$s2`; stack `tTrackInformation trackInfo`;
+`int wwwww` in `$s1`; `tTexture_ShapeInfo *shape` in `$a0`; `int lbx` in
+`$s2`; `int tt` in `$s0`; stack `tDrawShapeExtended drawflags`; `int colf` in
+`$s3`; `int colb` in `$s2`; and nested stack `short p`.  Those declarations,
+types, scopes, and recoverable names are present in the reconstructed body.
+
+Two decompiler-only identities are deleted without changing the authoritative
+residual.  Direct `tournamentManager` member expressions replace the non-SYM
+`tm` reference alias.  A conditional assignment to `moneyBonus` replaces the
+non-SYM `bonus` temporary while preserving the clamp and countdown behavior.
+Five other SYM-omitted identities retain explicit counterfactual receipts:
+recomputing `numRacers` is FAIL 84 at 573/561 and duplicates the predicate;
+inlining `lastRacer` is count-exact FAIL 56 and shrinks the frame to 240;
+deriving `line` from `i` is FAIL 76; repeating the `type` enumerator is FAIL
+35; and folding `halfWidth` into `lbx` is FAIL 11.  The retail binary therefore
+proves those value webs, but optimized SYM cannot recover their private names.
+
+`DrawBackground__26tScreenTournamentStandings` preserves its pre-existing
+source-only result at FAIL 3 (562/561 instructions): one redundant
+`%lo(tournamentManager)` copy and its consumer differ, while the `-g` twin is
+instruction-exact.  The complete `screenpost.cpp` aggregate is 10 strict PASS,
+one near, and two far functions.  The refreshed strict frontend/common audit is
+stored in
+[`frontend_common_strict_p231_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p231_20260826.md).
+It advances declaration-clean mapped functions from 765 to 766, reduces
+generic extra source-local names from 146 to 139, and raises explicit
+source-only codegen carriers from 443 to 448.  Missing-name, type, storage,
+global, and mapping-review queues remain empty.
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; undefined-call audits scan 15,782
+reconstruction and 15,779 source-lane calls with zero defects.  TU order has
+zero inversions across 513 objects, call-target audit finds zero proven wrong
+targets across 460 units, vtable indexing passes 930 files, and the source-only
+policy audit finds no post-compiler text moves or branch retargets.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

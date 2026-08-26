@@ -335,22 +335,28 @@ void tScreenTournamentStandings::DrawBackground()
   tDrawShapeExtended drawflags;
   int colf;
   int colb;
+  /* SYM-CODEGEN-CARRIER: numRacers -- recomputing the ranked count is
+     FAIL 84 at 573/561, shrinks the frame, and duplicates the whole predicate. */
   int numRacers;
+  /* SYM-CODEGEN-CARRIER: lastRacer -- inlining `numRacers - 1` is
+     count-exact FAIL 56, shrinks the frame to 240, and changes its stack web. */
   int lastRacer;
+  /* SYM-CODEGEN-CARRIER: line -- replacing the independent row counter with
+     `0x2fe + i` raises the residual from 3 to 76 and rotates the whole loop. */
   int line;
-  tTournamentManager &tm = tournamentManager;
-  /* W72-A7: MUST be bound BEFORE any other statement -- one statement later
-     and gcc emits a SECOND redundant %lo(tournamentManager) lo_sum (+1 insn). */
-  tMenuTextType type;   /* W72-A7: named, like the sibling tScreenPinkSlipStandings */
+  /* SYM-CODEGEN-CARRIER: type -- repeating textType_TrackRecords raises the
+     residual from 3 to 35 and rematerializes the value at each call site. */
+  tMenuTextType type;
 
   i = 0;
   type = textType_TrackRecords;
   fade = this->fScreenFadeVal;
   fadeline = fade;
   line = 0x2fe;
-  tourneyInfo = &tm.fDefinition->fTournaments[
-      tm.fDefinition->fTiers[tm.fTier].fTournOffset + tm.fTournament];
-  numRacers = (short)((short)tm.fNumRacers +
+  tourneyInfo = &tournamentManager.fDefinition->fTournaments[
+      tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
+      tournamentManager.fTournament];
+  numRacers = (short)((short)tournamentManager.fNumRacers +
                       (tourneyInfo->fKnockout != 0));
   lastRacer = numRacers - 1;
   for (;;) {
@@ -405,6 +411,8 @@ void tScreenTournamentStandings::DrawBackground()
   wwwww = textpixels(TextSys_Word(i));
   PSXDrawSquare(0,TextSys_WordX(0x2f6) - (wwwww >> 1),TextSys_WordY(0x2fc) - 1,wwwww,9);
   shape = &gCurrentShapes[0][0x27];
+  /* SYM-CODEGEN-CARRIER: halfWidth -- folding the center adjustment raises
+     the authoritative residual from 3 to 11 and reverses retail's value web. */
   int halfWidth = ((short)shape->width >> 1) - 2;
   lbx = halfWidth - shape->centerx;
   tt = ticks[0] % (short)shape->width;
@@ -428,13 +436,10 @@ void tScreenTournamentStandings::DrawBackground()
       this->moneyAwarded = 0;
       this->moneyDamage -= this->fCountSpeed;
       if (this->moneyDamage < 1) {
-        long bonus = this->moneyBonus - this->fCountSpeed;
         this->fCountedDown = 1;
         this->moneyDamage = 0;
-        if (bonus < 0) {
-          bonus = 0;
-        }
-        this->moneyBonus = bonus;
+        this->moneyBonus = this->moneyBonus - this->fCountSpeed < 0 ?
+                           0 : this->moneyBonus - this->fCountSpeed;
       }
     }
   }

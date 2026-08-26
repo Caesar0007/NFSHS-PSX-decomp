@@ -459,6 +459,9 @@ extern int CD_newmedia(void)
     u_char *rec;
     u_char *end;
     u_char *lim;
+    u_char *lbaBase;
+    u_char *nameBase;
+    u_char *entryName;
     int     idx;
     int     r;
 
@@ -519,36 +522,32 @@ extern int CD_newmedia(void)
     }
     if (CD_debug > 1) printf("CD_newmedia: sarching dir..\n");
 
-    /* MATCH (W64-A5): the W48-A7 TWO-VARIABLE ZERO-TRIP-GUARD -- compute the limit into a
-     * caller-saved temp, TEST that temp in the guard, and copy it into the callee-saved loop
-     * bound INSIDE the guard.  The copy survives (make_regs_eqv: the destination outlives its
-     * source) and IS the oracle's `addiu v1,s1,2048; sltu v0,s1,v1; ... addu s5,v1,zero`;
-     * computing straight into `end` coalesces it away.  W62-A7 had FALSIFIED this shape here
-     * (goto back-edge 64, while-kept 15) and blamed the two `break`s -- 04Z: that was measured
-     * in the pre-launder basin.  In the laundered basin the WHILE-KEPT form is the winner
-     * (19 -> 6, count EXACT), the do-while form is 18 @181 and the goto form does not compile
-     * (label before the block's declarations); without the launder it is 24 @183.
-     * RESIDUAL 6 = pure CODE MOTION of instructions we already emit: retail issues the
-     * `li a0,1; li a1,16` cd_read arg pair BEFORE the first callee-saved store (ours after the
-     * `la _cd_secbuf`), and places the `addu s5,v1,zero` copy 3 slots later.  Both are prologue/
-     * block emission-order ties (11B arg-emission), i.e. TEXT_MOVES class, not allocation. */
+    /* MATCH (W79): keep the zero-trip limit in a short-lived `lim`, then copy it to the
+     * callee-saved `end` only after the guard.  Separate path-table LBA/name bases make GCC
+     * issue the three base instructions before that copy, matching retail.  Integer addition
+     * for `entryName` preserves retail's scaled-offset + base operand order; pointer addition
+     * canonicalizes the operands in the opposite order. */
     idx = 0;
     rec = buf;
     lim = buf + 0x800;
     if (rec < lim) {
+        lbaBase = (u_char *)&_cd_pathtbl[0].lba;
+        nameBase = lbaBase + 4;
         end = lim;
         while (rec < end) {
             if (rec[0] == 0)
                 break;
-            ((LBA *)&_cd_pathtbl[idx].lba)->i = ((LBA *)&rec[2])->i;  /* extent LBA (misaligned) */
+            ((LBA *)(lbaBase + idx * (int)sizeof(CdPathEnt)))->i = ((LBA *)&rec[2])->i;
             _cd_pathtbl[idx].parent = rec[6];               /* parent directory number */
             _cd_pathtbl[idx].index  = idx + 1;
-            memcpy(_cd_pathtbl[idx].name, &rec[8], rec[0]);
-            _cd_pathtbl[idx].name[rec[0]] = '\0';
+            entryName = (u_char *)((u_long)(idx * (int)sizeof(CdPathEnt)) +
+                                   (u_long)nameBase);
+            memcpy(entryName, &rec[8], rec[0]);
+            entryName[rec[0]] = '\0';
             rec += 8 + rec[0] + rec[0] % 2;                 /* ISO path-table record stride */
             if (CD_debug > 1)
                 printf("\t%08x,%04x,%04x,%s\n", _cd_pathtbl[idx].lba, _cd_pathtbl[idx].index,
-                       _cd_pathtbl[idx].parent, _cd_pathtbl[idx].name);
+                       _cd_pathtbl[idx].parent, entryName);
             if (++idx >= 0x80)
                 break;
         }

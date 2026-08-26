@@ -29,7 +29,8 @@ void tScreenPinkSlips::DrawBackground()
   tMenuTextState textState;
   tTrackInformation trackInfo;
   short shapeY;
-  /* MATCH: the tpage x is a SHORT local (oracle rematerializes it as
+  /* SYM-CODEGEN-CARRIER: movieVramX -- the tpage x is a SHORT local (retail
+     rematerializes it as
      `li $t2,0x200` then sign-extends `sll/sra` into $a2); an int/cast literal
      folds to a bare `li $a2,512`.  14 -> 10 diffs, count-exact 364/364. */
   short movieVramX = 0x200;
@@ -39,6 +40,8 @@ void tScreenPinkSlips::DrawBackground()
   r.w = 0x90;
   r.h = 0xe;
   while (i < (short)(byte)frontEnd.pinkSlipsNumTracks) {
+    /* SYM-CODEGEN-CARRIER: selected -- folding the predicate into this branch
+       is FAIL 7 at 361/364 instructions and removes retail's $a1 value web. */
     BOOL selected;
 
     textState = textState_Selected;
@@ -48,22 +51,25 @@ void tScreenPinkSlips::DrawBackground()
       selected = true;
     }
     if (selected) {
-      int pulse;
       int flare_intensity;
 
       flareextra = flareextra + 1;
       if (0x3c < flareextra) {
         flareextra = 0;
       }
-      pulse = flareextra;
       /* MATCH: ONE statement (oracle SLD groups the subu+srl on one line) and
          the arms in THIS order - the reversed test picks the oracle's commutative
          `addu $v0,$v1,$v0` in the signed /2 idiom. */
-      flare_intensity = (0x1e >= pulse ? pulse : 0x3c - pulse) / 2;
+      flare_intensity =
+          (0x1e >= flareextra ? flareextra : 0x3c - flareextra) / 2;
       flare_intensity += 0x14;
       flare_intensity *= 0x80 - this->fScreenFadeVal;
       if (0 < flare_intensity) {
+        /* SYM-CODEGEN-CARRIER: rx -- direct RECT member use is FAIL 99 at
+           365/364 instructions and rotates the whole saved-register handout. */
         short rx = r.x;
+        /* SYM-CODEGEN-CARRIER: ry -- paired coordinate snapshot in that
+           receipt; retail keeps both values across Flare_2DHalo. */
         short ry = r.y;
 
         Flare_2DHalo(rx + -0xf,ry + 6,flare_intensity / 2,
@@ -83,7 +89,11 @@ void tScreenPinkSlips::DrawBackground()
     r.y = r.y + 0xe;
   }
   {
+    /* SYM-CODEGEN-CARRIER: currentItem -- folding this ushort snapshot into
+       trackIndex is FAIL 5 at 363/364 and loses retail's $v0->$a0 copy. */
     u_short currentItem = (u_short)this->fMenu->fCurrentItem;
+    /* SYM-CODEGEN-CARRIER: trackIndex -- removing the char snapshot is the
+       same FAIL-5 basin; its guard must read the copied $a0 value. */
     char trackIndex = (char)currentItem;
 
     frontEnd.pinkSlipsTrackIndex = trackIndex;

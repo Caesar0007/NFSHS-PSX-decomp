@@ -4202,6 +4202,44 @@ relocation-referenced unresolved symbols; the undefined-call audit scans
 objects, vtable indexing passes 930 files, and the source-only-policy audit
 finds no post-compiler text moves or branch retargets.
 
+### P118 — pink-slips background local-budget reconciliation (`2026-08-26`)
+
+Reliable `tScreenPinkSlips::DrawBackground` SYM records member receiver `this`,
+stack `RECT r`, `short i`, `short j`, `short tv`, enum `textState`, stack
+`trackInfo`, static `flareextra`, stack `shapeY`, nested `flare_intensity`,
+inline `tMenu *this` receivers, and block-local `moviename[80]`.  The
+decompiler-only `pulse` identity is deleted: using `flareextra` directly in the
+triangle-wave expression remains exact PASS and better matches the retail
+local budget.
+
+The other six SYM-omitted identities are now explicit source-only codegen
+carriers with current-basin receipts.  Folding `selected` into its predicate is
+FAIL 7 at 361/364 instructions and removes retail's independent `$a1` boolean
+web.  Direct `r.x`/`r.y` use is FAIL 99 at 365/364 and rotates the complete
+saved-register handout; scoped `rx`/`ry` preserve the two coordinates across
+`Flare_2DHalo`.  Removing either `currentItem` or `trackIndex` is FAIL 5 at
+363/364, losing retail's ushort load, `$v0`-to-`$a0` copy, and char guard.
+Finally, the documented `short movieVramX` is required to rematerialize 0x200
+and sign-extend it for `GetTPage`; an int or literal form produces the wrong
+single `li $a2,512` web.  SYM and retail code prove these value identities but
+do not retain their private source spellings.
+
+`DrawBackground__16tScreenPinkSlips` remains exact PASS at 364/364
+instructions with an instruction-identical `-g` twin, and the complete
+`screenpinkslips.cpp` translation-unit gate is 8/8 PASS.  The refreshed strict
+frontend/common audit is stored in
+[`frontend_common_strict_p222_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p222_20260826.md).
+It advances declaration-clean mapped functions from 756 to 757, reduces
+generic extra source-local names from 210 to 203, and raises explicit
+source-only codegen carriers from 399 to 405.  Missing-name, type, storage,
+global, and mapping-review queues remain empty.
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; the undefined-call audit scans
+15,782 calls with zero defects.  TU order has zero inversions across 513
+objects, vtable indexing passes 930 files, and the source-only-policy audit
+finds no post-compiler text moves or branch retargets.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

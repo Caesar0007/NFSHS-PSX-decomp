@@ -3752,6 +3752,52 @@ relocation-referenced unresolved symbols; the undefined-call audit scans
 pre-existing swapped `Sim_MainGameLoop` sites, the TU-order audit reports zero
 inversions, and the vtable indexing audit passes 930 files.
 
+### P106 — `GoNonInterlaced` source-only identity reconciliation (`2026-08-26`)
+
+Reliable `GoNonInterlaced__7tScreen` SYM has a 24-byte frame, only `$ra` in
+its mask, and no named parameters or locals.  The SLD nevertheless fixes the
+complete statement order: the screen-height store on line 148, environment
+setup on lines 153--159, the two view-base groups on lines 161--171, and the
+two synchronization calls on lines 172--173.  The nine explicit identities in
+the reconstructed body are therefore optimized-away source/codegen structure,
+not recoverable retail spellings.
+
+A zero-local rewrite from that direct SLD/Ghidra statement list is measured
+FAIL 109 at 117/52 instructions.  GCC rematerializes the 200-byte view index
+for each field store instead of sharing retail's two calculated view bases;
+it also loses the shared height-value ranges and environment-store schedule.
+This falsifies deletion of the carrier group even though the stripped SYM
+does not name it.  The existing focused receipts separately establish the
+volatile byte view for the two environment stores, the narrow primary height
+value, the fresh secondary height reload, and the explicit view-table/index
+lifetimes required by the 52-instruction basin.
+
+Decompiler spellings `iVar1`, `iVar2`, and `sVar3`, plus the ambiguous short
+names, are replaced by descriptive `firstViewIndex`, `secondViewIndex`,
+`primaryHeight`, `secondaryHeight`, `viewTable`, `firstView`, `secondView`,
+`playerViewIndex`, and `envBytes`.  Each is explicitly classified as a
+source-only codegen carrier; none is claimed as an unrecoverable original
+identifier.
+
+The authoritative function remains at its pre-round best: FAIL 4 with an
+exact 52/52 instruction count and instruction-identical `-g` twin.  Its only
+residual is the ordering of the independent `$ra` save and first height load;
+the other 26 functions in `fescreen.cpp` remain PASS.  The refreshed strict
+frontend/common audit is stored in
+[`frontend_common_strict_p210_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p210_20260826.md).
+It advances declaration-clean mapped functions from 746 to 747, reduces
+generic extra source-local names from 259 to 250, and raises explicit
+source-only codegen carriers from 362 to 371.  Missing names, type findings,
+storage findings, global findings, and mapping reviews remain zero.
+
+A fresh full build compiles and links every translation unit and reproduces
+the standing executable hash `926db68e57a2dbcc9ca02a25981360ddc0a71464`.
+Both relink lanes are GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; the undefined-call audit scans
+15,781 calls with zero defects.  The call-target audit retains exactly the two
+pre-existing swapped `Sim_MainGameLoop` sites, the TU-order audit reports zero
+inversions, and the vtable indexing audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

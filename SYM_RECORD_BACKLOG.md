@@ -4672,6 +4672,46 @@ zero inversions across 513 objects, call-target audit finds zero proven wrong
 targets across 460 units, vtable indexing passes 930 files, and the source-only
 policy audit finds no post-compiler text moves or branch retargets.
 
+### P130 — memcard background SYM geometry reconciliation (`2026-08-26`)
+
+Reliable `DrawBackground__14tScreenMemcard` SYM records identify the implicit
+receiver `this` in `$s7`; reused `short x`/`y` in `$s0`; `int gray` in `$s6`;
+`short fade` in `$a1`; stack `short fadebox`; stack `short gridpos`; reused
+`short fTextFade` and `int ColText` in `$s0`; stack `RECT rr`; `short i` in
+`$fp`; nested block `int i` in `$v1`; and later block `int k` in `$s0`.  Those
+recoverable declarations, types, and scopes are present in the source.
+
+Retesting the eight generic geometry names individually corrected the older
+all-at-once conclusion.  `width` is deleted and `GRIDMEMCARD_WIDTH` now feeds
+the `w` expression directly with exact code.  Seven remaining SYM-omitted
+results have explicit counterfactual proof: direct `startX` is count-exact
+FAIL 4; direct `startY` is count-exact FAIL 2; direct `gouraudX` is FAIL 28 at
+412/410; direct `gouraudY` is FAIL 16 at 412/410; direct `extraY` is
+count-exact FAIL 20; rematerializing both calls without shared `w`/`h` is FAIL
+169 at 419/410.  The binary proves those seven value webs, but optimized SYM
+cannot recover their private names.  The former generic `these six` disposition
+is removed in favor of these name-specific receipts.
+
+Authoritative `verify_asm.py` remains PASS at 410/410 instructions.  The source
+diff view continues to show only the already-proven two-line dead-HI16 rendering
+artifact for `GRIDMEMCARD_STARTY`, while the `-g` twin is instruction-exact.
+The complete `screenmemcard.cpp` aggregate remains nine strict PASS, three
+near, and three far functions.  The refreshed strict frontend/common audit is
+stored in
+[`frontend_common_strict_p234_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p234_20260826.md).
+It advances declaration-clean mapped functions from 768 to 769, reduces
+generic extra source-local names from 123 to 115, and replaces one generic
+carrier disposition with seven name-specific receipts, raising the explicit
+carrier total from 456 to 462.  Missing-name, type, storage, global, and
+mapping-review queues remain empty.
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; undefined-call audits scan 15,782
+reconstruction and 15,779 source-lane calls with zero defects.  TU order has
+zero inversions across 513 objects, call-target audit finds zero proven wrong
+targets across 460 units, vtable indexing passes 930 files, and the source-only
+policy audit finds no post-compiler text moves or branch retargets.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

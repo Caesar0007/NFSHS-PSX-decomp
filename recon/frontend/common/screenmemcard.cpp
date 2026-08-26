@@ -765,21 +765,32 @@ void tScreenMemcard::DrawBackground()
   int ColText;
   RECT rr;
   short i;
+  /* SYM-CODEGEN-CARRIER: w -- recomputing the shared box width/height at both
+     calls together is FAIL 169 at 419/410 and rotates the whole saved-register
+     web; retail retains this independent width result. */
   short w;
+  /* SYM-CODEGEN-CARRIER: h -- see `w`; both calls share this half-height value
+     in retail rather than rematerializing the geometry expression. */
   short h;
-  /* SYM-CODEGEN-CARRIER: these six ushort geometry aliases are absent from
-     retail's reliable local list.  Fresh -g gives them $a2/$v1/$a3/$s3/$s2/$s1.
-     Replacing all six with direct ushort expressions is FAIL 33 (413/410),
-     while removing only startX/startY/width is count-exact FAIL 6.  The same
-     debug build omits w/h entirely, so their source spelling is not disproved
-     by retail SYM.  Retain these aliases until a PASS-preserving expression or
-     macro shape reproduces the retail allocation without emitting their defs. */
+  /* Source-only SYM cleanup (2026-08-26): the earlier all-at-once geometry
+     experiment hid one valid simplification.  `width` now folds directly into
+     `w` at exact PASS; every surviving SYM-omitted result below was retested in
+     isolation and carries its own counterfactual receipt. */
+  /* SYM-CODEGEN-CARRIER: gouraudX -- direct constant use is FAIL 28 at
+     412/410 and rotates the geometry/global-load allocation web. */
   ushort gouraudX;
+  /* SYM-CODEGEN-CARRIER: gouraudY -- direct constant use is FAIL 16 at
+     412/410 and rematerializes/reorders the vertical geometry loads. */
   ushort gouraudY;
+  /* SYM-CODEGEN-CARRIER: extraY -- direct constant use is count-exact FAIL 20
+     and changes both vertical arithmetic and the global-load order. */
   ushort extraY;
+  /* SYM-CODEGEN-CARRIER: startX -- direct `GRIDMEMCARD_STARTX` use is
+     count-exact FAIL 4 and changes the retail HI16 materialization order. */
   ushort startX;
+  /* SYM-CODEGEN-CARRIER: startY -- direct `GRIDMEMCARD_STARTY` use is
+     count-exact FAIL 2 and moves retail's `$s2` geometry load past its peer. */
   ushort startY;
-  ushort width;
   
   this->fMemCardMessageTextSys = -1;
   if (this->goticon[this->theNFS4icon] == '\0') {
@@ -840,10 +851,9 @@ void tScreenMemcard::DrawBackground()
   startY = GRIDMEMCARD_STARTY;
   gouraudY = GRIDMEMCARDGOURAUDBIT_Y;
   extraY = EXTRAYATTOP;
-  width = GRIDMEMCARD_WIDTH;
   x = startX - gouraudX;
   y = startY - gouraudY - (extraY + 4);
-  w = width + gouraudX * 2 + 2;
+  w = GRIDMEMCARD_WIDTH + gouraudX * 2 + 2;
   h = (short)((ushort)GRIDMEMCARD_HEIGHT +
               gouraudY * 2 + (extraY + 6)) / 2;
   SubtractiveBox(x,y,w,h,(i = 0,gray),gray,0,0);

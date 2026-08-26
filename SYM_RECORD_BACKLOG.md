@@ -4028,6 +4028,46 @@ relocation-referenced unresolved symbols; the undefined-call audit scans
 pre-existing swapped `Sim_MainGameLoop` sites, the TU-order audit reports zero
 inversions, and the vtable indexing audit passes 930 files.
 
+### P113 — two-player single-race dialog and alias restoration (`2026-08-26`)
+
+Reliable `MenuExtended_GoToTwoPlayerSingleRace` SYM records caller parameter
+`command` in `$s1`, stack object `YesNoDialog`, and its nested
+`tDialogYesNoTri *this` receiver in `$s0`.  The decompiler call-result locals
+`uVar2` and `sVar3` are now deleted: direct signed-short comparison of
+`GetNumOwnedCars` and direct comparison of the dialog `Run` result both remain
+exact PASS.
+
+The four remaining generic aliases are restored as three descriptive source
+identities: `dialog`, `carSelectScreen`, and two lexical aliases named
+`menuDefinitions`.  They are explicitly classified as source-only codegen
+carriers.  The existing W57 receipt proves `dialog` anchors the retail `$s0/$a0`
+field stores and that each menu-definition alias must be materialized in its
+own branch scope.  The screen alias is independently measured: direct
+`screenCarSelect[0]->SetState(screenState)` is FAIL 8 at 71/69 instructions,
+because it reloads the global pointer instead of retaining retail's `$v1`
+screen value.  The already-receipted `nextMenu` and `screenState` identities
+continue to preserve the exact call-delay-slot schedule.  Optimized SYM does
+not retain any of these private spellings.
+
+`MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand` remains exact PASS at
+69/69 instructions with an instruction-identical `-g` twin.  The complete
+`femenudefs.cpp` translation-unit gate remains 61/66 PASS with the same four
+2-diff helpers and 872-diff global-menu constructor residual.  The refreshed
+strict frontend/common audit is stored in
+[`frontend_common_strict_p217_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p217_20260826.md).
+It advances declaration-clean mapped functions from 754 to 755, reduces
+generic extra source-local names from 217 to 211, and raises explicit
+source-only codegen carriers from 395 to 398.  Missing names, type findings,
+storage findings, global findings, and mapping reviews remain zero.
+
+A fresh full build compiles and links every translation unit and reproduces
+the standing executable hash `926db68e57a2dbcc9ca02a25981360ddc0a71464`.
+Both relink lanes are GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; the undefined-call audit scans
+15,781 calls with zero defects.  The call-target audit retains exactly the two
+pre-existing swapped `Sim_MainGameLoop` sites, the TU-order audit reports zero
+inversions, and the vtable indexing audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

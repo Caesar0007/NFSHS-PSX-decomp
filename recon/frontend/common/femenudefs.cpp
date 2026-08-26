@@ -245,56 +245,59 @@ void MenuExtended_SetSoloRace(tMenuCommand &)
    address computations.  The first emits `li a1,2` before the screen %hi; the
    second preserves the retail v1 ownership, while the store remains free to
    fill the call slot.  Both asm templates are empty and emit no instructions;
-   there is no post-compilation modification.  Detailed source-only gate PASS. */
+   there is no post-compilation modification.  Detailed source-only gate PASS.
+   Folding the car-select pointer into the final call is FAIL8 at 71/69 and
+   reloads screenCarSelect[0] instead of preserving retail's v1 pointer. */
 
 void MenuExtended_GoToTwoPlayerSingleRace(tMenuCommand &command)
 
 {
-  tGlobalMenuDefs *ptVar1;
-  tScreenCarSelect *this_00;
-  ushort uVar2;
-  short sVar3;
+  /* Reliable SYM names only command, YesNoDialog, and the nested dialog
+     receiver.  These optimized-away aliases are required by the receipts:
+     SYM-CODEGEN-CARRIER: menuDefinitions
+     SYM-CODEGEN-CARRIER: carSelectScreen
+     SYM-CODEGEN-CARRIER: dialog */
+  tGlobalMenuDefs *menuDefinitions;
+  tScreenCarSelect *carSelectScreen;
   int screenState;
-  tDialogYesNoTri *dlgThis;
+  tDialogYesNoTri *dialog;
   tDialogYesNoTri YesNoDialog;
 
-  dlgThis = &YesNoDialog;
-  uVar2 = carManager.GetNumOwnedCars(0);
-  if ((int)((uint)uVar2 << 0x10) < 1) {
-    dlgThis->string =
+  dialog = &YesNoDialog;
+  if ((short)carManager.GetNumOwnedCars(0) < 1) {
+    dialog->string =
          TextSys_Word(0x42);
-    dlgThis->yesnowords[0] = 0x321;
-    dlgThis->yesnowords[1] = 0x322;
-    dlgThis->fDefault = 0;
-    sVar3 = ((tDialogInteractive *)dlgThis)->Run();
-    if (sVar3 == 1) {
+    dialog->yesnowords[0] = 0x321;
+    dialog->yesnowords[1] = 0x322;
+    dialog->fDefault = 0;
+    if (((tDialogInteractive *)dialog)->Run() == 1) {
       /* SYM-CODEGEN-CARRIER: nextMenu
          SYM-CODEGEN-CARRIER: screenState -- neither name is present in retail
          SYM; together they carry the measured source-only lifetime described
          in the receipt above. */
       tMenu *nextMenu;
 
-      ptVar1 = menuDefs[0];
+      menuDefinitions = menuDefs[0];
       frontEnd.raceType = '\0';
       command.type = kMenu_Command_GoToMenu;
-      ptVar1->iteratorDealerCar.Decrement(kPlayerBoth);
+      menuDefinitions->iteratorDealerCar.Decrement(kPlayerBoth);
       menuDefs[0]->iteratorDealerCar.Increment(kPlayerBoth);
       screenState = 2;
       __asm__("" : "+r" (screenState));
-      this_00 = screenCarSelect[0];
+      carSelectScreen = screenCarSelect[0];
       nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuCarDealer;
       __asm__("" : "+r" (screenState));
       command.nextMenu = nextMenu;
-      this_00->SetState(screenState);
+      carSelectScreen->SetState(screenState);
     }
   }
   else {
-    tGlobalMenuDefs *defs;
+    tGlobalMenuDefs *menuDefinitions;
 
     MenuExtended_SetSoloRace(command);
-    defs = menuDefs[0];
+    menuDefinitions = menuDefs[0];
     command.type = kMenu_Command_GoToMenu;
-    command.nextMenu = (tMenu *)(tMenu*)&defs->menuSingleTrackSelect;
+    command.nextMenu = (tMenu *)(tMenu*)&menuDefinitions->menuSingleTrackSelect;
   }
   return;
 }

@@ -1622,6 +1622,16 @@ void MenuExtended_BuyCar(tMenuCommand &command)
 
 /* ---- MenuExtended_PurchaseUpgrade  [FEMENUDEFS.CPP:854-877] ---- */
 
+static inline int MenuExtended_CannotPurchaseUpgrade(long money, long *price)
+{
+  return money < *price;
+}
+
+static inline int MenuExtended_UpgradePriceIndex(int priceIndex)
+{
+  return ++priceIndex;
+}
+
 /* Decoded Phase 83: MenuExtended_PurchaseUpgrade(int upgradeIdx) - shared core purchase logic
    called by PurchaseUpgrade1/2/3 wrappers (320 B, 3 callers). Validates cash, debits, applies
    upgrade modifier to current car.
@@ -1672,12 +1682,20 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
      (c) compute `dlgThis` BEFORE the TextSys_Word(0xa8) call so reorg fills that jal's delay slot
      with `addiu s0,s0,44` instead of the arg li.  Reusing the SYM-recorded `upgradeFlag`
      for the bit mask removes the non-SYM `uVar5` carrier without changing code.
-     REMAINING: 2 diffs at 80/80; retail loads fMoney before fPrices, while gcc schedules
-     those independent loads in the opposite order.  No post-compilation move is active. */
+     [SOURCE PASS 2026-08-26, 2->0 diffs, 80/80] Keep the affordability test in two tiny
+     inlined expressions.  The by-value `++priceIndex` prevents GCC from folding the +1 into
+     the final member offset (retail has addiu/sll and offset 48, not sll and offset 52).
+     Passing `(fMoney, pricePointer)` then forms the indexed stack address before the manager
+     address, while the inlined predicate loads fMoney before dereferencing the price pointer.
+     This is pure C++: both helpers disappear completely, add no target-function local/SYM
+     record, and require no asm, volatile, register pin, or post-compilation move. */
   upgradeFlag = 1 << (upgradeNumber);
   carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[0],carInfo,0);
   if ((carInfo.fUpgrades & upgradeFlag) == 0) {
-    if (carInfo.fPrices[upgradeNumber + 1] <= tournamentManager.fMoney) {
+    if (!MenuExtended_CannotPurchaseUpgrade(
+            tournamentManager.fMoney,
+            &carInfo.fPrices[
+                MenuExtended_UpgradePriceIndex(upgradeNumber)])) {
       tDialogYesNo popUp;
       tDialogYesNo *pp = &popUp;
 

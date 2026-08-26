@@ -5130,6 +5130,15 @@ struct tUserNameMenuItem : public tMenuItem {   /* 140 bytes */
         fCurrentColumn = 0;
         fData = data;
     }
+    /* FEMENUDEFS.CPP's post-game expansion uses a different retail store
+       order; its private inline identifier is likewise absent from SYM. */
+    inline void SetPostGameNameData(short player, char *data) {
+        fPlayer = player;
+        fData = data;
+        fMaxStringLength = 7;
+        fCurrentRow = 0;
+        fCurrentColumn = 0;
+    }
 
 };
 

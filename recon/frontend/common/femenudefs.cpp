@@ -2070,42 +2070,41 @@ void MenuExtended_PostGameMenu(tMenuCommand &command)
    `addiu v1,a0,12868` and stores at 128/28/32/36/34(v1); ours emitted absolute 12996/12896/...
    off the menuDefs base); (3) `ptVar2 = menuDefs[0]` moved INSIDE that arm, which drops the
    `lui s3` hoist (an entire 4th saved reg + 8 bytes of frame). */
+/* [SYM restoration 2026-08-26, PASS 68/68] Reliable caller identities are
+   command/dummyCars/nBestCarIndex.  The records arm now genuinely assigns and
+   reuses dummyCars while its two call-result temporaries fold away.  The
+   post-game name setup is one inferred SetPostGameNameData expansion followed
+   by SetCallingMenu (including its recorded `m` formal).  Direct repeated
+   menuDefs access is FAIL 20 at 70/68, so the descriptive `defs` base remains
+   an explicit non-unique carrier; all six generic decompiler names are gone. */
 
 void MenuExtended_FinishedPlayer1GetName(tMenuCommand &command)
 
 {
-  tFEApplication *ptVar1;
-  tGlobalMenuDefs *ptVar2;
-  tScreenUserName *ptVar3;
-  short sVar4;
-  bool pvVar5;
-  tUserNameMenuItem *dlgThis;
-  tOptionsMenu *m;
+  /* SYM-CODEGEN-CARRIER: defs -- direct repeated menuDefs[0] spelling is
+     FAIL 20 at 70/68 instructions because it reloads and recolors the base. */
+  tGlobalMenuDefs *defs;
   Car_tStats *dummyCars;
   short nBestCarIndex;
   
-  ptVar1 = FEApp;
   command.type = kMenu_Command_GoToMenuOneWay;
-  if ((ptVar1->needName[1] != 0) && (ptVar1->gotName[1] == 0)) {
-    ptVar2 = menuDefs[0];
-    dlgThis = &ptVar2->menuItemUserName2;
-    dlgThis->fPlayer = 1;
-    dlgThis->fData = frontEnd.playerNameList[4];
-    dlgThis->fMaxStringLength = 7;
-    ptVar3 = screenUserName;
-    dlgThis->fCurrentRow = 0;
-    dlgThis->fCurrentColumn = 0;
-    ptVar3->callingMenu = &ptVar2->menuPostGamePlayer2Name;
-    command.nextMenu = (tMenu *)(tMenu*)&ptVar2->menuPostGamePlayer2Name;
+  if ((FEApp->needName[1] != 0) && (FEApp->gotName[1] == 0)) {
+    defs = menuDefs[0];
+    /* SYM-INLINE-THIS: SetPostGameNameData */
+    defs->menuItemUserName2.SetPostGameNameData(
+        1, frontEnd.playerNameList[4]);
+    /* SYM-INLINE-THIS: SetCallingMenu
+       SYM-INLINE-LOCAL: m = SetCallingMenu */
+    screenUserName->SetCallingMenu(&defs->menuPostGamePlayer2Name);
+    command.nextMenu = (tMenu *)(tMenu*)&defs->menuPostGamePlayer2Name;
   }
   else {
-    pvVar5 = StatChk_IsRecordLapTime(Cars_gNewCarStatsList,(short)Cars_gNumRaceCars,&nBestCarIndex);
-    if (pvVar5) {
-      StatChk_SaveRecordLapTime(Cars_gNewCarStatsList,(short)Cars_gNumRaceCars,nBestCarIndex);
+    dummyCars = Cars_gNewCarStatsList;
+    if (StatChk_IsRecordLapTime(dummyCars,(short)Cars_gNumRaceCars,&nBestCarIndex)) {
+      StatChk_SaveRecordLapTime(dummyCars,(short)Cars_gNumRaceCars,nBestCarIndex);
     }
-    sVar4 = StatChk_IsTopTime(Cars_gNewCarStatsList,(short)Cars_gNumRaceCars);
-    if (sVar4 != 0) {
-      StatChk_SaveTopTime(Cars_gNewCarStatsList,(short)Cars_gNumRaceCars);
+    if (StatChk_IsTopTime(dummyCars,(short)Cars_gNumRaceCars) != 0) {
+      StatChk_SaveTopTime(dummyCars,(short)Cars_gNumRaceCars);
     }
     command.nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuPostGameTrackRecords;
   }
@@ -2125,12 +2124,12 @@ void MenuExtended_FinishedPlayer1GetName(tMenuCommand &command)
 void MenuExtended_FinishedPlayer2GetName(tMenuCommand &command)
 
 {
-  /* SYM-CODEGEN-CARRIER: ptVar1 -- SYM records only `dummyCars` in $s1 and
+  /* SYM-CODEGEN-CARRIER: defs -- SYM records only `dummyCars` in $s1 and
      stack `nBestCarIndex`; the two boolean/short call-result temporaries fold
      away exactly.  Direct `menuDefs[0]->menuPostGameTrackRecords` is FAIL7
      (41/40), moving the command stores around the address-load delay slot, so
      this source-only final-menu carrier preserves retail's exact schedule. */
-  tGlobalMenuDefs *ptVar1;
+  tGlobalMenuDefs *defs;
   Car_tStats *dummyCars;
   short nBestCarIndex;
 
@@ -2143,9 +2142,9 @@ void MenuExtended_FinishedPlayer2GetName(tMenuCommand &command)
   if (StatChk_IsTopTime(dummyCars,(short)Cars_gNumRaceCars) != 0) {
     StatChk_SaveTopTime(dummyCars,(short)Cars_gNumRaceCars);
   }
-  ptVar1 = menuDefs[0];
+  defs = menuDefs[0];
   command.type = kMenu_Command_GoToMenuOneWay;
-  command.nextMenu = (tMenu *)(tMenu*)&ptVar1->menuPostGameTrackRecords;
+  command.nextMenu = (tMenu *)(tMenu*)&defs->menuPostGameTrackRecords;
   return;
 }
 

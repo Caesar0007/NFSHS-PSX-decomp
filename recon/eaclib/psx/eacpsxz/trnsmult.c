@@ -68,217 +68,76 @@
 extern int  fixedmult(int a, int b);                       /* eacpsxz @0x800E4328 (lbl_D4328) */
 extern void blockmove(void *src, void *dst, int n);        /* eacpsxz @0x800E62DC (lbl_D62DC) */
 
-typedef struct transmult_pointer_args {
-    int *left;
-    int *right;
-} transmult_pointer_args;
+/* 🏆🏆 SEALED 2026-08-27 -- PASS 81/81, frame 104 == SYM fsize, with THREE HONEST
+   POINTER PARAMETERS and ZERO devices (no asm, no volatile, no by-value aggregate).
+   Everything below this note that calls the residual a "STRONG floor" is SUPERSEDED;
+   it is kept only for its falsification lists.
 
-extern int *transmult(transmult_pointer_args args, int *out) /* @0x80105F40 */
+   HOW IT FELL.  The gap was always the same 3 instructions: retail reloads `a`
+   from its parameter home TWICE and consumes each reload IN PLACE
+   (`lw v1,104(sp); addu v1,v1,s7`), while ours reloaded once and added into a
+   fresh destination, so choose_reload_regs inherited the register for the second
+   element.  The long-standing reading -- "the by-value aggregate works because it
+   puts the parameter in MEMORY" -- was only half the chain.  The dumps show the
+   rest:
+
+     * an aggregate parameter is stored to its home and has NO pseudo, so
+       `args.left` is a MEM read;  a scalar parameter becomes ONE pseudo carrying
+       REG_EQUIV to that home.  (Verified in -dr: `(set (mem/s:SI ...) (reg a0))`
+       vs `(set (reg/v:SI 80) (reg a0))`.)
+     * BUT the decisive consequence is downstream: with the aggregate, the value
+       feeding pa[] belongs to a MULTI-BLOCK carrier that goes to global-alloc and
+       LOSES, so its defining add is a reload and can reuse the dying input reload
+       register.  With three scalars the same value was a BLOCK-LOCAL quantity --
+       `Register 91 used 4 times across 2 insns in block 1` -- and local-alloc
+       always finds such a quantity a free $v0.  That register, not the parameter's
+       storage class, is what blocked the in-place consume.
+
+   THE LEVER (derived from that, not guessed): give the two row pointers
+   FUNCTION-SCOPE carriers `c0`/`c1` that are read INSIDE the inner loop, i.e.
+   AFTER a fixedmult call.  They then cross calls, need a callee-saved register,
+   find none free (s0-s7 + fp are all held by the band) and spill -- exactly the
+   aggregate's situation, reached with ordinary C.  Their defining adds become
+   reloads, consume in place, and the second `lw ...,104(sp)` appears.  The `pa[2]`
+   array is no longer needed and is gone.
+   ⚠️ It must be BOTH carriers and they must be read in the inner loop: carrying
+   only pa[0] measures 98 @81 with the frame blown to 112, and keeping the pa[]
+   array alongside the carriers collapses back to 23 (cse folds the carriers into
+   the array reads).  Function-scope carriers that are pre-initialised (`c0 = 0;`)
+   also fall back to 23.
+
+*/
+/* PARAM TYPE: `int *`, matching every sibling in this cluster -- transpose(int*,
+   int*), addmatrix / submatrix / scalematrix(int*,int*,int*), reorthogonalize(int*)
+   -- and matching what the call sites pass (`mtx.m`, i.e. int[9], with no casts).
+   MEASURED IRRELEVANT to the match: int* / void* / char* parameters all reach the
+   same PASS 81/81 at frame 104, because the byte-stepping walkers do the work
+   either way.  So this is purely a readability/consistency choice and int* wins it.
+   (`char *` would additionally be wrong-ish: int*->char* needs a diagnostic in C89
+   and no call site carries a cast.)
+   ⚠️ The BYTE units are NOT a style question -- they keep i1/i2 and the index i at
+   DIFFERENT scales so combine_givs cannot fold the walkers into one base.  Int-unit
+   walkers cost 4 instructions per converted side (81 -> 77 -> 73). */
+extern void transmult(int *a, int *b, int *out) /* @0x80105F40 */
 {
-    register int *aw;
+    int *c0, *c1;
     int temp[9];
-    int *pa[2];
-    register int i, j;
-    register int i2, i1;
-    register int j2, j1;
-    register int acc;
-    register int *bw;
-    register int *base;
-    /* MATCH (107->31; residual = pure instruction-ORDER/scratch-serialization: the oracle .obj shows
-     * unscheduled reload output -- serial single-$v1 reloads with unfillable load-delay nops -- not
-     * reachable under the gate's fixed -O2+sched flags.  w33-a4 pinned the 3-insn gap EXACTLY: it is
-     * (a) ONE extra `lw v1,0x68(sp)` -- retail reloads the `a` param from its home slot for BOTH
-     * pa[] elements and consumes it IN PLACE (`addu v1,v1,s7`), so reload cannot inherit; ours keeps
-     * one copy in $a3 and adds into $v0 -- plus (b) the two `lw pa[k]; nop; lw a0,0(v1)` load-delay
-     * nops our sched1 fills by interleaving the `b` reload.  Flag measurements (scratch cc1, NOT
-     * applied): -fno-schedule-insns alone = still 78; -fno-schedule-insns2 = exact 81/81 but the
-     * prologue `sw sN`/`init sN` interleave (which retail HAS) is lost, so neither flag alone is
-     * retail's build.  Source-side attempts that do NOT move it: `int *volatile pa[2]`,
-     * `volatile int *pa[2]` (31 both).  Per-obj toolchain identity, methodology 3.25-3d / W30 rule 6.
-     * SLD is unavailable here (eaclib .lib C members are debug-stripped: 0 records in 800E0000+).
-     * ------------------------------------------------------------------------------------------
-     * w34-a4 2026-07-26 -- THE MECHANISM IS NOW NAMED AND PROVEN (still 31; do not re-fight).
-     * ALL 31 diffs are ONE root cause, not three: retail reloads `a` (sp+0x68) and `b` (sp+0x6C)
-     * SERIALLY THROUGH $v1 and consumes the reload IN PLACE (`lw v1,0x68(sp); addu v1,v1,s7; sw
-     * v1,0x38(sp)` twice), while ours loads once into $a3 and adds to a separate dest (`lw a3,...;
-     * addu v0,a3,s7`).  Ours' single load is gcc RELOAD INHERITANCE: because our `addu` writes a
-     * DIFFERENT register, $a3 still holds `a` at the 2nd use and choose_reload_regs reuses it; the
-     * missing 3 instructions and both load-delay `nop`s (which our sched2 fills with the independent
-     * `b` reload) follow from that one decision.  PROOF (A/B, not inference): declaring the params
-     * `int * volatile a, int * volatile b` makes every read a MEM operand instead of a spilled
-     * pseudo, and cc1 then emits retail's shape EXACTLY -- two `lw`s, in-place `addu v0,v0,s7`,
-     * serial single-scratch reloads, the same nops.  So retail's `a`/`b` behaved as MEM operands,
-     * ours behave as spilled pseudos; the residual is reload's inheritance + reload-register
-     * ROUND-ROBIN ($v1 vs $a3 -- `allocate_reload_reg` starts at `last_spill_reg+1`), neither of
-     * which is source-addressable.  The volatile form is NOT kept: it costs the prologue's
-     * `addu s6,a0,zero` (becomes `lw s6,0x68(sp)`) and lands at 42-44 diffs / 79 insns.
-     * FALSIFIED this session (all measured with verify_asm, none better than 31): `int **va = &a`
-     * address-taken (100, and it kills the a[i] strength-reduction), `*(int * volatile *)&a` (31 --
-     * gcc folds `*&x` through the cast, so the qualifier never reaches the MEM), `&a[i+1]`/`&a[i+2]`
-     * index form (41), a[i] via `(char*)a + (i1>>2)` (35), `pa[3]` (85), block-scoped temps (31),
-     * swapped pa store order (31), `pa[0]=a; pa[0]+=i1` in-place (31), `ac[0]=a` memory-array holder
-     * (85), `b[j+3]/b[j+6]` index form (79), explicit `bw` b-walker (53), named `bv` b-element temps
-     * (31), `acc = acc + ...` vs `+=` (31), do-while loops (31), `void` return (31), and IDA's
-     * literal shape from sub_80105F40 (two plain `int *` locals + `&a1[v5]` index givs: 109/66 insns
-     * -- gcc hoists pa0/pa1 into walkers, which is exactly what the `int *pa[2]` array prevents;
-     * IDA's own asm shows retail storing them to sp+0x38/0x3C every row, so the array IS the right
-     * shape and IDA's two-locals rendering is a decompiler view, not the source).
-     * PERMUTER: 445 iterations, 35 candidates gate-tested one by one -- best 33, i.e. the scorer and
-     * verify_asm are ANTI-correlated here (permuter base 630 = 31 gate diffs; its "best" 410 = 33).
-     * Flag matrix (scratch, none adopted): -fno-schedule-insns 37 (78 insns) | -fno-schedule-insns2
-     * 52 (81/81 EXACT parity but the a3 shape is unchanged, proving it is reload, not scheduling) |
-     * both 58 | -mno-split-addresses 31 | -fno-expensive-optimizations 31 | -fno-delayed-branch 51.
-     * w35-a6 2026-07-26: the A/B control was re-run PER PARAMETER (the w34 note only measured both
-     * params volatile at once, and its recorded "42-44 diffs / 79 insns" figure is STALE against the
-     * current base -- do not quote it).  Fresh: `int * volatile a` alone 49 (78/81), `int * volatile b`
-     * alone 78 (79/81), both 85 (80/81).  So the MEM-operand shape is not separable per parameter and
-     * every variant is far worse than 31; the volatile A/B remains a DIAGNOSTIC that names the
-     * mechanism (reload inheritance + reload-register round-robin), never a candidate fix.  The count
-     * gap stays exactly 3 = the one un-inherited `lw v1,0x68(sp)` plus its two load-delay nops.
-     * VERDICT: STRONG floor (>=20 alternate source forms byte-identical or worse, mechanism named,
-     * A/B-proven). Reopen only with a reload-level toolchain lever.
-     * 🔴 w49-a8 2026-08-08 -- THE COUNT HALF OF THAT VERDICT IS REFUTED; THE COLORING HALF STANDS.
-     * The w47 OPACITY FENCE (`__asm__("" : "=r"(x) : "0"(x))`, a ZERO-INSN value-numbering
-     * barrier) placed BETWEEN the two pa[] computations DOES break reload inheritance:
-     *     pa[0] = (int *)((char *)a + i1);
-     *     __asm__("" : "=r"(a) : "0"(a));
-     *     pa[1] = (int *)((char *)a + i2);
-     * gates INSTRUCTION-EXACT 81/81 -- i.e. the three 'not source-addressable' instructions (the
-     * un-inherited `lw v1,0x68(sp)` + its two load-delay nops) ARE recoverable from C, because the
-     * fence gives `a` a fresh def that choose_reload_regs cannot inherit across.  What it does NOT
-     * fix is the register ROLES: the whole callee-saved band rotates and it gates 100.  Variants
-     * measured the same session (none better than the kept 31): fence BEFORE both pa[] stores 112
-     * (81/81), fence AFTER both 100 (81/81), a separate `int *a2 = a;` carrier + fence 33 (80/81),
-     * carrier fence FIRST 32 (79/81), reversed pa store order + fence 101 (82/81), operand-swapped
-     * `i2 + (char *)a` + fence 100 (81/81), and the plain w48 void fence `__asm__("" : : "i"(0))`
-     * between them 32 (79/81 -- barrier only, no value-numbering effect, so no extra insn).
-     * ==> RE-CLASSIFIED: this is NOT 'reload inheritance is unreachable'.  It is reload inheritance
-     * (reachable, above) PLUS an allocno rotation that has to be solved at the same time.  The
-     * next attack is reqdelta/allocsim on the 81/81 fence basin -- solve the band there, not here;
-     * do NOT restart the 20-form spelling sweep, which was run against the 78-insn basin.
-     * w50-a8 2026-08-09 -- THE 81/81 FENCE BASIN'S BAND IS NOT DIALABLE; ITS ROTATION IS
-     * STRUCTURAL, so that hand-off is closed.  Reading the two basins side by side settles it:
-     * retail's `a` pseudo gets NO hard register (it is spilled to its param home 0x68(sp) and
-     * RELOADED twice per row) while a SEPARATE giv walks `a[i]` (`addiu s6,s6,12` in the outer
-     * back-edge slot).  An opacity fence whose operand IS `a` forces `a` into a hard register by
-     * construction ("=r"), which (a) kills that giv -- ours then spends `sll v0,s5,2; addu s7,v0,s6`
-     * per row -- and (b) evicts i2 to $a3 plus a stack spill, growing the frame to 112 vs retail's
-     * 104.  Adding an explicit `aw` walker for `a[i]` does NOT recover it (100, byte-identical to
-     * the plain fence).  So the fence basin cannot host retail's allocation at all.
-     * TWO NEW BASINS, both with the ENTIRE register band byte-correct (prologue 0-17 identical,
-     * s0=acc s1=j s2=b s3=j1 s4=j2 s5=i s6=a-walker s7=i1 fp=i2 -- i.e. strictly better SHAPE than
-     * the 100-diff fence basin), neither landed because neither beats the kept 31:
-     *   W2 = a named `va = *pa[k];` value temp + a w45 USE FENCE on it, per inner call:
-     *        32 diffs at COUNT-EXACT 81/81.  Residual = the reload-register round-robin
-     *        (ours `lw a3,0x6C(sp)`, retail `lw v1,0x6C(sp)`) + the acc-accumulate position.
-     *   Z1 = an `ap` CARRIER opacity-fenced (the fence redefines the CARRIER, never `a`, so the
-     *        giv survives): `ap = a; asm("":"=r"(ap):"0"(ap)); ap += i1; pa[0] = ap;` twice.
-     *        34 at 81/81, and it reproduces retail's DOUBLE `lw ...,0x68(sp)` with the in-place
-     *        `addu v1,v1,s7` -- i.e. the reload-inheritance half IS source-reachable.
-     *        Its cost is the fence's BARRIER: retail fills the two load-delay slots with the inner
-     *        `li s4,24 / li s3,12` inits, and no insn may cross the fence, so we pay 2 nops.
-     * ==> the two halves are mutually exclusive under any barrier-carrying device.  NAMED NEXT
-     * LEVER (same gap w47-a1's reservehandle receipt names): a copy-prop/cse-defeating device for
-     * a spilled pointer param that is NOT a scheduling barrier.
-     * Also falsified this wave (all vs 31): plain use fence between the pa[] stores 32 (79/81) |
-     * opacity fence on i2 58 | `pt = a` carrier without a fence 31 (copy-prop folds it) | operand
-     * swap `(int *)(i1 + (char *)a)` 31 | explicit `aw` walker alone 41 | `__asm__("":: "m"(a))`
-     * memory fence 47, with W2 46, as an "=m" pair 49, after both stores 48 | W2 + any of the
-     * above header fences 33-99 | carrier + W2 34-35 | the inner inits moved between the two pa
-     * computations 32 | a single carried read (first or second only) 32-33.
-     * Shape levers that DID land the 107->31: flat-index outer i BY 3, guard i<9 (oracle slti s5,9); SEPARATE
-     * byte-offset walkers i1/i2 (a row elems, step 12) + j1/j2 (b column walk, step 4) =
-     * independent variables so no combine_givs base-fold; the two a-element pointers live in
-     * a POINTER ARRAY pa[2] (memory by construction -- the temp[] stores alias-block hoisting,
-     * so they reload per inner iter at sp+0x38/0x3C like the oracle) which frees exactly the
-     * two callee regs i1/i2 need; decl/init order i2-before-i1, j2-before-j1 puts i2->fp,
-     * i1->s7, j2->s4, j1->s3; progressive acc (+= per call) avoids a park reg; NO explicit
-     * return -- $v0 after blockmove is incidental (oracle writes no v0). */
-    /* MATCH (w58, 31->29): IDA's retail register annotation order is significant here: the inner
-     * counter and its two byte-offset walkers are initialized before the pa[] address materialization.
-     * Spelling j's initialization as a separate statement at that boundary makes sched1 place
-     * `addu s1,zero,zero` at retail's exact slot, without changing code size or the saved-register
-     * allocation.  The remaining 29-diff floor is still the single inherited a-param reload and the
-     * two inherited b-param reload/load-delay pairs documented above. */
-    /* MATCH (w60, 29->25): keep an explicit long-lived `aw` for the a[i] row walk, but form pa[]
-     * through a block-local `&a` view.  That preserves the exact s6 walker/band while moving the
-     * inherited a-home reload from a3 to retail's v1; the compiler folds `va` itself, so code size
-     * stays 78.  Falsified in this basin: zero-byte __builtin_memcpy (29), direct *(&a) and union
-     * alias views (29), reversed pa[] construction (29), two separate va scopes (25, identical),
-     * block-local b carriers (25, identical), address-taken b with a separate bw walker (80-99),
-     * and volatile-a plus aw (37/80).  FF8/Xenogears contain only asm stubs for comparable PsyQ
-     * matrix multiplies; their barrier macros are diagnostic only and were not used here. */
-    /* MATCH (2026-08-13, 25->2): a 4-byte union argument is ABI-identical to the original
-     * pointer argument but exposes a volatile pointer-value view of its parameter home.  Reading
-     * that view twice defeats reload inheritance without an asm barrier.  Reusing one `base`
-     * carrier across pa[k], the volatile b-home read, and the following indexed load makes reload
-     * choose retail's v1 twice and restores both load-delay nops.  Keeping `bw` between the two
-     * a-home reads preserves IDA's exact s2/s3 allocation and the whole 81-insn body.  The two
-     * remaining diffs are one independent prologue store (`sw a0,104(sp)`) scheduled later than
-     * retail; all other instructions are byte-identical. */
-    /* 🏆 W61-A19 2026-08-15 -- 2 -> PASS 81/81, but the last move is a BUILD.PY TEXT_MOVES row,
-     * not a source lever.  The residual is the PROLOGUE PARAM-SPILL POSITION: retail emits
-     * `sw $4,104($sp)` between `sw $22,88($sp)` and `move $22,$4`; sched2 sinks ours to the end of
-     * the save group (next to the $a1/$a2 home stores, which retail ALSO leaves there -- so this
-     * is one insn, not the group).  That is the w46 "PROLOGUE PARAM-COPY SINK" class (assign_parms
-     * emits before any statement; no source position reaches it) and every in-source device was
-     * measured here and FALSIFIED (all vs the 2-diff base, count stayed 81/81):
-     *   `aw = a.pointer` hoisted to the first statement 2 | opacity fence on aw 2 | void-tail
-     *   fence `__asm__("" : : "i"(0))` as the first statement 18 | same + aw first 18 | use fence
-     *   `__asm__("" : : "r"(aw))` after the init 6 | `aw = a.memory` (volatile view) 6 |
-     *   a dummy `base = a.memory;` read at the head 3 @82/81.
-     * ORCHESTRATOR SPEC (probe-verified REAL PASS via tools/vprobe.py + W60_TEXT_MOVES_FILE):
-     *   PER_FN_TEXT_MOVES["recon/eaclib/psx/eacpsxz/trnsmult.c"] = {"transmult": [
-     *       {"take": r"\tsw\t\$4,104\(\$sp\)\n", "after": r"\tsw\t\$22,88\(\$sp\)\n"}]}
-     * Both anchors are unique inside the .ent/.end region and label-agnostic (w60-a8). */
-    /* MATCH (2026-08-26, no volatile): the first two pointer arguments form one
-     * 8-byte by-value aggregate.  MIPS o32 still passes its fields in a0/a1 and
-     * `out` in a2, so this is call-ABI-identical to three pointer arguments.
-     * Unlike two independent scalar parameters, GCC keeps the aggregate field
-     * reads as distinct parameter-home accesses: that naturally reproduces the
-     * retail double a reload, the pa[] reloads, and both load-delay nops.  The
-     * NFS2 PC `_transmult` body confirms the same left-row/right-column math,
-     * while the NFS4 PSX IDA/Ghidra bodies confirm this walker/stack-scratch
-     * loop shape.  Result: 81/81 instructions and the same lone prologue-order
-     * residual (2 diffs) as the former volatile-pointer-view implementation. */
-    i = 0;
-    i2 = 8;
-    i1 = 4;
-    aw = args.left;
-    for (; i < 9; i += 3) {
-        j = 0;
-        j2 = 24;
-        j1 = 12;
-        {
-            base = args.left;
-            base = (int *)((char *)base + i1);
-            pa[0] = base;
-            bw = args.right;
-            base = args.left;
-            base = (int *)((char *)base + i2);
-            pa[1] = base;
-        }
-        for (; j < 3; j++) {
-            int av;
-            int bv;
-            acc  = fixedmult(aw[i], *bw);
-            bw++;
-            base = pa[0];
-            av = *base;
-            base = args.right;
-            bv = *(int *)((char *)base + j1);
-            acc += fixedmult(av, bv);
-            base = pa[1];
-            av = *base;
-            base = args.right;
-            bv = *(int *)((char *)base + j2);
-            acc += fixedmult(av, bv);
+    int i, i1, i2;
+
+    for (i = 0, i2 = 8, i1 = 4; i < 9; i2 += 12, i1 += 12, i += 3) {
+        int j, j1, j2;
+
+        c0 = (int *)((char *)a + i1);
+        c1 = (int *)((char *)a + i2);
+
+        for(j = 0, j2 = 24, j1 = 12; j < 3; j2 += 4, j1 += 4, j++) {
+            int acc;
+            acc  = fixedmult(a[i], b[j]);
+            acc += fixedmult(*c0, *(int *)((char *)b + j1));
+            acc += fixedmult(*c1, *(int *)((char *)b + j2));
             temp[i + j] = acc;
-            j1 += 4;
-            j2 += 4;
         }
-        i2 += 12;
-        i1 += 12;
     }
-    blockmove(temp, out, 0x24);                                /* 9 ints -> output (alias-safe) */
+
+    blockmove(temp, out, sizeof(int) * 9);                  /* 9 ints -> output (alias-safe) */
 }

@@ -14,7 +14,7 @@
  */
 extern int  fixedmult(int a, int b);                         /* eacpsxz @0x800E4328 */
 extern void transpose(int *src, int *dst);                  /* eacpsxz @0x800E4358 (trnspos) */
-extern int *transmult(int *a, int *b, int *out);            /* eacpsxz @0x80105F40 (trnsmult.obj) C=A*B */
+extern void transmult(int *a, int *b, int *out);            /* eacpsxz @0x80105F40 (trnsmult.obj) C=A*B */
 #define multiplymatrix transmult                                /* reorthogonalize's matmul callee */
 /* @0x801237EC (16.16 identity, shared rodata; byte-exact from NFS4.EXE). matrix.obj is the owner;
  * other TUs (e.g. trnsmult, reorthogonalize callers) reference it extern. */

@@ -304,8 +304,17 @@ void tScreenTournamentStandings::ProcessInput(tPlayer,tInputKeyType &keyval,
        },
    (Both anchors assert region-unique against the current .s; the row moves two
    NON-branch prologue lines only -- no label, no branch target, no delay slot --
-   so brdist/branch-word census is unaffected by construction.)  Until the row is
-   wired this fn gates FAIL 4; with it, PASS 561/561 and the TU is 13/13. */
+   so brdist/branch-word census is unaffected by construction.)  This is retained
+   only as a historical diagnostic; post-compilation text moves are not permitted.
+
+   ==== W79 source-only (2026-08-26): 4 @561 -> 3 @562. ====
+   Remove the non-SYM `self` local and use the implicit `this` parameter directly.
+   That naturally restores retail's `sw s7 / move s7,a0` prologue position.  The
+   remaining three-line residual is one redundant `%lo(tournamentManager)` copy
+   (`addiu v0,t1,0`) plus its single `lw` consumer using v0 instead of t1.  Pointer,
+   reference, direct-global, separate/comma-staged definition, and tied/input-only
+   zero-byte barriers were gated; none removed that copy without a larger register
+   rotation or instruction-count regression. */
 /* ---- tScreenTournamentStandings::DrawBackground  [SCREENPOST.CPP:164-312] ---- */
 void tScreenTournamentStandings::DrawBackground()
 
@@ -329,21 +338,20 @@ void tScreenTournamentStandings::DrawBackground()
   int numRacers;
   int lastRacer;
   int line;
-  tScreenTournamentStandings *self;
+  tTournamentManager &tm = tournamentManager;
   /* W72-A7: MUST be bound BEFORE any other statement -- one statement later
      and gcc emits a SECOND redundant %lo(tournamentManager) lo_sum (+1 insn). */
-  tTournamentManager &tm = tournamentManager;
   tMenuTextType type;   /* W72-A7: named, like the sibling tScreenPinkSlipStandings */
 
-  self = this;
-  type = textType_TrackRecords;
-  fade = self->fScreenFadeVal;
-  fadeline = fade;
   i = 0;
+  type = textType_TrackRecords;
+  fade = this->fScreenFadeVal;
+  fadeline = fade;
   line = 0x2fe;
   tourneyInfo = &tm.fDefinition->fTournaments[
       tm.fDefinition->fTiers[tm.fTier].fTournOffset + tm.fTournament];
-  numRacers = (short)((short)tm.fNumRacers + (tourneyInfo->fKnockout != 0));
+  numRacers = (short)((short)tm.fNumRacers +
+                      (tourneyInfo->fKnockout != 0));
   lastRacer = numRacers - 1;
   for (;;) {
     short p;
@@ -403,53 +411,53 @@ void tScreenTournamentStandings::DrawBackground()
   if (((short)shape->width / 2) < tt) {
     tt = (short)shape->width - tt;
   }
-  DrawShapeExtended(0x28,0,lbx + tt,TextSys_WordY(0x2fc) + 1,self->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
-  DrawShapeExtended(0x28,0,lbx - tt,TextSys_WordY(0x2fc) + 1,self->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
+  DrawShapeExtended(0x28,0,lbx + tt,TextSys_WordY(0x2fc) + 1,this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
+  DrawShapeExtended(0x28,0,lbx - tt,TextSys_WordY(0x2fc) + 1,this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
   drawflags.tint[0] = 0x282828;
-  DrawShapeExtended(0x27,0x400,0,-1,self->fScreenFadeVal,0,&drawflags);
+  DrawShapeExtended(0x27,0x400,0,-1,this->fScreenFadeVal,0,&drawflags);
   PSXDrawBrightEndLine(0x232323,TextSys_WordX(0x2f6) - 0x96,TextSys_WordY(0x2fd) + 10,
                        300,1,3,fadeline,0x1e);
   colf = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][5]],fade);
   colb = CalcFadeVal(0x232323,fade);
-  if ((1000 < ticks[0] - self->starttick) || (self->fStartCountdownNOW != 0)) {
-    if ((0 < self->moneyAwarded) || ((0 < self->moneyDamage || (0 < self->moneyBonus)))) {
+  if ((1000 < ticks[0] - this->starttick) || (this->fStartCountdownNOW != 0)) {
+    if ((0 < this->moneyAwarded) || ((0 < this->moneyDamage || (0 < this->moneyBonus)))) {
       AudioCmn_PlayFESFX(0x15);
     }
-    self->moneyAwarded -= self->fCountSpeed;
-    if (self->moneyAwarded < 1) {
-      self->moneyAwarded = 0;
-      self->moneyDamage -= self->fCountSpeed;
-      if (self->moneyDamage < 1) {
-        long bonus = self->moneyBonus - self->fCountSpeed;
-        self->fCountedDown = 1;
-        self->moneyDamage = 0;
+    this->moneyAwarded -= this->fCountSpeed;
+    if (this->moneyAwarded < 1) {
+      this->moneyAwarded = 0;
+      this->moneyDamage -= this->fCountSpeed;
+      if (this->moneyDamage < 1) {
+        long bonus = this->moneyBonus - this->fCountSpeed;
+        this->fCountedDown = 1;
+        this->moneyDamage = 0;
         if (bonus < 0) {
           bonus = 0;
         }
-        self->moneyBonus = bonus;
+        this->moneyBonus = bonus;
       }
     }
   }
-  if (self->fDrawMoney != 0) {
+  if (this->fDrawMoney != 0) {
     FETextRender_FullTextFade(fade,TextSys_Word(0x312),(short)TextSys_WordX(0x2fa),
                              (short)TextSys_WordY(0x312),
                              type,
-                             self->gotmoney ? 1 : 0,1);
-    DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x312),6,self->moneyAwarded,colf,colb);
+                             this->gotmoney ? 1 : 0,1);
+    DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x312),6,this->moneyAwarded,colf,colb);
     FETextRender_FullTextFade(fade,TextSys_Word(0x313),(short)TextSys_WordX(0x2fa),
                              (short)TextSys_WordY(0x313),
-                             type,self->gotbilled ? 1 : 0,1);
-    DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x313),6,self->moneyDamage,colf,colb);
+                             type,this->gotbilled ? 1 : 0,1);
+    DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x313),6,this->moneyDamage,colf,colb);
     FETextRender_FullTextFade(fade,TextSys_Word(0x314),(short)TextSys_WordX(0x2fa),
                              (short)TextSys_WordY(0x314),
-                             type,self->gotbonus ? 1 : 0,1);
-    DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x314),6,self->moneyBonus,colf,colb);
+                             type,this->gotbonus ? 1 : 0,1);
+    DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x314),6,this->moneyBonus,colf,colb);
   }
   FETextRender_FullTextFade(fade,TextSys_Word(0x315),(short)TextSys_WordX(0x2fa),(short)TextSys_WordY(0x315),
                            type,textState_Hilighted,1);
   DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x315),9,
-            ((self->moneyFinal - self->moneyAwarded) + self->moneyDamage) - self->moneyBonus,colf,colb);
-  ::DrawBackgroundImage((tScreen *)self,10,0x1d,gCurrentShapes[0],0);
+            ((this->moneyFinal - this->moneyAwarded) + this->moneyDamage) - this->moneyBonus,colf,colb);
+  ::DrawBackgroundImage((tScreen *)this,10,0x1d,gCurrentShapes[0],0);
   return;
 }
 

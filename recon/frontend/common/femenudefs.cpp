@@ -2594,13 +2594,15 @@ void MenuExtended_ExitTourney(tMenuCommand &command)
 void MenuExtended_ExitPinkSlipsEarly(tMenuCommand &command)
 
 {
+  /* SYM-CODEGEN-CARRIER: ptVar2 -- direct final menuDefs[0] use is FAIL 5
+     at 77/76 and delays the command-type store behind the global load. */
   tGlobalMenuDefs *ptVar2;
-  short sVar3;
-  char *fmt;
-  char *pcVar4;
+  /* SYM-CODEGEN-CARRIER: dlgThis -- direct AreYouSure members are FAIL 11 at
+     75/76 and lose retail's one `$s0` stack-base lifetime. */
   tDialogYesNo *dlgThis;
-  int iVar5;
   int player;
+  /* SYM-CODEGEN-CARRIER: msg -- direct `string` use is count-exact FAIL 20
+     and births the frame address inside the loop instead of pre-loop `$s2`. */
   char *msg;
   tDialogYesNo AreYouSure;
   char string [80];
@@ -2610,20 +2612,16 @@ void MenuExtended_ExitPinkSlipsEarly(tMenuCommand &command)
   dlgThis->yesnowords[1] = 0x322;
   dlgThis->fDefault = 0;
   dlgThis->string = TextSys_Word(0x9d);
-  sVar3 = ((tDialogInteractive *)dlgThis)->Run();
-  if (sVar3 != 0) {
+  if (((tDialogInteractive *)dlgThis)->Run() != 0) {
     Init_Memcard(false,1);
     player = 0;
     msg = string;
   nextPlayer:
     if (player < 2) {
-      fmt = TextSys_Word(0x297);
-      pcVar4 = PlayerName(player);
-      iVar5 = player + 1;
-      sprintf(msg,fmt,pcVar4,iVar5);
+      sprintf(msg,TextSys_Word(0x297),PlayerName(player),player + 1);
       (FEApp->NoInputMemCardDialog).string = msg;
       SavePinkSlipsCarsWithErrorDialogs((short)player,1,-1);
-      player = iVar5;
+      player = player + 1;
       goto nextPlayer;
     }
     DeInit_Memcard();

@@ -4515,6 +4515,42 @@ zero inversions across 513 objects, call-target audit finds zero proven wrong
 targets across 460 units, vtable indexing passes 930 files, and the source-only
 policy audit finds no post-compiler text moves or branch retargets.
 
+### P126 — early pink-slips exit SYM local reconciliation (`2026-08-26`)
+
+Reliable `MenuExtended_ExitPinkSlipsEarly` SYM records reference parameter
+`command` in `$s3`, stack `tDialogYesNo AreYouSure`, nested inline-dialog
+receiver `this`, nested stack `char string[80]`, and `int player` in `$s1`.
+Four decompiler-only identities are deleted outright while retaining exact
+code: the dialog `Run()` result feeds its condition without `sVar3`; direct
+`TextSys_Word` and `PlayerName` arguments remove `fmt` and `pcVar4`; and the
+loop's `player + 1` expression removes `iVar5` from both formatting and update.
+
+Three surviving SYM-omitted identities now have explicit counterfactual proof.
+Direct final `menuDefs[0]` use without `ptVar2` is FAIL 5 at 77/76 and delays
+the command-type store.  Direct `AreYouSure` members without `dlgThis` are
+FAIL 11 at 75/76 and lose retail's single `$s0` stack-base lifetime.  Direct
+`string` use without `msg` is count-exact FAIL 20 and births the frame address
+inside the loop rather than in pre-loop `$s2`.  The binary proves all three
+value webs, but optimized SYM cannot preserve their private names.
+
+`MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand` remains exact PASS at
+76/76 instructions, with zero detailed diffs and an instruction-identical
+`-g` twin.  The complete `femenudefs.cpp` aggregate remains 65 strict PASS and
+one pre-existing far global-constructor classification.  The refreshed strict
+frontend/common audit is stored in
+[`frontend_common_strict_p230_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p230_20260826.md).
+It advances declaration-clean mapped functions from 764 to 765, reduces
+generic extra source-local names from 153 to 146, and raises explicit
+source-only codegen carriers from 440 to 443.  Missing-name, type, storage,
+global, and mapping-review queues remain empty.
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; undefined-call audits scan 15,782
+reconstruction and 15,779 source-lane calls with zero defects.  TU order has
+zero inversions across 513 objects, call-target audit finds zero proven wrong
+targets across 460 units, vtable indexing passes 930 files, and the source-only
+policy audit finds no post-compiler text moves or branch retargets.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

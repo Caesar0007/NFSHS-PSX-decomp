@@ -1601,22 +1601,26 @@ void tScreenCarSelectDuel::UpdateOpponentVideoWall(tCarInfo &carInfo)
    the single stack tCarInfo, drenv/daprim keep their typed PSY-Q forms, and
    validCar is the vcall BOOL.  The two readiness tests need BOOL destinations
    fed by block-local elapsed expressions; byte temporaries add `andi 255`,
-   while direct combined conditions perturb the surrounding allocation. */
+   while direct combined conditions perturb the surrounding allocation.
+   Source-only SYM cleanup (2026-08-26) folds the opponent-credit and repeated
+   brightness values directly, and canonical flattened vtable slots 16/13/12/10
+   remove all three decompiler dispatch aliases while preserving exact retail
+   delta calls and passing the safe-index audit. */
 void tScreenCarSelectDuel::DrawBackground()
 
 {
   DRAWENV *drenv;
-  short creditsTextVal;
-  int screenVtbl;
-  int screenVtbl2;
-  __vtbl_ptr_type (*vtbl) [10];
-  short sVar2;
   bool validCar;
   RECT r;
   tCarInfo carInfo;
   RECT temp;
+  /* SYM-CODEGEN-CARRIER: bVar1 -- nesting the player-two readiness body
+     directly is count-exact FAIL 16 and loses retail's held opponent-shape
+     base plus explicit BOOL branch web. */
   BOOL bVar1;
   DR_AREA *daprim;
+  /* SYM-CODEGEN-CARRIER: bVar2 -- nesting the player-one readiness body
+     directly is FAIL 7 at 413/414 and changes retail's explicit BOOL branch. */
   BOOL bVar2;
   
   drenv = (DRAWENV *)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
@@ -1634,8 +1638,8 @@ void tScreenCarSelectDuel::DrawBackground()
   r.w = 200;
   r.h = 0xc;
   r.y = 0x82;
-  creditsTextVal = menuDefs->iteratorOpponentCar.TextValue(kPlayerBoth);
-  DrawShape_NFS4RoundRectangle((int)creditsTextVal,r,0);   /* W58-A1: RECT& decl */
+  DrawShape_NFS4RoundRectangle(
+      (int)menuDefs->iteratorOpponentCar.TextValue(kPlayerBoth),r,0);
   carManager.GetStockCar((ushort)(byte)frontEnd.oppCar,carInfo);
   carInfo.fColor = carInfo.fColorOrder[carInfo.fDefaultColor];
   this->UpdateOpponentVideoWall(carInfo);
@@ -1644,6 +1648,9 @@ void tScreenCarSelectDuel::DrawBackground()
   if ((((this->fOpponentShapes).fFile != (char *)0x0) &&
       (this->fVideoWall[1].fTransitionDirection != -1)) &&
      (gCarObj[1]->async_handle == 0)) {
+    /* SYM-CODEGEN-CARRIER: elapsed -- folding both block-local elapsed-time
+       values into their comparisons is count-exact FAIL 20 and reverses each
+       retail load/subtract destination web. */
     int elapsed = ticks[0] - this->fFadeTicks[1];
     bVar1 = 0x80 < elapsed;
   }
@@ -1667,15 +1674,13 @@ void tScreenCarSelectDuel::DrawBackground()
   DrawCar(carInfo,0x116,0xb8,1.7,-9.9,(char)this->fBrightness[1],false,
              this->fCameraRotation,kPlayerTwo);
   if (((gCarObj[1]->async_handle == 0) &&
-      (sVar2 = this->fBrightness[1],
-      sVar2 == this->fDestBrightness[1])) &&
-     ((sVar2 == 0 && (0x80 < ticks[0] - this->fFadeTicks[1])))) {
+      (this->fBrightness[1] == this->fDestBrightness[1])) &&
+     ((this->fBrightness[1] == 0 && (0x80 < ticks[0] - this->fFadeTicks[1])))) {
     this->SetBrightness(0x80,1);
     TurnOn(this->fVideoWall + 1);
   }
-  screenVtbl = (int)this->_vf;
-  (**(code **)(screenVtbl + 0x84))
-            ((char *)this + *(short *)(screenVtbl + 0x80),0x69);
+  (*(*this->_vf)[16].pfn)
+            ((char *)this + (*this->_vf)[16].delta,0x69);
   daprim = (DR_AREA *)Render_gPacketPtr;
   temp.x = 0;
   temp.y = *(short *)((char *)drenv + 2) + 0x80;
@@ -1686,9 +1691,8 @@ void tScreenCarSelectDuel::DrawBackground()
   ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
   SetDrawArea(daprim,&temp);
   PSXDrawSquare(0,0,screenheight / 2,0x200,screenheight / 2);
-  screenVtbl2 = (int)this->_vf;
-  validCar = (*(bool (*)(...))(*(code **)(screenVtbl2 + 0x6c)))
-                  ((char *)this + *(short *)(screenVtbl2 + 0x68),&carInfo);
+  validCar = (*(bool (*)(...))(*this->_vf)[13].pfn)
+                  ((char *)this + (*this->_vf)[13].delta,&carInfo);
   if (validCar != 0) {
     r.y = 0x19;
     if (frontEnd.carListType == '\0') {
@@ -1703,9 +1707,8 @@ void tScreenCarSelectDuel::DrawBackground()
   else {
     carInfo.fCarID = -1;
   }
-  vtbl = this->_vf;
-  (*vtbl[1][2].pfn)
-            ((char *)this + vtbl[1][2].delta,
+  (*(*this->_vf)[12].pfn)
+            ((char *)this + (*this->_vf)[12].delta,
              &carInfo);
   if ((gCarObj[0]->async_handle != 0) && (0x80 < ticks[0] - this->fFadeTicks[0])) {
     this->SetBrightness(0,0);
@@ -1717,8 +1720,8 @@ void tScreenCarSelectDuel::DrawBackground()
   DrawCar(carInfo,0x116,0x4f,1.7,-9.9,(char)this->fBrightness[0],false,
              this->fCameraRotation,kPlayerOne);
   if ((((gCarObj[0]->async_handle == 0) &&
-       (sVar2 = this->fBrightness[0],
-       sVar2 == this->fDestBrightness[0])) && (sVar2 == 0)) &&
+       (this->fBrightness[0] == this->fDestBrightness[0])) &&
+      (this->fBrightness[0] == 0)) &&
      (0x80 < ticks[0] - this->fFadeTicks[0])) {
     this->SetBrightness((carInfo.fAvailable != '\0') ? 0x80 : 0x20,0);
     TurnOn(this->fVideoWall);
@@ -1740,9 +1743,8 @@ void tScreenCarSelectDuel::DrawBackground()
       }
     }
   }
-  vtbl = this->_vf;
-  (*vtbl[1][0].pfn)
-            ((char *)this + vtbl[1][0].delta,0)
+  (*(*this->_vf)[10].pfn)
+            ((char *)this + (*this->_vf)[10].delta,0)
   ;
   return;
 }

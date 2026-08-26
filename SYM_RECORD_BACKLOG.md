@@ -4712,6 +4712,44 @@ zero inversions across 513 objects, call-target audit finds zero proven wrong
 targets across 460 units, vtable indexing passes 930 files, and the source-only
 policy audit finds no post-compiler text moves or branch retargets.
 
+### P131 — duel car-select background SYM local reconciliation (`2026-08-26`)
+
+Reliable `DrawBackground__20tScreenCarSelectDuel` SYM records identify the
+implicit `tScreenCarSelectDuel *this` receiver in `$s1`; stack `RECT r`; stack
+`tCarInfo carInfo`; `DRAWENV *drenv` in `$s2`; `DR_AREA *daprim` in `$a0`;
+stack `RECT temp`; and `bool validCar` in `$s2`.  Those declarations, types,
+and scopes are present in the reconstructed body.
+
+Five decompiler-only identities are deleted while preserving byte identity.
+The opponent iterator value feeds `DrawShape_NFS4RoundRectangle` directly
+without `creditsTextVal`; both brightness tests use the fields directly without
+`sVar2`; and canonical flattened vtable slots 16, 13, 12, and 10 replace
+`screenVtbl`, `screenVtbl2`, and `vtbl`.  The flattened form retains retail's
+delta-adjusted indirect calls and passes the safe-vtable-index audit.  Three
+surviving SYM-omitted identities have explicit counterfactual proof: nesting
+the player-two readiness body without `bVar1` is count-exact FAIL 16; nesting
+the player-one body without `bVar2` is FAIL 7 at 413/414; and folding both
+block-local `elapsed` values into their comparisons is count-exact FAIL 20,
+reversing both load/subtract destination webs.
+
+`DrawBackground__20tScreenCarSelectDuel` remains exact PASS at 414/414
+instructions, with zero detailed diffs and an instruction-exact `-g` twin.
+The complete `screencarselect.cpp` aggregate remains 53 strict PASS, two near,
+and four far functions.  The refreshed strict frontend/common audit is stored
+in
+[`frontend_common_strict_p235_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p235_20260826.md).
+It advances declaration-clean mapped functions from 769 to 770, reduces
+generic extra source-local names from 115 to 107, and raises explicit
+source-only codegen carriers from 462 to 465.  Missing-name, type, storage,
+global, and mapping-review queues remain empty.
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; undefined-call audits scan 15,782
+reconstruction and 15,779 source-lane calls with zero defects.  TU order has
+zero inversions across 513 objects, call-target audit finds zero proven wrong
+targets across 460 units, vtable indexing passes 930 files, and the source-only
+policy audit finds no post-compiler text moves or branch retargets.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

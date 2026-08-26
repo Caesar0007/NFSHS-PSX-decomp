@@ -84,13 +84,15 @@ int CalcTextFadeSelToHi(tMenuTextType type,short fSelFade,short fFade)
    ($17, $1e).  SLD statements:
    72 / 73 / 75 / 76 / 78 / 79 -- the order kept here.
    MATCH 2026-08-13 (12->2): the three SYM inline-block pairs were accessor calls.
-   The sole residual is scheduling of `%lo(kRGBVals)` by six instructions; register
-   allocation, instruction count, row bases, displacements, and calls are exact.
+   PASS 2026-08-26 (2->0, 88/88): initialize the three SYM-unnamed value carriers
+   in baseB/baseA/baseC order.  The order changes only sched2's address-chain
+   priority and places `%lo(kRGBVals)` immediately after its `%hi`; the six named
+   SLD statements below, register allocation, row bases, displacements, and calls
+   remain exact.
    NFS4 SYM cannot recover names for the three values that retail CSE-hoists
    before the first call.  Removing them with inline-accessor expressions is
    FAIL 135 (103/88); raw expressions are FAIL 93 (97/88), and raw expressions
-   with these value webs are FAIL 14 (86/88).  The retained form is FAIL 2
-   (88/88), with only the documented address-low scheduling displacement. */
+   with these value webs are FAIL 14 (86/88). */
 void CalcOnOffFade(tMenuTextType type,short fOnOffFade,short fSelFade,short fFade,int &OnColor,
                int &OffColor)
 
@@ -107,8 +109,8 @@ void CalcOnOffFade(tMenuTextType type,short fOnOffFade,short fSelFade,short fFad
   int baseB;
   int baseC;
 
-  baseA = TextDefinitionColor(type,4);
   baseB = TextDefinitionColor(type,5);
+  baseA = TextDefinitionColor(type,4);
   baseC = TextDefinitionColor(type,3);
   ColSelOn = CalcFadeVal(baseA,baseB,(int)fOnOffFade);
   ColSelOff = CalcFadeVal(baseB,baseA,(int)fOnOffFade);

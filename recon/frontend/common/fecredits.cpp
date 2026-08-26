@@ -144,15 +144,25 @@ void tCreditManager::Draw(bool selected)
 /* ---- tCreditManager::SetupCurrCredit  [FECREDITS.CPP:155-238] ---- */
 void tCreditManager::SetupCurrCredit()
 
-/* MATCH (w37-a2 + 2026-08-03 follow-up, 58->PASS): SYM has only ONE named local for the whole
-   fn (function-static `lasttick`, i.e. FECredits_lastFadeTick; SYM-CARRIER: lasttick) besides
-   `this` -- everything else is compiler-transient. Two levers found:
+/* MATCH (w37-a2 + 2026-08-03 follow-up, 58->PASS): SYM records the function-static
+   `lasttick` (i.e. FECredits_lastFadeTick; SYM-CARRIER: lasttick), plus the nested
+   line-66 `int NNNNN` in $v1 and the outer `this` receiver.  The remaining seven
+   identities are optimized away and their private original spellings are not
+   recoverable from SYM:
+   SYM-CODEGEN-CARRIER: advanceRequested
+   SYM-CODEGEN-CARRIER: inputPressed
+   SYM-CODEGEN-CARRIER: nextCredit
+   SYM-CODEGEN-CARRIER: textFade
+   SYM-CODEGEN-CARRIER: currentCredit
+   SYM-CODEGEN-CARRIER: backgroundReady
+   SYM-CODEGEN-CARRIER: startTicksSnapshot
+   Two levers found:
    (1) the fCurrCredit%3-or-bgNumber SwapBackground index is a SEPARATE
-   nested-block local (SYM block@0x80035f94) for `iVar5+1`, not a
-   reassignment of iVar5 itself -- keeps iVar5 in $a0 matching the oracle
+   nested-block local (SYM block@0x80035f94) for `currentCredit+1`, not a
+   reassignment of currentCredit itself -- keeps currentCredit in $a0 matching the oracle
    instead of drifting to $a1. (2) both `ticks` reads that feed a
    store-after-a-call (fLineTicks, fStartTicks) read `ticks` directly at
-   the point of use (not via a cached `iVar2`) with the store-order
+   the point of use (not via a cached tick temporary) with the store-order
    `fLineTicks=ticks; StartedLines=1;`. The follow-up's compare-operand
    order makes the ticks `%hi` issue before CREDFADETICKS like retail,
    while the final block-local volatile snapshot preserves retail's
@@ -161,22 +171,22 @@ void tCreditManager::SetupCurrCredit()
    wrap test as `fCurrCredit >= fNumCredits` presents GCC with retail's operand
    order while preserving the same comparison and branch. */
 {
-  bool bVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  bool pvVar3;
+  bool advanceRequested;
+  int inputPressed;
+  int nextCredit;
+  int textFade;
+  int currentCredit;
+  bool backgroundReady;
 
   if (((0xc < ticks - FECredits_lastFadeTick) && (this->fTextFade == 0)) &&
-     (bVar1 = false, this->fCurrCredit == this->fShowCreditNum)) {
-    iVar2 = FEInput_GetNoDebounceKey(0x20,0);
-    if ((iVar2 != 0) ||
-       (iVar2 = FEInput_GetNoDebounceKey(0x20,1), iVar2 != 0))
+     (advanceRequested = false, this->fCurrCredit == this->fShowCreditNum)) {
+    inputPressed = FEInput_GetNoDebounceKey(0x20,0);
+    if ((inputPressed != 0) ||
+       (inputPressed = FEInput_GetNoDebounceKey(0x20,1), inputPressed != 0))
     {
-      bVar1 = true;
+      advanceRequested = true;
     }
-    if (bVar1) {
+    if (advanceRequested) {
       AudioCmn_PlayFESFX(6);
       this->fStartTicks = 0;
       this->fCurrCredit = this->fShowCreditNum + 1;
@@ -190,9 +200,9 @@ void tCreditManager::SetupCurrCredit()
     }
   }
   if ((this->fStartTicks != 0) && (ticks - this->fStartTicks > CREDFADETICKS)) {
-    iVar3 = this->fCurrCredit + 1;
-    this->fCurrCredit = iVar3;
-    if (this->fNumCredits <= iVar3) {
+    nextCredit = this->fCurrCredit + 1;
+    this->fCurrCredit = nextCredit;
+    if (this->fNumCredits <= nextCredit) {
       this->fCurrCredit = 0;
     }
     if (this->fCurrCredit < 0) {
@@ -206,23 +216,24 @@ void tCreditManager::SetupCurrCredit()
     this->StartedLines = 0;
     this->StartedTextFade = 0;
   }
-  iVar4 = this->fTextFade + this->fTextFadeDir;
-  this->fTextFade = iVar4;
-  if (iVar4 < 1) {
+  textFade = this->fTextFade + this->fTextFadeDir;
+  this->fTextFade = textFade;
+  if (textFade < 1) {
     this->fTextFade = 0;
   }
   if (0x7f < this->fTextFade) {
     this->fTextFade = 0x80;
   }
   if ((this->fTextFade == 0x80) && (this->StartedTransition == 0)) {
-    iVar5 = this->fCurrCredit;
+    currentCredit = this->fCurrCredit;
     this->StartedTransition = 1;
-    this->fShowCreditNum = iVar5;
-    if ((iVar5 == (iVar5 / 3) * 3) || (this->CreditBuffer[iVar5].bgNumber != -1)) {
+    this->fShowCreditNum = currentCredit;
+    if ((currentCredit == (currentCredit / 3) * 3) ||
+        (this->CreditBuffer[currentCredit].bgNumber != -1)) {
       /* MATCH (w37-a2): SYM shows a SEPARATE nested-block local at
-         VA 0x80035f94 (line 66) for iVar5+1, not a reassignment of
-         iVar5 itself. */
-      int NNNNN = iVar5 + 1;
+         VA 0x80035f94 (line 66) for currentCredit+1, not a reassignment of
+         currentCredit itself. */
+      int NNNNN = currentCredit + 1;
       if (this->fNumCredits < NNNNN) {
         NNNNN = 0;
       }
@@ -230,17 +241,17 @@ void tCreditManager::SetupCurrCredit()
     }
   }
   if (((this->StartedLines == 0) && (this->StartedTransition != 0)) &&
-     (pvVar3 = screenMain->DoneLoadingBackground(), pvVar3)
+     (backgroundReady = screenMain->DoneLoadingBackground(), backgroundReady)
      ) {
     this->fLineTicks = ticks;
     this->StartedLines = 1;
   }
   if (((this->StartedTextFade == 0) && (this->StartedLines != 0)) &&
      (0x1e < ticks - this->fLineTicks)) {
-    int startTicks = *(volatile int *)&ticks;
+    int startTicksSnapshot = *(volatile int *)&ticks;
     this->StartedTextFade = 1;
     this->fTextFadeDir = -8;
-    this->fStartTicks = startTicks;
+    this->fStartTicks = startTicksSnapshot;
   }
   return;
 }

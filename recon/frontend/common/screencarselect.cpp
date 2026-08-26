@@ -663,13 +663,7 @@ void tScreenCarSelect::InitializeVideoWall()
 void tScreenCarSelect::Initialize()
 
 {
-  tGlobalMenuDefs *mdefs;
-  short sVar2;
-  int valid;
-  int showroomTick;
-  int fadeTick;
   short i;
-  uint uVar6;
   tCarInfo carInfo;
   tTrackInformation trackInfo;
   tTrackInfo tourneyTrack;
@@ -685,12 +679,9 @@ void tScreenCarSelect::Initialize()
     GameSetup_gData.track = (int)trackInfo.fSimNumber;
   }
   gShowroomLights[0] = 1;
-  mdefs = menuDefs;
-  uVar6 = (menuDefs->itemDamage).fFlags &
-          0xfffffffe;
-  (menuDefs->itemDamage).fFlags = uVar6;
+  (menuDefs->itemDamage).fFlags &= 0xfffffffe;
   if (frontEnd.raceType == RaceType_Tournament) {
-    (mdefs->itemDamage).fFlags = uVar6 | 1;
+    (menuDefs->itemDamage).fFlags |= 1;
   }
   this->tScreen::Initialize();
   /* MATCH (W66): retail reloads each virtual-table entry directly from `_vf`;
@@ -706,34 +697,33 @@ void tScreenCarSelect::Initialize()
   this->fTVsInitialized = 0;
   this->fCameraRotation = 0;
   this->fInShowroom = 0;
-  valid = (*(*(this->_vf + 1))[3].pfn)
-                    (this->fPermShapes.fFilename + ((*(this->_vf + 1))[3].delta + -0x14),&carInfo);
-  /* MATCH (W57-A2): ARM ORDER -- the oracle's `beqz $v0` branches AWAY to the
-     `fPrevious* = -1` block, which it lays OUT OF LINE after the carInfo
-     copies (0x8003BEC4-CC, SLD 737/738/739); the success copies are the
-     FALL-THROUGH.  Writing the `valid == 0` arm first inverts the branch and
-     inlines the -1 block (46 -> 35). */
-  if (valid != 0) {
+  if ((*(*(this->_vf + 1))[3].pfn)
+          (this->fPermShapes.fFilename +
+               ((*(this->_vf + 1))[3].delta + -0x14),&carInfo) != 0) {
+    /* MATCH (W57-A2): ARM ORDER -- the oracle's `beqz $v0` branches AWAY to the
+       `fPrevious* = -1` block, which it lays OUT OF LINE after the carInfo
+       copies (0x8003BEC4-CC, SLD 737/738/739); the success copies are the
+       FALL-THROUGH.  Writing the false arm first inverts the branch and
+       inlines the -1 block (46 -> 35). */
     this->fPreviousCar = (ushort)carInfo.fCarIndex;
     this->fPreviousCarID = (short)carInfo.fCarID;
     this->fPreviousCountry = (ushort)carInfo.fCountry;
-  }
-  else {
+  } else {
     this->fPreviousCar = -1;
     this->fPreviousCountry = -1;
     this->fPreviousCarID = -1;
   }
   /* MATCH (W66, 31 -> PASS): ticks is updated by the VSync ISR.  Retail performs
      two real reads before the brightness stores; the first feeds fShowroomTicks
-     and the second feeds the shared chained fFadeTicks assignment. */
-  showroomTick = *(volatile int *)&ticks[0];
-  fadeTick = *(volatile int *)&ticks[0] + -0x100;
+     and the second feeds the shared chained fFadeTicks assignment.  Direct
+     member assignments preserve that schedule and need no snapshot locals. */
+  this->fShowroomTicks = *(volatile int *)&ticks[0];
+  this->fFadeTicks[0] = this->fFadeTicks[1] =
+      *(volatile int *)&ticks[0] + -0x100;
   this->fBrightness[1] = 0;
   this->fBrightness[0] = 0;
   this->fDestBrightness[1] = 0;
   this->fDestBrightness[0] = 0;
-  this->fShowroomTicks = showroomTick;
-  this->fFadeTicks[0] = this->fFadeTicks[1] = fadeTick;
   (*(*(this->_vf + 1))[1].pfn)
       (this->fPermShapes.fFilename + ((*(this->_vf + 1))[1].delta + -0x14));
   i = 0;

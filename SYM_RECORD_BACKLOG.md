@@ -4169,6 +4169,39 @@ generic extra source-local names from 226 to 216, and raises explicit
 source-only codegen carriers from 389 to 399.  Missing-name, type, storage,
 global, and mapping-review queues remain empty.
 
+### P117 — car-select initialization exact local-budget restoration (`2026-08-26`)
+
+Reliable `tScreenCarSelect::Initialize` SYM records member receiver `this` in
+`$s0`, `short i` in `$a1`, and stack aggregates `tCarInfo carInfo`,
+`tTrackInformation trackInfo`, and `tTrackInfo tourneyTrack`.  Source now has
+exactly that named-local set.  All six SYM-omitted identities—unused `sVar2`,
+`mdefs`, `uVar6`, `valid`, `showroomTick`, and `fadeTick`—are deleted rather
+than hidden behind carrier classifications.
+
+The restoration remains natural source: direct compound updates of
+`itemDamage.fFlags` preserve the original load/OR/store graph; testing the
+virtual call result directly preserves the proven success-fallthrough branch;
+and direct assignments to `fShowroomTicks` and chained `fFadeTicks` preserve
+the two required volatile VSync reads.  GCC schedules those target-member
+stores after the brightness stores exactly as retail did, so no snapshot
+locals are necessary.  Each reduction was gated incrementally, including an
+instruction-identical `-g` twin for the final body.
+
+`Initialize__16tScreenCarSelect` remains exact PASS at 130/130 instructions,
+and the complete `screencarselect.cpp` translation-unit gate is 59/59 PASS.
+The refreshed strict frontend/common audit is stored in
+[`frontend_common_strict_p221_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p221_20260826.md).
+It advances declaration-clean mapped functions from 755 to 756 and reduces
+generic extra source-local names from 216 to 210, with explicit carriers
+unchanged at 399.  Missing-name, type, storage, global, and mapping-review
+queues remain empty.
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; the undefined-call audit scans
+15,782 calls with zero defects.  TU order has zero inversions across 513
+objects, vtable indexing passes 930 files, and the source-only-policy audit
+finds no post-compiler text moves or branch retargets.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

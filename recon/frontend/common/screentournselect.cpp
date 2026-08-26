@@ -263,20 +263,35 @@ void tScreenTournSelect::DrawBackground()
   char buffer [64];
   short i;
   short j;
+  /* SYM-CODEGEN-CARRIER: tvIdx -- repeating `j + i * 4` at each field is
+     FAIL 54 at 413/415 and rotates every invariant/coordinate value web. */
   short tvIdx;
   RECT r;
   tTourneyInfo *tourn;
   int YellowCol;
   int DarkGreyCol;
   int GreyCol;
+  /* SYM-CODEGEN-CARRIER: number -- direct fMoney use is FAIL 9 at 414/415;
+     retail keeps the early value in `$s1` across the label-render call. */
   long number;
+  /* SYM-CODEGEN-CARRIER: word -- a conditional TextValue call embedded in
+     WordWrapFade is FAIL 15 at 414/415 and changes both call-arm delay slots. */
   int word;
+  /* SYM-CODEGEN-CARRIER: descriptionText -- deriving the pointer back from
+     `j` is FAIL 9 at 416/415 and destroys retail's delay-slot subtraction. */
   char *descriptionText;
   short shapeY;
+  /* SYM-CODEGEN-CARRIER: shapeX -- repeating literal 0x200 is FAIL 43 at
+     410/415; retail retains the signed-short coordinate in `$s6`. */
   short shapeX;
   char moviename [80];
   u_long movieRGB;
+  /* SYM-CODEGEN-CARRIER: tournament -- embedding the tier selection into
+     the definition index is count-exact FAIL 60 and reshapes the prologue
+     plus every early tournament-definition value web. */
   byte tournament;
+  /* SYM-CODEGEN-CARRIER: fe -- direct `frontEnd` member spellings are FAIL 3
+     at 416/415 and materialize a redundant address high half. */
   tfrontEnd *fe = &frontEnd;
 
   if (fe->tier != 0) {

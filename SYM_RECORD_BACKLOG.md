@@ -4354,6 +4354,46 @@ zero inversions across 513 objects, call-target audit finds zero proven wrong
 targets across 460 units, vtable indexing passes 930 files, and the source-only
 policy audit finds no post-compiler text moves or branch retargets.
 
+### P122 — tournament-select background SYM carrier reconciliation (`2026-08-26`)
+
+Reliable `tScreenTournSelect::DrawBackground` SYM records member receiver
+`this` in `$s4`; `short y`, `i`, and `j`; stack `char buffer[64]`; stack
+`RECT r`; `tTourneyInfo *tourn`; the three color values `YellowCol`,
+`DarkGreyCol`, and `GreyCol`; `short shapeY`; stack `u_long movieRGB`; and the
+nested stack `char moviename[80]`.  All seven additional identities are now
+replaced as generic review findings by explicit source-only codegen-carrier
+receipts.
+
+Repeating the TV index expression without `tvIdx` is FAIL 54 at 413/415 and
+rotates the complete coordinate/invariant web.  Direct `fMoney` use without
+`number` is FAIL 9 at 414/415; embedding the TextValue choice without `word`
+is FAIL 15 at 414/415; and deriving the wrapped-text pointer from `j` without
+`descriptionText` is FAIL 9 at 416/415.  Repeating literal 0x200 without
+`shapeX` is FAIL 43 at 410/415 and loses retail's `$s6` coordinate.  Direct
+`frontEnd` spellings without `fe` are FAIL 3 at 416/415, while embedding the
+tier selection without `tournament` is count-exact FAIL 60 and reshapes the
+whole prologue.  The binary proves all seven value webs, but optimized SYM
+cannot preserve their private names.
+
+`DrawBackground__18tScreenTournSelect` remains exact PASS at 415/415
+instructions, with zero detailed diffs and an instruction-identical `-g` twin.
+The nine-body translation-unit aggregate retains five strict passes, two
+relocation-sensitive near classifications, and two pre-existing far
+classifications; the edited body is detailed PASS and no neighbor changed.
+The refreshed strict frontend/common audit is stored in
+[`frontend_common_strict_p226_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p226_20260826.md).
+It advances declaration-clean mapped functions from 760 to 761, reduces
+generic extra source-local names from 181 to 174, and raises explicit
+source-only codegen carriers from 422 to 429.  Missing-name, type, storage,
+global, and mapping-review queues remain empty.
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; undefined-call audits scan 15,782
+reconstruction and 15,779 source-lane calls with zero defects.  TU order has
+zero inversions across 513 objects, call-target audit finds zero proven wrong
+targets across 460 units, vtable indexing passes 930 files, and the source-only
+policy audit finds no post-compiler text moves or branch retargets.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

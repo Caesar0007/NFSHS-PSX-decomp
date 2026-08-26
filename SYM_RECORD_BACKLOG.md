@@ -4832,6 +4832,54 @@ zero inversions across 513 objects, call-target audit finds zero proven wrong
 targets across 460 units, vtable indexing passes 930 files, and the source-only
 policy audit finds no post-compiler text moves or branch retargets.
 
+### P134 — tournament-track navigation twin SYM reconciliation (`2026-08-26`)
+
+Reliable SYM records for both
+`MenuExtended_GoToTournTrackInfo__FR12tMenuCommand` and
+`MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand` identify the
+`tMenuCommand &command` parameter in `$s3`; `tTourneyInfo *tourn` in `$s2`;
+`long amount` in `$v1`; stack `tDialogYesNo popUp`; and the nested inline
+`tFEApplication`/`tDialogMessageString` receivers.  Their frames are 208 bytes
+with masks preserving `$s0` through `$s3` and `$ra`.
+
+Eight decompiler-only identities are deleted from each twin while preserving
+byte identity.  The recovered `amount` local replaces `iVar7`; the tournament
+definition/index expression no longer passes through `ptVar3` or `iVar6`;
+`DisplayMessage` restores the two insufficient-funds receivers without
+`ptVar1`, `this_00`, or `pcVar5`; and `SetString`, `SetChoices`, and `Run`
+restore the automatic-dialog source shape without `pp` or `sVar4`.
+
+Five source-only value webs remain in the tournament variant with explicit
+counterfactual proof: direct `menuDefs` use is FAIL 5 at 91/90; folding
+`selectedTourney` into the SYM `tourn` web is count-exact FAIL 6 and fencing
+`tourn` directly is FAIL 22; direct manager access is count-exact FAIL 18;
+initializing only the frontend use carrier directly is count-exact FAIL 18;
+and folding that use carrier into the base carrier is count-exact FAIL 2.  The
+special-event twin needs four analogous webs: direct `menuDefs` is FAIL 5 at
+92/91; folding `selectedTourney` is count-exact FAIL 6; direct manager access
+is count-exact FAIL 18; and direct frontend fields are count-exact FAIL 4.
+Retail bytes prove these allocation/scheduling webs, but optimized SYM cannot
+recover their private spellings.
+
+The tournament and special-event variants remain exact PASS at 90/90 and
+91/91 instructions respectively, each with zero detailed diffs and an
+instruction-exact `-g` twin.  The complete `femenudefs.cpp` aggregate remains
+65 strict PASS and one pre-existing far function.  The refreshed strict
+frontend/common audit is stored in
+[`frontend_common_strict_p238_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p238_20260826.md).
+It advances declaration-clean mapped functions from 772 to 774, removes all
+25 generic names from both review queues, reduces generic extra source-local
+names from 88 to 63, raises restored inline-local mappings from 60 to 64, and
+raises explicit source-only codegen carriers from 478 to 487.  Missing-name,
+type, storage, global, and mapping-review queues remain empty.
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; undefined-call audits scan 15,782
+reconstruction and 15,779 source-lane calls with zero defects.  TU order has
+zero inversions across 513 objects, call-target audit finds zero proven wrong
+targets across 460 units, vtable indexing passes 930 files, and the source-only
+policy audit finds no post-compiler text moves or branch retargets.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

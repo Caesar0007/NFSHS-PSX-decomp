@@ -1089,91 +1089,67 @@ void MenuExtended_GoTo2PlayerRace(tMenuCommand &command)
    
    [ghidra-meta] section: front.text */
 
-/* NEAR-PASS: 32 -> 2 diffs, count exact 90/90.  The special-event twin's
-   fe/tm anchors, priced manager-reference dial, saved tourn copy, and subtraction
-   operand order transfer exactly.  The sole residual is one `%lo(frontEnd)`
-   `addiu a0,a0,0`: ours is immediately after its `lui`, while retail schedules
-   it after the tournamentManager high/low pair and s1 save.  Moving the manager
-   fence across the definition load is neutral; removing the fe anchor or swapping
-   anchor order regresses to 18.  Next angle is the sched1 ready-list tie only. */
+/* MATCH/SYM (2026-08-26): exact PASS 90/90.  Reliable records identify
+   command in s3, tourn in s2, amount in v1, stack popUp, and the receivers
+   inlined from DisplayMessage/SetString.  Restoring those member calls removes
+   ptVar1, this_00, pcVar5, pp, and sVar4; direct expressions remove ptVar3,
+   iVar6, and the duplicate iVar7 amount carrier.  The five explicitly marked
+   source-only webs retain the exact allocation/schedule with measured proof. */
 
 void MenuExtended_GoToTournTrackInfo(tMenuCommand &command)
 
 {
-  tFEApplication *ptVar1;
-  tGlobalMenuDefs *ptVar2;
-  tTournamentDefinition *ptVar3;
-  short sVar4;
-  char *pcVar5;
+  /* SYM-CODEGEN-CARRIER: menus -- direct menuDefs use is FAIL 5 at 91/90. */
+  tGlobalMenuDefs *menus;
   long amount;
-  int iVar6;
-  int iVar7;
-  tDialogMessageString *this_00;
   tTourneyInfo *tourn;
-  tTourneyInfo *tsaved;
-  tTournamentManager *tm;
-  tfrontEnd *const fe = &frontEnd;
-  tfrontEnd *feUse;
+  /* SYM-CODEGEN-CARRIER: selectedTourney -- folding into the SYM `tourn`
+     web is count-exact FAIL 6; fencing `tourn` directly is FAIL 22. */
+  tTourneyInfo *selectedTourney;
+  /* SYM-CODEGEN-CARRIER: manager -- direct global access is count-exact FAIL 18. */
+  tTournamentManager *manager;
+  /* SYM-CODEGEN-CARRIER: frontEndBase -- initializing only the use carrier
+     directly from frontEnd is count-exact FAIL 18. */
+  tfrontEnd *const frontEndBase = &frontEnd;
+  /* SYM-CODEGEN-CARRIER: frontEndState -- folding this copy into frontEndBase
+     is count-exact FAIL 2, moving one address completion. */
+  tfrontEnd *frontEndState;
 
-  /* [2026-07-11] Dropped the REDUNDANT `tDialogYesNo_ctor(&popUp)` manual call (tDialogYesNo's
-     real ctor is already auto-invoked by the local's declaration -- see AskTheUserToSaveTheGame's
-     note) and block-scoped popUp to exactly where the oracle's `jal __12tDialogYesNo` sits: AFTER
-     the insufficient-funds early-return, not at the outer `if`'s top (oracle disasm confirms the
-     ctor call is inside the can-afford fallthrough, not before the money check).
-     [W56-A3 2026-08-09 NAMED ANGLE, kept at baseline 50] SYM (8c @0x8002cf40: fsize=208
-     mask=0x800f0000 -> ra+s0..s3, 4 s-regs) declares `tourn` REG PTR tTourneyInfo(84), two `this`
-     REG ptrs (tFEApplication + tDialogMessageString), `amount` REG LONG. The oracle materializes
-     tourn=&fTournaments[iVar6] into its OWN saved reg (s2, `addu s2,a1,zero`), forcing `command`
-     into s3 -- a 4th s-reg we don't allocate (ours = 3 s-regs, tourn folded into s0, +84 disp).
-     The faithful anchor set (tourn ptr + messagePopup this_00 + lazy FEApp) each verified against
-     the oracle, but applied piecemeal they ROTATE the register band and REGRESS (tourn-alone 61,
-     +messagePopup 64->53) because the 4-s-reg allocation is not reached. The twin
-     GoToSpecialEventTrackInfo took the SAME edits to 54->45. This one needs tourn+this_00+popUp-
-     mixed-anchor landed TOGETHER with allocsim/qtytrace pricing the s2/s3 handout (methodology
-     4.6) -- not a floor, a priced multi-dial. Reverted to the folded baseline pending that pass. */
-  tm = &tournamentManager;
-  feUse = fe;
-  __asm__("" : : "r"(tm), "r"(tm), "r"(tm), "r"(tm),
-          "r"(tm), "r"(tm));
-  ptVar3 = tm->fDefinition;
-  feUse->tier = '\0';
-  iVar6 = (uint)tm->fDefinition->fTiers[0].fTournOffset +
-          (uint)(byte)feUse->tournament;
-  tourn = &ptVar3->fTournaments[iVar6];
-  iVar7 = tourn->fEntranceFee;
-  if (0 < iVar7) {
-    tsaved = tourn;
+  manager = &tournamentManager;
+  frontEndState = frontEndBase;
+  __asm__("" : : "r"(manager), "r"(manager), "r"(manager), "r"(manager),
+          "r"(manager), "r"(manager));
+  frontEndState->tier = '\0';
+  tourn = &manager->fDefinition->fTournaments[
+      (uint)manager->fDefinition->fTiers[0].fTournOffset +
+      (uint)(byte)frontEndState->tournament];
+  amount = tourn->fEntranceFee;
+  if (0 < amount) {
+    selectedTourney = tourn;
 
-    __asm__("" : "+r" (tsaved));
-    if (tm->fMoney < iVar7) {
-      ptVar1 = FEApp;
-      this_00 = &ptVar1->messagePopup;
-      pcVar5 = TextSys_Word(0xf6);
-      this_00->string = pcVar5;
-      ((tDialogBase *)this_00)->Display();
+    __asm__("" : "+r" (selectedTourney));
+    if (manager->fMoney < amount) {
+      /* SYM-INLINE-THIS: DisplayMessage */
+      FEApp->DisplayMessage(0xf6);
       return;
     }
     {
       tDialogYesNo popUp;
-      tDialogYesNo *pp = &popUp;
 
-      pp->string =
-           TextSys_Word(0xf7);
-      pp->yesnowords[0] = 0x322;
-      pp->yesnowords[1] = 0x321;
-      pp->fDefault = 0;
-      sVar4 = ((tDialogInteractive *)pp)->Run();
-      if (sVar4 == 0) {
+      /* SYM-INLINE-THIS: SetString */
+      popUp.SetString(TextSys_Word(0xf7));
+      popUp.SetChoices(0x322,0x321,0);
+      if (popUp.Run() == 0) {
         return;
       }
       AudioCmn_PlayFESFX(0x1a);
-      tm->fMoney = -tsaved->fEntranceFee + tm->fMoney;
+      manager->fMoney = -selectedTourney->fEntranceFee + manager->fMoney;
     }
   }
   tournamentManager.StartNewTournament(0,frontEnd.tournament);
-  ptVar2 = menuDefs[0];
+  menus = menuDefs[0];
   command.type = kMenu_Command_GoToMenu;
-  command.nextMenu = (tMenu *)(tMenu*)&ptVar2->menuTrackInfo;
+  command.nextMenu = (tMenu *)&menus->menuTrackInfo;
   return;
 }
 
@@ -1187,91 +1163,62 @@ void MenuExtended_GoToTournTrackInfo(tMenuCommand &command)
    
    [ghidra-meta] section: front.text */
 
-/* MATCH: 91/91.  The early `fe`/`tm` anchors preserve retail's address order.
-   allocsim identifies the saved `tsaved` copy and persistent manager address as
-   the competing s1/s2 allocnos; the six read-only `tm` operands buy the exact
-   one-reference priority delta priced by reqdelta.  Keeping the final manager
-   call global rematerializes its address like retail, while `-fee + money`
-   preserves the right-to-left load order before the subtraction. */
+/* MATCH/SYM (2026-08-26): exact PASS 91/91.  Reliable records identify
+   command in s3, tourn in s2, amount in v1, stack popUp, and the receivers
+   inlined from DisplayMessage/SetString.  Restored member calls and direct
+   expressions remove eight decompiler identities; the four marked source-only
+   webs retain retail allocation/scheduling with measured proof. */
 
 void MenuExtended_GoToSpecialEventTrackInfo(tMenuCommand &command)
 
 {
-  tFEApplication *ptVar1;
-  tGlobalMenuDefs *ptVar2;
-  tTournamentDefinition *ptVar3;
-  short sVar4;
-  char *pcVar5;
+  /* SYM-CODEGEN-CARRIER: menus -- direct menuDefs use is FAIL 5 at 92/91. */
+  tGlobalMenuDefs *menus;
   long amount;
-  int iVar6;
-  int iVar7;
-  tDialogMessageString *this_00;
   tTourneyInfo *tourn;
-  tTourneyInfo *tsaved;
-  tTournamentManager *tm;
-  tfrontEnd *fe;
+  /* SYM-CODEGEN-CARRIER: selectedTourney -- folding into the SYM `tourn`
+     web is count-exact FAIL 6. */
+  tTourneyInfo *selectedTourney;
+  /* SYM-CODEGEN-CARRIER: manager -- direct global access is count-exact FAIL 18. */
+  tTournamentManager *manager;
+  /* SYM-CODEGEN-CARRIER: frontEndState -- direct frontEnd fields are
+     count-exact FAIL 4, moving the address pair. */
+  tfrontEnd *frontEndState;
 
-  /* [2026-07-11] Dropped the REDUNDANT `tDialogYesNo_ctor(&popUp)` manual call (tDialogYesNo's
-     real ctor is already auto-invoked by the local's declaration -- see AskTheUserToSaveTheGame's
-     note) and block-scoped popUp to exactly where the oracle's `jal __12tDialogYesNo` sits: AFTER
-     the insufficient-funds early-return (see twin fn GoToTournTrackInfo).
-
-     [BUG FIX 2026-07-27, 47->41] Same DOUBLE-DESTRUCTION bug as the twin GoToTournTrackInfo:
-     both exit paths (`sVar4==0` early-return and the shared fallthrough) also called
-     `tScreen_dtor((tScreen*)&popUp,2)` manually IN ADDITION to popUp's own auto-invoked
-     `tDialogYesNo::~tDialogYesNo()`. Dropped both manual calls. Residual struct-offset mismatch
-     (84 vs 48 for the fEntranceFee/fTournOffset-style field -- see GoToTournTrackInfo's matching
-     note) is pre-existing and untouched here.
-     [W56-A3 2026-08-09, 54->45] Applied the SYM-declared anchor set: `tourn = &ptVar3->
-     fTournaments[iVar6]` (SYM: REG PTR tTourneyInfo -- gives the oracle's +36/+48 split instead
-     of the folded +84) for both the fEntranceFee read and the fMoney subtraction; messagePopup
-     anchored via the SYM `this` pointer (`this_00 = &ptVar1->messagePopup`, FEApp loaded LAZILY
-     in the insufficient-funds branch, not eagerly at fn top -- oracle reloads FEApp there). Same
-     edits REGRESSED the twin GoToTournTrackInfo (50->53) which needs its 4th saved-reg (s3) first,
-     so they were kept here only. RESIDUAL 45 = the frontEnd base register + the 4-s-reg coloring
-     (SYM fsize=208 mask=0x800f0000) -- do tourn+anchors+popUp together with allocsim. */
-  fe = &frontEnd;
-  tm = &tournamentManager;
-  __asm__("" : : "r"(fe), "r"(tm), "r"(tm), "r"(tm),
-          "r"(tm), "r"(tm), "r"(tm));
-  ptVar3 = tm->fDefinition;
-  fe->tier = '\x01';
-  iVar6 = (uint)tm->fDefinition->fTiers[1].fTournOffset +
-          (uint)(byte)fe->specialevent;
-  tourn = &ptVar3->fTournaments[iVar6];
-  iVar7 = tourn->fEntranceFee;
-  if (0 < iVar7) {
-    tsaved = tourn;
-    __asm__("" : "+r" (tsaved));
-    if (tm->fMoney < iVar7) {
-      ptVar1 = FEApp;
-      this_00 = &ptVar1->messagePopup;
-      pcVar5 = TextSys_Word(0xf6);
-      this_00->string = pcVar5;
-      ((tDialogBase *)this_00)->Display();
+  frontEndState = &frontEnd;
+  manager = &tournamentManager;
+  __asm__("" : : "r"(frontEndState), "r"(manager), "r"(manager), "r"(manager),
+          "r"(manager), "r"(manager), "r"(manager));
+  frontEndState->tier = '\x01';
+  tourn = &manager->fDefinition->fTournaments[
+      (uint)manager->fDefinition->fTiers[1].fTournOffset +
+      (uint)(byte)frontEndState->specialevent];
+  amount = tourn->fEntranceFee;
+  if (0 < amount) {
+    selectedTourney = tourn;
+    __asm__("" : "+r" (selectedTourney));
+    if (manager->fMoney < amount) {
+      /* SYM-INLINE-THIS: DisplayMessage */
+      FEApp->DisplayMessage(0xf6);
       return;
     }
     {
       tDialogYesNo popUp;
-      tDialogYesNo *pp = &popUp;
 
-      pp->string =
-           TextSys_Word(0xf7);
-      pp->yesnowords[0] = 0x321;
-      pp->yesnowords[1] = 0x322;
-      pp->fDefault = 0;
-      sVar4 = ((tDialogInteractive *)pp)->Run();
-      if (sVar4 == 0) {
+      /* SYM-INLINE-THIS: SetString */
+      popUp.SetString(TextSys_Word(0xf7));
+      popUp.SetChoices(0x321,0x322,0);
+      if (popUp.Run() == 0) {
         return;
       }
       AudioCmn_PlayFESFX(0x1a);
-      tm->fMoney = -tsaved->fEntranceFee + tm->fMoney;
+      manager->fMoney = -selectedTourney->fEntranceFee + manager->fMoney;
     }
   }
   tournamentManager.StartNewTournament(1,frontEnd.specialevent);
-  ptVar2 = menuDefs[0];
+  menus = menuDefs[0];
   command.type = kMenu_Command_GoToMenu;
-  command.nextMenu = (tMenu *)(tMenu*)&ptVar2->menuTrackInfo;
+  command.nextMenu = (tMenu *)&menus->menuTrackInfo;
   return;
 }
 

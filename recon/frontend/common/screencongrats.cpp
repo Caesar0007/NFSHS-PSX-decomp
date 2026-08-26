@@ -335,9 +335,18 @@ void tScreenCongrats::CalculatePrizes()
      FAIL 35 at 30/29 because `this` is copied to $a1; direct raw field writes
      without the quantities are FAIL 12 at 29/29.  Keeping fCarCX live through
      the tail restores `this`=$a0, fCarCX=$a1, and fCarCY=$v1 and remains the
-     best measured shape at exact 29/29 with four scheduling-only diffs. */
-  unsigned long carCYBits = 0xc0eccccd;
+     best measured shape at exact 29/29 with four scheduling-only diffs.
+     [SOURCE PASS 2026-08-26, 4->0, 29/29] Declare `carCXBits`, consume it at
+     a zero-byte source boundary, and only then declare `carCYBits`; this keeps
+     the CX `lui` at instruction zero instead of allowing the CY pair to win
+     the ready list.  Volatile lvalues on exactly fCarY/fCarCY preserve retail's
+     adjacent Y-before-CY stores.  Declaration swapping and comma staging were
+     neutral at FAIL 4; the bounded store ordering alone reached FAIL 2, and a
+     redundant fCarCX store was FAIL 6.  No hard register, emitted asm, extra
+     local, or post-compilation modification is used. */
   unsigned long carCXBits = 0x40800000;
+  __asm__("" : : "r"(carCXBits));
+  unsigned long carCYBits = 0xc0eccccd;
 
   this->congratsMessage = kScreenCongrats_Congrats;
   this->trophy = kTrophyNone;
@@ -345,9 +354,10 @@ void tScreenCongrats::CalculatePrizes()
   this->fCarPlayer = 0;
   this->TotalCash = 0;
   this->CashAwarded = -1;
-  this->fCarX = 0x116; this->fCarY = 0x3f;
-  *(unsigned long *)&this->fCarCY = carCYBits;
+  this->fCarX = 0x116;
   *(unsigned long *)&this->fCarCX = carCXBits;
+  *(volatile short *)&this->fCarY = 0x3f;
+  *(volatile unsigned long *)&this->fCarCY = carCYBits;
   if (this->congratsMessage == kScreenCongrats_Eliminated) {
     this->fCarX = 0x120;
     this->fCarY = 0x49;

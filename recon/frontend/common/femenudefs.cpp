@@ -1632,6 +1632,12 @@ static inline int MenuExtended_UpgradePriceIndex(int priceIndex)
   return ++priceIndex;
 }
 
+static inline void MenuExtended_SetUpgradeDialogWords(tDialogYesNo *dialog)
+{
+  dialog->yesnowords[0] = 0x321;
+  dialog->yesnowords[1] = 0x322;
+}
+
 /* Decoded Phase 83: MenuExtended_PurchaseUpgrade(int upgradeIdx) - shared core purchase logic
    called by PurchaseUpgrade1/2/3 wrappers (320 B, 3 callers). Validates cash, debits, applies
    upgrade modifier to current car.
@@ -1641,11 +1647,6 @@ static inline int MenuExtended_UpgradePriceIndex(int priceIndex)
 void MenuExtended_PurchaseUpgrade(int upgradeNumber)
 
 {
-  tFEApplication *ptVar1;
-  short sVar2;
-  long lVar3;
-  char *pcVar4;
-  tDialogMessageString *dlgThis;
   int upgradeFlag;
   tCarInfo carInfo;
 
@@ -1688,7 +1689,11 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
      Passing `(fMoney, pricePointer)` then forms the indexed stack address before the manager
      address, while the inlined predicate loads fMoney before dereferencing the price pointer.
      This is pure C++: both helpers disappear completely, add no target-function local/SYM
-     record, and require no asm, volatile, register pin, or post-compilation move. */
+     record, and require no asm, volatile, register pin, or post-compilation move.
+     [STRICT SYM 2026-08-26] Inline the Run result, purchase result, and TextSys result directly;
+     use a disappearing dialog-word helper and the existing DisplayMessage inline.  This removes
+     every decompiler carrier absent from retail SYM while preserving the expected line-21
+     DisplayMessage `this` record and the exact 80-instruction body. */
   upgradeFlag = 1 << (upgradeNumber);
   carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[0],carInfo,0);
   if ((carInfo.fUpgrades & upgradeFlag) == 0) {
@@ -1697,27 +1702,22 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
             &carInfo.fPrices[
                 MenuExtended_UpgradePriceIndex(upgradeNumber)])) {
       tDialogYesNo popUp;
-      tDialogYesNo *pp = &popUp;
 
       popUp.string =
            TextSys_Word(0xa6);
-      pp->yesnowords[0] = 0x321;
-      pp->yesnowords[1] = 0x322;
+      MenuExtended_SetUpgradeDialogWords(&popUp);
       popUp.fDefault = 0;
-      sVar2 = ((tDialogInteractive *)&popUp)->Run();
-      if (sVar2 != 0) {
-        lVar3 = carManager.PurchaseUpgrade((ushort)(byte)frontEnd.garageCar[0],
-                                           (short)upgradeFlag,0);
-        tournamentManager.fMoney = tournamentManager.fMoney - lVar3;
+      if (((tDialogInteractive *)&popUp)->Run() != 0) {
+        tournamentManager.fMoney =
+            tournamentManager.fMoney -
+            carManager.PurchaseUpgrade((ushort)(byte)frontEnd.garageCar[0],
+                                       (short)upgradeFlag,0);
         AudioCmn_PlayFESFX(0x1a);
       }
     }
     else {
-      ptVar1 = FEApp;
-      dlgThis = &ptVar1->messagePopup;
-      pcVar4 = TextSys_Word(0xa8);
-      dlgThis->string = pcVar4;
-      ((tDialogBase *)dlgThis)->Display();
+      /* SYM-INLINE-THIS: DisplayMessage */
+      FEApp->DisplayMessage(0xa8);
     }
   }
   return;

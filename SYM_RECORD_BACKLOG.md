@@ -4880,6 +4880,56 @@ zero inversions across 513 objects, call-target audit finds zero proven wrong
 targets across 460 units, vtable indexing passes 930 files, and the source-only
 policy audit finds no post-compiler text moves or branch retargets.
 
+### P135 — main-screen background SYM and raw-CFG reconciliation (`2026-08-26`)
+
+Reliable `DrawBackground__11tScreenMain` records define the function-scope
+locals `i`, `j`, `drawFlags`, `deltaTicks`, `animFade`, `x`, `y`, `buffer`,
+`shapeX`, and `shapeY`.  Nested records recover `bAllTVsOn`; warning-block
+`fade`, `TextCol`, and `RECT r`; movie-block `RECT r` and `moviename`; and
+animation-block `drawAnimFade`.  The two `r` declarations intentionally occupy
+the same retail `sp+88` slot over disjoint lexical lifetimes.  The source now
+uses those recorded scopes instead of one function-scope rectangle and moves
+`fade`, `TextCol`, and `moviename` into their owning blocks.
+
+Six decompiler-only identities are deleted entirely without changing one
+instruction: the two VIDEO return aliases, the text pointer, the async-handle
+copy, the warning-loop tint copy, and the unused TV bound collapse into their
+owning statements.  The former
+random-animation, fade-component, elapsed-tick, animation-frame, and video
+temporaries are replaced by six descriptive source-only value webs.  Each has
+an explicit counterfactual receipt: feeding `fadeComponent` through SYM
+`fade` is count-exact FAIL 22; inlining `videoY` is FAIL 24 at 820/822; nesting
+away `startMovie` is FAIL 5 at 821/822; folding `elapsedTicks` is count-exact
+FAIL 10; reusing SYM `animFade` for `nextAnimation` is FAIL 3 at 823/822; and
+folding `animationFrame` into the draw call is count-exact FAIL 22.  Retail
+bytes prove all six value webs, while optimized SYM cannot recover their
+private source spellings.
+
+The ordinary normalized gate had hidden one genuine control-flow error in the
+already-PASS body.  Retail enters its repeated credits-menu test at
+`0x80037B44` after the first comparison clobbers the `FEApp` base, but enters at
+`0x80037B48` when the non-credits branch can reuse the delay-slot base.  The
+reconstructed CFG now preserves those two edges explicitly, and a zero-byte
+source fence prevents the reload from being shared.  Detailed `verify_asm` and
+`diffsrc` remain exact PASS at 822/822 with an instruction-exact `-g` twin,
+while `strict_branch` now compares all 54 raw branch words CLEAN.  The complete
+`screenmain.cpp` board remains five PASS, five near, and three far functions.
+
+The refreshed strict frontend/common audit is stored in
+[`frontend_common_strict_p239_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p239_20260826.md).
+It advances declaration-clean mapped functions from 774 to 775, removes all
+eleven generic names from this function's queue, reduces generic extra
+source-local names from 63 to 52, and raises explicit source-only codegen
+carriers from 487 to 493.  Missing-name, type, storage, global, and mapping
+review queues remain empty.
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; undefined-call audits scan 15,782
+reconstruction and 15,779 source-lane calls with zero defects.  TU order has
+zero inversions across 513 objects, call-target audit finds zero proven wrong
+targets across 460 units, vtable indexing passes 930 files, and the source-only
+policy audit finds no post-compiler text moves or branch retargets.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

@@ -375,31 +375,16 @@ void tScreenMain::DrawVideoLines()
 
 
 /* ---- tScreenMain::DrawBackground  [SCREENMAIN.CPP:456-737] ---- */
-/* MATCH: 121 -> 115 diffs.  Keeping the video-timeout test as one combined
-   condition removes the decompiler's invented saved-register boolean; the
-   unsigned-short VIDEO y cast removes one of its two sign-extension ops.
-   Remaining large islands are the SLD-confirmed dot-grid/TV-order loop CFGs
-   and warning-fade/animation local-allocation order. */
-/* W61-A17/root resume (115 -> 111) -- census + verified SLD:530 repair.
-   FRAME CENSUS:
-   our sp-offset multiset is IDENTICAL to retail's, so this is NOT the W61-A1
-   declaration-order spill class.  SLD attribution (tools/sldall.py) puts the
-   residual in two places: (a) an a1<->a2 rotation through the tvConfigs[i]
-   flags/tint writes (SLD:524-527), and (b) SLD:530, where retail computes the
-   warning tint ONCE and stores the same word to BOTH 428(s6) and 380(s6)
-   while ours rebuilds it.  FALSIFIED, all EXACTLY neutral at 115 (so the
-   Ghidra-invented one-shot temps the SYM 8c list omits are codegen-free here):
-   inlining iVar5 (the `VIDEO_state(hVideo) == 3` test), iVar7 (the second
-   VIDEO_state test), str (`TextSys_Word(0x272)`), and dropping the dead
-   `iVar7 = 0;` before FeDraw_SetABRMode.  The SYM's real local set is
-   i, j, drawFlags, deltaTicks, animFade, x, y, buffer, shapeX, shapeY plus a
-   block-scope BOOL bAllTVsOn -- our bVar1/sVar3/fade/str/iVar5/uVar6/iVar7 are
-   inventions but are not what costs the rotation.
-   VERIFIED: keeping the packed warning tint in a distinct `fade` result makes
-   retail's ONE computed word feed BOTH tvConfigs[6] and tvConfigs[5], removing
-   four detailed diffs.  A per-iteration config pointer worsened 111 -> 122; a
-   `fadeMid` block temp was exactly neutral; passing short `j` directly to
-   VIDEO_updateframexy worsened 111 -> 112.  All three probes were reverted. */
+/* MATCH/SYM P135 (2026-08-26): exact PASS 822/822.  The reliable function
+   block restores i, j, drawFlags, deltaTicks, animFade, x, y, buffer, shapeX,
+   and shapeY.  Nested records restore bAllTVsOn; warning-block fade, TextCol,
+   and RECT r; the movie-block RECT r and moviename; and drawAnimFade.  The two
+   RECT declarations deliberately share retail stack offset sp+88 over
+   disjoint scopes.  Decompiled one-shot aliases for VIDEO results, text,
+   async state, warning-loop tint, and the unused TV bound are folded back into
+   their owning statements.  Six SYM-omitted value webs remain below as
+   individually measured SYM-CODEGEN-CARRIER records; retail bytes prove their
+   existence but optimized debug data cannot recover their private spellings. */
 void tScreenMain::DrawBackground()
 
 {
@@ -413,17 +398,6 @@ void tScreenMain::DrawBackground()
   char buffer [32];
   int shapeX;
   int shapeY;
-  short sVar3;
-  int fade;
-  char *str;
-  int iVar5;
-  uint uVar6;
-  int iVar7;
-  uint uVar9;
-  int TextCol;
-  int iVar10;
-  RECT r;
-  char moviename [80];
   
   animFade = 0;
   for (i = animFade; i < 2; i++) {
@@ -445,41 +419,28 @@ void tScreenMain::DrawBackground()
       }
     }
   }
-  /* MATCH W64-A17 -- REAL CFG FIX (the 11C branch-target audit class; the
-     gate normalises branch targets so this was invisible to it, and
-     tools/psyqproof.py + tools/brdist.py caught it as REAL=2 on a gate-PASSing
-     body).  Retail's guard is a FLAT `&&`, not a nested if: its `beq` (fState
-     == Credits AND menu == credits) targets .L80037B44 = the SECOND test's
-     head, so retail RE-RUNS the menu test and calls SetState(Credits) on that
-     path; our nested `if (fState==Credits) { if (menu!=credits) ... }` sent it
-     to the join instead and skipped the second test.  Same instruction stream,
-     different control flow.  Re-gated alternatives: two SEQUENTIAL ifs 5 @821
-     (retail's SetState calls cross-jump onto one shared `jal`, ours emits two),
-     the same with an explicit goto-funnel 6 @820 / 6 @820.
-     The else-arm void fence is the 1 -> PASS %hi un-sharer (see below). */
-  if ((this->fState == kScreenMain_Credits) &&
-     (FEApp->fCurrentMenu[0] != (tMenu *)&menuDefs->menuCredits)) {
+  /* MATCH/SYM-CFG P135: retail has two entries into the repeated credits-menu
+     test.  A non-credits state branches directly to .L80037B48, reusing the
+     FEApp %hi from the delay slot; a credits state whose first menu test
+     succeeds falls through .L80037B44 and reloads that %hi after the first
+     comparison clobbers $v0.  The explicit labels preserve those distinct
+     edges, while the zero-byte fence prevents GCC from sharing the reload.
+     Detailed verify_asm is PASS 822/822 and strict_branch compares all 54 raw
+     branch words CLEAN; the former structured else entered .L80037B44 from
+     both paths and hid one wrong branch target behind normalized labels. */
+  if (this->fState != kScreenMain_Credits) {
+    goto test_credits_menu;
+  }
+  if (FEApp->fCurrentMenu[0] != (tMenu *)&menuDefs->menuCredits) {
     this->SetState(kScreenMain_StaticImage);
+    goto credits_state_done;
   }
-  else {
-    /* MATCH W64-A17 (1 -> PASS 822/822): the ON-DEMAND %hi UN-SHARER.  Both
-       arms materialise `%hi(FEApp)`; reorg slots the then-arm's copy into the
-       `bne` delay slot, which executes on BOTH paths, so cse2
-       (-fcse-follow-jumps) lets the else arm reuse it and we came out ONE
-       `lui v0,0` short (retail keeps two pseudos and enters the second test
-       block at TWO labels -- .L80037B44 with the lui, .L80037B48 without).
-       FALSIFIED, all re-gated from the 1-diff basin: Yoda in the else arm
-       10 @822 (adds the lui but reverses `bne v1,v0` and the three loads),
-       Yoda in the then arm 11, Yoda in both 21, arms swapped (`!=` first) 19,
-       a block-local for the menuCredits address in the else arm 8 @822 / in
-       both arms 17, a block-local for `FEApp` in the else arm / the then arm /
-       both, a `tMenu **cm = FEApp->fCurrentMenu` local, and an explicit nested
-       `else { if ... }` -- all exactly 1 (neutral). */
-    __asm__("" : : "i"(0));
-    if (FEApp->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {
-      this->SetState(kScreenMain_Credits);
-    }
+  __asm__("" : : "i"(0));
+test_credits_menu:
+  if (FEApp->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {
+    this->SetState(kScreenMain_Credits);
   }
+credits_state_done:
   ::Draw(&CreditManager,this->fState == kScreenMain_Credits);
   if (this->fState == kScreenMain_WarningImage) {
     if ((frontEnd.raceType != RaceType_PinkSlips) &&
@@ -496,6 +457,10 @@ void tScreenMain::DrawBackground()
     this->SetState(kScreenMain_WarningImage);
   }
   if ((this->fState == kScreenMain_WarningImage) || (0 < this->fWarningFade)) {
+    int fade;
+    int TextCol;
+    RECT r;
+
     if (this->fState == kScreenMain_WarningImage) {
       if (this->fWarningFade < 0x60) {
         this->fWarningFade = this->fWarningFade + 4;
@@ -506,20 +471,25 @@ void tScreenMain::DrawBackground()
     }
     for (i = 4; i < 0xc; i++) {
       this->tvConfigs[i].flags = this->tvConfigs[i].flags | 2;
-      uVar9 = 0x80 - (int)this->fWarningFade;
-      this->tvConfigs[i].tint = uVar9 * 0x10000 | uVar9 * 0x100 | uVar9;
+      this->tvConfigs[i].tint =
+        (0x80 - (int)this->fWarningFade) * 0x10000 |
+        (0x80 - (int)this->fWarningFade) * 0x100 |
+        (0x80 - (int)this->fWarningFade);
     }
     /* MATCH W63-A17 (44 -> 12, count still EXACT 822/822): W46 STORAGE-SCOPE LAW.
        Retail homes the packed-tint scratch in $a1 INSIDE the tvConfigs[4..0xb]
        loop and in $v1 AFTER it -- two different registers for what our recon
-       carried in ONE fn-scope `uVar9`, i.e. one global allocno whose merged
+       carried in one function-scope decompiler temp, i.e. one global allocno whose merged
        conflict set was barred from both.  Giving the POST-LOOP use its own
        block-scoped variable turns it into a local qty and the whole a1/a2 (loop)
        plus a2/v1 (tail) rotation collapses.  Splitting the IN-LOOP use instead --
        alone, in-place-mutated, or together with this one -- REGRESSES to 52
        (all three re-gated): only the second site is the dial. */
-    { uint uFade = 0x80 - ((int)this->fWarningFade << 6) / 0x60;
-    fade = uFade * 0x10000 | uFade * 0x100 | uFade; }
+    /* SYM-CODEGEN-CARRIER: fadeComponent -- feeding the component through
+       the SYM `fade` local is count-exact FAIL 22; this separate value web
+       gives retail's $v1 component and $v0 packed result. */
+    { uint fadeComponent = 0x80 - ((int)this->fWarningFade << 6) / 0x60;
+    fade = fadeComponent * 0x10000 | fadeComponent * 0x100 | fadeComponent; }
     this->tvConfigs[6].tint = fade;
     this->tvConfigs[5].tint = fade;
     drawFlags.tint[0] = 0xbebe;
@@ -529,7 +499,6 @@ void tScreenMain::DrawBackground()
                ,1,&drawFlags);
     DrawShapeExtended(0x100,0x11,0,0,0x60 - this->fWarningFade
                ,1,&drawFlags);
-    iVar7 = 0;
     ScaleShapeExtended((gettick() / 0x15) % 6 + 0xfa,1,0,0,0x60 - this->fWarningFade
                ,3,(tDrawShapeExtended *)0x0);
     FETextRender_SetABR(1,true);
@@ -538,11 +507,9 @@ void tScreenMain::DrawBackground()
     r.y = 0x81;
     r.w = 0x11c;
     r.h = 0x2a;
-    str = TextSys_Word(0x272);
-    FETextRender_WordWrapTextRGB(str,r,TextCol);
-    iVar7 = 0;
+    FETextRender_WordWrapTextRGB(TextSys_Word(0x272),r,TextCol);
     FETextRender_SetABR(0,false);
-    FeDraw_SetABRMode(iVar7);
+    FeDraw_SetABRMode(0);
   }
   /* MATCH W64-A17 (7 -> 1): the video block's $s0 carrier is an INT, not the
      SHORT `j`.  Retail passes it with a bare `addu a2,s0,zero` and tests it
@@ -554,44 +521,33 @@ void tScreenMain::DrawBackground()
      shapeY arg-only 75 / flag-only 85 / both 82, TextCol arg-only 24 /
      flag-only 34 / both 31, TextCol+shapeY mixed 102): both are LIVE across
      this region, so naming them merges live ranges instead of splitting them. */
-  int vy = 0;
+  /* SYM-CODEGEN-CARRIER: videoY -- inlining the parity-derived coordinate in
+     VIDEO_updateframexy is FAIL 24 at 820/822 and schedules it after the
+     VIDEO_state call instead of in retail's preceding $s0 value web. */
+  int videoY = 0;
   if ((this->fFrame & 1U) == 0) {
-    vy = 0x50;
+    videoY = 0x50;
   }
-  iVar5 = VIDEO_state(this->hVideo);
-  if (iVar5 == 3) {
+  if (VIDEO_state(this->hVideo) == 3) {
     this->bVideoAborted = 0;
     this->fMovieTicks = ticks;
-    iVar7 = VIDEO_updateframexy(this->hVideo,0x200,vy);
-    if (iVar7 != 0) {
+    if (VIDEO_updateframexy(this->hVideo,0x200,videoY) != 0) {
       this->fFrame = this->fFrame + 1;
     }
   }
   else {
-    /* MATCH W62-A15: the 13C INVERTED-DEFAULT lever + the 13C
-       CSE-CONSTANT-CAPTURE, read straight off the oracle.  Retail zeroes the
-       flag variable in the VIDEO_state jal's DELAY SLOT (`addu s0,zero,zero`),
-       materialises the guard as a VALUE, and tests it with the `1` that the
-       preceding `iVar7 != 1` guard already left in $a0:
-           jal VIDEO_state ; addu s0,zero,zero ; li a0,1 ; beq v0,a0,T
-           ... sltiu v0,v0,641 ; xor s0,v0,a0 ; beqz s0,T
-       A bare `&&` chain emits `sltiu ; bnez` with an EMPTY slot (3 insns
-       short).  Spelling the middle term as an assignment to `j` -- which the
-       SYM names as REG $16 = $s0 and which is dead after the
-       VIDEO_updateframexy arg above -- reproduces the zero-in-the-slot, the
-       xor-against-the-captured-1 and the beqz byte-exactly, and takes the fn
-       COUNT-EXACT: 111 diffs @819 insns -> 110 @822 (oracle 822).
-       The 3rd arg's `(u_int)(u_short)` cast was the Sec.3.12 #9 redundant-mask
-       class: SYM `j` is a plain SHORT and retail passes it with
-       `addu a2,s0,zero`; the cast emitted `andi a2,s0,65535`.
-       CARRIER CHOICE IS LOAD-BEARING (12D dead-pseudo staging): a fresh
-       `int notYet` 117 @821, `shapeY` (the OTHER SYM local homed in $s0, and
-       an INT) 178, `shapeX` 178, `shapeY` without the zero-default 204 @824.
-       RESIDUAL AT THIS SITE = the `sll/sra 16` pair gcc inserts because `j` is
-       a SHORT being tested as a word; retail's `beqz s0` has none. */
-    vy = 0;
-    iVar7 = VIDEO_state(this->hVideo);
-    if (iVar7 != 1) {
+    int startMovie;
+
+    /* Retail materializes the timeout predicate as a value in $s0: zero in
+       VIDEO_state's delay slot, then `sltiu`, xor with the captured constant
+       one, and a separate `beqz`.  Keeping the coordinate and predicate as
+       non-overlapping INT values lets GCC coalesce both retail $s0 lifetimes
+       without the sign extension produced by reusing a SYM SHORT. */
+    /* SYM-CODEGEN-CARRIER: startMovie -- nesting the timeout test directly
+       under VIDEO_state removes the materialized condition and is FAIL 5 at
+       821/822; retail keeps this value in $s0 and tests it separately. */
+    startMovie = 0;
+    if (VIDEO_state(this->hVideo) != 1) {
       /* MATCH W64-A17: the elapsed-tick subtraction is its OWN named value.
          Folded into the compare, cc1plus computes it straight into the
          carrier's register (`subu s0,v1,v0`) and loads `ticks` through the
@@ -599,10 +555,16 @@ void tScreenMain::DrawBackground()
          SELF-TEMP ticks load (`lui v0,0; lw v0,0(v0); lw v1,108(s6);
          subu v0,v0,v1`).  Naming it splits the two and lands the whole
          cluster.  Yoda-flipping the compare instead is neutral (11). */
-      u_long el = ticks - this->fStartTicks;
-      vy = (0x280 < el);
+      /* SYM-CODEGEN-CARRIER: elapsedTicks -- folding this subtraction into
+         the comparison is count-exact FAIL 10 and reverses the retail load
+         destinations before the subtraction. */
+      u_long elapsedTicks = ticks - this->fStartTicks;
+      startMovie = (0x280 < elapsedTicks);
     }
-    if (vy && (this->fState == kScreenMain_StaticImage)) {
+    if (startMovie && (this->fState == kScreenMain_StaticImage)) {
+      RECT r;
+      char moviename [80];
+
       r.x = 0x200;
       r.w = 0x50;
       r.y = 0;
@@ -620,7 +582,7 @@ void tScreenMain::DrawBackground()
     }
   }
   if ((this->fState == kScreenMain_DynamicImage) &&
-     (iVar7 = VIDEO_state(this->hVideo), iVar7 == 0)) {
+     (VIDEO_state(this->hVideo) == 0)) {
     this->SetState(kScreenMain_StaticImage);
   }
   ::DrawBackgroundImage((tScreen *)this,2,0x1c,this->fPermShapes.fShapes,0);
@@ -628,15 +590,19 @@ void tScreenMain::DrawBackground()
   this->DrawVideoLines();
   deltaTicks = ticks - this->fAnimTicks;
   if ((0x5dc < deltaTicks) && (this->fState != kScreenMain_WarningImage)) {
-    uVar6 = this->fSwapShapes.async_handle;
     deltaTicks = 0;
     this->fAnimationUploaded = 0;
-    if (uVar6 == 0) {
+    if (this->fSwapShapes.async_handle == 0) {
+      /* SYM-CODEGEN-CARRIER: nextAnimation -- reusing the dead SYM
+         `animFade` short is FAIL 3 at 823/822 because it adds an $s7 handoff;
+         the separate block value remains in retail's caller-saved chain. */
+      short nextAnimation;
+
       do {
-        sVar3 = rand() % 0x19;
-      } while (sVar3 == this->fPreviousAnim);
-      this->fPreviousAnim = sVar3;
-      sprintf(buffer,"yVda%02d",(int)sVar3);
+        nextAnimation = rand() % 0x19;
+      } while (nextAnimation == this->fPreviousAnim);
+      this->fPreviousAnim = nextAnimation;
+      sprintf(buffer,"yVda%02d",(int)nextAnimation);
       ::AsyncLoadSwapShapeFile((tScreen *)this,buffer);
     }
   }
@@ -656,7 +622,10 @@ void tScreenMain::DrawBackground()
   }
   if ((deltaTicks < 800) && (this->fAnimationUploaded != 0)) {
     int drawAnimFade;
-    int frameIdx;
+    /* SYM-CODEGEN-CARRIER: animationFrame -- folding the divide/remainder
+       into DrawShapeExtended is count-exact FAIL 22 and interleaves its magic
+       constants with the animLocations address chain. */
+    int animationFrame;
 
     drawFlags.tint[0] = tintColors[this->fCurrentBG[this->fCurrentSlot]];
     drawFlags.custom_shapes = this->fSwapShapes.fShapes;
@@ -677,10 +646,10 @@ void tScreenMain::DrawBackground()
        operand order".  Fully inlining the x/y reads into the call args measures
        EXACTLY the same 44, but drops both SYM 8c locals (shapeX $v0, shapeY $s0),
        so the split-temp form is kept. */
-    frameIdx = (deltaTicks / 0xf) % 10;
+    animationFrame = (deltaTicks / 0xf) % 10;
     shapeX = animLocations[this->fAnimLocation].x;
     shapeY = animLocations[this->fAnimLocation].y;
-    DrawShapeExtended(frameIdx,0x611,shapeX,shapeY,drawAnimFade,1,&drawFlags);
+    DrawShapeExtended(animationFrame,0x611,shapeX,shapeY,drawAnimFade,1,&drawFlags);
   }
   y = 0x32;
   i = 0;
@@ -720,17 +689,17 @@ void tScreenMain::DrawBackground()
      three-insn shape.  Re-gated alternatives: `deltaTicks` (the other $s1
      SYM local, ULONG, needs an `(int)` at both compares) is EXACTLY neutral
      at 12; inlining the expression at both sites 35 @827; the fabricated
-     `iVar10` was a Ghidra invention with no SYM record. */
+     bound temp had no SYM record. */
   x = (short)((int)((ticks - this->fStartTicks) * 0x1000) >> 0x10);
   j = 0;
   if (-1 < x) {
     /* MATCH W63-A17 (84 -> 68, count still EXACT 822/822): the tvOrder loop is
        UN-ROTATED in retail too -- the `j < 16` guard is tested at the TOP
-       (`sll;sra;slti 16;beqz`) and the `j <= iVar10` back-edge sits at the
+       (`sll;sra;slti 16;beqz`) and the `j <= computed bound` back-edge sits at the
        BOTTOM (`slt v0,s1,v0; beqz`); our `do { if (0xf<j) break; ... } while
-       (j <= iVar10);` let jump.c rotate the guard DOWN into the back edge, so
+       the corresponding structured form let jump.c rotate the guard DOWN into the back edge, so
        both tests emitted at the bottom.  The SYM 8c block lists NO local for the
-       tvOrder index (bVar1 was a Ghidra invention, 06A) -- inlining it is exactly
+       tvOrder index (the decompiler's index temp was an invention) -- inlining it is exactly
        neutral against a block-local `byte tvIdx` (both 68) and drops the fabricated
        local.  Also landed here: `j--` BEFORE `x += 0xd` in the dot-grid inner loop
        (retail emits `addiu s0,s0,-1` ahead of `addiu s1,s1,13`), -2. */

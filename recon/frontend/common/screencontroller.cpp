@@ -1408,9 +1408,14 @@ void tScreenControllerConfig::Cleanup()
 }
 
 /* ---- tScreenControllerConfig::tScreenControllerConfig  (screencontroller.cpp:1889) ---- */
+/* MATCH (source-only, 2026-08-26): the derived-vtable write must precede the
+ * real negconPopUp member constructor.  Carrying that side effect through the
+ * earlier aggregate fShaker self-initializer lets GCC eliminate the self-copy
+ * completely; the former scalar `mult` carrier left one dead lhu.  Detailed
+ * gate: 1 -> PASS 20/20. */
 tScreenControllerConfig::tScreenControllerConfig()
-  : mult((this->_vf = (__vtbl_ptr_type (*)[10])tScreenControllerConfig_vtable,
-          this->mult))
+  : fShaker((this->_vf = (__vtbl_ptr_type (*)[10])tScreenControllerConfig_vtable,
+             this->fShaker))
 {
   this->fGotTick = 0;
   this->fAnim = 0;

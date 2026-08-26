@@ -133,15 +133,23 @@ extern int _padRecvAtLoadInfo(unsigned char *info)
         goto return_one;
     }
     case 4: {
-        int acc = *(int *)(info + 0xec);
+        /* MATCH (2026-08-26, source-only 4 -> PASS 83/83): retaining `acc + 8`
+         * as the named `acc8` value changes sched1's equal-priority ready-list tie
+         * to retail's idx++ / rx[4] / acc+8 order.  Only the accumulator source
+         * read needs volatile provenance to keep its lw first; removing that one
+         * qualifier is exactly 2 diffs (the lw moves after the idx/rx loads).
+         * The former idx, rx-cell and chunk volatile reads were retested on this
+         * final basin, proved unnecessary, and removed. */
+        int acc = *(volatile int *)(info + 0xec);
+        int acc8;
         unsigned char idx = info[0x47];
         unsigned char *rx = *(unsigned char **)(info + 0x3c);
         unsigned chunk;
         idx++;
         chunk = rx[4];
-        acc += 8;
+        acc8 = acc + 8;
         info[0x47] = idx;
-        acc += ((chunk + 3) & 0x1fc);
+        acc = acc8 + ((chunk + 3) & 0x1fc);
         *(int *)(info + 0xec) = acc;
         if (!(idx < info[0xea]))
             goto finish_load_info;
@@ -227,6 +235,7 @@ extern int _padLoadActInfo(unsigned char *info, unsigned char *buf)
      * with this pair alone, ZERO PASS->FAIL.  Both remain ORCHESTRATOR actions, verbatim above. */
     {
         int r = 1;
+        int four = 4;
         __asm__("" : "=r"(r) : "0"(r));      /* MATCH: opacity fence -- same device as the sibling
                                               * _padSetActAlign; stops cse copy-substituting the
                                               * return constant into the info[0x46] store */
@@ -234,7 +243,11 @@ extern int _padLoadActInfo(unsigned char *info, unsigned char *buf)
                                               * `addiu ,3 / sra ,2` ... `sll ,2` PAIR (word index
                                               * materialized early, scaled back late), not the
                                               * `& ~3` mask a single expression emits */
-        info[0x49] = 4;
+        /* MATCH (W78, 2 -> PASS 53/53 on the historical 2.7.2 per-fn rung;
+         * also a strict source-only reduction 26 -> 24): the opaque named 4
+         * gives sched1 the retail constant's earlier position. */
+        __asm__("" : "=r"(four) : "0"(four));
+        info[0x49] = four;
         info[0x46] = 1;
         *(PadSndRcv *)(info + 0x14) = _padLoadActInfo_snd;
         *(PadSndRcv *)(info + 0x18) = (PadSndRcv)_padLoadActInfo_rcv;

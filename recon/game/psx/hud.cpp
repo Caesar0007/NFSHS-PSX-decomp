@@ -1045,9 +1045,10 @@ void Hud_Init(void)
     w1 = HudPmx_gShapes[0x6b].width;
     x = g1Player[4].x;
     y = g1Player[4].y + splitY;
-    Hud_BuildSprite2(gSprt1 + 8,0x69,x,y);
-    x = x + w1;
     w2 = 0x3c;
+    Hud_BuildSprite2(gSprt1 + 8,0x69,x,y);
+    __asm__("" : : "r"(w2));
+    x = x + w1;
     Hud_BuildG4(HudG4 + 3,1,x,y,w2,10,0,0x707070,0,0x707070);
     x = x + w2;
     Hud_BuildF4(HudF4 + 2,1,x,y + 7,7,3,0x707070);
@@ -1093,10 +1094,22 @@ void Hud_Init(void)
       y = g1Player[5].y + splitY;
     }
     Hud_BuildSprite2(gSprt1 + 10,0x76,x,y);
-    x = x + w1;
-    Hud_BuildG4(HudG4 + 2,1,x,y,w2,10,0,0x707070,0,0x707070);
-    x = x + w2;
-    Hud_BuildF4(HudF4 + 3,1,x,y + 7,7,3,0x707070);
+    /* W79 source-only: staged pointer/literal identities make the call setup
+       issue before x+=w1, matching retail without a post-cc1 move. */
+    {
+      POLY_G4 *g4 = HudG4 + 2;
+      int one = 1;
+      __asm__("" : "=r"(g4), "=r"(one) : "0"(g4), "1"(one));
+      x = x + w1;
+      Hud_BuildG4(g4,one,x,y,w2,10,0,0x707070,0,0x707070);
+    }
+    /* Same source shape for the following F4 literal: li a1 precedes x+=w2. */
+    {
+      int one = 1;
+      __asm__("" : "=r"(one) : "0"(one));
+      x = x + w2;
+      Hud_BuildF4(HudF4 + 3,one,x,y + 7,7,3,0x707070);
+    }
     Hud_BuildSprite(gSprt1 + 0xb,0x7d,x,y,0x808080,0);
     currentSpriteColor = textcolour;
     Hud_BuildTimeSprites(gSprt1 + 0xc,"00M00S00",g1Player[2].x + g1Player[6].x,

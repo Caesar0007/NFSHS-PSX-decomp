@@ -1371,7 +1371,26 @@ void Night_RestartNightDriving(void)
  * everything before it cannot sink past.  A device that puts the `li` AFTER the tgt load
  * in the pre-fence group without adding an insn (the `"r"(tgt[0x447])` operand does it
  * but costs one) is the whole remaining gap. */
-/* ===== 🏆 w64-a13 (2026-08-15): **PASS 68/68 IS AVAILABLE VIA ONE PER_FN_TEXT_MOVES ROW.**
+/* w78-root: a volatile-qualified `camera_info` member read keeps the exact `lw 4(v0)` form but is
+ * schedule-neutral (2 @68).  A volatile pointer-object view DOES move the load before `li`, but
+ * GCC folds the member address into the base and emits `lw v0,0(v0)` (still 2 @68).  An empty
+ * memory-input dependency on the member restores the old v0/v1 allocation basin (8 @68).  All
+ * three were reverted; volatility cannot independently buy both the offset form and issue order.
+ * W79 follow-up deliberately took the higher-count route: fencing `tgt[0x447]` moves the target
+ * load before `li` but emits a duplicate byte load (1 diff @69).  Naming that byte removes the
+ * duplicate and keeps 68 instructions, but then the ZNear store schedules after the byte load
+ * (2 diffs).  Moving the named byte back after the store returns exactly to this 2-diff basin.
+ * Thus the load-order half is source-reachable, but the same fence boundary blocks the required
+ * store/byte-load order; every temporary spelling was reverted. */
+/* 🏆 W80 source-only PASS (2026-08-26): qtytrace exposed the missing source dial.
+ * The natural `tgt` load plus five zero-insn read-only uses changes its block-local qty
+ * from refs/live 2/8 to 7/18 (PRI 0.7777), just crossing `zn2` at 3/4 (PRI 0.7500).
+ * That gives tgt $v0 and zn2 $v1 exactly as retail and, because all five uses sit at the
+ * same boundary, issues `lw v0,4(v0)` before `li v1,128`.  Verified source-only PASS
+ * 68/68 repeatedly and strict-branch clean.  The historical text-move receipt below is
+ * retained only as provenance; it is no longer required or authoritative.
+ */
+/* ===== HISTORICAL w64-a13 (2026-08-15): PASS was formerly available via one text move.
  * The residual is a PURE ONE-LINE RELOCATION (the 12F/15D mechanism class), probe-verified
  * TWICE with tools/vprobe.py + W60_TEXT_MOVES_FILE and CLEAN under
  * scratchpad/w64a13/strict_branch.py (5 branch words compared).  Control (no row) = 2.
@@ -1400,7 +1419,7 @@ void Night_RestartNightDriving(void)
  * @68/68: identity launder replacing the RO fence 6 . identity + RO fence 2 (no change) .
  * RO then identity 8 . identity after the store 8 . split decl + identity 6 . identity on
  * zn2 + an RO fence on tgt 2 . RO fence on tgt only 2 . identity launder on tgt 8.
- * => the boost is not the reachable half; the row above is the correct instrument. */
+ * => This conclusion is superseded by the W80 qtytrace source-level PASS above. */
 void Night_SetEnviroment(DRender_tView *Vi)
 
 {
@@ -1417,6 +1436,13 @@ void Night_SetEnviroment(DRender_tView *Vi)
      * above the function for the mechanism and the falsification list. */
     u_char *tgt /* SYM-CODEGEN-CARRIER: tgt -- direct target access is FAIL 6 (68/68) */ =
         (u_char *)Camera_gInfo[Vi->player].target;
+    /* W80 QTY_CMP_PRI dial: five zero-byte refs are the minimal whole-step crossing
+     * for tgt (7/18) over zn2 (3/4); four refs only tie at 0.7500 and stay FAIL. */
+    __asm__("" : : "r"(tgt));
+    __asm__("" : : "r"(tgt));
+    __asm__("" : : "r"(tgt));
+    __asm__("" : : "r"(tgt));
+    __asm__("" : : "r"(tgt));
     int zn2 /* SYM-CODEGEN-CARRIER: zn2 -- direct constant store is FAIL 8 (68/68) */ = 0x80;
     __asm__("" : : "r"(zn2));
     Night_gZNear = zn2;

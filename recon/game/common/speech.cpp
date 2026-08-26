@@ -312,9 +312,12 @@ void Speech::CountLocations()
 }
 
 /* ---- CheckLocationBank__6SpeechPQ26Speech12LocationBankPci  [SPEECH.CPP:539-561] SLD-VERIFIED ----
- * NEAR-MISS 2, COUNT-EXACT 65/65 (W60-A9): the sole residual is the issue POSITION
- * of `addiu s2,s1,6` (retail issues it one slot earlier).  Pure emission order --
- * a PER_FN_TEXT_MOVES candidate, no register or count difference. */
+ * SOURCE PASS 65/65 (2026-08-24).  SYM records only `match`, description `d`,
+ * and loop `i`; the earlier explicit `psVar7 = &d->end` carrier was not a source
+ * local.  Reading d->start/d->end directly still lets GCC strength-reduce the
+ * field address to retail's $s2 walker, but changes its birth order relative to
+ * the locationbank $s0 walker and reproduces the exact preheader order
+ * `s3=0; s0=a1; s2=s1+6`.  No fence, pin, or post-cc1 move is required. */
 bool Speech::CheckLocationBank(LocationBank *locationbank,char *name,int id)
 
 {
@@ -328,7 +331,6 @@ bool Speech::CheckLocationBank(LocationBank *locationbank,char *name,int id)
   int iVar4;
   char *pcVar5;
   Speech_tLocationDescription *pSVar6;
-  short *psVar7;
   int iVar8;
   
   pSVar6 = Speech_gLocationDescription[GameSetup_gData.track];
@@ -337,8 +339,8 @@ bool Speech::CheckLocationBank(LocationBank *locationbank,char *name,int id)
     match = 0;
   }
   else {
-    psVar7 = &pSVar6->end;
-    for (iVar8 = 0; iVar8 < this->fLocationCount; iVar8 = iVar8 + 1) {
+    for (iVar8 = 0;
+         iVar8 < this->fLocationCount; iVar8 = iVar8 + 1) {
       lVar3 = strlen((u_long)pSVar6->name);
       iVar4 = strncmp(name,pSVar6->name,lVar3);
       if (iVar4 == 0) {
@@ -349,8 +351,8 @@ bool Speech::CheckLocationBank(LocationBank *locationbank,char *name,int id)
         /* MATCH: grouped int temps -> oracle's 3 batched loads then 4 stores
            (`lh v0; lh v1; lw a0; li s4,1; sw...`); interleaved load/store pairs
            each eat a load-delay nop. [catalog load-3/store-3] */
-        int t0 = psVar7[-1];
-        int t1 = *psVar7;
+        int t0 = pSVar6->start;
+        int t1 = pSVar6->end;
         int t2 = (int)pSVar6->name;
         /* W57-A8 3.12#1 INDEX FORM: the SYM says `locationbank` is a REGPARM that
            STAYS in $a1 (never mutated) -- retail indexes it and lets gcc strength-
@@ -364,7 +366,6 @@ bool Speech::CheckLocationBank(LocationBank *locationbank,char *name,int id)
         locationbank[iVar8].fEndSlice = t1;
         locationbank[iVar8].fName = (char *)t2;
       }
-      psVar7 = psVar7 + 4;
       pSVar6 = pSVar6 + 1;
     }
   }
@@ -719,12 +720,7 @@ int Speech::CalculateBankSize(char *header,CarBankName *bn,long *hoffset,long *h
 extern "C" {
 
 /* ---- LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell  [SPEECH.CPP:990-1102] SLD-VERIFIED ----
- * NEAR-MISS 6, COUNT-EXACT 270/270 (W60-A9).  ONE relocation, three diff lines each
- * way: retail issues the call's `li a2,16` BEFORE the header read
- * `lbu v0,8(s0); addiu s0,s0,8`, ours issues that pair ~6 slots earlier (right after
- * `addiu s4,s0,16`) and the `li a2,16` after `lw v1,28(sp)`.  Everything else is
- * byte-identical.  PER_FN_TEXT_MOVES candidate: move the `lbu/addiu` pair to sit
- * after the `li $6,16`, anchored on the `lw $3,28($sp)` that follows it. */
+ * MATCH, strict source-only PASS 270/270 (2026-08-24). */
 /* MATCHING-RECEIPT (2026-08-14): detailed verify_asm 137 -> 133 -> 119 -> 97
  * -> 62 -> 51 -> 31 -> 13 -> 11 -> 9 -> 6, with the final source stream count-
  * and register-exact at 270/270.  IDA's gold allocation and the SLD expose a
@@ -735,13 +731,30 @@ extern "C" {
  * `joffset` kept across strncmp is the real $s3 quantity, integer-address addition
  * preserves `addu v0,s3,v0`, and `++j` belongs in the loop condition.
  *
- * The remaining 6 are one pure reorg rotation.  A scratch PER_FN_TEXT_MOVES probe
- * PASSes 270/270: move the first `li $6,16` after `move $5,$19`, move
- * `lbu $2,8($16)` after `lw $3,28($sp)`, then move `addu $16,$16,8` after that
- * lbu.  tools/build.py is orchestrator-owned, so the live tree deliberately keeps
- * the verified source-only 6-diff result.  Failed/reverted basins: removing `p`
- * without the real joffset rotated every saved register (156-299 diffs); an
- * identity fence on the alignment constant perturbed global allocation (84). */
+ * Follow-up (2026-08-24): a persistent reserve string plus a short tied alias,
+ * tied header/hsize/alignment call operands, and a read-only hsize fence after
+ * the bank-name zeroing loop price the retail saved-register handout exactly and
+ * reduce the source-only residual 6 -> 4.  Tying the alignment output directly
+ * to literal input `"3"(0x10)` then births `li a2,16` at reload time and fixes
+ * the call-argument group, reducing 4 -> 2.  Fresh sched2 dumps show the final
+ * lbu and stack lw at equal priority in T-31; GCC's dependency/LUID tie selects
+ * the stack load first in reverse scheduling, yielding their remaining forward
+ * swap.  The late fence is a measured global-
+ * allocation live-range dial; placing it at function tail spills hsize (16), and
+ * omitting it leaves the s2/s3 handout swapped (20).  Splitting the operand fence
+ * can place `li a2,16` exactly, but perturbs later local allocation and grows the
+ * stream to 272/273 instructions (76-117 diffs), so those basins were reverted.
+ * A tied `+m(size)` lands the retail lw/lbu order at 270/270, but swaps the
+ * header/string saved webs (36); bounded late-ref pricing reached 22/16/6/4 but
+ * never PASS, while any second asm node grew the stream to 272-274.  All were
+ * reverted.
+ *
+ * W77-root strict closure: promote size to a tied dataSize output; the
+ * user-authorized zero-byte $2 clobber forces retail $v1.  Replacing the tied
+ * header output with two read-only header references recovers the $s0/$s1
+ * handout, and ordering the header increment before the data update gives the
+ * retail ready-list order.  Detailed strict gate PASS 270/270; no post-cc1
+ * rewrite. */
 } /* extern "C" */
 
 void Speech::LoadBankHeaders(char *header,CarBankName *bn,long hoffset,long hsize)
@@ -765,19 +778,35 @@ void Speech::LoadBankHeaders(char *header,CarBankName *bn,long hoffset,long hsiz
   FILE_readsync(this->fFileHandle,offset,data,size,100);
   SPCH_ResolveData(data);
   c = header + 0x10;
-  data += size;
   {
-    int a = (u_char)header[8];
-    header += 8;
-    int b = (u_char)header[1];
-    int cc = (u_char)header[2];
-    int d = (u_char)header[3];
+    char *reserveArg = "spch temp";
+    char *reserveCallArg = reserveArg;
+    long reserveBytes = hsize;
+    int alignment;
 
-    filecount = (((a << 8 | b) << 8 | cc) << 8 | d);
+    long dataSize;
+    /* Price the retail saved-register webs and force the tied size value into
+     * $v1 without emitting an instruction; the duplicate header reads are
+     * intentional allocator inputs. */
+    __asm__("" : "=r"(dataSize), "=r"(reserveCallArg),
+                   "=r"(reserveBytes), "=r"(alignment)
+               : "0"(size), "1"(reserveCallArg), "2"(reserveBytes),
+                 "3"(0x10), "r"(header), "r"(header)
+               : "$2");
+    {
+      int a = (u_char)header[8];
+      header += 8;
+      data += dataSize;
+      int b = (u_char)header[1];
+      int cc = (u_char)header[2];
+      int d = (u_char)header[3];
+
+      filecount = (((a << 8 | b) << 8 | cc) << 8 | d);
+    }
+    hdata = (char *)reservememadr(reserveCallArg,reserveBytes,alignment);
+    FILE_readsync(this->fFileHandle,hoffset,hdata,hsize,100);
+    banknames = (char **)reservememadr(reserveArg,this->fBankCount << 2,0x10);
   }
-  hdata = (char *)reservememadr("spch temp",hsize,0x10);
-  FILE_readsync(this->fFileHandle,hoffset,hdata,hsize,100);
-  banknames = (char **)reservememadr("spch temp",this->fBankCount << 2,0x10);
   {
     int j;
 
@@ -786,6 +815,7 @@ void Speech::LoadBankHeaders(char *header,CarBankName *bn,long hoffset,long hsiz
         this->fBankOffset[j] = 0;
       }
   }
+  __asm__("" : : "r"(hsize));
   {
     int i;
 
@@ -1901,10 +1931,9 @@ DispStatus_fetchSpeechCtx:
 }
 
 /* ---- Status__Q26Speech13MobileSpeaker  [SPEECH.CPP:1853-1948] SLD-VERIFIED ----
- * W61-A10: 14 -> 8 by SOURCE (two levers below), then PASS 358/358 with four
- * PER_FN_TEXT_MOVES rows (probe-verified, spec in scratchpad/w61a10/spec_status.py;
- * whole-TU probe speech.cpp 99/102, zero PASS->FAIL).  The residual after the two
- * source levers is FOUR pure line relocations and nothing else.
+ * W61-A10: 14 -> 8 by SOURCE (two levers below).  A historical production
+ * experiment used four PER_FN_TEXT_MOVES rows; those are not part of the strict
+ * source-only closure described below.
  *
  * LEVER 1 -- CSE-CONSTANT-CAPTURE ESCAPE (kills the x2 `addu a1,s1,v0`).
  *   cc1 emits `li $2,8` at the HEAD of the `uVar8 != 8` block (the compare needs a
@@ -1913,11 +1942,10 @@ DispStatus_fetchSpeechCtx:
  *   -- a register reuse retail does not make.  Proof it is cse and not maspsx: the
  *   raw cc1 .s carries `addu $5,$17,$2` at the two captured sites and
  *   `addu $5,$17,8` at the third (`$L943`, a JOIN target, so the constant is not in
- *   cse's table there).  CURE = hoist `pCVar5 = &fColour;` ABOVE the `if (uVar8 != 8)`
- *   guard so the address insn PRECEDES the `li 8` in the block; the two sites then
- *   emit `addiu a1,s1,8` exactly like retail, count-exact.  This is the general
- *   escape for the whole "cse captured my address constant" class: move the address
- *   computation above the compare that materialises the same constant.
+ *   cse's table there).  The first cure hoisted `pCVar5 = &fColour;` above the
+ *   guard.  The final strict closure instead sinks it behind the zero-byte
+ *   barrier below; its $2 clobber ends the stale constant live range and retains
+ *   the immediate `addiu a1,s1,8` form.
  *   FALSIFIED first (all neutral at 14): `(char *)this + 8`, a block-local colour
  *   pointer, the address inline in the call, colour-assigned-last, and an identity
  *   fence on pCVar5 (16, worse).
@@ -1933,18 +1961,13 @@ DispStatus_fetchSpeechCtx:
  *   (33 @359), pCVar5 (43 @361), a fresh block-local (60), and a `{ }`-scoped local
  *   (60); swapping the pMVar12/vs_KMH_MPH setup order is inert (14).
  *
- * REMAINING (all four are PER_FN_TEXT_MOVES rows, none source-reachable here):
- *  (a) x2 STS arms: retail puts the receiver copy `move $4,$16` in the beq DELAY
- *      SLOT and the &fColour address after it; cc1 fills the slot with the address.
- *  (b) AWAY_PERP_REPLY_LOC: retail issues the fCar load right after the fLocation
- *      load; ours two slots later (same register -- pure move).
- *  (c) LOOK_PERP_REPLY_LOC: retail issues fLocation before fCar; ours swapped. */
-/* MATCH: 90 -> 14 diffs (358/358).  IDA/SLD recovered the shared s0 boolean
-   lifetimes, direct Dispatch virtual call, far-subbranch order, and speed/look
-   cross-jump layout.  The remaining 14 are four call-argument scheduling
-   choices; clean direct/named/ordering forms are neutral or worse.  qtytrace
-   is currently blocked because the instrumented cc1plus ICEs earlier in this
-   TU at SetCar. */
+ * W77-root follow-up (2026-08-24): ordering each dead-uVar8 fCar stage AFTER
+ * its distance/location setup fixes both load-order rows naturally, 8 -> 4 at
+ * exact 358/358.  The duplicated final 4 are closed by making an arm-local
+ * voice alias, passing it through a zero-instruction `+r` barrier that clobbers
+ * $2, and only then forming &fColour.  Reorg puts `move a0,s0` in both beq delay
+ * slots, while cse can no longer turn the address into `addu a1,s1,v0`.
+ * Strict source-only result: PASS 358/358. */
 void MobileSpeaker::Status()
 
 {
@@ -2113,17 +2136,19 @@ void MobileSpeaker::Status()
           pCVar5 = (Car_tObj *)this;
           goto DispStatus_playSpeechReturn;
         }
-        /* MATCH lever 1: the &fColour address MUST precede the `li 8` cc1 emits
-           for this guard, else cse rewrites it to `addu a1,s1,v0`.  Do not sink
-           this back inside the if. [W61-A10] */
-        pCVar5 = (Car_tObj *)&(this->_base_Speaker).fColour;
+        /* MATCH strict closure: the tied voice alias supplies the branch-slot
+           receiver copy.  The user-authorized last-resort $2 clobber ends the
+           compare constant's live range, so &fColour may follow as addiu. */
         if (uVar8 != 8) {
           int nearLocation;
 
+          pSVar9 = pSVar10;
+          __asm__("" : "+r"(pSVar9) : : "$2");
+          pCVar5 = (Car_tObj *)&(this->_base_Speaker).fColour;
           vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)(this->_base_Speaker).fCar;
           pMVar12 = (MobileSpeaker *)&(this->_base_Speaker).fDistance;
           nearLocation = (this->_base_Speaker).fLocation;
-          SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_STS(pSVar10,(SPCHNFSType_COLOUR *)pCVar5,(int)vs_KMH_MPH,
+          SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_STS(pSVar9,(SPCHNFSType_COLOUR *)pCVar5,(int)vs_KMH_MPH,
                      (SPCHNFSType_DISTANCE *)pMVar12,(SPCHNFSType_POSITION *)this,
                      nearLocation);
           goto DispStatus_playSpeechReturn;
@@ -2134,17 +2159,20 @@ void MobileSpeaker::Status()
         if (uVar8 == 1) {
           pMVar12 = (MobileSpeaker *)&(this->_base_Speaker).fDistance;
           vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)(this->_base_Speaker).fLocation;
+          uVar8 = (this->_base_Speaker).fCar;
           SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_LOC(pSVar10,(SPCHNFSType_POSITION *)this,(int)vs_KMH_MPH,
-                     (SPCHNFSType_DISTANCE *)pMVar12,&(this->_base_Speaker).fColour,(this->_base_Speaker).fCar,
+                     (SPCHNFSType_DISTANCE *)pMVar12,&(this->_base_Speaker).fColour,(int)uVar8,
                      &(this->_base_Speaker).fPerpName);
           pCVar5 = (Car_tObj *)this;
           goto DispStatus_playSpeechReturn;
         }
-        /* MATCH lever 1 (2nd site): same cse-constant-capture escape. [W61-A10] */
-        pCVar5 = (Car_tObj *)&(this->_base_Speaker).fColour;
+        /* MATCH strict closure, second duplicated STS arm; see first site. */
         if (uVar8 != 8) {
+          pSVar9 = pSVar10;
+          __asm__("" : "+r"(pSVar9) : : "$2");
+          pCVar5 = (Car_tObj *)&(this->_base_Speaker).fColour;
           vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)(this->_base_Speaker).fCar;
-          SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_STS(pSVar10,(SPCHNFSType_COLOUR *)pCVar5,(int)vs_KMH_MPH,
+          SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_STS(pSVar9,(SPCHNFSType_COLOUR *)pCVar5,(int)vs_KMH_MPH,
                      (SPCHNFSType_POSITION *)this,(this->_base_Speaker).fLocation,
                      &(this->_base_Speaker).fDistance);
           pMVar12 = this;
@@ -2157,9 +2185,9 @@ void MobileSpeaker::Status()
           /* MATCH lever 2 (12D dead-pseudo staging): uVar8 is dead on this arm and
              is retail's carrier for fCar -- staging it here (NOT a new local) gives
              the fresh register the stack-arg copy needs. [W61-A10] */
-          uVar8 = (this->_base_Speaker).fCar;
           pMVar12 = (MobileSpeaker *)&(this->_base_Speaker).fDistance;
           vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)(this->_base_Speaker).fLocation;
+          uVar8 = (this->_base_Speaker).fCar;
           SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_LOC(pSVar10,(SPCHNFSType_POSITION *)this,(int)vs_KMH_MPH,
                      (SPCHNFSType_DISTANCE *)pMVar12,&(this->_base_Speaker).fColour,(int)uVar8);
           pCVar5 = (Car_tObj *)this;
@@ -3586,20 +3614,16 @@ void MobileSpeaker::Backup()
 }
 
 /* ---- Roger__Q26Speech13MobileSpeaker  [SPEECH.CPP:2711-2733] SLD-VERIFIED ----
- * NEAR-MISS 2, COUNT-EXACT 94/94 (W60-A9).  The whole residual is the ISSUE
- * POSITION of ONE argument copy: at the SPCHNFS_C_A_CONFIRM site retail emits
- * `addu a0,s1,zero` FIRST -- immediately after the second pfn's jalr delay slot,
- * i.e. BEFORE the `bank` chain (`sll v0,v0,2; addu s0,s0,v0; lw a1,8(s0)`) -- and
- * ours emits it AFTER that chain, between the a1 load and `addiu a2,s2,28`.  Pure
- * emission order, no register or count difference.
- * FALSIFIED (W60-A9): passing `VOICE` instead of the `ctx_00` alias at the call
- * (2, unchanged) and re-spelling the a1 argument (2, unchanged).
- * CLASS: this is a pure line relocation = a PER_FN_TEXT_MOVES candidate.  SPEC for
- * the orchestrator (regexes against the cc1plus .s, no new build.py keys needed):
- *   take  = the `\tmove\t\$4,\$17\n` line that precedes the CONFIRM `jal`
- *   after  = the `\taddu\t\$16,\$2,\$0\n` (jalr result copy) that precedes the
- *            `sll \$2,\$2,2` bank chain
- * Same family as LoadBankHeaders below (li a2,16 issued one slot late). */
+ * MATCH (W77-root): source-only PASS 94/94; the old W60 TEXT_MOVES row is now
+ * inactive (disabled-row and standard objects have identical SHA-256 hashes).
+ * Splitting the two virtual-call results exposes the retail boundary after the
+ * second jalr.  A tied, zero-byte confirmVoice launder there births the call's
+ * a0 copy before the bank-index chain.  Its three extra read operands are the
+ * minimum allocator dial: production GCC dumps + allocsim match 4/4 and show
+ * p85 at refs/live 8/34 (s1), just ahead of p80 at 20/126 (s2); two operands
+ * fall back to the count-exact 48-diff whole-function s1/s2 swap.  Search path:
+ * baseline 2 -> desired schedule/wrong allocation 48 -> PASS.  Fixed prototype,
+ * split fTo staging, ordinary locals, and an inline wrapper were inert at 2. */
 void MobileSpeaker::Roger()
 
 {
@@ -3626,32 +3650,29 @@ void MobileSpeaker::Roger()
   }
   if (bVar1) {
     int *bank;
+    int *bankBase;
+    int bankIndex;
+    int confirmUnit;
+    SPCHNFSType_VOICE *confirmVoice;
 
     VOICE = &this->fVoice;
     SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     ctx_00 = VOICE;
-    do {
-      bank = (int *)
-          ((int)(*(*(this->_base_Speaker)._vf)[0x1e].pfn)
-                     ((int)&(this->_base_Speaker).fPosition.flags +
-                      (int)(*(this->_base_Speaker)._vf)[0x1e].delta) +
-           (*(*(this->_base_Speaker).fSub->_vf)[0x11].pfn)
-                     ((int)&(this->_base_Speaker).fSub->fPosition.flags +
-                      (int)(*(this->_base_Speaker).fSub->_vf)[0x11].delta) * 4);
-    } while (0);
+    bankBase = (int *)(*(*(this->_base_Speaker)._vf)[0x1e].pfn)
+                   ((int)&(this->_base_Speaker).fPosition.flags +
+                    (int)(*(this->_base_Speaker)._vf)[0x1e].delta);
+    bankIndex = (*(*(this->_base_Speaker).fSub->_vf)[0x11].pfn)
+                   ((int)&(this->_base_Speaker).fSub->fPosition.flags +
+                    (int)(*(this->_base_Speaker).fSub->_vf)[0x11].delta);
+    confirmVoice = ctx_00;
+    __asm__("" : "=r"(confirmVoice)
+               : "0"(confirmVoice), "r"(confirmVoice), "r"(confirmVoice),
+                 "r"(confirmVoice));
+    bank = bankBase + bankIndex;
     pSVar6 = &(this->_base_Speaker).fConfirm;
-    do {
-      do {
-        do {
-          do {
-            do {
-              SPCHNFS_C_A_CONFIRM(ctx_00,
-                  (this->_base_Speaker).fTo = bank[2],pSVar6);
-            } while (0);
-          } while (0);
-        } while (0);
-      } while (0);
-    } while (0);
+    confirmUnit = bank[2];
+    (this->_base_Speaker).fTo = confirmUnit;
+    SPCHNFS_C_A_CONFIRM(confirmVoice,confirmUnit,pSVar6);
     SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     carObj = (Car_tObj *)
           (*(*(this->_base_Speaker)._vf)[0x1b].pfn)

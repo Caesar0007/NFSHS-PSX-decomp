@@ -148,10 +148,12 @@ mutually exclusive. A mechanical fence-position sweeper exists
 `PER_FN_NO_THREAD_JUMPS`, `PER_FN_RA_SINK`, `PER_FN_PROLOGUE_UNSINK`,
 `PER_FN_EPILOGUE_UNFILL` (+ `_272`, + `_ALT28`), `PER_FN_FLAG_SPLICE_272`
 (per-fn extra cc1 flag), `PER_FN_CC1_VER_SPLICE_272` (per-fn cc1 binary),
-`PER_FN_TEXT_MOVES` (generic line relocation: take/after/slot/drop_nop —
-called from ALL lanes). If your residual is a pure line relocation or a
-per-fn flag/version effect, write the exact spec (regexes, measured result)
-in your report; probe with a scratchpad COPY of build.py, never the original.
+and `PER_FN_CC1_VER_SPLICE` (per-fn cc1 binary).  Authentic syslib per-object
+compiler-version identities are allowed and remain active in the source-only
+gate.  `PER_FN_TEXT_MOVES` and equivalent post-cc1 instruction relocation or
+rewrite mechanisms are FORBIDDEN: a pure line-order residual must be solved by
+source shape or by identifying the authentic compiler/object identity.  The CI
+source-policy audit requires the compatibility table to remain empty.
 
 ### 4.6 qtytrace — THE MISSING INSTRUMENT (to be built; highest leverage)
 The **06E gap**: gcc-2.8's `local-alloc.c` QTY handouts and sched1-driven

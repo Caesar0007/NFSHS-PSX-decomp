@@ -302,7 +302,8 @@ extern void vramfxya(unsigned int *c, int imgX, int imgY, int clutX, int clutY)
      * the reference step that gives every long-lived value its retail s-reg.
      * Reconstructing `c` as the pointer parameter (instead of an int parameter
      * plus a local cast) also restores retail's a0->s0 prologue placement. */
-    /* 🏆 W61-A19 2026-08-15 -- 6 -> PASS 165/165 via a BUILD.PY TEXT_MOVES row (2 moves).  The
+    /* W61-A19 FORMER CHECKPOINT (2026-08-15) -- 6 -> PASS 165/165 via a BUILD.PY
+     * TEXT_MOVES row (2 moves), now superseded by the source-only receipt below.  The
      * register assignment is already retail-exact (c s0, maskHi s1, clutYm s2, clutXm s3,
      * maskLo s4, ...), so the residual is ONLY where sched2 floats the two loop-invariant mask
      * constants inside the post-guard block: retail emits `li s4,-4096` + `lui/ori s1` FIRST,
@@ -333,12 +334,29 @@ extern void vramfxya(unsigned int *c, int imgX, int imgY, int clutX, int clutY)
     unsigned int clutYmasked = (unsigned int)clutY;
     register unsigned int clutXm = clutXraw;
     register unsigned int clutYm;
+    /* MATCH (2026-08-26, strict source-only 6 -> 2 -> PASS 165/165): keep the
+     * redundant maskLo definition at both the preheader and loop head so CSE
+     * emits its constant in retail's first post-guard slot.  Empty input refs
+     * reproduce the original macro-expansion quantities and restore the exact
+     * s1..s4 order: maskHi x6, then the clutXm/clutYm pair x4.  Both thresholds
+     * are sharp and zero-byte: maskHi x5 or the pair x3 re-gates FAIL14. */
+    maskLo = ~0xFFFu;
+    maskHi = 0xF000FFFFu;
+    __asm__("" : : "r"(maskHi));
+    __asm__("" : : "r"(maskHi));
+    __asm__("" : : "r"(maskHi));
+    __asm__("" : : "r"(maskHi));
+    __asm__("" : : "r"(maskHi));
+    __asm__("" : : "r"(maskHi));
     clutXm &= 0xff;
     clutXm |= clutXraw & 0xf00;
     clutYmasked &= 0xfff;
     clutYm = clutYmasked << 0x10;
     clutYm &= 0xffff0000u;
-    maskHi = 0xF000FFFFu;
+    __asm__("" : : "r"(clutXm), "r"(clutYm));
+    __asm__("" : : "r"(clutXm), "r"(clutYm));
+    __asm__("" : : "r"(clutXm), "r"(clutYm));
+    __asm__("" : : "r"(clutXm), "r"(clutYm));
     clut22p = clut22; /* in-loop variant tested: 36 (the sw is not a movable;
                              * only its addiu hoists) -- stays in the preheader */
     do {

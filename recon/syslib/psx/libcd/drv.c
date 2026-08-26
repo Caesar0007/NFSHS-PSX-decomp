@@ -489,26 +489,61 @@ extern int CD_get_intr(void)
          * `Intr.ready = Intr.c = 4;` emits two independent `sb $0,SYM+N` assembler macros
          * and no reload; a FUNCTION-scope base gets CSE'd into one hoisted register for
          * the whole switch (measured: 74 -> 98).  Rage Racer libcd carries the same
-         * per-case `volatile u_char *sp = &g_CdSyncStatus.sync;` shape. */
+         * per-case `volatile u_char *sp = &g_CdSyncStatus.sync;` shape.
+         *
+         * MATCH (W79-A3, strict 8 -> PASS 343/343): expand this case's first
+         * `_memcpy8` directly and tie its destination to the Intr base in ONE
+         * fence.  The destination then materializes in $a0 before the base in
+         * $v0, as retail does.  Splitting the volatile read-back into `value`,
+         * then assigning `src`, then storing `value` lets `addiu $a1,$sp,24`
+         * fill the read's load-delay slot.  Case 5 repeats the same exact shape. */
         {
+            unsigned char *dst = D_801489AC;
+            unsigned char *src;
+            int count;
+            int end;
             volatile unsigned char *b = (volatile unsigned char *)&Intr;
-            __asm__("" : "=r"(b) : "0"(b));  /* MATCH (W60-A4): OPAQUE BASE -- see the receipt above */
+            __asm__("" : "=r"(b), "=r"(dst) : "0"(b), "1"(dst));
             b[2] = 4;
-            b[1] = b[2];
+            {
+                unsigned char value = b[2];
+                src = (unsigned char *)result;
+                b[1] = value;
+            }
+            if (dst != 0) {
+                count = 7;
+                end = -1;
+                do {
+                    *dst++ = *src++;
+                } while (--count != end);
+            }
         }
-        _memcpy8(D_801489AC, (unsigned char *)result);
         _memcpy8(D_801489A4, (unsigned char *)result);
         return 4;
     case 5:
         /* MATCH (w52-a1): as case 4 -- .ready is written FIRST, then .sync is a
          * read-back of it (`li v1,5; sb v1,1(v0); lbu v1,1(v0); sb v1,0(v0)`). */
         {
+            unsigned char *dst = D_8014899C;
+            unsigned char *src;
+            int count;
+            int end;
             volatile unsigned char *b = (volatile unsigned char *)&Intr;
-            __asm__("" : "=r"(b) : "0"(b));  /* MATCH (W60-A4): OPAQUE BASE -- see the receipt above */
+            __asm__("" : "=r"(b), "=r"(dst) : "0"(b), "1"(dst));
             b[1] = 5;
-            b[0] = b[1];
+            {
+                unsigned char value = b[1];
+                src = (unsigned char *)result;
+                b[0] = value;
+            }
+            if (dst != 0) {
+                count = 7;
+                end = -1;
+                do {
+                    *dst++ = *src++;
+                } while (--count != end);
+            }
         }
-        _memcpy8(D_8014899C, (unsigned char *)result);
         _memcpy8(D_801489A4, (unsigned char *)result);
         return 6;
     default:
@@ -1096,6 +1131,9 @@ extern int CD_cw(unsigned char com, unsigned char *param, unsigned char *result,
     return ret;
 }
 
+extern int CD_cw_i(int com, unsigned char *param, unsigned char *result, int arg3)
+    __asm__("CD_cw");
+
 /* @0x80107F30 : CD_flush -- abort and reset the controller interrupt state. */
 extern void CD_flush(void)
 {
@@ -1221,6 +1259,12 @@ extern int CD_init_80108140(void)
     volatile unsigned char *state;
     volatile unsigned char *reg;
     unsigned char c;
+    int cwCom;
+    int cwZero;
+    /* MATCH (W78 source-only, 4 -> PASS 120/120): stage the first CdlNop
+     * arguments before the Intr-base materialization.  The asm-label alias
+     * preserves CD_cw's real u_char definition while exposing the raw ABI int
+     * at this call, avoiding a spurious `andi a0,255` on the opaque carrier. */
     puts("CD_init:");
     printf("addr=%08x\n", &tab);
     CD_com     = 0;
@@ -1238,6 +1282,9 @@ extern int CD_init_80108140(void)
         CDREG3 = 7;
         CDREG2 = 7;
     }
+    cwCom = 1;
+    cwZero = 0;
+    __asm__("" : "=r"(cwCom), "=r"(cwZero) : "0"(cwCom), "1"(cwZero));
     state = &Intr.sync;
     __asm__("" : "=r"(state) : "0"(state));   /* keep the anchor un-foldable (see CD_flush) */
     state[2] = 0;                             /* Intr.c     = 0 */
@@ -1252,7 +1299,7 @@ extern int CD_init_80108140(void)
     CDREG3 = 0;
     *D_8013C21C = 0x1325;
 
-    CD_cw(1, 0, 0, 0);                       /* CdlNop */
+    CD_cw_i(cwCom, (unsigned char *)cwZero, 0, 0); /* CdlNop */
     if (CD_status & 0x10)
         CD_cw(1, 0, 0, 0);
     if (CD_cw(0xa, 0, 0, 0))                 /* CdlReset */

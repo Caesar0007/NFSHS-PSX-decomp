@@ -62,10 +62,15 @@ extern void *bsearch(void *key, void *base, unsigned n, unsigned w,
                          int (*cmp)(void *, void *))   /* @0x801091DC */
 {
     unsigned lo = 0;
+    /* MATCH (W78 source-only, 4 -> PASS 48/48): make the width handoff a
+     * body definition after `lo = 0`.  This emits the retail lo save+zero
+     * pair before the stride save+copy pair.  Keep this local transparent:
+     * an opacity fence delays the stacked comparator load and stays at 4. */
+    unsigned stride = w;
     if (n != 0) {
         do {
             unsigned mid = (lo + n) >> 1;
-            unsigned char *el = (unsigned char *)base + w * mid;
+            unsigned char *el = (unsigned char *)base + stride * mid;
             int c = cmp(el, key);
             if (c < 0)
                 lo = mid + 1;
@@ -75,6 +80,6 @@ extern void *bsearch(void *key, void *base, unsigned n, unsigned w,
                 return el;
         } while (lo < n);
     }
-    __asm__("" : : "r"(lo), "r"(key), "r"(w));
+    __asm__("" : : "r"(lo), "r"(key), "r"(stride));
     return (void *)0;
 }

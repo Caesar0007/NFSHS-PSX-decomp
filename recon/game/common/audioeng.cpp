@@ -33,7 +33,14 @@ void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int
   AudioEng_t *g;
   AudioEng_tAdjustments *a;
   AudioEng_tState *s;
-  const int d = dop;
+  /* MATCH: snapshot the consumed parameters in retail source order.  GCC then
+     emits the exact s7/s5/a1/s6/s3/s4 prologue handout and load sequence. */
+  const int volume = vol;
+  const int camera = cam;
+  const int doppler = dop;
+  const int azimuth = azi;
+  const int gasLevel = gas;
+  const int direction = dir;
   int adjustedEsp;
   int shiftedEsp;
 
@@ -59,43 +66,43 @@ void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int
           adjustedEsp = esp + 0x3333;
         }
         s->dop = (u_short)((int)((u_int)g->adjust.pitchScale *
-            fixedmult(adjustedEsp,d)) >> 10);
+            fixedmult(adjustedEsp,doppler)) >> 10);
         /* MATCH: SLD boundary; prevents gas>>6 from crossing the dop store. */
         __asm__("" : : "i"(0));
-        if (gas + (gas >> 5) + (gas >> 6) < 0x81) {
-          s->gas = gas + (gas >> 5) + (gas >> 6);
+        if (gasLevel + (gasLevel >> 5) + (gasLevel >> 6) < 0x81) {
+          s->gas = gasLevel + (gasLevel >> 5) + (gasLevel >> 6);
         }
         else {
           s->gas = 0x80;
         }
-        if (cam == 0) {
+        if (camera == 0) {
           s->exh = a->inCarExhaust;
           if (AudioEng_GameSetupWords[3] == 1) {
             s->sep = 0;
-            s->azi = (u_short)azi;
+            s->azi = (u_short)azimuth;
           }
           else {
             s->azi = 0;
             s->sep = 0x3fff;
           }
-          s->vol = ((int)(vol * (u_int)a->inCarBoost) >> 6) < 0x800
-                       ? (u_short)((int)(vol * (u_int)a->inCarBoost) >> 6)
+          s->vol = ((int)(volume * (u_int)a->inCarBoost) >> 6) < 0x800
+                       ? (u_short)((int)(volume * (u_int)a->inCarBoost) >> 6)
                        : 0x7ff;
         }
         else {
           s->exh = a->outCarExhaust;
-          if (dir < 0) {
-            s->exh += ((int)(dir * (u_int)a->fwdEngBoost *
+          if (direction < 0) {
+            s->exh += ((int)(direction * (u_int)a->fwdEngBoost *
                              (u_int)s->exh) >> 7) / 0x10000;
           }
           else {
-            s->exh += ((int)(dir * (u_int)a->rwdExhBoost *
+            s->exh += ((int)(direction * (u_int)a->rwdExhBoost *
                              (0x80 - (u_int)s->exh)) >> 7) / 0x10000;
           }
-          s->azi = (u_short)azi;
+          s->azi = (u_short)azimuth;
           s->sep = 0;
-          s->vol = ((int)(vol * (u_int)a->outCarBoost) >> 6) < 0x800
-                       ? (u_short)((int)(vol * (u_int)a->outCarBoost) >> 6)
+          s->vol = ((int)(volume * (u_int)a->outCarBoost) >> 6) < 0x800
+                       ? (u_short)((int)(volume * (u_int)a->outCarBoost) >> 6)
                        : 0x7ff;
         }
         g->setpos = g->setpos + 1U & 0xf;

@@ -2131,6 +2131,7 @@ extern "C" void ___17AIState_Purgatory(AIState_Purgatory *pThis,int __in_chrg)
 
 
   Car_tObj **ppCVar3;
+  Car_tObj **sortedList;
 
 
 
@@ -2164,8 +2165,8 @@ extern "C" void ___17AIState_Purgatory(AIState_Purgatory *pThis,int __in_chrg)
    * BEFORE them, which flipped the sll-vs-la ready-list order.  The read-only fence is a
    * 0-insn +1 ref on iVar2 (5->6 = the floor_log2 step), the MINIMAL reqdelta dial that
    * swaps iVar2/ppCVar3 onto retail's $a0/$a2 (ours had them reversed).
-   * RESIDUAL 2 diffs (72/72): the `sll v1,a0,2` schedules before the
-   * &Cars_gSortedList base (lui/addiu) in ours, after it in retail -- a pure
+   * HISTORICAL RESIDUAL 2 diffs (72/72): the `sll v1,a0,2` scheduled before
+   * the &Cars_gSortedList base (lui/addiu) in ours, after it in retail -- a pure
    * sched1 ready-list tie.  W56-A16 FALSIFIED: `&Cars_gSortedList[iVar2]`
    * index-form is BYTE-IDENTICAL to the `+iVar2` pointer-form (no change);
    * moving the fence above the ppCVar3 assign regresses (19 diffs).  §4.6
@@ -2201,10 +2202,15 @@ extern "C" void ___17AIState_Purgatory(AIState_Purgatory *pThis,int __in_chrg)
    * `iVar2 + Cars_gSortedList` operand swap (2, inert); a 13B IDENTITY-LAUNDER
    * on a `Car_tObj **base` local (19/71); the launder without the ref fence
    * (19/71); split-init plus a launder on ppCVar3 (19/71).  Every split form
-   * loses the load-delay nop (71 insns, not 72). */
+   * loses the load-delay nop (71 insns, not 72).
+   * W78-root SOURCE PASS 72/72: comma-stage the base assignment into the
+   * correctly typed `Car_tObj **sortedList` local inside the final pointer
+   * expression.  This preserves the count/allocation and changes expand's
+   * operand birth order just enough to emit the retail lui/addiu before sll.
+   * No post-cc1 relocation is required. */
   iVar2 = Cars_gNumCars + -1;
 
-  ppCVar3 = Cars_gSortedList + iVar2;
+  ppCVar3 = (sortedList = Cars_gSortedList, sortedList + iVar2);
 
   __asm__("" : : "r"(iVar2));
 

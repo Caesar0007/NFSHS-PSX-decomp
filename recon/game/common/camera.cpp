@@ -384,8 +384,16 @@ lookahead_done:;
    * Loading arm.y before the boundary restores the retail load order (4 -> 2). */
   int armY = arm.y;
   __asm__("" : : "i"(2));
+  /* W78 source-only closure: force the look-behind base into the arm-load
+     latency window; it occupies v1 while vertigo retains retail's a0. */
+  int *lookBehindBase = Input_gLookBehind;
+  __asm__("" : "+r"(lookBehindBase));
   arm.y = armY + vertigo;
-  if (Input_gLookBehind[player] != 0) {
+  /* End vertigo's scheduling region before the shared &arm value is born. */
+  __asm__("" : : "i"(3));
+  int lookBehind = lookBehindBase[player];
+  coorddef *armPtr = &arm;
+  if (lookBehind != 0) {
     /* audio (look-behind) arm FIRST in VA order */
     {
       /* MATCH: a scoped identity keeps &arm caller-saved (direct spelling promotes it
@@ -426,16 +434,12 @@ lookahead_done:;
        * plain `&arm` in the else arm + the scoped armPtr in the if arm = the
        * shipped 2 @404.
        *
-       * >>> RESOLVED (W60-A9 resume): the source is CORRECT AS SHIPPED and the whole
-       * source-side hunt above is SUPERSEDED.  The 2 insns are an assembler-side
-       * duplicate, not an allocation problem: cc1 emits `addu $4,$sp,16` once per
-       * arm and leaves the branch in reorder mode, so maspsx nops the slot, while
-       * retail materialises it ONCE in the beq's DELAY SLOT (executing on both
-       * paths).  A PER_FN_TEXT_MOVES row that moves the ELSE-arm copy into the slot
-       * and drops the redundant if-arm copy gates PASS 402/402 (camera TU 35/38,
-       * probe-verified); it needs a new `drop_after` key, spec'd in
-       * scratchpad/w60a9/RECEIPTS.md.  Do NOT re-open the armPtr basin. */
-      coorddef *armPtr = &arm;
+       * W78 SOURCE-ONLY CLOSURE: materialising and identity-fencing a named
+       * Input_gLookBehind base between the two scheduler boundaries supplies the
+       * retail load-latency filler and reserves v1 while vertigo is live.  The
+       * second boundary then prevents armPtr from overlapping vertigo; its scoped
+       * identity lets reorg place the single `addiu a0,sp,16` in the beq delay
+       * slot.  Strict source gate: PASS 402/402; no TEXT_MOVES required. */
       __asm__("" : "+r"(armPtr));
       transform(armPtr,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
     }
@@ -454,8 +458,7 @@ lookahead_done:;
         (Camera_gInfo[player].anchor->position).z + newarm.z;
     return;
   }
-  __asm__("" : : "r"(vertigo));
-  transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
+  transform(armPtr,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
   Camera_TunnelLimit(player,&newarm.y);
   oldarm = Camera_gInfo[player].relpos;   /* MATCH: struct copy -> grouped t0-t2 load/store */
   if (Camera_gInfo[player].intransition != 0) {
@@ -554,7 +557,15 @@ lookahead_done:;
  * InBetween guard 12 | before the Replay_ReplayMode guard 12 | before the
  * Input_gLookBehind guard 15 @446 | both 15 | DROPPING the existing wrongway-arm
  * fence 17 @442 | that fence moved before the inner if 17 @442 | inside the inner
- * if 12 | the arm as a ternary 12 (with fence) / 17 (without). */
+ * if 12 | the arm as a ternary 12 (with fence) / 17 (without).
+ *
+ * W77 source-only closure (2026-08-24): PASS 443/443, with all former target-
+ * steal rows disabled.  A void fence immediately after the fallback absolute-
+ * value normalization prevents the stolen `slt`.  A second void fence between
+ * the clamp switch and the final arm.y store prevents all three later target
+ * steals.  Staging `arm.y` into armY before that fence gives retail's final
+ * `lw arm.y; lui/addiu Input_gLookBehind` latency fill.  The old post-cc1 recipe
+ * above is retained only as mechanism history and is no longer required. */
 void Camera_UpdateHeliCam(int player,int behavior)
 {
   coorddef arm;      /* SYM: AUTO @0x10 */
@@ -662,6 +673,8 @@ void Camera_UpdateHeliCam(int player,int behavior)
     if (z < 0) {
       z = -z;
     }
+    /* MATCH: stop reorg from stealing the following slt into bgez's slot. */
+    __asm__("" : : "i"(0));
     if (z < ax) {
       fallback = ax + (z >> 2);
     }
@@ -719,7 +732,12 @@ void Camera_UpdateHeliCam(int player,int behavior)
           : (0x30000 < first ? 0x30000 : first);
       break;
     }
-    arm.y = arm.y + first;
+    int armY = arm.y;
+    /* MATCH: this boundary blocks the clamp-switch target steals.  Loading
+       armY before it leaves the following Input_gLookBehind high/low pair free
+       to fill the load latency window in retail order. */
+    __asm__("" : : "i"(0));
+    arm.y = armY + first;
   }
   if (Input_gLookBehind[player] != 0) {
     /* audio (look-behind) arm FIRST in VA order */
@@ -2533,10 +2551,19 @@ void Camera_NextMode(int cviewP)
       Camera_gInfo[cviewP].mode = (short)CAMERA_SETUP_CAMERA(cviewP,uVar2 & 3);
     }
     else {
+      int *setupBase;
+      int setupOffset;
+
       sVar1 = Camera_gInfo[cviewP].camNum + 1;
       Camera_gInfo[cviewP].camNum = sVar1;
+      /* MATCH: comma-stage the GameSetup base with the signed %3 byte offset,
+         then extend that offset in place.  This gives GCC the retail latency
+         schedule: the base pair sits between mult and its sign correction. */
+      setupOffset =
+          (setupBase = Camera_GameSetupWords, ((int)sVar1 % 3) << 2);
+      setupOffset += cviewP * 180;
       Camera_gInfo[cviewP].mode =
-           (short)CAMERA_SETUP_CAMERA(cviewP,(int)sVar1 % 3);
+           ((Car_tObj *)((char *)setupBase + setupOffset))->slide;
     }
     if (0x13 < Camera_gInfo[cviewP].mode) {
       Camera_gInfo[cviewP].mode = (short)CAMERA_SETUP_CAMERA(cviewP,0);

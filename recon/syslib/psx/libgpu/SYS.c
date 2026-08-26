@@ -868,26 +868,20 @@ extern void *PutDispEnv(void *env)
      * The SAME fence at site 2 is catastrophic (148) and at site 3 costs +2 (56) -- those
      * two blocks have their operands already in callee-saved registers, so the table load
      * is not what is crowding them.  See their own notes below.
-     * ORCHESTRATOR WIRING (W62-A3, probe-verified TWICE with scratchpad/w60a3/probe_moves.py,
-     * which scores through verify_asm's own logic): 42 -> 38, count-exact 318/318.  The fence
-     * pins the table load AHEAD of the argument words; retail emits it AFTER them, so the last
-     * site-1 residual is a pure 2-line relocation.  ADD THIS ROW TO THE EXISTING SYS.c ENTRY of
-     * PER_FN_TEXT_MOVES (12F: a duplicate dict key is silently shadowed -- the file already has
-     * _BlitClear and _clearOTagR_dma there):
-     *     "PutDispEnv": [
-     *         {"take":  r"\tlw\t\$5,GEnv_drv\n",
-     *          "after": r"\tlhu\t\$4,0\(\$17\)\n"},
-     *     ],
-     * Craft checks: `lw $5,GEnv_drv` occurs 3x in the region and a move entry consumes the
-     * FIRST match, which is site 1's; the `after` anchor `lhu $4,0($17)` is UNIQUE in the
-     * region; both anchors are label-agnostic and carry no trailing hex comment. */
-    { const GpuTbl *gpu = GEnv_drv;
+     * W78 SOURCE-ONLY SEAL (12 -> PASS 318/318): make the driver-table assignment the
+     * receiver of the comma expression.  That keeps its two-word load after the argument
+     * field loads without a post-cc1 move.  Four read-only references to a named command
+     * constant are the minimal local-alloc priority step (three leaves the old role swap);
+     * they give K=$v0, hi=$v1 and low=$a0 exactly as in the vendor object. */
+    { const GpuTbl *gpu;
         u_long lo;
         u_long hi;
-        __asm__("" : "=r"(gpu) : "0"(gpu));      /* opacity: pin the table load first */
-        gpu->send_gp1((hi = (u_long)(EU(1) & 0x3ff) << 10,
-                       lo = (EU(0) & 0x3ff) | 0x5000000u,
-                       hi | lo)); }
+        u_long k;
+        (k = 0x5000000u,
+         ({ __asm__("" : : "r"(k), "r"(k), "r"(k), "r"(k)); k; }),
+         hi = (u_long)(EU(1) & 0x3ff) << 10,
+         lo = (EU(0) & 0x3ff) | k,
+         gpu = GEnv_drv)->send_gp1(hi | lo); }
     /* the gate is a CACHE COMPARE against GEnv.dispenv (disp.x/y/w/h + the
      * isinter/isrgb24/pad word at +0x10), not a check against literal zero. */
     cache = (u_short *)(dbg + 0x6A);
@@ -1054,32 +1048,28 @@ extern void *PutDispEnv(void *env)
          * inlined at the call 14 (+2 insns); an opacity fence on `gpu` 122; wrapping `hi`
          * too 8 (inert); `lo` statement before `hi` 102; the call inside the wrapper 8
          * (inert).
-         * RESIDUAL 8 = ONE class, ZERO register diffs: at each of the two sites our
-         * `lw $5,GEnv_drv` macro pair (`lui $a1,0; lw $a1,0($a1)`) is emitted TWO slots
-         * early -- ours after the `sll` that builds `hi`, retail after the `lui $v0,K`.
-         * Source position is inert on it (all seven placements above), i.e. it is a pure
-         * sched2 emission-order rotation of a 2-word macro = the PER_FN_TEXT_MOVES class,
-         * exactly like the site-1 row this file already carries.  ORCHESTRATOR WIRING
-         * ASK (2 more rows on the existing SYS.c/"PutDispEnv" entry; note the file's site-1
-         * row consumes the FIRST `lw $5,GEnv_drv` match, so these must target the 2nd/3rd):
-         *     {"take": r"\tlw\t\$5,GEnv_drv\n", "after": r"\tlui\t\$2,1536\n"},
-         *     {"take": r"\tlw\t\$5,GEnv_drv\n", "after": r"\tlui\t\$2,1792\n"},
-         * (anchors label-agnostic; `lui $2,1536` / `lui $2,1792` are each UNIQUE in the
-         * region -- they are the 0x6000000 / 0x7000000 command constants.) */
-        { const GpuTbl *gpu = GEnv_drv;
+         * W78 SOURCE-ONLY SEAL: the same receiver-side table assignment plus the minimal
+         * four-reference K dial solves both sites.  Assigning raw hi/lo before K puts each
+         * command `lui` after the masks; keeping `lo | k` in the call argument leaves the
+         * table load between that `lui` and final `or`.  No text move is required. */
+        { const GpuTbl *gpu;
         u_long hi;
         u_long lo;
-        hi = (u_long)(h_end & 0xfff) << 12;
-        /* the do/while(0) is a REF DIAL, not a loop -- see the block comment above.
-         * Removing it silently costs 10 diffs. */
-        do { lo = (u_long)(h_start & 0xfff) | 0x6000000u; } while (0);
-        gpu->send_gp1(hi | lo); }
-        { const GpuTbl *gpu = GEnv_drv;
+        u_long k;
+        (hi = (u_long)(h_end & 0xfff) << 12,
+         lo = (u_long)(h_start & 0xfff),
+         k = 0x6000000u,
+         ({ __asm__("" : : "r"(k), "r"(k), "r"(k), "r"(k)); k; }),
+         gpu = GEnv_drv)->send_gp1(hi | (lo | k)); }
+        { const GpuTbl *gpu;
         u_long hi;
         u_long lo;
-        hi = (u_long)(v_end & 0x3ff) << 10;
-        do { lo = (u_long)(v_start & 0x3ff) | 0x7000000u; } while (0);
-        gpu->send_gp1(hi | lo); }
+        u_long k;
+        (hi = (u_long)(v_end & 0x3ff) << 10,
+         lo = (u_long)(v_start & 0x3ff),
+         k = 0x7000000u,
+         ({ __asm__("" : : "r"(k), "r"(k), "r"(k), "r"(k)); k; }),
+         gpu = GEnv_drv)->send_gp1(hi | (lo | k)); }
     }
 done:
     _memcpy(GEnv.dispenv, eb, 0x14);
@@ -1636,8 +1626,12 @@ extern int _BlitClear(RECT *rect, u_long color)
         /* 64-aligned: GP0 0x02 fast fill, list terminates immediately */
         u_long tag = 0x05ffffffu;
         u_long mask = 0x00ffffffu;
+        /* MATCH (W78 source-only, 26 -> PASS 140/140): keep the aligned-arm
+         * buffer alias transparent.  The former identity launder inflated its
+         * local-alloc qty (9 refs), handing it $a0 before the status and command
+         * quantities.  Without that fence the retail order is status=$a0,
+         * command=$a1, buffer=$a2; no address fold occurs in this arm. */
         u_long *b = _blit_buf;
-        __asm__("" : "=r"(b) : "0"(b));
         b[0] = tag;
         b[1] = 0xe6000000u;
         b[2] = 0xe1000000u | (*GPU_GP1 & 0x7ff) | ((color >> 31) << 10);
@@ -1646,7 +1640,15 @@ extern int _BlitClear(RECT *rect, u_long color)
         b[5] = *((u_long *)rect + 1);
     }
     _gpu_dma_chain(_blit_buf);
-    return 0;
+    {
+        /* MATCH (W78, 2 -> PASS 140/140 on the historical 2.8.0 per-fn rung;
+         * also a strict source-only reduction 28 -> 26): the tied return
+         * carrier keeps v0=0 immediately after the call, before the epilogue
+         * reload chain. */
+        int result = 0;
+        __asm__("" : "=r"(result) : "0"(result));
+        return result;
+    }
 }
 
 /* @0x800EED8C : LoadImage backend -- transfer `data` words into the VRAM rect.
@@ -1882,6 +1884,11 @@ extern int _drs(RECT *rect, u_long *data)
     int readyMask;
     int sendMask;
     RECT *saved;
+
+    /* MATCH (W78 source-only, 4 -> PASS 160/160): a joint tied parm
+     * launder preserves the retail rect/data homes and makes the rect
+     * save+copy pair issue before the data pair. */
+    __asm__("" : "=r"(rect), "=r"(data) : "0"(rect), "1"(data));
 
     saved = rect;
     _gpu_arm_timeout();

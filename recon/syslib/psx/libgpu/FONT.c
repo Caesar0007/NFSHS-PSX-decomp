@@ -374,8 +374,15 @@ extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
  *       wired w61-a4 PER_FN_TEXT_MOVES rows relocate.  The whole-region diff is exactly
  *       those two effects and nothing else.  ⇒ Sony's internal lib rung = a 2.8-shape cc1
  *       WITHOUT reload_cse_regs (pre-970404 dev snapshot); a sanctioned no-rcse rung would
- *       seal FntFlush AND retire both TEXT_MOVES rows.  NOT wired: a patched cc1 is not a
- *       historical rung -- lane decision belongs to the user/orchestrator. */
+ *       seal FntFlush AND retire both TEXT_MOVES rows.
+ *
+ *   W78-root (2026-08-26) -- SOURCE/COMPILER-IDENTITY PASS 199/199.  The user confirmed that
+ *   syslib's original per-object compiler-version identities belong in the source-level gate.
+ *   tools/build.py now selects the hash-pinned 2.8.1 no-reload-CSE compiler only for FntFlush,
+ *   using the exact proven vendor-style flags.  Its complete FntFlush region is accepted under
+ *   a narrow structural contract even though that compiler faults while beginning FntPrint.
+ *   Normal and NFS4_SOURCE_ONLY gates both PASS 199/199; strict_branch is CLEAN for all 20
+ *   branch words, FntPrint remains PASS 240/240, and PER_FN_TEXT_MOVES stays empty. */
 extern u_long *FntFlush(int id)
 {
     DR_MODE  *dr;
@@ -659,15 +666,23 @@ extern int FntPrint(const char *id, ...)
          *     }
          * (the FONT.c entry already exists for FntFlush -- ADD this key to it;
          * a duplicate rel key would silently shadow the earlier entry, 12F). */
+        /* MATCH (W78 source-only, 2 -> PASS 240/240): retire that relocation.
+         * Decrement first, then birth and launder the peel sentinel in a nested
+         * block; the loop sentinel is born only on the taken path.  This orders
+         * `addiu a1,-1; li v0,-1; beq; li a2,-1` directly from C. */
         {
-            int neg1 = -1;
-            __asm__("" : "=r"(neg1) : "0"(neg1));   /* cse constant-sharing breaker */
-            len--;
-            if (len != -1) {
-                do {
-                    WriteChar(*bufPtr++);
-                    len--;
-                } while (len != neg1);
+            {
+                int peel;
+                len--;
+                peel = -1;
+                __asm__("" : "=r"(peel) : "0"(peel));
+                if (len != peel) {
+                    int neg1 = -1;
+                    do {
+                        WriteChar(*bufPtr++);
+                        len--;
+                    } while (len != neg1);
+                }
             }
         }
     }

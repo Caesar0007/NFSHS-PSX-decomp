@@ -1102,10 +1102,14 @@ extern void iSPCH_ConstantRuleSet(short *sentence, int rule)
                          * and loaded callee in one-level phony loops, keeps the callback address in
                          * v0 at zero instruction cost.  The volatile halfword read is the C-level
                          * scheduling boundary that keeps it before the callback load, preserving
-                         * retail's load-delay nop.  The final count/register-exact 4-diff sched2
-                         * permutation is sealed by PER_FN_TEXT_MOVES in tools/build.py.  None of
-                         * these zero-instruction allocation/scheduling dials is redundant. */
-                        one = 1;
+                         * retail's load-delay nop.  At that checkpoint a final count/register-exact
+                         * 4-diff sched2 permutation remained; the source-only receipt below now
+                         * closes it.  None of these allocation/scheduling dials is redundant. */
+                        /* MATCH (2026-08-26, source-only 4 -> PASS 83/83): `one` belongs
+                         * inside the successful arm, after the zero-net cycle adjustment.
+                         * That statement boundary lets reorg keep callRid's a1 copy in the
+                         * beqz delay slot and issue the tmp-byte address before `li a3,1`.
+                         * No post-cc1 text relocation is required. */
                         if (r != 0) {
                             SentenceRuleSetFn *setRule;
                             SentenceRuleSetFn callee;
@@ -1116,6 +1120,7 @@ extern void iSPCH_ConstantRuleSet(short *sentence, int rule)
                                 cycle++;
                                 cycle--;
                             } while (0);
+                            one = 1;
                             do {
                                 setRule = gSentenceRuleSet;
                             } while (0);

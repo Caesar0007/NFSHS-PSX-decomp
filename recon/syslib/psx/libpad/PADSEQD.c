@@ -490,7 +490,13 @@ extern int _dirFailAuto(unsigned char *info)
  *   De-Morgan early-out 11 @12, D returns-only-via-var 13 @10, E carrier single-exit 14 @13,
  *   E2/E3 modeword-as-carrier 8 @11 (the carrier follows the lhu into $a1), E5 nested with a
  *   LITERAL 0 return 6 @11 (single-block => local qty => $v1, the w62 class), E4 dead
- *   `else ff = 0;` 1 @12 (same basin as the landed form, but with a dead store). */
+ *   `else ff = 0;` 1 @12 (same basin as the landed form, but with a dead store).
+ * w78-root: a `do { ... break; } while (0)` shared-return funnel is count-exact but rotates the
+ *   result/byte pair (14 @11); splitting the compare constant into block-local `ff` lets GCC
+ *   booleanize the result (11 @10), and an opacity fence prevents the fold but still rotates the
+ *   pair (12 @11).  A statement-expression return with a post-constant read fence prevents delay-
+ *   slot folding but moves the one-carrier to $a1 and grows to 13 insns (10 diffs).  All were
+ *   reverted; the one-extra-return basin below remains authoritative. */
 extern int _dirCheck(unsigned char *info)
 {
     int r;

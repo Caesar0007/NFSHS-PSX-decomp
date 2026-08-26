@@ -13,16 +13,16 @@
 #define RENDER_PACKETPTR_ADDR (*(u_char **)0x1F800004)
 #define RENDER_PALETTEPTR_ADDR (*(u_char **)0x1F800000)
 
+
+
 /* SYM records one file-static `int Weather_gLastProcessTime[2]` at 0x8013DE54.
  * The explicit `.sbss` placement is the compiler-native storage carrier that
  * reproduces both retail access forms under this reconstruction's -G4 build:
- * constant [0]/[1] stores become one-insn %gp_rel accesses, while the unsized
- * asm-label view below keeps Weather_DoWeather's runtime-index base absolute.
- * Both spellings alias the same eight bytes; there are no fabricated element
- * definitions and the full -O2 -g graph matches the retail STAT ARY INT record. */
+ * constant [0]/[1] stores become one-insn %gp_rel accesses, while a runtime
+ * index naturally materializes the absolute array base.  Keeping both access
+ * forms on this one real object also preserves the retail scheduler's exact
+ * `lui ticks / sll player / lui-addiu array` order in Weather_DoWeather. */
 static int Weather_gLastProcessTime[2] __attribute__((section(".sbss")));
-/* SYM-CARRIER: Weather_gLastProcessTimeA -- runtime-index view of the same array. */
-extern int Weather_gLastProcessTimeA[] asm("Weather_gLastProcessTime");
 #define WEATHER_GLASTPROCESSTIME0 Weather_gLastProcessTime[0]
 #define WEATHER_GLASTPROCESSTIME1 Weather_gLastProcessTime[1]
 
@@ -513,6 +513,7 @@ void Weather_Init(void)
 {
   matrixtdef *pmVar4; /* SYM-CODEGEN-CARRIER: pmVar4 -- second destination-base evaluation supplies retail's required register copy */
   matrixtdef *pmVar5; /* SYM-CODEGEN-CARRIER: pmVar5 -- first aggregate-copy base preserves the measured movstrsi scratch pool */
+  u_int *cameraWords;
   int i;
   SVECTOR *sv;
   
@@ -548,6 +549,14 @@ void Weather_Init(void)
    * Diagnostic sweep that isolated the flag: -fno-cse-follow-jumps / -fno-gcse /
    * -fno-cse-skip-blocks all leave the fold in place; -mno-split-addresses changes the whole
    * address form (la + 1-insn guard load), only -fforce-addr lands retail's shape. */
+  /* MATCH (2026-08-26, strict source-only 81 -> PASS 211/211): the earlier
+   * -fforce-addr closure was basin-specific.  The raw source mismatch was the
+   * aggregate-copy source address: the offset macros independently formed
+   * Camera_gInfo+8 and Camera_gInfo+48, while retail keeps one Camera_gInfo
+   * cursor and uses +8/+48 MEM offsets.  Feeding both copies from the shared
+   * `cameraWords` cursor removes the redundant address-only fence, restores
+   * the exact movstrsi bases/scratch handout, and makes the per-fn force-addr
+   * aid unnecessary. */
   Weather_gTrackSpec = &WEATHER_TRACK_WEATHER;
   if (WEATHER_GAMESETUP_WEATHER != 0) {
     Weather_gType = WEATHER_TRACK_WEATHER.type;
@@ -599,12 +608,12 @@ void Weather_Init(void)
      * Two locals => 211/211 count-exact and the entire block byte-matches (12 diffs). */
     pmVar5 = prevCamMat;
     pmVar4 = prevCamMat;
-    /* Weather.obj does not emit camera_info.  Keep its exact symbol base live
-       so the two aggregate reads retain retail's base+member MEM shape. */
-    __asm__("" : : "r"(&Weather_CameraWords[0]));
-    prevCamPos[1] = WEATHER_CAMERA_POSITION(0);
+    /* One source cursor serves both aggregate reads; retail materializes
+       Camera_gInfo once and keeps the member offsets on the MEM operands. */
+    cameraWords = Weather_CameraWords;
+    prevCamPos[1] = *(coorddef *)(cameraWords + 2);
     prevCamPos[0] = prevCamPos[1];
-    pmVar5[0] = WEATHER_CAMERA_ROTATION(0);
+    pmVar5[0] = *(matrixtdef *)(cameraWords + 12);
     pmVar4[1] = pmVar5[0];
     sv = Weather_gPos;
     i = 0x97;
@@ -1444,6 +1453,13 @@ void Weather_DoSplats
 }
 
 /* ---- Weather_DoWeather__FP13DRender_tView  [WEATHER.CPP:1069-1156] SLD-VERIFIED ---- */
+/* MATCH (2026-08-26, strict source-only PASS 197/197): the final residual was
+ * caused by the historical unsized asm-label view of Weather_gLastProcessTime.
+ * Runtime indexing the real file-static `.sbss` array is already absolute at
+ * -G4 (the object is eight bytes), and gives sched1 the original RTL identity:
+ * `lui ticks; sll player,2; lui/addiu array; addu slot; lw ticks; lw last`.
+ * This retires both old PER_FN_TEXT_MOVES scheduling receipts below; they are
+ * retained only as the experiment history that isolated the source mismatch. */
 /* w39-a6 (138 -> 131, count 196 vs 197): the palette-pointer CSE local landed on the
  * DR_MODE tail.  RESIDUAL = a whole-function allocno permutation rooted at the three
  * per-player server-array loads: the oracle materializes all three base addresses UP FRONT
@@ -1504,6 +1520,7 @@ void Weather_DoWeather(DRender_tView *Vi)
   DR_MODE *prim;
   int *plb; /* SYM-CODEGEN-CARRIER: plb -- laundered prevLookBehind slot */
   u_int *pal; /* SYM-CODEGEN-CARRIER: pal -- palette cursor CSE value */
+  char **wdp; /* SYM-CODEGEN-CARRIER: deferred DrawnServer slot */
 
   /* NEAR-MISS 36 (count EXACT 197/197) -- CLASSIFIED (W55-A16).  allocsim replicates
      this function's GLOBAL handout 25/25 EXACTLY, so none of the residual is a global
@@ -1584,7 +1601,7 @@ void Weather_DoWeather(DRender_tView *Vi)
      position is still load-bearing) . `cm` as a split decl+assign (6, bit-identical) .
      a `*(volatile int *)&` view on the commMode read (6, bit-identical) .
      `int gt = simGlobal.gameTicks;` hoisted at the LastProcessTime guard (6) .
-     index-term-first cast spelling on Weather_gLastProcessTimeA (14, worse).
+     index-term-first cast spelling on the historical asm-label view (14, worse).
      RESIDUAL 6, two clusters, both count-exact:
        (A) 23-26: retail materialises the commMode base as a SELF-TEMP
            (`lui v0,0 ... lw v0,0(v0)`) born AFTER the three addu's; ours hoists that
@@ -1715,10 +1732,15 @@ void Weather_DoWeather(DRender_tView *Vi)
   player = Vi->player;
   wpt = Weather_gPServerA[player];
   wprevpt = Weather_gPrevPServerA[player];
-  wd = Weather_gDrawnServerA[player];
+  /* W80 source-only: retain the DrawnServer slot address across the commMode read,
+     then load through it.  The read-only `wdp` reference below prices that local
+     against the scaled-index quantity and restores retail's a0/a1 handout.  Together
+     these remove the old post-cc1 load move: strict 5 -> 2 at exact 197 words. */
+  wdp = Weather_gDrawnServerA + player;
   int cm = WEATHER_GAMESETUP_COMM_MODE; /* SYM-CODEGEN-CARRIER: cm -- staged commMode load */
+  wd = *wdp;
   int one = 1; /* SYM-CODEGEN-CARRIER: one -- early compare constant */
-  __asm__("" : : "r"(player));
+  __asm__("" : : "r"(player), "r"(wdp));
   if ((cm != one) && (0x20 < WEATHER_GAME_TICKS - timechange)) {
     timechange = WEATHER_GAME_TICKS;
     if (Weather_gSnowTrack == 0) {
@@ -1766,8 +1788,11 @@ void Weather_DoWeather(DRender_tView *Vi)
         } while (i < Weather_gSys.num[player]);
       }
     }
-    if (1 < WEATHER_GAME_TICKS - Weather_gLastProcessTimeA[player]) {
-      Weather_gLastProcessTimeA[player] = WEATHER_GAME_TICKS;
+    /* Source-level identity: use the real file-static array.  Its known
+       eight-byte size is above -G4, so this runtime index stays absolute while
+       the constant-index sites above remain gp-relative. */
+    if (1 < WEATHER_GAME_TICKS - Weather_gLastProcessTime[player]) {
+      Weather_gLastProcessTime[player] = WEATHER_GAME_TICKS;
       Weather_ProcessParticles(Vi,Weather_gSys.num[player],wpt,wd);
     }
     Weather_SetIdentMatrix();

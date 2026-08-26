@@ -3,11 +3,6 @@
 
 nonmatching ___15AIHigh_BTC_Perp, 0x28
 
-/* W67-A5: LOCALIZED (retail-static-copy class, w65-a7 RECEIPTS §3.2): this is
-   the DELETING dtor variant (SYM `_._15AIHigh_BTC_Perp`) @0x80061348 in
-   aih_btcperp.c; the canonical member dtor stays global in aihigh.c's
-   ___15AIHigh_BTC_Perp.s @0x8005B438.  No external asm caller references the
-   name (grep: only the two defining files).  Binding-only change. */
     .type ___15AIHigh_BTC_Perp, @function
 ___15AIHigh_BTC_Perp:
     /* 51B48 80061348 E8FFBD27 */  addiu      $sp, $sp, -0x18
@@ -21,3 +16,9 @@ ___15AIHigh_BTC_Perp:
     /* 51B68 80061368 0800E003 */  jr         $ra
     /* 51B6C 8006136C 1800BD27 */   addiu     $sp, $sp, 0x18
 endlabel ___15AIHigh_BTC_Perp
+
+/* W67-A5: LOCALIZED (retail-static-copy class, w65-a7 RECEIPTS §3.2): this is
+   the DELETING dtor variant (SYM `_._15AIHigh_BTC_Perp`) @0x80061348 in
+   aih_btcperp.c; the canonical member dtor stays global in aihigh.c's
+   ___15AIHigh_BTC_Perp.s @0x8005B438.  No external asm caller references the
+   name (grep: only the two defining files).  Binding-only change. */

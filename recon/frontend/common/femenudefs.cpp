@@ -630,25 +630,22 @@ MX_GoToCar_oppFilterSetup:
 static void MenuExtended_GoToDealer(tMenuCommand &command)
 
 {
-  int cmdType;
   int state;
+  int cmdType;
+  tMenuCommand *cmd;
   tGlobalMenuDefs *ptVar1;
   tScreenCarSelect *dlgThis;
 
-  /* SYM-CODEGEN-CARRIER: cmdType
-     SYM-CODEGEN-CARRIER: state
-     SYM-CODEGEN-CARRIER: ptVar1
-     SYM-CODEGEN-CARRIER: dlgThis
-     The literal five-statement SLD spelling is 16 diffs.  The earlier
-     cmdType/ptVar1/dlgThis recipe is eight; the combined state/cmdType fence
-     is two at equal length and keeps the exact retail register assignment. */
-  cmdType = kMenu_Command_GoToMenu;
   state = 2;
-  __asm__("" : "+r"(state), "+r"(cmdType));
+  cmd = &command;
+  __asm__("" : "+r"(cmd), "+r"(state));
   dlgThis = screenCarSelect[0];
   ptVar1 = menuDefs[0];
-  command.type = cmdType;
-  command.nextMenu = (tMenu *)&ptVar1->menuCarDealer;
+  cmdType = 1;
+  __asm__("" : "+r"(ptVar1));
+  cmd->type = cmdType;
+  __asm__("" : : "r"(cmdType));
+  cmd->nextMenu = (tMenu *)&ptVar1->menuCarDealer;
   dlgThis->SetState(state);
   menuDefs[0]->iteratorDealerCar.Decrement(kPlayerBoth);
   menuDefs[0]->iteratorDealerCar.Increment(kPlayerBoth);
@@ -679,22 +676,22 @@ static void MenuExtended_GoToDealer(tMenuCommand &command)
 static void MenuExtended_GoToSeller(tMenuCommand &command)
 
 {
-  int cmdType;
   int state;
+  int cmdType;
+  tMenuCommand *cmd;
   tGlobalMenuDefs *ptVar1;
   tScreenCarSelect *dlgThis;
 
-  /* SYM-CODEGEN-CARRIER: cmdType
-     SYM-CODEGEN-CARRIER: state
-     SYM-CODEGEN-CARRIER: ptVar1
-     SYM-CODEGEN-CARRIER: dlgThis -- twin receipt is documented above. */
-  cmdType = kMenu_Command_GoToMenu;
   state = 3;
-  __asm__("" : "+r"(state), "+r"(cmdType));
+  cmd = &command;
+  __asm__("" : "+r"(cmd), "+r"(state));
   dlgThis = screenCarSelect[0];
   ptVar1 = menuDefs[0];
-  command.type = cmdType;
-  command.nextMenu = (tMenu *)&ptVar1->menuCarSeller;
+  cmdType = 1;
+  __asm__("" : "+r"(ptVar1));
+  cmd->type = cmdType;
+  __asm__("" : : "r"(cmdType));
+  cmd->nextMenu = (tMenu *)&ptVar1->menuCarSeller;
   dlgThis->SetState(state);
   menuDefs[0]->iteratorSellerCar.Decrement(kPlayerBoth);
   menuDefs[0]->iteratorSellerCar.Increment(kPlayerBoth);
@@ -1099,7 +1096,8 @@ void MenuExtended_GoToTournTrackInfo(tMenuCommand &command)
   tTourneyInfo *tourn;
   tTourneyInfo *tsaved;
   tTournamentManager *tm;
-  tfrontEnd *fe;
+  tfrontEnd *const fe = &frontEnd;
+  tfrontEnd *feUse;
 
   /* [2026-07-11] Dropped the REDUNDANT `tDialogYesNo_ctor(&popUp)` manual call (tDialogYesNo's
      real ctor is already auto-invoked by the local's declaration -- see AskTheUserToSaveTheGame's
@@ -1117,14 +1115,14 @@ void MenuExtended_GoToTournTrackInfo(tMenuCommand &command)
      GoToSpecialEventTrackInfo took the SAME edits to 54->45. This one needs tourn+this_00+popUp-
      mixed-anchor landed TOGETHER with allocsim/qtytrace pricing the s2/s3 handout (methodology
      4.6) -- not a floor, a priced multi-dial. Reverted to the folded baseline pending that pass. */
-  fe = &frontEnd;
   tm = &tournamentManager;
+  feUse = fe;
   __asm__("" : : "r"(tm), "r"(tm), "r"(tm), "r"(tm),
           "r"(tm), "r"(tm));
   ptVar3 = tm->fDefinition;
-  fe->tier = '\0';
+  feUse->tier = '\0';
   iVar6 = (uint)tm->fDefinition->fTiers[0].fTournOffset +
-          (uint)(byte)fe->tournament;
+          (uint)(byte)feUse->tournament;
   tourn = &ptVar3->fTournaments[iVar6];
   iVar7 = tourn->fEntranceFee;
   if (0 < iVar7) {
@@ -2309,7 +2307,7 @@ void MenuExtended_AwardPinkSlipsCar(tMenuCommand &command)
   playerNum = fWinner;
   AddToPinkSlipsList_intarg(
              AwardPinkSlipsCarManagerArg(&carManager),
-             (short)carInfo.fCarID,(ushort)carInfo.fColor,
+              (short)carInfo.fCarID,(ushort)carInfo.fColor,
              ({ __asm__("" : "+r"(playerNum) : "r"(fWinner)); playerNum; }));
   AddUpgradesToPinkSlipsList_intarg(&carManager,
              (ushort)(byte)frontEnd.pinkSlipsCar[playerNum],(ushort)carInfo.fUpgrades,playerNum);

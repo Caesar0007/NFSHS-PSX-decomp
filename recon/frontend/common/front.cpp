@@ -552,6 +552,15 @@ void Front_ResetPSXAnalogs(int player)
    has to come from natural liveness (something else occupying $v0/$v1 across
    that arm), not from a clobber.  Harness: scratchpad/W74_A7/
    {probe.py,pad1.py,pad2.py,pad3.py}. */
+/* MATCH (2026-08-24): user-authorized last-resort source-level register binding,
+   after the natural-source, qty, conflict, clobber-set, and placement families
+   above were exhausted.  The two remaining atomic cross-jump groups need their
+   block-local accumulators in different retail homes: G1 (0x100000,
+   -0x80000000, 0x10000000) in $a2, G2 (0x400000, 0x20000000, 0x40000000) in
+   $a1.  Merely pinning the initial `player << 30` value leaves the OR result in
+   a fresh $v0 and scores 16; assigning the completed OR chain back into the
+   pinned accumulator is load-bearing and gives PASS 222/222.  This is entirely
+   compiler-input source code: no post-compilation instruction rewrite. */
 int GetPSXPadValue(int value,int player)
 
 {
@@ -591,41 +600,59 @@ GetPSXPadValue_gotType:
                    ((byte)frontEnd.J1MAX[player] + 0x80) * 0x100;
       return newControl | 1;
     case 0x100000:
-      newControl = player << 0x1e |
-                   0x1000000 |
-                   (0x7f - (byte)frontEnd.J1MIN[player]) * 0x10000 |
-                   (0x7f - (byte)frontEnd.J1MAX[player]) * 0x100;
-      return newControl | 1;
+      {
+        register int acc asm("$6") = player << 0x1e;
+        acc = acc |
+              0x1000000 |
+              (0x7f - (byte)frontEnd.J1MIN[player]) * 0x10000 |
+              (0x7f - (byte)frontEnd.J1MAX[player]) * 0x100;
+        return acc | 1;
+      }
     case 0x400000:
-      newControl = player << 0x1e |
-                   0x1000000 |
-                   ((byte)frontEnd.J1MIN[player] + 0x80) * 0x10000 |
-                   ((byte)frontEnd.J1MAX[player] + 0x80) * 0x100;
-      return newControl | 1;
+      {
+        register int acc asm("$5") = player << 0x1e;
+        acc = acc |
+              0x1000000 |
+              ((byte)frontEnd.J1MIN[player] + 0x80) * 0x10000 |
+              ((byte)frontEnd.J1MAX[player] + 0x80) * 0x100;
+        return acc | 1;
+      }
     case -0x80000000:
-      newControl = player << 0x1e |
-                   0x2000000 |
-                   (0x7f - (byte)frontEnd.J2MIN[player]) * 0x10000 |
-                   (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100;
-      return newControl | 1;
+      {
+        register int acc asm("$6") = player << 0x1e;
+        acc = acc |
+              0x2000000 |
+              (0x7f - (byte)frontEnd.J2MIN[player]) * 0x10000 |
+              (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100;
+        return acc | 1;
+      }
     case 0x20000000:
-      newControl = player << 0x1e |
-                   0x2000000 |
-                   ((byte)frontEnd.J2MIN[player] + 0x80) * 0x10000 |
-                   ((byte)frontEnd.J2MAX[player] + 0x80) * 0x100;
-      return newControl | 1;
+      {
+        register int acc asm("$5") = player << 0x1e;
+        acc = acc |
+              0x2000000 |
+              ((byte)frontEnd.J2MIN[player] + 0x80) * 0x10000 |
+              ((byte)frontEnd.J2MAX[player] + 0x80) * 0x100;
+        return acc | 1;
+      }
     case 0x10000000:
-      newControl = player << 0x1e |
-                   0x3000000 |
-                   (0x7f - (byte)frontEnd.J2MIN[player]) * 0x10000 |
-                   (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100;
-      return newControl | 1;
+      {
+        register int acc asm("$6") = player << 0x1e;
+        acc = acc |
+              0x3000000 |
+              (0x7f - (byte)frontEnd.J2MIN[player]) * 0x10000 |
+              (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100;
+        return acc | 1;
+      }
     case 0x40000000:
-      newControl = player << 0x1e |
-                   0x3000000 |
-                   ((byte)frontEnd.J2MIN[player] + 0x80) * 0x10000 |
-                   ((byte)frontEnd.J2MAX[player] + 0x80) * 0x100;
-      return newControl | 1;
+      {
+        register int acc asm("$5") = player << 0x1e;
+        acc = acc |
+              0x3000000 |
+              ((byte)frontEnd.J2MIN[player] + 0x80) * 0x10000 |
+              ((byte)frontEnd.J2MAX[player] + 0x80) * 0x100;
+        return acc | 1;
+      }
     }
     break;
   case 0x23:

@@ -1901,6 +1901,11 @@ extern "C" void Newton_CheckForSpikeBelts(BO_tNewtonObj *newtonObj)
 extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,coorddef normal)
 
 {
+  /* MATCH (W77-root): PASS 106/106 from the count-exact 2-diff baseline.
+     The last residual was the y-divide join's store/sra swap.  Spelling the
+     signed adjustment in C, storing barrierVec.z at the join, and expressing
+     only the final shift as a one-instruction source ASM prevents sched2 from
+     reversing the pair without changing any register allocation. */
   coorddef barrierVec;
   int impactVel;
   int distRetreat;
@@ -1912,6 +1917,7 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
   int t3;
   int ny;
   int nyq;
+  int yTemp;
   int dsum;
   coorddef upVec;
   matrixtdef islandMatrix;
@@ -1968,9 +1974,17 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
                                       pins the wrong order -- see receipt) */
   t3 = nxq * 0x100;                /* W76-A10: shift carrier -- sll lands in the y-bgez slot */
   ny = normal.y;
-  nyq = ny / 0x100;
+  yTemp = ny;
+  if (ny < 0) {
+    yTemp += 0xff;
+  }
   barrierVec.z = t3;
+  /* Last-resort source carrier: the surrounding signed-adjust branch and
+     stack store remain reconstructed C; only retail's final quotient shift is
+     fixed here so the store remains immediately before it. */
+  __asm__("sra %0,%1,8" : "=r"(nyq) : "r"(yTemp));
   __asm__("" : : "r"(ny));         /* W76-A10: divide-copy law carrier for the y-divide
+                                      the y-divide
                                       (mints `addu v0,a2,zero`); must sit near the divide
                                       (deferring past the dot loses the copy, 7 @105) */
   dsum = ({ int p1 = nxq * (newtonObj->linearVel.x / 0x100); __asm__("" : : "i"(0)); p1; }) +
@@ -2342,7 +2356,7 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
        recolors a0 + sra sinks) | fence r(ny),r(nyq) (V33) 8 | r(nyq) only (V34)
        25 @105 | two fences r(nyq)+r(ny) (V36) 8 | ny born before the x-divide,
        no fence (V43) 26 @104 (copy-propagated away).
-     RESIDUAL 2 @106/106: ONE swap at the y-join -- retail `sw t3,32(sp)` then
+     W76 RESIDUAL (SOLVED BY W77 ABOVE): ONE swap at the y-join -- retail `sw t3,32(sp)` then
      `sra a1,v0,8`; ours sra-first.  sched1 already emits retail's [sw, sra]
      (nv4.i.greg insns 116/112) -- the re-swap is POST-RELOAD (sched2): the
      x-join pair survives because its fence reads the sra's own output (nxq)
@@ -2351,7 +2365,8 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
      re-couples them but the +1 ref recolors (V33 8).  NEXT ANGLE: a sched2-side
      trace ([sched] lane on the instrumented cc1plus) on the V4 dump to name the
      exact rank that flips the pair, or a y-side device whose dep cone contains
-     the sra WITHOUT adding a ref to nyq (no such spelling found this wave). */
+     the sra WITHOUT adding a ref to nyq.  W77 avoids that allocator trap by
+     separating the signed adjustment/store from the final source-ASM shift. */
   islandMatrix.m[0] = nx;   /* MATCH: the $a3 survivor's 2nd use (see the nx receipt) */
   islandMatrix.m[1] = normal.y;
   /* MATCH (W74-A9): retail's ONE `lw $t2,124(sp)` re-read of normal.z serves BOTH

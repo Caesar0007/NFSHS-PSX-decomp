@@ -450,16 +450,13 @@ void AudioClc_SoundCloseCar(int playerIndex,int closestIndex)
 }
 
 /* ---- AudioClc_SoundPlayersCar__Fi  [@0x80075508] ---- */
-/* MATCH: PASS 461/461 via the per-fn -fno-thread-jumps splice (build.py
- * PER_FN_NO_THREAD_JUMPS, 2026-08-08).  The 4-diff residual was gcc's
- * thread_jumps pass redirecting the `(type==5||type==3) && (channel>=0)`
- * fail edge PAST the else-if chain's `bgez channel` re-test; the threaded
- * entry label between the bgez and the commMode compare blocked the
- * delay-slot fill (`bgez; nop; lw; li` vs retail's unthreaded
- * `bgez; li(slot); lw; nop`).  Retail's compile did not thread this edge;
- * no source spelling reaches that (both branch layouts are identical at
- * the label level) -- same per-fn-flag precedent as
- * PER_FN_NO_DELAYED_BRANCH. */
+/* MATCH: source-PASS 461/461 (2026-08-24).  The former 4-diff residual was
+ * thread_jumps redirecting the `(type==5||type==3) && channel>=0` fail edge
+ * past the else chain's `bgez channel` re-test.  A zero-byte boundary at the
+ * head of the explicit outer else makes that shared entry semantically
+ * observable to jump.c; both false paths enter before bgez, and gcc fills its
+ * slot with `li v0,1` exactly like retail.  No per-function compiler splice is
+ * required. */
 void AudioClc_SoundPlayersCar(int playerIndex)
 {
   DRender_tCalcView *view;
@@ -592,19 +589,23 @@ void AudioClc_SoundPlayersCar(int playerIndex)
           freeVoiceChannel(channel + 4);
         }
       }
-      else if ((channel < 0) && (GameSetup_gData.commMode != 1) &&
-               (car->audio[c].surface1 != 10) &&
-               (car->audio[c].surface1 != 8)) {
-        AudioCmn_SFX(channel,car->audio[c].surface1,
-                     car->audio[c].surface2,car->audio[c].force,
-                     dsquare,
-                     AudioClc_CalcAzimuth(view,
-                       &(car->N).collision.collisionPoint));
-      }
       else {
-        AudioCmn_SFX(channel,car->audio[c].surface1,
-                     car->audio[c].surface2,car->audio[c].force,
-                     dsquare,azimuth);
+        /* MATCH: preserve the common else entry before channel's bgez re-test. */
+        __asm__("" : : "i"(0));
+        if ((channel < 0) && (GameSetup_gData.commMode != 1) &&
+            (car->audio[c].surface1 != 10) &&
+            (car->audio[c].surface1 != 8)) {
+          AudioCmn_SFX(channel,car->audio[c].surface1,
+                       car->audio[c].surface2,car->audio[c].force,
+                       dsquare,
+                       AudioClc_CalcAzimuth(view,
+                         &(car->N).collision.collisionPoint));
+        }
+        else {
+          AudioCmn_SFX(channel,car->audio[c].surface1,
+                       car->audio[c].surface2,car->audio[c].force,
+                       dsquare,azimuth);
+        }
       }
       c--;
     }

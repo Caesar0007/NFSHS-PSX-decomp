@@ -991,18 +991,20 @@ extern int CdRead(int sectors, u_long *buf, int mode)
      * $zero` is cc1-2.8.0's cse choosing the live `$a1` zero over rematerializing `$zero`;
      * the emitted `.s` already carries `move $6,$5`, so it is a COMPILER-side identity
      * (3.25-3b), not an assembler or source question. */
-    volatile int *busy = &_cdr.w24;
+    volatile int *busy;
     volatile CdrEnv *g;
     volatile CdrEnv *e;
     int sel;
+    int read_mode;
 
-    /* W64-A6: the w52-a2 identity fence on `busy` is REMOVED here.  It is a reorg
-     * barrier (reorg.c stop_search_p returns 1 at ANY asm) sitting between assign_parms'
-     * `addu $s2,$a2,$zero` parm copy and the first `beqz`, so reorg could never steal the
-     * copy into that branch's delay slot the way retail does.  Measured 14 -> 11; the
-     * anchor still comes out as retail's single `la` form here (13F: re-probe parked
-     * spellings after every structural landing). */
+    /* W79-A3: direct field anchoring plus the identity emits retail's one-register
+     * `la $s0,_cdr+0x24`.  Copying `mode` only AFTER that fence lets reorg put its
+     * $a2->$s2 handoff in the first beq's slot: strict 8 -> 3, with the former
+     * per-function -mno-split-addresses splice removed. */
 
+    busy = &_cdr.w24;
+    __asm__("" : "=r"(busy) : "0"(busy));
+    read_mode = mode;
     if (*busy != 0) {                               /* a previous read is still active */
         int t0 = VSync(-1);
         while (*busy != 0) {
@@ -1017,9 +1019,13 @@ extern int CdRead(int sectors, u_long *buf, int mode)
         }
     }
 
+    /* W79-A3: qtytrace/allocsim on the callback-slot basin measured p80/p81 at
+     * refs=2/live=92 and refs=2/live=98.  This one extra `buf` reference is the
+     * minimal +1-ref solution that restores retail's sectors=$s4, buf=$s3 handout. */
+    __asm__("" : : "i"(0), "r"(buf));
     g = &_cdr;
     __asm__("" : "=r"(g) : "0"(g));
-    g->w0c = mode;
+    g->w0c = read_mode;
     sel = g->w0c & 0x30;
     __asm__("" : : "r"(sel));   /* W61-A7: +1 ref, reqdelta272-priced (see the receipt) */
     switch (sel) {
@@ -1035,19 +1041,31 @@ extern int CdRead(int sectors, u_long *buf, int mode)
          * A fence on `sz` is WRONG here (15 diffs): it is an asm at the thread head and
          * stop_search_p then bars the whole thread again. */
         int sz = 0x246;
-        volatile CdrEnv *d = &_cdr;
+        volatile CdrEnv *d;
+        __asm__("" : : "i"(0));
+        d = &_cdr;
         __asm__("" : "=r"(d) : "0"(d));
         d->w10 = sz;
         break;
     }
     }
 
+    /* W79-A3: final strict 3 -> PASS 103/103.  The scoped opaque zero is born
+     * after the status RMW so its $a0 materialization fills the preceding load
+     * delay slot.  The zero-instruction memory fence keeps the nonvolatile w00
+     * store below the volatile w0c/w04 stores while leaving it eligible for
+     * reorg to fill CdSyncCallback's jal slot. */
+    {
+    int cbarg;
     e = &_cdr;
     __asm__("" : "=r"(e) : "0"(e));
     e->w0c |= 0x20;
+    cbarg = 0;
+    __asm__("" : "=r"(cbarg) : "0"(cbarg));
     e->w04 = (u_char *)buf;
-    e->w00 = sectors;
-    *(int *)&e->w28 = CdSyncCallback(0);                     /* save+clear sync cb */
+    __asm__("" : : : "memory");
+    *(int *)&e->w00 = sectors;
+    *(int *)&e->w28 = CdSyncCallback(cbarg);
     e->w2c = CdReadyCallback(0);                    /* save+clear ready cb */
     if (CD_read_dma_mode & 1)
         e->w30 = CdDataCallback(0);                 /* save+clear data cb */
@@ -1084,6 +1102,7 @@ extern int CdRead(int sectors, u_long *buf, int mode)
      * plain `return f() > 0;`, the Yoda form, an if/return pair and a void barrier before
      * the return are all INERT at 7. */
     { int r = _read_issue(0) > 0; __asm__("" : : "r"(r)); return r; }
+    }
 }
 
 /* @0x80108F78 : CdReadSync -- poll (mode!=0) or block (mode==0) until the read completes.

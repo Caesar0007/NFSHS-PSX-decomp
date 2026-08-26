@@ -114,7 +114,7 @@ extern int   FILE_initwithmem(int handlecount, int memsize, int opcount, void *m
 extern int    strlen(const char *s);                       /* libc C27 */
 extern char  *strncpy(char *d, const char *s, int n);      /* libc */
 extern void   iFILE_perror(FileOp *op);                    /* @0x800ED0D4 (below); op passed in $a0 (delay slot), ignored */
-extern int    iFILE_ExecCommand(void *cmd);                /* @0x800ECB98 (below, todo) */
+extern void   iFILE_ExecCommand(void *cmd);                /* @0x800ECB98 (below, todo) */
 extern int    systemtask(int);                             /* @0x800E6C04 vsync/idle pump */
 extern int  CD_Init(int handlecount, int memsize, void *iomem, void (*cb)(void)); /* @0x800FA394 */
 extern void initfileio(void);                                  /* @0x800F3A34 */
@@ -146,10 +146,10 @@ extern unsigned int FILE_size(void *handle, unsigned int a1, unsigned int a2);
 extern void iFILE_addbigreadcallback(unsigned int id, int status, int *node);
 extern void iFILE_addbigopencallback(unsigned int id, int status, int *node);
 extern unsigned int FILE_addbig(char *name, unsigned int a1, unsigned int datatype, unsigned int param);
-extern int iFILE_delbigclosecallback(unsigned int id, int a1, void *cmd);
+extern void iFILE_delbigclosecallback(unsigned int id, int a1, void *cmd);
 extern unsigned int FILE_delbig(int delHandle, unsigned int a2, unsigned int a3);
 extern int FILE_atomic(int (*fn)(int, int), int unused, int a3, int a4);
-extern int iFILE_ExecCommand(void *cmdp);
+extern void iFILE_ExecCommand(void *cmdp);
 extern int iFILE_CommandCompleteCallback(int result);
 extern void iFILE_perror(FileOp *op);
 extern FileOp *reserveop(void);
@@ -1030,11 +1030,11 @@ extern unsigned int FILE_addbig(char *name, unsigned int a1, unsigned int dataty
 
 /* iFILE_delbigclosecallback @0x800EC980 : completion callback for the BIG-archive close op -- harvest
  *   the close op (FILE_completeop), then kick the next queued command (iFILE_ExecCommand). */
-extern int iFILE_delbigclosecallback(unsigned int id, int a1, void *cmd)
+extern void iFILE_delbigclosecallback(unsigned int id, int a1, void *cmd)
 {
     (void)a1;
     FILE_completeop(id);
-    return iFILE_ExecCommand(cmd);
+    iFILE_ExecCommand(cmd);
 }
 
 /* FILE_delbig @0x800EC9AC : unmount the .BIG archive whose device handle is `delHandle` (type 0xA command
@@ -1193,36 +1193,21 @@ extern int FILE_atomic(int (*fn)(int, int), int unused, int a3, int a4)
  * switch expression, signed/unsigned type spelling, a copied dispatch local, and inverted goto
  * orientation are byte-identical or worse and were reverted.  Do not use volatile here: it would
  * introduce a memory boundary into an otherwise count-exact scheduler-only basin. */
-/* 🏆 W61-A19 2026-08-15 -- 4 -> PASS 290/290 via a BUILD.PY TEXT_MOVES row (the residual was NOT
- * source-reachable, as the 2026-08-12 note already suspected).  Mechanism, read off the cc1 `.s`:
- * the four lines are gcc's own `casesi` expansion, so there is no source expression to respell --
- * the index `sll` and the table-base `lui/addiu` are two INDEPENDENT chains and reorg fills the
- * bound-check `beq`'s slot with whichever the scheduler put first in the fall-through block.  cc1
- * emits `sll $3,$3,2` first HERE but `lui $2,%hi($Lnnn)` first at the OTHER tablejump in this same
- * TU, i.e. it is a per-site ready-list tie inside compiler-generated RTL.  (Both builds steal the
- * fall-through's first insn -- retail's slot insn writes $2, the branch's own condition reg, which
- * per catalog 09L only fill_slots_from_thread can do.)
- * ORCHESTRATOR SPEC (probe-verified via tools/vprobe.py + W60_TEXT_MOVES_FILE; TU-mates
- * FILE_cancelop/FILE_completeop/iFILE_perror re-gated PASS under it, and the mechanism is bounded
- * by the .ent/.end region of the named fn so it cannot reach any TU-mate by construction):
- *   PER_FN_TEXT_MOVES["recon/eaclib/psx/eacpsxz/nfile.c"] = {"iFILE_ExecCommand": [
- *       {"take":  r"\tsll\t\$3,\$3,2\n",
- *        "after": r"\taddiu\t\$2,\$2,%lo\(\$L\d+\) \# low\n"},
- *       {"take":  r"\tlui\t\$2,%hi\(\$L\d+\) \# high\n",
- *        "after": r"\tbeq\t\$2,\$0,\$L\d+\n(?=\t\.set\tmacro\n\t\.set\treorder\n\n"
- *                 r"\taddiu\t\$2,\$2,%lo\(\$L\d+\) \# low\n)"}]}
- * Move 1 pulls the `sll` out of the (already noreorder-wrapped) delay slot and re-inserts it after
- * the `%lo`; move 2 then drops the `lui` into the now-empty slot INSIDE the existing
- * `.set noreorder/nomacro` block, so no assembler mode change is needed and no nop is minted.
- * All three anchors are label-agnostic ($L\d+, per the w60-a8 law) and each occurs exactly once in
- * the .ent region (`sll $3,$3,2` 1x, `%lo($L` 1x, `%hi($L` 1x; the beq anchor is disambiguated by
- * a 4-line lookahead because `beq $2,$0,$L..` occurs ~10x). */
+/* 2026-08-26 -- SOURCE-LEVEL PASS 290/290; the W61-A19 TEXT_MOVES seal is retired.
+ * The four-line `casesi` residual was caused by a wrong reconstructed return type, not an
+ * unreachable ready-list tie.  Declaring this command pump `int` kept $v0 live along the
+ * out-of-range switch edge, so reorg could not steal the table-base `lui $v0` into the bound
+ * check's delay slot and stole the independent index `sll` instead.  The original dispatcher is
+ * `void`: with that signature, a direct switch expression and default return reproduce retail's
+ * `beq / lui / addiu / sll` sequence naturally.  The close-completion callback is likewise void;
+ * both functions remain byte-exact.  The EA-style saved-SR `di`/`ei` macro shape was independently
+ * confirmed by JimmyJohnsonsVRFB98/MEMORY.C and already emits the exact COP0 sequence above. */
 /* Raw nfs4-f.exe DD398..DD81F SHA-256:
  * f005d1d202c25693bdaa4a6af71d553309201f7f8db575ef547012c92aaecb52. */
-extern int iFILE_ExecCommand(void *cmdp)
+extern void iFILE_ExecCommand(void *cmdp)
 {
     FileOp *cmd = (FileOp *)cmdp;
-    int type, sr;
+    int sr;
 
     FILE_CS_ENTER(sr);                           /* cop0: disable IRQs */
 
@@ -1277,16 +1262,12 @@ extern int iFILE_ExecCommand(void *cmdp)
      * case-2/8 body are re-derived as `((cmd->id>>0x14)&0xF)==8` below -- this eliminates the
      * extra callee-saved $s4 a cached `type` would force across those calls (the 5-register save
      * set would otherwise be s0/s1/s2/s3/s4/ra vs the oracle's s0/s1/s2/s3/ra). */
-    type = (cmd->id >> 0x14) & 0xF;
-    if (type < 2 || type > 10)                   /* op-type nibble must be 2..10 */
-        return;
-
     {
         /* the open-file handle: NOT cached in a local -- the oracle re-reads cmd->result24 fresh
          * at every use site (only CSE-merged by the compiler across a call-free span), so a
          * cached local here would artificially extend its live range across the whole switch and
          * force extra callee-saved registers the oracle never allocates. */
-        switch (type) {
+        switch ((cmd->id >> 0x14) & 0xF) {
         case 2:                                  /* open */
         case 8: {                                /* exists-probe */
             char *bar;                           /* "volume|entry" separator? */
@@ -1406,11 +1387,13 @@ extern int iFILE_ExecCommand(void *cmdp)
         case 10:
             iFILE_CommandCompleteCallback(cmd->error == 0);
             return;
+
+        default:
+            return;                              /* op-type nibble outside 2..10 */
         }
     }
-    /* NOTE: the oracle never zeroes $v0 on ANY exit. The synchronous arms above cross-jump-merge
-     * their callback tails, then fall into the epilogue with the callback's result still in $v0;
-     * the `int` return type is decorative and no caller depends on a defined value. */
+    /* The void return is load-bearing: retail leaves callback/device results in $v0 incidentally,
+     * but no caller consumes them as this dispatcher's result. */
 }
 
 #undef OPI

@@ -215,12 +215,21 @@ extern unsigned _padIntRecvHdr(unsigned char *info)
      * and kept the copy at $L19 (libpad = Sony vendor-prebuilt; this is the VENDOR-TOOLCHAIN
      * residual class, cf. _padInitDirSeq @e471bfa9).  Expressed with ONE `copy`+`slot`
      * PER_FN_TEXT_MOVES row (spec in scratchpad/w62a5/RECEIPTS.md); zero collateral, the other
-     * four MCXMAIN fns stay byte-identical. */
-    if (r != 0x5a && r != 0) {
-        if ((int)r < 0)
-            return r;
-        return 0xfffffff7;
-    }
+     * four MCXMAIN fns stay byte-identical.
+     * SOURCE-ONLY STRICT IMPROVEMENT (2026-08-26): separate physical labels for the first
+     * `r == 0x5a` return and the shared zero/negative return keep the normalized residual at
+     * 2/35, but fix the first beq's retail branch word exactly.  strict_branch improves from
+     * two wrong targets to one: only the following beqz still lands one instruction early. */
+    if (r == 0x5a)
+        goto return_r_first;
+    if (r == 0)
+        goto return_r;
+    if ((int)r < 0)
+        goto return_r;
+    return 0xfffffff7;
+return_r_first:
+    return r;
+return_r:
     return r;
 }
 

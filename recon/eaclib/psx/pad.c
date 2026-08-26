@@ -531,36 +531,48 @@ fs4\EACLIB\PSX\PAD.C is the ONLY
    move $a3,$0`, the rung emits the two zeros adjacent. */
 void PAD_update(void)
 {
-  /* SYM-CODEGEN-CARRIER: off
+  /* MATCH (2026-08-26, strict source-only 6 -> PASS 66/66): the original
+     typed two-pad loop is the missing loop.c shape.  `Padglobal[i]` and
+     `gPadinfo.buf + i * 4` let the authentic 2.7.2 compiler eliminate the
+     first loop's counter and create the retail s2/s1/s0 GIVs; the prior
+     byte-offset reconstruction made `off` a real s0 BIV and emitted its save
+     first.  In loop 2, explicit byte walkers initialized between `i` and
+     `btnOff` reproduce retail's preheader order (t0, a0/a2, then fresh a3=0)
+     and its a0/a2 increment pair.  No post-cc1 moves or rewrites are used.
      SYM-CODEGEN-CARRIER: btnOff
      SYM-CODEGEN-CARRIER: active
      SYM-CODEGEN-CARRIER: debCount
+     SYM-CODEGEN-CARRIER: pt
+     SYM-CODEGEN-CARRIER: pa
      The SLD/compiler-ladder receipt above proves these expression carriers:
      retail records only i, while removing btnOff or restoring an index loop
      changes the retail GIV/address form. */
   int i;
-  int off;
   int btnOff;
   int active;
   uint debCount;
+  u_char *pt;
+  u_char *pa;
 
-  for (off = 0; off < 16; off += 8) {
-    if (((PAD_COMMON *)((char *)Padglobal + off))->nopad != 0) {
-      blockfill((char *)gPadinfo.buf + off * 4, 0x20, 0xff);
+  for (i = 0; i < 2; i++) {
+    if (Padglobal[i].nopad != 0) {
+      blockfill(gPadinfo.buf + i * 4, 0x20, 0xff);
     }
     else {
-      blockmove((char *)Padglobal + off, (char *)gPadinfo.buf + off * 4, 8);
-      blockfill((char *)gPadinfo.buf + off * 4 + 8, 0x18, 0xff);
+      blockmove(Padglobal + i, gPadinfo.buf + i * 4, 8);
+      blockfill(gPadinfo.buf + i * 4 + 1, 0x18, 0xff);
     }
   }
-  for (i = 0, btnOff = 0; i < 8; i++, btnOff += 8) {
+  for (i = 0, pt = &gPadinfo.state[0].time, pa = pt - 1, btnOff = 0;
+       i < 8;
+       pt += 2, pa += 2, i++, btnOff += 8) {
     active = (((byte *)gPadinfo.buf)[btnOff] == 0);
-    if (active != gPadinfo.state[i].bActive) {
-      debCount = gPadinfo.state[i].time;
-      gPadinfo.state[i].time = debCount + 1;
+    if (active != *pa) {
+      debCount = *pt;
+      *pt = debCount + 1;
       if (debCount > 5) {
-        gPadinfo.state[i].bActive = active;
-        gPadinfo.state[i].time = 0;
+        *pa = active;
+        *pt = 0;
       }
     }
   }

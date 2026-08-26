@@ -33,6 +33,13 @@ parsed, inb = [], False
 for ln in text.splitlines():
     m = re.match(r'^[0-9a-f]{8} <(.+)>:', ln)
     if m:
+        # An object can carry LOCAL labels (.L*) as real symbols INSIDE a
+        # function -- jump-table targets do exactly that.  objdump prints a
+        # header for each, so breaking on any header truncates the function
+        # mid-body and leaves its branches as raw `1720 <.Lxxxx+0x14>` text.
+        # Only a non-.L symbol actually ends the function.
+        if m.group(1).startswith('.L'):
+            continue
         if inb:
             break
         inb = (m.group(1) == name); continue
@@ -47,17 +54,28 @@ if not parsed:
     sys.exit(f"function {name!r} not found in {a.obj or a.dis}")
 
 base = parsed[0][0]
+end = parsed[-1][0] + 4
 targets = set()
 for off, txt, _ in parsed:
     m = re.search(r'<' + re.escape(name) + r'(?:\+0x([0-9a-f]+))?>', txt)
     if m:
         targets.add(int(m.group(1), 16) if m.group(1) else 0)
+    m2 = re.match(r'(b\w+|j)\b.*?\b([0-9a-f]+) <', txt)
+    if m2 and base <= int(m2.group(2), 16) < end:
+        targets.add(int(m2.group(2), 16) - base)   # internal, .L-named
 
 def fix(txt, reloc):
     m = re.search(r'<' + re.escape(name) + r'(?:\+0x([0-9a-f]+))?>', txt)
+    m2 = re.match(r'(b\w+|j)\b.*?\b([0-9a-f]+) <', txt)
     if m and re.match(r'(b\w+|j)\b', txt):                    # internal branch/jump -> .Lxxx
         off = int(m.group(1), 16) if m.group(1) else 0
         txt = re.sub(r'[0-9a-f]+ <' + re.escape(name) + r'(?:\+0x[0-9a-f]+)?>', '.L%x' % off, txt)
+    elif (m2 is not None and base <= int(m2.group(2), 16) < end):
+        # internal target objdump named after a local .L symbol.  The range
+        # test MUST be in the condition: an EXTERNAL `j 0 <sym>` has to fall
+        # through to the R_MIPS_26 reloc handler below.
+        txt = re.sub(r'\b[0-9a-f]+ <[^>]+>',
+                     '.L%x' % (int(m2.group(2), 16) - base), txt)
     elif reloc:
         typ, sym = reloc
         if typ.startswith('_HI16'):
@@ -77,10 +95,16 @@ def fix(txt, reloc):
         txt = REG_RE.sub(r'$\1', txt)
     return txt
 
+COP0 = {'c0_sr': '$12', 'c0_cause': '$13', 'c0_epc': '$14', 'c0_badvaddr': '$8',
+        'c0_context': '$4', 'c0_status': '$12', 'c0_prid': '$15'}
+
 out = ['glabel %s' % name]
 for off, txt, reloc in parsed:
     rel = off - base
     if rel in targets and rel != 0:
         out.append('.L%x:' % rel)
-    out.append('    ' + fix(txt, reloc))
+    line = fix(txt, reloc)
+    for k, v in COP0.items():          # objdump prints cop0 regs by name
+        line = line.replace(k, v)
+    out.append('    ' + line)
 print('\n'.join(out))

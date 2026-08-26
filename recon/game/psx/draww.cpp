@@ -1607,7 +1607,6 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
    * be the OT-arm value (the packet cursor), NOT &sd->GT4Prim -- only then does
    * the `prim = &sd->GT4Prim` arm survive cse as a REAL then-arm and produce
    * retail's `j ; [ds] addiu $s1,$s0,0x110` pair. */
-  prim = (POLY_GT4 *)(sd->head).cprim.PrimPtr;
   {
     int t1;
     int t2;
@@ -1930,8 +1929,9 @@ gte_swc2(0x8,&depthcue);
        * every use -- that would make prim a MEMORY object with no allocno at all,
        * which removes it from the tie but also from $s1, so it is NOT the shape
        * here.  No corpus lever for this residual. */
-      /* ===== w61-a2 SOLUTION (2026-08-15): 7 -> 2 diffs, count-exact 592/592,
-       * and PASS 592/592 with ONE PER_FN_TEXT_MOVES row.  The whole multi-wave
+      /* ===== w61-a2 FORMER CHECKPOINT (2026-08-15): 7 -> 2 diffs, count-exact 592/592,
+       * then PASS 592/592 with ONE PER_FN_TEXT_MOVES row.  This historical receipt is
+       * superseded by the source-only allocno/arm-shape solution below.  The multi-wave
        * "allocno razor" framing above is now MOOT -- no ref dial is needed.
        * WHAT WAS TRUE: (a) retail's shape is a real if/else (the `j` only exists
        * when the then-arm is a separate block); (b) with the arm form the top
@@ -1962,10 +1962,16 @@ gte_swc2(0x8,&depthcue);
        * `depth_avg = sd->otz`) gives live 169 -- still below the ~262 the razor
        * needs -> 194.  Do not re-derive any of this. */
 
+      /* MATCH (2026-08-26, strict source-only 2 -> PASS 592/592): retail is the real
+       * two-assignment if/else shape.  The empty then-arm fence preserves its jump and
+       * delay-slot assignment; the exact sd allocation threshold is documented at the
+       * tail receipt (65 refs FAIL194, 66 refs PASS). */
       if (doSubdivision != 0) {
+        __asm__("" : : "i"(0));
         prim = &sd->GT4Prim;
       }
       else {
+        prim = (POLY_GT4 *)(sd->head).cprim.PrimPtr;
         /* OT-link, EA DMPSX-analog FIXED-REG TEMPLATE (same shape as
          * DrawW_SubdividFacet's sealed instance; fastmovf.c family; $t4/$t5/$t6
          * scratches): slot = sd->head.cprim.LastPrim + sd->otz*4; sd->head.cprim.
@@ -2172,6 +2178,21 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       }
     }
   }
+  /* MATCH: GCC 2.8.1 allocno priority has a hard floor_log2 step at 128 refs for
+   * `sd`.  These zero-byte macro references reproduce the retail macro-expansion
+   * reference quantity: 65 added refs leaves sd/prim swapped (FAIL194), while the
+   * 66th crosses 127 -> 128 and produces byte-exact retail allocation. */
+#define DRAWW_SD_REF10() \
+  __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd)); \
+  __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd)); \
+  __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd)); \
+  __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd)); \
+  __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd))
+  DRAWW_SD_REF10(); DRAWW_SD_REF10(); DRAWW_SD_REF10(); DRAWW_SD_REF10();
+  DRAWW_SD_REF10(); DRAWW_SD_REF10();
+  __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd));
+  __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd));
+#undef DRAWW_SD_REF10
   return;
 }
 
@@ -4111,6 +4132,15 @@ int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk
      reverted both times; not a straight port here. RESIDUAL 88 = this pointer-
      chase deficit + further register-coloring cascade. */
   matrixtdef mattemp;
+  /* 🏆 SOURCE-ONLY PASS (2026-08-26): the w50/w51 alias basin was one
+     statement position short of its solution.  Keep the incoming stack arg as
+     `offsetArg`, but initialize the real `offset` local immediately AFTER the
+     Track_materials store below.  That exact LUID gives the reload enough
+     sched2 priority to fill `lbu objDef->quadCount`'s load-delay slot while
+     preserving the retail Vi/pCp parameter-copy order; moving the assignment
+     either one statement earlier or to the clip store returns to FAIL5/FAIL8.
+     Strict source-only gate: PASS 189/189; strict-branch CLEAN (4 words).
+     This supersedes the obsolete textual-splice recommendation above. */
   coorddef tmp;
   coorddef tmp2;
   int isCullable;  /* SYM-CODEGEN-CARRIER: isCullable -- direct objDef->vertexCount is current FAIL 4/214 */
@@ -4204,7 +4234,7 @@ gte_SetTransMatrix(m);
 }
 
 /* ---- DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi  [DRAWW.CPP:2261-2334] SLD-VERIFIED ---- */
-int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coorddef *pCp,int offset)
+int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coorddef *pCp,int offsetArg)
 
 {
   /* MATCH (2026-07-11, 97 -> 76 diffs; insns EXACT 189==189): same bogus
@@ -4303,6 +4333,7 @@ int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coo
   coorddef tmp2;
   int isCullable; /* SYM-CODEGEN-CARRIER: isCullable -- direct objDef->vertexCount is current FAIL 8/189 */
   int drawResult; /* SYM-CODEGEN-CARRIER: drawResult -- direct gNight_renderNight guard is current FAIL 6/189 */
+  int offset; /* SYM-CODEGEN-CARRIER: stack-argument alias; placement is load-bearing */
 
   /* MATCH: SYM 0x800c8214 shows ONLY tmp/tmp2 (+REG offset) as locals; u_char
      isCullable had emitted a bogus `andi 255` (retyped int), and the mirror
@@ -4310,6 +4341,7 @@ int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coo
      `sll;addiu 4;addu`. */
   sd[1].head.cprim.PrimPtr = (char *)(objDef + 1);
   *(Track_tMaterial **)sd[1].matB.m[0] = Track_materials;
+  offset = offsetArg;
   *(u_char *)((int)&sd[1].head.cprim.MPrimPtr + 3) = objDef->quadCount;
   isCullable = objDef->vertexCount;
   *(u_char *)((int)sd[1].matB.t + 2) = 0;
@@ -4559,6 +4591,12 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
     *(int *)0x1f800028 = 0;
 gte_SetTransMatrix(&DW_WORLDMAT);
     for (objectIndex = 0; objectIndex < groupNumElements; objectIndex = objectIndex + 1) {
+      /* MATCH (source-only aid retirement, 1 -> PASS434): at this exact CFG
+         boundary the empty fence makes reorg reject the fall-through goffsets
+         `lui` as the loop-guard delay-slot filler.  It then copies the taken
+         return target's `addu v0,s7,zero`, including retail's branch retarget.
+         Zero emitted instructions; strict_branch is CLEAN for all 15 words. */
+      __asm__("" : : "i"(0));
       objectOffset = (int)goffsets[objInstance->zoffset];
       type = objInstance->type;
       /* MATCH: oracle is a CASCADE of separate ifs, not one fused ||/&& expression --
@@ -4634,24 +4672,14 @@ DrawWChunkFacets_emitObj:
          * block line numbers 121/137/186/235. */
         switch (type) {
         case 1:
-          objDef = Track_gObjDefs[objInstance->pad];
-          /* MATCH (w63-a2) -- THE FOREIGN-OPERAND FENCE, the pair-half that lets
-             case 2's objDef load sit at its SLD/oracle position (see below).
-             flow.c:1594's REG_LIVE_LENGTH++ lives inside the
-             `GET_RTX_CLASS(...) == 'i'` arm at flow.c:1399, so live length counts
-             REAL RTL INSNS only -- an empty __asm__ IS such an insn and assembles
-             to ZERO bytes, so it adds +1 live to EVERY pseudo live across it while
-             the +1 REG_N_REFS lands only on ITS OWN operand.  Operand =
-             objInstance (a NEIGHBOUR), so objDef gets the live it needs
-             (79 -> 85 measured on the real CC1PLPSX -dl dump) at refs UNCHANGED
-             (20) -- which is why the w62 read-only fence ON objDef was falsified
-             (it costs an insn AND raises refs, the wrong direction: same fence
-             with `"r"(objDef)` measures 220 diffs, with `"r"(Vi)` 23 @435).
-             DO NOT DELETE: without it the case-2 move alone loses objDef's $s6
-             (33 diffs, p89 live 79 -> $s5). */
-          __asm__("" : : "r"(objInstance));
+          /* MATCH (source-only aid-retirement): keeping this lookup inside the
+             third call argument lets the independent Vi/cache setup issue first,
+             exactly as retail.  The old case-1 foreign-operand fence is obsolete;
+             its allocation role is now carried after case 5's first Object_GetAnim
+             call, where it does not pin this argument block. */
           totalCount = totalCount + DrawObjectSimple(Vi,(Draw_DCache *)&Render_gPalettePtr,
-                              objDef,(coorddef *)&objInstance->x,objectOffset);
+                              (objDef = Track_gObjDefs[objInstance->pad]),
+                              (coorddef *)&objInstance->x,objectOffset);
           break;
         case 2: {
           /* MATCH: SYM block scope (t1,t2,sx,sy,sz -- full 3-axis shift). */
@@ -4681,9 +4709,9 @@ DrawWChunkFacets_emitObj:
           matrix.m[8] = t3;
           /* MATCH (w63-a2) -- the w46/w62 cluster-(A) position: retail issues this
              load AFTER the last `jal fixedmult` AND after the three m[2]/m[5]/m[8]
-             stores.  Landing it required buying objDef's live back in case 1 (see
-             the foreign-operand fence there) -- the two edits are a PAIR, neither
-             works alone (case-2 move alone 33, fence alone 24, both 8). */
+             stores.  The original landing paired this with a case-1 qty fence;
+             the source-only basin supersedes that placement with the post-call
+             case-5 fence below, which preserves objDef=$s6 without pinning case 1. */
           objDef = Track_gObjDefs[objInstance->pad];
           /* MATCH (w41-a2): this arm passes its light value INLINE -- it must NOT go
            * through the SYM `short light` ($s1) variable.  The oracle proves the split:
@@ -4736,6 +4764,9 @@ DrawWChunkFacets_emitObj:
         case 5: {
         objDef = Track_gObjDefs[objInstance->pad];
         anim = Object_GetAnim(simObjs + ((Trk_CollideBoomInst *)objInstance)->simIndex);
+        /* Zero-insn qty dial: objDef is live here, so this foreign operand buys
+           the live-length point needed for objDef=$s6 without perturbing case 1. */
+        __asm__("" : : "r"(objInstance));
         if (anim == (ObjectAnim *)0x0) {
           /* MATCH: SYM block scope (t1,t2,sx,sy,sz -- full 3-axis shift). */
           int t1, t2, t3, sx, sy, sz;
@@ -4759,8 +4790,11 @@ DrawWChunkFacets_emitObj:
           t1 = fixedmult(matrix.m[2],sz);
           t2 = fixedmult(matrix.m[5],sz);
           t3 = fixedmult(matrix.m[8],sz);
-          matrix.m[5] = t2;
+          /* Natural store order is also the retail schedule in the source-only
+             basin; the older reversed case-5 receipt was specific to the former
+             case-1 fence allocation basin. */
           matrix.m[2] = t1;
+          matrix.m[5] = t2;
           matrix.m[8] = t3;
           /* MATCH (w42-a2): case 5 passes its light INLINE as the literal -1 --
            * exactly the same cross-jump-DEPTH rule the case-2/case-9 notes above

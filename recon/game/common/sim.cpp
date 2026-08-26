@@ -329,7 +329,14 @@ void Sim_CheckForPause(int checkInput)
  *      chain, `li v0,3; beq a0,v0` instead of retail's fresh `lw v1,4(s4)`).
  *      Named angle: this is a cross_jump SURVIVOR-CHOICE, not a source expression -- next
  *      lever is a block-order device that keeps the || chain's ELSE a branch target while
- *      emitting the bigcond arm last. */
+ *      emitting the bigcond arm last.
+ * W77 source-only closure (2026-08-24): PASS 321/321.  The SLD proves source
+ * statement order B (lines 764-765), C (769-770), A (775).  An explicit goto to
+ * the late A block plus a B-first switch reproduces that B/C/A layout.  The
+ * switch discriminator is a measured volatile-on-the-test read: it prevents
+ * reuse of the earlier speed value, restoring retail's fresh `lw`, its two load-
+ * delay nops, and the s4/s5 base lifetimes.  The nonvolatile form is 32@319; the
+ * former A/B/C structured source is 6@319. */
 void Sim_MainGameLoop(void)
 
 {
@@ -511,19 +518,24 @@ SimMainLoop_inputDone:
               ((Replay_ReplayInterface.speed == one) &&
                ((simVar.currentClockTicks & 1U) == 0)) ||
               ((Replay_ReplayInterface.speed == 0) &&
-               ((simVar.currentClockTicks & 3U) == 0))) {
-            Sim_ProcessSimSchedules();
-          }
-          else {
-            if (Replay_ReplayInterface.speed == 3) {
+               ((simVar.currentClockTicks & 3U) == 0)))
+            goto SimMainLoop_processSchedules;
+          /* MATCH: SLD lines 764-775 order the B/C/A blocks.  The fresh test
+             read is required for retail's inner speed reload and base lifetimes. */
+          switch (*(volatile int *)&Replay_ReplayInterface.speed) {
+            case 3:
               Sim_ProcessSimSchedules();
               Sim_ProcessSimSchedules();
-            }
-            else {
+              break;
+            default:
               InBetween = one;
               Camera_Update();
-            }
+              break;
           }
+          goto SimMainLoop_processedSchedules;
+SimMainLoop_processSchedules:
+          Sim_ProcessSimSchedules();
+SimMainLoop_processedSchedules:
           simVar.currentClockTicks = simVar.currentClockTicks + 1;
         } while (simVar.currentClockTicks <= simVar.goalClockTicks);
       }

@@ -60,76 +60,65 @@ void tScreen::DisplayLoadingText()
 
 /* ---- tScreen::GoNonInterlaced  [FESCREEN.CPP:144-173] SLD-VERIFIED ---- */
 
-/* MATCH (2026-08-03, 11->1; source-only lane 2026-08-26, 6->4): retail does not write literal 240 to every
+/* MATCH (2026-08-03, 11->1; 2026-08-13, 1->PASS): retail does not write literal 240 to every
    halfword. It stores `screenheight = 240`, reloads the low half once for
    the three gEnviro heights/first drawenv height, then reloads it for the
    second drawenv. GCC 2.8.1's scheduler otherwise moves the first load below
    the two hardware-environment stores; retaining their volatile byte view
    fixes that ordering, while an int carrier restores retail's $a1/$a2
-   allocation. A `u_short` carrier removes GCC's redundant post-lhu `andi`;
-   the height identity restores retail's a1/a2 handout.  A zero-byte empty-loop
-   entry shape keeps the stack adjustment first without an asm reorg barrier
-   and improves the source-only result from 6 to 4 at the exact 52/52 count.
-   The remaining named angle is a
-   non-barrier source dependency that keeps `sp -= 24` first while allowing
-   the independent RA save to sink below the first height load. */
+   allocation. A `u_short` carrier removes GCC's redundant post-lhu `andi`.
+   Source-only W76: bind the environment address and the 0x100 display height
+   before a statement-expression load whose empty inputs expose those two true
+   dependencies.  The ordinary u_short load is safe after the immediately
+   preceding screenheight store and avoids the volatile expression's duplicate
+   load.  This places env/a3/Draw_gView/height exactly and reduces 4 -> 2 at
+   52/52.  The sole remaining pair is the independent ra-save position. */
 
 void tScreen::GoNonInterlaced()
 
 {
-  /* Reliable SYM records no named locals for this optimized function.  The
-     separated identities below are nevertheless required to reproduce the
-     oracle's two view-base calculations, shared screen-height value ranges,
-     and environment-store schedule:
-     SYM-CODEGEN-CARRIER: firstViewIndex
-     SYM-CODEGEN-CARRIER: secondViewIndex
-     SYM-CODEGEN-CARRIER: primaryHeight
-     SYM-CODEGEN-CARRIER: secondaryHeight
-     SYM-CODEGEN-CARRIER: viewTable
-     SYM-CODEGEN-CARRIER: firstView
-     SYM-CODEGEN-CARRIER: secondView
-     SYM-CODEGEN-CARRIER: playerViewIndex
-     SYM-CODEGEN-CARRIER: envBytes */
-  int firstViewIndex;
-  int secondViewIndex;
-  u_short primaryHeight;
-  short secondaryHeight;
-  Draw_tView *viewTable;
-  Draw_tView *firstView;
-  Draw_tView *secondView;
-  int *playerViewIndex;
-  volatile char *envBytes;
+  int iVar1;
+  int iVar2;
+  u_short height;
+  short sVar3;
+  Draw_tView *views;
+  Draw_tView *view0;
+  Draw_tView *view1;
+  int *playerView;
+  volatile char *env;
+  int dispY;
 
-  do {
-  } while (false);
   screenheight = 0xf0;
-  primaryHeight = *(volatile u_short *)&screenheight;
-  __asm__("" : "+r" (primaryHeight));
-  viewTable = Draw_gView;
-  envBytes = (volatile char *)gEnviro;
-  envBytes[16] = '\0';
-  envBytes[40] = '\0';
-  playerViewIndex = A_Draw_gPlayer1View;
-  firstViewIndex = *playerViewIndex;
-  firstView = viewTable + firstViewIndex;
-  gEnviro[0].disp.disp.y = 0x100;
+  env = (volatile char *)gEnviro;
+  dispY = 0x100;
+  height = ({
+    __asm__("" : : "r"(env), "r"(dispY));
+    *(u_short *)&screenheight;
+  });
+  views = Draw_gView;
+  env[16] = '\0';
+  env[40] = '\0';
+  playerView = A_Draw_gPlayer1View;
+  iVar1 = *playerView;
+  view0 = views + iVar1;
+  gEnviro[0].disp.disp.y = (short)dispY;
   gEnviro[1].disp.disp.y = 0;
-  gEnviro[0].disp.disp.h = primaryHeight;
-  gEnviro[0].disp.screen.h = primaryHeight;
-  gEnviro[1].disp.screen.h = primaryHeight;
-  firstView->drawenv[0].dfe = '\0';
-  secondViewIndex = *playerViewIndex;
-  secondView = viewTable + secondViewIndex;
-  firstView->drawenv[0].clip.y = 0;
-  firstView->drawenv[0].clip.h = primaryHeight;
-  firstView->drawenv[0].ofs[0] = 0;
-  firstView->drawenv[0].ofs[1] = 0;
-  secondaryHeight = (short)screenheight;
-  secondView->drawenv[1].clip.y = 0x100;
-  secondView->drawenv[1].ofs[0] = 0;
-  secondView->drawenv[1].ofs[1] = 0x100;
-  secondView->drawenv[1].dfe = '\0';
-  secondView->drawenv[1].clip.h = secondaryHeight;
+  gEnviro[0].disp.disp.h = height;
+  gEnviro[0].disp.screen.h = height;
+  gEnviro[1].disp.screen.h = height;
+  view0->drawenv[0].dfe = '\0';
+  iVar2 = *playerView;
+  view1 = views + iVar2;
+  view0->drawenv[0].clip.y = 0;
+  view0->drawenv[0].clip.h = height;
+  view0->drawenv[0].ofs[0] = 0;
+  view0->drawenv[0].ofs[1] = 0;
+  sVar3 = (short)screenheight;
+  view1->drawenv[1].clip.y = (short)dispY;
+  view1->drawenv[1].ofs[0] = 0;
+  view1->drawenv[1].ofs[1] = (short)dispY;
+  view1->drawenv[1].dfe = '\0';
+  view1->drawenv[1].clip.h = sVar3;
   DrawSync(0);
   VSync(0);
   return;

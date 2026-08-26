@@ -486,9 +486,7 @@ int SetupChunkBuildList(DRender_tView *Vi)
   int chunkInd;
   int chunkCount;
   int totalVisChunks;
-  volatile tBuildEntry *buildList;
 
-  buildList = (volatile tBuildEntry *)BWorld_gChunkBuildList;
   {
     int viewInd;
     short *viewList;
@@ -782,26 +780,66 @@ int SetupChunkBuildList(DRender_tView *Vi)
            -fno-rerun-cse-after-loop, -fno-cse-follow-jumps, -fno-cse-skip-blocks,
            -fno-thread-jumps, -fno-peephole, -fno-function-cse, -fforce-addr
            = 4 @203 (INERT); -fno-force-mem 21 @202.  Flag axis CLOSED. */
-    viewList =
-        ((short (*)[32])Track_gInViewList)[gCurrContext->currentChunk];
-    totalVisChunks =
-        (int)*(u_char *)((char *)Track_gInViewCount +
-                         gCurrContext->currentChunk);
-    chunkCount = 0;
-    viewInd = chunkCount;
-    for (; viewInd < totalVisChunks; viewInd++) {
-      int chunkDist;
-      coorddef *pChunkCp;
-      Chunk *chunkPtr;
-      coorddef tmpPts[4];
-      coorddef tmp;
-      coorddef tmp2;
+    /* W77-root re-gated 4 @203/203 and tested the newly allowed source-pin
+       route.  A scoped `$v0` ctx pin is optimized away unless carried by ASM
+       (still 4).  Empty input/identity carriers reach 20/29/41; replacing the
+       existing currentChunk load with the carrier reaches 24/26.  A volatile
+       global load does not improve that basin.  Split source-ASM `%hi`/`%lo`
+       outputs do force the wanted v1/s1 pair, but anchor it after the prologue
+       saves and remain 24.  Correct-width comma staging of either the build
+       address or ctx copy web is byte-inert at 4.  All probes were restored.
+       W77 source landing: the SYM lists no source buildList local, and the SLD
+       attributes the %hi and %lo halves to different source lines.  Direct
+       volatile BWorld_gChunkBuildList[chunkCount] lvalues let GCC recover the
+       retail strength-reduced $s1 walker and allocate its head %hi scratch to
+       $v1 naturally.  This removes the invented pointer local and reduces the
+       independently unspliced gate from 7 @202/203 to 3 @202/203; the only
+       remaining source-only residual is the known sched2 `addu $s3` sink plus
+       its missing load-delay nop.  The standard build is PASS 203/203 through
+       the pre-existing W72 TEXT_MOVES row; this landing adds no new row or ASM.
+       Empty fences, pointer-delta dependencies, direct view-row indexing, and
+       scoped local pins/non-empty instruction probes were measured and fully
+       restored because their final unspliced scores were worse than 3.
 
-      chunkInd = (u_short)*viewList & 0x3ff;
+       W78-root PS1-CORPUS DEPENDENCY ROUND (strict source-only gate).  Deriving
+       the count index from `viewList` proved the needed dependency direction but
+       emitted four recovery instructions (39 @206/203).  A paired zero-byte
+       dependency chain plus source-authentic build/tmp walkers made the `$s3`
+       placement and both load-delay nops exact; its best intermediate was 17
+       @204/203, and a second stage reached exact count 203/203 but rotated the
+       four caller-register owners (42 diffs).  Typed aliases, comma staging,
+       operand order/classes, lifetime/ref dials, and direct-vs-walker variants
+       did not recover retail allocation.  The full experimental basin was
+       restored because none beat this 3-diff source-only result.
+
+       W80-root SOURCE-ONLY PASS (203/203).  The missing source shape was a
+       stable row base indexed by `viewInd`, not a source-level pointer increment:
+       use `viewList[viewInd]` at all four reads and do not emit `viewList++`.
+       GCC strength-reduces the indexed reads back into retail's exact `$s3`
+       walker and loop increment, but the different RTL provenance keeps the
+       `$s3` initialization ahead of the count-byte load.  That naturally restores
+       the retail load-delay nop.  Detailed strict verify_asm: PASS 203/203; no
+       post-cc1 rewrite, asm, volatile, or compiler flag is involved. */
+      totalVisChunks =
+          (int)*(u_char *)((char *)Track_gInViewCount +
+                           gCurrContext->currentChunk);
+      viewList =
+          ((short (*)[32])Track_gInViewList)[gCurrContext->currentChunk];
+      chunkCount = 0;
+      viewInd = chunkCount;
+      for (; viewInd < totalVisChunks; viewInd++) {
+       int chunkDist;
+       coorddef *pChunkCp;
+       Chunk *chunkPtr;
+       coorddef tmpPts[4];
+       coorddef tmp;
+       coorddef tmp2;
+
+      chunkInd = (u_short)viewList[viewInd] & 0x3ff;
       pChunkCp = Chunk_chunkCenters + chunkInd;
       chunkDist = xzsquaredist32(pChunkCp,&Vi->cview.translation);
       if ((chunkDist <= gCurrContext->chunkFarZClipSq) &&
-          ((*viewList & 0x800U) == 0)) {
+          ((viewList[viewInd] & 0x800U) == 0)) {
         tmp.x = -Vi->cview.translation.x + pChunkCp->x;
         tmp.y = -Vi->cview.translation.y +
                 BWorldSm_slices[chunkInd << 3].center[1];
@@ -823,24 +861,28 @@ int SetupChunkBuildList(DRender_tView *Vi)
              (0 <= tmpPts[1].z) ||
              (0 <= tmpPts[2].z) ||
              (0 <= tmpPts[3].z))) {
-          buildList->enableBits = 3;
+          ((volatile tBuildEntry *)BWorld_gChunkBuildList)[chunkCount]
+              .enableBits = 3;
           if (chunkDist < gCurrContext->lineFarZClipSq) {
-            buildList->enableBits = 7;
+            ((volatile tBuildEntry *)BWorld_gChunkBuildList)[chunkCount]
+                .enableBits = 7;
           }
-          if ((*viewList & 0x4000U) != 0) {
-            buildList->enableBits &= 0xfd;
+          if ((viewList[viewInd] & 0x4000U) != 0) {
+            ((volatile tBuildEntry *)BWorld_gChunkBuildList)[chunkCount]
+                .enableBits &= 0xfd;
           }
-          if ((*viewList & 0x2000U) != 0) {
-            buildList->enableBits &= 0xfe;
+          if ((viewList[viewInd] & 0x2000U) != 0) {
+            ((volatile tBuildEntry *)BWorld_gChunkBuildList)[chunkCount]
+                .enableBits &= 0xfe;
           }
-          buildList->geomRez = (char)GetRezIndex(chunkDist);
-          buildList->chunkInd = (short)chunkInd;
-          buildList++;
+          ((volatile tBuildEntry *)BWorld_gChunkBuildList)[chunkCount].geomRez =
+              (char)GetRezIndex(chunkDist);
+          ((volatile tBuildEntry *)BWorld_gChunkBuildList)[chunkCount].chunkInd =
+              (short)chunkInd;
           chunkCount++;
         }
       }
-      viewList++;
-    }
+     }
   }
   return chunkCount;
 }

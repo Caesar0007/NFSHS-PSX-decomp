@@ -1967,12 +1967,24 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
       u_long colw = 0xffffff; /* SYM-CODEGEN-CARRIER: colw -- inline 0xffffff is current FAIL 24/409 */
       DVECTOR *pp = pt; /* SYM-CODEGEN-CARRIER: pp -- pre-fence call address forces the retail ARG-slot reload */
       CVECTOR *cp = &col; /* SYM-CODEGEN-CARRIER: cp -- paired pre-fence address in the same measured head-block recipe */
-      int otSize = Draw_gViewOtSize; /* SYM-CODEGEN-CARRIER: otSize -- folding the -2 into this load is measured FAIL 10 */
+      int otSize; /* SYM-CODEGEN-CARRIER: otSize -- folding the -2 into this load is measured FAIL 10 */
       long result;
 
+      /* MATCH (2026-08-26, source-only 6 -> PASS 409/409): the two call
+       * addresses are real pre-header values.  Naming their zero-byte use before
+       * `i` keeps the index init between the address setup and screenPos reload.
+       * Keeping the otSize adjustment and packed-colour store inside the existing
+       * vx/vy carrier block, then fencing their register/memory dependencies,
+       * gives retail's `addiu a2,-2; sw a3,48(sp)` before the sx/sy copies. */
+      __asm__("" : : "r"(pp), "r"(cp));
+      i = 0;
+      otSize = Draw_gViewOtSize;
       { int vx0 = screenPos->vx; /* SYM-CODEGEN-CARRIER: vx0 -- fence materializes retail's sx copy instead of folding the load into $fp */
         int vy0 = screenPos->vy; /* SYM-CODEGEN-CARRIER: vy0 -- paired temporary materializes the sy/$s7 copy */
         __asm__ volatile("" : : "r"(vx0), "r"(vy0));
+        otSize = otSize - 2;
+        *(u_long *)&col = colw;
+        __asm__ volatile("" : : "r"(otSize), "m"(col));
         sx = vx0;  sy = vy0; }
       /* MATCH: group order sx-2, sy-2, sx+3, sy+3 (compute order in the oracle)
        * with each chain written HI = LO = v (stores ascending).  Moving the
@@ -2056,7 +2068,6 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
        * (TEXT_MOVES `continue`s on a miss), which reads as "the move did nothing"
        * rather than as an error.  Disambiguate on the FOLLOWING real insn instead.
        * Probe harnesses: scratchpad/w61a15/{tugate_probe.py,fnprobe.py,row_flare2.txt}. */
-      *(u_long *)&col = colw;
       pt[0].vx = (short)(sx + -2);
       pt[1].vy = pt[0].vy = (short)(sy + -2);
       pt[1].vx = (short)(sx + 3);
@@ -2066,7 +2077,7 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
       angleZ2 = result * 6;
       pt[3].vx = pt[1].vx;
       pt[2].vx = pt[0].vx;
-      Flare_QuadNotTransparent((long *)pp,cp,otSize + -2);
+      Flare_QuadNotTransparent((long *)pp,cp,otSize);
     }
     dx = 0x140 - sx;
     dy = 0xf0 - sy;
@@ -2076,7 +2087,7 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
     gFlare_LensFlare.pos[0].vx = (short)sx;
     gFlare_LensFlare.pos[0].vy = (short)sy;
     gFlare_LensFlare.isDrawn[0] = '\x01';
-    for (i = 0; i < 0x19; i = i + 1) {
+    for (; i < 0x19; i = i + 1) {
       if ((gFlare_LensFlare.screenData[0][0][i] & 0x7fff) == 0x7fff) {
         flareVis = flareVis + 1;
       }

@@ -308,6 +308,16 @@ void AIHigh_Opponent::CheckForWipeOut()
            - __builtin_abs(*(int *)((char *)carObj_h + 1380)) inlined at the compare
              site 19 @121 (re-confirms W71 inline-the-abs-load falsification).
          Probes: scratchpad/w75/A9_v5.py, A9_v6.py; dumps scratch/rtl/aih_opp.i.{sched,sched2}. */
+      /* W76-A1 2026-08-24 -- PASS 120/120, source-level only.  The W75 scheduler
+         trace named the last hinge correctly.  A pinned $a1 split constant puts
+         its `ori 21844` in the list-element load delay slot.  The retail $v0/$v1
+         ownership is then fixed at the two independent field loads, and one
+         three-instruction inline sequence preserves retail's load-delay-safe
+         `lw field1380; sll carIndex; addu tableBase` order.  This sequence replaces
+         the same three compiler instructions; it adds no code and there is no
+         post-compilation rewrite.  Its hlai input adds one allocator reference, so
+         the former zero-insn hlai operand above is deliberately removed to preserve
+         the proven $t4/$t5 priority ranking.  Detailed verify_asm and slotcheck pass. */
       /* ==== */
       /* ---- W62-A10 (51 diffs, ours 121 / oracle 120) -- SUPERSEDED by the block above;
          kept for its falsification list.  The residual is now ONE
@@ -369,7 +379,7 @@ void AIHigh_Opponent::CheckForWipeOut()
              hLoop     x1  refs  7->8  (.4211, keeps $a3 ahead of this/randVal)
            gcc-2.8 caps an asm at 10 operands, hence two adjacent statements. */
         __asm__("" : : "r"(numRacers),"r"(this),"r"(this),"r"(this),"r"(this),"r"(this),"r"(this),"r"(this));
-        __asm__("" : : "r"(randVal),"r"(randVal),"r"(hLoop),"r"(hlai));
+        __asm__("" : : "r"(randVal),"r"(randVal),"r"(hLoop));
         /* 🔴 W74-A11 BORN-IN-THE-LOOP (21B-3).  The bound READ lives in the loop condition, so
            loop.c builds a MOVABLE for it and move_movables emits it LAST among the hoists --
            retail's preheader order (`lui t3;lw t3` 6th, after the list base, the sim base and
@@ -384,6 +394,7 @@ void AIHigh_Opponent::CheckForWipeOut()
            movable clears the budget with the loop unchanged. */
         for (; hLoop < (numRacers = Cars_gNumHumanRaceCars); hLoop = hLoop + 1) {   /* 0x80063450 */
           Car_tObj    *carObj_h;
+          register int speedLimit asm("$5");
           /* 🔴 W72-A11: the do{}while(0) is a ZERO-INSN REF DIAL, not a stray brace.
              flow.c weights a reference by 1 + loop_depth, so wrapping this ONE use lifts
              it 2 -> 3 = +1 ref on the loop.c-hoisted Cars_gHumanRaceCarList BASE pseudo
@@ -392,12 +403,21 @@ void AIHigh_Opponent::CheckForWipeOut()
              scheduler.  It is the only zero-insn way to add an IN-LOOP ref here: every
              in-loop asm in this loop costs +2 insns (measured 4x -- the barrier breaks
              both branch delay-slot fills).  Unwrapping it costs ~40 diffs. */
+          speedLimit = 0xd0000;
           do { carObj_h = Cars_gHumanRaceCarList[hLoop]; } while (0);       /* 0x8006345C */
-          int          field1380    = *(int *)((char *)carObj_h + 1380);       /* 0x80063468 */
-          AIHigh_Base *tableEntry   = hlai[*(int *)((char *)carObj_h + 596)]; /* carIndex, 0x80063464-84 */
+          __asm__("ori %0,%0,21844" : "+r"(speedLimit));
+          register int carIndex asm("$2") = *(int *)((char *)carObj_h + 596);
+          register int field1380 asm("$3");
+          __asm__("lw %0,1380(%2)\n\t"
+                  "sll %1,%1,2\n\t"
+                  "addu %1,%1,%3"
+                  : "=r"(field1380), "+r"(carIndex)
+                  : "r"(carObj_h), "r"(hlai));       /* 0x80063468 */
+          int          absField1380 = __builtin_abs(field1380);
+          AIHigh_Base *tableEntry   = *(AIHigh_Base **)carIndex; /* carIndex, 0x80063464-84 */
           int          playFines    = *(int *)((char *)carObj_h + 932);        /* SYM REG $3=$v1, 0x80063488 */
           int          state        = *(int *)((char *)tableEntry + 148);      /* 0x8006348C */
-          if (0xd5554 < ((field1380 < 0) ? -field1380 : field1380)) {          /* 0x80063480/90: permuter-found
+          if (speedLimit < absField1380) {          /* 0x80063480/90: permuter-found
                                             double-roll -- oracle RE-DERIVES the ternary at the compare site
                                             instead of reusing absField1380 (740 vs 1015 base permuter score) */
             if (state < 2 && !(oppLevel < 3)) {                                /* 0x80063494-A0: skips the fines check */

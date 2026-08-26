@@ -249,6 +249,11 @@ AudioTrk_channel_found:
         }
         if (dst < (int)se->range << 0x10) {
           if (se->type == '\x03') {
+            /* MATCH: this zero-instruction field fence prevents GCC from
+               reusing the known value 3 across the merge.  Retail reloads
+               se->type at 8007CBF0 on every incoming edge; without the fence
+               the type-3 jump lands one instruction after that shared lbu. */
+            __asm__("" : "+m"(se->type));
             azimuth += trkazi;
           }
           else if (se->type != '\x02') {

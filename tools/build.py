@@ -91,12 +91,50 @@ _warned_272 = False
 GCC_LADDER = Path(_env("NFS4_GCC_LADDER", r"C:/Temp/windows-gcc-psx"))
 
 
+# Sony-library compiler identity used only by FntFlush: gcc 2.8.1 with
+# reload_cse disabled.  PE timestamp/checksum bytes vary across deterministic
+# relinks, so validate the normalized code identity as well as accepting the
+# original byte-exact executable.
+CC1_NORCSE_SHA256 = "acd92abb94aa9379889521ea5dfa6bc7e22ae66f5e0bf70d7131e11a4f899668"
+CC1_NORCSE_SEMANTIC_SHA256 = "558a47c2197a27be9b1d36c1d2b7b53713e09dc0c93698281696973c3cdac591"
+CC1_SPECIAL_RUNGS = {
+    "2.8.1-norcse": [
+        Path(_env("NFS4_CC1_NORCSE",
+                  str(ROOT / "scratch" / "gccbuild-ecoff" / "cc1.exe"))),
+    ],
+}
+
+
+def _pe_semantic_sha256(candidate: Path) -> str:
+    """Hash PE code identity while ignoring linker timestamp/checksum noise."""
+    data = bytearray(candidate.read_bytes())
+    if len(data) < 0x40:
+        return ""
+    pe = int.from_bytes(data[0x3c:0x40], "little")
+    if pe + 0x5c > len(data) or data[pe:pe + 4] != b"PE\0\0":
+        return ""
+    data[pe + 8:pe + 12] = b"\0" * 4
+    data[pe + 0x58:pe + 0x5c] = b"\0" * 4
+    return hashlib.sha256(data).hexdigest()
+
+
+def _cc1_alt_hash_ok(ver: str, candidate: Path) -> bool:
+    if ver != "2.8.1-norcse":
+        return True
+    if hashlib.sha256(candidate.read_bytes()).hexdigest() == CC1_NORCSE_SHA256:
+        return True
+    return _pe_semantic_sha256(candidate) == CC1_NORCSE_SEMANTIC_SHA256
+
+
 def _resolve_cc1_alt(ver: str):
+    for c in CC1_SPECIAL_RUNGS.get(ver, []):
+        if c.is_file() and _cc1_alt_hash_ok(ver, c):
+            return c
     # Resolution order: env/dev-box ladder, then the CI toolchain zip's
     # toolchain/gcc-ladder/ tree beside psyq/ (same pattern as CC1PSX272.EXE).
     for base in (GCC_LADDER, Path(CC1).parent.parent / "gcc-ladder"):
         c = base / f"gcc-{ver}-psx" / "cc1.exe"
-        if c.is_file():
+        if c.is_file() and _cc1_alt_hash_ok(ver, c):
             return c
     return None
 
@@ -959,7 +997,8 @@ PER_FN_FLAG_SPLICE_272 = {
     "recon/syslib/psx/libetc/INTR.c": {
         "-fno-delayed-branch": {"RestartCallback"},  # 1 -> PASS (a9 cc1-level A/B)
     },
-    # w60-a2: MemCardFormat 4 -> PASS 35/35 (with its PER_FN_TEXT_MOVES row).
+    # w60-a2 historical experiment: MemCardFormat reached 35/35 only when this
+    # flag was combined with a now-removed post-compiler instruction move.
     # reorg SCHED_GROUPs the cheap arg address `addiu $a1,$sp,16` onto the
     # `jal MemCardMakeDevname` and eats its slot, so cc1 emits arg-AFTER-store;
     # retail emits arg-BEFORE-store and lets GNU-as backward-fill the
@@ -968,8 +1007,8 @@ PER_FN_FLAG_SPLICE_272 = {
     # STORE the later insn" the w46/w52-a6 named angle asked for: cc1 then
     # emits `addu $5,$sp,16` BEFORE `sw $3,_mc_present` and gas splits the
     # macro across the jal exactly like retail.  Cost: the fn's OTHER filled
-    # slot (`bne $2,$0,$L; li $2,1`) goes empty -- restored by the TEXT_MOVES
-    # row, which runs AFTER this splice.  Falsified same probe:
+    # slot (`bne $2,$0,$L; li $2,1`) goes empty.  That post-compiler repair is
+    # intentionally absent; the source-only residual is currently 4.  Falsified same probe:
     # -fno-schedule-insns 18, -fno-schedule-insns2 6 (both worse than the 4 baseline).
     "recon/syslib/psx/libmcrd/LIBMCRD.c": {
         "-fno-delayed-branch": {"MemCardFormat"},
@@ -1245,7 +1284,16 @@ PER_FN_CC1_VER_SPLICE = {
     # w60 orchestrator (A4 ladder + A5 mechanism): cdread.c whole-TU 2.8.1 is
     # 81<87 but costs _read_data_int's PASS.  Per-fn pricing on the 2.8.1 rung:
     # _read_int 21->15, _read_issue 23->22, CdRead 43->45 (worse -- stays 2.8.0).
-    "recon/syslib/psx/libcd/cdread.c": {"2.8.1": {"_read_int", "_read_issue"}},
+    "recon/syslib/psx/libcd/cdread.c": {
+        # CdReadSync is byte-exact only on 2.8.1 (the TU's 2.7.2 lane is four
+        # diffs), confirming a distinct source-object compiler identity.
+        "2.8.1": {"_read_int", "_read_issue", "CdReadSync"},
+    },
+    # The hash-pinned no-reload-CSE 2.8.1 compiler emits the vendor FntFlush
+    # object exactly; its narrowly guarded partial-output contract is below.
+    "recon/syslib/psx/libgpu/FONT.c": {
+        "2.8.1-norcse": {"FntFlush"},
+    },
     # W74-A19 (probe-verified 2x via the patched-vprobe harness a19_versplice.py;
     # PAD_update 2 -> PASS 66/66, TU zero regression; coupled with the strip fix
     # below + the pad.c TEXT_MOVES row): the fn wants 2.7.2 codegen for its
@@ -1271,10 +1319,42 @@ def _apply_cc1_ver_splice(rel_posix: str, s_file: Path, i_file: Path,
                                "the TU's own cc1 (fn ver-splice skipped)")
             continue
         alt_s = s_file.with_suffix(".vs_%s.s" % ver.replace(".", "_"))
-        r = run([alt_cc1, *_cc1_flags_for_rung(ver, cc1_flags), i_file, "-o", alt_s])
-        if r.returncode:
+        try:
+            alt_s.unlink()
+        except FileNotFoundError:
+            pass
+        run_env = None
+        alt_flags = _cc1_flags_for_rung(ver, cc1_flags)
+        if ver == "2.8.1-norcse":
+            run_env = os.environ.copy()
+            run_env["GCC_NO_RELOAD_CSE"] = "1"
+            run_env["TMPDIR"] = run_env["TEMP"] = run_env["TMP"] = r"C:\Temp"
+            # Exact proven vendor-style invocation.  -g1 crashes before this
+            # compiler writes FntFlush; -mgas is part of the object identity.
+            alt_flags = ["-quiet", "-O2", "-G4", "-mgas",
+                         "-mno-split-addresses"]
+        r = run([alt_cc1, *alt_flags, i_file, "-o", alt_s], env=run_env)
+        if ver == "2.8.1-norcse" and r.returncode not in (0xC0000005, -1073741819):
+            sys.exit(f"[cc1-vs {ver}] unexpected exit {r.returncode} for "
+                     f"{rel_posix}\n{r.stdout}{r.stderr}")
+        if r.returncode and ver != "2.8.1-norcse":
             sys.exit(f"[cc1-vs {ver}] {rel_posix}\n{r.stdout}{r.stderr}")
+        if not alt_s.is_file():
+            sys.exit(f"[cc1-vs {ver}] no output for {rel_posix}\n{r.stdout}{r.stderr}")
         alt_text = alt_s.read_text(errors="replace")
+        if ver == "2.8.1-norcse":
+            # This compiler AVs while starting the later FntPrint function,
+            # after flushing one complete FntFlush region.  Accept the partial
+            # file only under this deliberately narrow structural contract.
+            if set(fn_names) != {"FntFlush"}:
+                sys.exit("[cc1-vs 2.8.1-norcse] unexpected function set")
+            if re.findall(r"^\t\.ent\t([^\s]+)", alt_text, re.M) != ["FntFlush"]:
+                sys.exit("[cc1-vs 2.8.1-norcse] partial output has unexpected .ent set")
+            anon_end = re.search(r"^\t\.end\t[ \t]*$", alt_text, re.M)
+            if anon_end is None:
+                sys.exit("[cc1-vs 2.8.1-norcse] complete anonymous FntFlush end missing")
+            alt_text = (alt_text[:anon_end.start()] + "\t.end\tFntFlush\n"
+                        + alt_text[anon_end.end():].lstrip("\r\n"))
         normal_text = s_file.read_text()
         for name in sorted(fn_names):
             alt_region = _extract_fn_region(alt_text, name)

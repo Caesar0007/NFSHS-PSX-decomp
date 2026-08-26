@@ -1222,13 +1222,28 @@ DrawCPrimStart_camRotMatrix:
        i.e. it merges into the NightHeadlight entry, and reported PASS 976/976
        with NightHeadlight still PASSing in the same whole-TU gate (17/20). */
     {
+      /* W78 source-only seal (976/976; strict branches 79/79): retain the
+         retail local-allocator handout with the original pz/evraw dials, then
+         make the table base depend on the already-scaled byte offset.  The
+         duplicated `pos` input is the measured ref-step that keeps pos in v1;
+         spelling the final sum pos-first gives retail's `addu v1,v1,v0` and
+         lets the following global-base `lui` fill the store window.  This
+         supersedes the historical PER_FN_TEXT_MOVES proposal above. */
       int envShift = eSpeed + 3;
       int pz = (int)(carObj->N).positionXZ;
-      __asm__("" : : "r"(pz));
+      int pos = pz >> envShift;
       u_int evraw = (sd->ePmx1).v0;
       __asm__("" : "=r"(evraw) : "0"(evraw));
-      sd->eAddZ = (pz >> envShift & 0x3fU) +
-                  (int)DrawC_gEnvMapOffset[evraw >> 6];
+      {
+        u_int ev = evraw >> 6;
+        u_int byteOffset = ev << 1;
+        short *envMapOffset = DrawC_gEnvMapOffset;
+        __asm__("" : "=r"(envMapOffset)
+                : "0"(envMapOffset), "r"(byteOffset), "r"(pos), "r"(pos));
+        sd->eAddZ =
+            (pos & 0x3fU) +
+            (int)*(short *)(byteOffset + (u_int)envMapOffset);
+      }
     }
     if (((GameSetup_gData.Weather != 0) &&
         (tunnelFlag = (int)BWorldSm_TunnelFlagSm(&(carObj->N).simRoadInfo), tunnelFlag != 1)) &&

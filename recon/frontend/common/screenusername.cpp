@@ -52,23 +52,23 @@ void tScreenUserName::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
 void tScreenUserName::DrawVerticalLine(short x,short y,short gridpos)
 
 {
-  /* MATCH (W54-A7): retail keeps the SHORT param in its home $a3 for the whole
-     clamp and sign-extends ONCE into a separate int ($v0->$v1) for the three
-     tests.  gcc-2.8 instead spills the param to $v1 (the parm copy survives -
-     global-allocno tie refusal) and lets the sign_extend eat $a3.  The identity
-     fence right after the parm copy re-pins gridpos to $a3: 17 diffs -> 2,
-     count-exact 32/32.  DO NOT "simplify" it away.
-     The comparisons now use gridpos directly, so the former non-SYM `depth`
-     carrier is gone without changing the generated instructions.
-     KNOWN RESIDUAL: reorg's stop_search_p() stops the backward delay-slot scan
-     at ANY asm, so the prologue `sw $ra` can no longer be stolen into the blez
-     slot (retail has it there).  A non-asm allocno-promotion device would
-     finish this fn; see the W54-A7 report. */
-  __asm__("" : "=r"(gridpos) : "0"(gridpos));
-  if (0 < gridpos) {
-    if (0x3f < gridpos) goto DrawVerticalLine_high;
+  /* MATCH: SYM-CODEGEN-CARRIER: depth -- retail sign-extends the short param
+     ONCE into a separate int
+     (oracle sll $v0,$a3,16 / sra $v1,$v0,16) and TESTS that int, while the
+     clamp STORES back into the short param register $a3.  One variable for
+     both roles makes gcc clamp+test in the same reg + an extra copy. */
+  int depth;
+
+  /* MATCH (source-only): the explicit unsigned-short normalization followed by
+     signed re-extension keeps the raw short parameter in $a3 for the clamp and
+     forms retail's separate $v0 -> $v1 depth value.  This replaces the former
+     identity fence, so reorg can also steal the ra save into the first branch's
+     delay slot.  Detailed gate: 17 -> PASS 32/32. */
+  depth = ((int)(uint)(ushort)gridpos << 16) >> 16;
+  if (0 < depth) {
+    if (0x3f < depth) goto DrawVerticalLine_high;
   }
-  if (gridpos < 0) {
+  if (depth < 0) {
     gridpos = 0;
   }
   goto DrawVerticalLine_draw;
@@ -84,11 +84,15 @@ DrawVerticalLine_draw:
 void tScreenUserName::DrawHorizontalLine(short x,short y,short gridpos)
 
 {
-  __asm__("" : "=r"(gridpos) : "0"(gridpos));
-  if (0 < gridpos) {
-    if (0x3f < gridpos) goto DrawHorizontalLine_high;
+  /* SYM-CODEGEN-CARRIER: depth -- same parameter-clamp source shape as
+     DrawVerticalLine.  Detailed source-only gate: 17 -> PASS 33/33. */
+  int depth;
+
+  depth = ((int)(uint)(ushort)gridpos << 16) >> 16;
+  if (0 < depth) {
+    if (0x3f < depth) goto DrawHorizontalLine_high;
   }
-  if (gridpos < 0) {
+  if (depth < 0) {
     gridpos = 0;
   }
   goto DrawHorizontalLine_draw;

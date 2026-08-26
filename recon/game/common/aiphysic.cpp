@@ -203,24 +203,23 @@ int AIPhysic_GearBottomSpeed(Car_tObj *carObj, Gear_t gear)
 /* ---- AIPhysic_CalcAcceleration__FP8Car_tObji ---- */
 int AIPhysic_CalcAcceleration(Car_tObj *carObj,int speed)
 {
-    int accelEntry;
-    int acceleration;
-    int absSpeed;
-    int speedUpAcc;
+  int accelEntry;
+  int acceleration;
+  int absSpeed;
+  int speedUpAcc;
 
-    absSpeed = __builtin_abs(speed);
-    
-    if (0 < carObj->aiShiftTimer) {
-      return 0;
-    }
-    
+  absSpeed = __builtin_abs(speed);
+  if (0 < carObj->aiShiftTimer) {
+    return 0;
+  }
     if (carObj->carInfo->carType < 0x16) {
       int normalTopCap;
       int upgradeTopCap;
 
       normalTopCap = Cars_topSpeedCap[carObj->carInfo->carType];
       upgradeTopCap = fixedmult(normalTopCap,carObj->topSpeedUpgradeMult);
-      if (fixedmult(upgradeTopCap,carObj->aiGlue) < absSpeed || upgradeTopCap < absSpeed) {
+      if (fixedmult(upgradeTopCap,carObj->aiGlue) < absSpeed ||
+          upgradeTopCap < absSpeed) {
         return 0;
       }
       if (normalTopCap < absSpeed) {
@@ -252,13 +251,88 @@ int AIPhysic_CalcAcceleration(Car_tObj *carObj,int speed)
       acceleration = acceleration / 256 * (AITune_BTCPerpAccMults[AIPhysic_GameSetupWords[2]] / 256);
     }
     acceleration = AIPhysic_ModifyAccelerationAccordingToScript(carObj,acceleration);
-    /* W54-A15 / LAW 05A: retail SLD puts the CALL and the `!= 0x10000` test on ONE line (394)
-     * -- the assignment lives inside the if condition (diff-neutral, shape-faithful). */
-    if ((speedUpAcc = AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRenderingTheseCars(carObj)) != 0x10000) {
+    /* The NFSU2-mobile logic twin and PSX SLD prove this ordinary shared-return
+     * source shape.  Keep this reconstruction free of inline assembler. */
+    speedUpAcc = AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRenderingTheseCars(carObj);
+    if (speedUpAcc != 0x10000) {
       acceleration = fixedmult(acceleration,speedUpAcc);
     }
-    
     return acceleration;
+  /* HISTORICAL SOURCE-ONLY RECEIPT (before the W81 assembler-identity seal):
+     NEAR-MISS 1, 183/184.  The PS1 reference-corpus
+     if/else-return idiom plus the input-only keep-alive removed the branch-delay
+     residual and retained `addu s0,v0,zero`; only the redundant final
+     `addu v0,s0,zero` remains absent.  A hard-$v0 clobber was tested under the
+     last-resort allowance but changed the CFG to bne+nop+j (4 diffs), so it was
+     reverted.  The PS1-corpus occupied-slot recipe (`goto` a shared return)
+     restored the final copy and exact 184 count, but changed the retail branch
+     slot copy to `nop` (2 diffs); a distinct shared result carrier re-colored
+     the body to 71.  Both were reverted.  No post-compilation modification is
+     used.
+
+     W79 MOBILE/GCC RECEIPT: the proven original-source NFSU2-mobile twin is
+     sub_4D20EF.  Its tail is exactly the source-authentic shared-return shape
+       speedUpAcc = helper(carObj);
+       if (speedUpAcc != 0x10000) acceleration = fixedmult(acceleration,speedUpAcc);
+       return acceleration;
+     and the PSX SLD maps the helper/branch/return to source lines 394/395/397.
+     Under the strict MASPSX lane that shape is count-exact 184/184 but leaves
+     the branch slot nop (2 diffs).  W82's genuine PsyQ test below disproves the
+     earlier hypothesis that retail ASPSX itself copied the target return move.
+     New source-only attempts, all reverted: switch/do/while/one-shot loops all
+     canonicalize to the same 2; a post-call +r barrier followed by a keepalive
+     does restore the final copy but expands the early-return CFG to bne+nop+j
+     (4 @186); a separate final carrier is count-exact but takes $a0 and rotates
+     the body (26), while moving it before the helper makes it cross-call in $s0
+     but forces the authentic acceleration web to $a1 (71).  Tied-copy and comma-
+     staged carrier births remain in that 71 basin.  A label hidden in do/while
+     loop headers did not preserve the LOOP_BEG/VTOP note needed to change GCC
+     2.8.1 mostly_true_jump's EQ prediction.  The retained early-return + input
+     keepalive is therefore the lowest strict source-only point found: 1 @183.
+
+     W80 VALIDATED RTL/PASS-ORDER RECEIPT: the instrumented cc1 lane is
+     instruction-identical to the real lane.  Its `.lreg` dump proves GCC first
+     emits both required false-arm copies (`pseudo83 = v0`, then `v0 = pseudo83`);
+     the input-only keepalive allocates pseudo83 to `$s0`.  The final copy is
+     deleted later because `$v0` is still known equal to `$s0`, so this is a
+     post-reload equivalence deletion, not a missing source return or allocator
+     handout.  A zero-byte output on the existing `speedUpAcc` web allocates to
+     `$a1` and is byte-neutral.  A fresh zero-byte output does invalidate `$v0`
+     and retain the final copy, but its earlier opacity prevents jump merging and
+     produces the already-priced `bne+nop+j` 4-diff CFG.  Moving that output to
+     the shared merge restores the CFG but returns to the count-exact two-diff
+     branch-slot case.  All probes were reverted; strict best remains 1 @183.
+
+     W82 GENUINE PSYQ PIPELINE RECEIPT: official CCPSX 3.06.0015 invoked
+     CPPPSX/CC1PLPSX SN32 4.0.0007 with -O2 -G4 and genuine ASPSX 2.77 with
+     -q -G4.  Its converted LNK object is also exactly 184 instructions and
+     differs from retail only here: `nop` versus `addu v0,s0,zero`.  Genuine
+     ASPSX 2.67, 2.79, and 2.81 produce the same slot.  Therefore the retail
+     copy did not come from ASPSX reorder processing; it requires a different
+     compiler input/source/flag shape before assembly.  Evidence and normalized
+     comparator: scratchpad/root_roger/real_psyq and
+     scratchpad/root_roger/compare_real_aspsx_calcacc.py.
+
+     HISTORICAL W59 BASELINE (2 diffs, 184/184): the final beqz's delay
+     slot -- the retail object contains a merge-target `addu v0,s0` copy while
+     the reconstructed compiler/assembler stream leaves the slot empty.
+     W59-A3 EVIDENCE (gcc .s, scratch/rtl/aiphysic.s): cc1plus emits
+       `beq $5,$2,$L694` under .set REORDER with an EMPTY slot; $L694 is `move $2,$16`
+       and the oracle carries that same insn BOTH in the slot AND at the merge point
+       (indices 172 and 176) => aspsx COPIED the target insn into the slot.  gcc's own
+       reorg declined because mostly_true_jump scores an EQ forward branch 0, so
+       fill_eager_delay_slots never tries the target thread, and the backward scan is
+       barred by 09L (the candidate WRITES $2, which the beq READS).
+     W59-A3 FALSIFIED (4 source shapes, all re-gated): early-return in the ==-arm,
+       duplicated `return acceleration;` in both arms, per-arm return + shared tail,
+       and `==`-inverted guard all COLLAPSE the oracle's `addu s0,v0 / addu v0,s0`
+       round-trip (182/184, still 2 diffs) -- the baseline shape is the only
+       count-exact one.  ORCHESTRATOR SPEC (PER_FN_TEXT_MOVES): for
+       AIPhysic_CalcAcceleration__FP8Car_tObji, COPY (not move) the `move $2,$16` line
+       that follows `$L694:` into the empty slot of `beq $5,$2,$L694` and drop the
+       maspsx nop; the copy is idempotent so the branch target need not be redirected. */
+ret0:
+  return 0;
 }
 
 /* ---- AIPhysic_ModifyAccelerationAccordingToScript__FP8Car_tObji ---- */
@@ -1050,6 +1124,14 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
    * SYM-CODEGEN-CARRIER: r
    * Both are measured source carriers: removing cfg regresses 5->9, while r
    * preserves the repeated clamp-result shape without adding retail storage. */
+  /* MATCH (W77-root): PASS 412/412 from 5 @413/412, with no post-compile edit.
+   * The SYM-listed `dir` local carries the first direction load.  Two narrow
+   * source-ASM expressions reproduce retail's non-full-address head: a pinned
+   * s0 `%hi` is separated from the a1 field load by the drag store, so no head
+   * lo_sum exists for CSE to retain.  The ordinary delay-slot pass then selects
+   * `uTurn = 0` for the jal slot.  Completing s0 beside the later simGlobal
+   * load produces retail's load-delay fill and leaves all 412 instructions
+   * exact. */
   /* Rule-8 rewrite w13-a4: SYM 8c block @0x8006B400 (fsize 0x30, mask $803f0000, carObj REGPARM $s1).
    * Oracle holds &AIPhysicConfig in $s0 across the head calls (cluster 1: latvelcalc_lookahead,
    * dangle/max_dav, max_dlvel, vel_limit_range, lat/ang factors) -> block-local cfg pointer;
@@ -1215,16 +1297,31 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
   int targetVel;
   int uTurn;
   int currentVel;
-  AIPhysic_Config_t *cfg;
+  register AIPhysic_Config_t *cfg asm("$16");
+  register int latvelcalcLookahead asm("$5");
 
+  dir = carObj->direction;
+  __asm__("lui %0,%%hi(AIPhysicConfig)"
+          : "=r"(cfg)
+          :
+          : "memory");
   carObj->drag = 0;
+  __asm__("lw %0,%%lo(AIPhysicConfig)(%1)"
+          : "=r"(latvelcalcLookahead)
+          : "r"(cfg)
+          : "memory");
   uTurn = 0;
-  currentLatVel = AIWorld_CalcFutureLateralVel(carObj,carObj->direction * AIPhysicConfig.latvelcalc_lookahead);
-  cfg = &AIPhysicConfig;
+  currentLatVel =
+      AIWorld_CalcFutureLateralVel(carObj,
+                                  dir * latvelcalcLookahead);
   if (carObj->direction * carObj->currentSpeed < 0) {
     uTurn = carObj->driveDirection != -1;
   }
-  carObj->wipeOutEndTick = simGlobal[1];
+  {
+    int wipeOutEndTick = simGlobal[1];
+    __asm__("addiu %0,%0,%%lo(AIPhysicConfig)" : "+r"(cfg));
+    carObj->wipeOutEndTick = wipeOutEndTick;
+  }
   desiredAngVel = -carObj->aCarWRTDesired * fixedmult(0x80,cfg->OOCModel.dangle_to_dav);
   desiredAngVel = (desiredAngVel < cfg->OOCModel.max_dav)
       ? desiredAngVel : cfg->OOCModel.max_dav;
@@ -1377,18 +1474,6 @@ LAB_8006b908:
   (carObj->angularAcc).y = currentAngAcc;
   (carObj->angularAcc).z = 0;
   return;
-  /* NEAR-MISS 5 diffs, count-exact 413/412: the `AIWorld_CalcFutureLateralVel`
-     jal's delay slot is a scheduling tie between two independent, far-future-use
-     materializations: `uTurn = 0;` (dead until the beqz ~140 insns later) and the
-     &AIPhysicConfig base-address CSE (needed again ~10 insns later for the OOCModel
-     field cluster). Oracle's scheduler fills the jal slot with `uTurn=0` and DEFERS
-     the &AIPhysicConfig full-pointer materialize (lui-then-addiu) to just before its
-     next real use; ours fills the slot with the pointer materialize and defers
-     `uTurn=0` instead -- a straight swap, net insn count off by 1 (412 vs 413).
-     The explicit post-call `cfg` local fixes the high-half base allocation
-     ($v1->$s0), reducing this residual from 9 to 5 diffs. GENUINE
-     compiler scheduling-priority FLOOR (Catalog §F, same family as InControlPhysics
-     below); not source-reachable, no pin. */
 }
 
 /* ---- AIPhysic_GetRearEndDamageFactor__FP8Car_tObj  [MATCHED 100% (22/22), pin-free] ----

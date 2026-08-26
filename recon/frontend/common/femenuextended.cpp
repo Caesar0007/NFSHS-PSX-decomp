@@ -8,6 +8,8 @@
 /* ---- FEMenuExtended.obj-OWNED globals -- DEFINED here (self-contained; .bss zero; SYM-typed) ---- */
 static RECT  gHelpPos;   /* @0x80052b58  (bss(zero)); SYM STAT */
 
+extern int CalcTextFadeSelToHiWide(int, int, int)
+  asm("CalcTextFadeSelToHi__F13tMenuTextTypess");
 typedef struct tPsyQPrimTag {
   unsigned int addr : 24;
   unsigned int len : 8;
@@ -28,20 +30,16 @@ static void MenuNFS4_SetHelpPos(RECT &r)
 
 
 /* ---- MenuNFS4_DrawTextBox  [FEMENUEXTENDED.CPP:66-137] SLD-VERIFIED ---- */
-/* MATCH: 6 -> 4 diffs (W56-A9/W66). Removed the fabricated `int maxw` local (NOT in the
-   SYM 8c block -- locals are helpText/r/initialWidth/drawOffset/fSelFade/
-   drawArrows/reflected/drenv/daprim/temp/textpix/dist($15=s5)/drawFlags/buffer/
-   shape/col/ypos); `dist=(max)+0x19` inline is codegen-neutral (293->293) but
-   SYM-faithful.  W66 removed the likewise fabricated `RECT *rect` local and uses
-   the native RECT& parameter directly; that moves Draw_gPlayer1View's `lui` to
-   its retail prologue position with no instruction-count change.  REMAINING 4:
-   `addiu s5,v1,25` (dist=max+25) -- oracle fills the CalcTextFadeSelToHi
-       jal delay slot with it, ours fills the slot with `addu a2,zero,zero`
-       (the 3rd arg 0) and computes dist before the call. Both are reorg
-       fill-candidate choices.  Moving the assignment after the call produces the
-       exact local sequence but swaps helpText/fSelFade $s1/$s2 (30); a named max
-       carrier costs a saved register and a 176-byte frame (136).  Inline helpers,
-       declaration-vs-assignment, and comma placement are neutral at 4. */
+/* MATCH (source-only, 4 -> PASS 293/293): SLD places the max-selection branch
+   on retail line 92, then the call arguments, jal, and dist add in line 94.  A
+   selected-value boundary preserves that split; separate textType/selFade
+   identities and a void-tail boundary before fade stage retail's a0/a1/a2 and
+   leave `addiu s5,v1,25` for the jal delay slot.  The wide local declaration
+   names the same short-parameter ABI symbol while preventing opaque carriers
+   from adding artificial post-boundary sign extensions.  Instrumented cc1plus
+   plus allocsim/reqdelta identified helpText p80 and fSelFade p98: p80 needs 13
+   refs, supplied by the eight measured last-use operands below, to recover the
+   retail s1/s2 handout.  No build recipe or post-cc1 edit; full TU 57/57 PASS. */
 
 void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset,short fSelFade,
                bool drawArrows,bool reflected)
@@ -77,9 +75,23 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
     sprintf(buffer,"%s",TextSys_Word(helpText));
     s_upper(buffer);
     textpix = textpixels(buffer) - strlen(buffer);
-    dist = (textpix >= dist ? textpix : dist) + 0x19;
     {
-      int col = CalcTextFadeSelToHi(textType_FlybyHelp,fSelFade,0);
+      int textType;
+      int selFade;
+      int fade;
+      dist = ({
+        int selected = textpix >= dist ? textpix : dist;
+        __asm__ __volatile__("" : : "r"(selected));
+        selFade = fSelFade;
+        textType = textType_FlybyHelp;
+        __asm__("" : "=r"(textType) : "0"(textType));
+        __asm__("" : "=r"(selFade) : "0"(selFade));
+        __asm__ __volatile__("" : : "i"(0));
+        fade = 0;
+        __asm__("" : "=r"(fade) : "0"(fade));
+        selected;
+      }) + 0x19;
+      int col = CalcTextFadeSelToHiWide(textType,selFade,fade);
       if (reflected != 0) {
         col = CalcFadeVal(0,col,0xf0 - r.y);
       }
@@ -89,6 +101,9 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
       {
         FETextRender_FullTextRGB((char *)TextSys_Word(helpText),
                    (short)(r.x + drawOffset - dist),r.y + 4,col,'\0',0);
+        __asm__("" : : "r"(helpText), "r"(helpText), "r"(helpText),
+                         "r"(helpText), "r"(helpText), "r"(helpText),
+                         "r"(helpText), "r"(helpText));
         if (drawArrows != 0) {
           int ypos = r.y + ((int)((u_int)(u_short)r.h << 0x10) >> 0x11);
           if (reflected == 0) {

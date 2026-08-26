@@ -487,13 +487,9 @@ void AudioCmn_Init(void)
     /* MATCH: explicit byte bases establish the retail t4/t3/t2 preheader order;
        integer-address additions preserve the retail `addu v0,v1,tN` operand order.
        The post-loop read-only lapSeed fence buys exactly one allocator reference,
-       moving 512 to t1 and rotating the byte bases into place.  The remaining
-       default-lane residual is four `la` expansions through v0 (34 -> 16).
-       2026-08-12 flag-identity proof: a scratch dual compile with only this
-       function's region taken from CC1PLPSX -G8 is byte-PASS 94/94; the normal
-       -G4 CheckState neighbor stays at its 6-diff baseline.  Whole-TU -G8 is
-       invalid (CheckState 6 -> 27), so this needs a per-function -G8 compiler
-       splice, not another source-level address spelling. */
+       moving 512 to t1 and rotating the byte bases into place.  The retail data
+       layout and all three affected functions identify -G8 as this TU's compiler
+       lane: Init is source-PASS 94/94 under a strict TU-wide -G8 build. */
     j = 0;
     char *ambient = fAmbientRangeON;
     char *mystic = fMysticWindON;
@@ -763,157 +759,15 @@ int AudioCmn_GetTimePhrase(int time)
 }
 
 /* ---- AudioCmn_CheckState__FP8Car_tObj  [@0x800770bc] ----
- * NEAR-MISS 6, COUNT-EXACT 415/415 (W60-A9 triage).  TWO independent scheduling
- * sites, no structural or arity difference anywhere:
- *  (1) retail fills the `beqz v0` slot after `lw v0,864(s2)` with
- *      `lui a1,%hi(D_8011E0B0)`; ours fills it with `andi v1,s4,255` and issues the
- *      `lui a1` two slots later.
- *  (2) at .L8007744C retail materialises `bestLapTime`'s address SELF-TEMP
- *      (`lui a1,%hi; addiu a1,a1,%lo`) AFTER the `lw v0,596(s2)`; ours splits the
- *      pair across that load with a SEPARATE scratch (`lui v1,%hi ... addiu a1,v1`).
- *      NOTE we already emit the self-temp form for `bestLapTime` at its OTHER sites
- *      in this same function, so this is NOT the S3.12 #5 declaration-shape lever --
- *      it is combine_regs failing to tie the {high, lo_sum} pair at THIS site only
- *      (w46: the tie is refused when the lo_sum destination is a global allocno).
- * NB this TU carries a PER_FN_G8 region splice for AudioCmn_Init; whole-TU -G8
- * breaks CheckState (6 -> 27), so keep any flag experiment per-fn.
- * W60-A9 resume: SoundCar's sibling residual turned out to be the SAME class and was
- * fully closed by a 6-row PER_FN_TEXT_MOVES (PASS 530/530, TU 47/48 under the
- * probe) -- CheckState's two sites are the same shape (a base/index issue-order swap
- * and a {high,lo_sum} tie), so a TEXT_MOVES row is the FIRST thing to try here too;
- * spec in scratchpad/w60a9/RECEIPTS.md.
- * W61-A10: site (1) IS a TEXT_MOVES row and is PROBE-VERIFIED -- 6 -> 4, spec in
- * scratchpad/w61a10/spec_ccs.py (take the `lui $5,%hi(simGlobal+4)`, slot it into
- * the `beq $2,$0` that guards the lap!=0 block; label-agnostic, the anchor is
- * disambiguated by a lookahead on its original slot content `andi $3,$20,0x00ff`).
- * Site (2) is NOT reachable by a move -- ours uses a SEPARATE scratch ($v1) for the
- * high part, so the two lines differ in an OPERAND, and _apply_text_moves can only
- * relocate lines.  W61-A10 FALSIFICATIONS on site (2), all measured on the gate:
- *   whole-fn `-mno-split-addresses` via PER_FN_NO_SPLIT_ADDRESSES (275 diffs @410 --
- *     this is NOT the split-address identity, the fn needs split addresses);
- *   index-term-first cast `*(int *)((car->carIndex << 2) + (int)bestLapTime)` 28;
- *   base-term-first cast 28; `*(bestLapTime + car->carIndex)` 6 (inert);
- *   `*(int *)((int)&bestLapTime[car->carIndex])` 6 (inert); `*&bestLapTime[...]` 6;
- *   `(int)car->carIndex` 6; Yoda `bestLapTime[..] > time[..]` 18;
- *   `bestLapTime[(u_char)carnum]` 30 @413 (WRONG -- carIndex and carnum differ here);
- *   `*(int *)(((u_char)carnum << 2) + (int)bestLapTime)` 30 @413 (same, wrong index).
- * The cc1 .s shows sched1 hoisting `lui $3,%hi(bestLapTime)` ABOVE the
- * `lw $2,596($18)` carIndex load, which is what splits the {high, lo_sum} pair; the
- * remaining route is a scheduling barrier that does not also break the `&&` shape,
- * or the 06E local-alloc instrument.
- * W62-A12 (2026-08-15) -- BASELINE IS NOW 4 (site 1's TEXT_MOVES row is wired and
- * live).  Site (2) re-probed in the NEW basin (04Z) and the mechanism is now read
- * off the cc1 .s, not inferred:  gcc emits the else arm as
- *     beq $2,$0,$L693 ; [delay] lui $3,%hi(bestLapTime)
- *   $L693: lw $2,596($18) ; addiu $5,$3,%lo(bestLapTime)
- * i.e. the HIGH is hoisted into the PREDECESSOR block's delay slot, so at
- * local-alloc time the {high, lo_sum} pair is NOT single-block and combine_regs
- * cannot tie it (11A / local-alloc.c:471-477).  The sibling site $L732 in the SAME
- * function ties fine because its lo_sum dest is arm-local; this arm's dest is live
- * across the guard branch (used again by the store at oracle:261) = a global allocno.
- * 🔑 A DEVICE THAT BUYS THE REGISTER EXISTS -- and costs exactly the count:
- *   arm-local `int *bl = bestLapTime;` + 13B identity launder
- *   `__asm__ ("" : "=r" (bl) : "0" (bl));` forces the SELF-TEMP `la` form
- *   (`lui a1 ; addiu a1,a1` adjacent, retail's shape) -> 3 diffs, but 416/415:
- *   the asm is a sched barrier, so the carIndex `lw` can no longer be issued
- *   BEFORE the la and its load-delay slot takes a `nop` where retail puts the
- *   `lui`.  12E's law in the flesh (register XOR count, never both).
- * ALSO FALSIFIED W62-A12 (all real gate runs): plain unlaundered `int *bl` 4
- * (inert, the FE folds it back); `int ci = car->carIndex;` hoisted above the
- * launder 28 (the shared ci pseudo kills the store's reload); ci + read-only
- * fence 28; ci laundered 29-30; ci above + store re-reads carIndex 3 @416 (same
- * cell as the plain launder); void barrier at the arm head 4; void barrier
- * BETWEEN the two bestLapTime uses 5 @416; named guard value `int cur` 4;
- * read-only fence on that value 4; arm-local laundered ptr used only by the
- * STORE 27 @416.
- * ROUTE: not a spelling.  Either (a) stop reorg/sched from hoisting the HIGH into
- * the predecessor's delay slot WITHOUT planting a barrier between the lw and the
- * la (no zero-insn device does both), or (b) the 06E local-alloc instrument.
- * W63-A10 re-gated 4@415 and reproduced the 12E cell exactly (3@416 with the
- * register right, 4@415 with the count right).  TEN more falsifications, all
- * real gate runs, none of which beats 4:
- *   arm-local `int *bl = bestLapTime;` LAUNDERED and used by BOTH arm sites
- *   (guard + store) 3@416 -- same cell as the store-only form, so sharing the
- *   pointer across both uses is not the missing piece;  the same with a
- *   block-local `int ci = car->carIndex` 3@416;  the same with the guard written
- *   Yoda `!(carspeed < bl[..])` 3@416;  UNLAUNDERED arm-local bl used by both
- *   sites 4@415 (inert, the FE folds it back);  the guard through bl and the
- *   store through bestLapTime 30@417.
- *   PLACEMENT LADDER (the lever that sealed GetClosestCars and Lose this wave --
- *   here it FAILS, and that is the point): hoisting the pointer's declaration out
- *   of the arm to the top of the `{ CopSpeak_tRequest r; ... }` block makes the
- *   address loop/block-invariant and DELETES the per-site materialisation --
- *   plain 20@413, laundered 53@416, plain with all three bestLapTime sites on it
- *   24@411, laundered with all three 20@411.  Retail rematerialises the address
- *   per site, so the declaration must stay arm-local.
- *   The W63 FOREIGN-OPERAND FENCE (`asm("" : : "r"(carspeed))` at the arm head)
- *   is 4@415, inert -- consistent with the A16 correction (this is not a
- *   serving-order loss).
- * => the certificate stands and is now BOUNDED ON BOTH SIDES: every arm-local
- * form that buys retail's REGISTER costs the load-delay nop, and every form that
- * keeps the COUNT leaves the split scratch.  The wanted device is one that stops
- * the {high, lo_sum} split WITHOUT being an RTL insn (i.e. not an asm at all) --
- * a local-alloc/06E instrument, exactly as routed above.
- *
- * ===== W71-A22 (2026-08-21): MECHANISM PROVEN FROM THE RTL, AND A PASS RECIPE.
- * (a) THE MECHANISM IS NO LONGER A GUESS.  Reading `-dl`/`-dg` on this exact TU
- *     (CC1PLPSX -O2 -G4, .lreg/.greg): at $L797 the pair is
- *         (insn 605) (set (reg 246) (high (symbol_ref "bestLapTime")))
- *         (insn 608) (set (reg 247) (mem (plus (reg 80) 596)))   <- sched1 moved
- *         (insn 606) (set (reg 245) (lo_sum (reg 246) sym))
- *     and reg 245 IS IN THE GLOBAL LIST (`;; 26 regs to allocate: ... 245 ...`)
- *     because it is ALSO used by the STORE block (insn 637, `addu 258,257,245`).
- *     gcc-2.8.1 local-alloc.c:1866 refuses the {high,lo_sum} tie on exactly that
- *     test -- `|| (sreg >= FIRST_PSEUDO_REGISTER && reg_qty[sreg] == -1)` -- and
- *     reg_qty[245] == -1 comes from local-alloc.c:470-477 (REG_BASIC_BLOCK < 0).
- *     So the split scratch is NOT a scheduling artifact and NOT the W62 "high
- *     hoisted into the predecessor's delay slot" reading (the high is the first
- *     insn of $L797's own block): it is combine_regs refusing a GLOBAL dest.
- *     Retail shares $a1 across the same two blocks AND ties -- i.e. retail's high
- *     was itself a global allocno (set_preference then hands lo_sum the high's
- *     home), which no C spelling can request.
- * (b) CONSEQUENCE: the ONLY source device that makes the lo_sum block-local is an
- *     opacity launder right after the decl -- and that pins the `la` at the block
- *     head, one slot ABOVE retail's carIndex `lw`, costing the load-delay nop.
- *     12E in the flesh, re-confirmed in this basin: register XOR count.
- * (c) 🏆 PASS RECIPE (PROBE-VERIFIED THIS WAVE, PASS 415/415) = the two halves
- *     landed TOGETHER (18A coupled-landing rule).  NOT landed here because the
- *     second half is a tools/build.py edit and this belt may not touch build.py:
- *       [source half]  else { int *bl = bestLapTime;
- *                             __asm__ ("" : "=r" (bl) : "0" (bl));
- *                             if (bl[car->carIndex] <= carspeed) goto LAB_800774e0;
- *                             r.phrase = 0;
- *                             bl[car->carIndex] = (car->stats).time[(car->stats).lap + -1];
- *                             CopSpeak_Request(&r); }
- *       [build half]   ONE extra PER_FN_TEXT_MOVES row appended to this fn's
- *                      existing list (the simGlobal+4 slot row stays FIRST):
- *         {"take": r"\tlw\t\$2,596\(\$18\)\n(?=\t#nop\n\tsll\t\$2,\$2,2\n\taddu\t\$2,\$2,\$5\n)",
- *          "after": r"\$L\d+:\n(?=\tlui\t\$5,%hi\(bestLapTime\)[^\n]*\n\taddiu\t\$5,\$5,%lo\(bestLapTime\)[^\n]*\n[^\n]*#APP\n)"}
- *       The row relocates ONE non-branch line (the carIndex load) above the la
- *       pair, exactly retail's order; maspsx then fills the load-delay slot with
- *       the `lui` instead of a nop (it SKIPS cc1's `#nop` placeholder,
- *       maspsx/__init__.py:266), so the count returns to 415.  No branch line and
- *       no delay slot is touched => no brdist pairing needed (17C).
- *       Measured: source half alone 3@416; source half + row PASS 415/415.
- * (d) NEW FALSIFICATIONS (all real gate runs, this basin, none beats 4@415 without
- *     the build half):  ci-local declared BEFORE the laundered ptr 3@416;
- *     ci-local AFTER the launder 3@416; ci-local laundered too 27@414;
- *     `"r"(ci)` as a 2nd fence operand 3@416 (and 4@417 without the ci local);
- *     dual-output launder of bl+ci 5@416; read-only fence on car->carIndex 3@416;
- *     `*(volatile int *)&car->carIndex` 3@416; laundering the LOADED VALUE
- *     (`int bt = bestLapTime[..]`) 12@415; laundering the ELEMENT pointer
- *     (`&bestLapTime[ci]`) 4@415; 20B clobber-only fence `"$3"` on carspeed
- *     12@415 (the high is BORN after the fence, so the clobber never enters its
- *     [birth,death) window -- find_free_reg only ORs regs_live_at over that
- *     window, local-alloc.c find_free_reg).                                   */
+ * MATCH: the strict source-only TU-wide -G8 lane makes the small arrays use the
+ * retail gp-relative address forms.  Restoring the direct bestLapTime and
+ * gtotallaptimes expressions then gives PASS 415/415.  The former -G4 residual
+ * and its diagnostic TEXT_MOVES recipe are obsolete under the no-postcompile
+ * policy. */
 void AudioCmn_CheckState(Car_tObj *car)
 {
-  /* SYM-CODEGEN-CARRIER: lap
-   * SYM-CODEGEN-CARRIER: lapOffset
-   * SYM-CODEGEN-CARRIER: sim
-   * SYM-CODEGEN-CARRIER: tailOffset
-   * These measured carriers preserve the retail shared-index/address schedule;
-   * the optimized SYM stream retains no declarations for them. */
+  /* The optimized SYM stream retains only the source-visible car number and
+     speed locals here; the -G8 small-data forms supply the retail schedule. */
   char carnum;
   int carspeed;
 
@@ -942,15 +796,8 @@ void AudioCmn_CheckState(Car_tObj *car)
       AudioCmn_GetAsyncSfx(2,1,false);
     }
     if ((car->stats).lap != 0) {
-      int lapOffset = (u_char)carnum << 2;
-      __asm__("" : "=r"(lapOffset) : "0"(lapOffset));
-      Sim_tSimGlobalVar *sim = &simGlobal;
-
-      /* MATCH: the explicit byte-derived offset and zero-insn identity boundary
-         preserve retail's shared index and gtotallaptimes-first address order.
-         This removes two schedule differences from the 10-diff baseline. */
-      if (sim->gameTicks - *(int *)((int)lapOffset + (int)gtotallaptimes) <
-          *(int *)((int)lapOffset + (int)bestLapTime)) {
+      if (simGlobal.gameTicks - gtotallaptimes[(u_char)carnum] <
+          bestLapTime[(u_char)carnum]) {
         AudioCmn_GetAsyncSfx(2,0,false);
       }
     }
@@ -1013,16 +860,9 @@ void AudioCmn_CheckState(Car_tObj *car)
       CopSpeak_Request(&r);
     }
     else {
-      /* W71 consolidation: the (c) PASS-recipe SOURCE HALF landed together with
-       * its build.py PER_FN_TEXT_MOVES row (18A coupled landing; receipt above).
-       * The laundered arm-local `bl` makes the lo_sum block-local (self-temp la,
-       * retail's registers); the build row then restores retail's carIndex-load-
-       * first order so maspsx fills the load-delay slot with the lui. */
-      int *bl = bestLapTime;
-      __asm__ ("" : "=r" (bl) : "0" (bl));
-      if (bl[car->carIndex] <= carspeed) goto LAB_800774e0;
+      if (bestLapTime[car->carIndex] <= carspeed) goto LAB_800774e0;
       r.phrase = 0;
-      bl[car->carIndex] = (car->stats).time[(car->stats).lap + -1];
+      bestLapTime[car->carIndex] = (car->stats).time[(car->stats).lap + -1];
       CopSpeak_Request(&r);
     }
 LAB_800774e0:
@@ -1106,9 +946,7 @@ LAB_800774e0:
   }
   {
     char lap = (char)car->lap;
-    /* MATCH: zero-insn use fence keeps the lap byte load ahead of the next
-       global-base materialization, matching the SLD 1190/1191 interleave. */
-    __asm__("" : : "r"(lap));
+    /* MATCH: the direct byte local preserves the SLD 1190/1191 interleave. */
     currentLap[(u_char)carnum] = lap;
   }
   gtotallaptimes[(u_char)carnum] = (car->stats).lapTime;
@@ -1796,14 +1634,19 @@ LAB_8007887c:
 }
 
 /* ---- AudioCmn_SoundCar__FP8Car_tObjiiiiiii  [@0x800788bc] ---- */
-/* MATCH (2026-08-14): the IDA/SYM-guided local and expression rewrite reduces
-   the authoritative default build from 62 differences to 14 (532/530).  Those
-   14 are six relocations at five scheduler sites: three independent
-   carIndex loads must precede the PlayersRampedGasLevel high half, the signed
-   divide-by-eight copy belongs in the bgez delay slot, and the wet-noise load
-   plus road-amplitude shift precede mflo.  A scratch PER_FN_TEXT_MOVES probe
-   containing only those relocations is independently verified PASS 530/530;
-   the exact unwired probe is scratchpad/root_verify_soundcar_splice.py. */
+/* MATCH (2026-08-24): the IDA/SYM-guided local and expression rewrite gives
+   source-PASS 530/530 in the authoritative strict TU-wide -G8 build.
+   Comma-staging tunnelFlag with the load-amplitude shift, plus an input-only
+   tunnelFlag fence, fills the multiply latency window and removes its load-delay
+   nop.  Staging carIndex before an immediate-only fence fixes the first two
+   PlayersRampedGasLevel address sites.  In the signed divide-by-eight block,
+   putting gasDelta's opacity use inside only the negative arm and spelling the
+   nonnegative assignment explicitly keeps gasDelta as the branch operand while
+   allowing gcc to fill `bgez`'s delay slot with `currentGas = gasDelta`.
+   In the final PlayersRampedGasLevel store, staging carIndex with no following
+   fence lets the -G8 `la` pair fill its load latency before the scaled index,
+   matching retail exactly.  The former +2-ref fence was a -G4-only workaround
+   and is intentionally absent in the sealed 48/48 TU lane. */
 void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth,int trackazim,int relvel,
                int cardir)
 {
@@ -1825,6 +1668,7 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
      defining store models that boundary; the later read remains ordinary. */
   int iAmpIn;
   int tuntrig;
+  int tunnelFlag;
   int cam;
   int roadNoisePatch;
   u_char bVar1;
@@ -1993,8 +1837,10 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   }
   {
   int currentGas;
+  int rampIndex = car->carIndex;
 
-  rampedGas = PlayersRampedGasLevel + car->carIndex;
+  __asm__("" : : "i"(0));
+  rampedGas = PlayersRampedGasLevel + rampIndex;
   __asm__("" : : "r"(rampedGas));
   currentGas = (u_char)(car->control).gasLevel;
   iVar10 = *rampedGas;
@@ -2011,12 +1857,13 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   else if (currentGas < iVar10) {
     int gasDelta = currentGas - iVar10;
     __asm__("" : "+r"(currentGas));
-    currentGas = gasDelta;
-    __asm__("" : "+r"(gasDelta));
     if (gasDelta < 0) {
+      __asm__("" : "+r"(gasDelta));
       currentGas = gasDelta + 7;
     }
-    __asm__("" : : "i"(0));
+    else {
+      currentGas = gasDelta;
+    }
     currentGas >>= 3;
     if (currentGas < 0) {
       *rampedGas = iVar10 + currentGas;
@@ -2029,7 +1876,11 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   /* SYM: cobblestoneAmp is REG $s0 (shares the register with CurCarGasLevel, whose
      live range ends earlier) -- the re-read of the just-updated ramped gas level,
      clamped and carried into the gear-shift block below. */
-  cobblestoneAmp = *(int *)((car->carIndex << 2) + (int)PlayersRampedGasLevel);
+  {
+  int rampIndex = car->carIndex;
+  __asm__("" : : "i"(0));
+  cobblestoneAmp = *(int *)((rampIndex << 2) + (int)PlayersRampedGasLevel);
+  }
   if (0xff < cobblestoneAmp) {
     cobblestoneAmp = 0xff;
   }
@@ -2048,12 +1899,13 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   __asm__("" : "+r"(amplitude));
   uVar7 = (u_int)((int)uVar7 * loadAmp);
   roadProduct = roadNoiseAmp * amplitude;
-  __asm__("" : : "r"(roadProduct));
-  loadAmp = (int)uVar7 >> 7;
+  loadAmp = (tunnelFlag = tuntrig, (int)uVar7 >> 7);
+  __asm__("" : : "r"(tunnelFlag));
   __asm__("" : : "r"(loadAmp));
+  __asm__("" : : "r"(roadProduct));
   roadNoiseAmp = roadProduct >> 7;
   }
-  if (tuntrig == 0) goto SoundCar_getWetNoise;
+  if (tunnelFlag == 0) goto SoundCar_getWetNoise;
   wetNoiseAmp = 0;
   goto SoundCar_haveWetNoise;
 SoundCar_getWetNoise:
@@ -2123,9 +1975,7 @@ SoundCar_haveWetNoise:
       cobblestoneAmp = 0;
     }
     {
-      int rampIndex;
-      __asm__("" : : "i"(0));
-      rampIndex = car->carIndex;
+      int rampIndex = car->carIndex;
       PlayersRampedGasLevel[rampIndex] = cobblestoneAmp;
     }
   }
@@ -2609,8 +2459,8 @@ AudioCmn_tAsyncSfxSlot AudioCmn_gSfxSlot[32] = {0};         /* @0x8010eb34 */
 char carbankname[12] = {0};                                /* @0x8010ee34 */
 
 /* Definitions following both function-local .sdata records.  The explicit
- * section attributes preserve the retail -G8 ownership without changing the
- * TU's -G4 address materialization. */
+ * section attributes preserve their retail small-data ownership; this TU is
+ * compiled in its retail -G8 lane. */
 int falseLapTrigCur = 0;                                    /* @0x8013c6b4 */
 int flaseLapTrigTrack = 0;                                  /* @0x8013c6b8 */
 char currentLap[2] = {0, 0};                                /* @0x8013c6bc */

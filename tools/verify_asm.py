@@ -15,6 +15,25 @@ funcs = sys.argv[2].split(',')
 import importlib.util
 spec = importlib.util.spec_from_file_location('bld', ROOT / 'tools' / 'build.py')
 bld = importlib.util.module_from_spec(spec); spec.loader.exec_module(bld)
+# Strict reconstruction gate: retain the translation unit's compiler identity
+# plus proven per-object compiler-version selections, but disable function-
+# specific post-cc1/build interventions.  Version splices identify the original
+# compiler and are not instruction seals; PAD_update has a measured 2.7.2
+# post-reload constant-rematerialization fingerprint just as sharp as the
+# vendor syslib identities.
+if os.environ.get('NFS4_SOURCE_ONLY') == '1':
+    for _name, _table in vars(bld).items():
+        if not (_name.startswith('PER_FN_') and isinstance(_table, dict)):
+            continue
+        if _name == 'PER_FN_CC1_VER_SPLICE_272':
+            continue
+        if _name == 'PER_FN_CC1_VER_SPLICE':
+            for _source in list(_table):
+                if (not _source.startswith('recon/syslib/') and
+                        _source != 'recon/eaclib/psx/pad.c'):
+                    del _table[_source]
+            continue
+        _table.clear()
 bld.OUT = bld.BUILD
 obj = bld.compile_c(cpp, skip_asm=False) if cpp.suffix == '.c' else bld.compile_cpp(cpp)
 dis = subprocess.run([OBJD, '-d', '-r', '-z', str(obj)], capture_output=True, text=True).stdout

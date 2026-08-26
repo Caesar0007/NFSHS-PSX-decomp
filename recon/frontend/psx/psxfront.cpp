@@ -947,6 +947,12 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
        * ({w1=a0,addw=a1,u+w1=v0} ours vs {w1=a1,addw=a2,u+w1=v1} retail). */
       addwm1 = addw - 1;
       *(short *)(prim + 8) = ((width + x) - i) + addwm1;
+      /* MATCH (source-only, 2026-08-26): the packet macro's x0 field is a
+       * memory dependency for the following y0 write.  The zero-byte memory
+       * input keeps y0 behind x0 without changing the established register
+       * budget; it also occupies the exposed lhu delay cycle, reproducing
+       * retail's nop.  Detailed gate: 3 -> PASS 245/245. */
+      __asm__("" : : "m"(*(short *)(prim + 8)));
       *(short *)(prim + 10) = y;
       *(short *)(prim + 0x14) = ((shp->width + x) - (i + w1)) + addwm1;
       *(short *)(prim + 0x16) = y;

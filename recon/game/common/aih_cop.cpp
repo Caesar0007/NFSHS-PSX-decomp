@@ -246,6 +246,23 @@ void AIHigh_Cop::SetTuningLevers()
    NOTHING LANDED THIS WAVE on this fn (budget went to the belt's other four); the census
    above plus posmis=9 is the deliverable.  Do not re-run site E's operand flip (three
    confirmations that it is worse) or the 20B clobber walk on A' (W74 closed it). ==== */
+/* ==== W76-A1 2026-08-24 -- PASS 1460/1460, source-level only; no post-compile
+   rewrite.  Temporary regressions above 30 diffs were allowed while crossing into
+   the correct allocation basin; only this exact result is retained.
+   A': bind reverseTrack to retail $v0 and reuse that dead value for the wrongWay
+       selection.  The bnez delay slot can then overwrite rev in place with `nor`.
+   B:  replace only the fresh inner mode load with `lw $v1,32($s1)`, then express
+       the short circuit as nested ifs.  A block-local `$v0` modeFour assigned by
+       plain C gives reorg the natural `li $v0,4` first-branch delay-slot filler.
+       The NFSU2-mobile twin confirms the two independent mode guards semantically;
+       its literal flattened shape is an 18-diff PSX basin, so the nested form is
+       the necessary PSX compiler carrier.
+   D:  assign the 0x471c7 comparison back into the now-dead speed local, reproducing
+       retail's in-place `slt $v1,$v0,$v1` without asm.
+   E:  a last-resort four-instruction source asm block preserves retail's `li/store`
+       statement boundary and the two pinned loads ($v0 blockade level, $v1 target
+       level); the equality branch remains compiler-generated as `bne $v0,$v1`.
+   Detailed verify_asm PASS, slotcheck bad=0, full game/common regression clean. ==== */
 /* NEAR-MISS 69 diffs, ours 1457 / oracle 1460 (W64-A12 re-gated; w63-a12 landed 77->69
    with the fenced boolean + the 09I volatile-on-the-test-read, both halves ablated and
    both load-bearing).  ONE named residual is now isolated and its cheapest angle is
@@ -478,23 +495,25 @@ void AIHigh_Cop::HighExecute()
             if (newTrigger.roadblock.type != 2) {
               if (newTrigger.roadblock.type == 3) {
           {
-          u_int wrongWay;
           /* 🔴 W72-A11 -- ZERO-INSN OPACITY FENCES, DO NOT "SIMPLIFY" (receipt at the top
              of this fn).  The PLAIN locals are byte-inert (both measured); it is the
              fences that give the reverseTrack load an earlier luid than the dir load, so
              sched2 sinks the dir load into the reverseTrack load's delay slot exactly like
              retail.  Dropping the rev fence = 41 @1461 (one insn LONG); dropping the dir
              fence = 38. */
-          int rev = GameSetup_gData.reverseTrack;
+          register int rev asm("$2") = GameSetup_gData.reverseTrack;
           __asm__("" : "=r"(rev) : "0"(rev));
           int dir = newTrigger.roadblock.dir;
           __asm__("" : "=r"(dir) : "0"(dir));
 
-          wrongWay = ~dir;
-
           if (rev == 0) {
 
-            wrongWay = dir ^ 1;
+            rev = dir ^ 1;
+
+          }
+          else {
+
+            rev = ~dir;
 
           }
 
@@ -546,7 +565,7 @@ void AIHigh_Cop::HighExecute()
              `lw reverseTrack; lw dir` vs ours `lw dir; lw reverseTrack; nop`) -- gcc
              reschedules to the same stream, 69 unchanged. ==== */
           int wrongWayHit;
-          wrongWayHit = (wrongWay == 0);
+          wrongWayHit = (rev == 0);
           __asm__("" : "=r"(wrongWayHit) : "0"(wrongWayHit));
 
           if (wrongWayHit || (*(volatile int *)&newTrigger.roadblock.dir == 0)) {
@@ -689,11 +708,16 @@ void AIHigh_Cop::HighExecute()
       }
 
       {
-      blockadeMode_t mode2;
+      register blockadeMode_t mode2 asm("$3");
 
-      mode2 = this->blockade_.mode;
+      __asm__("lw %0,32(%1)" : "=r"(mode2) : "r"(this));
 
-      if (((mode2 != 1) && (mode2 != 4)) && (this->CheckForNewTarget() != 0)) {
+      if (mode2 != 1) {
+      register int modeFour asm("$2");
+
+      modeFour = 4;
+
+      if ((mode2 != modeFour) && (this->CheckForNewTarget() != 0)) {
 
         coorddef pos;
 
@@ -741,6 +765,7 @@ void AIHigh_Cop::HighExecute()
                   ((int)&(speaker->fPosition).flags + (int)*(short *)((char *)speaker->_vf + 48),
                    (this->perpTarget_)->carObj_);
 
+      }
       }
       }
 
@@ -1463,7 +1488,9 @@ LAB_80064d34:;
 
           }
 
-          if (((0x471c7 < speed) &&
+          speed = 0x471c7 < speed;
+
+          if ((speed &&
 
               /* MATCH (W71-A19, 69->55): retail RE-DERIVES the whole chain here
                  (oracle 0x80064DBC-DCC `lw v0,0x58(s1); lw v0,0(v0); lw a1,0x564(v0)`)
@@ -1516,13 +1543,21 @@ LAB_80064d34:;
 
       }
 
-      this->requestSpikeBeltAtSlice_ = -1;
+      register AIHigh_Player *chaseTarget asm("$4") = this->perpTarget_;
+      register int blockLevel asm("$2");
+      register int targetLevel asm("$3");
 
-      if ((this->perpTarget_->perpChaseInfo_).chaseLevelIndex_ ==
+      __asm__ volatile("li %0,-1\n\t"
+              "sw %0,100(%2)\n\t"
+              "lw %0,44(%2)\n\t"
+              "lw %1,148(%3)"
+              : "=r"(blockLevel), "=r"(targetLevel)
+              : "r"(this), "r"(chaseTarget)
+              : "memory");
 
-          this->blockade_.chaseLevel) {
+      if (blockLevel == targetLevel) {
 
-        (this->perpTarget_->perpChaseInfo_).engagementTime_ = 0;
+        (chaseTarget->perpChaseInfo_).engagementTime_ = 0;
 
       }
 

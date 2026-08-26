@@ -448,13 +448,14 @@ void Physics_CorrectPostCollisionYaw(Car_tObj *carObj,int impactVel,coorddef bar
  * width multiply, so keeping the wall-threshold expressions outside that local
  * r/x scope improves the fresh 121 baseline to 85. Re-probing the previously
  * basin-relative orientation-first products then gives 24 at exact 358/358.
- * The direct first x1 product, removal of centerKeep's early identity, and a
- * plain keep-alive after x3 produce the complete retail handout and reach
- * source-only FAIL 2 (358/358). The sole residual is `mflo t2` four independent
- * instructions early. A scratch-only PER_FN_TEXT_MOVES probe moving that line
- * after `move $5,$3` independently verifies PASS 358/358; receipt and object:
- * scratchpad/root_probe_physics_barrier_splice.py and
- * scratchpad/root_barrier_fail2_spliced.o. */
+ * W78 SOURCE-ONLY PASS 358/358: the PS1 reference corpus's split-product idiom
+ * closed the remaining scheduling/allocation knot.  Split x2 in place so its
+ * product reuses retail's $a2.  For x3, form `x3left` and `x3factor` separately,
+ * keep centerKeep alive after both divisions but BEFORE the multiply, then assign
+ * the product to an independent `x3`.  This preserves the allocator quantity that
+ * previously required the post-product fence, gives retail's $v1 multiplicand and
+ * $t2 product, and leaves sched2 free to sink `mflo t2` past the four orientation
+ * loads.  No post-compilation relocation, register pin, or non-empty asm is used. */
 int Physics_DoBarrierCheck(Car_tObj *carObj)
 
 {
@@ -491,6 +492,7 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
     int raw1;
     int raw2;
     int raw3;
+
     raw1 = (int)(signed char)PHYSICS_SLICE_RIGHT(slice,0);
     raw3 = (int)(signed char)PHYSICS_SLICE_RIGHT(slice,2);
     __asm__("" : : "r"(raw3), "r"(raw3));
@@ -546,14 +548,17 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
     {
     int x1;
     int x2;
+    int x3factor;
+    int x3left;
     int x3;
-    int rightY;
 
     x1 = x1raw / 0x100 * (vel_b.x / 0x100);
-    rightY = right.y;
-    x2 = rightY / 0x100 * (vel_b.y / 0x100);
-    x3 = right.z / 0x100 * (vel_b.z / 0x100);
+    x2 = right.y / 0x100;
+    x2 = x2 * (vel_b.y / 0x100);
+    x3left = right.z / 0x100;
+    x3factor = vel_b.z / 0x100;
     __asm__("" : : "r"(centerKeep));
+    x3 = x3left * x3factor;
     x_relRoad = x1 + x2 + x3;
     (carObj->N).xRelRoadCenter = x_relRoad;
     }

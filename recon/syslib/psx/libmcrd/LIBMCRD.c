@@ -575,14 +575,21 @@ iodone:                                 /* ev == 0 : I/O complete */
              * otherwise-redundant `addu $a0,$v0,$zero` copy of the result out of $v0
              * (`addu a0,v0,zero; li v0,1; addiu v1,s0,-0xC; j; sw a0,4(v1)`) */
             int r = MemCardEventToRslt(_mc_exrslt);
-            int *pi = pchan - 3;        /* w61-a3: block-local anchor = a local QTY */
+            int ret;
+            int *pi;                    /* w61-a3: block-local anchor = a local QTY */
+            /* MATCH (W78 source-only, first half of 4 -> PASS): declaration
+             * without initialization is load-bearing.  The tied return value
+             * is emitted before the later `pi = pchan - 3` address assignment. */
+            ret = 1;
+            __asm__ __volatile__("" : "=r"(ret) : "0"(ret));
+            pi = pchan - 3;
             __asm__("" : "=r"(pi) : "0"(pi));
             /* W62-A8: same IDENTITY-LAUNDER on the result as the common tail -- 11 -> 4.
              * Inert on the ev==4 arm (that tail`s residual is a different, slot-choice
              * row), so price it per tail. */
             __asm__("" : "=r"(r) : "0"(r));
             pi[1] = r;
-            return 1;
+            return ret;
         }
 retry:
         _mc_exretry = _mc_exretry + 1;
@@ -600,8 +607,14 @@ common:
          * the same global-vs-local race, one level up. */
         {
             int *pc = &mc.chan;
+            int one;
             __asm__("" : "=r"(pc) : "0"(pc));
-            _mc_present &= ~(1 << *pc);
+            /* MATCH (W78 source-only, second half): make the shift's 1 an
+             * opaque first occurrence before loading *pc; retail places the
+             * `li v0,1` ahead of the chan load. */
+            one = 1;
+            __asm__ __volatile__("" : "=r"(one) : "0"(one));
+            _mc_present &= ~(one << *pc);
             pc = pc - 3;             /* MUTATED IN PLACE (`addiu $s0,$s0,-0xC` in the jal
                                          * delay slot); dropping the second opacity fence that
                                          * used to sit here is what lets reorg reach it -- an

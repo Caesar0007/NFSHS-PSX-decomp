@@ -3872,6 +3872,42 @@ call-target audit retains exactly the two pre-existing swapped
 `Sim_MainGameLoop` sites, the TU-order audit reports zero inversions, and the
 vtable indexing audit passes 930 files.
 
+### P109 — trophy-room background identity reconciliation (`2026-08-26`)
+
+Reliable `tScreenTrophyRoom::DrawBackground` SYM records stack objects
+`drawFlags3` and `drawFlags`, `int fModNumber` in `$s3`,
+`int TROPHY_LEFTOFFSET` in `$s5`, `short i` in `$s1`, `short x` in `$a2`,
+`short y` in `$a3`, and `int texttoshow` in `$a0`.  The five other source
+identities are absent from the optimized debug block and therefore cannot have
+their private spellings recovered from SYM alone.
+
+Those five identities—`feTier`, `currentTourn`, `tourn`, `selectedTourn`, and
+`drawFlagsPtr`—are now explicitly classified as source-only codegen carriers.
+The last decompiler-style name, `pDrawFlags`, is replaced by descriptive
+`drawFlagsPtr`.  This is a measured disposition: the existing W66 receipt
+proves that the staged tournament index and selected-tournament pointer prevent
+destructive reuse of the definition base, while publishing the draw-flags
+pointer after the text call restores its `$s4` allocation.  A shared loop call
+and reordered comparison were separately falsified by that receipt.
+
+`DrawBackground__17tScreenTrophyRoom` remains exact PASS at 261/261
+instructions with an instruction-identical `-g` twin, and the complete
+`screentrophyroom.cpp` translation-unit gate remains 9/9 PASS.  The refreshed
+strict frontend/common audit is stored in
+[`frontend_common_strict_p213_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p213_20260826.md).
+It advances declaration-clean mapped functions from 749 to 750, reduces
+generic extra source-local names from 243 to 238, and raises explicit
+source-only codegen carriers from 378 to 383.  Missing names, type findings,
+storage findings, global findings, and mapping reviews remain zero.
+
+A fresh full build compiles and links every translation unit and reproduces
+the standing executable hash `926db68e57a2dbcc9ca02a25981360ddc0a71464`.
+Both relink lanes are GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; the undefined-call audit scans
+15,781 calls with zero defects.  The call-target audit retains exactly the two
+pre-existing swapped `Sim_MainGameLoop` sites, the TU-order audit reports zero
+inversions, and the vtable indexing audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

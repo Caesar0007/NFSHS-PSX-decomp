@@ -214,21 +214,28 @@ void tScreenTrophyRoom::Cleanup()
 /* MATCH (W66): 108 -> PASS (261/261).  The trophy-info comma-staging receipt gives
    the this-dependent current tournament its retail evaluation order, while the
    selectedTourn pointer prevents destructive reuse of the definition base.  The
-   text call is kept as one nested expression and pDrawFlags is published after it,
+   text call is kept as one nested expression and drawFlagsPtr is published after it,
    letting sched1 place the pointer between TextSys_Word and CalcFadeVal.  Retail's
    loop came from duplicated branch-local ScaleShapeExtended calls which GCC then
    cross-jumps; spelling one shared call loses three argument-setup instructions.
    Finally, the source-order comparison `i >= fNumTrophies` produces the oracle's
    sign-extend-before-load sequence.  The two-reference fModNumber fence crosses
-   its allocator step and restores the SLD s3 / pDrawFlags s4 handout. */
+   its allocator step and restores the SLD s3 / drawFlagsPtr s4 handout. */
 void tScreenTrophyRoom::DrawBackground()
 
 {
+  /* Reliable SYM names every retained retail local and omits these five
+     optimized-away source identities justified by the W66 receipt above:
+     SYM-CODEGEN-CARRIER: feTier
+     SYM-CODEGEN-CARRIER: currentTourn
+     SYM-CODEGEN-CARRIER: tourn
+     SYM-CODEGEN-CARRIER: selectedTourn
+     SYM-CODEGEN-CARRIER: drawFlagsPtr */
   tDrawShapeExtended drawFlags3;
   int fModNumber;
   int TROPHY_LEFTOFFSET;
   tDrawShapeExtended drawFlags;
-  tDrawShapeExtended *pDrawFlags;
+  tDrawShapeExtended *drawFlagsPtr;
   short i;
   short x;
   short y;
@@ -278,8 +285,8 @@ void tScreenTrophyRoom::DrawBackground()
   i = 0;
   FETextRender_FullTextRGB(TextSys_Word(texttoshow),0x100,200,
                            CalcFadeVal(0x505050,this->fScreenFadeVal),'\0',2);
-  pDrawFlags = &drawFlags;
-  __asm__("" : "=r"(pDrawFlags) : "0"(pDrawFlags));
+  drawFlagsPtr = &drawFlags;
+  __asm__("" : "=r"(drawFlagsPtr) : "0"(drawFlagsPtr));
   while (true) {
     if ((int)i >= (int)this->fNumTrophies) break;
     x = TROPHY_LEFTOFFSET + (i % fModNumber) * 0x5f;
@@ -288,12 +295,12 @@ void tScreenTrophyRoom::DrawBackground()
        ((this->fSwapShapes.fFlags & 1) != 0)) {
       drawFlags.custom_shapes = this->fSwapShapes.fShapes;
       texttoshow = ((ticks - this->startTicks) / 12) % 32;
-      ScaleShapeExtended(texttoshow,0x600,x,y,(int)this->fScreenFadeVal,0,pDrawFlags);
+      ScaleShapeExtended(texttoshow,0x600,x,y,(int)this->fScreenFadeVal,0,drawFlagsPtr);
     }
     else {
       drawFlags.custom_shapes = (this->fTrophyShapes).fShapes;
       texttoshow = i;
-      ScaleShapeExtended(texttoshow,0x600,x,y,(int)this->fScreenFadeVal,0,pDrawFlags);
+      ScaleShapeExtended(texttoshow,0x600,x,y,(int)this->fScreenFadeVal,0,drawFlagsPtr);
     }
     i = i + 1;
   }

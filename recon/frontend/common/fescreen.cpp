@@ -67,9 +67,10 @@ void tScreen::DisplayLoadingText()
    the two hardware-environment stores; retaining their volatile byte view
    fixes that ordering, while an int carrier restores retail's $a1/$a2
    allocation. A `u_short` carrier removes GCC's redundant post-lhu `andi`;
-   the height identity restores retail's a1/a2 handout.  A zero-byte entry
-   fence keeps the stack adjustment first and improves the source-only result
-   from 6 to 4 at the exact 52/52 count.  The remaining named angle is a
+   the height identity restores retail's a1/a2 handout.  A zero-byte empty-loop
+   entry shape keeps the stack adjustment first without an asm reorg barrier
+   and improves the source-only result from 6 to 4 at the exact 52/52 count.
+   The remaining named angle is a
    non-barrier source dependency that keeps `sp -= 24` first while allowing
    the independent RA save to sink below the first height load. */
 
@@ -86,7 +87,8 @@ void tScreen::GoNonInterlaced()
   int *playerView;
   volatile char *env;
   
-  __asm__("" : : "i"(0));
+  do {
+  } while (false);
   screenheight = 0xf0;
   height = *(volatile u_short *)&screenheight;
   __asm__("" : "+r" (height));

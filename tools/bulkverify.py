@@ -101,6 +101,17 @@ for m in mods:
         if fn not in oracles: continue
         tot_fn+=1
         e=oracle_ins(fn)
+        # Keep the bulk census consistent with verify_asm.py's linked-HI16
+        # normalization.  A dead/unpaired %hi relocation is still zero in our
+        # unlinked object, while the linked retail oracle carries the resolved
+        # high half as a literal.  On count-equal, positionally aligned streams
+        # this is the same instruction after link (DrawBackground Memcard).
+        if len(ins)==len(e):
+            for i in range(len(ins)):
+                mo=re.match(r'lui (\w+),0$',ins[i])
+                me=re.match(r'lui (\w+),\d+$',e[i])
+                if mo and me and mo.group(1)==me.group(1):
+                    e[i]=ins[i]
         d=[l for l in difflib.unified_diff(ins,e,lineterm='') if l[0] in '+-' and not l.startswith(('+++','---'))]
         if not d: tot_pass+=1; matched.append(fn)
         elif len(d)<=15: near+=1; near_list.append((fn,len(d)))

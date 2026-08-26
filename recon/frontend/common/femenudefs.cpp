@@ -1577,11 +1577,11 @@ void MenuExtended_SellCar(tMenuCommand &command)
 void MenuExtended_BuyCar(tMenuCommand &command)
 
 {
-  tFEApplication *ptVar1;
-  short sVar2;
-  tFEApplication *dlgThis;
-  long lVar3;
-  char *pcVar4;
+  /* SYM-ABI-PARAM: command -- required by the retail `FR12tMenuCommand`
+     linkage identity; optimized away before the SYM parameter records. */
+  /* SYM-CODEGEN-CARRIER: this_00 -- replacing the second popup anchor with
+     source-level `FEApp->DisplayMessage` is FAIL 32 at 87/85 and rotates the
+     saved-register/global-base web.  Retail requires this independent anchor. */
   tDialogMessageString *this_00;
   tDialogMessageString *popUp;
   tCarInfo carInfo;
@@ -1598,15 +1598,16 @@ void MenuExtended_BuyCar(tMenuCommand &command)
      popUp anchor). RESIDUAL 14 = oracle keeps this_00 in TWO callee-saved regs (`addu s1,s0,zero`)
      across the yesNo Run, using s1 for the message-path stores, + the two independent compare
      loads (fMoney 20 / price) issued in swapped order -- the coloring/sched-tie class (4.6). */
-  ptVar1 = FEApp;
   this_00 = &FEApp->messagePopup;
   carManager.GetStockCar((ushort)(byte)frontEnd.dealerCar,carInfo);
-  sVar2 = carManager.GetNumOwnedCars(0);
   __asm__("" : "+r" (this_00));
   popUp = this_00;
-  if (sVar2 < 0x20) {
+  if (carManager.GetNumOwnedCars(0) < 0x20) {
     if (tournamentManager.fMoney >= carInfo.fPrices[0]) {
       tDialogYesNo yesNo;
+      /* SYM-CODEGEN-CARRIER: pp -- direct `yesNo.yesnowords` stores are
+         count-exact FAIL 4 and use two sp-relative stores instead of retail's
+         held `$s0` object-base stores. */
       tDialogYesNo *pp = &yesNo;
 
       yesNo.string =
@@ -1614,23 +1615,20 @@ void MenuExtended_BuyCar(tMenuCommand &command)
       pp->yesnowords[0] = 0x321;
       pp->yesnowords[1] = 0x322;
       yesNo.fDefault = 0;
-      sVar2 = ((tDialogInteractive *)&yesNo)->Run();
-      if (sVar2 != 0) {
-        lVar3 = carManager.PurchaseCar((short)carInfo.fCarID,
-                           (ushort)(byte)frontEnd.carColors[0][carInfo.fCarID],0);
-        tournamentManager.fMoney = tournamentManager.fMoney - lVar3;
+      if (((tDialogInteractive *)&yesNo)->Run() != 0) {
+        tournamentManager.fMoney -= carManager.PurchaseCar(
+            (short)carInfo.fCarID,
+            (ushort)(byte)frontEnd.carColors[0][carInfo.fCarID],0);
         AudioCmn_PlayFESFX(0x1a);
       }
       return;
     }
     AudioCmn_PlayFESFX(10);
-    pcVar4 = TextSys_Word(0xa7);
-    this_00->string = pcVar4;
+    this_00->string = TextSys_Word(0xa7);
     ((tDialogBase *)this_00)->Display();
     return;
   }
-  pcVar4 = TextSys_Word(0x4b);
-  popUp->string = pcVar4;
+  popUp->string = TextSys_Word(0x4b);
   ((tDialogBase *)popUp)->Display();
   return;
 }

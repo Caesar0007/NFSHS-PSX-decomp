@@ -4593,6 +4593,47 @@ zero inversions across 513 objects, call-target audit finds zero proven wrong
 targets across 460 units, vtable indexing passes 930 files, and the source-only
 policy audit finds no post-compiler text moves or branch retargets.
 
+### P128 — dealer-car purchase SYM local reconciliation (`2026-08-26`)
+
+Reliable `MenuExtended_BuyCar` SYM records identify stack `tCarInfo carInfo`,
+`tDialogMessageString *popUp` in `$s1`, block-local stack `tDialogYesNo yesNo`,
+and three optimized inline receivers named `this`.  The linkage identity
+`MenuExtended_BuyCar__FR12tMenuCommand` independently proves the omitted
+`tMenuCommand &command` parameter, now classified explicitly as an optimized
+ABI parameter rather than a generic extra local.
+
+Five decompiler-only identities are deleted while preserving byte identity.
+The unused `ptVar1` and `dlgThis` declarations disappear; both car-manager
+results feed their conditions directly instead of sharing `sVar2`; both
+`TextSys_Word` results feed the popup string stores without `pcVar4`; and the
+`PurchaseCar` result feeds the compound money subtraction without `lVar3`.
+Two surviving SYM-omitted identities have explicit counterfactual proof.
+Direct `yesNo.yesnowords` stores without `pp` are count-exact FAIL 4 and use
+sp-relative stores instead of retail's held `$s0` object base.  Replacing the
+independent `this_00` popup anchor with the natural source-level
+`FEApp->DisplayMessage` form is FAIL 32 at 87/85 and rotates the retail
+saved-register/global-base web.  Optimized SYM cannot recover private names for
+those two proven value webs.
+
+`MenuExtended_BuyCar__FR12tMenuCommand` remains exact PASS at 85/85
+instructions, with zero detailed diffs and an instruction-exact `-g` twin.
+The complete `femenudefs.cpp` aggregate remains 65 strict PASS and one
+pre-existing far global-constructor classification.  The refreshed strict
+frontend/common audit is stored in
+[`frontend_common_strict_p232_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p232_20260826.md).
+It advances declaration-clean mapped functions from 766 to 767, reduces
+generic extra source-local names from 139 to 131, raises linkage-proven ABI
+parameters from 21 to 22, and raises explicit source-only codegen carriers from
+448 to 450.  Missing-name, type, storage, global, and mapping-review queues
+remain empty.
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; undefined-call audits scan 15,782
+reconstruction and 15,779 source-lane calls with zero defects.  TU order has
+zero inversions across 513 objects, call-target audit finds zero proven wrong
+targets across 460 units, vtable indexing passes 930 files, and the source-only
+policy audit finds no post-compiler text moves or branch retargets.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

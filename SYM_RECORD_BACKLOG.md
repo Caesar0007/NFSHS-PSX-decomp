@@ -4750,6 +4750,46 @@ zero inversions across 513 objects, call-target audit finds zero proven wrong
 targets across 460 units, vtable indexing passes 930 files, and the source-only
 policy audit finds no post-compiler text moves or branch retargets.
 
+### P132 — trophy-info background SYM local reconciliation (`2026-08-26`)
+
+Reliable `DrawBackground__17tScreenTrophyInfo` SYM records identify the
+implicit `tScreenTrophyInfo *this` receiver in `$s6`; `int FadePartI` in `$s3`;
+`int FadePartIITheRevenge` in `$s4`; stack `RECT r`; `int col` in `$s0`; `int
+yyy` in `$s1`; stack `tDrawShapeExtended drawFlags`; stack
+`tDrawShapeExtended drawFlags2`; and `int i` in `$s0`.  Those recoverable
+declarations, types, and scopes are present in the reconstructed body.
+
+Three decompiler-only staging identities are deleted with exact code.
+`tournamentManager.fDefinition` now feeds both indexed expressions without a
+named `definition`; the tier offset feeds the selected element pointer without
+`tournamentIndex`; and that pointer is assigned directly to `tourn` without the
+redundant `tournaments` alias.  Six surviving SYM-omitted values have explicit
+counterfactual proof: reusing `FadePartI` without `fade` is count-exact FAIL 8;
+folding `feTier` is count-exact FAIL 10; folding `currentTourn` is FAIL 43 at
+303/298; retaining only `tournID` without `tourn` is FAIL 72 at 296/298;
+reloading the ID without `tournID` is FAIL 121 at 301/298; and nesting the text
+lookup without `word` is count-exact FAIL 66.  The binary proves all six value
+webs, but optimized SYM cannot recover their private names.
+
+`DrawBackground__17tScreenTrophyInfo` remains exact PASS at 298/298
+instructions, with zero detailed diffs and an instruction-exact `-g` twin;
+neighboring `GetShapeInfo__17tScreenTrophyInfo` also remains exact PASS at
+76/76.  The complete `screentrophyinfo.cpp` aggregate remains two strict PASS
+and one pre-existing far destructor classification.  The refreshed strict
+frontend/common audit is stored in
+[`frontend_common_strict_p236_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p236_20260826.md).
+It advances declaration-clean mapped functions from 770 to 771, reduces
+generic extra source-local names from 107 to 98, and raises explicit
+source-only codegen carriers from 465 to 471.  Missing-name, type, storage,
+global, and mapping-review queues remain empty.
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; undefined-call audits scan 15,782
+reconstruction and 15,779 source-lane calls with zero defects.  TU order has
+zero inversions across 513 objects, call-target audit finds zero proven wrong
+targets across 460 units, vtable indexing passes 930 files, and the source-only
+policy audit finds no post-compiler text moves or branch retargets.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

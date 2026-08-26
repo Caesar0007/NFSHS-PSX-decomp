@@ -102,6 +102,9 @@ void tScreenTrophyInfo::DrawBackground()
   int i;
   
   {
+    /* SYM-CODEGEN-CARRIER: fade -- reusing `FadePartI` as the pre-clamp value
+       is count-exact FAIL 8 and assigns that temporary to `$s3`; retail keeps
+       the pre-clamp value in `$a0` and publishes FadePartI only after shifting. */
     int fade = (int)this->fScreenFadeVal + -0x40;
 
     FadePartIITheRevenge = (int)this->fScreenFadeVal << 1;
@@ -116,7 +119,13 @@ void tScreenTrophyInfo::DrawBackground()
   if (0x80 < FadePartIITheRevenge) {
     FadePartIITheRevenge = 0x80;
   }
+  /* SYM-CODEGEN-CARRIER: tournID -- reloading the tournament ID from `tourn`
+     at each text call is FAIL 121 at 301/298 and expands/rotates the complete
+     saved-register web; retail holds this signed byte once in `$s5`. */
   int tournID;
+  /* SYM-CODEGEN-CARRIER: tourn -- retaining only `tournID` is FAIL 72 at
+     296/298; retail keeps the selected element pointer through CalcFadeVal and
+     reloads its title ID for the first heading. */
   tTourneyInfo *tourn;
 
   /* MATCH (W66): retail keeps the definition base in s0, the selected tournament ID in
@@ -125,25 +134,28 @@ void tScreenTrophyInfo::DrawBackground()
      screenTrophyRoom/frontEnd load order.  Together with the direct fade expression this
      removes the former 106-diff allocation cascade (298/298 PASS). */
   {
-    int tournamentIndex;
-    tTournamentDefinition *definition;
-    tTourneyInfo *tournaments;
+    /* SYM-CODEGEN-CARRIER: feTier -- folding the frontend tier into the
+       definition index is count-exact FAIL 10 and moves its global byte load
+       across the retained definition-base materialization. */
     uint feTier;
+    /* SYM-CODEGEN-CARRIER: currentTourn -- direct screen-room indexing is
+       FAIL 43 at 303/298; comma-staging this byte is required for retail's
+       room/tier load order and scaled-address ownership. */
     byte currentTourn;
 
     feTier = (uint)(byte)frontEnd.tier;
-    definition = tournamentManager.fDefinition;
-    tournamentIndex =
+    tourn = tournamentManager.fDefinition->fTournaments +
         (currentTourn = (byte)screenTrophyRoom->fRealCurrentTourn[screenTrophyRoom->tier],
-         (uint)definition->fTiers[feTier].fTournOffset + currentTourn);
-    tournaments = definition->fTournaments + tournamentIndex;
-    tourn = tournaments;
+         (uint)tournamentManager.fDefinition->fTiers[feTier].fTournOffset + currentTourn);
     tournID = (signed char)tourn->fTournamentID;
   }
   col = CalcFadeVal(kRGBVals[(byte)textDefinitions[4][5]],FadePartI);
   yyy = 0xaf;
   FETextRender_FullTextRGB(TextSys_Word((signed char)tourn->fTournamentID + 0x341),0x1e,0x19,col,'\x03',3);
   if (strlen(TextSys_Word(tournID + 0x37a)) != 0) {
+    /* SYM-CODEGEN-CARRIER: word -- nesting this TextSys_Word call into the
+       renderer is count-exact FAIL 66 and rotates the retained text/colour/Y
+       registers; retail evaluates and holds the word before CalcFadeVal. */
     char *word;
 
     FETextRender_MenuTextPositionedJustifyFade(FadePartI,0x3db,0x8c,0xaf,1,textState_Hilighted,textType_ScreenInfo);

@@ -63,60 +63,66 @@ void tScreen::DisplayLoadingText()
 /* MATCH (2026-08-03, 11->1; source-only W79 2->PASS 52/52): retail does not write literal 240 to every
    halfword. It stores `screenheight = 240`, reloads the low half once for
    the three gEnviro heights/first drawenv height, then reloads it for the
-   second drawenv. GCC 2.8.1's scheduler otherwise moves the first load below
-   the two hardware-environment stores; retaining their volatile byte view
-   fixes that ordering, while an int carrier restores retail's $a1/$a2
-   allocation. A `u_short` carrier removes GCC's redundant post-lhu `andi`.
+   second drawenv. GCC 2.8.0's scheduler otherwise moves the first load below
+   the two hardware-environment stores; a shared typed environment view fixes
+   that ordering. A `u_short` carrier restores retail's $a1/$a2 allocation and
+   removes GCC's redundant post-lhu `andi`.
    W79 removes the output-less fence: GCC treats it as implicitly volatile, so
    its scheduling barrier pulled the independent ra save four slots early.
    Restoring the exact SLD statement order supplies the needed height lifetime
-   naturally: gEnviro[0] y/h/screen.h (153-155), env byte 16 (156), gEnviro[1]
-   y/screen.h (157-158), env byte 40 (159), then the view setup (161).  The lhu
-   stays before both volatile byte stores while the ra save sinks to retail's
+   naturally: gEnviro[0] y/h/screen.h (153-155), isinter (156), gEnviro[1]
+   y/screen.h (157-158), isinter (159), then the view setup (161).  The lhu
+   stays before both byte stores while the ra save sinks to retail's
    slot.  No asm/post-cc1 aid; strict_branch clean. */
 
 void tScreen::GoNonInterlaced()
 
 {
-  int iVar1;
-  int iVar2;
-  u_short height;
-  short sVar3;
-  Draw_tView *views;
-  Draw_tView *view0;
-  Draw_tView *view1;
-  int *playerView;
-  volatile char *env;
-  int dispY;
+  /* SYM's function block is empty: no recoverable source-local spelling is
+     recorded.  `iVar1`, `iVar2`, and `dispY` were removable decompiler names
+     (PASS stayed 52/52).  The seven remaining value webs are required by this
+     compiler/source shape, but SYM and retail bytes cannot uniquely recover
+     their private spellings; each counterfactual below was re-gated alone. */
+  /* SYM-CODEGEN-CARRIER: displayHeight -- inlining its four reads: 30 diffs. */
+  u_short displayHeight;
+  /* SYM-CODEGEN-CARRIER: viewHeight -- inlining the late reload: 18 diffs. */
+  short viewHeight;
+  /* SYM-CODEGEN-CARRIER: viewTable -- inlining the table base: 26 diffs. */
+  Draw_tView *viewTable;
+  /* SYM-CODEGEN-CARRIER: frontView -- inlining the first view: 25 diffs, +1 insn. */
+  Draw_tView *frontView;
+  /* SYM-CODEGEN-CARRIER: backView -- inlining the second view: 49 diffs, +7 insns. */
+  Draw_tView *backView;
+  /* SYM-CODEGEN-CARRIER: playerViewIndex -- inlining the index address: 8 schedule diffs. */
+  int *playerViewIndex;
+  /* SYM-CODEGEN-CARRIER: displayEnv -- direct field form without its shared base: 16 allocation diffs. */
+  dflip *displayEnv;
 
   screenheight = 0xf0;
-  env = (volatile char *)gEnviro;
-  dispY = 0x100;
-  height = *(u_short *)&screenheight;
-  gEnviro[0].disp.disp.y = (short)dispY;
-  gEnviro[0].disp.disp.h = height;
-  gEnviro[0].disp.screen.h = height;
-  env[16] = '\0';
+  displayEnv = gEnviro;
+  displayHeight = *(u_short *)&screenheight;
+  gEnviro[0].disp.disp.y = 0x100;
+  gEnviro[0].disp.disp.h = displayHeight;
+  gEnviro[0].disp.screen.h = displayHeight;
+  displayEnv[0].disp.isinter = '\0';
   gEnviro[1].disp.disp.y = 0;
-  gEnviro[1].disp.screen.h = height;
-  env[40] = '\0';
-  views = Draw_gView;
-  playerView = A_Draw_gPlayer1View;
-  iVar1 = *playerView;
-  view0 = views + iVar1;
-  view0->drawenv[0].dfe = '\0';
-  iVar2 = *playerView;
-  view1 = views + iVar2;
-  view0->drawenv[0].clip.y = 0;
-  view0->drawenv[0].clip.h = height;
-  view0->drawenv[0].ofs[0] = 0;
-  view0->drawenv[0].ofs[1] = 0;
-  sVar3 = (short)screenheight;
-  view1->drawenv[1].clip.y = (short)dispY;
-  view1->drawenv[1].ofs[0] = 0;
-  view1->drawenv[1].ofs[1] = (short)dispY;
-  view1->drawenv[1].dfe = '\0';
-  view1->drawenv[1].clip.h = sVar3;
+  gEnviro[1].disp.screen.h = displayHeight;
+  displayEnv[1].disp.isinter = '\0';
+  viewTable = Draw_gView;
+  playerViewIndex = A_Draw_gPlayer1View;
+  frontView = viewTable + *playerViewIndex;
+  frontView->drawenv[0].dfe = '\0';
+  backView = viewTable + *playerViewIndex;
+  frontView->drawenv[0].clip.y = 0;
+  frontView->drawenv[0].clip.h = displayHeight;
+  frontView->drawenv[0].ofs[0] = 0;
+  frontView->drawenv[0].ofs[1] = 0;
+  viewHeight = (short)screenheight;
+  backView->drawenv[1].clip.y = 0x100;
+  backView->drawenv[1].ofs[0] = 0;
+  backView->drawenv[1].ofs[1] = 0x100;
+  backView->drawenv[1].dfe = '\0';
+  backView->drawenv[1].clip.h = viewHeight;
   DrawSync(0);
   VSync(0);
   return;

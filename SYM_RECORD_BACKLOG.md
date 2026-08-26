@@ -4790,6 +4790,48 @@ zero inversions across 513 objects, call-target audit finds zero proven wrong
 targets across 460 units, vtable indexing passes 930 files, and the source-only
 policy audit finds no post-compiler text moves or branch retargets.
 
+### P133 — non-interlaced screen setup SYM local reconciliation (`2026-08-26`)
+
+Reliable `GoNonInterlaced__7tScreen` SYM records define an empty function
+block: no parameter or source-local record is recoverable.  The SLD stream
+does, however, identify the direct statement order for the two display
+environments, the selected draw view, and the final `DrawSync`/`VSync` calls.
+Raw retail instructions and the independent IDA, Ghidra, Redec, and m2c views
+confirm those field offsets and call semantics.
+
+Three decompiler-only identities are deleted without changing one instruction.
+The two selected-view indices now feed their pointer expressions directly
+without `iVar1`/`iVar2`, and the literal vertical offset replaces `dispY`.
+The former volatile byte alias is also corrected to a non-volatile typed
+`dflip *` view, so the two stores name `DISPENV::isinter` rather than offsets
+16 and 40.  Seven remaining SYM-omitted value webs use descriptive names and
+carry individual counterfactual proof: folding `displayHeight` is FAIL 30;
+folding the late `viewHeight` reload is FAIL 18; rematerializing `viewTable` is
+FAIL 26; folding `frontView` is FAIL 25 with one extra instruction; folding
+`backView` is FAIL 49 with seven extra instructions; folding
+`playerViewIndex` is a count-exact FAIL 8 scheduling residual; and removing the
+shared `displayEnv` base is a count-exact FAIL 16 allocation residual.  Retail
+bytes prove these value webs, but the empty optimized SYM block cannot uniquely
+recover their private source spellings.
+
+`GoNonInterlaced__7tScreen` remains exact PASS at 52/52 instructions, with
+zero detailed diffs and an instruction-exact `-g` twin.  The complete
+`fescreen.cpp` aggregate remains 26 strict PASS and one pre-existing near
+function.  The refreshed strict frontend/common audit is stored in
+[`frontend_common_strict_p237_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p237_20260826.md).
+It advances declaration-clean mapped functions from 771 to 772, removes all
+ten generic names from this function's review queue, reduces generic extra
+source-local names from 98 to 88, and raises explicit source-only codegen
+carriers from 471 to 478.  Missing-name, type, storage, global, and
+mapping-review queues remain empty.
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; undefined-call audits scan 15,782
+reconstruction and 15,779 source-lane calls with zero defects.  TU order has
+zero inversions across 513 objects, call-target audit finds zero proven wrong
+targets across 460 units, vtable indexing passes 930 files, and the source-only
+policy audit finds no post-compiler text moves or branch retargets.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

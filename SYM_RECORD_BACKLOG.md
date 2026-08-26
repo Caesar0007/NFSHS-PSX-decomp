@@ -3986,6 +3986,48 @@ relocation-referenced unresolved symbols; the undefined-call audit scans
 pre-existing swapped `Sim_MainGameLoop` sites, the TU-order audit reports zero
 inversions, and the vtable indexing audit passes 930 files.
 
+### P112 — current-controller setup local and inline restoration (`2026-08-26`)
+
+Reliable `tScreenControllerConfig::SetCurrentController` SYM records member
+receiver `this` in `$s1`, parameter `firsttime` in `$s5`,
+`tInsideBoxMenu *fSetMenu` in `$s2`, and `bool setmenutonull` in `$s4`.
+Its entry also records a nested `tDialogMessageString *this` in `$s0`.
+Source now expresses that receiver through the established inline
+`SetString(TextSys_Word(0x20b))` body rather than a raw `string` field store.
+
+The decompiler-only `ctrlType` local is deleted: assigning the equivalent
+controller-choice conditional directly remains exact PASS.  The four remaining
+SYM-omitted identities are descriptive `dialog`, `dialogIsIdle`,
+`previousNegconChoice`, and the two block-scoped aliases named
+`menuDefinitions`; each is explicitly classified as a source-only codegen
+carrier.  `previousNegconChoice` is semantically required because `Run`
+temporarily overwrites the member before the old value is restored.  The other
+identities are oracle-proven: direct `menuDefs` member addressing is FAIL 40 at
+220/222 instructions, folding `dialogIsIdle` into a conjunction is FAIL 5 at
+221/222, and removing `dialog` is FAIL 214 at 220/222 while collapsing the
+retail 48-byte frame to 40 bytes.  SYM and the binary do not preserve the four
+private spellings.
+
+`SetCurrentController__23tScreenControllerConfigb` remains exact PASS at
+222/222 instructions with an instruction-identical `-g` twin.  The complete
+`screencontroller.cpp` translation-unit gate remains 21/22 PASS with only the
+pre-existing one-diff `tScreenControllerConfig` constructor residual.  The
+refreshed strict frontend/common audit is stored in
+[`frontend_common_strict_p216_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p216_20260826.md).
+It advances declaration-clean mapped functions from 753 to 754, reduces
+generic extra source-local names from 222 to 217, raises validated inline
+mappings from 59 to 60, and raises explicit source-only codegen carriers from
+391 to 395.  Missing names, type findings, storage findings, global findings,
+and mapping reviews remain zero.
+
+A fresh full build compiles and links every translation unit and reproduces
+the standing executable hash `926db68e57a2dbcc9ca02a25981360ddc0a71464`.
+Both relink lanes are GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; the undefined-call audit scans
+15,781 calls with zero defects.  The call-target audit retains exactly the two
+pre-existing swapped `Sim_MainGameLoop` sites, the TU-order audit reports zero
+inversions, and the vtable indexing audit passes 930 files.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

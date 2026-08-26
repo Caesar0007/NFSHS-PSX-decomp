@@ -343,13 +343,24 @@ void tScreenControllerConfig::SwapInController()
 void tScreenControllerConfig::SetCurrentController(bool firsttime)
 
 {
+  /* Reliable SYM names only fSetMenu and setmenutonull.  The optimized-away
+     identities retained by the measured source shape are:
+     SYM-CODEGEN-CARRIER: dialog
+     SYM-CODEGEN-CARRIER: dialogIsIdle
+     SYM-CODEGEN-CARRIER: previousNegconChoice
+     SYM-CODEGEN-CARRIER: menuDefinitions
+     Direct menuDefs member addressing is FAIL40 at 220/222 instructions;
+     folding dialogIsIdle into a conjunction is FAIL5 at 221/222; direct
+     negconPopUp member addressing is FAIL214 at 220/222 and collapses the
+     retail 48-byte frame to 40 bytes. */
   bool setmenutonull;
   tInsideBoxMenu *fSetMenu;
   tDialogYesNo *dialog;
 
   fSetMenu = (tInsideBoxMenu *)0x0;
   dialog = &this->negconPopUp;
-  dialog->string = TextSys_Word(0x20b);
+  /* SYM-INLINE-THIS: SetString */
+  dialog->SetString(TextSys_Word(0x20b));
   dialog->yesnowords[0] = 0x20c;
   dialog->yesnowords[1] = 0x20d;
   dialog->fDefault = 1;
@@ -365,36 +376,31 @@ void tScreenControllerConfig::SetCurrentController(bool firsttime)
   switch (gPadinfo.buf[(this->player != 0) * 4].ID) {
   case 0x23:
     {
-      bool dialogIdle;
-      int choice;
+      bool dialogIsIdle;
+      int previousNegconChoice;
 
       this->fTimeOutStartTick = 0;
       if (((firsttime == 0) && (this->fCurrentController != '\x02')) &&
          (this->fCurrentController != '\x01')) {
-        dialogIdle = false;
+        dialogIsIdle = false;
         if (dialog->currentlyOn == 0) {
-          dialogIdle = dialog->fCurrentlyRunning == 0;
+          dialogIsIdle = dialog->fCurrentlyRunning == 0;
         }
-        if (dialogIdle) {
-          choice = this->negconChoice;
-          if (choice != -1) {
+        if (dialogIsIdle) {
+          previousNegconChoice = this->negconChoice;
+          if (previousNegconChoice != -1) {
             goto SetCurCtrl_noNegconDialog;
           }
           this->fCurrentController = '\0';
           this->fArrowFade = 0x80;
           this->negconChoice = Run((tDialogInteractive *)dialog);
+          this->fCurrentController =
+              this->negconChoice != 0 ? '\x02' : '\x01';
           {
-            char ctrlType = '\x01';
-            if (this->negconChoice != 0) {
-              ctrlType = '\x02';
-            }
-            this->fCurrentController = ctrlType;
-          }
-          {
-            tGlobalMenuDefs *menus = menuDefs[0];
+            tGlobalMenuDefs *menuDefinitions = menuDefs[0];
 
-            this->negconChoice = choice;
-            fSetMenu = &menus->menuControllerNegcon;
+            this->negconChoice = previousNegconChoice;
+            fSetMenu = &menuDefinitions->menuControllerNegcon;
           }
           goto SetCurCtrl_menuSetVertHelp;
         }
@@ -414,12 +420,12 @@ SetCurCtrl_noNegconDialog:
   case 0x41:
     {
       if (PadGetState(-(uint)(this->player != 0) & 0x10) == 6) {
-        tGlobalMenuDefs *menus;
+        tGlobalMenuDefs *menuDefinitions;
 
         this->fCurrentController = '\x04';
-        menus = menuDefs[0];
+        menuDefinitions = menuDefs[0];
         this->fTimeOutStartTick = 0;
-        fSetMenu = &menus->menuControllerDualShock;
+        fSetMenu = &menuDefinitions->menuControllerDualShock;
         goto SetCurCtrl_menuSetVertHelp;
       }
       if ((PadGetState((this->player != 0) * 0x10) == 2) ||

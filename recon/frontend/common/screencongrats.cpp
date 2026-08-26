@@ -725,7 +725,6 @@ void tScreenTournamentTrophy::CalculatePrizes()
      a pin-free identity fence on a block-local raw word plus a zero-insn
      boundary does that; a short-lived `cashAwarded` working value sinks its
      store behind both materializations.  No volatile or fixed-register pin. */
-  long money;
   int i;
   int j;
   tAwardInformation tInfo;
@@ -744,17 +743,19 @@ void tScreenTournamentTrophy::CalculatePrizes()
       tournamentManager.fTournament];
   i = 1;
   {
+    /* SYM-CODEGEN-CARRIER: knockout -- inlining the normalized fKnockout
+       value is FAIL 17 at 145/144 and changes its branch-free value web. */
     int knockout = !!tourneyInfo->fKnockout;
+    /* SYM-CODEGEN-CARRIER: ranked -- direct use of the manager halfword is
+       count-exact FAIL 2 because GCC changes retail's signed lh to lhu. */
     int ranked = *(short *)((char *)&tournamentManager + 0x10);
-    short numRanked = ranked + knockout;
-    if (0 < numRanked) {
-      int loopLimit = numRanked;
+    if (0 < (short)(ranked + knockout)) {
       do {
         if (PlayerRanking(&tournamentManager,(short)i) == 0) {
           j = i;
         }
         i = i + 1;
-      } while (i <= loopLimit);
+      } while (i <= (short)(ranked + knockout));
     }
   }
   if (j == 1) goto first_place;
@@ -792,14 +793,17 @@ prizes_done:
   this->smallSpinningThing = kSpinningNone;
   __asm__("" : : "i"(0));
   this->fCarPlayer = 0;
-  money = tournamentManager.fMoney;
-  this->TotalCash = money;
+  this->TotalCash = tournamentManager.fMoney;
   if (tInfo.fCompletedGarageFull != 0) {
-    this->TotalCash = money - tInfo.fCompletedBonusMoney;
+    this->TotalCash -= tInfo.fCompletedBonusMoney;
   }
+  /* SYM-CODEGEN-CARRIER: cashAwarded -- assigning the ternary directly is
+     count-exact FAIL 2 and hoists the fCarCX high-half materialization. */
   long cashAwarded = tInfo.fTournMoney == 0 ? -1 : tInfo.fTournMoney;
   __asm__("" : : "i"(0));
   {
+    /* SYM-CODEGEN-CARRIER: carCXBits -- direct float/raw-field spellings are
+       documented above as FAIL 35/12; this boundary preserves retail's $a0. */
     unsigned long carCXBits = 0x40800000;
     __asm__("" : "=r"(carCXBits) : "0"(carCXBits));
     this->CashAwarded = cashAwarded;

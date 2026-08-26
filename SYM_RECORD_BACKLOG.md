@@ -4240,6 +4240,43 @@ relocation-referenced unresolved symbols; the undefined-call audit scans
 objects, vtable indexing passes 930 files, and the source-only-policy audit
 finds no post-compiler text moves or branch retargets.
 
+### P119 — tournament-trophy prize local-budget reconciliation (`2026-08-26`)
+
+Reliable `tScreenTournamentTrophy::CalculatePrizes` SYM records member
+receiver `this` in `$s2`, `int i` in `$s1`, `int j` in `$s3`, stack
+`tAwardInformation tInfo`, and `tTourneyInfo *tourneyInfo` in `$s5`.  Three
+SYM-omitted identities are deleted outright: the loop can compare directly
+against the truncated ranked sum without `loopLimit` or `numRanked`, and direct
+`TotalCash` assignment plus compound bonus subtraction removes `money`.  Each
+reduction remains exact PASS.
+
+The four surviving identities are explicitly classified as source-only
+codegen carriers.  Inlining normalized `knockout` is FAIL 17 at 145/144 and
+changes retail's branch-free value web; removing signed working value `ranked`
+is count-exact FAIL 2 because GCC changes the manager read from `lh` to `lhu`.
+Assigning the prize-money ternary directly is count-exact FAIL 2 and moves the
+4.0f high-half materialization, proving the short-lived `cashAwarded` staging
+value.  The existing source-PASS receipt proves `carCXBits`: direct float and
+raw-field forms are respectively FAIL 35 and FAIL 12, while its identity
+boundary preserves retail's `$a0` materialization.  The binary proves these
+value webs, but optimized SYM cannot preserve their private names.
+
+`CalculatePrizes__23tScreenTournamentTrophy` remains exact PASS at 144/144
+instructions with an instruction-identical `-g` twin, and the complete
+`screencongrats.cpp` translation-unit gate is 28/28 PASS.  The refreshed strict
+frontend/common audit is stored in
+[`frontend_common_strict_p223_20260826.md`](scratchpad/root_sym_audit/frontend_common_strict_p223_20260826.md).
+It advances declaration-clean mapped functions from 757 to 758, reduces
+generic extra source-local names from 203 to 196, and raises explicit
+source-only codegen carriers from 405 to 409.  Missing-name, type, storage,
+global, and mapping-review queues remain empty.
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; the undefined-call audit scans
+15,782 calls with zero defects.  TU order has zero inversions across 513
+objects, vtable indexing passes 930 files, and the source-only-policy audit
+finds no post-compiler text moves or branch retargets.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

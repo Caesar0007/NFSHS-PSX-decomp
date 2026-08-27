@@ -509,6 +509,21 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "ARY INT", 8, "speechToPlay", 888, (2,), ""),
         ), "fecheats_types.h"),
     }
+    # ScreenDisplay.obj dereferences only the menuDisplayOptions member of the
+    # foreign tGlobalMenuDefs singleton.  Its linked SYM retains the complete
+    # tOptionsMenu leaf but attributes the owning aggregate to FEMenuDefs.obj.
+    # CC1PL still needs the exact +0x2a68 member offset to reproduce the retail
+    # load.  Suppress only this complete, owner-local tag/typedef pair; any
+    # size, member, offset, leaf-tag, or source-file drift stays visible.
+    # Pre-change backup: Git commit 604f472d.
+    screendisplay_views = {
+        "ScreenDisplay_GlobalMenuDefsCodegenView": (10984, (
+            ("MOS", "ARY CHAR", 10856, "_beforeMenuDisplayOptions", 0,
+             (10856,), ""),
+            ("MOS", "STRUCT", 128, "menuDisplayOptions", 10856, (),
+             "tOptionsMenu"),
+        ), "screendisplay_types.h"),
+    }
     # FECredits dereferences the foreign ScreenMain singleton, so CC1PL must
     # see its complete field layout even though the linked SYM attributes that
     # completed tag to ScreenMain.obj.  Suppression below is pair-locked to the
@@ -834,6 +849,31 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith((expected[2], "fecheats.cpp"))
         )
 
+    def exact_screendisplay_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = screendisplay_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith(expected[2])
+        )
+
+    def exact_screendisplay_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = screendisplay_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            # The local typed-pointer declaration repeats the pair-locked
+            # typedef; the completed tag remains restricted to the header.
+            and owner.endswith((expected[2], "screendisplay.cpp"))
+        )
+
     def exact_femenu_ptag(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         return (
@@ -907,6 +947,13 @@ def filter_exact_symbol_codegen_carriers(
         if any(exact_fecheats_view(block) and block.name == name for block in type_blocks)
         and any(exact_fecheats_view_typedef(item) and item.name == name for item in typedefs)
     }
+    screendisplay_eligible = {
+        name for name in screendisplay_views
+        if any(exact_screendisplay_view(block) and block.name == name
+               for block in type_blocks)
+        and any(exact_screendisplay_view_typedef(item) and item.name == name
+                for item in typedefs)
+    }
     femenu_ptag_eligible = any(
         exact_femenu_ptag(block)
         and exact_femenu_ptag_typedef(item)
@@ -928,6 +975,8 @@ def filter_exact_symbol_codegen_carriers(
             and not (block.name in draww_eligible and exact_draww_view(block))
             and not (block.name in fecredits_eligible and exact_fecredits_view(block))
             and not (block.name in fecheats_eligible and exact_fecheats_view(block))
+            and not (block.name in screendisplay_eligible
+                     and exact_screendisplay_view(block))
             and not (femenu_ptag_eligible and exact_femenu_ptag(block))
         ],
         [
@@ -942,6 +991,8 @@ def filter_exact_symbol_codegen_carriers(
             and not (item.name in draww_eligible and exact_draww_view_typedef(item))
             and not (item.name in fecredits_eligible and exact_fecredits_view_typedef(item))
             and not (item.name in fecheats_eligible and exact_fecheats_view_typedef(item))
+            and not (item.name in screendisplay_eligible
+                     and exact_screendisplay_view_typedef(item))
             and not (femenu_ptag_eligible and exact_femenu_ptag_typedef(item))
         ],
     )

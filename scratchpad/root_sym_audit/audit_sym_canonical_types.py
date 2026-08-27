@@ -754,6 +754,51 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "ARY CHAR", 16, "stateBytes", 68, (16,), ""),
         ), "screentrophyroom_types.h"),
     }
+    # ScreenAudio.obj needs two foreign global layouts plus a contiguous slice
+    # of FEMenuDefs for code generation, but its linked SYM retains none of the
+    # three completed tags.  Pre-change backup: 4ea6b112.
+    screenaudio_views = {
+        "SndBnk_t": (12, (
+            ("MOS", "INT", 0, "bnkID", 0, (), ""),
+            ("MOS", "PTR CHAR", 0, "phdr", 4, (), ""),
+            ("MOS", "PTR CHAR", 0, "pdata", 8, (), ""),
+        ), "screenaudio_types.h"),
+        "SPEECHINFO": (36, (
+            ("MOS", "ARY CHAR", 4, "name", 0, (4,), ""),
+            ("MOS", "INT", 0, "multiplay", 4, (), ""),
+            ("MOS", "INT", 0, "nHandle", 8, (), ""),
+            ("MOS", "INT", 0, "nSoundHandle", 12, (), ""),
+            ("MOS", "CHAR", 0, "areLoading", 16, (), ""),
+            ("MOS", "CHAR", 0, "soundIsPlaying", 17, (), ""),
+            ("MOS", "CHAR", 0, "playNextOne", 18, (), ""),
+            ("MOS", "PTR CHAR", 0, "pBankHeader", 20, (), ""),
+            ("MOS", "PTR CHAR", 0, "sSpeechData", 24, (), ""),
+            ("MOS", "PTR CHAR", 0, "lastSpeechData", 28, (), ""),
+            ("MOS", "INT", 0, "vivHandle", 32, (), ""),
+        ), "screenaudio_types.h"),
+        "ScreenAudio_GlobalMenuDefsCodegenView": (10336, (
+            ("MOS", "ARY CHAR", 9676, "_beforeItemMusicVolume", 0,
+             (9676,), ""),
+            ("MOS", "STRUCT", 56, "itemMusicVolume", 9676, (),
+             "tMenuItemLeftRightAudioSlider"),
+            ("MOS", "STRUCT", 56, "itemSoundEffectsVolume", 9732, (),
+             "tMenuItemLeftRightAudioSlider"),
+            ("MOS", "STRUCT", 56, "itemEngineVolume", 9788, (),
+             "tMenuItemLeftRightAudioSlider"),
+            ("MOS", "STRUCT", 56, "itemSpeechVolume", 9844, (),
+             "tMenuItemLeftRightAudioSlider"),
+            ("MOS", "STRUCT", 56, "itemAmbientVolume", 9900, (),
+             "tMenuItemLeftRightAudioSlider"),
+            ("MOS", "STRUCT", 44, "itemAudioMode", 9956, (),
+             "tMenuItemDisplayLeftRightChoice"),
+            ("MOS", "STRUCT", 72, "itemSlidingPlayList", 10000, (),
+             "tMenuItemSlidingActivated"),
+            ("MOS", "STRUCT", 136, "menuPlayListMenu", 10072, (),
+             "tInsideBoxSongMenu"),
+            ("MOS", "STRUCT", 128, "menuAudio", 10208, (),
+             "tOptionsMenu"),
+        ), "screenaudio_types.h"),
+    }
     # ScreenDisplay.obj dereferences only the menuDisplayOptions member of the
     # foreign tGlobalMenuDefs singleton.  Its linked SYM retains the complete
     # tOptionsMenu leaf but attributes the owning aggregate to FEMenuDefs.obj.
@@ -1361,6 +1406,29 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith((expected[2], "screentrophyroom.cpp"))
         )
 
+    def exact_screenaudio_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = screenaudio_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith(expected[2])
+        )
+
+    def exact_screenaudio_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = screenaudio_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            and owner.endswith((expected[2], "screenaudio.cpp"))
+        )
+
     def exact_screendisplay_view(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         expected = screendisplay_views.get(block.name)
@@ -1577,6 +1645,13 @@ def filter_exact_symbol_codegen_carriers(
         and any(exact_screentrophyroom_view_typedef(item) and item.name == name
                 for item in typedefs)
     }
+    screenaudio_eligible = {
+        name for name in screenaudio_views
+        if any(exact_screenaudio_view(block) and block.name == name
+               for block in type_blocks)
+        and any(exact_screenaudio_view_typedef(item) and item.name == name
+                for item in typedefs)
+    }
     screenusername_eligible = {
         name for name in screenusername_views
         if any(exact_screenusername_view(block) and block.name == name
@@ -1629,6 +1704,8 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_screencontroller_view(block))
             and not (block.name in screentrophyroom_eligible
                      and exact_screentrophyroom_view(block))
+            and not (block.name in screenaudio_eligible
+                     and exact_screenaudio_view(block))
             and not (block.name in screendisplay_eligible
                      and exact_screendisplay_view(block))
             and not (block.name in screenusername_eligible
@@ -1667,6 +1744,8 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_screencontroller_view_typedef(item))
             and not (item.name in screentrophyroom_eligible
                      and exact_screentrophyroom_view_typedef(item))
+            and not (item.name in screenaudio_eligible
+                     and exact_screenaudio_view_typedef(item))
             and not (item.name in screendisplay_eligible
                      and exact_screendisplay_view_typedef(item))
             and not (item.name in screenusername_eligible

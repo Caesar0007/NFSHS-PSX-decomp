@@ -1,8 +1,16 @@
 /* frontend/screens/screenaudio_externs.h - reconstructed externs. NOT original. */
 #ifndef _FE_SCREENS_SCREENAUDIO_EXTERNS_H_
 #define _FE_SCREENS_SCREENAUDIO_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "screenaudio_types.h"
+
+extern "C" {
+int rand(void);
+int SNDover(int);
+int SNDSYS_getopts(SNDSYSOPTS *);
+int SNDSYS_setopts(SNDSYSOPTS *);
+int SNDstop(int);
+int sprintf(char *, const char *, ...);
+}
 
 extern tfrontEnd   frontEnd;
 extern int  ticks;
@@ -24,7 +32,11 @@ int CalcFadeVal(int col1, int col2, int f1, int f2);  /* 4-arg overload */
 
 /* called game/FE/audio/PsyQ functions (Ghidra-dumped signatures) */
 short FeAudio_AsyncPlaySpeech(int type, int index);
-void FETextRender_MenuTextPositionedJustify(short index, short x, short y, short justify, tMenuTextState state, tMenuTextType type);
+void FETextRender_MenuTextPositionedJustify(short index, short x, short y,
+                                             short justify,
+                                             tMenuTextState state,
+                                             tMenuTextType type)
+    asm("FETextRender_MenuTextPositionedJustify__Fssss14tMenuTextState13tMenuTextType");
 char * TextSys_Word(int wordnum);
 void FeAudio_systemtask(int x);
 int TextSys_WordY(int wordnum);

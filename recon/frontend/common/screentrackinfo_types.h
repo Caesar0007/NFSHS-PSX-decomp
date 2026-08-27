@@ -2,6 +2,7 @@
 #ifndef NFS4_FRONTEND_COMMON_SCREENTRACKINFO_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENTRACKINFO_TYPES_H
 
+#ifndef NFS4_SCREENTRACKINFO_AUDIO_SURFACE
 #include "fe_input_enums.h"
 
 #define NFS4_TMENUCOMMANDTYPE_DEFINED
@@ -23,6 +24,7 @@ struct tMenuCommand {
     tMenuCommandType type;
     tMenu *nextMenu;
 };
+#endif
 
 #include "fe_core_types.h"
 
@@ -75,7 +77,9 @@ struct tScreen {
     short fScreenFadeVal;
     __vtbl_ptr_type (*_vf)[10];
 
+    tScreen();
     void Initialize();
+    void Cleanup();
 };
 
 struct tActiveLine {
@@ -248,6 +252,7 @@ struct tTVConfig {
     u_short clut, tpage, shapex, shapey, clutID, flip_axis;
 };
 
+#ifndef NFS4_SCREENTRACKINFO_AUDIO_SURFACE
 struct tVideoWall {
     tTVConfig *fTVs;
     short fFirstTVShape, fNumTVs;
@@ -261,7 +266,9 @@ struct tVideoWall {
     short fIcon, fIconFrames, fIconX, fIconY;
     bool fUpdated;
 };
+#endif
 
+#ifndef NFS4_SCREENTRACKINFO_AUDIO_SURFACE
 struct tScreenTrackInfo : public tScreen {
     tTrackInfo fTrack;
     tTVConfig tvConfigs[10];
@@ -272,6 +279,7 @@ struct tScreenTrackInfo : public tScreen {
     void Initialize();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 };
+#endif
 
 struct tDialogBase : public tScreen {
     short specificPlayer, left, top, width, height, reservedheight;

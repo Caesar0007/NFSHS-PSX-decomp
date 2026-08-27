@@ -142,10 +142,11 @@ int *_mul_mant_d(int *out, unsigned int x, unsigned int y);
  * dependency prevents CSE forwarding the just-stored low word without
  * invalidating add[1]; the result is retail's early fresh `lw $a3` with zero
  * emitted fence instructions.  A volatile whole-pair view regressed to 12 at
- * 199/197, and whole-pair `+m` regressed to 8 at 201/197.  The scalar helper
- * body calls retain the ordinary five-word declaration, preserving its 6-diff
- * basin independently.  Post-landing 04Z ladder: 2.8.0 PASS+6 (current/best
- * whole TU), 2.8.1 4+6, 970404 131+6, 2.91.66 149+74, 2.95.2 164+70;
+ * 199/197, and whole-pair `+m` regressed to 8 at 201/197.  The helper body was
+ * initially left on its scalar declaration at 6; its later pair-ABI reduction
+ * is receipted beside that body below.  Post-seal 04Z ladder at this checkpoint:
+ * 2.8.0 PASS+6 (current/best whole TU), 2.8.1 4+6, 970404 131+6,
+ * 2.91.66 149+74, 2.95.2 164+70;
  * 2.6.0/2.6.3/2.7.2 reject the modern `+` asm constraint.
  *
  * W61-A9 tail probes for _mul_mant_d (all whole-TU gated,
@@ -373,7 +374,23 @@ double __muldf3(double a, double b)   /* @0x800F62E4 */
  *                                                                    placed mid-body wrecks
  *                                                                    the whole schedule)
  * The DImode-copy device is a general candidate for every remaining libmath/soft-float tail
- * that moves a two-word value: DIVDF3/ADDDF3 carry the same `int[2]` idiom. */
+ * that moves a two-word value: DIVDF3/ADDDF3 carry the same `int[2]` idiom.
+ *
+ * W80 exposed-residual source-only reduction: 6 -> 2 at exact 59/59.  Apply
+ * the same partial-struct ABI view to both helper calls and place a narrow
+ * empty `+m(add[0])` before each; this fixes both fresh $a3 reload/order rows.
+ * For the first call, a block-local `callout=sh` identity is born before the
+ * add[] stores but used only by that call.  It retains the $a0 call preference
+ * without a saved-register lifetime and lets sched2 hoist `addiu $a0,sp,24`
+ * to the retail slot.  Born after the reload fence it stayed eight slots late;
+ * a function-scope pointer rotated the saved band (29 diffs).  Remaining 2 is
+ * solely `sw $ra,56($sp)` position.  The updated PS1 corpus supplies an exact
+ * independent vendor witness (`parasite-eve-2-decomp/lib/libmath/muldf3.o`,
+ * .text+0x370..0x388): pair word1 at 16(sp), word0 in $a3, then $a1/$a2,
+ * `sw $ra,56($sp)`, and `jal _add_mant_d`.  This confirms the by-value pair ABI
+ * and isolates the residual to the prologue-save schedule.  Void fences before the call were neutral;
+ * after the call added a nop; broad/indirect memory-output fences regressed to
+ * 20. */
 int *_mul_mant_d(int *out, unsigned int x, unsigned int y)
 {
     int sh[2];       /* 0x18 */
@@ -386,14 +403,20 @@ int *_mul_mant_d(int *out, unsigned int x, unsigned int y)
     sh[0] = xlo * ylo;
     x >>= 16;
     p = x * ylo;
-    add[1] = p >> 16;
-    add[0] = p << 16;
-    _add_mant_d(sh, sh[0], sh[1], *(volatile int *)&add[0], add[1]);
+    {
+        int *callout = sh;
+        __asm__("" : "=r"(callout) : "0"(callout));
+        add[1] = p >> 16;
+        add[0] = p << 16;
+        __asm__("" : "+m"(add[0]));
+        _add_mant_pair(callout, sh[0], sh[1], *(mant_pair *)add);
+    }
     y >>= 16;
     p = xlo * y;
     add[1] = p >> 16;
     add[0] = p << 16;
-    _add_mant_d(sh, sh[0], sh[1], *(volatile int *)&add[0], add[1]);
+    __asm__("" : "+m"(add[0]));
+    _add_mant_pair(sh, sh[0], sh[1], *(mant_pair *)add);
     sh[1] += x * y;
     *(long long *)out = *(long long *)sh;
     __asm__ __volatile__("" : : "i"(0));   /* 06B void-tail fence -- REQUIRED, see receipt */

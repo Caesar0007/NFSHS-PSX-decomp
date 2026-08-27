@@ -3,7 +3,9 @@
 #define NFS4_FRONTEND_COMMON_FE_TRACK_TYPES_H
 
 #include "fe_core_types.h"
+#ifndef NFS4_FE_TRACK_NO_PLAYER
 #include "fe_player_types.h"
+#endif
 
 typedef enum tTrackClassType {
     tct_Beginner = 0,
@@ -16,12 +18,14 @@ typedef enum tTrackClassType {
 struct tListIteratorIndexed : public tListIterator {
     char *fIndex;
 
+#ifndef NFS4_FE_TRACK_NO_PLAYER
     tListIteratorIndexed(short *selection, char *valPtr, char *index);
     ~tListIteratorIndexed();
     char Value(tPlayer player);
     short TextValue(tPlayer player);
     void Increment(tPlayer player);
     void Decrement(tPlayer player);
+#endif
 };
 
 struct tTrackInformation {

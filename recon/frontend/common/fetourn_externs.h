@@ -1,8 +1,7 @@
 /* frontend/common/fetourn_externs.h - reconstructed externs. NOT original. */
 #ifndef _FE_FETOURN_EXTERNS_H_
 #define _FE_FETOURN_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "fetourn_types.h"
 
 /* ===== globals ===== */
 extern int          ticks;
@@ -26,12 +25,23 @@ char *TextSys_Word(int);
  * decls mangled to ..__FP11tCarManager.. phantoms that the link can never resolve. */
 void  tListIterator_dtor(tListIterator*);
 void  FECheat_ActivateBonus(int) asm("FECheat_ActivateBonus__F10tCheatCode");
-bool  FECheat_IsCheatEnabled(tCheatCode);
+bool  FECheat_IsCheatEnabled(int) asm("FECheat_IsCheatEnabled__F10tCheatCode");
 /* W58-A1 (08A phantom fix): SetCarAvailable / SetTrackAvailable / SetClassAvailable /
  * SetCarViewable / PurchaseCar / PurchaseUpgrade / GetNumOwnedCars are tCarManager /
  * tTrackManager MEMBERS (real symbols ..__11tCarManager.. / ..__13tTrackManager..).
  * The free `(...)` decls mangled every call site as `..__Fe`, which never links.
  * Call sites now use carManager./trackManager. member form; the member decls live in
  * nfs4_types.h.  Byte-neutral: `this` rides $a0 exactly like the old explicit ptr. */
+
+extern "C" {
+void blockmove(...);
+int fixedmult(...);
+void *loadfileadr(...);
+int purgememadr(...);
+void qsort(...);
+int rand(...);
+void *reservememadr(...);
+int sprintf(...);
+}
 
 #endif

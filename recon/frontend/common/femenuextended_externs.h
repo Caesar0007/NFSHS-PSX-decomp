@@ -1,8 +1,7 @@
 /* frontend/common/femenuextended_externs.h - reconstructed externs. NOT original. */
 #ifndef _FE_SCREENS_FEMENUEXTENDED_EXTERNS_H_
 #define _FE_SCREENS_FEMENUEXTENDED_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "femenuextended_types.h"
 extern tFEApplication *FEApp;
 extern tfrontEnd frontEnd;
 extern tPadModuleState gPadinfo;
@@ -25,7 +24,10 @@ extern tTexture_ShapeInfo *gHelpShapes;  extern tPlayer gMenu_SubMenuPlayer;
 void  FETextRender_FullTextRGB(char*,short,short,int,char,short);
 void  FETextRender_Title(short);
 void  FETextRender_WordWrapTextRGBJustify(char*,RECT&,int,int,int,bool);
-int   CalcTextFadeSelToHi(tMenuTextType, short, short);  int CalcTextFadeUnselToSel(tMenuTextType, short, short);
+int   CalcTextFadeSelToHi(int, short, short)
+  __asm__("CalcTextFadeSelToHi__F13tMenuTextTypess");
+int   CalcTextFadeUnselToSel(int, short, short)
+  __asm__("CalcTextFadeUnselToSel__F13tMenuTextTypess");
 extern char textDefinitions[14][6];  extern int kRGBVals[];  extern int screenheight;
 extern int gFlip;  extern int Draw_gPlayer1View;
 void *Draw_GetDRAWENV(int,int);
@@ -39,12 +41,20 @@ void  FETextRender_SetFont(int);  extern "C" int textpixels(char*);  void s_uppe
 /* TRUE prototypes (2026-08-02, user-approved): the old variadic `(...)` decls mangled as
  * phantom symbols at the Font_SetBlitter(FontUpsideDownBlit) address-take sites -- byte-
  * neutral fix, reloc symbols now match font.cpp/psxfront.cpp definitions. */
-void  Font_SetBlitter(void (*)(int,int,void *,int,int,charactertbl *,int));
+void  Font_SetBlitter(void (*)(int,int,void *,int,int,struct charactertbl *,int));
 void  Font_ReSetBlitter();
-void  FontUpsideDownBlit(int,int,void *,int,int,charactertbl *,int);
+void  FontUpsideDownBlit(int,int,void *,int,int,struct charactertbl *,int);
 extern int screenwidth;
 /* W58-A1 (08A phantom fix): CalcOnOffFade__F13tMenuTextTypesssRiT4 -- (tMenuTextType,
  * short,short,short,int&,int&); T4 = a repeat of param 4 (0-based) = int&. */
-int   CalcOnOffFade(tMenuTextType, short, short, short, int &, int &);
-void  FETextRender_MenuTextPositionedJustify(short,short,short,short,tMenuTextState,tMenuTextType);
+int   CalcOnOffFade(int, short, short, short, int &, int &)
+  __asm__("CalcOnOffFade__F13tMenuTextTypesssRiT4");
+void  FETextRender_MenuTextPositionedJustify(short,short,short,short,int,int)
+  __asm__("FETextRender_MenuTextPositionedJustify__Fssss14tMenuTextState13tMenuTextType");
+
+extern "C" {
+void SetDrawArea(...);
+int sprintf(char *, const char *, ...);
+unsigned int strlen(const char *);
+}
 #endif

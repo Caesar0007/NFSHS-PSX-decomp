@@ -475,7 +475,8 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "INT", 0, "nCar", 8, (), ""),
             ("MOS", "INT", 0, "nTime", 12, (), ""),
             ("MOS", "INT", 0, "nBestLap", 16, (), ""),
-        ), ("fetourn_types.h", "fecntl_types.h", "fecheats_types.h")),
+        ), ("fetourn_types.h", "fecntl_types.h", "fecheats_types.h",
+            "femenuextended_types.h")),
     }
     # FECheats dereferences FEApp's embedded MemCardDialog.  CC1PL therefore
     # needs the complete application layout even though the linked owner keeps

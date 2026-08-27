@@ -10,10 +10,6 @@ static RECT  gHelpPos;   /* @0x80052b58  (bss(zero)); SYM STAT */
 
 extern int CalcTextFadeSelToHiWide(int, int, int)
   asm("CalcTextFadeSelToHi__F13tMenuTextTypess");
-typedef struct tPsyQPrimTag {
-  unsigned int addr : 24;
-  unsigned int len : 8;
-} tPsyQPrimTag;
 
 
 /* ---- MenuNFS4_SetHelpPos__FR4RECT  [@0x800?] ---- RECONSTRUCTED 2026-06-12 (Ghidra @NFS4.EXE.c:5887).
@@ -67,9 +63,8 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
     temp.y = *(short *)((char *)drenv + 2);
     temp.w = 0x200;
     temp.h = 0xf0;
-    ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr;
+    addPrim(Render_gPalettePtr,daprim);
     Render_gPacketPtr = (u_char *)daprim + 0xc;
-    ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
     SetDrawArea(daprim,&temp);
     FETextRender_SetFont(0);
     sprintf(buffer,"%s",TextSys_Word(helpText));
@@ -127,9 +122,8 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
     temp.y = temp.y + *(short *)((char *)drenv + 2);
     temp.x = temp.x + 2;
     temp.w = temp.w + -4;
-    ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr;
+    addPrim(Render_gPalettePtr,daprim);
     Render_gPacketPtr = (u_char *)daprim + 0xc;
-    ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
     SetDrawArea(daprim,&temp);
   }
   temp = r;

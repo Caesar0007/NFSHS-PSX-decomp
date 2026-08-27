@@ -65,9 +65,9 @@ void tScreenTrophyInfo::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
     /* SYM-CODEGEN-CARRIER: currentTourn -- comma-staging this byte was the
        measured final 4 -> PASS step, restoring retail's v0/v1 ownership. */
     byte currentTourn;
-
     idx = (currentTourn =
-               (uint)(byte)screenTrophyRoom->fRealCurrentTourn[screenTrophyRoom->tier],
+               (uint)(byte)screenTrophyRoom->TrophyRoomCurrentView()
+                   [screenTrophyRoom->TrophyRoomTierView()],
            (uint)(tournamentManager.fDefinition)->fTiers[feTier].fTournOffset +
                currentTourn);
   }
@@ -142,10 +142,10 @@ void tScreenTrophyInfo::DrawBackground()
        FAIL 43 at 303/298; comma-staging this byte is required for retail's
        room/tier load order and scaled-address ownership. */
     byte currentTourn;
-
     feTier = (uint)(byte)frontEnd.tier;
     tourn = tournamentManager.fDefinition->fTournaments +
-        (currentTourn = (byte)screenTrophyRoom->fRealCurrentTourn[screenTrophyRoom->tier],
+        (currentTourn = (byte)screenTrophyRoom->TrophyRoomCurrentView()
+                             [screenTrophyRoom->TrophyRoomTierView()],
          (uint)tournamentManager.fDefinition->fTiers[feTier].fTournOffset + currentTourn);
     tournID = (signed char)tourn->fTournamentID;
   }

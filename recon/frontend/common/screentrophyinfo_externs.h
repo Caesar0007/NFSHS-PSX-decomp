@@ -1,8 +1,7 @@
 /* frontend/screens/screentrophyinfo_externs.h - reconstructed externs. NOT original. */
 #ifndef _FE_SCREENS_SCREENTROPHYINFO_EXTERNS_H_
 #define _FE_SCREENS_SCREENTROPHYINFO_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "screentrophyinfo_types.h"
 
 /* --- globals --- */
 extern tfrontEnd          frontEnd;
@@ -27,16 +26,24 @@ char gSwapFileNameTI[16];                                                     /*
 int   CalcFadeVal(int rgb, int idx);
 char *TextSys_Word(int id);
 void  FETextRender_FullTextRGB(char *s, short x, short y, int rgb, char a, short b);
-void  FETextRender_MenuTextPositionedJustifyFade(int idx, short x, short y, short j, short state, tMenuTextState st, tMenuTextType tt);
+void  FETextRender_MenuTextPositionedJustifyFade(int idx, short x, short y,
+        short j, short state, int st, int tt)
+    __asm__("FETextRender_MenuTextPositionedJustifyFade__Fissss14tMenuTextState13tMenuTextType");
 void  FETextRender_WordWrapTextRGB(char *s, RECT &r, int rgb);
 int FETextRender_WordWrapHeight(short w, char *s);
 void  FETextRender_WordWrapTextRGBJustify(char *s, RECT &r, int rgb, int j, int a, bool b);
 void  ScaleShapeExtended(int a, int b, int c, int d, int e, int f, tDrawShapeExtended *ext);
 void  DrawShapeExtended(int a, int b, int c, int d, int e, int f, tDrawShapeExtended *ext);
-void  GetTrophyName(tTournamentManager *tm, tTourneyInfo *ti, tTrophySize sz, char *buf, int n) asm("GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci");
+void  GetTrophyName(tTournamentManager *tm, tTourneyInfo *ti, int sz,
+                    char *buf, int n)
+    __asm__("GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci");
 
 /* --- tScreen helpers (base passed explicitly) --- */
-bool IsShapeFileLoaded(tScreen *s, tShapeInformation *shp) asm("IsShapeFileLoaded__7tScreenR17tShapeInformation");
-void UploadSwapShapes(tScreen *s, int n) asm("UploadSwapShapes__7tScreeni");
+bool IsShapeFileLoaded(tScreen *s, tShapeInformation *shp)
+    __asm__("IsShapeFileLoaded__7tScreenR17tShapeInformation");
+void UploadSwapShapes(tScreen *s, int n)
+    __asm__("UploadSwapShapes__7tScreeni");
+
+extern "C" unsigned int strlen(...);
 
 #endif

@@ -7,10 +7,10 @@ Retail owner: `FEMission.obj`
 Source TU: `recon/frontend/common/femission.cpp`
 
 The TU now includes `femission_types.h` instead of the project-wide
-`nfs4_types.h`.  Its visible graph is the exact 34-record drawing/header base
-shared with `felines.obj`, plus the 22 mission, garage, menu-base, and front-end
-records present in the retail owner.  `byte` and `uint` remain source macros
-because `FEMission.obj` contains no typedef records for those spellings.
+`nfs4_types.h`.  Its visible graph is the exact frontend/core graph shared
+with FETracks.obj and FEInput.obj, plus only the five mission records present
+in the retail owner.  `byte` and `uint` remain source macros because
+`FEMission.obj` contains no typedef records for those spellings.
 
 Strict compiler-emitted comparison:
 
@@ -35,7 +35,7 @@ Verification:
 - `ReleaseDescription`: PASS, 15 instructions
 - `GetMissionStages`: PASS, 26 instructions
 - `GetMissionToRace`: PASS, 17 instructions
-- full frontend/common type sweep: 5 exact owners, 36 remaining visibility
+- full frontend/common type sweep: 7 exact owners, 34 remaining visibility
   residuals
 - strict declaration/global audit: 779/779 mapped definitions clean and
   190/190 object-owned globals mapped, with zero missing/extra/type/storage

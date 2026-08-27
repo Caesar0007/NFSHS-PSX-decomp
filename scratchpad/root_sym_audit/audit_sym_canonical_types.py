@@ -413,6 +413,17 @@ def filter_exact_symbol_codegen_carriers(
         "DrawC_CViewCodegenView": hud_views["Hud_CViewCodegenView"],
         "DrawC_GameSetupCodegenView": hud_views["Hud_GameSetupCodegenView"],
     }
+    feinput_views = {
+        # FEInput.obj references pad.obj's anonymous 84-byte gPadinfo object.
+        # Retail retains PAD_COMMON but deliberately omits the owning aggregate
+        # tag; nevertheless, the exact instructions require buf at symbol+4.
+        # Filter only this fully priced foreign-symbol view in its owning header.
+        "FEInput_PadCodegenView": (84, (
+            ("MOS", "INT", 0, "initialized", 0, (), ""),
+            ("MOS", "ARY STRUCT", 64, "buf", 4, (8,), "PAD_COMMON"),
+            ("MOS", "ARY UCHAR", 16, "stateBytes", 68, (16,), ""),
+        )),
+    }
     draww_views = {
         "DrawW_SliceCodegenView": (32, (
             ("MOS", "ARY INT", 12, "center", 0, (3,), ""),
@@ -523,6 +534,29 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith("drawc_externs.h")
         )
 
+    def exact_feinput_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = feinput_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith("feinput_externs.h")
+        )
+
+    def exact_feinput_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = feinput_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            and owner.endswith("feinput_externs.h")
+        )
+
     def exact_draww_view(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         expected = draww_views.get(block.name)
@@ -563,6 +597,11 @@ def filter_exact_symbol_codegen_carriers(
         if any(exact_drawc_view(block) and block.name == name for block in type_blocks)
         and any(exact_drawc_view_typedef(item) and item.name == name for item in typedefs)
     }
+    feinput_eligible = {
+        name for name in feinput_views
+        if any(exact_feinput_view(block) and block.name == name for block in type_blocks)
+        and any(exact_feinput_view_typedef(item) and item.name == name for item in typedefs)
+    }
     draww_eligible = {
         name for name in draww_views
         if any(exact_draww_view(block) and block.name == name for block in type_blocks)
@@ -575,6 +614,7 @@ def filter_exact_symbol_codegen_carriers(
             if not (night_eligible and exact_night_camera(block))
             and not (block.name in hud_eligible and exact_hud_view(block))
             and not (block.name in drawc_eligible and exact_drawc_view(block))
+            and not (block.name in feinput_eligible and exact_feinput_view(block))
             and not (block.name in draww_eligible and exact_draww_view(block))
         ],
         [
@@ -582,6 +622,7 @@ def filter_exact_symbol_codegen_carriers(
             if not (night_eligible and exact_night_camera_typedef(item))
             and not (item.name in hud_eligible and exact_hud_view_typedef(item))
             and not (item.name in drawc_eligible and exact_drawc_view_typedef(item))
+            and not (item.name in feinput_eligible and exact_feinput_view_typedef(item))
             and not (item.name in draww_eligible and exact_draww_view_typedef(item))
         ],
     )

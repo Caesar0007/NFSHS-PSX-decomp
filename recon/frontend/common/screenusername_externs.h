@@ -1,8 +1,9 @@
 /* frontend/screens/screenusername_externs.h - reconstructed externs. NOT original. */
 #ifndef _FE_SCREENS_SCREENUSERNAME_EXTERNS_H_
 #define _FE_SCREENS_SCREENUSERNAME_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "screenusername_types.h"
+
+extern "C" int sprintf(char *, const char *, ...);
 
 extern tfrontEnd frontEnd;          /* FE state (.language) */
 

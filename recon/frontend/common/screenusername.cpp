@@ -10,7 +10,7 @@
    `char b[2]` has alignment 1, which is what retail's `strcpy(output," ")`
    resolved to (byte lb/lb/sb/sb), where a plain `char[2]`<-string-literal
    copy resolves to 2 (halfword lhu/sh). */
-struct tPack2 { char b[2]; };
+struct ScreenUserName_Align1Copy2CodegenCarrier { char b[2]; };
 
 
 /* ---- tScreenUserName::Initialize  (screenusername.cpp:33) ---- */
@@ -179,7 +179,8 @@ DrawHorizontalLine_draw:
    ==== W72-A7 (2026-08-22): 68 -> **PASS 394/394**.  Four coupled landings,
    each re-gated in the basin it was measured in (04Z):
     (1) 68 -> 74, count 391 -> 394 EXACT: the Pack2 alignment-1 block move
-        landed (`struct tPack2` above).  A REGRESSION on the diff count but
+        landed (the explicit alignment-one carrier above).  A REGRESSION on
+        the diff count but
         the structurally-true basin -- W71 was right to name it.
     (2) 74 -> 70: clamp 2's `gridposv = 0` moved INSIDE the `< 0x80` if
         (before the `<= 0` test) instead of ahead of it, so the pre-set no
@@ -215,7 +216,7 @@ DrawHorizontalLine_draw:
    clamp 2 value-first 26, hi-as-if / Yoda-hi / normal-block-without-goto all
    1 (the leftover duplicated `slti $v0,$v1,129`).  FALSIFIED in the 70-diff
    basin: copy before/after `y`/`row`, copy before the SubtractiveBox pair
-   (74), `char output[3]`, `output` as a `tPack2` object, SYM declaration
+   (74), `char output[3]`, `output` as a two-byte struct object, SYM declaration
    order, funnels-declared-first -- all exactly 70 (the rotation is immune to
    every source-position lever; only the reload count moves it).
    Harness: scratchpad/W72_A7/{probe.py,p1..p7.py} + scratchpad/W72_A7_sbs.py. */
@@ -295,7 +296,8 @@ DrawBgUser_textFadeSkip:
   __asm__("" : : "r"(this));
   y = MENUUSERNAME_STARTY;
   row = 0;
-  *(struct tPack2 *)output = *(struct tPack2 *)(char *)" ";
+  *(struct ScreenUserName_Align1Copy2CodegenCarrier *)output =
+      *(struct ScreenUserName_Align1Copy2CodegenCarrier *)(char *)" ";
   while (row < menu_kUserNameRows) {
     x = 0x102;
     col = 0;

@@ -46,6 +46,8 @@ struct tScreen {
     int fInternalScreenFadeVal;
     short fScreenFadeVal;
     __vtbl_ptr_type (*_vf)[10];
+
+    void Initialize();
 };
 
 struct tActiveLine {
@@ -54,10 +56,12 @@ struct tActiveLine {
     short data;
 };
 
+#ifndef NFS4_SCREENDISPLAY_NO_OWNER_RECORDS
 struct tScreenDisplay : public tScreen {
     void DrawBackground();
     void GetShapeInfo(short &, short &, char **, char **);
 };
+#endif
 
 struct tCarManager;
 struct tListIteratorCar : public tListIterator {
@@ -274,6 +278,7 @@ struct tVideo {
     char x, y, width, height, tileWidth, tileHeight, deltaX, deltaY;
 };
 
+#ifndef NFS4_SCREENDISPLAY_NO_OWNER_RECORDS
 /* Only this offset is used by ScreenDisplay.  The real aggregate owner is
  * reconstructed in FEMenuDefs; keep this compiler-boundary view explicit. */
 struct ScreenDisplay_GlobalMenuDefsCodegenView {
@@ -281,6 +286,7 @@ struct ScreenDisplay_GlobalMenuDefsCodegenView {
     tOptionsMenu menuDisplayOptions;
 };
 #define tGlobalMenuDefs ScreenDisplay_GlobalMenuDefsCodegenView
+#endif
 
 struct SndBnk_t;
 struct SPEECHINFO;

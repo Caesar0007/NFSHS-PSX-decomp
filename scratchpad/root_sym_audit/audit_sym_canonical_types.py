@@ -524,6 +524,18 @@ def filter_exact_symbol_codegen_carriers(
              "tOptionsMenu"),
         ), "screendisplay_types.h"),
     }
+    # ScreenUserName's retail body contains the bytewise expansion of
+    # strcpy(output, " "), but the reconstructed literal receives alignment
+    # two and GCC 2.8 otherwise lowers it as lhu/sh.  This explicit alignment-
+    # one, two-byte assignment carrier is source-only codegen evidence.  Keep
+    # it invisible to the retail graph only as an exact tag/typedef pair from
+    # this one TU; any spelling, size, member, or origin drift must reappear.
+    # Pre-change backup: Git commit 1d20af1e.
+    screenusername_views = {
+        "ScreenUserName_Align1Copy2CodegenCarrier": (2, (
+            ("MOS", "ARY CHAR", 2, "b", 0, (2,), ""),
+        ), "screenusername.cpp"),
+    }
     # FECredits dereferences the foreign ScreenMain singleton, so CC1PL must
     # see its complete field layout even though the linked SYM attributes that
     # completed tag to ScreenMain.obj.  Suppression below is pair-locked to the
@@ -874,6 +886,29 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith((expected[2], "screendisplay.cpp"))
         )
 
+    def exact_screenusername_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = screenusername_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith(expected[2])
+        )
+
+    def exact_screenusername_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = screenusername_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            and owner.endswith(expected[2])
+        )
+
     def exact_femenu_ptag(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         return (
@@ -954,6 +989,13 @@ def filter_exact_symbol_codegen_carriers(
         and any(exact_screendisplay_view_typedef(item) and item.name == name
                 for item in typedefs)
     }
+    screenusername_eligible = {
+        name for name in screenusername_views
+        if any(exact_screenusername_view(block) and block.name == name
+               for block in type_blocks)
+        and any(exact_screenusername_view_typedef(item) and item.name == name
+                for item in typedefs)
+    }
     femenu_ptag_eligible = any(
         exact_femenu_ptag(block)
         and exact_femenu_ptag_typedef(item)
@@ -977,6 +1019,8 @@ def filter_exact_symbol_codegen_carriers(
             and not (block.name in fecheats_eligible and exact_fecheats_view(block))
             and not (block.name in screendisplay_eligible
                      and exact_screendisplay_view(block))
+            and not (block.name in screenusername_eligible
+                     and exact_screenusername_view(block))
             and not (femenu_ptag_eligible and exact_femenu_ptag(block))
         ],
         [
@@ -993,6 +1037,8 @@ def filter_exact_symbol_codegen_carriers(
             and not (item.name in fecheats_eligible and exact_fecheats_view_typedef(item))
             and not (item.name in screendisplay_eligible
                      and exact_screendisplay_view_typedef(item))
+            and not (item.name in screenusername_eligible
+                     and exact_screenusername_view_typedef(item))
             and not (femenu_ptag_eligible and exact_femenu_ptag_typedef(item))
         ],
     )

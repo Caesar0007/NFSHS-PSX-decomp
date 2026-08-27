@@ -301,7 +301,8 @@ struct tDialogMessageString : public tDialogBase {
     void Draw();
 #endif
 #if defined(NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS) || \
-    defined(NFS4_SCREENDISPLAY_FEAPP_METHODS)
+    defined(NFS4_SCREENDISPLAY_FEAPP_METHODS) || \
+    defined(NFS4_SCREENDISPLAY_CONTROLLER_METHODS)
     inline tDialogMessageString *SetString(char *text) {
         string = text;
         return this;

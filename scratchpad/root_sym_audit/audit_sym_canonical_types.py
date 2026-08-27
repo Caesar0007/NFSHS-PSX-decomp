@@ -683,6 +683,62 @@ def filter_exact_symbol_codegen_carriers(
              "tListIteratorTournament"),
         ), "screentournselect_types.h"),
     }
+    # ScreenController.obj uses three foreign singletons without retaining
+    # their completed source tags.  These are accepted only as exact, complete
+    # tag/typedef pairs from the owner header.  Pre-change backup: c27378c9.
+    screencontroller_views = {
+        "ScreenController_FEApplicationCodegenView": (558, (
+            ("MOS", "ARY CHAR", 557, "_beforeInputPlayer", 0, (557,), ""),
+            ("MOS", "CHAR", 0, "fInputPlayer", 557, (), ""),
+        ), "screencontroller_types.h"),
+        "ScreenController_PadCodegenView": (84, (
+            ("MOS", "INT", 0, "initialized", 0, (), ""),
+            ("MOS", "ARY STRUCT", 64, "buf", 4, (8,), "PAD_COMMON"),
+            ("MOS", "ARY CHAR", 16, "stateBytes", 68, (16,), ""),
+        ), "screencontroller_types.h"),
+        "ScreenController_GlobalMenuDefsCodegenView": (12372, (
+            ("MOS", "ARY CHAR", 11048, "_beforeItemControllerSettings", 0,
+             (11048,), ""),
+            ("MOS", "STRUCT", 68, "itemControllerSettings", 11048, (),
+             "tMenuItemSlidingMenu"),
+            ("MOS", "STRUCT", 128, "menuControllerConfig", 11116, (),
+             "tOptionsMenu"),
+            ("MOS", "ARY CHAR", 140, "_beforeItemControllerSteeringRange1",
+             11244, (140,), ""),
+            ("MOS", "STRUCT", 48, "itemControllerSteeringRange1", 11384,
+             (), "tInsideBoxTwoWaySlider"),
+            ("MOS", "ARY CHAR", 20, "_beforeItemControllerDeadSpot1",
+             11432, (20,), ""),
+            ("MOS", "STRUCT", 48, "itemControllerDeadSpot1", 11452, (),
+             "tInsideBoxTwoWaySlider"),
+            ("MOS", "ARY CHAR", 20, "_beforeItemControllerSteeringRange2",
+             11500, (20,), ""),
+            ("MOS", "STRUCT", 48, "itemControllerSteeringRange2", 11520,
+             (), "tInsideBoxTwoWaySlider"),
+            ("MOS", "ARY CHAR", 20, "_beforeItemControllerDeadSpot2",
+             11568, (20,), ""),
+            ("MOS", "STRUCT", 48, "itemControllerDeadSpot2", 11588, (),
+             "tInsideBoxTwoWaySlider"),
+            ("MOS", "ARY CHAR", 20, "_beforeItemControllerJoyRange", 11636,
+             (20,), ""),
+            ("MOS", "STRUCT", 48, "itemControllerJoyRange", 11656, (),
+             "tInsideBoxTwoWaySlider"),
+            ("MOS", "ARY CHAR", 20, "_beforeItemControllerCenterPoint",
+             11704, (20,), ""),
+            ("MOS", "STRUCT", 48, "itemControllerCenterPoint", 11724, (),
+             "tInsideBoxTwoWaySlider"),
+            ("MOS", "ARY CHAR", 136, "_beforeControllerMenus", 11772,
+             (136,), ""),
+            ("MOS", "STRUCT", 116, "menuControllerDualShock", 11908, (),
+             "tInsideBoxMenu"),
+            ("MOS", "STRUCT", 116, "menuControllerAnalog", 12024, (),
+             "tInsideBoxMenu"),
+            ("MOS", "STRUCT", 116, "menuControllerDualShockAnalog", 12140,
+             (), "tInsideBoxMenu"),
+            ("MOS", "STRUCT", 116, "menuControllerNegcon", 12256, (),
+             "tInsideBoxMenu"),
+        ), "screencontroller_types.h"),
+    }
     # ScreenDisplay.obj dereferences only the menuDisplayOptions member of the
     # foreign tGlobalMenuDefs singleton.  Its linked SYM retains the complete
     # tOptionsMenu leaf but attributes the owning aggregate to FEMenuDefs.obj.
@@ -1244,6 +1300,29 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith((expected[2], "screentournselect.cpp"))
         )
 
+    def exact_screencontroller_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = screencontroller_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith(expected[2])
+        )
+
+    def exact_screencontroller_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = screencontroller_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            and owner.endswith((expected[2], "screencontroller.cpp"))
+        )
+
     def exact_screendisplay_view(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         expected = screendisplay_views.get(block.name)
@@ -1446,6 +1525,13 @@ def filter_exact_symbol_codegen_carriers(
         and any(exact_screentournselect_view_typedef(item) and item.name == name
                 for item in typedefs)
     }
+    screencontroller_eligible = {
+        name for name in screencontroller_views
+        if any(exact_screencontroller_view(block) and block.name == name
+               for block in type_blocks)
+        and any(exact_screencontroller_view_typedef(item) and item.name == name
+                for item in typedefs)
+    }
     screenusername_eligible = {
         name for name in screenusername_views
         if any(exact_screenusername_view(block) and block.name == name
@@ -1494,6 +1580,8 @@ def filter_exact_symbol_codegen_carriers(
             and not (feapp_packet_eligible and exact_feapp_packet(block))
             and not (block.name in screentournselect_eligible
                      and exact_screentournselect_view(block))
+            and not (block.name in screencontroller_eligible
+                     and exact_screencontroller_view(block))
             and not (block.name in screendisplay_eligible
                      and exact_screendisplay_view(block))
             and not (block.name in screenusername_eligible
@@ -1528,6 +1616,8 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_feapp_packet_typedef(item))
             and not (item.name in screentournselect_eligible
                      and exact_screentournselect_view_typedef(item))
+            and not (item.name in screencontroller_eligible
+                     and exact_screencontroller_view_typedef(item))
             and not (item.name in screendisplay_eligible
                      and exact_screendisplay_view_typedef(item))
             and not (item.name in screenusername_eligible

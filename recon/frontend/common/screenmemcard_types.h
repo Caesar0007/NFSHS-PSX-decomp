@@ -79,7 +79,8 @@ struct DIRENTRY {
 #endif
 
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
-    !defined(NFS4_SCREENMEMCARD_TOURNSELECT_SURFACE)
+    !defined(NFS4_SCREENMEMCARD_TOURNSELECT_SURFACE) && \
+    !defined(NFS4_SCREENMEMCARD_CONTROLLER_SURFACE)
 struct AudioMus_tSongEntry {
     char *filename, *title, *artist, *label, *date, *notes;
     int length, index;
@@ -87,7 +88,8 @@ struct AudioMus_tSongEntry {
 };
 #endif
 
-#ifndef NFS4_SCREENMEMCARD_TOURNSELECT_SURFACE
+#if !defined(NFS4_SCREENMEMCARD_TOURNSELECT_SURFACE) && \
+    !defined(NFS4_SCREENMEMCARD_CONTROLLER_SURFACE)
 struct tRecordBuffer {
     char sName[8];
     int nCar, nTime, nBestLap;

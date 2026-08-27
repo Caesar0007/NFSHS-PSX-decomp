@@ -1,8 +1,7 @@
 /* frontend/common/screencontroller_externs.h - reconstructed externs. NOT original. */
 #ifndef _FE_SCREENS_SCREENCONTROLLER_EXTERNS_H_
 #define _FE_SCREENS_SCREENCONTROLLER_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "screencontroller_types.h"
 
 extern tfrontEnd   frontEnd;
 extern int  ticks;
@@ -24,6 +23,13 @@ void SetMenu(tMenuItemSlidingMenu *thisobj, bool i, void *menu) asm("SetMenu__20
 void *TransitionIsFinished(tOptionsMenu *thisobj) asm("TransitionIsFinished__12tOptionsMenu");
 /* libmath soft-float runtime (REAL SYM fns @0x800f####; variadic: Ghidra splits doubles into int pairs) */
 extern "C" { double __muldf3(double,double); int __fixdfsi(double);
+int PadGetState(int);
+int PadSetAct(int, u_char *, int);
+int PadSetActAlign(int, u_char *);
+int PadStartCom(void);
+int rand(void);
+int sprintf(char *, const char *, ...);
+void settrans(int);
  }
 
 /* called game/FE/audio/PsyQ functions (Ghidra-dumped signatures) */

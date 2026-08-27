@@ -1,8 +1,9 @@
 /* frontend/screens/screentrackinfo_externs.h - reconstructed externs. NOT original. */
 #ifndef _FE_SCREENS_SCREENTRACKINFO_EXTERNS_H_
 #define _FE_SCREENS_SCREENTRACKINFO_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "screentrackinfo_types.h"
+
+extern "C" int sprintf(char *, const char *, ...);
 
 extern tfrontEnd   frontEnd;
 extern int  ticks;
@@ -31,8 +32,10 @@ void Initialize(tVideoWall *thisobj, tTVConfig *cfgs, tTexture_ShapeInfo *shapes
                 short a, short b, short *order, short c) asm("Initialize__10tVideoWallP9tTVConfigP18tTexture_ShapeInfossPss");
 
 /* called game/FE/audio/PsyQ functions (Ghidra-dumped signatures) */
-void FETextRender_MenuTextPositionedJustify(short index, short x, short y, short justify, tMenuTextState state, tMenuTextType type);
-void FETextRender_MenuTextPositioned(short index, short x, short y, tMenuTextState textState, tMenuTextType textType);
+void FETextRender_MenuTextPositionedJustify(short, short, short, short, int, int)
+    asm("FETextRender_MenuTextPositionedJustify__Fssss14tMenuTextState13tMenuTextType");
+void FETextRender_MenuTextPositioned(short, short, short, int, int)
+    asm("FETextRender_MenuTextPositioned__Fsss14tMenuTextState13tMenuTextType");
 short * GetTrackList(tTournamentManager * thisobj, short tier, short tournament) asm("GetTrackList__18tTournamentManagerss");
 void GetTrackToRace(tTournamentManager * thisobj, tTrackInfo * track) asm("GetTrackToRace__18tTournamentManagerR10tTrackInfo");
 void DrawBackgroundImage(tScreen * thisobj, int startShape, int numShapes, tTexture_ShapeInfo * shapes, int flip_axis) asm("DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi");

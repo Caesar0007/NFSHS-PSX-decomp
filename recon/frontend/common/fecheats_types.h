@@ -2,6 +2,7 @@
 #ifndef NFS4_FRONTEND_COMMON_FECHEATS_TYPES_H
 #define NFS4_FRONTEND_COMMON_FECHEATS_TYPES_H
 
+#ifndef NFS4_FECHEATS_NO_CHEAT_RECORDS
 typedef enum tCheatCode {
     cheat_Roadster = 0,
     cheat_Pony = 1,
@@ -36,6 +37,7 @@ typedef enum tCheatCode {
     cheat_AllBronze = 30,
     cheat_NumCheats = 31
 } tCheatCode;
+#endif
 
 /* The retail owner contains color.obj's complete physics/AI/car graph. */
 #include "../../game/common/color_types.h"
@@ -100,6 +102,10 @@ struct tScreen {
     int fInternalScreenFadeVal;
     short fScreenFadeVal;
     __vtbl_ptr_type (*_vf)[10];
+#ifdef NFS4_FECHEATS_FEMEMCARD_METHODS
+    tScreen();
+    ~tScreen();
+#endif
 };
 
 struct tDialogBase : public tScreen {
@@ -112,6 +118,10 @@ struct tDialogBase : public tScreen {
     int fFadeText;
 
     void Display();
+#ifdef NFS4_FECHEATS_FEMEMCARD_METHODS
+    tDialogBase();
+    void Hide();
+#endif
 };
 
 struct tDialogHelp : public tDialogBase {
@@ -129,17 +139,38 @@ struct tDialogMessageString : public tDialogBase {
         string = text;
         return this;
     }
+#ifdef NFS4_FECHEATS_FEMEMCARD_METHODS
+    tDialogMessageString();
+#endif
 };
 
 struct tDialogMessageStringWithTimeout : public tDialogMessageString {};
-struct tDialogNoInputMessage : public tDialogMessageString {};
+struct tDialogNoInputMessage : public tDialogMessageString {
+#ifdef NFS4_FECHEATS_FEMEMCARD_METHODS
+    tDialogNoInputMessage();
+#endif
+};
 
 struct tDialogInteractive : public tDialogMessageString {
     bool ReadyToReturnValue, fCurrentlyRunning;
+#ifdef NFS4_FECHEATS_FEMEMCARD_METHODS
+    short Run();
+#endif
 };
 
 struct tDialogYesNo : public tDialogInteractive {
     int yesnowords[2];
+#ifdef NFS4_FECHEATS_FEMEMCARD_METHODS
+    tDialogYesNo();
+    inline tDialogYesNo *SetChoices(int yesWord, int noWord,
+                                    short defaultValue, short player) {
+        yesnowords[0] = yesWord;
+        yesnowords[1] = noWord;
+        fDefault = defaultValue;
+        specificPlayer = player;
+        return this;
+    }
+#endif
 };
 
 /* FECheats needs this foreign class's MemCardDialog offset.  Its exact layout
@@ -168,15 +199,19 @@ struct tFEApplication {
 
 /* The owner retains tSaveRecords but attributes this already-seen element tag
  * body elsewhere in the linked SYM.  The canonical audit pair-locks both. */
+#ifndef NFS4_FECHEATS_NO_RECORD_BUFFER
 struct tRecordBuffer {
     char sName[8];
     int nCar, nTime, nBestLap;
 };
 typedef tRecordBuffer tSaveRecords[187];
+#endif
 
+#ifndef NFS4_FECHEATS_NO_CHEAT_RECORDS
 struct tCheat {
     u_char name[8];
     tCheatCode cheat;
 };
+#endif
 
 #endif

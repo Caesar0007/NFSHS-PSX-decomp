@@ -1,8 +1,7 @@
 /* frontend/common/fememcard_externs.h - reconstructed externs. NOT original. */
 #ifndef _FE_FEMEMCARD_EXTERNS_H_
 #define _FE_FEMEMCARD_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "fememcard_types.h"
 
 /* ===== globals ===== */
 extern int          ticks;
@@ -65,6 +64,22 @@ void UpdateMusic(tFEApplication*) asm("UpdateMusic__14tFEApplication");
    (MCRD_savefile really returns int in memcard.c; return type is not mangled, so the
    `void` spelling is link-safe -- left alone, the caller ignores $v0.) */
 extern "C" {
+int VSync(...);
+void PAD_restore(...);
+int addtimer(...);
+void blockclear(...);
+void blockmove(...);
+unsigned long crc16(...);
+int deltimer(...);
+int loadshapeadr(...);
+void padinit(...);
+int purgememadr(...);
+int rand(...);
+void *shapepointer(...);
+int sprintf(...);
+int systemtask(...);
+void timedwait(...);
+
 int   MCRD_handlecardevents(int);
 void  MCRD_savefile(int, MCRDFILE_def*);
 void  MCRD_loadfile(int, MCRDFILE_def*, int);

@@ -509,6 +509,26 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "ARY INT", 8, "speechToPlay", 888, (2,), ""),
         ), "fecheats_types.h"),
     }
+    # FEMemCard.obj directly dereferences three foreign globals whose owning
+    # aggregate tags are not retained in its linked type graph.  The exact
+    # field offsets are nevertheless required for the retail instructions.
+    # Suppress only complete tag/typedef pairs with every member, size, leaf
+    # tag, and owner path priced here.  Pre-change backup: Git commit 5f4a3318.
+    fememcard_views = {
+        "FEMemcard_PadCodegenView": (84, (
+            ("MOS", "INT", 0, "initialized", 0, (), ""),
+            ("MOS", "ARY STRUCT", 64, "buf", 4, (8,), "PAD_COMMON"),
+            ("MOS", "ARY CHAR", 16, "stateBytes", 68, (16,), ""),
+        ), "fememcard_types.h"),
+        "FEMemcard_MemCardInfoCodegenView": (56, (
+            ("MOS", "ARY CHAR", 52, "_beforeReady", 0, (52,), ""),
+            ("MOS", "INT", 0, "bReady", 52, (), ""),
+        ), "fememcard_types.h"),
+        "FEMemcard_ScreenMemcardCodegenView": (1444, (
+            ("MOS", "ARY CHAR", 1440, "_beforeGetNewIcons", 0, (1440,), ""),
+            ("MOS", "BOOL", 0, "fGetNewIcons", 1440, (), ""),
+        ), "fememcard_types.h"),
+    }
     # ScreenDisplay.obj dereferences only the menuDisplayOptions member of the
     # foreign tGlobalMenuDefs singleton.  Its linked SYM retains the complete
     # tOptionsMenu leaf but attributes the owning aggregate to FEMenuDefs.obj.
@@ -896,7 +916,32 @@ def filter_exact_symbol_codegen_carriers(
             # The local FEApp pointer view repeats this already pair-locked
             # typedef in fecheats.cpp; the completed tag remains restricted to
             # the owner header above.
-            and owner.endswith((expected[2], "fecheats.cpp"))
+            and owner.endswith((expected[2], "fecheats.cpp", "fememcard.cpp"))
+        )
+
+    def exact_fememcard_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = fememcard_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith(expected[2])
+        )
+
+    def exact_fememcard_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = fememcard_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            # Macro aliases repeat these already pair-locked typedefs at local
+            # declarations; completed tags remain restricted to the header.
+            and owner.endswith((expected[2], "fememcard.cpp"))
         )
 
     def exact_screendisplay_view(block: TypeBlock) -> bool:
@@ -1052,6 +1097,13 @@ def filter_exact_symbol_codegen_carriers(
         and any(exact_screendisplay_view_typedef(item) and item.name == name
                 for item in typedefs)
     }
+    fememcard_eligible = {
+        name for name in fememcard_views
+        if any(exact_fememcard_view(block) and block.name == name
+               for block in type_blocks)
+        and any(exact_fememcard_view_typedef(item) and item.name == name
+                for item in typedefs)
+    }
     screenusername_eligible = {
         name for name in screenusername_views
         if any(exact_screenusername_view(block) and block.name == name
@@ -1087,6 +1139,8 @@ def filter_exact_symbol_codegen_carriers(
             and not (block.name in draww_eligible and exact_draww_view(block))
             and not (block.name in fecredits_eligible and exact_fecredits_view(block))
             and not (block.name in fecheats_eligible and exact_fecheats_view(block))
+            and not (block.name in fememcard_eligible
+                     and exact_fememcard_view(block))
             and not (block.name in screendisplay_eligible
                      and exact_screendisplay_view(block))
             and not (block.name in screenusername_eligible
@@ -1107,6 +1161,8 @@ def filter_exact_symbol_codegen_carriers(
             and not (item.name in draww_eligible and exact_draww_view_typedef(item))
             and not (item.name in fecredits_eligible and exact_fecredits_view_typedef(item))
             and not (item.name in fecheats_eligible and exact_fecheats_view_typedef(item))
+            and not (item.name in fememcard_eligible
+                     and exact_fememcard_view_typedef(item))
             and not (item.name in screendisplay_eligible
                      and exact_screendisplay_view_typedef(item))
             and not (item.name in screenusername_eligible

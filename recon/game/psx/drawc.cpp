@@ -22,17 +22,10 @@
  * one with real wins (PrimHalo -79, PrimMenu -36) but it destroys PrimStart
  * (129 -> 944) and costs SpotPrims/ShowroomPrims; no_strength_reduce is net
  * negative once SpotPrims/ShowroomPrims are counted.  Do not re-probe. */
-#include "../../nfs4_types.h"
+#include "drawc_types.h"
+#include "../../lib/psx_gte.h"
+#include "psyq_prim_macros.h"
 #include "drawc_externs.h"
-
-/* PsyQ P_TAG-style OT word: the low 24 bits are the link address, the high byte
- * the packet length.  A 24-bit BITFIELD store is exactly the oracle's
- * `lw; and 0xff000000; and val,0xffffff; or; sw` -- and it is what EA wrote
- * (libgpu setaddr()).  See DrawC_PrimStop. */
-typedef struct {
-    u_long addr : 24;
-    u_long len  : 8;
-} DrawC_tTag;
 
 /* ---- EA DMPSX-analog OT-link templates (2026-07-09, see fastmovf.c + hub) ----
  * Variant A (FT3 alloc): prim = sd->PrimPtr; slot = sub_ot+otz; PrimPtr += 0x20;
@@ -189,7 +182,7 @@ void DrawC_ReadLightingData(void)
   /* MATCH: track staged through a block-local int (oracle schedules the format-string
      %hi(lui a1) between the two global loads only when a3 comes from a reg temp);
      + for(;;)-form loops below give i the SYM's s1 (REG $11) vs the &ScaneData temp. */
-  {int trk /* SYM-CODEGEN-CARRIER: trk -- stages a3 so the format address schedules between global loads */ = GameSetup_gData.track; sprintf(name,"%sTr%02d.env",Paths_Paths[6],trk);}
+  {int trk /* SYM-CODEGEN-CARRIER: trk -- stages a3 so the format address schedules between global loads */ = DRAWC_GS_TRACK; sprintf(name,"%sTr%02d.env",Paths_Paths[6],trk);}
   RenderingFileData = (char *)loadfileadr(name,0x10);
   ScaneData = RenderingFileData;
   DrawC_gEnvMapMax = Risk_ReadNextValue(&ScaneData);
@@ -263,7 +256,7 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
    * $a2) = &carObj->N.position, likewise materialized unconditionally (the compiler schedules the
    * pure-address addiu into the branch's delay slot regardless of source position). */
   light = (int *)&(carObj->render).light;
-  i = gCView.player;
+  i = DRAWC_CVIEW_PLAYER;
   pos = &(carObj->N).position;
   if (((Cars_gList[i]->control).lights & 6U) != 0) {
     coorddef tmp;
@@ -1018,7 +1011,7 @@ DrawCPrimStart_camRotMatrix:
     DRAWENV *LEnv;
     int eSpeed;
     eSpeed = 3;
-    LEnv = Draw_GetDRAWENV(gCView.id,gFlip);
+    LEnv = Draw_GetDRAWENV(DRAWC_CVIEW_ID,gFlip);
     /* quad = SIGNED byte (oracle lb 124); each .extra read ONCE as lhu into a
      * temp -- the &0xff and <<16>>24 both derive from the SAME halfword value */
     /* MATCH (w53-a2, 70 -> 60, count-exact 976/976).  Two independent edits:
@@ -1231,13 +1224,13 @@ DrawCPrimStart_camRotMatrix:
          supersedes the historical PER_FN_TEXT_MOVES proposal above. */
       int envShift = eSpeed + 3;
       int pz = (int)(carObj->N).positionXZ;
-      int pos = pz >> envShift;
+      int pos /* SYM-CODEGEN-CARRIER: pos -- W71/W76 duplicated fence input keeps the shifted position in retail v1 */ = pz >> envShift;
       u_int evraw = (sd->ePmx1).v0;
       __asm__("" : "=r"(evraw) : "0"(evraw));
       {
-        u_int ev = evraw >> 6;
-        u_int byteOffset = ev << 1;
-        short *envMapOffset = DrawC_gEnvMapOffset;
+        u_int ev /* SYM-CODEGEN-CARRIER: ev -- W71 stages the unsigned texture index before the offset scale */ = evraw >> 6;
+        u_int byteOffset /* SYM-CODEGEN-CARRIER: byteOffset -- W76 exposes the exact halfword-table byte address quantity */ = ev << 1;
+        short *envMapOffset /* SYM-CODEGEN-CARRIER: envMapOffset -- W76 identity fence preserves retail address handout */ = DrawC_gEnvMapOffset;
         __asm__("" : "=r"(envMapOffset)
                 : "0"(envMapOffset), "r"(byteOffset), "r"(pos), "r"(pos));
         sd->eAddZ =
@@ -1245,7 +1238,7 @@ DrawCPrimStart_camRotMatrix:
             (int)*(short *)(byteOffset + (u_int)envMapOffset);
       }
     }
-    if (((GameSetup_gData.Weather != 0) &&
+    if (((DRAWC_GS_WEATHER != 0) &&
         (tunnelFlag = (int)BWorldSm_TunnelFlagSm(&(carObj->N).simRoadInfo), tunnelFlag != 1)) &&
        (Cars_kSkidMarkSurface[(carObj->N).driveSurfaceType] == 1)) {
       DrawC_gWetRoad = 1;
@@ -1254,7 +1247,7 @@ DrawCPrimStart_camRotMatrix:
          (short)((((carObj->N).dimension.y * 3 >> 1) + (carObj->N).objAltitude) >> 8);
   }
   else {
-    DRAWENV *LEnv = Draw_GetDRAWENV(gCView.id,gFlip);
+    DRAWENV *LEnv = Draw_GetDRAWENV(DRAWC_CVIEW_ID,gFlip);
     SetDrawMode(&sd->drawModeOn,(u_int)LEnv->dfe,1,
                (u_int)LEnv->tpage,(RECT *)0x0);
     SetDrawMode(&sd->drawModeOff,(u_int)LEnv->dfe,0,
@@ -1337,8 +1330,8 @@ void DrawC_PrimStop(Car_tObj *carObj,Draw_CarCache *sd)
     sub_otSize = carObj->render.sub_otSize + -1;
     worldZ = carObj->render.world_otz;
   }
-  ((DrawC_tTag *)sd->sub_ot)->addr = sd->head.cprim.LastPrim[worldZ] & 0xffffff;
-  ((DrawC_tTag *)&sd->head.cprim.LastPrim[worldZ])->addr =
+  ((P_TAG *)sd->sub_ot)->addr = sd->head.cprim.LastPrim[worldZ] & 0xffffff;
+  ((P_TAG *)&sd->head.cprim.LastPrim[worldZ])->addr =
       (u_long)(sd->sub_ot + sub_otSize) & 0xffffff;
   return;
 }
@@ -5443,8 +5436,8 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     (sd->head).cprim.PrimPtr = (char *)(pDVar7 + 1);
     {
       u_int *puVar8 /* SYM-CODEGEN-CARRIER: puVar8 -- distinct OT-cell address; mutating ot is part of FAIL 74 (227/225) */ = (u_int *)(ot + sd->otz);
-      ((DrawC_tTag *)pDVar7)->addr = *puVar8 & 0xffffff;
-      ((DrawC_tTag *)puVar8)->addr = (u_int)pDVar7 & 0xffffff;
+      ((P_TAG *)pDVar7)->addr = *puVar8 & 0xffffff;
+      ((P_TAG *)puVar8)->addr = (u_int)pDVar7 & 0xffffff;
     }
     SetDrawMode(pDVar7,0,0,0x120,(RECT *)0x0);
   }
@@ -5493,8 +5486,8 @@ gte_SetTransMatrix(((char *)sd + 0x14));
         (sd->head).cprim.PrimPtr = (char *)(prim + 1);
         {
           u_long *ot = (u_long *)((sd->head).cprim.LastPrim + sd->otz);
-          ((DrawC_tTag *)prim)->addr = *ot;
-          ((DrawC_tTag *)ot)->addr = (u_int)prim;
+          ((P_TAG *)prim)->addr = *ot;
+          ((P_TAG *)ot)->addr = (u_int)prim;
         }
         gte_stsxy3_g3(prim);
         {
@@ -5515,8 +5508,8 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     (sd->head).cprim.PrimPtr = (char *)(pDVar7 + 1);
     {
       u_int *puVar8 = (u_int *)(ot + sd->otz);
-      ((DrawC_tTag *)pDVar7)->addr = *puVar8 & 0xffffff;
-      ((DrawC_tTag *)puVar8)->addr = (u_int)pDVar7 & 0xffffff;
+      ((P_TAG *)pDVar7)->addr = *puVar8 & 0xffffff;
+      ((P_TAG *)puVar8)->addr = (u_int)pDVar7 & 0xffffff;
     }
     SetDrawMode(pDVar7,0,1,0x120,(RECT *)0x0);
   }
@@ -5738,8 +5731,8 @@ gte_ldv0((char *)sd + 0xac);
           (sd->head).cprim.PrimPtr = (char *)(prim + 1);
           {
             u_long *ot = (u_long *)((sd->head).cprim.LastPrim + sd->otz);
-            ((DrawC_tTag *)prim)->addr = *ot;
-            ((DrawC_tTag *)ot)->addr = (u_int)prim;
+            ((P_TAG *)prim)->addr = *ot;
+            ((P_TAG *)ot)->addr = (u_int)prim;
           }
 gte_swc2(0xe,(char *)prim + 0x8);
 gte_ldv3((char *)sd + 0xb4,(char *)sd + 0x3d0,(char *)sd + 0xbc);

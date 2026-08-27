@@ -409,6 +409,10 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "INT", 0, "currentClockTicks", 24, (), ""),
         )),
     }
+    drawc_views = {
+        "DrawC_CViewCodegenView": hud_views["Hud_CViewCodegenView"],
+        "DrawC_GameSetupCodegenView": hud_views["Hud_GameSetupCodegenView"],
+    }
 
     def exact_night_camera(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
@@ -454,6 +458,29 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith("hud_externs.h")
         )
 
+    def exact_drawc_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = drawc_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith("drawc_externs.h")
+        )
+
+    def exact_drawc_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = drawc_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            and owner.endswith("drawc_externs.h")
+        )
+
     # Suppression is pair-locked: a matching struct without its typedef (or a
     # matching typedef without its struct) is evidence drift, not an eligible
     # codegen carrier.  Keep both rows visible unless the complete pair agrees.
@@ -466,17 +493,24 @@ def filter_exact_symbol_codegen_carriers(
         if any(exact_hud_view(block) and block.name == name for block in type_blocks)
         and any(exact_hud_view_typedef(item) and item.name == name for item in typedefs)
     }
+    drawc_eligible = {
+        name for name in drawc_views
+        if any(exact_drawc_view(block) and block.name == name for block in type_blocks)
+        and any(exact_drawc_view_typedef(item) and item.name == name for item in typedefs)
+    }
 
     return (
         [
             block for block in type_blocks
             if not (night_eligible and exact_night_camera(block))
             and not (block.name in hud_eligible and exact_hud_view(block))
+            and not (block.name in drawc_eligible and exact_drawc_view(block))
         ],
         [
             item for item in typedefs
             if not (night_eligible and exact_night_camera_typedef(item))
             and not (item.name in hud_eligible and exact_hud_view_typedef(item))
+            and not (item.name in drawc_eligible and exact_drawc_view_typedef(item))
         ],
     )
 

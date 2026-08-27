@@ -1,0 +1,83 @@
+target: DrawC.obj named=105
+largest canonical overlaps (overlap/extras/candidate-total):
+  r3dcar                    99/  4/103  R3DCar.obj
+  nfs3                      98/ 50/148  nfs3.obj
+  cars                      97/ 34/131  cars.obj
+  copspeak                  97/ 27/124  CopSpeak.obj
+  audiocmn                  97/ 14/111  audiocmn.obj
+  psxfront                  91/ 16/107  PSXFront.obj
+  hud                       91/ 12/103  hud.obj
+  screenmemcard             90/ 81/171  ScreenMemcard.obj
+  stattool                  90/  7/ 97  Stattool.obj
+  front                     89/125/214  Front.obj
+  femenudefs                89/103/192  FEMenuDefs.obj
+  screencongrats            89/ 92/181  ScreenCongrats.obj
+  screencarselect           89/ 90/179  ScreenCarSelect.obj
+  fedialog                  89/ 82/171  FEDialog.obj
+  fememcard                 89/ 42/131  FEMemCard.obj
+  fetools                   89/ 10/ 99  Fetools.obj
+  femenuoptions             87/ 78/165  FeMenuOptions.obj
+  screentracks              87/ 77/164  ScreenTracks.obj
+  screenpinkslips           87/ 76/163  ScreenPinkSlips.obj
+  screencontroller          87/ 71/158  ScreenController.obj
+  screentrackrecords        87/ 68/155  ScreenTrackRecords.obj
+  pausemenu                 87/ 15/102  PauseMenu.obj
+  render                    87/ 13/100  render.obj
+  device                    87/  1/ 88  device.obj
+  feapp                     86/ 85/171  FEApp.obj
+  screenpost                86/ 70/156  ScreenPost.obj
+  screentournselect         86/ 69/155  ScreenTournSelect.obj
+  screenaudio               86/ 69/155  ScreenAudio.obj
+  screentrophyroom          86/ 67/153  ScreenTrophyRoom.obj
+  femenuextended            86/ 27/113  FEMenuExtended.obj
+
+strict subsets:
+  psxcontroller             86/ 86  psxcontroller.obj
+  drawdbg                   75/ 75  DrawDbg.obj
+  minfront                  72/ 72  MinFront.obj
+  aiworld                   72/ 72  AIWORLD.obj
+  aispeech                  72/ 72  aispeech.obj
+  color                     71/ 71  color.obj
+  chunkvis                  40/ 40  chunkvis.obj
+  nfs2mem                   36/ 36  nfs2mem.obj
+  loading                   36/ 36  loading.obj
+  rpause                    35/ 35  rpause.obj
+  felines                   34/ 34  felines.obj
+  fecolor                   34/ 34  FEColor.obj
+  fetexture                 33/ 33  FETexture.obj
+  schedule                  27/ 27  schedule.obj
+  profile                   24/ 24  profile.obj
+  textsys                   22/ 22  Textsys.obj
+  mathnfs                   22/ 22  MathNfs.obj
+  paths                     21/ 21  paths.obj
+  new                       21/ 21  new.obj
+  debug                     19/ 19  debug.obj
+  textpsx                   17/ 17  textpsx.obj
+  filedbg                   16/ 16  filedbg.obj
+  unpack                    13/ 13  unpack.obj
+  ddvfont                    9/  9  Ddvfont.obj
+  aiscript                   4/  4  aiscript.obj
+  vsprintf                   0/  0  vsprintf.obj
+
+target delta after psxcontroller:
+  BW_tContext
+  DIRENTRY
+  Draw_CarCache
+  Draw_SubdivStruct
+  Draw_tVertex
+  DrawC_tEnvMap
+  EXEC
+  FLARE_PIECE_DEF
+  forceFocus_t
+  POLY_FT3
+  POLY_FT4
+  POLY_G3
+  POLY_GT4
+  Sched_tSchedule
+  Skidmark_Chunk
+  Skidmark_Segment
+  TCB
+  Track_tArtresource
+  Track_tMaterial
+
+candidate extras outside target:

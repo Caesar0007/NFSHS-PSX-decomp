@@ -210,7 +210,12 @@ struct kernpair {
 };
 typedef kernpair KERN;
 
+/* Some object owners retain the shared GameSetup graph but not this callback
+ * typedef.  Narrow owner headers may suppress only this row while keeping the
+ * remaining canonical surface unchanged. */
+#ifndef NFS4_GMESETUP_OMIT_INPUT_DEVICE_CALL
 typedef int Input_tDeviceCall();
+#endif
 typedef void (*fontblit)();
 typedef int (*getcode)();
 typedef void (*fontblitbegin)();

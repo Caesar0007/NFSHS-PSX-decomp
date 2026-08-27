@@ -1,9 +1,10 @@
-#include "../../lib/libfns.h"
-#include "../../nfs4_types.h"
-#include "../../lib/psx_gte.h"
+#include "drawc_types.h"
 /* draww_externs.h -- extern decls for game/psx/drawc.cpp (NFS4 PSX world-geometry draw). */
 #ifndef DRAWC_EXTERNS_H
 #define DRAWC_EXTERNS_H
+
+struct Draw_FlareCache;
+struct Texture_pal8bit;
 
 /* ---- Night.obj globals (defined in night.cpp) -- weather/lightning tint, DrawC_NightHeadlight (H46) ---- */
 extern char Night_gDrawLightning;     /* @0x8013d9e0 (bss=0) */
@@ -44,7 +45,33 @@ extern int Draw_gViewOtSize;
 extern COORD16  Fe3D_lightsVertex[64];   /* 0x80051334  ARY STRUCT COORD16 x64 */
 extern COORD16  Fe3D_spotVertex[33];     /* 0x8005126c  ARY STRUCT COORD16 x33 */
 extern void Flare_CarShapedHalo(int, COORD16 *, int, int, short, int, Draw_FlareCache *) asm("Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache");
-extern GameSetup_tData GameSetup_gData;
+/* Layout-locked exact-symbol views.  DrawC.obj omits the foreign owning tags,
+ * while retail code retains member-shaped accesses to these two globals. */
+struct DrawC_GameSetupCodegenView {
+    int raceType, numLaps, skill, commMode;
+    int setup04_10[7];
+    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment;
+    int song, Weather, Fog, Damage, Time, randSeed, easter;
+    int controllerWords[22];
+    int pinkSlipsForfeit, checkpointType, checkpointHUD[2];
+    int dispatchSpeech, reverseCallSpeech, languageSpeech;
+    int SceneNumber, SceneStartLap, SceneEndLap;
+    GameSetup_tUserSetting userSetting;
+    int numPerps, stageOffset, perpArrests, finalPerpArrests;
+    GameSetup_tPerpData perpInfo[10];
+    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
+    GameSetup_tCarData carInfo[9];
+};
+struct DrawC_CViewCodegenView {
+    int id, player;
+    u_char cviewBytes[132];
+};
+extern DrawC_GameSetupCodegenView DrawC_GameSetup asm("GameSetup_gData");
+extern DrawC_CViewCodegenView DrawC_CView asm("gCView");
+#define DRAWC_GS_TRACK   DrawC_GameSetup.track
+#define DRAWC_GS_WEATHER DrawC_GameSetup.Weather
+#define DRAWC_CVIEW_ID   DrawC_CView.id
+#define DRAWC_CVIEW_PLAYER DrawC_CView.player
 extern void Night_AdditiveNightCalc(VECTOR *, CVECTOR *);
 extern char          *Paths_Paths[];           /* 0x80116468 */
 extern void R3DCar_GetCarName(char *, int, int);
@@ -61,7 +88,6 @@ extern Draw_tPixMap Track_gReflectionMaps[4];
 extern void TrsProj_ResetTransPrecision(void);
 extern void TrsProj_SetTransPrecision(int);
 extern int               TrsProj_precision;     /* 0x8013db9c */
-extern DRender_tView  gCView;            /* 0x80116f7c */
 extern int            gFlip;             /* 0x8013d7b4 */
 extern Draw_tPixMap   *gMenuPixmap[8];          /* 0x80120fd0 */
 extern matrixtdef gNightMat;
@@ -78,5 +104,20 @@ extern Draw_tPixMap *gShadowPixmap[2];
 extern Draw_tPixMap *gShadowPixmap0 asm("gShadowPixmap");
 extern int gShowroomLights;  /* TODO type-refine */
 extern u_long hilight_colors[5] __asm__("D_8011F4B4");
+
+extern "C" {
+u_long *ClearOTagR(u_long *ot, int n);
+long DrawSync(long mode);
+int gettick(void);
+void *loadfileadr(char *name, int flags);
+int purgememadr(void *ptr);
+void *reservememadr(const char *name, int size, int flags);
+MATRIX *RotMatrix(SVECTOR *r, MATRIX *m);
+void SetDrawMode(DR_MODE *packet, int dfe, int dtd, int tpage, RECT *window);
+int sprintf(char *buffer, const char *format, ...);
+char *strcat(char *destination, const char *source);
+char *strcpy(char *destination, const char *source);
+void transform(void *source, void *matrix, void *destination);
+}
 
 #endif

@@ -143,6 +143,21 @@ struct tMenu {
 #endif
     short VertHelp;
     __vtbl_ptr_type (*_vf)[11];
+#ifdef NFS4_FE_CORE_FEDIALOG_METHODS
+    short GetNumberEnabledItems();
+    inline bool HasFlag(unsigned int flag) { return (fFlags & flag) != 0; }
+    inline bool CanContinue() {
+        return fNextMenu != (tMenu *)0x0 ||
+               (fFlags & 0x400) != 0 ||
+               fOnButtonPress != 0x0;
+    }
+    inline void ProcessInputVirtual(tPlayer player, tInputKeyType &key,
+                                    tMenuCommand &command) {
+        __vtbl_ptr_type (*vf)[11] = _vf;
+        (*(*vf)[3].pfn)((char *)this + (*vf)[3].delta,
+                        player, &key, &command);
+    }
+#endif
 #ifdef NFS4_FE_CORE_FEMENU_METHODS
     tMenu() {}
     void tMenuConstructor(tMenuItem *firstItem, void *ap);

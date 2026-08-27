@@ -47,7 +47,8 @@ struct tScreen {
     short fScreenFadeVal;
     __vtbl_ptr_type (*_vf)[10];
 
-#ifdef NFS4_SCREENDISPLAY_SCREENMEMCARD_METHODS
+#if defined(NFS4_SCREENDISPLAY_SCREENMEMCARD_METHODS) || \
+    defined(NFS4_SCREENDISPLAY_FEDIALOG_METHODS)
     tScreen();
     ~tScreen();
 #endif
@@ -241,19 +242,56 @@ struct tDialogBase : public tScreen {
     bool fFullyOpen;
     short fDefault, ReturnValue;
     int fFadeText;
+#ifdef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
+    tDialogBase();
+    short ShouldTimeOut();
+    void InitializeClass();
+    static void DrawAllDialogs();
+    void HideAllDialogs();
+    static tDialogBase *GetTopMostDialog();
+    void Display();
+    void Hide();
+    inline bool IsVisible() { return currentlyOn != 0; }
+    void Draw();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+#endif
 };
 
 struct tDialogMessageString : public tDialogBase {
     char *string;
     bool Centerit;
+#ifdef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
+    tDialogMessageString();
+    void CalculateDimensions();
+    void Draw();
+#endif
 };
 
 struct tDialogInteractive : public tDialogMessageString {
     bool ReadyToReturnValue, fCurrentlyRunning;
+#ifdef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
+    inline void CalculateDimensionsVirtual() {
+        __vtbl_ptr_type (*vf)[10] = _vf;
+        (*vf[1][0].pfn)((char *)this + vf[1][0].delta);
+    }
+    inline void ProcessInputVirtual(tPlayer player, tInputKeyType &key,
+                                    tMenuCommand &command) {
+        __vtbl_ptr_type (*vf)[10] = _vf;
+        (*(*vf)[9].pfn)((char *)this + (*vf)[9].delta,
+                        player, &key, &command);
+    }
+    short Run();
+#endif
 };
 
 struct tDialogYesNo : public tDialogInteractive {
     int yesnowords[2];
+#ifdef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
+    tDialogYesNo();
+    void CalculateDimensions();
+    void Draw();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+#endif
 };
 
 struct tCredit {

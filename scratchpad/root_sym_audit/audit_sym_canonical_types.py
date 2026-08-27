@@ -551,6 +551,18 @@ def filter_exact_symbol_codegen_carriers(
             ("FIELD", "UINT", 8, "len", 24, (), ""),
         ), "screenmemcard_types.h"),
     }
+    # FEDialog.obj reads pad.obj's anonymous gPadinfo storage at the canonical
+    # PAD_COMMON buf offsets, but its linked type graph does not retain the
+    # owning aggregate tag.  Suppress only the complete, owner-local tag and
+    # typedef pair with all 84 bytes priced here.  Pre-change backup: Git
+    # commit 2198f1eb.
+    fedialog_views = {
+        "FEDialog_PadCodegenView": (84, (
+            ("MOS", "INT", 0, "initialized", 0, (), ""),
+            ("MOS", "ARY STRUCT", 64, "buf", 4, (8,), "PAD_COMMON"),
+            ("MOS", "ARY CHAR", 16, "stateBytes", 68, (16,), ""),
+        ), "fedialog_types.h"),
+    }
     # ScreenDisplay.obj dereferences only the menuDisplayOptions member of the
     # foreign tGlobalMenuDefs singleton.  Its linked SYM retains the complete
     # tOptionsMenu leaf but attributes the owning aggregate to FEMenuDefs.obj.
@@ -989,6 +1001,29 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith((expected[2], "screenmemcard.cpp"))
         )
 
+    def exact_fedialog_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = fedialog_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith(expected[2])
+        )
+
+    def exact_fedialog_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = fedialog_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            and owner.endswith((expected[2], "fedialog.cpp"))
+        )
+
     def exact_screendisplay_view(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         expected = screendisplay_views.get(block.name)
@@ -1156,6 +1191,13 @@ def filter_exact_symbol_codegen_carriers(
         and any(exact_screenmemcard_view_typedef(item) and item.name == name
                 for item in typedefs)
     }
+    fedialog_eligible = {
+        name for name in fedialog_views
+        if any(exact_fedialog_view(block) and block.name == name
+               for block in type_blocks)
+        and any(exact_fedialog_view_typedef(item) and item.name == name
+                for item in typedefs)
+    }
     screenusername_eligible = {
         name for name in screenusername_views
         if any(exact_screenusername_view(block) and block.name == name
@@ -1195,6 +1237,8 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_fememcard_view(block))
             and not (block.name in screenmemcard_eligible
                      and exact_screenmemcard_view(block))
+            and not (block.name in fedialog_eligible
+                     and exact_fedialog_view(block))
             and not (block.name in screendisplay_eligible
                      and exact_screendisplay_view(block))
             and not (block.name in screenusername_eligible
@@ -1219,6 +1263,8 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_fememcard_view_typedef(item))
             and not (item.name in screenmemcard_eligible
                      and exact_screenmemcard_view_typedef(item))
+            and not (item.name in fedialog_eligible
+                     and exact_fedialog_view_typedef(item))
             and not (item.name in screendisplay_eligible
                      and exact_screendisplay_view_typedef(item))
             and not (item.name in screenusername_eligible

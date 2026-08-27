@@ -1,8 +1,7 @@
 /* frontend/common/femenuextended_externs.h - reconstructed externs. NOT original. */
 #ifndef _FE_SCREENS_FEDIALOG_EXTERNS_H_
 #define _FE_SCREENS_FEDIALOG_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "fedialog_types.h"
 extern tFEApplication *FEApp;
 extern tfrontEnd frontEnd;
 extern tPadModuleState gPadinfo;
@@ -26,7 +25,7 @@ extern tTexture_ShapeInfo *gHelpShapes;  extern tPlayer gMenu_SubMenuPlayer;
 void  FETextRender_FullTextRGB(char*,short,short,int,char,short);
 void  FETextRender_Title(short);
 void  FETextRender_WordWrapTextRGBJustify(char*,RECT&,int,int,int,bool);
-int   CalcTextFadeSelToHi(tMenuTextType, short, short);  int CalcTextFadeUnselToSel(tMenuTextType, short, short);
+int   CalcTextFadeSelToHi(int, short, short);  int CalcTextFadeUnselToSel(int, short, short);
 extern char textDefinitions[14][6];  extern int kRGBVals[];  extern int screenheight;
 extern int gFlip;  extern int Draw_gPlayer1View;
 void *Draw_GetDRAWENV(int,int);
@@ -36,17 +35,22 @@ void  FETextRender_SetFont(int);  extern "C" int textpixels(char*);  void s_uppe
 /* TRUE prototypes (2026-08-02, user-approved): the old variadic `(...)` decls mangled as
  * phantom symbols wherever FontUpsideDownBlit's address is taken -- byte-neutral fix,
  * reloc symbols now match font.cpp/psxfront.cpp definitions. */
-void  Font_SetBlitter(void (*)(int,int,void *,int,int,charactertbl *,int));
+void  Font_SetBlitter(void (*)(int,int,void *,int,int,struct charactertbl *,int));
 void  Font_ReSetBlitter();
-void  FontUpsideDownBlit(int,int,void *,int,int,charactertbl *,int);
+void  FontUpsideDownBlit(int,int,void *,int,int,struct charactertbl *,int);
 int CalcOnOffFade(...);  extern int screenwidth;
-void  FETextRender_MenuTextPositionedJustify(short,short,short,short,tMenuTextState,tMenuTextType);
+void  FETextRender_MenuTextPositionedJustify(short,short,short,short,int,int);
 void FeTools_DrawPSXButton(u_char,u_short,int,int);
 void FETextRender_SetABR(int,bool);
-void FETextRender_FullText(char*,short,short,tMenuTextType,tMenuTextState,short);
+/* FEDialog.obj filters the completed text-enum records, but the callee keeps
+ * those enum names in its GCC-v2 linkage spelling. */
+void FETextRender_FullText(char*,short,short,int,int,short)
+    __asm__("FETextRender_FullText__FPcss13tMenuTextType14tMenuTextStates");
 int  FETextRender_WordWrapHeight(short, char *);
 void FETextRender_WordWrapTextRGB(char*, RECT&, int);
 int  FEInput_GetKeyFromPlayer(tPlayer, long);
 extern int CURRENTPLAYER;
 extern "C" int MCRD_handlecardevents(int);  extern "C" CARDINFO_def *MCRD_getcard(int);
+extern "C" void blockmove(void *, void *, int);
+extern "C" void PAD_update(void);
 #endif

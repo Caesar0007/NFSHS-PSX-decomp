@@ -23,7 +23,8 @@
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
 
-#ifndef NFS4_SCREENMEMCARD_FEDIALOG_SURFACE
+#if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
+    !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE)
 struct POLY_FT4 {
     u_long tag;
     u_char r0, g0, b0, code;
@@ -42,6 +43,7 @@ struct POLY_FT4 {
 };
 #endif
 
+#ifndef NFS4_SCREENMEMCARD_FEAPP_SURFACE
 typedef enum PRODUCTLOC {
     N_AMERICA = 0,
     JAPAN = 1,
@@ -74,6 +76,7 @@ struct DIRENTRY {
     long head;
     char system[4];
 };
+#endif
 
 #ifndef NFS4_SCREENMEMCARD_FEDIALOG_SURFACE
 struct AudioMus_tSongEntry {
@@ -88,7 +91,8 @@ struct tRecordBuffer {
     int nCar, nTime, nBestLap;
 };
 typedef tRecordBuffer tSaveRecords[187];
-#ifndef NFS4_SCREENMEMCARD_FEDIALOG_SURFACE
+#if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
+    !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE)
 typedef char tMemIcon[15][3][192];
 #endif
 
@@ -135,6 +139,7 @@ struct FE3d_zObj {
 };
 #endif
 
+#ifndef NFS4_SCREENMEMCARD_FEAPP_SURFACE
 struct CARDINFO_def {
     int status, lasterror, numfiles, freeblocks;
     DIRENTRY dir[15];
@@ -159,8 +164,10 @@ struct MCRDFILEINFO_def {
     void *pData;
     shapetbl *icon[3];
 };
+#endif
 
-#ifndef NFS4_SCREENMEMCARD_FEDIALOG_SURFACE
+#if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
+    !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE)
 struct MCRDFILE_def {
     char *name, *title;
     int size, offset;
@@ -171,10 +178,13 @@ struct MCRDFILE_def {
 };
 #endif
 
+#ifndef NFS4_SCREENMEMCARD_FEAPP_SURFACE
 typedef CARDINFO_def CARDINFO;
 typedef MCRDFILEHEADER_def MCRDFILEHEADER;
 typedef MCRDFILEINFO_def MCRDFILEINFO;
-#ifndef NFS4_SCREENMEMCARD_FEDIALOG_SURFACE
+#endif
+#if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
+    !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE)
 typedef MCRDFILE_def MCRDFILE;
 #endif
 
@@ -200,16 +210,27 @@ struct tDialogHelp : public tDialogBase {
     }
     void Draw();
 #endif
+#ifdef NFS4_SCREENMEMCARD_FEAPP_METHODS
+    tDialogHelp();
+#endif
 };
 
-struct tDialogMessageStringWithTimeout : public tDialogMessageString {};
+struct tDialogMessageStringWithTimeout : public tDialogMessageString {
+#ifdef NFS4_SCREENMEMCARD_FEAPP_METHODS
+    tDialogMessageStringWithTimeout();
+#endif
+};
 struct tDialogNoInputMessage : public tDialogMessageString {
 #ifdef NFS4_SCREENMEMCARD_FEDIALOG_SURFACE
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 #endif
+#ifdef NFS4_SCREENMEMCARD_FEAPP_METHODS
+    tDialogNoInputMessage();
+#endif
 };
 
-#ifndef NFS4_SCREENMEMCARD_FEDIALOG_SURFACE
+#if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
+    !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE)
 struct tScreenMemcard : public tScreen {
     int theNFS4icon, card;
     CARDINFO_def *pCI;
@@ -246,7 +267,8 @@ struct tScreenMemcard : public tScreen {
 };
 #endif
 
-#ifndef NFS4_SCREENMEMCARD_FEDIALOG_SURFACE
+#if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
+    !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE)
 /* These completed foreign tags are absent from ScreenMemcard.obj.  The owner
  * uses only the priced fields below. */
 struct ScreenMemcard_FEApplicationCodegenView {

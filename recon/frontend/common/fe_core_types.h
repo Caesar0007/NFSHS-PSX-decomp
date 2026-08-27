@@ -163,6 +163,9 @@ struct tMenu {
                         player, &key, &command);
     }
 #endif
+#ifdef NFS4_FE_CORE_FEAPP_METHODS
+    inline bool HasOptionsMenu() { return fOptionsMenu != (tMenu *)0x0; }
+#endif
 #ifdef NFS4_FE_CORE_FEMENU_METHODS
     tMenu() {}
     void tMenuConstructor(tMenuItem *firstItem, void *ap);
@@ -228,7 +231,8 @@ struct tCarManager {
 #ifdef NFS4_FE_CORE_FECHEATS_METHODS
     void SetClassAvailable(tCarClassType, bool);
 #endif
-#ifdef NFS4_FE_CORE_SCREENCARSELECT_METHODS
+#if defined(NFS4_FE_CORE_SCREENCARSELECT_METHODS) || \
+    defined(NFS4_FE_CORE_FEAPP_METHODS)
     long CheapestCarStockPrice();
     long CalcUsedPrice(short);
     void GetStockCar(short, tCarInfo &);

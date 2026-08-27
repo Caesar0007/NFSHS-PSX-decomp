@@ -1,4 +1,3 @@
-#include "../../lib/libfns.h"
 /* feapp_externs.h -- externs referenced by feapp.cpp (canonical decls from siblings + SYM Globals + usage inference) */
 #ifndef FEAPP_EXTERNS_H
 #define FEAPP_EXTERNS_H
@@ -52,7 +51,8 @@ void  PSXFront_AllocateDrawMemory(void);
 void  PSXFront_FreeDrawMemory(void);
 
 /* text / tools / help shapes */
-void FETextRender_FullText(char *, short, short, tMenuTextType, tMenuTextState, short);
+void FETextRender_FullText(char *, short, short, tMenuTextType, tMenuTextState, short)
+    asm("FETextRender_FullText__FPcss13tMenuTextType14tMenuTextStates");
 void FETextRender_FullTextRGB(char *, short, short, int, char, short);
 void FETextRender_SetABR(int, bool);
 extern "C" int textpixels(char *);
@@ -77,6 +77,12 @@ void MenuExtended_PostGameMenu(tMenuCommand &command);  /* SYM `Def class EXT ty
 void play_movie(int) asm("play_movie__Fc");
 
 /* CRT */
+extern "C" {
+int sprintf(char *, const char *, ...);
+void *memset(void *, int, int);
+int largestunused(void);
+void SetDrawArea(DR_AREA *, RECT *);
+}
 
 /* tDialog* vtables (defined in FEDialog.obj) */
 extern __vtbl_ptr_type tDialogBase_vtable[], tDialogHelp_vtable[], tDialogMessageString_vtable[], tDialogNoInputMessage_vtable[];

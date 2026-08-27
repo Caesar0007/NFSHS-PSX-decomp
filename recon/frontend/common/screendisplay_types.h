@@ -61,6 +61,15 @@ struct tScreen {
     void TransitionOn(tScreen_TransitionType, tMenu *)
         __asm__("TransitionOn__7tScreen22tScreen_TransitionTypeP5tMenu");
 #endif
+#ifdef NFS4_SCREENDISPLAY_FEAPP_METHODS
+    static void DisplayLoadingText();
+    void Draw(bool);
+    void TransitionOff(int, tMenu *)
+        __asm__("TransitionOff__7tScreen22tScreen_TransitionTypeP5tMenu");
+    void TransitionOn(int, tMenu *)
+        __asm__("TransitionOn__7tScreen22tScreen_TransitionTypeP5tMenu");
+    void UpdateTransition();
+#endif
     void PreLoad();
     void Initialize();
     void Cleanup();
@@ -147,6 +156,12 @@ struct tMenuNFS4 : public tMenu {
     short fTransitionVal;
     signed char fTransitionDirection;
     char fLastItem, fNumItems;
+#ifdef NFS4_SCREENDISPLAY_FEAPP_METHODS
+    /* FEApp's menuMain calls the derived override.  The tPlayer record is
+     * absent from this owner graph, so retain its retail symbol explicitly. */
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &)
+        asm("ProcessInput__9tMenuNFS47tPlayerR13tInputKeyTypeR12tMenuCommand");
+#endif
 };
 
 struct tMenuNFS4TwoPlayer : public tMenuNFS4 {};
@@ -285,7 +300,8 @@ struct tDialogMessageString : public tDialogBase {
     void CalculateDimensions();
     void Draw();
 #endif
-#ifdef NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS
+#if defined(NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS) || \
+    defined(NFS4_SCREENDISPLAY_FEAPP_METHODS)
     inline tDialogMessageString *SetString(char *text) {
         string = text;
         return this;

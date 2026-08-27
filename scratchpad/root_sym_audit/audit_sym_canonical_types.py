@@ -624,6 +624,49 @@ def filter_exact_symbol_codegen_carriers(
         ("MOU", "STRUCT", 204, "carInfo", 0, (), "tCarInfo"),
         ("MOU", "CHAR", 0, "signedCarID", 0, (), ""),
     )
+    # FEApp.obj reads three foreign singleton aggregates and uses two
+    # component-reference packet carriers without retaining their source tags.
+    # Suppress only complete tag/typedef pairs with every byte, field, leaf
+    # type, bit width, offset, and source origin locked below.  Pre-change
+    # backup: Git commit a1bda045.
+    feapp_views = {
+        "FeApp_GameSetupCodegenView": (40, (
+            ("MOS", "ARY INT", 36, "_beforeReplayMode", 0, (9,), ""),
+            ("MOS", "INT", 0, "replayMode", 36, (), ""),
+        ), "feapp_types.h"),
+        "FeApp_PadCodegenView": (84, (
+            ("MOS", "INT", 0, "initialized", 0, (), ""),
+            ("MOS", "ARY STRUCT", 64, "buf", 4, (8,), "PAD_COMMON"),
+            ("MOS", "ARY CHAR", 16, "stateBytes", 68, (16,), ""),
+        ), "feapp_types.h"),
+        "FeApp_GlobalMenuDefsCodegenView": (14288, (
+            ("MOS", "STRUCT", 44, "itemMainOnePlayerRace", 0, (),
+             "tMenuItemGoToMenuNFS4Button"),
+            ("MOS", "STRUCT", 44, "itemMainTwoPlayerRace", 44, (),
+             "tMenuItemGoToMenuNFS4Button"),
+            ("MOS", "ARY CHAR", 88, "_beforeMenuMain", 88, (88,), ""),
+            ("MOS", "STRUCT", 124, "menuMain", 176, (), "tMenuNFS4"),
+            ("MOS", "ARY CHAR", 12428, "_beforeUserName1", 300,
+             (12428,), ""),
+            ("MOS", "STRUCT", 140, "menuItemUserName1", 12728, (),
+             "tUserNameMenuItem"),
+            ("MOS", "STRUCT", 140, "menuItemUserName2", 12868, (),
+             "tUserNameMenuItem"),
+            ("MOS", "ARY CHAR", 1024, "_beforePostGameNames", 13008,
+             (1024,), ""),
+            ("MOS", "STRUCT", 128, "menuPostGamePlayer1Name", 14032, (),
+             "tOptionsMenu"),
+            ("MOS", "STRUCT", 128, "menuPostGamePlayer2Name", 14160, (),
+             "tOptionsMenu"),
+        ), "feapp_types.h"),
+        "tPsyQPrimTag": (4, (
+            ("FIELD", "UINT", 24, "addr", 0, (), ""),
+            ("FIELD", "UINT", 8, "len", 24, (), ""),
+        ), "feapp.cpp"),
+    }
+    feapp_packet_rows = (
+        ("MOS", "PTR UCHAR", 0, "pkt", 0, (), ""),
+    )
     # ScreenDisplay.obj dereferences only the menuDisplayOptions member of the
     # foreign tGlobalMenuDefs singleton.  Its linked SYM retains the complete
     # tOptionsMenu leaf but attributes the owning aggregate to FEMenuDefs.obj.
@@ -1118,6 +1161,50 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith("screencarselect.cpp")
         )
 
+    def exact_feapp_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = feapp_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith(expected[2])
+        )
+
+    def exact_feapp_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = feapp_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            and owner.endswith((expected[2], "feapp.cpp"))
+        )
+
+    def exact_feapp_packet(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        return (
+            block.kind == "STRTAG"
+            and normalize_tag(block.name) == "<anonymous>"
+            and block.size == 4
+            and block.rows == feapp_packet_rows
+            and owner.endswith("feapp.cpp")
+        )
+
+    def exact_feapp_packet_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        return (
+            item.cls == "TPDEF"
+            and item.name == "tPacketCellView"
+            and item.typ == "STRUCT"
+            and item.size == 4
+            and normalize_tag(item.tag) == "<anonymous>"
+            and owner.endswith("feapp.cpp")
+        )
+
     def exact_screendisplay_view(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         expected = screendisplay_views.get(block.name)
@@ -1299,6 +1386,20 @@ def filter_exact_symbol_codegen_carriers(
         and any(exact_screencarselect_view_typedef(item) and item.name == name
                 for item in typedefs)
     }
+    feapp_eligible = {
+        name for name in feapp_views
+        if any(exact_feapp_view(block) and block.name == name
+               for block in type_blocks)
+        and any(exact_feapp_view_typedef(item) and item.name == name
+                for item in typedefs)
+    }
+    feapp_packet_eligible = any(
+        exact_feapp_packet(block)
+        and exact_feapp_packet_typedef(item)
+        and normalize_tag(block.name) == normalize_tag(item.tag)
+        for block in type_blocks
+        for item in typedefs
+    )
     screenusername_eligible = {
         name for name in screenusername_views
         if any(exact_screenusername_view(block) and block.name == name
@@ -1343,6 +1444,8 @@ def filter_exact_symbol_codegen_carriers(
             and not (block.name in screencarselect_eligible
                      and exact_screencarselect_view(block))
             and not exact_screencarselect_union(block)
+            and not (block.name in feapp_eligible and exact_feapp_view(block))
+            and not (feapp_packet_eligible and exact_feapp_packet(block))
             and not (block.name in screendisplay_eligible
                      and exact_screendisplay_view(block))
             and not (block.name in screenusername_eligible
@@ -1371,6 +1474,10 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_fedialog_view_typedef(item))
             and not (item.name in screencarselect_eligible
                      and exact_screencarselect_view_typedef(item))
+            and not (item.name in feapp_eligible
+                     and exact_feapp_view_typedef(item))
+            and not (feapp_packet_eligible
+                     and exact_feapp_packet_typedef(item))
             and not (item.name in screendisplay_eligible
                      and exact_screendisplay_view_typedef(item))
             and not (item.name in screenusername_eligible

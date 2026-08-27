@@ -1,0 +1,77 @@
+target: hud.obj named=103
+largest canonical overlaps (overlap/extras/candidate-total):
+  cars                      93/ 38/131  cars.obj
+  drawc                     91/ 14/105  DrawC.obj
+  nfs3                      90/ 58/148  nfs3.obj
+  audiocmn                  90/ 21/111  audiocmn.obj
+  psxfront                  90/ 17/107  PSXFront.obj
+  r3dcar                    90/ 13/103  R3DCar.obj
+  femenuoptions             89/ 76/165  FeMenuOptions.obj
+  copspeak                  89/ 35/124  CopSpeak.obj
+  screenmemcard             88/ 83/171  ScreenMemcard.obj
+  pausemenu                 88/ 14/102  PauseMenu.obj
+  front                     87/127/214  Front.obj
+  femenudefs                87/105/192  FEMenuDefs.obj
+  screencarselect           87/ 92/179  ScreenCarSelect.obj
+  feapp                     87/ 84/171  FEApp.obj
+  screentracks              87/ 77/164  ScreenTracks.obj
+  screenpinkslips           87/ 76/163  ScreenPinkSlips.obj
+  screencontroller          87/ 71/158  ScreenController.obj
+  screentrackrecords        87/ 68/155  ScreenTrackRecords.obj
+  screenaudio               87/ 68/155  ScreenAudio.obj
+  screentrophyroom          87/ 66/153  ScreenTrophyRoom.obj
+  fememcard                 87/ 44/131  FEMemCard.obj
+  femenu                    87/ 20/107  FEMenu.obj
+  stattool                  87/ 10/ 97  Stattool.obj
+  device                    87/  1/ 88  device.obj
+  screencongrats            86/ 95/181  ScreenCongrats.obj
+  fedialog                  86/ 85/171  FEDialog.obj
+  screenpost                86/ 70/156  ScreenPost.obj
+  screentournselect         86/ 69/155  ScreenTournSelect.obj
+  femenuextended            86/ 27/113  FEMenuExtended.obj
+  fecheats                  86/ 26/112  FECheats.obj
+
+strict subsets:
+  psxcontroller             86/ 86  psxcontroller.obj
+  minfront                  72/ 72  MinFront.obj
+  aiworld                   72/ 72  AIWORLD.obj
+  aispeech                  72/ 72  aispeech.obj
+  color                     71/ 71  color.obj
+  chunkvis                  40/ 40  chunkvis.obj
+  loading                   36/ 36  loading.obj
+  felines                   34/ 34  felines.obj
+  fecolor                   34/ 34  FEColor.obj
+  fetexture                 33/ 33  FETexture.obj
+  schedule                  27/ 27  schedule.obj
+  textsys                   22/ 22  Textsys.obj
+  mathnfs                   22/ 22  MathNfs.obj
+  paths                     21/ 21  paths.obj
+  new                       21/ 21  new.obj
+  debug                     19/ 19  debug.obj
+  textpsx                   17/ 17  textpsx.obj
+  filedbg                   16/ 16  filedbg.obj
+  unpack                    13/ 13  unpack.obj
+  ddvfont                    9/  9  Ddvfont.obj
+  aiscript                   4/  4  aiscript.obj
+  vsprintf                   0/  0  vsprintf.obj
+
+target delta after psxcontroller:
+  AIDataRecord_AccTable_t
+  AIDataRecord_CurveSpeedTable_t
+  AIDataRecord_RecordMethod_t
+  AIDataRecord_t
+  AudioMus_tCurrentSong
+  AudioMus_tSongEntry
+  FLARE_PIECE_DEF
+  forceFocus_t
+  HudPmx_tShape
+  POLY_F3
+  POLY_F4
+  POLY_FT4
+  POLY_G4
+  POLY_GT4
+  Sched_tSchedule
+  SPRT
+  tSmallCoordXY
+
+candidate extras outside target:

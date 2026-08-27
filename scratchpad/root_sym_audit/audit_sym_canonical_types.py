@@ -294,6 +294,122 @@ def filter_exact_symbol_codegen_carriers(
         ("MOS", "STRUCT", 132, "slicePos", 140, (), "BWorldSm_Pos"),
     )
 
+    # hud.obj has the same compiler-boundary problem for several foreign
+    # objects: retail preserves member-shaped instructions while omitting the
+    # owning aggregate tags.  These private views are accepted only with their
+    # complete owner/name/size/member graph.  This is intentionally verbose:
+    # changing even padding spelling, a leaf tag, or one offset must surface as
+    # a type-graph regression instead of being silently normalized.
+    hud_views = {
+        "Hud_CViewCodegenView": (140, (
+            ("MOS", "INT", 0, "id", 0, (), ""),
+            ("MOS", "INT", 0, "player", 4, (), ""),
+            ("MOS", "ARY UCHAR", 132, "cviewBytes", 8, (132,), ""),
+        )),
+        "Hud_GameSetupCodegenView": (2600, (
+            ("MOS", "INT", 0, "raceType", 0, (), ""),
+            ("MOS", "INT", 0, "numLaps", 4, (), ""),
+            ("MOS", "INT", 0, "skill", 8, (), ""),
+            ("MOS", "INT", 0, "commMode", 12, (), ""),
+            ("MOS", "ARY INT", 28, "setup04_10", 16, (7,), ""),
+            ("MOS", "INT", 0, "mirrorTrack", 44, (), ""),
+            ("MOS", "INT", 0, "reverseTrack", 48, (), ""),
+            ("MOS", "INT", 0, "measurement", 52, (), ""),
+            ("MOS", "INT", 0, "sgge", 56, (), ""),
+            ("MOS", "INT", 0, "track", 60, (), ""),
+            ("MOS", "INT", 0, "trackSegment", 64, (), ""),
+            ("MOS", "INT", 0, "song", 68, (), ""),
+            ("MOS", "INT", 0, "Weather", 72, (), ""),
+            ("MOS", "INT", 0, "Fog", 76, (), ""),
+            ("MOS", "INT", 0, "Damage", 80, (), ""),
+            ("MOS", "INT", 0, "Time", 84, (), ""),
+            ("MOS", "INT", 0, "randSeed", 88, (), ""),
+            ("MOS", "INT", 0, "easter", 92, (), ""),
+            ("MOS", "ARY INT", 88, "controllerWords", 96, (22,), ""),
+            ("MOS", "INT", 0, "pinkSlipsForfeit", 184, (), ""),
+            ("MOS", "INT", 0, "checkpointType", 188, (), ""),
+            ("MOS", "ARY INT", 8, "checkpointHUD", 192, (2,), ""),
+            ("MOS", "INT", 0, "dispatchSpeech", 200, (), ""),
+            ("MOS", "INT", 0, "reverseCallSpeech", 204, (), ""),
+            ("MOS", "INT", 0, "languageSpeech", 208, (), ""),
+            ("MOS", "INT", 0, "SceneNumber", 212, (), ""),
+            ("MOS", "INT", 0, "SceneStartLap", 216, (), ""),
+            ("MOS", "INT", 0, "SceneEndLap", 220, (), ""),
+            ("MOS", "STRUCT", 204, "userSetting", 224, (), "GameSetup_tUserSetting"),
+            ("MOS", "INT", 0, "numPerps", 428, (), ""),
+            ("MOS", "INT", 0, "stageOffset", 432, (), ""),
+            ("MOS", "INT", 0, "perpArrests", 436, (), ""),
+            ("MOS", "INT", 0, "finalPerpArrests", 440, (), ""),
+            ("MOS", "ARY STRUCT", 520, "perpInfo", 444, (10,), "GameSetup_tPerpData"),
+            ("MOS", "INT", 0, "numCars", 964, (), ""),
+            ("MOS", "INT", 0, "numPlayerRaceCars", 968, (), ""),
+            ("MOS", "INT", 0, "numOpponentRaceCars", 972, (), ""),
+            ("MOS", "INT", 0, "opponentCarType", 976, (), ""),
+            ("MOS", "ARY STRUCT", 1620, "carInfo", 980, (9,), "GameSetup_tCarData"),
+        )),
+        "Hud_SimGlobalCodegenView": (24, (
+            ("MOS", "INT", 0, "gameStarted", 0, (), ""),
+            ("MOS", "INT", 0, "gameTicks", 4, (), ""),
+            ("MOS", "INT", 0, "time32Hz", 8, (), ""),
+            ("MOS", "PTR VOID", 0, "schedule64Hz", 12, (), ""),
+            ("MOS", "PTR VOID", 0, "schedule32Hz", 16, (), ""),
+            ("MOS", "PTR VOID", 0, "schedule32Hz2", 20, (), ""),
+        )),
+        "Hud_CameraCodegenView": (272, (
+            ("MOS", "PTR STRUCT", 576, "anchor", 0, (), "BO_tNewtonObj"),
+            ("MOS", "PTR STRUCT", 576, "target", 4, (), "BO_tNewtonObj"),
+            ("MOS", "ARY UCHAR", 264, "remaining", 8, (264,), ""),
+        )),
+        "Hud_DashCodegenView": (108, (
+            ("MOS", "INT", 0, "splitscreen", 0, (), ""),
+            ("MOS", "ARY CHAR", 9, "name", 4, (9,), ""),
+            ("MOS", "ARY CHAR", 3, "align13_15", 13, (3,), ""),
+            ("MOS", "INT", 0, "conversion", 16, (), ""),
+            ("MOS", "INT", 0, "flashtime", 20, (), ""),
+            ("MOS", "INT", 0, "flashlap", 24, (), ""),
+            ("MOS", "ARY INT", 8, "showhud", 28, (2,), ""),
+            ("MOS", "ARY INT", 8, "showmap", 36, (2,), ""),
+            ("MOS", "ARY INT", 8, "wrongway", 44, (2,), ""),
+            ("MOS", "INT", 0, "laptime", 52, (), ""),
+            ("MOS", "INT", 0, "lap", 56, (), ""),
+            ("MOS", "INT", 0, "maxlaps", 60, (), ""),
+            ("MOS", "INT", 0, "rpm", 64, (), ""),
+            ("MOS", "INT", 0, "redline", 68, (), ""),
+            ("MOS", "INT", 0, "gear", 72, (), ""),
+            ("MOS", "INT", 0, "speed", 76, (), ""),
+            ("MOS", "INT", 0, "topspeed", 80, (), ""),
+            ("MOS", "INT", 0, "position", 84, (), ""),
+            ("MOS", "INT", 0, "opponents", 88, (), ""),
+            ("MOS", "INT", 0, "record", 92, (), ""),
+            ("MOS", "INT", 0, "tutor", 96, (), ""),
+            ("MOS", "ARY INT", 8, "warning", 100, (2,), ""),
+        )),
+        "Hud_PadCodegenView": (84, (
+            ("MOS", "INT", 0, "initialized", 0, (), ""),
+            ("MOS", "ARY STRUCT", 64, "buf", 4, (8,), "PAD_COMMON"),
+            ("MOS", "ARY UCHAR", 16, "stateBytes", 68, (16,), ""),
+        )),
+        "Hud_ReplayCodegenView": (32, (
+            ("MOS", "INT", 0, "pause", 0, (), ""),
+            ("MOS", "INT", 0, "speed", 4, (), ""),
+            ("MOS", "INT", 0, "end", 8, (), ""),
+            ("MOS", "INT", 0, "camera", 12, (), ""),
+            ("MOS", "INT", 0, "selection", 16, (), ""),
+            ("MOS", "INT", 0, "depressed", 20, (), ""),
+            ("MOS", "INT", 0, "changeCamera", 24, (), ""),
+            ("MOS", "INT", 0, "statsScreen", 28, (), ""),
+        )),
+        "Hud_SimVarCodegenView": (28, (
+            ("MOS", "INT", 0, "restartGame", 0, (), ""),
+            ("MOS", "INT", 0, "endSimGame", 4, (), ""),
+            ("MOS", "INT", 0, "pauseSim", 8, (), ""),
+            ("MOS", "INT", 0, "keyRelease", 12, (), ""),
+            ("MOS", "INT", 0, "quickPauseSim", 16, (), ""),
+            ("MOS", "INT", 0, "goalClockTicks", 20, (), ""),
+            ("MOS", "INT", 0, "currentClockTicks", 24, (), ""),
+        )),
+    }
+
     def exact_night_camera(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         return (
@@ -315,9 +431,53 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith("night_externs.h")
         )
 
+    def exact_hud_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = hud_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith("hud_externs.h")
+        )
+
+    def exact_hud_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = hud_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            and owner.endswith("hud_externs.h")
+        )
+
+    # Suppression is pair-locked: a matching struct without its typedef (or a
+    # matching typedef without its struct) is evidence drift, not an eligible
+    # codegen carrier.  Keep both rows visible unless the complete pair agrees.
+    night_eligible = (
+        any(exact_night_camera(block) for block in type_blocks)
+        and any(exact_night_camera_typedef(item) for item in typedefs)
+    )
+    hud_eligible = {
+        name for name in hud_views
+        if any(exact_hud_view(block) and block.name == name for block in type_blocks)
+        and any(exact_hud_view_typedef(item) and item.name == name for item in typedefs)
+    }
+
     return (
-        [block for block in type_blocks if not exact_night_camera(block)],
-        [item for item in typedefs if not exact_night_camera_typedef(item)],
+        [
+            block for block in type_blocks
+            if not (night_eligible and exact_night_camera(block))
+            and not (block.name in hud_eligible and exact_hud_view(block))
+        ],
+        [
+            item for item in typedefs
+            if not (night_eligible and exact_night_camera_typedef(item))
+            and not (item.name in hud_eligible and exact_hud_view_typedef(item))
+        ],
     )
 
 

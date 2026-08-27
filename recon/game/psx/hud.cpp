@@ -101,7 +101,8 @@
  *   CD player, wingman interface, render views (hud/tac/map/stats), 3-2-1-GO, BTC/busted.
  *   Reconstructed with full SYM-locals applied (audited).
  */
-#include "../../nfs4_types.h"
+#include "hud_types.h"
+#include "psyq_prim_macros.h"
 #include "hud_externs.h"
 
 /* ---- Hud.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
@@ -205,9 +206,8 @@ static POLY_FT4 gHudFT4[10];   /* @0x8013e5a0  (bss?) */
 static POLY_G4 gHudG4[8];   /* @0x8013e730  (bss?) */
 static char BTC_CurrentPerpName[10];   /* @0x8013e850  (bss?) */
 
-/* PsyQ libgpu P_TAG head-word shape (addr:24|len:8) -- the original tag-link code is the
- * SDK addPrim()/setaddr()/getaddr() macro family operating on this bitfield. */
-typedef struct { unsigned addr:24; unsigned len:8; } Hud_PTag;
+/* Canonical PsyQ P_TAG carrier from psyq_prim_macros.h. */
+#define Hud_PTag P_TAG
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void Hud_CreateHudViews(void);
@@ -280,18 +280,18 @@ void Hud_CreateHudViews(void)
 
   Hud_InitTables();
   Hud_BeTheCop = 0;
-  for (i = 0; i < GameSetup_gData.numCars; i++) {
-    if (GameSetup_gData.carInfo[i].carClass & 0x40) Hud_BeTheCop = 1;
+  for (i = 0; i < HUD_GS_NUM_CARS; i++) {
+    if (HUD_GS_CAR_CLASS(i) & 0x40) Hud_BeTheCop = 1;
   }
-  if (GameSetup_gData.numPlayerRaceCars >= 2) {
+  if (HUD_GS_NUM_PLAYER_CARS >= 2) {
     HudMapOffsetY = -6;
-  } else if ((GameSetup_gData.numPlayerRaceCars + GameSetup_gData.numOpponentRaceCars) == 1
+  } else if ((HUD_GS_NUM_PLAYER_CARS + HUD_GS_NUM_OPP_CARS) == 1
              || Hud_BeTheCop != 0) {
     HudMapOffsetY = 8;
   } else {
     HudMapOffsetY = 0;
   }
-  if (GameSetup_gData.commMode == 1) {
+  if (HUD_GS_COMM_MODE == 1) {
     Hud_gMapView[0] = Draw_SetView(0x105, HudMapOffsetY + 0x13e, 0x245, HudMapOffsetY + 0x13e, 0x2d, 0x30, 0, 0, 1);
     Hud_gMapView[1] = Draw_SetView(0x105, HudMapOffsetY + 0x1a9, 0x245, HudMapOffsetY + 0x1a9, 0x2d, 0x30, 0, 0, 1);
     Hud_gHudView[0] = Draw_SetView(0,     0x100, 0x140, 0x100, 0x140, 0x78, 0, 0, 1);
@@ -654,7 +654,7 @@ void Hud_Init0(void)
 
 {
   gSprite0 = reservememadr("HUD1",0x80c,0);
-  if (GameSetup_gData.commMode == 1) {
+  if (HUD_GS_COMM_MODE == 1) {
     gSprite1 = reservememadr("HUD2",0x80c,0);
   }
   return;
@@ -720,7 +720,7 @@ void Hud_InitMapFrame(int i,int mode)
   Hud_BuildSprite2(gSprt1 + 0x46,0x18,g1Player[0xe].x + w1 + w2 + w3,
              g1Player[0xe].y + HudMapOffsetY + h1 + splitY);
   Hud_BuildF4(HudF4 + 4,1,0,0,0x2d,0x30,0);
-  if (GameSetup_gData.mirrorTrack != 0) {
+  if (HUD_GS_MIRROR_TRACK != 0) {
     Hud_BuildMapMirrorFT4(HudFT4,HudPmx_gShapes + 0x78,0,0,0x808080,1);
   }
   else {
@@ -859,8 +859,8 @@ void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y)
   char minSep [6] = {':', ':', '\'', '\'', '\'', '.'} /* @0x8013d8dc */;
   char secSep [6] = {'.', ':', '"',  '"',  '"',  ','} /* @0x8013d8e4 */;
 
-  langMin = minSep[GameSetup_gData.userSetting.language];
-  langSec = secSep[GameSetup_gData.userSetting.language];
+  langMin = minSep[HUD_GS_LANGUAGE];
+  langSec = secSep[HUD_GS_LANGUAGE];
   c = (u_char)*str;
   n = 0;
   /* MATCH (w74-a2) -- SEALED 77/77, and BOTH earlier devices (the w71-a2 read-only `y`
@@ -891,7 +891,7 @@ void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y)
     if (c == 0x53) {
       c = langSec;
     }
-    w = (signed char)((charactertbl *)Font_Getcharacter(c))->advance + 1;
+    w = *(signed char *)((u_char *)Font_Getcharacter(c) + 8) + 1;
     Hud_BuildSpriteFromFont(&sprt[n],(char)c,x,y);
     n = n + 1;
     str = str + 1;
@@ -979,7 +979,7 @@ void Hud_Init(void)
   } while (i < 2);
   i = 0;
   while (true) {
-    if (DashHUD_gInfo.splitscreen < i) break;
+    if (HUD_DASH_SPLITSCREEN < i) break;
     {
     SPRT *gSprt1;
     POLY_F4 *HudF4;
@@ -1005,8 +1005,8 @@ void Hud_Init(void)
     if (i != 0) {
       splitY = -0xf;
     }
-    timelapshift = (GameSetup_gData.carInfo[i].HudTime == 0) * 0x10;
-    if (GameSetup_gData.carInfo[i].HudLapnum == 0) {
+    timelapshift = (HUD_GS_CAR_HUD_TIME(i) == 0) * 0x10;
+    if (HUD_GS_CAR_HUD_LAPNUM(i) == 0) {
       timelapshift = timelapshift + 0x10;
     }
     Hud_BuildSprite(gSprt1,0x68,g1Player->x,(g1Player->y + splitY) - timelapshift,0xbebe,0);
@@ -1029,7 +1029,7 @@ void Hud_Init(void)
     Hud_BuildF4(HudF4,1,x,y + 7,7,3,0x707070);
     w1 = HudPmx_gShapes[0x6b].width;
     x = g1Player[3].x;
-    timelapshift = (GameSetup_gData.carInfo[i].HudTime == 0) * 0x10;
+    timelapshift = (HUD_GS_CAR_HUD_TIME(i) == 0) * 0x10;
     y = (g1Player[3].y + splitY) - timelapshift;
     /* MATCH (w61-a1): retail emits `li $s3,29` (this `w2`) in the slot right after the
      * PREVIOUS jal, i.e. the assignment precedes the Hud_BuildSprite2 call.  22 -> 20.
@@ -1057,7 +1057,7 @@ void Hud_Init(void)
     w2 = 0x26;
     if (Hud_BeTheCop == 0) {
       w2 = 0x32;
-      if (GameSetup_gData.checkpointHUD[i] == 0) {
+      if (HUD_GS_CHECKPOINT_HUD(i) == 0) {
         w2 = 0x3d;
       }
     }
@@ -1097,15 +1097,15 @@ void Hud_Init(void)
     /* W79 source-only: staged pointer/literal identities make the call setup
        issue before x+=w1, matching retail without a post-cc1 move. */
     {
-      POLY_G4 *g4 = HudG4 + 2;
-      int one = 1;
+      POLY_G4 *g4 = HudG4 + 2; /* SYM-CODEGEN-CARRIER: g4 -- W79 source-only identity stages the call address before x += w1 */
+      int one = 1; /* SYM-CODEGEN-CARRIER: one -- W79 source-only identity stages literal a1 before x += w1 */
       __asm__("" : "=r"(g4), "=r"(one) : "0"(g4), "1"(one));
       x = x + w1;
       Hud_BuildG4(g4,one,x,y,w2,10,0,0x707070,0,0x707070);
     }
     /* Same source shape for the following F4 literal: li a1 precedes x+=w2. */
     {
-      int one = 1;
+      int one = 1; /* SYM-CODEGEN-CARRIER: one -- W79 source-only identity stages literal a1 before x += w2 */
       __asm__("" : "=r"(one) : "0"(one));
       x = x + w2;
       Hud_BuildF4(HudF4 + 3,one,x,y + 7,7,3,0x707070);
@@ -1140,7 +1140,7 @@ void Hud_Init(void)
      * of `addu $s0,$s0,$v1` (= x += width).  Duplicating the call per arm restores both.
      * Receipt: ternary 43 @623/624 -> if/else duplicated 22 @624/624 (count-exact);
      * arms swapped = 24; a named `char *tstr` select temp = 50 @622 (2 SHORT). */
-    if (GameSetup_gData.checkpointHUD[i] == 0) {
+    if (HUD_GS_CHECKPOINT_HUD(i) == 0) {
       Hud_BuildTimeSprites(gSprt1 + 0x1e,"0M00S00",x,y);
     }
     else {
@@ -1153,7 +1153,7 @@ void Hud_Init(void)
     w2 = HudPmx_gShapes[0x47].width;
     x = g1Player[0xe].x + g1Player[10].x;
     y = g1Player[0xe].y + HudMapOffsetY + g1Player[10].y + splitY;
-    if ((i == 0) && (DashHUD_gInfo.splitscreen != 0)) {
+    if ((i == 0) && (HUD_DASH_SPLITSCREEN != 0)) {
       y = y + -2;
     }
     /* MATCH (w61-a1): retail's `beqz` delay slot holds `addiu $a0,$s5,800` (the
@@ -1230,7 +1230,7 @@ void Hud_InitTables(void)
   tSmallCoordXY (*patVar1) [19]; /* SYM-CODEGEN-CARRIER: patVar1 -- shared table-base result funnel */
   
   patVar1 = Hud_gElementPositions;
-  if (1 < GameSetup_gData.numPlayerRaceCars) {
+  if (1 < HUD_GS_NUM_PLAYER_CARS) {
     patVar1 = Hud_gElementPositions + 1;
   }
   g1Player = *patVar1;
@@ -1413,7 +1413,7 @@ bool Hud_BuildDistanceString(SPRT *sprt,int player)
 
   dist = (Cars_gHumanRaceCarList[player]->stats).checkpointUpdate * 6;
   slices = __builtin_abs(dist);
-  if (GameSetup_gData.checkpointHUD[player] == 2) {
+  if (HUD_GS_CHECKPOINT_HUD(player) == 2) {
     slices = (slices * 1000) / 0x647;
   }
   if (9999 < slices) {
@@ -1688,16 +1688,16 @@ void Hud_BuildTach(int player)
     gSprt1 = gSprite0;
   }
   carType = 0x1d;
-  if (GameSetup_gData.carInfo[player].carType < 0x1e) {
-    carType = GameSetup_gData.carInfo[player].carType;
+  if (HUD_GS_CAR_TYPE(player) < 0x1e) {
+    carType = HUD_GS_CAR_TYPE(player);
   }
-  if (GameSetup_gData.Time != 0) {
+  if (HUD_GS_TIME != 0) {
     color = night_needle[carType];
   }
   else {
     color = day_needle[carType];
   }
-  rpm = DashHUD_gInfo.rpm;
+  rpm = HUD_DASH_RPM;
   fangle = (rpm * 0x10000) / 0x2a30 + 0x5999;
   if (fangle < 0x5999) {
     fangle = 0x5999;
@@ -1986,7 +1986,7 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
     }
     else if (*str == '*') {
       ix = ix + 2;            /* own statement -> lands in the buf[0].ID test's delay slot */
-      if (gPadinfo.buf[0].ID == '#') {
+      if (HUD_PAD_BUF[0].ID == '#') {
         if (justwidth == 0) {
           Hud_FBuildSprite(0xad,ix,y,color,0);
         }
@@ -2000,12 +2000,12 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
         iw2 = ix + 3;
         ix = iw2 + D_801119E0[0].width;
       }
-      if (GameSetup_gData.commMode == 1) {
-        if (gPadinfo.buf[4].ID == '#') {
-          if (gPadinfo.buf[0].ID == '#') goto HudBuildStr_next;
+      if (HUD_GS_COMM_MODE == 1) {
+        if (HUD_PAD_BUF[4].ID == '#') {
+          if (HUD_PAD_BUF[0].ID == '#') goto HudBuildStr_next;
         }
-        else if (gPadinfo.buf[0].ID != '#') goto HudBuildStr_next;
-        if (gPadinfo.buf[4].ID == '#') {
+        else if (HUD_PAD_BUF[0].ID != '#') goto HudBuildStr_next;
+        if (HUD_PAD_BUF[4].ID == '#') {
             if (justwidth == 0) {
             Hud_FBuildSprite(0xad,ix,y,color,0);
           }
@@ -2025,19 +2025,19 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
       offy = 0;
       if (*str == '^') {
         alphShape = 0xaa;
-        if (gPadinfo.buf[player * 4].ID == '#') {
+        if (HUD_PAD_BUF[player * 4].ID == '#') {
           alphShape = 0xad;
         }
       }
       else if (*str == '(') {
         alphShape = 0xa9;
-        if (gPadinfo.buf[player * 4].ID == '#') {
+        if (HUD_PAD_BUF[player * 4].ID == '#') {
           alphShape = 0xab;
         }
       }
       else if (*str == ')') {
         alphShape = 0xa8;
-        if (gPadinfo.buf[player * 4].ID == '#') {
+        if (HUD_PAD_BUF[player * 4].ID == '#') {
           alphShape = 0xac;
         }
       }
@@ -2250,8 +2250,8 @@ void Hud_BuildNumbers0(int player)
   if (i != 0) {
     splitY = -0xf;
   }
-  if (GameSetup_gData.carInfo[player].HudTime != 0) {
-    if ((DashHUD_gInfo.flashtime == 0) || ((simGlobal.gameTicks & 0x10U) == 0)) {
+  if (HUD_GS_CAR_HUD_TIME(player) != 0) {
+    if ((HUD_DASH_FLASHTIME == 0) || ((HUD_GAME_TICKS & 0x10U) == 0)) {
       SPRT *eSprt; /* SYM-CODEGEN-CARRIER: eSprt -- precomputed call argument is the measured branch-delay-slot source shape that sealed the function */
       int etime; /* SYM-CODEGEN-CARRIER: etime -- duplicating the calls removes this pseudo but is FAIL 6 at 531/531 */
 
@@ -2259,7 +2259,7 @@ void Hud_BuildNumbers0(int player)
       if (Hud_BeTheCop != 0) {
         etime = BTC_Countdown;
       } else {
-        etime = DashHUD_gInfo.laptime;
+        etime = HUD_DASH_LAPTIME;
       }
       Hud_BuildETimeString(eSprt, etime);
     }
@@ -2340,7 +2340,7 @@ void Hud_BuildNumbers0(int player)
   }
   primAddr = BTC_BonusTime;
   if ((BTC_BonusTime != 0) && (Hud_BeTheCop != 0)) {
-    if (GameSetup_gData.carInfo[player].HudTime == 0) {
+    if (HUD_GS_CAR_HUD_TIME(player) == 0) {
       return;
     }
     {
@@ -2378,10 +2378,10 @@ void Hud_BuildNumbers0(int player)
     }
   }
   else {
-    if (GameSetup_gData.checkpointType == 0) {
+    if (HUD_GS_CHECKPOINT_TYPE == 0) {
       return;
     }
-    if (GameSetup_gData.checkpointHUD[player] == 0) {
+    if (HUD_GS_CHECKPOINT_HUD(player) == 0) {
       if ((Cars_gHumanRaceCarList[player]->stats).checkpointDisplay < 1) {
         return;
       }
@@ -2400,7 +2400,7 @@ void Hud_BuildNumbers0(int player)
       if (Hud_BeTheCop != 0) {
         return;
       }
-      if (DashHUD_gInfo.wrongway[player] != 0) {
+      if (HUD_DASH_WRONGWAY_AT(player) != 0) {
         return;
       }
       if (y_2 < 0) {
@@ -2841,15 +2841,15 @@ void Hud_BuildNumbers(int player)
   if (player != 0) {
     splitY = -0xf;
   }
-  if (((GameSetup_gData.carInfo[i].HudLapnum != 0) && (Hud_BeTheCop == 0)) &&
-     (DashHUD_gInfo.maxlaps != 1)) {
+  if (((HUD_GS_CAR_HUD_LAPNUM(i) != 0) && (Hud_BeTheCop == 0)) &&
+     (HUD_DASH_MAXLAPS != 1)) {
     int j;
     u_char *pal;   /* SYM-CODEGEN-CARRIER: pal -- per-assignment palette split is the measured 388-to-256 allocation lever */
     u_char *pal_2; /* SYM-CODEGEN-CARRIER: pal_2 -- separate second link range preserves the retail mask/pointer handout */
     u_char *pal_3; /* SYM-CODEGEN-CARRIER: pal_3 -- separate final link group preserves the retail caller-saved band */
 
-    *(int *)&pSprt[20].u0 = *(int *)&HudPmx_gHudNumberUV[DashHUD_gInfo.lap];
-    *(int *)&pSprt[22].u0 = *(int *)&HudPmx_gHudNumberUV[DashHUD_gInfo.maxlaps];
+    *(int *)&pSprt[20].u0 = *(int *)&HudPmx_gHudNumberUV[HUD_DASH_LAP];
+    *(int *)&pSprt[22].u0 = *(int *)&HudPmx_gHudNumberUV[HUD_DASH_MAXLAPS];
     j = 0x14;
     pal = Render_gPalettePtr;
     do {
@@ -2870,16 +2870,16 @@ void Hud_BuildNumbers(int player)
     ((Hud_PTag *)&HudF4[1])->addr = ((Hud_PTag *)pal_3)->addr;
     ((Hud_PTag *)pal_3)->addr = (u_int)&HudF4[1];
   }
-  if ((((GameSetup_gData.carInfo[i].HudTime != 0) && (DashHUD_gInfo.record != 0)) &&
-      ((DashHUD_gInfo.record < 0x9600 && ((Hud_BeTheCop == 0 && (Hud_gShowedCDPlayer == 0)))))) &&
-     (DashHUD_gInfo.maxlaps != 1)) {
+  if ((((HUD_GS_CAR_HUD_TIME(i) != 0) && (HUD_DASH_RECORD != 0)) &&
+      ((HUD_DASH_RECORD < 0x9600 && ((Hud_BeTheCop == 0 && (Hud_gShowedCDPlayer == 0)))))) &&
+     (HUD_DASH_MAXLAPS != 1)) {
     int j;
     u_char *pal;
     u_char *pal_2;
     u_char *pal_3;
 
-    if ((DashHUD_gInfo.flashtime == 0) || ((simGlobal.gameTicks & 0x10U) == 0)) {
-      Hud_BuildTimeString(pSprt + 23,DashHUD_gInfo.record);
+    if ((HUD_DASH_FLASHTIME == 0) || ((HUD_GAME_TICKS & 0x10U) == 0)) {
+      Hud_BuildTimeString(pSprt + 23,HUD_DASH_RECORD);
     }
     j = 0x17;
     pal = Render_gPalettePtr;
@@ -2901,8 +2901,8 @@ void Hud_BuildNumbers(int player)
     ((Hud_PTag *)&HudF4[2])->addr = ((Hud_PTag *)pal_3)->addr;
     ((Hud_PTag *)pal_3)->addr = (u_int)&HudF4[2];
   }
-  if (((GameSetup_gData.carInfo[i].HudPosition != 0) && (Hud_BeTheCop == 0)) &&
-     (1 < DashHUD_gInfo.opponents)) {
+  if (((HUD_GS_CAR_POSITION(i) != 0) && (Hud_BeTheCop == 0)) &&
+     (1 < HUD_DASH_OPPONENTS)) {
     int j;
     u_char *pal;
 
@@ -2913,12 +2913,12 @@ void Hud_BuildNumbers(int player)
     {
       int m2 /* SYM-CODEGEN-CARRIER: m2 -- mutable fold escape is the measured 110-to-84 lever */ = -2;
       pSprt[37].x0 = (g1Player[0xe].x + g1Player[10].x + (HudPmx_gShapes[0x2c].width + m2)) -
-                     HudPmx_gShapes[DashHUD_gInfo.position + 0x2c].width;
+                     HudPmx_gShapes[HUD_DASH_POSITION + 0x2c].width;
     }
-    *(int *)&pSprt[37].u0 = *(int *)&HudPmx_gShapes[DashHUD_gInfo.position + 0x2c].pixmap;
-    pSprt[37].w = HudPmx_gShapes[DashHUD_gInfo.position + 0x2c].width;
-    *(u_int *)&pSprt[39].u0 = *(u_int *)&HudPmx_gShapes[DashHUD_gInfo.opponents + 0x35].pixmap;
-    pSprt[39].w = HudPmx_gShapes[DashHUD_gInfo.opponents + 0x35].width;
+    *(int *)&pSprt[37].u0 = *(int *)&HudPmx_gShapes[HUD_DASH_POSITION + 0x2c].pixmap;
+    pSprt[37].w = HudPmx_gShapes[HUD_DASH_POSITION + 0x2c].width;
+    *(u_int *)&pSprt[39].u0 = *(u_int *)&HudPmx_gShapes[HUD_DASH_OPPONENTS + 0x35].pixmap;
+    pSprt[39].w = HudPmx_gShapes[HUD_DASH_OPPONENTS + 0x35].width;
     j = 0x25;
     pal = Render_gPalettePtr;
     do {
@@ -2926,7 +2926,7 @@ void Hud_BuildNumbers(int player)
       ((Hud_PTag *)pal)->addr = (u_int)&pSprt[j];
       j = j + 1;
     } while (j < 0x28);
-    if (GameSetup_gData.carInfo[j].HudMap != 0) {  /* retail bug: j==0x28, not player */
+    if (HUD_GS_CAR_HUD_MAP(j) != 0) {  /* retail bug: j==0x28, not player */
       Hud_GoTpage(0);
       ((Hud_PTag *)&pSprt[40])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
       ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[40];
@@ -2934,8 +2934,8 @@ void Hud_BuildNumbers(int player)
     }
   }
   Hud_GoTpage(0);
-  if (GameSetup_gData.carInfo[i].HudTach != 0) {
-    switch (DashHUD_gInfo.gear) {
+  if (HUD_GS_CAR_HUD_TACH(i) != 0) {
+    switch (HUD_DASH_GEAR) {
     case 0:
       ((Hud_PTag *)&pSprt[48])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
       ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[48];
@@ -2945,12 +2945,12 @@ void Hud_BuildNumbers(int player)
       ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[47];
       break;
     default:
-      ((Hud_PTag *)(DashHUD_gInfo.gear * 20 + (int)pSprt + 780))->addr =
+      ((Hud_PTag *)(HUD_DASH_GEAR * 20 + (int)pSprt + 780))->addr =
            ((Hud_PTag *)Render_gPalettePtr)->addr;
-      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)(DashHUD_gInfo.gear * 20 + (int)pSprt + 780);
+      ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)(HUD_DASH_GEAR * 20 + (int)pSprt + 780);
       break;
     }
-    if (GameSetup_gData.carInfo[i].HudSpeed == 0) {
+    if (HUD_GS_CAR_HUD_SPEED(i) == 0) {
       ((Hud_PTag *)&pSprt[50])->addr = ((Hud_PTag *)Render_gPalettePtr)->addr;
       ((Hud_PTag *)Render_gPalettePtr)->addr = (u_int)&pSprt[50];
     }
@@ -2960,7 +2960,7 @@ void Hud_BuildNumbers(int player)
     }
   }
   Hud_GoTpage(1);
-  if (GameSetup_gData.carInfo[player].HudTach != 0) {
+  if (HUD_GS_CAR_HUD_TACH(player) != 0) {
     int speed;
     int hun;
     int ten;
@@ -2974,7 +2974,7 @@ void Hud_BuildNumbers(int player)
     POLY_GT4 *prim;
     u_long SpeedColor;
 
-    speed = fixedmult(GameSetup_gData.carInfo[i].HudSpeedMult,DashHUD_gInfo.speed) / 0x10000;
+    speed = fixedmult(HUD_GS_CAR_SPEED_MULT(i),HUD_DASH_SPEED) / 0x10000;
     hun = speed / 100;
     ten = speed / 10 + hun * -10;
     SpeedColor = 0xc8c8c8;
@@ -3057,7 +3057,7 @@ void Hud_BuildNumbers(int player)
       *(u_int *)&prim->r2 = color2;
     }
   }
-  if ((DashHUD_gInfo.wrongway[i] != 0) && ((simGlobal.gameTicks >> 5 & 1U) != 0)) {
+  if ((HUD_DASH_WRONGWAY_AT(i) != 0) && ((HUD_GAME_TICKS >> 5 & 1U) != 0)) {
     u_char *pal;
 
     pal = Render_gPalettePtr;
@@ -3336,11 +3336,11 @@ void Hud_BuildMapMarkers(int player)
       int aiflags;     /* SYM-CODEGEN-CARRIER: aiflags -- source-positioned flag load is the measured 34-to-21 lever */
 
       slice = Cars_gCopCarList[i]->N.simRoadInfo.slice;
-      rx = BWorldSm_slices[slice].center[0] / gMapScaleX;
-      rz = BWorldSm_slices[slice].center[2] / gMapScaleY;
+      rx = BWorldSm_slices[slice][0] / gMapScaleX;
+      rz = BWorldSm_slices[slice][2] / gMapScaleY;
       x = (cenX + fixedmult(mapMarkerMCos,rx)) - fixedmult(mapMarkerMSin,rz);
       z = cenZ + fixedmult(mapMarkerMSin,rx) + fixedmult(mapMarkerMCos,rz);
-      if (GameSetup_gData.mirrorTrack != 0) {
+      if (HUD_GS_MIRROR_TRACK != 0) {
         x = -x;
       }
       pktcell = (u_char **)0x1F800004;   /* one addr materialization per iter (shared by read+bump) -- keeps the 0x1F800004 constant un-hoisted like retail */
@@ -3385,7 +3385,7 @@ void Hud_BuildMapMarkers(int player)
        * (inert 45), an `m`-operand fence on the global (42), moving the cursor bump below
        * the funnel (294 -- it shatters the whole loop band). */
       *(volatile long *)&currentSpriteColor = ((aiflags & 2) != 0)
-                         ? (((gFlip != 0) || (simVar.quickPauseSim != 0)) ? 0xff : 0xff0000)
+                         ? (((gFlip != 0) || (HUD_QUICK_PAUSE != 0)) ? 0xff : 0xff0000)
                          : *(u_long *)&Hud_gCopMarkerColor[i];
       __asm__("" : : "i"(0));
       Hud_BuildSprite(sprt,0x7a,mapx + x + -2 & 0xffff,mapy - z & 0xffff,
@@ -3405,11 +3405,11 @@ void Hud_BuildMapMarkers(int player)
       u_int cflags;  /* SYM-CODEGEN-CARRIER: cflags -- paired carFlags load is the measured 74-to-14 lever */
 
       slice = Cars_gRaceCarList[i]->N.simRoadInfo.slice;
-      rx = BWorldSm_slices[slice].center[0] / gMapScaleX;
-      rz = BWorldSm_slices[slice].center[2] / gMapScaleY;
+      rx = BWorldSm_slices[slice][0] / gMapScaleX;
+      rz = BWorldSm_slices[slice][2] / gMapScaleY;
       x = (cenX + fixedmult(mapMarkerMCos,rx)) - fixedmult(mapMarkerMSin,rz);
       z = cenZ + fixedmult(mapMarkerMSin,rx) + fixedmult(mapMarkerMCos,rz);
-      if (GameSetup_gData.mirrorTrack != 0) {
+      if (HUD_GS_MIRROR_TRACK != 0) {
         x = -x;
       }
       pktcell = (u_char **)0x1F800004;   /* see cop loop */
@@ -3452,7 +3452,7 @@ void Hud_BuildMapMarkers(int player)
          * of the store position, not an independent item (jump.c find_cross_jump works on
          * the pre-sched insn order). */
         *(volatile long *)&currentSpriteColor = ((car->AIFlags & 2) != 0)
-                           ? (((gFlip != 0) || (simVar.quickPauseSim != 0)) ? 0xff : 0xff0000)
+                           ? (((gFlip != 0) || (HUD_QUICK_PAUSE != 0)) ? 0xff : 0xff0000)
                            : *(u_long *)&Hud_gMarkerColor[i];
         __asm__("" : : "i"(0));
         /* MATCH (w64-a1): `x + mapx` (variable SECOND) at the THREE race-loop sites emits
@@ -3961,22 +3961,22 @@ void Hud_BuildCdPlayer(int type,int)
      * callee-saved reg ($s0, initialised by copying the known-zero dx reg at 800D6464, set
      * by `addiu $s0,$zero,1` at .L800D64E8 and tested `bnez $s0` at .L800D64EC), i.e. an
      * ANONYMOUS compiler temp -- so the source is the flat `||` chain assigned to a flag. */
-    bVar2 = (((simGlobal.gameTicks < 0x240) || (((u_char)countdown < 4 && (Hud_BeTheCop == 0)))) ||
+    bVar2 = (((HUD_GAME_TICKS < 0x240) || (((u_char)countdown < 4 && (Hud_BeTheCop == 0)))) ||
         ((uVar5 = PAD_state(4), (uVar5 & 0x400) != 0 &&
-         (DashHUD_gInfo.splitscreen != 0)))) ||
+         (HUD_DASH_SPLITSCREEN != 0)))) ||
        ((uVar5 = PAD_state(0), (uVar5 & 0x400) != 0 &&
-        ((Hud_BeTheCop == 0 || (DashHUD_gInfo.splitscreen != 0)))));
+        ((Hud_BeTheCop == 0 || (HUD_DASH_SPLITSCREEN != 0)))));
     /* oracle shape: nested if/goto (NOT a flattened || chain) -- gPadinfo.buf[0] gate
      * falls through to the buf[4] gate on failure, and a Hud_BeTheCop!=0 && splitscreen==0
      * combo also falls through instead of short-circuiting. §asm_pattern_catalog funnel class. */
     if (!bVar2) {
-      if ((gPadinfo.buf[0].ID == '#') && (0xbf < gPadinfo.buf[0].data.negcon.leftshift)) {
-        if ((Hud_BeTheCop != 0) && (DashHUD_gInfo.splitscreen == 0)) goto HudCdPlay_checkBuf4;
+      if ((HUD_PAD_BUF[0].ID == '#') && (0xbf < HUD_PAD_BUF[0].data.negcon.leftshift)) {
+        if ((Hud_BeTheCop != 0) && (HUD_DASH_SPLITSCREEN == 0)) goto HudCdPlay_checkBuf4;
         goto HudCdPlay_activateGate;
       }
 HudCdPlay_checkBuf4:
-      if ((gPadinfo.buf[4].ID == '#') && (0xbf < gPadinfo.buf[4].data.negcon.leftshift) &&
-          (DashHUD_gInfo.splitscreen != 0)) {
+      if ((HUD_PAD_BUF[4].ID == '#') && (0xbf < HUD_PAD_BUF[4].data.negcon.leftshift) &&
+          (HUD_DASH_SPLITSCREEN != 0)) {
         goto HudCdPlay_activateGate;
       }
     }
@@ -4262,7 +4262,7 @@ HudCdPlay_buildOutString:
         time = time - min * 60000;
         sec = time / 1000;
         sprintf(strtime,"%1d%c%02d",min,
-                   (u_int)(u_char)HudminChar[GameSetup_gData.userSetting.language],
+                   (u_int)(u_char)HudminChar[HUD_GS_LANGUAGE],
                    sec);
         Font_TextColor(4);
         Font_TextXY(strtime,(x - textpixels(strtime)) + 0x5c,y + 0xc);
@@ -4345,7 +4345,7 @@ int Hud_BuildRadar(int player)
   coorddef scr [15];
   int visible;
 
-  car = Camera_gInfo[player].anchor;               /* SLD 2498 */
+  car = HUD_CAMERA_ANCHOR(player);                 /* SLD 2498 */
   m00 = car->orientMat.m[0] >> 8;   /* +0xF0  SLD 2507 */
   m01 = car->orientMat.m[6] >> 8;   /* +0x108 SLD 2508 */
   m10 = car->orientMat.m[2] >> 8;   /* +0xF8  SLD 2509 */
@@ -4360,7 +4360,7 @@ int Hud_BuildRadar(int player)
     z = (-Cars_gRaceCarList[i]->N.position.z >> 8) - cenZ;
     scr[i].x = m00 * x + m01 * z >> 0x10;
     scr[i].z = m10 * x + m11 * z >> 0x11;
-    if (GameSetup_gData.mirrorTrack != 0) {
+    if (HUD_GS_MIRROR_TRACK != 0) {
       scr[i].x = -scr[i].x;
     }
     if ((Cars_gRaceCarList[i]->N.active != '\0') && (Cars_gRaceCarList[i]->carIndex != player)) {
@@ -4377,7 +4377,7 @@ int Hud_BuildRadar(int player)
       z = (-Cars_gCopCarList[i]->N.position.z >> 8) - cenZ;
       scr[Cars_gNumRaceCars + i].x = m00 * x + m01 * z >> 0x10;
       scr[Cars_gNumRaceCars + i].z = m10 * x + m11 * z >> 0x11;
-      if (GameSetup_gData.mirrorTrack != 0) {
+      if (HUD_GS_MIRROR_TRACK != 0) {
         scr[Cars_gNumRaceCars + i].x = -scr[Cars_gNumRaceCars + i].x;
       }
       if ((-mapx < scr[Cars_gNumRaceCars + i].x) && (scr[Cars_gNumRaceCars + i].x < mapx)) {
@@ -4431,7 +4431,7 @@ int Hud_BuildRadar(int player)
        * `if (A==0 && B==0) 0xff0000; else 0xff;` inverts that and costs an extra `j`
        * (8 -> 4 diffs, ours 452 -> 450 = oracle).  Falsified: default+override [9],
        * ternary [19, 449 insns], explicit goto-chain [10]. */
-      if ((gFlip != 0) || (simVar.quickPauseSim != 0)) {
+      if ((gFlip != 0) || (HUD_QUICK_PAUSE != 0)) {
         currentSpriteColor = 0xff;
       }
       else {
@@ -4553,17 +4553,17 @@ void Hud_BuildReplay(void)
     *(u_int *)&gSprite0[i].r0 = 0x66808080;
     i = i + 1;
   } while (i < 0x3f);
-  *(u_int *)&gSprite0[(u_char)hilite[Replay_ReplayInterface.selection] + 0x33].r0 = 0x6600bebe;
-  if (Replay_ReplayInterface.selection == 3) {
+  *(u_int *)&gSprite0[(u_char)hilite[HUD_REPLAY_SELECTION] + 0x33].r0 = 0x6600bebe;
+  if (HUD_REPLAY_SELECTION == 3) {
     *(u_int *)&gSprite0[0x38].r0 = 0x6600bebe;
   }
   *(u_int *)&gSprite0[0x34].u0 =
-       *(u_int *)&(HudPmx_gShapes + 0x6e - Replay_ReplayInterface.pause)->pixmap.u0;
+       *(u_int *)&(HudPmx_gShapes + 0x6e - HUD_REPLAY_PAUSE)->pixmap.u0;
   /* MATCH: a real `switch` -- the oracle's dispatch is gcc-2.8 balance_case_nodes
    * (root `beq 1`, `slti 2` bound test, then `beqz`/`beq 2` leaves) with the default
    * body duplicated into the two guard delay slots; an if/else-if cascade emits the
    * arms inline with the opposite polarity. */
-  switch (Replay_ReplayInterface.speed) {
+  switch (HUD_REPLAY_SPEED) {
   case 0:
     spr = 0x72;
     break;
@@ -4580,9 +4580,9 @@ void Hud_BuildReplay(void)
   gSprite0[0x38].u0 = HudPmx_gShapes[spr].pixmap.u0;
   gSprite0[0x38].v0 = HudPmx_gShapes[spr].pixmap.v0;
   *(u_int *)&gSprite0[0x39].u0 =
-       *(u_int *)&HudPmx_gShapes[Replay_ReplayInterface.camera + 2].pixmap.u0;
+       *(u_int *)&HudPmx_gShapes[HUD_REPLAY_CAMERA + 2].pixmap.u0;
   gSprite0[0x39].x0 = g1Player[0xd].x + 0x75;
-  if (Replay_ReplayInterface.selection == 4) {
+  if (HUD_REPLAY_SELECTION == 4) {
     *(u_int *)&gSprite0[0x39].r0 = 0x6600bebe;
   }
   else {
@@ -4690,7 +4690,8 @@ int Hud_NextPlayer(int player)
   Car_tObj *carObj_00; /* SYM-CODEGEN-CARRIER: carObj_00 -- merging into carObj is FAIL 78 (87/89) */
   int direction;
 
-  direction = (u_int)(0 < *(int *)((player << 2) + (int)Input_gLookBehind) != 0 < DashHUD_gInfo.wrongway[player]);
+  direction = (u_int)(0 < *(int *)((player << 2) + (int)Input_gLookBehind) !=
+                         0 < HUD_DASH_WRONGWAY[player]);
   carObj_00 = Cars_gHumanRaceCarList[player];
   if (1 < Cars_gNumRaceCars) {
     j = Stats_GetPosition(carObj_00);
@@ -4776,7 +4777,7 @@ char * Hud_NextPlayerNameOrCarOrTime(int player)
   Car_tObj *carObj_00; /* SYM-CODEGEN-CARRIER: carObj_00 -- merging into carObj is FAIL 59 (97/98) */
   int direction;
   
-  direction = (u_int)(0 < Input_gLookBehind[player] != 0 < DashHUD_gInfo.wrongway[player]);
+  direction = (u_int)(0 < Input_gLookBehind[player] != 0 < HUD_DASH_WRONGWAY[player]);
   carObj_00 = Cars_gHumanRaceCarList[player];
   if (1 < Cars_gNumRaceCars) {
     j = Stats_GetPosition(carObj_00);
@@ -4785,7 +4786,7 @@ char * Hud_NextPlayerNameOrCarOrTime(int player)
     }
     {
       i = 0;
-      direction = direction ^ GameSetup_gData.reverseTrack;
+      direction = direction ^ HUD_GS_REVERSE_TRACK;
       j = carObj_00->sortIndex;
       if (0 < Cars_gNumCars + -1) {
         do {
@@ -4803,7 +4804,7 @@ char * Hud_NextPlayerNameOrCarOrTime(int player)
           }
           carObj = Cars_gSortedList[j];
           if ((carObj->carFlags & 0xc) != 0) {
-            if (GameSetup_gData.carInfo[player].HudOpponentID == 2) {
+            if (HUD_GS_CAR_OPPONENT_ID(player) == 2) {
               return (char *)carObj + 0x249;
             }
             return carObj->carInfo->driver;
@@ -4841,8 +4842,8 @@ void Hud_RenderMapView(void)
 
   j = 0;
   while (true) {
-    if (DashHUD_gInfo.splitscreen < j) break;
-    if (((GameSetup_gData.carInfo[j].HudMap != 0) && (DashHUD_gInfo.showhud[j] != 0)) &&
+    if (HUD_DASH_SPLITSCREEN < j) break;
+    if (((HUD_GS_CAR_HUD_MAP(j) != 0) && (HUD_DASH_SHOWHUD[j] != 0)) &&
        (Hud_gWingmanInterface[j] == '\0')) {
       POLY_FT4 *HudFT4;
 
@@ -4851,7 +4852,7 @@ void Hud_RenderMapView(void)
         HudFT4 = HudFT4 + 5;
       }
       Draw_StartRenderingView(Hud_gMapView[j]);
-      if (GameSetup_gData.carInfo[j].HudMap == 1) {
+      if (HUD_GS_CAR_HUD_MAP(j) == 1) {
         u_char *pal; /* SYM-CODEGEN-CARRIER: pal -- per-block palette-link base prevents scratch-base LICM and preserves mask birth order */
 
         Hud_BuildMapMarkers(j);
@@ -5169,7 +5170,7 @@ void Hud_Render321Go(void)
   u_long y;
   u_long x;
   
-  gCView.id = Hud_gStatsView;
+  HUD_CVIEW_ID = Hud_gStatsView;
   Draw_StartRenderingView(Hud_gStatsView);
   y = (int)g1Player[0x11].y;
   x = 160;
@@ -5398,13 +5399,13 @@ void Hud_RenderHudView(void)
   viewOff = 0;
   tpageOff = 0;
   while (true) {
-    if (DashHUD_gInfo.splitscreen < j) break;
+    if (HUD_DASH_SPLITSCREEN < j) break;
     splitY = 0;
     if (j != 0) splitY = -0xf;
     Draw_StartRenderingView(*(int *)((int)Hud_gHudView + viewOff));
     Hud_DebugInfo();
     Hud_DebugCrap();
-    if ((GameSetup_gData.raceType == RaceType_HotPursuit) && (*(int *)((int)PerpOverlayOn + viewOff) != 0)) {
+    if ((HUD_GS_RACE_TYPE == RaceType_HotPursuit) && (*(int *)((int)PerpOverlayOn + viewOff) != 0)) {
       int flare_intensity;
       u_long x;
       u_long y;
@@ -5431,19 +5432,19 @@ void Hud_RenderHudView(void)
       Font_TextXY(TextSys_Word(*(int *)((int)PerpOverlayMessage + viewOff) + 0x41),
                   0xa0 - ww2p1, y);
       color = 0x800000;
-      if ((simGlobal.gameTicks >> 4 & 1) != 0) color = 0x80;
+      if ((HUD_GAME_TICKS >> 4 & 1) != 0) color = 0x80;
       flare_type = 10;
-      if ((simGlobal.gameTicks >> 4 & 1) != 0) flare_type = 8;
+      if ((HUD_GAME_TICKS >> 4 & 1) != 0) flare_type = 8;
       x = 0xa0 - ww2;
-      flare_intensity = 4000 - (simGlobal.gameTicks % 0xf) * 0xfa;
+      flare_intensity = 4000 - (HUD_GAME_TICKS % 0xf) * 0xfa;
       Flare_2DHalo(x - 0x23, y + 8, flare_intensity, flare_intensity, flare_type);
       Flare_2DHalo(x - 0x2d, y + 8, flare_intensity, flare_intensity, flare_type);
       Hud_FBuildGT4(&HudPmx_gShapes[0x3d], x - 0x26, y + 5, color);
       Hud_FBuildGT4(&HudPmx_gShapes[0x3d], x - 0x30, y + 5, color);
       color = 0x800000;
-      if ((simGlobal.gameTicks >> 4 & 1) == 0) color = 0x80;
+      if ((HUD_GAME_TICKS >> 4 & 1) == 0) color = 0x80;
       flare_type = 10;
-      if ((simGlobal.gameTicks >> 4 & 1) == 0) flare_type = 8;
+      if ((HUD_GAME_TICKS >> 4 & 1) == 0) flare_type = 8;
       Flare_2DHalo(ww2 + 0xc0, y + 8, flare_intensity, flare_intensity, flare_type);
       Flare_2DHalo(ww2 + 0xca, y + 8, flare_intensity, flare_intensity, flare_type);
       Hud_FBuildGT4(&HudPmx_gShapes[0x3d], ww2 + 0xbd, y + 5, color);
@@ -5454,7 +5455,7 @@ void Hud_RenderHudView(void)
       Hud_FBuildF4(0, ww2 + 0xba, y + 3, 0x16, 0xb, 0, '\0', '\0');
       Hud_FBuildF4(1, x - 0x1a, y, ww + 0x36, 0x11, 0x461414, '\0', '\0');
     }
-    if (j == DashHUD_gInfo.splitscreen) {
+    if (j == HUD_DASH_SPLITSCREEN) {
       if ((u_int)((BTC_Countdown >> 6) - 1U) < 0x1e) {
         BigBTCTime(BTC_Countdown >> 6);
       } else {
@@ -5480,7 +5481,7 @@ void Hud_RenderHudView(void)
          * `&&` spelling of the override guard all measure the same 4 @606. */
         int cdshow = 0; /* SYM-CODEGEN-CARRIER: cdshow -- explicit default/override plus fence is the measured PASS 606 branch shape */
 
-        if (0x23f < simGlobal.gameTicks) {
+        if (0x23f < HUD_GAME_TICKS) {
           cdshow = 1;
           if (((u_char)countdown < 4) && (Hud_BeTheCop == 0)) {
             __asm__ ("" : : "i"(0));
@@ -5490,7 +5491,7 @@ void Hud_RenderHudView(void)
         Hud_BuildCdPlayer(cdshow, j);
       }
     }
-    if (((dashhud_info *)((int)&DashHUD_gInfo + viewOff))->showhud[0] != 0) {
+    if (((Hud_DashCodegenView *)((int)&Hud_Dash + viewOff))->showhud[0] != 0) {
       SPRT *gSprt1;
       int nextplayer;
 
@@ -5525,14 +5526,14 @@ void Hud_RenderHudView(void)
         pw = *(u_int *)pal;
         *(u_int *)pal = pw & 0xff000000 | ((int)gTPage0 + tpageOff) & otmask;
         __asm__("" : : "r"(pw), "r"(pw));
-        if (GameSetup_gData.carInfo[j].HudTach != 0) {
+        if (HUD_GS_CAR_HUD_TACH(j) != 0) {
           gSprt1[1].tag = (u_long *)((u_int)gSprt1[1].tag & 0xff000000 | *(u_int *)pal & otmask);
           *(u_int *)pal = *(u_int *)pal & 0xff000000 | (u_int)(gSprt1 + 1) & otmask;
         }
       }
-      if (GameSetup_gData.carInfo[j].HudMap != 0) {
-        if (((GameSetup_gData.carInfo[j].HudOpponentID != 0) && (Hud_BeTheCop == 0)) &&
-            (GameSetup_gData.commMode != 1)) {
+      if (HUD_GS_CAR_HUD_MAP(j) != 0) {
+        if (((HUD_GS_CAR_OPPONENT_ID(j) != 0) && (Hud_BeTheCop == 0)) &&
+            (HUD_GS_COMM_MODE != 1)) {
           nextplayer = Hud_NextPlayer(j);
           if (-1 < nextplayer) {
             if ((nextplayer < 9) && (Hud_BeTheCop == 0)) {
@@ -5585,7 +5586,7 @@ void Hud_RenderHudView(void)
         }
       }
     }
-    if (((j == 0) && (1 < Replay_ReplayMode)) && (Replay_ReplayInterface.statsScreen == 0)) {
+    if (((j == 0) && (1 < Replay_ReplayMode)) && (HUD_REPLAY_STATS_SCREEN == 0)) {
       Hud_BuildReplay();
     }
     {
@@ -5598,7 +5599,7 @@ void Hud_RenderHudView(void)
       *(u_int *)pal = *(u_int *)pal & 0xff000000 |
           ((int)gTPage1 + tpageOff) & otmask;
     }
-    if (((((dashhud_info *)((int)&DashHUD_gInfo + viewOff))->showhud[0] != 0) &&
+    if (((((Hud_DashCodegenView *)((int)&Hud_Dash + viewOff))->showhud[0] != 0) &&
          (Hud_gWingmanInterface[j] != '\0')) && (Replay_ReplayMode < 2)) {
       Hud_BuildWingmanInterface(j);
     }
@@ -5921,8 +5922,8 @@ void Hud_RenderTacView(void)
        * shared `j * 4` for both Hud_gTacView[] fetches -- no source `j4` local is
        * required. This reproduces the oracle's single `sll $v1,$s1,2; addu` per
        * iteration. */
-      if ((GameSetup_gData.carInfo[j].HudTach != 0) &&
-          (dh = (int *)&DashHUD_gInfo, dh[j + 7] != 0)) {
+      if ((HUD_GS_CAR_HUD_TACH(j) != 0) &&
+          (dh = Hud_DashWords, dh[j + 7] != 0)) {
 
         Draw_StartRenderingView(*(int *)(j * 4 + (int)Hud_gTacView));
         DashHUD_HUDCalc(j);
@@ -5981,8 +5982,8 @@ void Hud_ParseTime(int nTime,char *sLapTime)
   }
   if (showtime != 0) {
     sprintf(sLapTime,"%01d%c%02d%c%02d",min,
-               (u_int)(u_char)HudminChar[GameSetup_gData.userSetting.language],sec,
-               (u_int)(u_char)HudsecChar[GameSetup_gData.userSetting.language],
+               (u_int)(u_char)HudminChar[HUD_GS_LANGUAGE],sec,
+               (u_int)(u_char)HudsecChar[HUD_GS_LANGUAGE],
                nTime * 0x10000 >> 0x10);
   }
   else {
@@ -6023,12 +6024,12 @@ void Hud_Render(void)
   int remain; /* SYM-CODEGEN-CARRIER: remain -- branch-only clamp is FAIL 16 (284/282) */
   int i;
 
-  if (Replay_ReplayInterface.statsScreen != 0) {
-    if (simGlobal.gameTicks < 0x240) {
-      DashHUD_gInfo.showhud[0] = 0;
-      DashHUD_gInfo.showhud[1] = 0;
+  if (HUD_REPLAY_STATS_SCREEN != 0) {
+    if (HUD_GAME_TICKS < 0x240) {
+      HUD_DASH_SHOWHUD[0] = 0;
+      HUD_DASH_SHOWHUD[1] = 0;
     }
-    gCView.id = Hud_gStatsView;
+    HUD_CVIEW_ID = Hud_gStatsView;
     Draw_StartRenderingView(Hud_gStatsView);
     Hud_DebugCrap();
     Hud_RenderStatsView();
@@ -6040,7 +6041,7 @@ void Hud_Render(void)
      * cross-jumps them into the single shared `j; addiu a0,0x32` block the oracle
      * reaches from the splitscreen==0 branch AND from the car[1] fall-through.
      * The old `goto` into the else arm emitted an extra un-filled `j; nop`. */
-    if (DashHUD_gInfo.splitscreen != 0) {
+    if (HUD_DASH_SPLITSCREEN != 0) {
       if ((Cars_gRaceCarList[0]->carFlags & 0x200U) == 0) goto HudRender_amt250;
       if ((Cars_gRaceCarList[1]->carFlags & 0x200U) == 0) {
         countamount = 0xfa;
@@ -6068,13 +6069,13 @@ HudRender_amtDone:
     BTC_BonusTime = remain;
   }
   if ((Hud_BeTheCop != 0) && (BTC_UserHasControl == 0)) {
-    for (i = 0; i <= DashHUD_gInfo.splitscreen; i = i + 1) {
+    for (i = 0; i <= HUD_DASH_SPLITSCREEN; i = i + 1) {
         Draw_StartRenderingView(Hud_gHudView[i]);
         Hud_GoTpage(1);
-        if (((i == 0) && (1 < Replay_ReplayMode)) && (Replay_ReplayInterface.statsScreen == 0)) {
+        if (((i == 0) && (1 < Replay_ReplayMode)) && (HUD_REPLAY_STATS_SCREEN == 0)) {
           Hud_BuildReplay();
         }
-        if (i == DashHUD_gInfo.splitscreen) {
+        if (i == HUD_DASH_SPLITSCREEN) {
           /* RESIDUAL 4 (only diff in this fn): gcc-2.8 store-flags this guard into
            * ONE `sltu a0,zero,countdown`; retail branches twice (`beqz [ds li a0,1]`
            * / `bnez [ds nop]` / `addu a0,zero,zero`).  FALSIFIED spellings: nested
@@ -6085,7 +6086,7 @@ HudRender_amtDone:
            * adjacent to the jump -- find a zero-cost shape where the 0-arm is a
            * reg-reg copy instead (e.g. the 0 already live in another local). */
           countamount = 1;
-          if (simGlobal.gameTicks < 0x240) {
+          if (HUD_GAME_TICKS < 0x240) {
             if (countdown == '\0') {
               countamount = 0;
               /* MATCH (w45-a7) -- STORE-FLAG BREAKER, the lever that sealed this fn.
@@ -6106,7 +6107,7 @@ HudRender_amtDone:
           }
           Hud_BuildCdPlayer(countamount,i);
         }
-        if (DashHUD_gInfo.showhud[i] != 0) {
+        if (HUD_DASH_SHOWHUD[i] != 0) {
           Hud_DebugInfo();
           Hud_BuildNumbers0(i);
         }
@@ -6117,7 +6118,7 @@ HudRender_amtDone:
   else {
     if ((HudBustedOverlay != 0) && (Replay_ReplayMode < 2)) {
       player = HudBustedOverlayPlayer;
-      gCView.id = Hud_gStatsView;
+      HUD_CVIEW_ID = Hud_gStatsView;
       Draw_StartRenderingView(Hud_gStatsView);
       StatsTimer[player] = StatsTimer[player] + 1;
       Hud_BTCStats(player,false);
@@ -6153,7 +6154,7 @@ HudRender_next:
       i = i + 1;
     }
     Hud_gShowedCDPlayer = 0;
-    if (((simGlobal.gameTicks < 0x240) && (countdown != '\0')) && (Hud_BeTheCop == 0)) {
+    if (((HUD_GAME_TICKS < 0x240) && (countdown != '\0')) && (Hud_BeTheCop == 0)) {
       Hud_Render321Go();
     }
     Hud_RenderHudView();
@@ -6166,14 +6167,14 @@ HudRender_next:
 /* ---- Hud_PositionMap__Fv  [HUD.CPP:3980-3993] SLD-VERIFIED ---- */
 void Hud_PositionMap(void)
 {
-  gMapScaleX = (int)(fMapScaleX[GameSetup_gData.track] * 65536.0f);
-  gMapScaleY = (int)(fMapScaleY[GameSetup_gData.track] * 65536.0f);
-  gMapOffX = fMapOffX[GameSetup_gData.track];
-  if (GameSetup_gData.mirrorTrack != 0) {
+  gMapScaleX = (int)(fMapScaleX[HUD_GS_TRACK] * 65536.0f);
+  gMapScaleY = (int)(fMapScaleY[HUD_GS_TRACK] * 65536.0f);
+  gMapOffX = fMapOffX[HUD_GS_TRACK];
+  if (HUD_GS_MIRROR_TRACK != 0) {
     gMapOffX = gMapOffX - 2;
   }
-  gMapOffY   = fMapOffY[GameSetup_gData.track];
-  gMapRotate = fMapRotate[GameSetup_gData.track];
+  gMapOffY   = fMapOffY[HUD_GS_TRACK];
+  gMapRotate = fMapRotate[HUD_GS_TRACK];
   mapMarkerMCos = ccos(gMapRotate) << 4;
   mapMarkerMSin = csin(gMapRotate) << 4;
 }
@@ -6230,10 +6231,10 @@ void Hud_BustedOverlayOn(int time,char *name,bool caught,short player)
      * PASS-only SYM cleanup: the else loop now also spells every access directly through
      * `Hud_NextPerp[i]`; this removes `psVar3`/`iVar2` plus two dead decompiler locals while
      * preserving PASS 110/110, leaving exactly the sole SYM-named local `i`. */
-    sprintf(BTCPerpInfo[player][Hud_NextPerp[player]].name,name);
+    sprintf(HUD_BTC_NAME(player,Hud_NextPerp[player]),name);
     if (caught != 0) {
-      BTCPerpInfo[player][Hud_NextPerp[player]].caught = 1;
-      BTCPerpInfo[player][Hud_NextPerp[player]].time = time;
+      HUD_BTC_CAUGHT(player,Hud_NextPerp[player]) = 1;
+      HUD_BTC_TIME(player,Hud_NextPerp[player]) = time;
       Hud_NextPerp[player] = Hud_NextPerp[player] + 1;
     }
     else {
@@ -6246,10 +6247,10 @@ void Hud_BustedOverlayOn(int time,char *name,bool caught,short player)
          * keeps the index expression whole -- `addiu v0,v1,-1; sll v0,v0,4; addu s1; addu
          * s3; lw v0,12(v0)` -- which only the named-field/real-index spelling produces.
          * 37 -> 19 diffs. */
-        if ((Hud_NextPerp[i] == 0) || (BTCPerpInfo[i][Hud_NextPerp[i] - 1].caught != 0)) {
-          BTCPerpInfo[i][Hud_NextPerp[i]].caught = 0;
-          BTCPerpInfo[i][Hud_NextPerp[i]].time = 0;
-          sprintf(BTCPerpInfo[i][Hud_NextPerp[i]].name,BTC_CurrentPerpName);
+        if ((Hud_NextPerp[i] == 0) || (HUD_BTC_CAUGHT(i,Hud_NextPerp[i] - 1) != 0)) {
+          HUD_BTC_CAUGHT(i,Hud_NextPerp[i]) = 0;
+          HUD_BTC_TIME(i,Hud_NextPerp[i]) = 0;
+          sprintf(HUD_BTC_NAME(i,Hud_NextPerp[i]),BTC_CurrentPerpName);
           Hud_NextPerp[i] = Hud_NextPerp[i] + 1;
         }
         i = i + 1;
@@ -6303,9 +6304,9 @@ void Hud_BTC_QuitOut(void)
   if (HudBustedOverlay == 0) {
     i = 0;
     do {
-      sprintf(BTCPerpInfo[i][Hud_NextPerp[i]].name,BTC_CurrentPerpName);
-      BTCPerpInfo[i][Hud_NextPerp[i]].caught = 0;
-      BTCPerpInfo[i][Hud_NextPerp[i]].time = 0;
+      sprintf(HUD_BTC_NAME(i,Hud_NextPerp[i]),BTC_CurrentPerpName);
+      HUD_BTC_CAUGHT(i,Hud_NextPerp[i]) = 0;
+      HUD_BTC_TIME(i,Hud_NextPerp[i]) = 0;
       Hud_NextPerp[i] = Hud_NextPerp[i] + 1;
       i = i + 1;
     } while (i < 2);

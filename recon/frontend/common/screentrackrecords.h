@@ -1,7 +1,7 @@
 /* frontend/common/screentrackrecords.h — reconstructed from frontend/common/screentrackrecords.cpp, frontend/common/screentrackrecords.h (7 fns) */
 #ifndef _FRONTEND_COMMON_SCREENTRACKRECORDS_H_
 #define _FRONTEND_COMMON_SCREENTRACKRECORDS_H_
-#include "../../nfs4_types.h"
+#include "screentrackrecords_types.h"
 
 void GetShapeInfo__19tScreenTrackRecordsRsT1PPcT3(tScreenTrackRecords *self, short *numPermShapes, short *numSwapShapes, char **permFileName, char **swapFileName);   /* :67 */
 void Initialize__19tScreenTrackRecords(tScreenTrackRecords *self);   /* :78 */

@@ -11,10 +11,13 @@
 #undef NFS4_SCREENDISPLAY_SCREENMEMCARD_METHODS
 #undef NFS4_SCREENDISPLAY_NO_OWNER_RECORDS
 
-/* ScreenMemcard retains the input-key enum without the foreign player enum. */
+/* ScreenMemcard retains the input-key enum without the foreign player enum.
+ * ScreenTrackRecords.obj retains neither input enum. */
+#ifndef NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE
 #define NFS4_FE_INPUT_NO_PLAYER
 #include "fe_input_enums.h"
 #undef NFS4_FE_INPUT_NO_PLAYER
+#endif
 
 #define MIN(a,b) (((a) > (b)) ? (b) : (a))
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
@@ -43,7 +46,8 @@ struct POLY_FT4 {
 };
 #endif
 
-#ifndef NFS4_SCREENMEMCARD_FEAPP_SURFACE
+#if !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE) && \
+    !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE)
 typedef enum PRODUCTLOC {
     N_AMERICA = 0,
     JAPAN = 1,
@@ -80,7 +84,8 @@ struct DIRENTRY {
 
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_TOURNSELECT_SURFACE) && \
-    !defined(NFS4_SCREENMEMCARD_CONTROLLER_SURFACE)
+    !defined(NFS4_SCREENMEMCARD_CONTROLLER_SURFACE) && \
+    !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE)
 struct AudioMus_tSongEntry {
     char *filename, *title, *artist, *label, *date, *notes;
     int length, index;
@@ -90,7 +95,8 @@ struct AudioMus_tSongEntry {
 
 #if !defined(NFS4_SCREENMEMCARD_TOURNSELECT_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_CONTROLLER_SURFACE) && \
-    !defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE)
+    !defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE) && \
+    !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE)
 struct tRecordBuffer {
     char sName[8];
     int nCar, nTime, nBestLap;
@@ -147,7 +153,8 @@ struct FE3d_zObj {
 };
 #endif
 
-#ifndef NFS4_SCREENMEMCARD_FEAPP_SURFACE
+#if !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE) && \
+    !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE)
 struct CARDINFO_def {
     int status, lasterror, numfiles, freeblocks;
     DIRENTRY dir[15];
@@ -204,7 +211,8 @@ struct tDrawShapeExtended {
 };
 #endif
 
-#ifndef NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE
+#if !defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE) && \
+    !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE)
 struct tDialogHelp : public tDialogBase {
     short variant;
     char *text[7];

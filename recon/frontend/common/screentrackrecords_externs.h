@@ -1,8 +1,13 @@
 /* frontend/screens/screentrackrec_externs.h - reconstructed externs. NOT original. */
 #ifndef _FE_SCREENS_SCREENTRACKREC_EXTERNS_H_
 #define _FE_SCREENS_SCREENTRACKREC_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "screentrackrecords_types.h"
+
+extern "C" {
+void *reservememadr(char *, int, int);
+int purgememadr(void *);
+int sprintf(char *, const char *, ...);
+}
 
 extern tfrontEnd   frontEnd;
 extern int  ticks[];
@@ -29,7 +34,10 @@ int  CalcFadeVal(int col1, int amount);   /* 2-arg overload */
 char * TextSys_Word(int wordnum);
 int TextSys_WordY(int wordnum);
 void DrawShapeExtended(int index, int flags, int x, int y, int fade, int abr, tDrawShapeExtended * extra);
-void FETextRender_FullText(char * sMenuText, short x, short y, tMenuTextType textType, tMenuTextState textState, short justify);
+void FETextRender_FullText(char *sMenuText, short x, short y,
+                           tMenuTextType textType,
+                           tMenuTextState textState, short justify)
+    asm("FETextRender_FullText__FPcss13tMenuTextType14tMenuTextStates");
 void Flare_2DHalo(int x, int y, int scalex, int scaley, int type);
 void DrawBackgroundImage(tScreen * thisobj, int startShape, int numShapes, tTexture_ShapeInfo * shapes, int flip_axis) asm("DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi");
 void StatChk_ClearNewRecords(void);

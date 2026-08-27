@@ -1,8 +1,7 @@
 /* frontend/screens/screentrackrec.cpp  --  RECONSTRUCTED  (track-records screen; C++ TU)
  *   7 member fns of tScreenTrackRecords : tScreen. Member-fn decls in nfs4_types.h. Bodies: Ghidra.
  */
-#define NFS4_DELAY_TRECORDBUFFER_DEFINITION 1
-#include "../../nfs4_types.h"
+#include "screentrackrecords_types.h"
 #include "screentrackrecords_externs.h"
 
 /* ---- tScreenTrackRecords::GetShapeInfo  (screentrackrec.cpp:67) ---- */

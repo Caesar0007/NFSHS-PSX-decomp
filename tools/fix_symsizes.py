@@ -33,12 +33,15 @@ boundary would truncate the enclosing function's size). (c) a repair pass
 resets any `.L*` exec-section symbol that a previous run already promoted back
 to STT_NOTYPE/size 0, so stale objects heal in place without a full rebuild.
 """
-import struct, sys
+import re, struct, sys
 
 
 def _is_local_label(name):
     """GNU as local-label prefix. Never a function start."""
-    return name.startswith('.L')
+    # GCC 2.7.x's normal debug/maspsx lane also emits bare `LM<n>` line
+    # markers (for example LM1 inside FOG_01::SetFogNear).  They are local
+    # compiler markers even though the old assembler spelling lacks `.L`.
+    return name.startswith('.L') or re.fullmatch(r'LM\d+', name) is not None
 
 
 def fix(path):

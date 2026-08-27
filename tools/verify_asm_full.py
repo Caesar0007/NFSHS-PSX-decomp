@@ -116,6 +116,8 @@ def ours(fn):
     for ln in dis.splitlines():
         m=re.match(r'^[0-9a-f]{8} <(.+)>:',ln)
         if m:
+            if inb and re.fullmatch(r'LM\d+', m.group(1)):
+                continue                 # GCC 2.7.x debug marker, not a fn boundary
             if inb: break
             inb=(m.group(1)==fn); continue
         if inb: lines.append(ln)

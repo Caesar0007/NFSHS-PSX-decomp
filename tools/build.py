@@ -595,6 +595,12 @@ PER_TU_FLAGS = {
     # swapped epilogue residual.  Whole-object identity; no source seal.
     "recon/syslib/psx/libgte/COR_02.c":     {"cc1_272": True},
     "recon/syslib/psx/libgte/COR_03.c":     {"cc1_272": True},
+    # PsyQ 4.3 FOG_01 vendor identity: the normal maspsx pipeline with the
+    # authentic 2.7.2 cc1 emits SetFogNear's complete 25-word body exactly,
+    # including its addiu-sp / jr / nop epilogue.  The bare LM1 debug marker
+    # inside that body is an interior line label, handled by the gates just
+    # like a `.L*` label; it is not a function boundary.
+    "recon/syslib/psx/libgte/FOG_01.c":     {"cc1_ver": "2.7.2"},
     "recon/syslib/psx/libmath/FLTSISF.c":   {"cc1_272": True},  # 38->32
     "recon/syslib/psx/libmath/FIXSFSI.c":   {"cc1_272": True},  # 12->8
     "recon/syslib/psx/libmath/FIXDFSI.c":   {"cc1_272": True},  # 80->67

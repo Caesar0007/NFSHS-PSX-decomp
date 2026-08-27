@@ -63,6 +63,10 @@ def _resolve(fn):
     a = _name2addr.get(fn)
     return _addr2label.get(a, fn) if a else fn
 
+def _compiler_debug_label(name):
+    """Old GCC/ASPSX line marker embedded inside the current function."""
+    return re.fullmatch(r'LM\d+', name) is not None
+
 _COP0 = {'sr':'12','status':'12','cause':'13','epc':'14','badvaddr':'8','prid':'15','index':'0',
          'random':'1','entrylo':'2','context':'4','config':'16','bpc':'3','bda':'5','dcic':'7','bdam':'9','bpcm':'11'}
 
@@ -158,7 +162,8 @@ def ours(fn):
     for ln in dis.splitlines():
         m=re.match(r'^[0-9a-f]{8} <(.+)>:',ln)
         if m:
-            if inb and m.group(1) in interior: continue   # oracle alabel: same block
+            if inb and (m.group(1) in interior or _compiler_debug_label(m.group(1))):
+                continue                                  # same function body
             if inb: break
             inb=(m.group(1)==fn); continue
         if inb: lines.append(ln)

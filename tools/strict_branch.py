@@ -233,7 +233,8 @@ class Obj(object):
         for ln in self.dis.splitlines():
             m = re.match(r'^[0-9a-f]{8} <(.+)>:', ln)
             if m:
-                if inb and m.group(1) in interior:
+                if inb and (m.group(1) in interior or
+                            re.fullmatch(r'LM\d+', m.group(1))):
                     continue                      # oracle alabel: same block
                 if inb:
                     break

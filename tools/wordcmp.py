@@ -12,6 +12,8 @@ lines = out.splitlines()
 for i, L in enumerate(lines):
     m = re.match(r'[0-9a-f]+ <(\S+)>:', L)
     if m:
+        if cur == fn and re.fullmatch(r'LM\d+', m.group(1)):
+            continue                    # GCC 2.7.x interior debug marker
         cur = m.group(1)
         continue
     m = re.match(r'\s+([0-9a-f]+):\s+([0-9a-f]{8})\s', L)
@@ -21,6 +23,8 @@ for i, L in enumerate(lines):
 
 ora = []
 for L in open(ora_path):
+    if L.strip().startswith('endlabel'):
+        break
     m = re.search(r'/\* \w+ \w+ ([0-9A-F]{8}) \*/', L)
     if m:
         w = m.group(1)

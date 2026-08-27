@@ -467,12 +467,15 @@ def filter_exact_symbol_codegen_carriers(
         # seen tRecordBuffer tag body elsewhere.  CC1PL needs this exact body to
         # form the array typedef; suppress only the complete local tag/typedef
         # pair and keep the public tSaveRecords row visible to the comparison.
+        # Fecntl.obj retains the same public tSaveRecords typedef while the
+        # linked SYM attributes its element body elsewhere.  Both owner headers
+        # therefore require the identical pair-locked compiler carrier.
         "tRecordBuffer": (20, (
             ("MOS", "ARY CHAR", 8, "sName", 0, (8,), ""),
             ("MOS", "INT", 0, "nCar", 8, (), ""),
             ("MOS", "INT", 0, "nTime", 12, (), ""),
             ("MOS", "INT", 0, "nBestLap", 16, (), ""),
-        ), "fetourn_types.h"),
+        ), ("fetourn_types.h", "fecntl_types.h")),
     }
     draww_views = {
         "DrawW_SliceCodegenView": (32, (

@@ -482,7 +482,7 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
             bDoRecordCheck = true;
           }
         }
-        else if (nRankCarTotalTimes[nCar] == GameSetup_gData.localCar) {
+        else if (nRankCarTotalTimes[nCar] == GameSetup_LocalCar) {
           if (((dummyCars[nRankCarTotalTimes[nCar]].carFlags & 4U) != 0) &&
               (dummyCars[nRankCarTotalTimes[nCar]].finalFinishType == 2))
           {

@@ -1,8 +1,7 @@
 /* frontend/common/fetextrender_externs.h - reconstructed externs. NOT original. */
 #ifndef _FE_SCREENS_FETEXTRENDER_EXTERNS_H_
 #define _FE_SCREENS_FETEXTRENDER_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "fetextrender_types.h"
 extern short  currentSize;
 extern char  *font12[], *font18[], *fontTitle[];   /* unsized array (§3.15): separate-$v0 scratch */
 extern tFEApplication *FEApp;
@@ -24,4 +23,10 @@ extern "C" int textpixels(char *s);  char *TextSys_Word(int id);  int TextSys_Wo
 void  s_lower(char *s);
 void  PSXDrawTransSquare(int color, int x, int y, int w, int h, short abe);
 void  FeDraw_SetABRMode(int abr);
+extern "C" {
+void blockmove(...);
+int sprintf(...);
+char *strcpy(...);
+unsigned int strlen(...);
+}
 #endif

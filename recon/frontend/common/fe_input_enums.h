@@ -2,7 +2,9 @@
 #ifndef NFS4_FRONTEND_COMMON_FE_INPUT_ENUMS_H
 #define NFS4_FRONTEND_COMMON_FE_INPUT_ENUMS_H
 
+#ifndef NFS4_FE_INPUT_NO_PLAYER
 #include "fe_player_types.h"
+#endif
 
 typedef enum tInputKeyType {
     kInput_KeyType_NoKey = 0,

@@ -536,6 +536,44 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "ARY CHAR", 2, "b", 0, (2,), ""),
         ), "screenusername.cpp"),
     }
+    # ScreenMain dereferences FECredits' manager and three fields from
+    # FEMenuDefs' aggregate.  Neither completed foreign tag is retained by
+    # ScreenMain.obj, but their exact layouts are required for member-shaped
+    # retail instructions.  Suppress only the complete owner-local pairs;
+    # every member, offset, leaf tag, size, and origin remains priced.
+    # Pre-change backup: Git commit a4a33894.
+    screenmain_views = {
+        "tCreditManager": (56, (
+            ("MOS", "PTR STRUCT", 324, "CreditBuffer", 0, (), "tCredit"),
+            ("MOS", "INT", 0, "fTVFade", 4, (), ""),
+            ("MOS", "INT", 0, "fTextFade", 8, (), ""),
+            ("MOS", "INT", 0, "fTextFadeDir", 12, (), ""),
+            ("MOS", "BOOL", 0, "fCreditsInitialized", 16, (), ""),
+            ("MOS", "BOOL", 0, "fRequestDeInit", 20, (), ""),
+            ("MOS", "INT", 0, "fNumCredits", 24, (), ""),
+            ("MOS", "INT", 0, "fShowCreditNum", 28, (), ""),
+            ("MOS", "INT", 0, "fCurrCredit", 32, (), ""),
+            ("MOS", "BOOL", 0, "StartedTransition", 36, (), ""),
+            ("MOS", "BOOL", 0, "StartedLines", 40, (), ""),
+            ("MOS", "BOOL", 0, "StartedTextFade", 44, (), ""),
+            ("MOS", "INT", 0, "fLineTicks", 48, (), ""),
+            ("MOS", "INT", 0, "fStartTicks", 52, (), ""),
+        ), "screenmain_types.h"),
+        "ScreenMain_GlobalMenuDefsCodegenView": (14956, (
+            ("MOS", "ARY CHAR", 2292, "_beforeItemTwoPlayerPinkSlips", 0,
+             (2292,), ""),
+            ("MOS", "STRUCT", 44, "itemTwoPlayerPinkSlips", 2292, (),
+             "tMenuItemGoToMenuNFS4Button"),
+            ("MOS", "ARY CHAR", 256, "_beforeMenuPinkSlipSelect", 2336,
+             (256,), ""),
+            ("MOS", "STRUCT", 124, "menuPinkSlipSelect", 2592, (),
+             "tMenuNFS4"),
+            ("MOS", "ARY CHAR", 12116, "_beforeMenuCredits", 2716,
+             (12116,), ""),
+            ("MOS", "STRUCT", 124, "menuCredits", 14832, (),
+             "tMenuBlank"),
+        ), "screenmain_types.h"),
+    }
     # FECredits dereferences the foreign ScreenMain singleton, so CC1PL must
     # see its complete field layout even though the linked SYM attributes that
     # completed tag to ScreenMain.obj.  Suppression below is pair-locked to the
@@ -909,6 +947,31 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith(expected[2])
         )
 
+    def exact_screenmain_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = screenmain_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith(expected[2])
+        )
+
+    def exact_screenmain_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = screenmain_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            # Macro aliases can repeat the view typedef at the consumer's
+            # local declarations; the completed tags stay header-owned.
+            and owner.endswith((expected[2], "screenmain.cpp"))
+        )
+
     def exact_femenu_ptag(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         return (
@@ -996,6 +1059,13 @@ def filter_exact_symbol_codegen_carriers(
         and any(exact_screenusername_view_typedef(item) and item.name == name
                 for item in typedefs)
     }
+    screenmain_eligible = {
+        name for name in screenmain_views
+        if any(exact_screenmain_view(block) and block.name == name
+               for block in type_blocks)
+        and any(exact_screenmain_view_typedef(item) and item.name == name
+                for item in typedefs)
+    }
     femenu_ptag_eligible = any(
         exact_femenu_ptag(block)
         and exact_femenu_ptag_typedef(item)
@@ -1021,6 +1091,8 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_screendisplay_view(block))
             and not (block.name in screenusername_eligible
                      and exact_screenusername_view(block))
+            and not (block.name in screenmain_eligible
+                     and exact_screenmain_view(block))
             and not (femenu_ptag_eligible and exact_femenu_ptag(block))
         ],
         [
@@ -1039,6 +1111,8 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_screendisplay_view_typedef(item))
             and not (item.name in screenusername_eligible
                      and exact_screenusername_view_typedef(item))
+            and not (item.name in screenmain_eligible
+                     and exact_screenmain_view_typedef(item))
             and not (femenu_ptag_eligible and exact_femenu_ptag_typedef(item))
         ],
     )

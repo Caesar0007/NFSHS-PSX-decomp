@@ -1,8 +1,16 @@
 /* frontend/screens/screenmain_externs.h - reconstructed externs. NOT original. */
 #ifndef _FE_SCREENS_SCREENMAIN_EXTERNS_H_
 #define _FE_SCREENS_SCREENMAIN_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "screenmain_types.h"
+
+extern "C" int rand(void);
+extern "C" int sprintf(char *, const char *, ...);
+extern "C" unsigned short GetClut(int, int);
+extern "C" int GetTPage(...);
+extern "C" int ClearImage(...);
+extern "C" long DrawSync(...);
+extern "C" int gettick(void);
+extern "C" int purgememadr(...);
 
 /* ===== globals ===== */
 extern tfrontEnd          frontEnd;

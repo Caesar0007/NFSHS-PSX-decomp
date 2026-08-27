@@ -47,7 +47,9 @@ struct tScreen {
     short fScreenFadeVal;
     __vtbl_ptr_type (*_vf)[10];
 
+    void PreLoad();
     void Initialize();
+    void Cleanup();
 };
 
 struct tActiveLine {

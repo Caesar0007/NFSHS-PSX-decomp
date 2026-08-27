@@ -1,7 +1,7 @@
 /* frontend/common/stattool.h - reconstructed declarations for STATTOOL.CPP (C++ TU) */
 #ifndef _FE_COMMON_STATTOOL_H_
 #define _FE_COMMON_STATTOOL_H_
-#include "../../nfs4_types.h"
+#include "stattool_types.h"
 #include "stattool_externs.h"
 
 /* STATTOOL.CPP is C++ (cfront-mangled) -> normal C++ linkage. */

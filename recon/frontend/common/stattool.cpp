@@ -278,8 +278,8 @@ short Stattool_CheckForHumanCar(Car_tStats *dummyCars)
   short bHumanFlag;
   
   bHumanFlag = 0;
-  nNumCars = (short)GameSetup_gData.numPlayerRaceCars +
-             (short)GameSetup_gData.numOpponentRaceCars;
+  nNumCars = (short)GameSetup_NumPlayerRaceCars +
+             (short)GameSetup_NumOpponentRaceCars;
   k = 0;
   do {
     if (k >= nNumCars) {

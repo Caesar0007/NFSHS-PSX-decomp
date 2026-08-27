@@ -67,7 +67,8 @@
  *            MemCardStart_cb (22 -> 0, count was already exact 33/33).
  *   MemCardReadFile_cb / MemCardWriteFile_cb 9 -> 3 each (both twins, same edit);
  *   MemCardReadData_cb 10 -> 4 (parm-spill pin, now at parity with its WriteData twin).
- *   The four *_cb dispatches are now ALL down to the single shared OPEN ANGLE below (3/4 diffs).
+ *   The four *_cb dispatches were then down to one shared 3/4-diff angle.  Superseded by the
+ *   w78 pure-C late-jump receipt below: all four now PASS.
  *
  *   🔴 SECOND TU-WIDE LEVER -- THE QTY-LAYER REF-STEP ON A BARE CONSTANT (see the full receipt
  *   at the `pc[1] = five;` block in Read/WriteFile_cb): when a small block's ONLY residual is an
@@ -961,22 +962,38 @@ static int MemCardReadData_cb(void *pv)
     state = st[0];
 
 
-    /* MATCH (w51-a2): real `switch` (balance_case_nodes: `beq $v1,$s0(=10)` pivot + `slti
-     * $v0,$v1,0xB` in the delay slot).  Case order 0, 10, 0x1e, and case 0 FALLS THROUGH into
-     * case 10 (the oracle's case-0 block ends `sw $s0,0($s1)` with no `j`, landing on the
-     * case-10 label).  61 -> 15 diffs, count 78/79. */
-    switch (state) {
-    case 0:
+    /* 🏆 PASS (w78, 79/79): hand-balanced form of the retail switch tree.  The staged
+     * `zero = state - state` deliberately keeps jump1 from inverting the high/low diamond.
+     * CSE erases the zero-net carrier; jump2 can then invert after `thirty` has received $v0,
+     * and reorg puts `li $v0,30` in the bound-test slot.  Case 0 still falls into state10. */
+    {
+        int thirty;
+        int zero;
+        if (state == 10) goto state10;
+        if (state < 11) goto lowstate;
+        zero = state;
+        zero = zero - state;
+        thirty = zero + 30;
+        if (zero == 0) goto highstate;
+        goto ret0;
+lowstate:
+        if (state == 0) goto state0;
+        goto ret0;
+highstate:
+        if (state == thirty) goto state30;
+        goto ret0;
+    }
+state0:
         _mc_rd_retry = 0;
         st[0] = 10;
         /* FALLTHROUGH */
-    case 10:
+state10:
         do { r = lseek(mc.fd, mc.ofs, 0); } while (r != mc.ofs);
         _clr_card_event();
         do { r = read(mc.fd, mc.adrs, mc.len); } while (r != 0);
         st[0] = 0x1e;
-        return 0;
-    case 0x1e:
+        goto ret0;
+state30:
         if (_chk_card_event() == 0) return 0;
         ev = _get_card_event();
         {
@@ -984,9 +1001,8 @@ static int MemCardReadData_cb(void *pv)
             int *pc;
             if (ev != 0) { _mc_rd_retry = _mc_rd_retry + 1; if (_mc_rd_retry < 4) { st[0] = 10; return 0; } MCRD_REPORT(ev); } MCRD_REPORT(0);
         }
-    default:
+ret0:
         return 0;
-    }
 }
 
 /* @0x800FB254 : MemCardWriteData -- async write from adrs. */
@@ -1035,40 +1051,31 @@ static int MemCardWriteData_cb(void *pv)
     int state = st[0];
 
 
-    /* MATCH (w51-a2): real `switch` -- but note the ASYMMETRY vs the ReadData twin, read off
-     * the oracle: here case 0 does NOT fall through (its block ends `j` to the shared return-0)
-     * and the SOURCE case order is 0, 0x1e, 10 (that is the order the bodies are emitted in).
-     * 87 -> 9 diffs, count 78/79.
-     * w55-a7 -- the 4-diff residual is TWO independent items, both now named:
-     *  (1) `beqz $v0` bound-test delay slot: retail holds `li $v0,0x1E` there (the NEXT case
-     *      compare's constant, hoisted out of `.L800FB348`), ours leaves `nop` and emits the `li`
-     *      as that block's first insn.  The w53 rule ("fires when the constant is the block's
-     *      FIRST insn AND unfenced") is FALSIFIED here: it IS first and there is no fence in that
-     *      block, and it still does not fire.  Mechanism note: gcc-2.7.2 `mostly_true_jump`
-     *      predicts a FORWARD conditional branch NOT-taken, so `fill_eager_delay_slots` never
-     *      considers the target thread; retail's fill must therefore come from cc1 having emitted
-     *      the `li` BEFORE the branch (a sched/`-dS` question), not from a reorg steal.
-     *  (2) `.L800FB3B8: addu $a0,$zero,$zero` falling into the shared `jal MemCardEventToRslt`:
-     *      that is a SECOND, cross-jump-merged call site on the ev==0 edge (cse's
-     *      record_jump_equiv substitutes the known 0 into that arm's arg).  A single shared call
-     *      under `if (ev != 0)` cannot produce it -- the ev==0 edge lands directly on the join, so
-     *      the arm has no block to hold its own arg setup.  FALSIFIED attempts (all 2.7.2 lane):
-     *        two calls, shared `r`/`pc` tail ................ 10 diffs, 81 insns (r becomes a phi
-     *                                                          -> `addu $v1,$v0,$zero` copy)
-     *        two calls, FULLY duplicated tail incl. fence ... 10 diffs, 85 insns (cross_jump will
-     *                                                          NOT merge across the `__asm__`)
-     *        `else { ev = 0; }` ............................  4 (copy deleted by copy-prop)
-     *        `else { ev = 0; identity-fence }` .............  4 (delete_noop_moves ties it)
-     *        separate `evarg` phi local ....................  10 (evarg homes in $v0)
-     *      NAMED ANGLE: the duplicated tail is right but the fence blocks the merge -- needs a
-     *      non-asm way to hold the &_mc_cmd anchor in a register (sized asm-label view?) so the
-     *      two tails become rtx-identical for post-reload cross_jump. */
-    switch (state) {
-    case 0:
+    /* 🏆 PASS (w78, 79/79): same delayed-jump pure-C receipt as ReadData.  Keep the body order
+     * state0, state30, state10: unlike ReadData, state0 returns through ret0 rather than falling
+     * into the transfer body.  The zero-net carrier is load-bearing despite emitting no code. */
+    {
+        int thirty;
+        int zero;
+        if (state == 10) goto state10;
+        if (state < 11) goto lowstate;
+        zero = state;
+        zero = zero - state;
+        thirty = zero + 30;
+        if (zero == 0) goto highstate;
+        goto ret0;
+lowstate:
+        if (state == 0) goto state0;
+        goto ret0;
+highstate:
+        if (state == thirty) goto state30;
+        goto ret0;
+    }
+state0:
         _mc_wr_retry = 0;
         st[0] = 10;
-        return 0;
-    case 0x1e:
+        goto ret0;
+state30:
         if (_chk_card_event() == 0) return 0;
         ev = _get_card_event();
         {   /* MATCH (w53-a7): the &_mc_cmd base is materialized AFTER the call, into a
@@ -1084,15 +1091,14 @@ static int MemCardWriteData_cb(void *pv)
             int *pc;
             if (ev != 0) { _mc_wr_retry = _mc_wr_retry + 1; if (_mc_wr_retry < 4) { st[0] = 10; return 0; } MCRD_REPORT(ev); } MCRD_REPORT(0);
         }
-    case 10:
+state10:
         do { r = lseek(mc.fd, mc.ofs, 0); } while (r != mc.ofs);
         _clr_card_event();
         do { r = write(mc.fd, mc.adrs, mc.len); } while (r != 0);
         st[0] = 0x1e;
+        goto ret0;
+ret0:
         return 0;
-    default:
-        return 0;
-    }
 }
 
 /* @0x800FB448 : MemCardReadFile -- async open+read of a named card file. */
@@ -1142,27 +1148,34 @@ static int MemCardReadFile_cb(void *pv)
     int *st = (int *)pv;
     int state = st[0];
 
-    /* MATCH (w51-a2): the state dispatch is a REAL `switch`, not an if/else-if cascade -- the
-     * oracle carries gcc's balance_case_nodes fingerprint (`beq $v1,$s0(=10)` median pivot with
-     * the `slti $v0,$v1,0xB` bound test in its DELAY SLOT, case bodies emitted out-of-line in
-     * SOURCE order, unconditional `j default`).  Two facts read straight off the block layout:
-     *   (1) case order in the source is 0, 10, 0xb, 0x14 (the oracle emits the bodies in that
-     *       order after the dispatch);
-     *   (2) case 10 FALLS THROUGH into case 0xb -- retail's shared "issue the data phase" tail
-     *       sits immediately after the case-10 body, before the case-0x14 body, which only a
-     *       fallthrough (not a `break` to code after the switch) reproduces.
-     * 46 -> 22 (switch) -> 12 diffs, count EXACT 66/66.  Same lever on the WriteFile/ReadData/
-     * WriteData twins: 46->12, 61->15, 87->9.  RESIDUAL 12: the `beqz` bound-test delay slot
-     * (oracle fills it with the next `li v0,11`, ours nops) and the case-10 arm's field stores,
-     * where the oracle anchors $s0 at &mc.rslt and reaches fd by displacement (`sw v0,12(s0)`)
-     * plus rslt via a rematerialized `addiu v1,s0,-4` &mc.cmd base. */
-    switch (state) {
-    case 0:
+    /* 🏆 PASS (w78, 66/66): hand-balanced retail switch tree plus the pure-C late-jump carrier.
+     * Keeping `eleven` target-local lets local_alloc give it $v0; the staged zero and its true
+     * test postpone branch inversion from jump1 to jump2, after allocation, so reorg emits the
+     * retail `beqz ...; li $v0,11`.  state10 still falls directly into state11. */
+    {
+        int eleven;
+        int zero;
+        if (state == 10) goto state10;
+        if (state < 11) goto lowstate;
+        zero = state;
+        zero = zero - state;
+        eleven = zero + 11;
+        if (zero == 0) goto highstate;
+        goto ret0;
+lowstate:
+        if (state == 0) goto state0;
+        goto ret0;
+highstate:
+        if (state == eleven) goto state11;
+    }
+    if (state == 20) goto state20;
+    goto ret0;
+state0:
         _mc_rf_retry = 0;
         UserFuncOpen((int)MemCardExist_cb);
         st[0] = 10;
         goto ret0;                                 /* SHARED `addu $v0,$zero,$zero` block */
-    case 10: {
+state10: {
         /* MATCH (w53-a7): retail anchors on &_mc_rslt ($s0) and reaches _mc_fd by displacement
          * (`sw $v0,0xC($s0)`) and the error code through a DERIVED &_mc_cmd base
          * (`addiu $v1,$s0,-4; sw $v0,0x4($v1)`); the natural field stores emit `$at` macros.
@@ -1212,18 +1225,16 @@ static int MemCardReadFile_cb(void *pv)
         }
         }
         /* FALLTHROUGH */
-    case 0xb:
+state11:
         st[0] = 0x14;
         UserFuncOpen((int)MemCardReadData_cb);
         goto ret0;
-    case 0x14:
+state20:
         close(mc.fd);
         mc.fd = -1;
         return 1;
-    default:
 ret0:
         return 0;
-    }
 }
 
 /* @0x800FB668 : MemCardWriteFile -- async open+write of a named card file. */
@@ -1265,15 +1276,31 @@ static int MemCardWriteFile_cb(void *pv)
     int *st = (int *)pv;
     int state = st[0];
 
-    /* MATCH (w51-a2): real `switch` + case-10-falls-into-case-0xb, same as the ReadFile twin
-     * (balance_case_nodes fingerprint in the oracle).  46 -> 12 diffs, count exact 66/66. */
-    switch (state) {
-    case 0:
+    /* 🏆 PASS (w78, 66/66): exact twin of ReadFile's pure-C jump1/CSE/jump2 receipt. */
+    {
+        int eleven;
+        int zero;
+        if (state == 10) goto state10;
+        if (state < 11) goto lowstate;
+        zero = state;
+        zero = zero - state;
+        eleven = zero + 11;
+        if (zero == 0) goto highstate;
+        goto ret0;
+lowstate:
+        if (state == 0) goto state0;
+        goto ret0;
+highstate:
+        if (state == eleven) goto state11;
+    }
+    if (state == 20) goto state20;
+    goto ret0;
+state0:
         _mc_wf_retry = 0;
         UserFuncOpen((int)MemCardExist_cb);
         st[0] = 10;
         goto ret0;                                 /* SHARED `addu $v0,$zero,$zero` block */
-    case 10: {
+state10: {
         /* MATCH (w53-a7): same &_mc_rslt anchor as the ReadFile twin -- _mc_fd by displacement
          * (`sw $v0,0xC($s0)`, UNCONDITIONAL: it is the `bgez` delay slot), _mc_devname as
          * `addiu $a0,$s0,28`, and the error code through a derived &_mc_cmd base. */
@@ -1321,18 +1348,16 @@ static int MemCardWriteFile_cb(void *pv)
         }
         }
         /* FALLTHROUGH */
-    case 0xb:
+state11:
         st[0] = 0x14;
         UserFuncOpen((int)MemCardWriteData_cb);
         goto ret0;
-    case 0x14:
+state20:
         close(mc.fd);
         mc.fd = -1;
         return 1;
-    default:
 ret0:
         return 0;
-    }
 }
 
 /* @0x800FB888 : MemCardGetDirentry -- synchronous directory listing (max files into dir[]). */

@@ -339,7 +339,10 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
         (u_char *)&light;
     u_char *wc /* SYM-CODEGEN-CARRIER: wc -- inline weather-table expressions are FAIL 48 (109/107) */;
     {
-      u_char *base;
+      u_char *base; /* SYM-CODEGEN-CARRIER: base -- W81 pure-C replacement
+                       for the forbidden post-cc1 move; the one-shot scope
+                       keeps the weather %hi/%lo pair adjacent and reduces the
+                       authoritative residual from 4/107 to 3 at 108/107. */
       do {
         base = (u_char *)Night_gWeatherColor;
       } while (0);

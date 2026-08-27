@@ -513,7 +513,10 @@ void Weather_Init(void)
 {
   matrixtdef *pmVar4; /* SYM-CODEGEN-CARRIER: pmVar4 -- second destination-base evaluation supplies retail's required register copy */
   matrixtdef *pmVar5; /* SYM-CODEGEN-CARRIER: pmVar5 -- first aggregate-copy base preserves the measured movstrsi scratch pool */
-  u_int *cameraWords;
+  u_int *cameraWords; /* SYM-CODEGEN-CARRIER: cameraWords -- one shared
+                         Camera_gInfo cursor is required for the two aggregate
+                         reads; independent address expressions measured 81
+                         diffs, while this spelling keeps Weather_Init PASS211. */
   int i;
   SVECTOR *sv;
   
@@ -1520,7 +1523,9 @@ void Weather_DoWeather(DRender_tView *Vi)
   DR_MODE *prim;
   int *plb; /* SYM-CODEGEN-CARRIER: plb -- laundered prevLookBehind slot */
   u_int *pal; /* SYM-CODEGEN-CARRIER: pal -- palette cursor CSE value */
-  char **wdp; /* SYM-CODEGEN-CARRIER: deferred DrawnServer slot */
+  char **wdp; /* SYM-CODEGEN-CARRIER: wdp -- retaining the DrawnServer slot
+                 through the commMode read restores retail's local-alloc
+                 handout and keeps Weather_DoWeather PASS197. */
 
   /* NEAR-MISS 36 (count EXACT 197/197) -- CLASSIFIED (W55-A16).  allocsim replicates
      this function's GLOBAL handout 25/25 EXACTLY, so none of the residual is a global

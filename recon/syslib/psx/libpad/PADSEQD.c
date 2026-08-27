@@ -177,11 +177,18 @@ extern void _padInitDirSeq(void)
 extern int _dirSendAuto(unsigned char *info)
 {
     unsigned char st;
+    /* MATCH (strict target): assigning the shared call argument on BOTH incoming edges
+     * keeps the case-0xfe `addu a0,s0,zero` in its predecessor block.  The earlier
+     * unconfigured edge can then branch directly to the `jal`, as retail does.  Using
+     * `info` directly normalized PASS but targeted the preceding `addu` (one word short). */
+    unsigned char *arg;
     unsigned char *rx = *(unsigned char **)(info + 0x3c);
 
     if (rx[0] == (unsigned char)0xf3) {          /* controller present */
-        if (info[0xe8] == 0)                     /* unconfigured: shares the st==0xfe call site */
+        if (info[0xe8] == 0) {                   /* unconfigured: shares the st==0xfe call site */
+            arg = info;
             goto reenter_cfgmode;
+        }
         if (info[0x49] == 2) {
             /* MATCH: keeps retail's redundant `addu $a0,$s0,$zero` in the jalr delay slot */
             __asm__("" : "=r"(info) : "0"(info));
@@ -197,8 +204,9 @@ extern int _dirSendAuto(unsigned char *info)
     case 0:
         return 0;
     case 0xfe:
+        arg = info;
     reenter_cfgmode:
-        _padCmdParaMode(info, 0);
+        _padCmdParaMode(arg, 0);
         return 0;
     case 0xff:
         return 0;

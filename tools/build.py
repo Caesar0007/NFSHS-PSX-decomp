@@ -590,6 +590,11 @@ PER_TU_FLAGS = {
     # on, cc1 promotes the z address to a 6th induction var: the 73-vs-71 gap
     # no source shape closes). Single-fn TU.
     "recon/syslib/psx/libgte/COR_01.c":     {"cc1_272": True, "no_strength_reduce": True},
+    # 2026-08-28 full ladder: both single-function siblings are exact on the
+    # vendor 2.7.2 lane (also on 970404), while 2.8.0/2.8.1 leave only the
+    # swapped epilogue residual.  Whole-object identity; no source seal.
+    "recon/syslib/psx/libgte/COR_02.c":     {"cc1_272": True},
+    "recon/syslib/psx/libgte/COR_03.c":     {"cc1_272": True},
     "recon/syslib/psx/libmath/FLTSISF.c":   {"cc1_272": True},  # 38->32
     "recon/syslib/psx/libmath/FIXSFSI.c":   {"cc1_272": True},  # 12->8
     "recon/syslib/psx/libmath/FIXDFSI.c":   {"cc1_272": True},  # 80->67

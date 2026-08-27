@@ -20,7 +20,13 @@
  * rage-racer-decomp + psyz + the whole disk -- nothing).  Full ladder tables and
  * the cracked levers are in GTDF2.c / LTDF2.c / MULSF3.c. */
 unsigned int *_dbl_shift(unsigned int *out, int dir, unsigned int w0, int w1, int count);
+typedef struct {
+    unsigned int lo;
+    int hi;
+} mant_pair;
 int          *_add_mant_d(int *out, unsigned int a2, int a3, unsigned int a4, int a5);
+int          *_add_mant_pair(int *out, unsigned int a2, int a3, mant_pair addend)
+              __asm__("_add_mant_d");
 int          *_mainasu(int *out, int a2, int a3);
 int           _err_math(int errnum, int code);
 
@@ -349,6 +355,24 @@ int           _err_math(int errnum, int code);
  *   it with that register clobbered.  (NOT applicable on 2.6.x/2.7.2/2.91/2.95 rungs, which
  *   have no reload_cse -- see the W74 fingerprint table above.  DIVDF3.c is a 2.7.2 lane.)
  *
+ * W80 exposed-residual source-only seal: 6 -> PASS 221/221 after the old
+ * post-cc1 move table was removed.  The W75 clobber remains the source lever
+ * for the constant-rematerialization row; three independent scheduling rows
+ * were still exposed: two `_add_mant_d` $a3 loads and `sw zero,48(sp)`.
+ * Model the helper's final two words as one `mant_pair` passed by value through
+ * the exact-symbol `_add_mant_pair` ABI view.  GCC calls.c treats that value as
+ * a partial register argument ($a3 + outgoing stack word) and emits its fresh
+ * low-word load before ordinary $a1/$a2 setup.  A narrow empty `+m(rnd[0])`
+ * dependency preserves the rounding low-word reload without invalidating
+ * rnd[1].  Finally, empty `+m(uz.w[0])` immediately after the first zero store
+ * gives sched2 the missing memory edge and places that store between stack
+ * adjustment and callee-save stores.  Direct `uz.w[0]` spelling was neutral at
+ * 2; an output-less memory fence regressed to 21 at 222/221.  All fences emit
+ * zero instructions; no new compiler or post-cc1 wiring is involved.
+ * Post-landing 04Z ladder: 970404 PASS (current/best); 2.8.0=25,
+ * 2.8.1=10, 2.91.66=164, 2.95.2=192; 2.6.0/2.6.3/2.7.2 reject the modern
+ * `+` asm constraint.  The existing 970404 TU identity therefore stays.
+ *
  * 📚 W72-A20 CORPUS VERDICT -- THE fp-bit LINEAGE QUESTION IS SETTLED (see FIXDFSI.c
  * for the decisive receipt): retail's LIBMATH double soft-float is NOT FSF `fp-bit.c`
  * (that file's fp_number_type/unpack/pack machinery has no relation), but it IS
@@ -405,6 +429,7 @@ double __adddf3(double a, double b)   /* @0x800F5A54 */
 
     zp = uz.w;
     zp[0] = 0;
+    __asm__("" : "+m"(uz.w[0]));
     zp[1] = 0;
     sign = 0;
     ua.d = a;
@@ -431,7 +456,7 @@ double __adddf3(double a, double b)   /* @0x800F5A54 */
         _dbl_shift((unsigned int *)A, 1, A[0], A[1], be - ae);
         ae = be;
     }
-    _add_mant_d(A, A[0], A[1], B[0], B[1]);
+    _add_mant_pair(A, A[0], A[1], *(mant_pair *)B);
     if (A[1] < 0) {
         _mainasu(A, A[0], A[1]);
         sign = 0x80000000;
@@ -469,7 +494,8 @@ double __adddf3(double a, double b)   /* @0x800F5A54 */
     rnd[1] = 0;
     if ((A[0] & 0x200) != 0) k = 256;
     rnd[0] = k;
-    _add_mant_d(A, A[0], A[1], *(volatile int *)&rnd[0], rnd[1]);
+    __asm__("" : "+m"(rnd[0]));
+    _add_mant_pair(A, A[0], A[1], *(mant_pair *)rnd);
     if (A[1] & 0x40000000) {
         /* W72-A20 DOUBLE IDENTITY FENCE -- second site, identical recipe (see above). */
         int *ap = A;

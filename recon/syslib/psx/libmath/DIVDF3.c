@@ -42,7 +42,13 @@ int _comp_mant(unsigned int a1, unsigned int a2, unsigned int a3, unsigned int a
 
 unsigned int *_dbl_shift(unsigned int *out, int dir, unsigned int w0, int w1, int count);
 unsigned int *_dbl_shift_us(unsigned int *out, int dir, unsigned int w0, int w1, int count);
+typedef struct {
+    unsigned int lo;
+    int hi;
+} mant_pair;
 int          *_add_mant_d(int *out, unsigned int a2, int a3, unsigned int a4, int a5);
+int          *_add_mant_pair(int *out, unsigned int a2, int a3, mant_pair addend)
+              __asm__("_add_mant_d");
 int          *_mainasu(int *out, int a2, int a3);
 int           _err_math(int errnum, int code);
 
@@ -164,6 +170,16 @@ int           _err_math(int errnum, int code);
  *  - the loop shift counts are LITERAL 1s (LICM hoists them into $s0 at the preheader);
  *    only the tail count is a variable.
  */
+/* W80 exposed-residual source-only seal: 6 -> PASS 184/184.  The three
+ * remaining rows were the same calls.c partial-argument identity as MULDF3:
+ * retail loads the final pair's low word into $a3 before ordinary $a1/$a2.
+ * `_add_mant_pair` is an exact-symbol ABI view whose final two-word struct is
+ * split across $a3 and the outgoing stack slot.  The existing arm-local narrow
+ * memory invalidations already preserve fresh t[0] reloads, so changing the
+ * three call sites to that pair view fixes all rows with no new instructions,
+ * fences, compiler version, or post-cc1 wiring.  Post-landing 04Z ladder:
+ * all eight authentic rungs (2.6.0 through 2.95.2) PASS 184/184, so the old
+ * per-function 970404 identity is now byte-neutral rather than required. */
 typedef union {
     double d;
     struct { unsigned int lo; int hi; } w;
@@ -541,7 +557,7 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
                     q[1] |= bit[1];
                     q[0] |= bit[0];
                     _mainasu(sub, buf[2], buf[3]);
-                    _add_mant_d(dp, buf[0], buf[1], sub[0], sub[1]);
+                    _add_mant_pair(dp, buf[0], buf[1], *(mant_pair *)sub);
                 }
                 _dbl_shift((unsigned int *)buf, 0, buf[0], buf[1], 1);
                 _dbl_shift_us((unsigned int *)bit, 1, bit[0], bit[1], 1);
@@ -570,7 +586,7 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
                  * it is unreachable to reorg and the a0 arg-setup gets stolen
                  * instead.  27 -> 25. */
                 exp += 1;
-                _add_mant_d(qp, q[0], q[1], t[0], t[1]);
+                _add_mant_pair(qp, q[0], q[1], *(mant_pair *)t);
                 /* W76-A14 (2026-08-23): 6 -> 2.  The tail _dbl_shift_us is
                  * DUPLICATED into both arms (retail's true shape -- the oracle's
                  * join label .L800F6020 sits at `sw s0,0x10(sp)`, AFTER the
@@ -592,7 +608,7 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
                 t[0] = 1 << n;
                 /* W76-A14 RCSE MEM-FENCE, arm-2 twin (see arm 1). */
                 __asm__ __volatile__("" : "=m"(t[0]) : "m"(t[0]));
-                _add_mant_d(qp, q[0], q[1], t[0], t[1]);
+                _add_mant_pair(qp, q[0], q[1], *(mant_pair *)t);
                 qp = 0;   /* W76-A14 dead cse-kill -- see the arm above */
                 exp = 0;
                 /* W71-A12 CROSS-JUMP UN-MERGER -- DO NOT DELETE, DO NOT MOVE.

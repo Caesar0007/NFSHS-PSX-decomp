@@ -20,7 +20,13 @@
  * rage-racer-decomp + psyz + the whole disk -- nothing).  Full ladder tables and
  * the cracked levers are in GTDF2.c / LTDF2.c / MULSF3.c. */
 unsigned int *_dbl_shift_us(unsigned int *out, int dir, unsigned int w0, int w1, int count);
+typedef struct {
+    unsigned int lo;
+    int hi;
+} mant_pair;
 int          *_add_mant_d(int *out, unsigned int a2, int a3, unsigned int a4, int a5);
+int          *_add_mant_pair(int *out, unsigned int a2, int a3, mant_pair addend)
+              __asm__("_add_mant_d");
 int           _err_math(int errnum, int code);
 
 /* fwd decl: retail VA order puts __muldf3 (0x800F62E4) before _mul_mant_d (0x800F65F8) */
@@ -127,6 +133,21 @@ int *_mul_mant_d(int *out, unsigned int x, unsigned int y);
  * removes the four tail scheduling diffs without changing allocation or any
  * of the four remaining `$a3` load-order pairs.  `_mul_mant_d` remains 6.
  *
+ * W80 source-only seal: 8 -> PASS 197/197.  GCC 2.8.1 calls.c handles a
+ * two-word final struct argument as a partial register argument: its low word
+ * occupies $a3 and its high word the outgoing stack slot, in the separate
+ * partial-argument phase before the ordinary $a1/$a2 loads.  `_add_mant_pair`
+ * is a source-level ABI view of the real `_add_mant_d` symbol using that
+ * natural pair shape.  At the two rounding calls only, an empty `+m(add[0])`
+ * dependency prevents CSE forwarding the just-stored low word without
+ * invalidating add[1]; the result is retail's early fresh `lw $a3` with zero
+ * emitted fence instructions.  A volatile whole-pair view regressed to 12 at
+ * 199/197, and whole-pair `+m` regressed to 8 at 201/197.  The scalar helper
+ * body calls retain the ordinary five-word declaration, preserving its 6-diff
+ * basin independently.  Post-landing 04Z ladder: 2.8.0 PASS+6 (current/best
+ * whole TU), 2.8.1 4+6, 970404 131+6, 2.91.66 149+74, 2.95.2 164+70;
+ * 2.6.0/2.6.3/2.7.2 reject the modern `+` asm constraint.
+ *
  * W61-A9 tail probes for _mul_mant_d (all whole-TU gated,
  * scratchpad/w61a9/mul_v1.json + mul_v2.json), baseline 14, none landed:
  *   opacity fence on `out` after the stores 24 * before the stores 28 *
@@ -206,14 +227,15 @@ double __muldf3(double a, double b)   /* @0x800F62E4 */
         up = u;
         _mul_mant_d(up, al, bh);
         _dbl_shift_us((unsigned int *)tp, 1, u[0], u[1], 21);
-        _add_mant_d(acc, acc[0], acc[1], t[0], t[1]);
+        _add_mant_pair(acc, acc[0], acc[1], *(mant_pair *)t);
         _mul_mant_d(up, bl, ah);
         _dbl_shift_us((unsigned int *)tp, 1, u[0], u[1], 21);
-        _add_mant_d(acc, acc[0], acc[1], t[0], t[1]);
+        _add_mant_pair(acc, acc[0], acc[1], *(mant_pair *)t);
         if (acc[1] < 0) {
             add[1] = 0;
             add[0] = 0x400;
-            _add_mant_d(acc, acc[0], acc[1], *(volatile int *)&add[0], add[1]);
+            __asm__("" : "+m"(add[0]));
+            _add_mant_pair(acc, acc[0], acc[1], *(mant_pair *)add);
             _dbl_shift_us((unsigned int *)acc, 1, acc[0], acc[1], 11);
         } else {
             signmask = 0x80000000u;
@@ -222,7 +244,8 @@ double __muldf3(double a, double b)   /* @0x800F62E4 */
             __asm__("" : "=r"(signmask) : "0"(signmask));
             add[1] = 0;
             add[0] = 0x200;
-            _add_mant_d(acc, acc[0], acc[1], *(volatile int *)&add[0], add[1]);
+            __asm__("" : "+m"(add[0]));
+            _add_mant_pair(acc, acc[0], acc[1], *(mant_pair *)add);
             if (((unsigned int)acc[1] & signmask) != 0u) {
                 _dbl_shift_us((unsigned int *)acc, 1, acc[0], acc[1], 11);
             } else {

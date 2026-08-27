@@ -1,0 +1,76 @@
+  DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache: PASS (35 insns)
+  DrawW_AddSubdividPrimGT3__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache: PASS (28 insns)
+  DrawW_DivVertice__FP12Draw_SVertexN20: PASS (54 insns)
+  DrawW_CalcSubdivision__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31: PASS (34 insns)
+  DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss: FAIL 8 diffs (ours 588 / oracle 588)
+      +addiu a3,s4,1
+      +addiu t8,a3,4
+      -addiu a3,s4,1
+      -addiu t8,a3,4
+      +addiu v0,a3,2
+      -addiu v0,a3,2
+      +addiu a3,a3,3
+      -addiu a3,a3,3
+  DrawW_LoadPrecVECTOR__FP12Draw_SVertexP6VECTOR: PASS (11 insns)
+  DrawW_SetUpSubdividFacet__FiP25Draw_tGiveShelbyMoreCache: PASS (206 insns)
+  Night_NightCopCalc__FP6VECTORPs: PASS (40 insns)
+  Night_NightCalc__FP6VECTORPsP25Draw_tGiveShelbyMoreCache: PASS (57 insns)
+  DrawW_NightColorCalc__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32: PASS (279 insns)
+  DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad: PASS (592 insns)
+  DrawW_kCtrlWorld_High__FP25Draw_tGiveShelbyMoreCache: PASS (32 insns)
+  DrawW_StripDraw_High__FP25Draw_tGiveShelbyMoreCache: PASS (58 insns)
+  DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry: FAIL 9 diffs (ours 358 / oracle 359)
+      -sw s4,72(sp)
+      -addu s4,a1,zero
+      +sw s4,72(sp)
+      +addu s4,a1,zero
+      -lui v0,0
+      +li v0,1
+      -sh s7,218(s0)
+      +sh v0,218(s0)
+      +lui v0,0
+  DrawW_WorldSetUpMatrix__FP10matrixtdefP6MATRIX: PASS (39 insns)
+  DrawW_WorldSetUpTranslation__FP8coorddefP6MATRIX: PASS (17 insns)
+  DrawW_ResetAnimationTimer__Fv: PASS (10 insns)
+  DrawW_GetAnimationTime__FP15Trk_AnimateInst: PASS (33 insns)
+  DrawW_SetAnimationTime__FP15Trk_AnimateInstPii: PASS (80 insns)
+  DrawW_DoObjectAnimations__Fv: PASS (40 insns)
+  DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo: PASS (189 insns)
+  ObjectClipped__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache: PASS (61 insns)
+  DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi: PASS (189 insns)
+  DrawObjectTransform__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefis: PASS (214 insns)
+  DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi: PASS (200 insns)
+  DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo: PASS (434 insns)
+  DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry: PASS (222 insns)
+  Draw_CircleClip__FP8coorddefT0i: PASS (24 insns)
+  Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark: FAIL 20 diffs (ours 353 / oracle 353)
+      +sw s4,64(sp)
+      +addu s4,a0,zero
+      +sw s6,72(sp)
+      +addiu s6,s4,36
+      -sw s6,72(sp)
+      -sw s4,64(sp)
+      -lw s5,48(a0)
+      -addu s4,a0,zero
+      -addiu s6,s4,36
+      +lw s5,48(s4)
+      +lw a1,24(s4)
+      +sra v1,v1,4
+  DrawW_SetUpSubdividFacet_Line__FP25Draw_tGiveShelbyMoreCache: PASS (166 insns)
+  DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache: FAIL 66 diffs (ours 507 / oracle 507)
+      -sw s7,108(sp)
+      -addu s7,a0,zero
+      -sw s5,100(sp)
+      -addu s5,a1,zero
+      +sw s3,92(sp)
+      +addu s3,a0,zero
+      +sw s6,104(sp)
+      +addu s6,a1,zero
+      -sw s6,104(sp)
+      +sw s7,108(sp)
+      +sw s5,100(sp)
+      -sw s3,92(sp)
+  DrawW_BuildChunkCenterLineFacets__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16: PASS (88 insns)
+  DrawW_DoLines__FP13DRender_tViewP11tBuildEntryP11Draw_DCache: PASS (199 insns)
+  DrawW_BuildSpikeBelt__FP13DRender_tViewiP11Draw_DCache: PASS (268 insns)
+  DepthCue_Init__Fv: PASS (18 insns)

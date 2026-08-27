@@ -1,4 +1,3 @@
-#include "../../lib/libfns.h"
 /* draww_externs.h -- extern decls for game/psx/draww.cpp (NFS4 PSX world-geometry draw). */
 #ifndef DRAWW_EXTERNS_H
 #define DRAWW_EXTERNS_H
@@ -9,6 +8,21 @@
  * sites pending conversion to gte_ldv forms per the GTE batch). */
 #include "../../lib/psx_gte.h"
 extern void gte_lwc2(int reg, int data);   /* value-form load (draww calls pending conversion to gte_ldv*) */
+
+/* Narrow declarations formerly supplied by libfns.h.  Keeping them here
+ * preserves DrawW.obj's own SYM type graph instead of importing unrelated SDK
+ * and game declarations into the translation unit. */
+extern "C" {
+void SetTexWindow(void *, void *);
+void *SetSp(void *);
+void SetFarColor(int, int, int);
+void SetFogNear(int, int);
+void transform(void *, void *, void *);
+int fixedatan(int, int);
+int fixedmult(int, int);
+void fixedxformy(matrixtdef *, int);
+void xformy(matrixtdef *, int);
+}
 
 extern char *Render_gPacketEnd;
 
@@ -35,12 +49,58 @@ extern int    Skid_gCtrlScratch_94, Skid_gCtrlScratch_98, Skid_gScratchPos1, Ski
 extern int    INT_1f800084, INT_1f800088, INT_1f80008c, INT_1f800090;
 
 /* ---- auto-generated from SYM Globals + Demangled ---- */
+/* DrawW.obj omits these foreign owners from its debug graph even though the
+ * retail instructions retain member-shaped accesses.  These layout-locked
+ * exact-symbol views expose only the fields this TU consumes.  The canonical
+ * audit validates and filters only these exact owner/name/layout tuples. */
+struct DrawW_SliceCodegenView {
+    int center[3];
+    char normal[3], forward[3], right[3];
+    u_char acousticType;
+    short pavedProfile, leftDrive, rightDrive;
+    u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
+};
+struct DrawW_CameraCodegenView {
+    BO_tNewtonObj *anchor, *target;
+    u_char remaining[264];
+};
+struct DrawW_GameSetupCodegenView {
+    int raceType, numLaps, skill, commMode;
+    int setup04_10[7];
+    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment;
+    int song, Weather, Fog, Damage, Time, randSeed, easter;
+    int controllerWords[22];
+    int pinkSlipsForfeit, checkpointType, checkpointHUD[2];
+    int dispatchSpeech, reverseCallSpeech, languageSpeech;
+    int SceneNumber, SceneStartLap, SceneEndLap;
+    GameSetup_tUserSetting userSetting;
+    int numPerps, stageOffset, perpArrests, finalPerpArrests;
+    GameSetup_tPerpData perpInfo[10];
+    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
+    GameSetup_tCarData carInfo[9];
+};
+struct DrawW_SimGlobalCodegenView {
+    int gameStarted, gameTicks, time32Hz;
+    void *schedule64Hz, *schedule32Hz, *schedule32Hz2;
+};
+struct DrawW_TrackSpecCodegenView {
+    short fogstate, weatherstate, horizonstate, skystate;
+    short nightstate, depthcuestate, worldcolorstate, pad0;
+    CFogSpec fogspec;
+    CWeatherSpec weatherspec;
+    CHorizonSpec horizonspec;
+    CSkySpec skyspec;
+    CNightSpec nightspec;
+    CDepthCueSpec depthcuespec;
+    CWorldColor worldcolorspec;
+};
+
 extern Trk_AnimateInst * Anim_gInstanceFromIndex[8];
 extern Car_tObj * BW_gCopCarObj;
-extern Trk_NewSlice * BWorldSm_slices;
+extern DrawW_SliceCodegenView *DrawW_Slices asm("BWorldSm_slices");
 extern int BWorld_gChunkCount;
 extern u_char CF_DVLC[49096];
-extern camera_info Camera_gInfo[136];
+extern DrawW_CameraCodegenView DrawW_Camera[136] asm("Camera_gInfo");
 extern Car_tObj * Cars_gHumanRaceCarList[2];
 extern Car_tObj * Cars_gList[2];
 extern int Cars_gNumHumanRaceCars;
@@ -48,14 +108,14 @@ extern coorddef * Chunk_chunkCenters;
 extern CVECTOR * Chunk_lightTable;
 extern int Draw_gMidGroundOtz;
 extern int Draw_gViewOtSize;
-extern GameSetup_tData GameSetup_gData;
+extern DrawW_GameSetupCodegenView DrawW_GameSetup asm("GameSetup_gData");
 extern u_char (* Night_gCopColor[2])[256][8];
 extern u_char (* Night_gCurrentNightColor)[256][16];   /* matches owner def night.cpp @0x8013da48 (was stale u_char***) */
 extern char * Night_gNightTbl;
 extern u_char (* Night_gWeatherLightingTable[2])[256];
 extern Group * Object_customObjInst;
 extern Group * Object_customSimObjs;
-extern CTrackSpec TrackSpec_gSpec;
+extern DrawW_TrackSpecCodegenView DrawW_TrackSpec asm("TrackSpec_gSpec");
 extern Chunk * Track_chunkList;
 extern short ** Track_gInViewList;
 extern Trk_ObjectDef ** Track_gObjDefs;
@@ -93,13 +153,13 @@ extern int gSpikeBeltX;
 extern matrixtdef gWorldMat;
 // [owned->defined in draww.cpp] extern char goffsets[8];
 // [owned->defined in draww.cpp] extern char offsets[8];
-extern Sim_tSimGlobalVar simGlobal;
+extern DrawW_SimGlobalCodegenView DrawW_SimGlobal asm("simGlobal");
 // [owned->defined in draww.cpp] extern int stackSpeedUpEnbabledFlag;
 // [owned->defined in draww.cpp] extern int trk0[9][2];
 // [owned->defined in draww.cpp] extern int trk4[10][2];
 extern void Anim_GetRotPos(Trk_AnimateInst *, int, int, coorddef *, matrixtdef *);
 extern bool BWorld_IsSliceInBuildList(int);
-extern void Flare_Halo2(DRender_tView *, int, int, coorddef *, coorddef *, Draw_FlareCache *);
+extern void Flare_Halo2(DRender_tView *, int, int, coorddef *, coorddef *, struct Draw_FlareCache *);
 extern void Math_fasttransmult(matrixtdef *, matrixtdef *, matrixtdef *);
 extern ObjectAnim *Object_GetAnim(Trk_SimObject *);
 extern void Quatern_QuatToMat(tQuat *, matrixtdef *);

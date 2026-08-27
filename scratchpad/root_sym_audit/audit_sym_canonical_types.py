@@ -413,6 +413,48 @@ def filter_exact_symbol_codegen_carriers(
         "DrawC_CViewCodegenView": hud_views["Hud_CViewCodegenView"],
         "DrawC_GameSetupCodegenView": hud_views["Hud_GameSetupCodegenView"],
     }
+    draww_views = {
+        "DrawW_SliceCodegenView": (32, (
+            ("MOS", "ARY INT", 12, "center", 0, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "normal", 12, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "forward", 15, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "right", 18, (3,), ""),
+            ("MOS", "UCHAR", 0, "acousticType", 21, (), ""),
+            ("MOS", "SHORT", 0, "pavedProfile", 22, (), ""),
+            ("MOS", "SHORT", 0, "leftDrive", 24, (), ""),
+            ("MOS", "SHORT", 0, "rightDrive", 26, (), ""),
+            ("MOS", "UCHAR", 0, "chunkIndex", 28, (), ""),
+            ("MOS", "UCHAR", 0, "laneCount", 29, (), ""),
+            ("MOS", "UCHAR", 0, "avgPavedWidthLf", 30, (), ""),
+            ("MOS", "UCHAR", 0, "avgPavedWidthRt", 31, (), ""),
+        ), "draww_externs.h"),
+        "DrawW_CameraCodegenView": (272, hud_views["Hud_CameraCodegenView"][1],
+                                      "draww_externs.h"),
+        "DrawW_GameSetupCodegenView": (2600, hud_views["Hud_GameSetupCodegenView"][1],
+                                         "draww_externs.h"),
+        "DrawW_SimGlobalCodegenView": (24, hud_views["Hud_SimGlobalCodegenView"][1],
+                                        "draww_externs.h"),
+        "DrawW_TrackSpecCodegenView": (264, (
+            ("MOS", "SHORT", 0, "fogstate", 0, (), ""),
+            ("MOS", "SHORT", 0, "weatherstate", 2, (), ""),
+            ("MOS", "SHORT", 0, "horizonstate", 4, (), ""),
+            ("MOS", "SHORT", 0, "skystate", 6, (), ""),
+            ("MOS", "SHORT", 0, "nightstate", 8, (), ""),
+            ("MOS", "SHORT", 0, "depthcuestate", 10, (), ""),
+            ("MOS", "SHORT", 0, "worldcolorstate", 12, (), ""),
+            ("MOS", "SHORT", 0, "pad0", 14, (), ""),
+            ("MOS", "STRUCT", 16, "fogspec", 16, (), "CFogSpec"),
+            ("MOS", "STRUCT", 8, "weatherspec", 32, (), "CWeatherSpec"),
+            ("MOS", "STRUCT", 48, "horizonspec", 40, (), "CHorizonSpec"),
+            ("MOS", "STRUCT", 148, "skyspec", 88, (), "CSkySpec"),
+            ("MOS", "STRUCT", 4, "nightspec", 236, (), "CNightSpec"),
+            ("MOS", "STRUCT", 8, "depthcuespec", 240, (), "CDepthCueSpec"),
+            ("MOS", "STRUCT", 16, "worldcolorspec", 248, (), "CWorldColor"),
+        ), "draww_externs.h"),
+        "DrawW_Pack8CodegenView": (8, (
+            ("MOS", "ARY CHAR", 8, "b", 0, (8,), ""),
+        ), "draww.cpp"),
+    }
 
     def exact_night_camera(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
@@ -481,6 +523,29 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith("drawc_externs.h")
         )
 
+    def exact_draww_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = draww_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith(expected[2])
+        )
+
+    def exact_draww_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = draww_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            and owner.endswith(expected[2])
+        )
+
     # Suppression is pair-locked: a matching struct without its typedef (or a
     # matching typedef without its struct) is evidence drift, not an eligible
     # codegen carrier.  Keep both rows visible unless the complete pair agrees.
@@ -498,6 +563,11 @@ def filter_exact_symbol_codegen_carriers(
         if any(exact_drawc_view(block) and block.name == name for block in type_blocks)
         and any(exact_drawc_view_typedef(item) and item.name == name for item in typedefs)
     }
+    draww_eligible = {
+        name for name in draww_views
+        if any(exact_draww_view(block) and block.name == name for block in type_blocks)
+        and any(exact_draww_view_typedef(item) and item.name == name for item in typedefs)
+    }
 
     return (
         [
@@ -505,12 +575,14 @@ def filter_exact_symbol_codegen_carriers(
             if not (night_eligible and exact_night_camera(block))
             and not (block.name in hud_eligible and exact_hud_view(block))
             and not (block.name in drawc_eligible and exact_drawc_view(block))
+            and not (block.name in draww_eligible and exact_draww_view(block))
         ],
         [
             item for item in typedefs
             if not (night_eligible and exact_night_camera_typedef(item))
             and not (item.name in hud_eligible and exact_hud_view_typedef(item))
             and not (item.name in drawc_eligible and exact_drawc_view_typedef(item))
+            and not (item.name in draww_eligible and exact_draww_view_typedef(item))
         ],
     )
 

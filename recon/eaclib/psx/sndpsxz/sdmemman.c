@@ -691,6 +691,7 @@ extern int iSNDpsxmalloc(int size)
      *     instrumented cc1. */
     unsigned char *base = sndpd;
     unsigned char *pd;
+    unsigned short *prev;
     unsigned int blk, src;
     int          idx = 0;
     unsigned int local_block;
@@ -722,9 +723,10 @@ nonempty:
         previous = pd + 0x51c;
 scan:
         {
-            unsigned char *entry =
-                (unsigned char *)((unsigned int)(idx * 4) +
-                                  (unsigned int)table);
+            unsigned char *entry;
+            int scan_off = idx * 4;
+            entry = (unsigned char *)((unsigned int)scan_off +
+                                      (unsigned int)table);
             if (idx == 0) {
                 unsigned int block =
                     (unsigned int)*(unsigned short *)(pd + 0x51A);
@@ -734,8 +736,7 @@ scan:
             } else {
                 unsigned int block;
                 int avail;
-                unsigned short *prev =
-                    (unsigned short *)(previous + idx * 4);
+                prev = (unsigned short *)(scan_off + (int)previous);
                 block = (unsigned int)prev[0] + (unsigned int)prev[1];
                 avail = *(unsigned short *)entry - (int)block;
                 local_block = block;
@@ -773,7 +774,6 @@ scan_done:
         {
             unsigned short *pv;
             unsigned int off = idx * 4;
-            unsigned short *prev;
             do {
                 do {
                     do {

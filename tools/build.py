@@ -302,7 +302,7 @@ PER_TU_FLAGS = {
     #   input      4->6  PASS, 69->39    (Input_StartUp + Input_WingCommandMode)
     #   hudpmx     21->5 diffs           nfs3 128->119   r3dcar 186->183   weather 106->104
     # NOT wired from the same queue -- gate evidence AGAINST -G8 (PASS regressions):
-    # replay (+158 diffs, 4 regr), audiocmn (-61 but 1 regr), simqueue (1 conv/1 regr),
+    # replay (+158 diffs, 4 regr), simqueue (1 conv/1 regr),
     # draww (1 conv/2 regr); G5/G6/G7 ladder identical to G4 on all three mixed TUs
     # (the sensitive symbols are exactly 8 bytes -- their oracles MIX gp-rel and
     # absolute 8-byte refs, so no single -G value fits).  INERT (no gate delta, left
@@ -331,6 +331,12 @@ PER_TU_FLAGS = {
     # field accesses and PASS 80/80.  RPause's separate scalar symbol views remain
     # zero-storage aliases and RPause_CopyBackToFrontBuffer remains PASS 48/48.
     "recon/game/common/render.cpp":          {"g_value": "8"},
+    # 2026-08-28 source-only re-ladder after the current SYM/SLD reconstruction:
+    # the historical -G8 regression is gone.  Three independent discriminators
+    # (AudioCmn_Init, CheckState and SoundCar) become exact together, and the
+    # whole TU gates 48/48 PASS twice with 399/399 strict branch words clean.
+    # This is the authentic object compiler identity, not a per-function seal.
+    "recon/game/common/audiocmn.cpp":        {"g_value": "8"},
     "recon/game/psx/weather.cpp":           {"g_value": "8"},
     # (r3dcar's g_value 8 lives on its existing jtbl_at_fusion entry below --
     # PER_TU_FLAGS is a dict literal, a duplicate key would silently discard
@@ -855,12 +861,9 @@ PER_FN_NO_THREAD_JUMPS = {
 # of cse find_best_addr folding it onto the computed pointer, freeing $v0 for
 # the li-1 in the beqz slot.  Whole-TU -fforce-addr is NOT the identity
 # (breaks ProcessParticles/QuickReOrthogonalize) -- per-fn only.
-# w59-a4 (orchestrator-wired): per-fn -G8 region splice for the C++ lane.
-# AudioCmn_Init measured byte-PASS 94/94 under a -G8 region splice while
-# whole-TU -G8 breaks CheckState (6->27).  -G appended last wins in cc1plus.
-PER_FN_G8 = {
-    "recon/game/common/audiocmn.cpp": {"AudioCmn_Init__Fv"},
-}
+# The former AudioCmn_Init-only -G8 splice is obsolete: audiocmn.obj is now
+# proven as a whole-TU -G8 identity above, under the strict source-only gate.
+PER_FN_G8 = {}
 
 # w59-a7 spec, w60-a4 re-validated: CdRead 43 -> 38 count-exact 103/103 with
 # per-fn -mno-split-addresses; whole-TU nosplit is a net loss, and this

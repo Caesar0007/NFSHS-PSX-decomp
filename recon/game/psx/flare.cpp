@@ -2164,7 +2164,13 @@ gte_SetRotMatrix(&mtx);
 }
 
 /* ---- Flare_Sun__FP7SVECTORP15Draw_FlareCache  [FLARE.CPP:1742-1818] SLD-VERIFIED ----
- * NEAR-MISS 50, COUNT-EXACT 187/187.  ALL 50 diffs are one 3-CYCLE REGISTER ROTATION of
+ * MATCH (2026-08-28): source-only PASS 187/187.  Keep the unshifted
+ * TrackSpec_gSpec symbol base in one block-local pointer, then express the
+ * skyspec fields at their retail object offsets (flags +0x5c, sunHaloColor
+ * +0xbc).  Casting the symbol to CSkySpec at +0x58 is semantically equivalent
+ * but folds 0x58 into the relocation and emits field displacements 4/100;
+ * retail materializes the base symbol itself and uses 92/188.
+ * HISTORICAL W40 RECEIPT: the earlier 50-diff, count-exact build was one 3-cycle rotation of
  * the three block-local constants in the two AddPrim/SetDrawMode tails:
  *     ours  pktPtrAddr(0x1F800004)=$t2  0xFFFFFF=$t3  0xFF000000=$t1
  *     oracle             "        =$t3          =$t1            =$t2
@@ -2260,11 +2266,15 @@ gte_stlvnl(&diff);
         *(int *)((char *)&scalemat + 0xc) = 0;
 gte_SetRotMatrix(&scalemat);
       }
-      if ((FLARE_TRACK_SKY.flags & 0x100U) != 0) {
-        Flare_SingleColorTex(&posOnScreen,&FLARE_TRACK_SKY.sunHaloColor,0x10,0x10,'\0',otz);
-      }
-      else {
-        Flare_OctFlare((long *)&posOnScreen,otz);
+      {
+        u_char *trackSpec = (u_char *)Flare_TrackSpecRows;
+
+        if ((*(u_int *)(trackSpec + 92) & 0x100U) != 0) {
+          Flare_SingleColorTex(&posOnScreen,(CVECTOR *)(trackSpec + 188),0x10,0x10,'\0',otz);
+        }
+        else {
+          Flare_OctFlare((long *)&posOnScreen,otz);
+        }
       }
       {
         DR_MODE *aprim;

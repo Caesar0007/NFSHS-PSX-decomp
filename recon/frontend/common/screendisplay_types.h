@@ -47,6 +47,10 @@ struct tScreen {
     short fScreenFadeVal;
     __vtbl_ptr_type (*_vf)[10];
 
+#ifdef NFS4_SCREENDISPLAY_SCREENMEMCARD_METHODS
+    tScreen();
+    ~tScreen();
+#endif
     void PreLoad();
     void Initialize();
     void Cleanup();

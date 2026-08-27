@@ -1,10 +1,17 @@
 /* frontend/common/screenmemcard_externs.h - reconstructed externs. NOT original. */
 #ifndef _FE_SCREENS_SCREENMEMCARD_EXTERNS_H_
 #define _FE_SCREENS_SCREENMEMCARD_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "screenmemcard_types.h"
 
-typedef long long longlong; typedef unsigned long long ulonglong;
+extern "C" {
+void blockclear(...);
+int purgememadr(...);
+void *reservememadr(...);
+int shapetoclutid(...);
+int sprintf(...);
+int systemtask(...);
+void vramfxya(...);
+}
 
 extern tfrontEnd   frontEnd;
 extern int  ticks;
@@ -22,7 +29,7 @@ extern int GRIDMEMCARDGOURAUDBIT_X, GRIDMEMCARDGOURAUDBIT_Y;
 extern int MEMCARDICONOFFX, MEMCARDICONOFFY;
 extern int kMemCardMessage1X, kMemCardMessage1Y;
 extern int kMemCardMessageX, kMemCardMessageY;
-extern char (*fMemIcon)[15][3][192];
+extern tMemIcon *fMemIcon;
 extern int  kRGBVals[28];
 extern char textDefinitions[14][6];
 extern tFEApplication *FEApp;

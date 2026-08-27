@@ -3,11 +3,6 @@
  */
 #include "screenmemcard.h"
 
-typedef struct {
-  u_int addr : 24;
-  u_int len : 8;
-} tMemcardPrimTag;
-
 /* MATCH (w35-a10): unsized-array asm-label views -- these globals are reached
    ABSOLUTELY by every oracle (%hi/%lo as an RTL pseudo, CSE-able and
    delay-slot schedulable); a plain extern leaves cc1plus emitting the lw/sw
@@ -195,7 +190,7 @@ void tScreenMemcard::LoadIcon(int filenum)
           }
           this->numicon[filenum] = *this->fMemFile[filenum].numicons - 0x10;
           i = garyMemCardGrabBlocks(this->card,filenum);
-          this->numblock[filenum] = (uchar)i;
+          this->numblock[filenum] = (u_char)i;
           if (3 < this->numicon[filenum]) {
             this->numicon[filenum] = '\x03';
           }

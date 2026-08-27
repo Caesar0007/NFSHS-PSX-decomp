@@ -529,6 +529,28 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "BOOL", 0, "fGetNewIcons", 1440, (), ""),
         ), "fememcard_types.h"),
     }
+    # ScreenMemcard.obj uses two fields from foreign frontend aggregates and
+    # a named bitfield carrier for PsyQ primitive linkage.  None of these
+    # completed tags is retained by the retail owner.  Suppress only exact,
+    # origin-checked tag/typedef pairs.  Pre-change backup: Git commit bbbe104b.
+    screenmemcard_views = {
+        "ScreenMemcard_FEApplicationCodegenView": (558, (
+            ("MOS", "ARY CHAR", 557, "_beforeInputPlayer", 0, (557,), ""),
+            ("MOS", "CHAR", 0, "fInputPlayer", 557, (), ""),
+        ), "screenmemcard_types.h"),
+        "ScreenMemcard_GlobalMenuDefsCodegenView": (12460, (
+            ("MOS", "ARY CHAR", 12372, "_beforeItemSaveGame", 0,
+             (12372,), ""),
+            ("MOS", "STRUCT", 44, "itemSaveGame", 12372, (),
+             "tMemoryCardMenuItem"),
+            ("MOS", "STRUCT", 44, "itemLoadGame", 12416, (),
+             "tMemoryCardMenuItem"),
+        ), "screenmemcard_types.h"),
+        "ScreenMemcard_PrimTagCodegenCarrier": (4, (
+            ("FIELD", "UINT", 24, "addr", 0, (), ""),
+            ("FIELD", "UINT", 8, "len", 24, (), ""),
+        ), "screenmemcard_types.h"),
+    }
     # ScreenDisplay.obj dereferences only the menuDisplayOptions member of the
     # foreign tGlobalMenuDefs singleton.  Its linked SYM retains the complete
     # tOptionsMenu leaf but attributes the owning aggregate to FEMenuDefs.obj.
@@ -944,6 +966,29 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith((expected[2], "fememcard.cpp"))
         )
 
+    def exact_screenmemcard_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = screenmemcard_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith(expected[2])
+        )
+
+    def exact_screenmemcard_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = screenmemcard_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            and owner.endswith((expected[2], "screenmemcard.cpp"))
+        )
+
     def exact_screendisplay_view(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         expected = screendisplay_views.get(block.name)
@@ -1104,6 +1149,13 @@ def filter_exact_symbol_codegen_carriers(
         and any(exact_fememcard_view_typedef(item) and item.name == name
                 for item in typedefs)
     }
+    screenmemcard_eligible = {
+        name for name in screenmemcard_views
+        if any(exact_screenmemcard_view(block) and block.name == name
+               for block in type_blocks)
+        and any(exact_screenmemcard_view_typedef(item) and item.name == name
+                for item in typedefs)
+    }
     screenusername_eligible = {
         name for name in screenusername_views
         if any(exact_screenusername_view(block) and block.name == name
@@ -1141,6 +1193,8 @@ def filter_exact_symbol_codegen_carriers(
             and not (block.name in fecheats_eligible and exact_fecheats_view(block))
             and not (block.name in fememcard_eligible
                      and exact_fememcard_view(block))
+            and not (block.name in screenmemcard_eligible
+                     and exact_screenmemcard_view(block))
             and not (block.name in screendisplay_eligible
                      and exact_screendisplay_view(block))
             and not (block.name in screenusername_eligible
@@ -1163,6 +1217,8 @@ def filter_exact_symbol_codegen_carriers(
             and not (item.name in fecheats_eligible and exact_fecheats_view_typedef(item))
             and not (item.name in fememcard_eligible
                      and exact_fememcard_view_typedef(item))
+            and not (item.name in screenmemcard_eligible
+                     and exact_screenmemcard_view_typedef(item))
             and not (item.name in screendisplay_eligible
                      and exact_screendisplay_view_typedef(item))
             and not (item.name in screenusername_eligible

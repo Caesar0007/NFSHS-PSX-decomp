@@ -739,6 +739,21 @@ def filter_exact_symbol_codegen_carriers(
              "tInsideBoxMenu"),
         ), "screencontroller_types.h"),
     }
+    # ScreenTrophyRoom.obj reads one foreign menu and the pad singleton without
+    # retaining either completed source tag.  Pre-change backup: 1463fe30.
+    screentrophyroom_views = {
+        "ScreenTrophyRoom_GlobalMenuDefsCodegenView": (636, (
+            ("MOS", "ARY CHAR", 512, "_beforeMenuTrophyInfo", 0,
+             (512,), ""),
+            ("MOS", "STRUCT", 124, "menuTrophyInfo", 512, (),
+             "tMenuBlank"),
+        ), "screentrophyroom_types.h"),
+        "ScreenTrophyRoom_PadCodegenView": (84, (
+            ("MOS", "INT", 0, "initialized", 0, (), ""),
+            ("MOS", "ARY STRUCT", 64, "buf", 4, (8,), "PAD_COMMON"),
+            ("MOS", "ARY CHAR", 16, "stateBytes", 68, (16,), ""),
+        ), "screentrophyroom_types.h"),
+    }
     # ScreenDisplay.obj dereferences only the menuDisplayOptions member of the
     # foreign tGlobalMenuDefs singleton.  Its linked SYM retains the complete
     # tOptionsMenu leaf but attributes the owning aggregate to FEMenuDefs.obj.
@@ -1323,6 +1338,29 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith((expected[2], "screencontroller.cpp"))
         )
 
+    def exact_screentrophyroom_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = screentrophyroom_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith(expected[2])
+        )
+
+    def exact_screentrophyroom_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = screentrophyroom_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            and owner.endswith((expected[2], "screentrophyroom.cpp"))
+        )
+
     def exact_screendisplay_view(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         expected = screendisplay_views.get(block.name)
@@ -1532,6 +1570,13 @@ def filter_exact_symbol_codegen_carriers(
         and any(exact_screencontroller_view_typedef(item) and item.name == name
                 for item in typedefs)
     }
+    screentrophyroom_eligible = {
+        name for name in screentrophyroom_views
+        if any(exact_screentrophyroom_view(block) and block.name == name
+               for block in type_blocks)
+        and any(exact_screentrophyroom_view_typedef(item) and item.name == name
+                for item in typedefs)
+    }
     screenusername_eligible = {
         name for name in screenusername_views
         if any(exact_screenusername_view(block) and block.name == name
@@ -1582,6 +1627,8 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_screentournselect_view(block))
             and not (block.name in screencontroller_eligible
                      and exact_screencontroller_view(block))
+            and not (block.name in screentrophyroom_eligible
+                     and exact_screentrophyroom_view(block))
             and not (block.name in screendisplay_eligible
                      and exact_screendisplay_view(block))
             and not (block.name in screenusername_eligible
@@ -1618,6 +1665,8 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_screentournselect_view_typedef(item))
             and not (item.name in screencontroller_eligible
                      and exact_screencontroller_view_typedef(item))
+            and not (item.name in screentrophyroom_eligible
+                     and exact_screentrophyroom_view_typedef(item))
             and not (item.name in screendisplay_eligible
                      and exact_screendisplay_view_typedef(item))
             and not (item.name in screenusername_eligible

@@ -89,7 +89,8 @@ struct AudioMus_tSongEntry {
 #endif
 
 #if !defined(NFS4_SCREENMEMCARD_TOURNSELECT_SURFACE) && \
-    !defined(NFS4_SCREENMEMCARD_CONTROLLER_SURFACE)
+    !defined(NFS4_SCREENMEMCARD_CONTROLLER_SURFACE) && \
+    !defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE)
 struct tRecordBuffer {
     char sName[8];
     int nCar, nTime, nBestLap;
@@ -119,7 +120,8 @@ struct tSaveTournament {
 #endif
 
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
-    !defined(NFS4_SCREENMEMCARD_TOURNSELECT_SURFACE)
+    !defined(NFS4_SCREENMEMCARD_TOURNSELECT_SURFACE) && \
+    !defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE)
 typedef COORD16 FE3d_zVertex;
 typedef CVECTOR FE3d_zColor;
 typedef SVECTOR FE3d_zNormal;
@@ -202,6 +204,7 @@ struct tDrawShapeExtended {
 };
 #endif
 
+#ifndef NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE
 struct tDialogHelp : public tDialogBase {
     short variant;
     char *text[7];
@@ -234,6 +237,7 @@ struct tDialogNoInputMessage : public tDialogMessageString {
     tDialogNoInputMessage();
 #endif
 };
+#endif
 
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE)

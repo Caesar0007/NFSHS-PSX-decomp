@@ -5083,6 +5083,62 @@ compiles all 513 TUs and reports zero hidden phantoms or ownership gaps, and
 the source-only policy audit finds no post-compiler text moves or branch
 retargets.
 
+### P139 — frontend main-loop complete local and inline reconciliation (`2026-08-27`)
+
+Reliable `MainLoop__14tFEApplicationP5tMenu` records define the 408-byte frame
+and eleven function-scope locals in exact order: `stackBackupPin`, `wasSubMenu`,
+`needToSetChildMenu`, `doRedraw`, `ticksAtLastInput`, `tick`,
+`inputStartPlayer`, `inputEndPlayer`, `i`, `demoLoopLastInputTick`, and
+`string`.  Nested blocks recover `command`, `keyVal`, `debounce`, `dialog`,
+`err`, `player`, `carInfo`, and the race-delay `ticks`, plus inline
+`tMenu`, `tDialogBase`, and `tDialogMessageString` receivers.  IDA's retail
+register annotations independently agree with the SYM parameter and saved
+register allocation.
+
+Nine remaining decompiler-only identities are deleted without changing one
+instruction: `currentScreen`, `inputFlags`, `menuFlags`, `pa_Var11`,
+`pa_Var12`, `ptVar17`, `ptVar18`, `this_tMenu_l139`, and
+`this_tMenu_l92` now collapse into their owning menu/screen expressions.  The
+tenth, generic multi-purpose `iVar10`, also disappears: virtual results, command type,
+and opposite-player index fold directly, while moving the
+`needToSetChildMenu` assignment after the case-3 depth increment restores the
+retail schedule and removes the former artificial depth carrier and identity
+fence.  The direct depth spelling before that statement-order correction was
+count-exact FAIL 6; the restored order is exact.
+
+Two SLD-recorded inline receivers now use their actual reconstructed helper
+bodies: `helpDialog->IsVisible()` owns the line-181 `tDialogBase this`, and
+`memcardDialog->SetString()` owns the line-311 `tDialogMessageString this`.
+Their typed receiver carriers remain with measured allocation proof: using
+`helpPopup` directly is FAIL 7 at 1124/1123, while calling `SetString`
+directly on `NoInputMemCardDialog` is count-exact FAIL 10 and loses retail's
+`$s0` receiver lifetime.  The final tick value is renamed `currentTicks`;
+assigning `ticks_array[0]` directly is count-exact FAIL 6 and selects `$v0`
+instead of retail `$t0` for the load and delay-slot store.  These are the only
+three source-only value webs left in the function, and optimized SYM cannot
+recover their private spelling.
+
+`MainLoop__14tFEApplicationP5tMenu` remains exact PASS at 1123/1123
+instructions, `diffsrc` proves an instruction-exact `-g` twin, and all 81 raw
+branch words compare CLEAN.  The complete `feapp.cpp` board remains eleven
+PASS, two near, and two far functions.  The refreshed strict frontend/common
+audit is stored in
+[`frontend_common_strict_p243_20260827.md`](scratchpad/root_sym_audit/frontend_common_strict_p243_20260827.md).
+It advances declaration-clean mapped functions from 778 to all 779, removes
+the final 13 generic source-local names, and leaves the review queue empty.
+Restored inline-local mappings rise from 65 to 67 and explicit source-only
+codegen carriers from 518 to 521.  Missing-name, type, storage, global, and
+mapping-review queues all remain empty.
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; undefined-call audits scan 15,782
+reconstruction and 15,779 source-lane calls with zero defects.  TU order has
+zero inversions across 513 objects, call-target audit finds zero proven wrong
+targets across 460 units, vtable indexing passes 930 files, the phantom census
+reports all 3,484 declared names exactly owned with zero hidden phantoms or
+ownership gaps, and the source-only policy audit finds no post-compiler text
+moves or branch retargets.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

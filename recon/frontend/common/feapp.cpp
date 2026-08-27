@@ -877,14 +877,11 @@ void tFEApplication::RunDemoVideo()
  * MainLoop needs 51 pseudos colored into the saved-reg set with 40-50 PAIRWISE conflicts
  * each (i.e. most locals are simultaneously live across nearly the whole function) -- a
  * saturated coloring problem where the fix is almost certainly a handful of SLD-block-scope
- * corrections (many Ghidra-invented temps below -- ptVar5/ptVar6/pa_Var11/pa_Var12/tVar13/
- * pcVar15/pcVar16/ptVar17/ptVar18/ptVar19/piVar20/cVar8/sVar9/iVar10/iVar4 -- are NOT in the
- * SYM at all and are almost certainly compiler temps that should collapse into direct
- * expressions or the real SYM-named block-scoped `this` pointers seen at VA 0x80014648/
- * 0x8001491c/0x80014af4/0x8001515c, narrowing the live pseudo count) rather than a single
- * lever -- recommend a dedicated SLD-block-by-block pass (per this wave's mission) starting
- * from the `this` register swap, working outward. Function too large (1123 oracle insns,
- * ~4.5x DrawHelpIcons) to safely hand-derive further without regression risk in this pass. */
+ * corrections.  P139 completes that follow-up: every remaining Ghidra vtable/menu/screen/
+ * flag alias collapses into its owning expression, the two recorded inline receivers use
+ * their actual IsVisible/SetString helpers, and the case-3 depth value disappears after the
+ * source statement order is restored.  The historical allocator diagnosis is retained here
+ * because it explains how the function reached the exact 1123-instruction result. */
 
 /* PARTIAL (2026-08-09): restoring the per-player input pass as its structured
  * for-loop, and testing player two by truth value, reduces 404 -> 354 diffs.
@@ -896,12 +893,13 @@ void tFEApplication::RunDemoVideo()
  * identity/read fences around the case-3 depth/flag sequence restore its exact
  * load/store order.  A one-site unsized-array view of scalar `ticks` restores the
  * retail final load destination ($v0) without changing the earlier scalar accesses.
- * A scalar `ticksValue` plus a post-load read-only fence keeps the address live just
- * long enough for retail's `$t0` base / `$v0` value split (7 -> 3).  Remaining is
+ * A scalar tick carrier plus a post-load read-only fence keeps the value in retail `$t0`
+ * through the final delay-slot store (7 -> 3).  Remaining was
  * only the post-dialog `lw tick` schedule and its avoidable load-delay nop.  Splitting
  * the dialog declaration, a post-call value funnel, chained tick stores, and a
  * pre-call tick carrier were neutral; fencing function- or block-scope `tick`
- * rotates the whole `$t0/$t1` scratch band (255) and was rejected. */
+ * rotates the whole `$t0/$t1` scratch band (255) and was rejected.  P139 names that
+ * surviving value `currentTicks` and records the current count-exact FAIL-6 direct probe. */
 
 #undef ticks
 tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
@@ -918,17 +916,6 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
   short i;
   int demoLoopLastInputTick;
   char string [80];
-  int err;
-  int player;
-  int iVar10;
-  __vtbl_ptr_type (*pa_Var11) [11];
-  tMenu *this_tMenu_l92;
-  __vtbl_ptr_type (*pa_Var12) [10];
-  tMenu *ptVar17;
-  tDialogBase *this_tDialogBase_l181;
-  tMenu *this_tMenu_l139;
-  tDialogMessageString *this_tDialogMessageString_l311;
-
   stackBackupPin = -1;
   needToSetChildMenu = false;
   memset(ticksAtLastInput,0,8);
@@ -952,64 +939,56 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
   {
   tMenuCommand command [2];
   tInputKeyType keyVal [2];
-  tCarInfo carInfo;
-  u_long ticks;
   do {
     tick = ticks_array[0];
     doRedraw = true;
     this->fPlayer = '\0';
     while ((u_char)this->fPlayer < 2) {
       if (this->fTransitionToMenu[(u_char)this->fPlayer] != (tMenu *)0x0) {
-        ptVar17 = this->fCurrentMenu[(u_char)this->fPlayer];
         wasSubMenu = 0;
-        if (ptVar17 != (tMenu *)0x0) {
-          iVar10 = (*(*ptVar17->_vf)[7].pfn)
-                           ((char *)ptVar17 + (*ptVar17->_vf)[7].delta);
-          if (iVar10 != 0) {
-            tScreen *ptVar18 = this->fCurrentScreen[(u_char)this->fPlayer];
-            if (ptVar18 != (tScreen *)0x0) {
-              iVar10 = (*(*ptVar18->_vf)[8].pfn)
-                               ((char *)ptVar18 + (*ptVar18->_vf)[8].delta);
-              wasSubMenu = (u_int)(iVar10 != 0);
+        if (this->fCurrentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) {
+          if ((*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[7].pfn)
+                           ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
+                            (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[7].delta) != 0) {
+            if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
+              wasSubMenu = (u_int)
+                  ((*(*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[8].pfn)
+                               ((char *)this->fCurrentScreen[(u_char)this->fPlayer] +
+                                (*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[8].delta) != 0);
             }
           }
           if (wasSubMenu == 0) goto MainLoop_subMenuDetect;
-          ptVar17 = this->fCurrentMenu[(u_char)this->fPlayer];
           wasSubMenu = 0;
-          if (ptVar17 != (tMenu *)0x0) {
+          if (this->fCurrentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) {
             wasSubMenu =
-                 ((bool (*)(...))(*ptVar17->_vf)[8].pfn)
-                           ((char *)ptVar17 + (*ptVar17->_vf)[8].delta);
+                 ((bool (*)(...))(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[8].pfn)
+                           ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
+                            (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[8].delta);
           }
         }
-        pa_Var11 = this->fTransitionToMenu[(u_char)this->fPlayer]->_vf;
-        iVar10 = (*(*pa_Var11)[8].pfn)
+        if ((*(*this->fTransitionToMenu[(u_char)this->fPlayer]->_vf)[8].pfn)
                            ((char *)this->fTransitionToMenu[(u_char)this->fPlayer] +
-                            (*pa_Var11)[8].delta);
-        if (iVar10 != 0) {
+                            (*this->fTransitionToMenu[(u_char)this->fPlayer]->_vf)[8].delta) != 0) {
           this->fParentMenu[(u_char)this->fPlayer] = this->fCurrentMenu[(u_char)this->fPlayer];
         }
         else {
           this->fParentMenu[(u_char)this->fPlayer] = (tMenu *)0x0;
         }
         this->fCurrentMenu[(u_char)this->fPlayer] = this->fTransitionToMenu[(u_char)this->fPlayer];
-        pa_Var11 = this->fCurrentMenu[(u_char)this->fPlayer]->_vf;
-        (*(*pa_Var11)[2].pfn)
+        (*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[2].pfn)
                   ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
-                   (*pa_Var11)[2].delta);
+                   (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[2].delta);
         this->fTransitionToMenu[(u_char)this->fPlayer] = (tMenu *)0x0;
         if ((wasSubMenu != 0) && (this->fTransitionToScreen[0] == (tScreen *)0x0)) {
           doRedraw = false;
           this->backDepth[(u_char)this->fPlayer] = this->backDepth[(u_char)this->fPlayer] + -1;
         }
         else {
-          pa_Var11 = this->fCurrentMenu[(u_char)this->fPlayer]->_vf;
-          (*(*pa_Var11)[6].pfn)
+          (*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[6].pfn)
                     ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
-                     (*pa_Var11)[6].delta);
+                     (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[6].delta);
           if (needToSetChildMenu) {
-            this_tMenu_l92 = (tMenu *)(u_int)(u_char)this->fPlayer;
-            this->SetMenu(1,this->fCurrentMenu[(int)this_tMenu_l92]->fChildMenu);
+            this->SetMenu(1,this->fCurrentMenu[(u_char)this->fPlayer]->fChildMenu);
             needToSetChildMenu = false;
           }
         }
@@ -1017,44 +996,43 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
       }
 MainLoop_subMenuDetect:
       if ((u_char)this->fPlayer == kPlayerTwo) {
-        ptVar17 = this->fCurrentMenu[(u_char)this->fPlayer];
-        if ((ptVar17 != (tMenu *)0x0) &&
-            ((*(*ptVar17->_vf)[7].pfn)
-                 ((char *)ptVar17 + (*ptVar17->_vf)[7].delta) != 0) &&
+        if ((this->fCurrentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) &&
+            ((*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[7].pfn)
+                 ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
+                  (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[7].delta) != 0) &&
             ((int)((u_int)(u_short)stackBackupPin << 0x10) < 0)) {
-          ptVar17 = this->fParentMenu[(u_char)this->fPlayer];
-          if ((ptVar17 == (tMenu *)0x0) ||
-              ((*(*ptVar17->_vf)[7].pfn)
-                   ((char *)ptVar17 + (*ptVar17->_vf)[7].delta) != 0)) {
+          if ((this->fParentMenu[(u_char)this->fPlayer] == (tMenu *)0x0) ||
+              ((*(*this->fParentMenu[(u_char)this->fPlayer]->_vf)[7].pfn)
+                   ((char *)this->fParentMenu[(u_char)this->fPlayer] +
+                    (*this->fParentMenu[(u_char)this->fPlayer]->_vf)[7].delta) != 0)) {
           this->fCurrentMenu[(u_char)this->fPlayer] = (tMenu *)0x0;
-          tScreen *ptVar18 = this->fCurrentScreen[(u_char)this->fPlayer];
-          if (ptVar18 != (tScreen *)0x0) {
-            (*(*ptVar18->_vf)[7].pfn)
-                      ((char *)ptVar18 + (*ptVar18->_vf)[7].delta);
+          if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
+            (*(*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[7].pfn)
+                      ((char *)this->fCurrentScreen[(u_char)this->fPlayer] +
+                       (*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[7].delta);
           }
           this->fCurrentScreen[(u_char)this->fPlayer] = (tScreen *)0x0;
           }
         }
       }
       if (this->fTransitionToScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
-        tScreen *ptVar18 = this->fCurrentScreen[(u_char)this->fPlayer];
-        if (ptVar18 != (tScreen *)0x0) {
-          iVar10 = (*(*ptVar18->_vf)[8].pfn)
-                             ((char *)ptVar18 + (*ptVar18->_vf)[8].delta);
-          if ((iVar10 == 0) || (this->fTransitionToMenu[(u_char)this->fPlayer] != (tMenu *)0x0))
+        if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
+          if (((*(*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[8].pfn)
+                             ((char *)this->fCurrentScreen[(u_char)this->fPlayer] +
+                              (*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[8].delta) == 0) ||
+              (this->fTransitionToMenu[(u_char)this->fPlayer] != (tMenu *)0x0))
           goto MainLoop_perPlayerFlagCheck;
-          tScreen *currentScreen = this->fCurrentScreen[(u_char)this->fPlayer];
-          if (currentScreen != (tScreen *)0x0) {
-            (*(*currentScreen->_vf)[7].pfn)
-                      ((char *)currentScreen + (*currentScreen->_vf)[7].delta);
+          if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
+            (*(*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[7].pfn)
+                      ((char *)this->fCurrentScreen[(u_char)this->fPlayer] +
+                       (*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[7].delta);
           }
         }
         this->fCurrentScreen[(u_char)this->fPlayer] = this->fTransitionToScreen[(u_char)this->fPlayer];
         gLargestUnused[0] = largestunused();
-        pa_Var12 = this->fCurrentScreen[(u_char)this->fPlayer]->_vf;
-        (*(*pa_Var12)[6].pfn)
+        (*(*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[6].pfn)
                   ((char *)this->fCurrentScreen[(u_char)this->fPlayer] +
-                   (*pa_Var12)[6].delta);
+                   (*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[6].delta);
         this->fTransitionToScreen[(u_char)this->fPlayer] = (tScreen *)0x0;
         (this->fCurrentScreen[(u_char)this->fPlayer])->TransitionOn(kScreen_TransitionTypeScreen,
                    (tMenu *)0x0);
@@ -1064,46 +1042,43 @@ MainLoop_perPlayerFlagCheck:
       if (this->fCurrentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) {
         inputEndPlayer = (tPlayer)(u_char)this->fPlayer;
         inputStartPlayer = inputEndPlayer;
-        u_int menuFlags = this->fCurrentMenu[(u_char)this->fPlayer]->fFlags;
-        if (((menuFlags & 0x10) != 0) ||
-           ((frontEnd.gameMode == kPlayerTwo && ((menuFlags & 8) == 0)))) {
+        if (((this->fCurrentMenu[(u_char)this->fPlayer]->fFlags & 0x10) != 0) ||
+           ((frontEnd.gameMode == kPlayerTwo &&
+             ((this->fCurrentMenu[(u_char)this->fPlayer]->fFlags & 8) == 0)))) {
           perPlayer = true;
         }
         if (perPlayer) {
           inputStartPlayer = kPlayerOne;
           inputEndPlayer = kPlayerTwo;
         }
-        this_tMenu_l139 = this->fCurrentMenu[(u_char)this->fPlayer];
-        u_int inputFlags = this_tMenu_l139->fFlags;
-        if ((inputFlags & 0x20) != 0) {
+        if ((this->fCurrentMenu[(u_char)this->fPlayer]->fFlags & 0x20) != 0) {
           inputStartPlayer = (tPlayer)(u_char)this->fInputPlayer;
           inputEndPlayer = inputStartPlayer;
         }
-        if ((inputFlags & 0x40) != 0) {
+        if ((this->fCurrentMenu[(u_char)this->fPlayer]->fFlags & 0x40) != 0) {
           inputEndPlayer = kPlayerOne;
           inputStartPlayer = kPlayerOne;
         }
-        if ((inputFlags & 0x80) != 0) {
+        if ((this->fCurrentMenu[(u_char)this->fPlayer]->fFlags & 0x80) != 0) {
           inputEndPlayer = kPlayerTwo;
           inputStartPlayer = kPlayerTwo;
         }
         wasSubMenu = false;
-        if (((this_tMenu_l139 != (tMenu *)0x0) &&
-            (iVar10 = (*(*this_tMenu_l139->_vf)[7].pfn)
-                                ((char *)this_tMenu_l139 +
-                                 (*this_tMenu_l139->_vf)[7].delta), iVar10 != 0)) &&
+        if (((this->fCurrentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) &&
+            ((*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[7].pfn)
+                                ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
+                                 (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[7].delta) != 0)) &&
            (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0)) {
-          iVar10 = (*(*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[8].pfn)
+          wasSubMenu =
+              (*(*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[8].pfn)
                              ((char *)this->fCurrentScreen[(u_char)this->fPlayer] +
-                              (*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[8].delta);
-          wasSubMenu = iVar10 != 0;
+                              (*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[8].delta) != 0;
         }
         if (wasSubMenu) {
           u_long debounce;
-          pa_Var11 = this->fCurrentMenu[(u_char)this->fPlayer]->_vf;
-          debounce = (*(*pa_Var11)[4].pfn)
+          debounce = (*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[4].pfn)
                                   ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
-                                   (*pa_Var11)[4].delta);
+                                   (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[4].delta);
           for (i = inputStartPlayer; i <= inputEndPlayer; i++) {
           command[i].type = kMenu_Command_None;
           keyVal[i] = FEInput_GetKeyFromPlayer((tPlayer)i,debounce);
@@ -1122,10 +1097,15 @@ MainLoop_perPlayerFlagCheck:
              * move and feeds both stores without a load-use nop.  This pin-free,
              * zero-insn boundary reproduces that grouping (3 diffs -> PASS). */
             __asm__("" : : "i"(0));
-            this_tDialogBase_l181 = (tDialogBase *)&this->helpPopup;
-            if ((keyVal[i] == 4) && (this_tDialogBase_l181->currentlyOn != 0)) {
+            /* SYM-CODEGEN-CARRIER: helpDialog -- calling IsVisible/Hide on
+               helpPopup directly is FAIL 7 at 1124/1123; this typed receiver
+               preserves retail's load-before-address schedule for the
+               recorded inline `this`. */
+            tDialogBase *helpDialog = (tDialogBase *)&this->helpPopup;
+            /* SYM-INLINE-THIS: IsVisible */
+            if ((keyVal[i] == 4) && helpDialog->IsVisible()) {
               keyVal[i] = kInput_KeyType_AlreadyProcessed;
-              this_tDialogBase_l181->Hide();
+              helpDialog->Hide();
             }
             if (dialog != 0) {
               if (keyVal[i] != kInput_KeyType_Circle) {
@@ -1133,22 +1113,21 @@ MainLoop_perPlayerFlagCheck:
                           ((char *)dialog + (*dialog->_vf)[9].delta,i,keyVal + i,command + i);
               }
             }
-            tScreen *ptVar18 = this->fCurrentScreen[(u_char)this->fPlayer];
-            if (ptVar18 != (tScreen *)0x0) {
-              (*(*ptVar18->_vf)[9].pfn)
-                        ((char *)ptVar18 + (*ptVar18->_vf)[9].delta,i,
+            if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
+              (*(*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[9].pfn)
+                        ((char *)this->fCurrentScreen[(u_char)this->fPlayer] +
+                         (*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[9].delta,i,
                          keyVal + i,command + i);
             }
             if (keyVal[i] != kInput_KeyType_AlreadyProcessed) {
-              pa_Var11 = this->fCurrentMenu[(u_char)this->fPlayer]->_vf;
-              (*(*pa_Var11)[3].pfn)
+              (*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[3].pfn)
                         ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
-                         (*pa_Var11)[3].delta,i,keyVal + i,command + i);
+                         (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[3].delta,
+                         i,keyVal + i,command + i);
             }
           }
-          iVar10 = command[i].type;
-          if (iVar10 == 0) goto MainLoop_commandSwitchDefault;
-          switch(iVar10) {
+          if (command[i].type == 0) goto MainLoop_commandSwitchDefault;
+          switch(command[i].type) {
           case 1:
             AudioCmn_PlayFESFX(0);
             this->backList[(u_char)this->fPlayer][this->backDepth[(u_char)this->fPlayer]] =
@@ -1166,11 +1145,10 @@ MainLoop_setMenuAndNext:
             AudioCmn_PlayFESFX(0);
             this->backList[(u_char)this->fPlayer][this->backDepth[(u_char)this->fPlayer]] =
                  this->fCurrentMenu[(u_char)this->fPlayer];
-            iVar10 = this->backDepth[(u_char)this->fPlayer];
-            __asm__("" : "+r"(iVar10));
+            this->backDepth[(u_char)this->fPlayer] =
+                this->backDepth[(u_char)this->fPlayer] + 1;
             needToSetChildMenu = true;
             __asm__("" : : "r"(needToSetChildMenu));
-            this->backDepth[(u_char)this->fPlayer] = iVar10 + 1;
             stackBackupPin = (short)this->backDepth[(u_char)this->fPlayer];
             this->SetMenu((u_short)(u_char)this->fPlayer,
                     command[i].nextMenu);
@@ -1204,21 +1182,20 @@ MainLoop_setMenuAndNext:
             if (this->fPlayer == '\0') {
               if ((this->backDepth[(u_char)this->fPlayer] == (int)stackBackupPin) &&
                   (this->fCurrentMenu[1] != (tMenu *)0x0)) {
-                ptVar17 = this->fParentMenu[0];
-                if (ptVar17 != (tMenu *)0x0) {
-                  (*(*ptVar17->_vf)[5].pfn)
-                            ((char *)ptVar17 + (*ptVar17->_vf)[5].delta);
+                if (this->fParentMenu[0] != (tMenu *)0x0) {
+                  (*(*this->fParentMenu[0]->_vf)[5].pfn)
+                            ((char *)this->fParentMenu[0] +
+                             (*this->fParentMenu[0]->_vf)[5].delta);
                 }
-                ptVar17 = this->fParentMenu[1];
-                if (ptVar17 != (tMenu *)0x0) {
-                  (*(*ptVar17->_vf)[5].pfn)
-                            ((char *)ptVar17 + (*ptVar17->_vf)[5].delta);
+                if (this->fParentMenu[1] != (tMenu *)0x0) {
+                  (*(*this->fParentMenu[1]->_vf)[5].pfn)
+                            ((char *)this->fParentMenu[1] +
+                             (*this->fParentMenu[1]->_vf)[5].delta);
                 }
-                ptVar17 = this->fCurrentMenu[1];
-                pa_Var11 = ptVar17->_vf;
                 stackBackupPin = -1;
-                (*(*pa_Var11)[5].pfn)
-                          ((char *)ptVar17 + (*pa_Var11)[5].delta);
+                (*(*this->fCurrentMenu[1]->_vf)[5].pfn)
+                          ((char *)this->fCurrentMenu[1] +
+                           (*this->fCurrentMenu[1]->_vf)[5].delta);
                 (this->fCurrentScreen[1])->TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
                 this->backDepth[1] = 0;
                 goto MainLoop_afterStackPair;
@@ -1228,19 +1205,19 @@ MainLoop_setMenuAndNext:
                 (this->backDepth[(u_char)this->fPlayer] < 1) &&
                 (this->fCurrentMenu[1] != (tMenu *)0x0)) {
               __asm__("" : : : "memory");
-              ptVar17 = this->fCurrentMenu[1];
               this->backDepth[0] = stackBackupPin + -1;
-              pa_Var11 = ptVar17->_vf;
-              (*(*pa_Var11)[5].pfn)((char *)ptVar17 + (*pa_Var11)[5].delta);
-              ptVar17 = this->fParentMenu[0];
-              if (ptVar17 != (tMenu *)0x0) {
-                (*(*ptVar17->_vf)[5].pfn)
-                          ((char *)ptVar17 + (*ptVar17->_vf)[5].delta);
+              (*(*this->fCurrentMenu[1]->_vf)[5].pfn)
+                        ((char *)this->fCurrentMenu[1] +
+                         (*this->fCurrentMenu[1]->_vf)[5].delta);
+              if (this->fParentMenu[0] != (tMenu *)0x0) {
+                (*(*this->fParentMenu[0]->_vf)[5].pfn)
+                          ((char *)this->fParentMenu[0] +
+                           (*this->fParentMenu[0]->_vf)[5].delta);
               }
-              ptVar17 = this->fParentMenu[1];
-              if (ptVar17 != (tMenu *)0x0) {
-                (*(*ptVar17->_vf)[5].pfn)
-                          ((char *)ptVar17 + (*ptVar17->_vf)[5].delta);
+              if (this->fParentMenu[1] != (tMenu *)0x0) {
+                (*(*this->fParentMenu[1]->_vf)[5].pfn)
+                          ((char *)this->fParentMenu[1] +
+                           (*this->fParentMenu[1]->_vf)[5].delta);
               }
               (this->fCurrentScreen[1])->TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
               stackBackupPin = -1;
@@ -1254,12 +1231,9 @@ MainLoop_doBack:
             this->SetMenu((u_short)(u_char)this->fPlayer,
                     this->backList[(u_int)(u_char)this->fPlayer]
                                   [this->backDepth[(u_char)this->fPlayer]]);
-            ptVar17 = this->fCurrentMenu[(u_char)this->fPlayer];
-            pa_Var11 = ptVar17->_vf;
-            iVar10 = (*(*pa_Var11)[8].pfn)
-                               ((char *)ptVar17 +
-                                (*pa_Var11)[8].delta);
-            if (iVar10 != 0) {
+            if ((*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[8].pfn)
+                               ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
+                                (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[8].delta) != 0) {
               this->backDepth[(u_char)this->fPlayer] = this->backDepth[(u_char)this->fPlayer] + 1;
             }
             break;
@@ -1268,22 +1242,28 @@ MainLoop_noBack:
             AudioCmn_PlayFESFX(1);
             continue;
           case 6:
-            iVar10 = 1 - (u_int)(u_char)this->fPlayer;
-            if (this->waitingForOtherPlayer[iVar10] == 0) {
+            if (this->waitingForOtherPlayer[1 - (u_int)(u_char)this->fPlayer] == 0) {
               this->waitingForOtherPlayer[(u_char)this->fPlayer] = 1;
               break;
             }
-            this->waitingForOtherPlayer[iVar10] = 0;
+            this->waitingForOtherPlayer[1 - (u_int)(u_char)this->fPlayer] = 0;
             if (frontEnd.raceType != RaceType_PinkSlips) goto MainLoop_carInfoStockGarage;
             AudioMus_StopSong(400);
             Init_Memcard(false,1);
+            {
+            /* SYM-CODEGEN-CARRIER: memcardDialog -- calling inline SetString
+               directly on NoInputMemCardDialog is count-exact FAIL 10 and
+               loses retail's $s0 receiver lifetime. */
+            tDialogMessageString *memcardDialog;
+            int err;
+            int player;
             err = PinkSlipsNoError;
             player = 0;
             do {
               if ((2 <= player) || (err != PinkSlipsNoError)) break;
-              this_tDialogMessageString_l311 =
-                   (tDialogMessageString *)&FEApp->NoInputMemCardDialog;
-              this_tDialogMessageString_l311->string = TextSys_Word(player + 0x295);
+              memcardDialog = (tDialogMessageString *)&FEApp->NoInputMemCardDialog;
+              /* SYM-INLINE-THIS: SetString */
+              memcardDialog->SetString(TextSys_Word(player + 0x295));
               ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Display();
               while (true) {
                 if (((FEApp->NoInputMemCardDialog).fFullyOpen ^ 1) == 0) break;
@@ -1303,9 +1283,13 @@ MainLoop_noBack:
             this->UpdateMusic();
             AudioMus_Volume((int)((u_int)(u_char)frontEnd.musicVolume * 0x23) >> 6);
             continue;
+            }
           case 5:
           case 7:
 MainLoop_carInfoPinkSlips:
+            {
+            tCarInfo carInfo;
+            u_long ticks;
             if (frontEnd.raceType != RaceType_PinkSlips) {
 MainLoop_carInfoStockGarage:
               if (frontEnd.carListType == '\0') {
@@ -1333,6 +1317,7 @@ MainLoop_carInfoApplied:
             GameSetup_gData.replayMode = 0;
             this->PerformMenuDestruction();
             return kApp_Command_StartRace;
+            }
           case 8:
             GameSetup_gData.replayMode = 2;
             this->PerformMenuDestruction();
@@ -1352,9 +1337,12 @@ MainLoop_nextPlayer:
     }
     if (0xf00 < (int)(tick - demoLoopLastInputTick)) {
       this->RunDemoVideo();
-      int ticksValue = ticks_array[0];
-      __asm__("" : : "r"(ticksValue));
-      demoLoopLastInputTick = ticksValue;
+      /* SYM-CODEGEN-CARRIER: currentTicks -- assigning ticks_array[0]
+         directly is count-exact FAIL 6, selecting $v0 instead of retail $t0
+         for the final load and delay-slot store. */
+      int currentTicks = ticks_array[0];
+      __asm__("" : : "r"(currentTicks));
+      demoLoopLastInputTick = currentTicks;
     }
   } while( true );
   }

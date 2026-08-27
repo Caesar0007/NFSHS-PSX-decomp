@@ -482,16 +482,13 @@ void tScreen::InitializeShapes(tShapeInformation &data,u_int numShapes)
   data.fFile = (char *)0x0;
   data.fDestFile = (char *)0x0;
   data.fLoadCancelled = 0;
-  if (numShapes != 0) {
-    data.fShapes =
-        (tTexture_ShapeInfo *)reservememadr("Shapes",numShapes << 5,0);
+  if (numShapes == 0) {
+    return;
   }
-  i = 0;
-  if (numShapes != 0) {
-    do {
-      data.fShapes[i].clutID = 0;
-      i = i + 1;
-    } while (i < numShapes);
+  data.fShapes =
+      (tTexture_ShapeInfo *)reservememadr("Shapes",numShapes << 5,0);
+  for (i = 0; i < numShapes; i = i + 1) {
+    data.fShapes[i].clutID = 0;
   }
   return;
 }

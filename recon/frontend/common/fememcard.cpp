@@ -698,7 +698,11 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
         }
         returnmessage = 0x28d;
         SetPads();
-        finished = true;
+        /* STRICT-CFG MATCH: keep the successful-read exit tied to the same
+           late switch tail as the card-status arms.  Without this source
+           edge, cross-jump makes the WithDialogs==0 branch target the earlier
+           byte-identical tail (normalized PASS, retail branch word wrong). */
+        goto finish_card_event;
       }
       else {
         result = 1;
@@ -749,6 +753,7 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
           }
         }
       }
+finish_card_event:
       finished = true;
     }
   }

@@ -5028,6 +5028,61 @@ targets across 460 units, vtable indexing passes 930 files, the phantom census
 reports zero `__Fe` bases, and the source-only policy audit finds no
 post-compiler text moves or branch retargets.
 
+### P138 — two-player car-background SYM local reconciliation (`2026-08-27`)
+
+Reliable `DrawBackground__25tScreenCarSelectTwoPlayer` records define the
+296-byte frame and exactly six function-scope locals: stack `RECT r` at
+`sp+40`, stack `tCarInfo carInfo` at `sp+48`, SHORT `carY` in `$s4`,
+`DRAWENV *drenv` in `$s5`, `DR_AREA *daprim` in `$a0`, and stack `RECT temp`
+at `sp+256`.  The source now uses the recorded `carY` for both player
+ordinates and corrects the `carInfo` stack-offset receipt to `AUTO -248`.
+The nested records expose only inlined `tFEApplication` receivers and do not
+recover any additional private local spelling.
+
+Eleven decompiler-only identities are deleted without changing the normalized
+retail instruction stream.  Palette packets now use `Render_gPalettePtr`
+directly instead of `cur_pkt`/`cur_pkt_2`; both virtual dispatches share one
+typed table carrier instead of `screenVtbl`/`screenVtbl2`; the virtual result,
+brightness, car ordinate, brightness sample, and packet-address aliases no
+longer pass through `ti7`, `brightness`, `carY_2`, `sVar3`,
+`pkt_addr24`, or `pkt_addr24_2`.  The generic `ts10` is not merely discarded:
+its retail value web is restored to the SYM-recorded `carY` local.
+
+Five optimized-away webs remain with explicit counterfactual receipts.  A
+typed `vtbl` is required because direct `this->_vf[1][slot]` indexing is
+byte-identical but structurally unsafe for the pointer-to-row type and fails
+the repository vtable audit.  Folding `elapsed` into its comparison is
+count-exact FAIL 10; folding `uploadY` into `UploadShapes` is count-exact
+FAIL 6; nesting away `uploadReady` is FAIL 24 at 338/342; and passing
+`fPlayer` directly is count-exact FAIL 24 in the first arm and FAIL 20 in the
+alternate arm.  Retail bytes prove those value webs, while optimized SYM does
+not preserve their private identifiers.
+
+The normalized detailed oracle and `diffsrc` gates remain exact PASS at
+342/342 instructions with an instruction-exact `-g` twin.  The independent
+raw branch-address audit still identifies one previously normalized CFG item:
+five branch words target source-layout labels shifted by one to twelve
+instructions.  This is retained as explicit matching work rather than hidden
+by the PASS board.  The complete `screencarselect.cpp` board remains 53 PASS,
+two near, and four far functions.  The refreshed strict frontend/common audit
+is stored in
+[`frontend_common_strict_p242_20260827.md`](scratchpad/root_sym_audit/frontend_common_strict_p242_20260827.md).
+It advances declaration-clean mapped functions from 777 to 778, removes all
+16 generic names from this function's queue, reduces generic extra
+source-local names from 29 to 13, and raises explicit source-only codegen
+carriers from 513 to 518.  Only `MainLoop__14tFEApplicationP5tMenu` remains in
+the strict source-local review queue.  Missing-name, type, storage, global,
+and mapping-review queues remain empty.
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; undefined-call audits scan 15,782
+reconstruction and 15,779 source-lane calls with zero defects.  TU order has
+zero inversions across 513 objects, call-target audit finds zero proven wrong
+targets across 460 units, vtable indexing passes 930 files, the phantom census
+compiles all 513 TUs and reports zero hidden phantoms or ownership gaps, and
+the source-only policy audit finds no post-compiler text moves or branch
+retargets.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

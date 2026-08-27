@@ -1976,42 +1976,43 @@ void tScreenCarSelectTwoPlayer::TurnOffVideoWall()
 void tScreenCarSelectTwoPlayer::DrawBackground()
 
 {
-  int screenVtbl;
-  int ti7;
-  int screenVtbl2;
+  /* SYM-CODEGEN-CARRIER: vtbl -- direct this->_vf[1][slot] indexing is
+     byte-identical, but is structurally unsafe for the pointer-to-row type and
+     fails the repository vtable-index audit.  This typed dispatch carrier
+     preserves the retail delta-call shape without inventing a helper symbol. */
   __vtbl_ptr_type (*vtbl) [10];
-  int pkt_addr24;
-  int pkt_addr24_2;
-  int brightness;
+  /* SYM-CODEGEN-CARRIER: elapsed -- folding the elapsed-time expression into
+     the comparison is count-exact FAIL 10 and reverses the retail
+     load/subtract destination web. */
   int elapsed;
-  short carY_2;
-  short sVar3;
-  short ts3;
+  /* SYM-CODEGEN-CARRIER: uploadY -- folding the player-dependent ordinate
+     into UploadShapes is count-exact FAIL 6 and moves `li a3,65` relative to
+     the receiver setup. */
+  short uploadY;
   short carY;
-  short ts10;
   DRAWENV *drenv;
   RECT r;
   union {
     tCarInfo carInfo;
     signed char signedCarID;
-  }; /* SYM-CARRIER: carInfo (AUTO -256; union alias is codegen-only) */
+  }; /* SYM-CARRIER: carInfo (AUTO -248; union alias is codegen-only) */
   RECT temp;
-  u_char *cur_pkt;
   DR_AREA *daprim;
-  u_char *cur_pkt_2;
-  BOOL bVar1;
+  /* SYM-CODEGEN-CARRIER: uploadReady -- nesting the readiness body directly
+     is FAIL 24 at 338/342, losing four retail instructions and the held
+     shape-file base. */
+  BOOL uploadReady;
   
-  ts10 = 0x4f;
+  carY = 0x4f;
   drenv = (DRAWENV *)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
   daprim = (DR_AREA *)Render_gPacketPtr;
-  cur_pkt = Render_gPalettePtr;
   temp.x = 0;
   temp.y = *(short *)((char *)drenv + 2);
   temp.w = 0x200;
   temp.h = (short)screenheight;
-  ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)cur_pkt)->addr;
+  ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr;
   Render_gPacketPtr = (u_char *)daprim + 0xc;
-  ((tPsyQPrimTag *)cur_pkt)->addr = (u_int)daprim;
+  ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
   SetDrawArea(daprim,&temp);
   r.x = 0x122;
   r.y = 0x19;
@@ -2020,35 +2021,30 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
   }
   r.w = 200;
   r.h = 0xc;
-  screenVtbl = (int)this->_vf;
-  ti7 = (**(code **)(screenVtbl + 0x6c))
-                  (*(short *)(screenVtbl + 0x68) + -0x14 +
-                   this->fPermShapes.fFilename,&carInfo);
-  if (ti7 != 0) {
+  vtbl = this->_vf;
+  if ((*vtbl[1][3].pfn)
+                  (vtbl[1][3].delta + -0x14 +
+                   this->fPermShapes.fFilename,&carInfo) != 0) {
     r.y = 0x14;
     if (FEAppB[0]->fPlayer == '\x01') {
-      ts10 = 0xb8;
+      carY = 0xb8;
       r.y = 0x80;
     }
     this->fCameraRotation = this->fCameraRotation + 3;
     DrawShape_NFS4RoundRectangle((signed char)carInfo.fCarID + 0x121,r,0);   /* W58-A1: RECT& decl */
-    screenVtbl2 = (int)this->_vf;
-    (**(code **)(screenVtbl2 + 100))
-              (*(short *)(screenVtbl2 + 0x60) + -0x14 +
+    vtbl = this->_vf;
+    (*vtbl[1][2].pfn)
+              (vtbl[1][2].delta + -0x14 +
                this->fPermShapes.fFilename,&carInfo);
     if (gCarObj[(byte)FEAppB[0]->fPlayer]->async_handle != 0) {
       this->SetBrightness(0,0);
       this->fFadeTicks[0] = ticks[0];
     }
     if (gCarObj[(byte)FEAppB[0]->fPlayer]->async_handle == 0) {
-      sVar3 = this->fBrightness[0];
-      if (((sVar3 == this->fDestBrightness[0]) && (sVar3 == 0)) &&
+      if (((this->fBrightness[0] == this->fDestBrightness[0]) &&
+           (this->fBrightness[0] == 0)) &&
           (0x80 < ticks[0] - this->fFadeTicks[0])) {
-        carY_2 = 0x20;
-        if (carInfo.fAvailable != '\0') {
-          carY_2 = 0x80;
-        }
-        this->SetBrightness(carY_2,0);
+        this->SetBrightness(carInfo.fAvailable != '\0' ? 0x80 : 0x20,0);
         TurnOn(this->fVideoWall);
       }
       /* MATCH: void fence HERE (inner-if exit, still inside the outer if) gives the
@@ -2060,8 +2056,11 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
     }
     this->UpdateBrightness(0);
     showRoomFlag = 0;
+    /* SYM-CODEGEN-CARRIER: player -- passing fPlayer directly is count-exact
+       FAIL 24 in this arm and count-exact FAIL 20 in the alternate arm; the
+       two scoped materializations preserve the retail argument register web. */
     tPlayer player = (tPlayer)(byte)FEAppB[0]->fPlayer;
-    DrawCar(carInfo,0x116,ts10,1.7,-9.9,(char)this->fBrightness[0],false,
+    DrawCar(carInfo,0x116,carY,1.7,-9.9,(char)this->fBrightness[0],false,
                this->fCameraRotation,player);
   }
   else {
@@ -2080,26 +2079,22 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
     ;
   }
   ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
-  bVar1 = false;
+  uploadReady = false;
   if (((this->fSwapShapes.fFile != (char *)0x0) &&
      (this->fVideoWall[0].fTransitionDirection != -1)) &&
      (gCarObj[(byte)FEAppB[0]->fPlayer]->async_handle == 0)) {
     elapsed = ticks[0] - this->fFadeTicks[0];
-    bVar1 = 0x80 < elapsed;
+    uploadReady = 0x80 < elapsed;
   }
-  if (bVar1) {
-    ts3 = 0;
+  if (uploadReady) {
+    uploadY = 0;
     if (FEAppB[0]->fPlayer == '\x01') {
-      ts3 = 0x41;
+      uploadY = 0x41;
     }
-    this->tScreen::UploadShapes(this->fSwapShapes,0,ts3,5,0);
+    this->tScreen::UploadShapes(this->fSwapShapes,0,uploadY,5,0);
     TurnOn(this->fVideoWall);
     if (this->fDestBrightness[0] == this->fBrightness[0]) {
-      brightness = 0x20;
-      if (carInfo.fAvailable != '\0') {
-        brightness = 0x80;
-      }
-      this->SetBrightness(brightness,0);
+      this->SetBrightness(carInfo.fAvailable != '\0' ? 0x80 : 0x20,0);
     }
   }
   r.y = 0;
@@ -2121,10 +2116,9 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
     temp.y = temp.y + temp.h;
   }
   daprim = (DR_AREA *)Render_gPacketPtr;
-  cur_pkt_2 = Render_gPalettePtr;
-  ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)cur_pkt_2)->addr;
+  ((tPsyQPrimTag *)daprim)->addr = ((tPsyQPrimTag *)Render_gPalettePtr)->addr;
   Render_gPacketPtr = (u_char *)daprim + 0xc;
-  ((tPsyQPrimTag *)cur_pkt_2)->addr = (u_int)daprim;
+  ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
   SetDrawArea(daprim,&temp);
   return;
 }

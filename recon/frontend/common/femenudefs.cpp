@@ -3169,25 +3169,13 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemTrackDirection(0xcc, (tListIterator *)&iteratorTrackDirection)   /* +0xEC0 tMenuItemOptionsLeftRightChoice */
  , itemTrackMirrored(0xcd, (tListIterator *)&iteratorTrackMirrored)   /* +0xEE0 tMenuItemOptionsTwoItemChoice */
  , itemTimeOfDay(0xce, (tListIterator *)&iteratorTimeOfDay)   /* +0xF04 tMenuItemOptionsTwoItemChoice */
-   /* [W76-A1 2026-08-23] CSE-FLUSH NOTE DIAL -- the five `({ ... })` wrappers here
-      and on menuTrackOptions' 2nd/3rd item args below are NOT dead code and their
-      COUNT, SITES and DEPTH are all load-bearing: DO NOT SIMPLIFY OR EXTEND.
-      Each depth-1 statement-expression adds 4 NOTE_INSN_BLOCK notes + 1 cse-deleted
-      value copy = 5 RTL chain objects and ZERO machine insns (insn count 3215
-      unchanged).  cse.c:8620-8645 counts EVERY chain rtx (insns AND notes) toward
-      its per-1001-object hash-table flush (catalog 24C-1), so these 25 objects at
-      chain ordinals ~1002-1063 shift where the flush boundaries land: gate
-      1138 -> 932 (-206; reg-blind structure 200 -> 134), and the itemGoToDuelBuyCar
-      -1 def becomes FRESH (own `li`, no longer cse-forwarded to menuTrackOptions'
-      -1 from ~330 objects earlier).  Measured cell shape (w76 probe, 40+ variants):
-      the 3 item-init sites + exactly TWO menuTrackOptions args, depth 1: any 2 MTO
-      args work (932 x4 subsets); singles inert (1138); depth 2 = 2800; 1 or 3 MTO
-      args = 2251/2331; more sites/depths anywhere = 1497..5641 (chaotic).  Full map
-      + falsifications -> scratchpad/w76/A1_report.md. */
- , itemWeather(0xcf, (tListIterator *)({ &iteratorWeather; }))   /* +0xF28 tMenuItemOptionsTwoItemChoice */
- , itemTraffic(0xd0, (tListIterator *)({ &iteratorTraffic; }))   /* +0xF4C tMenuItemOptionsTwoItemChoice */
- , itemLocalSpeech(0xd2, ({ &iteratorLocalSpeech; }))   /* +0xF70 tMenuItemOptionsTwoItemChoice */
- , menuTrackOptions(0x1000, (tScreen *)0x0, (tMenu *)0x0, (tMenu *)0x0, 0, 0xb9, -1, (tMenuItem *)&itemLaps, ({ &itemTrackDirection; }), ({ &itemTrackMirrored; }), &itemTimeOfDay, &itemWeather, &itemTraffic, &itemLocalSpeech, 0)   /* +0xF94 tMenuOptions */
+   /* [2026-08-27] Retail SYM has no lexical blocks in these initializer
+      arguments.  Keep the expressions plain; the former statement-expression
+      CSE dials made the generated block tree non-authentic. */
+ , itemWeather(0xcf, (tListIterator *)&iteratorWeather)   /* +0xF28 tMenuItemOptionsTwoItemChoice */
+ , itemTraffic(0xd0, (tListIterator *)&iteratorTraffic)   /* +0xF4C tMenuItemOptionsTwoItemChoice */
+ , itemLocalSpeech(0xd2, &iteratorLocalSpeech)   /* +0xF70 tMenuItemOptionsTwoItemChoice */
+ , menuTrackOptions(0x1000, (tScreen *)0x0, (tMenu *)0x0, (tMenu *)0x0, 0, 0xb9, -1, (tMenuItem *)&itemLaps, &itemTrackDirection, &itemTrackMirrored, &itemTimeOfDay, &itemWeather, &itemTraffic, &itemLocalSpeech, 0)   /* +0xF94 tMenuOptions */
  , menuTrackRecordsItem(0, (tMenu *)0x0, 0, -1, -1)   /* +0x1018 tBlankMenuItemGoToMenuNFS4Button */
  , menuTrackRecords(0x1000, (tScreen *)screenTrackRecords, (tMenu *)0x0, (tMenu *)0x0, 0, 0xd4, 1, 10, (tMenuItem *)0x0)   /* +0x1044 tOptionsMenu */
  , itemTrackInfoContinue(0x5a, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToGarage, 0x21, 10)   /* +0x10C4 tMenuItemGoToMenuNFS4Button */
@@ -3203,31 +3191,13 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemGarageCar(0x92, (tListIterator *)&iteratorGarageCar, 0x1c, 10)   /* +0x12E8 tMenuItemNFS4LeftRightChoice */
  , itemCarDealer(0x74, (tMenu*)&menuGoToCarDealer, 0, 0x3a, 10)   /* +0x1310 tMenuItemGoToMenuNFS4Button */
  , itemUpgradeCar(0x91, (tMenu *)0x0, MenuExtended_GoToUpgrades, 0x44, 10)   /* +0x133C tMenuItemGoToMenuNFS4Button */
-   /* [W72-A6 / MOVED W74-A6] The statement-expression read-only fence on
-      &itemGarageCar (now on menuPostCarGarage's FIRST argument, one line below the
-      menuCarGarage call) is a +1-REF ALLOCNO DIAL (catalog 21A#1), NOT dead code --
-      DO NOT SIMPLIFY IT AWAY AND DO NOT MOVE IT.  It raises &itemGarageCar
-      (this+0x12E8) from allocno priority 741 to 917, past &menuCarOptions
-      (this+0x20D8) at 896, so $fp holds the same member retail holds (8 of the 11
-      `addiu fp,` writes match the oracle with it; without the fence the whole
-      function is +101 diffs).
-      W74-A6 POSITION LAW: the fence's +1 REF depends only on its OPERAND, but the
-      output-less asm is VOLATILE = a sched1 BARRIER, and it used to sit INSIDE
-      menuCarGarage's own argument list -- exactly the block where our first
-      structural divergence was (a 21-insn pure-reorder hunk at insns 1140..1160).
-      Moving the barrier out of that block while keeping the operand kept the $fp win
-      and deleted the hunk: gate 1257 -> 1238, phase now clean 0..1226 (was 0..1139).
-      Measured position sweep (gate diffs, everything else held): no fence 1339 |
-      inside menuCarGarage on &itemGarageCar 1257, &itemCarDealer 1257,
-      &itemUpgradeCar 1258, &itemCarSelectRace 1255, 0x8f 1254, the fn-ptr arg 1253,
-      &menuCarOptions / screenCarSelect[0] / 0x1a00 1246 | on itemGarageCar's own
-      ctor 1238 | on menuPostCarGarage's 1st arg 1238 (LANDED) | one member later, at
-      iteratorOpponentCar, 1983 -- a cliff, because past menuCarGarage's use the
-      fence LENGTHENS the live range and $fp is lost again.  So: sweep a read-only
-      fence's position from the operand's definition to just past its LAST use; the
-      optimum is adjacent to a use, never inside the hot argument block. */
+   /* [2026-08-27] The former output-less asm fence on menuPostCarGarage was
+      removed.  GCC represented it as volatile asm_operands and stranded the
+      CSE'd -1 pseudo used by itemGoToDuelBuyCar.  Without that fence the retail
+      li/sw/order is recovered.  The SYM-exact constructor has 105 lexical block
+      pairs, so do not reintroduce statement-expression wrappers here. */
  , menuCarGarage(0x1a00, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0x8f, (tMenuItem *)&itemCarSelectRace, &itemGarageCar, &itemCarDealer, &itemUpgradeCar, 0)   /* +0x1368 tMenuNFS4 */
- , menuPostCarGarage(({ __asm__("" : : "r"(&itemGarageCar)); (0x1a00); }), (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0x8f, (tMenuItem *)&itemCarSelectRace, &itemUpgradeCar, 0)   /* +0x13E4 tMenuNFS4 */
+ , menuPostCarGarage(0x1a00, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0x8f, (tMenuItem *)&itemCarSelectRace, &itemUpgradeCar, 0)   /* +0x13E4 tMenuNFS4 */
  , iteratorOpponentCar(&frontEnd.oppCar, &carManager)   /* +0x1460 tListIteratorCar */
  , itemDuelRace(0xbd, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0x2a, 10)   /* +0x147C tMenuItemGoToMenuNFS4Button */
  , itemCar2(0x92, (tListIterator *)&iteratorCar1, 0xc, 10)   /* +0x14A8 tMenuItemNFS4LeftRightChoice */
@@ -3326,20 +3296,11 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemDisplayMap(0x1e1, (tListIterator *)&iteratorDisplayMap)   /* +0x2928 tMenuItemDisplayLeftRightChoice */
  , itemDisplayOpponentID(0x1e2, (tListIterator *)&iteratorDisplayOpponentID)   /* +0x2954 tMenuItemDisplayLeftRightChoice */
  , itemDisplayTime(0x1e3, (tListIterator *)&iteratorDisplayTime)   /* +0x2980 tMenuItemOnOffLeftRightChoice */
-   /* [W79 2026-08-26] SOURCE-ONLY CSE BOUNDARY (872 -> 736, 3207/3207).
-      The three depth-1 statement expressions on the display-item iterator
-      arguments add exactly 15 pre-CSE RTL chain objects and no machine code.
-      They move GCC 2.8.1's 1001-object hash-table flush one iterator earlier,
-      so the controller block creates the retail FEApp high anchor in $s0.
-      That denies $s0 to the member-address pseudos, restores the six retail
-      spills and the 640-byte frame, and permits all eight controller iterators
-      below to use their natural `&FEApp->fInputPlayer` source spelling.  The
-      old read-only FEApp fences promoted a full pointer pseudo at every site,
-      emitted eight extra instructions (3223 total), and are intentionally
-      removed.  Count/site/depth are load-bearing; re-price before changing. */
- , itemDisplayPosition(0x1e6, (tListIterator *)({ &iteratorDisplayPosition; }))   /* +0x29B0 tMenuItemOnOffLeftRightChoice */
- , itemDisplayLapNumber(0x1e7, (tListIterator *)({ &iteratorDisplayLapNumber; }))   /* +0x29E0 tMenuItemOnOffLeftRightChoice */
- , itemDisplaySplitTime(0x1e4, ({ &iteratorDisplaySplitTime; }))   /* +0x2A10 tMenuItemDisplayLeftRightChoice */
+   /* Retail SYM likewise records no statement-expression blocks for these
+      display-item arguments. */
+ , itemDisplayPosition(0x1e6, (tListIterator *)&iteratorDisplayPosition)   /* +0x29B0 tMenuItemOnOffLeftRightChoice */
+ , itemDisplayLapNumber(0x1e7, (tListIterator *)&iteratorDisplayLapNumber)   /* +0x29E0 tMenuItemOnOffLeftRightChoice */
+ , itemDisplaySplitTime(0x1e4, &iteratorDisplaySplitTime)   /* +0x2A10 tMenuItemDisplayLeftRightChoice */
  , itemDisplaySplitDisplay(0x1e5, (tListIterator *)&iteratorDisplaySplitDisplay)   /* +0x2A3C tMenuItemDisplayLeftRightChoice */
  , menuDisplayOptions(0x1020, (tScreen *)screenDisplay, (tMenu *)0x0, (tMenu *)0x0, 0, 0x1dd, 1, 10, (tMenuItem *)&itemDisplaySpeedometer, &itemDisplayMap, &itemDisplayOpponentID, &itemDisplayTime, &itemDisplaySplitTime, &itemDisplaySplitDisplay, &itemDisplayPosition, &itemDisplayLapNumber, 0)   /* +0x2A68 tOptionsMenu */
  , iteratorControllerConfigSelected(SelectListControllerConfig, frontEnd.controlConfig, &FEApp->fInputPlayer)   /* +0x2AE8 tListIteratorIndexed */
@@ -3403,51 +3364,28 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemMemContinue(0x28a, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_TransitionFromPostGameToMainMenu)   /* +0x3A6C tMemoryCardMenuItem */
  , menuPostGameSave(0x1040, (tScreen *)screenMemcard, (tMenu *)0x0, (tMenu *)0x0, 0, -1, 0x2e, 10, (tMenuItem *)&itemMemContinue, &itemSaveGame, 0)   /* +0x3A98 tOptionsMenu */
  {
-  {
-    tMenu *child = (tMenu *)&menuPlayerTwoCarSelect;
-    (menuPlayerOneCarSelect).fChildMenu = child;
-  }
-  {
-    tMenu *child = (tMenu *)&menuPlayerTwoGarage;
-    (menuPlayerOneGarage).fChildMenu = child;
-  }
-  {
-    tMenu *child = (tMenu *)&menuPlayerTwoPinkSlipCarSelect;
-    (menuPlayerOnePinkSlipCarSelect).fChildMenu = child;
-  }
+  menuPlayerOneCarSelect.SetChildMenu((tMenu *)&menuPlayerTwoCarSelect);
+  menuPlayerOneGarage.SetChildMenu((tMenu *)&menuPlayerTwoGarage);
+  menuPlayerOnePinkSlipCarSelect.SetChildMenu((tMenu *)&menuPlayerTwoPinkSlipCarSelect);
   ((tMenuItemLeftRightSlider *)&itemMusicVolume)->SetDimensions(0,0,0x78,5);
   ((tMenuItemLeftRightSlider *)&itemSoundEffectsVolume)->SetDimensions(0,0,0x78,5);
   ((tMenuItemLeftRightSlider *)&itemEngineVolume)->SetDimensions(0,0,0x78,5);
   ((tMenuItemLeftRightSlider *)&itemSpeechVolume)->SetDimensions(0,0,0x78,5);
   ((tMenuItemLeftRightSlider *)&itemAmbientVolume)->SetDimensions(0,0,0x78,5);
-  (iteratorPinkSlipsCar).fCarListFilter = 0x20;
-  (iteratorGarageCar).fCarListFilter = 2;
-  (iteratorDealerCar).fCarListFilter = 1;
-  (iteratorSellerCar).fCarListFilter = 2;
-  (menuAudio).VertHelp = 0;
-  (menuDisplayOptions).VertHelp = 0;
-  (menuControllerConfig).VertHelp = 1;
-  (itemTournamentFinishedHome).fFlags = (itemTournamentFinishedHome).fFlags | 0x40;
-  /* [W72-A6] TAIL POINTER-REUSE: retail writes these two VertHelp fields through
-     member pointers kept live since their ctors and spilled (lw t1,0x234(sp); nop;
-     sh zero,0x64(t1)), not through this + a big displacement.  The LAUNDER (catalog
-     20B) makes the pointer opaque so the store must use the pointer form; the
-     resulting function-long live range is what makes reload spill it, which re-sites
-     the whole spill area and yields the natural 640-byte frame (compilerFramePad is
-     retired because of this).  Plain member stores here cost ~950 diffs.
-     Reliable SYM names only the constructor's nested `this` receivers and three
-     `child` locals; these optimized-away tail identities have descriptive names:
-     SYM-CODEGEN-CARRIER: memoryMenu
-     SYM-CODEGEN-CARRIER: userNameMenu */
-  { tMenu *memoryMenu = (tMenu *)&menuMemory; __asm__("" : "=r"(memoryMenu) : "0"(memoryMenu)); memoryMenu->VertHelp = 0; }
-  { tMenu *userNameMenu = (tMenu *)&menuUserName; __asm__("" : "=r"(userNameMenu) : "0"(userNameMenu)); userNameMenu->VertHelp = 0; }
-  (menuTrackRecords).VertHelp = 1;
-  /* [2026-08-24] Zero-insn tail scheduling boundary: 874 -> 872 diffs in the
-     current constructor basin, with the instruction count unchanged at 3223. */
-  __asm__("" : : "i"(0));
-  (menuTrophyInfo).VertHelp = 0;
+  iteratorPinkSlipsCar.SetCarListFilter(0x20);
+  iteratorGarageCar.SetCarListFilter(2);
+  iteratorDealerCar.SetCarListFilter(1);
+  iteratorSellerCar.SetCarListFilter(2);
+  menuAudio.SetVertHelp(0);
+  menuDisplayOptions.SetVertHelp(0);
+  menuControllerConfig.SetVertHelp(1);
+  itemTournamentFinishedHome.SetFlags(itemTournamentFinishedHome.GetFlags() | 0x40);
+  menuMemory.SetVertHelp(0);
+  menuUserName.SetVertHelp(0);
+  menuTrackRecords.SetVertHelp(1);
+  menuTrophyInfo.SetVertHelp(0);
   return;
-}
+ }
 
 
 

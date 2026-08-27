@@ -2808,6 +2808,8 @@ struct tMenuItem {   /* 28 bytes */
        flag predicate.  The matching pause-menu base class uses the canonical
        IsDisabled spelling for the same bit-zero test. */
     bool IsDisabled() { return (fFlags & 1) != 0; }
+    unsigned int GetFlags() const { return fFlags; }
+    void SetFlags(unsigned int flags) { fFlags = flags; }
     /* SCREENCARSELECT.CPP:776/784/787 records an inlined tMenuItem receiver
        around each text-ID store.  The debug stream proves this body but not
        the original helper spelling. */
@@ -2845,6 +2847,8 @@ struct tMenu {   /* 108 bytes */
     /* FEAPP.CPP:202 SLD/SYM records this as an inlined tMenu receiver;
        the debug stream does not retain the helper's original spelling. */
     bool HasOptionsMenu() { return fOptionsMenu != (tMenu *)0x0; }
+    void SetChildMenu(tMenu *child) { fChildMenu = child; }
+    void SetVertHelp(short vertHelp) { VertHelp = vertHelp; }
     /* FEDIALOG.CPP:63/80 SLD records each flag predicate as an inlined tMenu
        receiver.  The body is proven; the original helper spelling is not
        retained by the debug stream. */
@@ -5205,6 +5209,7 @@ struct tListIteratorCar : public tListIterator {   /* 28 bytes */
     void Increment(tPlayer atIndex);
     void Decrement(tPlayer atIndex);
     bool ValidCar(tPlayer atIndex,char carNumber);  /* SYM: FCN bool */
+    void SetCarListFilter(int filter) { fCarListFilter = filter; }
 
 };
 

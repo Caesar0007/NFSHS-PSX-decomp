@@ -477,6 +477,38 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "INT", 0, "nBestLap", 16, (), ""),
         ), ("fetourn_types.h", "fecntl_types.h")),
     }
+    # FECredits dereferences the foreign ScreenMain singleton, so CC1PL must
+    # see its complete field layout even though the linked SYM attributes that
+    # completed tag to ScreenMain.obj.  Suppression below is pair-locked to the
+    # exact 1,464-byte carrier and its owner header.  Pre-change backup: Git
+    # commit 62fb562f.
+    fecredits_views = {
+        "tScreenMain": (1464, (
+            ("MOS", "STRUCT", 100, "tScreen", 0, (), "tScreen"),
+            ("MOS", "INT", 0, "hVideo", 100, (), ""),
+            ("MOS", "INT", 0, "fFrame", 104, (), ""),
+            ("MOS", "ULONG", 0, "fStartTicks", 108, (), ""),
+            ("MOS", "ULONG", 0, "fAnimTicks", 112, (), ""),
+            ("MOS", "SHORT", 0, "fAnimLocation", 116, (), ""),
+            ("MOS", "ENUM", 4, "fState", 120, (), "tScreenMainState"),
+            ("MOS", "ARY STRUCT", 768, "tvConfigs", 124, (16,), "tTVConfig"),
+            ("MOS", "ARY ENUM", 64, "tvStates", 892, (16,), "tScreenMainState"),
+            ("MOS", "ARY STRUCT", 384, "tvTransitions", 956, (16,), "tVideoTransition"),
+            ("MOS", "BOOL", 0, "fTVsInitialized", 1340, (), ""),
+            ("MOS", "CHAR", 0, "fTransitionDirection", 1344, (), ""),
+            ("MOS", "BOOL", 0, "fAnimationUploaded", 1348, (), ""),
+            ("MOS", "SHORT", 0, "fPreviousAnim", 1352, (), ""),
+            ("MOS", "SHORT", 0, "fWarningFade", 1354, (), ""),
+            ("MOS", "SHORT", 0, "fPreviousMovie", 1356, (), ""),
+            ("MOS", "SHORT", 0, "fCurrentMovie", 1358, (), ""),
+            ("MOS", "BOOL", 0, "bVideoAborted", 1360, (), ""),
+            ("MOS", "ULONG", 0, "fMovieTicks", 1364, (), ""),
+            ("MOS", "ARY STRUCT", 80, "fVideoShapes", 1368, (2,), "tShapeInformation"),
+            ("MOS", "INT", 0, "fCurrentSlot", 1448, (), ""),
+            ("MOS", "ARY INT", 8, "fCurrentBG", 1452, (2,), ""),
+            ("MOS", "INT", 0, "fNumTVsInTransition", 1460, (), ""),
+        ), "fecredits_types.h"),
+    }
     draww_views = {
         "DrawW_SliceCodegenView": (32, (
             ("MOS", "ARY INT", 12, "center", 0, (3,), ""),
@@ -705,6 +737,32 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith(expected[2])
         )
 
+    def exact_fecredits_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = fecredits_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith(expected[2])
+        )
+
+    def exact_fecredits_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = fecredits_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            # The local typed-pointer declarations repeat this already
+            # pair-locked typedef in fecredits.cpp; the completed tag remains
+            # restricted to the owner header above.
+            and owner.endswith((expected[2], "fecredits.cpp"))
+        )
+
     # Suppression is pair-locked: a matching struct without its typedef (or a
     # matching typedef without its struct) is evidence drift, not an eligible
     # codegen carrier.  Keep both rows visible unless the complete pair agrees.
@@ -747,6 +805,11 @@ def filter_exact_symbol_codegen_carriers(
         if any(exact_draww_view(block) and block.name == name for block in type_blocks)
         and any(exact_draww_view_typedef(item) and item.name == name for item in typedefs)
     }
+    fecredits_eligible = {
+        name for name in fecredits_views
+        if any(exact_fecredits_view(block) and block.name == name for block in type_blocks)
+        and any(exact_fecredits_view_typedef(item) and item.name == name for item in typedefs)
+    }
 
     return (
         [
@@ -759,6 +822,7 @@ def filter_exact_symbol_codegen_carriers(
             and not (block.name in fecars_eligible and exact_fecars_view(block))
             and not (block.name in fetourn_eligible and exact_fetourn_view(block))
             and not (block.name in draww_eligible and exact_draww_view(block))
+            and not (block.name in fecredits_eligible and exact_fecredits_view(block))
         ],
         [
             item for item in typedefs
@@ -770,6 +834,7 @@ def filter_exact_symbol_codegen_carriers(
             and not (item.name in fecars_eligible and exact_fecars_view_typedef(item))
             and not (item.name in fetourn_eligible and exact_fetourn_view_typedef(item))
             and not (item.name in draww_eligible and exact_draww_view_typedef(item))
+            and not (item.name in fecredits_eligible and exact_fecredits_view_typedef(item))
         ],
     )
 

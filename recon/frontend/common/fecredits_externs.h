@@ -1,8 +1,7 @@
 /* frontend/common/fecredits_externs.h - reconstructed externs. NOT original. */
 #ifndef _FE_FECREDITS_EXTERNS_H_
 #define _FE_FECREDITS_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "fecredits_types.h"
 
 /* ===== globals ===== */
 extern int          ticks;
@@ -34,6 +33,18 @@ void  PSXTransDrawBrightEndLine(int, int, int, int, int, int, int, int, int);
 /* ===== input / audio / cheat ===== */
 int   FEInput_GetNoDebounceKey(int, int);
 void  AudioCmn_PlayFESFX(int);
-bool  FECheat_IsCheatEnabled(tCheatCode);
+bool  FECheat_IsCheatEnabled(int)
+    __asm__("FECheat_IsCheatEnabled__F10tCheatCode");
+
+extern "C" {
+int filesize(...);
+int loadfileatadrz(...);
+int purgememadr(...);
+void *reservememadr(...);
+int sprintf(...);
+char *strchr(...);
+char *strcpy(...);
+unsigned int strlen(...);
+}
 
 #endif

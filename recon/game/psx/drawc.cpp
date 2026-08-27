@@ -337,8 +337,14 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
        at each of the three byte reads made cc1 rematerialize it. */
     u_char *lp /* SYM-CODEGEN-CARRIER: lp -- direct per-channel light-slot expressions rematerialize the base */ =
         (u_char *)&light;
-    u_char *wc /* SYM-CODEGEN-CARRIER: wc -- inline weather-table expressions are FAIL 48 (109/107) */ =
-        (u_char *)&Night_gWeatherColor[Night_gLightningType];
+    u_char *wc /* SYM-CODEGEN-CARRIER: wc -- inline weather-table expressions are FAIL 48 (109/107) */;
+    {
+      u_char *base;
+      do {
+        base = (u_char *)Night_gWeatherColor;
+      } while (0);
+      wc = base + (Night_gLightningType << 2);
+    }
     short newR;
     short newG;
     short newB;
@@ -503,13 +509,12 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
        anchors are label-agnostic and unique in the region, and TEXT_MOVES runs BEFORE
        maspsx so the load-delay nops are re-derived correctly.
        Probe harnesses: scratchpad/w61a15/textmove_probe2.py + tugate_probe.py. */
-    /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
-     * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
-     * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
-     * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
-     * Gate-lane object is byte-identical (proven by hash); see
-     * scratchpad/w64a20/RECEIPTS.md. */
-    __asm__("" : : "r"(wc));
+    /* W81 PURE-C REWRITE: the block-local base plus one-shot assignment above
+     * supersedes the empty-asm fence and improves the source-only gate from
+     * FAIL 4/107 to FAIL 3 at 108/107.  It keeps the weather `%hi/%lo` pair
+     * adjacent and all channel registers exact.  The sole remaining residual
+     * is a load-delay `nop` before lp[0]; moving that load into the one-shot
+     * scope changes allocation and regresses, so the lower-diff route stays. */
     newR = (short)((int)lp[0] + (int)wc[0]);
     newG = (short)((int)lp[1] + (int)wc[1]);
     newB = (short)((int)lp[2] + (int)wc[2]);

@@ -2534,10 +2534,13 @@ extern long MemCardFormat(long chan)
 {
     char devname[64];
     int  ev;
-    int *base = &mc.cmd;
-    __asm__ __volatile__("" : "=r"(base) : "0"(base));
+    /* SOURCE-ONLY (2026-08-27): `chan - chan` is a pure-C zero-offset opacity
+     * carrier.  It preserves the retail one-register McState anchor exactly,
+     * while removing the former volatile empty-asm fence.  A plain `&mc`
+     * lets CSE split cmd/chan back into independent symbol accesses (15 diffs). */
+    McState *base = (McState *)((char *)&mc + chan - chan);
 
-    if (base[0] != 0) {
+    if (base->cmd != 0) {
         printf("Access Denied. : system busy\n");
         return -1;
     }
@@ -2557,12 +2560,13 @@ extern long MemCardFormat(long chan)
      * arg address CSEs with) -- not a named pointer, which changes the arg's register class.
      * w55-a7 additional falsifications (2.7.2 lane): named `char *dn = devname;` assigned right
      * before the RMW = 34 (dn takes $s0 + a frame save); the same with an identity fence on `dn`
-     * = 21/36 (dn materializes into $a2, whole head recolors); moving the `base` opacity fence
+     * = 21/36 (dn materializes into $a2, whole head recolors); moving the old `base` opacity fence
      * BELOW the guard (the lever that sealed Exist/Accept) = 5/36 -- here the guard READ wants the
-     * register base too, so the fence must stay above.  Per w46, the arg is not precomputed
+     * register base too.  The pure-C zero-offset anchor above now supplies that same shape without
+     * a scheduling barrier.  Per w46, the arg is not precomputed
      * because `(plus (reg sp) (const_int 16))` has rtx_cost <= 2, so it is SCHED_GROUP'd onto the
      * CALL_INSN and can only be displaced by making the STORE the later insn. */
-    _mc_present |= 1 << (base[3]);      /* chan = cmd+0xC */
+    _mc_present |= 1 << base->chan;
     MemCardMakeDevname(chan, devname);
     _clr_card_event();
     format(devname);

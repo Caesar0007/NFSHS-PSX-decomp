@@ -604,7 +604,7 @@ Current strict results:
 
 - `frontend/psx`: 4 exact (`memcard`, `mdec`, `video`, `fetexture`) and 4 DIFF
   (`drawshp`, `mmeffect`, `movie`, `psxfront`);
-- `game/psx`: 23 exact (`textpix`, `textpsx`, `unpack`, `trackspec`, `loading`, `texture`, `draw`, `sfx`, `trsproj`, `cario`, `platform`, `force`, `audio`, `overlays`, `weather`, `rpause`, `textureprocess`, `skidmark`, `fe3dmenu`, `device`, `psxcontroller`, `font`, `hrzsku`) and 5 DIFF (`drawc`, `draww`, `flare`, `hud`, `night`).  The former game `font.obj` versus vendor `libgpu.lib(FONT.obj)` owner ambiguity is resolved from the standalone/archive boundary, and the canonical PsyQ `P_TAG` macro carrier is now classified by an exact owner-and-layout guard rather than as application-source type leakage;
+- `game/psx`: 24 exact (`textpix`, `textpsx`, `unpack`, `trackspec`, `loading`, `texture`, `draw`, `sfx`, `trsproj`, `cario`, `platform`, `force`, `audio`, `overlays`, `weather`, `rpause`, `textureprocess`, `skidmark`, `fe3dmenu`, `device`, `psxcontroller`, `font`, `hrzsku`, `flare`) and 4 DIFF (`drawc`, `draww`, `hud`, `night`).  The former game `font.obj` versus vendor `libgpu.lib(FONT.obj)` owner ambiguity is resolved from the standalone/archive boundary, and the canonical PsyQ `P_TAG` macro carrier is classified by an exact owner-and-layout guard rather than as application-source type leakage;
 - `frontend/common`: 41 mapped units remain DIFF and the now-empty artificial
   `mcrd.cpp` unit needs its objdiff ownership removed or reassigned;
 - `game/common`: 50 exact (`ai`, `aicop`, `aidatarecord`, `aidelaycar`, `ailife`, `aiperson`, `aiscript`, `aispeeds`, `aistate`, `aitriger`, `aitune`, `aiworld`, `aiinit`, `aiphysic`, `anim`, `audedit`, `audiomus`, `audioeng`, `audiotrk`, `camera`, `chunk`, `clock`, `collide`, `color`,
@@ -5228,6 +5228,41 @@ review items.  Evidence is retained in
 [`type_graph_hrzsku_p245_20260827.tsv`](scratchpad/root_sym_audit/type_graph_hrzsku_p245_20260827.tsv),
 and
 [`game_psx_strict_p245_20260827.md`](scratchpad/root_sym_audit/game_psx_strict_p245_20260827.md).
+
+### P142 — standalone flare owner/type-visibility reconciliation (`2026-08-27`)
+
+`flare.cpp` no longer imports the reconstruction-wide `nfs4_types.h` graph or
+the `libfns.h` umbrella.  The retail `flare.obj` graph is exactly the already
+verified `color.obj` type surface plus 22 named owner-visible records.  The new
+owner-local `flare_types.h` reuses that proven subset and reconstructs only the
+retail delta: the required PsyQ packet types, process records, flare/cache and
+sky definitions, scheduling wrapper, and SDK/runtime records.  Full-debug
+comparison is now exact at 93/93 named types and 2/2 anonymous types, with all
+typedef semantics covered (176/224 physical rows after canonicalizing repeated
+debug records), zero missing or mismatched retail types, and zero source-only
+type semantics.
+
+The source-specific `Flare_PTag` typedef is removed.  All fifteen ordering-table
+link sites now spell the canonical PsyQ `setaddr`/`getaddr` expansion from
+`psyq_prim_macros.h`, preserving the required split around packet-cursor bumps.
+The three foreign aggregate globals are represented through exact-symbol views
+whose carrier types already belong to `flare.obj`: GameSetup +12, TrackSpec
++88, and simGlobal +4.  This preserves the original aggregate address/field RTL
+without importing the non-retail `GameSetup_tData`, `CTrackSpec`, or
+`Sim_tSimGlobalVar` bodies.  Six actually called runtime/SDK functions replace
+the unrelated project-wide varargs declaration umbrella with typed prototypes.
+
+The complete `flare.cpp` board is unchanged at 8 PASS / 8 NEAR / 11 FAR.  The
+full game/PSX sweep advances from 23 exact / 5 DIFF to 24 exact / 4 DIFF; only
+`drawc`, `draww`, `hud`, and `night` remain.  The strict declaration audit still
+maps 395/395 functions with zero missing SYM names, type findings, storage
+findings, global type findings, or mapping-review items.  Evidence is retained
+in
+[`flare_obj_type_graph_p246_20260827.md`](scratchpad/root_sym_audit/flare_obj_type_graph_p246_20260827.md),
+[`type_graph_flare_p246_20260827.tsv`](scratchpad/root_sym_audit/type_graph_flare_p246_20260827.tsv),
+[`full_type_graph_game_psx_p246_20260827.tsv`](scratchpad/root_sym_audit/full_type_graph_game_psx_p246_20260827.tsv),
+and
+[`game_psx_strict_p246_20260827.md`](scratchpad/root_sym_audit/game_psx_strict_p246_20260827.md).
 
 ## Closure rule
 

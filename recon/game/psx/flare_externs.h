@@ -3,17 +3,8 @@
 #ifndef _GAME_PSX_FLARE_EXTERNS_H_
 #define _GAME_PSX_FLARE_EXTERNS_H_
 
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "flare_types.h"
 #include "../../lib/psx_gte.h"   /* canonical PsyQ inline COP2/GTE macros (real cop2 words) */
-
-   /* PsyQ libgte RotMatrixZ */
-typedef void (code)(void);
-typedef long long undefined8;
-typedef unsigned long long ulonglong;
-static inline u_int   CONCAT22(u_short hi, u_short lo) { return ((u_int)hi << 16) | lo; }
-static inline u_short CONCAT11(u_char hi, u_char lo)   { return (u_short)(((u_int)hi << 8) | lo); }
-static inline u_short SUB42(u_int v, int n) { return (u_short)(v >> (n * 8)); }
 
 /* ---- GPU packet cursors + matrices ---- */
 extern char         *Render_gPacketEnd;
@@ -25,9 +16,14 @@ extern short         DrawC_gReflectOffset;       /* 0x8013d814 */
 extern int           R3DCar_InMenu;              /* 0x8013d324 */
 
 /* ---- track / setup / sim ---- */
-extern CTrackSpec    TrackSpec_gSpec;            /* 0x8012327c */
-extern GameSetup_tData GameSetup_gData;          /* 0x801131ec */
-extern Sim_tSimGlobalVar simGlobal;              /* 0x8011e0ac */
+/* Exact-symbol views use only records retained by flare.obj.  The field
+ * offsets are GameSetup +12, TrackSpec +88, and simGlobal +4 respectively. */
+extern GameSetup_tPerpData Flare_GameSetupView asm("GameSetup_gData");
+extern BO_tNewtonCollisionInfo Flare_TrackSpecRows[] asm("TrackSpec_gSpec");
+extern coorddef Flare_SimView asm("simGlobal");
+#define FLARE_COMM_MODE  Flare_GameSetupView.HudColour
+#define FLARE_TRACK_SKY  (*(CSkySpec *)((u_char *)Flare_TrackSpecRows + 88))
+#define FLARE_GAME_TICKS Flare_SimView.y
 
 /* ---- flare geometry + colour tables ---- */
 // [owned->defined in flare.cpp] extern Flare_tInfo      Flare_gType[34];          /* 0x8011ff68 (544 B) flare-type defs (chalo/cbeam/flags/scale) */
@@ -48,6 +44,15 @@ extern Draw_tPixMap    *gFlarePixmap[3];          /* 0x80112b88 */
 // [owned->defined in flare.cpp] extern short            gfSpikePt1[8], gfSpikePt2[8]; /* 0x8011fdf0/fe00 */
 
 /* ---- PsyQ libgpu / libgte + eaclib + helpers ---- */
+
+extern "C" {
+int random(void);
+int fixedatan(int y, int x);
+int isqrt(int value);
+long VectorNormal(VECTOR *input, VECTOR *output);
+MATRIX *RotMatrixZ(long angle, MATRIX *matrix);
+void SetDrawMode(DR_MODE *packet, int dfe, int dtd, int tpage, RECT *window);
+}
 
 extern long           Camera_gGeomScreen;    /* 0x8013c7dc (owner: camera) */
 #endif

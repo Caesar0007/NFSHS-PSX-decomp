@@ -314,7 +314,12 @@ void tScreenTournamentStandings::ProcessInput(tPlayer,tInputKeyType &keyval,
    (`addiu v0,t1,0`) plus its single `lw` consumer using v0 instead of t1.  Pointer,
    reference, direct-global, separate/comma-staged definition, and tied/input-only
    zero-byte barriers were gated; none removed that copy without a larger register
-   rotation or instruction-count regression. */
+   rotation or instruction-count regression.
+
+   ==== W80 pure-C cleanup (2026-08-27): unchanged 3 @562. ====
+   Removed both legacy empty-asm constraints.  Together their removal is byte-neutral
+   in the current no-self basin, so the target remains source-only FAIL3 without
+   reconstructed asm in this function. */
 /* ---- tScreenTournamentStandings::DrawBackground  [SCREENPOST.CPP:164-312] ---- */
 void tScreenTournamentStandings::DrawBackground()
 
@@ -382,10 +387,6 @@ void tScreenTournamentStandings::DrawBackground()
                  Stattool_GetAINameFromPersonality(tournamentManager.fCompetitors[j].fPersonality),
         (short)TextSys_WordX(0x2f8),(short)TextSys_WordY(line),
         type,state,0);
-    /* W72-A7: the THIRD "r"(line) is load-bearing -- it restores retail's
-       self=$s7 / line=$s6 after the tm alias re-ordered global-alloc. */
-    __asm__("" : : "r"(fade), "r"(state), "r"(state),
-                    "r"(line), "r"(line), "r"(line));
     p = j;
     if (tourneyInfo->fKnockout != 0) {
       sprintf(sBuildOutput,TextSys_Word(i == lastRacer ? 0x31c : 0x31b));
@@ -405,7 +406,6 @@ void tScreenTournamentStandings::DrawBackground()
                 TextValue(&menuDefs->iteratorSpecialEvent,kPlayerBoth) :
                 TextValue(&menuDefs->iteratorTournament,kPlayerBoth));
   i += 0x13;
-  __asm__("" : : "r"(line));
   FETextRender_MenuTextPositionedJustifyFade(fade,(short)i,(short)TextSys_WordX(0x2f6),(short)TextSys_WordY(0x2fc),
                                              2,textState_Hilighted,type);
   wwwww = textpixels(TextSys_Word(i));

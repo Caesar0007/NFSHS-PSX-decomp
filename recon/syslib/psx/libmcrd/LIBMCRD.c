@@ -1167,9 +1167,10 @@ static int MemCardReadFile_cb(void *pv)
          * (`sw $v0,0xC($s0)`) and the error code through a DERIVED &_mc_cmd base
          * (`addiu $v1,$s0,-4; sw $v0,0x4($v1)`); the natural field stores emit `$at` macros.
          * The fd store is UNCONDITIONAL -- it sits in the `bgez` delay slot. */
-        int *prslt = &mc.rslt;
+        /* SOURCE-ONLY: the zero-net offset keeps the retail &_mc_rslt base allocation without
+         * the former empty-asm identity fence (verified byte-identical on both File twins). */
+        int *prslt = (int *)((char *)&mc.rslt + state - state);
         int  fd;
-        __asm__("" : "=r"(prslt) : "0"(prslt));
         if (prslt[0] != 0) return 1;               /* card not present -> abort */
         fd = open((char *)&prslt[7], 0x8001);   /* _mc_devname = `addiu $a0,$s0,28` */
         prslt[3] = fd;                             /* _mc_fd */
@@ -1276,9 +1277,9 @@ static int MemCardWriteFile_cb(void *pv)
         /* MATCH (w53-a7): same &_mc_rslt anchor as the ReadFile twin -- _mc_fd by displacement
          * (`sw $v0,0xC($s0)`, UNCONDITIONAL: it is the `bgez` delay slot), _mc_devname as
          * `addiu $a0,$s0,28`, and the error code through a derived &_mc_cmd base. */
-        int *prslt = &mc.rslt;
+        /* SOURCE-ONLY: twin of MemCardReadFile_cb's pure-C zero-offset base anchor. */
+        int *prslt = (int *)((char *)&mc.rslt + state - state);
         int  fd;
-        __asm__("" : "=r"(prslt) : "0"(prslt));
         if (prslt[0] != 0) return 1;
         fd = open((char *)&prslt[7], 0x8001);      /* _mc_devname */
         prslt[3] = fd;                             /* _mc_fd */

@@ -604,8 +604,7 @@ Current strict results:
 
 - `frontend/psx`: 4 exact (`memcard`, `mdec`, `video`, `fetexture`) and 4 DIFF
   (`drawshp`, `mmeffect`, `movie`, `psxfront`);
-- `game/psx`: 21 exact (`textpix`, `textpsx`, `unpack`, `trackspec`, `loading`, `texture`, `draw`, `sfx`, `trsproj`, `cario`, `platform`, `force`, `audio`, `overlays`, `weather`, `rpause`, `hrzsku`, `textureprocess`, `skidmark`, `fe3dmenu`, `device`), 6 DIFF, and one owner
-  ambiguity for game `font.obj` versus the vendor `libgpu/FONT.obj`;
+- `game/psx`: 21 exact (`textpix`, `textpsx`, `unpack`, `trackspec`, `loading`, `texture`, `draw`, `sfx`, `trsproj`, `cario`, `platform`, `force`, `audio`, `overlays`, `weather`, `rpause`, `textureprocess`, `skidmark`, `fe3dmenu`, `device`, `psxcontroller`) and 7 DIFF (`drawc`, `draww`, `flare`, `font`, `hrzsku`, `hud`, `night`).  The former game `font.obj` versus vendor `libgpu.lib(FONT.obj)` owner ambiguity is now resolved from the standalone/archive boundary;
 - `frontend/common`: 41 mapped units remain DIFF and the now-empty artificial
   `mcrd.cpp` unit needs its objdiff ownership removed or reassigned;
 - `game/common`: 50 exact (`ai`, `aicop`, `aidatarecord`, `aidelaycar`, `ailife`, `aiperson`, `aiscript`, `aispeeds`, `aistate`, `aitriger`, `aitune`, `aiworld`, `aiinit`, `aiphysic`, `anim`, `audedit`, `audiomus`, `audioeng`, `audiotrk`, `camera`, `chunk`, `clock`, `collide`, `color`,
@@ -5138,6 +5137,55 @@ targets across 460 units, vtable indexing passes 930 files, the phantom census
 reports all 3,484 declared names exactly owned with zero hidden phantoms or
 ownership gaps, and the source-only policy audit finds no post-compiler text
 moves or branch retargets.
+
+### P140 — standalone font owner/type-visibility reconciliation (`2026-08-27`)
+
+The type-graph sweep formerly could not distinguish the standalone game
+`font.obj` from PsyQ's archive member `libgpu.lib(FONT.obj)`.  Its owner resolver
+now uses the source library boundary only for the narrow one-archive/one-
+standalone collision, leaving every other ambiguity explicit.  This maps
+`recon/game/psx/font.cpp` to the retail game owner without weakening semantic
+comparison.
+
+The former monolithic `nfs4_types.h` include gave `font.obj` all 36 retail named
+types and both anonymous types only by leaking 511 unrelated named tags, ten
+anonymous tags, and 583 unrelated typedef semantics.  The new owner-local
+`font_obj_types.h` reconstructs the retail surface directly: all 36 named type
+bodies, both anonymous records, and all 103 typedef records are now covered,
+with zero missing or mismatched retail definitions and zero unrelated named
+types.  `fontblit` now carries its real seven-argument glyph prototype and
+replaces the reconstruction-only `fn_void`; the reconstruction-only
+`FontZeroView` is removed by using the already-retail-exact 12-byte `DR_MODE`
+view for the three structure-aliasing zero stores.  That replacement preserves
+`Font_SwitchFont` byte-for-byte.
+
+One explicit type-graph residual remains rather than being hidden: the
+four-byte `Font_PTag` bitfield carrier used by the two PsyQ `addPrim` expansions
+adds one anonymous type and one typedef not retained in the retail SYM.  Removing
+it and spelling the link through raw words or the retail `DR_MODE`/`shapetbl`
+types was measured on both packet builders.  The raw variants rotate the three
+long-lived mask/address quantities and move `Font_TextXY` from its 14-diff
+count-exact baseline to a 26-diff FAR result; reversed operand and cursor-bump
+orders also perturb the retail schedule.  The carrier therefore remains an
+explicit source-codegen proof item until an existing retail-visible type or
+source macro spelling reproduces the bitfield RTL.  It is not classified as
+exact by the audit.
+
+The shared small `font_types.h` remains isolated for `textpix.c`: `textpix.obj`
+stays strict type-graph OK at 15/15 named types and 46/46 typedefs, and both
+functions remain PASS (37 and 8 instructions).  The complete `font.cpp` board
+is unchanged at ten PASS, five count-exact near functions, and zero far
+functions.  The full game/PSX sweep now has 21 exact owners and seven explicit
+DIFF owners with no owner-map ambiguity.  The declaration audit maps all 395
+game/PSX functions, with zero missing SYM names, type findings, storage-class
+findings, mapping-review items, missing globals, or global type findings.  Its
+function-pointer equivalence now derives arbitrary source typedefs such as
+`fontblit` from their declarations rather than recognizing only `fn_*` names.
+Detailed evidence is retained in
+[`font_obj_type_graph_p244_20260827.md`](scratchpad/root_sym_audit/font_obj_type_graph_p244_20260827.md),
+[`type_graph_game_psx_p244_20260827.tsv`](scratchpad/root_sym_audit/type_graph_game_psx_p244_20260827.tsv),
+and
+[`game_psx_strict_p244_20260827.md`](scratchpad/root_sym_audit/game_psx_strict_p244_20260827.md).
 
 ## Closure rule
 

@@ -1587,12 +1587,14 @@ def audit(
                     and (
                         re.fullmatch(r"fn_[A-Za-z_]\w*\*", source_type)
                         or re.search(r"\(\*\)\([^)]*\)$", source_type)
+                        or source_type in function_pointer_typedefs()
                     )
                 ):
                     # PsyQ retains only PTR/FCN/return-type for these data
                     # records.  Ctags exposes either a named function typedef
-                    # pointer or the direct `R(*)(args)` declarator; both are
-                    # function-pointer objects, not void-data pointers.
+                    # pointer (including non-`fn_` names such as `fontblit`)
+                    # or the direct `R(*)(args)` declarator; all are function-
+                    # pointer objects, not void-data pointers.
                     global_type_equivalent += 1
                     global_type_equivalent_reasons["generic-function-pointer"] += 1
                 elif (

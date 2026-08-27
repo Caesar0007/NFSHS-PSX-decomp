@@ -4,7 +4,7 @@
  *   ReSetBlitter (blit fn-ptr), Font_SwitchFont/LoadFont/DeInit/ExitFromGame (lifecycle),
  *   Font_TextXY (string layout), Font_GetUVWH (glyph UV/size).  Full SYM-locals applied.
  */
-#include "../../nfs4_types.h"
+#include "font_obj_types.h"
 #include "font_externs.h"
 
 /* PsyQ libgpu P_TAG head word (addr:24 | len:8) -- the SDK addPrim()/setaddr()/getaddr()
@@ -35,7 +35,7 @@ u_short gFontClut;
 
 /* gCurrentBlitter @0x8013ddec : font.obj-owned glyph-blit fn-ptr (STAT PTR FCN VOID).  BSS;
  *   Font_SetBlitter assigns it, Font_ReSetBlitter resets it to Font_Blit, Font_TextXY calls it. */
-static fn_void *gCurrentBlitter;
+static fontblit gCurrentBlitter;
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void Font_TextColor(int color);
@@ -44,7 +44,7 @@ void Font_SetABR(int abr);
 void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int arg6);
 void Font_ComputeColors(int colour,int forecolour,int backcolour,char in_game);
 charactertbl * Font_Getcharacter(int targetindex);
-void Font_SetBlitter(fn_void *blitter);
+void Font_SetBlitter(fontblit blitter);
 void Font_ReSetBlitter(void);
 void Font_SwitchFont(char *f1);
 void Font_DeInit(void);
@@ -286,7 +286,7 @@ charactertbl * Font_Getcharacter(int targetindex)
 }
 
 /* ---- Font_SetBlitter__FPFiiPviiP12charactertbli_v  [FONT.CPP:305-306] SLD-VERIFIED ---- */
-void Font_SetBlitter(fn_void *blitter)
+void Font_SetBlitter(fontblit blitter)
 
 {
   gCurrentBlitter = blitter;
@@ -356,10 +356,9 @@ void Font_SwitchFont(char *f1)
      the load into that slot before scheduling" reading was right that it is not a
      scheduler tie, and the alias flag is what actually pins it. */
   {
-    struct FontZeroView { u_int a, b, c; };
-    ((struct FontZeroView *)(base + 0x94))->a = 0;
-    ((struct FontZeroView *)(base + 0x94))->b = 0;
-    ((struct FontZeroView *)(base + 0x94))->c = 0;
+    ((DR_MODE *)(base + 0x94))->tag = 0;
+    ((DR_MODE *)(base + 0x94))->code[0] = 0;
+    ((DR_MODE *)(base + 0x94))->code[1] = 0;
   }
   {
     int arg3 = (*(int *)(pv1 + 0xc) << 4) >> 0x14; /* SYM-CODEGEN-CARRIER: arg3 */

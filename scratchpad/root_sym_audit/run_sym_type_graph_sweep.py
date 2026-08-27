@@ -69,6 +69,28 @@ def target_stem(target: str) -> str:
     return name.casefold()
 
 
+def select_owner(source: str, candidates: list[str]) -> str | None:
+    """Disambiguate a game object from a same-stem SDK archive member.
+
+    NFS4 contains both ``game/psx/font.obj`` and PsyQ's
+    ``libgpu.lib(FONT.obj)``.  A stem-only lookup cannot distinguish them,
+    while the reconstructed source path retains the original library boundary.
+    Keep this rule narrow: it is applied only when one candidate is an archive
+    member and the other is a standalone object; every other ambiguity remains
+    an explicit OWNER_MAP finding.
+    """
+    if len(candidates) == 1:
+        return candidates[0]
+    archive = [owner for owner in candidates if owner.endswith(")") and "(" in owner]
+    standalone = [owner for owner in candidates if owner not in archive]
+    is_syslib = "/syslib/" in source.replace("\\", "/").casefold()
+    if is_syslib and len(archive) == 1:
+        return archive[0]
+    if not is_syslib and len(standalone) == 1:
+        return standalone[0]
+    return None
+
+
 def source_units(scope: str) -> list[tuple[Path, str, str]]:
     data = json.loads((ROOT / "objdiff.json").read_text(encoding="utf-8"))
     by_source = {}
@@ -251,6 +273,11 @@ def compare(source: str, owner: str, retail_defs, source_defs) -> Result:
     )
     extra_td_semantics = set(source_td) - set(retail_td)
     missing_td_semantics = set(retail_td) - set(source_td)
+    # Keep multiplicity deficits visible even when the semantic exists on both
+    # sides.  The old set-only detail silently hid font.obj's 102/103 result;
+    # duplicate SYM typedef records are evidence that must be reviewed, even
+    # though they do not automatically justify illegal duplicate C definitions.
+    missing_td_counts = retail_td - source_td
     result.source_extra_typedefs = len(extra_td_semantics)
     result.retail_duplicate_typedefs = sum(
         count - 1 for count in retail_td.values() if count > 1
@@ -293,6 +320,17 @@ def compare(source: str, owner: str, retail_defs, source_defs) -> Result:
             "typedefs=" + ",".join(
                 f"{semantic[3]}:{semantic[1]}"
                 for semantic in list(sorted(missing_td_semantics))[:32]
+            )
+        )
+    count_only_missing = Counter({
+        semantic: count for semantic, count in missing_td_counts.items()
+        if semantic not in missing_td_semantics
+    })
+    if count_only_missing:
+        details.append(
+            "typedef_count_missing=" + ",".join(
+                f"{semantic[3]}:{semantic[1]}x{count}"
+                for semantic, count in list(sorted(count_only_missing.items()))[:32]
             )
         )
     if extra_td_semantics:
@@ -350,14 +388,14 @@ def main() -> None:
     for index, (src, target, _unit_name) in enumerate(units, 1):
         source = src.relative_to(ROOT).as_posix()
         candidates = owners_by_stem.get(target_stem(target), [])
-        if len(candidates) != 1:
+        owner = select_owner(source, candidates)
+        if owner is None:
             results.append(Result(
                 source, "|".join(candidates), "OWNER_MAP",
                 detail=f"{len(candidates)} owner candidates",
             ))
             print(f"[{index}/{len(units)}] OWNER_MAP {source}: {candidates}")
             continue
-        owner = candidates[0]
         with tempfile.TemporaryDirectory(prefix="nfs4_sym_type_") as tmp:
             asm, error = compile_debug(src, Path(tmp))
             if asm is None:

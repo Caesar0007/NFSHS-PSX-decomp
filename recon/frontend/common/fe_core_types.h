@@ -109,6 +109,10 @@ struct tListIterator {
     char *fValue;
     char fMinValue, fMaxValue;
     __vtbl_ptr_type (*_vf)[6];
+
+    tListIterator() {}
+    tListIterator(short *selection, char *valPtr);
+    ~tListIterator();
 };
 
 struct tListIteratorRange : public tListIterator {};

@@ -2,6 +2,8 @@
 #ifndef NFS4_FRONTEND_COMMON_FE_INPUT_ENUMS_H
 #define NFS4_FRONTEND_COMMON_FE_INPUT_ENUMS_H
 
+#include "fe_player_types.h"
+
 typedef enum tInputKeyType {
     kInput_KeyType_NoKey = 0,
     kInput_KeyType_AlreadyProcessed = 1,
@@ -20,11 +22,5 @@ typedef enum tInputKeyType {
     kInput_KeyType_Start = 8192,
     kInput_KeyType_Select = 16384
 } tInputKeyType;
-
-typedef enum tPlayer {
-    kPlayerBoth = -1,
-    kPlayerOne = 0,
-    kPlayerTwo = 1
-} tPlayer;
 
 #endif

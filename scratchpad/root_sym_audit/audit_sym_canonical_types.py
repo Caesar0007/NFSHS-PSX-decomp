@@ -440,6 +440,23 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "ARY PTR ULONG", 8, "ot", 192, (2,), ""),
         )),
     }
+    fecars_views = {
+        # FECars needs the shared manager field layout before declaring the
+        # real owner class with its complete method surface.  The macro-bound
+        # first spelling is a compiler-boundary carrier only; accept it solely
+        # with the complete 908-byte retail layout emitted by fe_core_types.h.
+        "FECars_CoreCarManagerCodegenView": (908, (
+            ("MOS", "ULONG", 0, "fNumCars", 0, (), ""),
+            ("MOS", "PTR STRUCT", 204, "fCars", 4, (), "tCarInfo"),
+            ("MOS", "ARY ARY STRUCT", 256, "fCarGarage", 8, (2, 32), "tOwnedCarInfo"),
+            ("MOS", "ARY ARY STRUCT", 256, "fPinkSlipsCars", 264, (2, 32), "tOwnedCarInfo"),
+            ("MOS", "ARY UCHAR", 48, "fAvailableCars", 520, (48,), ""),
+            ("MOS", "ARY UCHAR", 48, "fViewableCars", 568, (48,), ""),
+            ("MOS", "ARY ARY UCHAR", 96, "fPinkSlipsAvailableCars", 616, (2, 48), ""),
+            ("MOS", "ARY ARY UCHAR", 96, "fPinkSlipsViewableCars", 712, (2, 48), ""),
+            ("MOS", "ARY SHORT", 98, "fCarTextList", 808, (49,), ""),
+        )),
+    }
     draww_views = {
         "DrawW_SliceCodegenView": (32, (
             ("MOS", "ARY INT", 12, "center", 0, (3,), ""),
@@ -599,6 +616,29 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith(("fescreen_externs.h", "fescreen.cpp"))
         )
 
+    def exact_fecars_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = fecars_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith("fe_core_types.h")
+        )
+
+    def exact_fecars_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = fecars_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            and owner.endswith("fe_core_types.h")
+        )
+
     def exact_draww_view(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         expected = draww_views.get(block.name)
@@ -649,6 +689,11 @@ def filter_exact_symbol_codegen_carriers(
         if any(exact_fescreen_view(block) and block.name == name for block in type_blocks)
         and any(exact_fescreen_view_typedef(item) and item.name == name for item in typedefs)
     }
+    fecars_eligible = {
+        name for name in fecars_views
+        if any(exact_fecars_view(block) and block.name == name for block in type_blocks)
+        and any(exact_fecars_view_typedef(item) and item.name == name for item in typedefs)
+    }
     draww_eligible = {
         name for name in draww_views
         if any(exact_draww_view(block) and block.name == name for block in type_blocks)
@@ -663,6 +708,7 @@ def filter_exact_symbol_codegen_carriers(
             and not (block.name in drawc_eligible and exact_drawc_view(block))
             and not (block.name in feinput_eligible and exact_feinput_view(block))
             and not (block.name in fescreen_eligible and exact_fescreen_view(block))
+            and not (block.name in fecars_eligible and exact_fecars_view(block))
             and not (block.name in draww_eligible and exact_draww_view(block))
         ],
         [
@@ -672,6 +718,7 @@ def filter_exact_symbol_codegen_carriers(
             and not (item.name in drawc_eligible and exact_drawc_view_typedef(item))
             and not (item.name in feinput_eligible and exact_feinput_view_typedef(item))
             and not (item.name in fescreen_eligible and exact_fescreen_view_typedef(item))
+            and not (item.name in fecars_eligible and exact_fecars_view_typedef(item))
             and not (item.name in draww_eligible and exact_draww_view_typedef(item))
         ],
     )

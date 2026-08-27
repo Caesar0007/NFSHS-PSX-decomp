@@ -4,6 +4,7 @@
 
 #include "fe_input_enums.h"
 
+#ifndef NFS4_TMENUCOMMANDTYPE_DEFINED
 #define NFS4_TMENUCOMMANDTYPE_DEFINED
 enum tMenuCommandType {
     kMenu_Command_None = 0,
@@ -17,6 +18,7 @@ enum tMenuCommandType {
     kMenu_Command_StartReplay = 8,
     kMenu_Command_ClearRecords = 9
 };
+#endif
 
 struct tMenu;
 #ifdef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
@@ -66,6 +68,7 @@ struct tDialogYesNoTri : public tDialogYesNo {
 };
 #endif
 
+#ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
 struct tFEApplication {
     unsigned int fCurrentMusic;
     tMenu *fCurrentMenu[2];
@@ -92,6 +95,7 @@ struct tFEApplication {
 #endif
     void Redraw();
 };
+#endif
 
 /* pad.obj's completed aggregate tag is absent from FEDialog.obj. */
 #ifndef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE

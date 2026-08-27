@@ -21,8 +21,10 @@
 #define cheat_FinishedTournament 25
 #define RaceType_Tournament 2
 
+#ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
 typedef int FEVECTOR[4];
 typedef int FEMATRIX[4][4];
+#endif
 
 #define NFS4_FE_CORE_SCREENCARSELECT_METHODS
 #define NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS
@@ -32,24 +34,30 @@ typedef int FEMATRIX[4][4];
 #undef NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS
 #undef NFS4_FE_CORE_SCREENCARSELECT_METHODS
 
+#ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
 struct DR_AREA {
     u_long tag;
     u_long code[2];
 };
+#endif
 
 struct DRender_tView;
 
+#ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
 struct ScreenCarSelect_GameSetupCodegenView {
     int _beforeTrack[15];
     int track;
 };
 #define GameSetup_tData ScreenCarSelect_GameSetupCodegenView
+#endif
 
+#ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
 struct AudioMus_tSongEntry {
     char *filename, *title, *artist, *label, *date, *notes;
     int length, index;
     char strbuf[32];
 };
+#endif
 
 struct tDrawShapeExtended {
     short flip_axis;
@@ -57,6 +65,7 @@ struct tDrawShapeExtended {
     tTexture_ShapeInfo *custom_shapes;
 };
 
+#ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
 enum tCarStatType {
     cst_Acceleration = 0,
     cst_Brake = 1,
@@ -76,6 +85,7 @@ enum PinkSlipsCarSelectState {
     WhoCaresWeBeExiting = 7,
     CardCurrentlyLoading = 8
 };
+#endif
 
 struct tVideoWall {
     tTVConfig *fTVs;
@@ -145,6 +155,7 @@ struct tScreenCarSelect : public tScreen {
     void DrawForeground();
 };
 
+#ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
 struct tScreenCarSelectDuel : public tScreenCarSelect {
     short fPreviousOpponent;
     bool fOpponentTVsInitialized;
@@ -165,6 +176,7 @@ struct tScreenCarSelectDuel : public tScreenCarSelect {
     void DrawBackground();
     void DrawForeground();
 };
+#endif
 
 struct tScreenCarSelectTwoPlayer : public tScreenCarSelect {
     tDialogBackUpOnly CarDialog;
@@ -185,6 +197,7 @@ struct tScreenCarSelectTwoPlayer : public tScreenCarSelect {
     void Cleanup();
 };
 
+#ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
 struct tScreenPinkSlipsCarSelect : public tScreenCarSelectTwoPlayer {
     int waitfordialog;
     CARDINFO_def *pCI;
@@ -203,6 +216,7 @@ struct tScreenPinkSlipsCarSelect : public tScreenCarSelectTwoPlayer {
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     void GetShapeInfo(short &, short &, char **, char **);
 };
+#endif
 
 struct tScreenTournamentStandings : public tScreen {
     long moneyFinal, moneyAwarded, moneyDamage, moneyBonus;
@@ -214,6 +228,7 @@ struct tScreenTournamentStandings : public tScreen {
 
 struct tScreenTournamentStandings3item : public tScreenTournamentStandings {};
 
+#ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
 /* pad.obj's aggregate tag is absent from ScreenCarSelect.obj; only buf[0]
  * is required by this owner. */
 struct ScreenCarSelect_PadCodegenView {
@@ -254,5 +269,6 @@ struct ScreenCarSelect_GlobalMenuDefsCodegenView {
     tMenuItemOptionsLeftRightChoice itemOpponentUpgrades;
 };
 #define tGlobalMenuDefs ScreenCarSelect_GlobalMenuDefsCodegenView
+#endif
 
 #endif

@@ -171,6 +171,9 @@ def compare(source: str, owner: str, retail_defs, source_defs) -> Result:
     source_blocks, source_typedefs = canon.filter_sdk_macro_carriers(
         source_blocks, source_typedefs
     )
+    source_blocks, source_typedefs = canon.filter_exact_symbol_codegen_carriers(
+        source_blocks, source_typedefs
+    )
     result = Result(source, owner, "OK")
     if retail_issues or source_issues:
         result.status = "PARSE_ISSUE"

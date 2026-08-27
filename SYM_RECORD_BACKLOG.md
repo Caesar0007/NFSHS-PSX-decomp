@@ -5264,6 +5264,48 @@ in
 and
 [`game_psx_strict_p246_20260827.md`](scratchpad/root_sym_audit/game_psx_strict_p246_20260827.md).
 
+### P143 — standalone night owner/type-visibility reconciliation (`2026-08-27`)
+
+`night.cpp` no longer imports the reconstruction-wide `nfs4_types.h` or
+`libfns.h` graphs.  Canonical owner comparison proves that `night.obj` consists
+of the already exact `color.obj` surface plus exactly 21 named records.  The
+new `night_types.h` reconstructs only that delta and restores the three retail
+Night lighting-table typedefs; the unused source-only `NightCopTablePair` is
+removed.  Full-debug comparison is now exact at 92/92 named and 2/2 anonymous
+records, with every typedef semantic covered and no source-extra semantics.
+
+Foreign aggregate uses now pass through linked-offset exact-symbol views for
+GameSetup, simGlobal, TrackSpec, Weather, and Camera rather than importing their
+owner bodies.  Camera required one explicit, layout-locked codegen view: raw
+byte arithmetic folds +4/+140 into relocations and breaks retail's component
+loads, while a 272-byte row with `target` at +4 and `slicePos` at +140 restores
+them.  The type audit excludes this private carrier only after exact owner,
+name, size, member, offset, referent-size, and implicit-typedef validation; any
+drift is visible.  This records a proven compiler boundary without pretending
+the SYM recovers the private padding spelling.
+
+The authoritative detailed board advances to all 19/19 `night.cpp` functions
+PASS.  In particular, `Night_DoLightningEffect` is exact at 97 instructions,
+`Night_SetEnviroment` at 68, and `Night_GenerateAllLightTables` at 165.  The
+full 28-owner game/PSX sweep advances to 25 exact / 3 DIFF; only `drawc`,
+`draww`, and `hud` remain.  The strict declaration audit still maps 395/395
+functions with zero missing SYM names, type findings, storage findings, global
+type findings, or mapping-review items.  Evidence is retained in
+[`night_obj_type_graph_p247_20260827.md`](scratchpad/root_sym_audit/night_obj_type_graph_p247_20260827.md),
+[`type_graph_night_p247.tsv`](scratchpad/root_sym_audit/type_graph_night_p247.tsv),
+[`full_type_graph_game_psx_p247_20260827.tsv`](scratchpad/root_sym_audit/full_type_graph_game_psx_p247_20260827.tsv),
+and
+[`game_psx_strict_p247_20260827.md`](scratchpad/root_sym_audit/game_psx_strict_p247_20260827.md).
+
+Both relink lanes remain GREEN with zero real duplicates, hidden phantoms, or
+relocation-referenced unresolved symbols; undefined-call audits cover 15,782
+reconstruction and 15,779 source-lane calls with zero defects.  TU order has
+zero inversions across 513 objects, call-target audit finds zero proven wrong
+targets across 460 units, vtable indexing passes 934 files, the phantom audit
+compiles all 513 TUs and finds all 3,484 declared names exactly owned, the
+`__Fe` census remains empty, and the source-only policy audit finds no
+post-compiler text moves or branch retargets.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

@@ -3,8 +3,7 @@
 #ifndef _GAME_PSX_NIGHT_EXTERNS_H_
 #define _GAME_PSX_NIGHT_EXTERNS_H_
 
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "night_types.h"
 
 /* ---- module state globals ---- */
 // [owned->defined in night.cpp] extern int            gNight_renderNight;      /* 0x8013da28 */
@@ -39,16 +38,40 @@
 // [owned->defined in night.cpp] extern char           Night_gCopCountryLightTbl[][5][2]; /* 0x80120d18 */
 
 /* ---- engine globals ---- */
-extern GameSetup_tData GameSetup_gData;          /* 0x801131ec */
-extern Sim_tSimGlobalVar simGlobal;              /* 0x8011e0ac */
-extern CTrackSpec     TrackSpec_gSpec;           /* 0x8012327c */
-extern camera_info    Camera_gInfo[];            /* 0x8010f2ac */
+/* Exact-symbol views use only records retained by night.obj.  Their offsets
+ * are fixed by the linked SYM: GameSetup cops/Weather/Time at +20/+72/+84,
+ * simGlobal gameTicks at +4, TrackSpec night/depth-cue at +236/+240, and
+ * camera target/slicePos at +4/+140 with a 272-byte element stride. */
+extern int Night_GameSetupWords[] asm("GameSetup_gData");
+extern coorddef Night_SimView asm("simGlobal");
+extern int Night_TrackSpecWords[] asm("TrackSpec_gSpec");
+/* The retail load shape proves a 272-byte row with slicePos at +140.  This
+ * codegen-only carrier is intentionally not part of night.obj's SYM graph;
+ * the canonical audit excludes this one exact tag after validating its body. */
+struct Night_CameraCodegenView {
+    u_char anchorBytes[4];
+    BO_tNewtonObj *target;
+    u_char prefix[132];
+    BWorldSm_Pos slicePos;
+};
+extern Night_CameraCodegenView Night_CameraView[] asm("Camera_gInfo");
+#define NIGHT_GAMESETUP_COMM_MODE Night_GameSetupWords[3]
+#define NIGHT_GAMESETUP_COPS      Night_GameSetupWords[5]
+#define NIGHT_GAMESETUP_WEATHER   Night_GameSetupWords[18]
+#define NIGHT_GAMESETUP_TIME      Night_GameSetupWords[21]
+#define NIGHT_GAME_TICKS          Night_SimView.y
+#define NIGHT_TRACK_NIGHT               (*(CNightSpec *)&Night_TrackSpecWords[59])
+#define NIGHT_TRACK_DEPTH_CUE_COLOR_WORD Night_TrackSpecWords[60]
+#define NIGHT_TRACK_DEPTH_CUE_DISTANCE   Night_TrackSpecWords[61]
+#define NIGHT_CAMERA_TARGET(p)   Night_CameraView[p].target
+#define NIGHT_CAMERA_SLICEPOS(p) Night_CameraView[p].slicePos
+#define NIGHT_CAMERA_SLICE(p)    Night_CameraView[p].slicePos.slice
 extern char          *Paths_Paths[];             /* 0x80116468 */
 extern CVECTOR       *Chunk_lightTable;          /* 0x8013c818  (was stale tCompRGB* -- 3-byte stride vs
                                                      the real 4-byte CVECTOR* owner def in chunk.cpp;
                                                      wrong-stride bug, this fn indexes Chunk_lightTable[i]) */
 extern int            Chunk_numLight;            /* 0x8013d4ec */
-extern Weather_tState  Weather_gType;            /* 0x8013dbec */
+extern int             Night_WeatherType asm("Weather_gType"); /* 0x8013dbec */
 extern int             D_80113228[];             /* @0x80113228 == &GameSetup_gData.track; distinct
                                                      alias symbol the oracle addresses directly (unsized
                                                      array shape, §3.12#5) -- same global used this way
@@ -64,6 +87,17 @@ extern void  Hrz_SetLightingPosInSky(DRender_tView *Vi);
 extern void  Hrz_CalculateLightning(void);
 extern bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
 extern int   Camera_GetMode(int player);
+
+extern "C" {
+void blockmove(void *source, void *destination, int size);
+int filesize(char *filename);
+void *loadshapeadr(char *filename, void *destination);
+void *locateshape(void *shapefile, int *namekey);
+int purgememadr(void *ptr);
+int random(void);
+void *reservememadr(const char *name, int size, int flags);
+int sprintf(char *buffer, const char *format, ...);
+}
 
 /* ---- this module (forward decls for intra-TU calls) ---- */
 extern int   Night_FindClosestColor(CVECTOR colorMatch, int *bestIndex);

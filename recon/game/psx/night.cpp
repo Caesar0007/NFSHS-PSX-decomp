@@ -3,7 +3,7 @@
  *   headlight + cop-strobe + weather colour setup, lightning effects (Generate/Pause/Do),
  *   Init/Kill/Restart night driving, SetEnviroment, AdditiveNightCalc. No GTE.
  */
-#include "../../nfs4_types.h"
+#include "night_types.h"
 #include "night_externs.h"
 
 /* ---- Night.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
@@ -722,7 +722,7 @@ void Night_GenerateNextLightningEvent(void)
   int rmask; /* SYM-CODEGEN-CARRIER: rmask -- shared masked-delay result; direct expressions are FAIL 8 (29/29) */
   int *ticksp; /* SYM-CODEGEN-CARRIER: ticksp -- explicit gameTicks cell preserves retail relocation/issue order; direct global is FAIL 2 */
 
-  ticksp = &simGlobal.gameTicks;
+  ticksp = &NIGHT_GAME_TICKS;
   rmask = (random() & 0x7ff) + 0x1f;
   Night_gNextLightning = *ticksp + rmask;
   rmask = (random() & 0xf) + 0xf;
@@ -743,7 +743,7 @@ void Night_PauseLightningEffect(int player)
   int endp;
   int pause_flag;
 
-  slice = Camera_gInfo[player].slicePos.slice;
+  slice = NIGHT_CAMERA_SLICE(player);
   track = D_80113228[0];
   pause_flag = 0;
   startp = Night_gLightningPauseAreas[track][0];
@@ -751,7 +751,7 @@ void Night_PauseLightningEffect(int player)
   if (startp < slice) {
     pause_flag = slice < endp;
   }
-  if (Weather_gType == 0) {
+  if (Night_WeatherType == 0) {
     pause_flag = 1;
   }
   if (pause_flag != 0) {
@@ -772,22 +772,22 @@ void Night_DoLightningEffect(DRender_tView *Vi)
     Hrz_LightningFlicker(0);
     Night_gLightning = 0;
   }
-  if (((simGlobal.gameTicks > Night_gNextLightning) &&
-      (simGlobal.gameTicks < Night_gEndNextLightning)) && (Night_gNextFlicker < simGlobal.gameTicks)
+  if (((NIGHT_GAME_TICKS > Night_gNextLightning) &&
+      (NIGHT_GAME_TICKS < Night_gEndNextLightning)) && (Night_gNextFlicker < NIGHT_GAME_TICKS)
      ) {
     Night_gLightningType = random() & 1;
     Hrz_LightningFlicker(1);
     /* branched if/else, NOT `= (tunnel == 0)`: the oracle emits
        `beqz $v0,.L; addiu $v0,zero,1` + two separate `sb` stores with a `j` over the
        else arm; the boolean-expression form folds to a single sltiu. */
-    if (BWorldSm_TunnelFlagSm(&Camera_gInfo[Vi->player].slicePos) != 0) {
+    if (BWorldSm_TunnelFlagSm(&NIGHT_CAMERA_SLICEPOS(Vi->player)) != 0) {
       Night_gDrawLightning = 0;
     }
     else {
       Night_gDrawLightning = 1;
     }
     Night_gLightning = 1;
-    Night_gNextFlicker = simGlobal.gameTicks + (random() & 3);
+    Night_gNextFlicker = NIGHT_GAME_TICKS + (random() & 3);
     Night_gFlashIntensity = (Night_gLightningType + 1) * (random() & 0x1f) + 0x40;
     if (lightningInit != '\0') {
       if (Night_gShowForks != '\0') {
@@ -796,15 +796,13 @@ void Night_DoLightningEffect(DRender_tView *Vi)
       lightningInit = '\0';
     }
   }
-  if (simGlobal.gameTicks > Night_gEndNextLightning) {
+  if (NIGHT_GAME_TICKS > Night_gEndNextLightning) {
     Night_GenerateNextLightningEvent();
     Hrz_CalculateLightning();
     lightningInit = '\x01';
   }
   return;
 }
-
-typedef struct { int w[2]; } NightCopTablePair;
 
 /* ---- Night_SetCopColor__FP18GameSetup_tCarData  [NIGHT.CPP:473-484] SLD-VERIFIED ----
  * NEAR-MISS 5 diffs (ours 38 / oracle 37).  Was 25, then 21 after the per-element
@@ -892,7 +890,7 @@ void Night_InitPlayerHeadLightColor(int player)
   if (Night_gPlayerLightingTable == (u_char (*) [256] [16])0x0) {
     Night_gPlayerLightingTable = reservememadr("plnight",0x1000,0);
   }
-  Night_gPlayerHeadLightColor[player] = *(long *)&TrackSpec_gSpec.nightspec.nightcolor;
+  Night_gPlayerHeadLightColor[player] = *(long *)&NIGHT_TRACK_NIGHT.nightcolor;
   return;
 }
 
@@ -1044,7 +1042,7 @@ void Night_GenerateAllLightTables(void)
       {
         int i;
 
-        if (GameSetup_gData.Weather == 1) {
+        if (NIGHT_GAMESETUP_WEATHER == 1) {
           Night_SetWeatherColors(colorIndex);
           i = 0;
         }
@@ -1056,7 +1054,7 @@ void Night_GenerateAllLightTables(void)
 
           bright = colorCreationTable[i];
           Night_SetPlayerHeadLightColor(0,colorIndex,bright);
-          if ((GameSetup_gData.cops != 0) && (i < 8)) {
+          if ((NIGHT_GAMESETUP_COPS != 0) && (i < 8)) {
             Night_SetCopLightColors(colorIndex,bright);
           }
           i = i + 1;
@@ -1114,13 +1112,13 @@ void Night_InitNightDriving(void)
      and RE-LOADS the flag for the early-out.  A leading `= 0` plus an overwrite emits
      two stores; an if/else pair or a ternary both come out 4-7 instructions long
      (measured).  Same lever family as methodology sec.3.12 #7. */
-  gNight_renderNight = GameSetup_gData.Time != 0 && GameSetup_gData.commMode != 1;
-  if ((GameSetup_gData.Time != 0) && (gNight_renderNight == 0)) {
+  gNight_renderNight = NIGHT_GAMESETUP_TIME != 0 && NIGHT_GAMESETUP_COMM_MODE != 1;
+  if ((NIGHT_GAMESETUP_TIME != 0) && (gNight_renderNight == 0)) {
     /* the whole 4-byte CVECTOR is cleared with ONE word store (oracle
        `sw $zero,0xF0($v0)`), not four `sb`s; distance is an int at +0xF4
        (`sw $v1,0xF4($v0)`).  Per-field byte clears cost 4 extra instructions. */
-    TrackSpec_gSpec.depthcuespec.distance = 0xff;
-    *(u_long *)&TrackSpec_gSpec.depthcuespec.color = 0;
+    NIGHT_TRACK_DEPTH_CUE_DISTANCE = 0xff;
+    NIGHT_TRACK_DEPTH_CUE_COLOR_WORD = 0;
   }
   if (gNight_renderNight == 0) {
     return;
@@ -1137,17 +1135,17 @@ void Night_InitNightDriving(void)
   /* locateshape is 2-arg (recon/eaclib/psx/eacpsxz/locatshp.c: `void *locateshape(void
      *shapefile,int *namekey)`); the oracle sets NO fresh $a2 here -- the old 3rd arg was
      a phantom read of the stale blockmove size. */
-  mem = (char *)locateshape(nightfile,"nght");
+  mem = (char *)locateshape(nightfile,(int *)"nght");
   Night_gNightTbl = mem + 0x10;
   Night_InitPlayerHeadLightColor(0);
-  if (GameSetup_gData.cops != 0) {
+  if (NIGHT_GAMESETUP_COPS != 0) {
     Night_InitCopLightColors();
   }
-  if (GameSetup_gData.Weather == 1) {
+  if (NIGHT_GAMESETUP_WEATHER == 1) {
     Night_InitWeatherTables();
   }
   Night_GenerateAllLightTables();
-  if (GameSetup_gData.Weather == 1) {
+  if (NIGHT_GAMESETUP_WEATHER == 1) {
     Night_gLightning = 0;
     Night_gNextLightning = D_8011E0B0[0] + (random() & 0x1ff);
     Night_gEndNextLightning = Night_gNextLightning + (random() & 0x31);
@@ -1200,9 +1198,9 @@ void Night_KillNightDriving(void)
 void Night_RestartNightDriving(void)
 
 {
-  if ((GameSetup_gData.Weather == 1) && (GameSetup_gData.Time != 0)) {
+  if ((NIGHT_GAMESETUP_WEATHER == 1) && (NIGHT_GAMESETUP_TIME != 0)) {
     Night_gLightning = 0;
-    Night_gNextLightning = simGlobal.gameTicks + (random() & 0x1ff);
+    Night_gNextLightning = NIGHT_GAME_TICKS + (random() & 0x1ff);
     Night_gEndNextLightning = Night_gNextLightning + (random() & 0x31);
     Night_gNextFlicker = Night_gNextLightning;
     Hrz_LightningFlicker(0);
@@ -1423,10 +1421,10 @@ void Night_RestartNightDriving(void)
 void Night_SetEnviroment(DRender_tView *Vi)
 
 {
-  if (GameSetup_gData.Time != 0) {
+  if (NIGHT_GAMESETUP_TIME != 0) {
     Night_gDrawLightning = '\0';
     Night_gCurrentNightColor = Night_gPlayerLightingTable;
-    if ((GameSetup_gData.Weather == 1) &&
+    if ((NIGHT_GAMESETUP_WEATHER == 1) &&
        (Night_PauseLightningEffect(Vi->player), Vi->player == 0)) {
       Night_DoLightningEffect(Vi);
     }
@@ -1435,7 +1433,7 @@ void Night_SetEnviroment(DRender_tView *Vi)
     /* MATCH (w63-a13): 6 -> 2, count still EXACT 68/68.  See the w63-a13 block
      * above the function for the mechanism and the falsification list. */
     u_char *tgt /* SYM-CODEGEN-CARRIER: tgt -- direct target access is FAIL 6 (68/68) */ =
-        (u_char *)Camera_gInfo[Vi->player].target;
+        (u_char *)NIGHT_CAMERA_TARGET(Vi->player);
     /* W80 QTY_CMP_PRI dial: five zero-byte refs are the minimal whole-step crossing
      * for tgt (7/18) over zn2 (3/4); four refs only tie at 0.7500 and stay FAIL. */
     __asm__("" : : "r"(tgt));

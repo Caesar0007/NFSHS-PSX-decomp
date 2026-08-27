@@ -274,6 +274,53 @@ def filter_sdk_macro_carriers(
     )
 
 
+def filter_exact_symbol_codegen_carriers(
+    type_blocks: list[TypeBlock], typedefs: list[Definition]
+) -> tuple[list[TypeBlock], list[Definition]]:
+    """Remove only proven, layout-locked foreign-symbol codegen views.
+
+    night.obj's retail instructions require Camera_gInfo rows of 272 bytes and
+    a BWorldSm_Pos component at +140, but its SYM deliberately retains no
+    camera_info tag.  A raw-byte reconstruction folds +140 into the relocation
+    and breaks two previously exact functions.  The private view in
+    night_externs.h restores the component MEM shape while this exact guard
+    prevents that explicitly synthetic tag from being counted as restored
+    source.  Any owner, name, size, member, or offset drift remains visible.
+    """
+    expected_rows = (
+        ("MOS", "ARY UCHAR", 4, "anchorBytes", 0, (4,), ""),
+        ("MOS", "PTR STRUCT", 576, "target", 4, (), "BO_tNewtonObj"),
+        ("MOS", "ARY UCHAR", 132, "prefix", 8, (132,), ""),
+        ("MOS", "STRUCT", 132, "slicePos", 140, (), "BWorldSm_Pos"),
+    )
+
+    def exact_night_camera(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        return (
+            block.kind == "STRTAG"
+            and block.name == "Night_CameraCodegenView"
+            and block.size == 272
+            and block.rows == expected_rows
+            and owner.endswith("night_externs.h")
+        )
+
+    def exact_night_camera_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        return (
+            item.cls == "TPDEF"
+            and item.name == "Night_CameraCodegenView"
+            and item.typ == "STRUCT"
+            and item.size == 272
+            and item.tag == "Night_CameraCodegenView"
+            and owner.endswith("night_externs.h")
+        )
+
+    return (
+        [block for block in type_blocks if not exact_night_camera(block)],
+        [item for item in typedefs if not exact_night_camera_typedef(item)],
+    )
+
+
 def variants(items, key):
     result = defaultdict(lambda: defaultdict(list))
     for item in items:
@@ -304,6 +351,9 @@ def main() -> None:
     retail_blocks, retail_typedefs, retail_issues = blocks(retail_defs)
     source_blocks, source_typedefs, source_issues = blocks(source_defs)
     source_blocks, source_typedefs = filter_sdk_macro_carriers(
+        source_blocks, source_typedefs
+    )
+    source_blocks, source_typedefs = filter_exact_symbol_codegen_carriers(
         source_blocks, source_typedefs
     )
 

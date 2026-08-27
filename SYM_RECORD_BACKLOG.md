@@ -604,7 +604,7 @@ Current strict results:
 
 - `frontend/psx`: 4 exact (`memcard`, `mdec`, `video`, `fetexture`) and 4 DIFF
   (`drawshp`, `mmeffect`, `movie`, `psxfront`);
-- `game/psx`: 21 exact (`textpix`, `textpsx`, `unpack`, `trackspec`, `loading`, `texture`, `draw`, `sfx`, `trsproj`, `cario`, `platform`, `force`, `audio`, `overlays`, `weather`, `rpause`, `textureprocess`, `skidmark`, `fe3dmenu`, `device`, `psxcontroller`) and 7 DIFF (`drawc`, `draww`, `flare`, `font`, `hrzsku`, `hud`, `night`).  The former game `font.obj` versus vendor `libgpu.lib(FONT.obj)` owner ambiguity is now resolved from the standalone/archive boundary;
+- `game/psx`: 23 exact (`textpix`, `textpsx`, `unpack`, `trackspec`, `loading`, `texture`, `draw`, `sfx`, `trsproj`, `cario`, `platform`, `force`, `audio`, `overlays`, `weather`, `rpause`, `textureprocess`, `skidmark`, `fe3dmenu`, `device`, `psxcontroller`, `font`, `hrzsku`) and 5 DIFF (`drawc`, `draww`, `flare`, `hud`, `night`).  The former game `font.obj` versus vendor `libgpu.lib(FONT.obj)` owner ambiguity is resolved from the standalone/archive boundary, and the canonical PsyQ `P_TAG` macro carrier is now classified by an exact owner-and-layout guard rather than as application-source type leakage;
 - `frontend/common`: 41 mapped units remain DIFF and the now-empty artificial
   `mcrd.cpp` unit needs its objdiff ownership removed or reassigned;
 - `game/common`: 50 exact (`ai`, `aicop`, `aidatarecord`, `aidelaycar`, `ailife`, `aiperson`, `aiscript`, `aispeeds`, `aistate`, `aitriger`, `aitune`, `aiworld`, `aiinit`, `aiphysic`, `anim`, `audedit`, `audiomus`, `audioeng`, `audiotrk`, `camera`, `chunk`, `clock`, `collide`, `color`,
@@ -5186,6 +5186,48 @@ Detailed evidence is retained in
 [`type_graph_game_psx_p244_20260827.tsv`](scratchpad/root_sym_audit/type_graph_game_psx_p244_20260827.tsv),
 and
 [`game_psx_strict_p244_20260827.md`](scratchpad/root_sym_audit/game_psx_strict_p244_20260827.md).
+
+### P141 — canonical PsyQ ordering-table macro restoration (`2026-08-27`)
+
+The final `font.obj` and `hrzsku.obj` type-graph residuals were not original
+application types.  Both packet builders require the 24-bit bitfield lowering
+of PsyQ's `setaddr`/`getaddr`/`addPrim` family to reproduce retail instruction
+selection and allocation, but the reconstruction had expressed that SDK idiom
+as owner-specific `Font_PTag` and `Hrz_PTag` typedefs.  Those invented names are
+now removed.  The shared `psyq_prim_macros.h` spells the canonical eight-byte
+`P_TAG` (`addr:24`, `len:8`, then `r0/g0/b0/code`) and the canonical access
+macros; `font.cpp` and `hrzsku.cpp` use that source-level SDK surface directly.
+
+Full-debug compilation proves that this macro-only header contributes exactly
+one anonymous eight-byte `STRTAG` and its linked `P_TAG: STRUCT` typedef.  The
+retail game-object graphs retain every concrete primitive structure used for
+variables but omit that cast-only SDK carrier.  The type audit therefore now
+filters it only when all of the following agree: typedef spelling and type,
+eight-byte size, anonymous tag link, exact six-member/bitfield layout, and the
+`psyq_prim_macros.h` owner path.  Any application-owned `P_TAG`, changed layout,
+or changed owner remains a visible DIFF.  This is a narrow compiler/SDK debug
+boundary, analogous to the already proven private `_physadr` boundary, not a
+generic name suppression.
+
+The refreshed 28-owner game/PSX sweep advances from 21 exact / 7 DIFF to 23
+exact / 5 DIFF.  `font.obj` is now exact at 36/36 named types, 2/2 anonymous
+types and 103/103 typedefs; `hrzsku.obj` is exact at 75/75 named and 2/2
+anonymous types with all typedef semantics covered (166/194 rows after
+canonicalizing repeated debug records).  The remaining explicit owners are
+`drawc`, `draww`, `flare`, `hud`, and `night`.
+
+Binary proof is unchanged: `font.cpp` remains 10 PASS / 5 NEAR / 0 FAR with
+the same five counts and instruction lengths, while `hrzsku.cpp` remains 8 PASS
+/ 10 NEAR / 4 FAR and `Sky_RenderStars` remains byte-exact at 111 instructions.
+The strict declaration audit still maps 395/395 functions with zero missing
+SYM names, type findings, storage findings, global type findings, or mapping
+review items.  Evidence is retained in
+[`psyq_prim_macro_type_graph_p245_20260827.md`](scratchpad/root_sym_audit/psyq_prim_macro_type_graph_p245_20260827.md),
+[`full_type_graph_game_psx_p245_20260827.tsv`](scratchpad/root_sym_audit/full_type_graph_game_psx_p245_20260827.tsv),
+[`type_graph_font_p245_20260827.tsv`](scratchpad/root_sym_audit/type_graph_font_p245_20260827.tsv),
+[`type_graph_hrzsku_p245_20260827.tsv`](scratchpad/root_sym_audit/type_graph_hrzsku_p245_20260827.tsv),
+and
+[`game_psx_strict_p245_20260827.md`](scratchpad/root_sym_audit/game_psx_strict_p245_20260827.md).
 
 ## Closure rule
 

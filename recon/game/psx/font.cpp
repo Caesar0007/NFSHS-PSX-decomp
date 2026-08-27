@@ -6,12 +6,7 @@
  */
 #include "font_obj_types.h"
 #include "font_externs.h"
-
-/* PsyQ libgpu P_TAG head word (addr:24 | len:8) -- the SDK addPrim()/setaddr()/getaddr()
- * house idiom.  Writing the OT/packet link through the BITFIELD (rather than hand-rolled
- * `x & 0xff000000 | y & 0xffffff` word RMWs) is what reproduces retail's mask order,
- * fresh-dest selection and cursor-bump schedule (arsenal section 2b.1). */
-typedef struct { unsigned addr : 24, len : 8; } Font_PTag;
+#include "psyq_prim_macros.h"
 
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
@@ -106,7 +101,7 @@ void Font_SetABR(int abr)
  *      emitted `addu a2,a2,t6; andi a2,a2,255`): dv = ((src[3]<<4)>>20) + v & 0xff.
  *      Only the `<<8` belongs to the u0 statement (line 148).  The old body split it
  *      the other way and needed a sched fence to hold the chain down; both are gone.
- *  (3) THE LINK IS THE P_TAG BITFIELD addPrim (Font_PTag ->addr), NOT hand-rolled word
+ *  (3) THE LINK IS THE canonical P_TAG BITFIELD addPrim (`P_TAG::addr`), NOT hand-rolled word
  *      RMWs, and there is NO `pal`/`addr24` local (SYM lists only width/height/sprt/dv).
  *      The bitfield write IS the oracle's second `lw v0,0(t3)` read-modify-write, and
  *      MEM_IN_STRUCT_P keeps the 0x1F800000 cell load single (w52 cse struct-alias law).
@@ -131,8 +126,8 @@ void Font_Blit(int x,int y,void *src,int u,int v,charactertbl *ch,int tpage)
   dv = ((*(int *)((u_char *)src + 0xc) << 4) >> 0x14) + v & 0xff;     /* SLD 136 */
   sprt = (SPRT *)Render_gPacketPtr;                                   /* SLD 137 */
   Render_gPacketPtr = (u_char *)sprt + 0x14;
-  ((Font_PTag *)sprt)->addr = ((Font_PTag *)Render_gPalettePtr)->addr;
-  ((Font_PTag *)Render_gPalettePtr)->addr = (u_int)sprt;
+  setaddr(sprt,getaddr(Render_gPalettePtr));
+  setaddr(Render_gPalettePtr,sprt);
   *((u_char *)sprt + 3) = 4;                                          /* SLD 140 */
   *(u_long *)&sprt->r0 = font_tint;                                   /* SLD 143 */
   *(int *)&sprt->x0 = y << 0x10 | x;                                  /* SLD 146 */
@@ -497,7 +492,7 @@ void Font_TextXY(char *string,int x,int y)
     /* w45-a3: PASS 86/86 (was 8).  This tail IS PsyQ addPrim(pal, dr_mode):
      *   setaddr(dr_mode, getaddr(pal));  bump;  setaddr(pal, dr_mode);
      * BOTH halves must go through the P_TAG BITFIELD.  The value side being a
-     * bitfield READ (`((PTag*)pal)->addr`, gcc: lw + and) is the load-bearing dial --
+     * bitfield READ (`getaddr(pal)`, gcc: lw + and) is the load-bearing dial --
      * a plain `*pal` read gates 22, and mixing one raw word RMW with one bitfield
      * half gates 8/22.  With both bitfields the cursor bump schedules ahead of the
      * palette store and its register is recycled for addr24 exactly as retail; bump
@@ -507,8 +502,8 @@ void Font_TextXY(char *string,int x,int y)
      * as a PAIR with Weather_DoWeather's DR_MODE tail" verdict was WRONG: those two
      * literals only existed because the link was hand-rolled as word RMWs.  Bitfield
      * stores have no mask constants to rotate. */
-    ((Font_PTag *)dr_mode)->addr = ((Font_PTag *)Render_gPalettePtr)->addr;
-    ((Font_PTag *)Render_gPalettePtr)->addr = (u_long)dr_mode;
+    setaddr(dr_mode,getaddr(Render_gPalettePtr));
+    setaddr(Render_gPalettePtr,dr_mode);
     Render_gPacketPtr = (u_char *)dr_mode + 0xc;
     SetDrawMode(dr_mode,0,0,(int)font_currentTPage,(RECT *)0x0);
   }

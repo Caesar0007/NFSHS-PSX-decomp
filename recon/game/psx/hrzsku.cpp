@@ -5,9 +5,7 @@
  */
 #include "hrzsku_types.h"
 #include "hrzsku_externs.h"
-
-/* PsyQ ordering-table tag used by the SDK addPrim()/setaddr()/getaddr() macros. */
-typedef struct { unsigned addr : 24, len : 8; } Hrz_PTag;
+#include "psyq_prim_macros.h"
 
 /* ---- link-harness owned-global definition (extern-declared, never defined) ---- */
 int Hrz_gProjResultZ0; int Hrz_gProjScratch_9C;  /* HrzSku.obj-owned projection scratch (BSS) */
@@ -1911,10 +1909,9 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
              the 24-bit field lowering preserves the same mask order and remains PASS
              111/111 while matching the SYM's no-local block. */
           prim = (TILE_1 *)Render_gPacketPtr;
-          ((Hrz_PTag *)prim)->addr =
-              ((Hrz_PTag *)(otz * 4 + (int)Render_gPalettePtr))->addr;
+          setaddr(prim,getaddr(otz * 4 + (int)Render_gPalettePtr));
           Render_gPacketPtr = (u_char *)prim + 0xc;
-          ((Hrz_PTag *)(otz * 4 + (int)Render_gPalettePtr))->addr = (u_int)prim;
+          setaddr(otz * 4 + (int)Render_gPalettePtr,prim);
           *(u_long *)((u_char *)prim + 4) = starColors[n];
           *((u_char *)prim + 3) = 2;
           *((u_char *)prim + 7) = 0x68;

@@ -207,6 +207,73 @@ def blocks(definitions: list[Definition]) -> tuple[list[TypeBlock], list[Definit
     return result, typedefs, issues
 
 
+def _is_prim_macro_header(owner: str) -> bool:
+    """Recognize only the reconstruction's canonical LIBGPU macro carrier."""
+    return owner.replace("\\", "/").casefold().endswith("/psyq_prim_macros.h")
+
+
+def filter_sdk_macro_carriers(
+    type_blocks: list[TypeBlock], typedefs: list[Definition]
+) -> tuple[list[TypeBlock], list[Definition]]:
+    """Remove exact SDK-only debug carriers that retail game objects filter.
+
+    PsyQ's canonical LIBGPU.H implements setaddr/getaddr/addPrim through P_TAG.
+    Full-debug CC1PLUS emits its anonymous body and typedef when the macros are
+    reconstructed in an owner header, whereas the retail game-object SYM keeps
+    the concrete primitive-variable types but filters this cast-only SDK type.
+    The guard deliberately checks the header owner, complete 8-byte layout and
+    typedef/tag link; a source-defined P_TAG or any layout drift remains visible.
+    """
+    expected_rows = (
+        ("FIELD", "UINT", 24, "addr", 0, (), ""),
+        ("FIELD", "UINT", 8, "len", 24, (), ""),
+        ("MOS", "UCHAR", 0, "r0", 4, (), ""),
+        ("MOS", "UCHAR", 0, "g0", 5, (), ""),
+        ("MOS", "UCHAR", 0, "b0", 6, (), ""),
+        ("MOS", "UCHAR", 0, "code", 7, (), ""),
+    )
+
+    def exact_typedef(item: Definition) -> bool:
+        return (
+            item.cls == "TPDEF"
+            and item.name == "P_TAG"
+            and item.typ == "STRUCT"
+            and item.size == 8
+            and item.tag.startswith("._")
+            and _is_prim_macro_header(item.owner)
+        )
+
+    def exact_block(block: TypeBlock) -> bool:
+        return (
+            block.kind == "STRTAG"
+            and block.size == 8
+            and block.rows == expected_rows
+            and _is_prim_macro_header(block.owner)
+        )
+
+    eligible_tags = {item.tag for item in typedefs if exact_typedef(item)}
+    removable_tags = {
+        block.name for block in type_blocks
+        if block.name in eligible_tags and exact_block(block)
+    }
+    return (
+        [
+            block for block in type_blocks
+            if not (
+                block.name in removable_tags
+                and exact_block(block)
+            )
+        ],
+        [
+            item for item in typedefs
+            if not (
+                item.tag in removable_tags
+                and exact_typedef(item)
+            )
+        ],
+    )
+
+
 def variants(items, key):
     result = defaultdict(lambda: defaultdict(list))
     for item in items:
@@ -236,6 +303,9 @@ def main() -> None:
         source_defs.extend(parse_asm(path))
     retail_blocks, retail_typedefs, retail_issues = blocks(retail_defs)
     source_blocks, source_typedefs, source_issues = blocks(source_defs)
+    source_blocks, source_typedefs = filter_sdk_macro_carriers(
+        source_blocks, source_typedefs
+    )
 
     # Anonymous compiler tags are numbered by emission order.  Their enum or
     # typedef identity is recovered through the surrounding typedef records in

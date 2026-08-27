@@ -168,6 +168,9 @@ def compile_debug(src: Path, work: Path) -> tuple[Path | None, str]:
 def compare(source: str, owner: str, retail_defs, source_defs) -> Result:
     retail_blocks, retail_typedefs, retail_issues = canon.blocks(retail_defs)
     source_blocks, source_typedefs, source_issues = canon.blocks(source_defs)
+    source_blocks, source_typedefs = canon.filter_sdk_macro_carriers(
+        source_blocks, source_typedefs
+    )
     result = Result(source, owner, "OK")
     if retail_issues or source_issues:
         result.status = "PARSE_ISSUE"

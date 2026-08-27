@@ -13,13 +13,13 @@
 #define FETV_setcachedaddr(p, tag, addr) \
   (*(u_long *)(p) = ((tag) & 0xff000000) | \
                     ((u_int)(addr) & 0x00ffffff))
-/* Canonical PsyQ 4.3 LIBGPU.H packet-tag shape and addPrim expansion. */
-typedef struct {
-  unsigned addr:24, len:8;
-  u_char r0, g0, b0, code;
-} P_TAG;
-#define setaddr(p, _addr) (((P_TAG *)(p))->addr = (u_long)(_addr))
-#define getaddr(p) ((u_long)((P_TAG *)(p))->addr)
+/* Every GPU packet begins with the same tag word.  Access it through the
+   retail POLY_F4 packet type so GCC retains aggregate-memory scheduling
+   without inventing the P_TAG typedef absent from FETv.obj's SYM graph. */
+#define setaddr(p, _addr) \
+  (((POLY_F4 *)(p))->tag = (((POLY_F4 *)(p))->tag & 0xff000000) | \
+                           ((u_long)(_addr) & 0x00ffffff))
+#define getaddr(p) (((POLY_F4 *)(p))->tag & 0x00ffffff)
 #define addPrim(ot, p) setaddr(p,getaddr(ot)), setaddr(ot,p)
 #define FETV_setXYWH(p, x, y, w, h) \
   ((p)->x0 = (x), (p)->y0 = (y), \

@@ -682,6 +682,7 @@ class MaspsxProcessor:
 
     def process_lines(self):
         self.is_reorder = True
+        self.gas_reorder_passthrough = False
         self.skip_instructions = 0
         self.file_num = 1
 
@@ -1020,11 +1021,21 @@ class MaspsxProcessor:
                 # skip these coff directives - gnu as does not like them
                 pass
 
+            elif line == ".set\tmaspsx_gas_reorder":
+                # A raw reorder-mode cc1 region must reach GNU as unchanged.
+                # Keep maspsx from materializing branch/jump nops itself while
+                # emitting the real directive for the downstream assembler.
+                self.is_reorder = False
+                self.gas_reorder_passthrough = True
+                res.append(".set\treorder")
+
             elif line.startswith(".set\t"):
                 if line.endswith("\tnoreorder"):
                     self.is_reorder = False
                 elif line.endswith("\treorder"):
                     self.is_reorder = True
+                if self.gas_reorder_passthrough:
+                    res.append(line)
 
             elif line.startswith(".file\t"):
                 # fix same-numbered files
@@ -1034,6 +1045,7 @@ class MaspsxProcessor:
 
             elif line.startswith(".ent\t"):
                 # enforce noreorder for each function
+                self.gas_reorder_passthrough = False
                 res.append(line)
                 res.append(".set\tnoreorder")
 
@@ -1232,7 +1244,7 @@ class MaspsxProcessor:
 
         elif op in branch_mnemonics or op in jump_mnemonics:
             res.append(line)
-            if self.is_reorder:
+            if self.is_reorder and not self.gas_reorder_passthrough:
                 res.append("nop  # DEBUG: branch/jump")
 
         elif op == "move":

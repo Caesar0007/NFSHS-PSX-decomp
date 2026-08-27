@@ -1280,7 +1280,10 @@ def _apply_cc1plus_ver_splice(rel_posix: str, s_file: Path, i_file: Path,
 
 
 PER_FN_CC1_VER_SPLICE = {
-    # "recon/syslib/psx/libmath/MULDF3.c": {"2.7.2": {"_mul_mant_d"}},  # 14->19
+    # The pure-C mant_pair body is the prebuilt Sony 2.7.2 identity.  Its raw
+    # region must remain in reorder mode so GNU as performs the authentic
+    # HI/LO hazard padding and return delay fill.
+    "recon/syslib/psx/libmath/MULDF3.c": {"2.7.2": {"_mul_mant_d"}},
     # w60 orchestrator (A4 ladder + A5 mechanism): cdread.c whole-TU 2.8.1 is
     # 81<87 but costs _read_data_int's PASS.  Per-fn pricing on the 2.8.1 rung:
     # _read_int 21->15, _read_issue 23->22, CdRead 43->45 (worse -- stays 2.8.0).
@@ -1370,6 +1373,11 @@ def _apply_cc1_ver_splice(rel_posix: str, s_file: Path, i_file: Path,
             # short. Strip both classes (debug-only, codegen-identical).
             alt_region = re.sub(r"^\t\.loc\t[^\n]*\n", "", alt_region, flags=re.M)
             alt_region = re.sub(r"^LM\d+:\n", "", alt_region, flags=re.M)
+            if (rel_posix == "recon/syslib/psx/libmath/MULDF3.c"
+                    and ver == "2.7.2" and name == "_mul_mant_d"):
+                alt_region = alt_region.replace(
+                    "_mul_mant_d:\n",
+                    "_mul_mant_d:\n\t.set\tmaspsx_gas_reorder\n", 1)
             normal_text = normal_text.replace(target_region, alt_region, 1)
         s_file.write_text(normal_text)
 

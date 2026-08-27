@@ -235,7 +235,7 @@ double __muldf3(double a, double b)   /* @0x800F62E4 */
         if (acc[1] < 0) {
             add[1] = 0;
             add[0] = 0x400;
-            __asm__("" : "+m"(add[0]));
+            __asm__("" : "=m"(add[0]) : "m"(add[0]));
             _add_mant_pair(acc, acc[0], acc[1], *(mant_pair *)add);
             _dbl_shift_us((unsigned int *)acc, 1, acc[0], acc[1], 11);
         } else {
@@ -245,7 +245,7 @@ double __muldf3(double a, double b)   /* @0x800F62E4 */
             __asm__("" : "=r"(signmask) : "0"(signmask));
             add[1] = 0;
             add[0] = 0x200;
-            __asm__("" : "+m"(add[0]));
+            __asm__("" : "=m"(add[0]) : "m"(add[0]));
             _add_mant_pair(acc, acc[0], acc[1], *(mant_pair *)add);
             if (((unsigned int)acc[1] & signmask) != 0u) {
                 _dbl_shift_us((unsigned int *)acc, 1, acc[0], acc[1], 11);
@@ -356,12 +356,11 @@ double __muldf3(double a, double b)   /* @0x800F62E4 */
  *            and costs 11 rows / 20 diffs.  Measured lreg: 2 refs (baseline) -> $s3,
  *            3 refs (DImode / struct) -> $s3, 4 refs (int stores + fence) -> $s2.
  *
- *  (2) the 06B VOID-TAIL FENCE `__asm__ __volatile__("" : : "i"(0));` between the copy and
+ *  (2) the historical 06B VOID-TAIL FENCE `__asm__ __volatile__("" : : "i"(0));` between the copy and
  *      `return out;`.  Without it sched1 hoists the return copy `(set (reg 2) (reg out))`
  *      above the tail, and the store base then becomes `$v0` (retail keeps `$s3` and copies
  *      to `$v0` LAST) -- exactly the w62-a8 "position row" that the 13B identity launder
- *      could not reach.  DO NOT DELETE: removing it alone re-opens the fn at 8 diffs
- *      (measured this wave).
+ *      could not reach.  This device is superseded by the pure-C/compiler identity below.
  *
  * FALSIFIED this wave (whole-TU gated, __muldf3 stayed PASS throughout):
  *   struct-pair assignment + fence ............................. 8  (movstrsi scratch regs)
@@ -390,35 +389,42 @@ double __muldf3(double a, double b)   /* @0x800F62E4 */
  * `sw $ra,56($sp)`, and `jal _add_mant_d`.  This confirms the by-value pair ABI
  * and isolates the residual to the prologue-save schedule.  Void fences before the call were neutral;
  * after the call added a nop; broad/indirect memory-output fences regressed to
- * 20. */
+ * 20.
+ *
+ * W81 source-only closure: the vendor-shaped `mant_pair` locals and by-value
+ * helper calls compile byte-exactly with the authenticated 2.7.2 compiler in
+ * its native reorder-mode assembler pipeline.  Duplicating the final aggregate
+ * store and return across the `sh.hi` edge is a real late-cross-jump source
+ * shape: jump2 removes the duplicate edge after scheduling, leaving the retail
+ * v0/v1 load/store pair and return placement.  This removes all matching asm
+ * and volatile devices from `_mul_mant_d`; detailed and strict gates are both
+ * PASS 59/59, while sibling `__muldf3` remains PASS 197/197. */
 int *_mul_mant_d(int *out, unsigned int x, unsigned int y)
 {
-    int sh[2];       /* 0x18 */
-    int add[2];      /* 0x20 */
+    mant_pair sh;
+    mant_pair add;
     unsigned int xlo, ylo, p;
 
     xlo = x & 0xFFFF;
     ylo = y & 0xFFFF;
-    sh[1] = 0;
-    sh[0] = xlo * ylo;
+    sh.hi = 0;
+    sh.lo = xlo * ylo;
     x >>= 16;
     p = x * ylo;
-    {
-        int *callout = sh;
-        __asm__("" : "=r"(callout) : "0"(callout));
-        add[1] = p >> 16;
-        add[0] = p << 16;
-        __asm__("" : "+m"(add[0]));
-        _add_mant_pair(callout, sh[0], sh[1], *(mant_pair *)add);
-    }
+    add.hi = p >> 16;
+    add.lo = p << 16;
+    _add_mant_pair(&sh.lo, sh.lo, sh.hi, add);
     y >>= 16;
     p = xlo * y;
-    add[1] = p >> 16;
-    add[0] = p << 16;
-    __asm__("" : "+m"(add[0]));
-    _add_mant_pair(sh, sh[0], sh[1], *(mant_pair *)add);
-    sh[1] += x * y;
-    *(long long *)out = *(long long *)sh;
-    __asm__ __volatile__("" : : "i"(0));   /* 06B void-tail fence -- REQUIRED, see receipt */
-    return out;
+    add.hi = p >> 16;
+    add.lo = p << 16;
+    _add_mant_pair(&sh.lo, sh.lo, sh.hi, add);
+    sh.hi += x * y;
+    if (sh.hi != 0) {
+        *(mant_pair *)out = sh;
+        return out;
+    } else {
+        *(mant_pair *)out = sh;
+        return out;
+    }
 }

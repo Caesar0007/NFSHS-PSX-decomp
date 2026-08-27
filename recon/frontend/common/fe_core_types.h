@@ -34,6 +34,7 @@ enum tMenuCommandType {
 };
 #endif
 
+#ifndef NFS4_FE_CORE_NO_CAR_TYPES
 enum tCarModels {
     cm_MercedesSLK = 0, cm_BMWZ3 = 1, cm_HoldenHSVT = 2,
     cm_FordFalcon = 3, cm_ChevyCamaro = 4, cm_TransAm = 5,
@@ -68,6 +69,7 @@ enum tPersonalities {
     kPersonalityCop2 = 6, kPersonalityCop3 = 7,
     kPersonalityTraffic = 8, kPersonalityNUM = 9
 };
+#endif
 
 struct tMenu;
 struct tScreen;
@@ -110,6 +112,7 @@ struct tMenu {
 
 struct tMenuItemInteractive : public tMenuItem {};
 
+#ifndef NFS4_FE_CORE_NO_CAR_TYPES
 struct tCarInfo {
     signed char fCarID;
     u_char fSimNumber, fCarClass, fABSAvailable, fDefaultColor;
@@ -195,5 +198,6 @@ struct tfrontEnd {
     bool GotAPlayList;
     bool AnalogOn[2];
 };
+#endif
 
 #endif

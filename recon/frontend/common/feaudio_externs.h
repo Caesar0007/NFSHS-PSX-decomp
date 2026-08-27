@@ -1,4 +1,3 @@
-#include "../../lib/libfns.h"
 /* feaudio_externs.h -- externs referenced by feaudio.cpp (canonical decls from siblings + SYM Globals) */
 #ifndef FEAUDIO_EXTERNS_H
 #define FEAUDIO_EXTERNS_H
@@ -24,6 +23,28 @@ extern int         gMasterFENarrationLevel, gMasterMusicLevel, gStopCommentaryNo
 
 /* free functions (SNDPSXZ.LIB + nsync + CRT; sigs inferred from call sites) */
 void   AudioMus_Volume(int);
+
+extern "C" {
+void   asyncidle(...);
+int    asyncloadsegment(...);
+int    getasyncreadstatus(...);
+int    purgememadr(...);
+void  *reservememadr(...);
+void   setasyncfile(...);
+void   SNDautovol(...);
+int    SNDbankadd(...);
+void   SNDbankheadercopy(...);
+int    SNDbankheadersize(...);
+int    SNDbankremove(...);
+int    SNDover(...);
+int    SNDplay(...);
+void   SNDplaysetdef(...);
+int    sprintf(...);
+int    strcmp(...);
+char  *strcpy(...);
+char  *strncpy(...);
+int    systemtask(...);
+}
 
 /* same-TU forward decls (called before defined) */
 char *FeAudio_StartBigfileRead(char *fname, int offset, int length, int *vivHandle);

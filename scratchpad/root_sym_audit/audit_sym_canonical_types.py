@@ -424,6 +424,22 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "ARY UCHAR", 16, "stateBytes", 68, (16,), ""),
         )),
     }
+    fescreen_views = {
+        # FEScreen.obj directly manipulates two foreign render globals whose
+        # owning tags are absent from its retail graph.  Their member-shaped
+        # instructions require these exact layouts; suppress only the complete
+        # struct/typedef pairs emitted from fescreen_externs.h.
+        "FEScreen_DFlipCodegenView": (24, (
+            ("MOS", "STRUCT", 20, "disp", 0, (), "DISPENV"),
+            ("MOS", "PTR CHAR", 0, "server", 20, (), ""),
+        )),
+        "FEScreen_DrawViewCodegenView": (200, (
+            ("MOS", "INT", 0, "otsize", 0, (), ""),
+            ("MOS", "INT", 0, "membudget", 4, (), ""),
+            ("MOS", "ARY STRUCT", 184, "drawenv", 8, (2,), "DRAWENV"),
+            ("MOS", "ARY PTR ULONG", 8, "ot", 192, (2,), ""),
+        )),
+    }
     draww_views = {
         "DrawW_SliceCodegenView": (32, (
             ("MOS", "ARY INT", 12, "center", 0, (3,), ""),
@@ -557,6 +573,32 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith("feinput_externs.h")
         )
 
+    def exact_fescreen_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = fescreen_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith("fescreen_externs.h")
+        )
+
+    def exact_fescreen_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = fescreen_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            # Macro aliases make CC1PL repeat the already pair-locked typedef
+            # at local declaration sites in fescreen.cpp.  Accept only those
+            # exact same-name/size/tag repeats from this one consumer TU.
+            and owner.endswith(("fescreen_externs.h", "fescreen.cpp"))
+        )
+
     def exact_draww_view(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         expected = draww_views.get(block.name)
@@ -602,6 +644,11 @@ def filter_exact_symbol_codegen_carriers(
         if any(exact_feinput_view(block) and block.name == name for block in type_blocks)
         and any(exact_feinput_view_typedef(item) and item.name == name for item in typedefs)
     }
+    fescreen_eligible = {
+        name for name in fescreen_views
+        if any(exact_fescreen_view(block) and block.name == name for block in type_blocks)
+        and any(exact_fescreen_view_typedef(item) and item.name == name for item in typedefs)
+    }
     draww_eligible = {
         name for name in draww_views
         if any(exact_draww_view(block) and block.name == name for block in type_blocks)
@@ -615,6 +662,7 @@ def filter_exact_symbol_codegen_carriers(
             and not (block.name in hud_eligible and exact_hud_view(block))
             and not (block.name in drawc_eligible and exact_drawc_view(block))
             and not (block.name in feinput_eligible and exact_feinput_view(block))
+            and not (block.name in fescreen_eligible and exact_fescreen_view(block))
             and not (block.name in draww_eligible and exact_draww_view(block))
         ],
         [
@@ -623,6 +671,7 @@ def filter_exact_symbol_codegen_carriers(
             and not (item.name in hud_eligible and exact_hud_view_typedef(item))
             and not (item.name in drawc_eligible and exact_drawc_view_typedef(item))
             and not (item.name in feinput_eligible and exact_feinput_view_typedef(item))
+            and not (item.name in fescreen_eligible and exact_fescreen_view_typedef(item))
             and not (item.name in draww_eligible and exact_draww_view_typedef(item))
         ],
     )

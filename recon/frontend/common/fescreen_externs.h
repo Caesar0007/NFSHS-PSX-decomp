@@ -1,8 +1,31 @@
 /* frontend/common/fescreen_externs.h - reconstructed externs. NOT original. */
 #ifndef _FE_SCREENS_FESCREEN_EXTERNS_H_
 #define _FE_SCREENS_FESCREEN_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "fescreen_types.h"
+
+/* FEScreen.obj does not retain the owning dflip/Draw_tView tags, but retail
+ * instructions require their exact member shapes.  These private foreign-
+ * symbol views are accepted by the canonical audit only at this owner and
+ * only with their complete measured layouts. */
+struct FEScreen_DFlipCodegenView {
+    DISPENV disp;
+    char *server;
+};
+
+struct FEScreen_DrawViewCodegenView {
+    int otsize, membudget;
+    DRAWENV drawenv[2];
+    u_long *ot[2];
+};
+
+#define dflip FEScreen_DFlipCodegenView
+#define Draw_tView FEScreen_DrawViewCodegenView
+
+/* The retail owner retains neither menu-text enum tag.  Preserve the proven
+ * call target through its linkage name while keeping those foreign tags out
+ * of this TU's source graph. */
+#define textState_Selected 1
+#define textType_ScreenInfo 4
 
 /* ===== globals ===== */
 extern int            ticks[];
@@ -27,7 +50,8 @@ void  DrawShapeExtended(int, int, int, int, int, int, tDrawShapeExtended*);
 void  PSXDrawSquare(int, int, int, int, int);
 
 /* ===== text ===== */
-void  FETextRender_MenuTextPositionedJustify(short, short, short, short, tMenuTextState, tMenuTextType);
+void  FETextRender_MenuTextPositionedJustify(short, short, short, short, int, int)
+      __asm__("FETextRender_MenuTextPositionedJustify__Fssss14tMenuTextState13tMenuTextType");
 char *TextSys_Word(int);
 extern "C" int textpixels(char*);
 
@@ -39,5 +63,17 @@ void  FETexture_LoadPmxAtOffset(char*, int, tTexture_ShapeInfo*, int, int);
 void  FeAudio_systemtask(int);
 
 /* ===== libc / libgpu / libetc ===== */
+extern "C" {
+unsigned int asyncloadfile(char *name, void *memclass);
+unsigned int asyncloadfileat(char *name, char *destination);
+void cancelasyncload(unsigned int handle);
+char *getasyncreadadr(unsigned int handle);
+int getasyncreadstatus(unsigned int handle);
+int purgememadr(void *address);
+void *reservememadr(char *name, int size, int memclass);
+int sprintf(char *buffer, const char *format, ...);
+int DrawSync(int mode);
+int VSync(int mode);
+}
 
 #endif

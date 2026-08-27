@@ -50,6 +50,8 @@ struct GameSetup_tControllerData {
     int shockMode[2], shockImpact[2];
 };
 
+#ifndef NFS4_TMENUCOMMANDTYPE_DEFINED
+#define NFS4_TMENUCOMMANDTYPE_DEFINED
 enum tMenuCommandType {
     kMenu_Command_None = 0,
     kMenu_Command_GoToMenu = 1,
@@ -62,6 +64,7 @@ enum tMenuCommandType {
     kMenu_Command_StartReplay = 8,
     kMenu_Command_ClearRecords = 9
 };
+#endif
 
 enum tCarModels {
     cm_MercedesSLK = 0, cm_BMWZ3 = 1, cm_HoldenHSVT = 2,

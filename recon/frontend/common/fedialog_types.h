@@ -19,10 +19,14 @@ enum tMenuCommandType {
 };
 
 struct tMenu;
+#ifdef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
+struct tMenuCommand;
+#else
 struct tMenuCommand {
     tMenuCommandType type;
     tMenu *nextMenu;
 };
+#endif
 
 #define NFS4_FE_CORE_FEDIALOG_METHODS
 #define NFS4_SCREENDISPLAY_FEDIALOG_METHODS
@@ -32,6 +36,7 @@ struct tMenuCommand {
 #undef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
 #undef NFS4_FE_CORE_FEDIALOG_METHODS
 
+#ifndef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
 struct helpKeyData {
     short text, button;
 };
@@ -40,12 +45,14 @@ struct tHelpData {
     char autoGenerate;
     helpKeyData items[4];
 };
+#endif
 
 struct tDialogBackUpOnly : public tDialogMessageString {
     tDialogBackUpOnly(int);
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 };
 
+#ifndef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
 struct tDialogYesNoMem : public tDialogYesNo {
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 };
@@ -57,6 +64,7 @@ struct tDialogYesNoTri : public tDialogYesNo {
     }
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 };
+#endif
 
 struct tFEApplication {
     unsigned int fCurrentMusic;
@@ -79,16 +87,21 @@ struct tFEApplication {
     int speechToPlay[2];
 
     inline tMenu *CurrentMenu(tPlayer player) { return fCurrentMenu[player]; }
+#ifdef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
+    inline tPlayer GetPlayer() { return (tPlayer)fPlayer; }
+#endif
     void Redraw();
 };
 
 /* pad.obj's completed aggregate tag is absent from FEDialog.obj. */
+#ifndef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
 struct FEDialog_PadCodegenView {
     int initialized;
     PAD_COMMON buf[8];
     char stateBytes[16];
 };
 #define tPadModuleState FEDialog_PadCodegenView
+#endif
 
 struct tGlobalMenuDefs;
 struct tDrawShapeExtended;

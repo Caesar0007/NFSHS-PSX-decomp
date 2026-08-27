@@ -48,9 +48,18 @@ struct tScreen {
     __vtbl_ptr_type (*_vf)[10];
 
 #if defined(NFS4_SCREENDISPLAY_SCREENMEMCARD_METHODS) || \
-    defined(NFS4_SCREENDISPLAY_FEDIALOG_METHODS)
+    defined(NFS4_SCREENDISPLAY_FEDIALOG_METHODS) || \
+    defined(NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS)
     tScreen();
     ~tScreen();
+#endif
+#ifdef NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS
+    void UploadSwapShapes(int);
+    void UploadShapes(tShapeInformation &, short, short, short, short);
+    void TransitionOff(tScreen_TransitionType, tMenu *)
+        __asm__("TransitionOff__7tScreen22tScreen_TransitionTypeP5tMenu");
+    void TransitionOn(tScreen_TransitionType, tMenu *)
+        __asm__("TransitionOn__7tScreen22tScreen_TransitionTypeP5tMenu");
 #endif
     void PreLoad();
     void Initialize();
@@ -75,6 +84,11 @@ struct tListIteratorCar : public tListIterator {
     int fCarListFilter;
     tCarManager *fCarManager;
     tCarNameLength fNameLength;
+#ifdef NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS
+    short TextValue(tPlayer);
+    void Increment(tPlayer);
+    void Decrement(tPlayer);
+#endif
 };
 
 struct tListIteratorCarColor : public tListIterator {
@@ -99,6 +113,9 @@ struct tTournamentManager {
     char fPrevBestPlacement;
     u_char fFinishPoints[6], fRanking[6];
     tAwardInformation fAwards;
+#ifdef NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS
+    void GetTrackToRace(tTrackInfo &);
+#endif
 };
 
 struct tListIteratorTrack : public tListIteratorIndexed {
@@ -255,6 +272,9 @@ struct tDialogBase : public tScreen {
     void Draw();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 #endif
+#ifdef NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS
+    inline tDialogBase *SetPosition(short, short, tPlayer);
+#endif
 };
 
 struct tDialogMessageString : public tDialogBase {
@@ -264,6 +284,12 @@ struct tDialogMessageString : public tDialogBase {
     tDialogMessageString();
     void CalculateDimensions();
     void Draw();
+#endif
+#ifdef NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS
+    inline tDialogMessageString *SetString(char *text) {
+        string = text;
+        return this;
+    }
 #endif
 };
 

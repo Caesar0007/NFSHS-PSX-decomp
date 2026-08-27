@@ -1,9 +1,10 @@
 /* frontend/screens/screencarselect_externs.h - reconstructed externs. NOT original. */
 #ifndef _FE_SCREENS_SCREENCARSELECT_EXTERNS_H_
 #define _FE_SCREENS_SCREENCARSELECT_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
-typedef int code(...);   /* Ghidra fn-ptr type for vtable dispatch */
+#include "screencarselect_types.h"
+/* Source-only cast spelling; a typedef would invent a debug record absent
+ * from ScreenCarSelect.obj. */
+#define code int
 
 /* ===== globals ===== */
 extern tfrontEnd          frontEnd;
@@ -101,8 +102,9 @@ bool IsShapeFileLoaded(tScreen*, tShapeInformation*) asm("IsShapeFileLoaded__7tS
 /* W58-A1 (08A phantom fix): the tScreen / tCarManager / tTrackManager / tVideoWall /
  * tDialogBase / tFEApplication entry points below were free `(...)`- or `(void*)`-typed
  * decls that mangled every call site to a symbol the link can never resolve
- * (`..__Fe` / `..__FPv`).  They are MEMBERS -- decls live in nfs4_types.h and the call
- * sites now use obj->Method(...) / obj.Method(...).  Byte-neutral (`this` rides $a0).
+ * (`..__Fe` / `..__FPv`).  They are MEMBERS -- declarations live in the exact
+ * owner type surface and call sites use obj->Method(...) / obj.Method(...).
+ * Byte-neutral (`this` rides $a0).
  * Removed here: UploadShapes, UploadSwapShapes, TransitionOff, TransitionOn,
  * SetAvailableIcon, SetOffset, SetValid, GetStockCar, GetNumPinkSlipsCars,
  * CalcUsedPrice, CheapestCarStockPrice, GetTrack, Hide, Display, Redraw. */
@@ -130,11 +132,15 @@ void  DrawShape_NFS4Rectangle(RECT &); void DrawShape_NFS4RoundRectangle(int, RE
 void  DrawSlider(short, short, short, short, short, short, short, short, short, bool, bool, short, short);
 void  PSXDrawSquare(int,int,int,int,int);
 void  FETextRender_FullTextRGB(char *, short, short, int, char, short);
-void  FETextRender_MenuTextPositionedJustify(short, short, short, short, tMenuTextState, tMenuTextType);
+void  FETextRender_MenuTextPositionedJustify(short, short, short, short,
+                                              tMenuTextState, tMenuTextType)
+  __asm__("FETextRender_MenuTextPositionedJustify__Fssss14tMenuTextState13tMenuTextType");
 void FETextRender_WordWrap(short index, RECT &r, tMenuTextState textState,
-                           tMenuTextType textType);
+                           tMenuTextType textType)
+  __asm__("FETextRender_WordWrap__FsR4RECT14tMenuTextState13tMenuTextType");
 void  FeAudio_AsyncPlaySpeech(int, int);
-bool FECheat_IsCheatEnabled(tCheatCode);   /* W58-A1: typed SYM FCN bool */
+bool FECheat_IsCheatEnabled(tCheatCode)
+  __asm__("FECheat_IsCheatEnabled__F10tCheatCode");
 /* W58-A1: GetTrackByID / GetTrackToRace are tTrackManager / tTournamentManager members. */
 short LoadGame(short, bool, bool);
 extern "C" int MCRD_handlecardevents(int);
@@ -151,11 +157,19 @@ extern void *Draw_gPlayer1View;   /* int def in render.cpp */
 void  AudioMus_StopSong(int); void  CleanupSpinningCarsMenu(void); void  DeInit_Memcard(void);
 /* W58-A1 (08A phantom fix): DrawShape_NFS4TransRectangle__FR4RECTs,
  * FETextRender_MenuTextPositioned__Fsss14tMenuTextState13tMenuTextType. */
-void  DrawShape_NFS4TransRectangle(RECT &, short); void  FETextRender_MenuTextPositioned(short, short, short, tMenuTextState, tMenuTextType); void  Init_Memcard(bool, bool);
+void  DrawShape_NFS4TransRectangle(RECT &, short);
+void  FETextRender_MenuTextPositioned(short, short, short,
+                                      tMenuTextState, tMenuTextType)
+ __asm__("FETextRender_MenuTextPositioned__Fsss14tMenuTextState13tMenuTextType");
+void  Init_Memcard(bool, bool);
  void  SetLicensePlate(void);
-int GetNumOwnedCars(...); int GetNumTourneyCars(...);
 extern "C" CARDINFO_def *MCRD_getcard(int);
-void *Draw_GetDRAWENV(int, int); void *GetGarageCar(...); void *GetPinkSlipsCar(...);
+void *Draw_GetDRAWENV(int, int);
+extern "C" int fixedmult(int, int);
+extern "C" int fixeddiv(int, int);
+extern "C" int gettick(void);
+extern "C" int sprintf(char *, const char *, ...);
+extern "C" void SetDrawArea(DR_AREA *, RECT *);
 
 void PreLoad(tScreen*) asm("PreLoad__7tScreen");
 #endif

@@ -563,6 +563,67 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "ARY CHAR", 16, "stateBytes", 68, (16,), ""),
         ), "fedialog_types.h"),
     }
+    # ScreenCarSelect.obj dereferences three foreign singleton aggregates and
+    # uses one named PsyQ primitive-link cast without retaining any of their
+    # completed tags.  Suppress only exact tag/typedef pairs with every member,
+    # bit width, offset, leaf tag, size, and owner priced below.  Its anonymous
+    # tCarInfo/signed-byte stack alias is likewise accepted only as the exact
+    # 204-byte owner-local union proved necessary by the 59/59 oracle.  Any
+    # drift remains visible.  Pre-change backup: Git commit fc30a9cd.
+    screencarselect_views = {
+        "ScreenCarSelect_GameSetupCodegenView": (64, (
+            ("MOS", "ARY INT", 60, "_beforeTrack", 0, (15,), ""),
+            ("MOS", "INT", 0, "track", 60, (), ""),
+        ), "screencarselect_types.h"),
+        "ScreenCarSelect_PadCodegenView": (68, (
+            ("MOS", "INT", 0, "initialized", 0, (), ""),
+            ("MOS", "ARY STRUCT", 64, "buf", 4, (8,), "PAD_COMMON"),
+        ), "screencarselect_types.h"),
+        "ScreenCarSelect_GlobalMenuDefsCodegenView": (8408, (
+            ("MOS", "ARY CHAR", 4460, "_beforeIteratorCar1", 0, (4460,), ""),
+            ("MOS", "STRUCT", 28, "iteratorCar1", 4460, (), "tListIteratorCar"),
+            ("MOS", "ARY CHAR", 76, "_beforeItemCar", 4488, (76,), ""),
+            ("MOS", "STRUCT", 40, "itemCar", 4564, (), "tMenuItemNFS4LeftRightChoice"),
+            ("MOS", "STRUCT", 40, "itemColor", 4604, (), "tMenuItemNFS4LeftRightChoice"),
+            ("MOS", "STRUCT", 44, "itemShowcase", 4644, (), "tMenuItemGoToMenuNFS4Button"),
+            ("MOS", "ARY CHAR", 124, "_beforeIteratorGarageCar", 4688, (124,), ""),
+            ("MOS", "STRUCT", 28, "iteratorGarageCar", 4812, (), "tListIteratorCar"),
+            ("MOS", "STRUCT", 40, "itemGarageCar", 4840, (), "tMenuItemNFS4LeftRightChoice"),
+            ("MOS", "STRUCT", 44, "itemCarDealer", 4880, (), "tMenuItemGoToMenuNFS4Button"),
+            ("MOS", "STRUCT", 44, "itemUpgradeCar", 4924, (), "tMenuItemGoToMenuNFS4Button"),
+            ("MOS", "ARY CHAR", 248, "_beforeIteratorOpponentCar", 4968, (248,), ""),
+            ("MOS", "STRUCT", 28, "iteratorOpponentCar", 5216, (), "tListIteratorCar"),
+            ("MOS", "ARY CHAR", 540, "_beforeItemColorP1", 5244, (540,), ""),
+            ("MOS", "STRUCT", 40, "itemColorP1", 5784, (), "tMenuItemNFS4LeftRightChoice"),
+            ("MOS", "ARY CHAR", 208, "_beforeItemColorP2", 5824, (208,), ""),
+            ("MOS", "STRUCT", 40, "itemColorP2", 6032, (), "tMenuItemNFS4LeftRightChoice"),
+            ("MOS", "ARY CHAR", 540, "_beforeIteratorPinkSlipsCar", 6072, (540,), ""),
+            ("MOS", "STRUCT", 28, "iteratorPinkSlipsCar", 6612, (), "tListIteratorCar"),
+            ("MOS", "ARY CHAR", 688, "_beforeItemDealerCar", 6640, (688,), ""),
+            ("MOS", "STRUCT", 40, "itemDealerCar", 7328, (), "tMenuItemNFS4LeftRightChoice"),
+            ("MOS", "ARY CHAR", 280, "_beforeItemSellerCar", 7368, (280,), ""),
+            ("MOS", "STRUCT", 40, "itemSellerCar", 7648, (), "tMenuItemNFS4LeftRightChoice"),
+            ("MOS", "STRUCT", 44, "itemSellCar", 7688, (), "tMenuItemGoToMenuNFS4Button"),
+            ("MOS", "ARY CHAR", 256, "_beforeMenuCarUpgrades", 7732, (256,), ""),
+            ("MOS", "STRUCT", 124, "menuCarUpgrades", 7988, (), "tMenuNFS4"),
+            ("MOS", "ARY CHAR", 72, "_beforeItemTransmission", 8112, (72,), ""),
+            ("MOS", "STRUCT", 32, "itemTransmission", 8184, (), "tMenuItemOptionsLeftRightChoice"),
+            ("MOS", "STRUCT", 32, "itemABS", 8216, (), "tMenuItemOptionsLeftRightChoice"),
+            ("MOS", "STRUCT", 32, "itemDamage", 8248, (), "tMenuItemOptionsLeftRightChoice"),
+            ("MOS", "STRUCT", 32, "itemTransmission2", 8280, (), "tMenuItemOptionsLeftRightChoice"),
+            ("MOS", "STRUCT", 32, "itemABS2", 8312, (), "tMenuItemOptionsLeftRightChoice"),
+            ("MOS", "STRUCT", 32, "itemDamage2", 8344, (), "tMenuItemOptionsLeftRightChoice"),
+            ("MOS", "STRUCT", 32, "itemOpponentUpgrades", 8376, (), "tMenuItemOptionsLeftRightChoice"),
+        ), "screencarselect_types.h"),
+        "tPsyQPrimTag": (4, (
+            ("FIELD", "UINT", 24, "addr", 0, (), ""),
+            ("FIELD", "UINT", 8, "len", 24, (), ""),
+        ), "screencarselect.cpp"),
+    }
+    screencarselect_union_rows = (
+        ("MOU", "STRUCT", 204, "carInfo", 0, (), "tCarInfo"),
+        ("MOU", "CHAR", 0, "signedCarID", 0, (), ""),
+    )
     # ScreenDisplay.obj dereferences only the menuDisplayOptions member of the
     # foreign tGlobalMenuDefs singleton.  Its linked SYM retains the complete
     # tOptionsMenu leaf but attributes the owning aggregate to FEMenuDefs.obj.
@@ -1024,6 +1085,39 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith((expected[2], "fedialog.cpp"))
         )
 
+    def exact_screencarselect_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = screencarselect_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith(expected[2])
+        )
+
+    def exact_screencarselect_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = screencarselect_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            and owner.endswith(expected[2])
+        )
+
+    def exact_screencarselect_union(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        return (
+            block.kind == "UNTAG"
+            and normalize_tag(block.name) == "<anonymous>"
+            and block.size == 204
+            and block.rows == screencarselect_union_rows
+            and owner.endswith("screencarselect.cpp")
+        )
+
     def exact_screendisplay_view(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         expected = screendisplay_views.get(block.name)
@@ -1198,6 +1292,13 @@ def filter_exact_symbol_codegen_carriers(
         and any(exact_fedialog_view_typedef(item) and item.name == name
                 for item in typedefs)
     }
+    screencarselect_eligible = {
+        name for name in screencarselect_views
+        if any(exact_screencarselect_view(block) and block.name == name
+               for block in type_blocks)
+        and any(exact_screencarselect_view_typedef(item) and item.name == name
+                for item in typedefs)
+    }
     screenusername_eligible = {
         name for name in screenusername_views
         if any(exact_screenusername_view(block) and block.name == name
@@ -1239,6 +1340,9 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_screenmemcard_view(block))
             and not (block.name in fedialog_eligible
                      and exact_fedialog_view(block))
+            and not (block.name in screencarselect_eligible
+                     and exact_screencarselect_view(block))
+            and not exact_screencarselect_union(block)
             and not (block.name in screendisplay_eligible
                      and exact_screendisplay_view(block))
             and not (block.name in screenusername_eligible
@@ -1265,6 +1369,8 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_screenmemcard_view_typedef(item))
             and not (item.name in fedialog_eligible
                      and exact_fedialog_view_typedef(item))
+            and not (item.name in screencarselect_eligible
+                     and exact_screencarselect_view_typedef(item))
             and not (item.name in screendisplay_eligible
                      and exact_screendisplay_view_typedef(item))
             and not (item.name in screenusername_eligible

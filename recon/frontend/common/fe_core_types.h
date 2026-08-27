@@ -109,6 +109,11 @@ struct tMenuItem {
     int fButtonImage, fNumFrames;
     tMenu *fNewMenu;
     __vtbl_ptr_type (*_vf)[11];
+#ifdef NFS4_FE_CORE_SCREENCARSELECT_METHODS
+    inline void SetTextDescription(unsigned int text) {
+        fTextDescription = text;
+    }
+#endif
 #ifdef NFS4_FE_CORE_FEMENU_METHODS
     tMenuItem() {}
     tMenuItem(unsigned int textDescription);
@@ -222,6 +227,16 @@ struct tCarManager {
     short fCarTextList[49];
 #ifdef NFS4_FE_CORE_FECHEATS_METHODS
     void SetClassAvailable(tCarClassType, bool);
+#endif
+#ifdef NFS4_FE_CORE_SCREENCARSELECT_METHODS
+    long CheapestCarStockPrice();
+    long CalcUsedPrice(short);
+    void GetStockCar(short, tCarInfo &);
+    void GetGarageCar(short, tCarInfo &, short);
+    void GetPinkSlipsCar(short, tCarInfo &, short);
+    short GetNumOwnedCars(short);
+    short GetNumTourneyCars(short);
+    short GetNumPinkSlipsCars(short);
 #endif
 };
 

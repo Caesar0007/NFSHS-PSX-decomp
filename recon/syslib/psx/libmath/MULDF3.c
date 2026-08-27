@@ -119,6 +119,14 @@ int *_mul_mant_d(int *out, unsigned int x, unsigned int y);
  * relocation of a single `lw $a3,N(sp)`, mechanically identical nine times.
  * NOT a floor.
  *
+ * W80 source-only update: 12 -> 8 at exact 197/197 by moving the else-arm
+ * `exp = e - 1023` assignment after its `_dbl_shift_us(..., 10)` call.  The
+ * assignment is semantically independent of that call; sched2 still hoists
+ * the exponent calculation, but now stages the second `li $a1,1` before the
+ * call-count setup and sinks `lw $t3,0x50($sp)` to the retail position.  This
+ * removes the four tail scheduling diffs without changing allocation or any
+ * of the four remaining `$a3` load-order pairs.  `_mul_mant_d` remains 6.
+ *
  * W61-A9 tail probes for _mul_mant_d (all whole-TU gated,
  * scratchpad/w61a9/mul_v1.json + mul_v2.json), baseline 14, none landed:
  *   opacity fence on `out` after the stores 24 * before the stores 28 *
@@ -218,8 +226,8 @@ double __muldf3(double a, double b)   /* @0x800F62E4 */
             if (((unsigned int)acc[1] & signmask) != 0u) {
                 _dbl_shift_us((unsigned int *)acc, 1, acc[0], acc[1], 11);
             } else {
-                exp = e - 1023;
                 _dbl_shift_us((unsigned int *)acc, 1, acc[0], acc[1], 10);
+                exp = e - 1023;
             }
         }
         acc[1] &= 0xFFEFFFFF;

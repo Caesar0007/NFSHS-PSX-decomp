@@ -476,7 +476,7 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "INT", 0, "nTime", 12, (), ""),
             ("MOS", "INT", 0, "nBestLap", 16, (), ""),
         ), ("fetourn_types.h", "fecntl_types.h", "fecheats_types.h",
-            "femenuextended_types.h")),
+            "femenuextended_types.h", "screenpinkslips_types.h")),
     }
     # FECheats dereferences FEApp's embedded MemCardDialog.  CC1PL therefore
     # needs the complete application layout even though the linked owner keeps
@@ -798,6 +798,22 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "STRUCT", 128, "menuAudio", 10208, (),
              "tOptionsMenu"),
         ), "screenaudio_types.h"),
+    }
+    # ScreenPinkSlips.obj retains the member leaf types but not the complete
+    # FEMenuDefs aggregate used to address them.  Pre-change backup: df189daa.
+    screenpinkslips_views = {
+        "ScreenPinkSlips_GlobalMenuDefsCodegenView": (3988, (
+            ("MOS", "ARY CHAR", 3208, "_beforeIteratorTrack", 0,
+             (3208,), ""),
+            ("MOS", "STRUCT", 24, "iteratorTrack", 3208, (),
+             "tListIteratorTrack"),
+            ("MOS", "ARY CHAR", 684, "_beforeItemTraffic", 3232,
+             (684,), ""),
+            ("MOS", "STRUCT", 36, "itemTraffic", 3916, (),
+             "tMenuItemOptionsTwoItemChoice"),
+            ("MOS", "STRUCT", 36, "itemLocalSpeech", 3952, (),
+             "tMenuItemOptionsTwoItemChoice"),
+        ), "screenpinkslips_types.h"),
     }
     # ScreenDisplay.obj dereferences only the menuDisplayOptions member of the
     # foreign tGlobalMenuDefs singleton.  Its linked SYM retains the complete
@@ -1429,6 +1445,29 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith((expected[2], "screenaudio.cpp"))
         )
 
+    def exact_screenpinkslips_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = screenpinkslips_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith(expected[2])
+        )
+
+    def exact_screenpinkslips_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = screenpinkslips_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            and owner.endswith((expected[2], "screenpinkslips.cpp"))
+        )
+
     def exact_screendisplay_view(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         expected = screendisplay_views.get(block.name)
@@ -1652,6 +1691,13 @@ def filter_exact_symbol_codegen_carriers(
         and any(exact_screenaudio_view_typedef(item) and item.name == name
                 for item in typedefs)
     }
+    screenpinkslips_eligible = {
+        name for name in screenpinkslips_views
+        if any(exact_screenpinkslips_view(block) and block.name == name
+               for block in type_blocks)
+        and any(exact_screenpinkslips_view_typedef(item) and item.name == name
+                for item in typedefs)
+    }
     screenusername_eligible = {
         name for name in screenusername_views
         if any(exact_screenusername_view(block) and block.name == name
@@ -1706,6 +1752,8 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_screentrophyroom_view(block))
             and not (block.name in screenaudio_eligible
                      and exact_screenaudio_view(block))
+            and not (block.name in screenpinkslips_eligible
+                     and exact_screenpinkslips_view(block))
             and not (block.name in screendisplay_eligible
                      and exact_screendisplay_view(block))
             and not (block.name in screenusername_eligible
@@ -1746,6 +1794,8 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_screentrophyroom_view_typedef(item))
             and not (item.name in screenaudio_eligible
                      and exact_screenaudio_view_typedef(item))
+            and not (item.name in screenpinkslips_eligible
+                     and exact_screenpinkslips_view_typedef(item))
             and not (item.name in screendisplay_eligible
                      and exact_screendisplay_view_typedef(item))
             and not (item.name in screenusername_eligible

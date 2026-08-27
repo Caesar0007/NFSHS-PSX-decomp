@@ -9,7 +9,13 @@
  * memory-card, saved-game, audio-song, and FE3d owner records here. */
 #define NFS4_SCREENMEMCARD_FEAPP_SURFACE
 #define NFS4_SCREENMEMCARD_TOURNSELECT_SURFACE
+#ifdef NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE
+#define NFS4_SCREENMEMCARD_PINKSLIPS_SURFACE
+#endif
 #include "screenmemcard_types.h"
+#ifdef NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE
+#undef NFS4_SCREENMEMCARD_PINKSLIPS_SURFACE
+#endif
 #undef NFS4_SCREENMEMCARD_TOURNSELECT_SURFACE
 #undef NFS4_SCREENMEMCARD_FEAPP_SURFACE
 
@@ -17,9 +23,20 @@
  * constants while the extern boundary below preserves their retail names. */
 #define tTrophySize int
 #define ts_Medium 1
+#ifndef NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE
 #define tMenuTextState int
+#else
+typedef enum tMenuTextState {
+    textState_Unselected = 0,
+    textState_Selected = 1,
+    textState_Hilighted = 2,
+    textState_NumStates = 3
+} tMenuTextState;
+#endif
+#ifndef NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE
 #define textState_Selected 1
 #define textState_Hilighted 2
+#endif
 #define tMenuTextType int
 #define textType_ScreenInfo 4
 #define textType_VideoWall 13
@@ -29,6 +46,7 @@
 typedef long STREAMHANDLE;
 typedef long STREAMREQUESTID;
 
+#ifndef NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE
 struct tScreenTournamentStandings : public tScreen {
     long moneyFinal, moneyAwarded, moneyDamage, moneyBonus;
     int starttick;
@@ -70,5 +88,6 @@ struct ScreenTournSelect_GlobalMenuDefsCodegenView {
     tListIteratorTournament iteratorSpecialEvent;
 };
 #define tGlobalMenuDefs ScreenTournSelect_GlobalMenuDefsCodegenView
+#endif
 
 #endif

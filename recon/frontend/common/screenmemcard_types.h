@@ -203,7 +203,8 @@ typedef MCRDFILEINFO_def MCRDFILEINFO;
 typedef MCRDFILE_def MCRDFILE;
 #endif
 
-#ifndef NFS4_SCREENMEMCARD_FEDIALOG_SURFACE
+#if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
+    !defined(NFS4_SCREENMEMCARD_PINKSLIPS_SURFACE)
 struct tDrawShapeExtended {
     short flip_axis;
     int tint[4];

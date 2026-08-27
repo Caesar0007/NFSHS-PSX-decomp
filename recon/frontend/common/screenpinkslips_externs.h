@@ -1,8 +1,15 @@
 /* frontend/screens/screenpinkslips_externs.h - reconstructed externs. NOT original. */
 #ifndef _FE_SCREENS_SCREENPINKSLIPS_EXTERNS_H_
 #define _FE_SCREENS_SCREENPINKSLIPS_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "screenpinkslips_types.h"
+
+extern "C" {
+int GetTPage(int, int, int, int);
+int sprintf(char *, const char *, ...);
+int ClearImage(RECT *, u_char, u_char, u_char);
+long DrawSync(long);
+int purgememadr(void *);
+}
 
 /* ===== globals ===== */
 extern tfrontEnd          frontEnd;
@@ -29,7 +36,9 @@ void  GetTrack(tTrackManager*, unsigned short, void*) asm("GetTrack__13tTrackMan
 /* drawing / text */
 void  DrawShapeExtended(int, int, int, int, int, int, tDrawShapeExtended*);
 void  DrawShape_NFS4RoundRectangle(int, RECT*, short) asm("DrawShape_NFS4RoundRectangle__FiR4RECTs");
-void  FETextRender_MenuTextPositionedJustify(short, short, short, short, tMenuTextState, tMenuTextType);
+void  FETextRender_MenuTextPositionedJustify(short, short, short, short,
+                                              tMenuTextState, tMenuTextType)
+    asm("FETextRender_MenuTextPositionedJustify__Fssss14tMenuTextState13tMenuTextType");
 void  Flare_2DHalo(int, int, int, int, int);
 void  PSXDrawTransSquare(int, int, int, int, int, short);
 void  FeDraw_SetABRMode(int);

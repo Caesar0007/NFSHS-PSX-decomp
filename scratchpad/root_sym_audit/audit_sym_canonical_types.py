@@ -475,7 +475,38 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "INT", 0, "nCar", 8, (), ""),
             ("MOS", "INT", 0, "nTime", 12, (), ""),
             ("MOS", "INT", 0, "nBestLap", 16, (), ""),
-        ), ("fetourn_types.h", "fecntl_types.h")),
+        ), ("fetourn_types.h", "fecntl_types.h", "fecheats_types.h")),
+    }
+    # FECheats dereferences FEApp's embedded MemCardDialog.  CC1PL therefore
+    # needs the complete application layout even though the linked owner keeps
+    # that foreign class definition with FEApp.obj.  Require the exact 896-byte
+    # tag/typedef pair from the one owner header.  Pre-change backup: Git commit
+    # 1880cf75.
+    fecheats_views = {
+        "tFEApplication": (896, (
+            ("MOS", "UINT", 0, "fCurrentMusic", 0, (), ""),
+            ("MOS", "ARY PTR STRUCT", 8, "fCurrentMenu", 4, (2,), "tMenu"),
+            ("MOS", "ARY PTR STRUCT", 8, "fCurrentScreen", 12, (2,), "tScreen"),
+            ("MOS", "ARY PTR STRUCT", 8, "fTransitionToMenu", 20, (2,), "tMenu"),
+            ("MOS", "ARY PTR STRUCT", 8, "fTransitionToScreen", 28, (2,), "tScreen"),
+            ("MOS", "ARY PTR STRUCT", 8, "fParentMenu", 36, (2,), "tMenu"),
+            ("MOS", "STRUCT", 152, "messagePopup", 44, (), "tDialogMessageString"),
+            ("MOS", "ARY ARY PTR STRUCT", 128, "backList", 196, (2, 16), "tMenu"),
+            ("MOS", "ARY INT", 8, "backDepth", 324, (2,), ""),
+            ("MOS", "ARY ENUM", 8, "fLastKeyPressed", 332, (2,), "tInputKeyType"),
+            ("MOS", "SHORT", 0, "fYOffset", 340, (), ""),
+            ("MOS", "STRUCT", 212, "helpPopup", 344, (), "tDialogHelp"),
+            ("MOS", "CHAR", 0, "fPlayer", 556, (), ""),
+            ("MOS", "CHAR", 0, "fInputPlayer", 557, (), ""),
+            ("MOS", "ARY BOOL", 8, "waitingForOtherPlayer", 560, (2,), ""),
+            ("MOS", "STRUCT", 152, "MemCardDialog", 568, (),
+             "tDialogMessageStringWithTimeout"),
+            ("MOS", "STRUCT", 152, "NoInputMemCardDialog", 720, (),
+             "tDialogNoInputMessage"),
+            ("MOS", "ARY BOOL", 8, "gotName", 872, (2,), ""),
+            ("MOS", "ARY BOOL", 8, "needName", 880, (2,), ""),
+            ("MOS", "ARY INT", 8, "speechToPlay", 888, (2,), ""),
+        ), "fecheats_types.h"),
     }
     # FECredits dereferences the foreign ScreenMain singleton, so CC1PL must
     # see its complete field layout even though the linked SYM attributes that
@@ -776,6 +807,32 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith((expected[2], "fecredits.cpp"))
         )
 
+    def exact_fecheats_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = fecheats_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith(expected[2])
+        )
+
+    def exact_fecheats_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = fecheats_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            # The local FEApp pointer view repeats this already pair-locked
+            # typedef in fecheats.cpp; the completed tag remains restricted to
+            # the owner header above.
+            and owner.endswith((expected[2], "fecheats.cpp"))
+        )
+
     def exact_femenu_ptag(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         return (
@@ -844,6 +901,11 @@ def filter_exact_symbol_codegen_carriers(
         if any(exact_fecredits_view(block) and block.name == name for block in type_blocks)
         and any(exact_fecredits_view_typedef(item) and item.name == name for item in typedefs)
     }
+    fecheats_eligible = {
+        name for name in fecheats_views
+        if any(exact_fecheats_view(block) and block.name == name for block in type_blocks)
+        and any(exact_fecheats_view_typedef(item) and item.name == name for item in typedefs)
+    }
     femenu_ptag_eligible = any(
         exact_femenu_ptag(block)
         and exact_femenu_ptag_typedef(item)
@@ -864,6 +926,7 @@ def filter_exact_symbol_codegen_carriers(
             and not (block.name in fetourn_eligible and exact_fetourn_view(block))
             and not (block.name in draww_eligible and exact_draww_view(block))
             and not (block.name in fecredits_eligible and exact_fecredits_view(block))
+            and not (block.name in fecheats_eligible and exact_fecheats_view(block))
             and not (femenu_ptag_eligible and exact_femenu_ptag(block))
         ],
         [
@@ -877,6 +940,7 @@ def filter_exact_symbol_codegen_carriers(
             and not (item.name in fetourn_eligible and exact_fetourn_view_typedef(item))
             and not (item.name in draww_eligible and exact_draww_view_typedef(item))
             and not (item.name in fecredits_eligible and exact_fecredits_view_typedef(item))
+            and not (item.name in fecheats_eligible and exact_fecheats_view_typedef(item))
             and not (femenu_ptag_eligible and exact_femenu_ptag_typedef(item))
         ],
     )

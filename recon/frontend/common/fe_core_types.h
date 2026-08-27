@@ -205,6 +205,9 @@ struct tCarManager {
     u_char fPinkSlipsAvailableCars[2][48];
     u_char fPinkSlipsViewableCars[2][48];
     short fCarTextList[49];
+#ifdef NFS4_FE_CORE_FECHEATS_METHODS
+    void SetClassAvailable(tCarClassType, bool);
+#endif
 };
 
 struct tfrontEnd {

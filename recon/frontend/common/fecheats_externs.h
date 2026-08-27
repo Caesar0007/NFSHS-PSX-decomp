@@ -1,7 +1,7 @@
 /* frontend/common/fecheats_externs.h - reconstructed externs. NOT original. */
 #ifndef _FE_SCREENS_FECHEATS_EXTERNS_H_
 #define _FE_SCREENS_FECHEATS_EXTERNS_H_
-#include "../../nfs4_types.h"
+#include "fecheats_types.h"
 
 /* ===== globals ===== */
 extern unsigned int       gFECheats;

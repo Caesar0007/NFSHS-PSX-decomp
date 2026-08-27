@@ -1,8 +1,7 @@
 /* frontend/screens/screentournselect_externs.h - reconstructed externs. NOT original. */
 #ifndef _FE_SCREENS_SCREENTOURNSELECT_EXTERNS_H_
 #define _FE_SCREENS_SCREENTOURNSELECT_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "screentournselect_types.h"
 
 /* --- globals --- */
 extern tfrontEnd          frontEnd;
@@ -51,12 +50,22 @@ char *TextSys_Word(int id);
 int   TextSys_WordX(int id);
 int   TextSys_WordY(int id);
 void  DrawMoney(int x, int y, int digits, long amount, int rgb1, int rgb2);
-void  FETextRender_MenuTextFade(int fade, short index, tMenuTextState st, tMenuTextType tt);
+void  FETextRender_MenuTextFade(int fade, short index, tMenuTextState st, tMenuTextType tt)
+    asm("FETextRender_MenuTextFade__Fis14tMenuTextState13tMenuTextType");
 void  FETextRender_FullTextRGB(char *s, short x, short y, int rgb, char a, short b);
 void  FETextRender_WordWrapFade(int fade, short index, RECT *r, tMenuTextState st, tMenuTextType tt) asm("FETextRender_WordWrapFade__FisR4RECT14tMenuTextState13tMenuTextType");
 void  FETextRender_WordWrapTextRGB(char *s, RECT &r, int rgb);
 int FETextRender_WordWrapHeight(short w, char *s);
-void  FETextRender_MenuTextPositionedJustifyFade(int fade, short index, short x, short y, short j, tMenuTextState st, tMenuTextType tt);
+void  FETextRender_MenuTextPositionedJustifyFade(int fade, short index, short x, short y, short j, tMenuTextState st, tMenuTextType tt)
+    asm("FETextRender_MenuTextPositionedJustifyFade__Fissss14tMenuTextState13tMenuTextType");
 short TextValue(tListIteratorTournament *it, tPlayer p) asm("TextValue__23tListIteratorTournament7tPlayer");
+
+extern "C" {
+int ClearImage(RECT *, u_char, u_char, u_char);
+long DrawSync(long);
+unsigned short GetTPage(int, int, int, int);
+int purgememadr(void *);
+int sprintf(char *, const char *, ...);
+}
 
 #endif

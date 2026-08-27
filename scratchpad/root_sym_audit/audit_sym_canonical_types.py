@@ -667,6 +667,22 @@ def filter_exact_symbol_codegen_carriers(
     feapp_packet_rows = (
         ("MOS", "PTR UCHAR", 0, "pkt", 0, (), ""),
     )
+    # ScreenTournSelect.obj reads two iterator members from the foreign
+    # FEMenuDefs singleton without retaining its completed aggregate tag.
+    # Pair-lock the exact 0x7a0-byte view and its source origin.  Pre-change
+    # backup: Git commit 00adb5e4.
+    screentournselect_views = {
+        "ScreenTournSelect_GlobalMenuDefsCodegenView": (1952, (
+            ("MOS", "ARY CHAR", 1704, "_beforeIteratorTournament", 0,
+             (1704,), ""),
+            ("MOS", "STRUCT", 20, "iteratorTournament", 1704, (),
+             "tListIteratorTournament"),
+            ("MOS", "ARY CHAR", 208, "_beforeIteratorSpecialEvent", 1724,
+             (208,), ""),
+            ("MOS", "STRUCT", 20, "iteratorSpecialEvent", 1932, (),
+             "tListIteratorTournament"),
+        ), "screentournselect_types.h"),
+    }
     # ScreenDisplay.obj dereferences only the menuDisplayOptions member of the
     # foreign tGlobalMenuDefs singleton.  Its linked SYM retains the complete
     # tOptionsMenu leaf but attributes the owning aggregate to FEMenuDefs.obj.
@@ -1205,6 +1221,29 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith("feapp.cpp")
         )
 
+    def exact_screentournselect_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = screentournselect_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith(expected[2])
+        )
+
+    def exact_screentournselect_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = screentournselect_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            and owner.endswith((expected[2], "screentournselect.cpp"))
+        )
+
     def exact_screendisplay_view(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         expected = screendisplay_views.get(block.name)
@@ -1400,6 +1439,13 @@ def filter_exact_symbol_codegen_carriers(
         for block in type_blocks
         for item in typedefs
     )
+    screentournselect_eligible = {
+        name for name in screentournselect_views
+        if any(exact_screentournselect_view(block) and block.name == name
+               for block in type_blocks)
+        and any(exact_screentournselect_view_typedef(item) and item.name == name
+                for item in typedefs)
+    }
     screenusername_eligible = {
         name for name in screenusername_views
         if any(exact_screenusername_view(block) and block.name == name
@@ -1446,6 +1492,8 @@ def filter_exact_symbol_codegen_carriers(
             and not exact_screencarselect_union(block)
             and not (block.name in feapp_eligible and exact_feapp_view(block))
             and not (feapp_packet_eligible and exact_feapp_packet(block))
+            and not (block.name in screentournselect_eligible
+                     and exact_screentournselect_view(block))
             and not (block.name in screendisplay_eligible
                      and exact_screendisplay_view(block))
             and not (block.name in screenusername_eligible
@@ -1478,6 +1526,8 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_feapp_view_typedef(item))
             and not (feapp_packet_eligible
                      and exact_feapp_packet_typedef(item))
+            and not (item.name in screentournselect_eligible
+                     and exact_screentournselect_view_typedef(item))
             and not (item.name in screendisplay_eligible
                      and exact_screendisplay_view_typedef(item))
             and not (item.name in screenusername_eligible

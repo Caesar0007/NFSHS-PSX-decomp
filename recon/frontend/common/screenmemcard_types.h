@@ -78,7 +78,8 @@ struct DIRENTRY {
 };
 #endif
 
-#ifndef NFS4_SCREENMEMCARD_FEDIALOG_SURFACE
+#if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
+    !defined(NFS4_SCREENMEMCARD_TOURNSELECT_SURFACE)
 struct AudioMus_tSongEntry {
     char *filename, *title, *artist, *label, *date, *notes;
     int length, index;
@@ -86,6 +87,7 @@ struct AudioMus_tSongEntry {
 };
 #endif
 
+#ifndef NFS4_SCREENMEMCARD_TOURNSELECT_SURFACE
 struct tRecordBuffer {
     char sName[8];
     int nCar, nTime, nBestLap;
@@ -112,8 +114,10 @@ struct tSaveTournament {
     u_char fSaveBestPlacement[64];
     short fSaveTierFinishPrize[4];
 };
+#endif
 
-#ifndef NFS4_SCREENMEMCARD_FEDIALOG_SURFACE
+#if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
+    !defined(NFS4_SCREENMEMCARD_TOURNSELECT_SURFACE)
 typedef COORD16 FE3d_zVertex;
 typedef CVECTOR FE3d_zColor;
 typedef SVECTOR FE3d_zNormal;

@@ -7,17 +7,17 @@ extern void blockmove(void *src, void *dst, int n);    /* eacpsxz @0x800E62DC */
  * reproducing retail allocation with the source-accurate three-pointer ABI. */
 extern void transmult(int *a, int *b, int *out) /* @0x80105F40 */
 {
-    int *c0, *c1;
     int temp[9];
     int i, i1, i2;
 
-    for (i = 0, i2 = 8, i1 = 4; i < 9; i2 += 12, i1 += 12, i += 3) {
+    for (i = 0, i2 = 2 * sizeof(int), i1 = sizeof(int); i < 9; i2 += 3 * sizeof(int), i1 += 3 * sizeof(int), i += 3) {
+        int *c0, *c1;
         int j, j1, j2;
 
         c0 = (int *)((char *)a + i1);
         c1 = (int *)((char *)a + i2);
 
-        for (j = 0, j2 = 24, j1 = 12; j < 3; j2 += 4, j1 += 4, j++) {
+        for (j = 0, j2 = 6 * sizeof(int), j1 = 3 * sizeof(int); j < 3; j2 += sizeof(int), j1 += sizeof(int), j++) {
             int acc;
 
             acc = fixedmult(a[i], b[j]);
@@ -27,7 +27,7 @@ extern void transmult(int *a, int *b, int *out) /* @0x80105F40 */
         }
     }
 
-    blockmove(temp, out, sizeof(int) * 9);
+    blockmove(temp, out, 9 * sizeof(int));
 }
 
 #if 0

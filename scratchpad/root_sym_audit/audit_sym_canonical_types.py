@@ -509,6 +509,19 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "INT", 0, "fNumTVsInTransition", 1460, (), ""),
         ), "fecredits_types.h"),
     }
+    # Canonical PsyQ 4.3 LIBGPU P_TAG carrier used by addPrim in FEMenu.  The
+    # linked game SYM attributes/filters this SDK-owned anonymous type outside
+    # FEMenu.obj, but CC1PL must complete it to expand the macro.  Suppression
+    # below requires the exact anonymous block and typedef pair from the owner
+    # header.  Pre-change backup: Git commit 3762862e.
+    femenu_ptag_rows = (
+        ("FIELD", "UINT", 24, "addr", 0, (), ""),
+        ("FIELD", "UINT", 8, "len", 24, (), ""),
+        ("MOS", "UCHAR", 0, "r0", 4, (), ""),
+        ("MOS", "UCHAR", 0, "g0", 5, (), ""),
+        ("MOS", "UCHAR", 0, "b0", 6, (), ""),
+        ("MOS", "UCHAR", 0, "code", 7, (), ""),
+    )
     draww_views = {
         "DrawW_SliceCodegenView": (32, (
             ("MOS", "ARY INT", 12, "center", 0, (3,), ""),
@@ -763,6 +776,27 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith((expected[2], "fecredits.cpp"))
         )
 
+    def exact_femenu_ptag(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        return (
+            block.kind == "STRTAG"
+            and normalize_tag(block.name) == "<anonymous>"
+            and block.size == 8
+            and block.rows == femenu_ptag_rows
+            and owner.endswith("femenu_types.h")
+        )
+
+    def exact_femenu_ptag_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        return (
+            item.cls == "TPDEF"
+            and item.name == "P_TAG"
+            and item.typ == "STRUCT"
+            and item.size == 8
+            and normalize_tag(item.tag) == "<anonymous>"
+            and owner.endswith("femenu_types.h")
+        )
+
     # Suppression is pair-locked: a matching struct without its typedef (or a
     # matching typedef without its struct) is evidence drift, not an eligible
     # codegen carrier.  Keep both rows visible unless the complete pair agrees.
@@ -810,6 +844,13 @@ def filter_exact_symbol_codegen_carriers(
         if any(exact_fecredits_view(block) and block.name == name for block in type_blocks)
         and any(exact_fecredits_view_typedef(item) and item.name == name for item in typedefs)
     }
+    femenu_ptag_eligible = any(
+        exact_femenu_ptag(block)
+        and exact_femenu_ptag_typedef(item)
+        and block.name == item.tag
+        for block in type_blocks
+        for item in typedefs
+    )
 
     return (
         [
@@ -823,6 +864,7 @@ def filter_exact_symbol_codegen_carriers(
             and not (block.name in fetourn_eligible and exact_fetourn_view(block))
             and not (block.name in draww_eligible and exact_draww_view(block))
             and not (block.name in fecredits_eligible and exact_fecredits_view(block))
+            and not (femenu_ptag_eligible and exact_femenu_ptag(block))
         ],
         [
             item for item in typedefs
@@ -835,6 +877,7 @@ def filter_exact_symbol_codegen_carriers(
             and not (item.name in fetourn_eligible and exact_fetourn_view_typedef(item))
             and not (item.name in draww_eligible and exact_draww_view_typedef(item))
             and not (item.name in fecredits_eligible and exact_fecredits_view_typedef(item))
+            and not (femenu_ptag_eligible and exact_femenu_ptag_typedef(item))
         ],
     )
 

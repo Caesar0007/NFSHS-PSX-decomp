@@ -83,9 +83,25 @@ struct tListIterator {
     tListIterator() {}
     tListIterator(short *selection, char *valPtr);
     ~tListIterator();
+#ifdef NFS4_FE_CORE_FEMENU_METHODS
+    char Value(tPlayer);
+    short TextValue(tPlayer);
+    void Increment(tPlayer);
+    void Decrement(tPlayer);
+#endif
 };
 
-struct tListIteratorRange : public tListIterator {};
+struct tListIteratorRange : public tListIterator {
+#ifdef NFS4_FE_CORE_FEMENU_METHODS
+    tListIteratorRange() {}
+    tListIteratorRange(char minValue, char maxValue, char *valPtr);
+    ~tListIteratorRange();
+    char Value(tPlayer);
+    short TextValue(tPlayer);
+    void Increment(tPlayer);
+    void Decrement(tPlayer);
+#endif
+};
 
 struct tMenuItem {
     unsigned int fFlags, fTextDescription;
@@ -93,6 +109,21 @@ struct tMenuItem {
     int fButtonImage, fNumFrames;
     tMenu *fNewMenu;
     __vtbl_ptr_type (*_vf)[11];
+#ifdef NFS4_FE_CORE_FEMENU_METHODS
+    tMenuItem() {}
+    tMenuItem(unsigned int textDescription);
+    ~tMenuItem();
+    long DebounceKeys();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    void UpdateTransition(bool);
+    bool TransitionIsFinished();
+    void UpdateSelFade(bool);
+    void Draw(int, int, bool);
+    void Draw(int, int, int, bool);
+    void TransitionOn();
+    void TransitionOff();
+    bool IsDisabled() { return (fFlags & 1) != 0; }
+#endif
 };
 
 typedef tMenuItem *tItemList[16];
@@ -105,12 +136,39 @@ struct tMenu {
     tItemList fItemList;
     tScreen *fScreen;
     tMenu *fNextMenu, *fChildMenu, *fOptionsMenu;
+#ifdef NFS4_FE_CORE_FEMENU_METHODS
+    void (*fOnButtonPress)(tMenuCommand &);
+#else
     void (*fOnButtonPress)(void *);
+#endif
     short VertHelp;
     __vtbl_ptr_type (*_vf)[11];
+#ifdef NFS4_FE_CORE_FEMENU_METHODS
+    tMenu() {}
+    void tMenuConstructor(tMenuItem *firstItem, void *ap);
+    tMenu(unsigned int, tScreen *, tMenu *, tMenu *,
+          void (*)(tMenuCommand &), short);
+    ~tMenu();
+    void Initialize();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    short GetNumberEnabledItems();
+    void Draw();
+    void UpdateTransition();
+    void TransitionOff();
+    void TransitionOn();
+    bool TransitionIsFinished();
+    bool IsSubMenu();
+    long DebounceKeys();
+#endif
 };
 
-struct tMenuItemInteractive : public tMenuItem {};
+struct tMenuItemInteractive : public tMenuItem {
+#ifdef NFS4_FE_CORE_FEMENU_METHODS
+    tMenuItemInteractive() {}
+    tMenuItemInteractive(unsigned int);
+    ~tMenuItemInteractive();
+#endif
+};
 
 #ifndef NFS4_FE_CORE_NO_CAR_TYPES
 struct tCarInfo {

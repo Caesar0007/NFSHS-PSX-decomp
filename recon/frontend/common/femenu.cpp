@@ -6,11 +6,6 @@
  */
 #include "femenu.h"
 
-typedef struct tFEMenuPrimTag {
-  unsigned int addr : 24;
-  unsigned int len : 8;
-} tFEMenuPrimTag;
-
 /* ---- FEMenu.obj-OWNED globals -- DEFINED here (self-contained; .data=real EXE bytes) ---- */
 /* SYM-CARRIER: gMenu_SubMenuPlayer -- measured unsized-array spelling preserves retail addressing. */
 tPlayer      gMenu_SubMenuPlayer[] = { (tPlayer)-1 };   /* @0x800517c0 -- unsized-array form (§3.12 #5) */
@@ -1214,8 +1209,7 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
     x1 = fX;
     while (x1 < fX + fWidth) {
       prim = (POLY_F4 *)Render_gPacketPtr, Render_gPacketPtr = (u_char *)prim + 0x18;
-      ((tFEMenuPrimTag *)prim)->addr = ((tFEMenuPrimTag *)Render_gPalettePtr)->addr;
-      ((tFEMenuPrimTag *)Render_gPalettePtr)->addr = (u_int)prim;
+      addPrim(Render_gPalettePtr,prim);
       prim->x0 = x1;
       prim->y0 = fY;
       prim->x1 = x1 + rectwidth;
@@ -1256,8 +1250,7 @@ void DrawSlider(short value,short min,short max,short fX,short fY,short fWidth,s
     x1 = fX + fWidth - 1;
     while (x1 >= fX) {
       prim = (POLY_F4 *)Render_gPacketPtr, Render_gPacketPtr = (u_char *)prim + 0x18;
-      ((tFEMenuPrimTag *)prim)->addr = ((tFEMenuPrimTag *)Render_gPalettePtr)->addr;
-      ((tFEMenuPrimTag *)Render_gPalettePtr)->addr = (u_int)prim;
+      addPrim(Render_gPalettePtr,prim);
       prim->x0 = x1;
       prim->y0 = fY;
       prim->x1 = x1 + rectwidth;

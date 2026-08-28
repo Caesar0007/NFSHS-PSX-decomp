@@ -61,59 +61,88 @@ extern void SNDI_mutexfree(void);          /* sdfx    */
 extern void SNDstopall(void);              /* sstopall */
 extern void *memset(void *dst, int c, int n);        /* C43 (BIOS thunk) */
 
-extern int  SNDSYS_getopts(int *opts);     /* @0x800F1D58 */
-extern int  SNDSYS_setopts(int opts);      /* @0x800F1E14 */
+typedef struct SNDSYSCAP {
+    unsigned short outputratemin;
+    unsigned short outputratemax;
+    unsigned char outputchannelsmin;
+    unsigned char outputchannelsmax;
+    unsigned char inputvoicesmax;
+    unsigned char input3dvoicesmax;
+    unsigned char eax;
+    unsigned char voicemanager;
+    char pad[2];
+} SNDSYSCAP;
+
+typedef struct SNDSYSSET {
+    unsigned short maxbanks;
+    unsigned short outputrate;
+    unsigned char outputchannels;
+    unsigned char inputvoices;
+    unsigned char useeax;
+    unsigned char use3dacceleration;
+    unsigned char use3dmixing;
+    char pad;
+    unsigned short emulationsubtype;
+    unsigned short spkrcfg3d[4][4];
+} SNDSYSSET;
+
+typedef struct SNDSYSVEC {
+    int (*issurfacelocked)(void);
+} SNDSYSVEC;
+
+typedef struct SNDSYSOPTS {
+    SNDSYSCAP cap;
+    SNDSYSSET set;
+    SNDSYSVEC vec;
+} SNDSYSOPTS;
+
+extern int  SNDSYS_getopts(SNDSYSOPTS *opts); /* @0x800F1D58 */
+extern int  SNDSYS_setopts(SNDSYSOPTS *opts); /* @0x800F1E14 */
 extern int  SNDSYS_init(int membase, int memsize);   /* @0x800F1F10 */
 extern int  SNDSYS_restore(void);          /* @0x800F204C */
 
-struct SndOptsBlock15 { int w[15]; };   /* naturally aligned (both sndgs and opts are real int* here --
-                                          * no runtime alignment check, unlike SNDSYS_setopts below) */
-
 /* SNDSYS_getopts @0x800F1D58 : copy the live option block sndgs[0..0xe] into the caller's struct (lazily
- *   publishing the platform output caps first, defaulting the reverb-channel count to 0x10).
+ *   publishing the platform output caps first, defaulting maxbanks to 0x10).
  *   MATCH: non-void -- $v0 at exit is iSNDplatformoutputcaps()'s return (or 0 if that path wasn't
  *   taken), threaded through a local exactly like the §3.2 Ghidra void-return-bug class; the header's
  *   `void` prototype is the same incidental-vs-real-return question, resolved here from the oracle
  *   (`addu a1,zero,zero` init -> `addu a1,v0,zero` on the call path -> `addu v0,a1,zero` at exit). */
-extern int SNDSYS_getopts(int *opts)
+extern int SNDSYS_getopts(SNDSYSOPTS *opts)
 {
     int r = 0;
-    unsigned char *base;
+    SNDSYSOPTS *base;
     if (DAT_80134a68[0] == 0) {
         r = iSNDplatformoutputcaps();
         DAT_80134a68[0] = 1;
     }
-    base = (unsigned char *)sndgs;
-    if (*(unsigned short *)(base + 0xc) == 0)    /* sndgs[3]._0_2_ : reverb channels */
-        *(short *)(base + 0xc) = 0x10;
-    *(struct SndOptsBlock15 *)opts = *(struct SndOptsBlock15 *)base; /* sndgs[0..0xe] -> opts[0..0xe] */
+    base = (SNDSYSOPTS *)sndgs;
+    if (base->set.maxbanks == 0)
+        base->set.maxbanks = 0x10;
+    *opts = *base;
     return r;
 }
 
-extern int D_80147898[];   /* a separate (non-sndgs) global; opts[14]'s destination */
+extern int D_80147898[];   /* linker alias for sndgs + 0x38 (SNDSYSOPTS::vec) */
 
-/* SNDSYS_setopts @0x800F1E14 : apply the writable option fields opts[3..13] into sndgs (source may be
- *   unaligned -- gcc emits its inline lwl/lwr-vs-lw/sw runtime-alignment-checked block-copy), opts[14]
- *   goes to the separate D_80147898 global (NOT sndgs[14]), then re-derive the output configuration.
- *   MATCH: an 11-int (0x2C byte) struct-copy through a PACKED (alignment-1) type -- gcc only emits the
- *   oracle's runtime (v1|a1)&3 alignment test when the source's DECLARED alignment is uncertain; a plain
- *   `int[11]` struct has known 4-byte alignment and gcc skips the check (tried, 32 insns/no check). A
- *   real memcpy() call (BIOS thunk) is also wrong -- the oracle has no `jal` at all. Routing the
- *   destination through a bare `sndgs` byte pointer preserves the explicit +0x0c add; the array-shaped
- *   D_80147898 declaration then lets its store fill outputset's jal delay slot. */
-struct SndOptsBlock { int w[11]; } __attribute__((packed));
-
-extern int SNDSYS_setopts(int opts)
+/* SNDSYS_setopts @0x800F1E14 : apply the canonical 44-byte opts->set block at
+ *   +0x0c and the opts->vec callback at +0x38, then re-derive the output
+ *   configuration. SNDSYSSET's two-byte alignment produces the oracle's
+ *   inline lwl/lwr-vs-lw/sw alignment-checked copy. Routing the destination
+ *   through the sndgs byte base preserves the explicit +0x0c add. The
+ *   array-shaped D_80147898 alias lets the callback store fill outputset's jal
+ *   delay slot; spelling that store as a direct typed vec assignment regresses
+ *   this function while preserving behavior. */
+extern int SNDSYS_setopts(SNDSYSOPTS *opts)
 {
     char *base = (char *)sndgs;
-    *(struct SndOptsBlock *)(base + 0xC) = *(struct SndOptsBlock *)(opts + 0xC);
-    D_80147898[0] = *(int *)(opts + 0x38);
+    ((SNDSYSOPTS *)base)->set = opts->set;
+    D_80147898[0] = (int)opts->vec.issurfacelocked;
     iSNDplatformoutputset();
     return 0;
 }
 
 /* SNDSYS_init @0x800F1F10 : bring up the sound system from a `memsize`-byte pool at `membase` -- init the
- *   allocator, default the options, allocate the channel + reverb tables, install the 100 Hz server, and
+ *   allocator, default the options, allocate the channel + bank tables, install the 100 Hz server, and
  *   start the SPU (iSNDinit). MATCH (79/79): returns the platform status on failure after cleanup,
  *   otherwise zero; no-op with zero when already up. */
 extern int SNDSYS_init(int membase, int memsize)
@@ -126,17 +155,19 @@ extern int SNDSYS_init(int membase, int memsize)
         return 0;
 
     iSNDmeminit(membase, memsize);
-    nchan = (unsigned int)base[0x11];                              /* sndgs[4]._1_1_ */
+    nchan = (unsigned int)((SNDSYSOPTS *)base)->set.inputvoices;
     if (nchan == 0) {                                              /* no caps yet -> defaults */
-        SNDSYS_getopts((int *)base);
-        SNDSYS_setopts((int)base);
-        nchan = (unsigned int)base[0x11];
+        SNDSYS_getopts((SNDSYSOPTS *)base);
+        SNDSYS_setopts((SNDSYSOPTS *)base);
+        nchan = (unsigned int)((SNDSYSOPTS *)base)->set.inputvoices;
     }
     ((int *)base)[0x25] = iSNDmalloc(nchan * 100);                 /* channel pool */
-    memset((unsigned char *)((int *)base)[0x25], 0, (int)((unsigned)base[0x11] * 100));
-    ((int *)base)[0x26] = iSNDmalloc((unsigned int)((unsigned short *)base)[6] * 0xc); /* reverb table */
+    memset((unsigned char *)((int *)base)[0x25], 0,
+           (int)((unsigned)((SNDSYSOPTS *)base)->set.inputvoices * 100));
+    ((int *)base)[0x26] = iSNDmalloc(
+        (unsigned int)((SNDSYSOPTS *)base)->set.maxbanks * 0xc); /* bank table */
     memset((unsigned char *)((int *)base)[0x26], 0,
-           (int)((unsigned)((unsigned short *)base)[6] * 0xc));
+           (int)((unsigned)((SNDSYSOPTS *)base)->set.maxbanks * 0xc));
     if (((int *)base)[0x12] == 0)
         ((int *)base)[0x12] = (int)iSND100hzserver;
     SNDI_mutexalloc();

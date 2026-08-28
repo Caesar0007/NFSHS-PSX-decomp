@@ -886,6 +886,43 @@ def filter_exact_symbol_codegen_carriers(
     # PAD extension: Git commit 49c32f8e; ReadCmd/SyncCtrl extensions: Git
     # commit c0950c17.
     untyped_library_named_pair_views = {
+        # SSYSINIT.OBJ is stripped, but the linked game owners repeatedly
+        # retain the public sound header's complete SNDSYSOPTS graph.  The
+        # canonical 12+44+4 composition also replaces two synthetic aggregate
+        # copy carriers while preserving 4/4 PASS.  Pair-lock every public tag
+        # and typedef in this exact owner. Pre-change backup: Git b48a475f.
+        ("ssysinit.c", "SNDSYSCAP"): (12, (
+            ("MOS", "USHORT", 0, "outputratemin", 0, (), ""),
+            ("MOS", "USHORT", 0, "outputratemax", 2, (), ""),
+            ("MOS", "UCHAR", 0, "outputchannelsmin", 4, (), ""),
+            ("MOS", "UCHAR", 0, "outputchannelsmax", 5, (), ""),
+            ("MOS", "UCHAR", 0, "inputvoicesmax", 6, (), ""),
+            ("MOS", "UCHAR", 0, "input3dvoicesmax", 7, (), ""),
+            ("MOS", "UCHAR", 0, "eax", 8, (), ""),
+            ("MOS", "UCHAR", 0, "voicemanager", 9, (), ""),
+            ("MOS", "ARY CHAR", 2, "pad", 10, (2,), ""),
+        )),
+        ("ssysinit.c", "SNDSYSSET"): (44, (
+            ("MOS", "USHORT", 0, "maxbanks", 0, (), ""),
+            ("MOS", "USHORT", 0, "outputrate", 2, (), ""),
+            ("MOS", "UCHAR", 0, "outputchannels", 4, (), ""),
+            ("MOS", "UCHAR", 0, "inputvoices", 5, (), ""),
+            ("MOS", "UCHAR", 0, "useeax", 6, (), ""),
+            ("MOS", "UCHAR", 0, "use3dacceleration", 7, (), ""),
+            ("MOS", "UCHAR", 0, "use3dmixing", 8, (), ""),
+            ("MOS", "CHAR", 0, "pad", 9, (), ""),
+            ("MOS", "USHORT", 0, "emulationsubtype", 10, (), ""),
+            ("MOS", "ARY ARY USHORT", 32, "spkrcfg3d", 12,
+             (4, 4), ""),
+        )),
+        ("ssysinit.c", "SNDSYSVEC"): (4, (
+            ("MOS", "PTR FCN INT", 0, "issurfacelocked", 0, (), ""),
+        )),
+        ("ssysinit.c", "SNDSYSOPTS"): (60, (
+            ("MOS", "STRUCT", 12, "cap", 0, (), "SNDSYSCAP"),
+            ("MOS", "STRUCT", 44, "set", 12, (), "SNDSYSSET"),
+            ("MOS", "STRUCT", 4, "vec", 56, (), "SNDSYSVEC"),
+        )),
         # CDREAD.OBJ is stripped, but PsyQ 4.3 libcd.h fixes CdlLOC and CdlCB,
         # while retail instructions fix every byte of the private _cdr state.
         # Keep both named aggregates pair-locked to this owner. Pre-change

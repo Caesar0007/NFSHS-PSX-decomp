@@ -441,6 +441,61 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "PTR STRUCT", 4, "vertexBuf", 108, (), "Group"),
         )),
     }
+    # These linked EA library members retain no type graph, while their retail
+    # instructions prove aggregate-copy, by-value ABI, or foreign-storage
+    # member shapes.  Accept only the exact source carrier for each object:
+    # owner basename, tag, size, every member, offset, leaf type, and array
+    # bound are locked.  Any drift remains an audit failure.  Pre-change
+    # backup: Git commit 0fc6b97a.
+    untyped_library_codegen_views = {
+        ("slimits.c", "LimitsBlock"): (20, (
+            ("MOS", "ARY INT", 20, "value", 0, (5,), ""),
+        )),
+        ("smath64.c", "SNDu64Value"): (8, (
+            ("MOS", "UINT", 0, "lo", 0, (), ""),
+            ("MOS", "UINT", 0, "hi", 4, (), ""),
+        )),
+        ("smasterv.c", "SNDMasterState"): (152, (
+            ("MOS", "ARY UCHAR", 17, "pad0", 0, (17,), ""),
+            ("MOS", "UCHAR", 0, "channel_count", 17, (), ""),
+            ("MOS", "ARY UCHAR", 130, "pad1", 18, (130,), ""),
+            ("MOS", "INT", 0, "play_records", 148, (), ""),
+        )),
+        ("sfxlevel.c", "SNDfxBusView"): (164, (
+            ("MOS", "ARY UCHAR", 160, "pad", 0, (160,), ""),
+            ("MOS", "INT", 0, "master", 160, (), ""),
+        )),
+        ("sdresolv.c", "SNDResolveEntry"): (8, (
+            ("MOS", "INT", 0, "offset", 0, (), ""),
+            ("MOS", "INT", 0, "spu", 4, (), ""),
+        )),
+        ("sdmemman.c", "PackedAllocSlot"): (1316, (
+            ("MOS", "ARY UCHAR", 1312, "pad", 0, (1312,), ""),
+            ("MOS", "INT", 0, "word", 1312, (), ""),
+        )),
+        ("sdma.c", "SNDDmaEntry"): (20, (
+            ("MOS", "INT", 0, "handle", 0, (), ""),
+            ("MOS", "INT", 0, "dstSpu", 4, (), ""),
+            ("MOS", "USHORT", 0, "srcHi", 8, (), ""),
+            ("MOS", "UCHAR", 0, "len64", 10, (), ""),
+            ("MOS", "UCHAR", 0, "priority", 11, (), ""),
+            ("MOS", "UCHAR", 0, "flag", 12, (), ""),
+            ("MOS", "ARY UCHAR", 3, "pad", 13, (3,), ""),
+            ("MOS", "INT", 0, "deadline", 16, (), ""),
+        )),
+        ("systask.c", "SysTaskSlot"): (16, (
+            ("MOS", "INT", 0, "fn", 0, (), ""),
+            ("MOS", "INT", 0, "period", 4, (), ""),
+            ("MOS", "INT", 0, "deadline", 8, (), ""),
+            ("MOS", "INT", 0, "busy", 12, (), ""),
+        )),
+        ("sbhdrcpy.c", "SNDGlobals"): (156, (
+            ("MOS", "ARY CHAR", 60, "pad0", 0, (60,), ""),
+            ("MOS", "CHAR", 0, "initialized", 60, (), ""),
+            ("MOS", "ARY CHAR", 91, "pad3d", 61, (91,), ""),
+            ("MOS", "INT", 0, "bank_table", 152, (), ""),
+        )),
+    }
     feinput_views = {
         # FEInput.obj references pad.obj's anonymous 84-byte gPadinfo object.
         # Retail retains PAD_COMMON but deliberately omits the owning aggregate
@@ -1199,6 +1254,17 @@ def filter_exact_symbol_codegen_carriers(
             and item.size == expected[0]
             and item.tag == item.name
             and owner.endswith("bworldsm_externs.h")
+        )
+
+    def exact_untyped_library_codegen_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        basename = owner.rsplit("/", 1)[-1]
+        expected = untyped_library_codegen_views.get((basename, block.name))
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
         )
 
     def exact_feinput_view(block: TypeBlock) -> bool:
@@ -2052,6 +2118,7 @@ def filter_exact_symbol_codegen_carriers(
             and not (block.name in drawc_eligible and exact_drawc_view(block))
             and not (block.name in bworldsm_eligible
                      and exact_bworldsm_view(block))
+            and not exact_untyped_library_codegen_view(block)
             and not (block.name in feinput_eligible and exact_feinput_view(block))
             and not (block.name in fescreen_eligible and exact_fescreen_view(block))
             and not (block.name in fecars_eligible and exact_fecars_view(block))

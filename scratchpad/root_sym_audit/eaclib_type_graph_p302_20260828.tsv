@@ -1,0 +1,152 @@
+source	owner	status	retail_named	named_exact	named_missing	named_mismatch	retail_anonymous	anonymous_covered	retail_typedefs	typedefs_covered	source_extra_named	retail_duplicate_named	source_extra_anonymous	source_extra_typedefs	retail_duplicate_typedefs	source_duplicate_typedefs	detail
+recon/eaclib/psx/eacpsxz/addtimer.c	..\eaclib\psx\eacpsxz.lib(addtimer.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/asinfunc.c	..\eaclib\psx\eacpsxz.lib(asinfunc.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/atanfunc.c	..\eaclib\psx\eacpsxz.lib(atanfunc.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/blkfill.c	..\eaclib\psx\eacpsxz.lib(blkfill.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/blkmov.c	..\eaclib\psx\eacpsxz.lib(blkmov.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/callback.c	..\eaclib\psx\eacpsxz.lib(callback.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/cdfs.c	..\eaclib\psx\eacpsxz.lib(cdfs.obj)	DIFF	0	0	0	0	0	0	0	0	3	0	3	2	0	0	named_extra=CD_ctx_t,CdlLOC,rd_le32_unaligned; anonymous_extra=STRTAG:312x1,STRTAG:16x2; typedefs_extra=CdlLOC:STRUCT,CD_ctx_t:STRUCT
+recon/eaclib/psx/eacpsxz/cluttype.c	..\eaclib\psx\eacpsxz.lib(cluttype.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/crc.c	..\eaclib\psx\eacpsxz.lib(crc.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/crossprd.c	..\eaclib\psx\eacpsxz.lib(crossprd.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/devsys.c	..\eaclib\psx\eacpsxz.lib(devsys.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/exit.c	..\eaclib\psx\eacpsxz.lib(exit.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/fastmovf.c	..\eaclib\psx\eacpsxz.lib(fastmovf.obj)	DIFF	0	0	0	0	0	0	0	0	0	0	1	1	0	0	anonymous_extra=STRTAG:8x1; typedefs_extra=RECT:STRUCT
+recon/eaclib/psx/eacpsxz/fileroot.c	..\eaclib\psx\eacpsxz.lib(fileroot.obj)	DIFF	0	0	0	0	0	0	0	0	1	0	0	2	0	0	named_extra=ReadCmd; typedefs_extra=ReadCmd:STRUCT,size_t:UINT
+recon/eaclib/psx/eacpsxz/fixdatan.c	..\eaclib\psx\eacpsxz.lib(fixdatan.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/fixddiv.c	..\eaclib\psx\eacpsxz.lib(fixddiv.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/fixdinv.c	..\eaclib\psx\eacpsxz.lib(fixdinv.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/fixdmult.c	..\eaclib\psx\eacpsxz.lib(fixdmult.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/fixdsin.c	..\eaclib\psx\eacpsxz.lib(fixdsin.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/fixdsqrt.c	..\eaclib\psx\eacpsxz.lib(fixdsqrt.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/fsincos.c	..\eaclib\psx\eacpsxz.lib(fsincos.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/getm.c	..\eaclib\psx\eacpsxz.lib(getm.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/inittmr.c	..\eaclib\psx\eacpsxz.lib(inittmr.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/isincos.c	..\eaclib\psx\eacpsxz.lib(isincos.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/isqrt.c	..\eaclib\psx\eacpsxz.lib(isqrt.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/isqrttbl.c	..\eaclib\psx\eacpsxz.lib(isqrttbl.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/joystkn.c	..\eaclib\psx\eacpsxz.lib(joystkn.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/loadshp.c	..\eaclib\psx\eacpsxz.lib(loadshp.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/locatbig.c	..\eaclib\psx\eacpsxz.lib(locatbig.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/locatshp.c	..\eaclib\psx\eacpsxz.lib(locatshp.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/math64a.c	..\eaclib\psx\eacpsxz.lib(math64a.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/matrix.c	..\eaclib\psx\eacpsxz.lib(matrix.obj)	DIFF	0	0	0	0	0	0	0	0	0	0	1	1	0	0	anonymous_extra=STRTAG:36x1; typedefs_extra=mtx:STRUCT
+recon/eaclib/psx/eacpsxz/meminit.c	..\eaclib\psx\eacpsxz.lib(meminit.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/memstd.c	..\eaclib\psx\eacpsxz.lib(memstd.obj)	DIFF	0	0	0	0	0	0	0	0	2	0	0	2	0	0	named_extra=MemBlock,MemClass; typedefs_extra=MemBlock:STRUCT,MemClass:STRUCT
+recon/eaclib/psx/eacpsxz/movf.c	..\eaclib\psx\eacpsxz.lib(movf.obj)	DIFF	0	0	0	0	0	0	0	0	0	0	1	2	0	0	anonymous_extra=STRTAG:8x1; typedefs_extra=RECT:STRUCT,u_long:ULONG
+recon/eaclib/psx/eacpsxz/nasync.c	..\eaclib\psx\eacpsxz.lib(nasync.obj)	DIFF	0	0	0	0	0	0	0	0	2	0	0	3	0	0	named_extra=AsyncQueue,AsyncReq; typedefs_extra=AsyncQueue:STRUCT,AsyncReq:STRUCT,size_t:UINT
+recon/eaclib/psx/eacpsxz/nfile.c	..\eaclib\psx\eacpsxz.lib(nfile.obj)	DIFF	0	0	0	0	0	0	0	0	3	0	0	4	0	0	named_extra=FileHandle,FileMgr,FileOp; typedefs_extra=FileMgr:STRUCT,FileOp:STRUCT,FileHandle:STRUCT,size_t:UINT
+recon/eaclib/psx/eacpsxz/nloadpk.c	..\eaclib\psx\eacpsxz.lib(nloadpk.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/nsync.c	..\eaclib\psx\eacpsxz.lib(nsync.obj)	DIFF	0	0	0	0	0	0	0	0	1	0	0	1	0	0	named_extra=LoadArgs; typedefs_extra=LoadArgs:STRUCT
+recon/eaclib/psx/eacpsxz/nullfunc.c	..\eaclib\psx\eacpsxz.lib(nullfunc.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/primate.c	..\eaclib\psx\eacpsxz.lib(primate.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/random.c	..\eaclib\psx\eacpsxz.lib(random.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/resize.c	..\eaclib\psx\eacpsxz.lib(resize.obj)	DIFF	0	0	0	0	0	0	0	0	0	0	0	2	0	0	typedefs_extra=MemBlock:STRUCT,MemClass:STRUCT
+recon/eaclib/psx/eacpsxz/savegp.c	..\eaclib\psx\eacpsxz.lib(savegp.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/setfont.c		OWNER_MAP	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0 owner candidates
+recon/eaclib/psx/eacpsxz/shpclut.c	..\eaclib\psx\eacpsxz.lib(shpclut.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/shpdepth.c	..\eaclib\psx\eacpsxz.lib(shpdepth.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/shpsubs.c	..\eaclib\psx\eacpsxz.lib(shpsubs.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/shptype.c	..\eaclib\psx\eacpsxz.lib(shptype.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/sinfunc.c	..\eaclib\psx\eacpsxz.lib(sinfunc.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/stream.c	..\eaclib\psx\eacpsxz.lib(stream.obj)	DIFF	0	0	0	0	0	0	0	0	1	0	0	1	0	0	named_extra=StreamFilter; typedefs_extra=StreamFilter:STRUCT
+recon/eaclib/psx/eacpsxz/stricmp.c	..\eaclib\psx\eacpsxz.lib(stricmp.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/syncfile.c	..\eaclib\psx\eacpsxz.lib(syncfile.obj)	DIFF	0	0	0	0	0	0	0	0	1	0	0	2	0	0	named_extra=SyncCtrl; typedefs_extra=SyncIoFn:PTR FCN INT,SyncCtrl:STRUCT
+recon/eaclib/psx/eacpsxz/systask.c	..\eaclib\psx\eacpsxz.lib(systask.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/textcode.c	..\eaclib\psx\eacpsxz.lib(textcode.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/textcrnt.c	..\eaclib\psx\eacpsxz.lib(textcrnt.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/textfor.c	..\eaclib\psx\eacpsxz.lib(textfor.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/threads.c	..\eaclib\psx\eacpsxz.lib(threads.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/timer.c	..\eaclib\psx\eacpsxz.lib(timer.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/trnsfrm.c	..\eaclib\psx\eacpsxz.lib(trnsfrm.obj)	DIFF	0	0	0	0	0	0	0	0	0	0	1	1	0	0	anonymous_extra=STRTAG:12x1; typedefs_extra=TransformResult:STRUCT
+recon/eaclib/psx/eacpsxz/trnsmult.c	..\eaclib\psx\eacpsxz.lib(trnsmult.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/trnspos.c	..\eaclib\psx\eacpsxz.lib(trnspos.obj)	DIFF	0	0	0	0	0	0	0	0	1	0	0	1	0	0	named_extra=matrixtdef; typedefs_extra=matrixtdef:STRUCT
+recon/eaclib/psx/eacpsxz/unbtree.c	..\eaclib\psx\eacpsxz.lib(unbtree.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/unhuff.c	..\eaclib\psx\eacpsxz.lib(unhuff.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/unref.c	..\eaclib\psx\eacpsxz.lib(unref.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/vramfxya.c	..\eaclib\psx\eacpsxz.lib(vramfxya.obj)	DIFF	0	0	0	0	0	0	0	0	0	0	1	2	0	0	anonymous_extra=STRTAG:8x1; typedefs_extra=RECT:STRUCT,u_long:ULONG
+recon/eaclib/psx/eacpsxz/wildcard.c	..\eaclib\psx\eacpsxz.lib(wildcard.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/eacpsxz/xform.c	..\eaclib\psx\eacpsxz.lib(xform.obj)	DIFF	0	0	0	0	0	0	0	0	1	0	0	1	0	0	named_extra=matrixtdef; typedefs_extra=matrixtdef:STRUCT
+recon/eaclib/psx/pad.c	..\eaclib\psx\pad.obj	OK	20	20	0	0	3	3	41	41	0	1	0	0	0	0	retail_duplicate_named=TCBx1
+recon/eaclib/psx/sndpsxz/s3dlow.c	..\eaclib\psx\sndpsxz.lib(s3dlow.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/s3dpos.c	..\eaclib\psx\sndpsxz.lib(s3dpos.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/saelib.c	..\eaclib\psx\sndpsxz.lib(saelib.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/saetodv.c	..\eaclib\psx\sndpsxz.lib(saetodv.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/saetolrv.c	..\eaclib\psx\sndpsxz.lib(saetolrv.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/salloc.c	..\eaclib\psx\sndpsxz.lib(salloc.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sautovol.c	..\eaclib\psx\sndpsxz.lib(sautovol.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sbadd.c	..\eaclib\psx\sndpsxz.lib(sbadd.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sballoc.c	..\eaclib\psx\sndpsxz.lib(sballoc.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sbdload.c	..\eaclib\psx\sndpsxz.lib(sbdload.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sbend.c	..\eaclib\psx\sndpsxz.lib(sbend.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sbhdrcpy.c	..\eaclib\psx\sndpsxz.lib(sbhdrcpy.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sbhdrsze.c	..\eaclib\psx\sndpsxz.lib(sbhdrsze.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sbirmpat.c	..\eaclib\psx\sndpsxz.lib(sbirmpat.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sbremove.c	..\eaclib\psx\sndpsxz.lib(sbremove.obj)	DIFF	0	0	0	0	0	0	0	0	2	0	0	0	0	0	named_extra=SNDBankEntry,SNDGlobals
+recon/eaclib/psx/sndpsxz/sbvalid.c	..\eaclib\psx\sndpsxz.lib(sbvalid.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/scdvol.c	..\eaclib\psx\sndpsxz.lib(scdvol.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sclcptch.c	..\eaclib\psx\sndpsxz.lib(sclcptch.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sdata.c	..\eaclib\psx\sndpsxz.lib(sdata.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sdcdvol.c	..\eaclib\psx\sndpsxz.lib(sdcdvol.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sdfx.c	..\eaclib\psx\sndpsxz.lib(sdfx.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sdma.c	..\eaclib\psx\sndpsxz.lib(sdma.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sdmemlu.c	..\eaclib\psx\sndpsxz.lib(sdmemlu.obj)	DIFF	0	0	0	0	0	0	0	0	0	0	1	1	0	0	anonymous_extra=STRTAG:4x1; typedefs_extra=SndSpuEnt:STRUCT
+recon/eaclib/psx/sndpsxz/sdmemman.c	..\eaclib\psx\sndpsxz.lib(sdmemman.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sdpacket.c	..\eaclib\psx\sndpsxz.lib(sdpacket.obj)	DIFF	0	0	0	0	0	0	0	0	2	0	0	0	0	0	named_extra=SNDPDPacketPtrView,SNDPDVoiceTableView
+recon/eaclib/psx/sndpsxz/sdplapat.c	..\eaclib\psx\sndpsxz.lib(sdplapat.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sdresolv.c	..\eaclib\psx\sndpsxz.lib(sdresolv.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sdriver.c	..\eaclib\psx\sndpsxz.lib(sdriver.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sdspuirq.c	..\eaclib\psx\sndpsxz.lib(sdspuirq.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sdtimrem.c	..\eaclib\psx\sndpsxz.lib(sdtimrem.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/seffect.c	..\eaclib\psx\sndpsxz.lib(seffect.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sfxlevel.c	..\eaclib\psx\sndpsxz.lib(sfxlevel.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sgetdata.c	..\eaclib\psx\sndpsxz.lib(sgetdata.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sgettag.c	..\eaclib\psx\sndpsxz.lib(sgettag.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sgetvol.c	..\eaclib\psx\sndpsxz.lib(sgetvol.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/slib.c	..\eaclib\psx\sndpsxz.lib(slib.obj)	DIFF	0	0	0	0	0	0	0	0	2	0	0	0	0	0	named_extra=InitWaitSpu,RestoreVoice
+recon/eaclib/psx/sndpsxz/slimits.c	..\eaclib\psx\sndpsxz.lib(slimits.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/smasterv.c	..\eaclib\psx\sndpsxz.lib(smasterv.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/smath64.c	..\eaclib\psx\sndpsxz.lib(smath64.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/smemman.c	..\eaclib\psx\sndpsxz.lib(smemman.obj)	DIFF	0	0	0	0	0	0	0	0	1	0	1	2	0	0	named_extra=SNDMemState; anonymous_extra=STRTAG:4x1; typedefs_extra=SndMemEnt:STRUCT,SNDMemState:STRUCT
+recon/eaclib/psx/sndpsxz/sover.c	..\eaclib\psx\sndpsxz.lib(sover.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/span.c	..\eaclib\psx\sndpsxz.lib(span.obj)	DIFF	0	0	0	0	0	0	0	0	5	0	0	5	0	0	named_extra=SndBank,SndFxBus,SndPlayDef,SndState,SndVoice; typedefs_extra=SndBank:STRUCT,SndFxBus:STRUCT,SndPlayDef:STRUCT,SndVoice:STRUCT,SndState:STRUCT
+recon/eaclib/psx/sndpsxz/spat2hdr.c	..\eaclib\psx\sndpsxz.lib(spat2hdr.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/spatkey.c	..\eaclib\psx\sndpsxz.lib(spatkey.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/spitch.c	..\eaclib\psx\sndpsxz.lib(spitch.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/spktplay.c	..\eaclib\psx\sndpsxz.lib(spktplay.obj)	DIFF	0	0	0	0	0	0	0	0	1	0	4	5	0	0	named_extra=PacketFrame; anonymous_extra=STRTAG:24x1,STRTAG:16x1,STRTAG:8x1,STRTAG:4x1; typedefs_extra=Unal4:STRUCT,PktCopy2:STRUCT,PktCopy4:STRUCT,PacketFrame:STRUCT,PktCopy6:STRUCT
+recon/eaclib/psx/sndpsxz/splay.c	..\eaclib\psx\sndpsxz.lib(splay.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/splysdef.c	..\eaclib\psx\sndpsxz.lib(splysdef.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/spvoices.c	..\eaclib\psx\sndpsxz.lib(spvoices.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/spvtolrv.c	..\eaclib\psx\sndpsxz.lib(spvtolrv.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/srandom.c	..\eaclib\psx\sndpsxz.lib(srandom.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/srrange.c	..\eaclib\psx\sndpsxz.lib(srrange.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sserver.c	..\eaclib\psx\sndpsxz.lib(sserver.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/ssine.c	..\eaclib\psx\sndpsxz.lib(ssine.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sst.c	..\eaclib\psx\sndpsxz.lib(sst.obj)	DIFF	0	0	0	0	0	0	0	0	4	0	0	0	0	0	named_extra=Hdr5,PackedRate,Prio5,ReqRec
+recon/eaclib/psx/sndpsxz/sstautov.c	..\eaclib\psx\sndpsxz.lib(sstautov.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sstgetrp.c	..\eaclib\psx\sndpsxz.lib(sstgetrp.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sstgetv.c	..\eaclib\psx\sndpsxz.lib(sstgetv.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sstop.c	..\eaclib\psx\sndpsxz.lib(sstop.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sstopall.c	..\eaclib\psx\sndpsxz.lib(sstopall.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sstovrhd.c	..\eaclib\psx\sndpsxz.lib(sstovrhd.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sstrstat.c	..\eaclib\psx\sndpsxz.lib(sstrstat.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sstsetgl.c	..\eaclib\psx\sndpsxz.lib(sstsetgl.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sstsetgs.c	..\eaclib\psx\sndpsxz.lib(sstsetgs.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sstsetpr.c	..\eaclib\psx\sndpsxz.lib(sstsetpr.obj)	DIFF	0	0	0	0	0	0	0	0	5	0	0	5	0	0	named_extra=SndBank,SndFxBus,SndPlayDef,SndState,SndVoice; typedefs_extra=SndBank:STRUCT,SndFxBus:STRUCT,SndPlayDef:STRUCT,SndVoice:STRUCT,SndState:STRUCT
+recon/eaclib/psx/sndpsxz/sststat.c	..\eaclib\psx\sndpsxz.lib(sststat.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/sstvol.c	..\eaclib\psx\sndpsxz.lib(sstvol.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/ssysinit.c	..\eaclib\psx\sndpsxz.lib(ssysinit.obj)	DIFF	0	0	0	0	0	0	0	0	2	0	0	0	0	0	named_extra=SndOptsBlock,SndOptsBlock15
+recon/eaclib/psx/sndpsxz/ssysreal.c	..\eaclib\psx\sndpsxz.lib(ssysreal.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/ssysserv.c	..\eaclib\psx\sndpsxz.lib(ssysserv.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/stagpat.c	..\eaclib\psx\sndpsxz.lib(stagpat.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/stimerem.c	..\eaclib\psx\sndpsxz.lib(stimerem.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/sndpsxz/svol.c	..\eaclib\psx\sndpsxz.lib(svol.obj)	DIFF	0	0	0	0	0	0	0	0	5	0	0	5	0	0	named_extra=SndBank,SndFxBus,SndPlayDef,SndState,SndVoice; typedefs_extra=SndBank:STRUCT,SndFxBus:STRUCT,SndPlayDef:STRUCT,SndVoice:STRUCT,SndState:STRUCT
+recon/eaclib/psx/spchpsxz/spchbank.c	..\eaclib\psx\spchpsxz.lib(spchbank.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/spchpsxz/spchdata.c	..\eaclib\psx\spchpsxz.lib(spchdata.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/spchpsxz/spchevnt.c	..\eaclib\psx\spchpsxz.lib(spchevnt.obj)	DIFF	0	0	0	0	0	0	0	0	0	0	1	1	0	0	anonymous_extra=STRTAG:60x1; typedefs_extra=VoxSlot:STRUCT
+recon/eaclib/psx/spchpsxz/spchinit.c	..\eaclib\psx\spchpsxz.lib(spchinit.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/spchpsxz/spchpick.c	..\eaclib\psx\spchpsxz.lib(spchpick.obj)	DIFF	0	0	0	0	0	0	0	0	0	0	0	2	0	0	typedefs_extra=SampleRequestFn:PTR FCN VOID,SentenceRuleSetFn:PTR FCN VOID
+recon/eaclib/psx/spchpsxz/spchrand.c	..\eaclib\psx\spchpsxz.lib(spchrand.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/spchpsxz/spchrslv.c	..\eaclib\psx\spchpsxz.lib(spchrslv.obj)	OK	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+recon/eaclib/psx/spchpsxz/spchrule.c	..\eaclib\psx\spchpsxz.lib(spchrule.obj)	DIFF	0	0	0	0	0	0	0	0	0	0	0	3	0	0	typedefs_extra=bool:INT,SentenceRuleTestFn:PTR FCN INT,SentenceRuleSetFn:PTR FCN VOID
+recon/eaclib/psx/spchpsxz/spchsamp.c	..\eaclib\psx\spchpsxz.lib(spchsamp.obj)	DIFF	0	0	0	0	0	0	0	0	0	0	0	1	0	0	typedefs_extra=bool:INT

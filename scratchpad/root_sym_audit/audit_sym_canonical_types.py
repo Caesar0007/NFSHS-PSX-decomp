@@ -499,6 +499,91 @@ def filter_sdk_macro_carriers(
     )
 
 
+def filter_stripped_libmath_carriers(
+    type_blocks: list[TypeBlock], typedefs: list[Definition]
+) -> tuple[list[TypeBlock], list[Definition]]:
+    """Remove only complete canonical carrier graphs from stripped LIBMATH.
+
+    Sony's prebuilt LIBMATH archive members retain no type records in the NFS4
+    SYM, but the byte-matched sources require GCC's real ``double_long`` union
+    shape and the library's two-word mantissa carrier.  GCC 2.8.1 floatlib.c is
+    the source evidence for ``double_long``.  Accept a member only when its
+    entire anonymous block/typedef multiset is exact; a changed name, owner,
+    kind, size, member, dimension, tag anonymity, or count leaves the complete
+    graph visible.  Pre-change backup: Git commit b73d0a38.
+    """
+    eligible = {
+        "adddf3.c": (2, True, True),
+        "divdf3.c": (2, True, False),
+        "gtdf2.c": (1, False, False),
+        "ltdf2.c": (1, False, False),
+        "muldf3.c": (2, True, False),
+        "trudfsf2.c": (1, False, False),
+    }
+    word_rows = (
+        ("MOS", "UINT", 0, "lo", 0, (), ""),
+        ("MOS", "INT", 0, "hi", 4, (), ""),
+    )
+    double_union_rows = (
+        ("MOU", "DOUBLE", 0, "d", 0, (), ""),
+        ("MOU", "STRUCT", 8, "w", 0, (), "<anonymous>"),
+    )
+    local_union_rows = (
+        ("MOU", "DOUBLE", 0, "d", 0, (), ""),
+        ("MOU", "ARY INT", 8, "w", 0, (2,), ""),
+    )
+
+    def owner_key(owner: str) -> tuple[str, str] | None:
+        normalized = owner.replace("\\", "/").casefold()
+        basename = normalized.rsplit("/", 1)[-1]
+        if "/libmath/" not in normalized or basename not in eligible:
+            return None
+        return normalized, basename
+
+    owners = {
+        key[0] for item in [*type_blocks, *typedefs]
+        if (key := owner_key(item.owner)) is not None
+    }
+    exact_owners = set()
+    for owner in owners:
+        basename = owner.rsplit("/", 1)[-1]
+        word_count, has_mant_pair, has_local_union = eligible[basename]
+        expected_blocks = Counter({
+            ("STRTAG", 8, word_rows): word_count,
+            ("UNTAG", 8, double_union_rows): 1,
+        })
+        if has_local_union:
+            expected_blocks[("UNTAG", 8, local_union_rows)] += 1
+        actual_blocks = Counter(
+            (item.kind, item.size, item.rows)
+            for item in type_blocks
+            if item.owner.replace("\\", "/").casefold() == owner
+        )
+        expected_typedefs = Counter({
+            ("double_long", "UNION", 8, True): 1,
+        })
+        if has_mant_pair:
+            expected_typedefs[("mant_pair", "STRUCT", 8, True)] += 1
+        actual_typedefs = Counter(
+            (item.name, item.typ, item.size, is_anonymous_tag(item.tag))
+            for item in typedefs
+            if item.owner.replace("\\", "/").casefold() == owner
+        )
+        if actual_blocks == expected_blocks and actual_typedefs == expected_typedefs:
+            exact_owners.add(owner)
+
+    return (
+        [
+            item for item in type_blocks
+            if item.owner.replace("\\", "/").casefold() not in exact_owners
+        ],
+        [
+            item for item in typedefs
+            if item.owner.replace("\\", "/").casefold() not in exact_owners
+        ],
+    )
+
+
 def filter_exact_symbol_codegen_carriers(
     type_blocks: list[TypeBlock], typedefs: list[Definition]
 ) -> tuple[list[TypeBlock], list[Definition]]:
@@ -2641,6 +2726,9 @@ def main() -> None:
     retail_blocks, retail_typedefs, retail_issues = blocks(retail_defs)
     source_blocks, source_typedefs, source_issues = blocks(source_defs)
     source_blocks, source_typedefs = filter_sdk_macro_carriers(
+        source_blocks, source_typedefs
+    )
+    source_blocks, source_typedefs = filter_stripped_libmath_carriers(
         source_blocks, source_typedefs
     )
     source_blocks, source_typedefs = filter_exact_symbol_codegen_carriers(

@@ -171,6 +171,11 @@ def compare(source: str, owner: str, retail_defs, source_defs) -> Result:
     source_blocks, source_typedefs = canon.filter_sdk_macro_carriers(
         source_blocks, source_typedefs
     )
+    # Keep the sweep's filter pipeline identical to the standalone canonical
+    # audit.  Pre-change backup: Git commit b73d0a38.
+    source_blocks, source_typedefs = canon.filter_stripped_libmath_carriers(
+        source_blocks, source_typedefs
+    )
     source_blocks, source_typedefs = canon.filter_exact_symbol_codegen_carriers(
         source_blocks, source_typedefs
     )

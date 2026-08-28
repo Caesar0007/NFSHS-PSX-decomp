@@ -219,11 +219,6 @@ extern void iSNDpsxzerospu(int *addr, int len);
 
 #define VB(base,idx)  ((&(base))[idx])                 /* byte at base+idx        */
 
-struct SNDPDVoiceTableView {
-    unsigned char pad[0xd8];
-    unsigned char table[1];
-};
-
 struct SNDPDPacketPtrView {
     unsigned char pad[0x4f8];
     int ptr[1];
@@ -450,7 +445,7 @@ extern unsigned int iSNDpacketpurgeframes(int p, unsigned int byteoff, int count
     unsigned char  *vte;
     int          i;
 
-    vte = ((struct SNDPDVoiceTableView *)(sndpd + vt))->table;
+    vte = sndpd + vt + 0xd8;
 
     do {
         blk = (unsigned)*(unsigned short *)(pp + 0x46);

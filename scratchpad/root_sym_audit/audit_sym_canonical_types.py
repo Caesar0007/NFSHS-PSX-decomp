@@ -749,6 +749,15 @@ def filter_exact_symbol_codegen_carriers(
     # backup: Git commit 0fc6b97a; canonical PsyQ device_table extension: Git
     # commit 065be180.
     untyped_library_codegen_views = {
+        # sdpacket's voice-table view flattens byte-exactly, but the packet
+        # pointer array requires this split +0x4f8 aggregate MEM shape. Both
+        # direct-byte and int-array spellings regress iSNDpacketpurgeframes by
+        # four instructions. Lock the lone retained carrier completely for
+        # this stripped owner. Pre-change backup: Git commit 3c5f9a77.
+        ("sdpacket.c", "SNDPDPacketPtrView"): (1276, (
+            ("MOS", "ARY UCHAR", 1272, "pad", 0, (1272,), ""),
+            ("MOS", "ARY INT", 4, "ptr", 1272, (1,), ""),
+        )),
         # sbremove's bank-entry view can be flattened byte-exactly, but its
         # sndgs accesses require this aggregate MEM shape to retain 3/3 PASS.
         # Lock the complete private carrier for the stripped owner; a raw-byte

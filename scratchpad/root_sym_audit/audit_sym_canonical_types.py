@@ -226,7 +226,8 @@ def _is_canonical_ptag_owner(owner: str) -> bool:
     """Recognize exact PsyQ P_TAG emission sites, never the name alone."""
     normalized = owner.replace("\\", "/").casefold()
     return _is_prim_macro_header(owner) or (
-        normalized.endswith("/p06.c") and "/libgpu/" in normalized
+        normalized.endswith(("/p06.c", "/p34.c"))
+        and "/libgpu/" in normalized
     )
 
 
@@ -241,10 +242,11 @@ def filter_sdk_macro_carriers(
     the concrete primitive-variable types but filters this cast-only SDK type.
     The guard deliberately checks the header owner, complete 8-byte layout and
     typedef/tag link; a source-defined P_TAG or any layout drift remains visible.
-    P06.c is PsyQ's AddPrim implementation itself.  Its reconstructed type now
-    uses the full canonical 8-byte PsyQ 4.3 P_TAG rather than a four-byte prefix;
-    accept that same exact pair only in this SDK owner.  Pre-change backup for
-    this source-restoration extension: Git commit 49c32f8e.
+    P06.c is PsyQ's AddPrim implementation itself, and P34.c uses the same macro
+    in SetDrawMove.  Their reconstructed types use the full canonical 8-byte
+    PsyQ 4.3 P_TAG rather than a four-byte prefix; accept that same exact pair
+    only in those SDK owners.  Pre-change backup for the P06 extension: Git
+    commit 49c32f8e; P34/EXT extension: Git commit 2fcfdbeb.
 
     VLC.c is PsyQ's hand-written LIBPRESS decoder and uses the canonical
     SYS/TYPES.H aliases u_int, u_long, and u_short.  Its linked archive member
@@ -286,7 +288,7 @@ def filter_sdk_macro_carriers(
             and _is_canonical_ptag_owner(block.owner)
         )
 
-    rect_owners = ("/fastmovf.c", "/movf.c", "/vramfxya.c")
+    rect_owners = ("/fastmovf.c", "/movf.c", "/vramfxya.c", "/p34.c")
     rect_rows = (
         ("MOS", "SHORT", 0, "x", 0, (), ""),
         ("MOS", "SHORT", 0, "y", 2, (), ""),
@@ -340,6 +342,107 @@ def filter_sdk_macro_carriers(
             and "/libpress/" in normalized
         )
 
+    def exact_libgpu_sdk_typedef(item: Definition) -> bool:
+        normalized = item.owner.replace("\\", "/").casefold()
+        expected_by_owner = {
+            "/ext.c": {
+                "u_char": "UCHAR",
+                "u_short": "USHORT",
+                "u_long": "ULONG",
+            },
+            "/p34.c": {
+                "u_char": "UCHAR",
+                "u_long": "ULONG",
+            },
+        }
+        for suffix, aliases in expected_by_owner.items():
+            if normalized.endswith(suffix) and "/libgpu/" in normalized:
+                return item.typ == aliases.get(item.name)
+        return False
+
+    # Exact canonical PsyQ 4.3 LIBGPU.H aggregate pairs retained by linked SDK
+    # sources whose archive-member SYM omits the header graph.  The nested tags
+    # are compiler-generated, so the complete typedef/tag/layout link is the
+    # stable identity.  Pre-change backup: Git commit 2fcfdbeb.
+    sdk_struct_layouts = {
+        "/ext.c": {
+            "RECT": (8, rect_rows),
+            "DR_ENV": (64, (
+                ("MOS", "ULONG", 0, "tag", 0, (), ""),
+                ("MOS", "ARY ULONG", 60, "code", 4, (15,), ""),
+            )),
+            "DRAWENV": (92, (
+                ("MOS", "STRUCT", 8, "clip", 0, (), "<anonymous>"),
+                ("MOS", "ARY SHORT", 4, "ofs", 8, (2,), ""),
+                ("MOS", "STRUCT", 8, "tw", 12, (), "<anonymous>"),
+                ("MOS", "USHORT", 0, "tpage", 20, (), ""),
+                ("MOS", "UCHAR", 0, "dtd", 22, (), ""),
+                ("MOS", "UCHAR", 0, "dfe", 23, (), ""),
+                ("MOS", "UCHAR", 0, "isbg", 24, (), ""),
+                ("MOS", "UCHAR", 0, "r0", 25, (), ""),
+                ("MOS", "UCHAR", 0, "g0", 26, (), ""),
+                ("MOS", "UCHAR", 0, "b0", 27, (), ""),
+                ("MOS", "STRUCT", 64, "dr_env", 28, (), "<anonymous>"),
+            )),
+            "DISPENV": (20, (
+                ("MOS", "STRUCT", 8, "disp", 0, (), "<anonymous>"),
+                ("MOS", "STRUCT", 8, "screen", 8, (), "<anonymous>"),
+                ("MOS", "UCHAR", 0, "isinter", 16, (), ""),
+                ("MOS", "UCHAR", 0, "isrgb24", 17, (), ""),
+                ("MOS", "UCHAR", 0, "pad0", 18, (), ""),
+                ("MOS", "UCHAR", 0, "pad1", 19, (), ""),
+            )),
+        },
+        "/p34.c": {
+            "DR_MOVE": (24, (
+                ("MOS", "ULONG", 0, "tag", 0, (), ""),
+                ("MOS", "ARY ULONG", 20, "code", 4, (5,), ""),
+            )),
+        },
+    }
+
+    def sdk_struct_owner(owner: str) -> str | None:
+        normalized = owner.replace("\\", "/").casefold()
+        if "/libgpu/" not in normalized:
+            return None
+        return next(
+            (suffix for suffix in sdk_struct_layouts if normalized.endswith(suffix)),
+            None,
+        )
+
+    def exact_sdk_struct_typedef(item: Definition) -> bool:
+        owner_key = sdk_struct_owner(item.owner)
+        spec = sdk_struct_layouts.get(owner_key, {}).get(item.name)
+        return (
+            spec is not None
+            and item.cls == "TPDEF"
+            and item.typ == "STRUCT"
+            and item.size == spec[0]
+            and is_anonymous_tag(item.tag)
+        )
+
+    sdk_struct_names = {
+        (sdk_struct_owner(item.owner), item.tag): item.name
+        for item in typedefs if exact_sdk_struct_typedef(item)
+    }
+
+    def exact_sdk_struct_block(block: TypeBlock) -> bool:
+        owner_key = sdk_struct_owner(block.owner)
+        name = sdk_struct_names.get((owner_key, block.name))
+        spec = sdk_struct_layouts.get(owner_key, {}).get(name)
+        return (
+            spec is not None
+            and block.kind == "STRTAG"
+            and block.size == spec[0]
+            and block.rows == spec[1]
+            and is_anonymous_tag(block.name)
+        )
+
+    removable_sdk_struct_pairs = {
+        (sdk_struct_owner(block.owner), block.name)
+        for block in type_blocks if exact_sdk_struct_block(block)
+    }
+
     eligible_tags = {item.tag for item in typedefs if exact_typedef(item)}
     removable_tags = {
         block.name for block in type_blocks
@@ -367,6 +470,11 @@ def filter_sdk_macro_carriers(
                 in removable_rect_pairs
                 and exact_rect_block(block)
             )
+            and not (
+                (sdk_struct_owner(block.owner), block.name)
+                in removable_sdk_struct_pairs
+                and exact_sdk_struct_block(block)
+            )
         ],
         [
             item for item in typedefs
@@ -379,8 +487,14 @@ def filter_sdk_macro_carriers(
                 in removable_rect_pairs
                 and exact_rect_typedef(item)
             )
+            and not (
+                (sdk_struct_owner(item.owner), item.tag)
+                in removable_sdk_struct_pairs
+                and exact_sdk_struct_typedef(item)
+            )
             and not exact_u_long_typedef(item)
             and not exact_vlc_sdk_typedef(item)
+            and not exact_libgpu_sdk_typedef(item)
         ],
     )
 

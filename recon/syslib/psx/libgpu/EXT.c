@@ -2,62 +2,80 @@
  *   obj libgpu.lib(EXT.OBJ): the DRAWENV / DISPENV default initialisers.  [libgpu.h] */
 
 typedef unsigned char u_char;
+typedef unsigned short u_short;
+typedef unsigned long u_long;
 
 extern int GetVideoMode(void);   /* libetc VMODE.obj */
 
-/* @0x800F222C : fill a DRAWENV with a sensible default (clip rect x,y,w,h; dither on; draw-to-
- *   display chosen by mode-dependent height threshold; default tpage = 10; no background fill). */
-typedef struct DRAWENV {              /* PsyQ DRAWENV (relevant fields) */
-    short clipx, clipy, clipw, cliph; /* +0x00 clip RECT */
-    short ofsx, ofsy;                 /* +0x08 ofs[0],ofs[1] */
-    short twx, twy, tww, twh;         /* +0x0C tw RECT */
-    short tpage;                      /* +0x14 */
-    u_char dtd;                       /* +0x16 */
-    u_char dfe;                       /* +0x17 */
-    u_char isbg;                      /* +0x18 */
-    u_char bg0, bg1, bg2;             /* +0x19 r0,g0,b0 */
+typedef struct {
+    short x, y;
+    short w, h;
+} RECT;
+
+typedef struct {
+    u_long tag;
+    u_long code[15];
+} DR_ENV;
+
+typedef struct {
+    RECT clip;
+    short ofs[2];
+    RECT tw;
+    u_short tpage;
+    u_char dtd;
+    u_char dfe;
+    u_char isbg;
+    u_char r0, g0, b0;
+    DR_ENV dr_env;
 } DRAWENV;
 
-void *SetDefDrawEnv(void *env, int x, int y, int w, int h)
+typedef struct {
+    RECT disp;
+    RECT screen;
+    u_char isinter;
+    u_char isrgb24;
+    u_char pad0, pad1;
+} DISPENV;
+
+/* @0x800F222C : fill a DRAWENV with a sensible default (clip rect x,y,w,h; dither on; draw-to-
+ *   display chosen by mode-dependent height threshold; default tpage = 10; no background fill). */
+DRAWENV *SetDefDrawEnv(DRAWENV *env, int x, int y, int w, int h)
 {
-    DRAWENV *e = (DRAWENV *)env;
     int vm = GetVideoMode();
-    e->clipx = (short)x;
-    e->clipy = (short)y;
-    e->clipw = (short)w;
-    e->twx = 0;
-    e->twy = 0;
-    e->tww = 0;
-    e->twh = 0;
-    e->bg0 = 0;
-    e->bg1 = 0;
-    e->bg2 = 0;
-    e->dtd = 1;
-    e->cliph = (short)h;
-    e->dfe = (u_char)(vm != 0 ? (h < 0x121) : (h < 0x101));
-    ((DRAWENV *)env)->ofsx = (short)x;
-    ((DRAWENV *)env)->ofsy = (short)y;
-    ((DRAWENV *)env)->tpage = 10;
-    ((DRAWENV *)env)->isbg = 0;
+    env->clip.x = (short)x;
+    env->clip.y = (short)y;
+    env->clip.w = (short)w;
+    env->tw.x = 0;
+    env->tw.y = 0;
+    env->tw.w = 0;
+    env->tw.h = 0;
+    env->r0 = 0;
+    env->g0 = 0;
+    env->b0 = 0;
+    env->dtd = 1;
+    env->clip.h = (short)h;
+    env->dfe = (u_char)(vm != 0 ? (h < 0x121) : (h < 0x101));
+    env->ofs[0] = (short)x;
+    env->ofs[1] = (short)y;
+    env->tpage = 10;
+    env->isbg = 0;
     return env;
 }
 
 /* @0x800F22E0 : fill a DISPENV with a default display area (x,y,w,h) and zeroed screen offset. */
-void *SetDefDispEnv(void *env, int x, int y, int w, int h)
+DISPENV *SetDefDispEnv(DISPENV *env, int x, int y, int w, int h)
 {
-    short *es = (short *)env;
-    u_char *eb = (u_char *)env;
-    es[0] = (short)x;                 /* disp.x (+0)  */
-    es[1] = (short)y;                 /* disp.y (+2)  */
-    es[2] = (short)w;                 /* disp.w (+4)  */
-    es[4] = 0;                        /* (+8)   */
-    es[5] = 0;                        /* (+0xA) */
-    es[6] = 0;                        /* (+0xC) */
-    es[7] = 0;                        /* (+0xE) */
-    eb[0x11] = 0;                     /* isinter */
-    eb[0x10] = 0;
-    eb[0x13] = 0;                     /* isrgb24 */
-    eb[0x12] = 0;
-    es[3] = (short)h;                 /* disp.h (+6) */
+    env->disp.x = (short)x;
+    env->disp.y = (short)y;
+    env->disp.w = (short)w;
+    env->screen.x = 0;
+    env->screen.y = 0;
+    env->screen.w = 0;
+    env->screen.h = 0;
+    env->isrgb24 = 0;
+    env->isinter = 0;
+    env->pad1 = 0;
+    env->pad0 = 0;
+    env->disp.h = (short)h;
     return env;
 }

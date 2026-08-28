@@ -580,12 +580,25 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "INT", 0, "z", 8, (), ""),
         )),
     }
-    # trnspos.obj and xform.obj are C-lane EA library consumers of the shared
-    # NFS4 ``matrixtdef`` (also recovered in nfs4_types.h), but their linked
-    # SYM members omit that foreign/common type graph.  The member-shaped code
-    # requires the exact 3x3 matrix layout.  Pair-lock both the named tag and
-    # typedef in each owner.  Pre-change backup: Git commit cdba8752.
+    # Several EA library members omit necessary owner-local/common type graphs.
+    # nsync's atomic-dispatch wrappers require the exact LoadArgs stack record;
+    # stream's tag classifier walks an exact StreamFilter array; and trnspos /
+    # xform consume the shared NFS4 ``matrixtdef`` also recovered in
+    # nfs4_types.h. Pair-lock each named tag and typedef in its precise owner.
+    # Pre-change backup for the first pair: Git commit cdba8752. Pre-change
+    # backup for the LoadArgs/StreamFilter extension: Git commit dee8eb82.
     untyped_library_named_pair_views = {
+        ("nsync.c", "LoadArgs"): (16, (
+            ("MOS", "PTR CHAR", 0, "name", 0, (), ""),
+            ("MOS", "INT", 0, "dest", 4, (), ""),
+            ("MOS", "INT", 0, "memclass", 8, (), ""),
+            ("MOS", "INT", 0, "abortval", 12, (), ""),
+        )),
+        ("stream.c", "StreamFilter"): (12, (
+            ("MOS", "UINT", 0, "mask", 0, (), ""),
+            ("MOS", "UINT", 0, "value", 4, (), ""),
+            ("MOS", "UINT", 0, "consumer", 8, (), ""),
+        )),
         ("trnspos.c", "matrixtdef"): (36, (
             ("MOS", "ARY INT", 36, "m", 0, (9,), ""),
         )),

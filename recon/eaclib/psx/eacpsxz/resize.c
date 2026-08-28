@@ -21,15 +21,13 @@
  *                                   +4 usable-size/tail-offset(int) +8 physnext +C physprev.
  */
 struct MemBlock;
-typedef struct MemBlock MemBlock;
 struct MemClass;
-typedef struct MemClass MemClass;
 
-extern MemClass *gMemClassTable[16];                       /* @0x8013E900 */
-extern void  FREE_add   (MemClass *cls, MemBlock *node);   /* @0x800E4E70 */
-extern void  FREE_remove(MemClass *cls, MemBlock *node);   /* @0x800E4F04 */
-extern int   initmemblock(MemBlock *blk, char *name, int size, int tailextra,
-                              int flags, MemBlock *physprev, MemBlock *physnext);  /* @0x800E4F2C */
+extern struct MemClass *gMemClassTable[16];                       /* @0x8013E900 */
+extern void  FREE_add   (struct MemClass *cls, struct MemBlock *node);   /* @0x800E4E70 */
+extern void  FREE_remove(struct MemClass *cls, struct MemBlock *node);   /* @0x800E4F04 */
+extern int   initmemblock(struct MemBlock *blk, char *name, int size, int tailextra,
+                              int flags, struct MemBlock *physprev, struct MemBlock *physnext);  /* @0x800E4F2C */
 extern int   MEM_tailsize(char *name, int id);             /* @0x800E5030 */
 extern char *getblockname(void *p);                        /* @0x800E52E0 */
 extern void  blockmove(void *src, void *dst, int n);       /* @0x800E62DC */
@@ -45,7 +43,7 @@ extern void *resizememadr(void *userptr, int newsize)      /* @0x800F1950 */
     char *hdr = (char *)userptr - 0x10;                         /* s3 = block header */
     unsigned flags = *(unsigned short *)(hdr + 2);              /* s1 (u_int: avoid a redundant andi 0xffff) */
     char *next = *(char **)(hdr + 8);                           /* s2 = hdr->physnext */
-    MemClass *cls = gMemClassTable[flags & 0xF];                /* s5 */
+    struct MemClass *cls = gMemClassTable[flags & 0xF];         /* s5 */
     int usable = newsize;                                       /* s4: the RAW requested size */
     /* MATCH (52 -> 14 diffs, w32-a4). The long-documented "3-way s2/s3/s4 rotation floor"
      * was NOT an allocator tie-break: cc1 -dl/-dg showed it was driven purely by the
@@ -98,7 +96,7 @@ extern void *resizememadr(void *userptr, int newsize)      /* @0x800F1950 */
 
     /* 1. coalesce forward if the next physical block is free */
     if (*(unsigned short *)(next + 2) & 0x4000) {
-        FREE_remove(cls, (MemBlock *)next);
+        FREE_remove(cls, (struct MemBlock *)next);
         next = *(char **)(next + 8);                            /* next = next->physnext */
         *(char **)(hdr + 8) = next;                             /* hdr->physnext = next */
     }
@@ -136,13 +134,13 @@ extern void *resizememadr(void *userptr, int newsize)      /* @0x800F1950 */
 
     /* 5. split off the leftover as a new free block if it's worth it (>= 65 bytes) */
     if ((avail - size) >= 0x41) {
-        MemBlock *split;
+        struct MemBlock *split;
         size += 0x10;                                 /* MATCH: advanced IN PLACE (oracle
                                                        * `addiu s0,s0,0x10; addu s0,s6,s0` --
                                                        * `userptr + needed + 0x10` in one
                                                        * expression associates the other way) */
-        split = (MemBlock *)((char *)userptr + size);
-        initmemblock(split, 0, 0, 0, 0, (MemBlock *)hdr, (MemBlock *)next);
+        split = (struct MemBlock *)((char *)userptr + size);
+        initmemblock(split, 0, 0, 0, 0, (struct MemBlock *)hdr, (struct MemBlock *)next);
         FREE_add(cls, split);
         *(char **)(next + 0xC) = (char *)split;               /* next->physprev = split */
         *(char **)(hdr  + 8)   = (char *)split;               /* hdr->physnext  = split */

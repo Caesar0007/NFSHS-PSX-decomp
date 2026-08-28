@@ -1,8 +1,25 @@
 /* frontend/common/front_externs.h - reconstructed externs. NOT original. */
 #ifndef _FE_FRONT_EXTERNS_H_
 #define _FE_FRONT_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "front_types.h"
+
+extern "C" int sprintf(char *, const char *, ...);
+extern "C" {
+int PadGetState(...);
+int PadInfoMode(...);
+void PadSetMainMode(...);
+int FILE_addbigsync(...);
+void FILE_delbigsync(...);
+void PAD_update(...);
+void blockmove(...);
+void initlinkmode(...);
+int largestunused(...);
+int purgememadr(...);
+int rand(...);
+void resizememadr(...);
+void seedrandom(...);
+void timedwait(...);
+}
 extern int          ticks[];
 extern tfrontEnd    frontEnd;
 extern tFEApplication *FEApp[];
@@ -49,7 +66,8 @@ int CarIO_CleanUpLicense(int);
 int CarIO_CreateLicense(char *, int, int);
 int Controller_SetRamp(void);
 int DeInit_Memcard(void);
-bool FECheat_IsCheatEnabled(tCheatCode);   /* W58-A1: typed SYM FCN bool; was `(...)` -> __Fe phantom */
+bool FECheat_IsCheatEnabled(tCheatCode)
+    __asm__("FECheat_IsCheatEnabled__F10tCheatCode");
 int FeAudio_DeInitCommentary(void);
 int FeAudio_InitCommentary(int, int);
 int FeTools_deinit(void);

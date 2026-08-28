@@ -28,11 +28,13 @@
 
 /* These pointer-only foreign classes are used by the reconstructed extern
  * surface but have no completed records in FEMenuDefs.obj. */
+#ifndef NFS4_FEMENUDEFS_NO_SCREENMAIN_VIEW
 struct FEMenuDefs_ScreenMainCodegenView {
     void SwapBackground(int)
         __asm__("SwapBackground__11tScreenMaini");
 };
 #define tScreenMain FEMenuDefs_ScreenMainCodegenView
+#endif
 struct tAllScreens;
 struct tScreenAudio;
 struct tScreenCarSelectDuel;
@@ -46,6 +48,7 @@ struct tScreenTrackInfo;
 struct tScreenTrackRecords;
 struct tScreenTrackSelect;
 struct tScreenTrophyInfo;
+#ifndef NFS4_FEMENUDEFS_NO_SCREENTROPHYROOM_VIEW
 struct FEMenuDefs_ScreenTrophyRoomCodegenView {
     char _beforeThisIsUseless[0xcc];
     char thisisuseless;
@@ -53,6 +56,7 @@ struct FEMenuDefs_ScreenTrophyRoomCodegenView {
     short fTrophyList[64];
 };
 #define tScreenTrophyRoom FEMenuDefs_ScreenTrophyRoomCodegenView
+#endif
 
 /* The linked owner uses these foreign aggregates only through the priced
  * fields below and does not retain their completed tags. */
@@ -62,11 +66,13 @@ struct FEMenuDefs_PadCodegenView {
 };
 #define tPadModuleState FEMenuDefs_PadCodegenView
 
+#ifndef NFS4_FEMENUDEFS_NO_GAMESETUP_VIEW
 struct FEMenuDefs_GameSetupCodegenView {
     char _beforeNumPerps[0x1ac];
     int numPerps, stageOffset, perpArrests, finalPerpArrests;
 };
 #define GameSetup_tData FEMenuDefs_GameSetupCodegenView
+#endif
 
 struct AudioMus_tSongEntry {
     char *filename, *title, *artist, *label, *date, *notes;
@@ -129,6 +135,7 @@ struct tAcademyDefinition {
     tStageInfo fStages[256];
 };
 
+#ifndef NFS4_FEMENUDEFS_NO_DIALOGYESNOTRI
 extern __vtbl_ptr_type tDialogYesNoTri_vtable[];
 struct tDialogYesNoTri : public tDialogYesNo {
     inline tDialogYesNoTri() {
@@ -136,6 +143,7 @@ struct tDialogYesNoTri : public tDialogYesNo {
     }
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 };
+#endif
 
 struct MCRDFILE_def {
     char *name, *title;
@@ -168,6 +176,9 @@ struct tScreenMemcard : public tScreen {
     int fScreenFadeReadyTick;
     short player;
     bool fGetNewIcons;
+#ifdef NFS4_FRONT_SURFACE
+    tScreenMemcard();
+#endif
     inline void SetMessage(int newMessage) { message = newMessage; }
 };
 
@@ -176,9 +187,13 @@ struct tScreenUserName : public tScreen {
     short fTextFade;
     bool fInTransition;
     char fRowList[10][9];
+#ifdef NFS4_FRONT_SURFACE
+    tScreenUserName();
+#endif
     inline void SetCallingMenu(tOptionsMenu *m) { callingMenu = m; }
 };
 
+#ifndef NFS4_FEMENUDEFS_NO_FEAPPLICATION
 struct tFEApplication {
     unsigned int fCurrentMusic;
     tMenu *fCurrentMenu[2];
@@ -203,7 +218,9 @@ struct tFEApplication {
     inline void DisplayMessage(int word);
     void Redraw();
 };
+#endif
 
+#ifndef NFS4_FEMENUDEFS_NO_GLOBALMENUDEFS
 struct tGlobalMenuDefs {
     tMenuItemGoToMenuNFS4Button itemMainOnePlayerRace, itemMainTwoPlayerRace, itemMainTrophyRoom, itemMainOptions;
     tMenuNFS4 menuMain;
@@ -364,5 +381,6 @@ struct tGlobalMenuDefs {
     tGlobalMenuDefs();
     ~tGlobalMenuDefs();
 };
+#endif
 
 #endif

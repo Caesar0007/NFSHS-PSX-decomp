@@ -186,6 +186,12 @@ struct tTournamentManager {
     void GetAwardInformation(tAwardInformation &);
     bool IsTournamentFinished();
 #endif
+#ifdef NFS4_FRONT_SURFACE
+    short AdvanceToNextTrack();
+    short GetLastTrackRaced();
+    void UpdateCarLineup();
+    void UpdateAwardInformation();
+#endif
 };
 
 struct tListIteratorTrack : public tListIteratorIndexed {

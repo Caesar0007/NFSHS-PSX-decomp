@@ -251,6 +251,14 @@ struct tCarManager {
     tCarInfo *GetCarFromID(short);
     void SetCarAvailable(tCarModels, bool);
 #endif
+#ifdef NFS4_FRONT_SURFACE
+    short GetClassList(int, short, tCarModels *)
+        __asm__("GetClassList__11tCarManager13tCarClassTypesP10tCarModels");
+    void InitializeIngameCarList();
+    bool IsCarAnAddedModel(tCarModels &, char &);
+    void AddCarToIngameList(tCarModels &, char &);
+    bool FindSimilarCar(tCarModels &, char &, short, tCarModels *);
+#endif
 };
 
 struct tfrontEnd {

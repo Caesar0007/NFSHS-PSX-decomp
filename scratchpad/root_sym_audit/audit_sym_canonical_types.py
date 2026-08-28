@@ -902,6 +902,34 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "INT", 0, "finalPerpArrests", 440, (), ""),
         ), "femenudefs_types.h"),
     }
+    # Front.obj must allocate/call four foreign class owners and address the
+    # full game-setup object even though their completed tags are absent from
+    # this linked owner. Accept these only as exact structure+typedef pairs in
+    # the owner header. Pre-change backup: Git commit 80143f87.
+    front_views = {
+        "tFEApplication": (896, (
+            ("MOS", "ARY CHAR", 896, "_storage", 0, (896,), ""),
+        ), "front_types.h"),
+        "tGlobalMenuDefs": (15128, (
+            ("MOS", "ARY CHAR", 15128, "_storage", 0, (15128,), ""),
+        ), "front_types.h"),
+        "Front_MissionManagerCodegenView": (8, (
+            ("MOS", "ARY CHAR", 8, "_storage", 0, (8,), ""),
+        ), "front_types.h"),
+        "Front_GameSetupCodegenView": (2600, (
+            ("MOS", "ARY INT", 36, "_beforeReplayMode", 0, (9,), ""),
+            ("MOS", "INT", 0, "replayMode", 36, (), ""),
+            ("MOS", "ARY INT", 56, "_beforeControllerData", 40,
+             (14,), ""),
+            ("MOS", "STRUCT", 88, "controllerData", 96, (),
+             "GameSetup_tControllerData"),
+            ("MOS", "INT", 0, "pinkSlipsForfeit", 184, (), ""),
+            ("MOS", "ARY CHAR", 2412, "_tail", 188, (2412,), ""),
+        ), "front_types.h"),
+        "tCreditManager": (56, (
+            ("MOS", "ARY CHAR", 56, "_storage", 0, (56,), ""),
+        ), "front_types.h"),
+    }
     # ScreenDisplay.obj dereferences only the menuDisplayOptions member of the
     # foreign tGlobalMenuDefs singleton.  Its linked SYM retains the complete
     # tOptionsMenu leaf but attributes the owning aggregate to FEMenuDefs.obj.
@@ -1648,6 +1676,29 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith(expected[2])
         )
 
+    def exact_front_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = front_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith(expected[2])
+        )
+
+    def exact_front_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = front_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            and owner.endswith(expected[2])
+        )
+
     def exact_screendisplay_view(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         expected = screendisplay_views.get(block.name)
@@ -1906,6 +1957,13 @@ def filter_exact_symbol_codegen_carriers(
         and any(exact_femenudefs_view_typedef(item) and item.name == name
                 for item in typedefs)
     }
+    front_eligible = {
+        name for name in front_views
+        if any(exact_front_view(block) and block.name == name
+               for block in type_blocks)
+        and any(exact_front_view_typedef(item) and item.name == name
+                for item in typedefs)
+    }
     screenusername_eligible = {
         name for name in screenusername_views
         if any(exact_screenusername_view(block) and block.name == name
@@ -1970,6 +2028,8 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_femenuoptions_view(block))
             and not (block.name in femenudefs_eligible
                      and exact_femenudefs_view(block))
+            and not (block.name in front_eligible
+                     and exact_front_view(block))
             and not (block.name in screendisplay_eligible
                      and exact_screendisplay_view(block))
             and not (block.name in screenusername_eligible
@@ -2020,6 +2080,8 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_femenuoptions_view_typedef(item))
             and not (item.name in femenudefs_eligible
                      and exact_femenudefs_view_typedef(item))
+            and not (item.name in front_eligible
+                     and exact_front_view_typedef(item))
             and not (item.name in screendisplay_eligible
                      and exact_screendisplay_view_typedef(item))
             and not (item.name in screenusername_eligible

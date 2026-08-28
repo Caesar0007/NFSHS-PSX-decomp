@@ -231,9 +231,16 @@ struct tScreenTournamentStandings : public tScreen {
 #ifdef NFS4_SCREENCARSELECT_FEMENUDEFS_SURFACE
     inline void SetDrawMoney() { fDrawMoney = 1; }
 #endif
+#ifdef NFS4_FRONT_SURFACE
+    tScreenTournamentStandings();
+#endif
 };
 
-struct tScreenTournamentStandings3item : public tScreenTournamentStandings {};
+struct tScreenTournamentStandings3item : public tScreenTournamentStandings {
+#ifdef NFS4_FRONT_SURFACE
+    tScreenTournamentStandings3item();
+#endif
+};
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
 /* pad.obj's aggregate tag is absent from ScreenCarSelect.obj; only buf[0]

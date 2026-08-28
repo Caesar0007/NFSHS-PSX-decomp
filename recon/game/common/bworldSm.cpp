@@ -3,7 +3,7 @@
  *   (slice/quad/triangle finding, normal cache, sim-quad update). SYM-v3 locals; self-contained.
  *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++.
  */
-#include "../../nfs4_types.h"
+#include "bworldSm_types.h"
 #include "bworldSm_externs.h"
 
 

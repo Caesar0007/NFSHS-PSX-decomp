@@ -1,7 +1,7 @@
 /* game/common/bworldsm.h — reconstructed from game/common/bworldsm.cpp (28 fns) */
 #ifndef _GAME_COMMON_BWORLDSM_H_
 #define _GAME_COMMON_BWORLDSM_H_
-#include "../../nfs4_types.h"
+#include "bworldSm_types.h"
 
 int BWorldSm_Init__FP5Group(Group *simGroup);   /* :84 */
 void BWorldSm_Restart__Fv(void);   /* :101 */

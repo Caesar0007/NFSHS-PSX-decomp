@@ -423,6 +423,24 @@ def filter_exact_symbol_codegen_carriers(
         "DrawC_CViewCodegenView": hud_views["Hud_CViewCodegenView"],
         "DrawC_GameSetupCodegenView": hud_views["Hud_GameSetupCodegenView"],
     }
+    # bworldSm.obj dereferences five fields of chunk.obj's Track_chunkList,
+    # but its retail debug graph deliberately omits the complete Chunk tag.
+    # Pair-lock the exact 112-byte foreign-symbol view used to retain those
+    # member-shaped instructions.  Pre-change backup: Git commit 5163e832.
+    bworldsm_views = {
+        "BWorldSm_ChunkCodegenView": (112, (
+            ("MOS", "ARY CHAR", 56, "_beforeStripBuf", 0, (56,), ""),
+            ("MOS", "PTR STRUCT", 4, "stripBuf", 56, (), "Group"),
+            ("MOS", "ARY CHAR", 12, "_beforeSimSliceBuf", 60, (12,), ""),
+            ("MOS", "PTR STRUCT", 4, "simSliceBuf", 72, (), "Group"),
+            ("MOS", "PTR STRUCT", 4, "simQuadBuf", 76, (), "Group"),
+            ("MOS", "ARY CHAR", 24, "_beforeFirstSimSliceInd", 80,
+             (24,), ""),
+            ("MOS", "SHORT", 0, "firstSimSliceInd", 104, (), ""),
+            ("MOS", "ARY CHAR", 2, "_beforeVertexBuf", 106, (2,), ""),
+            ("MOS", "PTR STRUCT", 4, "vertexBuf", 108, (), "Group"),
+        )),
+    }
     feinput_views = {
         # FEInput.obj references pad.obj's anonymous 84-byte gPadinfo object.
         # Retail retains PAD_COMMON but deliberately omits the owning aggregate
@@ -1160,6 +1178,29 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith("drawc_externs.h")
         )
 
+    def exact_bworldsm_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = bworldsm_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith("bworldsm_externs.h")
+        )
+
+    def exact_bworldsm_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = bworldsm_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            and owner.endswith("bworldsm_externs.h")
+        )
+
     def exact_feinput_view(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         expected = feinput_views.get(block.name)
@@ -1862,6 +1903,13 @@ def filter_exact_symbol_codegen_carriers(
         and any(exact_screendisplay_view_typedef(item) and item.name == name
                 for item in typedefs)
     }
+    bworldsm_eligible = {
+        name for name in bworldsm_views
+        if any(exact_bworldsm_view(block) and block.name == name
+               for block in type_blocks)
+        and any(exact_bworldsm_view_typedef(item) and item.name == name
+                for item in typedefs)
+    }
     fememcard_eligible = {
         name for name in fememcard_views
         if any(exact_fememcard_view(block) and block.name == name
@@ -2002,6 +2050,8 @@ def filter_exact_symbol_codegen_carriers(
             if not (night_eligible and exact_night_camera(block))
             and not (block.name in hud_eligible and exact_hud_view(block))
             and not (block.name in drawc_eligible and exact_drawc_view(block))
+            and not (block.name in bworldsm_eligible
+                     and exact_bworldsm_view(block))
             and not (block.name in feinput_eligible and exact_feinput_view(block))
             and not (block.name in fescreen_eligible and exact_fescreen_view(block))
             and not (block.name in fecars_eligible and exact_fecars_view(block))
@@ -2053,6 +2103,8 @@ def filter_exact_symbol_codegen_carriers(
             if not (night_eligible and exact_night_camera_typedef(item))
             and not (item.name in hud_eligible and exact_hud_view_typedef(item))
             and not (item.name in drawc_eligible and exact_drawc_view_typedef(item))
+            and not (item.name in bworldsm_eligible
+                     and exact_bworldsm_view_typedef(item))
             and not (item.name in feinput_eligible and exact_feinput_view_typedef(item))
             and not (item.name in fescreen_eligible and exact_fescreen_view_typedef(item))
             and not (item.name in fecars_eligible and exact_fecars_view_typedef(item))

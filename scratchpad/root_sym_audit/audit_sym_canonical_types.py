@@ -225,7 +225,7 @@ def _is_prim_macro_header(owner: str) -> bool:
 def filter_sdk_macro_carriers(
     type_blocks: list[TypeBlock], typedefs: list[Definition]
 ) -> tuple[list[TypeBlock], list[Definition]]:
-    """Remove exact SDK-only debug carriers that retail game objects filter.
+    """Remove exact SDK-only debug carriers that retail objects filter.
 
     PsyQ's canonical LIBGPU.H implements setaddr/getaddr/addPrim through P_TAG.
     Full-debug CC1PLUS emits its anonymous body and typedef when the macros are
@@ -233,6 +233,14 @@ def filter_sdk_macro_carriers(
     the concrete primitive-variable types but filters this cast-only SDK type.
     The guard deliberately checks the header owner, complete 8-byte layout and
     typedef/tag link; a source-defined P_TAG or any layout drift remains visible.
+
+    The linked EA graphics-library members likewise omit the canonical PsyQ
+    4.3 ``RECT`` and ``u_long`` header records even though their prototypes and
+    locals require those SDK spellings.  The PsyQ 4.3 LIBGPU.H source fixes
+    RECT as four consecutive shorts and declares SetDrawMove with RECT*.  Keep
+    the exception owner-local and pair-lock the anonymous body to its typedef;
+    accept u_long only as the exact unsigned-long alias.  Pre-change backup:
+    Git commit d4558d8f.
     """
     expected_rows = (
         ("FIELD", "UINT", 24, "addr", 0, (), ""),
@@ -261,10 +269,59 @@ def filter_sdk_macro_carriers(
             and _is_prim_macro_header(block.owner)
         )
 
+    rect_owners = ("/fastmovf.c", "/movf.c", "/vramfxya.c")
+    rect_rows = (
+        ("MOS", "SHORT", 0, "x", 0, (), ""),
+        ("MOS", "SHORT", 0, "y", 2, (), ""),
+        ("MOS", "SHORT", 0, "w", 4, (), ""),
+        ("MOS", "SHORT", 0, "h", 6, (), ""),
+    )
+
+    def canonical_rect_owner(owner: str) -> str | None:
+        normalized = owner.replace("\\", "/").casefold()
+        return normalized if normalized.endswith(rect_owners) else None
+
+    def exact_rect_typedef(item: Definition) -> bool:
+        return (
+            item.cls == "TPDEF"
+            and item.name == "RECT"
+            and item.typ == "STRUCT"
+            and item.size == 8
+            and is_anonymous_tag(item.tag)
+            and canonical_rect_owner(item.owner) is not None
+        )
+
+    def exact_rect_block(block: TypeBlock) -> bool:
+        return (
+            block.kind == "STRTAG"
+            and block.size == 8
+            and block.rows == rect_rows
+            and is_anonymous_tag(block.name)
+            and canonical_rect_owner(block.owner) is not None
+        )
+
+    def exact_u_long_typedef(item: Definition) -> bool:
+        return (
+            item.cls == "TPDEF"
+            and item.name == "u_long"
+            and item.typ == "ULONG"
+            and canonical_rect_owner(item.owner) is not None
+        )
+
     eligible_tags = {item.tag for item in typedefs if exact_typedef(item)}
     removable_tags = {
         block.name for block in type_blocks
         if block.name in eligible_tags and exact_block(block)
+    }
+    rect_pairs = {
+        (canonical_rect_owner(item.owner), item.tag)
+        for item in typedefs if exact_rect_typedef(item)
+    }
+    removable_rect_pairs = {
+        (canonical_rect_owner(block.owner), block.name)
+        for block in type_blocks
+        if (canonical_rect_owner(block.owner), block.name) in rect_pairs
+        and exact_rect_block(block)
     }
     return (
         [
@@ -273,6 +330,11 @@ def filter_sdk_macro_carriers(
                 block.name in removable_tags
                 and exact_block(block)
             )
+            and not (
+                (canonical_rect_owner(block.owner), block.name)
+                in removable_rect_pairs
+                and exact_rect_block(block)
+            )
         ],
         [
             item for item in typedefs
@@ -280,6 +342,12 @@ def filter_sdk_macro_carriers(
                 item.tag in removable_tags
                 and exact_typedef(item)
             )
+            and not (
+                (canonical_rect_owner(item.owner), item.tag)
+                in removable_rect_pairs
+                and exact_rect_typedef(item)
+            )
+            and not exact_u_long_typedef(item)
         ],
     )
 

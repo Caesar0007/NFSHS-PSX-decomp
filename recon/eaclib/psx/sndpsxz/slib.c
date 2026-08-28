@@ -294,10 +294,6 @@ extern int iSNDplatformoutputset(void)
  *   the audio timer + exit handler. */
 extern int iSNDinit(void)
 {
-    struct InitWaitSpu {
-        unsigned char pad[0x1ae];
-        volatile unsigned short status;
-    };
     unsigned int sr;
     DECLARE_DMA_CHANNEL(ch);      /* DMACallback channel arg (4), materialized early like the oracle */
     DECLARE_DMA_CALLBACK(callback);
@@ -307,7 +303,7 @@ extern int iSNDinit(void)
     volatile unsigned int *chcr;
     volatile unsigned int *dpcr;
     unsigned int *spu;    /* runtime copy of the SPU base (0x1F801C00) */
-    struct InitWaitSpu *wait_spu;
+    unsigned char *wait_spu;
     unsigned char *pd;
     unsigned char *latched;
     unsigned char *gs;
@@ -346,8 +342,8 @@ extern int iSNDinit(void)
     *(unsigned int **)(pd + 0x514) = spu;
     if ((SPUSTAT_AT(spu) & 0x7ff) != 0) {
         do {
-            wait_spu = (struct InitWaitSpu *)0x1f801c00;
-        } while ((wait_spu->status & 0x7ff) != 0);
+            wait_spu = (unsigned char *)0x1f801c00;
+        } while ((*(volatile unsigned short *)(wait_spu + 0x1ae) & 0x7ff) != 0);
     }
     latched = sndpd;
     *(volatile unsigned short *)(*(volatile int *)(latched + 0x514) + 0x1ac) = 4;
@@ -413,10 +409,6 @@ extern int iSNDinit(void)
  *   release, drop the audio timer, clear the fx, and re-arm the DMA callback. */
 extern int iSNDrestore(void)
 {
-    struct RestoreVoice {
-        unsigned char pad[0xf5];
-        unsigned char active;
-    };
     unsigned char *guard;
     unsigned char *gpraw;
     unsigned char *gp;       /* &sndgs, INDEPENDENTLY re-materialized for the rest of the fn --
@@ -429,7 +421,7 @@ extern int iSNDrestore(void)
                                * persistent reg (s5) separate from the per-iter walker, so the
                                * walker resets from a plain base + the 0xf5 field stays a load
                                * DISPLACEMENT instead of folding &sndpd+0xf5 into one constant */
-    struct RestoreVoice *vp; /* WALKING sndpd pointer (reset from base each outer pass, +=0x2c
+    unsigned char *vp;      /* WALKING sndpd pointer (reset from base each outer pass, +=0x2c
                                * per inner iter) */
     int          quiet;
     int          chan;
@@ -462,7 +454,7 @@ extern int iSNDrestore(void)
          * confirming the mechanism is the chan REF COUNT -- but the guard is the honest spelling,
          * so the fence is not used here. */
         if (chan < (int)(unsigned)gp[0x11]) {
-            vp = (struct RestoreVoice *)base;
+            vp = base;
             do {
                 if (*(volatile unsigned char *)((unsigned char *)vp + 0xf5) != 0) { /* voice still active */
                     if (deadline < *(unsigned int *)(gp + 0x44)) {
@@ -472,7 +464,7 @@ extern int iSNDrestore(void)
                     }
                     quiet = 0;
                 }
-                vp = (struct RestoreVoice *)((unsigned char *)vp + 0x2c);
+                vp += 0x2c;
             } while ((int)(unsigned)gp[0x11] > ++chan);
         }
         SNDSYS_service();

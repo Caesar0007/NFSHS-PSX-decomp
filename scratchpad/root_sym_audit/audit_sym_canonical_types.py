@@ -564,6 +564,22 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "INT", 0, "bank_table", 152, (), ""),
         )),
     }
+    # Two linked EA math-library members omit their local aggregate records,
+    # while exact retail code generation requires structure assignment:
+    # matrix.c's 36-byte movstrsi copies and trnsfrm.c's final 12-byte result
+    # copy both regress when expressed as scalar/array source.  Accept only the
+    # complete anonymous body + typedef pair in its exact owner.  Pre-change
+    # backup: Git commit c1385fa4.
+    untyped_library_anonymous_views = {
+        ("matrix.c", "mtx"): (36, (
+            ("MOS", "ARY INT", 36, "m", 0, (9,), ""),
+        )),
+        ("trnsfrm.c", "TransformResult"): (12, (
+            ("MOS", "INT", 0, "x", 0, (), ""),
+            ("MOS", "INT", 0, "y", 4, (), ""),
+            ("MOS", "INT", 0, "z", 8, (), ""),
+        )),
+    }
     feinput_views = {
         # FEInput.obj references pad.obj's anonymous 84-byte gPadinfo object.
         # Retail retains PAD_COMMON but deliberately omits the owning aggregate
@@ -1333,6 +1349,26 @@ def filter_exact_symbol_codegen_carriers(
             and expected is not None
             and block.size == expected[0]
             and block.rows == expected[1]
+        )
+
+    def exact_untyped_library_anonymous_pair(
+        block: TypeBlock, item: Definition
+    ) -> bool:
+        block_owner = block.owner.replace("\\", "/").casefold()
+        item_owner = item.owner.replace("\\", "/").casefold()
+        basename = item_owner.rsplit("/", 1)[-1]
+        expected = untyped_library_anonymous_views.get((basename, item.name))
+        return (
+            expected is not None
+            and block_owner == item_owner
+            and block.kind == "STRTAG"
+            and is_anonymous_tag(block.name)
+            and block.name == item.tag
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and item.cls == "TPDEF"
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
         )
 
     def exact_feinput_view(block: TypeBlock) -> bool:
@@ -2177,6 +2213,12 @@ def filter_exact_symbol_codegen_carriers(
         for block in type_blocks
         for item in typedefs
     )
+    untyped_library_anonymous_eligible = {
+        (block.owner.replace("\\", "/").casefold(), block.name)
+        for block in type_blocks
+        for item in typedefs
+        if exact_untyped_library_anonymous_pair(block, item)
+    }
 
     return (
         [
@@ -2187,6 +2229,10 @@ def filter_exact_symbol_codegen_carriers(
             and not (block.name in bworldsm_eligible
                      and exact_bworldsm_view(block))
             and not exact_untyped_library_codegen_view(block)
+            and not (
+                (block.owner.replace("\\", "/").casefold(), block.name)
+                in untyped_library_anonymous_eligible
+            )
             and not (block.name in feinput_eligible and exact_feinput_view(block))
             and not (block.name in fescreen_eligible and exact_fescreen_view(block))
             and not (block.name in fecars_eligible and exact_fecars_view(block))
@@ -2286,6 +2332,10 @@ def filter_exact_symbol_codegen_carriers(
             and not (item.name in screenmain_eligible
                      and exact_screenmain_view_typedef(item))
             and not (femenu_ptag_eligible and exact_femenu_ptag_typedef(item))
+            and not (
+                (item.owner.replace("\\", "/").casefold(), item.tag)
+                in untyped_library_anonymous_eligible
+            )
         ],
     )
 

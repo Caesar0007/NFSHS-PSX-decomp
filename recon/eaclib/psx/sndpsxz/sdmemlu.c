@@ -30,12 +30,9 @@
 
 extern unsigned char sndpd[];   /* EA sound-driver state base @0x80147918 (shared, sdma.c/sdpacket.c/slib.c) */
 
-/* {block,size} free-list entry, 4-byte stride */
-typedef struct { unsigned short blk, sz; } SndSpuEnt;
-
 #define SND_ALLOCCNT (*(unsigned short *)(sndpd + 0x518))  /* # of live SPU allocations */
 #define SND_REVERB   (*(unsigned short *)(sndpd + 0x51E))  /* reverb-work-area boundary */
-#define SND_PREVTBL  ((SndSpuEnt *)(sndpd + 0x51C))        /* virtual entry[-1] = {block_total,reverb_mode} */
+#define SND_PREVTBL  ((unsigned short *)(sndpd + 0x51C))   /* virtual entry[-1] = {block_total,reverb_mode} */
 #define SND_TBL      ((unsigned short *)(sndpd + 0x520))   /* real free-list table */
 
 extern int SNDmemlargestunused(int *out);   /* @0x800E7CEC */

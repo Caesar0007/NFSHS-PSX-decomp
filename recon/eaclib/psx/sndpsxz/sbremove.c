@@ -15,13 +15,6 @@ struct SNDGlobals {
     int play_records;
     int bank_table;
 };
-struct SNDBankEntry {
-    int data;
-    void *platform_data;
-    unsigned char loaded;
-    signed char platform_allocated;
-    char pad[2];
-};
 extern struct SNDGlobals sndgs;
 extern int  iSNDvalidbank(int bankId);                 /* sbvalid  */
 extern int  SNDstop(unsigned int tag);                 /* sstop    */
@@ -77,7 +70,7 @@ extern int cSNDbankremove(int bankId, int recurse)
     {
         int data = *(int *)(bankId * 0xc + base->bank_table);
         int off;
-        struct SNDBankEntry *entry;
+        unsigned char *entry;
         struct SNDGlobals *base2;
         i = 0;
         if (base->channel_count != 0) {     /* stop voices owned by this bank */
@@ -90,10 +83,10 @@ extern int cSNDbankremove(int bankId, int recurse)
             } while ((int)(unsigned)loopbase->channel_count > ++i);
         }
         base2 = &sndgs;
-        entry = (struct SNDBankEntry *)(bankId * 0xc +
+        entry = (unsigned char *)(bankId * 0xc +
             *(volatile int *)&base2->bank_table);
-        if (entry->platform_allocated != 0) {
-            iSNDplatformfree(entry->platform_data);
+        if (*(signed char *)(entry + 9) != 0) {
+            iSNDplatformfree(*(void **)(entry + 4));
             *(unsigned char *)(bankId * 0xc + sndgs.bank_table + 9) = 0;
         } else
             iSNDremovepatches(bankId, (int)(unsigned)*(unsigned short *)(data + 6));
@@ -102,4 +95,4 @@ extern int cSNDbankremove(int bankId, int recurse)
     }
     return 0;
 }
-
+

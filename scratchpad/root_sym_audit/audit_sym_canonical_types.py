@@ -749,6 +749,22 @@ def filter_exact_symbol_codegen_carriers(
     # backup: Git commit 0fc6b97a; canonical PsyQ device_table extension: Git
     # commit 065be180.
     untyped_library_codegen_views = {
+        # sbremove's bank-entry view can be flattened byte-exactly, but its
+        # sndgs accesses require this aggregate MEM shape to retain 3/3 PASS.
+        # Lock the complete private carrier for the stripped owner; a raw-byte
+        # probe regressed cSNDbankremove by five instructions. Pre-change
+        # source/tool backup: Git commit 1ec26a06.
+        ("sbremove.c", "SNDGlobals"): (156, (
+            ("MOS", "ARY CHAR", 12, "pad0", 0, (12,), ""),
+            ("MOS", "USHORT", 0, "bank_count", 12, (), ""),
+            ("MOS", "ARY CHAR", 3, "pad0e", 14, (3,), ""),
+            ("MOS", "UCHAR", 0, "channel_count", 17, (), ""),
+            ("MOS", "ARY CHAR", 42, "pad12", 18, (42,), ""),
+            ("MOS", "CHAR", 0, "initialized", 60, (), ""),
+            ("MOS", "ARY CHAR", 87, "pad3d", 61, (87,), ""),
+            ("MOS", "INT", 0, "play_records", 148, (), ""),
+            ("MOS", "INT", 0, "bank_table", 152, (), ""),
+        )),
         ("first.c", "device_table"): (80, (
             ("MOS", "PTR CHAR", 0, "dt_string", 0, (), ""),
             ("MOS", "INT", 0, "dt_type", 4, (), ""),

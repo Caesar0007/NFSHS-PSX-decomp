@@ -1,6 +1,3 @@
-typedef int bool;
-#define true 1
-#define false 0
 /* eaclib/psx/spchpsxz/spchsamp.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 2/2 ***
  *   Source obj : nfs4\eaclib\psx\spchsamp.obj ; archive C:\nfs4\EACLIB\PSX\SPCHPSXZ.LIB (xlsx col12 / SYM v3)
  *   2 fns @[0x8010B5AC .. 0x8010B5D4].  Decodes one speech-sample descriptor out of a packed sample bank.

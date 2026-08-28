@@ -16,10 +16,6 @@ extern int      _padIntRecvId(unsigned char *info);   /* MCXMAIN @0x8010C1C8 */
 extern unsigned _padIntRecvHdr(unsigned char *info);  /* MCXMAIN @0x8010C288 */
 extern unsigned _padIntRecvData(unsigned char *info); /* MCXMAIN @0x8010C314 */
 
-typedef int (*PadIntFn)(unsigned char *info);
-
-
-
 /* ---- _padFunc* dispatch slots @0x80137C78.. (set by PadInitDirect / _padInitDirSeq) ----------- */
 void *_padFuncNextPort   = 0;   /* @0x80137C78 */
 void *_padFuncClrInfo    = 0;   /* @0x80137C7C */
@@ -60,12 +56,12 @@ int _waitTime  = 0;   /* @0x80148AAC */
 int _startTime = 0;   /* @0x80148AB0 */
 
 /* ---- SIO engine state-function table @0x8013C314 (the five MCXMAIN steps) --------------------- */
-PadIntFn padIntFunc[5] = {   /* @0x8013C314 */
-    (PadIntFn)_padIntInit,
-    (PadIntFn)_padIntQuery,
-    (PadIntFn)_padIntRecvId,
-    (PadIntFn)_padIntRecvHdr,
-    (PadIntFn)_padIntRecvData,
+int (*padIntFunc[5])(unsigned char *info) = {   /* @0x8013C314 */
+    (int (*)(unsigned char *))_padIntInit,
+    (int (*)(unsigned char *))_padIntQuery,
+    (int (*)(unsigned char *))_padIntRecvId,
+    (int (*)(unsigned char *))_padIntRecvHdr,
+    (int (*)(unsigned char *))_padIntRecvData,
 };
 
   /* extern */

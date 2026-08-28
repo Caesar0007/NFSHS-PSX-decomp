@@ -17,8 +17,6 @@
  *     +0x51 mmOffs   +0x52 mmLock   +0x53 mmLocked +0x5d actMap[6]  +0x63 actBuf
  *     +0xe3 nMode    +0xe4 curMode  +0xe6 modeWord +0xe9 nAct  +0xea nAct2  +0xec actAccum */
 
-typedef void (*PadSndRcv)(unsigned char *info);
-
 extern int  (*_padFuncChkEng)(unsigned char *info);            /* dispatch slot: engine-busy? (0 = free) */
 extern void (*_padFuncClrInfo)(unsigned char *info);
 
@@ -249,8 +247,9 @@ extern int _padLoadActInfo(unsigned char *info, unsigned char *buf)
         __asm__("" : "=r"(four) : "0"(four));
         info[0x49] = four;
         info[0x46] = 1;
-        *(PadSndRcv *)(info + 0x14) = _padLoadActInfo_snd;
-        *(PadSndRcv *)(info + 0x18) = (PadSndRcv)_padLoadActInfo_rcv;
+        *(void (**)(unsigned char *))(info + 0x14) = _padLoadActInfo_snd;
+        *(void (**)(unsigned char *))(info + 0x18) =
+            (void (*)(unsigned char *))_padLoadActInfo_rcv;
         a = (unsigned char *)(aw << 2);
         *(unsigned char **)(info + 0) = a;
         info[0x47] = 0;
@@ -625,9 +624,10 @@ extern int _padSetActAlign(unsigned char *info, int data)
         int r = 1;
         __asm__("" : "=r"(r) : "0"(r));   /* MATCH: opacity fence, 0 insns -- see header */
         info[0x46] = 1;
-        *(PadSndRcv *)(info + 0x14) = _padSetActAlign_snd;
+        *(void (**)(unsigned char *))(info + 0x14) = _padSetActAlign_snd;
         *(int *)(info + 0x20) = data;
-        *(PadSndRcv *)(info + 0x18) = (PadSndRcv)_padSetActAlign_rcv;
+        *(void (**)(unsigned char *))(info + 0x18) =
+            (void (*)(unsigned char *))_padSetActAlign_rcv;
         return r;
     }
     return 0;
@@ -803,8 +803,9 @@ extern int _padSetMainMode(unsigned char *info, int offs, int lock)
          * decl + assignment (2, identical). */
         __asm__("" : : "r"(cur));
         info[0x46] = 1;
-        *(PadSndRcv *)(info + 0x14) = _padSetMainMode_snd;
-        *(PadSndRcv *)(info + 0x18) = (PadSndRcv)_padSetMainMode_rcv;
+        *(void (**)(unsigned char *))(info + 0x14) = _padSetMainMode_snd;
+        *(void (**)(unsigned char *))(info + 0x18) =
+            (void (*)(unsigned char *))_padSetMainMode_rcv;
         info[0x51] = (unsigned char)offs;
         info[0x52] = (unsigned char)lock;
         info[0x53] = (unsigned char)((m & 0xff) == cur);

@@ -9,9 +9,6 @@
  *   rx = *(info+0x3c) is the SIO receive buffer; padbuf = *(info+0x30) is the user PADL buffer.
  *   NOTE: _padFuncChkEng takes info in $a0 (Ghidra drops the arg). */
 
-typedef int      (*PadSnd)(unsigned char *info);
-typedef unsigned (*PadRcv)(unsigned char *info);
-
 extern void (*_padFuncClrInfo)(unsigned char *info);         /* dispatch slot: reset port state
                                                                   (same symbol PADPORTD.c wires to
                                                                   _pad_reset_state -- must be called
@@ -214,7 +211,7 @@ extern int _dirSendAuto(unsigned char *info)
         break;
     }
     if (*(void **)(info + 0x14) != 0)
-        (*(PadSnd *)(info + 0x14))(info);
+        (*(int (**)(unsigned char *))(info + 0x14))(info);
     else
         _padSendAtLoadInfo(info);
     return 0;
@@ -314,7 +311,7 @@ extern unsigned _dirRecvAuto(unsigned char *info)
         break;
     }
     if (*(void **)(info + 0x18) != 0)
-        r = (*(PadRcv *)(info + 0x18))(info);
+        r = (*(unsigned (**)(unsigned char *))(info + 0x18))(info);
     else
         r = _padRecvAtLoadInfo(info);
     info[0x46] = info[0x46] + (unsigned char)r;

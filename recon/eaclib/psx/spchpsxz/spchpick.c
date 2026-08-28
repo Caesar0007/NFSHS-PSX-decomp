@@ -75,11 +75,9 @@ extern int            DAT_80148448[];      /* "one chosen" flag */
 
 extern int  gVoxBanks[];      /* spchbank (array decl -> separate-temp loads) */
 extern int  gDataRate[];      /* spchinit */
-typedef void (*SampleRequestFn)(int, int, int, int);
-extern SampleRequestFn gSampleRequest[]; /* spchinit (callback) */
+extern void (*gSampleRequest[])(int, int, int, int); /* spchinit (callback) */
 /* Four arguments, matching spchrule.c and retail's live $a3 at both callback sites. */
-typedef void (*SentenceRuleSetFn)(int, int, int, int);
-extern SentenceRuleSetFn gSentenceRuleSet[]; /* spchinit (callback) */
+extern void (*gSentenceRuleSet[])(int, int, int, int); /* spchinit (callback) */
 extern int  gVoxInGame[];     /* spchinit; [1] aliases gRepeatCount@+4 */
 extern int  gRepeatCount;     /* spchinit (== gVoxInGame[1]) */
 extern int  gFilterSetting[]; /* spchevnt-shared; UNSIZED ARRAY -> separate-temp lui/lw pair */
@@ -1111,8 +1109,8 @@ extern void iSPCH_ConstantRuleSet(short *sentence, int rule)
                          * beqz delay slot and issue the tmp-byte address before `li a3,1`.
                          * No post-cc1 text relocation is required. */
                         if (r != 0) {
-                            SentenceRuleSetFn *setRule;
-                            SentenceRuleSetFn callee;
+                            void (**setRule)(int, int, int, int);
+                            void (*callee)(int, int, int, int);
                             int sentenceArg;
                             unsigned int bit;
                             cycle = (unsigned char *)(j + (int)tmp - 0x10);

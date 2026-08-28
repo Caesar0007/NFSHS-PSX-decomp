@@ -580,6 +580,19 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "INT", 0, "z", 8, (), ""),
         )),
     }
+    # trnspos.obj and xform.obj are C-lane EA library consumers of the shared
+    # NFS4 ``matrixtdef`` (also recovered in nfs4_types.h), but their linked
+    # SYM members omit that foreign/common type graph.  The member-shaped code
+    # requires the exact 3x3 matrix layout.  Pair-lock both the named tag and
+    # typedef in each owner.  Pre-change backup: Git commit cdba8752.
+    untyped_library_named_pair_views = {
+        ("trnspos.c", "matrixtdef"): (36, (
+            ("MOS", "ARY INT", 36, "m", 0, (9,), ""),
+        )),
+        ("xform.c", "matrixtdef"): (36, (
+            ("MOS", "ARY INT", 36, "m", 0, (9,), ""),
+        )),
+    }
     feinput_views = {
         # FEInput.obj references pad.obj's anonymous 84-byte gPadinfo object.
         # Retail retains PAD_COMMON but deliberately omits the owning aggregate
@@ -1364,6 +1377,26 @@ def filter_exact_symbol_codegen_carriers(
             and block.kind == "STRTAG"
             and is_anonymous_tag(block.name)
             and block.name == item.tag
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and item.cls == "TPDEF"
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+        )
+
+    def exact_untyped_library_named_pair(
+        block: TypeBlock, item: Definition
+    ) -> bool:
+        block_owner = block.owner.replace("\\", "/").casefold()
+        item_owner = item.owner.replace("\\", "/").casefold()
+        basename = item_owner.rsplit("/", 1)[-1]
+        expected = untyped_library_named_pair_views.get((basename, item.name))
+        return (
+            expected is not None
+            and block_owner == item_owner
+            and block.kind == "STRTAG"
+            and block.name == item.name
+            and item.tag == block.name
             and block.size == expected[0]
             and block.rows == expected[1]
             and item.cls == "TPDEF"
@@ -2219,6 +2252,12 @@ def filter_exact_symbol_codegen_carriers(
         for item in typedefs
         if exact_untyped_library_anonymous_pair(block, item)
     }
+    untyped_library_named_pair_eligible = {
+        (block.owner.replace("\\", "/").casefold(), block.name)
+        for block in type_blocks
+        for item in typedefs
+        if exact_untyped_library_named_pair(block, item)
+    }
 
     return (
         [
@@ -2232,6 +2271,10 @@ def filter_exact_symbol_codegen_carriers(
             and not (
                 (block.owner.replace("\\", "/").casefold(), block.name)
                 in untyped_library_anonymous_eligible
+            )
+            and not (
+                (block.owner.replace("\\", "/").casefold(), block.name)
+                in untyped_library_named_pair_eligible
             )
             and not (block.name in feinput_eligible and exact_feinput_view(block))
             and not (block.name in fescreen_eligible and exact_fescreen_view(block))
@@ -2335,6 +2378,10 @@ def filter_exact_symbol_codegen_carriers(
             and not (
                 (item.owner.replace("\\", "/").casefold(), item.tag)
                 in untyped_library_anonymous_eligible
+            )
+            and not (
+                (item.owner.replace("\\", "/").casefold(), item.tag)
+                in untyped_library_named_pair_eligible
             )
         ],
     )

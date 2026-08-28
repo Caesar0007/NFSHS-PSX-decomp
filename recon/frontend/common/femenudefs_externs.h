@@ -1,8 +1,9 @@
 /* frontend/common/femenudefs_externs.h - reconstructed externs. NOT original. */
 #ifndef _FE_FEMENUDEFS_EXTERNS_H_
 #define _FE_FEMENUDEFS_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "femenudefs_types.h"
+
+extern "C" int sprintf(char *, const char *, ...);
 
 extern int          ticks;
 extern tfrontEnd    frontEnd;

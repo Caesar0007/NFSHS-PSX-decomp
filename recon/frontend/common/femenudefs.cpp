@@ -2009,7 +2009,7 @@ void MenuExtended_PostGameMenu(tMenuCommand &command)
   command.type = kMenu_Command_GoToMenuOneWay;
   switch (frontEnd.raceType) {
   case 2:
-    if (tournamentManager.IsTournamentFinished() != 0) {
+    if ((short)tournamentManager.IsTournamentFinished() != 0) {
       command.nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuTournamentFinished;
       /* SYM-INLINE-THIS: SetDrawMoney */
       screenTournamentStandings->SetDrawMoney();

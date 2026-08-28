@@ -59,11 +59,15 @@ struct AudioMus_tSongEntry {
 };
 #endif
 
+#ifndef NFS4_SCREENCARSELECT_FEMENUDEFS_SURFACE
 struct tDrawShapeExtended {
     short flip_axis;
     int tint[4];
     tTexture_ShapeInfo *custom_shapes;
 };
+#else
+struct tDrawShapeExtended;
+#endif
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
 enum tCarStatType {
@@ -224,6 +228,9 @@ struct tScreenTournamentStandings : public tScreen {
     bool gotmoney, gotbonus, gotbilled, fDrawMoney, fCountedDown;
     bool fStartCountdownNOW;
     int fCountSpeed;
+#ifdef NFS4_SCREENCARSELECT_FEMENUDEFS_SURFACE
+    inline void SetDrawMoney() { fDrawMoney = 1; }
+#endif
 };
 
 struct tScreenTournamentStandings3item : public tScreenTournamentStandings {};

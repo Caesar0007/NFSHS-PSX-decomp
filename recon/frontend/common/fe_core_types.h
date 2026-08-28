@@ -149,7 +149,9 @@ struct tMenu {
     short VertHelp;
     __vtbl_ptr_type (*_vf)[11];
 #ifdef NFS4_FE_CORE_FEDIALOG_METHODS
+#ifndef NFS4_FE_CORE_FEMENU_METHODS
     short GetNumberEnabledItems();
+#endif
     inline bool HasFlag(unsigned int flag) { return (fFlags & flag) != 0; }
     inline bool CanContinue() {
         return fNextMenu != (tMenu *)0x0 ||
@@ -232,7 +234,7 @@ struct tCarManager {
     void SetClassAvailable(tCarClassType, bool);
 #endif
 #if defined(NFS4_FE_CORE_SCREENCARSELECT_METHODS) || \
-    defined(NFS4_FE_CORE_FEAPP_METHODS)
+    defined(NFS4_FE_CORE_FEAPP_METHODS) || defined(NFS4_FEMENUDEFS_SURFACE)
     long CheapestCarStockPrice();
     long CalcUsedPrice(short);
     void GetStockCar(short, tCarInfo &);
@@ -241,6 +243,13 @@ struct tCarManager {
     short GetNumOwnedCars(short);
     short GetNumTourneyCars(short);
     short GetNumPinkSlipsCars(short);
+#endif
+#ifdef NFS4_FEMENUDEFS_SURFACE
+    long PurchaseCar(short, short, short);
+    long SellCar(short, short);
+    long PurchaseUpgrade(short, short, short);
+    tCarInfo *GetCarFromID(short);
+    void SetCarAvailable(tCarModels, bool);
 #endif
 };
 

@@ -91,6 +91,7 @@ struct tScreenCongrats : public tScreen {
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 };
 
+#ifndef NFS4_SCREENCONGRATS_FEMENUDEFS_SURFACE
 struct tScreenTournamentTrophy : public tScreenCongrats {
     short fShapeCount;
     char fDoUpdate;
@@ -126,5 +127,19 @@ struct tScreenTournamentCongrats : public tScreenCongrats {
     void CalculatePrizes();
     void DrawCongratsMessage();
 };
+#else
+struct tScreenTournamentTrophy;
+struct tScreenBeTheCopCongrats;
+struct tScreenTournamentCongrats;
+struct tScreenPinkSlipCongrats : public tScreenCongrats {
+    short fWinner;
+    tScreenPinkSlipCongrats();
+    void DrawCongratsMessage();
+    bool GetCar(tCarInfo &);
+    void CalculatePrizes();
+    void Initialize();
+    void Cleanup();
+};
+#endif
 
 #endif

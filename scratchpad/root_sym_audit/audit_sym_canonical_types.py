@@ -872,6 +872,36 @@ def filter_exact_symbol_codegen_carriers(
             ("FIELD", "UINT", 8, "len", 24, (), ""),
         ), "femenuoptions.cpp"),
     }
+    # FEMenuDefs.obj owns the complete frontend menu graph but dereferences
+    # four foreign singletons whose completed tags are not retained by that
+    # owner.  Pair-lock the exact source-only member slices; any name, size,
+    # field, offset, leaf tag, or source-owner drift remains an audit failure.
+    # Pre-change backup: Git commit 7f5a66dd.
+    femenudefs_views = {
+        "FEMenuDefs_ScreenMainCodegenView": (1, (),
+                                               "femenudefs_types.h"),
+        "FEMenuDefs_ScreenTrophyRoomCodegenView": (344, (
+            ("MOS", "ARY CHAR", 204, "_beforeThisIsUseless", 0,
+             (204,), ""),
+            ("MOS", "CHAR", 0, "thisisuseless", 204, (), ""),
+            ("MOS", "ARY CHAR", 11, "_beforeTrophyList", 205,
+             (11,), ""),
+            ("MOS", "ARY SHORT", 128, "fTrophyList", 216,
+             (64,), ""),
+        ), "femenudefs_types.h"),
+        "FEMenuDefs_PadCodegenView": (68, (
+            ("MOS", "INT", 0, "initialized", 0, (), ""),
+            ("MOS", "ARY STRUCT", 64, "buf", 4, (8,), "PAD_COMMON"),
+        ), "femenudefs_types.h"),
+        "FEMenuDefs_GameSetupCodegenView": (444, (
+            ("MOS", "ARY CHAR", 428, "_beforeNumPerps", 0,
+             (428,), ""),
+            ("MOS", "INT", 0, "numPerps", 428, (), ""),
+            ("MOS", "INT", 0, "stageOffset", 432, (), ""),
+            ("MOS", "INT", 0, "perpArrests", 436, (), ""),
+            ("MOS", "INT", 0, "finalPerpArrests", 440, (), ""),
+        ), "femenudefs_types.h"),
+    }
     # ScreenDisplay.obj dereferences only the menuDisplayOptions member of the
     # foreign tGlobalMenuDefs singleton.  Its linked SYM retains the complete
     # tOptionsMenu leaf but attributes the owning aggregate to FEMenuDefs.obj.
@@ -1595,6 +1625,29 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith(expected[2])
         )
 
+    def exact_femenudefs_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = femenudefs_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith(expected[2])
+        )
+
+    def exact_femenudefs_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = femenudefs_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            and owner.endswith(expected[2])
+        )
+
     def exact_screendisplay_view(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         expected = screendisplay_views.get(block.name)
@@ -1846,6 +1899,13 @@ def filter_exact_symbol_codegen_carriers(
         and any(exact_femenuoptions_view_typedef(item) and item.name == name
                 for item in typedefs)
     }
+    femenudefs_eligible = {
+        name for name in femenudefs_views
+        if any(exact_femenudefs_view(block) and block.name == name
+               for block in type_blocks)
+        and any(exact_femenudefs_view_typedef(item) and item.name == name
+                for item in typedefs)
+    }
     screenusername_eligible = {
         name for name in screenusername_views
         if any(exact_screenusername_view(block) and block.name == name
@@ -1908,6 +1968,8 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_screenpost_view(block))
             and not (block.name in femenuoptions_eligible
                      and exact_femenuoptions_view(block))
+            and not (block.name in femenudefs_eligible
+                     and exact_femenudefs_view(block))
             and not (block.name in screendisplay_eligible
                      and exact_screendisplay_view(block))
             and not (block.name in screenusername_eligible
@@ -1956,6 +2018,8 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_screenpost_view_typedef(item))
             and not (item.name in femenuoptions_eligible
                      and exact_femenuoptions_view_typedef(item))
+            and not (item.name in femenudefs_eligible
+                     and exact_femenudefs_view_typedef(item))
             and not (item.name in screendisplay_eligible
                      and exact_screendisplay_view_typedef(item))
             and not (item.name in screenusername_eligible

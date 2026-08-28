@@ -746,8 +746,31 @@ def filter_exact_symbol_codegen_carriers(
     # member shapes.  Accept only the exact source carrier for each object:
     # owner basename, tag, size, every member, offset, leaf type, and array
     # bound are locked.  Any drift remains an audit failure.  Pre-change
-    # backup: Git commit 0fc6b97a.
+    # backup: Git commit 0fc6b97a; canonical PsyQ device_table extension: Git
+    # commit 065be180.
     untyped_library_codegen_views = {
+        ("first.c", "device_table"): (80, (
+            ("MOS", "PTR CHAR", 0, "dt_string", 0, (), ""),
+            ("MOS", "INT", 0, "dt_type", 4, (), ""),
+            ("MOS", "INT", 0, "dt_bsize", 8, (), ""),
+            ("MOS", "PTR CHAR", 0, "dt_desc", 12, (), ""),
+            ("MOS", "PTR FCN INT", 0, "dt_init", 16, (), ""),
+            ("MOS", "PTR FCN INT", 0, "dt_open", 20, (), ""),
+            ("MOS", "PTR FCN INT", 0, "dt_strategy", 24, (), ""),
+            ("MOS", "PTR FCN INT", 0, "dt_close", 28, (), ""),
+            ("MOS", "PTR FCN INT", 0, "dt_ioctl", 32, (), ""),
+            ("MOS", "PTR FCN INT", 0, "dt_read", 36, (), ""),
+            ("MOS", "PTR FCN INT", 0, "dt_write", 40, (), ""),
+            ("MOS", "PTR FCN INT", 0, "dt_delete", 44, (), ""),
+            ("MOS", "PTR FCN INT", 0, "dt_undelete", 48, (), ""),
+            ("MOS", "PTR FCN INT", 0, "dt_firstfile", 52, (), ""),
+            ("MOS", "PTR FCN INT", 0, "dt_nextfile", 56, (), ""),
+            ("MOS", "PTR FCN INT", 0, "dt_format", 60, (), ""),
+            ("MOS", "PTR FCN INT", 0, "dt_cd", 64, (), ""),
+            ("MOS", "PTR FCN INT", 0, "dt_rename", 68, (), ""),
+            ("MOS", "PTR FCN INT", 0, "dt_remove", 72, (), ""),
+            ("MOS", "PTR FCN INT", 0, "dt_else", 76, (), ""),
+        )),
         ("slimits.c", "LimitsBlock"): (20, (
             ("MOS", "ARY INT", 20, "value", 0, (5,), ""),
         )),

@@ -30,20 +30,33 @@
 extern int   strcmp(const char *a, const char *b);     /* libc C23 @0x800E5D7C */
 extern void *firstfile2(const char *name, void *dir);  /* A66.OBJ : BIOS B0:0x42 */
 
-/* PSX BIOS Device Control Block: 0x50 bytes.  Only the name pointer (+0x00) and the per-device
- * first-file handler slot (+0x34) are touched here. */
-typedef struct DCB {
-    char  *name;        /* +0x00 */
-    int    _r1[12];     /* +0x04 .. +0x30 */
-    void  *firstfile;   /* +0x34 : first-file handler (patch target) */
-    int    _r2[6];      /* +0x38 .. +0x4C */
-} DCB;                  /* sizeof == 0x50 */
+/* Canonical PsyQ 4.3 fs.h device table (PSX BIOS ABI, sizeof == 0x50). */
+struct device_table {
+    char *dt_string;
+    int dt_type;
+    int dt_bsize;
+    char *dt_desc;
+    int (*dt_init)();
+    int (*dt_open)();
+    int (*dt_strategy)();
+    int (*dt_close)();
+    int (*dt_ioctl)();
+    int (*dt_read)();
+    int (*dt_write)();
+    int (*dt_delete)();
+    int (*dt_undelete)();
+    int (*dt_firstfile)();
+    int (*dt_nextfile)();
+    int (*dt_format)();
+    int (*dt_cd)();
+    int (*dt_rename)();
+    int (*dt_remove)();
+    int (*dt_else)();
+};
 
 /* BIOS device-table kernel globals (fixed ABI addresses). */
-#define BIOS_DCB_BASE   (*(DCB **)0x150)   /* @kernel 0x150 : DCB table base pointer */
+#define BIOS_DCB_BASE   (*(struct device_table **)0x150) /* @kernel 0x150 : DCB table base pointer */
 #define BIOS_DCB_BYTES  (*(int  *)0x154)   /* @kernel 0x154 : DCB table size in bytes */
-
-typedef int (*FirstFn)(int *state, int arg, int arg2);
 
 /* W65-A6 DATA-MAT: `_first_save` (6 reloc sites) and `_first_devname` (8) were extern-only
  * tree-wide -- FIRST.obj is their only referencer and their only possible owner.  Both are
@@ -60,7 +73,7 @@ __asm__("\t.globl\t_first_save\n\t.globl\t_first_devname\n"
         "\t.section\t.bss\n\t.align\t2\n"
         "_first_save:\n\t.space\t8\n"
         "_first_devname:\n\t.space\t40\n\t.text");
-extern FirstFn _first_save;          /* @0x80148A7C : saved original device handler */
+extern int (*_first_save)();         /* @0x80148A7C : saved original device handler */
 /* MATCH (w48-a7): UNSIZED.  The oracle materializes this address INSIDE the DCB search loop, at
  * the strcmp call site (`lui $a1,%hi; addiu $a1,$a1,%lo` = one `la` macro).  With the size known,
  * -msplit-addresses gives gcc a separate `(high _first_devname)` pseudo that loop.c hoists out of
@@ -77,7 +90,7 @@ extern int _first_patch(int *state, int arg, int arg2);
 /* @0x80109DC0 : firstfile */
 extern void *firstfile(char *name, void *dir)
 {
-    DCB  *e, *end, *lim;
+    struct device_table *e, *end, *lim;
     char *p;
     signed char *scan;
     int   found;
@@ -263,11 +276,11 @@ extern void *firstfile(char *name, void *dir)
 
     /* pass 1: locate the device, remember its current first-file handler */
     e   = BIOS_DCB_BASE;
-    lim = e + (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
+    lim = e + (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(struct device_table);
     if (e < lim) {
         end = lim;
 scan1:
-        if (e->name != 0 && strcmp(e->name, _first_devname) == 0)
+        if (e->dt_string != 0 && strcmp(e->dt_string, _first_devname) == 0)
             goto hit1;                     /* match handler is OUT OF LINE (oracle beqz target) */
         e++;
         if (e < end) goto scan1;
@@ -278,7 +291,7 @@ tested:
         return 0;
     goto pass2;
 hit1:
-    _first_save = (FirstFn)e->firstfile;
+    _first_save = e->dt_firstfile;
     found = 1;
     goto tested;
 /* MATCH (2026-08-14, 16 @103/103 -> 9 @102/103): retail places the second
@@ -296,13 +309,13 @@ hit2:
      * a read-only `name` fence at tail (9), void fence before/after `p = _first_devname`
      * (6, inert), after `scan = name` (9 @104). */
     __asm__("" : : "i"(0));
-    e->firstfile = (void *)_first_patch;
+    e->dt_firstfile = _first_patch;
     goto tail;
 pass2:
 
     /* pass 2: install the self-removing patch into that device */
     e   = BIOS_DCB_BASE;
-    lim = e + (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
+    lim = e + (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(struct device_table);
     if (e < lim) {
         /* MATCH (w61-a8): void-tail fence, 6 -> 5.  Retail fills pass 2's zero-trip
          * `beqz $v0` slot by EAGER-STEALING `addu $a0,$s2,$zero` from the BRANCH
@@ -315,7 +328,7 @@ pass2:
         __asm__("" : : "i"(0));
         end = lim;
 scan2:
-        if (e->name != 0 && strcmp(e->name, _first_devname) == 0)
+        if (e->dt_string != 0 && strcmp(e->dt_string, _first_devname) == 0)
             goto hit2;                     /* match handler OUT OF LINE, as in pass 1 */
         e++;
         if (e < end) goto scan2;
@@ -328,9 +341,9 @@ tail:
 /* @0x80109F5C : _first_patch -- restore the device's real handler, then forward the call. */
 extern int _first_patch(int *state, int arg, int arg2)
 {
-    DCB *e, *end, *lim;
+    struct device_table *e, *end, *lim;
     unsigned int cnt;
-    FirstFn saved;
+    int (*saved)();
 
     /* MATCH (w59-a13, 2026-08-14, 9 -> 2 diffs @62/64): SUPERSEDES the w48-a7 note that
      * `saved` must be assigned FIRST (that basin measured 9; every later position measured
@@ -366,7 +379,7 @@ extern int _first_patch(int *state, int arg, int arg2)
      * price a fence's POSITION against every branch whose thread it heads. */
     if (*state == 0)
         *state = 1;
-    cnt  = (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(DCB);
+    cnt  = (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(struct device_table);
     e    = BIOS_DCB_BASE;
     saved = _first_save;
     /* MATCH (w48-a7): the oracle computes the table end into a CALLER-saved temp, tests THAT in
@@ -393,9 +406,9 @@ scan:
          * inside the && (a statement-expression) so the source SHAPE is unchanged --
          * the same nesting WITHOUT the fence still measures 1, i.e. the fence is the
          * lever, not the restructure.  Zero insns. */
-        if (e->name != 0 && ({ __asm__("" : : "i"(0));
-                               strcmp(e->name, _first_devname); }) == 0) {
-            e->firstfile = (void *)saved;   /* un-patch (one-shot) */
+        if (e->dt_string != 0 && ({ __asm__("" : : "i"(0));
+                               strcmp(e->dt_string, _first_devname); }) == 0) {
+            e->dt_firstfile = saved;   /* un-patch (one-shot) */
         } else {
             e++;
             if (e < end) goto scan;

@@ -886,6 +886,29 @@ def filter_exact_symbol_codegen_carriers(
     # PAD extension: Git commit 49c32f8e; ReadCmd/SyncCtrl extensions: Git
     # commit c0950c17.
     untyped_library_named_pair_views = {
+        # NASYNC.OBJ is stripped. Its twenty-three PASS bodies jointly fix the
+        # complete request/FIFO graph; the NFS2 PC twin confirms EA's async
+        # request/queue vocabulary but uses a different layout and does not
+        # retain the PSX private spellings in SYM. Lock the exact recovered
+        # graph while keeping that naming limit explicit in the durable
+        # receipt. Pre-change backup: Git commit 62734041.
+        ("nasync.h", "AsyncReq"): (44, (
+            ("MOS", "INT", 0, "id", 0, (), ""),
+            ("MOS", "PTR STRUCT", 44, "next", 4, (), "AsyncReq"),
+            ("MOS", "INT", 0, "bytesread", 8, (), ""),
+            ("MOS", "INT", 0, "status", 12, (), ""),
+            ("MOS", "INT", 0, "buffer", 16, (), ""),
+            ("MOS", "INT", 0, "callback", 20, (), ""),
+            ("MOS", "INT", 0, "fileop", 24, (), ""),
+            ("MOS", "INT", 0, "handle", 28, (), ""),
+            ("MOS", "INT", 0, "offset", 32, (), ""),
+            ("MOS", "INT", 0, "arg24", 36, (), ""),
+            ("MOS", "INT", 0, "dest", 40, (), ""),
+        )),
+        ("nasync.h", "AsyncQueue"): (8, (
+            ("MOS", "PTR STRUCT", 44, "head", 0, (), "AsyncReq"),
+            ("MOS", "PTR STRUCT", 44, "tail", 4, (), "AsyncReq"),
+        )),
         # MEMSTD.OBJ is stripped. Its thirteen PASS bodies jointly fix the
         # complete block/class graph, including the nested free-list sentinel;
         # NFS2 PC's matched EA allocator independently confirms the block/class

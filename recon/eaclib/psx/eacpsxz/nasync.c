@@ -26,7 +26,6 @@
  * scratchpad/w64a20/RECEIPTS.md. */
 
 #include "../../../lib/nasync.h"
-typedef unsigned int size_t;   /* was <stddef.h>; C TU is self-contained */
 
 /* nasync's cop0 IRQ-disabled critical section: nasync.h declares ASYNC_enterCS/leaveCS as real
  * void->void functions, but the oracle INLINES the exact raw cop0 mfc0/mask/mtc0 sequence at every
@@ -70,7 +69,7 @@ extern int loadfileopencallback (int id, int status, AsyncReq *req);
 extern int loadsegreadcallback  (int id, int status, AsyncReq *req);
 extern int asyncsystemtask(void);
 
-#define RQ(r)  ((unsigned int)(size_t)(AsyncReq *)(r))   /* req ptr as a FILE callback param (uint) */
+#define RQ(r)  ((unsigned int)(AsyncReq *)(r))   /* req ptr as a FILE callback param (uint) */
 
 /* ---- request queue + slot primitives ---- */
 
@@ -160,7 +159,7 @@ extern void cancelrequest(AsyncReq *r)
     if (status != 1)
         return;
     if ((unsigned int)r->buffer >= 2)       /* real buffer (0/1 are "none"/sentinel) -> free it; asm: sltiu (unsigned) */
-        purgememadr((void *)(size_t)(unsigned int)r->buffer);
+        purgememadr((void *)(unsigned int)r->buffer);
     r->id = (unsigned char)r->id;           /* clear the counter bits -> slot is free (asm: lbu scheduled
                                               * early, but the sw itself lands in queueadd's jal delay slot) */
     r->fileop = 0;
@@ -203,14 +202,14 @@ extern void loadfilereadcallback(int id, int status, AsyncReq *req)
     (void)id; (void)status;
     req->bytesread += n;
     if (n < readblocksize || req->status != 0) {            /* short read (EOF) or cancel -> close */
-        nextop = FILE_close((void *)(size_t)(unsigned int)req->handle, 0x63, RQ(req));
+        nextop = FILE_close((void *)(unsigned int)req->handle, 0x63, RQ(req));
         req->fileop = (int)nextop;             /* §3.21: stored in the beqz delay slot (even if 0) */
         if (nextop == 0) return;
         FILE_callbackop(nextop, (void (*)(int, int))loadfileclosecallback);
     } else {                                                 /* full chunk -> read the next one */
         req->offset += n;
         req->dest   += n;
-        nextop = FILE_read((void *)(size_t)(unsigned int)req->handle,
+        nextop = FILE_read((void *)(unsigned int)req->handle,
                            (unsigned int)req->offset, (unsigned int)req->dest,
                            readblocksize, 0x63, RQ(req));
         req->fileop = (int)nextop;             /* §3.21: stored in the beqz delay slot (even if 0) */
@@ -233,15 +232,15 @@ extern int loadfilesizecallback(int id, int status, AsyncReq *req)
     unsigned int nextop;
     (void)id; (void)status;
     if (req->status != 0) {                                  /* cancelled -> close */
-        nextop = FILE_close((void *)(size_t)(unsigned int)req->handle, 0x63, RQ(req));
+        nextop = FILE_close((void *)(unsigned int)req->handle, 0x63, RQ(req));
         req->fileop = (int)nextop;
         if (nextop != 0)
             FILE_callbackop(nextop, (void (*)(int, int))loadfileclosecallback);
     } else {                                                 /* allocate "ASYNCBUF" of the file size */
         void *buf = reservememadr((char *)"ASYNCBUF", filesize, req2->arg24);
-        req2->buffer = (int)(size_t)buf;
-        req2->dest   = (int)(size_t)buf;
-        nextop = FILE_read((void *)(size_t)(unsigned int)req2->handle,
+        req2->buffer = (int)buf;
+        req2->dest   = (int)buf;
+        nextop = FILE_read((void *)(unsigned int)req2->handle,
                            (unsigned int)req2->offset, (unsigned int)req2->dest,
                            readblocksize, 0x63, RQ(req2));
         req2->fileop = (int)nextop;
@@ -269,20 +268,20 @@ extern int loadfileopencallback(int id, int status, AsyncReq *req)
         goto done;
     }
     if (req->status != 0) {                        /* cancelled during open -> close */
-        nextop = FILE_close((void *)(size_t)(unsigned int)handle, 0x63, RQ(req));
+        nextop = FILE_close((void *)(unsigned int)handle, 0x63, RQ(req));
         req->fileop = (int)nextop;
         if (nextop != 0)
             FILE_callbackop(nextop, (void (*)(int, int))loadfileclosecallback);
     } else {
         if (req->buffer == 0) {                     /* direct read into the preset dest */
-            nextop = FILE_read((void *)(size_t)(unsigned int)req->handle,
+            nextop = FILE_read((void *)(unsigned int)req->handle,
                                (unsigned int)req->offset, (unsigned int)req->dest,
                                readblocksize, 0x63, RQ(req));
             req->fileop = (int)nextop;
             if (nextop != 0)
                 FILE_callbackop(nextop, (void (*)(int, int))loadfilereadcallback);
         } else {                                    /* alloc mode -> get the size first */
-            nextop = FILE_size((void *)(size_t)(unsigned int)handle, 0x63, RQ(req2));
+            nextop = FILE_size((void *)(unsigned int)handle, 0x63, RQ(req2));
             req2->fileop = (int)nextop;
             if (nextop != 0)
                 FILE_callbackop(nextop, (void (*)(int, int))loadfilesizecallback);
@@ -317,7 +316,7 @@ extern int loadsegreadcallback(int id, int status, AsyncReq *req)
     req->dest  += n;
     remaining = req->arg24;
     len = (readblocksize < remaining) ? readblocksize : remaining;   /* clamp to a block */
-    nextop = FILE_read((void *)(size_t)(unsigned int)asyncfilehandle,
+    nextop = FILE_read((void *)(unsigned int)asyncfilehandle,
                        (unsigned int)req2->offset, (unsigned int)req2->dest, len, 0x63, RQ(req2));
     req2->fileop = (int)nextop;
     if (nextop != 0) {
@@ -336,7 +335,7 @@ extern int asyncsystemtask(void)
         if (req->status != 0) {                    /* cancelled -> full cleanup */
             cancelrequest(req);
         } else {                                   /* normal completion -> fire the callback */
-            void (*cb)(int) = (void (*)(int))(size_t)(unsigned int)req->callback;
+            void (*cb)(int) = (void (*)(int))(unsigned int)req->callback;
             cb(req->id);
             req->id = (unsigned char)req->id;      /* free the slot (MATCH: store BEFORE the call -> sw
                                                     * lands in the queueadd jal delay slot, §3.21 family) */
@@ -393,7 +392,7 @@ extern int asyncloadfilecallback(int name, int memclass, int cb)
     req->callback  = cb;
     req->offset    = 0;
     req->arg24     = memclass;         /* §3.21: goes in FILE_open jal delay slot (sw s3,0x24) */
-    op = FILE_open((char *)(size_t)(unsigned int)name, 1, 0x64, RQ(req));
+    op = FILE_open((char *)(unsigned int)name, 1, 0x64, RQ(req));
     req->fileop = (int)op;             /* §3.21: goes in beqz delay slot (stored even if op==0) */
     if (op == 0)
         return 0;
@@ -421,7 +420,7 @@ extern int asyncloadfileatcallback(int name, int dest, int cb)
     req->callback  = cb;
     req->offset    = 0;
     req->dest      = dest;             /* §3.21: goes in FILE_open jal delay slot (sw s3,0x28) */
-    op = FILE_open((char *)(size_t)(unsigned int)name, 1, 0x64, RQ(req));
+    op = FILE_open((char *)(unsigned int)name, 1, 0x64, RQ(req));
     req->fileop = (int)op;             /* §3.21: goes in beqz delay slot (stored even if op==0) */
     if (op == 0)
         return 0;
@@ -444,7 +443,7 @@ extern void setasyncfile(int name)
         asyncfilehandle = 0;
         return;
     }
-    FILE_opensync((char *)(size_t)(unsigned int)name, 1, 0x64, &asyncfilehandle);
+    FILE_opensync((char *)(unsigned int)name, 1, 0x64, &asyncfilehandle);
     asyncfileoffset = 0;
 }
 
@@ -474,7 +473,7 @@ extern int asyncloadsegmentcallback(int offset, int dest, int size, int cb)
      * mutates the size pseudo directly and reuses it as the FILE_read arg. */
     if (readblocksize < size)
         size = readblocksize;
-    op = FILE_read((void *)(size_t)(unsigned int)asyncfilehandle,
+    op = FILE_read((void *)(unsigned int)asyncfilehandle,
                    (unsigned int)req->offset, (unsigned int)req->dest, size, 0x64, RQ(req));
     req->fileop = (int)op;            /* asm: set on both branches */
     if (op != 0) {                    /* MATCH: positive-branch form (lever #7) */

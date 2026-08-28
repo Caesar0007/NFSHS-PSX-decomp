@@ -125,6 +125,12 @@ struct tTournamentManager {
 #ifdef NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS
     void GetTrackToRace(tTrackInfo &);
 #endif
+#ifdef NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE
+    void CalcTrackFinishDamageBill(bool, long &, long &);
+    void GetAwardInformation(tAwardInformation &);
+    short TournPointTotal(short *);
+    short PlayerRanking(short);
+#endif
 };
 
 struct tListIteratorTrack : public tListIteratorIndexed {

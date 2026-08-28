@@ -139,7 +139,13 @@ typedef struct cdstreamstruct CDSTREAM;
 /* PsyQ SYS/TYPES.H.  The SYM retains physadr's tag and referent size while
  * filtering the private `_physadr` tag block itself. */
 typedef unsigned int size_t;
+#ifdef NFS4_EA_PSX_INCOMPLETE_PHYSADR
+/* Some retail owners retain only the public pointer typedef.  Keep the SDK's
+ * private referent incomplete so CC1 does not emit a foreign completed tag. */
+struct _physadr;
+#else
 struct _physadr { int r[1]; };
+#endif
 typedef struct _physadr *physadr;
 typedef long daddr_t;
 typedef char *caddr_t;

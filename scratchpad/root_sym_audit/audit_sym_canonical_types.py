@@ -476,7 +476,8 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "INT", 0, "nTime", 12, (), ""),
             ("MOS", "INT", 0, "nBestLap", 16, (), ""),
         ), ("fetourn_types.h", "fecntl_types.h", "fecheats_types.h",
-            "femenuextended_types.h", "screenpinkslips_types.h")),
+            "femenuextended_types.h", "screenpinkslips_types.h",
+            "screenpost_types.h")),
     }
     # FECheats dereferences FEApp's embedded MemCardDialog.  CC1PL therefore
     # needs the complete application layout even though the linked owner keeps
@@ -834,6 +835,18 @@ def filter_exact_symbol_codegen_carriers(
             ("FIELD", "UINT", 24, "addr", 0, (), ""),
             ("FIELD", "UINT", 8, "len", 24, (), ""),
         ), "screentracks.cpp"),
+    }
+    # GCC's built-in C++ vtable entry is not available as a source type in the
+    # reconstruction lane.  ScreenPost therefore needs this exact eight-byte
+    # ABI carrier even though retail debug omits its completed private tag.
+    # Pair-lock the complete tag and typedef so any field, type, size, or
+    # ownership drift remains visible.  Pre-change backup: b49bf64f.
+    screenpost_views = {
+        "__nfs4_vtbl_ptr_t": (8, (
+            ("MOS", "SHORT", 0, "delta", 0, (), ""),
+            ("MOS", "SHORT", 0, "index", 2, (), ""),
+            ("MOS", "PTR FCN INT", 0, "pfn", 4, (), ""),
+        ), "fe_core_types.h"),
     }
     # ScreenDisplay.obj dereferences only the menuDisplayOptions member of the
     # foreign tGlobalMenuDefs singleton.  Its linked SYM retains the complete
@@ -1511,6 +1524,29 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith((expected[2], "screentracks.cpp"))
         )
 
+    def exact_screenpost_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = screenpost_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith(expected[2])
+        )
+
+    def exact_screenpost_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = screenpost_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            and owner.endswith(expected[2])
+        )
+
     def exact_screendisplay_view(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         expected = screendisplay_views.get(block.name)
@@ -1748,6 +1784,13 @@ def filter_exact_symbol_codegen_carriers(
         and any(exact_screentracks_view_typedef(item) and item.name == name
                 for item in typedefs)
     }
+    screenpost_eligible = {
+        name for name in screenpost_views
+        if any(exact_screenpost_view(block) and block.name == name
+               for block in type_blocks)
+        and any(exact_screenpost_view_typedef(item) and item.name == name
+                for item in typedefs)
+    }
     screenusername_eligible = {
         name for name in screenusername_views
         if any(exact_screenusername_view(block) and block.name == name
@@ -1806,6 +1849,8 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_screenpinkslips_view(block))
             and not (block.name in screentracks_eligible
                      and exact_screentracks_view(block))
+            and not (block.name in screenpost_eligible
+                     and exact_screenpost_view(block))
             and not (block.name in screendisplay_eligible
                      and exact_screendisplay_view(block))
             and not (block.name in screenusername_eligible
@@ -1850,6 +1895,8 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_screenpinkslips_view_typedef(item))
             and not (item.name in screentracks_eligible
                      and exact_screentracks_view_typedef(item))
+            and not (item.name in screenpost_eligible
+                     and exact_screenpost_view_typedef(item))
             and not (item.name in screendisplay_eligible
                      and exact_screendisplay_view_typedef(item))
             and not (item.name in screenusername_eligible

@@ -213,7 +213,8 @@ struct tDrawShapeExtended {
 #endif
 
 #if !defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE) && \
-    !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE)
+    !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE) && \
+    !defined(NFS4_SCREENMEMCARD_SCREENPOST_SURFACE)
 struct tDialogHelp : public tDialogBase {
     short variant;
     char *text[7];

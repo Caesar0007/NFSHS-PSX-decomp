@@ -861,6 +861,32 @@ def filter_exact_symbol_codegen_carriers(
     # PAD extension: Git commit 49c32f8e; ReadCmd/SyncCtrl extensions: Git
     # commit c0950c17.
     untyped_library_named_pair_views = {
+        # CDREAD.OBJ is stripped, but PsyQ 4.3 libcd.h fixes CdlLOC and CdlCB,
+        # while retail instructions fix every byte of the private _cdr state.
+        # Keep both named aggregates pair-locked to this owner. Pre-change
+        # source/tool backup: Git commit 59233e9b.
+        ("cdread.c", "CdlLOC"): (4, (
+            ("MOS", "UCHAR", 0, "minute", 0, (), ""),
+            ("MOS", "UCHAR", 0, "second", 1, (), ""),
+            ("MOS", "UCHAR", 0, "sector", 2, (), ""),
+            ("MOS", "UCHAR", 0, "track", 3, (), ""),
+        )),
+        ("cdread.c", "CdrEnv"): (56, (
+            ("MOS", "INT", 0, "w00", 0, (), ""),
+            ("MOS", "PTR UCHAR", 0, "w04", 4, (), ""),
+            ("MOS", "PTR UCHAR", 0, "w08", 8, (), ""),
+            ("MOS", "INT", 0, "w0c", 12, (), ""),
+            ("MOS", "INT", 0, "w10", 16, (), ""),
+            ("MOS", "INT", 0, "w14", 20, (), ""),
+            ("MOS", "INT", 0, "w18", 24, (), ""),
+            ("MOS", "INT", 0, "w1c", 28, (), ""),
+            ("MOS", "INT", 0, "w20", 32, (), ""),
+            ("MOS", "INT", 0, "w24", 36, (), ""),
+            ("MOS", "PTR FCN VOID", 0, "w28", 40, (), ""),
+            ("MOS", "PTR FCN VOID", 0, "w2c", 44, (), ""),
+            ("MOS", "PTR FCN VOID", 0, "w30", 48, (), ""),
+            ("MOS", "PTR UCHAR", 0, "w34", 52, (), ""),
+        )),
         ("fileroot.c", "ReadCmd"): (20, (
             ("MOS", "INT", 0, "pending", 0, (), ""),
             ("MOS", "INT", 0, "handle", 4, (), ""),
@@ -924,6 +950,14 @@ def filter_exact_symbol_codegen_carriers(
         ("xform.c", "matrixtdef"): (36, (
             ("MOS", "ARY INT", 36, "m", 0, (9,), ""),
         )),
+    }
+    # Exact header aliases required by the stripped CDREAD member. Aggregate
+    # typedefs are handled by the stricter pair locks above; these are the
+    # three standalone canonical aliases only. Pre-change backup: 59233e9b.
+    untyped_library_exact_typedefs = {
+        ("cdread.c", "CdlCB"): ("PTR FCN VOID", 0, ""),
+        ("cdread.c", "u_char"): ("UCHAR", 0, ""),
+        ("cdread.c", "u_long"): ("ULONG", 0, ""),
     }
     feinput_views = {
         # FEInput.obj references pad.obj's anonymous 84-byte gPadinfo object.
@@ -1734,6 +1768,16 @@ def filter_exact_symbol_codegen_carriers(
             and item.cls == "TPDEF"
             and item.typ == "STRUCT"
             and item.size == expected[0]
+        )
+
+    def exact_untyped_library_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        basename = owner.rsplit("/", 1)[-1]
+        expected = untyped_library_exact_typedefs.get((basename, item.name))
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and (item.typ, item.size, item.tag) == expected
         )
 
     def exact_feinput_view(block: TypeBlock) -> bool:
@@ -2715,6 +2759,7 @@ def filter_exact_symbol_codegen_carriers(
                 (item.owner.replace("\\", "/").casefold(), item.tag)
                 in untyped_library_named_pair_eligible
             )
+            and not exact_untyped_library_typedef(item)
         ],
     )
 

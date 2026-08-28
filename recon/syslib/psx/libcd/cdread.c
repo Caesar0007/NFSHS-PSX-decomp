@@ -38,7 +38,8 @@
 
 typedef unsigned char u_char;
 typedef unsigned long  u_long;
-typedef int (*CdlCB)(int, int);
+/* PsyQ 4.3 libcd.h: callback status byte plus the driver result buffer. */
+typedef void (*CdlCB)(u_char, u_char *);
 
 struct CdlLOC { u_char minute, second, sector, track; };
 typedef struct CdlLOC CdlLOC;
@@ -55,10 +56,10 @@ struct CdrEnv {
     int      w1c;   /* +0x1C : VSync stamp at issue (overall watchdog base)          */
     int      w20;   /* +0x20 : next expected absolute sector number                  */
     int      w24;   /* +0x24 : "read in progress" flag                               */
-    int      w28;   /* +0x28 : saved sync callback                                   */
-    int      w2c;   /* +0x2C : saved ready callback                                  */
-    int      w30;   /* +0x30 : saved data callback                                   */
-    int      w34;   /* +0x34 : last interrupt code passed to the user CdReadCallback */
+    CdlCB    w28;   /* +0x28 : saved sync callback                                   */
+    CdlCB    w2c;   /* +0x2C : saved ready callback                                  */
+    void   (*w30)(void); /* +0x30 : saved data callback                              */
+    u_char  *w34;   /* +0x34 : last driver result buffer passed to CdReadCallback    */
 };
 typedef struct CdrEnv CdrEnv;
 
@@ -85,11 +86,11 @@ extern int  puts(const char *s);             /* libc A63 @0x800E80CC */
 /* ---- libcd public API (cdcont.cpp / SYS.OBJ) -------------------------------------------------- */
 extern int   CdStatus(void);                                       /* @0x800F7780 */
 extern int   CdMode(void);                                         /* @0x800F7790 */
-extern void *CdLastPos(void);                                      /* @0x800F77A0 */
+extern CdlLOC *CdLastPos(void);                                    /* @0x800F77A0 */
 extern void  CdFlush(void);                                        /* @0x800F7818 */
 extern int   CdReady(int mode, u_char *result);                    /* @0x800F786C */
-extern int   CdSyncCallback(int func);                             /* @0x800F788C */
-extern int   CdReadyCallback(int func);                            /* @0x800F78A0 */
+extern CdlCB CdSyncCallback(CdlCB func);                           /* @0x800F788C */
+extern CdlCB CdReadyCallback(CdlCB func);                          /* @0x800F78A0 */
 extern int   CdControl(int com, u_char *param, u_char *result);    /* @0x800F78B4 -- INT com,
                                      * see cdcont.c's CdControl receipt (w55-a5) */
 extern int   CdControlF(int com, u_char *param);                   /* @0x800F79F0 -- INT com
@@ -99,17 +100,17 @@ extern int   CdControlF(int com, u_char *param);                   /* @0x800F79F
 extern int   CdControlB(int com, u_char *param, u_char *result);   /* @0x800F7B24 -- INT com */
 extern int   CdGetSector(void *madr, int size);                    /* @0x800F7C70 */
 extern int   CdGetSector2(void *madr, int size);                   /* @0x800F7C90 */
-extern int   CdDataCallback(int func);                             /* @0x800F7CB0 */
+extern void (*CdDataCallback(void (*func)(void)))(void);           /* @0x800F7CB0 */
 extern int   CdDataSync(int mode);                                 /* @0x800F7CD4 */
 extern int   CdPosToInt(CdlLOC *p);                                /* @0x800F7DF8 */
 
 /* ---- shared driver-config globals (EVENT.OBJ .bss) -------------------------------------------- */
-extern int CD_cbread;        /* @0x8013C2D0 : user CdReadCallback */
+extern CdlCB CD_cbread;      /* @0x8013C2D0 : user CdReadCallback */
 extern int CD_read_dma_mode; /* @0x8013C2D4 : bit0 = copy sectors via DMA */
 
 /* forward decls (callbacks reference each other and _read_issue) */
 extern void _read_sync(void);
-extern void _read_int(int intr, int code);
+extern void _read_int(u_char intr, u_char *result);
 extern void _read_data_int(void);
 extern int  _read_issue(int retry);
 
@@ -135,7 +136,7 @@ extern void _read_sync(void)
 {
     volatile int *saved = &_cdr.w28;
     __asm__("" : "=r"(saved) : "0"(saved));
-    CdSyncCallback(*saved);      /* restore saved sync callback */
+    CdSyncCallback((CdlCB)*saved); /* restore saved sync callback */
     {
         volatile CdrEnv *g = (volatile CdrEnv *)(saved - 10);
         __asm__("" : "=r"(g) : "0"(g));
@@ -146,7 +147,7 @@ extern void _read_sync(void)
 /* @0x801088B0 : ready interrupt -- one DataReady per sector.
  * NOTE: NO cached `CdrEnv *g` local -- the oracle addresses `_cdr` fresh (a cheap 2-insn lui/addiu
  * rematerialization of the constant .bss address) at each access, and instead spends its ONE
- * available callee-saved register on the incoming `code` ARGUMENT (which survives several `jal`s
+ * available callee-saved register on the incoming `result` ARGUMENT (which survives several `jal`s
  * and can't be cheaply rematerialized).  A persistent `g` pointer local pins the allocator's
  * saved-reg budget on the wrong value (methodology catalog: "eager-cache" / "don't cache derived
  * pointers across calls" class).
@@ -162,7 +163,7 @@ extern void _read_sync(void)
  * `&_cdr.w20` for the sector-check region (retail: `lw $v1,0($s0)` + `addiu $v1,$s0,-32`)
  * took 24 -> 21 (+1 insn).  FALSIFIED (measured, do NOT retry in this basin): fencing the
  * derived `&_cdr` view inside the sector-error arm (26); an anchor+fence for the head
- * `_cdr.w34 = code` store (27, +3 insns); an anchor+fence for the common tail (60, +4).
+ * `_cdr.w34 = result` store (27, +3 insns); an anchor+fence for the common tail (60, +4).
  * RESIDUAL 21 = the head store's split `lui $v0/addiu $v1` and the tail's `lui $v1/addiu $s0`
  * (same split-address class, but both fence attempts overshoot), plus three delay-slot
  * placement diffs.
@@ -293,7 +294,7 @@ extern void _read_sync(void)
  * 52/20/16 as load displacements.  The composition mechanism is still worth building for
  * OTHER functions, but it is not this one's cure.
  * ============================================================================ */
-extern void _read_int(int intr, int code)
+extern void _read_int(u_char intr, u_char *result)
 {
     /* MATCH (W74-A14, 5 -> 1): the HEAD ANCHOR + W49 IDENTITY FENCE, the same device as the
      * tail anchor above and for the same reason (retail's one self-temping `la $v1,_cdr`
@@ -309,7 +310,7 @@ extern void _read_int(int intr, int code)
     {
     volatile CdrEnv *h = &_cdr;                     /* $v1 : one `la` for the head region */
     __asm__("" : "=r"(h) : "0"(h));
-    h->w34 = code;                                  /* remember intr arg for the user cb */
+    h->w34 = result;                                /* remember driver result for user cb */
 
     if ((intr & 0xFF) == 1) {                       /* CdlDataReady */
         if (h->w14 > 0) {                            /* still sectors to read */
@@ -356,7 +357,7 @@ extern void _read_int(int intr, int code)
              * The barrier must also sit AFTER the C89 declaration, so `cur` is split
              * decl/assign.  Measured (scratchpad/W74_A14_rint_slot.json): void both arms 0
              * (kept) - void DMA arm only 3 - void before the `if` 1 (inert) - a NON-volatile
-             * launder on the live `code` at the arm head / before the `if` / in both arms 1
+             * launder on the live `result` at the arm head / before the `if` / in both arms 1
              * (inert: reorg stops at it, but it is not a sched1 barrier, and here the steal
              * needs the sched1 fence too) - splitting the decl alone 1 (inert control). */
             if (CD_read_dma_mode & 1) {
@@ -438,7 +439,7 @@ extern void _read_int(int intr, int code)
     CdReadyCallback(t->w2c);                         /* restore ready cb */
     if (CD_read_dma_mode & 1)
         CdDataCallback(t->w30);                      /* restore data cb */
-    CdSyncCallback((int)_read_sync);                /* install completion sync handler */
+    CdSyncCallback((CdlCB)_read_sync);              /* install completion sync handler */
     CdControlF(9, 0);                               /* CdlPause */
     {
         /* CORRECTNESS (W71-A8, the same w48-a6 class already fixed in _read_data_int
@@ -449,10 +450,10 @@ extern void _read_int(int intr, int code)
          * flag path CdReadSync polls.  MATCH: load the callback BEFORE the store
          * (the store's fence/alias would otherwise sink the load) and write w24
          * through a NON-VOLATILE lvalue cast so reorg may slot-fill it (3.25-3c). */
-        CdlCB cb = (CdlCB)CD_cbread;
+        CdlCB cb = CD_cbread;
         *(int *)&t->w24 = 1;
         if (cb != 0)
-            cb(t->w14 == 0 ? 2 : 5, code);
+            cb(t->w14 == 0 ? 2 : 5, result);
     }
     }
 }
@@ -485,18 +486,18 @@ extern void _read_data_int(void)
 
     CdReadyCallback(e[11]);      /* w2c */
     if (CD_read_dma_mode & 1)
-        CdDataCallback(e[12]);   /* w30 */
-    CdSyncCallback((int)_read_sync);
+        CdDataCallback((void (*)(void))e[12]); /* w30 */
+    CdSyncCallback((CdlCB)_read_sync);
     CdControlF(9, 0);           /* CdlPause */
     {
-        CdlCB cb = (CdlCB)CD_cbread;   /* MATCH: load BEFORE the w24 store (see (2)) */
+        CdlCB cb = CD_cbread;   /* MATCH: load BEFORE the w24 store (see (2)) */
         /* CORRECTNESS (w48-a6): the oracle's `sw $v0,0x24($s0)` sits in the `beqz $v1`
          * DELAY SLOT, so `reading = 1` executes on BOTH paths -- it is NOT inside the
          * CD_cbread guard.  (Delay-slot placement is semantics, methodology 3.1.) */
         *(int *)&e[9] = 1;      /* w24; MATCH: non-volatile cast -- reorg refuses to
                                  * slot-fill a volatile MEM (3.25-3c). */
         if (cb != 0)
-            cb(2, e[13]);       /* w34 */
+            cb(2, (u_char *)e[13]); /* w34 */
     }
 }
 
@@ -800,9 +801,9 @@ extern int _read_issue(int retry)
     g = &_cdr;                      /* MATCH: TAIL ANCHOR ($s0) -- one `la` for the whole tail */
     __asm__("" : "=r"(g) : "0"(g));
     *(int *)&g->w20 = sect;
-    CdReadyCallback((int)_read_int);
+    CdReadyCallback((CdlCB)_read_int);
     if (CD_read_dma_mode & 1)
-        CdDataCallback((int)_read_data_int);
+        CdDataCallback(_read_data_int);
     /* MATCH (W71-A8): this store PRECEDES CdControlF -- retail carries it in that call's
      * delay slot (`jal CdControlF; sw $v0,0x8($s0)`), which executes BEFORE the call
      * (3.1); the sotn twin `cd_read_retry` has the same source order.  NON-VOLATILE cast
@@ -1011,7 +1012,7 @@ extern int CdRead(int sectors, u_long *buf, int mode)
             if (!((unsigned)(VSync(-1) - t0) < 0x79)) {   /* waited >= 121 frames -> force-finish */
                 volatile int *sv = &_cdr.w28;
                 __asm__("" : "=r"(sv) : "0"(sv));
-                CdSyncCallback(*sv);
+                CdSyncCallback((CdlCB)*sv);
                 sv -= 10;                           /* -0x28 -> &_cdr (jal delay slot) */
                 sv[9] = 0;                          /* w24 = 0 */
                 break;
@@ -1065,7 +1066,7 @@ extern int CdRead(int sectors, u_long *buf, int mode)
     e->w04 = (u_char *)buf;
     __asm__("" : : : "memory");
     *(int *)&e->w00 = sectors;
-    *(int *)&e->w28 = CdSyncCallback(cbarg);
+    *(int *)&e->w28 = (int)CdSyncCallback((CdlCB)cbarg);
     e->w2c = CdReadyCallback(0);                    /* save+clear ready cb */
     if (CD_read_dma_mode & 1)
         e->w30 = CdDataCallback(0);                 /* save+clear data cb */

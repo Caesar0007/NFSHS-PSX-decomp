@@ -625,7 +625,9 @@ def filter_exact_symbol_codegen_carriers(
         )),
     }
     # Several linked library members omit necessary owner-local/common graphs.
-    # nsync's atomic-dispatch wrappers require the exact LoadArgs stack record;
+    # fileroot owns the exact deferred-read command and its BSS object; syncfile
+    # owns the exact async-transfer control block; nsync's atomic-dispatch
+    # wrappers require the exact LoadArgs stack record;
     # stream's tag classifier walks an exact StreamFilter array; and trnspos /
     # xform consume the shared NFS4 ``matrixtdef`` also recovered in
     # nfs4_types.h.  PsyQ PADENTRY/PADMAIN similarly retain member-shaped code
@@ -634,8 +636,16 @@ def filter_exact_symbol_codegen_carriers(
     # in its precise owner.
     # Pre-change backup for the first pair: Git commit cdba8752. Pre-change
     # backup for the LoadArgs/StreamFilter extension: Git commit dee8eb82;
-    # PAD extension: Git commit 49c32f8e.
+    # PAD extension: Git commit 49c32f8e; ReadCmd/SyncCtrl extensions: Git
+    # commit c0950c17.
     untyped_library_named_pair_views = {
+        ("fileroot.c", "ReadCmd"): (20, (
+            ("MOS", "INT", 0, "pending", 0, (), ""),
+            ("MOS", "INT", 0, "handle", 4, (), ""),
+            ("MOS", "INT", 0, "dest", 8, (), ""),
+            ("MOS", "INT", 0, "offset", 12, (), ""),
+            ("MOS", "INT", 0, "len", 16, (), ""),
+        )),
         ("nsync.c", "LoadArgs"): (16, (
             ("MOS", "PTR CHAR", 0, "name", 0, (), ""),
             ("MOS", "INT", 0, "dest", 4, (), ""),
@@ -646,6 +656,17 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "UINT", 0, "mask", 0, (), ""),
             ("MOS", "UINT", 0, "value", 4, (), ""),
             ("MOS", "UINT", 0, "consumer", 8, (), ""),
+        )),
+        ("syncfile.c", "SyncCtrl"): (36, (
+            ("MOS", "INT", 0, "cbarg", 0, (), ""),
+            ("MOS", "INT", 0, "fd", 4, (), ""),
+            ("MOS", "INT", 0, "buf", 8, (), ""),
+            ("MOS", "INT", 0, "remain", 12, (), ""),
+            ("MOS", "INT", 0, "done", 16, (), ""),
+            ("MOS", "INT", 0, "chunk", 20, (), ""),
+            ("MOS", "INT", 0, "offset", 24, (), ""),
+            ("MOS", "PTR FCN INT", 0, "iofn", 28, (), ""),
+            ("MOS", "INT", 0, "op", 32, (), ""),
         )),
         ("padentry.c", "_PadDev"): (236, (
             ("MOS", "PTR USHORT", 0, "mode_tbl", 0, (), ""),

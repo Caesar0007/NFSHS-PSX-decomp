@@ -17,9 +17,6 @@
  * `-G` question via the DECLARATION-SHAPE fix (`extern SentenceRuleTestFn
  * gSentenceRuleTest[];` + `[0]`): the compiler-VERSION axis is now closed alongside it.
  */
-typedef int bool;
-#define true 1
-#define false 0
 /* eaclib/psx/spchpsxz/spchrule.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 9/9 ***
  *   Source obj : nfs4\eaclib\psx\spchrule.obj ; archive C:\nfs4\EACLIB\PSX\SPCHPSXZ.LIB (xlsx col12 / SYM v3)
  *   9 fns @[0x8010B100 .. 0x8010B58C].  Sentence rule evaluation -- walk a sentence's rule list, test/apply
@@ -32,15 +29,15 @@ typedef int bool;
  *   IDA); iSPCH_SentenceUsesParm reads in_v0 = VoxSentence_GetNumPhrases' dropped return.
  */
 
-typedef void (*SentenceRuleSetFn)(unsigned int, unsigned int, int, int);
-typedef int (*SentenceRuleTestFn)(unsigned int, unsigned int, int);
-extern SentenceRuleSetFn gSentenceRuleSet[];  /* sentence rule-set callback (spchinit-owned); unsized-array
-                                               * decl => separate-temp base materialization (catalog SSE #5) */
-extern SentenceRuleTestFn gSentenceRuleTest[]; /* sentence rule-test callback; UNSIZED-ARRAY decl for the
-                                               * same reason as its sibling above (w47-a9 fingerprint: the
-                                               * scalar decl is <= -G4 small-data-eligible, so cc1 emits the
-                                               * unschedulable assembler macro `lw $r,sym` where retail has
-                                               * the %hi/%lo split -- catalog SSE #5 / IDT Ch9) */
+extern void (*gSentenceRuleSet[])(unsigned int, unsigned int, int, int); /* sentence rule-set callback
+                                               * (spchinit-owned); unsized-array decl => separate-temp
+                                               * base materialization (catalog SSE #5) */
+extern int (*gSentenceRuleTest[])(unsigned int, unsigned int, int); /* sentence rule-test callback;
+                                               * UNSIZED-ARRAY decl for the same reason as its sibling
+                                               * above (w47-a9 fingerprint: the scalar decl is <= -G4
+                                               * small-data-eligible, so cc1 emits the unschedulable
+                                               * assembler macro `lw $r,sym` where retail has the
+                                               * %hi/%lo split -- catalog SSE #5 / IDT Ch9) */
 
 /* ---- per-TU static copies of the shared Vox accessors (canonical versions in spchdata.obj) ---- */
 

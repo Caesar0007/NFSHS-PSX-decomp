@@ -40,7 +40,6 @@
  *   synccallback (the registered completion callback).  Plain C -> extern "C".
  */
 struct SyncCtrl;
-typedef int (*SyncIoFn)(int fd, int buf, int offset, int chunk, int cbarg, struct SyncCtrl *ctrl);
 
 typedef struct SyncCtrl {
     int      cbarg;   /* +0  user callback arg (passed as the io fn's 5th param) */
@@ -50,7 +49,8 @@ typedef struct SyncCtrl {
     int      done;    /* +16 bytes transferred so far (syncblockio's return), advances */
     int      chunk;   /* +20 current chunk size (clamped to 0x2000) */
     int      offset;  /* +24 source offset (finalized on the last/short chunk) */
-    SyncIoFn iofn;    /* +28 async io fn (only stored for multi-chunk transfers) */
+    int    (*iofn)(int fd, int buf, int offset, int chunk, int cbarg,
+                   struct SyncCtrl *ctrl); /* +28 async io fn (only stored for multi-chunk transfers) */
     int      op;      /* +32 current async op handle */
 } SyncCtrl;
 
@@ -67,7 +67,8 @@ extern unsigned int FILE_completeop(unsigned int op);
 extern void         FILE_callbackop(unsigned int op, void *cb);
 
 extern void synccallback(int op, int type, SyncCtrl *ctrl);                 /* @0x800EA6CC */
-extern int  syncblockio(int fd, int buf, int offset, int len, int cbarg, SyncIoFn iofn); /* @0x800EA7E8 */
+extern int  syncblockio(int fd, int buf, int offset, int len, int cbarg,
+                        int (*iofn)(int, int, int, int, int, struct SyncCtrl *)); /* @0x800EA7E8 */
 
 /* synccallback @0x800EA6CC : async completion -- on a successful chunk, advance the control block and, if more
  *   remains, re-issue the next chunk; otherwise mark the transfer finished.
@@ -240,7 +241,8 @@ extern void synccallback(int op, int type, SyncCtrl *c)
 }
 
 /* syncblockio @0x800EA7E8 : run a chunked blocking transfer of `len` bytes via `iofn`; returns bytes moved. */
-extern int syncblockio(int fd, int buf, int offset, int len, int cbarg, SyncIoFn iofn)
+extern int syncblockio(int fd, int buf, int offset, int len, int cbarg,
+                       int (*iofn)(int, int, int, int, int, struct SyncCtrl *))
 {
     SyncCtrl c;
     int firstchunk;

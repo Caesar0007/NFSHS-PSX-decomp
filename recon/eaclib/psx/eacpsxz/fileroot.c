@@ -18,8 +18,6 @@
  *   GOTCHA (recurring): a `&lbl_XXXXX()` call decodes to 0x80010000 + 0xXXXXX -- MIND THE CARRY.
  *   lbl_EA65C = 0x80010000+0xEA65C = 0x800FA65C (CD_Close), NOT 0x800EA65C; lbl_F6BE4 = 0x80106BE4 (PCread).
  */
-#include <stddef.h>
-
 /* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
  char currentdirectory[64];
 /* 04U: owned pointers must be NAMED GLOBAL symbols (oracle relocs name

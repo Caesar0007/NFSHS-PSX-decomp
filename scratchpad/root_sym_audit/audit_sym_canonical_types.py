@@ -98,9 +98,19 @@ class TypeBlock:
 def normalize_tag(name: str) -> str:
     if name == "__nfs4_vtbl_ptr_t":
         return "__vtbl_ptr_type"
-    if name.startswith("._"):
+    # Both spellings are compiler-generated anonymous tags.  CC1PL uses
+    # ``._N`` while the MIPS SDB backend's SDB_GENERATE_FAKE hook emits
+    # ``.Nfake``.  The number is a process-local debug-emission counter, not a
+    # recoverable source identifier (gcc-2.8.1 sdbout.c: gen_fake_label).
+    # Compare their complete layouts and uses, never the incidental counter.
+    # Pre-change backup: Git commit dcb11301.
+    if is_anonymous_tag(name):
         return "<anonymous>"
     return name
+
+
+def is_anonymous_tag(name: str) -> bool:
+    return name.startswith("._") or re.fullmatch(r"\.\d+fake", name) is not None
 
 
 def parse_int(text: str, default: int = 0) -> int:
@@ -2132,8 +2142,8 @@ def main() -> None:
     # Anonymous compiler tags are numbered by emission order.  Their enum or
     # typedef identity is recovered through the surrounding typedef records in
     # a later pass; named tags can be compared directly and safely now.
-    named_retail = [item for item in retail_blocks if not item.name.startswith("._")]
-    named_source = [item for item in source_blocks if not item.name.startswith("._")]
+    named_retail = [item for item in retail_blocks if not is_anonymous_tag(item.name)]
+    named_source = [item for item in source_blocks if not is_anonymous_tag(item.name)]
     retail_by_name = variants(
         named_retail, lambda item: (item.kind, normalize_tag(item.name))
     )

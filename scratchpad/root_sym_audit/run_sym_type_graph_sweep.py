@@ -179,8 +179,8 @@ def compare(source: str, owner: str, retail_defs, source_defs) -> Result:
         result.status = "PARSE_ISSUE"
         result.detail = "; ".join([*retail_issues, *source_issues])[:1000]
 
-    retail_named = [x for x in retail_blocks if not x.name.startswith("._")]
-    source_named = [x for x in source_blocks if not x.name.startswith("._")]
+    retail_named = [x for x in retail_blocks if not canon.is_anonymous_tag(x.name)]
+    source_named = [x for x in source_blocks if not canon.is_anonymous_tag(x.name)]
     rb = canon.variants(retail_named, lambda x: (x.kind, canon.normalize_tag(x.name)))
     sb = canon.variants(source_named, lambda x: (x.kind, canon.normalize_tag(x.name)))
     result.retail_named = len(rb)
@@ -224,8 +224,12 @@ def compare(source: str, owner: str, retail_defs, source_defs) -> Result:
     })
     result.retail_duplicate_named = sum(retail_duplicate_named.values())
 
-    retail_anon = Counter(x.semantic() for x in retail_blocks if x.name.startswith("._"))
-    source_anon = Counter(x.semantic() for x in source_blocks if x.name.startswith("._"))
+    retail_anon = Counter(
+        x.semantic() for x in retail_blocks if canon.is_anonymous_tag(x.name)
+    )
+    source_anon = Counter(
+        x.semantic() for x in source_blocks if canon.is_anonymous_tag(x.name)
+    )
     result.retail_anonymous = sum(retail_anon.values())
     result.anonymous_covered = sum(
         min(count, source_anon.get(semantic, 0))
@@ -235,11 +239,11 @@ def compare(source: str, owner: str, retail_defs, source_defs) -> Result:
 
     retail_block_tags = {
         canon.normalize_tag(x.name) for x in retail_blocks
-        if not x.name.startswith("._")
+        if not canon.is_anonymous_tag(x.name)
     }
     source_block_tags = {
         canon.normalize_tag(x.name) for x in source_blocks
-        if not x.name.startswith("._")
+        if not canon.is_anonymous_tag(x.name)
     }
     # A linked PsyQ SYM resolves the referent size on opaque pointer typedefs
     # from the tag's defining object.  The original per-TU source can only emit

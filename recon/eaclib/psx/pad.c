@@ -13,25 +13,7 @@
  *   names across all 5 fns are SEMANTIC reconstructions (debug info preserved no other locals).
  */
 
-typedef unsigned char  u_char;
-typedef unsigned char  byte;
-typedef unsigned short u_short;
-typedef unsigned int   uint;
-
-/* ---- local mirrors of the shared pad types (nfs4_types.h is C++-only) ---- */
-typedef struct PAD_PSX {              /* 6 bytes */
-    u_short state;                    /* +0x0 */
-    u_short unused[2];                /* +0x2 */
-} PAD_PSX;
-
-typedef union tPadVariantData {       /* 6 bytes (only .standard read in this TU) */
-    PAD_PSX standard;
-} tPadVariantData;
-
-typedef struct PAD_COMMON {           /* 8 bytes */
-    u_char          nopad, ID;        /* +0x0 */
-    tPadVariantData data;             /* +0x2 */
-} PAD_COMMON;
+#include "pad_types.h"
 
 /* ---- pad.obj data globals (eaclib/psx, from canonical Globals) ----
  * W65-A6 DATA-MAT: these were `extern`-only tree-wide (never defined), i.e. 115+6
@@ -214,7 +196,7 @@ void PAD_restore(void)
  * reaches the same PASS with zero collateral, so that is the action, not a lane change. */
 u_short PAD_state(int padID)
 {
-  if (gPadinfo.initialized != 0 && (uint)padID < 8) {
+  if (gPadinfo.initialized != 0 && (u_int)padID < 8) {
     return PAD_convert(gPadinfo.buf + padID) & 0xffff;
   }
   return 0;
@@ -225,7 +207,7 @@ u_short PAD_state(int padID)
 /* ---- PAD_convert  (PAD.C:278, code lines 278-278)  [static] ---- */
 static u_short PAD_convert(PAD_COMMON *pad)
 {
-  return ~(uint)(pad->data).standard.state & 0xffff;
+  return ~(u_int)(pad->data).standard.state & 0xffff;
 }
 
 /* lines 279-319: (static data / macros / comments - no emitted code) */
@@ -550,7 +532,7 @@ void PAD_update(void)
   int i;
   int btnOff;
   int active;
-  uint debCount;
+  u_int debCount;
   u_char *pt;
   u_char *pa;
 
@@ -566,7 +548,7 @@ void PAD_update(void)
   for (i = 0, pt = &gPadinfo.state[0].time, pa = pt - 1, btnOff = 0;
        i < 8;
        pt += 2, pa += 2, i++, btnOff += 8) {
-    active = (((byte *)gPadinfo.buf)[btnOff] == 0);
+    active = (((u_char *)gPadinfo.buf)[btnOff] == 0);
     if (active != *pa) {
       debCount = *pt;
       *pt = debCount + 1;

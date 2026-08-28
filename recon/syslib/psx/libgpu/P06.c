@@ -8,7 +8,10 @@
  * WRONG a2/a3 registers (14-diff near-miss; operand-order swaps within the OR were tried and
  * made it worse).  A REAL 24:8 bitfield store forces gcc's bitfield-insert lowering to
  * materialize the masks in the SAME order the compiler originally did -> exact match. */
-typedef struct { unsigned int addr:24, len:8; } P_TAG;
+typedef struct {
+    unsigned int addr:24, len:8;
+    unsigned char r0, g0, b0, code;
+} P_TAG;
 extern void AddPrim(void *ot, void *p)   /* @0x80107040 */
 {
     ((P_TAG *)p)->addr  = ((P_TAG *)ot)->addr;

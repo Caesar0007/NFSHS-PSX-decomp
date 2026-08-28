@@ -222,6 +222,14 @@ def _is_prim_macro_header(owner: str) -> bool:
     return owner.replace("\\", "/").casefold().endswith("/psyq_prim_macros.h")
 
 
+def _is_canonical_ptag_owner(owner: str) -> bool:
+    """Recognize exact PsyQ P_TAG emission sites, never the name alone."""
+    normalized = owner.replace("\\", "/").casefold()
+    return _is_prim_macro_header(owner) or (
+        normalized.endswith("/p06.c") and "/libgpu/" in normalized
+    )
+
+
 def filter_sdk_macro_carriers(
     type_blocks: list[TypeBlock], typedefs: list[Definition]
 ) -> tuple[list[TypeBlock], list[Definition]]:
@@ -233,6 +241,15 @@ def filter_sdk_macro_carriers(
     the concrete primitive-variable types but filters this cast-only SDK type.
     The guard deliberately checks the header owner, complete 8-byte layout and
     typedef/tag link; a source-defined P_TAG or any layout drift remains visible.
+    P06.c is PsyQ's AddPrim implementation itself.  Its reconstructed type now
+    uses the full canonical 8-byte PsyQ 4.3 P_TAG rather than a four-byte prefix;
+    accept that same exact pair only in this SDK owner.  Pre-change backup for
+    this source-restoration extension: Git commit 49c32f8e.
+
+    VLC.c is PsyQ's hand-written LIBPRESS decoder and uses the canonical
+    SYS/TYPES.H aliases u_int, u_long, and u_short.  Its linked archive member
+    omits header type records; accept only those three exact fundamental aliases
+    in that precise SDK owner.  The same backup commit applies.
 
     The linked EA graphics-library members likewise omit the canonical PsyQ
     4.3 ``RECT`` and ``u_long`` header records even though their prototypes and
@@ -257,8 +274,8 @@ def filter_sdk_macro_carriers(
             and item.name == "P_TAG"
             and item.typ == "STRUCT"
             and item.size == 8
-            and item.tag.startswith("._")
-            and _is_prim_macro_header(item.owner)
+            and is_anonymous_tag(item.tag)
+            and _is_canonical_ptag_owner(item.owner)
         )
 
     def exact_block(block: TypeBlock) -> bool:
@@ -266,7 +283,7 @@ def filter_sdk_macro_carriers(
             block.kind == "STRTAG"
             and block.size == 8
             and block.rows == expected_rows
-            and _is_prim_macro_header(block.owner)
+            and _is_canonical_ptag_owner(block.owner)
         )
 
     rect_owners = ("/fastmovf.c", "/movf.c", "/vramfxya.c")
@@ -306,6 +323,21 @@ def filter_sdk_macro_carriers(
             and item.name == "u_long"
             and item.typ == "ULONG"
             and canonical_rect_owner(item.owner) is not None
+        )
+
+    def exact_vlc_sdk_typedef(item: Definition) -> bool:
+        normalized = item.owner.replace("\\", "/").casefold()
+        expected = {
+            "u_int": "UINT",
+            "u_long": "ULONG",
+            "u_short": "USHORT",
+        }.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == expected
+            and normalized.endswith("/vlc.c")
+            and "/libpress/" in normalized
         )
 
     eligible_tags = {item.tag for item in typedefs if exact_typedef(item)}
@@ -348,6 +380,7 @@ def filter_sdk_macro_carriers(
                 and exact_rect_typedef(item)
             )
             and not exact_u_long_typedef(item)
+            and not exact_vlc_sdk_typedef(item)
         ],
     )
 
@@ -564,15 +597,26 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "INT", 0, "bank_table", 152, (), ""),
         )),
     }
-    # Two linked EA math-library members omit their local aggregate records,
-    # while exact retail code generation requires structure assignment:
+    # Linked EA members can omit necessary local aggregate records.  Exact
+    # retail code generation requires structure assignment in the math owners:
     # matrix.c's 36-byte movstrsi copies and trnsfrm.c's final 12-byte result
     # copy both regress when expressed as scalar/array source.  Accept only the
-    # complete anonymous body + typedef pair in its exact owner.  Pre-change
-    # backup: Git commit c1385fa4.
+    # complete anonymous body + typedef pair in its exact owner.  spchevnt's
+    # VoxSlot is likewise an exact typed view of the aliased gVoxEvents queue;
+    # every recovered field/offset is used by its PASS bodies.  Pre-change
+    # backup: Git commit c1385fa4; VoxSlot extension: Git commit 49c32f8e.
     untyped_library_anonymous_views = {
         ("matrix.c", "mtx"): (36, (
             ("MOS", "ARY INT", 36, "m", 0, (9,), ""),
+        )),
+        ("spchevnt.c", "VoxSlot"): (60, (
+            ("MOS", "INT", 0, "_ovl0", 0, (), ""),
+            ("MOS", "INT", 0, "_ovl4", 4, (), ""),
+            ("MOS", "USHORT", 0, "enabled", 8, (), ""),
+            ("MOS", "USHORT", 0, "subTick", 10, (), ""),
+            ("MOS", "INT", 0, "tick", 12, (), ""),
+            ("MOS", "INT", 0, "event", 16, (), ""),
+            ("MOS", "ARY INT", 40, "args", 20, (10,), ""),
         )),
         ("trnsfrm.c", "TransformResult"): (12, (
             ("MOS", "INT", 0, "x", 0, (), ""),
@@ -580,13 +624,17 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "INT", 0, "z", 8, (), ""),
         )),
     }
-    # Several EA library members omit necessary owner-local/common type graphs.
+    # Several linked library members omit necessary owner-local/common graphs.
     # nsync's atomic-dispatch wrappers require the exact LoadArgs stack record;
     # stream's tag classifier walks an exact StreamFilter array; and trnspos /
     # xform consume the shared NFS4 ``matrixtdef`` also recovered in
-    # nfs4_types.h. Pair-lock each named tag and typedef in its precise owner.
+    # nfs4_types.h.  PsyQ PADENTRY/PADMAIN similarly retain member-shaped code
+    # for their exact private controller and interrupt-path records while the
+    # archive SYM omits their type records. Pair-lock each named tag and typedef
+    # in its precise owner.
     # Pre-change backup for the first pair: Git commit cdba8752. Pre-change
-    # backup for the LoadArgs/StreamFilter extension: Git commit dee8eb82.
+    # backup for the LoadArgs/StreamFilter extension: Git commit dee8eb82;
+    # PAD extension: Git commit 49c32f8e.
     untyped_library_named_pair_views = {
         ("nsync.c", "LoadArgs"): (16, (
             ("MOS", "PTR CHAR", 0, "name", 0, (), ""),
@@ -598,6 +646,34 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "UINT", 0, "mask", 0, (), ""),
             ("MOS", "UINT", 0, "value", 4, (), ""),
             ("MOS", "UINT", 0, "consumer", 8, (), ""),
+        )),
+        ("padentry.c", "_PadDev"): (236, (
+            ("MOS", "PTR USHORT", 0, "mode_tbl", 0, (), ""),
+            ("MOS", "PTR UCHAR", 0, "act_tbl", 4, (), ""),
+            ("MOS", "ARY CHAR", 8, "_pad08", 8, (8,), ""),
+            ("MOS", "PTR STRUCT", 236, "self", 16, (), "_PadDev"),
+            ("MOS", "ARY CHAR", 28, "_pad14", 20, (28,), ""),
+            ("MOS", "PTR CHAR", 0, "flag_ptr", 48, (), ""),
+            ("MOS", "UINT", 0, "status", 52, (), ""),
+            ("MOS", "UCHAR", 0, "connected", 56, (), ""),
+            ("MOS", "ARY CHAR", 2, "_pad39", 57, (2,), ""),
+            ("MOS", "ARY CHAR", 14, "_pad3b", 59, (14,), ""),
+            ("MOS", "UCHAR", 0, "state", 73, (), ""),
+            ("MOS", "ARY CHAR", 2, "_pad4a", 74, (2,), ""),
+            ("MOS", "INT", 0, "term100", 76, (), ""),
+            ("MOS", "ARY CHAR", 147, "_pad50", 80, (147,), ""),
+            ("MOS", "UCHAR", 0, "nmode", 227, (), ""),
+            ("MOS", "UCHAR", 0, "mode3", 228, (), ""),
+            ("MOS", "ARY CHAR", 1, "_pade5", 229, (1,), ""),
+            ("MOS", "USHORT", 0, "modeword", 230, (), ""),
+            ("MOS", "UCHAR", 0, "mode1", 232, (), ""),
+            ("MOS", "UCHAR", 0, "nact", 233, (), ""),
+        )),
+        ("padmain.c", "_PadIntRP"): (16, (
+            ("MOS", "PTR STRUCT", 16, "next", 0, (), "_PadIntRP"),
+            ("MOS", "PTR FCN VOID", 0, "handler", 4, (), ""),
+            ("MOS", "PTR FCN INT", 0, "verifier", 8, (), ""),
+            ("MOS", "INT", 0, "_pad0c", 12, (), ""),
         )),
         ("trnspos.c", "matrixtdef"): (36, (
             ("MOS", "ARY INT", 36, "m", 0, (9,), ""),

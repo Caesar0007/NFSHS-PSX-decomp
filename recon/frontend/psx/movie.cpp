@@ -8,7 +8,7 @@
 /* Movie.obj STAT helpers.  strInit's reconstructed pointer callback signature is
  * codegen-correct but does not reproduce PsyQ's exact GCC-v2 spelling by itself. */
 static void strSetDefDecEnv(DECENV *dec);
-static void strInit(CdlLOC *loc,int frame_size,fn_void *callback,fn_void *endcallback)
+static void strInit(CdlLOC *loc,int frame_size,CallbackFunc callback,CallbackFunc endcallback)
   asm("strInit__FP6CdlLOCiPFe_vT2");
 static void strCallback(void);
 static int strNextVlc(DECENV *dec);
@@ -111,8 +111,8 @@ void Movie_Init(char movie)
     PPWTop = 1;
     PPWBottom = 1;
   }
-  gMovieWidth = moviewidth[(byte)movie];
-  gMovieHeight = movieheight[(byte)movie];
+  gMovieWidth = moviewidth[(u_char)movie];
+  gMovieHeight = movieheight[(u_char)movie];
   Movie_SetDecodeOffset(0,0,0,0x100);
   gMovieFrame = 0;
   gEndFrame = 0;
@@ -122,7 +122,7 @@ void Movie_Init(char movie)
   vlcbuf0 = (u_long *)reservememadr("vlcbuf0",0x28000,0x10);
   vlcbuf1 = (u_long *)reservememadr("vlcbuf1",0x28000,0x10);
   imgbuf_v[0] = (u_short *)reservememadr
-                     ("imgbuf",((uint)((int)PPWTop << 5) / (uint)(int)PPWBottom) * 0x1e0,0x10);
+                     ("imgbuf",((u_int)((int)PPWTop << 5) / (u_int)(int)PPWBottom) * 0x1e0,0x10);
   sect_buff = (u_long *)reservememadr("sect_buff",0x10000,0x10);
   Platform_ResetDCTBuffer();
   CD_Restart(0);
@@ -142,7 +142,7 @@ void Movie_Init(char movie)
 void Movie_DeInit(void)
 
 {
-  byte param [8];
+  u_char param [8];
   
   bMovieLoaded = 0;
   param[0] = 0x80;
@@ -215,12 +215,12 @@ void Movie_Load(char movie)
   download[0] = 0;
   isFirstSlice = 1;
   ResetCallback();
-  sprintf(gFEFileName,"\\MOVIES\\%s;1",movienames[(byte)movie]);
+  sprintf(gFEFileName,"\\MOVIES\\%s;1",movienames[(u_char)movie]);
   gMovieFrame = 0;
-  gEndFrame = (int)movieframes[(byte)movie] - 1;
-  gIsRGB24 = movie24bit[(byte)movie];
-  gMovieWidth = moviewidth[(byte)movie];
-  gMovieHeight = movieheight[(byte)movie];
+  gEndFrame = (int)movieframes[(u_char)movie] - 1;
+  gIsRGB24 = movie24bit[(u_char)movie];
+  gMovieWidth = moviewidth[(u_char)movie];
+  gMovieHeight = movieheight[(u_char)movie];
   /* MATCH: the oracle's beqz skips to the 1/1/2 block -- the 24-bit arm is the
    * fall-through, so it must be the `if` body. */
   if (gIsRGB24 != 0) {
@@ -238,7 +238,7 @@ void Movie_Load(char movie)
     loc_v[0].second = file.pos.second;
     loc_v[0].sector = file.pos.sector;
     strSetDefDecEnv(&dec);
-    strInit(loc_v,0xfffffff,strCallback,(fn_void *)0x0);
+    strInit(loc_v,0xfffffff,strCallback,(CallbackFunc)0x0);
     strNextVlc(&dec);
     bMovieLoaded = 1;
   }
@@ -370,7 +370,7 @@ int Movie_Play(char movie)
     PAD_update();
     /* MATCH: ONE andi on the combined value (the oracle keeps each PAD_state result
      * unmasked in a register); per-local u_short narrowing emitted two. */
-    joyval = ((uint)PAD_state(0) | (uint)PAD_state(4)) & 0xffff;
+    joyval = ((u_int)PAD_state(0) | (u_int)PAD_state(4)) & 0xffff;
     /* MATCH: the guard must be a plain nested `if`, NOT the comma form
      * `joyval && (Movie_Stop(), A || B)` -- inside a comma expression gcc
      * MATERIALIZES the disjunction in a register (addu v1,zero,zero / li v1,1
@@ -457,7 +457,7 @@ static void strSetDefDecEnv(DECENV *dec)
 /* lines 429-432: (static data / macros / comments - no emitted code) */
 
 /* ---- strInit__FP6CdlLOCiPFe_vT2  (movie.cpp:433, code lines 433-445) ---- */
-static void strInit(CdlLOC *loc,int frame_size,fn_void *callback,fn_void *endcallback)
+static void strInit(CdlLOC *loc,int frame_size,CallbackFunc callback,CallbackFunc endcallback)
 
 {
   
@@ -523,7 +523,7 @@ strCallback_inlinedJoin:
      * and rectid dies into $a1, rotating the tail.  (gcc reschedules the two stores
      * back into retail's emitted order.) */
     dec.isdone = 1;
-    dec.rectid = (uint)(dec.rectid == 0);
+    dec.rectid = (u_int)(dec.rectid == 0);
     dec.slice.x = dec.rect[dec.rectid].x;
     isFirstSlice = 1;
     dec.slice.y = dec.rect[dec.rectid].y + (short)((0xf0 - gHeight) / 2);
@@ -548,7 +548,7 @@ static int strNextVlc(DECENV *dec)
   } while (cnt != 0);
   return -1;
 found:
-  dec->vlcid = (uint)(dec->vlcid == 0);
+  dec->vlcid = (u_int)(dec->vlcid == 0);
   if (DecDCTvlc(next,dec->vlcbuf[dec->vlcid]) != 0) {
     while (DecDCTvlc((u_long *)0x0,(u_long *)0x0) != 0) {
     }
@@ -620,7 +620,7 @@ framedone:
    * The scalar `width_d` spelling also unblocks the alias but loses the shared %hi
    * (assembler macro -> its own `lui $at`), so it stays 1 insn long too. */
   wp = width_v;
-  if ((*wp != (uint)sector->width) || (gHeight != (uint)sector->height)) {
+  if ((*wp != (u_int)sector->width) || (gHeight != (u_int)sector->height)) {
     rect.x = 0;
     rect.y = 0;
     rect.h = 0x1e0;
@@ -662,7 +662,7 @@ static void strSync(DECENV *dec,int mode)
       cnt = cnt - 1;
       if (cnt == 0) {
         dec->isdone = 1;
-        dec->rectid = (uint)(dec->rectid == 0);
+        dec->rectid = (u_int)(dec->rectid == 0);
         (dec->slice).x = dec->rect[dec->rectid].x;
         /* MATCH: the second access RE-READS dec->rectid from memory (the oracle emits a
          * 2nd lw 0x20 + sll) -- a cached local gets store-forwarded away. */

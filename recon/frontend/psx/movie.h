@@ -1,7 +1,7 @@
 /* frontend/psx/movie.h - reconstructed declarations for MOVIE.CPP (C++ TU) */
 #ifndef _FRONTEND_PSX_MOVIE_H_
 #define _FRONTEND_PSX_MOVIE_H_
-#include "../../nfs4_types.h"
+#include "movie_types.h"
 #include "movie_externs.h"
 
 /* MOVIE.CPP is C++ (cfront-mangled in SYM) -> normal C++ linkage. */

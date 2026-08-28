@@ -4,7 +4,7 @@
  */
 #include "screentracks.h"
 
-typedef struct {
+typedef struct tTrackSelectPrimTag {
   u_int addr : 24;
   u_int len : 8;
 } tTrackSelectPrimTag;

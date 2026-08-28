@@ -815,6 +815,26 @@ def filter_exact_symbol_codegen_carriers(
              "tMenuItemOptionsTwoItemChoice"),
         ), "screenpinkslips_types.h"),
     }
+    # ScreenTracks.obj uses the same menu slice plus a source-level PsyQ
+    # primitive tag without retaining either completed tag.  Backup: edf2befc.
+    screentracks_views = {
+        "ScreenTracks_GlobalMenuDefsCodegenView": (3988, (
+            ("MOS", "ARY CHAR", 3208, "_beforeIteratorTrack", 0,
+             (3208,), ""),
+            ("MOS", "STRUCT", 24, "iteratorTrack", 3208, (),
+             "tListIteratorTrack"),
+            ("MOS", "ARY CHAR", 684, "_beforeItemTraffic", 3232,
+             (684,), ""),
+            ("MOS", "STRUCT", 36, "itemTraffic", 3916, (),
+             "tMenuItemOptionsTwoItemChoice"),
+            ("MOS", "STRUCT", 36, "itemLocalSpeech", 3952, (),
+             "tMenuItemOptionsTwoItemChoice"),
+        ), "screentracks_types.h"),
+        "tTrackSelectPrimTag": (4, (
+            ("FIELD", "UINT", 24, "addr", 0, (), ""),
+            ("FIELD", "UINT", 8, "len", 24, (), ""),
+        ), "screentracks.cpp"),
+    }
     # ScreenDisplay.obj dereferences only the menuDisplayOptions member of the
     # foreign tGlobalMenuDefs singleton.  Its linked SYM retains the complete
     # tOptionsMenu leaf but attributes the owning aggregate to FEMenuDefs.obj.
@@ -1468,6 +1488,29 @@ def filter_exact_symbol_codegen_carriers(
             and owner.endswith((expected[2], "screenpinkslips.cpp"))
         )
 
+    def exact_screentracks_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = screentracks_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith(expected[2])
+        )
+
+    def exact_screentracks_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = screentracks_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            and owner.endswith((expected[2], "screentracks.cpp"))
+        )
+
     def exact_screendisplay_view(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         expected = screendisplay_views.get(block.name)
@@ -1698,6 +1741,13 @@ def filter_exact_symbol_codegen_carriers(
         and any(exact_screenpinkslips_view_typedef(item) and item.name == name
                 for item in typedefs)
     }
+    screentracks_eligible = {
+        name for name in screentracks_views
+        if any(exact_screentracks_view(block) and block.name == name
+               for block in type_blocks)
+        and any(exact_screentracks_view_typedef(item) and item.name == name
+                for item in typedefs)
+    }
     screenusername_eligible = {
         name for name in screenusername_views
         if any(exact_screenusername_view(block) and block.name == name
@@ -1754,6 +1804,8 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_screenaudio_view(block))
             and not (block.name in screenpinkslips_eligible
                      and exact_screenpinkslips_view(block))
+            and not (block.name in screentracks_eligible
+                     and exact_screentracks_view(block))
             and not (block.name in screendisplay_eligible
                      and exact_screendisplay_view(block))
             and not (block.name in screenusername_eligible
@@ -1796,6 +1848,8 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_screenaudio_view_typedef(item))
             and not (item.name in screenpinkslips_eligible
                      and exact_screenpinkslips_view_typedef(item))
+            and not (item.name in screentracks_eligible
+                     and exact_screentracks_view_typedef(item))
             and not (item.name in screendisplay_eligible
                      and exact_screendisplay_view_typedef(item))
             and not (item.name in screenusername_eligible

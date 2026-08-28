@@ -18,11 +18,13 @@ struct tRecordBuffer {
 };
 typedef tRecordBuffer tSaveRecords[187];
 
+#ifndef NFS4_SCREENPINKSLIPS_TRACKS_SURFACE
 struct FLARE_PIECE_DEF {
     int distance, size;
     CVECTOR color;
     char type;
 };
+#endif
 
 struct SNDSYSCAP {
     u_short outputratemin, outputratemax;
@@ -89,6 +91,7 @@ struct tFEApplication {
     int speechToPlay[2];
 };
 
+#ifndef NFS4_SCREENPINKSLIPS_TRACKS_SURFACE
 struct tScreenPinkSlips : public tScreen {
     tMenu *fMenu;
     int hVideo, fFrame;
@@ -109,7 +112,9 @@ struct tScreenPinkSlips : public tScreen {
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &)
         asm("ProcessInput__16tScreenPinkSlips7tPlayerR13tInputKeyTypeR12tMenuCommand");
 };
+#endif
 
+#ifndef NFS4_SCREENPINKSLIPS_TRACKS_SURFACE
 struct ScreenPinkSlips_GlobalMenuDefsCodegenView {
     char _beforeIteratorTrack[0xc88];
     tListIteratorTrack iteratorTrack;
@@ -117,5 +122,6 @@ struct ScreenPinkSlips_GlobalMenuDefsCodegenView {
     tMenuItemOptionsTwoItemChoice itemTraffic, itemLocalSpeech;
 };
 #define tGlobalMenuDefs ScreenPinkSlips_GlobalMenuDefsCodegenView
+#endif
 
 #endif

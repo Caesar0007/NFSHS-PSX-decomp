@@ -23,7 +23,8 @@
  * constants while the extern boundary below preserves their retail names. */
 #define tTrophySize int
 #define ts_Medium 1
-#ifndef NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE
+#if !defined(NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE) || \
+    defined(NFS4_SCREENPINKSLIPS_TRACKS_SURFACE)
 #define tMenuTextState int
 #else
 typedef enum tMenuTextState {

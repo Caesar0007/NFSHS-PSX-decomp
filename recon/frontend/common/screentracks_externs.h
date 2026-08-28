@@ -1,8 +1,15 @@
 /* frontend/screens/screentracks_externs.h - reconstructed externs. NOT original. */
 #ifndef _FE_SCREENS_SCREENTRACKS_EXTERNS_H_
 #define _FE_SCREENS_SCREENTRACKS_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "screentracks_types.h"
+
+extern "C" {
+int ClearImage(RECT *, u_char, u_char, u_char);
+long DrawSync(long);
+int sprintf(char *, const char *, ...);
+int GetTPage(int, int, int, int);
+int purgememadr(void *);
+}
 
 /* --- globals --- */
 extern tfrontEnd          frontEnd;
@@ -30,7 +37,11 @@ void VIDEO_destroy(int h);
 
 /* --- FE draw / text / effect --- */
 void  DrawShape_NFS4RoundRectangle(int textValue, RECT *r, short s) asm("DrawShape_NFS4RoundRectangle__FiR4RECTs");
-void  FETextRender_MenuTextPositionedJustify(short index, short x, short y, short justify, tMenuTextState state, tMenuTextType type);
+void  FETextRender_MenuTextPositionedJustify(short index, short x, short y,
+                                              short justify,
+                                              tMenuTextState state,
+                                              tMenuTextType type)
+    asm("FETextRender_MenuTextPositionedJustify__Fssss14tMenuTextState13tMenuTextType");
 void  PSXDrawTransSquare(int col, int x, int y, int w, int h, short opacity);
 void  FeDraw_SetABRMode(int abr);
 bool Front_EnableLocalSpeech();

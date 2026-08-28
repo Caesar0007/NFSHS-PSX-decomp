@@ -34,7 +34,7 @@ typedef struct MemClass {
     char       name[8];         /* +0x00  class name (strcpy'd)                */
     MemBlock  *phys_first;      /* +0x08  first physical block (=membuf)       */
     MemBlock  *phys_last;       /* +0x0C  last  physical block (=HIGH block)   */
-    char       freehead[0x18];  /* +0x10  embedded free-ring sentinel MemBlock */
+    MemBlock   freehead;        /* +0x10  embedded free-ring sentinel MemBlock */
                                 /*        (magic@+0x10 size@+0x14 next@+0x20 prev@+0x24) */
     int        granularity;     /* +0x28  per-alloc size granularity           */
     int        alignment;       /* +0x2C  buffer/alloc alignment               */
@@ -81,7 +81,7 @@ extern MemBlock *FREE_find(MemClass *mb, int size, int reverse)   /* @0x800E4D4C
     /* MATCH: forward walk = the if-BODY (bnez a2 -> out-of-line reverse loop); walker
      * reuses the dead param reg (addiu a0,a0,16 in the bnez slot); ring-head tail is a
      * FUNNEL (p = 0) not an early return. */
-    MemBlock *p = (MemBlock *)((char *)mb + 0x10);   /* &freehead (delay-slot a0+=0x10) */
+    MemBlock *p = &mb->freehead;   /* delay-slot a0+=0x10 */
     if (reverse == 0) {
         do { p = p->freenext; } while (p->size < size);
     } else {
@@ -100,7 +100,7 @@ extern MemBlock *FREE_findlargest(MemClass *mb, int size, int reverse)   /* @0x8
 {
     MemBlock *best = 0;
     int       min  = size - 1;
-    MemBlock *p    = (MemBlock *)((char *)mb + 0x10);   /* delay slot: always +0x10 */
+    MemBlock *p    = &mb->freehead;   /* delay slot: always +0x10 */
     if (min < 0) min = 0;
 
     if (reverse == 0) {
@@ -130,7 +130,7 @@ extern MemBlock *FREE_findlargest(MemClass *mb, int size, int reverse)   /* @0x8
  * ===================================================================== */
 extern void FREE_add(MemClass *mb, MemBlock *node)   /* @0x800E4E70 */
 {
-    MemBlock *head  = (MemBlock *)((char *)mb + 0x10);
+    MemBlock *head  = &mb->freehead;
     int       span  = (int)((char *)node->physnext - (char *)node);   /* node end - node */
     int       payload = span - 0x10;
     MemBlock *last  = head->freeprev;
@@ -306,12 +306,12 @@ extern int creatememclass(int id, char *name, char *membuf, int bufsize,
          * via cls(s1)+FIXED-DISPLACEMENT (sh/sw …,0x10/0x14/0x20/0x24(s1)); materializing a
          * distinct `fh=cls+0x10` C pointer lets gcc fold it back through cls's own known
          * membuf+0x10 origin into a membuf-relative base (sh v0,0x20(s4) et al) instead. */
-        *(unsigned short *)((char *)cls + 0x10) = MAGIC_HEAD;      /* fh->magic  +0x10 */
+        cls->freehead.magic = MAGIC_HEAD;                          /* +0x10 */
         cls->phys_first = (MemBlock *)membuf;                      /* +0x08 */
         cls->phys_last  = (MemBlock *)high;                        /* +0x0C */
-        *(MemBlock **)((char *)cls + 0x20) = (MemBlock *)((char *)membuf + 0x20); /* fh->freenext +0x20 -> self */
-        *(MemBlock **)((char *)cls + 0x24) = (MemBlock *)((char *)membuf + 0x20); /* fh->freeprev +0x24 */
-        *(int *)((char *)cls + 0x14) = 0x7FFFFFFF;                 /* fh->size   +0x14 */
+        cls->freehead.freenext = (MemBlock *)((char *)membuf + 0x20); /* self */
+        cls->freehead.freeprev = (MemBlock *)((char *)membuf + 0x20); /* self */
+        cls->freehead.size = 0x7FFFFFFF;
         /* MATCH: `granularity` (a stack-passed param, never register-resident) is read into
          * a named temp AND stored FIRST of the five class-field stores. The oracle reloads it
          * (`lw v0,0x158(sp)`) up front -- together with the FREE_add receiver copy `addu

@@ -886,6 +886,33 @@ def filter_exact_symbol_codegen_carriers(
     # PAD extension: Git commit 49c32f8e; ReadCmd/SyncCtrl extensions: Git
     # commit c0950c17.
     untyped_library_named_pair_views = {
+        # MEMSTD.OBJ is stripped. Its thirteen PASS bodies jointly fix the
+        # complete block/class graph, including the nested free-list sentinel;
+        # NFS2 PC's matched EA allocator independently confirms the block/class
+        # vocabulary, but not these PSX tag spellings. Lock the exact recovered
+        # private graph while keeping that naming limit explicit in the durable
+        # receipt. Pre-change backup: Git commit 7561d4f3.
+        ("memstd.c", "MemBlock"): (24, (
+            ("MOS", "USHORT", 0, "magic", 0, (), ""),
+            ("MOS", "USHORT", 0, "flags", 2, (), ""),
+            ("MOS", "INT", 0, "size", 4, (), ""),
+            ("MOS", "PTR STRUCT", 24, "physnext", 8, (), "MemBlock"),
+            ("MOS", "PTR STRUCT", 24, "physprev", 12, (), "MemBlock"),
+            ("MOS", "PTR STRUCT", 24, "freenext", 16, (), "MemBlock"),
+            ("MOS", "PTR STRUCT", 24, "freeprev", 20, (), "MemBlock"),
+        )),
+        ("memstd.c", "MemClass"): (64, (
+            ("MOS", "ARY CHAR", 8, "name", 0, (8,), ""),
+            ("MOS", "PTR STRUCT", 24, "phys_first", 8, (), "MemBlock"),
+            ("MOS", "PTR STRUCT", 24, "phys_last", 12, (), "MemBlock"),
+            ("MOS", "STRUCT", 24, "freehead", 16, (), "MemBlock"),
+            ("MOS", "INT", 0, "granularity", 40, (), ""),
+            ("MOS", "INT", 0, "alignment", 44, (), ""),
+            ("MOS", "INT", 0, "infosize", 48, (), ""),
+            ("MOS", "INT", 0, "flags", 52, (), ""),
+            ("MOS", "PTR VOID", 0, "mutex", 56, (), ""),
+            ("MOS", "INT", 0, "field3c", 60, (), ""),
+        )),
         # SSYSINIT.OBJ is stripped, but the linked game owners repeatedly
         # retain the public sound header's complete SNDSYSOPTS graph.  The
         # canonical 12+44+4 composition also replaces two synthetic aggregate

@@ -1,8 +1,12 @@
 /* frontend/common/femenuoptions_externs.h - reconstructed externs. NOT original. */
 #ifndef _FE_SCREENS_FEMENUOPTIONS_EXTERNS_H_
 #define _FE_SCREENS_FEMENUOPTIONS_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "femenuoptions_types.h"
+extern "C" int sprintf(char *, const char *, ...);
+extern "C" int purgememadr(void *);
+extern "C" int GetTPage(int, int, int, int);
+extern "C" int SetDrawMode(DR_MODE *, int, int, int, int);
+extern "C" int SetDrawArea(DR_AREA *, RECT *);
 extern tFEApplication *FEApp;
 extern tfrontEnd frontEnd;
 extern tPadModuleState gPadinfo;
@@ -37,10 +41,13 @@ void FETextRender_FullTextRGB(char*,short,short,int,char,short);
 void FETextRender_FullText(char*,short,short,tMenuTextType,tMenuTextState,short);
 void FETextRender_Title(short);  void FETextRender_SetABR(int,bool);
 void FETextRender_WordWrapTextRGBJustify(char*,RECT&,int,int,int,bool);
-int  CalcTextFadeSelToHi(tMenuTextType, short, short);  int CalcTextFadeUnselToSel(tMenuTextType, short, short);
+int CalcTextFadeSelToHi(tMenuTextType, short, short)
+    asm("CalcTextFadeSelToHi__F13tMenuTextTypess");
+int CalcTextFadeUnselToSel(tMenuTextType, short, short)
+    asm("CalcTextFadeUnselToSel__F13tMenuTextTypess");
 void DrawSlider(short,short,short,short,short,short,short,short,short,bool,bool,short,short);
 void AudioMus_SysStartUp(int, int, char *);  void AudioMus_SysCleanUp(void);  void AudioMus_StopSong(int);  void AudioMus_PlaySong(char *);
-int AudioMus_GetSongList(char *, int);  void AudioMus_Volume(int);
+AudioMus_tSongList *AudioMus_GetSongList(char *, int);  void AudioMus_Volume(int);
 bool FECheat_ActivateCheat(char*);  void s_lower(char*);  void s_upper(char*);
 void FeTools_DrawPSXButton(u_char,u_short,int,int);
 void Font_TextColor(int);  void Font_TextTint(int);  void Font_TextXY(char*,int,int);
@@ -56,5 +63,6 @@ bool FECheat_ActivateBonusByCode(char*);
 /* W58-A1 (08A phantom fix): CalcOnOffFade__F13tMenuTextTypesssRiT4 -- (tMenuTextType,
  * short,short,short,int&,int&); T4 = a repeat of param 4 (0-based) = int&.  The old
  * `(...)` decl mangled both call sites as CalcOnOffFade__Fe (never links). */
-int  CalcOnOffFade(tMenuTextType, short, short, short, int &, int &);
+int CalcOnOffFade(tMenuTextType, short, short, short, int &, int &)
+    asm("CalcOnOffFade__F13tMenuTextTypesssRiT4");
 #endif

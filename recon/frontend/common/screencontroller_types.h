@@ -2,8 +2,13 @@
 #ifndef NFS4_FRONTEND_COMMON_SCREENCONTROLLER_TYPES_H
 #define NFS4_FRONTEND_COMMON_SCREENCONTROLLER_TYPES_H
 
-/* The retail owner retains tInputKeyType but not the foreign tPlayer enum. */
+/* ScreenController retains tInputKeyType but not the foreign tPlayer enum.
+ * FeMenuOptions reuses this graph and retains both input enums. */
+#ifdef NFS4_FEMENUOPTIONS_SURFACE
+#include "fe_player_types.h"
+#else
 #define tPlayer int
+#endif
 #define uchar unsigned char
 struct tMenuCommand;
 #define NFS4_FE_INPUT_NO_PLAYER

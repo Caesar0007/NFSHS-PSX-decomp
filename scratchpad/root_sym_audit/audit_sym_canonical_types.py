@@ -477,7 +477,7 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "INT", 0, "nBestLap", 16, (), ""),
         ), ("fetourn_types.h", "fecntl_types.h", "fecheats_types.h",
             "femenuextended_types.h", "screenpinkslips_types.h",
-            "screenpost_types.h")),
+            "screenpost_types.h", "femenuoptions_types.h")),
     }
     # FECheats dereferences FEApp's embedded MemCardDialog.  CC1PL therefore
     # needs the complete application layout even though the linked owner keeps
@@ -847,6 +847,30 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "SHORT", 0, "index", 2, (), ""),
             ("MOS", "PTR FCN INT", 0, "pfn", 4, (), ""),
         ), "fe_core_types.h"),
+    }
+    # FeMenuOptions dereferences one foreign audio object, one FEMenuDefs menu
+    # slice, and uses a source-level PsyQ packet tag.  None of those completed
+    # tags is retained by the linked owner.  Pair-lock each exact carrier.
+    # Pre-change backup: 55686f9c.
+    femenuoptions_views = {
+        "FeMenuOptions_ScreenAudioCodegenView": (124, (
+            ("MOS", "ARY CHAR", 116, "_beforeSelectedSong", 0,
+             (116,), ""),
+            ("MOS", "SHORT", 0, "fSelectedSong", 116, (), ""),
+            ("MOS", "ARY CHAR", 2, "_beforeSongList", 118, (2,), ""),
+            ("MOS", "PTR STRUCT", 8, "songlist", 120, (),
+             "AudioMus_tSongList"),
+        ), "femenuoptions_types.h"),
+        "FeMenuOptions_GlobalMenuDefsCodegenView": (10208, (
+            ("MOS", "ARY CHAR", 10072, "_beforeMenuPlayList", 0,
+             (10072,), ""),
+            ("MOS", "STRUCT", 136, "menuPlayListMenu", 10072, (),
+             "tInsideBoxSongMenu"),
+        ), "femenuoptions_types.h"),
+        "tPsyQPrimTag": (4, (
+            ("FIELD", "UINT", 24, "addr", 0, (), ""),
+            ("FIELD", "UINT", 8, "len", 24, (), ""),
+        ), "femenuoptions.cpp"),
     }
     # ScreenDisplay.obj dereferences only the menuDisplayOptions member of the
     # foreign tGlobalMenuDefs singleton.  Its linked SYM retains the complete
@@ -1429,7 +1453,8 @@ def filter_exact_symbol_codegen_carriers(
             and item.typ == "STRUCT"
             and item.size == expected[0]
             and item.tag == item.name
-            and owner.endswith((expected[2], "screencontroller.cpp"))
+            and owner.endswith((expected[2], "screencontroller.cpp",
+                                "femenuoptions.cpp"))
         )
 
     def exact_screentrophyroom_view(block: TypeBlock) -> bool:
@@ -1538,6 +1563,29 @@ def filter_exact_symbol_codegen_carriers(
     def exact_screenpost_view_typedef(item: Definition) -> bool:
         owner = item.owner.replace("\\", "/").casefold()
         expected = screenpost_views.get(item.name)
+        return (
+            item.cls == "TPDEF"
+            and expected is not None
+            and item.typ == "STRUCT"
+            and item.size == expected[0]
+            and item.tag == item.name
+            and owner.endswith(expected[2])
+        )
+
+    def exact_femenuoptions_view(block: TypeBlock) -> bool:
+        owner = block.owner.replace("\\", "/").casefold()
+        expected = femenuoptions_views.get(block.name)
+        return (
+            block.kind == "STRTAG"
+            and expected is not None
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and owner.endswith(expected[2])
+        )
+
+    def exact_femenuoptions_view_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        expected = femenuoptions_views.get(item.name)
         return (
             item.cls == "TPDEF"
             and expected is not None
@@ -1791,6 +1839,13 @@ def filter_exact_symbol_codegen_carriers(
         and any(exact_screenpost_view_typedef(item) and item.name == name
                 for item in typedefs)
     }
+    femenuoptions_eligible = {
+        name for name in femenuoptions_views
+        if any(exact_femenuoptions_view(block) and block.name == name
+               for block in type_blocks)
+        and any(exact_femenuoptions_view_typedef(item) and item.name == name
+                for item in typedefs)
+    }
     screenusername_eligible = {
         name for name in screenusername_views
         if any(exact_screenusername_view(block) and block.name == name
@@ -1851,6 +1906,8 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_screentracks_view(block))
             and not (block.name in screenpost_eligible
                      and exact_screenpost_view(block))
+            and not (block.name in femenuoptions_eligible
+                     and exact_femenuoptions_view(block))
             and not (block.name in screendisplay_eligible
                      and exact_screendisplay_view(block))
             and not (block.name in screenusername_eligible
@@ -1897,6 +1954,8 @@ def filter_exact_symbol_codegen_carriers(
                      and exact_screentracks_view_typedef(item))
             and not (item.name in screenpost_eligible
                      and exact_screenpost_view_typedef(item))
+            and not (item.name in femenuoptions_eligible
+                     and exact_femenuoptions_view_typedef(item))
             and not (item.name in screendisplay_eligible
                      and exact_screendisplay_view_typedef(item))
             and not (item.name in screenusername_eligible

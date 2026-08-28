@@ -17,15 +17,35 @@ struct tListIteratorRangeIndexed : public tListIteratorRange {
 
 struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
     tListIterator *fData;
+#ifdef NFS4_FEMENUOPTIONS_SURFACE
+    tMenuItemLeftRightChoice(unsigned int, tListIterator *);
+    ~tMenuItemLeftRightChoice();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    void Draw(bool);
+#endif
 };
 
 struct tMenuItemLeftRightSlider : public tMenuItemInteractive {
     tListIterator *fData;
     short fX, fY, fWidth, fHeight;
+#ifdef NFS4_FEMENUOPTIONS_SURFACE
+    tMenuItemLeftRightSlider(unsigned int, tListIterator *);
+    ~tMenuItemLeftRightSlider();
+    long DebounceKeys();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    void Draw(bool);
+    void SetDimensions(short, short, short, short);
+#endif
 };
 
 struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
     void (*fOnButtonPress)(void *);
+#ifdef NFS4_FEMENUOPTIONS_SURFACE
+    tMenuItemGoToMenuButton(unsigned int, tMenu *,
+                            void (*)(tMenuCommand &));
+    ~tMenuItemGoToMenuButton();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+#endif
 };
 
 struct tDrawShapeExtended;
@@ -183,6 +203,14 @@ struct tMenuItemLeftRightFade : public tMenuItemLeftRightChoice {
     short fFadeVal, fFadeDir;
     bool fInTransition;
     int flareextra;
+#ifdef NFS4_FEMENUOPTIONS_SURFACE
+    tMenuItemLeftRightFade(unsigned int, tListIterator *);
+    void TransitionOff();
+    void TransitionOn();
+    bool TransitionIsFinished();
+    void UpdateTransition(bool);
+    void MyLeftRightDraw(int, int);
+#endif
 };
 
 struct tOptionsMenu : public tMenu {
@@ -190,10 +218,31 @@ struct tOptionsMenu : public tMenu {
     signed char fTransitionDirection;
     short fPrevItem;
     int fScreenFade, fFirstFrame, fNumFrames;
+#ifdef NFS4_FEMENUOPTIONS_SURFACE
+    tOptionsMenu(unsigned int, tScreen *, tMenu *, tMenu *,
+                 void (*)(tMenuCommand &), short, int, int,
+                 tMenuItem *, ...);
+    ~tOptionsMenu();
+    long DebounceKeys();
+    void TransitionOff();
+    void TransitionOn();
+    bool TransitionIsFinished();
+    void UpdateTransition();
+    void Draw();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+#endif
 };
 
 struct tInsideBoxMenu : public tMenu {
     short fPrevItem, fMoving, fMovingDir;
+#ifdef NFS4_FEMENUOPTIONS_SURFACE
+    tInsideBoxMenu() {}
+    tInsideBoxMenu(unsigned int, tScreen *, tMenu *, tMenu *,
+                   void (*)(tMenuCommand &), short, tMenuItem *, ...);
+    ~tInsideBoxMenu();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    void Draw(short, short, short, short, short);
+#endif
 };
 
 struct tMenuItemSlidingMenu : public tMenuItem {
@@ -202,16 +251,47 @@ struct tMenuItemSlidingMenu : public tMenuItem {
     bool fInTransition, fTransitioningOut, fClosing;
     short fDiffX, fDiffY;
     bool fFillback;
+#ifdef NFS4_FEMENUOPTIONS_SURFACE
+    tMenuItemSlidingMenu(unsigned int, short, short, int, int, bool)
+        asm("__20tMenuItemSlidingMenuUissssb");
+    ~tMenuItemSlidingMenu();
+    void TransitionOff();
+    void TransitionOn();
+    bool TransitionIsFinished();
+    void UpdateTransition(bool);
+    long DebounceKeys();
+    void Draw(bool);
+    void UpdatefOpenHeight(bool);
+    void Draw(int, int, bool);
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    void SetMenu(bool, tInsideBoxMenu *);
+#endif
 };
 
 struct tMenuItemSlidingActivated : public tMenuItemSlidingMenu {
     bool fActive;
+#ifdef NFS4_FEMENUOPTIONS_SURFACE
+    void UpdatefOpenHeight(bool);
+    void TransitionOff();
+    void TransitionOn();
+    bool TransitionIsFinished();
+    void UpdateTransition(bool);
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+#endif
 };
 
-struct tMenuItemDisplayLeftRightChoice : public tMenuItemLeftRightFade {};
+struct tMenuItemDisplayLeftRightChoice : public tMenuItemLeftRightFade {
+#ifdef NFS4_FEMENUOPTIONS_SURFACE
+    void Draw(int, int, bool);
+#endif
+};
 
 struct tMenuItemOnOffLeftRightChoice : public tMenuItemLeftRightFade {
     short fOnFade;
+#ifdef NFS4_FEMENUOPTIONS_SURFACE
+    void TransitionOn();
+    void Draw(int, int, bool);
+#endif
 };
 
 struct tMenuItemLeftRightAudioSlider : public tMenuItemLeftRightSlider {
@@ -219,18 +299,54 @@ struct tMenuItemLeftRightAudioSlider : public tMenuItemLeftRightSlider {
     bool fInTransition;
     short fAudioArt;
     int flareextra;
+#ifdef NFS4_FEMENUOPTIONS_SURFACE
+    tMenuItemLeftRightAudioSlider(unsigned int, tListIterator *, int);
+    ~tMenuItemLeftRightAudioSlider();
+    void Draw(int, int, bool);
+    int Percentage();
+    void TransitionOff();
+    void TransitionOn();
+    bool TransitionIsFinished();
+    void UpdateTransition(bool);
+#endif
 };
 
 struct tInsideBoxSongMenu : public tInsideBoxMenu {
     short fOnOffFade[5], fSelFade[5];
+#ifdef NFS4_FEMENUOPTIONS_SURFACE
+    tInsideBoxSongMenu(unsigned int, tScreen *, tMenu *, tMenu *,
+                       void (*)(tMenuCommand &), short, tMenuItem *, ...);
+    ~tInsideBoxSongMenu();
+    void Draw(short, short, short, short, short);
+    void DrawOneSong(short, short, short, short, short, short);
+    long DebounceKeys();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+#endif
 };
 
-struct tMenuItemControllerLeftRightChoice : public tMenuItemLeftRightFade {};
-struct tInsideBoxLeftRightSlider : public tMenuItemLeftRightSlider {};
+struct tMenuItemControllerLeftRightChoice : public tMenuItemLeftRightFade {
+#ifdef NFS4_FEMENUOPTIONS_SURFACE
+    void Draw(int, int, bool);
+#endif
+};
+struct tInsideBoxLeftRightSlider : public tMenuItemLeftRightSlider {
+#ifdef NFS4_FEMENUOPTIONS_SURFACE
+    tInsideBoxLeftRightSlider(unsigned int, tListIterator *);
+    ~tInsideBoxLeftRightSlider();
+    void Draw(int, int, int, bool);
+#endif
+};
 
 struct tInsideBoxTwoWaySlider : public tMenuItemLeftRightSlider {
     short fType;
     bool fActive;
+#ifdef NFS4_FEMENUOPTIONS_SURFACE
+    tInsideBoxTwoWaySlider(unsigned int, tListIterator *, int);
+    ~tInsideBoxTwoWaySlider();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    void Draw(int, int, int, bool);
+    void Calibrate();
+#endif
 };
 
 struct tUserNameMenuItem : public tMenuItem {
@@ -239,19 +355,41 @@ struct tUserNameMenuItem : public tMenuItem {
     char fRowList[10][9];
     short fPlayer, fFadeVal, fFadeDir;
     bool fInTransition;
+#ifdef NFS4_FEMENUOPTIONS_SURFACE
+    tUserNameMenuItem(unsigned int);
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    void Draw(bool);
+    void TransitionOff();
+    void TransitionOn();
+    bool TransitionIsFinished();
+    void UpdateTransition(bool);
+#endif
 };
 
 struct tMenuItemGoToMenuButtonFade : public tMenuItemGoToMenuButton {
     short fFadeVal, fFadeDir;
     bool fInTransition;
     signed short fEnableVal;
+#ifdef NFS4_FEMENUOPTIONS_SURFACE
+    void TransitionOff();
+    void TransitionOn();
+    bool TransitionIsFinished();
+    void UpdateTransition(bool);
+#endif
 };
 
-struct tMemoryCardMenuItem : public tMenuItemGoToMenuButtonFade {};
+struct tMemoryCardMenuItem : public tMenuItemGoToMenuButtonFade {
+#ifdef NFS4_FEMENUOPTIONS_SURFACE
+    void Draw(bool);
+#endif
+};
 struct tBlankMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuNFS4Button {};
 
 struct tInsideBoxControllerLeftRightSlider {
     tInsideBoxLeftRightSlider _base_tInsideBoxLeftRightSlider;
+#ifdef NFS4_FEMENUOPTIONS_SURFACE
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+#endif
 };
 
 typedef enum tTVState {

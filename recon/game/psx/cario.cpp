@@ -646,12 +646,12 @@ void CarIO_CreateLicense(char *text,int carType,int player)
   else {
     CarIO_Plate1[player] = (shapetbl *)reservememadr("plate1",0x148,0);
     CarIO_Plate2[player] = (shapetbl *)reservememadr("plate2",0x148,0);
-    clutPlate2 = CarIO_Plate2[player] + 0xe;
-    i = 0;
     clutPlate1 = CarIO_Plate1[player] + 0xe;
+    clutPlate2 = CarIO_Plate2[player] + 0xe;
     thePlate = (short *)reservememadr("theplate",0x210,0x10);
     shape = (shapetbl *)locateshapez(R3DCar_LicenseShapeFile,"blnk");
     clutptr = (shapetbl *)((int)shape + (*(int *)shape >> 8));
+    i = 0;
     /* MATCH (w50-a6, 104 -> 78, count stays EXACT 229/229): MAY-ALIAS SERIALIZATION.
      * Retail issues the TWO `CarIO_PlateN[player]` pointer loads BACK-TO-BACK, then both
      * address adds, then both stores (`lw v0,0(s1); lw a0,0(s0); addu; addu; sw; sw`).
@@ -698,13 +698,8 @@ void CarIO_CreateLicense(char *text,int carType,int player)
      * so NO statement order can produce retail's early materialization). */
     q2 = CarIO_Plate2[player];
     q1 = CarIO_Plate1[player];
-    {
-      u_int f2; /* SYM-CODEGEN-CARRIER: f2 -- retains q2's byte load across the q1 store; reusing r2 is current FAIL 11/230 */
-
-      f2 = *(u_char *)q2 | 0x11800;
-      *(u_int *)q1 = *(u_char *)q1 | 0x11800;
-      *(u_int *)q2 = f2;
-    }
+    q2->next = 0x118;
+    q1->next = 0x118;
     /* MATCH (w62-a14, 44 -> 30, count stays EXACT 229/229): the SAME may-alias
      * serialization a THIRD time, on the two `->width` stores.  The w50-a6 note
      * below said retail "re-loads both there too" and left the re-reads inline --

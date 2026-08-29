@@ -44,6 +44,15 @@ typedef enum tInputKeyType {
     kInput_KeyType_Select = 16384
 } tInputKeyType;
 
+#ifdef NFS4_MPAUSE_PAUSEMENU_METHODS
+typedef enum tPlayer {
+    kPlayerBoth = -1,
+    kPlayerOne = 0,
+    kPlayerTwo = 1
+} tPlayer;
+#endif
+
+#ifndef NFS4_MPAUSE_OMIT_PAUSEMENU_FOREIGN_TYPES
 struct SNDSYSCAP {
     u_short outputratemin, outputratemax;
     u_char outputchannelsmin, outputchannelsmax, inputvoicesmax;
@@ -59,6 +68,7 @@ struct SNDSYSSET {
 };
 struct SNDSYSVEC { int (*issurfacelocked)(void); };
 struct SNDSAMPLEFORMAT { u_short samplerate; u_char channels, samplerep; };
+#endif
 struct AudioMus_tSongEntry {
     char *filename, *title, *artist, *label, *date, *notes;
     int length, index;
@@ -75,11 +85,23 @@ struct tPListIterator {
     tPListIterator() {}
     tPListIterator(short *, int *);
     ~tPListIterator();
+#ifdef NFS4_MPAUSE_PAUSEMENU_METHODS
+    char Value(tPlayer);
+    short TextValue(tPlayer);
+    void Increment(tPlayer);
+    void Decrement(tPlayer);
+#endif
 };
 struct tPListIteratorIndexed : public tPListIterator {
     char *fIndex;
     tPListIteratorIndexed(short *, int *, char *);
     ~tPListIteratorIndexed();
+#ifdef NFS4_MPAUSE_PAUSEMENU_METHODS
+    char Value(tPlayer);
+    short TextValue(tPlayer);
+    void Increment(tPlayer);
+    void Decrement(tPlayer);
+#endif
 };
 
 struct tPMenuItem {
@@ -96,41 +118,57 @@ struct tPMenuItem {
 struct tPMenuItemNonInteractiveText : public tPMenuItem {
     tPMenuItemNonInteractiveText(unsigned int);
     ~tPMenuItemNonInteractiveText();
+    void Draw(bool);
+    bool IsNavigable();
 };
 struct tPMenuItemInteractive : public tPMenuItem {
     tPMenuItemInteractive(unsigned int);
     ~tPMenuItemInteractive();
+    void Draw(bool);
+    bool IsNavigable();
 };
 struct tPMenuItemLeftRightChoice : public tPMenuItemInteractive {
     tPListIterator *fData;
     tPMenuItemLeftRightChoice(unsigned int, tPListIterator *);
     ~tPMenuItemLeftRightChoice();
+    void ProcessInput(tInputKeyType &, tPMenuCommand &);
+    void Draw(bool);
 };
 struct tPMenuItemLeftRightSlider : public tPMenuItemInteractive {
     int *fData;
     char fMaxVal;
     tPMenuItemLeftRightSlider(unsigned int, int *, char);
     ~tPMenuItemLeftRightSlider();
+    bool Debounce();
+    void ProcessInput(tInputKeyType &, tPMenuCommand &);
+    void Draw(bool);
 };
 struct tPMenuItemLeftRightSliderIndexed : public tPMenuItemLeftRightSlider {
     char *fIndex;
     tPMenuItemLeftRightSliderIndexed(unsigned int, int *, char, char *);
     ~tPMenuItemLeftRightSliderIndexed();
+    void ProcessInput(tInputKeyType &, tPMenuCommand &);
+    void Draw(bool);
 };
 struct tPMenuItemGoToMenuButton : public tPMenuItemInteractive {
     tPMenu *fNewMenu;
     void (*fOnButtonPress)(tPMenuCommand &);
     tPMenuItemGoToMenuButton(unsigned int, tPMenu *, void (*)(tPMenuCommand &));
     ~tPMenuItemGoToMenuButton();
+    tPMenu *NextMenu();
+    void ProcessInput(tInputKeyType &, tPMenuCommand &);
 };
 struct tPMenuItemCommandButton : public tPMenuItemInteractive {
     tPMenuCommandType fCommand;
     tPMenuItemCommandButton(unsigned int, tPMenuCommandType);
     ~tPMenuItemCommandButton();
+    void ProcessInput(tInputKeyType &, tPMenuCommand &);
 };
 
 typedef tPMenuItem *tPItemList[16];
+#ifndef NFS4_MPAUSE_OMIT_INPUT_DEVICE_CALL
 typedef int Input_tDeviceCall();
+#endif
 
 struct tPMenu {
     int fCurrentItem;
@@ -142,6 +180,13 @@ struct tPMenu {
     tPMenu() {}
     tPMenu(tPMenuItem *, ...);
     ~tPMenu();
+    void tPMenuConstructor(tPMenuItem *, void *);
+    void Initialize();
+    bool Debounce();
+    void CheckForDisabled();
+    void ProcessInput(tInputKeyType &, tPMenuCommand &);
+    void Draw();
+    int NumEnabledItems();
     int ItemEnabledNum(int);
     inline void VirtualInitialize() {
         (*(*_vf)[2].pfn)((int)this + (*_vf)[2].delta);
@@ -151,6 +196,7 @@ struct tPMenu {
     }
 };
 
+#ifndef NFS4_MPAUSE_OMIT_PAUSEMENU_FOREIGN_TYPES
 struct tPauseMenuDefs {
     tPauseMenuDefs();
     ~tPauseMenuDefs();
@@ -178,6 +224,7 @@ struct tPauseMenuDefs {
     tPMenuItemCommandButton itemConfirmNo, itemConfirmYes;
     tPMenu menuConfirmYesNo;
 };
+#endif
 
 struct kernpair { u_short previouscode, code; char kernvalue; char pad[3]; };
 typedef kernpair KERN;

@@ -6,12 +6,14 @@
 #ifndef PAUSEMENU_EXTERNS_H
 #define PAUSEMENU_EXTERNS_H
 
+#include "pausemenu_types.h"
+
 extern void trap(int code);   /* gcc MIPS div/overflow break helper */
 
 /* ---- cross-TU globals ---- */
 extern bool             gMPauseUpdateNextTime;        /* mpause.obj; SYM BOOL */
-extern GameSetup_tData  GameSetup_gData;              /* gamesetup.obj */
-extern HudPmx_tShape    HudPmx_gShapes[];             /* hud.obj */
+extern PauseMenu_GameSetupCodegenView GameSetup_gData asm("GameSetup_gData");
+extern PauseMenu_HudShapeCodegenView HudPmx_gShapes[] asm("HudPmx_gShapes");
 
 /* ---- cross-TU functions (demangled) ---- */
 extern "C" int textpixels(char *s);                                 /* textpix.obj */
@@ -21,7 +23,8 @@ extern int   TextSys_WordFlags(int id);                           /* textsys.obj
 extern int   TextSys_WordX(int id);                               /* textsys.obj */
 extern char *TextSys_Word(int id);                                /* textsys.obj */
 extern void  AudioCmn_PlayPauseSound(int patch);                  /* audiocmn.obj */
-extern void  Hud_BuildGT4(POLY_GT4 *prim, HudPmx_tShape *shape, int x, int y, u_long color);   /* hud.obj */
+extern void  Hud_BuildGT4(POLY_GT4 *prim, PauseMenu_HudShapeCodegenView *shape, int x, int y, u_long color)
+    asm("Hud_BuildGT4__FP8POLY_GT4P13HudPmx_tShapeiiUl");   /* hud.obj */
 extern void  Hud_FBuildF4(int transparent, int x, int y, int w, int h, u_long col1, char c0, char c1);  /* hud.obj */
 
 /* ---- PauseMenu.obj manual vtable symbols ---- */

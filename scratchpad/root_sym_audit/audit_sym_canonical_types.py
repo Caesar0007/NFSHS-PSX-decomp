@@ -1360,6 +1360,15 @@ def filter_exact_symbol_codegen_carriers(
             ("MOE", "MOE", 0, "TRIGGER_TRAFFIC_PATH", 5, (), ""),
             ("MOE", "MOE", 0, "TRIGGER_NUM_TRIGGER_TYPES", 6, (), ""),
         )),
+        # The C++ function names prove this parameter enum even though the
+        # linked PauseMenu owner omits its completed header record. It is
+        # enabled only for PauseMenu; mpause.obj retains its exact graph.
+        # Pre-change tool/source backup: Git commit d8a7b2aa.
+        ("mpause_types.h", "tPlayer"): (4, (
+            ("MOE", "MOE", 0, "kPlayerBoth", 0xffffffff, (), ""),
+            ("MOE", "MOE", 0, "kPlayerOne", 0, (), ""),
+            ("MOE", "MOE", 0, "kPlayerTwo", 1, (), ""),
+        )),
     }
     untyped_library_named_pair_views = {
         **{
@@ -2497,6 +2506,15 @@ def filter_exact_symbol_codegen_carriers(
             ("STRUCT", 24, "Track_SimGlobalCodegenView"),
         ("track.cpp", "LightTableData"):
             ("STRUCT", 1024, "LightTableData"),
+        # PauseMenu's two exact foreign-global views and the repeated
+        # block-local GPU tag carrier. Pre-change tool/source backup:
+        # Git commit d8a7b2aa.
+        ("pausemenu_types.h", "PauseMenu_GameSetupCodegenView"):
+            ("STRUCT", 2600, "PauseMenu_GameSetupCodegenView"),
+        ("pausemenu_types.h", "PauseMenu_HudShapeCodegenView"):
+            ("STRUCT", 20, "PauseMenu_HudShapeCodegenView"),
+        ("pausemenu.cpp", "PMenuTag"):
+            ("STRUCT", 4, "PMenuTag"),
         # The macro-bound local tick pointer repeats the already pair-locked
         # foreign SimGlobal view at its use site. Keep the repeat exact too.
         ("aih_opp.cpp", "AIH_Opp_SimGlobalCodegenView"):
@@ -3307,6 +3325,28 @@ def filter_exact_symbol_codegen_carriers(
         ("track.cpp", "LightTableData")
     ] = (1024, (
         ("MOS", "ARY STRUCT", 1024, "data", 0, (256,), "CVECTOR"),
+    ))
+    # PauseMenu.obj omits the completed foreign GameSetup/Hud shape tags and
+    # the block-local GPU packet tag even though its 60 PASS bodies require
+    # those exact MEM/FIELD shapes. Pair-lock them at their source owners.
+    # Tool/source backup before this extension: Git commit d8a7b2aa.
+    untyped_library_codegen_views[
+        ("pausemenu_types.h", "PauseMenu_GameSetupCodegenView")
+    ] = untyped_library_codegen_views[
+        ("r3dcar_types.h", "R3DCar_GameSetupCodegenView")
+    ]
+    untyped_library_codegen_views[
+        ("pausemenu_types.h", "PauseMenu_HudShapeCodegenView")
+    ] = (20, (
+        ("MOS", "STRUCT", 16, "pixmap", 0, (), "Draw_tPixMap"),
+        ("MOS", "SHORT", 0, "width", 16, (), ""),
+        ("MOS", "SHORT", 0, "height", 18, (), ""),
+    ))
+    untyped_library_codegen_views[
+        ("pausemenu.cpp", "PMenuTag")
+    ] = (4, (
+        ("FIELD", "UINT", 24, "addr", 0, (), ""),
+        ("FIELD", "UINT", 8, "len", 24, (), ""),
     ))
 
     def exact_night_camera(block: TypeBlock) -> bool:

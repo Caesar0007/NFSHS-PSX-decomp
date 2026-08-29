@@ -3,7 +3,7 @@
  *   Interactive/LeftRightChoice/LeftRightSlider[Indexed]/GoToMenuButton/CommandButton, tPMenu)
  *   + 3 free text helpers. Member defs; manual _vf vtable dispatch; base-subobject _base_ routing.
  */
-#include "../../nfs4_types.h"
+#include "pausemenu_types.h"
 #include "pausemenu_externs.h"
 
 /* Data owned by PauseMenu.obj.  SYM records ChangedEnabling as EXT BOOL and

@@ -3,7 +3,7 @@
  *   (chunk visibility, build lists, spike belt, glare effects, render contexts). Self-contained.
  *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++.
  */
-#include "../../nfs4_types.h"
+#include "bworld_types.h"
 #include "bworld_externs.h"
 
 /* ---- bworld.obj anon file-statics (no SYM name; Ghidra DAT_; real .bss bytes = 0) ---- */
@@ -135,12 +135,12 @@ void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group)
       if ((found_match != 0) && (pad < 0)) {
         Flare_Halo2(Vi, -1, (short)type,
                     (coorddef *)&objInstance[i],
-                    (coorddef *)&objInstance[j], (Draw_FlareCache *)sd);
+                    (coorddef *)&objInstance[j], (BWorld_FlareCacheCodegenView *)sd);
       }
     }
     else {
       Flare_Halo(Vi, -1, (short)type,
-                 (coorddef *)&objInstance[i], (Draw_FlareCache *)sd);
+                 (coorddef *)&objInstance[i], (BWorld_FlareCacheCodegenView *)sd);
     }
     i++;
   }
@@ -415,8 +415,8 @@ int BWorld_CheckChunkVisible(BWorldSm_Pos *slicePosSource,BWorldSm_Pos *slicePos
   int testChunkIndBwd;
   int chunkIndFwd;
   int chunkIndBwd;
-  Trk_NewSlice *sliceFwd;
-  Trk_NewSlice *sliceBwd;
+  BWorld_SliceCodegenView *sliceFwd;
+  BWorld_SliceCodegenView *sliceBwd;
   short *chunkViewList;
   int chunkInd;
   int count;
@@ -927,12 +927,12 @@ bool BWorld_IsSliceInBuildList(int slice)
 void BWorld_OnyxBuildFacets(DRender_tView *Vi)
 {
   Draw_DCache *sd;
-  CTrackSpec *ts;
+  BWorld_TrackSpecCodegenView *ts;
   u_short fogStart;
   u_short fogDist;
   u_char fogState;
   int time;
-  BOOL pvVar3;
+  int pvVar3;
   
   Chunk_UpdateSys(Vi);
   gVi2 = Vi;
@@ -960,9 +960,9 @@ void BWorld_OnyxBuildFacets(DRender_tView *Vi)
      inert here (3 positions probed, all 4 diffs). */
   __asm__("" : : "i"(0));
   stackSpeedUpEnbabledFlag = 0;
-  ((Draw_tGiveShelbyMoreCache *)sd)->startfog = fogStart;
-  ((Draw_tGiveShelbyMoreCache *)sd)->distfog  = fogDist;
-  ((Draw_tGiveShelbyMoreCache *)sd)->fogstate = fogState;
+  ((BWorld_DrawCacheCodegenView *)sd)->startfog = fogStart;
+  ((BWorld_DrawCacheCodegenView *)sd)->distfog  = fogDist;
+  ((BWorld_DrawCacheCodegenView *)sd)->fogstate = fogState;
   if (time != 0) {
     short a;
     u_char ac;
@@ -975,11 +975,11 @@ void BWorld_OnyxBuildFacets(DRender_tView *Vi)
     bc = (u_char)Night_gZDistShift;
     cc = (u_char)Night_gDrawLightning;
     dc = (u_char)Night_gLightningType;
-    ((Draw_tGiveShelbyMoreCache *)sd)->night_ZNear = a;
-    ((Draw_tGiveShelbyMoreCache *)sd)->night_XDistShift = ac;
-    ((Draw_tGiveShelbyMoreCache *)sd)->night_ZDistShift = bc;
-    ((Draw_tGiveShelbyMoreCache *)sd)->night_DrawLightning = cc;
-    ((Draw_tGiveShelbyMoreCache *)sd)->night_LightningType = dc;
+    ((BWorld_DrawCacheCodegenView *)sd)->night_ZNear = a;
+    ((BWorld_DrawCacheCodegenView *)sd)->night_XDistShift = ac;
+    ((BWorld_DrawCacheCodegenView *)sd)->night_ZDistShift = bc;
+    ((BWorld_DrawCacheCodegenView *)sd)->night_DrawLightning = cc;
+    ((BWorld_DrawCacheCodegenView *)sd)->night_LightningType = dc;
   }
   gWSavePtr = (u_long)SetSp((void *)0x1f8003fc);
   stackSpeedUpEnbabledFlag = 1;

@@ -2438,6 +2438,26 @@ def filter_exact_symbol_codegen_carriers(
             ("STRUCT", 140, "PSXFront_DRenderCodegenView"),
         ("psxfront_types.h", "PSXFront_DFlipCodegenView"):
             ("STRUCT", 24, "PSXFront_DFlipCodegenView"),
+        # Exact implicit typedef halves of BWorld's six pair-locked foreign
+        # storage views. The completed tags are guarded separately above.
+        ("bworld_types.h", "BWorld_SliceCodegenView"):
+            ("STRUCT", 32, "BWorld_SliceCodegenView"),
+        ("bworld_types.h", "BWorld_CameraCodegenView"):
+            ("STRUCT", 272, "BWorld_CameraCodegenView"),
+        ("bworld_types.h", "BWorld_GameSetupCodegenView"):
+            ("STRUCT", 2600, "BWorld_GameSetupCodegenView"),
+        ("bworld_types.h", "BWorld_TrackSpecCodegenView"):
+            ("STRUCT", 264, "BWorld_TrackSpecCodegenView"),
+        ("bworld_types.h", "BWorld_FlareCacheCodegenView"):
+            ("STRUCT", 20, "BWorld_FlareCacheCodegenView"),
+        ("bworld_types.h", "BWorld_DrawCacheCodegenView"):
+            ("STRUCT", 272, "BWorld_DrawCacheCodegenView"),
+        # Local typed-pointer declarations repeat two already pair-locked
+        # BWorld views at their use sites.
+        ("bworld.cpp", "BWorld_SliceCodegenView"):
+            ("STRUCT", 32, "BWorld_SliceCodegenView"),
+        ("bworld.cpp", "BWorld_TrackSpecCodegenView"):
+            ("STRUCT", 264, "BWorld_TrackSpecCodegenView"),
         # The macro-bound local tick pointer repeats the already pair-locked
         # foreign SimGlobal view at its use site. Keep the repeat exact too.
         ("aih_opp.cpp", "AIH_Opp_SimGlobalCodegenView"):
@@ -3145,6 +3165,44 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "ARY CHAR", 8, "b", 0, (8,), ""),
         ), "draww.cpp"),
     }
+    # bworld.obj retains six foreign-storage member shapes while its SYM graph
+    # omits the completed foreign tags. Pair-lock the exact private carriers;
+    # all 21 normal and source-only functions remain byte-identical. Tool and
+    # source backup before this extension: Git commit 7749e58c.
+    untyped_library_codegen_views[
+        ("bworld_types.h", "BWorld_SliceCodegenView")
+    ] = draww_views["DrawW_SliceCodegenView"][:2]
+    untyped_library_codegen_views[
+        ("bworld_types.h", "BWorld_CameraCodegenView")
+    ] = hud_views["Hud_CameraCodegenView"]
+    untyped_library_codegen_views[
+        ("bworld_types.h", "BWorld_GameSetupCodegenView")
+    ] = untyped_library_codegen_views[
+        ("r3dcar_types.h", "R3DCar_GameSetupCodegenView")
+    ]
+    untyped_library_codegen_views[
+        ("bworld_types.h", "BWorld_TrackSpecCodegenView")
+    ] = draww_views["DrawW_TrackSpecCodegenView"][:2]
+    untyped_library_codegen_views[
+        ("bworld_types.h", "BWorld_FlareCacheCodegenView")
+    ] = (20, (
+        ("MOS", "STRUCT", 20, "head", 0, (), "Draw_tCacheHeader"),
+    ))
+    untyped_library_codegen_views[
+        ("bworld_types.h", "BWorld_DrawCacheCodegenView")
+    ] = (272, (
+        ("MOS", "ARY UCHAR", 220, "beforeFog", 0, (220,), ""),
+        ("MOS", "SHORT", 0, "startfog", 220, (), ""),
+        ("MOS", "SHORT", 0, "distfog", 222, (), ""),
+        ("MOS", "ARY UCHAR", 40, "beforeNight", 224, (40,), ""),
+        ("MOS", "SHORT", 0, "night_ZNear", 264, (), ""),
+        ("MOS", "UCHAR", 0, "night_XDistShift", 266, (), ""),
+        ("MOS", "UCHAR", 0, "night_ZDistShift", 267, (), ""),
+        ("MOS", "UCHAR", 0, "night_DrawLightning", 268, (), ""),
+        ("MOS", "UCHAR", 0, "night_LightningType", 269, (), ""),
+        ("MOS", "UCHAR", 0, "fogstate", 270, (), ""),
+        ("MOS", "UCHAR", 0, "padnight", 271, (), ""),
+    ))
 
     def exact_night_camera(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()

@@ -1,7 +1,7 @@
 /* game/common/bworld.h — reconstructed from game/common/bworld.cpp (21 fns) */
 #ifndef _GAME_COMMON_BWORLD_H_
 #define _GAME_COMMON_BWORLD_H_
-#include "../../nfs4_types.h"
+#include "bworld_types.h"
 
 int xzsquaredist32__FP8coorddefT0(coorddef *c1, coorddef *c2);   /* :127 */
 void UpdateContext__FP13DRender_tViewi(DRender_tView *Vi, int contextHandle);   /* :140 */

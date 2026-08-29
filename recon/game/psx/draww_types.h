@@ -25,6 +25,7 @@ typedef enum forceFocus_t {
     FOCUS_COPANDAI = 2
 } forceFocus_t;
 
+#ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 typedef enum AIDataRecord_RecordMethod_t {
     NORMAL_M = 0,
     RECORD_M = 1,
@@ -40,14 +41,17 @@ struct AIDataRecord_t {
 };
 struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
 struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};
+#endif
 
 struct Trk_ObjectDef { short id; u_char vertexCount, quadCount; };
+#ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 struct Trk_SimpleInst {
     short size;
     u_char type, objectIndex, zoffset, flags;
     short pad;
     int x, y, z;
 };
+#endif
 struct Trk_CollideBoomInst {
     short size;
     u_char type, objectIndex, zoffset, flags;
@@ -158,12 +162,14 @@ struct DIRENTRY {
     char system[4];
 };
 
+#ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 struct POLY_GT3 {
     u_long tag;
     u_char r0, g0, b0, code; short x0, y0; u_char u0, v0; u_short clut;
     u_char r1, g1, b1, p1; short x1, y1; u_char u1, v1; u_short tpage;
     u_char r2, g2, b2, p2; short x2, y2; u_char u2, v2; u_short pad2;
 };
+#endif
 struct POLY_GT4 {
     u_long tag;
     u_char r0, g0, b0, code; short x0, y0; u_char u0, v0; u_short clut;
@@ -171,7 +177,9 @@ struct POLY_GT4 {
     u_char r2, g2, b2, p2; short x2, y2; u_char u2, v2; u_short pad2;
     u_char r3, g3, b3, p3; short x3, y3; u_char u3, v3; u_short pad3;
 };
+#ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 struct DR_TWIN { u_long tag, code[2]; };
+#endif
 
 struct Draw_SubdivStruct { Draw_SVertex v[15]; };
 struct Track_tArtresource {
@@ -182,6 +190,7 @@ struct Track_tArtresource {
     int pmxCount, basePmxCount;
 };
 struct Track_tMaterial { char flag, mipmap_offset; short pmxIndex; };
+#ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 struct Trk_Line { u_char firstPoint, slice, type, quadIndex; };
 
 struct Draw_tGiveShelbyMoreCache {
@@ -210,6 +219,7 @@ struct Draw_tGiveShelbyMoreCache {
     Draw_SVertex v0, v1, v2, v3;
     Draw_SubdivStruct div;
 };
+#endif
 
 struct Skidmark_Segment {
     SVECTOR svx[2];
@@ -222,6 +232,7 @@ struct Skidmark_Chunk {
     short n, slice;
     Skidmark_Segment seg[24];
 };
+#ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 struct Draw_tCtrlSkidmark {
     matrixtdef m;
     coorddef t;
@@ -235,12 +246,14 @@ struct ChunkObjectInfo {
     int doFrustumClip, zClipSq, offset;
     short *visList;
 };
+#endif
 
 struct FLARE_PIECE_DEF { int distance, size; CVECTOR color; char type; };
 struct Sched_tSchedule {
     int maxNumFunctions, numFunctions;
     Sched_tFunctionSchedule func[1];
 };
+#ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
 struct tBoundingSphere { COORD16 cp; short radius; };
 struct tQuat { short x, y, z, w; };
 struct kernpair {
@@ -255,6 +268,7 @@ typedef void (*fontblitbegin)();
 typedef void (*fontblitend)();
 typedef void (*adjustchar)();
 typedef tQuat Quatern_quat;
+#endif
 typedef u_char Night_tLightingTable[256][16];
 typedef u_char Night_tWeatherLightingTable[256];
 typedef u_char Night_tCopLightingTable[256][8];

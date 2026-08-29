@@ -2,8 +2,7 @@
  * Harvested from sibling *_externs.h + *.cpp defs + disasm-v2 (AI/Control demangled). */
 #ifndef _GAME_COMMON_BWORLD_EXTERNS_H_
 #define _GAME_COMMON_BWORLD_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "bworld_types.h"
 
 char *Platform_GetDCTBuffer(int, char *); void Platform_ResetDCTBuffer();
 extern CVECTOR * Chunk_lightTable;
@@ -15,12 +14,12 @@ extern Car_tObj           *Cars_gCopCarList[];       /* 0x8010faB4 -- alias-adja
                                                        * addresses this cluster via
                                                        * Cars_gCopCarList directly. */
 extern Chunk              *Track_chunkList;
-extern GameSetup_tData   GameSetup_gData;
+extern BWorld_GameSetupCodegenView GameSetup_gData asm("GameSetup_gData");
 extern Group              *Object_customSFXInst;     /* 0x8013d2d0 */
 extern Group              *gPersistObjDef;           /* track.obj */
 extern MATRIX     Render_gWorldMat, Render_gNightMat;
-extern Trk_NewSlice  *BWorldSm_slices;
-extern camera_info       Camera_gInfo[2];            /* camera.obj */
+extern BWorld_SliceCodegenView *BWorldSm_slices asm("BWorldSm_slices");
+extern BWorld_CameraCodegenView Camera_gInfo[2] asm("Camera_gInfo");
 extern char * Track_MakeTrackDataPathName(char *ext);
 extern char * Track_MakeTrackPathName(char *ext);
 extern char Night_gDrawLightning;
@@ -34,7 +33,7 @@ extern int            Chunk_numLight;            /* 0x8013d4ec */
 extern int            Draw_gPlayer1View, Draw_gPlayer2View;
 extern int            gNumSlices;
 extern int    Skid_gCtrlScratch_94, Skid_gCtrlScratch_98, Skid_gScratchPos1, Skid_gScratchPos2;
-extern CTrackSpec     TrackSpec_gSpec;           /* 0x8012327c */
+extern BWorld_TrackSpecCodegenView TrackSpec_gSpec asm("TrackSpec_gSpec");
 extern int   BWorldSm_FindClosestQuadRez(coorddef *c, BWorldSm_Pos *pos, int rez);
 extern u_char *Track_gInViewCount;     /* = Alloc(...), indexed */
 extern int Loading_UpdateLoadingScreen(int);
@@ -54,8 +53,10 @@ extern void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList);
 extern void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList);
 extern void DrawW_WorldSetUpMatrix(matrixtdef *, MATRIX *);
 extern void FindAbsClosestSliceCrude(coorddef *pt,BWorldSm_Pos *slicePos);
-extern void Flare_Halo(DRender_tView *Vi,int scale,int type,coorddef *fpt,Draw_FlareCache *sd);
-extern void Flare_Halo2(DRender_tView *, int, int, coorddef *, coorddef *, Draw_FlareCache *);
+extern void Flare_Halo(DRender_tView *Vi,int scale,int type,coorddef *fpt,BWorld_FlareCacheCodegenView *sd)
+    asm("Flare_Halo__FP13DRender_tViewiiP8coorddefP15Draw_FlareCache");
+extern void Flare_Halo2(DRender_tView *, int, int, coorddef *, coorddef *, BWorld_FlareCacheCodegenView *)
+    asm("Flare_Halo2__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache");
 extern void Night_SetCopColor(GameSetup_tCarData *carinfo);
 extern void Object_ClearCustomObjects(void);
 extern void Object_InitCustomObjects(void);
@@ -74,5 +75,11 @@ extern void TrsProj_TransPtN16(RelCoord16 *s,coorddef *d,int n);
 int Anim_InitSystem(char *trackName);
 void Anim_Restart(void);
 void AudList_LoadAudioFile(int AudioFileIndex);
+extern "C" {
+void *SetSp(...);
+void transpose(...);
+int xformy(...);
+int rand(...);
+}
 
 #endif /* _GAME_COMMON_BWORLD_EXTERNS_H_ */

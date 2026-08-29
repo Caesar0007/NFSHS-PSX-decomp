@@ -5661,20 +5661,12 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
      remains diagnostic only and is not used as an allocation receipt.
      ============================================================================ */
 
-  otz94 = (int *)0x1f800094;
-  sd = (Draw_DCache *)&Render_gPalettePtr;
-  grey = 0x404040;
   ccount = fskid->count;
-  __asm__("" : : "r"(grey));
-  __asm__("" : : "r"(grey));
   m = &fskid->m;
-  __asm__("" : : "r"(m));
   t = &fskid->t;
-  /* MATCH (w72-a1): zero-insn READ-ONLY fence = exactly +1 REG_N_REFS on `t`
-     (out of every loop, so the loop-depth weighting does not apply -- 21E(2)).
-     reqdelta on the post-rule-8 dump: `p102 refs 10 -> 11` is the MINIMAL single
-     dial that flips the t/skidIdx pair to retail's $s6/$s7. */
-  __asm__("" : : "r"(t));
+  otz94 = (int *)0x1f800094;
+  grey = 0x404040;
+  sd = (Draw_DCache *)&Render_gPalettePtr;
   skidIdx = ccount * 0x2b0;
   /* MATCH (w40-a2): SYM @0x800C909C declares the matrix conversion as THREE sibling
    * blocks of `int r0,r1,r2`; the oracle runs each row as three PARALLEL chains
@@ -5716,21 +5708,14 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
   }
   {
   Skidmark_Chunk *sm;
+  /* The selector and renderer are one source loop.  Keeping them nested
+     overweights ccount/skidIdx in local allocation and fabricates a register
+     handout that is absent from the retail build. */
   do {
-    do {
       ccount = ccount + -1;
-      /* MATCH (w72-a1): the `-1` sentinel is a LOOP-INVARIANT constant that
-         loop.c hoists to the preheader, where it loses its register and reload
-         rematerializes it into an arbitrary scratch ($t8); retail has `li $v0,-1`
-         (a block-local qty that takes the lowest free reg).  An opacity fence on
-         the named constant gives the pseudo a SECOND set, so no movable is built
-         and the constant stays block-local.  Zero insns (353/353 either way).
-         Same device as the four `sd->offset = 0x7d` sites in DrawW_DoTrough. */
-      { int neg1 /* SYM-CODEGEN-CARRIER: neg1 -- direct -1 test is FAIL 24 at 353/353 */ = -1;
-      __asm__("" : "=r"(neg1) : "0"(neg1));
-      if (ccount == neg1) {
+      if (ccount == -1) {
         return;
-      } }
+      }
       /* MATCH (w46-a6): retail has NO `skidIter` -- the SYM lists no such
        * local and the oracle mutates the byte cursor IN PLACE inside the
        * exit-test's delay slot (`beq $s5,$v0,exit; addiu $s7,$s7,-0x2B0`
@@ -5742,14 +5727,10 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
       sm = (Skidmark_Chunk *)((int)fskid->smp + skidIdx);
       if ((BWorld_IsSliceInBuildList((int)sm->slice) != 0) &&
           (Draw_CircleClip(&sm->cp,t,0x320000) != 0)) {
-        break;
-      }
-    } while (true);
+    {
     {
     coorddef td;
     coorddef ts;
-    int count;
-    int i;
     /* MATCH (w72-a1, w45-a5 subtrahend-first class): retail loads the
        SUBTRAHEND (`lw $v1,0($s6)` = t->N) BEFORE the minuend; a single
        `a - b` expression evaluates left-to-right and loads them the other way. */
@@ -5760,6 +5741,10 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
     (sd->matB).t[0] = td.x >> 6;
     (sd->matB).t[1] = td.y >> 6;
     (sd->matB).t[2] = td.z >> 6;
+    }
+    {
+    int count;
+    int i;
 gte_SetRotMatrix(&sd->matB);
 gte_SetTransMatrix(&sd->matB);
     count = *(int *)&sm->n;
@@ -6096,6 +6081,8 @@ gte_swc2(0x7,otz94);
         }
         }
       }
+    }
+    }
     }
     }
   } while( true );

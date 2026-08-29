@@ -1,7 +1,7 @@
 /* game/common/audioclc.h — reconstructed from game/common/audioclc.cpp (18 fns) */
 #ifndef _GAME_COMMON_AUDIOCLC_H_
 #define _GAME_COMMON_AUDIOCLC_H_
-#include "../../nfs4_types.h"
+#include "audioclc_types.h"
 
 void AudioClc_SndError__Fi(int shandle);   /* :113 */
 void AudioClc_SetHorn__FP8Car_tObji(Car_tObj *car, int state);   /* :214 */

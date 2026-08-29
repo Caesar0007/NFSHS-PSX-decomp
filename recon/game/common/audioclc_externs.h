@@ -2,17 +2,20 @@
  * Harvested from sibling *_externs.h + *.cpp defs + disasm-v2 (AI/Control demangled). */
 #ifndef _GAME_COMMON_AUDIOCLC_EXTERNS_H_
 #define _GAME_COMMON_AUDIOCLC_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "audioclc_types.h"
+
+extern "C" int fixeddiv(...);
+extern "C" int fixedmult(...);
+extern "C" int intatan(...);
 
 extern "C" CARDINFO_def *MCRD_getcard(int);
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj *Cars_gList[];   /* was stale Car_tObj** (extra indirection); real def cars.cpp Car_tObj *Cars_gList[9] */
-extern GameSetup_tData   GameSetup_gData;
+extern AudioClc_GameSetupCodegenView GameSetup_gData asm("GameSetup_gData");
 extern Trk_NewSlice  *BWorldSm_slices;
 extern bool Hud_BeTheCop;
 extern bool bSirenOn[];
-extern camera_info       Camera_gInfo[2];            /* camera.obj */
+extern AudioClc_CameraInfoCodegenView Camera_gInfo[2] asm("Camera_gInfo");
 extern int            Cars_gNumCars;
 extern int          gMasterSFXLevel;
 extern int       Cars_gNumHumanRaceCars;
@@ -21,11 +24,13 @@ extern int AudioCmn_PlayerHornOff(int carIndex);
 extern int CopSpeak_GetEnginePatch(int type,int timbre);
 extern void  AudioCmn_PlayWrongWaySFX(void);
 extern void AudioCmn_PlayerHornOn(int carIndex,int Distsq,int iFreqIn,int azimuth,int doppler);
-extern void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce,int Distsq, int azimuth);
+extern void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce,int Distsq, int azimuth)
+  asm("AudioCmn_SFX__Fi6s_typeT1iii");
 extern void AudioCmn_SetLevels(void);
 extern void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth,int trackazim,int relvel, int cardir);
 extern void AudioCmn_TrafficSFX(int iChan,int iSFXnum,int freq,int doppler,int dst,int azimuth,int relvel,int dir);
-extern void AudioCmn_TrafficSkidSFX(int sndPlayer,s_type surface1,s_type surface2,int force,int Distsq,int azimuth);
+extern void AudioCmn_TrafficSkidSFX(int sndPlayer,s_type surface1,s_type surface2,int force,int Distsq,int azimuth)
+  asm("AudioCmn_TrafficSkidSFX__Fi6s_typeT1iii");
 extern void AudioTrk_SoundTrack(Car_tObj *car,int trkazi);
 extern void CopSpeak_Server(void);
 extern void SirenOff(int sirennum);

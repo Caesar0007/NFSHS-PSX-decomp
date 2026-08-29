@@ -1125,6 +1125,29 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "INT", 0, "currentClockTicks", 24, (), ""),
         )),
     }
+    # PSXFront.obj dereferences three foreign globals while its linked graph
+    # deliberately omits their completed owner tags.  Pair-lock the private
+    # compiler views completely; the normal and source-only gates preserve all
+    # 25 functions.  The GameSetup layout is the already-proven 2600-byte
+    # retail layout used by R3DCar. Pre-change source/tool backup: b4871d68.
+    untyped_library_codegen_views[
+        ("psxfront_types.h", "PSXFront_GameSetupCodegenView")
+    ] = untyped_library_codegen_views[
+        ("r3dcar_types.h", "R3DCar_GameSetupCodegenView")
+    ]
+    untyped_library_codegen_views[
+        ("psxfront_types.h", "PSXFront_DRenderCodegenView")
+    ] = (140, (
+        ("MOS", "INT", 0, "id", 0, (), ""),
+        ("MOS", "INT", 0, "player", 4, (), ""),
+        ("MOS", "STRUCT", 132, "cview", 8, (), "DRender_tCalcView"),
+    ))
+    untyped_library_codegen_views[
+        ("psxfront_types.h", "PSXFront_DFlipCodegenView")
+    ] = (24, (
+        ("MOS", "STRUCT", 20, "disp", 0, (), "DISPENV"),
+        ("MOS", "PTR CHAR", 0, "server", 20, (), ""),
+    ))
     # Linked EA members can omit necessary local aggregate records.  Exact
     # retail code generation requires structure assignment in the math owners:
     # matrix.c's 36-byte movstrsi copies and trnsfrm.c's final 12-byte result
@@ -1166,6 +1189,21 @@ def filter_exact_symbol_codegen_carriers(
         # Pair-lock its anonymous body and typedef at the exact use site.
         # Pre-change source/tool backup: Git commit c3055163.
         ("drawshp.cpp", "DrawShp_PTag"): (4, (
+            ("FIELD", "UINT", 24, "addr", 0, (), ""),
+            ("FIELD", "UINT", 8, "len", 24, (), ""),
+        )),
+        # PSXFront uses the same four-byte address/length word at its local
+        # addPrim-style macro sites.  The cast-only source carrier is absent
+        # from the linked owner graph. Pre-change source/tool backup: b4871d68.
+        ("psxfront.cpp", "PSXFront_PTag"): (4, (
+            ("FIELD", "UINT", 24, "addr", 0, (), ""),
+            ("FIELD", "UINT", 8, "len", 24, (), ""),
+        )),
+        # The matched horizon builder added the same canonical four-byte
+        # addPrim word after the prior full-board snapshot. Pair-lock it at
+        # the exact owner so the new source carrier is audited rather than
+        # mistaken for an application record. Pre-change backup: b4871d68.
+        ("hrzsku.cpp", "Hrz_PTag"): (4, (
             ("FIELD", "UINT", 24, "addr", 0, (), ""),
             ("FIELD", "UINT", 8, "len", 24, (), ""),
         )),
@@ -2392,6 +2430,14 @@ def filter_exact_symbol_codegen_carriers(
         # GameSetup view at its R3DCar.cpp use site.
         ("r3dcar.cpp", "R3DCar_GameSetupCodegenView"):
             ("STRUCT", 2600, "R3DCar_GameSetupCodegenView"),
+        # Exact implicit typedef halves of PSXFront's three pair-locked
+        # foreign-symbol views. Pre-change source/tool backup: b4871d68.
+        ("psxfront_types.h", "PSXFront_GameSetupCodegenView"):
+            ("STRUCT", 2600, "PSXFront_GameSetupCodegenView"),
+        ("psxfront_types.h", "PSXFront_DRenderCodegenView"):
+            ("STRUCT", 140, "PSXFront_DRenderCodegenView"),
+        ("psxfront_types.h", "PSXFront_DFlipCodegenView"):
+            ("STRUCT", 24, "PSXFront_DFlipCodegenView"),
         # The macro-bound local tick pointer repeats the already pair-locked
         # foreign SimGlobal view at its use site. Keep the repeat exact too.
         ("aih_opp.cpp", "AIH_Opp_SimGlobalCodegenView"):

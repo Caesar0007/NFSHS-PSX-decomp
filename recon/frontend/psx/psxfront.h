@@ -1,7 +1,7 @@
 /* frontend/psx/psxfront.h - reconstructed declarations for PSXFRONT.CPP (C++ TU) */
 #ifndef _FRONTEND_PSX_PSXFRONT_H_
 #define _FRONTEND_PSX_PSXFRONT_H_
-#include "../../nfs4_types.h"
+#include "psxfront_types.h"
 
 /* PSXFRONT.CPP is C++ (cfront-mangled in SYM) -> normal C++ linkage. */
 void Quick_DD(int a,int b,int c);

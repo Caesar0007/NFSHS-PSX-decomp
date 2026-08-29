@@ -26,6 +26,11 @@ struct DIRENTRY {
     char system[4];
 };
 
+/* These four classes are Fetools-owned header surface.  PSXFront shares the
+ * remainder of this graph, but its linked SYM has no completed body for any
+ * of them.  Keep Fetools' default surface unchanged while allowing that exact
+ * shared graph to be composed without importing foreign definitions. */
+#ifndef NFS4_FETOOLS_OMIT_MENU_CLASSES
 struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
     tListIterator *fData;
 };
@@ -44,6 +49,7 @@ struct tMenuNFS4 : public tMenu {
     signed char fTransitionDirection;
     char fLastItem, fNumItems;
 };
+#endif
 
 struct tShapeInformation {
     tTexture_ShapeInfo *fShapes;

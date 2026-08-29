@@ -2,10 +2,7 @@
  * NOT an original header; added for standalone C++ compile. */
 #ifndef _FRONTEND_PSX_PSXFRONT_EXTERNS_H_
 #define _FRONTEND_PSX_PSXFRONT_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
-
-typedef void EAC_timerproc(void);   /* fn type; EAC_timerproc* = void(*)(void) */
+#include "psxfront_types.h"
 
 /* W62-A17 LINKAGE FIX.  This whole block used to sit inside `extern "C" { }`, which made
    psxfront.cpp emit 33 UNMANGLED references to functions that are defined in C++ TUs --
@@ -15,6 +12,36 @@ typedef void EAC_timerproc(void);   /* fn type; EAC_timerproc* = void(*)(void) *
    link debt in the tree).  verify_asm's reloc-name leniency hides all of it.
    Only `elapsedticks` in this block is genuinely C-lane (eaclib), so it keeps C linkage. */
 extern "C" int elapsedticks(void);
+
+/* Exact pruned runtime boundary used by PSXFront.obj.  Keep the original
+ * return types and old-style varargs forms: they are part of GCC 2.8's call
+ * expression and allocation behavior even though C linkage fixes the label. */
+extern "C" {
+long DrawSync(...);
+unsigned short GetClut(...);
+DISPENV *SetDefDispEnv(...);
+void SetPolyG4(...);
+void SetPolyGT4(...);
+void SetSemiTrans(...);
+void InitGeom(...);
+void PAD_update(void);
+int addtimer(...);
+unsigned int asyncloadfileat(...);
+void blockclear(...);
+int deltimer(...);
+int fixedmult(...);
+int getasyncreadstatus(...);
+void initlinkmode(...);
+int loadshapeadr(...);
+void *locateshapez(...);
+void movfxya(...);
+int purgememadr(...);
+void *reservememadr(...);
+void settrans(...);
+int sprintf(...);
+char *strcpy(...);
+int systemtask(...);
+}
 
 void AudioCmn_LoadFESamples(void);
 void Audio_DeInitDriver(void);
@@ -62,19 +89,19 @@ extern int Draw_gDoVSync[];
 extern int Draw_gPlayer1View[];  /* unsized array shape: forces the separate-%hi-scratch arg load (methodology 3.12 #5) */
 extern int Draw_gRearView[];
 extern char GameSetup_gCarNames[51][5];
-extern GameSetup_tData GameSetup_gData;
+extern PSXFront_GameSetupCodegenView GameSetup_gData asm("GameSetup_gData");
 extern char *Paths_Paths[50];
 extern int R3DCar_InMenu[];
 extern u_long font_tint;
 extern tfrontEnd frontEnd;
-extern DRender_tView gCView;
+extern PSXFront_DRenderCodegenView gCView asm("gCView");
 /* UNSIZED array (methodology 3.12 #5 / 3.15-CORRECTION): the oracle loads this global's VALUE
  * through a SEPARATE %hi scratch (`lui $v0,%hi; lw $v1,%lo($v0)`).  A scalar decl folds the
  * address into the dest (self-temp `lui $v1; lw $v1,0($v1)`).  fescreen_externs.h already
  * declares it this way (`gCurrentShapes[0] = ...`), so this is the true EA shape, not a hack.
  * -- w43-a3 (DrawShapeExtended/ScaleShapeExtended twins, 4->0 each) */
 extern tTexture_ShapeInfo *gCurrentShapes[];
-extern dflip gEnviro[2];
+extern PSXFront_DFlipCodegenView gEnviro[2] asm("gEnviro");
 extern int gFlip[];
 extern u_short gFontClut;
 extern int gMenuRotate[2];

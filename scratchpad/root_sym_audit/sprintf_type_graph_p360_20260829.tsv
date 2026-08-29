@@ -1,0 +1,28 @@
+# PSYQ full-debug canonical type comparison
+
+- Retail owner filter: ..\syslib\psx\lib\libc.lib(SPRINTF.obj)
+- Retail canonical definition rows: 0
+- Source full-debug definition rows: 24
+- Retail type blocks: 0 (0 named)
+- Source type blocks: 0 (0 named)
+- Retail typedef rows: 0
+- Source typedef rows: 0
+- Named type keys exact: 0
+- Named type keys missing from source emission: 0
+- Named type keys with layout/member mismatch: 0
+- Named type keys extra in source emission: 0
+- Retail named keys with TU-specific variants: 0
+- Source named keys with TU-specific variants: 0
+- Retail/source structural parse issues: 0/0
+- Direct enum-member correction candidates: 0
+
+## Direct enum-member correction candidates
+
+
+## Layout/member mismatches
+
+
+## Missing named source types
+
+
+## Extra named source types

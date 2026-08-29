@@ -597,6 +597,81 @@ def filter_exact_symbol_codegen_carriers(
     prevents that explicitly synthetic tag from being counted as restored
     source.  Any owner, name, size, member, or offset drift remains visible.
     """
+    # PsyQ's linked SPRINTF.OBJ is stripped, so NFS4.SYM deliberately retains
+    # none of its owner-local type graph.  The extracted PsyQ 4.3 object is a
+    # relocation-masked byte match for retail, while the canonical matched
+    # source fixes the complete graph below.  Accept the graph only as one
+    # whole-owner fingerprint: all three blocks and all three typedefs must be
+    # present with exact kinds, rows, sizes, and tags.  A partial edit remains
+    # visible instead of being normalized piecemeal.  The anonymous union is
+    # the allocation carrier needed by the current count-exact reconstruction.
+    # Pre-change source/tool backup: Git commit 964ae078.
+    stripped_vendor_owner_graphs = {
+        "sprintf.c": (
+            Counter({
+                ("ENTAG", "<anonymous>", 4, (
+                    ("MOE", "MOE", 0, "false", 0, (), ""),
+                    ("MOE", "MOE", 0, "true", 1, (), ""),
+                )): 1,
+                ("STRTAG", "printf_info", 12, (
+                    ("FIELD", "ENUM", 1, "leftJustified", 0, (),
+                     "<anonymous>"),
+                    ("FIELD", "ENUM", 1, "prependPlus", 1, (),
+                     "<anonymous>"),
+                    ("FIELD", "ENUM", 1, "alternativeForm", 2, (),
+                     "<anonymous>"),
+                    ("FIELD", "ENUM", 1, "leadingZeros", 3, (),
+                     "<anonymous>"),
+                    ("FIELD", "ENUM", 1, "usePrecision", 4, (),
+                     "<anonymous>"),
+                    ("FIELD", "ENUM", 1, "isHalf", 5, (),
+                     "<anonymous>"),
+                    ("FIELD", "ENUM", 1, "isLong", 6, (),
+                     "<anonymous>"),
+                    ("FIELD", "ENUM", 1, "isLongLong", 7, (),
+                     "<anonymous>"),
+                    ("MOS", "CHAR", 0, "leadingChar", 1, (), ""),
+                    ("MOS", "INT", 0, "width", 4, (), ""),
+                    ("MOS", "INT", 0, "precision", 8, (), ""),
+                )): 1,
+                ("UNTAG", "<anonymous>", 12, (
+                    ("MOU", "STRUCT", 12, "s", 0, (), "printf_info"),
+                    ("MOU", "ARY INT", 12, "w", 0, (3,), ""),
+                )): 1,
+            }),
+            Counter({
+                ("bool", "ENUM", 4, "<anonymous>"): 1,
+                ("va_list", "PTR CHAR", 0, ""): 1,
+                ("printf_info", "STRUCT", 12, "printf_info"): 1,
+            }),
+        ),
+    }
+    stripped_vendor_eligible = set()
+    for basename, (expected_blocks, expected_typedefs) in (
+        stripped_vendor_owner_graphs.items()
+    ):
+        actual_blocks = Counter(
+            block.semantic()
+            for block in type_blocks
+            if block.owner.replace("\\", "/").casefold().rsplit("/", 1)[-1]
+            == basename
+        )
+        actual_typedefs = Counter(
+            (
+                item.name, item.typ, item.size,
+                normalize_tag(item.tag) if item.tag else "",
+            )
+            for item in typedefs
+            if item.owner.replace("\\", "/").casefold().rsplit("/", 1)[-1]
+            == basename
+        )
+        if actual_blocks == expected_blocks and actual_typedefs == expected_typedefs:
+            stripped_vendor_eligible.add(basename)
+
+    def exact_stripped_vendor_owner(owner: str) -> bool:
+        basename = owner.replace("\\", "/").casefold().rsplit("/", 1)[-1]
+        return basename in stripped_vendor_eligible
+
     expected_rows = (
         ("MOS", "ARY UCHAR", 4, "anchorBytes", 0, (4,), ""),
         ("MOS", "PTR STRUCT", 576, "target", 4, (), "BO_tNewtonObj"),
@@ -3056,7 +3131,8 @@ def filter_exact_symbol_codegen_carriers(
     return (
         [
             block for block in type_blocks
-            if not (night_eligible and exact_night_camera(block))
+            if not exact_stripped_vendor_owner(block.owner)
+            and not (night_eligible and exact_night_camera(block))
             and not (block.name in hud_eligible and exact_hud_view(block))
             and not (block.name in drawc_eligible and exact_drawc_view(block))
             and not (block.name in bworldsm_eligible
@@ -3118,7 +3194,8 @@ def filter_exact_symbol_codegen_carriers(
         ],
         [
             item for item in typedefs
-            if not (night_eligible and exact_night_camera_typedef(item))
+            if not exact_stripped_vendor_owner(item.owner)
+            and not (night_eligible and exact_night_camera_typedef(item))
             and not (item.name in hud_eligible and exact_hud_view_typedef(item))
             and not (item.name in drawc_eligible and exact_drawc_view_typedef(item))
             and not (item.name in bworldsm_eligible

@@ -1,9 +1,13 @@
-#include "../../lib/libfns.h"
 /* render_externs.h -- extern decls for game/psx/render.cpp (NFS4 PSX render orchestration). */
 #ifndef RENDER_EXTERNS_H
 #define RENDER_EXTERNS_H
 
-typedef void fn_void(void);   /* Draw_SetDrawSyncCallback callback (void(*)(void)) */
+extern "C" int DrawSync(...);
+extern "C" int GetTPage(...);
+extern "C" void SetDrawMode(...);
+extern "C" void SetDrawStp(...);
+extern "C" void *SetSp(...);
+extern "C" int StoreImage(...);
 
 /* ---- render globals ---- */
 // [owned->defined in render.cpp] extern DRender_tView   gCView;                 /* 0x... (DRender_tView, 140B) */
@@ -15,8 +19,8 @@ extern int   Render_gMenuRenderFlag;
 extern int gFlip;
 extern bool gMPauseUpdate, gMPauseUpdateNextTime;  /* SYM BOOL; C++ source spelling */
 // [owned->defined in render.cpp] extern RECT gPauseMenuRect;  /* SYM: one 8-byte RECT; render.cpp uses -G8 */
-extern dflip gEnviro[];
-extern FLARE_DEF gFlare_LensFlare;
+extern Render_DFlipCodegenView gEnviro[] asm("gEnviro");
+extern Render_FlareCodegenView gFlare_LensFlare asm("gFlare_LensFlare");
 /* GameSetup_tData is not present in render.obj's retail type graph. */
 extern int Render_GameSetupWords[] asm("GameSetup_gData");
 
@@ -37,7 +41,7 @@ extern void Draw_InitLibRender(void);
 extern void Draw_InitRenderEngine(int,int,int,int,int,int);
 extern void Draw_InitViews(void);
 extern void Draw_RestartRenderEngine(void);
-extern void Draw_SetDrawSyncCallback(fn_void *cb);
+extern void Draw_SetDrawSyncCallback(void (*cb)(void));
 extern int Draw_SetView(int,int,int,int,int,int,int,int,int);
 extern void Draw_StartFrameRender(void);
 extern void Draw_StartRenderingView(int viewid);

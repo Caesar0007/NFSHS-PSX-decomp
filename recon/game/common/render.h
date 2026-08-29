@@ -1,7 +1,7 @@
 /* game/common/render.h — reconstructed from game/common/render.cpp (23 fns) */
 #ifndef _GAME_COMMON_RENDER_H_
 #define _GAME_COMMON_RENDER_H_
-#include "../../nfs4_types.h"
+#include "render_types.h"
 
 void Render_CreatePlayerViews__Fv(void);   /* :92 */
 void Render_CreatePauseMenuViews__Fv(void);   /* :140 */

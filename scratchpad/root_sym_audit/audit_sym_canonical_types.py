@@ -1733,6 +1733,37 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "INT", 0, "POInhibitor", 136, (), ""),
             ("MOS", "STRUCT", 132, "slicePos", 140, (), "BWorldSm_Pos"),
         )),
+        # RENDER.OBJ dereferences two foreign globals whose completed tags are
+        # absent from its linked graph. Its two GPU-link tag carriers express
+        # canonical PsyQ packet macros needed by the PASS bodies. Pair-lock all
+        # four by exact owner, name, size, fields, and typedef. Pre-change
+        # source/tool backup: Git commit 88b7d527.
+        ("render_types.h", "Render_DFlipCodegenView"): (24, (
+            ("MOS", "STRUCT", 20, "disp", 0, (), "DISPENV"),
+            ("MOS", "PTR CHAR", 0, "server", 20, (), ""),
+        )),
+        ("render_types.h", "Render_FlareCodegenView"): (128, (
+            ("MOS", "ARY STRUCT", 8, "pos", 0, (2,), "DVECTOR"),
+            ("MOS", "ARY STRUCT", 8, "oldpos", 8, (2,), "DVECTOR"),
+            ("MOS", "ARY ARY ARY USHORT", 100, "screenData", 16,
+             (2, 5, 5), ""),
+            ("MOS", "INT", 0, "size", 116, (), ""),
+            ("MOS", "PTR STRUCT", 16, "piece", 120, (),
+             "FLARE_PIECE_DEF"),
+            ("MOS", "ARY CHAR", 2, "isDrawn", 124, (2,), ""),
+        )),
+        ("render.cpp", "Render_PTag"): (8, (
+            ("FIELD", "UINT", 24, "addr", 0, (), ""),
+            ("FIELD", "UINT", 8, "len", 24, (), ""),
+            ("MOS", "UCHAR", 0, "r0", 4, (), ""),
+            ("MOS", "UCHAR", 0, "g0", 5, (), ""),
+            ("MOS", "UCHAR", 0, "b0", 6, (), ""),
+            ("MOS", "UCHAR", 0, "code", 7, (), ""),
+        )),
+        ("render.cpp", "StampTag"): (4, (
+            ("FIELD", "UINT", 24, "addr", 0, (), ""),
+            ("FIELD", "UINT", 8, "len", 24, (), ""),
+        )),
         # REPLAY.OBJ dereferences four foreign globals whose completed tags are
         # absent from its linked graph. Two local aggregate-copy carriers are
         # likewise reconstruction-only source devices for byte-exact movstrsi

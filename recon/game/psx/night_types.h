@@ -66,8 +66,10 @@ struct Sched_tSchedule {
     Sched_tFunctionSchedule func[1];
 };
 
+#ifndef NFS4_NIGHT_OMIT_PRIVATE_TYPES
 struct tCompRGB { char r, g, b; };
 struct tNightInitCache { tCompRGB table[257]; };
+#endif
 
 typedef u_char Night_tLightingTable[256][16];
 typedef u_char Night_tWeatherLightingTable[256];

@@ -2,7 +2,7 @@
  *   6 fns: Scene_Init/DeInit/PurgeScene/BuildCustomSceneList/LoadSceneFile + GetPlaneY.
  *   GTE-free. Full SYM-locals applied.
  */
-#include "../../nfs4_types.h"
+#include "render_types.h"
 #include "render_externs.h"
 
 struct Render_PTag {
@@ -384,7 +384,7 @@ void Render_KillTrackRender(void)
   Skidmark_KillSkidmark();
   TrgSfx_KillTrgSfx();
   DashHUD_KillHUD();
-  Draw_SetDrawSyncCallback((fn_void *)0x0);
+  Draw_SetDrawSyncCallback((void (*)(void))0x0);
   Fog_DeInitFogTriggers();
   return;
 }

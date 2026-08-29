@@ -999,6 +999,131 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "ARY CHAR", 91, "pad3d", 61, (91,), ""),
             ("MOS", "INT", 0, "bank_table", 152, (), ""),
         )),
+        # R3DCar.obj dereferences completed foreign-owner state whose tags are
+        # absent from its retail SYM graph. Lock each complete private view so
+        # the audit accepts only the measured layout/MEM shape that preserves
+        # all 27 normal and source-only matches. Pre-change source/tool backup:
+        # Git commit 181c97a9.
+        ("r3dcar_types.h", "R3DCar_AITuneTrackInfoCodegenView"): (12, (
+            ("MOS", "INT", 0, "oneWay", 0, (), ""),
+            ("MOS", "INT", 0, "driveSide", 4, (), ""),
+            ("MOS", "INT", 0, "roughLapTimeSeconds", 8, (), ""),
+        )),
+        ("r3dcar_types.h", "R3DCar_CameraInfoCodegenView"): (272, (
+            ("MOS", "PTR STRUCT", 576, "anchor", 0, (), "BO_tNewtonObj"),
+            ("MOS", "PTR STRUCT", 576, "target", 4, (), "BO_tNewtonObj"),
+            ("MOS", "STRUCT", 12, "position", 8, (), "coorddef"),
+            ("MOS", "STRUCT", 12, "relpos", 20, (), "coorddef"),
+            ("MOS", "STRUCT", 12, "audioPos", 32, (), "coorddef"),
+            ("MOS", "INT", 0, "TVHeight", 44, (), ""),
+            ("MOS", "STRUCT", 36, "rotation", 48, (), "matrixtdef"),
+            ("MOS", "INT", 0, "twist", 84, (), ""),
+            ("MOS", "STRUCT", 12, "wallLeft", 88, (), "coorddef"),
+            ("MOS", "STRUCT", 12, "wallRight", 100, (), "coorddef"),
+            ("MOS", "SHORT", 0, "mode", 112, (), ""),
+            ("MOS", "SHORT", 0, "camNum", 114, (), ""),
+            ("FIELD", "CHAR", 1, "modechange", 928, (), ""),
+            ("FIELD", "CHAR", 1, "pitch", 929, (), ""),
+            ("FIELD", "CHAR", 1, "jostling", 930, (), ""),
+            ("FIELD", "CHAR", 1, "tracking", 931, (), ""),
+            ("FIELD", "CHAR", 1, "checkwalls", 932, (), ""),
+            ("FIELD", "CHAR", 1, "noLookBack", 933, (), ""),
+            ("FIELD", "CHAR", 1, "checkcollisions", 934, (), ""),
+            ("FIELD", "CHAR", 1, "splitscreen", 935, (), ""),
+            ("MOS", "CHAR", 0, "intransition", 117, (), ""),
+            ("MOS", "CHAR", 0, "tumbling", 118, (), ""),
+            ("FIELD", "CHAR", 1, "direction", 952, (), ""),
+            ("FIELD", "CHAR", 2, "zooming", 953, (), ""),
+            ("FIELD", "CHAR", 1, "inCar", 955, (), ""),
+            ("MOS", "SHORT", 0, "circleCounter", 120, (), ""),
+            ("MOS", "SHORT", 0, "circleAngle", 122, (), ""),
+            ("MOS", "CHAR", 0, "animNum", 124, (), ""),
+            ("MOS", "CHAR", 0, "animHandle", 125, (), ""),
+            ("MOS", "CHAR", 0, "splineMode", 126, (), ""),
+            ("MOS", "ENUM", 4, "forceFocus", 128, (), "forceFocus_t"),
+            ("MOS", "CHAR", 0, "focusOnAICar", 132, (), ""),
+            ("MOS", "INT", 0, "POInhibitor", 136, (), ""),
+            ("MOS", "STRUCT", 132, "slicePos", 140, (), "BWorldSm_Pos"),
+        )),
+        ("r3dcar_types.h", "R3DCar_DrawCEnvMapCodegenView"): (6, (
+            ("MOS", "SHORT", 0, "slice", 0, (), ""),
+            ("MOS", "SHORT", 0, "tex", 2, (), ""),
+            ("MOS", "SHORT", 0, "extra", 4, (), ""),
+        )),
+        ("r3dcar_types.h", "R3DCar_GameSetupCodegenView"): (2600, (
+            ("MOS", "INT", 0, "raceType", 0, (), ""),
+            ("MOS", "INT", 0, "numLaps", 4, (), ""),
+            ("MOS", "INT", 0, "skill", 8, (), ""),
+            ("MOS", "INT", 0, "commMode", 12, (), ""),
+            ("MOS", "INT", 0, "tournamentMultiplier", 16, (), ""),
+            ("MOS", "INT", 0, "cops", 20, (), ""),
+            ("MOS", "INT", 0, "trafficDensity", 24, (), ""),
+            ("MOS", "INT", 0, "localCar", 28, (), ""),
+            ("MOS", "INT", 0, "catchupLogic", 32, (), ""),
+            ("MOS", "INT", 0, "replayMode", 36, (), ""),
+            ("MOS", "INT", 0, "instantReplay", 40, (), ""),
+            ("MOS", "INT", 0, "mirrorTrack", 44, (), ""),
+            ("MOS", "INT", 0, "reverseTrack", 48, (), ""),
+            ("MOS", "INT", 0, "measurement", 52, (), ""),
+            ("MOS", "INT", 0, "sgge", 56, (), ""),
+            ("MOS", "INT", 0, "track", 60, (), ""),
+            ("MOS", "INT", 0, "trackSegment", 64, (), ""),
+            ("MOS", "INT", 0, "song", 68, (), ""),
+            ("MOS", "INT", 0, "Weather", 72, (), ""),
+            ("MOS", "INT", 0, "Fog", 76, (), ""),
+            ("MOS", "INT", 0, "Damage", 80, (), ""),
+            ("MOS", "INT", 0, "Time", 84, (), ""),
+            ("MOS", "INT", 0, "randSeed", 88, (), ""),
+            ("MOS", "INT", 0, "easter", 92, (), ""),
+            ("MOS", "STRUCT", 88, "controllerData", 96, (), "GameSetup_tControllerData"),
+            ("MOS", "INT", 0, "pinkSlipsForfeit", 184, (), ""),
+            ("MOS", "INT", 0, "checkpointType", 188, (), ""),
+            ("MOS", "ARY INT", 8, "checkpointHUD", 192, (2,), ""),
+            ("MOS", "INT", 0, "dispatchSpeech", 200, (), ""),
+            ("MOS", "INT", 0, "reverseCallSpeech", 204, (), ""),
+            ("MOS", "INT", 0, "languageSpeech", 208, (), ""),
+            ("MOS", "INT", 0, "SceneNumber", 212, (), ""),
+            ("MOS", "INT", 0, "SceneStartLap", 216, (), ""),
+            ("MOS", "INT", 0, "SceneEndLap", 220, (), ""),
+            ("MOS", "STRUCT", 204, "userSetting", 224, (), "GameSetup_tUserSetting"),
+            ("MOS", "INT", 0, "numPerps", 428, (), ""),
+            ("MOS", "INT", 0, "stageOffset", 432, (), ""),
+            ("MOS", "INT", 0, "perpArrests", 436, (), ""),
+            ("MOS", "INT", 0, "finalPerpArrests", 440, (), ""),
+            ("MOS", "ARY STRUCT", 520, "perpInfo", 444, (10,), "GameSetup_tPerpData"),
+            ("MOS", "INT", 0, "numCars", 964, (), ""),
+            ("MOS", "INT", 0, "numPlayerRaceCars", 968, (), ""),
+            ("MOS", "INT", 0, "numOpponentRaceCars", 972, (), ""),
+            ("MOS", "INT", 0, "opponentCarType", 976, (), ""),
+            ("MOS", "ARY STRUCT", 1620, "carInfo", 980, (9,), "GameSetup_tCarData"),
+        )),
+        ("r3dcar_types.h", "R3DCar_ReplayCodegenView"): (32, (
+            ("MOS", "INT", 0, "pause", 0, (), ""),
+            ("MOS", "INT", 0, "speed", 4, (), ""),
+            ("MOS", "INT", 0, "end", 8, (), ""),
+            ("MOS", "INT", 0, "camera", 12, (), ""),
+            ("MOS", "INT", 0, "selection", 16, (), ""),
+            ("MOS", "INT", 0, "depressed", 20, (), ""),
+            ("MOS", "INT", 0, "changeCamera", 24, (), ""),
+            ("MOS", "INT", 0, "statsScreen", 28, (), ""),
+        )),
+        ("r3dcar_types.h", "R3DCar_SimGlobalCodegenView"): (24, (
+            ("MOS", "INT", 0, "gameStarted", 0, (), ""),
+            ("MOS", "INT", 0, "gameTicks", 4, (), ""),
+            ("MOS", "INT", 0, "time32Hz", 8, (), ""),
+            ("MOS", "PTR VOID", 0, "schedule64Hz", 12, (), ""),
+            ("MOS", "PTR VOID", 0, "schedule32Hz", 16, (), ""),
+            ("MOS", "PTR VOID", 0, "schedule32Hz2", 20, (), ""),
+        )),
+        ("r3dcar_types.h", "R3DCar_SimSystemCodegenView"): (28, (
+            ("MOS", "INT", 0, "restartGame", 0, (), ""),
+            ("MOS", "INT", 0, "endSimGame", 4, (), ""),
+            ("MOS", "INT", 0, "pauseSim", 8, (), ""),
+            ("MOS", "INT", 0, "keyRelease", 12, (), ""),
+            ("MOS", "INT", 0, "quickPauseSim", 16, (), ""),
+            ("MOS", "INT", 0, "goalClockTicks", 20, (), ""),
+            ("MOS", "INT", 0, "currentClockTicks", 24, (), ""),
+        )),
     }
     # Linked EA members can omit necessary local aggregate records.  Exact
     # retail code generation requires structure assignment in the math owners:
@@ -1202,6 +1327,14 @@ def filter_exact_symbol_codegen_carriers(
         **{
             ("snd.h", name): layout
             for name, layout in shared_snd_runtime_views.items()
+        },
+        # C++ emits an implicit typedef for each R3DCar private boundary struct.
+        # Reuse the same whole-layout fingerprints so the tag and its implicit
+        # typedef are accepted only as an exact pair.
+        **{
+            key: layout
+            for key, layout in untyped_library_codegen_views.items()
+            if key[0] == "r3dcar_types.h"
         },
         # AIH_BTCCOP.OBJ's retail graph deliberately omits the completed tags
         # of six foreign globals, AIState_Idle, and its file-local inactive
@@ -2255,6 +2388,10 @@ def filter_exact_symbol_codegen_carriers(
         ("cdread.c", "CdlCB"): ("PTR FCN VOID", 0, ""),
         ("cdread.c", "u_char"): ("UCHAR", 0, ""),
         ("cdread.c", "u_long"): ("ULONG", 0, ""),
+        # The explicit gsData local repeats the already pair-locked foreign
+        # GameSetup view at its R3DCar.cpp use site.
+        ("r3dcar.cpp", "R3DCar_GameSetupCodegenView"):
+            ("STRUCT", 2600, "R3DCar_GameSetupCodegenView"),
         # The macro-bound local tick pointer repeats the already pair-locked
         # foreign SimGlobal view at its use site. Keep the repeat exact too.
         ("aih_opp.cpp", "AIH_Opp_SimGlobalCodegenView"):

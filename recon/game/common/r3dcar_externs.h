@@ -1,28 +1,58 @@
-#include "../../lib/libfns.h"
-/* r3dcar_externs.h -- extern decls for game/psx/r3dcar.cpp (NFS4 PSX 3D car renderer).
- *   Types live in nfs4_types.h; this header declares the cross-TU globals/functions
+/* r3dcar_externs.h -- extern decls for game/common/r3dcar.cpp (NFS4 PSX 3D car renderer).
+ *   Types live in r3dcar_types.h; this header declares the cross-TU globals/functions
  *   referenced by r3dcar.cpp plus this TU's own R3DCar_* state (extern for syntax-check).
  */
 #ifndef R3DCAR_EXTERNS_H
 #define R3DCAR_EXTERNS_H
 
+/* Exact pruned subset of libfns.h used by this owner. Keeping the retail
+ * return types/varargs boundary preserves call-expression code generation
+ * without importing libfns.h's project-wide nfs4_types.h surface. */
+extern "C" long DrawSync(...);
+extern "C" long VectorNormalS(...);
+extern "C" void *SetSp(...);
+extern "C" unsigned int asyncloadfile(...);
+extern "C" void blockmove(...);
+extern "C" int filesize(...);
+extern "C" int fixedatan(...);
+extern "C" int fixeddiv(...);
+extern "C" int fixedmult(...);
+extern "C" int fixedsqrt(...);
+extern "C" void fixedxformx(...);
+extern "C" int fixedxformy(...);
+extern "C" void fixedxformz(...);
+extern "C" char *getasyncreadadr(...);
+extern "C" int getasyncreadstatus(...);
+extern "C" void *loadfileadr(...);
+extern "C" void *loadfileatadr(...);
+extern "C" void *locatebig(...);
+extern "C" void *locatebigentry(...);
+extern "C" int purgememadr(...);
+extern "C" void *reservememadr(...);
+extern "C" void resizememadr(...);
+extern "C" int sprintf(...);
+extern "C" char *strcat(...);
+extern "C" char *strcpy(...);
+extern "C" int systemtask(...);
+extern "C" void transform(...);
+
 /* ---- Ghidra-ism helpers (faithful value-level shims) ---- */
 #define INT_1f80008c (*(volatile int *)0x1f80008c)   /* scratchpad word Ghidra named by abs-addr */
-extern void trap(int code);                          /* gcc MIPS div-by-zero/overflow break helper */
+extern "C" void trap(int code);                  /* gcc MIPS div-by-zero/overflow break helper */
 
 /* ---- cross-TU globals ---- */
-extern AITune_tTrackInfo  AITune_trackInfo[];
-extern Sim_tSimGlobalVar  simGlobal;
-extern Sim_tSimSystemVar  simVar;
-extern tReplayInterface   Replay_ReplayInterface;
+extern R3DCar_AITuneTrackInfoCodegenView AITune_trackInfo[];
+extern R3DCar_SimGlobalCodegenView simGlobal;
+extern R3DCar_SimSystemCodegenView simVar;
+extern R3DCar_ReplayCodegenView Replay_ReplayInterface;
 extern int                Replay_ReplayMode;
-extern camera_info        Camera_gInfo[];
+extern R3DCar_CameraInfoCodegenView Camera_gInfo[];
 extern Car_tObj          *Cars_gList[];
 extern int                Cars_gNumCars, Cars_gNumTrafficCars;
-extern DrawC_tEnvMap     *DrawC_gEnvMap, *DrawC_gShadow;
+extern R3DCar_DrawCEnvMapCodegenView *DrawC_gEnvMap, *DrawC_gShadow;
 extern int                DrawC_gEnvMapMax, DrawC_gShadowMax, DrawC_gWetRoad;
 extern MATRIX             DrawC_gScreenMat;
-extern GameSetup_tData    GameSetup_gData;
+extern R3DCar_GameSetupCodegenView GameSetup_gData;
 extern char               GameSetup_gCarNames[51][5];
 extern char              *Paths_Paths[];
 extern int                Render_gMenuRenderFlag;

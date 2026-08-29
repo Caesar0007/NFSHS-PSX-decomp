@@ -2,7 +2,7 @@
  *   6 fns: Scene_Init/DeInit/PurgeScene/BuildCustomSceneList/LoadSceneFile + GetPlaneY.
  *   GTE-free. Full SYM-locals applied.
  */
-#include "../../nfs4_types.h"
+#include "r3dcar_types.h"
 #include "r3dcar_externs.h"
 
 /* ---- R3DCar.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
@@ -180,7 +180,7 @@ void R3DCar_Restart(void)
 {
   int i;
   int numCars;
-  GameSetup_tData *gsData;
+  R3DCar_GameSetupCodegenView *gsData;
   short headOn;
   short brakeOn;
   Car_tObj **ppCVar3;

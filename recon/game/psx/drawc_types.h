@@ -24,6 +24,7 @@ struct DIRENTRY {
     char name[20]; long attr, size; DIRENTRY *next; long head; char system[4];
 };
 
+#ifndef NFS4_DRAWC_OMIT_R3DCAR_PRIVATE_TYPES
 struct POLY_FT3 {
     u_long tag; u_char r0,g0,b0,code; short x0,y0; u_char u0,v0; u_short clut;
     short x1,y1; u_char u1,v1; u_short tpage; short x2,y2; u_char u2,v2;
@@ -38,6 +39,7 @@ struct POLY_G3 {
     u_long tag; u_char r0,g0,b0,code; short x0,y0; u_char r1,g1,b1,pad1;
     short x1,y1; u_char r2,g2,b2,pad2; short x2,y2;
 };
+#endif
 struct POLY_GT4 {
     u_long tag; u_char r0,g0,b0,code; short x0,y0; u_char u0,v0; u_short clut;
     u_char r1,g1,b1,p1; short x1,y1; u_char u1,v1; u_short tpage;
@@ -45,11 +47,13 @@ struct POLY_GT4 {
     u_char r3,g3,b3,p3; short x3,y3; u_char u3,v3; u_short pad3;
 };
 
+#ifndef NFS4_DRAWC_OMIT_R3DCAR_PRIVATE_TYPES
 struct BW_tContext {
     int client; BWorldSm_Pos slicePos;
     int currentChunk, chunkFarZClipSq, polyFarZClipSq, lowDetailDistSq;
     int lineFarZClipSq;
 };
+#endif
 struct Draw_SubdivStruct { Draw_SVertex v[15]; };
 struct Track_tArtresource {
     int id; char *shapeFile; int shapeCount; Draw_tPixMap *pPmx;
@@ -65,7 +69,9 @@ typedef enum forceFocus_t {
     FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
 } forceFocus_t;
 
+#ifndef NFS4_DRAWC_OMIT_R3DCAR_PRIVATE_TYPES
 struct FLARE_PIECE_DEF { int distance, size; CVECTOR color; char type; };
+#endif
 struct Sched_tSchedule {
     int maxNumFunctions, numFunctions;
     Sched_tFunctionSchedule func[1];
@@ -96,6 +102,8 @@ struct Draw_CarCache {
     COORD16 vt7; u_char offsetU1, offsetV1;
     COORD16 vt8; u_char offsetU2, offsetV2;
 };
+#ifndef NFS4_DRAWC_OMIT_R3DCAR_PRIVATE_TYPES
 struct DrawC_tEnvMap { short slice, tex, extra; };
+#endif
 
 #endif

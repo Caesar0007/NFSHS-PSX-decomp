@@ -1,7 +1,7 @@
 /* game/common/r3dcar.h — reconstructed from game/common/r3dcar.cpp (27 fns) */
 #ifndef _GAME_COMMON_R3DCAR_H_
 #define _GAME_COMMON_R3DCAR_H_
-#include "../../nfs4_types.h"
+#include "r3dcar_types.h"
 
 void R3DCar_ChangeTrafficColor__FP8Car_tObji(Car_tObj *carObj, int newColorIndex);   /* :386 */
 void R3DCar_StartUp__Fv(void);   /* :424 */

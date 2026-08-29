@@ -292,6 +292,9 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 #                           whose retail code calls a libc routine that this
 #                           compiler otherwise expands inline. Whole-TU
 #                           verification is mandatory before adoption.
+#   "force_addr"          -> pass -fforce-addr to cc1 for a C object.  This
+#                           is a compiler-input identity, not an assembly
+#                           rewrite; adopt only after a whole-TU gate.
 #
 # The 7 TUs below own the retail binary's 7 ASPSX-$at-macro jtbl sites
 # (w23-a11 investigation plus later per-site corrections); the other 26 jtbl TUs are deliberately absent
@@ -527,6 +530,11 @@ PER_TU_FLAGS = {
     # PAD_restore / PAD_state. Whole-TU sweep with the flag: 5/5 functions
     # improve or hold (see the per-fn table in recon/eaclib/psx/pad.c).
     "recon/eaclib/psx/pad.c":               {"no_split_addresses": True},
+    # W82-root: strict source-only whole-TU gate.  -fforce-addr makes
+    # SPCH_AddEvent emit the retail address-producer/copy pair (82/82); the
+    # paired source copy-boundary fix keeps iSPCH_InitEventQueue exact.  All
+    # 16 functions PASS without a post-compiler splice.
+    "recon/eaclib/psx/spchpsxz/spchevnt.c": {"force_addr": True},
     # w48 (2026-08-04) SYSLIB -mno-split-addresses IDENTITY -- found
     # independently by five agents (a9's 512-run ladder, a2's oracle-side
     # proof on libgpu, a1 libmcrd, a4 PADENTRY, a6 iso9660) and concordant
@@ -1466,6 +1474,8 @@ def _compile_c_272(rel: Path, tu_flags: dict, i_file: Path, s_file: Path,
         cc1_flags.append("-fno-delayed-branch")
     if tu_flags.get("no_strength_reduce"):
         cc1_flags.append("-fno-strength-reduce")
+    if tu_flags.get("force_addr"):
+        cc1_flags.append("-fforce-addr")
     # w61-a8: char is UNSIGNED on the cc1_272 lane by default -- a lbu-vs-lb
     # diff on plain char is a TU FLAG question, not a cast question.
     if tu_flags.get("signed_char"):
@@ -1589,6 +1599,8 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
         cc1_flags.append("-fno-schedule-insns2")
     if tu_flags.get("no_strength_reduce"):
         cc1_flags.append("-fno-strength-reduce")
+    if tu_flags.get("force_addr"):
+        cc1_flags.append("-fforce-addr")
     if tu_flags.get("no_builtin"):
         cc1_flags.append("-fno-builtin")
     if tu_flags.get("no_rerun_cse_after_loop"):

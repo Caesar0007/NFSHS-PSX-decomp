@@ -21,12 +21,16 @@
  * ALSO MEASURED (and negative) this wave: forcing the missing insn via build.py's
  * PER_FN_EPILOGUE_UNFILL reaches count PARITY (6 @82/82) but supplies a `nop` where retail
  * has the `addu t0,v0,zero` copy -- the right count, the wrong instruction.
+ * W82-root: the source-only resolution is the whole-object compiler input
+ * `-fforce-addr`.  It emits SPCH_AddEvent's retail address copy; moving
+ * iSPCH_InitEventQueue's existing address-use fence to the real copy boundary
+ * preserves its retail v0->a3->a0 chain.  Strict whole-TU gate: 16/16 PASS.
  */
-/* eaclib/psx/spchpsxz/spchevnt.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 15/16 PASS ***
+/* eaclib/psx/spchpsxz/spchevnt.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 16/16 PASS ***
  *   Indexed queue walks now match SPCH_ClearEventQueue exactly and cut iSPCH_InitEventQueue from 42 to
  *   17 diffs; reconstructing gReparm as one-word callback storage made SPCH_ChooseSpeech PASS.
  *   w49-a9: iSPCH_InitEventQueue 12 -> PASS and SPCH_AddEvent 16 -> 3 (opacity/use fences, see notes).
- *   The only remaining FAIL is SPCH_AddEvent(3 = one preheader reg-reg copy).
+ *   w82-root: whole-TU -fforce-addr plus the queue copy-boundary fix seals the remaining 3.
  *   Source obj : nfs4\eaclib\psx\spchevnt.obj ; archive C:\nfs4\EACLIB\PSX\SPCHPSXZ.LIB (xlsx col12 / SYM v3)
  *   16 fns @[0x800E6E88 .. 0x800E7684].  The speech EVENT QUEUE -- 16 slots (gVoxEvents, base 0x80148060,
  *   stride 0x3c) selected by priority/age/subtick; events are looked up in the bound gEventDats[] blobs.
@@ -339,8 +343,8 @@ extern void iSPCH_InitEventQueue(void)
     int base;
     int slot;
     int end;
-    __asm__("" : "=r"(addr) : "0"(addr));
     base = addr;
+    __asm__("" : : "r"(addr));
     slot = base;
     __asm__("" : "=r"(slot) : "0"(slot));
     end  = slot + 0x3c0;

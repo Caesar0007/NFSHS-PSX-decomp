@@ -1050,7 +1050,7 @@ PER_FN_CC1_VER_SPLICE_272 = {
     # with ZERO relocations); its 2-diff or-operand floor stands, un-spliced.
     "recon/syslib/psx/libgpu/SYS.c": {
         "2.8.0": {"_BlitClear"},
-        "2.7.2": {"DrawOTag", "_gpu_init_videomode"},
+        "2.7.2": {"DrawOTag", "_clearOTagR_dma", "_gpu_init_videomode"},
     },
     # w55-a5 (probe-verified): CdReset -> PASS 27/27 on 2.8.0; whole-TU flip
     # catastrophic (CdControlF PASS->51) => per-fn.

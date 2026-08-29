@@ -1546,23 +1546,26 @@ extern int _clearOTagR_dma(u_long *ot, int n)
      * needs `slot` so gas stops materializing its nop.  Both moves take the SAME line -- the
      * lookahead is what keeps move 2 off move 1's copy.  The branch that gains a slot keeps
      * targeting the copy's old label; re-executing an idempotent `$v0 = $s0` is harmless and
-     * the gate is branch-target-lenient anyway. */
+     * the gate is branch-target-lenient anyway.
+     *
+     * W82 SOURCE-ONLY PASS (56/56): the diagnostic move is unnecessary once the
+     * compiler identity and original PsyQ source are crossed instead of tested
+     * independently.  The matched psyz `_otc` body below is byte-exact on the
+     * GCC 2.6.0, 2.6.3, and 2.7.2 rungs; 2.8.0/2.8.1 both produce the old
+     * 18-diff allocation.  `_clearOTagR_dma` therefore uses the authentic 2.7.2
+     * per-function compiler splice already established for this mixed SYS.obj.
+     * Full structural ladder: scratchpad/root_otc_structural_ladder.py. */
     *DMA_DPCR |= 0x08000000;                      /* enable DMA channel 6 (OTC) */
     *D6_CHCR = 0;
     *D6_MADR = (u_long)(ot - 1 + n);              /* last word of the table */
     *D6_BCR  = (u_long)n;
     *D6_CHCR = 0x11000002;                        /* start: backward, OTC clear */
     _gpu_arm_timeout();
-    {
-        int r = n;
-        if ((*D6_CHCR & 0x01000000) == 0)
-            return r;
-        do {
-            if (_gpu_check_timeout() != 0)
-                return -1;
-        } while ((*D6_CHCR & 0x01000000) != 0);
-        return r;
+    while ((*D6_CHCR & 0x01000000) != 0) {
+        if (_gpu_check_timeout() != 0)
+            return -1;
     }
+    return n;
 }
 
 /* @0x800EEB5C : ClearImage backend -- fill rect with `color`.

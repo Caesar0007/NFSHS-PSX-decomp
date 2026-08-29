@@ -1972,6 +1972,7 @@ extern int _get_gpuinfo(u_long cmd)
 /* @0x800EF338 : convenience wrapper -- push with no inline-arg copy (n = 0). */
 extern int _que_ref(QueFunc func, u_long *arg, int extra)
 {
+    /* MATCH (W80-root): GCC 2.7.2 emits the retail 9-word wrapper exactly. */
     return _gpu_que_push(func, arg, 0, extra);
 }
 
@@ -2449,6 +2450,7 @@ extern int _sync(int mode)
 /* @0x800EFAF8 : arm the GPU watchdog against the current VSync hsync count. */
 extern void _gpu_arm_timeout(void)
 {
+    /* MATCH (W80-root): GCC 2.7.2 emits the retail 13-word body exactly. */
     _gpu_timeout_target = VSync(-1) + 0xF0;
     _gpu_timeout_count = 0;
 }
@@ -2570,6 +2572,7 @@ extern int DrawOTag2(u_long *p)
 /* @0x800EFE0C : attach _gpu_que_drain as the channel-2 (GPU) DMA-complete callback. */
 extern void _install_drain_cb(void)
 {
+    /* MATCH (W80-root): GCC 2.7.2 emits the retail 10-word wrapper exactly. */
     DMACallback(2, (int)_gpu_que_drain);
 }
 

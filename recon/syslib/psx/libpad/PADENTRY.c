@@ -37,37 +37,20 @@ int  _padSetMainMode(_PadDev *info, int offs, int lock); /* PADCMD @0x80105D40 *
 void _padSetAct(_PadDev *info, unsigned char *data, int len); /* PADCMD @0x801055F0 */
 
 /* @0x800EFE60 : PadStartCom
- * FLOOR (4 diffs): oracle epilogue is `lw ra; addiu sp,sp,24; jr ra; nop` (sp-restore NOT
- * in the jr delay slot); ours schedules the sp-restore INTO the delay slot (`lw ra; jr ra;
- * addiu sp,sp,24`) -- the common/expected gcc shape seen everywhere else in this tree
- * (e.g. PadInfoMode, AICop_CleanUp). Single-$ra-only-save trivial wrappers apparently get a
- * DIFFERENT epilogue scheduling shape than multi-register-restore frames on the real
- * toolchain; not reachable from this 1-statement source. Same shape hits PadStopCom below. */
+ * MATCH (W80-root): PASS 8/8 with the authentic per-function GCC 2.7.2
+ * identity.  The same source on the 2.8-family compiler puts the stack
+ * restore in the jr delay slot and leaves a four-diff epilogue. */
 void PadStartCom(void) { _padStartCom(); }
 
-/* @0x800EFE80 : PadStopCom -- FLOOR, same single-$ra-save epilogue-scheduling shape as
- * PadStartCom above (4 diffs). */
+/* @0x800EFE80 : PadStopCom -- MATCH 8/8 on the same GCC 2.7.2 identity. */
 void PadStopCom(void) { _padStopCom(); }
 
 /* @0x800EFEA0 : PadGetState -- map the raw controller state to the public PadState* code.
  *
- * 🔴 W55-A6 -- THIS BODY IS PASS-READY BUT NEEDS AN ORCHESTRATOR WIRING FLIP IN tools/build.py.
- *   MEASURED (scratch_w55a6/build_probe.py + verify_probe.py = untouched-tools copies of
- *   build.py/verify_asm.py with only the two table edits below):
- *     current wiring (PER_FN_NO_DELAYED_BRANCH splice ON)          : FAIL 12 @54/48
- *     splice entry REMOVED                                          : FAIL  4 @48/48  <- count-exact,
- *                                                                     residual = the pure epilogue
- *                                                                     swap (`jr ra; addiu sp` ours
- *                                                                     vs `addiu sp; jr ra; nop`)
- *     splice REMOVED + PER_FN_EPILOGUE_UNFILL entry ADDED           : PASS 48/48
- *   Whole-TU gate under the proposed wiring: 8/8 PASS (PadStartCom, PadStopCom, PadGetState,
- *   PadInfoMode, PadInfoAct, PadSetActAlign, PadSetMainMode, PadSetAct) -- ZERO collateral.
- *   SPEC (two one-line table edits, exactly the w48-a3 _padSetMainMode_rcv precedent):
- *     (1) PER_FN_NO_DELAYED_BRANCH["recon/syslib/psx/libpad/PADENTRY.c"]: DROP "PadGetState"
- *         (keep "PadStartCom", "PadStopCom").
- *     (2) PER_FN_EPILOGUE_UNFILL: ADD "recon/syslib/psx/libpad/PADENTRY.c": {"PadGetState"}.
- *   Do NOT land one without the other: the splice and the source shape fail in opposite
- *   directions (the splice nops the two case-arm delay slots the switch fills).
+ * MATCH (W80-root): PASS 48/48 with the authentic per-function GCC 2.7.2
+ * identity.  A strict eight-function PADENTRY gate is 8/8 PASS with no
+ * scheduling or epilogue intervention; 2.6.0, 2.6.3, 2.7.2 and 970404 all
+ * share the retail return shape, while every 2.8-family rung leaves 4 diffs.
  *
  * MATCH (w55-a6, source side): the dispatch is a REAL `switch` with THREE SEPARATE case nodes.
  *   The oracle's tree is the gcc-2.8 balance_case_nodes fingerprint -- root `beq $v1,3`, the

@@ -709,23 +709,6 @@ PER_FN_NO_DELAYED_BRANCH = {
     "recon/syslib/psx/libcd/cdread2.c": {
         # w51-a3: EMPTIED -- _cdread2_ready superseded by the cc1_272 lane.
     },
-    # w25-a5: libpad Tier-1 (single-jal, epilogue-only shape, canonical per
-    # the w25-a1 taxonomy above) -- confirmed byte-PASS by an independent
-    # whole-TU -fno-delayed-branch probe run BEFORE this splice mechanism
-    # landed, then re-confirmed against the real per-fn splice with a
-    # zero-collateral whole-TU gate on both PADENTRY.c and PADPORTD.c.
-    "recon/syslib/psx/libpad/PADENTRY.c": {
-        "PadStartCom", "PadStopCom",
-        # Tier-2: PadGetState has interior branches (the tail-duplicate-vs
-        # -share if/else-if chain) so the splice does NOT reach full PASS
-        # (no post-splice fill pass exists yet -- see w25-a1's taxonomy),
-        # but it is a clean net-positive (FAIL 16 -> FAIL 10, diff pattern
-        # moves closer to the oracle's shared-tail shape) with zero
-        # collateral on the TU's other 7 functions under a whole-TU gate.
-        # w55-a6: PadGetState DROPPED from this splice -- with the new
-        # 3-node-switch source + EPILOGUE_UNFILL it reaches PASS 48/48
-        # (splice-on was 12; the two edits must land together).
-    },
     # _pad_get_port has one small interior `if` (not the pure epilogue-only
     # shape) but empirically flips FAIL-3->PASS with no naked-nop
     # regression under both the pre-mechanism whole-TU probe and the real
@@ -997,13 +980,8 @@ PER_FN_FLAG_SPLICE_272 = {
     "recon/syslib/psx/libpad/PADCMD.c": {
         "-G4": {"_padLoadActInfo_rcv"},
     },
-    "recon/syslib/psx/libgpu/SYS.c": {
-        "-fno-schedule-insns2": {"_que_ref", "_install_drain_cb",
-                                 "_gpu_arm_timeout"},
-        # w55-close probe: -fno-delayed-branch splice FALSIFIED here
-        # (_gpu_init_videomode inert at 14; MoveImage REGRESSED 9->16) --
-        # the relax_delay_slots residual needs a different vehicle.
-    },
+    # W80-root: SYS.c's former -fno-schedule-insns2 trio moved to the
+    # authentic GCC 2.7.2 per-function identity below.
     # w53-a9: cc1 self-fills the jal slot hiding the load-use hazard; with
     # -fno-delayed-branch gas sees it and emits the oracle's nop verbatim.
     "recon/syslib/psx/libetc/INTR.c": {
@@ -1043,7 +1021,8 @@ PER_FN_CC1_VER_SPLICE_272 = {
     # with ZERO relocations); its 2-diff or-operand floor stands, un-spliced.
     "recon/syslib/psx/libgpu/SYS.c": {
         "2.8.0": {"_BlitClear"},
-        "2.7.2": {"DrawOTag", "_clearOTagR_dma", "_gpu_init_videomode"},
+        "2.7.2": {"DrawOTag", "_clearOTagR_dma", "_gpu_init_videomode",
+                  "_que_ref", "_gpu_arm_timeout", "_install_drain_cb"},
     },
     # w55-a5 (probe-verified): CdReset -> PASS 27/27 on 2.8.0; whole-TU flip
     # catastrophic (CdControlF PASS->51) => per-fn.
@@ -1316,6 +1295,14 @@ PER_FN_CC1_VER_SPLICE = {
     # identity: all five pad.c functions are source-only PASS, reproduced 2x.
     "recon/eaclib/psx/pad.c": {
         "2.7.2": {"padinit", "PAD_restore", "PAD_state", "PAD_update"},
+    },
+    # W80-root: PADENTRY remains a normal maspsx TU, but these three public
+    # wrappers carry the older Sony compiler's return-epilogue identity.  The
+    # complete ladder gives PASS on 2.6.0, 2.6.3, 2.7.2, and 2.7.2-970404;
+    # every 2.8-family rung leaves the stack restore in the opposite position.
+    # Select the established PsyQ 4.0 / GCC 2.7.2 identity per function.
+    "recon/syslib/psx/libpad/PADENTRY.c": {
+        "2.7.2": {"PadStartCom", "PadStopCom", "PadGetState"},
     },
 }
 

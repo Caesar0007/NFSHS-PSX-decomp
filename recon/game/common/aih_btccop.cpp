@@ -6,7 +6,7 @@
  *   vs disasm-v2.
  */
 #include "../../lib/nfs4_new.h"
-#include "../../nfs4_types.h"
+#include "aih_btccop_types.h"
 #include "aih_btccop_externs.h"
 
 extern int AI_elapsedTime;   /* H19: ai.cpp @0x8013C554 (not in this TU's externs) */
@@ -679,7 +679,8 @@ void AIHigh_BTC_HumanCop::FreezeAndEndChase()
 
     }
 
-    iVar1 = AIDataRecord_TrackCurve->Get((int)((this->carObj_)->N).simRoadInfo.slice);
+    iVar1 = AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,
+                                       (int)((this->carObj_)->N).simRoadInfo.slice);
 
     if ((0x41 < iVar1) && (AIHigh_CopGameType != COP_GAME_BTC_1HC1HP)) {
 

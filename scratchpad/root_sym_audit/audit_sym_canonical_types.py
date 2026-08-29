@@ -1180,6 +1180,71 @@ def filter_exact_symbol_codegen_carriers(
             ("snd.h", name): layout
             for name, layout in shared_snd_runtime_views.items()
         },
+        # AIH_BTCCOP.OBJ's retail graph deliberately omits the completed tags
+        # of six foreign globals, AIState_Idle, and its file-local inactive
+        # state while its 40 PASS bodies require their member-shaped codegen.
+        # Pair-lock every reconstruction boundary body and implicit C++
+        # typedef to this precise TU/header; any name, size, member, offset, or
+        # leaf-tag drift remains a visible DIFF.  Pre-change backup: Git commit
+        # 6529ceeb.
+        ("aih_btccop_types.h", "AIH_BTCCop_AITuneBTCCodegenView"): (28, (
+            ("MOS", "INT", 0, "glueMult", 0, (), ""),
+            ("MOS", "INT", 0, "speedMult", 4, (), ""),
+            ("MOS", "INT", 0, "weightMult", 8, (), ""),
+            ("MOS", "INT", 0, "baseChaseTime", 12, (), ""),
+            ("MOS", "INT", 0, "wingmanTime", 16, (), ""),
+            ("MOS", "INT", 0, "blockaderTime", 20, (), ""),
+            ("MOS", "INT", 0, "spikeBeltTime", 24, (), ""),
+        )),
+        ("aih_btccop_types.h", "AIH_BTCCop_GameSetupCodegenView"): (964, (
+            ("MOS", "INT", 0, "raceType", 0, (), ""),
+            ("MOS", "INT", 0, "numLaps", 4, (), ""),
+            ("MOS", "INT", 0, "skill", 8, (), ""),
+            ("MOS", "ARY CHAR", 416, "_pad0c", 12, (416,), ""),
+            ("MOS", "INT", 0, "numPerps", 428, (), ""),
+            ("MOS", "INT", 0, "stageOffset", 432, (), ""),
+            ("MOS", "INT", 0, "perpArrests", 436, (), ""),
+            ("MOS", "INT", 0, "finalPerpArrests", 440, (), ""),
+            ("MOS", "ARY STRUCT", 520, "perpInfo", 444, (10,),
+             "GameSetup_tPerpData"),
+        )),
+        ("aih_btccop_types.h", "AIH_BTCCop_SimGlobalCodegenView"): (8, (
+            ("MOS", "INT", 0, "gameStarted", 0, (), ""),
+            ("MOS", "INT", 0, "gameTicks", 4, (), ""),
+        )),
+        ("aih_btccop_types.h", "AIH_BTCCop_SimSystemCodegenView"): (8, (
+            ("MOS", "INT", 0, "restartGame", 0, (), ""),
+            ("MOS", "INT", 0, "endSimGame", 4, (), ""),
+        )),
+        ("aih_btccop_types.h", "AIH_BTCCop_SpikeBeltCodegenView"): (20, (
+            ("MOS", "INT", 0, "active_", 0, (), ""),
+            ("MOS", "INT", 0, "slice_", 4, (), ""),
+            ("MOS", "INT", 0, "leftLatPos_", 8, (), ""),
+            ("MOS", "INT", 0, "rightLatPos_", 12, (), ""),
+            ("MOS", "INT", 0, "freshenTime_", 16, (), ""),
+        )),
+        ("aih_btccop_types.h", "AIH_BTCCop_SliceCodegenView"): (32, (
+            ("MOS", "ARY INT", 12, "center", 0, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "normal", 12, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "forward", 15, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "right", 18, (3,), ""),
+            ("MOS", "UCHAR", 0, "acousticType", 21, (), ""),
+            ("MOS", "SHORT", 0, "pavedProfile", 22, (), ""),
+            ("MOS", "SHORT", 0, "leftDrive", 24, (), ""),
+            ("MOS", "SHORT", 0, "rightDrive", 26, (), ""),
+            ("MOS", "UCHAR", 0, "chunkIndex", 28, (), ""),
+            ("MOS", "UCHAR", 0, "laneCount", 29, (), ""),
+            ("MOS", "UCHAR", 0, "avgPavedWidthLf", 30, (), ""),
+            ("MOS", "UCHAR", 0, "avgPavedWidthRt", 31, (), ""),
+        )),
+        ("aih_btccop_types.h", "AIH_BTCCop_IdleStateCodegenView"): (16, (
+            ("MOS", "STRUCT", 8, "AIState_Base", 0, (), "AIState_Base"),
+            ("MOS", "INT", 0, "roadPosition_", 8, (), ""),
+            ("MOS", "INT", 0, "idleInPlaceFlag_", 12, (), ""),
+        )),
+        ("aih_btccop.cpp", "AIState_BTCInactive"): (8, (
+            ("MOS", "STRUCT", 8, "AIState_Base", 0, (), "AIState_Base"),
+        )),
         # CDFS.OBJ is stripped. Fourteen PASS bodies fix the 0x83c-byte CD
         # context plus the shared 16-byte read-state and 312-byte callback
         # stack record. Canonical PsyQ proves only their CdlLOC leaf, not these

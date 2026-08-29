@@ -772,19 +772,30 @@ scan:
             goto scan;
 scan_done:
         {
-            unsigned short *pv;
+            /* W78: PASS 127/127.  Keep adjusted_off at loop depth 2 and pv
+             * at depth 3, but form them in one wrapper with adjusted_off
+             * first.  That gives sched1 the retail sll/%hi/%lo dependency
+             * order.  The cancelling off terms belong in the later avail
+             * expression: they price the offset quantity ahead of the
+             * address-high quantity without letting combine.c rebuild the
+             * address as pv+off (which reverses the addu operands). */
             unsigned int off = idx * 4;
+            unsigned int adjusted_off;
+            unsigned short *pv;
             do {
                 do {
+                    adjusted_off = off;
                     do {
                         pv = D_80147E34;
                     } while (0);
                 } while (0);
             } while (0);
-            prev = (unsigned short *)((unsigned char *)pv + off);
+            prev = (unsigned short *)((unsigned int)adjusted_off +
+                                      (unsigned int)pv);
             local_block = (unsigned int)prev[0] + (unsigned int)prev[1];
             local_avail =
-                (int)pv[0] - (int)local_block;
+                (int)pv[0] - (int)local_block - off + off -
+                off + off - off + off;
         }
     }
     iSNDpsxmemconstrain(&local_block, &local_avail);

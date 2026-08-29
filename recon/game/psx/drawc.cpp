@@ -330,24 +330,15 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
    * `light` local, clamps each channel to 0xFF, and writes back. The binary reads/writes the bytes of
    * the `light` POINTER slot itself (104+$sp = &light), NOT *light -- gcc-2.7.2 preserved these stores
    * because &light escapes. Reproduced byte-faithfully; this whole block was missing (H46). */
-  if (Night_gDrawLightning != '\0') {
+  CVECTOR *lightSlotView /* SYM-CODEGEN-CARRIER: lightSlotView -- the non-null guard
+                            births &light before the branch while direct typed member
+                            expressions retain retail's channel allocation */ =
+      (CVECTOR *)&light;
+  if (Night_gDrawLightning != '\0' && lightSlotView) {
     /* MATCH (w39-a3): retail keeps ONE base register for the weather colour
        (addu $v1,$v1,$v0 once, then lbu 0/1/2($v1)) and ONE for &light
        ($a2 = sp+104).  Spelling the full &Night_gWeatherColor[type] address
        at each of the three byte reads made cc1 rematerialize it. */
-    u_char *lp /* SYM-CODEGEN-CARRIER: lp -- direct per-channel light-slot expressions rematerialize the base */ =
-        (u_char *)&light;
-    u_char *wc /* SYM-CODEGEN-CARRIER: wc -- inline weather-table expressions are FAIL 48 (109/107) */;
-    {
-      u_char *base; /* SYM-CODEGEN-CARRIER: base -- W81 pure-C replacement
-                       for the forbidden post-cc1 move; the one-shot scope
-                       keeps the weather %hi/%lo pair adjacent and reduces the
-                       authoritative residual from 4/107 to 3 at 108/107. */
-      do {
-        base = (u_char *)Night_gWeatherColor;
-      } while (0);
-      wc = base + (Night_gLightningType << 2);
-    }
     short newR;
     short newG;
     short newB;
@@ -512,15 +503,16 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
        anchors are label-agnostic and unique in the region, and TEXT_MOVES runs BEFORE
        maspsx so the load-delay nops are re-derived correctly.
        Probe harnesses: scratchpad/w61a15/textmove_probe2.py + tugate_probe.py. */
-    /* W81 PURE-C REWRITE: the block-local base plus one-shot assignment above
-     * supersedes the empty-asm fence and improves the source-only gate from
-     * FAIL 4/107 to FAIL 3 at 108/107.  It keeps the weather `%hi/%lo` pair
-     * adjacent and all channel registers exact.  The sole remaining residual
-     * is a load-delay `nop` before lp[0]; moving that load into the one-shot
-     * scope changes allocation and regresses, so the lower-diff route stays. */
-    newR = (short)((int)lp[0] + (int)wc[0]);
-    newG = (short)((int)lp[1] + (int)wc[1]);
-    newB = (short)((int)lp[2] + (int)wc[2]);
+    /* W82 PURE-C PASS: spelling both four-byte RGB objects as CVECTORs lets
+     * cc1 CSE the weather row without the explicit wc cursor.  The guarded
+     * lightSlotView above moves the shared &light address into the guard delay
+     * slot; the direct members keep the three channel quantities retail-exact. */
+    newR = (short)((int)((CVECTOR *)&light)->r +
+                       (int)((CVECTOR *)Night_gWeatherColor)[Night_gLightningType].r);
+    newG = (short)((int)((CVECTOR *)&light)->g +
+                       (int)((CVECTOR *)Night_gWeatherColor)[Night_gLightningType].g);
+    newB = (short)((int)((CVECTOR *)&light)->b +
+                       (int)((CVECTOR *)Night_gWeatherColor)[Night_gLightningType].b);
     if (0xff < newR) {
       newR = 0xff;
     }
@@ -530,9 +522,9 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
     if (0xff < newB) {
       newB = 0xff;
     }
-    lp[0] = (u_char)newR;
-    lp[1] = (u_char)newG;
-    lp[2] = (u_char)newB;
+    ((CVECTOR *)&light)->r = (u_char)newR;
+    ((CVECTOR *)&light)->g = (u_char)newG;
+    ((CVECTOR *)&light)->b = (u_char)newB;
   }
   return;
 }

@@ -352,16 +352,18 @@ void tScreenTournamentStandings::DrawBackground()
   /* SYM-CODEGEN-CARRIER: type -- repeating textType_TrackRecords raises the
      residual from 3 to 35 and rematerializes the value at each call site. */
   tMenuTextType type;
+  tTournamentManager *tm;
 
   i = 0;
   type = textType_TrackRecords;
   fade = this->fScreenFadeVal;
+  tm = (tTournamentManager *)((char *)&tournamentManager + fade - fade);
   fadeline = fade;
   line = 0x2fe;
-  tourneyInfo = &tournamentManager.fDefinition->fTournaments[
-      tournamentManager.fDefinition->fTiers[tournamentManager.fTier].fTournOffset +
-      tournamentManager.fTournament];
-  numRacers = (short)((short)tournamentManager.fNumRacers +
+  tourneyInfo = &tm->fDefinition->fTournaments[
+      tm->fDefinition->fTiers[tm->fTier].fTournOffset +
+      tm->fTournament];
+  numRacers = (short)((short)tm->fNumRacers +
                       (tourneyInfo->fKnockout != 0));
   lastRacer = numRacers - 1;
   for (;;) {

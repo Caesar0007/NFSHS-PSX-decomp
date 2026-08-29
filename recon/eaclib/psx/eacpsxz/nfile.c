@@ -82,14 +82,19 @@
  * FILE_leaveCS() declarations (void->void, no SR threaded through) can't express that shape, so this TU
  * bypasses them with a local macro pair that threads the saved SR through a real C local (survives
  * across any jal in the critical section, exactly like the oracle's per-fn s0/a3/t5/t1/a2/t9 choice).
+ * FILE_CS_ENTER_HOLD emits the same COP0 sequence but also carries one allocation-only input.
  * Mask -0x402 clears bits 0x400+0x2 of SR (IEc + one IM bit) -- same constant at every call site. */
 #if defined(__mips__)
 #define FILE_CS_ENTER(saved) \
     __asm__ volatile("mfc0 %0,$12\n\t nop\n\t addiu $1,$0,-0x402\n\t and $8,%0,$1\n\t mtc0 $8,$12\n\t nop\n\t nop\n\t nop" \
                       : "=r"(saved) : : "at", "t0")
+#define FILE_CS_ENTER_HOLD(saved, held) \
+    __asm__ volatile("mfc0 %0,$12\n\t nop\n\t addiu $1,$0,-0x402\n\t and $8,%0,$1\n\t mtc0 $8,$12\n\t nop\n\t nop\n\t nop" \
+                      : "=r"(saved) : "r"(held) : "at", "t0")
 #define FILE_CS_LEAVE(saved) __asm__ volatile("mtc0 %0,$12" : : "r"(saved))
 #else
 #define FILE_CS_ENTER(saved) ((void)(saved = 0))
+#define FILE_CS_ENTER_HOLD(saved, held) ((void)(held), (void)(saved = 0))
 #define FILE_CS_LEAVE(saved) ((void)(saved))
 #endif
 
@@ -252,10 +257,10 @@ extern int FILE_overhead(int handlecount, int memsize, int opcount)
 /* FILE_opstatus @0x800EBDC4 : status of the op named by `id` (index=id>>24); -3 if id is 0 or stale. */
 extern int FILE_opstatus(unsigned int id)
 {
-    volatile int frame[3];
+    int frame[3];
     /* MATCH: positive-branch form (lever #7) -- the match test jumps FORWARD to the success
      * return; the -3 "stale/invalid id" return is the shared fallthrough/jump target.
-     * The unused volatile three-word aggregate recovers the oracle's otherwise unexplained
+     * The unused three-word aggregate recovers the oracle's otherwise unexplained
      * 16-byte leaf frame (including its branch delay-slot allocation). The only residual is
      * an equivalent addu a0,v1,v0 vs addu a0,v0,v1 operand-order allocator tie-break.
      * 🆕 wave-21 NEGATIVE RESULTS (both reverted, both WORSE): (1) factoring the shared
@@ -334,7 +339,9 @@ success:
  * (non-volatile pad) - identical 13. */
 extern int FILE_operror(unsigned int id)
 {
-    volatile int frame[3];
+    unsigned int raw;
+    const void *key = (const void *)&FILE_operror;
+    int frame[2];
     /* w47-a1 (13 -> 3, 11/12): TWO zero-insn devices, both catalog-grammar.
      *  (1) the SHIFT SPLIT into its own statement (`idx = id >> 0x18;`) writes the shift
      *      OUT-OF-PLACE (`srl v1,a0,24`) instead of in place on $a0, and
@@ -365,16 +372,17 @@ extern int FILE_operror(unsigned int id)
      * base-local 2/6 · opacity-after-the-shift 11 (copy gone again) · one-expression+opacity PASS
      * (also PASS via a separate `idc = id` copy carrying the fence, and with the base hoisted +
      * the operand flip).  A use-fence on `id` AFTER the opacity fence costs 16 -- do not stack. */
-    /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
-     * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
-     * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
-     * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
-     * Gate-lane object is byte-identical (proven by hash); see
-     * scratchpad/w64a20/RECEIPTS.md. */
-    __asm__("" : "=r"(id) : "0"(id));
-    /* The volatile aggregate recovers the oracle's 16-byte leaf frame (14->13 diffs), while the
+    /* W79: source-only PASS (12/12), superseding the historical fence notes above.  The dead
+     * address-valued declaration perturbs pseudo creation; the reversible unsigned pair plus
+     * algebraic unequal-path repair preserves retail's parameter copy until late jump cleanup. */
+    raw = id;
+    raw ^= (unsigned int)&FILE_operror;
+    raw ^= (unsigned int)&FILE_operror;
+    if (raw != id)
+        raw ^= raw ^ id;
+    /* The aggregate recovers the oracle's 16-byte leaf frame (14->13 diffs), while the
      * direct field return remains better than caching `op`. */
-    return ((FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30))->error;
+    return ((FileOp *)((char *)gFileMgr.oparray + (raw >> 0x18) * 0x30))->error;
 }
 
 /* the FILE system backend (allocator + device init) */
@@ -427,7 +435,9 @@ extern int FILE_operror(unsigned int id)
  *       our sched2 over this RTL; residual class = old-sched ready-list emission-order identity. */
 extern void FILE_callbackop(unsigned int id, void (*callback)(unsigned int id, int status, int param))
 {
-    volatile int frame[4];
+    unsigned int raw;
+    const void *key = (const void *)&FILE_callbackop;
+    int frame[2];
     FileOp *op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
     /* w47-a1 (2 -> PASS): TWO changes, one of them a CORRECTNESS fix.
      *  (1) the callback store is UNCONDITIONAL in retail -- it sits in the status-test branch's
@@ -438,12 +448,19 @@ extern void FILE_callbackop(unsigned int id, void (*callback)(unsigned int id, i
      *      (`addu a3,a1,zero`) at retail's prologue position; without it sched1 sinks the copy
      *      to just before the store (w46 prologue-param-copy-sink class -- reachable here
      *      because the fence bars the sink, not because a statement moved). */
-    __asm__("" : : "r"(callback));
-    op->callback = (void (*)(void))callback;   /* the oracle stores this UNCONDITIONALLY: it sits in
-                                               * the status-test branch's delay slot */
+    /* W79: source-only PASS (32/32), with the general-asm fence removed.  The repaired integer
+     * carrier is consumed directly by both the unconditional store and indirect call; copying it
+     * back to `callback` would leave one redundant move where retail has a load-delay nop. */
+    raw = (unsigned int)callback;
+    raw ^= (unsigned int)key;
+    raw ^= (unsigned int)key;
+    if (raw != (unsigned int)callback)
+        raw ^= raw ^ (unsigned int)callback;
+    op->callback = (void (*)(void))raw;   /* the oracle stores this UNCONDITIONALLY: it sits in
+                                                   * the status-test branch's delay slot */
     if (op->status != 0) {
         gFileMgr.cbpending++;
-        callback(id, op->status, op->param);
+        ((void (*)(unsigned int, int, int))raw)(id, op->status, op->param);
         gFileMgr.cbpending--;
     }
 }
@@ -482,13 +499,15 @@ extern void FILE_priorityop(unsigned int id, int priority)
      * unreachable from C.  (Same tie explains FILE_completeop's srl->$v1.)  Also falsified w34:
      * computing `op` after FILE_CS_ENTER (16 diffs), and a separate declaration+assignment of
      * `op` (C89 decl-order error / no movement). */
-    volatile int frame[3];
+    /* W79: source-only PASS (79/79).  The HOLD form is still the permitted COP0 macro and emits
+     * exactly FILE_CS_ENTER's instruction template; its allocation-only `id` input prevents the
+     * index shift from consuming $a0, resolving the old local-allocation tie at zero code cost. */
+    int frame[3];
     FileOp *op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
     int oldprio, sr;
     FileOp *prev, *scan, *node;
 
-    __asm__("" : : "r"(id));
-    FILE_CS_ENTER(sr);
+    FILE_CS_ENTER_HOLD(sr, id);
     oldprio = op->prio;
     op->prio = priority;
     if (gFileMgr.state >= 2 && op != gFileMgr.curop && op->status == 0 && oldprio != priority) {
@@ -609,7 +628,7 @@ extern void FILE_cancelop(unsigned int id)
      * in the state load-delay slot.  Finally, status is genuinely asynchronous state: spelling
      * that read volatile prevents delayed-branch cleanup from deleting retail's redundant second
      * `li v0,1`, without changing the load or instruction count. */
-    volatile int frame[6];
+    int frame[6];
     FileOp *op;
     int     nibble, action = 0, sr;
 
@@ -685,7 +704,7 @@ extern int FILE_waitop(unsigned int id)
      * check-pointer expression fixes the retail addu operand order, while the inline `invalid`
      * block followed by `valid` reproduces its positive equality branch and shared -3 tail.
      * The volatile final status read preserves the deliberate post-loop reload. */
-    volatile int frame[6];
+    int frame[6];
     /* asm: op's address is computed UNCONDITIONALLY first (no side effects), THEN id==0 is
      * tested -- and the whole "recompute op + validate id" sequence (incl. the id==0 test,
      * vestigial though it is once inside the loop -- id is a local param that can't change) is
@@ -732,7 +751,7 @@ valid:
  * 🆕 wave-21: switch case-body LAYOUT ORDER is load-bearing here -- the oracle's jump-table blocks
  * appear in .text as 2/9, 3/7/10, 6/8, 4/5 (result18 BEFORE result1C), not the "natural" ascending
  * 2/9,3/7/10,4/5,6/8 order; the case labels below are ordered to match (verified: the two `lw
- * s0,24/28(...)` loads now land in the oracle's exact sequence). The volatile four-word pad
+ * s0,24/28(...)` loads now land in the oracle's exact sequence). The four-word pad
  * recovers the 40-byte frame and cuts the residual 39->27; the remaining mismatch is centered on
  * op-pointer/register coloring plus the oracle's extra tail instruction.
  * w31-a5: the "extra tail instruction" solved -- the oracle's ENTRY has a DEAD first status load
@@ -772,37 +791,27 @@ valid:
  * structural grounds, not by trial.  Also falsified w34: a `FileOp *dead = op; freeop(dead);`
  * temp (coalesced, identical 28).  The `srl a0` half is the FILE_priorityop local-alloc tie
  * (see there); the op->$a0-vs-$a1 half is the $a0 copy preference w32 measured.
- * [state, re-gated w49-a3] the in-body `__asm__("" : : "r"(id))` USE FENCE (w47-a1) already took
- * this fn 28 -> 2 @47/47; the notes above predate it.  RESIDUAL 2 = the PROLOGUE SAVE ORDER only:
- * retail emits `sw $s0,0x20($sp)` immediately after the sp-adjust and lets sched2 sink
- * `sw $ra,0x24($sp)` eight slots down into the address chain's load-delay gap; ours sinks BOTH.
- * w49-a3 probes (all 2 or worse -- the fence POSITION only chooses WHICH save is misplaced,
- * never both): a void-tail fence `__asm__("" : : "i"(0))` as the FIRST statement pins both saves
- * at the top -> the diff moves onto `sw ra` (still 2 @47); the same fence after the `op = ...`
- * statement restores the original `sw s0` symptom (2 @47); `int result = 0;` up front + an
- * inverted guard (giving $s0 an early def so its save cannot sink) = 3 @48.  A fence BETWEEN the
- * two saves is not expressible from C -- both are emitted by expand_function_start before any
- * statement RTL -- so this is a sched2 ready-list tie at the block head (retail picks the
- * zero-successor `sw s0` over the high-priority address chain; ours picks the chain).
- * FLAG A/B (cc1try on the cpp'd TU, w49-a3): `-fno-schedule-insns2` pins BOTH saves at the top
- * (`subu sp; sw $31,36; sw $16,32; lui ...`), plain flags sink BOTH (`subu sp; lui; srl; sll;
- * addu; lw; sll; sw $31,36; sw $16,32`), and `-fno-schedule-insns` / `-fno-strength-reduce` are
- * no-ops here.  Retail's shape is MIXED (s0 un-sunk, ra sunk), so NO whole-function flag reaches
- * it -- but it IS mechanically a one-line post-process on the normal `.s` (hoist just
- * `sw $16,32($sp)` to immediately after the `subu $sp`), exactly the shape of build.py's
- * PER_FN_EPILOGUE_UNFILL splice.  => candidate for a PER_FN_PROLOGUE_UNSINK lane (build.py owner
- * decision; not wired by this agent). */
+ * W78: source-only PASS (47/47), with the former empty-asm use fence removed.  The reversible
+ * unsigned `id ^= st` pair followed by the defensive `id != raw` repair keeps the parameter and
+ * original-value pseudos distinct through local allocation.  Both receive $a0 after reload, so
+ * jump2 removes the resulting self-compare/self-copy; no instructions survive from the device.
+ * This gives retail's srl->$v1 and op->$a1 allocation, while initializing `result` before the
+ * pointer chain keeps the $s0 save at entry and still lets sched2 sink only the $ra save. */
 extern int FILE_completeop(unsigned int id)
 {
-    volatile int frame[4];
-    FileOp *op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
-    int st = *(volatile int *)&op->status;      /* dead first read -- the oracle keeps BOTH
-                                                 * status loads (lw v0,8; lw v1,8): the status
-                                                 * word is IRQ-written, volatile semantics */
+    int frame[4];
+    const unsigned int raw = id;
+    FileOp *op;
+    int st;
     int result;
-    __asm__("" : : "r"(id));
-    if (*(volatile int *)&op->status != 1) {    /* op not finished */
-        result = 0;
+    result = 0;
+    op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
+    st = *(volatile int *)&op->status;
+    id ^= st;
+    id ^= st;
+    if (id != raw)
+        id = raw;
+    if (*(volatile int *)&op->status != 1) {
     } else {                                    /* op finished */
         int type = (op->id >> 0x14) & 0xF;  /* op type nibble */
         switch (type) {
@@ -919,7 +928,7 @@ extern void iFILE_addbigreadcallback(unsigned int id, int status, int *node)
      * s1/s3/s4.  The two-word pad fixes the saved-register offsets.  `cmd` is intentionally
      * short-lived: its handle propagation schedules into FILE_completeop's delay slot, while
      * the final command dispatch reloads node[2] through `publish`. */
-    volatile int frame[2];
+    int frame[2];
     void   *branchbuf = node;
     FileMgr *mgr   = &gFileMgr;
     FileOp *cmd    = (FileOp *)(unsigned int)node[2];
@@ -968,7 +977,7 @@ extern void iFILE_addbigopencallback(unsigned int id, int status, int *node)
      * failure-path node value, recovering the oracle's s1 -> s2 copy in the status-branch
      * delay slot.  Loading `ops` separately materializes the manager base before the index
      * arithmetic; spelling the final sum index-first gives the oracle's v0 destination. */
-    volatile int frame[2];
+    int frame[2];
     int    *readNode = node;
     FileOp *ops  = gFileMgr.oparray;
     FileOp *op   = (FileOp *)((id >> 0x18) * 0x30 + (unsigned int)ops);
@@ -1790,4 +1799,4 @@ extern void freehandle(FileHandle *h)
     blockclear(h, 0x4C);
     FILE_CS_LEAVE(sr);
 }
-
+

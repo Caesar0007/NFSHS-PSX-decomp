@@ -622,6 +622,11 @@ PER_TU_FLAGS = {
     # assignments + both cursor shapes land exactly; retail's patch loop shows NO
     # strength reduction).  Same adoption precedent as movf.c's no_schedule_insns.
     "recon/eaclib/psx/sndpsxz/sbdload.c":   {"no_strength_reduce": True},
+    # sdmemman.obj retains the full D_80147E34 base through its tail scan.
+    # GCC's optional post-loop CSE rerun folds that final base use back to a
+    # %lo(high) address and creates an extra live address pseudo; the retail
+    # object has the unfurled pointer lifetime.  Keep CSE2 off for this object.
+    "recon/eaclib/psx/sndpsxz/sdmemman.c":  {"no_rerun_cse_after_loop": True},
     # stattool.obj has an out-of-line memcpy for its 20-byte record copy.
     # CC1PLPSX otherwise builtin-expands it to eight extra instructions.
     "recon/frontend/common/stattool.cpp":   {"no_builtin": True},
@@ -1451,6 +1456,8 @@ def _compile_c_272(rel: Path, tu_flags: dict, i_file: Path, s_file: Path,
         cc1_flags.append("-fno-schedule-insns2")
     if tu_flags.get("no_builtin"):
         cc1_flags.append("-fno-builtin")
+    if tu_flags.get("no_rerun_cse_after_loop"):
+        cc1_flags.append("-fno-rerun-cse-after-loop")
     # w52-a3: forward the split-addresses key too (2.8.x rungs via cc1_alt
     # need -mno-split-addresses to express the SYS.c clamp identity; 2.7.2
     # itself has no such option and would reject it -- only append when the
@@ -1542,6 +1549,8 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
         cc1_flags.append("-fno-strength-reduce")
     if tu_flags.get("no_builtin"):
         cc1_flags.append("-fno-builtin")
+    if tu_flags.get("no_rerun_cse_after_loop"):
+        cc1_flags.append("-fno-rerun-cse-after-loop")
     # w52-a7: PER_TU "cc1_ver" swaps ONLY the cc1 binary (ladder rung) inside
     # the NORMAL maspsx pipeline -- the single-variable version axis.  Distinct
     # from cc1_alt, which also swaps the assembler route (272 recipe) and for

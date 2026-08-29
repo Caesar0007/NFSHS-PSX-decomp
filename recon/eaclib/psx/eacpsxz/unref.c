@@ -208,6 +208,15 @@ extern void chase(unsigned int code);                                           
  * ($19 = out/$s3, $18 = src/$s2, $16 = reverse/$s0, $17 = op/$s1.  The 2nd entry's anchor
  * lookahead includes the ` #APP` line of the in-source opacity fence, which is what makes it
  * unique among the four `addu $18,$18,$16` sites.) */
+/* W80 SOURCE-ONLY SEAL (2026-08-28): PASS 158/158; chase remains PASS 33/33.
+ * The retail source kept a per-command working output pointer and defined it immediately after
+ * advancing `out` and `src`.  Moving the three identical-edge definitions ahead of each arm's
+ * count arithmetic gives their call-preferred pseudos the earlier RTL LUID, so sched1 emits each
+ * `addu a0,s3,zero` at the retail point without a post-compiler text move.  The middle arm needs
+ * its own `advanced` copy too.  That third copy changes global-allocation priority, so the allowed
+ * empty read-only fence prices the handout exactly: instrumented cc1/allocsim reports op p97
+ * 48/91 -> s1, src p84 65/151 -> s2, out p85 55/111 -> s3, while the three arm copies p103/p117/
+ * p130 each receive a0.  The fence has no hard-register names and emits zero instructions. */
 extern int unrefpack(unsigned char *comp, unsigned char *out_arg, int reverse_arg)
 {
     int            reverse = reverse_arg;
@@ -238,13 +247,13 @@ extern int unrefpack(unsigned char *comp, unsigned char *out_arg, int reverse_ar
                     puti(out, geti(src, 4), 4);
                     out += reverse;
                     src += reverse;
-                    hi    = op << 3;
-                    hi    = hi & 0x300;
-                    lo    = ((op >> 8) & 0xff) + 1;
-                    if (lo != 0)
+                    if (reverse != 0)
                         advanced = out;
                     else
                         advanced = out;
+                    hi    = op << 3;
+                    hi    = hi & 0x300;
+                    lo    = ((op >> 8) & 0xff) + 1;
                     hi = hi + lo;
                     count = hi;
                     len   = (int)(op >> 2 & 7) + 3;
@@ -256,11 +265,18 @@ extern int unrefpack(unsigned char *comp, unsigned char *out_arg, int reverse_ar
                     unsigned int   lo;
                     unsigned int   shifted;
                     int            len;
+                    unsigned char *advanced;
                     src += 3;
                     reverse = op >> 0xe & 3;
                     puti(out, geti(src, 4), 4);
                     out += reverse;
                     src += reverse;
+                    if (reverse != 0)
+                        advanced = out;
+                    else
+                        advanced = out;
+                    __asm__("" : : "r"(src),
+                                      "r"(op), "r"(op), "r"(op));
                     /* MATCH: spelling both control edges identically keeps `shifted` as a
                      * separate value through combine, preserving retail's srl/sll/andi
                      * chain.  The redundant edge is merged later and emits no branch. */
@@ -272,7 +288,7 @@ extern int unrefpack(unsigned char *comp, unsigned char *out_arg, int reverse_ar
                     lo    = ((op >> 16) & 0xff) + 1;
                     count = hi + lo;
                     len   = (int)(op & 0x3f) + 4;
-                    out   = refcpy(out, count, len);
+                    out   = refcpy(advanced, count, len);
                 } else if ((op & 0x20) == 0) {            /* 4-byte command */
                     unsigned int   count;
                     unsigned int   hi;
@@ -284,13 +300,13 @@ extern int unrefpack(unsigned char *comp, unsigned char *out_arg, int reverse_ar
                     puti(out, geti(src, 4), 4);
                     out += reverse;
                     src += reverse;
-                    hi    = op << 12;
-                    hi    = hi & 0x10000;
-                    lo    = (op & 0xff00) + 1;
-                    if (lo != 0)
+                    if (reverse != 0)
                         advanced = out;
                     else
                         advanced = out;
+                    hi    = op << 12;
+                    hi    = hi & 0x10000;
+                    lo    = (op & 0xff00) + 1;
                     hi = hi + lo;
                     count = hi + ((op >> 16) & 0xff);
                     len   = (int)(((op << 6) & 0x300) + (op >> 24)) + 5;

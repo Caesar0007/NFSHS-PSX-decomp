@@ -2420,7 +2420,6 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
      birth order fixes it.  Measured: this form 114 · assign after the sd block
      142 · assign around the doublelayer store 142 · decl-initializers 118. */
   int negOne; /* SYM-CODEGEN-CARRIER: negOne -- named form reproduces retail's loop-hoisted -1 in $s6 */
-  int gteFlag; /* SYM-CODEGEN-CARRIER: gteFlag -- named form reproduces retail's loop-hoisted 1 in $s7 */
   /* ================= W72-A1 (2026-08-22): 48 -> 11, count 359 -> 358 =========
        (1) THE LOREZ ARM'S TWO RE-READS (48 -> 39).  `sd->stripPtr = (Trk_NewStrip
            *)(chunkDat->lorezstripBuf + 1);` followed by
@@ -2568,17 +2567,16 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
 
   buildInd = 0;
   negOne = -1;
-  gteFlag = 1;
   sd = (Draw_tGiveShelbyMoreCache *)&Render_gPalettePtr;
   chunkCount = BWorld_gChunkCount;
   sd->doublelayer = 1;
   sd->identMat = gIdentTemplate;
   sd->offsubdivid = 0;
-  do {
-    if (chunkCount <= buildInd) {
-      return;
-    }
-    if ((buildList->enableBits & 1U) != 0) {
+  /* MATCH (w78-a7): the indexed for-loop lets loop.c build retail's walking
+     buildList GIV in the preheader.  The literal 1 below is likewise hoisted
+     there without inventing a non-SYM local. */
+  for (; buildInd < chunkCount; buildInd = buildInd + 1) {
+    if ((buildList[buildInd].enableBits & 1U) != 0) {
       /* MATCH: chunkInd/geomRez are NOT kept as persistent C locals -- the
          oracle stores each straight to its sd-> byte field (a genuine BYTE
          truncation of the `short chunkInd`/`char geomRez` tBuildEntry fields,
@@ -2588,8 +2586,8 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
          a kept register) -- cheaper than keeping a value live across the
          WorldSetUpMatrix call, which clobbers every caller-saved reg anyway. */
       sd->artInfo = &gInitialArt;
-      sd->chunkInd = (u_char)buildList->chunkInd;
-      sd->rezInd = (u_char)buildList->geomRez;
+      sd->chunkInd = (u_char)buildList[buildInd].chunkInd;
+      sd->rezInd = (u_char)buildList[buildInd].geomRez;
       chunkDat = Track_chunkList + sd->chunkInd;
       DrawW_WorldSetUpMatrix(&gWorldMat,&sd->matB);
       /* MATCH (w74-a1): the nightFlags clear is emitted AFTER the vertexBuf load
@@ -2827,19 +2825,21 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
                  A REAL 4TH QTY into those arms, not another ref/live dial). */
         sd->quadCount = chunkDat->quadCounts[0];
         if (sd->quadCount != 0) {
-          joinQuads = chunkDat->renderQuads[0];
+          /* The whole-arm wrapper supplies one loop-depth-weighted reference
+             without obstructing reorg's delay-slot scan at an inner boundary. */
+          do { joinQuads = chunkDat->renderQuads[0];
           sd->offset = 0x7d;
-          sd->zeroGTETransFlag = gteFlag;
+          sd->zeroGTETransFlag = 1;
           sd->light = negOne;
           sd->quads = joinQuads;
-          DrawW_kCtrlWorld_High(sd);
+          DrawW_kCtrlWorld_High(sd); } while (0);
         }
         sd->quadCount = chunkDat->quadCounts[1];
         if (sd->quadCount != 0) {
           joinQuads = chunkDat->renderQuads[1];
 DrawWTrough_setStateCallHigh:
           sd->offset = 0x1e;
-          sd->zeroGTETransFlag = gteFlag;
+          sd->zeroGTETransFlag = 1;
           sd->light = negOne;
           sd->quads = joinQuads;
           DrawW_kCtrlWorld_High(sd);
@@ -2850,7 +2850,7 @@ DrawWTrough_setStateCallHigh:
       if (sd->quadCount != 0) {
         joinQuads = (Trk_Quad *)(chunkDat->objQuadBuf + 1);
         sd->offset = 0x7d;
-        sd->zeroGTETransFlag = gteFlag;
+        sd->zeroGTETransFlag = 1;
         sd->light = negOne;
         sd->quads = joinQuads;
         DrawW_kCtrlWorld_High(sd);
@@ -2859,15 +2859,13 @@ DrawWTrough_setStateCallHigh:
       if (sd->quadCount != 0) {
         joinQuads = (Trk_Quad *)(chunkDat->objQuadInstanceBuf + 1);
         sd->offset = 0x32;
-        sd->zeroGTETransFlag = gteFlag;
+        sd->zeroGTETransFlag = 1;
         sd->light = negOne;
         sd->quads = joinQuads;
         DrawW_kCtrlWorld_High(sd);
       }
     }
-    buildList = buildList + 1;
-    buildInd = buildInd + 1;
-  } while( true );
+  }
 }
 
 /* ---- DrawW_WorldSetUpMatrix__FP10matrixtdefP6MATRIX  [DRAWW.CPP:1663-1670] SLD-VERIFIED ---- */

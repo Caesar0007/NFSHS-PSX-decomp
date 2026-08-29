@@ -1,9 +1,16 @@
-#include "../../lib/libfns.h"
+#include "replay_types.h"
 /* replay_externs.h -- extern decls for game/psx/replay.cpp
  *   (NFS4 PSX replay record/playback: per-frame controller capture + RLE-style compress into a
  *    ring buffer, decompress on playback, camera-file load and replay-camera selection). */
 #ifndef REPLAY_EXTERNS_H
 #define REPLAY_EXTERNS_H
+
+extern "C" void *memcpy(...);
+extern "C" int FILE_addbigsync(...);
+extern "C" void FILE_delbigsync(...);
+extern "C" char *loadfileadrz(...);
+extern "C" int purgememadr(...);
+extern "C" int sprintf(...);
 
 /* ---- replay state globals ----
  * Main-data declarations follow replay.obj's exact SYM/retail VA order. */

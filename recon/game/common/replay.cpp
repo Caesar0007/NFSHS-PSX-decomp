@@ -2,7 +2,7 @@
  *   6 fns: Scene_Init/DeInit/PurgeScene/BuildCustomSceneList/LoadSceneFile + GetPlaneY.
  *   GTE-free. Full SYM-locals applied.
  */
-#include "../../nfs4_types.h"
+#include "replay_types.h"
 #include "replay_externs.h"
 
 /* SYM assigns replay.obj one contiguous main-data run at

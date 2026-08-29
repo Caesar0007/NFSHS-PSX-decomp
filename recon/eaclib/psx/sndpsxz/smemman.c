@@ -30,12 +30,18 @@
  *            DAT_80148788 = high-water mark (words), DAT_8014878c = {block:u16, size:u16}[] entry table.
  */
 
+/* {block,size} free-list entry -- 2-byte alignment is LOAD-BEARING (struct assignment on an
+ * align-2 4-byte struct = the oracle's lwl/lwr+swl/swr unaligned word copy). */
+typedef struct SndMemEnt {
+    unsigned short blk, sz;
+} SndMemEnt;
+
 typedef struct SNDMemState {
     int            base;                /* +0x00 pool byte address */
-    short          count;               /* +0x04 live allocation count */
-    short          poolWords;           /* +0x06 pool size in words */
+    unsigned short count;               /* +0x04 live allocation count */
+    unsigned short poolWords;           /* +0x06 pool size in words */
     int            highWater;           /* +0x08 high-water mark */
-    unsigned short entries[256];        /* +0x0c {block,size}[128] */
+    SndMemEnt      entries[128];         /* +0x0c sorted allocation table */
 } SNDMemState;
 extern SNDMemState sndmm;
 /* W65-A6 DATA-MAT: `sndmm` was extern-only tree-wide (13 reloc-referenced undefined sites).
@@ -55,13 +61,10 @@ SNDMemState sndmm;                  /* @0x80148780 [BSS] definition */
  * `lui %hi(sndmm)`. */
 extern unsigned char sndmm_b[] __asm__("sndmm");
 
-/* {block,size} free-list entry -- 2-byte alignment is LOAD-BEARING (struct assignment on an
- * align-2 4-byte struct = the oracle's lwl/lwr+swl/swr unaligned word copy). */
-typedef struct { unsigned short blk, sz; } SndMemEnt;
 #define DAT_80148784 (sndmm.count)
 #define DAT_80148786 (sndmm.poolWords)
 #define DAT_80148788 (sndmm.highWater)
-#define DAT_8014878c (sndmm.entries[0])
+#define DAT_8014878c (sndmm.entries[0].blk)
 extern void           trap(unsigned int code);
 
 extern void iSNDmemconstrain(int *block, int *size);   /* @0x801061A8 */

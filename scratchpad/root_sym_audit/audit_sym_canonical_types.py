@@ -1109,6 +1109,24 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "SHORT", 0, "underrun", 40, (), ""),
             ("MOS", "SHORT", 0, "pad2a", 42, (), ""),
         )),
+        # SMEMMAN.OBJ is stripped. Its four PASS bodies and the sndmm BSS
+        # extent fix the complete 0x20c-byte allocator state; the insertion
+        # loop proves that +0xc is an array of 128 four-byte {block,size}
+        # records rather than a flat halfword array. Pair-lock both exact
+        # private graphs while retaining the naming limit in the receipt.
+        # Pre-change source/tool backup: Git commit 0e579de8.
+        ("smemman.c", "SndMemEnt"): (4, (
+            ("MOS", "USHORT", 0, "blk", 0, (), ""),
+            ("MOS", "USHORT", 0, "sz", 2, (), ""),
+        )),
+        ("smemman.c", "SNDMemState"): (524, (
+            ("MOS", "INT", 0, "base", 0, (), ""),
+            ("MOS", "USHORT", 0, "count", 4, (), ""),
+            ("MOS", "USHORT", 0, "poolWords", 6, (), ""),
+            ("MOS", "INT", 0, "highWater", 8, (), ""),
+            ("MOS", "ARY STRUCT", 512, "entries", 12, (128,),
+             "SndMemEnt"),
+        )),
         # CDREAD.OBJ is stripped, but PsyQ 4.3 libcd.h fixes CdlLOC and CdlCB,
         # while retail instructions fix every byte of the private _cdr state.
         # Keep both named aggregates pair-locked to this owner. Pre-change

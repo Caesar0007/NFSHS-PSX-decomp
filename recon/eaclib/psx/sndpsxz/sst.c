@@ -21,12 +21,11 @@
  *   (.c/cc1) per-fn diff counts, verify_asm.py authoritative -- IDENTICAL, zero regressions:
  *     iSNDstreamdestroyall=PASS(0)      iSNDstreamgetstreamptr=PASS(0)   iSNDstreamremoverequest=PASS(0)
  *     iSNDstreamreleasecallback=PASS(0) iSNDstreamnotifycallback=PASS(0) iSNDstreamparseheader=PASS(0)
- *     iSNDstreamparsenumchunks=PASS(0)  iSNDstreamparsedata=FAIL(13)     iSNDstreamparseend=PASS(0)
+ *     iSNDstreamparsenumchunks=PASS(0)  iSNDstreamparsedata=PASS(0)      iSNDstreamparseend=PASS(0)
  *     iSNDstreamparsechunk=PASS(0)      iSNDstreamisheld=PASS(0)         iSNDstreamhotroddatachunks=PASS(0)
  *     iSNDstreamservice=PASS(0)         iSNDstreamnumcreated=PASS(0)     iSNDstreamcreate=PASS(0)
  *     iSNDstreamqueue=PASS(0)
- *   15/16 PASS, 1/16 FAIL (parsedata -- pre-existing near-miss floor, unchanged by the C89
- *   port). Do NOT revert to .cpp without user decision.
+ *   16/16 PASS. Do NOT revert to .cpp without user decision.
  *   Source obj : nfs4\eaclib\psx\sst.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   16 fns @[0x800E8C14 .. 0x800E9970].  EA SCxl STREAMING-AUDIO decoder ("iSNDstream*").
  *   Pulls audio chunks out of the stream.obj ring (STREAM_get) and feeds them to the SNDPKTPLAY
@@ -126,6 +125,39 @@ extern int  iSNDstreamnumcreated(void);                       /* @0x800E96F8 */
  * asynchronously; forces the oracle's repeated fresh re-reads (no CSE across statements). */
 #define MVI(p,o) (*(volatile int*)((p)+(o)))
 
+/* Retained sound-header records elsewhere in NFS4.SYM provide these exact public
+ * layouts.  SNDSAMPLEFORMAT is byte-packed in the EA sound ABI; aggregate
+ * assignment therefore emits the retail unaligned-safe lwl/lwr + swl/swr copy. */
+typedef struct SNDSAMPLEFORMAT {
+    unsigned short samplerate;
+    unsigned char channels, samplerep;
+} __attribute__((packed)) SNDSAMPLEFORMAT;
+
+typedef struct SNDPLAYOPTS {
+    int patnum;
+    char bhandle, keynum, velocity, pan, vol, bend, fxlevel0, use3dpos;
+    unsigned short pitchmult, timemult, azimuth;
+    short elevation;
+} SNDPLAYOPTS;
+
+/* SST.OBJ's private type graph is stripped.  The matching NFS3/NFS4-PC
+ * streamer uses this same 0x2c request record and preserves the field roles;
+ * the PSX instruction stream independently fixes every offset and the size. */
+typedef struct SndStreamReq {
+    void *source;
+    int request_tag;
+    int firstqid;
+    int qid;
+    int rate;
+    int played;
+    int hdr;
+    int total;
+    int count;
+    int expected;
+    short underrun;
+    short pad2a;
+} SndStreamReq;
+
 /* ====================================================================================== */
 
 /* iSNDstreamdestroyall @0x800E8C14 : destroy every stream (addexit/shutdown hook). */
@@ -158,7 +190,6 @@ extern void iSNDstreamremoverequest(unsigned int reqid)
      * destination indices. Keeping the compacted index and loop index as function-scope ints gives
      * the oracle's shared-zero register allocation; fresh volatile field reads preserve its exact
      * load order and scheduling. MATCH (75/75). */
-    struct ReqRec { int w[0x2c / 4]; };
     int *base = sndss;
     int  S       = base[reqid & 0xff];
     int  newidx  = 0;            /* write index (compacted) */
@@ -177,7 +208,7 @@ extern void iSNDstreamremoverequest(unsigned int reqid)
                         * iSNDstreamparsenumchunks/isheld/etc -- forces the oracle's lbu+sll+sra
                         * instead of a single lb) -- parseIdx pointed at it -> retarget */
                     MB(S, 0x17) = newidx;
-                *(struct ReqRec *)(wr + MVI(S, 0)) = *(struct ReqRec *)src;
+                *(SndStreamReq *)(wr + MVI(S, 0)) = *(SndStreamReq *)src;
                 wr += 0x2c;
                 newidx = newidx + 1;
             }
@@ -273,14 +304,8 @@ formatdiffers:
     /* MATCH (106/106): packed assignment emits the unaligned-safe lwl/lwr+swl/swr rate copy;
      * the five-word header assignment expands as the oracle's load-4/store-4 then trailing
      * load/store sequence. The volatile error-state byte keeps its store ahead of the return jump. */
-    {
-        struct PackedRate { int word; } __attribute__((packed));
-        *(struct PackedRate *)(S + 0x1c) = *(struct PackedRate *)(S + 0x20);
-    }
-    {
-        struct Hdr5 { int w[5]; };
-        *(struct Hdr5 *)(S + 0x24) = *(struct Hdr5 *)(S + 0x38);
-    }
+    *(SNDSAMPLEFORMAT *)(S + 0x1c) = *(SNDSAMPLEFORMAT *)(S + 0x20);
+    *(SNDPLAYOPTS *)(S + 0x24) = *(SNDPLAYOPTS *)(S + 0x38);
 formatsame:
     if ((((int)(*(volatile unsigned char *)(S + 0x14)) << 24) >> 24) != 1) {  /* MATCH: shift-chain,
                         * not the MB macro's plain compare -- not yet playing -> start */
@@ -648,10 +673,7 @@ extern void iSNDstreamservice(void)
             if ((((int)(*(volatile unsigned char *)(S + 0x14)) << 24) >> 24) == 2) {  /* needs restart */
                 if (0 < SNDPKTPLAY_framesoutstanding(MI(S, 0xc)))
                     goto next;
-                {
-                    struct PackedRate { int word; } __attribute__((packed));
-                    *(struct PackedRate *)(S + 0x1c) = *(struct PackedRate *)(S + 0x20);
-                }
+                *(SNDSAMPLEFORMAT *)(S + 0x1c) = *(SNDSAMPLEFORMAT *)(S + 0x20);
                 SNDPKTPLAY_stop(MI(S, 0xc));
                 MI(S, 0x08) = SNDPKTPLAY_start(MI(S, 0xc), S + 0x1c, S + 0x24, (int *)(S + 0x4c));
                 MB(S, 0x14) = 1;
@@ -790,12 +812,10 @@ found:
     MI(S, 0x10) = 0;
     MI(S, 0x08) = -1;
     MB(S, 0x15) = (unsigned char)numReq;
-    {
-        struct Prio5 { int w[5]; };                      /* W31: ONE 20-byte struct assignment -- the
+    *(SNDPLAYOPTS *)(S + 0x4c) = *(SNDPLAYOPTS *)priority; /* W31: ONE 20-byte struct assignment -- the
                         * movstrsi block move emits the 4-word t-reg batch PLUS the trailing 5th word
-                        * (tail lw t1/sw 0x5C) itself; a Prio4 + separate word mis-schedules the tail. */
-        *(struct Prio5 *)(S + 0x4c) = *(struct Prio5 *)priority;
-    }
+                        * (tail lw t1/sw 0x5C) itself; a four-word copy plus separate word mis-schedules
+                        * the tail. */
 
     if (iSNDstreamnumcreated() == 0) {                   /* first stream -> register the service hook */
         iSNDserveraddclient((void *)iSNDstreamservice);

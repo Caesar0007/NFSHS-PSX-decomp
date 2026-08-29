@@ -1067,6 +1067,48 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "STRUCT", 44, "set", 12, (), "SNDSYSSET"),
             ("MOS", "STRUCT", 4, "vec", 56, (), "SNDSYSVEC"),
         )),
+        # SST.OBJ is stripped, but retained NFS4.SYM records in linked game
+        # owners fix the complete public SNDSAMPLEFORMAT and SNDPLAYOPTS
+        # graphs. The two types replace three synthetic aggregate-copy tags
+        # while preserving 16/16 PASS. The matching NFS3/NFS4-PC streamer and
+        # the PSX instructions jointly fix the private 0x2c SndStreamReq
+        # offsets and roles; only that private tag's spelling remains
+        # unprovable. Pair-lock all three exact source graphs in this owner.
+        # Pre-change source/tool backup: Git commit 82858a01.
+        ("sst.c", "SNDSAMPLEFORMAT"): (4, (
+            ("MOS", "USHORT", 0, "samplerate", 0, (), ""),
+            ("MOS", "UCHAR", 0, "channels", 2, (), ""),
+            ("MOS", "UCHAR", 0, "samplerep", 3, (), ""),
+        )),
+        ("sst.c", "SNDPLAYOPTS"): (20, (
+            ("MOS", "INT", 0, "patnum", 0, (), ""),
+            ("MOS", "CHAR", 0, "bhandle", 4, (), ""),
+            ("MOS", "CHAR", 0, "keynum", 5, (), ""),
+            ("MOS", "CHAR", 0, "velocity", 6, (), ""),
+            ("MOS", "CHAR", 0, "pan", 7, (), ""),
+            ("MOS", "CHAR", 0, "vol", 8, (), ""),
+            ("MOS", "CHAR", 0, "bend", 9, (), ""),
+            ("MOS", "CHAR", 0, "fxlevel0", 10, (), ""),
+            ("MOS", "CHAR", 0, "use3dpos", 11, (), ""),
+            ("MOS", "USHORT", 0, "pitchmult", 12, (), ""),
+            ("MOS", "USHORT", 0, "timemult", 14, (), ""),
+            ("MOS", "USHORT", 0, "azimuth", 16, (), ""),
+            ("MOS", "SHORT", 0, "elevation", 18, (), ""),
+        )),
+        ("sst.c", "SndStreamReq"): (44, (
+            ("MOS", "PTR VOID", 0, "source", 0, (), ""),
+            ("MOS", "INT", 0, "request_tag", 4, (), ""),
+            ("MOS", "INT", 0, "firstqid", 8, (), ""),
+            ("MOS", "INT", 0, "qid", 12, (), ""),
+            ("MOS", "INT", 0, "rate", 16, (), ""),
+            ("MOS", "INT", 0, "played", 20, (), ""),
+            ("MOS", "INT", 0, "hdr", 24, (), ""),
+            ("MOS", "INT", 0, "total", 28, (), ""),
+            ("MOS", "INT", 0, "count", 32, (), ""),
+            ("MOS", "INT", 0, "expected", 36, (), ""),
+            ("MOS", "SHORT", 0, "underrun", 40, (), ""),
+            ("MOS", "SHORT", 0, "pad2a", 42, (), ""),
+        )),
         # CDREAD.OBJ is stripped, but PsyQ 4.3 libcd.h fixes CdlLOC and CdlCB,
         # while retail instructions fix every byte of the private _cdr state.
         # Keep both named aggregates pair-locked to this owner. Pre-change

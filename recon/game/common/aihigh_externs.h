@@ -2,7 +2,7 @@
  * Harvested from sibling *_externs.h + *.cpp defs + disasm-v2 (AI/Control demangled). */
 #ifndef _GAME_COMMON_CAMERA_EXTERNS_H_
 #define _GAME_COMMON_CAMERA_EXTERNS_H_
-#include "../../nfs4_types.h"
+#include "aihigh_types.h"
 
 /* ---- vtables: AIHigh_Base/None + AIState_None/Base + AIHigh_BTC_Perp (weak frags) ---- */
 extern __vtbl_ptr_type AIHigh_Base_vtable[], AIHigh_None_vtable[], AIState_None_vtable[], AIState_Base_vtable[], AIHigh_BTC_Perp_vtable[];

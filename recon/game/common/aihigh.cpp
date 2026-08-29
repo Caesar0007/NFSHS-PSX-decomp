@@ -6,7 +6,7 @@
  *   NOT original; SYM-faithful, recompilable. vs disasm-v2.
  */
 #include "../../lib/nfs4_new.h"
-#include "../../nfs4_types.h"
+#include "aihigh_types.h"
 #include "aihigh_externs.h"
 
 /* ---- #75: aihigh.obj-owned anonymous vtables (real nfs4-f.exe bytes; pfn VAs symbolicated) ---- */

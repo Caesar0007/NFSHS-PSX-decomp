@@ -1343,6 +1343,71 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "ARY INT", 400, "checkTime_", 408, (100,), ""),
             ("MOS", "ARY INT", 36, "lastTriggerChecked_", 808, (9,), ""),
         )),
+        # AIHIGH.OBJ placement-constructs seven foreign derived classes and
+        # reads GameSetup.raceType, while its linked graph retains none of
+        # those completed tags. Pair-lock their exact compiler-visible shapes.
+        # Pre-change source/tool backup: Git commit 997ff63f.
+        ("aihigh_types.h", "AIHigh_BTC_HumanPerp"): (136, (
+            ("MOS", "STRUCT", 136, "AIHigh_BTC_Perp", 0, (),
+             "AIHigh_BTC_Perp"),
+        )),
+        ("aihigh_types.h", "AIHigh_BTC_AIPerp"): (172, (
+            ("MOS", "STRUCT", 136, "AIHigh_BTC_Perp", 0, (),
+             "AIHigh_BTC_Perp"),
+            ("MOS", "INT", 0, "perpMode_", 136, (), ""),
+            ("MOS", "INT", 0, "creationTime_", 140, (), ""),
+            ("MOS", "INT", 0, "madeContactTime_", 144, (), ""),
+            ("MOS", "INT", 0, "timeUntilContact_", 148, (), ""),
+            ("MOS", "INT", 0, "escapeDuration_", 152, (), ""),
+            ("MOS", "INT", 0, "originalMass_", 156, (), ""),
+            ("MOS", "INT", 0, "originalMassInv_", 160, (), ""),
+            ("MOS", "PTR STRUCT", 2268, "closestCopCarObj_", 164, (),
+             "Car_tObj"),
+            ("MOS", "INT", 0, "closestCopCarDistanceMeters_", 168, (), ""),
+        )),
+        ("aihigh_types.h", "AIHigh_BTC_Wingman"): (124, (
+            ("MOS", "STRUCT", 100, "AIHigh_BTC_Cop", 0, (),
+             "AIHigh_BTC_Cop"),
+            ("MOS", "ENUM", 4, "currentRole_", 100, (), "Wingman_Role"),
+            ("MOS", "ENUM", 4, "newRole_", 104, (), "Wingman_Role"),
+            ("MOS", "PTR STRUCT", 140, "newHumanBoss_", 108, (),
+             "AIHigh_BTC_HumanCop"),
+            ("MOS", "INT", 0, "spikeBeltPlaced_", 112, (), ""),
+            ("MOS", "INT", 0, "spikeBeltSlice_", 116, (), ""),
+            ("MOS", "INT", 0, "spikeBeltInterceptReleaseTime_", 120, (), ""),
+        )),
+        ("aihigh_types.h", "AIHigh_Traffic"): (36, (
+            ("MOS", "STRUCT", 24, "AIHigh_Base", 0, (), "AIHigh_Base"),
+            ("MOS", "INT", 0, "ignoreCops_", 24, (), ""),
+            ("MOS", "INT", 0, "forcePurgatory_", 28, (), ""),
+            ("MOS", "PTR STRUCT", 92, "accidentData_", 32, (), "SceneElem"),
+        )),
+        ("aihigh_types.h", "AIHigh_Human"): (176, (
+            ("MOS", "STRUCT", 176, "AIHigh_Player", 0, (), "AIHigh_Player"),
+        )),
+        ("aihigh_types.h", "AIHigh_Opponent"): (192, (
+            ("MOS", "STRUCT", 176, "AIHigh_Player", 0, (), "AIHigh_Player"),
+            ("MOS", "ENUM", 4, "attackMode_", 176, (),
+             "AIHigh_tAttackMode"),
+            ("MOS", "PTR STRUCT", 2268, "lastHumanHitter_", 180, (),
+             "Car_tObj"),
+            ("MOS", "INT", 0, "hitCount_", 184, (), ""),
+            ("MOS", "INT", 0, "attackTicksLeft_", 188, (), ""),
+        )),
+        ("aihigh_types.h", "AIHigh_Cop"): (108, (
+            ("MOS", "STRUCT", 88, "AIHigh_BasicCop", 0, (),
+             "AIHigh_BasicCop"),
+            ("MOS", "PTR STRUCT", 176, "perpTarget_", 88, (),
+             "AIHigh_Player"),
+            ("MOS", "INT", 0, "forcePurgatory_", 92, (), ""),
+            ("MOS", "INT", 0, "chaseIndex_", 96, (), ""),
+            ("MOS", "INT", 0, "requestSpikeBeltAtSlice_", 100, (), ""),
+            ("MOS", "INT", 0, "aggressionLevel_", 104, (), ""),
+        )),
+        ("aihigh_types.h", "AIHigh_GameSetupCodegenView"): (2600, (
+            ("MOS", "INT", 0, "raceType", 0, (), ""),
+            ("MOS", "ARY CHAR", 2596, "_rest", 4, (2596,), ""),
+        )),
         # CDFS.OBJ is stripped. Fourteen PASS bodies fix the 0x83c-byte CD
         # context plus the shared 16-byte read-state and 312-byte callback
         # stack record. Canonical PsyQ proves only their CdlLOC leaf, not these
@@ -1698,6 +1763,20 @@ def filter_exact_symbol_codegen_carriers(
             ("STRUCT", 8, "AIState_Purgatory"),
         ("aih_traf.cpp", "AIState_RovingTraffic"):
             ("STRUCT", 24, "AIState_RovingTraffic"),
+        # Placement construction repeats these already pair-locked foreign
+        # class typedefs at their AIHIGH.CPP use sites.
+        ("aihigh.cpp", "AIHigh_BTC_AIPerp"):
+            ("STRUCT", 172, "AIHigh_BTC_AIPerp"),
+        ("aihigh.cpp", "AIHigh_BTC_Wingman"):
+            ("STRUCT", 124, "AIHigh_BTC_Wingman"),
+        ("aihigh.cpp", "AIHigh_Traffic"):
+            ("STRUCT", 36, "AIHigh_Traffic"),
+        ("aihigh.cpp", "AIHigh_Human"):
+            ("STRUCT", 176, "AIHigh_Human"),
+        ("aihigh.cpp", "AIHigh_Opponent"):
+            ("STRUCT", 192, "AIHigh_Opponent"),
+        ("aihigh.cpp", "AIHigh_Cop"):
+            ("STRUCT", 108, "AIHigh_Cop"),
     }
     feinput_views = {
         # FEInput.obj references pad.obj's anonymous 84-byte gPadinfo object.

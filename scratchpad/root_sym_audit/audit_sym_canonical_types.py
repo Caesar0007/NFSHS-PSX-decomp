@@ -888,6 +888,130 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "INT", 0, "z", 8, (), ""),
         )),
     }
+    # lib/snd.h is the sole shared definition of the PSX sound runtime's
+    # private state graph. SPAN/SSTSETPR/SVOL are stripped archive members, so
+    # their SYM owners omit these header types even though their PASS bodies
+    # dereference the graph. Keep one immutable complete specification and
+    # pair-lock it only in those three exact owners. The instruction/field
+    # sweep proves every size and offset; private tag/placeholder spellings
+    # remain unprovable. Pre-change tool backup: Git commit 1cef9e31.
+    shared_snd_runtime_views = {
+        "SndVoice": (100, (
+            ("MOS", "INT", 0, "handle", 0, (), ""),
+            ("MOS", "INT", 0, "f04", 4, (), ""),
+            ("MOS", "ARY CHAR", 2, "_g08", 8, (2,), ""),
+            ("MOS", "CHAR", 0, "bank", 10, (), ""),
+            ("MOS", "CHAR", 0, "f0B", 11, (), ""),
+            ("MOS", "UCHAR", 0, "f0C", 12, (), ""),
+            ("MOS", "ARY CHAR", 3, "_g0D", 13, (3,), ""),
+            ("MOS", "INT", 0, "f10", 16, (), ""),
+            ("MOS", "INT", 0, "f14", 20, (), ""),
+            ("MOS", "INT", 0, "f18", 24, (), ""),
+            ("MOS", "INT", 0, "f1C", 28, (), ""),
+            ("MOS", "INT", 0, "f20", 32, (), ""),
+            ("MOS", "INT", 0, "f24", 36, (), ""),
+            ("MOS", "INT", 0, "f28", 40, (), ""),
+            ("MOS", "CHAR", 0, "f2C", 44, (), ""),
+            ("MOS", "CHAR", 0, "vol_l", 45, (), ""),
+            ("MOS", "CHAR", 0, "pan", 46, (), ""),
+            ("MOS", "CHAR", 0, "f2F", 47, (), ""),
+            ("MOS", "CHAR", 0, "f30", 48, (), ""),
+            ("MOS", "UCHAR", 0, "f31", 49, (), ""),
+            ("MOS", "CHAR", 0, "f32", 50, (), ""),
+            ("MOS", "CHAR", 0, "f33", 51, (), ""),
+            ("MOS", "CHAR", 0, "f34", 52, (), ""),
+            ("MOS", "CHAR", 0, "f35", 53, (), ""),
+            ("MOS", "CHAR", 0, "f36", 54, (), ""),
+            ("MOS", "UCHAR", 0, "f37", 55, (), ""),
+            ("MOS", "UCHAR", 0, "f38", 56, (), ""),
+            ("MOS", "UCHAR", 0, "f39", 57, (), ""),
+            ("MOS", "UCHAR", 0, "f3A", 58, (), ""),
+            ("MOS", "UCHAR", 0, "f3B", 59, (), ""),
+            ("MOS", "CHAR", 0, "f3C", 60, (), ""),
+            ("MOS", "CHAR", 0, "pan_cur", 61, (), ""),
+            ("MOS", "ARY CHAR", 2, "_g3E", 62, (2,), ""),
+            ("MOS", "INT", 0, "f40", 64, (), ""),
+            ("MOS", "INT", 0, "f44", 68, (), ""),
+            ("MOS", "INT", 0, "pancurve", 72, (), ""),
+            ("MOS", "INT", 0, "f4C", 76, (), ""),
+            ("MOS", "INT", 0, "f50", 80, (), ""),
+            ("MOS", "INT", 0, "f54", 84, (), ""),
+            ("MOS", "ARY CHAR", 2, "_g58", 88, (2,), ""),
+            ("MOS", "SHORT", 0, "f5A", 90, (), ""),
+            ("MOS", "SHORT", 0, "f5C", 92, (), ""),
+            ("MOS", "SHORT", 0, "f5E", 94, (), ""),
+            ("MOS", "USHORT", 0, "f60", 96, (), ""),
+            ("MOS", "USHORT", 0, "f62", 98, (), ""),
+        )),
+        "SndBank": (12, (
+            ("MOS", "PTR VOID", 0, "datablk", 0, (), ""),
+            ("MOS", "PTR VOID", 0, "platblk", 4, (), ""),
+            ("MOS", "UCHAR", 0, "f08", 8, (), ""),
+            ("MOS", "UCHAR", 0, "inuse", 9, (), ""),
+            ("MOS", "CHAR", 0, "f0A", 10, (), ""),
+            ("MOS", "CHAR", 0, "f0B", 11, (), ""),
+        )),
+        "SndFxBus": (16, (
+            ("MOS", "INT", 0, "type", 0, (), ""),
+            ("MOS", "INT", 0, "master", 4, (), ""),
+            ("MOS", "INT", 0, "depth", 8, (), ""),
+            ("MOS", "INT", 0, "delay", 12, (), ""),
+        )),
+        "SndPlayDef": (20, (
+            ("MOS", "INT", 0, "handle", 0, (), ""),
+            ("MOS", "CHAR", 0, "f04", 4, (), ""),
+            ("MOS", "CHAR", 0, "decay", 5, (), ""),
+            ("MOS", "CHAR", 0, "vol0", 6, (), ""),
+            ("MOS", "CHAR", 0, "pan0", 7, (), ""),
+            ("MOS", "CHAR", 0, "vol1", 8, (), ""),
+            ("MOS", "CHAR", 0, "pan1", 9, (), ""),
+            ("MOS", "CHAR", 0, "vol2", 10, (), ""),
+            ("MOS", "CHAR", 0, "f0B", 11, (), ""),
+            ("MOS", "SHORT", 0, "pitch0", 12, (), ""),
+            ("MOS", "SHORT", 0, "pitch1", 14, (), ""),
+            ("MOS", "SHORT", 0, "f10", 16, (), ""),
+            ("MOS", "SHORT", 0, "f12", 18, (), ""),
+        )),
+        "SndState": (188, (
+            ("MOS", "ARY CHAR", 2, "_g00", 0, (2,), ""),
+            ("MOS", "SHORT", 0, "f02", 2, (), ""),
+            ("MOS", "CHAR", 0, "f04", 4, (), ""),
+            ("MOS", "CHAR", 0, "f05", 5, (), ""),
+            ("MOS", "CHAR", 0, "f06", 6, (), ""),
+            ("MOS", "CHAR", 0, "f07", 7, (), ""),
+            ("MOS", "CHAR", 0, "f08", 8, (), ""),
+            ("MOS", "CHAR", 0, "f09", 9, (), ""),
+            ("MOS", "ARY CHAR", 2, "_g0A", 10, (2,), ""),
+            ("MOS", "USHORT", 0, "bankcount", 12, (), ""),
+            ("MOS", "SHORT", 0, "f0E", 14, (), ""),
+            ("MOS", "CHAR", 0, "f10", 16, (), ""),
+            ("MOS", "UCHAR", 0, "patchcount", 17, (), ""),
+            ("MOS", "CHAR", 0, "f12", 18, (), ""),
+            ("MOS", "CHAR", 0, "f13", 19, (), ""),
+            ("MOS", "CHAR", 0, "f14", 20, (), ""),
+            ("MOS", "ARY CHAR", 39, "_g15", 21, (39,), ""),
+            ("MOS", "CHAR", 0, "enabled", 60, (), ""),
+            ("MOS", "CHAR", 0, "f3D", 61, (), ""),
+            ("MOS", "UCHAR", 0, "f3E", 62, (), ""),
+            ("MOS", "UCHAR", 0, "f3F", 63, (), ""),
+            ("MOS", "UCHAR", 0, "f40", 64, (), ""),
+            ("MOS", "UCHAR", 0, "f41", 65, (), ""),
+            ("MOS", "ARY CHAR", 2, "_g42", 66, (2,), ""),
+            ("MOS", "INT", 0, "f44", 68, (), ""),
+            ("MOS", "INT", 0, "f48", 72, (), ""),
+            ("MOS", "INT", 0, "f4C", 76, (), ""),
+            ("MOS", "ARY CHAR", 44, "_g50", 80, (44,), ""),
+            ("MOS", "INT", 0, "f7C", 124, (), ""),
+            ("MOS", "INT", 0, "f80", 128, (), ""),
+            ("MOS", "INT", 0, "f84", 132, (), ""),
+            ("MOS", "INT", 0, "f88", 136, (), ""),
+            ("MOS", "INT", 0, "f8C", 140, (), ""),
+            ("MOS", "INT", 0, "f90", 144, (), ""),
+            ("MOS", "PTR STRUCT", 100, "voices", 148, (), "SndVoice"),
+            ("MOS", "PTR STRUCT", 12, "banks", 152, (), "SndBank"),
+            ("MOS", "ARY STRUCT", 32, "fxbus", 156, (2,), "SndFxBus"),
+        )),
+    }
     # Several linked library members omit necessary owner-local/common graphs.
     # fileroot owns the exact deferred-read command and its BSS object; syncfile
     # owns the exact async-transfer control block; nsync's atomic-dispatch
@@ -903,6 +1027,10 @@ def filter_exact_symbol_codegen_carriers(
     # PAD extension: Git commit 49c32f8e; ReadCmd/SyncCtrl extensions: Git
     # commit c0950c17.
     untyped_library_named_pair_views = {
+        **{
+            ("snd.h", name): layout
+            for name, layout in shared_snd_runtime_views.items()
+        },
         # CDFS.OBJ is stripped. Fourteen PASS bodies fix the 0x83c-byte CD
         # context plus the shared 16-byte read-state and 312-byte callback
         # stack record. Canonical PsyQ proves only their CdlLOC leaf, not these

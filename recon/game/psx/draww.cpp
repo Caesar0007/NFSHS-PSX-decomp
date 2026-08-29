@@ -6367,6 +6367,7 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
   POLY_GT4 *prim;
   int lineQuadCount;
   Draw_tPixMap *pmx;
+  int *g2;
   CCOORD16 vt0;
   CCOORD16 vt1;
   CCOORD16 vt2;
@@ -6375,13 +6376,9 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
   lineQuadCount = 0;
   sd->offsubdivid = 0x200;
   while (lineQuadCount < count + -1) {
-    int linetype;
-
+    g2 = (int *)geomVertices + 4;
     while ((lineQuadCount < count + -1) && (lineQuad->type != 0xff)) {
-      int doSubdivision;
-      int save_pre_otz;
-      int depthcue;
-
+      int linetype;
       linetype = lineQuad->type;
       pmx = gDLPixmap[linetype];
       /* MATCH: the vertex copy is the SYM's line-21 block { int t1, t2; ... } (t1=$a0,
@@ -6389,13 +6386,13 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
        * A plain `vt0 = geomVertices[3];` struct assignment carries CCOORD16's align-2
        * and expands to the unaligned lwl/lwr+swl/swr movstrsi run (8 insns/copy vs 4). */
       { int t1, t2;
-        t1 = ((int *)&geomVertices[3])[0]; t2 = ((int *)&geomVertices[3])[1];
+        t1 = g2[2]; t2 = ((int *)geomVertices)[7];
         ((int *)&vt0)[0] = t1; ((int *)&vt0)[1] = t2;
-        t1 = ((int *)&geomVertices[1])[0]; t2 = ((int *)&geomVertices[1])[1];
+        t1 = g2[-2]; t2 = ((int *)geomVertices)[3];
         ((int *)&vt1)[0] = t1; ((int *)&vt1)[1] = t2;
-        t1 = ((int *)&geomVertices[0])[0]; t2 = ((int *)&geomVertices[0])[1];
+        t1 = ((int *)geomVertices)[0]; t2 = g2[-3];
         ((int *)&vt2)[0] = t1; ((int *)&vt2)[1] = t2;
-        t1 = ((int *)&geomVertices[2])[0]; t2 = ((int *)&geomVertices[2])[1];
+        t1 = g2[0]; t2 = ((int *)geomVertices)[5];
         ((int *)&vt3)[0] = t1; ((int *)&vt3)[1] = t2; }
       gte_ldv0((int *)(&vt0));
       gte_rtps();
@@ -6440,6 +6437,10 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
         }
         if (bfct < 0) goto loopbot;
       }
+      {
+      int doSubdivision;
+      int save_pre_otz;
+      int depthcue;
       save_pre_otz = sd->otz >> 1;
       doSubdivision = (int)(sd->otz < 200);
       sd->otz = save_pre_otz + 0x4b;
@@ -6542,10 +6543,12 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
         u_long l2;
         u_long l3;
 
+        do {
         l0 = *(u_long *)&pmx->u0;
         l1 = *(u_long *)&pmx->u1;
         l2 = *(u_long *)&pmx->u2;
         l3 = *(u_long *)&pmx->u3;
+        } while (0);
         *(u_long *)&prim->u0 = l0;
         *(u_long *)&prim->u1 = l1;
         *(u_long *)&prim->u2 = l2;
@@ -6579,10 +6582,14 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
         gte_SetRotMatrix(((char *)sd + 0x14));
         gte_SetTransMatrix(((char *)sd + 0x14));
       }
+      }
 loopbot:
       lineQuadCount = lineQuadCount + 1;
       lineQuad = lineQuad + 1;
-      geomVertices = geomVertices + 2;
+      g2 = g2 + 2;
+      g2 = g2 + 2;
+      geomVertices = geomVertices + 1;
+      geomVertices = geomVertices + 1;
     }
 	
 	lineQuadCount++;

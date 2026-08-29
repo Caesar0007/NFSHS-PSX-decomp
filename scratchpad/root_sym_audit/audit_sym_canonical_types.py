@@ -749,6 +749,13 @@ def filter_exact_symbol_codegen_carriers(
     # backup: Git commit 0fc6b97a; canonical PsyQ device_table extension: Git
     # commit 065be180.
     untyped_library_codegen_views = {
+        # CDFS's packed one-word view is the source-level device that makes
+        # GCC emit the oracle's unaligned lwl/lwr pair. It has no typedef and
+        # the stripped owner retains no private tag. Pre-change backup: Git
+        # commit 8f87889d.
+        ("cdfs.c", "rd_le32_unaligned"): (4, (
+            ("MOS", "INT", 0, "v", 0, (), ""),
+        )),
         # sdpacket's voice-table view flattens byte-exactly, but the packet
         # pointer array requires this split +0x4f8 aggregate MEM shape. Both
         # direct-byte and int-array spellings regress iSNDpacketpurgeframes by
@@ -853,6 +860,16 @@ def filter_exact_symbol_codegen_carriers(
     # every recovered field/offset is used by its PASS bodies.  Pre-change
     # backup: Git commit c1385fa4; VoxSlot extension: Git commit 49c32f8e.
     untyped_library_anonymous_views = {
+        # Canonical PsyQ 4.3 LIBCD.H declares CdlLOC as this anonymous
+        # four-byte aggregate typedef (not `struct CdlLOC`). CDFS.OBJ is
+        # stripped, so accept only the exact SDK body+typedef pair here.
+        # Pre-change backup: Git commit 8f87889d.
+        ("cdfs.c", "CdlLOC"): (4, (
+            ("MOS", "UCHAR", 0, "minute", 0, (), ""),
+            ("MOS", "UCHAR", 0, "second", 1, (), ""),
+            ("MOS", "UCHAR", 0, "sector", 2, (), ""),
+            ("MOS", "UCHAR", 0, "track", 3, (), ""),
+        )),
         ("matrix.c", "mtx"): (36, (
             ("MOS", "ARY INT", 36, "m", 0, (9,), ""),
         )),
@@ -886,6 +903,43 @@ def filter_exact_symbol_codegen_carriers(
     # PAD extension: Git commit 49c32f8e; ReadCmd/SyncCtrl extensions: Git
     # commit c0950c17.
     untyped_library_named_pair_views = {
+        # CDFS.OBJ is stripped. Fourteen PASS bodies fix the 0x83c-byte CD
+        # context plus the shared 16-byte read-state and 312-byte callback
+        # stack record. Canonical PsyQ proves only their CdlLOC leaf, not these
+        # private EA spellings. Pair-lock the exact recovered graph and retain
+        # the naming limit in the durable receipt. Pre-change backup: Git
+        # commit 8f87889d.
+        ("cdfs.c", "CD_ctx_t"): (2108, (
+            ("MOS", "INT", 0, "info", 0, (), ""),
+            ("MOS", "INT", 0, "maxOpen", 4, (), ""),
+            ("MOS", "INT", 0, "dirEntryCount", 8, (), ""),
+            ("MOS", "INT", 0, "cachedSector", 12, (), ""),
+            ("MOS", "INT", 0, "lastSector", 16, (), ""),
+            ("MOS", "INT", 0, "curSector", 20, (), ""),
+            ("MOS", "INT", 0, "timeout", 24, (), ""),
+            ("MOS", "INT", 0, "ringIdx", 28, (), ""),
+            ("MOS", "INT", 0, "curLen", 32, (), ""),
+            ("MOS", "INT", 0, "remLen", 36, (), ""),
+            ("MOS", "INT", 0, "curOff", 40, (), ""),
+            ("MOS", "PTR VOID", 0, "curDst", 44, (), ""),
+            ("MOS", "PTR FCN VOID", 0, "completionCallback", 48, (), ""),
+            ("MOS", "PTR PTR VOID", 0, "handleTable", 52, (), ""),
+            ("MOS", "PTR VOID", 0, "dirEntryArray", 56, (), ""),
+            ("MOS", "ARY UCHAR", 2048, "sectorCache", 60,
+             (2048,), ""),
+        )),
+        ("cdfs.c", "CDReadState"): (16, (
+            ("MOS", "INT", 0, "curLen", 0, (), ""),
+            ("MOS", "INT", 0, "remLen", 4, (), ""),
+            ("MOS", "INT", 0, "curOff", 8, (), ""),
+            ("MOS", "PTR VOID", 0, "curDst", 12, (), ""),
+        )),
+        ("cdfs.c", "CDReadyScratch"): (312, (
+            ("MOS", "ARY STRUCT", 12, "hdr", 0, (3,), "<anonymous>"),
+            ("MOS", "ARY UCHAR", 284, "sub", 12, (284,), ""),
+            ("MOS", "ARY UCHAR", 8, "pos", 296, (8,), ""),
+            ("MOS", "ARY INT", 8, "gpctx", 304, (2,), ""),
+        )),
         # NFILE.OBJ is stripped. Its twenty-seven bodies fix the 0x30-byte
         # operation slots, 0x4c-byte handles, and 0x30-byte singleton graph;
         # no retained owner or compatible earlier FILE implementation proves

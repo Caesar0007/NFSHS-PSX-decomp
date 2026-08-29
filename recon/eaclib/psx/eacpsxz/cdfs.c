@@ -234,8 +234,30 @@ CD_ctx_t CD_ctx;                       /* the whole CD context @0x80146CC4 (one 
 #define CD_dirEntryArray      CD_ctx.dirEntryArray
 #define CD_sectorCache        CD_ctx.sectorCache
 
-/* PsyQ libcd location: BCD minute/second/sector + mode/track */
-typedef struct CdlLOC { unsigned char minute, second, sector, track; } CdlLOC;
+/* Canonical PsyQ 4.3 LIBCD.H location: BCD minute/second/sector + track. */
+typedef struct {
+    unsigned char minute;
+    unsigned char second;
+    unsigned char sector;
+    unsigned char track;
+} CdlLOC;
+
+/* Private cdfs read-state view shared by CD_Read and the ready callback. */
+typedef struct CDReadState {
+    int curLen;
+    int remLen;
+    int curOff;
+    void *curDst;
+} CDReadState;
+
+/* Ready-callback stack record: three sector headers, payload tail, position,
+ * and the two-word savegp context. */
+typedef struct CDReadyScratch {
+    CdlLOC hdr[3];
+    unsigned char sub[284];
+    unsigned char pos[8];
+    int gpctx[2];
+} CDReadyScratch;
 
 /* ---- syslib / PsyQ libcd backend (toolchain-provided; declared, not reconstructed) ---- */
 extern int  CdInit(void);                                                  /* @0x800F908C */
@@ -394,12 +416,7 @@ extern void CD_timerfunc(void)
  *   ahead of CD_curSector and re-installs itself on exit. */
 extern void CdReadyHandler(unsigned char intr, unsigned char *result)
 {
-    struct {
-        CdlLOC        hdr[3];             /* sector address header (CdGetSector .. 3 words) */
-        unsigned char sub[284];           /* trailing sector bytes (CdGetSector .. 0x46 words) */
-        unsigned char pos[8];
-        int           gpctx[2];
-    } scratch;
+    CDReadyScratch scratch;
 #define hdr   scratch.hdr
 #define sub   scratch.sub
 #define pos   scratch.pos
@@ -417,7 +434,7 @@ extern void CdReadyHandler(unsigned char intr, unsigned char *result)
      * advance: logic -- so only the EARLY Cdinfo touches (case2's ringIdx==-1 arm, the intr==1
      * flag tests, and case5's two arms) route through RS_Cdinfo; everything past CdGetSector stays
      * on the flat macro. */
-    struct { int curLen, remLen, curOff; void *curDst; } *rs = (void *)&CD_ctx.curLen;
+    CDReadState *rs = (void *)&CD_ctx.curLen;
 #define RS_Cdinfo (*(volatile int *)((char *)rs - 0x20))
 
     CdReadyCallback(0);                   /* disarm while we run */
@@ -799,7 +816,7 @@ extern int CD_Read(int dev, int dest, int offset, int len)
     /* read-state sub-struct pointer (curLen/remLen/curOff/curDst, ctx+0x20) -- materialized HERE
      * (right after the busy-check, oracle @0x800FA6C0 "addiu s0,v1,0x20" lands in the beqz's delay
      * slot) so gcc hoists the base as early as the oracle does, instead of lazily at first field use. */
-    struct { int curLen, remLen, curOff; void *curDst; } *rs = (void *)&CD_ctx.curLen;
+    CDReadState *rs = (void *)&CD_ctx.curLen;
 
     if ((Cdinfo & 3) != 0)                              /* CD busy -> reject */
         return 0;

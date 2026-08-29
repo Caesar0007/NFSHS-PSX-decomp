@@ -2,7 +2,7 @@
  *   27 free fns (CopSpeak_*): radio static, request queue, async SFX load/play, server pump.
  *   Full SYM-locals applied. GTE-free.
  */
-#include "../../nfs4_types.h"
+#include "copspeak_types.h"
 #include "copspeak_externs.h"
 
 /* ---- copspeak.obj OWNED globals (EXT; SYM Globals.jsonl; $gp state @0x8013d07c..0x8013d0f8) ----

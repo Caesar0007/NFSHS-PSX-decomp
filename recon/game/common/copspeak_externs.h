@@ -1,9 +1,36 @@
-#include "../../lib/libfns.h"
+#include "copspeak_types.h"
 /* copspeak_externs.h -- cross-TU decls for game/common/copspeak.cpp (NFS4 cop-radio speech/SFX).
  *   Types (CopSpeak_tRequest, CopSpeak_tBank, Car_tObj, SNDSTREAMSTATUS) live in nfs4_types.h.
  *   copspeak OWNS its CopSpeak_g* + buffer/queue globals (defined in the .cpp). */
 #ifndef COPSPEAK_EXTERNS_H
 #define COPSPEAK_EXTERNS_H
+
+/* Narrow eaclib/libc boundary used by this owner. */
+extern "C" {
+int FILE_closesync(...);
+int FILE_completeop(...);
+int FILE_opensync(...);
+int FILE_operror(...);
+int FILE_opstatus(...);
+int FILE_read(...);
+int FILE_readsync(...);
+int SNDover(...);
+int SNDplay(...);
+void SNDplaysetdef(...);
+int SNDstop(...);
+int SNDtimeremaining(...);
+void SNDvol(...);
+int bigcount(...);
+int loadbigfileheader(...);
+void *locatebigentry(...);
+void *locatebigentryz(...);
+int purgememadr(...);
+int random(...);
+void *reservememadr(...);
+int sprintf(...);
+char *strcat(...);
+int systemtask(...);
+}
 
 /* ---- audio (audiocmn/audioclc/audiomus.obj) ---- */
 extern void  AudioClc_SndError(int code);   /* W55-A2 (class-3): dropped the synthetic

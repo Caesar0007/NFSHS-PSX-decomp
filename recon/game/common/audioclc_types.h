@@ -64,6 +64,7 @@ struct Trk_AnimateInst {
 };
 #endif
 
+#ifndef NFS4_AUDIOCLC_OMIT_SCENE_TYPES
 struct SceneElem {
     int type, size, committed, visible;
     coorddef cp;
@@ -73,6 +74,7 @@ struct SceneElem {
 };
 
 struct SceneSortedElem { int slice_; SceneElem *se; };
+#endif
 
 struct TCB { long status, mode; u_long reg[40]; long system[6]; };
 
@@ -102,6 +104,9 @@ struct Skidmark_Chunk {
     Skidmark_Segment seg[24];
 };
 
+#ifdef NFS4_AUDIOCLC_OMIT_FORCE_FOCUS
+#define forceFocus_t int
+#else
 #ifdef NFS4_SINGLE_IMPLICIT_ENUM_TYPEDEF
 enum forceFocus_t {
 #else
@@ -114,6 +119,7 @@ typedef enum forceFocus_t {
 };
 #else
 } forceFocus_t;
+#endif
 #endif
 
 struct kernpair {
@@ -157,6 +163,7 @@ struct AudioClc_GameSetupCodegenView {
     GameSetup_tCarData carInfo[9];
 };
 
+#ifndef NFS4_AUDIOCLC_OMIT_CAMERA_VIEW
 struct AudioClc_CameraInfoCodegenView {
     BO_tNewtonObj *anchor, *target;
     coorddef position, relpos, audioPos;
@@ -186,13 +193,16 @@ struct AudioClc_CameraInfoCodegenView {
     int POInhibitor;
     BWorldSm_Pos slicePos;
 };
+#endif
 
 struct CARDINFO_def;
 typedef struct CARDINFO_def CARDINFO_def;
 struct Trk_NewSlice;
 typedef struct Trk_NewSlice Trk_NewSlice;
 
+#ifndef NFS4_AUDIOCLC_OMIT_CARLOGIC_OBSERVATIONS
 typedef int CarLogic_tObservations[1][3];
+#endif
 #ifndef NFS4_AUDIOCLC_OMIT_INPUT_DEVICE_CALL
 typedef int Input_tDeviceCall();
 #endif

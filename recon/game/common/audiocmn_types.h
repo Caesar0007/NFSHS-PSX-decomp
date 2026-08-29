@@ -12,6 +12,7 @@
 #undef NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
 #undef NFS4_AUDIOCLC_OMIT_S_TYPE_ALIAS
 
+#ifndef NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES
 typedef enum s_type {
     kAsphalt = 0, kCarBody = 1, kTires = 2, kGravel = 3, kWall = 4,
     kSign = 5, kBush = 6, kBlowOut = 7, kBackFire = 8, kHorn = 9,
@@ -19,6 +20,7 @@ typedef enum s_type {
     kGrassWall = 14, kWallSpark = 15, kWetAsphalt = 16,
     kRaceTireOnAsphalt = 17, kRainTireOnAsphalt = 18
 } s_type;
+#endif
 
 struct SNDPLAYOPTS {
     int patnum;
@@ -27,8 +29,10 @@ struct SNDPLAYOPTS {
     short elevation;
 };
 
+#ifndef NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES
 struct SndBnk_t { int bnkID; char *phdr, *pdata; };
 struct Channels_t { int Partial, SFXnum; };
+#endif
 struct AudioMus_tSongEntry {
     char *filename, *title, *artist, *label, *date, *notes;
     int length, index;
@@ -41,6 +45,7 @@ struct CopSpeak_tRequest {
     char player, sfx, bank, noise;
 };
 
+#ifndef NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES
 struct AudioCmn_tReTrig {
     int count, pan;
     short delay, nextd;
@@ -53,6 +58,7 @@ struct AudioCmn_tAsyncSfxSlot {
     int bank, patch, handle, ticks, addr;
     char *header;
 };
+#endif
 
 /* These completed foreign tags are absent from audiocmn.obj. Exact private
  * views retain the member layouts used by its already-matched bodies. */
@@ -230,11 +236,13 @@ struct tfrontEnd {
 /* Header typedef rows retained by audiocmn.obj. The record-buffer body is a
  * compiler carrier for the public array typedef; the linked owner attributes
  * that completed tag elsewhere. */
+#ifndef NFS4_AUDIOCMN_OMIT_SAVE_RECORDS
 struct tRecordBuffer {
     char sName[8];
     int nCar, nTime, nBestLap;
 };
 typedef tRecordBuffer tSaveRecords[187];
+#endif
 
 typedef long (*SampleRequestFuncPtr)();
 typedef long (*TestSentenceRuleFuncPtr)();

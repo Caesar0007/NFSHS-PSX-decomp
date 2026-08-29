@@ -3383,6 +3383,29 @@ def filter_exact_symbol_codegen_carriers(
     ):
         untyped_library_codegen_views[audiocmn_key] = audiocmn_layout
         untyped_library_named_pair_views[audiocmn_key] = audiocmn_layout
+    # CopSpeak.obj retains Speech's three anonymous bank aggregates but omits
+    # the completed outer Speech tag, and it dereferences Audiocmn's bank table
+    # without retaining SndBnk_t. Lock both exact carrier pairs while leaving
+    # the three anonymous children visible to the owner comparison.
+    # Tool/source backup before this extension: Git commit 0d60e074.
+    copspeak_snd_bank_view = (12, (
+        ("MOS", "INT", 0, "bnkID", 0, (), ""),
+        ("MOS", "PTR CHAR", 0, "phdr", 4, (), ""),
+        ("MOS", "PTR CHAR", 0, "pdata", 8, (), ""),
+    ))
+    copspeak_speech_anon_view = (864, (
+        ("MOS", "STRUCT", 216, "fCarBank", 0, (), "<anonymous>"),
+        ("MOS", "STRUCT", 512, "fLocationBank", 216, (), "<anonymous>"),
+        ("MOS", "STRUCT", 136, "fCallSignBank", 728, (), "<anonymous>"),
+    ))
+    for copspeak_key, copspeak_layout in (
+        (("copspeak_types.h", "Copspeak_SndBnkCodegenView"),
+         copspeak_snd_bank_view),
+        (("copspeak_types.h", "Copspeak_SpeechAnonCodegenView"),
+         copspeak_speech_anon_view),
+    ):
+        untyped_library_codegen_views[copspeak_key] = copspeak_layout
+        untyped_library_named_pair_views[copspeak_key] = copspeak_layout
 
     def exact_night_camera(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()

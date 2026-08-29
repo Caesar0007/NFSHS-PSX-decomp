@@ -225,12 +225,20 @@ struct Cars_tRenderInfo {
     int rideHeight, upgradeHeight;
 };
 
+#ifdef NFS4_SINGLE_IMPLICIT_ENUM_TYPEDEF
+enum donutMode_t {
+#else
 typedef enum donutMode_t {
+#endif
     DONUTMODE_NONE = 0,
     DONUTMODE_GOCENTER = 1,
     DONUTMODE_DONUT = 2,
     DONUTMODE_BURNOUT = 3
+#ifdef NFS4_SINGLE_IMPLICIT_ENUM_TYPEDEF
+};
+#else
 } donutMode_t;
+#endif
 
 struct AIDataRecord_AccTable_t;
 struct AIDataRecord_CurveSpeedTable_t;

@@ -2,8 +2,42 @@
  * Harvested from sibling *_externs.h + *.cpp defs + disasm-v2 (AI/Control demangled). */
 #ifndef _GAME_COMMON_AUDIOCMN_EXTERNS_H_
 #define _GAME_COMMON_AUDIOCMN_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "audiocmn_types.h"
+
+/* Narrow eaclib/libc boundary used by this owner. Keeping the original C
+ * linkage and return types avoids importing libfns.h's whole-game type graph. */
+extern "C" {
+int SND3dpos(...);
+void SNDSTRM_setpriority(...);
+void SNDautovol(...);
+int SNDbankadd(...);
+void SNDbankheadercopy(...);
+int SNDbankheadersize(...);
+int SNDbankremove(...);
+int SNDfxinitbus(...);
+int SNDfxmasterlevel(...);
+int SNDmastervol(...);
+int SNDmemlargestunused(...);
+int SNDover(...);
+int SNDpan(...);
+int SNDpitchbend(...);
+int SNDpitchmult(...);
+int SNDplay(...);
+void SNDplaysetdef(...);
+int SNDstop(...);
+void SNDvol(...);
+int fixeddiv(...);
+int fixedmult(...);
+int gettick(...);
+void *memcpy(...);
+int purgememadr(...);
+int puts(...);
+int random(...);
+void *reservememadr(...);
+char *strcat(...);
+char *strcpy(...);
+int systemtask(...);
+}
 
 extern "C" CARDINFO_def *MCRD_getcard(int);
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */

@@ -9,7 +9,9 @@
 
 /* The completed s_type enum is absent from audioclc.obj; it survives only in
  * two external C++ function names. */
+#ifndef NFS4_AUDIOCLC_OMIT_S_TYPE_ALIAS
 #define s_type int
+#endif
 
 struct POLY_GT4 {
     u_long tag;
@@ -54,11 +56,13 @@ struct Sched_tSchedule {
     Sched_tFunctionSchedule func[1];
 };
 
+#ifndef NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
 struct Trk_AnimateInst {
     short size;
     u_char type, objectIndex, zoffset, flags;
     short pad, count, interval;
 };
+#endif
 
 struct SceneElem {
     int type, size, committed, visible;
@@ -98,11 +102,19 @@ struct Skidmark_Chunk {
     Skidmark_Segment seg[24];
 };
 
+#ifdef NFS4_SINGLE_IMPLICIT_ENUM_TYPEDEF
+enum forceFocus_t {
+#else
 typedef enum forceFocus_t {
+#endif
     FOCUS_NORMAL = 0,
     FOCUS_AI = 1,
     FOCUS_COPANDAI = 2
+#ifdef NFS4_SINGLE_IMPLICIT_ENUM_TYPEDEF
+};
+#else
 } forceFocus_t;
+#endif
 
 struct kernpair {
     u_short previouscode, code;
@@ -110,6 +122,7 @@ struct kernpair {
     char pad[3];
 };
 
+#ifndef NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
 struct AudioClc_tSource {
     Car_tObj *car;
     int distToCamera, dopplerShift, relVelocity, gameTicks, distSq;
@@ -123,6 +136,7 @@ struct AudioClc_tPlayer {
 };
 
 struct AudioClc_tCLCache { Car_tObj *ptr; int dst; };
+#endif
 
 /* Foreign completed tags are absent from audioclc.obj. These exact member
  * views retain every retail offset used by its already-matched functions. */
@@ -179,7 +193,9 @@ struct Trk_NewSlice;
 typedef struct Trk_NewSlice Trk_NewSlice;
 
 typedef int CarLogic_tObservations[1][3];
+#ifndef NFS4_AUDIOCLC_OMIT_INPUT_DEVICE_CALL
 typedef int Input_tDeviceCall();
+#endif
 typedef kernpair KERN;
 typedef void (*fontblit)();
 typedef int (*getcode)();

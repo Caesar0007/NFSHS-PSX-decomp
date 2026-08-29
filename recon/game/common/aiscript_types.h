@@ -2,7 +2,11 @@
 #ifndef NFS4_GAME_COMMON_AISCRIPT_TYPES_H
 #define NFS4_GAME_COMMON_AISCRIPT_TYPES_H
 
+#ifdef NFS4_SINGLE_IMPLICIT_ENUM_TYPEDEF
+enum AIScript_tPlayAction {
+#else
 typedef enum AIScript_tPlayAction {
+#endif
     AISCRIPT_PLAYACTION_COLLISION = 0,
     AISCRIPT_PLAYACTION_OPP_WIZZED_BY = 1,
     AISCRIPT_PLAYACTION_HUMAN_BLOCK_OPP = 2,
@@ -11,9 +15,17 @@ typedef enum AIScript_tPlayAction {
     AISCRIPT_PLAYACTION_HUMAN_PASS_OPP = 5,
     AISCRIPT_PLAYACTION_HUMAN_HONK = 6,
     AISCRIPT_PLAYACTION_SENTINAL = 7
+#ifdef NFS4_SINGLE_IMPLICIT_ENUM_TYPEDEF
+};
+#else
 } AIScript_tPlayAction;
+#endif
 
+#ifdef NFS4_SINGLE_IMPLICIT_ENUM_TYPEDEF
+enum AIScript_tAIReaction {
+#else
 typedef enum AIScript_tAIReaction {
+#endif
     AISCRIPT_AIREACTION_INIT = 1,
     AISCRIPT_AIREACTION_END = 2,
     AISCRIPT_AIREACTION_SPEED_BURST = 4,
@@ -31,7 +43,11 @@ typedef enum AIScript_tAIReaction {
     AISCRIPT_AIREACTION_TEST2 = 16384,
     AISCRIPT_AIREACTION_TEST3 = 32768,
     AISCRIPT_AIREACTION_TEST4 = 65536
+#ifdef NFS4_SINGLE_IMPLICIT_ENUM_TYPEDEF
+};
+#else
 } AIScript_tAIReaction;
+#endif
 
 struct AIScript_tReactionDetails {
     char reaction[4], halfSeconds[4];

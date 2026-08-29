@@ -2617,7 +2617,8 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "INT", 0, "nBestLap", 16, (), ""),
         ), ("fetourn_types.h", "fecntl_types.h", "fecheats_types.h",
             "femenuextended_types.h", "screenpinkslips_types.h",
-            "screenpost_types.h", "femenuoptions_types.h")),
+            "screenpost_types.h", "femenuoptions_types.h",
+            "audiocmn_types.h")),
     }
     # FECheats dereferences FEApp's embedded MemCardDialog.  CC1PL therefore
     # needs the complete application layout even though the linked owner keeps
@@ -3348,6 +3349,40 @@ def filter_exact_symbol_codegen_carriers(
         ("FIELD", "UINT", 24, "addr", 0, (), ""),
         ("FIELD", "UINT", 8, "len", 24, (), ""),
     ))
+    # AudioCmn.obj consumes two foreign globals whose completed tags are not
+    # retained by this owner. Lock both complete storage views as exact C++
+    # tag/implicit-typedef pairs. Its local setup pointer also repeats the
+    # already locked AudioClc GameSetup view in audiocmn.cpp.
+    # Tool/source backup before this extension: Git commit d9c3fa21.
+    audiocmn_sim_view = (24, (
+        ("MOS", "INT", 0, "gameStarted", 0, (), ""),
+        ("MOS", "INT", 0, "gameTicks", 4, (), ""),
+        ("MOS", "INT", 0, "time32Hz", 8, (), ""),
+        ("MOS", "PTR STRUCT", 24, "schedule64Hz", 12, (),
+         "Sched_tSchedule"),
+        ("MOS", "PTR STRUCT", 24, "schedule32Hz", 16, (),
+         "Sched_tSchedule"),
+        ("MOS", "PTR STRUCT", 24, "schedule32Hz2", 20, (),
+         "Sched_tSchedule"),
+    ))
+    audiocmn_replay_view = (32, (
+        ("MOS", "INT", 0, "pause", 0, (), ""),
+        ("MOS", "INT", 0, "speed", 4, (), ""),
+        ("MOS", "INT", 0, "end", 8, (), ""),
+        ("MOS", "INT", 0, "camera", 12, (), ""),
+        ("MOS", "INT", 0, "selection", 16, (), ""),
+        ("MOS", "INT", 0, "depressed", 20, (), ""),
+        ("MOS", "INT", 0, "changeCamera", 24, (), ""),
+        ("MOS", "INT", 0, "statsScreen", 28, (), ""),
+    ))
+    for audiocmn_key, audiocmn_layout in (
+        (("audiocmn_types.h", "AudioCmn_SimGlobalCodegenView"),
+         audiocmn_sim_view),
+        (("audiocmn_types.h", "AudioCmn_ReplayCodegenView"),
+         audiocmn_replay_view),
+    ):
+        untyped_library_codegen_views[audiocmn_key] = audiocmn_layout
+        untyped_library_named_pair_views[audiocmn_key] = audiocmn_layout
 
     def exact_night_camera(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
@@ -3448,6 +3483,17 @@ def filter_exact_symbol_codegen_carriers(
             and expected is not None
             and block.size == expected[0]
             and block.rows == expected[1]
+        )
+
+    def exact_audiocmn_repeated_typedef(item: Definition) -> bool:
+        owner = item.owner.replace("\\", "/").casefold()
+        return (
+            item.cls == "TPDEF"
+            and item.name == "AudioClc_GameSetupCodegenView"
+            and item.typ == "STRUCT"
+            and item.size == 2600
+            and item.tag == item.name
+            and owner.endswith("audiocmn.cpp")
         )
 
     def exact_untyped_library_anonymous_pair(
@@ -4518,6 +4564,7 @@ def filter_exact_symbol_codegen_carriers(
                 in untyped_library_named_enum_eligible
             )
             and not exact_untyped_library_typedef(item)
+            and not exact_audiocmn_repeated_typedef(item)
         ],
     )
 

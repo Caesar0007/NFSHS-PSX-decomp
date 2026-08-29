@@ -2,8 +2,10 @@
  * referenced by MMEFFECT.CPP. NOT an original header; added for standalone C++ compile. */
 #ifndef _FRONTEND_PSX_MMEFFECT_EXTERNS_H_
 #define _FRONTEND_PSX_MMEFFECT_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "mmeffect_types.h"
+
+extern "C" int GetTPage(...);
+extern "C" void SetDrawMode(...);
 
 /* GPU packet build cursors (byte-addressable), shared with PSXFRONT.CPP */
 

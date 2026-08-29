@@ -2,13 +2,11 @@
  * Harvested from sibling *_externs.h + *.cpp defs + disasm-v2 (AI/Control demangled). */
 #ifndef _GAME_COMMON_CAMERA_EXTERNS_H_
 #define _GAME_COMMON_CAMERA_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "aih_cop_types.h"
 
 /* ---- vtables: AIHigh_Traffic (this obj) + AIState_Idle (aistate.obj) ---- */
 extern __vtbl_ptr_type AIHigh_Cop_vtable[], AIState_Idle_vtable[];
 
-extern "C" CARDINFO_def *MCRD_getcard(int);
 Speaker *Speech_Mobile(Car_tObj *carObj) asm("Mobile__6SpeechP8Car_tObj");
 extern AICop_spikeBelt_t AICop_spikeBelt;
 extern AIHigh_Base *highLevelAIObjs[];
@@ -42,6 +40,8 @@ int AIWorld_ApxSplineDistance(Car_tObj *a, Car_tObj *b);
 int AIWorld_ApxSplineDistance(Car_tObj *a, int slice);
 int AIWorld_ApxSplineDistance(int slice, Car_tObj *b);
 void  trap(int code);
+extern "C" int fixedmult(int, int);
+extern "C" int fixeddiv(int, int);
 /* AITrigger_TriggerManager::DescribeTrigger/CheckForTriggerAtSlice/GetTrigger now C++ members (aitriger.obj) -- flat externs removed */
 
 #endif /* _GAME_COMMON_CAMERA_EXTERNS_H_ */

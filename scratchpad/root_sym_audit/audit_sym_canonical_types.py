@@ -1548,6 +1548,90 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "UCHAR", 0, "avgPavedWidthLf", 30, (), ""),
             ("MOS", "UCHAR", 0, "avgPavedWidthRt", 31, (), ""),
         )),
+        # AIH_COP.OBJ placement-constructs two foreign state classes and reads
+        # six foreign globals whose completed tags are absent from its linked
+        # graph. Pair-lock the exact tag/typedef layouts required by all nine
+        # PASS bodies. Pre-change source/tool backup: Git commit 1663262f.
+        ("aih_cop_types.h", "AIState_Purgatory"): (8, (
+            ("MOS", "STRUCT", 8, "AIState_NonActive", 0, (),
+             "AIState_NonActive"),
+        )),
+        ("aih_cop_types.h", "AIState_Offroad"): (104, (
+            ("MOS", "STRUCT", 8, "AIState_Base", 0, (), "AIState_Base"),
+            ("MOS", "INT", 0, "startSlice_", 8, (), ""),
+            ("MOS", "STRUCT", 12, "startPosition_", 12, (), "coorddef"),
+            ("MOS", "STRUCT", 36, "startOrientation_", 24, (),
+             "matrixtdef"),
+            ("MOS", "STRUCT", 12, "startHeading_", 60, (), "coorddef"),
+            ("MOS", "INT", 0, "targetSlice_", 72, (), ""),
+            ("MOS", "STRUCT", 12, "targetPosition_", 76, (), "coorddef"),
+            ("MOS", "INT", 0, "longMetersBetween_", 88, (), ""),
+            ("MOS", "INT", 0, "letGo_", 92, (), ""),
+            ("MOS", "INT", 0, "maxSpeedMPS_", 96, (), ""),
+            ("MOS", "INT", 0, "releaseTime_", 100, (), ""),
+        )),
+        ("aih_cop_types.h", "AIH_Cop_GameSetupCodegenView"): (2600, (
+            ("MOS", "INT", 0, "raceType", 0, (), ""),
+            ("MOS", "INT", 0, "numLaps", 4, (), ""),
+            ("MOS", "INT", 0, "skill", 8, (), ""),
+            ("MOS", "INT", 0, "commMode", 12, (), ""),
+            ("MOS", "INT", 0, "tournamentMultiplier", 16, (), ""),
+            ("MOS", "INT", 0, "cops", 20, (), ""),
+            ("MOS", "INT", 0, "trafficDensity", 24, (), ""),
+            ("MOS", "INT", 0, "localCar", 28, (), ""),
+            ("MOS", "INT", 0, "catchupLogic", 32, (), ""),
+            ("MOS", "INT", 0, "replayMode", 36, (), ""),
+            ("MOS", "INT", 0, "instantReplay", 40, (), ""),
+            ("MOS", "INT", 0, "mirrorTrack", 44, (), ""),
+            ("MOS", "INT", 0, "reverseTrack", 48, (), ""),
+            ("MOS", "ARY CHAR", 2548, "_rest", 52, (2548,), ""),
+        )),
+        ("aih_cop_types.h", "AIH_Cop_SimGlobalCodegenView"): (24, (
+            ("MOS", "INT", 0, "gameStarted", 0, (), ""),
+            ("MOS", "INT", 0, "gameTicks", 4, (), ""),
+            ("MOS", "INT", 0, "time32Hz", 8, (), ""),
+            ("MOS", "PTR STRUCT", 24, "schedule64Hz", 12, (),
+             "Sched_tSchedule"),
+            ("MOS", "PTR STRUCT", 24, "schedule32Hz", 16, (),
+             "Sched_tSchedule"),
+            ("MOS", "PTR STRUCT", 24, "schedule32Hz2", 20, (),
+             "Sched_tSchedule"),
+        )),
+        ("aih_cop_types.h", "AIH_Cop_SpikeBeltCodegenView"): (20, (
+            ("MOS", "INT", 0, "active_", 0, (), ""),
+            ("MOS", "INT", 0, "slice_", 4, (), ""),
+            ("MOS", "INT", 0, "leftLatPos_", 8, (), ""),
+            ("MOS", "INT", 0, "rightLatPos_", 12, (), ""),
+            ("MOS", "INT", 0, "freshenTime_", 16, (), ""),
+        )),
+        ("aih_cop_types.h", "AIH_Cop_SliceCodegenView"): (32, (
+            ("MOS", "ARY INT", 12, "center", 0, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "normal", 12, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "forward", 15, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "right", 18, (3,), ""),
+            ("MOS", "UCHAR", 0, "acousticType", 21, (), ""),
+            ("MOS", "SHORT", 0, "pavedProfile", 22, (), ""),
+            ("MOS", "SHORT", 0, "leftDrive", 24, (), ""),
+            ("MOS", "SHORT", 0, "rightDrive", 26, (), ""),
+            ("MOS", "UCHAR", 0, "chunkIndex", 28, (), ""),
+            ("MOS", "UCHAR", 0, "laneCount", 29, (), ""),
+            ("MOS", "UCHAR", 0, "avgPavedWidthLf", 30, (), ""),
+            ("MOS", "UCHAR", 0, "avgPavedWidthRt", 31, (), ""),
+        )),
+        ("aih_cop_types.h", "AIH_Cop_CopTuningCodegenView"): (16, (
+            ("MOS", "INT", 0, "regularCopAccMultiplier", 0, (), ""),
+            ("MOS", "INT", 0, "superCopAccMultiplier", 4, (), ""),
+            ("MOS", "INT", 0, "regularCopTopSpeedCap", 8, (), ""),
+            ("MOS", "INT", 0, "superCopTopSpeedCap", 12, (), ""),
+        )),
+        ("aih_cop_types.h", "AIH_Cop_TriggerManagerCodegenView"): (844, (
+            ("MOS", "INT", 0, "numTriggers_", 0, (), ""),
+            ("MOS", "INT", 0, "invNumTriggers_", 4, (), ""),
+            ("MOS", "ARY PTR UNION", 400, "triggers_", 8, (100,),
+             "trigger_t"),
+            ("MOS", "ARY INT", 400, "checkTime_", 408, (100,), ""),
+            ("MOS", "ARY INT", 36, "lastTriggerChecked_", 808, (9,), ""),
+        )),
         # AIH_BTCPERP.OBJ needs four member-shaped foreign globals, the
         # constructible Cruise state, and a vtable-bearing Speech dispatch
         # carrier.  Its 26 PASS bodies lock every layout below; the linked
@@ -1994,6 +2078,15 @@ def filter_exact_symbol_codegen_carriers(
         # at its aih_btcperp.cpp use site.
         ("aih_btcperp.cpp", "AIState_Cruise"):
             ("STRUCT", 20, "AIState_Cruise"),
+        # AIH_COP's placement constructions and macro-bound tick pointer
+        # repeat three already pair-locked foreign typedefs at their use site.
+        # Pre-change source/tool backup: Git commit 1663262f.
+        ("aih_cop.cpp", "AIState_Purgatory"):
+            ("STRUCT", 8, "AIState_Purgatory"),
+        ("aih_cop.cpp", "AIState_Offroad"):
+            ("STRUCT", 104, "AIState_Offroad"),
+        ("aih_cop.cpp", "AIH_Cop_SimGlobalCodegenView"):
+            ("STRUCT", 24, "AIH_Cop_SimGlobalCodegenView"),
     }
     feinput_views = {
         # FEInput.obj references pad.obj's anonymous 84-byte gPadinfo object.

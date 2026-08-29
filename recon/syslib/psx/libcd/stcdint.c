@@ -584,7 +584,6 @@ extern void _st_dma(int ch, int madr, int blocks, int blocksize, volatile int ch
     volatile int  dummy;
     int           i;
     volatile int *p;
-    u_char       *dptr;
     volatile int *dp;
     int           bv;
     int           mode;
@@ -602,10 +601,12 @@ extern void _st_dma(int ch, int madr, int blocks, int blocksize, volatile int ch
     }
 
     if (mode == 1) {
+        u_char *dptr;
         dptr = (u_char *)_dicr;
         bv = dptr[2];
         dptr[2] = bv | (1 << ch);
     } else {
+        u_char *dptr;
         dptr = (u_char *)_dicr;
         bv = dptr[2];
         dptr[2] = bv & ~(1 << ch);
@@ -729,13 +730,15 @@ extern void _st_dma(int ch, int madr, int blocks, int blocksize, volatile int ch
      *   pin dv + drop idx local (p = 0x1F801080 + (ch << 4))    35
      *   FULL CELL: pin dv + drop idx local/fence + drop the two
      *     `bit` identity fences + drop the `dp` identity fence   1  <- landed
-     *   full cell + also drop the bv read-only fence            19  (bv fence load-bearing)
+     *   full cell + also drop the bv read-only fence            19  (shared-dptr basin;
+     *     superseded by the branch-local dptr source shape below)
      *   full cell + bv PINNED to $4 instead of its fence          7
      *   full cell but keep the dp fence                          15
      * (23B-3 at work: the W64/W75 bit/dp/idx devices were scaffolding for the wrong
      * seating; once dv sits in $a2 they are net-negative and are REMOVED.)
      * THE RESIDUAL 1 = `li v0,1` duplicated into the busy-guard's beqz delay slot, and it
-     * is a PIPELINE-IDENTITY FLOOR (sec.3.25-3b), mechanism read from reorg.c + dumps:
+     * is the CURRENT pipeline-identity residual (sec.3.25-3b), mechanism read from
+     * reorg.c + dumps:
      *   - the guard's fall-through steal (retail's slot = the preheader `lui a2,1`
      *     0x10000 limit) is impossible in cc1: the 65536 pseudo is loop-carried
      *     ("dies in 0 places", flow dump), so mark_target_live_regs' REG_DEAD walk keeps
@@ -748,9 +751,13 @@ extern void _st_dma(int ch, int madr, int blocks, int blocksize, volatile int ch
      *     the branch and is STILL not taken -- scratchpad/w76/a17_slotsweep.py).
      *   Retail's slot is ASPSX's OWN fall-through fill under -fno-delayed-branch (the
      *   3.25-3b identity); per-fn -fno-delayed-branch was re-measured at 35 (W75) because
-     *   GNU-as reorder cannot reproduce ASPSX's fills elsewhere in the fn.  No compiler
-     *   input reaches 106/106; 1 is this function's floor on the wired pipeline. */
-    __asm__("" : : "r"(bv));   /* MATCH: DEMOTE bv (read-only fence) so dptr wins $v1 */
+     *   GNU-as reorder cannot reproduce ASPSX's fills elsewhere in the fn.  The presently
+     *   available compiler/route ladder does not reach 106/106, so the residual remains
+     *   open for a better source shape or a newly identified original toolchain input. */
+    /* W82-root: branch-local `dptr` variables give each arm its own short-lived
+     * pointer quantity.  That naturally hands dptr/bv the retail $v1/$a0 pair,
+     * so the former read-only asm fence on `bv` is no longer needed.  Detailed
+     * gate remains 1 @107/106; both TU neighbors remain PASS. */
     dummy = *(volatile int *)_dicr;
     __asm__ __volatile__("");  /* MATCH: Rage Racer CD_dmastart barrier -- keep the DICR read-back serial */
     {

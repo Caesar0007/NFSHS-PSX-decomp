@@ -103,6 +103,11 @@ CC1_SPECIAL_RUNGS = {
     "2.8.1-norcse": [
         Path(_env("NFS4_CC1_NORCSE",
                   str(ROOT / "scratch" / "gccbuild-ecoff" / "cc1.exe"))),
+        # The instrumented compiler workspace is built from the shared primary
+        # checkout; sibling clean worktrees intentionally do not duplicate the
+        # large GCC build tree.  Accept that established build as the local-dev
+        # fallback (the semantic hash guard below still proves its identity).
+        Path(r"C:/Temp/nfs4-decomp/scratch/gccbuild-ecoff/cc1.exe"),
     ],
     "2.8.1-sn": [
         Path(_env("NFS4_CC1_281_SN", r"C:/Temp/psq44/pssn/bin/CC1PSX.EXE")),
@@ -505,7 +510,13 @@ PER_TU_FLAGS = {
     # (`lui %hi(jtbl); addiu %lo(jtbl); sll idx,2; addu; lw 0(idx)`), not the
     # fused `$at` macro. The entry was a mis-attribution; removing it takes
     # Sfx_Add 7 -> 0 (PASS) and drops 3 diffs off Sfx_BuildSouffleFacet.
-    "recon/syslib/psx/libc/SPRINTF.c":      {"jtbl_at_fusion": True,  # sprintf
+    # W82-root: complete source-only compiler/assembler ladder on the current
+    # body.  The direct vendor-library 2.8.0 lane is the only safe TU winner:
+    # sprintf 25 @546/545 -> 22 @545/545.  2.8.1 and retail 2.8.1-SN are
+    # byte-identical here; 970404 is 31, and every older/newer family is much
+    # worse.  SPRINTF.c exposes no second oracle-backed function to regress.
+    "recon/syslib/psx/libc/SPRINTF.c":      {"cc1_alt": "2.8.0",
+                                             "jtbl_at_fusion": True,  # sprintf
         # w63-a9: nosplit hold RETIRED -- count-parity objection satisfied
         # by the slot-fill row below (44 @545/545, was 56).
                                              "no_split_addresses": True},

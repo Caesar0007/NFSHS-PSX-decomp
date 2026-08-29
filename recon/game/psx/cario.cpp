@@ -975,8 +975,8 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
     vy = (carObj->render).VRamY;
   }
   if ((reload & 0x10U) == 0) {
-    carPixMapCount = CarIO_carPixMapCount;
     (carObj->render).textureStartIndex = CarIO_carPixMapCount;
+    carPixMapCount = CarIO_carPixMapCount;
   }
   else {
     carPixMapCount = (carObj->render).textureStartIndex;
@@ -1242,7 +1242,6 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
    * ranges (catalog 22C-7) so cse/copy-prop cannot collapse T into pseudo 88 --
    * every previously tried `int n` form let them stay sequential, which is
    * exactly the condition 22C-7 says keeps them one qty. */
-  __asm__("" : : "r"(carPixMapCount));
   if ((reload & 8U) != 0) {
     if (((carObj->render).inside & 1U) != 0) {
       int index;

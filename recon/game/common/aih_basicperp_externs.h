@@ -2,8 +2,7 @@
  * Harvested from sibling *_externs.h + *.cpp defs + disasm-v2 (AI/Control demangled). */
 #ifndef _GAME_COMMON_CAMERA_EXTERNS_H_
 #define _GAME_COMMON_CAMERA_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "aih_basicperp_types.h"
 
 /* ---- vtable: AIHigh_BasicPerp (this obj) ---- */
 extern __vtbl_ptr_type AIHigh_BasicPerp_vtable[];
@@ -25,5 +24,6 @@ extern int AITune_oneWay;
 extern int AIWorld_CheckForBarrierBetweenLanes(int slice,int lane0,int lane1);
 int AIWorld_ApxSplineDistance(Car_tObj *a, Car_tObj *b);
 int AIWorld_ApxSplineDistance(Car_tObj *a, int slice);   /* AIWorld_ApxSplineDistance__FP8Car_tObji -- CheckChaserPosition's call site (raw oracle @0x8005C008) */
+extern "C" int fixedmult(int, int);
 
 #endif /* _GAME_COMMON_CAMERA_EXTERNS_H_ */

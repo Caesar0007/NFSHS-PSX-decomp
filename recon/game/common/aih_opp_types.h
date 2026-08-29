@@ -47,7 +47,7 @@ struct AIHigh_Opponent : public AIHigh_Player {
 struct AIH_Opp_GameSetupCodegenView {
     int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
     int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
-    int reverseTrack;
+    int mirrorTrack, reverseTrack;
 };
 struct AIH_Opp_SimGlobalCodegenView { int gameStarted, gameTicks; };
 struct AIH_Opp_SliceCodegenView {

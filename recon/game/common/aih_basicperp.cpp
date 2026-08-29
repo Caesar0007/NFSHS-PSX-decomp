@@ -5,7 +5,7 @@
  *   SYM-faithful, recompilable. vs disasm-v2.
  */
 #include "../../lib/nfs4_new.h"
-#include "../../nfs4_types.h"
+#include "aih_basicperp_types.h"
 #include "aih_basicperp_externs.h"
 
 /* ---- aih_basicperp.obj-owned globals (.bss zero) ---- */

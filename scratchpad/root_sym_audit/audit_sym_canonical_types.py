@@ -1273,7 +1273,7 @@ def filter_exact_symbol_codegen_carriers(
         # AIH_OPP.OBJ uses three foreign globals but retains none of their
         # completed tags. Pair-lock the exact member-shaped views required by
         # its PASS bodies. Pre-change source/tool backup: Git commit 09c68004.
-        ("aih_opp_types.h", "AIH_Opp_GameSetupCodegenView"): (48, (
+        ("aih_opp_types.h", "AIH_Opp_GameSetupCodegenView"): (52, (
             ("MOS", "INT", 0, "raceType", 0, (), ""),
             ("MOS", "INT", 0, "numLaps", 4, (), ""),
             ("MOS", "INT", 0, "skill", 8, (), ""),
@@ -1285,7 +1285,8 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "INT", 0, "catchupLogic", 32, (), ""),
             ("MOS", "INT", 0, "replayMode", 36, (), ""),
             ("MOS", "INT", 0, "instantReplay", 40, (), ""),
-            ("MOS", "INT", 0, "reverseTrack", 44, (), ""),
+            ("MOS", "INT", 0, "mirrorTrack", 44, (), ""),
+            ("MOS", "INT", 0, "reverseTrack", 48, (), ""),
         )),
         ("aih_opp_types.h", "AIH_Opp_SimGlobalCodegenView"): (8, (
             ("MOS", "INT", 0, "gameStarted", 0, (), ""),
@@ -1407,6 +1408,53 @@ def filter_exact_symbol_codegen_carriers(
         ("aihigh_types.h", "AIHigh_GameSetupCodegenView"): (2600, (
             ("MOS", "INT", 0, "raceType", 0, (), ""),
             ("MOS", "ARY CHAR", 2596, "_rest", 4, (2596,), ""),
+        )),
+        # AIH_BASICPERP.OBJ reads three foreign globals whose completed tags
+        # are absent from its retail graph. The full GameSetup extent is
+        # compiler-significant; mirrorTrack at +44 makes reverseTrack +48.
+        # Pre-change source/tool backup: Git commit 12a431a8.
+        ("aih_basicperp_types.h", "AIH_BasicPerp_GameSetupCodegenView"):
+        (2600, (
+            ("MOS", "INT", 0, "raceType", 0, (), ""),
+            ("MOS", "INT", 0, "numLaps", 4, (), ""),
+            ("MOS", "INT", 0, "skill", 8, (), ""),
+            ("MOS", "INT", 0, "commMode", 12, (), ""),
+            ("MOS", "INT", 0, "tournamentMultiplier", 16, (), ""),
+            ("MOS", "INT", 0, "cops", 20, (), ""),
+            ("MOS", "INT", 0, "trafficDensity", 24, (), ""),
+            ("MOS", "INT", 0, "localCar", 28, (), ""),
+            ("MOS", "INT", 0, "catchupLogic", 32, (), ""),
+            ("MOS", "INT", 0, "replayMode", 36, (), ""),
+            ("MOS", "INT", 0, "instantReplay", 40, (), ""),
+            ("MOS", "INT", 0, "mirrorTrack", 44, (), ""),
+            ("MOS", "INT", 0, "reverseTrack", 48, (), ""),
+            ("MOS", "ARY CHAR", 2548, "_rest", 52, (2548,), ""),
+        )),
+        ("aih_basicperp_types.h", "AIH_BasicPerp_SimGlobalCodegenView"):
+        (24, (
+            ("MOS", "INT", 0, "gameStarted", 0, (), ""),
+            ("MOS", "INT", 0, "gameTicks", 4, (), ""),
+            ("MOS", "INT", 0, "time32Hz", 8, (), ""),
+            ("MOS", "PTR STRUCT", 24, "schedule64Hz", 12, (),
+             "Sched_tSchedule"),
+            ("MOS", "PTR STRUCT", 24, "schedule32Hz", 16, (),
+             "Sched_tSchedule"),
+            ("MOS", "PTR STRUCT", 24, "schedule32Hz2", 20, (),
+             "Sched_tSchedule"),
+        )),
+        ("aih_basicperp_types.h", "AIH_BasicPerp_SliceCodegenView"): (32, (
+            ("MOS", "ARY INT", 12, "center", 0, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "normal", 12, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "forward", 15, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "right", 18, (3,), ""),
+            ("MOS", "UCHAR", 0, "acousticType", 21, (), ""),
+            ("MOS", "SHORT", 0, "pavedProfile", 22, (), ""),
+            ("MOS", "SHORT", 0, "leftDrive", 24, (), ""),
+            ("MOS", "SHORT", 0, "rightDrive", 26, (), ""),
+            ("MOS", "UCHAR", 0, "chunkIndex", 28, (), ""),
+            ("MOS", "UCHAR", 0, "laneCount", 29, (), ""),
+            ("MOS", "UCHAR", 0, "avgPavedWidthLf", 30, (), ""),
+            ("MOS", "UCHAR", 0, "avgPavedWidthRt", 31, (), ""),
         )),
         # CDFS.OBJ is stripped. Fourteen PASS bodies fix the 0x83c-byte CD
         # context plus the shared 16-byte read-state and 312-byte callback

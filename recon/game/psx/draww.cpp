@@ -5494,7 +5494,6 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
   matrixtdef *m;
   coorddef *t;
   Draw_DCache *sd;
-  int skidIdx; /* SYM-CODEGEN-CARRIER: skidIdx -- natural fskid->smp + ccount is FAIL 227 at 354/353 */
   /* MATCH (w46-a6): SYM has no u_char here and the oracle keeps the
    * backface flag as a plain word in $s0 (`sltu $s0,$zero,$v0;
    * beqz $s0` @0x800C91B8) -- a u_char local forced an extra
@@ -5667,7 +5666,6 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
   otz94 = (int *)0x1f800094;
   grey = 0x404040;
   sd = (Draw_DCache *)&Render_gPalettePtr;
-  skidIdx = ccount * 0x2b0;
   /* MATCH (w40-a2): SYM @0x800C909C declares the matrix conversion as THREE sibling
    * blocks of `int r0,r1,r2`; the oracle runs each row as three PARALLEL chains
    * (`lw r0; lw r1; lw r2; sra; sra; sra; sh; sh; sh`) so the loads fill each other's
@@ -5716,15 +5714,12 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
       if (ccount == -1) {
         return;
       }
-      /* MATCH (w46-a6): retail has NO `skidIter` -- the SYM lists no such
-       * local and the oracle mutates the byte cursor IN PLACE inside the
-       * exit-test's delay slot (`beq $s5,$v0,exit; addiu $s7,$s7,-0x2B0`
-       * @0x800C917C) and then forms the chunk pointer with a single
-       * `addu $s2,$v0,$s7`.  The old copy-through-a-second-variable form
-       * created an extra call-crossing allocno that took $s1 away from
-       * `sd`.  Identical arithmetic: smp[-1]+0x10-2*8 == (int)smp-0x2B0. */
-      skidIdx = skidIdx + -0x2b0;
-      sm = (Skidmark_Chunk *)((int)fskid->smp + skidIdx);
+      /* MATCH (w79): `skidIdx` is absent from the SYM because $s7 is loop.c's
+       * strength-reduced induction variable for this array expression.  The
+       * natural spelling emits the exact prologue multiply, the -0x2B0 branch
+       * delay-slot update, and the single base+offset add while removing the
+       * fabricated source local byte-for-byte. */
+      sm = fskid->smp + ccount;
       if ((BWorld_IsSliceInBuildList((int)sm->slice) != 0) &&
           (Draw_CircleClip(&sm->cp,t,0x320000) != 0)) {
     {
@@ -6455,9 +6450,14 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
          * sd->head.cprim.LastPrim + sd->otz*4; sd->head.cprim.PrimPtr = prim+0x34;
          * prim->tag = slot->addr24 | (0x0C<<24); slot->addr24 = prim.
          * `prim` already holds sd->head.cprim.PrimPtr from the transform block
-         * above (rule-8: ONE SYM local, w71-a1). */
+         * above (rule-8: ONE SYM local, w71-a1).
+         * MATCH (w79): the retail EA expander nevertheless begins with an
+         * idempotent reload of that same packet cursor.  Keeping %0 as the
+         * existing input preserves the source branch/join shape; the reload
+         * fills the preceding load-delay stall and seals the last 2 diffs. */
         __asm__ volatile(
-            "lw	$12,0(%2)
+            "lw	%0,4(%1)
+	lw	$12,0(%2)
 	lw	$13,0(%1)
 	addiu	$14,%0,52
 	sll	$12,$12,2

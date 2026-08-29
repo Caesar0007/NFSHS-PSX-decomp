@@ -1036,6 +1036,14 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "INT", 0, "y", 4, (), ""),
             ("MOS", "INT", 0, "z", 8, (), ""),
         )),
+        # drawshp's local P_TAG carrier expresses the canonical PsyQ addPrim
+        # address/length word without introducing a retail owner record.
+        # Pair-lock its anonymous body and typedef at the exact use site.
+        # Pre-change source/tool backup: Git commit c3055163.
+        ("drawshp.cpp", "DrawShp_PTag"): (4, (
+            ("FIELD", "UINT", 24, "addr", 0, (), ""),
+            ("FIELD", "UINT", 8, "len", 24, (), ""),
+        )),
     }
     # lib/snd.h is the sole shared definition of the PSX sound runtime's
     # private state graph. SPAN/SSTSETPR/SVOL are stripped archive members, so

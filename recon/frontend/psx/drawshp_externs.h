@@ -2,8 +2,10 @@
  * FETextRender game fns + render cursors). NOT an original header; for standalone C++ compile. */
 #ifndef _FRONTEND_PSX_DRAWSHP_EXTERNS_H_
 #define _FRONTEND_PSX_DRAWSHP_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "drawshp_types.h"
+
+extern "C" int GetTPage(...);
+extern "C" void SetDrawMode(...);
 
 extern tTexture_ShapeInfo *gHelpShapes_v[] asm("gHelpShapes");   /* unsized array VIEW: forces the
  * separate-scratch  lui vN,%hi; lw dest,%lo(vN)  address materialization the oracle uses
@@ -15,7 +17,8 @@ extern "C" {  /* PsyQ libgpu */
 
 /* game-side C++ helpers (cfront-mangled in originals; normal C++ linkage) */
 void FETextRender_MenuTextPositionedJustify(short id, short x, short y, short j,
-                                            tMenuTextState st, tMenuTextType ty);
+                                            tMenuTextState st, tMenuTextType ty)
+  asm("FETextRender_MenuTextPositionedJustify__Fssss14tMenuTextState13tMenuTextType");
 void DrawShapeExtended(int index, int flags, int x, int y, int fade, int abr, tDrawShapeExtended *extra);
 void PSXDrawSquare(int col, int x, int y, int w, int h);
 void PSXDrawTransSquare(int col, int x, int y, int w, int h, short opacity);

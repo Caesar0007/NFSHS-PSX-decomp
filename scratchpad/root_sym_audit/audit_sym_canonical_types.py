@@ -1237,6 +1237,30 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "SHORT", 0, "underrun", 40, (), ""),
             ("MOS", "SHORT", 0, "pad2a", 42, (), ""),
         )),
+        # SPKTPLAY.OBJ is stripped. Retained game-owner SYM records prove the
+        # public packed SNDSAMPLEFORMAT graph; thirteen PASS bodies prove the
+        # 0x18-byte packet-frame layout. Purge's two semantic prefix/tail views
+        # preserve the retail two-batch copy and allocno without opaque word
+        # arrays. Pair-lock every graph completely; private view spellings
+        # remain unprovable. Pre-change source/tool backup: Git 206f78eb.
+        ("spktplay.c", "SNDSAMPLEFORMAT"): (4, (
+            ("MOS", "USHORT", 0, "samplerate", 0, (), ""),
+            ("MOS", "UCHAR", 0, "channels", 2, (), ""),
+            ("MOS", "UCHAR", 0, "samplerep", 3, (), ""),
+        )),
+        ("spktplay.c", "PacketFrame"): (24, (
+            ("MOS", "INT", 0, "reserved", 0, (), ""),
+            ("MOS", "INT", 0, "size", 4, (), ""),
+            ("MOS", "ARY INT", 16, "channel", 8, (4,), ""),
+        )),
+        ("spktplay.c", "PacketFramePrefix"): (16, (
+            ("MOS", "INT", 0, "reserved", 0, (), ""),
+            ("MOS", "INT", 0, "size", 4, (), ""),
+            ("MOS", "ARY INT", 8, "channel", 8, (2,), ""),
+        )),
+        ("spktplay.c", "PacketFrameTail"): (8, (
+            ("MOS", "ARY INT", 8, "channel", 0, (2,), ""),
+        )),
         # SMEMMAN.OBJ is stripped. Its four PASS bodies and the sndmm BSS
         # extent fix the complete 0x20c-byte allocator state; the insertion
         # loop proves that +0xc is an array of 128 four-byte {block,size}

@@ -4,11 +4,11 @@
  *   dialect fixer did not converge on this TU). Pre-migration (.cpp/cc1plus) vs post-migration
  *   (.c/cc1) per-fn diff counts, verify_asm.py authoritative -- IDENTICAL, zero regressions:
  *     iSNDpacketplayoverhead=PASS(0)  SNDPKTPLAY_overhead=PASS(0)   SNDPKTPLAY_create=PASS(0)
- *     SNDPKTPLAY_start=FAIL(4 w35, 187/187)    SNDPKTPLAY_submit=FAIL(2)  SNDPKTPLAY_submitspace=PASS(0)
+ *     SNDPKTPLAY_start=PASS(0)          SNDPKTPLAY_submit=PASS(0)        SNDPKTPLAY_submitspace=PASS(0)
  *     SNDPKTPLAY_unsafeframesoutstanding=PASS(0)  SNDPKTPLAY_framesoutstanding=PASS(0)
  *     SNDPKTPLAY_purge=PASS(0, w34)                                          SNDPKTPLAY_stop=PASS(0)
  *     SNDPKTPLAY_destroy=PASS(0)      iSNDpacketget=PASS(0)         iSNDpacketfreeframes=PASS(0)
- *   11/13 PASS, 2/13 FAIL (start/submit) as of w34-a6.  Do NOT revert to .cpp without user decision.
+ *   13/13 PASS. Do NOT revert to .cpp without user decision.
  *   Source obj : nfs4\eaclib\psx\spktplay.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   13 fns @[0x801028BC .. 0x80103424].  SNDPKTPLAY -- the packet player sst.obj feeds.  A ring of
  *   "frames" (each a list of per-channel sample-data pointers) is submitted, then drained by the platform
@@ -89,10 +89,29 @@ extern int SNDPKTPLAY_submit(int p, int frame);          /* @0x80102CFC */
 extern int SNDPKTPLAY_submitspace(int p);                /* @0x80102E70 */
 extern int SNDPKTPLAY_unsafeframesoutstanding(int p);    /* @0x80102EC4 */
 extern int SNDPKTPLAY_framesoutstanding(int p);          /* @0x80102EEC */
-typedef struct { int w[6]; } PktCopy6;   /* 0x18-byte ring frame, block-copied in purge */
-typedef struct { int w[4]; } PktCopy4;
-typedef struct { int w[2]; } PktCopy2;
-typedef struct { char b[4]; } Unal4;     /* alignment-1 word: movstrsi emits the lwl/lwr+swl/swr pair */
+typedef struct SNDSAMPLEFORMAT {
+    unsigned short samplerate;
+    unsigned char channels, samplerep;
+} __attribute__((packed)) SNDSAMPLEFORMAT;
+
+typedef struct PacketFrame {
+    int reserved;
+    int size;
+    int channel[4];
+} PacketFrame;
+
+/* Purge deliberately copies one frame in two movstrsi batches so `wrptr` is
+ * referenced twice and receives the retail allocno. These are semantic views
+ * of PacketFrame's first four and last two words, not opaque word arrays. */
+typedef struct PacketFramePrefix {
+    int reserved;
+    int size;
+    int channel[2];
+} PacketFramePrefix;
+
+typedef struct PacketFrameTail {
+    int channel[2];
+} PacketFrameTail;
 extern int SNDPKTPLAY_purge(int p, int lo, int hi);      /* @0x80102F3C */
 extern int SNDPKTPLAY_stop(int p);                       /* @0x80103118 */
 extern int SNDPKTPLAY_destroy(int p);                    /* @0x801031F4 */
@@ -230,7 +249,7 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
                                                    * BEFORE the lwl/lwr pair (retail); once the
                                                    * note fences below lengthen note's range,
                                                    * sched1 no longer hoists it on its own. */
-    *(Unal4 *)(ppp + 0x24) = *(Unal4 *)rate;      /* unaligned rate-word copy: lwl/lwr + swl/swr */
+    *(SNDSAMPLEFORMAT *)(ppp + 0x24) = *(SNDSAMPLEFORMAT *)rate; /* unaligned rate-word copy */
     ch = *(int *)(gp + 0x94) + dur;        /* MATCH: AFTER the unaligned copy -- the oracle's
                                                     * `lw v1,0x94(s3)` sits between the swl/swr pair
                                                     * and the params[0xb] test, with the pool-base
@@ -658,8 +677,8 @@ purge_next: {
                  * -- but it references `wrptr` TWICE, which is the point: 5 -> 6 REG_N_REFS lifts
                  * wrptr's allocno priority (12/40 = .300) above rd's (14/51 = .2745) and pins it to
                  * the oracle's $s1.  Do NOT re-merge into one assignment (reverts to 32 diffs). */
-                *(PktCopy4 *)(wrptr + 0x28) = *(PktCopy4 *)fr;
-                *(PktCopy2 *)(wrptr + 0x38) = *(PktCopy2 *)(fr + 4);
+                *(PacketFramePrefix *)(wrptr + 0x28) = *(PacketFramePrefix *)fr;
+                *(PacketFrameTail *)(wrptr + 0x38) = *(PacketFrameTail *)(fr + 4);
                 wrptr += 0x18;
                 wr++;
                 if (VH(ppp, 8) <= wr) {
@@ -720,11 +739,6 @@ extern int SNDPKTPLAY_destroy(int p)
  *   Writes the frame size to *out.  Returns the channel's sample pointer (0 if none). */
 extern int iSNDpacketget(int p, int idx, int *out)
 {
-    typedef struct PacketFrame {
-        int reserved;
-        int size;
-        int channel[4];
-    } PacketFrame;
     int   ppp = sndpps[p];
     short m;
     PacketFrame *fr;

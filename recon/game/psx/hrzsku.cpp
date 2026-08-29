@@ -1743,10 +1743,9 @@ void Hrz_BuildSky(void)
                    off the `pmx` load decouples the two: the address appears first, the load
                    stays last.  The block is BORN IN THE LOOP so loop.c hoists it (21B(3)).
                    The FT4/G4 twin is redundant (GT4 is generated first): measured identical. */
-                Draw_tPixMap **hpb /* SYM-CODEGEN-CARRIER: hpb -- split table-base appearance is the measured 150->146 hoist-order lever */ = gHorizonPixmap;
+                pmx = gHorizonPixmap[gSkyPixmapIndex[i]];
                 prim = (POLY_GT4 *)Render_gPacketPtr;
-                slot = (u_int *)(Draw_gViewOtSize * 4 + Render_gPalettePtr);
-                pmx = hpb[gSkyPixmapIndex[i]];
+                slot = (u_int *)(Draw_gViewOtSize * 4 + (int)Render_gPalettePtr);
                 /* MATCH (W74-A4): 24-bit-AND-FIRST here and in the FT4 block, TAG-FIRST
                    in the G4 block below.  Retail's OR dest is the prim->tag operand in
                    all three (`and a2,a2,t6; or a2,a2,v0`), but the operand order also
@@ -1755,8 +1754,8 @@ void Hrz_BuildSky(void)
                    0xFFFFFF before the 1-insn 0xFF000000.  Measured per site from the
                    faithful basin: GT4 24-first -4, FT4 24-first -12, G4 tag-first -4
                    (all-tag-first 228, all-24-first 212, this mix 208). */
-                prim->tag = slot[-2] & 0xffffff | prim->tag & 0xff000000;
-                slot[-2] = slot[-2] & 0xff000000 | (u_int)prim & 0xffffff;
+                setaddr(prim,getaddr(slot - 2));
+                setaddr(slot - 2,prim);
                 /* MATCH (W74-A4, 272 -> 229 and one of the two nops): the cursor bump
                    sits BETWEEN the first colour LOAD and its STORE, exactly as retail
                    emits it (`lw v1,0(v0); addiu v0,a1,52; sw v0,0(t3); sw v1,4(a1)`).
@@ -1784,11 +1783,10 @@ void Hrz_BuildSky(void)
                 Draw_tPixMap *pmx;
 
                 u_int *slot; /* SYM-CODEGEN-CARRIER: slot -- shared carrier for the same PsyQ OT cell across the packet-pointer store */
-                u_int tag; /* SYM-CODEGEN-CARRIER: tag -- stages the OT word so the packet-pointer store remains between load and store */
                 /* MATCH (W74-A4, -2): same prim, slot, pmx order as the GT4 block. */
-                prim = (POLY_FT4 *)Render_gPacketPtr;
-                slot = (u_int *)(Draw_gViewOtSize * 4 + Render_gPalettePtr);
                 pmx = gHorizonPixmap[gSkyPixmapIndex[i]];
+                prim = (POLY_FT4 *)Render_gPacketPtr;
+                slot = (u_int *)(Draw_gViewOtSize * 4 + (int)Render_gPalettePtr);
                 /* MATCH (W74-A4, 384 -> 272): ZERO-INSN HARD-REG CONFLICT (catalog 20B /
                    22B(2)).  The inlined `Sky_gTrackSpec` value is a GLOBAL allocno live
                    across this block; retail cannot give it $a3 because THIS block's local
@@ -1797,11 +1795,9 @@ void Hrz_BuildSky(void)
                    quantities live here reproduces retail's conflict set: the spec value
                    lands in $t0, `temp` in $t1, `i` in $t4 -- head byte-exact.  DO NOT
                    DELETE without re-reading the W74-A4 receipt above the function. */
-                __asm__("" : "=r"(pmx) : "0"(pmx) : "$7");
-                prim->tag = slot[-2] & 0xffffff | prim->tag & 0xff000000;
-                tag = slot[-2];
+                setaddr(prim,getaddr(slot - 2));
                 Render_gPacketPtr = (u_char *)prim + 0x28;
-                slot[-2] = tag & 0xff000000 | (u_int)prim & 0xffffff;
+                setaddr(slot - 2,prim);
                 *(u_long *)&prim->r0 = *(u_long *)&Sky_gTrackSpec->frontcolors[0];
                 *((u_char *)prim + 3) = 9;
                 prim->code = 0x2c;
@@ -1821,9 +1817,9 @@ void Hrz_BuildSky(void)
               u_int *slot; /* SYM-CODEGEN-CARRIER: slot -- retains the G4 block's single-evaluation OT address */
               u_long c0; /* SYM-CODEGEN-CARRIER: c0 -- preserves the G4 load-delay-filling split */
               prim = (POLY_G4 *)Render_gPacketPtr;
-              slot = (u_int *)(Draw_gViewOtSize * 4 + Render_gPalettePtr);
-              prim->tag = prim->tag & 0xff000000 | slot[-2] & 0xffffff;
-              slot[-2] = slot[-2] & 0xff000000 | (u_int)prim & 0xffffff;
+              slot = (u_int *)(Draw_gViewOtSize * 4 + (int)Render_gPalettePtr);
+              setaddr(prim,getaddr(slot - 2));
+              setaddr(slot - 2,prim);
               /* MATCH (W74-A4, 229 -> 228 and the count back to EXACT 458/458): the
                  colour-load / bump / colour-store split, see the GT4 block above. */
               c0 = *(u_long *)&gSkyColor[temp + 0x11];
@@ -2356,6 +2352,8 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
  *             pal = statement below tv) are BIT-IDENTICAL -- cse re-folds them; the
  *             volatile fence is the only thing that holds the order.
  * Harness: scratchpad/w75/{probe,posmis,sbsdump}.py + e_{a,b,c,d,f,g,h,i,j,k,l}*.py. */
+typedef struct { unsigned addr : 24, len : 8; } Hrz_PTag;
+
 void Hrz_BuildHorizon(DRender_tView *Vi)
 
 {
@@ -2445,7 +2443,6 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
        to the quantities live here so find_reg's ascending scan gives the nested i retail's
        $a3.  BOTH are required (dropping the fence below gates 78).  Position is the dial:
        one statement earlier (before `i = 0;`) is INERT at 58. */
-    __asm__("" : : "i"(0) : "$6");
     do {
       if (Zmax < *zval) {
         Zmax = *zval;
@@ -2552,7 +2549,6 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
       u_int *pal;
       u_char **pp;
       u_int c1;
-      int iVar18, iVar15;
 
       /* MATCH (W72-A4, -12 with its fence below): the 24-bit OT mask as a NAMED local.
          Naming it alone is neutral (96) and the identity-launder form is worse (102); it
@@ -2564,13 +2560,13 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
          sched2 LUID tie-break.  Their POSITION relative to the hoisted invariants is a
          sched1 fixpoint: fences either side, decl-with-init and moving them above `m24`
          all measured inert. */
-      iVar18 = 4;
-      iVar15 = 0;
       /* MATCH: exit-in-the-middle (top test + unconditional `j` back edge with the
          counter increment in its delay slot) -- a `for` rotates to a bottom-tested
          do-while (slti/bnez), which the oracle does not have. */
       while (true) {
         if (!(i < 0x10)) break;
+        int iVar15 = i * 4;
+        int iVar18 = i * 4 + 4;
         if ((15999 < *(int *)((int)hsd + iVar15 + 0x124)) || (15999 < *(int *)((int)hsd + iVar18 + 0x124))) {
           mpts[0] = *(DVECTOR *)((int)hsd + iVar15 + 0x9c);          /* posB[k] */
           mpts[1] = *(DVECTOR *)((int)hsd + iVar15 + 0xe0);          /* posC[k] */
@@ -2627,6 +2623,7 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                          (DVECTOR *)(((int)hsd + 0xe0) + iVar15),&fxOverlapPercentage,1,0);
               pmx = *(Draw_tPixMap **)((int)gpPmx + iVar15);
               if (Hrz_gTrackSpec->ringPMX[i] != '\x10') {
+                int iv = i * 4;
                 /* MATCH (W74-A4, 50 -> 42): FENCED HELD-ADDRESS ANCHOR (05F / 14D /
                    methodology 3.12 #16).  Retail materialises &Render_gPacketPtr ONCE
                    (`lui a2,8064; ori a2,a2,4`) and writes the +0x34 bump back through
@@ -2659,7 +2656,7 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                    first is the one hoisted -- this token is what makes our preheader hoist
                    the two-insn 0xFFFFFF (retail's) instead of the one-insn 0xFF000000.
                    SITE-SELECTIVE: the same swap on the SECOND RMW costs +4, both = +4. */
-                *(u_int *)prim = *pal & m24 | *(u_int *)prim & 0xff000000;
+                ((Hrz_PTag *)prim)->addr = *pal & m24;
                 *pal = *pal & 0xff000000 | (u_int)prim & m24;
                 /* MATCH (W72-A4): the m24 ref dial -- see the decl above.  ONE operand
                    only (n=2 -> 116, n=3 -> 128) and anywhere AFTER the second RMW
@@ -2670,7 +2667,7 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                    sw v0,0(a2); sw v1,4(s0)`) -- splitting the load out of the store is
                    what lets the bump land there.  After this the whole packet block is
                    byte-identical to the oracle bar the two RMW load-order lines. */
-                c1 = *(u_int *)(&gHrzRingColor[1][0].r + iVar15);
+                c1 = *(u_int *)(&gHrzRingColor[1][0].r + iv);
                 *pp = (u_char *)prim + 0x34;
                 *(u_int *)((u_char *)prim + 4) = c1;
                 *(u_int *)((u_char *)prim + 0x10) = *(u_int *)(&gHrzRingColor[1][1].r + iVar15);
@@ -2712,8 +2709,6 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
             }
           }
         }
-        iVar15 = iVar15 + 4;
-        iVar18 = iVar18 + 4;
         i = i + 1;
       }
     }

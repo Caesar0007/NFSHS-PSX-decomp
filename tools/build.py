@@ -197,6 +197,12 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 #                           maspsx) -- the proven toolchain of Sony's library
 #                           objects.  g_value defaults to "0" in this lane.
 #                           See _compile_c_272.
+#   "aspsx_277"          -> inside the cc1_272 lane, assemble the compiler's
+#                           raw output with ASPSX 2.77 semantics (via maspsx)
+#                           instead of GNU as reorder mode.  This is an
+#                           assembler-version identity, not a post-compiler
+#                           instruction edit.  Use only where real ASPSX 2.77
+#                           has been checked against the retail object.
 #   "jtbl_at_fusion"     -> pass --jtbl-at-fusion to maspsx for this TU only
 #   "nop_before_label"   -> pass --nop-before-label to maspsx for this TU
 #                           only (inserted load-delay nop BEFORE a following
@@ -458,8 +464,8 @@ PER_TU_FLAGS = {
     # w51-a8 lane wins:
     "recon/syslib/psx/libc/MEMCMP.c":       {"cc1_272": True},  # 6 -> PASS 19/19
     "recon/syslib/psx/libc/QSORT.c":        {"cc1_272": True, "no_strength_reduce": True},  # 70 -> PASS 84/84
-    "recon/syslib/psx/libsn/READ.c":        {"cc1_272": True},  # + UNFILL_272 -> PASS
-    "recon/syslib/psx/libsn/WRITE.c":       {"cc1_272": True},  # + UNFILL_272 -> PASS
+    "recon/syslib/psx/libsn/READ.c":        {"cc1_272": True, "aspsx_277": True},
+    "recon/syslib/psx/libsn/WRITE.c":       {"cc1_272": True, "aspsx_277": True},
     # w51-a5: WAITRC2 lane win (setRC2wait 3->PASS 8/8, AT-MACRO-SPLIT class;
     # chkRC2wait unchanged; zero regressions). PADCMD/PADSEQD have conversion
     # evidence but net-regress -- receipted for a 272-basin re-match pass.
@@ -1470,10 +1476,26 @@ def _compile_c_272(rel: Path, tu_flags: dict, i_file: Path, s_file: Path,
     txt = _apply_flag_splice_272(rel.as_posix(), txt, i_file, cc1, cc1_flags,
                                  s_file)
     s_file.write_text(txt)
-    r = run([AS, *AS_ARCH, f"-G{tu_g_value}", "-I", ROOT / "include",
-             "-I", ROOT, "-o", obj, s_file])
-    if r.returncode or not obj.exists():
-        sys.exit(f"[as-272] {rel}\n{r.stdout}{r.stderr}")
+    if tu_flags.get("aspsx_277"):
+        # W81-root: READ/WRITE are source- and cc1-exact on the 2.7.2 lane,
+        # but GNU as moves the stack restore into jr's delay slot.  Real
+        # ASPSX 2.77 and 2.56 both preserve `addiu sp; jr; nop`, yielding the
+        # retail 192-byte bodies (only unresolved JAL relocation bytes differ
+        # before link).  maspsx 2.77 reproduces those real-ASPSX bytes while
+        # still producing the ELF object consumed by this build.
+        maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}",
+                      "--expand-div", "--run-assembler",
+                      f"--gnu-as-path={AS}", *AS_ARCH, f"-G{tu_g_value}",
+                      "-I", ROOT / "include", "-I", ROOT, "-o", obj]
+        r = subprocess.run([str(c) for c in maspsx_cmd], input=txt,
+                           capture_output=True, text=True, cwd=ROOT)
+        if r.returncode or not obj.exists():
+            sys.exit(f"[maspsx/as-272] {rel}\n{r.stdout}{r.stderr}")
+    else:
+        r = run([AS, *AS_ARCH, f"-G{tu_g_value}", "-I", ROOT / "include",
+                 "-I", ROOT, "-o", obj, s_file])
+        if r.returncode or not obj.exists():
+            sys.exit(f"[as-272] {rel}\n{r.stdout}{r.stderr}")
     import fix_symsizes; fix_symsizes.fix(str(obj))
     return obj
 

@@ -6,7 +6,7 @@
  *   Faithful C++ (option A). NOT original source; SYM-faithful, recompilable. vs disasm-v2.
  */
 #include "../../lib/nfs4_new.h"
-#include "../../nfs4_types.h"
+#include "aih_hum_types.h"
 #include "aih_hum_externs.h"
 
 

@@ -2,7 +2,7 @@
  * Harvested from sibling *_externs.h + *.cpp defs + disasm-v2 (AI/Control demangled). */
 #ifndef _GAME_COMMON_CAMERA_EXTERNS_H_
 #define _GAME_COMMON_CAMERA_EXTERNS_H_
-#include "../../nfs4_types.h"
+#include "aih_traf_types.h"
 
 /* ---- vtables: AIHigh_Traffic (this obj) + AIState_Idle (aistate.obj) ---- */
 extern __vtbl_ptr_type AIHigh_Traffic_vtable[], AIState_Idle_vtable[];

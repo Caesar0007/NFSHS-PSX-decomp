@@ -1245,6 +1245,104 @@ def filter_exact_symbol_codegen_carriers(
         ("aih_btccop.cpp", "AIState_BTCInactive"): (8, (
             ("MOS", "STRUCT", 8, "AIState_Base", 0, (), "AIState_Base"),
         )),
+        # AIH_BASICCOP.OBJ dereferences the shared spike-belt singleton and
+        # track-slice array, but its retail graph retains neither completed
+        # foreign tag. Pair-lock both exact member views to this owner header.
+        # Pre-change source/tool backup: Git commit 09c68004.
+        ("aih_basiccop_types.h", "AIH_BasicCop_SpikeBeltCodegenView"): (20, (
+            ("MOS", "INT", 0, "active_", 0, (), ""),
+            ("MOS", "INT", 0, "slice_", 4, (), ""),
+            ("MOS", "INT", 0, "leftLatPos_", 8, (), ""),
+            ("MOS", "INT", 0, "rightLatPos_", 12, (), ""),
+            ("MOS", "INT", 0, "freshenTime_", 16, (), ""),
+        )),
+        ("aih_basiccop_types.h", "AIH_BasicCop_SliceCodegenView"): (32, (
+            ("MOS", "ARY INT", 12, "center", 0, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "normal", 12, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "forward", 15, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "right", 18, (3,), ""),
+            ("MOS", "UCHAR", 0, "acousticType", 21, (), ""),
+            ("MOS", "SHORT", 0, "pavedProfile", 22, (), ""),
+            ("MOS", "SHORT", 0, "leftDrive", 24, (), ""),
+            ("MOS", "SHORT", 0, "rightDrive", 26, (), ""),
+            ("MOS", "UCHAR", 0, "chunkIndex", 28, (), ""),
+            ("MOS", "UCHAR", 0, "laneCount", 29, (), ""),
+            ("MOS", "UCHAR", 0, "avgPavedWidthLf", 30, (), ""),
+            ("MOS", "UCHAR", 0, "avgPavedWidthRt", 31, (), ""),
+        )),
+        # AIH_OPP.OBJ uses three foreign globals but retains none of their
+        # completed tags. Pair-lock the exact member-shaped views required by
+        # its PASS bodies. Pre-change source/tool backup: Git commit 09c68004.
+        ("aih_opp_types.h", "AIH_Opp_GameSetupCodegenView"): (48, (
+            ("MOS", "INT", 0, "raceType", 0, (), ""),
+            ("MOS", "INT", 0, "numLaps", 4, (), ""),
+            ("MOS", "INT", 0, "skill", 8, (), ""),
+            ("MOS", "INT", 0, "commMode", 12, (), ""),
+            ("MOS", "INT", 0, "tournamentMultiplier", 16, (), ""),
+            ("MOS", "INT", 0, "cops", 20, (), ""),
+            ("MOS", "INT", 0, "trafficDensity", 24, (), ""),
+            ("MOS", "INT", 0, "localCar", 28, (), ""),
+            ("MOS", "INT", 0, "catchupLogic", 32, (), ""),
+            ("MOS", "INT", 0, "replayMode", 36, (), ""),
+            ("MOS", "INT", 0, "instantReplay", 40, (), ""),
+            ("MOS", "INT", 0, "reverseTrack", 44, (), ""),
+        )),
+        ("aih_opp_types.h", "AIH_Opp_SimGlobalCodegenView"): (8, (
+            ("MOS", "INT", 0, "gameStarted", 0, (), ""),
+            ("MOS", "INT", 0, "gameTicks", 4, (), ""),
+        )),
+        ("aih_opp_types.h", "AIH_Opp_SliceCodegenView"): (32, (
+            ("MOS", "ARY INT", 12, "center", 0, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "normal", 12, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "forward", 15, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "right", 18, (3,), ""),
+            ("MOS", "UCHAR", 0, "acousticType", 21, (), ""),
+            ("MOS", "SHORT", 0, "pavedProfile", 22, (), ""),
+            ("MOS", "SHORT", 0, "leftDrive", 24, (), ""),
+            ("MOS", "SHORT", 0, "rightDrive", 26, (), ""),
+            ("MOS", "UCHAR", 0, "chunkIndex", 28, (), ""),
+            ("MOS", "UCHAR", 0, "laneCount", 29, (), ""),
+            ("MOS", "UCHAR", 0, "avgPavedWidthLf", 30, (), ""),
+            ("MOS", "UCHAR", 0, "avgPavedWidthRt", 31, (), ""),
+        )),
+        # AIH_TRAF.OBJ uses four exact foreign header definitions whose linked
+        # debug graph omits the completed tags. Pair-lock their canonical
+        # spelling and layout; this also preserves constructor/member mangling.
+        # Pre-change source/tool backup: Git commit 09c68004.
+        ("aih_traf_types.h", "AIState_Purgatory"): (8, (
+            ("MOS", "STRUCT", 8, "AIState_NonActive", 0, (),
+             "AIState_NonActive"),
+        )),
+        ("aih_traf_types.h", "AIState_RovingTraffic"): (24, (
+            ("MOS", "STRUCT", 8, "AIState_Base", 0, (), "AIState_Base"),
+            ("MOS", "PTR STRUCT", 20, "path_", 8, (),
+             "trigger_pathPosition_t"),
+            ("MOS", "INT", 0, "numPathPoints_", 12, (), ""),
+            ("MOS", "INT", 0, "pathIndex_", 16, (), ""),
+            ("MOS", "LONG", 0, "waitTick_", 20, (), ""),
+        )),
+        ("aih_traf_types.h", "Trk_NewSlice"): (32, (
+            ("MOS", "ARY INT", 12, "center", 0, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "normal", 12, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "forward", 15, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "right", 18, (3,), ""),
+            ("MOS", "UCHAR", 0, "acousticType", 21, (), ""),
+            ("MOS", "SHORT", 0, "pavedProfile", 22, (), ""),
+            ("MOS", "SHORT", 0, "leftDrive", 24, (), ""),
+            ("MOS", "SHORT", 0, "rightDrive", 26, (), ""),
+            ("MOS", "UCHAR", 0, "chunkIndex", 28, (), ""),
+            ("MOS", "UCHAR", 0, "laneCount", 29, (), ""),
+            ("MOS", "UCHAR", 0, "avgPavedWidthLf", 30, (), ""),
+            ("MOS", "UCHAR", 0, "avgPavedWidthRt", 31, (), ""),
+        )),
+        ("aih_traf_types.h", "AITrigger_TriggerManager"): (844, (
+            ("MOS", "INT", 0, "numTriggers_", 0, (), ""),
+            ("MOS", "INT", 0, "invNumTriggers_", 4, (), ""),
+            ("MOS", "ARY PTR UNION", 400, "triggers_", 8, (100,),
+             "trigger_t"),
+            ("MOS", "ARY INT", 400, "checkTime_", 408, (100,), ""),
+            ("MOS", "ARY INT", 36, "lastTriggerChecked_", 808, (9,), ""),
+        )),
         # CDFS.OBJ is stripped. Fourteen PASS bodies fix the 0x83c-byte CD
         # context plus the shared 16-byte read-state and 312-byte callback
         # stack record. Canonical PsyQ proves only their CdlLOC leaf, not these
@@ -1590,6 +1688,16 @@ def filter_exact_symbol_codegen_carriers(
         ("cdread.c", "CdlCB"): ("PTR FCN VOID", 0, ""),
         ("cdread.c", "u_char"): ("UCHAR", 0, ""),
         ("cdread.c", "u_long"): ("ULONG", 0, ""),
+        # The macro-bound local tick pointer repeats the already pair-locked
+        # foreign SimGlobal view at its use site. Keep the repeat exact too.
+        ("aih_opp.cpp", "AIH_Opp_SimGlobalCodegenView"):
+            ("STRUCT", 8, "AIH_Opp_SimGlobalCodegenView"),
+        # Placement construction repeats these already pair-locked foreign
+        # state typedefs at their aih_traf.cpp use sites.
+        ("aih_traf.cpp", "AIState_Purgatory"):
+            ("STRUCT", 8, "AIState_Purgatory"),
+        ("aih_traf.cpp", "AIState_RovingTraffic"):
+            ("STRUCT", 24, "AIState_RovingTraffic"),
     }
     feinput_views = {
         # FEInput.obj references pad.obj's anonymous 84-byte gPadinfo object.

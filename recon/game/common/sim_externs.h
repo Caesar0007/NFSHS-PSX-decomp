@@ -1,11 +1,11 @@
-#include "../../lib/libfns.h"
+#include "sim_types.h"
 /* sim_externs.h -- extern decls for game/psx/sim.cpp (NFS4 PSX sim engine core). */
 #ifndef SIM_EXTERNS_H
 #define SIM_EXTERNS_H
 
 /* ---- libc + harvested + SYM free-fns/globals ---- */
 extern Car_tObj * Cars_gHumanRaceCarList[2];
-extern GameSetup_tData   GameSetup_gData;
+extern Sim_GameSetupCodegenView GameSetup_gData asm("GameSetup_gData");
 extern Sim_tSimGlobalVar simGlobal;                /* 0x8011e0ac */
 extern Sim_tSimSystemVar simVar;
 extern char   Device_gPausePortIndex;  /* Ghidra char literal \x01/\0 */
@@ -20,7 +20,7 @@ extern int   gSimQueue_Ticker;
 extern int Cars_gNumHumanRaceCars;
 extern int Input_Interface(unsigned long, int);
 extern int stackSpeedUpEnbabledFlag;
-extern tReplayInterface Replay_ReplayInterface;
+extern Sim_ReplayCodegenView Replay_ReplayInterface asm("Replay_ReplayInterface");
 extern u_long gWSavePtr;
                  /* eaclib EACPSXZ systask */
 extern void  Sched_AddFunction(Sched_tSchedule *s, void (*fn)(void *), void *arg, int hz);
@@ -88,7 +88,7 @@ extern void Stats_DoPlayerGlue(void);
 extern void Stats_ExtrapolateOpponentTimes(int);
 extern void Stats_TrackEndGame(void);
 
-extern Clock_tGameClock clock_realTime;
+extern Sim_ClockCodegenView clock_realTime asm("clock_realTime");
 extern int counter[4];
 extern char countdown;   /* byte global (defined `char countdown;` in audiocmn.cpp @0x8013c63c) -> sb store */
 extern int Input_gTime;
@@ -96,5 +96,10 @@ extern int InBetween;
 extern int unPauseDelay;
 extern int skipRender;
 extern int quitType;
+
+extern "C" {
+void *SetSp(...);
+int systemtask(...);
+}
 
 #endif

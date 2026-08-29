@@ -120,12 +120,14 @@ struct Sched_tSchedule {
     Sched_tFunctionSchedule func[1];
 };
 
+#ifndef NFS4_AIH_HIERARCHY_OMIT_SIM_FOREIGN_TYPES
 struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; };
 struct AIPhysic_ModelConfig_t {
     int dlpos_to_dlvel, max_dlvel, dlvel_to_clacc, max_clacc;
     int dangle_to_dav, max_dav, dav_to_aa, max_aa;
     int vel_limit_range, lat_vel_limit_factor, ang_vel_limit_factor;
 };
+#endif
 
 struct SceneElem {
     int type, size, committed, visible;

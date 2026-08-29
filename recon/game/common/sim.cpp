@@ -2,7 +2,7 @@
  *   8 fns: Sim_StartUp/Restart/CleanUp/FadeInSFX/ProcessSimSchedules/ProcessPause/CheckForPause/MainGameLoop.
  *   GTE-free. Full SYM-locals applied.
  */
-#include "../../nfs4_types.h"
+#include "sim_types.h"
 #include "sim_externs.h"
 
 /* sim.obj-owned initialized/aggregate data in retail address order.
@@ -343,7 +343,7 @@ void Sim_MainGameLoop(void)
   int lastRealTick;
   int lastGoalTick;
   int one;
-  GameSetup_tData *replaySetup;
+  Sim_GameSetupCodegenView *replaySetup;
 
   quitType = 1;
   lastRealTick = clock_realTime.time64Hz + 10000;

@@ -1,7 +1,7 @@
 /* game/common/sim.h — reconstructed from game/common/sim.cpp (8 fns) */
 #ifndef _GAME_COMMON_SIM_H_
 #define _GAME_COMMON_SIM_H_
-#include "../../nfs4_types.h"
+#include "sim_types.h"
 
 void Sim_StartUp__Fv(void);   /* :186 */
 void Sim_Restart__Fv(void);   /* :231 */

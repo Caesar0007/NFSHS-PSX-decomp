@@ -2458,6 +2458,16 @@ def filter_exact_symbol_codegen_carriers(
             ("STRUCT", 32, "BWorld_SliceCodegenView"),
         ("bworld.cpp", "BWorld_TrackSpecCodegenView"):
             ("STRUCT", 264, "BWorld_TrackSpecCodegenView"),
+        # Exact implicit typedef halves of Sim's three pair-locked foreign
+        # storage views, plus the typed local pointer repeat.
+        ("sim_types.h", "Sim_GameSetupCodegenView"):
+            ("STRUCT", 2600, "Sim_GameSetupCodegenView"),
+        ("sim_types.h", "Sim_ReplayCodegenView"):
+            ("STRUCT", 32, "Sim_ReplayCodegenView"),
+        ("sim_types.h", "Sim_ClockCodegenView"):
+            ("STRUCT", 12, "Sim_ClockCodegenView"),
+        ("sim.cpp", "Sim_GameSetupCodegenView"):
+            ("STRUCT", 2600, "Sim_GameSetupCodegenView"),
         # The macro-bound local tick pointer repeats the already pair-locked
         # foreign SimGlobal view at its use site. Keep the repeat exact too.
         ("aih_opp.cpp", "AIH_Opp_SimGlobalCodegenView"):
@@ -3202,6 +3212,27 @@ def filter_exact_symbol_codegen_carriers(
         ("MOS", "UCHAR", 0, "night_LightningType", 269, (), ""),
         ("MOS", "UCHAR", 0, "fogstate", 270, (), ""),
         ("MOS", "UCHAR", 0, "padnight", 271, (), ""),
+    ))
+    # sim.obj's completed GameSetup, Replay, and Clock tags are absent from
+    # the linked graph. These private views retain the exact retail offsets;
+    # all eight normal and source-only functions remain byte-identical.
+    # Tool/source backup before this extension: Git commit d979cd2f.
+    untyped_library_codegen_views[
+        ("sim_types.h", "Sim_GameSetupCodegenView")
+    ] = untyped_library_codegen_views[
+        ("r3dcar_types.h", "R3DCar_GameSetupCodegenView")
+    ]
+    untyped_library_codegen_views[
+        ("sim_types.h", "Sim_ReplayCodegenView")
+    ] = untyped_library_codegen_views[
+        ("r3dcar_types.h", "R3DCar_ReplayCodegenView")
+    ]
+    untyped_library_codegen_views[
+        ("sim_types.h", "Sim_ClockCodegenView")
+    ] = (12, (
+        ("MOS", "INT", 0, "time128Hz", 0, (), ""),
+        ("MOS", "INT", 0, "time64Hz", 4, (), ""),
+        ("MOS", "INT", 0, "time32Hz", 8, (), ""),
     ))
 
     def exact_night_camera(block: TypeBlock) -> bool:

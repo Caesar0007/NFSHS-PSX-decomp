@@ -1175,6 +1175,21 @@ def filter_exact_symbol_codegen_carriers(
     # backup for the LoadArgs/StreamFilter extension: Git commit dee8eb82;
     # PAD extension: Git commit 49c32f8e; ReadCmd/SyncCtrl extensions: Git
     # commit c0950c17.
+    # AIH_PLAY's manager call must retain the enum parameter in the C++ symbol
+    # name although the linked owner omits the completed header enum.  Lock the
+    # exact tag and its repeated implicit typedefs as one compiler-boundary
+    # pair.  Pre-change source/tool backup: Git commit 5d5c7937.
+    untyped_library_named_enum_views = {
+        ("aih_play_types.h", "triggerType"): (4, (
+            ("MOE", "MOE", 0, "TRIGGER_NONE", 0, (), ""),
+            ("MOE", "MOE", 0, "TRIGGER_COP_SIMPLE", 1, (), ""),
+            ("MOE", "MOE", 0, "TRIGGER_COP_ROADBLOCK", 2, (), ""),
+            ("MOE", "MOE", 0, "TRIGGER_COP_OFFROAD", 3, (), ""),
+            ("MOE", "MOE", 0, "TRIGGER_TRAFFIC_ACCIDENT", 4, (), ""),
+            ("MOE", "MOE", 0, "TRIGGER_TRAFFIC_PATH", 5, (), ""),
+            ("MOE", "MOE", 0, "TRIGGER_NUM_TRIGGER_TYPES", 6, (), ""),
+        )),
+    }
     untyped_library_named_pair_views = {
         **{
             ("snd.h", name): layout
@@ -1443,6 +1458,83 @@ def filter_exact_symbol_codegen_carriers(
              "Sched_tSchedule"),
         )),
         ("aih_basicperp_types.h", "AIH_BasicPerp_SliceCodegenView"): (32, (
+            ("MOS", "ARY INT", 12, "center", 0, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "normal", 12, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "forward", 15, (3,), ""),
+            ("MOS", "ARY CHAR", 3, "right", 18, (3,), ""),
+            ("MOS", "UCHAR", 0, "acousticType", 21, (), ""),
+            ("MOS", "SHORT", 0, "pavedProfile", 22, (), ""),
+            ("MOS", "SHORT", 0, "leftDrive", 24, (), ""),
+            ("MOS", "SHORT", 0, "rightDrive", 26, (), ""),
+            ("MOS", "UCHAR", 0, "chunkIndex", 28, (), ""),
+            ("MOS", "UCHAR", 0, "laneCount", 29, (), ""),
+            ("MOS", "UCHAR", 0, "avgPavedWidthLf", 30, (), ""),
+            ("MOS", "UCHAR", 0, "avgPavedWidthRt", 31, (), ""),
+        )),
+        # AIH_PLAY.OBJ uses five foreign globals whose complete owning tags
+        # are absent from its linked graph.  Its PASS bodies price the complete
+        # layouts below, including GameSetup's 2600-byte extent and the
+        # mirrorTrack/reverseTrack pair. Pre-change backup: Git commit 5d5c7937.
+        ("aih_play_types.h", "AIH_Play_GameSetupCodegenView"): (2600, (
+            ("MOS", "INT", 0, "raceType", 0, (), ""),
+            ("MOS", "INT", 0, "numLaps", 4, (), ""),
+            ("MOS", "INT", 0, "skill", 8, (), ""),
+            ("MOS", "INT", 0, "commMode", 12, (), ""),
+            ("MOS", "INT", 0, "tournamentMultiplier", 16, (), ""),
+            ("MOS", "INT", 0, "cops", 20, (), ""),
+            ("MOS", "INT", 0, "trafficDensity", 24, (), ""),
+            ("MOS", "INT", 0, "localCar", 28, (), ""),
+            ("MOS", "INT", 0, "catchupLogic", 32, (), ""),
+            ("MOS", "INT", 0, "replayMode", 36, (), ""),
+            ("MOS", "INT", 0, "instantReplay", 40, (), ""),
+            ("MOS", "INT", 0, "mirrorTrack", 44, (), ""),
+            ("MOS", "INT", 0, "reverseTrack", 48, (), ""),
+            ("MOS", "ARY CHAR", 2548, "_rest", 52, (2548,), ""),
+        )),
+        ("aih_play_types.h", "AIH_Play_SimGlobalCodegenView"): (24, (
+            ("MOS", "INT", 0, "gameStarted", 0, (), ""),
+            ("MOS", "INT", 0, "gameTicks", 4, (), ""),
+            ("MOS", "INT", 0, "time32Hz", 8, (), ""),
+            ("MOS", "PTR STRUCT", 24, "schedule64Hz", 12, (),
+             "Sched_tSchedule"),
+            ("MOS", "PTR STRUCT", 24, "schedule32Hz", 16, (),
+             "Sched_tSchedule"),
+            ("MOS", "PTR STRUCT", 24, "schedule32Hz2", 20, (),
+             "Sched_tSchedule"),
+        )),
+        ("aih_play_types.h", "AIH_Play_SimSystemCodegenView"): (28, (
+            ("MOS", "INT", 0, "restartGame", 0, (), ""),
+            ("MOS", "INT", 0, "endSimGame", 4, (), ""),
+            ("MOS", "INT", 0, "pauseSim", 8, (), ""),
+            ("MOS", "INT", 0, "keyRelease", 12, (), ""),
+            ("MOS", "INT", 0, "quickPauseSim", 16, (), ""),
+            ("MOS", "INT", 0, "goalClockTicks", 20, (), ""),
+            ("MOS", "INT", 0, "currentClockTicks", 24, (), ""),
+        )),
+        ("aih_play_types.h", "AIH_Play_DashHudCodegenView"): (108, (
+            ("MOS", "INT", 0, "splitscreen", 0, (), ""),
+            ("MOS", "ARY CHAR", 9, "name", 4, (9,), ""),
+            ("MOS", "INT", 0, "conversion", 16, (), ""),
+            ("MOS", "INT", 0, "flashtime", 20, (), ""),
+            ("MOS", "INT", 0, "flashlap", 24, (), ""),
+            ("MOS", "ARY INT", 8, "showhud", 28, (2,), ""),
+            ("MOS", "ARY INT", 8, "showmap", 36, (2,), ""),
+            ("MOS", "ARY INT", 8, "wrongway", 44, (2,), ""),
+            ("MOS", "INT", 0, "laptime", 52, (), ""),
+            ("MOS", "INT", 0, "lap", 56, (), ""),
+            ("MOS", "INT", 0, "maxlaps", 60, (), ""),
+            ("MOS", "INT", 0, "rpm", 64, (), ""),
+            ("MOS", "INT", 0, "redline", 68, (), ""),
+            ("MOS", "INT", 0, "gear", 72, (), ""),
+            ("MOS", "INT", 0, "speed", 76, (), ""),
+            ("MOS", "INT", 0, "topspeed", 80, (), ""),
+            ("MOS", "INT", 0, "position", 84, (), ""),
+            ("MOS", "INT", 0, "opponents", 88, (), ""),
+            ("MOS", "INT", 0, "record", 92, (), ""),
+            ("MOS", "INT", 0, "tutor", 96, (), ""),
+            ("MOS", "ARY INT", 8, "warning", 100, (2,), ""),
+        )),
+        ("aih_play_types.h", "AIH_Play_SliceCodegenView"): (32, (
             ("MOS", "ARY INT", 12, "center", 0, (3,), ""),
             ("MOS", "ARY CHAR", 3, "normal", 12, (3,), ""),
             ("MOS", "ARY CHAR", 3, "forward", 15, (3,), ""),
@@ -2637,6 +2729,26 @@ def filter_exact_symbol_codegen_carriers(
             and item.size == expected[0]
         )
 
+    def exact_untyped_library_named_enum_pair(
+        block: TypeBlock, item: Definition
+    ) -> bool:
+        block_owner = block.owner.replace("\\", "/").casefold()
+        item_owner = item.owner.replace("\\", "/").casefold()
+        basename = item_owner.rsplit("/", 1)[-1]
+        expected = untyped_library_named_enum_views.get((basename, item.name))
+        return (
+            expected is not None
+            and block_owner == item_owner
+            and block.kind == "ENTAG"
+            and block.name == item.name
+            and item.tag == block.name
+            and block.size == expected[0]
+            and block.rows == expected[1]
+            and item.cls == "TPDEF"
+            and item.typ == "ENUM"
+            and item.size == expected[0]
+        )
+
     def exact_untyped_library_typedef(item: Definition) -> bool:
         owner = item.owner.replace("\\", "/").casefold()
         basename = owner.rsplit("/", 1)[-1]
@@ -3501,6 +3613,12 @@ def filter_exact_symbol_codegen_carriers(
         for item in typedefs
         if exact_untyped_library_named_pair(block, item)
     }
+    untyped_library_named_enum_eligible = {
+        (block.owner.replace("\\", "/").casefold(), block.name)
+        for block in type_blocks
+        for item in typedefs
+        if exact_untyped_library_named_enum_pair(block, item)
+    }
 
     return (
         [
@@ -3520,6 +3638,10 @@ def filter_exact_symbol_codegen_carriers(
             and not (
                 (block.owner.replace("\\", "/").casefold(), block.name)
                 in untyped_library_named_pair_eligible
+            )
+            and not (
+                (block.owner.replace("\\", "/").casefold(), block.name)
+                in untyped_library_named_enum_eligible
             )
             and not (block.name in feinput_eligible and exact_feinput_view(block))
             and not (block.name in fescreen_eligible and exact_fescreen_view(block))
@@ -3629,6 +3751,10 @@ def filter_exact_symbol_codegen_carriers(
             and not (
                 (item.owner.replace("\\", "/").casefold(), item.tag)
                 in untyped_library_named_pair_eligible
+            )
+            and not (
+                (item.owner.replace("\\", "/").casefold(), item.tag)
+                in untyped_library_named_enum_eligible
             )
             and not exact_untyped_library_typedef(item)
         ],

@@ -2,8 +2,7 @@
  * Harvested from sibling *_externs.h + *.cpp defs + disasm-v2 (AI/Control demangled). */
 #ifndef _GAME_COMMON_CAMERA_EXTERNS_H_
 #define _GAME_COMMON_CAMERA_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "aih_play_types.h"
 
 /* ---- vtables: AIHigh_Traffic (this obj) + AIState_Idle (aistate.obj) ---- */
 extern __vtbl_ptr_type AIHigh_Player_vtable[], AIHigh_BasicPerp_vtable[], AIState_Idle_vtable[];
@@ -39,5 +38,6 @@ extern void Stats_ExtrapolateOpponentTimes(int);
 int AIWorld_ApxSplineDistance(Car_tObj *carObj, int slice);
 /* AITrigger_TriggerManager::CheckForClosestTriggerOfType/GetTrigger now C++ members (aitriger.obj) -- flat externs removed */
 void  trap(int code);
+extern "C" int fixedmult(int, int);
 
 #endif /* _GAME_COMMON_CAMERA_EXTERNS_H_ */

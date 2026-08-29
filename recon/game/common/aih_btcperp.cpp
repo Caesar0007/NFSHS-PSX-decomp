@@ -6,7 +6,7 @@
  *   Faithful C++ (option A). NOT original source; SYM-faithful, recompilable. vs disasm-v2.
  */
 #include "../../lib/nfs4_new.h"
-#include "../../nfs4_types.h"
+#include "aih_btcperp_types.h"
 #include "aih_btcperp_externs.h"
 
 extern int AI_elapsedTime;   /* H21: ai.cpp @0x8013C554 (not in this TU's externs) */

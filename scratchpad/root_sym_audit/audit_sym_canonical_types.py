@@ -1548,6 +1548,79 @@ def filter_exact_symbol_codegen_carriers(
             ("MOS", "UCHAR", 0, "avgPavedWidthLf", 30, (), ""),
             ("MOS", "UCHAR", 0, "avgPavedWidthRt", 31, (), ""),
         )),
+        # AIH_BTCPERP.OBJ needs four member-shaped foreign globals, the
+        # constructible Cruise state, and a vtable-bearing Speech dispatch
+        # carrier.  Its 26 PASS bodies lock every layout below; the linked
+        # owner retains none of these completed tags. Pre-change source/tool
+        # backup: Git commit 49f4fa1d.
+        ("aih_btcperp_types.h", "AIH_BTCPerp_AITuneBTCCodegenView"): (28, (
+            ("MOS", "INT", 0, "glueMult", 0, (), ""),
+            ("MOS", "INT", 0, "speedMult", 4, (), ""),
+            ("MOS", "INT", 0, "weightMult", 8, (), ""),
+            ("MOS", "INT", 0, "baseChaseTime", 12, (), ""),
+            ("MOS", "INT", 0, "wingmanTime", 16, (), ""),
+            ("MOS", "INT", 0, "blockaderTime", 20, (), ""),
+            ("MOS", "INT", 0, "spikeBeltTime", 24, (), ""),
+        )),
+        ("aih_btcperp_types.h", "AIH_BTCPerp_GameSetupCodegenView"):
+        (2600, (
+            ("MOS", "INT", 0, "raceType", 0, (), ""),
+            ("MOS", "INT", 0, "numLaps", 4, (), ""),
+            ("MOS", "INT", 0, "skill", 8, (), ""),
+            ("MOS", "INT", 0, "commMode", 12, (), ""),
+            ("MOS", "INT", 0, "tournamentMultiplier", 16, (), ""),
+            ("MOS", "INT", 0, "cops", 20, (), ""),
+            ("MOS", "INT", 0, "trafficDensity", 24, (), ""),
+            ("MOS", "INT", 0, "localCar", 28, (), ""),
+            ("MOS", "INT", 0, "catchupLogic", 32, (), ""),
+            ("MOS", "INT", 0, "replayMode", 36, (), ""),
+            ("MOS", "INT", 0, "instantReplay", 40, (), ""),
+            ("MOS", "INT", 0, "mirrorTrack", 44, (), ""),
+            ("MOS", "INT", 0, "reverseTrack", 48, (), ""),
+            ("MOS", "INT", 0, "measurement", 52, (), ""),
+            ("MOS", "INT", 0, "sgge", 56, (), ""),
+            ("MOS", "INT", 0, "track", 60, (), ""),
+            ("MOS", "INT", 0, "trackSegment", 64, (), ""),
+            ("MOS", "INT", 0, "song", 68, (), ""),
+            ("MOS", "INT", 0, "Weather", 72, (), ""),
+            ("MOS", "INT", 0, "Fog", 76, (), ""),
+            ("MOS", "INT", 0, "Damage", 80, (), ""),
+            ("MOS", "INT", 0, "Time", 84, (), ""),
+            ("MOS", "ARY CHAR", 356, "_pad58", 88, (356,), ""),
+            ("MOS", "ARY STRUCT", 520, "perpInfo", 444, (10,),
+             "GameSetup_tPerpData"),
+            ("MOS", "ARY CHAR", 1636, "_rest", 964, (1636,), ""),
+        )),
+        ("aih_btcperp_types.h", "AIH_BTCPerp_SimGlobalCodegenView"):
+        (24, (
+            ("MOS", "INT", 0, "gameStarted", 0, (), ""),
+            ("MOS", "INT", 0, "gameTicks", 4, (), ""),
+            ("MOS", "INT", 0, "time32Hz", 8, (), ""),
+            ("MOS", "PTR STRUCT", 24, "schedule64Hz", 12, (),
+             "Sched_tSchedule"),
+            ("MOS", "PTR STRUCT", 24, "schedule32Hz", 16, (),
+             "Sched_tSchedule"),
+            ("MOS", "PTR STRUCT", 24, "schedule32Hz2", 20, (),
+             "Sched_tSchedule"),
+        )),
+        ("aih_btcperp_types.h", "AIH_BTCPerp_CameraCodegenView"): (272, (
+            ("MOS", "ARY CHAR", 128, "_pad00", 0, (128,), ""),
+            ("MOS", "INT", 0, "forceFocus", 128, (), ""),
+            ("MOS", "CHAR", 0, "focusOnAICar", 132, (), ""),
+            ("MOS", "ARY CHAR", 139, "_rest", 133, (139,), ""),
+        )),
+        ("aih_btcperp_types.h", "AIState_Cruise"): (20, (
+            ("MOS", "STRUCT", 8, "AIState_Normal", 0, (),
+             "AIState_Normal"),
+            ("MOS", "ENUM", 4, "cruiseMode_", 8, (), "cruiseMode_t"),
+            ("MOS", "INT", 0, "cruiseSpeed_", 12, (), ""),
+            ("MOS", "INT", 0, "cruiseFactor_", 16, (), ""),
+        )),
+        ("aih_btcperp.cpp", "SpeakerVirtualDispatch"): (80, (
+            ("MOS", "ARY CHAR", 76, "data", 0, (76,), ""),
+            ("MOS", "PTR ARY STRUCT", 4, ".vf", 76, (17,),
+             "__vtbl_ptr_type"),
+        )),
         # CDFS.OBJ is stripped. Fourteen PASS bodies fix the 0x83c-byte CD
         # context plus the shared 16-byte read-state and 312-byte callback
         # stack record. Canonical PsyQ proves only their CdlLOC leaf, not these
@@ -1917,6 +1990,10 @@ def filter_exact_symbol_codegen_carriers(
             ("STRUCT", 192, "AIHigh_Opponent"),
         ("aihigh.cpp", "AIHigh_Cop"):
             ("STRUCT", 108, "AIHigh_Cop"),
+        # Construction repeats the already pair-locked foreign state typedef
+        # at its aih_btcperp.cpp use site.
+        ("aih_btcperp.cpp", "AIState_Cruise"):
+            ("STRUCT", 20, "AIState_Cruise"),
     }
     feinput_views = {
         # FEInput.obj references pad.obj's anonymous 84-byte gPadinfo object.

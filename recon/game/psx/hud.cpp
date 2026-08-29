@@ -5914,10 +5914,11 @@ void Hud_RenderTacView(void)
   int j;
   int *dh; /* SYM-CODEGEN-CARRIER: dh -- direct DashHUD field/view spellings are current FAIL 35-40 and lose the shared lo_sum */
 
+  /* MATCH (w77-a16): a real top-tested loop names the same Hud_DashWords
+     symbol in its test and body.  GCC rotates and duplicates the exit test,
+     then CSE forms retail's two-definition caller-saved high part. */
   j = 0;
-  if (-1 < DashHUD_view[0]) {
-    __asm__ volatile("" : : "r"(j));
-    do {
+  while (j <= Hud_DashWords[0]) {
       /* MATCH (w44-a5): the repeated index-term-first expressions let gcc CSE ONE
        * shared `j * 4` for both Hud_gTacView[] fetches -- no source `j4` local is
        * required. This reproduces the oracle's single `sll $v1,$s1,2; addu` per
@@ -5943,8 +5944,6 @@ void Hud_RenderTacView(void)
         Draw_StopRenderingView(*(int *)(j * 4 + (int)Hud_gTacView));
       }
       j = j + 1;
-      dh = DashHUD_view;
-    } while (j <= dh[0]);
   }
   return;
 }

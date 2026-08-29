@@ -6,6 +6,7 @@
 #include "gamesetup_leaf_types.h"
 #include "group_types.h"
 
+#ifndef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES
 struct POLY_GT4 {
     u_long tag;
     u_char r0, g0, b0, code; short x0, y0; u_char u0, v0; u_short clut;
@@ -13,15 +14,18 @@ struct POLY_GT4 {
     u_char r2, g2, b2, p2; short x2, y2; u_char u2, v2; u_short pad2;
     u_char r3, g3, b3, p3; short x3, y3; u_char u3, v3; u_short pad3;
 };
+#endif
 
 struct CCOORD16 { short x, y, z, light; };
 
+#ifndef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES
 struct DRender_tView {
     int id, player;
     DRender_tCalcView cview;
 };
 
 struct Draw_SubdivStruct { Draw_SVertex v[15]; };
+#endif
 
 struct Trk_ObjectDef {
     short id;
@@ -90,6 +94,7 @@ struct Track_tArtresource {
 struct Track_tMaterial { char flag, mipmap_offset; short pmxIndex; };
 struct tSaveSurface { Trk_NewSimQuad *fSimQuad; u_char fSurface; };
 
+#ifndef NFS4_CHUNK_OMIT_TRACK_FOREIGN_TYPES
 struct Skidmark_Segment {
     SVECTOR svx[2];
     CVECTOR rgb;
@@ -102,6 +107,7 @@ struct Skidmark_Chunk {
     short n, slice;
     Skidmark_Segment seg[24];
 };
+#endif
 
 struct AnimScript {
     int baseTicks, baseFrame, flags, numParts;
@@ -179,6 +185,7 @@ struct ObjectAnim {
     ~ObjectAnim();
 };
 
+struct DRender_tView;
 struct Draw_DCache;
 struct ObjectFinishedMultiAnim {
     ObjectAnim _base_ObjectAnim;

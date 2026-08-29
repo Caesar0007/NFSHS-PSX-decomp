@@ -2,9 +2,8 @@
  *   29 fns: track init/deinit, art+texture resources, LoadShapesAndMakePmx, material linking,
  *   object bounding spheres, kill data, SaveSurface class. GTE-free. Full SYM-locals applied.
  */
-#include "../../nfs4_types.h"
+#include "track_types.h"
 #include "track_externs.h"
-#include "new.h"
 
 /* Track.obj-owned aggregate data.  SYM gives the exact types and contiguous
  * 0x8011E158..0x8011E1B0 extent; both aggregates are zero-initialized.
@@ -359,7 +358,7 @@ void Track_AnimateTextures(void)
   Track_tMaterialController *pTVar7;
   int controlCount;
   int iVar8;
-  Sim_tSimGlobalVar *simPtr;
+  Track_SimGlobalCodegenView *simPtr;
   Track_tArtresource *artPtr;
   int negOne;
   int typeEnvMap;

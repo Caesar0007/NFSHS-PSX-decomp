@@ -2483,6 +2483,20 @@ def filter_exact_symbol_codegen_carriers(
         # Object_InitCollisionCheckLoop use site.
         ("object.cpp", "Object_SliceCodegenView"):
             ("STRUCT", 32, "Object_SliceCodegenView"),
+        # Exact implicit typedef halves of Track's three foreign-storage
+        # boundary views and its block-local 0x400-byte light-table copy.
+        # All 29 normal/source-only bodies remain byte-identical. Pre-change
+        # tool/source backup: Git commit ee7fa53d.
+        ("track_types.h", "Track_TrackSpecCodegenView"):
+            ("STRUCT", 264, "Track_TrackSpecCodegenView"),
+        ("track_types.h", "Track_GameSetupCodegenView"):
+            ("STRUCT", 2600, "Track_GameSetupCodegenView"),
+        ("track_types.h", "Track_SimGlobalCodegenView"):
+            ("STRUCT", 24, "Track_SimGlobalCodegenView"),
+        ("track.cpp", "Track_SimGlobalCodegenView"):
+            ("STRUCT", 24, "Track_SimGlobalCodegenView"),
+        ("track.cpp", "LightTableData"):
+            ("STRUCT", 1024, "LightTableData"),
         # The macro-bound local tick pointer repeats the already pair-locked
         # foreign SimGlobal view at its use site. Keep the repeat exact too.
         ("aih_opp.cpp", "AIH_Opp_SimGlobalCodegenView"):
@@ -3275,6 +3289,24 @@ def filter_exact_symbol_codegen_carriers(
         ("MOS", "SHORT", 0, "fCount", 0, (), ""),
         ("MOS", "SHORT", 0, "fMaxCount", 2, (), ""),
         ("MOS", "PTR STRUCT", 8, "fStack", 4, (), "tSaveSurface"),
+    ))
+    # Track.obj omits the completed foreign global tags consumed by its PASS
+    # bodies. Pair-lock each complete retail storage shape, plus the semantic
+    # block-copy carrier used to obtain the oracle movstrsi register pool.
+    # Tool/source backup before this extension: Git commit ee7fa53d.
+    untyped_library_codegen_views[
+        ("track_types.h", "Track_TrackSpecCodegenView")
+    ] = draww_views["DrawW_TrackSpecCodegenView"][:2]
+    untyped_library_codegen_views[
+        ("track_types.h", "Track_GameSetupCodegenView")
+    ] = hud_views["Hud_GameSetupCodegenView"]
+    untyped_library_codegen_views[
+        ("track_types.h", "Track_SimGlobalCodegenView")
+    ] = hud_views["Hud_SimGlobalCodegenView"]
+    untyped_library_codegen_views[
+        ("track.cpp", "LightTableData")
+    ] = (1024, (
+        ("MOS", "ARY STRUCT", 1024, "data", 0, (256,), "CVECTOR"),
     ))
 
     def exact_night_camera(block: TypeBlock) -> bool:

@@ -1,22 +1,43 @@
-#include "../../lib/libfns.h"
 /* track_externs.h -- extern decls for game/psx/track.cpp. */
 #ifndef TRACK_EXTERNS_H
 #define TRACK_EXTERNS_H
+
+#include "track_types.h"
+
+extern "C" {
+int sprintf(char *, const char *, ...);
+void *reservememadr(...);
+int purgememadr(...);
+int DrawSync(...);
+int shapecount(...);
+void *shapepointer(...);
+void shapename(...);
+int atoi(...);
+void *loadshapeadr(...);
+int filesize(...);
+void *loadfileatadr(...);
+void *loadfileadrz(...);
+int fixedsqrt(...);
+}
+
+void *__builtin_new(unsigned int);
+void __builtin_delete(void *);
+inline void *operator new(unsigned int, void *p) { return p; }
 
 extern void trap(int);  /* MIPS break (gcc div-guard) */
 
 /* ---- libc ---- */
 
 /* ---- harvested ---- */
-extern CTrackSpec TrackSpec_gSpec;
+extern Track_TrackSpecCodegenView TrackSpec_gSpec asm("TrackSpec_gSpec");
 extern CVECTOR * Chunk_lightTable;
 extern Chunk * Track_chunkList;
 extern Draw_tPixMap Track_gReflectionMaps[4];
-extern GameSetup_tData   GameSetup_gData;
+extern Track_GameSetupCodegenView GameSetup_gData asm("GameSetup_gData");
 extern Group * gPersistMidgroundObjInst;
 extern Group * gPersistObjDefBoundingSpheres;
 extern Group * gPersistObjInst;
-extern Sim_tSimGlobalVar simGlobal;                /* 0x8011e0ac */
+extern Track_SimGlobalCodegenView simGlobal asm("simGlobal");
 extern Track_tArtresource gInitialArt;
 extern char *D_8011E15C[];                         /* gInitialArt.shapeFile alias */
 extern Track_tMaterial * Track_materials;
@@ -44,14 +65,13 @@ extern int Math_DistXZ(coorddef *, coorddef *);
    LocateCreateGroupType/LocateNextGroupType) are MEMBER fns -> see struct SerializedGroup. */
 
 
-/* ---- Ghidra C++/alloca idioms + typedef aliases ---- */
-typedef SerializedGroup SerializedGroup___0_;  /* Ghidra anon-member alias */
+/* ---- Ghidra C++/alloca idioms ---- */
 extern void *__builtin_new(u_int);
 extern void  __builtin_delete(void *);
 extern void *alloca(int);  /* stack VLA for per-group ptr array */
 /* strspc_42/45 -> now SYM-faithful function-local `static char strspc[64]` in track.cpp (STAT) */
 /* ---- libc / eaclib / shape-lib functions ---- */
-extern "C" int shapecount(void *);  /* @0x800F0AAC eaclib shpsubs (real target of old "Libp_table") */
+/* shapecount is declared with the C runtime/shape entry points above. */
 /* ---- Track.obj globals (SYM c_type absent; types from field-owner structs/usage) ---- */
 extern TrackHeader            *Track_header;          /* ->chunkCount */
 extern Track_tMaterialController *Track_gMatController;/* ->pmxIndex */

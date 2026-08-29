@@ -1,7 +1,7 @@
 /* game/common/track.h — reconstructed from game/common/track.cpp (29 fns) */
 #ifndef _GAME_COMMON_TRACK_H_
 #define _GAME_COMMON_TRACK_H_
-#include "../../nfs4_types.h"
+#include "track_types.h"
 
 void Track_SetTrackNumber__Fi(int tracknum);   /* :95 */
 char * Track_MakeTrackPathName__FPc(char *ext);   /* :103 */

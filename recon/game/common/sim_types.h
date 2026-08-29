@@ -8,6 +8,7 @@
 
 #define gScratchLastWord (*(int *)0x1F8003FC)
 
+#ifndef NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES
 typedef enum forceFocus_t {
     FOCUS_NORMAL = 0,
     FOCUS_AI = 1,
@@ -19,6 +20,7 @@ struct AudioMus_tSongEntry {
     int length, index;
     char strbuf[32];
 };
+#endif
 
 struct BW_tContext {
     int client;
@@ -50,6 +52,7 @@ struct POLY_GT4 {
     u_char r3, g3, b3, p3; short x3, y3; u_char u3, v3; u_short pad3;
 };
 
+#ifndef NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES
 struct Sim_tSimGlobalVar {
     int gameStarted, gameTicks, time32Hz;
     Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
@@ -59,6 +62,7 @@ struct Sim_tSimSystemVar {
     int restartGame, endSimGame, pauseSim, keyRelease, quickPauseSim;
     int goalClockTicks, currentClockTicks;
 };
+#endif
 
 struct Skidmark_Segment {
     SVECTOR svx[2];
@@ -83,6 +87,7 @@ struct Track_tArtresource {
 };
 struct Track_tMaterial { char flag, mipmap_offset; short pmxIndex; };
 
+#ifndef NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES
 /* Completed foreign tags are absent from sim.obj but their storage is
  * dereferenced by retail. These private views retain exact consumed offsets. */
 struct Sim_GameSetupCodegenView {
@@ -106,9 +111,12 @@ struct Sim_ReplayCodegenView {
 };
 
 struct Sim_ClockCodegenView { int time128Hz, time64Hz, time32Hz; };
+#endif
 
 typedef int CarLogic_tObservations[1][3];
+#ifndef NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES
 typedef int Input_tDeviceCall();
+#endif
 
 #define RaceType_HotPursuit 1
 #define RaceType_Id5 5

@@ -2468,6 +2468,21 @@ def filter_exact_symbol_codegen_carriers(
             ("STRUCT", 12, "Sim_ClockCodegenView"),
         ("sim.cpp", "Sim_GameSetupCodegenView"):
             ("STRUCT", 2600, "Sim_GameSetupCodegenView"),
+        # Exact implicit typedef halves of Object's three private foreign-
+        # storage views. The completed retail tags are absent from object.obj;
+        # the paired layouts below preserve only offsets consumed by the 37
+        # normal/source-only PASS bodies. Pre-change tool/source backup:
+        # Git commit 581ad8b6.
+        ("object_types.h", "Object_SliceCodegenView"):
+            ("STRUCT", 32, "Object_SliceCodegenView"),
+        ("object_types.h", "Object_SimGlobalCodegenView"):
+            ("STRUCT", 24, "Object_SimGlobalCodegenView"),
+        ("object_types.h", "Object_SaveSurfaceCodegenView"):
+            ("STRUCT", 8, "Object_SaveSurfaceCodegenView"),
+        # The typed alternate-slice local repeats its pair-locked view at the
+        # Object_InitCollisionCheckLoop use site.
+        ("object.cpp", "Object_SliceCodegenView"):
+            ("STRUCT", 32, "Object_SliceCodegenView"),
         # The macro-bound local tick pointer repeats the already pair-locked
         # foreign SimGlobal view at its use site. Keep the repeat exact too.
         ("aih_opp.cpp", "AIH_Opp_SimGlobalCodegenView"):
@@ -3233,6 +3248,33 @@ def filter_exact_symbol_codegen_carriers(
         ("MOS", "INT", 0, "time128Hz", 0, (), ""),
         ("MOS", "INT", 0, "time64Hz", 4, (), ""),
         ("MOS", "INT", 0, "time32Hz", 8, (), ""),
+    ))
+    # object.obj omits three completed foreign-storage tags even though retail
+    # dereferences their exact member slices. Pair-lock the narrow source-only
+    # carriers; all 37 Object functions are byte-identical in both lanes.
+    # Tool/source backup before this extension: Git commit 581ad8b6.
+    untyped_library_codegen_views[
+        ("object_types.h", "Object_SliceCodegenView")
+    ] = draww_views["DrawW_SliceCodegenView"][:2]
+    untyped_library_codegen_views[
+        ("object_types.h", "Object_SimGlobalCodegenView")
+    ] = (24, (
+        ("MOS", "INT", 0, "gameStarted", 0, (), ""),
+        ("MOS", "INT", 0, "gameTicks", 4, (), ""),
+        ("MOS", "INT", 0, "time32Hz", 8, (), ""),
+        ("MOS", "PTR STRUCT", 24, "schedule64Hz", 12, (),
+         "Sched_tSchedule"),
+        ("MOS", "PTR STRUCT", 24, "schedule32Hz", 16, (),
+         "Sched_tSchedule"),
+        ("MOS", "PTR STRUCT", 24, "schedule32Hz2", 20, (),
+         "Sched_tSchedule"),
+    ))
+    untyped_library_codegen_views[
+        ("object_types.h", "Object_SaveSurfaceCodegenView")
+    ] = (8, (
+        ("MOS", "SHORT", 0, "fCount", 0, (), ""),
+        ("MOS", "SHORT", 0, "fMaxCount", 2, (), ""),
+        ("MOS", "PTR STRUCT", 8, "fStack", 4, (), "tSaveSurface"),
     ))
 
     def exact_night_camera(block: TypeBlock) -> bool:

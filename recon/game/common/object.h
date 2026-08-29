@@ -1,7 +1,7 @@
 /* game/common/object.h — reconstructed from game/common/object.cpp, game/common/object.h (37 fns) */
 #ifndef _GAME_COMMON_OBJECT_H_
 #define _GAME_COMMON_OBJECT_H_
-#include "../../nfs4_types.h"
+#include "object_types.h"
 
 int CalcObjYawAngle__FP8CCOORD16(CCOORD16 *pts);   /* :69 */
 void CalcObjExtentPoints__FP8coorddefP8CCOORD16T0P5tQuat(coorddef *cp, CCOORD16 *pts, coorddef *resultPts, tQuat *quat);   /* :78 */

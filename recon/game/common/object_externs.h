@@ -4,9 +4,13 @@
  *   track.obj convention (explicit ctor-on-allocated-memory calls). */
 #ifndef _GAME_COMMON_OBJECT_EXTERNS_H_
 #define _GAME_COMMON_OBJECT_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
-#include "new.h"
+#include "object_types.h"
+
+void * __builtin_new(unsigned int size);
+void * __builtin_vec_new(unsigned int size);
+void __builtin_delete(void *deleteMe);
+void __builtin_vec_delete(void *deleteMe);
+inline void *operator new(unsigned int, void *p) { return p; }
 
 /* anim.obj free fns (demangled). AnimScript ctors/methods now called as C++ class members
  * (ctors via placement-new) -- the flat-mangled externs were removed (defs live in anim.obj). */
@@ -30,11 +34,11 @@ extern Group              *gPersistObjInst;          /* track.obj */
 extern Group              *gPersistObjDef;           /* track.obj */
 extern Trk_ObjectDef     **Track_gObjDefs;           /* draww/track */
 extern Chunk              *Track_chunkList;
-extern Trk_NewSlice       *BWorldSm_slices;
+extern Object_SliceCodegenView *BWorldSm_slices asm("BWorldSm_slices");
 extern int                 gNumSlices;
 extern AnimDef             gAnimDefs[14];
-extern SaveSurface        *Track_gSaveSurface;
-extern Sim_tSimGlobalVar   simGlobal;
+extern Object_SaveSurfaceCodegenView *Track_gSaveSurface asm("Track_gSaveSurface");
+extern Object_SimGlobalCodegenView simGlobal asm("simGlobal");
 extern AIHigh_Traffic     *highLevelAIObjs[];        /* per-car AI obj (accidentData_ @+0x20) */
 extern Car_tObj           *Cars_gTrafficCarList[];
 extern int                 Cars_gNumTrafficCars;
@@ -58,8 +62,16 @@ extern int   DrawObjectTransform(DRender_tView *Vi, Draw_DCache *sd, matrixtdef 
 extern int   DrawW_GetAnimationTime(Trk_AnimateInst *animInst);
 extern int   BWorldSm_FindClosestQuadRez(coorddef *c, BWorldSm_Pos *pos, int rez);   /* bworldsm.obj */
 extern void  BWorldSm_SetSlice(int slice, BWorldSm_Pos *pos);
-extern void  Save(SaveSurface *pThis, Trk_NewSimQuad *simQuad);       /* track.obj (SaveSurface) */
-extern void  RestoreAll(SaveSurface *pThis);
+
+extern "C" {
+int fixedatan(...);
+int fixedmult(...);
+int fixedxformy(...);
+void transform(...);
+void *reservememadr(...);
+int purgememadr(...);
+void blockfill(...);
+}
 
 /* ---- vtables for the 4 anim classes (data owned by object.obj) ---- */
 extern __vtbl_ptr_type ObjectAnim_vtable[];   /* @0x800560e8 base ObjectAnim vtable (vtables_object.cpp) */

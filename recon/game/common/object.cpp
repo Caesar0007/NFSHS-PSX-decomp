@@ -3,7 +3,7 @@
  *   4 anim classes (: ObjectAnim) emitted as free fns (Class_ct/_dt/_Class_Draw) per
  *   track.obj convention (ctors explicitly called on __builtin_new memory).
  */
-#include "../../nfs4_types.h"
+#include "object_types.h"
 #include "object_externs.h"
 
 
@@ -171,7 +171,7 @@ void Object_InitCollisionCheckLoop(BWorldSm_Pos *slicePos,Object_tSimObjList *ob
 
 {
   int altChunk;
-  Trk_NewSlice *altSlice;
+  Object_SliceCodegenView *altSlice;
 
   if (Track_chunkList[slicePos->chunk].simObjBuf != (Group *)0x0) {
     objList->numObjects = Track_chunkList[slicePos->chunk].simObjBuf->m_num_elements;
@@ -567,7 +567,7 @@ void Object_ClearCustomObjects(void)
     Cars_gCopCarList[i]->carFlags =
         Cars_gCopCarList[i]->carFlags & 0xfffffbff;
   }
-  if (Track_gSaveSurface != (SaveSurface *)0x0) {
+  if (Track_gSaveSurface != (Object_SaveSurfaceCodegenView *)0x0) {
     (Track_gSaveSurface)->RestoreAll();
   }
   return;

@@ -483,8 +483,8 @@ void RaceStatistics(void)
      SIZE_W@0x50, SIZE_H@0x58, POS_Y@0x60 and HOTPURSUIT_Y@0x70.  The intervening
      words are reload spills, not source declarations: deleting posy/posyL/barH/
      barH8/halfH preserves the 176-byte retail frame and improves 70 -> 54. */
+  int rows;
   int sizeH16; /* SYM-CODEGEN-CARRIER: sizeH16 -- direct HUD_STATS_SIZE_H uses are FAIL 86 at 475/475 */
-  short HUD_STATS_HOTPURSUIT_Y;
   int titleX; /* SYM-CODEGEN-CARRIER: titleX -- direct title-coordinate form is FAIL 135 at 468/475 */
   int titleY; /* SYM-CODEGEN-CARRIER: titleY -- direct HUD_STATS_POS_Y form is FAIL 88 at 469/475 */
   /* W74-A12: the three head carriers (see the MATCH block at their assignments).
@@ -494,14 +494,15 @@ void RaceStatistics(void)
      retail (oracle insns 17-18 sit between the numLaps load and `addiu a0,a2,1`). */
   int one; /* SYM-CODEGEN-CARRIER: one -- natural direct head trio is FAIL 86 at 473/475 */
   int pitch; /* SYM-CODEGEN-CARRIER: pitch -- nonconstant multiplier plus fence preserves retail mult/mflo */
-  int nh; /* SYM-CODEGEN-CARRIER: nh -- shared human-count read preserves retail head scheduling */
   /* W72-A13: the two fold-escape carriers of the per-player loop head; see the MATCH
      block at their assignments.  They are compiler-visible VAR_DECLs on purpose -- an
      integer literal there is TREE_CONSTANT and fold rewrites the subtraction. */
   int colInset; /* SYM-CODEGEN-CARRIER: colInset -- literal +2 triggers the wrong fold/reload-pool rotation */
   int rowInset; /* SYM-CODEGEN-CARRIER: rowInset -- literal +0x13 must be escaped with colInset; single escapes are FAIL 214/215 */
 
-  HUD_STATS_SIZE_H = (OVERLAYS_NUM_LAPS + 1) * 0xc + 0x28;
+  pitch = 0x96;
+  rows = (OVERLAYS_NUM_LAPS + 1) * 0xc;
+  HUD_STATS_SIZE_H = rows + 0x28;
   /* ===== MATCH (W74-A12, 2026-08-22/23): 77 -> 71 @474/475.  THE HEAD CLUSTER IS
      PARTLY SOLVED and the w49/w63/w64 "named constants" reading is VINDICATED -- what
      every earlier wave was missing is that the SET is `one` + `pitch` (NOT pitch alone,
@@ -645,12 +646,9 @@ void RaceStatistics(void)
    *     in the birth position -- pin the `li 160` into the prologue group and the live
    *     dial comes for free.  Do NOT re-probe spellings of the three constants; that axis
    *     is closed in both waves. */
-  nh = Cars_gNumHumanRaceCars;
+  HUD_STATS_POS_X = 0xa0 - Cars_gNumHumanRaceCars * 0x4b;
   one = 1;
-  __asm__ volatile("" : : "r"(one));
-  pitch = 0x96;
-  HUD_STATS_SIZE_W = nh * pitch;
-  HUD_STATS_POS_X = 0xa0 - nh * 0x4b;
+  HUD_STATS_SIZE_W = Cars_gNumHumanRaceCars * pitch;
   /* the numLaps==1 arm RE-COMPUTES `(numLaps+1)*0xc + 0x1c` (oracle @0x800DA044
      `addiu $a0,$a0,0x1C` off the SAME (numLaps+1)*12 product) -- it is not the folded
      constant 0x34 that the old spelling used.
@@ -660,8 +658,8 @@ void RaceStatistics(void)
      (`addiu $a1,$a1,0x1C; sh` == oracle `addiu $a0,$a0,0x1C; sh`) -- retail kept the
      product live in a local.  Insn count unchanged 459/475 but LCS 230->236, so land
      it TOGETHER with the head register rotation (ours s1/s4/s7/s2 vs oracle s4/s7/s2/s3). */
-  if (OVERLAYS_NUM_LAPS == 1) {
-    HUD_STATS_SIZE_H = (OVERLAYS_NUM_LAPS + 1) * 0xc + 0x1c;
+  if (OVERLAYS_NUM_LAPS == one) {
+    HUD_STATS_SIZE_H = rows + 0x1c;
   }
   /* W74-A12: the `pitch` availability fence lives HERE, one basic block below its
      assignment -- see the MATCH block above.  It is zero-insn and pin-free; it exists
@@ -669,7 +667,6 @@ void RaceStatistics(void)
      `mult $v1,$a1`) WITHOUT its implicit-volatile barrier landing inside block 0, where
      it would fence the `Cars_gNumHumanRaceCars` load out of the head schedule.  Moving
      it up to the assignment costs 2 diffs; deleting it costs 12. */
-  __asm__ volatile("" : : "r"(pitch));
   if (OVERLAYS_RACE_TYPE == RaceType_HotPursuit) {
     HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 0x1b;
   }
@@ -688,10 +685,12 @@ void RaceStatistics(void)
      w41..w75 col1-temp cell failed to mint the copy (they were all call-adjacent). */
   colX = HUD_STATS_POS_X + 0xa;
   titleX = 0xa0 - (textpixels(TextSys_Word(0x39)) >> 1);
-  col2 = 0xa0;
   titleY = 0x76 - (sizeH16 >> 0x11);
-  HUD_STATS_HOTPURSUIT_Y = (short)(titleY + (OVERLAYS_NUM_LAPS + 2) * 0xc + 0x13);
+  short HUD_STATS_HOTPURSUIT_Y;
+  HUD_STATS_HOTPURSUIT_Y =
+      (short)(titleY + (OVERLAYS_NUM_LAPS + 2) * 0xc + 0x13);
   col1 = colX;
+  col2 = 0xa0;
   if (1 < Cars_gNumHumanRaceCars) {
     col2 = 0x55;
   }
@@ -741,9 +740,7 @@ void RaceStatistics(void)
        (`beq $v0,1` @0x800DA2E0 then `blez $v0` @0x800DA2EC); the &&-form lets gcc
        range-fold them into a single `slti v0,v0,2`. */
     if (OVERLAYS_NUM_LAPS != 1) {
-     if (0 < OVERLAYS_NUM_LAPS) {
-      j = 0;
-      do {
+     for (j = 0; (int)j < OVERLAYS_NUM_LAPS; j = j + 1) {
         if ((int)j * 2 + 4 < D_8013D99C) {
           /* colour is an inline ternary (oracle puts `li $a0,3` in the `beq` delay slot
              @0x800DA33C and falls into `li $a0,4`); there is no `color` local in the SYM. */
@@ -765,8 +762,6 @@ void RaceStatistics(void)
           }
           Font_TextXY(string,col2 + 5,((titleY + 0x11) * 0x10000 >> 0x10) + (int)j * 0xc + 0xc);
         }
-        j = j + 1;
-      } while ((int)j < OVERLAYS_NUM_LAPS);
      }
     }
     if (OVERLAYS_NUM_LAPS * 2 + 4 < D_8013D99C) {

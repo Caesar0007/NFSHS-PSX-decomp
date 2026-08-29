@@ -13,9 +13,15 @@
 #endif
 #define NFS4_AUDIOCLC_OMIT_CARLOGIC_OBSERVATIONS
 #define NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES
+#ifndef NFS4_COPSPEAK_KEEP_SAVE_RECORDS
 #define NFS4_AUDIOCMN_OMIT_SAVE_RECORDS
+#define NFS4_COPSPEAK_DEFINED_OMIT_SAVE_RECORDS
+#endif
 #include "audiocmn_types.h"
+#ifdef NFS4_COPSPEAK_DEFINED_OMIT_SAVE_RECORDS
+#undef NFS4_COPSPEAK_DEFINED_OMIT_SAVE_RECORDS
 #undef NFS4_AUDIOCMN_OMIT_SAVE_RECORDS
+#endif
 #ifdef NFS4_COPSPEAK_DEFINED_OMIT_FORCE_FOCUS
 #undef NFS4_COPSPEAK_DEFINED_OMIT_FORCE_FOCUS
 #undef forceFocus_t
@@ -32,14 +38,17 @@
 struct Copspeak_SndBnkCodegenView { int bnkID; char *phdr, *pdata; };
 #define SndBnk_t Copspeak_SndBnkCodegenView
 
-#ifndef NFS4_COPSPEAK_OMIT_OWNER_ONLY_TYPES
+#if !defined(NFS4_COPSPEAK_OMIT_OWNER_ONLY_TYPES) || \
+    defined(NFS4_COPSPEAK_KEEP_BW_CONTEXT)
 struct BW_tContext {
     int client;
     BWorldSm_Pos slicePos;
     int currentChunk, chunkFarZClipSq, polyFarZClipSq;
     int lowDetailDistSq, lineFarZClipSq;
 };
+#endif
 
+#ifndef NFS4_COPSPEAK_OMIT_OWNER_ONLY_TYPES
 struct SNDSTREAMSTATUS {
     int outstandingrequests, currentrequest, timebuffered;
 };

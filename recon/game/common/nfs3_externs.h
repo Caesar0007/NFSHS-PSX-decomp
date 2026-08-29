@@ -1,14 +1,39 @@
 /* game/common/nfs3_externs.h -- auto-generated cross-TU decls for nfs3.cpp */
 #ifndef _GAME_COMMON_NFS3_EXTERNS_H_
 #define _GAME_COMMON_NFS3_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
-#include "new.h"
+#include "nfs3_types.h"
+
+extern "C" {
+unsigned int asyncloadfileat(char *, char *);
+int ClearImage(RECT *, u_char, u_char, u_char);
+long DrawSync(long);
+int getasyncreadstatus(unsigned int);
+void initlinkmode(int, int, int);
+void *loadfileadr(char *, int);
+void movfxya(void *, int, int);
+int purgememadr(char *);
+void settrans(int);
+void SetVideoMode(int);
+void *shapepointer(void *, int);
+int sprintf(char *, const char *, ...);
+char *strcpy(char *, char *);
+int systemtask(int);
+int largestunused(void);
+void *__6Speech(void *);
+void ___6Speech(void *, int);
+int FECheat_ActivateBonus__F10tCheatCode(int);
+int Front_Menu__F21tFront_ProcessingType(int);
+extern const void *_vt_Q26Speech7Speaker[];
+}
+
+void *__builtin_new(unsigned int);
 
 /* cross-TU globals + unmangled lib fns referenced by nfs3.obj */
 extern int _6Speech_fgUndefined;            /* Speech::fgUndefined (Speaker*) */
 extern int _6Speech_fgSpeech;               /* Speech::fgSpeech (Speech*) */
-extern __vtbl_ptr_type Speaker_vtable[] __asm__("_vt_Q26Speech7Speaker"); /* @0x80055dc4  Speech::Speaker vtable (defined in speech.cpp); GCC linkage spelling is the SYM/retail `_vt_Q26Speech7Speaker` */
+#define Speaker_vtable _vt_Q26Speech7Speaker /* @0x80055dc4; defined in speech.cpp */
+#define FECheat_ActivateBonus FECheat_ActivateBonus__F10tCheatCode
+#define Front_Menu Front_Menu__F21tFront_ProcessingType
 // [owned->defined in nfs3.cpp] extern char befuddleExtensions[][4];
 extern char *Paths_Paths[];
 extern GameSetup_tData GameSetup_gData;
@@ -51,12 +76,10 @@ extern int CopSpeak_CleanUp(void);
 extern int CopSpeak_StartUp(void);
 extern int DashHUD_ResetHUD(void);
 extern int Draw_DirectSetEnvironment(int, int, int, int, int, int, int, int, int, int);
-extern int FECheat_ActivateBonus(tCheatCode);
 extern int Front_BuildStream(int*);
 extern int Front_GetInGameVars(void);
 extern int Front_InitGraphics(void);
 extern int Front_InitGraphicsAndDisplayLoading(void);
-extern int Front_Menu(tFront_ProcessingType);
 extern int GameSetup_CleanUp(void);
 extern int GameSetup_StartUp(int*);
 extern int Hrz_InitHorizon(void);

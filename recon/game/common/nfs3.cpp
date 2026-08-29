@@ -1,7 +1,6 @@
 /* game/common/nfs3.cpp -- RECONSTRUCTED (game boot / module start-up + main() entry; C TU, 11 fns) */
-#include "../../nfs4_types.h"
+#include "nfs3_types.h"
 #include "nfs3_externs.h"
-#include "new.h"
 #include "../../lib/nfile.h"   /* FileMgr @0x8013EA88 == the `gFileDevice` symbol */
 
 
@@ -212,7 +211,7 @@ void Nfs2_GameModuleStartUp(int *FrontEndDataStream)
   CopSpeak_StartUp();
   if ((GameSetup_gData.raceType == RaceType_HotPursuit) && (_6Speech_fgSpeech == 0)) {
     pThis = __builtin_new(0x3a4);
-    _6Speech_fgSpeech = (int)new ((Speech *)pThis) Speech;
+    _6Speech_fgSpeech = (int)__6Speech(pThis);
   }
   Render_InitPauseMenu();
   Render_InitTrackRender();
@@ -267,7 +266,7 @@ void Nfs2_CleanUpGameModule(void)
   Replay_StoringReplay();
   AudioCmn_DeInit();
   if (_6Speech_fgSpeech != 0) {
-    delete (Speech *)_6Speech_fgSpeech;
+    ___6Speech((void *)_6Speech_fgSpeech,3);
     _6Speech_fgSpeech = 0;
   }
   CopSpeak_CleanUp();
@@ -795,7 +794,7 @@ int main(void)
   (&tournamentManager)->LoadDescription();
   (&trackManager)->LoadDescription();
   Front_InitGraphics();
-  Front_Menu(0);
+  Front_Menu(kFront_InitialLoad);
   do {
     NFS3_CheckForFileOperations();
     setup = (int *)MinFront_ParseOptions();

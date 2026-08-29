@@ -4,11 +4,17 @@
 
 #define NFS4_AUDIOCLC_OMIT_S_TYPE_ALIAS
 #define NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
+#ifndef NFS4_AUDIOCMN_KEEP_INPUT_DEVICE_CALL
 #define NFS4_AUDIOCLC_OMIT_INPUT_DEVICE_CALL
+#define NFS4_AUDIOCMN_DEFINED_OMIT_INPUT_DEVICE_CALL
+#endif
 #define NFS4_SINGLE_IMPLICIT_ENUM_TYPEDEF
 #include "audioclc_types.h"
 #undef NFS4_SINGLE_IMPLICIT_ENUM_TYPEDEF
+#ifdef NFS4_AUDIOCMN_DEFINED_OMIT_INPUT_DEVICE_CALL
+#undef NFS4_AUDIOCMN_DEFINED_OMIT_INPUT_DEVICE_CALL
 #undef NFS4_AUDIOCLC_OMIT_INPUT_DEVICE_CALL
+#endif
 #undef NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
 #undef NFS4_AUDIOCLC_OMIT_S_TYPE_ALIAS
 
@@ -199,6 +205,12 @@ struct tCarManager {
     u_char fAvailableCars[48], fViewableCars[48];
     u_char fPinkSlipsAvailableCars[2][48], fPinkSlipsViewableCars[2][48];
     short fCarTextList[49];
+#ifdef NFS4_AUDIOCMN_DECLARE_CAR_MANAGER_METHODS
+    void Initialize();
+    void LoadDescription();
+    void ReleaseDescription();
+    void SetClassViewable(tCarClassType carClass, bool viewFlag);
+#endif
 };
 
 struct tfrontEnd {

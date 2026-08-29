@@ -3438,6 +3438,22 @@ def filter_exact_symbol_codegen_carriers(
         untyped_library_codegen_views[cars_key] = cars_layout
         untyped_library_named_pair_views[cars_key] = cars_layout
 
+    # nfs3.obj reads the foreign sim-system global but its linked graph omits
+    # the completed owner tag. Pair-lock the exact 28-byte private carrier;
+    # source and audit-tool backup before this extension: Git commit 10cdd025.
+    nfs3_sim_system_view = (28, (
+        ("MOS", "INT", 0, "restartGame", 0, (), ""),
+        ("MOS", "INT", 0, "endSimGame", 4, (), ""),
+        ("MOS", "INT", 0, "pauseSim", 8, (), ""),
+        ("MOS", "INT", 0, "keyRelease", 12, (), ""),
+        ("MOS", "INT", 0, "quickPauseSim", 16, (), ""),
+        ("MOS", "INT", 0, "goalClockTicks", 20, (), ""),
+        ("MOS", "INT", 0, "currentClockTicks", 24, (), ""),
+    ))
+    nfs3_sim_key = ("nfs3_types.h", "Nfs3_SimSystemCodegenView")
+    untyped_library_codegen_views[nfs3_sim_key] = nfs3_sim_system_view
+    untyped_library_named_pair_views[nfs3_sim_key] = nfs3_sim_system_view
+
     def exact_night_camera(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         return (

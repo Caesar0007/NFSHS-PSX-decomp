@@ -1022,7 +1022,8 @@ PER_FN_CC1_VER_SPLICE_272 = {
     "recon/syslib/psx/libgpu/SYS.c": {
         "2.8.0": {"_BlitClear"},
         "2.7.2": {"DrawOTag", "_clearOTagR_dma", "_gpu_init_videomode",
-                  "_que_ref", "_gpu_arm_timeout", "_install_drain_cb"},
+                  "_que_ref", "_gpu_arm_timeout", "_gpu_check_timeout",
+                  "_install_drain_cb"},
     },
     # w55-a5 (probe-verified): CdReset -> PASS 27/27 on 2.8.0; whole-TU flip
     # catastrophic (CdControlF PASS->51) => per-fn.

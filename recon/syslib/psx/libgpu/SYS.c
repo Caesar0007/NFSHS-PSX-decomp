@@ -2130,10 +2130,6 @@ extern int _gpu_que_drain(void)
                 } while ((*GPU_GP1 & wait_ready) == 0);
             }
             {
-                int     extra;
-                u_long *arg;
-                QueFunc func;
-                int     fidx;
                 /* 🟢 W72-A19 (14 -> 10, count still EXACT 152/152): THE QTY TIE IS BROKEN.
                  * The W71-A11 read-off named the residual exactly -- the func INDEX pseudo
                  * dies on the very insn the func VALUE is born, both refs 4 / live 2, an
@@ -2332,12 +2328,11 @@ extern int _gpu_que_drain(void)
                  *       (24D family) under the no-post-compile-rewrite policy; the only
                  *       order-correct source form is the volatile-arg basin above, banked
                  *       for any future device that can reach ITS handout. */
-                fidx = _qout * 96;
-                arg = _que.plain[_qout].arg;
-                extra = _que.plain[_qout].extra;
-                __asm__("" : "=r"(fidx) : "0"(fidx) : "$5");
-                func = *(QueFunc *)((char *)_que.plain + fidx);
-                func(arg, extra);
+                /* W77-A2 PASS: the matched SOTN PsyQ `_exeque` uses one inline
+                 * dispatch through the volatile queue element.  This restores
+                 * retail's read/schedule order and removes the old asm device. */
+                _que.shared[_qout].func(_que.shared[_qout].arg,
+                                        _que.shared[_qout].extra);
             }
             _qout = (_qout + 1) & 0x3f;
             if (_qin == _qout)
@@ -2461,7 +2456,8 @@ extern int _gpu_check_timeout(void)
 {
     /* MATCH (W55-A8, ported in SHAPE from the Rage-Racer matched `Gpu_CheckTimeout`,
      * register pins dropped).  Four idioms, all oracle-evidenced:
-     *  (a) the poll counter is bumped through a POINTER LOCAL with a POST-INCREMENT --
+     *  (a) the poll counter is bumped through a POINTER LOCAL with an explicit
+     *      old-value copy and in-place increment --
      *      `la $v1,_gpu_timeout_count; lw $v0,0($v1); addu $a0,$v0,zero; addiu $v0,$v0,1;
      *      sw $v0,0($v1)` -- a bare `_gpu_timeout_count = cnt + 1` is an `$at` macro store
      *      and compares the pre-read copy instead of the post-increment's saved value;
@@ -2478,7 +2474,10 @@ extern int _gpu_check_timeout(void)
     switch (0) { default:
     if (!(_gpu_timeout_target < VSync(-1))) {
         int *pollp = &_gpu_timeout_count;
-        int  state = (*pollp)++;
+        int  cnt = *pollp;
+        int  state = cnt;
+        cnt = cnt + 1;
+        *pollp = cnt;
         if (!(0xF0000 < state))
             break;
     }

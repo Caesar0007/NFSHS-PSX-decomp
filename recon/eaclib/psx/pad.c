@@ -80,7 +80,10 @@ void PAD_update(void);
  * (per-fn, textual, still 100% real cc1 output) -- NOT the -fno-delayed-branch
  * splice, which this TU's note above already measures as a net loss here.
  * This worker was barred from editing build.py; wiring `padinit` (and
- * PAD_update) into PER_FN_EPILOGUE_UNFILL is the outstanding action. */
+ * PAD_update) into PER_FN_EPILOGUE_UNFILL is the outstanding action.
+ * W80-root (2026-08-29): superseded by an authentic compiler identity. A
+ * per-function GCC 2.7.2 splice through the normal maspsx route emits all 28
+ * instructions exactly; strict source-only and ordinary gates both PASS. */
 void padinit(void)
 {
   if (gPadinfo.initialized == 0) {
@@ -107,11 +110,10 @@ void PAD_restore(void)
    *      produce it, which is why every prior wave's lever-#16 attempt
    *      failed here.
    *   2. The last 3 diffs were the canonical Tier-1 epilogue-fill signature
-   *      (ours `jr ra; addiu sp` vs the oracle's `addiu sp; jr ra; nop`),
-   *      cleared by the per-FUNCTION -fno-delayed-branch splice
-   *      (PER_FN_NO_DELAYED_BRANCH). The same flag is a NET LOSS on this
-   *      TU's other four functions -- per-function granularity is load-
-   *      bearing. */
+   *      (ours `jr ra; addiu sp` vs the oracle's `addiu sp; jr ra; nop`).
+   *      W80-root retires the historical -fno-delayed-branch workaround: the
+   *      authentic per-function GCC 2.7.2 splice emits the complete 21-insn
+   *      function exactly through the normal maspsx route. */
   if (gPadinfo.initialized != 0) {
     deltimer(PAD_update);
     PadStopCom();
@@ -196,8 +198,8 @@ void PAD_restore(void)
  * reaches the same PASS with zero collateral, so that is the action, not a lane change.
  * W80-root (2026-08-29): the whole-TU objection does not apply to the existing authentic
  * PER_FN_CC1_VER_SPLICE lane. Adding PAD_state beside PAD_update on the 2.7.2 rung gives
- * strict NFS4_SOURCE_ONLY PASS 20/20 twice; padinit/PAD_restore/PAD_convert/PAD_update are
- * byte-identical to their controls. The ordinary gate also remains PASS 20/20. */
+ * strict NFS4_SOURCE_ONLY PASS 20/20 twice. The same measured rung now owns padinit and
+ * PAD_restore too, making all five functions in pad.c source-only PASS. */
 u_short PAD_state(int padID)
 {
   if (gPadinfo.initialized != 0 && (u_int)padID < 8) {

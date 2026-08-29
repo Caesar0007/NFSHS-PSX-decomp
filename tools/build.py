@@ -695,16 +695,9 @@ def per_tu_flags(src: Path) -> dict:
 # emits it -- i.e. the C++-MANGLED name for a class method; all current
 # entries are `extern "C"` functions so the label equals the source name).
 PER_FN_NO_DELAYED_BRANCH = {
-    # w33-a10: EA's own eaclib PAD.OBJ (see the "no_split_addresses" entry in
-    # PER_TU_FLAGS). Once split addresses are off, PAD_restore's ONLY residual
-    # was the canonical Tier-1 epilogue-fill signature (ours `jr ra; addiu sp`
-    # vs the oracle's `addiu sp; jr ra; nop`) -- the splice takes it to a byte
-    # PASS. Whole-TU probe: the flag is a NET LOSS on the other four
-    # (padinit 3->9, PAD_state 4->8, PAD_convert PASS->3, PAD_update 30->40),
-    # which is exactly why this is per-FUNCTION and not a TU flag.
-    "recon/eaclib/psx/pad.c": {
-        "PAD_restore",
-    },
+    # W80-root: PAD_restore's historical -fno-delayed-branch splice is retired.
+    # The authentic per-function GCC 2.7.2 identity below emits its complete
+    # epilogue exactly and also closes padinit, without altering call slots.
     "recon/syslib/psx/libetc/INTR.c": {
         "ResetCallback", "InterruptCallback", "DMACallback", "VSyncCallbacks",
     },
@@ -1317,11 +1310,13 @@ PER_FN_CC1_VER_SPLICE = {
         "2.8.1-norcse": {"FntFlush"},
     },
     # W74-A19: PAD_update wants 2.7.2 codegen for its constant remat while the
-    # TU stays 2.8.0. W80-root: the same authentic per-function rung closes
-    # PAD_state's epilogue at source-only PASS 20/20 (reproduced twice);
-    # padinit/PAD_restore/PAD_convert/PAD_update are unchanged by the added
-    # function region, so there is no TU collateral.
-    "recon/eaclib/psx/pad.c": {"2.7.2": {"PAD_state", "PAD_update"}},
+    # TU stays 2.8.0. W80-root: per-function normal-route ladder probes show
+    # that 2.6.0/2.6.3/2.7.2 all emit the retail padinit, PAD_restore, and
+    # PAD_state epilogues exactly. Select the already-established 2.7.2 object
+    # identity: all five pad.c functions are source-only PASS, reproduced 2x.
+    "recon/eaclib/psx/pad.c": {
+        "2.7.2": {"padinit", "PAD_restore", "PAD_state", "PAD_update"},
+    },
 }
 
 

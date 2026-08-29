@@ -1,10 +1,10 @@
 /* game/common/speech.cpp -- RECONSTRUCTED (NFS4 PSX cop speech/dispatch engine; C++ TU)
  *   101 fns across 7 classes (Speech + Speaker/MobileSpeaker/DispatchSpeaker hierarchy +
  *   CarBank/CarBankName/LocationBank helpers) + 4 free C entry points (Speech_AllocateRAM__FlPc/
- *   PurgeRAM/HandleRequest/Server). Methods emitted free-fn-with-explicit-this `Class_method`
- *   (structs carry no member-fn protos). Virtual dispatch via _vf[31]. GTE-free.
+ *   PurgeRAM/HandleRequest/Server). Retail nested-class linkage is retained by
+ *   the exact owner declarations in speech_types.h. Virtual dispatch via _vf[31]. GTE-free.
  */
-#include "../../nfs4_types.h"
+#include "speech_types.h"
 #include "speech_externs.h"
 
 /* Speech static data precedes this TU's literal pools in retail.  Keep the
@@ -483,10 +483,8 @@ void Speaker::FindLocation(Car_tObj *car)
   if (location == (LocationBank *)0x0) {
     (this->fDistance).flags = 0;
     (this->fPosition).flags = 0;
-    /* Retail preserves the null LocationBank::fBankId read at address 8.  A
-       one-word aggregate copy prevents C++ null-dereference folding. */
-    struct SpeechLocationWord { int value; };
-    *(SpeechLocationWord *)&this->fLocation = *(SpeechLocationWord *)8;
+    /* Retail preserves the null LocationBank::fBankId read at address 8. */
+    *(SPCHNFSType_POSITION *)&this->fLocation = *(SPCHNFSType_POSITION *)8;
   }
   else {
     int actual = location->Distance((int)car->N.simRoadInfo.slice);

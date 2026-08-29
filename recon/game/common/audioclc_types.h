@@ -51,10 +51,12 @@ struct SNDSYSSET {
 struct SNDSYSVEC { int (*issurfacelocked)(void); };
 struct SNDSAMPLEFORMAT { u_short samplerate; u_char channels, samplerep; };
 
+#ifndef NFS4_AUDIOCLC_OMIT_SCHED_SCHEDULE
 struct Sched_tSchedule {
     int maxNumFunctions, numFunctions;
     Sched_tFunctionSchedule func[1];
 };
+#endif
 
 #ifndef NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
 struct Trk_AnimateInst {

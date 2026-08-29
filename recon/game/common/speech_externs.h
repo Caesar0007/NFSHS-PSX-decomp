@@ -1,8 +1,29 @@
-#include "../../lib/libfns.h"
+#include "speech_types.h"
 /* speech_externs.h -- cross-TU decls for game/common/speech.cpp (NFS4 cop speech/dispatch).
- *   Types in nfs4_types.h. speech.obj OWNS its globals + Speech_fgSpeech/fgUndefined (.cpp). */
+ *   Types in speech_types.h. speech.obj OWNS its globals + Speech_fgSpeech/fgUndefined (.cpp). */
 #ifndef SPEECH_EXTERNS_H
 #define SPEECH_EXTERNS_H
+
+/* Narrow eaclib/libc boundary used by this owner. */
+extern "C" {
+int FILE_closesync(...);
+int FILE_opensync(...);
+int FILE_readsync(...);
+int SNDstop(...);
+void *SetSp(...);
+int fixedmult(...);
+int gettick(...);
+void iSPCH_EACseedrandom(...);
+int loadbigfileheader(...);
+void *locatebigentry(...);
+void *memcpy(...);
+int purgememadr(...);
+void *reservememadr(...);
+int sprintf(...);
+unsigned int strlen(...);
+int strncmp(...);
+int systemtask(...);
+}
 
 /* ---- speech-event trigger fns (spchevnt.cpp, unmangled C-linkage; variadic call sites) ---- */
 extern "C" {

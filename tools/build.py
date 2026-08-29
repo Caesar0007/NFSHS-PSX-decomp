@@ -87,20 +87,26 @@ _warned_272 = False
 # but with the named rung's cc1.exe.  Env NFS4_FORCE_CC1_ALT=<ver> overrides
 # the lane for EVERY C TU compiled in the process -- PROBE-ONLY (single-TU
 # verify_asm A/B runs); NEVER set it for a tree build.  Probe winners get
-# wired as PER_TU `cc1_alt` entries by the orchestrator.
+# wired as PER_TU `cc1_alt` entries by the orchestrator.  The sibling probe
+# NFS4_FORCE_CC1_VER=<ver> swaps only cc1 and retains the normal maspsx route.
 GCC_LADDER = Path(_env("NFS4_GCC_LADDER", r"C:/Temp/windows-gcc-psx"))
 
 
-# Sony-library compiler identity used only by FntFlush: gcc 2.8.1 with
-# reload_cse disabled.  PE timestamp/checksum bytes vary across deterministic
-# relinks, so validate the normalized code identity as well as accepting the
-# original byte-exact executable.
+# Special compiler identities: the FntFlush-only gcc 2.8.1 build with reload_cse
+# disabled, and Sony's retail PsyQ 4.4/4.5 gcc 2.8.1 SN32 C compiler.  PE
+# timestamp/checksum bytes vary across deterministic norcse relinks, so validate
+# that build's normalized code identity as well as accepting its byte hash.
 CC1_NORCSE_SHA256 = "acd92abb94aa9379889521ea5dfa6bc7e22ae66f5e0bf70d7131e11a4f899668"
 CC1_NORCSE_SEMANTIC_SHA256 = "558a47c2197a27be9b1d36c1d2b7b53713e09dc0c93698281696973c3cdac591"
+CC1_281_SN_SHA256 = "26eb8259fa3e077d1980eb1e0c942006752135953dd03173200bf99ef6f5b6c9"
 CC1_SPECIAL_RUNGS = {
     "2.8.1-norcse": [
         Path(_env("NFS4_CC1_NORCSE",
                   str(ROOT / "scratch" / "gccbuild-ecoff" / "cc1.exe"))),
+    ],
+    "2.8.1-sn": [
+        Path(_env("NFS4_CC1_281_SN", r"C:/Temp/psq44/pssn/bin/CC1PSX.EXE")),
+        Path(r"C:/Temp/psq45/BIN/CC1PSX.EXE"),
     ],
 }
 
@@ -119,6 +125,8 @@ def _pe_semantic_sha256(candidate: Path) -> str:
 
 
 def _cc1_alt_hash_ok(ver: str, candidate: Path) -> bool:
+    if ver == "2.8.1-sn":
+        return hashlib.sha256(candidate.read_bytes()).hexdigest() == CC1_281_SN_SHA256
     if ver != "2.8.1-norcse":
         return True
     if hashlib.sha256(candidate.read_bytes()).hexdigest() == CC1_NORCSE_SHA256:
@@ -1460,11 +1468,15 @@ def _compile_c_272(rel: Path, tu_flags: dict, i_file: Path, s_file: Path,
     if tu_flags.get("no_rerun_cse_after_loop"):
         cc1_flags.append("-fno-rerun-cse-after-loop")
     # w52-a3: forward the split-addresses key too (2.8.x rungs via cc1_alt
-    # need -mno-split-addresses to express the SYS.c clamp identity; 2.7.2
-    # itself has no such option and would reject it -- only append when the
-    # TU asks for it, which per-TU wiring guarantees is a 2.8.x rung).
+    # need -mno-split-addresses to express the SYS.c clamp identity).  The
+    # common rung filter below removes it again for sub-2.8 compilers, which
+    # reject that option; this also keeps forced ladder probes honest.
     if tu_flags.get("no_split_addresses"):
         cc1_flags.append("-mno-split-addresses")
+    lane_ver = (os.environ.get("NFS4_FORCE_CC1_ALT")
+                or tu_flags.get("cc1_alt")
+                or ("2.7.2" if cc1_path is None else ""))
+    cc1_flags = _cc1_flags_for_rung(str(lane_ver), cc1_flags)
     cc1 = cc1_path if cc1_path is not None else CC1_272
     r = run([cc1, *cc1_flags, i_file, "-o", s_file])
     if r.returncode:
@@ -1519,7 +1531,9 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
 
     # W52 ladder lane: env force (probe-only) wins over everything, then the
     # per-TU cc1_alt wiring.  Both reuse the 272 recipe with a swapped cc1.
-    alt_ver = os.environ.get("NFS4_FORCE_CC1_ALT") or tu_flags.get("cc1_alt")
+    forced_normal_ver = os.environ.get("NFS4_FORCE_CC1_VER")
+    alt_ver = (None if forced_normal_ver else
+               (os.environ.get("NFS4_FORCE_CC1_ALT") or tu_flags.get("cc1_alt")))
     if alt_ver:
         cc1_alt = _resolve_cc1_alt(str(alt_ver))
         if cc1_alt is not None:
@@ -1537,7 +1551,7 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
             return _compile_c_272(rel, tu_flags, i_file, s_file, obj)
         _warn_alt_fallback(rel, str(alt_ver), "the default 2.8 pipeline")
 
-    if tu_flags.get("cc1_272"):
+    if tu_flags.get("cc1_272") and not forced_normal_ver:
         if CC1_272 is not None:
             return _compile_c_272(rel, tu_flags, i_file, s_file, obj)
         global _warned_272
@@ -1569,22 +1583,31 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
     if tu_flags.get("no_rerun_cse_after_loop"):
         cc1_flags.append("-fno-rerun-cse-after-loop")
     # w52-a7: PER_TU "cc1_ver" swaps ONLY the cc1 binary (ladder rung) inside
-    # the NORMAL maspsx pipeline -- the single-variable version axis.  Distinct
+    # the NORMAL maspsx pipeline -- the single-variable version axis.  The
+    # probe-only NFS4_FORCE_CC1_VER applies that axis to the current C TU.
+    # Distinct
     # from cc1_alt, which also swaps the assembler route (272 recipe) and for
     # eaclib costs a measured 42-PASS route penalty.
     cc1_bin = CC1
-    if tu_flags.get("cc1_ver"):
-        cc1_bin = _resolve_cc1_alt(str(tu_flags["cc1_ver"]))
+    cc1_ver = os.environ.get("NFS4_FORCE_CC1_VER") or tu_flags.get("cc1_ver")
+    if cc1_ver:
+        cc1_bin = _resolve_cc1_alt(str(cc1_ver))
         if cc1_bin is None:
+            if os.environ.get("NFS4_FORCE_CC1_VER"):
+                sys.exit(f"[cc1-ver] {rel}: ladder rung {cc1_ver!r} not found "
+                         f"under {GCC_LADDER}")
             # CI without the ladder: fall back to the default cc1 so the tree
             # still builds; the TU's match numbers drift until installed.
-            _warn_alt_fallback(rel, str(tu_flags["cc1_ver"]), "the default cc1")
+            _warn_alt_fallback(rel, str(cc1_ver), "the default cc1")
             cc1_bin = CC1
+        else:
+            cc1_flags = _cc1_flags_for_rung(str(cc1_ver), cc1_flags)
     r = run([cc1_bin, *cc1_flags, i_file, "-o", s_file])
     if r.returncode:
         sys.exit(f"[cc1] {rel}\n{r.stdout}{r.stderr}")
 
-    _apply_cc1_ver_splice(rel.as_posix(), s_file, i_file, cc1_flags)
+    if not forced_normal_ver:
+        _apply_cc1_ver_splice(rel.as_posix(), s_file, i_file, cc1_flags)
     _apply_fn_splice(rel.as_posix(), s_file, i_file, cc1_bin, cc1_flags)
 
     raw40 = PER_FN_RAW40_SPLICE.get(rel.as_posix())

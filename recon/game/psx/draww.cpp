@@ -554,6 +554,8 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
     Draw_SVertex *v5;   /* SYM: REG $s5 */
     Draw_SVertex *v6;   /* SYM: REG $s7 */
     Draw_SVertex *v7;   /* SYM: REG $s6 */
+    int t4;
+    short n0;
 
     /* RESIDUAL (2026-07-11, re-verified not source-shapable): oracle computes
        v5/v6/v7/v8's indices as `n1=n+1` then `n1+1,n1+2,n1+3` (each independent
@@ -660,8 +662,9 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
        backface block) is already falsified above at 42/475.  NEXT INSTRUMENT: a
        zero-insn live-range EXTENDER that adds no ref (the 13B 4-witness request)
        -- until it exists this is a priced hardness certificate, not a floor. */
-    v4 = &r_div->v[n];
+    n0 = n;
     n = n + 1;
+    t4 = (int)n0 * 16;
     {
       /* w64-a2 (26 -> 8 @588/588, ALL REGISTERS NOW EXACT): the v5..v8 index
          chain is a BLOCK-LOCAL qty question, and the dial is the qty SET, not
@@ -806,12 +809,18 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
          DO NOT re-run: the fence walk (w70, 36 probes, all +2 insns on a short),
          the six index-chain spellings (w70), or any n0/nb/newn snapshot (above). */
       short q = n + 1; /* SYM-CODEGEN-CARRIER: q -- the named pivot is the measured 26->8 allocation cell */
+      short q1;
+      short q2;
+
       v5 = &r_div->v[n];
+      q1 = q + 1;
       v6 = &r_div->v[q];
-      v7 = &r_div->v[(short)(q + 1)];
-      v8 = &r_div->v[(short)(q + 2)];
+      q2 = q + 2;
+      v7 = &r_div->v[q1];
+      v8 = &r_div->v[q2];
     }
     n = n + 4;
+    v4 = (Draw_SVertex *)(t4 + (int)r_div->v);
     DrawW_DivVertice(v4,v0,v1);
     {
       int flag;

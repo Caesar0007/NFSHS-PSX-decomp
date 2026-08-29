@@ -886,6 +886,46 @@ def filter_exact_symbol_codegen_carriers(
     # PAD extension: Git commit 49c32f8e; ReadCmd/SyncCtrl extensions: Git
     # commit c0950c17.
     untyped_library_named_pair_views = {
+        # NFILE.OBJ is stripped. Its twenty-seven bodies fix the 0x30-byte
+        # operation slots, 0x4c-byte handles, and 0x30-byte singleton graph;
+        # no retained owner or compatible earlier FILE implementation proves
+        # the private PSX spellings. Lock the exact recovered graph while
+        # preserving that naming limit in the durable receipt. Pre-change
+        # backup: Git commit 75b712a9.
+        ("nfile.h", "FileOp"): (48, (
+            ("MOS", "UINT", 0, "id", 0, (), ""),
+            ("MOS", "INT", 0, "cancelreq", 4, (), ""),
+            ("MOS", "INT", 0, "status", 8, (), ""),
+            ("MOS", "INT", 0, "error", 12, (), ""),
+            ("MOS", "INT", 0, "prio", 16, (), ""),
+            ("MOS", "INT", 0, "param", 20, (), ""),
+            ("MOS", "INT", 0, "result18", 24, (), ""),
+            ("MOS", "INT", 0, "result1C", 28, (), ""),
+            ("MOS", "ARY UCHAR", 4, "_g20", 32, (4,), ""),
+            ("MOS", "INT", 0, "result24", 36, (), ""),
+            ("MOS", "PTR FCN VOID", 0, "callback", 40, (), ""),
+            ("MOS", "PTR STRUCT", 48, "qnext", 44, (), "FileOp"),
+        )),
+        ("nfile.h", "FileHandle"): (76, (
+            ("MOS", "INT", 0, "inuse", 0, (), ""),
+            ("MOS", "INT", 0, "size", 4, (), ""),
+            ("MOS", "INT", 0, "flags", 8, (), ""),
+            ("MOS", "ARY CHAR", 64, "name", 12, (64,), ""),
+        )),
+        ("nfile.h", "FileMgr"): (48, (
+            ("MOS", "INT", 0, "opcount", 0, (), ""),
+            ("MOS", "INT", 0, "handlecount", 4, (), ""),
+            ("MOS", "INT", 0, "idmask", 8, (), ""),
+            ("MOS", "INT", 0, "state", 12, (), ""),
+            ("MOS", "INT", 0, "cbpending", 16, (), ""),
+            ("MOS", "PTR STRUCT", 48, "curop", 20, (), "FileOp"),
+            ("MOS", "PTR STRUCT", 48, "oparray", 24, (), "FileOp"),
+            ("MOS", "PTR STRUCT", 76, "handlearray", 28, (),
+             "FileHandle"),
+            ("MOS", "PTR STRUCT", 48, "queuehead", 32, (), "FileOp"),
+            ("MOS", "PTR VOID", 0, "devicelist", 36, (), ""),
+            ("MOS", "ARY UCHAR", 8, "_g28", 40, (8,), ""),
+        )),
         # NASYNC.OBJ is stripped. Its twenty-three PASS bodies jointly fix the
         # complete request/FIFO graph; the NFS2 PC twin confirms EA's async
         # request/queue vocabulary but uses a different layout and does not

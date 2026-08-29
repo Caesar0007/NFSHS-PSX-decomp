@@ -238,9 +238,6 @@ already_init:
  * (their retail VAs are highest) -- forward decls for the callers above them. */
 
 /* ---- BIG-archive (.BIG) mount: FILE_addbig + its open/read completion callbacks ---- */
-typedef unsigned int size_t;   /* was <stddef.h>; C TU is self-contained */                                     /* size_t (target-faithful ptr<->int casts) */
-
-
 /* FILE_overhead @0x800EBD74 : total RAM the FILE system needs for the given pool sizes (0 -> default). */
 extern int FILE_overhead(int handlecount, int memsize, int opcount)
 {
@@ -925,7 +922,7 @@ extern void iFILE_addbigreadcallback(unsigned int id, int status, int *node)
     volatile int frame[2];
     void   *branchbuf = node;
     FileMgr *mgr   = &gFileMgr;
-    FileOp *cmd    = (FileOp *)(size_t)(unsigned int)node[2];
+    FileOp *cmd    = (FileOp *)(unsigned int)node[2];
     FileOp *op     = (FileOp *)((char *)mgr->oparray + (id >> 0x18) * 0x30);
     int     prio   = op->prio;            /* +0x10 */
     int     hdrsize, blksize;
@@ -938,27 +935,27 @@ extern void iFILE_addbigreadcallback(unsigned int id, int status, int *node)
     }
     FILE_completeop(id);                   /* final store above schedules into this call's delay slot */
 
-    if (typeofbigfile((void *)(size_t)(unsigned int)node[0]) == 0)
-        purgememadr((void *)(size_t)(unsigned int)node[0]);   /* invalid type -> drop the buffer */
+    if (typeofbigfile((void *)(unsigned int)node[0]) == 0)
+        purgememadr((void *)(unsigned int)node[0]);   /* invalid type -> drop the buffer */
 
-    hdrsize = sizeofbigfileheader((void *)(size_t)(unsigned int)node[0]);
-    blksize = getblocksize((void *)(size_t)(unsigned int)node[0]);
+    hdrsize = sizeofbigfileheader((void *)(unsigned int)node[0]);
+    blksize = getblocksize((void *)(unsigned int)node[0]);
     if (blksize < hdrsize) {              /* header bigger than what we have -> read the rest */
         void *newbuf = reservememadr((char *)"bigfile buf", hdrsize, 0x10);
         unsigned int rid;
         branchbuf = newbuf;
-        blockmove((void *)(size_t)(unsigned int)node[0], newbuf, 0x800);  /* keep the first block */
-        purgememadr((void *)(size_t)(unsigned int)node[0]);
-        node[0] = (int)(size_t)newbuf;
-        rid = FILE_read((void *)(size_t)(unsigned int)node[1], 0x800,
-                        (unsigned int)(size_t)((char *)newbuf + 0x800),
-                        hdrsize - 0x800, prio, (unsigned int)(size_t)node);
+        blockmove((void *)(unsigned int)node[0], newbuf, 0x800);  /* keep the first block */
+        purgememadr((void *)(unsigned int)node[0]);
+        node[0] = (int)newbuf;
+        rid = FILE_read((void *)(unsigned int)node[1], 0x800,
+                        (unsigned int)((char *)newbuf + 0x800),
+                        hdrsize - 0x800, prio, (unsigned int)node);
         FILE_callbackop(rid, (void (*)(unsigned int, int, int))iFILE_addbigreadcallback);
     } else {                             /* header complete -> publish the device */
         int *publish = (int *)branchbuf;
-        publish[3] = (int)(size_t)mgr->devicelist;   /* node->next = old head */
+        publish[3] = (int)mgr->devicelist;   /* node->next = old head */
         mgr->devicelist = publish;
-        iFILE_ExecCommand((void *)(size_t)(unsigned int)publish[2]);
+        iFILE_ExecCommand((void *)(unsigned int)publish[2]);
     }
 }
 
@@ -974,19 +971,19 @@ extern void iFILE_addbigopencallback(unsigned int id, int status, int *node)
     volatile int frame[2];
     int    *readNode = node;
     FileOp *ops  = gFileMgr.oparray;
-    FileOp *op   = (FileOp *)((id >> 0x18) * 0x30 + (size_t)ops);
+    FileOp *op   = (FileOp *)((id >> 0x18) * 0x30 + (unsigned int)ops);
     int     prio = op->prio;               /* +0x10 */
     int     handle = FILE_completeop(id);  /* open op result24 == the opened handle */
 
     if (status != 1) {                     /* open failed: don't cache cmdop -- the oracle stores
                                              * error=4 via one reload of node[2], then reloads
                                              * node[2] AGAIN fresh for the iFILE_ExecCommand arg */
-        ((FileOp *)(size_t)(unsigned int)node[2])->error = 4;
-        iFILE_ExecCommand((void *)(size_t)(unsigned int)node[2]);
+        ((FileOp *)(unsigned int)node[2])->error = 4;
+        iFILE_ExecCommand((void *)(unsigned int)node[2]);
     } else {                               /* open ok -> read the first header block */
-        unsigned int rid = FILE_read((void *)(size_t)handle, 0,
+        unsigned int rid = FILE_read((void *)(unsigned int)handle, 0,
                                      (unsigned int)readNode[0], 0x800,
-                                     prio, (unsigned int)(size_t)readNode);
+                                     prio, (unsigned int)readNode);
         FILE_callbackop(rid, (void (*)(unsigned int, int, int))iFILE_addbigreadcallback);
     }
 }
@@ -1008,21 +1005,21 @@ extern unsigned int FILE_addbig(char *name, unsigned int a1, unsigned int dataty
     op->id    = (op->id & 0xFF0FFFFFu) | 0x900000u;/* type nibble 9 = add-big */
     iscurrentthread(0);                            /* (asm calls it; return unused) */
 
-    for (; node; node = (int *)(size_t)(unsigned int)node[3]) {   /* already mounted? */
+    for (; node; node = (int *)(unsigned int)node[3]) {   /* already mounted? */
         /* compare against the handle's embedded name (handle+0xC); asm: a1 += 0xC in the delay slot */
-        if (strncmp(name, (char *)((size_t)(unsigned int)node[1] + 0x0C), 0x40) == 0) {
+        if (strncmp(name, (char *)((unsigned int)node[1] + 0x0C), 0x40) == 0) {
             op->result24 = node[1];                /* hand back the existing handle */
             iFILE_ExecCommand(op);
-            return (unsigned int)(size_t)op;       /* asm returns the op pointer in this path (quirk) */
+            return (unsigned int)op;       /* asm returns the op pointer in this path (quirk) */
         }
     }
 
     node    = (int *)reservememadr(name, 0x10, (int)a1);          /* 0x10-byte device node */
-    node[2] = (int)(size_t)op;                     /* node->cmdop = op (asm: databuf-alloc delay slot) */
+    node[2] = (int)op;                     /* node->cmdop = op (asm: databuf-alloc delay slot) */
     databuf = reservememadr((char *)"bigfile header", 0x800, 0x10);/* first header block buffer (stays in $v0) */
-    node[0] = (int)(size_t)databuf;                /* node->databuf -- store sinks into FILE_open's delay slot */
+    node[0] = (int)databuf;                /* node->databuf -- store sinks into FILE_open's delay slot */
     {
-        unsigned int oid = FILE_open(name, 1, datatype, (unsigned int)(size_t)node);
+        unsigned int oid = FILE_open(name, 1, datatype, (unsigned int)node);
         FILE_callbackop(oid, (void (*)(unsigned int, int, int))iFILE_addbigopencallback);
     }
     return op->id;                                 /* asm: v0 = *op = op->id */
@@ -1062,13 +1059,13 @@ extern unsigned int FILE_delbig(int delHandle, unsigned int a2, unsigned int a3)
     op->prio  = (int)a2;                             /* +0x10 */
     op->id    = (op->id & 0xFF0FFFFFu) | 0xA00000u;  /* type nibble 0xA = del-big */
 
-    if (((int *)(size_t)(unsigned int)delHandle)[2] != 0)   /* delHandle+8 != 0 -> note busy */
+    if (((int *)(unsigned int)delHandle)[2] != 0)   /* delHandle+8 != 0 -> note busy */
         op->error = 1;
 
     /* handle-array scan: is any open handle still pointing at this device? -> mark busy. */
     for (i = 0; i < gFileMgr.handlecount; i++) {
         if (h != 0 && h[2] != 0) {                   /* handle slot in use (h+8 != 0) */
-            int *hn = (int *)(size_t)(unsigned int)h[0];   /* handle[0] -> its device node */
+            int *hn = (int *)(unsigned int)h[0];   /* handle[0] -> its device node */
             if (hn[1] == delHandle) {                /* node+4 == delHandle */
                 op->status = -2;                     /* device-busy sentinel (asm delay-slot v0=-2) */
                 op->error  = 1;
@@ -1085,7 +1082,7 @@ extern unsigned int FILE_delbig(int delHandle, unsigned int a2, unsigned int a3)
         if (node[1] == delHandle)                    /* node+4 == delHandle -> found */
             break;
         prev = node;
-        node = (int *)(size_t)(unsigned int)node[3]; /* node->next (+0xC) */
+        node = (int *)(unsigned int)node[3]; /* node->next (+0xC) */
     }
     if (node == 0)
         op->error = 1;                               /* empty / not found */
@@ -1095,11 +1092,11 @@ extern unsigned int FILE_delbig(int delHandle, unsigned int a2, unsigned int a3)
     else
         gFileMgr.devicelist = 0;                     /* head case: clears the list head (see NOTE) */
 
-    purgememadr((void *)(size_t)(unsigned int)node[0]);    /* free the header buffer */
+    purgememadr((void *)(unsigned int)node[0]);    /* free the header buffer */
     purgememadr(node);                                     /* free the node */
     {
-        unsigned int cid = FILE_close((void *)(size_t)(unsigned int)closeHandle,
-                                      a2, (unsigned int)(size_t)op);  /* close op param = this command op */
+        unsigned int cid = FILE_close((void *)(unsigned int)closeHandle,
+                                      a2, (unsigned int)op);  /* close op param = this command op */
         FILE_callbackop(cid, (void (*)(unsigned int, int, int))iFILE_delbigclosecallback);
     }
     return op->id;
@@ -1108,7 +1105,7 @@ extern unsigned int FILE_delbig(int delHandle, unsigned int a2, unsigned int a3)
 /* ---- the device backend (fileio.obj @0x800F3xxx) + string helpers used by the dispatcher ---- */
 
 #define OPI(op, off)  (*(int *)((char *)(op) + (off)))          /* multipurpose op field at byte offset */
-#define HANDLE(cmd)   ((int *)(size_t)(unsigned int)OPI(cmd, 0x24))  /* not cached -- see below */
+#define HANDLE(cmd)   ((int *)(unsigned int)OPI(cmd, 0x24))  /* not cached -- see below */
 #define NAME(cmd)     ((char *)HANDLE(cmd) + 0x0C)
 
 /* FILE_atomic @0x800ECB40 : run `fn(a3, a4)` (fn takes the 3rd/4th args -- $a2/$a3), flush the FILE
@@ -1318,17 +1315,17 @@ extern void iFILE_ExecCommand(void *cmdp)
                 while (dev != 0) {
                     /* Explicit volume names only probe matching mounted devices. */
                     if (!(s3 & 4) ||
-                        strcmp((char *)(size_t)(unsigned int)dev[1] + 0x0C, volbuf) == 0) {
+                        strcmp((char *)(unsigned int)dev[1] + 0x0C, volbuf) == 0) {
                         int off, sz;
-                        if (locatebigentryz((void *)(size_t)(unsigned int)dev[0],
+                        if (locatebigentryz((void *)(unsigned int)dev[0],
                                             entrybuf, 0, &off, &sz) != 0) {
-                            HANDLE(cmd)[0] = (int)(size_t)dev;      /* handle->dev = this device node */
+                            HANDLE(cmd)[0] = (int)dev;      /* handle->dev = this device node */
                             HANDLE(cmd)[1] = sz;                    /* handle->size  */
                             HANDLE(cmd)[2] = off;                   /* handle->flags = entry base offset */
                             ccc = 1;
                         }
                     }
-                    dev = (int *)(size_t)(unsigned int)dev[3];      /* next device (+0xC) */
+                    dev = (int *)(unsigned int)dev[3];      /* next device (+0xC) */
                     if (dev == 0)
                         break;
                     if (ccc == 0)
@@ -1364,8 +1361,8 @@ extern void iFILE_ExecCommand(void *cmdp)
                 return;
             }
             if (HANDLE(cmd)[2] != 0) {           /* BIG entry: add the entry's base offset */
-                int *dev   = (int *)(size_t)(unsigned int)HANDLE(cmd)[0];
-                int *devfh = (int *)(size_t)(unsigned int)dev[1];   /* dev->handle (+4) */
+                int *dev   = (int *)(unsigned int)HANDLE(cmd)[0];
+                int *devfh = (int *)(unsigned int)dev[1];   /* dev->handle (+4) */
                 readfile(devfh[0], OPI(cmd, 0x20), HANDLE(cmd)[2] + OPI(cmd, 0x18), len);
             } else {                             /* real file */
                 readfile(HANDLE(cmd)[0], OPI(cmd, 0x20), OPI(cmd, 0x18), len);

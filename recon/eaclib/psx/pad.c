@@ -193,7 +193,11 @@ void PAD_restore(void)
  * alt-lane residuals are the same epilogue / `la`-split shapes).  Probed with pad.c added
  * to PER_FN_EPILOGUE_UNFILL_272 as well: padinit PASS, PAD_restore 3, PAD_state PASS,
  * PAD_convert PASS, PAD_update 21 -- still net-negative.  The build.py unfill entry above
- * reaches the same PASS with zero collateral, so that is the action, not a lane change. */
+ * reaches the same PASS with zero collateral, so that is the action, not a lane change.
+ * W80-root (2026-08-29): the whole-TU objection does not apply to the existing authentic
+ * PER_FN_CC1_VER_SPLICE lane. Adding PAD_state beside PAD_update on the 2.7.2 rung gives
+ * strict NFS4_SOURCE_ONLY PASS 20/20 twice; padinit/PAD_restore/PAD_convert/PAD_update are
+ * byte-identical to their controls. The ordinary gate also remains PASS 20/20. */
 u_short PAD_state(int padID)
 {
   if (gPadinfo.initialized != 0 && (u_int)padID < 8) {

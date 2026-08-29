@@ -1316,11 +1316,12 @@ PER_FN_CC1_VER_SPLICE = {
     "recon/syslib/psx/libgpu/FONT.c": {
         "2.8.1-norcse": {"FntFlush"},
     },
-    # W74-A19 (probe-verified 2x via the patched-vprobe harness a19_versplice.py;
-    # PAD_update 2 -> PASS 66/66, TU zero regression; coupled with the strip fix
-    # below + the pad.c TEXT_MOVES row): the fn wants 2.7.2 codegen for its
-    # constant remat while the TU stays 2.8.0.
-    "recon/eaclib/psx/pad.c": {"2.7.2": {"PAD_update"}},
+    # W74-A19: PAD_update wants 2.7.2 codegen for its constant remat while the
+    # TU stays 2.8.0. W80-root: the same authentic per-function rung closes
+    # PAD_state's epilogue at source-only PASS 20/20 (reproduced twice);
+    # padinit/PAD_restore/PAD_convert/PAD_update are unchanged by the added
+    # function region, so there is no TU collateral.
+    "recon/eaclib/psx/pad.c": {"2.7.2": {"PAD_state", "PAD_update"}},
 }
 
 

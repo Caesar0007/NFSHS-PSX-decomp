@@ -3407,6 +3407,37 @@ def filter_exact_symbol_codegen_carriers(
         untyped_library_codegen_views[copspeak_key] = copspeak_layout
         untyped_library_named_pair_views[copspeak_key] = copspeak_layout
 
+    # cars.obj dereferences two foreign globals whose completed owner tags are
+    # absent from its linked SYM graph.  Pair-lock the complete private source
+    # carriers so only their exact retail storage shapes are filtered.  Source
+    # and audit-tool backup before this extension: Git commit 2d590bb0.
+    cars_slice_view = (32, (
+        ("MOS", "ARY INT", 12, "center", 0, (3,), ""),
+        ("MOS", "ARY CHAR", 3, "normal", 12, (3,), ""),
+        ("MOS", "ARY CHAR", 3, "forward", 15, (3,), ""),
+        ("MOS", "ARY CHAR", 3, "right", 18, (3,), ""),
+        ("MOS", "UCHAR", 0, "acousticType", 21, (), ""),
+        ("MOS", "SHORT", 0, "pavedProfile", 22, (), ""),
+        ("MOS", "SHORT", 0, "leftDrive", 24, (), ""),
+        ("MOS", "SHORT", 0, "rightDrive", 26, (), ""),
+        ("MOS", "UCHAR", 0, "chunkIndex", 28, (), ""),
+        ("MOS", "UCHAR", 0, "laneCount", 29, (), ""),
+        ("MOS", "UCHAR", 0, "avgPavedWidthLf", 30, (), ""),
+        ("MOS", "UCHAR", 0, "avgPavedWidthRt", 31, (), ""),
+    ))
+    cars_imass_view = (32, (
+        ("MOS", "PTR STRUCT", 12, "animInst", 0, (), "Trk_AnimateInst"),
+        ("MOS", "STRUCT", 12, "dimension", 4, (), "coorddef"),
+        ("MOS", "STRUCT", 12, "lastPos", 16, (), "coorddef"),
+        ("MOS", "INT", 0, "lastTick", 28, (), ""),
+    ))
+    for cars_key, cars_layout in (
+        (("cars_types.h", "Cars_TrkNewSliceCodegenView"), cars_slice_view),
+        (("cars_types.h", "Cars_ObjectIMassCodegenView"), cars_imass_view),
+    ):
+        untyped_library_codegen_views[cars_key] = cars_layout
+        untyped_library_named_pair_views[cars_key] = cars_layout
+
     def exact_night_camera(block: TypeBlock) -> bool:
         owner = block.owner.replace("\\", "/").casefold()
         return (

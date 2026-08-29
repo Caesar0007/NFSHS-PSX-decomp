@@ -22,28 +22,34 @@ typedef enum s_type {
 } s_type;
 #endif
 
+#ifndef NFS4_AUDIOCMN_OMIT_SND_PLAY_OPTS
 struct SNDPLAYOPTS {
     int patnum;
     char bhandle, keynum, velocity, pan, vol, bend, fxlevel0, use3dpos;
     u_short pitchmult, timemult, azimuth;
     short elevation;
 };
+#endif
 
 #ifndef NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES
 struct SndBnk_t { int bnkID; char *phdr, *pdata; };
 struct Channels_t { int Partial, SFXnum; };
 #endif
+#ifndef NFS4_AUDIOCMN_OMIT_AUDIO_MUS_ENTRY
 struct AudioMus_tSongEntry {
     char *filename, *title, *artist, *label, *date, *notes;
     int length, index;
     char strbuf[32];
 };
+#endif
 
+#ifndef NFS4_AUDIOCMN_OMIT_COPSPEAK_REQUEST
 struct CopSpeak_tRequest {
     Car_tObj *car;
     int buffer, offset, size, filehandle, ophandle, phrase;
     char player, sfx, bank, noise;
 };
+#endif
 
 #ifndef NFS4_AUDIOCMN_OMIT_OWNER_ONLY_TYPES
 struct AudioCmn_tReTrig {

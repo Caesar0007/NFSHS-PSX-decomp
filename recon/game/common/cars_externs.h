@@ -2,8 +2,21 @@
  * Harvested from sibling *_externs.h + *.cpp defs + disasm-v2 (AI/Control demangled). */
 #ifndef _GAME_COMMON_CARS_EXTERNS_H_
 #define _GAME_COMMON_CARS_EXTERNS_H_
-#include "../../nfs4_types.h"
-#include "../../lib/libfns.h"
+#include "cars_types.h"
+
+extern "C" {
+int fixeddiv(...);
+int fixedmult(...);
+char *loadfileadrz(...);
+void *loadpackadr(...);
+void *locatebig(...);
+void *memset(...);
+int purgememadr(...);
+int random(...);
+void *reservememadr(...);
+int sprintf(...);
+char *strcpy(...);
+}
 
 extern "C" CARDINFO_def *MCRD_getcard(int);
 char *TextSys_Word(int id);

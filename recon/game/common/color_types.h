@@ -110,7 +110,9 @@ typedef enum Udff_tAccessType {
 } Udff_tAccessType;
 /* Opaque in color.obj; the linked SYM resolves its owner-proven size to 12. */
 struct Udff_tInfo;
+#ifndef NFS4_COLOR_OMIT_UDFF_HANDLE
 typedef Udff_tInfo *Udff_tHandle;
+#endif
 #endif
 
 struct AIPerson_t {

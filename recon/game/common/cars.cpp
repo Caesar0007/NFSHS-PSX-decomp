@@ -2,7 +2,7 @@
  *   3 fns: MasterInterruptHandler / SystemStartUp / SystemCleanUp. SYM-v3 locals; owns 4 globals.
  *   Verified vs disasm-v2.txt (addtimer/deltimer 1-arg = &Clock_MasterInterruptHandler). Self-contained.
  */
-#include "../../nfs4_types.h"
+#include "cars_types.h"
 #include "cars_externs.h"
 
 /* w64-a19 LINK FIX: these four cross-module helpers + the file-local Cars_SortCars were

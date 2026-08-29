@@ -33,6 +33,7 @@ struct Track_tArtresource {
 
 struct Track_tMaterial { char flag, mipmap_offset; short pmxIndex; };
 
+#ifndef NFS4_AUDIOCLC_OMIT_SOUND_API_TYPES
 struct SNDSYSCAP {
     u_short outputratemin, outputratemax;
     u_char outputchannelsmin, outputchannelsmax, inputvoicesmax;
@@ -50,6 +51,7 @@ struct SNDSYSSET {
 
 struct SNDSYSVEC { int (*issurfacelocked)(void); };
 struct SNDSAMPLEFORMAT { u_short samplerate; u_char channels, samplerep; };
+#endif
 
 #ifndef NFS4_AUDIOCLC_OMIT_SCHED_SCHEDULE
 struct Sched_tSchedule {

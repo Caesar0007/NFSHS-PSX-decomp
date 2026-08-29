@@ -11,10 +11,10 @@
  *   and FntFlush's locals are plain declarations at function top with their computation in
  *   separate assignment statements (C89 forbids declarations after statements in a block).
  *
- *   A FntStream (0x30 B, array @0x80135E58, count @0x80135FD8, active id @0x80135FDC) is a
+ *   A struct Font (0x30 B, array @0x80135E58, count @0x80135FD8, active id @0x80135FDC) is a
  *   self-describing text overlay: its first 16 bytes double as a TILE background-box primitive
- *   (tag/colour/x/y/w/h), its `ot` field heads the per-character sprite list, and textbuf/textlen
- *   accumulate the formatted string.  FntPrint formats into textbuf; FntFlush turns the text into
+ *   (tag/colour/x/y/w/h), its draw_mode heads the per-character sprite list, and buffer/written
+ *   accumulate the formatted string.  FntPrint formats into buffer; FntFlush turns the text into
  *   8x8 font sprites and draws the OT.  The character glyph index is
  *   (c >= 'a' ? c - 0x40 : c - 0x20), laid out in a 16-wide 8x8 font texture.
  *
@@ -54,21 +54,20 @@ typedef struct {                /* SPRT_8 (libgpu.h) : one 8x8 glyph, 0x10 bytes
     u_short clut;
 } SPRT_8;
 
-struct FntStream {              /* 0x30 bytes; @0x80135E58 + id*0x30 */
+struct Font {                   /* 0x30 bytes; @0x80135E58 + id*0x30 */
     TILE     tile;              /* +0x00 : bg-box primitive (code != 0 => draw box) */
     DR_MODE  draw_mode;         /* +0x10 : sprite OT head ('this') + tpage/clip words */
-    int      maxchars;          /* +0x1C : text capacity */
-    SPRT_8  *primbuf;           /* +0x20 : per-character sprite buffer */
-    char    *textbuf;           /* +0x24 : accumulated text */
-    int      textlen;           /* +0x28 : current text length */
-    int      autoupd;           /* +0x2C : auto-fit the clip box to the text */
+    int      capacity;          /* +0x1C : text capacity */
+    SPRT_8  *sprites;           /* +0x20 : per-character sprite buffer */
+    char    *buffer;            /* +0x24 : accumulated text */
+    int      written;           /* +0x28 : current text length */
+    int      unwrap;            /* +0x2C : auto-fit the clip box to the text */
 };
-typedef struct FntStream FntStream;
 
 /* W66-A3 (link): the stream array IS in the image; the splat blob emits it under
  * the project label `Font` (data_8010CCD4_r17.data.s, symbol_addrs Font=0x80135E58).
  * Alias the PsyQ spelling onto it -- name-only, no second copy. */
-extern FntStream _fnt[8] __asm__("Font");   /* @0x80135E58 : open font streams */
+extern struct Font _fnt[8] __asm__("Font"); /* @0x80135E58 : open font streams */
 extern int _fnt_count __asm__("D_80135FD8");          /* @0x80135FD8 : number of open streams */
 extern int _fnt_active __asm__("D_80135FDC");         /* @0x80135FDC : current active stream id */
 extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
@@ -78,35 +77,35 @@ extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
  * (never opened) the call is a no-op returning NULL.
  *
  * MATCH (W52-A10, 2026-08-09): 184 -> 6 diffs, instruction count now EXACT 199/199 and the
- * frame EXACT (0x50, every stack slot at the oracle's offset: dr@0x10 maxx@0x14 boty@0x18
+ * frame EXACT (0x50, every stack slot at the oracle's offset: dr@0x10 xscreen@0x14 max_y@0x18
  * r@0x1C g@0x20 b@0x24).  Four independent shape corrections, each gate-measured; the whole
  * previous "allocator coloring cascade / weak floor" diagnosis below was WRONG -- it was
  * RECONSTRUCTION SHAPE all the way down (same lesson as P34/SetDrawMove this wave).
  *
- *   (1) REAL PsyQ TYPES instead of byte-offset casts (the big one, 184 -> 36).  FntStream is
+ *   (1) REAL PsyQ TYPES instead of byte-offset casts (the big one, 184 -> 36).  struct Font is
  *       a TILE (0x00) + DR_MODE (0x10) + fields, and the glyph cursor is an `SPRT_8 *`, not a
  *       `u_char *` walked with `p += 0x10`.  Writing `p->u0/v0/x0/y0/r0/g0/b0` + `AddPrim(dr,
  *       p++)` and `AddPrim(dr, &fs->tile)` gives the oracle's addressing for free; the old
  *       hand-rolled `*(short *)(p + 8)` form cost registers and a bigger frame.  Declaration
- *       order is psyz's (dr, fs, curx/cury, maxx, boty, p, rightx, autoupd, remain, wrap,
- *       text, c2, c, u/v, r/g/b) -- that IS the oracle's stack-slot order.
- *   (2) SPLIT LOAD FROM ADD for rightx (methodology 3.12 #15b): `rightx = fs->tile.w;
- *       rightx = curx + (short)rightx;` loads `w` into its own temp early and lets gcc
+ *       order is psyz's (dr, font, x/y, xscreen, max_y, sprt, max_x, unwrap, len,
+ *       line_break, buf, ch2, ch, u/v, r/g/b) -- that IS the oracle's stack-slot order.
+ *   (2) SPLIT LOAD FROM ADD for max_x (methodology 3.12 #15b): `max_x = font->tile.w;
+ *       max_x = x + (short)max_x;` loads `w` into its own temp early and lets gcc
  *       schedule the `addu $s7,$s1,$v0` into the TermPrim jal's delay slot, exactly as retail.
- *   (3) SIGNED-CHAR TYPING of the text cursor (36 -> 13).  `signed char *text` + `signed char
- *       c` (NOT `u_char *` / `int`): the escape-digit reads `16 * (*++text - 48)` then emit
+ *   (3) SIGNED-CHAR TYPING of the text cursor (36 -> 13).  `signed char *buf` + `signed char
+ *       ch` (NOT `u_char *` / `int`): the escape-digit reads `16 * (*++buf - 48)` then emit
  *       the oracle's sign-extending `lb`, the loop-carried char is a QImode pseudo loaded with
  *       `lbu` and sign-extended per use (`sll 24; sra 24` -- the oracle's shared-delay-slot
- *       pair in the a-z/else arms of do_char), and `c2 = c;` replaces the wrong `c2 = c &
+ *       pair in the a-z/else arms of do_char), and `ch2 = ch;` replaces the wrong `ch2 = ch &
  *       0xFF` (which emitted an `andi` retail does not have).  cc1 defaults `char` to
  *       UNSIGNED on this toolchain (04M/w47-a10), so the `signed` keyword is load-bearing.
- *   (4) LOOP TAIL ORDER `++text; remain--; c = *text; if (!c) break;` (13 -> 6, and the count
+ *   (4) LOOP TAIL ORDER `++buf; len--; ch = *buf; if (!ch) break;` (13 -> 6, and the count
  *       became exact).  Retail's test block is `addiu $s0,1; addiu $fp,-1; lb; lbu; bnez`,
  *       i.e. the capacity countdown sits BEFORE the reload where it fills the load-delay slot
- *       (psyz's `c = *++text; if (!c) break; remain--;` put it in the branch delay slot
+ *       (psyz's `ch = *++buf; if (!ch) break; len--;` put it in the branch delay slot
  *       instead, costing a nop AND blocking the entry-test cross-jump).  With this order gcc
  *       cross-jumps the peeled entry test into the bottom block, reproducing retail's single
- *       `j` loop entry.  `remain` is dead after the loop, so the extra decrement on the
+ *       `j` loop entry.  `len` is dead after the loop, so the extra decrement on the
  *       final iteration is semantically free.
  *
  * LADDER (04U, re-run on the NEW source -- the verdict changed with the shape, so re-ladder
@@ -207,7 +206,7 @@ extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
  *   `boty` computed BEFORE `rightx` 13 @198 (it eats the TermPrim delay-slot `addu
  *   $s7,$s1,$v0` -- the W52 lever (2) is order-sensitive, do not reorder that pair) *
  *   `dr = &_fnt[id].draw_mode;` instead of `&fs->draw_mode` 13 @200 (re-derives the array
- *   address) * `dr` assigned after `p = fs->primbuf;` 2, inert * removing the blank line
+ *   address) * `dr` assigned after `p = fs->sprites;` 2, inert * removing the blank line
  *   before `TermPrim(dr)` (i.e. no statement-group change at all) 2, inert.
  *   The window between the `dr` spill and the call contains ONLY the eight long-lived
  *   field loads (all callee-saved, no reloads), so there is no reload for $a2 to collide
@@ -386,113 +385,113 @@ extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
 extern u_long *FntFlush(int id)
 {
     DR_MODE  *dr;
-    FntStream *fs;
-    int    curx, cury;
-    int    maxx;
-    int    boty;
-    SPRT_8 *p;
-    int    rightx;
-    int    autoupd;
-    int    remain;
-    int    wrap;
-    signed char *text;
-    int    c2;
-    signed char c;
+    struct Font *font;
+    int    x, y;
+    int    xscreen;
+    int    max_y;
+    SPRT_8 *sprt;
+    int    max_x;
+    int    unwrap;
+    int    len;
+    int    line_break;
+    signed char *buf;
+    int    ch2;
+    signed char ch;
     u_char u, v;
     int    r, g, b;
 
-    maxx = 0;
+    xscreen = 0;
     r = 0x80; g = 0x80; b = 0x80;       /* default glyph colour */
 
     if (!(id >= 0 && id < _fnt_count)) {
-        FntStream *act = &_fnt[_fnt_active];
-        if (act->textbuf == NULL)
+        struct Font *act = &_fnt[_fnt_active];
+        if (act->buffer == NULL)
             return NULL;
         id = _fnt_active;
     }
-    fs = &_fnt[id];
-    dr = &fs->draw_mode;
+    font = &_fnt[id];
+    dr = &font->draw_mode;
 
-    p       = fs->primbuf;
-    autoupd = fs->autoupd;
-    text    = (signed char *)fs->textbuf;
-    remain  = fs->maxchars;
-    curx    = fs->tile.x0;
-    cury    = fs->tile.y0;
-    rightx  = fs->tile.w;
-    rightx  = curx + (short)rightx;     /* split load from add: w lands in its own temp */
-    boty    = cury + fs->tile.h;
+    sprt  = font->sprites;
+    unwrap = font->unwrap;
+    buf   = (signed char *)font->buffer;
+    len   = font->capacity;
+    x     = font->tile.x0;
+    y     = font->tile.y0;
+    max_x = font->tile.w;
+    max_x = x + (short)max_x;     /* split load from add: w lands in its own temp */
+    max_y = y + font->tile.h;
 
     TermPrim(dr);
-    c = *text;
-    while (c) {
-        if (!remain) break;
-        wrap = 0;
-        c2 = c;
-        if (c2 != ' ') {
-            if (c2 <= ' ') {
-                switch (c2) {
+    ch = *buf;
+    while (ch) {
+        if (!len) break;
+        line_break = 0;
+        ch2 = ch;
+        if (ch2 != ' ') {
+            if (ch2 <= ' ') {
+                switch (ch2) {
                 case 9:  goto do_tab;
                 case 10: goto set_linebreak;
                 }
                 goto do_char;
-            } else if (c2 == '~') {
-                if (*++text == 'c') {
-                    r = 16 * (*++text - 48);
-                    g = 16 * (*++text - 48);
-                    b = 16 * (*++text - 48);
+            } else if (ch2 == '~') {
+                if (*++buf == 'c') {
+                    r = 16 * (*++buf - 48);
+                    g = 16 * (*++buf - 48);
+                    b = 16 * (*++buf - 48);
                 }
             } else {
                 goto do_char;
             do_tab:
-                curx += 0x20;
+                x += 0x20;
                 goto check_x;
             do_char:
-                c = *text;
-                if (c >= 'a' && c <= 'z') c2 = c - 0x40; else c2 = c - 0x20;
-                u = (c2 % 16) * 8;
-                v = (c2 / 16) * 8;
-                p->u0 = u;
-                p->v0 = v;
-                p->x0 = curx;
-                p->y0 = cury;
-                p->r0 = r;
-                p->g0 = g;
-                p->b0 = b;
-                AddPrim(dr, p++);
-                curx += 8;
+                ch = *buf;
+                if (ch >= 'a' && ch <= 'z') ch2 = ch - 0x40; else ch2 = ch - 0x20;
+                u = (ch2 % 16) * 8;
+                v = (ch2 / 16) * 8;
+                sprt->u0 = u;
+                sprt->v0 = v;
+                sprt->x0 = x;
+                sprt->y0 = y;
+                sprt->r0 = r;
+                sprt->g0 = g;
+                sprt->b0 = b;
+                AddPrim(dr, sprt++);
+                x += 8;
             check_x:
-                if (curx >= rightx && !autoupd) {
+                if (x >= max_x && !unwrap) {
                 set_linebreak:
-                    wrap = 1;
+                    line_break = 1;
                 }
             }
         } else {
-            curx += 8;
-            if (curx >= rightx && !autoupd) wrap = 1;
+            x += 8;
+            if (x >= max_x && !unwrap) line_break = 1;
         }
-        if (wrap) {
-            if (maxx < curx) maxx = curx;
-            cury += 8;
-            curx = fs->tile.x0;
-            if (cury >= boty) break;
+        if (line_break) {
+            if (xscreen < x) xscreen = x;
+            y += 8;
+            x = font->tile.x0;
+            if (y >= max_y) break;
         }
-        ++text;
-        remain--;
-        c = *text;
-        if (!c) break;
+        ++buf;
+        len--;
+        ch = *buf;
+        if (!ch) break;
     }
-    if (fs->tile.code) {                              /* draw the background box */
-        AddPrim(dr, &fs->tile);
-        if (autoupd) {
-            autoupd = maxx;
-            fs->tile.w = autoupd - fs->tile.x0;
-            fs->tile.h = cury - ((u_short)fs->tile.y0 - 8);
+    if (font->tile.code) {                              /* draw the background box */
+        AddPrim(dr, &font->tile);
+        if (unwrap) {
+            unwrap = xscreen;
+            font->tile.w = unwrap - font->tile.x0;
+            font->tile.h = y - ((u_short)font->tile.y0 - 8);
         }
     }
     DrawOTag((u_long *)dr);
-    fs->textlen = 0;
-    *fs->textbuf = 0;
+    font->written = 0;
+    *font->buffer = 0;
     return (u_long *)dr;
 }
 
@@ -508,8 +507,8 @@ extern u_long *FntFlush(int id)
  * filled initial zero-check slot (retail nop) plus jump2 reusing v0=-1 instead of rematerializing
  * a2=-1.  Hand-rolled vararg pointer bumps remain required; stdarg `va_arg` regresses. */
 #define WriteChar(c)                                                        \
-    fs->textbuf[fs->textlen++] = (c);                                       \
-    if (fs->textlen > fs->maxchars) {                                       \
+    fs->buffer[fs->written++] = (c);                                        \
+    if (fs->written > fs->capacity) {                                       \
         return -1;                                                          \
     }
 
@@ -517,7 +516,7 @@ extern int FntPrint(const char *id, ...)
 {
     char buf[0x200];
     va_list args;
-    FntStream *fs;
+    struct Font *fs;
     signed char padZeros;
     int num;
     int len;
@@ -532,14 +531,14 @@ extern int FntPrint(const char *id, ...)
     if ((int)id < 0 || (int)id >= _fnt_count) {
         f = (signed char *)id;
         id = (const char *)_fnt_active;
-        if (_fnt[(int)id].textbuf == NULL)
+        if (_fnt[(int)id].buffer == NULL)
             return -1;
     } else {
         f = *(signed char **)args; args = (void *)((char *)args + 4);
     }
 
     fs = &_fnt[(int)id];
-    if (fs->textlen > fs->maxchars)
+    if (fs->written > fs->capacity)
         return -1;
 
     ch = *f;
@@ -687,7 +686,7 @@ extern int FntPrint(const char *id, ...)
         }
     }
 fnt_done:
-    fs->textbuf[fs->textlen] = 0;
-    return fs->textlen;
+    fs->buffer[fs->written] = 0;
+    return fs->written;
 }
 #undef WriteChar

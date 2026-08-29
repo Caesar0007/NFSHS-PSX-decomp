@@ -1346,6 +1346,7 @@ def _apply_cc1_ver_splice(rel_posix: str, s_file: Path, i_file: Path,
         except FileNotFoundError:
             pass
         run_env = None
+        alt_input = i_file
         alt_flags = _cc1_flags_for_rung(ver, cc1_flags)
         if ver == "2.8.1-norcse":
             run_env = os.environ.copy()
@@ -1355,28 +1356,38 @@ def _apply_cc1_ver_splice(rel_posix: str, s_file: Path, i_file: Path,
             # compiler writes FntFlush; -mgas is part of the object identity.
             alt_flags = ["-quiet", "-O2", "-G4", "-mgas",
                          "-mno-split-addresses"]
-        r = run([alt_cc1, *alt_flags, i_file, "-o", alt_s], env=run_env)
-        if ver == "2.8.1-norcse" and r.returncode not in (0xC0000005, -1073741819):
-            sys.exit(f"[cc1-vs {ver}] unexpected exit {r.returncode} for "
-                     f"{rel_posix}\n{r.stdout}{r.stderr}")
-        if r.returncode and ver != "2.8.1-norcse":
+            # W79-root: compile a structurally checked one-function input
+            # instead of relying on the instrumented compiler to fault while
+            # entering FntPrint. Canonical private-name restoration changes
+            # heap timing and can make that fault truncate assembler metadata
+            # after the already-complete FntFlush instruction body. Slicing
+            # BEFORE cc1 makes the lane deterministic and performs no
+            # post-compile instruction rewrite. Pre-change tool backup:
+            # Git commit 93adfbcd.
+            input_text = i_file.read_text()
+            markers = list(re.finditer(
+                r"^extern int FntPrint\s*\(", input_text, re.M))
+            if len(markers) != 1:
+                sys.exit(f"[cc1-vs {ver}] expected one FntPrint input marker "
+                         f"for {rel_posix}, found {len(markers)}")
+            alt_input = s_file.with_suffix(".vs_2_8_1_norcse.i")
+            alt_input.write_text(input_text[:markers[0].start()].rstrip() + "\n")
+        r = run([alt_cc1, *alt_flags, alt_input, "-o", alt_s], env=run_env)
+        if r.returncode:
             sys.exit(f"[cc1-vs {ver}] {rel_posix}\n{r.stdout}{r.stderr}")
         if not alt_s.is_file():
             sys.exit(f"[cc1-vs {ver}] no output for {rel_posix}\n{r.stdout}{r.stderr}")
         alt_text = alt_s.read_text(errors="replace")
         if ver == "2.8.1-norcse":
-            # This compiler AVs while starting the later FntPrint function,
-            # after flushing one complete FntFlush region.  Accept the partial
-            # file only under this deliberately narrow structural contract.
+            # The sliced compiler input must produce exactly one complete,
+            # normally terminated function. Keep the contract narrow so this
+            # lane can never accept a partial or unrelated assembly stream.
             if set(fn_names) != {"FntFlush"}:
                 sys.exit("[cc1-vs 2.8.1-norcse] unexpected function set")
             if re.findall(r"^\t\.ent\t([^\s]+)", alt_text, re.M) != ["FntFlush"]:
                 sys.exit("[cc1-vs 2.8.1-norcse] partial output has unexpected .ent set")
-            anon_end = re.search(r"^\t\.end\t[ \t]*$", alt_text, re.M)
-            if anon_end is None:
-                sys.exit("[cc1-vs 2.8.1-norcse] complete anonymous FntFlush end missing")
-            alt_text = (alt_text[:anon_end.start()] + "\t.end\tFntFlush\n"
-                        + alt_text[anon_end.end():].lstrip("\r\n"))
+            if re.findall(r"^\t\.end\t([^\s]+)", alt_text, re.M) != ["FntFlush"]:
+                sys.exit("[cc1-vs 2.8.1-norcse] complete FntFlush end missing")
         normal_text = s_file.read_text()
         for name in sorted(fn_names):
             alt_region = _extract_fn_region(alt_text, name)

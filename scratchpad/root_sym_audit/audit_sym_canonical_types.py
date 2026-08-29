@@ -672,6 +672,80 @@ def filter_exact_symbol_codegen_carriers(
         basename = owner.replace("\\", "/").casefold().rsplit("/", 1)[-1]
         return basename in stripped_vendor_eligible
 
+    # FONT.OBJ is another stripped PsyQ 4.3 vendor owner.  Unlike SPRINTF,
+    # two used standard typedefs retain their GCC debug owner as stdarg.h and
+    # stddef.h, so lock this compilation's entire emitted graph atomically.
+    # PsyQ 4.3 libgpu.h proves TILE/DR_MODE/SPRT_8; the fully matched PsyQ font
+    # source proves Sony's private `struct Font` names and member graph.  The
+    # current NFS4 FntPrint is exact and FntFlush is instruction-count exact.
+    # Any extra, missing, renamed, or reshaped block/typedef disables the whole
+    # classification. Pre-change source/tool backup: Git commit 93adfbcd.
+    font_vendor_blocks = Counter({
+        ("STRTAG", "<anonymous>", 16, (
+            ("MOS", "ULONG", 0, "tag", 0, (), ""),
+            ("MOS", "UCHAR", 0, "r0", 4, (), ""),
+            ("MOS", "UCHAR", 0, "g0", 5, (), ""),
+            ("MOS", "UCHAR", 0, "b0", 6, (), ""),
+            ("MOS", "UCHAR", 0, "code", 7, (), ""),
+            ("MOS", "SHORT", 0, "x0", 8, (), ""),
+            ("MOS", "SHORT", 0, "y0", 10, (), ""),
+            ("MOS", "SHORT", 0, "w", 12, (), ""),
+            ("MOS", "SHORT", 0, "h", 14, (), ""),
+        )): 1,
+        ("STRTAG", "<anonymous>", 12, (
+            ("MOS", "ULONG", 0, "tag", 0, (), ""),
+            ("MOS", "ARY ULONG", 8, "code", 4, (2,), ""),
+        )): 1,
+        ("STRTAG", "<anonymous>", 16, (
+            ("MOS", "ULONG", 0, "tag", 0, (), ""),
+            ("MOS", "UCHAR", 0, "r0", 4, (), ""),
+            ("MOS", "UCHAR", 0, "g0", 5, (), ""),
+            ("MOS", "UCHAR", 0, "b0", 6, (), ""),
+            ("MOS", "UCHAR", 0, "code", 7, (), ""),
+            ("MOS", "SHORT", 0, "x0", 8, (), ""),
+            ("MOS", "SHORT", 0, "y0", 10, (), ""),
+            ("MOS", "UCHAR", 0, "u0", 12, (), ""),
+            ("MOS", "UCHAR", 0, "v0", 13, (), ""),
+            ("MOS", "USHORT", 0, "clut", 14, (), ""),
+        )): 1,
+        ("STRTAG", "Font", 48, (
+            ("MOS", "STRUCT", 16, "tile", 0, (), "<anonymous>"),
+            ("MOS", "STRUCT", 12, "draw_mode", 16, (), "<anonymous>"),
+            ("MOS", "INT", 0, "capacity", 28, (), ""),
+            ("MOS", "PTR STRUCT", 16, "sprites", 32, (),
+             "<anonymous>"),
+            ("MOS", "PTR CHAR", 0, "buffer", 36, (), ""),
+            ("MOS", "INT", 0, "written", 40, (), ""),
+            ("MOS", "INT", 0, "unwrap", 44, (), ""),
+        )): 1,
+    })
+    font_vendor_typedefs = Counter({
+        ("u_long", "ULONG", 0, ""): 1,
+        ("u_char", "UCHAR", 0, ""): 1,
+        ("u_short", "USHORT", 0, ""): 1,
+        ("va_list", "PTR VOID", 0, ""): 1,
+        ("size_t", "UINT", 0, ""): 1,
+        ("TILE", "STRUCT", 16, "<anonymous>"): 1,
+        ("DR_MODE", "STRUCT", 12, "<anonymous>"): 1,
+        ("SPRT_8", "STRUCT", 16, "<anonymous>"): 1,
+    })
+    font_vendor_eligible = (
+        any(
+            block.name == "Font"
+            and block.owner.replace("\\", "/").casefold().endswith("font.c")
+            for block in type_blocks
+        )
+        and Counter(block.semantic() for block in type_blocks)
+        == font_vendor_blocks
+        and Counter(
+            (
+                item.name, item.typ, item.size,
+                normalize_tag(item.tag) if item.tag else "",
+            )
+            for item in typedefs
+        ) == font_vendor_typedefs
+    )
+
     expected_rows = (
         ("MOS", "ARY UCHAR", 4, "anchorBytes", 0, (4,), ""),
         ("MOS", "PTR STRUCT", 576, "target", 4, (), "BO_tNewtonObj"),
@@ -3131,7 +3205,8 @@ def filter_exact_symbol_codegen_carriers(
     return (
         [
             block for block in type_blocks
-            if not exact_stripped_vendor_owner(block.owner)
+            if not font_vendor_eligible
+            and not exact_stripped_vendor_owner(block.owner)
             and not (night_eligible and exact_night_camera(block))
             and not (block.name in hud_eligible and exact_hud_view(block))
             and not (block.name in drawc_eligible and exact_drawc_view(block))
@@ -3194,7 +3269,8 @@ def filter_exact_symbol_codegen_carriers(
         ],
         [
             item for item in typedefs
-            if not exact_stripped_vendor_owner(item.owner)
+            if not font_vendor_eligible
+            and not exact_stripped_vendor_owner(item.owner)
             and not (night_eligible and exact_night_camera_typedef(item))
             and not (item.name in hud_eligible and exact_hud_view_typedef(item))
             and not (item.name in drawc_eligible and exact_drawc_view_typedef(item))

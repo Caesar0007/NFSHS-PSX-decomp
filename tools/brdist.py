@@ -16,7 +16,10 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path(r'C:\Temp\nfs4-decomp')
+# Resolve the checkout that owns this script.  A hard-coded main checkout made
+# worktree audits silently compile a different source tree and report false
+# branch-distance results for otherwise verified candidates.
+ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 OBJD = r'C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-objdump.exe'
 BR = re.compile(r'^\s*(b\w*|j)\b')

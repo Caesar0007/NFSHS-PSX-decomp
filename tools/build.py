@@ -1021,6 +1021,11 @@ def _resolve_cc1_psyq40() -> Path:
 CC1_PSYQ40 = _resolve_cc1_psyq40()
 PER_FN_RAW40_SPLICE = {
     "recon/syslib/psx/libpad/PADSEQD.c": {"_padInitDirSeq"},
+    # W84-root: CDREAD.OBJ's _read_issue is the PsyQ-4.0/2.7.2 raw-macro
+    # identity.  Dependency-safe source fences now preserve the retail anchor
+    # allocation without letting a zero-byte asm occupy CdLastPos's delay slot.
+    # Full TU 6/6 PASS x2; slotcheck 0; strict-branch and brdist clean.
+    "recon/syslib/psx/libcd/cdread.c": {"_read_issue"},
     # W74-A15 (verified end-to-end: object hand-built from the raw40merged.s,
     # assembled with the lane's as, scored with verify_asm's normalizer ->
     # firstfile PASS 103/103 AND _first_patch PASS 64/64; coupled with the

@@ -705,6 +705,19 @@ extern void _read_data_int(void)
  *    3-diff basin stands, and its two residuals are FULLY EXPLAINED (reload_cse +
  *    the split-address reorg steal), not merely "named".
  * ========================================================================== */
+/* 🏆 W84-ROOT -- PASS 122/122, SAFE RAW40 LANDING.  The W75 hazard was caused by
+ * the block-local `mp` liveness fence: because it was independent of the nested
+ * `CdLastPos`/`CdPosToInt` calls, reorg selected its zero-byte asm as the first call's
+ * delay-slot filler and left the second `jal` in that slot.  The source-level cure is to
+ * keep `mp` at function scope and perform its load-bearing read-only fence only AFTER
+ * `CdPosToInt`, with `sect` as a second input.  Both the moved `mp` fence and the callback
+ * identity fence therefore depend on the completed call result and cannot legally move
+ * before either call; GNU as emits retail's real `nop` after `CdLastPos`.
+ *
+ * The complete cell is the already-measured RAW40/PsyQ-4.0 compiler identity plus the
+ * shell/error/tail anchors below.  No instruction stream is rewritten after compilation.
+ * Verified twice over all six cdread functions: 6/6 PASS; `_read_issue` 122/122;
+ * slotcheck bad=0; strict-branch 9/9 clean; brdist 0. */
 extern int _read_issue(int retry)
 {
     /* W62-A6: 22 -> 15.  TWO OPPOSITE delay-slot devices, both from the same law
@@ -729,7 +742,9 @@ extern int _read_issue(int retry)
      * result is in `$a0`; splitting the sector value into its own local ahead of the
      * anchor is the untested shape.  */
     volatile CdrEnv *g;
+    volatile int *mp;
     int sect;
+    int cb;
     CdSyncCallback(0);
     CdReadyCallback(0);
     if (CD_read_dma_mode & 1)
@@ -739,9 +754,16 @@ extern int _read_issue(int retry)
         if ((VSync(-1) & 0x3F) == 0)               /* throttle the spam */
             puts("CdRead: Shell open...\n");
         CdControlF(1, 0);                          /* CdlNop */
-        _cdr.w1c = VSync(-1);
-        _cdr.w14 = -1;
-        return _cdr.w14;
+        {
+            volatile CdrEnv *sh;
+            int v;
+            v = VSync(-1);
+            sh = &_cdr;
+            __asm__("" : "=r"(sh) : "0"(sh));
+            sh->w1c = v;
+            sh->w14 = -1;
+            return sh->w14;
+        }
     }
 
     if (retry != 0) {
@@ -763,9 +785,9 @@ extern int _read_issue(int retry)
      * per the W45 fence-fixpoint law. */
     __asm__("" : : "i"(0));
     {
-        volatile int *mp = &_cdr.w0c;   /* MATCH: FIELD ANCHOR ($s1) held across CdMode() */
         int    m;
         u_char modeb;
+        mp = &_cdr.w0c;   /* MATCH: FIELD ANCHOR ($s1) held across CdMode() */
         __asm__("" : "=r"(mp) : "0"(mp));
         m     = *mp;                    /* MATCH: ONE load of w0c ($s0), reused for both uses */
         modeb = (u_char)m;
@@ -773,12 +795,14 @@ extern int _read_issue(int retry)
             if (CdControl(0xE, &modeb, 0) == 0) {            /* CdlSetmode */
             error:
                 __asm__("" : : "i"(0));
-                _cdr.w14 = -1;      /* MATCH: retail keeps this error tail INLINE (bnez skips it); */
-                return _cdr.w14;    /* sharing it via `goto error` cross-jumps + inverts polarity */
+                {
+                    volatile CdrEnv *er = &_cdr;
+                    __asm__("" : "=r"(er) : "0"(er));
+                    er->w14 = -1;
+                    return er->w14;
+                }
             }
         }
-        __asm__("" : : "r"(mp));  /* MATCH: keep the anchor live PAST CdMode -> $s1,
-                                    * which pushes `retry` onto retail's $s2 */
     }
 
     /* delay-slot capture: w20 receives CdPosToInt()'s result (computed before CdReadyCallback). */
@@ -795,11 +819,15 @@ extern int _read_issue(int retry)
      * (a)+(b) 12 @120/122, (a) without the identity fence 19.
      * scratchpad/w63a6/probe_issue.py. */
     sect = CdPosToInt((CdlLOC *)CdLastPos());                        /* start sector */
-    __asm__("" : : "i"(0));
+    /* W84: keep mp live in retail's $s1, but make the zero-byte fence dependent
+     * on the completed nested call so it is ineligible for either delay slot. */
+    __asm__("" : : "r"(mp), "r"(sect));
+    cb = (int)_read_int;
+    __asm__("" : "=r"(cb) : "0"(cb), "r"(sect));
     g = &_cdr;                      /* MATCH: TAIL ANCHOR ($s0) -- one `la` for the whole tail */
     __asm__("" : "=r"(g) : "0"(g));
     *(int *)&g->w20 = sect;
-    CdReadyCallback((CdlCB)_read_int);
+    CdReadyCallback((CdlCB)cb);
     if (CD_read_dma_mode & 1)
         CdDataCallback(_read_data_int);
     /* MATCH (W71-A8): this store PRECEDES CdControlF -- retail carries it in that call's

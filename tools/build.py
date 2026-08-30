@@ -1009,7 +1009,20 @@ _SPLICE_COUNTER = [0]
 # (maspsx would pre-expand the macros and nop the slot -- that IS the 3-diff),
 # and let the lane's own GNU as do the split natively.  Byte-proof:
 # scratchpad/W73_pq40.s + GNU-as objdump == retail w10..w12 exactly.
-CC1_PSYQ40 = Path(r"C:/Temp/nfs3-clean/psyq400/COMPILER/CC1PSX.EXE")
+# Resolution: env override, dev-box psyq400 drop, then CC1PSX272.EXE beside
+# the resolved CC1 -- the CI toolchain-zip slot, which IS this exact binary
+# (PsyQ 4.0 CC1PSX.EXE renamed; sha256 5594a2241d1ddaa2... both).  Without
+# the fallback, CI silently skipped the raw40 splice (its guard is a graceful
+# .exists()) and decomp.dev showed firstfile at 93.88% / _padInitDirSeq's TU
+# drifting instead of their sealed PASSes.
+def _resolve_cc1_psyq40() -> Path:
+    for c in (Path(_env("NFS4_CC1_PSYQ40",
+                        r"C:/Temp/nfs3-clean/psyq400/COMPILER/CC1PSX.EXE")),
+              Path(CC1).parent / "CC1PSX272.EXE"):
+        if c.is_file():
+            return c
+    return Path(r"C:/Temp/nfs3-clean/psyq400/COMPILER/CC1PSX.EXE")
+CC1_PSYQ40 = _resolve_cc1_psyq40()
 PER_FN_RAW40_SPLICE = {
     "recon/syslib/psx/libpad/PADSEQD.c": {"_padInitDirSeq"},
     # W74-A15 (verified end-to-end: object hand-built from the raw40merged.s,

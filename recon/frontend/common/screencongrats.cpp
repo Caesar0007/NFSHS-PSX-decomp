@@ -794,14 +794,21 @@ ranked_finish:
   this->fSpeechToPlay = j + 0xe;
   this->congratsMessage = kScreenCongrats_Congrats;
   this->trophy = j == 2 ? kTrophySilver : kTrophyBronze;
+  /* MATCH (W82 orch): the kSpinningNone store belongs to the ranked and
+     eliminated paths ONLY -- retail's first_place `goto prizes_done` jumps
+     PAST it (j +0x184, brdist word #9), keeping the Gold/None spinner it
+     just set; a shared store at prizes_done had first_place clobbering it
+     (real semantic bug) and the j landing one insn short.  cross_jump
+     merges these two copies into retail's shared suffix at +0x180. */
+  this->smallSpinningThing = kSpinningNone;
   goto prizes_done;
 
 eliminated:
   this->congratsMessage = kScreenCongrats_Eliminated;
   this->trophy = kTrophyCar;
+  this->smallSpinningThing = kSpinningNone;
 
 prizes_done:
-  this->smallSpinningThing = kSpinningNone;
   __asm__("" : : "i"(0));
   this->fCarPlayer = 0;
   this->TotalCash = tournamentManager.fMoney;

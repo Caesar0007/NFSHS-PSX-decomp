@@ -270,11 +270,12 @@ extern int SPCH_Init(int sampleRequestCb, unsigned int gameNum, int dataRate)
         int *initializedPtr;
         iSPCH_InitEventQueue();
         initialized = 0x1789a34;
-        do { initialized++; initialized--; } while (0);
-        do { initialized++; initialized--; } while (0);
-        do { initialized++; initialized--; } while (0);
         initializedPtr = gSPCH_Initialized;
-        do { initializedPtr++; initializedPtr--; } while (0);
+        /* W81-A4: ONE empty barrier replaces the four ++/-- fake loops -- the
+         * WHOLE OBJECT is byte-identical (md5 e2a8d780...), a proven
+         * codegen-neutral -4-fiction reduction, not a re-tune.  Do NOT tidy it
+         * away: without it the function is 10 diffs, not 2. */
+        do { } while (0);
         initializedPtr[0] = initialized;
         return 1;
     }

@@ -11,6 +11,14 @@
 > Electronic Arts Inc.; no game assets or proprietary compiler binaries are
 > distributed here.*
 
+## 📢 Official port project
+
+The **authorized** port of this decompilation lives at
+[**XProger/NFSHS-PSX-decomp-port**](https://github.com/XProger/NFSHS-PSX-decomp-port)
+— NFS4 decomp project ports, by [XProger](https://github.com/XProger).
+It is the **only** port carrying the author's written authorization under the
+[LICENSE](LICENSE); any other port remains unauthorized.
+
 A byte-matching decompilation of the PSX build of *Need for Speed: High Stakes*
 (`nfs4-f`, EA 1999), in the [Silent Hill decomp](https://github.com/Vatuu/silent-hill-decomp)
 mould: splat-split asm, `INCLUDE_ASM`-based mixed translation units, and objdiff

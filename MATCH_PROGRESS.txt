@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3492 functions, 3487 at 100% (99.9%)
+TOTAL: 3493 functions, 3488 at 100% (99.9%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -1067,6 +1067,7 @@ VA             %match  unit                     function
 0x800608B4    100.00%  game/common/aih_btcperp  HighExecute__17AIHigh_BTC_AIPerp
 0x80060D74    100.00%  game/common/aih_btcperp  NewStage__17AIHigh_BTC_AIPerpP19AIHigh_BTC_HumanCop
 0x80061320    100.00%  game/common/aih_btcperp  ___20AIHigh_BTC_HumanPerp
+0x80061348    100.00%  game/common/aih_btcperp  ___15AIHigh_BTC_Perp_80061348
 0x80061370    100.00%  game/common/aih_btcperp  Execute__17AIState_NonActive_80061370
 0x80061378    100.00%  game/common/aih_btcperp  ___17AIState_NonActive_80061378
 0x800613C4    100.00%  game/common/aih_btcperp  TestForRelease__12AIState_Base_800613C4

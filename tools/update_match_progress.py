@@ -91,20 +91,14 @@ def main():
     rep = json.load(open(report_path, encoding="utf-8"))
     vas = load_vas()
 
-    # (unit, fn) rows whose retail home unit is tracked elsewhere: the fn is fully
-    # reconstructed in a DIFFERENT recon TU, so the splat-unit row can only ever
-    # show a phantom 0.00% ("symbol missing" -- our side deliberately has no copy
-    # there).  2026-08-10, user-flagged.  Keep this list tiny and receipted.
-    SUPERSEDED = {
-        ("game/common/spchevnt", "VoxEvent_GetFilterLengthFlag"),  # recon/eaclib/psx/spchpsxz/spchevnt.c static @0x800E6E88
-        ("game/common/spchevnt", "iSPCH_GetOffset16"),             # recon/eaclib/psx/spchpsxz/spchevnt.c static @0x800E6EA8
-        ("syslib/psx/libpad/PAD", "PAD_convert"),                  # recon/eaclib/psx/pad.c SYM-STAT static @0x800E41FC
-        ("syslib/psx/libpad/PAD", "ReadInitPadFlag"),              # recon/syslib/psx/libapi/PAD.c @0x8010C9B0 (gate PASS)
-        # w60 unlock dedups (canonical owner per SYM; the old-unit copy removed):
-        ("frontend/common/fememcard", "___19tMemoryCardMenuItem"), # femenuoptions.cpp owns @0x80020BD8 (gate PASS there)
-        ("frontend/common/femenuoptions", "Draw__27tMenuItemGoToMenuNFS4Buttonb"),  # femenuextended.cpp owns @0x8001BF40 (W60-A10 dedup; gate PASS 2/2)
-        ("game/common/aih_btcperp", "___15AIHigh_BTC_Perp"),       # aihigh.cpp owns @0x8005B438 (member dtor, gate PASS)
-    }
+    # RETIRED 2026-08-30: the SUPERSEDED phantom-row suppression list (7 rows,
+    # 2026-08-10 user-flagged + W60 dedups).  Six entries went stale as the
+    # canonical reworks aligned each unit's exports; the last
+    # (aih_btcperp ___15AIHigh_BTC_Perp) was cured at OBJECT level by
+    # VA-suffixing the labels inside ___15AIHigh_BTC_Perp_80061348.s -- the
+    # phantom class must be fixed in the objects (decomp.dev runs raw objdiff
+    # and can never see a report-side filter), never masked here.
+    SUPERSEDED = set()
 
     rows, total, matched = [], 0, 0
     for unit in rep.get("units", []):

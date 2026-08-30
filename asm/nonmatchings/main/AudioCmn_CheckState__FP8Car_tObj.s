@@ -81,13 +81,13 @@ glabel AudioCmn_CheckState__FP8Car_tObj
     /* 679D8 800771D8 F400858F */  lw         $a1, %gp_rel(recordLapTime)($gp)
     /* 679DC 800771DC 00000000 */  nop
     /* 679E0 800771E0 0D00A010 */  beqz       $a1, .L80077218
-    /* 679E4 800771E4 1280043C */   lui       $a0, %hi(D_8011E0B0)
+    /* 679E4 800771E4 1280043C */   lui       $a0, %hi(simGlobal+0x4)
     /* 679E8 800771E8 FF008332 */  andi       $v1, $s4, 0xFF
     /* 679EC 800771EC 80180300 */  sll        $v1, $v1, 2
     /* 679F0 800771F0 1480023C */  lui        $v0, %hi(gtotallaptimes)
     /* 679F4 800771F4 C8C64224 */  addiu      $v0, $v0, %lo(gtotallaptimes)
     /* 679F8 800771F8 21186200 */  addu       $v1, $v1, $v0
-    /* 679FC 800771FC B0E0828C */  lw         $v0, %lo(D_8011E0B0)($a0)
+    /* 679FC 800771FC B0E0828C */  lw         $v0, %lo(simGlobal+0x4)($a0)
     /* 67A00 80077200 0000638C */  lw         $v1, 0x0($v1)
     /* 67A04 80077204 00000000 */  nop
     /* 67A08 80077208 23104300 */  subu       $v0, $v0, $v1
@@ -103,7 +103,7 @@ glabel AudioCmn_CheckState__FP8Car_tObj
     /* 67A28 80077228 6003428E */  lw         $v0, 0x360($s2)
     /* 67A2C 8007722C 00000000 */  nop
     /* 67A30 80077230 13004010 */  beqz       $v0, .L80077280
-    /* 67A34 80077234 1280053C */   lui       $a1, %hi(D_8011E0B0)
+    /* 67A34 80077234 1280053C */   lui       $a1, %hi(simGlobal+0x4)
     /* 67A38 80077238 FF008332 */  andi       $v1, $s4, 0xFF
     /* 67A3C 8007723C 80180300 */  sll        $v1, $v1, 2
     /* 67A40 80077240 1480043C */  lui        $a0, %hi(gtotallaptimes)
@@ -112,7 +112,7 @@ glabel AudioCmn_CheckState__FP8Car_tObj
     /* 67A4C 8007724C 1480023C */  lui        $v0, %hi(bestLapTime)
     /* 67A50 80077250 C0C64224 */  addiu      $v0, $v0, %lo(bestLapTime)
     /* 67A54 80077254 21186200 */  addu       $v1, $v1, $v0
-    /* 67A58 80077258 B0E0A28C */  lw         $v0, %lo(D_8011E0B0)($a1)
+    /* 67A58 80077258 B0E0A28C */  lw         $v0, %lo(simGlobal+0x4)($a1)
     /* 67A5C 8007725C 0000848C */  lw         $a0, 0x0($a0)
     /* 67A60 80077260 0000638C */  lw         $v1, 0x0($v1)
     /* 67A64 80077264 23104400 */  subu       $v0, $v0, $a0
@@ -152,8 +152,8 @@ glabel AudioCmn_CheckState__FP8Car_tObj
     /* 67ADC 800772DC 23200400 */   negu      $a0, $a0
     /* 67AE0 800772E0 21884000 */  addu       $s1, $v0, $zero
   .L800772E4:
-    /* 67AE4 800772E4 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* 67AE8 800772E8 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* 67AE4 800772E4 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* 67AE8 800772E8 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* 67AEC 800772EC 01000224 */  addiu      $v0, $zero, 0x1
     /* 67AF0 800772F0 0C006214 */  bne        $v1, $v0, .L80077324
     /* 67AF4 800772F4 02000424 */   addiu     $a0, $zero, 0x2
@@ -210,8 +210,8 @@ glabel AudioCmn_CheckState__FP8Car_tObj
     /* 67BA8 800773A8 00000000 */   nop
     /* 67BAC 800773AC 7C65020C */  jal        CopSpeak_InitRequest__FP17CopSpeak_tRequest
     /* 67BB0 800773B0 1000A427 */   addiu     $a0, $sp, 0x10
-    /* 67BB4 800773B4 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* 67BB8 800773B8 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* 67BB4 800773B4 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* 67BB8 800773B8 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* 67BBC 800773BC 01000224 */  addiu      $v0, $zero, 0x1
     /* 67BC0 800773C0 14006214 */  bne        $v1, $v0, .L80077414
     /* 67BC4 800773C4 21980000 */   addu      $s3, $zero, $zero
@@ -349,8 +349,8 @@ glabel AudioCmn_CheckState__FP8Car_tObj
   .L800775B0:
     /* 67DB0 800775B0 2800B0AF */  sw         $s0, 0x28($sp)
   .L800775B4:
-    /* 67DB4 800775B4 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* 67DB8 800775B8 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* 67DB4 800775B4 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* 67DB8 800775B8 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* 67DBC 800775BC 01000224 */  addiu      $v0, $zero, 0x1
     /* 67DC0 800775C0 26006214 */  bne        $v1, $v0, .L8007765C
     /* 67DC4 800775C4 00000000 */   nop
@@ -425,11 +425,11 @@ glabel AudioCmn_CheckState__FP8Car_tObj
     /* 67EB8 800776B8 80201000 */   sll       $a0, $s0, 2
     /* 67EBC 800776BC 1480053C */  lui        $a1, %hi(bestLapTime)
     /* 67EC0 800776C0 C0C6A524 */  addiu      $a1, $a1, %lo(bestLapTime)
-    /* 67EC4 800776C4 1280033C */  lui        $v1, %hi(D_8011E0B0)
+    /* 67EC4 800776C4 1280033C */  lui        $v1, %hi(simGlobal+0x4)
     /* 67EC8 800776C8 1480023C */  lui        $v0, %hi(gtotallaptimes)
     /* 67ECC 800776CC C8C64224 */  addiu      $v0, $v0, %lo(gtotallaptimes)
     /* 67ED0 800776D0 21108200 */  addu       $v0, $a0, $v0
-    /* 67ED4 800776D4 B0E0638C */  lw         $v1, %lo(D_8011E0B0)($v1)
+    /* 67ED4 800776D4 B0E0638C */  lw         $v1, %lo(simGlobal+0x4)($v1)
     /* 67ED8 800776D8 0000428C */  lw         $v0, 0x0($v0)
     /* 67EDC 800776DC 21208500 */  addu       $a0, $a0, $a1
     /* 67EE0 800776E0 23186200 */  subu       $v1, $v1, $v0

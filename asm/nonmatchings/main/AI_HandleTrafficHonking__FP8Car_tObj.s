@@ -51,8 +51,8 @@ glabel AI_HandleTrafficHonking__FP8Car_tObj
     /* 4A434 80059C34 21104300 */  addu       $v0, $v0, $v1
     /* 4A438 80059C38 C0100200 */  sll        $v0, $v0, 3
     /* 4A43C 80059C3C 02240200 */  srl        $a0, $v0, 16
-    /* 4A440 80059C40 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* 4A444 80059C44 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* 4A440 80059C40 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* 4A444 80059C44 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* 4A448 80059C48 01000224 */  addiu      $v0, $zero, 0x1
     /* 4A44C 80059C4C 0B006210 */  beq        $v1, $v0, .L80059C7C
     /* 4A450 80059C50 05008228 */   slti      $v0, $a0, 0x5

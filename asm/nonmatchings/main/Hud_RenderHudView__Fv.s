@@ -53,22 +53,22 @@ glabel Hud_RenderHudView__Fv
     /* C8B80 800D8380 B2004814 */  bne        $v0, $t0, .L800D864C
     /* C8B84 800D8384 1180083C */   lui       $t0, %hi(DashHUD_gInfo)
     /* C8B88 800D8388 6C00A98F */  lw         $t1, 0x6C($sp)
-    /* C8B8C 800D838C 1480023C */  lui        $v0, %hi(D_8013DE38)
-    /* C8B90 800D8390 38DE4224 */  addiu      $v0, $v0, %lo(D_8013DE38)
+    /* C8B8C 800D838C 1480023C */  lui        $v0, %hi(PerpOverlayOn)
+    /* C8B90 800D8390 38DE4224 */  addiu      $v0, $v0, %lo(PerpOverlayOn)
     /* C8B94 800D8394 21102201 */  addu       $v0, $t1, $v0
     /* C8B98 800D8398 0000428C */  lw         $v0, 0x0($v0)
     /* C8B9C 800D839C 00000000 */  nop
     /* C8BA0 800D83A0 AA004010 */  beqz       $v0, .L800D864C
     /* C8BA4 800D83A4 00000000 */   nop
-    /* C8BA8 800D83A8 1480103C */  lui        $s0, %hi(D_8013DE40)
-    /* C8BAC 800D83AC 40DE1026 */  addiu      $s0, $s0, %lo(D_8013DE40)
+    /* C8BA8 800D83A8 1480103C */  lui        $s0, %hi(PerpOverlayMessage)
+    /* C8BAC 800D83AC 40DE1026 */  addiu      $s0, $s0, %lo(PerpOverlayMessage)
     /* C8BB0 800D83B0 21803001 */  addu       $s0, $t1, $s0
     /* C8BB4 800D83B4 0000048E */  lw         $a0, 0x0($s0)
     /* C8BB8 800D83B8 94E4020C */  jal        TextSys_Word__Fi
     /* C8BBC 800D83BC 41008424 */   addiu     $a0, $a0, 0x41
     /* C8BC0 800D83C0 888F030C */  jal        textpixels
     /* C8BC4 800D83C4 21204000 */   addu      $a0, $v0, $zero
-    /* C8BC8 800D83C8 B818838F */  lw         $v1, %gp_rel(D_8013DE04)($gp)
+    /* C8BC8 800D83C8 B818838F */  lw         $v1, %gp_rel(g1Player)($gp)
     /* C8BCC 800D83CC 6000A88F */  lw         $t0, 0x60($sp)
     /* C8BD0 800D83D0 4A006384 */  lh         $v1, 0x4A($v1)
     /* C8BD4 800D83D4 04000424 */  addiu      $a0, $zero, 0x4
@@ -281,11 +281,11 @@ glabel Hud_RenderHudView__Fv
     /* C8EF0 800D86F0 00000000 */   nop
     /* C8EF4 800D86F4 0400C013 */  beqz       $fp, .L800D8708
     /* C8EF8 800D86F8 00000000 */   nop
-    /* C8EFC 800D86FC C018948F */  lw         $s4, %gp_rel(D_8013DE0C)($gp)
+    /* C8EFC 800D86FC C018948F */  lw         $s4, %gp_rel(gSprite1)($gp)
     /* C8F00 800D8700 C3610308 */  j          .L800D870C
     /* C8F04 800D8704 00000000 */   nop
   .L800D8708:
-    /* C8F08 800D8708 BC18948F */  lw         $s4, %gp_rel(D_8013DE08)($gp)
+    /* C8F08 800D8708 BC18948F */  lw         $s4, %gp_rel(gSprite0)($gp)
   .L800D870C:
     /* C8F0C 800D870C 266C020C */  jal        DashHUD_CheckWrongWay__Fi
     /* C8F10 800D8710 2120C003 */   addu      $a0, $fp, $zero
@@ -295,8 +295,8 @@ glabel Hud_RenderHudView__Fv
     /* C8F20 800D8720 2120C003 */   addu      $a0, $fp, $zero
     /* C8F24 800D8724 9C53030C */  jal        Hud_BuildNumbers__Fi
     /* C8F28 800D8728 2120C003 */   addu      $a0, $fp, $zero
-    /* C8F2C 800D872C 1480043C */  lui        $a0, %hi(D_8013E390)
-    /* C8F30 800D8730 90E38424 */  addiu      $a0, $a0, %lo(D_8013E390)
+    /* C8F2C 800D872C 1480043C */  lui        $a0, %hi(gTPage0)
+    /* C8F30 800D8730 90E38424 */  addiu      $a0, $a0, %lo(gTPage0)
     /* C8F34 800D8734 00FF093C */  lui        $t1, (0xFF000000 >> 16)
     /* C8F38 800D8738 7000A88F */  lw         $t0, 0x70($sp)
     /* C8F3C 800D873C 801F053C */  lui        $a1, (0x1F800000 >> 16)
@@ -390,7 +390,7 @@ glabel Hud_RenderHudView__Fv
     /* C9098 800D8898 8000073C */  lui        $a3, (0x808080 >> 16)
     /* C909C 800D889C 8080E734 */  ori        $a3, $a3, (0x808080 & 0xFFFF)
     /* C90A0 800D88A0 23800202 */  subu       $s0, $s0, $v0
-    /* C90A4 800D88A4 B818838F */  lw         $v1, %gp_rel(D_8013DE04)($gp)
+    /* C90A4 800D88A4 B818838F */  lw         $v1, %gp_rel(g1Player)($gp)
     /* C90A8 800D88A8 2014828F */  lw         $v0, %gp_rel(HudMapOffsetY)($gp)
     /* C90AC 800D88AC 6000A88F */  lw         $t0, 0x60($sp)
     /* C90B0 800D88B0 38006584 */  lh         $a1, 0x38($v1)
@@ -410,7 +410,7 @@ glabel Hud_RenderHudView__Fv
     /* C90E8 800D88E8 18012426 */  addiu      $a0, $s1, 0x118
     /* C90EC 800D88EC 8000073C */  lui        $a3, (0x808080 >> 16)
     /* C90F0 800D88F0 8080E734 */  ori        $a3, $a3, (0x808080 & 0xFFFF)
-    /* C90F4 800D88F4 B818838F */  lw         $v1, %gp_rel(D_8013DE04)($gp)
+    /* C90F4 800D88F4 B818838F */  lw         $v1, %gp_rel(g1Player)($gp)
     /* C90F8 800D88F8 2014828F */  lw         $v0, %gp_rel(HudMapOffsetY)($gp)
     /* C90FC 800D88FC 6000A98F */  lw         $t1, 0x60($sp)
     /* C9100 800D8900 3A006684 */  lh         $a2, 0x3A($v1)
@@ -423,7 +423,7 @@ glabel Hud_RenderHudView__Fv
     /* C911C 800D891C 2C012426 */  addiu      $a0, $s1, 0x12C
     /* C9120 800D8920 8000073C */  lui        $a3, (0x808080 >> 16)
     /* C9124 800D8924 8080E734 */  ori        $a3, $a3, (0x808080 & 0xFFFF)
-    /* C9128 800D8928 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C9128 800D8928 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C912C 800D892C 6000A88F */  lw         $t0, 0x60($sp)
     /* C9130 800D8930 38004584 */  lh         $a1, 0x38($v0)
     /* C9134 800D8934 3A004684 */  lh         $a2, 0x3A($v0)
@@ -437,7 +437,7 @@ glabel Hud_RenderHudView__Fv
     /* C9154 800D8954 2330C200 */   subu      $a2, $a2, $v0
     /* C9158 800D8958 21200000 */  addu       $a0, $zero, $zero
     /* C915C 800D895C 21385302 */  addu       $a3, $s2, $s3
-    /* C9160 800D8960 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C9160 800D8960 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C9164 800D8964 2A012386 */  lh         $v1, 0x12A($s1)
     /* C9168 800D8968 6000A98F */  lw         $t1, 0x60($sp)
     /* C916C 800D896C 38004584 */  lh         $a1, 0x38($v0)
@@ -463,7 +463,7 @@ glabel Hud_RenderHudView__Fv
     /* C91BC 800D89BC 03000324 */  addiu      $v1, $zero, 0x3
   .L800D89C0:
     /* C91C0 800D89C0 21200000 */  addu       $a0, $zero, $zero
-    /* C91C4 800D89C4 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C91C4 800D89C4 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C91C8 800D89C8 6000A88F */  lw         $t0, 0x60($sp)
     /* C91CC 800D89CC 38004584 */  lh         $a1, 0x38($v0)
     /* C91D0 800D89D0 3A004684 */  lh         $a2, 0x3A($v0)
@@ -478,7 +478,7 @@ glabel Hud_RenderHudView__Fv
     /* C91F4 800D89F4 2130C800 */   addu      $a2, $a2, $t0
     /* C91F8 800D89F8 21200000 */  addu       $a0, $zero, $zero
     /* C91FC 800D89FC 03000724 */  addiu      $a3, $zero, 0x3
-    /* C9200 800D8A00 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C9200 800D8A00 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C9204 800D8A04 6000A98F */  lw         $t1, 0x60($sp)
     /* C9208 800D8A08 38004584 */  lh         $a1, 0x38($v0)
     /* C920C 800D8A0C 3A004684 */  lh         $a2, 0x3A($v0)
@@ -523,7 +523,7 @@ glabel Hud_RenderHudView__Fv
     /* C929C 800D8A9C 14008424 */   addiu     $a0, $a0, 0x14
   .L800D8AA0:
     /* C92A0 800D8AA0 0F00C017 */  bnez       $fp, .L800D8AE0
-    /* C92A4 800D8AA4 1480043C */   lui       $a0, %hi(D_8013E3F0)
+    /* C92A4 800D8AA4 1480043C */   lui       $a0, %hi(gTPage1)
     /* C92A8 800D8AA8 1480023C */  lui        $v0, %hi(Replay_ReplayMode)
     /* C92AC 800D8AAC F4D3428C */  lw         $v0, %lo(Replay_ReplayMode)($v0)
     /* C92B0 800D8AB0 00000000 */  nop
@@ -534,12 +534,12 @@ glabel Hud_RenderHudView__Fv
     /* C92C4 800D8AC4 4870428C */  lw         $v0, %lo(D_80117048)($v0)
     /* C92C8 800D8AC8 00000000 */  nop
     /* C92CC 800D8ACC 05004014 */  bnez       $v0, .L800D8AE4
-    /* C92D0 800D8AD0 F0E38424 */   addiu     $a0, $a0, %lo(D_8013E3F0)
+    /* C92D0 800D8AD0 F0E38424 */   addiu     $a0, $a0, %lo(gTPage1)
     /* C92D4 800D8AD4 945C030C */  jal        Hud_BuildReplay__Fv
     /* C92D8 800D8AD8 00000000 */   nop
-    /* C92DC 800D8ADC 1480043C */  lui        $a0, %hi(D_8013E3F0)
+    /* C92DC 800D8ADC 1480043C */  lui        $a0, %hi(gTPage1)
   .L800D8AE0:
-    /* C92E0 800D8AE0 F0E38424 */  addiu      $a0, $a0, %lo(D_8013E3F0)
+    /* C92E0 800D8AE0 F0E38424 */  addiu      $a0, $a0, %lo(gTPage1)
   .L800D8AE4:
     /* C92E4 800D8AE4 00FF093C */  lui        $t1, (0xFF000000 >> 16)
     /* C92E8 800D8AE8 7000A88F */  lw         $t0, 0x70($sp)

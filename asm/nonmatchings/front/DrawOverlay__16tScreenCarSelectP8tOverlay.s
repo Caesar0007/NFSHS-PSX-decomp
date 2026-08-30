@@ -259,8 +259,8 @@ glabel DrawOverlay__16tScreenCarSelectP8tOverlay
     /* 2B8AC 8003B0AC 2A00A587 */  lh         $a1, 0x2A($sp)
     /* 2B8B0 8003B0B0 BEBE0234 */  ori        $v0, $zero, 0xBEBE
     /* 2B8B4 8003B0B4 1000A2AF */  sw         $v0, 0x10($sp)
-    /* 2B8B8 8003B0B8 1180023C */  lui        $v0, %hi(D_80114AEC)
-    /* 2B8BC 8003B0BC EC4A478C */  lw         $a3, %lo(D_80114AEC)($v0)
+    /* 2B8B8 8003B0B8 1180023C */  lui        $v0, %hi(tournamentManager+0x14)
+    /* 2B8BC 8003B0BC EC4A478C */  lw         $a3, %lo(tournamentManager+0x14)($v0)
     /* 2B8C0 8003B0C0 09000624 */  addiu      $a2, $zero, 0x9
     /* 2B8C4 8003B0C4 1400B2AF */  sw         $s2, 0x14($sp)
     /* 2B8C8 8003B0C8 21208300 */  addu       $a0, $a0, $v1

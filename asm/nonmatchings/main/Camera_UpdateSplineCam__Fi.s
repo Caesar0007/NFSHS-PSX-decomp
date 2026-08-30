@@ -299,8 +299,8 @@ glabel Camera_UpdateSplineCam__Fi
     /* 73300 80082B00 CA90030C */  jal        fixedmult
     /* 73304 80082B04 21804000 */   addu      $s0, $v0, $zero
     /* 73308 80082B08 21883002 */  addu       $s1, $s1, $s0
-    /* 7330C 80082B0C 1180033C */  lui        $v1, %hi(D_80113224)
-    /* 73310 80082B10 2432638C */  lw         $v1, %lo(D_80113224)($v1)
+    /* 7330C 80082B0C 1180033C */  lui        $v1, %hi(GameSetup_gData+0x38)
+    /* 73310 80082B10 2432638C */  lw         $v1, %lo(GameSetup_gData+0x38)($v1)
     /* 73314 80082B14 00000000 */  nop
     /* 73318 80082B18 04006330 */  andi       $v1, $v1, 0x4
     /* 7331C 80082B1C 05006010 */  beqz       $v1, .L80082B34

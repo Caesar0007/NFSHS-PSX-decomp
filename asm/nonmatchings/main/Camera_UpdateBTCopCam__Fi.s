@@ -63,8 +63,8 @@ glabel Camera_UpdateBTCopCam__Fi
     /* 73B84 80083384 21209000 */  addu       $a0, $a0, $s0
     /* 73B88 80083388 00210400 */  sll        $a0, $a0, 4
     /* 73B8C 8008338C 900282AF */  sw         $v0, %gp_rel(Camera_gGeomScreen)($gp)
-    /* 73B90 80083390 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* 73B94 80083394 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 73B90 80083390 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* 73B94 80083394 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 73B98 80083398 21208300 */  addu       $a0, $a0, $v1
     /* 73B9C 8008339C 40014224 */  addiu      $v0, $v0, 0x140
     /* 73BA0 800833A0 880082AC */  sw         $v0, 0x88($a0)

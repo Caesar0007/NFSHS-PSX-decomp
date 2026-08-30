@@ -26,14 +26,14 @@ glabel Camera_UpdatePulloverCam__Fi
     /* 734DC 80082CDC 00000000 */   nop
     /* 734E0 80082CE0 E7AA030C */  jal        SetGeomScreen
     /* 734E4 80082CE4 BE000424 */   addiu     $a0, $zero, 0xBE
-    /* 734E8 80082CE8 1280043C */  lui        $a0, %hi(D_8011E0B0)
+    /* 734E8 80082CE8 1280043C */  lui        $a0, %hi(simGlobal+0x4)
     /* 734EC 80082CEC 1180033C */  lui        $v1, %hi(Camera_gInfo)
     /* 734F0 80082CF0 ACF26324 */  addiu      $v1, $v1, %lo(Camera_gInfo)
     /* 734F4 80082CF4 00111200 */  sll        $v0, $s2, 4
     /* 734F8 80082CF8 21105200 */  addu       $v0, $v0, $s2
     /* 734FC 80082CFC 00110200 */  sll        $v0, $v0, 4
     /* 73500 80082D00 21884300 */  addu       $s1, $v0, $v1
-    /* 73504 80082D04 B0E0828C */  lw         $v0, %lo(D_8011E0B0)($a0)
+    /* 73504 80082D04 B0E0828C */  lw         $v0, %lo(simGlobal+0x4)($a0)
     /* 73508 80082D08 8800238E */  lw         $v1, 0x88($s1)
     /* 7350C 80082D0C 00000000 */  nop
     /* 73510 80082D10 2A104300 */  slt        $v0, $v0, $v1

@@ -17,11 +17,11 @@ glabel Hud_BuildTach__Fi
     /* C46BC 800D3EBC 3800B2AF */  sw         $s2, 0x38($sp)
     /* C46C0 800D3EC0 04002012 */  beqz       $s1, .L800D3ED4
     /* C46C4 800D3EC4 3000B0AF */   sw        $s0, 0x30($sp)
-    /* C46C8 800D3EC8 C0188C8F */  lw         $t4, %gp_rel(D_8013DE0C)($gp)
+    /* C46C8 800D3EC8 C0188C8F */  lw         $t4, %gp_rel(gSprite1)($gp)
     /* C46CC 800D3ECC B84F0308 */  j          .L800D3EE0
     /* C46D0 800D3ED0 2000ACAF */   sw        $t4, 0x20($sp)
   .L800D3ED4:
-    /* C46D4 800D3ED4 BC188C8F */  lw         $t4, %gp_rel(D_8013DE08)($gp)
+    /* C46D4 800D3ED4 BC188C8F */  lw         $t4, %gp_rel(gSprite0)($gp)
     /* C46D8 800D3ED8 00000000 */  nop
     /* C46DC 800D3EDC 2000ACAF */  sw         $t4, 0x20($sp)
   .L800D3EE0:

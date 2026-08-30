@@ -4,7 +4,7 @@
 nonmatching Hud_BuildSprite2__FP4SPRTiii, 0x2C
 
 glabel Hud_BuildSprite2__FP4SPRTiii
-    /* C2844 800D2044 C818828F */  lw         $v0, %gp_rel(D_8013DE14)($gp)
+    /* C2844 800D2044 C818828F */  lw         $v0, %gp_rel(currentSpriteColor)($gp)
     /* C2848 800D2048 C4188393 */  lbu        $v1, %gp_rel(D_8013DE10)($gp)
     /* C284C 800D204C E0FFBD27 */  addiu      $sp, $sp, -0x20
     /* C2850 800D2050 1800BFAF */  sw         $ra, 0x18($sp)

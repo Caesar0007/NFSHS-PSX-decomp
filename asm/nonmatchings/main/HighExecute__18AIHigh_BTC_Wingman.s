@@ -450,8 +450,8 @@ glabel HighExecute__18AIHigh_BTC_Wingman
     /* 4F1C8 8005E9C8 7400228E */  lw         $v0, 0x74($s1)
     /* 4F1CC 8005E9CC 00000000 */  nop
     /* 4F1D0 8005E9D0 04006214 */  bne        $v1, $v0, .L8005E9E4
-    /* 4F1D4 8005E9D4 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* 4F1D8 8005E9D8 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 4F1D4 8005E9D4 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* 4F1D8 8005E9D8 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 4F1DC 8005E9DC 00000000 */  nop
     /* 4F1E0 8005E9E0 100082AC */  sw         $v0, 0x10($a0)
   .L8005E9E4:

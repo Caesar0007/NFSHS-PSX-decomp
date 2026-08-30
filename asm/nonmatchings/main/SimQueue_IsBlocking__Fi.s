@@ -5,11 +5,11 @@ nonmatching SimQueue_IsBlocking__Fi, 0x54
 
 glabel SimQueue_IsBlocking__Fi
     /* A7DF8 800B75F8 03008010 */  beqz       $a0, .L800B7608
-    /* A7DFC 800B75FC 1180023C */   lui       $v0, %hi(D_801131F8)
+    /* A7DFC 800B75FC 1180023C */   lui       $v0, %hi(GameSetup_gData+0xc)
     /* A7E00 800B7600 0800E003 */  jr         $ra
     /* A7E04 800B7604 21100000 */   addu      $v0, $zero, $zero
   .L800B7608:
-    /* A7E08 800B7608 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* A7E08 800B7608 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* A7E0C 800B760C 00000000 */  nop
     /* A7E10 800B7610 04006010 */  beqz       $v1, .L800B7624
     /* A7E14 800B7614 1480023C */   lui       $v0, %hi(D_8013E0F4)

@@ -83,8 +83,8 @@ glabel RequestBlockader__19AIHigh_BTC_HumanCopi
     /* 4E63C 8005DE3C 1D008010 */  beqz       $a0, .L8005DEB4
     /* 4E640 8005DE40 21186200 */   addu      $v1, $v1, $v0
     /* 4E644 8005DE44 1B006018 */  blez       $v1, .L8005DEB4
-    /* 4E648 8005DE48 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* 4E64C 8005DE4C B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 4E648 8005DE48 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* 4E64C 8005DE4C B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 4E650 8005DE50 00000000 */  nop
     /* 4E654 8005DE54 23104400 */  subu       $v0, $v0, $a0
     /* 4E658 8005DE58 2A106200 */  slt        $v0, $v1, $v0

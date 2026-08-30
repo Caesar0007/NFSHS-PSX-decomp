@@ -64,8 +64,8 @@ glabel AudioCmn_GetAsyncSfx__Fiib
     /* 671CC 800769CC 8BDA0108 */  j          .L80076A2C
     /* 671D0 800769D0 34EB6324 */   addiu     $v1, $v1, %lo(AudioCmn_gSfxSlot)
   .L800769D4:
-    /* 671D4 800769D4 1280033C */  lui        $v1, %hi(D_8011E0B0)
-    /* 671D8 800769D8 B0E0638C */  lw         $v1, %lo(D_8011E0B0)($v1)
+    /* 671D4 800769D4 1280033C */  lui        $v1, %hi(simGlobal+0x4)
+    /* 671D8 800769D8 B0E0638C */  lw         $v1, %lo(simGlobal+0x4)($v1)
     /* 671DC 800769DC 0800828C */  lw         $v0, 0x8($a0)
     /* 671E0 800769E0 96DA0108 */  j          .L80076A58
     /* 671E4 800769E4 0C0083AC */   sw        $v1, 0xC($a0)
@@ -92,10 +92,10 @@ glabel AudioCmn_GetAsyncSfx__Fiib
     /* 67230 80076A30 21105000 */  addu       $v0, $v0, $s0
     /* 67234 80076A34 C0100200 */  sll        $v0, $v0, 3
     /* 67238 80076A38 21104300 */  addu       $v0, $v0, $v1
-    /* 6723C 80076A3C 1280033C */  lui        $v1, %hi(D_8011E0B0)
+    /* 6723C 80076A3C 1280033C */  lui        $v1, %hi(simGlobal+0x4)
     /* 67240 80076A40 000051AC */  sw         $s1, 0x0($v0)
     /* 67244 80076A44 040052AC */  sw         $s2, 0x4($v0)
-    /* 67248 80076A48 B0E0638C */  lw         $v1, %lo(D_8011E0B0)($v1)
+    /* 67248 80076A48 B0E0638C */  lw         $v1, %lo(simGlobal+0x4)($v1)
     /* 6724C 80076A4C 00000000 */  nop
     /* 67250 80076A50 0C0043AC */  sw         $v1, 0xC($v0)
   .L80076A54:

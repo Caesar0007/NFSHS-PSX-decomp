@@ -120,7 +120,7 @@ glabel BWorld_OnyxBuildFacets__FP13DRender_tView
     /* 6EAAC 8007E2AC 4802828F */  lw         $v0, %gp_rel(gSpikeBelt)($gp)
     /* 6EAB0 8007E2B0 00000000 */  nop
     /* 6EAB4 8007E2B4 15004010 */  beqz       $v0, .L8007E30C
-    /* 6EAB8 8007E2B8 1180023C */   lui       $v0, %hi(D_801131F8)
+    /* 6EAB8 8007E2B8 1180023C */   lui       $v0, %hi(GameSetup_gData+0xc)
     /* 6EABC 8007E2BC 5C02828F */  lw         $v0, %gp_rel(BWorld_gChunkCount)($gp)
     /* 6EAC0 8007E2C0 00000000 */  nop
     /* 6EAC4 8007E2C4 10004018 */  blez       $v0, .L8007E308
@@ -143,9 +143,9 @@ glabel BWorld_OnyxBuildFacets__FP13DRender_tView
     /* 6EB00 8007E300 F4FF4014 */  bnez       $v0, .L8007E2D4
     /* 6EB04 8007E304 04003126 */   addiu     $s1, $s1, 0x4
   .L8007E308:
-    /* 6EB08 8007E308 1180023C */  lui        $v0, %hi(D_801131F8)
+    /* 6EB08 8007E308 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
   .L8007E30C:
-    /* 6EB0C 8007E30C F831428C */  lw         $v0, %lo(D_801131F8)($v0)
+    /* 6EB0C 8007E30C F831428C */  lw         $v0, %lo(GameSetup_gData+0xc)($v0)
     /* 6EB10 8007E310 00000000 */  nop
     /* 6EB14 8007E314 19004014 */  bnez       $v0, .L8007E37C
     /* 6EB18 8007E318 21880000 */   addu      $s1, $zero, $zero

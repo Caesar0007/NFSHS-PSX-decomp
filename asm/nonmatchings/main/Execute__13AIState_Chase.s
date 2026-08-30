@@ -58,7 +58,7 @@ glabel Execute__13AIState_Chase
     /* 60A14 80070214 02C1010C */  jal        CloseTargeting__13AIState_Chase
     /* 60A18 80070218 21200002 */   addu      $a0, $s0, $zero
     /* 60A1C 8007021C A8C00108 */  j          .L800702A0
-    /* 60A20 80070220 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* 60A20 80070220 1280023C */   lui       $v0, %hi(simGlobal+0x4)
   .L80070224:
     /* 60A24 80070224 6800028E */  lw         $v0, 0x68($s0)
     /* 60A28 80070228 00000000 */  nop
@@ -72,7 +72,7 @@ glabel Execute__13AIState_Chase
     /* 60A44 80070244 B4C0010C */  jal        FarTargeting__13AIState_Chase
     /* 60A48 80070248 21200002 */   addu      $a0, $s0, $zero
     /* 60A4C 8007024C A8C00108 */  j          .L800702A0
-    /* 60A50 80070250 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* 60A50 80070250 1280023C */   lui       $v0, %hi(simGlobal+0x4)
   .L80070254:
     /* 60A54 80070254 AAAA4234 */  ori        $v0, $v0, (0x1AAAAA & 0xFFFF)
   .L80070258:
@@ -97,9 +97,9 @@ glabel Execute__13AIState_Chase
   .L80070294:
     /* 60A94 80070294 2EC2010C */  jal        ApproachTargeting__13AIState_Chasei
     /* 60A98 80070298 00000000 */   nop
-    /* 60A9C 8007029C 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* 60A9C 8007029C 1280023C */  lui        $v0, %hi(simGlobal+0x4)
   .L800702A0:
-    /* 60AA0 800702A0 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 60AA0 800702A0 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 60AA4 800702A4 8C00038E */  lw         $v1, 0x8C($s0)
     /* 60AA8 800702A8 00000000 */  nop
     /* 60AAC 800702AC 2A104300 */  slt        $v0, $v0, $v1

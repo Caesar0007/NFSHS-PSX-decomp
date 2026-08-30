@@ -4,9 +4,9 @@
 nonmatching DoProvokedAttack__15AIHigh_Opponent, 0xAC
 
 glabel DoProvokedAttack__15AIHigh_Opponent
-    /* 5432C 80063B2C 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* 5432C 80063B2C 1280023C */  lui        $v0, %hi(simGlobal+0x4)
     /* 54330 80063B30 0000858C */  lw         $a1, 0x0($a0)
-    /* 54334 80063B34 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 54334 80063B34 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 54338 80063B38 B801A38C */  lw         $v1, 0x1B8($a1)
     /* 5433C 80063B3C 00000000 */  nop
     /* 54340 80063B40 23104300 */  subu       $v0, $v0, $v1

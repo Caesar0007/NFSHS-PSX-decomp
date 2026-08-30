@@ -21,8 +21,8 @@ glabel __10AnimScripti
     /* 64B98 80074398 0000038E */  lw         $v1, 0x0($s0)
     /* 64B9C 8007439C 21102002 */  addu       $v0, $s1, $zero
     /* 64BA0 800743A0 000083AC */  sw         $v1, 0x0($a0)
-    /* 64BA4 800743A4 1280033C */  lui        $v1, %hi(D_8011E0B0)
-    /* 64BA8 800743A8 B0E0648C */  lw         $a0, %lo(D_8011E0B0)($v1)
+    /* 64BA4 800743A4 1280033C */  lui        $v1, %hi(simGlobal+0x4)
+    /* 64BA8 800743A8 B0E0648C */  lw         $a0, %lo(simGlobal+0x4)($v1)
     /* 64BAC 800743AC 06000324 */  addiu      $v1, $zero, 0x6
     /* 64BB0 800743B0 080043AC */  sw         $v1, 0x8($v0)
     /* 64BB4 800743B4 000044AC */  sw         $a0, 0x0($v0)

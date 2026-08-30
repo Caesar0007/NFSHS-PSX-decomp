@@ -67,7 +67,7 @@ glabel DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry
     /* B788C 800C708C E40002A2 */  sb         $v0, (0x1F8000E4 & 0xFFFF)($s0)
     /* B7890 800C7090 02008292 */  lbu        $v0, 0x2($s4)
     /* B7894 800C7094 E4000392 */  lbu        $v1, (0x1F8000E4 & 0xFFFF)($s0)
-    /* B7898 800C7098 14000526 */  addiu      $a1, $s0, %lo(D_1F800014)
+    /* B7898 800C7098 14000526 */  addiu      $a1, $s0, 0x14
     /* B789C 800C709C E50002A2 */  sb         $v0, (0x1F8000E5 & 0xFFFF)($s0)
     /* B78A0 800C70A0 C0100300 */  sll        $v0, $v1, 3
     /* B78A4 800C70A4 23104300 */  subu       $v0, $v0, $v1
@@ -179,7 +179,7 @@ glabel DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry
     /* B7A48 800C7248 1800A2AF */   sw        $v0, 0x18($sp)
     /* B7A4C 800C724C 2120A002 */  addu       $a0, $s5, $zero
     /* B7A50 800C7250 761D030C */  jal        DrawW_WorldSetUpTranslation__FP8coorddefP6MATRIX
-    /* B7A54 800C7254 34000526 */   addiu     $a1, $s0, %lo(D_1F800034)
+    /* B7A54 800C7254 34000526 */   addiu     $a1, $s0, 0x34
   .L800C7258:
     /* B7A58 800C7258 1480043C */  lui        $a0, %hi(BW_gCopCarObj)
     /* B7A5C 800C725C B4C7848C */  lw         $a0, %lo(BW_gCopCarObj)($a0)
@@ -227,7 +227,7 @@ glabel DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry
     /* B7B04 800C7304 1800A2AF */   sw        $v0, 0x18($sp)
     /* B7B08 800C7308 2120A002 */  addu       $a0, $s5, $zero
     /* B7B0C 800C730C 761D030C */  jal        DrawW_WorldSetUpTranslation__FP8coorddefP6MATRIX
-    /* B7B10 800C7310 54000526 */   addiu     $a1, $s0, %lo(D_1F800054)
+    /* B7B10 800C7310 54000526 */   addiu     $a1, $s0, 0x54
   .L800C7314:
     /* B7B14 800C7314 0800638E */  lw         $v1, 0x8($s3)
     /* B7B18 800C7318 0000428E */  lw         $v0, 0x0($s2)
@@ -247,7 +247,7 @@ glabel DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry
     /* B7B50 800C7350 23104300 */  subu       $v0, $v0, $v1
     /* B7B54 800C7354 83120200 */  sra        $v0, $v0, 10
     /* B7B58 800C7358 F80002A6 */  sh         $v0, (0x1F8000F8 & 0xFFFF)($s0)
-    /* B7B5C 800C735C 14000226 */  addiu      $v0, $s0, %lo(D_1F800014)
+    /* B7B5C 800C735C 14000226 */  addiu      $v0, $s0, 0x14
     /* B7B60 800C7360 1C0040AC */  sw         $zero, 0x1C($v0)
     /* B7B64 800C7364 180040AC */  sw         $zero, 0x18($v0)
     /* B7B68 800C7368 280000AE */  sw         $zero, (0x1F800028 & 0xFFFF)($s0)

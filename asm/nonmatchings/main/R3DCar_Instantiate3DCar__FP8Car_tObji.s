@@ -67,8 +67,8 @@ glabel R3DCar_Instantiate3DCar__FP8Car_tObji
     /* 9F810 800AF010 1EBC0208 */  j          .L800AF078
     /* 9F814 800AF014 C00882A6 */   sh        $v0, 0x8C0($s4)
   .L800AF018:
-    /* 9F818 800AF018 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* 9F81C 800AF01C F831428C */  lw         $v0, %lo(D_801131F8)($v0)
+    /* 9F818 800AF018 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* 9F81C 800AF01C F831428C */  lw         $v0, %lo(GameSetup_gData+0xc)($v0)
     /* 9F820 800AF020 01000424 */  addiu      $a0, $zero, 0x1
     /* 9F824 800AF024 13004410 */  beq        $v0, $a0, .L800AF074
     /* 9F828 800AF028 00000000 */   nop

@@ -85,14 +85,14 @@ glabel MCRD_handlecardevents
     /* 407A8 8004FFA8 000042AE */   sw        $v0, 0x0($s2)
   .L8004FFAC:
     /* 407AC 8004FFAC 03001024 */  addiu      $s0, $zero, 0x3
-    /* 407B0 8004FFB0 0580023C */  lui        $v0, %hi(D_80052D9C)
-    /* 407B4 8004FFB4 9C2D45AC */  sw         $a1, %lo(D_80052D9C)($v0)
+    /* 407B0 8004FFB0 0580023C */  lui        $v0, %hi(gMemCardInfo+0x34)
+    /* 407B4 8004FFB4 9C2D45AC */  sw         $a1, %lo(gMemCardInfo+0x34)($v0)
     /* 407B8 8004FFB8 FCFF0224 */  addiu      $v0, $zero, -0x4
     /* 407BC 8004FFBC 6C400108 */  j          .L800501B0
     /* 407C0 8004FFC0 000042AE */   sw        $v0, 0x0($s2)
   .L8004FFC4:
-    /* 407C4 8004FFC4 0580023C */  lui        $v0, %hi(D_80052DA4)
-    /* 407C8 8004FFC8 A42D448C */  lw         $a0, %lo(D_80052DA4)($v0)
+    /* 407C4 8004FFC4 0580023C */  lui        $v0, %hi(gMemCardInfo+0x3c)
+    /* 407C8 8004FFC8 A42D448C */  lw         $a0, %lo(gMemCardInfo+0x3c)($v0)
     /* 407CC 8004FFCC 71EB030C */  jal        MemCardAccept
     /* 407D0 8004FFD0 15001024 */   addiu     $s0, $zero, 0x15
     /* 407D4 8004FFD4 6D400108 */  j          .L800501B4
@@ -136,8 +136,8 @@ glabel MCRD_handlecardevents
     /* 40858 80050058 6C400108 */  j          .L800501B0
     /* 4085C 8005005C 05001024 */   addiu     $s0, $zero, 0x5
   .L80050060:
-    /* 40860 80050060 0580023C */  lui        $v0, %hi(D_80052D98)
-    /* 40864 80050064 982D438C */  lw         $v1, %lo(D_80052D98)($v0)
+    /* 40860 80050060 0580023C */  lui        $v0, %hi(gMemCardInfo+0x30)
+    /* 40864 80050064 982D438C */  lw         $v1, %lo(gMemCardInfo+0x30)($v0)
     /* 40868 80050068 00000000 */  nop
     /* 4086C 8005006C 0500622C */  sltiu      $v0, $v1, 0x5
     /* 40870 80050070 4F004010 */  beqz       $v0, .L800501B0

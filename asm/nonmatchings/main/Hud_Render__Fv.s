@@ -16,8 +16,8 @@ glabel Hud_Render__Fv
     /* C987C 800D907C 1400B1AF */  sw         $s1, 0x14($sp)
     /* C9880 800D9080 17004010 */  beqz       $v0, .L800D90E0
     /* C9884 800D9084 1000B0AF */   sw        $s0, 0x10($sp)
-    /* C9888 800D9088 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* C988C 800D908C B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* C9888 800D9088 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* C988C 800D908C B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* C9890 800D9090 00000000 */  nop
     /* C9894 800D9094 40024228 */  slti       $v0, $v0, 0x240
     /* C9898 800D9098 04004010 */  beqz       $v0, .L800D90AC
@@ -219,7 +219,7 @@ glabel Hud_Render__Fv
   .L800D936C:
     /* C9B6C 800D936C 0200022A */  slti       $v0, $s0, 0x2
     /* C9B70 800D9370 33004010 */  beqz       $v0, .L800D9440
-    /* C9B74 800D9374 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* C9B74 800D9374 1280023C */   lui       $v0, %hi(simGlobal+0x4)
     /* C9B78 800D9378 0271020C */  jal        Input_WingCommandMode__Fi
     /* C9B7C 800D937C 21200002 */   addu      $a0, $s0, $zero
     /* C9B80 800D9380 00004392 */  lbu        $v1, 0x0($s2)
@@ -275,7 +275,7 @@ glabel Hud_Render__Fv
     /* C9C38 800D9438 DB640308 */  j          .L800D936C
     /* C9C3C 800D943C 01001026 */   addiu     $s0, $s0, 0x1
   .L800D9440:
-    /* C9C40 800D9440 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* C9C40 800D9440 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* C9C44 800D9444 FC1880AF */  sw         $zero, %gp_rel(D_8013DE48)($gp)
     /* C9C48 800D9448 40024228 */  slti       $v0, $v0, 0x240
     /* C9C4C 800D944C 0C004010 */  beqz       $v0, .L800D9480

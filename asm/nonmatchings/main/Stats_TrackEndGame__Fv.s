@@ -20,8 +20,8 @@ glabel Stats_TrackEndGame__Fv
     /* A95EC 800B8DEC 02004228 */  slti       $v0, $v0, 0x2
     /* A95F0 800B8DF0 91004014 */  bnez       $v0, .L800B9038
     /* A95F4 800B8DF4 1000A0AF */   sw        $zero, 0x10($sp)
-    /* A95F8 800B8DF8 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* A95FC 800B8DFC B0E0438C */  lw         $v1, %lo(D_8011E0B0)($v0)
+    /* A95F8 800B8DF8 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* A95FC 800B8DFC B0E0438C */  lw         $v1, %lo(simGlobal+0x4)($v0)
     /* A9600 800B8E00 00000000 */  nop
     /* A9604 800B8E04 02006104 */  bgez       $v1, .L800B8E10
     /* A9608 800B8E08 21106000 */   addu      $v0, $v1, $zero

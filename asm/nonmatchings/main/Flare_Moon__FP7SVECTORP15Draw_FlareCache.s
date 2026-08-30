@@ -6,8 +6,8 @@ nonmatching Flare_Moon__FP7SVECTORP15Draw_FlareCache, 0xB8
 glabel Flare_Moon__FP7SVECTORP15Draw_FlareCache
     /* BFCBC 800CF4BC C0FFBD27 */  addiu      $sp, $sp, -0x40
     /* BFCC0 800CF4C0 78000624 */  addiu      $a2, $zero, 0x78
-    /* BFCC4 800CF4C4 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* BFCC8 800CF4C8 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* BFCC4 800CF4C4 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* BFCC8 800CF4C8 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* BFCCC 800CF4CC 01000224 */  addiu      $v0, $zero, 0x1
     /* BFCD0 800CF4D0 02006214 */  bne        $v1, $v0, .L800CF4DC
     /* BFCD4 800CF4D4 3800BFAF */   sw        $ra, 0x38($sp)

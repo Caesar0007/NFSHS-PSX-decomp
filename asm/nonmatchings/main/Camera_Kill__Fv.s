@@ -4,8 +4,8 @@
 nonmatching Camera_Kill__Fv, 0x88
 
 glabel Camera_Kill__Fv
-    /* 743EC 80083BEC 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* 743F0 80083BF0 F831428C */  lw         $v0, %lo(D_801131F8)($v0)
+    /* 743EC 80083BEC 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* 743F0 80083BF0 F831428C */  lw         $v0, %lo(GameSetup_gData+0xc)($v0)
     /* 743F4 80083BF4 D8FFBD27 */  addiu      $sp, $sp, -0x28
     /* 743F8 80083BF8 1400B1AF */  sw         $s1, 0x14($sp)
     /* 743FC 80083BFC 21880000 */  addu       $s1, $zero, $zero

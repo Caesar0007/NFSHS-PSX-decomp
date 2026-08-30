@@ -4,9 +4,9 @@
 nonmatching Hud_RenderStatsView__Fv, 0x22C
 
 glabel Hud_RenderStatsView__Fv
-    /* CB68C 800DAE8C 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* CB68C 800DAE8C 1280023C */  lui        $v0, %hi(simGlobal+0x4)
     /* CB690 800DAE90 1180043C */  lui        $a0, %hi(Cars_gHumanRaceCarList)
-    /* CB694 800DAE94 B0E0438C */  lw         $v1, %lo(D_8011E0B0)($v0)
+    /* CB694 800DAE94 B0E0438C */  lw         $v1, %lo(simGlobal+0x4)($v0)
     /* CB698 800DAE98 48FA828C */  lw         $v0, %lo(Cars_gHumanRaceCarList)($a0)
     /* CB69C 800DAE9C E8FFBD27 */  addiu      $sp, $sp, -0x18
     /* CB6A0 800DAEA0 1000BFAF */  sw         $ra, 0x10($sp)
@@ -16,8 +16,8 @@ glabel Hud_RenderStatsView__Fv
     /* CB6B0 800DAEB0 00024230 */  andi       $v0, $v0, 0x200
     /* CB6B4 800DAEB4 08004010 */  beqz       $v0, .L800DAED8
     /* CB6B8 800DAEB8 01006430 */   andi      $a0, $v1, 0x1
-    /* CB6BC 800DAEBC 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* CB6C0 800DAEC0 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* CB6BC 800DAEBC 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* CB6C0 800DAEC0 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* CB6C4 800DAEC4 01000224 */  addiu      $v0, $zero, 0x1
     /* CB6C8 800DAEC8 09006210 */  beq        $v1, $v0, .L800DAEF0
     /* CB6CC 800DAECC 1180033C */   lui       $v1, %hi(Cars_gHumanRaceCarList)
@@ -25,8 +25,8 @@ glabel Hud_RenderStatsView__Fv
     /* CB6D0 800DAED0 FA6B0308 */  j          .L800DAFE8
     /* CB6D4 800DAED4 21200000 */   addu      $a0, $zero, $zero
   .L800DAED8:
-    /* CB6D8 800DAED8 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* CB6DC 800DAEDC F831428C */  lw         $v0, %lo(D_801131F8)($v0)
+    /* CB6D8 800DAED8 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* CB6DC 800DAEDC F831428C */  lw         $v0, %lo(GameSetup_gData+0xc)($v0)
     /* CB6E0 800DAEE0 01000324 */  addiu      $v1, $zero, 0x1
     /* CB6E4 800DAEE4 3A004314 */  bne        $v0, $v1, .L800DAFD0
     /* CB6E8 800DAEE8 00000000 */   nop
@@ -67,8 +67,8 @@ glabel Hud_RenderStatsView__Fv
     /* CB768 800DAF68 48148287 */  lh         $v0, %gp_rel(Hud_NextPerp)($gp)
     /* CB76C 800DAF6C 00000000 */  nop
     /* CB770 800DAF70 D7FF4014 */  bnez       $v0, .L800DAED0
-    /* CB774 800DAF74 1180023C */   lui       $v0, %hi(D_801131F8)
-    /* CB778 800DAF78 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* CB774 800DAF74 1180023C */   lui       $v0, %hi(GameSetup_gData+0xc)
+    /* CB778 800DAF78 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* CB77C 800DAF7C 01000224 */  addiu      $v0, $zero, 0x1
     /* CB780 800DAF80 D3FF6214 */  bne        $v1, $v0, .L800DAED0
     /* CB784 800DAF84 00000000 */   nop
@@ -80,8 +80,8 @@ glabel Hud_RenderStatsView__Fv
     /* CB798 800DAF98 00000000 */  nop
     /* CB79C 800DAF9C 00024230 */  andi       $v0, $v0, 0x200
     /* CB7A0 800DAFA0 11004010 */  beqz       $v0, .L800DAFE8
-    /* CB7A4 800DAFA4 1180023C */   lui       $v0, %hi(D_801131F8)
-    /* CB7A8 800DAFA8 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* CB7A4 800DAFA4 1180023C */   lui       $v0, %hi(GameSetup_gData+0xc)
+    /* CB7A8 800DAFA8 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* CB7AC 800DAFAC 01000224 */  addiu      $v0, $zero, 0x1
     /* CB7B0 800DAFB0 0D006214 */  bne        $v1, $v0, .L800DAFE8
     /* CB7B4 800DAFB4 00000000 */   nop
@@ -140,8 +140,8 @@ glabel Hud_RenderStatsView__Fv
     /* CB870 800DB070 00000000 */  nop
     /* CB874 800DB074 00024230 */  andi       $v0, $v0, 0x200
     /* CB878 800DB078 09004010 */  beqz       $v0, .L800DB0A0
-    /* CB87C 800DB07C 1180023C */   lui       $v0, %hi(D_801131F8)
-    /* CB880 800DB080 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* CB87C 800DB07C 1180023C */   lui       $v0, %hi(GameSetup_gData+0xc)
+    /* CB880 800DB080 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* CB884 800DB084 01000224 */  addiu      $v0, $zero, 0x1
     /* CB888 800DB088 05006214 */  bne        $v1, $v0, .L800DB0A0
     /* CB88C 800DB08C 21204000 */   addu      $a0, $v0, $zero

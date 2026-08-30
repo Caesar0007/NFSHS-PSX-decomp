@@ -42,8 +42,8 @@ glabel Force_StartUp__Fv
     /* BB89C 800CB09C 48FA468C */  lw         $a2, %lo(Cars_gHumanRaceCarList)($v0)
     /* BB8A0 800CB0A0 E0D8020C */  jal        Sched_AddFunction__FP15Sched_tSchedulePFPv_vPvi
     /* BB8A4 800CB0A4 48FA5124 */   addiu     $s1, $v0, %lo(Cars_gHumanRaceCarList)
-    /* BB8A8 800CB0A8 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* BB8AC 800CB0AC F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* BB8A8 800CB0A8 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* BB8AC 800CB0AC F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* BB8B0 800CB0B0 01000224 */  addiu      $v0, $zero, 0x1
     /* BB8B4 800CB0B4 05006214 */  bne        $v1, $v0, .L800CB0CC
     /* BB8B8 800CB0B8 21284002 */   addu      $a1, $s2, $zero

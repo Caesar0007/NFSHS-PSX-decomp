@@ -6,11 +6,11 @@ nonmatching TrgSfx_AddEnviroEffect__FiiP8coorddefT2, 0x68
 glabel TrgSfx_AddEnviroEffect__FiiP8coorddefT2
     /* AB868 800BB068 E0FFBD27 */  addiu      $sp, $sp, -0x20
     /* AB86C 800BB06C 07008430 */  andi       $a0, $a0, 0x7
-    /* AB870 800BB070 1280033C */  lui        $v1, %hi(D_8011E0B0)
+    /* AB870 800BB070 1280033C */  lui        $v1, %hi(simGlobal+0x4)
     /* AB874 800BB074 1280023C */  lui        $v0, %hi(gTEnviroEffect)
     /* AB878 800BB078 B0E14224 */  addiu      $v0, $v0, %lo(gTEnviroEffect)
     /* AB87C 800BB07C 80200400 */  sll        $a0, $a0, 2
-    /* AB880 800BB080 B0E0638C */  lw         $v1, %lo(D_8011E0B0)($v1)
+    /* AB880 800BB080 B0E0638C */  lw         $v1, %lo(simGlobal+0x4)($v1)
     /* AB884 800BB084 21208200 */  addu       $a0, $a0, $v0
     /* AB888 800BB088 1800BFAF */  sw         $ra, 0x18($sp)
     /* AB88C 800BB08C 0000828C */  lw         $v0, 0x0($a0)

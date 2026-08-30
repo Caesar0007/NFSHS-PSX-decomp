@@ -24,7 +24,7 @@ glabel Weather_ChangeDensityBasedOnTime__Fv
     /* D2A5C 800E225C 00000000 */   nop
   .L800E2260:
     /* D2A60 800E2260 0F004104 */  bgez       $v0, .L800E22A0
-    /* D2A64 800E2264 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* D2A64 800E2264 1280023C */   lui       $v0, %hi(simGlobal+0x4)
     /* D2A68 800E2268 1280043C */  lui        $a0, %hi(Weather_gSys)
     /* D2A6C 800E226C 1280033C */  lui        $v1, %hi(Weather_gDensityTbl)
     /* D2A70 800E2270 A416828F */  lw         $v0, %gp_rel(Weather_gDensityGoalState)($gp)
@@ -40,7 +40,7 @@ glabel Weather_ChangeDensityBasedOnTime__Fv
     /* D2A98 800E2298 B1880308 */  j          .L800E22C4
     /* D2A9C 800E229C 00000000 */   nop
   .L800E22A0:
-    /* D2AA0 800E22A0 B0E0438C */  lw         $v1, %lo(D_8011E0B0)($v0)
+    /* D2AA0 800E22A0 B0E0438C */  lw         $v1, %lo(simGlobal+0x4)($v0)
     /* D2AA4 800E22A4 B416828F */  lw         $v0, %gp_rel(Weather_gDensityTimerGoal)($gp)
     /* D2AA8 800E22A8 00000000 */  nop
     /* D2AAC 800E22AC 2A104300 */  slt        $v0, $v0, $v1

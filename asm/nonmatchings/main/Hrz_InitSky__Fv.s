@@ -42,7 +42,7 @@ glabel Hrz_InitSky__Fv
     /* C02C8 800CFAC8 CA90030C */  jal        fixedmult
     /* C02CC 800CFACC E8030524 */   addiu     $a1, $zero, 0x3E8
     /* C02D0 800CFAD0 4013838F */  lw         $v1, %gp_rel(Sky_gTrackSpec)($gp)
-    /* C02D4 800CFAD4 AC1882A7 */  sh         $v0, %gp_rel(D_8013DDF8)($gp)
+    /* C02D4 800CFAD4 AC1882A7 */  sh         $v0, %gp_rel(moonPosInSky_vx)($gp)
     /* C02D8 800CFAD8 3C00648C */  lw         $a0, 0x3C($v1)
     /* C02DC 800CFADC 09B5030C */  jal        fixedsin
     /* C02E0 800CFAE0 00000000 */   nop
@@ -52,10 +52,10 @@ glabel Hrz_InitSky__Fv
     /* C02F0 800CFAF0 98000396 */  lhu        $v1, 0x98($s0)
     /* C02F4 800CFAF4 C0000496 */  lhu        $a0, 0xC0($s0)
     /* C02F8 800CFAF8 B01882A7 */  sh         $v0, %gp_rel(D_8013DDFC)($gp)
-    /* C02FC 800CFAFC 1180023C */  lui        $v0, %hi(D_801131F8)
+    /* C02FC 800CFAFC 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
     /* C0300 800CFB00 21186400 */  addu       $v1, $v1, $a0
     /* C0304 800CFB04 AE1883A7 */  sh         $v1, %gp_rel(D_8013DDFA)($gp)
-    /* C0308 800CFB08 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* C0308 800CFB08 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* C030C 800CFB0C 01000224 */  addiu      $v0, $zero, 0x1
     /* C0310 800CFB10 0E006214 */  bne        $v1, $v0, .L800CFB4C
     /* C0314 800CFB14 00000000 */   nop

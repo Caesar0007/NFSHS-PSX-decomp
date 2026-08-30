@@ -40,8 +40,8 @@ glabel AI_DoReactions__FP8Car_tObj
     /* 4840C 80057C0C EC31428C */  lw         $v0, %lo(GameSetup_gData)($v0)
     /* 48410 80057C10 01000424 */  addiu      $a0, $zero, 0x1
     /* 48414 80057C14 28004410 */  beq        $v0, $a0, .L80057CB8
-    /* 48418 80057C18 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* 4841C 80057C1C B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 48418 80057C18 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* 4841C 80057C1C B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 48420 80057C20 00000000 */  nop
     /* 48424 80057C24 18004230 */  andi       $v0, $v0, 0x18
     /* 48428 80057C28 C3180200 */  sra        $v1, $v0, 3

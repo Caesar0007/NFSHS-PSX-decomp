@@ -23,7 +23,7 @@ glabel Hud_Reset__Fv
   .L800D982C:
     /* CA02C 800D982C DC1880AF */  sw         $zero, %gp_rel(D_8013DE28)($gp)
     /* CA030 800D9830 DC1380AF */  sw         $zero, %gp_rel(HudBustedOverlay)($gp)
-    /* CA034 800D9834 EC1880AF */  sw         $zero, %gp_rel(D_8013DE38)($gp)
+    /* CA034 800D9834 EC1880AF */  sw         $zero, %gp_rel(PerpOverlayOn)($gp)
     /* CA038 800D9838 F01880AF */  sw         $zero, %gp_rel(D_8013DE3C)($gp)
     /* CA03C 800D983C E41880AF */  sw         $zero, %gp_rel(D_8013DE30)($gp)
     /* CA040 800D9840 0800E003 */  jr         $ra

@@ -126,8 +126,8 @@ glabel Physics_RampCarControlValues__FP8Car_tObj
     /* 9A6BC 800A9EBC FFFF4224 */   addiu     $v0, $v0, -0x1
     /* 9A6C0 800A9EC0 440422A2 */  sb         $v0, 0x444($s1)
   .L800A9EC4:
-    /* 9A6C4 800A9EC4 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* 9A6C8 800A9EC8 B0E0458C */  lw         $a1, %lo(D_8011E0B0)($v0)
+    /* 9A6C4 800A9EC4 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* 9A6C8 800A9EC8 B0E0458C */  lw         $a1, %lo(simGlobal+0x4)($v0)
     /* 9A6CC 800A9ECC 00000000 */  nop
     /* 9A6D0 800A9ED0 0102A228 */  slti       $v0, $a1, 0x201
     /* 9A6D4 800A9ED4 BD004014 */  bnez       $v0, .L800AA1CC
@@ -368,8 +368,8 @@ glabel Physics_RampCarControlValues__FP8Car_tObj
     /* 9AA2C 800AA22C 00000000 */  nop
     /* 9AA30 800AA230 500422AE */  sw         $v0, 0x450($s1)
   .L800AA234:
-    /* 9AA34 800AA234 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* 9AA38 800AA238 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 9AA34 800AA234 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* 9AA38 800AA238 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 9AA3C 800AA23C 00000000 */  nop
     /* 9AA40 800AA240 00024228 */  slti       $v0, $v0, 0x200
     /* 9AA44 800AA244 1D004010 */  beqz       $v0, .L800AA2BC

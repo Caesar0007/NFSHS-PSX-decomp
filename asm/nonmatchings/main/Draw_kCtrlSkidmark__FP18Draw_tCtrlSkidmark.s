@@ -107,7 +107,7 @@ glabel Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark
     /* B9A20 800C9220 83110200 */  sra        $v0, $v0, 6
     /* B9A24 800C9224 83190300 */  sra        $v1, $v1, 6
     /* B9A28 800C9228 2C0022AE */  sw         $v0, (0x1F80002C & 0xFFFF)($s1)
-    /* B9A2C 800C922C 14002226 */  addiu      $v0, $s1, %lo(D_1F800014)
+    /* B9A2C 800C922C 14002226 */  addiu      $v0, $s1, 0x14
     /* B9A30 800C9230 300023AE */  sw         $v1, (0x1F800030 & 0xFFFF)($s1)
     /* B9A34 800C9234 00004C8C */  lw         $t4, 0x0($v0)
     /* B9A38 800C9238 04004D8C */  lw         $t5, 0x4($v0)
@@ -149,7 +149,7 @@ glabel Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark
     /* B9AC4 800C92C4 00000000 */  nop
     /* B9AC8 800C92C8 00000000 */  nop
     /* B9ACC 800C92CC 0100184A */  .word 0x4A180001  /* rtps */
-    /* B9AD0 800C92D0 98002226 */  addiu      $v0, $s1, %lo(D_1F800098)
+    /* B9AD0 800C92D0 98002226 */  addiu      $v0, $s1, 0x98
     /* B9AD4 800C92D4 000059E8 */  swc2       $25, 0x0($v0)
     /* B9AD8 800C92D8 04005AE8 */  swc2       $26, 0x4($v0) /* handwritten instruction */
     /* B9ADC 800C92DC 08005BE8 */  swc2       $27, 0x8($v0) /* handwritten instruction */
@@ -164,7 +164,7 @@ glabel Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark
     /* B9B00 800C9300 00000000 */  nop
     /* B9B04 800C9304 00000000 */  nop
     /* B9B08 800C9308 0100184A */  .word 0x4A180001  /* rtps */
-    /* B9B0C 800C930C A8002226 */  addiu      $v0, $s1, %lo(D_1F8000A8)
+    /* B9B0C 800C930C A8002226 */  addiu      $v0, $s1, 0xa8
     /* B9B10 800C9310 000059E8 */  swc2       $25, 0x0($v0)
     /* B9B14 800C9314 04005AE8 */  swc2       $26, 0x4($v0) /* handwritten instruction */
     /* B9B18 800C9318 08005BE8 */  swc2       $27, 0x8($v0) /* handwritten instruction */
@@ -176,7 +176,7 @@ glabel Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark
     /* B9B30 800C9330 00000000 */  nop
     /* B9B34 800C9334 00000000 */  nop
     /* B9B38 800C9338 0100184A */  .word 0x4A180001  /* rtps */
-    /* B9B3C 800C933C B8002226 */  addiu      $v0, $s1, %lo(D_1F8000B8)
+    /* B9B3C 800C933C B8002226 */  addiu      $v0, $s1, 0xb8
     /* B9B40 800C9340 000059E8 */  swc2       $25, 0x0($v0)
     /* B9B44 800C9344 04005AE8 */  swc2       $26, 0x4($v0) /* handwritten instruction */
     /* B9B48 800C9348 08005BE8 */  swc2       $27, 0x8($v0) /* handwritten instruction */
@@ -187,7 +187,7 @@ glabel Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark
     /* B9B5C 800C935C 00000000 */  nop
     /* B9B60 800C9360 00000000 */  nop
     /* B9B64 800C9364 0100184A */  .word 0x4A180001  /* rtps */
-    /* B9B68 800C9368 C8002226 */  addiu      $v0, $s1, %lo(D_1F8000C8)
+    /* B9B68 800C9368 C8002226 */  addiu      $v0, $s1, 0xc8
     /* B9B6C 800C936C 000059E8 */  swc2       $25, 0x0($v0)
     /* B9B70 800C9370 04005AE8 */  swc2       $26, 0x4($v0) /* handwritten instruction */
     /* B9B74 800C9374 08005BE8 */  swc2       $27, 0x8($v0) /* handwritten instruction */

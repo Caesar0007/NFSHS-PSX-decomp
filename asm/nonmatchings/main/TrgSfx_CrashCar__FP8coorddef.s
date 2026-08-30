@@ -4,8 +4,8 @@
 nonmatching TrgSfx_CrashCar__FP8coorddef, 0xAC
 
 glabel TrgSfx_CrashCar__FP8coorddef
-    /* ABB70 800BB370 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* ABB74 800BB374 B0E0438C */  lw         $v1, %lo(D_8011E0B0)($v0)
+    /* ABB70 800BB370 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* ABB74 800BB374 B0E0438C */  lw         $v1, %lo(simGlobal+0x4)($v0)
     /* ABB78 800BB378 A80F828F */  lw         $v0, %gp_rel(gTAddCSmoke)($gp)
     /* ABB7C 800BB37C E0FFBD27 */  addiu      $sp, $sp, -0x20
     /* ABB80 800BB380 1800B0AF */  sw         $s0, 0x18($sp)

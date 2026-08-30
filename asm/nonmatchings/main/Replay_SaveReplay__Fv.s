@@ -8,8 +8,8 @@ glabel Replay_SaveReplay__Fv
     /* A579C 800B4F9C 00000000 */  nop
     /* A57A0 800B4FA0 06004014 */  bnez       $v0, .L800B4FBC
     /* A57A4 800B4FA4 1180023C */   lui       $v0, %hi(Replay_ReplayBuffer)
-    /* A57A8 800B4FA8 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* A57AC 800B4FAC B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* A57A8 800B4FA8 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* A57AC 800B4FAC B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* A57B0 800B4FB0 00000000 */  nop
     /* A57B4 800B4FB4 A00E82AF */  sw         $v0, %gp_rel(Replay_Size)($gp)
     /* A57B8 800B4FB8 1180023C */  lui        $v0, %hi(Replay_ReplayBuffer)

@@ -79,8 +79,8 @@ glabel AudioClc_SoundCloseCar__Fii
   .L80075140:
     /* 65940 80075140 FFFF113C */  lui        $s1, (0xFFFF0000 >> 16)
   .L80075144:
-    /* 65944 80075144 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* 65948 80075148 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* 65944 80075144 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* 65948 80075148 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* 6594C 8007514C 01000224 */  addiu      $v0, $zero, 0x1
     /* 65950 80075150 07006214 */  bne        $v1, $v0, .L80075170
     /* 65954 80075154 1180043C */   lui       $a0, %hi(AudioClc_gRenderView)

@@ -155,22 +155,22 @@ glabel Execute__21AIState_RovingTraffic
     /* 624A0 80071CA0 1400428E */  lw         $v0, 0x14($s2)
     /* 624A4 80071CA4 00000000 */  nop
     /* 624A8 80071CA8 0E004014 */  bnez       $v0, .L80071CE4
-    /* 624AC 80071CAC 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* 624AC 80071CAC 1280023C */   lui       $v0, %hi(simGlobal+0x4)
     /* 624B0 80071CB0 1000438E */  lw         $v1, 0x10($s2)
-    /* 624B4 80071CB4 1280043C */  lui        $a0, %hi(D_8011E0B0)
+    /* 624B4 80071CB4 1280043C */  lui        $a0, %hi(simGlobal+0x4)
     /* 624B8 80071CB8 80100300 */  sll        $v0, $v1, 2
     /* 624BC 80071CBC 21104300 */  addu       $v0, $v0, $v1
     /* 624C0 80071CC0 0800438E */  lw         $v1, 0x8($s2)
     /* 624C4 80071CC4 80100200 */  sll        $v0, $v0, 2
     /* 624C8 80071CC8 21104300 */  addu       $v0, $v0, $v1
-    /* 624CC 80071CCC B0E0838C */  lw         $v1, %lo(D_8011E0B0)($a0)
+    /* 624CC 80071CCC B0E0838C */  lw         $v1, %lo(simGlobal+0x4)($a0)
     /* 624D0 80071CD0 1000428C */  lw         $v0, 0x10($v0)
     /* 624D4 80071CD4 00000000 */  nop
     /* 624D8 80071CD8 21186200 */  addu       $v1, $v1, $v0
     /* 624DC 80071CDC 140043AE */  sw         $v1, 0x14($s2)
-    /* 624E0 80071CE0 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* 624E0 80071CE0 1280023C */  lui        $v0, %hi(simGlobal+0x4)
   .L80071CE4:
-    /* 624E4 80071CE4 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 624E4 80071CE4 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 624E8 80071CE8 1400438E */  lw         $v1, 0x14($s2)
     /* 624EC 80071CEC 00000000 */  nop
     /* 624F0 80071CF0 2A104300 */  slt        $v0, $v0, $v1

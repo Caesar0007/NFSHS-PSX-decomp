@@ -32,8 +32,8 @@ glabel Night_PauseLightningEffect__Fi
     /* CBEA0 800DB6A0 01000324 */  addiu      $v1, $zero, 0x1
   .L800DB6A4:
     /* CBEA4 800DB6A4 05006010 */  beqz       $v1, .L800DB6BC
-    /* CBEA8 800DB6A8 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* CBEAC 800DB6AC B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* CBEA8 800DB6A8 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* CBEAC 800DB6AC B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* CBEB0 800DB6B0 00000000 */  nop
     /* CBEB4 800DB6B4 1C1582AF */  sw         $v0, %gp_rel(Night_gNextLightning)($gp)
     /* CBEB8 800DB6B8 201582AF */  sw         $v0, %gp_rel(Night_gEndNextLightning)($gp)

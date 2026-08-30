@@ -177,11 +177,11 @@ dlabel D_8013DDF4
     /* 12E5F6 8013DDF6 */ .short 0x0000
 enddlabel D_8013DDF4
 
-nonmatching D_8013DDF8
+nonmatching moonPosInSky_vx
 
-dlabel D_8013DDF8
+dlabel moonPosInSky_vx
     /* 12E5F8 8013DDF8 */ .short 0x0000
-enddlabel D_8013DDF8
+enddlabel moonPosInSky_vx
 
 nonmatching D_8013DDFA
 
@@ -202,23 +202,23 @@ dlabel D_8013DE00
     /* 12E600 8013DE00 00000000 */ .word 0x00000000
 enddlabel D_8013DE00
 
-nonmatching D_8013DE04
+nonmatching g1Player
 
-dlabel D_8013DE04
+dlabel g1Player
     /* 12E604 8013DE04 00000000 */ .word 0x00000000
-enddlabel D_8013DE04
+enddlabel g1Player
 
-nonmatching D_8013DE08
+nonmatching gSprite0
 
-dlabel D_8013DE08
+dlabel gSprite0
     /* 12E608 8013DE08 00000000 */ .word 0x00000000
-enddlabel D_8013DE08
+enddlabel gSprite0
 
-nonmatching D_8013DE0C
+nonmatching gSprite1
 
-dlabel D_8013DE0C
+dlabel gSprite1
     /* 12E60C 8013DE0C 00000000 */ .word 0x00000000
-enddlabel D_8013DE0C
+enddlabel gSprite1
 
 nonmatching D_8013DE10
 
@@ -229,25 +229,25 @@ dlabel D_8013DE10
     /* 12E613 8013DE13 */ .byte 0x00
 enddlabel D_8013DE10
 
-nonmatching D_8013DE14
+nonmatching currentSpriteColor
 
-dlabel D_8013DE14
+dlabel currentSpriteColor
     /* 12E614 8013DE14 00000000 */ .word 0x00000000
-enddlabel D_8013DE14
+enddlabel currentSpriteColor
 
-nonmatching D_8013DE18
+nonmatching HudSplitTimeDiff1
 
-dlabel D_8013DE18
+dlabel HudSplitTimeDiff1
     /* 12E618 8013DE18 00000000 */ .word 0x00000000
     /* 12E61C 8013DE1C 00000000 */ .word 0x00000000
-enddlabel D_8013DE18
+enddlabel HudSplitTimeDiff1
 
-nonmatching D_8013DE20
+nonmatching HudSplitTimeDiff2
 
-dlabel D_8013DE20
+dlabel HudSplitTimeDiff2
     /* 12E620 8013DE20 00000000 */ .word 0x00000000
     /* 12E624 8013DE24 00000000 */ .word 0x00000000
-enddlabel D_8013DE20
+enddlabel HudSplitTimeDiff2
 
 nonmatching D_8013DE28
 
@@ -268,11 +268,11 @@ dlabel D_8013DE30
     /* 12E634 8013DE34 00000000 */ .word 0x00000000
 enddlabel D_8013DE30
 
-nonmatching D_8013DE38
+nonmatching PerpOverlayOn
 
-dlabel D_8013DE38
+dlabel PerpOverlayOn
     /* 12E638 8013DE38 00000000 */ .word 0x00000000
-enddlabel D_8013DE38
+enddlabel PerpOverlayOn
 
 nonmatching D_8013DE3C
 
@@ -280,12 +280,12 @@ dlabel D_8013DE3C
     /* 12E63C 8013DE3C 00000000 */ .word 0x00000000
 enddlabel D_8013DE3C
 
-nonmatching D_8013DE40
+nonmatching PerpOverlayMessage
 
-dlabel D_8013DE40
+dlabel PerpOverlayMessage
     /* 12E640 8013DE40 00000000 */ .word 0x00000000
     /* 12E644 8013DE44 00000000 */ .word 0x00000000
-enddlabel D_8013DE40
+enddlabel PerpOverlayMessage
 
 nonmatching D_8013DE48
 

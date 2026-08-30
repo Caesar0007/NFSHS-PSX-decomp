@@ -101,8 +101,8 @@ glabel AudioEng_Set__Fiiiiiiii
     /* 6BF08 8007B708 01004292 */  lbu        $v0, 0x1($s2)
     /* 6BF0C 8007B70C 00000000 */  nop
     /* 6BF10 8007B710 0A0002A2 */  sb         $v0, 0xA($s0)
-    /* 6BF14 8007B714 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* 6BF18 8007B718 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* 6BF14 8007B714 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* 6BF18 8007B718 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* 6BF1C 8007B71C 01000224 */  addiu      $v0, $zero, 0x1
     /* 6BF20 8007B720 04006214 */  bne        $v1, $v0, .L8007B734
     /* 6BF24 8007B724 FF3F0224 */   addiu     $v0, $zero, 0x3FFF

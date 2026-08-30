@@ -18,8 +18,8 @@ glabel CV_ColorTracks__Fiii
     /* D1B34 800E1334 2800BFAF */  sw         $ra, 0x28($sp)
     /* D1B38 800E1338 C690030C */  jal        memset
     /* D1B3C 800E133C 04000624 */   addiu     $a2, $zero, 0x4
-    /* D1B40 800E1340 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* D1B44 800E1344 F831428C */  lw         $v0, %lo(D_801131F8)($v0)
+    /* D1B40 800E1340 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* D1B44 800E1344 F831428C */  lw         $v0, %lo(GameSetup_gData+0xc)($v0)
     /* D1B48 800E1348 01000324 */  addiu      $v1, $zero, 0x1
     /* D1B4C 800E134C 5D004314 */  bne        $v0, $v1, .L800E14C4
     /* D1B50 800E1350 21300002 */   addu      $a2, $s0, $zero

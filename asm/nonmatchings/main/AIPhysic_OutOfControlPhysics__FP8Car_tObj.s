@@ -34,8 +34,8 @@ glabel AIPhysic_OutOfControlPhysics__FP8Car_tObj
     /* 5BC6C 8006B46C 27100200 */  nor        $v0, $zero, $v0
     /* 5BC70 8006B470 2BA08202 */  sltu       $s4, $s4, $v0
   .L8006B474:
-    /* 5BC74 8006B474 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* 5BC78 8006B478 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 5BC74 8006B474 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* 5BC78 8006B478 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 5BC7C 8006B47C 74DC1026 */  addiu      $s0, $s0, %lo(AIPhysicConfig)
     /* 5BC80 8006B480 480722AE */  sw         $v0, 0x748($s1)
     /* 5BC84 8006B484 5000058E */  lw         $a1, 0x50($s0)

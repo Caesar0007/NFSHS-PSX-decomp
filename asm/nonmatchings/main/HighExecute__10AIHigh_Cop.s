@@ -1021,10 +1021,10 @@ glabel HighExecute__10AIHigh_Cop
     /* 5538C 80064B8C 1180073C */  lui        $a3, %hi(AICop_spikeBelt)
     /* 55390 80064B90 4CD5E424 */  addiu      $a0, $a3, %lo(AICop_spikeBelt)
     /* 55394 80064B94 6400288E */  lw         $t0, 0x64($s1)
-    /* 55398 80064B98 1280033C */  lui        $v1, %hi(D_8011E0B0)
+    /* 55398 80064B98 1280033C */  lui        $v1, %hi(simGlobal+0x4)
     /* 5539C 80064B9C 080085AC */  sw         $a1, 0x8($a0)
     /* 553A0 80064BA0 0C0082AC */  sw         $v0, 0xC($a0)
-    /* 553A4 80064BA4 B0E0668C */  lw         $a2, %lo(D_8011E0B0)($v1)
+    /* 553A4 80064BA4 B0E0668C */  lw         $a2, %lo(simGlobal+0x4)($v1)
     /* 553A8 80064BA8 01000324 */  addiu      $v1, $zero, 0x1
     /* 553AC 80064BAC 4CD5E3AC */  sw         $v1, %lo(AICop_spikeBelt)($a3)
     /* 553B0 80064BB0 040088AC */  sw         $t0, 0x4($a0)
@@ -1045,8 +1045,8 @@ glabel HighExecute__10AIHigh_Cop
     /* 553E4 80064BE4 0400828C */  lw         $v0, 0x4($a0)
     /* 553E8 80064BE8 00000000 */  nop
     /* 553EC 80064BEC 04004314 */  bne        $v0, $v1, .L80064C00
-    /* 553F0 80064BF0 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* 553F4 80064BF4 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 553F0 80064BF0 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* 553F4 80064BF4 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 553F8 80064BF8 00000000 */  nop
     /* 553FC 80064BFC 100082AC */  sw         $v0, 0x10($a0)
   .L80064C00:

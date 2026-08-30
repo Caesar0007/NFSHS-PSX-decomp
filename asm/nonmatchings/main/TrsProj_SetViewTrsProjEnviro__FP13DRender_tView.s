@@ -5,8 +5,8 @@ nonmatching TrsProj_SetViewTrsProjEnviro__FP13DRender_tView, 0x54
 
 glabel TrsProj_SetViewTrsProjEnviro__FP13DRender_tView
     /* D2208 800E1A08 E8FFBD27 */  addiu      $sp, $sp, -0x18
-    /* D220C 800E1A0C 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* D2210 800E1A10 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* D220C 800E1A0C 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* D2210 800E1A10 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* D2214 800E1A14 01000224 */  addiu      $v0, $zero, 0x1
     /* D2218 800E1A18 06006214 */  bne        $v1, $v0, .L800E1A34
     /* D221C 800E1A1C 1000BFAF */   sw        $ra, 0x10($sp)

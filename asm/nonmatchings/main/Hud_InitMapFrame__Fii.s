@@ -17,14 +17,14 @@ glabel Hud_InitMapFrame__Fii
     /* C3374 800D2B74 3800B2AF */  sw         $s2, 0x38($sp)
     /* C3378 800D2B78 04008010 */  beqz       $a0, .L800D2B8C
     /* C337C 800D2B7C 3400B1AF */   sw        $s1, 0x34($sp)
-    /* C3380 800D2B80 C018938F */  lw         $s3, %gp_rel(D_8013DE0C)($gp)
+    /* C3380 800D2B80 C018938F */  lw         $s3, %gp_rel(gSprite1)($gp)
     /* C3384 800D2B84 E54A0308 */  j          .L800D2B94
-    /* C3388 800D2B88 1480023C */   lui       $v0, %hi(D_8013E450)
+    /* C3388 800D2B88 1480023C */   lui       $v0, %hi(gHudF4)
   .L800D2B8C:
-    /* C338C 800D2B8C BC18938F */  lw         $s3, %gp_rel(D_8013DE08)($gp)
-    /* C3390 800D2B90 1480023C */  lui        $v0, %hi(D_8013E450)
+    /* C338C 800D2B8C BC18938F */  lw         $s3, %gp_rel(gSprite0)($gp)
+    /* C3390 800D2B90 1480023C */  lui        $v0, %hi(gHudF4)
   .L800D2B94:
-    /* C3394 800D2B94 50E44224 */  addiu      $v0, $v0, %lo(D_8013E450)
+    /* C3394 800D2B94 50E44224 */  addiu      $v0, $v0, %lo(gHudF4)
     /* C3398 800D2B98 04008010 */  beqz       $a0, .L800D2BAC
     /* C339C 800D2B9C 2000A2AF */   sw        $v0, 0x20($sp)
     /* C33A0 800D2BA0 21404000 */  addu       $t0, $v0, $zero
@@ -42,7 +42,7 @@ glabel Hud_InitMapFrame__Fii
   .L800D2BC8:
     /* C33C8 800D2BC8 1180083C */  lui        $t0, %hi(HudPmx_gShapes)
     /* C33CC 800D2BCC 980C0825 */  addiu      $t0, $t0, %lo(HudPmx_gShapes)
-    /* C33D0 800D2BD0 B818868F */  lw         $a2, %gp_rel(D_8013DE04)($gp)
+    /* C33D0 800D2BD0 B818868F */  lw         $a2, %gp_rel(g1Player)($gp)
     /* C33D4 800D2BD4 2A011685 */  lh         $s6, 0x12A($t0)
     /* C33D8 800D2BD8 28011785 */  lh         $s7, 0x128($t0)
     /* C33DC 800D2BDC A2010285 */  lh         $v0, 0x1A2($t0)
@@ -67,14 +67,14 @@ glabel Hud_InitMapFrame__Fii
     /* C3424 800D2C24 3A00C784 */  lh         $a3, 0x3A($a2)
     /* C3428 800D2C28 2014828F */  lw         $v0, %gp_rel(HudMapOffsetY)($gp)
     /* C342C 800D2C2C 21308002 */  addu       $a2, $s4, $zero
-    /* C3430 800D2C30 C81883AF */  sw         $v1, %gp_rel(D_8013DE14)($gp)
+    /* C3430 800D2C30 C81883AF */  sw         $v1, %gp_rel(currentSpriteColor)($gp)
     /* C3434 800D2C34 C41880A3 */  sb         $zero, %gp_rel(D_8013DE10)($gp)
     /* C3438 800D2C38 2138E200 */  addu       $a3, $a3, $v0
     /* C343C 800D2C3C 1148030C */  jal        Hud_BuildSprite2__FP4SPRTiii
     /* C3440 800D2C40 2138F200 */   addu      $a3, $a3, $s2
     /* C3444 800D2C44 00056426 */  addiu      $a0, $s3, 0x500
     /* C3448 800D2C48 0F000524 */  addiu      $a1, $zero, 0xF
-    /* C344C 800D2C4C B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C344C 800D2C4C B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C3450 800D2C50 2800A88F */  lw         $t0, 0x28($sp)
     /* C3454 800D2C54 38004684 */  lh         $a2, 0x38($v0)
     /* C3458 800D2C58 3A004784 */  lh         $a3, 0x3A($v0)
@@ -85,7 +85,7 @@ glabel Hud_InitMapFrame__Fii
     /* C346C 800D2C6C 1148030C */  jal        Hud_BuildSprite2__FP4SPRTiii
     /* C3470 800D2C70 2138F200 */   addu      $a3, $a3, $s2
     /* C3474 800D2C74 14056426 */  addiu      $a0, $s3, 0x514
-    /* C3478 800D2C78 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C3478 800D2C78 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C347C 800D2C7C 10000524 */  addiu      $a1, $zero, 0x10
     /* C3480 800D2C80 3A004784 */  lh         $a3, 0x3A($v0)
     /* C3484 800D2C84 2014828F */  lw         $v0, %gp_rel(HudMapOffsetY)($gp)
@@ -97,7 +97,7 @@ glabel Hud_InitMapFrame__Fii
     /* C349C 800D2C9C 2138F200 */   addu      $a3, $a3, $s2
     /* C34A0 800D2CA0 28056426 */  addiu      $a0, $s3, 0x528
     /* C34A4 800D2CA4 11000524 */  addiu      $a1, $zero, 0x11
-    /* C34A8 800D2CA8 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C34A8 800D2CA8 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C34AC 800D2CAC 2800A88F */  lw         $t0, 0x28($sp)
     /* C34B0 800D2CB0 38004684 */  lh         $a2, 0x38($v0)
     /* C34B4 800D2CB4 3A004784 */  lh         $a3, 0x3A($v0)
@@ -112,7 +112,7 @@ glabel Hud_InitMapFrame__Fii
     /* C34D8 800D2CD8 3C056426 */  addiu      $a0, $s3, 0x53C
     /* C34DC 800D2CDC 14001026 */  addiu      $s0, $s0, 0x14
     /* C34E0 800D2CE0 21280002 */  addu       $a1, $s0, $zero
-    /* C34E4 800D2CE4 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C34E4 800D2CE4 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C34E8 800D2CE8 21889702 */  addu       $s1, $s4, $s7
     /* C34EC 800D2CEC 3A004784 */  lh         $a3, 0x3A($v0)
     /* C34F0 800D2CF0 2014828F */  lw         $v0, %gp_rel(HudMapOffsetY)($gp)
@@ -122,7 +122,7 @@ glabel Hud_InitMapFrame__Fii
     /* C3500 800D2D00 2138F200 */   addu      $a3, $a3, $s2
     /* C3504 800D2D04 50056426 */  addiu      $a0, $s3, 0x550
     /* C3508 800D2D08 21280002 */  addu       $a1, $s0, $zero
-    /* C350C 800D2D0C B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C350C 800D2D0C B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C3510 800D2D10 21302002 */  addu       $a2, $s1, $zero
     /* C3514 800D2D14 3A004784 */  lh         $a3, 0x3A($v0)
     /* C3518 800D2D18 2014828F */  lw         $v0, %gp_rel(HudMapOffsetY)($gp)
@@ -134,7 +134,7 @@ glabel Hud_InitMapFrame__Fii
     /* C3530 800D2D30 1148030C */  jal        Hud_BuildSprite2__FP4SPRTiii
     /* C3534 800D2D34 2138F200 */   addu      $a3, $a3, $s2
     /* C3538 800D2D38 64056426 */  addiu      $a0, $s3, 0x564
-    /* C353C 800D2D3C B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C353C 800D2D3C B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C3540 800D2D40 18000524 */  addiu      $a1, $zero, 0x18
     /* C3544 800D2D44 3A004784 */  lh         $a3, 0x3A($v0)
     /* C3548 800D2D48 2014828F */  lw         $v0, %gp_rel(HudMapOffsetY)($gp)
@@ -145,7 +145,7 @@ glabel Hud_InitMapFrame__Fii
     /* C355C 800D2D5C 2138F200 */   addu      $a3, $a3, $s2
     /* C3560 800D2D60 78056426 */  addiu      $a0, $s3, 0x578
     /* C3564 800D2D64 18000524 */  addiu      $a1, $zero, 0x18
-    /* C3568 800D2D68 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C3568 800D2D68 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C356C 800D2D6C 2800A88F */  lw         $t0, 0x28($sp)
     /* C3570 800D2D70 38004684 */  lh         $a2, 0x38($v0)
     /* C3574 800D2D74 3A004784 */  lh         $a3, 0x3A($v0)

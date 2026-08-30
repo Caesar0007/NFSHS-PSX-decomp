@@ -117,8 +117,8 @@ glabel Newton_CalcDistToClosestPlayerCar__FP13BO_tNewtonObj
     /* 91BD4 800A13D4 5C07028E */  lw         $v0, 0x75C($s0)
     /* 91BD8 800A13D8 00000000 */  nop
     /* 91BDC 800A13DC 06004010 */  beqz       $v0, .L800A13F8
-    /* 91BE0 800A13E0 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* 91BE4 800A13E4 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 91BE0 800A13E0 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* 91BE4 800A13E4 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 91BE8 800A13E8 00000000 */  nop
     /* 91BEC 800A13EC 03004228 */  slti       $v0, $v0, 0x3
     /* 91BF0 800A13F0 0B004010 */  beqz       $v0, .L800A1420
@@ -144,8 +144,8 @@ glabel Newton_CalcDistToClosestPlayerCar__FP13BO_tNewtonObj
     /* 91C34 800A1434 5C07028E */  lw         $v0, 0x75C($s0)
     /* 91C38 800A1438 00000000 */  nop
     /* 91C3C 800A143C 06004010 */  beqz       $v0, .L800A1458
-    /* 91C40 800A1440 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* 91C44 800A1444 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 91C40 800A1440 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* 91C44 800A1444 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 91C48 800A1448 00000000 */  nop
     /* 91C4C 800A144C 03004228 */  slti       $v0, $v0, 0x3
     /* 91C50 800A1450 08004010 */  beqz       $v0, .L800A1474

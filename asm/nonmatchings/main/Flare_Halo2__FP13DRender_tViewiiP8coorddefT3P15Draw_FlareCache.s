@@ -62,15 +62,15 @@ glabel Flare_Halo2__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache
     /* BDE08 800CD608 10006232 */  andi       $v0, $s3, 0x10
   .L800CD60C:
     /* BDE0C 800CD60C 04004010 */  beqz       $v0, .L800CD620
-    /* BDE10 800CD610 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* BDE14 800CD614 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* BDE10 800CD610 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* BDE14 800CD614 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* BDE18 800CD618 8F350308 */  j          .L800CD63C
     /* BDE1C 800CD61C 83110200 */   sra       $v0, $v0, 6
   .L800CD620:
     /* BDE20 800CD620 20006232 */  andi       $v0, $s3, 0x20
     /* BDE24 800CD624 08004010 */  beqz       $v0, .L800CD648
-    /* BDE28 800CD628 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* BDE2C 800CD62C B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* BDE28 800CD628 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* BDE2C 800CD62C B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* BDE30 800CD630 00000000 */  nop
     /* BDE34 800CD634 1B004224 */  addiu      $v0, $v0, 0x1B
     /* BDE38 800CD638 43110200 */  sra        $v0, $v0, 5

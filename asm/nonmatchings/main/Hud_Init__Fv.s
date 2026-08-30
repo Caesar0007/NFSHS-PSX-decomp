@@ -9,12 +9,12 @@ glabel Hud_Init__Fv
     /* C3834 800D3034 A0A00835 */  ori        $t0, $t0, (0xA0A0A0 & 0xFFFF)
     /* C3838 800D3038 6000BEAF */  sw         $fp, 0x60($sp)
     /* C383C 800D303C 21F00000 */  addu       $fp, $zero, $zero
-    /* C3840 800D3040 1480023C */  lui        $v0, %hi(D_8013E390)
+    /* C3840 800D3040 1480023C */  lui        $v0, %hi(gTPage0)
     /* C3844 800D3044 5800B6AF */  sw         $s6, 0x58($sp)
-    /* C3848 800D3048 90E35624 */  addiu      $s6, $v0, %lo(D_8013E390)
-    /* C384C 800D304C 1480023C */  lui        $v0, %hi(D_8013E3F0)
+    /* C3848 800D3048 90E35624 */  addiu      $s6, $v0, %lo(gTPage0)
+    /* C384C 800D304C 1480023C */  lui        $v0, %hi(gTPage1)
     /* C3850 800D3050 5400B5AF */  sw         $s5, 0x54($sp)
-    /* C3854 800D3054 F0E35524 */  addiu      $s5, $v0, %lo(D_8013E3F0)
+    /* C3854 800D3054 F0E35524 */  addiu      $s5, $v0, %lo(gTPage1)
     /* C3858 800D3058 5000B4AF */  sw         $s4, 0x50($sp)
     /* C385C 800D305C 21A0C003 */  addu       $s4, $fp, $zero
     /* C3860 800D3060 6400BFAF */  sw         $ra, 0x64($sp)
@@ -70,13 +70,13 @@ glabel Hud_Init__Fv
     /* C391C 800D311C E5014014 */  bnez       $v0, .L800D38B4
     /* C3920 800D3120 8000023C */   lui       $v0, (0x808080 >> 16)
     /* C3924 800D3124 0400C013 */  beqz       $fp, .L800D3138
-    /* C3928 800D3128 1480023C */   lui       $v0, %hi(D_8013E450)
-    /* C392C 800D312C C018958F */  lw         $s5, %gp_rel(D_8013DE0C)($gp)
+    /* C3928 800D3128 1480023C */   lui       $v0, %hi(gHudF4)
+    /* C392C 800D312C C018958F */  lw         $s5, %gp_rel(gSprite1)($gp)
     /* C3930 800D3130 504C0308 */  j          .L800D3140
-    /* C3934 800D3134 50E44224 */   addiu     $v0, $v0, %lo(D_8013E450)
+    /* C3934 800D3134 50E44224 */   addiu     $v0, $v0, %lo(gHudF4)
   .L800D3138:
-    /* C3938 800D3138 BC18958F */  lw         $s5, %gp_rel(D_8013DE08)($gp)
-    /* C393C 800D313C 50E44224 */  addiu      $v0, $v0, %lo(D_8013E450)
+    /* C3938 800D3138 BC18958F */  lw         $s5, %gp_rel(gSprite0)($gp)
+    /* C393C 800D313C 50E44224 */  addiu      $v0, $v0, %lo(gHudF4)
   .L800D3140:
     /* C3940 800D3140 0400C013 */  beqz       $fp, .L800D3154
     /* C3944 800D3144 2C00A2AF */   sw        $v0, 0x2C($sp)
@@ -84,9 +84,9 @@ glabel Hud_Init__Fv
     /* C394C 800D314C A8000825 */  addiu      $t0, $t0, 0xA8
     /* C3950 800D3150 2C00A8AF */  sw         $t0, 0x2C($sp)
   .L800D3154:
-    /* C3954 800D3154 1480023C */  lui        $v0, %hi(D_8013E730)
+    /* C3954 800D3154 1480023C */  lui        $v0, %hi(gHudG4)
     /* C3958 800D3158 0200C013 */  beqz       $fp, .L800D3164
-    /* C395C 800D315C 30E75624 */   addiu     $s6, $v0, %lo(D_8013E730)
+    /* C395C 800D315C 30E75624 */   addiu     $s6, $v0, %lo(gHudG4)
     /* C3960 800D3160 9000D626 */  addiu      $s6, $s6, 0x90
   .L800D3164:
     /* C3964 800D3164 0200C013 */  beqz       $fp, .L800D3170
@@ -103,7 +103,7 @@ glabel Hud_Init__Fv
     /* C398C 800D318C 10005226 */  addiu      $s2, $s2, 0x10
   .L800D3190:
     /* C3990 800D3190 2120A002 */  addu       $a0, $s5, $zero
-    /* C3994 800D3194 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C3994 800D3194 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C3998 800D3198 68000524 */  addiu      $a1, $zero, 0x68
     /* C399C 800D319C 00004684 */  lh         $a2, 0x0($v0)
     /* C39A0 800D31A0 02004784 */  lh         $a3, 0x2($v0)
@@ -114,12 +114,12 @@ glabel Hud_Init__Fv
     /* C39B4 800D31B4 E647030C */  jal        Hud_BuildSprite__FP4SPRTiiiUli
     /* C39B8 800D31B8 2338F200 */   subu      $a3, $a3, $s2
     /* C39BC 800D31BC 1400A426 */  addiu      $a0, $s5, 0x14
-    /* C39C0 800D31C0 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C39C0 800D31C0 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C39C4 800D31C4 3000A88F */  lw         $t0, 0x30($sp)
     /* C39C8 800D31C8 06004784 */  lh         $a3, 0x6($v0)
     /* C39CC 800D31CC 04004684 */  lh         $a2, 0x4($v0)
     /* C39D0 800D31D0 80000524 */  addiu      $a1, $zero, 0x80
-    /* C39D4 800D31D4 C81888AF */  sw         $t0, %gp_rel(D_8013DE14)($gp)
+    /* C39D4 800D31D4 C81888AF */  sw         $t0, %gp_rel(currentSpriteColor)($gp)
     /* C39D8 800D31D8 1148030C */  jal        Hud_BuildSprite2__FP4SPRTiii
     /* C39DC 800D31DC 2138F700 */   addu      $a3, $a3, $s7
     /* C39E0 800D31E0 81000524 */  addiu      $a1, $zero, 0x81
@@ -142,7 +142,7 @@ glabel Hud_Init__Fv
     /* C3A20 800D3220 2E001324 */  addiu      $s3, $zero, 0x2E
   .L800D3224:
     /* C3A24 800D3224 5000A426 */  addiu      $a0, $s5, 0x50
-    /* C3A28 800D3228 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C3A28 800D3228 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C3A2C 800D322C 69000524 */  addiu      $a1, $zero, 0x69
     /* C3A30 800D3230 0A004384 */  lh         $v1, 0xA($v0)
     /* C3A34 800D3234 08005084 */  lh         $s0, 0x8($v0)
@@ -188,7 +188,7 @@ glabel Hud_Init__Fv
     /* C3AD4 800D32D4 980C0825 */  addiu      $t0, $t0, %lo(HudPmx_gShapes)
     /* C3AD8 800D32D8 3C00A98F */  lw         $t1, 0x3C($sp)
     /* C3ADC 800D32DC 6C081485 */  lh         $s4, 0x86C($t0)
-    /* C3AE0 800D32E0 B818838F */  lw         $v1, %gp_rel(D_8013DE04)($gp)
+    /* C3AE0 800D32E0 B818838F */  lw         $v1, %gp_rel(g1Player)($gp)
     /* C3AE4 800D32E4 5804228D */  lw         $v0, 0x458($t1)
     /* C3AE8 800D32E8 0C007084 */  lh         $s0, 0xC($v1)
     /* C3AEC 800D32EC 0100422C */  sltiu      $v0, $v0, 0x1
@@ -236,7 +236,7 @@ glabel Hud_Init__Fv
     /* C3B94 800D3394 69000524 */  addiu      $a1, $zero, 0x69
     /* C3B98 800D3398 1180093C */  lui        $t1, %hi(HudPmx_gShapes)
     /* C3B9C 800D339C 980C2925 */  addiu      $t1, $t1, %lo(HudPmx_gShapes)
-    /* C3BA0 800D33A0 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C3BA0 800D33A0 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C3BA4 800D33A4 6C083485 */  lh         $s4, 0x86C($t1)
     /* C3BA8 800D33A8 12004384 */  lh         $v1, 0x12($v0)
     /* C3BAC 800D33AC 10005084 */  lh         $s0, 0x10($v0)
@@ -297,13 +297,13 @@ glabel Hud_Init__Fv
     /* C3C80 800D3480 00000000 */  nop
     /* C3C84 800D3484 06004010 */  beqz       $v0, .L800D34A0
     /* C3C88 800D3488 00000000 */   nop
-    /* C3C8C 800D348C B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C3C8C 800D348C B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C3C90 800D3490 00000000 */  nop
     /* C3C94 800D3494 08004284 */  lh         $v0, 0x8($v0)
     /* C3C98 800D3498 2B4D0308 */  j          .L800D34AC
     /* C3C9C 800D349C 0E005024 */   addiu     $s0, $v0, 0xE
   .L800D34A0:
-    /* C3CA0 800D34A0 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C3CA0 800D34A0 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C3CA4 800D34A4 00000000 */  nop
     /* C3CA8 800D34A8 14005084 */  lh         $s0, 0x14($v0)
   .L800D34AC:
@@ -311,14 +311,14 @@ glabel Hud_Init__Fv
     /* C3CB0 800D34B0 00000000 */  nop
     /* C3CB4 800D34B4 07004010 */  beqz       $v0, .L800D34D4
     /* C3CB8 800D34B8 00000000 */   nop
-    /* C3CBC 800D34BC B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C3CBC 800D34BC B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C3CC0 800D34C0 00000000 */  nop
     /* C3CC4 800D34C4 0A004384 */  lh         $v1, 0xA($v0)
     /* C3CC8 800D34C8 0E00E226 */  addiu      $v0, $s7, 0xE
     /* C3CCC 800D34CC 3A4D0308 */  j          .L800D34E8
     /* C3CD0 800D34D0 21886200 */   addu      $s1, $v1, $v0
   .L800D34D4:
-    /* C3CD4 800D34D4 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C3CD4 800D34D4 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C3CD8 800D34D8 00000000 */  nop
     /* C3CDC 800D34DC 16004284 */  lh         $v0, 0x16($v0)
     /* C3CE0 800D34E0 00000000 */  nop
@@ -366,21 +366,21 @@ glabel Hud_Init__Fv
     /* C3D84 800D3584 1000A9AF */   sw        $t1, 0x10($sp)
     /* C3D88 800D3588 F000A426 */  addiu      $a0, $s5, 0xF0
     /* C3D8C 800D358C 0580053C */  lui        $a1, %hi(D_800568EC)
-    /* C3D90 800D3590 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C3D90 800D3590 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C3D94 800D3594 2800A88F */  lw         $t0, 0x28($sp)
     /* C3D98 800D3598 08004384 */  lh         $v1, 0x8($v0)
     /* C3D9C 800D359C 18004684 */  lh         $a2, 0x18($v0)
     /* C3DA0 800D35A0 0A004784 */  lh         $a3, 0xA($v0)
     /* C3DA4 800D35A4 1A004284 */  lh         $v0, 0x1A($v0)
     /* C3DA8 800D35A8 EC68A524 */  addiu      $a1, $a1, %lo(D_800568EC)
-    /* C3DAC 800D35AC C81888AF */  sw         $t0, %gp_rel(D_8013DE14)($gp)
+    /* C3DAC 800D35AC C81888AF */  sw         $t0, %gp_rel(currentSpriteColor)($gp)
     /* C3DB0 800D35B0 21306600 */  addu       $a2, $v1, $a2
     /* C3DB4 800D35B4 2138F700 */  addu       $a3, $a3, $s7
     /* C3DB8 800D35B8 BE4B030C */  jal        Hud_BuildTimeSprites__FP4SPRTPcii
     /* C3DBC 800D35BC 2138E200 */   addu      $a3, $a3, $v0
     /* C3DC0 800D35C0 9001A426 */  addiu      $a0, $s5, 0x190
     /* C3DC4 800D35C4 1480053C */  lui        $a1, %hi(D_8013D8EC)
-    /* C3DC8 800D35C8 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C3DC8 800D35C8 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C3DCC 800D35CC ECD8A524 */  addiu      $a1, $a1, %lo(D_8013D8EC)
     /* C3DD0 800D35D0 0C004384 */  lh         $v1, 0xC($v0)
     /* C3DD4 800D35D4 1C004684 */  lh         $a2, 0x1C($v0)
@@ -395,9 +395,9 @@ glabel Hud_Init__Fv
     /* C3DF8 800D35F8 A0A06334 */  ori        $v1, $v1, (0xA0A0A0 & 0xFFFF)
     /* C3DFC 800D35FC CC01A426 */  addiu      $a0, $s5, 0x1CC
     /* C3E00 800D3600 1480053C */  lui        $a1, %hi(D_8013D8F0)
-    /* C3E04 800D3604 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C3E04 800D3604 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C3E08 800D3608 F0D8A524 */  addiu      $a1, $a1, %lo(D_8013D8F0)
-    /* C3E0C 800D360C C81883AF */  sw         $v1, %gp_rel(D_8013DE14)($gp)
+    /* C3E0C 800D360C C81883AF */  sw         $v1, %gp_rel(currentSpriteColor)($gp)
     /* C3E10 800D3610 10004384 */  lh         $v1, 0x10($v0)
     /* C3E14 800D3614 20004684 */  lh         $a2, 0x20($v0)
     /* C3E18 800D3618 12004784 */  lh         $a3, 0x12($v0)
@@ -411,13 +411,13 @@ glabel Hud_Init__Fv
     /* C3E38 800D3638 00000000 */  nop
     /* C3E3C 800D363C 06004010 */  beqz       $v0, .L800D3658
     /* C3E40 800D3640 00000000 */   nop
-    /* C3E44 800D3644 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C3E44 800D3644 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C3E48 800D3648 00000000 */  nop
     /* C3E4C 800D364C 08004284 */  lh         $v0, 0x8($v0)
     /* C3E50 800D3650 9C4D0308 */  j          .L800D3670
     /* C3E54 800D3654 10005024 */   addiu     $s0, $v0, 0x10
   .L800D3658:
-    /* C3E58 800D3658 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C3E58 800D3658 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C3E5C 800D365C 00000000 */  nop
     /* C3E60 800D3660 14004384 */  lh         $v1, 0x14($v0)
     /* C3E64 800D3664 24004284 */  lh         $v0, 0x24($v0)
@@ -428,14 +428,14 @@ glabel Hud_Init__Fv
     /* C3E74 800D3674 00000000 */  nop
     /* C3E78 800D3678 07004010 */  beqz       $v0, .L800D3698
     /* C3E7C 800D367C 00000000 */   nop
-    /* C3E80 800D3680 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C3E80 800D3680 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C3E84 800D3684 00000000 */  nop
     /* C3E88 800D3688 0A004384 */  lh         $v1, 0xA($v0)
     /* C3E8C 800D368C 0C00E226 */  addiu      $v0, $s7, 0xC
     /* C3E90 800D3690 AC4D0308 */  j          .L800D36B0
     /* C3E94 800D3694 21886200 */   addu      $s1, $v1, $v0
   .L800D3698:
-    /* C3E98 800D3698 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C3E98 800D3698 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C3E9C 800D369C 00000000 */  nop
     /* C3EA0 800D36A0 16004284 */  lh         $v0, 0x16($v0)
     /* C3EA4 800D36A4 00000000 */  nop
@@ -465,8 +465,8 @@ glabel Hud_Init__Fv
     /* C3EF8 800D36F8 21300002 */  addu       $a2, $s0, $zero
     /* C3EFC 800D36FC BE4B030C */  jal        Hud_BuildTimeSprites__FP4SPRTPcii
     /* C3F00 800D3700 21382002 */   addu      $a3, $s1, $zero
-    /* C3F04 800D3704 1480033C */  lui        $v1, %hi(D_8013DE18)
-    /* C3F08 800D3708 18DE6324 */  addiu      $v1, $v1, %lo(D_8013DE18)
+    /* C3F04 800D3704 1480033C */  lui        $v1, %hi(HudSplitTimeDiff1)
+    /* C3F08 800D3708 18DE6324 */  addiu      $v1, $v1, %lo(HudSplitTimeDiff1)
     /* C3F0C 800D370C 2800A88F */  lw         $t0, 0x28($sp)
     /* C3F10 800D3710 7602A286 */  lh         $v0, 0x276($s5)
     /* C3F14 800D3714 3800A98F */  lw         $t1, 0x38($sp)
@@ -474,15 +474,15 @@ glabel Hud_Init__Fv
     /* C3F1C 800D371C 21182301 */  addu       $v1, $t1, $v1
     /* C3F20 800D3720 23104400 */  subu       $v0, $v0, $a0
     /* C3F24 800D3724 000062AC */  sw         $v0, 0x0($v1)
-    /* C3F28 800D3728 1480033C */  lui        $v1, %hi(D_8013DE20)
-    /* C3F2C 800D372C 20DE6324 */  addiu      $v1, $v1, %lo(D_8013DE20)
+    /* C3F28 800D3728 1480033C */  lui        $v1, %hi(HudSplitTimeDiff2)
+    /* C3F2C 800D372C 20DE6324 */  addiu      $v1, $v1, %lo(HudSplitTimeDiff2)
     /* C3F30 800D3730 B202A286 */  lh         $v0, 0x2B2($s5)
     /* C3F34 800D3734 6202A486 */  lh         $a0, 0x262($s5)
     /* C3F38 800D3738 21182301 */  addu       $v1, $t1, $v1
-    /* C3F3C 800D373C C81888AF */  sw         $t0, %gp_rel(D_8013DE14)($gp)
+    /* C3F3C 800D373C C81888AF */  sw         $t0, %gp_rel(currentSpriteColor)($gp)
     /* C3F40 800D3740 1180083C */  lui        $t0, %hi(HudPmx_gShapes)
     /* C3F44 800D3744 23104400 */  subu       $v0, $v0, $a0
-    /* C3F48 800D3748 B818848F */  lw         $a0, %gp_rel(D_8013DE04)($gp)
+    /* C3F48 800D3748 B818848F */  lw         $a0, %gp_rel(g1Player)($gp)
     /* C3F4C 800D374C 980C0825 */  addiu      $t0, $t0, %lo(HudPmx_gShapes)
     /* C3F50 800D3750 000062AC */  sw         $v0, 0x0($v1)
     /* C3F54 800D3754 80031485 */  lh         $s4, 0x380($t0)
@@ -509,7 +509,7 @@ glabel Hud_Init__Fv
     /* C3FA0 800D37A0 3E000524 */  addiu      $a1, $zero, 0x3E
     /* C3FA4 800D37A4 FFFF2726 */  addiu      $a3, $s1, -0x1
     /* C3FA8 800D37A8 21900000 */  addu       $s2, $zero, $zero
-    /* C3FAC 800D37AC B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C3FAC 800D37AC B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C3FB0 800D37B0 3000A98F */  lw         $t1, 0x30($sp)
     /* C3FB4 800D37B4 38004684 */  lh         $a2, 0x38($v0)
     /* C3FB8 800D37B8 34031624 */  addiu      $s6, $zero, 0x334
@@ -534,14 +534,14 @@ glabel Hud_Init__Fv
     /* C4004 800D3804 1148030C */  jal        Hud_BuildSprite2__FP4SPRTiii
     /* C4008 800D3808 21382002 */   addu      $a3, $s1, $zero
     /* C400C 800D380C D403A426 */  addiu      $a0, $s5, 0x3D4
-    /* C4010 800D3810 B818838F */  lw         $v1, %gp_rel(D_8013DE04)($gp)
+    /* C4010 800D3810 B818838F */  lw         $v1, %gp_rel(g1Player)($gp)
     /* C4014 800D3814 3000A88F */  lw         $t0, 0x30($sp)
     /* C4018 800D3818 04006784 */  lh         $a3, 0x4($v1)
     /* C401C 800D381C 2C006684 */  lh         $a2, 0x2C($v1)
     /* C4020 800D3820 06006284 */  lh         $v0, 0x6($v1)
     /* C4024 800D3824 2E006384 */  lh         $v1, 0x2E($v1)
     /* C4028 800D3828 1A000524 */  addiu      $a1, $zero, 0x1A
-    /* C402C 800D382C C81888AF */  sw         $t0, %gp_rel(D_8013DE14)($gp)
+    /* C402C 800D382C C81888AF */  sw         $t0, %gp_rel(currentSpriteColor)($gp)
     /* C4030 800D3830 2180E600 */  addu       $s0, $a3, $a2
     /* C4034 800D3834 21104300 */  addu       $v0, $v0, $v1
     /* C4038 800D3838 21885700 */  addu       $s1, $v0, $s7
@@ -579,12 +579,12 @@ glabel Hud_Init__Fv
   .L800D38B4:
     /* C40B4 800D38B4 80804234 */  ori        $v0, $v0, (0x808080 & 0xFFFF)
     /* C40B8 800D38B8 6F000524 */  addiu      $a1, $zero, 0x6F
-    /* C40BC 800D38BC BC18918F */  lw         $s1, %gp_rel(D_8013DE08)($gp)
+    /* C40BC 800D38BC BC18918F */  lw         $s1, %gp_rel(gSprite0)($gp)
     /* C40C0 800D38C0 21F00000 */  addu       $fp, $zero, $zero
-    /* C40C4 800D38C4 C81882AF */  sw         $v0, %gp_rel(D_8013DE14)($gp)
+    /* C40C4 800D38C4 C81882AF */  sw         $v0, %gp_rel(currentSpriteColor)($gp)
     /* C40C8 800D38C8 01000224 */  addiu      $v0, $zero, 0x1
     /* C40CC 800D38CC C41882A3 */  sb         $v0, %gp_rel(D_8013DE10)($gp)
-    /* C40D0 800D38D0 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C40D0 800D38D0 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C40D4 800D38D4 4C042426 */  addiu      $a0, $s1, 0x44C
     /* C40D8 800D38D8 34005284 */  lh         $s2, 0x34($v0)
     /* C40DC 800D38DC 36005084 */  lh         $s0, 0x36($v0)
@@ -626,10 +626,10 @@ glabel Hud_Init__Fv
     /* C416C 800D396C 00000000 */   nop
     /* C4170 800D3970 FC65030C */  jal        Hud_Reset__Fv
     /* C4174 800D3974 00000000 */   nop
-    /* C4178 800D3978 1480043C */  lui        $a0, %hi(D_8013DE40)
-    /* C417C 800D397C 40DE8424 */  addiu      $a0, $a0, %lo(D_8013DE40)
-    /* C4180 800D3980 1480033C */  lui        $v1, %hi(D_8013DE38)
-    /* C4184 800D3984 38DE6324 */  addiu      $v1, $v1, %lo(D_8013DE38)
+    /* C4178 800D3978 1480043C */  lui        $a0, %hi(PerpOverlayMessage)
+    /* C417C 800D397C 40DE8424 */  addiu      $a0, $a0, %lo(PerpOverlayMessage)
+    /* C4180 800D3980 1480033C */  lui        $v1, %hi(PerpOverlayOn)
+    /* C4184 800D3984 38DE6324 */  addiu      $v1, $v1, %lo(PerpOverlayOn)
     /* C4188 800D3988 DC1880AF */  sw         $zero, %gp_rel(D_8013DE28)($gp)
     /* C418C 800D398C E81380AF */  sw         $zero, %gp_rel(BTC_Countdown)($gp)
     /* C4190 800D3990 EC1380AF */  sw         $zero, %gp_rel(FinalBTC_Countdown)($gp)

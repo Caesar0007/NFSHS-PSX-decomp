@@ -81,10 +81,10 @@ glabel AudioEng_StartUp__FiPc
     /* 6C770 8007BF70 060042A2 */  sb         $v0, 0x6($s2)
     /* 6C774 8007BF74 68000224 */  addiu      $v0, $zero, 0x68
     /* 6C778 8007BF78 070042A2 */  sb         $v0, 0x7($s2)
-    /* 6C77C 8007BF7C 1180023C */  lui        $v0, %hi(D_801131F8)
+    /* 6C77C 8007BF7C 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
     /* 6C780 8007BF80 1A0140A2 */  sb         $zero, 0x11A($s2)
     /* 6C784 8007BF84 1B0140A2 */  sb         $zero, 0x11B($s2)
-    /* 6C788 8007BF88 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* 6C788 8007BF88 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* 6C78C 8007BF8C 01000224 */  addiu      $v0, $zero, 0x1
     /* 6C790 8007BF90 05006214 */  bne        $v1, $v0, .L8007BFA8
     /* 6C794 8007BF94 21B00000 */   addu      $s6, $zero, $zero
@@ -107,8 +107,8 @@ glabel AudioEng_StartUp__FiPc
     /* 6C7D0 8007BFD0 21A04000 */  addu       $s4, $v0, $zero
     /* 6C7D4 8007BFD4 17008016 */  bnez       $s4, .L8007C034
     /* 6C7D8 8007BFD8 1800A427 */   addiu     $a0, $sp, 0x18
-    /* 6C7DC 8007BFDC 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* 6C7E0 8007BFE0 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* 6C7DC 8007BFDC 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* 6C7E0 8007BFE0 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* 6C7E4 8007BFE4 01000224 */  addiu      $v0, $zero, 0x1
     /* 6C7E8 8007BFE8 06006214 */  bne        $v1, $v0, .L8007C004
     /* 6C7EC 8007BFEC 1180023C */   lui       $v0, %hi(D_801164D8)

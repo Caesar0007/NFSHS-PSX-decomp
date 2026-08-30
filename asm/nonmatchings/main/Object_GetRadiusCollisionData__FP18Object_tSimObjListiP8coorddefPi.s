@@ -45,8 +45,8 @@ glabel Object_GetRadiusCollisionData__FP18Object_tSimObjListiP8coorddefPi
     /* 95880 800A5080 00000000 */   nop
     /* 95884 800A5084 21204000 */  addu       $a0, $v0, $zero
     /* 95888 800A5088 01000524 */  addiu      $a1, $zero, 0x1
-    /* 9588C 800A508C 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* 95890 800A5090 B0E0468C */  lw         $a2, %lo(D_8011E0B0)($v0)
+    /* 9588C 800A508C 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* 95890 800A5090 B0E0468C */  lw         $a2, %lo(simGlobal+0x4)($v0)
     /* 95894 800A5094 1C00A227 */  addiu      $v0, $sp, 0x1C
     /* 95898 800A5098 21380002 */  addu       $a3, $s0, $zero
     /* 9589C 800A509C 1000A2AF */  sw         $v0, 0x10($sp)

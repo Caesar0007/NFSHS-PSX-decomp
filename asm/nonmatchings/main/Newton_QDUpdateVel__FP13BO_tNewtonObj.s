@@ -13,8 +13,8 @@ glabel Newton_QDUpdateVel__FP13BO_tNewtonObj
     /* 92680 800A1E80 91004292 */  lbu        $v0, 0x91($s2)
     /* 92684 800A1E84 00000000 */  nop
     /* 92688 800A1E88 2A004010 */  beqz       $v0, .L800A1F34
-    /* 9268C 800A1E8C 1180023C */   lui       $v0, %hi(D_80113224)
-    /* 92690 800A1E90 2432428C */  lw         $v0, %lo(D_80113224)($v0)
+    /* 9268C 800A1E8C 1180023C */   lui       $v0, %hi(GameSetup_gData+0x38)
+    /* 92690 800A1E90 2432428C */  lw         $v0, %lo(GameSetup_gData+0x38)($v0)
     /* 92694 800A1E94 00000000 */  nop
     /* 92698 800A1E98 04004230 */  andi       $v0, $v0, 0x4
     /* 9269C 800A1E9C 16004010 */  beqz       $v0, .L800A1EF8

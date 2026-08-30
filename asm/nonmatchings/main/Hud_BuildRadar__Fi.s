@@ -353,7 +353,7 @@ glabel Hud_BuildRadar__Fi
   .L800D7074:
     /* C7874 800D7074 FF000224 */  addiu      $v0, $zero, 0xFF
   .L800D7078:
-    /* C7878 800D7078 C81882AF */  sw         $v0, %gp_rel(D_8013DE14)($gp)
+    /* C7878 800D7078 C81882AF */  sw         $v0, %gp_rel(currentSpriteColor)($gp)
     /* C787C 800D707C 1480023C */  lui        $v0, %hi(Cars_gNumRaceCars)
     /* C7880 800D7080 F8C7428C */  lw         $v0, %lo(Cars_gNumRaceCars)($v0)
     /* C7884 800D7084 2120C000 */  addu       $a0, $a2, $zero
@@ -365,7 +365,7 @@ glabel Hud_BuildRadar__Fi
     /* C789C 800D709C 21104300 */  addu       $v0, $v0, $v1
     /* C78A0 800D70A0 0000468C */  lw         $a2, 0x0($v0)
     /* C78A4 800D70A4 0800478C */  lw         $a3, 0x8($v0)
-    /* C78A8 800D70A8 C818828F */  lw         $v0, %gp_rel(D_8013DE14)($gp)
+    /* C78A8 800D70A8 C818828F */  lw         $v0, %gp_rel(currentSpriteColor)($gp)
     /* C78AC 800D70AC 7A000524 */  addiu      $a1, $zero, 0x7A
     /* C78B0 800D70B0 1400A0AF */  sw         $zero, 0x14($sp)
     /* C78B4 800D70B4 2130DE00 */  addu       $a2, $a2, $fp

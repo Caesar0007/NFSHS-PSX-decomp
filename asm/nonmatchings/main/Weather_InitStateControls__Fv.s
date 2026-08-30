@@ -40,12 +40,12 @@ glabel Weather_InitStateControls__Fv
     /* D2C60 800E2460 01000224 */   addiu     $v0, $zero, 0x1
     /* D2C64 800E2464 A01680AF */  sw         $zero, %gp_rel(Weather_gType)($gp)
     /* D2C68 800E2468 1E890308 */  j          .L800E2478
-    /* D2C6C 800E246C 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* D2C6C 800E246C 1280023C */   lui       $v0, %hi(simGlobal+0x4)
   .L800E2470:
     /* D2C70 800E2470 A01682AF */  sw         $v0, %gp_rel(Weather_gType)($gp)
-    /* D2C74 800E2474 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* D2C74 800E2474 1280023C */  lui        $v0, %hi(simGlobal+0x4)
   .L800E2478:
-    /* D2C78 800E2478 B0E0458C */  lw         $a1, %lo(D_8011E0B0)($v0)
+    /* D2C78 800E2478 B0E0458C */  lw         $a1, %lo(simGlobal+0x4)($v0)
     /* D2C7C 800E247C 03000224 */  addiu      $v0, $zero, 0x3
     /* D2C80 800E2480 A41682AF */  sw         $v0, %gp_rel(Weather_gDensityGoalState)($gp)
     /* D2C84 800E2484 1280023C */  lui        $v0, %hi(D_80123390)

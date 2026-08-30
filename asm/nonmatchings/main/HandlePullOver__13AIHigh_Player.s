@@ -26,12 +26,12 @@ glabel HandlePullOver__13AIHigh_Player
     /* 535C8 80062DC8 00000000 */  nop
     /* 535CC 80062DCC 02008228 */  slti       $v0, $a0, 0x2
     /* 535D0 80062DD0 04004010 */  beqz       $v0, .L80062DE4
-    /* 535D4 80062DD4 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* 535D4 80062DD4 1280023C */   lui       $v0, %hi(simGlobal+0x4)
     /* 535D8 80062DD8 5466030C */  jal        Hud_Perp_OverlayOff__Fi
     /* 535DC 80062DDC 00000000 */   nop
-    /* 535E0 80062DE0 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* 535E0 80062DE0 1280023C */  lui        $v0, %hi(simGlobal+0x4)
   .L80062DE4:
-    /* 535E4 80062DE4 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 535E4 80062DE4 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 535E8 80062DE8 1800238E */  lw         $v1, 0x18($s1)
     /* 535EC 80062DEC 680022AE */  sw         $v0, 0x68($s1)
     /* 535F0 80062DF0 03000224 */  addiu      $v0, $zero, 0x3
@@ -216,8 +216,8 @@ glabel HandlePullOver__13AIHigh_Player
     /* 53878 80063078 2C00C28C */  lw         $v0, 0x2C($a2)
     /* 5387C 8006307C 00000000 */  nop
     /* 53880 80063080 640022AE */  sw         $v0, 0x64($s1)
-    /* 53884 80063084 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* 53888 80063088 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 53884 80063084 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* 53888 80063088 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 5388C 8006308C 00000000 */  nop
     /* 53890 80063090 680022AE */  sw         $v0, 0x68($s1)
     /* 53894 80063094 03140400 */  sra        $v0, $a0, 16

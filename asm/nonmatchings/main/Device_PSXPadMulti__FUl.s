@@ -38,8 +38,8 @@ glabel Device_PSXPadMulti__FUl
     /* AE150 800BD950 00000000 */  nop
     /* AE154 800BD954 02004228 */  slti       $v0, $v0, 0x2
     /* AE158 800BD958 05004010 */  beqz       $v0, .L800BD970
-    /* AE15C 800BD95C 1180023C */   lui       $v0, %hi(D_801131F8)
-    /* AE160 800BD960 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* AE15C 800BD95C 1180023C */   lui       $v0, %hi(GameSetup_gData+0xc)
+    /* AE160 800BD960 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* AE164 800BD964 01000224 */  addiu      $v0, $zero, 0x1
     /* AE168 800BD968 0F006214 */  bne        $v1, $v0, .L800BD9A8
     /* AE16C 800BD96C 21100000 */   addu      $v0, $zero, $zero

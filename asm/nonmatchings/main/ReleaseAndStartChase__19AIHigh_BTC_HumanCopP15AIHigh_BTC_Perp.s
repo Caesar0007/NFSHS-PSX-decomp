@@ -21,8 +21,8 @@ glabel ReleaseAndStartChase__19AIHigh_BTC_HumanCopP15AIHigh_BTC_Perp
     /* 4DB58 8005D358 06005014 */  bne        $v0, $s0, .L8005D374
     /* 4DB5C 8005D35C 02000224 */   addiu     $v0, $zero, 0x2
     /* 4DB60 8005D360 600022AE */  sw         $v0, 0x60($s1)
-    /* 4DB64 8005D364 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* 4DB68 8005D368 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 4DB64 8005D364 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* 4DB68 8005D368 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 4DB6C 8005D36C 00000000 */  nop
     /* 4DB70 8005D370 740022AE */  sw         $v0, 0x74($s1)
   .L8005D374:

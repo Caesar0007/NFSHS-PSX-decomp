@@ -42,8 +42,8 @@ glabel R3DCar_PostStartUp__Fv
     /* 9E664 800ADE64 00000000 */  nop
     /* 9E668 800ADE68 06006014 */  bnez       $v1, .L800ADE84
     /* 9E66C 800ADE6C 080022AE */   sw        $v0, 0x8($s1)
-    /* 9E670 800ADE70 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* 9E674 800ADE74 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* 9E670 800ADE70 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* 9E674 800ADE74 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* 9E678 800ADE78 01000224 */  addiu      $v0, $zero, 0x1
     /* 9E67C 800ADE7C 0D006214 */  bne        $v1, $v0, .L800ADEB4
     /* 9E680 800ADE80 00000000 */   nop

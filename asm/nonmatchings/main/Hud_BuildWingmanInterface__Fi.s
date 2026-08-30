@@ -26,7 +26,7 @@ glabel Hud_BuildWingmanInterface__Fi
     /* C68B4 800D60B4 21186200 */  addu       $v1, $v1, $v0
     /* C68B8 800D60B8 1480063C */  lui        $a2, %hi(ticks)
     /* C68BC 800D60BC ACDCC68C */  lw         $a2, %lo(ticks)($a2)
-    /* C68C0 800D60C0 B818878F */  lw         $a3, %gp_rel(D_8013DE04)($gp)
+    /* C68C0 800D60C0 B818878F */  lw         $a3, %gp_rel(g1Player)($gp)
     /* C68C4 800D60C4 0000658C */  lw         $a1, 0x0($v1)
     /* C68C8 800D60C8 2014828F */  lw         $v0, %gp_rel(HudMapOffsetY)($gp)
     /* C68CC 800D60CC 2398A600 */  subu       $s3, $a1, $a2

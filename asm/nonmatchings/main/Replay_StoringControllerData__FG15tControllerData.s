@@ -15,8 +15,8 @@ glabel Replay_StoringControllerData__FG15tControllerData
     /* A48DC 800B40DC 00604228 */  slti       $v0, $v0, 0x6000
     /* A48E0 800B40E0 08004014 */  bnez       $v0, .L800B4104
     /* A48E4 800B40E4 4C00A7AF */   sw        $a3, 0x4C($sp)
-    /* A48E8 800B40E8 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* A48EC 800B40EC B0E0438C */  lw         $v1, %lo(D_8011E0B0)($v0)
+    /* A48E8 800B40E8 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* A48EC 800B40EC B0E0438C */  lw         $v1, %lo(simGlobal+0x4)($v0)
     /* A48F0 800B40F0 01000224 */  addiu      $v0, $zero, 0x1
     /* A48F4 800B40F4 A80E82AF */  sw         $v0, %gp_rel(Replay_ReplayMode)($gp)
     /* A48F8 800B40F8 A00E83AF */  sw         $v1, %gp_rel(Replay_Size)($gp)

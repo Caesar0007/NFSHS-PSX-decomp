@@ -7,10 +7,10 @@ glabel FarTargeting__13AIState_Chase
     /* 60AD0 800702D0 E8FFBD27 */  addiu      $sp, $sp, -0x18
     /* 60AD4 800702D4 1000B0AF */  sw         $s0, 0x10($sp)
     /* 60AD8 800702D8 21808000 */  addu       $s0, $a0, $zero
-    /* 60ADC 800702DC 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* 60ADC 800702DC 1280023C */  lui        $v0, %hi(simGlobal+0x4)
     /* 60AE0 800702E0 1400BFAF */  sw         $ra, 0x14($sp)
     /* 60AE4 800702E4 780000AE */  sw         $zero, 0x78($s0)
-    /* 60AE8 800702E8 B0E0438C */  lw         $v1, %lo(D_8011E0B0)($v0)
+    /* 60AE8 800702E8 B0E0438C */  lw         $v1, %lo(simGlobal+0x4)($v0)
     /* 60AEC 800702EC 4400028E */  lw         $v0, 0x44($s0)
     /* 60AF0 800702F0 00000000 */  nop
     /* 60AF4 800702F4 2A104300 */  slt        $v0, $v0, $v1

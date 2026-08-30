@@ -15,8 +15,8 @@ glabel CheckForCrimes__16AIHigh_BasicPerp
     /* 4BD20 8005B520 08004484 */  lh         $a0, 0x8($v0)
     /* 4BD24 8005B524 43BB010C */  jal        AISpeeds_GetLegalSpeed__Fi
     /* 4BD28 8005B528 21900002 */   addu      $s2, $s0, $zero
-    /* 4BD2C 8005B52C 1280033C */  lui        $v1, %hi(D_8011E0B0)
-    /* 4BD30 8005B530 B0E0648C */  lw         $a0, %lo(D_8011E0B0)($v1)
+    /* 4BD2C 8005B52C 1280033C */  lui        $v1, %hi(simGlobal+0x4)
+    /* 4BD30 8005B530 B0E0648C */  lw         $a0, %lo(simGlobal+0x4)($v1)
     /* 4BD34 8005B534 6800238E */  lw         $v1, 0x68($s1)
     /* 4BD38 8005B538 00000000 */  nop
     /* 4BD3C 8005B53C 23188300 */  subu       $v1, $a0, $v1
@@ -121,7 +121,7 @@ glabel CheckForCrimes__16AIHigh_BasicPerp
     /* 4BEA0 8005B6A0 00000000 */  nop
     /* 4BEA4 8005B6A4 07004228 */  slti       $v0, $v0, 0x7
     /* 4BEA8 8005B6A8 15004010 */  beqz       $v0, .L8005B700
-    /* 4BEAC 8005B6AC 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* 4BEAC 8005B6AC 1280023C */   lui       $v0, %hi(simGlobal+0x4)
     /* 4BEB0 8005B6B0 B56D0108 */  j          .L8005B6D4
     /* 4BEB4 8005B6B4 00000000 */   nop
   .L8005B6B8:
@@ -132,7 +132,7 @@ glabel CheckForCrimes__16AIHigh_BasicPerp
     /* 4BEC4 8005B6C4 00000000 */  nop
     /* 4BEC8 8005B6C8 07004228 */  slti       $v0, $v0, 0x7
     /* 4BECC 8005B6CC 0C004014 */  bnez       $v0, .L8005B700
-    /* 4BED0 8005B6D0 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* 4BED0 8005B6D0 1280023C */   lui       $v0, %hi(simGlobal+0x4)
   .L8005B6D4:
     /* 4BED4 8005B6D4 02006104 */  bgez       $v1, .L8005B6E0
     /* 4BED8 8005B6D8 00000000 */   nop
@@ -142,14 +142,14 @@ glabel CheckForCrimes__16AIHigh_BasicPerp
   .L8005B6E4:
     /* 4BEE4 8005B6E4 2A104300 */  slt        $v0, $v0, $v1
     /* 4BEE8 8005B6E8 05004010 */  beqz       $v0, .L8005B700
-    /* 4BEEC 8005B6EC 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* 4BEEC 8005B6EC 1280023C */   lui       $v0, %hi(simGlobal+0x4)
     /* 4BEF0 8005B6F0 03000016 */  bnez       $s0, .L8005B700
     /* 4BEF4 8005B6F4 00000000 */   nop
     /* 4BEF8 8005B6F8 02001024 */  addiu      $s0, $zero, 0x2
   .L8005B6FC:
-    /* 4BEFC 8005B6FC 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* 4BEFC 8005B6FC 1280023C */  lui        $v0, %hi(simGlobal+0x4)
   .L8005B700:
-    /* 4BF00 8005B700 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 4BF00 8005B700 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 4BF04 8005B704 00000000 */  nop
     /* 4BF08 8005B708 00024228 */  slti       $v0, $v0, 0x200
     /* 4BF0C 8005B70C 02004010 */  beqz       $v0, .L8005B718

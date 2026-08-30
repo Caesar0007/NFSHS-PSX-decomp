@@ -24,8 +24,8 @@ glabel AI_CheckForPlayerActions__FP8Car_tObjT0
     /* 48614 80057E14 FFFF6334 */  ori        $v1, $v1, (0x31FFFFF & 0xFFFF)
     /* 48618 80057E18 2A186200 */  slt        $v1, $v1, $v0
     /* 4861C 80057E1C 75006010 */  beqz       $v1, .L80057FF4
-    /* 48620 80057E20 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* 48624 80057E24 B0E0478C */  lw         $a3, %lo(D_8011E0B0)($v0)
+    /* 48620 80057E20 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* 48624 80057E24 B0E0478C */  lw         $a3, %lo(simGlobal+0x4)($v0)
     /* 48628 80057E28 B801428E */  lw         $v0, 0x1B8($s2)
     /* 4862C 80057E2C 00000000 */  nop
     /* 48630 80057E30 2310E200 */  subu       $v0, $a3, $v0
@@ -60,9 +60,9 @@ glabel AI_CheckForPlayerActions__FP8Car_tObjT0
     /* 486A0 80057EA0 2A105400 */  slt        $v0, $v0, $s4
     /* 486A4 80057EA4 23004014 */  bnez       $v0, .L80057F34
     /* 486A8 80057EA8 F4042426 */   addiu     $a0, $s1, 0x4F4
-    /* 486AC 80057EAC 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* 486AC 80057EAC 1280023C */  lui        $v0, %hi(simGlobal+0x4)
     /* 486B0 80057EB0 5402458E */  lw         $a1, 0x254($s2)
-    /* 486B4 80057EB4 B0E0478C */  lw         $a3, %lo(D_8011E0B0)($v0)
+    /* 486B4 80057EB4 B0E0478C */  lw         $a3, %lo(simGlobal+0x4)($v0)
     /* 486B8 80057EB8 DABD010C */  jal        AIScript_SubmitPlayerAction__FP10AIScript_ti20AIScript_tPlayActioni
     /* 486BC 80057EBC 01000624 */   addiu     $a2, $zero, 0x1
   .L80057EC0:
@@ -84,15 +84,15 @@ glabel AI_CheckForPlayerActions__FP8Car_tObjT0
     /* 486FC 80057EFC 2A105000 */  slt        $v0, $v0, $s0
     /* 48700 80057F00 06004010 */  beqz       $v0, .L80057F1C
     /* 48704 80057F04 F4042426 */   addiu     $a0, $s1, 0x4F4
-    /* 48708 80057F08 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* 48708 80057F08 1280023C */  lui        $v0, %hi(simGlobal+0x4)
     /* 4870C 80057F0C 5402458E */  lw         $a1, 0x254($s2)
-    /* 48710 80057F10 B0E0478C */  lw         $a3, %lo(D_8011E0B0)($v0)
+    /* 48710 80057F10 B0E0478C */  lw         $a3, %lo(simGlobal+0x4)($v0)
     /* 48714 80057F14 CB5F0108 */  j          .L80057F2C
     /* 48718 80057F18 02000624 */   addiu     $a2, $zero, 0x2
   .L80057F1C:
-    /* 4871C 80057F1C 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* 4871C 80057F1C 1280023C */  lui        $v0, %hi(simGlobal+0x4)
     /* 48720 80057F20 5402458E */  lw         $a1, 0x254($s2)
-    /* 48724 80057F24 B0E0478C */  lw         $a3, %lo(D_8011E0B0)($v0)
+    /* 48724 80057F24 B0E0478C */  lw         $a3, %lo(simGlobal+0x4)($v0)
     /* 48728 80057F28 03000624 */  addiu      $a2, $zero, 0x3
   .L80057F2C:
     /* 4872C 80057F2C DABD010C */  jal        AIScript_SubmitPlayerAction__FP10AIScript_ti20AIScript_tPlayActioni
@@ -144,9 +144,9 @@ glabel AI_CheckForPlayerActions__FP8Car_tObjT0
     /* 487D4 80057FD4 00000000 */  nop
     /* 487D8 80057FD8 06004014 */  bnez       $v0, .L80057FF4
     /* 487DC 80057FDC F4042426 */   addiu     $a0, $s1, 0x4F4
-    /* 487E0 80057FE0 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* 487E0 80057FE0 1280023C */  lui        $v0, %hi(simGlobal+0x4)
     /* 487E4 80057FE4 5402458E */  lw         $a1, 0x254($s2)
-    /* 487E8 80057FE8 B0E0478C */  lw         $a3, %lo(D_8011E0B0)($v0)
+    /* 487E8 80057FE8 B0E0478C */  lw         $a3, %lo(simGlobal+0x4)($v0)
     /* 487EC 80057FEC DABD010C */  jal        AIScript_SubmitPlayerAction__FP10AIScript_ti20AIScript_tPlayActioni
     /* 487F0 80057FF0 06000624 */   addiu     $a2, $zero, 0x6
   .L80057FF4:

@@ -37,8 +37,8 @@ glabel Front_Menu__F21tFront_ProcessingType
     /* 1836C 80027B6C 21286002 */   addu      $a1, $s3, $zero
     /* 18370 80027B70 00140200 */  sll        $v0, $v0, 16
     /* 18374 80027B74 0400401C */  bgtz       $v0, .L80027B88
-    /* 18378 80027B78 1180023C */   lui       $v0, %hi(D_80114AEC)
-    /* 1837C 80027B7C EC4A428C */  lw         $v0, %lo(D_80114AEC)($v0)
+    /* 18378 80027B78 1180023C */   lui       $v0, %hi(tournamentManager+0x14)
+    /* 1837C 80027B7C EC4A428C */  lw         $v0, %lo(tournamentManager+0x14)($v0)
     /* 18380 80027B80 00000000 */  nop
     /* 18384 80027B84 2A805400 */  slt        $s0, $v0, $s4
   .L80027B88:

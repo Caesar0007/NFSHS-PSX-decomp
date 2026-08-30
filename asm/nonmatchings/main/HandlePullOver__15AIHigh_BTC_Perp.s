@@ -29,8 +29,8 @@ glabel HandlePullOver__15AIHigh_BTC_Perp
     /* 502B0 8005FAB0 E67D010C */  jal        IsFalseArrest__15AIHigh_BTC_Perp
     /* 502B4 8005FAB4 21200002 */   addu      $a0, $s0, $zero
     /* 502B8 8005FAB8 17004010 */  beqz       $v0, .L8005FB18
-    /* 502BC 8005FABC 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* 502C0 8005FAC0 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 502BC 8005FABC 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* 502C0 8005FAC0 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 502C4 8005FAC4 21200002 */  addu       $a0, $s0, $zero
     /* 502C8 8005FAC8 80FD4224 */  addiu      $v0, $v0, -0x280
     /* 502CC 8005FACC 687F010C */  jal        NotifyCopsOfFalseArrest__15AIHigh_BTC_Perp
@@ -77,8 +77,8 @@ glabel HandlePullOver__15AIHigh_BTC_Perp
     /* 50368 8005FB68 8000118E */  lw         $s1, 0x80($s0)
     /* 5036C 8005FB6C 00000000 */  nop
     /* 50370 8005FB70 2A002216 */  bne        $s1, $v0, .L8005FC1C
-    /* 50374 8005FB74 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* 50378 8005FB78 B0E0438C */  lw         $v1, %lo(D_8011E0B0)($v0)
+    /* 50374 8005FB74 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* 50378 8005FB78 B0E0438C */  lw         $v1, %lo(simGlobal+0x4)($v0)
     /* 5037C 8005FB7C 6800028E */  lw         $v0, 0x68($s0)
     /* 50380 8005FB80 00000000 */  nop
     /* 50384 8005FB84 23106200 */  subu       $v0, $v1, $v0
@@ -116,8 +116,8 @@ glabel HandlePullOver__15AIHigh_BTC_Perp
     /* 503FC 8005FBFC 780262AC */  sw         $v0, 0x278($v1)
     /* 50400 8005FC00 60000224 */  addiu      $v0, $zero, 0x60
     /* 50404 8005FC04 640002AE */  sw         $v0, 0x64($s0)
-    /* 50408 8005FC08 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* 5040C 8005FC0C B0E0438C */  lw         $v1, %lo(D_8011E0B0)($v0)
+    /* 50408 8005FC08 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* 5040C 8005FC0C B0E0438C */  lw         $v1, %lo(simGlobal+0x4)($v0)
     /* 50410 8005FC10 02000224 */  addiu      $v0, $zero, 0x2
     /* 50414 8005FC14 180002AE */  sw         $v0, 0x18($s0)
     /* 50418 8005FC18 680003AE */  sw         $v1, 0x68($s0)

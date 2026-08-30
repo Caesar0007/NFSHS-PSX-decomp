@@ -4,10 +4,10 @@
 nonmatching GetTrigger__24AITrigger_TriggerManageriPi, 0x68
 
 glabel GetTrigger__24AITrigger_TriggerManageriPi
-    /* 634D8 80072CD8 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* 634D8 80072CD8 1280023C */  lui        $v0, %hi(simGlobal+0x4)
     /* 634DC 80072CDC 80180500 */  sll        $v1, $a1, 2
     /* 634E0 80072CE0 21188300 */  addu       $v1, $a0, $v1
-    /* 634E4 80072CE4 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 634E4 80072CE4 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 634E8 80072CE8 9801638C */  lw         $v1, 0x198($v1)
     /* 634EC 80072CEC 00000000 */  nop
     /* 634F0 80072CF0 23104300 */  subu       $v0, $v0, $v1
@@ -20,8 +20,8 @@ glabel GetTrigger__24AITrigger_TriggerManageriPi
     /* 63508 80072D08 0000C2AC */  sw         $v0, 0x0($a2)
   .L80072D0C:
     /* 6350C 80072D0C 80180500 */  sll        $v1, $a1, 2
-    /* 63510 80072D10 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* 63514 80072D14 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 63510 80072D10 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* 63514 80072D14 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 63518 80072D18 21308300 */  addu       $a2, $a0, $v1
     /* 6351C 80072D1C 9801C2AC */  sw         $v0, 0x198($a2)
     /* 63520 80072D20 0000828C */  lw         $v0, 0x0($a0)

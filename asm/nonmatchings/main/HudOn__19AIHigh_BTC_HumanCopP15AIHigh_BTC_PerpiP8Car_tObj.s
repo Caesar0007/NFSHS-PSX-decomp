@@ -16,13 +16,13 @@ glabel HudOn__19AIHigh_BTC_HumanCopP15AIHigh_BTC_PerpiP8Car_tObj
     /* 4EAA4 8005E2A4 1C00828C */  lw         $v0, 0x1C($a0)
     /* 4EAA8 8005E2A8 00000000 */  nop
     /* 4EAAC 8005E2AC 03004010 */  beqz       $v0, .L8005E2BC
-    /* 4EAB0 8005E2B0 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* 4EAB0 8005E2B0 1280023C */   lui       $v0, %hi(simGlobal+0x4)
     /* 4EAB4 8005E2B4 0A00C010 */  beqz       $a2, .L8005E2E0
     /* 4EAB8 8005E2B8 00000000 */   nop
   .L8005E2BC:
     /* 4EABC 8005E2BC 0100C62C */  sltiu      $a2, $a2, 0x1
     /* 4EAC0 8005E2C0 0000A38C */  lw         $v1, 0x0($a1)
-    /* 4EAC4 8005E2C4 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 4EAC4 8005E2C4 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 4EAC8 8005E2C8 7400848C */  lw         $a0, 0x74($a0)
     /* 4EACC 8005E2CC 5402E784 */  lh         $a3, 0x254($a3)
     /* 4EAD0 8005E2D0 8802658C */  lw         $a1, 0x288($v1)

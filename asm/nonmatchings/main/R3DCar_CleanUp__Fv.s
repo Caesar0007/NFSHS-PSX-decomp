@@ -77,8 +77,8 @@ glabel R3DCar_CleanUp__Fv
     /* 9E838 800AE038 080020AE */  sw         $zero, 0x8($s1)
     /* 9E83C 800AE03C 06004014 */  bnez       $v0, .L800AE058
     /* 9E840 800AE040 AC6D00AE */   sw        $zero, %lo(R3DCar_subOtStart)($s0)
-    /* 9E844 800AE044 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* 9E848 800AE048 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* 9E844 800AE044 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* 9E848 800AE048 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* 9E84C 800AE04C 01000224 */  addiu      $v0, $zero, 0x1
     /* 9E850 800AE050 0F006214 */  bne        $v1, $v0, .L800AE090
     /* 9E854 800AE054 00000000 */   nop

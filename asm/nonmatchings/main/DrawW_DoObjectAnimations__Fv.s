@@ -22,8 +22,8 @@ glabel DrawW_DoObjectAnimations__Fv
     /* B8040 800C7840 1280023C */   lui       $v0, %hi(trk4)
     /* B8044 800C7844 D8F55224 */  addiu      $s2, $v0, %lo(trk4)
   .L800C7848:
-    /* B8048 800C7848 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* B804C 800C784C B0E0538C */  lw         $s3, %lo(D_8011E0B0)($v0)
+    /* B8048 800C7848 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* B804C 800C784C B0E0538C */  lw         $s3, %lo(simGlobal+0x4)($v0)
     /* B8050 800C7850 21880000 */  addu       $s1, $zero, $zero
     /* B8054 800C7854 1180023C */  lui        $v0, %hi(Anim_gInstanceFromIndex)
     /* B8058 800C7858 CCE15024 */  addiu      $s0, $v0, %lo(Anim_gInstanceFromIndex)

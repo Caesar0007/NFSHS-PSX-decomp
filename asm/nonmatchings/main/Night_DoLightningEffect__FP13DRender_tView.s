@@ -18,23 +18,23 @@ glabel Night_DoLightningEffect__FP13DRender_tView
     /* CBEF0 800DB6F0 21200000 */   addu      $a0, $zero, $zero
     /* CBEF4 800DB6F4 181580AF */  sw         $zero, %gp_rel(Night_gLightning)($gp)
   .L800DB6F8:
-    /* CBEF8 800DB6F8 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* CBEFC 800DB6FC B0E0438C */  lw         $v1, %lo(D_8011E0B0)($v0)
+    /* CBEF8 800DB6F8 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* CBEFC 800DB6FC B0E0438C */  lw         $v1, %lo(simGlobal+0x4)($v0)
     /* CBF00 800DB700 1C15828F */  lw         $v0, %gp_rel(Night_gNextLightning)($gp)
     /* CBF04 800DB704 00000000 */  nop
     /* CBF08 800DB708 2A104300 */  slt        $v0, $v0, $v1
     /* CBF0C 800DB70C 3E004010 */  beqz       $v0, .L800DB808
-    /* CBF10 800DB710 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* CBF10 800DB710 1280023C */   lui       $v0, %hi(simGlobal+0x4)
     /* CBF14 800DB714 2015828F */  lw         $v0, %gp_rel(Night_gEndNextLightning)($gp)
     /* CBF18 800DB718 00000000 */  nop
     /* CBF1C 800DB71C 2A106200 */  slt        $v0, $v1, $v0
     /* CBF20 800DB720 39004010 */  beqz       $v0, .L800DB808
-    /* CBF24 800DB724 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* CBF24 800DB724 1280023C */   lui       $v0, %hi(simGlobal+0x4)
     /* CBF28 800DB728 2415828F */  lw         $v0, %gp_rel(Night_gNextFlicker)($gp)
     /* CBF2C 800DB72C 00000000 */  nop
     /* CBF30 800DB730 2A104300 */  slt        $v0, $v0, $v1
     /* CBF34 800DB734 34004010 */  beqz       $v0, .L800DB808
-    /* CBF38 800DB738 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* CBF38 800DB738 1280023C */   lui       $v0, %hi(simGlobal+0x4)
     /* CBF3C 800DB73C EA9D030C */  jal        random
     /* CBF40 800DB740 00000000 */   nop
     /* CBF44 800DB744 01000424 */  addiu      $a0, $zero, 0x1
@@ -63,8 +63,8 @@ glabel Night_DoLightningEffect__FP13DRender_tView
     /* CBF98 800DB798 181582AF */  sw         $v0, %gp_rel(Night_gLightning)($gp)
     /* CBF9C 800DB79C EA9D030C */  jal        random
     /* CBFA0 800DB7A0 00000000 */   nop
-    /* CBFA4 800DB7A4 1280033C */  lui        $v1, %hi(D_8011E0B0)
-    /* CBFA8 800DB7A8 B0E0638C */  lw         $v1, %lo(D_8011E0B0)($v1)
+    /* CBFA4 800DB7A4 1280033C */  lui        $v1, %hi(simGlobal+0x4)
+    /* CBFA8 800DB7A8 B0E0638C */  lw         $v1, %lo(simGlobal+0x4)($v1)
     /* CBFAC 800DB7AC 03004230 */  andi       $v0, $v0, 0x3
     /* CBFB0 800DB7B0 21186200 */  addu       $v1, $v1, $v0
     /* CBFB4 800DB7B4 241583AF */  sw         $v1, %gp_rel(Night_gNextFlicker)($gp)
@@ -79,7 +79,7 @@ glabel Night_DoLightningEffect__FP13DRender_tView
     /* CBFD8 800DB7D8 4000C224 */  addiu      $v0, $a2, 0x40
     /* CBFDC 800DB7DC 301582AF */  sw         $v0, %gp_rel(Night_gFlashIntensity)($gp)
     /* CBFE0 800DB7E0 09006010 */  beqz       $v1, .L800DB808
-    /* CBFE4 800DB7E4 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* CBFE4 800DB7E4 1280023C */   lui       $v0, %hi(simGlobal+0x4)
     /* CBFE8 800DB7E8 2C158293 */  lbu        $v0, %gp_rel(Night_gShowForks)($gp)
     /* CBFEC 800DB7EC 00000000 */  nop
     /* CBFF0 800DB7F0 03004010 */  beqz       $v0, .L800DB800
@@ -88,9 +88,9 @@ glabel Night_DoLightningEffect__FP13DRender_tView
     /* CBFFC 800DB7FC 21200002 */   addu      $a0, $s0, $zero
   .L800DB800:
     /* CC000 800DB800 B21480A3 */  sb         $zero, %gp_rel(D_8013D9FE)($gp)
-    /* CC004 800DB804 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* CC004 800DB804 1280023C */  lui        $v0, %hi(simGlobal+0x4)
   .L800DB808:
-    /* CC008 800DB808 B0E0438C */  lw         $v1, %lo(D_8011E0B0)($v0)
+    /* CC008 800DB808 B0E0438C */  lw         $v1, %lo(simGlobal+0x4)($v0)
     /* CC00C 800DB80C 2015828F */  lw         $v0, %gp_rel(Night_gEndNextLightning)($gp)
     /* CC010 800DB810 00000000 */  nop
     /* CC014 800DB814 2A104300 */  slt        $v0, $v0, $v1

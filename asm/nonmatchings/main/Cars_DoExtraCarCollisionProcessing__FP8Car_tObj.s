@@ -66,8 +66,8 @@ glabel Cars_DoExtraCarCollisionProcessing__FP8Car_tObj
     /* 77410 80086C10 9003228E */  lw         $v0, 0x390($s1)
     /* 77414 80086C14 00000000 */  nop
     /* 77418 80086C18 2D004014 */  bnez       $v0, .L80086CD0
-    /* 7741C 80086C1C 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* 77420 80086C20 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 7741C 80086C1C 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* 77420 80086C20 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 77424 80086C24 00000000 */  nop
     /* 77428 80086C28 41034228 */  slti       $v0, $v0, 0x341
     /* 7742C 80086C2C 28004014 */  bnez       $v0, .L80086CD0

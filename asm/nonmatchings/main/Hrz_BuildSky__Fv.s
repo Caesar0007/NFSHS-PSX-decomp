@@ -7,8 +7,8 @@ glabel Hrz_BuildSky__Fv
     /* C1238 800D0A38 B8FFBD27 */  addiu      $sp, $sp, -0x48
     /* C123C 800D0A3C 3000B0AF */  sw         $s0, 0x30($sp)
     /* C1240 800D0A40 78001024 */  addiu      $s0, $zero, 0x78
-    /* C1244 800D0A44 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* C1248 800D0A48 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* C1244 800D0A44 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* C1248 800D0A48 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* C124C 800D0A4C 01000224 */  addiu      $v0, $zero, 0x1
     /* C1250 800D0A50 4400BFAF */  sw         $ra, 0x44($sp)
     /* C1254 800D0A54 4000B4AF */  sw         $s4, 0x40($sp)

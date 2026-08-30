@@ -10,9 +10,9 @@ glabel MenuExtended_SellCar__FR12tMenuCommand
     /* 1DBAC 8002D3AC 74425124 */  addiu      $s1, $v0, %lo(carManager)
     /* 1DBB0 8002D3B0 1180023C */  lui        $v0, %hi(D_80114723)
     /* 1DBB4 8002D3B4 23474590 */  lbu        $a1, %lo(D_80114723)($v0)
-    /* 1DBB8 8002D3B8 1180023C */  lui        $v0, %hi(D_80114AEC)
+    /* 1DBB8 8002D3B8 1180023C */  lui        $v0, %hi(tournamentManager+0x14)
     /* 1DBBC 8002D3BC B800B0AF */  sw         $s0, 0xB8($sp)
-    /* 1DBC0 8002D3C0 EC4A508C */  lw         $s0, %lo(D_80114AEC)($v0)
+    /* 1DBC0 8002D3C0 EC4A508C */  lw         $s0, %lo(tournamentManager+0x14)($v0)
     /* 1DBC4 8002D3C4 21202002 */  addu       $a0, $s1, $zero
     /* 1DBC8 8002D3C8 C000B2AF */  sw         $s2, 0xC0($sp)
     /* 1DBCC 8002D3CC C400BFAF */  sw         $ra, 0xC4($sp)

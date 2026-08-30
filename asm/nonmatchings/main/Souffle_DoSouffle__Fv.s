@@ -4,8 +4,8 @@
 nonmatching Souffle_DoSouffle__Fv, 0x49C
 
 glabel Souffle_DoSouffle__Fv
-    /* A80EC 800B78EC 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* A80F0 800B78F0 B0E0438C */  lw         $v1, %lo(D_8011E0B0)($v0)
+    /* A80EC 800B78EC 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* A80F0 800B78F0 B0E0438C */  lw         $v1, %lo(simGlobal+0x4)($v0)
     /* A80F4 800B78F4 040F828F */  lw         $v0, %gp_rel(gTMoveSouffle)($gp)
     /* A80F8 800B78F8 A8FFBD27 */  addiu      $sp, $sp, -0x58
     /* A80FC 800B78FC 5000BFAF */  sw         $ra, 0x50($sp)

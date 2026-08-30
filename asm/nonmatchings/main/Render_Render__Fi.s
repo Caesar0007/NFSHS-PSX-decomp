@@ -54,12 +54,12 @@ glabel Render_Render__Fi
     /* A3D5C 800B355C 900E828F */  lw         $v0, %gp_rel(gPauseRender)($gp)
     /* A3D60 800B3560 00000000 */  nop
     /* A3D64 800B3564 04004010 */  beqz       $v0, .L800B3578
-    /* A3D68 800B3568 1180023C */   lui       $v0, %hi(D_801131F8)
+    /* A3D68 800B3568 1180023C */   lui       $v0, %hi(GameSetup_gData+0xc)
     /* A3D6C 800B356C 900E80AF */  sw         $zero, %gp_rel(gPauseRender)($gp)
     /* A3D70 800B3570 76CD0208 */  j          .L800B35D8
     /* A3D74 800B3574 00000000 */   nop
   .L800B3578:
-    /* A3D78 800B3578 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* A3D78 800B3578 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* A3D7C 800B357C 01000224 */  addiu      $v0, $zero, 0x1
     /* A3D80 800B3580 09006214 */  bne        $v1, $v0, .L800B35A8
     /* A3D84 800B3584 00000000 */   nop

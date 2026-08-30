@@ -102,9 +102,9 @@ glabel iMCRD_HandleError
     /* 40E18 80050618 06006210 */  beq        $v1, $v0, .L80050634
     /* 40E1C 8005061C 00000000 */   nop
   .L80050620:
-    /* 40E20 80050620 0580033C */  lui        $v1, %hi(D_80052D98)
+    /* 40E20 80050620 0580033C */  lui        $v1, %hi(gMemCardInfo+0x30)
     /* 40E24 80050624 02000224 */  addiu      $v0, $zero, 0x2
-    /* 40E28 80050628 982D62AC */  sw         $v0, %lo(D_80052D98)($v1)
+    /* 40E28 80050628 982D62AC */  sw         $v0, %lo(gMemCardInfo+0x30)($v1)
     /* 40E2C 8005062C B2410108 */  j          .L800506C8
     /* 40E30 80050630 06000224 */   addiu     $v0, $zero, 0x6
   .L80050634:
@@ -148,10 +148,10 @@ glabel iMCRD_HandleError
   .L800506B0:
     /* 40EB0 800506B0 17000224 */  addiu      $v0, $zero, 0x17
   .L800506B4:
-    /* 40EB4 800506B4 0580033C */  lui        $v1, %hi(D_80052D9C)
+    /* 40EB4 800506B4 0580033C */  lui        $v1, %hi(gMemCardInfo+0x34)
     /* 40EB8 800506B8 040022AE */  sw         $v0, 0x4($s1)
     /* 40EBC 800506BC 01000224 */  addiu      $v0, $zero, 0x1
-    /* 40EC0 800506C0 9C2D62AC */  sw         $v0, %lo(D_80052D9C)($v1)
+    /* 40EC0 800506C0 9C2D62AC */  sw         $v0, %lo(gMemCardInfo+0x34)($v1)
   jlabel .L800506C4
     /* 40EC4 800506C4 21108002 */  addu       $v0, $s4, $zero
   .L800506C8:

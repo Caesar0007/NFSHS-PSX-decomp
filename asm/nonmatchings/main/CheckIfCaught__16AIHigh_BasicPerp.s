@@ -46,8 +46,8 @@ glabel CheckIfCaught__16AIHigh_BasicPerp
     /* 4C01C 8005B81C 2A104300 */  slt        $v0, $v0, $v1
     /* 4C020 8005B820 4A014014 */  bnez       $v0, .L8005BD4C
     /* 4C024 8005B824 21100000 */   addu      $v0, $zero, $zero
-    /* 4C028 8005B828 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* 4C02C 8005B82C B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 4C028 8005B828 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* 4C02C 8005B82C B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 4C030 8005B830 6800638E */  lw         $v1, 0x68($s3)
     /* 4C034 8005B834 00000000 */  nop
     /* 4C038 8005B838 23104300 */  subu       $v0, $v0, $v1

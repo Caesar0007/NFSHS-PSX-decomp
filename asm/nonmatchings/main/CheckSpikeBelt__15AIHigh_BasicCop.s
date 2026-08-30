@@ -13,8 +13,8 @@ glabel CheckSpikeBelt__15AIHigh_BasicCop
     /* 4CA04 8005C204 4CD53026 */  addiu      $s0, $s1, %lo(AICop_spikeBelt)
     /* 4CA08 8005C208 08004010 */  beqz       $v0, .L8005C22C
     /* 4CA0C 8005C20C 1800BFAF */   sw        $ra, 0x18($sp)
-    /* 4CA10 8005C210 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* 4CA14 8005C214 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 4CA10 8005C210 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* 4CA14 8005C214 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 4CA18 8005C218 1000038E */  lw         $v1, 0x10($s0)
     /* 4CA1C 8005C21C 00000000 */  nop
     /* 4CA20 8005C220 23104300 */  subu       $v0, $v0, $v1
@@ -27,13 +27,13 @@ glabel CheckSpikeBelt__15AIHigh_BasicCop
     /* 4CA38 8005C238 03A2010C */  jal        AILife_IsSliceInAnyVisibleArea__Fi
     /* 4CA3C 8005C23C 00000000 */   nop
     /* 4CA40 8005C240 05004014 */  bnez       $v0, .L8005C258
-    /* 4CA44 8005C244 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* 4CA44 8005C244 1280023C */   lui       $v0, %hi(simGlobal+0x4)
     /* 4CA48 8005C248 06F6010C */  jal        BWorld_InitSpikeBelt__Fv
     /* 4CA4C 8005C24C 00000000 */   nop
     /* 4CA50 8005C250 99700108 */  j          .L8005C264
     /* 4CA54 8005C254 4CD520AE */   sw        $zero, %lo(AICop_spikeBelt)($s1)
   .L8005C258:
-    /* 4CA58 8005C258 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 4CA58 8005C258 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 4CA5C 8005C25C 00000000 */  nop
     /* 4CA60 8005C260 100002AE */  sw         $v0, 0x10($s0)
   .L8005C264:

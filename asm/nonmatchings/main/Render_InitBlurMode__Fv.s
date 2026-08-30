@@ -4,8 +4,8 @@
 nonmatching Render_InitBlurMode__Fv, 0x68
 
 glabel Render_InitBlurMode__Fv
-    /* A4204 800B3A04 1180023C */  lui        $v0, %hi(D_80113224)
-    /* A4208 800B3A08 2432438C */  lw         $v1, %lo(D_80113224)($v0)
+    /* A4204 800B3A04 1180023C */  lui        $v0, %hi(GameSetup_gData+0x38)
+    /* A4208 800B3A08 2432438C */  lw         $v1, %lo(GameSetup_gData+0x38)($v0)
     /* A420C 800B3A0C 20000224 */  addiu      $v0, $zero, 0x20
     /* A4210 800B3A10 0F006210 */  beq        $v1, $v0, .L800B3A50
     /* A4214 800B3A14 21006228 */   slti      $v0, $v1, 0x21

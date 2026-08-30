@@ -10,9 +10,9 @@ glabel garyMemCardGrabBlocks
     /* 40AC8 800502C8 2000BFAF */  sw         $ra, 0x20($sp)
     /* 40ACC 800502CC 9140010C */  jal        MCRD_getcard
     /* 40AD0 800502D0 1800B0AF */   sw        $s0, 0x18($sp)
-    /* 40AD4 800502D4 0580033C */  lui        $v1, %hi(D_80052DA4)
+    /* 40AD4 800502D4 0580033C */  lui        $v1, %hi(gMemCardInfo+0x3c)
     /* 40AD8 800502D8 10005024 */  addiu      $s0, $v0, 0x10
-    /* 40ADC 800502DC A42D648C */  lw         $a0, %lo(D_80052DA4)($v1)
+    /* 40ADC 800502DC A42D648C */  lw         $a0, %lo(gMemCardInfo+0x3c)($v1)
     /* 40AE0 800502E0 0F000324 */  addiu      $v1, $zero, 0xF
     /* 40AE4 800502E4 0180053C */  lui        $a1, %hi(D_80012884)
     /* 40AE8 800502E8 8428A524 */  addiu      $a1, $a1, %lo(D_80012884)

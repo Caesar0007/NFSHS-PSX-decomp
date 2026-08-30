@@ -15,7 +15,7 @@ glabel Hud_Render321Go__Fv
     /* C8684 800D7E84 1800B0AF */  sw         $s0, 0x18($sp)
     /* C8688 800D7E88 18F8020C */  jal        Draw_StartRenderingView__Fi
     /* C868C 800D7E8C 7C6F44AC */   sw        $a0, %lo(gCView)($v0)
-    /* C8690 800D7E90 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C8690 800D7E90 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C8694 800D7E94 D1138383 */  lb         $v1, %gp_rel(D_8013D91D)($gp)
     /* C8698 800D7E98 1480043C */  lui        $a0, %hi(countdown)
     /* C869C 800D7E9C 3CC68490 */  lbu        $a0, %lo(countdown)($a0)

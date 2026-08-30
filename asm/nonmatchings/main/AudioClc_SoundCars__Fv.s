@@ -19,7 +19,7 @@ glabel AudioClc_SoundCars__Fv
     /* 66990 80076190 03006210 */  beq        $v1, $v0, .L800761A0
     /* 66994 80076194 05000224 */   addiu     $v0, $zero, 0x5
     /* 66998 80076198 35006214 */  bne        $v1, $v0, .L80076270
-    /* 6699C 8007619C 1180023C */   lui       $v0, %hi(D_801131F8)
+    /* 6699C 8007619C 1180023C */   lui       $v0, %hi(GameSetup_gData+0xc)
   .L800761A0:
     /* 669A0 800761A0 1180033C */  lui        $v1, %hi(Cars_gHumanRaceCarList)
     /* 669A4 800761A4 48FA628C */  lw         $v0, %lo(Cars_gHumanRaceCarList)($v1)
@@ -33,20 +33,20 @@ glabel AudioClc_SoundCars__Fv
     /* 669C4 800761C4 00C8638C */  lw         $v1, %lo(Cars_gNumHumanRaceCars)($v1)
     /* 669C8 800761C8 02000224 */  addiu      $v0, $zero, 0x2
     /* 669CC 800761CC 28006214 */  bne        $v1, $v0, .L80076270
-    /* 669D0 800761D0 1180023C */   lui       $v0, %hi(D_801131F8)
+    /* 669D0 800761D0 1180023C */   lui       $v0, %hi(GameSetup_gData+0xc)
     /* 669D4 800761D4 0400828C */  lw         $v0, 0x4($a0)
     /* 669D8 800761D8 00000000 */  nop
     /* 669DC 800761DC 6002428C */  lw         $v0, 0x260($v0)
     /* 669E0 800761E0 00000000 */  nop
     /* 669E4 800761E4 00024230 */  andi       $v0, $v0, 0x200
     /* 669E8 800761E8 21004010 */  beqz       $v0, .L80076270
-    /* 669EC 800761EC 1180023C */   lui       $v0, %hi(D_801131F8)
+    /* 669EC 800761EC 1180023C */   lui       $v0, %hi(GameSetup_gData+0xc)
   .L800761F0:
     /* 669F0 800761F0 1480023C */  lui        $v0, %hi(HudBustedOverlay)
     /* 669F4 800761F4 28D9428C */  lw         $v0, %lo(HudBustedOverlay)($v0)
     /* 669F8 800761F8 00000000 */  nop
     /* 669FC 800761FC 1C004010 */  beqz       $v0, .L80076270
-    /* 66A00 80076200 1180023C */   lui       $v0, %hi(D_801131F8)
+    /* 66A00 80076200 1180023C */   lui       $v0, %hi(GameSetup_gData+0xc)
     /* 66A04 80076204 AC01A28C */  lw         $v0, 0x1AC($a1)
     /* 66A08 80076208 00000000 */  nop
     /* 66A0C 8007620C 17004018 */  blez       $v0, .L8007626C
@@ -75,9 +75,9 @@ glabel AudioClc_SoundCars__Fv
     /* 66A64 80076264 EDFF4014 */  bnez       $v0, .L8007621C
     /* 66A68 80076268 34001026 */   addiu     $s0, $s0, 0x34
   .L8007626C:
-    /* 66A6C 8007626C 1180023C */  lui        $v0, %hi(D_801131F8)
+    /* 66A6C 8007626C 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
   .L80076270:
-    /* 66A70 80076270 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* 66A70 80076270 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* 66A74 80076274 01000224 */  addiu      $v0, $zero, 0x1
     /* 66A78 80076278 3F006214 */  bne        $v1, $v0, .L80076378
     /* 66A7C 8007627C 1180103C */   lui       $s0, %hi(AudioClc_gRenderView)

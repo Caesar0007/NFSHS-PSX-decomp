@@ -253,7 +253,7 @@ glabel Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj
     /* 94214 800A3A14 3D0A822A */  slti       $v0, $s4, 0xA3D
   .L800A3A18:
     /* 94218 800A3A18 35004010 */  beqz       $v0, .L800A3AF0
-    /* 9421C 800A3A1C 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* 9421C 800A3A1C 1280023C */   lui       $v0, %hi(simGlobal+0x4)
     /* 94220 800A3A20 A400428E */  lw         $v0, 0xA4($s2)
     /* 94224 800A3A24 6002438E */  lw         $v1, 0x260($s2)
     /* 94228 800A3A28 880140AE */  sw         $zero, 0x188($s2)
@@ -313,9 +313,9 @@ glabel Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj
   .L800A3AE8:
     /* 942E8 800A3AE8 B00053AE */  sw         $s3, 0xB0($s2)
   .L800A3AEC:
-    /* 942EC 800A3AEC 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* 942EC 800A3AEC 1280023C */  lui        $v0, %hi(simGlobal+0x4)
   .L800A3AF0:
-    /* 942F0 800A3AF0 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 942F0 800A3AF0 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 942F4 800A3AF4 08004426 */  addiu      $a0, $s2, 0x8
     /* 942F8 800A3AF8 F5FF010C */  jal        BWorldSm_TunnelFlagSm__FP12BWorldSm_Pos
     /* 942FC 800A3AFC 9C0042AE */   sw        $v0, 0x9C($s2)

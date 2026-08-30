@@ -171,9 +171,9 @@ glabel iMCRD_DoFileLoad
     /* 40208 8004FA08 05004014 */  bnez       $v0, .L8004FA20
     /* 4020C 8004FA0C 00000000 */   nop
   .L8004FA10:
-    /* 40210 8004FA10 0580033C */  lui        $v1, %hi(D_80052D9C)
+    /* 40210 8004FA10 0580033C */  lui        $v1, %hi(gMemCardInfo+0x34)
     /* 40214 8004FA14 01000224 */  addiu      $v0, $zero, 0x1
-    /* 40218 8004FA18 9C2D62AC */  sw         $v0, %lo(D_80052D9C)($v1)
+    /* 40218 8004FA18 9C2D62AC */  sw         $v0, %lo(gMemCardInfo+0x34)($v1)
     /* 4021C 8004FA1C 0F000224 */  addiu      $v0, $zero, 0xF
   .L8004FA20:
     /* 40220 8004FA20 4000BF8F */  lw         $ra, 0x40($sp)

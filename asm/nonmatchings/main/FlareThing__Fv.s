@@ -4,8 +4,8 @@
 nonmatching FlareThing__Fv, 0x10C
 
 glabel FlareThing__Fv
-    /* A3DE8 800B35E8 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* A3DEC 800B35EC F831428C */  lw         $v0, %lo(D_801131F8)($v0)
+    /* A3DE8 800B35E8 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* A3DEC 800B35EC F831428C */  lw         $v0, %lo(GameSetup_gData+0xc)($v0)
     /* A3DF0 800B35F0 C0FFBD27 */  addiu      $sp, $sp, -0x40
     /* A3DF4 800B35F4 2800B4AF */  sw         $s4, 0x28($sp)
     /* A3DF8 800B35F8 01001424 */  addiu      $s4, $zero, 0x1

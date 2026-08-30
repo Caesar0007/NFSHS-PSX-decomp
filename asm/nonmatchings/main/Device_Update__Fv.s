@@ -45,8 +45,8 @@ glabel Device_Update__Fv
     /* ADD64 800BD564 6AF50208 */  j          .L800BD5A8
     /* ADD68 800BD568 00000000 */   nop
   .L800BD56C:
-    /* ADD6C 800BD56C 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* ADD70 800BD570 F831508C */  lw         $s0, %lo(D_801131F8)($v0)
+    /* ADD6C 800BD56C 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* ADD70 800BD570 F831508C */  lw         $s0, %lo(GameSetup_gData+0xc)($v0)
     /* ADD74 800BD574 01000224 */  addiu      $v0, $zero, 0x1
     /* ADD78 800BD578 0A000216 */  bne        $s0, $v0, .L800BD5A4
     /* ADD7C 800BD57C 00000000 */   nop

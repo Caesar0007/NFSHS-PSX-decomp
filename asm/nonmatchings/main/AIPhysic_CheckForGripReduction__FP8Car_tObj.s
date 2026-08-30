@@ -18,12 +18,12 @@ glabel AIPhysic_CheckForGripReduction__FP8Car_tObj
     /* 5D2D4 8006CAD4 4000428C */  lw         $v0, 0x40($v0)
     /* 5D2D8 8006CAD8 00000000 */  nop
     /* 5D2DC 8006CADC 18006200 */  mult       $v1, $v0
-    /* 5D2E0 8006CAE0 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* 5D2E0 8006CAE0 1280023C */  lui        $v0, %hi(simGlobal+0x4)
     /* 5D2E4 8006CAE4 B801038E */  lw         $v1, 0x1B8($s0)
     /* 5D2E8 8006CAE8 12300000 */  mflo       $a2
     /* 5D2EC 8006CAEC 21208600 */  addu       $a0, $a0, $a2
     /* 5D2F0 8006CAF0 600704AE */  sw         $a0, 0x760($s0)
-    /* 5D2F4 8006CAF4 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 5D2F4 8006CAF4 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 5D2F8 8006CAF8 00000000 */  nop
     /* 5D2FC 8006CAFC 23104300 */  subu       $v0, $v0, $v1
     /* 5D300 8006CB00 40004228 */  slti       $v0, $v0, 0x40

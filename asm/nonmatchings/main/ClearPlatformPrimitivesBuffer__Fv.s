@@ -12,8 +12,8 @@ glabel ClearPlatformPrimitivesBuffer__Fv
     /* AE818 800BE018 24F44224 */  addiu      $v0, $v0, %lo(gEnviro)
     /* AE81C 800BE01C 2C0040AC */  sw         $zero, 0x2C($v0)
     /* AE820 800BE020 140040AC */  sw         $zero, 0x14($v0)
-    /* AE824 800BE024 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* AE828 800BE028 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* AE824 800BE024 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* AE828 800BE028 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* AE82C 800BE02C 01000224 */  addiu      $v0, $zero, 0x1
     /* AE830 800BE030 05006214 */  bne        $v1, $v0, .L800BE048
     /* AE834 800BE034 00000000 */   nop

@@ -6,11 +6,11 @@ nonmatching TrgSfx_AddCarSfx__FiP8coorddefiT1, 0x6C
 glabel TrgSfx_AddCarSfx__FiP8coorddefiT1
     /* AB8D0 800BB0D0 E0FFBD27 */  addiu      $sp, $sp, -0x20
     /* AB8D4 800BB0D4 07008430 */  andi       $a0, $a0, 0x7
-    /* AB8D8 800BB0D8 1280033C */  lui        $v1, %hi(D_8011E0B0)
+    /* AB8D8 800BB0D8 1280033C */  lui        $v1, %hi(simGlobal+0x4)
     /* AB8DC 800BB0DC 1280023C */  lui        $v0, %hi(gTAddCarSfx)
     /* AB8E0 800BB0E0 D0E14224 */  addiu      $v0, $v0, %lo(gTAddCarSfx)
     /* AB8E4 800BB0E4 80200400 */  sll        $a0, $a0, 2
-    /* AB8E8 800BB0E8 B0E0638C */  lw         $v1, %lo(D_8011E0B0)($v1)
+    /* AB8E8 800BB0E8 B0E0638C */  lw         $v1, %lo(simGlobal+0x4)($v1)
     /* AB8EC 800BB0EC 21208200 */  addu       $a0, $a0, $v0
     /* AB8F0 800BB0F0 1800BFAF */  sw         $ra, 0x18($sp)
     /* AB8F4 800BB0F4 0000828C */  lw         $v0, 0x0($a0)

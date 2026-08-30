@@ -4,8 +4,8 @@
 nonmatching Replay_GetInterfaceKey__Fv, 0x490
 
 glabel Replay_GetInterfaceKey__Fv
-    /* A5870 800B5070 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* A5874 800B5074 F831428C */  lw         $v0, %lo(D_801131F8)($v0)
+    /* A5870 800B5070 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* A5874 800B5074 F831428C */  lw         $v0, %lo(GameSetup_gData+0xc)($v0)
     /* A5878 800B5078 D0FFBD27 */  addiu      $sp, $sp, -0x30
     /* A587C 800B507C 2000B4AF */  sw         $s4, 0x20($sp)
     /* A5880 800B5080 01001424 */  addiu      $s4, $zero, 0x1
@@ -144,8 +144,8 @@ glabel Replay_GetInterfaceKey__Fv
     /* A5A64 800B5264 2FD50208 */  j          .L800B54BC
     /* A5A68 800B5268 2C7062AC */   sw        $v0, %lo(Replay_ReplayInterface)($v1)
   jlabel .L800B526C
-    /* A5A6C 800B526C 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* A5A70 800B5270 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* A5A6C 800B526C 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* A5A70 800B5270 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* A5A74 800B5274 01000224 */  addiu      $v0, $zero, 0x1
     /* A5A78 800B5278 10006214 */  bne        $v1, $v0, .L800B52BC
     /* A5A7C 800B527C 1180023C */   lui       $v0, %hi(Replay_ReplayInterface)

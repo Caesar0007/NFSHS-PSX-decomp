@@ -11,15 +11,15 @@ glabel AudioCmn_PlayerHornOff__Fi
     /* 69D58 80079558 1000B0AF */   sw        $s0, 0x10($sp)
     /* 69D5C 8007955C 07008010 */  beqz       $a0, .L8007957C
     /* 69D60 80079560 29001024 */   addiu     $s0, $zero, 0x29
-    /* 69D64 80079564 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* 69D68 80079568 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* 69D64 80079564 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* 69D68 80079568 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* 69D6C 8007956C 01000224 */  addiu      $v0, $zero, 0x1
     /* 69D70 80079570 07006214 */  bne        $v1, $v0, .L80079590
     /* 69D74 80079574 1180033C */   lui       $v1, %hi(Cars_gList)
     /* 69D78 80079578 2A001024 */  addiu      $s0, $zero, 0x2A
   .L8007957C:
-    /* 69D7C 8007957C 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* 69D80 80079580 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* 69D7C 8007957C 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* 69D80 80079580 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* 69D84 80079584 01000224 */  addiu      $v0, $zero, 0x1
     /* 69D88 80079588 17006210 */  beq        $v1, $v0, .L800795E8
     /* 69D8C 8007958C 1180033C */   lui       $v1, %hi(Cars_gList)

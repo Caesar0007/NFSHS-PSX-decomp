@@ -162,8 +162,8 @@ glabel AudioClc_SoundPlayersCar__Fi
     /* 65F50 80075750 65D2010C */  jal        AudioClc_CalcDopplerShiftRatio__FP8coorddefT0
     /* 65F54 80075754 AC004526 */   addiu     $a1, $s2, 0xAC
     /* 65F58 80075758 2000A2AF */  sw         $v0, 0x20($sp)
-    /* 65F5C 8007575C 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* 65F60 80075760 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* 65F5C 8007575C 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* 65F60 80075760 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* 65F64 80075764 01000224 */  addiu      $v0, $zero, 0x1
     /* 65F68 80075768 07006214 */  bne        $v1, $v0, .L80075788
     /* 65F6C 8007576C 1180023C */   lui       $v0, %hi(Camera_gInfo)

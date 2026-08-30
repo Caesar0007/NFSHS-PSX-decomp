@@ -4,8 +4,8 @@
 nonmatching Sim_FadeInSFX__Fv, 0x80
 
 glabel Sim_FadeInSFX__Fv
-    /* A6FF8 800B67F8 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* A6FFC 800B67FC B0E0448C */  lw         $a0, %lo(D_8011E0B0)($v0)
+    /* A6FF8 800B67F8 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* A6FFC 800B67FC B0E0448C */  lw         $a0, %lo(simGlobal+0x4)($v0)
     /* A7000 800B6800 00000000 */  nop
     /* A7004 800B6804 08008014 */  bnez       $a0, .L800B6828
     /* A7008 800B6808 EFFF8224 */   addiu     $v0, $a0, -0x11

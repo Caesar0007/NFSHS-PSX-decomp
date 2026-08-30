@@ -13,7 +13,7 @@ glabel Newton_InitBaseNewtonObj__FP13BO_tNewtonObjiiiiii
     /* 92400 800A1C00 21808000 */  addu       $s0, $a0, $zero
     /* 92404 800A1C04 1C00B3AF */  sw         $s3, 0x1C($sp)
     /* 92408 800A1C08 4000B38F */  lw         $s3, 0x40($sp)
-    /* 9240C 800A1C0C 1180023C */  lui        $v0, %hi(D_80113224)
+    /* 9240C 800A1C0C 1180023C */  lui        $v0, %hi(GameSetup_gData+0x38)
     /* 92410 800A1C10 2400BFAF */  sw         $ra, 0x24($sp)
     /* 92414 800A1C14 2000B4AF */  sw         $s4, 0x20($sp)
     /* 92418 800A1C18 000005AE */  sw         $a1, 0x0($s0)
@@ -26,7 +26,7 @@ glabel Newton_InitBaseNewtonObj__FP13BO_tNewtonObjiiiiii
     /* 92434 800A1C34 B00000AE */  sw         $zero, 0xB0($s0)
     /* 92438 800A1C38 B40000AE */  sw         $zero, 0xB4($s0)
     /* 9243C 800A1C3C B80006AE */  sw         $a2, 0xB8($s0)
-    /* 92440 800A1C40 2432428C */  lw         $v0, %lo(D_80113224)($v0)
+    /* 92440 800A1C40 2432428C */  lw         $v0, %lo(GameSetup_gData+0x38)($v0)
     /* 92444 800A1C44 00000000 */  nop
     /* 92448 800A1C48 02004230 */  andi       $v0, $v0, 0x2
     /* 9244C 800A1C4C 08004010 */  beqz       $v0, .L800A1C70
@@ -43,8 +43,8 @@ glabel Newton_InitBaseNewtonObj__FP13BO_tNewtonObjiiiiii
     /* 92474 800A1C74 00000000 */  nop
     /* 92478 800A1C78 20004230 */  andi       $v0, $v0, 0x20
     /* 9247C 800A1C7C 24004010 */  beqz       $v0, .L800A1D10
-    /* 92480 800A1C80 1180023C */   lui       $v0, %hi(D_801131F8)
-    /* 92484 800A1C84 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* 92480 800A1C80 1180023C */   lui       $v0, %hi(GameSetup_gData+0xc)
+    /* 92484 800A1C84 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* 92488 800A1C88 01000224 */  addiu      $v0, $zero, 0x1
     /* 9248C 800A1C8C 18006214 */  bne        $v1, $v0, .L800A1CF0
     /* 92490 800A1C90 1180033C */   lui       $v1, %hi(Cars_gHumanRaceCarList)

@@ -746,7 +746,7 @@ glabel Newton_FindGroundElevationAndNormal__FP13BO_tNewtonObjP8coorddef
     /* 91244 800A0A44 1C0182AE */   sw        $v0, 0x11C($s4)
   .L800A0A48:
     /* 91248 800A0A48 BC004010 */  beqz       $v0, .L800A0D3C
-    /* 9124C 800A0A4C 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* 9124C 800A0A4C 1280023C */   lui       $v0, %hi(simGlobal+0x4)
     /* 91250 800A0A50 1401848E */  lw         $a0, 0x114($s4)
     /* 91254 800A0A54 F000858E */  lw         $a1, 0xF0($s4)
     /* 91258 800A0A58 CA90030C */  jal        fixedmult
@@ -942,9 +942,9 @@ glabel Newton_FindGroundElevationAndNormal__FP13BO_tNewtonObjP8coorddef
     /* 91530 800A0D30 21800202 */  addu       $s0, $s0, $v0
     /* 91534 800A0D34 1C0190AE */  sw         $s0, 0x11C($s4)
   .L800A0D38:
-    /* 91538 800A0D38 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* 91538 800A0D38 1280023C */  lui        $v0, %hi(simGlobal+0x4)
   .L800A0D3C:
-    /* 9153C 800A0D3C B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 9153C 800A0D3C B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 91540 800A0D40 00000000 */  nop
     /* 91544 800A0D44 40004228 */  slti       $v0, $v0, 0x40
     /* 91548 800A0D48 04004010 */  beqz       $v0, .L800A0D5C

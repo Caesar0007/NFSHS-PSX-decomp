@@ -71,8 +71,8 @@ glabel Draw__15ObjectMultiAnimP13DRender_tViewP11Draw_DCachei
     /* 96BF0 800A63F0 08004284 */  lh         $v0, 0x8($v0)
     /* 96BF4 800A63F4 00000000 */  nop
     /* 96BF8 800A63F8 18006200 */  mult       $v1, $v0
-    /* 96BFC 800A63FC 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* 96C00 800A6400 B0E0438C */  lw         $v1, %lo(D_8011E0B0)($v0)
+    /* 96BFC 800A63FC 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* 96C00 800A6400 B0E0438C */  lw         $v1, %lo(simGlobal+0x4)($v0)
     /* 96C04 800A6404 0000828C */  lw         $v0, 0x0($a0)
     /* 96C08 800A6408 00000000 */  nop
     /* 96C0C 800A640C 23206200 */  subu       $a0, $v1, $v0

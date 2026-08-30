@@ -14,8 +14,8 @@ glabel DrawW_GetAnimationTime__FP15Trk_AnimateInst
     /* B7E60 800C7660 0500A214 */  bne        $a1, $v0, .L800C7678
     /* B7E64 800C7664 00000000 */   nop
   .L800C7668:
-    /* B7E68 800C7668 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* B7E6C 800C766C B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* B7E68 800C7668 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* B7E6C 800C766C B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* B7E70 800C7670 0800E003 */  jr         $ra
     /* B7E74 800C7674 00000000 */   nop
   .L800C7678:

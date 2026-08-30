@@ -7,8 +7,8 @@ glabel Skidmark_InitSkidmark__Fv
     /* CFD04 800DF504 E8FFBD27 */  addiu      $sp, $sp, -0x18
     /* CFD08 800DF508 10000224 */  addiu      $v0, $zero, 0x10
     /* CFD0C 800DF50C 881582AF */  sw         $v0, %gp_rel(gMaxSChunk)($gp)
-    /* CFD10 800DF510 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* CFD14 800DF514 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* CFD10 800DF510 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* CFD14 800DF514 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* CFD18 800DF518 01000224 */  addiu      $v0, $zero, 0x1
     /* CFD1C 800DF51C 03006214 */  bne        $v1, $v0, .L800DF52C
     /* CFD20 800DF520 1000BFAF */   sw        $ra, 0x10($sp)

@@ -5,11 +5,11 @@ nonmatching Souffle_InitTrackSouffle__Fv, 0x40
 
 glabel Souffle_InitTrackSouffle__Fv
     /* A86D4 800B7ED4 E8FFBD27 */  addiu      $sp, $sp, -0x18
-    /* A86D8 800B7ED8 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* A86D8 800B7ED8 1280023C */  lui        $v0, %hi(simGlobal+0x4)
     /* A86DC 800B7EDC 1480043C */  lui        $a0, %hi(D_8013D440)
     /* A86E0 800B7EE0 40D48424 */  addiu      $a0, $a0, %lo(D_8013D440)
     /* A86E4 800B7EE4 F00F0524 */  addiu      $a1, $zero, 0xFF0
-    /* A86E8 800B7EE8 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* A86E8 800B7EE8 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* A86EC 800B7EEC 1000BFAF */  sw         $ra, 0x10($sp)
     /* A86F0 800B7EF0 080F80AF */  sw         $zero, %gp_rel(gWindDir)($gp)
     /* A86F4 800B7EF4 000F80AF */  sw         $zero, %gp_rel(gCISouffle)($gp)

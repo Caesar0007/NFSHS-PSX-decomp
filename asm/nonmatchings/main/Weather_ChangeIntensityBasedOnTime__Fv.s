@@ -24,7 +24,7 @@ glabel Weather_ChangeIntensityBasedOnTime__Fv
     /* D2B34 800E2334 00000000 */   nop
   .L800E2338:
     /* D2B38 800E2338 0F004104 */  bgez       $v0, .L800E2378
-    /* D2B3C 800E233C 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* D2B3C 800E233C 1280023C */   lui       $v0, %hi(simGlobal+0x4)
     /* D2B40 800E2340 1280043C */  lui        $a0, %hi(D_80123412)
     /* D2B44 800E2344 1280033C */  lui        $v1, %hi(Weather_gIntensityTbl)
     /* D2B48 800E2348 A816828F */  lw         $v0, %gp_rel(Weather_gIntensityGoalState)($gp)
@@ -40,7 +40,7 @@ glabel Weather_ChangeIntensityBasedOnTime__Fv
     /* D2B70 800E2370 E4880308 */  j          .L800E2390
     /* D2B74 800E2374 00000000 */   nop
   .L800E2378:
-    /* D2B78 800E2378 B0E0438C */  lw         $v1, %lo(D_8011E0B0)($v0)
+    /* D2B78 800E2378 B0E0438C */  lw         $v1, %lo(simGlobal+0x4)($v0)
     /* D2B7C 800E237C B816828F */  lw         $v0, %gp_rel(Weather_gIntensityTimerGoal)($gp)
     /* D2B80 800E2380 00000000 */  nop
     /* D2B84 800E2384 2A104300 */  slt        $v0, $v0, $v1

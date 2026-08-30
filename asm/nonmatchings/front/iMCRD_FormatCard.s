@@ -10,8 +10,8 @@ glabel iMCRD_FormatCard
     /* 40C4C 8005044C 1800BFAF */  sw         $ra, 0x18($sp)
     /* 40C50 80050450 9140010C */  jal        MCRD_getcard
     /* 40C54 80050454 1000B0AF */   sw        $s0, 0x10($sp)
-    /* 40C58 80050458 0580033C */  lui        $v1, %hi(D_80052DA4)
-    /* 40C5C 8005045C A42D648C */  lw         $a0, %lo(D_80052DA4)($v1)
+    /* 40C58 80050458 0580033C */  lui        $v1, %hi(gMemCardInfo+0x3c)
+    /* 40C5C 8005045C A42D648C */  lw         $a0, %lo(gMemCardInfo+0x3c)($v1)
     /* 40C60 80050460 F7EF030C */  jal        MemCardFormat
     /* 40C64 80050464 21804000 */   addu      $s0, $v0, $zero
     /* 40C68 80050468 21184000 */  addu       $v1, $v0, $zero

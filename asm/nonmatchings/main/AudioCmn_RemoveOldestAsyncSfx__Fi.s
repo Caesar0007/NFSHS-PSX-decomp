@@ -9,8 +9,8 @@ glabel AudioCmn_RemoveOldestAsyncSfx__Fi
     /* 66E7C 8007667C FFFF1024 */  addiu      $s0, $zero, -0x1
     /* 66E80 80076680 21380000 */  addu       $a3, $zero, $zero
     /* 66E84 80076684 21400002 */  addu       $t0, $s0, $zero
-    /* 66E88 80076688 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* 66E8C 8007668C B0E0438C */  lw         $v1, %lo(D_8011E0B0)($v0)
+    /* 66E88 80076688 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* 66E8C 8007668C B0E0438C */  lw         $v1, %lo(simGlobal+0x4)($v0)
     /* 66E90 80076690 1180023C */  lui        $v0, %hi(AudioCmn_gSfxSlot)
     /* 66E94 80076694 34EB4624 */  addiu      $a2, $v0, %lo(AudioCmn_gSfxSlot)
     /* 66E98 80076698 1400BFAF */  sw         $ra, 0x14($sp)

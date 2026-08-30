@@ -18,10 +18,10 @@ glabel GetTimedAnimPosRot__10AnimScriptiP8coorddefP10matrixtdef
     /* 64E50 80074650 01000324 */  addiu      $v1, $zero, 0x1
     /* 64E54 80074654 2A004314 */  bne        $v0, $v1, .L80074700
     /* 64E58 80074658 FFFF0224 */   addiu     $v0, $zero, -0x1
-    /* 64E5C 8007465C 1280033C */  lui        $v1, %hi(D_8011E0B0)
+    /* 64E5C 8007465C 1280033C */  lui        $v1, %hi(simGlobal+0x4)
     /* 64E60 80074660 0000258E */  lw         $a1, 0x0($s1)
     /* 64E64 80074664 1000228E */  lw         $v0, 0x10($s1)
-    /* 64E68 80074668 B0E0668C */  lw         $a2, %lo(D_8011E0B0)($v1)
+    /* 64E68 80074668 B0E0668C */  lw         $a2, %lo(simGlobal+0x4)($v1)
     /* 64E6C 8007466C 80901200 */  sll        $s2, $s2, 2
     /* 64E70 80074670 1000B0AF */  sw         $s0, 0x10($sp)
     /* 64E74 80074674 21104202 */  addu       $v0, $s2, $v0

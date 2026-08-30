@@ -5,9 +5,9 @@ nonmatching GetAnimFrameInfo__10AnimScriptPiT1, 0xBC
 
 glabel GetAnimFrameInfo__10AnimScriptPiT1
     /* 64D3C 8007453C 2140A000 */  addu       $t0, $a1, $zero
-    /* 64D40 80074540 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* 64D40 80074540 1280023C */  lui        $v0, %hi(simGlobal+0x4)
     /* 64D44 80074544 1000838C */  lw         $v1, 0x10($a0)
-    /* 64D48 80074548 B0E0458C */  lw         $a1, %lo(D_8011E0B0)($v0)
+    /* 64D48 80074548 B0E0458C */  lw         $a1, %lo(simGlobal+0x4)($v0)
     /* 64D4C 8007454C 0000678C */  lw         $a3, 0x0($v1)
     /* 64D50 80074550 0000828C */  lw         $v0, 0x0($a0)
     /* 64D54 80074554 0A00E494 */  lhu        $a0, 0xA($a3)

@@ -81,8 +81,8 @@ glabel SetupBuildMatrices__FP13DRender_tViewP11Draw_DCache
     /* 6E25C 8007DA5C 23100200 */  negu       $v0, $v0
     /* 6E260 8007DA60 4F1D030C */  jal        DrawW_WorldSetUpMatrix__FP10matrixtdefP6MATRIX
     /* 6E264 8007DA64 100082AC */   sw        $v0, 0x10($a0)
-    /* 6E268 8007DA68 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* 6E26C 8007DA6C F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* 6E268 8007DA68 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* 6E26C 8007DA6C F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* 6E270 8007DA70 01000224 */  addiu      $v0, $zero, 0x1
     /* 6E274 8007DA74 680280AF */  sw         $zero, %gp_rel(BW_gCopCarObj)($gp)
     /* 6E278 8007DA78 60006210 */  beq        $v1, $v0, .L8007DBFC

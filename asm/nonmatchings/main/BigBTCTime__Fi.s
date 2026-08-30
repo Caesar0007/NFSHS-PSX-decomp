@@ -33,7 +33,7 @@ glabel BigBTCTime__Fi
     /* C8818 800D8018 D41393AF */  sw         $s3, %gp_rel(D_8013D920)($gp)
     /* C881C 800D801C D81382AF */  sw         $v0, %gp_rel(D_8013D924)($gp)
   .L800D8020:
-    /* C8820 800D8020 B818838F */  lw         $v1, %gp_rel(D_8013DE04)($gp)
+    /* C8820 800D8020 B818838F */  lw         $v1, %gp_rel(g1Player)($gp)
     /* C8824 800D8024 00000000 */  nop
     /* C8828 800D8028 3C006284 */  lh         $v0, 0x3C($v1)
     /* C882C 800D802C 3E007784 */  lh         $s7, 0x3E($v1)

@@ -15,8 +15,8 @@ glabel AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleR
     /* 5E0BC 8006D8BC EC31428C */  lw         $v0, %lo(GameSetup_gData)($v0)
     /* 5E0C0 8006D8C0 01000324 */  addiu      $v1, $zero, 0x1
     /* 5E0C4 8006D8C4 1A004310 */  beq        $v0, $v1, .L8006D930
-    /* 5E0C8 8006D8C8 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* 5E0CC 8006D8CC B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 5E0C8 8006D8C8 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* 5E0CC 8006D8CC B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 5E0D0 8006D8D0 00000000 */  nop
     /* 5E0D4 8006D8D4 80074228 */  slti       $v0, $v0, 0x780
     /* 5E0D8 8006D8D8 15004010 */  beqz       $v0, .L8006D930

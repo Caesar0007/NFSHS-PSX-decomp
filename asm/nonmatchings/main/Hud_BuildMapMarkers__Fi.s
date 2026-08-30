@@ -144,7 +144,7 @@ glabel Hud_BuildMapMarkers__Fi
     /* C64F0 800D5CF0 0000428C */  lw         $v0, 0x0($v0)
   .L800D5CF4:
     /* C64F4 800D5CF4 00000000 */  nop
-    /* C64F8 800D5CF8 C81882AF */  sw         $v0, %gp_rel(D_8013DE14)($gp)
+    /* C64F8 800D5CF8 C81882AF */  sw         $v0, %gp_rel(currentSpriteColor)($gp)
     /* C64FC 800D5CFC 2120C000 */  addu       $a0, $a2, $zero
     /* C6500 800D5D00 7A000524 */  addiu      $a1, $zero, 0x7A
     /* C6504 800D5D04 16000824 */  addiu      $t0, $zero, 0x16
@@ -152,7 +152,7 @@ glabel Hud_BuildMapMarkers__Fi
     /* C650C 800D5D0C FEFFC624 */  addiu      $a2, $a2, -0x2
     /* C6510 800D5D10 FFFFC630 */  andi       $a2, $a2, 0xFFFF
     /* C6514 800D5D14 2338D003 */  subu       $a3, $fp, $s0
-    /* C6518 800D5D18 C818828F */  lw         $v0, %gp_rel(D_8013DE14)($gp)
+    /* C6518 800D5D18 C818828F */  lw         $v0, %gp_rel(currentSpriteColor)($gp)
     /* C651C 800D5D1C FFFFE730 */  andi       $a3, $a3, 0xFFFF
     /* C6520 800D5D20 1400A0AF */  sw         $zero, 0x14($sp)
     /* C6524 800D5D24 E647030C */  jal        Hud_BuildSprite__FP4SPRTiiiUli
@@ -289,13 +289,13 @@ glabel Hud_BuildMapMarkers__Fi
     /* C670C 800D5F0C 0000828E */  lw         $v0, 0x0($s4)
   .L800D5F10:
     /* C6710 800D5F10 00000000 */  nop
-    /* C6714 800D5F14 C81882AF */  sw         $v0, %gp_rel(D_8013DE14)($gp)
+    /* C6714 800D5F14 C81882AF */  sw         $v0, %gp_rel(currentSpriteColor)($gp)
     /* C6718 800D5F18 2120E000 */  addu       $a0, $a3, $zero
     /* C671C 800D5F1C 79000524 */  addiu      $a1, $zero, 0x79
     /* C6720 800D5F20 16006626 */  addiu      $a2, $s3, 0x16
     /* C6724 800D5F24 FDFFC624 */  addiu      $a2, $a2, -0x3
     /* C6728 800D5F28 FFFFC630 */  andi       $a2, $a2, 0xFFFF
-    /* C672C 800D5F2C C818828F */  lw         $v0, %gp_rel(D_8013DE14)($gp)
+    /* C672C 800D5F2C C818828F */  lw         $v0, %gp_rel(currentSpriteColor)($gp)
     /* C6730 800D5F30 DA570308 */  j          .L800D5F68
     /* C6734 800D5F34 2338D003 */   subu      $a3, $fp, $s0
   .L800D5F38:

@@ -5,8 +5,8 @@ nonmatching AudioTrk_SoundTrack__FP8Car_tObji, 0x598
 
 glabel AudioTrk_SoundTrack__FP8Car_tObji
     /* 6D5C4 8007CDC4 88FFBD27 */  addiu      $sp, $sp, -0x78
-    /* 6D5C8 8007CDC8 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* 6D5CC 8007CDCC F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* 6D5C8 8007CDC8 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* 6D5CC 8007CDCC F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* 6D5D0 8007CDD0 01000224 */  addiu      $v0, $zero, 0x1
     /* 6D5D4 8007CDD4 7400BFAF */  sw         $ra, 0x74($sp)
     /* 6D5D8 8007CDD8 7000BEAF */  sw         $fp, 0x70($sp)
@@ -34,8 +34,8 @@ glabel AudioTrk_SoundTrack__FP8Car_tObji
     /* 6D630 8007CE30 30C7848C */  lw         $a0, %lo(gGameAudioList)($a0)
     /* 6D634 8007CE34 00000000 */  nop
     /* 6D638 8007CE38 3C018010 */  beqz       $a0, .L8007D32C
-    /* 6D63C 8007CE3C 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* 6D640 8007CE40 B0E0438C */  lw         $v1, %lo(D_8011E0B0)($v0)
+    /* 6D63C 8007CE3C 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* 6D640 8007CE40 B0E0438C */  lw         $v1, %lo(simGlobal+0x4)($v0)
     /* 6D644 8007CE44 0400878C */  lw         $a3, 0x4($a0)
     /* 6D648 8007CE48 43280300 */  sra        $a1, $v1, 1
     /* 6D64C 8007CE4C 83100700 */  sra        $v0, $a3, 2

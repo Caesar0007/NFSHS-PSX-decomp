@@ -39,8 +39,8 @@ glabel Weather_CreateSplat__FP18Weather_tSplatInfo
     /* D3FB0 800E37B0 12000724 */   addiu     $a3, $zero, 0x12
     /* D3FB4 800E37B4 0C000724 */  addiu      $a3, $zero, 0xC
   .L800E37B8:
-    /* D3FB8 800E37B8 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* D3FBC 800E37BC B0E0438C */  lw         $v1, %lo(D_8011E0B0)($v0)
+    /* D3FB8 800E37B8 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* D3FBC 800E37BC B0E0438C */  lw         $v1, %lo(simGlobal+0x4)($v0)
     /* D3FC0 800E37C0 0400228D */  lw         $v0, 0x4($t1)
     /* D3FC4 800E37C4 00000000 */  nop
     /* D3FC8 800E37C8 23186200 */  subu       $v1, $v1, $v0

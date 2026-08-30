@@ -11,8 +11,8 @@ glabel CheckForWipeOut__15AIHigh_Opponent
     /* 53B18 80063318 0CC8428C */  lw         $v0, %lo(Cars_gNumCopCars)($v0)
     /* 53B1C 8006331C A4036E8C */  lw         $t6, 0x3A4($v1)
     /* 53B20 80063320 6F004010 */  beqz       $v0, .L800634E0
-    /* 53B24 80063324 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* 53B28 80063328 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 53B24 80063324 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* 53B28 80063328 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 53B2C 8006332C 4807638C */  lw         $v1, 0x748($v1)
     /* 53B30 80063330 00000000 */  nop
     /* 53B34 80063334 2A104300 */  slt        $v0, $v0, $v1

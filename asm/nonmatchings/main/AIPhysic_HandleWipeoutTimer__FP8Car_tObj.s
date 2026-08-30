@@ -9,8 +9,8 @@ glabel AIPhysic_HandleWipeoutTimer__FP8Car_tObj
     /* 5A2F8 80069AF8 00000000 */  nop
     /* 5A2FC 80069AFC 08004230 */  andi       $v0, $v0, 0x8
     /* 5A300 80069B00 1E004010 */  beqz       $v0, .L80069B7C
-    /* 5A304 80069B04 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* 5A308 80069B08 B0E0468C */  lw         $a2, %lo(D_8011E0B0)($v0)
+    /* 5A304 80069B04 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* 5A308 80069B08 B0E0468C */  lw         $a2, %lo(simGlobal+0x4)($v0)
     /* 5A30C 80069B0C 4407E28C */  lw         $v0, 0x744($a3)
     /* 5A310 80069B10 00000000 */  nop
     /* 5A314 80069B14 2A104600 */  slt        $v0, $v0, $a2

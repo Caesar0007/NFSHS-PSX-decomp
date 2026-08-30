@@ -33,8 +33,8 @@ glabel AudioCmn_PlayerHornOn__Fiiiii
   .L800794AC:
     /* 69CAC 800794AC 21900000 */  addu       $s2, $zero, $zero
   .L800794B0:
-    /* 69CB0 800794B0 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* 69CB4 800794B4 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* 69CB0 800794B0 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* 69CB4 800794B4 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* 69CB8 800794B8 01000224 */  addiu      $v0, $zero, 0x1
     /* 69CBC 800794BC 06006214 */  bne        $v1, $v0, .L800794D8
     /* 69CC0 800794C0 03001124 */   addiu     $s1, $zero, 0x3

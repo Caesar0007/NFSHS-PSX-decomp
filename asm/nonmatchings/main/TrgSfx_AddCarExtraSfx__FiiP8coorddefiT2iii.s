@@ -28,8 +28,8 @@ glabel TrgSfx_AddCarExtraSfx__FiiP8coorddefiT2iii
     /* ABA7C 800BB27C 1280033C */  lui        $v1, %hi(gTAddCarExtraSfx)
     /* ABA80 800BB280 70E26324 */  addiu      $v1, $v1, %lo(gTAddCarExtraSfx)
     /* ABA84 800BB284 1C00A2AF */  sw         $v0, 0x1C($sp)
-    /* ABA88 800BB288 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* ABA8C 800BB28C B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* ABA88 800BB288 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* ABA8C 800BB28C B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* ABA90 800BB290 2128A300 */  addu       $a1, $a1, $v1
     /* ABA94 800BB294 0000A2AC */  sw         $v0, 0x0($a1)
     /* ABA98 800BB298 2128E000 */  addu       $a1, $a3, $zero

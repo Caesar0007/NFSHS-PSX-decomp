@@ -11,8 +11,8 @@ glabel Sky_RenderStars__FP13Draw_SkyCachei
     /* C1970 800D1170 2198A000 */  addu       $s3, $a1, $zero
     /* C1974 800D1174 4400B1AF */  sw         $s1, 0x44($sp)
     /* C1978 800D1178 78001124 */  addiu      $s1, $zero, 0x78
-    /* C197C 800D117C 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* C1980 800D1180 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* C197C 800D117C 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* C1980 800D1180 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* C1984 800D1184 01000224 */  addiu      $v0, $zero, 0x1
     /* C1988 800D1188 5000BFAF */  sw         $ra, 0x50($sp)
     /* C198C 800D118C 02006214 */  bne        $v1, $v0, .L800D1198

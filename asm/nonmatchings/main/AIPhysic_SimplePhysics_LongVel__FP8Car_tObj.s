@@ -21,8 +21,8 @@ glabel AIPhysic_SimplePhysics_LongVel__FP8Car_tObj
     /* 5AAD4 8006A2D4 21284000 */   addu      $a1, $v0, $zero
     /* 5AAD8 8006A2D8 5C0500AE */  sw         $zero, 0x55C($s0)
   .L8006A2DC:
-    /* 5AADC 8006A2DC 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* 5AAE0 8006A2E0 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 5AADC 8006A2DC 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* 5AAE0 8006A2E0 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 5AAE4 8006A2E4 4807038E */  lw         $v1, 0x748($s0)
     /* 5AAE8 8006A2E8 00000000 */  nop
     /* 5AAEC 8006A2EC 2A104300 */  slt        $v0, $v0, $v1

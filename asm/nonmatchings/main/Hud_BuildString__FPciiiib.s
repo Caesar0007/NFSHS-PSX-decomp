@@ -84,8 +84,8 @@ glabel Hud_BuildString__FPciiiib
     /* C4BE8 800D43E8 03002226 */  addiu      $v0, $s1, 0x3
   .L800D43EC:
     /* C4BEC 800D43EC 21884300 */  addu       $s1, $v0, $v1
-    /* C4BF0 800D43F0 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* C4BF4 800D43F4 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* C4BF0 800D43F0 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* C4BF4 800D43F4 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* C4BF8 800D43F8 01000224 */  addiu      $v0, $zero, 0x1
     /* C4BFC 800D43FC 74006214 */  bne        $v1, $v0, .L800D45D0
     /* C4C00 800D4400 00000000 */   nop

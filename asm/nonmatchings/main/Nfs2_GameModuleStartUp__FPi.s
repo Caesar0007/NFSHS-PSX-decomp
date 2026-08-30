@@ -85,8 +85,8 @@ glabel Nfs2_GameModuleStartUp__FPi
     /* 94ADC 800A42DC A194030C */  jal        largestunused
     /* 94AE0 800A42E0 00000000 */   nop
     /* 94AE4 800A42E4 21204000 */  addu       $a0, $v0, $zero
-    /* 94AE8 800A42E8 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* 94AEC 800A42EC F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* 94AE8 800A42E8 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* 94AEC 800A42EC F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* 94AF0 800A42F0 01000224 */  addiu      $v0, $zero, 0x1
     /* 94AF4 800A42F4 03006214 */  bne        $v1, $v0, .L800A4304
     /* 94AF8 800A42F8 0100023C */   lui       $v0, (0x13000 >> 16)

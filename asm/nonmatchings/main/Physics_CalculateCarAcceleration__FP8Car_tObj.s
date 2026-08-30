@@ -579,8 +579,8 @@ glabel Physics_CalculateCarAcceleration__FP8Car_tObj
     /* 9B988 800AB188 2001458E */  lw         $a1, 0x120($s2)
     /* 9B98C 800AB18C CA90030C */  jal        fixedmult
     /* 9B990 800AB190 21208002 */   addu      $a0, $s4, $zero
-    /* 9B994 800AB194 1180033C */  lui        $v1, %hi(D_801165DC)
-    /* 9B998 800AB198 DC65638C */  lw         $v1, %lo(D_801165DC)($v1)
+    /* 9B994 800AB194 1180033C */  lui        $v1, %hi(gravity_ch+0x8)
+    /* 9B998 800AB198 DC65638C */  lw         $v1, %lo(gravity_ch+0x8)($v1)
     /* 9B99C 800AB19C 00000000 */  nop
     /* 9B9A0 800AB1A0 0B006018 */  blez       $v1, .L800AB1D0
     /* 9B9A4 800AB1A4 23A00200 */   negu      $s4, $v0
@@ -588,16 +588,16 @@ glabel Physics_CalculateCarAcceleration__FP8Car_tObj
     /* 9B9AC 800AB1AC 00000000 */  nop
     /* 9B9B0 800AB1B0 0200622C */  sltiu      $v0, $v1, 0x2
     /* 9B9B4 800AB1B4 07004014 */  bnez       $v0, .L800AB1D4
-    /* 9B9B8 800AB1B8 1180023C */   lui       $v0, %hi(D_801165DC)
+    /* 9B9B8 800AB1B8 1180023C */   lui       $v0, %hi(gravity_ch+0x8)
     /* 9B9BC 800AB1BC 05008106 */  bgez       $s4, .L800AB1D4
     /* 9B9C0 800AB1C0 00000000 */   nop
     /* 9B9C4 800AB1C4 0300622C */  sltiu      $v0, $v1, 0x3
     /* 9B9C8 800AB1C8 0C004014 */  bnez       $v0, .L800AB1FC
     /* 9B9CC 800AB1CC C2171400 */   srl       $v0, $s4, 31
   .L800AB1D0:
-    /* 9B9D0 800AB1D0 1180023C */  lui        $v0, %hi(D_801165DC)
+    /* 9B9D0 800AB1D0 1180023C */  lui        $v0, %hi(gravity_ch+0x8)
   .L800AB1D4:
-    /* 9B9D4 800AB1D4 DC65428C */  lw         $v0, %lo(D_801165DC)($v0)
+    /* 9B9D4 800AB1D4 DC65428C */  lw         $v0, %lo(gravity_ch+0x8)($v0)
     /* 9B9D8 800AB1D8 00000000 */  nop
     /* 9B9DC 800AB1DC 09004104 */  bgez       $v0, .L800AB204
     /* 9B9E0 800AB1E0 00000000 */   nop
@@ -707,9 +707,9 @@ glabel Physics_CalculateCarAcceleration__FP8Car_tObj
   .L800AB344:
     /* 9BB44 800AB344 680424AE */  sw         $a0, 0x468($s1)
     /* 9BB48 800AB348 0100043C */  lui        $a0, 0x1
-    /* 9BB4C 800AB34C 1180023C */  lui        $v0, %hi(D_80113224)
+    /* 9BB4C 800AB34C 1180023C */  lui        $v0, %hi(GameSetup_gData+0x38)
     /* 9BB50 800AB350 7804238E */  lw         $v1, 0x478($s1)
-    /* 9BB54 800AB354 2432428C */  lw         $v0, %lo(D_80113224)($v0)
+    /* 9BB54 800AB354 2432428C */  lw         $v0, %lo(GameSetup_gData+0x38)($v0)
     /* 9BB58 800AB358 02006104 */  bgez       $v1, .L800AB364
     /* 9BB5C 800AB35C 00000000 */   nop
     /* 9BB60 800AB360 23180300 */  negu       $v1, $v1

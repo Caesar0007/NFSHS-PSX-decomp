@@ -4,7 +4,7 @@
 nonmatching Hud_BuildCdPlayer__Fii, 0x76C
 
 glabel Hud_BuildCdPlayer__Fii
-    /* C6BDC 800D63DC B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C6BDC 800D63DC B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C6BE0 800D63E0 38FFBD27 */  addiu      $sp, $sp, -0xC8
     /* C6BE4 800D63E4 B800B6AF */  sw         $s6, 0xB8($sp)
     /* C6BE8 800D63E8 21B08000 */  addu       $s6, $a0, $zero
@@ -34,8 +34,8 @@ glabel Hud_BuildCdPlayer__Fii
     /* C6C44 800D6444 E013828F */  lw         $v0, %gp_rel(Hud_gCdActive)($gp)
     /* C6C48 800D6448 00000000 */  nop
     /* C6C4C 800D644C 4E004014 */  bnez       $v0, .L800D6588
-    /* C6C50 800D6450 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* C6C54 800D6454 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* C6C50 800D6450 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* C6C54 800D6454 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* C6C58 800D6458 00000000 */  nop
     /* C6C5C 800D645C 40024228 */  slti       $v0, $v0, 0x240
     /* C6C60 800D6460 21004014 */  bnez       $v0, .L800D64E8
@@ -378,7 +378,7 @@ glabel Hud_BuildCdPlayer__Fii
     /* C7108 800D6908 5B47030C */  jal        Hud_GoTpage__Fi
     /* C710C 800D690C 21200000 */   addu      $a0, $zero, $zero
     /* C7110 800D6910 50000624 */  addiu      $a2, $zero, 0x50
-    /* C7114 800D6914 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C7114 800D6914 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C7118 800D6918 12000724 */  addiu      $a3, $zero, 0x12
     /* C711C 800D691C 3C004484 */  lh         $a0, 0x3C($v0)
     /* C7120 800D6920 3E004584 */  lh         $a1, 0x3E($v0)
@@ -386,7 +386,7 @@ glabel Hud_BuildCdPlayer__Fii
     /* C7128 800D6928 AF5E030C */  jal        Hud_BlackThinBox__Fiiii
     /* C712C 800D692C 0A00A524 */   addiu     $a1, $a1, 0xA
     /* C7130 800D6930 21200000 */  addu       $a0, $zero, $zero
-    /* C7134 800D6934 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C7134 800D6934 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C7138 800D6938 50000724 */  addiu      $a3, $zero, 0x50
     /* C713C 800D693C 3C004584 */  lh         $a1, 0x3C($v0)
     /* C7140 800D6940 3E004684 */  lh         $a2, 0x3E($v0)
@@ -468,14 +468,14 @@ glabel Hud_BuildCdPlayer__Fii
     /* C726C 800D6A6C A42E030C */  jal        Font_TextXY__FPcii
     /* C7270 800D6A70 0C00C627 */   addiu     $a2, $fp, 0xC
   .L800D6A74:
-    /* C7274 800D6A74 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C7274 800D6A74 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C7278 800D6A78 66000624 */  addiu      $a2, $zero, 0x66
     /* C727C 800D6A7C 3C004484 */  lh         $a0, 0x3C($v0)
     /* C7280 800D6A80 3E004584 */  lh         $a1, 0x3E($v0)
     /* C7284 800D6A84 AF5E030C */  jal        Hud_BlackThinBox__Fiiii
     /* C7288 800D6A88 1C000724 */   addiu     $a3, $zero, 0x1C
     /* C728C 800D6A8C 21200000 */  addu       $a0, $zero, $zero
-    /* C7290 800D6A90 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C7290 800D6A90 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C7294 800D6A94 66000724 */  addiu      $a3, $zero, 0x66
     /* C7298 800D6A98 3C004584 */  lh         $a1, 0x3C($v0)
     /* C729C 800D6A9C 3E004684 */  lh         $a2, 0x3E($v0)
@@ -486,7 +486,7 @@ glabel Hud_BuildCdPlayer__Fii
     /* C72B0 800D6AB0 614A030C */  jal        Hud_FBuildF4__FiiiiiUlcc
     /* C72B4 800D6AB4 1C00A0AF */   sw        $zero, 0x1C($sp)
     /* C72B8 800D6AB8 21200000 */  addu       $a0, $zero, $zero
-    /* C72BC 800D6ABC B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C72BC 800D6ABC B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C72C0 800D6AC0 66000724 */  addiu      $a3, $zero, 0x66
     /* C72C4 800D6AC4 3C004584 */  lh         $a1, 0x3C($v0)
     /* C72C8 800D6AC8 3E004684 */  lh         $a2, 0x3E($v0)
@@ -498,7 +498,7 @@ glabel Hud_BuildCdPlayer__Fii
     /* C72E0 800D6AE0 614A030C */  jal        Hud_FBuildF4__FiiiiiUlcc
     /* C72E4 800D6AE4 1B00C624 */   addiu     $a2, $a2, 0x1B
     /* C72E8 800D6AE8 01000424 */  addiu      $a0, $zero, 0x1
-    /* C72EC 800D6AEC B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C72EC 800D6AEC B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C72F0 800D6AF0 66000724 */  addiu      $a3, $zero, 0x66
     /* C72F4 800D6AF4 3C004584 */  lh         $a1, 0x3C($v0)
     /* C72F8 800D6AF8 3E004684 */  lh         $a2, 0x3E($v0)

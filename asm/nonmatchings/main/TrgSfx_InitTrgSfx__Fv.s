@@ -12,9 +12,9 @@ glabel TrgSfx_InitTrgSfx__Fv
     /* AC114 800BB914 21684001 */  addu       $t5, $t2, $zero
     /* AC118 800BB918 1280023C */  lui        $v0, %hi(gTAddCarSfx)
     /* AC11C 800BB91C D0E14C24 */  addiu      $t4, $v0, %lo(gTAddCarSfx)
-    /* AC120 800BB920 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* AC120 800BB920 1280023C */  lui        $v0, %hi(simGlobal+0x4)
     /* AC124 800BB924 1280033C */  lui        $v1, %hi(gTEnviroEffect)
-    /* AC128 800BB928 B0E0498C */  lw         $t1, %lo(D_8011E0B0)($v0)
+    /* AC128 800BB928 B0E0498C */  lw         $t1, %lo(simGlobal+0x4)($v0)
     /* AC12C 800BB92C B0E16B24 */  addiu      $t3, $v1, %lo(gTEnviroEffect)
     /* AC130 800BB930 A80F89AF */  sw         $t1, %gp_rel(gTAddCSmoke)($gp)
   .L800BB934:
@@ -52,8 +52,8 @@ glabel TrgSfx_InitTrgSfx__Fv
     /* AC1AC 800BB9AC 04006B25 */   addiu     $t3, $t3, 0x4
     /* AC1B0 800BB9B0 08000224 */  addiu      $v0, $zero, 0x8
     /* AC1B4 800BB9B4 A40F82AF */  sw         $v0, %gp_rel(gTAddCarWheelDelay)($gp)
-    /* AC1B8 800BB9B8 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* AC1BC 800BB9BC F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* AC1B8 800BB9B8 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* AC1BC 800BB9BC F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* AC1C0 800BB9C0 01000224 */  addiu      $v0, $zero, 0x1
     /* AC1C4 800BB9C4 02006214 */  bne        $v1, $v0, .L800BB9D0
     /* AC1C8 800BB9C8 0C000224 */   addiu     $v0, $zero, 0xC

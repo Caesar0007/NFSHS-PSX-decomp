@@ -48,8 +48,8 @@ glabel RequestWingman__19AIHigh_BTC_HumanCop
     /* 4E49C 8005DC9C 0F006010 */  beqz       $v1, .L8005DCDC
     /* 4E4A0 8005DCA0 00000000 */   nop
     /* 4E4A4 8005DCA4 0D000012 */  beqz       $s0, .L8005DCDC
-    /* 4E4A8 8005DCA8 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* 4E4AC 8005DCAC B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 4E4A8 8005DCA8 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* 4E4AC 8005DCAC B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 4E4B0 8005DCB0 00000000 */  nop
     /* 4E4B4 8005DCB4 23104300 */  subu       $v0, $v0, $v1
     /* 4E4B8 8005DCB8 2A100202 */  slt        $v0, $s0, $v0

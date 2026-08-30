@@ -19,9 +19,9 @@ glabel iMCRD_LoadCard
     /* 40B74 80050374 0B000224 */   addiu     $v0, $zero, 0xB
     /* 40B78 80050378 0180053C */  lui        $a1, %hi(D_80012884)
     /* 40B7C 8005037C 8428A524 */  addiu      $a1, $a1, %lo(D_80012884)
-    /* 40B80 80050380 0580023C */  lui        $v0, %hi(D_80052DA4)
+    /* 40B80 80050380 0580023C */  lui        $v0, %hi(gMemCardInfo+0x3c)
     /* 40B84 80050384 21300002 */  addu       $a2, $s0, $zero
-    /* 40B88 80050388 A42D448C */  lw         $a0, %lo(D_80052DA4)($v0)
+    /* 40B88 80050388 A42D448C */  lw         $a0, %lo(gMemCardInfo+0x3c)($v0)
     /* 40B8C 8005038C 0F000224 */  addiu      $v0, $zero, 0xF
     /* 40B90 80050390 08002726 */  addiu      $a3, $s1, 0x8
     /* 40B94 80050394 1000A0AF */  sw         $zero, 0x10($sp)
@@ -62,9 +62,9 @@ glabel iMCRD_LoadCard
   .L80050414:
     /* 40C14 80050414 000020AE */  sw         $zero, 0x0($s1)
   .L80050418:
-    /* 40C18 80050418 0580033C */  lui        $v1, %hi(D_80052D9C)
+    /* 40C18 80050418 0580033C */  lui        $v1, %hi(gMemCardInfo+0x34)
     /* 40C1C 8005041C 01000224 */  addiu      $v0, $zero, 0x1
-    /* 40C20 80050420 9C2D62AC */  sw         $v0, %lo(D_80052D9C)($v1)
+    /* 40C20 80050420 9C2D62AC */  sw         $v0, %lo(gMemCardInfo+0x34)($v1)
     /* 40C24 80050424 09000224 */  addiu      $v0, $zero, 0x9
   .L80050428:
     /* 40C28 80050428 2400BF8F */  lw         $ra, 0x24($sp)

@@ -65,24 +65,24 @@ glabel Weather_Init__Fv
     /* D2E04 800E2604 5816828F */  lw         $v0, %gp_rel(Weather_gWasDrawn)($gp)
     /* D2E08 800E2608 00000000 */  nop
     /* D2E0C 800E260C 08004014 */  bnez       $v0, .L800E2630
-    /* D2E10 800E2610 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* D2E10 800E2610 1280023C */   lui       $v0, %hi(simGlobal+0x4)
     /* D2E14 800E2614 0580043C */  lui        $a0, %hi(D_80056B20)
     /* D2E18 800E2618 206B8424 */  addiu      $a0, $a0, %lo(D_80056B20)
     /* D2E1C 800E261C 98000524 */  addiu      $a1, $zero, 0x98
     /* D2E20 800E2620 CF94030C */  jal        reservememadr
     /* D2E24 800E2624 21300000 */   addu      $a2, $zero, $zero
     /* D2E28 800E2628 581682AF */  sw         $v0, %gp_rel(Weather_gWasDrawn)($gp)
-    /* D2E2C 800E262C 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* D2E2C 800E262C 1280023C */  lui        $v0, %hi(simGlobal+0x4)
   .L800E2630:
-    /* D2E30 800E2630 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* D2E30 800E2630 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* D2E34 800E2634 5C16848F */  lw         $a0, %gp_rel(Weather_gPos)($gp)
     /* D2E38 800E2638 6416858F */  lw         $a1, %gp_rel(Weather_gPrevPos)($gp)
     /* D2E3C 800E263C 5816868F */  lw         $a2, %gp_rel(Weather_gWasDrawn)($gp)
     /* D2E40 800E2640 6016878F */  lw         $a3, %gp_rel(Weather_gSplatInfo)($gp)
     /* D2E44 800E2644 0C1982AF */  sw         $v0, %gp_rel(D_8013DE58)($gp)
     /* D2E48 800E2648 081982AF */  sw         $v0, %gp_rel(D_8013DE54)($gp)
-    /* D2E4C 800E264C 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* D2E50 800E2650 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* D2E4C 800E264C 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* D2E50 800E2650 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* D2E54 800E2654 01000224 */  addiu      $v0, $zero, 0x1
     /* D2E58 800E2658 841684AF */  sw         $a0, %gp_rel(Weather_gPServer)($gp)
     /* D2E5C 800E265C 8C1685AF */  sw         $a1, %gp_rel(Weather_gPrevPServer)($gp)

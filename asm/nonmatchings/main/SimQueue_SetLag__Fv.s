@@ -4,8 +4,8 @@
 nonmatching SimQueue_SetLag__Fv, 0x2C
 
 glabel SimQueue_SetLag__Fv
-    /* A7DCC 800B75CC 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* A7DD0 800B75D0 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* A7DCC 800B75CC 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* A7DD0 800B75D0 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* A7DD4 800B75D4 00000000 */  nop
     /* A7DD8 800B75D8 03006010 */  beqz       $v1, .L800B75E8
     /* A7DDC 800B75DC 01000224 */   addiu     $v0, $zero, 0x1

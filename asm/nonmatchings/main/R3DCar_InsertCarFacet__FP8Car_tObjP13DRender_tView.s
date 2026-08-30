@@ -1185,8 +1185,8 @@ glabel R3DCar_InsertCarFacet__FP8Car_tObjP13DRender_tView
     /* A1428 800B0C28 9000A292 */  lbu        $v0, 0x90($s5)
     /* A142C 800B0C2C 00000000 */  nop
     /* A1430 800B0C30 10004014 */  bnez       $v0, .L800B0C74
-    /* A1434 800B0C34 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* A1438 800B0C38 B0E0458C */  lw         $a1, %lo(D_8011E0B0)($v0)
+    /* A1434 800B0C34 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* A1438 800B0C38 B0E0458C */  lw         $a1, %lo(simGlobal+0x4)($v0)
     /* A143C 800B0C3C A389020C */  jal        Newton_CalcRealShadowCoordinates__FP8Car_tObji
     /* A1440 800B0C40 2120A002 */   addu      $a0, $s5, $zero
     /* A1444 800B0C44 21202002 */  addu       $a0, $s1, $zero

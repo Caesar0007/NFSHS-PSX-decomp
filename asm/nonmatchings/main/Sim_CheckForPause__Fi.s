@@ -14,8 +14,8 @@ glabel Sim_CheckForPause__Fi
     /* A74BC 800B6CBC C4E0428C */  lw         $v0, %lo(simVar)($v0)
     /* A74C0 800B6CC0 00000000 */  nop
     /* A74C4 800B6CC4 1D004014 */  bnez       $v0, .L800B6D3C
-    /* A74C8 800B6CC8 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* A74CC 800B6CCC B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* A74C8 800B6CC8 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* A74CC 800B6CCC B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* A74D0 800B6CD0 00000000 */  nop
     /* A74D4 800B6CD4 21004228 */  slti       $v0, $v0, 0x21
     /* A74D8 800B6CD8 18004014 */  bnez       $v0, .L800B6D3C

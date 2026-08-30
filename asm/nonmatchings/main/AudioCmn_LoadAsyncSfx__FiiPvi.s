@@ -75,9 +75,9 @@ glabel AudioCmn_LoadAsyncSfx__FiiPvi
     /* 67060 80076860 0800058E */  lw         $a1, 0x8($s0)
     /* 67064 80076864 EA9E030C */  jal        SNDbankheadercopy
     /* 67068 80076868 21204000 */   addu      $a0, $v0, $zero
-    /* 6706C 8007686C 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* 6706C 8007686C 1280023C */  lui        $v0, %hi(simGlobal+0x4)
     /* 67070 80076870 040016AE */  sw         $s6, 0x4($s0)
-    /* 67074 80076874 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 67074 80076874 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 67078 80076878 35DA0108 */  j          .L800768D4
     /* 6707C 8007687C 0C0002AE */   sw        $v0, 0xC($s0)
   .L80076880:

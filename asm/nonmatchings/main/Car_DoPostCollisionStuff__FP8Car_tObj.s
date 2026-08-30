@@ -14,8 +14,8 @@ glabel Car_DoPostCollisionStuff__FP8Car_tObj
     /* 7A0F8 800898F8 0B004010 */  beqz       $v0, .L80089928
     /* 7A0FC 800898FC 940700AE */   sw        $zero, 0x794($s0)
     /* 7A100 80089900 B40102AE */  sw         $v0, 0x1B4($s0)
-    /* 7A104 80089904 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* 7A108 80089908 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 7A104 80089904 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* 7A108 80089908 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 7A10C 8008990C 9401038E */  lw         $v1, 0x194($s0)
     /* 7A110 80089910 00000000 */  nop
     /* 7A114 80089914 03006010 */  beqz       $v1, .L80089924

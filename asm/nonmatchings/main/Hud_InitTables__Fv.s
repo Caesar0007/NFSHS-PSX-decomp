@@ -13,7 +13,7 @@ glabel Hud_InitTables__Fv
     /* C4204 800D3A04 24096324 */   addiu     $v1, $v1, %lo(Hud_gElementPositions)
     /* C4208 800D3A08 4C006324 */  addiu      $v1, $v1, 0x4C
   .L800D3A0C:
-    /* C420C 800D3A0C B81883AF */  sw         $v1, %gp_rel(D_8013DE04)($gp)
+    /* C420C 800D3A0C B81883AF */  sw         $v1, %gp_rel(g1Player)($gp)
     /* C4210 800D3A10 0800E003 */  jr         $ra
     /* C4214 800D3A14 00000000 */   nop
 endlabel Hud_InitTables__Fv

@@ -112,9 +112,9 @@ glabel CalculatePrizes__23tScreenTournamentTrophy
     /* 39BB8 800493B8 680042AE */  sw         $v0, 0x68($s2)
     /* 39BBC 800493BC 6C0040AE */  sw         $zero, 0x6C($s2)
   .L800493C0:
-    /* 39BC0 800493C0 1180023C */  lui        $v0, %hi(D_80114AEC)
+    /* 39BC0 800493C0 1180023C */  lui        $v0, %hi(tournamentManager+0x14)
     /* 39BC4 800493C4 780040AE */  sw         $zero, 0x78($s2)
-    /* 39BC8 800493C8 EC4A438C */  lw         $v1, %lo(D_80114AEC)($v0)
+    /* 39BC8 800493C8 EC4A438C */  lw         $v1, %lo(tournamentManager+0x14)($v0)
     /* 39BCC 800493CC 00000000 */  nop
     /* 39BD0 800493D0 7C0043AE */  sw         $v1, 0x7C($s2)
     /* 39BD4 800493D4 4C00A28F */  lw         $v0, 0x4C($sp)

@@ -633,9 +633,9 @@ glabel Physics_Real__FP8Car_tObj
     /* 9D268 800ACA68 CA90030C */  jal        fixedmult
     /* 9D26C 800ACA6C 00000000 */   nop
     /* 9D270 800ACA70 21204000 */  addu       $a0, $v0, $zero
-    /* 9D274 800ACA74 1180023C */  lui        $v0, %hi(D_80113224)
+    /* 9D274 800ACA74 1180023C */  lui        $v0, %hi(GameSetup_gData+0x38)
     /* 9D278 800ACA78 1404A4AE */  sw         $a0, 0x414($s5)
-    /* 9D27C 800ACA7C 2432438C */  lw         $v1, %lo(D_80113224)($v0)
+    /* 9D27C 800ACA7C 2432438C */  lw         $v1, %lo(GameSetup_gData+0x38)($v0)
     /* 9D280 800ACA80 80000224 */  addiu      $v0, $zero, 0x80
     /* 9D284 800ACA84 08006214 */  bne        $v1, $v0, .L800ACAA8
     /* 9D288 800ACA88 00000000 */   nop
@@ -650,7 +650,7 @@ glabel Physics_Real__FP8Car_tObj
     /* 9D2A8 800ACAA8 CC0D828F */  lw         $v0, %gp_rel(slippery)($gp)
     /* 9D2AC 800ACAAC 00000000 */  nop
     /* 9D2B0 800ACAB0 15004014 */  bnez       $v0, .L800ACB08
-    /* 9D2B4 800ACAB4 1180023C */   lui       $v0, %hi(D_801165DC)
+    /* 9D2B4 800ACAB4 1180023C */   lui       $v0, %hi(gravity_ch+0x8)
     /* 9D2B8 800ACAB8 8802A28E */  lw         $v0, 0x288($s5)
     /* 9D2BC 800ACABC 00000000 */  nop
     /* 9D2C0 800ACAC0 3800438C */  lw         $v1, 0x38($v0)
@@ -672,10 +672,10 @@ glabel Physics_Real__FP8Car_tObj
     /* 9D2F8 800ACAF8 CA90030C */  jal        fixedmult
     /* 9D2FC 800ACAFC 00000000 */   nop
     /* 9D300 800ACB00 1404A2AE */  sw         $v0, 0x414($s5)
-    /* 9D304 800ACB04 1180023C */  lui        $v0, %hi(D_801165DC)
+    /* 9D304 800ACB04 1180023C */  lui        $v0, %hi(gravity_ch+0x8)
   .L800ACB08:
     /* 9D308 800ACB08 1004A0AE */  sw         $zero, 0x410($s5)
-    /* 9D30C 800ACB0C DC65448C */  lw         $a0, %lo(D_801165DC)($v0)
+    /* 9D30C 800ACB0C DC65448C */  lw         $a0, %lo(gravity_ch+0x8)($v0)
     /* 9D310 800ACB10 CA90030C */  jal        fixedmult
     /* 9D314 800ACB14 99190524 */   addiu     $a1, $zero, 0x1999
     /* 9D318 800ACB18 0C04A48E */  lw         $a0, 0x40C($s5)
@@ -729,8 +729,8 @@ glabel Physics_Real__FP8Car_tObj
     /* 9D3CC 800ACBCC 4504A292 */  lbu        $v0, 0x445($s5)
     /* 9D3D0 800ACBD0 00000000 */  nop
     /* 9D3D4 800ACBD4 0C004010 */  beqz       $v0, .L800ACC08
-    /* 9D3D8 800ACBD8 1180023C */   lui       $v0, %hi(D_80113224)
-    /* 9D3DC 800ACBDC 2432428C */  lw         $v0, %lo(D_80113224)($v0)
+    /* 9D3D8 800ACBD8 1180023C */   lui       $v0, %hi(GameSetup_gData+0x38)
+    /* 9D3DC 800ACBDC 2432428C */  lw         $v0, %lo(GameSetup_gData+0x38)($v0)
     /* 9D3E0 800ACBE0 00000000 */  nop
     /* 9D3E4 800ACBE4 08004230 */  andi       $v0, $v0, 0x8
     /* 9D3E8 800ACBE8 07004014 */  bnez       $v0, .L800ACC08
@@ -1240,8 +1240,8 @@ glabel Physics_Real__FP8Car_tObj
   .L800AD310:
     /* 9DB10 800AD310 5C04A2AE */  sw         $v0, 0x45C($s5)
   .L800AD314:
-    /* 9DB14 800AD314 1180023C */  lui        $v0, %hi(D_80113224)
-    /* 9DB18 800AD318 2432428C */  lw         $v0, %lo(D_80113224)($v0)
+    /* 9DB14 800AD314 1180023C */  lui        $v0, %hi(GameSetup_gData+0x38)
+    /* 9DB18 800AD318 2432428C */  lw         $v0, %lo(GameSetup_gData+0x38)($v0)
     /* 9DB1C 800AD31C 00000000 */  nop
     /* 9DB20 800AD320 08004230 */  andi       $v0, $v0, 0x8
     /* 9DB24 800AD324 1F004014 */  bnez       $v0, .L800AD3A4
@@ -1302,8 +1302,8 @@ glabel Physics_Real__FP8Car_tObj
     /* 9DBF0 800AD3F0 4204A392 */  lbu        $v1, 0x442($s5)
     /* 9DBF4 800AD3F4 01000224 */  addiu      $v0, $zero, 0x1
     /* 9DBF8 800AD3F8 33006214 */  bne        $v1, $v0, .L800AD4C8
-    /* 9DBFC 800AD3FC 1180023C */   lui       $v0, %hi(D_801165DC)
-    /* 9DC00 800AD400 DC65438C */  lw         $v1, %lo(D_801165DC)($v0)
+    /* 9DBFC 800AD3FC 1180023C */   lui       $v0, %hi(gravity_ch+0x8)
+    /* 9DC00 800AD400 DC65438C */  lw         $v1, %lo(gravity_ch+0x8)($v0)
     /* 9DC04 800AD404 FF7F0224 */  addiu      $v0, $zero, 0x7FFF
     /* 9DC08 800AD408 02006104 */  bgez       $v1, .L800AD414
     /* 9DC0C 800AD40C 00000000 */   nop

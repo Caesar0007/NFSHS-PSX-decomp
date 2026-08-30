@@ -24,15 +24,15 @@ glabel Fog_InitFogTriggers__Fv
     /* D186C 800E106C C583030C */  jal        Fog_ReadFogKeys__Fv
     /* D1870 800E1070 00000000 */   nop
     /* D1874 800E1074 06004014 */  bnez       $v0, .L800E1090
-    /* D1878 800E1078 1180023C */   lui       $v0, %hi(D_801131F8)
+    /* D1878 800E1078 1180023C */   lui       $v0, %hi(GameSetup_gData+0xc)
     /* D187C 800E107C 1280023C */  lui        $v0, %hi(D_80123294)
     /* D1880 800E1080 9432458C */  lw         $a1, %lo(D_80123294)($v0)
     /* D1884 800E1084 3383030C */  jal        Fog_AddKey__Fii
     /* D1888 800E1088 21200000 */   addu      $a0, $zero, $zero
-    /* D188C 800E108C 1180023C */  lui        $v0, %hi(D_801131F8)
+    /* D188C 800E108C 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
   .L800E1090:
     /* D1890 800E1090 3C16838F */  lw         $v1, %gp_rel(Fog_gHeadKey)($gp)
-    /* D1894 800E1094 F831428C */  lw         $v0, %lo(D_801131F8)($v0)
+    /* D1894 800E1094 F831428C */  lw         $v0, %lo(GameSetup_gData+0xc)($v0)
     /* D1898 800E1098 01001224 */  addiu      $s2, $zero, 0x1
     /* D189C 800E109C 341683AF */  sw         $v1, %gp_rel(Fog_gCurrentKey)($gp)
     /* D18A0 800E10A0 381683AF */  sw         $v1, %gp_rel(D_8013DB84)($gp)

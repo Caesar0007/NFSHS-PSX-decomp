@@ -336,10 +336,10 @@ glabel SetupBlockader__18AIHigh_BTC_WingmanP19AIHigh_BTC_HumanCopi
     /* 4FD3C 8005F53C 1180063C */  lui        $a2, %hi(AICop_spikeBelt)
     /* 4FD40 8005F540 4CD5C424 */  addiu      $a0, $a2, %lo(AICop_spikeBelt)
     /* 4FD44 8005F544 7400478E */  lw         $a3, 0x74($s2)
-    /* 4FD48 8005F548 1280033C */  lui        $v1, %hi(D_8011E0B0)
+    /* 4FD48 8005F548 1280033C */  lui        $v1, %hi(simGlobal+0x4)
     /* 4FD4C 8005F54C 080085AC */  sw         $a1, 0x8($a0)
     /* 4FD50 8005F550 0C0082AC */  sw         $v0, 0xC($a0)
-    /* 4FD54 8005F554 B0E0638C */  lw         $v1, %lo(D_8011E0B0)($v1)
+    /* 4FD54 8005F554 B0E0638C */  lw         $v1, %lo(simGlobal+0x4)($v1)
     /* 4FD58 8005F558 01001024 */  addiu      $s0, $zero, 0x1
     /* 4FD5C 8005F55C 4CD5D0AC */  sw         $s0, %lo(AICop_spikeBelt)($a2)
     /* 4FD60 8005F560 040087AC */  sw         $a3, 0x4($a0)

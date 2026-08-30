@@ -8,9 +8,9 @@ glabel Night_GenerateNextLightningEvent__Fv
     /* CBDD0 800DB5D0 1000BFAF */  sw         $ra, 0x10($sp)
     /* CBDD4 800DB5D4 EA9D030C */  jal        random
     /* CBDD8 800DB5D8 00000000 */   nop
-    /* CBDDC 800DB5DC 1280033C */  lui        $v1, %hi(D_8011E0B0)
+    /* CBDDC 800DB5DC 1280033C */  lui        $v1, %hi(simGlobal+0x4)
     /* CBDE0 800DB5E0 FF074230 */  andi       $v0, $v0, 0x7FF
-    /* CBDE4 800DB5E4 B0E0638C */  lw         $v1, %lo(D_8011E0B0)($v1)
+    /* CBDE4 800DB5E4 B0E0638C */  lw         $v1, %lo(simGlobal+0x4)($v1)
     /* CBDE8 800DB5E8 1F004224 */  addiu      $v0, $v0, 0x1F
     /* CBDEC 800DB5EC 21186200 */  addu       $v1, $v1, $v0
     /* CBDF0 800DB5F0 1C1583AF */  sw         $v1, %gp_rel(Night_gNextLightning)($gp)

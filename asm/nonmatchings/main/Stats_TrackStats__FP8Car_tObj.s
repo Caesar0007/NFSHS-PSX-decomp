@@ -4,8 +4,8 @@
 nonmatching Stats_TrackStats__FP8Car_tObj, 0x408
 
 glabel Stats_TrackStats__FP8Car_tObj
-    /* A89FC 800B81FC 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* A8A00 800B8200 B0E0438C */  lw         $v1, %lo(D_8011E0B0)($v0)
+    /* A89FC 800B81FC 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* A8A00 800B8200 B0E0438C */  lw         $v1, %lo(simGlobal+0x4)($v0)
     /* A8A04 800B8204 D8FFBD27 */  addiu      $sp, $sp, -0x28
     /* A8A08 800B8208 1000B0AF */  sw         $s0, 0x10($sp)
     /* A8A0C 800B820C 21808000 */  addu       $s0, $a0, $zero

@@ -93,8 +93,8 @@ glabel Night_InitNightDriving__Fv
     /* CC728 800DBF28 181580AF */  sw         $zero, %gp_rel(Night_gLightning)($gp)
     /* CC72C 800DBF2C EA9D030C */  jal        random
     /* CC730 800DBF30 00000000 */   nop
-    /* CC734 800DBF34 1280033C */  lui        $v1, %hi(D_8011E0B0)
-    /* CC738 800DBF38 B0E0638C */  lw         $v1, %lo(D_8011E0B0)($v1)
+    /* CC734 800DBF34 1280033C */  lui        $v1, %hi(simGlobal+0x4)
+    /* CC738 800DBF38 B0E0638C */  lw         $v1, %lo(simGlobal+0x4)($v1)
     /* CC73C 800DBF3C FF014230 */  andi       $v0, $v0, 0x1FF
     /* CC740 800DBF40 21186200 */  addu       $v1, $v1, $v0
     /* CC744 800DBF44 1C1583AF */  sw         $v1, %gp_rel(Night_gNextLightning)($gp)

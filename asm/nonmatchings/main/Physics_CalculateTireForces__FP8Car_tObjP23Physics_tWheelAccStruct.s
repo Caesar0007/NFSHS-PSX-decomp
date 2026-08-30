@@ -163,8 +163,8 @@ glabel Physics_CalculateTireForces__FP8Car_tObjP23Physics_tWheelAccStruct
     /* 9C474 800ABC74 FFFF4234 */  ori        $v0, $v0, (0x18FFFF & 0xFFFF)
     /* 9C478 800ABC78 2A104300 */  slt        $v0, $v0, $v1
     /* 9C47C 800ABC7C 1E004014 */  bnez       $v0, .L800ABCF8
-    /* 9C480 800ABC80 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* 9C484 800ABC84 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 9C480 800ABC80 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* 9C484 800ABC84 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 9C488 800ABC88 00000000 */  nop
     /* 9C48C 800ABC8C 03004230 */  andi       $v0, $v0, 0x3
     /* 9C490 800ABC90 03004014 */  bnez       $v0, .L800ABCA0

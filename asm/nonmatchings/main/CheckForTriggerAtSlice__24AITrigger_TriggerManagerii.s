@@ -97,8 +97,8 @@ glabel CheckForTriggerAtSlice__24AITrigger_TriggerManagerii
     /* 6347C 80072C7C 00000000 */  nop
     /* 63480 80072C80 0E007214 */  bne        $v1, $s2, .L80072CBC
     /* 63484 80072C84 FFFF0224 */   addiu     $v0, $zero, -0x1
-    /* 63488 80072C88 1280033C */  lui        $v1, %hi(D_8011E0B0)
-    /* 6348C 80072C8C B0E0638C */  lw         $v1, %lo(D_8011E0B0)($v1)
+    /* 63488 80072C88 1280033C */  lui        $v1, %hi(simGlobal+0x4)
+    /* 6348C 80072C8C B0E0638C */  lw         $v1, %lo(simGlobal+0x4)($v1)
     /* 63490 80072C90 9801848C */  lw         $a0, 0x198($a0)
     /* 63494 80072C94 00000000 */  nop
     /* 63498 80072C98 23186400 */  subu       $v1, $v1, $a0

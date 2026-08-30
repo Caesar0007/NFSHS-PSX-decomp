@@ -70,8 +70,8 @@ glabel AIPhysic_InControlPhysics__FP8Car_tObj
     /* 5C3C4 8006BBC4 08006330 */  andi       $v1, $v1, 0x8
     /* 5C3C8 8006BBC8 16006010 */  beqz       $v1, .L8006BC24
     /* 5C3CC 8006BBCC 21804000 */   addu      $s0, $v0, $zero
-    /* 5C3D0 8006BBD0 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* 5C3D4 8006BBD4 B0E0448C */  lw         $a0, %lo(D_8011E0B0)($v0)
+    /* 5C3D0 8006BBD0 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* 5C3D4 8006BBD4 B0E0448C */  lw         $a0, %lo(simGlobal+0x4)($v0)
     /* 5C3D8 8006BBD8 4407428E */  lw         $v0, 0x744($s2)
     /* 5C3DC 8006BBDC 00000000 */  nop
     /* 5C3E0 8006BBE0 2A104400 */  slt        $v0, $v0, $a0

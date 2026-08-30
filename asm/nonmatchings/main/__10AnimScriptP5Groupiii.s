@@ -45,8 +45,8 @@ glabel __10AnimScriptP5Groupiii
     /* 64CF8 800744F8 21800202 */   addu      $s0, $s0, $v0
   .L800744FC:
     /* 64CFC 800744FC 21104002 */  addu       $v0, $s2, $zero
-    /* 64D00 80074500 1280033C */  lui        $v1, %hi(D_8011E0B0)
-    /* 64D04 80074504 B0E0648C */  lw         $a0, %lo(D_8011E0B0)($v1)
+    /* 64D00 80074500 1280033C */  lui        $v1, %hi(simGlobal+0x4)
+    /* 64D04 80074504 B0E0648C */  lw         $a0, %lo(simGlobal+0x4)($v1)
     /* 64D08 80074508 06000324 */  addiu      $v1, $zero, 0x6
     /* 64D0C 8007450C 080043AC */  sw         $v1, 0x8($v0)
     /* 64D10 80074510 000044AC */  sw         $a0, 0x0($v0)

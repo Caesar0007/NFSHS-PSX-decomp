@@ -95,8 +95,8 @@ glabel AudioCmn_SoundCar__FP8Car_tObjiiiiiii
     /* 691F4 800789F4 08008426 */   addiu     $a0, $s4, 0x8
     /* 691F8 800789F8 1B004010 */  beqz       $v0, .L80078A68
     /* 691FC 800789FC 2800A2AF */   sw        $v0, 0x28($sp)
-    /* 69200 80078A00 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* 69204 80078A04 F831428C */  lw         $v0, %lo(D_801131F8)($v0)
+    /* 69200 80078A00 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* 69204 80078A04 F831428C */  lw         $v0, %lo(GameSetup_gData+0xc)($v0)
     /* 69208 80078A08 01001224 */  addiu      $s2, $zero, 0x1
     /* 6920C 80078A0C 12005210 */  beq        $v0, $s2, .L80078A58
     /* 69210 80078A10 00000000 */   nop
@@ -136,11 +136,11 @@ glabel AudioCmn_SoundCar__FP8Car_tObjiiiiiii
     /* 6928C 80078A8C 01000224 */  addiu      $v0, $zero, 0x1
     /* 69290 80078A90 2C0182A3 */  sb         $v0, %gp_rel(fReverbOn)($gp)
     /* 69294 80078A94 B6E20108 */  j          .L80078AD8
-    /* 69298 80078A98 1180023C */   lui       $v0, %hi(D_801131F8)
+    /* 69298 80078A98 1180023C */   lui       $v0, %hi(GameSetup_gData+0xc)
   .L80078A9C:
     /* 6929C 80078A9C 2100622C */  sltiu      $v0, $v1, 0x21
     /* 692A0 80078AA0 0D004014 */  bnez       $v0, .L80078AD8
-    /* 692A4 80078AA4 1180023C */   lui       $v0, %hi(D_801131F8)
+    /* 692A4 80078AA4 1180023C */   lui       $v0, %hi(GameSetup_gData+0xc)
     /* 692A8 80078AA8 2D018293 */  lbu        $v0, %gp_rel(fReverbLevel)($gp)
     /* 692AC 80078AAC 00000000 */  nop
     /* 692B0 80078AB0 FBFF4324 */  addiu      $v1, $v0, -0x5
@@ -154,9 +154,9 @@ glabel AudioCmn_SoundCar__FP8Car_tObjiiiiiii
     /* 692CC 80078ACC 749B030C */  jal        SNDfxmasterlevel
     /* 692D0 80078AD0 21200000 */   addu      $a0, $zero, $zero
   .L80078AD4:
-    /* 692D4 80078AD4 1180023C */  lui        $v0, %hi(D_801131F8)
+    /* 692D4 80078AD4 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
   .L80078AD8:
-    /* 692D8 80078AD8 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* 692D8 80078AD8 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* 692DC 80078ADC 01000224 */  addiu      $v0, $zero, 0x1
     /* 692E0 80078AE0 08006214 */  bne        $v1, $v0, .L80078B04
     /* 692E4 80078AE4 21B80000 */   addu      $s7, $zero, $zero
@@ -427,8 +427,8 @@ glabel AudioCmn_SoundCar__FP8Car_tObjiiiiiii
     /* 69690 80078E90 12400000 */  mflo       $t0
     /* 69694 80078E94 0700A016 */  bnez       $s5, .L80078EB4
     /* 69698 80078E98 0E000524 */   addiu     $a1, $zero, 0xE
-    /* 6969C 80078E9C 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* 696A0 80078EA0 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* 6969C 80078E9C 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* 696A0 80078EA0 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* 696A4 80078EA4 01000224 */  addiu      $v0, $zero, 0x1
     /* 696A8 80078EA8 02006214 */  bne        $v1, $v0, .L80078EB4
     /* 696AC 80078EAC 21280000 */   addu      $a1, $zero, $zero

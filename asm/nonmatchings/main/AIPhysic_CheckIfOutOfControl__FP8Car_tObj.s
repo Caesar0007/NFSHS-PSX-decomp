@@ -11,8 +11,8 @@ glabel AIPhysic_CheckIfOutOfControl__FP8Car_tObj
     /* 5BA70 8006B270 5405058E */  lw         $a1, 0x554($s0)
     /* 5BA74 8006B274 B8CD010C */  jal        AIWorld_CalcRoadBend__FP8Car_tObji
     /* 5BA78 8006B278 C0280500 */   sll       $a1, $a1, 3
-    /* 5BA7C 8006B27C 1280033C */  lui        $v1, %hi(D_8011E0B0)
-    /* 5BA80 8006B280 B0E0638C */  lw         $v1, %lo(D_8011E0B0)($v1)
+    /* 5BA7C 8006B27C 1280033C */  lui        $v1, %hi(simGlobal+0x4)
+    /* 5BA80 8006B280 B0E0638C */  lw         $v1, %lo(simGlobal+0x4)($v1)
     /* 5BA84 8006B284 4807048E */  lw         $a0, 0x748($s0)
     /* 5BA88 8006B288 02004104 */  bgez       $v0, .L8006B294
     /* 5BA8C 8006B28C 21384000 */   addu      $a3, $v0, $zero

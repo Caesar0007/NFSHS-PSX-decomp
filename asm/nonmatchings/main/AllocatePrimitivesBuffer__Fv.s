@@ -5,8 +5,8 @@ nonmatching AllocatePrimitivesBuffer__Fv, 0x13C
 
 glabel AllocatePrimitivesBuffer__Fv
     /* AE660 800BDE60 E8FFBD27 */  addiu      $sp, $sp, -0x18
-    /* AE664 800BDE64 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* AE668 800BDE68 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* AE664 800BDE64 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* AE668 800BDE68 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* AE66C 800BDE6C 01000224 */  addiu      $v0, $zero, 0x1
     /* AE670 800BDE70 1400BFAF */  sw         $ra, 0x14($sp)
     /* AE674 800BDE74 05006214 */  bne        $v1, $v0, .L800BDE8C
@@ -14,13 +14,13 @@ glabel AllocatePrimitivesBuffer__Fv
     /* AE67C 800BDE7C F8F6020C */  jal        Draw_InitViewOT__Fv
     /* AE680 800BDE80 00000000 */   nop
     /* AE684 800BDE84 A6F70208 */  j          .L800BDE98
-    /* AE688 800BDE88 1180023C */   lui       $v0, %hi(D_801131F8)
+    /* AE688 800BDE88 1180023C */   lui       $v0, %hi(GameSetup_gData+0xc)
   .L800BDE8C:
     /* AE68C 800BDE8C 19F7020C */  jal        Draw_InitViewOTInGame__Fv
     /* AE690 800BDE90 00000000 */   nop
-    /* AE694 800BDE94 1180023C */  lui        $v0, %hi(D_801131F8)
+    /* AE694 800BDE94 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
   .L800BDE98:
-    /* AE698 800BDE98 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* AE698 800BDE98 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* AE69C 800BDE9C 01000224 */  addiu      $v0, $zero, 0x1
     /* AE6A0 800BDEA0 03006214 */  bne        $v1, $v0, .L800BDEB0
     /* AE6A4 800BDEA4 0200023C */   lui       $v0, (0x22500 >> 16)
@@ -43,8 +43,8 @@ glabel AllocatePrimitivesBuffer__Fv
     /* AE6E0 800BDEE0 BA70030C */  jal        Platform_ReserveMemory__FiPc
     /* AE6E4 800BDEE4 140002AE */   sw        $v0, 0x14($s0)
     /* AE6E8 800BDEE8 2C0002AE */  sw         $v0, 0x2C($s0)
-    /* AE6EC 800BDEEC 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* AE6F0 800BDEF0 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* AE6EC 800BDEEC 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* AE6F0 800BDEF0 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* AE6F4 800BDEF4 01000224 */  addiu      $v0, $zero, 0x1
     /* AE6F8 800BDEF8 17006214 */  bne        $v1, $v0, .L800BDF58
     /* AE6FC 800BDEFC 1280053C */   lui       $a1, %hi(Draw_gView)

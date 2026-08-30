@@ -158,63 +158,63 @@ glabel GameSetup_StartUp__FPi
     /* 8C7B8 8009BFB8 FFFF4230 */  andi       $v0, $v0, 0xFFFF
     /* 8C7BC 8009BFBC 09090324 */  addiu      $v1, $zero, 0x909
     /* 8C7C0 8009BFC0 03004314 */  bne        $v0, $v1, .L8009BFD0
-    /* 8C7C4 8009BFC4 1180033C */   lui       $v1, %hi(D_80113224)
+    /* 8C7C4 8009BFC4 1180033C */   lui       $v1, %hi(GameSetup_gData+0x38)
     /* 8C7C8 8009BFC8 08000224 */  addiu      $v0, $zero, 0x8
-    /* 8C7CC 8009BFCC 243262AC */  sw         $v0, %lo(D_80113224)($v1)
+    /* 8C7CC 8009BFCC 243262AC */  sw         $v0, %lo(GameSetup_gData+0x38)($v1)
   .L8009BFD0:
     /* 8C7D0 8009BFD0 6B90030C */  jal        PAD_state
     /* 8C7D4 8009BFD4 21200000 */   addu      $a0, $zero, $zero
     /* 8C7D8 8009BFD8 FFFF4230 */  andi       $v0, $v0, 0xFFFF
     /* 8C7DC 8009BFDC 80A00334 */  ori        $v1, $zero, 0xA080
     /* 8C7E0 8009BFE0 03004314 */  bne        $v0, $v1, .L8009BFF0
-    /* 8C7E4 8009BFE4 1180033C */   lui       $v1, %hi(D_80113224)
+    /* 8C7E4 8009BFE4 1180033C */   lui       $v1, %hi(GameSetup_gData+0x38)
     /* 8C7E8 8009BFE8 02000224 */  addiu      $v0, $zero, 0x2
-    /* 8C7EC 8009BFEC 243262AC */  sw         $v0, %lo(D_80113224)($v1)
+    /* 8C7EC 8009BFEC 243262AC */  sw         $v0, %lo(GameSetup_gData+0x38)($v1)
   .L8009BFF0:
     /* 8C7F0 8009BFF0 6B90030C */  jal        PAD_state
     /* 8C7F4 8009BFF4 21200000 */   addu      $a0, $zero, $zero
     /* 8C7F8 8009BFF8 FFFF4230 */  andi       $v0, $v0, 0xFFFF
     /* 8C7FC 8009BFFC 01C00334 */  ori        $v1, $zero, 0xC001
     /* 8C800 8009C000 03004314 */  bne        $v0, $v1, .L8009C010
-    /* 8C804 8009C004 1180033C */   lui       $v1, %hi(D_80113224)
+    /* 8C804 8009C004 1180033C */   lui       $v1, %hi(GameSetup_gData+0x38)
     /* 8C808 8009C008 04000224 */  addiu      $v0, $zero, 0x4
-    /* 8C80C 8009C00C 243262AC */  sw         $v0, %lo(D_80113224)($v1)
+    /* 8C80C 8009C00C 243262AC */  sw         $v0, %lo(GameSetup_gData+0x38)($v1)
   .L8009C010:
     /* 8C810 8009C010 6B90030C */  jal        PAD_state
     /* 8C814 8009C014 21200000 */   addu      $a0, $zero, $zero
     /* 8C818 8009C018 FFFF4230 */  andi       $v0, $v0, 0xFFFF
     /* 8C81C 8009C01C 40060324 */  addiu      $v1, $zero, 0x640
     /* 8C820 8009C020 03004314 */  bne        $v0, $v1, .L8009C030
-    /* 8C824 8009C024 1180033C */   lui       $v1, %hi(D_80113224)
+    /* 8C824 8009C024 1180033C */   lui       $v1, %hi(GameSetup_gData+0x38)
     /* 8C828 8009C028 10000224 */  addiu      $v0, $zero, 0x10
-    /* 8C82C 8009C02C 243262AC */  sw         $v0, %lo(D_80113224)($v1)
+    /* 8C82C 8009C02C 243262AC */  sw         $v0, %lo(GameSetup_gData+0x38)($v1)
   .L8009C030:
     /* 8C830 8009C030 6B90030C */  jal        PAD_state
     /* 8C834 8009C034 21200000 */   addu      $a0, $zero, $zero
     /* 8C838 8009C038 FFFF4230 */  andi       $v0, $v0, 0xFFFF
     /* 8C83C 8009C03C 10060324 */  addiu      $v1, $zero, 0x610
     /* 8C840 8009C040 03004314 */  bne        $v0, $v1, .L8009C050
-    /* 8C844 8009C044 1180033C */   lui       $v1, %hi(D_80113224)
+    /* 8C844 8009C044 1180033C */   lui       $v1, %hi(GameSetup_gData+0x38)
     /* 8C848 8009C048 20000224 */  addiu      $v0, $zero, 0x20
-    /* 8C84C 8009C04C 243262AC */  sw         $v0, %lo(D_80113224)($v1)
+    /* 8C84C 8009C04C 243262AC */  sw         $v0, %lo(GameSetup_gData+0x38)($v1)
   .L8009C050:
     /* 8C850 8009C050 6B90030C */  jal        PAD_state
     /* 8C854 8009C054 21200000 */   addu      $a0, $zero, $zero
     /* 8C858 8009C058 FFFF4230 */  andi       $v0, $v0, 0xFFFF
     /* 8C85C 8009C05C 10090324 */  addiu      $v1, $zero, 0x910
     /* 8C860 8009C060 03004314 */  bne        $v0, $v1, .L8009C070
-    /* 8C864 8009C064 1180033C */   lui       $v1, %hi(D_80113224)
+    /* 8C864 8009C064 1180033C */   lui       $v1, %hi(GameSetup_gData+0x38)
     /* 8C868 8009C068 40000224 */  addiu      $v0, $zero, 0x40
-    /* 8C86C 8009C06C 243262AC */  sw         $v0, %lo(D_80113224)($v1)
+    /* 8C86C 8009C06C 243262AC */  sw         $v0, %lo(GameSetup_gData+0x38)($v1)
   .L8009C070:
     /* 8C870 8009C070 6B90030C */  jal        PAD_state
     /* 8C874 8009C074 21200000 */   addu      $a0, $zero, $zero
     /* 8C878 8009C078 FFFF4230 */  andi       $v0, $v0, 0xFFFF
     /* 8C87C 8009C07C 10500324 */  addiu      $v1, $zero, 0x5010
     /* 8C880 8009C080 03004314 */  bne        $v0, $v1, .L8009C090
-    /* 8C884 8009C084 1180033C */   lui       $v1, %hi(D_80113224)
+    /* 8C884 8009C084 1180033C */   lui       $v1, %hi(GameSetup_gData+0x38)
     /* 8C888 8009C088 80000224 */  addiu      $v0, $zero, 0x80
-    /* 8C88C 8009C08C 243262AC */  sw         $v0, %lo(D_80113224)($v1)
+    /* 8C88C 8009C08C 243262AC */  sw         $v0, %lo(GameSetup_gData+0x38)($v1)
   .L8009C090:
     /* 8C890 8009C090 6B90030C */  jal        PAD_state
     /* 8C894 8009C094 21200000 */   addu      $a0, $zero, $zero
@@ -222,9 +222,9 @@ glabel GameSetup_StartUp__FPi
     /* 8C89C 8009C09C 20060324 */  addiu      $v1, $zero, 0x620
     /* 8C8A0 8009C0A0 05004314 */  bne        $v0, $v1, .L8009C0B8
     /* 8C8A4 8009C0A4 1180023C */   lui       $v0, %hi(GameSetup_gData)
-    /* 8C8A8 8009C0A8 1180033C */  lui        $v1, %hi(D_80113224)
+    /* 8C8A8 8009C0A8 1180033C */  lui        $v1, %hi(GameSetup_gData+0x38)
     /* 8C8AC 8009C0AC 00010224 */  addiu      $v0, $zero, 0x100
-    /* 8C8B0 8009C0B0 243262AC */  sw         $v0, %lo(D_80113224)($v1)
+    /* 8C8B0 8009C0B0 243262AC */  sw         $v0, %lo(GameSetup_gData+0x38)($v1)
     /* 8C8B4 8009C0B4 1180023C */  lui        $v0, %hi(GameSetup_gData)
   .L8009C0B8:
     /* 8C8B8 8009C0B8 EC314224 */  addiu      $v0, $v0, %lo(GameSetup_gData)

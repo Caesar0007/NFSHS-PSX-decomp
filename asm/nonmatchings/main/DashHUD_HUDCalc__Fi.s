@@ -30,10 +30,10 @@ glabel DashHUD_HUDCalc__Fi
     /* 8B960 8009B160 00000000 */  nop
     /* 8B964 8009B164 2A106200 */  slt        $v0, $v1, $v0
     /* 8B968 8009B168 02004010 */  beqz       $v0, .L8009B174
-    /* 8B96C 8009B16C 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* 8B96C 8009B16C 1280023C */   lui       $v0, %hi(simGlobal+0x4)
     /* 8B970 8009B170 380083AC */  sw         $v1, 0x38($a0)
   .L8009B174:
-    /* 8B974 8009B174 B0E0438C */  lw         $v1, %lo(D_8011E0B0)($v0)
+    /* 8B974 8009B174 B0E0438C */  lw         $v1, %lo(simGlobal+0x4)($v0)
     /* 8B978 8009B178 00000000 */  nop
     /* 8B97C 8009B17C 00026228 */  slti       $v0, $v1, 0x200
     /* 8B980 8009B180 04004010 */  beqz       $v0, .L8009B194
@@ -99,12 +99,12 @@ glabel DashHUD_HUDCalc__Fi
     /* 8BA5C 8009B25C 3400828C */  lw         $v0, 0x34($a0)
     /* 8BA60 8009B260 00000000 */  nop
     /* 8BA64 8009B264 03006214 */  bne        $v1, $v0, .L8009B274
-    /* 8BA68 8009B268 1280033C */   lui       $v1, %hi(D_8011E0B0)
+    /* 8BA68 8009B268 1280033C */   lui       $v1, %hi(simGlobal+0x4)
     /* 8BA6C 8009B26C 01000224 */  addiu      $v0, $zero, 0x1
     /* 8BA70 8009B270 140082AC */  sw         $v0, 0x14($a0)
   .L8009B274:
     /* 8BA74 8009B274 5403228E */  lw         $v0, 0x354($s1)
-    /* 8BA78 8009B278 B0E0638C */  lw         $v1, %lo(D_8011E0B0)($v1)
+    /* 8BA78 8009B278 B0E0638C */  lw         $v1, %lo(simGlobal+0x4)($v1)
     /* 8BA7C 8009B27C C0004224 */  addiu      $v0, $v0, 0xC0
     /* 8BA80 8009B280 2A104300 */  slt        $v0, $v0, $v1
     /* 8BA84 8009B284 02004010 */  beqz       $v0, .L8009B290
@@ -120,16 +120,16 @@ glabel DashHUD_HUDCalc__Fi
     /* 8BAA8 8009B2A8 6418828F */  lw         $v0, %gp_rel(D_8013DDB0)($gp)
     /* 8BAAC 8009B2AC 00000000 */  nop
     /* 8BAB0 8009B2B0 17004014 */  bnez       $v0, .L8009B310
-    /* 8BAB4 8009B2B4 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* 8BAB4 8009B2B4 1280023C */   lui       $v0, %hi(simGlobal+0x4)
     /* 8BAB8 8009B2B8 01000224 */  addiu      $v0, $zero, 0x1
     /* 8BABC 8009B2BC 641882AF */  sw         $v0, %gp_rel(D_8013DDB0)($gp)
     /* 8BAC0 8009B2C0 C46C0208 */  j          .L8009B310
-    /* 8BAC4 8009B2C4 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* 8BAC4 8009B2C4 1280023C */   lui       $v0, %hi(simGlobal+0x4)
   .L8009B2C8:
     /* 8BAC8 8009B2C8 6418828F */  lw         $v0, %gp_rel(D_8013DDB0)($gp)
     /* 8BACC 8009B2CC 00000000 */  nop
     /* 8BAD0 8009B2D0 0F004010 */  beqz       $v0, .L8009B310
-    /* 8BAD4 8009B2D4 1280023C */   lui       $v0, %hi(D_8011E0B0)
+    /* 8BAD4 8009B2D4 1280023C */   lui       $v0, %hi(simGlobal+0x4)
     /* 8BAD8 8009B2D8 C26C0208 */  j          .L8009B308
     /* 8BADC 8009B2DC 00000000 */   nop
   .L8009B2E0:
@@ -137,9 +137,9 @@ glabel DashHUD_HUDCalc__Fi
   .L8009B2E4:
     /* 8BAE4 8009B2E4 30276324 */  addiu      $v1, $v1, %lo(DashHUD_gInfo)
     /* 8BAE8 8009B2E8 6403258E */  lw         $a1, 0x364($s1)
-    /* 8BAEC 8009B2EC 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* 8BAEC 8009B2EC 1280023C */  lui        $v0, %hi(simGlobal+0x4)
     /* 8BAF0 8009B2F0 140060AC */  sw         $zero, 0x14($v1)
-    /* 8BAF4 8009B2F4 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 8BAF4 8009B2F4 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 8BAF8 8009B2F8 6418848F */  lw         $a0, %gp_rel(D_8013DDB0)($gp)
     /* 8BAFC 8009B2FC 23104500 */  subu       $v0, $v0, $a1
     /* 8BB00 8009B300 02008010 */  beqz       $a0, .L8009B30C
@@ -147,9 +147,9 @@ glabel DashHUD_HUDCalc__Fi
   .L8009B308:
     /* 8BB08 8009B308 641880AF */  sw         $zero, %gp_rel(D_8013DDB0)($gp)
   .L8009B30C:
-    /* 8BB0C 8009B30C 1280023C */  lui        $v0, %hi(D_8011E0B0)
+    /* 8BB0C 8009B30C 1280023C */  lui        $v0, %hi(simGlobal+0x4)
   .L8009B310:
-    /* 8BB10 8009B310 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 8BB10 8009B310 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 8BB14 8009B314 6403238E */  lw         $v1, 0x364($s1)
     /* 8BB18 8009B318 00000000 */  nop
     /* 8BB1C 8009B31C 23104300 */  subu       $v0, $v0, $v1

@@ -19,8 +19,8 @@ glabel Night_RestartNightDriving__Fv
     /* CC850 800DC050 181580AF */  sw         $zero, %gp_rel(Night_gLightning)($gp)
     /* CC854 800DC054 EA9D030C */  jal        random
     /* CC858 800DC058 00000000 */   nop
-    /* CC85C 800DC05C 1280033C */  lui        $v1, %hi(D_8011E0B0)
-    /* CC860 800DC060 B0E0638C */  lw         $v1, %lo(D_8011E0B0)($v1)
+    /* CC85C 800DC05C 1280033C */  lui        $v1, %hi(simGlobal+0x4)
+    /* CC860 800DC060 B0E0638C */  lw         $v1, %lo(simGlobal+0x4)($v1)
     /* CC864 800DC064 FF014230 */  andi       $v0, $v0, 0x1FF
     /* CC868 800DC068 21186200 */  addu       $v1, $v1, $v0
     /* CC86C 800DC06C 1C1583AF */  sw         $v1, %gp_rel(Night_gNextLightning)($gp)

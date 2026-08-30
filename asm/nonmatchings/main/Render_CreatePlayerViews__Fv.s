@@ -4,8 +4,8 @@
 nonmatching Render_CreatePlayerViews__Fv, 0xEC
 
 glabel Render_CreatePlayerViews__Fv
-    /* A38AC 800B30AC 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* A38B0 800B30B0 F831428C */  lw         $v0, %lo(D_801131F8)($v0)
+    /* A38AC 800B30AC 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* A38B0 800B30B0 F831428C */  lw         $v0, %lo(GameSetup_gData+0xc)($v0)
     /* A38B4 800B30B4 C0FFBD27 */  addiu      $sp, $sp, -0x40
     /* A38B8 800B30B8 3400B3AF */  sw         $s3, 0x34($sp)
     /* A38BC 800B30BC 01001324 */  addiu      $s3, $zero, 0x1

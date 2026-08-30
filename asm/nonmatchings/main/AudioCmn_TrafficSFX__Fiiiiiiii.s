@@ -13,10 +13,10 @@ glabel AudioCmn_TrafficSFX__Fiiiiiiii
     /* 6991C 8007911C 21F0A000 */  addu       $fp, $a1, $zero
     /* 69920 80079120 4800A6AF */  sw         $a2, 0x48($sp)
     /* 69924 80079124 5000A68F */  lw         $a2, 0x50($sp)
-    /* 69928 80079128 1180023C */  lui        $v0, %hi(D_801131F8)
+    /* 69928 80079128 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
     /* 6992C 8007912C 3400B7AF */  sw         $s7, 0x34($sp)
     /* 69930 80079130 5400B78F */  lw         $s7, 0x54($sp)
-    /* 69934 80079134 F831428C */  lw         $v0, %lo(D_801131F8)($v0)
+    /* 69934 80079134 F831428C */  lw         $v0, %lo(GameSetup_gData+0xc)($v0)
     /* 69938 80079138 21200000 */  addu       $a0, $zero, $zero
     /* 6993C 8007913C 1C00B1AF */  sw         $s1, 0x1C($sp)
     /* 69940 80079140 5C00B18F */  lw         $s1, 0x5C($sp)

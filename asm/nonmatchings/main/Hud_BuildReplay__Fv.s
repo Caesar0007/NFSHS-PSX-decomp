@@ -18,7 +18,7 @@ glabel Hud_BuildReplay__Fv
     /* C7A7C 800D727C 8080A534 */  ori        $a1, $a1, (0x66808080 & 0xFFFF)
     /* C7A80 800D7280 FC030324 */  addiu      $v1, $zero, 0x3FC
   .L800D7284:
-    /* C7A84 800D7284 BC18848F */  lw         $a0, %gp_rel(D_8013DE08)($gp)
+    /* C7A84 800D7284 BC18848F */  lw         $a0, %gp_rel(gSprite0)($gp)
     /* C7A88 800D7288 01002925 */  addiu      $t1, $t1, 0x1
     /* C7A8C 800D728C 21106400 */  addu       $v0, $v1, $a0
     /* C7A90 800D7290 040045AC */  sw         $a1, 0x4($v0)
@@ -51,7 +51,7 @@ glabel Hud_BuildReplay__Fv
     /* C7AF8 800D72F8 1180023C */  lui        $v0, %hi(D_80111530)
     /* C7AFC 800D72FC 30154224 */  addiu      $v0, $v0, %lo(D_80111530)
     /* C7B00 800D7300 23104300 */  subu       $v0, $v0, $v1
-    /* C7B04 800D7304 BC18838F */  lw         $v1, %gp_rel(D_8013DE08)($gp)
+    /* C7B04 800D7304 BC18838F */  lw         $v1, %gp_rel(gSprite0)($gp)
     /* C7B08 800D7308 0000428C */  lw         $v0, 0x0($v0)
     /* C7B0C 800D730C 00000000 */  nop
     /* C7B10 800D7310 1C0462AC */  sw         $v0, 0x41C($v1)
@@ -86,17 +86,17 @@ glabel Hud_BuildReplay__Fv
     /* C7B6C 800D736C 21104300 */  addu       $v0, $v0, $v1
     /* C7B70 800D7370 80100200 */  sll        $v0, $v0, 2
     /* C7B74 800D7374 21104500 */  addu       $v0, $v0, $a1
-    /* C7B78 800D7378 BC18848F */  lw         $a0, %gp_rel(D_8013DE08)($gp)
+    /* C7B78 800D7378 BC18848F */  lw         $a0, %gp_rel(gSprite0)($gp)
     /* C7B7C 800D737C 00004390 */  lbu        $v1, 0x0($v0)
     /* C7B80 800D7380 00000000 */  nop
     /* C7B84 800D7384 6C0483A0 */  sb         $v1, 0x46C($a0)
     /* C7B88 800D7388 1180043C */  lui        $a0, %hi(Replay_ReplayInterface)
-    /* C7B8C 800D738C BC18838F */  lw         $v1, %gp_rel(D_8013DE08)($gp)
+    /* C7B8C 800D738C BC18838F */  lw         $v1, %gp_rel(gSprite0)($gp)
     /* C7B90 800D7390 01004290 */  lbu        $v0, 0x1($v0)
     /* C7B94 800D7394 2C708424 */  addiu      $a0, $a0, %lo(Replay_ReplayInterface)
     /* C7B98 800D7398 6D0462A0 */  sb         $v0, 0x46D($v1)
     /* C7B9C 800D739C 0C00838C */  lw         $v1, 0xC($a0)
-    /* C7BA0 800D73A0 BC18868F */  lw         $a2, %gp_rel(D_8013DE08)($gp)
+    /* C7BA0 800D73A0 BC18868F */  lw         $a2, %gp_rel(gSprite0)($gp)
     /* C7BA4 800D73A4 80100300 */  sll        $v0, $v1, 2
     /* C7BA8 800D73A8 21104300 */  addu       $v0, $v0, $v1
     /* C7BAC 800D73AC 80100200 */  sll        $v0, $v0, 2
@@ -104,7 +104,7 @@ glabel Hud_BuildReplay__Fv
     /* C7BB4 800D73B4 2800A28C */  lw         $v0, 0x28($a1)
     /* C7BB8 800D73B8 00000000 */  nop
     /* C7BBC 800D73BC 8004C2AC */  sw         $v0, 0x480($a2)
-    /* C7BC0 800D73C0 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C7BC0 800D73C0 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C7BC4 800D73C4 00000000 */  nop
     /* C7BC8 800D73C8 34004294 */  lhu        $v0, 0x34($v0)
     /* C7BCC 800D73CC 00000000 */  nop
@@ -130,7 +130,7 @@ glabel Hud_BuildReplay__Fv
     /* C7C14 800D7414 21306001 */  addu       $a2, $t3, $zero
     /* C7C18 800D7418 801F023C */  lui        $v0, (0x1F800000 >> 16)
     /* C7C1C 800D741C 0000428C */  lw         $v0, (0x1F800000 & 0xFFFF)($v0)
-    /* C7C20 800D7420 BC18848F */  lw         $a0, %gp_rel(D_8013DE08)($gp)
+    /* C7C20 800D7420 BC18848F */  lw         $a0, %gp_rel(gSprite0)($gp)
     /* C7C24 800D7424 21404000 */  addu       $t0, $v0, $zero
     /* C7C28 800D7428 FC038724 */  addiu      $a3, $a0, 0x3FC
     /* C7C2C 800D742C 7404838C */  lw         $v1, 0x474($a0)
@@ -165,7 +165,7 @@ glabel Hud_BuildReplay__Fv
     /* C7C9C 800D749C FF00053C */  lui        $a1, (0xFFFFFF >> 16)
     /* C7CA0 800D74A0 FFFFA534 */  ori        $a1, $a1, (0xFFFFFF & 0xFFFF)
     /* C7CA4 800D74A4 00FF073C */  lui        $a3, (0xFF000000 >> 16)
-    /* C7CA8 800D74A8 BC18848F */  lw         $a0, %gp_rel(D_8013DE08)($gp)
+    /* C7CA8 800D74A8 BC18848F */  lw         $a0, %gp_rel(gSprite0)($gp)
     /* C7CAC 800D74AC 801F063C */  lui        $a2, (0x1F800000 >> 16)
     /* C7CB0 800D74B0 0000C68C */  lw         $a2, (0x1F800000 & 0xFFFF)($a2)
     /* C7CB4 800D74B4 6004838C */  lw         $v1, 0x460($a0)

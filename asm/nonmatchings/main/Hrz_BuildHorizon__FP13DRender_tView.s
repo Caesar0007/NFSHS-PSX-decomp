@@ -145,7 +145,7 @@ glabel Hrz_BuildHorizon__FP13DRender_tView
     /* C1D30 800D1530 0100E724 */  addiu      $a3, $a3, 0x1
     /* C1D34 800D1534 1100E228 */  slti       $v0, $a3, 0x11
     /* C1D38 800D1538 F3FF4014 */  bnez       $v0, .L800D1508
-    /* C1D3C 800D153C 0400C624 */   addiu     $a2, $a2, %lo(D_1F800004)
+    /* C1D3C 800D153C 0400C624 */   addiu     $a2, $a2, 0x4
     /* C1D40 800D1540 21380000 */  addu       $a3, $zero, $zero
     /* C1D44 800D1544 2130C002 */  addu       $a2, $s6, $zero
     /* C1D48 800D1548 80100800 */  sll        $v0, $t0, 2
@@ -171,7 +171,7 @@ glabel Hrz_BuildHorizon__FP13DRender_tView
     /* C1D90 800D1590 0100E724 */  addiu      $a3, $a3, 0x1
     /* C1D94 800D1594 1100E228 */  slti       $v0, $a3, 0x11
     /* C1D98 800D1598 F3FF4014 */  bnez       $v0, .L800D1568
-    /* C1D9C 800D159C 0400C624 */   addiu     $a2, $a2, %lo(D_1F800004)
+    /* C1D9C 800D159C 0400C624 */   addiu     $a2, $a2, 0x4
     /* C1DA0 800D15A0 9C00C436 */  ori        $a0, $s6, (0x1F80009C & 0xFFFF)
     /* C1DA4 800D15A4 5800C536 */  ori        $a1, $s6, (0x1F800058 & 0xFFFF)
     /* C1DA8 800D15A8 1400C636 */  ori        $a2, $s6, (0x1F800014 & 0xFFFF)
@@ -190,15 +190,15 @@ glabel Hrz_BuildHorizon__FP13DRender_tView
     /* C1DDC 800D15DC 1000B2AF */  sw         $s2, 0x10($sp)
     /* C1DE0 800D15E0 5D3D030C */  jal        Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii
     /* C1DE4 800D15E4 1400B1AF */   sw        $s1, 0x14($sp)
-    /* C1DE8 800D15E8 1280023C */  lui        $v0, %hi(D_80123280)
-    /* C1DEC 800D15EC 80324284 */  lh         $v0, %lo(D_80123280)($v0)
+    /* C1DE8 800D15E8 1280023C */  lui        $v0, %hi(TrackSpec_gSpec+0x4)
+    /* C1DEC 800D15EC 80324284 */  lh         $v0, %lo(TrackSpec_gSpec+0x4)($v0)
     /* C1DF0 800D15F0 00000000 */  nop
     /* C1DF4 800D15F4 E3004010 */  beqz       $v0, .L800D1984
     /* C1DF8 800D15F8 21A00000 */   addu      $s4, $zero, $zero
     /* C1DFC 800D15FC FF00173C */  lui        $s7, (0xFFFFFF >> 16)
     /* C1E00 800D1600 FFFFF736 */  ori        $s7, $s7, (0xFFFFFF & 0xFFFF)
-    /* C1E04 800D1604 1280023C */  lui        $v0, %hi(D_80120838)
-    /* C1E08 800D1608 38085E24 */  addiu      $fp, $v0, %lo(D_80120838)
+    /* C1E04 800D1604 1280023C */  lui        $v0, %hi(gHrzRingColor+0x44)
+    /* C1E08 800D1608 38085E24 */  addiu      $fp, $v0, %lo(gHrzRingColor+0x44)
     /* C1E0C 800D160C 2198C002 */  addu       $s3, $s6, $zero
     /* C1E10 800D1610 21908002 */  addu       $s2, $s4, $zero
     /* C1E14 800D1614 04001524 */  addiu      $s5, $zero, 0x4
@@ -367,11 +367,11 @@ glabel Hrz_BuildHorizon__FP13DRender_tView
     /* C2088 800D1888 2110D203 */  addu       $v0, $fp, $s2
     /* C208C 800D188C 040003AE */  sw         $v1, 0x4($s0)
     /* C2090 800D1890 0400428C */  lw         $v0, 0x4($v0)
-    /* C2094 800D1894 1280093C */  lui        $t1, %hi(D_801207F8)
+    /* C2094 800D1894 1280093C */  lui        $t1, %hi(gHrzRingColor+0x4)
     /* C2098 800D1898 100002AE */  sw         $v0, 0x10($s0)
     /* C209C 800D189C 2110D203 */  addu       $v0, $fp, $s2
     /* C20A0 800D18A0 BCFF428C */  lw         $v0, -0x44($v0)
-    /* C20A4 800D18A4 F8072925 */  addiu      $t1, $t1, %lo(D_801207F8)
+    /* C20A4 800D18A4 F8072925 */  addiu      $t1, $t1, %lo(gHrzRingColor+0x4)
     /* C20A8 800D18A8 1C0002AE */  sw         $v0, 0x1C($s0)
     /* C20AC 800D18AC 21104902 */  addu       $v0, $s2, $t1
     /* C20B0 800D18B0 0000428C */  lw         $v0, 0x0($v0)
@@ -424,7 +424,7 @@ glabel Hrz_BuildHorizon__FP13DRender_tView
     /* C2168 800D1968 00000000 */  nop
     /* C216C 800D196C 2C0002AE */  sw         $v0, 0x2C($s0)
   .L800D1970:
-    /* C2170 800D1970 04007326 */  addiu      $s3, $s3, %lo(D_1F800004)
+    /* C2170 800D1970 04007326 */  addiu      $s3, $s3, 0x4
     /* C2174 800D1974 04005226 */  addiu      $s2, $s2, 0x4
     /* C2178 800D1978 0400B526 */  addiu      $s5, $s5, 0x4
     /* C217C 800D197C 86450308 */  j          .L800D1618
@@ -457,8 +457,8 @@ glabel Hrz_BuildHorizon__FP13DRender_tView
     /* C21E0 800D19E0 0C000624 */   addiu     $a2, $zero, 0xC
     /* C21E4 800D19E4 4742030C */  jal        HrzSetPsxTranslation__FP8coorddef
     /* C21E8 800D19E8 21200002 */   addu      $a0, $s0, $zero
-    /* C21EC 800D19EC 1480043C */  lui        $a0, %hi(D_8013DDF8)
-    /* C21F0 800D19F0 F8DD8424 */  addiu      $a0, $a0, %lo(D_8013DDF8)
+    /* C21EC 800D19EC 1480043C */  lui        $a0, %hi(moonPosInSky_vx)
+    /* C21F0 800D19F0 F8DD8424 */  addiu      $a0, $a0, %lo(moonPosInSky_vx)
     /* C21F4 800D19F4 2F3D030C */  jal        Flare_Moon__FP7SVECTORP15Draw_FlareCache
     /* C21F8 800D19F8 801F053C */   lui       $a1, (0x1F800000 >> 16)
   .L800D19FC:

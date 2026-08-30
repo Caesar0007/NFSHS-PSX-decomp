@@ -18,20 +18,20 @@ glabel Hud_BuildNumbers__Fi
     /* C569C 800D4E9C 2C00B1AF */  sw         $s1, 0x2C($sp)
     /* C56A0 800D4EA0 0400C013 */  beqz       $fp, .L800D4EB4
     /* C56A4 800D4EA4 2800B0AF */   sw        $s0, 0x28($sp)
-    /* C56A8 800D4EA8 C018958F */  lw         $s5, %gp_rel(D_8013DE0C)($gp)
+    /* C56A8 800D4EA8 C018958F */  lw         $s5, %gp_rel(gSprite1)($gp)
     /* C56AC 800D4EAC AF530308 */  j          .L800D4EBC
-    /* C56B0 800D4EB0 1480023C */   lui       $v0, %hi(D_8013E450)
+    /* C56B0 800D4EB0 1480023C */   lui       $v0, %hi(gHudF4)
   .L800D4EB4:
-    /* C56B4 800D4EB4 BC18958F */  lw         $s5, %gp_rel(D_8013DE08)($gp)
-    /* C56B8 800D4EB8 1480023C */  lui        $v0, %hi(D_8013E450)
+    /* C56B4 800D4EB4 BC18958F */  lw         $s5, %gp_rel(gSprite0)($gp)
+    /* C56B8 800D4EB8 1480023C */  lui        $v0, %hi(gHudF4)
   .L800D4EBC:
     /* C56BC 800D4EBC 02004012 */  beqz       $s2, .L800D4EC8
-    /* C56C0 800D4EC0 50E45124 */   addiu     $s1, $v0, %lo(D_8013E450)
+    /* C56C0 800D4EC0 50E45124 */   addiu     $s1, $v0, %lo(gHudF4)
     /* C56C4 800D4EC4 A8003126 */  addiu      $s1, $s1, 0xA8
   .L800D4EC8:
-    /* C56C8 800D4EC8 1480023C */  lui        $v0, %hi(D_8013E730)
+    /* C56C8 800D4EC8 1480023C */  lui        $v0, %hi(gHudG4)
     /* C56CC 800D4ECC 02004012 */  beqz       $s2, .L800D4ED8
-    /* C56D0 800D4ED0 30E75024 */   addiu     $s0, $v0, %lo(D_8013E730)
+    /* C56D0 800D4ED0 30E75024 */   addiu     $s0, $v0, %lo(gHudG4)
     /* C56D4 800D4ED4 90001026 */  addiu      $s0, $s0, 0x90
   .L800D4ED8:
     /* C56D8 800D4ED8 02004012 */  beqz       $s2, .L800D4EE4
@@ -185,8 +185,8 @@ glabel Hud_BuildNumbers__Fi
     /* C5910 800D5110 1400828C */  lw         $v0, 0x14($a0)
     /* C5914 800D5114 00000000 */  nop
     /* C5918 800D5118 06004010 */  beqz       $v0, .L800D5134
-    /* C591C 800D511C 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* C5920 800D5120 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* C591C 800D511C 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* C5920 800D5120 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* C5924 800D5124 00000000 */  nop
     /* C5928 800D5128 10004230 */  andi       $v0, $v0, 0x10
     /* C592C 800D512C 03004014 */  bnez       $v0, .L800D513C
@@ -295,7 +295,7 @@ glabel Hud_BuildNumbers__Fi
     /* C5AB4 800D52B4 6A004014 */  bnez       $v0, .L800D5460
     /* C5AB8 800D52B8 1180063C */   lui       $a2, %hi(HudPmx_gShapes)
     /* C5ABC 800D52BC 980CC624 */  addiu      $a2, $a2, %lo(HudPmx_gShapes)
-    /* C5AC0 800D52C0 B818828F */  lw         $v0, %gp_rel(D_8013DE04)($gp)
+    /* C5AC0 800D52C0 B818828F */  lw         $v0, %gp_rel(g1Player)($gp)
     /* C5AC4 800D52C4 8003C594 */  lhu        $a1, 0x380($a2)
     /* C5AC8 800D52C8 5400438D */  lw         $v1, 0x54($t2)
     /* C5ACC 800D52CC FEFFA524 */  addiu      $a1, $a1, -0x2
@@ -585,7 +585,7 @@ glabel Hud_BuildNumbers__Fi
     /* C5F10 800D5710 94030C85 */  lh         $t4, 0x394($t0)
     /* C5F14 800D5714 0C040D85 */  lh         $t5, 0x40C($t0)
     /* C5F18 800D5718 70030825 */  addiu      $t0, $t0, 0x370
-    /* C5F1C 800D571C B818878F */  lw         $a3, %gp_rel(D_8013DE04)($gp)
+    /* C5F1C 800D571C B818878F */  lw         $a3, %gp_rel(g1Player)($gp)
     /* C5F20 800D5720 801F0A3C */  lui        $t2, (0x1F800000 >> 16)
     /* C5F24 800D5724 00004A8D */  lw         $t2, (0x1F800000 & 0xFFFF)($t2)
     /* C5F28 800D5728 01007324 */  addiu      $s3, $v1, 0x1
@@ -761,8 +761,8 @@ glabel Hud_BuildNumbers__Fi
     /* C61B4 800D59B4 2C00628C */  lw         $v0, 0x2C($v1)
     /* C61B8 800D59B8 00000000 */  nop
     /* C61BC 800D59BC 16004010 */  beqz       $v0, .L800D5A18
-    /* C61C0 800D59C0 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* C61C4 800D59C4 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* C61C0 800D59C0 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* C61C4 800D59C4 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* C61C8 800D59C8 00000000 */  nop
     /* C61CC 800D59CC 43110200 */  sra        $v0, $v0, 5
     /* C61D0 800D59D0 01004230 */  andi       $v0, $v0, 0x1

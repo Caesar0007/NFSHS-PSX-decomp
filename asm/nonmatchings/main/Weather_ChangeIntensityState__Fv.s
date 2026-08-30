@@ -27,8 +27,8 @@ glabel Weather_ChangeIntensityState__Fv
     /* D29E8 800E21E8 21104400 */  addu       $v0, $v0, $a0
     /* D29EC 800E21EC A81682AF */  sw         $v0, %gp_rel(Weather_gIntensityGoalState)($gp)
     /* D29F0 800E21F0 05008014 */  bnez       $a0, .L800E2208
-    /* D29F4 800E21F4 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* D29F8 800E21F8 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* D29F4 800E21F4 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* D29F8 800E21F8 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* D29FC 800E21FC 00000000 */  nop
     /* D2A00 800E2200 00044224 */  addiu      $v0, $v0, 0x400
     /* D2A04 800E2204 B81682AF */  sw         $v0, %gp_rel(Weather_gIntensityTimerGoal)($gp)

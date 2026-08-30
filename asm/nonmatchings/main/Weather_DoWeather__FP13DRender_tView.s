@@ -27,14 +27,14 @@ glabel Weather_DoWeather__FP13DRender_tView
     /* D426C 800E3A6C 21288500 */  addu       $a1, $a0, $a1
     /* D4270 800E3A70 21188300 */  addu       $v1, $a0, $v1
     /* D4274 800E3A74 21208200 */  addu       $a0, $a0, $v0
-    /* D4278 800E3A78 1180023C */  lui        $v0, %hi(D_801131F8)
+    /* D4278 800E3A78 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
     /* D427C 800E3A7C 0000B68C */  lw         $s6, 0x0($a1)
     /* D4280 800E3A80 0000778C */  lw         $s7, 0x0($v1)
-    /* D4284 800E3A84 F831428C */  lw         $v0, %lo(D_801131F8)($v0)
+    /* D4284 800E3A84 F831428C */  lw         $v0, %lo(GameSetup_gData+0xc)($v0)
     /* D4288 800E3A88 0000948C */  lw         $s4, 0x0($a0)
     /* D428C 800E3A8C 10004610 */  beq        $v0, $a2, .L800E3AD0
-    /* D4290 800E3A90 1280023C */   lui       $v0, %hi(D_8011E0B0)
-    /* D4294 800E3A94 B0E0438C */  lw         $v1, %lo(D_8011E0B0)($v0)
+    /* D4290 800E3A90 1280023C */   lui       $v0, %hi(simGlobal+0x4)
+    /* D4294 800E3A94 B0E0438C */  lw         $v1, %lo(simGlobal+0x4)($v0)
     /* D4298 800E3A98 0019828F */  lw         $v0, %gp_rel(D_8013DE4C)($gp)
     /* D429C 800E3A9C 00000000 */  nop
     /* D42A0 800E3AA0 23106200 */  subu       $v0, $v1, $v0
@@ -100,12 +100,12 @@ glabel Weather_DoWeather__FP13DRender_tView
     /* D4378 800E3B78 FBFF4014 */  bnez       $v0, .L800E3B68
     /* D437C 800E3B7C 21108302 */   addu      $v0, $s4, $v1
   .L800E3B80:
-    /* D4380 800E3B80 1280033C */  lui        $v1, %hi(D_8011E0B0)
+    /* D4380 800E3B80 1280033C */  lui        $v1, %hi(simGlobal+0x4)
     /* D4384 800E3B84 80801200 */  sll        $s0, $s2, 2
     /* D4388 800E3B88 1480023C */  lui        $v0, %hi(D_8013DE54)
     /* D438C 800E3B8C 54DE4224 */  addiu      $v0, $v0, %lo(D_8013DE54)
     /* D4390 800E3B90 21280202 */  addu       $a1, $s0, $v0
-    /* D4394 800E3B94 B0E0638C */  lw         $v1, %lo(D_8011E0B0)($v1)
+    /* D4394 800E3B94 B0E0638C */  lw         $v1, %lo(simGlobal+0x4)($v1)
     /* D4398 800E3B98 0000A28C */  lw         $v0, 0x0($a1)
     /* D439C 800E3B9C 00000000 */  nop
     /* D43A0 800E3BA0 23106200 */  subu       $v0, $v1, $v0

@@ -66,8 +66,8 @@ glabel InstanceGroup__5ChunkP15SerializedGroupP9SimpleMem
     /* 7BCE8 8008B4E8 0C008294 */  lhu        $v0, 0xC($a0)
     /* 7BCEC 8008B4EC 00000000 */  nop
     /* 7BCF0 8008B4F0 6A0042A6 */  sh         $v0, 0x6A($s2)
-    /* 7BCF4 8008B4F4 1180023C */  lui        $v0, %hi(D_801131F8)
-    /* 7BCF8 8008B4F8 F831438C */  lw         $v1, %lo(D_801131F8)($v0)
+    /* 7BCF4 8008B4F4 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
+    /* 7BCF8 8008B4F8 F831438C */  lw         $v1, %lo(GameSetup_gData+0xc)($v0)
     /* 7BCFC 8008B4FC 01000224 */  addiu      $v0, $zero, 0x1
     /* 7BD00 8008B500 0D006210 */  beq        $v1, $v0, .L8008B538
     /* 7BD04 8008B504 2120A002 */   addu      $a0, $s5, $zero

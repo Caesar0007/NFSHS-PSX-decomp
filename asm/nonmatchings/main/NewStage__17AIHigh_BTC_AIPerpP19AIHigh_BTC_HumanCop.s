@@ -303,8 +303,8 @@ glabel NewStage__17AIHigh_BTC_AIPerpP19AIHigh_BTC_HumanCop
     /* 519D8 800611D8 C801028E */  lw         $v0, 0x1C8($s0)
     /* 519DC 800611DC 9256030C */  jal        Hud_InitMap__Fv
     /* 519E0 800611E0 940062AC */   sw        $v0, 0x94($v1)
-    /* 519E4 800611E4 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* 519E8 800611E8 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 519E4 800611E4 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* 519E8 800611E8 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 519EC 800611EC 00000000 */  nop
     /* 519F0 800611F0 8C0062AE */  sw         $v0, 0x8C($s3)
     /* 519F4 800611F4 01000224 */  addiu      $v0, $zero, 0x1

@@ -41,7 +41,7 @@ glabel Hud_CreateHudViews__Fv
     /* C22FC 800D1AFC FAFF0224 */   addiu     $v0, $zero, -0x6
     /* C2300 800D1B00 201482AF */  sw         $v0, %gp_rel(HudMapOffsetY)($gp)
     /* C2304 800D1B04 D2460308 */  j          .L800D1B48
-    /* C2308 800D1B08 1180023C */   lui       $v0, %hi(D_801131F8)
+    /* C2308 800D1B08 1180023C */   lui       $v0, %hi(GameSetup_gData+0xc)
   .L800D1B0C:
     /* C230C 800D1B0C CC03828C */  lw         $v0, 0x3CC($a0)
     /* C2310 800D1B10 00000000 */  nop
@@ -56,12 +56,12 @@ glabel Hud_CreateHudViews__Fv
   .L800D1B34:
     /* C2334 800D1B34 201482AF */  sw         $v0, %gp_rel(HudMapOffsetY)($gp)
     /* C2338 800D1B38 D2460308 */  j          .L800D1B48
-    /* C233C 800D1B3C 1180023C */   lui       $v0, %hi(D_801131F8)
+    /* C233C 800D1B3C 1180023C */   lui       $v0, %hi(GameSetup_gData+0xc)
   .L800D1B40:
     /* C2340 800D1B40 201480AF */  sw         $zero, %gp_rel(HudMapOffsetY)($gp)
-    /* C2344 800D1B44 1180023C */  lui        $v0, %hi(D_801131F8)
+    /* C2344 800D1B44 1180023C */  lui        $v0, %hi(GameSetup_gData+0xc)
   .L800D1B48:
-    /* C2348 800D1B48 F831428C */  lw         $v0, %lo(D_801131F8)($v0)
+    /* C2348 800D1B48 F831428C */  lw         $v0, %lo(GameSetup_gData+0xc)($v0)
     /* C234C 800D1B4C 01001224 */  addiu      $s2, $zero, 0x1
     /* C2350 800D1B50 4C005214 */  bne        $v0, $s2, .L800D1C84
     /* C2354 800D1B54 FF000424 */   addiu     $a0, $zero, 0xFF

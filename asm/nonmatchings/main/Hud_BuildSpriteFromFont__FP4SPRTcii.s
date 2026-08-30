@@ -23,7 +23,7 @@ glabel Hud_BuildSpriteFromFont__FP4SPRTcii
     /* C2944 800D2144 1400A2AF */   sw        $v0, 0x14($sp)
     /* C2948 800D2148 04000224 */  addiu      $v0, $zero, 0x4
     /* C294C 800D214C 030022A2 */  sb         $v0, 0x3($s1)
-    /* C2950 800D2150 C818828F */  lw         $v0, %gp_rel(D_8013DE14)($gp)
+    /* C2950 800D2150 C818828F */  lw         $v0, %gp_rel(currentSpriteColor)($gp)
     /* C2954 800D2154 0066033C */  lui        $v1, (0x66000000 >> 16)
     /* C2958 800D2158 25104300 */  or         $v0, $v0, $v1
     /* C295C 800D215C 040022AE */  sw         $v0, 0x4($s1)

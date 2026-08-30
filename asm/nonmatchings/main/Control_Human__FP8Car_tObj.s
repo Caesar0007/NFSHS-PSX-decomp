@@ -4,8 +4,8 @@
 nonmatching Control_Human__FP8Car_tObj, 0x480
 
 glabel Control_Human__FP8Car_tObj
-    /* 827E4 80091FE4 1280023C */  lui        $v0, %hi(D_8011E0B0)
-    /* 827E8 80091FE8 B0E0428C */  lw         $v0, %lo(D_8011E0B0)($v0)
+    /* 827E4 80091FE4 1280023C */  lui        $v0, %hi(simGlobal+0x4)
+    /* 827E8 80091FE8 B0E0428C */  lw         $v0, %lo(simGlobal+0x4)($v0)
     /* 827EC 80091FEC E8FFBD27 */  addiu      $sp, $sp, -0x18
     /* 827F0 80091FF0 1000B0AF */  sw         $s0, 0x10($sp)
     /* 827F4 80091FF4 21808000 */  addu       $s0, $a0, $zero

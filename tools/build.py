@@ -496,8 +496,17 @@ PER_TU_FLAGS = {
     # all else bit-identical, 6 PASSes held; other flags regress or inert).
     "recon/syslib/psx/libcd/drv.c":        {"cc1_272": True, "no_strength_reduce": True},
     "recon/syslib/psx/libcd/event.c":      {"cc1_272": True},
-    "recon/syslib/psx/libcd/stream.c":     {"cc1_272": True},
-    "recon/syslib/psx/libcd/streamhelp.c": {"cc1_272": True},
+    # SYM owner restoration (backup 3346a726): the old stream/streamhelp
+    # compatibility TUs were split back into their canonical archive members.
+    "recon/syslib/psx/libcd/C_002.c":      {"cc1_272": True},
+    "recon/syslib/psx/libcd/C_003.c":      {"cc1_272": True},
+    "recon/syslib/psx/libcd/C_004.c":      {"cc1_272": True},
+    "recon/syslib/psx/libcd/C_005.c":      {"cc1_272": True},
+    "recon/syslib/psx/libcd/C_007.c":      {"cc1_272": True},
+    "recon/syslib/psx/libcd/C_008.c":      {"cc1_272": True},
+    "recon/syslib/psx/libcd/C_009.c":      {"cc1_272": True},
+    "recon/syslib/psx/libcd/C_010.c":      {"cc1_272": True},
+    "recon/syslib/psx/libcd/CDROM.c":      {"cc1_272": True},
     # w52-a2: +no_strength_reduce -- COMBINATION lever with the index-form
     # source edit (each alone inert): StCdInterrupt 81->36, rest bit-identical.
     "recon/syslib/psx/libcd/stcdint.c":    {"cc1_272": True, "no_strength_reduce": True},
@@ -776,13 +785,6 @@ PER_FN_NO_DELAYED_BRANCH = {
     },
     "recon/syslib/psx/libcd/toc.c": {
         "CdGetToc",            # FAIL 6 -> FAIL 5
-    },
-    # w48-a6: stream cluster.
-    "recon/syslib/psx/libcd/stream.c": {
-        # w51-a4: EMPTIED -- 272 lane supersedes (class was compiler-version).
-    },
-    "recon/syslib/psx/libcd/streamhelp.c": {
-        # w51-a4: EMPTIED -- 272 lane supersedes (class was compiler-version).
     },
     "recon/syslib/psx/libcard/INIT.c": {
         "StopCARD",   # StartCARD tried + reverted: multi-jal interior arg-slot filling

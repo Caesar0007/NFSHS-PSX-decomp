@@ -19,9 +19,9 @@ typedef void (*DslCB)(unsigned char intr, unsigned char *result);
 extern int DMACallback(int ch, int func);   /* libetc INTR.obj @0x800F28AC */
 
 /* NOT gp-relative in the oracle (lui/addiu, not $gp) despite being 4 bytes -- force .bss
- * placement so it doesn't fall into the -G4 small-data window. (NOTE: libcd/streamhelp.c also
- * carries a placeholder `int _ds_ready_cb ST_BSS;` reserving this same @VA -- pre-existing
- * cross-TU duplicate storage, out of libpad/libds scope to reconcile here.) */
+ * placement so it doesn't fall into the -G4 small-data window.  This is the sole
+ * owner of the callback slot @0x801489E4; the old synthetic streamhelp.c duplicate
+ * was removed when its C_004.obj member was restored. */
 #define ST_BSS __attribute__((section(".bss")))
 static DslCB ds_ready_cb ST_BSS;   /* @0x801489E4 : current data-ready callback */
 

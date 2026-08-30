@@ -7,9 +7,9 @@ Folds the three scratchpad generator legs into ONE owner:
     bases, the .L LOCALIZE cut (`_jNN` jump-table pieces excluded), per-piece
     residual rodata placement, the .ldfrag data/sdata bodies;
   * scratchpad/w66a3/gen_ld.py  -- the widened `.bss` catch-all
-    (`*(.bss.*)`): stream.c / streamhelp.c emit their disjoint retail `.bss`
-    runs as separate nobits sections (.bss.st_<VA> / .bss.ds_<VA>) which were
-    ORPHAN sections under the un-widened script;
+    (`*(.bss.*)`): the canonical C_005/CDROM/BIOS/C_004 owners emit their
+    disjoint retail `.bss` runs as separate nobits sections
+    (.bss.st_<VA> / .bss.ds_<VA>); backup before the owner split: 3346a726;
   * scratchpad/w66a4/gen_ld.py  -- the `.rodata` legs: `.rodata_main`
     (rdata_80054548 residual pieces) + one `.roNNNN` region per anchored
     recon TU, from linkers/nfs4_recon.rodata_placement.json (the canonical

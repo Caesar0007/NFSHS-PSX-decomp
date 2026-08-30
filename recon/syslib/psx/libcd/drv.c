@@ -268,6 +268,12 @@ __asm__("\t.section\t.bss\n\t.align\t2\n"
         "D_801489AC:\n\t.space\t8\n"
         "Alarm:\n\t.space\t12\n\t.align\t4\n\t.text");
 
+/* StMode is the final isolated BIOS.obj BSS word @0x801489CC.  It was
+ * previously grouped into the synthetic stream.c TU. */
+__asm__("\t.globl\tStMode\n"
+        "\t.section\t.bss.st_801489CC,\"aw\",@nobits\n\t.align\t2\n"
+        "StMode:\n\t.space\t4\n\t.text");
+
 /* ------------------------------------------------------------------------------------------------
  * getintr  (func_80107080) -- acquire one CD-ROM controller interrupt: read+stabilise the code,
  *   drain the response FIFO, acknowledge, update status, route the result into the sync/ready/done

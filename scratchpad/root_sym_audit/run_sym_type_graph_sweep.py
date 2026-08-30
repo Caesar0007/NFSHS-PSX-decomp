@@ -58,19 +58,7 @@ SOURCE_OWNER_OVERRIDES = {
 # more honest than joining by a coincidental stem or comparing a partial TU.
 # Function-to-member membership is byte-indexed in PsyQ 4.3 INDEX.tsv and agrees
 # with the retail VA/object comments in the sources.
-SOURCE_ORGANIZATION_FINDINGS = {
-    "recon/syslib/psx/libcd/stream.c": (
-        "SOURCE_MERGE",
-        "libcd.lib(C_002.obj)|libcd.lib(C_005.obj)|libcd.lib(CDROM.obj)",
-        "one reconstructed TU merges three canonical retail objects",
-    ),
-    "recon/syslib/psx/libcd/streamhelp.c": (
-        "SOURCE_MERGE",
-        ("libcd.lib(C_003.obj)|libcd.lib(C_004.obj)|libcd.lib(C_007.obj)|"
-         "libcd.lib(C_008.obj)|libcd.lib(C_009.obj)|libcd.lib(C_010.obj)"),
-        "one reconstructed TU merges six canonical retail objects",
-    ),
-}
+SOURCE_ORGANIZATION_FINDINGS = {}
 
 
 @dataclass

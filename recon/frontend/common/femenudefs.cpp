@@ -3200,34 +3200,33 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemCar(0x92, (tListIterator *)&iteratorCar1, 0x1c, 10)   /* +0x11D4 tMenuItemNFS4LeftRightChoice */
  , itemColor(0x120, (tListIterator *)&iteratorColor, 0x26, 10)   /* +0x11FC tMenuItemNFS4LeftRightChoice */
  , itemShowcase(0x112, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToShowroom, 0x30, 10)   /* +0x1224 tMenuItemGoToMenuNFS4Button */
- , menuSingleCarSelect(({ __asm__("" : : "r"(&itemGarageCar)); 0x1a00; }), (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0xba, (tMenuItem *)&itemCarSelectRace, &itemCar, &itemColor, &itemShowcase, 0)   /* +0x1250 tMenuNFS4 */
+ , menuSingleCarSelect(({ tMenuItem *garageCarItem = &itemGarageCar; (void)garageCarItem; 0x1a00; }), (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0xba, (tMenuItem *)&itemCarSelectRace, &itemCar, &itemColor, &itemShowcase, 0)   /* +0x1250 tMenuNFS4 */
  , iteratorGarageCar(frontEnd.garageCar, &carManager)   /* +0x12CC tListIteratorCar */
  , itemGarageCar(0x92, (tListIterator *)&iteratorGarageCar, 0x1c, 10)   /* +0x12E8 tMenuItemNFS4LeftRightChoice */
  , itemCarDealer(0x74, (tMenu*)&menuGoToCarDealer, 0, 0x3a, 10)   /* +0x1310 tMenuItemGoToMenuNFS4Button */
  , itemUpgradeCar(0x91, (tMenu *)0x0, MenuExtended_GoToUpgrades, 0x44, 10)   /* +0x133C tMenuItemGoToMenuNFS4Button */
-   /* [W72-A6 / MOVED W74-A6] The statement-expression read-only fence on
-      &itemGarageCar (now on menuPostCarGarage's FIRST argument, one line below the
-      menuCarGarage call) is a +1-REF ALLOCNO DIAL (catalog 21A#1), NOT dead code --
-      DO NOT SIMPLIFY IT AWAY AND DO NOT MOVE IT.  It raises &itemGarageCar
-      (this+0x12E8) from allocno priority 741 to 917, past &menuCarOptions
-      (this+0x20D8) at 896, so $fp holds the same member retail holds (8 of the 11
-      `addiu fp,` writes match the oracle with it; without the fence the whole
-      function is +101 diffs).
-      W74-A6 POSITION LAW: the fence's +1 REF depends only on its OPERAND, but the
-      output-less asm is VOLATILE = a sched1 BARRIER, and it used to sit INSIDE
-      menuCarGarage's own argument list -- exactly the block where our first
-      structural divergence was (a 21-insn pure-reorder hunk at insns 1140..1160).
-      Moving the barrier out of that block while keeping the operand kept the $fp win
-      and deleted the hunk: gate 1257 -> 1238, phase now clean 0..1226 (was 0..1139).
-      Measured position sweep (gate diffs, everything else held): no fence 1339 |
-      inside menuCarGarage on &itemGarageCar 1257, &itemCarDealer 1257,
-      &itemUpgradeCar 1258, &itemCarSelectRace 1255, 0x8f 1254, the fn-ptr arg 1253,
-      &menuCarOptions / screenCarSelect[0] / 0x1a00 1246 | on itemGarageCar's own
-      ctor 1238 | on menuPostCarGarage's 1st arg 1238 (LANDED) | one member later, at
-      iteratorOpponentCar, 1983 -- a cliff, because past menuCarGarage's use the
-      fence LENGTHENS the live range and $fp is lost again.  So: sweep a read-only
-      fence's position from the operand's definition to just past its LAST use; the
-      optimum is adjacent to a use, never inside the hot argument block. */
+   /* [W82-A3 SEAL] The +1-REF ALLOCNO CARRIER on &itemGarageCar (this+0x12E8)
+      lives on menuSingleCarSelect's FIRST argument, three members above, and it is
+      now PURE C -- a named pointer local inside the argument's statement
+      expression, with an explicit (void) use.  It is NOT dead code: it supplies
+      the extra reference that raises &itemGarageCar past &menuCarOptions
+      (this+0x20D8) in the allocno order, so $fp holds the member retail holds.
+      Do not delete it (gate 0 -> 1967) and do not drop the `(void)` use (0 -> 2):
+      flow removes an unreferenced address local before REG_N_REFS is taken.
+      SYM-CODEGEN-CARRIER: garageCarItem
+      HISTORY / why the asm went away.  W72-A6 introduced this as a read-only
+      __asm__("" : : "r"(&itemGarageCar)) fence and W74-A6 moved it; both were
+      priced in basins that no longer exist.  An output-less asm is VOLATILE, hence
+      a sched1 barrier (catalog 24D-3/24D-4), and that barrier -- not the extra ref
+      -- was what held the constructor at 196 diffs: it welded shut the load-delay
+      slot at ours 1073 and knocked the reload spill pool out of phase for 105
+      instructions.  The pure-C carrier buys the SAME +1 ref with NO barrier:
+      196 -> 14 diffs on its own.  Measured alternatives at this site (gate diffs):
+      asm "r" fence 196 | asm "m" fence 2397 @3208 | tied-output launder 197 @3206 |
+      no carrier 1979 @3208 | (void)&itemGarageCar 16 | named pointer + (void) 14.
+      W74-A6's in-source "DO NOT SIMPLIFY IT AWAY AND DO NOT MOVE IT" is retired:
+      its OPERAND claim survives, its SPELLING and POSITION claims do not.
+      The last 14 diffs were the tail: see the A1_SetCarFilter order note below. */
  , menuCarGarage(0x1a00, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0x8f, (tMenuItem *)&itemCarSelectRace, &itemGarageCar, &itemCarDealer, &itemUpgradeCar, 0)   /* +0x1368 tMenuNFS4 */
  , menuPostCarGarage(0x1a00, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0x8f, (tMenuItem *)&itemCarSelectRace, &itemUpgradeCar, 0)   /* +0x13E4 tMenuNFS4 */
  , iteratorOpponentCar(&frontEnd.oppCar, &carManager)   /* +0x1460 tListIteratorCar */
@@ -3413,8 +3412,19 @@ tGlobalMenuDefs::tGlobalMenuDefs()
   ((tMenuItemLeftRightSlider *)&itemEngineVolume)->SetDimensions(0,0,0x78,5);
   ((tMenuItemLeftRightSlider *)&itemSpeechVolume)->SetDimensions(0,0,0x78,5);
   ((tMenuItemLeftRightSlider *)&itemAmbientVolume)->SetDimensions(0,0,0x78,5);
+  /* [W82-A3] SLD-LICENSED STATEMENT ORDER.  The trusted SYM's SLD line map puts
+     ALL FOUR SetCarFilter calls and the three VertHelp stores below on ONE retail
+     source line (2200; the whole 3207-instruction constructor carries 18 SLD
+     records at just 10 distinct addresses, and everything before the body -- all
+     3129 member-init instructions -- carries only TWO).  Their source order is
+     therefore a free variable the SLD cannot constrain -- and it is the last dial:
+     GarageCar first makes cc1 materialize the shared constant 2 as the FIRST
+     instruction of the tail block (retail's `li a0,2` at oracle 3171, tagged to the
+     PREVIOUS statement's line 2172), which flips the const-2 / fFlags-load pair
+     onto retail's registers ($a0 / $v1).  Measured over all 24 permutations of the
+     four calls: 1023 (this one) = PASS, 3021 = 4, 0123 (old) = 14, worst 21. */
+  A1_SetCarFilter(&iteratorGarageCar, 2);
   A1_SetCarFilter(&iteratorPinkSlipsCar, 0x20);
-  A1_SetCarFilter(&iteratorGarageCar, 2);
   A1_SetCarFilter(&iteratorDealerCar, 1);
   A1_SetCarFilter(&iteratorSellerCar, 2);
   (menuAudio).VertHelp = 0;

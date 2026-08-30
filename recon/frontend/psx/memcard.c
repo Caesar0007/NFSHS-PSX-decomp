@@ -896,10 +896,12 @@ int MCRD_handlecardevents(int card)
         do { do {
         gMemCardInfo.bReady = cmd;
         gMemCardInfo.existencecheckticks[card + -1] = timerhz;
-        status = 0x16;
         if (pCI->status == -1) {
           MemCardAccept(gMemCardInfo.channel);
         }
+        /* MATCH (w83-a15): `status = 0x16;` is the LAST statement of THIS arm
+         * and of the `case NONE:` else-arm below -- see the receipt there. */
+        status = 0x16;
         } while (0); } while (0);
         break;
       case 1:
@@ -1019,24 +1021,31 @@ MCRDhandleCard_task:
    * case 0.  Case bodies emit in SOURCE order = the oracle's block VA order. */
   switch(gMemCardInfo.task) {
   case NONE:
-    status = 0x16;
     if (gMemCardInfo.existencecheckticks[card + -1] < 0) {
       gMemCardInfo.bReady = 0;
       status = 0x17;
       if (MemCardExist(gMemCardInfo.channel) == 0) goto MCRDhandleCard_end;
       status = 0x15;
     } else {
-      /* MATCH (w45): ZERO-INSN USE FENCE as a CROSS-JUMP BLOCKER.  `status` lives
-       * in $s0, so "r"(status) emits no instruction -- its only effect is to make
-       * this else-arm's tail textually different from the plain `return status;`
-       * funnel, so cross_jump cannot fold it in.  What survives is retail's shared
-       * 2-insn trampoline .L800500D8 (`j <epilogue>; addu $v0,$s0,$zero`), which
-       * is ALSO the target of the res==0 arm's `bne pCI->status,-1` -- gcc merges
-       * the two un-mergeable exits with EACH OTHER.  Count 209 -> exact 211/211.
-       * The polarity matters: the fence must hang in an `else` (keeping the guard
-       * `bgez`), NOT on an inverted `if (ticks >= 0) {...}` -- that makes the exit
-       * the FALL-THROUGH, flips the branch to `bltz` and inlines the block (8). */
-      __asm__ volatile("" : : "r"(status));
+      /* MATCH (w83-a15, REPLACES the w45 zero-insn USE FENCE): a REAL STATEMENT,
+       * and it is the LAST statement of the res==0 arm above as well.  That is
+       * the whole mechanism (catalog 29D-2): `find_cross_jump` needs ONE matching
+       * insn plus a label, and `do_cross_jump` (jump.c:2705) deletes the tail in
+       * the EARLIER stream and plants the surviving label in the LATER one -- so
+       * the later arm keeps retail's shared 2-insn trampoline .L800500D8
+       * (`j <epilogue>; addu $v0,$s0,$zero`) and the earlier arm's branch is
+       * redirected into it.  That is retail's merge DIRECTION.
+       * The fence bought the same COUNT (211/211) with the WRONG merge:
+       * `find_cross_jump` (jump.c:2631) refuses any tail containing a volatile
+       * ASM_OPERANDS, so word 56 targeted the OTHER of the two byte-identical
+       * return funnels -- ours +148 where retail is +94.  verify_asm normalises
+       * branch targets to `T` and wordcmp waives every R_MIPS_26 word, so ONLY
+       * tools/brdist.py sees it.  Do NOT re-add the fence; re-run brdist after
+       * any edit in this arm.  The polarity still matters: the assignment must
+       * hang in an `else` (keeping the guard `bgez`), NOT on an inverted
+       * `if (ticks >= 0) {...}` -- that makes the exit the FALL-THROUGH, flips
+       * the branch to `bltz` and inlines the block. */
+      status = 0x16;
     }
     break;
   case LOAD_CARD:

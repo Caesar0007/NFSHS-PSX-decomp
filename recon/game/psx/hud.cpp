@@ -1016,12 +1016,14 @@ void Hud_Init(void)
     Hud_BuildF4(HudF4 + 2,1,x,y + 7,7,3,0x707070);
     Hud_BuildSprite2(gSprt1 + 9,0x7d,x,y);
     w1 = HudPmx_gShapes[0x76].width;
-    w2 = 0x26;
     if (Hud_BeTheCop == 0) {
       w2 = 0x32;
       if (HUD_GS_CHECKPOINT_HUD(i) == 0) {
         w2 = 0x3d;
       }
+    }
+    else {
+      w2 = 0x26;
     }
     /* MATCH (w40-a1): the volatile read DEFEATS cse's re-use of the Hud_BeTheCop value the
      * w2 chain just loaded.  Retail RELOADS `lw $v0,%gp_rel(Hud_BeTheCop)($gp)` before each of
@@ -1042,7 +1044,7 @@ void Hud_Init(void)
      * global).  Gate-invisible (branch-target leniency); board shows it as the 99.99%.
      * Coupled-device artifact -- do not chase with label devices (policy) or by dropping
      * the volatile (measured). */
-    if (*(volatile int *)&Hud_BeTheCop != 0) {
+    if (Hud_BeTheCop != 0) {
       x = g1Player[2].x + 0xe;
     }
     else {
@@ -1887,7 +1889,6 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
   numch = strlen(str);
   i = 0;
   while (true) {
-    __asm__("" : "=r"(str) : "0"(str));   /* w51-a9: ABOVE the exit test -- see (c) */
     if (numch <= i) break;    /* exit-in-the-middle: top test + `j` back-edge, tail out-of-line */
     /* MATCH (w50-a1): 52 -> 26, count EXACT 215/215.  This fence PAIR is the w49 reqdelta
      * dial "p80 (`str`) refs 8 -> 13" made real: an OPACITY/IDENTITY fence costs ZERO
@@ -2054,7 +2055,6 @@ HudBuildStr_haveShape:
       }
     }
 HudBuildStr_next:
-    __asm__("" : "=r"(str) : "0"(str));   /* second half of the w50-a1 ref-step pair */
     str = str + 1;
     i = i + 1;
   }

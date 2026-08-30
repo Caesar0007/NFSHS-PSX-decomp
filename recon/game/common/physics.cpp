@@ -1421,11 +1421,17 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
   }
   if ((((carObj->control).gear == '\x01') || ((carObj->control).gearShiftTimer != '\0')) ||
      (powerControl == 0)) {
+    /* MATCH (W83-A8, 26G-2 second firing): staging the clamp's read into a
+       local owned by the non-jumping arms makes the damage arm's `goto` land
+       PAST the reload, matching retail's j +4 (brdist word #25) -- the
+       skipped insn was a semantics-neutral re-read of flywheelRpm. */
+    int clampedFlywheelRpm;
     if (damage) {
       __asm__("" : : "i"(0));
       int damagedFlywheelRpm = carObj->flywheelRpm + -100;
       __asm__("" : : "i"(0));
       carObj->flywheelRpm = damagedFlywheelRpm;
+      clampedFlywheelRpm = damagedFlywheelRpm;
       goto cfLbl1;   /* retail: j into the shared >=0 clamp @0x800aae34 */
     }
     else {
@@ -1465,9 +1471,14 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
           else {
             carObj->flywheelRpm = carObj->flywheelRpm + -100;
           }
+          clampedFlywheelRpm = carObj->flywheelRpm;
 cfLbl1:   /* @0x800aae34  (retail's shared clamp; the damage arm jumps here) */
-          carObj->flywheelRpm =
-              (carObj->flywheelRpm < 0) ? 0 : carObj->flywheelRpm;
+          /* the if-funnel is mandatory: a ternary over the LOCAL stores $zero
+             directly and drops retail's `addu v0,zero,zero` (W83-A8 §1.3) */
+          if (clampedFlywheelRpm < 0) {
+            clampedFlywheelRpm = 0;
+          }
+          carObj->flywheelRpm = clampedFlywheelRpm;
         }
       }
       else {

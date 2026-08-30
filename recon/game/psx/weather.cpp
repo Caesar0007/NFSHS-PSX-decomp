@@ -333,20 +333,28 @@ void Weather_ChangeIntensityState(void)
 void Weather_ChangeDensityBasedOnTime(void)
 
 {
-  if (Weather_gDensityChangeFactor <= 0) goto WeatherDensity_checkZero;
-  if (Weather_gSys.num[0] < Weather_gDensityTbl[Weather_gDensityGoalState])
-  goto WeatherDensity_numAdd;
-  goto WeatherDensity_call;
-WeatherDensity_checkZero:
-  if (Weather_gDensityChangeFactor >= 0) goto WeatherDensity_checkTime;
-  if (!(Weather_gSys.num[0] > Weather_gDensityTbl[Weather_gDensityGoalState]))
-  goto WeatherDensity_call;
-  goto WeatherDensity_numAdd;
-WeatherDensity_checkTime:
-  if (WEATHER_GAME_TICKS <= Weather_gDensityTimerGoal) goto WeatherDensity_numAdd;
-WeatherDensity_call:
-  Weather_ChangeDensityState();
-WeatherDensity_numAdd:
+  /* MATCH (W83-A7, brdist word #5 cured): natural if/else-if/else with the
+     call in ALL THREE arms.  The goto spelling made guard 2 branch TO the
+     call, so its condition read EQ and relax_delay_slots' invert-and-swap
+     (gated on mostly_true_jump: EQ=0 refused, NE=1 fires) never handed its
+     j to fill_slots_from_thread's redundant_insn advance -- ours landed ON
+     the %hi(Weather_gSys) reload retail's j skips.  Both guards now emit NE,
+     both j's advance, and cross_jump builds retail's shared jal block.  The
+     third guard's operand order (TICKS > goal) is load-bearing (swapped = 4
+     posmis).  Receipt: scratchpad/w83/A7_receipt.md. */
+  if (Weather_gDensityChangeFactor > 0) {
+    if (Weather_gSys.num[0] >= Weather_gDensityTbl[Weather_gDensityGoalState]) {
+      Weather_ChangeDensityState();
+    }
+  }
+  else if (Weather_gDensityChangeFactor < 0) {
+    if (Weather_gSys.num[0] <= Weather_gDensityTbl[Weather_gDensityGoalState]) {
+      Weather_ChangeDensityState();
+    }
+  }
+  else if (WEATHER_GAME_TICKS > Weather_gDensityTimerGoal) {
+    Weather_ChangeDensityState();
+  }
   Weather_gSys.num[0] = Weather_gSys.num[0] + Weather_gDensityChangeFactor;
   if (Weather_gSys.num[0] < 1) {
     Weather_gSys.num[0] = 0;

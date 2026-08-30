@@ -2036,7 +2036,18 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
     (*vtbl[1][2].pfn)
               (vtbl[1][2].delta + -0x14 +
                this->fPermShapes.fFilename,&carInfo);
-    if (gCarObj[(byte)FEAppB[0]->fPlayer]->async_handle != 0) {
+    /* MATCH (w83-a15): NAMING one of the two async_handle reads is a ZERO-INSN
+       JUMP-GRAPH dial (catalog 26G-3).  `rtx_equal_for_thread_p' (jump.c:4599)
+       refuses the equivalence as soon as REG_USERVAR_P holds on EITHER compared
+       pseudo, so with BOTH reads anonymous jump.c THREADS this beqz past the
+       second test's re-load: branch word 106 lands +20 where retail is +8.
+       Naming exactly ONE side blocks it (naming BOTH re-enables it -- the
+       REGNO clause runs first).  Byte-identical with the name on the `== 0'
+       test instead (measured: same object, per-symbol md5).
+       INVISIBLE to verify_asm (branch targets normalise to `T') and to wordcmp
+       (R_MIPS_26 waived) -- tools/brdist.py is the only witness. */
+    int loading = gCarObj[(byte)FEAppB[0]->fPlayer]->async_handle;
+    if (loading != 0) {
       this->SetBrightness(0,0);
       this->fFadeTicks[0] = ticks[0];
     }
@@ -2047,12 +2058,16 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
         this->SetBrightness(carInfo.fAvailable != '\0' ? 0x80 : 0x20,0);
         TurnOn(this->fVideoWall);
       }
-      /* MATCH: void fence HERE (inner-if exit, still inside the outer if) gives the
-         inner guard chain its OWN branch target, so reorg can no longer copy the
-         outer target's `addu a0,s0,zero` head into the `bne fBrightness,fDest`
-         delay slot -- the oracle leaves that one slot a nop while KEEPING the
-         steal in the outer `bnez async_handle` slot.  Zero insns.  Do NOT delete. */
-      __asm__("" : : "i"(0));
+      /* w83-a15: the w45 void fence that stood here is DELETED, and its receipt
+         was a BASIN verdict (catalog 29A0-5 device-masking).  The fence is what
+         BLOCKED reorg's `relax_delay_slots'/`redundant_insn' redirect --
+         `resource_conflicts_p' (reorg.c:726) short-circuits on res->volatil --
+         so retail's four inner branches could never be advanced past the
+         redundant `addu a0,s0,zero' at .L8003E718 (branch words 130/132/139/143,
+         each ours exactly one instruction short of retail).  With the fence in,
+         the `loading' naming above reads as nearly inert (5 -> 3); fence OUT
+         alone costs a nop; the PAIR is REAL 0 / brdist 0 / 342 == 342.
+         Do not re-add it without re-running tools/brdist.py. */
     }
     this->UpdateBrightness(0);
     showRoomFlag = 0;

@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3492 functions, 3474 at 100% (99.5%)
+TOTAL: 3492 functions, 3479 at 100% (99.6%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -518,7 +518,7 @@ VA             %match  unit                     function
 0x8002E18C    100.00%  frontend/common/femenudefs MenuExtended_ExitTourney__FR12tMenuCommand
 0x8002E21C    100.00%  frontend/common/femenudefs MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand
 0x8002E34C    100.00%  frontend/common/femenudefs MenuExtended_PinkSlipsContinue__FR12tMenuCommand
-0x8002E3B8     99.41%  frontend/common/femenudefs __15tGlobalMenuDefs
+0x8002E3B8    100.00%  frontend/common/femenudefs __15tGlobalMenuDefs
 0x800315D4    100.00%  frontend/common/femenudefs ___15tGlobalMenuDefs
 0x800321C0    100.00%  frontend/common/femenudefs TransitionIsFinished__32tBlankMenuItemGoToMenuNFS4Button
 0x800321C8    100.00%  frontend/common/femenudefs Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib
@@ -804,7 +804,7 @@ VA             %match  unit                     function
 0x80048E70    100.00%  frontend/common/screencongrats ProcessInput__23tScreenTournamentTrophy7tPlayerR13tInputKeyTypeR12tMenuCommand
 0x80048EB8    100.00%  frontend/common/screencongrats GetCar__23tScreenTournamentTrophyR8tCarInfo
 0x80048F64    100.00%  frontend/common/screencongrats DrawCongratsMessage__23tScreenTournamentTrophy
-0x8004923C     99.97%  frontend/common/screencongrats CalculatePrizes__23tScreenTournamentTrophy
+0x8004923C    100.00%  frontend/common/screencongrats CalculatePrizes__23tScreenTournamentTrophy
 0x8004947C    100.00%  frontend/common/screencongrats GetCar__23tScreenBeTheCopCongratsR8tCarInfo
 0x800494DC    100.00%  frontend/common/screencongrats CalculatePrizes__23tScreenBeTheCopCongrats
 0x8004952C    100.00%  frontend/common/screencongrats DrawCongratsMessage__23tScreenBeTheCopCongrats
@@ -3141,7 +3141,7 @@ VA             %match  unit                     function
 0x800FDE88    100.00%  syslib/psx/libpad/PADPORTD _pad_reset_state
 0x800FDEF0    100.00%  syslib/psx/libpad/PADPORTD _pad_failall
 0x800FDFE4    100.00%  syslib/psx/libpad/PADPORTD _pad_shift
-0x800FDFF4     99.89%  syslib/psx/libpad/PADPORTD _pad_getbyte
+0x800FDFF4    100.00%  syslib/psx/libpad/PADPORTD _pad_getbyte
 0x800FE0B0    100.00%  syslib/psx/libpad/PADPORTD _pad_filter
 0x800FE32C    100.00%  syslib/psx/libpad/PADPORTD _pad_port_to_slot
 0x800FE364    100.00%  syslib/psx/libpad/PADPORTD _pad_get_port
@@ -3326,7 +3326,7 @@ VA             %match  unit                     function
 0x8010669C    100.00%  syslib/psx/libapi/A25    HookEntryInt
 0x801066AC    100.00%  syslib/psx/libetc/INTR_DMA startIntrDMA
 0x801066F8    100.00%  syslib/psx/libetc/INTR_DMA _dma_isr
-0x80106878     98.60%  syslib/psx/libetc/INTR_DMA setIntrDMA
+0x80106878    100.00%  syslib/psx/libetc/INTR_DMA setIntrDMA
 0x80106954    100.00%  syslib/psx/libapi/C114   _96_remove
 0x8010696C    100.00%  syslib/psx/libapi/A37    ExitCriticalSection
 0x8010697C    100.00%  syslib/psx/libapi/A23    ReturnFromException
@@ -3464,7 +3464,7 @@ VA             %match  unit                     function
 0x8010C0A8    100.00%  syslib/psx/libpad/MCXMAIN _padIntInit
 0x8010C0F0    100.00%  syslib/psx/libpad/MCXMAIN _padIntQuery
 0x8010C1C8    100.00%  syslib/psx/libpad/MCXMAIN _padIntRecvId
-0x8010C288     98.14%  syslib/psx/libpad/MCXMAIN _padIntRecvHdr
+0x8010C288    100.00%  syslib/psx/libpad/MCXMAIN _padIntRecvHdr
 0x8010C314    100.00%  syslib/psx/libpad/MCXMAIN _padIntRecvData
 0x8010C698    100.00%  syslib/psx/libgpu/P34    SetDrawMove
 0x8010C6F8    100.00%  syslib/psx/libapi/A07    DeliverEvent

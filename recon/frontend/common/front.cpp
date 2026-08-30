@@ -552,20 +552,69 @@ void Front_ResetPSXAnalogs(int player)
    has to come from natural liveness (something else occupying $v0/$v1 across
    that arm), not from a clobber.  Harness: scratchpad/W74_A7/
    {probe.py,pad1.py,pad2.py,pad3.py}. */
-/* MATCH (2026-08-24): user-authorized last-resort source-level register binding,
-   after the natural-source, qty, conflict, clobber-set, and placement families
-   above were exhausted.  The two remaining atomic cross-jump groups need their
-   block-local accumulators in different retail homes: G1 (0x100000,
-   -0x80000000, 0x10000000) in $a2, G2 (0x400000, 0x20000000, 0x40000000) in
-   $a1.  Merely pinning the initial `player << 30` value leaves the OR result in
-   a fresh $v0 and scores 16; assigning the completed OR chain back into the
-   pinned accumulator is load-bearing and gives PASS 222/222.  This is entirely
-   compiler-input source code: no post-compilation instruction rewrite. */
+/* MATCH (W83-A10, 2026-08-30): the six `register int acc asm("$N")` pins the
+   2026-08-24 note landed are GONE; the function is PASS 222/222 in pure source
+   C, with no asm, no volatile and no post-compilation rewrite.
+
+   THE MECHANISM, read off local-alloc.c and the compiler's own -dl dump.
+   Retail's two merged tails mutate ONE accumulator IN PLACE
+   (.L80027398 `or a2,a2,v0` / `or a2,a2,a1` and .L800273D0 `or a1,a1,v0` /
+   `or a1,a1,v1`), and the accumulator's home is decided by GLOBAL_ALLOC, not
+   by local-alloc.  Two facts make every per-arm `int acc` spelling fail:
+     (1) a BLOCK-LOCAL accumulator whose chain feeds `return acc | 1;` gets a
+         `qty_phys_sugg` of $v0 from combine_regs' hard-register branch (the
+         return register), and local-alloc.c serves every suggested qty in
+         GROUP 1, before all other qtys, with find_free_reg restricted to the
+         suggested set -- so it takes $v0 unconditionally and the whole arm
+         band rotates (measured: 110 diffs on the G1 trio alone);
+     (2) a per-arm `int acc` written `acc = player << 30; acc = acc | ...;`
+         has REG_N_DEATHS == 2, so it fails local-alloc.c:471's eligibility
+         test, reg_qty stays -1, and combine_regs (local-alloc.c:1841) refuses
+         to tie the intermediate `or`'s dest to it -- the dest ties to the
+         dying hi-term instead (`or v0,a2,v0`).  Everything else in the
+         function is byte-exact that way; the residual is exactly those 4
+         instructions (FAIL 8 @222/222).
+   THE CURE (pure C): give each cross-jump trio its own FUNCTION-SCOPE
+   accumulator.  Used in three basic blocks each, `acc1`/`acc2` are global
+   allocnos: local-alloc never sees them, no $v0 suggestion is ever recorded,
+   and global_alloc hands them out AFTER the arm's block-local qtys have taken
+   $v0/$v1/$a0(/$a1) -- which is $a2 for the trio that also carries the shared
+   0x7f constant and $a1 for the trio that does not, i.e. retail's homes.  And
+   because every OR assigns the accumulator IN PLACE, no combine_regs tie is
+   needed at all: the dests are the allocno's register by construction.
+   BOTH DETAILS ARE LOAD-BEARING, measured with the change applied to the G1
+   trio ONLY (whole-function gate; G2 left as a plain per-arm local = 4, so 4
+   means "G1 fully solved" and the pinned control is also 4):
+     acc1 = acc1 | TAG | (hi);  acc1 = acc1 | (lo);   ->   4  <- landed
+     acc1 |= TAG | (hi);        acc1 |= (lo);         -> 104 @216 (6 SHORT)
+   The `|=` spelling parses as `acc | (TAG | hi)`, and fold-const's associate:
+   leg then rewrites it to `(acc | hi) | TAG`, which splits the tag into its own
+   OR and lets it ride a dispatch delay slot.  The unparenthesized long form
+   `acc = acc | TAG | (hi)` keeps retail's `lui`+`or` fusion of the tag into the
+   hi term.  A single SHARED accumulator for both trios is 14 diffs (the two
+   trios need two different registers, so they need two allocnos), and reusing
+   `newControl` is 28 -- it is one allocno across the whole function.
+   FALSIFIED here (same G1-only metric, baseline 8 = both trios plain):
+   single-assignment accumulator 110, flat return-expression 150, two-statement
+   in-place with any parenthesisation 102-116, operand-order flips 111-116,
+   a mutable tag carrier to escape fold 85 @215, declaration split 8 (inert),
+   do{}while(0) ref dials 8 / 156, a dead `&&label` 112 @238, the named-0x7f
+   carrier 8 (inert; cse folds it), and the `newControl` spellings 10 / 28.
+   Full field in scratchpad/w83/A10_receipt.md sec.5 (41 measured cells).
+   COST: two `int` declarations the SYM's 8c block does not list (it names only
+   newControl $v0 and type $v1).  That is a source fiction, but a pure-C one --
+   and it replaces six methodology-3.13-forbidden register pins. */
 int GetPSXPadValue(int value,int player)
 
 {
   int newControl;
   int type;
+  /* SYM-CODEGEN-CARRIER: acc1/acc2 -- one accumulator per cross-jump trio.
+     Function scope is load-bearing (see the MATCH note above): it makes each a
+     GLOBAL allocno, which is what puts them in retail's $a2/$a1 and lets every
+     OR write them in place.  The SYM lists only newControl/type. */
+  int acc1;
+  int acc2;
   
   PAD_update();
   if (gPadinfo.buf[player * 4].nopad != '\0') {
@@ -600,59 +649,35 @@ GetPSXPadValue_gotType:
                    ((byte)frontEnd.J1MAX[player] + 0x80) * 0x100;
       return newControl | 1;
     case 0x100000:
-      {
-        register int acc asm("$6") = player << 0x1e;
-        acc = acc |
-              0x1000000 |
-              (0x7f - (byte)frontEnd.J1MIN[player]) * 0x10000 |
-              (0x7f - (byte)frontEnd.J1MAX[player]) * 0x100;
-        return acc | 1;
-      }
+      acc1 = player << 0x1e;
+      acc1 = acc1 | 0x1000000 | (0x7f - (byte)frontEnd.J1MIN[player]) * 0x10000;
+      acc1 = acc1 | (0x7f - (byte)frontEnd.J1MAX[player]) * 0x100;
+      return acc1 | 1;
     case 0x400000:
-      {
-        register int acc asm("$5") = player << 0x1e;
-        acc = acc |
-              0x1000000 |
-              ((byte)frontEnd.J1MIN[player] + 0x80) * 0x10000 |
-              ((byte)frontEnd.J1MAX[player] + 0x80) * 0x100;
-        return acc | 1;
-      }
+      acc2 = player << 0x1e;
+      acc2 = acc2 | 0x1000000 | ((byte)frontEnd.J1MIN[player] + 0x80) * 0x10000;
+      acc2 = acc2 | ((byte)frontEnd.J1MAX[player] + 0x80) * 0x100;
+      return acc2 | 1;
     case -0x80000000:
-      {
-        register int acc asm("$6") = player << 0x1e;
-        acc = acc |
-              0x2000000 |
-              (0x7f - (byte)frontEnd.J2MIN[player]) * 0x10000 |
-              (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100;
-        return acc | 1;
-      }
+      acc1 = player << 0x1e;
+      acc1 = acc1 | 0x2000000 | (0x7f - (byte)frontEnd.J2MIN[player]) * 0x10000;
+      acc1 = acc1 | (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100;
+      return acc1 | 1;
     case 0x20000000:
-      {
-        register int acc asm("$5") = player << 0x1e;
-        acc = acc |
-              0x2000000 |
-              ((byte)frontEnd.J2MIN[player] + 0x80) * 0x10000 |
-              ((byte)frontEnd.J2MAX[player] + 0x80) * 0x100;
-        return acc | 1;
-      }
+      acc2 = player << 0x1e;
+      acc2 = acc2 | 0x2000000 | ((byte)frontEnd.J2MIN[player] + 0x80) * 0x10000;
+      acc2 = acc2 | ((byte)frontEnd.J2MAX[player] + 0x80) * 0x100;
+      return acc2 | 1;
     case 0x10000000:
-      {
-        register int acc asm("$6") = player << 0x1e;
-        acc = acc |
-              0x3000000 |
-              (0x7f - (byte)frontEnd.J2MIN[player]) * 0x10000 |
-              (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100;
-        return acc | 1;
-      }
+      acc1 = player << 0x1e;
+      acc1 = acc1 | 0x3000000 | (0x7f - (byte)frontEnd.J2MIN[player]) * 0x10000;
+      acc1 = acc1 | (0x7f - (byte)frontEnd.J2MAX[player]) * 0x100;
+      return acc1 | 1;
     case 0x40000000:
-      {
-        register int acc asm("$5") = player << 0x1e;
-        acc = acc |
-              0x3000000 |
-              ((byte)frontEnd.J2MIN[player] + 0x80) * 0x10000 |
-              ((byte)frontEnd.J2MAX[player] + 0x80) * 0x100;
-        return acc | 1;
-      }
+      acc2 = player << 0x1e;
+      acc2 = acc2 | 0x3000000 | ((byte)frontEnd.J2MIN[player] + 0x80) * 0x10000;
+      acc2 = acc2 | ((byte)frontEnd.J2MAX[player] + 0x80) * 0x100;
+      return acc2 | 1;
     }
     break;
   case 0x23:

@@ -758,10 +758,9 @@ int InGame_GetPSXPadValue(int value,int player)
   case 0x73:
     switch (c) {
     case 0x800000:
-      __asm__("" : : "r"(player << 0x1e), "i"(0) : "$2", "$3");
-      return ((player << 0x1e) |
-              (0x80 - INGAME_CD_VALUE(J1MIN[0])) * 0x10000 |
-              (0x80 - INGAME_CD_VALUE(J1MAX[0])) * 0x100 ) | 1;
+      return ((0x80 - INGAME_CD_VALUE(J1MIN[0])) * 0x10000 |
+              (0x80 - INGAME_CD_VALUE(J1MAX[0])) * 0x100 |
+              (player << 0x1e) ) | 1;
     case 0x200000:
       newControl = player << 0x1e |
                    (INGAME_CD_VALUE(J1MIN[0]) + 0x80) * 0x10000;
@@ -772,15 +771,13 @@ int InGame_GetPSXPadValue(int value,int player)
                    (0x80 - INGAME_CD_VALUE(J1MIN[0])) * 0x10000 |
                    (0x80 - INGAME_CD_VALUE(J1MAX[0])) * 0x100 ;
       return newControl | 1;
-      do { } while (0);
     case 0x400000:
       __asm__("" : : "r"((GameSetup_tControllerData *)
                            ((player << 2) + (int)&GameSetup_gData)));
-      __asm__("" : : "r"(player << 0x1e), "r"(player << 0x1e));
-      newControl = player << 0x1e |
+      do { newControl = player << 0x1e |
                    0x1000000 |
                    (INGAME_CD_VALUE(J1MIN[0]) + 0x80) * 0x10000 |
-                   (INGAME_CD_VALUE(J1MAX[0]) + 0x80) * 0x100 ;
+                   (INGAME_CD_VALUE(J1MAX[0]) + 0x80) * 0x100 ; } while (0);
       return newControl | 1;
     case -0x80000000:
       newControl = player << 0x1e |
@@ -791,11 +788,10 @@ int InGame_GetPSXPadValue(int value,int player)
     case 0x20000000:
       __asm__("" : : "r"((GameSetup_tControllerData *)
                            ((player << 2) + (int)&GameSetup_gData)));
-      __asm__("" : : "r"(player << 0x1e), "r"(player << 0x1e));
-      newControl = player << 0x1e |
+      do { newControl = player << 0x1e |
                    0x2000000 |
                    (INGAME_CD_VALUE(J2MIN[0]) + value) * 0x10000 |
-                   (INGAME_CD_VALUE(J2MAX[0]) + 0x80) * 0x100 ;
+                   (INGAME_CD_VALUE(J2MAX[0]) + 0x80) * 0x100 ; } while (0);
       return newControl | 1;
     case 0x10000000:
       newControl = player << 0x1e |
@@ -806,26 +802,24 @@ int InGame_GetPSXPadValue(int value,int player)
     case 0x40000000:
       __asm__("" : : "r"((GameSetup_tControllerData *)
                            ((player << 2) + (int)&GameSetup_gData)));
-      __asm__("" : : "r"(player << 0x1e), "r"(player << 0x1e));
-      newControl = player << 0x1e |
+      do { newControl = player << 0x1e |
                    0x3000000 |
                    (INGAME_CD_VALUE(J2MIN[0]) + value) * 0x10000 |
-                   (INGAME_CD_VALUE(J2MAX[0]) + 0x80) * 0x100 ;
+                   (INGAME_CD_VALUE(J2MAX[0]) + 0x80) * 0x100 ; } while (0);
       return newControl | 1;
     }
     break;
   case 0x23:
     switch (c) {
     case 0x800000:
-      __asm__("" : : "r"(player << 0x1e), "i"(0) : "$2", "$3");
       /* W74-A12: the w46-a8 DE-MERGE FENCE that lived here (`__asm__ volatile("" : :
          "r"(newControl));`, the unique fence optimum through five waves) is now
          SUPERSEDED and REMOVED.  W76's unnamed repeated-expression quantity preserves
          the same allocation and is exactly bit-neutral (97 @234), while avoiding the
          non-retail `acc` debug local. */
-      return ((player << 0x1e) |
-              (0x80 - INGAME_CD_VALUE(deadSpot[0])) * 0x10000 |
-              (0x80 - INGAME_CD_VALUE(steeringRange[0])) * 0x100 ) | 1;
+      return ((0x80 - INGAME_CD_VALUE(deadSpot[0])) * 0x10000 |
+              (0x80 - INGAME_CD_VALUE(steeringRange[0])) * 0x100 |
+              (player << 0x1e) ) | 1;
     case 0x200000:
       newControl = player << 0x1e |
                    (INGAME_CD_VALUE(deadSpot[0]) + 0x80) * 0x10000 ;

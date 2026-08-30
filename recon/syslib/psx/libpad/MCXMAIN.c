@@ -272,7 +272,18 @@ return_r:
  * (`if (v >= 2) goto send_byte; if (v < 0) goto send_byte;`).  Retail steals send_byte's first
  * insn `addu $a0,$s1,$zero` into the FIRST branch's (beqz) slot and leaves the bltz's empty
  * (redundant_insn suppresses the second steal); ours fills the SECOND.  This is the same reorg
- * class as _padIntRecvHdr's residual below -- see that receipt for the falsification set. */
+ * class as _padIntRecvHdr's residual below -- see that receipt for the falsification set.
+ * W83-root (2026-08-30) WHOLE-FUNCTION LIVENESS ANGLE CONFIRMED.  A loop-live
+ * `sendInfo = info` alias makes reorg place `addu $a0,$s1,$zero` in the FIRST branch slot and
+ * leave the `bltz` slot empty exactly like retail.  The direct landing is not yet viable because
+ * the alias becomes a seventh live saved-register allocno: named-three form 71 diffs @226/223,
+ * assignment immediately before the branch chain 72 @225/223, and replacing named `three` with
+ * literal 3 restores the six-register frame but remains 67 @222/223.  A target-local alias is
+ * optimized away and stays 4 @223/223.  Also measured and reverted: drive-loop do/while 60,
+ * duplicated send tail 81, second-edge trampoline 6; first-edge trampoline plus inverted
+ * align/drive/stream exit topologies are byte-identical at 4.  NEXT ANGLE: create the confirmed
+ * pre-branch liveness effect through an existing/coalesced pseudo (no seventh allocno), rather
+ * than adding another independent pointer local. */
 extern unsigned _padIntRecvData(unsigned char *info)
 {
     int align = 0;

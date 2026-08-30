@@ -566,7 +566,7 @@ void AIHigh_Cop::HighExecute()
           wrongWayHit = (rev == 0);
           __asm__("" : "=r"(wrongWayHit) : "0"(wrongWayHit));
 
-          if (wrongWayHit || (*(volatile int *)&newTrigger.roadblock.dir == 0)) {
+          if (wrongWayHit || (*(int *)&newTrigger.roadblock.dir == 0)) {
 
             AIState_Offroad *newState;
 

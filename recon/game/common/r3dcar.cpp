@@ -712,7 +712,6 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
         }
       }
       else {
-        __asm__("" : "=r"(commMode) : "0"(commMode));
         (carObj->render).medOnly = commMode;
       }
     }
@@ -1156,7 +1155,6 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
      the wheel changes below subsequently take the whole function to 9.
      A named detail temp, removing this fence, and 1/2/4 read-only copIndex
      ref steps were byte-neutral; moving cop_flag after the guard regressed. */
-  __asm__("" : "=r"(copIndex) : "0"(copIndex));
   R3DCar_rightHandDrive = rightHandDrive;
   cop_flag = (u_int)copIndex < 6; /* SYM: cop_flag REG s6 (int, not a spilled bool) */
   if ((carObj->render).detail < 0) {
@@ -1789,7 +1787,6 @@ R_ICFt_matrixCopyDone: ;   /* empty stmt: gcc2.7.2 rejects label before '}' */
       /* MATCH: the sum is stored modulo 16 bits, so GCC otherwise folds this
          to lhu and reverses the two tail loads.  The tied fence preserves the
          retail signed lh/load order and lowers the gate 38 -> 36. */
-      __asm__("" : "=r"(positionStep) : "0"(positionStep));
       (carObj->N).positionXZ =
            (carObj->N).positionXZ + positionStep;
     }

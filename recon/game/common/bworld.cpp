@@ -861,23 +861,23 @@ int SetupChunkBuildList(DRender_tView *Vi)
              (0 <= tmpPts[1].z) ||
              (0 <= tmpPts[2].z) ||
              (0 <= tmpPts[3].z))) {
-          ((volatile tBuildEntry *)BWorld_gChunkBuildList)[chunkCount]
+          ((tBuildEntry *)BWorld_gChunkBuildList)[chunkCount]
               .enableBits = 3;
           if (chunkDist < gCurrContext->lineFarZClipSq) {
-            ((volatile tBuildEntry *)BWorld_gChunkBuildList)[chunkCount]
+            ((tBuildEntry *)BWorld_gChunkBuildList)[chunkCount]
                 .enableBits = 7;
           }
           if ((viewList[viewInd] & 0x4000U) != 0) {
-            ((volatile tBuildEntry *)BWorld_gChunkBuildList)[chunkCount]
+            ((tBuildEntry *)BWorld_gChunkBuildList)[chunkCount]
                 .enableBits &= 0xfd;
           }
           if ((viewList[viewInd] & 0x2000U) != 0) {
-            ((volatile tBuildEntry *)BWorld_gChunkBuildList)[chunkCount]
+            ((tBuildEntry *)BWorld_gChunkBuildList)[chunkCount]
                 .enableBits &= 0xfe;
           }
-          ((volatile tBuildEntry *)BWorld_gChunkBuildList)[chunkCount].geomRez =
+          ((tBuildEntry *)BWorld_gChunkBuildList)[chunkCount].geomRez =
               (char)GetRezIndex(chunkDist);
-          ((volatile tBuildEntry *)BWorld_gChunkBuildList)[chunkCount].chunkInd =
+          ((tBuildEntry *)BWorld_gChunkBuildList)[chunkCount].chunkInd =
               (short)chunkInd;
           chunkCount++;
         }

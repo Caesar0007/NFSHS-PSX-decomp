@@ -5164,7 +5164,7 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
        30-diff basin.  ⚠️ lab fidelity for THIS fn is IDENTICAL per w62-a2, so the
        instrumented cc1plus is quotable. */
     if (((DrawW_GameSetup.track != 4) ||
-        (((0x27 < ({ u_int c = thisChunkInd - 1U; __asm__("" : "=r"(c) : "0"(c)); c; }) && (0x1d < thisChunkInd - 0x3dU)) && (8 < thisChunkInd - 0x6cU)))) &&
+        (((0x27 < ({ u_int c = thisChunkInd - 1U;  c; }) && (0x1d < thisChunkInd - 0x3dU)) && (8 < thisChunkInd - 0x6cU)))) &&
        ((DrawW_GameSetup.track != 0 ||
         (((0x34 < (u_int)(thisChunkInd - 1U) && (0x1b < thisChunkInd - 0x44U)) && (0x13 < thisChunkInd - 0x6cU)))))) {
       gChunkObjInfo.objInstanceBuf = gPersistObjInst;

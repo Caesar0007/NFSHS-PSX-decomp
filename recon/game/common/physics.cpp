@@ -867,7 +867,6 @@ void Physics_RampCarControlValues(Car_tObj *carObj)
     else {
       inc = 0x30;
     }
-    __asm__("" : "=r"(inc) : "0"(inc));
     diff = (carObj->control).desiredGasLevel - (carObj->control).gasLevel;
     if (diff >= 0) {
       int incValue = (u_char)inc;
@@ -1104,14 +1103,12 @@ void Physics_FixEngineRpm(Car_tObj *carObj)
   int nextMatY;
   int transformedZ;
 
-  __asm__("" : "=r"(firstExprGuard));
   (carObj->linearVel_ch).x =
        (carObj->N).linearVel.x / 256 * ((carObj->N).shadowMat.m[0] / 256) +
        (carObj->N).linearVel.y / 256 * ((carObj->N).shadowMat.m[1] / 256) +
        (carObj->N).linearVel.z / 256 * ((carObj->N).shadowMat.m[2] / 256);
   nextVelX = (carObj->N).linearVel.x / 256;
   nextMatX = (carObj->N).shadowMat.m[6] / 256;
-  __asm__("" : "=r"(firstExprGuard) : "0"(firstExprGuard));
   firstProduct = nextVelX * nextMatX;
   nextVelY = (carObj->N).linearVel.y / 256;
   nextMatY = (carObj->N).shadowMat.m[7] / 256;
@@ -1411,7 +1408,6 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
       revLimitedRpm = specs->redline + -400;
     }
     adjustedDesiredRpm = revLimitedRpm;
-    __asm__("" : "=r"(adjustedDesiredRpm) : "0"(adjustedDesiredRpm));
     if (adjustedDesiredRpm >= desiredRpm) {
       adjustedDesiredRpm = desiredRpm;
     }

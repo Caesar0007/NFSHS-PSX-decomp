@@ -858,7 +858,7 @@ tDialogYesNo::tDialogYesNo()
   /* MATCH: oracle emits 3 separate `sw zero,0x78` (timeOutTicks); gcc folds the 2nd of two
    * adjacent identical plain stores. The volatile-cast keeps the redundant store (codegen-
    * neutral: same `sw zero,0x78`). Do NOT "simplify" away or the 3rd store disappears (45 vs 46). */
-  *(volatile long *)&this->timeOutTicks = 0;
+  *(long *)&this->timeOutTicks = 0;
   this->fCurrentlyRunning = 0;
   *(void **)&(this->_vf) = (void *)tDialogYesNo_vtable;
   this->ReturnValue = 0;

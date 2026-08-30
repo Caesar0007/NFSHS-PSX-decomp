@@ -1064,7 +1064,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
         point.z += wheelFrontZ.z;
       }
       TrgSfx_AddCarExtraSfx((carObj->N).objID,0,&point,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ,
-                 *(volatile int *)&point.y,(carObj->render).light);
+                 *(int *)&point.y,(carObj->render).light);
     }
   }
 

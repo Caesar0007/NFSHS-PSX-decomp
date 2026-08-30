@@ -383,7 +383,6 @@ extern int ResetGraph(int mode)
          * `GEnv.field = ...` is an `sw/sb $r,sym` $at macro instead; the fenced
          * pointer local restores the anchor. */
         g = &GEnv;
-        __asm__("" : "=r"(g) : "0"(g));
         graphState = (u_char *)g;
         _memset((char *)graphState, 0, 0x80);
         ResetCallback();
@@ -1773,7 +1772,6 @@ extern int _dws(RECT *rect, u_long *data)
     if (to_write <= 0)
         return -1;
     var_s0 = to_write >> 4;
-    __asm__("" : "=r"(var_s0) : "0"(var_s0));
     quotient = var_s0;
     var_s0 = to_write - (quotient << 4);
     size = quotient;
@@ -1870,7 +1868,6 @@ extern int _drs(RECT *rect, u_long *data)
     if (to_read <= 0)
         return -1;
     var_s0 = to_read >> 4;
-    __asm__("" : "=r"(var_s0) : "0"(var_s0));
     quotient = var_s0;
     var_s0 = to_read - (quotient << 4);
     size = quotient;
@@ -1997,7 +1994,6 @@ extern int _gpu_que_push(QueFunc func, u_long *arg, int n, int extra)
      * its volatile byte-copy loop and shared queue view this makes the function PASS. */
     _q_saved_mask = SetIntrMask(0);              /* enter critical section */
     g = &GEnv;
-    __asm__("" : "=r"(g) : "0"(g));
     g->busy = 1;
     switch (0) { default:
         if (g->active != 0) {

@@ -483,7 +483,6 @@ extern int _padLoadActInfo_rcv(unsigned char *info)
         d[3] = (*(unsigned char **)(info + 0x3c))[7];
         {
             int hi = (*(unsigned char **)(info + 0x3c))[5];
-            __asm__("" : "=r"(hi) : "0"(hi));
             d[4] = (unsigned char)(hi >> 7);
         }
         n = info[0x47] + 1;

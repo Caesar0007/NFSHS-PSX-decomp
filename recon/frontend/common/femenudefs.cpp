@@ -286,8 +286,10 @@ void MenuExtended_GoToTwoPlayerSingleRace(tMenuCommand &command)
       __asm__("" : "+r" (screenState));
       carSelectScreen = screenCarSelect[0];
       nextMenu = (tMenu *)(tMenu*)&menuDefs[0]->menuCarDealer;
-      __asm__("" : "+r" (screenState));
-      command.nextMenu = nextMenu;
+      /* W83-A20: the `"+r"(screenState)` launder device that stood here is EXACTLY
+         substituted by the A5-4 loop-note ref dial (do{}while(0) on the statement it
+         fenced) -- whole-TU gate 66/66 both ways.  Pure C, one device fewer. */
+      do { command.nextMenu = nextMenu; } while (0);
       carSelectScreen->SetState(screenState);
     }
   }
@@ -1823,13 +1825,13 @@ void GenericMenuLoadGame(int player)
      allocation basin; the explicit volatile reload form below supersedes those results. */
   if (CURRENTLYUSINGMEMCARD == 0) {
     __asm__("" : : "m"(FEApp));
-    app = *(tFEApplication *volatile *)&FEApp;
-    mc = *(tScreenMemcard *volatile *)&screenMemcard;
+    app = *(tFEApplication **)&FEApp;
+    mc = *(tScreenMemcard **)&screenMemcard;
     mc->message = 0x27d;
     app->Redraw();
     LoadGame((short)player,false,1);
-    app = *(tFEApplication *volatile *)&FEApp;
-    mc = *(tScreenMemcard *volatile *)&screenMemcard;
+    app = *(tFEApplication **)&FEApp;
+    mc = *(tScreenMemcard **)&screenMemcard;
     mc->message = -1;
     ((tDialogBase *)&app->NoInputMemCardDialog)->Hide();
   }

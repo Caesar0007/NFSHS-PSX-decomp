@@ -241,8 +241,6 @@ double __muldf3(double a, double b)   /* @0x800F62E4 */
         } else {
             signmask = 0x80000000u;
             __asm__("" : "=r"(signmask) : "0"(signmask));
-            __asm__("" : "=r"(signmask) : "0"(signmask));
-            __asm__("" : "=r"(signmask) : "0"(signmask));
             add[1] = 0;
             add[0] = 0x200;
             __asm__("" : "=m"(add[0]) : "m"(add[0]));

@@ -497,9 +497,9 @@ void AIState_Chase::SetTarget(Car_tObj *targetCar,coorddef *relPosition)
 
   this->latTargetRegion_ = 0;
 
-  iVar1 = ((*(Car_tObj *volatile *)&this->targetCar_)->N).dimension.x;
+  iVar1 = ((*(Car_tObj **)&this->targetCar_)->N).dimension.x;
 
-  iVar3 = *(volatile int *)&(this->relPosition_).x;
+  iVar3 = *(int *)&(this->relPosition_).x;
 
   if (iVar3 < -iVar1) {
 
@@ -513,9 +513,9 @@ void AIState_Chase::SetTarget(Car_tObj *targetCar,coorddef *relPosition)
 
   }
 
-  iVar1 = ((*(Car_tObj *volatile *)&this->targetCar_)->N).dimension.z;
+  iVar1 = ((*(Car_tObj **)&this->targetCar_)->N).dimension.z;
 
-  iVar3 = *(volatile int *)&(this->relPosition_).z;
+  iVar3 = *(int *)&(this->relPosition_).z;
 
   if (iVar3 < -iVar1) {
 

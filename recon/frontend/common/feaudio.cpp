@@ -351,7 +351,7 @@ void FeAudio_InitCommentary(int language,int arg1)
   /* The volatile value read keeps the language pointer load at the call site,
      matching retail while leaving the Paths_Paths %hi free to schedule early. */
   sprintf(currentSpeechViv,"%s%s.viv",Paths_Paths[0x26],
-          *(char * volatile *)&allLanguages[language]);  /* H11: dest was "" (oracle 0x800160EC $a0=$s0=&currentSpeechViv @0x80051510) */
+          *(char * *)&allLanguages[language]);  /* H11: dest was "" (oracle 0x800160EC $a0=$s0=&currentSpeechViv @0x80051510) */
   speechfileHeader[0] = FeAudio_InitViv(currentSpeechViv);  /* H11: arg was "" (oracle 0x8001615C $a0=$s0) */
   return;
 }

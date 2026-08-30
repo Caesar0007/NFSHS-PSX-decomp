@@ -3346,7 +3346,7 @@ void Hud_BuildMapMarkers(int player)
        * both + fence BOTH 34 @310 (this).  FALSIFIED here: hoisting the read into a local
        * (inert 45), an `m`-operand fence on the global (42), moving the cursor bump below
        * the funnel (294 -- it shatters the whole loop band). */
-      *(volatile long *)&currentSpriteColor = ((aiflags & 2) != 0)
+      *(long *)&currentSpriteColor = ((aiflags & 2) != 0)
                          ? (((gFlip != 0) || (HUD_QUICK_PAUSE != 0)) ? 0xff : 0xff0000)
                          : *(u_long *)&Hud_gCopMarkerColor[i];
       __asm__("" : : "i"(0));

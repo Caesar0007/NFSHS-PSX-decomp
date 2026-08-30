@@ -940,7 +940,6 @@ LAB_800774e0:
     /* MATCH: reuse one explicit word offset for both arrays so the tail's
        sll precedes address materialization exactly (8 -> 6). */
     int tailOffset = (u_char)carnum << 2;
-    __asm__("" : "=r"(tailOffset) : "0"(tailOffset));
     *(int *)((int)tailOffset + (int)bestLapTime) =
         simGlobal.gameTicks - *(int *)((int)tailOffset + (int)gtotallaptimes);
   }
@@ -1692,7 +1691,7 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   if (iVar6 < 0) {
     iVar6 = iVar6 + 0xffff;
   }
-  *(volatile int *)&iAmpIn = iVar6 >> 0x10;
+  *(int *)&iAmpIn = iVar6 >> 0x10;
   iVar6 = -0xd8000;
   __asm__("" : : "r"(iVar6));
   int speed = (car->linearVel_ch).z;
@@ -1737,7 +1736,7 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
      (blowout override + case-7 check) -- split from iVar12 which is reused for 3
      unrelated short-lived values later in the function. */
   roadSurface = (car->N).driveSurfaceType;
-  *(volatile int *)&tuntrig = (int)BWorldSm_TunnelFlagSm(&(car->N).simRoadInfo);
+  *(int *)&tuntrig = (int)BWorldSm_TunnelFlagSm(&(car->N).simRoadInfo);
   if (tuntrig != 0) {
     if ((GameSetup_gData.commMode != 1) && ((u_char)fReverbLevel < 100)) {
       fReverbLevel = (char)((100 < (u_char)fReverbLevel + 10) ?
@@ -1856,7 +1855,6 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   }
   else if (currentGas < iVar10) {
     int gasDelta = currentGas - iVar10;
-    __asm__("" : "+r"(currentGas));
     if (gasDelta < 0) {
       __asm__("" : "+r"(gasDelta));
       currentGas = gasDelta + 7;
@@ -1896,7 +1894,6 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
     uVar7 = (u_int)amplitude;
   }
   amplitude = (int)uVar7;
-  __asm__("" : "+r"(amplitude));
   uVar7 = (u_int)((int)uVar7 * loadAmp);
   roadProduct = roadNoiseAmp * amplitude;
   loadAmp = (tunnelFlag = tuntrig, (int)uVar7 >> 7);

@@ -67,7 +67,7 @@ extern int reorthogonalize(int *M)   /* @0x800F02E4 */
         for (k = 1; k < 4; k++) {
             multiplymatrix(S.m, A.m, mt.m);            /* mt(tmp) = S * A      */
             S = mt;
-            scalematrix(S.m, *(volatile const int *)&coef[k], mtm.m); /* mtm(tmp2) = coef[k] * S^k */
+            scalematrix(S.m, *(const int *)&coef[k], mtm.m); /* mtm(tmp2) = coef[k] * S^k */
             addmatrix(acc.m, mtm.m, acc.m);            /* acc += tmp2          */
         }
         mt = *(mtx *)M;                                /* mcopy reuses mt      */

@@ -179,7 +179,7 @@ void AILife_RCPickDesiredLatPosition(Car_tObj *carObj)
     carObj->desiredLatPos =
         -width * randNumLanes + ((u_int)width >> 1);
   }
-  finalLatPos = *(volatile int *)&carObj->desiredLatPos + carObj->laneSlack;
+  finalLatPos = *(int *)&carObj->desiredLatPos + carObj->laneSlack;
   carObj->desiredLatPos = finalLatPos;
   carObj->rampDesiredLatPos = finalLatPos;
   return;

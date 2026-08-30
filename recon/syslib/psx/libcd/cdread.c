@@ -139,7 +139,6 @@ extern void _read_sync(void)
     CdSyncCallback((CdlCB)*saved); /* restore saved sync callback */
     {
         volatile CdrEnv *g = (volatile CdrEnv *)(saved - 10);
-        __asm__("" : "=r"(g) : "0"(g));
         g->w24 = 0;              /* reading = 0 */
     }
 }
@@ -381,7 +380,6 @@ extern void _read_int(u_char intr, u_char *result)
                      * w14+w20 22, all three 22 -- every one worse than 15.  The lever
                      * is strictly site-selective.  */
                     volatile CdrEnv *g = (volatile CdrEnv *)(cur - 2);
-                    __asm__("" : "=r"(g) : "0"(g));
                     g->w08 = (u_char *)(cur[0] + cur[2] * 4);  /* cursor += sector bytes */
                     g->w14--;                                   /* one fewer remaining */
                     /* W71-A8: 12 -> 9.  The 3.25-3c NON-VOLATILE-CAST-ON-THE-STORE

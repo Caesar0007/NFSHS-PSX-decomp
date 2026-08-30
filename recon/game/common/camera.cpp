@@ -200,7 +200,7 @@ void Camera_UpdateSimpleCam(int player)
   Camera_TunnelLimit(player,&newarm.y);
   Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + newarm.x;
   /* MATCH: oracle re-loads anchor (lw a0,0(s0)) for the y/z pair - volatile re-deref blocks CSE */
-  pBVar2 = *(BO_tNewtonObj *volatile *)&Camera_gInfo[player].anchor;
+  pBVar2 = *(BO_tNewtonObj **)&Camera_gInfo[player].anchor;
   Camera_gInfo[player].position.y = pBVar2->position.y + newarm.y;
   Camera_gInfo[player].position.z = pBVar2->position.z + newarm.z;
   Camera_LookBack(&pBVar2->orientMat,&Camera_gInfo[player].rotation);

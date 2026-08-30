@@ -882,7 +882,6 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
      * NON-ASM alternatives all falsified from this basin (re-gated): decl order
      * w1-before-w 16 (exactly neutral), `w1 = wsel; w = w1;` 99 @244,
      * `w1 = w; w = w1;` 88, `(int)w1` cast 0 (cse folds it), dropping `w` 168. */
-    __asm__("" : "=r"(w1) : "0"(w1));
     prim[0xc] = u;
     prim[0xd] = v;
     prim[0x18] = u + w1;

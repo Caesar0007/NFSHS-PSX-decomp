@@ -1764,7 +1764,6 @@ void Weather_DoWeather(DRender_tView *Vi)
      * identity fence blocks the value-numbering that reorders the two.  40->36. */
     __asm__("" : "=r"(ab) : "0"(ab));
     plb = &prevLookBehind[player];
-    __asm__("" : "=r"(plb) : "0"(plb));
     clean_up = 0;
     if (ab != *plb) {
       clean_up = ab == 1;

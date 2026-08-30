@@ -119,7 +119,7 @@ void tScreenTrackRecords::DrawRecords(short maxitem)
      Our cc1 forward-propagates the value and then dead-store-eliminates the
      first store; a volatile view of the second read restores retail's
      store->reload (value-preserving codegen device, cf. catalog SF). */
-  this->flare_intensity = (*(volatile int *)&this->flare_intensity + 0x14)
+  this->flare_intensity = (*(int *)&this->flare_intensity + 0x14)
                           * 0x80;
   /* MATCH: explicit if/ELSE -- the `= 9` lands in the `bne` DELAY SLOT after the
      call, so nLapIndicator lives in the caller-saved $a0 the SYM records.  A

@@ -1134,20 +1134,20 @@ int ObjectMultiAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
         t1 = fixedmult(RSmatrix.m[0],sx);
         t2 = fixedmult(RSmatrix.m[3],sx);
         t3 = fixedmult(RSmatrix.m[6],sx);
-        *(volatile int *)&RSmatrix.m[0] = t1;
-        *(volatile int *)&RSmatrix.m[3] = t2;
+        *(int *)&RSmatrix.m[0] = t1;
+        *(int *)&RSmatrix.m[3] = t2;
         RSmatrix.m[6] = t3;
         t1 = fixedmult(RSmatrix.m[1],sy);
         t2 = fixedmult(RSmatrix.m[4],sy);
         t3 = fixedmult(RSmatrix.m[7],sy);
-        *(volatile int *)&RSmatrix.m[1] = t1;
-        *(volatile int *)&RSmatrix.m[4] = t2;
+        *(int *)&RSmatrix.m[1] = t1;
+        *(int *)&RSmatrix.m[4] = t2;
         RSmatrix.m[7] = t3;
         t1 = fixedmult(RSmatrix.m[2],sz);
         t2 = fixedmult(RSmatrix.m[5],sz);
         t3 = fixedmult(RSmatrix.m[8],sz);
-        *(volatile int *)&RSmatrix.m[2] = t1;
-        *(volatile int *)&RSmatrix.m[5] = t2;
+        *(int *)&RSmatrix.m[2] = t1;
+        *(int *)&RSmatrix.m[5] = t2;
         RSmatrix.m[8] = t3;
       }
     }

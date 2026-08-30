@@ -563,9 +563,7 @@ iodone:                                 /* ev == 0 : I/O complete */
         /* the fence keeps the mask a real `sllv` value: without it gcc canonicalizes
          * `(present & (1<<chan)) == 0` into `(present >> chan) & 1` (srav+andi), which the
          * oracle never has -- it computes `li 1; sllv; and; bnez` */
-        __asm__("" : "=r"(mask) : "0"(mask));
         pchan = &mc.chan;
-        __asm__("" : "=r"(pchan) : "0"(pchan));
         c    = *pchan;                  /* lw $a0,0($s0)   */
         pres = _mc_present;             /* lui $v1; lw $v1 -- fills the chan load's delay */
         mask = mask << c;
@@ -813,7 +811,6 @@ cdone:                                  /* ev == 0 : the accept sequence complet
             /* the fence is what BLOCKS the branchless if-conversion: gcc-2.7.2 turns BOTH
              * `rslt=0; if(c) rslt=3;` and a bare two-arm if/else into `sltu;negu;andi 3`, and an
              * asm inside an arm is the only thing that keeps the arm a real basic block */
-            __asm__("" : "=r"(rslt) : "0"(rslt));
         } else {
             rslt = 0;
         }
@@ -958,7 +955,6 @@ static int MemCardReadData_cb(void *pv)
      * MemCardWriteData_cb does not need it (its case 0 returns instead of falling through, so the
      * copy is not a slot candidate there).  Measured INERT on MemCardExist_cb (47, unchanged) --
      * per-fn, not a sweep. */
-    __asm__("" : "=r"(st) : "0"(st));
     state = st[0];
 
 
@@ -1217,8 +1213,6 @@ state10: {
             int *pc = prslt - 1;                   /* &_mc_cmd */
             __asm__("" : "=r"(pc) : "0"(pc));
             five = 5;
-            __asm__("" : "=r"(five) : "0"(five));
-            __asm__("" : "=r"(five) : "0"(five));
             __asm__("" : "=r"(five) : "0"(five));
             pc[1] = five;
             return 1;

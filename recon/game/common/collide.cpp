@@ -1959,7 +1959,6 @@ void Collide_CheckMeForCollisions(BO_tNewtonObj *newObj)
 
                 impulse = newObj->speedXZ;
                 minImpulse = 0x1E0000;
-                __asm__("" : "=r"(minImpulse) : "0"(minImpulse));
                 if (impulse < minImpulse) {
                   impulse = 0x1E0000;
                 }

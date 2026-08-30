@@ -1605,7 +1605,6 @@ void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
      (4*16/62 = 1.03 > 0.889); 16 - (10 - 1) = 7 operands.  MEASURED: 1..6 operands =
      31 diffs, SEVEN = PASS 64/64, 8 and 10 also PASS -- take the cheapest.  Allocated
      third, colour takes $a1, xdist/zfar shift to $a2 and newB follows. */
-  __asm__("" : "=r"(color) : "0"(color));
   __asm__("" : : "r"(color), "r"(color), "r"(color), "r"(color), "r"(color),
                  "r"(color), "r"(color));
   z = v->vz;

@@ -2959,7 +2959,7 @@ void AIHigh_BTC_Wingman::HighExecute()
         int timeToRB;
 
         speed =
-            ((volatile AIHigh_BTC_Wingman *)this)->perpTarget_
+            ((AIHigh_BTC_Wingman *)this)->perpTarget_
                 ->carObj_->currentSpeed;
         if (speed <= 0) {
           speed = -speed;

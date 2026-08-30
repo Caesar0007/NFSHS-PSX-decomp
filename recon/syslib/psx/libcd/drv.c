@@ -421,7 +421,7 @@ extern int CD_get_intr(void)
             break;
         *q = CDREG1;
     }
-    __asm__("" : "=r"(i) : "0"(i));  /* MATCH (W60-A4): stop cse sharing the i<8 test */
+      /* MATCH (W60-A4): stop cse sharing the i<8 test */
     for (j = i; j < 8; j++)
         result[j] = 0;
 
@@ -660,7 +660,6 @@ extern int CD_sync(int mode, unsigned char *result)
             int syncv;
             sync = intr->sync;
             syncv = sync;
-            __asm__("" : "=r"(syncv) : "0"(syncv));
             if (syncv == 2 || syncv == 5) {
                 intr->sync = 2;
                 _memcpy8(result, D_8014899C);

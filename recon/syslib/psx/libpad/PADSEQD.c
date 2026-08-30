@@ -188,7 +188,6 @@ extern int _dirSendAuto(unsigned char *info)
         }
         if (info[0x49] == 2) {
             /* MATCH: keeps retail's redundant `addu $a0,$s0,$zero` in the jalr delay slot */
-            __asm__("" : "=r"(info) : "0"(info));
             _padFuncClrInfo(info);
         }
     }

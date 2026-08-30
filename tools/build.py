@@ -469,7 +469,13 @@ PER_TU_FLAGS = {
     "recon/syslib/psx/libcd/TYPE.c":        {"cc1_272": True},  # 8->6, CdGetDiskType->PASS
     # w51-a7 lane wins (all zero-PASS-regression, whole-TU gated):
     "recon/syslib/psx/libapi/COUNTER.c":    {"cc1_272": True},  # 3/3 PASS
-    "recon/syslib/psx/libetc/INTR_DMA.c":   {"cc1_272": True},  # 3/3 PASS
+    # W78-A14 coupled cell (landed w81, user-authorized, with the ported source):
+    # setIntrDMA needs 2.8-era reorg thread-steal (three addu tail copies) +
+    # macro-form addresses => cc1_alt 2.8.0 + no_split_addresses; the TU's other
+    # three fns keep their 2.7.2 identity via the per-fn ver-splice below
+    # (the 2.7 rung strips no_split_addresses automatically). 8 -> 2 @43/43.
+    "recon/syslib/psx/libetc/INTR_DMA.c":   {"cc1_alt": "2.8.0",
+                                             "no_split_addresses": True},
     "recon/syslib/psx/libetc/INTR_VB.c":    {"cc1_272": True},  # 4/4 PASS
     "recon/syslib/psx/libetc/VSYNC.c":      {"cc1_272": True},  # 2/2 PASS
     "recon/syslib/psx/libetc/VMODE.c":      {"cc1_272": True},  # 2/2 PASS
@@ -1048,6 +1054,12 @@ PER_FN_FLAG_SPLICE_272 = {
 # splice but swaps the cc1 BINARY (ladder rung) for the named fns only.
 # {rel: {ver: {fns}}}.  Runs before the flag splice.
 PER_FN_CC1_VER_SPLICE_272 = {
+    # W78-A14 (landed w81): the TU rides the 2.8.0+nosplit lane for setIntrDMA's
+    # reorg thread-steal; these three keep their proven 2.7.2 identity
+    # (startIntrDMA PASS 19, _dma_isr PASS 96, _bzero_w PASS 9).
+    "recon/syslib/psx/libetc/INTR_DMA.c": {
+        "2.7.2": {"startIntrDMA", "_dma_isr", "_bzero_w"},
+    },
     # _BlitClear: rung 2.8.0 = 20 count-exact vs wired 2.8.1's 39; whole-TU
     # rung flip is net-negative (MoveImage 9->35) => per-fn.
     # w60-a3 + orchestrator verify: the "2.7-unreachable" verdicts were a WIRING

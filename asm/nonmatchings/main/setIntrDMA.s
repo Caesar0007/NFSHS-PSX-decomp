@@ -1,9 +1,9 @@
 .set noat      /* allow manual use of $at */
 .set noreorder /* don't insert nops after branches */
 
-nonmatching func_80106878, 0xAC
+nonmatching setIntrDMA, 0xAC
 
-glabel func_80106878
+glabel setIntrDMA
     /* F7078 80106878 21308000 */  addu       $a2, $a0, $zero
     /* F707C 8010687C 1480033C */  lui        $v1, %hi(D_8013BD24)
     /* F7080 80106880 24BD6324 */  addiu      $v1, $v1, %lo(D_8013BD24)
@@ -49,4 +49,4 @@ glabel func_80106878
   .L8010691C:
     /* F711C 8010691C 0800E003 */  jr         $ra
     /* F7120 80106920 00000000 */   nop
-endlabel func_80106878
+endlabel setIntrDMA

@@ -17,8 +17,8 @@ glabel startIntrDMA
     /* F6ED4 801066D4 F866A524 */  addiu      $a1, $a1, %lo(_dma_isr)
     /* F6ED8 801066D8 1FCA030C */  jal        InterruptCallback
     /* F6EDC 801066DC 000040AC */   sw        $zero, 0x0($v0)
-    /* F6EE0 801066E0 1080023C */  lui        $v0, %hi(func_80106878)
-    /* F6EE4 801066E4 78684224 */  addiu      $v0, $v0, %lo(func_80106878)
+    /* F6EE0 801066E0 1080023C */  lui        $v0, %hi(setIntrDMA)
+    /* F6EE4 801066E4 78684224 */  addiu      $v0, $v0, %lo(setIntrDMA)
     /* F6EE8 801066E8 1000BF8F */  lw         $ra, 0x10($sp)
     /* F6EEC 801066EC 1800BD27 */  addiu      $sp, $sp, 0x18
     /* F6EF0 801066F0 0800E003 */  jr         $ra

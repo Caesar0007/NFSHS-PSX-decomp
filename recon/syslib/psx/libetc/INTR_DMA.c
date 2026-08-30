@@ -32,14 +32,14 @@ extern void InterruptCallback(int idx, void (*h)(void));   /* INTR */
 extern int  printf(const char *fmt, ...);              /* C63 */
 extern void trapIntrDMA(void) __asm__("_dma_isr");
 /* @0x80106878 : the per-channel DMA-callback setter startIntrDMA hands back.  NOT `static`:
- * the oracle materialises its address as `lui %hi(func_80106878); addiu %lo(func_80106878)`,
+ * the oracle materialises its address as `lui %hi(setIntrDMA); addiu %lo(setIntrDMA)`,
  * i.e. the symbol has its OWN global entry (a file-static would take a .text SECTION-relative
  * reloc with a nonzero addend -- methodology 3.12 #12).  It also carries the project label
- * `func_80106878` (configs/symbol_addrs.txt + src/.../INTR_DMA.c's INCLUDE_ASM); naming it
+ * `setIntrDMA` (configs/symbol_addrs.txt + src/.../INTR_DMA.c's INCLUDE_ASM); naming it
  * anything else leaves the oracle symbol unpaired -- objdiff reported it 0% and verify_asm
  * `NOT IN OBJECT` while the body was in fact byte-exact under a source-level name
  * (W52-A9; same hidden-phantom class as the DMA_memclr note above). */
-Callback setIntrDMA(int ch, Callback func) __asm__("func_80106878");
+Callback setIntrDMA(int ch, Callback func);  /* renamed from setIntrDMA (user order 2026-08-30) */
 
 extern volatile unsigned int *g_dicr_ptr __asm__("D_8013BD20");   /* @0x8013BD20 : = 0x1F8010F4 */
 /* W66-A3 (link): the 8-word run at 0x8013BD24 is emitted by the splat blob
@@ -131,16 +131,44 @@ dma_error:
  *   the productive instrument is the -dg/-dl dump plus allocsim on the block-local qtys
  *   that own $a0/$a1 in the two arms, i.e. a 3-QTY-LAW dial on the DICR read-modify-write
  *   blocks rather than any further reshaping of the parameters.  Not a floor. */
+/* W77-A6 + W78-A14 source facts PORTED onto the canonical file (user order
+ * 2026-08-30): (a) per-arm DICR pointer read BEFORE the dma_cb store (func
+ * stays live across it -> retail entry copy); (b) two-STATEMENT base mutate
+ * `slot = dma_cb; slot += ch;` (only spelling emitting retail's la/sll/addu
+ * base-mutate); (c) `bits` as its OWN statement (fold-const associate: leg
+ * rewrites any single-expression form). Neutral on the 272 lane (8 @41/43);
+ * coupled with the 2.8.0+no_split_addresses lane = 2 @43/43. Full receipts:
+ * scratchpad/w77/A6_receipt.md + scratchpad/w78/A14_receipt.md. */
 Callback setIntrDMA(int ch, Callback func)   /* @0x80106878 (installed by startIntrDMA) */
 {
-    Callback old = dma_cb[ch];
+    Callback *slot;
+    Callback old;
+
+    /* (b) the two-STATEMENT base mutate -- NOT `&dma_cb[ch]`: it is the only
+     * spelling that emits retail's `la $v1,SYM; sll $v0,$a2,2; addu $v1,$v0,$v1`
+     * (base materialised first, the add mutating the base register).  Worth
+     * 8 diffs; do NOT fold these two statements back into one expression. */
+    slot = dma_cb;
+    slot += ch;
+    old = *slot;
     if (func != old) {
         if (func != 0) {
-            dma_cb[ch] = func;
-            DICR = DICR & 0xffffff | 1 << (ch + 0x10) | 0x800000;
+            /* (a) the DICR pointer is read BEFORE the dma_cb store, so `func`
+             * stays live across it and lands in $a0 (retail's entry copy) --
+             * do NOT move `*slot = func;` above this decl. */
+            volatile unsigned int *p = g_dicr_ptr;
+            unsigned int d, bits;
+            *slot = func;
+            d = *p & 0xffffff;
+            /* `bits` must stay its OWN statement: fold-const's associate: leg
+             * (split_tree, fold-const.c:4349) rewrites `A | (bit | K)` to
+             * `(A|K) | bit` inside a single expression (w77-a6). */
+            bits = (1 << (ch + 0x10)) | 0x800000;
+            *p = d | bits;
         } else {
-            dma_cb[ch] = 0;
-            DICR = (DICR & 0xffffff | 0x800000) & ~(1 << (ch + 0x10));
+            volatile unsigned int *p = g_dicr_ptr;
+            *slot = 0;
+            *p = (*p & 0xffffff | 0x800000) & ~(1 << (ch + 0x10));
         }
     }
     return old;

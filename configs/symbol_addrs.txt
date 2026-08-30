@@ -3346,6 +3346,7 @@ SetDQB = 0x80106680; // type:func
 setjmp = 0x8010668C; // type:func
 HookEntryInt = 0x8010669C; // type:func
 startIntrDMA = 0x801066AC; // type:func
+setIntrDMA = 0x80106878; // type:func  PsyQ LIBETC INTR_DMA.OBJ member 3 (vendor-verified psyq43 @+0x1CC 43/43 words, reloc fields only; psyq44 byte-identical; W77-A6 + W78-A14 + W78-A18). SYM carries no name; renamed from func_80106878 by user order 2026-08-30.
 _96_remove = 0x80106954; // type:func
 ExitCriticalSection = 0x8010696C; // type:func
 ReturnFromException = 0x8010697C; // type:func

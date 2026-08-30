@@ -400,27 +400,51 @@ drive_done:
     }
     goto stream_count;
 
-    /* stream the remaining payload bytes into the receive buffer */
-stream_retry:
-    {
-        int st = _padSioRW(info, _padFuncGetTxd(info, align) & 0xff);
-        if (st < 0)
-            return (unsigned)st;
-    }
-    setRC2wait(0x3c);
-    if (_padClrIntSio0() == 0)
-        goto clr_fail;
-
+    /* stream the remaining payload bytes into the receive buffer.
+     * MATCH (W81-A9): a REAL exit-in-the-middle loop, not the `goto` form --
+     * this is retail's emitted topology (entered at the decrement, `bgtz`
+     * back-edge) AND it is what gives the loop a NOTE_INSN_LOOP_BEG, so the two
+     * in-loop `info` references weigh 2 each (catalog 26A-2 / 27A-1). */
+    while (1) {
+        {
+            int st = _padSioRW(info, _padFuncGetTxd(info, align) & 0xff);
+            if (st < 0)
+                return (unsigned)st;
+        }
+        setRC2wait(0x3c);
+        if (_padClrIntSio0() == 0)
+            goto clr_fail;
 stream_count:
-    _padMtapCount = _padMtapCount - 1;
-    if (_padMtapCount > 0)
-        goto stream_retry;
+        _padMtapCount = _padMtapCount - 1;
+        if (_padMtapCount <= 0)
+            break;
+    }
     {
-        unsigned char len;
+        /* MATCH (W80-A9): `int`, not `unsigned char` -- a u_char local
+         * costs a 2.8-only `andi v1,v1,255` promotion re-mask here. */
+        int len;
+
         _padWaitRXready();
-        len = info[0x44];
-        info[0x44] = len + 1;
-        (*(unsigned char **)(info + 0x3c))[len] = JOY_DATA8;
+        /* MATCH (W81-A9): the two degenerate do{}while(0) wrappers are a
+         * ZERO-INSTRUCTION REG_N_REFS weight dial (catalog 27A-2).  flow.c:425
+         * weighs REG_N_REFS by basic_block_loop_depth, so these three `info`
+         * references count 3 each: `info`'s allocno reaches 22 refs / priority
+         * 3211, which overtakes the multitap walker `off` (4 refs / live 27 /
+         * 2962) in global.c's allocno_compare -- and THAT ordering is the whole
+         * $s1<->$s2 handout (info -> $s1, off/base -> $s2 = retail).  Delete
+         * either level and the function goes back to 58 diffs. */
+        do {
+            do {
+                len = info[0x44];
+                info[0x44] = len + 1;
+                /* index-term-FIRST address (catalog 5.0c commutative-addu /
+                 * W60-A6): retail's `addu $v1,$v1,$a0` has `len` as operand 1
+                 * AND as the destination; `buf[len]` spells it the other way
+                 * round and rotates the whole tail block (18 diffs). */
+                *(unsigned char *)(len + (int)*(unsigned char **)(info + 0x3c))
+                    = JOY_DATA8;
+            } while (0);
+        } while (0);
         _padFuncNextPort(0);
         return 0;
     }

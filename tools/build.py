@@ -1053,7 +1053,22 @@ PER_FN_FLAG_SPLICE_272 = {
 # w55-a8: per-FN cc1 VERSION splice for the 272/alt recipe -- like the flag
 # splice but swaps the cc1 BINARY (ladder rung) for the named fns only.
 # {rel: {ver: {fns}}}.  Runs before the flag splice.
+# W81-A9 extension: the rung key may carry extra cc1 flags after the version,
+# whitespace-separated ("2.8.0 -mno-split-addresses") -- the named fns then get
+# the rung's cc1 AND those flags on top of the TU lane's flag set.  This is the
+# per-fn {cc1 + add_flags} combined splice: needed when a fn's identity is on a
+# rung+flag lane the TU must not ride (e.g. _padIntRecvData below: TU flip to
+# 2.8.0+nosplit worsens _padIntRecvHdr 2->4, so per-fn scoping is required).
 PER_FN_CC1_VER_SPLICE_272 = {
+    # W81-A9: _padIntRecvData SEALED byte-exact (PASS 223/223, brdist 27/27,
+    # slotcheck 0) on 2.8.0 + -mno-split-addresses with the A9 source (real
+    # while(1) topology + depth-2 wrapper weight dial + int len + index-term-
+    # first store).  ATOMIC with that source: on the TU's own 2.7.2 lane the
+    # same body prices 62 @223.  Also fixes the shipped basin's gate-blind
+    # wrong branch word (j #13: 34 vs retail 35).  Receipt: w81/A9_receipt.md.
+    "recon/syslib/psx/libpad/MCXMAIN.c": {
+        "2.8.0 -mno-split-addresses": {"_padIntRecvData"},
+    },
     # W78-A14 (landed w81): the TU rides the 2.8.0+nosplit lane for setIntrDMA's
     # reorg thread-steal; these three keep their proven 2.7.2 identity
     # (startIntrDMA PASS 19, _dma_isr PASS 96, _bzero_w PASS 9).
@@ -1128,15 +1143,20 @@ def _apply_cc1_ver_splice_272(rel_posix, txt, i_file, cc1_flags, s_file):
     table = PER_FN_CC1_VER_SPLICE_272.get(rel_posix)
     if not table:
         return txt
-    for gi, (ver, names) in enumerate(sorted(table.items())):
+    for gi, (rung, names) in enumerate(sorted(table.items())):
         if not names:
             continue
+        # W81-A9: "ver [extra-flag...]" -- extra flags ride on top of the TU
+        # lane's (rung-filtered) flag set for the named fns only.
+        ver, *extra_flags = rung.split()
         alt_cc1 = _resolve_cc1_alt(ver)
         if alt_cc1 is None:
             _warn_alt_fallback(rel_posix, ver, "the TU's own lane (ver-splice skipped)")
             continue
+        rung_flags = _cc1_flags_for_rung(ver, cc1_flags)
+        rung_flags += [f for f in extra_flags if f not in rung_flags]
         s_alt = s_file.with_suffix(".vs272_%d.s" % gi)
-        r = run([alt_cc1, *_cc1_flags_for_rung(ver, cc1_flags), i_file, "-o", s_alt])
+        r = run([alt_cc1, *rung_flags, i_file, "-o", s_alt])
         if r.returncode:
             sys.exit(f"[vs272 {ver}] {rel_posix}\n{r.stdout}{r.stderr}")
         alt = s_alt.read_text(errors="replace")

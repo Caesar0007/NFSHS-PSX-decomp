@@ -495,13 +495,13 @@ void AIHigh_Cop::HighExecute()
             if (newTrigger.roadblock.type != 2) {
               if (newTrigger.roadblock.type == 3) {
           {
-          /* 🔴 W72-A11 -- ZERO-INSN OPACITY FENCES, DO NOT "SIMPLIFY" (receipt at the top
-             of this fn).  The PLAIN locals are byte-inert (both measured); it is the
-             fences that give the reverseTrack load an earlier luid than the dir load, so
-             sched2 sinks the dir load into the reverseTrack load's delay slot exactly like
-             retail.  Dropping the rev fence = 41 @1461 (one insn LONG); dropping the dir
-             fence = 38. */
-          register int rev asm("$2") = GameSetup_gData.reverseTrack;
+          /* W83-A11 (PIN-REMOVAL BELT) -- W72-A11's note here described two zero-insn
+             opacity fences; by the time of this edit the rev half had become a
+             `register int rev asm("$2")` PIN (methodology 3.13 forbids those).  The pin
+             is DEAD: `int rev` alone re-gates PASS 1460/1460 on its own and in the
+             all-six-pins-removed candidate (W83-A11 step (b), cells A_rev_plain and
+             base5).  Plain locals, no fence, no pin. */
+          int rev = GameSetup_gData.reverseTrack;
           int dir = newTrigger.roadblock.dir;
 
           if (rev == 0) {
@@ -691,31 +691,61 @@ void AIHigh_Cop::HighExecute()
 
   case 2:
     {
+    /* MATCH (W83-A11) -- THREE COOPERATING CELLS, ALL NECESSARY, NO PINS.
+       Retail re-materialises the `4` of the SECOND mode guard (`li $v0,4` in the
+       `beq $v1,$a1` delay slot) while REUSING the `1` in $a1 and the earlier `4` in
+       $s2.  Mechanism: gcc-2.8 cse.c `cse_end_of_basic_block` normally SKIPS the
+       AIFlags block (the "AROUND" path, cse.c:8329 -- taken because the skip label
+       has LABEL_NUSES==1 and no CODE_LABEL lies between), so its value table -- and
+       with it the constant 4 -- survives into the second guard and cse canonicalises
+       the second `4` onto $s2, leaving a bare `nop` in the slot.
+         (a) BLOCK BOUNDARY: a dead `static void *... = &&label;` (jump.c:238 puts the
+             label in forced_labels so it reaches cse as a real CODE_LABEL; zero
+             instructions, 4 bytes of .sdata) breaks `no_labels_between_p` -> the cse
+             block ENDS at the join -> both guards re-materialise their constants.
+         (b) `one`: a NAMED 1 spanning both guards keeps that constant one GLOBAL
+             pseudo in $a1 (untouched by the AIFlags block, which clobbers $v0/$v1/$a0)
+             so reload_cse_regs deletes the re-materialised `li $a1,1` as a no-op set
+             (catalog 29A-1) -- retail's `nop`.  Without it: FAIL 12.
+         (c) `chaseState`: the 4 of the FIRST guard and of `stateType_ = STATE_CHASE`
+             are ONE named local (retail's $s2 spans both, oracle 0x80064244 ->
+             0x8006437C), and it must be ASSIGNED INSIDE this `if`, not decl-inited at
+             case scope -- an early `li $s2,4` gets scheduled into the first guard's
+             delay slot where retail has a `nop` (FAIL 1).  Without it: FAIL 30.
+       Necessity grid (each cell dropped from the sealed body): boundary 10, `one` 12,
+       `chaseState` 30, keeping the old `asm("$2")` pin 12.  DO NOT "SIMPLIFY". */
     blockadeMode_t mode;
+    blockadeMode_t one;
 
     this->requestSpikeBeltAtSlice_ = -1;
 
     mode = this->blockade_.mode;
 
-    if (mode != 1) {
+    one = (blockadeMode_t)1;
 
-      if (mode != 4) {
+    if (mode != one) {
+
+      stateType_t chaseState;
+      chaseState = (stateType_t)4;
+
+      if (mode != chaseState) {
+        /* cell (a): zero-instruction cse-block boundary -- see the case head. */
+        static void *aihCopFlagsBoundary_ = &&aih_cop_flagsGuard;
 
         (this->carObj_)->AIFlags = (this->carObj_)->AIFlags & 0xfffffffd;
 
+      aih_cop_flagsGuard: ;
       }
 
       {
-      register blockadeMode_t mode2 asm("$3");
+      /* W83-A11: the re-read of blockade_.mode was an `__asm__("lw %0,32(%1)")` with a
+         `register ... asm("$3")` pin on its output.  With the (a) boundary in place the
+         plain field re-read is emitted by itself (cse cannot carry the first load past
+         the join either), so both the asm and the pin are gone and the invented `mode2`
+         local -- which the SYM does not list for this block -- goes with them. */
+      if (this->blockade_.mode != one) {
 
-      __asm__("lw %0,32(%1)" : "=r"(mode2) : "r"(this));
-
-      if (mode2 != 1) {
-      register int modeFour asm("$2");
-
-      modeFour = 4;
-
-      if ((mode2 != modeFour) && (this->CheckForNewTarget() != 0)) {
+      if ((this->blockade_.mode != 4) && (this->CheckForNewTarget() != 0)) {
 
         coorddef pos;
 
@@ -755,7 +785,7 @@ void AIHigh_Cop::HighExecute()
 
         this->state_ = (AIState_Base*)newState;
 
-        this->stateType_ = (stateType_t)4;
+        this->stateType_ = chaseState;
 
         speaker = (Speaker *)Speech_Mobile(carObj);
 
@@ -1541,17 +1571,19 @@ LAB_80064d34:;
 
       }
 
-      register AIHigh_Player *chaseTarget asm("$4") = this->perpTarget_;
-      register int blockLevel asm("$2");
-      register int targetLevel asm("$3");
+      /* MATCH (W83-A11): this was a 4-instruction `__asm__ volatile` block with THREE
+         `register ... asm("$N")` pins ($4/$2/$3) standing in for plain field access.
+         Pure C reproduces it exactly -- but the STATEMENT ORDER is load-bearing: the
+         -1 store first, then the chaseLevelIndex_ read, then the chaseLevel read.
+         Measured on the pinned base: this order PASS 1460; blockLevel-before-
+         targetLevel FAIL 8; both reads as decl-inits ahead of the store FAIL 12. */
+      AIHigh_Player *chaseTarget = this->perpTarget_;
+      int blockLevel;
+      int targetLevel;
 
-      __asm__ volatile("li %0,-1\n\t"
-              "sw %0,100(%2)\n\t"
-              "lw %0,44(%2)\n\t"
-              "lw %1,148(%3)"
-              : "=r"(blockLevel), "=r"(targetLevel)
-              : "r"(this), "r"(chaseTarget)
-              : "memory");
+      this->requestSpikeBeltAtSlice_ = -1;
+      targetLevel = chaseTarget->perpChaseInfo_.chaseLevelIndex_;
+      blockLevel = this->blockade_.chaseLevel;
 
       if (blockLevel == targetLevel) {
 

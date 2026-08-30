@@ -1297,8 +1297,15 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
   int targetVel;
   int uTurn;
   int currentVel;
-  register AIPhysic_Config_t *cfg asm("$16");
-  register int latvelcalcLookahead asm("$5");
+  /* W83-A12 (pin-removal belt): the two `register ... asm("$N")` pins that used to
+     bind these two operands of the three address-materialisation `__asm__` blocks below
+     ($16 for cfg, $5 for latvelcalcLookahead) are GONE.  Measured INERT on the pinned
+     base: deleting both leaves the function byte-identical -- gate PASS 412/412, whole-TU
+     tugate 42/42 both runs, brdist 0/42, slotcheck bad=0.  cc1plus picks $16/$5 for these
+     two operands on its own (the "r" constraints plus the surrounding allocation already
+     force them), so the hard-register bindings were never load-bearing.  Do not re-add. */
+  AIPhysic_Config_t *cfg;
+  int latvelcalcLookahead;
 
   dir = carObj->direction;
   __asm__("lui %0,%%hi(AIPhysicConfig)"

@@ -830,7 +830,10 @@ void Stats_TrackEndGame(void)
         int PlayerSlice;
         register int PlayerPosition asm("$21");
         int DesiredComparison;
-        register int DesiredSlice asm("$23");
+        /* W83-A13: DesiredSlice: its asm("$23") pin was measured EXACTLY INERT
+           (removal is PASS 232/232 on its own and in every combination) and is
+           deleted.  s7 is what the priority table hands it anyway. */
+        int DesiredSlice;
         int DesiredSpeed;
 
         /* SLD 485: ONE statement -- a MIN (both arms assign, oracle stores each to the slot). */
@@ -870,15 +873,27 @@ void Stats_TrackEndGame(void)
               /* MATCH (W77-root): exact eight-instruction retail min.  The
                  source-level block is the last-resort carrier for v0/v1/s7;
                  detailed verify_asm confirms the whole function, not merely
-                 this local sequence. */
+                 this local sequence.
+                 W83-A13 (pin-removal belt): the two scratch carriers used to be
+                 register-asm PINS on $2 and $3.  They are gone.  Each is
+                 individually free, but dropping BOTH swaps them (v1/v0 where
+                 retail has v0/v1, count-exact 232/232, 14 rows) -- a joint cell.
+                 THE OPERAND-LIST ORDER BELOW IS LOAD-BEARING: local-alloc numbers
+                 the two qtys born on this one PARALLEL by the order of its SET
+                 clauses, and find_free_reg then scans ascending, so listing
+                 sliceTotal BEFORE sliceCar is what mints retail's $v0/$v1.
+                 The template is renumbered to match; the sequence is unchanged.
+                 Measured: pins 232 PASS | both dropped, old order 14 @232 |
+                 declaration-order swap alone 14 @232 | operand-order swap PASS.
+                 DO NOT "tidy" the operand list back to source order. */
               {
-                register Car_tObj *sliceCar asm("$2");
-                register int sliceTotal asm("$3");
+                Car_tObj *sliceCar;
+                int sliceTotal;
 
-                __asm__("lw %1,%3\n\tnop\n\tlw %2,848(%1)\n\tnop\n\t"
-                        "slt %1,%4,%2\n\tbnez %1,1f\n\t"
-                        "addu %0,%4,$0\n\taddu %0,%2,$0\n1:"
-                        : "=r"(DesiredSlice), "=r"(sliceCar), "=r"(sliceTotal)
+                __asm__("lw %2,%3\n\tnop\n\tlw %1,848(%2)\n\tnop\n\t"
+                        "slt %2,%4,%1\n\tbnez %2,1f\n\t"
+                        "addu %0,%4,$0\n\taddu %0,%1,$0\n1:"
+                        : "=r"(DesiredSlice), "=r"(sliceTotal), "=r"(sliceCar)
                         : "m"(Cars_gRaceCarList[j]), "r"(trackSlices));
               }
 

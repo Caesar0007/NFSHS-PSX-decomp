@@ -10,6 +10,18 @@ name: progress-report
 #   The PsyQ cc1 is copyrighted, so it is not in this public repo. Build a zip
 #   of the Windows toolchain laid out as:
 #       toolchain/psyq/CC1PSX.EXE
+#       toolchain/psyq/CC1PLPSX44.EXE <- retail PsyQ 4.4's C++ cc1plus
+#                                       (gcc 2.8.1-SN), the PER_FN_CC1PLUS_
+#                                       VER_SPLICE "2.8.1-sn" rung; build.py
+#                                       auto-finds it BESIDE CC1PSX.EXE.
+#                                       Source: psq44/pssn/bin/CC1PLPSX.EXE,
+#                                       renamed.  sha256 70319c94de27924f5720
+#                                       af361afd2aa7e6de051a7718e0c1a7f07b57
+#                                       fa92109c.  If absent, its one splice
+#                                       fn (Night_CreateNightTableElement)
+#                                       falls back to the default C++ lane
+#                                       and reads ~91% on the report instead
+#                                       of its sealed 100.
 #       toolchain/psyq/CC1PSX272.EXE <- PsyQ 4.0's cc1 (gcc 2.7.2.SN32), the
 #                                       04M syslib lane; build.py auto-finds it
 #                                       BESIDE CC1PSX.EXE (no env var needed).

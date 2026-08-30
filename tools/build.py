@@ -1303,9 +1303,18 @@ def _apply_fn_splice(rel_posix: str, s_file: Path, i_file: Path,
 # _apply_cc1_ver_splice; the whole .s still goes through maspsx.
 # Resolution: env NFS4_CC1PL_281 > psq44 > psq45 (byte-comparable builds).
 CC1PLUS_RUNGS = {
+    # Resolution order: env override, dev-box psq44/psq45 drops, then
+    # CC1PLPSX44.EXE BESIDE the resolved CC1 (the CI toolchain-zip slot,
+    # same pattern as CC1PSX272.EXE).  Without the zip slot, CI silently
+    # fell back on this rung's one customer (Night_CreateNightTableElement,
+    # sealed PASS 113/113 on it) and decomp.dev showed the fn at 91.11% --
+    # the default-lane residual, not the source's truth.  Retail PsyQ 4.4
+    # CC1PLPSX.EXE sha256:
+    # 70319c94de27924f5720af361afd2aa7e6de051a7718e0c1a7f07b57fa92109c
     "2.8.1-sn": [Path(_env("NFS4_CC1PL_281",
                            r"C:/Temp/psq44/pssn/bin/CC1PLPSX.EXE")),
-                 Path(r"C:/Temp/psq45/BIN/CC1PLPSX.EXE")],
+                 Path(r"C:/Temp/psq45/BIN/CC1PLPSX.EXE"),
+                 Path(CC1).parent / "CC1PLPSX44.EXE"],
 }
 # {rel_posix: {rung: {mangled fn names}}}
 PER_FN_CC1PLUS_VER_SPLICE = {

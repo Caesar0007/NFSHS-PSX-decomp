@@ -471,11 +471,15 @@ PER_TU_FLAGS = {
     "recon/syslib/psx/libapi/COUNTER.c":    {"cc1_272": True},  # 3/3 PASS
     # W78-A14 coupled cell (landed w81, user-authorized, with the ported source):
     # setIntrDMA needs 2.8-era reorg thread-steal (three addu tail copies) +
-    # macro-form addresses => cc1_alt 2.8.0 + no_split_addresses; the TU's other
-    # three fns keep their 2.7.2 identity via the per-fn ver-splice below
-    # (the 2.7 rung strips no_split_addresses automatically). 8 -> 2 @43/43.
-    "recon/syslib/psx/libetc/INTR_DMA.c":   {"cc1_alt": "2.8.0",
-                                             "no_split_addresses": True},
+    # W82-A9 (Option B): the TU rides its own 2.7-family identity again; only
+    # setIntrDMA needs the 970404 rung (2.8-lineage reorg thread-steal with the
+    # TEXT epilogue that keeps `j .L` -- make_return_insns never runs) and -G32
+    # to reach the split-address switch the rejected -mno-split-addresses flag
+    # couldn't (mips_check_split honours SYMBOL_REF_FLAG; dma_cb[8] = 32 bytes).
+    # Replaces the W78-A14 whole-TU 2.8.0+nosplit flip and its three sibling
+    # 2.7.2 splice rows.  4/4 PASS x2: startIntrDMA 19, _dma_isr 96,
+    # setIntrDMA 43, _bzero_w 9.  Receipt: scratchpad/w82/A9_receipt.md.
+    "recon/syslib/psx/libetc/INTR_DMA.c":   {"cc1_272": True},
     "recon/syslib/psx/libetc/INTR_VB.c":    {"cc1_272": True},  # 4/4 PASS
     "recon/syslib/psx/libetc/VSYNC.c":      {"cc1_272": True},  # 2/2 PASS
     "recon/syslib/psx/libetc/VMODE.c":      {"cc1_272": True},  # 2/2 PASS
@@ -1067,13 +1071,16 @@ PER_FN_CC1_VER_SPLICE_272 = {
     # same body prices 62 @223.  Also fixes the shipped basin's gate-blind
     # wrong branch word (j #13: 34 vs retail 35).  Receipt: w81/A9_receipt.md.
     "recon/syslib/psx/libpad/MCXMAIN.c": {
-        "2.8.0 -mno-split-addresses": {"_padIntRecvData"},
+        # W82-A9 adds _padIntRecvHdr: coupled with the merge-first/-9-last source
+        # shape (source alone 2, lane alone 4, together PASS 35/35; the fn's
+        # pre-existing gate-blind wrong beqz word dies with it).
+        "2.8.0 -mno-split-addresses": {"_padIntRecvData", "_padIntRecvHdr"},
     },
-    # W78-A14 (landed w81): the TU rides the 2.8.0+nosplit lane for setIntrDMA's
-    # reorg thread-steal; these three keep their proven 2.7.2 identity
-    # (startIntrDMA PASS 19, _dma_isr PASS 96, _bzero_w PASS 9).
+    # W82-A9 (Option B): setIntrDMA alone on 970404 + -G32 (see PER_TU_FLAGS
+    # note); the TU itself is back on the 272 recipe, so the three sibling
+    # splice rows W78-A14 needed are gone.
     "recon/syslib/psx/libetc/INTR_DMA.c": {
-        "2.7.2": {"startIntrDMA", "_dma_isr", "_bzero_w"},
+        "2.7.2-970404 -G32": {"setIntrDMA"},
     },
     # _BlitClear: rung 2.8.0 = 20 count-exact vs wired 2.8.1's 39; whole-TU
     # rung flip is net-negative (MoveImage 9->35) => per-fn.

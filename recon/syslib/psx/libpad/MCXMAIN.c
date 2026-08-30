@@ -217,20 +217,26 @@ extern unsigned _padIntRecvHdr(unsigned char *info)
      * PER_FN_TEXT_MOVES row (spec in scratchpad/w62a5/RECEIPTS.md); zero collateral, the other
      * four MCXMAIN fns stay byte-identical.
      * SOURCE-ONLY STRICT IMPROVEMENT (2026-08-26): separate physical labels for the first
-     * `r == 0x5a` return and the shared zero/negative return keep the normalized residual at
-     * 2/35, but fix the first beq's retail branch word exactly.  strict_branch improves from
-     * two wrong targets to one: only the following beqz still lands one instruction early. */
+     * `r == 0x5a` return and the shared zero/negative return kept the normalized residual at
+     * 2/35 with one wrong branch word.
+     * MATCH (W82-A9, PASS 35/35): merge block FIRST, -9 block LAST, both as branch
+     * targets.  Both filled slots become reorg target-thread copies retargeted past
+     * themselves and branch #2 falls out through redundant_insn with an empty slot --
+     * the liveness budget is never consulted.  Writing the -9 as the fall-through (the
+     * old shape) is what put `li v0,-9` where fill_simple steals it.  Coupled with the
+     * per-fn "2.8.0 -mno-split-addresses" splice (source alone 2, lane alone 4,
+     * together PASS); kills the pre-existing gate-blind wrong beqz word.
+     * Receipt: scratchpad/w82/A9_receipt.md. */
     if (r == 0x5a)
-        goto return_r_first;
+        goto merge;
     if (r == 0)
-        goto return_r;
-    if ((int)r < 0)
-        goto return_r;
+        goto merge;
+    if ((int)r >= 0)
+        goto neg9;
+merge:
+    return r;
+neg9:
     return 0xfffffff7;
-return_r_first:
-    return r;
-return_r:
-    return r;
 }
 
 /* @0x8010C314 : _padIntRecvData -- stream the payload (multitap sub-ports), then advance the port.

@@ -5494,6 +5494,7 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
   matrixtdef *m;
   coorddef *t;
   Draw_DCache *sd;
+  int skidIdx;
   /* MATCH (w46-a6): SYM has no u_char here and the oracle keeps the
    * backface flag as a plain word in $s0 (`sltu $s0,$zero,$v0;
    * beqz $s0` @0x800C91B8) -- a u_char local forced an extra
@@ -5678,9 +5679,13 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
     r0 = m->m[0];
     r1 = m->m[3];
     r2 = m->m[6];
-    (sd->matB).m[0][2] = (short)(r2 >> 4);
-    (sd->matB).m[0][0] = (short)(r0 >> 4);
-    (sd->matB).m[0][1] = (short)(r1 >> 4);
+    r0 = r0 >> 4;
+    r1 = r1 >> 4;
+    r2 = r2 >> 4;
+    skidIdx = ccount * 0x2b0;
+    (sd->matB).m[0][0] = (short)r0;
+    (sd->matB).m[0][1] = (short)r1;
+    (sd->matB).m[0][2] = (short)r2;
   }
   {
     int r0;
@@ -5714,12 +5719,11 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
       if (ccount == -1) {
         return;
       }
-      /* MATCH (w79): `skidIdx` is absent from the SYM because $s7 is loop.c's
-       * strength-reduced induction variable for this array expression.  The
-       * natural spelling emits the exact prologue multiply, the -0x2B0 branch
-       * delay-slot update, and the single base+offset add while removing the
-       * fabricated source local byte-for-byte. */
-      sm = fskid->smp + ccount;
+      /* MATCH (w80-a4): keep the retail byte cursor explicit.  Together with
+       * the split row-0 shifts above this schedules the multiply between the
+       * shifts and stores and reproduces the retail local-allocation handout. */
+      skidIdx = skidIdx + -0x2b0;
+      sm = (Skidmark_Chunk *)((int)fskid->smp + skidIdx);
       if ((BWorld_IsSliceInBuildList((int)sm->slice) != 0) &&
           (Draw_CircleClip(&sm->cp,t,0x320000) != 0)) {
     {

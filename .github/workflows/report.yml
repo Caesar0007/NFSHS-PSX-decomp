@@ -39,13 +39,9 @@ name: progress-report
 #                                       the cc1_272/default lane with a
 #                                       warning (build stays green, those
 #                                       TUs' match numbers drift low).
-#       toolchain/gcc-ladder/gcc-2.8.1-norcse-psx/cc1.exe
-#                                    <- FntFlush's Sony vendor-object identity;
-#                                       SHA256 ACD92ABB94AA9379889521EA5DFA6BC7E22AE66F5E0BF70D7131E11A4F899668.
-#                                       PE timestamp/checksum-normalized SHA256
-#                                       558A47C2197A27BE9B1D36C1D2B7B53713E09DC0C93698281696973C3CDAC591.
-#                                       build.py enforces the normalized code-
-#                                       identity hash and rejects real drift.
+#       (gcc-2.8.1-norcse-psx REMOVED, user ruling 2026-08-31: a self-built,
+#        source-patched cc1 is not a retail compiler; FntFlush stands at its
+#        FAIL 6 vendor-identity certificate instead.)
 #       toolchain/mips/bin/mipsel-none-elf-{cpp,as,ld,objcopy}.exe (+ DLLs)
 #       toolchain/maspsx/maspsx.py   <- apply tools/maspsx-lid-reg.patch first
 #                                       (completes the li.d $N register LUT; without

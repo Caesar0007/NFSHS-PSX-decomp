@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3493 functions, 3488 at 100% (99.9%)
+TOTAL: 3493 functions, 3487 at 100% (99.8%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -3007,7 +3007,7 @@ VA             %match  unit                     function
 0x800F69A8    100.00%  eaclib/psx/eacpsxz/vramfxya vramfxya
 0x800F6C3C    100.00%  eaclib/psx/eacpsxz/shpclut getshapeclut
 0x800F6C94    100.00%  eaclib/psx/eacpsxz/shpclut shapetoclutid
-0x800F6D18    100.00%  syslib/psx/libgpu/FONT   FntFlush
+0x800F6D18     98.60%  syslib/psx/libgpu/FONT   FntFlush
 0x800F7034    100.00%  syslib/psx/libgpu/FONT   FntPrint
 0x800F7400    100.00%  syslib/psx/libpress/VLC  DecDCTvlcSize
 0x800F7430    100.00%  syslib/psx/libpress/VLC  DecDCTvlc

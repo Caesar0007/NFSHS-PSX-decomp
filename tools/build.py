@@ -100,15 +100,11 @@ CC1_NORCSE_SHA256 = "acd92abb94aa9379889521ea5dfa6bc7e22ae66f5e0bf70d7131e11a4f8
 CC1_NORCSE_SEMANTIC_SHA256 = "558a47c2197a27be9b1d36c1d2b7b53713e09dc0c93698281696973c3cdac591"
 CC1_281_SN_SHA256 = "26eb8259fa3e077d1980eb1e0c942006752135953dd03173200bf99ef6f5b6c9"
 CC1_SPECIAL_RUNGS = {
-    "2.8.1-norcse": [
-        Path(_env("NFS4_CC1_NORCSE",
-                  str(ROOT / "scratch" / "gccbuild-ecoff" / "cc1.exe"))),
-        # The instrumented compiler workspace is built from the shared primary
-        # checkout; sibling clean worktrees intentionally do not duplicate the
-        # large GCC build tree.  Accept that established build as the local-dev
-        # fallback (the semantic hash guard below still proves its identity).
-        Path(r"C:/Temp/nfs4-decomp/scratch/gccbuild-ecoff/cc1.exe"),
-    ],
+    # "2.8.1-norcse" REMOVED (user ruling 2026-08-31): a self-built,
+    # source-patched cc1 is not a retail compiler and is banned; the rung's
+    # one customer (FntFlush) now stands at its FAIL 6 vendor-identity
+    # certificate on FONT.c's own lane.  The hash pins above are kept as the
+    # historical record of the binary the certificate was derived with.
     "2.8.1-sn": [
         Path(_env("NFS4_CC1_281_SN", r"C:/Temp/psq44/pssn/bin/CC1PSX.EXE")),
         Path(r"C:/Temp/psq45/BIN/CC1PSX.EXE"),
@@ -1389,11 +1385,19 @@ PER_FN_CC1_VER_SPLICE = {
         # diffs), confirming a distinct source-object compiler identity.
         "2.8.1": {"_read_int", "_read_issue", "CdReadSync"},
     },
-    # The hash-pinned no-reload-CSE 2.8.1 compiler emits the vendor FntFlush
-    # object exactly; its narrowly guarded partial-output contract is below.
-    "recon/syslib/psx/libgpu/FONT.c": {
-        "2.8.1-norcse": {"FntFlush"},
-    },
+    # W81-A15 / user ruling 2026-08-31: the `2.8.1-norcse` rung is a SELF-BUILT,
+    # SOURCE-PATCHED cc1 and is banned by the retail-only ruling; its acceptance
+    # contract also depended on WHERE the AV-ing compiler's stdio buffer happened
+    # to flush (path-bound; excluded the TU from copy-mode probing).  FONT.c
+    # runs on its own wired 2.8 lane:
+    #   FntFlush FAIL 6 @199/199 (count-exact), FntPrint PASS 240/240;
+    #   brdist 0, slotcheck 0.
+    # The 6 rows are ONE certified `reload_cse_regs` identity; no legal rung
+    # reaches it: 2.6.0 102 / 2.6.3 98 / 2.7.2 85 / 2.7.2-970404 31 (ladder AND
+    # the retail PsyQ 4.1 binary) / 2.8.0 6 / 2.8.1 6 (ladder AND the retail
+    # PsyQ 4.4 binary).  Both fns are certified PsyQ 4.3 VENDOR-OBJECT
+    # identities (REAL=0 vs libgpu.lib(FONT.OBJ)) -- Sony's build, not our
+    # source.  (no FONT.c entry)
     # W74-A19: PAD_update wants 2.7.2 codegen for its constant remat while the
     # TU stays 2.8.0. W80-root: per-function normal-route ladder probes show
     # that 2.6.0/2.6.3/2.7.2 all emit the retail padinit, PAD_restore, and

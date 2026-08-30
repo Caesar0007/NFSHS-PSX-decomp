@@ -2986,9 +2986,9 @@
     {
       "name": "syslib/psx/libcard/CARDINIT",
       "target_path": "expected/src/syslib/psx/libcard/CARDINIT.c.o",
-      "base_path": "build/recon/syslib/psx/libcard/CARDINIT.c.o",
+      "base_path": "build/recon/syslib/psx/libcard/INIT.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libcard/CARDINIT.c"
+        "source_path": "recon/syslib/psx/libcard/INIT.c"
       }
     },
     {

@@ -473,7 +473,10 @@ PER_TU_FLAGS = {
     "recon/syslib/psx/libetc/INTR_VB.c":    {"cc1_272": True},  # 4/4 PASS
     "recon/syslib/psx/libetc/VSYNC.c":      {"cc1_272": True},  # 2/2 PASS
     "recon/syslib/psx/libetc/VMODE.c":      {"cc1_272": True},  # 2/2 PASS
-    "recon/syslib/psx/libcard/CARDINIT.c":  {"cc1_272": True},  # 2/2 PASS
+    # Canonical PsyQ 4.3 INDEX.tsv proves InitCARD/StartCARD/StopCARD are one
+    # INIT.obj.  All three are byte-exact in this 2.7.2 lane.  Pre-change tool
+    # backup: Git commit 279b1f52.
+    "recon/syslib/psx/libcard/INIT.c":      {"cc1_272": True},  # 3/3 PASS
     # w51-a7: COUPLED with the LIBPRESS.c source (MDEC_status fence removed --
     # 2.8-only device); without this entry LIBPRESS loses 1 PASS.
     "recon/syslib/psx/libpress/LIBPRESS.c": {"cc1_272": True},  # 6->11/12 PASS
@@ -781,7 +784,7 @@ PER_FN_NO_DELAYED_BRANCH = {
     "recon/syslib/psx/libcd/streamhelp.c": {
         # w51-a4: EMPTIED -- 272 lane supersedes (class was compiler-version).
     },
-    "recon/syslib/psx/libcard/CARDINIT.c": {
+    "recon/syslib/psx/libcard/INIT.c": {
         "StopCARD",   # StartCARD tried + reverted: multi-jal interior arg-slot filling
                        # (naked nop vs oracle's ASPSX-filled slot) -> FAIL 4->3, not PASS. Tier-2.
     },

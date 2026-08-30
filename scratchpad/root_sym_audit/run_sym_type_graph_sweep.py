@@ -59,14 +59,6 @@ SOURCE_OWNER_OVERRIDES = {
 # Function-to-member membership is byte-indexed in PsyQ 4.3 INDEX.tsv and agrees
 # with the retail VA/object comments in the sources.
 SOURCE_ORGANIZATION_FINDINGS = {
-    "recon/syslib/psx/libcard/INIT.c": (
-        "SOURCE_SPLIT", r"..\syslib\psx\lib\libcard.lib(INIT.obj)",
-        "retail INIT.obj is split across INIT.c and CARDINIT.c",
-    ),
-    "recon/syslib/psx/libcard/CARDINIT.c": (
-        "SOURCE_SPLIT", r"..\syslib\psx\lib\libcard.lib(INIT.obj)",
-        "retail INIT.obj is split across INIT.c and CARDINIT.c",
-    ),
     "recon/syslib/psx/libcd/stream.c": (
         "SOURCE_MERGE",
         "libcd.lib(C_002.obj)|libcd.lib(C_005.obj)|libcd.lib(CDROM.obj)",

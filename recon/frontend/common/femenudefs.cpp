@@ -3100,6 +3100,8 @@ winCase:
    including three wrong destination objects.  The SYM records a 640-byte retail
    frame; this zero-instruction local keeps that recovered allocation boundary. */
 
+static inline void A1_SetChildMenu(tMenu *parent, tMenu *child) { parent->fChildMenu = child; }
+static inline void A1_SetCarFilter(tListIteratorCar *it, int f) { it->fCarListFilter = f; }
 tGlobalMenuDefs::tGlobalMenuDefs()
  : itemMainOnePlayerRace(0x5b, (tMenu*)&menuOnePlayer, (void (*)(tMenuCommand&))MenuExtended_SetOnePlayer, 0x1e, 10)   /* +0x0 tMenuItemGoToMenuNFS4Button */
  , itemMainTwoPlayerRace(0x5c, (tMenu*)&menuTwoPlayer, (void (*)(tMenuCommand&))MenuExtended_SetTwoPlayer, 0x28, 10)   /* +0x2C tMenuItemGoToMenuNFS4Button */
@@ -3198,7 +3200,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemCar(0x92, (tListIterator *)&iteratorCar1, 0x1c, 10)   /* +0x11D4 tMenuItemNFS4LeftRightChoice */
  , itemColor(0x120, (tListIterator *)&iteratorColor, 0x26, 10)   /* +0x11FC tMenuItemNFS4LeftRightChoice */
  , itemShowcase(0x112, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToShowroom, 0x30, 10)   /* +0x1224 tMenuItemGoToMenuNFS4Button */
- , menuSingleCarSelect(0x1a00, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0xba, (tMenuItem *)&itemCarSelectRace, &itemCar, &itemColor, &itemShowcase, 0)   /* +0x1250 tMenuNFS4 */
+ , menuSingleCarSelect(({ __asm__("" : : "r"(&itemGarageCar)); 0x1a00; }), (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0xba, (tMenuItem *)&itemCarSelectRace, &itemCar, &itemColor, &itemShowcase, 0)   /* +0x1250 tMenuNFS4 */
  , iteratorGarageCar(frontEnd.garageCar, &carManager)   /* +0x12CC tListIteratorCar */
  , itemGarageCar(0x92, (tListIterator *)&iteratorGarageCar, 0x1c, 10)   /* +0x12E8 tMenuItemNFS4LeftRightChoice */
  , itemCarDealer(0x74, (tMenu*)&menuGoToCarDealer, 0, 0x3a, 10)   /* +0x1310 tMenuItemGoToMenuNFS4Button */
@@ -3227,7 +3229,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
       fence's position from the operand's definition to just past its LAST use; the
       optimum is adjacent to a use, never inside the hot argument block. */
  , menuCarGarage(0x1a00, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0x8f, (tMenuItem *)&itemCarSelectRace, &itemGarageCar, &itemCarDealer, &itemUpgradeCar, 0)   /* +0x1368 tMenuNFS4 */
- , menuPostCarGarage(({ __asm__("" : : "r"(&itemGarageCar)); (0x1a00); }), (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0x8f, (tMenuItem *)&itemCarSelectRace, &itemUpgradeCar, 0)   /* +0x13E4 tMenuNFS4 */
+ , menuPostCarGarage(0x1a00, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0x8f, (tMenuItem *)&itemCarSelectRace, &itemUpgradeCar, 0)   /* +0x13E4 tMenuNFS4 */
  , iteratorOpponentCar(&frontEnd.oppCar, &carManager)   /* +0x1460 tListIteratorCar */
  , itemDuelRace(0xbd, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0x2a, 10)   /* +0x147C tMenuItemGoToMenuNFS4Button */
  , itemCar2(0x92, (tListIterator *)&iteratorCar1, 0xc, 10)   /* +0x14A8 tMenuItemNFS4LeftRightChoice */
@@ -3403,27 +3405,18 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemMemContinue(0x28a, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_TransitionFromPostGameToMainMenu)   /* +0x3A6C tMemoryCardMenuItem */
  , menuPostGameSave(0x1040, (tScreen *)screenMemcard, (tMenu *)0x0, (tMenu *)0x0, 0, -1, 0x2e, 10, (tMenuItem *)&itemMemContinue, &itemSaveGame, 0)   /* +0x3A98 tOptionsMenu */
  {
-  {
-    tMenu *child = (tMenu *)&menuPlayerTwoCarSelect;
-    (menuPlayerOneCarSelect).fChildMenu = child;
-  }
-  {
-    tMenu *child = (tMenu *)&menuPlayerTwoGarage;
-    (menuPlayerOneGarage).fChildMenu = child;
-  }
-  {
-    tMenu *child = (tMenu *)&menuPlayerTwoPinkSlipCarSelect;
-    (menuPlayerOnePinkSlipCarSelect).fChildMenu = child;
-  }
+  A1_SetChildMenu(&menuPlayerOneCarSelect, (tMenu *)&menuPlayerTwoCarSelect);
+  A1_SetChildMenu(&menuPlayerOneGarage, (tMenu *)&menuPlayerTwoGarage);
+  A1_SetChildMenu(&menuPlayerOnePinkSlipCarSelect, (tMenu *)&menuPlayerTwoPinkSlipCarSelect);
   ((tMenuItemLeftRightSlider *)&itemMusicVolume)->SetDimensions(0,0,0x78,5);
   ((tMenuItemLeftRightSlider *)&itemSoundEffectsVolume)->SetDimensions(0,0,0x78,5);
   ((tMenuItemLeftRightSlider *)&itemEngineVolume)->SetDimensions(0,0,0x78,5);
   ((tMenuItemLeftRightSlider *)&itemSpeechVolume)->SetDimensions(0,0,0x78,5);
   ((tMenuItemLeftRightSlider *)&itemAmbientVolume)->SetDimensions(0,0,0x78,5);
-  (iteratorPinkSlipsCar).fCarListFilter = 0x20;
-  (iteratorGarageCar).fCarListFilter = 2;
-  (iteratorDealerCar).fCarListFilter = 1;
-  (iteratorSellerCar).fCarListFilter = 2;
+  A1_SetCarFilter(&iteratorPinkSlipsCar, 0x20);
+  A1_SetCarFilter(&iteratorGarageCar, 2);
+  A1_SetCarFilter(&iteratorDealerCar, 1);
+  A1_SetCarFilter(&iteratorSellerCar, 2);
   (menuAudio).VertHelp = 0;
   (menuDisplayOptions).VertHelp = 0;
   (menuControllerConfig).VertHelp = 1;
@@ -3439,12 +3432,11 @@ tGlobalMenuDefs::tGlobalMenuDefs()
      `child` locals; these optimized-away tail identities have descriptive names:
      SYM-CODEGEN-CARRIER: memoryMenu
      SYM-CODEGEN-CARRIER: userNameMenu */
-  { tMenu *memoryMenu = (tMenu *)&menuMemory; __asm__("" : "=r"(memoryMenu) : "0"(memoryMenu)); memoryMenu->VertHelp = 0; }
-  { tMenu *userNameMenu = (tMenu *)&menuUserName; __asm__("" : "=r"(userNameMenu) : "0"(userNameMenu)); userNameMenu->VertHelp = 0; }
+  { tMenu *memoryMenu = (tMenu *)&menuMemory; memoryMenu->VertHelp = 0; }
+  { tMenu *userNameMenu = (tMenu *)&menuUserName; userNameMenu->VertHelp = 0; }
   (menuTrackRecords).VertHelp = 1;
   /* [2026-08-24] Zero-insn tail scheduling boundary: 874 -> 872 diffs in the
      current constructor basin, with the instruction count unchanged at 3223. */
-  __asm__("" : : "i"(0));
   (menuTrophyInfo).VertHelp = 0;
   return;
 }

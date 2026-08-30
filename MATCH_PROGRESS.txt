@@ -3326,6 +3326,7 @@ VA             %match  unit                     function
 0x8010669C    100.00%  syslib/psx/libapi/A25    HookEntryInt
 0x801066AC    100.00%  syslib/psx/libetc/INTR_DMA startIntrDMA
 0x801066F8    100.00%  syslib/psx/libetc/INTR_DMA _dma_isr
+0x80106878     98.60%  syslib/psx/libetc/INTR_DMA setIntrDMA
 0x80106954    100.00%  syslib/psx/libapi/C114   _96_remove
 0x8010696C    100.00%  syslib/psx/libapi/A37    ExitCriticalSection
 0x8010697C    100.00%  syslib/psx/libapi/A23    ReturnFromException
@@ -3493,6 +3494,5 @@ VA             %match  unit                     function
     -         100.00%  syslib/psx/libcard/END   D_8010CC30
     -         100.00%  syslib/psx/libcard/END   D_8010CC3C
     -         100.00%  syslib/psx/libcard/PATCH func_8010CA40
-    -           0.00%  syslib/psx/libetc/INTR_DMA func_80106878
     -         100.00%  syslib/psx/libgte/PATCHGTE D_80106518
     -         100.00%  syslib/psx/libgte/PATCHGTE D_80106530

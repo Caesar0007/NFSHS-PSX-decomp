@@ -316,12 +316,6 @@ void tScreenCongrats::DrawBackground()
   return;
 }
 
-/* ---- tScreenCongrats::DrawForeground  (screencongrats.cpp:360) ---- */
-void tScreenCongrats::DrawForeground()
-
-{
-  return;
-}
 
 /* ---- tScreenCongrats::CalculatePrizes  (screencongrats.cpp:365) ---- */
 void tScreenCongrats::CalculatePrizes()
@@ -423,6 +417,15 @@ void tScreenCongrats::ProcessInput(tPlayer p,tInputKeyType &keyval,tMenuCommand 
   }
   return;
 }
+
+/* ---- tScreenCongrats::~tScreenCongrats  (screencongrats.cpp:109) ---- */
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___7tScreen the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___7tScreen(void *);
+extern "C" void ___15tScreenCongrats(void *thisp) { ___7tScreen(thisp); }
+
 
 /* ---- tScreenPinkSlipCongrats::DrawCongratsMessage  (screencongrats.cpp:432) ---- */
 void tScreenPinkSlipCongrats::DrawCongratsMessage()
@@ -569,6 +572,14 @@ void tScreenPinkSlipCongrats::Cleanup()
   this->tScreen::Cleanup();
   return;
 }
+
+/* ---- tScreenPinkSlipCongrats::~tScreenPinkSlipCongrats  (screencongrats.cpp:141) ---- */
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___7tScreen the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___7tScreen(void *);
+extern "C" void ___23tScreenPinkSlipCongrats(void *thisp) { ___7tScreen(thisp); }
 
 /* ---- tScreenTournamentTrophy::ProcessInput  (screencongrats.cpp:518) ---- */
 void tScreenTournamentTrophy::ProcessInput(tPlayer p,tInputKeyType &keyval,tMenuCommand &c)
@@ -820,6 +831,14 @@ prizes_done:
   return;
 }
 
+/* ---- tScreenTournamentTrophy::~tScreenTournamentTrophy  (screencongrats.cpp:126) ---- */
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___7tScreen the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___7tScreen(void *);
+extern "C" void ___23tScreenTournamentTrophy(void *thisp) { ___7tScreen(thisp); }
+
 /* ---- tScreenBeTheCopCongrats::GetCar  (screencongrats.cpp:746) ---- */
 bool tScreenBeTheCopCongrats::GetCar(tCarInfo &carInfo)
 
@@ -876,6 +895,14 @@ void tScreenBeTheCopCongrats::DrawCongratsMessage()
   FETextRender_WordWrapText(buffer,r,textState_Selected,textType_PostGame);   /* MATCH: pass buffer (addr held in s0 across sprintf, 3.12#16), NOT sprintf's return */
   return;
 }
+
+/* ---- tScreenBeTheCopCongrats::~tScreenBeTheCopCongrats  (screencongrats.cpp:151) ---- */
+/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
+ * nfs4_types.h) so every derived dtor and every scope-exit collapses to
+ * ___7tScreen the way retail does; the standalone symbol gcc then stops
+ * emitting is supplied here, in place, with C linkage. */
+extern "C" void ___7tScreen(void *);
+extern "C" void ___23tScreenBeTheCopCongrats(void *thisp) { ___7tScreen(thisp); }
 
 /* ---- tScreenTournamentCongrats::GetCar  (screencongrats.cpp:796) ---- */
 bool tScreenTournamentCongrats::GetCar(tCarInfo &carInfo)
@@ -951,36 +978,11 @@ void tScreenTournamentCongrats::DrawCongratsMessage()
 extern "C" void ___7tScreen(void *);
 extern "C" void ___25tScreenTournamentCongrats(void *thisp) { ___7tScreen(thisp); }
 
-/* ---- tScreenBeTheCopCongrats::~tScreenBeTheCopCongrats  (screencongrats.cpp:151) ---- */
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___7tScreen the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
-extern "C" void ___7tScreen(void *);
-extern "C" void ___23tScreenBeTheCopCongrats(void *thisp) { ___7tScreen(thisp); }
+/* ---- tScreenCongrats::DrawForeground  (screencongrats.cpp:360) ---- */
+void tScreenCongrats::DrawForeground()
 
-/* ---- tScreenPinkSlipCongrats::~tScreenPinkSlipCongrats  (screencongrats.cpp:141) ---- */
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___7tScreen the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
-extern "C" void ___7tScreen(void *);
-extern "C" void ___23tScreenPinkSlipCongrats(void *thisp) { ___7tScreen(thisp); }
-
-/* ---- tScreenTournamentTrophy::~tScreenTournamentTrophy  (screencongrats.cpp:126) ---- */
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___7tScreen the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
-extern "C" void ___7tScreen(void *);
-extern "C" void ___23tScreenTournamentTrophy(void *thisp) { ___7tScreen(thisp); }
-
-/* ---- tScreenCongrats::~tScreenCongrats  (screencongrats.cpp:109) ---- */
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___7tScreen the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
-extern "C" void ___7tScreen(void *);
-extern "C" void ___15tScreenCongrats(void *thisp) { ___7tScreen(thisp); }
+{
+  return;
+}
 
 /* end of screencongrats.cpp */

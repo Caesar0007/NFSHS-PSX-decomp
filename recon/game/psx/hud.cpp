@@ -337,12 +337,6 @@ void Hud_DebugInfo(void)
   CopSpeak_Debug();
 }
 
-/* ---- Hud_DebugCrap__Fv  [HUD.CPP:536-551] SLD-VERIFIED ---- */
-void Hud_DebugCrap(void)
-
-{
-  return;
-}
 
 /* ---- Hud_BuildSprite__FP4SPRTiiiUli  [HUD.CPP:556-569] SLD-VERIFIED ---- */
 void Hud_BuildSprite(SPRT *sprt,int shapeIdx,int x,int y,u_long color,int trans)
@@ -537,19 +531,6 @@ void Hud_BuildG4(POLY_G4 *prim,int trans,int x,int y,int w,int h,u_long col1,u_l
   return;
 }
 
-/* ---- Hud_BuildF4o__FP7POLY_F4iiiiiUlScSc  [HUD.CPP:747-757] SLD-VERIFIED ---- */
-void Hud_BuildF4o(POLY_F4 *prim,int trans,int x,int y,int w,int h,u_long color,signed char x0off,signed char x1off)
-
-{
-  *(u_int *)&prim->r0 = color;
-  SetPolyF4(prim);
-  SetSemiTrans(prim,trans);
-  *(u_int *)&prim->x0 = y << 0x10 | x + x0off;
-  *(u_int *)&prim->x1 = y << 0x10 | x + w + (int)x1off;
-  *(u_int *)&prim->x2 = (y + h) * 0x10000 | x;
-  *(u_int *)&prim->x3 = (y + h) * 0x10000 | x + w;
-  return;
-}
 
 /* ---- Hud_FBuildGT4__FP13HudPmx_tShapeiiUl  [HUD.CPP:762-765] SLD-VERIFIED ---- */
 void Hud_FBuildGT4(HudPmx_tShape *shape, int x, int y, u_long col1)
@@ -613,25 +594,6 @@ void Hud_FBuildF4(int transparent, int x, int y, int w, int h, u_long col1, char
   Hud_BuildF4o(prim, transparent, x, y, w, h, col1, x0off, x1off);
 }
 
-/* ---- uppercase__FPc  [HUD.CPP:790-795] SLD-VERIFIED ---- */
-static void uppercase(char *string)
-
-{
-  int len;
-  int n;
-
-  len = strlen(string);
-  n = 0;
-  if (0 < len) {
-    do {
-      if ((u_int)(((u_char *)string)[n] - 0x61) < 0x1au) {
-        ((u_char *)string)[n] = ((u_char *)string)[n] + (u_char)0xe0;
-      }
-      n = n + 1;
-    } while (n < len);
-  }
-  return;
-}
 
 /* ---- Hud_Kill__Fv  [HUD.CPP:800-808] SLD-VERIFIED ---- */
 void Hud_Kill(void)
@@ -6339,6 +6301,47 @@ void Hud_Perp_OverlayOff(int player)
 
 {
   *(int *)((player << 2) + (int)PerpOverlayOn) = 0;
+  return;
+}
+
+/* ---- Hud_DebugCrap__Fv  [HUD.CPP:536-551] SLD-VERIFIED ---- */
+void Hud_DebugCrap(void)
+
+{
+  return;
+}
+
+/* ---- Hud_BuildF4o__FP7POLY_F4iiiiiUlScSc  [HUD.CPP:747-757] SLD-VERIFIED ---- */
+void Hud_BuildF4o(POLY_F4 *prim,int trans,int x,int y,int w,int h,u_long color,signed char x0off,signed char x1off)
+
+{
+  *(u_int *)&prim->r0 = color;
+  SetPolyF4(prim);
+  SetSemiTrans(prim,trans);
+  *(u_int *)&prim->x0 = y << 0x10 | x + x0off;
+  *(u_int *)&prim->x1 = y << 0x10 | x + w + (int)x1off;
+  *(u_int *)&prim->x2 = (y + h) * 0x10000 | x;
+  *(u_int *)&prim->x3 = (y + h) * 0x10000 | x + w;
+  return;
+}
+
+/* ---- uppercase__FPc  [HUD.CPP:790-795] SLD-VERIFIED ---- */
+static void uppercase(char *string)
+
+{
+  int len;
+  int n;
+
+  len = strlen(string);
+  n = 0;
+  if (0 < len) {
+    do {
+      if ((u_int)(((u_char *)string)[n] - 0x61) < 0x1au) {
+        ((u_char *)string)[n] = ((u_char *)string)[n] + (u_char)0xe0;
+      }
+      n = n + 1;
+    } while (n < len);
+  }
   return;
 }
 

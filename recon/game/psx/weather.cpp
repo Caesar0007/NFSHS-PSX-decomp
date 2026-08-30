@@ -102,12 +102,6 @@ Weather_tState Weather_gType;
 static int timechange;                         /* @0x8013de4c SYM STAT */
 int gCurrentNumSplats;
 
-/* ---- Weather_GetNumParticles__Fi  [WEATHER.CPP:107-108] SLD-VERIFIED ---- */
-int Weather_GetNumParticles(int player)
-
-{
-  return Weather_gSys.num[0];
-}
 
 /* ---- Weather_SetMatrix__FP10matrixtdef  [WEATHER.CPP:112-123] SLD-VERIFIED ----
  * SEALED (49/49 PASS): SYM shows THREE nested block scopes each with fresh r0/r1/r2
@@ -1866,3 +1860,9 @@ void Weather_BuildWeather(DRender_tView *Vi)
 /* end of weather.cpp */
 
 /* owning-TU def (link-harness) */
+/* ---- Weather_GetNumParticles__Fi  [WEATHER.CPP:107-108] SLD-VERIFIED ---- */
+int Weather_GetNumParticles(int player)
+
+{
+  return Weather_gSys.num[0];
+}

@@ -26,7 +26,7 @@ glabel _initIntr
     /* E31B4 800F29B4 8C5B428C */  lw         $v0, %lo(D_80135B8C)($v0)
     /* E31B8 800F29B8 21200002 */  addu       $a0, $s0, $zero
     /* E31BC 800F29BC 000045AC */  sw         $a1, 0x0($v0)
-    /* E31C0 800F29C0 9CCB030C */  jal        _bzero_w
+    /* E31C0 800F29C0 9CCB030C */  jal        _bzero_w_800F2E70
     /* E31C4 800F29C4 1A040524 */   addiu     $a1, $zero, 0x41A
     /* E31C8 800F29C8 A319040C */  jal        setjmp
     /* E31CC 800F29CC 38000426 */   addiu     $a0, $s0, 0x38

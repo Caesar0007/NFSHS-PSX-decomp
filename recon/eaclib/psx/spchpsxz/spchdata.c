@@ -14,9 +14,9 @@
 extern int iSPCH_GetMatchValue(int base, int index);                  /* @0x80100710 */
 extern int VoxSentence_GetShortRule(int sentence);                    /* @0x80100724 */
 extern int VoxSentence_GetNumPhrases(int sentence);                   /* @0x80100730 */
-extern int VoxEvent_GetFilterLengthFlag(int event);                   /* @0x8010073C */
+extern int VoxEvent_GetFilterLengthFlag(int event) __asm__("VoxEvent_GetFilterLengthFlag_8010073C");  /* @0x8010073C (M2: VA-suffixed symbol; retail dup of the spchevnt static) */
 extern int iSPCH_GetOffset8(int base, int tableBase, int index);      /* @0x80100748 */
-extern int iSPCH_GetOffset16(int base, int tableBase, int index);     /* @0x80100760 */
+extern int iSPCH_GetOffset16(int base, int tableBase, int index) __asm__("iSPCH_GetOffset16_80100760");  /* @0x80100760 (M2: VA-suffixed symbol) */
 
 /* iSPCH_GetMatchValue @0x80100710 : read the int at entry `index` of the table that starts at base+8.
  * MATCH: in-place dead-ptr mutate: base += index*4 forces oracle's addu a0,a0,a1; lw v0,8(a0) */

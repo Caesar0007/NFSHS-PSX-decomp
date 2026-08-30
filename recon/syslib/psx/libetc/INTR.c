@@ -78,7 +78,7 @@ extern int trapMissedCount __asm__("D_80135B90");
  * specifiers on this compiler -- wrap in an `extern "C" { }` block instead.
  * W60-A1 (2026-08-14): the DEFINITION moved to EOF -- retail puts _bzero_w LAST in the obj
  * (@0x800F2E70, after RestartCallback); this forward decl keeps startIntr's call site valid. */
-static void memclr(int *p, int n) __asm__("_bzero_w");
+static void memclr(int *p, int n) __asm__("_bzero_w_800F2E70");  /* M2: VA-suffixed (INTR's own copy; INTR_DMA owns the bare name) */
 
 extern void *ResetCallback(void)       /* @0x800F284C */
 {

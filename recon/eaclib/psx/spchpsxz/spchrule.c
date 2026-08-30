@@ -41,6 +41,12 @@ extern int (*gSentenceRuleTest[])(unsigned int, unsigned int, int); /* sentence 
 
 /* ---- per-TU static copies of the shared Vox accessors (canonical versions in spchdata.obj) ---- */
 
+/* M2: VA-suffixed symbols for the per-TU static copies (labels on the
+   DECLARATIONS -- GNU C forbids asm labels on definitions). */
+static int VoxSentence_GetNumPhrases(int sentence) __asm__("VoxSentence_GetNumPhrases_8010B100");
+static int iSPCH_GetOffset8(int base, int tableBase, int index) __asm__("iSPCH_GetOffset8_8010B10C");
+static int iSPCH_GetOffset16(int base, int tableBase, int index) __asm__("iSPCH_GetOffset16_8010B124");
+
 static int VoxSentence_GetNumPhrases(int sentence)   /* @0x8010B100 */
 {
     return (int)((unsigned int)*(unsigned char *)(sentence + 3) >> 2);

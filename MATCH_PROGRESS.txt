@@ -2648,10 +2648,7 @@ VA             %match  unit                     function
 0x800E6CF0    100.00%  eaclib/psx/sndpsxz/sstsetpr SNDSTRM_setpriority
 0x800E6D58    100.00%  eaclib/psx/sndpsxz/seffect SNDfxinitbus
 0x800E6DD0    100.00%  eaclib/psx/sndpsxz/seffect SNDfxmasterlevel
-0x800E6E88    100.00%  eaclib/psx/spchpsxz/spchdata VoxEvent_GetFilterLengthFlag
 0x800E6E94    100.00%  eaclib/psx/spchpsxz/spchevnt VoxEvent_GetKeepTillExpiresFlag
-0x800E6EA8    100.00%  eaclib/psx/spchpsxz/spchdata iSPCH_GetOffset16
-0x800E6EA8    100.00%  eaclib/psx/spchpsxz/spchrule iSPCH_GetOffset16
 0x800E6EC4    100.00%  eaclib/psx/spchpsxz/spchevnt iSPCH_SearchEventDat
 0x800E6F4C    100.00%  eaclib/psx/spchpsxz/spchevnt iSPCH_FindEvent
 0x800E6FBC    100.00%  eaclib/psx/spchpsxz/spchevnt iSPCH_InitEventDat
@@ -2943,8 +2940,7 @@ VA             %match  unit                     function
 0x800F2C10    100.00%  syslib/psx/libetc/INTR   _set_intr_callback
 0x800F2D58    100.00%  syslib/psx/libetc/INTR   StopCallback
 0x800F2DF8    100.00%  syslib/psx/libetc/INTR   RestartCallback
-0x800F2E70    100.00%  syslib/psx/libetc/INTR   _bzero_w
-0x800F2E70    100.00%  syslib/psx/libetc/INTR_DMA _bzero_w
+0x800F2E70    100.00%  syslib/psx/libetc/INTR   _bzero_w_800F2E70
 0x800F2E94    100.00%  eaclib/psx/eacpsxz/setfont setfont
 0x800F3024    100.00%  eaclib/psx/eacpsxz/getm  getm
 0x800F308C    100.00%  eaclib/psx/eacpsxz/getm  geti
@@ -3192,9 +3188,9 @@ VA             %match  unit                     function
 0x80100710    100.00%  eaclib/psx/spchpsxz/spchdata iSPCH_GetMatchValue
 0x80100724    100.00%  eaclib/psx/spchpsxz/spchdata VoxSentence_GetShortRule
 0x80100730    100.00%  eaclib/psx/spchpsxz/spchdata VoxSentence_GetNumPhrases
-0x80100730    100.00%  eaclib/psx/spchpsxz/spchrule VoxSentence_GetNumPhrases
+0x8010073C    100.00%  eaclib/psx/spchpsxz/spchdata VoxEvent_GetFilterLengthFlag_8010073C
 0x80100748    100.00%  eaclib/psx/spchpsxz/spchdata iSPCH_GetOffset8
-0x80100748    100.00%  eaclib/psx/spchpsxz/spchrule iSPCH_GetOffset8
+0x80100760    100.00%  eaclib/psx/spchpsxz/spchdata iSPCH_GetOffset16_80100760
 0x8010077C    100.00%  eaclib/psx/spchpsxz/spchpick iSPCH_MatchSample
 0x80100880    100.00%  eaclib/psx/spchpsxz/spchpick iSPCH_GetPhraseBank
 0x80100994    100.00%  eaclib/psx/spchpsxz/spchpick iSPCH_GetBankBits
@@ -3327,6 +3323,7 @@ VA             %match  unit                     function
 0x801066AC    100.00%  syslib/psx/libetc/INTR_DMA startIntrDMA
 0x801066F8    100.00%  syslib/psx/libetc/INTR_DMA _dma_isr
 0x80106878    100.00%  syslib/psx/libetc/INTR_DMA setIntrDMA
+0x80106924    100.00%  syslib/psx/libetc/INTR_DMA _bzero_w
 0x80106954    100.00%  syslib/psx/libapi/C114   _96_remove
 0x8010696C    100.00%  syslib/psx/libapi/A37    ExitCriticalSection
 0x8010697C    100.00%  syslib/psx/libapi/A23    ReturnFromException
@@ -3441,6 +3438,9 @@ VA             %match  unit                     function
 0x8010AEDC    100.00%  eaclib/psx/sndpsxz/saetodv iSNDabs
 0x8010AEF4    100.00%  eaclib/psx/sndpsxz/saetodv iSNDatodlrv
 0x8010B0A8    100.00%  eaclib/psx/sndpsxz/saetolrv iSNDatolrv
+0x8010B100    100.00%  eaclib/psx/spchpsxz/spchrule VoxSentence_GetNumPhrases_8010B100
+0x8010B10C    100.00%  eaclib/psx/spchpsxz/spchrule iSPCH_GetOffset8_8010B10C
+0x8010B124    100.00%  eaclib/psx/spchpsxz/spchrule iSPCH_GetOffset16_8010B124
 0x8010B140    100.00%  eaclib/psx/spchpsxz/spchrule iSPCH_GetRuleDataAddr
 0x8010B158    100.00%  eaclib/psx/spchpsxz/spchrule iSPCH_SentenceUsesParm
 0x8010B220    100.00%  eaclib/psx/spchpsxz/spchrule iSPCH_GetRuleID

@@ -89,8 +89,9 @@ RE_COMB = re.compile(r'^\[qty_combine\]\s+pseudo (\d+) \(refs (\d+) calls (\d+)\
 
 def split_functions(path):
     out, cur, name = {}, [], None
-    for line in open(path, errors='replace'):
-        line = line.rstrip('\n')
+    raw = open(path, 'rb').read()
+    encoding = 'utf-16' if raw.startswith((b'\xff\xfe', b'\xfe\xff')) else 'utf-8'
+    for line in raw.decode(encoding, errors='replace').splitlines():
         m = RE_FN.match(line)
         if m:
             if name is not None:

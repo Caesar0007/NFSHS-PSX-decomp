@@ -1,3 +1,52 @@
+/* 🏆 W83-A3 (2026-08-30) -- **PASS 545/545, byte-exact**.  The last two diffs (the
+ * `li $s3,48` preheader emission-order row, open since w51) are gone, pure-C:
+ * no volatile, no new __asm__, no post-compile move, no wiring change.
+ *
+ * THE ROW, restated: the preheader holds four flag constants.  Retail emits them
+ * '-','+',' ','0' (s7,s6,s5,s3); we emitted '0' FIRST.  sched1 gives all four
+ * priority 1 / ref_count 0, so `rank_for_schedule` falls through to DESCENDING
+ * LUID and the backward list scheduler emits the first-picked LAST -- i.e. the
+ * emission order IS the RTL chain order.  `move_movables` inserts every hoisted
+ * literal with `emit_insn_before (loop_start)`, so a hoist ALWAYS lands after
+ * every pre-loop SOURCE insn.  With '-','+',' ' as LICM hoists and `flagZero`
+ * as a pre-loop assignment, ours could only ever be '0' first: no assignment
+ * position, carrier, wrapper or launder can reorder a source insn past a hoist
+ * (w82-a6 24 cells + 3616 permuter candidates, all >= 2).
+ *
+ * THE CURE is to stop asking for the hoist: make ALL FOUR pre-loop source
+ * assignments, in retail's order, so their LUIDs ascend in that order.  Three
+ * things are then load-bearing and each was measured:
+ *   (1) the ASSIGNMENT ORDER '-','+',' ' before '0'  ('-','+' swapped = 4,
+ *       ' ' first = 2);
+ *   (2) every literal SITE must read the named constant, not a fresh literal --
+ *       retail stores `sb $s7/$s6/$s5` at `info.leadingChar = '-'/'+'` and at
+ *       both `out[written++] = ' '` pad sites (dropping those uses = 33 / 38),
+ *       and the ' ' ARM stores `ch` (`sb $a1`, cse's record_jump_equiv rewrite),
+ *       NOT the named constant's register (` ` literal there = 9 @548);
+ *   (3) `flagHash = '#';` must move INTO the per-conversion block.  Naming the
+ *       other three empties the flags loop's movable list, so loop.c's
+ *       `insn_count *= 2` budget (w82-a6-3) no longer declines '#' and it gets
+ *       hoisted into the preheader as a FIFTH constant, costing a callee-saved
+ *       register (`$fp`) and its save/restore pair.  Assigned inside the
+ *       conversion block the set is NOT executed on every outer iteration, so
+ *       loop.c refuses to move it and retail's in-loop `li $v1,35` returns.
+ *       (Without this: 10 @547.  At the top of the outer `for` body -- always
+ *       executed -- it hoists again: 10 @547.)
+ * This is rage-racer's own shape for the same Sony libc function (a 100%
+ * byte-matched PSY-Q sprintf): `register s32 minus, plus;` assigned before the
+ * loop, `hash = '#';` inside the per-conversion block.  Its 2+2 split verbatim
+ * (only minus/plus named, zeroFlag also in-loop) measures 151 @544 here -- this
+ * oracle is the LATER libc revision (2192 vs RR's 2140 bytes) whose whole point
+ * is the shared function-wide `flagZero`, so 4+1 is the revision-correct form.
+ * MEASURED INERT (keep the shorter spelling): `register` on the three (plain
+ * `int` = 0), `register int flagHash` (= 0), `info.leadingChar = flagSpace`
+ * instead of `= ch` (= 0), `flagHash = '#';` inside the flags loop (= 0).
+ * AUDIT: gate x2 PASS 545/545 | wordcmp REAL 0 | brdist 0 | slotcheck 0 |
+ * tugate 1/1.  `jtbl_at_fusion` in this TU's PER_TU_FLAGS is a phantom row --
+ * objdump -d -z is byte-identical with and without it on BOTH bodies (it is a
+ * maspsx option and `cc1_alt` routes through `_compile_c_272`, bypassing
+ * maspsx); safe to delete.  Lane cross: 2.8.0 and 2.8.1 both PASS.
+ */
 /* MATCH (2026-08-14): 174 -> 60 diffs, now count-exact at 545/545.  Retail loads each
  * variadic argument from the current cursor before advancing it; spelling those as
  * separate load/advance statements removes the repeated advance-then-load(-4) cascade.
@@ -508,7 +557,11 @@ extern printf_info D_8012348C;
 
 extern int sprintf(char *out, signed char *f, ...)
 {
+    register int flagMinus;
+    register int flagPlus;
+    register int flagSpace;
     register int flagZero;
+    int flagHash;
     char buf[0x200];
     /* w74-a16: the conversion spec is spelled as a UNION with its three-word
      * view so the template copy below can be plain word assignments instead of
@@ -543,6 +596,9 @@ extern int sprintf(char *out, signed char *f, ...)
      * and the loop `do { ... } while (format++, (c = *format) != 0);` -- the
      * do/while half is gate-neutral here, so only the guard is taken.) */
     if (ch == 0) goto end;
+    flagMinus = '-';
+    flagPlus = '+';
+    flagSpace = ' ';
     flagZero = '0';
     for (; ch = *f, ch != 0; ++f) {
         if (ch != '%') {
@@ -571,16 +627,17 @@ extern int sprintf(char *out, signed char *f, ...)
             __asm__("" : : "r"(tsrc) : "$2", "$3", "$4");
         }
 
+        flagHash = '#';
         while (true) {
             fb = f;
             ch = *++f;
-            if (ch == '-') {
+            if (ch == flagMinus) {
                 info.leftJustified = true;
-            } else if (ch == '+') {
+            } else if (ch == flagPlus) {
                 info.prependPlus = true;
-            } else if (ch == ' ') {
-                info.leadingChar = ' ';
-            } else if (ch == '#') {
+            } else if (ch == flagSpace) {
+                info.leadingChar = ch;
+            } else if (ch == flagHash) {
                 info.alternativeForm = true;
             } else if (ch == flagZero) {
                 info.leadingZeros = true;
@@ -655,11 +712,11 @@ extern int sprintf(char *out, signed char *f, ...)
             } while (0);
             if (num < 0) {
                 num = -num;
-                info.leadingChar = '-';
+                info.leadingChar = flagMinus;
             } else {
                 do {
                     if (info.prependPlus)
-                        info.leadingChar = '+';
+                        info.leadingChar = flagPlus;
                 } while (0);
             }
             goto printDec;
@@ -834,14 +891,14 @@ extern int sprintf(char *out, signed char *f, ...)
         }
         if (len < info.width && !info.leftJustified) {
             while (len < info.width) {
-                out[written++] = ' ';
+                out[written++] = flagSpace;
                 info.width--;
             }
         }
         memmove(&out[written], bufPtr, len);
         written += len;
         while (len < info.width) {
-            out[written++] = ' ';
+            out[written++] = flagSpace;
             len++;
         }
     }

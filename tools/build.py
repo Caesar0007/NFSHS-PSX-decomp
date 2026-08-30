@@ -540,8 +540,14 @@ PER_TU_FLAGS = {
     # sprintf 25 @546/545 -> 22 @545/545.  2.8.1 and retail 2.8.1-SN are
     # byte-identical here; 970404 is 31, and every older/newer family is much
     # worse.  SPRINTF.c exposes no second oracle-backed function to regress.
+    # W83-A3: jtbl_at_fusion row DELETED as a phantom -- it is a maspsx
+    # option and the cc1_alt lane bypasses maspsx; objdump -z byte-identical
+    # with and without it on both bodies.  sprintf itself is SEALED PASS
+    # 545/545 (source: named pre-loop flag constants in retail's order --
+    # move_movables hoists always outrank source insns, so the '0' source
+    # assignment could never precede the three hoisted constants; receipt
+    # scratchpad/w83/A3_receipt.md).
     "recon/syslib/psx/libc/SPRINTF.c":      {"cc1_alt": "2.8.0",
-                                             "jtbl_at_fusion": True,  # sprintf
         # w63-a9: nosplit hold RETIRED -- count-parity objection satisfied
         # by the slot-fill row below (44 @545/545, was 56).
                                              "no_split_addresses": True},

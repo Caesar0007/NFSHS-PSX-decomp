@@ -4986,8 +4986,11 @@ struct tMenuItemSlidingMenu : public tMenuItem {   /* 68 bytes */
     bool               fFillback;   /* +0x40 */
 
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
-    tMenuItemSlidingMenu(unsigned int, short, short, int, int, bool)
-      __asm__("__20tMenuItemSlidingMenuUissssb");
+    /* diffx/diffy are SHORT: the natural cfront mangling is then exactly
+       retail's __20tMenuItemSlidingMenuUissssb, so no __asm__ symbol
+       rename is needed.  (They were `int` + an asm label; measured
+       2026-08-30 -- short params PASS 42/42 identically.) */
+    tMenuItemSlidingMenu(unsigned int, short, short, short, short, bool);
     ~tMenuItemSlidingMenu();
     void TransitionOff();
     void TransitionOn();

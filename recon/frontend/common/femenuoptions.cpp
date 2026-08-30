@@ -753,7 +753,7 @@ void tInsideBoxMenu::Draw(short x,short y,short w,short slideOffset,short)
 
 
 /* ---- tMenuItemSlidingMenu::ctor  [FEMENUOPTIONS.CPP:612-624] SLD-VERIFIED ---- */
-tMenuItemSlidingMenu::tMenuItemSlidingMenu(u_int textDescription,short width,short height,int diffx, int diffy,bool fillback)
+tMenuItemSlidingMenu::tMenuItemSlidingMenu(u_int textDescription,short width,short height,short diffx, short diffy,bool fillback)
   : tMenuItem(textDescription)
 {
   _vf = (void *)tMenuItemSlidingMenu_vtable;

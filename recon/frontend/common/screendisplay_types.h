@@ -420,8 +420,7 @@ struct tMenuItemSlidingMenu : public tMenuItem {
     bool fFillback;
 #ifdef NFS4_FEMENUOPTIONS_SURFACE
     tMenuItemSlidingMenu() {}
-    tMenuItemSlidingMenu(unsigned int, short, short, int, int, bool)
-        asm("__20tMenuItemSlidingMenuUissssb");
+    tMenuItemSlidingMenu(unsigned int, short, short, short, short, bool);
     ~tMenuItemSlidingMenu();
     void TransitionOff();
     void TransitionOn();

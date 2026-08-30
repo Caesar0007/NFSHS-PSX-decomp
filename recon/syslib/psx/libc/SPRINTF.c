@@ -526,6 +526,7 @@ extern int sprintf(char *out, signed char *f, ...)
     int len;
     char *bufPtr;
     int ch;
+    signed char *fb;
 
     va_start(args, f);
     ch = *f;
@@ -571,6 +572,7 @@ extern int sprintf(char *out, signed char *f, ...)
         }
 
         while (true) {
+            fb = f;
             ch = *++f;
             if (ch == '-') {
                 info.leftJustified = true;
@@ -594,7 +596,8 @@ extern int sprintf(char *out, signed char *f, ...)
                 info.width = -info.width;
                 info.leftJustified = true;
             }
-            ch = *++f;
+            f = fb + 2;
+            ch = fb[2];
         } else {
             while (ch >= '0' && ch <= '9') {
                 info.width = (info.width * 10) + (ch - '0');
@@ -602,11 +605,13 @@ extern int sprintf(char *out, signed char *f, ...)
             }
         }
         if (ch == '.') {
+            signed char *fd = f;
             ch = *++f;
             if (ch == '*') {
                 info.precision = va_arg(args, int);
                 args += 4;
-                ch = *++f;
+                f = fd + 2;
+                ch = fd[2];
             } else {
                 while (ch >= '0' && ch <= '9') {
                     info.precision = (info.precision * 10) + (ch - '0');

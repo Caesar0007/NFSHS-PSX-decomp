@@ -502,9 +502,7 @@ void AIHigh_Cop::HighExecute()
              retail.  Dropping the rev fence = 41 @1461 (one insn LONG); dropping the dir
              fence = 38. */
           register int rev asm("$2") = GameSetup_gData.reverseTrack;
-          __asm__("" : "=r"(rev) : "0"(rev));
           int dir = newTrigger.roadblock.dir;
-          __asm__("" : "=r"(dir) : "0"(dir));
 
           if (rev == 0) {
 
@@ -2376,9 +2374,7 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
   initialGameTicks = pSimGlobalInitial->gameTicks;
 
   if (0x5bf < initialGameTicks) {
-    __asm__("" : : "r"(pSimGlobalInitial));
     numCars = Cars_gNumCars;
-    __asm__("" : : "r"(numCars));
     for (sortedLoop = numCars - 1; -1 < sortedLoop; sortedLoop = sortedLoop - 1) {
       testCar = Cars_gTotalSortedList[sortedLoop];
       if ((testCar->carFlags & 1U) != 0) {

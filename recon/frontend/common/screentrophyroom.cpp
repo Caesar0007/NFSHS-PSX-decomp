@@ -292,12 +292,10 @@ void tScreenTrophyRoom::DrawBackground()
   else if ((gPadinfo.buf[0].ID == '#') || (gPadinfo.buf[4].ID == '#')) {
     texttoshow = 0x3e0;
   }
-  __asm__("" : "=r"(texttoshow) : "0"(texttoshow));
   i = 0;
   FETextRender_FullTextRGB(TextSys_Word(texttoshow),0x100,200,
                            CalcFadeVal(0x505050,this->fScreenFadeVal),'\0',2);
   drawFlagsPtr = &drawFlags;
-  __asm__("" : "=r"(drawFlagsPtr) : "0"(drawFlagsPtr));
   while (true) {
     if ((int)i >= (int)this->fNumTrophies) break;
     x = TROPHY_LEFTOFFSET + (i % fModNumber) * 0x5f;
@@ -315,7 +313,6 @@ void tScreenTrophyRoom::DrawBackground()
     }
     i = i + 1;
   }
-  __asm__("" : : "r"(i));
   __asm__("" : : "r"(fModNumber), "r"(fModNumber));
   return;
 }

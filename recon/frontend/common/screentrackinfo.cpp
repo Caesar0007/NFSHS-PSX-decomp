@@ -65,7 +65,6 @@ void tScreenTrackInfo::DrawBackground()
               (trackConditions[i],0x154,(short)(0x8f + (int)i * 0x12),
                textState_Selected,textType_ScreenInfo);
   }
-  __asm__("" : : "r"(i), "r"(i));
   tMenuTextState highlighted = textState_Hilighted;
   tMenuTextType screenInfo = textType_ScreenInfo;
   FETextRender_MenuTextPositionedJustify
@@ -80,7 +79,6 @@ void tScreenTrackInfo::DrawBackground()
   FETextRender_MenuTextPositionedJustify
             (SelectListOffOn[(this->fTrack).fWeather],0x1e0,0xce,1,highlighted,
              screenInfo);
-  __asm__("" : : "r"(screenInfo), "r"(screenInfo));
   FETextRender_MenuTextPositionedJustify
             (trackInfo->fSpeedoCountry + 0x43,0x1de,0x21,1,textState_Unselected,textType_TrackRecords);
   ::DrawBackgroundImage((tScreen *)this,0,0x21,this->fPermShapes.fShapes,0);
@@ -88,7 +86,6 @@ void tScreenTrackInfo::DrawBackground()
   FeDraw_SetABRMode(0);
   ::UpdateTransition(&this->fVideoWall);
   ::Draw(&this->fVideoWall);
-  __asm__("" : : "r"(this), "r"(this), "r"(this));
   return;
 }
 

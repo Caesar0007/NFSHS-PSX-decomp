@@ -344,7 +344,6 @@ extern int iSNDmalloc(int size)
                 /* MATCH (w49-a7): USE FENCE on `j` AFTER the pv add -- keeps the offset live past the
                  * add so combine_regs cannot tie the sum's dest to the dying offset pseudo; the add
                  * takes retail's FRESH dest ($a2) instead of mutating the offset reg in place. */
-                __asm__("" : : "r"(j));
                 {
                     int b = (int)pv[0] + (int)pv[1];
                     int a = (int)*entry - b;
@@ -399,15 +398,12 @@ extern int iSNDmalloc(int size)
          * a distinct opaque 4th qty `q` from `"=r"(q):"0"(j)` (26 -- the 3-QTY-LAW probe), an
          * unused entry-value temp (6).  DO NOT re-split `pv` into a tail-local. */
         j = i << 2;
-        __asm__("" : : "r"(j));
         pb = (unsigned short *)(sndmm_b + 8);
-        __asm__("" : : "r"(pb));
         pv = (unsigned short *)(j + (int)pb);
         /* MATCH (w50-a7): THIRD use fence, the same lever as the loop's `pv` add one block up --
          * keep `j` live PAST the add so the sum takes retail's FRESH `$a2` (`addu $a2,$v0,$v1`)
          * instead of mutating the offset register in place (`addu $a2,$a2,$v1`).  16 -> 8.
          * Fencing the SUM instead of `j` (or both) is 30 -- it is the OFFSET that must survive. */
-        __asm__("" : : "r"(j));
         block = (int)pv[0] + (int)pv[1];
         available = (int)pb[-1] - block;
     }

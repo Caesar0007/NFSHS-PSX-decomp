@@ -2011,7 +2011,6 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
      POSITION SWEEP: after the abs 71 | before the `if (distRetreat < 0)` 73
      (inert -- the steal is from the fall-through THREAD, so the fence must sit
      between the two statements, not ahead of the guard). */
-  __asm__("" : : "i"(0));
   /* MATCH (w55-a11): plain `/0x10` replaces a hand-written `if(x<0)x+=0xf; x>>=4`
      guard -- that guard IS gcc's own signed power-of-2 divide (83->81, and a
      semantic correction: the hand form was a transcription of the codegen). */

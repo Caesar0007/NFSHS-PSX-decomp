@@ -82,12 +82,10 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
       int fade;
       dist = ({
         int selected = textpix >= dist ? textpix : dist;
-        __asm__ __volatile__("" : : "r"(selected));
         selFade = fSelFade;
         textType = textType_FlybyHelp;
         __asm__("" : "=r"(textType) : "0"(textType));
         __asm__("" : "=r"(selFade) : "0"(selFade));
-        __asm__ __volatile__("" : : "i"(0));
         fade = 0;
         __asm__("" : "=r"(fade) : "0"(fade));
         selected;

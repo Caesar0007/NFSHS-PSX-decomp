@@ -253,7 +253,6 @@ DrawBg_noSlider:
     else {
       displayPercent = percent;
     }
-    __asm__("" : "+r"(displayPercent));
     sprintf(sBuildOutput,"%d%%",displayPercent < 0 ? lastpercentage : displayPercent);
     if (perfade != 0x80) {
       FETextRender_FullTextRGB(sBuildOutput,(short)TextSys_WordX(0x1dc),

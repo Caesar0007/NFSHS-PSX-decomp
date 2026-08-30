@@ -2767,7 +2767,6 @@ void AIState_Donuts::Execute()
        * to forwardSlice, the then-arm becomes EMPTY and gcc inverts the branch (ours 317 vs
        * retail 319: retail keeps `addu v0,v1,zero; j` as a real arm and branches `beqz`). */
       if (candidateSlice < gNumSlices) {
-        __asm__("" : : "r"(candidateSlice));
         forwardSlice = candidateSlice;
       }
       else {

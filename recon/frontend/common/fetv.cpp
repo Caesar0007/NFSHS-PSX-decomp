@@ -545,7 +545,6 @@ void DrawTV(tTVConfig &tv)
         ((POLY_GT4 *)texture)->x2 = videoX;
         ((POLY_GT4 *)texture)->y2 = (tv.flip_axis * 2 - videoY) - videoHeight;
         ((POLY_GT4 *)texture)->x3 = videoX + videoWidth;
-        __asm__("" : : "r"(videoX), "r"(videoX));
         ((POLY_GT4 *)texture)->y3 = (tv.flip_axis * 2 - videoY) - videoHeight;
         ((POLY_GT4 *)texture)->u0 = tv.u;
         ((POLY_GT4 *)texture)->v0 = tv.v - 1;

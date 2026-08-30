@@ -278,7 +278,6 @@ void Camera_UpdateTailCam(int player,int behavior)
     if (0 < anchor->wrongway) {
       int flip = rev ^ 1;
       /* MATCH: pin-free zero-instruction fence keeps the XOR ahead of the branch. */
-      __asm__("" : "+r"(flip));
       lookahead = 3;
       if (flip) goto lookahead_done;
       __asm__("" : : "i"(3));
@@ -1507,7 +1506,6 @@ void Camera_UpdatePulloverCam(int player)
     }
     newarm.y = 0x60000;
     Camera_TunnelLimit(player,&newarm.y);
-    __asm__("" : "=r"(player) : "0"(player));
     newarm.x = sCenter.x + sRight.x;
     newarm.y = newarm.y + (sCenter.y + sRight.y);
     newarm.z = sCenter.z + sRight.z;
@@ -1703,7 +1701,6 @@ LAB_80083584:
         modeBits = *(unsigned int *)((char *)bitsInfo + 116);
         modeBits &= inCarMask;
         isInCar = bitsInfo->mode < 2;
-        __asm__("" : "=r"(isInCar) : "0"(isInCar));
         modeBits |= (unsigned int)isInCar << 27;
         modeBits &= ~1U;
         *(unsigned int *)((char *)bitsInfo + 116) = modeBits;

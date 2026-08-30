@@ -3550,9 +3550,7 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
     if (initializationDistance < __builtin_abs(perpToHumanDistance)) {
       initializationDistance = __builtin_abs(perpToHumanDistance);
     }
-    __asm__("" : : "i"(2));
     int maximumDistance = 0x5dc0000;
-    __asm__("" : "+r"(maximumDistance));
     initializationDistance =
         (initializationDistance < maximumDistance) ?
         initializationDistance : maximumDistance;
@@ -3589,7 +3587,6 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
     else {
 
-      __asm__("" : : "i"(3));
       iVar3 = (initializationDistance / 0x60000) * side;
 
       if (-1 < iVar3) {
@@ -3637,7 +3634,6 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
     }
 
     int initDistance = 0x53;
-    __asm__("" : "=r"(initDistance) : "0"(initDistance));
     int offset = side * initDistance;
 
     if (-1 < offset) {

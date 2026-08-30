@@ -1226,7 +1226,6 @@ DrawCPrimStart_camRotMatrix:
       int pz = (int)(carObj->N).positionXZ;
       int pos /* SYM-CODEGEN-CARRIER: pos -- W71/W76 duplicated fence input keeps the shifted position in retail v1 */ = pz >> envShift;
       u_int evraw = (sd->ePmx1).v0;
-      __asm__("" : "=r"(evraw) : "0"(evraw));
       {
         u_int ev /* SYM-CODEGEN-CARRIER: ev -- W71 stages the unsigned texture index before the offset scale */ = evraw >> 6;
         u_int byteOffset /* SYM-CODEGEN-CARRIER: byteOffset -- W76 exposes the exact halfword-table byte address quantity */ = ev << 1;
@@ -4036,7 +4035,6 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
       id0 = id0 * 8; id0 = id0 + (int)sd;
       id1 = id1 * 8; id1 = id1 + (int)sd;
       id2 = id2 * 8; id2 = id2 + (int)sd;
-      __asm__("" : : "r"(id2));
       gte_ldVXY0m(*(u_int *)(id0 + 0xd0));
       gte_ldVZ0m(*(u_int *)(id0 + 0xd4));
       gte_ldVXY1m(*(u_int *)(id1 + 0xd0));

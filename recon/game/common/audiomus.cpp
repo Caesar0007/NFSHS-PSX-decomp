@@ -813,7 +813,6 @@ int AudioMus_PlaySong(char *pattern)
              `rnd = rnd % newsong; newsong = rnd;` and a bare `pick` temp (both copy-propped);
              giving the ELSE arm a `rnd` temp too (reorders the requestsong load, 144 insns). */
           int pick = (GetRCnt(0) > 0 ? GetRCnt(0) : -GetRCnt(0)) % newsong;
-          __asm__("" : : "r"(pick));
           newsong = pick;
         }
         else {

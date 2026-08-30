@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3492 functions, 3479 at 100% (99.6%)
+TOTAL: 3492 functions, 3480 at 100% (99.7%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -2465,7 +2465,7 @@ VA             %match  unit                     function
 0x800DC4A0    100.00%  game/psx/platform        Platform_ResetDCTBuffer__Fv
 0x800DC4B4    100.00%  game/psx/platform        Platform_GetDCTBuffer__FiPc
 0x800DC4CC    100.00%  game/psx/psxcontroller   InGame_ResetPSXController__Fii
-0x800DC990     97.81%  game/psx/psxcontroller   InGame_GetPSXPadValue__Fii
+0x800DC990     95.94%  game/psx/psxcontroller   InGame_GetPSXPadValue__Fii
 0x800DCD34    100.00%  game/psx/psxcontroller   InGame_GetDevice__Fi
 0x800DCD3C    100.00%  game/psx/psxcontroller   InGame_SetRamp__Fv
 0x800DCEC4    100.00%  game/psx/rpause          RPause_CopyBackToFrontBuffer__Fv
@@ -2594,7 +2594,7 @@ VA             %match  unit                     function
 0x800E4358    100.00%  eaclib/psx/eacpsxz/trnspos transpose
 0x800E4404    100.00%  eaclib/psx/eacpsxz/fixddiv rdiv
 0x800E44AC    100.00%  syslib/psx/libapi/A39    SetSp
-0x800E44BC     99.68%  syslib/psx/libc/SPRINTF  sprintf
+0x800E44BC     99.96%  syslib/psx/libc/SPRINTF  sprintf
 0x800E4D4C    100.00%  eaclib/psx/eacpsxz/memstd FREE_find
 0x800E4DB0    100.00%  eaclib/psx/eacpsxz/memstd FREE_findlargest
 0x800E4E70    100.00%  eaclib/psx/eacpsxz/memstd FREE_add
@@ -2776,7 +2776,7 @@ VA             %match  unit                     function
 0x800EB654    100.00%  eaclib/psx/spchpsxz/spchinit iSPCH_InitInGame
 0x800EB66C    100.00%  eaclib/psx/spchpsxz/spchinit SPCH_GetSampleDataRate
 0x800EB6F0    100.00%  eaclib/psx/spchpsxz/spchinit SPCH_InitBankMem
-0x800EB748     89.74%  eaclib/psx/spchpsxz/spchinit SPCH_Init
+0x800EB748    100.00%  eaclib/psx/spchpsxz/spchinit SPCH_Init
 0x800EB7E4    100.00%  syslib/psx/libmath/FLTSIDF __floatsidf
 0x800EB8E4    100.00%  syslib/psx/libmath/LTDF2 __ltdf2
 0x800EB9C4    100.00%  eaclib/psx/spchpsxz/spchrand iSPCH_EACrandom
@@ -3093,7 +3093,7 @@ VA             %match  unit                     function
 0x800FB560    100.00%  syslib/psx/libmcrd/LIBMCRD MemCardReadFile_cb
 0x800FB668    100.00%  syslib/psx/libmcrd/LIBMCRD MemCardWriteFile
 0x800FB780    100.00%  syslib/psx/libmcrd/LIBMCRD MemCardWriteFile_cb
-0x800FB888     98.30%  syslib/psx/libmcrd/LIBMCRD MemCardGetDirentry
+0x800FB888     99.89%  syslib/psx/libmcrd/LIBMCRD MemCardGetDirentry
 0x800FBAE8    100.00%  syslib/psx/libmcrd/LIBMCRD MemCardCallback
 0x800FBAFC    100.00%  syslib/psx/libmcrd/LIBMCRD MemCardSync
 0x800FBC18    100.00%  syslib/psx/libmcrd/LIBMCRD MemCardCreateFile

@@ -606,7 +606,6 @@ extern void iSNDfreechan(int chan)
                  * `bne t0,v1` delay slot + the .L800FED5C join like retail.  9 -> 6, count EXACT. */
                 int *dp = DAT_801478f4_v;
                 int partnerSlot;
-                __asm__("" : "=r"(partner) : "0"(partner));
                 partnerSlot = partner * 100 + *dp;
                 if (*(signed char *)(partnerSlot + 0xb) == 1 && chan == partner) {
                     *(unsigned char *)(partnerSlot + 0xb) = 2;

@@ -1093,7 +1093,6 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
       drawY = y + -3;
     }
     DrawShapeExtended(0x39,0x18,drawX,drawY,0,1,&drawFlags);
-    __asm__("" : : "r"(&drawFlags));
     drawY = y + 4;
     drawX = ((x + width) - (int)shape->width) - 0xa;
     if (fPlayList) {
@@ -2850,7 +2849,6 @@ void tUserNameMenuItem::Draw(bool selected)
         output[0] = this->fData[j];
         FETextRender_FullTextRGB(output,(short)(startx + j * 0x14),(short)(y + 0x11),
                                 ColText,'\x01',0);
-        __asm__("" : : "r"(this));
         j = j + 1;
       } while (j < sl);
     }
@@ -2908,8 +2906,6 @@ void tUserNameMenuItem::Draw(bool selected)
   shape = &gHelpShapes[0x21];
   DrawShapeExtended(0x21,8,right - (int)shape->width,y + 0xc,
                     (int)this->fFadeVal,0,(tDrawShapeExtended *)0x0);
-  __asm__("" : : "r"(this));
-  __asm__("" : : "r"(this));
   PSXDrawSquare(0,x,y + 0xc,boxRight - shape->width,(int)shape->height);
 }
 
@@ -3118,7 +3114,6 @@ fEnableStore:
   less = v < 0x80;
   if (less) {
     if (0 < v) {
-      __asm__("" : "=r"(less) : "0"(less));
       if (!less) {
         fEnableSlide = 0x80;
       }

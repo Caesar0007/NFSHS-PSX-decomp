@@ -320,7 +320,6 @@ void tScreenMain::DrawDropShadow()
        the two scratchpad address constants in the exact retail order. */
     *(uint *)prim = *(uint *)prim & tagMask |
                     *(uint *)pal_link & addrMask;
-    __asm__("" : : "r" (prim), "r" (pal_link));
     palTag = *(uint *)pal_link;
     addr_24 = (uint)prim & addrMask;
     Render_gPacketPtr = (u_char *)prim + 0x24;

@@ -244,7 +244,6 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
                  * retail's `addu $s3,$a0,$zero` copy instead of our second `lbu`.  With one load
                  * the ruleType temp's $a0/$a1 knock-on disappears too. */
                 byteTmp = rd[0];
-                __asm__("" : "=r"(byteTmp) : "0"(byteTmp));
                 ruleByteStore = byteTmp;
                 ruleByte = byteTmp;
                 packed = *(volatile unsigned char *)(rd + 1);

@@ -1204,7 +1204,6 @@ MainLoop_setMenuAndNext:
             if ((this->fPlayer == '\x01') &&
                 (this->backDepth[(u_char)this->fPlayer] < 1) &&
                 (this->fCurrentMenu[1] != (tMenu *)0x0)) {
-              __asm__("" : : : "memory");
               this->backDepth[0] = stackBackupPin + -1;
               (*(*this->fCurrentMenu[1]->_vf)[5].pfn)
                         ((char *)this->fCurrentMenu[1] +

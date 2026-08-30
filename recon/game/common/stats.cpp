@@ -700,7 +700,6 @@ void Stats_ExtrapolateOpponentTimes(int type)
      and the slot frees itself.
    THE REPLACEMENT UN-MERGE DEVICE = a ZERO-INSN 'm'-OPERAND FENCE (catalog 21A-5)
      on the ARRAY ELEMENT, placed inside the `PlayerPosition == 1` arm:
-         __asm__("" : : "m"(Cars_gRaceCarList[j]));
      It buys refs on the element's ADDRESS (the %hi pseudo) without adding an insn
      and without a carrier pseudo, so the arm still rematerializes base+scaled-index
      like retail while the guard slot keeps the `sll`.  This retires the whole

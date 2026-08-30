@@ -287,7 +287,6 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
           }
 
-          __asm__("" : : "r"(xDot), "r"(xDot));
           if (0x8ffff < __builtin_abs(xDot)) continue;
 
           if (zDot < 0) continue;

@@ -407,7 +407,6 @@ void tScreenMemcard::PlaceIcons(register int i,int fadeval)
     /* SYM-CODEGEN-CARRIER: savedY -- direct reuse of `yy` is count-exact
        FAIL 2, moving the tick-address high half after retail's $a3->$s0 copy. */
     short savedY = yy;
-    __asm__("" : "=r"(savedY) : "0"(savedY));
     /* MATCH (73 -> 4 -> 2 -> PASS, 213/213): the natural signed-short
        coordinate expressions and sum-before-limit spelling establish the
        retail homes.  Naming the NFS4 icon and modulo divisor, then pricing the

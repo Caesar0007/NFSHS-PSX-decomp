@@ -4,7 +4,9 @@
 This is deliberately translation-unit scoped.  A monolithic comparison folds
 together legitimate per-object type variants and can therefore report false
 mismatches.  objdiff.json supplies the source/object mapping; the trusted SYM
-definition ledger supplies each retail object's canonical records.
+definition ledger supplies each retail object's canonical records.  Archive
+members for which retail retained only a FILE boundary are reported as
+``SYM_UNTYPED``: absence of debug records cannot prove an empty source graph.
 """
 
 from __future__ import annotations
@@ -27,6 +29,56 @@ sys.path.insert(0, str(OUT))
 
 import build as bld  # noqa: E402
 import audit_sym_canonical_types as canon  # noqa: E402
+
+
+# Canonical PsyQ 4.3's extracted INDEX.tsv proves these differently named or
+# duplicate-stem archive members.  The retail SYM independently retains each
+# listed FILE boundary.  Keep this table evidence-only: do not infer mappings
+# merely from similar function names.  Pre-change backup: Git commit 5d3b3d51.
+SOURCE_OWNER_OVERRIDES = {
+    "recon/syslib/psx/libcard/PATCH.c":
+        r"..\syslib\psx\lib\libcard.lib(PATCH.obj)",
+    "recon/syslib/psx/libcd/cdcont.c":
+        r"..\syslib\psx\lib\libcd.lib(SYS.obj)",
+    "recon/syslib/psx/libcd/drv.c":
+        r"..\syslib\psx\lib\libcd.lib(BIOS.obj)",
+    "recon/syslib/psx/libcd/stcdint.c":
+        r"..\syslib\psx\lib\libcd.lib(C_011.obj)",
+    "recon/syslib/psx/libetc/VSYNC.c":
+        r"..\syslib\psx\lib\libetc.lib(VSYNC.obj)",
+    "recon/syslib/psx/libgpu/SYS.c":
+        r"..\syslib\psx\lib\libgpu.lib(SYS.obj)",
+    "recon/syslib/psx/libmcrd/BIOS.c":
+        r"..\syslib\psx\lib\libmcrd.lib(BIOS.obj)",
+}
+
+
+# These are not mapping ambiguities: the current reconstructed TU boundaries
+# differ from the canonical archive boundaries.  Reporting that explicitly is
+# more honest than joining by a coincidental stem or comparing a partial TU.
+# Function-to-member membership is byte-indexed in PsyQ 4.3 INDEX.tsv and agrees
+# with the retail VA/object comments in the sources.
+SOURCE_ORGANIZATION_FINDINGS = {
+    "recon/syslib/psx/libcard/INIT.c": (
+        "SOURCE_SPLIT", r"..\syslib\psx\lib\libcard.lib(INIT.obj)",
+        "retail INIT.obj is split across INIT.c and CARDINIT.c",
+    ),
+    "recon/syslib/psx/libcard/CARDINIT.c": (
+        "SOURCE_SPLIT", r"..\syslib\psx\lib\libcard.lib(INIT.obj)",
+        "retail INIT.obj is split across INIT.c and CARDINIT.c",
+    ),
+    "recon/syslib/psx/libcd/stream.c": (
+        "SOURCE_MERGE",
+        "libcd.lib(C_002.obj)|libcd.lib(C_005.obj)|libcd.lib(CDROM.obj)",
+        "one reconstructed TU merges three canonical retail objects",
+    ),
+    "recon/syslib/psx/libcd/streamhelp.c": (
+        "SOURCE_MERGE",
+        ("libcd.lib(C_003.obj)|libcd.lib(C_004.obj)|libcd.lib(C_007.obj)|"
+         "libcd.lib(C_008.obj)|libcd.lib(C_009.obj)|libcd.lib(C_010.obj)"),
+        "one reconstructed TU merges six canonical retail objects",
+    ),
+}
 
 
 @dataclass
@@ -75,10 +127,12 @@ def select_owner(source: str, candidates: list[str]) -> str | None:
     NFS4 contains both ``game/psx/font.obj`` and PsyQ's
     ``libgpu.lib(FONT.obj)``.  A stem-only lookup cannot distinguish them,
     while the reconstructed source path retains the original library boundary.
-    Keep this rule narrow: it is applied only when one candidate is an archive
-    member and the other is a standalone object; every other ambiguity remains
-    an explicit OWNER_MAP finding.
+    Exact archive/archive and differently named joins are handled by the
+    evidence table above.  Every remaining ambiguity stays an explicit
+    OWNER_MAP finding.  Pre-change backup: Git commit 5d3b3d51.
     """
+    if source in SOURCE_OWNER_OVERRIDES:
+        return SOURCE_OWNER_OVERRIDES[source]
     if len(candidates) == 1:
         return candidates[0]
     archive = [owner for owner in candidates if owner.endswith(")") and "(" in owner]
@@ -382,9 +436,12 @@ def main() -> None:
     by_owner = defaultdict(list)
     for item in retail:
         by_owner[item.owner].append(item)
-    # Some small library members have no canonical type rows at all.  Their
-    # FILE boundary still proves ownership, and an empty retail type graph is
-    # itself meaningful: the reconstructed TU must not invent debug types.
+    # FILE boundaries are retained even when a linked archive member contains
+    # no canonical type rows.  They prove the member name, not that its lost C
+    # source used no structs/typedefs: vendor archives were commonly linked
+    # without full debug payloads.  Such owners receive an explicit
+    # SYM_UNTYPED result below instead of a false empty-graph OK/DIFF.
+    # Pre-change backup: Git commit 5d3b3d51.
     with canon.RETAIL_LEDGER.open("r", encoding="utf-8", newline="") as stream:
         for row in csv.DictReader(stream, delimiter="\t"):
             owner = row["owner_context"]
@@ -402,6 +459,12 @@ def main() -> None:
     results = []
     for index, (src, target, _unit_name) in enumerate(units, 1):
         source = src.relative_to(ROOT).as_posix()
+        organization = SOURCE_ORGANIZATION_FINDINGS.get(source)
+        if organization is not None:
+            status, owner, detail = organization
+            results.append(Result(source, owner, status, detail=detail))
+            print(f"[{index}/{len(units)}] {status} {source}: {detail}")
+            continue
         candidates = owners_by_stem.get(target_stem(target), [])
         owner = select_owner(source, candidates)
         if owner is None:
@@ -410,6 +473,14 @@ def main() -> None:
                 detail=f"{len(candidates)} owner candidates",
             ))
             print(f"[{index}/{len(units)}] OWNER_MAP {source}: {candidates}")
+            continue
+        if not by_owner[owner]:
+            results.append(Result(
+                source, owner, "SYM_UNTYPED",
+                detail=("retail owner has a FILE boundary but zero canonical "
+                        "type records; source type graph is not provable from SYM"),
+            ))
+            print(f"[{index}/{len(units)}] SYM_UNTYPED {source}: {owner}")
             continue
         with tempfile.TemporaryDirectory(prefix="nfs4_sym_type_") as tmp:
             asm, error = compile_debug(src, Path(tmp))

@@ -589,14 +589,10 @@ extern int _pad_getbyte(unsigned char *info, int align)
             return 0;
         if (info[0x34] <= idx)
             return 0;
-        /* MATCH (A14/w71): case 0 carries its OWN copy of the deref tail in retail; a
-         * 1-operand READ-ONLY FENCE on the loaded byte, placed BETWEEN the `lbu` and the
-         * `return`, keeps that value live past the load so do_cross_jump can no longer fold
-         * case 0's `addu;lbu` into the default arm's surviving copy (12C: an asm inside a
-         * candidate tail blocks find_cross_jump).  The 18 prior spellings all put the fence
-         * BEFORE the deref, where it has nothing to hold.  5 -> PASS 47/47. */
+        buf = *(unsigned char **)(info + 0x28);
+    common:
         {
-            int r0 = (*(unsigned char **)(info + 0x28))[idx];
+            int r0 = buf[idx];
             __asm__("" : : "r"(r0));
             return r0;
         }
@@ -604,14 +600,13 @@ extern int _pad_getbyte(unsigned char *info, int align)
         if (info[0x35] <= idx)
             return 0xff;
         buf = *(unsigned char **)(info + 0x2c);
-        break;
+        goto common;
     default:                                 /* fixed command param block */
         if (info[0x35] <= idx)
             return 0;
         __asm__("" : : "i"(0));
         return (*(unsigned char **)(info + 0x2c))[idx];
     }
-    return buf[idx];
 }
 
 /* @0x800FE0B0 : _pad_filter (_padFuncCurrLimit) -- gate the actuators against the current budget.

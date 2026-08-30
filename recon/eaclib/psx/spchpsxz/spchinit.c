@@ -187,58 +187,52 @@ extern int SPCH_InitBankMem(int memAllocFn, int memFreeFn, int numBanks)
 
 /* SPCH_Init @0x800EB748 : initialise the speech system for game `gameNum` -- seed the PRNG, clear the
  *   pick/event/bank state, and mark it live.  Returns 1. */
-/* SPCH_Init RESIDUAL 3 diffs, ours 40 / oracle 39 -- FLOOR RE-VERDICT (w33-a10).
- * Body is instruction-for-instruction identical through the last `jal iSPCH_InitEventQueue`.
- * The 3 are purely epilogue SCHEDULING: retail hoists `lw $ra,0x10($sp)` ABOVE the
- * gSPCH_Initialized store so the return-value `addiu $v0,$zero,1` fills the load-delay slot
- * (39 insns); our cc1 emits store / `li 1` / `lw ra` / nop / `jr` (40 insns, the nop is the
- * extra one). No source spelling reaches this -- it is the sched2/epilogue-emission order.
- * Probes: per-fn -fno-delayed-branch splice 3 -> 12; -mno-split-addresses 3 -> 47 (SPCHPSXZ
- * was built WITH split addresses -- see spchevnt.c). No SLD exists for this TU.
- * PROTOTYPE AUDIT: 3 args ($a0/$a1/$a2 all read and stored), returns literal 1.
- * w34-a9 ROOT CAUSE (raises it from "sched2 order" to a named ASSEMBLER identity):
- * read the cc1 .s -- our cc1 emits the epilogue as
- *     li $2,1 / lw $31,16($sp) / #nop / .set noreorder / j $31 / addu $sp,$sp,24
- * i.e. the load-delay placeholder is the COMMENT `#nop`, not a real instruction: gcc
- * is telling the ASSEMBLER to resolve the $ra load-use hazard (the epilogue is emitted
- * as TEXT by mips.c FUNCTION_EPILOGUE, after `.set reorder`, so it is not RTL and no
- * gcc pass can schedule it).  maspsx resolves `#nop` by INSERTING a nop; ASPSX 2.77
- * resolves it by SCHEDULING -- it hoists the `lw $ra` above the two-instruction
- * gSPCH_Initialized store, which is exactly the retail layout.  So the 3 diffs are a
- * maspsx-vs-aspsx reorder-mode difference on a gcc `#nop` placeholder, unreachable
- * from C and unreachable from any cc1 flag.  Generalisation worth a catalog row: a
- * lone trailing `nop` between the epilogue's `lw $ra` and `jr $ra` in an otherwise
- * byte-identical function is ALWAYS this, never a source shape.
- * 🔴 w49-a9 ATTRIBUTION CORRECTION (the diagnosis stands, the CULPRIT does not):
- * "ASPSX 2.77 resolves the `#nop` by SCHEDULING" is FALSIFIED -- w47-a6's emulator
- * was overfit to retail bytes, and w48-a10/a5/a6/a8 ran the REAL assembler ladder
- * (2.56/2.67/2.77/2.79, all byte-identical, 18-option sweep): real ASPSX does NO
- * delay-slot filling and NO epilogue reschedule, ever.  Per w48-04K the retail
- * shape IS reproduced by our own GNU as in `.set reorder` mode (a DIRECTIVE, gas's
- * default), so the owner is the pending maspsx option to stop injecting `.set
- * noreorder` -- an infra item, still unreachable from C and from any cc1 flag.
- * Same class as pad.c's PAD_state (see its note); distinct from the w48
- * PER_FN_EPILOGUE_UNFILL class (which applies when retail's return slot is EMPTY
- * and ours is filled -- here BOTH fill `jr ra` with `addiu sp`).
- * w49-a9 probes, both neutral: a zero-insn `__asm__("" : : "i"(0))` void-tail fence
- * before the sentinel store (3, unchanged); the scalar-vs-unsized-array storage
- * shape for gSPCH_Initialized could not be isolated (the symbol is read by two
- * other fns in this TU, so the decl change is TU-wide, not per-site).
- * W59-A9 2026-08-14 -- SOLVED; the "3 diffs / 40 vs 39 insns / maspsx `#nop`" framing above is
- * STALE.  Re-gate: 2 diffs at COUNT PARITY 39/39 -- the load-delay nop is already gone, so the
- * residual is ONLY the emission POSITION of the epilogue's `lw $31,16($sp)` (retail hoists it
- * above the gSPCH_Initialized store pair; ours leaves it after).  Identical instructions,
- * identical count => reachable by build.py's PER_FN_TEXT_MOVES with no source change.
- * MEASURED spec (probe harness scratchpad/w59a9/probe_moves.py, which patches
- * build.PER_FN_TEXT_MOVES in memory and re-uses verify_asm's normalizers):
- *     "recon/eaclib/psx/spchpsxz/spchinit.c": {
- *       "SPCH_Init": [
- *         {"take": r"\tlw\t\$31,16\(\$sp\)\n", "after": r"\tori\t\$3,\$3,0x9a34\n"},
- *       ],
- *     }
- * Result: SPCH_Init 2 -> PASS, whole TU 6/7 -> 7/7 PASS (this TU has no prior TEXT_MOVES entry,
- * so nothing is displaced).  This also retires the 2.7.2-970404 rung lead at the top of the file:
- * that rung bought the same instruction and cost 5 PASSes. */
+/* W82-A4 2026-08-30 -- SEALED (39/39, word-exact; 0 non-reloc word diffs).  The 5-wave
+ * "epilogue `lw $ra` position" residual is CLOSED, and every prior verdict about it
+ * (w33-a10 "sched2 order", w34-a9 "maspsx `#nop`", w48/w49 "maspsx `.set noreorder`
+ * infra item", W79-A12/W81-A4 "the two basins are anti-composable") is SUPERSEDED.
+ *
+ * ROOT CAUSE, read off cc1's own `-dS` scheduler trace:
+ *     ;; ready list at T-2: 87 (1) 90 (1), now 90 87
+ *     ;; insn 87 has a greater potential hazard, now 87 90
+ * At sched1 the STORE (`gSPCH_Initialized[0] = K`) and the RETURN CONSTANT
+ * (`$v0 = 1`) become ready in the same cycle with the SAME priority (1).  The
+ * LUID tie-break would pick the return constant (higher LUID => emitted LAST =
+ * retail).  It never gets there: `schedule_select` -> `potential_hazard`
+ * (sched.c) scales the memory unit's blockage by `(unit_n_insns[memory] - 1)`,
+ * and this block holds NINE memory-unit stores (the 8 head globals + the
+ * sentinel), so the store outranks the constant, is emitted last, and `$v0`
+ * is then live across its window -- forcing the base off `$v0` (10-diff basin).
+ * The `do { } while (0)` device bought the coloring back by welding everything
+ * to the loop note's carrier -- and that same weld makes the epilogue `lw $ra`
+ * a true dependent of the store (reg_pending_sets_all = 1 covers `$sp`), which
+ * is the 2 diffs.  The two halves are anti-composable *for that vehicle only*.
+ *
+ * THE CURE is a BASIC-BLOCK BOUNDARY between the constant and the address
+ * materialization.  In the tail block `unit_n_insns[memory] - 1 == 0`, so
+ * `potential_hazard` returns 0, the tie falls through to LUID, the return
+ * constant is emitted last (base keeps `$v0`, constant keeps `$v1`) AND -- no
+ * loop note being present -- sched2 is free to hoist the epilogue `lw $ra` to
+ * the top of that block, exactly where retail has it.  Both halves at once.
+ *
+ * THE VEHICLE is a dead `&&label` reached from static data: `jump.c` bumps
+ * LABEL_NUSES for every label in `forced_labels` / referenced by a static
+ * initializer, so `spch_live:` cannot be demoted to NOTE_INSN_DELETED_LABEL
+ * (which is what a plain `p = &&L;`, `void *p = &&L;`, `goto L; L:;`,
+ * `switch (0) { case 0: ; }` and `L: ; if (0) goto L;` all become -- all five
+ * measured, all 10 diffs).  It emits ZERO instructions: `.text` is 0x240 with
+ * and without it and SPCH_Init is 0x9c both ways.  ITS ONLY COST is the
+ * 4-byte `.sdata` word that holds the label address (symbol `spchInitBoundary_.N`) -- the
+ * one honest debit of this seal, and it is why the body below can drop the
+ * TWO fictitious locals and the `do { } while (0)` the 2-diff basin needed.
+ * The body is now EA's own house idiom (W81-A4 sec.4a: NFS3-PC `SNDinit`
+ * ends `g_snd_inited = 1; return 0;`).
+ *
+ * ROBUSTNESS: five independent spellings of the vehicle x slot all seal
+ * (label before the constant / after it / in a nested block; `void *` and
+ * `void *const`; with and without the locals).  Gates: verify_asm 7/7 PASS,
+ * tugate 7/7, brdist 0/7, slotcheck 0, wordcmp REAL=0.
+ * Receipts: scratchpad/w82/A4_receipt.md */
 extern int SPCH_Init(int sampleRequestCb, unsigned int gameNum, int dataRate)
 {
     gSampleRequest[0]    = sampleRequestCb;
@@ -255,28 +249,14 @@ extern int SPCH_Init(int sampleRequestCb, unsigned int gameNum, int dataRate)
     iSPCH_InitEventDat();
     iSPCH_InitInGame();
     iSPCH_InitBanks();
-    /* Near match (10->3 diffs, 40/39 insns): the one-shot loop gives the oracle's v1 constant and
-     * v0 global-base coloring.  The sole residual is gcc restoring ra at the epilogue and inserting
-     * its load-delay nop instead of scheduling that restore between the constant and base setup.
-     * FLOOR (w29-a6, 2026-07-26): tried removing the do-while wrapper (regresses 3->10), a named
-     * `result` local returned instead of the literal `1` (no change), a `for(;;){...;break;}` shape
-     * (no change), and folding iSPCH_InitBanks() into the loop body (no change) -- the `lw ra,16(sp)`
-     * placement is scheduler-fixed regardless of source shape here.  Same class as the catalog's
-     * "two ready values competing for one delay slot -- source order irrelevant" negative result
-     * (reference_asm_pattern_catalog.md svol.cpp:18) and the PADENTRY.c PadStartCom/StopCom
-     * single-$ra-save epilogue floor.  Do not re-attempt without a genuinely new lever. */
     {
-        int initialized;
-        int *initializedPtr;
+        /* the zero-instruction block boundary -- see the note above.  Do NOT
+         * tidy this away: without it SPCH_Init is 10 diffs (or 2 with the old
+         * do{}while(0) + two dead locals it replaces). */
+        static void *spchInitBoundary_ = &&spch_live;
         iSPCH_InitEventQueue();
-        initialized = 0x1789a34;
-        initializedPtr = gSPCH_Initialized;
-        /* W81-A4: ONE empty barrier replaces the four ++/-- fake loops -- the
-         * WHOLE OBJECT is byte-identical (md5 e2a8d780...), a proven
-         * codegen-neutral -4-fiction reduction, not a re-tune.  Do NOT tidy it
-         * away: without it the function is 10 diffs, not 2. */
-        do { } while (0);
-        initializedPtr[0] = initialized;
+spch_live: ;
+        gSPCH_Initialized[0] = 0x1789a34;
         return 1;
     }
 }

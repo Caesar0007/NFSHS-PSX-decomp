@@ -32,8 +32,8 @@ INCLUDE_ASM("asm/nonmatchings/main", Draw__15ObjectMultiAnimP13DRender_tViewP11D
 INCLUDE_ASM("asm/nonmatchings/main", Draw__22ObjectFinishedSignAnimP13DRender_tViewP11Draw_DCachei);
 INCLUDE_ASM("asm/nonmatchings/main", __14ObjectSignAnimP8coorddefiP7AnimDefP19Trk_CollideBoomInstP13Trk_ObjectDefP13Trk_SimObjectT1P22ObjectFinishedSignAnim);
 INCLUDE_ASM("asm/nonmatchings/main", Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei);
-INCLUDE_ASM("asm/nonmatchings/main", ___10ObjectAnim);
 INCLUDE_ASM("asm/nonmatchings/main", ___14ObjectSignAnim);
 INCLUDE_ASM("asm/nonmatchings/main", ___22ObjectFinishedSignAnim);
 INCLUDE_ASM("asm/nonmatchings/main", ___15ObjectMultiAnim);
 INCLUDE_ASM("asm/nonmatchings/main", ___23ObjectFinishedMultiAnim);
+INCLUDE_ASM("asm/nonmatchings/main", ___10ObjectAnim);

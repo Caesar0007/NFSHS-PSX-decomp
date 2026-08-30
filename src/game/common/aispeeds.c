@@ -8,6 +8,7 @@ INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_CalcOpponentTopSpeed__FP8Car_tObjP
 INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_NeedToSlowDownForCurve__FP8Car_tObjiii);
 INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_CalcOpponentCurveSpeed__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_BTCGetGlueFactor__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_GetNextAICar__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_GetPrevAICar__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_GetCaravanFactor__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_GetGlueFactor__FP8Car_tObj);
@@ -26,6 +27,5 @@ INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_GetUpgradeAccMult__Fi);
 INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_GetUpgradeBrakeMult__Fi);
 INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_GetUpgradeHandlingMult__Fi);
 INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_GetUpgradeTopSpeedMult__Fi);
-INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_CalcHumanCurveSpeed__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_CalcHumanTopSpeed__FP8Car_tObj);
-INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_GetNextAICar__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AISpeeds_CalcHumanCurveSpeed__FP8Car_tObj);

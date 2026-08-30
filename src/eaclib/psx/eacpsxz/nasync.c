@@ -1,5 +1,17 @@
 #include "common.h"
 
+INCLUDE_ASM("asm/nonmatchings/main", queueadd);
+INCLUDE_ASM("asm/nonmatchings/main", queuefetch);
+INCLUDE_ASM("asm/nonmatchings/main", newrequestid);
+INCLUDE_ASM("asm/nonmatchings/main", locaterequest);
+INCLUDE_ASM("asm/nonmatchings/main", cancelrequest);
+INCLUDE_ASM("asm/nonmatchings/main", finishrequest);
+INCLUDE_ASM("asm/nonmatchings/main", loadfileclosecallback);
+INCLUDE_ASM("asm/nonmatchings/main", loadfilereadcallback);
+INCLUDE_ASM("asm/nonmatchings/main", loadfilesizecallback);
+INCLUDE_ASM("asm/nonmatchings/main", loadfileopencallback);
+INCLUDE_ASM("asm/nonmatchings/main", loadsegreadcallback);
+INCLUDE_ASM("asm/nonmatchings/main", asyncsystemtask);
 INCLUDE_ASM("asm/nonmatchings/main", initasync);
 INCLUDE_ASM("asm/nonmatchings/main", asyncloadfilecallback);
 INCLUDE_ASM("asm/nonmatchings/main", asyncloadfile);
@@ -11,15 +23,3 @@ INCLUDE_ASM("asm/nonmatchings/main", asyncloadsegment);
 INCLUDE_ASM("asm/nonmatchings/main", cancelasyncload);
 INCLUDE_ASM("asm/nonmatchings/main", getasyncreadadr);
 INCLUDE_ASM("asm/nonmatchings/main", getasyncreadstatus);
-INCLUDE_ASM("asm/nonmatchings/main", queueadd);
-INCLUDE_ASM("asm/nonmatchings/main", queuefetch);
-INCLUDE_ASM("asm/nonmatchings/main", newrequestid);
-INCLUDE_ASM("asm/nonmatchings/main", cancelrequest);
-INCLUDE_ASM("asm/nonmatchings/main", finishrequest);
-INCLUDE_ASM("asm/nonmatchings/main", loadfileclosecallback);
-INCLUDE_ASM("asm/nonmatchings/main", loadfilereadcallback);
-INCLUDE_ASM("asm/nonmatchings/main", loadfilesizecallback);
-INCLUDE_ASM("asm/nonmatchings/main", loadfileopencallback);
-INCLUDE_ASM("asm/nonmatchings/main", loadsegreadcallback);
-INCLUDE_ASM("asm/nonmatchings/main", asyncsystemtask);
-INCLUDE_ASM("asm/nonmatchings/main", locaterequest);

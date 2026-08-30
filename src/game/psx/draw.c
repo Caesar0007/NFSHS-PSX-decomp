@@ -22,6 +22,6 @@ INCLUDE_ASM("asm/nonmatchings/main", Draw_DrawDirectScreen__FP8shapetblii);
 INCLUDE_ASM("asm/nonmatchings/main", Draw_DirectSetEnvironment__Fiiiiiiiiii);
 INCLUDE_ASM("asm/nonmatchings/main", Draw_SetEnvironment__Fiiiiiiii);
 INCLUDE_ASM("asm/nonmatchings/main", Draw_InitRenderEngine__Fiiiiii);
+INCLUDE_ASM("asm/nonmatchings/main", Draw_RestartRenderEngine__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Draw_DeInitRenderEngine__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Draw_InitLibRender__Fv);
-INCLUDE_ASM("asm/nonmatchings/main", Draw_RestartRenderEngine__Fv);

@@ -2,6 +2,7 @@
 
 INCLUDE_ASM("asm/nonmatchings/main", iSPCH_MatchSample);
 INCLUDE_ASM("asm/nonmatchings/main", iSPCH_GetPhraseBank);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_GetBankBits);
 INCLUDE_ASM("asm/nonmatchings/main", iSPCH_ClearCycleBit);
 INCLUDE_ASM("asm/nonmatchings/main", iSPCH_CheckBankBit);
 INCLUDE_ASM("asm/nonmatchings/main", iSPCH_CheckTemplateSample);
@@ -22,8 +23,7 @@ INCLUDE_ASM("asm/nonmatchings/main", iSPCH_ConstantRuleSet);
 INCLUDE_ASM("asm/nonmatchings/main", iSPCH_MakeSampleRequests);
 INCLUDE_ASM("asm/nonmatchings/main", iSPCH_ClearChosen);
 INCLUDE_ASM("asm/nonmatchings/main", iSPCH_SaveChosenSentence);
+INCLUDE_ASM("asm/nonmatchings/main", iSPCH_OneChosen);
 INCLUDE_ASM("asm/nonmatchings/main", iSPCH_PlayChosen);
 INCLUDE_ASM("asm/nonmatchings/main", iSPCH_ChooseSentence);
 INCLUDE_ASM("asm/nonmatchings/main", SPCH_SetPreLoadTicks);
-INCLUDE_ASM("asm/nonmatchings/main", iSPCH_GetBankBits);
-INCLUDE_ASM("asm/nonmatchings/main", iSPCH_OneChosen);

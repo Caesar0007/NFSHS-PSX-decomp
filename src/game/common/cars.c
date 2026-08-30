@@ -1,7 +1,9 @@
 #include "common.h"
 
 INCLUDE_ASM("asm/nonmatchings/main", Cars_DoGravityEffectsOnAcc__FP8Car_tObji);
+INCLUDE_ASM("asm/nonmatchings/main", Cars_GetDashData__FP8Car_tObjPiN21);
 INCLUDE_ASM("asm/nonmatchings/main", Cars_QDUpdateVelGlue__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", Cars_InitDashData__FP8Car_tObjPiT1);
 INCLUDE_ASM("asm/nonmatchings/main", Cars_SetAudioCalls__FP8Car_tObjiiiiii);
 INCLUDE_ASM("asm/nonmatchings/main", Cars_ResetCarCounters__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Cars_InitStats__FP8Car_tObj);
@@ -20,6 +22,7 @@ INCLUDE_ASM("asm/nonmatchings/main", Cars_IniCarObjects__FP8Car_tObji);
 INCLUDE_ASM("asm/nonmatchings/main", Cars_InitCar__FP8Car_tObji);
 INCLUDE_ASM("asm/nonmatchings/main", Cars_DeInitCar__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", Cars_Restart__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Cars_Initialize__FPci);
 INCLUDE_ASM("asm/nonmatchings/main", Cars_StartUp__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Cars_CleanUp__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Cars_FindCurrentLap__FP8Car_tObj);
@@ -27,9 +30,6 @@ INCLUDE_ASM("asm/nonmatchings/main", Cars_CalculateRoadSpan__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", Cars_CalculateRoadPosition__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", Cars_CalcVelDownRoad__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", Cars_Randomize__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Cars_ManageBureaucracy__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Cars_CheckForAccidentScenes__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Cars_SortCars__Fv);
-INCLUDE_ASM("asm/nonmatchings/main", Cars_ManageBureaucracy__Fv);
-INCLUDE_ASM("asm/nonmatchings/main", Cars_GetDashData__FP8Car_tObjPiN21);
-INCLUDE_ASM("asm/nonmatchings/main", Cars_InitDashData__FP8Car_tObjPiT1);
-INCLUDE_ASM("asm/nonmatchings/main", Cars_Initialize__FPci);

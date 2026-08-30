@@ -1,5 +1,6 @@
 #include "common.h"
 
+INCLUDE_ASM("asm/nonmatchings/front", MenuNFS4_SetHelpPos__FR4RECT);
 INCLUDE_ASM("asm/nonmatchings/front", MenuNFS4_DrawTextBox__FiR4RECTissbT5);
 INCLUDE_ASM("asm/nonmatchings/front", __27tMenuItemGoToMenuNFS4ButtonUiP5tMenuPFR12tMenuCommand_vii);
 INCLUDE_ASM("asm/nonmatchings/front", ___27tMenuItemGoToMenuNFS4Button);
@@ -39,6 +40,7 @@ INCLUDE_ASM("asm/nonmatchings/front", __10tMenuBlankUiP7tScreenP5tMenuT3PFR12tMe
 INCLUDE_ASM("asm/nonmatchings/front", ___10tMenuBlank);
 INCLUDE_ASM("asm/nonmatchings/front", Draw__10tMenuBlank);
 INCLUDE_ASM("asm/nonmatchings/front", ProcessInput__10tMenuBlank7tPlayerR13tInputKeyTypeR12tMenuCommand);
+INCLUDE_ASM("asm/nonmatchings/front", Initialize__10tMenuBlank);
 INCLUDE_ASM("asm/nonmatchings/front", DebounceKeys__10tMenuBlank);
 INCLUDE_ASM("asm/nonmatchings/front", TransitionOff__10tMenuBlank);
 INCLUDE_ASM("asm/nonmatchings/front", TransitionOn__10tMenuBlank);
@@ -51,9 +53,7 @@ INCLUDE_ASM("asm/nonmatchings/front", TransitionOn__12tMenuOptions);
 INCLUDE_ASM("asm/nonmatchings/front", TransitionIsFinished__12tMenuOptions);
 INCLUDE_ASM("asm/nonmatchings/front", ProcessInput__12tMenuOptions7tPlayerR13tInputKeyTypeR12tMenuCommand);
 INCLUDE_ASM("asm/nonmatchings/front", IsSubMenu__12tMenuOptions);
+INCLUDE_ASM("asm/nonmatchings/front", UpdateTransition__10tMenuBlank);
 INCLUDE_ASM("asm/nonmatchings/front", ___29tMenuItemOptionsTwoItemChoice);
 INCLUDE_ASM("asm/nonmatchings/front", ___31tMenuItemOptionsLeftRightChoice);
-INCLUDE_ASM("asm/nonmatchings/front", MenuNFS4_SetHelpPos__FR4RECT);
-INCLUDE_ASM("asm/nonmatchings/front", Initialize__10tMenuBlank);
-INCLUDE_ASM("asm/nonmatchings/front", UpdateTransition__10tMenuBlank);
 INCLUDE_ASM("asm/nonmatchings/front", Draw__27tMenuItemGoToMenuNFS4Buttonb);

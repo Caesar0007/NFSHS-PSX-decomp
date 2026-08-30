@@ -1,6 +1,7 @@
 #include "common.h"
 
 INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_MusicLevel__Fi);
+INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_GetTrackRecordLapTime__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_InitThunder__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_PlayThunder__Fii);
 INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_UpdateThunder__Fv);
@@ -9,7 +10,10 @@ INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_RemoveAsyncSfx__Fi);
 INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_DeInitAsyncSfx__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_RemoveOldestAsyncSfx__Fi);
 INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_LoadAsyncSfx__FiiPvi);
+INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_GetAsyncSfx__Fiib);
 INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_Init__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_Reset__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_DeInit__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_SetLevels__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_GetTimePhrase__Fi);
 INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_CheckState__FP8Car_tObj);
@@ -38,13 +42,9 @@ INCLUDE_ASM("asm/nonmatchings/main", SuperCopSirenOn__Fi);
 INCLUDE_ASM("asm/nonmatchings/main", SirenOn__Fii);
 INCLUDE_ASM("asm/nonmatchings/main", SirenOff__Fi);
 INCLUDE_ASM("asm/nonmatchings/main", UpdateSiren__Fiiiii);
-INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_ReverbOff__Fv);
-INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_Reset__Fv);
-INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_DeInit__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_Pause__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_UnPause__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_UnPauseAndQuit__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_UnPauseAndRestart__Fv);
-INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_UnPause__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_InitReverb__Fv);
-INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_GetTrackRecordLapTime__Fv);
-INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_GetAsyncSfx__Fiib);
+INCLUDE_ASM("asm/nonmatchings/main", AudioCmn_ReverbOff__Fv);

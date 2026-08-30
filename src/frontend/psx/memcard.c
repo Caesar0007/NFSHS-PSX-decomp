@@ -19,11 +19,11 @@ INCLUDE_ASM("asm/nonmatchings/front", MCRD_fileexists);
  * was a phantom object). Recon body moved to recon/frontend/psx/memcard.c in
  * ec580509; this line + the unit/linker cleanup complete the move. */
 INCLUDE_ASM("asm/nonmatchings/front", MCRD_getcard);
+INCLUDE_ASM("asm/nonmatchings/front", iMCRD_timersub);
 INCLUDE_ASM("asm/nonmatchings/front", garyMemCardGrabBlocks);
 INCLUDE_ASM("asm/nonmatchings/front", iMCRD_LoadCard);
 INCLUDE_ASM("asm/nonmatchings/front", iMCRD_FormatCard);
 INCLUDE_ASM("asm/nonmatchings/front", iMCRD_HandleError);
 INCLUDE_ASM("asm/nonmatchings/front", iMCRD_DefaultCBProc1);
-INCLUDE_ASM("asm/nonmatchings/front", sjis2ascii);
-INCLUDE_ASM("asm/nonmatchings/front", iMCRD_timersub);
 INCLUDE_ASM("asm/nonmatchings/front", ascii2sjis);
+INCLUDE_ASM("asm/nonmatchings/front", sjis2ascii);

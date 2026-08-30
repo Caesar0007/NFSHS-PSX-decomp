@@ -7,5 +7,5 @@ INCLUDE_ASM("asm/nonmatchings/main", AudioEng_StartUp__FiPc);
 INCLUDE_ASM("asm/nonmatchings/main", AudioEng_StartServer__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", AudioEng_StopServer__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", AudioEng_Pause__Fv);
-INCLUDE_ASM("asm/nonmatchings/main", AudioEng_CleanUp__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", AudioEng_Resume__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AudioEng_CleanUp__Fv);

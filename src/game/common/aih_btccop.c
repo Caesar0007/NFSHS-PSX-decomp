@@ -6,6 +6,8 @@ INCLUDE_ASM("asm/nonmatchings/main", GetCheckChasePosition__14AIHigh_BTC_CopP8co
 INCLUDE_ASM("asm/nonmatchings/main", CheckForNewTarget__14AIHigh_BTC_Cop);
 INCLUDE_ASM("asm/nonmatchings/main", StartArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp);
 INCLUDE_ASM("asm/nonmatchings/main", FinishArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp);
+INCLUDE_ASM("asm/nonmatchings/main", FalseArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp);
+INCLUDE_ASM("asm/nonmatchings/main", FreezeAndEndChase__14AIHigh_BTC_Cop);
 INCLUDE_ASM("asm/nonmatchings/main", HudOff__14AIHigh_BTC_Cop);
 INCLUDE_ASM("asm/nonmatchings/main", __19AIHigh_BTC_HumanCopP8Car_tObji);
 INCLUDE_ASM("asm/nonmatchings/main", FindRandomBarrierFreeArea__19AIHigh_BTC_HumanCopiii);
@@ -34,8 +36,6 @@ INCLUDE_ASM("asm/nonmatchings/main", SetupBlockader__18AIHigh_BTC_WingmanP19AIHi
 INCLUDE_ASM("asm/nonmatchings/main", ___18AIHigh_BTC_Wingman);
 INCLUDE_ASM("asm/nonmatchings/main", ___19AIHigh_BTC_HumanCop);
 INCLUDE_ASM("asm/nonmatchings/main", ___14AIHigh_BTC_Cop);
-INCLUDE_ASM("asm/nonmatchings/main", FalseArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp);
-INCLUDE_ASM("asm/nonmatchings/main", FreezeAndEndChase__14AIHigh_BTC_Cop);
 INCLUDE_ASM("asm/nonmatchings/main", Execute__17AIState_NonActive);
 INCLUDE_ASM("asm/nonmatchings/main", ___17AIState_NonActive);
 INCLUDE_ASM("asm/nonmatchings/main", TestForRelease__12AIState_Base_8005F678);

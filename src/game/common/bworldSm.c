@@ -2,6 +2,7 @@
 
 INCLUDE_ASM("asm/nonmatchings/main", BWorldSm_Init__FP5Group);
 INCLUDE_ASM("asm/nonmatchings/main", BWorldSm_Restart__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", BWorldSm_DeInit__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", FindAbsClosestSliceCrude__FP8coorddefP12BWorldSm_Pos);
 INCLUDE_ASM("asm/nonmatchings/main", BWorldSm_FindClosestSlice__FP8coorddefP12BWorldSm_Pos);
 INCLUDE_ASM("asm/nonmatchings/main", RawFindClosestSlice__FP8coorddefP12BWorldSm_Pos);
@@ -27,4 +28,3 @@ INCLUDE_ASM("asm/nonmatchings/main", Check_Rot__FP12BWorldSm_Pos);
 INCLUDE_ASM("asm/nonmatchings/main", BWorldSm_UNormal__FP12BWorldSm_Pos);
 INCLUDE_ASM("asm/nonmatchings/main", BWorldSm_UForward__FP12BWorldSm_Pos);
 INCLUDE_ASM("asm/nonmatchings/main", BWorldSm_FindClosestTriangleRez__FP8coorddefP12BWorldSm_Posi);
-INCLUDE_ASM("asm/nonmatchings/main", BWorldSm_DeInit__Fv);

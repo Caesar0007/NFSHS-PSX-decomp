@@ -13,8 +13,8 @@ INCLUDE_ASM("asm/nonmatchings/main", Anim_GetPos__FP15Trk_AnimateInstiiP8coordde
 INCLUDE_ASM("asm/nonmatchings/main", __10AnimScripti);
 INCLUDE_ASM("asm/nonmatchings/main", __10AnimScriptii);
 INCLUDE_ASM("asm/nonmatchings/main", __10AnimScriptP5Groupiii);
+INCLUDE_ASM("asm/nonmatchings/main", SetAnimAttrib__10AnimScripti);
 INCLUDE_ASM("asm/nonmatchings/main", GetAnimFrameInfo__10AnimScriptPiT1);
 INCLUDE_ASM("asm/nonmatchings/main", GetTimedAnimPosRot__10AnimScriptP8coorddefP10matrixtdef);
 INCLUDE_ASM("asm/nonmatchings/main", GetTimedAnimPosRot__10AnimScriptiP8coorddefP10matrixtdef);
 INCLUDE_ASM("asm/nonmatchings/main", GetStatus__10AnimScript);
-INCLUDE_ASM("asm/nonmatchings/main", SetAnimAttrib__10AnimScripti);

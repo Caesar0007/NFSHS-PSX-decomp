@@ -2,9 +2,9 @@
 
 INCLUDE_ASM("asm/nonmatchings/front", ClearActuators__23tScreenControllerConfig);
 INCLUDE_ASM("asm/nonmatchings/front", SetActuators__23tScreenControllerConfigi);
-INCLUDE_ASM("asm/nonmatchings/front", Controller_SetRamp__Fv);
 INCLUDE_ASM("asm/nonmatchings/front", TurnOffShakers__23tScreenControllerConfig);
 INCLUDE_ASM("asm/nonmatchings/front", ShakeIt__23tScreenControllerConfig);
+INCLUDE_ASM("asm/nonmatchings/front", Controller_SetRamp__Fv);
 INCLUDE_ASM("asm/nonmatchings/front", AnimKeyPoints__23tScreenControllerConfigbT1);
 INCLUDE_ASM("asm/nonmatchings/front", CheckConfigs__23tScreenControllerConfig);
 INCLUDE_ASM("asm/nonmatchings/front", SwapInController__23tScreenControllerConfig);

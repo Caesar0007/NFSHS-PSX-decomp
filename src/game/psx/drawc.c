@@ -1,5 +1,7 @@
 #include "common.h"
 
+INCLUDE_ASM("asm/nonmatchings/main", ChangeTPage__FPUsi);
+INCLUDE_ASM("asm/nonmatchings/main", DrawC_SetEnviroment__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", DrawC_ReadLightingData__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", DrawC_ReadeMapData__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", DrawC_BuildRenderingData__Fv);
@@ -18,5 +20,3 @@ INCLUDE_ASM("asm/nonmatchings/main", DrawC_DivideShadowPrim__FP7COORD16N30PUsN34
 INCLUDE_ASM("asm/nonmatchings/main", DrawC_ShadowPrimClip__FP12Draw_tVertexP13Draw_CarCache);
 INCLUDE_ASM("asm/nonmatchings/main", DrawC_SpotPrims__FP10matrixtdefP8coorddefP13Draw_CarCache);
 INCLUDE_ASM("asm/nonmatchings/main", DrawC_ShowroomPrims__FP10matrixtdefP8coorddefP13Draw_CarCache);
-INCLUDE_ASM("asm/nonmatchings/main", DrawC_SetEnviroment__Fv);
-INCLUDE_ASM("asm/nonmatchings/main", ChangeTPage__FPUsi);

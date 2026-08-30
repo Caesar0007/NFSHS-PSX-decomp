@@ -2,6 +2,7 @@
 
 INCLUDE_ASM("asm/nonmatchings/main", Flare_Tri__FPlN20i);
 INCLUDE_ASM("asm/nonmatchings/main", Flare_SetMatrix__FP10matrixtdef);
+INCLUDE_ASM("asm/nonmatchings/main", Flare_IdentMatrix__FP6MATRIX);
 INCLUDE_ASM("asm/nonmatchings/main", Flare_OctFlare__FPli);
 INCLUDE_ASM("asm/nonmatchings/main", Flare_OctFlareSpikes__FPli);
 INCLUDE_ASM("asm/nonmatchings/main", Flare_Spikes__FPli);
@@ -26,4 +27,3 @@ INCLUDE_ASM("asm/nonmatchings/main", Flare_InitLensFlare__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Flare_LensFlare__FP7DVECTORP15Draw_FlareCache);
 INCLUDE_ASM("asm/nonmatchings/main", Flare_Sun__FP7SVECTORP15Draw_FlareCache);
 INCLUDE_ASM("asm/nonmatchings/main", Flare_Moon__FP7SVECTORP15Draw_FlareCache);
-INCLUDE_ASM("asm/nonmatchings/main", Flare_IdentMatrix__FP6MATRIX);

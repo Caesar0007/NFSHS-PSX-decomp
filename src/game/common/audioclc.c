@@ -1,5 +1,6 @@
 #include "common.h"
 
+INCLUDE_ASM("asm/nonmatchings/main", AudioClc_SndError__Fi);
 INCLUDE_ASM("asm/nonmatchings/main", AudioClc_SetHorn__FP8Car_tObji);
 INCLUDE_ASM("asm/nonmatchings/main", AudioClc_HonkHorn__FP8Car_tObjiii);
 INCLUDE_ASM("asm/nonmatchings/main", AudioClc_InitSource__FP16AudioClc_tSourceP8Car_tObj);
@@ -17,4 +18,3 @@ INCLUDE_ASM("asm/nonmatchings/main", AudioClc_ResetClosest__FiP8Car_tObji);
 INCLUDE_ASM("asm/nonmatchings/main", AudioClc_GetClosestCars__Fiii);
 INCLUDE_ASM("asm/nonmatchings/main", AudioClc_SoundSpeech__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", AudioClc_SoundCars__Fv);
-INCLUDE_ASM("asm/nonmatchings/main", AudioClc_SndError__Fi);

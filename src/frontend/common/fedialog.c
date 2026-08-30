@@ -1,5 +1,6 @@
 #include "common.h"
 
+INCLUDE_ASM("asm/nonmatchings/front", ___31tDialogMessageStringWithTimeout);
 INCLUDE_ASM("asm/nonmatchings/front", ShouldTimeOut__11tDialogBase);
 INCLUDE_ASM("asm/nonmatchings/front", InitializeClass__11tDialogBase);
 INCLUDE_ASM("asm/nonmatchings/front", DrawAllDialogs__11tDialogBase);
@@ -22,14 +23,13 @@ INCLUDE_ASM("asm/nonmatchings/front", Draw__12tDialogYesNo);
 INCLUDE_ASM("asm/nonmatchings/front", ProcessInput__12tDialogYesNo7tPlayerR13tInputKeyTypeR12tMenuCommand);
 INCLUDE_ASM("asm/nonmatchings/front", ProcessInput__15tDialogYesNoMem7tPlayerR13tInputKeyTypeR12tMenuCommand);
 INCLUDE_ASM("asm/nonmatchings/front", ProcessInput__15tDialogYesNoTri7tPlayerR13tInputKeyTypeR12tMenuCommand);
+INCLUDE_ASM("asm/nonmatchings/front", ProcessInput__21tDialogNoInputMessage7tPlayerR13tInputKeyTypeR12tMenuCommand);
 INCLUDE_ASM("asm/nonmatchings/front", ___15tDialogYesNoTri);
 INCLUDE_ASM("asm/nonmatchings/front", ___15tDialogYesNoMem);
 INCLUDE_ASM("asm/nonmatchings/front", ___12tDialogYesNo);
+INCLUDE_ASM("asm/nonmatchings/front", ___18tDialogInteractive);
 INCLUDE_ASM("asm/nonmatchings/front", ___21tDialogNoInputMessage);
 INCLUDE_ASM("asm/nonmatchings/front", ___17tDialogBackUpOnly);
 INCLUDE_ASM("asm/nonmatchings/front", ___20tDialogMessageString);
 INCLUDE_ASM("asm/nonmatchings/front", ___11tDialogHelp);
 INCLUDE_ASM("asm/nonmatchings/front", ___11tDialogBase);
-INCLUDE_ASM("asm/nonmatchings/front", ___31tDialogMessageStringWithTimeout);
-INCLUDE_ASM("asm/nonmatchings/front", ___18tDialogInteractive);
-INCLUDE_ASM("asm/nonmatchings/front", ProcessInput__21tDialogNoInputMessage7tPlayerR13tInputKeyTypeR12tMenuCommand);

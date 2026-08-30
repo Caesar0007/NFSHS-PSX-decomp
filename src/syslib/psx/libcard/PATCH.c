@@ -8,6 +8,6 @@
    main.c catch-all (2026-06-24). */
 INCLUDE_ASM("asm/nonmatchings/main", func_8010CA40);
 
-INCLUDE_ASM("asm/nonmatchings/main", _copy_memcard_patch);
 INCLUDE_ASM("asm/nonmatchings/main", _patch_card);
 INCLUDE_ASM("asm/nonmatchings/main", _patch_card2);
+INCLUDE_ASM("asm/nonmatchings/main", _copy_memcard_patch);

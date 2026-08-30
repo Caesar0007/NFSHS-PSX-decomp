@@ -22,5 +22,5 @@ INCLUDE_ASM("asm/nonmatchings/main", Texture_InitMenuClut__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Texture_InitMenuTexture__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Texture_CleanupMenuTexture__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Texture_LoadMenuTexture__Fv);
-INCLUDE_ASM("asm/nonmatchings/main", Texture_KillMenuTexture__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", Texture_KillTrackTexture__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", Texture_KillMenuTexture__Fv);

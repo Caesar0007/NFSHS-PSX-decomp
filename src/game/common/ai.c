@@ -1,5 +1,8 @@
 #include "common.h"
 
+INCLUDE_ASM("asm/nonmatchings/main", AI_StartUp__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AI_CleanUp__Fv);
+INCLUDE_ASM("asm/nonmatchings/main", AI_Main_OverallSetup__Fv);
 INCLUDE_ASM("asm/nonmatchings/main", AI_CarAvoidance__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AI_WorldAvoidance__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AI_InitAIInfo__FP8Car_tObj);
@@ -20,6 +23,7 @@ INCLUDE_ASM("asm/nonmatchings/main", AI_CalculateLaneSpeeds__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AI_CalcMeritsBasedOnSpeed__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AI_CheckForClearLanes__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AI_CalcBestLineMerits__FP8Car_tObj);
+INCLUDE_ASM("asm/nonmatchings/main", AI_AddCollidableObjects__FP8Car_tObjP5Group);
 INCLUDE_ASM("asm/nonmatchings/main", AI_AvoidObjects__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AI_AvoidSpikeBelt__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AI_SubmitObstacle__FP8Car_tObjiiii);
@@ -36,7 +40,3 @@ INCLUDE_ASM("asm/nonmatchings/main", AI_KeepCarsInLane__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AI_PushFinishedCarsToSide__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AI_MaybeChangeLaneSlack__FP8Car_tObj);
 INCLUDE_ASM("asm/nonmatchings/main", AI_ChooseNewLaneSlack__FP8Car_tObj);
-INCLUDE_ASM("asm/nonmatchings/main", AI_StartUp__Fv);
-INCLUDE_ASM("asm/nonmatchings/main", AI_CleanUp__Fv);
-INCLUDE_ASM("asm/nonmatchings/main", AI_Main_OverallSetup__Fv);
-INCLUDE_ASM("asm/nonmatchings/main", AI_AddCollidableObjects__FP8Car_tObjP5Group);

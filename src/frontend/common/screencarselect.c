@@ -1,5 +1,7 @@
 #include "common.h"
 
+INCLUDE_ASM("asm/nonmatchings/front", TransformVector);
+INCLUDE_ASM("asm/nonmatchings/front", DrawCar__FR8tCarInfossffcbUl7tPlayer);
 INCLUDE_ASM("asm/nonmatchings/front", __16tScreenCarSelect);
 INCLUDE_ASM("asm/nonmatchings/front", ___16tScreenCarSelect);
 INCLUDE_ASM("asm/nonmatchings/front", Cleanup__16tScreenCarSelect);
@@ -21,6 +23,7 @@ INCLUDE_ASM("asm/nonmatchings/front", DrawBackground__16tScreenCarSelect);
 INCLUDE_ASM("asm/nonmatchings/front", DrawSliders__16tScreenCarSelectR8tCarInfoss);
 INCLUDE_ASM("asm/nonmatchings/front", DrawForeground__16tScreenCarSelect);
 INCLUDE_ASM("asm/nonmatchings/front", PreLoad__20tScreenCarSelectDuel);
+INCLUDE_ASM("asm/nonmatchings/front", AllocateAsyncBuffer__20tScreenCarSelectDuel);
 INCLUDE_ASM("asm/nonmatchings/front", FreeAsyncBuffer__20tScreenCarSelectDuel);
 INCLUDE_ASM("asm/nonmatchings/front", InitializeVideoWall__20tScreenCarSelectDuel);
 INCLUDE_ASM("asm/nonmatchings/front", Initialize__20tScreenCarSelectDuel);
@@ -56,6 +59,3 @@ INCLUDE_ASM("asm/nonmatchings/front", GetShapeInfo__25tScreenPinkSlipsCarSelectR
 INCLUDE_ASM("asm/nonmatchings/front", ___25tScreenPinkSlipsCarSelect);
 INCLUDE_ASM("asm/nonmatchings/front", ___25tScreenCarSelectTwoPlayer);
 INCLUDE_ASM("asm/nonmatchings/front", ___20tScreenCarSelectDuel);
-INCLUDE_ASM("asm/nonmatchings/front", TransformVector);
-INCLUDE_ASM("asm/nonmatchings/front", DrawCar__FR8tCarInfossffcbUl7tPlayer);
-INCLUDE_ASM("asm/nonmatchings/front", AllocateAsyncBuffer__20tScreenCarSelectDuel);

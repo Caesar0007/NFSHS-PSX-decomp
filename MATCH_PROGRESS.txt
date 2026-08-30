@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3492 functions, 3480 at 100% (99.7%)
+TOTAL: 3492 functions, 3487 at 100% (99.9%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -678,7 +678,7 @@ VA             %match  unit                     function
 0x8003E330    100.00%  frontend/common/screencarselect GetShapeInfo__25tScreenCarSelectTwoPlayerRsT1PPcT3
 0x8003E3C8    100.00%  frontend/common/screencarselect UpdateVideoWall__25tScreenCarSelectTwoPlayerR8tCarInfo
 0x8003E49C    100.00%  frontend/common/screencarselect TurnOffVideoWall__25tScreenCarSelectTwoPlayer
-0x8003E4BC     99.93%  frontend/common/screencarselect DrawBackground__25tScreenCarSelectTwoPlayer
+0x8003E4BC    100.00%  frontend/common/screencarselect DrawBackground__25tScreenCarSelectTwoPlayer
 0x8003EA14    100.00%  frontend/common/screencarselect DrawForeground__25tScreenCarSelectTwoPlayer
 0x8003EC50    100.00%  frontend/common/screencarselect SetDialog__25tScreenCarSelectTwoPlayer
 0x8003ED10    100.00%  frontend/common/screencarselect AllocateAsyncBuffer__25tScreenCarSelectTwoPlayer
@@ -905,7 +905,7 @@ VA             %match  unit                     function
 0x8004FA4C    100.00%  frontend/psx/memcard     MCRD_savefile
 0x8004FC88    100.00%  frontend/psx/memcard     iMCRD_DoFileWrite
 0x8004FDEC    100.00%  frontend/psx/memcard     iMCRD_DoFileDelete
-0x8004FE80     99.98%  frontend/psx/memcard     MCRD_handlecardevents
+0x8004FE80    100.00%  frontend/psx/memcard     MCRD_handlecardevents
 0x800501CC    100.00%  frontend/psx/memcard     MCRD_fileexists
 0x80050244    100.00%  frontend/psx/memcard     MCRD_getcard
 0x8005028C    100.00%  frontend/psx/memcard     iMCRD_timersub
@@ -2010,7 +2010,7 @@ VA             %match  unit                     function
 0x800AA6D8    100.00%  game/common/physics      Physics_StopCar__FP8Car_tObj
 0x800AA7B0    100.00%  game/common/physics      Physics_TestForBarrierCollision__FP8Car_tObj
 0x800AA808    100.00%  game/common/physics      Physics_CalculateRoadGripModifiers__FP8Car_tObj
-0x800AA984     99.99%  game/common/physics      Physics_CalculateCarAcceleration__FP8Car_tObj
+0x800AA984    100.00%  game/common/physics      Physics_CalculateCarAcceleration__FP8Car_tObj
 0x800AB49C    100.00%  game/common/physics      Physics_CalcWheelLockAcc__FP8Car_tObjP23Physics_tWheelAccStruct
 0x800AB698    100.00%  game/common/physics      Physics_CalcTractionCircleAcc__FP8Car_tObjP23Physics_tWheelAccStruct
 0x800ABA3C    100.00%  game/common/physics      Physics_CalculateTireForces__FP8Car_tObjP23Physics_tWheelAccStruct
@@ -2391,13 +2391,13 @@ VA             %match  unit                     function
 0x800D2AF4    100.00%  game/psx/hud             Hud_Init0__Fv
 0x800D2B4C    100.00%  game/psx/hud             Hud_InitMapFrame__Fii
 0x800D2EF8    100.00%  game/psx/hud             Hud_BuildTimeSprites__FP4SPRTPcii
-0x800D302C     99.99%  game/psx/hud             Hud_Init__Fv
+0x800D302C    100.00%  game/psx/hud             Hud_Init__Fv
 0x800D39EC    100.00%  game/psx/hud             Hud_InitTables__Fv
 0x800D3A18    100.00%  game/psx/hud             Hud_BuildETimeString__FP4SPRTi
 0x800D3BA4    100.00%  game/psx/hud             Hud_BuildDistanceString__FP4SPRTi
 0x800D3D44    100.00%  game/psx/hud             Hud_BuildTimeString__FP4SPRTi
 0x800D3E94    100.00%  game/psx/hud             Hud_BuildTach__Fi
-0x800D42C8     99.98%  game/psx/hud             Hud_BuildString__FPciiiib
+0x800D42C8    100.00%  game/psx/hud             Hud_BuildString__FPciiiib
 0x800D4624    100.00%  game/psx/hud             Hud_BuildNumbers0__Fi
 0x800D4E70    100.00%  game/psx/hud             Hud_BuildNumbers__Fi
 0x800D5A48    100.00%  game/psx/hud             Hud_InitMap__Fv
@@ -2554,7 +2554,7 @@ VA             %match  unit                     function
 0x800E20EC    100.00%  game/psx/weather         Weather_GetNewState__Fv
 0x800E212C    100.00%  game/psx/weather         Weather_ChangeDensityState__Fv
 0x800E21A0    100.00%  game/psx/weather         Weather_ChangeIntensityState__Fv
-0x800E2218     99.91%  game/psx/weather         Weather_ChangeDensityBasedOnTime__Fv
+0x800E2218    100.00%  game/psx/weather         Weather_ChangeDensityBasedOnTime__Fv
 0x800E22F0    100.00%  game/psx/weather         Weather_ChangeIntensityBasedOnTime__Fv
 0x800E23E8    100.00%  game/psx/weather         Weather_InitStateControls__Fv
 0x800E24B4    100.00%  game/psx/weather         Weather_Restart__Fv
@@ -2594,7 +2594,7 @@ VA             %match  unit                     function
 0x800E4358    100.00%  eaclib/psx/eacpsxz/trnspos transpose
 0x800E4404    100.00%  eaclib/psx/eacpsxz/fixddiv rdiv
 0x800E44AC    100.00%  syslib/psx/libapi/A39    SetSp
-0x800E44BC     99.96%  syslib/psx/libc/SPRINTF  sprintf
+0x800E44BC    100.00%  syslib/psx/libc/SPRINTF  sprintf
 0x800E4D4C    100.00%  eaclib/psx/eacpsxz/memstd FREE_find
 0x800E4DB0    100.00%  eaclib/psx/eacpsxz/memstd FREE_findlargest
 0x800E4E70    100.00%  eaclib/psx/eacpsxz/memstd FREE_add

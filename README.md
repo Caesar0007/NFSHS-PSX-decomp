@@ -1,5 +1,16 @@
 # nfs4-decomp — Need for Speed: High Stakes (PSX) matching decompilation
 
+> ## ⚠️ NO LICENSE GRANTED — ALL RIGHTS RESERVED
+> This repository carries **no open-source license**. Viewing and forking on
+> GitHub are the *only* permitted acts (GitHub ToS §D.5). **Any other use —
+> ports, builds, redistribution, re-hosting, or derivative works of any kind —
+> is prohibited without the author's prior written authorization** and
+> constitutes copyright infringement. See [LICENSE](LICENSE). Authorization
+> requests: via the author's GitHub profile.
+> *Need for Speed IV and its game code/assets remain the property of
+> Electronic Arts Inc.; no game assets or proprietary compiler binaries are
+> distributed here.*
+
 A byte-matching decompilation of the PSX build of *Need for Speed: High Stakes*
 (`nfs4-f`, EA 1999), in the [Silent Hill decomp](https://github.com/Vatuu/silent-hill-decomp)
 mould: splat-split asm, `INCLUDE_ASM`-based mixed translation units, and objdiff

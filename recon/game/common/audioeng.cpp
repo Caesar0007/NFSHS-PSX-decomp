@@ -62,7 +62,6 @@ void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int
         }
         else {
           /* MATCH: arm-head barrier keeps the normal add out of the branch slot. */
-          __asm__("" : : "i"(0));
           adjustedEsp = esp + 0x3333;
         }
         s->dop = (u_short)((int)((u_int)g->adjust.pitchScale *

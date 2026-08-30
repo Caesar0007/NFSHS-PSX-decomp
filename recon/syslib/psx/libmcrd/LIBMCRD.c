@@ -1335,8 +1335,6 @@ state10: {
             __asm__("" : "=r"(pc) : "0"(pc));
             five = 5;
             __asm__("" : "=r"(five) : "0"(five));
-            __asm__("" : "=r"(five) : "0"(five));
-            __asm__("" : "=r"(five) : "0"(five));
             pc[1] = five;
             return 1;
         }
@@ -1767,7 +1765,6 @@ extern int MemCardCallback(int func)
     int prev;
     typedef int (*CbT)(int, int);
     CbT *p = &mc.callback;
-    __asm__ __volatile__("" : "=r"(p) : "0"(p));
     prev = (int)p[0];
     p[0] = (CbT)func;
     return prev;
@@ -1980,7 +1977,6 @@ static __inline__ long MemCardSyncAt(long mode, int *cmds, int *result, int *bas
         }
         if (cmds != 0) {
             int *psc = &_mc_sync_cmd;
-            __asm__ __volatile__("" : "=r"(psc) : "0"(psc));
             *cmds = *psc;                     /* sync_cmd  */
         }
         /* W64-A4: store `done` through the SHARED (caller`s) anchor so `base` stays
@@ -2003,12 +1999,10 @@ static __inline__ long MemCardSyncAt(long mode, int *cmds, int *result, int *bas
     /* same full-address materialization as the blocking arm above */
     if (result != 0) {
         int *psr = &_mc_sync_rslt;
-        __asm__ __volatile__("" : "=r"(psr) : "0"(psr));
         *result = *psr;                       /* sync_rslt */
     }
     if (cmds != 0) {
         int *psc = &_mc_sync_cmd;
-        __asm__ __volatile__("" : "=r"(psc) : "0"(psc));
         *cmds = *psc;                         /* sync_cmd  */
     }
     base[2] = 0;                              /* done      */
@@ -2525,7 +2519,6 @@ extern long MemCardDeleteFile(long chan, char *file)
             p->rslt = 0;
             p->done = 0;
             mc.chan = chan;
-            __asm__("" : : "r"(chan), "r"(chan));
             UserFuncOpen((int)MemCardCmd_cb);
         }
         MemCardSyncAt(0, 0, &rslt, (int *)p);
@@ -2643,7 +2636,6 @@ failed:
     /* the parm copy is retail's beqz DELAY-SLOT filler (eager steal of the guard target's
      * first insn), not a prologue copy -- an opacity-fenced copy at the block head sinks it */
     c = chan;
-    __asm__ __volatile__("" : "=r"(c) : "0"(c));
 
     /* ONE counter serves both loops (retail keeps both in $s0) -- a separate `i` gets its own
      * caller-saved pseudo and the fill loop then runs in $v1 instead.
@@ -2759,7 +2751,6 @@ static void MemCardStart_cb(void)
      *   (base-first = 23), volatile opacity fences (24, +1 insn), no fence at all (at-macro
      *   stores, far worse), a 2nd fence alone on `one` (22). */
     one = 1;
-    __asm__("" : "=r"(one) : "0"(one));
     __asm__("" : "=r"(one) : "0"(one));
     __asm__("" : "=r"(one) : "0"(one));
     base = &mc.cmd;

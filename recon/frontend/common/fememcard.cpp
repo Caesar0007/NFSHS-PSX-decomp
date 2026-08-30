@@ -749,7 +749,6 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
           }
           else {
             returnmessage = 0x329;
-            __asm__ volatile("" : : "i"(0));
           }
         }
       }
@@ -887,8 +886,6 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
           int event = MCRD_handlecardevents(cardNum);
           systemtask(0);
           VSync(0);
-          __asm__("");
-          __asm__("");
           switch(event) {
           case 0x16:
             if (gMemCardInfo.bReady != 0) {

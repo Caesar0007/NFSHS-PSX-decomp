@@ -513,7 +513,6 @@ extern int _padLoadActInfo_rcv(unsigned char *info)
              * lands where retail has it.  MEASURED at this basin: with the old cnt fence kept
              * as well = 6; the cnt fence alone (no barrier) = 6; `cnt = 3;` moved below
              * `info[0x48] = v;` = 6. */
-            __asm__("" : : "i"(0));
             cnt = 3;
             info[0x48] = v;
             d[0] = v;

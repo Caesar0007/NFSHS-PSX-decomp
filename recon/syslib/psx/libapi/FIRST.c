@@ -308,7 +308,6 @@ hit2:
      * FALSIFIED (all inert or worse): the same fence at hit1's head (9), at tail's head (9),
      * a read-only `name` fence at tail (9), void fence before/after `p = _first_devname`
      * (6, inert), after `scan = name` (9 @104). */
-    __asm__("" : : "i"(0));
     e->dt_firstfile = _first_patch;
     goto tail;
 pass2:
@@ -325,7 +324,6 @@ pass2:
          * thread instead.  SITE-SELECTIVE, priced per site: the same fence at pass 1
          * is inert (6) and at _first_patch's identical walk it REGRESSES (2 -> 3), so
          * the all-three-sites sweep is a wash (5+3).  Zero insns. */
-        __asm__("" : : "i"(0));
         end = lim;
 scan2:
         if (e->dt_string != 0 && strcmp(e->dt_string, _first_devname) == 0)

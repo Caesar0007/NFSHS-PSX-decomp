@@ -651,7 +651,6 @@ int InGame_GetPSXPadValue(int value,int player)
      NAMED (retail's .L800DCC68 = 0x53/0x800000 + 0x23/0x800000).
      THE DEVICE (front.cpp GetPSXPadValue, W72-A8, verbatim shape):
          { int acc = player << 0x1e;
-           __asm__("" : : "i"(0) : "$2","$3");
            return (acc | <hi> | <lo>) | 1; }
      Both halves are load-bearing here exactly as they are there: the BLOCK-LOCAL `acc`
      lets local-alloc.c's combine_regs tie the last `or`'s dest to its own first operand
@@ -1098,7 +1097,6 @@ void InGame_SetRamp(void)
 #define INGAME_HOFF_PTR ((int *)(i * 4 + (int)hb))
         { int *hb = hoff; /* SYM-CODEGEN-CARRIER: hb -- blocks the non-retail &hoff loop hoist */
           __asm__("" : "=r"(hb) : "0"(hb));
-          __asm__("" : : "r"(INGAME_HOFF_PTR));
         if (InGame_GetDevice(h[0x4f - *INGAME_HOFF_PTR]) == 1) {
           *(int *)(*(int *)((char *)Cars_gHumanRaceCarList[i] + 0x288) + 0x18) = 0;
         }

@@ -604,7 +604,6 @@ extern int _pad_getbyte(unsigned char *info, int align)
     default:                                 /* fixed command param block */
         if (info[0x35] <= idx)
             return 0;
-        __asm__("" : : "i"(0));
         return (*(unsigned char **)(info + 0x2c))[idx];
     }
 }

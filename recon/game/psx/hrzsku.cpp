@@ -135,7 +135,6 @@ void Horizon_InterpolateLineSCoords(DVECTOR *sc,DVECTOR *s0,DVECTOR *s1,int *per
          * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
          * Gate-lane object is byte-identical (proven by hash); see
          * scratchpad/w64a20/RECEIPTS.md. */
-        __asm__ __volatile__("" : : "r"(i));
         i = i + 1;
         sc = sc + 1;
       } while (i < n);
@@ -1485,7 +1484,6 @@ void Hrz_BuildSky(void)
      while OUR FT4 block only ever burns $a0/$a1/$a2 -- so ours took $a3 and every hoisted
      invariant shifted one slot down.  A ZERO-INSN 20B hard-register conflict inside the
      FT4 block --
-         __asm__("" : "=r"(pmx) : "0"(pmx) : "$7");
      -- manufactures exactly the missing conflict (22B(2)) and the whole band snaps.
      MEASURED (all re-gated; harness scratchpad/W74_A4/probe.py + gen_sky{,2..6}.py):
        shipped (hp+spec cached, RMW1 tag-first)                368 @458

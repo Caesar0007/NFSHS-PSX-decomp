@@ -523,7 +523,6 @@ static inline void Sfx_BuildRibbonFacet(DRender_tView *Vi,Souffle_tISouffle *is,
                own DIFFERENT stack slots for their own locals (SYM: case-10 dest@120 /
                case-8 dest@112).  So a zero-EMITTED-BYTE, NON-volatile identity launder
                carrying an "m" operand on one of those locals --
-                   __asm__("" : "=r"(w) : "0"(w), "m"(dest[0]));
                -- is ONE asm in the source but TWO textually DIFFERENT insns after
                inlining (`120(sp)` vs `112(sp)`), which is exactly what post-RA
                cross_jump compares.  The 20-insn tail swallow stops dead.  Any

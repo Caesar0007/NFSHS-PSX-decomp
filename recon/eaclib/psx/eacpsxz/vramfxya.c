@@ -347,7 +347,6 @@ extern void vramfxya(unsigned int *c, int imgX, int imgY, int clutX, int clutY)
     __asm__("" : : "r"(maskHi));
     __asm__("" : : "r"(maskHi));
     __asm__("" : : "r"(maskHi));
-    __asm__("" : : "r"(maskHi));
     clutXm &= 0xff;
     clutXm |= clutXraw & 0xf00;
     clutYmasked &= 0xfff;

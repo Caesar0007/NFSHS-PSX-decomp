@@ -4780,7 +4780,6 @@ DrawWChunkFacets_emitObj:
         anim = Object_GetAnim(simObjs + ((Trk_CollideBoomInst *)objInstance)->simIndex);
         /* Zero-insn qty dial: objDef is live here, so this foreign operand buys
            the live-length point needed for objDef=$s6 without perturbing case 1. */
-        __asm__("" : : "r"(objInstance));
         if (anim == (ObjectAnim *)0x0) {
           /* MATCH: SYM block scope (t1,t2,sx,sy,sz -- full 3-axis shift). */
           int t1, t2, t3, sx, sy, sz;

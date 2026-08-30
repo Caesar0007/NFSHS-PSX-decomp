@@ -1009,7 +1009,6 @@ extern int CdRead(int sectors, u_long *buf, int mode)
         while (*busy != 0) {
             if (!((unsigned)(VSync(-1) - t0) < 0x79)) {   /* waited >= 121 frames -> force-finish */
                 volatile int *sv = &_cdr.w28;
-                __asm__("" : "=r"(sv) : "0"(sv));
                 CdSyncCallback((CdlCB)*sv);
                 sv -= 10;                           /* -0x28 -> &_cdr (jal delay slot) */
                 sv[9] = 0;                          /* w24 = 0 */
@@ -1021,9 +1020,7 @@ extern int CdRead(int sectors, u_long *buf, int mode)
     /* W79-A3: qtytrace/allocsim on the callback-slot basin measured p80/p81 at
      * refs=2/live=92 and refs=2/live=98.  This one extra `buf` reference is the
      * minimal +1-ref solution that restores retail's sectors=$s4, buf=$s3 handout. */
-    __asm__("" : : "i"(0), "r"(buf));
     g = &_cdr;
-    __asm__("" : "=r"(g) : "0"(g));
     g->w0c = read_mode;
     sel = g->w0c & 0x30;
     __asm__("" : : "r"(sel));   /* W61-A7: +1 ref, reqdelta272-priced (see the receipt) */
@@ -1041,7 +1038,6 @@ extern int CdRead(int sectors, u_long *buf, int mode)
          * stop_search_p then bars the whole thread again. */
         int sz = 0x246;
         volatile CdrEnv *d;
-        __asm__("" : : "i"(0));
         d = &_cdr;
         __asm__("" : "=r"(d) : "0"(d));
         d->w10 = sz;
@@ -1057,12 +1053,10 @@ extern int CdRead(int sectors, u_long *buf, int mode)
     {
     int cbarg;
     e = &_cdr;
-    __asm__("" : "=r"(e) : "0"(e));
     e->w0c |= 0x20;
     cbarg = 0;
     __asm__("" : "=r"(cbarg) : "0"(cbarg));
     e->w04 = (u_char *)buf;
-    __asm__("" : : : "memory");
     *(int *)&e->w00 = sectors;
     *(int *)&e->w28 = (int)CdSyncCallback((CdlCB)cbarg);
     e->w2c = CdReadyCallback(0);                    /* save+clear ready cb */

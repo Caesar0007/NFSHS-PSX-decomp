@@ -354,7 +354,6 @@ void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char 
      retail-PsyQ-only ruling).  Mechanism: the 2.8.0 orphan (use reg) note from
      try_combine's NULL-elim distribute_notes call (fixed Feb-6-1998) -- see the
      A13 receipt below. */
-  __asm__("" : : "r"(newR));
   /* ---- W71-A5 (2026-08-21): 26 STAYS @113/113.  The residual is now BOUNDED to a
      single mechanical fact and the bound is worth writing down, because the same wave
      cracked its TWIN (Night_AdditiveNightCalc, 59 -> PASS) with exactly the analogous
@@ -1436,7 +1435,6 @@ void Night_SetEnviroment(DRender_tView *Vi)
         (u_char *)NIGHT_CAMERA_TARGET(Vi->player);
     /* W80 QTY_CMP_PRI dial: five zero-byte refs are the minimal whole-step crossing
      * for tgt (7/18) over zn2 (3/4); four refs only tie at 0.7500 and stay FAIL. */
-    __asm__("" : : "r"(tgt));
     __asm__("" : : "r"(tgt));
     __asm__("" : : "r"(tgt));
     __asm__("" : : "r"(tgt));

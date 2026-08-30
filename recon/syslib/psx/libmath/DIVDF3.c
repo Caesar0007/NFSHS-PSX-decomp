@@ -621,7 +621,6 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
                  * slot exactly like retail.  Placement table in the receipt above.
                  * (W76-A14: still required at the 2-diff basin -- removing it
                  * re-merges the arms, 11 @183.) */
-                __asm__ __volatile__("" : : "i"(0));
                 /* W76-A14 ORDER FENCE: retail's arm2 tail is [addiu a0,sp,24;
                  * addiu s0,s0,1] -- the a0 setup ABOVE the increment.  Naming the
                  * tail pointer (p2) and reading it through an output-less

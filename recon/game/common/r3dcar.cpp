@@ -1309,7 +1309,6 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
       int replayMode;
       rear = 0;
       /* MATCH: retail puts rear=0 in the carType branch delay slot. */
-      __asm__("" : : "r"(rear));
       /* MATCH (w63-a14, 9 -> PASS coupled with dropping jtbl_at_fusion on this TU):
          the replay base must stay an IN-LOOP reference, NOT a preheader local.
          Retail's preheader emits `li $t1,2` BEFORE `la $t0,Replay_ReplayInterface`
@@ -2098,7 +2097,6 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
      (12000) so local-alloc hands $v0 to gFlip and $v1 to iVar9, exactly as retail.
      n is not arbitrary: 1 and 2 are measured LOSSES (the pri crossing is at 3, see
      the arithmetic in the block comment above).  Do NOT "simplify" this away. */
-  __asm__ ("" : : "r" (gf), "r" (gf), "r" (gf));
   int subOtOff = iVar9 * 4 + gf * 8;
   (carObj->render).sub_ot =
        *(u_long **)(subOtOff + subOtBase) + (objId & 0xfU) * 0x200;

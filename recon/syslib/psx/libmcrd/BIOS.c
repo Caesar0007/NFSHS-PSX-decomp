@@ -160,7 +160,6 @@ extern void _clr_card_event(void)
      * load-delay (count-EXACT 66/66).  The operand is an IMMEDIATE ("i"), not "r": an
      * operand-LESS `asm("")` is deleted before reorg, an "r" operand would cost a real
      * insn here (no value is reg-resident at this point), and "i"(0) emits NOTHING. */
-    __asm__("" : : "i"(0));
 }
 
 /* @0x801099D8 : _get_card_event -- block until a slot-0 event fires, acknowledge the slot-1

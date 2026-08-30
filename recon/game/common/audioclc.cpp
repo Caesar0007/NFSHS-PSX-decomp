@@ -591,7 +591,6 @@ void AudioClc_SoundPlayersCar(int playerIndex)
       }
       else {
         /* MATCH: preserve the common else entry before channel's bgez re-test. */
-        __asm__("" : : "i"(0));
         if ((channel < 0) && (GameSetup_gData.commMode != 1) &&
             (car->audio[c].surface1 != 10) &&
             (car->audio[c].surface1 != 8)) {

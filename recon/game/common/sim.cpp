@@ -380,7 +380,6 @@ void Sim_MainGameLoop(void)
        locals past the address temp so the whole 3-way rotation lands on the SYM map. Measured
        alternatives, all worse: dropping the local entirely (45, ours 4 insns short), fencing
        lastRealTick/lastGoalTick instead at decl (67) or before-consumer (44). */
-    __asm__ ("" : : "r"(replaySetup));
     while ((simGlobal.time32Hz <= Input_gTime && (simVar.endSimGame == 0))) {
       if ((Replay_ReplayMode == 2) && (simVar.pauseSim == 0)) {
         Replay_GetInterfaceKey();

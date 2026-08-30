@@ -479,7 +479,6 @@ void AudioCmn_Init(void)
     }
     /* MATCH: one zero-insn ref fence buys temptrack's SYM $a0 allocation;
        without it the guarded head rotates through $v1 and costs 45 diffs. */
-    __asm__("" : : "r"(temptrack));
     falseLapCounter = 0;
     intensityFalseLapCounter = 0;
   }
@@ -506,7 +505,6 @@ void AudioCmn_Init(void)
       AudioCmn_gPlayerArrested[j] = 0;
       j++;
     } while (j < 2);
-    __asm__("" : : "r"(lapSeed));
   }
   AudioCmn_InitThunder();
   AudioCmn_InitAsyncSfx();
@@ -1838,7 +1836,6 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   int currentGas;
   int rampIndex = car->carIndex;
 
-  __asm__("" : : "i"(0));
   rampedGas = PlayersRampedGasLevel + rampIndex;
   __asm__("" : : "r"(rampedGas));
   currentGas = (u_char)(car->control).gasLevel;
@@ -1876,7 +1873,6 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
      clamped and carried into the gear-shift block below. */
   {
   int rampIndex = car->carIndex;
-  __asm__("" : : "i"(0));
   cobblestoneAmp = *(int *)((rampIndex << 2) + (int)PlayersRampedGasLevel);
   }
   if (0xff < cobblestoneAmp) {
@@ -1898,7 +1894,6 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   roadProduct = roadNoiseAmp * amplitude;
   loadAmp = (tunnelFlag = tuntrig, (int)uVar7 >> 7);
   __asm__("" : : "r"(tunnelFlag));
-  __asm__("" : : "r"(loadAmp));
   __asm__("" : : "r"(roadProduct));
   roadNoiseAmp = roadProduct >> 7;
   }
@@ -2044,7 +2039,6 @@ void AudioCmn_TrafficSFX(int iChan,int iSFXnum,int freq,int doppler,int dst,int 
        the two calls use the symmetric +-0x40 crossfade pair). */
     patch = CopSpeak_GetEnginePatch(iSFXnum,0);
     fade = Xfade;
-    __asm__("" : : "r"(fade));
     __asm__("" : : "r"(pitchmult), "r"(pitchmult), "r"(pitchmult), "r"(pitchmult),
                   "r"(pitchmult));
     AudioCmn_PlaySFX(iChan + 4,patch,0x40,pitchmult << 4,

@@ -481,7 +481,6 @@ void Front_ResetPSXAnalogs(int player)
 
    LANDED on the G4 pair (0x53/0x800000 + 0x23/0x800000, retail's .L8002744C):
        { int acc = player << 0x1e;
-         __asm__("" : : "i"(0) : "$2","$3");
          return (acc | <hi> | <lo>) | 1; }
    The accumulator must be BORN before the clobber (so the clobber is inside its
    range) and the clobber must sit ABOVE the common tail (the whole hi/lo
@@ -1350,7 +1349,6 @@ static void Front_InitPlayerCars(tFEStream &streamData)
         /* MATCH: retail leaves the load-delay `nop` after the fColorOrder read and stores
            BEFORE reading fCarClass; our sched1 hoists the fCarClass load over the fColor
            store (it disambiguates the two char fields). The barrier restores the order. */
-        __asm__ __volatile__("" : : "i"(0));
         if (carInfo->fCarClass == '\a') {
           carInfo->fCountry = frontEnd.carCountry[streamData.numPlayers][carInfo->fCarID];
           carInfo->fColor = '\0';

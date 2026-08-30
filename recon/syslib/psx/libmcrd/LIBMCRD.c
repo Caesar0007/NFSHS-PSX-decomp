@@ -1655,8 +1655,7 @@ extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
      * the prologue group and lets reorg fill that slot from the fall-through thread with the
      * MemCardMakeDevname arg (`addu $a0,$s7,$zero`).  44 -> 40.  Adding `chan` or `name` as a
      * second operand is inert (40). */
-    __asm__("" : : "r"(dir));
-    __asm__("" : : "m"(files));
+    (void)&files;
     {
     int *pc = &mc.cmd;
     __asm__("" : "=r"(pc) : "0"(pc));

@@ -2259,8 +2259,12 @@ gte_stlvnl(&diff);
 gte_SetRotMatrix(&scalemat);
       }
       {
-        u_char *trackSpec = (u_char *)Flare_TrackSpecRows;
+        u_char *trackSpec; /* SYM-CODEGEN-CARRIER: trackSpec -- the retail
+                              function has no debug local for this shared base.
+                              Direct Flare_TrackSpecRows expressions measure
+                              FAIL 9 at 188/187; this staged base is PASS 187. */
 
+        trackSpec = (u_char *)Flare_TrackSpecRows;
         if ((*(u_int *)(trackSpec + 92) & 0x100U) != 0) {
           Flare_SingleColorTex(&posOnScreen,(CVECTOR *)(trackSpec + 188),0x10,0x10,'\0',otz);
         }

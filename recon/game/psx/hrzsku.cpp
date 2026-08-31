@@ -2621,7 +2621,11 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                          (DVECTOR *)(((int)hsd + 0xe0) + iVar15),&fxOverlapPercentage,1,0);
               pmx = *(Draw_tPixMap **)((int)gpPmx + iVar15);
               if (Hrz_gTrackSpec->ringPMX[i] != '\x10') {
-                int iv = i * 4;
+                int iv; /* SYM-CODEGEN-CARRIER: iv -- a fresh i*4 at this
+                           colour-table site emits retail's independent sll.
+                           Reusing the strength-reduced iVar15 measures FAIL 3
+                           at 472/473; this separate carrier is PASS 473. */
+                iv = i * 4;
                 /* MATCH (W74-A4, 50 -> 42): FENCED HELD-ADDRESS ANCHOR (05F / 14D /
                    methodology 3.12 #16).  Retail materialises &Render_gPacketPtr ONCE
                    (`lui a2,8064; ori a2,a2,4`) and writes the +0x34 bump back through

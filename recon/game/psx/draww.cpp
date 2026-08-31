@@ -554,8 +554,12 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
     Draw_SVertex *v5;   /* SYM: REG $s5 */
     Draw_SVertex *v6;   /* SYM: REG $s7 */
     Draw_SVertex *v7;   /* SYM: REG $s6 */
-    int t4;
-    short n0;
+    int t4; /* SYM-CODEGEN-CARRIER: t4 -- retains the original vertex byte
+               offset while n mutates.  Direct early `v4 = &r_div->v[n]`
+               with no n0/t4 pair is count-exact but FAIL 26 at 588/588. */
+    short n0; /* SYM-CODEGEN-CARRIER: n0 -- paired snapshot for t4; the SYM
+                 has only the narrowed argument n, so this is an explicit
+                 reconstruction carrier rather than a claimed retail name. */
 
     /* RESIDUAL (2026-07-11, re-verified not source-shapable): oracle computes
        v5/v6/v7/v8's indices as `n1=n+1` then `n1+1,n1+2,n1+3` (each independent
@@ -809,8 +813,11 @@ void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache *sd,int l,Draw_SVertex *v0,Dr
          DO NOT re-run: the fence walk (w70, 36 probes, all +2 insns on a short),
          the six index-chain spellings (w70), or any n0/nb/newn snapshot (above). */
       short q = n + 1; /* SYM-CODEGEN-CARRIER: q -- the named pivot is the measured 26->8 allocation cell */
-      short q1;
-      short q2;
+      short q1; /* SYM-CODEGEN-CARRIER: q1 -- explicit staged +1/+2 children
+                   preserve the retail block-local qty set; inlining q+1/q+2
+                   with q2 removed is count-exact but FAIL 276 at 588/588. */
+      short q2; /* SYM-CODEGEN-CARRIER: q2 -- paired with q1 in the measured
+                   subdivision index-allocation cell above. */
 
       v5 = &r_div->v[n];
       q1 = q + 1;
@@ -5493,7 +5500,11 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
   matrixtdef *m;
   coorddef *t;
   Draw_DCache *sd;
-  int skidIdx;
+  int skidIdx; /* SYM-CODEGEN-CARRIER: skidIdx -- SYM has no source local for
+                  retail $s7; the per-function m2c/IDA views identify it as the
+                  compiler's descending 0x2B0-byte chunk cursor.  Replacing it
+                  with natural indexed access measured 227 diffs and 354/353
+                  instructions, while this explicit carrier is PASS 353/353. */
   /* MATCH (w46-a6): SYM has no u_char here and the oracle keeps the
    * backface flag as a plain word in $s0 (`sltu $s0,$zero,$v0;
    * beqz $s0` @0x800C91B8) -- a u_char local forced an extra
@@ -6365,7 +6376,9 @@ void DrawW_OnyxLinePrim(CCOORD16 *geomVertices,Trk_Line *lineQuad,int count,Draw
   POLY_GT4 *prim;
   int lineQuadCount;
   Draw_tPixMap *pmx;
-  int *g2;
+  int *g2; /* SYM-CODEGEN-CARRIER: g2 -- explicit second word-base preserves
+              retail's reduced-giv class.  Direct geomVertices[0..7] access
+              is count-exact but FAIL 70 at 507/507; this carrier is PASS. */
   CCOORD16 vt0;
   CCOORD16 vt1;
   CCOORD16 vt2;

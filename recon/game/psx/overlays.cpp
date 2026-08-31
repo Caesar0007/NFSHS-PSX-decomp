@@ -483,7 +483,10 @@ void RaceStatistics(void)
      SIZE_W@0x50, SIZE_H@0x58, POS_Y@0x60 and HOTPURSUIT_Y@0x70.  The intervening
      words are reload spills, not source declarations: deleting posy/posyL/barH/
      barH8/halfH preserves the 176-byte retail frame and improves 70 -> 54. */
-  int rows;
+  int rows; /* SYM-CODEGEN-CARRIER: rows -- keeps the shared lap-row product
+               across both height assignments.  Repeating the natural source
+               expression is count-exact but FAIL 10 at 475/475; this staged
+               value is PASS and reproduces retail's reused product. */
   int sizeH16; /* SYM-CODEGEN-CARRIER: sizeH16 -- direct HUD_STATS_SIZE_H uses are FAIL 86 at 475/475 */
   int titleX; /* SYM-CODEGEN-CARRIER: titleX -- direct title-coordinate form is FAIL 135 at 468/475 */
   int titleY; /* SYM-CODEGEN-CARRIER: titleY -- direct HUD_STATS_POS_Y form is FAIL 88 at 469/475 */

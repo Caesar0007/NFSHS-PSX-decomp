@@ -258,590 +258,127 @@ void InGame_ResetPSXController(int player,int config)
   return;
 }
 
-/* ---- InGame_GetPSXPadValue__Fii  [PSXCONTROLLER.CPP:197-332] SLD-VERIFIED ----
- * w38-a9: rewritten as the NESTED SWITCH the oracle proves.  The oracle's
- * dispatch on `type` is gcc-2.8 `balance_case_nodes` output for exactly THREE
- * case nodes: root 0x53 (`beq`), bound test `slti $v0,$v1,0x54`, left child
- * 0x23, right child 0x73 -- a signature only a `switch` produces (an if-chain
- * has no reason to emit the `< 0x54` bound test).  Likewise the two inner
- * dispatches on `value`: 8 nodes (root 0x400000, signed `slt`, so 0x80000000
- * sorts FIRST as INT_MIN) and 5 nodes (root 0x8000, 2-node leaves stay
- * linear).  Case BODIES emit in SOURCE order, so the case order below is read
- * straight off the oracle's block VAs (0x800000, 0x200000, 0x100000, 0x400000,
- * 0x80000000, 0x20000000, 0x10000000, 0x40000000 / 0x800000, 0x200000, 0x4000,
- * 0x8000, 0x400); the shared tails (.L800DCC68 / .L800DCB9C / .L800DCBAC /
- * .L800DCBD8 / .L800DCBE8 / .L800DCCEC / .L800DCCF4) are gcc CROSS-JUMPING the
- * inline per-case expressions -- do NOT hand-funnel them.
- * SYM locals = exactly {c $s0, newControl $v0, type $v1} -> `type` is an INT
- * (oracle `slti ...,0x54` is SIGNED and there is no `andi 0xff` re-mask; a
- * u_char local emitted both).
- *
- * w39-a7 re-audit (unchanged at 329; ours 230 / oracle 233).  The STRUCTURE is
- * verified correct and is NOT the problem:
- *   - outer BST over {0x23, 0x53, 0x73}: our dispatch is instruction-for-instruction
- *     the oracle's (root 0x53 + `slti $v0,$v1,0x54` bound + 0x23/0x73 children);
- *   - inner 8-node BST (root 0x400000, signed order so 0x80000000 sorts first) and
- *     5-node BST (root 0x8000) both match, and the case-BODY emission order read off
- *     the oracle's block VAs is exactly the source order used here.
- * The residual is the ORACLE'S CROSS-JUMPING of the case tails: retail merges the
- * structurally identical case bodies into six shared tails (.L800DCC68 / .L800DCB9C /
- * .L800DCBAC / .L800DCBD8 / .L800DCBE8 / .L800DCCEC / .L800DCCF4), which is why each
- * case's OR-accumulator lives in a DIFFERENT caller-saved register ($a0 / $a1 / $a2 --
- * whichever the tail it jumps into expects) and why `sll $aN,$s1,2` (player*4) and
- * `sll $aN,$s1,30` (player<<30) end up speculatively computed in the BST branch delay
- * slots.  Our build emits every case body standalone with the chain in $v0, so the
- * jump2 cross-jump pass never fires -- gcc-2.8 cross-jumps only byte-identical tails,
- * i.e. AFTER register allocation, so this is allocator-conditioned, not a statement
- * shape.  Falsified this wave (all EXACTLY 329, i.e. jump-opt canonicalization):
- * `type = 0; if (nopad==0) type = ID;`, the ternary form, the inverted
- * `if (nopad != 0) type = 0; else ...` form, and `c = value; switch (c)`; a
- * `PAD_COMMON *p = &gPadinfo.buf[player*4];` entry pointer is slightly WORSE (331).
- * Also exactly neutral: all four PER_TU flag keys and g_value=8 on this TU.
- *
- * w40-a7 FLOOR RECEIPT (unchanged at 329; ours 230 / oracle 233).  Floor-bar items:
- *  - PROTOTYPE AUDIT vs SYM (nfs4-f-v3.txt:45493f, fsize 32, mask $80030000 = ra,s1,s0):
- *    REGPARM `value` $4($a0), REGPARM `player` $0x11($s1); locals `c` $0x10($s0),
- *    `newControl` $2($v0), `type` $3($v1).  Our build matches the frame, the save mask,
- *    both parameter homes and the return register exactly -- there is no arity, return
- *    or width error hiding here.  (`c` is the SYM's name for the `$s0` copy of `value`
- *    that gcc makes anyway; spelling `c = value; switch (c)` is measurably neutral.)
- *  - TRICHOTOMY on the nopad select, all re-measured this wave: default+override 329,
- *    if/else 329, explicit `goto`/label form 329, ternary 329, `type = ID; if (nopad)
- *    type = 0;` 322 but one insn SHORTER (229) -- i.e. every spelling collapses to the
- *    same jump-opt canonical layout and none reproduces the oracle's out-of-line
- *    `j .Lend; nop` else-block.
- *  - MECHANISM: gcc-2.8 `jump2` cross-jumps only tails that are BYTE-identical, i.e.
- *    after register allocation.  Retail's allocator happened to colour the per-case OR
- *    accumulators into $a0/$a1/$a2 so six case tails merged; ours colours them $v0/$v1
- *    (newControl's own home) so nothing merges and the `sll $aN,$s1,2` / `sll $aN,$s1,30`
- *    speculative fills never appear.  The dependency runs allocation -> cross-jump, so no
- *    statement shape can request it.
- *  - -G/flag identity: recorded neutral above (four -f keys + g_value=8).
- *  The permuter is the only remaining instrument and is blocked for C++ TUs (w38 s2F).
- *
- * w45-a3: 329 -> 279 (ours 212 / oracle 233).  THE w40 "ALLOCATION -> CROSS-JUMP, NO
- * STATEMENT SHAPE CAN REQUEST IT" VERDICT IS REFUTED.  Moving the final `| 1` OUT of the
- * case bodies and onto the return -- `newControl = <chain>; return newControl | 1;`
- * instead of `newControl = <chain> | 1; return newControl;` -- makes gcc's jump2 pass
- * cross-jump the case tails exactly the way retail's do.  Gate 329 -> 279, and the
- * ALPHA-RENAMED structural residual (tools/posdiff.py, the honest metric on a far-miss)
- * more than halves: LCS match 57/233 -> 98/233, residual 176 -> 135.  So cross-jumping IS
- * source-reachable here; it is the SHARED TAIL'S CONTENT, not the allocator, that decides.
- * This is the w44 catalog rule read in the right order: a cross-jump merge is compared on
- * RENUMBERED regs, so you shape the tail and let the allocation follow, not the reverse.
- * CURRENT RESIDUAL = OVER-merging: 212 vs 233 insns, i.e. we now merge 21 insns MORE than
- * retail, all in ONE region (chunkdiff `delete size 21  ours[61:82]` -- the 0x23/plain-pad
- * group's J1MIN/J1MAX pair).  Retail's shared tail is only the single `ori v0,a0,1`; ours
- * also merged that group's two `lw ...136/144(a0)` range-cal loads and its `sll s1,2`.
- * NEXT NAMED ANGLE (untried): DE-merge exactly that one group.  Two instruments, in order:
- *  (1) the arsenal 2b.5 USE fence -- `__asm__ volatile("" : : "r"(newControl));` at the end
- *      of the over-merged group's arms makes those tails differ so jump2 declines them,
- *      while leaving the other groups merged (this is the sanctioned fence class, not a
- *      register pin).  Apply to the SMALLEST set of arms that restores 233.
- *  (2) failing that, put the `| 1` back inline for that ONE group only and keep it at the
- *      return for the others -- the dial is per-group, and nothing requires all three
- *      switch groups to use the same spelling.
- * Also re-open from the 279 base (LEVER-ORDER meta -- the falsified lists above were all
- * measured in the 329 basin): the nopad trichotomy spellings and the parameter first-use
- * order (ours copies value->$s0 before player->$s1, retail the reverse; posdiff
- * `s0 a0 s1 a1` vs `s1 a1 s0 a0`).
- * Measured this session on the 329 base: `| 1` at the return 279 (adopted), `c = value;
- * switch (c)` 374, direct `return <expr>` per case (no newControl local) = compile error
- * (the local is referenced by the outer-switch fallthrough path).
- * ---- w50-a6 BRANCH CENSUS (tools/brcensus.py, the cheap structural check the de-merge
- * plan should be driven by).  Re-gated 264 diffs, ours 209 / oracle 233 (= 24 short):
- *     beqz 2 v 1 . bnez 4 v 5 . j 18 v 20
- * Reading: (a) `j` 18-vs-20 says the over-merge is exactly TWO un-taken arm tails -- the
- * de-merge target is 2 tails, not a diffuse 24 insns, so instrument (1) above should be
- * applied to precisely two arms and gated after each; (b) beqz/bnez 2/4 vs 1/5 at an equal
- * TOTAL of 6 is a single GUARD POLARITY flip (catalog: "beqz<->bnez swap at equal totals =
- * an arm-order flip"), and it is a separate, cheaper defect than the merge -- find the one
- * guard whose arms are inverted and fix it FIRST, since a polarity flip changes which tail
- * is the fall-through and therefore which tails jump2 is even offered.
- * No spellings were attempted this wave (budget went to the cario/fe3dmenu conversions);
- * the census is the deliverable and it makes the next pass a 2-arm search, not a 24-insn one.
- * ---- w53-a4 (still 264, ours 209 / oracle 233): the census's TWO named leads, executed.
- *  (a) THE GUARD-POLARITY LEAD IS DEAD AS A SPELLING.  diffsrc's oracle SLD proves what the
- *      polarity actually is: retail emits `lbu nopad; nop; bnez v0,L` [SLD 206] with the
- *      `lbu ID` on the FALL-THROUGH and `j` over it [207], i.e. the ID load lives INSIDE the
- *      not-taken arm; ours loads the ID unconditionally before a `beqz`.  Every C form of
- *      that if/else was gated FROM THIS BASIN and all five are +1 insn and worse: `if(nopad
- *      ==0) type=ID; else type=0;` 271@210, `if(nopad!=0) type=0; else type=ID;` 271@210,
- *      ternary 271@210, `type=0; if(nopad==0) type=ID;` 271@210, the `== 0` (int) spelling
- *      271@210.  gcc-2.8's jump-opt canonicalizes all of them to the unconditional-load
- *      layout; the default-then-override form (kept) is still the unique optimum at 264.
- *      => the beqz/bnez census delta is NOT a source-shape defect on this guard.
- *  (b) THE PER-GROUP `| 1` DIAL (the w45 receipt's untried "instrument (2)") IS WORSE, and
- *      posdiff is the reason to believe it: putting `| 1` back INLINE in the eight
- *      0x53/0x73 arms lands the INSTRUCTION COUNT almost exactly (235 vs retail 233, vs our
- *      209) -- which looks like the 24-insn de-merge the census asked for -- but the
- *      ALPHA-RENAMED structural residual gets WORSE, 138 -> 154 (posdiff LCS 95 -> 79), and
- *      the gate goes 264 -> 294.  So the count shortfall is NOT the same defect as the
- *      structural residual: the merged 209-insn body is structurally CLOSER to retail than
- *      the un-merged 235-insn one.  Do not chase the count.  (Fences on/off re-measured
- *      alongside: cur+fences 264 is still the optimum, cur-nofences 272@211.)
- *  NEXT INSTRUMENT (unchanged, and now better motivated): posdiff's first-use line is the
- *  one clean structural fact left -- ours `s0 a0 s1 a1 ...`, retail `s1 a1 s0 a0 ...`, i.e.
- *  retail's PLAYER parm copy is emitted before VALUE's (retail: `sw s1,20(sp); addu s1,a1`
- *  in the prologue with `addu s0,a0` deferred into the jal delay slot; ours the mirror).
- *  That is an assign_parms emission-order question (catalog: NARROW-PARAM lever / parm-copy
- *  sink), not a switch-shape one, and every case body's register roles hang off it. */
-/* W75 exact-SYM carrier.  psxcontroller.obj contains GameSetup_tControllerData but
-   not its GameSetup_tData owner.  Keep the player-scaled owner-base address explicit,
-   then express owner offset 0x60 plus the selected controller field through the known
-   controllerConfig word array.  Moving 0x60 into the pointer expression makes gcc emit
-   %hi/%lo(GameSetup_gData+96) and costs 22 authoritative diffs; this form keeps the
-   relocation on GameSetup_gData and the complete offset in each load displacement. */
-#define INGAME_CD_VALUE(field) \
-  (((GameSetup_tControllerData *)((player << 2) + (int)&GameSetup_gData)) \
-       ->controllerConfig[24 + \
-          (int)&((GameSetup_tControllerData *)0)->field / 4])
-int InGame_GetPSXPadValue(int value,int player)
+#define INGAME_CONTROLLER_WORD(offset) \
+  (((GameSetup_tControllerData *)((player << 2) + \
+     (int)&GameSetup_gData))->controllerConfig[(offset) >> 2])
+#define INGAME_INDEX_WORD(index, offset) \
+  (((GameSetup_tControllerData *)((index) + \
+     (int)&GameSetup_gData))->controllerConfig[(offset) >> 2])
 
+int InGame_GetPSXPadValue(int value, int player)
 {
-  int c = value;
+  int c;
   int newControl;
   int type;
 
+  c = value;
   PAD_update();
-  value = 0x80;
-  /* w46-a8 (279 -> 264, with the two de-merge fences below): the nopad trichotomy
-     RE-OPENED from the w45 `| 1`-on-the-return basin.  In the OLD 329 basin this
-     spelling measured 322 and was rejected; in the 279 basin it is the BEST of the
-     four (264 vs 271/271/271 for if/else, ternary and default-then-override) --
-     a textbook basin-relative falsification (catalog w45 LEVER-ORDER law). */
-  /* w61-a15 (264 -> 257): the nopad select transferred from front.cpp's
-     sealed-adjacent GetPSXPadValue (18-diff twin).  The GOTO form + the
-     zero-insn compiler barrier on the ID path reproduces retail's
-     `bnez; li 0x53; lbu ID; j; nop; type=0` layout and lets gcc reuse the
-     single 0x53 materialization at the switch join.  MEASURED from the 264
-     basin: goto+fence 264 -> 257 (@212 insns), goto WITHOUT the fence 271
-     (@210).  This is the device the w53-a4 "guard-polarity lead is dead"
-     receipt never tried -- it swept plain if/else spellings only. */
-  /* w62-a14 (still 257 @212 vs 233): THE DE-MERGE FENCE CONFIGURATION WAS
-     RE-SWEPT FROM THE 257 BASIN (the w46-a8 sweep below was measured at 264;
-     04Z basin-relativity).  All 12 `return newControl | 1;` arms enumerated,
-     harness scratchpad/w62a14/fence.py (rebuilds the body with a fence before an
-     arbitrary SET of arms, control reproduces 257 exactly).  {8,9} SURVIVES as the
-     unique optimum: none 265 @214 . every singleton {0}..{7} 266-270 @221 . {8}
-     261 @212 . {9} 259 @214 . {10} / {11} 269 @218 . {8,9}+one of {0,1,2,3} 260-264
-     @219 . {8,9}+{4,5,6,7} 269-273 @226-228 . {8,9}+{10} / +{11} / +{10,11} 261 @216
-     . all 45 {8,9}+two-arm pairs 264-285 @223-242.  => the over-merge is NOT a
-     fence-placement question any more; the count shortfall and the structural
-     residual are the same two facts w53-a4 separated (the merged 212-insn body is
-     structurally closer than any 233-insn de-merged one).  What the sweep DOES
-     newly show: 14 of the 66 configurations reach retail's exact 233 count and
-     every one of them scores 272-285, i.e. the count is now REACHABLE and
-     PROVABLY not the defect.  The live route is unchanged: retail's dispatch
-     delay slots carry `sll aN,s1,2` (player*4) + `li a0,0x80` speculatively while
-     ours carry `sll aN,s1,30` (player<<30), and retail's prologue copies PLAYER
-     before VALUE (`sw s1,20(sp); addu s1,a1` with `addu s0,a0` in the jal slot;
-     ours mirrored) -- an assign_parms/sched1 emission-order question. */
-  /* w63-a14 (257 -> 168 @243 vs 233): THE CROSS-TU TWIN'S EXPRESSION SHAPE,
-     PORTED WHOLESALE.  recon/frontend/common/front.cpp's GetPSXPadValue (the
-     18-diff near-sealed twin) writes every tagged arm as ONE FLAT OR chain with
-     the tag constant SECOND -- `player<<0x1e | TAG | hi*0x10000 | lo*0x100` --
-     whereas this fn had the tag nested inside the hi term
-     (`(hi*0x10000 | TAG)`).  Its own receipt says that flattening is what took
-     front.cpp 160 -> 18, and it transfers: three independent, additive landings,
-     each re-gated here from the 257 basin:
-       (a) flatten the six tagged 0x53/0x73 arms          257 -> 208 @243
-       (b) + flatten the two tagged 0x23 arms (0x4000/0x8000) -> 197 @244
-       (c) + front.cpp's TWO-STAGE compound spelling on the 0x23/0x200000 arm
-           (`newControl = tag|hi; return (newControl |= lo) | 1;`)   -> 168 @243
-     The de-merge fence set was RE-SWEPT from each new basin (04Z): after (a)+(b)
-     the w62-a14 optimum {8,9} is no longer optimal -- {} 197 @238, {8} 196 @237,
-     {9} 198 @245, {8,9} 197 @244 -- and after (c) the winner is {8} alone
-     (168 @243) vs {} 189 @244.  So arm 9's fence is SUPERSEDED BY the two-stage
-     spelling: the compound assignment is what keeps that tail from over-merging,
-     and the fence becomes redundant.  Falsified from the (c) basin: the same
-     two-stage spelling applied to arm 8 as well ({8} 196 @245, {} 188 @239 --
-     both worse), i.e. the two 0x23 range arms are NOT symmetric; retail keeps
-     one fenced-shaped and one compound.
-     LAW CANDIDATE (catalog): when two TUs carry the SAME retail function under
-     different names (a frontend/in-game pair), the near-sealed twin's EXPRESSION
-     SHAPE is a first-class oracle -- port it before dialing.  Here it beat six
-     waves of fence/basin sweeps that never questioned the OR-tree nesting.
-     The residual 168 is the structural pair the census already named: retail's
-     dispatch delay slots carry `sll aN,s1,2` (the int-array index player*4) and
-     `li a0,0x80` SPECULATIVELY where ours carry `sll aN,s1,30`/`lui`, and the
-     prologue parm-copy order is mirrored (retail `sw s1,20(sp); addu s1,a1`
-     first, `addu s0,a0` in the jal slot).  Both are emission-order, not shape.
-     ===== w64-a14: THE +10 COUNT GAP IS SOLVED AND PRICED (not landed) =====
-     The gap is ONE fact repeated at ~10 arm sites: retail's per-arm address is
-     `<index reg> = player*4` MUTATED IN PLACE by the base
-     (`addu aN,aN,v0; lw v1,136(aN)`) -- each arm returns, so the index pseudo is
-     dead after its own use and gcc may clobber it -- while ours preserves the
-     index and mutates the BASE (`sll a0,s1,2; addu a0,a0,v0`), one insn more per
-     site.  Rewriting the arms as `po = po + (int)&GameSetup_gData;` +
-     `((GameSetup_tData *)po)->controllerData.F[0]` with `po = player * 4;` before
-     the switch reaches retail's COUNT EXACTLY -- 233/233 -- and the whole
-     per-arm stream becomes count- and offset-exact.  It gates 210, i.e. WORSE on
-     the authoritative metric than the current 168, because a fn-scope `po` is ONE
-     global allocno that takes ONE register ($a2) at every site, whereas retail's
-     nine `sll <reg>,$s1,2` (census:
-       a raw-oracle census of `sll $[av]N,$s1,2`
-     = 9) each land in a DIFFERENT register ($a0/$a1/$v1/$a2) -- i.e. retail
-     REMATERIALIZES the scaled index per arm into a fresh BLOCK-LOCAL qty.  So the
-     next angle is NOT a hoist: it is per-arm block-local index pseudos that gcc is
-     allowed to clobber (the 3.12 #14 in-place-dead-pointer-store shape applied to
-     an INDEX, not a base).  Measured this wave, all from the 168 basin:
-     `po` hoisted before the switch 225 @230 (3 SHORT) . `po` at the top after
-     PAD_update 225 @230 . the in-place mutation form 210 @233 COUNT-EXACT .
-     OR-tree operand order: `player << 0x1e` moved LAST 306 @259, moved SECOND
-     198 @243 (the twin's tag-second rule does NOT extend to the player term).
-     ===== W71-A6 (2026-08-21): 168 -> 114 @239 vs 233.  TWO ADDITIVE LANDINGS. =====
-     (1) INDEX-TERM-FIRST ADDRESS SPELLING (methodology 3.12-fusion / W60-A6
-         Hud_BuildNumbers0 refutation), applied through the INGAME_CD macro:
-         `((GameSetup_tData *)((player << 2) + (int)&GameSetup_gData))->controllerData.F[0]`
-         instead of `GameSetup_gData.controllerData.F[player]`.  168 -> 126 @241.
-         WHY IT WORKS -- this is the w64-a14 "+10 count gap" item solved WITHOUT the
-         fn-scope `po` hoist that cost 210: spelling the index term FIRST makes the
-         arm block OPEN with `sll aN,s1,2`, which is exactly the insn retail's reorg
-         STEALS into the dispatch `beq`'s delay slot (retail: `beq s0,v0,.Larm;
-         sll a1,s1,2`).  The stolen copy is then live across the fall-through path,
-         so several arms REUSE one scaled index -- retail has only 9 `sll ?,s1,2`
-         for 12 index-using arms.  With the natural `F[player]` spelling gcc emits
-         `lui/addiu` first and the sll last, so nothing is stealable and every arm
-         pays its own sll.
-         🔴 THE SHIFT SPELLING IS LOAD-BEARING: `player * 4` is folded straight back
-         into an ARRAY_REF by fold() and measures 168 (identical to the old base);
-         only `player << 2` survives.  `(int)&GameSetup_gData + (player << 2)`
-         (base written first) is byte-identical to the index-first form -- fold
-         canonicalizes the operand order, so it is the MULT-vs-SHIFT that is the
-         dial, not the textual side.
-     (2) TWO-STAGE COMPOUND on the 0x53/0x200000 arm (the same device already on
-         0x23/0x200000): `newControl = tag|hi; return (newControl |= lo) | 1;`
-         126 -> 114 @239.  Re-swept ALL 10 remaining `return newControl | 1;` arms
-         from the 126 basin -- arm1 (0x53/0x200000) is the unique winner (114); the
-         others land 131/150/131/146/137/160/135/142/143 -- and re-swept AGAIN from
-         the 114 basin: no second compound helps (119..160).
-     04Z re-sweeps done from EVERY new basin (both are basin-relative):
-       - fence set: from 126, singletons {}=154 {0}=169 {1}=154 {2}=169 {3}=153
-         {4}=179 {5}=152 {6}=179 {7}=144 {8}=126 {9}=160 {10}=160, pairs {8,x}
-         126..145 -> {8} unique optimum; from 114 (indices shift by one after the
-         arm-1 compound) {}=142 and singletons 114..167 -> the SAME arm
-         (0x23/0x800000) is still the unique optimum, pairs {7,x} 119..143.
-       - OR-term order re-measured in the 126 basin: player-term LAST 272 @255,
-         SECOND 143 @240, tag-first byte-identical (126) -- the w64 verdict holds
-         across the basin move.
-     FALSIFIED THIS WAVE (all from the 126/114 bases): a fn-scope
-     `GameSetup_tData *gp` assigned once after PAD_update 296 @197 (cse collapses
-     all 12 address materializations into one saved reg -- the same failure mode as
-     w64's `po`); a BLOCK-SCOPE `GameSetup_tData *gp` declared per arm 155 @240
-     (a fresh pseudo per arm, but the decl-init is emitted BEFORE the `player<<30`
-     chain-start and steals the arm's a0, inverting every arm's register roles);
-     the SYM's `c` local (`c = value; switch (c)`) at three positions 233/233/133.
-     RESIDUAL 114 @239 (+6): opcode census `or 17v16  sll 49v46  subu 7v5`.
-     Named: (i) 3 arms still pay their own `sll ?,s1,2` (reorg declines the steal
-     where the dispatch slot is already filled from the fall-through `j` block);
-     (ii) the 0x23/0x800000 tail is still un-merged with 0x53/0x800000 (retail's
-     .L800DCC68), which is the SAME last-`or`-dest defect front.cpp's 18-diff twin
-     is stuck on: our chain accumulates in $a1 and the final `or` writes
-     newControl's global home $a0 (`or a0,a1,v0`), retail accumulates IN newControl's
-     own register from the first term (`sll a0,s1,30; or a0,a0,v1; or a0,a0,v0`) so
-     its tails are byte-identical and cross_jump merges them.  ⇒ the twin's
-     "keep the 1 out of the tag constant / cse-identity device" angle is the shared
-     next instrument for BOTH functions; it is worth ~6 insns and ~40 diffs here.
-     (iii) prologue parm-copy order still mirrored (retail copies PLAYER first).
-     ===== W72-A15 (2026-08-22): 114 -> 108 @239.  RESIDUAL (iii) IS SOLVED AND THE
-     PROLOGUE IS NOW BYTE-EXACT (addiu sp,-32 / sw s1,20 / addu s1,a1 / sw s0,16 /
-     sw ra,24 / jal PAD_update / addu s0,a0 -- all six words).
-     THE DEVICE: the SYM's `c` local, DECLARED-AND-ASSIGNED BEFORE THE CALL, with both
-     inner dispatches and the fall-through expression reading `c` instead of `value`.
-     WHY (read off the SYM, not guessed): the 8c block at nfs4-f-v3.txt:45493f gives
-     REGPARM `value` = $4 (**$a0**, i.e. value NEVER gets a callee-saved home) and a
-     separate REG local `c` = $0x10 ($s0).  So retail's `addu $s0,$a0,$zero` is a BODY
-     STATEMENT (`c = value;`), NOT an assign_parms parm copy -- which is exactly why it
-     is emitted AFTER `player`'s parm copy and therefore becomes the LAST pre-jal insn,
-     the one reorg's backward `fill_simple_delay_slots` scan takes for PAD_update's slot.
-     With `switch (value)` the parm itself must live across the call, so assign_parms
-     emits ITS copy first (decl order value,player) and reorg steals player's instead --
-     the mirrored prologue.  Parm-copy ORDER is fixed at declaration order and is NOT
-     reachable by any statement move; the reachable dial is whether a parm needs a copy
-     AT ALL.  (Catalog candidate: "a SYM REGPARM record naming an ARG register proves
-     that parameter has no callee-saved home -- the sN copy you see is a body-statement
-     local, so give it one.")
-     MEASURED (all from the 114 basin): `c = value;` BEFORE PAD_update + switch(c) 108
-     @239 (kept) . the same + an identity launder on c 111 @240 . `c = value;` AFTER
-     PAD_update 114 (inert -- a0 is dead by then, gcc folds it back) . after + launder
-     169 @242 . the copy alone with `switch (value)` kept 114 / +launder 114 @241 (both
-     inert: cse merges the two pseudos) . read-only fence on `player` before the call
-     113 @240 . read-only fence on `value` after the call 114.  NOTE the w63/w71 note
-     above recorded "`c = value; switch (c)` at three positions 233/233/133" -- that
-     sweep did NOT rewrite the trailing `player << 0x1a | value << 8 | 2` default arm,
-     so `value` stayed live across the call and the parm copy stayed.  The rewrite must
-     be TOTAL for the lever to fire.
-     04Z RE-SWEEPS FROM THE NEW 108 BASIN (both axes re-priced, both CLOSED):
-       - de-merge fence set: none 136 @241 . +{0} 122 . +{1} 133 . +{2} 113 . +{3} 137 .
-         +{4} 119 . +{5} 137 . +{6} 119 . +{7} 108 (the arm that already carries it) .
-         +{8} 114 . +{9} 114  => the single 0x23/0x800000 fence is still the unique
-         optimum and is still load-bearing (-28 vs none).
-       - two-stage compound set: {0} 125 . {1} 144 . {2} 113 . {3} 140 . {4} 119 .
-         {5} 154 . {6} 117 . {7} 159 . {8} 124 . {9} 136  => no second compound helps.
-       - OR-chain ACCUMULATION SHAPE (new axis this wave, falsified): three-stage
-         `newControl = player<<0x1e[|TAG]; newControl |= HI; return (newControl |= LO)|1;`
-         on all arms 230 @227 / on the 0x53 group only 208 @215 . two-stage on ALL arms
-         145 @236 . start-alone + one big compound 227 @232 . start-alone + two compounds
-         224 @225.  The receipt's "accumulate in newControl's own register from the first
-         term" reading is CORRECT about retail but is NOT reachable by compound spelling
-         -- every |= form sheds instructions (225-236 vs retail's 233) because gcc folds
-         the chain into fewer pseudos, not more.
-     RESIDUAL 108 @239 (+6) = the a0<->a1 ARM ROLE SWAP, quantified: in ~9 of the 13 arms
-     ours puts the SCALED INDEX (`sll aN,s1,2`, mutated in place by `addu aN,aN,v0`) in
-     $a0 and the `player<<0x1e` chain in $a1, while retail has index=$a1 / chain=$a0 --
-     and in the 0x800000 arms (both groups) retail agrees with us (index=$a0, chain=$a1).
-     Both pseudos are BLOCK-LOCAL qtys born in the arm block (the `sll` only reaches the
-     dispatch delay slot in reorg, POST-allocation), so this is a local-alloc
-     QTY_CMP_PRI / 3-qty-ladder question per arm, driven by which shared tail the arm
-     cross-jumps into (retail has TWO tails, one expecting the chain in $a1
-     (.L800DCC68 -> `ori v0,a1,1`) and one in $a0 (.L800DCCF4)).  NEXT INSTRUMENT (named,
-     not run this wave): the instrumented-cc1 [qty_order]/[find_free_reg] trace on one
-     arm block (C:\Temp\nfs4-instr-cc1) -- read which qty is served first and by how much,
-     then price a ref/live dial on the chain pseudo.  Do NOT re-sweep fences, compounds or
-     accumulation spellings; all three are closed in this basin.
-     -dl/-dg RECEIPT taken this wave (tools/rtl_dump.py, real CC1PLPSX):
-       `;; 9 regs to allocate: 82 83 84 89 269 272 277 348 81`
-       Register 81 = player, 28 refs / 232 insns / 1 call -> hard reg 17 = $s1  (retail $s1)
-       Register 83 = c/value, 19 refs / 62 insns / 1 call -> 16 = $s0            (retail $s0)
-       Register 82 = **newControl**, 33 refs / 31 insns / DIES IN 12 PLACES -> 4 = $a0
-       => newControl already lives in retail's $a0, and both parms are in retail's homes.
-       Everything else in the arms (registers 97..361, ~250 pseudos, each "2-3 times
-       across 2-12 insns IN BLOCK N") is a BLOCK-LOCAL qty decided by local_alloc's
-       QTY_CMP_PRI/3-qty ladder, per arm.  So the a0<->a1 swap is NOT a global-allocno
-       question at all -- it is which of an arm's 2-3 local qtys local_alloc serves first.
-       That also explains why retail's index register VARIES per arm ($a1 in most,
-       $a0 in the 0x800000 arms, $v1 at one dispatch): retail rematerializes a fresh
-       per-arm index qty, exactly as the w64-a14 note predicted.
-     ADDITIONAL FALSIFICATIONS THIS WAVE (all from the 108 basin):
-       - PER-ARM three-stage accumulation (`newControl = player<<0x1e[|TAG];
-         newControl |= HI; return (newControl |= LO) | 1;`), swept one arm at a time:
-         125/152/142/157/140/153/144/159/142/141 -- every arm worse, so the "accumulate
-         in newControl's own register from the first term" shape is unreachable per-arm
-         as well as globally.
-       - NAMED 0x80 CARRIER (retail hoists `addiu $a0,$zero,0x80` into a dispatch delay
-         slot and shares it): `int k80 = 0x80;` before the switch, applied to the
-         subtrahend sites 198 @241, to the addend sites 135 @238, to both 224 @241;
-         declared/assigned at the top of the fn 206/238.  Naming the constant hands
-         gcc a fn-scope allocno and costs far more than the sharing buys.
-     CORPUS MINING (user directive; C:\Temp\ps1-decomp-refs), two cited results:
-       (1) parasite-eve-2-decomp/DECOMPILATION_LEARNINGS.md "Large sparse switches:
-           case order and shared handlers" -- gcc-2.8.1 emits case BODIES in an order
-           tied to the binary-search tree, and when the decision tree matches but the
-           handler tails are shuffled you reorder the `case` LABELS to the target's
-           leaf-emission order.  RE-VERIFIED here against the current oracle by walking
-           the block VAs and matching each block's content signature (tag constant /
-           +0x80-vs-0x80- / J1-vs-J2 offsets 0x88,0x90 vs 0x98,0xA0): .L800DCAA0 =
-           0x800000, .L800DCAC0 = 0x200000, .L800DCAF0 = 0x100000, .L800DCB1C =
-           0x400000 ... -- i.e. our source order IS the oracle's leaf order and this
-           axis is already correct.  (The same doc's flag-compare recipe uses a
-           hard-register pin and is out of bounds under the no-pins rule.)
-       (2) The FRONTEND TWIN's nonmatching oracle
-           was diffed against ours instruction-for-instruction.  RESULT: the two retail
-           functions read DIFFERENT DATA SHAPES -- front's controller table is a
-           BYTE array indexed by `player` at stride 1 (`addu $v1,$s1,$v1; lbu
-           $v0,0x353($v1)`, fields 0x349/0x34B/0x34D/0x34F/0x351/0x353/0x355/0x357 and
-           a 0x7F bias), ours is an INT array at stride 4 (`sll $aN,$s1,2; addu;
-           lw 0x88($aN)`, fields 0x68..0xA0 and a 0x80 bias).  So the twin's per-arm
-           ADDRESSING cannot transfer -- only its OR-chain flattening did (W63-A14),
-           and there is nothing further to port.  Do not re-open the twin as an
-           addressing oracle.
-     ===== W74-A12 (2026-08-22/23): 108 -> 97 @234 vs 233.  THE FRONT TWIN'S W72-A8
-     COUPLED DEVICE TRANSFERS, AND IT TRANSFERS EXACTLY ON THE PAIR THE W71 RECEIPT
-     NAMED (retail's .L800DCC68 = 0x53/0x800000 + 0x23/0x800000).
-     THE DEVICE (front.cpp GetPSXPadValue, W72-A8, verbatim shape):
-         { int acc = player << 0x1e;
-           return (acc | <hi> | <lo>) | 1; }
-     Both halves are load-bearing here exactly as they are there: the BLOCK-LOCAL `acc`
-     lets local-alloc.c's combine_regs tie the last `or`'s dest to its own first operand
-     (`or aN,aN,vM`) -- the one global `newControl` allocno can never be tied (:1841
-     rejects a source with reg_qty < 0, :1874 a dest with reg_qty == -1) -- and the
-     zero-insn hard-reg CLOBBER pushes the resulting block-local qty off find_free_reg's
-     ascending $v0/$v1 landing onto retail's register, so the two arms' tails stay
-     byte-identical and jump2's cross_jump still merges them.  Without the clobber the
-     pair measures 135 (the un-merge); with it 97.  The pair is ATOMIC (arm 0 alone 122,
-     arm 7 alone 98, both 97), and it also RETIRES the w46-a8 de-merge fence that had
-     been the unique optimum for five waves (bit-neutral once the acc is there).
-     MEASURED THIS WAVE (all re-gated; arm indices = the 10 `return newControl | 1;`
-     arms in source order: 0..6 = the 0x53/0x73 group, 7 = 0x23/0x800000,
-     8 = 0x23/0x4000, 9 = 0x23/0x8000):
-       clobber sets on the {0,7} pair: {$2,$3} 97 @234 <== LANDED . {$2} 97 (identical) .
-         {$2,$3,$4} 97 . {$2,$4} 97 . {$2,$5} 99 . {$2,$3,$5} 99 . {$3} 135 . {$4} 135 .
-         {$5} 135 . none 135 -- denying $v0 is the whole effect; $v1 is free either way.
-       every OTHER singleton, with {$2,$3} and with no clobber (18 cells): 112-175 @239-249
-         (0:122/120 . 1:175/146 . 2:117/114 . 3:132/142 . 4:136/120 . 5:115/139 .
-          6:130/134 . 8:118/120 . 9:112/126) -- the COUNT blows up in every one, i.e. a
-         lone acc arm ALWAYS un-merges; only a whole cross-jump group may be converted.
-       all 10 arms at once: {$2,$3} 153 @240 . no clobber 234 @235.
-       triples {0,7}+X with {$2,$3}: +1 164 . +2 103 . +3 121 . +4 110 . +5 104 . +6 119 .
-         +8 107 . +9 101 . {0,7,2,9} 107 . {0,7,8,9} 151  => {0,7} is the unique optimum.
-     🔑 LAW CANDIDATE (catalog): the 20B/21A preference-killer's PARTNER is the arm's own
-     cross-jump GROUP -- convert every arm of one retail shared tail together, or not at
-     all.  A singleton conversion is not a weaker version of the cure, it is a DIFFERENT
-     (un-merging) transform, which is why five waves of singleton/all-arm sweeps read the
-     device as inapplicable to this function.
-     RESIDUAL 97 @234 (+1) = the SAME a0<->a1 role swap in the two REMAINING retail
-     tails.  From the side_by_side those are:
-       (i)  the tail ending `or a1,a1,v1 ; j ; ori v0,a1,1` (ours `or a0,a1,v1 ; ori
-            v0,a0,1`) -- the 0x53/0x400000 family;
-       (ii) the tail ending `or a2,a2,a0 ; j ; ori v0,a2,1` (ours `or a0,a2,a0`) -- the
-            0x3000000/subtract group, which wants $a2, i.e. a clobber set that denies
-            $v0,$v1 AND $a0,$a1 without costing the arm its address pair.
-     That is the front twin's OWN standing residual (its G1 wants $a2, its G2 wants $a1,
-     and there the clobber costs +2 address-rematerialisation insns).  => the two
-     functions are still ONE problem.  NEXT TAKER: do the GROUP DISCOVERY first -- for
-     each retail shared tail walk the oracle's `.L800DC*` labels and list the arms that
-     jump into it, then convert that exact set with the smallest clobber that denies the
-     registers below the wanted one.  Do NOT sweep singletons again.
-     W77 GROUP/QTY RECEIPT (2026-08-23): updated per-function m2c plus the raw oracle
-     partitions the remaining arms as {0x400000,0x20000000,0x40000000} -> $a0 tail,
-     {0x100000,-0x80000000,0x10000000} -> $a2 tail, and
-     {0x53/0x200000,0x23/0x200000,0x23/0x4000,0x23/0x8000} -> the other $a0 tail.
-     The current instrumented-cc1 trace prices the first positive group's chain qty at
-     refs/life 4/24 (priority .3333) behind the address qty at 7/18 (.7777): exactly
-     +4 chain references are required to take $a0.  A block-local `acc` plus two tied
-     zero-insn uses crosses that threshold and improves 97 -> 85; spelling the indexed
-     controller pointer before the carrier improves once more to 84 @235.  Both forms
-     were intentionally UNWOUND because they add non-retail `acc`/`cd` debug locals.
-     One tied use misses the threshold (107); moving the uses after the expression costs
-     107 @244; the complete $a2 block-local conversion is 103 alone and 88 atop the 84
-     basin.  Next: reproduce the +4-ref qty change with a DECL_IGNORED compiler temporary
-     or a source identity that leaves no SYM local; do not re-run the named-carrier grid. */
-  /* W78 SYM-SAFE ANONYMOUS QTY LANDING (2026-08-23): 97 @234 -> 76 @235.
-     GCC 2.8.1 source closes W77's DECL_IGNORED route: every DECL_IGNORED_P setter in
-     the C++ front end is for compiler-created/type declarations, never a user variable
-     or variable attribute (`unused` retains all three `acc` debug records).  The same
-     allocation is nevertheless reachable without a source local.  In every arm of the
-     exact retail positive shared-tail group {0x400000,0x20000000,0x40000000}, first
-     expose the common player-indexed controller address as an unnamed input, then give
-     the already-CSE'd `player << 0x1e` quantity two unnamed uses.  Keeping the address
-     and value fences separate is load-bearing: one combined address+2 package is 102;
-     separate address+2 is 76.  Each arm is atomic (dropping the first arm to one use is
-     82 @239, the second 94 @245), while a third/fourth use is byte-neutral at 76.
-     Full `-g` CC1PLPSX output introduces NO local/block records.  Reordering the source
-     declarations from `newControl,c,type` to the SYM's `c,newControl,type` is byte-neutral
-     and makes the emitted record order exact: value, player, c, newControl, type.
-     CLOSED from this basin: OR associations 117/120; pointer-last operand order 106;
-     duplicate address input 102; `m` instead of the address `r` input byte-neutral 76;
-     applying the same dial to the other four-arm $a0 tail 128 @233 (compound pair alone
-     93 @232); direct-return conversion of that tail 107 @232; direct-return conversion
-     of the $a2 tail 120 @237; putting `|1` back inside newControl on the positive/$a2
-     groups 113/156.  A fresh trace prices the negative-tail rotation as shared-0x80,
-     address,chain = a2,a0,a1 -> desired a0,a1,a2, but a literal barrier input creates a NEW
-     constant qty instead of adding refs to the shared one (one per arm 108 @239, three
-     per arm 133 @244).  Duplicating a high term is 137 @238 and duplicated returns are
-     183 @250; tag-first and `-(field-0x80)` are byte-neutral.  W78's reference-catalog
-     follow-up also closes a tiny inline subtraction helper (142 @239) and the equivalent
-     `~field+0x81` spelling (148 @235); `0x100-(field+0x80)` and `0x7f-field+1` compile
-     byte-identically at 76.  The remaining 76 is thus a freshly priced two-tail/dispatch
-     problem; its negative-tail route requires a source use that attaches to the EXISTING
-     shared 0x80 qty, not another literal qty. */
-  /* W76 SYM correction (2026-08-23), byte-neutral at 97 @234: the explicit nopad
-     gotos/labels are replaced by their natural if/else, removing the non-retail label
-     debug record.  In the two atomic 0x800000 arms, repeating `player << 0x1e` as both
-     a zero-insn barrier input and the return term makes gcc CSE one unnamed block-local
-     quantity across the barrier.  It allocates exactly like W74's named `acc`, but no
-     source local or nested debug block is emitted.  Full-debug names/types/scopes now
-     match retail: REGPARM value=$a0, player=$s1, and one function block containing only
-     c=$s0, newControl and type=$v1.  The still-nonmatching build colors newControl=$a0;
-     retail's SYM says $v0, so that register home remains part of the binary residual. */
-  /* W83 pure-C cleanup (2026-08-31): removing the four zero-insn barriers gives
-     133 diffs at 234/233.  Splitting the retail positive shared-tail group
-     {0x400000,0x20000000,0x40000000} through the existing SYM local newControl
-     improves that barrier-free basin to 131 without adding a local or data record.
-     The analogous negative group regresses to 162 at 231/233 and is unwound. */
-  if (PSXController_gPadBytes[player * 4][4] == '\0') {
-    type = PSXController_gPadBytes[player * 4][5];
+
+  {
+    u_char *pad = (u_char *)PSXController_gPadBytes;
+    type = (int)pad + (player << 5);
   }
-  else {
-    type = 0;
-  }
+  if (*(u_char *)(type + 4) != 0)
+    goto no_pad;
+  type = *(u_char *)(type + 5);
+  goto have_pad_type;
+no_pad:
+  type = 0;
+have_pad_type:
+
   switch (type) {
   case 0x53:
   case 0x73:
     switch (c) {
-    case 0x800000:
-      return ((0x80 - INGAME_CD_VALUE(J1MIN[0])) * 0x10000 |
-              (0x80 - INGAME_CD_VALUE(J1MAX[0])) * 0x100 |
-              (player << 0x1e) ) | 1;
-    case 0x200000:
-      newControl = player << 0x1e |
-                   (INGAME_CD_VALUE(J1MIN[0]) + 0x80) * 0x10000;
-      return (newControl |= (INGAME_CD_VALUE(J1MAX[0]) + 0x80) * 0x100) | 1;
-    case 0x100000:
-      newControl = player << 0x1e |
-                   0x1000000 |
-                   (0x80 - INGAME_CD_VALUE(J1MIN[0])) * 0x10000 |
-                   (0x80 - INGAME_CD_VALUE(J1MAX[0])) * 0x100 ;
-      return newControl | 1;
-    case 0x400000:
-      newControl = player << 0x1e |
-                   0x1000000 |
-                   (INGAME_CD_VALUE(J1MIN[0]) + 0x80) * 0x10000;
-      newControl |= (INGAME_CD_VALUE(J1MAX[0]) + 0x80) * 0x100;
-      return newControl | 1;
-    case -0x80000000:
-      newControl = player << 0x1e |
-                   0x2000000 |
-                   (0x80 - INGAME_CD_VALUE(J2MIN[0])) * 0x10000 |
-                   (0x80 - INGAME_CD_VALUE(J2MAX[0])) * 0x100 ;
-      return newControl | 1;
+    case 0x00800000: {
+      int index = player << 2;
+      newControl = ((player << 30) |
+                    (128 - INGAME_INDEX_WORD(index, 0x88)) * 0x10000 |
+                    (128 - INGAME_INDEX_WORD(index, 0x90)) * 0x100) | 1;
+      break;
+    }
+    case 0x00200000:
+      newControl = (player << 30) |
+                   (INGAME_CONTROLLER_WORD(0x88) + 128) * 0x10000 |
+                   (INGAME_CONTROLLER_WORD(0x90) + 128) * 0x100 | 1;
+      break;
+    case 0x00100000:
+      newControl = (player << 30) | 0x01000000 |
+                   (128 - INGAME_CONTROLLER_WORD(0x88)) * 0x10000 |
+                   (128 - INGAME_CONTROLLER_WORD(0x90)) * 0x100 | 1;
+      break;
+    case 0x00400000:
+      newControl = (player << 30) | 0x01000000 |
+                   (INGAME_CONTROLLER_WORD(0x88) + 128) * 0x10000 |
+                   (INGAME_CONTROLLER_WORD(0x90) + 128) * 0x100 | 1;
+      break;
+    case (int)0x80000000:
+      newControl = (player << 30) | 0x02000000 |
+                   (128 - INGAME_CONTROLLER_WORD(0x98)) * 0x10000 |
+                   (128 - INGAME_CONTROLLER_WORD(0xA0)) * 0x100 | 1;
+      break;
     case 0x20000000:
-      newControl = player << 0x1e |
-                   0x2000000 |
-                   (INGAME_CD_VALUE(J2MIN[0]) + value) * 0x10000;
-      newControl |= (INGAME_CD_VALUE(J2MAX[0]) + 0x80) * 0x100;
-      return newControl | 1;
-    case 0x10000000:
-      newControl = player << 0x1e |
-                   0x3000000 |
-                   (0x80 - INGAME_CD_VALUE(J2MIN[0])) * 0x10000 |
-                   (0x80 - INGAME_CD_VALUE(J2MAX[0])) * 0x100 ;
-      return newControl | 1;
+      newControl = (player << 30) | 0x02000000 |
+                   (INGAME_CONTROLLER_WORD(0x98) + 128) * 0x10000 |
+                   (INGAME_CONTROLLER_WORD(0xA0) + 128) * 0x100 | 1;
+      break;
+    case 0x10000000: {
+      int index = player << 2;
+      newControl = (player << 30) | 0x03000000 |
+                   (128 - INGAME_INDEX_WORD(index, 0x98)) * 0x10000 |
+                   (128 - INGAME_INDEX_WORD(index, 0xA0)) * 0x100 | 1;
+      break;
+    }
     case 0x40000000:
-      newControl = player << 0x1e |
-                   0x3000000 |
-                   (INGAME_CD_VALUE(J2MIN[0]) + value) * 0x10000;
-      newControl |= (INGAME_CD_VALUE(J2MAX[0]) + 0x80) * 0x100;
-      return newControl | 1;
+      newControl = (player << 30) | 0x03000000 |
+                   (INGAME_CONTROLLER_WORD(0x98) + 128) * 0x10000 |
+                   (INGAME_CONTROLLER_WORD(0xA0) + 128) * 0x100 | 1;
+      break;
+    default:
+      goto generic_control;
     }
     break;
+
   case 0x23:
     switch (c) {
-    case 0x800000:
-      /* W74-A12: the w46-a8 zero-insn DE-MERGE FENCE that lived here (the unique
-         fence optimum through five waves) is now
-         SUPERSEDED and REMOVED.  W76's unnamed repeated-expression quantity preserves
-         the same allocation and is exactly bit-neutral (97 @234), while avoiding the
-         non-retail `acc` debug local. */
-      return ((0x80 - INGAME_CD_VALUE(deadSpot[0])) * 0x10000 |
-              (0x80 - INGAME_CD_VALUE(steeringRange[0])) * 0x100 |
-              (player << 0x1e) ) | 1;
-    case 0x200000:
-      newControl = player << 0x1e |
-                   (INGAME_CD_VALUE(deadSpot[0]) + 0x80) * 0x10000 ;
-      return (newControl |=
-              (INGAME_CD_VALUE(steeringRange[0]) + 0x80) * 0x100) | 1;
-    case 0x4000:
-      newControl = player << 0x1e |
-                   0x1000000 |
-                   INGAME_CD_VALUE(ImaxRange[0]) * 0x100 ;
-      return newControl | 1;
-    case 0x8000:
-      newControl = player << 0x1e |
-                   0x2000000 |
-                   INGAME_CD_VALUE(IImaxRange[0]) * 0x100 ;
-      return newControl | 1;
-    case 0x400:
-      newControl = player << 0x1e | 0x30aff01;
-      return newControl;
+    case 0x00800000: {
+      int index = player << 2;
+      newControl = ((player << 30) |
+                    (128 - INGAME_INDEX_WORD(index, 0x68)) * 0x10000 |
+                    (128 - INGAME_INDEX_WORD(index, 0x70)) * 0x100) | 1;
+      break;
+    }
+    case 0x00200000:
+      newControl = (player << 30) |
+                   (INGAME_CONTROLLER_WORD(0x68) + 128) * 0x10000 |
+                   (INGAME_CONTROLLER_WORD(0x70) + 128) * 0x100 | 1;
+      break;
+    case 0x00004000:
+      newControl = (player << 30) | 0x01000000 |
+                   INGAME_CONTROLLER_WORD(0x80) * 0x100 | 1;
+      break;
+    case 0x00008000:
+      newControl = (player << 30) | 0x02000000 |
+                   INGAME_CONTROLLER_WORD(0x78) * 0x100 | 1;
+      break;
+    case 0x00000400:
+      newControl = (player << 30) | 0x030AFF01;
+      break;
+    default:
+      goto generic_control;
     }
     break;
+
+  default:
+generic_control:
+    newControl = (player << 26) | (c << 8) | 2;
+    break;
   }
-  newControl = player << 0x1a | c << 8 | 2;
   return newControl;
 }
-#undef INGAME_CD_VALUE
+
+#undef INGAME_CONTROLLER_WORD
+#undef INGAME_INDEX_WORD
 
 /* ---- InGame_GetDevice__Fi  [PSXCONTROLLER.CPP:338-339] SLD-VERIFIED ---- */
 int InGame_GetDevice(int control)

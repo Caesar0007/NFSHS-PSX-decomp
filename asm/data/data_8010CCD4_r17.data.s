@@ -20154,6 +20154,8 @@ dlabel D_80136C54
     /* 127464 80136C64 0318801F */ .word 0x1F801803
 enddlabel D_80136C54
 
+.section .data.iso9660_blob, "wa"
+
 nonmatching D_80136C68
 
 dlabel D_80136C68
@@ -20166,6 +20168,13 @@ dlabel D_80136C6C
     /* 12746C 80136C6C FFFFFFFF */ .word 0xFFFFFFFF
     /* 127470 80136C70 00000000 */ .word 0x00000000
     /* 127474 80136C74 00000000 */ .word 0x00000000
+enddlabel D_80136C6C
+
+.section .data.r17_post_iso9660, "wa"
+
+nonmatching D_80136C78
+
+dlabel D_80136C78
     /* 127478 80136C78 0018801F */ .word 0x1F801800
     /* 12747C 80136C7C 0118801F */ .word 0x1F801801
     /* 127480 80136C80 0218801F */ .word 0x1F801802
@@ -20174,7 +20183,7 @@ dlabel D_80136C6C
     /* 12748C 80136C8C 0118801F */ .word 0x1F801801
     /* 127490 80136C90 0218801F */ .word 0x1F801802
     /* 127494 80136C94 0318801F */ .word 0x1F801803
-enddlabel D_80136C6C
+enddlabel D_80136C78
 
 nonmatching pfuncCdReadyCallback
 

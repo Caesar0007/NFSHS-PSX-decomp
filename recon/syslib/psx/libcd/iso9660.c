@@ -11,21 +11,21 @@
  *   Public entry: CdSearchFile(fp, "\\DIR\\FILE.EXT;1") -- resolve an absolute path to its CdlFILE
  *   (start MSF + size).  Internals (PsyQ names recovered from the embedded debug strings):
  *     cd_read        (@0x800F9984) : CdlSetloc + CdRead + CdReadSync of N sectors into a buffer.
- *     _cd_cmp_name   (@0x800F9360) : strncmp(a,b,12) <= 0.
- *     _cd_find_path  (@0x800F9644) : look a child dir up in the path-table cache by (parent,name).
+ *     _cmp           (@0x800F9360) : strncmp(a,b,12) <= 0.
+ *     CD_searchdir   (@0x800F9644) : look a child dir up in the path-table cache by (parent,name).
  *     CD_newmedia    (@0x800F9380) : read the Primary Volume Descriptor (LBA 0x10), verify "CD001",
  *                                    read the path table and build the path-table cache.
  *     CD_cachefile   (@0x800F96E8) : read one directory's extent and cache its file records.
  *
- *   Three fixed .bss tables (they tile exactly: _cd_dir end == _cd_pathtbl start, _cd_pathtbl end ==
- *   _cd_secbuf start, _cd_secbuf end == StEmu_Addr), confirming the 0x18 / 0x2C strides:
- *     _cd_dir[64]      @0x8014487C  -- cached file records of the current directory.
- *     _cd_pathtbl[128] @0x80144E7C  -- cached path table (one entry per directory).
- *     _cd_secbuf[0x800]@0x8014647C  -- single-sector scratch read buffer.
+ *   Three fixed file-local .bss tables (they tile exactly: file end == dire start, dire end ==
+ *   load_buf start, load_buf end == StEmu_Addr), confirming the 0x18 / 0x2C strides:
+ *     file[64]       @0x8014487C  -- cached file records of the current directory.
+ *     dire[128]      @0x80144E7C  -- cached path table (one entry per directory).
+ *     load_buf[0x800]@0x8014647C  -- single-sector scratch read buffer.
  *
- *   Faithful quirks reproduced with breadcrumbs: CdSearchFile returns &_cd_dir[i] (the cache slot)
+ *   Faithful quirks reproduced with breadcrumbs: CdSearchFile returns &file[i] (the cache slot)
  *   rather than fp on a hit (fp is filled too); the "CdSearchFile: disc error" branch is dead
- *   (CD_cachefile only ever returns +/-1); _cd_cmp_name uses strncmp<=0 (exact ISO names give ==0). */
+ *   (CD_cachefile only ever returns +/-1); _cmp uses strncmp<=0 (exact ISO names give ==0). */
 
 typedef unsigned char u_char;
 typedef unsigned long  u_long;
@@ -34,12 +34,12 @@ struct CdlLOC  { u_char minute, second, sector, track; };
 typedef struct CdlLOC CdlLOC;
 struct CdlFILE { CdlLOC pos; u_long size; char name[16]; };          /* 0x18 */
 typedef struct CdlFILE CdlFILE;
-struct CdPathEnt { int index; int parent; int lba; char name[0x20]; };/* 0x2C */
-typedef struct CdPathEnt CdPathEnt;
 /* ISO9660 32-bit fields are MISALIGNED LE ints (record offset +2/+8C); the original reads them
  * through this CdlLOC-shaped union (misaligned load) -- byte-assembly rd32le diverges. */
 union LBA { int addr; CdlLOC i; };
 typedef union LBA LBA;
+struct CdlDIR { int num; int parentNum; LBA lba; char name[0x20]; };  /* 0x2C */
+typedef struct CdlDIR CdlDIR;
 struct RawWord { u_char bytes[4]; };
 typedef struct RawWord RawWord;
 
@@ -55,61 +55,46 @@ extern int      CdReadSync(int mode, u_char *result);                /* @0x80108
 extern int      CD_debug;   /* @0x8013BF50 (DRV) */
 extern int      CD_nopen;   /* @0x8013BF5C : media-change counter (CDROM.OBJ) */
 
+/* Canonical ISO9660.obj exports only CdSearchFile; these five routines are
+ * private members of that source file.  PsyQ 4.0 preserves their source names. */
+static int _cmp(const char *a, const char *b);
+static int CD_newmedia(void);
+static int CD_searchdir(int parentNum, char *name);
+static int CD_cachefile(int dirNum);
+static int cd_read(int n_sectors, int sector_no, unsigned char *ptr);
+
 /* ---- ISO9660.OBJ .bss -------------------------------------------------------------------------- */
-/* ======================== W65-A6 DATA-MAT: iso9660.obj's BSS run @0x8014487C ==============
- * BEFORE: three C tentative definitions.  This TU compiles on the cc1_272 lane (macro cc1 +
- * direct GNU as, NO maspsx), so each stayed a real `.comm` = a COMMON symbol -- and ld places
- * COMMONs, not the object, so none of them could reach the retail VA in its own breadcrumb
- * (W62-A18 T6 / W64-A19 sec.3.4).  These three are 3 of the 37 tree-wide COMMONs.
- * AFTER: one file-scope asm `.section .bss` block owns the run at exact retail offsets.
- * The run is EXACTLY accounted and independently confirmed: 0x8014487C is StFunc2+4 (libcd
+/* The run is exactly accounted and independently confirmed: 0x8014487C is StFunc2+4 (libcd
  * stream.c's run A) and 1536 + 5632 + 2048 = 9216 lands precisely on StEmu_Addr @0x80146C7C
  * (stream.c's run B) -- i.e. these buffers are the whole gap between the two St* runs, which is
  * also why the SYM has no record for them (PSYLINK gave COMMONs no symbol entries).
- *      _cd_dir     @0x8014487C 1536 = sizeof(CdlFILE)*64
- *      _cd_pathtbl @0x80144E7C 5632 = sizeof(CdPathEnt)*128
- *      _cd_secbuf  @0x8014647C 2048 = one CD sector buffer
- * ORDER: declaration order is preserved from the previous tentative-definition list; the run's
- * total is pinned by both endpoints, the internal order is the one already recorded here.
- * The C view is demoted to `extern` so cc1's addressing is unchanged -- byte-neutral by
- * construction (TU re-gates 4/6, both residuals pre-existing).
- * Receipts: scratchpad/w65a6/RECEIPTS.md */
-__asm__("\t.globl\t_cd_dir\n\t.globl\t_cd_pathtbl\n\t.globl\t_cd_secbuf\n"
-        "\t.section\t.bss\n\t.align\t2\n"
-        "_cd_dir:\n\t.space\t1536\n"
-        "_cd_pathtbl:\n\t.space\t5632\n"
-        "_cd_secbuf:\n\t.space\t2048\n\t.text");
-extern CdlFILE   _cd_dir[64];          /* @0x8014487C */
-extern CdPathEnt _cd_pathtbl[128];     /* @0x80144E7C */
-extern char      _cd_secbuf[0x800];    /* @0x8014647C */
-/* _cd_search_nopen / _cd_cached_dir live in regular .bss (absolute addressing in the oracle,
- * NOT %gp_rel under -G4) -- declared extern so cc1plus emits `lui/%hi` not a gp-relative load.
- * Their definitions are part of the linked image's .bss (see asm/data D_80136C6C / D_80136C68). */
-/* W65-A6: these two were reloc-referenced UNDEFINED symbols (4 + 6 sites) -- but NOT missing
- * data.  Both VAs are inside the initialised image (< t_addr+t_size 0x8013E000) and the splat
- * blob already defines them, as `D_80136C6C` / `D_80136C68`
- * (asm/data/data_8010CCD4_r17.data.s, both `.word 0x00000000`).  `_cd_search_nopen` /
- * `_cd_cached_dir` are PsyQ-sourced names for the same storage, so the fix is the project's
- * established asm-label alias device (W64-A19 sec.2.1) rather than a second definition: the
- * readable name is kept in the C, only the emitted relocation NAME changes, so it is
- * byte-neutral by construction AND creates no blob-vs-TU duplicate (W62-A18 class M1). */
-extern int _cd_search_nopen __asm__("D_80136C6C"); /* @0x80136C6C : CD_nopen the path table was built for */
-extern int _cd_cached_dir   __asm__("D_80136C68"); /* @0x80136C68 : index of the dir currently in _cd_dir */
-
-/* little-endian unaligned 32-bit load (matches the lwl/lwr pairs in the binary). */
-static int rd32le(const u_char *p)
-{
-    return (int)((u_long)p[0] | ((u_long)p[1] << 8) | ((u_long)p[2] << 16) | ((u_long)p[3] << 24));
-}
+ *      file     @0x8014487C 1536 = sizeof(CdlFILE)*64
+ *      dire     @0x80144E7C 5632 = sizeof(CdlDIR)*128
+ *      load_buf @0x8014647C 2048 = one CD sector buffer
+ * Canonical one-XDEF scope lets ordinary `static` declarations emit the exact local BSS rather
+ * than the former reconstruction COMMONs. */
+/* Canonical PsyQ 4.3 ISO9660.obj has exactly one XDEF (`CdSearchFile`) and a
+ * 9216-byte section-relative BSS.  The byte-identical PsyQ 4.0/SotN copies
+ * preserve these private names and types. */
+static CdlFILE file[64];                 /* @0x8014487C */
+static CdlDIR dire[128];                 /* @0x80144E7C */
+static unsigned char load_buf[0x800];    /* @0x8014647C */
+/* Canonical ISO9660.obj owns a 16-byte .data section.  The matched PsyQ source
+ * identifies its two private words; the remaining eight bytes are the archive
+ * member's normal zero alignment tail. */
+static int cached_dir_num_ = 0;
+static int cached_nopen_ = -1;
+/* PsyQ's archive member rounds this initialized-data contribution to 16 bytes. */
+__asm__(".data\n.align 4\n.text");
 
 /* w51-a4 FALSIFIED on CdSearchFile (75 diffs, cc1_272 lane) -- do NOT retry either form:
  *  - the FULL Rage Racer DsSearchFile transplant (C:/Temp/rage-racer-decomp/src/main/PAL/lib/
  *    libds/search_file.c: `while (n < 8)` path split walking `*p` directly + two-pointer final
  *    scan) -> 75 -> 112.  Rage Racer's libds wrapper is NOT the same function shape as NFS4's
  *    ISO9660.OBJ CdSearchFile;
- *  - the two-pointer final scan ALONE (`nm = _cd_dir[0].name; rec = (CdlFILE*)(nm-8); rec++;
+ *  - the two-pointer final scan ALONE (`nm = file[0].name; rec = (CdlFILE*)(nm-8); rec++;
  *    nm += 24;`) grafted onto the existing body -> 75 -> 108.
- * The existing `_cd_dir[i]`-indexed scan + cached-`ch` split loop is the better basin. */
+ * The existing `file[i]`-indexed scan + cached-`ch` split loop is the better basin. */
 /* MATCH (w61-a8): 75 -> 64 diffs, `.frame` regs 7 -> retail's 8.  Three levers, each
  * gated individually on the whole TU (zero PASS->FAIL):
  *  (1) SIGNED-CHAR CURSORS.  Retail loads every path byte with `lb` (sign-extended);
@@ -130,7 +115,7 @@ static int rd32le(const u_char *p)
  * W62-A7 (2026-08-15) 64/60 -> 42.  THE `fp++; fp--;` NO-OP WAS THE ROTATION.  It sits
  * INSIDE the i-loop, so its refs are loop-depth weighted (+2 per operand): qty272 priced
  * fp at refs 11 / live 84 / pri 3928 = FIRST of the four long-lived allocnos, where
- * retail has it LAST ($s6).  fp is live to the `*fp = _cd_dir[i]` copy-out anyway, so the
+ * retail has it LAST ($s6).  fp is live to the `*fp = file[i]` copy-out anyway, so the
  * no-op bought nothing but refs; deleting it drops fp to the bottom of the priority list
  * and the prologue save/copy group becomes retail's.  READ-OFF RECIPE (13A/12A: 272
  * priority = floor_log2(refs)*refs/live, NO size term): dump the four call-crossing
@@ -150,7 +135,7 @@ static int rd32le(const u_char *p)
  *   (same address) and sign-extends by `sll 24/sra 24` instead of retail's second
  *   `lb`, and the loop entry is a `j <bottom test>` where retail PEELS the guard;
  *   (b) the `lb` vs `lbu` split at the three PLAIN-`char` sites (`*name`, `comp[0]`,
- *   `_cd_dir[i].name[0]`) -- a TU FLAG question, see the -fsigned-char note below.
+ *   `file[i].name[0]`) -- a TU FLAG question, see the -fsigned-char note below.
  * FALSIFIED (each measured on this basin, with and without -fsigned-char):
  *   `*q++ = *s++` / a standalone `s++` / a `for(;;)`-with-`break` peeled guard all
  *   reproduce retail's `lb`+`lbu` pair BUT make gcc-2.7.2 reserve 16 bytes of DEAD
@@ -173,8 +158,8 @@ static int rd32le(const u_char *p)
  *      (CdSearchFile.s @0x800F9320); the matched PsyQ-4.0 twin agrees
  *      (C:/Temp/psyz/decomp/src/libcd/iso9660.c:118).  `name` therefore stayed live
  *      across the whole final scan loop (qty272: refs 6 / live 88 / crosses 5 calls)
- *      and CONFLICTED with that loop's `_cd_dir` address givs -- pseudo 154
- *      (`_cd_dir+8`, refs 7 / live 14 / pri 10000) was allocated first and took the
+ *      and CONFLICTED with that loop's `file` address givs -- pseudo 154
+ *      (`file+8`, refs 7 / live 14 / pri 10000) was allocated first and took the
  *      $s3 retail gives `name`.  Fixing the arg killed the conflict outright: 42 -> 37.
  *  (B) then the priced ref dial: with 154 out of the way qty272 read
  *      sep .2000 ($s3) > name .1754 ($s4) > notfound .0517 ($s5), exactly inverted
@@ -203,7 +188,7 @@ static int rd32le(const u_char *p)
  *   without the phantom-`vars` frame growth (the 13E blocker above) -- i.e. a
  *   zero-insn way to defeat the lb/lbu fusion. */
 /* @0x800F9088 : resolve an absolute "\\dir\\file" path to its CdlFILE. */
-extern CdlFILE *CdSearchFile(CdlFILE *fp, char *name)
+CdlFILE *CdSearchFile(CdlFILE *fp, char *name)
 {
     char           comp[0x20];
     int            dir;                                     /* current parent dir number */
@@ -213,10 +198,10 @@ extern CdlFILE *CdSearchFile(CdlFILE *fp, char *name)
     signed char   *q;                                       /* cursor into `comp` */
     unsigned char  ch;
 
-    if (_cd_search_nopen != CD_nopen) {                     /* media changed -> remount */
+    if (cached_nopen_ != CD_nopen) {                        /* media changed -> remount */
         if (CD_newmedia() == 0)
             return 0;
-        _cd_search_nopen = CD_nopen;
+        cached_nopen_ = CD_nopen;
     }
     if (*name != '\\')                                     /* paths must be absolute */
         return 0;
@@ -251,8 +236,8 @@ extern CdlFILE *CdSearchFile(CdlFILE *fp, char *name)
     dir = 1;                                                /* root */
     s = (signed char *)name;
     /* split on '\\'; descend through each directory component, leaving the filename in `comp`.
-     * (the binary threads the parent dir id through $a0 across _cd_find_path calls; fp needs NO
-     * liveness no-op -- it is live to the `*fp = _cd_dir[i]` copy-out, and the `fp++;fp--;`
+     * (the binary threads the parent dir id through $a0 across CD_searchdir calls; fp needs NO
+     * liveness no-op -- it is live to the `*fp = file[i]` copy-out, and the `fp++;fp--;`
      * pair that used to sit here only inflated its ref count, see the W62-A7 note above.) */
     i = 0; sep = '\\'; notfound = -1; for (; i < 8; i++) {
         /* MATCH (w63-a6, reqdelta272-priced, ZERO instructions): retail hands out
@@ -343,7 +328,7 @@ extern CdlFILE *CdSearchFile(CdlFILE *fp, char *name)
             break;
         s++;                                                /* skip the separator */
         *q = 0;
-        dir = _cd_find_path(dir, comp);
+        dir = CD_searchdir(dir, comp);
         if (dir == notfound) {                                    /* directory not found */
             comp[0] = 0;
             break;
@@ -366,12 +351,12 @@ out:
     }
     if (CD_debug >= 2) printf("CdSearchFile: searching %s...\n", comp);
     for (i = 0; i < 64; i++) {
-        if (_cd_dir[i].name[0] == 0)
+        if (file[i].name[0] == 0)
             break;
-        if (_cd_cmp_name(_cd_dir[i].name, comp)) {
+        if (_cmp(file[i].name, comp)) {
             if (CD_debug >= 2) printf("%s:  found\n", comp);
-            *fp = _cd_dir[i];                               /* copy the 24-byte record out */
-            return &_cd_dir[i];                             /* (binary returns the cache slot) */
+            *fp = file[i];                                  /* copy the 24-byte record out */
+            return &file[i];                                /* (binary returns the cache slot) */
         }
     }
     /* BUG FIX (w63-a6): the trailing diagnostic prints the COMPONENT, not the whole path --
@@ -379,13 +364,13 @@ out:
      * matched PsyQ-4.0 twin agrees (C:/Temp/psyz/decomp/src/libcd/iso9660.c:118
      * `printf("%s: not found\n", buf)`).  Passing `name` kept the path pointer live across the
      * whole final scan loop (qty272: 73 refs 6 / live 88 / crosses 5 calls), where it conflicted
-     * with the loop's `_cd_dir` address givs and lost $s3 to one of them. */
+     * with the loop's `file` address givs and lost $s3 to one of them. */
     if (CD_debug > 0) printf("%s: not found\n", comp);
     return 0;
 }
 
 /* @0x800F9360 : directory-name compare (ISO names are exact, so this is effectively ==). */
-extern int _cd_cmp_name(char *a, char *b)
+static int _cmp(const char *a, const char *b)
 {
     return (unsigned)strncmp(a, b, 0xC) < 1u;   /* MATCH: sltiu (unsigned < 1) not slti */
 }
@@ -393,10 +378,10 @@ extern int _cd_cmp_name(char *a, char *b)
 /* @0x800F9380 : mount new media -- read the PVD, verify it, read & cache the whole path table.
  * MATCH (w51-a4): structure TRANSPLANTED from the byte-exact Rage Racer libcd decomp,
  * C:/Temp/rage-racer-decomp/src/main/PAL/lib/libcd/iso_media.c :: CD_newmedia.  Three levers:
- *  (1) ONE local `buf` holds &_cd_secbuf and is used for EVERY reference (both cd_read calls,
+ *  (1) ONE local `buf` holds `load_buf` and is used for EVERY reference (both cd_read calls,
  *      the strncmp, the +140 path-table-LBA read and the walk bounds) -- the oracle keeps that
  *      base in $s0 and reads the misaligned LBA as `lwl 143(s0)/lwr 140(s0)`, where a fresh
- *      `_cd_secbuf + 140` constant address emits its own lui/addiu pair;
+ *      `load_buf + 140` constant address emits its own lui/addiu pair;
  *  (2) the first cd_read's result is kept in a named `r` and the SECOND read is compared
  *      against `r`, not against a literal 1 (oracle `beq v0,s1`);
  *  (3) the sector-buffer END pointer is hoisted into a local before the walk, so the loop test
@@ -406,8 +391,8 @@ extern int _cd_cmp_name(char *a, char *b)
  * than retain it in $s0 across `cd_read`: 39 -> 32, with exact 177/177 instruction count. */
 /* RESIDUAL 11 (w61-a8), two named clusters:
  *  (a) the misaligned +140 read: retail `lwl 143(s0)/lwr 140(s0)` off the SHARED base
- *      register, ours materialises `la $5,_cd_secbuf+140` first (ours +2 insns).  Root
- *      cause is cse knowing buf == &_cd_secbuf and folding the address.  An IDENTITY
+ *      register, ours materialises `la $5,load_buf+140` first (ours +2 insns).  Root
+ *      cause is cse knowing buf == load_buf and folding the address.  An IDENTITY
  *      fence (`"=r"(buf) : "0"(buf)`) DOES defeat the fold and produces retail's
  *      lwl/lwr exactly -- but it is cse-opaque for the whole function and costs +8
  *      elsewhere (19).  FALSIFIED for a cheaper local launder: a block-local
@@ -429,7 +414,7 @@ extern int _cd_cmp_name(char *a, char *b)
 /* W72-A16 re-gate: 2 @177/177.  Cluster (b) is ALL that is left and it is now PROVEN
  * TEXT_MOVES-class rather than merely suspected -- retail emits the loop-bound copy
  * `addu $s5,$v1,$zero` AFTER loop.c's two hoisted address constants
- * (`la $s4,_cd_pathtbl+8` / `addiu $s6,$s4,4`), ours before them.  21B-3 says why it is
+ * (`la $s4,dire+8` / `addiu $s6,$s4,4`), ours before them.  21B-3 says why it is
  * not source-reachable: a guard-block assignment is an ENTRY-block insn, while loop.c
  * emits its movables immediately before loop_start, and C has no preheader to write in.
  * THE ONE-ROW SPEC IS DERIVED AND PROVEN (not proposed): scratchpad/W72_A16/
@@ -445,14 +430,14 @@ extern int _cd_cmp_name(char *a, char *b)
  * whole cluster was RE-PRICED per 21E-1): loop test on `buf + 0x800` 33 - on `lim` 15 -
  * `end` computed from `buf + 0x800` inside the guard 2 (inert) - `end = lim` repeated in
  * the body 2 (inert) - a void barrier before or after `end = lim` 2/2 (inert) -
- * `idx`/`rec` moved inside the guard 36 - a `CdPathEnt *tbl` local + `tbl[idx]` body to
+ * `idx`/`rec` moved inside the guard 36 - a `CdlDIR *tbl` local + `tbl[idx]` body to
  * force the address constants earlier 25 - an `LBA *lbap` addr-of local 21 - a dummy
- * `__asm__("" : : "r"(_cd_pathtbl[0].lba))` before `end = lim` 8 - a read-only fence on
+ * `__asm__("" : : "r"(dire[0].lba))` before `end = lim` 8 - a read-only fence on
  * `end` after the loop 12 - do-while with `end = lim` LAST in the body (the 21B-3
  * "born in the loop" shape, so LICM would hoist it after the address constants) 22 -
  * the same as a `while` 15 - do-while with it first 34 - `end` assigned before the
  * guard 22. */
-extern int CD_newmedia(void)
+static int CD_newmedia(void)
 {
     u_char *buf;
     RawWord pt_lba;
@@ -468,19 +453,19 @@ extern int CD_newmedia(void)
     /* MATCH (W71-A9, 6 -> 2): the FIRST cd_read takes the SYMBOL, and `buf` is bound
      * AFTER the call.  Retail issues the two integer args (`li $a0,1; li $a1,16`) at the
      * very head of the function, BEFORE the first callee-saved store and before the
-     * `la _cd_secbuf`; with `buf = &_cd_secbuf;` written first, that `la` is a lower-luid
+     * `la load_buf`; with `buf = load_buf;` written first, that `la` is a lower-luid
      * RTL insn and sched2 issues it ahead of the arg constants (ours had them 3 slots
      * late).  Binding `buf` after the call puts the address materialization where retail
-     * has it and costs nothing: `buf == &_cd_secbuf` either way, and the identity launder
+     * has it and costs nothing: `buf == load_buf` either way, and the identity launder
      * below still owns the pseudo (the allocno demote that gives buf $s0 / r $s1 is
      * unchanged -- whole-TU re-gate 4/6 -> 5/6, zero PASS->FAIL). */
-    r = cd_read(1, 0x10, (char *)_cd_secbuf);   /* read PVD at LBA 0x10 */
-    buf = (u_char *)_cd_secbuf;
+    r = cd_read(1, 0x10, (char *)load_buf);     /* read PVD at LBA 0x10 */
+    buf = (u_char *)load_buf;
     /* MATCH (w61-a8): READ-ONLY FENCE on `buf` -- the allocno DEMOTE dial.  32 -> 11
      * diffs.  Lengthening buf's live range past the first cd_read drops its priority
      * so it takes retail's $s0 and `r` takes $s1 (we had them swapped, which shifted
      * every s-register in the function).  PLACEMENT IS THE DIAL: the same fence on
-     * the `buf = _cd_secbuf` line scores 15, because an asm at the top of the
+     * the `buf = load_buf` line scores 15, because an asm at the top of the
      * function is a scheduling barrier and retail sets up the cd_read arguments
      * BEFORE the callee-saved stores.  Operand count is inert here (1/2/3 all 11). */
     __asm__("" : "=r"(buf) : "0"(buf));
@@ -498,10 +483,10 @@ extern int CD_newmedia(void)
      * SYMPTOM was: the oracle reads the misaligned path-table LBA off the SAME base
      * register as every other buf reference (`lwl 143(s0)/lwr 140(s0)`), while gcc-2.7.2
      * CONST-FOLDS `buf` back to the symbol for the unaligned load and emits its own
-     * `la $5,_cd_secbuf+140` + `lwl 3($5)/lwr 0($5)` (+2 insns).  Every previous angle
+     * `la $5,load_buf+140` + `lwl 3($5)/lwr 0($5)` (+2 insns).  Every previous angle
      * attacked the ACCESS (casts, a real PVD struct + COMPONENT_REF from the psyz/sotn
      * matched twins, -fforce-addr/-fforce-mem, decl order, a whole-function void-barrier
-     * position sweep).  All of those leave `buf` PROVABLY EQUAL to &_cd_secbuf, so cse
+     * position sweep).  All of those leave `buf` PROVABLY EQUAL to load_buf, so cse
      * substitutes the symbol no matter how the load is spelled.  The cure is to attack the
      * POINTER instead: 13B's IDENTITY LAUNDER `__asm__("" : "=r"(buf) : "0"(buf))` makes
      * the pseudo die twice, so cse can no longer prove the equality and the load must go
@@ -531,43 +516,43 @@ extern int CD_newmedia(void)
     rec = buf;
     lim = buf + 0x800;
     if (rec < lim) {
-        lbaBase = (u_char *)&_cd_pathtbl[0].lba;
+        lbaBase = (u_char *)&dire[0].lba;
         nameBase = lbaBase + 4;
         end = lim;
         while (rec < end) {
             if (rec[0] == 0)
                 break;
-            ((LBA *)(lbaBase + idx * (int)sizeof(CdPathEnt)))->i = ((LBA *)&rec[2])->i;
-            _cd_pathtbl[idx].parent = rec[6];               /* parent directory number */
-            _cd_pathtbl[idx].index  = idx + 1;
-            entryName = (u_char *)((u_long)(idx * (int)sizeof(CdPathEnt)) +
+            ((LBA *)(lbaBase + idx * (int)sizeof(CdlDIR)))->i = ((LBA *)&rec[2])->i;
+            dire[idx].parentNum = rec[6];                   /* parent directory number */
+            dire[idx].num       = idx + 1;
+            entryName = (u_char *)((u_long)(idx * (int)sizeof(CdlDIR)) +
                                    (u_long)nameBase);
             memcpy(entryName, &rec[8], rec[0]);
             entryName[rec[0]] = '\0';
             rec += 8 + rec[0] + rec[0] % 2;                 /* ISO path-table record stride */
             if (CD_debug > 1)
-                printf("\t%08x,%04x,%04x,%s\n", _cd_pathtbl[idx].lba, _cd_pathtbl[idx].index,
-                       _cd_pathtbl[idx].parent, entryName);
+                printf("\t%08x,%04x,%04x,%s\n", dire[idx].lba.addr, dire[idx].num,
+                       dire[idx].parentNum, entryName);
             if (++idx >= 0x80)
                 break;
         }
     }
     if (idx < 0x80)
-        _cd_pathtbl[idx].parent = 0;                    /* sentinel: no more entries */
+        dire[idx].parentNum = 0;                        /* sentinel: no more entries */
 
-    _cd_cached_dir = 0;
+    cached_dir_num_ = 0;
     if (CD_debug > 1) printf("CD_newmedia: %d dir entries found\n", idx);
     return 1;
 }
 
 /* @0x800F9644 : find the path-table entry for child (parent, name); returns its 1-based id or -1. */
-extern int _cd_find_path(int parent, char *name)
+static int CD_searchdir(int parent, char *name)
 {
     int k = 0;
     do {
-        if (_cd_pathtbl[k].parent == 0)
+        if (dire[k].parentNum == 0)
             return -1;                          /* end of table */
-        if (_cd_pathtbl[k].parent == parent && strcmp(name, _cd_pathtbl[k].name) == 0)
+        if (dire[k].parentNum == parent && strcmp(name, dire[k].name) == 0)
             return k + 1;
         k++;
     } while (k < 0x80);
@@ -575,69 +560,69 @@ extern int _cd_find_path(int parent, char *name)
 }
 
 /* @0x800F96E8 : read directory `dir` (1-based path-table id) and cache its file records. */
-extern int CD_cachefile(int dir)
+static int CD_cachefile(int dir)
 {
     LBA     entryLba;
     u_char *rec;
     int     i;
     short  *namePtr;
 
-    if (dir == _cd_cached_dir)
+    if (dir == cached_dir_num_)
         return 1;                                           /* already resident */
 
     /* MATCH (w51-a4): the oracle scales the RAW `dir` by the 0x2C stride off a base that sits
-     * one entry BELOW _cd_pathtbl (`sll;addu;sll;subu;sll` on $s6 == dir*44, no `addiu -1`), i.e.
+     * one entry BELOW `dire` (`sll;addu;sll;subu;sll` on $s6 == dir*44, no `addiu -1`), i.e.
      * the original indexed a 1-BASED view of the table -- the byte-exact Rage Racer libcd decomp
      * spells it as its own symbol `g_CdPathEntryLbaByDirNum[dir]`
-     * (C:/Temp/rage-racer-decomp/src/main/PAL/lib/libcd/iso_cache_file.c).  `(_cd_pathtbl - 1)[dir]`
+     * (C:/Temp/rage-racer-decomp/src/main/PAL/lib/libcd/iso_cache_file.c).  `(dire - 1)[dir]`
      * is the same view without inventing a second symbol (the -0x2C folds into the %lo addend);
-     * `_cd_pathtbl[dir - 1]` instead emits an extra `addiu v0,s6,-1` and scales the decremented
+     * `dire[dir - 1]` instead emits an extra `addiu v0,s6,-1` and scales the decremented
      * index. 13 -> PASS. */
-    if (cd_read(1, (_cd_pathtbl - 1)[dir].lba, _cd_secbuf) != 1) {
+    if (cd_read(1, (dire - 1)[dir].lba.addr, load_buf) != 1) {
         if (CD_debug > 0) printf("CD_cachefile: dir not found\n");
         return -1;
     }
     if (CD_debug > 1) printf("CD_cachefile: searching...\n");
 
-    rec = (u_char *)_cd_secbuf;
+    rec = (u_char *)load_buf;
     i   = 0;
-    while (rec < (u_char *)_cd_secbuf + 0x800) {
+    while (rec < (u_char *)load_buf + 0x800) {
         if (rec[0] == 0)                                    /* zero reclen -> end of records */
             break;
         entryLba.i = ((LBA *)&rec[2])->i;                   /* extent LBA (misaligned -> lwl/lwr) */
-        CdIntToPos(entryLba.addr, &_cd_dir[i].pos);
-        ((LBA *)&_cd_dir[i].size)->i = ((LBA *)&rec[0xA])->i; /* data length (misaligned copy) */
+        CdIntToPos(entryLba.addr, &file[i].pos);
+        ((LBA *)&file[i].size)->i = ((LBA *)&rec[0xA])->i; /* data length (misaligned copy) */
         switch (i) {
         case 0:                                             /* first record = "." */
-            namePtr = (short *)_cd_dir[i].name;
+            namePtr = (short *)file[i].name;
             __builtin_memcpy(namePtr, ".", 2);              /* halfword store (oracle: sh) */
             break;
         case 1:                                             /* second record = ".." */
-            namePtr = (short *)_cd_dir[i].name;
+            namePtr = (short *)file[i].name;
             __builtin_memcpy(namePtr, "..", 3);             /* sh + sb (oracle) */
             break;
         default:
-            memcpy(_cd_dir[i].name, &rec[0x21], rec[0x20]); /* namelen re-read (oracle: 2x lbu 0x20) */
-            _cd_dir[i].name[rec[0x20]] = '\0';
+            memcpy(file[i].name, &rec[0x21], rec[0x20]); /* namelen re-read (oracle: 2x lbu 0x20) */
+            file[i].name[rec[0x20]] = '\0';
             break;
         }
         if (CD_debug > 1)
-            printf("\t(%02x:%02x:%02x) %8d %s\n", _cd_dir[i].pos.minute, _cd_dir[i].pos.second,
-                   _cd_dir[i].pos.sector, (int)_cd_dir[i].size, _cd_dir[i].name);
+            printf("\t(%02x:%02x:%02x) %8d %s\n", file[i].pos.minute, file[i].pos.second,
+                   file[i].pos.sector, (int)file[i].size, file[i].name);
         rec += rec[0];                                      /* ISO directory-record stride */
         if (++i >= 0x40)
             break;
     }
 
-    _cd_cached_dir = dir;
+    cached_dir_num_ = dir;
     if (i < 0x40)
-        _cd_dir[i].name[0] = 0;                             /* terminate the cache */
+        file[i].name[0] = 0;                                /* terminate the cache */
     if (CD_debug > 1) printf("CD_cachefile: %d files found\n", i);
     return 1;
 }
 
 /* @0x800F9984 : read `nsec` sectors starting at LBA `lba` into `buf`; returns 1 on success. */
-extern int cd_read(int nsec, int lba, void *buf)
+static int cd_read(int nsec, int lba, unsigned char *buf)
 {
     CdlLOC loc;
     CdIntToPos(lba, &loc);
@@ -645,4 +630,7 @@ extern int cd_read(int nsec, int lba, void *buf)
     CdRead(nsec, (u_long *)buf, 0x80);
     return (unsigned)CdReadSync(0, 0) < 1u;
 }
-
+/* Local tool/oracle aliases for reconstruction-era split labels.  The retail
+ * PsyQ member has no XDEF for either helper. */
+__asm__(".local _cd_cmp_name\n_cd_cmp_name = _cmp\n"
+        ".local _cd_find_path\n_cd_find_path = CD_searchdir");

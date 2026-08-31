@@ -795,6 +795,8 @@ SECTIONS
         build/asm/data/data_8010CCD4_r17.data.s.o(.data);
         build/recon/syslib/psx/libpress/TABLE.c.o(.data);   /* 0x80123838..0x80134838 */
         build/asm/data/data_8010CCD4_r17.data.s.o(.data.r17_post_table);
+        build/recon/syslib/psx/libcd/iso9660.c.o(.data);     /* 0x80136c68..0x80136c78 */
+        build/asm/data/data_8010CCD4_r17.data.s.o(.data.r17_post_iso9660);
         build/recon/syslib/psx/libsn/SNDEF.c.o(.data);      /* 0x80136cd0..0x80136cd8 */
         build/asm/data/data_8010CCD4_r17.data.s.o(.data.r17_post_sndef);
         build/recon/eaclib/psx/eacpsxz/atantbl.c.o(.data);   /* 0x80136ce8..0x80136dec */

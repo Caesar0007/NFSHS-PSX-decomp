@@ -28,7 +28,15 @@
  *   (one fewer live local across the two DCB-table walks). */
 
 extern int   strcmp(const char *a, const char *b);     /* libc C23 @0x800E5D7C */
-extern void *firstfile2(const char *name, void *dir);  /* A66.OBJ : BIOS B0:0x42 */
+struct DIRENTRY {
+    char name[20];
+    long attr;
+    long size;
+    struct DIRENTRY *next;
+    long head;
+    char system[4];
+};
+extern struct DIRENTRY *firstfile2(char *name, struct DIRENTRY *dir); /* A66.OBJ */
 
 /* Canonical PsyQ 4.3 fs.h device table (PSX BIOS ABI, sizeof == 0x50). */
 struct device_table {
@@ -58,37 +66,36 @@ struct device_table {
 #define BIOS_DCB_BASE   (*(struct device_table **)0x150) /* @kernel 0x150 : DCB table base pointer */
 #define BIOS_DCB_BYTES  (*(int  *)0x154)   /* @kernel 0x154 : DCB table size in bytes */
 
-/* W65-A6 DATA-MAT: `_first_save` (6 reloc sites) and `_first_devname` (8) were extern-only
+/* W65-A6 DATA-MAT: the saved-handler slot (6 reloc sites) and device-name buffer (8) were extern-only
  * tree-wide -- FIRST.obj is their only referencer and their only possible owner.  Both are
  * genuine BSS: their VAs are > t_addr+t_size (0x8013E000), so no file bytes, pure zero-init.
  * Contiguous run, sizes from the SYM/symbol_addrs VA deltas:
- *      _first_save    @0x80148A7C  8   (= _first_devname - _first_save)
- *      _first_devname @0x80148A84 40   (= _waitTime @0x80148AAC - 0x80148A84; libpad PAD.c
- *                                       owns _waitTime, so this run ends there)
- * DEVICE = file-scope asm `.section .bss` block with the C view left `extern` -- byte-neutral
- * by construction, and required because `_first_devname` is declared as an UNSIZED array (a
- * documented codegen lever, methodology 3.12 #5) that a sized C definition would disturb.
- * Receipts: scratchpad/w65a6/RECEIPTS.md */
-__asm__("\t.globl\t_first_save\n\t.globl\t_first_devname\n"
-        "\t.section\t.bss\n\t.align\t2\n"
-        "_first_save:\n\t.space\t8\n"
-        "_first_devname:\n\t.space\t40\n\t.text");
-extern int (*_first_save)();         /* @0x80148A7C : saved original device handler */
+ *      D_80148A7C @0x80148A7C  4   saved handler pointer
+ *      D_80148A80 @0x80148A80  4   unused/padding word independently seen in Vagrant Story
+ *      D_80148A84 @0x80148A84 40   device-name buffer ending at `_waitTime`.
+ * All storage is now ordinary local C.  An unsized alias view preserves the retail compiler's
+ * address-materialization behavior without misrepresenting the buffer's known 40-byte size. */
+/* Canonical FIRST.obj exports only `firstfile`; neither private spelling is
+ * preserved by the stripped object or retail SYM, so address placeholders are
+ * used instead of presenting reconstruction-era semantic names as original. */
+static int (*D_80148A7C)();          /* saved original device handler */
+static int D_80148A80;               /* canonical unused/padding word */
+static char D_80148A84_storage[40] __asm__("D_80148A84");
 /* MATCH (w48-a7): UNSIZED.  The oracle materializes this address INSIDE the DCB search loop, at
  * the strcmp call site (`lui $a1,%hi; addiu $a1,$a1,%lo` = one `la` macro).  With the size known,
  * -msplit-addresses gives gcc a separate `(high _first_devname)` pseudo that loop.c hoists out of
  * the loop into a CALLEE-SAVED register -- costing a whole extra saved reg (7 vs the oracle's 6)
  * and rotating every other saved-reg role.  IDT Ch9's rule (methodology 3.12 #5) both ways:
  * omit the size, or give the correct one -- here the omission is what retail's codegen shows. */
-extern char    _first_devname[];     /* @0x80148A84 : device prefix extracted from `name` */
+extern char D_80148A84[];           /* unsized codegen view of the buffer */
 
 /* W60-A1 (2026-08-14): the _first_patch DEFINITION lives at EOF -- retail's obj is
  * firstfile (0x80109DC0) then _first_patch (0x80109F5C).  Forward decl for the DCB
  * install site inside firstfile below. */
-extern int _first_patch(int *state, int arg, int arg2);
+static int func_80109F5C(int *state, int arg, int arg2);
 
 /* @0x80109DC0 : firstfile */
-extern void *firstfile(char *name, void *dir)
+struct DIRENTRY *firstfile(char *name, struct DIRENTRY *dir)
 {
     struct device_table *e, *end, *lim;
     char *p;
@@ -246,7 +253,7 @@ extern void *firstfile(char *name, void *dir)
     /* W74-A15 axis-1 (coupled with the PER_FN_RAW40_SPLICE row -- land/revert
      * together; alone this is the 18-diff swap basin): scan BEFORE p. */
     scan = (signed char *)name;
-    p = _first_devname;
+    p = D_80148A84;
     while (*scan > ':')
         *p++ = (unsigned char)*scan++;
     *p = '\0';
@@ -280,7 +287,7 @@ extern void *firstfile(char *name, void *dir)
     if (e < lim) {
         end = lim;
 scan1:
-        if (e->dt_string != 0 && strcmp(e->dt_string, _first_devname) == 0)
+        if (e->dt_string != 0 && strcmp(e->dt_string, D_80148A84) == 0)
             goto hit1;                     /* match handler is OUT OF LINE (oracle beqz target) */
         e++;
         if (e < end) goto scan1;
@@ -291,7 +298,7 @@ tested:
         return 0;
     goto pass2;
 hit1:
-    _first_save = e->dt_firstfile;
+    D_80148A7C = e->dt_firstfile;
     found = 1;
     goto tested;
 /* MATCH (2026-08-14, 16 @103/103 -> 9 @102/103): retail places the second
@@ -308,7 +315,7 @@ hit2:
      * FALSIFIED (all inert or worse): the same fence at hit1's head (9), at tail's head (9),
      * a read-only `name` fence at tail (9), void fence before/after `p = _first_devname`
      * (6, inert), after `scan = name` (9 @104). */
-    e->dt_firstfile = _first_patch;
+    e->dt_firstfile = func_80109F5C;
     goto tail;
 pass2:
 
@@ -326,7 +333,7 @@ pass2:
          * the all-three-sites sweep is a wash (5+3).  Zero insns. */
         end = lim;
 scan2:
-        if (e->dt_string != 0 && strcmp(e->dt_string, _first_devname) == 0)
+        if (e->dt_string != 0 && strcmp(e->dt_string, D_80148A84) == 0)
             goto hit2;                     /* match handler OUT OF LINE, as in pass 1 */
         e++;
         if (e < end) goto scan2;
@@ -337,7 +344,7 @@ tail:
 }
 
 /* @0x80109F5C : _first_patch -- restore the device's real handler, then forward the call. */
-extern int _first_patch(int *state, int arg, int arg2)
+static int func_80109F5C(int *state, int arg, int arg2)
 {
     struct device_table *e, *end, *lim;
     unsigned int cnt;
@@ -379,7 +386,7 @@ extern int _first_patch(int *state, int arg, int arg2)
         *state = 1;
     cnt  = (unsigned int)BIOS_DCB_BYTES / (unsigned int)sizeof(struct device_table);
     e    = BIOS_DCB_BASE;
-    saved = _first_save;
+    saved = D_80148A7C;
     /* MATCH (w48-a7): the oracle computes the table end into a CALLER-saved temp, tests THAT in
      * the zero-trip guard, and only copies it into the callee-saved loop bound inside the guard
      * (`addu $v1,$s0,$v0; sltu $v0,$s0,$v1; beqz $v0,..; addu $s1,$v1,$zero`).  The copy survives
@@ -405,12 +412,15 @@ scan:
          * the same nesting WITHOUT the fence still measures 1, i.e. the fence is the
          * lever, not the restructure.  Zero insns. */
         if (e->dt_string != 0 && ({ __asm__("" : : "i"(0));
-                               strcmp(e->dt_string, _first_devname); }) == 0) {
+                               strcmp(e->dt_string, D_80148A84); }) == 0) {
             e->dt_firstfile = saved;   /* un-patch (one-shot) */
         } else {
             e++;
             if (e < end) goto scan;
         }
     }
-    return (*_first_save)(state, arg, arg2);   /* forward $a2=$s5 too (oracle @0x8010a034); re-reads the global fresh */
+    return (*D_80148A7C)(state, arg, arg2);   /* forward $a2=$s5 too (oracle @0x8010a034); re-reads the global fresh */
 }
+
+/* Local oracle alias; canonical FIRST.obj has no XDEF for this helper. */
+__asm__(".local _first_patch\n_first_patch = func_80109F5C");

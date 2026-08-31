@@ -803,6 +803,8 @@ SECTIONS
         build/asm/data/data_8010CCD4_r17.data.s.o(.data);
         build/asm/data/data_8010CCD4_r17.data.s.o(.data.table_blob);
         build/asm/data/data_8010CCD4_r17.data.s.o(.data.r17_post_table);
+        build/asm/data/data_8010CCD4_r17.data.s.o(.data.iso9660_blob);
+        build/asm/data/data_8010CCD4_r17.data.s.o(.data.r17_post_iso9660);
         build/asm/data/data_8010CCD4_r17.data.s.o(.data.sndef_blob);
         build/asm/data/data_8010CCD4_r17.data.s.o(.data.r17_post_sndef);
         build/asm/data/data_8010CCD4_r17.data.s.o(.data.atantbl_blob);

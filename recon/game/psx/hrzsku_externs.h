@@ -66,17 +66,13 @@ extern void           trap(int c);
 // [owned->defined in hrzsku.cpp] extern SVECTOR        sunPosInSky, moonPosInSky;   /* SVECTOR values */
 // [owned->defined in hrzsku.cpp] extern int            gfxPmxHeightPercentage[];
 // [owned->defined in hrzsku.cpp] extern Draw_tPixMap  *gpPmx;
-extern int            Skid_gCtrlScratch_94;
 
 /* ---- sky geometry + colours ---- */
 // [owned->defined in hrzsku.cpp] extern SVECTOR        gSkyMesh[];
 // [owned->defined in hrzsku.cpp] extern CVECTOR        gSkyColor[];
 // [owned->defined in hrzsku.cpp] extern CVECTOR        gHrzRingColor[][5];
 // [owned->defined in hrzsku.cpp] extern SVECTOR       *gRngCoordTop;        /* reservememadr'd */
-/* Hrz_gSkyVtx_A0/A1/B0/B1 DEFINED in hrzsku.cpp (hrzsku-internal lost-symbol, not in SYM) */
 // [owned->defined in hrzsku.cpp] extern CVECTOR        Hrz_gSaveCol[];
-extern int            Hrz_gProjResultZ0;
-extern int            Hrz_gProjScratch_9C;
 // [owned->defined in hrzsku.cpp] extern SVECTOR        Hrz_gLightningPosInSky;
 // [owned->defined in hrzsku.cpp] extern char           gSkyPixmapIndex[];
 extern int            gSkyPixmapIndex_dummy;
@@ -99,7 +95,6 @@ extern char           Night_gShowForks;
 // [owned->defined in hrzsku.cpp] extern tHrz_Lightning gHrz_Lightning;       /* lightning fork buffer (104 B) */
 
 /* ---- chunk vtx buffer ---- */
-extern SVECTOR        DrawW_gChunkVtxBuf[];
 
 /* ---- PsyQ libgpu / libgte helpers ---- */
 

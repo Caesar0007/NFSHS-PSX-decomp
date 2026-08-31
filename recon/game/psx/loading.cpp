@@ -13,7 +13,8 @@ char *smallShapeFile = 0;   /* @0x8013d9d0  W67-A4: explicit =0 -- retail emits 
     cell BEFORE the "back" literal @0x8013d9d4, so it cannot have been tentative
     (16E =0 discriminator).  DO NOT strip the =0. */
 
-/* W67-A4: retail keeps the <=8-byte "back" literal in .sdata @0x8013d9d4 (-G8
+/* SYM-GLOBAL-CARRIER: D_8013D9D4
+   W67-A4: retail keeps the <=8-byte "back" literal in .sdata @0x8013d9d4 (-G8
    build, 18C).  Materialized as a NAMED .sdata array (the sim.cpp/w66a6
    section-attribute device; >G4 so the address form stays absolute and the
    reloc-name-lenient gate is unchanged).  Whole-TU g_value 8 also gates clean

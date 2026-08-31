@@ -915,8 +915,14 @@ def compatible_split_array_carrier(sym_type: str, source_type: str) -> bool:
 
 def documented_global_types(
     target: Path, file_name: str
-) -> tuple[set[str], set[str], set[str]]:
-    """Return measured array carriers plus explicit type/storage overrides."""
+) -> tuple[set[str], set[str], set[str], set[str]]:
+    """Return measured global carriers plus explicit type/storage overrides.
+
+    ``SYM-GLOBAL-CARRIER`` is reserved for a source definition that has no
+    reliable SYM data record but is required by measured retail data layout or
+    code generation.  The caller intersects every marker with ctags definitions,
+    so a comment typo cannot suppress a genuine missing/extra review item.
+    """
     source = target / file_name
     paths = [source, *target.glob(source.stem + "*.h")]
     chunks: list[str] = []
@@ -926,14 +932,17 @@ def documented_global_types(
         except OSError:
             pass
     if not chunks:
-        return set(), set(), set()
+        return set(), set(), set(), set()
     text = "\n".join(chunks)
     carriers = set(re.findall(r"\bSYM-CARRIER:\s*([A-Za-z_]\w*)", text))
+    source_only_carriers = set(
+        re.findall(r"\bSYM-GLOBAL-CARRIER:\s*([A-Za-z_]\w*)", text)
+    )
     overrides = set(re.findall(r"\bSYM-TYPE-OVERRIDE:\s*([A-Za-z_]\w*)", text))
     storage_overrides = set(
         re.findall(r"\bSYM-STORAGE-OVERRIDE:\s*([A-Za-z_]\w*)", text)
     )
-    return carriers, overrides, storage_overrides
+    return carriers, overrides, storage_overrides, source_only_carriers
 
 
 def asm_data_labels() -> set[str]:
@@ -1510,17 +1519,20 @@ def audit(
     global_storage_overrides = 0
     global_types = 0
     global_carriers = 0
+    global_source_only_carriers = 0
     global_type_overrides = 0
     global_type_equivalent = 0
     global_type_equivalent_reasons: collections.Counter[str] = collections.Counter()
     blob_labels = asm_data_labels()
     global_blob_backed = 0
     blob_backed_rows: list[tuple[str, list[str]]] = []
+    source_only_global_carrier_rows: list[tuple[str, list[str]]] = []
     for file_name in sorted(source_by_stem.values()):
         (
             documented_carriers,
             documented_overrides,
             documented_storage_overrides,
+            documented_source_only_carriers,
         ) = documented_global_types(target, file_name)
         sym_rows = globals_by_file.get(file_name, [])
         sym_by_name = {g.decl.name: g for g in sym_rows}
@@ -1529,6 +1541,10 @@ def audit(
             for d in file_decls.get(file_name, [])
             if d.get("kind") == "variable"
         }
+        source_only_carriers = sorted(
+            (source_defs.keys() - sym_by_name.keys())
+            & documented_source_only_carriers
+        )
         unresolved_names = sym_by_name.keys() - source_defs.keys()
         blob_backed = sorted(unresolved_names & blob_labels)
         split_aggregate_carriers: set[str] = set()
@@ -1546,13 +1562,19 @@ def audit(
             unresolved_names - blob_labels - split_aggregate_carriers
         )
         extra = sorted(
-            source_defs.keys() - sym_by_name.keys() - split_carrier_components
+            source_defs.keys()
+            - sym_by_name.keys()
+            - split_carrier_components
+            - set(source_only_carriers)
         )
         global_mapped += len(split_aggregate_carriers)
         global_carriers += len(split_aggregate_carriers)
+        global_source_only_carriers += len(source_only_carriers)
         global_blob_backed += len(blob_backed)
         if blob_backed:
             blob_backed_rows.append((file_name, blob_backed))
+        if source_only_carriers:
+            source_only_global_carrier_rows.append((file_name, source_only_carriers))
         global_missing += len(missing)
         global_extra += len(extra)
         if missing:
@@ -1657,6 +1679,7 @@ def audit(
                 for reason, count in sorted(global_type_equivalent_reasons.items())
             ) + ")" if global_type_equivalent else "  (none)",
             f"- Explicit measured global array carriers: {global_carriers}",
+            f"- Explicit source-only global/data-layout carriers: {global_source_only_carriers}",
             f"- Explicit oracle-proven global type overrides: {global_type_overrides}",
             "",
             "## Review queue",
@@ -1729,6 +1752,11 @@ def audit(
     for file_name, names in blob_backed_rows:
         lines.append(
             f"- `{file_name}` blob-backed definitions: "
+            + ", ".join(f"`{name}`" for name in names)
+        )
+    for file_name, names in source_only_global_carrier_rows:
+        lines.append(
+            f"- `{file_name}` explicit source-only global/data-layout carriers: "
             + ", ".join(f"`{name}`" for name in names)
         )
     if global_findings:

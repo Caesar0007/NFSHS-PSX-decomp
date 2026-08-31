@@ -2046,6 +2046,8 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
        test instead (measured: same object, per-symbol md5).
        INVISIBLE to verify_asm (branch targets normalise to `T') and to wordcmp
        (R_MIPS_26 waived) -- tools/brdist.py is the only witness. */
+    /* SYM-CODEGEN-CARRIER: loading -- one named async-handle read blocks an
+       otherwise incorrect jump-threading equivalence; see the receipt above. */
     int loading = gCarObj[(byte)FEAppB[0]->fPlayer]->async_handle;
     if (loading != 0) {
       this->SetBrightness(0,0);

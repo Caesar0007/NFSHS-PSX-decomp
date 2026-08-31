@@ -28,6 +28,7 @@ u_char       (*Night_gPlayerLightingTable)[256][16] = 0;   /* @0x8013d9e4 */
 u_char       (*Night_gCopLightingTableRed)[256][8] = 0;   /* @0x8013d9e8 */
 u_char       (*Night_gCopLightingTableBlue)[256][8] = 0;   /* @0x8013d9ec */
 /* SYM-CARRIER: Night_gWeatherLightingTable
+   SYM-GLOBAL-CARRIER: D_8013D9F4
    Night_gWeatherLightingTable[2] is modelled as its TWO retail per-element gp-rel symbols
    (StatsTimer/overlays.cpp model, catalog sec.E dual-model + wave-13 "unsized-array asm-label
    view"): the oracle reaches the CONSTANT-index sites (Night_KillNightDriving [0] and [1])
@@ -59,6 +60,7 @@ char         *Night_gNightTbl;   /* @0x8013da40  (bss(zero)) */
 int          Night_gLightningType;   /* @0x8013da44  (bss(zero)) */
 u_char       (*Night_gCurrentNightColor)[256][16];   /* @0x8013da48  (bss(zero)) */
 /* SYM-CARRIER: Night_gCopColor
+   SYM-GLOBAL-CARRIER: D_8013DA50
    Night_gCopColor[2]: same per-element gp-rel dual-model as Night_gWeatherLightingTable above --
    Night_SetCopColor stores both elements through %gp_rel(Night_gCopColor)/%gp_rel(D_8013DA50),
    while draww.cpp's Night_NightCopCalc indexes the base at RUNTIME via %hi/%lo(Night_gCopColor)
@@ -87,6 +89,7 @@ char         Night_gShowForks;   /* @0x8013da78  (bss(zero)) */
 int          Night_gFlashIntensity;   /* @0x8013da7c  (bss(zero)) */
 long         Night_gPlayerHeadLightColor[2];   /* @0x8013da80  (bss(zero)) */
 /* SYM-CARRIER: Night_gWeatherColor
+   SYM-GLOBAL-CARRIER: D_8013DA8C
    Night_gWeatherColor[2]: same per-element gp-rel dual-model -- Night_InitWeatherTables stores
    both words through %gp_rel(Night_gWeatherColor)/%gp_rel(D_8013DA8C), while
    Night_SetWeatherColors (and drawc.cpp's DrawC_NightHeadlight) walk the base absolutely.

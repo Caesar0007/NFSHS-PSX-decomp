@@ -16,10 +16,13 @@ extern int             disablecd;       /* 0x8013dc58 */
 extern Group Platform_nfsSysInfoCarrier asm("nfs_sysInfo"); /* 0x8013d2b4 */
 #define Platform_nfsUserRam (Platform_nfsSysInfoCarrier.m_num_elements)
 
-/* ---- link-time markers / scratch buffers (no SYM name; raw addresses) ---- */
-extern char gPlatformInitMem[];   /* 0x80054d10  end-of-init-memory marker (arena high) */
-extern char gEAMemPoolBase[];     /* 0x80148b0c  arena base = end of code/data */
-extern char gDctBuffer[];         /* 0x80124038  DCT scratch buffer base */
+/* ---- link-time markers / scratch buffers ----
+ * CF_DVLC is canonical PsyQ/SYM/MAP data.  The other two retail addresses have
+ * no recoverable source identifier; raw labels preserve that evidence boundary
+ * without fabricating C storage. */
+extern char  D_80054D10[];        /* end-of-init-memory marker */
+extern char  D_80148B0C[];        /* heap base, eight bytes past MAP endofcode */
+extern u_int CF_DVLC[];            /* canonical PsyQ DCT/VLC work table */
 
 /* ---- eaclib / syslib / sibling helpers ---- */
 extern "C" int ResetGraph(int mode);   /* @0x800ED670 libgpu (real target of the old "Eac_vars") */

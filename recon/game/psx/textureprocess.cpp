@@ -9,7 +9,9 @@
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
 BWorldSm_Pos *fogslicePos;
 FogKey *Fog_gHeadKey;
-/* SYM-CARRIER: Fog_gCurrentKey -- the SYM array is represented by the two
+/* SYM-CARRIER: Fog_gCurrentKey
+ * SYM-GLOBAL-CARRIER: D_8013DB84
+ * The SYM array is represented by the two
  * adjacent retail element labels; Fog_gCurrentKeyArr is the indexed view. */
 FogKey *Fog_gCurrentKey;
 FogKey *D_8013DB84;

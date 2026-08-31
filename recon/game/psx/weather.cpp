@@ -43,7 +43,11 @@ static int Weather_gLastProcessTime[2] __attribute__((section(".sbss")));
 /* SYM-CARRIER: Weather_gSplatInfoServer
  * SYM-CARRIER: Weather_gPServer
  * SYM-CARRIER: Weather_gPrevPServer
- * SYM-CARRIER: Weather_gDrawnServer */
+ * SYM-CARRIER: Weather_gDrawnServer
+ * SYM-GLOBAL-CARRIER: Weather_gSplatInfoServer1
+ * SYM-GLOBAL-CARRIER: Weather_gPServer1
+ * SYM-GLOBAL-CARRIER: Weather_gPrevPServer1
+ * SYM-GLOBAL-CARRIER: Weather_gDrawnServer1 */
 Weather_tSplatInfo *Weather_gSplatInfoServer;   /* [0] @0x8013dbc8 */
 Weather_tSplatInfo *Weather_gSplatInfoServer1;  /* [1] @0x8013dbcc (oracle D_8013DBCC) */
 SVECTOR            *Weather_gPServer;           /* [0] @0x8013dbd0 */

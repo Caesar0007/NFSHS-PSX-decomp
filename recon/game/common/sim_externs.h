@@ -14,7 +14,6 @@ extern int            Hud_ActivateCDPlayer;
 extern int            Input_gLookBehind[2];
 extern int          gMasterSFXLevel;
 extern int    Device_gForcePause;      /* = iVar1/0/1 */
-extern int    Skid_gCtrlScratch_94, Skid_gCtrlScratch_98, Skid_gScratchPos1, Skid_gScratchPos2;
 extern int   gSimQueue_BlockSelf;
 extern int   gSimQueue_Ticker;
 extern int Cars_gNumHumanRaceCars;

@@ -11,6 +11,7 @@
    this TU.  StatsTimer's two words are separate 4-byte symbols for exactly that reason.
    CAUTION (documented dual-model tradeoff, catalog section E): hud_externs.h still declares
    SYM-CARRIER: StatsTimer
+   SYM-GLOBAL-CARRIER: D_8013D99C
    StatsTimer as `int StatsTimer[2]`.  The two 4-byte .comm symbols land adjacently in .sbss
    in declaration order, so that array view still reaches both words -- but if StatsTimer or
    D_8013D99C ever gains an initializer or another owner, re-check that adjacency. */

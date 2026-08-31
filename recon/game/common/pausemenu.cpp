@@ -108,6 +108,8 @@ tPListIterator::~tPListIterator()
 char tPListIterator::Value(tPlayer arg1)
 
 {
+  /* SYM-ABI-PARAM: arg1 -- required by the virtual signature/linkage but
+     unused and therefore absent from the optimized SYM declaration block. */
   return *this->fValue;
 }
 
@@ -200,6 +202,8 @@ tPListIteratorIndexed::~tPListIteratorIndexed()
 char tPListIteratorIndexed::Value(tPlayer arg1)
 
 {
+  /* SYM-ABI-PARAM: arg1 -- required by the virtual signature/linkage but
+     unused and therefore absent from the optimized SYM declaration block. */
   return this->fValue[(u_char)*this->fIndex];
 }
 

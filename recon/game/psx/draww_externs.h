@@ -34,18 +34,6 @@ extern matrixtdef Render_gCopMat;
 
 /* ---- eaclib / math fixed-point + transform helpers ---- */
 
-/* ---- draww module scratch / state globals (Ghidra-named, not in SYM) ---- */
-extern int    DrawW_gChunkGeomRez, DrawW_gChunkInd, DrawW_gChunkObjFlag, DrawW_gChunkQuadCount;
-extern int    DrawW_gChunkRelX, DrawW_gChunkRelY, DrawW_gChunkRelZ;
-extern int    DrawW_gFog_init, DrawW_gGroupCount, DrawW_gMatID_tmp, DrawW_gNightFlags, DrawW_gNightTmpFlag;
-extern int   *DrawW_gChunkStripBuf;
-extern Group *DrawW_gChunkVtxBuf, *DrawW_gGroupPtr;
-extern Track_tArtresource *DrawW_gInitialArtPtr;
-extern Track_tMaterial    *DrawW_gMaterialLUT;
-extern int    DrawW_gObjScratch_148, DrawWTrough_scratchVec[3];
-extern int    Skid_gCtrlPoint_0, Skid_gCtrlPoint_1, Skid_gCtrlPoint_2, Skid_gCtrlPoint_3;
-extern int    Skid_gCtrlPoint_4, Skid_gCtrlPoint_5, Skid_gCtrlPoint_6;
-extern int    Skid_gCtrlScratch_94, Skid_gCtrlScratch_98, Skid_gScratchPos1, Skid_gScratchPos2;
 extern int    INT_1f800084, INT_1f800088, INT_1f80008c, INT_1f800090;
 
 /* ---- auto-generated from SYM Globals + Demangled ---- */

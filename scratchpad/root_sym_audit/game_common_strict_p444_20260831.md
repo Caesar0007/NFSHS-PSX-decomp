@@ -1,0 +1,2623 @@
+# SYM-to-source declaration audit
+
+Target: `C:\Temp\nfs4-sym-next-20260825\recon\game\common`
+Trusted SYM: `C:\Temp\claud\dumpsym_clean\dumpsym_src\nfs4-f-v3.txt`
+
+This is a review queue, not an auto-fix list. Missing retail names are
+strong evidence; extra source names can be matching carriers or decompiler
+temporaries and must be tested against the function oracle before removal.
+GCC-v2-mangled function/EXT names are used only as linkage keys; source
+functions are mapped to their demangled C++ names and class scopes.
+
+## Summary
+
+- SYM functions in target TUs: 1193
+- Mapped to reconstructed definitions: 1193 (1189 demangled class/name maps)
+- Source definitions still using mangled linkage identifiers: 0
+- Explicit deleting-destructor ABI carriers: 4
+- Explicit cross-TU ownership closures: 0
+- Declaration-clean mapped functions: 568
+- Missing SYM names: 0
+- Extra source-local names: 2069
+- Type-comparison findings: 0
+- Recognized ABI/debug-equivalent type encodings: 20
+  (anonymous-enum-tag=1, generic-function-pointer=3, reference-as-pointer=12, vla-runtime-pointer=4)
+- Function storage-class findings: 0
+- Implicit aggregate special members (source body correctly absent): 0
+- Explicit oracle-receipted carrier mappings: 15
+- Explicit restored inline-local mappings: 0
+- Explicit restored macro-local mappings: 0
+- Explicit linkage-proven ABI parameters omitted from SYM: 2
+- Explicit source-only codegen carriers: 20
+- Explicit oracle-proven function type overrides: 0
+- Functions needing mapping review: 0
+- SYM object-owned data records in target TUs: 547
+- Mapped source global definitions: 547
+- Blob-backed object globals: 0
+- Missing/extra global definitions: 0/167
+- Global storage-class findings: 0
+- Explicit oracle-proven global storage overrides: 0
+- Global type findings: 0
+- Recognized global debug-equivalent types: 3
+  (anonymous-struct-tag=1, explicit-signed-char=2)
+- Explicit measured global array carriers: 0
+- Explicit source-only global/data-layout carriers: 0
+- Explicit oracle-proven global type overrides: 0
+
+## Review queue
+
+### `AI_ClearLaneMerits__Fv` (0x80057b6c, ai.cpp:170, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `AI_DoReactions__FP8Car_tObj` (0x80057b94, ai.cpp:186, map=exact)
+
+- Extra source locals: `iVar1`, `uVar2`
+
+### `AI_CheckForPlayerActions__FP8Car_tObjT0` (0x80057dd4, ai.cpp:257, map=exact)
+
+- Extra source locals: `carObjLocal`, `carOdometer`, `direction`, `otherCarObjLocal`, `otherOdometer`
+
+### `AI_OpponentBlockPlayer__FP8Car_tObjT0` (0x800580d8, ai.cpp:351, map=exact)
+
+- Extra source locals: `bVar1`, `iVar3`, `personality`
+
+### `AI_SetupOncomingLaneDemerits__FP8Car_tObj` (0x80058694, ai.cpp:487, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `AI_HandleShouldersAndOffRoad__FP8Car_tObj` (0x8005895c, ai.cpp:584, map=exact)
+
+- Extra source locals: `bVar1`, `lane`, `merit0`, `merit2`, `sl`
+
+### `AI_CalculateLaneSpeeds__FP8Car_tObj` (0x80058d20, ai.cpp:661, map=exact)
+
+- Extra source locals: `carObjLaneShift`, `forwardDistanceIntMeters`, `iVar2`
+
+### `AI_CalcMeritsBasedOnSpeed__FP8Car_tObj` (0x800590b4, ai.cpp:783, map=exact)
+
+- Extra source locals: `iVar1`, `lane`, `laneInfo`, `laneSpeed`, `observation`, `observationBase`
+
+### `AI_CheckForClearLanes__FP8Car_tObj` (0x80059434, ai.cpp:902, map=exact)
+
+- Extra source locals: `iVar2`, `runningIndex`
+
+### `AI_CalcBestLineMerits__FP8Car_tObj` (0x800596a4, ai.cpp:963, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `AI_AvoidSpikeBelt__FP8Car_tObj` (0x8005995c, ai.cpp:1044, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `AI_SubmitObstacle__FP8Car_tObjiiii` (0x800599e4, ai.cpp:1064, map=exact)
+
+- Extra source locals: `edgeIndex`
+
+### `AI_HandleTrafficHonking__FP8Car_tObj` (0x80059b88, ai.cpp:1112, map=exact)
+
+- Extra source locals: `dir`, `honk`, `iVar2`
+
+### `AI_CheckPreferredLateralPosition__FP8Car_tObj` (0x80059eac, ai.cpp:1203, map=exact)
+
+- Extra source locals: `result`
+
+### `AI_TryToShareLanes__FP8Car_tObjT0` (0x8005a060, ai.cpp:1266, map=exact)
+
+- Extra source locals: `laneWidth`
+
+### `AI_CalculateDesiredLatPosition__FP8Car_tObj` (0x8005a15c, ai.cpp:1315, map=exact)
+
+- Extra source locals: `bVar1`, `carObjLocal`, `desiredLane`, `iVar2`, `iVar4`, `laneInfo`, `laneWidth`, `minLatPosition`
+
+### `AI_CalculateAdjustedDesiredSpeed__FP8Car_tObj` (0x8005a390, ai.cpp:1415, map=exact)
+
+- Extra source locals: `adjustedSpeed`, `carObjLocal`
+
+### `AI_IsMellowZone__FP8Car_tObji` (0x8005a628, ai.cpp:1507, map=exact)
+
+- Extra source locals: `bVar1`, `numCars`
+
+### `AI_PushFinishedCarsToSide__FP8Car_tObj` (0x8005a724, ai.cpp:1555, map=exact)
+
+- Extra source locals: `bVar1`, `iVar2`, `raceT`
+
+### `AI_ChooseNewLaneSlack__FP8Car_tObj` (0x8005a9dc, ai.cpp:1634, map=exact)
+
+- Extra source locals: `newRand`
+
+### `SetNewTargetCar__10AIDelayCarP8Car_tObj` (0x8005aa5c, aidelaycar.cpp:36, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `Update__10AIDelayCar` (0x8005ab44, aidelaycar.cpp:83, map=exact)
+
+- Extra source locals: `iVar1`, `newDeltaMeters`
+
+### `AIHigh_StartUp__Fv` (0x8005ad94, aihigh.cpp:41, map=exact)
+
+- Extra source locals: `carFlags`, `copCarFlag`, `newHigh`, `p`, `slot`
+
+### `AIHigh_Execute__Fv` (0x8005b210, aihigh.cpp:276, map=exact)
+
+- Extra source locals: `bVar1`, `iVar2`, `iVar7`, `pCVar4`, `pa_Var3`, `ppAVar5`, `ppCVar6`
+
+### `__11AIHigh_BaseP8Car_tObj` (0x8005b318, aihigh.cpp:368, map=exact)
+
+- Extra source locals: `pAVar1`, `this_00`
+
+### `_._11AIHigh_Base` (0x8005b3c4, aihigh.cpp:428, map=exact)
+
+- Extra source locals: `pAVar1`
+
+### `CheckForCrimes__16AIHigh_BasicPerp` (0x8005b500, aih_basicperp.cpp:21, map=exact)
+
+- Extra source locals: `speed`, `wrongWay`
+
+### `RemoveCloseCops__16AIHigh_BasicPerp` (0x8005bd7c, aih_basicperp.cpp:326, map=exact)
+
+- Extra source locals: `carObj`, `iVar1`, `iVar4`, `iVar6`, `pAVar3`, `pSVar2`
+
+### `RemoveChaser__16AIHigh_BasicPerpii7copType` (0x8005becc, aih_basicperp.cpp:424, map=exact)
+
+- Extra source locals: `iVar1`, `piBase`, `piVar2`
+
+### `AddChaser__16AIHigh_BasicPerpii7copType` (0x8005bf08, aih_basicperp.cpp:464, map=exact)
+
+- Extra source locals: `iVar1`, `piVar2`
+
+### `CheckSpikeBelt__15AIHigh_BasicCop` (0x8005c1ec, aih_basiccop.cpp:64, map=exact)
+
+- Extra source locals: `freshenElapsed`, `pCVar1`
+
+### `ShouldIPerformCutOffBlock__15AIHigh_BasicCopiP8Car_tObj` (0x8005c2b4, aih_basiccop.cpp:136, map=exact)
+
+- Extra source locals: `targetLatPosition`
+
+### `Blockade_AddRoadFlare__FP8coorddef` (0x8005c414, aih_basiccop.cpp:193, map=exact)
+
+- Extra source locals: `iVar3`, `pGVar1`, `pGVar2`
+
+### `HandleBlockadeSpeech__15AIHigh_BasicCop` (0x8005ca28, aih_basiccop.cpp:534, map=exact)
+
+- Extra source locals: `pSVar4`
+
+### `GetCheckChasePosition__14AIHigh_BTC_CopP8coorddef` (0x8005cc1c, aih_btccop.cpp:94, map=exact)
+
+- Extra source locals: `iVar2`
+
+### `StartArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp` (0x8005ce10, aih_btccop.cpp:216, map=exact)
+
+- Extra source locals: `carObj`, `pSVar1`
+
+### `FinishArrest__14AIHigh_BTC_CopP15AIHigh_BTC_Perp` (0x8005ce80, aih_btccop.cpp:259, map=exact)
+
+- Extra source locals: `pa_Var1`
+
+### `__19AIHigh_BTC_HumanCopP8Car_tObji` (0x8005cf34, aih_btccop.cpp:364, map=exact)
+
+- Extra source locals: `pCVar2`
+
+### `FindRandomBarrierFreeArea__19AIHigh_BTC_HumanCopiii` (0x8005d150, aih_btccop.cpp:480, map=exact)
+
+- Extra source locals: `doubledFraction`
+
+### `ReleaseAndStartChase__19AIHigh_BTC_HumanCopP15AIHigh_BTC_Perp` (0x8005d320, aih_btccop.cpp:597, map=exact)
+
+- Extra source locals: `pCVar1`
+
+### `FreezeAndEndChase__19AIHigh_BTC_HumanCop` (0x8005d390, aih_btccop.cpp:636, map=exact)
+
+- Extra source locals: `direction`, `iVar1`, `iVar2`, `movement`
+
+### `CheckConditionWithCop0__19AIHigh_BTC_HumanCop` (0x8005d564, aih_btccop.cpp:750, map=exact)
+
+- Extra source locals: `direction`, `iVar2`, `iVar3`, `movement`, `pAVar1`
+
+### `NewStage__19AIHigh_BTC_HumanCopiii` (0x8005d650, aih_btccop.cpp:844, map=exact)
+
+- Extra source locals: `laneBits`, `leftWidth`, `limitL`, `limitR`, `oldTimeLeft`, `pCVar1`, `rightWidth`, `slice`
+
+### `UpdateAndCheckTimeLeft__19AIHigh_BTC_HumanCop` (0x8005d9c0, aih_btccop.cpp:1092, map=exact)
+
+- Extra source locals: `_Var3`, `iVar4`, `pAVar1`, `pSVar2`, `perpname`, `timeleft`
+
+### `UpdateFreezeModeAndPullOverMode__19AIHigh_BTC_HumanCop` (0x8005dad4, aih_btccop.cpp:1179, map=exact)
+
+- Extra source locals: `startingDirection`
+
+### `RequestWingman__19AIHigh_BTC_HumanCop` (0x8005dbf8, aih_btccop.cpp:1262, map=exact)
+
+- Extra source locals: `iVar2`, `pSVar1`, `pSVar3`
+
+### `RequestBlockader__19AIHigh_BTC_HumanCopi` (0x8005dd14, aih_btccop.cpp:1328, map=exact)
+
+- Extra source locals: `pSVar1`, `pSVar2`, `pSVar4`, `pSVar5`
+
+### `ClearTrafficToPurgatory__19AIHigh_BTC_HumanCop` (0x8005dfa0, aih_btccop.cpp:1524, map=exact)
+
+- Extra source locals: `iVar5`, `pCVar3`, `ppCVar4`
+
+### `ResetClearTrafficToPurgatory__19AIHigh_BTC_HumanCop` (0x8005dff8, aih_btccop.cpp:1568, map=exact)
+
+- Extra source locals: `iVar5`, `pCVar3`
+
+### `SetDesiredSpeed__19AIHigh_BTC_HumanCop` (0x8005e04c, aih_btccop.cpp:1610, map=exact)
+
+- Extra source locals: `carObj`, `iVar1`
+
+### `HighExecute__19AIHigh_BTC_HumanCop` (0x8005e0ac, aih_btccop.cpp:1654, map=exact)
+
+- Extra source locals: `pAVar2`, `pCVar1`
+
+### `HudOn__19AIHigh_BTC_HumanCopP15AIHigh_BTC_PerpiP8Car_tObj` (0x8005e284, aih_btccop.cpp:1772, map=exact)
+
+- Extra source locals: `pCVar1`
+
+### `HighExecute__18AIHigh_BTC_Wingman` (0x8005e33c, aih_btccop.cpp:2662, map=exact)
+
+- Extra source locals: `currentRole`, `minLatMetersDistance`, `minLongMetersDistance`, `minTimeInZone`, `murder`, `newRole`, `offset`, `oldState`, `speaker`, `speed`, `targetCar`
+
+### `CheckForActivation__18AIHigh_BTC_Wingman` (0x8005edc8, aih_btccop.cpp:3266, map=exact)
+
+- Extra source locals: `WVar3`, `copTable`, `iVar1`, `ppCVar4`
+
+### `UpdateFreezeModeAndPullOverMode__18AIHigh_BTC_Wingman` (0x8005eef8, aih_btccop.cpp:3359, map=exact)
+
+- Extra source locals: `_Var1`
+
+### `SetupWingman__18AIHigh_BTC_WingmanP19AIHigh_BTC_HumanCop` (0x8005ef38, aih_btccop.cpp:3396, map=exact)
+
+- Extra source locals: `pSVar1`, `sideTimes28`
+
+### `SetupBlockader__18AIHigh_BTC_WingmanP19AIHigh_BTC_HumanCopi` (0x8005f074, aih_btccop.cpp:3488, map=exact)
+
+- Extra source locals: `bVar1`, `beltSlice`, `carObj`, `iVar3`, `iVar6`, `iVar7`, `iVar9`, `initDistance`, `maximumDistance`, `numSlices`, `offset`, `pAVar8`, `pSVar5`, `randomMultiplier`, `randomValue`, `sVar2`, `uVar4`
+
+### `ReleaseCops__15AIHigh_BTC_Perp` (0x8005f6b4, aih_btcperp.cpp:45, map=exact)
+
+- Extra source locals: `ppCVar2`
+
+### `IsFalseArrest__15AIHigh_BTC_Perp` (0x8005f798, aih_btcperp.cpp:113, map=exact)
+
+- Extra source locals: `dotTerm`, `dotTerm2`, `ppCVar7`
+
+### `HandlePullOver__15AIHigh_BTC_Perp` (0x8005fa58, aih_btcperp.cpp:291, map=exact)
+
+- Extra source locals: `bVar1`, `cond5`, `iVar2`, `pSVar3`
+
+### `NotifyCopsOfArrest__15AIHigh_BTC_Perp` (0x8005fc30, aih_btcperp.cpp:412, map=exact)
+
+- Extra source locals: `iVar3`, `pCVar1`, `ppCVar2`
+
+### `NotifyCopsOfArrestComplete__15AIHigh_BTC_Perp` (0x8005fce8, aih_btcperp.cpp:460, map=exact)
+
+- Extra source locals: `iVar3`, `pCVar1`, `ppCVar2`
+
+### `NotifyCopsOfFalseArrest__15AIHigh_BTC_Perp` (0x8005fda0, aih_btcperp.cpp:508, map=exact)
+
+- Extra source locals: `iVar3`, `pCVar1`, `ppCVar2`
+
+### `NotifyHumanCopsOfArrestHud__15AIHigh_BTC_Perp` (0x8005fe58, aih_btcperp.cpp:556, map=exact)
+
+- Extra source locals: `iVar3`, `pCVar1`, `ppCVar2`
+
+### `ClearForNewStage__15AIHigh_BTC_PerpP19AIHigh_BTC_HumanCop` (0x8005ff10, aih_btcperp.cpp:606, map=exact)
+
+- Extra source locals: `pCVar1`
+
+### `CheckForActivation__15AIHigh_BTC_Perp` (0x8005ff74, aih_btcperp.cpp:650, map=exact)
+
+- Extra source locals: `iVar2`, `iVar5`, `pAVar3`, `pCVar1`, `pCVar6`, `ppCVar4`
+
+### `NewStage__20AIHigh_BTC_HumanPerpP19AIHigh_BTC_HumanCop` (0x8006007c, aih_btcperp.cpp:735, map=exact)
+
+- Extra source locals: `carObj`, `wrappedSlice`
+
+### `__17AIHigh_BTC_AIPerpP8Car_tObj` (0x800602f4, aih_btcperp.cpp:898, map=exact)
+
+- Extra source locals: `iVar2`, `pCVar1`
+
+### `_._17AIHigh_BTC_AIPerp` (0x8006037c, aih_btcperp.cpp:961, map=exact)
+
+- Extra source locals: `iVar1`, `pCVar2`
+
+### `AvoidCops__17AIHigh_BTC_AIPerp` (0x800603cc, aih_btcperp.cpp:1013, map=exact)
+
+- Extra source locals: `bVar1`, `iVar2`, `iVar4`, `iVar6`, `iVar7`, `pCVar3`, `pCVar5`
+
+### `CalculateTimeTillContact__17AIHigh_BTC_AIPerp` (0x80060710, aih_btcperp.cpp:1180, map=exact)
+
+- Extra source locals: `copDistance`
+
+### `FindClosestCop__17AIHigh_BTC_AIPerp` (0x800607b4, aih_btcperp.cpp:1239, map=exact)
+
+- Extra source locals: `pCVar2`, `ppCVar4`
+
+### `HighExecute__17AIHigh_BTC_AIPerp` (0x800608b4, aih_btcperp.cpp:1326, map=exact)
+
+- Extra source locals: `_Var4`, `iVar1`, `otherCarObj`, `pAVar3`, `pAVar5`, `this_00`
+
+### `NewStage__17AIHigh_BTC_AIPerpP19AIHigh_BTC_HumanCop` (0x80060d74, aih_btcperp.cpp:1631, map=exact)
+
+- Extra source locals: `pAVar5`, `this_00`
+
+### `CheckIfABlockadeCanBeSetup__13AIHigh_Player` (0x80061400, aih_play.cpp:29, map=exact)
+
+- Extra source locals: `cannotSetup`, `chaseInfo`, `copCar`, `type`
+
+### `SetupBlockade__13AIHigh_Player` (0x80061784, aih_play.cpp:132, map=exact)
+
+- Extra source locals: `bVar2`, `chaseInfo`, `copBlockade`, `distance`, `lastSlice`, `manager`, `one`, `speaker`
+
+### `CheckForNewLevel__13AIHigh_Playeri` (0x8006220c, aih_play.cpp:570, map=exact)
+
+- Extra source locals: `doIt`, `lapTicks`, `numLevels`, `p`, `pa_Var1`, `pci`, `pi`, `pt`
+
+### `HandleSpeech__13AIHigh_Player` (0x800624ec, aih_play.cpp:760, map=exact)
+
+- Extra source locals: `_Var4`, `iVar3`, `pSVar1`
+
+### `MaintainAvailableCops__13AIHigh_Player` (0x80062638, aih_play.cpp:878, map=exact)
+
+- Extra source locals: `available`, `pInfo`
+
+### `__13AIHigh_PlayerP8Car_tObj` (0x800628c0, aih_play.cpp:976, map=exact)
+
+- Extra source locals: `a`, `chaseIndex`, `copGameInfoCopy`, `iVar1`, `iVar4`, `lapTicks`, `levels`, `pCVar2`, `pInfo`, `pInfo2`, `pInfo3`, `pcVar3`
+
+### `HandleCops__13AIHigh_Player` (0x80062ac4, aih_play.cpp:1147, map=exact)
+
+- Extra source locals: `pInfo`, `prodSlipYawNeg`
+
+### `CleanupBlockaders__13AIHigh_Playeri` (0x80062c64, aih_play.cpp:1227, map=exact)
+
+- Extra source locals: `bVar3`, `pCVar2`
+
+### `HandlePullOver__13AIHigh_Player` (0x80062d7c, aih_play.cpp:1301, map=exact)
+
+- Extra source locals: `a`, `bVar1`, `chaseInfo`, `chaseLapTime`, `engagementLapTime`, `iVar2`, `iVar5`, `pcVar6`
+
+### `CheckForWipeOut__15AIHigh_Opponent` (0x80063308, aih_opp.cpp:18, map=exact)
+
+- Extra source locals: `absField1380`, `bVar1`, `carObj_h`, `hlai`, `new_var`, `numRacers`, `pInfo`, `state`, `tableEntry`
+
+### `DoRearEnder__15AIHigh_Opponent` (0x800634e8, aih_opp.cpp:472, map=exact)
+
+- Extra source locals: `iVar1`, `mask`, `pCVar4`, `pCVar6`, `ppCVar7`, `sliceAddress`, `smackCarObj`, `speed`, `tickPtr`
+
+### `DoProvokedAttack__15AIHigh_Opponent` (0x80063b2c, aih_opp.cpp:790, map=exact)
+
+- Extra source locals: `iVar1`, `iVar4`, `myCarObj`, `oppCarObj`, `pCVar3`
+
+### `HighExecute__10AIHigh_Cop` (0x80063cc4, aih_cop.cpp:288, map=exact)
+
+- Extra source locals: `aihCopFlagsBoundary_`, `blockLevel`, `carObj`, `chaseInfo`, `chaseTarget`, `co`, `copChasers`, `cutOff`, `dir`, `distance`, `driveAway`, `engagement`, `factor`, `meters`, `mode`, `mode2`, `mode3`, `murder`, `needy`, `oldState`, `one`, `p`, `perTick`, `perp`, `requestSlice`, `retarget`, `rev`, `reverse`, `rotation`, `slices`, `speaker`, `speed`, `targetLevel`, `wrongWayHit`
+
+### `CheckForNeedyPlayers__10AIHigh_Cop` (0x80065394, aih_cop.cpp:1928, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `CheckForWipeOut__10AIHigh_Cop` (0x80065430, aih_cop.cpp:1990, map=exact)
+
+- Extra source locals: `bVar1`, `iVar2`, `pAVar3`
+
+### `CheckForNewTarget__10AIHigh_Cop` (0x800655a8, aih_cop.cpp:2111, map=exact)
+
+- Extra source locals: `bVar1`, `bVar3`
+
+### `CheckForNewTriggers__10AIHigh_Cop` (0x80065944, aih_cop.cpp:2377, map=exact)
+
+- Extra source locals: `crime`, `gotPtr`, `initialGameTicks`, `numCars`, `pSimGlobalInitial`, `perpInfo`, `typeOffset`
+
+### `CheckForCops__14AIHigh_TrafficPi` (0x80065c8c, aih_traf.cpp:16, map=exact)
+
+- Extra source locals: `currentBest`
+
+### `HighExecute__14AIHigh_Traffic` (0x80065e6c, aih_traf.cpp:171, map=exact)
+
+- Extra source locals: `normalState`, `purgatoryState`, `release`
+
+### `CheckForNewTriggers__14AIHigh_Traffic` (0x80066738, aih_traf.cpp:423, map=exact)
+
+- Extra source locals: `sortedCar`
+
+### `AICop_NoCopsInArea__Fii` (0x80066b08, aicop.cpp:92, map=exact)
+
+- Extra source locals: `iVar1`, `iVar3`, `ppCVar2`
+
+### `AIInit_StartUp1__Fv` (0x80066bb0, aiinit.cpp:39, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`, `piVar3`
+
+### `AIInit_CleanUp2__Fv` (0x80066e44, aiinit.cpp:146, map=exact)
+
+- Extra source locals: `carObj`, `iVar2`, `ppCVar1`
+
+### `AI_TrafficStartUp__Fv` (0x80066f0c, aiinit.cpp:183, map=exact)
+
+- Extra source locals: `rawTriggers`
+
+### `AIInit_LoadPhysicsConfig__FP10Udff_tInfo` (0x80067054, aiinit.cpp:234, map=exact)
+
+- Extra source locals: `iVar1`, `iVar3`, `pAVar2`
+
+### `AIInit_RestartAICar__FP8Car_tObj` (0x800671ec, aiinit.cpp:311, map=exact)
+
+- Extra source locals: `iVar1`, `new_var`
+
+### `AIInit_InitAICar__FP8Car_tObjP10Udff_tInfo` (0x80067314, aiinit.cpp:384, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`, `iVar6`, `pAVar3`, `pAVar4`, `pCVar5`, `scale`
+
+### `AIInit_DeInitAICar__FP8Car_tObj` (0x800674e8, aiinit.cpp:449, map=exact)
+
+- Extra source locals: `nm`, `pAVar2`, `pAVar3`, `pa_Var1`
+
+### `AIInit_InitAICar2__FP8Car_tObj` (0x80067568, aiinit.cpp:478, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `AIInit_IsNonStandardCarFile__Fi` (0x800675d8, aiinit.cpp:500, map=exact)
+
+- Extra source locals: `iVar4`
+
+### `AILife_EvaluateLife__FP8Car_tObj` (0x80067650, ailife.cpp:36, map=exact)
+
+- Extra source locals: `iVar1`, `pCVar2`
+
+### `AILife_RCPickSliceAndDirection__FP8Car_tObj` (0x800676e4, ailife.cpp:61, map=exact)
+
+- Extra source locals: `basisCar`, `basisCarIndex`, `speed`
+
+### `AILife_RCPickDesiredLatPosition__FP8Car_tObj` (0x80067b1c, ailife.cpp:147, map=exact)
+
+- Extra source locals: `finalLatPos`
+
+### `AILife_PlaceCarAtLocation__FP8Car_tObji` (0x80067ce0, ailife.cpp:216, map=exact-signature)
+
+- Extra source locals: `direction`
+
+### `AILife_ReencarnateTraffic__FP8Car_tObj` (0x80067ee4, ailife.cpp:277, map=exact)
+
+- Extra source locals: `colorIdx`
+
+### `AILife_ReencarnateTrafficByPosition__FP8Car_tObjiiP8coorddefP10matrixtdef` (0x80067f94, ailife.cpp:303, map=exact)
+
+- Extra source locals: `colorIdx`
+
+### `AILife_ReencarnateCopByLatPosAndRotation__FP8Car_tObjiiii` (0x800684d4, ailife.cpp:440, map=exact)
+
+- Extra source locals: `iVar3`
+
+### `AILife_IsTrafficCarInAnyLiveArea__FP8Car_tObj` (0x80068704, ailife.cpp:514, map=exact)
+
+- Extra source locals: `iVar1`, `ppCVar2`
+
+### `AILife_IsCarInAnyVisibleArea__FP8Car_tObj` (0x800687ec, ailife.cpp:560, map=exact)
+
+- Extra source locals: `pCVar1`
+
+### `AILife_IsSliceInAnyVisibleArea__Fi` (0x8006880c, ailife.cpp:569, map=exact)
+
+- Extra source locals: `ppCVar2`
+
+### `AILife_IsSliceCloseToAnyCopCar__Fi` (0x800688ac, ailife.cpp:597, map=exact)
+
+- Extra source locals: `ppCVar2`
+
+### `AILife_IsPositionInAnyVisibleArea__FP8coorddef` (0x8006894c, ailife.cpp:624, map=exact)
+
+- Extra source locals: `iVar1`, `ppCVar2`
+
+### `AIPerson_SetPersonalityPointers__Fv` (0x80068afc, aiperson.cpp:77, map=exact)
+
+- Extra source locals: `iVar2`, `ppCVar1`
+
+### `AIPerson_LoadScriptData__FP10Udff_tInfo` (0x80068ea4, aiperson.cpp:165, map=exact)
+
+- Extra source locals: `actionMul`, `addr`, `byteOff2`, `byteOffset`, `iVar1`, `scriptBase`
+
+### `AIPerson_LoadGlue__FP10Udff_tInfo` (0x80068f80, aiperson.cpp:209, map=exact)
+
+- Extra source locals: `b`, `cmp`, `iVar1`, `iVar3`, `piVar2`
+
+### `AIPerson_Startup__Fv` (0x8006908c, aiperson.cpp:248, map=exact)
+
+- Extra source locals: `pathBase`
+
+### `AIPhysic_RevEngine__FP8Car_tObj` (0x800692fc, aiphysic.cpp:64, map=exact)
+
+- Extra source locals: `deadfrm`
+
+### `AIPhysic_CalculateGear__FP8Car_tObj` (0x80069534, aiphysic.cpp:142, map=exact)
+
+- Extra source locals: `found`, `rawSpeed`
+
+### `AIPhysic_HandleWipeoutTimer__FP8Car_tObj` (0x80069af0, aiphysic.cpp:431, map=exact)
+
+- Extra source locals: `base`, `info`, `limit`, `r`
+
+### `AIPhysic_CheckForBadPosition__FP8Car_tObj` (0x80069e14, aiphysic.cpp:528, map=exact)
+
+- Extra source locals: `pos`, `slice`
+
+### `AIPhysics_UseCoolPhysics__FP8Car_tObj` (0x80069eec, aiphysic.cpp:552, map=exact)
+
+- Extra source locals: `b`, `flags`
+
+### `AIPhysic_SimplePhysics__FP8Car_tObj` (0x80069f30, aiphysic.cpp:568, map=exact)
+
+- Extra source locals: `a`, `cs`, `lat`, `v`
+
+### `AIPhysic_SimplePhysics_LongVel__FP8Car_tObj` (0x8006a29c, aiphysic.cpp:648, map=exact)
+
+- Extra source locals: `level`, `newSpeed`, `t`
+
+### `AIPhysic_SimplePhysics_LatVel__FP8Car_tObj` (0x8006a5f4, aiphysic.cpp:762, map=exact)
+
+- Extra source locals: `absV`
+
+### `AIPhysic_HandleDirection__FP8Car_tObj` (0x8006a7cc, aiphysic.cpp:818, map=exact)
+
+- Extra source locals: `x574`, `x718`
+
+### `AIPhysic_Preperation__FP8Car_tObj` (0x8006a8b4, aiphysic.cpp:846, map=exact)
+
+- Extra source locals: `lat`
+
+### `AIPhysic_GetDesiredVector__FP8Car_tObj` (0x8006ac3c, aiphysic.cpp:923, map=exact)
+
+- Extra source locals: `sl`, `t`, `v`
+
+### `AIPhysic_CheckIfOutOfControl__FP8Car_tObj` (0x8006b260, aiphysic.cpp:1062, map=exact)
+
+- Extra source locals: `iVar3`, `lat`, `spd`
+
+### `AIPhysic_OutOfControlPhysics__FP8Car_tObj` (0x8006b400, aiphysic.cpp:1121, map=exact)
+
+- Extra source locals: `latvelcalcLookahead`, `wipeOutEndTick`
+
+### `AIPhysic_GetRearEndDamageFactor__FP8Car_tObj` (0x8006ba70, aiphysic.cpp:1503, map=exact)
+
+- Extra source locals: `result`
+
+### `AIPhysic_InControlPhysics__FP8Car_tObj` (0x8006bac8, aiphysic.cpp:1520, map=exact)
+
+- Extra source locals: `r`
+
+### `AIPhysic_ProcessBarrierCollision__FP8Car_tObj` (0x8006c920, aiphysic.cpp:1917, map=exact)
+
+- Extra source locals: `v`
+
+### `AIPhysic_ProcessCollision__FP8Car_tObj` (0x8006c974, aiphysic.cpp:1928, map=exact)
+
+- Extra source locals: `v`
+
+### `AIPhysic_ChangeDirection__FP8Car_tObji` (0x8006c9f0, aiphysic.cpp:1954, map=exact)
+
+- Extra source locals: `newDir`, `rampPos`, `sg`, `v`
+
+### `AIPhysic_CheckForGripReduction__FP8Car_tObj` (0x8006caa8, aiphysic.cpp:1986, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`, `iVar3`, `iVar4`, `iVar5`, `pers`
+
+### `AIPhysic_InitCar__FP8Car_tObj` (0x8006cc60, aiphysic.cpp:2059, map=exact)
+
+- Extra source locals: `carFlags`, `this_`
+
+### `AddRecordToCollection__14AIDataRecord_t` (0x8006cec4, aidatarecord.cpp:39, map=exact)
+
+- Extra source locals: `iVar2`, `ppAVar1`
+
+### `RemoveRecordFromCollection__14AIDataRecord_t` (0x8006cf00, aidatarecord.cpp:60, map=exact)
+
+- Extra source locals: `iVar2`, `ppAVar1`
+
+### `StartUp1__14AIDataRecord_t` (0x8006cf3c, aidatarecord.cpp:81, map=exact)
+
+- Extra source locals: `iVar2`, `ppAVar1`
+
+### `StartUp2__14AIDataRecord_t` (0x8006cfa8, aidatarecord.cpp:102, map=exact)
+
+- Extra source locals: `iVar3`, `pAVar1`, `ppAVar2`
+
+### `CleanUp1__14AIDataRecord_t` (0x8006d014, aidatarecord.cpp:123, map=exact)
+
+- Extra source locals: `pa_Var1`
+
+### `Setup__14AIDataRecord_t` (0x8006d08c, aidatarecord.cpp:147, map=exact)
+
+- Extra source locals: `iVar2`, `pcVar1`
+
+### `Load__14AIDataRecord_t` (0x8006d0dc, aidatarecord.cpp:166, map=exact)
+
+- Extra source locals: `pcVar1`
+
+### `SaveAndPurge__14AIDataRecord_t` (0x8006d120, aidatarecord.cpp:178, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `Setup__23AIDataRecord_AccTable_t` (0x8006d20c, aidatarecord.cpp:214, map=exact)
+
+- Extra source locals: `iVar1`, `speed`
+
+### `__23AIDataRecord_BestLine_t26AIDataRecord_WhichRecord_t` (0x8006d278, aidatarecord.cpp:234, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `__25AIDataRecord_TrackCurve_t26AIDataRecord_WhichRecord_t` (0x8006d30c, aidatarecord.cpp:253, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `Upgrade__30AIDataRecord_CurveSpeedTable_ti` (0x8006d480, aidatarecord.cpp:307, map=exact)
+
+- Extra source locals: `iVar1`, `pcVar1`, `round`
+
+### `AISpeeds_ReadTuningInfo__Fv` (0x8006d5ec, aispeeds.cpp:83, map=exact)
+
+- Extra source locals: `iVar1`, `uVar2`
+
+### `AISpeeds_CalcOpponentTopSpeed__FP8Car_tObjPi` (0x8006d938, aispeeds.cpp:198, map=exact)
+
+- Extra source locals: `laneCount`
+
+### `AISpeeds_NeedToSlowDownForCurve__FP8Car_tObjiii` (0x8006de90, aispeeds.cpp:326, map=exact)
+
+- Extra source locals: `iVar3`, `iVar4`, `pAVar2`
+
+### `AISpeeds_BTCGetGlueFactor__FP8Car_tObj` (0x8006e09c, aispeeds.cpp:428, map=exact)
+
+- Extra source locals: `clampedGlueIndex`
+
+### `AISpeeds_GetPrevAICar__FP8Car_tObj` (0x8006e264, aispeeds.cpp:517, map=exact)
+
+- Extra source locals: `zeroTrip`
+
+### `AISpeeds_GetCaravanFactor__FP8Car_tObj` (0x8006e2d0, aispeeds.cpp:554, map=exact)
+
+- Extra source locals: `desiredSpeedProduct`, `desiredSpeedScaled`, `direction`, `followBehindDist`, `halfMaintainTime`, `pCVar1`
+
+### `AISpeeds_GetDamageFactor__FP8Car_tObj` (0x8006e898, aispeeds.cpp:779, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`, `iVar3`, `iVar4`
+
+### `AISpeeds_CalcTrafficTopSpeed__FP8Car_tObj` (0x8006eb6c, aispeeds.cpp:889, map=exact)
+
+- Extra source locals: `desired8`, `iVar2`, `minimumSpeed`, `scaledDesired`, `speedFactor`
+
+### `AISpeeds_RandomizeTrafficSpeed__FP8Car_tObji` (0x8006ed50, aispeeds.cpp:960, map=exact)
+
+- Extra source locals: `speedFactor`
+
+### `AISpeeds_CalcDesiredSpeed__FP8Car_tObj` (0x8006eddc, aispeeds.cpp:999, map=exact)
+
+- Extra source locals: `iVar1`, `uVar2`
+
+### `AISpeeds_SetTrafficSpeedRandomFactor__FP8Car_tObj` (0x8006ef28, aispeeds.cpp:1053, map=exact)
+
+- Extra source locals: `random`, `randomFactor`
+
+### `AISpeeds_GetScriptFactor__FP8Car_tObj` (0x8006f0a4, aispeeds.cpp:1124, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`, `scriptPtr`
+
+### `AISpeeds_GetUpgradeAccMult__Fi` (0x8006f10c, aispeeds.cpp:1144, map=exact)
+
+- Extra source locals: `a`, `pCVar1`
+
+### `AISpeeds_GetUpgradeBrakeMult__Fi` (0x8006f1c8, aispeeds.cpp:1166, map=exact)
+
+- Extra source locals: `a`, `pCVar1`
+
+### `AISpeeds_GetUpgradeHandlingMult__Fi` (0x8006f284, aispeeds.cpp:1188, map=exact)
+
+- Extra source locals: `a`, `pCVar1`
+
+### `AISpeeds_GetUpgradeTopSpeedMult__Fi` (0x8006f340, aispeeds.cpp:1210, map=exact)
+
+- Extra source locals: `a`, `pCVar1`
+
+### `AISpeeds_CalcHumanCurveSpeed__FP8Car_tObj` (0x8006f41c, aispeeds.cpp:1241, map=exact)
+
+- Extra source locals: `off`, `scaled`
+
+### `AIScript_ClearLastReactionIndex__FP10AIScript_t` (0x8006f700, aiscript.cpp:26, map=exact)
+
+- Extra source locals: `neg1`, `pAVar2`
+
+### `AIScript_ProcessActionsAndReactions__FP10AIScript_ti` (0x8006f7f0, aiscript.cpp:76, map=exact)
+
+- Extra source locals: `iVar2`, `new_var`, `new_var2`, `one`, `seven`, `two`
+
+### `AIScript_DoReAction__FP10AIScript_t20AIScript_tAIReaction` (0x8006f958, aiscript.cpp:141, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `StateExecute__12AIState_Base` (0x8006f9ec, aistate.cpp:92, map=exact)
+
+- Extra source locals: `pCVar1`
+
+### `__14AIState_NormalP8Car_tObj` (0x8006fadc, aistate.cpp:177, map=exact)
+
+- Extra source locals: `pCVar1`
+
+### `Execute__12AIState_Idle` (0x8006fb34, aistate.cpp:213, map=exact)
+
+- Extra source locals: `iVar1`, `pCVar2`
+
+### `__13AIState_ChaseP8Car_tObjT1P8coorddefiiiii` (0x8006fbfc, aistate.cpp:338, map=exact)
+
+- Extra source locals: `direction`, `reverseDirCheck`
+
+### `_._13AIState_Chase` (0x8006fd04, aistate.cpp:422, map=abi-carrier)
+
+- Mapping: explicit verify_asm-PASS deleting-destructor ABI carrier; the source function's `pThis`/`__in_chrg` parameters represent the retail member destructor's implicit ABI parameters.
+- Extra source locals: `pCVar1`
+
+### `SetTarget__13AIState_ChaseP8Car_tObjP8coorddef` (0x8006fd8c, aistate.cpp:472, map=exact)
+
+- Extra source locals: `iVar1`, `iVar3`
+
+### `SetUp__13AIState_Chase` (0x8006fe98, aistate.cpp:580, map=exact)
+
+- Extra source locals: `dc`, `iVar2`, `pCVar1`, `pCVar2`
+
+### `DoNitrous__13AIState_Chasei` (0x80070010, aistate.cpp:701, map=exact)
+
+- Extra source locals: `pCVar2`
+
+### `Execute__13AIState_Chase` (0x8007015c, aistate.cpp:776, map=exact)
+
+- Extra source locals: `lmAbs`
+
+### `CloseTargeting__13AIState_Chase` (0x80070408, aistate.cpp:974, map=exact)
+
+- Extra source locals: `latBias`, `latOffset`, `limit`, `slicePtr`, `t`, `x`, `z`
+
+### `ApproachTargeting__13AIState_Chasei` (0x800708b8, aistate.cpp:1238, map=exact)
+
+- Extra source locals: `iVar5`, `pCVar4`
+
+### `CheckForBarriersAndTargetAroundThem__13AIState_Chase` (0x80070bc4, aistate.cpp:1435, map=exact)
+
+- Extra source locals: `bVar1`, `bVar2`, `lm`, `pCVar3`
+
+### `FindBarrierEndSlice__13AIState_Chase` (0x80070d14, aistate.cpp:1533, map=exact)
+
+- Extra source locals: `numSlicesLess6`
+
+### `_._15AIState_Offroad` (0x800710ac, aistate.cpp:1779, map=abi-carrier)
+
+- Mapping: explicit verify_asm-PASS deleting-destructor ABI carrier; the source function's `pThis`/`__in_chrg` parameters represent the retail member destructor's implicit ABI parameters.
+- Extra source locals: `pCVar1`, `pCVar2`
+
+### `__15AIState_OffroadP8Car_tObjiP8coorddefP10matrixtdefiii` (0x80071120, aistate.cpp:1826, map=exact)
+
+- Extra source locals: `pCVar3`
+
+### `UnleashIfInRange__15AIState_OffroadP8Car_tObj` (0x80071268, aistate.cpp:1880, map=exact)
+
+- Extra source locals: `iVar2`
+
+### `Execute__15AIState_Offroad` (0x800712e0, aistate.cpp:1916, map=exact)
+
+- Extra source locals: `iVar4`, `pCVar1`, `pCVar2`, `pCVar3`
+
+### `__17AIState_PurgatoryP8Car_tObj` (0x8007148c, aistate.cpp:2008, map=exact)
+
+- Extra source locals: `bVar2`, `iVar3`, `pCVar4`, `pCVar5`, `uVar1`
+
+### `_._17AIState_Purgatory` (0x8007163c, aistate.cpp:2114, map=abi-carrier)
+
+- Mapping: explicit verify_asm-PASS deleting-destructor ABI carrier; the source function's `pThis`/`__in_chrg` parameters represent the retail member destructor's implicit ABI parameters.
+- Extra source locals: `iVar2`, `pCVar1`, `pCVar2`, `pCVar4`, `pCVar6`, `ppCVar3`, `sortedList`
+
+### `Execute__17AIState_Purgatory` (0x800717d8, aistate.cpp:2298, map=exact)
+
+- Extra source locals: `pCVar1`
+
+### `__21AIState_RovingTrafficP8Car_tObjP9trigger_t` (0x8007184c, aistate.cpp:2354, map=exact)
+
+- Extra source locals: `iVar1`, `pCVar2`
+
+### `CheckIfCarIsNearbyAndStop__21AIState_RovingTrafficP8Car_tObjRi` (0x800718b4, aistate.cpp:2394, map=exact)
+
+- Extra source locals: `carObj`, `iVar1`, `iVar2`, `iVar5`, `status_r`, `sum`
+
+### `Execute__21AIState_RovingTraffic` (0x80071a68, aistate.cpp:2520, map=exact)
+
+- Extra source locals: `iVar8`, `iVar9`, `pCVar4`, `ppCVar10`
+
+### `_._14AIState_Donuts` (0x80071e0c, aistate.cpp:2663, map=abi-carrier)
+
+- Mapping: explicit verify_asm-PASS deleting-destructor ABI carrier; the source function's `pThis`/`__in_chrg` parameters represent the retail member destructor's implicit ABI parameters.
+- Extra source locals: `pCVar1`
+
+### `Execute__14AIState_Donuts` (0x80071e70, aistate.cpp:2711, map=exact)
+
+- Extra source locals: `candidateSlice`, `carObj`, `numSlicesLess3`, `sliceCenter`
+
+### `Execute__17AIState_GotoSlice` (0x800723c0, aistate.cpp:2932, map=exact)
+
+- Extra source locals: `carObj`, `desiredSpeed`, `inRange`, `limit`
+
+### `InTargetSliceRange__17AIState_GotoSlicei` (0x800724d8, aistate.cpp:3033, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `Execute__14AIState_Cruise` (0x80072588, aistate.cpp:3099, map=exact)
+
+- Extra source locals: `cVar2`, `iVar1`, `pCVar3`
+
+### `Init__24AITrigger_TriggerManagerPc` (0x8007286c, aitriger.cpp:17, map=exact)
+
+- Extra source locals: `deletedMarker`, `pptVar2`
+
+### `InsertTrigger__24AITrigger_TriggerManagerP9trigger_tb` (0x80072948, aitriger.cpp:61, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `GetTrigger__24AITrigger_TriggerManageriPi` (0x80072cd8, aitriger.cpp:187, map=exact)
+
+- Extra source locals: `ptVar1`
+
+### `CheckForClosestTriggerOfType__24AITrigger_TriggerManageri11triggerTypei` (0x80072d40, aitriger.cpp:207, map=exact)
+
+- Extra source locals: `numTriggers`
+
+### `Sort__24AITrigger_TriggerManager` (0x80072e30, aitriger.cpp:286, map=exact)
+
+- Extra source locals: `firstTrigger`, `firstTriggerIndex`, `lastTrigger`, `numTriggers`, `prevTrigger`, `prevTriggerIndex`, `size`, `ta`, `tb`
+
+### `AIWorld_ApxSplineDistance__FP8Car_tObjT0` (0x800730b8, aiworld.cpp:75, map=exact-signature)
+
+- Extra source locals: `iVar1`, `iVar2`
+
+### `AIWorld_ApxSplineDistance__FP8Car_tObji` (0x80073128, aiworld.cpp:103, map=exact-signature)
+
+- Extra source locals: `iVar1`, `iVar2`
+
+### `AIWorld_ApxSplineDistance__FiP8Car_tObj` (0x80073194, aiworld.cpp:129, map=exact-signature)
+
+- Extra source locals: `iVar1`
+
+### `AIWorld_ApxSplineDistance__Fii` (0x800731bc, aiworld.cpp:138, map=exact-signature)
+
+- Extra source locals: `iVar1`, `iVar2`
+
+### `AIWorld_SplineDistance__FP8Car_tObjiP8coorddef` (0x8007327c, aiworld.cpp:175, map=exact-signature)
+
+- Extra source locals: `iVar1`
+
+### `AIWorld_IsDriveableLaneInSliceRange__Fiiii` (0x800732f0, aiworld.cpp:194, map=exact)
+
+- Extra source locals: `i`, `sliceDelta`
+
+### `AIWorld_LaneIndex__Fii` (0x800734cc, aiworld.cpp:307, map=exact)
+
+- Extra source locals: `iVar2`
+
+### `AIWorld_CalculateLaneInfo__FP8Car_tObj` (0x80073594, aiworld.cpp:335, map=exact)
+
+- Extra source locals: `iVar2`
+
+### `AIWorld_CalculateDeltaRoadYaw__FP8Car_tObj` (0x80073658, aiworld.cpp:365, map=exact)
+
+- Extra source locals: `gnLess1`, `iVar2`, `nextSlice`, `numSlices`
+
+### `AIWorld_CalcRoadBend__FP8Car_tObji` (0x800736e0, aiworld.cpp:406, map=exact)
+
+- Extra source locals: `bend`
+
+### `AIWorld_CalcSpeed__FP8Car_tObj` (0x800738d4, aiworld.cpp:465, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`
+
+### `AIWorld_FindBarrierLessLaneAndPosition__FP8Car_tObjPiT1` (0x80073978, aiworld.cpp:498, map=exact)
+
+- Extra source locals: `iVar3`
+
+### `Anim_Restart__Fv` (0x80073a94, anim.cpp:18, map=exact)
+
+- Extra source locals: `deleteMe`, `p`, `pEnd`
+
+### `Anim_DeInitSystem__Fv` (0x80073cb0, anim.cpp:88, map=exact)
+
+- Extra source locals: `bVar1`, `iVar3`, `ppTVar2`
+
+### `Anim_Handle__Fi` (0x80073ce8, anim.cpp:111, map=exact)
+
+- Extra source locals: `iVar2`, `pAVar1`
+
+### `Anim_FreeHandle__Fi` (0x80073d6c, anim.cpp:127, map=exact)
+
+- Extra source locals: `deleteMe`
+
+### `__10AnimScripti` (0x80074360, anim.cpp:264, map=exact-signature)
+
+- Extra source locals: `iVar1`, `ppTVar2`
+
+### `__10AnimScriptii` (0x800743cc, anim.cpp:279, map=exact-signature)
+
+- Extra source locals: `iVar2`, `ppTVar1`
+
+### `__10AnimScriptP5Groupiii` (0x80074468, anim.cpp:301, map=exact-signature)
+
+- Extra source locals: `iVar3`, `ppTVar2`
+
+### `GetTimedAnimPosRot__10AnimScriptP8coorddefP10matrixtdef` (0x800745f8, anim.cpp:359, map=exact-signature)
+
+- Extra source locals: `iVar1`
+
+### `GetTimedAnimPosRot__10AnimScriptiP8coorddefP10matrixtdef` (0x80074624, anim.cpp:368, map=exact-signature)
+
+- Extra source locals: `ticks`
+
+### `AudioClc_SetHorn__FP8Car_tObji` (0x80074738, audioclc.cpp:52, map=exact)
+
+- Extra source locals: `iVar3`, `pAVar2`, `piVar1`
+
+### `AudioClc_HonkHorn__FP8Car_tObjiii` (0x800747a8, audioclc.cpp:83, map=exact)
+
+- Extra source locals: `iVar3`, `pAVar2`, `piVar1`
+
+### `AudioClc_GetClosestCars__Fiii` (0x80075d04, audioclc.cpp:711, map=exact)
+
+- Extra source locals: `viewpos`
+
+### `AudioCmn_UpdateThunder__Fv` (0x800764d0, audiocmn.cpp:215, map=exact)
+
+- Extra source locals: `iVar2`, `uVar1`
+
+### `AudioCmn_RemoveAsyncSfx__Fi` (0x800765b4, audiocmn.cpp:256, map=exact)
+
+- Extra source locals: `ptr`
+
+### `AudioCmn_DeInitAsyncSfx__Fv` (0x8007663c, audiocmn.cpp:278, map=exact)
+
+- Extra source locals: `slot`
+
+### `AudioCmn_LoadAsyncSfx__FiiPvi` (0x8007675c, audiocmn.cpp:333, map=exact)
+
+- Extra source locals: `s`
+
+### `AudioCmn_Init__Fv` (0x80076a74, audiocmn.cpp:439, map=exact)
+
+- Extra source locals: `ambient`, `backwards`, `lap`, `lapSeed`, `mystic`, `setup`
+
+### `AudioCmn_CheckState__FP8Car_tObj` (0x800770bc, audiocmn.cpp:765, map=exact)
+
+- Extra source locals: `lap`, `tailOffset`
+
+### `AudioCmn_InitChannelArray__Fv` (0x800778b0, audiocmn.cpp:987, map=exact)
+
+- Extra source locals: `iVar2`, `neg1`, `pCVar1`
+
+### `scaleFrequency__Fiii` (0x800778e8, audiocmn.cpp:1007, map=exact)
+
+- Extra source locals: `uVar1`, `uVar2`
+
+### `ChooseLoopedSample__F6s_typeT0` (0x80077c94, audiocmn.cpp:1157, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `AudioCmn_SFX__Fi6s_typeT1iii` (0x80077d50, audiocmn.cpp:1221, map=exact)
+
+- Extra source locals: `forceAmp`
+
+### `freeVoiceChannel__Fi` (0x800780d0, audiocmn.cpp:1326, map=exact)
+
+- Extra source locals: `pThis`
+
+### `AudioCmn_PlaySound__Fiiiii` (0x800783a0, audiocmn.cpp:1459, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `AudioCmn_PlaySFX__Fiiiiii` (0x800783cc, audiocmn.cpp:1468, map=exact)
+
+- Extra source locals: `bankNum`, `bbase`, `bch`, `chbase`, `lookup`, `nbase`, `pan`, `pbase`, `pch`, `r`, `slot`, `slot2`
+
+### `AudioCmn_SoundCar__FP8Car_tObjiiiiiii` (0x800788bc, audiocmn.cpp:1647, map=exact)
+
+- Extra source locals: `bVar1`, `currentGas`, `delta`, `gasDelta`, `iVar10`, `iVar6`, `iVar9`, `rampIndex`, `rampedGas`, `roadProduct`, `sVar2`, `sndPlayer`, `speed`, `tunnelFlag`, `uVar7`
+
+### `AudioCmn_TrafficSFX__Fiiiiiiii` (0x80079104, audiocmn.cpp:1991, map=exact)
+
+- Extra source locals: `dir12`, `fade`, `index`, `patch`
+
+### `AudioCmn_TrafficSkidSFX__Fi6s_typeT1iii` (0x80079390, audiocmn.cpp:2060, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `AudioCmn_PlayerHornOn__Fiiiii` (0x80079444, audiocmn.cpp:2085, map=exact)
+
+- Extra source locals: `iSFXnum`, `sndPlayer`, `uVar1`
+
+### `AudioCmn_PlayerHornOff__Fi` (0x80079548, audiocmn.cpp:2123, map=exact)
+
+- Extra source locals: `sndPlayer`, `uVar1`
+
+### `AudioCmn_PlayFESFXVol__Fii` (0x80079624, audiocmn.cpp:2161, map=exact)
+
+- Extra source locals: `volScaled`
+
+### `quickSirenOn__Fi` (0x8007971c, audiocmn.cpp:2203, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `SuperCopSirenOn__Fi` (0x80079790, audiocmn.cpp:2218, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `UpdateSiren__Fiiiii` (0x8007995c, audiocmn.cpp:2262, map=exact)
+
+- Extra source locals: `bend`
+
+### `AudioCmn_UnPauseAndQuit__Fv` (0x80079ca4, audiocmn.cpp:2355, map=exact)
+
+- Extra source locals: `j`
+
+### `AudioCmn_UnPauseAndRestart__Fv` (0x80079d8c, audiocmn.cpp:2381, map=exact)
+
+- Extra source locals: `j`
+
+### `AudioMus_Threshold__Fv` (0x80079f58, audiomus.cpp:56, map=exact)
+
+- Extra source locals: `music`
+
+### `AudioMus_GetCurrentSong__Fv` (0x8007a028, audiomus.cpp:98, map=exact)
+
+- Extra source locals: `iVar2`
+
+### `AudioMus_Fail__Fi` (0x8007a1dc, audiomus.cpp:199, map=exact)
+
+- Extra source locals: `iVar2`, `pAVar1`
+
+### `AudioMus_QueueRequestedSong__Fv` (0x8007a258, audiomus.cpp:222, map=exact)
+
+- Extra source locals: `iVar4`, `pAVar2`, `pcVar3`, `piVar1`
+
+### `AudioMus_SetEntry__FP19AudioMus_tSongEntry` (0x8007a308, audiomus.cpp:264, map=exact)
+
+- Extra source locals: `iVar3`
+
+### `AudioMus_SetCurrentSongInfo__Fv` (0x8007a390, audiomus.cpp:322, map=exact)
+
+- Extra source locals: `iVar3`, `iVar4`, `pAVar2`
+
+### `AudioMus_Server__Fii` (0x8007a3d0, audiomus.cpp:346, map=exact)
+
+- Extra source locals: `availableSongs`, `buffered`, `diskReady`, `diskSong`, `randomMusic`, `randomNextSong`, `randomRange`, `randomValue`, `requestedSong`, `switchMode`
+
+### `AudioMus_InitGlobals__Fv` (0x8007aa54, audiomus.cpp:543, map=exact)
+
+- Extra source locals: `pAVar1`
+
+### `AudioMus_InitDriverGlobals__Fv` (0x8007aa78, audiomus.cpp:558, map=exact)
+
+- Extra source locals: `pAVar1`
+
+### `AudioMus_SysStartUp__FiiPc` (0x8007ac18, audiomus.cpp:624, map=exact)
+
+- Extra source locals: `iVar2`, `pcVar1`
+
+### `AudioMus_StopSong__Fi` (0x8007ae04, audiomus.cpp:685, map=exact)
+
+- Extra source locals: `pAVar1`
+
+### `AudioMus_BuildPlayList__FiPi` (0x8007aed8, audiomus.cpp:718, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `AudioMus_BuildPattern__FPc` (0x8007af60, audiomus.cpp:741, map=exact)
+
+- Extra source locals: `iVar2`, `iVar3`, `pattern_00`, `piVar1`
+
+### `AudioMus_PlaySong__FPc` (0x8007b030, audiomus.cpp:772, map=exact)
+
+- Extra source locals: `pick`
+
+### `AudioEng_Set__Fiiiiiiii` (0x8007b5a8, audioeng.cpp:31, map=exact)
+
+- Extra source locals: `adjustedEsp`, `azimuth`, `camera`, `direction`, `doppler`, `gasLevel`, `shiftedEsp`, `volume`
+
+### `AudioEng_Update__Fv` (0x8007b824, audioeng.cpp:115, map=exact)
+
+- Extra source locals: `bVar3`, `cVar6`, `iVar4`, `iVar8`, `iVar9`, `pAVar10`, `pAVar11`, `pAVar12`, `pAVar13`, `pAVar16`, `sVar1`, `sVar2`, `uVar14`, `uVar15`, `uVar5`, `uVar7`
+
+### `AudioEng_LoadDef__FPcT0illPP13AudioEng_tDef` (0x8007bddc, audioeng.cpp:345, map=exact)
+
+- Extra source locals: `pAVar1`
+
+### `AudioEng_StartUp__FiPc` (0x8007be54, audioeng.cpp:358, map=exact)
+
+- Extra source locals: `chanbase`, `gslot`
+
+### `AudioEng_CleanUp__Fv` (0x8007c534, audioeng.cpp:612, map=exact)
+
+- Extra source locals: `base`, `current`, `noHandle`
+
+### `AudioTrk_Reset__Fv` (0x8007c614, audiotrk.cpp:24, map=exact)
+
+- Extra source locals: `iVar4`, `iVar5`, `neg1`, `pAVar1`, `pCVar2`, `puVar3`
+
+### `AudioTrk_StartUp__Fv` (0x8007c6f4, audiotrk.cpp:62, map=exact)
+
+- Extra source locals: `iVar2`, `neg1`, `pAVar1`
+
+### `AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji` (0x8007c750, audiotrk.cpp:85, map=exact)
+
+- Extra source locals: `dopClamped`, `fadeIn`, `fadevol`, `level`
+
+### `AudioTrk_SoundTrack__FP8Car_tObji` (0x8007cdc4, audiotrk.cpp:337, map=exact)
+
+- Extra source locals: `curBack`
+
+### `AudioTrk_PreLoad__Fv` (0x8007d35c, audiotrk.cpp:474, map=exact)
+
+- Extra source locals: `room`
+
+### `xzsquaredist32__FP8coorddefT0` (0x8007d5c4, bworld.cpp:60, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`
+
+### `UpdateContext__FP13DRender_tViewi` (0x8007d608, bworld.cpp:71, map=exact)
+
+- Extra source locals: `pt`, `uVar1`
+
+### `BWorld_InitSpikeBelt__Fv` (0x8007d818, bworld.cpp:150, map=exact)
+
+- Extra source locals: `b`, `g`, `r`
+
+### `BWorld_CheckChunkVisible__FP12BWorldSm_PosT0` (0x8007dc14, bworld.cpp:411, map=exact)
+
+- Extra source locals: `chunkIndBwd`, `chunkIndFwd`, `sliceBwd`, `sliceFwd`
+
+### `BWorld_IsSliceInBuildList__Fi` (0x8007e0a0, bworld.cpp:900, map=exact)
+
+- Extra source locals: `chunkCount`, `piVar1`
+
+### `BWorld_OnyxBuildFacets__FP13DRender_tView` (0x8007e0f4, bworld.cpp:927, map=exact)
+
+- Extra source locals: `fogDist`, `fogStart`, `fogState`, `pvVar3`, `time`, `ts`
+
+### `BWAllocMem__Fl` (0x8007e3f8, bworld.cpp:1039, map=exact)
+
+- Extra source locals: `pcVar1`
+
+### `BWorld_InitContexts__Fv` (0x8007e428, bworld.cpp:1063, map=exact)
+
+- Extra source locals: `noClient`
+
+### `BWorld_Init__Fv` (0x8007e5c8, bworld.cpp:1140, map=exact)
+
+- Extra source locals: `random`
+
+### `BWorldSm_FindClosestSlice__FP8coorddefP12BWorldSm_Pos` (0x8007ea14, bworldsm.cpp:101, map=exact)
+
+- Extra source locals: `bVar3`, `iVar4`
+
+### `BWorldSm_SetSlice__FiP12BWorldSm_Pos` (0x8007ed64, bworldsm.cpp:204, map=exact)
+
+- Extra source locals: `iVar2`, `uVar1`
+
+### `GetStmQuadPts__FP12BWorldSm_PosP8coorddef` (0x8007edb8, bworldsm.cpp:227, map=exact)
+
+- Extra source locals: `vertices`
+
+### `BworldSm_UpdateSimQuad__FP12BWorldSm_Pos` (0x8007f094, bworldsm.cpp:367, map=exact)
+
+- Extra source locals: `iVar3`, `pGVar1`, `pTVar2`
+
+### `RawFindClosestQuad__FP8coorddefP12BWorldSm_Pos` (0x8007f14c, bworldsm.cpp:411, map=exact)
+
+- Extra source locals: `currentQuad`
+
+### `FindClosestQuad__FP8coorddefP12BWorldSm_Pos` (0x8007f8f8, bworldsm.cpp:616, map=exact)
+
+- Extra source locals: `sliceChanged`
+
+### `BWorldSm_FindClosestQuadRez__FP8coorddefP12BWorldSm_Posi` (0x8007fac4, bworldsm.cpp:665, map=exact)
+
+- Extra source locals: `direction`, `inQuad`
+
+### `BWorldSm_FindClosestQuadMaxIterations__FP8coorddefP12BWorldSm_Posi` (0x8007fc90, bworldsm.cpp:707, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `PointDirection__FP8coorddefN20` (0x8007fcb0, bworldsm.cpp:716, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`
+
+### `BWorldSm_QuadLight__FP12BWorldSm_Pos` (0x8007fe44, bworldsm.cpp:753, map=exact)
+
+- Extra source locals: `vertices`
+
+### `BWorldSm_TunnelFlagSm__FP12BWorldSm_Pos` (0x8007ffd4, bworldsm.cpp:790, map=exact)
+
+- Extra source locals: `bVar1`, `surfVal`
+
+### `NormalCache_Init__Fv` (0x800801ac, bworldsm.cpp:876, map=exact)
+
+- Extra source locals: `invalid`
+
+### `BWorldSm_FindClosestTriangleRez__FP8coorddefP12BWorldSm_Posi` (0x80080570, bworldsm.cpp:965, map=exact)
+
+- Extra source locals: `attempt`, `botInd`, `currDist`, `cx`, `cy`, `cz`, `i`, `iVar2`, `iVar3`, `iVar4`, `pThis`, `simIndex`, `simSlices`, `slices`, `startQuadInd`, `startSlice`, `startsimquad`, `x`, `y`, `z`
+
+### `Camera_TunnelLimit__FiPi` (0x800807c4, camera.cpp:120, map=exact)
+
+- Extra source locals: `bVar1`, `pvVar2`
+
+### `Camera_UpdateCollisionCam__Fi` (0x8008090c, camera.cpp:152, map=exact)
+
+- Extra source locals: `pBVar3`
+
+### `Camera_UpdateSimpleCam__Fi` (0x80080ac8, camera.cpp:190, map=exact)
+
+- Extra source locals: `pBVar2`, `sVar1`
+
+### `Camera_UpdateBumperCam__Fi` (0x80080bac, camera.cpp:211, map=exact)
+
+- Extra source locals: `mode`, `pBVar4`
+
+### `Camera_UpdateTailCam__Fii` (0x80080d84, camera.cpp:253, map=exact)
+
+- Extra source locals: `armPtr`, `armY`, `ax`, `first`, `flip`, `lookBehind`, `lookBehindBase`, `mode`, `offset`, `rev`, `second`, `slices`, `x`, `z`
+
+### `Camera_UpdateHeliCam__Fii` (0x800813cc, camera.cpp:568, map=exact)
+
+- Extra source locals: `armY`, `ax`, `first`, `mode`, `offset`, `positionAnchor`, `rev`, `second`, `slices`, `x`, `z`
+
+### `Camera_UpdateCircleCam__Fi` (0x80081ab8, camera.cpp:799, map=exact)
+
+- Extra source locals: `pBVar2`, `sVar1`, `uVar3`
+
+### `SetCameraZoom__Fii` (0x80081d38, camera.cpp:848, map=exact)
+
+- Extra source locals: `gs`
+
+### `Camera_UpdateTVCam__Fi` (0x80081e48, camera.cpp:876, map=exact)
+
+- Extra source locals: `dist4`, `iVar1`, `iVar2`
+
+### `Camera_UpdateAnimCam__Fi` (0x80081f94, camera.cpp:928, map=exact)
+
+- Extra source locals: `cVar1`, `cVar4`, `iVar2`, `pAVar3`, `pBVar6`
+
+### `Camera_UpdateFinishCam__Fi` (0x80082254, camera.cpp:995, map=exact)
+
+- Extra source locals: `iVar1`, `pBVar2`, `pThis`
+
+### `Camera_UpdateBlimpCam__Fi` (0x8008237c, camera.cpp:1032, map=exact)
+
+- Extra source locals: `iVar3`, `pBVar2`, `sVar1`
+
+### `Camera_SetSplineCam__Fi` (0x800824c0, camera.cpp:1060, map=exact)
+
+- Extra source locals: `anchorSlice`, `cameraDirection`, `slice`, `sliceStep`
+
+### `Camera_UpdateSplineCam__Fi` (0x800826c0, camera.cpp:1247, map=exact)
+
+- Extra source locals: `anchorSlice`, `cameraPos`, `d`, `halfSlices`, `newSlice`, `nextSlice`, `nextSliceIdx`, `rotBase`, `rotRow`, `zoom`
+
+### `Camera_UpdatePulloverCam__Fi` (0x80082c94, camera.cpp:1446, map=exact)
+
+- Extra source locals: `cameraBase`, `cameraInfo`, `gameTicks`, `iVar3`
+
+### `Camera_UpdateCopCam1__Fi` (0x80083010, camera.cpp:1530, map=exact)
+
+- Extra source locals: `iVar1`, `pBVar5`
+
+### `Camera_UpdateCopCam2__Fi` (0x800831a8, camera.cpp:1556, map=exact)
+
+- Extra source locals: `tx`, `ty`, `tz`
+
+### `Camera_Update__Fv` (0x800833d8, camera.cpp:1614, map=exact)
+
+- Extra source locals: `bitsInfo`, `cameraBase`, `collisionPlayer`, `inCarMask`, `isInCar`, `modeBits`, `rotationBase`
+
+### `Camera_Kill__Fv` (0x80083bec, camera.cpp:1928, map=exact)
+
+- Extra source locals: `none`
+
+### `Camera_TooSteep__FiP12BWorldSm_Pos` (0x80083d28, camera.cpp:1968, map=exact)
+
+- Extra source locals: `d0`
+
+### `Camera_AcquireTarget__FiP8coorddefT1P10matrixtdefi` (0x80084898, camera.cpp:2201, map=exact)
+
+- Extra source locals: `adj`, `pBVar1`
+
+### `Camera_SetMode__Fii` (0x80085608, camera.cpp:2474, map=exact)
+
+- Extra source locals: `sVar1`
+
+### `Camera_NextMode__Fi` (0x8008581c, camera.cpp:2515, map=exact)
+
+- Extra source locals: `modeForRange`, `sVar1`, `setupBase`, `setupOffset`, `splitBase`, `uVar2`
+
+### `Cars_DoGravityEffectsOnAcc__FP8Car_tObji` (0x80085d84, cars.cpp:91, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`
+
+### `Cars_InitializeCarTablesFlagsAndCounters__FP8Car_tObj` (0x800860e4, cars.cpp:237, map=exact)
+
+- Extra source locals: `carType`, `pGVar6`, `pcVar1`, `pvVar2`, `uVar4`, `uVar7`
+
+### `Cars_SetCarUpForHiRezSim__FP8Car_tObj` (0x80086ac4, cars.cpp:481, map=exact)
+
+- Extra source locals: `bVar1`, `pTVar2`
+
+### `Cars_DoExtraCarCollisionProcessing__FP8Car_tObj` (0x80086b38, cars.cpp:499, map=exact)
+
+- Extra source locals: `player`
+
+### `Car_TireSkiddingStuff__FP8Car_tObj` (0x800878cc, cars.cpp:882, map=exact)
+
+- Extra source locals: `cappedFront`, `skidVelocity`, `splashFront`, `splashRear`
+
+### `Car_DoSkiddingStuff__FP8Car_tObj` (0x800897cc, cars.cpp:1412, map=exact)
+
+- Extra source locals: `uVar1`
+
+### `Car_DoPostCollisionStuff__FP8Car_tObj` (0x800898dc, cars.cpp:1444, map=exact)
+
+- Extra source locals: `absRoll`, `bodyPitchVal`, `clampCond`, `currentRollVal`, `gvClamp`, `iVar1`, `negGroundVel`, `negPitch`, `pBVar4`, `pCVar2`, `rideOffsetVal`, `roundedGV`
+
+### `Cars_CalculateStartingGridOffset__FP8Car_tObjPiP8coorddef` (0x80089b44, cars.cpp:1545, map=exact)
+
+- Extra source locals: `laneWidth`
+
+### `Cars_IniCarObjects__FP8Car_tObji` (0x80089d88, cars.cpp:1616, map=exact)
+
+- Extra source locals: `carType`
+
+### `Cars_InitCar__FP8Car_tObji` (0x8008a174, cars.cpp:1787, map=exact)
+
+- Extra source locals: `iVar1`, `mem`, `pCVar2`
+
+### `Cars_Restart__Fv` (0x8008a4cc, cars.cpp:1909, map=exact)
+
+- Extra source locals: `numCars`, `pCVar2`, `ppCVar6`
+
+### `Cars_Initialize__FPci` (0x8008a5b4, cars.cpp:1952, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `Cars_CleanUp__Fv` (0x8008aa40, cars.cpp:2074, map=exact)
+
+- Extra source locals: `iVar1`, `iVar4`, `pCVar2`, `ppCVar3`, `schedule32Hz`
+
+### `Cars_FindCurrentLap__FP8Car_tObj` (0x8008abc8, cars.cpp:2125, map=exact)
+
+- Extra source locals: `uVar1`, `uVar2`
+
+### `Cars_CalculateRoadSpan__FP8Car_tObj` (0x8008ac80, cars.cpp:2160, map=exact)
+
+- Extra source locals: `absSpan`
+
+### `Cars_CalculateRoadPosition__FP8Car_tObj` (0x8008aec8, cars.cpp:2209, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `Cars_Randomize__Fv` (0x8008af84, cars.cpp:2232, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`
+
+### `InstanceGroup__5ChunkP15SerializedGroupP9SimpleMem` (0x8008b3fc, chunk.cpp:28, map=exact)
+
+- Extra source locals: `cVar2`, `cur`, `group`, `groupData`, `groupMem`, `pGVar6`, `pTVar9`, `probe`, `quadData`, `quadGroup`, `sVar3`, `stride`
+
+### `Clock_MasterInterruptHandler__Fv` (0x8008b938, clock.cpp:27, map=exact)
+
+- Extra source locals: `even128`, `local_10`
+
+### `Clock_SystemCleanUp__Fv` (0x8008ba40, clock.cpp:77, map=exact)
+
+- Extra source locals: `gp`
+
+### `Collide_LimitAngularVel__FP13BO_tNewtonObj` (0x8008d8b4, collide.cpp:367, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`
+
+### `Collide_TestWithPlane__FP13BO_tNewtonObjP8coorddefT1` (0x8008d9a8, collide.cpp:448, map=exact)
+
+- Extra source locals: `relDotFull`
+
+### `Collide_DoObjectObjectCollision__FP13BO_tNewtonObjT0P8coorddefT2` (0x8008e5d4, collide.cpp:641, map=exact)
+
+- Extra source locals: `object1`, `scaleFactor`
+
+### `Collide_TestObjectVertices__FP13BO_tNewtonObjT0P8coorddefT2` (0x80090144, collide.cpp:1278, map=exact)
+
+- Extra source locals: `rpx`, `rpz`
+
+### `Collide_CheckForCollisionBetween__FP13BO_tNewtonObjT0` (0x80091374, collide.cpp:1665, map=exact)
+
+- Extra source locals: `iVar2`, `iVar3`, `new_var`, `speedThresh`
+
+### `Collide_ClearCollisionRegistry__Fv` (0x800914d4, collide.cpp:1761, map=exact)
+
+- Extra source locals: `n`
+
+### `Collide_CheckMeForCollisions__FP13BO_tNewtonObj` (0x800918cc, collide.cpp:1846, map=exact)
+
+- Extra source locals: `minImpulse`
+
+### `Control_Human__FP8Car_tObj` (0x80091fe4, control.cpp:18, map=exact)
+
+- Extra source locals: `lights`
+
+### `SPCHNFS_C_A_CONFIRM` (0x80092f54, spchevnt.c:64, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_D_REQUEST_EMS` (0x80092fa8, spchevnt.c:85, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_D_C_BEGIN_PURS_REP_SPDR` (0x80092ffc, spchevnt.c:105, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR_REPLY` (0x80093064, spchevnt.c:129, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR` (0x800930f8, spchevnt.c:157, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_C_IN_PURS_NEAR_PERP` (0x80093198, spchevnt.c:186, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_D_C_IN_PURS_NEAR_PERP` (0x800931f0, spchevnt.c:207, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_STS` (0x80093238, spchevnt.c:226, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_D_C_IN_PURS_NEAR_PERP_CONFIRM` (0x800932b4, spchevnt.c:251, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_STS` (0x80093320, spchevnt.c:275, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_D_C_IN_PURS_AWAY_PERP_CONFIRM` (0x80093394, spchevnt.c:300, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_STS` (0x80093400, spchevnt.c:324, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_D_REQ_RDBLK` (0x800934a8, spchevnt.c:364, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_D_C_RDBLK_SPBLT_DENIED_REPLY` (0x800934f0, spchevnt.c:383, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_D_C_RDBLK_SPBLT_GRANT_REPLY` (0x80093538, spchevnt.c:402, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_D_C_RDBLK_CONFIRMED` (0x8009358c, spchevnt.c:422, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_D_RDBLK_FAILED` (0x800935e0, spchevnt.c:443, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_D_REQUEST_BKUP` (0x80093638, spchevnt.c:464, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_D_C_BKUP_REQUEST_GRANT_REPLY` (0x800936ac, spchevnt.c:489, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_D_C_BKUP_REQUEST_DENIED_REPLY` (0x80093708, spchevnt.c:512, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_C_NEW_OFFICER_ENGAGING` (0x80093748, spchevnt.c:530, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_D_PERP_SIGHTED` (0x80093794, spchevnt.c:550, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_D_C_PERP_SIGHTED_CONFIRM` (0x80093820, spchevnt.c:577, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_D_PERP_LOST` (0x8009386c, spchevnt.c:597, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_D_C_PERP_LOST_CONFIRM` (0x800938f4, spchevnt.c:624, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_C_PERP_REAQUIRED` (0x80093940, spchevnt.c:644, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_D_PERP_APPREHENSION` (0x800939b4, spchevnt.c:669, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_D_C_PERP_APPREHENSION_REPLY` (0x80093a08, spchevnt.c:689, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_D_PERP_CRASH_GEN` (0x80093a60, spchevnt.c:710, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_P_ARRESTED` (0x80093ae8, spchevnt.c:737, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_P_WARNING` (0x80093b3c, spchevnt.c:757, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_P_TICKET` (0x80093b90, spchevnt.c:777, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_P_FALSE_ARREST_BULLHORN` (0x80093be4, spchevnt.c:797, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_D_DURING_FALSE_ARREST` (0x80093c2c, spchevnt.c:816, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_P_BULLHORN_SPEECH` (0x80093c80, spchevnt.c:836, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_S_C_SUPER_COP_ARRIVAL` (0x80093cc8, spchevnt.c:855, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_S_C_SUPER_COP_CRITICISM` (0x80093d10, spchevnt.c:874, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_LOC` (0x80093d58, spchevnt.c:893, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_SPD` (0x80093db8, spchevnt.c:916, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_LOC` (0x80093e0c, spchevnt.c:937, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_LOC` (0x80093e98, spchevnt.c:964, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_D_C_INTRO_CALL` (0x80093f14, spchevnt.c:989, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_A_INTRO` (0x80093f64, spchevnt.c:1010, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_D_IN_PURS_PERP_AIRBORN` (0x80093fbc, spchevnt.c:1032, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_D_C_SPBLT_CONFIRMED` (0x80094004, spchevnt.c:1051, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_D_REQ_SPBLT` (0x8009406c, spchevnt.c:1075, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_D_SPBLT_FAILED` (0x800940b4, spchevnt.c:1094, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_W_D_RDBLK_PLC` (0x8009410c, spchevnt.c:1115, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_W_D_SPBLT_PLC` (0x8009416c, spchevnt.c:1138, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_D_PERP_CRASH_ROLL` (0x800941e4, spchevnt.c:1164, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_D_A_CONFIRM` (0x80094258, spchevnt.c:1188, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `SPCHNFS_C_D_ENDGAME` (0x800942a0, spchevnt.c:1207, map=exact)
+
+- Extra source locals: `iVar2`, `plVar1`
+
+### `Check__Q26Speech7CarBankPciPQ26Speech11CarBankName` (0x8009441c, speech.cpp:171, map=exact)
+
+- Extra source locals: `bVar1`, `iVar3`, `lVar2`, `param_2`
+
+### `CheckCarBank__6SpeechPQ26Speech7CarBankPciPQ26Speech11CarBankName` (0x80094524, speech.cpp:215, map=exact)
+
+- Extra source locals: `banknameWalk`, `carbankWalk`, `iVar1`, `iVar2`
+
+### `SetCar__Q26Speech7SpeakerP8Car_tObj` (0x800945d8, speech.cpp:245, map=exact)
+
+- Extra source locals: `dispatchThis`, `iVar2`, `piVar1`, `uVar3`
+
+### `CountLocations__6Speech` (0x800946f8, speech.cpp:291, map=exact)
+
+- Extra source locals: `pSVar2`, `pcVar1`
+
+### `CheckLocationBank__6SpeechPQ26Speech12LocationBankPci` (0x80094768, speech.cpp:321, map=exact)
+
+- Extra source locals: `iVar4`, `iVar8`, `lVar3`, `pSVar6`, `pcVar5`, `sVar1`, `sVar2`, `t0`, `t1`, `t2`
+
+### `Distance__Q26Speech12LocationBanki` (0x8009486c, speech.cpp:376, map=exact)
+
+- Extra source locals: `backward`, `end`, `forward`, `start`
+
+### `FindClosestLocationTo__6SpeechPQ26Speech12LocationBanki` (0x80094900, speech.cpp:418, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`, `iVar3`, `pLVar4`, `this_00`
+
+### `FindLocation__Q26Speech7SpeakerP8Car_tObj` (0x800949d8, speech.cpp:452, map=exact)
+
+- Extra source locals: `advance`, `offset`
+
+### `CheckCallSignBank__6SpeechPQ26Speech12CallSignBankPci` (0x80094cd0, speech.cpp:562, map=exact)
+
+- Extra source locals: `iVar2`, `iVar3`, `iVar4`, `lVar1`, `pSVar6`, `pThis`
+
+### `CalculateBankSize__6SpeechPcPQ26Speech11CarBankNamePlT3` (0x80094fa8, speech.cpp:653, map=exact)
+
+- Extra source locals: `cc`, `extension`, `h`, `hd`, `period`
+
+### `LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell` (0x800951bc, speech.cpp:758, map=exact)
+
+- Extra source locals: `ac`, `alignment`, `cc`, `dataSize`, `dc`, `extension`, `firstbyte`, `h`, `hd`, `isheader`, `joffset`, `namep`, `period`, `reserveArg`, `reserveBytes`, `reserveCallArg`
+
+### `__6Speech` (0x800955f4, speech.cpp:930, map=exact)
+
+- Extra source locals: `dispatch`, `mobile`, `rate`
+
+### `Reset__6Speech` (0x80095994, speech.cpp:1018, map=exact)
+
+- Extra source locals: `dispatch`, `iVar5`, `speech`
+
+### `SubmitRequest__6Speechlll` (0x80095c20, speech.cpp:1120, map=exact)
+
+- Extra source locals: `bankStart`, `pThis`, `requestCar`, `requestFile`
+
+### `Promote__Q26Speech7Speaker` (0x80095d8c, speech.cpp:1273, map=exact)
+
+- Extra source locals: `cont`, `iVar2`
+
+### `Speech_Server__Fv` (0x80095df8, speech.cpp:1299, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `SetDelayedStatus__6SpeechPQ26Speech7Speakeri` (0x80095e34, speech.cpp:1312, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `Activate__Q26Speech15DispatchSpeakeri` (0x80095e54, speech.cpp:1324, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`, `iVar3`
+
+### `Roger__Q26Speech15DispatchSpeaker` (0x80095f28, speech.cpp:1373, map=exact)
+
+- Extra source locals: `bVar1`, `bank`, `iVar2`, `pCVar5`, `pSVar7`, `reg_a1`, `reg_a2`, `reg_a3`, `sub`
+
+### `StatusReply__Q26Speech15DispatchSpeaker` (0x8009619c, speech.cpp:1471, map=exact)
+
+- Extra source locals: `bank`, `blocked`, `candidate`, `car`, `child`, `context`, `distance`, `from`, `hasBlocker`, `invalid`, `location`, `reverse`, `statusSub`, `sub`, `wing`
+
+### `Status__Q26Speech15DispatchSpeaker` (0x800965d0, speech.cpp:1738, map=exact)
+
+- Extra source locals: `PURS_UPDT`, `branchSub`, `canUpdate`, `car`, `carSpeed`, `carVf`, `case3Distance`, `case3DistanceVf`, `checkVf`, `clearVf`, `currentPosition`, `currentVf`, `dispatchVf`, `distanceVf`, `fastEnough`, `initialInvalid`, `initialVf`, `isCurrentSub`, `nearEntry`, `nearThis`, `nearVf`, `nestedDifferent`, `nestedPosition`, `nestedSpeaker`, `perpDistance`, `perpVf`, `position`, `positionSpeed`, `positionVf`, `ready`, `resetVf`, `speakerVf`, `speechContext`, `speechEntry`, `speechIndex`, `speechTable`, `statusSub`, `statusVf`, `tu5`, `uVar10`, `updateDistance`
+
+### `Status__Q26Speech13MobileSpeaker` (0x80096b88, speech.cpp:1969, map=exact)
+
+- Extra source locals: `COLOUR`, `REVINTRO`, `bVar1`, `bVar2`, `dispatchThis`, `dispatchVf`, `iVar11`, `iVar4`, `maskedFlags`, `nearLocation`, `pCVar5`, `pMVar12`, `pSVar10`, `pSVar7`, `pSVar9`, `pa_Var3`, `puVar6`, `uVar13`, `uVar8`, `vs_KMH_MPH`
+
+### `Report__Q26Speech15DispatchSpeakerP8Car_tObj` (0x800971b0, speech.cpp:2347, map=exact)
+
+- Extra source locals: `COLOUR`, `CONFIRM`, `REVINTRO`, `bVar1`, `bank`, `ctx`, `iVar3`, `iVar4`, `introFrom`, `pa_Var2`, `param2`, `piVar5`, `pursuitCar`, `reg_a2`, `reg_a3`, `sightedTo`, `speech`
+
+### `Deny__Q26Speech15DispatchSpeaker` (0x80097358, speech.cpp:2429, map=exact)
+
+- Extra source locals: `REVINTRO`, `bank`, `ctx`, `iVar2`, `iVar3`, `pSVar4`, `pa_Var1`, `reg_a3`, `vs_RDBLK_SSTRP`
+
+### `Grant__Q26Speech15DispatchSpeaker` (0x8009744c, speech.cpp:2485, map=exact)
+
+- Extra source locals: `CONFIRM`, `pSVar1`, `vs_RDBLK_SSTRP`
+
+### `Ready__Q26Speech15DispatchSpeakerP8Car_tObj` (0x800974b0, speech.cpp:2511, map=exact)
+
+- Extra source locals: `doSwap`, `pSVar1`, `pSVar3`, `pa_Var2`, `src_pos`
+
+### `Activate__Q26Speech13MobileSpeakerP8Car_tObj` (0x80097620, speech.cpp:2561, map=exact)
+
+- Extra source locals: `iVar3`, `pFrom`, `pa_Var2`
+
+### `ReActivate__Q26Speech13MobileSpeaker` (0x8009770c, speech.cpp:2605, map=exact)
+
+- Extra source locals: `pFrom`, `pa_Var1`
+
+### `FindMobile__6SpeechP8Car_tObj` (0x800977b8, speech.cpp:2634, map=exact)
+
+- Extra source locals: `mobile`
+
+### `Mobile__6SpeechP8Car_tObj` (0x8009785c, speech.cpp:2658, map=exact)
+
+- Extra source locals: `pSVar1`
+
+### `CalcMph__Q26Speech7SpeakerP8Car_tObj` (0x800978a4, speech.cpp:2676, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`
+
+### `Report__Q26Speech13MobileSpeakerP8Car_tObj` (0x80097bfc, speech.cpp:2760, map=exact)
+
+- Extra source locals: `ID_UNIT1`, `REVINTRO`, `VOICE`, `ctx`, `pa_Var1`, `reportCar`, `reportLocation`
+
+### `Engage__Q26Speech13MobileSpeakerP8Car_tObj` (0x80097ce8, speech.cpp:2801, map=exact)
+
+- Extra source locals: `COLOUR`, `bVar2`, `bVar3`, `bVar4`, `bVar5`, `carId`, `chainDispatch`, `chainSub`, `chainVf`, `countVf`, `dispatchCarState`, `dispatchCount`, `dispatchIntro`, `dispatchPosition`, `dispatchPositionVf`, `dispatchResult`, `dispatchRoot`, `dispatchSpeaker`, `dispatchStateVf`, `dispatchTail`, `dispatchThis`, `dispatchVf`, `dispatchVtable`, `engageCar`, `engageLocation`, `engageSpeed`, `engageVf`, `iVar7`, `iVar9`, `initialCarState`, `introTable`, `introVf`, `knownEntry`, `knownPerp`, `knownThis`, `knownVf`, `locationVf`, `next`, `pCVar3`, `pMVar5`, `pMVar6`, `pSVar11`, `pSVar12`, `pSVar13`, `pSVar14`, `pa_Var10`, `positionVf`, `puVar8`, `pursuitFlag`, `pursuitVf`, `replyCar`, `replyLocation`, `replyTo`, `sameCount`, `sameCountVf`, `sameIntro`, `sameIntroVf`, `sameLocationVf`, `samePositionVf`, `sameVoice`, `savedDispatch`, `setCarVf`, `sightedCar`, `sightedLocation`, `speedVf`, `stateVf`, `superCarState`, `superCheck`, `superCheckVf`, `superDispatch`, `superFlag`, `superIntroVf`, `superPositionVf`, `superState`, `superVoice`, `temp_a1_4`, `temp_s0_3`, `temp_s1_2`, `temp_v0_21`, `temp_v0_22`, `uVar15`
+
+### `Lose__Q26Speech13MobileSpeaker` (0x80098434, speech.cpp:3204, map=exact)
+
+- Extra source locals: `REVINTRO`, `bVar1`, `bank`, `dispatchThis`, `finalDispatch`, `iVar3`, `iVar4`, `pCVar5`, `pSVar7`, `pa_Var2`, `reg_a1`, `reg_a2`, `reg_a3`, `uVar6`, `uVar8`, `voiceArg`
+
+### `Catch__Q26Speech13MobileSpeakeri` (0x80098790, speech.cpp:3364, map=exact)
+
+- Extra source locals: `colour`, `dispatchThis`, `dispatchVf`, `distance`, `iVar2`, `pa_Var1`
+
+### `RoadBlock__Q26Speech13MobileSpeaker` (0x80098a4c, speech.cpp:3467, map=exact)
+
+- Extra source locals: `REVINTRO`, `VOICE`, `ctx`, `dispatch`, `iVar2`, `iVar3`, `pa_Var4`
+
+### `SpikeBelt__Q26Speech13MobileSpeaker` (0x80098b60, speech.cpp:3516, map=exact)
+
+- Extra source locals: `REVINTRO`, `VOICE`, `ctx`, `dispatch`, `iVar2`, `iVar3`, `pa_Var4`
+
+### `Backup__Q26Speech13MobileSpeaker` (0x80098c74, speech.cpp:3565, map=exact)
+
+- Extra source locals: `COLOUR`, `ID_UNIT1`, `REVINTRO`, `VOICE`, `ctx`, `flags`, `iVar2`, `pCVar3`, `pa_Var1`, `requestCar`, `requestLocation`
+
+### `Roger__Q26Speech13MobileSpeaker` (0x80098d6c, speech.cpp:3625, map=exact)
+
+- Extra source locals: `COLOUR`, `VOICE`, `bVar1`, `bank`, `bankBase`, `bankIndex`, `confirmUnit`, `confirmVoice`, `ctx_00`, `dispatchStatus`, `iVar2`, `pSVar6`, `reg_a1`, `reg_a2`, `reg_a3`, `statusSub`
+
+### `Purge__Q26Speech13MobileSpeaker` (0x80098f18, speech.cpp:3711, map=exact)
+
+- Extra source locals: `bVar1`, `dispatchPurge`, `dispatchStatus`, `iVar3`, `next`, `pMVar4`, `pa_Var2`
+
+### `ReportBlockade__Q26Speech13MobileSpeaker` (0x8009916c, speech.cpp:3804, map=exact)
+
+- Extra source locals: `DISTANCE`, `ID_UNIT1`, `REVINTRO`, `SPIKE_BELT_SIDE`, `VOICE`, `car`, `ctx`, `iVar2`, `pa_Var1`
+
+### `GetCarBank__Q26Speech15DispatchSpeakeri` (0x80099328, speech.cpp:3925, map=exact)
+
+- Extra source locals: `off`
+
+### `CopSpeak_RadioStaticActive__Fi` (0x80099418, copspeak.cpp:82, map=exact)
+
+- Extra source locals: `handle`
+
+### `CopSpeak_RadioStaticSquelch__Fv` (0x80099588, copspeak.cpp:130, map=exact)
+
+- Extra source locals: `iVar1`, `ph`
+
+### `CopSpeak_Free__FP17CopSpeak_tRequest` (0x8009971c, copspeak.cpp:209, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`
+
+### `CopSpeak_CleanUp__Fv` (0x80099adc, copspeak.cpp:343, map=exact)
+
+- Extra source locals: `iVar2`, `pCVar1`
+
+### `CopSpeak_InitVars__Fv` (0x80099b70, copspeak.cpp:371, map=exact)
+
+- Extra source locals: `pCVar1`
+
+### `CopSpeak_DirectRequest__FillP8Car_tObjPc` (0x80099bec, copspeak.cpp:397, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`
+
+### `CopSpeak_GenericBankRequest__FiP8Car_tObj` (0x80099c98, copspeak.cpp:424, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`
+
+### `CopSpeak_GetEnginePatch__Fii` (0x8009a2cc, copspeak.cpp:601, map=exact)
+
+- Extra source locals: `iVar1`, `t1`
+
+### `CopSpeak_Play__FP17CopSpeak_tRequesti` (0x8009a304, copspeak.cpp:618, map=exact)
+
+- Extra source locals: `scaled`
+
+### `CopSpeak_Skip__Fv` (0x8009a45c, copspeak.cpp:678, map=exact)
+
+- Extra source locals: `iVar2`, `uVar1`
+
+### `CopSpeak_Request__FP17CopSpeak_tRequest` (0x8009a4c8, copspeak.cpp:701, map=exact)
+
+- Extra source locals: `head`, `iVar6`
+
+### `CopSpeak_PlayNextRequest__Fv` (0x8009a828, copspeak.cpp:821, map=exact)
+
+- Extra source locals: `iVar3`, `next`
+
+### `CopSpeak_Flush__Fv` (0x8009a944, copspeak.cpp:861, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`, `pCVar1`
+
+### `CopSpeak_Server__Fv` (0x8009a994, copspeak.cpp:881, map=exact)
+
+- Extra source locals: `carNoise`
+
+### `CopSpeak_SfxQueued__Fv` (0x8009ac60, copspeak.cpp:971, map=exact)
+
+- Extra source locals: `iVar1`, `pEntry`
+
+### `DashHUD_CheckWrongWay__Fi` (0x8009b098, dashhud.cpp:100, map=exact)
+
+- Extra source locals: `iVar2`, `pBVar1`
+
+### `DashHUD_HUDCalc__Fi` (0x8009b108, dashhud.cpp:120, map=exact)
+
+- Extra source locals: `topSpeed`
+
+### `GenericPMX_LoadTexture__Fv` (0x8009b458, genericpmx.cpp:48, map=exact)
+
+- Extra source locals: `pmx_height`, `shape_result`
+
+### `LocateGroupNum__15SerializedGroupi` (0x8009c1c0, group.cpp:65, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`, `pThis`, `param_1`
+
+### `LocateCreateGroupType__15SerializedGroupiP9SimpleMemi` (0x8009c204, group.cpp:92, map=exact)
+
+- Extra source locals: `iVar1`, `memAddress`, `param_1`, `uVar2`
+
+### `CreateLiteGroup__15SerializedGroupP15SerializedGroupP9SimpleMem` (0x8009c27c, group.cpp:113, map=exact)
+
+- Extra source locals: `memAddress`, `n`, `pThis`, `param_1`, `puVar1`, `sourceAddress`
+
+### `CreateLiteGroupDataSize__15SerializedGroupP15SerializedGroupP9SimpleMemi` (0x8009c2e4, group.cpp:134, map=exact)
+
+- Extra source locals: `memAddress`, `pThis`, `param_1`, `puVar1`, `sourceAddress`
+
+### `Input_WingCommandMode__Fi` (0x8009c408, input.cpp:66, map=exact)
+
+- Extra source locals: `mode`
+
+### `Input_Update__Fv` (0x8009c478, input.cpp:110, map=exact)
+
+- Extra source locals: `activeBase`, `activePtr`, `activeValue`, `addressBlocker`, `addressBlocker2`, `addressBlocker3`, `addressBlocker4`, `addressBlocker5`, `dbFlags`, `interfaceActive`, `one`
+
+### `Math_VectorLength__FP8coorddef` (0x8009d6ec, mathnfs.cpp:140, map=exact)
+
+- Extra source locals: `absV`
+
+### `Math_VectorLength2__FP8coorddef` (0x8009d888, mathnfs.cpp:197, map=exact)
+
+- Extra source locals: `absV`
+
+### `Math_NormalizeVector__FP8coorddef` (0x8009da1c, mathnfs.cpp:254, map=exact)
+
+- Extra source locals: `absV`
+
+### `Math_NormalizeShortVector__FP8coorddef` (0x8009dbd4, mathnfs.cpp:307, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`, `len_or_inv`, `tmp`, `z_sq`
+
+### `MPause_MusicLogic__Fc` (0x8009e3e8, mpause.cpp:123, map=exact)
+
+- Extra source locals: `bVar1`, `iVar3`, `pThis`, `uVar2`
+
+### `MPause_ControllerLogic__Fv` (0x8009e6a0, mpause.cpp:222, map=exact)
+
+- Extra source locals: `item`
+
+### `MPause_Logic__Fv` (0x8009e784, mpause.cpp:254, map=exact)
+
+- Extra source locals: `newItem`, `oldItem`, `pThis`
+
+### `MPause_Render__Fv` (0x8009eaa0, mpause.cpp:363, map=exact)
+
+- Extra source locals: `offset`, `y`
+
+### `MPause_EndPauseMenu__Fv` (0x8009eeb0, mpause.cpp:451, map=exact)
+
+- Extra source locals: `deviceSetup`
+
+### `Newton_AddDamageZone__FP13BO_tNewtonObjiii` (0x8009ef2c, newton.cpp:85, map=exact)
+
+- Extra source locals: `cappedYVel`, `newYVel`, `randomX`, `randomY`, `randomZ`, `result`, `secondTemp`
+
+### `Newton_FindGroundElevationAndNormal__FP13BO_tNewtonObjP8coorddef` (0x8009ff80, newton.cpp:627, map=exact)
+
+- Extra source locals: `iVar20`, `iVar24`, `iVar3`, `iVar5`, `newWheelAcc`, `pBVar4`, `temp`, `ti1`, `ti4`, `ti5`, `tstr9`, `wheelIndex`, `wheelY`
+
+### `Newton_LimitCarsToDrivableDist__FP13BO_tNewtonObj` (0x800a0da4, newton.cpp:1096, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `Newton_CalcPerpenHeightOfCenterPointFromGround__FP13BO_tNewtonObjP8coorddefT1` (0x800a116c, newton.cpp:1161, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `Newton_UpdateRoadInfo__FP13BO_tNewtonObj` (0x800a1568, newton.cpp:1281, map=exact)
+
+- Extra source locals: `pTVar2`, `uVar1`
+
+### `Newton_SetInitialSlicePositionOrientationEtc__FP13BO_tNewtonObjiP8coorddefi` (0x800a179c, newton.cpp:1361, map=exact)
+
+- Extra source locals: `altitude`, `surfaceType`
+
+### `Newton_QDUpdateVel__FP13BO_tNewtonObj` (0x800a1e68, newton.cpp:1548, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`, `iVar3`
+
+### `Newton_QDUpdateRot64Hz__FP13BO_tNewtonObj` (0x800a20e8, newton.cpp:1620, map=exact)
+
+- Extra source locals: `cVar1`, `iVar2`, `iVar3`, `m1`
+
+### `Newton_QDUpdateRot32Hz__FP13BO_tNewtonObj` (0x800a21f8, newton.cpp:1664, map=exact)
+
+- Extra source locals: `cVar1`, `iVar2`, `iVar3`, `m1`
+
+### `Newton_CalculateGroundShadowMatrix__FP13BO_tNewtonObjP8coorddefi` (0x800a2318, newton.cpp:1707, map=exact)
+
+- Extra source locals: `dot`
+
+### `Newton_DoPostBarrierCollisionHandling__FP13BO_tNewtonObjG8coorddef` (0x800a2af0, newton.cpp:1901, map=exact)
+
+- Extra source locals: `dsum`, `nx`, `nxq`, `ny`, `nyq`, `nz`, `nz2`, `retreat`, `t3`, `yTemp`
+
+### `Netwon_CheckForBadQuad__FP13BO_tNewtonObjP12BWorldSm_Posi` (0x800a2e24, newton.cpp:2455, map=exact)
+
+- Extra source locals: `quad`, `uVar1`
+
+### `Newton_TestForUndrivableSurfaces__FP13BO_tNewtonObj` (0x800a2e84, newton.cpp:2592, map=exact)
+
+- Extra source locals: `aborted`, `iVar12`, `quadPt`
+
+### `Newton_LimitAngularVelocity__FP13BO_tNewtonObj` (0x800a35dc, newton.cpp:2922, map=exact)
+
+- Extra source locals: `uVar1`
+
+### `Newton_ApplyTheLawOfGravity__FP13BO_tNewtonObj` (0x800a3674, newton.cpp:2946, map=exact)
+
+- Extra source locals: `maxImpulse`
+
+### `__builtin_new` (0x800a3d5c, new.cpp:15, map=exact)
+
+- Extra source locals: `pvVar1`
+
+### `__builtin_vec_new` (0x800a3d84, new.cpp:25, map=exact)
+
+- Extra source locals: `pvVar1`
+
+### `Nfs2_SystemNLibStartUp__Fv` (0x800a3dec, nfs3.cpp:50, map=exact)
+
+- Extra source locals: `p`
+
+### `Nfs2_GameModuleStartUp__FPi` (0x800a41a8, nfs3.cpp:192, map=exact)
+
+- Extra source locals: `pThis`
+
+### `LoadFrontendOverlay__Fv` (0x800a44f8, nfs3.cpp:289, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `LoadOverlay__Fv` (0x800a454c, nfs3.cpp:307, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `NFS3_CheckForFileOperations__Fv` (0x800a46dc, nfs3.cpp:365, map=exact)
+
+- Extra source locals: `__asm__`, `e`
+
+### `main` (0x800a4730, nfs3.cpp:765, map=exact)
+
+- Extra source locals: `iVar2`, `uVar1`
+
+### `CalcObjYawAngle__FP8CCOORD16` (0x800a4ae4, object.cpp:70, map=exact)
+
+- Extra source locals: `angle`
+
+### `CalcObjExtentPoints__FP8coorddefP8CCOORD16T0P5tQuat` (0x800a4b1c, object.cpp:82, map=exact)
+
+- Extra source locals: `tmpx`
+
+### `BuildObjCollisionMatrix__FiiiP10matrixtdef` (0x800a4be8, object.cpp:114, map=exact)
+
+- Extra source locals: `impactComp`, `objComp`
+
+### `Object_InitCollisionCheckLoop__FP12BWorldSm_PosP18Object_tSimObjListPi` (0x800a4cfc, object.cpp:170, map=exact)
+
+- Extra source locals: `altSlice`
+
+### `Object_KillStatus__Fv` (0x800a5258, object.cpp:362, map=exact)
+
+- Extra source locals: `pOVar1`, `ppOVar2`
+
+### `Object_CheckCollisionResults__FP18Object_tSimObjListiP13BO_tNewtonObj` (0x800a52f0, object.cpp:414, map=exact)
+
+- Extra source locals: `finishedMulti`, `finishedSign`
+
+### `Object_InitCustomObjects__Fv` (0x800a5588, object.cpp:509, map=exact)
+
+- Extra source locals: `dst`
+
+### `SetCautionSurface__FP8coorddefP12BWorldSm_Pos` (0x800a573c, object.cpp:579, map=exact)
+
+- Extra source locals: `simQuad`
+
+### `Object_FindDefWithThisID__Fi` (0x800a59ac, object.cpp:654, map=exact)
+
+- Extra source locals: `objDef`, `pThis`, `ppTVar2`
+
+### `Object_AddCustomObject__FP9SceneElemi` (0x800a5a04, object.cpp:684, map=exact)
+
+- Extra source locals: `size`, `type`
+
+### `GetObjMaxDimensions__FPP13Trk_ObjectDefP14Trk_SimpleInstP8coorddef` (0x800a5d58, object.cpp:873, map=exact)
+
+- Extra source locals: `lastVert`, `stopVert`
+
+### `__15ObjectMultiAnimP8coorddefP7AnimDefP19Trk_CollideBoomInstP13Trk_ObjectDefP13Trk_SimObjectP23ObjectFinishedMultiAnim` (0x800a6200, object.cpp:1038, map=exact)
+
+- Extra source locals: `z`
+
+### `Draw__15ObjectMultiAnimP13DRender_tViewP11Draw_DCachei` (0x800a62f8, object.cpp:1073, map=exact)
+
+- Extra source locals: `t3`
+
+### `Draw__22ObjectFinishedSignAnimP13DRender_tViewP11Draw_DCachei` (0x800a671c, object.cpp:1186, map=exact)
+
+- Extra source locals: `pThis`
+
+### `Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei` (0x800a6a38, object.cpp:1257, map=exact)
+
+- Extra source locals: `finishedAnim`, `pTVar4`, `pThis`, `pa_Var3`, `ret`
+
+### `Paths_StartUp__Fv` (0x800a6e14, paths.cpp:17, map=exact)
+
+- Extra source locals: `deadfrm`, `frontPath`, `pathTable`
+
+### `PauseMenu_FullText__FPcsss` (0x800a6e60, pausemenu.cpp:17, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `PauseMenu_MenuTextPositioned__Fssss` (0x800a6f14, pausemenu.cpp:46, map=exact)
+
+- Extra source locals: `iVar1`, `sMenuText`
+
+### `PauseMenu_MenuText__FsbT1` (0x800a6f8c, pausemenu.cpp:68, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `TextValue__14tPListIterator7tPlayer` (0x800a7054, pausemenu.cpp:120, map=exact)
+
+- Extra source locals: `arg1`, `uVar1`
+
+### `Increment__14tPListIterator7tPlayer` (0x800a70a4, pausemenu.cpp:134, map=exact)
+
+- Extra source locals: `arg1`
+
+### `Decrement__14tPListIterator7tPlayer` (0x800a7110, pausemenu.cpp:150, map=exact)
+
+- Extra source locals: `arg1`, `pWork`, `piVar2`, `sVar1`
+
+### `TextValue__21tPListIteratorIndexed7tPlayer` (0x800a7240, pausemenu.cpp:214, map=exact)
+
+- Extra source locals: `arg1`, `pa_Var1`, `uVar2`
+
+### `Increment__21tPListIteratorIndexed7tPlayer` (0x800a7290, pausemenu.cpp:231, map=exact)
+
+- Extra source locals: `arg1`
+
+### `Decrement__21tPListIteratorIndexed7tPlayer` (0x800a731c, pausemenu.cpp:248, map=exact)
+
+- Extra source locals: `arg1`, `iVar2`, `pbVar4`, `piVar3`, `sVar1`
+
+### `ProcessInput__10tPMenuItemR13tInputKeyTypeR13tPMenuCommand` (0x800a7448, pausemenu.cpp:324, map=exact)
+
+- Extra source locals: `command`, `keyval`
+
+### `Draw__28tPMenuItemNonInteractiveTextb` (0x800a74ac, pausemenu.cpp:356, map=exact)
+
+- Extra source locals: `selected`
+
+### `ProcessInput__25tPMenuItemLeftRightChoiceR13tInputKeyTypeR13tPMenuCommand` (0x800a75c4, pausemenu.cpp:427, map=exact)
+
+- Extra source locals: `command`
+
+### `Draw__25tPMenuItemLeftRightChoiceb` (0x800a7650, pausemenu.cpp:456, map=exact)
+
+- Extra source locals: `index`, `vtable_p`, `x`
+
+### `ProcessInput__25tPMenuItemLeftRightSliderR13tInputKeyTypeR13tPMenuCommand` (0x800a78ac, pausemenu.cpp:538, map=exact)
+
+- Extra source locals: `command`, `max`, `value`
+
+### `Draw__25tPMenuItemLeftRightSliderb` (0x800a79c8, pausemenu.cpp:645, map=exact)
+
+- Extra source locals: `off`
+
+### `ProcessInput__24tPMenuItemGoToMenuButtonR13tInputKeyTypeR13tPMenuCommand` (0x800a7dfc, pausemenu.cpp:818, map=exact)
+
+- Extra source locals: `iVar2`, `pa_Var1`, `ptVar3`
+
+### `tPMenuConstructor__6tPMenuP10tPMenuItemPv` (0x800a7f7c, pausemenu.cpp:893, map=exact)
+
+- Extra source locals: `iVar2`, `iVar3`
+
+### `Initialize__6tPMenu` (0x800a8048, pausemenu.cpp:947, map=exact)
+
+- Extra source locals: `bVar1`, `disabled`, `iVar2`, `ptVar3`
+
+### `Debounce__6tPMenu` (0x800a8148, pausemenu.cpp:989, map=exact)
+
+- Extra source locals: `pa_Var1`
+
+### `CheckForDisabled__6tPMenu` (0x800a8194, pausemenu.cpp:1007, map=exact)
+
+- Extra source locals: `bVar1`, `iVar3`, `pa_Var2`, `ptVar4`, `ptVar5`
+
+### `ProcessInput__6tPMenuR13tInputKeyTypeR13tPMenuCommand` (0x800a829c, pausemenu.cpp:1048, map=exact)
+
+- Extra source locals: `bVar1`, `iVar2`, `pa_Var3`, `ptVar4`, `ptVar6`, `tVar5`
+
+### `Draw__6tPMenu` (0x800a8510, pausemenu.cpp:1133, map=exact)
+
+- Extra source locals: `pa_Var1`, `ptVar2`, `ptVar4`
+
+### `Physics_InitCarSpecs__FP8Car_tObjP10Udff_tInfo` (0x800a86c8, physics.cpp:72, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`, `iVar3`
+
+### `Physics_CalculateDerivedCarSpecs__FP8Car_tObj` (0x800a8964, physics.cpp:165, map=exact)
+
+- Extra source locals: `rpmAtMaxSpeedInHighestGear`
+
+### `Physics_AttenuateVelocity__FP8Car_tObjiP10matrixtdef` (0x800a8e7c, physics.cpp:262, map=exact)
+
+- Extra source locals: `vy`, `vz`, `x`, `z`
+
+### `Physics_GetTorque__FP8Car_tObji` (0x800a92e4, physics.cpp:352, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`
+
+### `Physics_DoBarrierCheck__FP8Car_tObj` (0x800a94b8, physics.cpp:460, map=exact)
+
+- Extra source locals: `centerKeep`, `centerX`, `centerY`, `centerZ`, `impact`, `linearZ`, `positionX`, `positionY`, `positionZ`, `raw1`, `raw2`, `raw3`, `velocityX`, `velocityY`, `velocityZ`, `x1raw`, `x3factor`, `x3left`
+
+### `Physics_AutoShift__FP8Car_tObj` (0x800a9a50, physics.cpp:738, map=exact)
+
+- Extra source locals: `lastGearOffset`
+
+### `Physics_RampCarControlValues__FP8Car_tObj` (0x800a9d0c, physics.cpp:841, map=exact)
+
+- Extra source locals: `iVar5`
+
+### `Physics_FixEngineRpm__FP8Car_tObj` (0x800aa4e4, physics.cpp:1094, map=exact)
+
+- Extra source locals: `firstExprGuard`, `firstProduct`, `nextMatX`, `nextMatY`, `nextVelX`, `nextVelY`, `transformedZ`
+
+### `Physics_StopCar__FP8Car_tObj` (0x800aa6d8, physics.cpp:1181, map=exact)
+
+- Extra source locals: `iVarW`, `iVarX`, `iVarY`, `iVarZ`
+
+### `Physics_TestForBarrierCollision__FP8Car_tObj` (0x800aa7b0, physics.cpp:1215, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `Physics_CalculateRoadGripModifiers__FP8Car_tObj` (0x800aa808, physics.cpp:1232, map=exact)
+
+- Extra source locals: `speed`
+
+### `Physics_CalculateCarAcceleration__FP8Car_tObj` (0x800aa984, physics.cpp:1346, map=exact)
+
+- Extra source locals: `adjustedDesiredRpm`, `adjustedFlywheelRpm`, `candidateRpm`, `clampedFlywheelRpm`, `currentFlywheelRpm`, `damageAmount`, `damagedFlywheelRpm`, `downshiftRedlineRpm`, `newFlywheelRpm`, `redlineRpm`, `revLimitedRpm`, `scaledRatio`
+
+### `Physics_CalcWheelLockAcc__FP8Car_tObjP23Physics_tWheelAccStruct` (0x800ab49c, physics.cpp:1662, map=exact)
+
+- Extra source locals: `cmp`, `skid`
+
+### `Physics_CalcTractionCircleAcc__FP8Car_tObjP23Physics_tWheelAccStruct` (0x800ab698, physics.cpp:1756, map=exact)
+
+- Extra source locals: `gripLossQuotient`, `gripLossRatio`, `roadGripCompare`, `skidValue`, `tireType`, `wheel_reg`
+
+### `Physics_CalculateTireForces__FP8Car_tObjP23Physics_tWheelAccStruct` (0x800aba3c, physics.cpp:1908, map=exact)
+
+- Extra source locals: `a`, `cap`, `minSlipAngle`, `xAcc`
+
+### `Physics_CalculateRSControlDesiredPosition__FP8Car_tObjii` (0x800abfa4, physics.cpp:2143, map=exact)
+
+- Extra source locals: `laneDelta`
+
+### `Physics_Real__FP8Car_tObj` (0x800ac164, physics.cpp:2212, map=exact)
+
+- Extra source locals: `adjustedRpm`, `bVar1`, `brakeCap`, `brakeLevel`, `fz`, `gasLevel`, `iVar10`, `iVar11`, `iVar3`, `iVar4`, `iVar5`, `iVar6`, `iVar7`, `limitedBrakeAcc`, `lm`, `pTVar9`, `pvVar2`, `rsControl`, `sumZ`, `uVar13`, `uVar8`, `wheelMult`
+
+### `Quatern_VecInterpolate__FP8coorddefT0iT0` (0x800ad5c8, quatern.cpp:16, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `Quatern_Interpolate__FP5tQuatT0P8coorddefT2iT0T2` (0x800ad678, quatern.cpp:31, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `R3DCar_ChangeTrafficColor__FP8Car_tObji` (0x800adc2c, r3dcar.cpp:85, map=exact)
+
+- Extra source locals: `iVar1`, `palCopy`, `uVar2`, `uVar4`
+
+### `R3DCar_StartUp__Fv` (0x800add14, r3dcar.cpp:122, map=exact)
+
+- Extra source locals: `pcVar1`
+
+### `R3DCar_PostStartUp__Fv` (0x800adde4, r3dcar.cpp:149, map=exact)
+
+- Extra source locals: `otBytes`
+
+### `R3DCar_Restart__Fv` (0x800adec8, r3dcar.cpp:178, map=exact)
+
+- Extra source locals: `brakeOn`, `gsData`, `headOn`, `numCars`, `ppCVar3`
+
+### `R3DCar_ReadInCarData__FPcP8Car_tObj` (0x800ae0a8, r3dcar.cpp:269, map=exact)
+
+- Extra source locals: `iStack_30`, `iVar7`, `iVar9`, `in_a2`, `pSStack_34`, `pVStack_38`, `pacVar11`
+
+### `R3DCcar_ReadeMapData__Fv` (0x800ae5b0, r3dcar.cpp:405, map=exact)
+
+- Extra source locals: `addr`, `iVar1`, `iVar3`, `pRVar2`
+
+### `R3DCcar_ReadTrackShadow__Fv` (0x800ae668, r3dcar.cpp:437, map=exact)
+
+- Extra source locals: `addr`, `iVar1`, `iVar2`
+
+### `R3DCar_DeInstantiate3DCar__FP8Car_tObj` (0x800aec78, r3dcar.cpp:559, map=exact)
+
+- Extra source locals: `addr`
+
+### `R3DCar_DeInstantiate3DCarMenu__FP8Car_tObj` (0x800aecb4, r3dcar.cpp:573, map=exact)
+
+- Extra source locals: `addr`, `addr_00`, `cVar1`, `iVar3`, `uVar2`
+
+### `R3DCar_LoadFileAdr__FPc` (0x800aee50, r3dcar.cpp:633, map=exact)
+
+- Extra source locals: `loadAddr`, `size`
+
+### `R3DCar_GetCarName__FPcii` (0x800aee98, r3dcar.cpp:647, map=exact)
+
+- Extra source locals: `copIdx`
+
+### `R3DCar_Instantiate3DCar__FP8Car_tObji` (0x800aef2c, r3dcar.cpp:663, map=exact)
+
+- Extra source locals: `colorTypeOffset`, `commMode`, `finalIndex`, `iVar9`, `loadedSceneColor`, `loadedSceneVRam`, `pGVar6`, `pTVar4`, `pcVar7`, `sVar3`, `scaledIndex`, `shape`, `shpfile`, `uVar2`, `uVar8`
+
+### `R3DCar_Visibilty__FP8Car_tObjP13DRender_tView` (0x800af74c, r3dcar.cpp:940, map=exact)
+
+- Extra source locals: `modeOne`
+
+### `R3DCar_TurnHeadLightOn__FP8Car_tObji` (0x800afaf4, r3dcar.cpp:1054, map=exact)
+
+- Extra source locals: `uVar1`
+
+### `R3DCar_TurnHeadLightOff__FP8Car_tObji` (0x800afb54, r3dcar.cpp:1075, map=exact)
+
+- Extra source locals: `uVar1`
+
+### `R3DCar_MATRIX3DT_Copy__FPiT0` (0x800afba8, r3dcar.cpp:1096, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `R3DCar_InsertCarFacet__FP8Car_tObjP13DRender_tView` (0x800afbd0, r3dcar.cpp:1114, map=exact)
+
+- Extra source locals: `brakeLight`, `copIndex`, `headLight`, `lightOff`, `limit`, `positionStep`, `replayMode`, `signalLight`, `uVar8`, `wheelRotation`
+
+### `R3DCar_ReadInCarTextureMenu__FP8Car_tObjPcii` (0x800b0db0, r3dcar.cpp:1818, map=exact)
+
+- Extra source locals: `sfBase`, `sfp`
+
+### `R3DCar_InsertCarFacetMenu__FP8Car_tObjP13DRender_tView` (0x800b10fc, r3dcar.cpp:1917, map=exact)
+
+- Extra source locals: `bVar2`, `cVar6`, `cancelFile`, `copIndex0`, `copIndex1`, `gf`, `iVar12`, `iVar13`, `iVar15`, `iVar16`, `iVar8`, `iVar9`, `loadedSceneBase`, `objId`, `pGVar14`, `pTVar10`, `ppTVar21`, `sVar3`, `slotOff`, `subOtBase`, `subOtOff`, `uVar20`, `uVar7`
+
+### `R3DCar_Showroom__FP13DRender_tView` (0x800b2b88, r3dcar.cpp:2863, map=exact)
+
+- Extra source locals: `m`, `t`
+
+### `Render_RenderWorld__FP13DRender_tView` (0x800b32b8, render.cpp:156, map=exact)
+
+- Extra source locals: `pvVar1`
+
+### `Render_RenderPauseMenuView__Fv` (0x800b3430, render.cpp:227, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `Render_Render__Fi` (0x800b34a8, render.cpp:252, map=exact)
+
+- Extra source locals: `Player`, `ViewID`
+
+### `StampImage__Fii` (0x800b38a8, render.cpp:401, map=exact)
+
+- Extra source locals: `tpageX`, `x`
+
+### `Replay_Compress__FPc` (0x800b3c4c, replay.cpp:65, map=exact)
+
+- Extra source locals: `u`
+
+### `Replay_Decompress__FPc` (0x800b3d10, replay.cpp:114, map=exact)
+
+- Extra source locals: `u_pointer`
+
+### `Replay_ResetReplay__Fv` (0x800b3f44, replay.cpp:182, map=exact)
+
+- Extra source locals: `cam_walk`, `iVar1`, `pBuf`, `piVar2`
+
+### `Replay_StoringControllerData__FG15tControllerData` (0x800b40bc, replay.cpp:256, map=exact)
+
+- Extra source locals: `packedPtr`, `replayBuffer`, `source`
+
+### `Replay_RetreivingControllerData__Fv` (0x800b4488, replay.cpp:313, map=exact)
+
+- Extra source locals: `pcVar4`
+
+### `Replay_GetInput__Fi` (0x800b4b38, replay.cpp:379, map=exact)
+
+- Extra source locals: `counter`, `hasCameras`, `steering`
+
+### `Sched_ExecuteCheck__FiiiiPiN24i` (0x800b61bc, schedule.cpp:29, map=exact)
+
+- Extra source locals: `distanceTemp`
+
+### `Sched_DeleteFunction__FP15Sched_tSchedulePFPv_vPv` (0x800b6434, schedule.cpp:129, map=exact)
+
+- Extra source locals: `count`
+
+### `Sched_Execute__FP15Sched_tSchedule` (0x800b6500, schedule.cpp:167, map=exact)
+
+- Extra source locals: `distanceIndex`, `iVar2`, `j`, `mask`, `n`, `ppuVar1`
+
+### `Sim_FadeInSFX__Fv` (0x800b67f8, sim.cpp:133, map=exact)
+
+- Extra source locals: `iVar1`, `iVar2`
+
+### `Sim_ProcessSimSchedules__Fv` (0x800b6878, sim.cpp:164, map=exact)
+
+- Extra source locals: `firstSfx`
+
+### `Sim_ProcessPause__Fv` (0x800b6b9c, sim.cpp:239, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `Sim_CheckForPause__Fi` (0x800b6ca0, sim.cpp:282, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `Sim_MainGameLoop__Fv` (0x800b6d4c, sim.cpp:340, map=exact)
+
+- Extra source locals: `gameSetup`, `one`, `replaySetup`
+
+### `FeignAlloc__9SimpleMemi` (0x800b729c, simplemem.cpp:28, map=exact)
+
+- Extra source locals: `pvVar1`
+
+### `SimQueue_Put__FiP14Input_tResults` (0x800b73cc, simqueue.cpp:105, map=exact)
+
+- Extra source locals: `entry`, `iVar4`
+
+### `GetGustWind__FP17Souffle_tISouffle` (0x800b764c, souffle.cpp:29, map=exact)
+
+- Extra source locals: `uVar1`
+
+### `GetAngleWind__FP17Souffle_tISouffle` (0x800b7694, souffle.cpp:44, map=exact)
+
+- Extra source locals: `iVar1`, `uVar2`
+
+### `Souffle_Add__FP8coorddefiT0iii` (0x800b770c, souffle.cpp:74, map=exact)
+
+- Extra source locals: `limit`
+
+### `Souffle_DoSouffle__Fv` (0x800b78ec, souffle.cpp:152, map=exact)
+
+- Extra source locals: `dampingSpeed`, `iVar2`
+
+### `Souffle_InsertFacet__FP13DRender_tView` (0x800b7de8, souffle.cpp:308, map=exact)
+
+- Extra source locals: `iVar1`, `i_2`, `inCircle`, `is_2`, `off`, `translation`, `z`
+
+### `Stats_TrackStats__FP8Car_tObj` (0x800b81fc, stats.cpp:129, map=exact)
+
+- Extra source locals: `raceSlice`, `sliceTotal`
+
+### `Stats_TrackEndGame__Fv` (0x800b8db8, stats.cpp:817, map=exact)
+
+- Extra source locals: `checkpointUpdate`, `raceCar`, `sliceCar`, `sliceTotal`
+
+### `AllocArtResource__FP18Track_tArtresourcei` (0x800b9398, track.cpp:120, map=exact)
+
+- Extra source locals: `pDVar1`
+
+### `LoadShapesAndMakePmx__FPcP12Draw_tPixMapiii` (0x800b942c, track.cpp:153, map=exact)
+
+- Extra source locals: `emptyPalNum`, `multiPalOffset`
+
+### `LoadShapesAndMakePmx_EnvMap__FPcP12Draw_tPixMapii` (0x800b9778, track.cpp:271, map=exact)
+
+- Extra source locals: `negOne`
+
+### `Track_AnimateTextures__Fv` (0x800b99dc, track.cpp:347, map=exact)
+
+- Extra source locals: `artPtr`, `cVar2`, `iVar8`, `negOne`, `pDVar3`, `pTVar7`, `psVar6`, `sVar1`, `simPtr`, `typeEnvMap`, `uVar4`, `uVar5`
+
+### `Track_GetProperMultiPalShapeIndex__Fii` (0x800b9b74, track.cpp:401, map=exact)
+
+- Extra source locals: `pTVar1`
+
+### `ReduceObjectPrecision__FP5GroupT0i` (0x800ba25c, track.cpp:643, map=exact)
+
+- Extra source locals: `pointCount`, `x`, `y`, `z`
+
+### `InvalidatePersistentCollideBoomObjects__FP5GroupT0` (0x800ba2fc, track.cpp:677, map=exact)
+
+- Extra source locals: `iVar2`, `pGVar1`, `pThis`
+
+### `CalcObjectBoundingSphere__FP5GroupT0` (0x800ba368, track.cpp:702, map=exact)
+
+- Extra source locals: `dx`, `dy`, `dz`
+
+### `CalcObjDefPtrs__Fv` (0x800ba5c8, track.cpp:760, map=exact)
+
+- Extra source locals: `bVar1`, `iVar4`, `pGVar2`, `pGVar3`, `pThis`
+
+### `Track_InitPersistentData__FP15SerializedGroup` (0x800ba62c, track.cpp:786, map=exact)
+
+- Extra source locals: `simGroup`
+
+### `Track_Init__FPc` (0x800ba808, track.cpp:847, map=exact)
+
+- Extra source locals: `chunkIdx`, `dest`, `elemIdx`, `elemNext`, `elemPtr`, `entry`, `geomSubGrp`, `groupBase`, `groupOffset`, `iVar43_field`, `iVar44_field`, `instSubGrp`, `loadBuf`, `matCount`, `matInfo_p`, `matOffset`, `pCVar5`, `pSVar4`, `pThis`, `perGroup`, `rootSerGroup`, `scratchAlloc`, `src`, `subGroup`, `tR7`, `tT33`, `this_00`, `tp3`, `tp4`, `tp7`, `tu2`, `tu22`, `tu23`, `tu24`, `tu25`, `tu26`, `tu27`, `tu28`, `tu29`, `tu3`, `tu30`, `tu31`, `tu32`, `tu33`, `tu34`, `tu35`, `uVar6`, `uVar7_00`
+
+### `Track_DeInit__Fv` (0x800bac74, track.cpp:1023, map=exact)
+
+- Extra source locals: `deleteMe`
+
+### `KillFile_OpenRead__Fv` (0x800bad50, track.cpp:1065, map=exact)
+
+- Extra source locals: `pcVar1`
+
+### `Track_LoadObjectKillData__Fv` (0x800badb4, track.cpp:1088, map=exact)
+
+- Extra source locals: `groupElements`
+
+### `RestoreAll__11SaveSurface` (0x800baffc, track.cpp:1218, map=exact)
+
+- Extra source locals: `iVar1`
+
+### `TrgSfx_AddEnviroEffect__FiiP8coorddefT2` (0x800bb068, trgsfx.cpp:39, map=exact)
+
+- Extra source locals: `c`
+
+### `TrgSfx_AddCarSfx__FiP8coorddefiT1` (0x800bb0d0, trgsfx.cpp:53, map=exact)
+
+- Extra source locals: `c`
+
+### `TrgSfx_AddCarExtraCheck__Fii` (0x800bb1ec, trgsfx.cpp:82, map=exact)
+
+- Extra source locals: `c`
+
+### `TrgSfx_CrashCar__FP8coorddef` (0x800bb370, trgsfx.cpp:122, map=exact)
+
+- Extra source locals: `rnd`
+
+### `TrgSfx_AddSkidmark__FiiP8coorddefiiP8Car_tObji` (0x800bb41c, trgsfx.cpp:142, map=exact)
+
+- Extra source locals: `shade`
+
+### `Udff_GetBuffer__FP10Udff_tInfoPci` (0x800bbb3c, udff.cpp:93, map=exact)
+
+- Extra source locals: `value`
+
+## Implicit aggregate special members
+
+## Explicit SYM carrier/optimization mappings
+
+- `CheckForNewLevel__13AIHigh_Playeri`: `level`
+- `HighExecute__10AIHigh_Cop`: `rightLatPos`, `slice`, `slowDownEndTime`, `timeNow`
+- `CheckForNeedyPlayers__10AIHigh_Cop`: `thisPlayer`
+- `HighExecute__14AIHigh_Traffic`: `trigger`
+- `AIPhysic_ProcessCollision__FP8Car_tObj`: `reverseTime`
+- `AIPhysic_InitCar__FP8Car_tObj`: `d`
+- `CalculateBankSize__6SpeechPcPQ26Speech11CarBankNamePlT3`: `p`
+- `Engage__Q26Speech13MobileSpeakerP8Car_tObj`: `Sub`
+- `Catch__Q26Speech13MobileSpeakeri`: `Arrest`
+- `Bullhorn__Q26Speech13MobileSpeaker`: `carObj`
+- `Newton_CalcDistToClosestPlayerCar__FP13BO_tNewtonObj`: `dummy`
+- `Newton_SetInitialSlicePositionOrientationEtc__FP13BO_tNewtonObjiP8coorddefi`: `dummy`
+
+## Explicit restored inline-local mappings
+
+
+## Explicit restored macro-local mappings
+
+
+## Explicit linkage-proven ABI parameters omitted from SYM
+
+- `Value__14tPListIterator7tPlayer`: `arg1`
+- `Value__21tPListIteratorIndexed7tPlayer`: `arg1`
+
+## Explicit source-only codegen carriers
+
+- `AI_HandleChangeInNumLanes__FP8Car_tObj`: `laneCount`
+- `AI_KeepCarsInLane__FP8Car_tObj`: `local`
+- `AIPerson_LoadPersonalityData__FP10Udff_tInfo`: `copCollisionFirmness`
+- `AIPhysic_OutOfControlPhysics__FP8Car_tObj`: `cfg`, `r`
+- `SetupChunkBuildList__FP13DRender_tView`: `buildList`, `viewList`
+- `Collide_DoActualObjectCollisionCheck__FP13BO_tNewtonObjT0P8coorddefT2`: `selectedRange`
+- `LocateNextGroupType__15SerializedGroupi`: `zero`
+- `LocateGroupType__15SerializedGroupii`: `newLen`, `uVar2`
+- `NFS3_CheckForFileOperations__Fv`: `z0`, `z1`
+- `Draw__25tPMenuItemLeftRightSliderb`: `packetPtr`
+- `Physics_RampCarControlValues__FP8Car_tObj`: `incValue`
+- `Stats_TrackEndGame__Fv`: `raceIndex`
+- `TextSys_Word__Fi`: `off`
+- `TextSys_WordFlags__Fi`: `off`
+- `TextSys_WordX__Fi`: `off`
+- `TextSys_WordY__Fi`: `off`
+
+## Explicit oracle-proven function type overrides
+
+
+## Object-owned global/storage review
+
+- `aih_btccop.cpp` extra definitions: `AIH_BTCCop_freezeToggle_8013c564`, `_19AIHigh_BTC_HumanCop_lastInputRequestTick_`
+- `aih_traf.cpp` extra definitions: `D_800551A4`
+- `aihigh.cpp` extra definitions: `AIHigh_None_vtable`, `AIHigh_kVtbl_80054dcc`
+- `audiocmn.cpp` extra definitions: `AudioCmn_FESFX_loadLangMap`, `D_8013C67C`, `D_8013C684`, `D_8013C68C`, `D_8013C690`, `D_8013C694`, `D_8013C698`, `D_8013C69C`, `D_8013C6A0`, `D_8013C6A4`, `D_8013C6A8`
+- `bworld.cpp` extra definitions: `gBWPrimPtr`
+- `render.cpp` extra definitions: `INT_1f800084`, `INT_1f800088`, `INT_1f80008c`, `INT_1f800090`, `Render_gCopMat`, `Render_gMenuRenderFlag`, `Render_gNightMat`, `Render_gPacketEnd`, `Render_gPacketLenHi`, `Render_gPacketLenLo`, `Render_gWorldMat`
+- `sim.cpp` extra definitions: `D_8013D410`, `D_8013D418`, `D_8013D420`
+- `speech.cpp` extra definitions: `DispatchSpeaker_vtable`, `MobileSpeaker_vtable`, `Speaker_vtable`, `__asm__`
+- `track.cpp` extra definitions: `Track_gShapeNamePtrs`, `Track_gShapeNamePtrs_end`, `Track_gTachNamePtrs`, `gShapeNamePtrs_subList`, `wordFile_psh_snow`
+- `vtables_aidatarecord.cpp` extra definitions: `AIDataRecord_AccTable_t_vtable`, `AIDataRecord_BestLine_t_vtable`, `AIDataRecord_CarTracking_t_vtable`, `AIDataRecord_CurveSpeedTable_t_vtable`, `AIDataRecord_TrackCurve_t_vtable`, `AIDataRecord_t_vtable`
+- `vtables_aihigh.cpp` extra definitions: `AIHigh_BTC_AIPerp_vtable`, `AIHigh_BTC_Cop_vtable`, `AIHigh_BTC_HumanCop_vtable`, `AIHigh_BTC_HumanPerp_vtable`, `AIHigh_BTC_Perp_vtable`, `AIHigh_BTC_Wingman_vtable`, `AIHigh_Base_vtable`, `AIHigh_BasicCop_vtable`, `AIHigh_BasicPerp_vtable`, `AIHigh_Cop_vtable`, `AIHigh_Human_vtable`, `AIHigh_Opponent_vtable`, `AIHigh_Player_vtable`, `AIHigh_Traffic_vtable`
+- `vtables_aistate.cpp` extra definitions: `AIState_Base_vtable`, `AIState_Chase_vtable`, `AIState_Cruise_vtable`, `AIState_Donuts_vtable`, `AIState_GotoSlice_vtable`, `AIState_Idle_vtable`, `AIState_NonActive_vtable`, `AIState_None_vtable`, `AIState_Normal_vtable`, `AIState_Offroad_vtable`, `AIState_Purgatory_vtable`, `AIState_RovingTraffic_vtable`
+- `vtables_object.cpp` extra definitions: `ObjectAnim_vtable`, `ObjectFinishedMultiAnim_vtable`, `ObjectFinishedSignAnim_vtable`, `ObjectMultiAnim_vtable`, `ObjectSignAnim_vtable`
+- `vtables_tdialog.cpp` extra definitions: `tDialogBackUpOnly_vtable`, `tDialogBase_vtable`, `tDialogHelp_vtable`, `tDialogInteractive_vtable`, `tDialogMessageStringWithTimeout_vtable`, `tDialogMessageString_vtable`, `tDialogNoInputMessage_vtable`, `tDialogYesNoMem_vtable`, `tDialogYesNoTri_vtable`, `tDialogYesNo_vtable`
+- `vtables_tlist.cpp` extra definitions: `tListIteratorCarColor_vtable`, `tListIteratorCar_vtable`, `tListIteratorDoubleIndexed_vtable`, `tListIteratorIndexed_vtable`, `tListIteratorMultiPlayer_vtable`, `tListIteratorRangeIndexed_vtable`, `tListIteratorRange_vtable`, `tListIteratorTournament_vtable`, `tListIteratorTrack_vtable`, `tListIterator_vtable`
+- `vtables_tmenu.cpp` extra definitions: `tBlankMenuItemGoToMenuNFS4Button_vtable`, `tBlankMenuItemNFS4LeftRightChoice_vtable`, `tMemoryCardMenuItem_vtable`, `tMenuBlank_vtable`, `tMenuItemControllerLeftRightChoice_vtable`, `tMenuItemDisplayLeftRightChoice_vtable`, `tMenuItemGoToMenuButtonFade_vtable`, `tMenuItemGoToMenuButton_vtable`, `tMenuItemGoToMenuNFS4Button_vtable`, `tMenuItemInteractive_vtable`, `tMenuItemLeftRightAudioSlider_vtable`, `tMenuItemLeftRightChoice_vtable`, `tMenuItemLeftRightFade_vtable`, `tMenuItemLeftRightSlider_vtable`, `tMenuItemNFS4LeftRightChoice_vtable`, `tMenuItemOnOffLeftRightChoice_vtable`, `tMenuItemOptionsLeftRightChoice_vtable`, `tMenuItemOptionsTwoItemChoice_vtable`, `tMenuItemSlidingActivated_vtable`, `tMenuItemSlidingMenu_vtable`, `tMenuItem_vtable`, `tMenuNFS4Bottom_vtable`, `tMenuNFS4TwoPlayer_vtable`, `tMenuNFS4_vtable`, `tMenuOptions_vtable`, `tMenu_vtable`, `tOptionsMenu_vtable`, `tUserNameMenuItem_vtable`
+- `vtables_tpausemenu.cpp` extra definitions: `tInsideBoxControllerLeftRightSlider_vtable`, `tInsideBoxLeftRightSlider_vtable`, `tInsideBoxMenu_vtable`, `tInsideBoxSongMenu_vtable`, `tInsideBoxTwoWaySlider_vtable`, `tPListIteratorIndexed_vtable`, `tPListIterator_vtable`, `tPMenuItemCommandButton_vtable`, `tPMenuItemGoToMenuButton_vtable`, `tPMenuItemInteractive_vtable`, `tPMenuItemLeftRightChoice_vtable`, `tPMenuItemLeftRightSliderIndexed_vtable`, `tPMenuItemLeftRightSlider_vtable`, `tPMenuItemNonInteractiveText_vtable`, `tPMenuItem_vtable`, `tPMenu_vtable`
+- `vtables_tscreen.cpp` extra definitions: `tScreenBeTheCopCongrats_vtable`, `tScreenCarSelectDuel_vtable`, `tScreenCarSelectTwoPlayer_vtable`, `tScreenDisplay_vtable`, `tScreenMain_vtable`, `tScreenPinkSlipCongrats_vtable`, `tScreenPinkSlipStandings_vtable`, `tScreenPinkSlipsCarSelect_vtable`, `tScreenPinkSlips_vtable`, `tScreenTournamentCongrats_vtable`, `tScreenTournamentStandings3item_vtable`, `tScreenTournamentTrophy_vtable`, `tScreenTrackInfo_vtable`, `tScreenTrackRecords_vtable`, `tScreenTrackSelect_vtable`, `tScreenTrophyInfo_vtable`, `tScreenUserName_vtable`, `tScreen_vtable`
+- `vtables_tscreen2.cpp` extra definitions: `tScreenAudio_vtable`, `tScreenCarSelect_vtable`, `tScreenCongrats_vtable`, `tScreenControllerConfig_vtable`, `tScreenMemcard_vtable`, `tScreenTournSelect_vtable`, `tScreenTournamentStandings_vtable`, `tScreenTrophyRoom_vtable`

@@ -77,6 +77,8 @@ void TextSys_LoadWords(int language)
 char * TextSys_Word(int wordnum)
 
 {
+  /* SYM-CODEGEN-CARRIER: off -- both natural direct-address operand orders
+     are count-exact FAIL 2 at 8/8; staging the product is PASS. */
   int off = wordnum * 0xc;
   return wordFile + *(int *)(wordFile + off + 8);
 }
@@ -85,6 +87,8 @@ char * TextSys_Word(int wordnum)
 int TextSys_WordFlags(int wordnum)
 
 {
+  /* SYM-CODEGEN-CARRIER: off -- both natural direct-address operand orders
+     are count-exact FAIL 4 at 8/8; staging the product is PASS. */
   int off = wordnum * 0xc;
   return (u_int)*(u_char *)(wordFile + off + 3);
 }
@@ -93,6 +97,8 @@ int TextSys_WordFlags(int wordnum)
 int TextSys_WordX(int wordnum)
 
 {
+  /* SYM-CODEGEN-CARRIER: off -- both natural direct-address operand orders
+     are count-exact FAIL 4 at 8/8; staging the product is PASS. */
   int off = wordnum * 0xc;
   return (int)*(short *)(wordFile + off + 4);
 }
@@ -101,6 +107,8 @@ int TextSys_WordX(int wordnum)
 int TextSys_WordY(int wordnum)
 
 {
+  /* SYM-CODEGEN-CARRIER: off -- both natural direct-address operand orders
+     are count-exact FAIL 4 at 8/8; staging the product is PASS. */
   int off = wordnum * 0xc;
   return (int)*(short *)(wordFile + off + 6);
 }

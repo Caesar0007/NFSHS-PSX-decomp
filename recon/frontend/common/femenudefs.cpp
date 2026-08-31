@@ -3406,6 +3406,11 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemMemContinue(0x28a, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_TransitionFromPostGameToMainMenu)   /* +0x3A6C tMemoryCardMenuItem */
  , menuPostGameSave(0x1040, (tScreen *)screenMemcard, (tMenu *)0x0, (tMenu *)0x0, 0, -1, 0x2e, 10, (tMenuItem *)&itemMemContinue, &itemSaveGame, 0)   /* +0x3A98 tOptionsMenu */
  {
+  /* SYM-INLINE-LOCAL: child = A1_SetChildMenu
+     SYM-CODEGEN-CARRIER: memoryMenu
+     SYM-CODEGEN-CARRIER: userNameMenu
+     These markers live before the historical mixed-line-ending tail so the
+     strict audit slices the same lexical constructor body that ctags reports. */
   A1_SetChildMenu(&menuPlayerOneCarSelect, (tMenu *)&menuPlayerTwoCarSelect);
   A1_SetChildMenu(&menuPlayerOneGarage, (tMenu *)&menuPlayerTwoGarage);
   A1_SetChildMenu(&menuPlayerOnePinkSlipCarSelect, (tMenu *)&menuPlayerTwoPinkSlipCarSelect);

@@ -608,7 +608,9 @@ int GetPSXPadValue(int value,int player)
 {
   int newControl;
   int type;
-  /* SYM-CODEGEN-CARRIER: acc1/acc2 -- one accumulator per cross-jump trio.
+  /* SYM-CODEGEN-CARRIER: acc1
+     SYM-CODEGEN-CARRIER: acc2
+     One accumulator per cross-jump trio.
      Function scope is load-bearing (see the MATCH note above): it makes each a
      GLOBAL allocno, which is what puts them in retail's $a2/$a1 and lets every
      OR write them in place.  The SYM lists only newControl/type. */

@@ -1542,6 +1542,10 @@ RET0:
 /* ---- AI_KeepCarsInLane__FP8Car_tObj  [@0x8005a714] ---- */
 void AI_KeepCarsInLane(Car_tObj *carObj)
 {
+  /* SYM-CODEGEN-CARRIER: local -- retail has an otherwise empty 16-byte
+     frame (`addiu sp,-16` / `addiu sp,16`) although the SYM records no named
+     local.  Removing this unused four-int array is FAIL 2 at 2/4 instructions;
+     retaining it is PASS at 4/4.  The evidence cannot recover its source name. */
   int local[4];
   (void)local;
   return;

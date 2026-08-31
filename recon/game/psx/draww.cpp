@@ -66,16 +66,11 @@ int          gSD_gt4counter;   /* @0x8013d834  (bss(zero)) */
 int          gSD_gt3counter;   /* @0x8013d838  (bss(zero)) */
 DRender_tView *gVi;   /* @0x8013d83c  (bss(zero)) */
 
-/* ---- DrawW-owned scratch/state globals -- lost-symbols (Ghidra-named, NOT in SYM; .bss zero).
-   draww.cpp is canonical owner of the DrawW_/DrawWTrough_ namespace; consumers extern these. ---- */
-int    DrawW_gChunkGeomRez, DrawW_gChunkInd, DrawW_gChunkObjFlag, DrawW_gChunkQuadCount;
-int    DrawW_gChunkRelX, DrawW_gChunkRelY, DrawW_gChunkRelZ;
-int    DrawW_gFog_init, DrawW_gGroupCount, DrawW_gMatID_tmp, DrawW_gNightFlags, DrawW_gNightTmpFlag;
-int   *DrawW_gChunkStripBuf;
-Group *DrawW_gChunkVtxBuf, *DrawW_gGroupPtr;
-Track_tArtresource *DrawW_gInitialArtPtr;
-Track_tMaterial    *DrawW_gMaterialLUT;
-int    DrawW_gObjScratch_148, DrawWTrough_scratchVec[3];
+/* SYM-STORAGE-PROOF (P440): the former DrawW_/DrawWTrough_ "lost-symbol"
+   block was declaration-only link-harness BSS.  None of its 19 Ghidra names
+   has a SYM/MAP/config/data record or a compiled reference.  The reconstructed
+   bodies already use the proven scratchpad fields and real foreign owners;
+   do not recreate synthetic DrawW storage here. */
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void DrawW_DivVertice(Draw_SVertex *v0,Draw_SVertex *v1,Draw_SVertex *v2);
@@ -5537,11 +5532,10 @@ void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark *fskid)
      and the `sm` (Skidmark_Chunk*, SYM REG $s2, size 0x2B0) walker is still
      modelled as the invented `skidIdx`/`skidIter` byte offsets -- that walker,
      not the matrix rows, is the next lever. */
-  /* CORRECTNESS + MATCH (w40-a2): `Skid_gCtrlScratch_94` is a real linked .bss int
-   * (skidmark.cpp), but the OT depth this function computes is written by
-   * `gte_swc2(0x7, 0x1F800094)` straight into SCRATCHPAD -- so every read of the .bss
-   * symbol saw a stale value and the whole skidmark depth clamp / OT index ran on
-   * garbage (same bug class as the Skid_gCtrlScratch_98 compares fixed in wave-9).
+  /* CORRECTNESS + MATCH (w40-a2, storage corrected P439): the former
+   * `Skid_gCtrlScratch_94` pseudo-global is actually the literal scratchpad field
+   * written by `gte_swc2(0x7, 0x1F800094)`.  Modelling it as linked BSS made the
+   * skidmark depth clamp / OT index read unrelated stale storage.
    * 0x1F800094 is `sd->otz`'s address in the same cache header, and the oracle keeps
    * that literal in its OWN callee-saved reg across the calls (`lui fp,0x1F80;
    * ori fp,fp,0x94` in the prologue), so model it as a local pointer. */
@@ -5820,8 +5814,8 @@ gte_stlvnl(&sd->tVn3);
          * 0x1f8000a8 / 0x1f8000b8 / 0x1f8000c8 (matching DrawW_OnyxLinePrim's
          * sd->tVn0..tVn3 vx@+0/vz@+8 layout), and the oracle re-reads them
          * back via LITERAL displacements off a cached base register (never
-         * %hi/%lo(sym)) -- the Skid_gCtrlScratch_98/Skid_gCtrlPoint_0..6
-         * globals (skidmark.cpp, normal .bss) were consequently a STALE-READ
+         * %hi/%lo(sym)) -- the old Skid_gCtrlScratch_98/Skid_gCtrlPoint_0..6
+         * pseudo-globals were consequently a STALE-READ
          * correctness bug: the compares never saw what gte_stlvnl() just
          * wrote. Used ONLY inside this one function (grep-confirmed), so
          * safe to fix in isolation. Eight SEPARATE `*(int*)0x1fxxxxxx` casts
@@ -5939,11 +5933,11 @@ gte_swc2(0x7,otz94);
            *     bne $v1,$v0`.  Reading it as a SIGNED short and comparing to -1 is
            *     the recurring unsigned-vs--1 class (it happens to be true here for
            *     the same bit pattern, but it emits `lh` + a different constant).
-           * (b) `Skid_gScratchPos1`/`Skid_gScratchPos2` are linked .bss ints in
-           *     skidmark.cpp, but the oracle reads BOTH as u_shorts straight off the
+           * (b) the old `Skid_gScratchPos1`/`Skid_gScratchPos2` pseudo-globals denote
+           *     two scratchpad fields; the oracle reads BOTH as u_shorts straight off the
            *     scratchpad cache base ($s1): `lhu $v0,0xDC($s1); lhu $v1,0xDE($s1)`
            *     == Draw_tGiveShelbyMoreCache::startfog / ::distfog.  Same stale-read
-           *     bug class as Skid_gCtrlScratch_94/98 already fixed here -- the depth
+           *     bug class as the other old Skid scratch aliases already fixed here -- the depth
            *     ramp index was computed from .bss values nothing in this frame wrote.
            *     The `sll 16; sra 16` on the first one is the u_short read narrowed
            *     back to SIGNED for the subtract; the second stays unsigned (it is a
@@ -5975,15 +5969,15 @@ gte_swc2(0x7,otz94);
           /* OT-link, EA DMPSX-analog FIXED-REG TEMPLATE (2026-07-11; same shape
            * as DrawW_OnyxLinePrim's sealed instance -- fastmovf.c family;
            * $t4/$t5/$t6 scratches, POLY_GT4 stride 0x34, tag 0x0C<<24): slot =
-           * Render_gPalettePtr(value) + Skid_gCtrlScratch_94*4; Render_gPacketPtr
+           * Render_gPalettePtr(value) + scratchpad_otz*4; Render_gPacketPtr
            * += 0x34; primOut->tag = slot->addr24 | (0x0C<<24); slot->addr24 =
            * primOut. Oracle materializes the scratch base (0x1F800000, ==
            * &Render_gPalettePtr) into ONE persistent register ($s1) and the otz
-           * address (0x1F800094, == &Skid_gCtrlScratch_94) into a SECOND
+           * address 0x1F800094 into a SECOND
            * persistent register ($fp) set once at function entry; we can't
            * force that cross-call register persistence from a single local
            * asm block without a header/global-decl change (out of scope here),
-           * so &Skid_gCtrlScratch_94's value is passed in fresh -- a few insns
+           * so that scratchpad address is passed in fresh -- a few insns
            * of address-materialization floor remain, but the whole 13-line
            * bit-shift/alignment emulation it replaces was ALSO producing the wrong
            * runtime effect (see the w45 note below).

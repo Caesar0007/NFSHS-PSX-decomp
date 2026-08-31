@@ -83,11 +83,10 @@ int Udff_GetInt(Udff_tInfo *handle)
 
 {
   int value;
-  int iVar1;
   
-  iVar1 = *(int *)handle->memPtr;
+  value = *(int *)handle->memPtr;
   handle->memPtr = (char *)((int)handle->memPtr + 4);
-  return iVar1;
+  return value;
 }
 
 /* ---- Udff_GetBuffer__FP10Udff_tInfoPci  [UDFF.CPP:203-218] SLD-VERIFIED ---- */

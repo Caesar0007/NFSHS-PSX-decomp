@@ -7,8 +7,10 @@
 #include "hrzsku_externs.h"
 #include "psyq_prim_macros.h"
 
-/* ---- link-harness owned-global definition (extern-declared, never defined) ---- */
-int Hrz_gProjResultZ0; int Hrz_gProjScratch_9C;  /* HrzSku.obj-owned projection scratch (BSS) */
+/* No projection-scratch BSS lives here.  The old Hrz_gProjResultZ0/
+   Hrz_gProjScratch_9C harness definitions were names invented for literal
+   0x1f8000xx Draw_HorizonCache fields; P439 removed them after proving zero
+   SYM/MAP records and zero compiled references. */
 
 /* ---- HrzSku.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
    .data = real NFS4.EXE bytes, .bss = zero) ---- */
@@ -37,6 +39,10 @@ SVECTOR      *gRngCoordTop;   /* @0x8013d890  (bss(zero)) */
    symbol exactly like the oracle's lui/addiu. DUALITY HAZARD (documented): the SVECTOR*
    casts assume vx/vy/vz/pad stay contiguous+ordered in .sbss (true for gcc emission order;
    original was a real SVECTOR under a bigger per-obj -G). Only this TU references them. */
+/* SYM-GLOBAL-CARRIER: Hrz_gLightningPosInSky_vx
+   SYM-GLOBAL-CARRIER: Hrz_gLightningPosInSky_vy
+   SYM-GLOBAL-CARRIER: Hrz_gLightningPosInSky_vz
+   SYM-GLOBAL-CARRIER: Hrz_gLightningPosInSky_pad */
 short Hrz_gLightningPosInSky_vx, Hrz_gLightningPosInSky_vy, Hrz_gLightningPosInSky_vz, Hrz_gLightningPosInSky_pad;   /* @0x8013d894 */
 static short sunPosInSky_vx, sunPosInSky_vy, sunPosInSky_vz, sunPosInSky_pad;    /* @0x8013ddf0 SYM: STAT SVECTOR */
 static short moonPosInSky_vx, moonPosInSky_vy, moonPosInSky_vz, moonPosInSky_pad; /* @0x8013ddf8 SYM: STAT SVECTOR */
@@ -54,9 +60,6 @@ static short moonPosInSky_vx, moonPosInSky_vy, moonPosInSky_vz, moonPosInSky_pad
 #define MOONPOS_VY (((SVECTOR *)&moonPosInSky_vy)->vx)
 #define MOONPOS_VZ (((SVECTOR *)&moonPosInSky_vz)->vx)
 static CVECTOR Hrz_gSaveCol[4];   /* @0x8013e380  (bss?) */
-/* hrzsku-internal lost-symbol globals (NOT in SYM Globals; 4 contiguous ints, sky double-buffer
-   vertex counts, accessed via (&A0)[i]). DEFINED here for self-containment (was extern-only). */
-int Hrz_gSkyVtx_A0, Hrz_gSkyVtx_A1, Hrz_gSkyVtx_B0, Hrz_gSkyVtx_B1;
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void Horizon_InterpolateLineSCoords(DVECTOR *sc,DVECTOR *s0,DVECTOR *s1,int *percentage,int n,int bPercentageArray);

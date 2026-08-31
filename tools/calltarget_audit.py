@@ -23,6 +23,7 @@ from pathlib import Path
 # makes a clean linked-worktree audit report unrelated dirty-tree results.
 ROOT = Path(__file__).resolve().parents[1]
 CLI = str(ROOT / 'tools' / 'objdiff' / 'objdiff-cli.exe')   # vendored 3.8.0; the repo IS the version pin
+NM = r'C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-nm.exe'
 sys.path.insert(0, str(Path(__file__).parent))
 from objclass import addrs, mnem, reloc_of  # noqa: E402
 
@@ -41,9 +42,52 @@ def unit_diff(unit):
     return d
 
 
+def coequal_definition_vas(A):
+    """Resolve natural global names through explicit VA-suffixed aliases.
+
+    A duplicated static helper can have one natural name in configs while its
+    exported copy is represented by a suffixed oracle key.  When both global
+    symbols are co-equal in one reconstructed object, the suffix is direct
+    evidence for that definition's retail VA.  This is link-resolution
+    evidence, not a heuristic name lookup.
+    """
+    objects = sorted(o for o in (ROOT / 'build' / 'recon').rglob('*.o')
+                     if 'diffsrc' not in o.parts)
+    groups = {}
+    for start in range(0, len(objects), 64):
+        batch = objects[start:start + 64]
+        result = subprocess.run(
+            [NM, '-A', '-g', '--defined-only', '-n', *map(str, batch)],
+            cwd=str(ROOT), capture_output=True, text=True)
+        for line in result.stdout.splitlines():
+            match = re.match(r'^(.*):([0-9A-Fa-f]+)\s+T\s+(\S+)$', line)
+            if match:
+                groups.setdefault((match.group(1), int(match.group(2), 16)), []) \
+                      .append(match.group(3))
+    candidates = {}
+    resolved_groups = 0
+    ambiguous_groups = 0
+    for names in groups.values():
+        explicit = [(name, A[name]) for name in names if name in A and
+                    name.upper().endswith('_%08X' % A[name])]
+        if len(explicit) == 1:
+            va = explicit[0][1]
+            for name in names:
+                candidates.setdefault(name, set()).add(va)
+            resolved_groups += 1
+        elif len(explicit) > 1:
+            ambiguous_groups += 1
+    resolved = {name: next(iter(vas)) for name, vas in candidates.items()
+                if len(vas) == 1}
+    ambiguous_groups += sum(1 for vas in candidates.values() if len(vas) > 1)
+    return resolved, resolved_groups, ambiguous_groups
+
+
 def main():
     cfg = json.load(open(ROOT / 'objdiff.json', encoding='utf-8'))
     A = addrs()
+    definition_vas, alias_groups_resolved, alias_groups_ambiguous = \
+        coequal_definition_vas(A)
     hits = []
     units = [u['name'].replace('\\', '/') for u in cfg['units']]
     if len(sys.argv) > 1:
@@ -79,7 +123,8 @@ def main():
                     continue
                 if ra[2] or rb[2]:            # any addend: same reason
                     continue
-                va, vb = A.get(ra[1]), A.get(rb[1])
+                va = definition_vas.get(ra[1], A.get(ra[1]))
+                vb = definition_vas.get(rb[1], A.get(rb[1]))
                 if va is None or vb is None or va == vb:
                     continue
                 hits.append((unit, rs['name'], ra[1], hex(va), rb[1], hex(vb)))
@@ -88,10 +133,13 @@ def main():
 
     print(f"{len(hits)} PROVEN wrong-call-target sites "
           f"(both names known, different VAs)")
+    print(f"  co-equal definition aliases: {alias_groups_resolved} resolved, "
+          f"{alias_groups_ambiguous} ambiguous")
     for unit, fn, tn, tv, on, ov in hits:
         print(f"  {unit}  {fn}")
         print(f"      retail calls {tn} @{tv}")
         print(f"      ours   calls {on} @{ov}")
+    sys.exit(1 if hits else 0)
 
 
 if __name__ == '__main__':

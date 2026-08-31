@@ -67,12 +67,12 @@ void VSyncCallback(...);   /* (void *cb) */
 /* ---- libapi (kernel) ---- */
 void FlushCache(...);   /* (void) */
 /* ---- libpad ---- */
-int PadGetState(...);   /* (int port) */
-int PadInfoMode(...);
-void PadSetAct(...);   /* (int port, const void *table, int len) */
-int PadSetActAlign(...);   /* (int port, const void *table) */
-void PadSetMainMode(...);
-void PadStartCom(...);   /* (void) */
+int PadGetState(int port);                         /* PsyQ 4.3 <libpad.h> */
+int PadInfoMode(int port, int term, int offs);    /* PsyQ 4.3 <libpad.h> */
+void PadSetAct(int port, unsigned char *table, int len); /* PsyQ 4.3 <libpad.h> */
+int PadSetActAlign(int port, unsigned char *table);       /* PsyQ 4.3 <libpad.h> */
+int PadSetMainMode(int port, int offs, int lock); /* PsyQ 4.3 <libpad.h> */
+void PadStartCom(void);                           /* PsyQ 4.3 <libpad.h> */
 #endif /* !NFS4_PSYQ_HEADERS */
 
 /* =====================================================================

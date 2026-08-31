@@ -25,9 +25,40 @@ extern void SysEnqIntRP(int pri, void *rp); /* L02 @0x8010BFD8 */
 extern void setRC2wait(int ticks);          /* WAITRC2 @0x8010BFE8 (VOID -- see WAITRC2.c) */
 extern int      chkRC2wait(void);           /* WAITRC2 @0x8010C008 */
 
-/* ---- SIO0 + interrupt register blocks, reached via libpad's cached base pointers (PAD.OBJ) ----- */
-extern unsigned char *_padSioRegs;   /* @0x80137CDC -> 0x1F801040 : SIO0 (JOY) block base */
-extern unsigned char *_padIntRegs;   /* @0x80137CD8 -> 0x1F801070 : interrupt I_STAT/I_MASK */
+/* ---- PADMAIN.OBJ-owned dispatch/state data @0x80137C78..0x80137CE0 ---------------------------
+ * Canonical PsyQ 4.3 INDEX.tsv assigns the public run through _padFixResult to
+ * PADMAIN.obj. The three immediately following private words are the cached
+ * interrupt/SIO bases and VSync verifier flag used only by this engine. Force
+ * the zero words into .data so this remains one retail-contiguous owner block. */
+#define PADMAIN_DATA __attribute__((section(".data")))
+int   (*_padFuncNextPort)(int flag) PADMAIN_DATA = 0;
+void  (*_padFuncClrInfo)(unsigned char *info) PADMAIN_DATA = 0;
+void   *_padFuncGetTxd PADMAIN_DATA = 0;
+void   *_padFuncCurrLimit PADMAIN_DATA = 0;
+void   *_padFuncPtr2Port PADMAIN_DATA = 0;
+void   *_padFuncPort2Info PADMAIN_DATA = 0;
+void   *_padFuncSendAuto PADMAIN_DATA = 0;
+void   *_padFuncChkEng PADMAIN_DATA = 0;
+int   (*_padFuncRecvAuto)(unsigned char *info) PADMAIN_DATA = 0;
+void  (*_padFuncClrCmdNo)(unsigned char *info) PADMAIN_DATA = 0;
+int   (*_padFuncIntGun)(void) PADMAIN_DATA = 0;
+void   *_padFuncSetGunPort PADMAIN_DATA = 0;
+void   *_padFuncGetGunPos PADMAIN_DATA = 0;
+unsigned char *_padInfoDir PADMAIN_DATA = 0;
+int _padIntExec PADMAIN_DATA = 0;
+int _padGunExec PADMAIN_DATA = 0;
+int _padSioChan PADMAIN_DATA = 0;
+int _padSioState PADMAIN_DATA = 0;
+int _padTotalCurr PADMAIN_DATA = 0;
+int _padModeMtap PADMAIN_DATA = 0;
+int _padChanStart PADMAIN_DATA = 0;
+int _padChanStop PADMAIN_DATA = 1;
+int _padFixResult[2] PADMAIN_DATA = { -1, -1 };
+unsigned char *_padIntRegs PADMAIN_DATA = (unsigned char *)0x1F801070;
+unsigned char *_padSioRegs PADMAIN_DATA = (unsigned char *)0x1F801040;
+int _padVbExec PADMAIN_DATA = 0;
+
+/* ---- SIO0 + interrupt register blocks, reached via libpad's cached base pointers -------------- */
 #define JOY_DATA8 (*(volatile unsigned char  *)(_padSioRegs))
 #define JOY_STAT  (*(volatile unsigned short *)(_padSioRegs + 0x04))
 #define JOY_MODE  (*(volatile unsigned short *)(_padSioRegs + 0x08))
@@ -40,26 +71,10 @@ extern unsigned char *_padIntRegs;   /* @0x80137CD8 -> 0x1F801070 : interrupt I_
 #define T2_MODE   (*(volatile unsigned short *)0x1F801124)
 #define T2_TARGET (*(volatile unsigned short *)0x1F801128)
 
-/* ---- libpad state globals (defined in PAD.OBJ data) ------------------------------------------- */
-extern int            _padIntExec;          /* engine-running flag */
-extern int            _padSioState;         /* current SIO state-fn index */
-extern int            _padSioChan;          /* channel being serviced (0..1) */
-extern int            _padChanStart;        /* first active channel */
-extern int            _padChanStop;         /* last active channel */
-extern int            _padTotalCurr;        /* total actuator current draw */
-extern unsigned char *_padInfoDir;          /* per-port info array base (0xF0 bytes/port) */
-extern int            _padFixResult[2];     /* @0x80137CD0 : per-channel auto-mode retry count */
+/* ---- cross-object PADIF/WAITRC2 data ---------------------------------------------------------- */
 extern int            padIntFunc[];         /* SIO state-function pointer table */
 extern int            _startTime;           /* RC2 timestamp at transfer start */
 extern int            _waitTime;            /* RC2 timeout budget */
-extern int            _padVbExec;           /* @0x80137CE0 : verifier-fired flag */
-
-/* dispatch slots (set per pad mode; defined in PAD.OBJ) */
-extern int  (*_padFuncNextPort)(int flag);
-extern int  (*_padFuncRecvAuto)(unsigned char *info);
-extern void (*_padFuncClrInfo)(unsigned char *info);
-extern void (*_padFuncClrCmdNo)(unsigned char *info);
-extern int  (*_padFuncIntGun)(void);
 
 /* internal fns (forward) */
 extern int  _padInitSioMode(unsigned char *info);
@@ -786,7 +801,7 @@ extern int _padSioRW2(unsigned char *dev, int tx)
  * timeout branch's delay slot and `addiu $v0,$zero,1` before the CTRL set) and the loop is a
  * PLAIN TOP-TESTED `while`, not a do/while with an in-body early return: gcc-2.8's jump.c
  * duplicate_loop_exit_test emits retail's second copy of the STAT test (the `.L8010559C`
- * reload+`bnez` back-edge).  Both call sites (MCXMAIN/_padSioMain) discard the result. */
+ * reload+`bnez` back-edge).  Both call sites (PADIF/_padSioMain) discard the result. */
 /* MATCH (w53-a8, 8 @30/36 -> PASS 36/36).  Two cooperating facts, both read off the oracle:
  *  (1) THE WAIT IS A ZERO-TRIP-GUARDED do/while, not a plain `while`.  Retail tests SIO0 STAT
  *      ONCE before the loop (`lhu $v0,4($a0); andi 128; beqz`) and AGAIN at the back edge, with

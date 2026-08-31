@@ -125,6 +125,13 @@ static int VoxEvent_GetFilterLengthFlag(int e)   /* @0x800E6E88 */
 {
     return (int)*(unsigned char *)(e + 0xa) & 1;
 }
+
+/* VoxEvent_GetKeepTillExpiresFlag @0x800E6E94 : bit 2 of the event flags byte (+0xa). */
+extern unsigned int VoxEvent_GetKeepTillExpiresFlag(int e)
+{
+    return (unsigned int)*(unsigned char *)(e + 10) >> 2 & 1;
+}
+
 static int iSPCH_GetOffset16(int base, int tableBase, int index)  /* @0x800E6EA8 */
 {
     return base + ((int)*(unsigned short *)(tableBase + index * 2) << 2);
@@ -135,7 +142,6 @@ static inline int *iSPCH_EventBase(int *base)
     return base;
 }
 
-extern unsigned int VoxEvent_GetKeepTillExpiresFlag(int e);            /* @0x800E6E94 */
 extern int  iSPCH_SearchEventDat(int dat, unsigned int eventID);      /* @0x800E6EC4 */
 extern int  iSPCH_FindEvent(unsigned int eventID);                    /* @0x800E6F4C */
 extern void iSPCH_InitEventDat(void);                                 /* @0x800E6FBC */
@@ -151,12 +157,6 @@ extern void SPCH_PlaySpeech(void);                                   /* @0x800E7
 extern int  SPCH_ChooseSpeech(void);                                 /* @0x800E7684 */
 
 #define SLOT(i)  ((unsigned char *)gVoxEvents + (i) * 0x3c)
-
-/* VoxEvent_GetKeepTillExpiresFlag @0x800E6E94 : bit 2 of the event flags byte (+0xa). */
-extern unsigned int VoxEvent_GetKeepTillExpiresFlag(int e)
-{
-    return (unsigned int)*(unsigned char *)(e + 10) >> 2 & 1;
-}
 
 /* iSPCH_SearchEventDat @0x800E6EC4 : address of the entry in blob `dat` whose id == eventID, or 0. */
 extern int iSPCH_SearchEventDat(int dat, unsigned int eventID)

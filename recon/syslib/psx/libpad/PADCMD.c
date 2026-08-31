@@ -311,7 +311,7 @@ extern void _padLoadActInfo_snd(unsigned char *info)
  *   and `t0 = -1` is a copy instead of a fresh `li` (the no-copy-prop identity -- both close
  *   under the cc1_272 lane, where this fn is COUNT-EXACT 157/157 @38).
  * MATCH (w61-a6, 29 -> 17 @156/157) -- THE SHARED-EXIT OWNERSHIP LAW (same instrument that took
- *   MCXMAIN's _padIntRecvData 12 -> 4; see that receipt for the mechanism).  Residual item (i)
+ *   PADIF's _padIntRecvData 12 -> 4; see that receipt for the mechanism).  Residual item (i)
  *   above ("the two `return 1` wrap sites keep their own `li $v0,1` ... where retail shares one
  *   .L80105BE8 block") was NOT jump.c return duplication -- it was the OWNERSHIP BIT of two
  *   independent shared exits, and both were on the wrong site:
@@ -616,14 +616,14 @@ return_one:
  * instead leaves both `li`s but in the WRONG ORDER (ours v1-then-v0 vs the oracle's v0-then-v1,
  * still 2 diffs) -- fencing `r` also PINS the return constant's materialization first, which is
  * exactly the oracle's order.  Do not "simplify" the asm away. */
-extern int _padSetActAlign(unsigned char *info, int data)
+extern int _padSetActAlign(unsigned char *info, unsigned char *data)
 {
     if (_padFuncChkEng(info) == 0) {
         int r = 1;
         __asm__("" : "=r"(r) : "0"(r));   /* MATCH: opacity fence, 0 insns -- see header */
         info[0x46] = 1;
         *(void (**)(unsigned char *))(info + 0x14) = _padSetActAlign_snd;
-        *(int *)(info + 0x20) = data;
+        *(unsigned char **)(info + 0x20) = data;
         *(void (**)(unsigned char *))(info + 0x18) =
             (void (*)(unsigned char *))_padSetActAlign_rcv;
         return r;
@@ -636,7 +636,7 @@ extern void _padSetActAlign_snd(unsigned char *info)
 {
     info[0x36] = 0x4d;
     info[0x35] = 6;
-    *(int *)(info + 0x2c) = *(int *)(info + 0x20);
+    *(unsigned char **)(info + 0x2c) = *(unsigned char **)(info + 0x20);
 }
 
 /* @0x80105C78 : _padSetActAlign_rcv -- resolve each mode's actuator map from the alignment request.

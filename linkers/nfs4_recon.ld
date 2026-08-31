@@ -525,7 +525,7 @@ SECTIONS
     .t0255 0x800f27bc : SUBALIGN(4) { build/recon/syslib/psx/libgte/REG11.c.o(.text); }
     .t0256 0x800f27dc : SUBALIGN(4) { build/recon/syslib/psx/libgte/FOG_01.c.o(.text); }
     .t0257 0x800f284c : SUBALIGN(4) { build/recon/syslib/psx/libetc/INTR.c.o(.text); }
-    .t0258 0x800f2e94 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/setfont.c.o(.text); }
+    .t0258 0x800f2e94 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/textset.c.o(.text); }
     .t0259 0x800f3024 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/getm.c.o(.text); }
     .t0260 0x800f30ac : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/textcrnt.c.o(.text); }
     .t0261 0x800f30fc : SUBALIGN(4) { build/recon/syslib/psx/libgpu/P10.c.o(.text); }
@@ -700,7 +700,7 @@ SECTIONS
     .t0430 0x8010bfc8 : SUBALIGN(4) { build/recon/syslib/psx/libapi/L03.c.o(.text); }
     .t0431 0x8010bfd8 : SUBALIGN(4) { build/recon/syslib/psx/libapi/L02.c.o(.text); }
     .t0432 0x8010bfe8 : SUBALIGN(4) { build/recon/syslib/psx/libpad/WAITRC2.c.o(.text); }
-    .t0433 0x8010c0a8 : SUBALIGN(4) { build/recon/syslib/psx/libpad/MCXMAIN.c.o(.text); }
+    .t0433 0x8010c0a8 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADIF.c.o(.text); }
     .t0434 0x8010c698 : SUBALIGN(4) { build/recon/syslib/psx/libgpu/P34.c.o(.text); }
     .t0435 0x8010c6f8 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A07.c.o(.text); }
     .t0436 0x8010c708 : SUBALIGN(4) { build/recon/syslib/psx/libsn/SNREAD.c.o(.text); }
@@ -910,8 +910,7 @@ SECTIONS
         build/recon/syslib/psx/libgpu/SYS_source68_sub28_probe.c.o(.data);
         build/recon/syslib/psx/libmcrd/BIOS.c.o(.data);
         build/recon/syslib/psx/libmcrd/USERFUNC.c.o(.data);
-        build/recon/syslib/psx/libpad/MCXMAIN.c.o(.data);
-        build/recon/syslib/psx/libpad/PAD.c.o(.data);
+        build/recon/syslib/psx/libpad/PADIF.c.o(.data);
         build/recon/syslib/psx/libpress/VLC.c.o(.data);
     }
 
@@ -1049,7 +1048,6 @@ SECTIONS
         build/recon/game/psx/weather.cpp.o(.sdata);
         build/recon/syslib/psx/libapi/COUNTER_data.c.o(.sdata);
         build/recon/syslib/psx/libcd/drv_source68_probe.c.o(.sdata);
-        build/recon/syslib/psx/libpad/PAD.c.o(.sdata);
     }
 
     /* SYM tail-data seam: simqueue.obj file-static output and maxTicksPerFrame. */

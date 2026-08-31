@@ -1,0 +1,401 @@
+va	percent	unit	name	canonical_lib	canonical_member	status	canonical_name	proof	retail_sym_confirmation
+0x800E4024	100.00	syslib/psx/2mbyte/2mbyte	__main	_STANDALONE	2MBYTE	SAME_MEMBER_NAME	__main	PsyQ43 same archive member	YES
+0x800E402C	100.00	syslib/psx/2mbyte/2mbyte	__SN_ENTRY_POINT	_STANDALONE	2MBYTE	SDK_NAME_OTHER_MEMBER	__SN_ENTRY_POINT	PsyQ43 global function catalog	YES
+0x800E4050	100.00	syslib/psx/2mbyte/2mbyte	stup1	_STANDALONE	2MBYTE	SAME_MEMBER_NAME	stup1	PsyQ43 same archive member	YES
+0x800E40CC	100.00	syslib/psx/2mbyte/2mbyte	stup0	_STANDALONE	2MBYTE	SAME_MEMBER_NAME	stup0	PsyQ43 same archive member	YES
+0x8010C6F8	100.00	syslib/psx/libapi/A07	DeliverEvent	LIBAPI	A07	SAME_MEMBER_NAME	DeliverEvent	PsyQ43 same archive member	YES
+0x80106E20	100.00	syslib/psx/libapi/A08	OpenEvent	LIBAPI	A08	SAME_MEMBER_NAME	OpenEvent	PsyQ43 same archive member	YES
+0x8010C864	100.00	syslib/psx/libapi/A09	CloseEvent	LIBAPI	A09	SAME_MEMBER_NAME	CloseEvent	PsyQ43 same archive member	YES
+0x8010C874	100.00	syslib/psx/libapi/A11	TestEvent	LIBAPI	A11	SAME_MEMBER_NAME	TestEvent	PsyQ43 same archive member	YES
+0x80106E10	100.00	syslib/psx/libapi/A12	EnableEvent	LIBAPI	A12	SAME_MEMBER_NAME	EnableEvent	PsyQ43 same archive member	YES
+0x80106E30	100.00	syslib/psx/libapi/A13	DisableEvent	LIBAPI	A13	SAME_MEMBER_NAME	DisableEvent	PsyQ43 same archive member	YES
+0x8010697C	100.00	syslib/psx/libapi/A23	ReturnFromException	LIBAPI	A23	SAME_MEMBER_NAME	ReturnFromException	PsyQ43 same archive member	YES
+0x8010699C	100.00	syslib/psx/libapi/A24	ResetEntryInt	LIBAPI	A24	SAME_MEMBER_NAME	ResetEntryInt	PsyQ43 same archive member	YES
+0x8010669C	100.00	syslib/psx/libapi/A25	HookEntryInt	LIBAPI	A25	SAME_MEMBER_NAME	HookEntryInt	PsyQ43 same archive member	YES
+0x8010698C	100.00	syslib/psx/libapi/A36	EnterCriticalSection	LIBAPI	A36	SAME_MEMBER_NAME	EnterCriticalSection	PsyQ43 same archive member	YES
+0x8010696C	100.00	syslib/psx/libapi/A37	ExitCriticalSection	LIBAPI	A37	SAME_MEMBER_NAME	ExitCriticalSection	PsyQ43 same archive member	YES
+0x800E44AC	100.00	syslib/psx/libapi/A39	SetSp	LIBAPI	A39	SAME_MEMBER_NAME	SetSp	PsyQ43 same archive member	YES
+0x80109D70	100.00	syslib/psx/libapi/A50	open	LIBAPI	A50	SAME_MEMBER_NAME	open	PsyQ43 same archive member	YES
+0x80109D90	100.00	syslib/psx/libapi/A51	lseek	LIBAPI	A51	SAME_MEMBER_NAME	lseek	PsyQ43 same archive member	YES
+0x80109DA0	100.00	syslib/psx/libapi/A52	read	LIBAPI	A52	SAME_MEMBER_NAME	read	PsyQ43 same archive member	YES
+0x80109DB0	100.00	syslib/psx/libapi/A53	write	LIBAPI	A53	SAME_MEMBER_NAME	write	PsyQ43 same archive member	YES
+0x80109D80	100.00	syslib/psx/libapi/A54	close	LIBAPI	A54	SAME_MEMBER_NAME	close	PsyQ43 same archive member	YES
+0x8010A080	100.00	syslib/psx/libapi/A65	format	LIBAPI	A65	SAME_MEMBER_NAME	format	PsyQ43 same archive member	YES
+0x8010C884	100.00	syslib/psx/libapi/A66	firstfile2	LIBAPI	A66	SAME_MEMBER_NAME	firstfile2	PsyQ43 same archive member	YES
+0x8010A060	100.00	syslib/psx/libapi/A67	nextfile	LIBAPI	A67	SAME_MEMBER_NAME	nextfile	PsyQ43 same archive member	YES
+0x8010A070	100.00	syslib/psx/libapi/A69	erase	LIBAPI	A69	SAME_MEMBER_NAME	erase	PsyQ43 same archive member	YES
+0x80106654	100.00	syslib/psx/libapi/A91	ChangeClearPAD	LIBAPI	A91	SAME_MEMBER_NAME	ChangeClearPAD	PsyQ43 same archive member	YES
+0x8010C854	100.00	syslib/psx/libapi/C112	_bu_init	LIBAPI	C112	SAME_MEMBER_NAME	_bu_init	PsyQ43 same archive member	YES
+0x80106954	100.00	syslib/psx/libapi/C114	_96_remove	LIBAPI	C114	SAME_MEMBER_NAME	_96_remove	PsyQ43 same archive member	YES
+0x800FDD18	100.00	syslib/psx/libapi/C57	InitHeap	LIBAPI	C57	SAME_MEMBER_NAME	InitHeap	PsyQ43 same archive member	YES
+0x800F43D4	100.00	syslib/psx/libapi/C68	FlushCache	LIBAPI	C68	SAME_MEMBER_NAME	FlushCache	PsyQ43 same archive member	YES
+0x80104A0C	100.00	syslib/psx/libapi/C73	GPU_cw	LIBAPI	C73	SAME_MEMBER_NAME	GPU_cw	PsyQ43 same archive member	YES
+0x800E9E70	100.00	syslib/psx/libapi/COUNTER	SetRCnt	LIBAPI	COUNTER	SAME_MEMBER_NAME	SetRCnt	PsyQ43 same archive member	YES
+0x800E9F0C	100.00	syslib/psx/libapi/COUNTER	GetRCnt	LIBAPI	COUNTER	SAME_MEMBER_NAME	GetRCnt	PsyQ43 same archive member	YES
+0x800E9F44	100.00	syslib/psx/libapi/COUNTER	StartRCnt	LIBAPI	COUNTER	SAME_MEMBER_NAME	StartRCnt	PsyQ43 same archive member	YES
+0x80109DC0	100.00	syslib/psx/libapi/FIRST	firstfile	LIBAPI	FIRST	SAME_MEMBER_NAME	firstfile	PsyQ43 same archive member	YES
+0x80109F5C	100.00	syslib/psx/libapi/FIRST	_first_patch	LIBAPI	FIRST	NFS4_VARIANT_OR_PRIVATE			NO
+0x8010BFD8	100.00	syslib/psx/libapi/L02	SysEnqIntRP	LIBAPI	L02	SAME_MEMBER_NAME	SysEnqIntRP	PsyQ43 same archive member	YES
+0x8010BFC8	100.00	syslib/psx/libapi/L03	SysDeqIntRP	LIBAPI	L03	SAME_MEMBER_NAME	SysDeqIntRP	PsyQ43 same archive member	YES
+0x80106664	100.00	syslib/psx/libapi/L10	ChangeClearRCnt	LIBAPI	L10	SAME_MEMBER_NAME	ChangeClearRCnt	PsyQ43 same archive member	YES
+0x800E80CC	100.00	syslib/psx/libc/A63	puts	LIBC	A63	SAME_MEMBER_NAME	puts	PsyQ43 same archive member	YES
+0x801091DC	100.00	syslib/psx/libc/BSEARCH	bsearch	LIBC	BSEARCH	SAME_MEMBER_NAME	bsearch	PsyQ43 same archive member	YES
+0x800EB100	100.00	syslib/psx/libc/C16	atoi	LIBC	C16	SAME_MEMBER_NAME	atoi	PsyQ43 same archive member	YES
+0x8010668C	100.00	syslib/psx/libc/C19	setjmp	LIBC	C19	SAME_MEMBER_NAME	setjmp	PsyQ43 same archive member	YES
+0x800E78E8	100.00	syslib/psx/libc/C21	strcat	LIBC	C21	SAME_MEMBER_NAME	strcat	PsyQ43 same archive member	YES
+0x800E5D7C	100.00	syslib/psx/libc/C23	strcmp	LIBC	C23	SAME_MEMBER_NAME	strcmp	PsyQ43 same archive member	YES
+0x800EB1D0	100.00	syslib/psx/libc/C24	strncmp	LIBC	C24	SAME_MEMBER_NAME	strncmp	PsyQ43 same archive member	YES
+0x800E5B28	100.00	syslib/psx/libc/C25	strcpy	LIBC	C25	SAME_MEMBER_NAME	strcpy	PsyQ43 same archive member	YES
+0x800F6104	100.00	syslib/psx/libc/C26	strncpy	LIBC	C26	SAME_MEMBER_NAME	strncpy	PsyQ43 same archive member	YES
+0x800E9F74	100.00	syslib/psx/libc/C27	strlen	LIBC	C27	SAME_MEMBER_NAME	strlen	PsyQ43 same archive member	YES
+0x800F6214	100.00	syslib/psx/libc/C30	strchr	LIBC	C30	SAME_MEMBER_NAME	strchr	PsyQ43 same archive member	YES
+0x80103590	100.00	syslib/psx/libc/C31	strrchr	LIBC	C31	SAME_MEMBER_NAME	strrchr	PsyQ43 same archive member	YES
+0x800E62CC	100.00	syslib/psx/libc/C36	strstr	LIBC	C36	SAME_MEMBER_NAME	strstr	PsyQ43 same archive member	YES
+0x8010907C	100.00	syslib/psx/libc/C37	toupper	LIBC	C37	SAME_MEMBER_NAME	toupper	PsyQ43 same archive member	YES
+0x801035A0	100.00	syslib/psx/libc/C38	tolower	LIBC	C38	SAME_MEMBER_NAME	tolower	PsyQ43 same archive member	YES
+0x8010A540	100.00	syslib/psx/libc/C40	bzero	LIBC	C40	SAME_MEMBER_NAME	bzero	PsyQ43 same archive member	YES
+0x800EAAC4	100.00	syslib/psx/libc/C42	memcpy	LIBC	C42	SAME_MEMBER_NAME	memcpy	PsyQ43 same archive member	YES
+0x800E4318	100.00	syslib/psx/libc/C43	memset	LIBC	C43	SAME_MEMBER_NAME	memset	PsyQ43 same archive member	YES
+0x800FE388	100.00	syslib/psx/libc/C46	memchr	LIBC	C46	SAME_MEMBER_NAME	memchr	PsyQ43 same archive member	YES
+0x800EAAD4	100.00	syslib/psx/libc/C47	rand	LIBC	C47	SAME_MEMBER_NAME	rand	PsyQ43 same archive member	YES
+0x801028AC	100.00	syslib/psx/libc/C63	printf	LIBC	C63	SAME_MEMBER_NAME	printf	PsyQ43 same archive member	YES
+0x80103734	100.00	syslib/psx/libc/MEMCMP	memcmp	LIBC	MEMCMP	SAME_MEMBER_NAME	memcmp	PsyQ43 same archive member	YES
+0x800FE398	100.00	syslib/psx/libc/MEMMOVE	memmove	LIBC	MEMMOVE	SAME_MEMBER_NAME	memmove	PsyQ43 same archive member	YES
+0x800E5D8C	100.00	syslib/psx/libc/QSORT	qsort	LIBC	QSORT	SAME_MEMBER_NAME	qsort	PsyQ43 same archive member	YES
+0x800E5EDC	100.00	syslib/psx/libc/QSORT	_swap	LIBC	QSORT	NFS4_VARIANT_OR_PRIVATE			NO
+0x800E44BC	100.00	syslib/psx/libc/SPRINTF	sprintf	LIBC	SPRINTF	SAME_MEMBER_NAME	sprintf	PsyQ43 same archive member	YES
+0x8010C9C0	100.00	syslib/psx/libcard/A74	InitCARD2	LIBCARD	A74	SAME_MEMBER_NAME	InitCARD2	PsyQ43 same archive member	YES
+0x8010CBA0	100.00	syslib/psx/libcard/A75	StartCARD2	LIBCARD	A75	SAME_MEMBER_NAME	StartCARD2	PsyQ43 same archive member	YES
+0x8010CBB0	100.00	syslib/psx/libcard/A76	StopCARD2	LIBCARD	A76	SAME_MEMBER_NAME	StopCARD2	PsyQ43 same archive member	YES
+0x8010A0A0	100.00	syslib/psx/libcard/A78	_card_write	LIBCARD	A78	SAME_MEMBER_NAME	_card_write	PsyQ43 same archive member	YES
+0x8010A090	100.00	syslib/psx/libcard/A80	_new_card	LIBCARD	A80	SAME_MEMBER_NAME	_new_card	PsyQ43 same archive member	YES
+0x80109D10	100.00	syslib/psx/libcard/C171	_card_info	LIBCARD	C171	SAME_MEMBER_NAME	_card_info	PsyQ43 same archive member	YES
+0x80109D60	100.00	syslib/psx/libcard/C172	_card_load	LIBCARD	C172	SAME_MEMBER_NAME	_card_load	PsyQ43 same archive member	YES
+0x80109D20	100.00	syslib/psx/libcard/CARD	_card_clear	LIBCARD	CARD	SAME_MEMBER_NAME	_card_clear	PsyQ43 same archive member	YES
+0x8010C7F0	100.00	syslib/psx/libcard/CARDINIT	StartCARD	LIBCARD	INIT	SAME_MEMBER_NAME	StartCARD	PsyQ43 same archive member	YES
+0x8010C828	100.00	syslib/psx/libcard/CARDINIT	StopCARD	LIBCARD	INIT	SAME_MEMBER_NAME	StopCARD	PsyQ43 same archive member	YES
+0x8010CBC0	100.00	syslib/psx/libcard/END	_ExitCard	LIBCARD	END	SAME_MEMBER_NAME	_ExitCard	PsyQ43 same archive member	YES
+0x8010C784	100.00	syslib/psx/libcard/INIT	InitCARD	LIBCARD	INIT	SAME_MEMBER_NAME	InitCARD	PsyQ43 same archive member	YES
+0x8010CA68	100.00	syslib/psx/libcard/PATCH	_patch_card	LIBCARD	PATCH	SAME_MEMBER_NAME	_patch_card	PsyQ43 same archive member	YES
+0x8010CAFC	100.00	syslib/psx/libcard/PATCH	_patch_card2	LIBCARD	PATCH	SAME_MEMBER_NAME	_patch_card2	PsyQ43 same archive member	YES
+0x8010CB6C	100.00	syslib/psx/libcard/PATCH	_copy_memcard_patch	LIBCARD	PATCH	SAME_MEMBER_NAME	_copy_memcard_patch	PsyQ43 same archive member	YES
+0x800F99F8	100.00	syslib/psx/libcd/CDROM	StSetRing	LIBCD	CDROM	SAME_MEMBER_NAME	StSetRing	PsyQ43 same archive member	YES
+0x800F8968	100.00	syslib/psx/libcd/C_002	StClearRing	LIBCD	C_002	SAME_MEMBER_NAME	StClearRing	PsyQ43 same archive member	YES
+0x800F8EC8	100.00	syslib/psx/libcd/C_003	StUnSetRing	LIBCD	C_003	SAME_MEMBER_NAME	StUnSetRing	PsyQ43 same archive member	YES
+0x80108798	100.00	syslib/psx/libcd/C_004	data_ready_callback	LIBCD	C_004	SAME_MEMBER_NAME	data_ready_callback	PsyQ43 same archive member	YES
+0x800F8FF8	100.00	syslib/psx/libcd/C_005	StSetStream	LIBCD	C_005	SAME_MEMBER_NAME	StSetStream	PsyQ43 same archive member	YES
+0x800FA994	100.00	syslib/psx/libcd/C_007	StFreeRing	LIBCD	C_007	SAME_MEMBER_NAME	StFreeRing	PsyQ43 same archive member	YES
+0x80108758	100.00	syslib/psx/libcd/C_008	init_ring_status	LIBCD	C_008	SAME_MEMBER_NAME	init_ring_status	PsyQ43 same archive member	YES
+0x800F9A28	100.00	syslib/psx/libcd/C_009	StGetNext	LIBCD	C_009	SAME_MEMBER_NAME	StGetNext	PsyQ43 same archive member	YES
+0x8010885C	100.00	syslib/psx/libcd/C_010	StSetMask	LIBCD	C_010	SAME_MEMBER_NAME	StSetMask	PsyQ43 same archive member	YES
+0x800E8448	100.00	syslib/psx/libcd/TYPE	CdDiskReady	LIBCD	TYPE	SAME_MEMBER_NAME	CdDiskReady	PsyQ43 same archive member	YES
+0x800E8584	100.00	syslib/psx/libcd/TYPE	CdGetDiskType	LIBCD	TYPE	SAME_MEMBER_NAME	CdGetDiskType	PsyQ43 same archive member	YES
+0x800F7780	100.00	syslib/psx/libcd/cdcont	CdStatus	LIBCD	SYS	SAME_MEMBER_NAME	CdStatus	PsyQ43 same archive member	YES
+0x800F7790	100.00	syslib/psx/libcd/cdcont	CdMode	LIBCD	SYS	SAME_MEMBER_NAME	CdMode	PsyQ43 same archive member	YES
+0x800F77A0	100.00	syslib/psx/libcd/cdcont	CdLastPos	LIBCD	SYS	SAME_MEMBER_NAME	CdLastPos	PsyQ43 same archive member	YES
+0x800F77AC	100.00	syslib/psx/libcd/cdcont	CdReset	LIBCD	SYS	SAME_MEMBER_NAME	CdReset	PsyQ43 same archive member	YES
+0x800F7818	100.00	syslib/psx/libcd/cdcont	CdFlush	LIBCD	SYS	SAME_MEMBER_NAME	CdFlush	PsyQ43 same archive member	YES
+0x800F7838	100.00	syslib/psx/libcd/cdcont	CdSetDebug	LIBCD	SYS	SAME_MEMBER_NAME	CdSetDebug	PsyQ43 same archive member	YES
+0x800F784C	100.00	syslib/psx/libcd/cdcont	CdSync	LIBCD	SYS	SAME_MEMBER_NAME	CdSync	PsyQ43 same archive member	YES
+0x800F786C	100.00	syslib/psx/libcd/cdcont	CdReady	LIBCD	SYS	SAME_MEMBER_NAME	CdReady	PsyQ43 same archive member	YES
+0x800F788C	100.00	syslib/psx/libcd/cdcont	CdSyncCallback	LIBCD	SYS	SAME_MEMBER_NAME	CdSyncCallback	PsyQ43 same archive member	YES
+0x800F78A0	100.00	syslib/psx/libcd/cdcont	CdReadyCallback	LIBCD	SYS	SAME_MEMBER_NAME	CdReadyCallback	PsyQ43 same archive member	YES
+0x800F78B4	100.00	syslib/psx/libcd/cdcont	CdControl	LIBCD	SYS	SAME_MEMBER_NAME	CdControl	PsyQ43 same archive member	YES
+0x800F79F0	100.00	syslib/psx/libcd/cdcont	CdControlF	LIBCD	SYS	SAME_MEMBER_NAME	CdControlF	PsyQ43 same archive member	YES
+0x800F7B24	100.00	syslib/psx/libcd/cdcont	CdControlB	LIBCD	SYS	SAME_MEMBER_NAME	CdControlB	PsyQ43 same archive member	YES
+0x800F7C70	100.00	syslib/psx/libcd/cdcont	CdGetSector	LIBCD	SYS	SAME_MEMBER_NAME	CdGetSector	PsyQ43 same archive member	YES
+0x800F7C90	100.00	syslib/psx/libcd/cdcont	CdGetSector2	LIBCD	SYS	SAME_MEMBER_NAME	CdGetSector2	PsyQ43 same archive member	YES
+0x800F7CB0	100.00	syslib/psx/libcd/cdcont	CdDataCallback	LIBCD	SYS	SAME_MEMBER_NAME	CdDataCallback	PsyQ43 same archive member	YES
+0x800F7CD4	100.00	syslib/psx/libcd/cdcont	CdDataSync	LIBCD	SYS	SAME_MEMBER_NAME	CdDataSync	PsyQ43 same archive member	YES
+0x800F7CF4	100.00	syslib/psx/libcd/cdcont	CdIntToPos	LIBCD	SYS	SAME_MEMBER_NAME	CdIntToPos	PsyQ43 same archive member	YES
+0x800F7DF8	100.00	syslib/psx/libcd/cdcont	CdPosToInt	LIBCD	SYS	SAME_MEMBER_NAME	CdPosToInt	PsyQ43 same archive member	YES
+0x8010887C	100.00	syslib/psx/libcd/cdread	_read_sync	LIBCD	cdread	NFS4_VARIANT_OR_PRIVATE			NO
+0x801088B0	100.00	syslib/psx/libcd/cdread	_read_int	LIBCD	cdread	NFS4_VARIANT_OR_PRIVATE			NO
+0x80108B24	100.00	syslib/psx/libcd/cdread	_read_data_int	LIBCD	cdread	NFS4_VARIANT_OR_PRIVATE			NO
+0x80108BF4	100.00	syslib/psx/libcd/cdread	_read_issue	LIBCD	cdread	NFS4_VARIANT_OR_PRIVATE			NO
+0x80108DDC	100.00	syslib/psx/libcd/cdread	CdRead	LIBCD	cdread	SAME_MEMBER_NAME	CdRead	PsyQ43 same archive member	YES
+0x80108F78	100.00	syslib/psx/libcd/cdread	CdReadSync	LIBCD	cdread	SAME_MEMBER_NAME	CdReadSync	PsyQ43 same archive member	YES
+0x800F8F48	100.00	syslib/psx/libcd/cdread2	CdRead2	LIBCD	cdread2	SAME_MEMBER_NAME	CdRead2	PsyQ43 same archive member	YES
+0x800F8FCC	100.00	syslib/psx/libcd/cdread2	_cdread2_ready	LIBCD	cdread2	NFS4_VARIANT_OR_PRIVATE			NO
+0x80107080	100.00	syslib/psx/libcd/drv	CD_get_intr	LIBCD	BIOS	NFS4_VARIANT_OR_PRIVATE			NO
+0x801075DC	100.00	syslib/psx/libcd/drv	CD_sync	LIBCD	BIOS	SAME_MEMBER_NAME	CD_sync	PsyQ43 same archive member	YES
+0x8010785C	100.00	syslib/psx/libcd/drv	CD_ready	LIBCD	BIOS	SAME_MEMBER_NAME	CD_ready	PsyQ43 same archive member	YES
+0x80107B24	100.00	syslib/psx/libcd/drv	CD_cw	LIBCD	BIOS	SAME_MEMBER_NAME	CD_cw	PsyQ43 same archive member	YES
+0x80107F30	100.00	syslib/psx/libcd/drv	CD_flush	LIBCD	BIOS	SAME_MEMBER_NAME	CD_flush	PsyQ43 same archive member	YES
+0x80108004	100.00	syslib/psx/libcd/drv	CD_initvol	LIBCD	BIOS	SAME_MEMBER_NAME	CD_initvol	PsyQ43 same archive member	YES
+0x801080F4	100.00	syslib/psx/libcd/drv	CD_initintr	LIBCD	BIOS	SAME_MEMBER_NAME	CD_initintr	PsyQ43 same archive member	YES
+0x80108140	100.00	syslib/psx/libcd/drv	CD_init_80108140	LIBCD	BIOS	ORACLE_ADDRESS_ALIAS_OF_SAME_MEMBER_NAME	CD_init	address suffix is reconstruction/oracle disambiguator	YES
+0x80108320	100.00	syslib/psx/libcd/drv	CD_datasync	LIBCD	BIOS	SAME_MEMBER_NAME	CD_datasync	PsyQ43 same archive member	YES
+0x80108488	100.00	syslib/psx/libcd/drv	CD_getsector	LIBCD	BIOS	SAME_MEMBER_NAME	CD_getsector	PsyQ43 same archive member	YES
+0x80108588	100.00	syslib/psx/libcd/drv	CD_getsector2	LIBCD	BIOS	SAME_MEMBER_NAME	CD_getsector2	PsyQ43 same archive member	YES
+0x80108674	100.00	syslib/psx/libcd/drv	CD_set_test_parmnum	LIBCD	BIOS	SAME_MEMBER_NAME	CD_set_test_parmnum	PsyQ43 same archive member	YES
+0x80108680	100.00	syslib/psx/libcd/drv	_cd_intr_dispatch	LIBCD	BIOS	NFS4_VARIANT_OR_PRIVATE			NO
+0x8010908C	100.00	syslib/psx/libcd/event	CdInit	LIBCD	event	SAME_MEMBER_NAME	CdInit	PsyQ43 same archive member	YES
+0x8010911C	100.00	syslib/psx/libcd/event	_cd_event_init	LIBCD	event	NFS4_VARIANT_OR_PRIVATE			NO
+0x80109158	100.00	syslib/psx/libcd/event	_cd_event_sync	LIBCD	event	NFS4_VARIANT_OR_PRIVATE			NO
+0x80109180	100.00	syslib/psx/libcd/event	_cd_event_ready	LIBCD	event	NFS4_VARIANT_OR_PRIVATE			NO
+0x801091A8	100.00	syslib/psx/libcd/event	_cd_event_read	LIBCD	event	NFS4_VARIANT_OR_PRIVATE			NO
+0x800F9088	100.00	syslib/psx/libcd/iso9660	CdSearchFile	LIBCD	iso9660	SAME_MEMBER_NAME	CdSearchFile	PsyQ43 same archive member	YES
+0x800F9360	100.00	syslib/psx/libcd/iso9660	_cd_cmp_name	LIBCD	iso9660	NFS4_VARIANT_OR_PRIVATE			NO
+0x800F9380	100.00	syslib/psx/libcd/iso9660	CD_newmedia	LIBCD	iso9660	NFS4_VARIANT_OR_PRIVATE			NO
+0x800F9644	100.00	syslib/psx/libcd/iso9660	_cd_find_path	LIBCD	iso9660	NFS4_VARIANT_OR_PRIVATE			NO
+0x800F96E8	100.00	syslib/psx/libcd/iso9660	CD_cachefile	LIBCD	iso9660	NFS4_VARIANT_OR_PRIVATE			NO
+0x800F9984	100.00	syslib/psx/libcd/iso9660	cd_read	LIBCD	iso9660	NFS4_VARIANT_OR_PRIVATE			NO
+0x800F7E78	100.00	syslib/psx/libcd/stcdint	StCdInterrupt	LIBCD	C_011	SAME_MEMBER_NAME	StCdInterrupt	PsyQ43 same archive member	YES
+0x800F8794	100.00	syslib/psx/libcd/stcdint	_st_copy_words	LIBCD	C_011	NFS4_VARIANT_OR_PRIVATE			NO
+0x800F87C0	99.01	syslib/psx/libcd/stcdint	_st_dma	LIBCD	C_011	NFS4_VARIANT_OR_PRIVATE			NO
+0x8010929C	100.00	syslib/psx/libcd/toc	CdGetToc	LIBCD	toc	SAME_MEMBER_NAME	CdGetToc	PsyQ43 same archive member	YES
+0x801092C0	100.00	syslib/psx/libcd/toc	CdGetToc2	LIBCD	toc	SAME_MEMBER_NAME	CdGetToc2	PsyQ43 same archive member	YES
+0x80108824	100.00	syslib/psx/libds/DSCB	DsReadyCallback	LIBDS	DSCB	SAME_MEMBER_NAME	DsReadyCallback	PsyQ43 same archive member	YES
+0x80108838	100.00	syslib/psx/libds/DSCB	DsDataCallback	LIBDS	DSCB	SAME_MEMBER_NAME	DsDataCallback	PsyQ43 same archive member	YES
+0x800F284C	100.00	syslib/psx/libetc/INTR	ResetCallback	LIBETC	INTR	SAME_MEMBER_NAME	ResetCallback	PsyQ43 same archive member	YES
+0x800F287C	100.00	syslib/psx/libetc/INTR	InterruptCallback	LIBETC	INTR	SAME_MEMBER_NAME	InterruptCallback	PsyQ43 same archive member	YES
+0x800F28AC	100.00	syslib/psx/libetc/INTR	DMACallback	LIBETC	INTR	SAME_MEMBER_NAME	DMACallback	PsyQ43 same archive member	YES
+0x800F28DC	100.00	syslib/psx/libetc/INTR	VSyncCallback	LIBETC	INTR	SAME_MEMBER_NAME	VSyncCallback	PsyQ43 same archive member	YES
+0x800F2910	100.00	syslib/psx/libetc/INTR	VSyncCallbacks	LIBETC	INTR	SAME_MEMBER_NAME	VSyncCallbacks	PsyQ43 same archive member	YES
+0x800F2940	100.00	syslib/psx/libetc/INTR	CheckCallback	LIBETC	INTR	SAME_MEMBER_NAME	CheckCallback	PsyQ43 same archive member	YES
+0x800F2950	100.00	syslib/psx/libetc/INTR	SetIntrMask	LIBETC	INTR	SAME_MEMBER_NAME	SetIntrMask	PsyQ43 same archive member	YES
+0x800F2968	100.00	syslib/psx/libetc/INTR	_initIntr	LIBETC	INTR	NFS4_VARIANT_OR_PRIVATE			NO
+0x800F2A40	100.00	syslib/psx/libetc/INTR	_intrhand	LIBETC	INTR	NFS4_VARIANT_OR_PRIVATE			NO
+0x800F2C10	100.00	syslib/psx/libetc/INTR	_set_intr_callback	LIBETC	INTR	NFS4_VARIANT_OR_PRIVATE			NO
+0x800F2D58	100.00	syslib/psx/libetc/INTR	StopCallback	LIBETC	INTR	SAME_MEMBER_NAME	StopCallback	PsyQ43 same archive member	NO
+0x800F2DF8	100.00	syslib/psx/libetc/INTR	RestartCallback	LIBETC	INTR	SAME_MEMBER_NAME	RestartCallback	PsyQ43 same archive member	NO
+0x800F2E70	100.00	syslib/psx/libetc/INTR	_bzero_w_800F2E70	LIBETC	INTR	NFS4_VARIANT_OR_PRIVATE			NO
+0x801066AC	100.00	syslib/psx/libetc/INTR_DMA	startIntrDMA	LIBETC	INTR_DMA	SAME_MEMBER_NAME	startIntrDMA	PsyQ43 same archive member	YES
+0x801066F8	100.00	syslib/psx/libetc/INTR_DMA	_dma_isr	LIBETC	INTR_DMA	NFS4_VARIANT_OR_PRIVATE			NO
+0x80106878	100.00	syslib/psx/libetc/INTR_DMA	setIntrDMA	LIBETC	INTR_DMA	NFS4_VARIANT_OR_PRIVATE			NO
+0x80106924	100.00	syslib/psx/libetc/INTR_DMA	_bzero_w	LIBETC	INTR_DMA	NFS4_VARIANT_OR_PRIVATE			NO
+0x80106534	100.00	syslib/psx/libetc/INTR_VB	startIntrVSync	LIBETC	INTR_VB	SAME_MEMBER_NAME	startIntrVSync	PsyQ43 same archive member	YES
+0x8010658C	100.00	syslib/psx/libetc/INTR_VB	startIntrVSync_helper_1	LIBETC	INTR_VB	NFS4_VARIANT_OR_PRIVATE			NO
+0x801065F8	100.00	syslib/psx/libetc/INTR_VB	startIntrVSync_helper_2	LIBETC	INTR_VB	NFS4_VARIANT_OR_PRIVATE			NO
+0x80106624	100.00	syslib/psx/libetc/INTR_VB	startIntrVSync_helper_3	LIBETC	INTR_VB	NFS4_VARIANT_OR_PRIVATE			NO
+0x800F1770	100.00	syslib/psx/libetc/VMODE	SetVideoMode	LIBETC	VMODE	SAME_MEMBER_NAME	SetVideoMode	PsyQ43 same archive member	YES
+0x800F1784	100.00	syslib/psx/libetc/VMODE	GetVideoMode	LIBETC	VMODE	SAME_MEMBER_NAME	GetVideoMode	PsyQ43 same archive member	YES
+0x800F231C	100.00	syslib/psx/libetc/VSYNC	VSync	LIBETC	VSYNC	SAME_MEMBER_NAME	VSync	PsyQ43 same archive member	YES
+0x800F2494	100.00	syslib/psx/libetc/VSYNC	_VSync_wait	LIBETC	VSYNC	NFS4_VARIANT_OR_PRIVATE			NO
+0x800F222C	100.00	syslib/psx/libgpu/EXT	SetDefDrawEnv	LIBGPU	EXT	SAME_MEMBER_NAME	SetDefDrawEnv	PsyQ43 same archive member	YES
+0x800F22E0	100.00	syslib/psx/libgpu/EXT	SetDefDispEnv	LIBGPU	EXT	SAME_MEMBER_NAME	SetDefDispEnv	PsyQ43 same archive member	YES
+0x800F6D18	99.61	syslib/psx/libgpu/FONT	FntFlush	LIBGPU	FONT	SAME_MEMBER_NAME	FntFlush	PsyQ43 same archive member	YES
+0x800F7034	100.00	syslib/psx/libgpu/FONT	FntPrint	LIBGPU	FONT	SAME_MEMBER_NAME	FntPrint	PsyQ43 same archive member	YES
+0x800F1BFC	100.00	syslib/psx/libgpu/P00	GetTPage	LIBGPU	P00	SAME_MEMBER_NAME	GetTPage	PsyQ43 same archive member	YES
+0x800F4450	100.00	syslib/psx/libgpu/P01	GetClut	LIBGPU	P01	SAME_MEMBER_NAME	GetClut	PsyQ43 same archive member	YES
+0x80107040	100.00	syslib/psx/libgpu/P06	AddPrim	LIBGPU	P06	SAME_MEMBER_NAME	AddPrim	PsyQ43 same archive member	YES
+0x80107020	100.00	syslib/psx/libgpu/P09	TermPrim	LIBGPU	P09	SAME_MEMBER_NAME	TermPrim	PsyQ43 same archive member	YES
+0x800F30FC	100.00	syslib/psx/libgpu/P10	SetSemiTrans	LIBGPU	P10	SAME_MEMBER_NAME	SetSemiTrans	PsyQ43 same archive member	YES
+0x800F611C	100.00	syslib/psx/libgpu/P11	SetShadeTex	LIBGPU	P11	SAME_MEMBER_NAME	SetShadeTex	PsyQ43 same archive member	YES
+0x800F35F0	100.00	syslib/psx/libgpu/P12	SetPolyF3	LIBGPU	P12	SAME_MEMBER_NAME	SetPolyF3	PsyQ43 same archive member	YES
+0x800F3610	100.00	syslib/psx/libgpu/P16	SetPolyF4	LIBGPU	P16	SAME_MEMBER_NAME	SetPolyF4	PsyQ43 same archive member	YES
+0x800F3650	100.00	syslib/psx/libgpu/P17	SetPolyFT4	LIBGPU	P17	SAME_MEMBER_NAME	SetPolyFT4	PsyQ43 same archive member	YES
+0x800F3630	100.00	syslib/psx/libgpu/P18	SetPolyG4	LIBGPU	P18	SAME_MEMBER_NAME	SetPolyG4	PsyQ43 same archive member	YES
+0x800F3490	100.00	syslib/psx/libgpu/P19	SetPolyGT4	LIBGPU	P19	SAME_MEMBER_NAME	SetPolyGT4	PsyQ43 same archive member	YES
+0x8010C698	100.00	syslib/psx/libgpu/P34	SetDrawMove	LIBGPU	P34	SAME_MEMBER_NAME	SetDrawMove	PsyQ43 same archive member	YES
+0x800ED670	100.00	syslib/psx/libgpu/SYS	ResetGraph	LIBGPU	SYS	SAME_MEMBER_NAME	ResetGraph	PsyQ43 same archive member	YES
+0x800ED7E4	100.00	syslib/psx/libgpu/SYS	SetDispMask	LIBGPU	SYS	SAME_MEMBER_NAME	SetDispMask	PsyQ43 same archive member	YES
+0x800ED87C	100.00	syslib/psx/libgpu/SYS	DrawSync	LIBGPU	SYS	SAME_MEMBER_NAME	DrawSync	PsyQ43 same archive member	YES
+0x800ED8E4	100.00	syslib/psx/libgpu/SYS	_image	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EDA00	100.00	syslib/psx/libgpu/SYS	ClearImage	LIBGPU	SYS	SAME_MEMBER_NAME	ClearImage	PsyQ43 same archive member	YES
+0x800EDA90	100.00	syslib/psx/libgpu/SYS	LoadImage	LIBGPU	SYS	SAME_MEMBER_NAME	LoadImage	PsyQ43 same archive member	YES
+0x800EDAF0	100.00	syslib/psx/libgpu/SYS	StoreImage	LIBGPU	SYS	SAME_MEMBER_NAME	StoreImage	PsyQ43 same archive member	YES
+0x800EDB50	100.00	syslib/psx/libgpu/SYS	MoveImage	LIBGPU	SYS	SAME_MEMBER_NAME	MoveImage	PsyQ43 same archive member	YES
+0x800EDC08	100.00	syslib/psx/libgpu/SYS	ClearOTagR	LIBGPU	SYS	SAME_MEMBER_NAME	ClearOTagR	PsyQ43 same archive member	YES
+0x800EDCB4	100.00	syslib/psx/libgpu/SYS	DrawOTag	LIBGPU	SYS	SAME_MEMBER_NAME	DrawOTag	PsyQ43 same archive member	YES
+0x800EDD24	100.00	syslib/psx/libgpu/SYS	PutDrawEnv	LIBGPU	SYS	SAME_MEMBER_NAME	PutDrawEnv	PsyQ43 same archive member	YES
+0x800EDDE4	100.00	syslib/psx/libgpu/SYS	PutDispEnv	LIBGPU	SYS	SAME_MEMBER_NAME	PutDispEnv	PsyQ43 same archive member	YES
+0x800EE2DC	100.00	syslib/psx/libgpu/SYS	SetTexWindow	LIBGPU	SYS	SAME_MEMBER_NAME	SetTexWindow	PsyQ43 same archive member	YES
+0x800EE314	100.00	syslib/psx/libgpu/SYS	SetDrawArea	LIBGPU	SYS	SAME_MEMBER_NAME	SetDrawArea	PsyQ43 same archive member	YES
+0x800EE394	100.00	syslib/psx/libgpu/SYS	SetDrawStp	LIBGPU	SYS	SAME_MEMBER_NAME	SetDrawStp	PsyQ43 same archive member	YES
+0x800EE3BC	100.00	syslib/psx/libgpu/SYS	SetDrawMode	LIBGPU	SYS	SAME_MEMBER_NAME	SetDrawMode	PsyQ43 same archive member	YES
+0x800EE410	100.00	syslib/psx/libgpu/SYS	SetDrawEnv	LIBGPU	SYS	SAME_MEMBER_NAME	SetDrawEnv	PsyQ43 same archive member	YES
+0x800EE608	100.00	syslib/psx/libgpu/SYS	_set_drawenv	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EE878	100.00	syslib/psx/libgpu/SYS	_set_draw_mode	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EE898	100.00	syslib/psx/libgpu/SYS	_set_clip_tl	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EE930	100.00	syslib/psx/libgpu/SYS	_set_clip_br	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EE9C8	100.00	syslib/psx/libgpu/SYS	_set_draw_offset	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EE9E4	100.00	syslib/psx/libgpu/SYS	_get_tw	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EEA64	100.00	syslib/psx/libgpu/SYS	_get_status	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EEA7C	100.00	syslib/psx/libgpu/SYS	_clearOTagR_dma	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EEB5C	100.00	syslib/psx/libgpu/SYS	_BlitClear	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EED8C	100.00	syslib/psx/libgpu/SYS	_dws	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EEFC8	100.00	syslib/psx/libgpu/SYS	_drs	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EF248	100.00	syslib/psx/libgpu/SYS	_send_gp1	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EF26C	100.00	syslib/psx/libgpu/SYS	_get_gp1	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EF280	100.00	syslib/psx/libgpu/SYS	_send_gp0	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EF2C0	100.00	syslib/psx/libgpu/SYS	_gpu_dma_chain	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EF308	100.00	syslib/psx/libgpu/SYS	_get_gpuinfo	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EF338	100.00	syslib/psx/libgpu/SYS	_que_ref	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EF35C	100.00	syslib/psx/libgpu/SYS	_gpu_que_push	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EF60C	100.00	syslib/psx/libgpu/SYS	_gpu_que_drain	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EF86C	100.00	syslib/psx/libgpu/SYS	_reset	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EF9BC	100.00	syslib/psx/libgpu/SYS	_sync	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EFAF8	100.00	syslib/psx/libgpu/SYS	_gpu_arm_timeout	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EFB2C	100.00	syslib/psx/libgpu/SYS	_gpu_check_timeout	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EFC70	100.00	syslib/psx/libgpu/SYS	_gpu_init_videomode	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EFD10	100.00	syslib/psx/libgpu/SYS	DrawOTag2	LIBGPU	SYS	SAME_MEMBER_NAME	DrawOTag2	PsyQ43 same archive member	YES
+0x800EFE0C	100.00	syslib/psx/libgpu/SYS	_install_drain_cb	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EFE34	100.00	syslib/psx/libgpu/SYS	_memset	LIBGPU	SYS	NFS4_VARIANT_OR_PRIVATE			NO
+0x80106AC4	100.00	syslib/psx/libgte/COR_01	csincos	LIBGTE	COR_01	SAME_MEMBER_NAME	csincos	PsyQ43 same archive member	YES
+0x800F3728	100.00	syslib/psx/libgte/COR_02	ccos	LIBGTE	COR_02	SAME_MEMBER_NAME	ccos	PsyQ43 same archive member	YES
+0x800F37F8	100.00	syslib/psx/libgte/COR_03	csin	LIBGTE	COR_03	SAME_MEMBER_NAME	csin	PsyQ43 same archive member	YES
+0x800F252C	100.00	syslib/psx/libgte/FGO_01	RotMatrix	LIBGTE	FGO_01	SAME_MEMBER_NAME	RotMatrix	PsyQ43 same archive member	YES
+0x800F312C	100.00	syslib/psx/libgte/FGO_06	RotMatrixZ	LIBGTE	FGO_06	SAME_MEMBER_NAME	RotMatrixZ	PsyQ43 same archive member	YES
+0x800F27DC	100.00	syslib/psx/libgte/FOG_01	SetFogNear	LIBGTE	FOG_01	SAME_MEMBER_NAME	SetFogNear	PsyQ43 same archive member	YES
+0x800F21A4	100.00	syslib/psx/libgte/MSC00	InitGeom	LIBGTE	MSC00	SAME_MEMBER_NAME	InitGeom	PsyQ43 same archive member	YES
+0x800F1AC8	100.00	syslib/psx/libgte/MSC02	VectorNormalS	LIBGTE	MSC02	SAME_MEMBER_NAME	VectorNormalS	PsyQ43 same archive member	YES
+0x800F1ADC	100.00	syslib/psx/libgte/MSC02	VectorNormal	LIBGTE	MSC02	SAME_MEMBER_NAME	VectorNormal	PsyQ43 same archive member	YES
+0x800F1B0C	100.00	syslib/psx/libgte/MSC02	VectorNormalSS	LIBGTE	MSC02	SAME_MEMBER_NAME	VectorNormalSS	PsyQ43 same archive member	YES
+0x800F1B3C	100.00	syslib/psx/libgte/MSC02	_VectorNormalSS_kernel	LIBGTE	MSC02	NFS4_VARIANT_OR_PRIVATE			NO
+0x80106454	100.00	syslib/psx/libgte/PATCHGTE	_patch_gte	LIBGTE	PATCHGTE	SAME_MEMBER_NAME	_patch_gte	PsyQ43 same archive member	YES
+0x80106500	100.00	syslib/psx/libgte/PATCHGTE	_patch_gte_handler_1	LIBGTE	PATCHGTE	NFS4_VARIANT_OR_PRIVATE			NO
+0x80106674	100.00	syslib/psx/libgte/REG03	SetDQA	LIBGTE	REG03	SAME_MEMBER_NAME	SetDQA	PsyQ43 same archive member	YES
+0x80106680	100.00	syslib/psx/libgte/REG03	SetDQB	LIBGTE	REG03	SAME_MEMBER_NAME	SetDQB	PsyQ43 same archive member	YES
+0x800F27BC	100.00	syslib/psx/libgte/REG11	SetFarColor	LIBGTE	REG11	SAME_MEMBER_NAME	SetFarColor	PsyQ43 same archive member	YES
+0x800EAB9C	100.00	syslib/psx/libgte/REG13	SetGeomScreen	LIBGTE	REG13	SAME_MEMBER_NAME	SetGeomScreen	PsyQ43 same archive member	YES
+0x800F5A54	100.00	syslib/psx/libmath/ADDDF3	__adddf3	LIBMATH	ADDDF3	SAME_MEMBER_NAME	__adddf3	PsyQ43 same archive member	YES
+0x80106F70	100.00	syslib/psx/libmath/ADDMANT	_add_mant_d	LIBMATH	ADDMANT	SAME_MEMBER_NAME	_add_mant_d	PsyQ43 same archive member	YES
+0x80106E40	100.00	syslib/psx/libmath/DBSHIFT	_dbl_shift	LIBMATH	DBSHIFT	SAME_MEMBER_NAME	_dbl_shift	PsyQ43 same archive member	YES
+0x801048E8	100.00	syslib/psx/libmath/DBSHIFTU	_dbl_shift_us	LIBMATH	DBSHIFTU	SAME_MEMBER_NAME	_dbl_shift_us	PsyQ43 same archive member	YES
+0x800F5DD4	100.00	syslib/psx/libmath/DIVDF3	__divdf3	LIBMATH	DIVDF3	SAME_MEMBER_NAME	__divdf3	PsyQ43 same archive member	YES
+0x800F60B4	100.00	syslib/psx/libmath/DIVDF3	_comp_mant	LIBMATH	DIVDF3	SAME_MEMBER_NAME	_comp_mant	PsyQ43 same archive member	YES
+0x800F66E4	100.00	syslib/psx/libmath/DIVSF3	__divsf3	LIBMATH	DIVSF3	SAME_MEMBER_NAME	__divsf3	PsyQ43 same archive member	YES
+0x800F57C4	100.00	syslib/psx/libmath/EXTSFDF2	__extendsfdf2	LIBMATH	EXTSFDF2	SAME_MEMBER_NAME	__extendsfdf2	PsyQ43 same archive member	YES
+0x80106A54	100.00	syslib/psx/libmath/FERR	_err_math	LIBMATH	FERR	SAME_MEMBER_NAME	_err_math	PsyQ43 same archive member	YES
+0x800F6834	100.00	syslib/psx/libmath/FIXDFSI	__fixdfsi	LIBMATH	FIXDFSI	SAME_MEMBER_NAME	__fixdfsi	PsyQ43 same archive member	YES
+0x800F3938	100.00	syslib/psx/libmath/FIXSFSI	__fixsfsi	LIBMATH	FIXSFSI	SAME_MEMBER_NAME	__fixsfsi	PsyQ43 same archive member	YES
+0x800EB7E4	100.00	syslib/psx/libmath/FLTSIDF	__floatsidf	LIBMATH	FLTSIDF	SAME_MEMBER_NAME	__floatsidf	PsyQ43 same archive member	YES
+0x800F6224	100.00	syslib/psx/libmath/FLTSISF	__floatsisf	LIBMATH	FLTSISF	SAME_MEMBER_NAME	__floatsisf	PsyQ43 same archive member	YES
+0x800F0514	100.00	syslib/psx/libmath/GTDF2	__gtdf2	LIBMATH	GTDF2	SAME_MEMBER_NAME	__gtdf2	PsyQ43 same archive member	YES
+0x800EB8E4	100.00	syslib/psx/libmath/LTDF2	__ltdf2	LIBMATH	LTDF2	SAME_MEMBER_NAME	__ltdf2	PsyQ43 same archive member	YES
+0x80106F00	100.00	syslib/psx/libmath/MAINASU	_mainasu	LIBMATH	MAINASU	SAME_MEMBER_NAME	_mainasu	PsyQ43 same archive member	YES
+0x800F62E4	100.00	syslib/psx/libmath/MULDF3	__muldf3	LIBMATH	MULDF3	SAME_MEMBER_NAME	__muldf3	PsyQ43 same archive member	YES
+0x800F65F8	100.00	syslib/psx/libmath/MULDF3	_mul_mant_d	LIBMATH	MULDF3	SAME_MEMBER_NAME	_mul_mant_d	PsyQ43 same archive member	YES
+0x800F34B0	100.00	syslib/psx/libmath/MULSF3	__mulsf3	LIBMATH	MULSF3	SAME_MEMBER_NAME	__mulsf3	PsyQ43 same archive member	YES
+0x800F5924	100.00	syslib/psx/libmath/TRUDFSF2	__truncdfsf2	LIBMATH	TRUDFSF2	SAME_MEMBER_NAME	__truncdfsf2	PsyQ43 same archive member	YES
+0x80109550	100.00	syslib/psx/libmcrd/BIOS	funcEvSpIOE	LIBMCRD	BIOS	SAME_MEMBER_NAME	funcEvSpIOE	PsyQ43 same archive member	YES
+0x80109564	100.00	syslib/psx/libmcrd/BIOS	funcEvSpError	LIBMCRD	BIOS	SAME_MEMBER_NAME	funcEvSpError	PsyQ43 same archive member	YES
+0x80109578	100.00	syslib/psx/libmcrd/BIOS	funcEvSpTimeout	LIBMCRD	BIOS	SAME_MEMBER_NAME	funcEvSpTimeout	PsyQ43 same archive member	YES
+0x8010958C	100.00	syslib/psx/libmcrd/BIOS	funcEvSpNewcard	LIBMCRD	BIOS	SAME_MEMBER_NAME	funcEvSpNewcard	PsyQ43 same archive member	YES
+0x801095A0	100.00	syslib/psx/libmcrd/BIOS	funcEvSpIOEx	LIBMCRD	BIOS	SAME_MEMBER_NAME	funcEvSpIOEx	PsyQ43 same archive member	YES
+0x801095B4	100.00	syslib/psx/libmcrd/BIOS	funcEvSpErrorx	LIBMCRD	BIOS	SAME_MEMBER_NAME	funcEvSpErrorx	PsyQ43 same archive member	YES
+0x801095C8	100.00	syslib/psx/libmcrd/BIOS	funcEvSpTimeoutx	LIBMCRD	BIOS	SAME_MEMBER_NAME	funcEvSpTimeoutx	PsyQ43 same archive member	YES
+0x801095DC	100.00	syslib/psx/libmcrd/BIOS	funcEvSpNewcardx	LIBMCRD	BIOS	SAME_MEMBER_NAME	funcEvSpNewcardx	PsyQ43 same archive member	YES
+0x801095F0	100.00	syslib/psx/libmcrd/BIOS	_card_open	LIBMCRD	BIOS	SAME_MEMBER_NAME	_card_open	PsyQ43 same archive member	YES
+0x80109620	100.00	syslib/psx/libmcrd/BIOS	_card_start	LIBMCRD	BIOS	SAME_MEMBER_NAME	_card_start	PsyQ43 same archive member	YES
+0x801097FC	100.00	syslib/psx/libmcrd/BIOS	_card_close	LIBMCRD	BIOS	SAME_MEMBER_NAME	_card_close	PsyQ43 same archive member	YES
+0x8010981C	100.00	syslib/psx/libmcrd/BIOS	_card_stop	LIBMCRD	BIOS	SAME_MEMBER_NAME	_card_stop	PsyQ43 same archive member	YES
+0x801098D0	100.00	syslib/psx/libmcrd/BIOS	_clr_card_event	LIBMCRD	BIOS	SAME_MEMBER_NAME	_clr_card_event	PsyQ43 same archive member	YES
+0x801099D8	100.00	syslib/psx/libmcrd/BIOS	_get_card_event	LIBMCRD	BIOS	SAME_MEMBER_NAME	_get_card_event	PsyQ43 same archive member	YES
+0x80109AB0	100.00	syslib/psx/libmcrd/BIOS	_get_card_event_x	LIBMCRD	BIOS	SAME_MEMBER_NAME	_get_card_event_x	PsyQ43 same archive member	YES
+0x80109B88	100.00	syslib/psx/libmcrd/BIOS	_chk_card_event	LIBMCRD	BIOS	SAME_MEMBER_NAME	_chk_card_event	PsyQ43 same archive member	YES
+0x80109BC4	100.00	syslib/psx/libmcrd/BIOS	_chk_card_event_x	LIBMCRD	BIOS	SAME_MEMBER_NAME	_chk_card_event_x	PsyQ43 same archive member	YES
+0x800FAAAC	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardInit	LIBMCRD	LIBMCRD	SAME_MEMBER_NAME	MemCardInit	PsyQ43 same archive member	YES
+0x800FAAD8	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardEnd	LIBMCRD	LIBMCRD	SAME_MEMBER_NAME	MemCardEnd	PsyQ43 same archive member	YES
+0x800FAAF8	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardStart	LIBMCRD	LIBMCRD	SAME_MEMBER_NAME	MemCardStart	PsyQ43 same archive member	YES
+0x800FAB48	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardStop	LIBMCRD	LIBMCRD	SAME_MEMBER_NAME	MemCardStop	PsyQ43 same archive member	YES
+0x800FAB88	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardExist	LIBMCRD	LIBMCRD	SAME_MEMBER_NAME	MemCardExist	PsyQ43 same archive member	YES
+0x800FABF0	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardExist_cb	LIBMCRD	LIBMCRD	NFS4_VARIANT_OR_PRIVATE			NO
+0x800FADC4	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardAccept	LIBMCRD	LIBMCRD	SAME_MEMBER_NAME	MemCardAccept	PsyQ43 same archive member	YES
+0x800FAE2C	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardCmd_cb	LIBMCRD	LIBMCRD	NFS4_VARIANT_OR_PRIVATE			NO
+0x800FB060	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardReadData	LIBMCRD	LIBMCRD	SAME_MEMBER_NAME	MemCardReadData	PsyQ43 same archive member	YES
+0x800FB118	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardReadData_cb	LIBMCRD	LIBMCRD	NFS4_VARIANT_OR_PRIVATE			NO
+0x800FB254	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardWriteData	LIBMCRD	LIBMCRD	SAME_MEMBER_NAME	MemCardWriteData	PsyQ43 same archive member	YES
+0x800FB30C	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardWriteData_cb	LIBMCRD	LIBMCRD	NFS4_VARIANT_OR_PRIVATE			NO
+0x800FB448	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardReadFile	LIBMCRD	LIBMCRD	SAME_MEMBER_NAME	MemCardReadFile	PsyQ43 same archive member	YES
+0x800FB560	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardReadFile_cb	LIBMCRD	LIBMCRD	NFS4_VARIANT_OR_PRIVATE			NO
+0x800FB668	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardWriteFile	LIBMCRD	LIBMCRD	SAME_MEMBER_NAME	MemCardWriteFile	PsyQ43 same archive member	YES
+0x800FB780	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardWriteFile_cb	LIBMCRD	LIBMCRD	NFS4_VARIANT_OR_PRIVATE			NO
+0x800FB888	99.89	syslib/psx/libmcrd/LIBMCRD	MemCardGetDirentry	LIBMCRD	LIBMCRD	SAME_MEMBER_NAME	MemCardGetDirentry	PsyQ43 same archive member	YES
+0x800FBAE8	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardCallback	LIBMCRD	LIBMCRD	SAME_MEMBER_NAME	MemCardCallback	PsyQ43 same archive member	YES
+0x800FBAFC	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardSync	LIBMCRD	LIBMCRD	SAME_MEMBER_NAME	MemCardSync	PsyQ43 same archive member	YES
+0x800FBC18	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardCreateFile	LIBMCRD	LIBMCRD	SAME_MEMBER_NAME	MemCardCreateFile	PsyQ43 same archive member	YES
+0x800FBE20	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardDeleteFile	LIBMCRD	LIBMCRD	SAME_MEMBER_NAME	MemCardDeleteFile	PsyQ43 same archive member	YES
+0x800FBFDC	97.14	syslib/psx/libmcrd/LIBMCRD	MemCardFormat	LIBMCRD	LIBMCRD	SAME_MEMBER_NAME	MemCardFormat	PsyQ43 same archive member	YES
+0x800FC068	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardUnformat	LIBMCRD	LIBMCRD	SAME_MEMBER_NAME	MemCardUnformat	PsyQ43 same archive member	YES
+0x800FC11C	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardEventToRslt	LIBMCRD	LIBMCRD	NFS4_VARIANT_OR_PRIVATE			NO
+0x800FC170	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardStart_cb	LIBMCRD	LIBMCRD	NFS4_VARIANT_OR_PRIVATE			NO
+0x800FC1F4	100.00	syslib/psx/libmcrd/LIBMCRD	MemCardMakeDevname	LIBMCRD	LIBMCRD	NFS4_VARIANT_OR_PRIVATE			NO
+0x80109C00	100.00	syslib/psx/libmcrd/USERFUNC	UserFuncInit	LIBMCRD	USERFUNC	SAME_MEMBER_NAME	UserFuncInit	PsyQ43 same archive member	YES
+0x80109C10	100.00	syslib/psx/libmcrd/USERFUNC	UserFuncOpen	LIBMCRD	USERFUNC	SAME_MEMBER_NAME	UserFuncOpen	PsyQ43 same archive member	YES
+0x80109C8C	100.00	syslib/psx/libmcrd/USERFUNC	UserFuncExecute	LIBMCRD	USERFUNC	SAME_MEMBER_NAME	UserFuncExecute	PsyQ43 same archive member	YES
+0x80109CF8	100.00	syslib/psx/libmcrd/USERFUNC	UserFuncComplete	LIBMCRD	USERFUNC	SAME_MEMBER_NAME	UserFuncComplete	PsyQ43 same archive member	YES
+0x801055F0	100.00	syslib/psx/libpad/PADCMD	_padSetAct	LIBPAD	PADCMD	SAME_MEMBER_NAME	_padSetAct	PsyQ43 same archive member	YES
+0x801055FC	100.00	syslib/psx/libpad/PADCMD	_padSendAtLoadInfo	LIBPAD	PADCMD	SAME_MEMBER_NAME	_padSendAtLoadInfo	PsyQ43 same archive member	YES
+0x80105680	100.00	syslib/psx/libpad/PADCMD	_padRecvAtLoadInfo	LIBPAD	PADCMD	SAME_MEMBER_NAME	_padRecvAtLoadInfo	PsyQ43 same archive member	YES
+0x801057CC	100.00	syslib/psx/libpad/PADCMD	_padGetActSize	LIBPAD	PADCMD	SAME_MEMBER_NAME	_padGetActSize	PsyQ43 same archive member	YES
+0x80105804	100.00	syslib/psx/libpad/PADCMD	_padLoadActInfo	LIBPAD	PADCMD	SAME_MEMBER_NAME	_padLoadActInfo	PsyQ43 same archive member	YES
+0x801058D8	100.00	syslib/psx/libpad/PADCMD	_padLoadActInfo_snd	LIBPAD	PADCMD	NFS4_VARIANT_OR_PRIVATE			NO
+0x80105980	100.00	syslib/psx/libpad/PADCMD	_padLoadActInfo_rcv	LIBPAD	PADCMD	NFS4_VARIANT_OR_PRIVATE			NO
+0x80105BF4	100.00	syslib/psx/libpad/PADCMD	_padSetActAlign	LIBPAD	PADCMD	SAME_MEMBER_NAME	_padSetActAlign	PsyQ43 same archive member	YES
+0x80105C5C	100.00	syslib/psx/libpad/PADCMD	_padSetActAlign_snd	LIBPAD	PADCMD	NFS4_VARIANT_OR_PRIVATE			NO
+0x80105C78	100.00	syslib/psx/libpad/PADCMD	_padSetActAlign_rcv	LIBPAD	PADCMD	NFS4_VARIANT_OR_PRIVATE			NO
+0x80105D40	100.00	syslib/psx/libpad/PADCMD	_padSetMainMode	LIBPAD	PADCMD	SAME_MEMBER_NAME	_padSetMainMode	PsyQ43 same archive member	YES
+0x80105DD8	100.00	syslib/psx/libpad/PADCMD	_padSetMainMode_snd	LIBPAD	PADCMD	NFS4_VARIANT_OR_PRIVATE			NO
+0x80105E2C	100.00	syslib/psx/libpad/PADCMD	_padSetMainMode_rcv	LIBPAD	PADCMD	NFS4_VARIANT_OR_PRIVATE			NO
+0x80105E8C	100.00	syslib/psx/libpad/PADCMD	_padCmdParaMode	LIBPAD	PADCMD	SAME_MEMBER_NAME	_padCmdParaMode	PsyQ43 same archive member	YES
+0x80105EAC	100.00	syslib/psx/libpad/PADCMD	_padCmdGetStatus	LIBPAD	PADCMD	NFS4_VARIANT_OR_PRIVATE			NO
+0x80105EC0	100.00	syslib/psx/libpad/PADCMD	_padCmdSetMap	LIBPAD	PADCMD	NFS4_VARIANT_OR_PRIVATE			NO
+0x80105EE0	100.00	syslib/psx/libpad/PADCMD	_padCmdGetDescR0	LIBPAD	PADCMD	NFS4_VARIANT_OR_PRIVATE			NO
+0x80105F00	100.00	syslib/psx/libpad/PADCMD	_padCmdGetDescR1	LIBPAD	PADCMD	NFS4_VARIANT_OR_PRIVATE			NO
+0x80105F20	100.00	syslib/psx/libpad/PADCMD	_padCmd4B	LIBPAD	PADCMD	NFS4_VARIANT_OR_PRIVATE			NO
+0x800EFE60	100.00	syslib/psx/libpad/PADENTRY	PadStartCom	LIBPAD	PADENTRY	SAME_MEMBER_NAME	PadStartCom	PsyQ43 same archive member	YES
+0x800EFE80	100.00	syslib/psx/libpad/PADENTRY	PadStopCom	LIBPAD	PADENTRY	SAME_MEMBER_NAME	PadStopCom	PsyQ43 same archive member	YES
+0x800EFEA0	100.00	syslib/psx/libpad/PADENTRY	PadGetState	LIBPAD	PADENTRY	SAME_MEMBER_NAME	PadGetState	PsyQ43 same archive member	YES
+0x800EFF60	100.00	syslib/psx/libpad/PADENTRY	PadInfoMode	LIBPAD	PADENTRY	SAME_MEMBER_NAME	PadInfoMode	PsyQ43 same archive member	YES
+0x800F0058	100.00	syslib/psx/libpad/PADENTRY	PadInfoAct	LIBPAD	PADENTRY	SAME_MEMBER_NAME	PadInfoAct	PsyQ43 same archive member	YES
+0x800F012C	100.00	syslib/psx/libpad/PADENTRY	PadSetActAlign	LIBPAD	PADENTRY	SAME_MEMBER_NAME	PadSetActAlign	PsyQ43 same archive member	YES
+0x800F0164	100.00	syslib/psx/libpad/PADENTRY	PadSetMainMode	LIBPAD	PADENTRY	SAME_MEMBER_NAME	PadSetMainMode	PsyQ43 same archive member	YES
+0x800F01AC	100.00	syslib/psx/libpad/PADENTRY	PadSetAct	LIBPAD	PADENTRY	SAME_MEMBER_NAME	PadSetAct	PsyQ43 same archive member	YES
+0x8010C0A8	100.00	syslib/psx/libpad/PADIF	_padIntInit	LIBPAD	PADIF	NFS4_VARIANT_OR_PRIVATE			NO
+0x8010C0F0	100.00	syslib/psx/libpad/PADIF	_padIntQuery	LIBPAD	PADIF	NFS4_VARIANT_OR_PRIVATE			NO
+0x8010C1C8	100.00	syslib/psx/libpad/PADIF	_padIntRecvId	LIBPAD	PADIF	NFS4_VARIANT_OR_PRIVATE			NO
+0x8010C288	100.00	syslib/psx/libpad/PADIF	_padIntRecvHdr	LIBPAD	PADIF	NFS4_VARIANT_OR_PRIVATE			NO
+0x8010C314	100.00	syslib/psx/libpad/PADIF	_padIntRecvData	LIBPAD	PADIF	NFS4_VARIANT_OR_PRIVATE			NO
+0x80104A1C	100.00	syslib/psx/libpad/PADMAIN	_padSetVsyncParam	LIBPAD	PADMAIN	SAME_MEMBER_NAME	_padSetVsyncParam	PsyQ43 same archive member	YES
+0x80104A48	100.00	syslib/psx/libpad/PADMAIN	_padVbCallback1	LIBPAD	PADMAIN	NFS4_VARIANT_OR_PRIVATE			NO
+0x80104AB0	100.00	syslib/psx/libpad/PADMAIN	_padVbCallback0	LIBPAD	PADMAIN	NFS4_VARIANT_OR_PRIVATE			NO
+0x80104C1C	100.00	syslib/psx/libpad/PADMAIN	_padStartCom	LIBPAD	PADMAIN	SAME_MEMBER_NAME	_padStartCom	PsyQ43 same archive member	YES
+0x80104CE8	100.00	syslib/psx/libpad/PADMAIN	_padStopCom	LIBPAD	PADMAIN	SAME_MEMBER_NAME	_padStopCom	PsyQ43 same archive member	YES
+0x80104D2C	100.00	syslib/psx/libpad/PADMAIN	_padInitSioMode	LIBPAD	PADMAIN	SAME_MEMBER_NAME	_padInitSioMode	PsyQ43 same archive member	YES
+0x80105060	100.00	syslib/psx/libpad/PADMAIN	_padSioMain	LIBPAD	PADMAIN	NFS4_VARIANT_OR_PRIVATE			NO
+0x80105128	100.00	syslib/psx/libpad/PADMAIN	_padSioRW	LIBPAD	PADMAIN	SAME_MEMBER_NAME	_padSioRW	PsyQ43 same archive member	YES
+0x80105300	100.00	syslib/psx/libpad/PADMAIN	_padSioRW2	LIBPAD	PADMAIN	SAME_MEMBER_NAME	_padSioRW2	PsyQ43 same archive member	YES
+0x80105538	100.00	syslib/psx/libpad/PADMAIN	_padClrIntSio0	LIBPAD	PADMAIN	SAME_MEMBER_NAME	_padClrIntSio0	PsyQ43 same archive member	YES
+0x801055C8	100.00	syslib/psx/libpad/PADMAIN	_padWaitRXready	LIBPAD	PADMAIN	SAME_MEMBER_NAME	_padWaitRXready	PsyQ43 same archive member	YES
+0x800FDD28	100.00	syslib/psx/libpad/PADPORTD	PadInitDirect	LIBPAD	PADPORTD	SAME_MEMBER_NAME	PadInitDirect	PsyQ43 same archive member	YES
+0x800FDE88	100.00	syslib/psx/libpad/PADPORTD	_pad_reset_state	LIBPAD	PADPORTD	NFS4_VARIANT_OR_PRIVATE			NO
+0x800FDEF0	100.00	syslib/psx/libpad/PADPORTD	_pad_failall	LIBPAD	PADPORTD	NFS4_VARIANT_OR_PRIVATE			NO
+0x800FDFE4	100.00	syslib/psx/libpad/PADPORTD	_pad_shift	LIBPAD	PADPORTD	NFS4_VARIANT_OR_PRIVATE			NO
+0x800FDFF4	100.00	syslib/psx/libpad/PADPORTD	_pad_getbyte	LIBPAD	PADPORTD	NFS4_VARIANT_OR_PRIVATE			NO
+0x800FE0B0	100.00	syslib/psx/libpad/PADPORTD	_pad_filter	LIBPAD	PADPORTD	NFS4_VARIANT_OR_PRIVATE			NO
+0x800FE32C	100.00	syslib/psx/libpad/PADPORTD	_pad_port_to_slot	LIBPAD	PADPORTD	NFS4_VARIANT_OR_PRIVATE			NO
+0x800FE364	100.00	syslib/psx/libpad/PADPORTD	_pad_get_port	LIBPAD	PADPORTD	NFS4_VARIANT_OR_PRIVATE			NO
+0x8010A0B0	100.00	syslib/psx/libpad/PADSEQD	_padInitDirSeq	LIBPAD	PADSEQD	SAME_MEMBER_NAME	_padInitDirSeq	PsyQ43 same archive member	YES
+0x8010A0E4	100.00	syslib/psx/libpad/PADSEQD	_dirSendAuto	LIBPAD	PADSEQD	NFS4_VARIANT_OR_PRIVATE			NO
+0x8010A1E4	100.00	syslib/psx/libpad/PADSEQD	_dirRecvAuto	LIBPAD	PADSEQD	NFS4_VARIANT_OR_PRIVATE			NO
+0x8010A434	100.00	syslib/psx/libpad/PADSEQD	_dirFailAuto	LIBPAD	PADSEQD	SAME_MEMBER_NAME	_dirFailAuto	PsyQ43 same archive member	YES
+0x8010A510	100.00	syslib/psx/libpad/PADSEQD	_dirCheck	LIBPAD	PADSEQD	NFS4_VARIANT_OR_PRIVATE			NO
+0x8010BFE8	100.00	syslib/psx/libpad/WAITRC2	setRC2wait	LIBPAD	WAITRC2	SAME_MEMBER_NAME	setRC2wait	PsyQ43 same archive member	YES
+0x8010C008	100.00	syslib/psx/libpad/WAITRC2	chkRC2wait	LIBPAD	WAITRC2	SAME_MEMBER_NAME	chkRC2wait	PsyQ43 same archive member	YES
+0x800F89C8	100.00	syslib/psx/libpress/LIBPRESS	DecDCTReset	LIBPRESS	LIBPRESS	SAME_MEMBER_NAME	DecDCTReset	PsyQ43 same archive member	YES
+0x800F89FC	100.00	syslib/psx/libpress/LIBPRESS	DecDCTin	LIBPRESS	LIBPRESS	SAME_MEMBER_NAME	DecDCTin	PsyQ43 same archive member	YES
+0x800F8A78	100.00	syslib/psx/libpress/LIBPRESS	DecDCTout	LIBPRESS	LIBPRESS	SAME_MEMBER_NAME	DecDCTout	PsyQ43 same archive member	YES
+0x800F8A98	100.00	syslib/psx/libpress/LIBPRESS	DecDCTinSync	LIBPRESS	LIBPRESS	SAME_MEMBER_NAME	DecDCTinSync	PsyQ43 same archive member	YES
+0x800F8AD4	100.00	syslib/psx/libpress/LIBPRESS	DecDCToutCallback	LIBPRESS	LIBPRESS	SAME_MEMBER_NAME	DecDCToutCallback	PsyQ43 same archive member	YES
+0x800F8AF8	100.00	syslib/psx/libpress/LIBPRESS	MDEC_rest	LIBPRESS	LIBPRESS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800F8BE8	100.00	syslib/psx/libpress/LIBPRESS	_MDEC_in_dma	LIBPRESS	LIBPRESS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800F8C78	100.00	syslib/psx/libpress/LIBPRESS	_MDEC_out_dma	LIBPRESS	LIBPRESS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800F8D04	100.00	syslib/psx/libpress/LIBPRESS	MDEC_in_sync	LIBPRESS	LIBPRESS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800F8D98	100.00	syslib/psx/libpress/LIBPRESS	MDEC_out_sync	LIBPRESS	LIBPRESS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800F8E2C	100.00	syslib/psx/libpress/LIBPRESS	_MDEC_get_reg1	LIBPRESS	LIBPRESS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800F8E44	100.00	syslib/psx/libpress/LIBPRESS	MDEC_status	LIBPRESS	LIBPRESS	NFS4_VARIANT_OR_PRIVATE			NO
+0x800F7400	100.00	syslib/psx/libpress/VLC	DecDCTvlcSize	LIBPRESS	VLC	SAME_MEMBER_NAME	DecDCTvlcSize	PsyQ43 same archive member	YES
+0x800F7430	100.00	syslib/psx/libpress/VLC	DecDCTvlc	LIBPRESS	VLC	SAME_MEMBER_NAME	DecDCTvlc	PsyQ43 same archive member	YES
+0x80106D40	100.00	syslib/psx/libsn/CLOSE	PCclose	LIBSN	CLOSE	SAME_MEMBER_NAME	PCclose	PsyQ43 same archive member	YES
+0x80106CD0	100.00	syslib/psx/libsn/CREAT	PCcreat	LIBSN	CREAT	SAME_MEMBER_NAME	PCcreat	PsyQ43 same archive member	YES
+0x80106CC4	100.00	syslib/psx/libsn/FSINIT	PCinit	LIBSN	FSINIT	SAME_MEMBER_NAME	PCinit	PsyQ43 same archive member	YES
+0x80106D1C	100.00	syslib/psx/libsn/LSEEK	PClseek	LIBSN	LSEEK	SAME_MEMBER_NAME	PClseek	PsyQ43 same archive member	YES
+0x80106CA4	100.00	syslib/psx/libsn/OPEN	PCopen	LIBSN	OPEN	SAME_MEMBER_NAME	PCopen	PsyQ43 same archive member	YES
+0x800E4354	100.00	syslib/psx/libsn/PUREV	__pure_virtual	LIBSN	PUREV	SAME_MEMBER_NAME	__pure_virtual	PsyQ43 same archive member	YES
+0x80106BE4	100.00	syslib/psx/libsn/READ	PCread	LIBSN	READ	SAME_MEMBER_NAME	PCread	PsyQ43 same archive member	YES
+0x8010C708	100.00	syslib/psx/libsn/SNREAD	_SN_read	LIBSN	SNREAD	SAME_MEMBER_NAME	_SN_read	PsyQ43 same archive member	YES
+0x8010C720	100.00	syslib/psx/libsn/SNWRITE	_SN_write	LIBSN	SNWRITE	SAME_MEMBER_NAME	_SN_write	PsyQ43 same archive member	YES
+0x80106D50	100.00	syslib/psx/libsn/WRITE	PCwrite	LIBSN	WRITE	SAME_MEMBER_NAME	PCwrite	PsyQ43 same archive member	YES

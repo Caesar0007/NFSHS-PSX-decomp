@@ -12,12 +12,9 @@
  *   CDREAD.OBJ (cdread.cpp) references extern. */
 
 /* ---- low-level driver (DRV.OBJ) --------------------------------------------------------------- */
-/* W66-A3 (link): the symbol is spelled `CD_init_80108140` on BOTH sides -- splat
- * appended the VA because this name and eaclib's `CD_Init` case-collide on NTFS
- * (drv.c owns the definition, cdcont.c already used the suffixed spelling).  The
- * bare `CD_init` here was a link phantom: reloc-name leniency hid it from the
- * gate while the real link left it undefined. */
-extern int CD_init_80108140(void);      /* @0x80108140 */
+/* Retail SYM and canonical LIBCD/BIOS.obj name this lowercase helper CD_init;
+ * drv.c separately retains the VA-suffixed oracle alias required by NTFS. */
+extern int CD_init(void);      /* @0x80108140 */
 extern int CD_initvol(void);   /* @0x80108004 */
 
 /* ---- libc / libapi ---------------------------------------------------------------------------- */
@@ -108,7 +105,7 @@ loop:
 /* @0x8010911C : one bring-up attempt -- CD_init then CD_initvol; returns 1 on success. */
 extern int _cd_event_init(void)
 {
-    if (CD_init_80108140() != 0)
+    if (CD_init() != 0)
         return 0;                 /* controller init failed */
     return (unsigned)CD_initvol() < 1u;  /* MATCH: sltiu (unsigned < 1) not slti */
 }

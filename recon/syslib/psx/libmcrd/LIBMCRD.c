@@ -301,7 +301,8 @@ extern int  MemCardCallback(int func);
 
 
 /* @0x800FAAAC : MemCardInit -- bring up the card subsystem. */
-extern void MemCardInit(int val)
+/* PsyQ 4.3 <libmcrd.h> declares the public ABI as `void MemCardInit(long val)`. */
+extern void MemCardInit(long val)
 {
     /* NEAR-MISS (11/11 insns, differs only in base-register reuse): the oracle re-materializes a
      * fresh %hi/%lo per field here (two independent $at-based stores) rather than reusing one base

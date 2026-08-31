@@ -5,9 +5,9 @@
 
 extern "C" int sprintf(char *, const char *, ...);
 extern "C" {
-int PadGetState(...);
-int PadInfoMode(...);
-void PadSetMainMode(...);
+int PadGetState(int);
+int PadInfoMode(int, int, int);
+int PadSetMainMode(int, int, int);
 int FILE_addbigsync(...);
 void FILE_delbigsync(...);
 void PAD_update(...);

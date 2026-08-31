@@ -1,4 +1,5 @@
 #include "common.h"
+/* Retail SYM owner: libpad.lib(PADIF.obj). */
 INCLUDE_ASM("asm/nonmatchings/main", _padIntInit);
 INCLUDE_ASM("asm/nonmatchings/main", _padIntQuery);
 INCLUDE_ASM("asm/nonmatchings/main", _padIntRecvId);

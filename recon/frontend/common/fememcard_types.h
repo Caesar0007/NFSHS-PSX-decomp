@@ -177,7 +177,7 @@ typedef MCRDFILEHEADER_def MCRDFILEHEADER;
 typedef MCRDFILEINFO_def MCRDFILEINFO;
 typedef MCRDFILE_def MCRDFILE;
 typedef MCRDOPTS_def MCRDOPTS;
-typedef void (*MemCB)(void);
+typedef void (*MemCB)(long cmds, long rslt); /* PsyQ 4.3 <libmcrd.h> */
 
 /* Foreign objects are exposed only through the fields this owner accesses. */
 struct FEMemcard_PadCodegenView {

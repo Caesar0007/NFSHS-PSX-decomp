@@ -5306,6 +5306,194 @@ compiles all 513 TUs and finds all 3,484 declared names exactly owned, the
 `__Fe` census remains empty, and the source-only policy audit finds no
 post-compiler text moves or branch retargets.
 
+### P421/P422 — final FILE-owner-map closure (`2026-08-31`)
+
+The two synthetic filenames retained by the p420 board are now restored from
+independent owner evidence. `setfont.c` is canonically `textset.c`: retail SYM
+contains `eacpsxz.lib(textset.obj)`, and the NFS2 PC beta twin independently
+places `_setfont` in `textset.obj`. The function remains PASS at 100
+instructions.
+
+`MCXMAIN.c` is canonically `libpad/PADIF.c`: retail SYM contains PADIF FILE
+records and no MCXMAIN record, while PsyQ 4.3 proves the same five-entry code
+shape and assigns `padIntFunc` to PADIF.obj. All five state functions remain
+PASS (18, 54, 48, 35, and 223 instructions). The three private state words and
+five-pointer dispatch table are now emitted as PADIF's exact 32-byte retail
+data block at `0x8013C308`.
+
+The full p422 board covers 464 TUs with 151 typed `OK` and 313
+`SYM_UNTYPED`; it contains zero owner maps, source merges/splits, type diffs,
+or compile failures. Both relink lanes are GREEN with zero real duplicates or
+hidden phantoms. The fresh probe reaches 957,948/979,772 identical text bytes
+and 148,560/151,363 identical data bytes, with 213/249 byte-compared data
+sections exact. Evidence is retained in
+`eacpsxz_textset_owner_restore_p421_20260831.md`,
+`libpad_padif_owner_restore_p422_20260831.md`, and their referenced TSV/JSON
+receipts.
+
+### P423 — libpad data-owner restoration (`2026-08-31`)
+
+The reconstruction-only `syslib/psx/libpad/PAD.c` data aggregator is removed.
+There is no `libpad/PAD.obj`; the actual `libapi/PAD.c` remains separately and
+already owns `libapi.lib(PAD.obj)`. Canonical PsyQ 4.3 assigns the PAD dispatch
+and engine-state globals to `PADMAIN.obj` and `_waitTime`/`_startTime` to
+`WAITRC2.obj`, so all 28 definitions now live in those true owners.
+
+All 13 affected functions remain PASS. PADMAIN's restored 108-byte initialized
+block is placed at `0x80137C78` and is 108/108 bytes exact against retail;
+WAITRC2 emits the timer pair as an eight-byte BSS block in retail order. The
+p423 full board now covers 463 real TUs with 151 typed `OK`, 312
+`SYM_UNTYPED`, and no structural/type/compile findings. Both relink lanes are
+GREEN. The fresh probe advances to 958,017/979,772 identical text bytes and
+148,576/151,363 identical data bytes, with 214/249 byte-compared data sections
+exact. Evidence is retained in
+`libpad_data_owner_restore_p423_20260831.md` and its referenced TSV/JSON
+receipts.
+
+### P424 — speech helper natural-linkage restoration (`2026-08-31`)
+
+The exported `spchdata.obj` helpers now use the natural source identifiers
+`VoxEvent_GetFilterLengthFlag` and `iSPCH_GetOffset16`. Address-suffixed names
+remain zero-code oracle aliases only. All four affected functions remain PASS,
+the 15,781-call undefined audit is zero, both relink lanes are GREEN, and the
+phantom audit exactly owns all 3,491 oracle names. Evidence is retained in
+`speech_helper_linkage_restore_p424_20260831.md` and its referenced TSV/JSON
+receipts.
+
+### P425 — canonical PsyQ 4.3 syslib-name validation (`2026-08-31`)
+
+All 400 retail syslib functions and all 78 emitted syslib data globals were
+checked against `psyq43/extracted/INDEX.tsv` with archive-member ownership.
+293 functions and 62 globals are exact same-member names. The canonical kit
+proves no unique replacement for the 105 private/version function labels or 16
+private/unattributed data labels, so they remain explicit backlog rather than
+receiving speculative names.
+
+One real source-name defect was corrected: retail SYM and PsyQ 4.3 both name
+the lowercase `LIBCD/BIOS.obj` routine `CD_init`; `_80108140` is now only a
+zero-code oracle alias necessitated by the NTFS collision with `CD_Init.s`.
+`CD_init`, `_cd_event_init`, and `CdReset` remain PASS, undefined calls remain
+zero, and both relink lanes are GREEN. Evidence is retained in
+`psyq43_name_validation_p425_20260831.md` and its referenced TSV/JSON ledgers.
+
+### P426 — translation-unit text-order closure (`2026-08-31`)
+
+Nine byte-exact definitions that were emitted after higher-retail-VA functions
+are restored to exact owner-TU order across `spchevnt`, `physics`, `hud`,
+`weather`, and `INTR_DMA`. All sixteen moved-boundary gates remain PASS. The
+full order audit now covers 521 objects with zero inversions.
+
+The order and call-target audits also now understand proven co-equal
+natural/oracle alias groups instead of assigning the natural name's first
+config VA to every copy. The full call-target audit is zero across 466 units;
+both relink lanes, the 15,781-call undefined audit, the 518-TU phantom audit,
+and source-policy gates remain clean. Evidence is retained in
+`tu_order_closure_p426_20260831.md`, the relink JSON, and the documented tool
+backup receipt.
+
+### P427 — canonical PsyQ 4.3 headers and Devrefs (`2026-08-31`)
+
+All 46 headers in the canonical PsyQ 4.3 include tree are now part of the
+syslib source-restoration authority set, with the 18 Devrefs PDFs / 3,330 pages
+used as documented semantic evidence. Sixty-two generated public-function
+placeholders in `recon/lib/syslib.h` now carry the exact PsyQ 4.3 return types
+and parameter lists, and the canonical `DslCB` callback typedef is restored.
+
+The emitted `MemCardInit` definition and NFS4 caller declaration are corrected
+from reconstruction `int`/wrong-return spellings to the canonical
+`void MemCardInit(long val)`. `MemCardInit` and `MCRD_init` remain detailed PASS
+at 11 and 40 instructions. The two parked memory-card declarations remain
+unchanged with their parked functions.
+
+The complete header/manual search finds no exact occurrence of any of the 16
+P425 private syslib data labels. Devrefs does confirm the one-directory cache
+semantics behind the ISO9660 storage, but does not publish private BSS
+spellings; no speculative data rename was made. Both relink lanes, the
+15,781-call undefined audit, the 521-object TU-order audit, the 466-unit
+call-target audit, and the 518-TU / 3,491-name phantom audit remain clean.
+Evidence is retained in
+`psyq43_header_and_devrefs_validation_p427_20260831.md` and its relink JSON.
+
+### P428 — canonical SDK callback typedefs (`2026-08-31`)
+
+Retail SLD records prove owner-visible `CdlCB`/`MemCB` typedefs as pointers to
+functions returning `void`; canonical PsyQ 4.3 headers supply the parameter
+lists omitted by the debug encoding. Unprototyped and false `(void)` copies are
+now restored as `CdlCB(u_char, u_char *)` and `MemCB(long, long)` across the
+universal graph and the five retail owners that emit these records.
+
+The libcd BIOS driver's decompiler-derived `int (*CdlCB)(int, ...)` is also
+corrected to the canonical callback type. All four emitted consumers remain
+PASS, and the five affected game/frontend owners remain a combined 104/104
+PASS with exact owner-local type graphs. Both relink lanes, the 15,781-call
+undefined audit, the 521-object TU-order audit, the 466-unit call-target audit,
+and the 518-TU / 3,491-name phantom audit remain clean.
+
+The internal libmcrd `MemCardCallback(int)` representation remains an explicit
+future item because its saved-callback flow crosses the parked
+`MemCardGetDirentry` and `MemCardFormat` bodies; it is not falsely claimed as
+closed. Evidence is retained in
+`canonical_callback_typedefs_p428_20260831.md`, its six type ledgers, and the
+relink JSON.
+
+### P429 — canonical PsyQ 4.3 libpad declarations and private tail (`2026-08-31`)
+
+The original `PSX43/psx/include/libpad.h` is now the public libpad source-type
+authority. All eight NFS4 PADENTRY APIs have their exact public signatures in
+the shared and owner-facing declarations. This corrects `PadSetActAlign`'s
+buffer signedness, `PadSetMainMode`'s return type, and false integer returns on
+`PadSetAct`/`PadStartCom`. The internal actuator-alignment queue now carries its
+buffer as `unsigned char *` rather than an integer. PADENTRY remains 8/8 PASS,
+the two changed PADCMD functions remain PASS, and all 84 direct consumer
+functions remain PASS.
+
+Canonical `LIBPAD/PADMAIN.obj` independently proves the three anonymous NFS4
+tail words: after the canonical eight-byte library-info prefix, offsets 104,
+108, and 112 contain `0x1F801070`, `0x1F801040`, and zero. They exactly map to
+NFS4's interrupt-base pointer, SIO-base pointer, and VBlank flag at owner
+offsets `0x60`, `0x64`, and `0x68`. Thus storage, order, values, and semantic
+types are closed. The public header and canonical object expose no private
+spellings, so `_padIntRegs`, `_padSioRegs`, and `_padVbExec` remain explicit
+name-provenance backlog rather than speculative renames.
+
+Both relink lanes, the 15,781-call undefined audit, 521-object TU-order audit,
+466-unit call-target audit, and exhaustive 518-TU / 3,491-name phantom audit
+remain clean. Evidence is retained in
+`canonical_psyq43_libpad_types_p429_20260831.md` and its relink JSON.
+
+### P430 — private libcd storage and `StCdInterrupt` closure (`2026-08-31`)
+
+The exact `C:\Temp\nfs4-clean\psyq43\PSX43\psx\include` tree remains the
+public PsyQ 4.3 declaration authority established in P427. Joined with
+independent symbol-bearing PsyQ copies, it now closes three more private-libcd
+source facts without treating unpublished names as public-header evidence.
+
+`__ps_libinfo__` in `LIBCD/BIOS.obj` is restored from two invented
+`unsigned int` words to its eight byte-sized metadata fields. The exact label
+and byte emission are independently preserved in an MGS PsyQ object
+transcription. `LIBCD/C_004.obj` now owns two file-local words rather than
+exporting synthetic `_ds_word0`/`_ds_word1` globals: SotN proves exact private
+name/type `static CdlLOC fp_2`; the adjacent frame-count word is a file-local
+`int`, but its original spelling remains underdetermined and is explicitly
+address-named `D_801489D4`.
+
+SotN independently proves C_011's cached stream slot as
+`static volatile u16 *`. Restoring that source type, using one ordinary-view
+read for the initial ID comparison, and assigning the volatile frame halfword
+directly moves `StCdInterrupt` from 27 diffs to detailed PASS at 583/583. The
+former empty-template asm fence and explicit mask are removed. `_st_copy_words`
+remains PASS at 11; the user-parked `_st_dma` body remains untouched at its
+pre-existing one-instruction residual.
+
+The original private names of C_004's frame-count word and C_011's cached slot
+remain explicit provenance backlog. No canonical public header exposes them,
+so no speculative semantic rename is made. The full build links, both relink
+lanes are GREEN, 15,781 calls contain zero undefined targets, 521 objects have
+zero order inversions, 466 units have zero wrong call targets, vtable and
+source-policy audits pass, and the exhaustive audit compiles 518/518 TUs and
+exactly owns all 3,491 oracle names. Evidence is retained in
+`psyq_private_storage_and_stcdint_p430_20260831.md` and its JSON receipts.
+
 ## Closure rule
 
 The exhaustive **record-census/backlog** subgoal is closed: S1, S2, and T1 have

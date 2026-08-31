@@ -437,9 +437,9 @@ void iSNDlibatodlrv(int arg0);   /* saelib */
 void iSNDgetdata(void * arg0);   /* sgetdata */
 void iSNDsin(int arg0);   /* ssine */
 /* -- SPCHPSXZ -- */
-void VoxEvent_GetFilterLengthFlag(void * arg0);   /* spchevnt */
+int VoxEvent_GetFilterLengthFlag(int event);   /* exported spchdata helper; static copy in spchevnt */
 void VoxEvent_GetKeepTillExpiresFlag(void * arg0);   /* spchevnt */
-void iSPCH_GetOffset16(void * arg0);   /* spchevnt */
+int iSPCH_GetOffset16(int base, int tableBase, int index);   /* exported spchdata helper */
 void iSPCH_SearchEventDat(void * arg0);   /* spchevnt */
 void iSPCH_FindEvent(int arg0);   /* spchevnt */
 void iSPCH_InitEventDat();   /* spchevnt */

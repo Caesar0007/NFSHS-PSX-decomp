@@ -368,11 +368,11 @@
       }
     },
     {
-      "name": "eaclib/psx/eacpsxz/setfont",
-      "target_path": "expected/src/eaclib/psx/eacpsxz/setfont.c.o",
-      "base_path": "build/recon/eaclib/psx/eacpsxz/setfont.c.o",
+      "name": "eaclib/psx/eacpsxz/textset",
+      "target_path": "expected/src/eaclib/psx/eacpsxz/textset.c.o",
+      "base_path": "build/recon/eaclib/psx/eacpsxz/textset.c.o",
       "metadata": {
-        "source_path": "recon/eaclib/psx/eacpsxz/setfont.c"
+        "source_path": "recon/eaclib/psx/eacpsxz/textset.c"
       }
     },
     {
@@ -3592,19 +3592,11 @@
       }
     },
     {
-      "name": "syslib/psx/libpad/MCXMAIN",
-      "target_path": "expected/src/syslib/psx/libpad/MCXMAIN.c.o",
-      "base_path": "build/recon/syslib/psx/libpad/MCXMAIN.c.o",
+      "name": "syslib/psx/libpad/PADIF",
+      "target_path": "expected/src/syslib/psx/libpad/PADIF.c.o",
+      "base_path": "build/recon/syslib/psx/libpad/PADIF.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libpad/MCXMAIN.c"
-      }
-    },
-    {
-      "name": "syslib/psx/libpad/PAD",
-      "target_path": "expected/src/syslib/psx/libpad/PAD.c.o",
-      "base_path": "build/recon/syslib/psx/libpad/PAD.c.o",
-      "metadata": {
-        "source_path": "recon/syslib/psx/libpad/PAD.c"
+        "source_path": "recon/syslib/psx/libpad/PADIF.c"
       }
     },
     {

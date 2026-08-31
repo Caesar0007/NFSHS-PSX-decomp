@@ -86,7 +86,8 @@
  *     acceptance.  Same one-register residual x3 (CD_datasync 8, CD_sync 22, CD_ready 22 -- the
  *     latter two carry two/three MORE independent clusters, see their own notes). */
 
-typedef int (*CdlCB)(int intr, unsigned char *result);
+/* Retail SYM: PTR FCN VOID; PsyQ 4.3 <libcd.h> supplies the omitted arguments. */
+typedef void (*CdlCB)(unsigned char intr, unsigned char *result);
 
 /* ---- cached HW-register pointers (driver globals, defined in asm/data @0x8013C20C..) -----------
  *   The driver caches each CD/SPU/DMA register address in a word at init; every access dereferences
@@ -135,12 +136,15 @@ extern void CD_flush(void);
 extern int  CD_sync(int mode, unsigned char *result);
 extern void _cd_intr_dispatch(void);   /* @0x80108680 -- defined LAST in this TU (retail VA order) */
 
-/* BIOS.OBJ starts with Sony's two-word library-info record, followed by the
+/* BIOS.OBJ starts with Sony's eight-byte library-info record, followed by the
  * driver state in the exact order exposed by the archived ECOFF symbols and
  * the retail CPE.  This TU is compiled on the -G0 2.7.2 library lane, so these
  * definitions stay in ordinary .data and retain the absolute accesses used by
- * retail. */
-unsigned int __ps_libinfo__[2] = { 0x26047350, 0x10432df4 }; /* @0x8013BF40 */
+ * retail.  Independent PsyQ output preserves this metadata as byte fields
+ * beginning with the `Ps` signature, not as two source-level integers. */
+unsigned char __ps_libinfo__[8] = {
+    'P', 's', 0x04, 0x26, 0xf4, 0x2d, 0x43, 0x10
+};                                      /* @0x8013BF40 */
 int           CD_cbsync = 0;       /* @0x8013BF48 */
 int           CD_cbready = 0;      /* @0x8013BF4C */
 int           CD_debug = 0;        /* @0x8013BF50 */
@@ -1233,16 +1237,11 @@ extern int CD_initintr(void)
 }
 
 /* @0x80108140 : libcd's lowercase CD_init -- bring the CD-ROM subsystem up (nop, reset, demute).
- * NAME (W52-A10): the symbol is spelled `CD_init_80108140` on BOTH sides of the gate, not
- * `CD_init`.  splat appended the VA because this name and eaclib's high-level `CD_Init`
- * @0x800FA394 case-FOLD to one string on NTFS; keeping the recon on the bare `CD_init` left
- * the expected side with NO symbol for this VA at all, while `INCLUDE_ASM(..., CD_init)` in
- * src/syslib/psx/libmcrd/BIOS.c silently assembled CD_Init.s -- so expected BIOS.c.o carried a
- * DUPLICATE definition of eaclib's CD_Init and MATCH_PROGRESS grew a phantom
- * `0x800FA394 0.00%% syslib/psx/libmcrd/BIOS CD_Init` row.  Propagating splat's disambiguated
- * name (rather than renaming the oracle back to `CD_init` and re-creating the collision) is
- * what closes it.  Oracle: asm/nonmatchings/main/CD_init_80108140.s. */
-extern int CD_init_80108140(void)
+ * NAME (P425): retail SYM and canonical PsyQ 4.3 LIBCD/BIOS.obj both spell the
+ * original C identifier `CD_init`.  Only the oracle filename/label carries the
+ * VA suffix because `CD_init.s` and eaclib's `CD_Init.s` case-collide on NTFS.
+ * A zero-code co-equal label after the body preserves that tooling key. */
+extern int CD_init(void)
 {
     static CD_init_struct tab = {
         (CD_intr *)&Intr, D_8014899C, &CD_com, &CD_status, CD_pos,
@@ -1428,6 +1427,11 @@ err:
     __asm__("" : : "i"(0));   /* reorg stop_search_p barrier -- see the CdlDemute note */
     return -1;
 }
+
+/* Tool-only oracle alias; the reconstructed source-visible function name is
+ * the retail/canonical `CD_init`. */
+__asm__(".globl CD_init_80108140\n"
+        "CD_init_80108140 = CD_init");
 
 /* @0x80108320 : CD_datasync -- wait for the CD DMA (channel 3) to finish (mode 0 = block). */
 /* MATCH (w52-a1): SHAPE PORTED from the byte-exact Rage Racer libcd decomp,

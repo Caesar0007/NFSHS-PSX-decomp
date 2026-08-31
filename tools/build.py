@@ -567,7 +567,7 @@ PER_TU_FLAGS = {
     # per-TU with zero PASS regressions, reproduced 2x+ by its agent and
     # re-gated hookless at consolidation.  Deliberately NOT wired (mixed or
     # worse, measured): LIBMCRD, INTR_VB, drv, cdread, cdcont, stcdint,
-    # PADPORTD, PADSEQD, MCXMAIN.  Receipts: scratch/w48_a*_receipts.md.
+    # PADPORTD, PADSEQD, PADIF.  Receipts: scratch/w48_a*_receipts.md.
     # w51-a1: SYS.c = cc1_272 LANE IDENTITY (7 count-exact FAIL->PASS conversions:
     # DrawOTag/_send_gp1/_get_gp1/_que_ref/_gpu_arm_timeout/_gpu_init_videomode/
     # _install_drain_cb; -G0 default is load-bearing -- 2.7.2 ignores the
@@ -597,7 +597,7 @@ PER_TU_FLAGS = {
     "recon/syslib/psx/libpad/PADCMD.c":     {"cc1_alt": "2.7.2-970404"},
     # w53-a8: both round-2 lane flips -- volatile-on-the-TEST-read family
     # lever resolved each TU's blocker; full ladders in the TU receipts.
-    "recon/syslib/psx/libpad/MCXMAIN.c":    {"cc1_alt": "2.7.2"},  # 231->178, 0 P->F
+    "recon/syslib/psx/libpad/PADIF.c":      {"cc1_alt": "2.7.2"},  # canonical SYM owner; lane unchanged
     "recon/syslib/psx/libpad/PADPORTD.c":   {"cc1_alt": "2.7.2"},  # 139->109, _pad_filter 18 count-exact
     # w51-a2: BIOS.c 13->17/17 PASS -- WHOLE OBJECT byte-matches under cc1_272.
     "recon/syslib/psx/libmcrd/BIOS.c":      {"cc1_272": True},
@@ -1090,7 +1090,7 @@ PER_FN_CC1_VER_SPLICE_272 = {
     # first store).  ATOMIC with that source: on the TU's own 2.7.2 lane the
     # same body prices 62 @223.  Also fixes the shipped basin's gate-blind
     # wrong branch word (j #13: 34 vs retail 35).  Receipt: w81/A9_receipt.md.
-    "recon/syslib/psx/libpad/MCXMAIN.c": {
+    "recon/syslib/psx/libpad/PADIF.c": {  # canonical SYM owner; function splice unchanged
         # W82-A9 adds _padIntRecvHdr: coupled with the merge-first/-9-last source
         # shape (source alone 2, lane alone 4, together PASS 35/35; the fn's
         # pre-existing gate-blind wrong beqz word dies with it).

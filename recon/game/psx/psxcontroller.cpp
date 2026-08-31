@@ -412,7 +412,7 @@ int InGame_GetPSXPadValue(int value,int player)
      a textbook basin-relative falsification (catalog w45 LEVER-ORDER law). */
   /* w61-a15 (264 -> 257): the nopad select transferred from front.cpp's
      sealed-adjacent GetPSXPadValue (18-diff twin).  The GOTO form + the
-     zero-insn `__asm__("")` on the ID path reproduces retail's
+     zero-insn compiler barrier on the ID path reproduces retail's
      `bnez; li 0x53; lbu ID; j; nop; type=0` layout and lets gcc reuse the
      single 0x53 materialization at the switch join.  MEASURED from the 264
      basin: goto+fence 264 -> 257 (@212 insns), goto WITHOUT the fence 271
@@ -480,7 +480,7 @@ int InGame_GetPSXPadValue(int value,int player)
      the authoritative metric than the current 168, because a fn-scope `po` is ONE
      global allocno that takes ONE register ($a2) at every site, whereas retail's
      nine `sll <reg>,$s1,2` (census:
-     `grep -cE 'sll +\$[av][0-9], \$s1, 2$' asm/nonmatchings/main/InGame_GetPSXPadValue__Fii.s`
+       a raw-oracle census of `sll $[av]N,$s1,2`
      = 9) each land in a DIFFERENT register ($a0/$a1/$v1/$a2) -- i.e. retail
      REMATERIALIZES the scaled index per arm into a fresh BLOCK-LOCAL qty.  So the
      next angle is NOT a hoist: it is per-arm block-local index pseudos that gcc is
@@ -635,8 +635,8 @@ int InGame_GetPSXPadValue(int value,int player)
            0x800000, .L800DCAC0 = 0x200000, .L800DCAF0 = 0x100000, .L800DCB1C =
            0x400000 ... -- i.e. our source order IS the oracle's leaf order and this
            axis is already correct.  (The same doc's flag-compare recipe uses a
-           `register ... asm("v0")` pin and is out of bounds under the no-pins rule.)
-       (2) The FRONTEND TWIN's oracle (asm/nonmatchings/front/GetPSXPadValue__Fii.s)
+           hard-register pin and is out of bounds under the no-pins rule.)
+       (2) The FRONTEND TWIN's nonmatching oracle
            was diffed against ours instruction-for-instruction.  RESULT: the two retail
            functions read DIFFERENT DATA SHAPES -- front's controller table is a
            BYTE array indexed by `player` at stride 1 (`addu $v1,$s1,$v1; lbu
@@ -727,7 +727,7 @@ int InGame_GetPSXPadValue(int value,int player)
      93 @232); direct-return conversion of that tail 107 @232; direct-return conversion
      of the $a2 tail 120 @237; putting `|1` back inside newControl on the positive/$a2
      groups 113/156.  A fresh trace prices the negative-tail rotation as shared-0x80,
-     address,chain = a2,a0,a1 -> desired a0,a1,a2, but a literal asm input creates a NEW
+     address,chain = a2,a0,a1 -> desired a0,a1,a2, but a literal barrier input creates a NEW
      constant qty instead of adding refs to the shared one (one per arm 108 @239, three
      per arm 133 @244).  Duplicating a high term is 137 @238 and duplicated returns are
      183 @250; tag-first and `-(field-0x80)` are byte-neutral.  W78's reference-catalog
@@ -739,15 +739,19 @@ int InGame_GetPSXPadValue(int value,int player)
   /* W76 SYM correction (2026-08-23), byte-neutral at 97 @234: the explicit nopad
      gotos/labels are replaced by their natural if/else, removing the non-retail label
      debug record.  In the two atomic 0x800000 arms, repeating `player << 0x1e` as both
-     a zero-insn asm input and the return term makes gcc CSE one unnamed block-local
+     a zero-insn barrier input and the return term makes gcc CSE one unnamed block-local
      quantity across the barrier.  It allocates exactly like W74's named `acc`, but no
      source local or nested debug block is emitted.  Full-debug names/types/scopes now
      match retail: REGPARM value=$a0, player=$s1, and one function block containing only
      c=$s0, newControl and type=$v1.  The still-nonmatching build colors newControl=$a0;
      retail's SYM says $v0, so that register home remains part of the binary residual. */
+  /* W83 pure-C cleanup (2026-08-31): removing the four zero-insn barriers gives
+     133 diffs at 234/233.  Splitting the retail positive shared-tail group
+     {0x400000,0x20000000,0x40000000} through the existing SYM local newControl
+     improves that barrier-free basin to 131 without adding a local or data record.
+     The analogous negative group regresses to 162 at 231/233 and is unwound. */
   if (PSXController_gPadBytes[player * 4][4] == '\0') {
     type = PSXController_gPadBytes[player * 4][5];
-    __asm__("");
   }
   else {
     type = 0;
@@ -771,12 +775,10 @@ int InGame_GetPSXPadValue(int value,int player)
                    (0x80 - INGAME_CD_VALUE(J1MAX[0])) * 0x100 ;
       return newControl | 1;
     case 0x400000:
-      __asm__("" : : "r"((GameSetup_tControllerData *)
-                           ((player << 2) + (int)&GameSetup_gData)));
-      do { newControl = player << 0x1e |
+      newControl = player << 0x1e |
                    0x1000000 |
-                   (INGAME_CD_VALUE(J1MIN[0]) + 0x80) * 0x10000 |
-                   (INGAME_CD_VALUE(J1MAX[0]) + 0x80) * 0x100 ; } while (0);
+                   (INGAME_CD_VALUE(J1MIN[0]) + 0x80) * 0x10000;
+      newControl |= (INGAME_CD_VALUE(J1MAX[0]) + 0x80) * 0x100;
       return newControl | 1;
     case -0x80000000:
       newControl = player << 0x1e |
@@ -785,12 +787,10 @@ int InGame_GetPSXPadValue(int value,int player)
                    (0x80 - INGAME_CD_VALUE(J2MAX[0])) * 0x100 ;
       return newControl | 1;
     case 0x20000000:
-      __asm__("" : : "r"((GameSetup_tControllerData *)
-                           ((player << 2) + (int)&GameSetup_gData)));
-      do { newControl = player << 0x1e |
+      newControl = player << 0x1e |
                    0x2000000 |
-                   (INGAME_CD_VALUE(J2MIN[0]) + value) * 0x10000 |
-                   (INGAME_CD_VALUE(J2MAX[0]) + 0x80) * 0x100 ; } while (0);
+                   (INGAME_CD_VALUE(J2MIN[0]) + value) * 0x10000;
+      newControl |= (INGAME_CD_VALUE(J2MAX[0]) + 0x80) * 0x100;
       return newControl | 1;
     case 0x10000000:
       newControl = player << 0x1e |
@@ -799,20 +799,18 @@ int InGame_GetPSXPadValue(int value,int player)
                    (0x80 - INGAME_CD_VALUE(J2MAX[0])) * 0x100 ;
       return newControl | 1;
     case 0x40000000:
-      __asm__("" : : "r"((GameSetup_tControllerData *)
-                           ((player << 2) + (int)&GameSetup_gData)));
-      do { newControl = player << 0x1e |
+      newControl = player << 0x1e |
                    0x3000000 |
-                   (INGAME_CD_VALUE(J2MIN[0]) + value) * 0x10000 |
-                   (INGAME_CD_VALUE(J2MAX[0]) + 0x80) * 0x100 ; } while (0);
+                   (INGAME_CD_VALUE(J2MIN[0]) + value) * 0x10000;
+      newControl |= (INGAME_CD_VALUE(J2MAX[0]) + 0x80) * 0x100;
       return newControl | 1;
     }
     break;
   case 0x23:
     switch (c) {
     case 0x800000:
-      /* W74-A12: the w46-a8 DE-MERGE FENCE that lived here (`__asm__ volatile("" : :
-         "r"(newControl));`, the unique fence optimum through five waves) is now
+      /* W74-A12: the w46-a8 zero-insn DE-MERGE FENCE that lived here (the unique
+         fence optimum through five waves) is now
          SUPERSEDED and REMOVED.  W76's unnamed repeated-expression quantity preserves
          the same allocation and is exactly bit-neutral (97 @234), while avoiding the
          non-retail `acc` debug local. */

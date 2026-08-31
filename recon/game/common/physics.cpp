@@ -250,6 +250,13 @@ void Physics_CalculateDerivedCarSpecs(Car_tObj *carObj)
       fixeddiv(0x10000,carObj->specs->lateralGripMult);
 }
 
+/* ---- Physics_CheckGamedata__Fv  [PHYSICS.CPP:414-465] SLD-VERIFIED ---- */
+void Physics_CheckGamedata(void)
+
+{
+  return;
+}
+
 
 /* ---- Physics_AttenuateVelocity__FP8Car_tObjiP10matrixtdef  [PHYSICS.CPP:591-659] SLD-VERIFIED ---- */
 int Physics_AttenuateVelocity(Car_tObj *carObj,int force,matrixtdef *roadMat)
@@ -2879,13 +2886,6 @@ void Physics_SimCar(Car_tObj *carObj)
   else {
     Physics_Real(carObj);
   }
-  return;
-}
-
-/* ---- Physics_CheckGamedata__Fv  [PHYSICS.CPP:414-465] SLD-VERIFIED ---- */
-void Physics_CheckGamedata(void)
-
-{
   return;
 }
 

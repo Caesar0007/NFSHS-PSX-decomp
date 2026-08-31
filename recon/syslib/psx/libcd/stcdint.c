@@ -11,7 +11,7 @@
  *   (word memcpy @0x800F8794) and _st_dma (DMA-channel programmer @0x800F87C0).
  *
  *   Structure follows the matched libcd reference decomp (Sotn/psxsdk c_011.c -> dma_execute/mem2mem):
- *   the cached current ring slot lives in the GLOBAL _st_slot (re-read each use, NOT held in a saved
+ *   the cached current ring slot lives in the file-static _st_slot (re-read each use, NOT held in a saved
  *   register), and the CD result / sub-header are staged through a small on-stack scratch array so the
  *   sub-header word lands in the ring slot via an unaligned copy.  Hardware is reached through a .data
  *   table of CD/DMA register pointers @0x80136A98 (materialised below from the EXE).  All St* state
@@ -39,7 +39,7 @@ static volatile u_char *_dicr        ST_DATA = (volatile u_char *)0x1F8010F4;  /
 static volatile int    *_d1_chcr     ST_DATA = (volatile int   *)0x1F801098;  /* @0x80136AB8 MDECout CHCR */
 static volatile int    *_d3_chcr     ST_DATA = (volatile int   *)0x1F8010B8;  /* @0x80136AC8 CD CHCR      */
 
-/* ---- C_011-owned globals ---------------------------------------------------------------------- */
+/* ---- C_011-owned file storage ----------------------------------------------------------------- */
 /* Regular .bss / .data, reached absolutely in the oracle -- pin to .bss so they stay out of
  * .sdata/.sbss (which would make them gp-relative and mismatch the ROM).  _st_slot is the cached
  * current ring slot pointer (StRingAddr + StRingIdx1*0x20); the oracle re-loads it from memory on
@@ -52,8 +52,10 @@ static volatile int    *_d3_chcr     ST_DATA = (volatile int   *)0x1F8010B8;  /*
  * tree-wide COMMONs, placed by ld rather than by the object, so neither can reach the VA its
  * own breadcrumb names (W62-A18 T6).
  * `_st_slot` is real BSS (0x80144864 > t_addr+t_size 0x8013E000) and is given a real,
- * object-owned definition below.  Its slot runs to StFunc1 @0x80144874 (16 B); only the 4-byte
- * pointer is attributable, the trailing 12 B are recorded as unattributed, not invented.
+ * object-owned local definition below.  Its slot runs to StFunc1 @0x80144874 (16 B); only the
+ * 4-byte pointer is attributable, the trailing 12 B are recorded as unattributed, not invented.
+ * SotN's independent C_011 reconstruction proves the source category `static volatile u16 *`;
+ * its address-only spelling does not recover Sony's private identifier.
  * `debug_cause` is NOT bss: 0x80136AE0 is inside the initialised image and the splat blob
  * already emits that word -- but inside a larger `dlabel` run, so there is no name to alias to
  * yet.  It therefore STAYS a COMMON here, deliberately: demoting it to `extern` would only turn
@@ -61,8 +63,8 @@ static volatile int    *_d3_chcr     ST_DATA = (volatile int   *)0x1F8010B8;  /*
  * at 0x80136AE0 in asm/data/data_8010CCD4_r17.data.s, then this line becomes
  * `extern int debug_cause __asm__("D_80136AE0");` (byte-neutral, same device as INTR.c's
  * g_intr).  Receipts: scratchpad/w65a6/RECEIPTS.md */
-__asm__("\t.globl\t_st_slot\n\t.section\t.bss\n\t.align\t2\n_st_slot:\n\t.space\t4\n\t.text");
-extern u_short *_st_slot;   /* @0x80144864 : cached current ring slot                 */
+__asm__("\t.local\t_st_slot\n\t.section\t.bss\n\t.align\t2\n_st_slot:\n\t.space\t4\n\t.text");
+extern volatile u_short *_st_slot; /* @0x80144864 : cached current ring slot */
 /* W66-A3: the blob cut named above HAS LANDED -- asm/data/data_8010CCD4_r17.data.s
  * now carries `dlabel debug_cause` at 0x80136AE0, under that exact name, so no
  * asm-label alias is needed either.  Demoting this to a pure `extern` retires the
@@ -147,6 +149,15 @@ extern void _st_dma(int ch, int madr, int blocks, int blocksize, volatile int ch
  * inert -- see the w52-a2 report table.) */
 extern void StCdInterrupt(void)
 {
+    /* MATCH (P430, 2026-08-31): 27 -> PASS (583/583), superseding the
+     * historical basin notes below.  SotN's symbol-bearing C_011 copy proves
+     * that this member's cached slot is a file-static pointer to volatile
+     * u16 data.  Restoring that qualifier changed the allocation/scheduling
+     * basin from 27 to 8 diffs.  Reading only the first ID halfword through
+     * an ordinary single-read view removed cc1's redundant zero-extension;
+     * assigning the volatile frame halfword directly restored retail's one
+     * `andi 0xffff`.  The former zero-instruction asm fence and explicit mask
+     * are therefore unnecessary and have been removed. */
     /* W64-A6 re-gate: 27 @576/583 (w63's landed void barrier holds).  TWO axes re-run
      * in the NEW basin per 04Z and both CLOSED:
      *  (a) A SECOND void barrier: tools/fencesweep.py over all 116 statement positions
@@ -263,7 +274,10 @@ extern void StCdInterrupt(void)
     }
 
     /* ---- submode / channel filter ----------------------------------------------------------- */
-    if (_st_slot[0] != 0x160 || ((_st_slot[1] >> 10) & 0x1F) != CChannel) {
+    /* The owner is a pointer to volatile ring data.  Retail's ID test performs
+     * one `lhu` without a second zero-extension; this single-read ordinary view
+     * prevents old cc1 from redundantly appending `andi 0xffff`. */
+    if (*(u_short *)_st_slot != 0x160 || ((_st_slot[1] >> 10) & 0x1F) != CChannel) {
         /* MATCH (W71-A9, 5 -> 0 -- CLUSTER (C) SOLVED, the function PASSES 583/583):
          * the emulated-stream arm and the real-drive arm are NOT merged in retail.
          * Oracle (StCdInterrupt.s @0x800F8200):
@@ -316,17 +330,9 @@ extern void StCdInterrupt(void)
     /* ---- first sector of a new frame: range-check + ring-space bookkeeping ------------------- */
     if (_st_slot[2] == 0) {
         Stsector_offset = 0;
-        /* MATCH (W71-A9, 6 -> 5): retail KEEPS an `andi $v0,$v0,0xFFFF` here that our
-         * cc1 folds away (the `lhu` already proves the range) -- the w52-a2 cluster (D).
-         * A READ-ONLY fence on the loaded value (one ref, zero insns) is enough to
-         * defeat the range proof; W61-A8's identity fence also restores the mask but
-         * lands it 9 insns early and costs +3 (measured again here: launder 10,
-         * read-only fence 6, 2-operand read-only fence 6, a `(unsigned)` cast 7). */
-        {
-            int fn_ = _st_slot[4];
-            __asm__("" : : "r"(fn_));
-            Stframe_no = fn_ & 0xFFFF;
-        }
+        /* With the source-accurate volatile pointee, old cc1 retains retail's
+         * single `andi 0xffff` naturally; an explicit mask duplicated it. */
+        Stframe_no = _st_slot[4];
 
         if (StEndFrame != 0 && (unsigned)Stframe_no >= (unsigned)StEndFrame) {  /* past the end frame */
             Stframe_no      = 0;

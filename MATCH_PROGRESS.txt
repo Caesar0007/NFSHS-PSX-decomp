@@ -2942,7 +2942,7 @@ VA             %match  unit                     function
 0x800F2D58    100.00%  syslib/psx/libetc/INTR   StopCallback
 0x800F2DF8    100.00%  syslib/psx/libetc/INTR   RestartCallback
 0x800F2E70    100.00%  syslib/psx/libetc/INTR   _bzero_w_800F2E70
-0x800F2E94    100.00%  eaclib/psx/eacpsxz/setfont setfont
+0x800F2E94    100.00%  eaclib/psx/eacpsxz/textset setfont
 0x800F3024    100.00%  eaclib/psx/eacpsxz/getm  getm
 0x800F308C    100.00%  eaclib/psx/eacpsxz/getm  geti
 0x800F30AC    100.00%  eaclib/psx/eacpsxz/textcrnt putm
@@ -3462,11 +3462,11 @@ VA             %match  unit                     function
 0x8010BFD8    100.00%  syslib/psx/libapi/L02    SysEnqIntRP
 0x8010BFE8    100.00%  syslib/psx/libpad/WAITRC2 setRC2wait
 0x8010C008    100.00%  syslib/psx/libpad/WAITRC2 chkRC2wait
-0x8010C0A8    100.00%  syslib/psx/libpad/MCXMAIN _padIntInit
-0x8010C0F0    100.00%  syslib/psx/libpad/MCXMAIN _padIntQuery
-0x8010C1C8    100.00%  syslib/psx/libpad/MCXMAIN _padIntRecvId
-0x8010C288    100.00%  syslib/psx/libpad/MCXMAIN _padIntRecvHdr
-0x8010C314    100.00%  syslib/psx/libpad/MCXMAIN _padIntRecvData
+0x8010C0A8    100.00%  syslib/psx/libpad/PADIF  _padIntInit
+0x8010C0F0    100.00%  syslib/psx/libpad/PADIF  _padIntQuery
+0x8010C1C8    100.00%  syslib/psx/libpad/PADIF  _padIntRecvId
+0x8010C288    100.00%  syslib/psx/libpad/PADIF  _padIntRecvHdr
+0x8010C314    100.00%  syslib/psx/libpad/PADIF  _padIntRecvData
 0x8010C698    100.00%  syslib/psx/libgpu/P34    SetDrawMove
 0x8010C6F8    100.00%  syslib/psx/libapi/A07    DeliverEvent
 0x8010C708    100.00%  syslib/psx/libsn/SNREAD  _SN_read

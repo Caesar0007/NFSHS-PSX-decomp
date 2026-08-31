@@ -6,6 +6,7 @@
 typedef struct DR_MOVE{void*_o;}DR_MOVE;
 typedef struct LINE_F4{void*_o;}LINE_F4;
 typedef int jmp_buf[48];
+typedef void (*DslCB)(u_char, u_char *); /* PsyQ 4.3 <libds.h> */
 
 /* -- crt0 -- */
    /* 2mbyte */
@@ -98,46 +99,46 @@ void StopCARD2();   /* A76 */
 void _ExitCard();   /* END */
 /* -- libcd -- */
    /* TYPE */
-void CdGetDiskType();   /* TYPE */
-void StCdInterrupt();   /* C_011 */
+int CdGetDiskType(void);   /* TYPE; PsyQ 4.3 <libcd.h> */
+void StCdInterrupt(void);   /* C_011; PsyQ 4.3 <libcd.h> */
 void _memcpy_w();   /* C_011 */
 void _StSetDMA();   /* C_011 */
-void StClearRing();   /* C_002 */
-void StUnSetRing();   /* C_003 */
-void CdRead2();   /* CDREAD2 */
+void StClearRing(void);   /* C_002; PsyQ 4.3 <libcd.h> */
+void StUnSetRing(void);   /* C_003; PsyQ 4.3 <libcd.h> */
+int CdRead2(long mode);   /* CDREAD2; PsyQ 4.3 <libcd.h> */
 void _cdread2_ready_cb();   /* CDREAD2 */
 void StSetStream();   /* C_005 */
-void CdSearchFile();   /* ISO9660 */
+CdlFILE *CdSearchFile(CdlFILE *fp, char *name);   /* ISO9660; PsyQ 4.3 <libcd.h> */
 void _iso_fnmatch_12();   /* ISO9660 */
 void CD_newmedia();   /* ISO9660 */
 void _iso_find_pte();   /* ISO9660 */
 void CD_cachefile();   /* ISO9660 */
 void iso_cd_read_sectors_sync();   /* ISO9660 */
-void StSetRing();   /* CDROM */
-void StGetNext();   /* C_009 */
-void StFreeRing();   /* C_007 */
+void StSetRing(u_long *ring_addr, u_long ring_size);   /* CDROM; PsyQ 4.3 <libcd.h> */
+u_long StGetNext(u_long **addr, u_long **header);   /* C_009; PsyQ 4.3 <libcd.h> */
+u_long StFreeRing(u_long *base);   /* C_007; PsyQ 4.3 <libcd.h> */
 void init_ring_status();   /* C_008 */
 void data_ready_callback();   /* C_004 */
-void StSetMask();   /* C_010 */
+void StSetMask(u_long mask, u_long start, u_long end);   /* C_010; PsyQ 4.3 <libcd.h> */
 void CdReadDoneCb();   /* C_010 */
 void CdReadReadyCb();   /* C_010 */
 void CdReadDataCb();   /* C_010 */
 void CdReadCore();   /* C_010 */
-void CdRead();   /* CDREAD */
-void CdReadSync();   /* CDREAD */
-void CdInit();   /* EVENT */
+int CdRead(int sectors, u_long *buf, int mode);   /* CDREAD; PsyQ 4.3 <libcd.h> */
+int CdReadSync(int mode, u_char *result);   /* CDREAD; PsyQ 4.3 <libcd.h> */
+int CdInit(void);   /* EVENT; PsyQ 4.3 <libcd.h> */
 void CdInitOnce();   /* EVENT */
 void CdCbsync();   /* EVENT */
 void CdCbready();   /* EVENT */
 void CdCbread();   /* EVENT */
-void CdGetToc();   /* TOC */
+int CdGetToc(CdlLOC *loc);   /* TOC; PsyQ 4.3 <libcd.h> */
 void CdGetToc2();   /* TOC */
 /* -- libds -- */
-void DsReadyCallback();   /* DSCB */
+DslCB DsReadyCallback(DslCB func);   /* DSCB; PsyQ 4.3 <libds.h> */
 void DsDataCallback();   /* DSCB */
 /* -- libetc -- */
    /* VMODE */
-void GetVideoMode();   /* VMODE */
+long GetVideoMode(void);   /* VMODE; PsyQ 4.3 <libetc.h> */
    /* VSYNC */
 void _VSync_wait();   /* VSYNC */
    /* INTR */
@@ -145,13 +146,13 @@ void InterruptCallback();   /* INTR */
 void DMACallback();   /* INTR */
    /* INTR */
 void VSyncCallbacks();   /* INTR */
-void CheckCallback();   /* INTR */
+int CheckCallback(void);   /* INTR; PsyQ 4.3 <libetc.h> */
 void SetIntrMask();   /* INTR */
 void _initIntr();   /* INTR */
 void _intrhand();   /* INTR */
 void _set_intr_callback();   /* INTR */
-void StopCallback();   /* INTR */
-void RestartCallback();   /* INTR */
+int StopCallback(void);   /* INTR; PsyQ 4.3 <libetc.h> */
+int RestartCallback(void);   /* INTR; PsyQ 4.3 <libetc.h> */
 void _bzero_w();   /* INTR */
 void startIntrVSync();   /* INTR_VB */
 void trapIntrVSync();   /* INTR_VB */
@@ -220,25 +221,25 @@ void _memset();   /* SYS */
 // dup: extern void SetPolyF3(POLY_F3 *p) ;   /* P11 */
 extern u_long *FntFlush(int id);   /* FONT */
 extern int FntPrint();   /* FONT */
-void CdStatus();   /* SYS */
-void CdMode();   /* SYS */
-void CdLastPos();   /* SYS */
-void CdReset();   /* SYS */
-void CdFlush();   /* SYS */
-void CdSetDebug();   /* SYS */
-void CdSync();   /* SYS */
-void CdReady();   /* SYS */
-void CdSyncCallback();   /* SYS */
-void CdReadyCallback();   /* SYS */
-void CdControl();   /* SYS */
-void CdControlF();   /* SYS */
-void CdControlB();   /* SYS */
-void CdGetSector();   /* SYS */
-void CdGetSector2();   /* SYS */
+int CdStatus(void);   /* SYS; PsyQ 4.3 <libcd.h> */
+int CdMode(void);   /* SYS; PsyQ 4.3 <libcd.h> */
+CdlLOC *CdLastPos(void);   /* SYS; PsyQ 4.3 <libcd.h> */
+int CdReset(int mode);   /* SYS; PsyQ 4.3 <libcd.h> */
+void CdFlush(void);   /* SYS; PsyQ 4.3 <libcd.h> */
+int CdSetDebug(int level);   /* SYS; PsyQ 4.3 <libcd.h> */
+int CdSync(int mode, u_char *result);   /* SYS; PsyQ 4.3 <libcd.h> */
+int CdReady(int mode, u_char *result);   /* SYS; PsyQ 4.3 <libcd.h> */
+CdlCB CdSyncCallback(CdlCB func);   /* SYS; PsyQ 4.3 <libcd.h> */
+CdlCB CdReadyCallback(CdlCB func);   /* SYS; PsyQ 4.3 <libcd.h> */
+int CdControl(u_char com, u_char *param, u_char *result);   /* SYS; PsyQ 4.3 <libcd.h> */
+int CdControlF(u_char com, u_char *param);   /* SYS; PsyQ 4.3 <libcd.h> */
+int CdControlB(u_char com, u_char *param, u_char *result);   /* SYS; PsyQ 4.3 <libcd.h> */
+int CdGetSector(void *madr, int size);   /* SYS; PsyQ 4.3 <libcd.h> */
+int CdGetSector2(void *madr, int size);   /* SYS; PsyQ 4.3 <libcd.h> */
 void CdDataCallback();   /* SYS */
-void CdDataSync();   /* SYS */
-void CdIntToPos();   /* SYS */
-void CdPosToInt();   /* SYS */
+int CdDataSync(int mode);   /* SYS; PsyQ 4.3 <libcd.h> */
+CdlLOC *CdIntToPos(int i, CdlLOC *p);   /* SYS; PsyQ 4.3 <libcd.h> */
+int CdPosToInt(CdlLOC *p);   /* SYS; PsyQ 4.3 <libcd.h> */
 void Libgpu_p20();   /* P09 */
 extern void AddPrim(void *ot, void *p) ;   /* P06 */
 extern void SetDrawMove(DR_MOVE *p, RECT *rect, int x, int y) ;   /* P34 */
@@ -284,29 +285,29 @@ void _dbl_shift();   /* DBSHIFT */
 void _mainasu();   /* MAINASU */
 void _add_mant_d();   /* ADDMANT */
 /* -- libmcrd -- */
-void MemCardInit();   /* LIBMCRD */
-void MemCardEnd();   /* LIBMCRD */
-void MemCardStart();   /* LIBMCRD */
-void MemCardStop();   /* LIBMCRD */
-void MemCardExist();   /* LIBMCRD */
+void MemCardInit(long val);   /* LIBMCRD; PsyQ 4.3 <libmcrd.h> */
+void MemCardEnd(void);   /* LIBMCRD; PsyQ 4.3 <libmcrd.h> */
+void MemCardStart(void);   /* LIBMCRD; PsyQ 4.3 <libmcrd.h> */
+void MemCardStop(void);   /* LIBMCRD; PsyQ 4.3 <libmcrd.h> */
+long MemCardExist(long chan);   /* LIBMCRD; PsyQ 4.3 <libmcrd.h> */
 void MemCardExist_cb();   /* LIBMCRD */
-void MemCardAccept();   /* LIBMCRD */
+long MemCardAccept(long chan);   /* LIBMCRD; PsyQ 4.3 <libmcrd.h> */
 void MemCardCmd_cb();   /* LIBMCRD */
-void MemCardReadData();   /* LIBMCRD */
+long MemCardReadData(unsigned long *adrs, long ofs, long bytes);   /* LIBMCRD; PsyQ 4.3 <libmcrd.h> */
 void MemCardReadData_cb();   /* LIBMCRD */
-void MemCardWriteData();   /* LIBMCRD */
+long MemCardWriteData(unsigned long *adrs, long ofs, long bytes);   /* LIBMCRD; PsyQ 4.3 <libmcrd.h> */
 void MemCardWriteData_cb();   /* LIBMCRD */
-void MemCardReadFile();   /* LIBMCRD */
+long MemCardReadFile(long chan, char *file, unsigned long *adrs, long ofs, long bytes);   /* LIBMCRD; PsyQ 4.3 <libmcrd.h> */
 void MemCardReadFile_cb();   /* LIBMCRD */
-void MemCardWriteFile();   /* LIBMCRD */
+long MemCardWriteFile(long chan, char *file, unsigned long *adrs, long ofs, long bytes);   /* LIBMCRD; PsyQ 4.3 <libmcrd.h> */
 void MemCardWriteFile_cb();   /* LIBMCRD */
 void MemCardGetDirentry();   /* LIBMCRD */
-void MemCardCallback();   /* LIBMCRD */
-void MemCardSync();   /* LIBMCRD */
-void MemCardCreateFile();   /* LIBMCRD */
-void MemCardDeleteFile();   /* LIBMCRD */
+MemCB MemCardCallback(MemCB func);   /* LIBMCRD; PsyQ 4.3 <libmcrd.h> */
+long MemCardSync(long mode, long *cmds, long *rslt);   /* LIBMCRD; PsyQ 4.3 <libmcrd.h> */
+long MemCardCreateFile(long chan, char *file, long blocks);   /* LIBMCRD; PsyQ 4.3 <libmcrd.h> */
+long MemCardDeleteFile(long chan, char *file);   /* LIBMCRD; PsyQ 4.3 <libmcrd.h> */
 void MemCardFormat();   /* LIBMCRD */
-void MemCardUnformat();   /* LIBMCRD */
+long MemCardUnformat(long chan);   /* LIBMCRD; PsyQ 4.3 <libmcrd.h> */
 void MemCardEventToRslt();   /* LIBMCRD */
 void MemCardStart_cb();   /* LIBMCRD */
 void MemCardMakeDevname();   /* LIBMCRD */
@@ -317,7 +318,7 @@ void CD_cw();   /* BIOS */
 void CD_flush();   /* BIOS */
 void CD_initvol();   /* BIOS */
 void CD_initintr();   /* BIOS */
-void CD_init();   /* BIOS */
+int CD_init(void);   /* libcd BIOS.obj */
 void CD_datasync();   /* BIOS */
 void CD_getsector();   /* BIOS */
 void CD_getsector2();   /* BIOS */
@@ -345,15 +346,15 @@ void UserFuncOpen();   /* USERFUNC */
 void UserFuncExecute();   /* USERFUNC */
 void UserFuncComplete();   /* USERFUNC */
 /* -- libpad -- */
-   /* PADENTRY */
-void PadStopCom();   /* PADENTRY */
-   /* PADENTRY */
-   /* PADENTRY */
-void PadInfoAct();   /* PADENTRY */
-   /* PADENTRY */
-   /* PADENTRY */
-   /* PADENTRY */
-void PadInitDirect();   /* PADPORTD */
+void PadStartCom(void);   /* PADENTRY; PsyQ 4.3 <libpad.h> */
+void PadStopCom(void);   /* PADENTRY; PsyQ 4.3 <libpad.h> */
+int PadGetState(int port);   /* PADENTRY; PsyQ 4.3 <libpad.h> */
+int PadInfoMode(int port, int term, int offs);   /* PADENTRY; PsyQ 4.3 <libpad.h> */
+int PadInfoAct(int port, int actno, int term);   /* PADENTRY; PsyQ 4.3 <libpad.h> */
+int PadSetActAlign(int port, unsigned char *data);   /* PADENTRY; PsyQ 4.3 <libpad.h> */
+int PadSetMainMode(int port, int offs, int lock);   /* PADENTRY; PsyQ 4.3 <libpad.h> */
+void PadSetAct(int port, unsigned char *data, int len);   /* PADENTRY; PsyQ 4.3 <libpad.h> */
+void PadInitDirect(unsigned char *pad1, unsigned char *pad2);   /* PADPORTD; PsyQ 4.3 <libpad.h> */
 void PadResetState();   /* PADPORTD */
 void PadFailAll();   /* PADPORTD */
 void PadShift();   /* PADPORTD */
@@ -421,13 +422,13 @@ void _MDEC_get_reg1();   /* LIBPRESS */
 void MDEC_status();   /* LIBPRESS */
 /* -- libsn -- */
 void __pure_virtual();   /* PUREV */
-void PCread();   /* READ */
-void PCopen();   /* OPEN */
-void PCinit();   /* FSINIT */
-void PCcreat();   /* CREAT */
-void PClseek();   /* LSEEK */
-void PCclose();   /* CLOSE */
-void PCwrite();   /* WRITE */
+int PCread(int fd, char *buff, int len);   /* READ; PsyQ 4.3 <libsn.h> */
+int PCopen(char *name, int flags, int perms);   /* OPEN; PsyQ 4.3 <libsn.h> */
+int PCinit(void);   /* FSINIT; PsyQ 4.3 <libsn.h> */
+int PCcreat(char *name, int perms);   /* CREAT; PsyQ 4.3 <libsn.h> */
+int PClseek(int fd, int offset, int mode);   /* LSEEK; PsyQ 4.3 <libsn.h> */
+int PCclose(int fd);   /* CLOSE; PsyQ 4.3 <libsn.h> */
+int PCwrite(int fd, char *buff, int len);   /* WRITE; PsyQ 4.3 <libsn.h> */
 void _SN_read();   /* SNREAD */
 void _SN_write();   /* SNWRITE */
 

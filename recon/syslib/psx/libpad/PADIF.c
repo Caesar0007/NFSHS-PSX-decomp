@@ -1,5 +1,5 @@
-/* syslib/psx/libpad/MCXMAIN.c -- RECONSTRUCTED from nfs4-f.exe (Ghidra + disasm-v3).
- *   obj libpad.lib(MCXMAIN.OBJ): the controller-exchange state machine -- the five step functions
+/* syslib/psx/libpad/PADIF.c -- RECONSTRUCTED from nfs4-f.exe (SYM + canonical PsyQ 4.3 + disasm).
+ *   obj libpad.lib(PADIF.OBJ): the controller-exchange state machine -- the five step functions
  *   the SIO engine (PADMAIN::_padSioMain) dispatches through padIntFunc[_padSioState]:
  *     _padIntInit    select the controller / multitap, issue the first byte
  *     _padIntQuery   send the poll/config opcode, read the reply header low nibble
@@ -43,11 +43,10 @@ extern unsigned char     *_padSioRegs;                              /* @0x80137C
  * (_padIntRecvId 32-byte/4-saved-reg frame vs oracle's 24-byte/2-saved-reg). Split into three
  * independent statics (still ST_BSS-forced so none becomes gp-relative -- see DSCB.c's identical
  * trick) to match the oracle's per-access addressing. */
-#define ST_BSS  __attribute__((section(".bss")))
 #define ST_DATA __attribute__((section(".data")))
-static int _padMtapCount ST_BSS;                       /* @0x8013C308 */
+static int _padMtapCount ST_DATA = 0;                  /* @0x8013C308 */
 static int _padMtapDataReg ST_DATA = 0x1F801040;        /* @0x8013C30C : JOY_DATA mmio base (real image bytes) */
-static int _padMtapFlag ST_BSS;                         /* @0x8013C310 */
+static int _padMtapFlag ST_DATA = 0;                   /* @0x8013C310 */
 
 /* @0x8010C0A8 : _padIntInit -- begin the exchange (issue 0x01 select).
  * MATCH (w48-a4, 6 -> PASS 18/18): NAMED TEMPS + LOAD-BEFORE-STORE ORDER.  The oracle loads the
@@ -82,7 +81,7 @@ extern int _padIntInit(unsigned char *info)
  * (`addu $a1,$v0,$zero`, 8 diffs @52/54, two insns SHORT), and forcing the re-read with a
  * volatile view gets the load but adds an `andi $a1,$v0,255` promotion mask (10 @54/54);
  * `op = info[0x36]; if (op == 0) op = 0x42;` is worse still (12).
- * MATCH (w53-a8, the MCXMAIN LANE ENABLER -- PASS in BOTH basins): the volatile view belongs on
+ * MATCH (w53-a8, the PADIF LANE ENABLER -- PASS in BOTH basins): the volatile view belongs on
  * the *TEST* read, NOT on the re-read.  cse never records a volatile MEM, so the plain
  * `info[0x36]` in the arm is a genuinely fresh `lbu $a1,54($s0)` with no promotion mask -- exactly
  * the oracle.  Under the gcc-2.7.2 rung the old plain-test form loses the second load entirely
@@ -215,7 +214,7 @@ extern unsigned _padIntRecvHdr(unsigned char *info)
      * and kept the copy at $L19 (libpad = Sony vendor-prebuilt; this is the VENDOR-TOOLCHAIN
      * residual class, cf. _padInitDirSeq @e471bfa9).  Expressed with ONE `copy`+`slot`
      * PER_FN_TEXT_MOVES row (spec in scratchpad/w62a5/RECEIPTS.md); zero collateral, the other
-     * four MCXMAIN fns stay byte-identical.
+     * four PADIF fns stay byte-identical.
      * SOURCE-ONLY STRICT IMPROVEMENT (2026-08-26): separate physical labels for the first
      * `r == 0x5a` return and the shared zero/negative return kept the normalized residual at
      * 2/35 with one wrong branch word.
@@ -455,3 +454,14 @@ stream_count:
         return 0;
     }
 }
+
+/* @0x8013C314: PsyQ 4.3 INDEX.tsv and retail SYM both assign this state table
+ * to PADIF.obj. Keeping it after the three private words restores the retail
+ * contiguous PADIF data block at 0x8013C308..0x8013C327. */
+int (*padIntFunc[5])(unsigned char *info) = {
+    (int (*)(unsigned char *))_padIntInit,
+    (int (*)(unsigned char *))_padIntQuery,
+    (int (*)(unsigned char *))_padIntRecvId,
+    (int (*)(unsigned char *))_padIntRecvHdr,
+    (int (*)(unsigned char *))_padIntRecvData,
+};

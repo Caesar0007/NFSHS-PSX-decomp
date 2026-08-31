@@ -611,7 +611,7 @@ extern int _pad_getbyte(unsigned char *info, int align)
 /* @0x800FE0B0 : _pad_filter (_padFuncCurrLimit) -- gate the actuators against the current budget.
  * MATCH (w52-a5): the fn is VOID -- the oracle stages NO return value anywhere (every `$v0` it
  * materialises is a store operand: the `li 1` feeding `sb $v0,0x57/0x58`), and both call sites
- * (MCXMAIN _padIntRecvData) discard the result.  The old `unsigned r` funnel emitted a whole
+ * (PADIF _padIntRecvData) discard the result.  The old `unsigned r` funnel emitted a whole
  * shadow dataflow (r=hdr, r=b1&1, r=1, r=_padTotalCurr, r=0) that has no counterpart in retail.
  * MATCH: the credit test is TWO SEPARATE `if (matched)` statements sharing one flag -- retail
  * re-tests `$a2` at .L800FE1D0 after CLEARING it (`addu $a2,$zero,$zero` at .L800FE1CC) on the
@@ -644,7 +644,7 @@ extern int _pad_getbyte(unsigned char *info, int align)
  *   (3) nmask's ternary TEST read is the volatile view, the VALUE read plain -- retail LOADS
  *       `info[0x34]` TWICE (`lbu $v0,52($s0)` for the `sltiu ,7` and `lbu $t1,52($s0)` for the
  *       value) where cse gives us one load + `addu $t1,$v1,$zero`.  Same lever/direction as the
- *       w53-a8 MCXMAIN `_padIntQuery` crack: cse never records a volatile MEM, so the plain read
+ *       w53-a8 PADIF `_padIntQuery` crack: cse never records a volatile MEM, so the plain read
  *       after it is a genuinely fresh load.  24 -> 18 on the rung, neutral (23) in the default
  *       basin.  Volatile-FREE spellings of the same double-read all falsified: use fence on info
  *       (27), identity fence on info inside the guard (21), explicit if/else (27), redundant cast

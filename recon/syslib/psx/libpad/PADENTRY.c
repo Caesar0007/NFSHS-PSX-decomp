@@ -32,7 +32,7 @@ typedef struct _PadDev {
 extern _PadDev *(*_padFuncPort2Info)(int port);       /* @0x80137C8C dispatch slot */
 void _padStartCom(void);                             /* PADMAIN @0x80104C1C */
 void _padStopCom(void);                              /* PADMAIN @0x80104CE8 */
-int  _padSetActAlign(_PadDev *info, char *data);     /* PADCMD  @0x80105BF4 */
+int  _padSetActAlign(_PadDev *info, unsigned char *data); /* PADCMD @0x80105BF4 */
 int  _padSetMainMode(_PadDev *info, int offs, int lock); /* PADCMD @0x80105D40 */
 void _padSetAct(_PadDev *info, unsigned char *data, int len); /* PADCMD @0x801055F0 */
 
@@ -159,7 +159,7 @@ int PadInfoAct(int port, int actno, int term)
 }
 
 /* @0x800F012C : PadSetActAlign */
-int PadSetActAlign(int port, char *data)
+int PadSetActAlign(int port, unsigned char *data)
 {
     _PadDev *d = _padFuncPort2Info(port);
     return _padSetActAlign(d, data);

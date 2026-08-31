@@ -411,7 +411,7 @@ SECTIONS
         */src/syslib/psx/libgte/REG11.c.o(.text);  /* 0x800f27bc +0x20 */
         */src/syslib/psx/libgte/FOG_01.c.o(.text);  /* 0x800f27dc +0x70 */
         */src/syslib/psx/libetc/INTR.c.o(.text);  /* 0x800f284c +0x648 */
-        */src/eaclib/psx/eacpsxz/setfont.c.o(.text);  /* 0x800f2e94 +0x190 */
+        */src/eaclib/psx/eacpsxz/textset.c.o(.text);  /* 0x800f2e94 +0x190 */
         */src/eaclib/psx/eacpsxz/getm.c.o(.text);  /* 0x800f3024 +0x88 */
         */src/eaclib/psx/eacpsxz/textcrnt.c.o(.text);  /* 0x800f30ac +0x50 */
         */src/syslib/psx/libgpu/P10.c.o(.text);  /* 0x800f30fc +0x30 */
@@ -585,7 +585,7 @@ SECTIONS
         */src/syslib/psx/libapi/L03.c.o(.text);  /* 0x8010bfc8 +0x10 */
         */src/syslib/psx/libapi/L02.c.o(.text);  /* 0x8010bfd8 +0x10 */
         */src/syslib/psx/libpad/WAITRC2.c.o(.text);  /* 0x8010bfe8 +0xc0 */
-        */src/syslib/psx/libpad/MCXMAIN.c.o(.text);  /* 0x8010c0a8 +0x5f0 */
+        */src/syslib/psx/libpad/PADIF.c.o(.text);  /* 0x8010c0a8 +0x5f0 */
         */src/syslib/psx/libgpu/P34.c.o(.text);  /* 0x8010c698 +0x60 */
         */src/syslib/psx/libapi/A07.c.o(.text);  /* 0x8010c6f8 +0x10 */
         */src/syslib/psx/libsn/SNREAD.c.o(.text);  /* 0x8010c708 +0x18 */

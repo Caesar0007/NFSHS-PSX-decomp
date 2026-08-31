@@ -11,8 +11,9 @@
 #define T2_MODE   (*(volatile unsigned short *)0x1F801124)   /* mode/prescale (bit 0x200 = /1, else /8) */
 #define T2_TARGET (*(volatile unsigned short *)0x1F801128)   /* reload target */
 
-extern int _startTime;   /* RC2 count snapshot at the start of the wait */
-extern int _waitTime;    /* wait length, in (prescaled) ticks */
+/* Canonical PsyQ 4.3 and retail SYM assign both words to WAITRC2.obj. */
+int _waitTime __attribute__((section(".bss"))) = 0;   /* @0x80148AAC */
+int _startTime __attribute__((section(".bss"))) = 0;  /* @0x80148AB0 */
 
 /* @0x8010BFE8 : setRC2wait -- begin a wait of `ticks` RC2 ticks.
  * w48-a3: 4 -> 3 diffs, and the BODY is now byte-identical to the oracle; the entire residual is
@@ -23,7 +24,7 @@ extern int _waitTime;    /* wait length, in (prescaled) ticks */
  *       VOLATILE mem into the zero_extend, so it emits the extra `andi $v0,$v0,0xffff` the oracle
  *       lacks.  (Every non-void spelling probed -- u_short/u_int/int local, u_short return, direct
  *       `return _startTime` -- keeps the andi; void is the only shape that drops it.)  ⚠️ PADMAIN's
- *       and MCXMAIN's `u = setRC2wait(...); ... if (u == 0)` call sites are therefore a
+ *       and PADIF's `u = setRC2wait(...); ... if (u == 0)` call sites are therefore a
  *       RECONSTRUCTION SUSPECT (they still carry their own `extern unsigned` decl, which links fine
  *       under C linkage) -- re-derive them from those objs' oracles, not from this signature.
  *   (b) no local is needed at all: the read feeds the store directly, as the oracle shows.

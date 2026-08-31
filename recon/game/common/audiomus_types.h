@@ -69,7 +69,7 @@ struct DIRENTRY {
 };
 
 struct CdlLOC { u_char minute, second, sector, track; };
-typedef void (*CdlCB)();
+typedef void (*CdlCB)(u_char intr, u_char *result); /* PsyQ 4.3 <libcd.h> */
 
 struct AudioMus_tMusicGlobals {
     int volume, totalsongs, availablesongs, requestsong, firstswitch, switchsong;

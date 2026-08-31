@@ -23,9 +23,9 @@ extern int               Replay_ReplayMode;   /* 0x8013d3f4 */
 /* ---- game scheduler + eaclib fixed-point ---- */
 extern void  Sched_AddFunction(Sched_tSchedule *s, void (*fn)(void *), void *arg, int hz);
 extern "C" void VSyncCallback(...);
-extern "C" int PadGetState(...);
-extern "C" void PadSetAct(...);
-extern "C" int PadSetActAlign(...);
+extern "C" int PadGetState(int);
+extern "C" void PadSetAct(int, unsigned char *, int);
+extern "C" int PadSetActAlign(int, unsigned char *);
 extern "C" int fixeddiv(...);
 extern "C" int fixedmult(...);
 

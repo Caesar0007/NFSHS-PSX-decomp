@@ -115,7 +115,7 @@ struct SNDSAMPLEFORMAT {
     u_char channels, samplerep;
 };
 
-typedef void (*CdlCB)();
+typedef void (*CdlCB)(u_char intr, u_char *result); /* PsyQ 4.3 <libcd.h> */
 typedef charactertbl FONTFILECHAR;
 typedef eacelement EACELEMENT;
 typedef unsigned int qfunc();

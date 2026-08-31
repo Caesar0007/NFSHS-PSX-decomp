@@ -58,14 +58,6 @@ extern volatile unsigned int *g_madr_ptr __asm__("D_8013BD44");   /* @0x8013BD44
  * canonical source identifier. */
 
 static void DMA_memclr(int *p, int n) __asm__("_bzero_w");
-static void DMA_memclr(int *p, int n)   /* @0x80106924 */
-{
-    int i = n - 1;
-    if (n != 0) {
-        do { *p = 0; i = i - 1; p = p + 1; } while (i != -1);
-    }
-}
-   /* extern "C" */
 
 extern void *startIntrDMA(void)   /* @0x801066AC */
 {
@@ -173,3 +165,15 @@ Callback setIntrDMA(int ch, Callback func)   /* @0x80106878 (installed by startI
     }
     return old;
 }
+
+/* Retail places this object-local helper after the three public/dispatch
+ * functions. Keeping its prototype above startIntrDMA preserves the natural
+ * call while restoring the archive member's exact text order. */
+static void DMA_memclr(int *p, int n)   /* @0x80106924 */
+{
+    int i = n - 1;
+    if (n != 0) {
+        do { *p = 0; i = i - 1; p = p + 1; } while (i != -1);
+    }
+}
+   /* extern "C" */

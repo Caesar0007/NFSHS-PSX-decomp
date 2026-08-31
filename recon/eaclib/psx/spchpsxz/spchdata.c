@@ -7,16 +7,17 @@
  *
  *   Linkage note: VoxSentence_GetNumPhrases / VoxEvent_GetFilterLengthFlag / iSPCH_GetOffset8 / GetOffset16
  *   also appear at their OWN VAs inside spchevnt.obj and spchrule.obj (per-TU `static` inline copies of the
- *   same shared-header helpers).  spchdata holds the canonical exported (extern "C") versions here; the
- *   duplicate copies in spchevnt/spchrule are reconstructed as `static` to avoid multiple-definition.
+ *   same shared-header helpers). spchdata holds the canonical exported versions here; the duplicate
+ *   copies in spchevnt/spchrule are `static`. VA-suffixed co-equal labels below exist only because the
+ *   oracle/config namespace cannot represent several retail local symbols with one spelling.
  */
 
 extern int iSPCH_GetMatchValue(int base, int index);                  /* @0x80100710 */
 extern int VoxSentence_GetShortRule(int sentence);                    /* @0x80100724 */
 extern int VoxSentence_GetNumPhrases(int sentence);                   /* @0x80100730 */
-extern int VoxEvent_GetFilterLengthFlag(int event) __asm__("VoxEvent_GetFilterLengthFlag_8010073C");  /* @0x8010073C (M2: VA-suffixed symbol; retail dup of the spchevnt static) */
+extern int VoxEvent_GetFilterLengthFlag(int event);                  /* @0x8010073C */
 extern int iSPCH_GetOffset8(int base, int tableBase, int index);      /* @0x80100748 */
-extern int iSPCH_GetOffset16(int base, int tableBase, int index) __asm__("iSPCH_GetOffset16_80100760");  /* @0x80100760 (M2: VA-suffixed symbol) */
+extern int iSPCH_GetOffset16(int base, int tableBase, int index);    /* @0x80100760 */
 
 /* iSPCH_GetMatchValue @0x80100710 : read the int at entry `index` of the table that starts at base+8.
  * MATCH: in-place dead-ptr mutate: base += index*4 forces oracle's addu a0,a0,a1; lw v0,8(a0) */
@@ -55,3 +56,10 @@ extern int iSPCH_GetOffset16(int base, int tableBase, int index)
 {
     return base + ((int)*(unsigned short *)(tableBase + index * 2) << 2);
 }
+
+/* Tool-only co-equal labels for the two duplicated retail names. These emit
+ * no code and preserve the natural exported identifiers used by spchpick.c. */
+__asm__(".globl VoxEvent_GetFilterLengthFlag_8010073C\n"
+        "VoxEvent_GetFilterLengthFlag_8010073C = VoxEvent_GetFilterLengthFlag\n"
+        ".globl iSPCH_GetOffset16_80100760\n"
+        "iSPCH_GetOffset16_80100760 = iSPCH_GetOffset16");

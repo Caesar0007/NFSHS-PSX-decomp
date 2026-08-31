@@ -208,7 +208,7 @@ typedef struct fMemCardInfo_def {     /* 6108 bytes */
 } fMemCardInfo;
 
 typedef unsigned int size_t;
-typedef void (*MemCB)(void);
+typedef void (*MemCB)(long cmds, long rslt); /* PsyQ 4.3 <libmcrd.h> */
 /* PsyQ SYS/TYPES.H body; its private tag block is filtered from retail SYM. */
 struct _physadr { int r[1]; };
 typedef struct _physadr *physadr;
@@ -239,7 +239,7 @@ extern int timerhz;
 /* ---- externs (libmcrd/libgs/eaclib/libetc/libc/sibling) ---- */
 extern unsigned int shapetype(int v);    /* EA shape helpers */
 extern unsigned int cluttype(int v);
-extern long MemCardInit(long val);       /* PsyQ libmcrd */
+extern void MemCardInit(long val);       /* PsyQ 4.3 <libmcrd.h> */
 extern long MemCardStart(void);
 extern long MemCardStop(void);
 extern void MemCardEnd(void);

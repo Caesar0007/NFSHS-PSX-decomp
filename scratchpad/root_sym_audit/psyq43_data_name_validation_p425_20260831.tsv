@@ -1,0 +1,79 @@
+source	object	canonical_lib	canonical_member	address	kind	name	status	canonical_name	retail_sym_confirmation
+recon/syslib/psx/libapi/FIRST.c	build/recon/syslib/psx/libapi/FIRST.c.o	LIBAPI	FIRST	00000000	B	_first_save	NFS4_VARIANT_PRIVATE_OR_UNPROVEN		NO
+recon/syslib/psx/libapi/FIRST.c	build/recon/syslib/psx/libapi/FIRST.c.o	LIBAPI	FIRST	00000008	B	_first_devname	NFS4_VARIANT_PRIVATE_OR_UNPROVEN		NO
+recon/syslib/psx/libcard/END.c	build/recon/syslib/psx/libcard/END.c.o	LIBCARD	END	00000000	B	D_80148AD4	NFS4_VARIANT_PRIVATE_OR_UNPROVEN		NO
+recon/syslib/psx/libcard/PATCH.c	build/recon/syslib/psx/libcard/PATCH.c.o	LIBCARD	PATCH	00000000	B	D_80148AC4	NFS4_VARIANT_PRIVATE_OR_UNPROVEN		NO
+recon/syslib/psx/libcd/CDROM.c	build/recon/syslib/psx/libcd/CDROM.c.o	LIBCD	CDROM	00000000	B	StEmu_Addr	SAME_MEMBER_NAME	StEmu_Addr	YES
+recon/syslib/psx/libcd/CDROM.c	build/recon/syslib/psx/libcd/CDROM.c.o	LIBCD	CDROM	00000004	B	StCdIntrFlag	SAME_MEMBER_NAME	StCdIntrFlag	YES
+recon/syslib/psx/libcd/CDROM.c	build/recon/syslib/psx/libcd/CDROM.c.o	LIBCD	CDROM	00000008	B	CChannel	SAME_MEMBER_NAME	CChannel	YES
+recon/syslib/psx/libcd/CDROM.c	build/recon/syslib/psx/libcd/CDROM.c.o	LIBCD	CDROM	0000000c	B	StCHANNEL	SAME_MEMBER_NAME	StCHANNEL	YES
+recon/syslib/psx/libcd/CDROM.c	build/recon/syslib/psx/libcd/CDROM.c.o	LIBCD	CDROM	00000010	B	Stframe_no	SAME_MEMBER_NAME	Stframe_no	YES
+recon/syslib/psx/libcd/CDROM.c	build/recon/syslib/psx/libcd/CDROM.c.o	LIBCD	CDROM	00000014	B	StRgb24	SAME_MEMBER_NAME	StRgb24	YES
+recon/syslib/psx/libcd/CDROM.c	build/recon/syslib/psx/libcd/CDROM.c.o	LIBCD	CDROM	00000018	B	StEndFrame	SAME_MEMBER_NAME	StEndFrame	YES
+recon/syslib/psx/libcd/CDROM.c	build/recon/syslib/psx/libcd/CDROM.c.o	LIBCD	CDROM	0000001c	B	StSTART_FLAG	SAME_MEMBER_NAME	StSTART_FLAG	YES
+recon/syslib/psx/libcd/CDROM.c	build/recon/syslib/psx/libcd/CDROM.c.o	LIBCD	CDROM	00000020	B	StEmu_Idx	SAME_MEMBER_NAME	StEmu_Idx	YES
+recon/syslib/psx/libcd/CDROM.c	build/recon/syslib/psx/libcd/CDROM.c.o	LIBCD	CDROM	00000024	B	Stsector_offset	SAME_MEMBER_NAME	Stsector_offset	YES
+recon/syslib/psx/libcd/CDROM.c	build/recon/syslib/psx/libcd/CDROM.c.o	LIBCD	CDROM	00000028	B	StFinalSector	SAME_MEMBER_NAME	StFinalSector	YES
+recon/syslib/psx/libcd/CDROM.c	build/recon/syslib/psx/libcd/CDROM.c.o	LIBCD	CDROM	0000002c	B	StRingBase	SAME_MEMBER_NAME	StRingBase	YES
+recon/syslib/psx/libcd/CDROM.c	build/recon/syslib/psx/libcd/CDROM.c.o	LIBCD	CDROM	00000030	B	StRingAddr	SAME_MEMBER_NAME	StRingAddr	YES
+recon/syslib/psx/libcd/CDROM.c	build/recon/syslib/psx/libcd/CDROM.c.o	LIBCD	CDROM	00000034	B	StRingIdx1	SAME_MEMBER_NAME	StRingIdx1	YES
+recon/syslib/psx/libcd/CDROM.c	build/recon/syslib/psx/libcd/CDROM.c.o	LIBCD	CDROM	00000038	B	StRingIdx2	SAME_MEMBER_NAME	StRingIdx2	YES
+recon/syslib/psx/libcd/CDROM.c	build/recon/syslib/psx/libcd/CDROM.c.o	LIBCD	CDROM	0000003c	B	StRingIdx3	SAME_MEMBER_NAME	StRingIdx3	YES
+recon/syslib/psx/libcd/CDROM.c	build/recon/syslib/psx/libcd/CDROM.c.o	LIBCD	CDROM	00000040	B	StRingSize	SAME_MEMBER_NAME	StRingSize	YES
+recon/syslib/psx/libcd/CDROM.c	build/recon/syslib/psx/libcd/CDROM.c.o	LIBCD	CDROM	00000044	B	StStartFrame	SAME_MEMBER_NAME	StStartFrame	YES
+recon/syslib/psx/libcd/C_004.c	build/recon/syslib/psx/libcd/C_004.c.o	LIBCD	C_004	00000000	B	_ds_word0	NFS4_VARIANT_PRIVATE_OR_UNPROVEN		NO
+recon/syslib/psx/libcd/C_004.c	build/recon/syslib/psx/libcd/C_004.c.o	LIBCD	C_004	00000004	B	_ds_word1	NFS4_VARIANT_PRIVATE_OR_UNPROVEN		NO
+recon/syslib/psx/libcd/C_005.c	build/recon/syslib/psx/libcd/C_005.c.o	LIBCD	C_005	00000000	B	StFunc1	SAME_MEMBER_NAME	StFunc1	YES
+recon/syslib/psx/libcd/C_005.c	build/recon/syslib/psx/libcd/C_005.c.o	LIBCD	C_005	00000004	B	StFunc2	SAME_MEMBER_NAME	StFunc2	YES
+recon/syslib/psx/libcd/drv.c	build/recon/syslib/psx/libcd/drv.c.o	LIBCD	BIOS	00000000	D	__ps_libinfo__	NFS4_VARIANT_PRIVATE_OR_UNPROVEN		NO
+recon/syslib/psx/libcd/drv.c	build/recon/syslib/psx/libcd/drv.c.o	LIBCD	BIOS	00000000	B	StMode	SAME_MEMBER_NAME	StMode	YES
+recon/syslib/psx/libcd/drv.c	build/recon/syslib/psx/libcd/drv.c.o	LIBCD	BIOS	00000008	D	CD_cbsync	SAME_MEMBER_NAME	CD_cbsync	YES
+recon/syslib/psx/libcd/drv.c	build/recon/syslib/psx/libcd/drv.c.o	LIBCD	BIOS	0000000c	D	CD_cbready	SAME_MEMBER_NAME	CD_cbready	YES
+recon/syslib/psx/libcd/drv.c	build/recon/syslib/psx/libcd/drv.c.o	LIBCD	BIOS	00000010	D	CD_debug	SAME_MEMBER_NAME	CD_debug	YES
+recon/syslib/psx/libcd/drv.c	build/recon/syslib/psx/libcd/drv.c.o	LIBCD	BIOS	00000014	D	CD_status	SAME_MEMBER_NAME	CD_status	YES
+recon/syslib/psx/libcd/drv.c	build/recon/syslib/psx/libcd/drv.c.o	LIBCD	BIOS	00000018	D	CD_status1	SAME_MEMBER_NAME	CD_status1	YES
+recon/syslib/psx/libcd/drv.c	build/recon/syslib/psx/libcd/drv.c.o	LIBCD	BIOS	0000001c	D	CD_nopen	SAME_MEMBER_NAME	CD_nopen	YES
+recon/syslib/psx/libcd/drv.c	build/recon/syslib/psx/libcd/drv.c.o	LIBCD	BIOS	00000020	D	CD_pos	SAME_MEMBER_NAME	CD_pos	YES
+recon/syslib/psx/libcd/drv.c	build/recon/syslib/psx/libcd/drv.c.o	LIBCD	BIOS	00000024	D	CD_mode	SAME_MEMBER_NAME	CD_mode	YES
+recon/syslib/psx/libcd/drv.c	build/recon/syslib/psx/libcd/drv.c.o	LIBCD	BIOS	00000025	D	CD_com	SAME_MEMBER_NAME	CD_com	YES
+recon/syslib/psx/libcd/drv.c	build/recon/syslib/psx/libcd/drv.c.o	LIBCD	BIOS	00000028	D	DS_active	SAME_MEMBER_NAME	DS_active	YES
+recon/syslib/psx/libcd/drv.c	build/recon/syslib/psx/libcd/drv.c.o	LIBCD	BIOS	0000002c	D	CD_comstr	SAME_MEMBER_NAME	CD_comstr	YES
+recon/syslib/psx/libcd/drv.c	build/recon/syslib/psx/libcd/drv.c.o	LIBCD	BIOS	000000ac	D	CD_intstr	SAME_MEMBER_NAME	CD_intstr	YES
+recon/syslib/psx/libcd/iso9660.c	build/recon/syslib/psx/libcd/iso9660.c.o	LIBCD	iso9660	00000000	B	_cd_dir	NFS4_VARIANT_PRIVATE_OR_UNPROVEN		NO
+recon/syslib/psx/libcd/iso9660.c	build/recon/syslib/psx/libcd/iso9660.c.o	LIBCD	iso9660	00000600	B	_cd_pathtbl	NFS4_VARIANT_PRIVATE_OR_UNPROVEN		NO
+recon/syslib/psx/libcd/iso9660.c	build/recon/syslib/psx/libcd/iso9660.c.o	LIBCD	iso9660	00001c00	B	_cd_secbuf	NFS4_VARIANT_PRIVATE_OR_UNPROVEN		NO
+recon/syslib/psx/libcd/stcdint.c	build/recon/syslib/psx/libcd/stcdint.c.o	LIBCD	C_011	00000000	B	_st_slot	NFS4_VARIANT_PRIVATE_OR_UNPROVEN		NO
+recon/syslib/psx/libgpu/SYS.c	build/recon/syslib/psx/libgpu/SYS.c.o	LIBGPU	SYS	00000000	B	D_8013EAD8	NFS4_VARIANT_PRIVATE_OR_UNPROVEN		NO
+recon/syslib/psx/libgpu/SYS.c	build/recon/syslib/psx/libgpu/SYS.c.o	LIBGPU	SYS	00000020	B	_gp1_shadow	NFS4_VARIANT_PRIVATE_OR_UNPROVEN		NO
+recon/syslib/psx/libgpu/SYS.c	build/recon/syslib/psx/libgpu/SYS.c.o	LIBGPU	SYS	00000120	B	GPU_printf	SAME_MEMBER_NAME	GPU_printf	YES
+recon/syslib/psx/libmath/FERR.c	build/recon/syslib/psx/libmath/FERR.c.o	LIBMATH	FERR	00000000	D	math_errno	SAME_MEMBER_NAME	math_errno	YES
+recon/syslib/psx/libmath/FERR.c	build/recon/syslib/psx/libmath/FERR.c.o	LIBMATH	FERR	00000004	D	math_err_point	SAME_MEMBER_NAME	math_err_point	YES
+recon/syslib/psx/libpad/PADIF.c	build/recon/syslib/psx/libpad/PADIF.c.o	LIBPAD	PADIF	0000000c	D	padIntFunc	SAME_MEMBER_NAME	padIntFunc	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	00000000	D	_padFuncNextPort	SAME_MEMBER_NAME	_padFuncNextPort	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	00000004	D	_padFuncClrInfo	SAME_MEMBER_NAME	_padFuncClrInfo	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	00000008	D	_padFuncGetTxd	SAME_MEMBER_NAME	_padFuncGetTxd	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	0000000c	D	_padFuncCurrLimit	SAME_MEMBER_NAME	_padFuncCurrLimit	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	00000010	D	_padFuncPtr2Port	SAME_MEMBER_NAME	_padFuncPtr2Port	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	00000014	D	_padFuncPort2Info	SAME_MEMBER_NAME	_padFuncPort2Info	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	00000018	D	_padFuncSendAuto	SAME_MEMBER_NAME	_padFuncSendAuto	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	0000001c	D	_padFuncChkEng	SAME_MEMBER_NAME	_padFuncChkEng	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	00000020	D	_padFuncRecvAuto	SAME_MEMBER_NAME	_padFuncRecvAuto	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	00000024	D	_padFuncClrCmdNo	SAME_MEMBER_NAME	_padFuncClrCmdNo	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	00000028	D	_padFuncIntGun	SAME_MEMBER_NAME	_padFuncIntGun	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	0000002c	D	_padFuncSetGunPort	SAME_MEMBER_NAME	_padFuncSetGunPort	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	00000030	D	_padFuncGetGunPos	SAME_MEMBER_NAME	_padFuncGetGunPos	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	00000034	D	_padInfoDir	SAME_MEMBER_NAME	_padInfoDir	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	00000038	D	_padIntExec	SAME_MEMBER_NAME	_padIntExec	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	0000003c	D	_padGunExec	SAME_MEMBER_NAME	_padGunExec	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	00000040	D	_padSioChan	SAME_MEMBER_NAME	_padSioChan	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	00000044	D	_padSioState	SAME_MEMBER_NAME	_padSioState	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	00000048	D	_padTotalCurr	SAME_MEMBER_NAME	_padTotalCurr	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	0000004c	D	_padModeMtap	SAME_MEMBER_NAME	_padModeMtap	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	00000050	D	_padChanStart	SAME_MEMBER_NAME	_padChanStart	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	00000054	D	_padChanStop	SAME_MEMBER_NAME	_padChanStop	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	00000058	D	_padFixResult	SAME_MEMBER_NAME	_padFixResult	YES
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	00000060	D	_padIntRegs	NFS4_VARIANT_PRIVATE_OR_UNPROVEN		NO
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	00000064	D	_padSioRegs	NFS4_VARIANT_PRIVATE_OR_UNPROVEN		NO
+recon/syslib/psx/libpad/PADMAIN.c	build/recon/syslib/psx/libpad/PADMAIN.c.o	LIBPAD	PADMAIN	00000068	D	_padVbExec	NFS4_VARIANT_PRIVATE_OR_UNPROVEN		NO
+recon/syslib/psx/libpad/WAITRC2.c	build/recon/syslib/psx/libpad/WAITRC2.c.o	LIBPAD	WAITRC2	00000000	B	_waitTime	SAME_MEMBER_NAME	_waitTime	YES
+recon/syslib/psx/libpad/WAITRC2.c	build/recon/syslib/psx/libpad/WAITRC2.c.o	LIBPAD	WAITRC2	00000004	B	_startTime	SAME_MEMBER_NAME	_startTime	YES

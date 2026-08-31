@@ -6424,7 +6424,8 @@ typedef void (*adjustchar)();
 typedef tQuat Quatern_quat;
 typedef tMenuItem *tItemList[16];
 typedef tRecordBuffer tSaveRecords[187];
-typedef void (*CdlCB)();
+/* Canonical PsyQ 4.3 <libcd.h>; SYM preserves PTR FCN VOID but omits args. */
+typedef void (*CdlCB)(u_char intr, u_char *result);
 typedef u_char Night_tLightingTable[256][16];
 typedef u_char Night_tWeatherLightingTable[256];
 typedef u_char Night_tCopLightingTable[256][8];
@@ -6451,7 +6452,8 @@ typedef short tTextLocation[5];
 typedef int (*menuDrivers_t)();
 typedef MCRDFILE_def MCRDFILE;
 typedef MCRDOPTS_def MCRDOPTS;
-typedef void (*MemCB)();
+/* Canonical PsyQ 4.3 <libmcrd.h>; SYM preserves PTR FCN VOID but omits args. */
+typedef void (*MemCB)(long cmds, long rslt);
 typedef long STREAMHANDLE;
 typedef long STREAMREQUESTID;
 typedef int FEVECTOR[4];

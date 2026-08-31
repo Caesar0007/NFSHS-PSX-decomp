@@ -28,15 +28,40 @@ for n in dup:
     del vas[n]
 
 bad = 0
+alias_groups_resolved = 0
+alias_groups_excluded = 0
 objs = sorted(o for o in (ROOT / "build" / "recon").rglob("*.o")
               if "diffsrc" not in o.parts)
 for obj in objs:
     r = subprocess.run([OBJDUMP, "-t", str(obj)], capture_output=True, text=True)
-    syms = []
+    by_offset = {}
     for ln in r.stdout.splitlines():
         m = re.match(r"([0-9a-f]{8})\s+\S*\s+F\s+\.text\s+[0-9a-f]+\s+(\S+)", ln)
         if m and m.group(2) in vas:
-            syms.append((int(m.group(1), 16), vas[m.group(2)], m.group(2)))
+            off = int(m.group(1), 16)
+            name = m.group(2)
+            by_offset.setdefault(off, []).append((vas[name], name))
+    syms = []
+    for off, aliases in by_offset.items():
+        distinct_vas = {va for va, _name in aliases}
+        if len(distinct_vas) == 1:
+            va, name = aliases[0]
+            syms.append((off, va, name))
+            continue
+        # P426: natural source aliases may share one text offset with the
+        # VA-suffixed oracle key for a duplicated static helper.  The explicit
+        # suffix identifies this object's retail copy; treating both aliases
+        # as sequential functions creates a false inversion at the next row.
+        # If no unique suffix proves the copy, exclude and count the group
+        # instead of silently selecting an arbitrary VA.
+        explicit = [(va, name) for va, name in aliases
+                    if name.upper().endswith("_%08X" % va)]
+        if len(explicit) == 1:
+            va, name = explicit[0]
+            syms.append((off, va, name))
+            alias_groups_resolved += 1
+        else:
+            alias_groups_excluded += 1
     syms.sort()
     last_va = -1
     for off, va, name in syms:
@@ -47,5 +72,7 @@ for obj in objs:
         else:
             last_va = va
 print(f"{len(objs)} objects audited, {bad} inversions "
-      f"({len(dup)} multi-VA names excluded: {' '.join(sorted(dup)) or '-'})")
+      f"({len(dup)} multi-VA names excluded: {' '.join(sorted(dup)) or '-'}; "
+      f"{alias_groups_resolved} co-equal alias groups resolved; "
+      f"{alias_groups_excluded} ambiguous alias groups excluded)")
 sys.exit(1 if bad else 0)

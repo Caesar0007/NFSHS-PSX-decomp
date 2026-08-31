@@ -84,7 +84,7 @@ typedef struct CDSECTOR {
     u_long headm, headv;
 } CDSECTOR;
 
-typedef void (*CdlCB)(void);
+typedef void (*CdlCB)(u_char intr, u_char *result); /* PsyQ 4.3 <libcd.h> */
 typedef u_short DECDCTTAB[34816];
 typedef void (*fontblit)(void);
 typedef int (*getcode)(void);

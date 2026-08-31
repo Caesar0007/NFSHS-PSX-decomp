@@ -296,6 +296,11 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 # (w23-a11 investigation plus later per-site corrections); the other 26 jtbl TUs are deliberately absent
 # here (their explicit 5-insn form already matches and must stay untouched).
 PER_TU_FLAGS = {
+    # SPCHPSXZ was built at -G0 by Sony (the oracle has ZERO %gp_rel sites for
+    # any of its globals -- W65-A6).  At -G0 nothing is small-data, so plain
+    # scalar declarations produce the oracle's explicit lui %hi / %lo pair and
+    # spchinit.c needs no unsized-array declarations.
+    "recon/eaclib/psx/spchpsxz/spchinit.c": {"g_value": 0},
     # 2026-08-26 FontUpsideDownBlit source/SYM seal: the reconstructed stock
     # packet-macro lifetime shape is byte-exact on this TU's -G0 lane.  Fresh
     # whole-TU gprobe on origin/main: default -G4 = 23/25 PASS, 115 diffs;

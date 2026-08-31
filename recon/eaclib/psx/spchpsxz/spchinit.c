@@ -39,7 +39,7 @@
  *
  *   Ghidra-ism note: SPCH_InitBankMem's params were mis-named by Ghidra (this/memAlloc/memFree) -- they are
  *   really (memAllocFn, memFreeFn, numBanks); SPCH_GetSampleDataRate's `this` is the sample count.
- *   gSPCH_Initialized[0]'s "live" sentinel is 0x1789a34.  spch state globals resolved by data-mat #75.
+ *   gSPCH_Initialized's "live" sentinel is 0x1789a34.  spch state globals resolved by data-mat #75.
  */
 
 /* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
@@ -59,14 +59,11 @@
  * oracle has ZERO %gp_rel sites for any of them (retail addressed them absolutely).  Keeping
  * every C view `extern` is byte-neutral by construction: 7/7 PASS unchanged.
  * Receipts: scratchpad/w65a6/RECEIPTS.md */
-__asm__("\t.globl\tgGameNum\n\t.globl\tgFilterSetting\n\t.globl\tgLastSubTick\n"
-        "\t.globl\tgDataRate\n\t.globl\tgLastTick\n"
-        "\t.section\t.bss\n\t.align\t2\n"
-        "gGameNum:\n\t.space\t4\n"
-        "gFilterSetting:\n\t.space\t4\n"
-        "gLastSubTick:\n\t.space\t4\n"
-        "gDataRate:\n\t.space\t4\n"
-        "gLastTick:\n\t.space\t4\n\t.text");
+int gGameNum;         /* owned here (W65-A6 run @0x80148428) */
+int gFilterSetting;
+int gLastSubTick;     /* spchevnt's, but retail held the run in ONE object */
+int gDataRate;
+int gLastTick;
 /* W65-A6: the stale `int gRepeatCount;` tentative definition that stood here is GONE.  It was
  * never referenced by this TU's code (every use spells it `gVoxInGame[1]`), so maspsx turned
  * it into a private 4-byte LOCAL .sbss object at an address retail does not have -- retail's
@@ -74,17 +71,28 @@ __asm__("\t.globl\tgGameNum\n\t.globl\tgFilterSetting\n\t.globl\tgLastSubTick\n"
  * run in spchevnt.c.  Deleting an unreferenced `.comm` is codegen-neutral (7/7 PASS before
  * and after; the only delta is 4 fewer dead .sbss bytes). */
 
-extern int gMemAlloc[];        /* user alloc callback (fn ptr stored as int) */
-extern int gMemFree[];         /* user free callback (fn ptr stored as int; array decl -> explicit lui+%lo store like gMemAlloc) */
-extern int gSPCH_Initialized[];/* 0x1789a34 when initialised (array decl -> explicit lui+%lo, shared %hi) */
-extern int gSampleRequest[];   /* sample-request callback */
-extern int gSentenceRuleTest[];/* current sentence rule-test fn/state */
-extern int gSentenceRuleSet[]; /* current sentence rule-set fn/state  */
+/* DECL SHAPE (2026-08-31): plain scalars, as EA wrote them.  They used to be
+   spelled `extern int g[];` + `g[0]` -- the unsized-array lever (methodology
+   §3.12 #5), which stops gcc folding the address into the load/store destination
+   and forces the explicit `lui %hi` / `%lo` pair the oracle has.  That was only
+   a COMPENSATION for compiling this TU at -G4: retail built SPCHPSXZ at -G0
+   (the oracle has ZERO %gp_rel sites for any of these globals -- W65-A6 note
+   above), and at -G0 nothing is small-data, so a plain scalar produces the same
+   explicit pair.  MEASURED on the sealed (&&label-fence) body, 2026-08-31:
+   arrays/-G4 PASS TU 7/7 (the pre-change state) | scalars/-G0 PASS TU 7/7
+   (this state) | scalars WITHOUT -G0: 44 @41, TU 3/7.  (The 10-diff corner
+   figures quoted in older notes were measured on the pre-fence body.)
+   ⚠️ The scalar spelling REQUIRES the per-TU -G0 flag (PER_TU_FLAGS g_value: 0
+   in tools/build.py); the two land together or not at all.
+   gVoxInGame stays an array -- it genuinely is one ([1] aliases gRepeatCount@+4). */
+extern int gMemAlloc;        /* user alloc callback (fn ptr stored as int) */
+extern int gMemFree;         /* user free callback (fn ptr stored as int; array decl -> explicit lui+%lo store like gMemAlloc) */
+extern int gSPCH_Initialized;/* 0x1789a34 when initialised */
+extern int gSampleRequest;   /* sample-request callback */
+extern int gSentenceRuleTest;/* current sentence rule-test fn/state */
+extern int gSentenceRuleSet; /* current sentence rule-set fn/state  */
 extern int gVoxInGame[];       /* in-game speech enable (-1 = on); [1] aliases gRepeatCount@+4 */
 extern int gRepeatCount;       /* repeated-event counter */
-extern int gGameNum[];         /* current game/race number (shared w/ spchbank cycle-bit hash) */
-extern int gDataRate[];        /* sample data rate */
-extern int gFilterSetting[];   /* active filter setting */
 
 extern void iSPCH_DisposeBanks(void);                      /* spchbank */
 extern void iSPCH_InitBanks(void);                         /* spchbank */
@@ -110,26 +118,26 @@ extern int  SPCH_Init(int sampleRequestCb, unsigned int gameNum, int dataRate); 
 extern int iSPCH_MemAlloc(int numBytes, const char *tag)
 {
     int result = 0;
-    if (gMemAlloc[0] != 0)
-        result = ((int (*)(int, const char *))gMemAlloc[0])(numBytes, tag);
+    if (gMemAlloc != 0)
+        result = ((int (*)(int, const char *))gMemAlloc)(numBytes, tag);
     return result;
 }
 
 /* iSPCH_MemFree @0x800EB5D4 : invoke the user's free callback. */
 extern void iSPCH_MemFree(void)
 {
-    if (gMemFree[0] != 0)
-        ((void (*)(void))gMemFree[0])();
+    if (gMemFree != 0)
+        ((void (*)(void))gMemFree)();
 }
 
 /* SPCH_Deinit @0x800EB600 : tear down the speech system (only if it was initialised). */
 extern void SPCH_Deinit(void)
 {
-    if (gSPCH_Initialized[0] == 0x1789a34) {
-        gSampleRequest[0]    = 0;
-        gSentenceRuleTest[0] = 0;
-        gSPCH_Initialized[0] = 0;
-        gSentenceRuleSet[0]  = 0;
+    if (gSPCH_Initialized == 0x1789a34) {
+        gSampleRequest    = 0;
+        gSentenceRuleTest = 0;
+        gSPCH_Initialized = 0;
+        gSentenceRuleSet  = 0;
         iSPCH_DisposeBanks();
         iSPCH_InitEventDat();
     }
@@ -177,9 +185,9 @@ done:
 extern int SPCH_InitBankMem(int memAllocFn, int memFreeFn, int numBanks)
 {
     int result = 0;
-    if (gSPCH_Initialized[0] == 0x1789a34 && memAllocFn != 0 && memFreeFn != 0) {
-        gMemAlloc[0] = memAllocFn;
-        gMemFree[0] = memFreeFn;
+    if (gSPCH_Initialized == 0x1789a34 && memAllocFn != 0 && memFreeFn != 0) {
+        gMemAlloc = memAllocFn;
+        gMemFree = memFreeFn;
         result    = iSPCH_BankMemAlloc((unsigned int)numBanks);
     }
     return result;
@@ -195,7 +203,7 @@ extern int SPCH_InitBankMem(int memAllocFn, int memFreeFn, int numBanks)
  * ROOT CAUSE, read off cc1's own `-dS` scheduler trace:
  *     ;; ready list at T-2: 87 (1) 90 (1), now 90 87
  *     ;; insn 87 has a greater potential hazard, now 87 90
- * At sched1 the STORE (`gSPCH_Initialized[0] = K`) and the RETURN CONSTANT
+ * At sched1 the STORE (`gSPCH_Initialized = K`) and the RETURN CONSTANT
  * (`$v0 = 1`) become ready in the same cycle with the SAME priority (1).  The
  * LUID tie-break would pick the return constant (higher LUID => emitted LAST =
  * retail).  It never gets there: `schedule_select` -> `potential_hazard`
@@ -235,17 +243,17 @@ extern int SPCH_InitBankMem(int memAllocFn, int memFreeFn, int numBanks)
  * Receipts: scratchpad/w82/A4_receipt.md */
 extern int SPCH_Init(int sampleRequestCb, unsigned int gameNum, int dataRate)
 {
-    gSampleRequest[0]    = sampleRequestCb;
-    gGameNum[0]       = gameNum;
-    gDataRate[0]      = dataRate;
-    gMemAlloc[0]      = 0;
-    gMemFree[0]       = 0;
-    gSentenceRuleTest[0] = 0;
-    gSentenceRuleSet[0]  = 0;
+    gSampleRequest    = sampleRequestCb;
+    gGameNum       = gameNum;
+    gDataRate      = dataRate;
+    gMemAlloc      = 0;
+    gMemFree       = 0;
+    gSentenceRuleTest = 0;
+    gSentenceRuleSet  = 0;
     iSPCH_EACseedrandom(gameNum);
     iSPCH_ClearChosen();
     SPCH_SetPreLoadTicks(0);
-    gFilterSetting[0] = 0;
+    gFilterSetting = 0;
     iSPCH_InitEventDat();
     iSPCH_InitInGame();
     iSPCH_InitBanks();
@@ -256,7 +264,7 @@ extern int SPCH_Init(int sampleRequestCb, unsigned int gameNum, int dataRate)
         static void *spchInitBoundary_ = &&spch_live;
         iSPCH_InitEventQueue();
 spch_live: ;
-        gSPCH_Initialized[0] = 0x1789a34;
+        gSPCH_Initialized = 0x1789a34;
         return 1;
     }
 }

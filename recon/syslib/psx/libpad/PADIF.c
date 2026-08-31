@@ -31,7 +31,8 @@ extern void          (*_padFuncGetGunPos)(void);
 extern void          (*_padFuncSetGunPort)(void);
 extern unsigned char *_padInfoDir;
 extern int            _padFixResult[2];
-extern unsigned char     *_padSioRegs;                              /* @0x80137CDC -> 0x1F801040 */
+extern unsigned char     *D_80137CDC;                               /* private spelling not retained */
+#define _padSioRegs D_80137CDC                                      /* @0x80137CDC -> 0x1F801040 */
 #define JOY_DATA8 (*(volatile unsigned char *)(_padSioRegs))
 
 /* @0x8013C308 : originally a 12-byte block (3 words); the oracle addresses each word via its OWN

@@ -76,42 +76,8 @@ typedef struct DRAWENV {
     u_char  r0, g0, b0;/* 0x19..0x1B */
 } DRAWENV;
 
-/* ---- GPU context state (BSS; pointers installed at runtime by _reset) ----
- * These 4-byte pointers would default to .sbss under -G4 (gp-relative).
- * The oracle addresses every one of them ABSOLUTELY (lui %hi; lw %lo).
- * Force each into regular .bss so the compiler materialises them with
- * lui+lw, not a single gp-relative lw (§3.12 #6 absolute lever). */
-static volatile u_long *GPU_GP0  __attribute__((section(".bss")));  /* @0x801237A0 */
-static volatile u_long *GPU_GP1  __attribute__((section(".bss")));  /* @0x801237A4 */
-static volatile u_long *D2_MADR  __attribute__((section(".bss")));  /* @0x801237A8 */
-static volatile u_long *D2_BCR   __attribute__((section(".bss")));  /* @0x801237AC */
-static volatile u_long *D2_CHCR  __attribute__((section(".bss")));  /* @0x801237B0 */
-static volatile u_long *D6_MADR  __attribute__((section(".bss")));  /* @0x801237B4 */
-static volatile u_long *D6_BCR   __attribute__((section(".bss")));  /* @0x801237B8 */
-static volatile u_long *D6_CHCR  __attribute__((section(".bss")));  /* @0x801237BC */
-static volatile u_long *DMA_DPCR __attribute__((section(".bss")));  /* @0x801237C0 */
-
-/* @0x8013EAF8 : last value written per GP1 command (top byte = index).
- * Non-static + .bss to force gcc to use the split %hi/%lo reloc displacement
- * form (lui; addu idx; lbu/sb %lo(arr)) instead of fused lui+addiu form. */
-/* 🔴 W65-A6: the `section(".bss")` attribute here was INERT -- gcc-2.7.2 emits an
- * uninitialised file-scope object as `.comm _gp1_shadow,256` regardless, and SYS.c is on the
- * cc1_alt/272-style lane (no maspsx), so `nm` reported it COMMON (`C`): the last-but-one of the
- * 37 tree-wide COMMONs.  ld -- not the object -- places COMMONs, so it could never land at
- * 0x8013EAF8 (W62-A18 T6).  `D_8013EAD8` (2 reloc sites) was undefined outright.
- * Both are genuine BSS (> t_addr+t_size 0x8013E000 => no file bytes) and CONTIGUOUS, so one
- * object-owned `.section .bss` block covers the run exactly:
- *      D_8013EAD8   @0x8013EAD8  32  (= 0x8013EAF8 - 0x8013EAD8; the _blit_buf+10 restore
- *                                     sub-packet this TU already names at line ~192)
- *      _gp1_shadow  @0x8013EAF8 256  (ends 0x8013EBF8; _que @0x8013EC00 follows after 8 B)
- * The C view stays `extern`, which is ALSO what the comment above asks for (split %hi/%lo
- * displacement form rather than a fused lui+addiu) -- byte-neutral by construction, 39/44 PASS
- * unchanged.  Receipts: scratchpad/w65a6/RECEIPTS.md */
-__asm__("\t.globl\tD_8013EAD8\n\t.globl\t_gp1_shadow\n"
-        "\t.section\t.bss\n\t.align\t2\n"
-        "D_8013EAD8:\n\t.space\t32\n"
-        "_gp1_shadow:\n\t.space\t256\n\t.text");
-extern u_char _gp1_shadow[256];
+/* The initialized SYS owner and the high-BSS storage views are declared in
+ * their proven retail order after the required table/queue types below. */
 
 /* ============================ SUB-GROUP 1 ============================ */
 
@@ -143,7 +109,6 @@ typedef union GpuQueRing {
     GpuQue plain[64];
     volatile GpuQue shared[64];
 } GpuQueRing;
-static GpuQueRing _que;              /* @0x8013EC00 : the request ring */
 /* MATCH: force absolute placement (same §3.12 lever as GPU_GP0/GEnv above) -- the oracle
  * addresses every one of these via lui %hi;lw/sw %lo, never gp-relative. Without the section
  * force these 4-byte statics default into .sbss under -G4 (single gp-relative lw/sw), a
@@ -154,13 +119,6 @@ static GpuQueRing _que;              /* @0x8013EC00 : the request ring */
  * every single test and every `_que[_qout]` field fetch RE-LOADS the index from memory
  * (three independent `lui/lw _qout` + *96 chains inside one dispatch block).  Plain ints let
  * gcc CSE all of them into one register, running _gpu_que_drain 16 instructions short. */
-static volatile int _qin         __attribute__((section(".bss")));  /* @0x801237C4 : producer index (mod 64) */
-static volatile int _qout        __attribute__((section(".bss")));  /* @0x8013xxxx : consumer index (mod 64) */
-static int    _q_saved_mask      __attribute__((section(".bss")));  /* @0x801237CC : imask saved across the push critical section */
-static int    _drain_saved_mask  __attribute__((section(".bss")));  /* @0x801237D0 : imask saved across the drain critical section */
-static int    _q_reset_mask      __attribute__((section(".bss")));  /* @0x801237D4 : imask saved across timeout/reset */
-static int    _gpu_timeout_target __attribute__((section(".bss")));  /* @0x801237D8 : VSync deadline */
-static int    _gpu_timeout_count  __attribute__((section(".bss")));  /* @0x801237DC : spin counter */
 /* @0x8012369C..0x8012371C : the whole "GEnv" GPU-environment block, 0x80 bytes, cleared in ONE
  * shot by ResetGraph (`_memset(&GEnv,0,0x80)` in the oracle -- NOT 7 separate field=0 stores,
  * which is what an earlier draft of this file did). Modeled as a real struct so multi-field
@@ -184,7 +142,6 @@ typedef struct GEnvT {
     char    drawenv[0x5c]; /* +0x10 @0x801236AC : last-set DRAWENV cache (was static _genv_drawenv) */
     char    dispenv[0x14]; /* +0x6C @0x80123708 : last-set DISPENV cache (was static _genv_dispenv) */
 } GEnvT;                                                          /* total 0x80 bytes, matches the oracle's clear */
-static GEnvT GEnv __attribute__((section(".bss")));   /* @0x8012369C */
 
 extern int _gpu_que_drain(void);     /* @0x800EF60C (fwd) */
 
@@ -204,8 +161,6 @@ extern int _gpu_que_drain(void);     /* @0x800EF60C (fwd) */
  *     _drs       : StoreImage (VRAM->CPU, GP0 0xC0): manual remainder reads + 16-word DMA blocks.
  *   _dws/_drs poll the GPU-ready bit with the watchdog and bail (-1) on timeout. */
 
-static u_long _blit_buf[18];   /* @0x8013EAB0 : scratch OT for _BlitClear */
-extern u_long D_8013EAD8[];    /* restore sub-packet at _blit_buf + 10 */
 
 /* ============================ SUB-GROUP 4a ============================
  *   Public env-setter primitives.  Each fills a small GPU primitive `p` (length byte at +3,
@@ -225,13 +180,6 @@ extern u_long D_8013EAD8[];    /* restore sub-packet at _blit_buf + 10 */
  * -G4 here -> single gp-relative loads, a systematic +1-insn divergence.  Pin each into .data (init)
  * or .bss (zero) so it materializes absolute, matching the oracle (§3.12 absolute lever; gp-rel
  * CAVEAT: a small global can be regular .data/.bss, not .sdata/.sbss). */
-extern int (*GPU_printf)(const char *fmt, ...) __attribute__((section(".bss"))) = 0;
-
-static u_long _move_prim[5] = {      /* @0x80123734 : MoveImage's VRAM->VRAM copy primitive */
-    0x04ffffffu,                     /* tag: 4 words, terminates */
-    0x80000000u                      /* GP0 0x80 move-image command */
-};
-
 extern int _reset(int mode);                     /* @0x800EF86C (fwd; defined in SG4b-ii) */
 extern int _sync(int mode);                      /* @0x800EF9BC (fwd; defined below) */
 
@@ -306,18 +254,73 @@ extern int DrawOTag2(u_long *p);
 extern void _install_drain_cb(void);
 extern void _memset(char *p, int c, int n);
 
-static const GpuTbl _gpu_tbl = {                 /* the live driver table */
+/* Canonical PsyQ 4.3 SYS.obj's 0x1A0-byte data section minus its eight-byte
+ * library-information prefix is byte-identical to NFS4 retail
+ * 0x80123654..0x801237EC after relocation masking.  Keep this declaration
+ * block in that proven order.  Explicit initializers and the regular-data
+ * section prevent zero-valued state from becoming BSS or gp-relative sdata. */
+#define SYS_DATA __attribute__((section(".data")))
+
+static GpuTbl _gpu_tbl SYS_DATA = {              /* +0x000 @0x80123654 */
     "GPU",                                        /* @0x80056cd8 */
     _que_ref, _gpu_que_push, (QueFunc)_BlitClear, _send_gp1, _send_gp0,
     _gpu_dma_chain, (QueFunc)_drs, (QueFunc)_dws, _gpu_que_drain, _get_gp1, _clearOTagR_dma,
     _get_gpuinfo, _reset, _get_status, _sync
 };
-/* GEnv_drv lives in REGULAR .data in the original (oracle addresses it ABSOLUTE: `lui %hi;lw %lo`),
- * but a 4-byte initialized pointer would default into .sdata under -G4 here -> a single gp-relative
- * load (`lw v0,N(gp)`), a +1-insn divergence (LoadImage/StoreImage 1 from PASS).  Force it back into
- * .data with an explicit section so it is addressed absolute, matching the oracle (§3.12 absolute
- * lever; the gp-rel CAVEAT -- a small global can be regular .data, not .sdata). */
-static const GpuTbl *GEnv_drv __attribute__((section(".data"))) = &_gpu_tbl;   /* @0x80123694 -> @0x80123654 */
+static GpuTbl *GEnv_drv SYS_DATA = &_gpu_tbl;     /* +0x040 @0x80123694 */
+int (*GPU_printf)(const char *fmt, ...) SYS_DATA = printf; /* +0x044 @0x80123698 */
+GEnvT GEnv SYS_DATA = {0};                       /* +0x048 @0x8012369C */
+
+/* Per-video-mode VRAM clip extents, stride four. */
+static struct { u_short v, pad; } _vmode_w[3] SYS_DATA = {
+    {1024, 0}, {1024, 0}, {1024, 0}
+};                                               /* +0x0C8 @0x8012371C */
+static struct { u_short v, pad; } _vmode_h[3] SYS_DATA = {
+    {512, 0}, {512, 0}, {1024, 0}
+};                                               /* +0x0D4 @0x80123728 */
+
+static u_long _move_prim[5] SYS_DATA = {         /* +0x0E0 @0x80123734 */
+    0x04ffffffu, 0x80000000u, 0, 0, 0
+};
+static u_long _otc_term SYS_DATA = 0x04ffffffu;   /* +0x0F4 @0x80123748 */
+static u_long _otc_tail[4] SYS_DATA = {0, 0, 0, 0}; /* unnamed member tail */
+static u_long _otc_link SYS_DATA = 0;             /* +0x108 @0x8012375C */
+static u_long D_80123760[3] SYS_DATA = {          /* private spelling absent */
+    0x80000000u, 0, 0
+};
+
+/* Display H/V overscan ranges, indexed (videomode*5 + resIdx). */
+static struct { u_short base, end; } _disp_overscan[10] SYS_DATA = {
+    {590, 3150}, {600, 3160}, {539, 3227}, {615, 3175}, {620, 3180},
+    {610, 3170}, {624, 3184}, {560, 3248}, {635, 3195}, {640, 3200}
+};                                               /* +0x118 @0x8012376C */
+static u_char _disp_mult[5] SYS_DATA = {10, 8, 7, 5, 4}; /* +0x144 */
+static u_long D_8012379C SYS_DATA = 4;            /* +0x148, name absent */
+
+static volatile u_long *GPU_GP0 SYS_DATA = (volatile u_long *)0x1F801810;
+static volatile u_long *GPU_GP1 SYS_DATA = (volatile u_long *)0x1F801814;
+static volatile u_long *D2_MADR SYS_DATA = (volatile u_long *)0x1F8010A0;
+static volatile u_long *D2_BCR SYS_DATA = (volatile u_long *)0x1F8010A4;
+static volatile u_long *D2_CHCR SYS_DATA = (volatile u_long *)0x1F8010A8;
+static volatile u_long *D6_MADR SYS_DATA = (volatile u_long *)0x1F8010E0;
+static volatile u_long *D6_BCR SYS_DATA = (volatile u_long *)0x1F8010E4;
+static volatile u_long *D6_CHCR SYS_DATA = (volatile u_long *)0x1F8010E8;
+static volatile u_long *DMA_DPCR SYS_DATA = (volatile u_long *)0x1F8010F0;
+
+volatile int _qin SYS_DATA = 0;                   /* +0x170 @0x801237C4 */
+volatile int _qout SYS_DATA = 0;                  /* +0x174 @0x801237C8 */
+static int _q_saved_mask SYS_DATA = 0;
+static int _drain_saved_mask SYS_DATA = 0;
+static int _q_reset_mask SYS_DATA = 0;
+static int _gpu_timeout_target SYS_DATA = 0;
+static int _gpu_timeout_count SYS_DATA = 0;
+static int D_801237E0[3] SYS_DATA = {0, 0, 0};    /* unnamed member tail */
+
+/* Code-generation views of the exact high-BSS owner emitted at EOF. */
+extern u_long _blit_buf[18];
+extern u_long D_8013EAD8[];
+extern u_char _gp1_shadow[];
+extern GpuQueRing _que;
 
 /* ============================ SUB-GROUP 4b-ii (FINALE) ============================
  *   GPU init/reset + env-commit, with their data tables.  ResetGraph zeroes GEnv, resets the
@@ -339,21 +342,6 @@ extern void *_memcpy(void *d, const void *s, unsigned n) __asm__("memcpy");/* li
 extern void  GPU_cw(u_long cw);                  /* libapi C73.obj @0x80104A0C (BIOS) */
 extern void  ResetCallback(void);                /* libetc INTR.obj @0x800F284C */
 
-/* per-video-mode VRAM clip extents: stride-4 in .data (low u16 = value, high u16 = 0
-   padding); @0x8012371C (_vmode_w) / 0x80123728 (_vmode_h). EXE bytes 00 04 00 00.. confirm
-   4-byte stride; oracle ResetGraph reads u_short @ base + mode*4 (sll 2, lhu). */
-static const struct { u_short v, pad; } _vmode_w[3] = { {1024,0}, {1024,0}, {1024,0} };  /* @0x8012371C */
-static const struct { u_short v, pad; } _vmode_h[3] = { { 512,0}, { 512,0}, {1024,0} };  /* @0x80123728 */
-
-/* display H/V overscan ranges, indexed (videomode*5 + resIdx); @0x80123770 (base/end u16 pairs). */
-static const struct { u_short base, end; } _disp_overscan[10] = {
-    { 590, 3150 }, { 600, 3160 }, { 539, 3227 }, { 615, 3175 }, { 620, 3180 },
-    { 610, 3170 }, { 624, 3184 }, { 560, 3248 }, { 635, 3195 }, { 640, 3200 }
-};
-static const u_char _disp_mult[5] = { 10, 8, 7, 5, 4 };    /* @0x80123798 : per-resIdx dot multiplier */
-
-static u_long _otc_link;                       /* @0x8012375C : OT terminator link (runtime) */
-static const u_long _otc_term = 0x04ffffffu;   /* @0x80123748 : list terminator word */
 /* @0x800ED670 : initialise the graphics system for the given mode. */
 extern int ResetGraph(int mode)
 {
@@ -2582,3 +2570,22 @@ extern void _memset(char *p, int c, int n)
         do { *p++ = (char)c; } while (--i != -1);
     }
 }
+
+/* Canonical SYS.obj has one continuous high-BSS owner.  The interior label
+ * D_8013EAD8 is the restore-packet view at _blit_buf + 10 words, not a second
+ * allocation.  The unnamed eight bytes align the public queue to retail
+ * 0x8013EC00 when this section starts at 0x8013EAB0. */
+__asm__(
+    "\t.section\t.bss.sys_8013EAB0,\"aw\",@nobits\n"
+    "\t.align\t4\n"
+    "\t.local\t_blit_buf\n"
+    "_blit_buf:\n\t.space\t40\n"
+    "\t.local\tD_8013EAD8\n"
+    "D_8013EAD8:\n\t.space\t32\n"
+    "\t.local\t_gp1_shadow\n"
+    "_gp1_shadow:\n\t.space\t256\n"
+    "\t.space\t8\n"
+    "\t.globl\t_que\n"
+    "_que:\n\t.space\t6144\n"
+    "\t.text"
+);

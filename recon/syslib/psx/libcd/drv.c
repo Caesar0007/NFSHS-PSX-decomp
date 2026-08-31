@@ -142,7 +142,10 @@ extern void _cd_intr_dispatch(void);   /* @0x80108680 -- defined LAST in this TU
  * definitions stay in ordinary .data and retain the absolute accesses used by
  * retail.  Independent PsyQ output preserves this metadata as byte fields
  * beginning with the `Ps` signature, not as two source-level integers. */
-unsigned char __ps_libinfo__[8] = {
+/* Canonical BIOS.obj contains these bytes at data offset zero but has no XDEF
+ * for the record.  `__ps_libinfo__` is SDK member metadata, not a public
+ * driver datum, so its source linkage is file-local. */
+static unsigned char __ps_libinfo__[8] = {
     'P', 's', 0x04, 0x26, 0xf4, 0x2d, 0x43, 0x10
 };                                      /* @0x8013BF40 */
 int           CD_cbsync = 0;       /* @0x8013BF48 */

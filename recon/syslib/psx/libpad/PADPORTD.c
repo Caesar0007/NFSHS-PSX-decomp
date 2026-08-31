@@ -28,7 +28,8 @@ extern int            _padSioState;
 extern int            _padTotalCurr;
 extern unsigned char *_padInfoDir;
 extern int            _padFixResult[2];
-extern unsigned char     *_padSioRegs;                /* @0x80137CDC -> 0x1F801040 SIO0 block */
+extern unsigned char     *D_80137CDC;                 /* private spelling not retained */
+#define _padSioRegs D_80137CDC                        /* @0x80137CDC -> 0x1F801040 SIO0 block */
 #define JOY_CTRL (*(volatile unsigned short *)(_padSioRegs + 0x0a))
 
 /* dispatch slots (this obj installs the direct-mode handlers below into them) */

@@ -54,9 +54,16 @@ int _padModeMtap PADMAIN_DATA = 0;
 int _padChanStart PADMAIN_DATA = 0;
 int _padChanStop PADMAIN_DATA = 1;
 int _padFixResult[2] PADMAIN_DATA = { -1, -1 };
-unsigned char *_padIntRegs PADMAIN_DATA = (unsigned char *)0x1F801070;
-unsigned char *_padSioRegs PADMAIN_DATA = (unsigned char *)0x1F801040;
-int _padVbExec PADMAIN_DATA = 0;
+/* Retail SYM and canonical PADMAIN.obj do not retain the private spellings of
+ * these NFS4-version words.  Emit their proven retail-address labels and keep
+ * the semantic names only as source aliases; this avoids presenting inferred
+ * reconstruction names as recovered originals. */
+unsigned char *D_80137CD8 PADMAIN_DATA = (unsigned char *)0x1F801070;
+unsigned char *D_80137CDC PADMAIN_DATA = (unsigned char *)0x1F801040;
+int D_80137CE0 PADMAIN_DATA = 0;
+#define _padIntRegs D_80137CD8
+#define _padSioRegs D_80137CDC
+#define _padVbExec  D_80137CE0
 
 /* ---- SIO0 + interrupt register blocks, reached via libpad's cached base pointers -------------- */
 #define JOY_DATA8 (*(volatile unsigned char  *)(_padSioRegs))

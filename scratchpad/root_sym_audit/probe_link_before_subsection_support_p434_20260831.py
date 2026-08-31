@@ -69,22 +69,7 @@ VA_LO, VA_HI = 0x80010000, 0x80200000   # plausible retail VA band
 SCRATCH = 0x80400000        # un-anchored data sections go here, cumulatively
 EXCLUDED = ("diffsrc", "scratch", "scratchpad", "pbuild", "relink", "probe_link")
 DATA_SECS = (".data", ".sdata", ".sbss", ".bss")
-INIT_SECS = (".rodata", ".data", ".sdata")      # sections with image bytes
-
-
-def is_subsection(sec, roots):
-    """Include compiler/owner subsections such as .bss.ds_<VA>.
-
-    P434 fixes the old exact-name-only probe blind spot.  The reconstruction
-    deliberately uses named subsections to preserve independent retail owner
-    runs; sweeping those sections to scratch made the layout probe contradict
-    its documented all-data-section coverage.
-    """
-    return any(sec == root or sec.startswith(root + ".") for root in roots)
-
-
-def data_sections(section_sizes):
-    return sorted(sec for sec in section_sizes if is_subsection(sec, DATA_SECS))
+INIT_SECS = {".rodata", ".data", ".sdata"}      # sections with image bytes
 
 HDRRE = re.compile(r"^(\S+):\s+file format")
 SYMRE = re.compile(r"^([0-9a-f]{8})\s(.{7})\s+(\S+)\s+([0-9a-f]{8})\s(.*)$")
@@ -248,10 +233,9 @@ def main():
                                  objdata[o]["secs"][".rodata"], o, ".rodata",
                                  10 ** 6))          # map anchors outrank votes
                     ro_mapped.add(o)
-        # leg 2: implied bases for .data/.sdata/.sbss/.bss (including their
-        # named owner subsections) by symbol votes
+        # leg 2: implied bases for .data/.sdata/.sbss/.bss by symbol votes
         for o, d in objdata.items():
-            for sec in data_sections(d.get("secs", {})):
+            for sec in DATA_SECS:
                 sz = d.get("secs", {}).get(sec, 0)
                 if not sz:
                     continue
@@ -287,8 +271,7 @@ def main():
         placed_keys = {(o, sec) for _, _, o, sec in dplaced}
         nxt = SCRATCH
         for o, d in sorted(objdata.items()):
-            secs = [".rodata"] + data_sections(d.get("secs", {}))
-            for sec in secs:
+            for sec in (".rodata",) + DATA_SECS:
                 sz = d.get("secs", {}).get(sec, 0)
                 if not sz or (o, sec) in placed_keys:
                     continue
@@ -369,7 +352,7 @@ def main():
     if dplaced:
         droms = [(i, base, sz, o, sec) for i, (base, sz, o, sec)
                  in enumerate(dplaced)
-                 if is_subsection(sec, INIT_SECS) and base + sz <= rom_end]
+                 if sec in INIT_SECS and base + sz <= rom_end]
         if droms:
             dbin = OUTDIR / "probe_data.bin"
             dsects = [f"--only-section=.d{i:04d}" for i, *_ in droms]

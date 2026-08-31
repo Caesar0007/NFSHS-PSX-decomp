@@ -1,0 +1,16 @@
+{
+ "placed": 459,
+ "dropped": 7,
+ "no_base": 1,
+ "bytes": 990628,
+ "identical": 974320,
+ "pct": 98.3538,
+ "exact_objs": 253,
+ "ld_stderr_lines": 17,
+ "data_placed": 280,
+ "data_scratch": 152,
+ "data_bytes": 151363,
+ "data_identical": 148576,
+ "data_exact_sections": 214,
+ "no_data": false
+}

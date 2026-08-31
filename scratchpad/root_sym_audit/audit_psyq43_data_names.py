@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import csv
 import json
 from pathlib import Path
@@ -57,6 +58,13 @@ def nm_data(path: Path):
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--output",
+        default="scratchpad/root_sym_audit/psyq43_data_name_validation_p425_20260831.tsv",
+        help="repository-relative or absolute TSV output path",
+    )
+    args = parser.parse_args()
     with (PSYQ / "INDEX.tsv").open(encoding="utf-8", newline="") as stream:
         index = list(csv.DictReader(stream, delimiter="\t"))
     sym_names = set(
@@ -105,6 +113,13 @@ def main() -> int:
             elif base != name and base in global_data:
                 status = "ADDRESS_ALIAS_OF_SDK_NAME"
                 canonical_name = base
+            elif re.fullmatch(r"D_80[0-9A-Fa-f]{6}", name):
+                # Exact retail storage address is proven, but neither retail
+                # SYM nor the canonical member retains a private spelling.
+                # Keep this explicit rather than folding it into a generic
+                # "unproven" review bucket.
+                status = "ADDRESS_PLACEHOLDER_PRIVATE_NAME_UNRECOVERED"
+                canonical_name = ""
             else:
                 status = "NFS4_VARIANT_PRIVATE_OR_UNPROVEN"
                 canonical_name = ""
@@ -123,7 +138,9 @@ def main() -> int:
                 }
             )
 
-    path = ROOT / "scratchpad" / "root_sym_audit" / "psyq43_data_name_validation_p425_20260831.tsv"
+    path = Path(args.output)
+    if not path.is_absolute():
+        path = ROOT / path
     fields = [
         "source",
         "object",

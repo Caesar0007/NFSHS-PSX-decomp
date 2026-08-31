@@ -1,14 +1,17 @@
 /* libcd.lib(C_004.obj): data_ready_callback and its private sector words. */
 #include "stream_internal.h"
 
-/* Complete C_004.obj retail BSS run @0x801489D0.  The callback slot at
- * 0x801489E4 belongs to libds/DSCB.obj and is intentionally not duplicated.
- * SotN's symbol-bearing copy of this PsyQ member preserves `fp_2` and proves
- * both words are file-local.  The second original spelling is not retained. */
+/* Canonical PsyQ 4.3 C_004.obj has one 16-byte BSS section.  Its relocations
+ * address the section base and base+4; the final eight bytes are member tail,
+ * not separately named storage.  The callback slot at 0x801489E4 belongs to
+ * libds/DSCB.obj and is intentionally not duplicated.  SotN's symbol-bearing
+ * copy preserves `fp_2` and proves both used words are file-local.  The second
+ * original spelling is not retained. */
 __asm__("\t.local\tfp_2\n\t.local\tD_801489D4\n"
         "\t.section\t.bss.ds_801489D0,\"aw\",@nobits\n\t.align\t2\n"
         "fp_2:\n\t.space\t4\n"
-        "D_801489D4:\n\t.space\t4\n\t.text");
+        "D_801489D4:\n\t.space\t4\n"
+        "\t.space\t8\n\t.text");
 
 /* CdlLOC is four byte-sized fields.  Its alignment makes the structure copy
  * take the same block-move expansion used by retail PsyQ. */

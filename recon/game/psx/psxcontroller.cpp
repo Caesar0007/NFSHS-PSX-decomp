@@ -274,10 +274,23 @@ int InGame_GetPSXPadValue(int value, int player)
   c = value;
   PAD_update();
 
-  {
-    u_char *pad = (u_char *)PSXController_gPadBytes;
-    type = (int)pad + (player << 5);
-  }
+  /* w83-b1: the pad base goes through the SYM's OWN `newControl` -- whose SYM
+     home is $v0, exactly the register retail's `addiu $v0,$v0,%lo` uses here --
+     and the row offset accumulates INTO `type` ($v1).  THREE statements, not
+     two: the `+=` split is what makes `sll $v1,$s1,5` land AFTER the lui/addiu
+     pair (every 2-statement form measures 96 @241).  Declares NO local the
+     SYM's single `90 Block start` block does not list.
+     RESERVED byte-identical alternative (the Codex seal's head, 6ba78056) --
+     same .text, but its nested scope + `pad` local emit two -g2 debug records
+     the SYM does not have:
+       {
+         u_char *pad = (u_char *)PSXController_gPadBytes;
+         type = (int)pad + (player << 5);
+       }
+  */
+  newControl = (int)PSXController_gPadBytes;
+  type = player << 5;
+  type += newControl;
   if (*(u_char *)(type + 4) != 0)
     goto no_pad;
   type = *(u_char *)(type + 5);

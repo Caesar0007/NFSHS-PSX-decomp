@@ -1,6 +1,6 @@
 NFS4-PSX matching-decomp -- per-function match progress
 (objdiff fuzzy_match_percent; VA from configs/symbol_addrs.txt)
-TOTAL: 3493 functions, 3488 at 100% (99.9%)
+TOTAL: 3493 functions, 3489 at 100% (99.9%)
 ==================================================================================
 VA             %match  unit                     function
 ----------------------------------------------------------------------------------
@@ -2466,7 +2466,7 @@ VA             %match  unit                     function
 0x800DC4A0    100.00%  game/psx/platform        Platform_ResetDCTBuffer__Fv
 0x800DC4B4    100.00%  game/psx/platform        Platform_GetDCTBuffer__FiPc
 0x800DC4CC    100.00%  game/psx/psxcontroller   InGame_ResetPSXController__Fii
-0x800DC990     95.26%  game/psx/psxcontroller   InGame_GetPSXPadValue__Fii
+0x800DC990    100.00%  game/psx/psxcontroller   InGame_GetPSXPadValue__Fii
 0x800DCD34    100.00%  game/psx/psxcontroller   InGame_GetDevice__Fi
 0x800DCD3C    100.00%  game/psx/psxcontroller   InGame_SetRamp__Fv
 0x800DCEC4    100.00%  game/psx/rpause          RPause_CopyBackToFrontBuffer__Fv
@@ -3007,7 +3007,7 @@ VA             %match  unit                     function
 0x800F69A8    100.00%  eaclib/psx/eacpsxz/vramfxya vramfxya
 0x800F6C3C    100.00%  eaclib/psx/eacpsxz/shpclut getshapeclut
 0x800F6C94    100.00%  eaclib/psx/eacpsxz/shpclut shapetoclutid
-0x800F6D18     98.57%  syslib/psx/libgpu/FONT   FntFlush
+0x800F6D18     98.60%  syslib/psx/libgpu/FONT   FntFlush
 0x800F7034    100.00%  syslib/psx/libgpu/FONT   FntPrint
 0x800F7400    100.00%  syslib/psx/libpress/VLC  DecDCTvlcSize
 0x800F7430    100.00%  syslib/psx/libpress/VLC  DecDCTvlc

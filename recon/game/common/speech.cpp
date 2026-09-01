@@ -3392,20 +3392,13 @@ void MobileSpeaker::Bullhorn()
 void MobileSpeaker::Purge()
 
 {
-  bool bVar1;
-  __vtbl_ptr_type (*pa_Var2) [31];
-  int iVar3;
-  MobileSpeaker *pMVar4;
   Speaker *Chain;
-  Speaker *next;
   
   if (this->fCarObj == (Car_tObj *)0x0) {
     return;
   }
-  pa_Var2 = (this->_base_Speaker)._vf;
-  iVar3 = (*(*pa_Var2)[0x19].pfn)
-                    ((int)&(this->_base_Speaker).fPosition.flags + (int)(*pa_Var2)[0x19].delta);
-  if ((*(u_int *)(iVar3 + 0x260) & 0x200) != 0) {
+  if ((*(u_int *)((int)(this->_base_Speaker).VirtualCarObj() + 0x260) &
+       0x200) != 0) {
     CopSpeak_Flush();
     if (CopSpeak_gSpchHandle != -1) {
       if (stackSpeedUpEnbabledFlag != 0) {
@@ -3419,17 +3412,8 @@ void MobileSpeaker::Purge()
         SNDstop(CopSpeak_gSpchHandle);
       }
     }
-    pa_Var2 = (this->_base_Speaker)._vf;
-    do {
-      bVar1 = false;
-    } while (0);
-    iVar3 = (*(*pa_Var2)[0x1b].pfn)
-                      ((int)&(this->_base_Speaker).fPosition.flags + (int)(*pa_Var2)[0x1b].delta);
-    if (iVar3 != 0) {
-      iVar3 = AudioMus_Threshold();
-      bVar1 = iVar3 != 0;
-    }
-    if (bVar1) {
+    if ((this->_base_Speaker).VirtualPerp() != (Car_tObj *)0x0 &&
+        AudioMus_Threshold() != 0) {
       if (stackSpeedUpEnbabledFlag != 0) {
         gWSavePtr = SetSp(gWSavePtr);
         stackSpeedUpEnbabledFlag = 0;
@@ -3453,29 +3437,18 @@ Purge_resetSpeakerFields:
   }
 
   this->fCarObj = (Car_tObj *)0x0;
-  {
-    DispatchSpeaker *dispatchStatus = (DispatchSpeaker *)Speech::Dispatch();
-    pMVar4 = (MobileSpeaker *)
-             (*(*(dispatchStatus->_base_Speaker)._vf)[0x16].pfn)
-                       ((int)&(dispatchStatus->_base_Speaker).fPosition.flags +
-                        (int)(*(dispatchStatus->_base_Speaker)._vf)[0x16].delta);
-  }
-  if (pMVar4 == this) {
-    DispatchSpeaker *dispatchPurge = (DispatchSpeaker *)Speech::Dispatch();
-    (*(*(dispatchPurge->_base_Speaker)._vf)[0x17].pfn)
-        ((int)&(dispatchPurge->_base_Speaker).fPosition.flags +
-         (int)(*(dispatchPurge->_base_Speaker)._vf)[0x17].delta);
+  if (Speech::Dispatch()->VirtualStatusSub() == (Speaker *)this) {
+    Speech::Dispatch()->VirtualPurgeStatusSub();
   }
   Chain = (Speaker *)Speech::Dispatch();
 Purge_findChain:
-  next = Chain->fSub;
-  if (next == (Speaker *)this) {
+  if (Chain->fSub == (Speaker *)this) {
     goto Purge_unlinkChain;
   }
-  if (next == (Speaker *)0x0) {
+  if (Chain->fSub == (Speaker *)0x0) {
     return;
   }
-  Chain = next;
+  Chain = Chain->fSub;
   goto Purge_findChain;
 Purge_unlinkChain:
   Chain->fSub = (this->_base_Speaker).fSub;

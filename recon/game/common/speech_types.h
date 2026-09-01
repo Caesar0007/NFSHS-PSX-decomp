@@ -174,6 +174,14 @@ struct Speaker {
         return (*(*_vf)[21].pfn)
             ((int)&fPosition.flags + (int)(*_vf)[21].delta);
     }
+    inline Speaker *VirtualStatusSub() {
+        return (Speaker *)(*(*_vf)[22].pfn)
+            ((int)&fPosition.flags + (int)(*_vf)[22].delta);
+    }
+    inline void VirtualPurgeStatusSub() {
+        (*(*_vf)[23].pfn)
+            ((int)&fPosition.flags + (int)(*_vf)[23].delta);
+    }
     inline Car_tObj *VirtualCarObj() {
         return (Car_tObj *)(*(*_vf)[25].pfn)
             ((int)&fPosition.flags + (int)(*_vf)[25].delta);

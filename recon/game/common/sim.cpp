@@ -346,7 +346,16 @@ void Sim_MainGameLoop(void)
 {
   int lastRealTick;
   int lastGoalTick;
+  /* SYM-CODEGEN-CARRIER: one
+     Retail debug data retains no name for this shared constant pseudo.  The
+     measured block-local assignment below places `li s0,1` exactly; a
+     function-scope initialization moves it to the prologue and regresses by
+     two diffs. */
   int one;
+  /* SYM-CODEGEN-CARRIER: replaySetup
+     This anonymous GCC CSE address occupies retail $s5.  Removing it makes
+     the function four instructions short and produces 45 diffs; the adjacent
+     W57-A12 receipt documents the allocator alternatives. */
   Sim_GameSetupCodegenView *replaySetup;
 
   quitType = 1;
@@ -428,6 +437,10 @@ void Sim_MainGameLoop(void)
           }
           else {
             int i;
+            /* SYM-CODEGEN-CARRIER: gameSetup
+               The late address materialization and priced read-only fence
+               reproduce retail's $s2 web.  Direct/fused GameSetup spellings
+               were measured at 11--38 diffs, as receipted below. */
             char *gameSetup;
 
             i = 0;

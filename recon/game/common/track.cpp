@@ -135,7 +135,13 @@ void LoadShapesAndMakePmx(char *shapefile,Draw_tPixMap *pmxList,int loadFlags,in
   int recolor_flag;
   int cluttype;
   int mipmapcounter;
-  int multiPalOffset;
+  /* SYM-CODEGEN-CARRIER: multiPalCount
+     The retail debug block has no user name for the $s2 induction value.  A
+     typed entry count is the natural aggregate source shape; GCC strength
+     reduces it to the exact retail byte offset (`$s2 += 8`).  The prior raw
+     byte-offset casts were decompiler residue, while the original identifier
+     cannot be recovered uniquely from SYM or code. */
+  int multiPalCount;
 
   pPmx = pmxList;
   cluttype = -1;
@@ -154,6 +160,11 @@ void LoadShapesAndMakePmx(char *shapefile,Draw_tPixMap *pmxList,int loadFlags,in
   gTempMultiPalInfo = reservememadr("mpalinfo",0x400,0x10);
   {
     int pcnt;
+    /* SYM-CODEGEN-CARRIER: emptyPalNum
+       SYM retains only `pcnt` for this block.  Keeping the constant as a
+       separate source value places `li a0,-1` before `li v1,127`, exactly as
+       retail; a direct `palnum = -1` store is count-exact but produces two
+       scheduling diffs.  The retail identifier is not recoverable. */
     int emptyPalNum;
 
     emptyPalNum = -1;
@@ -165,7 +176,7 @@ void LoadShapesAndMakePmx(char *shapefile,Draw_tPixMap *pmxList,int loadFlags,in
   DrawSync(0);
   mipmapcounter = 0;
   i = 0;
-  multiPalOffset = 0;
+  multiPalCount = 0;
 
   while (i < shapecount(shapefile)) {
     char name[4];
@@ -185,13 +196,11 @@ void LoadShapesAndMakePmx(char *shapefile,Draw_tPixMap *pmxList,int loadFlags,in
       if (name[0] == '!') {
         int palnum;
 
-        *(char *)(multiPalOffset + (int)gTempMultiPalInfo) = name[1];
-        *(char *)(multiPalOffset + (int)gTempMultiPalInfo + 1) = name[2];
+        gTempMultiPalInfo[multiPalCount].charcode[0] = name[1];
+        gTempMultiPalInfo[multiPalCount].charcode[1] = name[2];
         palnum = atoi(name + 3);
-        ((Track_MultiPalette *)
-         (multiPalOffset + (int)gTempMultiPalInfo))->palnum = palnum;
-        ((Track_MultiPalette *)
-         (multiPalOffset + (int)gTempMultiPalInfo))->actualshapeindex = i;
+        gTempMultiPalInfo[multiPalCount].palnum = palnum;
+        gTempMultiPalInfo[multiPalCount].actualshapeindex = i;
         if (palnum != 0) {
           int j;
 
@@ -199,18 +208,16 @@ void LoadShapesAndMakePmx(char *shapefile,Draw_tPixMap *pmxList,int loadFlags,in
             if ((gTempMultiPalInfo[j].charcode[0] == (u_char)name[1]) &&
                 (gTempMultiPalInfo[j].charcode[1] == (u_char)name[2]) &&
                 (gTempMultiPalInfo[j].palnum == 0)) {
-              ((Track_MultiPalette *)
-               (multiPalOffset + (int)gTempMultiPalInfo))->origshapeindex =
+              gTempMultiPalInfo[multiPalCount].origshapeindex =
                   gTempMultiPalInfo[j].origshapeindex;
               break;
             }
           }
         }
         else {
-          ((Track_MultiPalette *)
-           (multiPalOffset + (int)gTempMultiPalInfo))->origshapeindex = i;
+          gTempMultiPalInfo[multiPalCount].origshapeindex = i;
         }
-        multiPalOffset = multiPalOffset + sizeof(Track_MultiPalette);
+        multiPalCount = multiPalCount + 1;
       }
 
       if ((TrackSpec_gSpec.fogstate != 0) && (name[0] == 'Z')) {
@@ -620,9 +627,16 @@ void ReduceObjectPrecision(Group *instGroup,Group *defGroup,int bits)
       if (defGroup != (Group *)0x0) {
         Trk_ObjectDef *objDef = Track_gObjDefs[inst->pad];
         CCOORD16 *pts = (CCOORD16 *)(objDef + 1);
-        int pointCount = objDef->vertexCount;
+        int count = objDef->vertexCount;
 
-        while (--pointCount != -1) {
+        while (--count != -1) {
+          /* SYM-CODEGEN-CARRIER: x
+           * SYM-CODEGEN-CARRIER: y
+           * SYM-CODEGEN-CARRIER: z
+           * These three short-lived promoted values have no debug homes.
+           * Direct field assignments measure
+           * 41/40 with 37 diffs; the carriers produce retail's load-all,
+           * shift-all, store-all schedule and exact surrounding allocation. */
           int x = pts->x;
           int y = pts->y;
           int z = pts->z;
@@ -645,21 +659,16 @@ void InvalidatePersistentCollideBoomObjects(Group *instGroup,Group *defGroup)
 
 {
   Trk_SimpleInst * inst;
-  Group *pGVar1;
-  Group *pThis;
-  int iVar2;
   int count;
   
   if ((instGroup != (Group *)0x0) && (defGroup != (Group *)0x0)) {
-    iVar2 = instGroup->m_num_elements;
-    pGVar1 = instGroup + 1;
-    iVar2 = iVar2 + -1;
-    while (iVar2 != -1) {
-      if (Track_gObjDefs[*(short *)((int)&pGVar1[1].m_num_elements + 2)]->id != -1) {
-        *(u_char *)((int)&pGVar1->m_num_elements + 2) = 0;
+    count = instGroup->m_num_elements;
+    inst = (Trk_SimpleInst *)(instGroup + 1);
+    while (--count != -1) {
+      if (Track_gObjDefs[inst->pad]->id != -1) {
+        inst->type = 0;
       }
-      pGVar1 = (Group *)((int)&pGVar1->m_num_elements + (int)(short)pGVar1->m_num_elements);
-      iVar2 = iVar2 + -1;
+      inst = (Trk_SimpleInst *)((int)inst + (int)inst->size);
     }
   }
   return;
@@ -702,11 +711,13 @@ void CalcObjectBoundingSphere(Group *defGroup,Group *boundingSphereGroup)
     ptCount = objDef->vertexCount;
     while (--ptCount != -1) {
       int diff;
-      int dx = (cp.x - pts->x) >> 6;
-      int dy = (cp.y - pts->y) >> 6;
-      int dz = (cp.z - pts->z) >> 6;
 
-      diff = dx * dx + dy * dy + dz * dz;
+      /* SYM retains only `diff` in this block.  Spell the three squared
+       * coordinate deltas as one expression (the recoverable macro-expanded
+       * shape); GCC CSEs each repeated delta exactly into retail's $v0 web. */
+      diff = (((cp.x - pts->x) >> 6) * ((cp.x - pts->x) >> 6)) +
+             (((cp.y - pts->y) >> 6) * ((cp.y - pts->y) >> 6)) +
+             (((cp.z - pts->z) >> 6) * ((cp.z - pts->z) >> 6));
       if (radius < diff) {
         radius = diff;
       }
@@ -727,25 +738,16 @@ void CalcObjectBoundingSphere(Group *defGroup,Group *boundingSphereGroup)
 void CalcObjDefPtrs(void)
 
 {
-  bool bVar1;
-  Group *pGVar2;
-  Group *pThis;
-  Group *pGVar3;
-  int iVar4;
   int i;
 
-  iVar4 = 1;
-  gObjDefOffsetsGroup[1].m_num_elements = (int)(gPersistObjDef + 1);
-  pGVar2 = gPersistObjDef;
-  pGVar3 = gObjDefOffsetsGroup + 2;
-CalcObjDefPtrs_loopTest:
-  if (iVar4 < pGVar2->m_num_elements) {
-    iVar4 = iVar4 + 1;
-    pGVar3->m_num_elements = pGVar3[-1].m_num_elements + pGVar3->m_num_elements;
-    pGVar3 = pGVar3 + 1;
-    goto CalcObjDefPtrs_loopTest;
+  ((int *)gObjDefOffsetsGroup->GetData())[0] =
+      (int)gPersistObjDef->GetData();
+  for (i = 1; i < gPersistObjDef->GetNumElements(); i = i + 1) {
+    ((int *)gObjDefOffsetsGroup->GetData())[i] =
+        ((int *)gObjDefOffsetsGroup->GetData())[i - 1] +
+        ((int *)gObjDefOffsetsGroup->GetData())[i];
   }
-  Track_gObjDefs = (Trk_ObjectDef **)(gObjDefOffsetsGroup + 1);
+  Track_gObjDefs = (Trk_ObjectDef **)gObjDefOffsetsGroup->GetData();
   return;
 }
 

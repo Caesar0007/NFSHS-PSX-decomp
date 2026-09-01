@@ -884,6 +884,11 @@ void Stats_TrackEndGame(void)
                  declaration-order swap alone 14 @232 | operand-order swap PASS.
                  DO NOT "tidy" the operand list back to source order. */
               {
+                /* SYM-CODEGEN-CARRIER: sliceCar
+                   SYM-CODEGEN-CARRIER: sliceTotal
+                   These unnamed asm outputs model retail's two scratch
+                   quantities; operand order is the proven local-alloc dial
+                   documented above, and SYM cannot recover identifiers. */
                 Car_tObj *sliceCar;
                 int sliceTotal;
 
@@ -901,6 +906,9 @@ void Stats_TrackEndGame(void)
                 /* The pre-branch identity launder makes raceIndex opaque to
                    loop.c.  This split keeps s6 live just through the pointer
                    load, then leaves the abs shift free for the jump slot. */
+                /* SYM-CODEGEN-CARRIER: raceCar -- direct indexed field access
+                   measures 233/232 with seven diffs; this pointer split gives
+                   retail's in-place $s6 address and frees the shift slot. */
                 Car_tObj *raceCar =
                     *(Car_tObj **)((char *)Cars_gRaceCarList + raceIndex);
                 __asm__("" : : "r"(raceIndex));
@@ -917,13 +925,9 @@ void Stats_TrackEndGame(void)
           }
         }
 
-        {
-          int checkpointUpdate;
-          Cars_gHumanRaceCarList[i]->stats.checkpointUpdate =
-              (checkpointUpdate = DesiredSlice - PlayerSlice,
-               checkpointUpdate);
-          __asm__("" : : "r"(DesiredSlice));
-        }
+        Cars_gHumanRaceCarList[i]->stats.checkpointUpdate =
+            DesiredSlice - PlayerSlice;
+        __asm__("" : : "r"(DesiredSlice));
         if ((DesiredSpeed >= 16) &&
             (Cars_gHumanRaceCarList[i]->stats.finishType != 2)) {
           Cars_gHumanRaceCarList[i]->stats.checkpointDifference =

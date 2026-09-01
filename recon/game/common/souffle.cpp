@@ -298,38 +298,28 @@ int Souffle_CircleClip(coorddef *pt1,coorddef *pt2,int r)
 void Souffle_InsertFacet(DRender_tView *Vi)
 
 {
-  int inCircle;
-  int z;
-  int iVar1;
   Souffle_tISouffle *is;
-  Souffle_tISouffle *is_2;
-  int off;
   int i;
-  int i_2;
-  coorddef *translation;
-  
-  i_2 = 0;
-  translation = &(Vi->cview).translation;
-  off = i_2;
+
+  i = 0;
   do {
-    if (gCISouffle <= i_2) {
+    if (gCISouffle <= i) {
       return;
     }
-    is_2 = (Souffle_tISouffle *)(&gISouffle->type + off);
-    inCircle = Souffle_CircleClip(&is_2->source,translation,0x320000);
-    if (inCircle != 0) {
-      if (is_2->type != '\n') {
-        Sfx_Transform(&is_2->source,&is_2->trans,translation);
-        iVar1 = __builtin_abs((int)(is_2->trans).vx);
-        z = (int)(is_2->trans).vz;
-        if ((z < iVar1) || (is_2->type == '\0')) goto SouffleInsert_iterAdvance;
+    is = gISouffle + i;
+    if (Souffle_CircleClip(&is->source,&Vi->cview.translation,0x320000)) {
+      if (is->type != '\n') {
+        Sfx_Transform(&is->source,&is->trans,&Vi->cview.translation);
+        if (((int)is->trans.vz < __builtin_abs((int)is->trans.vx)) ||
+            (is->type == '\0')) {
+          goto SouffleInsert_iterAdvance;
+        }
       }
-      Sfx_BuildSouffleFacet(Vi,is_2);
+      Sfx_BuildSouffleFacet(Vi,is);
     }
 SouffleInsert_iterAdvance:
-    off = off + 0x44;
-    i_2 = i_2 + 1;
-  } while( true );
+    i = i + 1;
+  } while (true);
 }
 
 /* ---- Souffle_InitTrackSouffle__Fv  [SOUFFLE.CPP:359-367] SLD-VERIFIED ---- */

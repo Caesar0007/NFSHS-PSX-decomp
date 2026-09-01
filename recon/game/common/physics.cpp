@@ -1734,7 +1734,13 @@ void Physics_CalcWheelLockAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
      1867-1869 then guarantee the copy survives (roadGrip is multi-block => reg_qty
      -1 => combine_regs can never tie it).  4 -> PASS 127/127. */
   {
+    /* SYM-CODEGEN-CARRIER: skid -- hoisting this anonymous value above the
+       opacity fence preserves retail's load-delay fill; the exhaustive
+       receipt above records the direct/volatile alternatives as worse. */
     int skid = wheel->skid;
+    /* SYM-CODEGEN-CARRIER: cmp -- GCC cse otherwise removes retail's
+       `addu v0,a2,zero`; the empty identity fence is the measured source-only
+       device that keeps the block-local copy without changing behavior. */
     int cmp = roadGrip;
     __asm__("" : "=r"(cmp) : "0"(cmp));   /* opacity: mints retail's addu v0,a2,zero */
     if (cmp >= skid) {

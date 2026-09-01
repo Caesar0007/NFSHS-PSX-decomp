@@ -168,23 +168,16 @@ void Sched_DeleteFunction(Sched_tSchedule *schedule,Sched_tFunctionPt function,v
 void Sched_Execute(Sched_tSchedule *schedule)
 
 {
-  void *ppuVar1;
-  int mask;
-  int distanceIndex;
-  int j;
-  int n;
   int i;
-  int iVar2;
 
-  iVar2 = 0;
+  i = 0;
   if (0 < schedule->numFunctions) {
     do {
-      ppuVar1 = schedule->func[iVar2].function;
-      if (ppuVar1 != (void *)0x0) {
-        ((Sched_tFunctionPt)ppuVar1)(schedule->func[iVar2].var1);
+      if (schedule->func[i].function != (void *)0x0) {
+        ((Sched_tFunctionPt)schedule->func[i].function)(schedule->func[i].var1);
       }
-      iVar2 = iVar2 + 1;
-    } while (iVar2 < schedule->numFunctions);
+      i = i + 1;
+    } while (i < schedule->numFunctions);
   }
   return;
 }

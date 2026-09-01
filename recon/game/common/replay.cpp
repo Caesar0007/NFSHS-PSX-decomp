@@ -196,13 +196,18 @@ void Replay_ResetReplay(void)
    * all three loops below (buffer clear / camera-mode init / ReplayCounter clear), not three
    * separate Ghidra-named ints. The buffer-clear loop's address is a genuine anonymous pointer
    * walk (oracle strength-reduces base+i into a decrementing pointer, §3.12 #1). The camera
-   * loop is source-level Cars_gHumanRaceCarList[i]; gcc strength-reduces that index to the
-   * oracle's incrementing $s2 cursor and hoists it after the GameSetup/ReplayCamera bases. */
+  * loop is source-level Cars_gHumanRaceCarList[i]; gcc strength-reduces that index to the
+  * oracle's incrementing $s2 cursor and hoists it after the GameSetup/ReplayCamera bases. */
   int i;
+  /* SYM-CODEGEN-CARRIER: pBuf -- no local record survives because loop.c
+   * eliminates this source pointer into the decrementing retail $v0 walk.
+   * Natural `Replay_ReplayBuffer.buffer[i]` spelling measures 85/86 with
+   * seven diffs, including the wrong address-add order and an extra decrement. */
   char *pBuf;
-  int iVar1;
+  /* SYM-CODEGEN-CARRIER: piVar2 -- the decrementing pointer produces retail's
+   * two-store walk.  Direct `Replay_ReplayCounter[i]` measures 87/86 and adds
+   * one address increment, so SYM cannot recover a unique source identifier. */
   int *piVar2;
-  tReplayCameraModes *cam_walk;
 
   if ((u_int)Replay_ReplayMode < 2) {
     i = 0x5fff;
@@ -230,12 +235,11 @@ void Replay_ResetReplay(void)
         if ((GameSetup_gData.commMode == 1) || (i == 0)) {
           Replay_ReplayFindClosestCamera(i,(int)Cars_gHumanRaceCarList[i]->N.simRoadInfo.slice);
         }
-        iVar1 = 0x13;
+        Replay_ReplayCamera[i].cameraMode = 0x13;
       }
       else {
-        iVar1 = 4;
+        Replay_ReplayCamera[i].cameraMode = 4;
       }
-      Replay_ReplayCamera[i].cameraMode = iVar1;
       Replay_ReplayCamera[i].cutToNextCamera = 0;
       i = i + 1;
     } while (i < 2);
@@ -279,6 +283,11 @@ void Replay_StoringControllerData(tControllerData controllerdata)
     return;
   }
   {
+    /* SYM-CODEGEN-CARRIER: source
+       SYM retains only `packeddata`; this repeated return-pointer handoff is
+       anonymous in retail debug data.  Folding the first handoff directly
+       into the struct assignment gives 242/243 instructions and 49 diffs,
+       while the identity fence preserves retail's v1 copy web. */
     struct PackedBuf33 *source =
         (struct PackedBuf33 *)Replay_Compress(controllerdata.steering);
     __asm__("" : "=r"(source) : "0"(source));
@@ -311,7 +320,15 @@ void Replay_StoringControllerData(tControllerData controllerdata)
     __asm__("" : "=r"(source) : "0"(source));
     *(struct PackedBuf33 *)packeddata = *source;
   }
+  /* SYM-CODEGEN-CARRIER: packedPtr
+     SYM retains the underlying `packeddata` array, not this final copy
+     cursor.  Direct use is instruction-count exact but moves the gp-relative
+     store-pointer load upward, producing two scheduling diffs. */
   char *packedPtr = packeddata;
+  /* SYM-CODEGEN-CARRIER: replayBuffer
+     The final base alias pairs with `packedPtr` and the read-only fence to
+     keep the retail memcpy argument schedule; its identifier is not
+     recoverable from SYM or code. */
   char *replayBuffer = Replay_ReplayBuffer.buffer;
   __asm__("" : : "r"(packedPtr));
   memcpy(replayBuffer + Replay_ReplayStorePtr,packedPtr,(u_int)(u_char)packedPtr[0]);
@@ -387,6 +404,11 @@ void Replay_SaveInput(int car)
 void Replay_GetInput(int car)
 
 {
+  /* SYM-CODEGEN-CARRIER: hasCameras
+     SYM retains no locals in this function.  Capturing this test before the
+     replay-counter increment keeps the retail gp-relative load in $a0 and
+     the shared branch shape; direct `numValidCams != 0` grows the body to
+     282/280 instructions and produces 34 diffs. */
   bool hasCameras;
 
   Input_Fetch(car);
@@ -429,6 +451,10 @@ void Replay_GetInput(int car)
     controlData[car].brake[Replay_ReplayCounter[car]] =
         controlData[car].brake[Replay_ReplayCounter[car]] & 0x7f;
     {
+      /* SYM-CODEGEN-CARRIER: steering
+         The explicit promoted value makes GCC select retail's signed `lb`.
+         Folding the cast into the assignment remains 280/280 but selects
+         `lbu`, producing two diffs. */
       int steering =
           (signed char)controlData[car].steering[Replay_ReplayCounter[car]];
       Input_gSim.steering = (char)((steering - '@') << 2);
@@ -445,6 +471,10 @@ void Replay_GetInput(int car)
   }
   hasCameras = numValidCams != 0;
   {
+    /* SYM-CODEGEN-CARRIER: counter
+       This typed address carrier is anonymous in optimized retail debug
+       data.  Direct array indexing is count-exact at 280/280 but changes 30
+       address-materialization and scheduling instructions. */
     int *counter = &Replay_ReplayCounter[car];
     *counter = *counter + 1;
   }
